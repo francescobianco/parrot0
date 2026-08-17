@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 6
+
+[parrotbench_01163_math_multiplication]
+> What would a careful interlocutor say? What do five pairs contain?
+<~ 10
+[parrotbench_01164_math_multiplication]
+> What would a careful interlocutor say? A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01165_math_multiplication]
+> Give a short answer in English: What is 9 times 8?
+<~ 72
+[parrotbench_01166_math_multiplication]
+> Give a short answer in English: Calculate three groups of seven.
+<~ 21
+[parrotbench_01167_math_multiplication]
+> Give a short answer in English: What do five pairs contain?
+<~ 10
+[parrotbench_01168_math_multiplication]
+> Give a short answer in English: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-023: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/contradictions
+# cases: 6
+
+[parrotbench_02938_logic_contradictions]
+> State one conclusion and one uncertainty: Can something be both entirely known and unknown in the same sense?
+<~ no
+[parrotbench_02939_logic_contradictions]
+> State one conclusion and one uncertainty: Find the contradiction: the door is open and never opened.
+<~ contradiction
+[parrotbench_02940_logic_contradictions]
+> State one conclusion and one uncertainty: What should happen when two facts cannot both hold?
+<~ conflict
+[parrotbench_02941_logic_contradictions]
+> Use a concrete example in your answer: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
+<~ impossible
+[parrotbench_02942_logic_contradictions]
+> Use a concrete example in your answer: Can something be both entirely known and unknown in the same sense?
+<~ no
+[parrotbench_02943_logic_contradictions]
+> Use a concrete example in your answer: Find the contradiction: the door is open and never opened.
+<~ contradiction

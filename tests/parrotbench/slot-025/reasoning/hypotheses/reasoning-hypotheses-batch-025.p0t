@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/hypotheses
+# cases: 6
+
+[parrotbench_03951_reasoning_hypotheses]
+> Answer the user's actual goal: How do you choose between interpretations?
+<~ support
+[parrotbench_03952_reasoning_hypotheses]
+> Answer the user's actual goal: What is an assumption in a plan?
+<~ assumption
+[parrotbench_03953_reasoning_hypotheses]
+> If the request is underspecified, say what is missing: Why keep competing hypotheses instead of one guess?
+<~ hypoth
+[parrotbench_03954_reasoning_hypotheses]
+> If the request is underspecified, say what is missing: What should a hypothesis be tested against?
+<~ evidence
+[parrotbench_03955_reasoning_hypotheses]
+> If the request is underspecified, say what is missing: How do you choose between interpretations?
+<~ support
+[parrotbench_03956_reasoning_hypotheses]
+> If the request is underspecified, say what is missing: What is an assumption in a plan?
+<~ assumption

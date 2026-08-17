@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/grammar
+# cases: 6
+
+[parrotbench_05657_language_grammar]
+> Keep the answer useful and honest: What is the plural of child?
+<~ children
+[parrotbench_05658_language_grammar]
+> Keep the answer useful and honest: What is the past tense of go?
+<~ went
+[parrotbench_05659_language_grammar]
+> Keep the answer useful and honest: Correct: She go to school.
+<~ goes
+[parrotbench_05660_language_grammar]
+> Keep the answer useful and honest: Is 'Me likes apples' grammatical?
+<~ no
+[parrotbench_05661_language_grammar]
+> In italiano, What is the plural of child?
+<~ children
+[parrotbench_05662_language_grammar]
+> In italiano, What is the past tense of go?
+<~ went

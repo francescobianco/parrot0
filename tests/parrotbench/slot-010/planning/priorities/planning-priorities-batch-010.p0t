@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/priorities
+# cases: 6
+
+[parrotbench_07657_planning_priorities]
+> Keep the answer useful and honest: Which should come first: safety or speed?
+<~ safety
+[parrotbench_07658_planning_priorities]
+> Keep the answer useful and honest: How do you prioritize several goals?
+<~ goal
+[parrotbench_07659_planning_priorities]
+> Keep the answer useful and honest: What makes a requirement hard?
+<~ constraint
+[parrotbench_07660_planning_priorities]
+> Keep the answer useful and honest: How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07661_planning_priorities]
+> In italiano, Which should come first: safety or speed?
+<~ safety
+[parrotbench_07662_planning_priorities]
+> In italiano, How do you prioritize several goals?
+<~ goal

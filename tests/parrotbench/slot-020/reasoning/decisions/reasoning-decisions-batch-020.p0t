@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/decisions
+# cases: 7
+
+[parrotbench_03519_reasoning_decisions]
+> Start with the direct answer, then qualify it: What is a reversible decision?
+<~ revers
+[parrotbench_03520_reasoning_decisions]
+> Start with the direct answer, then qualify it: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03521_reasoning_decisions]
+> Identify the entities and relations first: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03522_reasoning_decisions]
+> Identify the entities and relations first: How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03523_reasoning_decisions]
+> Identify the entities and relations first: What is a reversible decision?
+<~ revers
+[parrotbench_03524_reasoning_decisions]
+> Identify the entities and relations first: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03525_reasoning_decisions]
+> Treat this as a new domain and explain your model: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost

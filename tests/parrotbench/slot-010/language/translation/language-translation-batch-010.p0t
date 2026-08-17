@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05457_language_translation]
+> Keep the answer useful and honest: Translate hello into Italian.
+<~ ciao
+[parrotbench_05458_language_translation]
+> Keep the answer useful and honest: Translate the small house into French.
+<~ maison
+[parrotbench_05459_language_translation]
+> Keep the answer useful and honest: Translate the dog runs into English.
+<~ dog
+[parrotbench_05460_language_translation]
+> Keep the answer useful and honest: Translate acqua into English.
+<~ water
+[parrotbench_05461_language_translation]
+> In italiano, Translate hello into Italian.
+<~ ciao
+[parrotbench_05462_language_translation]
+> In italiano, Translate the small house into French.
+<~ maison

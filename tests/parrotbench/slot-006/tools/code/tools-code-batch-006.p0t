@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: tools/code
+# cases: 6
+
+[parrotbench_08232_tools_code]
+> Check this for me: Can you explain a small code fragment?
+<~ code
+[parrotbench_08233_tools_code]
+> What would you tell a beginner? What is a variable in a program?
+<~ variable
+[parrotbench_08234_tools_code]
+> What would you tell a beginner? Why does a function return early?
+<~ return
+[parrotbench_08235_tools_code]
+> What would you tell a beginner? What is a stack trace useful for?
+<~ error
+[parrotbench_08236_tools_code]
+> What would you tell a beginner? Can you explain a small code fragment?
+<~ code
+[parrotbench_08237_tools_code]
+> What would you tell an expert? What is a variable in a program?
+<~ variable

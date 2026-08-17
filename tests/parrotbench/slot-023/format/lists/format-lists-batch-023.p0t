@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-023: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06538_format_lists]
+> State one conclusion and one uncertainty: Give two reasons to verify sources.
+<~ source
+[parrotbench_06539_format_lists]
+> State one conclusion and one uncertainty: Name three planets.
+<~ Earth
+[parrotbench_06540_format_lists]
+> State one conclusion and one uncertainty: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06541_format_lists]
+> Use a concrete example in your answer: List exactly three colors.
+<~ blue
+[parrotbench_06542_format_lists]
+> Use a concrete example in your answer: Give two reasons to verify sources.
+<~ source
+[parrotbench_06543_format_lists]
+> Use a concrete example in your answer: Name three planets.
+<~ Earth

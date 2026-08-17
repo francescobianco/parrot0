@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 6
+
+[parrotbench_02313_logic_negation]
+> What is the operational interpretation of this? No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02314_logic_negation]
+> What is the operational interpretation of this? Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02315_logic_negation]
+> What is the operational interpretation of this? If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02316_logic_negation]
+> What is the operational interpretation of this? Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02317_logic_negation]
+> Start with the direct answer, then qualify it: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02318_logic_negation]
+> Start with the direct answer, then qualify it: Some birds cannot fly. Can you say every bird flies?
+<~ no

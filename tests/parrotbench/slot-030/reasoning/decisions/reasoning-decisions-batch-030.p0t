@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/decisions
+# cases: 6
+
+[parrotbench_03582_reasoning_decisions]
+> Explain the reasoning rather than a slogan: How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03583_reasoning_decisions]
+> Explain the reasoning rather than a slogan: What is a reversible decision?
+<~ revers
+[parrotbench_03584_reasoning_decisions]
+> Explain the reasoning rather than a slogan: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03585_reasoning_decisions]
+> Use the user's constraint as a real constraint: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03586_reasoning_decisions]
+> Use the user's constraint as a real constraint: How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03587_reasoning_decisions]
+> Use the user's constraint as a real constraint: What is a reversible decision?
+<~ revers

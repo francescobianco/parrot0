@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-005: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/constraints
+# cases: 6
+
+[parrotbench_07226_planning_constraints]
+> Explain your answer briefly: How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07227_planning_constraints]
+> Explain your answer briefly: What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07228_planning_constraints]
+> Explain your answer briefly: When should a plan ask for clarification?
+<~ goal
+[parrotbench_07229_planning_constraints]
+> Check this for me: Make a plan without using sugar.
+<~ without
+[parrotbench_07230_planning_constraints]
+> Check this for me: How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07231_planning_constraints]
+> Check this for me: What happens when a prerequisite is missing?
+<~ missing

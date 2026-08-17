@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/memory
+# cases: 6
+
+[parrotbench_04782_dialogue_memory]
+> Explain the reasoning rather than a slogan: Remember that my favorite color is green.
+<~ green
+[parrotbench_04783_dialogue_memory]
+> Explain the reasoning rather than a slogan: What should a memory record include?
+<~ fact
+[parrotbench_04784_dialogue_memory]
+> Explain the reasoning rather than a slogan: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04785_dialogue_memory]
+> Use the user's constraint as a real constraint: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04786_dialogue_memory]
+> Use the user's constraint as a real constraint: Remember that my favorite color is green.
+<~ green
+[parrotbench_04787_dialogue_memory]
+> Use the user's constraint as a real constraint: What should a memory record include?
+<~ fact

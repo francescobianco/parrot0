@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/ratios
+# cases: 6
+
+[parrotbench_01351_math_ratios]
+> Answer the user's actual goal: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01352_math_ratios]
+> Answer the user's actual goal: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01353_math_ratios]
+> If the request is underspecified, say what is missing: What is 19 percent of 200?
+<~ 38
+[parrotbench_01354_math_ratios]
+> If the request is underspecified, say what is missing: What is one quarter of 24?
+<~ 6
+[parrotbench_01355_math_ratios]
+> If the request is underspecified, say what is missing: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01356_math_ratios]
+> If the request is underspecified, say what is missing: A price of 80 falls by 25 percent. What is the new price?
+<~ 60

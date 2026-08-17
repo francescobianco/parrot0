@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-026: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 6
+
+[parrotbench_01157_math_multiplication]
+> Can this be answered from known facts? What is 9 times 8?
+<~ 72
+[parrotbench_01158_math_multiplication]
+> Can this be answered from known facts? Calculate three groups of seven.
+<~ 21
+[parrotbench_01159_math_multiplication]
+> Can this be answered from known facts? What do five pairs contain?
+<~ 10
+[parrotbench_01160_math_multiplication]
+> Can this be answered from known facts? A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01161_math_multiplication]
+> What would a careful interlocutor say? What is 9 times 8?
+<~ 72
+[parrotbench_01162_math_multiplication]
+> What would a careful interlocutor say? Calculate three groups of seven.
+<~ 21

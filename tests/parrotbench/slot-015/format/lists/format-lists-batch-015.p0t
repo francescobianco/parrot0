@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-015: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06488_format_lists]
+> State uncertainty if needed: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06489_format_lists]
+> Answer without a generic template: List exactly three colors.
+<~ blue
+[parrotbench_06490_format_lists]
+> Answer without a generic template: Give two reasons to verify sources.
+<~ source
+[parrotbench_06491_format_lists]
+> Answer without a generic template: Name three planets.
+<~ Earth
+[parrotbench_06492_format_lists]
+> Answer without a generic template: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06493_format_lists]
+> Give the answer and one reason: List exactly three colors.
+<~ blue

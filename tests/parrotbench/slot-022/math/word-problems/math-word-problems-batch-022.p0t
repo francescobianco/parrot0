@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-022: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/word-problems
+# cases: 6
+
+[parrotbench_01932_math_word-problems]
+> What would you need to verify before answering? A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01933_math_word-problems]
+> Keep alternatives separate while answering: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01934_math_word-problems]
+> Keep alternatives separate while answering: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01935_math_word-problems]
+> Keep alternatives separate while answering: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01936_math_word-problems]
+> Keep alternatives separate while answering: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01937_math_word-problems]
+> State one conclusion and one uncertainty: I have 24 apples and give away a quarter. How many remain?
+<~ 18

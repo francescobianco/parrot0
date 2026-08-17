@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 6
+
+[parrotbench_00926_math_addition]
+> Treat this as a new domain and explain your model: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00927_math_addition]
+> Treat this as a new domain and explain your model: Add twelve to nine.
+<~ 21
+[parrotbench_00928_math_addition]
+> Treat this as a new domain and explain your model: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00929_math_addition]
+> What would you need to verify before answering? What is 17 plus 6?
+<~ 23
+[parrotbench_00930_math_addition]
+> What would you need to verify before answering? Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00931_math_addition]
+> What would you need to verify before answering? Add twelve to nine.
+<~ 21

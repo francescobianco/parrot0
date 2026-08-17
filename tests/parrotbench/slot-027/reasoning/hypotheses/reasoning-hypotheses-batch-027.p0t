@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/hypotheses
+# cases: 6
+
+[parrotbench_03963_reasoning_hypotheses]
+> What would a careful interlocutor say? How do you choose between interpretations?
+<~ support
+[parrotbench_03964_reasoning_hypotheses]
+> What would a careful interlocutor say? What is an assumption in a plan?
+<~ assumption
+[parrotbench_03965_reasoning_hypotheses]
+> Give a short answer in English: Why keep competing hypotheses instead of one guess?
+<~ hypoth
+[parrotbench_03966_reasoning_hypotheses]
+> Give a short answer in English: What should a hypothesis be tested against?
+<~ evidence
+[parrotbench_03967_reasoning_hypotheses]
+> Give a short answer in English: How do you choose between interpretations?
+<~ support
+[parrotbench_03968_reasoning_hypotheses]
+> Give a short answer in English: What is an assumption in a plan?
+<~ assumption

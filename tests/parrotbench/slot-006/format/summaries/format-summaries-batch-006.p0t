@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 6
+
+[parrotbench_06832_format_summaries]
+> Check this for me: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06833_format_summaries]
+> What would you tell a beginner? Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06834_format_summaries]
+> What would you tell a beginner? Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06835_format_summaries]
+> What would you tell a beginner? Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06836_format_summaries]
+> What would you tell a beginner? State the conclusion before the details.
+<~ conclusion
+[parrotbench_06837_format_summaries]
+> What would you tell an expert? Summarize evolution in two sentences.
+<~ evolution

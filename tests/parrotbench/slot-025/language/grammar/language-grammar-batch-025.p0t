@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/grammar
+# cases: 6
+
+[parrotbench_05751_language_grammar]
+> Answer the user's actual goal: Correct: She go to school.
+<~ goes
+[parrotbench_05752_language_grammar]
+> Answer the user's actual goal: Is 'Me likes apples' grammatical?
+<~ no
+[parrotbench_05753_language_grammar]
+> If the request is underspecified, say what is missing: What is the plural of child?
+<~ children
+[parrotbench_05754_language_grammar]
+> If the request is underspecified, say what is missing: What is the past tense of go?
+<~ went
+[parrotbench_05755_language_grammar]
+> If the request is underspecified, say what is missing: Correct: She go to school.
+<~ goes
+[parrotbench_05756_language_grammar]
+> If the request is underspecified, say what is missing: Is 'Me likes apples' grammatical?
+<~ no

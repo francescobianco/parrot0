@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/sources
+# cases: 6
+
+[parrotbench_00713_knowledge_sources]
+> What is the operational interpretation of this? Why should a claim have a source?
+<~ source
+[parrotbench_00714_knowledge_sources]
+> What is the operational interpretation of this? How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00715_knowledge_sources]
+> What is the operational interpretation of this? What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00716_knowledge_sources]
+> What is the operational interpretation of this? Should you invent an answer without evidence?
+<~ no
+[parrotbench_00717_knowledge_sources]
+> Start with the direct answer, then qualify it: Why should a claim have a source?
+<~ source
+[parrotbench_00718_knowledge_sources]
+> Start with the direct answer, then qualify it: How do you distinguish evidence from a guess?
+<~ evidence

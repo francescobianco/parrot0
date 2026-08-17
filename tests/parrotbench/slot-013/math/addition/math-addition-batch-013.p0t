@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 6
+
+[parrotbench_00876_math_addition]
+> Prima dimmi cosa manca, poi: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00877_math_addition]
+> What is the shortest useful answer to this? What is 17 plus 6?
+<~ 23
+[parrotbench_00878_math_addition]
+> What is the shortest useful answer to this? Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00879_math_addition]
+> What is the shortest useful answer to this? Add twelve to nine.
+<~ 21
+[parrotbench_00880_math_addition]
+> What is the shortest useful answer to this? A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00881_math_addition]
+> Challenge your first interpretation: What is 17 plus 6?
+<~ 23

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 7
+
+[parrotbench_02344_logic_negation]
+> Use a concrete example in your answer: Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02345_logic_negation]
+> Avoid changing the subject: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02346_logic_negation]
+> Avoid changing the subject: Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02347_logic_negation]
+> Avoid changing the subject: If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02348_logic_negation]
+> Avoid changing the subject: Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02349_logic_negation]
+> Answer the user's actual goal: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02350_logic_negation]
+> Answer the user's actual goal: Some birds cannot fly. Can you say every bird flies?
+<~ no

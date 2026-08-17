@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-023: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 6
+
+[parrotbench_00938_math_addition]
+> State one conclusion and one uncertainty: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00939_math_addition]
+> State one conclusion and one uncertainty: Add twelve to nine.
+<~ 21
+[parrotbench_00940_math_addition]
+> State one conclusion and one uncertainty: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00941_math_addition]
+> Use a concrete example in your answer: What is 17 plus 6?
+<~ 23
+[parrotbench_00942_math_addition]
+> Use a concrete example in your answer: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00943_math_addition]
+> Use a concrete example in your answer: Add twelve to nine.
+<~ 21

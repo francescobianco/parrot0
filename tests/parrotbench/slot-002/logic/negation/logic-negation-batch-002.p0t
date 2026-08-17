@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: logic/negation
-# cases: 50
+# cases: 6
 
-[parrotbench_02251_logic_negation]
-> Use the relevant evidence and answer: If nobody is both, does one counterexample prove the rule?
+[parrotbench_02207_logic_negation]
+> Please answer: If nobody is both, does one counterexample prove the rule?
 <~ no
-[parrotbench_02252_logic_negation]
-> Use the relevant evidence and answer: Is not knowing a fact the same as proving it false?
+[parrotbench_02208_logic_negation]
+> Please answer: Is not knowing a fact the same as proving it false?
 <~ no
-[parrotbench_02253_logic_negation]
-> Do not invent facts. No cats are dogs. Milo is a cat. Can Milo be a dog?
+[parrotbench_02209_logic_negation]
+> Can you help me with this? No cats are dogs. Milo is a cat. Can Milo be a dog?
 <~ no
-[parrotbench_02254_logic_negation]
-> Do not invent facts. Some birds cannot fly. Can you say every bird flies?
+[parrotbench_02210_logic_negation]
+> Can you help me with this? Some birds cannot fly. Can you say every bird flies?
 <~ no
-[parrotbench_02255_logic_negation]
-> Do not invent facts. If nobody is both, does one counterexample prove the rule?
+[parrotbench_02211_logic_negation]
+> Can you help me with this? If nobody is both, does one counterexample prove the rule?
 <~ no
-[parrotbench_02256_logic_negation]
-> Do not invent facts. Is not knowing a fact the same as proving it false?
-<~ no
-[parrotbench_02257_logic_negation]
-> Keep the answer useful and honest: No cats are dogs. Milo is a cat. Can Milo be a dog?
-<~ no
-[parrotbench_02258_logic_negation]
-> Keep the answer useful and honest: Some birds cannot fly. Can you say every bird flies?
-<~ no
-[parrotbench_02259_logic_negation]
-> Keep the answer useful and honest: If nobody is both, does one counterexample prove the rule?
-<~ no
-[parrotbench_02260_logic_negation]
-> Keep the answer useful and honest: Is not knowing a fact the same as proving it false?
-<~ no
-[parrotbench_02261_logic_negation]
-> In italiano, No cats are dogs. Milo is a cat. Can Milo be a dog?
-<~ no
-[parrotbench_02262_logic_negation]
-> In italiano, Some birds cannot fly. Can you say every bird flies?
-<~ no
-[parrotbench_02263_logic_negation]
-> In italiano, If nobody is both, does one counterexample prove the rule?
-<~ no
-[parrotbench_02264_logic_negation]
-> In italiano, Is not knowing a fact the same as proving it false?
-<~ no
-[parrotbench_02265_logic_negation]
-> Rispondi brevemente: No cats are dogs. Milo is a cat. Can Milo be a dog?
-<~ no
-[parrotbench_02266_logic_negation]
-> Rispondi brevemente: Some birds cannot fly. Can you say every bird flies?
-<~ no
-[parrotbench_02267_logic_negation]
-> Rispondi brevemente: If nobody is both, does one counterexample prove the rule?
-<~ no
-[parrotbench_02268_logic_negation]
-> Rispondi brevemente: Is not knowing a fact the same as proving it false?
-<~ no
-[parrotbench_02269_logic_negation]
-> Spiegalo in parole semplici: No cats are dogs. Milo is a cat. Can Milo be a dog?
-<~ no
-[parrotbench_02270_logic_negation]
-> Spiegalo in parole semplici: Some birds cannot fly. Can you say every bird flies?
-<~ no
-[parrotbench_02271_logic_negation]
-> Spiegalo in parole semplici: If nobody is both, does one counterexample prove the rule?
-<~ no
-[parrotbench_02272_logic_negation]
-> Spiegalo in parole semplici: Is not knowing a fact the same as proving it false?
-<~ no
-[parrotbench_02273_logic_negation]
-> Prima dimmi cosa manca, poi: No cats are dogs. Milo is a cat. Can Milo be a dog?
-<~ no
-[parrotbench_02274_logic_negation]
-> Prima dimmi cosa manca, poi: Some birds cannot fly. Can you say every bird flies?
-<~ no
-[parrotbench_02275_logic_negation]
-> Prima dimmi cosa manca, poi: If nobody is both, does one counterexample prove the rule?
-<~ no
-[parrotbench_02276_logic_negation]
-> Prima dimmi cosa manca, poi: Is not knowing a fact the same as proving it false?
-<~ no
-[parrotbench_02277_logic_negation]
-> What is the shortest useful answer to this? No cats are dogs. Milo is a cat. Can Milo be a dog?
-<~ no
-[parrotbench_02278_logic_negation]
-> What is the shortest useful answer to this? Some birds cannot fly. Can you say every bird flies?
-<~ no
-[parrotbench_02279_logic_negation]
-> What is the shortest useful answer to this? If nobody is both, does one counterexample prove the rule?
-<~ no
-[parrotbench_02280_logic_negation]
-> What is the shortest useful answer to this? Is not knowing a fact the same as proving it false?
-<~ no
-[parrotbench_02281_logic_negation]
-> Challenge your first interpretation: No cats are dogs. Milo is a cat. Can Milo be a dog?
-<~ no
-[parrotbench_02282_logic_negation]
-> Challenge your first interpretation: Some birds cannot fly. Can you say every bird flies?
-<~ no
-[parrotbench_02283_logic_negation]
-> Challenge your first interpretation: If nobody is both, does one counterexample prove the rule?
-<~ no
-[parrotbench_02284_logic_negation]
-> Challenge your first interpretation: Is not knowing a fact the same as proving it false?
-<~ no
-[parrotbench_02285_logic_negation]
-> State uncertainty if needed: No cats are dogs. Milo is a cat. Can Milo be a dog?
-<~ no
-[parrotbench_02286_logic_negation]
-> State uncertainty if needed: Some birds cannot fly. Can you say every bird flies?
-<~ no
-[parrotbench_02287_logic_negation]
-> State uncertainty if needed: If nobody is both, does one counterexample prove the rule?
-<~ no
-[parrotbench_02288_logic_negation]
-> State uncertainty if needed: Is not knowing a fact the same as proving it false?
-<~ no
-[parrotbench_02289_logic_negation]
-> Answer without a generic template: No cats are dogs. Milo is a cat. Can Milo be a dog?
-<~ no
-[parrotbench_02290_logic_negation]
-> Answer without a generic template: Some birds cannot fly. Can you say every bird flies?
-<~ no
-[parrotbench_02291_logic_negation]
-> Answer without a generic template: If nobody is both, does one counterexample prove the rule?
-<~ no
-[parrotbench_02292_logic_negation]
-> Answer without a generic template: Is not knowing a fact the same as proving it false?
-<~ no
-[parrotbench_02293_logic_negation]
-> Give the answer and one reason: No cats are dogs. Milo is a cat. Can Milo be a dog?
-<~ no
-[parrotbench_02294_logic_negation]
-> Give the answer and one reason: Some birds cannot fly. Can you say every bird flies?
-<~ no
-[parrotbench_02295_logic_negation]
-> Give the answer and one reason: If nobody is both, does one counterexample prove the rule?
-<~ no
-[parrotbench_02296_logic_negation]
-> Give the answer and one reason: Is not knowing a fact the same as proving it false?
-<~ no
-[parrotbench_02297_logic_negation]
-> Separate fact from hypothesis: No cats are dogs. Milo is a cat. Can Milo be a dog?
-<~ no
-[parrotbench_02298_logic_negation]
-> Separate fact from hypothesis: Some birds cannot fly. Can you say every bird flies?
-<~ no
-[parrotbench_02299_logic_negation]
-> Separate fact from hypothesis: If nobody is both, does one counterexample prove the rule?
-<~ no
-[parrotbench_02300_logic_negation]
-> Separate fact from hypothesis: Is not knowing a fact the same as proving it false?
+[parrotbench_02212_logic_negation]
+> Can you help me with this? Is not knowing a fact the same as proving it false?
 <~ no

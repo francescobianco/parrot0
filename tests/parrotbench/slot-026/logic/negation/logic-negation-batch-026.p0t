@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-026: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 6
+
+[parrotbench_02357_logic_negation]
+> Can this be answered from known facts? No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02358_logic_negation]
+> Can this be answered from known facts? Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02359_logic_negation]
+> Can this be answered from known facts? If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02360_logic_negation]
+> Can this be answered from known facts? Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02361_logic_negation]
+> What would a careful interlocutor say? No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02362_logic_negation]
+> What would a careful interlocutor say? Some birds cannot fly. Can you say every bird flies?
+<~ no

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 6
+
+[parrotbench_01188_math_multiplication]
+> Use the user's constraint as a real constraint: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01189_math_multiplication]
+> Check whether the requested format is satisfied: What is 9 times 8?
+<~ 72
+[parrotbench_01190_math_multiplication]
+> Check whether the requested format is satisfied: Calculate three groups of seven.
+<~ 21
+[parrotbench_01191_math_multiplication]
+> Check whether the requested format is satisfied: What do five pairs contain?
+<~ 10
+[parrotbench_01192_math_multiplication]
+> Check whether the requested format is satisfied: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01193_math_multiplication]
+> What would make this answer wrong? What is 9 times 8?
+<~ 72

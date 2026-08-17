@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: tools/files
+# cases: 7
+
+[parrotbench_07919_tools_files]
+> Start with the direct answer, then qualify it: What is the current working directory?
+<~ directory
+[parrotbench_07920_tools_files]
+> Start with the direct answer, then qualify it: Why should a file operation be reported?
+<~ file
+[parrotbench_07921_tools_files]
+> Identify the entities and relations first: List the files in the current directory.
+<~ README
+[parrotbench_07922_tools_files]
+> Identify the entities and relations first: Can you inspect a file without modifying it?
+<~ file
+[parrotbench_07923_tools_files]
+> Identify the entities and relations first: What is the current working directory?
+<~ directory
+[parrotbench_07924_tools_files]
+> Identify the entities and relations first: Why should a file operation be reported?
+<~ file
+[parrotbench_07925_tools_files]
+> Treat this as a new domain and explain your model: List the files in the current directory.
+<~ README

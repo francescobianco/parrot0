@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-022: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 6
+
+[parrotbench_02132_logic_entailment]
+> What would you need to verify before answering? If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02133_logic_entailment]
+> Keep alternatives separate while answering: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02134_logic_entailment]
+> Keep alternatives separate while answering: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02135_logic_entailment]
+> Keep alternatives separate while answering: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02136_logic_entailment]
+> Keep alternatives separate while answering: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02137_logic_entailment]
+> State one conclusion and one uncertainty: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes

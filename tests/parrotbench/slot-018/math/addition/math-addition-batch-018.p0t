@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 6
+
+[parrotbench_00907_math_addition]
+> Give the strongest answer supported by the KB: Add twelve to nine.
+<~ 21
+[parrotbench_00908_math_addition]
+> Give the strongest answer supported by the KB: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00909_math_addition]
+> Do not confuse a wall with an answer. What is 17 plus 6?
+<~ 23
+[parrotbench_00910_math_addition]
+> Do not confuse a wall with an answer. Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00911_math_addition]
+> Do not confuse a wall with an answer. Add twelve to nine.
+<~ 21
+[parrotbench_00912_math_addition]
+> Do not confuse a wall with an answer. A box has 7 items and receives 5 more. How many?
+<~ 12

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 7
+
+[parrotbench_06519_format_lists]
+> Start with the direct answer, then qualify it: Name three planets.
+<~ Earth
+[parrotbench_06520_format_lists]
+> Start with the direct answer, then qualify it: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06521_format_lists]
+> Identify the entities and relations first: List exactly three colors.
+<~ blue
+[parrotbench_06522_format_lists]
+> Identify the entities and relations first: Give two reasons to verify sources.
+<~ source
+[parrotbench_06523_format_lists]
+> Identify the entities and relations first: Name three planets.
+<~ Earth
+[parrotbench_06524_format_lists]
+> Identify the entities and relations first: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06525_format_lists]
+> Treat this as a new domain and explain your model: List exactly three colors.
+<~ blue

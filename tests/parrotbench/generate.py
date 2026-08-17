@@ -11,7 +11,7 @@ import shutil
 
 ROOT = Path(__file__).resolve().parent
 CORPUS = ROOT
-SLOT_COUNT = 4
+SLOT_COUNT = 32
 
 
 # Each category has four genuinely different seeds. Surface forms below are

@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: dialogue/memory
-# cases: 50
+# cases: 6
 
-[parrotbench_04651_dialogue_memory]
-> Use the relevant evidence and answer: What should a memory record include?
+[parrotbench_04607_dialogue_memory]
+> Please answer: What should a memory record include?
 <~ fact
-[parrotbench_04652_dialogue_memory]
-> Use the relevant evidence and answer: What does forgetting a fact mean?
+[parrotbench_04608_dialogue_memory]
+> Please answer: What does forgetting a fact mean?
 <~ forget
-[parrotbench_04653_dialogue_memory]
-> Do not invent facts. Remember that my name is Luca.
+[parrotbench_04609_dialogue_memory]
+> Can you help me with this? Remember that my name is Luca.
 <~ Luca
-[parrotbench_04654_dialogue_memory]
-> Do not invent facts. Remember that my favorite color is green.
+[parrotbench_04610_dialogue_memory]
+> Can you help me with this? Remember that my favorite color is green.
 <~ green
-[parrotbench_04655_dialogue_memory]
-> Do not invent facts. What should a memory record include?
+[parrotbench_04611_dialogue_memory]
+> Can you help me with this? What should a memory record include?
 <~ fact
-[parrotbench_04656_dialogue_memory]
-> Do not invent facts. What does forgetting a fact mean?
-<~ forget
-[parrotbench_04657_dialogue_memory]
-> Keep the answer useful and honest: Remember that my name is Luca.
-<~ Luca
-[parrotbench_04658_dialogue_memory]
-> Keep the answer useful and honest: Remember that my favorite color is green.
-<~ green
-[parrotbench_04659_dialogue_memory]
-> Keep the answer useful and honest: What should a memory record include?
-<~ fact
-[parrotbench_04660_dialogue_memory]
-> Keep the answer useful and honest: What does forgetting a fact mean?
-<~ forget
-[parrotbench_04661_dialogue_memory]
-> In italiano, Remember that my name is Luca.
-<~ Luca
-[parrotbench_04662_dialogue_memory]
-> In italiano, Remember that my favorite color is green.
-<~ green
-[parrotbench_04663_dialogue_memory]
-> In italiano, What should a memory record include?
-<~ fact
-[parrotbench_04664_dialogue_memory]
-> In italiano, What does forgetting a fact mean?
-<~ forget
-[parrotbench_04665_dialogue_memory]
-> Rispondi brevemente: Remember that my name is Luca.
-<~ Luca
-[parrotbench_04666_dialogue_memory]
-> Rispondi brevemente: Remember that my favorite color is green.
-<~ green
-[parrotbench_04667_dialogue_memory]
-> Rispondi brevemente: What should a memory record include?
-<~ fact
-[parrotbench_04668_dialogue_memory]
-> Rispondi brevemente: What does forgetting a fact mean?
-<~ forget
-[parrotbench_04669_dialogue_memory]
-> Spiegalo in parole semplici: Remember that my name is Luca.
-<~ Luca
-[parrotbench_04670_dialogue_memory]
-> Spiegalo in parole semplici: Remember that my favorite color is green.
-<~ green
-[parrotbench_04671_dialogue_memory]
-> Spiegalo in parole semplici: What should a memory record include?
-<~ fact
-[parrotbench_04672_dialogue_memory]
-> Spiegalo in parole semplici: What does forgetting a fact mean?
-<~ forget
-[parrotbench_04673_dialogue_memory]
-> Prima dimmi cosa manca, poi: Remember that my name is Luca.
-<~ Luca
-[parrotbench_04674_dialogue_memory]
-> Prima dimmi cosa manca, poi: Remember that my favorite color is green.
-<~ green
-[parrotbench_04675_dialogue_memory]
-> Prima dimmi cosa manca, poi: What should a memory record include?
-<~ fact
-[parrotbench_04676_dialogue_memory]
-> Prima dimmi cosa manca, poi: What does forgetting a fact mean?
-<~ forget
-[parrotbench_04677_dialogue_memory]
-> What is the shortest useful answer to this? Remember that my name is Luca.
-<~ Luca
-[parrotbench_04678_dialogue_memory]
-> What is the shortest useful answer to this? Remember that my favorite color is green.
-<~ green
-[parrotbench_04679_dialogue_memory]
-> What is the shortest useful answer to this? What should a memory record include?
-<~ fact
-[parrotbench_04680_dialogue_memory]
-> What is the shortest useful answer to this? What does forgetting a fact mean?
-<~ forget
-[parrotbench_04681_dialogue_memory]
-> Challenge your first interpretation: Remember that my name is Luca.
-<~ Luca
-[parrotbench_04682_dialogue_memory]
-> Challenge your first interpretation: Remember that my favorite color is green.
-<~ green
-[parrotbench_04683_dialogue_memory]
-> Challenge your first interpretation: What should a memory record include?
-<~ fact
-[parrotbench_04684_dialogue_memory]
-> Challenge your first interpretation: What does forgetting a fact mean?
-<~ forget
-[parrotbench_04685_dialogue_memory]
-> State uncertainty if needed: Remember that my name is Luca.
-<~ Luca
-[parrotbench_04686_dialogue_memory]
-> State uncertainty if needed: Remember that my favorite color is green.
-<~ green
-[parrotbench_04687_dialogue_memory]
-> State uncertainty if needed: What should a memory record include?
-<~ fact
-[parrotbench_04688_dialogue_memory]
-> State uncertainty if needed: What does forgetting a fact mean?
-<~ forget
-[parrotbench_04689_dialogue_memory]
-> Answer without a generic template: Remember that my name is Luca.
-<~ Luca
-[parrotbench_04690_dialogue_memory]
-> Answer without a generic template: Remember that my favorite color is green.
-<~ green
-[parrotbench_04691_dialogue_memory]
-> Answer without a generic template: What should a memory record include?
-<~ fact
-[parrotbench_04692_dialogue_memory]
-> Answer without a generic template: What does forgetting a fact mean?
-<~ forget
-[parrotbench_04693_dialogue_memory]
-> Give the answer and one reason: Remember that my name is Luca.
-<~ Luca
-[parrotbench_04694_dialogue_memory]
-> Give the answer and one reason: Remember that my favorite color is green.
-<~ green
-[parrotbench_04695_dialogue_memory]
-> Give the answer and one reason: What should a memory record include?
-<~ fact
-[parrotbench_04696_dialogue_memory]
-> Give the answer and one reason: What does forgetting a fact mean?
-<~ forget
-[parrotbench_04697_dialogue_memory]
-> Separate fact from hypothesis: Remember that my name is Luca.
-<~ Luca
-[parrotbench_04698_dialogue_memory]
-> Separate fact from hypothesis: Remember that my favorite color is green.
-<~ green
-[parrotbench_04699_dialogue_memory]
-> Separate fact from hypothesis: What should a memory record include?
-<~ fact
-[parrotbench_04700_dialogue_memory]
-> Separate fact from hypothesis: What does forgetting a fact mean?
+[parrotbench_04612_dialogue_memory]
+> Can you help me with this? What does forgetting a fact mean?
 <~ forget

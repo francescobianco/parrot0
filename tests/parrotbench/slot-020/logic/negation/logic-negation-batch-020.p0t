@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 7
+
+[parrotbench_02319_logic_negation]
+> Start with the direct answer, then qualify it: If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02320_logic_negation]
+> Start with the direct answer, then qualify it: Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02321_logic_negation]
+> Identify the entities and relations first: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02322_logic_negation]
+> Identify the entities and relations first: Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02323_logic_negation]
+> Identify the entities and relations first: If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02324_logic_negation]
+> Identify the entities and relations first: Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02325_logic_negation]
+> Treat this as a new domain and explain your model: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no

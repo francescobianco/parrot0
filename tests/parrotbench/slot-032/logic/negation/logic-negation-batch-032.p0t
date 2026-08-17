@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 7
+
+[parrotbench_02394_logic_negation]
+> What would make this answer wrong? Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02395_logic_negation]
+> What would make this answer wrong? If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02396_logic_negation]
+> What would make this answer wrong? Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02397_logic_negation]
+> Give a useful answer without pretending certainty: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02398_logic_negation]
+> Give a useful answer without pretending certainty: Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02399_logic_negation]
+> Give a useful answer without pretending certainty: If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02400_logic_negation]
+> Give a useful answer without pretending certainty: Is not knowing a fact the same as proving it false?
+<~ no

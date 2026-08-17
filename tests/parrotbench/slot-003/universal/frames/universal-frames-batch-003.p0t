@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: universal/frames
-# cases: 50
+# cases: 6
 
-[parrotbench_11101_universal_frames]
-> Answer as if this were a release review: What is a semantic frame?
+[parrotbench_11013_universal_frames]
+> In simple terms, What is a semantic frame?
 <~ frame
-[parrotbench_11102_universal_frames]
-> Answer as if this were a release review: Why should frames survive paraphrase?
+[parrotbench_11014_universal_frames]
+> In simple terms, Why should frames survive paraphrase?
 <~ surface
-[parrotbench_11103_universal_frames]
-> Answer as if this were a release review: What is a relational graph?
+[parrotbench_11015_universal_frames]
+> In simple terms, What is a relational graph?
 <~ graph
-[parrotbench_11104_universal_frames]
-> Answer as if this were a release review: How can a frame support analogy?
+[parrotbench_11016_universal_frames]
+> In simple terms, How can a frame support analogy?
 <~ structure
-[parrotbench_11105_universal_frames]
-> Give the strongest answer supported by the KB: What is a semantic frame?
+[parrotbench_11017_universal_frames]
+> Give a concise answer. What is a semantic frame?
 <~ frame
-[parrotbench_11106_universal_frames]
-> Give the strongest answer supported by the KB: Why should frames survive paraphrase?
-<~ surface
-[parrotbench_11107_universal_frames]
-> Give the strongest answer supported by the KB: What is a relational graph?
-<~ graph
-[parrotbench_11108_universal_frames]
-> Give the strongest answer supported by the KB: How can a frame support analogy?
-<~ structure
-[parrotbench_11109_universal_frames]
-> Do not confuse a wall with an answer. What is a semantic frame?
-<~ frame
-[parrotbench_11110_universal_frames]
-> Do not confuse a wall with an answer. Why should frames survive paraphrase?
-<~ surface
-[parrotbench_11111_universal_frames]
-> Do not confuse a wall with an answer. What is a relational graph?
-<~ graph
-[parrotbench_11112_universal_frames]
-> Do not confuse a wall with an answer. How can a frame support analogy?
-<~ structure
-[parrotbench_11113_universal_frames]
-> What is the operational interpretation of this? What is a semantic frame?
-<~ frame
-[parrotbench_11114_universal_frames]
-> What is the operational interpretation of this? Why should frames survive paraphrase?
-<~ surface
-[parrotbench_11115_universal_frames]
-> What is the operational interpretation of this? What is a relational graph?
-<~ graph
-[parrotbench_11116_universal_frames]
-> What is the operational interpretation of this? How can a frame support analogy?
-<~ structure
-[parrotbench_11117_universal_frames]
-> Start with the direct answer, then qualify it: What is a semantic frame?
-<~ frame
-[parrotbench_11118_universal_frames]
-> Start with the direct answer, then qualify it: Why should frames survive paraphrase?
-<~ surface
-[parrotbench_11119_universal_frames]
-> Start with the direct answer, then qualify it: What is a relational graph?
-<~ graph
-[parrotbench_11120_universal_frames]
-> Start with the direct answer, then qualify it: How can a frame support analogy?
-<~ structure
-[parrotbench_11121_universal_frames]
-> Identify the entities and relations first: What is a semantic frame?
-<~ frame
-[parrotbench_11122_universal_frames]
-> Identify the entities and relations first: Why should frames survive paraphrase?
-<~ surface
-[parrotbench_11123_universal_frames]
-> Identify the entities and relations first: What is a relational graph?
-<~ graph
-[parrotbench_11124_universal_frames]
-> Identify the entities and relations first: How can a frame support analogy?
-<~ structure
-[parrotbench_11125_universal_frames]
-> Treat this as a new domain and explain your model: What is a semantic frame?
-<~ frame
-[parrotbench_11126_universal_frames]
-> Treat this as a new domain and explain your model: Why should frames survive paraphrase?
-<~ surface
-[parrotbench_11127_universal_frames]
-> Treat this as a new domain and explain your model: What is a relational graph?
-<~ graph
-[parrotbench_11128_universal_frames]
-> Treat this as a new domain and explain your model: How can a frame support analogy?
-<~ structure
-[parrotbench_11129_universal_frames]
-> What would you need to verify before answering? What is a semantic frame?
-<~ frame
-[parrotbench_11130_universal_frames]
-> What would you need to verify before answering? Why should frames survive paraphrase?
-<~ surface
-[parrotbench_11131_universal_frames]
-> What would you need to verify before answering? What is a relational graph?
-<~ graph
-[parrotbench_11132_universal_frames]
-> What would you need to verify before answering? How can a frame support analogy?
-<~ structure
-[parrotbench_11133_universal_frames]
-> Keep alternatives separate while answering: What is a semantic frame?
-<~ frame
-[parrotbench_11134_universal_frames]
-> Keep alternatives separate while answering: Why should frames survive paraphrase?
-<~ surface
-[parrotbench_11135_universal_frames]
-> Keep alternatives separate while answering: What is a relational graph?
-<~ graph
-[parrotbench_11136_universal_frames]
-> Keep alternatives separate while answering: How can a frame support analogy?
-<~ structure
-[parrotbench_11137_universal_frames]
-> State one conclusion and one uncertainty: What is a semantic frame?
-<~ frame
-[parrotbench_11138_universal_frames]
-> State one conclusion and one uncertainty: Why should frames survive paraphrase?
-<~ surface
-[parrotbench_11139_universal_frames]
-> State one conclusion and one uncertainty: What is a relational graph?
-<~ graph
-[parrotbench_11140_universal_frames]
-> State one conclusion and one uncertainty: How can a frame support analogy?
-<~ structure
-[parrotbench_11141_universal_frames]
-> Use a concrete example in your answer: What is a semantic frame?
-<~ frame
-[parrotbench_11142_universal_frames]
-> Use a concrete example in your answer: Why should frames survive paraphrase?
-<~ surface
-[parrotbench_11143_universal_frames]
-> Use a concrete example in your answer: What is a relational graph?
-<~ graph
-[parrotbench_11144_universal_frames]
-> Use a concrete example in your answer: How can a frame support analogy?
-<~ structure
-[parrotbench_11145_universal_frames]
-> Avoid changing the subject: What is a semantic frame?
-<~ frame
-[parrotbench_11146_universal_frames]
-> Avoid changing the subject: Why should frames survive paraphrase?
-<~ surface
-[parrotbench_11147_universal_frames]
-> Avoid changing the subject: What is a relational graph?
-<~ graph
-[parrotbench_11148_universal_frames]
-> Avoid changing the subject: How can a frame support analogy?
-<~ structure
-[parrotbench_11149_universal_frames]
-> Answer the user's actual goal: What is a semantic frame?
-<~ frame
-[parrotbench_11150_universal_frames]
-> Answer the user's actual goal: Why should frames survive paraphrase?
+[parrotbench_11018_universal_frames]
+> Give a concise answer. Why should frames survive paraphrase?
 <~ surface

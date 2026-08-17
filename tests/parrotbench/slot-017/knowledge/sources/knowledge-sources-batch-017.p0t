@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-017: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/sources
+# cases: 6
+
+[parrotbench_00701_knowledge_sources]
+> Answer as if this were a release review: Why should a claim have a source?
+<~ source
+[parrotbench_00702_knowledge_sources]
+> Answer as if this were a release review: How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00703_knowledge_sources]
+> Answer as if this were a release review: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00704_knowledge_sources]
+> Answer as if this were a release review: Should you invent an answer without evidence?
+<~ no
+[parrotbench_00705_knowledge_sources]
+> Give the strongest answer supported by the KB: Why should a claim have a source?
+<~ source
+[parrotbench_00706_knowledge_sources]
+> Give the strongest answer supported by the KB: How do you distinguish evidence from a guess?
+<~ evidence

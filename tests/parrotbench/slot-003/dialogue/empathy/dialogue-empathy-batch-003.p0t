@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: dialogue/empathy
-# cases: 50
+# cases: 6
 
-[parrotbench_04901_dialogue_empathy]
-> Answer as if this were a release review: I am sad today. Can you respond empathetically?
+[parrotbench_04813_dialogue_empathy]
+> In simple terms, I am sad today. Can you respond empathetically?
 <~ sorry
-[parrotbench_04902_dialogue_empathy]
-> Answer as if this were a release review: I am worried about an exam. What can you say?
+[parrotbench_04814_dialogue_empathy]
+> In simple terms, I am worried about an exam. What can you say?
 <~ help
-[parrotbench_04903_dialogue_empathy]
-> Answer as if this were a release review: Can you have feelings of your own?
+[parrotbench_04815_dialogue_empathy]
+> In simple terms, Can you have feelings of your own?
 <~ not
-[parrotbench_04904_dialogue_empathy]
-> Answer as if this were a release review: How can you acknowledge a user's emotion without pretending?
+[parrotbench_04816_dialogue_empathy]
+> In simple terms, How can you acknowledge a user's emotion without pretending?
 <~ feel
-[parrotbench_04905_dialogue_empathy]
-> Give the strongest answer supported by the KB: I am sad today. Can you respond empathetically?
+[parrotbench_04817_dialogue_empathy]
+> Give a concise answer. I am sad today. Can you respond empathetically?
 <~ sorry
-[parrotbench_04906_dialogue_empathy]
-> Give the strongest answer supported by the KB: I am worried about an exam. What can you say?
-<~ help
-[parrotbench_04907_dialogue_empathy]
-> Give the strongest answer supported by the KB: Can you have feelings of your own?
-<~ not
-[parrotbench_04908_dialogue_empathy]
-> Give the strongest answer supported by the KB: How can you acknowledge a user's emotion without pretending?
-<~ feel
-[parrotbench_04909_dialogue_empathy]
-> Do not confuse a wall with an answer. I am sad today. Can you respond empathetically?
-<~ sorry
-[parrotbench_04910_dialogue_empathy]
-> Do not confuse a wall with an answer. I am worried about an exam. What can you say?
-<~ help
-[parrotbench_04911_dialogue_empathy]
-> Do not confuse a wall with an answer. Can you have feelings of your own?
-<~ not
-[parrotbench_04912_dialogue_empathy]
-> Do not confuse a wall with an answer. How can you acknowledge a user's emotion without pretending?
-<~ feel
-[parrotbench_04913_dialogue_empathy]
-> What is the operational interpretation of this? I am sad today. Can you respond empathetically?
-<~ sorry
-[parrotbench_04914_dialogue_empathy]
-> What is the operational interpretation of this? I am worried about an exam. What can you say?
-<~ help
-[parrotbench_04915_dialogue_empathy]
-> What is the operational interpretation of this? Can you have feelings of your own?
-<~ not
-[parrotbench_04916_dialogue_empathy]
-> What is the operational interpretation of this? How can you acknowledge a user's emotion without pretending?
-<~ feel
-[parrotbench_04917_dialogue_empathy]
-> Start with the direct answer, then qualify it: I am sad today. Can you respond empathetically?
-<~ sorry
-[parrotbench_04918_dialogue_empathy]
-> Start with the direct answer, then qualify it: I am worried about an exam. What can you say?
-<~ help
-[parrotbench_04919_dialogue_empathy]
-> Start with the direct answer, then qualify it: Can you have feelings of your own?
-<~ not
-[parrotbench_04920_dialogue_empathy]
-> Start with the direct answer, then qualify it: How can you acknowledge a user's emotion without pretending?
-<~ feel
-[parrotbench_04921_dialogue_empathy]
-> Identify the entities and relations first: I am sad today. Can you respond empathetically?
-<~ sorry
-[parrotbench_04922_dialogue_empathy]
-> Identify the entities and relations first: I am worried about an exam. What can you say?
-<~ help
-[parrotbench_04923_dialogue_empathy]
-> Identify the entities and relations first: Can you have feelings of your own?
-<~ not
-[parrotbench_04924_dialogue_empathy]
-> Identify the entities and relations first: How can you acknowledge a user's emotion without pretending?
-<~ feel
-[parrotbench_04925_dialogue_empathy]
-> Treat this as a new domain and explain your model: I am sad today. Can you respond empathetically?
-<~ sorry
-[parrotbench_04926_dialogue_empathy]
-> Treat this as a new domain and explain your model: I am worried about an exam. What can you say?
-<~ help
-[parrotbench_04927_dialogue_empathy]
-> Treat this as a new domain and explain your model: Can you have feelings of your own?
-<~ not
-[parrotbench_04928_dialogue_empathy]
-> Treat this as a new domain and explain your model: How can you acknowledge a user's emotion without pretending?
-<~ feel
-[parrotbench_04929_dialogue_empathy]
-> What would you need to verify before answering? I am sad today. Can you respond empathetically?
-<~ sorry
-[parrotbench_04930_dialogue_empathy]
-> What would you need to verify before answering? I am worried about an exam. What can you say?
-<~ help
-[parrotbench_04931_dialogue_empathy]
-> What would you need to verify before answering? Can you have feelings of your own?
-<~ not
-[parrotbench_04932_dialogue_empathy]
-> What would you need to verify before answering? How can you acknowledge a user's emotion without pretending?
-<~ feel
-[parrotbench_04933_dialogue_empathy]
-> Keep alternatives separate while answering: I am sad today. Can you respond empathetically?
-<~ sorry
-[parrotbench_04934_dialogue_empathy]
-> Keep alternatives separate while answering: I am worried about an exam. What can you say?
-<~ help
-[parrotbench_04935_dialogue_empathy]
-> Keep alternatives separate while answering: Can you have feelings of your own?
-<~ not
-[parrotbench_04936_dialogue_empathy]
-> Keep alternatives separate while answering: How can you acknowledge a user's emotion without pretending?
-<~ feel
-[parrotbench_04937_dialogue_empathy]
-> State one conclusion and one uncertainty: I am sad today. Can you respond empathetically?
-<~ sorry
-[parrotbench_04938_dialogue_empathy]
-> State one conclusion and one uncertainty: I am worried about an exam. What can you say?
-<~ help
-[parrotbench_04939_dialogue_empathy]
-> State one conclusion and one uncertainty: Can you have feelings of your own?
-<~ not
-[parrotbench_04940_dialogue_empathy]
-> State one conclusion and one uncertainty: How can you acknowledge a user's emotion without pretending?
-<~ feel
-[parrotbench_04941_dialogue_empathy]
-> Use a concrete example in your answer: I am sad today. Can you respond empathetically?
-<~ sorry
-[parrotbench_04942_dialogue_empathy]
-> Use a concrete example in your answer: I am worried about an exam. What can you say?
-<~ help
-[parrotbench_04943_dialogue_empathy]
-> Use a concrete example in your answer: Can you have feelings of your own?
-<~ not
-[parrotbench_04944_dialogue_empathy]
-> Use a concrete example in your answer: How can you acknowledge a user's emotion without pretending?
-<~ feel
-[parrotbench_04945_dialogue_empathy]
-> Avoid changing the subject: I am sad today. Can you respond empathetically?
-<~ sorry
-[parrotbench_04946_dialogue_empathy]
-> Avoid changing the subject: I am worried about an exam. What can you say?
-<~ help
-[parrotbench_04947_dialogue_empathy]
-> Avoid changing the subject: Can you have feelings of your own?
-<~ not
-[parrotbench_04948_dialogue_empathy]
-> Avoid changing the subject: How can you acknowledge a user's emotion without pretending?
-<~ feel
-[parrotbench_04949_dialogue_empathy]
-> Answer the user's actual goal: I am sad today. Can you respond empathetically?
-<~ sorry
-[parrotbench_04950_dialogue_empathy]
-> Answer the user's actual goal: I am worried about an exam. What can you say?
+[parrotbench_04818_dialogue_empathy]
+> Give a concise answer. I am worried about an exam. What can you say?
 <~ help

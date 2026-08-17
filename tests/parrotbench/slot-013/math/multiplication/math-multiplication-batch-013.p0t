@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 6
+
+[parrotbench_01076_math_multiplication]
+> Prima dimmi cosa manca, poi: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01077_math_multiplication]
+> What is the shortest useful answer to this? What is 9 times 8?
+<~ 72
+[parrotbench_01078_math_multiplication]
+> What is the shortest useful answer to this? Calculate three groups of seven.
+<~ 21
+[parrotbench_01079_math_multiplication]
+> What is the shortest useful answer to this? What do five pairs contain?
+<~ 10
+[parrotbench_01080_math_multiplication]
+> What is the shortest useful answer to this? A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01081_math_multiplication]
+> Challenge your first interpretation: What is 9 times 8?
+<~ 72

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 6
+
+[parrotbench_06763_format_structured]
+> What would a careful interlocutor say? Give a two-line answer about rain.
+<~ rain
+[parrotbench_06764_format_structured]
+> What would a careful interlocutor say? Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06765_format_structured]
+> Give a short answer in English: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06766_format_structured]
+> Give a short answer in English: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06767_format_structured]
+> Give a short answer in English: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06768_format_structured]
+> Give a short answer in English: Answer in exactly three words: what is water?
+<~ water

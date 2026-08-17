@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/follow-up
+# cases: 6
+
+[parrotbench_05188_dialogue_follow-up]
+> Use the user's constraint as a real constraint: What is a dialogue state?
+<~ dialogue
+[parrotbench_05189_dialogue_follow-up]
+> Check whether the requested format is satisfied: What did I ask you first?
+<~ first
+[parrotbench_05190_dialogue_follow-up]
+> Check whether the requested format is satisfied: What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05191_dialogue_follow-up]
+> Check whether the requested format is satisfied: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05192_dialogue_follow-up]
+> Check whether the requested format is satisfied: What is a dialogue state?
+<~ dialogue
+[parrotbench_05193_dialogue_follow-up]
+> What would make this answer wrong? What did I ask you first?
+<~ first

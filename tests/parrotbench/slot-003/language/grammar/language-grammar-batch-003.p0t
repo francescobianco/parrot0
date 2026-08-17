@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: language/grammar
-# cases: 50
+# cases: 6
 
-[parrotbench_05701_language_grammar]
-> Answer as if this were a release review: What is the plural of child?
+[parrotbench_05613_language_grammar]
+> In simple terms, What is the plural of child?
 <~ children
-[parrotbench_05702_language_grammar]
-> Answer as if this were a release review: What is the past tense of go?
+[parrotbench_05614_language_grammar]
+> In simple terms, What is the past tense of go?
 <~ went
-[parrotbench_05703_language_grammar]
-> Answer as if this were a release review: Correct: She go to school.
+[parrotbench_05615_language_grammar]
+> In simple terms, Correct: She go to school.
 <~ goes
-[parrotbench_05704_language_grammar]
-> Answer as if this were a release review: Is 'Me likes apples' grammatical?
+[parrotbench_05616_language_grammar]
+> In simple terms, Is 'Me likes apples' grammatical?
 <~ no
-[parrotbench_05705_language_grammar]
-> Give the strongest answer supported by the KB: What is the plural of child?
+[parrotbench_05617_language_grammar]
+> Give a concise answer. What is the plural of child?
 <~ children
-[parrotbench_05706_language_grammar]
-> Give the strongest answer supported by the KB: What is the past tense of go?
-<~ went
-[parrotbench_05707_language_grammar]
-> Give the strongest answer supported by the KB: Correct: She go to school.
-<~ goes
-[parrotbench_05708_language_grammar]
-> Give the strongest answer supported by the KB: Is 'Me likes apples' grammatical?
-<~ no
-[parrotbench_05709_language_grammar]
-> Do not confuse a wall with an answer. What is the plural of child?
-<~ children
-[parrotbench_05710_language_grammar]
-> Do not confuse a wall with an answer. What is the past tense of go?
-<~ went
-[parrotbench_05711_language_grammar]
-> Do not confuse a wall with an answer. Correct: She go to school.
-<~ goes
-[parrotbench_05712_language_grammar]
-> Do not confuse a wall with an answer. Is 'Me likes apples' grammatical?
-<~ no
-[parrotbench_05713_language_grammar]
-> What is the operational interpretation of this? What is the plural of child?
-<~ children
-[parrotbench_05714_language_grammar]
-> What is the operational interpretation of this? What is the past tense of go?
-<~ went
-[parrotbench_05715_language_grammar]
-> What is the operational interpretation of this? Correct: She go to school.
-<~ goes
-[parrotbench_05716_language_grammar]
-> What is the operational interpretation of this? Is 'Me likes apples' grammatical?
-<~ no
-[parrotbench_05717_language_grammar]
-> Start with the direct answer, then qualify it: What is the plural of child?
-<~ children
-[parrotbench_05718_language_grammar]
-> Start with the direct answer, then qualify it: What is the past tense of go?
-<~ went
-[parrotbench_05719_language_grammar]
-> Start with the direct answer, then qualify it: Correct: She go to school.
-<~ goes
-[parrotbench_05720_language_grammar]
-> Start with the direct answer, then qualify it: Is 'Me likes apples' grammatical?
-<~ no
-[parrotbench_05721_language_grammar]
-> Identify the entities and relations first: What is the plural of child?
-<~ children
-[parrotbench_05722_language_grammar]
-> Identify the entities and relations first: What is the past tense of go?
-<~ went
-[parrotbench_05723_language_grammar]
-> Identify the entities and relations first: Correct: She go to school.
-<~ goes
-[parrotbench_05724_language_grammar]
-> Identify the entities and relations first: Is 'Me likes apples' grammatical?
-<~ no
-[parrotbench_05725_language_grammar]
-> Treat this as a new domain and explain your model: What is the plural of child?
-<~ children
-[parrotbench_05726_language_grammar]
-> Treat this as a new domain and explain your model: What is the past tense of go?
-<~ went
-[parrotbench_05727_language_grammar]
-> Treat this as a new domain and explain your model: Correct: She go to school.
-<~ goes
-[parrotbench_05728_language_grammar]
-> Treat this as a new domain and explain your model: Is 'Me likes apples' grammatical?
-<~ no
-[parrotbench_05729_language_grammar]
-> What would you need to verify before answering? What is the plural of child?
-<~ children
-[parrotbench_05730_language_grammar]
-> What would you need to verify before answering? What is the past tense of go?
-<~ went
-[parrotbench_05731_language_grammar]
-> What would you need to verify before answering? Correct: She go to school.
-<~ goes
-[parrotbench_05732_language_grammar]
-> What would you need to verify before answering? Is 'Me likes apples' grammatical?
-<~ no
-[parrotbench_05733_language_grammar]
-> Keep alternatives separate while answering: What is the plural of child?
-<~ children
-[parrotbench_05734_language_grammar]
-> Keep alternatives separate while answering: What is the past tense of go?
-<~ went
-[parrotbench_05735_language_grammar]
-> Keep alternatives separate while answering: Correct: She go to school.
-<~ goes
-[parrotbench_05736_language_grammar]
-> Keep alternatives separate while answering: Is 'Me likes apples' grammatical?
-<~ no
-[parrotbench_05737_language_grammar]
-> State one conclusion and one uncertainty: What is the plural of child?
-<~ children
-[parrotbench_05738_language_grammar]
-> State one conclusion and one uncertainty: What is the past tense of go?
-<~ went
-[parrotbench_05739_language_grammar]
-> State one conclusion and one uncertainty: Correct: She go to school.
-<~ goes
-[parrotbench_05740_language_grammar]
-> State one conclusion and one uncertainty: Is 'Me likes apples' grammatical?
-<~ no
-[parrotbench_05741_language_grammar]
-> Use a concrete example in your answer: What is the plural of child?
-<~ children
-[parrotbench_05742_language_grammar]
-> Use a concrete example in your answer: What is the past tense of go?
-<~ went
-[parrotbench_05743_language_grammar]
-> Use a concrete example in your answer: Correct: She go to school.
-<~ goes
-[parrotbench_05744_language_grammar]
-> Use a concrete example in your answer: Is 'Me likes apples' grammatical?
-<~ no
-[parrotbench_05745_language_grammar]
-> Avoid changing the subject: What is the plural of child?
-<~ children
-[parrotbench_05746_language_grammar]
-> Avoid changing the subject: What is the past tense of go?
-<~ went
-[parrotbench_05747_language_grammar]
-> Avoid changing the subject: Correct: She go to school.
-<~ goes
-[parrotbench_05748_language_grammar]
-> Avoid changing the subject: Is 'Me likes apples' grammatical?
-<~ no
-[parrotbench_05749_language_grammar]
-> Answer the user's actual goal: What is the plural of child?
-<~ children
-[parrotbench_05750_language_grammar]
-> Answer the user's actual goal: What is the past tense of go?
+[parrotbench_05618_language_grammar]
+> Give a concise answer. What is the past tense of go?
 <~ went

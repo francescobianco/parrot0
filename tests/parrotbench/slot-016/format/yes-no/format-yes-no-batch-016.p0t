@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-016: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/yes-no
+# cases: 7
+
+[parrotbench_06294_format_yes-no]
+> Give the answer and one reason: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06295_format_yes-no]
+> Give the answer and one reason: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06296_format_yes-no]
+> Give the answer and one reason: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06297_format_yes-no]
+> Separate fact from hypothesis: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06298_format_yes-no]
+> Separate fact from hypothesis: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06299_format_yes-no]
+> Separate fact from hypothesis: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06300_format_yes-no]
+> Separate fact from hypothesis: Respond with no extra explanation: is Mars a planet?
+<~ yes

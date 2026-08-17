@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-005: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 6
+
+[parrotbench_07026_planning_daily]
+> Explain your answer briefly: What is the first step in making tea?
+<~ water
+[parrotbench_07027_planning_daily]
+> Explain your answer briefly: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07028_planning_daily]
+> Explain your answer briefly: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07029_planning_daily]
+> Check this for me: Give me a plan to make tea.
+<~ plan
+[parrotbench_07030_planning_daily]
+> Check this for me: What is the first step in making tea?
+<~ water
+[parrotbench_07031_planning_daily]
+> Check this for me: Plan a short walk with a time constraint.
+<~ step

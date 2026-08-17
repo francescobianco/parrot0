@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/empathy
+# cases: 6
+
+[parrotbench_04857_dialogue_empathy]
+> Keep the answer useful and honest: I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04858_dialogue_empathy]
+> Keep the answer useful and honest: I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04859_dialogue_empathy]
+> Keep the answer useful and honest: Can you have feelings of your own?
+<~ not
+[parrotbench_04860_dialogue_empathy]
+> Keep the answer useful and honest: How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04861_dialogue_empathy]
+> In italiano, I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04862_dialogue_empathy]
+> In italiano, I am worried about an exam. What can you say?
+<~ help

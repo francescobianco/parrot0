@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/hypotheses
+# cases: 7
+
+[parrotbench_03994_reasoning_hypotheses]
+> What would make this answer wrong? What should a hypothesis be tested against?
+<~ evidence
+[parrotbench_03995_reasoning_hypotheses]
+> What would make this answer wrong? How do you choose between interpretations?
+<~ support
+[parrotbench_03996_reasoning_hypotheses]
+> What would make this answer wrong? What is an assumption in a plan?
+<~ assumption
+[parrotbench_03997_reasoning_hypotheses]
+> Give a useful answer without pretending certainty: Why keep competing hypotheses instead of one guess?
+<~ hypoth
+[parrotbench_03998_reasoning_hypotheses]
+> Give a useful answer without pretending certainty: What should a hypothesis be tested against?
+<~ evidence
+[parrotbench_03999_reasoning_hypotheses]
+> Give a useful answer without pretending certainty: How do you choose between interpretations?
+<~ support
+[parrotbench_04000_reasoning_hypotheses]
+> Give a useful answer without pretending certainty: What is an assumption in a plan?
+<~ assumption

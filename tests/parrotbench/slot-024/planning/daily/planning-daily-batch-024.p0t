@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 7
+
+[parrotbench_07144_planning_daily]
+> Use a concrete example in your answer: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07145_planning_daily]
+> Avoid changing the subject: Give me a plan to make tea.
+<~ plan
+[parrotbench_07146_planning_daily]
+> Avoid changing the subject: What is the first step in making tea?
+<~ water
+[parrotbench_07147_planning_daily]
+> Avoid changing the subject: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07148_planning_daily]
+> Avoid changing the subject: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07149_planning_daily]
+> Answer the user's actual goal: Give me a plan to make tea.
+<~ plan
+[parrotbench_07150_planning_daily]
+> Answer the user's actual goal: What is the first step in making tea?
+<~ water

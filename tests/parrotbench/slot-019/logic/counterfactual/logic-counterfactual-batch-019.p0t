@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/counterfactual
+# cases: 6
+
+[parrotbench_02713_logic_counterfactual]
+> What is the operational interpretation of this? If the switch had stayed off, would the lamp have lit?
+<~ no
+[parrotbench_02714_logic_counterfactual]
+> What is the operational interpretation of this? What changes in a counterfactual argument?
+<~ condition
+[parrotbench_02715_logic_counterfactual]
+> What is the operational interpretation of this? If all else stays fixed, what does a counterfactual isolate?
+<~ cause
+[parrotbench_02716_logic_counterfactual]
+> What is the operational interpretation of this? Can an outcome prove its supposed cause by itself?
+<~ no
+[parrotbench_02717_logic_counterfactual]
+> Start with the direct answer, then qualify it: If the switch had stayed off, would the lamp have lit?
+<~ no
+[parrotbench_02718_logic_counterfactual]
+> Start with the direct answer, then qualify it: What changes in a counterfactual argument?
+<~ condition

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 6
+
+[parrotbench_07151_planning_daily]
+> Answer the user's actual goal: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07152_planning_daily]
+> Answer the user's actual goal: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07153_planning_daily]
+> If the request is underspecified, say what is missing: Give me a plan to make tea.
+<~ plan
+[parrotbench_07154_planning_daily]
+> If the request is underspecified, say what is missing: What is the first step in making tea?
+<~ water
+[parrotbench_07155_planning_daily]
+> If the request is underspecified, say what is missing: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07156_planning_daily]
+> If the request is underspecified, say what is missing: How should a plan represent prerequisites?
+<~ prerequisite

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-017: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 6
+
+[parrotbench_07101_planning_daily]
+> Answer as if this were a release review: Give me a plan to make tea.
+<~ plan
+[parrotbench_07102_planning_daily]
+> Answer as if this were a release review: What is the first step in making tea?
+<~ water
+[parrotbench_07103_planning_daily]
+> Answer as if this were a release review: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07104_planning_daily]
+> Answer as if this were a release review: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07105_planning_daily]
+> Give the strongest answer supported by the KB: Give me a plan to make tea.
+<~ plan
+[parrotbench_07106_planning_daily]
+> Give the strongest answer supported by the KB: What is the first step in making tea?
+<~ water

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 6
+
+[parrotbench_06988_format_summaries]
+> Use the user's constraint as a real constraint: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06989_format_summaries]
+> Check whether the requested format is satisfied: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06990_format_summaries]
+> Check whether the requested format is satisfied: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06991_format_summaries]
+> Check whether the requested format is satisfied: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06992_format_summaries]
+> Check whether the requested format is satisfied: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06993_format_summaries]
+> What would make this answer wrong? Summarize evolution in two sentences.
+<~ evolution

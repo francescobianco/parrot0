@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 7
+
+[parrotbench_06744_format_structured]
+> Use a concrete example in your answer: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06745_format_structured]
+> Avoid changing the subject: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06746_format_structured]
+> Avoid changing the subject: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06747_format_structured]
+> Avoid changing the subject: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06748_format_structured]
+> Avoid changing the subject: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06749_format_structured]
+> Answer the user's actual goal: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06750_format_structured]
+> Answer the user's actual goal: Answer as a numbered list with two items.
+<~ 1

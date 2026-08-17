@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/identity
+# cases: 6
+
+[parrotbench_04388_dialogue_identity]
+> Use the user's constraint as a real constraint: What generation are you running?
+<~ gen
+[parrotbench_04389_dialogue_identity]
+> Check whether the requested format is satisfied: What is your name?
+<~ parrot0
+[parrotbench_04390_dialogue_identity]
+> Check whether the requested format is satisfied: Who are you?
+<~ parrot0
+[parrotbench_04391_dialogue_identity]
+> Check whether the requested format is satisfied: What kind of system are you?
+<~ AI
+[parrotbench_04392_dialogue_identity]
+> Check whether the requested format is satisfied: What generation are you running?
+<~ gen
+[parrotbench_04393_dialogue_identity]
+> What would make this answer wrong? What is your name?
+<~ parrot0

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 6
+
+[parrotbench_06751_format_structured]
+> Answer the user's actual goal: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06752_format_structured]
+> Answer the user's actual goal: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06753_format_structured]
+> If the request is underspecified, say what is missing: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06754_format_structured]
+> If the request is underspecified, say what is missing: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06755_format_structured]
+> If the request is underspecified, say what is missing: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06756_format_structured]
+> If the request is underspecified, say what is missing: Answer in exactly three words: what is water?
+<~ water

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/provenance
+# cases: 6
+
+[parrotbench_04107_reasoning_provenance]
+> Give the strongest answer supported by the KB: What should an explanation expose?
+<~ reason
+[parrotbench_04108_reasoning_provenance]
+> Give the strongest answer supported by the KB: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04109_reasoning_provenance]
+> Do not confuse a wall with an answer. What evidence supports this answer?
+<~ evidence
+[parrotbench_04110_reasoning_provenance]
+> Do not confuse a wall with an answer. Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04111_reasoning_provenance]
+> Do not confuse a wall with an answer. What should an explanation expose?
+<~ reason
+[parrotbench_04112_reasoning_provenance]
+> Do not confuse a wall with an answer. How can a learned fact be corrected?
+<~ forget

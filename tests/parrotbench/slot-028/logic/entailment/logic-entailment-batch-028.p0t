@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-028: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 7
+
+[parrotbench_02169_logic_entailment]
+> Rispondi in italiano quando possibile: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02170_logic_entailment]
+> Rispondi in italiano quando possibile: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02171_logic_entailment]
+> Rispondi in italiano quando possibile: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02172_logic_entailment]
+> Rispondi in italiano quando possibile: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02173_logic_entailment]
+> Distinguish a fact, a rule, and a hypothesis: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02174_logic_entailment]
+> Distinguish a fact, a rule, and a hypothesis: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02175_logic_entailment]
+> Distinguish a fact, a rule, and a hypothesis: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06476_format_lists]
+> Prima dimmi cosa manca, poi: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06477_format_lists]
+> What is the shortest useful answer to this? List exactly three colors.
+<~ blue
+[parrotbench_06478_format_lists]
+> What is the shortest useful answer to this? Give two reasons to verify sources.
+<~ source
+[parrotbench_06479_format_lists]
+> What is the shortest useful answer to this? Name three planets.
+<~ Earth
+[parrotbench_06480_format_lists]
+> What is the shortest useful answer to this? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06481_format_lists]
+> Challenge your first interpretation: List exactly three colors.
+<~ blue

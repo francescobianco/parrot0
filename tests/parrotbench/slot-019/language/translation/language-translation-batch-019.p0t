@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05513_language_translation]
+> What is the operational interpretation of this? Translate hello into Italian.
+<~ ciao
+[parrotbench_05514_language_translation]
+> What is the operational interpretation of this? Translate the small house into French.
+<~ maison
+[parrotbench_05515_language_translation]
+> What is the operational interpretation of this? Translate the dog runs into English.
+<~ dog
+[parrotbench_05516_language_translation]
+> What is the operational interpretation of this? Translate acqua into English.
+<~ water
+[parrotbench_05517_language_translation]
+> Start with the direct answer, then qualify it: Translate hello into Italian.
+<~ ciao
+[parrotbench_05518_language_translation]
+> Start with the direct answer, then qualify it: Translate the small house into French.
+<~ maison

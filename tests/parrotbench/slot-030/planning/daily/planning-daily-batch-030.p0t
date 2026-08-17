@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 6
+
+[parrotbench_07182_planning_daily]
+> Explain the reasoning rather than a slogan: What is the first step in making tea?
+<~ water
+[parrotbench_07183_planning_daily]
+> Explain the reasoning rather than a slogan: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07184_planning_daily]
+> Explain the reasoning rather than a slogan: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07185_planning_daily]
+> Use the user's constraint as a real constraint: Give me a plan to make tea.
+<~ plan
+[parrotbench_07186_planning_daily]
+> Use the user's constraint as a real constraint: What is the first step in making tea?
+<~ water
+[parrotbench_07187_planning_daily]
+> Use the user's constraint as a real constraint: Plan a short walk with a time constraint.
+<~ step

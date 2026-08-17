@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 6
+
+[parrotbench_06857_format_summaries]
+> Keep the answer useful and honest: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06858_format_summaries]
+> Keep the answer useful and honest: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06859_format_summaries]
+> Keep the answer useful and honest: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06860_format_summaries]
+> Keep the answer useful and honest: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06861_format_summaries]
+> In italiano, Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06862_format_summaries]
+> In italiano, Give a one-sentence summary of democracy.
+<~ democracy

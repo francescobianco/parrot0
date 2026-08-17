@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/unknowns
+# cases: 6
+
+[parrotbench_00351_knowledge_unknowns]
+> Answer the user's actual goal: What evidence supports an unknown claim?
+<~ don't know
+[parrotbench_00352_knowledge_unknowns]
+> Answer the user's actual goal: Tell me a fact when you have no source.
+<~ don't know
+[parrotbench_00353_knowledge_unknowns]
+> If the request is underspecified, say what is missing: Who is the president of Mars?
+<~ don't know
+[parrotbench_00354_knowledge_unknowns]
+> If the request is underspecified, say what is missing: Did Zorblax invent the moon?
+<~ don't know
+[parrotbench_00355_knowledge_unknowns]
+> If the request is underspecified, say what is missing: What evidence supports an unknown claim?
+<~ don't know
+[parrotbench_00356_knowledge_unknowns]
+> If the request is underspecified, say what is missing: Tell me a fact when you have no source.
+<~ don't know

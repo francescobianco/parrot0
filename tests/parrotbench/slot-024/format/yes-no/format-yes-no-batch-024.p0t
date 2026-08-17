@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/yes-no
+# cases: 7
+
+[parrotbench_06344_format_yes-no]
+> Use a concrete example in your answer: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06345_format_yes-no]
+> Avoid changing the subject: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06346_format_yes-no]
+> Avoid changing the subject: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06347_format_yes-no]
+> Avoid changing the subject: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06348_format_yes-no]
+> Avoid changing the subject: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06349_format_yes-no]
+> Answer the user's actual goal: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06350_format_yes-no]
+> Answer the user's actual goal: Answer yes/no: is water wet?
+<~ yes

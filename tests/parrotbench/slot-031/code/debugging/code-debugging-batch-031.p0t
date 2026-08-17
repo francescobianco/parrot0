@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: code/debugging
+# cases: 6
+
+[parrotbench_08588_code_debugging]
+> Use the user's constraint as a real constraint: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08589_code_debugging]
+> Check whether the requested format is satisfied: A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08590_code_debugging]
+> Check whether the requested format is satisfied: What is a regression?
+<~ change
+[parrotbench_08591_code_debugging]
+> Check whether the requested format is satisfied: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08592_code_debugging]
+> Check whether the requested format is satisfied: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08593_code_debugging]
+> What would make this answer wrong? A test fails after a change. What should be inspected first?
+<~ failure

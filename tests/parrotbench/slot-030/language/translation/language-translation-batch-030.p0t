@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05582_language_translation]
+> Explain the reasoning rather than a slogan: Translate the small house into French.
+<~ maison
+[parrotbench_05583_language_translation]
+> Explain the reasoning rather than a slogan: Translate the dog runs into English.
+<~ dog
+[parrotbench_05584_language_translation]
+> Explain the reasoning rather than a slogan: Translate acqua into English.
+<~ water
+[parrotbench_05585_language_translation]
+> Use the user's constraint as a real constraint: Translate hello into Italian.
+<~ ciao
+[parrotbench_05586_language_translation]
+> Use the user's constraint as a real constraint: Translate the small house into French.
+<~ maison
+[parrotbench_05587_language_translation]
+> Use the user's constraint as a real constraint: Translate the dog runs into English.
+<~ dog

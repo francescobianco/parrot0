@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 7
+
+[parrotbench_10144_creative_story]
+> Use a concrete example in your answer: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10145_creative_story]
+> Avoid changing the subject: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10146_creative_story]
+> Avoid changing the subject: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10147_creative_story]
+> Avoid changing the subject: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10148_creative_story]
+> Avoid changing the subject: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10149_creative_story]
+> Answer the user's actual goal: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10150_creative_story]
+> Answer the user's actual goal: Continue a story while preserving its characters.
+<~ story

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/analogy
+# cases: 6
+
+[parrotbench_03113_logic_analogy]
+> What is the operational interpretation of this? What structure is shared by a deadlock and two people waiting for each other?
+<~ wait
+[parrotbench_03114_logic_analogy]
+> What is the operational interpretation of this? Can a relation pattern transfer when the nouns change?
+<~ structure
+[parrotbench_03115_logic_analogy]
+> What is the operational interpretation of this? What remains when domain-specific names are removed?
+<~ structure
+[parrotbench_03116_logic_analogy]
+> What is the operational interpretation of this? How can two different graphs be analogous?
+<~ invariant
+[parrotbench_03117_logic_analogy]
+> Start with the direct answer, then qualify it: What structure is shared by a deadlock and two people waiting for each other?
+<~ wait
+[parrotbench_03118_logic_analogy]
+> Start with the direct answer, then qualify it: Can a relation pattern transfer when the nouns change?
+<~ structure

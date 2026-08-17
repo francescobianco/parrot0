@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/sources
+# cases: 7
+
+[parrotbench_00719_knowledge_sources]
+> Start with the direct answer, then qualify it: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00720_knowledge_sources]
+> Start with the direct answer, then qualify it: Should you invent an answer without evidence?
+<~ no
+[parrotbench_00721_knowledge_sources]
+> Identify the entities and relations first: Why should a claim have a source?
+<~ source
+[parrotbench_00722_knowledge_sources]
+> Identify the entities and relations first: How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00723_knowledge_sources]
+> Identify the entities and relations first: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00724_knowledge_sources]
+> Identify the entities and relations first: Should you invent an answer without evidence?
+<~ no
+[parrotbench_00725_knowledge_sources]
+> Treat this as a new domain and explain your model: Why should a claim have a source?
+<~ source

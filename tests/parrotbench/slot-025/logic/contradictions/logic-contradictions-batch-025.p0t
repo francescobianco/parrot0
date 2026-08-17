@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/contradictions
+# cases: 6
+
+[parrotbench_02951_logic_contradictions]
+> Answer the user's actual goal: Find the contradiction: the door is open and never opened.
+<~ contradiction
+[parrotbench_02952_logic_contradictions]
+> Answer the user's actual goal: What should happen when two facts cannot both hold?
+<~ conflict
+[parrotbench_02953_logic_contradictions]
+> If the request is underspecified, say what is missing: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
+<~ impossible
+[parrotbench_02954_logic_contradictions]
+> If the request is underspecified, say what is missing: Can something be both entirely known and unknown in the same sense?
+<~ no
+[parrotbench_02955_logic_contradictions]
+> If the request is underspecified, say what is missing: Find the contradiction: the door is open and never opened.
+<~ contradiction
+[parrotbench_02956_logic_contradictions]
+> If the request is underspecified, say what is missing: What should happen when two facts cannot both hold?
+<~ conflict

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-022: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/memory
+# cases: 6
+
+[parrotbench_04732_dialogue_memory]
+> What would you need to verify before answering? What does forgetting a fact mean?
+<~ forget
+[parrotbench_04733_dialogue_memory]
+> Keep alternatives separate while answering: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04734_dialogue_memory]
+> Keep alternatives separate while answering: Remember that my favorite color is green.
+<~ green
+[parrotbench_04735_dialogue_memory]
+> Keep alternatives separate while answering: What should a memory record include?
+<~ fact
+[parrotbench_04736_dialogue_memory]
+> Keep alternatives separate while answering: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04737_dialogue_memory]
+> State one conclusion and one uncertainty: Remember that my name is Luca.
+<~ Luca

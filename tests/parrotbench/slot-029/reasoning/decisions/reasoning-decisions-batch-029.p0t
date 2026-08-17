@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/decisions
+# cases: 6
+
+[parrotbench_03576_reasoning_decisions]
+> Distinguish a fact, a rule, and a hypothesis: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03577_reasoning_decisions]
+> Name the relevant capability: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03578_reasoning_decisions]
+> Name the relevant capability: How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03579_reasoning_decisions]
+> Name the relevant capability: What is a reversible decision?
+<~ revers
+[parrotbench_03580_reasoning_decisions]
+> Name the relevant capability: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03581_reasoning_decisions]
+> Explain the reasoning rather than a slogan: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost

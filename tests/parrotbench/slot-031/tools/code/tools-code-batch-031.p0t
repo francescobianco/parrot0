@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: tools/code
+# cases: 6
+
+[parrotbench_08388_tools_code]
+> Use the user's constraint as a real constraint: Can you explain a small code fragment?
+<~ code
+[parrotbench_08389_tools_code]
+> Check whether the requested format is satisfied: What is a variable in a program?
+<~ variable
+[parrotbench_08390_tools_code]
+> Check whether the requested format is satisfied: Why does a function return early?
+<~ return
+[parrotbench_08391_tools_code]
+> Check whether the requested format is satisfied: What is a stack trace useful for?
+<~ error
+[parrotbench_08392_tools_code]
+> Check whether the requested format is satisfied: Can you explain a small code fragment?
+<~ code
+[parrotbench_08393_tools_code]
+> What would make this answer wrong? What is a variable in a program?
+<~ variable

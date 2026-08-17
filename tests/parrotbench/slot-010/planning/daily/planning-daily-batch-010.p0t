@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 6
+
+[parrotbench_07057_planning_daily]
+> Keep the answer useful and honest: Give me a plan to make tea.
+<~ plan
+[parrotbench_07058_planning_daily]
+> Keep the answer useful and honest: What is the first step in making tea?
+<~ water
+[parrotbench_07059_planning_daily]
+> Keep the answer useful and honest: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07060_planning_daily]
+> Keep the answer useful and honest: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07061_planning_daily]
+> In italiano, Give me a plan to make tea.
+<~ plan
+[parrotbench_07062_planning_daily]
+> In italiano, What is the first step in making tea?
+<~ water

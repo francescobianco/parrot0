@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/definition
+# cases: 6
+
+[parrotbench_05913_language_definition]
+> What is the operational interpretation of this? Define democracy in simple terms.
+<~ people
+[parrotbench_05914_language_definition]
+> What is the operational interpretation of this? What does ephemeral mean?
+<~ short
+[parrotbench_05915_language_definition]
+> What is the operational interpretation of this? Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05916_language_definition]
+> What is the operational interpretation of this? What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05917_language_definition]
+> Start with the direct answer, then qualify it: Define democracy in simple terms.
+<~ people
+[parrotbench_05918_language_definition]
+> Start with the direct answer, then qualify it: What does ephemeral mean?
+<~ short

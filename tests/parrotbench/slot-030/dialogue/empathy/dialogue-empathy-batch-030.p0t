@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/empathy
+# cases: 6
+
+[parrotbench_04982_dialogue_empathy]
+> Explain the reasoning rather than a slogan: I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04983_dialogue_empathy]
+> Explain the reasoning rather than a slogan: Can you have feelings of your own?
+<~ not
+[parrotbench_04984_dialogue_empathy]
+> Explain the reasoning rather than a slogan: How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04985_dialogue_empathy]
+> Use the user's constraint as a real constraint: I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04986_dialogue_empathy]
+> Use the user's constraint as a real constraint: I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04987_dialogue_empathy]
+> Use the user's constraint as a real constraint: Can you have feelings of your own?
+<~ not

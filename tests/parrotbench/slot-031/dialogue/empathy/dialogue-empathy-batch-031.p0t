@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/empathy
+# cases: 6
+
+[parrotbench_04988_dialogue_empathy]
+> Use the user's constraint as a real constraint: How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04989_dialogue_empathy]
+> Check whether the requested format is satisfied: I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04990_dialogue_empathy]
+> Check whether the requested format is satisfied: I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04991_dialogue_empathy]
+> Check whether the requested format is satisfied: Can you have feelings of your own?
+<~ not
+[parrotbench_04992_dialogue_empathy]
+> Check whether the requested format is satisfied: How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04993_dialogue_empathy]
+> What would make this answer wrong? I am sad today. Can you respond empathetically?
+<~ sorry

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-017: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/yes-no
+# cases: 6
+
+[parrotbench_06301_format_yes-no]
+> Answer as if this were a release review: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06302_format_yes-no]
+> Answer as if this were a release review: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06303_format_yes-no]
+> Answer as if this were a release review: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06304_format_yes-no]
+> Answer as if this were a release review: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06305_format_yes-no]
+> Give the strongest answer supported by the KB: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06306_format_yes-no]
+> Give the strongest answer supported by the KB: Answer yes/no: is water wet?
+<~ yes

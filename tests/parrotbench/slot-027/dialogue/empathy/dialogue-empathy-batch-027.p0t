@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/empathy
+# cases: 6
+
+[parrotbench_04963_dialogue_empathy]
+> What would a careful interlocutor say? Can you have feelings of your own?
+<~ not
+[parrotbench_04964_dialogue_empathy]
+> What would a careful interlocutor say? How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04965_dialogue_empathy]
+> Give a short answer in English: I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04966_dialogue_empathy]
+> Give a short answer in English: I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04967_dialogue_empathy]
+> Give a short answer in English: Can you have feelings of your own?
+<~ not
+[parrotbench_04968_dialogue_empathy]
+> Give a short answer in English: How can you acknowledge a user's emotion without pretending?
+<~ feel

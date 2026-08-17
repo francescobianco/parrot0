@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/contradictions
+# cases: 7
+
+[parrotbench_02919_logic_contradictions]
+> Start with the direct answer, then qualify it: Find the contradiction: the door is open and never opened.
+<~ contradiction
+[parrotbench_02920_logic_contradictions]
+> Start with the direct answer, then qualify it: What should happen when two facts cannot both hold?
+<~ conflict
+[parrotbench_02921_logic_contradictions]
+> Identify the entities and relations first: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
+<~ impossible
+[parrotbench_02922_logic_contradictions]
+> Identify the entities and relations first: Can something be both entirely known and unknown in the same sense?
+<~ no
+[parrotbench_02923_logic_contradictions]
+> Identify the entities and relations first: Find the contradiction: the door is open and never opened.
+<~ contradiction
+[parrotbench_02924_logic_contradictions]
+> Identify the entities and relations first: What should happen when two facts cannot both hold?
+<~ conflict
+[parrotbench_02925_logic_contradictions]
+> Treat this as a new domain and explain your model: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
+<~ impossible

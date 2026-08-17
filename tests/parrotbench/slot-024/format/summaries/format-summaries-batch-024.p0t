@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 7
+
+[parrotbench_06944_format_summaries]
+> Use a concrete example in your answer: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06945_format_summaries]
+> Avoid changing the subject: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06946_format_summaries]
+> Avoid changing the subject: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06947_format_summaries]
+> Avoid changing the subject: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06948_format_summaries]
+> Avoid changing the subject: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06949_format_summaries]
+> Answer the user's actual goal: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06950_format_summaries]
+> Answer the user's actual goal: Give a one-sentence summary of democracy.
+<~ democracy

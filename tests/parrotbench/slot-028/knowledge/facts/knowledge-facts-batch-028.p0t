@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-028: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 7
+
+[parrotbench_00169_knowledge_facts]
+> Rispondi in italiano quando possibile: What is the capital of France?
+<~ Paris
+[parrotbench_00170_knowledge_facts]
+> Rispondi in italiano quando possibile: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00171_knowledge_facts]
+> Rispondi in italiano quando possibile: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00172_knowledge_facts]
+> Rispondi in italiano quando possibile: What is water made of chemically?
+<~ H2O
+[parrotbench_00173_knowledge_facts]
+> Distinguish a fact, a rule, and a hypothesis: What is the capital of France?
+<~ Paris
+[parrotbench_00174_knowledge_facts]
+> Distinguish a fact, a rule, and a hypothesis: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00175_knowledge_facts]
+> Distinguish a fact, a rule, and a hypothesis: Who wrote Hamlet?
+<~ Shakespeare

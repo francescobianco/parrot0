@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/priorities
+# cases: 6
+
+[parrotbench_07726_planning_priorities]
+> Treat this as a new domain and explain your model: How do you prioritize several goals?
+<~ goal
+[parrotbench_07727_planning_priorities]
+> Treat this as a new domain and explain your model: What makes a requirement hard?
+<~ constraint
+[parrotbench_07728_planning_priorities]
+> Treat this as a new domain and explain your model: How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07729_planning_priorities]
+> What would you need to verify before answering? Which should come first: safety or speed?
+<~ safety
+[parrotbench_07730_planning_priorities]
+> What would you need to verify before answering? How do you prioritize several goals?
+<~ goal
+[parrotbench_07731_planning_priorities]
+> What would you need to verify before answering? What makes a requirement hard?
+<~ constraint

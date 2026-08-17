@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/comparison
+# cases: 6
+
+[parrotbench_01726_math_comparison]
+> Treat this as a new domain and explain your model: Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01727_math_comparison]
+> Treat this as a new domain and explain your model: Put 5, 1, 9, and 3 in ascending order.
+<~ 1
+[parrotbench_01728_math_comparison]
+> Treat this as a new domain and explain your model: Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01729_math_comparison]
+> What would you need to verify before answering? Which is greater, 41 or 14?
+<~ 41
+[parrotbench_01730_math_comparison]
+> What would you need to verify before answering? Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01731_math_comparison]
+> What would you need to verify before answering? Put 5, 1, 9, and 3 in ascending order.
+<~ 1

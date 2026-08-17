@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 6
+
+[parrotbench_07188_planning_daily]
+> Use the user's constraint as a real constraint: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07189_planning_daily]
+> Check whether the requested format is satisfied: Give me a plan to make tea.
+<~ plan
+[parrotbench_07190_planning_daily]
+> Check whether the requested format is satisfied: What is the first step in making tea?
+<~ water
+[parrotbench_07191_planning_daily]
+> Check whether the requested format is satisfied: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07192_planning_daily]
+> Check whether the requested format is satisfied: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07193_planning_daily]
+> What would make this answer wrong? Give me a plan to make tea.
+<~ plan

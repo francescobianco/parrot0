@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-017: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/italian
+# cases: 6
+
+[parrotbench_05301_language_italian]
+> Answer as if this were a release review: Come ti chiami?
+<~ parrot0
+[parrotbench_05302_language_italian]
+> Answer as if this were a release review: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05303_language_italian]
+> Answer as if this were a release review: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05304_language_italian]
+> Answer as if this were a release review: Qual e il contrario di grande?
+<~ small
+[parrotbench_05305_language_italian]
+> Give the strongest answer supported by the KB: Come ti chiami?
+<~ parrot0
+[parrotbench_05306_language_italian]
+> Give the strongest answer supported by the KB: Quanto fa 15 piu 27?
+<~ 42

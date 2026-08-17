@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-015: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/decisions
+# cases: 6
+
+[parrotbench_03488_reasoning_decisions]
+> State uncertainty if needed: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03489_reasoning_decisions]
+> Answer without a generic template: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03490_reasoning_decisions]
+> Answer without a generic template: How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03491_reasoning_decisions]
+> Answer without a generic template: What is a reversible decision?
+<~ revers
+[parrotbench_03492_reasoning_decisions]
+> Answer without a generic template: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03493_reasoning_decisions]
+> Give the answer and one reason: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost

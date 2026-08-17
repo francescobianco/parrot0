@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: logic/contradictions
-# cases: 50
+# cases: 6
 
-[parrotbench_02851_logic_contradictions]
-> Use the relevant evidence and answer: Find the contradiction: the door is open and never opened.
+[parrotbench_02807_logic_contradictions]
+> Please answer: Find the contradiction: the door is open and never opened.
 <~ contradiction
-[parrotbench_02852_logic_contradictions]
-> Use the relevant evidence and answer: What should happen when two facts cannot both hold?
+[parrotbench_02808_logic_contradictions]
+> Please answer: What should happen when two facts cannot both hold?
 <~ conflict
-[parrotbench_02853_logic_contradictions]
-> Do not invent facts. A plan is cheap, fast, safe, and impossible to implement. What conflicts?
+[parrotbench_02809_logic_contradictions]
+> Can you help me with this? A plan is cheap, fast, safe, and impossible to implement. What conflicts?
 <~ impossible
-[parrotbench_02854_logic_contradictions]
-> Do not invent facts. Can something be both entirely known and unknown in the same sense?
+[parrotbench_02810_logic_contradictions]
+> Can you help me with this? Can something be both entirely known and unknown in the same sense?
 <~ no
-[parrotbench_02855_logic_contradictions]
-> Do not invent facts. Find the contradiction: the door is open and never opened.
+[parrotbench_02811_logic_contradictions]
+> Can you help me with this? Find the contradiction: the door is open and never opened.
 <~ contradiction
-[parrotbench_02856_logic_contradictions]
-> Do not invent facts. What should happen when two facts cannot both hold?
-<~ conflict
-[parrotbench_02857_logic_contradictions]
-> Keep the answer useful and honest: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
-<~ impossible
-[parrotbench_02858_logic_contradictions]
-> Keep the answer useful and honest: Can something be both entirely known and unknown in the same sense?
-<~ no
-[parrotbench_02859_logic_contradictions]
-> Keep the answer useful and honest: Find the contradiction: the door is open and never opened.
-<~ contradiction
-[parrotbench_02860_logic_contradictions]
-> Keep the answer useful and honest: What should happen when two facts cannot both hold?
-<~ conflict
-[parrotbench_02861_logic_contradictions]
-> In italiano, A plan is cheap, fast, safe, and impossible to implement. What conflicts?
-<~ impossible
-[parrotbench_02862_logic_contradictions]
-> In italiano, Can something be both entirely known and unknown in the same sense?
-<~ no
-[parrotbench_02863_logic_contradictions]
-> In italiano, Find the contradiction: the door is open and never opened.
-<~ contradiction
-[parrotbench_02864_logic_contradictions]
-> In italiano, What should happen when two facts cannot both hold?
-<~ conflict
-[parrotbench_02865_logic_contradictions]
-> Rispondi brevemente: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
-<~ impossible
-[parrotbench_02866_logic_contradictions]
-> Rispondi brevemente: Can something be both entirely known and unknown in the same sense?
-<~ no
-[parrotbench_02867_logic_contradictions]
-> Rispondi brevemente: Find the contradiction: the door is open and never opened.
-<~ contradiction
-[parrotbench_02868_logic_contradictions]
-> Rispondi brevemente: What should happen when two facts cannot both hold?
-<~ conflict
-[parrotbench_02869_logic_contradictions]
-> Spiegalo in parole semplici: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
-<~ impossible
-[parrotbench_02870_logic_contradictions]
-> Spiegalo in parole semplici: Can something be both entirely known and unknown in the same sense?
-<~ no
-[parrotbench_02871_logic_contradictions]
-> Spiegalo in parole semplici: Find the contradiction: the door is open and never opened.
-<~ contradiction
-[parrotbench_02872_logic_contradictions]
-> Spiegalo in parole semplici: What should happen when two facts cannot both hold?
-<~ conflict
-[parrotbench_02873_logic_contradictions]
-> Prima dimmi cosa manca, poi: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
-<~ impossible
-[parrotbench_02874_logic_contradictions]
-> Prima dimmi cosa manca, poi: Can something be both entirely known and unknown in the same sense?
-<~ no
-[parrotbench_02875_logic_contradictions]
-> Prima dimmi cosa manca, poi: Find the contradiction: the door is open and never opened.
-<~ contradiction
-[parrotbench_02876_logic_contradictions]
-> Prima dimmi cosa manca, poi: What should happen when two facts cannot both hold?
-<~ conflict
-[parrotbench_02877_logic_contradictions]
-> What is the shortest useful answer to this? A plan is cheap, fast, safe, and impossible to implement. What conflicts?
-<~ impossible
-[parrotbench_02878_logic_contradictions]
-> What is the shortest useful answer to this? Can something be both entirely known and unknown in the same sense?
-<~ no
-[parrotbench_02879_logic_contradictions]
-> What is the shortest useful answer to this? Find the contradiction: the door is open and never opened.
-<~ contradiction
-[parrotbench_02880_logic_contradictions]
-> What is the shortest useful answer to this? What should happen when two facts cannot both hold?
-<~ conflict
-[parrotbench_02881_logic_contradictions]
-> Challenge your first interpretation: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
-<~ impossible
-[parrotbench_02882_logic_contradictions]
-> Challenge your first interpretation: Can something be both entirely known and unknown in the same sense?
-<~ no
-[parrotbench_02883_logic_contradictions]
-> Challenge your first interpretation: Find the contradiction: the door is open and never opened.
-<~ contradiction
-[parrotbench_02884_logic_contradictions]
-> Challenge your first interpretation: What should happen when two facts cannot both hold?
-<~ conflict
-[parrotbench_02885_logic_contradictions]
-> State uncertainty if needed: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
-<~ impossible
-[parrotbench_02886_logic_contradictions]
-> State uncertainty if needed: Can something be both entirely known and unknown in the same sense?
-<~ no
-[parrotbench_02887_logic_contradictions]
-> State uncertainty if needed: Find the contradiction: the door is open and never opened.
-<~ contradiction
-[parrotbench_02888_logic_contradictions]
-> State uncertainty if needed: What should happen when two facts cannot both hold?
-<~ conflict
-[parrotbench_02889_logic_contradictions]
-> Answer without a generic template: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
-<~ impossible
-[parrotbench_02890_logic_contradictions]
-> Answer without a generic template: Can something be both entirely known and unknown in the same sense?
-<~ no
-[parrotbench_02891_logic_contradictions]
-> Answer without a generic template: Find the contradiction: the door is open and never opened.
-<~ contradiction
-[parrotbench_02892_logic_contradictions]
-> Answer without a generic template: What should happen when two facts cannot both hold?
-<~ conflict
-[parrotbench_02893_logic_contradictions]
-> Give the answer and one reason: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
-<~ impossible
-[parrotbench_02894_logic_contradictions]
-> Give the answer and one reason: Can something be both entirely known and unknown in the same sense?
-<~ no
-[parrotbench_02895_logic_contradictions]
-> Give the answer and one reason: Find the contradiction: the door is open and never opened.
-<~ contradiction
-[parrotbench_02896_logic_contradictions]
-> Give the answer and one reason: What should happen when two facts cannot both hold?
-<~ conflict
-[parrotbench_02897_logic_contradictions]
-> Separate fact from hypothesis: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
-<~ impossible
-[parrotbench_02898_logic_contradictions]
-> Separate fact from hypothesis: Can something be both entirely known and unknown in the same sense?
-<~ no
-[parrotbench_02899_logic_contradictions]
-> Separate fact from hypothesis: Find the contradiction: the door is open and never opened.
-<~ contradiction
-[parrotbench_02900_logic_contradictions]
-> Separate fact from hypothesis: What should happen when two facts cannot both hold?
+[parrotbench_02812_logic_contradictions]
+> Can you help me with this? What should happen when two facts cannot both hold?
 <~ conflict

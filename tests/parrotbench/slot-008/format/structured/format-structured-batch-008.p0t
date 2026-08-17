@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-008: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 7
+
+[parrotbench_06644_format_structured]
+> Answer cautiously: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06645_format_structured]
+> First identify the goal, then answer: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06646_format_structured]
+> First identify the goal, then answer: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06647_format_structured]
+> First identify the goal, then answer: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06648_format_structured]
+> First identify the goal, then answer: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06649_format_structured]
+> Use the relevant evidence and answer: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06650_format_structured]
+> Use the relevant evidence and answer: Answer as a numbered list with two items.
+<~ 1

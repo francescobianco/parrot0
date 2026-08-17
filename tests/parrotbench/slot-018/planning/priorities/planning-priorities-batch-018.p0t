@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/priorities
+# cases: 6
+
+[parrotbench_07707_planning_priorities]
+> Give the strongest answer supported by the KB: What makes a requirement hard?
+<~ constraint
+[parrotbench_07708_planning_priorities]
+> Give the strongest answer supported by the KB: How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07709_planning_priorities]
+> Do not confuse a wall with an answer. Which should come first: safety or speed?
+<~ safety
+[parrotbench_07710_planning_priorities]
+> Do not confuse a wall with an answer. How do you prioritize several goals?
+<~ goal
+[parrotbench_07711_planning_priorities]
+> Do not confuse a wall with an answer. What makes a requirement hard?
+<~ constraint
+[parrotbench_07712_planning_priorities]
+> Do not confuse a wall with an answer. How should an agent resolve conflicting goals?
+<~ conflict

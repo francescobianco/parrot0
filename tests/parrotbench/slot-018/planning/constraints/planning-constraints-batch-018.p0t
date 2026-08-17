@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/constraints
+# cases: 6
+
+[parrotbench_07307_planning_constraints]
+> Give the strongest answer supported by the KB: What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07308_planning_constraints]
+> Give the strongest answer supported by the KB: When should a plan ask for clarification?
+<~ goal
+[parrotbench_07309_planning_constraints]
+> Do not confuse a wall with an answer. Make a plan without using sugar.
+<~ without
+[parrotbench_07310_planning_constraints]
+> Do not confuse a wall with an answer. How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07311_planning_constraints]
+> Do not confuse a wall with an answer. What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07312_planning_constraints]
+> Do not confuse a wall with an answer. When should a plan ask for clarification?
+<~ goal

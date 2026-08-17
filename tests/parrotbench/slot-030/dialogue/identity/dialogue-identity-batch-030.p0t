@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/identity
+# cases: 6
+
+[parrotbench_04382_dialogue_identity]
+> Explain the reasoning rather than a slogan: Who are you?
+<~ parrot0
+[parrotbench_04383_dialogue_identity]
+> Explain the reasoning rather than a slogan: What kind of system are you?
+<~ AI
+[parrotbench_04384_dialogue_identity]
+> Explain the reasoning rather than a slogan: What generation are you running?
+<~ gen
+[parrotbench_04385_dialogue_identity]
+> Use the user's constraint as a real constraint: What is your name?
+<~ parrot0
+[parrotbench_04386_dialogue_identity]
+> Use the user's constraint as a real constraint: Who are you?
+<~ parrot0
+[parrotbench_04387_dialogue_identity]
+> Use the user's constraint as a real constraint: What kind of system are you?
+<~ AI

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06582_format_lists]
+> Explain the reasoning rather than a slogan: Give two reasons to verify sources.
+<~ source
+[parrotbench_06583_format_lists]
+> Explain the reasoning rather than a slogan: Name three planets.
+<~ Earth
+[parrotbench_06584_format_lists]
+> Explain the reasoning rather than a slogan: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06585_format_lists]
+> Use the user's constraint as a real constraint: List exactly three colors.
+<~ blue
+[parrotbench_06586_format_lists]
+> Use the user's constraint as a real constraint: Give two reasons to verify sources.
+<~ source
+[parrotbench_06587_format_lists]
+> Use the user's constraint as a real constraint: Name three planets.
+<~ Earth

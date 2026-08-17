@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/empathy
+# cases: 7
+
+[parrotbench_04944_dialogue_empathy]
+> Use a concrete example in your answer: How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04945_dialogue_empathy]
+> Avoid changing the subject: I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04946_dialogue_empathy]
+> Avoid changing the subject: I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04947_dialogue_empathy]
+> Avoid changing the subject: Can you have feelings of your own?
+<~ not
+[parrotbench_04948_dialogue_empathy]
+> Avoid changing the subject: How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04949_dialogue_empathy]
+> Answer the user's actual goal: I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04950_dialogue_empathy]
+> Answer the user's actual goal: I am worried about an exam. What can you say?
+<~ help

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 6
+
+[parrotbench_01182_math_multiplication]
+> Explain the reasoning rather than a slogan: Calculate three groups of seven.
+<~ 21
+[parrotbench_01183_math_multiplication]
+> Explain the reasoning rather than a slogan: What do five pairs contain?
+<~ 10
+[parrotbench_01184_math_multiplication]
+> Explain the reasoning rather than a slogan: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01185_math_multiplication]
+> Use the user's constraint as a real constraint: What is 9 times 8?
+<~ 72
+[parrotbench_01186_math_multiplication]
+> Use the user's constraint as a real constraint: Calculate three groups of seven.
+<~ 21
+[parrotbench_01187_math_multiplication]
+> Use the user's constraint as a real constraint: What do five pairs contain?
+<~ 10

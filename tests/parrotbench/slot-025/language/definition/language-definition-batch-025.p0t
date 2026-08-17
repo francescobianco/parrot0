@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/definition
+# cases: 6
+
+[parrotbench_05951_language_definition]
+> Answer the user's actual goal: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05952_language_definition]
+> Answer the user's actual goal: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05953_language_definition]
+> If the request is underspecified, say what is missing: Define democracy in simple terms.
+<~ people
+[parrotbench_05954_language_definition]
+> If the request is underspecified, say what is missing: What does ephemeral mean?
+<~ short
+[parrotbench_05955_language_definition]
+> If the request is underspecified, say what is missing: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05956_language_definition]
+> If the request is underspecified, say what is missing: What is a rule in a knowledge base?
+<~ rule

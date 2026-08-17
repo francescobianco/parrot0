@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/definition
+# cases: 6
+
+[parrotbench_05988_language_definition]
+> Use the user's constraint as a real constraint: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05989_language_definition]
+> Check whether the requested format is satisfied: Define democracy in simple terms.
+<~ people
+[parrotbench_05990_language_definition]
+> Check whether the requested format is satisfied: What does ephemeral mean?
+<~ short
+[parrotbench_05991_language_definition]
+> Check whether the requested format is satisfied: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05992_language_definition]
+> Check whether the requested format is satisfied: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05993_language_definition]
+> What would make this answer wrong? Define democracy in simple terms.
+<~ people

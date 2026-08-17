@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: tools/files
-# cases: 50
+# cases: 6
 
-[parrotbench_07851_tools_files]
-> Use the relevant evidence and answer: What is the current working directory?
+[parrotbench_07807_tools_files]
+> Please answer: What is the current working directory?
 <~ directory
-[parrotbench_07852_tools_files]
-> Use the relevant evidence and answer: Why should a file operation be reported?
+[parrotbench_07808_tools_files]
+> Please answer: Why should a file operation be reported?
 <~ file
-[parrotbench_07853_tools_files]
-> Do not invent facts. List the files in the current directory.
+[parrotbench_07809_tools_files]
+> Can you help me with this? List the files in the current directory.
 <~ README
-[parrotbench_07854_tools_files]
-> Do not invent facts. Can you inspect a file without modifying it?
+[parrotbench_07810_tools_files]
+> Can you help me with this? Can you inspect a file without modifying it?
 <~ file
-[parrotbench_07855_tools_files]
-> Do not invent facts. What is the current working directory?
+[parrotbench_07811_tools_files]
+> Can you help me with this? What is the current working directory?
 <~ directory
-[parrotbench_07856_tools_files]
-> Do not invent facts. Why should a file operation be reported?
-<~ file
-[parrotbench_07857_tools_files]
-> Keep the answer useful and honest: List the files in the current directory.
-<~ README
-[parrotbench_07858_tools_files]
-> Keep the answer useful and honest: Can you inspect a file without modifying it?
-<~ file
-[parrotbench_07859_tools_files]
-> Keep the answer useful and honest: What is the current working directory?
-<~ directory
-[parrotbench_07860_tools_files]
-> Keep the answer useful and honest: Why should a file operation be reported?
-<~ file
-[parrotbench_07861_tools_files]
-> In italiano, List the files in the current directory.
-<~ README
-[parrotbench_07862_tools_files]
-> In italiano, Can you inspect a file without modifying it?
-<~ file
-[parrotbench_07863_tools_files]
-> In italiano, What is the current working directory?
-<~ directory
-[parrotbench_07864_tools_files]
-> In italiano, Why should a file operation be reported?
-<~ file
-[parrotbench_07865_tools_files]
-> Rispondi brevemente: List the files in the current directory.
-<~ README
-[parrotbench_07866_tools_files]
-> Rispondi brevemente: Can you inspect a file without modifying it?
-<~ file
-[parrotbench_07867_tools_files]
-> Rispondi brevemente: What is the current working directory?
-<~ directory
-[parrotbench_07868_tools_files]
-> Rispondi brevemente: Why should a file operation be reported?
-<~ file
-[parrotbench_07869_tools_files]
-> Spiegalo in parole semplici: List the files in the current directory.
-<~ README
-[parrotbench_07870_tools_files]
-> Spiegalo in parole semplici: Can you inspect a file without modifying it?
-<~ file
-[parrotbench_07871_tools_files]
-> Spiegalo in parole semplici: What is the current working directory?
-<~ directory
-[parrotbench_07872_tools_files]
-> Spiegalo in parole semplici: Why should a file operation be reported?
-<~ file
-[parrotbench_07873_tools_files]
-> Prima dimmi cosa manca, poi: List the files in the current directory.
-<~ README
-[parrotbench_07874_tools_files]
-> Prima dimmi cosa manca, poi: Can you inspect a file without modifying it?
-<~ file
-[parrotbench_07875_tools_files]
-> Prima dimmi cosa manca, poi: What is the current working directory?
-<~ directory
-[parrotbench_07876_tools_files]
-> Prima dimmi cosa manca, poi: Why should a file operation be reported?
-<~ file
-[parrotbench_07877_tools_files]
-> What is the shortest useful answer to this? List the files in the current directory.
-<~ README
-[parrotbench_07878_tools_files]
-> What is the shortest useful answer to this? Can you inspect a file without modifying it?
-<~ file
-[parrotbench_07879_tools_files]
-> What is the shortest useful answer to this? What is the current working directory?
-<~ directory
-[parrotbench_07880_tools_files]
-> What is the shortest useful answer to this? Why should a file operation be reported?
-<~ file
-[parrotbench_07881_tools_files]
-> Challenge your first interpretation: List the files in the current directory.
-<~ README
-[parrotbench_07882_tools_files]
-> Challenge your first interpretation: Can you inspect a file without modifying it?
-<~ file
-[parrotbench_07883_tools_files]
-> Challenge your first interpretation: What is the current working directory?
-<~ directory
-[parrotbench_07884_tools_files]
-> Challenge your first interpretation: Why should a file operation be reported?
-<~ file
-[parrotbench_07885_tools_files]
-> State uncertainty if needed: List the files in the current directory.
-<~ README
-[parrotbench_07886_tools_files]
-> State uncertainty if needed: Can you inspect a file without modifying it?
-<~ file
-[parrotbench_07887_tools_files]
-> State uncertainty if needed: What is the current working directory?
-<~ directory
-[parrotbench_07888_tools_files]
-> State uncertainty if needed: Why should a file operation be reported?
-<~ file
-[parrotbench_07889_tools_files]
-> Answer without a generic template: List the files in the current directory.
-<~ README
-[parrotbench_07890_tools_files]
-> Answer without a generic template: Can you inspect a file without modifying it?
-<~ file
-[parrotbench_07891_tools_files]
-> Answer without a generic template: What is the current working directory?
-<~ directory
-[parrotbench_07892_tools_files]
-> Answer without a generic template: Why should a file operation be reported?
-<~ file
-[parrotbench_07893_tools_files]
-> Give the answer and one reason: List the files in the current directory.
-<~ README
-[parrotbench_07894_tools_files]
-> Give the answer and one reason: Can you inspect a file without modifying it?
-<~ file
-[parrotbench_07895_tools_files]
-> Give the answer and one reason: What is the current working directory?
-<~ directory
-[parrotbench_07896_tools_files]
-> Give the answer and one reason: Why should a file operation be reported?
-<~ file
-[parrotbench_07897_tools_files]
-> Separate fact from hypothesis: List the files in the current directory.
-<~ README
-[parrotbench_07898_tools_files]
-> Separate fact from hypothesis: Can you inspect a file without modifying it?
-<~ file
-[parrotbench_07899_tools_files]
-> Separate fact from hypothesis: What is the current working directory?
-<~ directory
-[parrotbench_07900_tools_files]
-> Separate fact from hypothesis: Why should a file operation be reported?
+[parrotbench_07812_tools_files]
+> Can you help me with this? Why should a file operation be reported?
 <~ file

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-009: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/identity
+# cases: 6
+
+[parrotbench_04251_dialogue_identity]
+> Use the relevant evidence and answer: What kind of system are you?
+<~ AI
+[parrotbench_04252_dialogue_identity]
+> Use the relevant evidence and answer: What generation are you running?
+<~ gen
+[parrotbench_04253_dialogue_identity]
+> Do not invent facts. What is your name?
+<~ parrot0
+[parrotbench_04254_dialogue_identity]
+> Do not invent facts. Who are you?
+<~ parrot0
+[parrotbench_04255_dialogue_identity]
+> Do not invent facts. What kind of system are you?
+<~ AI
+[parrotbench_04256_dialogue_identity]
+> Do not invent facts. What generation are you running?
+<~ gen

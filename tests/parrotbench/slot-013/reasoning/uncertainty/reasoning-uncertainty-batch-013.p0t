@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/uncertainty
+# cases: 6
+
+[parrotbench_03276_reasoning_uncertainty]
+> Prima dimmi cosa manca, poi: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03277_reasoning_uncertainty]
+> What is the shortest useful answer to this? How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03278_reasoning_uncertainty]
+> What is the shortest useful answer to this? What is the difference between not proved and false?
+<~ not
+[parrotbench_03279_reasoning_uncertainty]
+> What is the shortest useful answer to this? Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03280_reasoning_uncertainty]
+> What is the shortest useful answer to this? Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03281_reasoning_uncertainty]
+> Challenge your first interpretation: How should you answer a claim with weak evidence?
+<~ uncertain

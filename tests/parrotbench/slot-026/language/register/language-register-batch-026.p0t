@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-026: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/register
+# cases: 6
+
+[parrotbench_06157_language_register]
+> Can this be answered from known facts? Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06158_language_register]
+> Can this be answered from known facts? Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06159_language_register]
+> Can this be answered from known facts? Say this more politely: give me the file.
+<~ please
+[parrotbench_06160_language_register]
+> Can this be answered from known facts? Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06161_language_register]
+> What would a careful interlocutor say? Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06162_language_register]
+> What would a careful interlocutor say? Explain photosynthesis to an expert.
+<~ photosynthesis

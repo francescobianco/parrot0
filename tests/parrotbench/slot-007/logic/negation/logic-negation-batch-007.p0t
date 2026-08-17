@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-007: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 6
+
+[parrotbench_02238_logic_negation]
+> What would you tell an expert? Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02239_logic_negation]
+> What would you tell an expert? If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02240_logic_negation]
+> What would you tell an expert? Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02241_logic_negation]
+> Answer cautiously: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02242_logic_negation]
+> Answer cautiously: Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02243_logic_negation]
+> Answer cautiously: If nobody is both, does one counterexample prove the rule?
+<~ no

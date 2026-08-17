@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-014: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06482_format_lists]
+> Challenge your first interpretation: Give two reasons to verify sources.
+<~ source
+[parrotbench_06483_format_lists]
+> Challenge your first interpretation: Name three planets.
+<~ Earth
+[parrotbench_06484_format_lists]
+> Challenge your first interpretation: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06485_format_lists]
+> State uncertainty if needed: List exactly three colors.
+<~ blue
+[parrotbench_06486_format_lists]
+> State uncertainty if needed: Give two reasons to verify sources.
+<~ source
+[parrotbench_06487_format_lists]
+> State uncertainty if needed: Name three planets.
+<~ Earth

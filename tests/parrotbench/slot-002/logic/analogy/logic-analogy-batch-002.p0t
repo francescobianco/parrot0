@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: logic/analogy
-# cases: 50
+# cases: 6
 
-[parrotbench_03051_logic_analogy]
-> Use the relevant evidence and answer: What remains when domain-specific names are removed?
+[parrotbench_03007_logic_analogy]
+> Please answer: What remains when domain-specific names are removed?
 <~ structure
-[parrotbench_03052_logic_analogy]
-> Use the relevant evidence and answer: How can two different graphs be analogous?
+[parrotbench_03008_logic_analogy]
+> Please answer: How can two different graphs be analogous?
 <~ invariant
-[parrotbench_03053_logic_analogy]
-> Do not invent facts. What structure is shared by a deadlock and two people waiting for each other?
+[parrotbench_03009_logic_analogy]
+> Can you help me with this? What structure is shared by a deadlock and two people waiting for each other?
 <~ wait
-[parrotbench_03054_logic_analogy]
-> Do not invent facts. Can a relation pattern transfer when the nouns change?
+[parrotbench_03010_logic_analogy]
+> Can you help me with this? Can a relation pattern transfer when the nouns change?
 <~ structure
-[parrotbench_03055_logic_analogy]
-> Do not invent facts. What remains when domain-specific names are removed?
+[parrotbench_03011_logic_analogy]
+> Can you help me with this? What remains when domain-specific names are removed?
 <~ structure
-[parrotbench_03056_logic_analogy]
-> Do not invent facts. How can two different graphs be analogous?
-<~ invariant
-[parrotbench_03057_logic_analogy]
-> Keep the answer useful and honest: What structure is shared by a deadlock and two people waiting for each other?
-<~ wait
-[parrotbench_03058_logic_analogy]
-> Keep the answer useful and honest: Can a relation pattern transfer when the nouns change?
-<~ structure
-[parrotbench_03059_logic_analogy]
-> Keep the answer useful and honest: What remains when domain-specific names are removed?
-<~ structure
-[parrotbench_03060_logic_analogy]
-> Keep the answer useful and honest: How can two different graphs be analogous?
-<~ invariant
-[parrotbench_03061_logic_analogy]
-> In italiano, What structure is shared by a deadlock and two people waiting for each other?
-<~ wait
-[parrotbench_03062_logic_analogy]
-> In italiano, Can a relation pattern transfer when the nouns change?
-<~ structure
-[parrotbench_03063_logic_analogy]
-> In italiano, What remains when domain-specific names are removed?
-<~ structure
-[parrotbench_03064_logic_analogy]
-> In italiano, How can two different graphs be analogous?
-<~ invariant
-[parrotbench_03065_logic_analogy]
-> Rispondi brevemente: What structure is shared by a deadlock and two people waiting for each other?
-<~ wait
-[parrotbench_03066_logic_analogy]
-> Rispondi brevemente: Can a relation pattern transfer when the nouns change?
-<~ structure
-[parrotbench_03067_logic_analogy]
-> Rispondi brevemente: What remains when domain-specific names are removed?
-<~ structure
-[parrotbench_03068_logic_analogy]
-> Rispondi brevemente: How can two different graphs be analogous?
-<~ invariant
-[parrotbench_03069_logic_analogy]
-> Spiegalo in parole semplici: What structure is shared by a deadlock and two people waiting for each other?
-<~ wait
-[parrotbench_03070_logic_analogy]
-> Spiegalo in parole semplici: Can a relation pattern transfer when the nouns change?
-<~ structure
-[parrotbench_03071_logic_analogy]
-> Spiegalo in parole semplici: What remains when domain-specific names are removed?
-<~ structure
-[parrotbench_03072_logic_analogy]
-> Spiegalo in parole semplici: How can two different graphs be analogous?
-<~ invariant
-[parrotbench_03073_logic_analogy]
-> Prima dimmi cosa manca, poi: What structure is shared by a deadlock and two people waiting for each other?
-<~ wait
-[parrotbench_03074_logic_analogy]
-> Prima dimmi cosa manca, poi: Can a relation pattern transfer when the nouns change?
-<~ structure
-[parrotbench_03075_logic_analogy]
-> Prima dimmi cosa manca, poi: What remains when domain-specific names are removed?
-<~ structure
-[parrotbench_03076_logic_analogy]
-> Prima dimmi cosa manca, poi: How can two different graphs be analogous?
-<~ invariant
-[parrotbench_03077_logic_analogy]
-> What is the shortest useful answer to this? What structure is shared by a deadlock and two people waiting for each other?
-<~ wait
-[parrotbench_03078_logic_analogy]
-> What is the shortest useful answer to this? Can a relation pattern transfer when the nouns change?
-<~ structure
-[parrotbench_03079_logic_analogy]
-> What is the shortest useful answer to this? What remains when domain-specific names are removed?
-<~ structure
-[parrotbench_03080_logic_analogy]
-> What is the shortest useful answer to this? How can two different graphs be analogous?
-<~ invariant
-[parrotbench_03081_logic_analogy]
-> Challenge your first interpretation: What structure is shared by a deadlock and two people waiting for each other?
-<~ wait
-[parrotbench_03082_logic_analogy]
-> Challenge your first interpretation: Can a relation pattern transfer when the nouns change?
-<~ structure
-[parrotbench_03083_logic_analogy]
-> Challenge your first interpretation: What remains when domain-specific names are removed?
-<~ structure
-[parrotbench_03084_logic_analogy]
-> Challenge your first interpretation: How can two different graphs be analogous?
-<~ invariant
-[parrotbench_03085_logic_analogy]
-> State uncertainty if needed: What structure is shared by a deadlock and two people waiting for each other?
-<~ wait
-[parrotbench_03086_logic_analogy]
-> State uncertainty if needed: Can a relation pattern transfer when the nouns change?
-<~ structure
-[parrotbench_03087_logic_analogy]
-> State uncertainty if needed: What remains when domain-specific names are removed?
-<~ structure
-[parrotbench_03088_logic_analogy]
-> State uncertainty if needed: How can two different graphs be analogous?
-<~ invariant
-[parrotbench_03089_logic_analogy]
-> Answer without a generic template: What structure is shared by a deadlock and two people waiting for each other?
-<~ wait
-[parrotbench_03090_logic_analogy]
-> Answer without a generic template: Can a relation pattern transfer when the nouns change?
-<~ structure
-[parrotbench_03091_logic_analogy]
-> Answer without a generic template: What remains when domain-specific names are removed?
-<~ structure
-[parrotbench_03092_logic_analogy]
-> Answer without a generic template: How can two different graphs be analogous?
-<~ invariant
-[parrotbench_03093_logic_analogy]
-> Give the answer and one reason: What structure is shared by a deadlock and two people waiting for each other?
-<~ wait
-[parrotbench_03094_logic_analogy]
-> Give the answer and one reason: Can a relation pattern transfer when the nouns change?
-<~ structure
-[parrotbench_03095_logic_analogy]
-> Give the answer and one reason: What remains when domain-specific names are removed?
-<~ structure
-[parrotbench_03096_logic_analogy]
-> Give the answer and one reason: How can two different graphs be analogous?
-<~ invariant
-[parrotbench_03097_logic_analogy]
-> Separate fact from hypothesis: What structure is shared by a deadlock and two people waiting for each other?
-<~ wait
-[parrotbench_03098_logic_analogy]
-> Separate fact from hypothesis: Can a relation pattern transfer when the nouns change?
-<~ structure
-[parrotbench_03099_logic_analogy]
-> Separate fact from hypothesis: What remains when domain-specific names are removed?
-<~ structure
-[parrotbench_03100_logic_analogy]
-> Separate fact from hypothesis: How can two different graphs be analogous?
+[parrotbench_03012_logic_analogy]
+> Can you help me with this? How can two different graphs be analogous?
 <~ invariant

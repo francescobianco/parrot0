@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-008: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: universal/frames
+# cases: 7
+
+[parrotbench_11044_universal_frames]
+> Answer cautiously: How can a frame support analogy?
+<~ structure
+[parrotbench_11045_universal_frames]
+> First identify the goal, then answer: What is a semantic frame?
+<~ frame
+[parrotbench_11046_universal_frames]
+> First identify the goal, then answer: Why should frames survive paraphrase?
+<~ surface
+[parrotbench_11047_universal_frames]
+> First identify the goal, then answer: What is a relational graph?
+<~ graph
+[parrotbench_11048_universal_frames]
+> First identify the goal, then answer: How can a frame support analogy?
+<~ structure
+[parrotbench_11049_universal_frames]
+> Use the relevant evidence and answer: What is a semantic frame?
+<~ frame
+[parrotbench_11050_universal_frames]
+> Use the relevant evidence and answer: Why should frames survive paraphrase?
+<~ surface

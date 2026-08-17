@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-015: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/analogy
+# cases: 6
+
+[parrotbench_03088_logic_analogy]
+> State uncertainty if needed: How can two different graphs be analogous?
+<~ invariant
+[parrotbench_03089_logic_analogy]
+> Answer without a generic template: What structure is shared by a deadlock and two people waiting for each other?
+<~ wait
+[parrotbench_03090_logic_analogy]
+> Answer without a generic template: Can a relation pattern transfer when the nouns change?
+<~ structure
+[parrotbench_03091_logic_analogy]
+> Answer without a generic template: What remains when domain-specific names are removed?
+<~ structure
+[parrotbench_03092_logic_analogy]
+> Answer without a generic template: How can two different graphs be analogous?
+<~ invariant
+[parrotbench_03093_logic_analogy]
+> Give the answer and one reason: What structure is shared by a deadlock and two people waiting for each other?
+<~ wait

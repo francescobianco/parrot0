@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-016: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/first
+# cases: 7
+
+[parrotbench_08694_kb_first]
+> Give the answer and one reason: Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08695_kb_first]
+> Give the answer and one reason: Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08696_kb_first]
+> Give the answer and one reason: What is the KB-first rule?
+<~ KB
+[parrotbench_08697_kb_first]
+> Separate fact from hypothesis: Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08698_kb_first]
+> Separate fact from hypothesis: Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08699_kb_first]
+> Separate fact from hypothesis: Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08700_kb_first]
+> Separate fact from hypothesis: What is the KB-first rule?
+<~ KB

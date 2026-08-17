@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/counterfactual
+# cases: 7
+
+[parrotbench_02719_logic_counterfactual]
+> Start with the direct answer, then qualify it: If all else stays fixed, what does a counterfactual isolate?
+<~ cause
+[parrotbench_02720_logic_counterfactual]
+> Start with the direct answer, then qualify it: Can an outcome prove its supposed cause by itself?
+<~ no
+[parrotbench_02721_logic_counterfactual]
+> Identify the entities and relations first: If the switch had stayed off, would the lamp have lit?
+<~ no
+[parrotbench_02722_logic_counterfactual]
+> Identify the entities and relations first: What changes in a counterfactual argument?
+<~ condition
+[parrotbench_02723_logic_counterfactual]
+> Identify the entities and relations first: If all else stays fixed, what does a counterfactual isolate?
+<~ cause
+[parrotbench_02724_logic_counterfactual]
+> Identify the entities and relations first: Can an outcome prove its supposed cause by itself?
+<~ no
+[parrotbench_02725_logic_counterfactual]
+> Treat this as a new domain and explain your model: If the switch had stayed off, would the lamp have lit?
+<~ no

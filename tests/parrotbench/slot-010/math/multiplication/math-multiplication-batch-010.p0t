@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 6
+
+[parrotbench_01057_math_multiplication]
+> Keep the answer useful and honest: What is 9 times 8?
+<~ 72
+[parrotbench_01058_math_multiplication]
+> Keep the answer useful and honest: Calculate three groups of seven.
+<~ 21
+[parrotbench_01059_math_multiplication]
+> Keep the answer useful and honest: What do five pairs contain?
+<~ 10
+[parrotbench_01060_math_multiplication]
+> Keep the answer useful and honest: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01061_math_multiplication]
+> In italiano, What is 9 times 8?
+<~ 72
+[parrotbench_01062_math_multiplication]
+> In italiano, Calculate three groups of seven.
+<~ 21

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-015: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05488_language_translation]
+> State uncertainty if needed: Translate acqua into English.
+<~ water
+[parrotbench_05489_language_translation]
+> Answer without a generic template: Translate hello into Italian.
+<~ ciao
+[parrotbench_05490_language_translation]
+> Answer without a generic template: Translate the small house into French.
+<~ maison
+[parrotbench_05491_language_translation]
+> Answer without a generic template: Translate the dog runs into English.
+<~ dog
+[parrotbench_05492_language_translation]
+> Answer without a generic template: Translate acqua into English.
+<~ water
+[parrotbench_05493_language_translation]
+> Give the answer and one reason: Translate hello into Italian.
+<~ ciao

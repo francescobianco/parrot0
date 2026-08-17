@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/names
+# cases: 6
+
+[parrotbench_09913_creative_names]
+> What is the operational interpretation of this? Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09914_creative_names]
+> What is the operational interpretation of this? Give three distinct names for a robot.
+<~ robot
+[parrotbench_09915_creative_names]
+> What is the operational interpretation of this? Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09916_creative_names]
+> What is the operational interpretation of this? Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09917_creative_names]
+> Start with the direct answer, then qualify it: Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09918_creative_names]
+> Start with the direct answer, then qualify it: Give three distinct names for a robot.
+<~ robot

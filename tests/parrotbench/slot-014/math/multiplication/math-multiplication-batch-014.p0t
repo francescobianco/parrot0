@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-014: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 6
+
+[parrotbench_01082_math_multiplication]
+> Challenge your first interpretation: Calculate three groups of seven.
+<~ 21
+[parrotbench_01083_math_multiplication]
+> Challenge your first interpretation: What do five pairs contain?
+<~ 10
+[parrotbench_01084_math_multiplication]
+> Challenge your first interpretation: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01085_math_multiplication]
+> State uncertainty if needed: What is 9 times 8?
+<~ 72
+[parrotbench_01086_math_multiplication]
+> State uncertainty if needed: Calculate three groups of seven.
+<~ 21
+[parrotbench_01087_math_multiplication]
+> State uncertainty if needed: What do five pairs contain?
+<~ 10

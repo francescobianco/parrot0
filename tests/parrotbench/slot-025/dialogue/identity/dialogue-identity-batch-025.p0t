@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/identity
+# cases: 6
+
+[parrotbench_04351_dialogue_identity]
+> Answer the user's actual goal: What kind of system are you?
+<~ AI
+[parrotbench_04352_dialogue_identity]
+> Answer the user's actual goal: What generation are you running?
+<~ gen
+[parrotbench_04353_dialogue_identity]
+> If the request is underspecified, say what is missing: What is your name?
+<~ parrot0
+[parrotbench_04354_dialogue_identity]
+> If the request is underspecified, say what is missing: Who are you?
+<~ parrot0
+[parrotbench_04355_dialogue_identity]
+> If the request is underspecified, say what is missing: What kind of system are you?
+<~ AI
+[parrotbench_04356_dialogue_identity]
+> If the request is underspecified, say what is missing: What generation are you running?
+<~ gen

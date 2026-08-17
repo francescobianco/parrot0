@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/analogy
+# cases: 6
+
+[parrotbench_03151_logic_analogy]
+> Answer the user's actual goal: What remains when domain-specific names are removed?
+<~ structure
+[parrotbench_03152_logic_analogy]
+> Answer the user's actual goal: How can two different graphs be analogous?
+<~ invariant
+[parrotbench_03153_logic_analogy]
+> If the request is underspecified, say what is missing: What structure is shared by a deadlock and two people waiting for each other?
+<~ wait
+[parrotbench_03154_logic_analogy]
+> If the request is underspecified, say what is missing: Can a relation pattern transfer when the nouns change?
+<~ structure
+[parrotbench_03155_logic_analogy]
+> If the request is underspecified, say what is missing: What remains when domain-specific names are removed?
+<~ structure
+[parrotbench_03156_logic_analogy]
+> If the request is underspecified, say what is missing: How can two different graphs be analogous?
+<~ invariant

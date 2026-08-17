@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/unknowns
+# cases: 6
+
+[parrotbench_00232_knowledge_unknowns]
+> Check this for me: Tell me a fact when you have no source.
+<~ don't know
+[parrotbench_00233_knowledge_unknowns]
+> What would you tell a beginner? Who is the president of Mars?
+<~ don't know
+[parrotbench_00234_knowledge_unknowns]
+> What would you tell a beginner? Did Zorblax invent the moon?
+<~ don't know
+[parrotbench_00235_knowledge_unknowns]
+> What would you tell a beginner? What evidence supports an unknown claim?
+<~ don't know
+[parrotbench_00236_knowledge_unknowns]
+> What would you tell a beginner? Tell me a fact when you have no source.
+<~ don't know
+[parrotbench_00237_knowledge_unknowns]
+> What would you tell an expert? Who is the president of Mars?
+<~ don't know

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 6
+
+[parrotbench_02176_logic_entailment]
+> Distinguish a fact, a rule, and a hypothesis: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02177_logic_entailment]
+> Name the relevant capability: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02178_logic_entailment]
+> Name the relevant capability: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02179_logic_entailment]
+> Name the relevant capability: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02180_logic_entailment]
+> Name the relevant capability: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02181_logic_entailment]
+> Explain the reasoning rather than a slogan: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes

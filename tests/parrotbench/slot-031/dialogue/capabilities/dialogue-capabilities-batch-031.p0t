@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/capabilities
+# cases: 6
+
+[parrotbench_04588_dialogue_capabilities]
+> Use the user's constraint as a real constraint: Do you use a language model at runtime?
+<~ no
+[parrotbench_04589_dialogue_capabilities]
+> Check whether the requested format is satisfied: What can you do?
+<~ capability
+[parrotbench_04590_dialogue_capabilities]
+> Check whether the requested format is satisfied: What can you not do reliably?
+<~ cannot
+[parrotbench_04591_dialogue_capabilities]
+> Check whether the requested format is satisfied: Which abilities are still immature?
+<~ immature
+[parrotbench_04592_dialogue_capabilities]
+> Check whether the requested format is satisfied: Do you use a language model at runtime?
+<~ no
+[parrotbench_04593_dialogue_capabilities]
+> What would make this answer wrong? What can you do?
+<~ capability

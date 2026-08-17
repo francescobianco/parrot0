@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-023: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 6
+
+[parrotbench_06738_format_structured]
+> State one conclusion and one uncertainty: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06739_format_structured]
+> State one conclusion and one uncertainty: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06740_format_structured]
+> State one conclusion and one uncertainty: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06741_format_structured]
+> Use a concrete example in your answer: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06742_format_structured]
+> Use a concrete example in your answer: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06743_format_structured]
+> Use a concrete example in your answer: Give a two-line answer about rain.
+<~ rain

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-008: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 7
+
+[parrotbench_02244_logic_negation]
+> Answer cautiously: Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02245_logic_negation]
+> First identify the goal, then answer: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02246_logic_negation]
+> First identify the goal, then answer: Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02247_logic_negation]
+> First identify the goal, then answer: If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02248_logic_negation]
+> First identify the goal, then answer: Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02249_logic_negation]
+> Use the relevant evidence and answer: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02250_logic_negation]
+> Use the relevant evidence and answer: Some birds cannot fly. Can you say every bird flies?
+<~ no

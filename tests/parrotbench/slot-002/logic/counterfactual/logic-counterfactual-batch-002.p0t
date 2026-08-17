@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: logic/counterfactual
-# cases: 50
+# cases: 6
 
-[parrotbench_02651_logic_counterfactual]
-> Use the relevant evidence and answer: If all else stays fixed, what does a counterfactual isolate?
+[parrotbench_02607_logic_counterfactual]
+> Please answer: If all else stays fixed, what does a counterfactual isolate?
 <~ cause
-[parrotbench_02652_logic_counterfactual]
-> Use the relevant evidence and answer: Can an outcome prove its supposed cause by itself?
+[parrotbench_02608_logic_counterfactual]
+> Please answer: Can an outcome prove its supposed cause by itself?
 <~ no
-[parrotbench_02653_logic_counterfactual]
-> Do not invent facts. If the switch had stayed off, would the lamp have lit?
+[parrotbench_02609_logic_counterfactual]
+> Can you help me with this? If the switch had stayed off, would the lamp have lit?
 <~ no
-[parrotbench_02654_logic_counterfactual]
-> Do not invent facts. What changes in a counterfactual argument?
+[parrotbench_02610_logic_counterfactual]
+> Can you help me with this? What changes in a counterfactual argument?
 <~ condition
-[parrotbench_02655_logic_counterfactual]
-> Do not invent facts. If all else stays fixed, what does a counterfactual isolate?
+[parrotbench_02611_logic_counterfactual]
+> Can you help me with this? If all else stays fixed, what does a counterfactual isolate?
 <~ cause
-[parrotbench_02656_logic_counterfactual]
-> Do not invent facts. Can an outcome prove its supposed cause by itself?
-<~ no
-[parrotbench_02657_logic_counterfactual]
-> Keep the answer useful and honest: If the switch had stayed off, would the lamp have lit?
-<~ no
-[parrotbench_02658_logic_counterfactual]
-> Keep the answer useful and honest: What changes in a counterfactual argument?
-<~ condition
-[parrotbench_02659_logic_counterfactual]
-> Keep the answer useful and honest: If all else stays fixed, what does a counterfactual isolate?
-<~ cause
-[parrotbench_02660_logic_counterfactual]
-> Keep the answer useful and honest: Can an outcome prove its supposed cause by itself?
-<~ no
-[parrotbench_02661_logic_counterfactual]
-> In italiano, If the switch had stayed off, would the lamp have lit?
-<~ no
-[parrotbench_02662_logic_counterfactual]
-> In italiano, What changes in a counterfactual argument?
-<~ condition
-[parrotbench_02663_logic_counterfactual]
-> In italiano, If all else stays fixed, what does a counterfactual isolate?
-<~ cause
-[parrotbench_02664_logic_counterfactual]
-> In italiano, Can an outcome prove its supposed cause by itself?
-<~ no
-[parrotbench_02665_logic_counterfactual]
-> Rispondi brevemente: If the switch had stayed off, would the lamp have lit?
-<~ no
-[parrotbench_02666_logic_counterfactual]
-> Rispondi brevemente: What changes in a counterfactual argument?
-<~ condition
-[parrotbench_02667_logic_counterfactual]
-> Rispondi brevemente: If all else stays fixed, what does a counterfactual isolate?
-<~ cause
-[parrotbench_02668_logic_counterfactual]
-> Rispondi brevemente: Can an outcome prove its supposed cause by itself?
-<~ no
-[parrotbench_02669_logic_counterfactual]
-> Spiegalo in parole semplici: If the switch had stayed off, would the lamp have lit?
-<~ no
-[parrotbench_02670_logic_counterfactual]
-> Spiegalo in parole semplici: What changes in a counterfactual argument?
-<~ condition
-[parrotbench_02671_logic_counterfactual]
-> Spiegalo in parole semplici: If all else stays fixed, what does a counterfactual isolate?
-<~ cause
-[parrotbench_02672_logic_counterfactual]
-> Spiegalo in parole semplici: Can an outcome prove its supposed cause by itself?
-<~ no
-[parrotbench_02673_logic_counterfactual]
-> Prima dimmi cosa manca, poi: If the switch had stayed off, would the lamp have lit?
-<~ no
-[parrotbench_02674_logic_counterfactual]
-> Prima dimmi cosa manca, poi: What changes in a counterfactual argument?
-<~ condition
-[parrotbench_02675_logic_counterfactual]
-> Prima dimmi cosa manca, poi: If all else stays fixed, what does a counterfactual isolate?
-<~ cause
-[parrotbench_02676_logic_counterfactual]
-> Prima dimmi cosa manca, poi: Can an outcome prove its supposed cause by itself?
-<~ no
-[parrotbench_02677_logic_counterfactual]
-> What is the shortest useful answer to this? If the switch had stayed off, would the lamp have lit?
-<~ no
-[parrotbench_02678_logic_counterfactual]
-> What is the shortest useful answer to this? What changes in a counterfactual argument?
-<~ condition
-[parrotbench_02679_logic_counterfactual]
-> What is the shortest useful answer to this? If all else stays fixed, what does a counterfactual isolate?
-<~ cause
-[parrotbench_02680_logic_counterfactual]
-> What is the shortest useful answer to this? Can an outcome prove its supposed cause by itself?
-<~ no
-[parrotbench_02681_logic_counterfactual]
-> Challenge your first interpretation: If the switch had stayed off, would the lamp have lit?
-<~ no
-[parrotbench_02682_logic_counterfactual]
-> Challenge your first interpretation: What changes in a counterfactual argument?
-<~ condition
-[parrotbench_02683_logic_counterfactual]
-> Challenge your first interpretation: If all else stays fixed, what does a counterfactual isolate?
-<~ cause
-[parrotbench_02684_logic_counterfactual]
-> Challenge your first interpretation: Can an outcome prove its supposed cause by itself?
-<~ no
-[parrotbench_02685_logic_counterfactual]
-> State uncertainty if needed: If the switch had stayed off, would the lamp have lit?
-<~ no
-[parrotbench_02686_logic_counterfactual]
-> State uncertainty if needed: What changes in a counterfactual argument?
-<~ condition
-[parrotbench_02687_logic_counterfactual]
-> State uncertainty if needed: If all else stays fixed, what does a counterfactual isolate?
-<~ cause
-[parrotbench_02688_logic_counterfactual]
-> State uncertainty if needed: Can an outcome prove its supposed cause by itself?
-<~ no
-[parrotbench_02689_logic_counterfactual]
-> Answer without a generic template: If the switch had stayed off, would the lamp have lit?
-<~ no
-[parrotbench_02690_logic_counterfactual]
-> Answer without a generic template: What changes in a counterfactual argument?
-<~ condition
-[parrotbench_02691_logic_counterfactual]
-> Answer without a generic template: If all else stays fixed, what does a counterfactual isolate?
-<~ cause
-[parrotbench_02692_logic_counterfactual]
-> Answer without a generic template: Can an outcome prove its supposed cause by itself?
-<~ no
-[parrotbench_02693_logic_counterfactual]
-> Give the answer and one reason: If the switch had stayed off, would the lamp have lit?
-<~ no
-[parrotbench_02694_logic_counterfactual]
-> Give the answer and one reason: What changes in a counterfactual argument?
-<~ condition
-[parrotbench_02695_logic_counterfactual]
-> Give the answer and one reason: If all else stays fixed, what does a counterfactual isolate?
-<~ cause
-[parrotbench_02696_logic_counterfactual]
-> Give the answer and one reason: Can an outcome prove its supposed cause by itself?
-<~ no
-[parrotbench_02697_logic_counterfactual]
-> Separate fact from hypothesis: If the switch had stayed off, would the lamp have lit?
-<~ no
-[parrotbench_02698_logic_counterfactual]
-> Separate fact from hypothesis: What changes in a counterfactual argument?
-<~ condition
-[parrotbench_02699_logic_counterfactual]
-> Separate fact from hypothesis: If all else stays fixed, what does a counterfactual isolate?
-<~ cause
-[parrotbench_02700_logic_counterfactual]
-> Separate fact from hypothesis: Can an outcome prove its supposed cause by itself?
+[parrotbench_02612_logic_counterfactual]
+> Can you help me with this? Can an outcome prove its supposed cause by itself?
 <~ no

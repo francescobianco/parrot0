@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/counterfactual
+# cases: 6
+
+[parrotbench_02788_logic_counterfactual]
+> Use the user's constraint as a real constraint: Can an outcome prove its supposed cause by itself?
+<~ no
+[parrotbench_02789_logic_counterfactual]
+> Check whether the requested format is satisfied: If the switch had stayed off, would the lamp have lit?
+<~ no
+[parrotbench_02790_logic_counterfactual]
+> Check whether the requested format is satisfied: What changes in a counterfactual argument?
+<~ condition
+[parrotbench_02791_logic_counterfactual]
+> Check whether the requested format is satisfied: If all else stays fixed, what does a counterfactual isolate?
+<~ cause
+[parrotbench_02792_logic_counterfactual]
+> Check whether the requested format is satisfied: Can an outcome prove its supposed cause by itself?
+<~ no
+[parrotbench_02793_logic_counterfactual]
+> What would make this answer wrong? If the switch had stayed off, would the lamp have lit?
+<~ no

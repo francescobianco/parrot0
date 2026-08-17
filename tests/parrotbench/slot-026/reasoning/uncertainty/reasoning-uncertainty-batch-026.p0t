@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-026: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/uncertainty
+# cases: 6
+
+[parrotbench_03357_reasoning_uncertainty]
+> Can this be answered from known facts? How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03358_reasoning_uncertainty]
+> Can this be answered from known facts? What is the difference between not proved and false?
+<~ not
+[parrotbench_03359_reasoning_uncertainty]
+> Can this be answered from known facts? Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03360_reasoning_uncertainty]
+> Can this be answered from known facts? Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03361_reasoning_uncertainty]
+> What would a careful interlocutor say? How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03362_reasoning_uncertainty]
+> What would a careful interlocutor say? What is the difference between not proved and false?
+<~ not

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/comparison
+# cases: 7
+
+[parrotbench_01794_math_comparison]
+> What would make this answer wrong? Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01795_math_comparison]
+> What would make this answer wrong? Put 5, 1, 9, and 3 in ascending order.
+<~ 1
+[parrotbench_01796_math_comparison]
+> What would make this answer wrong? Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01797_math_comparison]
+> Give a useful answer without pretending certainty: Which is greater, 41 or 14?
+<~ 41
+[parrotbench_01798_math_comparison]
+> Give a useful answer without pretending certainty: Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01799_math_comparison]
+> Give a useful answer without pretending certainty: Put 5, 1, 9, and 3 in ascending order.
+<~ 1
+[parrotbench_01800_math_comparison]
+> Give a useful answer without pretending certainty: Which is smaller, minus 2 or minus 5?
+<~ 5

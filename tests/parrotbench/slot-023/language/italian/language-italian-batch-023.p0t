@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-023: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/italian
+# cases: 6
+
+[parrotbench_05338_language_italian]
+> State one conclusion and one uncertainty: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05339_language_italian]
+> State one conclusion and one uncertainty: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05340_language_italian]
+> State one conclusion and one uncertainty: Qual e il contrario di grande?
+<~ small
+[parrotbench_05341_language_italian]
+> Use a concrete example in your answer: Come ti chiami?
+<~ parrot0
+[parrotbench_05342_language_italian]
+> Use a concrete example in your answer: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05343_language_italian]
+> Use a concrete example in your answer: Qual e la capitale del Giappone?
+<~ Tokyo

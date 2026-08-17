@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/definition
+# cases: 6
+
+[parrotbench_05976_language_definition]
+> Distinguish a fact, a rule, and a hypothesis: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05977_language_definition]
+> Name the relevant capability: Define democracy in simple terms.
+<~ people
+[parrotbench_05978_language_definition]
+> Name the relevant capability: What does ephemeral mean?
+<~ short
+[parrotbench_05979_language_definition]
+> Name the relevant capability: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05980_language_definition]
+> Name the relevant capability: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05981_language_definition]
+> Explain the reasoning rather than a slogan: Define democracy in simple terms.
+<~ people

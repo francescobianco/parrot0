@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-015: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/inference
+# cases: 6
+
+[parrotbench_09288_kb_inference]
+> State uncertainty if needed: What should happen when rules conflict?
+<~ conflict
+[parrotbench_09289_kb_inference]
+> Answer without a generic template: What is a rule of inference?
+<~ rule
+[parrotbench_09290_kb_inference]
+> Answer without a generic template: What is a derived fact?
+<~ derived
+[parrotbench_09291_kb_inference]
+> Answer without a generic template: Why preserve evidence for a conclusion?
+<~ evidence
+[parrotbench_09292_kb_inference]
+> Answer without a generic template: What should happen when rules conflict?
+<~ conflict
+[parrotbench_09293_kb_inference]
+> Give the answer and one reason: What is a rule of inference?
+<~ rule

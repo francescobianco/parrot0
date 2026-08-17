@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/grammar
+# cases: 6
+
+[parrotbench_05676_language_grammar]
+> Prima dimmi cosa manca, poi: Is 'Me likes apples' grammatical?
+<~ no
+[parrotbench_05677_language_grammar]
+> What is the shortest useful answer to this? What is the plural of child?
+<~ children
+[parrotbench_05678_language_grammar]
+> What is the shortest useful answer to this? What is the past tense of go?
+<~ went
+[parrotbench_05679_language_grammar]
+> What is the shortest useful answer to this? Correct: She go to school.
+<~ goes
+[parrotbench_05680_language_grammar]
+> What is the shortest useful answer to this? Is 'Me likes apples' grammatical?
+<~ no
+[parrotbench_05681_language_grammar]
+> Challenge your first interpretation: What is the plural of child?
+<~ children

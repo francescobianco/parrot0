@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/ratios
+# cases: 7
+
+[parrotbench_01319_math_ratios]
+> Start with the direct answer, then qualify it: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01320_math_ratios]
+> Start with the direct answer, then qualify it: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01321_math_ratios]
+> Identify the entities and relations first: What is 19 percent of 200?
+<~ 38
+[parrotbench_01322_math_ratios]
+> Identify the entities and relations first: What is one quarter of 24?
+<~ 6
+[parrotbench_01323_math_ratios]
+> Identify the entities and relations first: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01324_math_ratios]
+> Identify the entities and relations first: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01325_math_ratios]
+> Treat this as a new domain and explain your model: What is 19 percent of 200?
+<~ 38

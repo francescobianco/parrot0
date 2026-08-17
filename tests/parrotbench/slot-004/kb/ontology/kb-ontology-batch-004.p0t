@@ -2,155 +2,26 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: kb/ontology
-# cases: 50
+# cases: 7
 
-[parrotbench_09151_kb_ontology]
-> Answer the user's actual goal: What is the difference between a fact and a relation?
+[parrotbench_09019_kb_ontology]
+> Give a concise answer. What is the difference between a fact and a relation?
 <~ relation
-[parrotbench_09152_kb_ontology]
-> Answer the user's actual goal: Why separate entities from states?
+[parrotbench_09020_kb_ontology]
+> Give a concise answer. Why separate entities from states?
 <~ state
-[parrotbench_09153_kb_ontology]
-> If the request is underspecified, say what is missing: What is ontology induction?
+[parrotbench_09021_kb_ontology]
+> I need a careful answer: What is ontology induction?
 <~ ontology
-[parrotbench_09154_kb_ontology]
-> If the request is underspecified, say what is missing: Can a new domain require a temporary model?
+[parrotbench_09022_kb_ontology]
+> I need a careful answer: Can a new domain require a temporary model?
 <~ model
-[parrotbench_09155_kb_ontology]
-> If the request is underspecified, say what is missing: What is the difference between a fact and a relation?
+[parrotbench_09023_kb_ontology]
+> I need a careful answer: What is the difference between a fact and a relation?
 <~ relation
-[parrotbench_09156_kb_ontology]
-> If the request is underspecified, say what is missing: Why separate entities from states?
+[parrotbench_09024_kb_ontology]
+> I need a careful answer: Why separate entities from states?
 <~ state
-[parrotbench_09157_kb_ontology]
-> Can this be answered from known facts? What is ontology induction?
+[parrotbench_09025_kb_ontology]
+> Explain your answer briefly: What is ontology induction?
 <~ ontology
-[parrotbench_09158_kb_ontology]
-> Can this be answered from known facts? Can a new domain require a temporary model?
-<~ model
-[parrotbench_09159_kb_ontology]
-> Can this be answered from known facts? What is the difference between a fact and a relation?
-<~ relation
-[parrotbench_09160_kb_ontology]
-> Can this be answered from known facts? Why separate entities from states?
-<~ state
-[parrotbench_09161_kb_ontology]
-> What would a careful interlocutor say? What is ontology induction?
-<~ ontology
-[parrotbench_09162_kb_ontology]
-> What would a careful interlocutor say? Can a new domain require a temporary model?
-<~ model
-[parrotbench_09163_kb_ontology]
-> What would a careful interlocutor say? What is the difference between a fact and a relation?
-<~ relation
-[parrotbench_09164_kb_ontology]
-> What would a careful interlocutor say? Why separate entities from states?
-<~ state
-[parrotbench_09165_kb_ontology]
-> Give a short answer in English: What is ontology induction?
-<~ ontology
-[parrotbench_09166_kb_ontology]
-> Give a short answer in English: Can a new domain require a temporary model?
-<~ model
-[parrotbench_09167_kb_ontology]
-> Give a short answer in English: What is the difference between a fact and a relation?
-<~ relation
-[parrotbench_09168_kb_ontology]
-> Give a short answer in English: Why separate entities from states?
-<~ state
-[parrotbench_09169_kb_ontology]
-> Rispondi in italiano quando possibile: What is ontology induction?
-<~ ontology
-[parrotbench_09170_kb_ontology]
-> Rispondi in italiano quando possibile: Can a new domain require a temporary model?
-<~ model
-[parrotbench_09171_kb_ontology]
-> Rispondi in italiano quando possibile: What is the difference between a fact and a relation?
-<~ relation
-[parrotbench_09172_kb_ontology]
-> Rispondi in italiano quando possibile: Why separate entities from states?
-<~ state
-[parrotbench_09173_kb_ontology]
-> Distinguish a fact, a rule, and a hypothesis: What is ontology induction?
-<~ ontology
-[parrotbench_09174_kb_ontology]
-> Distinguish a fact, a rule, and a hypothesis: Can a new domain require a temporary model?
-<~ model
-[parrotbench_09175_kb_ontology]
-> Distinguish a fact, a rule, and a hypothesis: What is the difference between a fact and a relation?
-<~ relation
-[parrotbench_09176_kb_ontology]
-> Distinguish a fact, a rule, and a hypothesis: Why separate entities from states?
-<~ state
-[parrotbench_09177_kb_ontology]
-> Name the relevant capability: What is ontology induction?
-<~ ontology
-[parrotbench_09178_kb_ontology]
-> Name the relevant capability: Can a new domain require a temporary model?
-<~ model
-[parrotbench_09179_kb_ontology]
-> Name the relevant capability: What is the difference between a fact and a relation?
-<~ relation
-[parrotbench_09180_kb_ontology]
-> Name the relevant capability: Why separate entities from states?
-<~ state
-[parrotbench_09181_kb_ontology]
-> Explain the reasoning rather than a slogan: What is ontology induction?
-<~ ontology
-[parrotbench_09182_kb_ontology]
-> Explain the reasoning rather than a slogan: Can a new domain require a temporary model?
-<~ model
-[parrotbench_09183_kb_ontology]
-> Explain the reasoning rather than a slogan: What is the difference between a fact and a relation?
-<~ relation
-[parrotbench_09184_kb_ontology]
-> Explain the reasoning rather than a slogan: Why separate entities from states?
-<~ state
-[parrotbench_09185_kb_ontology]
-> Use the user's constraint as a real constraint: What is ontology induction?
-<~ ontology
-[parrotbench_09186_kb_ontology]
-> Use the user's constraint as a real constraint: Can a new domain require a temporary model?
-<~ model
-[parrotbench_09187_kb_ontology]
-> Use the user's constraint as a real constraint: What is the difference between a fact and a relation?
-<~ relation
-[parrotbench_09188_kb_ontology]
-> Use the user's constraint as a real constraint: Why separate entities from states?
-<~ state
-[parrotbench_09189_kb_ontology]
-> Check whether the requested format is satisfied: What is ontology induction?
-<~ ontology
-[parrotbench_09190_kb_ontology]
-> Check whether the requested format is satisfied: Can a new domain require a temporary model?
-<~ model
-[parrotbench_09191_kb_ontology]
-> Check whether the requested format is satisfied: What is the difference between a fact and a relation?
-<~ relation
-[parrotbench_09192_kb_ontology]
-> Check whether the requested format is satisfied: Why separate entities from states?
-<~ state
-[parrotbench_09193_kb_ontology]
-> What would make this answer wrong? What is ontology induction?
-<~ ontology
-[parrotbench_09194_kb_ontology]
-> What would make this answer wrong? Can a new domain require a temporary model?
-<~ model
-[parrotbench_09195_kb_ontology]
-> What would make this answer wrong? What is the difference between a fact and a relation?
-<~ relation
-[parrotbench_09196_kb_ontology]
-> What would make this answer wrong? Why separate entities from states?
-<~ state
-[parrotbench_09197_kb_ontology]
-> Give a useful answer without pretending certainty: What is ontology induction?
-<~ ontology
-[parrotbench_09198_kb_ontology]
-> Give a useful answer without pretending certainty: Can a new domain require a temporary model?
-<~ model
-[parrotbench_09199_kb_ontology]
-> Give a useful answer without pretending certainty: What is the difference between a fact and a relation?
-<~ relation
-[parrotbench_09200_kb_ontology]
-> Give a useful answer without pretending certainty: Why separate entities from states?
-<~ state

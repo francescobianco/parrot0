@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-015: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/word-problems
+# cases: 6
+
+[parrotbench_01888_math_word-problems]
+> State uncertainty if needed: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01889_math_word-problems]
+> Answer without a generic template: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01890_math_word-problems]
+> Answer without a generic template: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01891_math_word-problems]
+> Answer without a generic template: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01892_math_word-problems]
+> Answer without a generic template: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01893_math_word-problems]
+> Give the answer and one reason: I have 24 apples and give away a quarter. How many remain?
+<~ 18

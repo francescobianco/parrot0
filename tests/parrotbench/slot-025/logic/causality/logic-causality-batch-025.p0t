@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/causality
+# cases: 6
+
+[parrotbench_02551_logic_causality]
+> Answer the user's actual goal: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02552_logic_causality]
+> Answer the user's actual goal: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02553_logic_causality]
+> If the request is underspecified, say what is missing: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02554_logic_causality]
+> If the request is underspecified, say what is missing: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02555_logic_causality]
+> If the request is underspecified, say what is missing: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02556_logic_causality]
+> If the request is underspecified, say what is missing: What connects an initial condition to an observable result?
+<~ mechanism

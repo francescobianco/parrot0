@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 6
+
+[parrotbench_01113_math_multiplication]
+> What is the operational interpretation of this? What is 9 times 8?
+<~ 72
+[parrotbench_01114_math_multiplication]
+> What is the operational interpretation of this? Calculate three groups of seven.
+<~ 21
+[parrotbench_01115_math_multiplication]
+> What is the operational interpretation of this? What do five pairs contain?
+<~ 10
+[parrotbench_01116_math_multiplication]
+> What is the operational interpretation of this? A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01117_math_multiplication]
+> Start with the direct answer, then qualify it: What is 9 times 8?
+<~ 72
+[parrotbench_01118_math_multiplication]
+> Start with the direct answer, then qualify it: Calculate three groups of seven.
+<~ 21

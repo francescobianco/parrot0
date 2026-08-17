@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/definition
+# cases: 6
+
+[parrotbench_05832_language_definition]
+> Check this for me: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05833_language_definition]
+> What would you tell a beginner? Define democracy in simple terms.
+<~ people
+[parrotbench_05834_language_definition]
+> What would you tell a beginner? What does ephemeral mean?
+<~ short
+[parrotbench_05835_language_definition]
+> What would you tell a beginner? Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05836_language_definition]
+> What would you tell a beginner? What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05837_language_definition]
+> What would you tell an expert? Define democracy in simple terms.
+<~ people

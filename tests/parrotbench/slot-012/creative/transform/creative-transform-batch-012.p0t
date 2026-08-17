@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/transform
+# cases: 7
+
+[parrotbench_10269_creative_transform]
+> Spiegalo in parole semplici: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10270_creative_transform]
+> Spiegalo in parole semplici: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10271_creative_transform]
+> Spiegalo in parole semplici: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10272_creative_transform]
+> Spiegalo in parole semplici: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10273_creative_transform]
+> Prima dimmi cosa manca, poi: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10274_creative_transform]
+> Prima dimmi cosa manca, poi: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10275_creative_transform]
+> Prima dimmi cosa manca, poi: Make this explanation shorter without losing its point.
+<~ short

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: code/debugging
+# cases: 6
+
+[parrotbench_08432_code_debugging]
+> Check this for me: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08433_code_debugging]
+> What would you tell a beginner? A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08434_code_debugging]
+> What would you tell a beginner? What is a regression?
+<~ change
+[parrotbench_08435_code_debugging]
+> What would you tell a beginner? How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08436_code_debugging]
+> What would you tell a beginner? Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08437_code_debugging]
+> What would you tell an expert? A test fails after a change. What should be inspected first?
+<~ failure

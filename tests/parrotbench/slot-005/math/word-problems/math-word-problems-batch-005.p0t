@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-005: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/word-problems
+# cases: 6
+
+[parrotbench_01826_math_word-problems]
+> Explain your answer briefly: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01827_math_word-problems]
+> Explain your answer briefly: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01828_math_word-problems]
+> Explain your answer briefly: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01829_math_word-problems]
+> Check this for me: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01830_math_word-problems]
+> Check this for me: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01831_math_word-problems]
+> Check this for me: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15

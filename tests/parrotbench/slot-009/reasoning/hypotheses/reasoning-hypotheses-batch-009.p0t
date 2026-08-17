@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-009: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/hypotheses
+# cases: 6
+
+[parrotbench_03851_reasoning_hypotheses]
+> Use the relevant evidence and answer: How do you choose between interpretations?
+<~ support
+[parrotbench_03852_reasoning_hypotheses]
+> Use the relevant evidence and answer: What is an assumption in a plan?
+<~ assumption
+[parrotbench_03853_reasoning_hypotheses]
+> Do not invent facts. Why keep competing hypotheses instead of one guess?
+<~ hypoth
+[parrotbench_03854_reasoning_hypotheses]
+> Do not invent facts. What should a hypothesis be tested against?
+<~ evidence
+[parrotbench_03855_reasoning_hypotheses]
+> Do not invent facts. How do you choose between interpretations?
+<~ support
+[parrotbench_03856_reasoning_hypotheses]
+> Do not invent facts. What is an assumption in a plan?
+<~ assumption

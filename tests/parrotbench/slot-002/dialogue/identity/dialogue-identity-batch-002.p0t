@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: dialogue/identity
-# cases: 50
+# cases: 6
 
-[parrotbench_04251_dialogue_identity]
-> Use the relevant evidence and answer: What kind of system are you?
+[parrotbench_04207_dialogue_identity]
+> Please answer: What kind of system are you?
 <~ AI
-[parrotbench_04252_dialogue_identity]
-> Use the relevant evidence and answer: What generation are you running?
+[parrotbench_04208_dialogue_identity]
+> Please answer: What generation are you running?
 <~ gen
-[parrotbench_04253_dialogue_identity]
-> Do not invent facts. What is your name?
+[parrotbench_04209_dialogue_identity]
+> Can you help me with this? What is your name?
 <~ parrot0
-[parrotbench_04254_dialogue_identity]
-> Do not invent facts. Who are you?
+[parrotbench_04210_dialogue_identity]
+> Can you help me with this? Who are you?
 <~ parrot0
-[parrotbench_04255_dialogue_identity]
-> Do not invent facts. What kind of system are you?
+[parrotbench_04211_dialogue_identity]
+> Can you help me with this? What kind of system are you?
 <~ AI
-[parrotbench_04256_dialogue_identity]
-> Do not invent facts. What generation are you running?
-<~ gen
-[parrotbench_04257_dialogue_identity]
-> Keep the answer useful and honest: What is your name?
-<~ parrot0
-[parrotbench_04258_dialogue_identity]
-> Keep the answer useful and honest: Who are you?
-<~ parrot0
-[parrotbench_04259_dialogue_identity]
-> Keep the answer useful and honest: What kind of system are you?
-<~ AI
-[parrotbench_04260_dialogue_identity]
-> Keep the answer useful and honest: What generation are you running?
-<~ gen
-[parrotbench_04261_dialogue_identity]
-> In italiano, What is your name?
-<~ parrot0
-[parrotbench_04262_dialogue_identity]
-> In italiano, Who are you?
-<~ parrot0
-[parrotbench_04263_dialogue_identity]
-> In italiano, What kind of system are you?
-<~ AI
-[parrotbench_04264_dialogue_identity]
-> In italiano, What generation are you running?
-<~ gen
-[parrotbench_04265_dialogue_identity]
-> Rispondi brevemente: What is your name?
-<~ parrot0
-[parrotbench_04266_dialogue_identity]
-> Rispondi brevemente: Who are you?
-<~ parrot0
-[parrotbench_04267_dialogue_identity]
-> Rispondi brevemente: What kind of system are you?
-<~ AI
-[parrotbench_04268_dialogue_identity]
-> Rispondi brevemente: What generation are you running?
-<~ gen
-[parrotbench_04269_dialogue_identity]
-> Spiegalo in parole semplici: What is your name?
-<~ parrot0
-[parrotbench_04270_dialogue_identity]
-> Spiegalo in parole semplici: Who are you?
-<~ parrot0
-[parrotbench_04271_dialogue_identity]
-> Spiegalo in parole semplici: What kind of system are you?
-<~ AI
-[parrotbench_04272_dialogue_identity]
-> Spiegalo in parole semplici: What generation are you running?
-<~ gen
-[parrotbench_04273_dialogue_identity]
-> Prima dimmi cosa manca, poi: What is your name?
-<~ parrot0
-[parrotbench_04274_dialogue_identity]
-> Prima dimmi cosa manca, poi: Who are you?
-<~ parrot0
-[parrotbench_04275_dialogue_identity]
-> Prima dimmi cosa manca, poi: What kind of system are you?
-<~ AI
-[parrotbench_04276_dialogue_identity]
-> Prima dimmi cosa manca, poi: What generation are you running?
-<~ gen
-[parrotbench_04277_dialogue_identity]
-> What is the shortest useful answer to this? What is your name?
-<~ parrot0
-[parrotbench_04278_dialogue_identity]
-> What is the shortest useful answer to this? Who are you?
-<~ parrot0
-[parrotbench_04279_dialogue_identity]
-> What is the shortest useful answer to this? What kind of system are you?
-<~ AI
-[parrotbench_04280_dialogue_identity]
-> What is the shortest useful answer to this? What generation are you running?
-<~ gen
-[parrotbench_04281_dialogue_identity]
-> Challenge your first interpretation: What is your name?
-<~ parrot0
-[parrotbench_04282_dialogue_identity]
-> Challenge your first interpretation: Who are you?
-<~ parrot0
-[parrotbench_04283_dialogue_identity]
-> Challenge your first interpretation: What kind of system are you?
-<~ AI
-[parrotbench_04284_dialogue_identity]
-> Challenge your first interpretation: What generation are you running?
-<~ gen
-[parrotbench_04285_dialogue_identity]
-> State uncertainty if needed: What is your name?
-<~ parrot0
-[parrotbench_04286_dialogue_identity]
-> State uncertainty if needed: Who are you?
-<~ parrot0
-[parrotbench_04287_dialogue_identity]
-> State uncertainty if needed: What kind of system are you?
-<~ AI
-[parrotbench_04288_dialogue_identity]
-> State uncertainty if needed: What generation are you running?
-<~ gen
-[parrotbench_04289_dialogue_identity]
-> Answer without a generic template: What is your name?
-<~ parrot0
-[parrotbench_04290_dialogue_identity]
-> Answer without a generic template: Who are you?
-<~ parrot0
-[parrotbench_04291_dialogue_identity]
-> Answer without a generic template: What kind of system are you?
-<~ AI
-[parrotbench_04292_dialogue_identity]
-> Answer without a generic template: What generation are you running?
-<~ gen
-[parrotbench_04293_dialogue_identity]
-> Give the answer and one reason: What is your name?
-<~ parrot0
-[parrotbench_04294_dialogue_identity]
-> Give the answer and one reason: Who are you?
-<~ parrot0
-[parrotbench_04295_dialogue_identity]
-> Give the answer and one reason: What kind of system are you?
-<~ AI
-[parrotbench_04296_dialogue_identity]
-> Give the answer and one reason: What generation are you running?
-<~ gen
-[parrotbench_04297_dialogue_identity]
-> Separate fact from hypothesis: What is your name?
-<~ parrot0
-[parrotbench_04298_dialogue_identity]
-> Separate fact from hypothesis: Who are you?
-<~ parrot0
-[parrotbench_04299_dialogue_identity]
-> Separate fact from hypothesis: What kind of system are you?
-<~ AI
-[parrotbench_04300_dialogue_identity]
-> Separate fact from hypothesis: What generation are you running?
+[parrotbench_04212_dialogue_identity]
+> Can you help me with this? What generation are you running?
 <~ gen

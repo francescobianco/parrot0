@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 6
+
+[parrotbench_10188_creative_story]
+> Use the user's constraint as a real constraint: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10189_creative_story]
+> Check whether the requested format is satisfied: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10190_creative_story]
+> Check whether the requested format is satisfied: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10191_creative_story]
+> Check whether the requested format is satisfied: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10192_creative_story]
+> Check whether the requested format is satisfied: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10193_creative_story]
+> What would make this answer wrong? Write a short new story about a machine learning language.
+<~ machine

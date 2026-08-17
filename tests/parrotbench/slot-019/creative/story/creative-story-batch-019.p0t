@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 6
+
+[parrotbench_10113_creative_story]
+> What is the operational interpretation of this? Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10114_creative_story]
+> What is the operational interpretation of this? Continue a story while preserving its characters.
+<~ story
+[parrotbench_10115_creative_story]
+> What is the operational interpretation of this? Change a playful story into a tragic one.
+<~ story
+[parrotbench_10116_creative_story]
+> What is the operational interpretation of this? Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10117_creative_story]
+> Start with the direct answer, then qualify it: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10118_creative_story]
+> Start with the direct answer, then qualify it: Continue a story while preserving its characters.
+<~ story

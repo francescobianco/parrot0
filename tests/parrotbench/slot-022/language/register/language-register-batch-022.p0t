@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-022: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/register
+# cases: 6
+
+[parrotbench_06132_language_register]
+> What would you need to verify before answering? Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06133_language_register]
+> Keep alternatives separate while answering: Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06134_language_register]
+> Keep alternatives separate while answering: Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06135_language_register]
+> Keep alternatives separate while answering: Say this more politely: give me the file.
+<~ please
+[parrotbench_06136_language_register]
+> Keep alternatives separate while answering: Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06137_language_register]
+> State one conclusion and one uncertainty: Explain photosynthesis to a child.
+<~ plants

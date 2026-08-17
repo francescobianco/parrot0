@@ -45,8 +45,9 @@ Il risultato riporta:
 parrotbench: 1234/10000 (12.34%)
 ```
 
-Il `bench-engine` riceve uno slot alla volta dal client nativo `parrot0 --bench`
-e aggiorna dopo ogni slot
+Il corpus e' distribuito in **32 slot**, così ogni slot e' unita' di lavoro
+interrompibile molto piu' piccola dell'intero benchmark. Il `bench-engine` riceve
+uno slot alla volta dal client nativo `parrot0 --bench` e aggiorna dopo ogni slot
 `tests/parrotbench/results/progress.tsv`. Uno slot marcato `complete` viene
 saltato alla successiva esecuzione; uno slot marcato `running` viene ripetuto,
 cosi' un'interruzione non perde il lavoro gia' completato. Il registro e'
@@ -60,6 +61,17 @@ slot, quindi anche una run interrotta lascia una fotografia parziale esplicita.
 La directory `results/` e' stato locale generato e ignorato da git: il corpus
 dei prompt e' condiviso, mentre ogni release mantiene il proprio registro e la
 propria misura.
+
+Durante l'esecuzione il client stampa subito l'inizio dello slot e, quando la
+root viene usata, il progresso complessivo:
+
+```text
+BENCH progress 7/32 done tests/parrotbench/slot-007
+```
+
+Il registro può quindi essere consultato mentre il batch e' ancora in corso:
+una riga `running` identifica esattamente lo slot che verrebbe rifatto in caso
+di interruzione.
 
 Il punteggio usa matching morbido: una risposta passa se contiene il frammento
 atteso dopo normalizzazione di maiuscole, punteggiatura e spazi. Il benchmark

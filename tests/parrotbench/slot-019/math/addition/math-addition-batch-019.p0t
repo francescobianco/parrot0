@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 6
+
+[parrotbench_00913_math_addition]
+> What is the operational interpretation of this? What is 17 plus 6?
+<~ 23
+[parrotbench_00914_math_addition]
+> What is the operational interpretation of this? Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00915_math_addition]
+> What is the operational interpretation of this? Add twelve to nine.
+<~ 21
+[parrotbench_00916_math_addition]
+> What is the operational interpretation of this? A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00917_math_addition]
+> Start with the direct answer, then qualify it: What is 17 plus 6?
+<~ 23
+[parrotbench_00918_math_addition]
+> Start with the direct answer, then qualify it: Calculate the sum of 8 and 15.
+<~ 23

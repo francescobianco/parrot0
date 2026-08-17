@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 6
+
+[parrotbench_00982_math_addition]
+> Explain the reasoning rather than a slogan: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00983_math_addition]
+> Explain the reasoning rather than a slogan: Add twelve to nine.
+<~ 21
+[parrotbench_00984_math_addition]
+> Explain the reasoning rather than a slogan: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00985_math_addition]
+> Use the user's constraint as a real constraint: What is 17 plus 6?
+<~ 23
+[parrotbench_00986_math_addition]
+> Use the user's constraint as a real constraint: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00987_math_addition]
+> Use the user's constraint as a real constraint: Add twelve to nine.
+<~ 21

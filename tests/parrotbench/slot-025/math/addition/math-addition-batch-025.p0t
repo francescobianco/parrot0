@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 6
+
+[parrotbench_00951_math_addition]
+> Answer the user's actual goal: Add twelve to nine.
+<~ 21
+[parrotbench_00952_math_addition]
+> Answer the user's actual goal: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00953_math_addition]
+> If the request is underspecified, say what is missing: What is 17 plus 6?
+<~ 23
+[parrotbench_00954_math_addition]
+> If the request is underspecified, say what is missing: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00955_math_addition]
+> If the request is underspecified, say what is missing: Add twelve to nine.
+<~ 21
+[parrotbench_00956_math_addition]
+> If the request is underspecified, say what is missing: A box has 7 items and receives 5 more. How many?
+<~ 12

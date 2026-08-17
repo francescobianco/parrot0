@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: knowledge/facts
-# cases: 50
+# cases: 6
 
-[parrotbench_00101_knowledge_facts]
-> Answer as if this were a release review: What is the capital of France?
+[parrotbench_00013_knowledge_facts]
+> In simple terms, What is the capital of France?
 <~ Paris
-[parrotbench_00102_knowledge_facts]
-> Answer as if this were a release review: Which ocean is the largest?
+[parrotbench_00014_knowledge_facts]
+> In simple terms, Which ocean is the largest?
 <~ Pacific
-[parrotbench_00103_knowledge_facts]
-> Answer as if this were a release review: Who wrote Hamlet?
+[parrotbench_00015_knowledge_facts]
+> In simple terms, Who wrote Hamlet?
 <~ Shakespeare
-[parrotbench_00104_knowledge_facts]
-> Answer as if this were a release review: What is water made of chemically?
+[parrotbench_00016_knowledge_facts]
+> In simple terms, What is water made of chemically?
 <~ H2O
-[parrotbench_00105_knowledge_facts]
-> Give the strongest answer supported by the KB: What is the capital of France?
+[parrotbench_00017_knowledge_facts]
+> Give a concise answer. What is the capital of France?
 <~ Paris
-[parrotbench_00106_knowledge_facts]
-> Give the strongest answer supported by the KB: Which ocean is the largest?
-<~ Pacific
-[parrotbench_00107_knowledge_facts]
-> Give the strongest answer supported by the KB: Who wrote Hamlet?
-<~ Shakespeare
-[parrotbench_00108_knowledge_facts]
-> Give the strongest answer supported by the KB: What is water made of chemically?
-<~ H2O
-[parrotbench_00109_knowledge_facts]
-> Do not confuse a wall with an answer. What is the capital of France?
-<~ Paris
-[parrotbench_00110_knowledge_facts]
-> Do not confuse a wall with an answer. Which ocean is the largest?
-<~ Pacific
-[parrotbench_00111_knowledge_facts]
-> Do not confuse a wall with an answer. Who wrote Hamlet?
-<~ Shakespeare
-[parrotbench_00112_knowledge_facts]
-> Do not confuse a wall with an answer. What is water made of chemically?
-<~ H2O
-[parrotbench_00113_knowledge_facts]
-> What is the operational interpretation of this? What is the capital of France?
-<~ Paris
-[parrotbench_00114_knowledge_facts]
-> What is the operational interpretation of this? Which ocean is the largest?
-<~ Pacific
-[parrotbench_00115_knowledge_facts]
-> What is the operational interpretation of this? Who wrote Hamlet?
-<~ Shakespeare
-[parrotbench_00116_knowledge_facts]
-> What is the operational interpretation of this? What is water made of chemically?
-<~ H2O
-[parrotbench_00117_knowledge_facts]
-> Start with the direct answer, then qualify it: What is the capital of France?
-<~ Paris
-[parrotbench_00118_knowledge_facts]
-> Start with the direct answer, then qualify it: Which ocean is the largest?
-<~ Pacific
-[parrotbench_00119_knowledge_facts]
-> Start with the direct answer, then qualify it: Who wrote Hamlet?
-<~ Shakespeare
-[parrotbench_00120_knowledge_facts]
-> Start with the direct answer, then qualify it: What is water made of chemically?
-<~ H2O
-[parrotbench_00121_knowledge_facts]
-> Identify the entities and relations first: What is the capital of France?
-<~ Paris
-[parrotbench_00122_knowledge_facts]
-> Identify the entities and relations first: Which ocean is the largest?
-<~ Pacific
-[parrotbench_00123_knowledge_facts]
-> Identify the entities and relations first: Who wrote Hamlet?
-<~ Shakespeare
-[parrotbench_00124_knowledge_facts]
-> Identify the entities and relations first: What is water made of chemically?
-<~ H2O
-[parrotbench_00125_knowledge_facts]
-> Treat this as a new domain and explain your model: What is the capital of France?
-<~ Paris
-[parrotbench_00126_knowledge_facts]
-> Treat this as a new domain and explain your model: Which ocean is the largest?
-<~ Pacific
-[parrotbench_00127_knowledge_facts]
-> Treat this as a new domain and explain your model: Who wrote Hamlet?
-<~ Shakespeare
-[parrotbench_00128_knowledge_facts]
-> Treat this as a new domain and explain your model: What is water made of chemically?
-<~ H2O
-[parrotbench_00129_knowledge_facts]
-> What would you need to verify before answering? What is the capital of France?
-<~ Paris
-[parrotbench_00130_knowledge_facts]
-> What would you need to verify before answering? Which ocean is the largest?
-<~ Pacific
-[parrotbench_00131_knowledge_facts]
-> What would you need to verify before answering? Who wrote Hamlet?
-<~ Shakespeare
-[parrotbench_00132_knowledge_facts]
-> What would you need to verify before answering? What is water made of chemically?
-<~ H2O
-[parrotbench_00133_knowledge_facts]
-> Keep alternatives separate while answering: What is the capital of France?
-<~ Paris
-[parrotbench_00134_knowledge_facts]
-> Keep alternatives separate while answering: Which ocean is the largest?
-<~ Pacific
-[parrotbench_00135_knowledge_facts]
-> Keep alternatives separate while answering: Who wrote Hamlet?
-<~ Shakespeare
-[parrotbench_00136_knowledge_facts]
-> Keep alternatives separate while answering: What is water made of chemically?
-<~ H2O
-[parrotbench_00137_knowledge_facts]
-> State one conclusion and one uncertainty: What is the capital of France?
-<~ Paris
-[parrotbench_00138_knowledge_facts]
-> State one conclusion and one uncertainty: Which ocean is the largest?
-<~ Pacific
-[parrotbench_00139_knowledge_facts]
-> State one conclusion and one uncertainty: Who wrote Hamlet?
-<~ Shakespeare
-[parrotbench_00140_knowledge_facts]
-> State one conclusion and one uncertainty: What is water made of chemically?
-<~ H2O
-[parrotbench_00141_knowledge_facts]
-> Use a concrete example in your answer: What is the capital of France?
-<~ Paris
-[parrotbench_00142_knowledge_facts]
-> Use a concrete example in your answer: Which ocean is the largest?
-<~ Pacific
-[parrotbench_00143_knowledge_facts]
-> Use a concrete example in your answer: Who wrote Hamlet?
-<~ Shakespeare
-[parrotbench_00144_knowledge_facts]
-> Use a concrete example in your answer: What is water made of chemically?
-<~ H2O
-[parrotbench_00145_knowledge_facts]
-> Avoid changing the subject: What is the capital of France?
-<~ Paris
-[parrotbench_00146_knowledge_facts]
-> Avoid changing the subject: Which ocean is the largest?
-<~ Pacific
-[parrotbench_00147_knowledge_facts]
-> Avoid changing the subject: Who wrote Hamlet?
-<~ Shakespeare
-[parrotbench_00148_knowledge_facts]
-> Avoid changing the subject: What is water made of chemically?
-<~ H2O
-[parrotbench_00149_knowledge_facts]
-> Answer the user's actual goal: What is the capital of France?
-<~ Paris
-[parrotbench_00150_knowledge_facts]
-> Answer the user's actual goal: Which ocean is the largest?
+[parrotbench_00018_knowledge_facts]
+> Give a concise answer. Which ocean is the largest?
 <~ Pacific

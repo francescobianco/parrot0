@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/inference
+# cases: 7
+
+[parrotbench_09394_kb_inference]
+> What would make this answer wrong? What is a derived fact?
+<~ derived
+[parrotbench_09395_kb_inference]
+> What would make this answer wrong? Why preserve evidence for a conclusion?
+<~ evidence
+[parrotbench_09396_kb_inference]
+> What would make this answer wrong? What should happen when rules conflict?
+<~ conflict
+[parrotbench_09397_kb_inference]
+> Give a useful answer without pretending certainty: What is a rule of inference?
+<~ rule
+[parrotbench_09398_kb_inference]
+> Give a useful answer without pretending certainty: What is a derived fact?
+<~ derived
+[parrotbench_09399_kb_inference]
+> Give a useful answer without pretending certainty: Why preserve evidence for a conclusion?
+<~ evidence
+[parrotbench_09400_kb_inference]
+> Give a useful answer without pretending certainty: What should happen when rules conflict?
+<~ conflict

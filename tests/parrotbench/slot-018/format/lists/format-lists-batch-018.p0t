@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06507_format_lists]
+> Give the strongest answer supported by the KB: Name three planets.
+<~ Earth
+[parrotbench_06508_format_lists]
+> Give the strongest answer supported by the KB: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06509_format_lists]
+> Do not confuse a wall with an answer. List exactly three colors.
+<~ blue
+[parrotbench_06510_format_lists]
+> Do not confuse a wall with an answer. Give two reasons to verify sources.
+<~ source
+[parrotbench_06511_format_lists]
+> Do not confuse a wall with an answer. Name three planets.
+<~ Earth
+[parrotbench_06512_format_lists]
+> Do not confuse a wall with an answer. Give four steps for a safe experiment.
+<~ step

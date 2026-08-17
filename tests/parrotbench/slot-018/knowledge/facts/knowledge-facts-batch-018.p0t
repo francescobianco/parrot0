@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 6
+
+[parrotbench_00107_knowledge_facts]
+> Give the strongest answer supported by the KB: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00108_knowledge_facts]
+> Give the strongest answer supported by the KB: What is water made of chemically?
+<~ H2O
+[parrotbench_00109_knowledge_facts]
+> Do not confuse a wall with an answer. What is the capital of France?
+<~ Paris
+[parrotbench_00110_knowledge_facts]
+> Do not confuse a wall with an answer. Which ocean is the largest?
+<~ Pacific
+[parrotbench_00111_knowledge_facts]
+> Do not confuse a wall with an answer. Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00112_knowledge_facts]
+> Do not confuse a wall with an answer. What is water made of chemically?
+<~ H2O

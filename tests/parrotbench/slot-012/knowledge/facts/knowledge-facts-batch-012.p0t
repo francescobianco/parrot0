@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 7
+
+[parrotbench_00069_knowledge_facts]
+> Spiegalo in parole semplici: What is the capital of France?
+<~ Paris
+[parrotbench_00070_knowledge_facts]
+> Spiegalo in parole semplici: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00071_knowledge_facts]
+> Spiegalo in parole semplici: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00072_knowledge_facts]
+> Spiegalo in parole semplici: What is water made of chemically?
+<~ H2O
+[parrotbench_00073_knowledge_facts]
+> Prima dimmi cosa manca, poi: What is the capital of France?
+<~ Paris
+[parrotbench_00074_knowledge_facts]
+> Prima dimmi cosa manca, poi: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00075_knowledge_facts]
+> Prima dimmi cosa manca, poi: Who wrote Hamlet?
+<~ Shakespeare

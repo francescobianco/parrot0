@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 6
+
+[parrotbench_02188_logic_entailment]
+> Use the user's constraint as a real constraint: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02189_logic_entailment]
+> Check whether the requested format is satisfied: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02190_logic_entailment]
+> Check whether the requested format is satisfied: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02191_logic_entailment]
+> Check whether the requested format is satisfied: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02192_logic_entailment]
+> Check whether the requested format is satisfied: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02193_logic_entailment]
+> What would make this answer wrong? All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes

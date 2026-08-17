@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-022: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/uncertainty
+# cases: 6
+
+[parrotbench_03332_reasoning_uncertainty]
+> What would you need to verify before answering? Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03333_reasoning_uncertainty]
+> Keep alternatives separate while answering: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03334_reasoning_uncertainty]
+> Keep alternatives separate while answering: What is the difference between not proved and false?
+<~ not
+[parrotbench_03335_reasoning_uncertainty]
+> Keep alternatives separate while answering: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03336_reasoning_uncertainty]
+> Keep alternatives separate while answering: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03337_reasoning_uncertainty]
+> State one conclusion and one uncertainty: How should you answer a claim with weak evidence?
+<~ uncertain

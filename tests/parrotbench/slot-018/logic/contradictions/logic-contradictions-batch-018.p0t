@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/contradictions
+# cases: 6
+
+[parrotbench_02907_logic_contradictions]
+> Give the strongest answer supported by the KB: Find the contradiction: the door is open and never opened.
+<~ contradiction
+[parrotbench_02908_logic_contradictions]
+> Give the strongest answer supported by the KB: What should happen when two facts cannot both hold?
+<~ conflict
+[parrotbench_02909_logic_contradictions]
+> Do not confuse a wall with an answer. A plan is cheap, fast, safe, and impossible to implement. What conflicts?
+<~ impossible
+[parrotbench_02910_logic_contradictions]
+> Do not confuse a wall with an answer. Can something be both entirely known and unknown in the same sense?
+<~ no
+[parrotbench_02911_logic_contradictions]
+> Do not confuse a wall with an answer. Find the contradiction: the door is open and never opened.
+<~ contradiction
+[parrotbench_02912_logic_contradictions]
+> Do not confuse a wall with an answer. What should happen when two facts cannot both hold?
+<~ conflict

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/decisions
+# cases: 6
+
+[parrotbench_03551_reasoning_decisions]
+> Answer the user's actual goal: What is a reversible decision?
+<~ revers
+[parrotbench_03552_reasoning_decisions]
+> Answer the user's actual goal: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03553_reasoning_decisions]
+> If the request is underspecified, say what is missing: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03554_reasoning_decisions]
+> If the request is underspecified, say what is missing: How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03555_reasoning_decisions]
+> If the request is underspecified, say what is missing: What is a reversible decision?
+<~ revers
+[parrotbench_03556_reasoning_decisions]
+> If the request is underspecified, say what is missing: Name a criterion for choosing between plans.
+<~ benefit

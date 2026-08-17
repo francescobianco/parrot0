@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 6
+
+[parrotbench_10163_creative_story]
+> What would a careful interlocutor say? Change a playful story into a tragic one.
+<~ story
+[parrotbench_10164_creative_story]
+> What would a careful interlocutor say? Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10165_creative_story]
+> Give a short answer in English: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10166_creative_story]
+> Give a short answer in English: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10167_creative_story]
+> Give a short answer in English: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10168_creative_story]
+> Give a short answer in English: Describe an original scene in one paragraph.
+<~ scene

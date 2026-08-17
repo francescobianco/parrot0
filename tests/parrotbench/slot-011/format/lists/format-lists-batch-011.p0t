@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-011: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06463_format_lists]
+> In italiano, Name three planets.
+<~ Earth
+[parrotbench_06464_format_lists]
+> In italiano, Give four steps for a safe experiment.
+<~ step
+[parrotbench_06465_format_lists]
+> Rispondi brevemente: List exactly three colors.
+<~ blue
+[parrotbench_06466_format_lists]
+> Rispondi brevemente: Give two reasons to verify sources.
+<~ source
+[parrotbench_06467_format_lists]
+> Rispondi brevemente: Name three planets.
+<~ Earth
+[parrotbench_06468_format_lists]
+> Rispondi brevemente: Give four steps for a safe experiment.
+<~ step

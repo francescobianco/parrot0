@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/first
+# cases: 6
+
+[parrotbench_08788_kb_first]
+> Use the user's constraint as a real constraint: What is the KB-first rule?
+<~ KB
+[parrotbench_08789_kb_first]
+> Check whether the requested format is satisfied: Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08790_kb_first]
+> Check whether the requested format is satisfied: Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08791_kb_first]
+> Check whether the requested format is satisfied: Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08792_kb_first]
+> Check whether the requested format is satisfied: What is the KB-first rule?
+<~ KB
+[parrotbench_08793_kb_first]
+> What would make this answer wrong? Where should a new natural-language cue live?
+<~ KB

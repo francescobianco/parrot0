@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/uncertainty
+# cases: 6
+
+[parrotbench_03382_reasoning_uncertainty]
+> Explain the reasoning rather than a slogan: What is the difference between not proved and false?
+<~ not
+[parrotbench_03383_reasoning_uncertainty]
+> Explain the reasoning rather than a slogan: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03384_reasoning_uncertainty]
+> Explain the reasoning rather than a slogan: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03385_reasoning_uncertainty]
+> Use the user's constraint as a real constraint: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03386_reasoning_uncertainty]
+> Use the user's constraint as a real constraint: What is the difference between not proved and false?
+<~ not
+[parrotbench_03387_reasoning_uncertainty]
+> Use the user's constraint as a real constraint: Name two things that increase confidence in a claim.
+<~ evidence

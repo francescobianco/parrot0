@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/transform
+# cases: 7
+
+[parrotbench_10344_creative_transform]
+> Use a concrete example in your answer: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10345_creative_transform]
+> Avoid changing the subject: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10346_creative_transform]
+> Avoid changing the subject: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10347_creative_transform]
+> Avoid changing the subject: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10348_creative_transform]
+> Avoid changing the subject: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10349_creative_transform]
+> Answer the user's actual goal: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10350_creative_transform]
+> Answer the user's actual goal: Turn a factual paragraph into a question.
+<~ question

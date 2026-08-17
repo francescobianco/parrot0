@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 6
+
+[parrotbench_06782_format_structured]
+> Explain the reasoning rather than a slogan: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06783_format_structured]
+> Explain the reasoning rather than a slogan: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06784_format_structured]
+> Explain the reasoning rather than a slogan: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06785_format_structured]
+> Use the user's constraint as a real constraint: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06786_format_structured]
+> Use the user's constraint as a real constraint: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06787_format_structured]
+> Use the user's constraint as a real constraint: Give a two-line answer about rain.
+<~ rain

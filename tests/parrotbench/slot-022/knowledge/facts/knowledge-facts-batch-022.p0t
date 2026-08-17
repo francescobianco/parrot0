@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-022: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 6
+
+[parrotbench_00132_knowledge_facts]
+> What would you need to verify before answering? What is water made of chemically?
+<~ H2O
+[parrotbench_00133_knowledge_facts]
+> Keep alternatives separate while answering: What is the capital of France?
+<~ Paris
+[parrotbench_00134_knowledge_facts]
+> Keep alternatives separate while answering: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00135_knowledge_facts]
+> Keep alternatives separate while answering: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00136_knowledge_facts]
+> Keep alternatives separate while answering: What is water made of chemically?
+<~ H2O
+[parrotbench_00137_knowledge_facts]
+> State one conclusion and one uncertainty: What is the capital of France?
+<~ Paris

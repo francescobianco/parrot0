@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06513_format_lists]
+> What is the operational interpretation of this? List exactly three colors.
+<~ blue
+[parrotbench_06514_format_lists]
+> What is the operational interpretation of this? Give two reasons to verify sources.
+<~ source
+[parrotbench_06515_format_lists]
+> What is the operational interpretation of this? Name three planets.
+<~ Earth
+[parrotbench_06516_format_lists]
+> What is the operational interpretation of this? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06517_format_lists]
+> Start with the direct answer, then qualify it: List exactly three colors.
+<~ blue
+[parrotbench_06518_format_lists]
+> Start with the direct answer, then qualify it: Give two reasons to verify sources.
+<~ source

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 6
+
+[parrotbench_00151_knowledge_facts]
+> Answer the user's actual goal: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00152_knowledge_facts]
+> Answer the user's actual goal: What is water made of chemically?
+<~ H2O
+[parrotbench_00153_knowledge_facts]
+> If the request is underspecified, say what is missing: What is the capital of France?
+<~ Paris
+[parrotbench_00154_knowledge_facts]
+> If the request is underspecified, say what is missing: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00155_knowledge_facts]
+> If the request is underspecified, say what is missing: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00156_knowledge_facts]
+> If the request is underspecified, say what is missing: What is water made of chemically?
+<~ H2O

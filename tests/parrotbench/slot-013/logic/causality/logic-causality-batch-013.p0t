@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/causality
+# cases: 6
+
+[parrotbench_02476_logic_causality]
+> Prima dimmi cosa manca, poi: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02477_logic_causality]
+> What is the shortest useful answer to this? If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02478_logic_causality]
+> What is the shortest useful answer to this? The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02479_logic_causality]
+> What is the shortest useful answer to this? What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02480_logic_causality]
+> What is the shortest useful answer to this? What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02481_logic_causality]
+> Challenge your first interpretation: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet

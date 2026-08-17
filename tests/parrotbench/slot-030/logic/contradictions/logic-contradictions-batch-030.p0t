@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/contradictions
+# cases: 6
+
+[parrotbench_02982_logic_contradictions]
+> Explain the reasoning rather than a slogan: Can something be both entirely known and unknown in the same sense?
+<~ no
+[parrotbench_02983_logic_contradictions]
+> Explain the reasoning rather than a slogan: Find the contradiction: the door is open and never opened.
+<~ contradiction
+[parrotbench_02984_logic_contradictions]
+> Explain the reasoning rather than a slogan: What should happen when two facts cannot both hold?
+<~ conflict
+[parrotbench_02985_logic_contradictions]
+> Use the user's constraint as a real constraint: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
+<~ impossible
+[parrotbench_02986_logic_contradictions]
+> Use the user's constraint as a real constraint: Can something be both entirely known and unknown in the same sense?
+<~ no
+[parrotbench_02987_logic_contradictions]
+> Use the user's constraint as a real constraint: Find the contradiction: the door is open and never opened.
+<~ contradiction

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-028: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 7
+
+[parrotbench_05569_language_translation]
+> Rispondi in italiano quando possibile: Translate hello into Italian.
+<~ ciao
+[parrotbench_05570_language_translation]
+> Rispondi in italiano quando possibile: Translate the small house into French.
+<~ maison
+[parrotbench_05571_language_translation]
+> Rispondi in italiano quando possibile: Translate the dog runs into English.
+<~ dog
+[parrotbench_05572_language_translation]
+> Rispondi in italiano quando possibile: Translate acqua into English.
+<~ water
+[parrotbench_05573_language_translation]
+> Distinguish a fact, a rule, and a hypothesis: Translate hello into Italian.
+<~ ciao
+[parrotbench_05574_language_translation]
+> Distinguish a fact, a rule, and a hypothesis: Translate the small house into French.
+<~ maison
+[parrotbench_05575_language_translation]
+> Distinguish a fact, a rule, and a hypothesis: Translate the dog runs into English.
+<~ dog

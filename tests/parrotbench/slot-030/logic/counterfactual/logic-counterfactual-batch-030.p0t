@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/counterfactual
+# cases: 6
+
+[parrotbench_02782_logic_counterfactual]
+> Explain the reasoning rather than a slogan: What changes in a counterfactual argument?
+<~ condition
+[parrotbench_02783_logic_counterfactual]
+> Explain the reasoning rather than a slogan: If all else stays fixed, what does a counterfactual isolate?
+<~ cause
+[parrotbench_02784_logic_counterfactual]
+> Explain the reasoning rather than a slogan: Can an outcome prove its supposed cause by itself?
+<~ no
+[parrotbench_02785_logic_counterfactual]
+> Use the user's constraint as a real constraint: If the switch had stayed off, would the lamp have lit?
+<~ no
+[parrotbench_02786_logic_counterfactual]
+> Use the user's constraint as a real constraint: What changes in a counterfactual argument?
+<~ condition
+[parrotbench_02787_logic_counterfactual]
+> Use the user's constraint as a real constraint: If all else stays fixed, what does a counterfactual isolate?
+<~ cause

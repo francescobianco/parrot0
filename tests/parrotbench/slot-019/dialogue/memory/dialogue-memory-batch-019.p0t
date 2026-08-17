@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/memory
+# cases: 6
+
+[parrotbench_04713_dialogue_memory]
+> What is the operational interpretation of this? Remember that my name is Luca.
+<~ Luca
+[parrotbench_04714_dialogue_memory]
+> What is the operational interpretation of this? Remember that my favorite color is green.
+<~ green
+[parrotbench_04715_dialogue_memory]
+> What is the operational interpretation of this? What should a memory record include?
+<~ fact
+[parrotbench_04716_dialogue_memory]
+> What is the operational interpretation of this? What does forgetting a fact mean?
+<~ forget
+[parrotbench_04717_dialogue_memory]
+> Start with the direct answer, then qualify it: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04718_dialogue_memory]
+> Start with the direct answer, then qualify it: Remember that my favorite color is green.
+<~ green

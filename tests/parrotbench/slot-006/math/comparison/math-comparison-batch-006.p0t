@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/comparison
+# cases: 6
+
+[parrotbench_01632_math_comparison]
+> Check this for me: Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01633_math_comparison]
+> What would you tell a beginner? Which is greater, 41 or 14?
+<~ 41
+[parrotbench_01634_math_comparison]
+> What would you tell a beginner? Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01635_math_comparison]
+> What would you tell a beginner? Put 5, 1, 9, and 3 in ascending order.
+<~ 1
+[parrotbench_01636_math_comparison]
+> What would you tell a beginner? Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01637_math_comparison]
+> What would you tell an expert? Which is greater, 41 or 14?
+<~ 41

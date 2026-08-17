@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/decisions
+# cases: 7
+
+[parrotbench_03544_reasoning_decisions]
+> Use a concrete example in your answer: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03545_reasoning_decisions]
+> Avoid changing the subject: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03546_reasoning_decisions]
+> Avoid changing the subject: How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03547_reasoning_decisions]
+> Avoid changing the subject: What is a reversible decision?
+<~ revers
+[parrotbench_03548_reasoning_decisions]
+> Avoid changing the subject: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03549_reasoning_decisions]
+> Answer the user's actual goal: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03550_reasoning_decisions]
+> Answer the user's actual goal: How should an option be evaluated when it has risk and an alternative?
+<~ risk

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/grammar
+# cases: 6
+
+[parrotbench_05788_language_grammar]
+> Use the user's constraint as a real constraint: Is 'Me likes apples' grammatical?
+<~ no
+[parrotbench_05789_language_grammar]
+> Check whether the requested format is satisfied: What is the plural of child?
+<~ children
+[parrotbench_05790_language_grammar]
+> Check whether the requested format is satisfied: What is the past tense of go?
+<~ went
+[parrotbench_05791_language_grammar]
+> Check whether the requested format is satisfied: Correct: She go to school.
+<~ goes
+[parrotbench_05792_language_grammar]
+> Check whether the requested format is satisfied: Is 'Me likes apples' grammatical?
+<~ no
+[parrotbench_05793_language_grammar]
+> What would make this answer wrong? What is the plural of child?
+<~ children

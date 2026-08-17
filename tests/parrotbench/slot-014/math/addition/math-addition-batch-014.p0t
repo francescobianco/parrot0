@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-014: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 6
+
+[parrotbench_00882_math_addition]
+> Challenge your first interpretation: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00883_math_addition]
+> Challenge your first interpretation: Add twelve to nine.
+<~ 21
+[parrotbench_00884_math_addition]
+> Challenge your first interpretation: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00885_math_addition]
+> State uncertainty if needed: What is 17 plus 6?
+<~ 23
+[parrotbench_00886_math_addition]
+> State uncertainty if needed: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00887_math_addition]
+> State uncertainty if needed: Add twelve to nine.
+<~ 21

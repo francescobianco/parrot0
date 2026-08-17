@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 6
+
+[parrotbench_06913_format_summaries]
+> What is the operational interpretation of this? Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06914_format_summaries]
+> What is the operational interpretation of this? Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06915_format_summaries]
+> What is the operational interpretation of this? Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06916_format_summaries]
+> What is the operational interpretation of this? State the conclusion before the details.
+<~ conclusion
+[parrotbench_06917_format_summaries]
+> Start with the direct answer, then qualify it: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06918_format_summaries]
+> Start with the direct answer, then qualify it: Give a one-sentence summary of democracy.
+<~ democracy

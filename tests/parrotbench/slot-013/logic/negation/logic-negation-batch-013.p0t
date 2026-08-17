@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 6
+
+[parrotbench_02276_logic_negation]
+> Prima dimmi cosa manca, poi: Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02277_logic_negation]
+> What is the shortest useful answer to this? No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02278_logic_negation]
+> What is the shortest useful answer to this? Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02279_logic_negation]
+> What is the shortest useful answer to this? If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02280_logic_negation]
+> What is the shortest useful answer to this? Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02281_logic_negation]
+> Challenge your first interpretation: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no

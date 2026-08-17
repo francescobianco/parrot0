@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-026: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/ratios
+# cases: 6
+
+[parrotbench_01357_math_ratios]
+> Can this be answered from known facts? What is 19 percent of 200?
+<~ 38
+[parrotbench_01358_math_ratios]
+> Can this be answered from known facts? What is one quarter of 24?
+<~ 6
+[parrotbench_01359_math_ratios]
+> Can this be answered from known facts? If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01360_math_ratios]
+> Can this be answered from known facts? A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01361_math_ratios]
+> What would a careful interlocutor say? What is 19 percent of 200?
+<~ 38
+[parrotbench_01362_math_ratios]
+> What would a careful interlocutor say? What is one quarter of 24?
+<~ 6

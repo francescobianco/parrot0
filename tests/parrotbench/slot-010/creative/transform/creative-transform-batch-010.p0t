@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/transform
+# cases: 6
+
+[parrotbench_10257_creative_transform]
+> Keep the answer useful and honest: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10258_creative_transform]
+> Keep the answer useful and honest: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10259_creative_transform]
+> Keep the answer useful and honest: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10260_creative_transform]
+> Keep the answer useful and honest: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10261_creative_transform]
+> In italiano, Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10262_creative_transform]
+> In italiano, Turn a factual paragraph into a question.
+<~ question

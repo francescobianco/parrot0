@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/identity
+# cases: 6
+
+[parrotbench_04307_dialogue_identity]
+> Give the strongest answer supported by the KB: What kind of system are you?
+<~ AI
+[parrotbench_04308_dialogue_identity]
+> Give the strongest answer supported by the KB: What generation are you running?
+<~ gen
+[parrotbench_04309_dialogue_identity]
+> Do not confuse a wall with an answer. What is your name?
+<~ parrot0
+[parrotbench_04310_dialogue_identity]
+> Do not confuse a wall with an answer. Who are you?
+<~ parrot0
+[parrotbench_04311_dialogue_identity]
+> Do not confuse a wall with an answer. What kind of system are you?
+<~ AI
+[parrotbench_04312_dialogue_identity]
+> Do not confuse a wall with an answer. What generation are you running?
+<~ gen

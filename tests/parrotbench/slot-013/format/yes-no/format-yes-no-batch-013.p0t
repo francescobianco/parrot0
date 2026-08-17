@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/yes-no
+# cases: 6
+
+[parrotbench_06276_format_yes-no]
+> Prima dimmi cosa manca, poi: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06277_format_yes-no]
+> What is the shortest useful answer to this? Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06278_format_yes-no]
+> What is the shortest useful answer to this? Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06279_format_yes-no]
+> What is the shortest useful answer to this? Use only one word: is 2 even?
+<~ yes
+[parrotbench_06280_format_yes-no]
+> What is the shortest useful answer to this? Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06281_format_yes-no]
+> Challenge your first interpretation: Reply only yes or no: is fire cold?
+<~ no

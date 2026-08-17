@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 6
+
+[parrotbench_10076_creative_story]
+> Prima dimmi cosa manca, poi: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10077_creative_story]
+> What is the shortest useful answer to this? Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10078_creative_story]
+> What is the shortest useful answer to this? Continue a story while preserving its characters.
+<~ story
+[parrotbench_10079_creative_story]
+> What is the shortest useful answer to this? Change a playful story into a tragic one.
+<~ story
+[parrotbench_10080_creative_story]
+> What is the shortest useful answer to this? Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10081_creative_story]
+> Challenge your first interpretation: Write a short new story about a machine learning language.
+<~ machine

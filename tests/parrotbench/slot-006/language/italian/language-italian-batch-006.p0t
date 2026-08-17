@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/italian
+# cases: 6
+
+[parrotbench_05232_language_italian]
+> Check this for me: Qual e il contrario di grande?
+<~ small
+[parrotbench_05233_language_italian]
+> What would you tell a beginner? Come ti chiami?
+<~ parrot0
+[parrotbench_05234_language_italian]
+> What would you tell a beginner? Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05235_language_italian]
+> What would you tell a beginner? Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05236_language_italian]
+> What would you tell a beginner? Qual e il contrario di grande?
+<~ small
+[parrotbench_05237_language_italian]
+> What would you tell an expert? Come ti chiami?
+<~ parrot0

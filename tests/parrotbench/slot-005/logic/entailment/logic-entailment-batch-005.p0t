@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-005: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 6
+
+[parrotbench_02026_logic_entailment]
+> Explain your answer briefly: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02027_logic_entailment]
+> Explain your answer briefly: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02028_logic_entailment]
+> Explain your answer briefly: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02029_logic_entailment]
+> Check this for me: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02030_logic_entailment]
+> Check this for me: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02031_logic_entailment]
+> Check this for me: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal

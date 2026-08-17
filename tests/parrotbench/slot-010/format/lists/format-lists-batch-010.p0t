@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06457_format_lists]
+> Keep the answer useful and honest: List exactly three colors.
+<~ blue
+[parrotbench_06458_format_lists]
+> Keep the answer useful and honest: Give two reasons to verify sources.
+<~ source
+[parrotbench_06459_format_lists]
+> Keep the answer useful and honest: Name three planets.
+<~ Earth
+[parrotbench_06460_format_lists]
+> Keep the answer useful and honest: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06461_format_lists]
+> In italiano, List exactly three colors.
+<~ blue
+[parrotbench_06462_format_lists]
+> In italiano, Give two reasons to verify sources.
+<~ source

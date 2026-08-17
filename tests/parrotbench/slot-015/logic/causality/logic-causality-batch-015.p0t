@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-015: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/causality
+# cases: 6
+
+[parrotbench_02488_logic_causality]
+> State uncertainty if needed: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02489_logic_causality]
+> Answer without a generic template: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02490_logic_causality]
+> Answer without a generic template: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02491_logic_causality]
+> Answer without a generic template: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02492_logic_causality]
+> Answer without a generic template: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02493_logic_causality]
+> Give the answer and one reason: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet

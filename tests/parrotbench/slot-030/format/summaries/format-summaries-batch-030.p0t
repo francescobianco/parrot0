@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 6
+
+[parrotbench_06982_format_summaries]
+> Explain the reasoning rather than a slogan: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06983_format_summaries]
+> Explain the reasoning rather than a slogan: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06984_format_summaries]
+> Explain the reasoning rather than a slogan: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06985_format_summaries]
+> Use the user's constraint as a real constraint: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06986_format_summaries]
+> Use the user's constraint as a real constraint: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06987_format_summaries]
+> Use the user's constraint as a real constraint: Summarize the purpose of a KB in five words.
+<~ KB

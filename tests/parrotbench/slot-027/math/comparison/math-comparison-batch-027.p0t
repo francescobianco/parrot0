@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/comparison
+# cases: 6
+
+[parrotbench_01763_math_comparison]
+> What would a careful interlocutor say? Put 5, 1, 9, and 3 in ascending order.
+<~ 1
+[parrotbench_01764_math_comparison]
+> What would a careful interlocutor say? Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01765_math_comparison]
+> Give a short answer in English: Which is greater, 41 or 14?
+<~ 41
+[parrotbench_01766_math_comparison]
+> Give a short answer in English: Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01767_math_comparison]
+> Give a short answer in English: Put 5, 1, 9, and 3 in ascending order.
+<~ 1
+[parrotbench_01768_math_comparison]
+> Give a short answer in English: Which is smaller, minus 2 or minus 5?
+<~ 5

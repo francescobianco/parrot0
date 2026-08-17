@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-009: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05451_language_translation]
+> Use the relevant evidence and answer: Translate the dog runs into English.
+<~ dog
+[parrotbench_05452_language_translation]
+> Use the relevant evidence and answer: Translate acqua into English.
+<~ water
+[parrotbench_05453_language_translation]
+> Do not invent facts. Translate hello into Italian.
+<~ ciao
+[parrotbench_05454_language_translation]
+> Do not invent facts. Translate the small house into French.
+<~ maison
+[parrotbench_05455_language_translation]
+> Do not invent facts. Translate the dog runs into English.
+<~ dog
+[parrotbench_05456_language_translation]
+> Do not invent facts. Translate acqua into English.
+<~ water

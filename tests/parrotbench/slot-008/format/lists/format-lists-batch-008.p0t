@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-008: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 7
+
+[parrotbench_06444_format_lists]
+> Answer cautiously: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06445_format_lists]
+> First identify the goal, then answer: List exactly three colors.
+<~ blue
+[parrotbench_06446_format_lists]
+> First identify the goal, then answer: Give two reasons to verify sources.
+<~ source
+[parrotbench_06447_format_lists]
+> First identify the goal, then answer: Name three planets.
+<~ Earth
+[parrotbench_06448_format_lists]
+> First identify the goal, then answer: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06449_format_lists]
+> Use the relevant evidence and answer: List exactly three colors.
+<~ blue
+[parrotbench_06450_format_lists]
+> Use the relevant evidence and answer: Give two reasons to verify sources.
+<~ source

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 6
+
+[parrotbench_02151_logic_entailment]
+> Answer the user's actual goal: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02152_logic_entailment]
+> Answer the user's actual goal: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02153_logic_entailment]
+> If the request is underspecified, say what is missing: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02154_logic_entailment]
+> If the request is underspecified, say what is missing: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02155_logic_entailment]
+> If the request is underspecified, say what is missing: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02156_logic_entailment]
+> If the request is underspecified, say what is missing: If A precedes B and B precedes C, who comes first?
+<~ A

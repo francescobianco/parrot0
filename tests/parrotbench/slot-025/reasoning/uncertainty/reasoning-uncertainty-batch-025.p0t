@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/uncertainty
+# cases: 6
+
+[parrotbench_03351_reasoning_uncertainty]
+> Answer the user's actual goal: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03352_reasoning_uncertainty]
+> Answer the user's actual goal: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03353_reasoning_uncertainty]
+> If the request is underspecified, say what is missing: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03354_reasoning_uncertainty]
+> If the request is underspecified, say what is missing: What is the difference between not proved and false?
+<~ not
+[parrotbench_03355_reasoning_uncertainty]
+> If the request is underspecified, say what is missing: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03356_reasoning_uncertainty]
+> If the request is underspecified, say what is missing: Should a low-confidence answer sound certain?
+<~ no

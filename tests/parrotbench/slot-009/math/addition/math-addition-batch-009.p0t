@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-009: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 6
+
+[parrotbench_00851_math_addition]
+> Use the relevant evidence and answer: Add twelve to nine.
+<~ 21
+[parrotbench_00852_math_addition]
+> Use the relevant evidence and answer: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00853_math_addition]
+> Do not invent facts. What is 17 plus 6?
+<~ 23
+[parrotbench_00854_math_addition]
+> Do not invent facts. Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00855_math_addition]
+> Do not invent facts. Add twelve to nine.
+<~ 21
+[parrotbench_00856_math_addition]
+> Do not invent facts. A box has 7 items and receives 5 more. How many?
+<~ 12

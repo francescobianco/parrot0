@@ -2,155 +2,26 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: reasoning/decisions
-# cases: 50
+# cases: 7
 
-[parrotbench_03551_reasoning_decisions]
-> Answer the user's actual goal: What is a reversible decision?
+[parrotbench_03419_reasoning_decisions]
+> Give a concise answer. What is a reversible decision?
 <~ revers
-[parrotbench_03552_reasoning_decisions]
-> Answer the user's actual goal: Name a criterion for choosing between plans.
+[parrotbench_03420_reasoning_decisions]
+> Give a concise answer. Name a criterion for choosing between plans.
 <~ benefit
-[parrotbench_03553_reasoning_decisions]
-> If the request is underspecified, say what is missing: A proposal costs 100 and saves 20 yearly. What must we compare?
+[parrotbench_03421_reasoning_decisions]
+> I need a careful answer: A proposal costs 100 and saves 20 yearly. What must we compare?
 <~ cost
-[parrotbench_03554_reasoning_decisions]
-> If the request is underspecified, say what is missing: How should an option be evaluated when it has risk and an alternative?
+[parrotbench_03422_reasoning_decisions]
+> I need a careful answer: How should an option be evaluated when it has risk and an alternative?
 <~ risk
-[parrotbench_03555_reasoning_decisions]
-> If the request is underspecified, say what is missing: What is a reversible decision?
+[parrotbench_03423_reasoning_decisions]
+> I need a careful answer: What is a reversible decision?
 <~ revers
-[parrotbench_03556_reasoning_decisions]
-> If the request is underspecified, say what is missing: Name a criterion for choosing between plans.
+[parrotbench_03424_reasoning_decisions]
+> I need a careful answer: Name a criterion for choosing between plans.
 <~ benefit
-[parrotbench_03557_reasoning_decisions]
-> Can this be answered from known facts? A proposal costs 100 and saves 20 yearly. What must we compare?
+[parrotbench_03425_reasoning_decisions]
+> Explain your answer briefly: A proposal costs 100 and saves 20 yearly. What must we compare?
 <~ cost
-[parrotbench_03558_reasoning_decisions]
-> Can this be answered from known facts? How should an option be evaluated when it has risk and an alternative?
-<~ risk
-[parrotbench_03559_reasoning_decisions]
-> Can this be answered from known facts? What is a reversible decision?
-<~ revers
-[parrotbench_03560_reasoning_decisions]
-> Can this be answered from known facts? Name a criterion for choosing between plans.
-<~ benefit
-[parrotbench_03561_reasoning_decisions]
-> What would a careful interlocutor say? A proposal costs 100 and saves 20 yearly. What must we compare?
-<~ cost
-[parrotbench_03562_reasoning_decisions]
-> What would a careful interlocutor say? How should an option be evaluated when it has risk and an alternative?
-<~ risk
-[parrotbench_03563_reasoning_decisions]
-> What would a careful interlocutor say? What is a reversible decision?
-<~ revers
-[parrotbench_03564_reasoning_decisions]
-> What would a careful interlocutor say? Name a criterion for choosing between plans.
-<~ benefit
-[parrotbench_03565_reasoning_decisions]
-> Give a short answer in English: A proposal costs 100 and saves 20 yearly. What must we compare?
-<~ cost
-[parrotbench_03566_reasoning_decisions]
-> Give a short answer in English: How should an option be evaluated when it has risk and an alternative?
-<~ risk
-[parrotbench_03567_reasoning_decisions]
-> Give a short answer in English: What is a reversible decision?
-<~ revers
-[parrotbench_03568_reasoning_decisions]
-> Give a short answer in English: Name a criterion for choosing between plans.
-<~ benefit
-[parrotbench_03569_reasoning_decisions]
-> Rispondi in italiano quando possibile: A proposal costs 100 and saves 20 yearly. What must we compare?
-<~ cost
-[parrotbench_03570_reasoning_decisions]
-> Rispondi in italiano quando possibile: How should an option be evaluated when it has risk and an alternative?
-<~ risk
-[parrotbench_03571_reasoning_decisions]
-> Rispondi in italiano quando possibile: What is a reversible decision?
-<~ revers
-[parrotbench_03572_reasoning_decisions]
-> Rispondi in italiano quando possibile: Name a criterion for choosing between plans.
-<~ benefit
-[parrotbench_03573_reasoning_decisions]
-> Distinguish a fact, a rule, and a hypothesis: A proposal costs 100 and saves 20 yearly. What must we compare?
-<~ cost
-[parrotbench_03574_reasoning_decisions]
-> Distinguish a fact, a rule, and a hypothesis: How should an option be evaluated when it has risk and an alternative?
-<~ risk
-[parrotbench_03575_reasoning_decisions]
-> Distinguish a fact, a rule, and a hypothesis: What is a reversible decision?
-<~ revers
-[parrotbench_03576_reasoning_decisions]
-> Distinguish a fact, a rule, and a hypothesis: Name a criterion for choosing between plans.
-<~ benefit
-[parrotbench_03577_reasoning_decisions]
-> Name the relevant capability: A proposal costs 100 and saves 20 yearly. What must we compare?
-<~ cost
-[parrotbench_03578_reasoning_decisions]
-> Name the relevant capability: How should an option be evaluated when it has risk and an alternative?
-<~ risk
-[parrotbench_03579_reasoning_decisions]
-> Name the relevant capability: What is a reversible decision?
-<~ revers
-[parrotbench_03580_reasoning_decisions]
-> Name the relevant capability: Name a criterion for choosing between plans.
-<~ benefit
-[parrotbench_03581_reasoning_decisions]
-> Explain the reasoning rather than a slogan: A proposal costs 100 and saves 20 yearly. What must we compare?
-<~ cost
-[parrotbench_03582_reasoning_decisions]
-> Explain the reasoning rather than a slogan: How should an option be evaluated when it has risk and an alternative?
-<~ risk
-[parrotbench_03583_reasoning_decisions]
-> Explain the reasoning rather than a slogan: What is a reversible decision?
-<~ revers
-[parrotbench_03584_reasoning_decisions]
-> Explain the reasoning rather than a slogan: Name a criterion for choosing between plans.
-<~ benefit
-[parrotbench_03585_reasoning_decisions]
-> Use the user's constraint as a real constraint: A proposal costs 100 and saves 20 yearly. What must we compare?
-<~ cost
-[parrotbench_03586_reasoning_decisions]
-> Use the user's constraint as a real constraint: How should an option be evaluated when it has risk and an alternative?
-<~ risk
-[parrotbench_03587_reasoning_decisions]
-> Use the user's constraint as a real constraint: What is a reversible decision?
-<~ revers
-[parrotbench_03588_reasoning_decisions]
-> Use the user's constraint as a real constraint: Name a criterion for choosing between plans.
-<~ benefit
-[parrotbench_03589_reasoning_decisions]
-> Check whether the requested format is satisfied: A proposal costs 100 and saves 20 yearly. What must we compare?
-<~ cost
-[parrotbench_03590_reasoning_decisions]
-> Check whether the requested format is satisfied: How should an option be evaluated when it has risk and an alternative?
-<~ risk
-[parrotbench_03591_reasoning_decisions]
-> Check whether the requested format is satisfied: What is a reversible decision?
-<~ revers
-[parrotbench_03592_reasoning_decisions]
-> Check whether the requested format is satisfied: Name a criterion for choosing between plans.
-<~ benefit
-[parrotbench_03593_reasoning_decisions]
-> What would make this answer wrong? A proposal costs 100 and saves 20 yearly. What must we compare?
-<~ cost
-[parrotbench_03594_reasoning_decisions]
-> What would make this answer wrong? How should an option be evaluated when it has risk and an alternative?
-<~ risk
-[parrotbench_03595_reasoning_decisions]
-> What would make this answer wrong? What is a reversible decision?
-<~ revers
-[parrotbench_03596_reasoning_decisions]
-> What would make this answer wrong? Name a criterion for choosing between plans.
-<~ benefit
-[parrotbench_03597_reasoning_decisions]
-> Give a useful answer without pretending certainty: A proposal costs 100 and saves 20 yearly. What must we compare?
-<~ cost
-[parrotbench_03598_reasoning_decisions]
-> Give a useful answer without pretending certainty: How should an option be evaluated when it has risk and an alternative?
-<~ risk
-[parrotbench_03599_reasoning_decisions]
-> Give a useful answer without pretending certainty: What is a reversible decision?
-<~ revers
-[parrotbench_03600_reasoning_decisions]
-> Give a useful answer without pretending certainty: Name a criterion for choosing between plans.
-<~ benefit

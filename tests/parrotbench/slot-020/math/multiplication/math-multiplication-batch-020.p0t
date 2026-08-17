@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 7
+
+[parrotbench_01119_math_multiplication]
+> Start with the direct answer, then qualify it: What do five pairs contain?
+<~ 10
+[parrotbench_01120_math_multiplication]
+> Start with the direct answer, then qualify it: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01121_math_multiplication]
+> Identify the entities and relations first: What is 9 times 8?
+<~ 72
+[parrotbench_01122_math_multiplication]
+> Identify the entities and relations first: Calculate three groups of seven.
+<~ 21
+[parrotbench_01123_math_multiplication]
+> Identify the entities and relations first: What do five pairs contain?
+<~ 10
+[parrotbench_01124_math_multiplication]
+> Identify the entities and relations first: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01125_math_multiplication]
+> Treat this as a new domain and explain your model: What is 9 times 8?
+<~ 72

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/ratios
+# cases: 6
+
+[parrotbench_01232_math_ratios]
+> Check this for me: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01233_math_ratios]
+> What would you tell a beginner? What is 19 percent of 200?
+<~ 38
+[parrotbench_01234_math_ratios]
+> What would you tell a beginner? What is one quarter of 24?
+<~ 6
+[parrotbench_01235_math_ratios]
+> What would you tell a beginner? If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01236_math_ratios]
+> What would you tell a beginner? A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01237_math_ratios]
+> What would you tell an expert? What is 19 percent of 200?
+<~ 38

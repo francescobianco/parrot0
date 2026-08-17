@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/priorities
+# cases: 6
+
+[parrotbench_07751_planning_priorities]
+> Answer the user's actual goal: What makes a requirement hard?
+<~ constraint
+[parrotbench_07752_planning_priorities]
+> Answer the user's actual goal: How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07753_planning_priorities]
+> If the request is underspecified, say what is missing: Which should come first: safety or speed?
+<~ safety
+[parrotbench_07754_planning_priorities]
+> If the request is underspecified, say what is missing: How do you prioritize several goals?
+<~ goal
+[parrotbench_07755_planning_priorities]
+> If the request is underspecified, say what is missing: What makes a requirement hard?
+<~ constraint
+[parrotbench_07756_planning_priorities]
+> If the request is underspecified, say what is missing: How should an agent resolve conflicting goals?
+<~ conflict

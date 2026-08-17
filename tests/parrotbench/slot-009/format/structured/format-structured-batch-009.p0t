@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-009: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 6
+
+[parrotbench_06651_format_structured]
+> Use the relevant evidence and answer: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06652_format_structured]
+> Use the relevant evidence and answer: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06653_format_structured]
+> Do not invent facts. Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06654_format_structured]
+> Do not invent facts. Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06655_format_structured]
+> Do not invent facts. Give a two-line answer about rain.
+<~ rain
+[parrotbench_06656_format_structured]
+> Do not invent facts. Answer in exactly three words: what is water?
+<~ water

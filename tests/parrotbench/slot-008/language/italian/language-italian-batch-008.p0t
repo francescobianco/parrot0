@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-008: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/italian
+# cases: 7
+
+[parrotbench_05244_language_italian]
+> Answer cautiously: Qual e il contrario di grande?
+<~ small
+[parrotbench_05245_language_italian]
+> First identify the goal, then answer: Come ti chiami?
+<~ parrot0
+[parrotbench_05246_language_italian]
+> First identify the goal, then answer: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05247_language_italian]
+> First identify the goal, then answer: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05248_language_italian]
+> First identify the goal, then answer: Qual e il contrario di grande?
+<~ small
+[parrotbench_05249_language_italian]
+> Use the relevant evidence and answer: Come ti chiami?
+<~ parrot0
+[parrotbench_05250_language_italian]
+> Use the relevant evidence and answer: Quanto fa 15 piu 27?
+<~ 42

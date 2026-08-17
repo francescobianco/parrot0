@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 7
+
+[parrotbench_06669_format_structured]
+> Spiegalo in parole semplici: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06670_format_structured]
+> Spiegalo in parole semplici: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06671_format_structured]
+> Spiegalo in parole semplici: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06672_format_structured]
+> Spiegalo in parole semplici: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06673_format_structured]
+> Prima dimmi cosa manca, poi: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06674_format_structured]
+> Prima dimmi cosa manca, poi: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06675_format_structured]
+> Prima dimmi cosa manca, poi: Give a two-line answer about rain.
+<~ rain

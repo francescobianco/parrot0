@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-009: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/provenance
+# cases: 6
+
+[parrotbench_04051_reasoning_provenance]
+> Use the relevant evidence and answer: What should an explanation expose?
+<~ reason
+[parrotbench_04052_reasoning_provenance]
+> Use the relevant evidence and answer: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04053_reasoning_provenance]
+> Do not invent facts. What evidence supports this answer?
+<~ evidence
+[parrotbench_04054_reasoning_provenance]
+> Do not invent facts. Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04055_reasoning_provenance]
+> Do not invent facts. What should an explanation expose?
+<~ reason
+[parrotbench_04056_reasoning_provenance]
+> Do not invent facts. How can a learned fact be corrected?
+<~ forget

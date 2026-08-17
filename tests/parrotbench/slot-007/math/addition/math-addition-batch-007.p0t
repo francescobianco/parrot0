@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-007: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 6
+
+[parrotbench_00838_math_addition]
+> What would you tell an expert? Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00839_math_addition]
+> What would you tell an expert? Add twelve to nine.
+<~ 21
+[parrotbench_00840_math_addition]
+> What would you tell an expert? A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00841_math_addition]
+> Answer cautiously: What is 17 plus 6?
+<~ 23
+[parrotbench_00842_math_addition]
+> Answer cautiously: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00843_math_addition]
+> Answer cautiously: Add twelve to nine.
+<~ 21

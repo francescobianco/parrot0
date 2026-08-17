@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 6
+
+[parrotbench_02363_logic_negation]
+> What would a careful interlocutor say? If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02364_logic_negation]
+> What would a careful interlocutor say? Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02365_logic_negation]
+> Give a short answer in English: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02366_logic_negation]
+> Give a short answer in English: Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02367_logic_negation]
+> Give a short answer in English: If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02368_logic_negation]
+> Give a short answer in English: Is not knowing a fact the same as proving it false?
+<~ no

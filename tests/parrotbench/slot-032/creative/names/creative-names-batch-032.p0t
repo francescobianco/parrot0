@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/names
+# cases: 7
+
+[parrotbench_09994_creative_names]
+> What would make this answer wrong? Give three distinct names for a robot.
+<~ robot
+[parrotbench_09995_creative_names]
+> What would make this answer wrong? Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09996_creative_names]
+> What would make this answer wrong? Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09997_creative_names]
+> Give a useful answer without pretending certainty: Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09998_creative_names]
+> Give a useful answer without pretending certainty: Give three distinct names for a robot.
+<~ robot
+[parrotbench_09999_creative_names]
+> Give a useful answer without pretending certainty: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_10000_creative_names]
+> Give a useful answer without pretending certainty: Create a playful slogan about knowledge.
+<~ knowledge

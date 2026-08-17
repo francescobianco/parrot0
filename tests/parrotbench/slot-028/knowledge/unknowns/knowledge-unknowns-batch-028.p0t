@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-028: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/unknowns
+# cases: 7
+
+[parrotbench_00369_knowledge_unknowns]
+> Rispondi in italiano quando possibile: Who is the president of Mars?
+<~ don't know
+[parrotbench_00370_knowledge_unknowns]
+> Rispondi in italiano quando possibile: Did Zorblax invent the moon?
+<~ don't know
+[parrotbench_00371_knowledge_unknowns]
+> Rispondi in italiano quando possibile: What evidence supports an unknown claim?
+<~ don't know
+[parrotbench_00372_knowledge_unknowns]
+> Rispondi in italiano quando possibile: Tell me a fact when you have no source.
+<~ don't know
+[parrotbench_00373_knowledge_unknowns]
+> Distinguish a fact, a rule, and a hypothesis: Who is the president of Mars?
+<~ don't know
+[parrotbench_00374_knowledge_unknowns]
+> Distinguish a fact, a rule, and a hypothesis: Did Zorblax invent the moon?
+<~ don't know
+[parrotbench_00375_knowledge_unknowns]
+> Distinguish a fact, a rule, and a hypothesis: What evidence supports an unknown claim?
+<~ don't know

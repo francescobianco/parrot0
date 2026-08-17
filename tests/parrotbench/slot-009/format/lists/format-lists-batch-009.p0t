@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-009: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06451_format_lists]
+> Use the relevant evidence and answer: Name three planets.
+<~ Earth
+[parrotbench_06452_format_lists]
+> Use the relevant evidence and answer: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06453_format_lists]
+> Do not invent facts. List exactly three colors.
+<~ blue
+[parrotbench_06454_format_lists]
+> Do not invent facts. Give two reasons to verify sources.
+<~ source
+[parrotbench_06455_format_lists]
+> Do not invent facts. Name three planets.
+<~ Earth
+[parrotbench_06456_format_lists]
+> Do not invent facts. Give four steps for a safe experiment.
+<~ step

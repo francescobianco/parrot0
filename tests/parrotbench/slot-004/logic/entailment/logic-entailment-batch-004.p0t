@@ -2,155 +2,26 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: logic/entailment
-# cases: 50
+# cases: 7
 
-[parrotbench_02151_logic_entailment]
-> Answer the user's actual goal: Every cat is an animal. Milo is a cat. What is Milo?
+[parrotbench_02019_logic_entailment]
+> Give a concise answer. Every cat is an animal. Milo is a cat. What is Milo?
 <~ animal
-[parrotbench_02152_logic_entailment]
-> Answer the user's actual goal: If A precedes B and B precedes C, who comes first?
+[parrotbench_02020_logic_entailment]
+> Give a concise answer. If A precedes B and B precedes C, who comes first?
 <~ A
-[parrotbench_02153_logic_entailment]
-> If the request is underspecified, say what is missing: All poets are writers. Ada is a poet. Is Ada a writer?
+[parrotbench_02021_logic_entailment]
+> I need a careful answer: All poets are writers. Ada is a poet. Is Ada a writer?
 <~ yes
-[parrotbench_02154_logic_entailment]
-> If the request is underspecified, say what is missing: All roses are flowers. This is a rose. Is it a flower?
+[parrotbench_02022_logic_entailment]
+> I need a careful answer: All roses are flowers. This is a rose. Is it a flower?
 <~ yes
-[parrotbench_02155_logic_entailment]
-> If the request is underspecified, say what is missing: Every cat is an animal. Milo is a cat. What is Milo?
+[parrotbench_02023_logic_entailment]
+> I need a careful answer: Every cat is an animal. Milo is a cat. What is Milo?
 <~ animal
-[parrotbench_02156_logic_entailment]
-> If the request is underspecified, say what is missing: If A precedes B and B precedes C, who comes first?
+[parrotbench_02024_logic_entailment]
+> I need a careful answer: If A precedes B and B precedes C, who comes first?
 <~ A
-[parrotbench_02157_logic_entailment]
-> Can this be answered from known facts? All poets are writers. Ada is a poet. Is Ada a writer?
+[parrotbench_02025_logic_entailment]
+> Explain your answer briefly: All poets are writers. Ada is a poet. Is Ada a writer?
 <~ yes
-[parrotbench_02158_logic_entailment]
-> Can this be answered from known facts? All roses are flowers. This is a rose. Is it a flower?
-<~ yes
-[parrotbench_02159_logic_entailment]
-> Can this be answered from known facts? Every cat is an animal. Milo is a cat. What is Milo?
-<~ animal
-[parrotbench_02160_logic_entailment]
-> Can this be answered from known facts? If A precedes B and B precedes C, who comes first?
-<~ A
-[parrotbench_02161_logic_entailment]
-> What would a careful interlocutor say? All poets are writers. Ada is a poet. Is Ada a writer?
-<~ yes
-[parrotbench_02162_logic_entailment]
-> What would a careful interlocutor say? All roses are flowers. This is a rose. Is it a flower?
-<~ yes
-[parrotbench_02163_logic_entailment]
-> What would a careful interlocutor say? Every cat is an animal. Milo is a cat. What is Milo?
-<~ animal
-[parrotbench_02164_logic_entailment]
-> What would a careful interlocutor say? If A precedes B and B precedes C, who comes first?
-<~ A
-[parrotbench_02165_logic_entailment]
-> Give a short answer in English: All poets are writers. Ada is a poet. Is Ada a writer?
-<~ yes
-[parrotbench_02166_logic_entailment]
-> Give a short answer in English: All roses are flowers. This is a rose. Is it a flower?
-<~ yes
-[parrotbench_02167_logic_entailment]
-> Give a short answer in English: Every cat is an animal. Milo is a cat. What is Milo?
-<~ animal
-[parrotbench_02168_logic_entailment]
-> Give a short answer in English: If A precedes B and B precedes C, who comes first?
-<~ A
-[parrotbench_02169_logic_entailment]
-> Rispondi in italiano quando possibile: All poets are writers. Ada is a poet. Is Ada a writer?
-<~ yes
-[parrotbench_02170_logic_entailment]
-> Rispondi in italiano quando possibile: All roses are flowers. This is a rose. Is it a flower?
-<~ yes
-[parrotbench_02171_logic_entailment]
-> Rispondi in italiano quando possibile: Every cat is an animal. Milo is a cat. What is Milo?
-<~ animal
-[parrotbench_02172_logic_entailment]
-> Rispondi in italiano quando possibile: If A precedes B and B precedes C, who comes first?
-<~ A
-[parrotbench_02173_logic_entailment]
-> Distinguish a fact, a rule, and a hypothesis: All poets are writers. Ada is a poet. Is Ada a writer?
-<~ yes
-[parrotbench_02174_logic_entailment]
-> Distinguish a fact, a rule, and a hypothesis: All roses are flowers. This is a rose. Is it a flower?
-<~ yes
-[parrotbench_02175_logic_entailment]
-> Distinguish a fact, a rule, and a hypothesis: Every cat is an animal. Milo is a cat. What is Milo?
-<~ animal
-[parrotbench_02176_logic_entailment]
-> Distinguish a fact, a rule, and a hypothesis: If A precedes B and B precedes C, who comes first?
-<~ A
-[parrotbench_02177_logic_entailment]
-> Name the relevant capability: All poets are writers. Ada is a poet. Is Ada a writer?
-<~ yes
-[parrotbench_02178_logic_entailment]
-> Name the relevant capability: All roses are flowers. This is a rose. Is it a flower?
-<~ yes
-[parrotbench_02179_logic_entailment]
-> Name the relevant capability: Every cat is an animal. Milo is a cat. What is Milo?
-<~ animal
-[parrotbench_02180_logic_entailment]
-> Name the relevant capability: If A precedes B and B precedes C, who comes first?
-<~ A
-[parrotbench_02181_logic_entailment]
-> Explain the reasoning rather than a slogan: All poets are writers. Ada is a poet. Is Ada a writer?
-<~ yes
-[parrotbench_02182_logic_entailment]
-> Explain the reasoning rather than a slogan: All roses are flowers. This is a rose. Is it a flower?
-<~ yes
-[parrotbench_02183_logic_entailment]
-> Explain the reasoning rather than a slogan: Every cat is an animal. Milo is a cat. What is Milo?
-<~ animal
-[parrotbench_02184_logic_entailment]
-> Explain the reasoning rather than a slogan: If A precedes B and B precedes C, who comes first?
-<~ A
-[parrotbench_02185_logic_entailment]
-> Use the user's constraint as a real constraint: All poets are writers. Ada is a poet. Is Ada a writer?
-<~ yes
-[parrotbench_02186_logic_entailment]
-> Use the user's constraint as a real constraint: All roses are flowers. This is a rose. Is it a flower?
-<~ yes
-[parrotbench_02187_logic_entailment]
-> Use the user's constraint as a real constraint: Every cat is an animal. Milo is a cat. What is Milo?
-<~ animal
-[parrotbench_02188_logic_entailment]
-> Use the user's constraint as a real constraint: If A precedes B and B precedes C, who comes first?
-<~ A
-[parrotbench_02189_logic_entailment]
-> Check whether the requested format is satisfied: All poets are writers. Ada is a poet. Is Ada a writer?
-<~ yes
-[parrotbench_02190_logic_entailment]
-> Check whether the requested format is satisfied: All roses are flowers. This is a rose. Is it a flower?
-<~ yes
-[parrotbench_02191_logic_entailment]
-> Check whether the requested format is satisfied: Every cat is an animal. Milo is a cat. What is Milo?
-<~ animal
-[parrotbench_02192_logic_entailment]
-> Check whether the requested format is satisfied: If A precedes B and B precedes C, who comes first?
-<~ A
-[parrotbench_02193_logic_entailment]
-> What would make this answer wrong? All poets are writers. Ada is a poet. Is Ada a writer?
-<~ yes
-[parrotbench_02194_logic_entailment]
-> What would make this answer wrong? All roses are flowers. This is a rose. Is it a flower?
-<~ yes
-[parrotbench_02195_logic_entailment]
-> What would make this answer wrong? Every cat is an animal. Milo is a cat. What is Milo?
-<~ animal
-[parrotbench_02196_logic_entailment]
-> What would make this answer wrong? If A precedes B and B precedes C, who comes first?
-<~ A
-[parrotbench_02197_logic_entailment]
-> Give a useful answer without pretending certainty: All poets are writers. Ada is a poet. Is Ada a writer?
-<~ yes
-[parrotbench_02198_logic_entailment]
-> Give a useful answer without pretending certainty: All roses are flowers. This is a rose. Is it a flower?
-<~ yes
-[parrotbench_02199_logic_entailment]
-> Give a useful answer without pretending certainty: Every cat is an animal. Milo is a cat. What is Milo?
-<~ animal
-[parrotbench_02200_logic_entailment]
-> Give a useful answer without pretending certainty: If A precedes B and B precedes C, who comes first?
-<~ A

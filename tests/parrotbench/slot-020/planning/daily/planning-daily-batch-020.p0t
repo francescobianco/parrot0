@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 7
+
+[parrotbench_07119_planning_daily]
+> Start with the direct answer, then qualify it: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07120_planning_daily]
+> Start with the direct answer, then qualify it: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07121_planning_daily]
+> Identify the entities and relations first: Give me a plan to make tea.
+<~ plan
+[parrotbench_07122_planning_daily]
+> Identify the entities and relations first: What is the first step in making tea?
+<~ water
+[parrotbench_07123_planning_daily]
+> Identify the entities and relations first: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07124_planning_daily]
+> Identify the entities and relations first: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07125_planning_daily]
+> Treat this as a new domain and explain your model: Give me a plan to make tea.
+<~ plan

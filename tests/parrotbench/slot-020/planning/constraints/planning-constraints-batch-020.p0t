@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/constraints
+# cases: 7
+
+[parrotbench_07319_planning_constraints]
+> Start with the direct answer, then qualify it: What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07320_planning_constraints]
+> Start with the direct answer, then qualify it: When should a plan ask for clarification?
+<~ goal
+[parrotbench_07321_planning_constraints]
+> Identify the entities and relations first: Make a plan without using sugar.
+<~ without
+[parrotbench_07322_planning_constraints]
+> Identify the entities and relations first: How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07323_planning_constraints]
+> Identify the entities and relations first: What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07324_planning_constraints]
+> Identify the entities and relations first: When should a plan ask for clarification?
+<~ goal
+[parrotbench_07325_planning_constraints]
+> Treat this as a new domain and explain your model: Make a plan without using sugar.
+<~ without

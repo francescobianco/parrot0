@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: math/comparison
-# cases: 50
+# cases: 6
 
-[parrotbench_01701_math_comparison]
-> Answer as if this were a release review: Which is greater, 41 or 14?
+[parrotbench_01613_math_comparison]
+> In simple terms, Which is greater, 41 or 14?
 <~ 41
-[parrotbench_01702_math_comparison]
-> Answer as if this were a release review: Is 3.41 larger than 3.14?
+[parrotbench_01614_math_comparison]
+> In simple terms, Is 3.41 larger than 3.14?
 <~ yes
-[parrotbench_01703_math_comparison]
-> Answer as if this were a release review: Put 5, 1, 9, and 3 in ascending order.
+[parrotbench_01615_math_comparison]
+> In simple terms, Put 5, 1, 9, and 3 in ascending order.
 <~ 1
-[parrotbench_01704_math_comparison]
-> Answer as if this were a release review: Which is smaller, minus 2 or minus 5?
+[parrotbench_01616_math_comparison]
+> In simple terms, Which is smaller, minus 2 or minus 5?
 <~ 5
-[parrotbench_01705_math_comparison]
-> Give the strongest answer supported by the KB: Which is greater, 41 or 14?
+[parrotbench_01617_math_comparison]
+> Give a concise answer. Which is greater, 41 or 14?
 <~ 41
-[parrotbench_01706_math_comparison]
-> Give the strongest answer supported by the KB: Is 3.41 larger than 3.14?
-<~ yes
-[parrotbench_01707_math_comparison]
-> Give the strongest answer supported by the KB: Put 5, 1, 9, and 3 in ascending order.
-<~ 1
-[parrotbench_01708_math_comparison]
-> Give the strongest answer supported by the KB: Which is smaller, minus 2 or minus 5?
-<~ 5
-[parrotbench_01709_math_comparison]
-> Do not confuse a wall with an answer. Which is greater, 41 or 14?
-<~ 41
-[parrotbench_01710_math_comparison]
-> Do not confuse a wall with an answer. Is 3.41 larger than 3.14?
-<~ yes
-[parrotbench_01711_math_comparison]
-> Do not confuse a wall with an answer. Put 5, 1, 9, and 3 in ascending order.
-<~ 1
-[parrotbench_01712_math_comparison]
-> Do not confuse a wall with an answer. Which is smaller, minus 2 or minus 5?
-<~ 5
-[parrotbench_01713_math_comparison]
-> What is the operational interpretation of this? Which is greater, 41 or 14?
-<~ 41
-[parrotbench_01714_math_comparison]
-> What is the operational interpretation of this? Is 3.41 larger than 3.14?
-<~ yes
-[parrotbench_01715_math_comparison]
-> What is the operational interpretation of this? Put 5, 1, 9, and 3 in ascending order.
-<~ 1
-[parrotbench_01716_math_comparison]
-> What is the operational interpretation of this? Which is smaller, minus 2 or minus 5?
-<~ 5
-[parrotbench_01717_math_comparison]
-> Start with the direct answer, then qualify it: Which is greater, 41 or 14?
-<~ 41
-[parrotbench_01718_math_comparison]
-> Start with the direct answer, then qualify it: Is 3.41 larger than 3.14?
-<~ yes
-[parrotbench_01719_math_comparison]
-> Start with the direct answer, then qualify it: Put 5, 1, 9, and 3 in ascending order.
-<~ 1
-[parrotbench_01720_math_comparison]
-> Start with the direct answer, then qualify it: Which is smaller, minus 2 or minus 5?
-<~ 5
-[parrotbench_01721_math_comparison]
-> Identify the entities and relations first: Which is greater, 41 or 14?
-<~ 41
-[parrotbench_01722_math_comparison]
-> Identify the entities and relations first: Is 3.41 larger than 3.14?
-<~ yes
-[parrotbench_01723_math_comparison]
-> Identify the entities and relations first: Put 5, 1, 9, and 3 in ascending order.
-<~ 1
-[parrotbench_01724_math_comparison]
-> Identify the entities and relations first: Which is smaller, minus 2 or minus 5?
-<~ 5
-[parrotbench_01725_math_comparison]
-> Treat this as a new domain and explain your model: Which is greater, 41 or 14?
-<~ 41
-[parrotbench_01726_math_comparison]
-> Treat this as a new domain and explain your model: Is 3.41 larger than 3.14?
-<~ yes
-[parrotbench_01727_math_comparison]
-> Treat this as a new domain and explain your model: Put 5, 1, 9, and 3 in ascending order.
-<~ 1
-[parrotbench_01728_math_comparison]
-> Treat this as a new domain and explain your model: Which is smaller, minus 2 or minus 5?
-<~ 5
-[parrotbench_01729_math_comparison]
-> What would you need to verify before answering? Which is greater, 41 or 14?
-<~ 41
-[parrotbench_01730_math_comparison]
-> What would you need to verify before answering? Is 3.41 larger than 3.14?
-<~ yes
-[parrotbench_01731_math_comparison]
-> What would you need to verify before answering? Put 5, 1, 9, and 3 in ascending order.
-<~ 1
-[parrotbench_01732_math_comparison]
-> What would you need to verify before answering? Which is smaller, minus 2 or minus 5?
-<~ 5
-[parrotbench_01733_math_comparison]
-> Keep alternatives separate while answering: Which is greater, 41 or 14?
-<~ 41
-[parrotbench_01734_math_comparison]
-> Keep alternatives separate while answering: Is 3.41 larger than 3.14?
-<~ yes
-[parrotbench_01735_math_comparison]
-> Keep alternatives separate while answering: Put 5, 1, 9, and 3 in ascending order.
-<~ 1
-[parrotbench_01736_math_comparison]
-> Keep alternatives separate while answering: Which is smaller, minus 2 or minus 5?
-<~ 5
-[parrotbench_01737_math_comparison]
-> State one conclusion and one uncertainty: Which is greater, 41 or 14?
-<~ 41
-[parrotbench_01738_math_comparison]
-> State one conclusion and one uncertainty: Is 3.41 larger than 3.14?
-<~ yes
-[parrotbench_01739_math_comparison]
-> State one conclusion and one uncertainty: Put 5, 1, 9, and 3 in ascending order.
-<~ 1
-[parrotbench_01740_math_comparison]
-> State one conclusion and one uncertainty: Which is smaller, minus 2 or minus 5?
-<~ 5
-[parrotbench_01741_math_comparison]
-> Use a concrete example in your answer: Which is greater, 41 or 14?
-<~ 41
-[parrotbench_01742_math_comparison]
-> Use a concrete example in your answer: Is 3.41 larger than 3.14?
-<~ yes
-[parrotbench_01743_math_comparison]
-> Use a concrete example in your answer: Put 5, 1, 9, and 3 in ascending order.
-<~ 1
-[parrotbench_01744_math_comparison]
-> Use a concrete example in your answer: Which is smaller, minus 2 or minus 5?
-<~ 5
-[parrotbench_01745_math_comparison]
-> Avoid changing the subject: Which is greater, 41 or 14?
-<~ 41
-[parrotbench_01746_math_comparison]
-> Avoid changing the subject: Is 3.41 larger than 3.14?
-<~ yes
-[parrotbench_01747_math_comparison]
-> Avoid changing the subject: Put 5, 1, 9, and 3 in ascending order.
-<~ 1
-[parrotbench_01748_math_comparison]
-> Avoid changing the subject: Which is smaller, minus 2 or minus 5?
-<~ 5
-[parrotbench_01749_math_comparison]
-> Answer the user's actual goal: Which is greater, 41 or 14?
-<~ 41
-[parrotbench_01750_math_comparison]
-> Answer the user's actual goal: Is 3.41 larger than 3.14?
+[parrotbench_01618_math_comparison]
+> Give a concise answer. Is 3.41 larger than 3.14?
 <~ yes

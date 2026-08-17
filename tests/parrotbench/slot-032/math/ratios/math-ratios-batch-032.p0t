@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/ratios
+# cases: 7
+
+[parrotbench_01394_math_ratios]
+> What would make this answer wrong? What is one quarter of 24?
+<~ 6
+[parrotbench_01395_math_ratios]
+> What would make this answer wrong? If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01396_math_ratios]
+> What would make this answer wrong? A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01397_math_ratios]
+> Give a useful answer without pretending certainty: What is 19 percent of 200?
+<~ 38
+[parrotbench_01398_math_ratios]
+> Give a useful answer without pretending certainty: What is one quarter of 24?
+<~ 6
+[parrotbench_01399_math_ratios]
+> Give a useful answer without pretending certainty: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01400_math_ratios]
+> Give a useful answer without pretending certainty: A price of 80 falls by 25 percent. What is the new price?
+<~ 60

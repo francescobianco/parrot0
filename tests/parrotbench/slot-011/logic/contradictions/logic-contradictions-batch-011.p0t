@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-011: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/contradictions
+# cases: 6
+
+[parrotbench_02863_logic_contradictions]
+> In italiano, Find the contradiction: the door is open and never opened.
+<~ contradiction
+[parrotbench_02864_logic_contradictions]
+> In italiano, What should happen when two facts cannot both hold?
+<~ conflict
+[parrotbench_02865_logic_contradictions]
+> Rispondi brevemente: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
+<~ impossible
+[parrotbench_02866_logic_contradictions]
+> Rispondi brevemente: Can something be both entirely known and unknown in the same sense?
+<~ no
+[parrotbench_02867_logic_contradictions]
+> Rispondi brevemente: Find the contradiction: the door is open and never opened.
+<~ contradiction
+[parrotbench_02868_logic_contradictions]
+> Rispondi brevemente: What should happen when two facts cannot both hold?
+<~ conflict

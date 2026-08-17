@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/unknowns
+# cases: 6
+
+[parrotbench_00382_knowledge_unknowns]
+> Explain the reasoning rather than a slogan: Did Zorblax invent the moon?
+<~ don't know
+[parrotbench_00383_knowledge_unknowns]
+> Explain the reasoning rather than a slogan: What evidence supports an unknown claim?
+<~ don't know
+[parrotbench_00384_knowledge_unknowns]
+> Explain the reasoning rather than a slogan: Tell me a fact when you have no source.
+<~ don't know
+[parrotbench_00385_knowledge_unknowns]
+> Use the user's constraint as a real constraint: Who is the president of Mars?
+<~ don't know
+[parrotbench_00386_knowledge_unknowns]
+> Use the user's constraint as a real constraint: Did Zorblax invent the moon?
+<~ don't know
+[parrotbench_00387_knowledge_unknowns]
+> Use the user's constraint as a real constraint: What evidence supports an unknown claim?
+<~ don't know

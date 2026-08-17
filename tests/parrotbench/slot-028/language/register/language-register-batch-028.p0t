@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-028: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/register
+# cases: 7
+
+[parrotbench_06169_language_register]
+> Rispondi in italiano quando possibile: Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06170_language_register]
+> Rispondi in italiano quando possibile: Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06171_language_register]
+> Rispondi in italiano quando possibile: Say this more politely: give me the file.
+<~ please
+[parrotbench_06172_language_register]
+> Rispondi in italiano quando possibile: Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06173_language_register]
+> Distinguish a fact, a rule, and a hypothesis: Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06174_language_register]
+> Distinguish a fact, a rule, and a hypothesis: Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06175_language_register]
+> Distinguish a fact, a rule, and a hypothesis: Say this more politely: give me the file.
+<~ please

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/counterfactual
+# cases: 6
+
+[parrotbench_02751_logic_counterfactual]
+> Answer the user's actual goal: If all else stays fixed, what does a counterfactual isolate?
+<~ cause
+[parrotbench_02752_logic_counterfactual]
+> Answer the user's actual goal: Can an outcome prove its supposed cause by itself?
+<~ no
+[parrotbench_02753_logic_counterfactual]
+> If the request is underspecified, say what is missing: If the switch had stayed off, would the lamp have lit?
+<~ no
+[parrotbench_02754_logic_counterfactual]
+> If the request is underspecified, say what is missing: What changes in a counterfactual argument?
+<~ condition
+[parrotbench_02755_logic_counterfactual]
+> If the request is underspecified, say what is missing: If all else stays fixed, what does a counterfactual isolate?
+<~ cause
+[parrotbench_02756_logic_counterfactual]
+> If the request is underspecified, say what is missing: Can an outcome prove its supposed cause by itself?
+<~ no

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/register
+# cases: 6
+
+[parrotbench_06126_language_register]
+> Treat this as a new domain and explain your model: Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06127_language_register]
+> Treat this as a new domain and explain your model: Say this more politely: give me the file.
+<~ please
+[parrotbench_06128_language_register]
+> Treat this as a new domain and explain your model: Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06129_language_register]
+> What would you need to verify before answering? Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06130_language_register]
+> What would you need to verify before answering? Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06131_language_register]
+> What would you need to verify before answering? Say this more politely: give me the file.
+<~ please

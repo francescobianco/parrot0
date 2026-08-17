@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/definition
+# cases: 6
+
+[parrotbench_05857_language_definition]
+> Keep the answer useful and honest: Define democracy in simple terms.
+<~ people
+[parrotbench_05858_language_definition]
+> Keep the answer useful and honest: What does ephemeral mean?
+<~ short
+[parrotbench_05859_language_definition]
+> Keep the answer useful and honest: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05860_language_definition]
+> Keep the answer useful and honest: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05861_language_definition]
+> In italiano, Define democracy in simple terms.
+<~ people
+[parrotbench_05862_language_definition]
+> In italiano, What does ephemeral mean?
+<~ short

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 6
+
+[parrotbench_00163_knowledge_facts]
+> What would a careful interlocutor say? Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00164_knowledge_facts]
+> What would a careful interlocutor say? What is water made of chemically?
+<~ H2O
+[parrotbench_00165_knowledge_facts]
+> Give a short answer in English: What is the capital of France?
+<~ Paris
+[parrotbench_00166_knowledge_facts]
+> Give a short answer in English: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00167_knowledge_facts]
+> Give a short answer in English: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00168_knowledge_facts]
+> Give a short answer in English: What is water made of chemically?
+<~ H2O

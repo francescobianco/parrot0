@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-023: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/empathy
+# cases: 6
+
+[parrotbench_04938_dialogue_empathy]
+> State one conclusion and one uncertainty: I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04939_dialogue_empathy]
+> State one conclusion and one uncertainty: Can you have feelings of your own?
+<~ not
+[parrotbench_04940_dialogue_empathy]
+> State one conclusion and one uncertainty: How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04941_dialogue_empathy]
+> Use a concrete example in your answer: I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04942_dialogue_empathy]
+> Use a concrete example in your answer: I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04943_dialogue_empathy]
+> Use a concrete example in your answer: Can you have feelings of your own?
+<~ not

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/provenance
+# cases: 6
+
+[parrotbench_04113_reasoning_provenance]
+> What is the operational interpretation of this? What evidence supports this answer?
+<~ evidence
+[parrotbench_04114_reasoning_provenance]
+> What is the operational interpretation of this? Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04115_reasoning_provenance]
+> What is the operational interpretation of this? What should an explanation expose?
+<~ reason
+[parrotbench_04116_reasoning_provenance]
+> What is the operational interpretation of this? How can a learned fact be corrected?
+<~ forget
+[parrotbench_04117_reasoning_provenance]
+> Start with the direct answer, then qualify it: What evidence supports this answer?
+<~ evidence
+[parrotbench_04118_reasoning_provenance]
+> Start with the direct answer, then qualify it: Why record which rule produced a conclusion?
+<~ provenance

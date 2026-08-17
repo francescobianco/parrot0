@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/inference
+# cases: 6
+
+[parrotbench_09363_kb_inference]
+> What would a careful interlocutor say? Why preserve evidence for a conclusion?
+<~ evidence
+[parrotbench_09364_kb_inference]
+> What would a careful interlocutor say? What should happen when rules conflict?
+<~ conflict
+[parrotbench_09365_kb_inference]
+> Give a short answer in English: What is a rule of inference?
+<~ rule
+[parrotbench_09366_kb_inference]
+> Give a short answer in English: What is a derived fact?
+<~ derived
+[parrotbench_09367_kb_inference]
+> Give a short answer in English: Why preserve evidence for a conclusion?
+<~ evidence
+[parrotbench_09368_kb_inference]
+> Give a short answer in English: What should happen when rules conflict?
+<~ conflict

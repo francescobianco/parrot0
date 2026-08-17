@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 6
+
+[parrotbench_06713_format_structured]
+> What is the operational interpretation of this? Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06714_format_structured]
+> What is the operational interpretation of this? Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06715_format_structured]
+> What is the operational interpretation of this? Give a two-line answer about rain.
+<~ rain
+[parrotbench_06716_format_structured]
+> What is the operational interpretation of this? Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06717_format_structured]
+> Start with the direct answer, then qualify it: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06718_format_structured]
+> Start with the direct answer, then qualify it: Answer as a numbered list with two items.
+<~ 1

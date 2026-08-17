@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/comparison
+# cases: 7
+
+[parrotbench_01669_math_comparison]
+> Spiegalo in parole semplici: Which is greater, 41 or 14?
+<~ 41
+[parrotbench_01670_math_comparison]
+> Spiegalo in parole semplici: Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01671_math_comparison]
+> Spiegalo in parole semplici: Put 5, 1, 9, and 3 in ascending order.
+<~ 1
+[parrotbench_01672_math_comparison]
+> Spiegalo in parole semplici: Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01673_math_comparison]
+> Prima dimmi cosa manca, poi: Which is greater, 41 or 14?
+<~ 41
+[parrotbench_01674_math_comparison]
+> Prima dimmi cosa manca, poi: Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01675_math_comparison]
+> Prima dimmi cosa manca, poi: Put 5, 1, 9, and 3 in ascending order.
+<~ 1

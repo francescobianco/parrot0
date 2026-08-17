@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/word-problems
+# cases: 7
+
+[parrotbench_01919_math_word-problems]
+> Start with the direct answer, then qualify it: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01920_math_word-problems]
+> Start with the direct answer, then qualify it: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01921_math_word-problems]
+> Identify the entities and relations first: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01922_math_word-problems]
+> Identify the entities and relations first: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01923_math_word-problems]
+> Identify the entities and relations first: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01924_math_word-problems]
+> Identify the entities and relations first: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01925_math_word-problems]
+> Treat this as a new domain and explain your model: I have 24 apples and give away a quarter. How many remain?
+<~ 18

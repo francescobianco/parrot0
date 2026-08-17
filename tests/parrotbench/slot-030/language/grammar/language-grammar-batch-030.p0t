@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/grammar
+# cases: 6
+
+[parrotbench_05782_language_grammar]
+> Explain the reasoning rather than a slogan: What is the past tense of go?
+<~ went
+[parrotbench_05783_language_grammar]
+> Explain the reasoning rather than a slogan: Correct: She go to school.
+<~ goes
+[parrotbench_05784_language_grammar]
+> Explain the reasoning rather than a slogan: Is 'Me likes apples' grammatical?
+<~ no
+[parrotbench_05785_language_grammar]
+> Use the user's constraint as a real constraint: What is the plural of child?
+<~ children
+[parrotbench_05786_language_grammar]
+> Use the user's constraint as a real constraint: What is the past tense of go?
+<~ went
+[parrotbench_05787_language_grammar]
+> Use the user's constraint as a real constraint: Correct: She go to school.
+<~ goes

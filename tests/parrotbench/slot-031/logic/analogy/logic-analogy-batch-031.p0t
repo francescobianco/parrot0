@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/analogy
+# cases: 6
+
+[parrotbench_03188_logic_analogy]
+> Use the user's constraint as a real constraint: How can two different graphs be analogous?
+<~ invariant
+[parrotbench_03189_logic_analogy]
+> Check whether the requested format is satisfied: What structure is shared by a deadlock and two people waiting for each other?
+<~ wait
+[parrotbench_03190_logic_analogy]
+> Check whether the requested format is satisfied: Can a relation pattern transfer when the nouns change?
+<~ structure
+[parrotbench_03191_logic_analogy]
+> Check whether the requested format is satisfied: What remains when domain-specific names are removed?
+<~ structure
+[parrotbench_03192_logic_analogy]
+> Check whether the requested format is satisfied: How can two different graphs be analogous?
+<~ invariant
+[parrotbench_03193_logic_analogy]
+> What would make this answer wrong? What structure is shared by a deadlock and two people waiting for each other?
+<~ wait

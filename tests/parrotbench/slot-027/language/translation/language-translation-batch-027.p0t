@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05563_language_translation]
+> What would a careful interlocutor say? Translate the dog runs into English.
+<~ dog
+[parrotbench_05564_language_translation]
+> What would a careful interlocutor say? Translate acqua into English.
+<~ water
+[parrotbench_05565_language_translation]
+> Give a short answer in English: Translate hello into Italian.
+<~ ciao
+[parrotbench_05566_language_translation]
+> Give a short answer in English: Translate the small house into French.
+<~ maison
+[parrotbench_05567_language_translation]
+> Give a short answer in English: Translate the dog runs into English.
+<~ dog
+[parrotbench_05568_language_translation]
+> Give a short answer in English: Translate acqua into English.
+<~ water

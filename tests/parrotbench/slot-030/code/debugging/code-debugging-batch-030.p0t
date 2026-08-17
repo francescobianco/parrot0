@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: code/debugging
+# cases: 6
+
+[parrotbench_08582_code_debugging]
+> Explain the reasoning rather than a slogan: What is a regression?
+<~ change
+[parrotbench_08583_code_debugging]
+> Explain the reasoning rather than a slogan: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08584_code_debugging]
+> Explain the reasoning rather than a slogan: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08585_code_debugging]
+> Use the user's constraint as a real constraint: A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08586_code_debugging]
+> Use the user's constraint as a real constraint: What is a regression?
+<~ change
+[parrotbench_08587_code_debugging]
+> Use the user's constraint as a real constraint: How should a bug report become a hypothesis?
+<~ hypoth

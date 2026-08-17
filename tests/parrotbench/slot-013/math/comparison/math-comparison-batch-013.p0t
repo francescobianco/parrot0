@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/comparison
+# cases: 6
+
+[parrotbench_01676_math_comparison]
+> Prima dimmi cosa manca, poi: Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01677_math_comparison]
+> What is the shortest useful answer to this? Which is greater, 41 or 14?
+<~ 41
+[parrotbench_01678_math_comparison]
+> What is the shortest useful answer to this? Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01679_math_comparison]
+> What is the shortest useful answer to this? Put 5, 1, 9, and 3 in ascending order.
+<~ 1
+[parrotbench_01680_math_comparison]
+> What is the shortest useful answer to this? Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01681_math_comparison]
+> Challenge your first interpretation: Which is greater, 41 or 14?
+<~ 41

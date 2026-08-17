@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 6
+
+[parrotbench_06907_format_summaries]
+> Give the strongest answer supported by the KB: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06908_format_summaries]
+> Give the strongest answer supported by the KB: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06909_format_summaries]
+> Do not confuse a wall with an answer. Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06910_format_summaries]
+> Do not confuse a wall with an answer. Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06911_format_summaries]
+> Do not confuse a wall with an answer. Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06912_format_summaries]
+> Do not confuse a wall with an answer. State the conclusion before the details.
+<~ conclusion

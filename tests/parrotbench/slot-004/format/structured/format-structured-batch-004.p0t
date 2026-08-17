@@ -2,155 +2,26 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: format/structured
-# cases: 50
+# cases: 7
 
-[parrotbench_06751_format_structured]
-> Answer the user's actual goal: Give a two-line answer about rain.
+[parrotbench_06619_format_structured]
+> Give a concise answer. Give a two-line answer about rain.
 <~ rain
-[parrotbench_06752_format_structured]
-> Answer the user's actual goal: Answer in exactly three words: what is water?
+[parrotbench_06620_format_structured]
+> Give a concise answer. Answer in exactly three words: what is water?
 <~ water
-[parrotbench_06753_format_structured]
-> If the request is underspecified, say what is missing: Answer as JSON with keys name and value.
+[parrotbench_06621_format_structured]
+> I need a careful answer: Answer as JSON with keys name and value.
 <~ name
-[parrotbench_06754_format_structured]
-> If the request is underspecified, say what is missing: Answer as a numbered list with two items.
+[parrotbench_06622_format_structured]
+> I need a careful answer: Answer as a numbered list with two items.
 <~ 1
-[parrotbench_06755_format_structured]
-> If the request is underspecified, say what is missing: Give a two-line answer about rain.
+[parrotbench_06623_format_structured]
+> I need a careful answer: Give a two-line answer about rain.
 <~ rain
-[parrotbench_06756_format_structured]
-> If the request is underspecified, say what is missing: Answer in exactly three words: what is water?
+[parrotbench_06624_format_structured]
+> I need a careful answer: Answer in exactly three words: what is water?
 <~ water
-[parrotbench_06757_format_structured]
-> Can this be answered from known facts? Answer as JSON with keys name and value.
+[parrotbench_06625_format_structured]
+> Explain your answer briefly: Answer as JSON with keys name and value.
 <~ name
-[parrotbench_06758_format_structured]
-> Can this be answered from known facts? Answer as a numbered list with two items.
-<~ 1
-[parrotbench_06759_format_structured]
-> Can this be answered from known facts? Give a two-line answer about rain.
-<~ rain
-[parrotbench_06760_format_structured]
-> Can this be answered from known facts? Answer in exactly three words: what is water?
-<~ water
-[parrotbench_06761_format_structured]
-> What would a careful interlocutor say? Answer as JSON with keys name and value.
-<~ name
-[parrotbench_06762_format_structured]
-> What would a careful interlocutor say? Answer as a numbered list with two items.
-<~ 1
-[parrotbench_06763_format_structured]
-> What would a careful interlocutor say? Give a two-line answer about rain.
-<~ rain
-[parrotbench_06764_format_structured]
-> What would a careful interlocutor say? Answer in exactly three words: what is water?
-<~ water
-[parrotbench_06765_format_structured]
-> Give a short answer in English: Answer as JSON with keys name and value.
-<~ name
-[parrotbench_06766_format_structured]
-> Give a short answer in English: Answer as a numbered list with two items.
-<~ 1
-[parrotbench_06767_format_structured]
-> Give a short answer in English: Give a two-line answer about rain.
-<~ rain
-[parrotbench_06768_format_structured]
-> Give a short answer in English: Answer in exactly three words: what is water?
-<~ water
-[parrotbench_06769_format_structured]
-> Rispondi in italiano quando possibile: Answer as JSON with keys name and value.
-<~ name
-[parrotbench_06770_format_structured]
-> Rispondi in italiano quando possibile: Answer as a numbered list with two items.
-<~ 1
-[parrotbench_06771_format_structured]
-> Rispondi in italiano quando possibile: Give a two-line answer about rain.
-<~ rain
-[parrotbench_06772_format_structured]
-> Rispondi in italiano quando possibile: Answer in exactly three words: what is water?
-<~ water
-[parrotbench_06773_format_structured]
-> Distinguish a fact, a rule, and a hypothesis: Answer as JSON with keys name and value.
-<~ name
-[parrotbench_06774_format_structured]
-> Distinguish a fact, a rule, and a hypothesis: Answer as a numbered list with two items.
-<~ 1
-[parrotbench_06775_format_structured]
-> Distinguish a fact, a rule, and a hypothesis: Give a two-line answer about rain.
-<~ rain
-[parrotbench_06776_format_structured]
-> Distinguish a fact, a rule, and a hypothesis: Answer in exactly three words: what is water?
-<~ water
-[parrotbench_06777_format_structured]
-> Name the relevant capability: Answer as JSON with keys name and value.
-<~ name
-[parrotbench_06778_format_structured]
-> Name the relevant capability: Answer as a numbered list with two items.
-<~ 1
-[parrotbench_06779_format_structured]
-> Name the relevant capability: Give a two-line answer about rain.
-<~ rain
-[parrotbench_06780_format_structured]
-> Name the relevant capability: Answer in exactly three words: what is water?
-<~ water
-[parrotbench_06781_format_structured]
-> Explain the reasoning rather than a slogan: Answer as JSON with keys name and value.
-<~ name
-[parrotbench_06782_format_structured]
-> Explain the reasoning rather than a slogan: Answer as a numbered list with two items.
-<~ 1
-[parrotbench_06783_format_structured]
-> Explain the reasoning rather than a slogan: Give a two-line answer about rain.
-<~ rain
-[parrotbench_06784_format_structured]
-> Explain the reasoning rather than a slogan: Answer in exactly three words: what is water?
-<~ water
-[parrotbench_06785_format_structured]
-> Use the user's constraint as a real constraint: Answer as JSON with keys name and value.
-<~ name
-[parrotbench_06786_format_structured]
-> Use the user's constraint as a real constraint: Answer as a numbered list with two items.
-<~ 1
-[parrotbench_06787_format_structured]
-> Use the user's constraint as a real constraint: Give a two-line answer about rain.
-<~ rain
-[parrotbench_06788_format_structured]
-> Use the user's constraint as a real constraint: Answer in exactly three words: what is water?
-<~ water
-[parrotbench_06789_format_structured]
-> Check whether the requested format is satisfied: Answer as JSON with keys name and value.
-<~ name
-[parrotbench_06790_format_structured]
-> Check whether the requested format is satisfied: Answer as a numbered list with two items.
-<~ 1
-[parrotbench_06791_format_structured]
-> Check whether the requested format is satisfied: Give a two-line answer about rain.
-<~ rain
-[parrotbench_06792_format_structured]
-> Check whether the requested format is satisfied: Answer in exactly three words: what is water?
-<~ water
-[parrotbench_06793_format_structured]
-> What would make this answer wrong? Answer as JSON with keys name and value.
-<~ name
-[parrotbench_06794_format_structured]
-> What would make this answer wrong? Answer as a numbered list with two items.
-<~ 1
-[parrotbench_06795_format_structured]
-> What would make this answer wrong? Give a two-line answer about rain.
-<~ rain
-[parrotbench_06796_format_structured]
-> What would make this answer wrong? Answer in exactly three words: what is water?
-<~ water
-[parrotbench_06797_format_structured]
-> Give a useful answer without pretending certainty: Answer as JSON with keys name and value.
-<~ name
-[parrotbench_06798_format_structured]
-> Give a useful answer without pretending certainty: Answer as a numbered list with two items.
-<~ 1
-[parrotbench_06799_format_structured]
-> Give a useful answer without pretending certainty: Give a two-line answer about rain.
-<~ rain
-[parrotbench_06800_format_structured]
-> Give a useful answer without pretending certainty: Answer in exactly three words: what is water?
-<~ water

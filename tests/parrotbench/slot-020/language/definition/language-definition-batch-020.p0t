@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/definition
+# cases: 7
+
+[parrotbench_05919_language_definition]
+> Start with the direct answer, then qualify it: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05920_language_definition]
+> Start with the direct answer, then qualify it: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05921_language_definition]
+> Identify the entities and relations first: Define democracy in simple terms.
+<~ people
+[parrotbench_05922_language_definition]
+> Identify the entities and relations first: What does ephemeral mean?
+<~ short
+[parrotbench_05923_language_definition]
+> Identify the entities and relations first: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05924_language_definition]
+> Identify the entities and relations first: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05925_language_definition]
+> Treat this as a new domain and explain your model: Define democracy in simple terms.
+<~ people

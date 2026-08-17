@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 7
+
+[parrotbench_02119_logic_entailment]
+> Start with the direct answer, then qualify it: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02120_logic_entailment]
+> Start with the direct answer, then qualify it: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02121_logic_entailment]
+> Identify the entities and relations first: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02122_logic_entailment]
+> Identify the entities and relations first: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02123_logic_entailment]
+> Identify the entities and relations first: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02124_logic_entailment]
+> Identify the entities and relations first: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02125_logic_entailment]
+> Treat this as a new domain and explain your model: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes

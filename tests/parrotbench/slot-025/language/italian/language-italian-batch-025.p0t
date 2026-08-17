@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/italian
+# cases: 6
+
+[parrotbench_05351_language_italian]
+> Answer the user's actual goal: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05352_language_italian]
+> Answer the user's actual goal: Qual e il contrario di grande?
+<~ small
+[parrotbench_05353_language_italian]
+> If the request is underspecified, say what is missing: Come ti chiami?
+<~ parrot0
+[parrotbench_05354_language_italian]
+> If the request is underspecified, say what is missing: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05355_language_italian]
+> If the request is underspecified, say what is missing: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05356_language_italian]
+> If the request is underspecified, say what is missing: Qual e il contrario di grande?
+<~ small

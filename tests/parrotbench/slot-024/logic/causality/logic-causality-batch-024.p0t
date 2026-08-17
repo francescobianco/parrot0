@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/causality
+# cases: 7
+
+[parrotbench_02544_logic_causality]
+> Use a concrete example in your answer: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02545_logic_causality]
+> Avoid changing the subject: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02546_logic_causality]
+> Avoid changing the subject: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02547_logic_causality]
+> Avoid changing the subject: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02548_logic_causality]
+> Avoid changing the subject: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02549_logic_causality]
+> Answer the user's actual goal: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02550_logic_causality]
+> Answer the user's actual goal: The ground is wet. Did it necessarily rain?
+<~ not

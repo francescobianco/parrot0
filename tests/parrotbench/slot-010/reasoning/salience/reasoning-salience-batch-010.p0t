@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/salience
+# cases: 6
+
+[parrotbench_03657_reasoning_salience]
+> Keep the answer useful and honest: Which line matters in a log: INFO ready or ERROR connection refused?
+<~ error
+[parrotbench_03658_reasoning_salience]
+> Keep the answer useful and honest: What does goal-conditioned salience select?
+<~ relevant
+[parrotbench_03659_reasoning_salience]
+> Keep the answer useful and honest: Why should irrelevant input be pruned?
+<~ goal
+[parrotbench_03660_reasoning_salience]
+> Keep the answer useful and honest: In a long report, what deserves attention first?
+<~ goal
+[parrotbench_03661_reasoning_salience]
+> In italiano, Which line matters in a log: INFO ready or ERROR connection refused?
+<~ error
+[parrotbench_03662_reasoning_salience]
+> In italiano, What does goal-conditioned salience select?
+<~ relevant

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: code/debugging
+# cases: 6
+
+[parrotbench_08551_code_debugging]
+> Answer the user's actual goal: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08552_code_debugging]
+> Answer the user's actual goal: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08553_code_debugging]
+> If the request is underspecified, say what is missing: A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08554_code_debugging]
+> If the request is underspecified, say what is missing: What is a regression?
+<~ change
+[parrotbench_08555_code_debugging]
+> If the request is underspecified, say what is missing: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08556_code_debugging]
+> If the request is underspecified, say what is missing: Why keep a minimal reproducer?
+<~ repro

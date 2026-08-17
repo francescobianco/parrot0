@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 7
+
+[parrotbench_06869_format_summaries]
+> Spiegalo in parole semplici: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06870_format_summaries]
+> Spiegalo in parole semplici: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06871_format_summaries]
+> Spiegalo in parole semplici: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06872_format_summaries]
+> Spiegalo in parole semplici: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06873_format_summaries]
+> Prima dimmi cosa manca, poi: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06874_format_summaries]
+> Prima dimmi cosa manca, poi: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06875_format_summaries]
+> Prima dimmi cosa manca, poi: Summarize the purpose of a KB in five words.
+<~ KB

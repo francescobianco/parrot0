@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06588_format_lists]
+> Use the user's constraint as a real constraint: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06589_format_lists]
+> Check whether the requested format is satisfied: List exactly three colors.
+<~ blue
+[parrotbench_06590_format_lists]
+> Check whether the requested format is satisfied: Give two reasons to verify sources.
+<~ source
+[parrotbench_06591_format_lists]
+> Check whether the requested format is satisfied: Name three planets.
+<~ Earth
+[parrotbench_06592_format_lists]
+> Check whether the requested format is satisfied: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06593_format_lists]
+> What would make this answer wrong? List exactly three colors.
+<~ blue

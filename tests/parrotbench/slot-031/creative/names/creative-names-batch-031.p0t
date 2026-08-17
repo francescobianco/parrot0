@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/names
+# cases: 6
+
+[parrotbench_09988_creative_names]
+> Use the user's constraint as a real constraint: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09989_creative_names]
+> Check whether the requested format is satisfied: Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09990_creative_names]
+> Check whether the requested format is satisfied: Give three distinct names for a robot.
+<~ robot
+[parrotbench_09991_creative_names]
+> Check whether the requested format is satisfied: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09992_creative_names]
+> Check whether the requested format is satisfied: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09993_creative_names]
+> What would make this answer wrong? Invent a funny name for a parrot database.
+<~ parrot

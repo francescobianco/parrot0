@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: knowledge/gaps
-# cases: 50
+# cases: 6
 
-[parrotbench_00501_knowledge_gaps]
-> Answer as if this were a release review: What information is missing before answering a causal question?
+[parrotbench_00413_knowledge_gaps]
+> In simple terms, What information is missing before answering a causal question?
 <~ missing
-[parrotbench_00502_knowledge_gaps]
-> Answer as if this were a release review: How should a knowledge gap become a research plan?
+[parrotbench_00414_knowledge_gaps]
+> In simple terms, How should a knowledge gap become a research plan?
 <~ research
-[parrotbench_00503_knowledge_gaps]
-> Answer as if this were a release review: What should you do when the KB lacks a fact?
+[parrotbench_00415_knowledge_gaps]
+> In simple terms, What should you do when the KB lacks a fact?
 <~ learn
-[parrotbench_00504_knowledge_gaps]
-> Answer as if this were a release review: What would you search for before comparing two cities?
+[parrotbench_00416_knowledge_gaps]
+> In simple terms, What would you search for before comparing two cities?
 <~ know
-[parrotbench_00505_knowledge_gaps]
-> Give the strongest answer supported by the KB: What information is missing before answering a causal question?
+[parrotbench_00417_knowledge_gaps]
+> Give a concise answer. What information is missing before answering a causal question?
 <~ missing
-[parrotbench_00506_knowledge_gaps]
-> Give the strongest answer supported by the KB: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00507_knowledge_gaps]
-> Give the strongest answer supported by the KB: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00508_knowledge_gaps]
-> Give the strongest answer supported by the KB: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00509_knowledge_gaps]
-> Do not confuse a wall with an answer. What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00510_knowledge_gaps]
-> Do not confuse a wall with an answer. How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00511_knowledge_gaps]
-> Do not confuse a wall with an answer. What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00512_knowledge_gaps]
-> Do not confuse a wall with an answer. What would you search for before comparing two cities?
-<~ know
-[parrotbench_00513_knowledge_gaps]
-> What is the operational interpretation of this? What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00514_knowledge_gaps]
-> What is the operational interpretation of this? How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00515_knowledge_gaps]
-> What is the operational interpretation of this? What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00516_knowledge_gaps]
-> What is the operational interpretation of this? What would you search for before comparing two cities?
-<~ know
-[parrotbench_00517_knowledge_gaps]
-> Start with the direct answer, then qualify it: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00518_knowledge_gaps]
-> Start with the direct answer, then qualify it: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00519_knowledge_gaps]
-> Start with the direct answer, then qualify it: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00520_knowledge_gaps]
-> Start with the direct answer, then qualify it: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00521_knowledge_gaps]
-> Identify the entities and relations first: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00522_knowledge_gaps]
-> Identify the entities and relations first: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00523_knowledge_gaps]
-> Identify the entities and relations first: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00524_knowledge_gaps]
-> Identify the entities and relations first: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00525_knowledge_gaps]
-> Treat this as a new domain and explain your model: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00526_knowledge_gaps]
-> Treat this as a new domain and explain your model: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00527_knowledge_gaps]
-> Treat this as a new domain and explain your model: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00528_knowledge_gaps]
-> Treat this as a new domain and explain your model: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00529_knowledge_gaps]
-> What would you need to verify before answering? What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00530_knowledge_gaps]
-> What would you need to verify before answering? How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00531_knowledge_gaps]
-> What would you need to verify before answering? What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00532_knowledge_gaps]
-> What would you need to verify before answering? What would you search for before comparing two cities?
-<~ know
-[parrotbench_00533_knowledge_gaps]
-> Keep alternatives separate while answering: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00534_knowledge_gaps]
-> Keep alternatives separate while answering: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00535_knowledge_gaps]
-> Keep alternatives separate while answering: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00536_knowledge_gaps]
-> Keep alternatives separate while answering: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00537_knowledge_gaps]
-> State one conclusion and one uncertainty: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00538_knowledge_gaps]
-> State one conclusion and one uncertainty: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00539_knowledge_gaps]
-> State one conclusion and one uncertainty: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00540_knowledge_gaps]
-> State one conclusion and one uncertainty: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00541_knowledge_gaps]
-> Use a concrete example in your answer: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00542_knowledge_gaps]
-> Use a concrete example in your answer: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00543_knowledge_gaps]
-> Use a concrete example in your answer: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00544_knowledge_gaps]
-> Use a concrete example in your answer: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00545_knowledge_gaps]
-> Avoid changing the subject: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00546_knowledge_gaps]
-> Avoid changing the subject: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00547_knowledge_gaps]
-> Avoid changing the subject: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00548_knowledge_gaps]
-> Avoid changing the subject: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00549_knowledge_gaps]
-> Answer the user's actual goal: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00550_knowledge_gaps]
-> Answer the user's actual goal: How should a knowledge gap become a research plan?
+[parrotbench_00418_knowledge_gaps]
+> Give a concise answer. How should a knowledge gap become a research plan?
 <~ research

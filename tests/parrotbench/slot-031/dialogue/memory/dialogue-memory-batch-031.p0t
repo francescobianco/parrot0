@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/memory
+# cases: 6
+
+[parrotbench_04788_dialogue_memory]
+> Use the user's constraint as a real constraint: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04789_dialogue_memory]
+> Check whether the requested format is satisfied: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04790_dialogue_memory]
+> Check whether the requested format is satisfied: Remember that my favorite color is green.
+<~ green
+[parrotbench_04791_dialogue_memory]
+> Check whether the requested format is satisfied: What should a memory record include?
+<~ fact
+[parrotbench_04792_dialogue_memory]
+> Check whether the requested format is satisfied: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04793_dialogue_memory]
+> What would make this answer wrong? Remember that my name is Luca.
+<~ Luca

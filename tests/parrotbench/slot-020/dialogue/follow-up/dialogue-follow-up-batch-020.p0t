@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/follow-up
+# cases: 7
+
+[parrotbench_05119_dialogue_follow-up]
+> Start with the direct answer, then qualify it: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05120_dialogue_follow-up]
+> Start with the direct answer, then qualify it: What is a dialogue state?
+<~ dialogue
+[parrotbench_05121_dialogue_follow-up]
+> Identify the entities and relations first: What did I ask you first?
+<~ first
+[parrotbench_05122_dialogue_follow-up]
+> Identify the entities and relations first: What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05123_dialogue_follow-up]
+> Identify the entities and relations first: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05124_dialogue_follow-up]
+> Identify the entities and relations first: What is a dialogue state?
+<~ dialogue
+[parrotbench_05125_dialogue_follow-up]
+> Treat this as a new domain and explain your model: What did I ask you first?
+<~ first

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/comparison
+# cases: 7
+
+[parrotbench_01719_math_comparison]
+> Start with the direct answer, then qualify it: Put 5, 1, 9, and 3 in ascending order.
+<~ 1
+[parrotbench_01720_math_comparison]
+> Start with the direct answer, then qualify it: Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01721_math_comparison]
+> Identify the entities and relations first: Which is greater, 41 or 14?
+<~ 41
+[parrotbench_01722_math_comparison]
+> Identify the entities and relations first: Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01723_math_comparison]
+> Identify the entities and relations first: Put 5, 1, 9, and 3 in ascending order.
+<~ 1
+[parrotbench_01724_math_comparison]
+> Identify the entities and relations first: Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01725_math_comparison]
+> Treat this as a new domain and explain your model: Which is greater, 41 or 14?
+<~ 41

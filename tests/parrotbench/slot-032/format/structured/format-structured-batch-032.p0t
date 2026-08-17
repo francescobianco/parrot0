@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 7
+
+[parrotbench_06794_format_structured]
+> What would make this answer wrong? Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06795_format_structured]
+> What would make this answer wrong? Give a two-line answer about rain.
+<~ rain
+[parrotbench_06796_format_structured]
+> What would make this answer wrong? Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06797_format_structured]
+> Give a useful answer without pretending certainty: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06798_format_structured]
+> Give a useful answer without pretending certainty: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06799_format_structured]
+> Give a useful answer without pretending certainty: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06800_format_structured]
+> Give a useful answer without pretending certainty: Answer in exactly three words: what is water?
+<~ water

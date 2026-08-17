@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/memory
+# cases: 6
+
+[parrotbench_04657_dialogue_memory]
+> Keep the answer useful and honest: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04658_dialogue_memory]
+> Keep the answer useful and honest: Remember that my favorite color is green.
+<~ green
+[parrotbench_04659_dialogue_memory]
+> Keep the answer useful and honest: What should a memory record include?
+<~ fact
+[parrotbench_04660_dialogue_memory]
+> Keep the answer useful and honest: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04661_dialogue_memory]
+> In italiano, Remember that my name is Luca.
+<~ Luca
+[parrotbench_04662_dialogue_memory]
+> In italiano, Remember that my favorite color is green.
+<~ green

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 7
+
+[parrotbench_07069_planning_daily]
+> Spiegalo in parole semplici: Give me a plan to make tea.
+<~ plan
+[parrotbench_07070_planning_daily]
+> Spiegalo in parole semplici: What is the first step in making tea?
+<~ water
+[parrotbench_07071_planning_daily]
+> Spiegalo in parole semplici: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07072_planning_daily]
+> Spiegalo in parole semplici: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07073_planning_daily]
+> Prima dimmi cosa manca, poi: Give me a plan to make tea.
+<~ plan
+[parrotbench_07074_planning_daily]
+> Prima dimmi cosa manca, poi: What is the first step in making tea?
+<~ water
+[parrotbench_07075_planning_daily]
+> Prima dimmi cosa manca, poi: Plan a short walk with a time constraint.
+<~ step

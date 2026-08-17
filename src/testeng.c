@@ -1000,6 +1000,8 @@ static int be_append_file(char **data, size_t *len, size_t *capacity, const char
 }
 
 static int be_send_slot(const char *sockpath, const char *path) {
+    printf("BENCH start %s\n", path);
+    fflush(stdout);
     BenchFiles files = {0};
     if (be_collect_files(path, &files) != 0 || files.count == 0) {
         for (size_t i = 0; i < files.count; i++) free(files.paths[i]);
@@ -1041,7 +1043,18 @@ static int be_send_root(const char *sockpath, const char *path, int *sent) {
     struct dirent **entries = NULL;
     int count = scandir(path, &entries, NULL, alphasort);
     if (count < 0) return 2;
-    int found = 0, rc = 0;
+    int found = 0, rc = 0, slot_total = 0;
+    for (int i = 0; i < count; i++) {
+        const char *name = entries[i]->d_name;
+        if (name[0] == '.' || strcmp(name, "results") == 0) continue;
+        size_t n = strlen(path) + strlen(name) + 2;
+        char *child = malloc(n);
+        if (!child) continue;
+        snprintf(child, n, "%s/%s", path, name);
+        struct stat st;
+        if (stat(child, &st) == 0 && S_ISDIR(st.st_mode) && be_is_slot_dir(child)) slot_total++;
+        free(child);
+    }
     for (int i = 0; i < count; i++) {
         const char *name = entries[i]->d_name;
         if (name[0] == '.' || strcmp(name, "results") == 0) { free(entries[i]); continue; }
@@ -1057,7 +1070,11 @@ static int be_send_root(const char *sockpath, const char *path, int *sent) {
             } else {
                 found = 1;
                 if (be_send_slot(sockpath, child) != 0) rc = 2;
-                else (*sent)++;
+                else {
+                    (*sent)++;
+                    printf("BENCH progress %d/%d done %s\n", *sent, slot_total, child);
+                    fflush(stdout);
+                }
             }
         }
         free(child); free(entries[i]);

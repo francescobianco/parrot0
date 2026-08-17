@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 7
+
+[parrotbench_06544_format_lists]
+> Use a concrete example in your answer: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06545_format_lists]
+> Avoid changing the subject: List exactly three colors.
+<~ blue
+[parrotbench_06546_format_lists]
+> Avoid changing the subject: Give two reasons to verify sources.
+<~ source
+[parrotbench_06547_format_lists]
+> Avoid changing the subject: Name three planets.
+<~ Earth
+[parrotbench_06548_format_lists]
+> Avoid changing the subject: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06549_format_lists]
+> Answer the user's actual goal: List exactly three colors.
+<~ blue
+[parrotbench_06550_format_lists]
+> Answer the user's actual goal: Give two reasons to verify sources.
+<~ source

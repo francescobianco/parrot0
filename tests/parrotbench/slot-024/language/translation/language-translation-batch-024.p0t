@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 7
+
+[parrotbench_05544_language_translation]
+> Use a concrete example in your answer: Translate acqua into English.
+<~ water
+[parrotbench_05545_language_translation]
+> Avoid changing the subject: Translate hello into Italian.
+<~ ciao
+[parrotbench_05546_language_translation]
+> Avoid changing the subject: Translate the small house into French.
+<~ maison
+[parrotbench_05547_language_translation]
+> Avoid changing the subject: Translate the dog runs into English.
+<~ dog
+[parrotbench_05548_language_translation]
+> Avoid changing the subject: Translate acqua into English.
+<~ water
+[parrotbench_05549_language_translation]
+> Answer the user's actual goal: Translate hello into Italian.
+<~ ciao
+[parrotbench_05550_language_translation]
+> Answer the user's actual goal: Translate the small house into French.
+<~ maison

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-023: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 6
+
+[parrotbench_07138_planning_daily]
+> State one conclusion and one uncertainty: What is the first step in making tea?
+<~ water
+[parrotbench_07139_planning_daily]
+> State one conclusion and one uncertainty: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07140_planning_daily]
+> State one conclusion and one uncertainty: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07141_planning_daily]
+> Use a concrete example in your answer: Give me a plan to make tea.
+<~ plan
+[parrotbench_07142_planning_daily]
+> Use a concrete example in your answer: What is the first step in making tea?
+<~ water
+[parrotbench_07143_planning_daily]
+> Use a concrete example in your answer: Plan a short walk with a time constraint.
+<~ step

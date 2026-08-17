@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/yes-no
+# cases: 6
+
+[parrotbench_06376_format_yes-no]
+> Distinguish a fact, a rule, and a hypothesis: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06377_format_yes-no]
+> Name the relevant capability: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06378_format_yes-no]
+> Name the relevant capability: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06379_format_yes-no]
+> Name the relevant capability: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06380_format_yes-no]
+> Name the relevant capability: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06381_format_yes-no]
+> Explain the reasoning rather than a slogan: Reply only yes or no: is fire cold?
+<~ no

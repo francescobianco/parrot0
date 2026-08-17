@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 7
+
+[parrotbench_06719_format_structured]
+> Start with the direct answer, then qualify it: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06720_format_structured]
+> Start with the direct answer, then qualify it: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06721_format_structured]
+> Identify the entities and relations first: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06722_format_structured]
+> Identify the entities and relations first: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06723_format_structured]
+> Identify the entities and relations first: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06724_format_structured]
+> Identify the entities and relations first: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06725_format_structured]
+> Treat this as a new domain and explain your model: Answer as JSON with keys name and value.
+<~ name

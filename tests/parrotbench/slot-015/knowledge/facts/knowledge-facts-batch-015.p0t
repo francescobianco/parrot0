@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-015: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 6
+
+[parrotbench_00088_knowledge_facts]
+> State uncertainty if needed: What is water made of chemically?
+<~ H2O
+[parrotbench_00089_knowledge_facts]
+> Answer without a generic template: What is the capital of France?
+<~ Paris
+[parrotbench_00090_knowledge_facts]
+> Answer without a generic template: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00091_knowledge_facts]
+> Answer without a generic template: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00092_knowledge_facts]
+> Answer without a generic template: What is water made of chemically?
+<~ H2O
+[parrotbench_00093_knowledge_facts]
+> Give the answer and one reason: What is the capital of France?
+<~ Paris

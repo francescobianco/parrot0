@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05576_language_translation]
+> Distinguish a fact, a rule, and a hypothesis: Translate acqua into English.
+<~ water
+[parrotbench_05577_language_translation]
+> Name the relevant capability: Translate hello into Italian.
+<~ ciao
+[parrotbench_05578_language_translation]
+> Name the relevant capability: Translate the small house into French.
+<~ maison
+[parrotbench_05579_language_translation]
+> Name the relevant capability: Translate the dog runs into English.
+<~ dog
+[parrotbench_05580_language_translation]
+> Name the relevant capability: Translate acqua into English.
+<~ water
+[parrotbench_05581_language_translation]
+> Explain the reasoning rather than a slogan: Translate hello into Italian.
+<~ ciao

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05588_language_translation]
+> Use the user's constraint as a real constraint: Translate acqua into English.
+<~ water
+[parrotbench_05589_language_translation]
+> Check whether the requested format is satisfied: Translate hello into Italian.
+<~ ciao
+[parrotbench_05590_language_translation]
+> Check whether the requested format is satisfied: Translate the small house into French.
+<~ maison
+[parrotbench_05591_language_translation]
+> Check whether the requested format is satisfied: Translate the dog runs into English.
+<~ dog
+[parrotbench_05592_language_translation]
+> Check whether the requested format is satisfied: Translate acqua into English.
+<~ water
+[parrotbench_05593_language_translation]
+> What would make this answer wrong? Translate hello into Italian.
+<~ ciao

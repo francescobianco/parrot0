@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: universal/input
+# cases: 6
+
+[parrotbench_10988_universal_input]
+> Use the user's constraint as a real constraint: What comes after segmentation?
+<~ interpret
+[parrotbench_10989_universal_input]
+> Check whether the requested format is satisfied: What can a raw stream contain?
+<~ input
+[parrotbench_10990_universal_input]
+> Check whether the requested format is satisfied: How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10991_universal_input]
+> Check whether the requested format is satisfied: Why delay domain classification?
+<~ domain
+[parrotbench_10992_universal_input]
+> Check whether the requested format is satisfied: What comes after segmentation?
+<~ interpret
+[parrotbench_10993_universal_input]
+> What would make this answer wrong? What can a raw stream contain?
+<~ input

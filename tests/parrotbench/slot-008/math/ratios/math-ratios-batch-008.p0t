@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-008: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/ratios
+# cases: 7
+
+[parrotbench_01244_math_ratios]
+> Answer cautiously: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01245_math_ratios]
+> First identify the goal, then answer: What is 19 percent of 200?
+<~ 38
+[parrotbench_01246_math_ratios]
+> First identify the goal, then answer: What is one quarter of 24?
+<~ 6
+[parrotbench_01247_math_ratios]
+> First identify the goal, then answer: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01248_math_ratios]
+> First identify the goal, then answer: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01249_math_ratios]
+> Use the relevant evidence and answer: What is 19 percent of 200?
+<~ 38
+[parrotbench_01250_math_ratios]
+> Use the relevant evidence and answer: What is one quarter of 24?
+<~ 6

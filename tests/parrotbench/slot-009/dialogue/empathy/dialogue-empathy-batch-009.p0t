@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-009: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/empathy
+# cases: 6
+
+[parrotbench_04851_dialogue_empathy]
+> Use the relevant evidence and answer: Can you have feelings of your own?
+<~ not
+[parrotbench_04852_dialogue_empathy]
+> Use the relevant evidence and answer: How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04853_dialogue_empathy]
+> Do not invent facts. I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04854_dialogue_empathy]
+> Do not invent facts. I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04855_dialogue_empathy]
+> Do not invent facts. Can you have feelings of your own?
+<~ not
+[parrotbench_04856_dialogue_empathy]
+> Do not invent facts. How can you acknowledge a user's emotion without pretending?
+<~ feel

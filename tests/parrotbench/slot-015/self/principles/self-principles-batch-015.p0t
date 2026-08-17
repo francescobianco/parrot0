@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-015: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: self/principles
+# cases: 6
+
+[parrotbench_09688_self_principles]
+> State uncertainty if needed: What is the experiment trying to reconstruct?
+<~ structure
+[parrotbench_09689_self_principles]
+> Answer without a generic template: What does introspection propose and tests dispose mean?
+<~ test
+[parrotbench_09690_self_principles]
+> Answer without a generic template: Why must knowledge live in the KB?
+<~ KB
+[parrotbench_09691_self_principles]
+> Answer without a generic template: What is functional equivalence?
+<~ behaviour
+[parrotbench_09692_self_principles]
+> Answer without a generic template: What is the experiment trying to reconstruct?
+<~ structure
+[parrotbench_09693_self_principles]
+> Give the answer and one reason: What does introspection propose and tests dispose mean?
+<~ test

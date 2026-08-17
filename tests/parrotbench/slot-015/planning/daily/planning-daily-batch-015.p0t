@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-015: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 6
+
+[parrotbench_07088_planning_daily]
+> State uncertainty if needed: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07089_planning_daily]
+> Answer without a generic template: Give me a plan to make tea.
+<~ plan
+[parrotbench_07090_planning_daily]
+> Answer without a generic template: What is the first step in making tea?
+<~ water
+[parrotbench_07091_planning_daily]
+> Answer without a generic template: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07092_planning_daily]
+> Answer without a generic template: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07093_planning_daily]
+> Give the answer and one reason: Give me a plan to make tea.
+<~ plan

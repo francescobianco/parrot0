@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/italian
+# cases: 7
+
+[parrotbench_05394_language_italian]
+> What would make this answer wrong? Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05395_language_italian]
+> What would make this answer wrong? Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05396_language_italian]
+> What would make this answer wrong? Qual e il contrario di grande?
+<~ small
+[parrotbench_05397_language_italian]
+> Give a useful answer without pretending certainty: Come ti chiami?
+<~ parrot0
+[parrotbench_05398_language_italian]
+> Give a useful answer without pretending certainty: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05399_language_italian]
+> Give a useful answer without pretending certainty: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05400_language_italian]
+> Give a useful answer without pretending certainty: Qual e il contrario di grande?
+<~ small

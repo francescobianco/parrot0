@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 6
+
+[parrotbench_02376_logic_negation]
+> Distinguish a fact, a rule, and a hypothesis: Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02377_logic_negation]
+> Name the relevant capability: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02378_logic_negation]
+> Name the relevant capability: Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02379_logic_negation]
+> Name the relevant capability: If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02380_logic_negation]
+> Name the relevant capability: Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02381_logic_negation]
+> Explain the reasoning rather than a slogan: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no

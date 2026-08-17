@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/empathy
+# cases: 6
+
+[parrotbench_04876_dialogue_empathy]
+> Prima dimmi cosa manca, poi: How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04877_dialogue_empathy]
+> What is the shortest useful answer to this? I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04878_dialogue_empathy]
+> What is the shortest useful answer to this? I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04879_dialogue_empathy]
+> What is the shortest useful answer to this? Can you have feelings of your own?
+<~ not
+[parrotbench_04880_dialogue_empathy]
+> What is the shortest useful answer to this? How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04881_dialogue_empathy]
+> Challenge your first interpretation: I am sad today. Can you respond empathetically?
+<~ sorry

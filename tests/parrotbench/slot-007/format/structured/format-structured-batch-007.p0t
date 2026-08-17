@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-007: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 6
+
+[parrotbench_06638_format_structured]
+> What would you tell an expert? Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06639_format_structured]
+> What would you tell an expert? Give a two-line answer about rain.
+<~ rain
+[parrotbench_06640_format_structured]
+> What would you tell an expert? Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06641_format_structured]
+> Answer cautiously: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06642_format_structured]
+> Answer cautiously: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06643_format_structured]
+> Answer cautiously: Give a two-line answer about rain.
+<~ rain

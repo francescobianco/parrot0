@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/replanning
+# cases: 6
+
+[parrotbench_07526_planning_replanning]
+> Treat this as a new domain and explain your model: What observation should trigger replanning?
+<~ failure
+[parrotbench_07527_planning_replanning]
+> Treat this as a new domain and explain your model: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07528_planning_replanning]
+> Treat this as a new domain and explain your model: What is a stop rule?
+<~ stop
+[parrotbench_07529_planning_replanning]
+> What would you need to verify before answering? When should an agent revise a plan?
+<~ change
+[parrotbench_07530_planning_replanning]
+> What would you need to verify before answering? What observation should trigger replanning?
+<~ failure
+[parrotbench_07531_planning_replanning]
+> What would you need to verify before answering? How do you compare a plan with its baseline?
+<~ baseline

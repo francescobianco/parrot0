@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-026: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/averages
+# cases: 6
+
+[parrotbench_01557_math_averages]
+> Can this be answered from known facts? What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01558_math_averages]
+> Can this be answered from known facts? Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01559_math_averages]
+> Can this be answered from known facts? What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01560_math_averages]
+> Can this be answered from known facts? The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01561_math_averages]
+> What would a careful interlocutor say? What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01562_math_averages]
+> What would a careful interlocutor say? Find the mean of 10 and 20.
+<~ 15

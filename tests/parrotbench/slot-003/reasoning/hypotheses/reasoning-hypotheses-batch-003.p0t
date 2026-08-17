@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: reasoning/hypotheses
-# cases: 50
+# cases: 6
 
-[parrotbench_03901_reasoning_hypotheses]
-> Answer as if this were a release review: Why keep competing hypotheses instead of one guess?
+[parrotbench_03813_reasoning_hypotheses]
+> In simple terms, Why keep competing hypotheses instead of one guess?
 <~ hypoth
-[parrotbench_03902_reasoning_hypotheses]
-> Answer as if this were a release review: What should a hypothesis be tested against?
+[parrotbench_03814_reasoning_hypotheses]
+> In simple terms, What should a hypothesis be tested against?
 <~ evidence
-[parrotbench_03903_reasoning_hypotheses]
-> Answer as if this were a release review: How do you choose between interpretations?
+[parrotbench_03815_reasoning_hypotheses]
+> In simple terms, How do you choose between interpretations?
 <~ support
-[parrotbench_03904_reasoning_hypotheses]
-> Answer as if this were a release review: What is an assumption in a plan?
+[parrotbench_03816_reasoning_hypotheses]
+> In simple terms, What is an assumption in a plan?
 <~ assumption
-[parrotbench_03905_reasoning_hypotheses]
-> Give the strongest answer supported by the KB: Why keep competing hypotheses instead of one guess?
+[parrotbench_03817_reasoning_hypotheses]
+> Give a concise answer. Why keep competing hypotheses instead of one guess?
 <~ hypoth
-[parrotbench_03906_reasoning_hypotheses]
-> Give the strongest answer supported by the KB: What should a hypothesis be tested against?
-<~ evidence
-[parrotbench_03907_reasoning_hypotheses]
-> Give the strongest answer supported by the KB: How do you choose between interpretations?
-<~ support
-[parrotbench_03908_reasoning_hypotheses]
-> Give the strongest answer supported by the KB: What is an assumption in a plan?
-<~ assumption
-[parrotbench_03909_reasoning_hypotheses]
-> Do not confuse a wall with an answer. Why keep competing hypotheses instead of one guess?
-<~ hypoth
-[parrotbench_03910_reasoning_hypotheses]
-> Do not confuse a wall with an answer. What should a hypothesis be tested against?
-<~ evidence
-[parrotbench_03911_reasoning_hypotheses]
-> Do not confuse a wall with an answer. How do you choose between interpretations?
-<~ support
-[parrotbench_03912_reasoning_hypotheses]
-> Do not confuse a wall with an answer. What is an assumption in a plan?
-<~ assumption
-[parrotbench_03913_reasoning_hypotheses]
-> What is the operational interpretation of this? Why keep competing hypotheses instead of one guess?
-<~ hypoth
-[parrotbench_03914_reasoning_hypotheses]
-> What is the operational interpretation of this? What should a hypothesis be tested against?
-<~ evidence
-[parrotbench_03915_reasoning_hypotheses]
-> What is the operational interpretation of this? How do you choose between interpretations?
-<~ support
-[parrotbench_03916_reasoning_hypotheses]
-> What is the operational interpretation of this? What is an assumption in a plan?
-<~ assumption
-[parrotbench_03917_reasoning_hypotheses]
-> Start with the direct answer, then qualify it: Why keep competing hypotheses instead of one guess?
-<~ hypoth
-[parrotbench_03918_reasoning_hypotheses]
-> Start with the direct answer, then qualify it: What should a hypothesis be tested against?
-<~ evidence
-[parrotbench_03919_reasoning_hypotheses]
-> Start with the direct answer, then qualify it: How do you choose between interpretations?
-<~ support
-[parrotbench_03920_reasoning_hypotheses]
-> Start with the direct answer, then qualify it: What is an assumption in a plan?
-<~ assumption
-[parrotbench_03921_reasoning_hypotheses]
-> Identify the entities and relations first: Why keep competing hypotheses instead of one guess?
-<~ hypoth
-[parrotbench_03922_reasoning_hypotheses]
-> Identify the entities and relations first: What should a hypothesis be tested against?
-<~ evidence
-[parrotbench_03923_reasoning_hypotheses]
-> Identify the entities and relations first: How do you choose between interpretations?
-<~ support
-[parrotbench_03924_reasoning_hypotheses]
-> Identify the entities and relations first: What is an assumption in a plan?
-<~ assumption
-[parrotbench_03925_reasoning_hypotheses]
-> Treat this as a new domain and explain your model: Why keep competing hypotheses instead of one guess?
-<~ hypoth
-[parrotbench_03926_reasoning_hypotheses]
-> Treat this as a new domain and explain your model: What should a hypothesis be tested against?
-<~ evidence
-[parrotbench_03927_reasoning_hypotheses]
-> Treat this as a new domain and explain your model: How do you choose between interpretations?
-<~ support
-[parrotbench_03928_reasoning_hypotheses]
-> Treat this as a new domain and explain your model: What is an assumption in a plan?
-<~ assumption
-[parrotbench_03929_reasoning_hypotheses]
-> What would you need to verify before answering? Why keep competing hypotheses instead of one guess?
-<~ hypoth
-[parrotbench_03930_reasoning_hypotheses]
-> What would you need to verify before answering? What should a hypothesis be tested against?
-<~ evidence
-[parrotbench_03931_reasoning_hypotheses]
-> What would you need to verify before answering? How do you choose between interpretations?
-<~ support
-[parrotbench_03932_reasoning_hypotheses]
-> What would you need to verify before answering? What is an assumption in a plan?
-<~ assumption
-[parrotbench_03933_reasoning_hypotheses]
-> Keep alternatives separate while answering: Why keep competing hypotheses instead of one guess?
-<~ hypoth
-[parrotbench_03934_reasoning_hypotheses]
-> Keep alternatives separate while answering: What should a hypothesis be tested against?
-<~ evidence
-[parrotbench_03935_reasoning_hypotheses]
-> Keep alternatives separate while answering: How do you choose between interpretations?
-<~ support
-[parrotbench_03936_reasoning_hypotheses]
-> Keep alternatives separate while answering: What is an assumption in a plan?
-<~ assumption
-[parrotbench_03937_reasoning_hypotheses]
-> State one conclusion and one uncertainty: Why keep competing hypotheses instead of one guess?
-<~ hypoth
-[parrotbench_03938_reasoning_hypotheses]
-> State one conclusion and one uncertainty: What should a hypothesis be tested against?
-<~ evidence
-[parrotbench_03939_reasoning_hypotheses]
-> State one conclusion and one uncertainty: How do you choose between interpretations?
-<~ support
-[parrotbench_03940_reasoning_hypotheses]
-> State one conclusion and one uncertainty: What is an assumption in a plan?
-<~ assumption
-[parrotbench_03941_reasoning_hypotheses]
-> Use a concrete example in your answer: Why keep competing hypotheses instead of one guess?
-<~ hypoth
-[parrotbench_03942_reasoning_hypotheses]
-> Use a concrete example in your answer: What should a hypothesis be tested against?
-<~ evidence
-[parrotbench_03943_reasoning_hypotheses]
-> Use a concrete example in your answer: How do you choose between interpretations?
-<~ support
-[parrotbench_03944_reasoning_hypotheses]
-> Use a concrete example in your answer: What is an assumption in a plan?
-<~ assumption
-[parrotbench_03945_reasoning_hypotheses]
-> Avoid changing the subject: Why keep competing hypotheses instead of one guess?
-<~ hypoth
-[parrotbench_03946_reasoning_hypotheses]
-> Avoid changing the subject: What should a hypothesis be tested against?
-<~ evidence
-[parrotbench_03947_reasoning_hypotheses]
-> Avoid changing the subject: How do you choose between interpretations?
-<~ support
-[parrotbench_03948_reasoning_hypotheses]
-> Avoid changing the subject: What is an assumption in a plan?
-<~ assumption
-[parrotbench_03949_reasoning_hypotheses]
-> Answer the user's actual goal: Why keep competing hypotheses instead of one guess?
-<~ hypoth
-[parrotbench_03950_reasoning_hypotheses]
-> Answer the user's actual goal: What should a hypothesis be tested against?
+[parrotbench_03818_reasoning_hypotheses]
+> Give a concise answer. What should a hypothesis be tested against?
 <~ evidence

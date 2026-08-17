@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-023: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/analogy
+# cases: 6
+
+[parrotbench_03138_logic_analogy]
+> State one conclusion and one uncertainty: Can a relation pattern transfer when the nouns change?
+<~ structure
+[parrotbench_03139_logic_analogy]
+> State one conclusion and one uncertainty: What remains when domain-specific names are removed?
+<~ structure
+[parrotbench_03140_logic_analogy]
+> State one conclusion and one uncertainty: How can two different graphs be analogous?
+<~ invariant
+[parrotbench_03141_logic_analogy]
+> Use a concrete example in your answer: What structure is shared by a deadlock and two people waiting for each other?
+<~ wait
+[parrotbench_03142_logic_analogy]
+> Use a concrete example in your answer: Can a relation pattern transfer when the nouns change?
+<~ structure
+[parrotbench_03143_logic_analogy]
+> Use a concrete example in your answer: What remains when domain-specific names are removed?
+<~ structure

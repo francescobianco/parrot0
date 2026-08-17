@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 6
+
+[parrotbench_02163_logic_entailment]
+> What would a careful interlocutor say? Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02164_logic_entailment]
+> What would a careful interlocutor say? If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02165_logic_entailment]
+> Give a short answer in English: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02166_logic_entailment]
+> Give a short answer in English: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02167_logic_entailment]
+> Give a short answer in English: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02168_logic_entailment]
+> Give a short answer in English: If A precedes B and B precedes C, who comes first?
+<~ A

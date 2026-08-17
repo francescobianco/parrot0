@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05551_language_translation]
+> Answer the user's actual goal: Translate the dog runs into English.
+<~ dog
+[parrotbench_05552_language_translation]
+> Answer the user's actual goal: Translate acqua into English.
+<~ water
+[parrotbench_05553_language_translation]
+> If the request is underspecified, say what is missing: Translate hello into Italian.
+<~ ciao
+[parrotbench_05554_language_translation]
+> If the request is underspecified, say what is missing: Translate the small house into French.
+<~ maison
+[parrotbench_05555_language_translation]
+> If the request is underspecified, say what is missing: Translate the dog runs into English.
+<~ dog
+[parrotbench_05556_language_translation]
+> If the request is underspecified, say what is missing: Translate acqua into English.
+<~ water

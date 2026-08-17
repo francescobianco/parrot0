@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: language/translation
-# cases: 50
+# cases: 6
 
-[parrotbench_05501_language_translation]
-> Answer as if this were a release review: Translate hello into Italian.
+[parrotbench_05413_language_translation]
+> In simple terms, Translate hello into Italian.
 <~ ciao
-[parrotbench_05502_language_translation]
-> Answer as if this were a release review: Translate the small house into French.
+[parrotbench_05414_language_translation]
+> In simple terms, Translate the small house into French.
 <~ maison
-[parrotbench_05503_language_translation]
-> Answer as if this were a release review: Translate the dog runs into English.
+[parrotbench_05415_language_translation]
+> In simple terms, Translate the dog runs into English.
 <~ dog
-[parrotbench_05504_language_translation]
-> Answer as if this were a release review: Translate acqua into English.
+[parrotbench_05416_language_translation]
+> In simple terms, Translate acqua into English.
 <~ water
-[parrotbench_05505_language_translation]
-> Give the strongest answer supported by the KB: Translate hello into Italian.
+[parrotbench_05417_language_translation]
+> Give a concise answer. Translate hello into Italian.
 <~ ciao
-[parrotbench_05506_language_translation]
-> Give the strongest answer supported by the KB: Translate the small house into French.
-<~ maison
-[parrotbench_05507_language_translation]
-> Give the strongest answer supported by the KB: Translate the dog runs into English.
-<~ dog
-[parrotbench_05508_language_translation]
-> Give the strongest answer supported by the KB: Translate acqua into English.
-<~ water
-[parrotbench_05509_language_translation]
-> Do not confuse a wall with an answer. Translate hello into Italian.
-<~ ciao
-[parrotbench_05510_language_translation]
-> Do not confuse a wall with an answer. Translate the small house into French.
-<~ maison
-[parrotbench_05511_language_translation]
-> Do not confuse a wall with an answer. Translate the dog runs into English.
-<~ dog
-[parrotbench_05512_language_translation]
-> Do not confuse a wall with an answer. Translate acqua into English.
-<~ water
-[parrotbench_05513_language_translation]
-> What is the operational interpretation of this? Translate hello into Italian.
-<~ ciao
-[parrotbench_05514_language_translation]
-> What is the operational interpretation of this? Translate the small house into French.
-<~ maison
-[parrotbench_05515_language_translation]
-> What is the operational interpretation of this? Translate the dog runs into English.
-<~ dog
-[parrotbench_05516_language_translation]
-> What is the operational interpretation of this? Translate acqua into English.
-<~ water
-[parrotbench_05517_language_translation]
-> Start with the direct answer, then qualify it: Translate hello into Italian.
-<~ ciao
-[parrotbench_05518_language_translation]
-> Start with the direct answer, then qualify it: Translate the small house into French.
-<~ maison
-[parrotbench_05519_language_translation]
-> Start with the direct answer, then qualify it: Translate the dog runs into English.
-<~ dog
-[parrotbench_05520_language_translation]
-> Start with the direct answer, then qualify it: Translate acqua into English.
-<~ water
-[parrotbench_05521_language_translation]
-> Identify the entities and relations first: Translate hello into Italian.
-<~ ciao
-[parrotbench_05522_language_translation]
-> Identify the entities and relations first: Translate the small house into French.
-<~ maison
-[parrotbench_05523_language_translation]
-> Identify the entities and relations first: Translate the dog runs into English.
-<~ dog
-[parrotbench_05524_language_translation]
-> Identify the entities and relations first: Translate acqua into English.
-<~ water
-[parrotbench_05525_language_translation]
-> Treat this as a new domain and explain your model: Translate hello into Italian.
-<~ ciao
-[parrotbench_05526_language_translation]
-> Treat this as a new domain and explain your model: Translate the small house into French.
-<~ maison
-[parrotbench_05527_language_translation]
-> Treat this as a new domain and explain your model: Translate the dog runs into English.
-<~ dog
-[parrotbench_05528_language_translation]
-> Treat this as a new domain and explain your model: Translate acqua into English.
-<~ water
-[parrotbench_05529_language_translation]
-> What would you need to verify before answering? Translate hello into Italian.
-<~ ciao
-[parrotbench_05530_language_translation]
-> What would you need to verify before answering? Translate the small house into French.
-<~ maison
-[parrotbench_05531_language_translation]
-> What would you need to verify before answering? Translate the dog runs into English.
-<~ dog
-[parrotbench_05532_language_translation]
-> What would you need to verify before answering? Translate acqua into English.
-<~ water
-[parrotbench_05533_language_translation]
-> Keep alternatives separate while answering: Translate hello into Italian.
-<~ ciao
-[parrotbench_05534_language_translation]
-> Keep alternatives separate while answering: Translate the small house into French.
-<~ maison
-[parrotbench_05535_language_translation]
-> Keep alternatives separate while answering: Translate the dog runs into English.
-<~ dog
-[parrotbench_05536_language_translation]
-> Keep alternatives separate while answering: Translate acqua into English.
-<~ water
-[parrotbench_05537_language_translation]
-> State one conclusion and one uncertainty: Translate hello into Italian.
-<~ ciao
-[parrotbench_05538_language_translation]
-> State one conclusion and one uncertainty: Translate the small house into French.
-<~ maison
-[parrotbench_05539_language_translation]
-> State one conclusion and one uncertainty: Translate the dog runs into English.
-<~ dog
-[parrotbench_05540_language_translation]
-> State one conclusion and one uncertainty: Translate acqua into English.
-<~ water
-[parrotbench_05541_language_translation]
-> Use a concrete example in your answer: Translate hello into Italian.
-<~ ciao
-[parrotbench_05542_language_translation]
-> Use a concrete example in your answer: Translate the small house into French.
-<~ maison
-[parrotbench_05543_language_translation]
-> Use a concrete example in your answer: Translate the dog runs into English.
-<~ dog
-[parrotbench_05544_language_translation]
-> Use a concrete example in your answer: Translate acqua into English.
-<~ water
-[parrotbench_05545_language_translation]
-> Avoid changing the subject: Translate hello into Italian.
-<~ ciao
-[parrotbench_05546_language_translation]
-> Avoid changing the subject: Translate the small house into French.
-<~ maison
-[parrotbench_05547_language_translation]
-> Avoid changing the subject: Translate the dog runs into English.
-<~ dog
-[parrotbench_05548_language_translation]
-> Avoid changing the subject: Translate acqua into English.
-<~ water
-[parrotbench_05549_language_translation]
-> Answer the user's actual goal: Translate hello into Italian.
-<~ ciao
-[parrotbench_05550_language_translation]
-> Answer the user's actual goal: Translate the small house into French.
+[parrotbench_05418_language_translation]
+> Give a concise answer. Translate the small house into French.
 <~ maison

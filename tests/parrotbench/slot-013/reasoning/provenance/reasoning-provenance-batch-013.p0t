@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/provenance
+# cases: 6
+
+[parrotbench_04076_reasoning_provenance]
+> Prima dimmi cosa manca, poi: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04077_reasoning_provenance]
+> What is the shortest useful answer to this? What evidence supports this answer?
+<~ evidence
+[parrotbench_04078_reasoning_provenance]
+> What is the shortest useful answer to this? Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04079_reasoning_provenance]
+> What is the shortest useful answer to this? What should an explanation expose?
+<~ reason
+[parrotbench_04080_reasoning_provenance]
+> What is the shortest useful answer to this? How can a learned fact be corrected?
+<~ forget
+[parrotbench_04081_reasoning_provenance]
+> Challenge your first interpretation: What evidence supports this answer?
+<~ evidence

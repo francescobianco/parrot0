@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-026: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 6
+
+[parrotbench_06757_format_structured]
+> Can this be answered from known facts? Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06758_format_structured]
+> Can this be answered from known facts? Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06759_format_structured]
+> Can this be answered from known facts? Give a two-line answer about rain.
+<~ rain
+[parrotbench_06760_format_structured]
+> Can this be answered from known facts? Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06761_format_structured]
+> What would a careful interlocutor say? Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06762_format_structured]
+> What would a careful interlocutor say? Answer as a numbered list with two items.
+<~ 1

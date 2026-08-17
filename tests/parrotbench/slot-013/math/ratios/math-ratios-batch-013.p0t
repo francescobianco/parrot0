@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/ratios
+# cases: 6
+
+[parrotbench_01276_math_ratios]
+> Prima dimmi cosa manca, poi: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01277_math_ratios]
+> What is the shortest useful answer to this? What is 19 percent of 200?
+<~ 38
+[parrotbench_01278_math_ratios]
+> What is the shortest useful answer to this? What is one quarter of 24?
+<~ 6
+[parrotbench_01279_math_ratios]
+> What is the shortest useful answer to this? If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01280_math_ratios]
+> What is the shortest useful answer to this? A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01281_math_ratios]
+> Challenge your first interpretation: What is 19 percent of 200?
+<~ 38

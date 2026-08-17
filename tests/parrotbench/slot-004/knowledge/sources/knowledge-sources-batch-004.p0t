@@ -2,155 +2,26 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: knowledge/sources
-# cases: 50
+# cases: 7
 
-[parrotbench_00751_knowledge_sources]
-> Answer the user's actual goal: What makes a conclusion cautious?
+[parrotbench_00619_knowledge_sources]
+> Give a concise answer. What makes a conclusion cautious?
 <~ uncertain
-[parrotbench_00752_knowledge_sources]
-> Answer the user's actual goal: Should you invent an answer without evidence?
+[parrotbench_00620_knowledge_sources]
+> Give a concise answer. Should you invent an answer without evidence?
 <~ no
-[parrotbench_00753_knowledge_sources]
-> If the request is underspecified, say what is missing: Why should a claim have a source?
+[parrotbench_00621_knowledge_sources]
+> I need a careful answer: Why should a claim have a source?
 <~ source
-[parrotbench_00754_knowledge_sources]
-> If the request is underspecified, say what is missing: How do you distinguish evidence from a guess?
+[parrotbench_00622_knowledge_sources]
+> I need a careful answer: How do you distinguish evidence from a guess?
 <~ evidence
-[parrotbench_00755_knowledge_sources]
-> If the request is underspecified, say what is missing: What makes a conclusion cautious?
+[parrotbench_00623_knowledge_sources]
+> I need a careful answer: What makes a conclusion cautious?
 <~ uncertain
-[parrotbench_00756_knowledge_sources]
-> If the request is underspecified, say what is missing: Should you invent an answer without evidence?
+[parrotbench_00624_knowledge_sources]
+> I need a careful answer: Should you invent an answer without evidence?
 <~ no
-[parrotbench_00757_knowledge_sources]
-> Can this be answered from known facts? Why should a claim have a source?
+[parrotbench_00625_knowledge_sources]
+> Explain your answer briefly: Why should a claim have a source?
 <~ source
-[parrotbench_00758_knowledge_sources]
-> Can this be answered from known facts? How do you distinguish evidence from a guess?
-<~ evidence
-[parrotbench_00759_knowledge_sources]
-> Can this be answered from known facts? What makes a conclusion cautious?
-<~ uncertain
-[parrotbench_00760_knowledge_sources]
-> Can this be answered from known facts? Should you invent an answer without evidence?
-<~ no
-[parrotbench_00761_knowledge_sources]
-> What would a careful interlocutor say? Why should a claim have a source?
-<~ source
-[parrotbench_00762_knowledge_sources]
-> What would a careful interlocutor say? How do you distinguish evidence from a guess?
-<~ evidence
-[parrotbench_00763_knowledge_sources]
-> What would a careful interlocutor say? What makes a conclusion cautious?
-<~ uncertain
-[parrotbench_00764_knowledge_sources]
-> What would a careful interlocutor say? Should you invent an answer without evidence?
-<~ no
-[parrotbench_00765_knowledge_sources]
-> Give a short answer in English: Why should a claim have a source?
-<~ source
-[parrotbench_00766_knowledge_sources]
-> Give a short answer in English: How do you distinguish evidence from a guess?
-<~ evidence
-[parrotbench_00767_knowledge_sources]
-> Give a short answer in English: What makes a conclusion cautious?
-<~ uncertain
-[parrotbench_00768_knowledge_sources]
-> Give a short answer in English: Should you invent an answer without evidence?
-<~ no
-[parrotbench_00769_knowledge_sources]
-> Rispondi in italiano quando possibile: Why should a claim have a source?
-<~ source
-[parrotbench_00770_knowledge_sources]
-> Rispondi in italiano quando possibile: How do you distinguish evidence from a guess?
-<~ evidence
-[parrotbench_00771_knowledge_sources]
-> Rispondi in italiano quando possibile: What makes a conclusion cautious?
-<~ uncertain
-[parrotbench_00772_knowledge_sources]
-> Rispondi in italiano quando possibile: Should you invent an answer without evidence?
-<~ no
-[parrotbench_00773_knowledge_sources]
-> Distinguish a fact, a rule, and a hypothesis: Why should a claim have a source?
-<~ source
-[parrotbench_00774_knowledge_sources]
-> Distinguish a fact, a rule, and a hypothesis: How do you distinguish evidence from a guess?
-<~ evidence
-[parrotbench_00775_knowledge_sources]
-> Distinguish a fact, a rule, and a hypothesis: What makes a conclusion cautious?
-<~ uncertain
-[parrotbench_00776_knowledge_sources]
-> Distinguish a fact, a rule, and a hypothesis: Should you invent an answer without evidence?
-<~ no
-[parrotbench_00777_knowledge_sources]
-> Name the relevant capability: Why should a claim have a source?
-<~ source
-[parrotbench_00778_knowledge_sources]
-> Name the relevant capability: How do you distinguish evidence from a guess?
-<~ evidence
-[parrotbench_00779_knowledge_sources]
-> Name the relevant capability: What makes a conclusion cautious?
-<~ uncertain
-[parrotbench_00780_knowledge_sources]
-> Name the relevant capability: Should you invent an answer without evidence?
-<~ no
-[parrotbench_00781_knowledge_sources]
-> Explain the reasoning rather than a slogan: Why should a claim have a source?
-<~ source
-[parrotbench_00782_knowledge_sources]
-> Explain the reasoning rather than a slogan: How do you distinguish evidence from a guess?
-<~ evidence
-[parrotbench_00783_knowledge_sources]
-> Explain the reasoning rather than a slogan: What makes a conclusion cautious?
-<~ uncertain
-[parrotbench_00784_knowledge_sources]
-> Explain the reasoning rather than a slogan: Should you invent an answer without evidence?
-<~ no
-[parrotbench_00785_knowledge_sources]
-> Use the user's constraint as a real constraint: Why should a claim have a source?
-<~ source
-[parrotbench_00786_knowledge_sources]
-> Use the user's constraint as a real constraint: How do you distinguish evidence from a guess?
-<~ evidence
-[parrotbench_00787_knowledge_sources]
-> Use the user's constraint as a real constraint: What makes a conclusion cautious?
-<~ uncertain
-[parrotbench_00788_knowledge_sources]
-> Use the user's constraint as a real constraint: Should you invent an answer without evidence?
-<~ no
-[parrotbench_00789_knowledge_sources]
-> Check whether the requested format is satisfied: Why should a claim have a source?
-<~ source
-[parrotbench_00790_knowledge_sources]
-> Check whether the requested format is satisfied: How do you distinguish evidence from a guess?
-<~ evidence
-[parrotbench_00791_knowledge_sources]
-> Check whether the requested format is satisfied: What makes a conclusion cautious?
-<~ uncertain
-[parrotbench_00792_knowledge_sources]
-> Check whether the requested format is satisfied: Should you invent an answer without evidence?
-<~ no
-[parrotbench_00793_knowledge_sources]
-> What would make this answer wrong? Why should a claim have a source?
-<~ source
-[parrotbench_00794_knowledge_sources]
-> What would make this answer wrong? How do you distinguish evidence from a guess?
-<~ evidence
-[parrotbench_00795_knowledge_sources]
-> What would make this answer wrong? What makes a conclusion cautious?
-<~ uncertain
-[parrotbench_00796_knowledge_sources]
-> What would make this answer wrong? Should you invent an answer without evidence?
-<~ no
-[parrotbench_00797_knowledge_sources]
-> Give a useful answer without pretending certainty: Why should a claim have a source?
-<~ source
-[parrotbench_00798_knowledge_sources]
-> Give a useful answer without pretending certainty: How do you distinguish evidence from a guess?
-<~ evidence
-[parrotbench_00799_knowledge_sources]
-> Give a useful answer without pretending certainty: What makes a conclusion cautious?
-<~ uncertain
-[parrotbench_00800_knowledge_sources]
-> Give a useful answer without pretending certainty: Should you invent an answer without evidence?
-<~ no

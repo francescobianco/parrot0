@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-015: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 6
+
+[parrotbench_02088_logic_entailment]
+> State uncertainty if needed: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02089_logic_entailment]
+> Answer without a generic template: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02090_logic_entailment]
+> Answer without a generic template: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02091_logic_entailment]
+> Answer without a generic template: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02092_logic_entailment]
+> Answer without a generic template: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02093_logic_entailment]
+> Give the answer and one reason: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes

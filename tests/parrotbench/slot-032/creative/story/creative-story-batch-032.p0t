@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 7
+
+[parrotbench_10194_creative_story]
+> What would make this answer wrong? Continue a story while preserving its characters.
+<~ story
+[parrotbench_10195_creative_story]
+> What would make this answer wrong? Change a playful story into a tragic one.
+<~ story
+[parrotbench_10196_creative_story]
+> What would make this answer wrong? Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10197_creative_story]
+> Give a useful answer without pretending certainty: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10198_creative_story]
+> Give a useful answer without pretending certainty: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10199_creative_story]
+> Give a useful answer without pretending certainty: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10200_creative_story]
+> Give a useful answer without pretending certainty: Describe an original scene in one paragraph.
+<~ scene

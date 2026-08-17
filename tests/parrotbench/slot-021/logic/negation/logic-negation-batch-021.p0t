@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 6
+
+[parrotbench_02326_logic_negation]
+> Treat this as a new domain and explain your model: Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02327_logic_negation]
+> Treat this as a new domain and explain your model: If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02328_logic_negation]
+> Treat this as a new domain and explain your model: Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02329_logic_negation]
+> What would you need to verify before answering? No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02330_logic_negation]
+> What would you need to verify before answering? Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02331_logic_negation]
+> What would you need to verify before answering? If nobody is both, does one counterexample prove the rule?
+<~ no

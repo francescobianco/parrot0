@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/decisions
+# cases: 6
+
+[parrotbench_03588_reasoning_decisions]
+> Use the user's constraint as a real constraint: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03589_reasoning_decisions]
+> Check whether the requested format is satisfied: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03590_reasoning_decisions]
+> Check whether the requested format is satisfied: How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03591_reasoning_decisions]
+> Check whether the requested format is satisfied: What is a reversible decision?
+<~ revers
+[parrotbench_03592_reasoning_decisions]
+> Check whether the requested format is satisfied: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03593_reasoning_decisions]
+> What would make this answer wrong? A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost

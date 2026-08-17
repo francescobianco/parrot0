@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-007: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/register
+# cases: 6
+
+[parrotbench_06038_language_register]
+> What would you tell an expert? Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06039_language_register]
+> What would you tell an expert? Say this more politely: give me the file.
+<~ please
+[parrotbench_06040_language_register]
+> What would you tell an expert? Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06041_language_register]
+> Answer cautiously: Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06042_language_register]
+> Answer cautiously: Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06043_language_register]
+> Answer cautiously: Say this more politely: give me the file.
+<~ please

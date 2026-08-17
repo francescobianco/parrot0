@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 6
+
+[parrotbench_00976_math_addition]
+> Distinguish a fact, a rule, and a hypothesis: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00977_math_addition]
+> Name the relevant capability: What is 17 plus 6?
+<~ 23
+[parrotbench_00978_math_addition]
+> Name the relevant capability: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00979_math_addition]
+> Name the relevant capability: Add twelve to nine.
+<~ 21
+[parrotbench_00980_math_addition]
+> Name the relevant capability: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00981_math_addition]
+> Explain the reasoning rather than a slogan: What is 17 plus 6?
+<~ 23

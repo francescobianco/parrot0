@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 6
+
+[parrotbench_06876_format_summaries]
+> Prima dimmi cosa manca, poi: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06877_format_summaries]
+> What is the shortest useful answer to this? Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06878_format_summaries]
+> What is the shortest useful answer to this? Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06879_format_summaries]
+> What is the shortest useful answer to this? Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06880_format_summaries]
+> What is the shortest useful answer to this? State the conclusion before the details.
+<~ conclusion
+[parrotbench_06881_format_summaries]
+> Challenge your first interpretation: Summarize evolution in two sentences.
+<~ evolution

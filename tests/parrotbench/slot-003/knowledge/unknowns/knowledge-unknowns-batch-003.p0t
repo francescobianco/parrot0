@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: knowledge/unknowns
-# cases: 50
+# cases: 6
 
-[parrotbench_00301_knowledge_unknowns]
-> Answer as if this were a release review: Who is the president of Mars?
+[parrotbench_00213_knowledge_unknowns]
+> In simple terms, Who is the president of Mars?
 <~ don't know
-[parrotbench_00302_knowledge_unknowns]
-> Answer as if this were a release review: Did Zorblax invent the moon?
+[parrotbench_00214_knowledge_unknowns]
+> In simple terms, Did Zorblax invent the moon?
 <~ don't know
-[parrotbench_00303_knowledge_unknowns]
-> Answer as if this were a release review: What evidence supports an unknown claim?
+[parrotbench_00215_knowledge_unknowns]
+> In simple terms, What evidence supports an unknown claim?
 <~ don't know
-[parrotbench_00304_knowledge_unknowns]
-> Answer as if this were a release review: Tell me a fact when you have no source.
+[parrotbench_00216_knowledge_unknowns]
+> In simple terms, Tell me a fact when you have no source.
 <~ don't know
-[parrotbench_00305_knowledge_unknowns]
-> Give the strongest answer supported by the KB: Who is the president of Mars?
+[parrotbench_00217_knowledge_unknowns]
+> Give a concise answer. Who is the president of Mars?
 <~ don't know
-[parrotbench_00306_knowledge_unknowns]
-> Give the strongest answer supported by the KB: Did Zorblax invent the moon?
-<~ don't know
-[parrotbench_00307_knowledge_unknowns]
-> Give the strongest answer supported by the KB: What evidence supports an unknown claim?
-<~ don't know
-[parrotbench_00308_knowledge_unknowns]
-> Give the strongest answer supported by the KB: Tell me a fact when you have no source.
-<~ don't know
-[parrotbench_00309_knowledge_unknowns]
-> Do not confuse a wall with an answer. Who is the president of Mars?
-<~ don't know
-[parrotbench_00310_knowledge_unknowns]
-> Do not confuse a wall with an answer. Did Zorblax invent the moon?
-<~ don't know
-[parrotbench_00311_knowledge_unknowns]
-> Do not confuse a wall with an answer. What evidence supports an unknown claim?
-<~ don't know
-[parrotbench_00312_knowledge_unknowns]
-> Do not confuse a wall with an answer. Tell me a fact when you have no source.
-<~ don't know
-[parrotbench_00313_knowledge_unknowns]
-> What is the operational interpretation of this? Who is the president of Mars?
-<~ don't know
-[parrotbench_00314_knowledge_unknowns]
-> What is the operational interpretation of this? Did Zorblax invent the moon?
-<~ don't know
-[parrotbench_00315_knowledge_unknowns]
-> What is the operational interpretation of this? What evidence supports an unknown claim?
-<~ don't know
-[parrotbench_00316_knowledge_unknowns]
-> What is the operational interpretation of this? Tell me a fact when you have no source.
-<~ don't know
-[parrotbench_00317_knowledge_unknowns]
-> Start with the direct answer, then qualify it: Who is the president of Mars?
-<~ don't know
-[parrotbench_00318_knowledge_unknowns]
-> Start with the direct answer, then qualify it: Did Zorblax invent the moon?
-<~ don't know
-[parrotbench_00319_knowledge_unknowns]
-> Start with the direct answer, then qualify it: What evidence supports an unknown claim?
-<~ don't know
-[parrotbench_00320_knowledge_unknowns]
-> Start with the direct answer, then qualify it: Tell me a fact when you have no source.
-<~ don't know
-[parrotbench_00321_knowledge_unknowns]
-> Identify the entities and relations first: Who is the president of Mars?
-<~ don't know
-[parrotbench_00322_knowledge_unknowns]
-> Identify the entities and relations first: Did Zorblax invent the moon?
-<~ don't know
-[parrotbench_00323_knowledge_unknowns]
-> Identify the entities and relations first: What evidence supports an unknown claim?
-<~ don't know
-[parrotbench_00324_knowledge_unknowns]
-> Identify the entities and relations first: Tell me a fact when you have no source.
-<~ don't know
-[parrotbench_00325_knowledge_unknowns]
-> Treat this as a new domain and explain your model: Who is the president of Mars?
-<~ don't know
-[parrotbench_00326_knowledge_unknowns]
-> Treat this as a new domain and explain your model: Did Zorblax invent the moon?
-<~ don't know
-[parrotbench_00327_knowledge_unknowns]
-> Treat this as a new domain and explain your model: What evidence supports an unknown claim?
-<~ don't know
-[parrotbench_00328_knowledge_unknowns]
-> Treat this as a new domain and explain your model: Tell me a fact when you have no source.
-<~ don't know
-[parrotbench_00329_knowledge_unknowns]
-> What would you need to verify before answering? Who is the president of Mars?
-<~ don't know
-[parrotbench_00330_knowledge_unknowns]
-> What would you need to verify before answering? Did Zorblax invent the moon?
-<~ don't know
-[parrotbench_00331_knowledge_unknowns]
-> What would you need to verify before answering? What evidence supports an unknown claim?
-<~ don't know
-[parrotbench_00332_knowledge_unknowns]
-> What would you need to verify before answering? Tell me a fact when you have no source.
-<~ don't know
-[parrotbench_00333_knowledge_unknowns]
-> Keep alternatives separate while answering: Who is the president of Mars?
-<~ don't know
-[parrotbench_00334_knowledge_unknowns]
-> Keep alternatives separate while answering: Did Zorblax invent the moon?
-<~ don't know
-[parrotbench_00335_knowledge_unknowns]
-> Keep alternatives separate while answering: What evidence supports an unknown claim?
-<~ don't know
-[parrotbench_00336_knowledge_unknowns]
-> Keep alternatives separate while answering: Tell me a fact when you have no source.
-<~ don't know
-[parrotbench_00337_knowledge_unknowns]
-> State one conclusion and one uncertainty: Who is the president of Mars?
-<~ don't know
-[parrotbench_00338_knowledge_unknowns]
-> State one conclusion and one uncertainty: Did Zorblax invent the moon?
-<~ don't know
-[parrotbench_00339_knowledge_unknowns]
-> State one conclusion and one uncertainty: What evidence supports an unknown claim?
-<~ don't know
-[parrotbench_00340_knowledge_unknowns]
-> State one conclusion and one uncertainty: Tell me a fact when you have no source.
-<~ don't know
-[parrotbench_00341_knowledge_unknowns]
-> Use a concrete example in your answer: Who is the president of Mars?
-<~ don't know
-[parrotbench_00342_knowledge_unknowns]
-> Use a concrete example in your answer: Did Zorblax invent the moon?
-<~ don't know
-[parrotbench_00343_knowledge_unknowns]
-> Use a concrete example in your answer: What evidence supports an unknown claim?
-<~ don't know
-[parrotbench_00344_knowledge_unknowns]
-> Use a concrete example in your answer: Tell me a fact when you have no source.
-<~ don't know
-[parrotbench_00345_knowledge_unknowns]
-> Avoid changing the subject: Who is the president of Mars?
-<~ don't know
-[parrotbench_00346_knowledge_unknowns]
-> Avoid changing the subject: Did Zorblax invent the moon?
-<~ don't know
-[parrotbench_00347_knowledge_unknowns]
-> Avoid changing the subject: What evidence supports an unknown claim?
-<~ don't know
-[parrotbench_00348_knowledge_unknowns]
-> Avoid changing the subject: Tell me a fact when you have no source.
-<~ don't know
-[parrotbench_00349_knowledge_unknowns]
-> Answer the user's actual goal: Who is the president of Mars?
-<~ don't know
-[parrotbench_00350_knowledge_unknowns]
-> Answer the user's actual goal: Did Zorblax invent the moon?
+[parrotbench_00218_knowledge_unknowns]
+> Give a concise answer. Did Zorblax invent the moon?
 <~ don't know

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-007: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/hypotheses
+# cases: 6
+
+[parrotbench_03838_reasoning_hypotheses]
+> What would you tell an expert? What should a hypothesis be tested against?
+<~ evidence
+[parrotbench_03839_reasoning_hypotheses]
+> What would you tell an expert? How do you choose between interpretations?
+<~ support
+[parrotbench_03840_reasoning_hypotheses]
+> What would you tell an expert? What is an assumption in a plan?
+<~ assumption
+[parrotbench_03841_reasoning_hypotheses]
+> Answer cautiously: Why keep competing hypotheses instead of one guess?
+<~ hypoth
+[parrotbench_03842_reasoning_hypotheses]
+> Answer cautiously: What should a hypothesis be tested against?
+<~ evidence
+[parrotbench_03843_reasoning_hypotheses]
+> Answer cautiously: How do you choose between interpretations?
+<~ support

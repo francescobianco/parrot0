@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/counterfactual
+# cases: 7
+
+[parrotbench_02669_logic_counterfactual]
+> Spiegalo in parole semplici: If the switch had stayed off, would the lamp have lit?
+<~ no
+[parrotbench_02670_logic_counterfactual]
+> Spiegalo in parole semplici: What changes in a counterfactual argument?
+<~ condition
+[parrotbench_02671_logic_counterfactual]
+> Spiegalo in parole semplici: If all else stays fixed, what does a counterfactual isolate?
+<~ cause
+[parrotbench_02672_logic_counterfactual]
+> Spiegalo in parole semplici: Can an outcome prove its supposed cause by itself?
+<~ no
+[parrotbench_02673_logic_counterfactual]
+> Prima dimmi cosa manca, poi: If the switch had stayed off, would the lamp have lit?
+<~ no
+[parrotbench_02674_logic_counterfactual]
+> Prima dimmi cosa manca, poi: What changes in a counterfactual argument?
+<~ condition
+[parrotbench_02675_logic_counterfactual]
+> Prima dimmi cosa manca, poi: If all else stays fixed, what does a counterfactual isolate?
+<~ cause

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/decisions
+# cases: 6
+
+[parrotbench_03476_reasoning_decisions]
+> Prima dimmi cosa manca, poi: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03477_reasoning_decisions]
+> What is the shortest useful answer to this? A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03478_reasoning_decisions]
+> What is the shortest useful answer to this? How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03479_reasoning_decisions]
+> What is the shortest useful answer to this? What is a reversible decision?
+<~ revers
+[parrotbench_03480_reasoning_decisions]
+> What is the shortest useful answer to this? Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03481_reasoning_decisions]
+> Challenge your first interpretation: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/capabilities
+# cases: 6
+
+[parrotbench_04507_dialogue_capabilities]
+> Give the strongest answer supported by the KB: Which abilities are still immature?
+<~ immature
+[parrotbench_04508_dialogue_capabilities]
+> Give the strongest answer supported by the KB: Do you use a language model at runtime?
+<~ no
+[parrotbench_04509_dialogue_capabilities]
+> Do not confuse a wall with an answer. What can you do?
+<~ capability
+[parrotbench_04510_dialogue_capabilities]
+> Do not confuse a wall with an answer. What can you not do reliably?
+<~ cannot
+[parrotbench_04511_dialogue_capabilities]
+> Do not confuse a wall with an answer. Which abilities are still immature?
+<~ immature
+[parrotbench_04512_dialogue_capabilities]
+> Do not confuse a wall with an answer. Do you use a language model at runtime?
+<~ no

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: self/principles
+# cases: 6
+
+[parrotbench_09788_self_principles]
+> Use the user's constraint as a real constraint: What is the experiment trying to reconstruct?
+<~ structure
+[parrotbench_09789_self_principles]
+> Check whether the requested format is satisfied: What does introspection propose and tests dispose mean?
+<~ test
+[parrotbench_09790_self_principles]
+> Check whether the requested format is satisfied: Why must knowledge live in the KB?
+<~ KB
+[parrotbench_09791_self_principles]
+> Check whether the requested format is satisfied: What is functional equivalence?
+<~ behaviour
+[parrotbench_09792_self_principles]
+> Check whether the requested format is satisfied: What is the experiment trying to reconstruct?
+<~ structure
+[parrotbench_09793_self_principles]
+> What would make this answer wrong? What does introspection propose and tests dispose mean?
+<~ test

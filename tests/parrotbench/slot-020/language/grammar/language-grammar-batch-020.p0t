@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/grammar
+# cases: 7
+
+[parrotbench_05719_language_grammar]
+> Start with the direct answer, then qualify it: Correct: She go to school.
+<~ goes
+[parrotbench_05720_language_grammar]
+> Start with the direct answer, then qualify it: Is 'Me likes apples' grammatical?
+<~ no
+[parrotbench_05721_language_grammar]
+> Identify the entities and relations first: What is the plural of child?
+<~ children
+[parrotbench_05722_language_grammar]
+> Identify the entities and relations first: What is the past tense of go?
+<~ went
+[parrotbench_05723_language_grammar]
+> Identify the entities and relations first: Correct: She go to school.
+<~ goes
+[parrotbench_05724_language_grammar]
+> Identify the entities and relations first: Is 'Me likes apples' grammatical?
+<~ no
+[parrotbench_05725_language_grammar]
+> Treat this as a new domain and explain your model: What is the plural of child?
+<~ children

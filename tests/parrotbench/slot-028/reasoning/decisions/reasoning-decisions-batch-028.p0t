@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-028: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/decisions
+# cases: 7
+
+[parrotbench_03569_reasoning_decisions]
+> Rispondi in italiano quando possibile: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03570_reasoning_decisions]
+> Rispondi in italiano quando possibile: How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03571_reasoning_decisions]
+> Rispondi in italiano quando possibile: What is a reversible decision?
+<~ revers
+[parrotbench_03572_reasoning_decisions]
+> Rispondi in italiano quando possibile: Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03573_reasoning_decisions]
+> Distinguish a fact, a rule, and a hypothesis: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03574_reasoning_decisions]
+> Distinguish a fact, a rule, and a hypothesis: How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03575_reasoning_decisions]
+> Distinguish a fact, a rule, and a hypothesis: What is a reversible decision?
+<~ revers

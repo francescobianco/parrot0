@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 6
+
+[parrotbench_10176_creative_story]
+> Distinguish a fact, a rule, and a hypothesis: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10177_creative_story]
+> Name the relevant capability: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10178_creative_story]
+> Name the relevant capability: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10179_creative_story]
+> Name the relevant capability: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10180_creative_story]
+> Name the relevant capability: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10181_creative_story]
+> Explain the reasoning rather than a slogan: Write a short new story about a machine learning language.
+<~ machine

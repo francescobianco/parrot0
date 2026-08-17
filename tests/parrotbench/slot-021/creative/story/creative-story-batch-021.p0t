@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 6
+
+[parrotbench_10126_creative_story]
+> Treat this as a new domain and explain your model: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10127_creative_story]
+> Treat this as a new domain and explain your model: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10128_creative_story]
+> Treat this as a new domain and explain your model: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10129_creative_story]
+> What would you need to verify before answering? Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10130_creative_story]
+> What would you need to verify before answering? Continue a story while preserving its characters.
+<~ story
+[parrotbench_10131_creative_story]
+> What would you need to verify before answering? Change a playful story into a tragic one.
+<~ story

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06526_format_lists]
+> Treat this as a new domain and explain your model: Give two reasons to verify sources.
+<~ source
+[parrotbench_06527_format_lists]
+> Treat this as a new domain and explain your model: Name three planets.
+<~ Earth
+[parrotbench_06528_format_lists]
+> Treat this as a new domain and explain your model: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06529_format_lists]
+> What would you need to verify before answering? List exactly three colors.
+<~ blue
+[parrotbench_06530_format_lists]
+> What would you need to verify before answering? Give two reasons to verify sources.
+<~ source
+[parrotbench_06531_format_lists]
+> What would you need to verify before answering? Name three planets.
+<~ Earth

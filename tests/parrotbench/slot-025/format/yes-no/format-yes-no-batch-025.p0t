@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/yes-no
+# cases: 6
+
+[parrotbench_06351_format_yes-no]
+> Answer the user's actual goal: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06352_format_yes-no]
+> Answer the user's actual goal: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06353_format_yes-no]
+> If the request is underspecified, say what is missing: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06354_format_yes-no]
+> If the request is underspecified, say what is missing: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06355_format_yes-no]
+> If the request is underspecified, say what is missing: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06356_format_yes-no]
+> If the request is underspecified, say what is missing: Respond with no extra explanation: is Mars a planet?
+<~ yes

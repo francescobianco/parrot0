@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/yes-no
+# cases: 6
+
+[parrotbench_06388_format_yes-no]
+> Use the user's constraint as a real constraint: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06389_format_yes-no]
+> Check whether the requested format is satisfied: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06390_format_yes-no]
+> Check whether the requested format is satisfied: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06391_format_yes-no]
+> Check whether the requested format is satisfied: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06392_format_yes-no]
+> Check whether the requested format is satisfied: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06393_format_yes-no]
+> What would make this answer wrong? Reply only yes or no: is fire cold?
+<~ no

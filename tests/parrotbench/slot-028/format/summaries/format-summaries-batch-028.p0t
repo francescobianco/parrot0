@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-028: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 7
+
+[parrotbench_06969_format_summaries]
+> Rispondi in italiano quando possibile: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06970_format_summaries]
+> Rispondi in italiano quando possibile: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06971_format_summaries]
+> Rispondi in italiano quando possibile: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06972_format_summaries]
+> Rispondi in italiano quando possibile: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06973_format_summaries]
+> Distinguish a fact, a rule, and a hypothesis: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06974_format_summaries]
+> Distinguish a fact, a rule, and a hypothesis: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06975_format_summaries]
+> Distinguish a fact, a rule, and a hypothesis: Summarize the purpose of a KB in five words.
+<~ KB

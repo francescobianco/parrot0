@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 7
+
+[parrotbench_05519_language_translation]
+> Start with the direct answer, then qualify it: Translate the dog runs into English.
+<~ dog
+[parrotbench_05520_language_translation]
+> Start with the direct answer, then qualify it: Translate acqua into English.
+<~ water
+[parrotbench_05521_language_translation]
+> Identify the entities and relations first: Translate hello into Italian.
+<~ ciao
+[parrotbench_05522_language_translation]
+> Identify the entities and relations first: Translate the small house into French.
+<~ maison
+[parrotbench_05523_language_translation]
+> Identify the entities and relations first: Translate the dog runs into English.
+<~ dog
+[parrotbench_05524_language_translation]
+> Identify the entities and relations first: Translate acqua into English.
+<~ water
+[parrotbench_05525_language_translation]
+> Treat this as a new domain and explain your model: Translate hello into Italian.
+<~ ciao

@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: kb/inference
-# cases: 50
+# cases: 6
 
-[parrotbench_09301_kb_inference]
-> Answer as if this were a release review: What is a rule of inference?
+[parrotbench_09213_kb_inference]
+> In simple terms, What is a rule of inference?
 <~ rule
-[parrotbench_09302_kb_inference]
-> Answer as if this were a release review: What is a derived fact?
+[parrotbench_09214_kb_inference]
+> In simple terms, What is a derived fact?
 <~ derived
-[parrotbench_09303_kb_inference]
-> Answer as if this were a release review: Why preserve evidence for a conclusion?
+[parrotbench_09215_kb_inference]
+> In simple terms, Why preserve evidence for a conclusion?
 <~ evidence
-[parrotbench_09304_kb_inference]
-> Answer as if this were a release review: What should happen when rules conflict?
+[parrotbench_09216_kb_inference]
+> In simple terms, What should happen when rules conflict?
 <~ conflict
-[parrotbench_09305_kb_inference]
-> Give the strongest answer supported by the KB: What is a rule of inference?
+[parrotbench_09217_kb_inference]
+> Give a concise answer. What is a rule of inference?
 <~ rule
-[parrotbench_09306_kb_inference]
-> Give the strongest answer supported by the KB: What is a derived fact?
-<~ derived
-[parrotbench_09307_kb_inference]
-> Give the strongest answer supported by the KB: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09308_kb_inference]
-> Give the strongest answer supported by the KB: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09309_kb_inference]
-> Do not confuse a wall with an answer. What is a rule of inference?
-<~ rule
-[parrotbench_09310_kb_inference]
-> Do not confuse a wall with an answer. What is a derived fact?
-<~ derived
-[parrotbench_09311_kb_inference]
-> Do not confuse a wall with an answer. Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09312_kb_inference]
-> Do not confuse a wall with an answer. What should happen when rules conflict?
-<~ conflict
-[parrotbench_09313_kb_inference]
-> What is the operational interpretation of this? What is a rule of inference?
-<~ rule
-[parrotbench_09314_kb_inference]
-> What is the operational interpretation of this? What is a derived fact?
-<~ derived
-[parrotbench_09315_kb_inference]
-> What is the operational interpretation of this? Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09316_kb_inference]
-> What is the operational interpretation of this? What should happen when rules conflict?
-<~ conflict
-[parrotbench_09317_kb_inference]
-> Start with the direct answer, then qualify it: What is a rule of inference?
-<~ rule
-[parrotbench_09318_kb_inference]
-> Start with the direct answer, then qualify it: What is a derived fact?
-<~ derived
-[parrotbench_09319_kb_inference]
-> Start with the direct answer, then qualify it: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09320_kb_inference]
-> Start with the direct answer, then qualify it: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09321_kb_inference]
-> Identify the entities and relations first: What is a rule of inference?
-<~ rule
-[parrotbench_09322_kb_inference]
-> Identify the entities and relations first: What is a derived fact?
-<~ derived
-[parrotbench_09323_kb_inference]
-> Identify the entities and relations first: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09324_kb_inference]
-> Identify the entities and relations first: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09325_kb_inference]
-> Treat this as a new domain and explain your model: What is a rule of inference?
-<~ rule
-[parrotbench_09326_kb_inference]
-> Treat this as a new domain and explain your model: What is a derived fact?
-<~ derived
-[parrotbench_09327_kb_inference]
-> Treat this as a new domain and explain your model: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09328_kb_inference]
-> Treat this as a new domain and explain your model: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09329_kb_inference]
-> What would you need to verify before answering? What is a rule of inference?
-<~ rule
-[parrotbench_09330_kb_inference]
-> What would you need to verify before answering? What is a derived fact?
-<~ derived
-[parrotbench_09331_kb_inference]
-> What would you need to verify before answering? Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09332_kb_inference]
-> What would you need to verify before answering? What should happen when rules conflict?
-<~ conflict
-[parrotbench_09333_kb_inference]
-> Keep alternatives separate while answering: What is a rule of inference?
-<~ rule
-[parrotbench_09334_kb_inference]
-> Keep alternatives separate while answering: What is a derived fact?
-<~ derived
-[parrotbench_09335_kb_inference]
-> Keep alternatives separate while answering: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09336_kb_inference]
-> Keep alternatives separate while answering: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09337_kb_inference]
-> State one conclusion and one uncertainty: What is a rule of inference?
-<~ rule
-[parrotbench_09338_kb_inference]
-> State one conclusion and one uncertainty: What is a derived fact?
-<~ derived
-[parrotbench_09339_kb_inference]
-> State one conclusion and one uncertainty: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09340_kb_inference]
-> State one conclusion and one uncertainty: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09341_kb_inference]
-> Use a concrete example in your answer: What is a rule of inference?
-<~ rule
-[parrotbench_09342_kb_inference]
-> Use a concrete example in your answer: What is a derived fact?
-<~ derived
-[parrotbench_09343_kb_inference]
-> Use a concrete example in your answer: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09344_kb_inference]
-> Use a concrete example in your answer: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09345_kb_inference]
-> Avoid changing the subject: What is a rule of inference?
-<~ rule
-[parrotbench_09346_kb_inference]
-> Avoid changing the subject: What is a derived fact?
-<~ derived
-[parrotbench_09347_kb_inference]
-> Avoid changing the subject: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09348_kb_inference]
-> Avoid changing the subject: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09349_kb_inference]
-> Answer the user's actual goal: What is a rule of inference?
-<~ rule
-[parrotbench_09350_kb_inference]
-> Answer the user's actual goal: What is a derived fact?
+[parrotbench_09218_kb_inference]
+> Give a concise answer. What is a derived fact?
 <~ derived

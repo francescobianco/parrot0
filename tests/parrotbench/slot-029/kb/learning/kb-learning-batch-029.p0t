@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/learning
+# cases: 6
+
+[parrotbench_08976_kb_learning]
+> Distinguish a fact, a rule, and a hypothesis: What is a learned rule?
+<~ rule
+[parrotbench_08977_kb_learning]
+> Name the relevant capability: What does runtime teaching change?
+<~ learn
+[parrotbench_08978_kb_learning]
+> Name the relevant capability: Why should learning be inspectable?
+<~ evidence
+[parrotbench_08979_kb_learning]
+> Name the relevant capability: What is ablation of a learned cue?
+<~ forget
+[parrotbench_08980_kb_learning]
+> Name the relevant capability: What is a learned rule?
+<~ rule
+[parrotbench_08981_kb_learning]
+> Explain the reasoning rather than a slogan: What does runtime teaching change?
+<~ learn

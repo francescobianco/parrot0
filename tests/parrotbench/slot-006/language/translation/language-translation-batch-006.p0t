@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05432_language_translation]
+> Check this for me: Translate acqua into English.
+<~ water
+[parrotbench_05433_language_translation]
+> What would you tell a beginner? Translate hello into Italian.
+<~ ciao
+[parrotbench_05434_language_translation]
+> What would you tell a beginner? Translate the small house into French.
+<~ maison
+[parrotbench_05435_language_translation]
+> What would you tell a beginner? Translate the dog runs into English.
+<~ dog
+[parrotbench_05436_language_translation]
+> What would you tell a beginner? Translate acqua into English.
+<~ water
+[parrotbench_05437_language_translation]
+> What would you tell an expert? Translate hello into Italian.
+<~ ciao

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 7
+
+[parrotbench_01194_math_multiplication]
+> What would make this answer wrong? Calculate three groups of seven.
+<~ 21
+[parrotbench_01195_math_multiplication]
+> What would make this answer wrong? What do five pairs contain?
+<~ 10
+[parrotbench_01196_math_multiplication]
+> What would make this answer wrong? A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01197_math_multiplication]
+> Give a useful answer without pretending certainty: What is 9 times 8?
+<~ 72
+[parrotbench_01198_math_multiplication]
+> Give a useful answer without pretending certainty: Calculate three groups of seven.
+<~ 21
+[parrotbench_01199_math_multiplication]
+> Give a useful answer without pretending certainty: What do five pairs contain?
+<~ 10
+[parrotbench_01200_math_multiplication]
+> Give a useful answer without pretending certainty: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24

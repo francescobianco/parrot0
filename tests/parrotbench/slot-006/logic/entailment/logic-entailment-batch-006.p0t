@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 6
+
+[parrotbench_02032_logic_entailment]
+> Check this for me: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02033_logic_entailment]
+> What would you tell a beginner? All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02034_logic_entailment]
+> What would you tell a beginner? All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02035_logic_entailment]
+> What would you tell a beginner? Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02036_logic_entailment]
+> What would you tell a beginner? If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02037_logic_entailment]
+> What would you tell an expert? All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/sources
+# cases: 6
+
+[parrotbench_00751_knowledge_sources]
+> Answer the user's actual goal: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00752_knowledge_sources]
+> Answer the user's actual goal: Should you invent an answer without evidence?
+<~ no
+[parrotbench_00753_knowledge_sources]
+> If the request is underspecified, say what is missing: Why should a claim have a source?
+<~ source
+[parrotbench_00754_knowledge_sources]
+> If the request is underspecified, say what is missing: How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00755_knowledge_sources]
+> If the request is underspecified, say what is missing: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00756_knowledge_sources]
+> If the request is underspecified, say what is missing: Should you invent an answer without evidence?
+<~ no

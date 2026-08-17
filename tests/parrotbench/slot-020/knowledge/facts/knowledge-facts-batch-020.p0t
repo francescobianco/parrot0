@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 7
+
+[parrotbench_00119_knowledge_facts]
+> Start with the direct answer, then qualify it: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00120_knowledge_facts]
+> Start with the direct answer, then qualify it: What is water made of chemically?
+<~ H2O
+[parrotbench_00121_knowledge_facts]
+> Identify the entities and relations first: What is the capital of France?
+<~ Paris
+[parrotbench_00122_knowledge_facts]
+> Identify the entities and relations first: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00123_knowledge_facts]
+> Identify the entities and relations first: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00124_knowledge_facts]
+> Identify the entities and relations first: What is water made of chemically?
+<~ H2O
+[parrotbench_00125_knowledge_facts]
+> Treat this as a new domain and explain your model: What is the capital of France?
+<~ Paris

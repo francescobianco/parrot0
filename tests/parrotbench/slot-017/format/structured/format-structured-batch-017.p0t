@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-017: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 6
+
+[parrotbench_06701_format_structured]
+> Answer as if this were a release review: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06702_format_structured]
+> Answer as if this were a release review: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06703_format_structured]
+> Answer as if this were a release review: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06704_format_structured]
+> Answer as if this were a release review: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06705_format_structured]
+> Give the strongest answer supported by the KB: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06706_format_structured]
+> Give the strongest answer supported by the KB: Answer as a numbered list with two items.
+<~ 1

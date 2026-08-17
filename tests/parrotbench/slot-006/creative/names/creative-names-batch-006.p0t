@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/names
+# cases: 6
+
+[parrotbench_09832_creative_names]
+> Check this for me: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09833_creative_names]
+> What would you tell a beginner? Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09834_creative_names]
+> What would you tell a beginner? Give three distinct names for a robot.
+<~ robot
+[parrotbench_09835_creative_names]
+> What would you tell a beginner? Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09836_creative_names]
+> What would you tell a beginner? Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09837_creative_names]
+> What would you tell an expert? Invent a funny name for a parrot database.
+<~ parrot

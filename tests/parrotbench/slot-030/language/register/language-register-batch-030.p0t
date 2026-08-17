@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/register
+# cases: 6
+
+[parrotbench_06182_language_register]
+> Explain the reasoning rather than a slogan: Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06183_language_register]
+> Explain the reasoning rather than a slogan: Say this more politely: give me the file.
+<~ please
+[parrotbench_06184_language_register]
+> Explain the reasoning rather than a slogan: Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06185_language_register]
+> Use the user's constraint as a real constraint: Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06186_language_register]
+> Use the user's constraint as a real constraint: Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06187_language_register]
+> Use the user's constraint as a real constraint: Say this more politely: give me the file.
+<~ please

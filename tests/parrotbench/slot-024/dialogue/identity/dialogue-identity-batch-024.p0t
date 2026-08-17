@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/identity
+# cases: 7
+
+[parrotbench_04344_dialogue_identity]
+> Use a concrete example in your answer: What generation are you running?
+<~ gen
+[parrotbench_04345_dialogue_identity]
+> Avoid changing the subject: What is your name?
+<~ parrot0
+[parrotbench_04346_dialogue_identity]
+> Avoid changing the subject: Who are you?
+<~ parrot0
+[parrotbench_04347_dialogue_identity]
+> Avoid changing the subject: What kind of system are you?
+<~ AI
+[parrotbench_04348_dialogue_identity]
+> Avoid changing the subject: What generation are you running?
+<~ gen
+[parrotbench_04349_dialogue_identity]
+> Answer the user's actual goal: What is your name?
+<~ parrot0
+[parrotbench_04350_dialogue_identity]
+> Answer the user's actual goal: Who are you?
+<~ parrot0

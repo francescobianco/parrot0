@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 6
+
+[parrotbench_00182_knowledge_facts]
+> Explain the reasoning rather than a slogan: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00183_knowledge_facts]
+> Explain the reasoning rather than a slogan: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00184_knowledge_facts]
+> Explain the reasoning rather than a slogan: What is water made of chemically?
+<~ H2O
+[parrotbench_00185_knowledge_facts]
+> Use the user's constraint as a real constraint: What is the capital of France?
+<~ Paris
+[parrotbench_00186_knowledge_facts]
+> Use the user's constraint as a real constraint: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00187_knowledge_facts]
+> Use the user's constraint as a real constraint: Who wrote Hamlet?
+<~ Shakespeare

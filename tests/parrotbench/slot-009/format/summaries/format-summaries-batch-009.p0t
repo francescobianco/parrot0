@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-009: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 6
+
+[parrotbench_06851_format_summaries]
+> Use the relevant evidence and answer: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06852_format_summaries]
+> Use the relevant evidence and answer: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06853_format_summaries]
+> Do not invent facts. Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06854_format_summaries]
+> Do not invent facts. Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06855_format_summaries]
+> Do not invent facts. Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06856_format_summaries]
+> Do not invent facts. State the conclusion before the details.
+<~ conclusion

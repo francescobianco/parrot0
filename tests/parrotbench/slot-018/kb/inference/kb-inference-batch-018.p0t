@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/inference
+# cases: 6
+
+[parrotbench_09307_kb_inference]
+> Give the strongest answer supported by the KB: Why preserve evidence for a conclusion?
+<~ evidence
+[parrotbench_09308_kb_inference]
+> Give the strongest answer supported by the KB: What should happen when rules conflict?
+<~ conflict
+[parrotbench_09309_kb_inference]
+> Do not confuse a wall with an answer. What is a rule of inference?
+<~ rule
+[parrotbench_09310_kb_inference]
+> Do not confuse a wall with an answer. What is a derived fact?
+<~ derived
+[parrotbench_09311_kb_inference]
+> Do not confuse a wall with an answer. Why preserve evidence for a conclusion?
+<~ evidence
+[parrotbench_09312_kb_inference]
+> Do not confuse a wall with an answer. What should happen when rules conflict?
+<~ conflict

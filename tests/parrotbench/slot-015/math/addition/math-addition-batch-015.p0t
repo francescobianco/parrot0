@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-015: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 6
+
+[parrotbench_00888_math_addition]
+> State uncertainty if needed: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00889_math_addition]
+> Answer without a generic template: What is 17 plus 6?
+<~ 23
+[parrotbench_00890_math_addition]
+> Answer without a generic template: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00891_math_addition]
+> Answer without a generic template: Add twelve to nine.
+<~ 21
+[parrotbench_00892_math_addition]
+> Answer without a generic template: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00893_math_addition]
+> Give the answer and one reason: What is 17 plus 6?
+<~ 23

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-016: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 7
+
+[parrotbench_01094_math_multiplication]
+> Give the answer and one reason: Calculate three groups of seven.
+<~ 21
+[parrotbench_01095_math_multiplication]
+> Give the answer and one reason: What do five pairs contain?
+<~ 10
+[parrotbench_01096_math_multiplication]
+> Give the answer and one reason: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01097_math_multiplication]
+> Separate fact from hypothesis: What is 9 times 8?
+<~ 72
+[parrotbench_01098_math_multiplication]
+> Separate fact from hypothesis: Calculate three groups of seven.
+<~ 21
+[parrotbench_01099_math_multiplication]
+> Separate fact from hypothesis: What do five pairs contain?
+<~ 10
+[parrotbench_01100_math_multiplication]
+> Separate fact from hypothesis: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24

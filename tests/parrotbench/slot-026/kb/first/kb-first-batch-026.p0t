@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-026: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/first
+# cases: 6
+
+[parrotbench_08757_kb_first]
+> Can this be answered from known facts? Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08758_kb_first]
+> Can this be answered from known facts? Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08759_kb_first]
+> Can this be answered from known facts? Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08760_kb_first]
+> Can this be answered from known facts? What is the KB-first rule?
+<~ KB
+[parrotbench_08761_kb_first]
+> What would a careful interlocutor say? Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08762_kb_first]
+> What would a careful interlocutor say? Why must the engine not hardcode a phrasebook?
+<~ knowledge

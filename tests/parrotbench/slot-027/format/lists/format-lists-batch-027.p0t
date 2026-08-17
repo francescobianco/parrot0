@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06563_format_lists]
+> What would a careful interlocutor say? Name three planets.
+<~ Earth
+[parrotbench_06564_format_lists]
+> What would a careful interlocutor say? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06565_format_lists]
+> Give a short answer in English: List exactly three colors.
+<~ blue
+[parrotbench_06566_format_lists]
+> Give a short answer in English: Give two reasons to verify sources.
+<~ source
+[parrotbench_06567_format_lists]
+> Give a short answer in English: Name three planets.
+<~ Earth
+[parrotbench_06568_format_lists]
+> Give a short answer in English: Give four steps for a safe experiment.
+<~ step

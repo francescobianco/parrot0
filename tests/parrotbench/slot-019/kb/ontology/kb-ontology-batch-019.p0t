@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/ontology
+# cases: 6
+
+[parrotbench_09113_kb_ontology]
+> What is the operational interpretation of this? What is ontology induction?
+<~ ontology
+[parrotbench_09114_kb_ontology]
+> What is the operational interpretation of this? Can a new domain require a temporary model?
+<~ model
+[parrotbench_09115_kb_ontology]
+> What is the operational interpretation of this? What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09116_kb_ontology]
+> What is the operational interpretation of this? Why separate entities from states?
+<~ state
+[parrotbench_09117_kb_ontology]
+> Start with the direct answer, then qualify it: What is ontology induction?
+<~ ontology
+[parrotbench_09118_kb_ontology]
+> Start with the direct answer, then qualify it: Can a new domain require a temporary model?
+<~ model

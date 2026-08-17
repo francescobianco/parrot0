@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/empathy
+# cases: 7
+
+[parrotbench_04994_dialogue_empathy]
+> What would make this answer wrong? I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04995_dialogue_empathy]
+> What would make this answer wrong? Can you have feelings of your own?
+<~ not
+[parrotbench_04996_dialogue_empathy]
+> What would make this answer wrong? How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04997_dialogue_empathy]
+> Give a useful answer without pretending certainty: I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04998_dialogue_empathy]
+> Give a useful answer without pretending certainty: I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04999_dialogue_empathy]
+> Give a useful answer without pretending certainty: Can you have feelings of your own?
+<~ not
+[parrotbench_05000_dialogue_empathy]
+> Give a useful answer without pretending certainty: How can you acknowledge a user's emotion without pretending?
+<~ feel

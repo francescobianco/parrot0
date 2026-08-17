@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-011: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/yes-no
+# cases: 6
+
+[parrotbench_06263_format_yes-no]
+> In italiano, Use only one word: is 2 even?
+<~ yes
+[parrotbench_06264_format_yes-no]
+> In italiano, Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06265_format_yes-no]
+> Rispondi brevemente: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06266_format_yes-no]
+> Rispondi brevemente: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06267_format_yes-no]
+> Rispondi brevemente: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06268_format_yes-no]
+> Rispondi brevemente: Respond with no extra explanation: is Mars a planet?
+<~ yes

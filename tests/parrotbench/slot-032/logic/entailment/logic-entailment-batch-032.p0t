@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 7
+
+[parrotbench_02194_logic_entailment]
+> What would make this answer wrong? All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02195_logic_entailment]
+> What would make this answer wrong? Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02196_logic_entailment]
+> What would make this answer wrong? If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02197_logic_entailment]
+> Give a useful answer without pretending certainty: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02198_logic_entailment]
+> Give a useful answer without pretending certainty: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02199_logic_entailment]
+> Give a useful answer without pretending certainty: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02200_logic_entailment]
+> Give a useful answer without pretending certainty: If A precedes B and B precedes C, who comes first?
+<~ A

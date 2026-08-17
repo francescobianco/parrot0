@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-014: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: tools/files
+# cases: 6
+
+[parrotbench_07882_tools_files]
+> Challenge your first interpretation: Can you inspect a file without modifying it?
+<~ file
+[parrotbench_07883_tools_files]
+> Challenge your first interpretation: What is the current working directory?
+<~ directory
+[parrotbench_07884_tools_files]
+> Challenge your first interpretation: Why should a file operation be reported?
+<~ file
+[parrotbench_07885_tools_files]
+> State uncertainty if needed: List the files in the current directory.
+<~ README
+[parrotbench_07886_tools_files]
+> State uncertainty if needed: Can you inspect a file without modifying it?
+<~ file
+[parrotbench_07887_tools_files]
+> State uncertainty if needed: What is the current working directory?
+<~ directory

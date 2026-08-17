@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/causality
+# cases: 6
+
+[parrotbench_02513_logic_causality]
+> What is the operational interpretation of this? If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02514_logic_causality]
+> What is the operational interpretation of this? The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02515_logic_causality]
+> What is the operational interpretation of this? What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02516_logic_causality]
+> What is the operational interpretation of this? What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02517_logic_causality]
+> Start with the direct answer, then qualify it: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02518_logic_causality]
+> Start with the direct answer, then qualify it: The ground is wet. Did it necessarily rain?
+<~ not

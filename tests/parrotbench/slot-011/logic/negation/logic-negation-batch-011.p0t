@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-011: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 6
+
+[parrotbench_02263_logic_negation]
+> In italiano, If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02264_logic_negation]
+> In italiano, Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02265_logic_negation]
+> Rispondi brevemente: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02266_logic_negation]
+> Rispondi brevemente: Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02267_logic_negation]
+> Rispondi brevemente: If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02268_logic_negation]
+> Rispondi brevemente: Is not knowing a fact the same as proving it false?
+<~ no

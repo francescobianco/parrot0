@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 7
+
+[parrotbench_00194_knowledge_facts]
+> What would make this answer wrong? Which ocean is the largest?
+<~ Pacific
+[parrotbench_00195_knowledge_facts]
+> What would make this answer wrong? Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00196_knowledge_facts]
+> What would make this answer wrong? What is water made of chemically?
+<~ H2O
+[parrotbench_00197_knowledge_facts]
+> Give a useful answer without pretending certainty: What is the capital of France?
+<~ Paris
+[parrotbench_00198_knowledge_facts]
+> Give a useful answer without pretending certainty: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00199_knowledge_facts]
+> Give a useful answer without pretending certainty: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00200_knowledge_facts]
+> Give a useful answer without pretending certainty: What is water made of chemically?
+<~ H2O

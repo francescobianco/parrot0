@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: tools/code
+# cases: 6
+
+[parrotbench_08382_tools_code]
+> Explain the reasoning rather than a slogan: Why does a function return early?
+<~ return
+[parrotbench_08383_tools_code]
+> Explain the reasoning rather than a slogan: What is a stack trace useful for?
+<~ error
+[parrotbench_08384_tools_code]
+> Explain the reasoning rather than a slogan: Can you explain a small code fragment?
+<~ code
+[parrotbench_08385_tools_code]
+> Use the user's constraint as a real constraint: What is a variable in a program?
+<~ variable
+[parrotbench_08386_tools_code]
+> Use the user's constraint as a real constraint: Why does a function return early?
+<~ return
+[parrotbench_08387_tools_code]
+> Use the user's constraint as a real constraint: What is a stack trace useful for?
+<~ error

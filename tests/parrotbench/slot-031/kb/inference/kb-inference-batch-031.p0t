@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/inference
+# cases: 6
+
+[parrotbench_09388_kb_inference]
+> Use the user's constraint as a real constraint: What should happen when rules conflict?
+<~ conflict
+[parrotbench_09389_kb_inference]
+> Check whether the requested format is satisfied: What is a rule of inference?
+<~ rule
+[parrotbench_09390_kb_inference]
+> Check whether the requested format is satisfied: What is a derived fact?
+<~ derived
+[parrotbench_09391_kb_inference]
+> Check whether the requested format is satisfied: Why preserve evidence for a conclusion?
+<~ evidence
+[parrotbench_09392_kb_inference]
+> Check whether the requested format is satisfied: What should happen when rules conflict?
+<~ conflict
+[parrotbench_09393_kb_inference]
+> What would make this answer wrong? What is a rule of inference?
+<~ rule

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: self/principles
+# cases: 7
+
+[parrotbench_09744_self_principles]
+> Use a concrete example in your answer: What is the experiment trying to reconstruct?
+<~ structure
+[parrotbench_09745_self_principles]
+> Avoid changing the subject: What does introspection propose and tests dispose mean?
+<~ test
+[parrotbench_09746_self_principles]
+> Avoid changing the subject: Why must knowledge live in the KB?
+<~ KB
+[parrotbench_09747_self_principles]
+> Avoid changing the subject: What is functional equivalence?
+<~ behaviour
+[parrotbench_09748_self_principles]
+> Avoid changing the subject: What is the experiment trying to reconstruct?
+<~ structure
+[parrotbench_09749_self_principles]
+> Answer the user's actual goal: What does introspection propose and tests dispose mean?
+<~ test
+[parrotbench_09750_self_principles]
+> Answer the user's actual goal: Why must knowledge live in the KB?
+<~ KB

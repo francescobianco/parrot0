@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 7
+
+[parrotbench_10069_creative_story]
+> Spiegalo in parole semplici: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10070_creative_story]
+> Spiegalo in parole semplici: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10071_creative_story]
+> Spiegalo in parole semplici: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10072_creative_story]
+> Spiegalo in parole semplici: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10073_creative_story]
+> Prima dimmi cosa manca, poi: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10074_creative_story]
+> Prima dimmi cosa manca, poi: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10075_creative_story]
+> Prima dimmi cosa manca, poi: Change a playful story into a tragic one.
+<~ story

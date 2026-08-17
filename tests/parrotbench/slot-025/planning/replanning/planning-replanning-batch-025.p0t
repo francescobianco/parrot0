@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/replanning
+# cases: 6
+
+[parrotbench_07551_planning_replanning]
+> Answer the user's actual goal: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07552_planning_replanning]
+> Answer the user's actual goal: What is a stop rule?
+<~ stop
+[parrotbench_07553_planning_replanning]
+> If the request is underspecified, say what is missing: When should an agent revise a plan?
+<~ change
+[parrotbench_07554_planning_replanning]
+> If the request is underspecified, say what is missing: What observation should trigger replanning?
+<~ failure
+[parrotbench_07555_planning_replanning]
+> If the request is underspecified, say what is missing: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07556_planning_replanning]
+> If the request is underspecified, say what is missing: What is a stop rule?
+<~ stop

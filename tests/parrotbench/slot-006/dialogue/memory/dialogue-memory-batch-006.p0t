@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/memory
+# cases: 6
+
+[parrotbench_04632_dialogue_memory]
+> Check this for me: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04633_dialogue_memory]
+> What would you tell a beginner? Remember that my name is Luca.
+<~ Luca
+[parrotbench_04634_dialogue_memory]
+> What would you tell a beginner? Remember that my favorite color is green.
+<~ green
+[parrotbench_04635_dialogue_memory]
+> What would you tell a beginner? What should a memory record include?
+<~ fact
+[parrotbench_04636_dialogue_memory]
+> What would you tell a beginner? What does forgetting a fact mean?
+<~ forget
+[parrotbench_04637_dialogue_memory]
+> What would you tell an expert? Remember that my name is Luca.
+<~ Luca

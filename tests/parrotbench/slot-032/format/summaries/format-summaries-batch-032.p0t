@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 7
+
+[parrotbench_06994_format_summaries]
+> What would make this answer wrong? Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06995_format_summaries]
+> What would make this answer wrong? Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06996_format_summaries]
+> What would make this answer wrong? State the conclusion before the details.
+<~ conclusion
+[parrotbench_06997_format_summaries]
+> Give a useful answer without pretending certainty: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06998_format_summaries]
+> Give a useful answer without pretending certainty: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06999_format_summaries]
+> Give a useful answer without pretending certainty: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_07000_format_summaries]
+> Give a useful answer without pretending certainty: State the conclusion before the details.
+<~ conclusion

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-016: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 7
+
+[parrotbench_00094_knowledge_facts]
+> Give the answer and one reason: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00095_knowledge_facts]
+> Give the answer and one reason: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00096_knowledge_facts]
+> Give the answer and one reason: What is water made of chemically?
+<~ H2O
+[parrotbench_00097_knowledge_facts]
+> Separate fact from hypothesis: What is the capital of France?
+<~ Paris
+[parrotbench_00098_knowledge_facts]
+> Separate fact from hypothesis: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00099_knowledge_facts]
+> Separate fact from hypothesis: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00100_knowledge_facts]
+> Separate fact from hypothesis: What is water made of chemically?
+<~ H2O

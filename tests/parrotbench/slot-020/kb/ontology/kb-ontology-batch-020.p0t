@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/ontology
+# cases: 7
+
+[parrotbench_09119_kb_ontology]
+> Start with the direct answer, then qualify it: What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09120_kb_ontology]
+> Start with the direct answer, then qualify it: Why separate entities from states?
+<~ state
+[parrotbench_09121_kb_ontology]
+> Identify the entities and relations first: What is ontology induction?
+<~ ontology
+[parrotbench_09122_kb_ontology]
+> Identify the entities and relations first: Can a new domain require a temporary model?
+<~ model
+[parrotbench_09123_kb_ontology]
+> Identify the entities and relations first: What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09124_kb_ontology]
+> Identify the entities and relations first: Why separate entities from states?
+<~ state
+[parrotbench_09125_kb_ontology]
+> Treat this as a new domain and explain your model: What is ontology induction?
+<~ ontology

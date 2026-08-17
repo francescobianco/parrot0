@@ -2,155 +2,26 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: planning/daily
-# cases: 50
+# cases: 7
 
-[parrotbench_07151_planning_daily]
-> Answer the user's actual goal: Plan a short walk with a time constraint.
+[parrotbench_07019_planning_daily]
+> Give a concise answer. Plan a short walk with a time constraint.
 <~ step
-[parrotbench_07152_planning_daily]
-> Answer the user's actual goal: How should a plan represent prerequisites?
+[parrotbench_07020_planning_daily]
+> Give a concise answer. How should a plan represent prerequisites?
 <~ prerequisite
-[parrotbench_07153_planning_daily]
-> If the request is underspecified, say what is missing: Give me a plan to make tea.
+[parrotbench_07021_planning_daily]
+> I need a careful answer: Give me a plan to make tea.
 <~ plan
-[parrotbench_07154_planning_daily]
-> If the request is underspecified, say what is missing: What is the first step in making tea?
+[parrotbench_07022_planning_daily]
+> I need a careful answer: What is the first step in making tea?
 <~ water
-[parrotbench_07155_planning_daily]
-> If the request is underspecified, say what is missing: Plan a short walk with a time constraint.
+[parrotbench_07023_planning_daily]
+> I need a careful answer: Plan a short walk with a time constraint.
 <~ step
-[parrotbench_07156_planning_daily]
-> If the request is underspecified, say what is missing: How should a plan represent prerequisites?
+[parrotbench_07024_planning_daily]
+> I need a careful answer: How should a plan represent prerequisites?
 <~ prerequisite
-[parrotbench_07157_planning_daily]
-> Can this be answered from known facts? Give me a plan to make tea.
+[parrotbench_07025_planning_daily]
+> Explain your answer briefly: Give me a plan to make tea.
 <~ plan
-[parrotbench_07158_planning_daily]
-> Can this be answered from known facts? What is the first step in making tea?
-<~ water
-[parrotbench_07159_planning_daily]
-> Can this be answered from known facts? Plan a short walk with a time constraint.
-<~ step
-[parrotbench_07160_planning_daily]
-> Can this be answered from known facts? How should a plan represent prerequisites?
-<~ prerequisite
-[parrotbench_07161_planning_daily]
-> What would a careful interlocutor say? Give me a plan to make tea.
-<~ plan
-[parrotbench_07162_planning_daily]
-> What would a careful interlocutor say? What is the first step in making tea?
-<~ water
-[parrotbench_07163_planning_daily]
-> What would a careful interlocutor say? Plan a short walk with a time constraint.
-<~ step
-[parrotbench_07164_planning_daily]
-> What would a careful interlocutor say? How should a plan represent prerequisites?
-<~ prerequisite
-[parrotbench_07165_planning_daily]
-> Give a short answer in English: Give me a plan to make tea.
-<~ plan
-[parrotbench_07166_planning_daily]
-> Give a short answer in English: What is the first step in making tea?
-<~ water
-[parrotbench_07167_planning_daily]
-> Give a short answer in English: Plan a short walk with a time constraint.
-<~ step
-[parrotbench_07168_planning_daily]
-> Give a short answer in English: How should a plan represent prerequisites?
-<~ prerequisite
-[parrotbench_07169_planning_daily]
-> Rispondi in italiano quando possibile: Give me a plan to make tea.
-<~ plan
-[parrotbench_07170_planning_daily]
-> Rispondi in italiano quando possibile: What is the first step in making tea?
-<~ water
-[parrotbench_07171_planning_daily]
-> Rispondi in italiano quando possibile: Plan a short walk with a time constraint.
-<~ step
-[parrotbench_07172_planning_daily]
-> Rispondi in italiano quando possibile: How should a plan represent prerequisites?
-<~ prerequisite
-[parrotbench_07173_planning_daily]
-> Distinguish a fact, a rule, and a hypothesis: Give me a plan to make tea.
-<~ plan
-[parrotbench_07174_planning_daily]
-> Distinguish a fact, a rule, and a hypothesis: What is the first step in making tea?
-<~ water
-[parrotbench_07175_planning_daily]
-> Distinguish a fact, a rule, and a hypothesis: Plan a short walk with a time constraint.
-<~ step
-[parrotbench_07176_planning_daily]
-> Distinguish a fact, a rule, and a hypothesis: How should a plan represent prerequisites?
-<~ prerequisite
-[parrotbench_07177_planning_daily]
-> Name the relevant capability: Give me a plan to make tea.
-<~ plan
-[parrotbench_07178_planning_daily]
-> Name the relevant capability: What is the first step in making tea?
-<~ water
-[parrotbench_07179_planning_daily]
-> Name the relevant capability: Plan a short walk with a time constraint.
-<~ step
-[parrotbench_07180_planning_daily]
-> Name the relevant capability: How should a plan represent prerequisites?
-<~ prerequisite
-[parrotbench_07181_planning_daily]
-> Explain the reasoning rather than a slogan: Give me a plan to make tea.
-<~ plan
-[parrotbench_07182_planning_daily]
-> Explain the reasoning rather than a slogan: What is the first step in making tea?
-<~ water
-[parrotbench_07183_planning_daily]
-> Explain the reasoning rather than a slogan: Plan a short walk with a time constraint.
-<~ step
-[parrotbench_07184_planning_daily]
-> Explain the reasoning rather than a slogan: How should a plan represent prerequisites?
-<~ prerequisite
-[parrotbench_07185_planning_daily]
-> Use the user's constraint as a real constraint: Give me a plan to make tea.
-<~ plan
-[parrotbench_07186_planning_daily]
-> Use the user's constraint as a real constraint: What is the first step in making tea?
-<~ water
-[parrotbench_07187_planning_daily]
-> Use the user's constraint as a real constraint: Plan a short walk with a time constraint.
-<~ step
-[parrotbench_07188_planning_daily]
-> Use the user's constraint as a real constraint: How should a plan represent prerequisites?
-<~ prerequisite
-[parrotbench_07189_planning_daily]
-> Check whether the requested format is satisfied: Give me a plan to make tea.
-<~ plan
-[parrotbench_07190_planning_daily]
-> Check whether the requested format is satisfied: What is the first step in making tea?
-<~ water
-[parrotbench_07191_planning_daily]
-> Check whether the requested format is satisfied: Plan a short walk with a time constraint.
-<~ step
-[parrotbench_07192_planning_daily]
-> Check whether the requested format is satisfied: How should a plan represent prerequisites?
-<~ prerequisite
-[parrotbench_07193_planning_daily]
-> What would make this answer wrong? Give me a plan to make tea.
-<~ plan
-[parrotbench_07194_planning_daily]
-> What would make this answer wrong? What is the first step in making tea?
-<~ water
-[parrotbench_07195_planning_daily]
-> What would make this answer wrong? Plan a short walk with a time constraint.
-<~ step
-[parrotbench_07196_planning_daily]
-> What would make this answer wrong? How should a plan represent prerequisites?
-<~ prerequisite
-[parrotbench_07197_planning_daily]
-> Give a useful answer without pretending certainty: Give me a plan to make tea.
-<~ plan
-[parrotbench_07198_planning_daily]
-> Give a useful answer without pretending certainty: What is the first step in making tea?
-<~ water
-[parrotbench_07199_planning_daily]
-> Give a useful answer without pretending certainty: Plan a short walk with a time constraint.
-<~ step
-[parrotbench_07200_planning_daily]
-> Give a useful answer without pretending certainty: How should a plan represent prerequisites?
-<~ prerequisite

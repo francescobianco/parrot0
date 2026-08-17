@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/memory
+# cases: 7
+
+[parrotbench_04719_dialogue_memory]
+> Start with the direct answer, then qualify it: What should a memory record include?
+<~ fact
+[parrotbench_04720_dialogue_memory]
+> Start with the direct answer, then qualify it: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04721_dialogue_memory]
+> Identify the entities and relations first: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04722_dialogue_memory]
+> Identify the entities and relations first: Remember that my favorite color is green.
+<~ green
+[parrotbench_04723_dialogue_memory]
+> Identify the entities and relations first: What should a memory record include?
+<~ fact
+[parrotbench_04724_dialogue_memory]
+> Identify the entities and relations first: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04725_dialogue_memory]
+> Treat this as a new domain and explain your model: Remember that my name is Luca.
+<~ Luca

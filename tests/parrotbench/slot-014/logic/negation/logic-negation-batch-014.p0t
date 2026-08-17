@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-014: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 6
+
+[parrotbench_02282_logic_negation]
+> Challenge your first interpretation: Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02283_logic_negation]
+> Challenge your first interpretation: If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02284_logic_negation]
+> Challenge your first interpretation: Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02285_logic_negation]
+> State uncertainty if needed: No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02286_logic_negation]
+> State uncertainty if needed: Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02287_logic_negation]
+> State uncertainty if needed: If nobody is both, does one counterexample prove the rule?
+<~ no

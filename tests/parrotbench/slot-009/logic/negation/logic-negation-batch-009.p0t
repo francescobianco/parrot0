@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-009: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 6
+
+[parrotbench_02251_logic_negation]
+> Use the relevant evidence and answer: If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02252_logic_negation]
+> Use the relevant evidence and answer: Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02253_logic_negation]
+> Do not invent facts. No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02254_logic_negation]
+> Do not invent facts. Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02255_logic_negation]
+> Do not invent facts. If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02256_logic_negation]
+> Do not invent facts. Is not knowing a fact the same as proving it false?
+<~ no

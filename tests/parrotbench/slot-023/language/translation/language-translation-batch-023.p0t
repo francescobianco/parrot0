@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-023: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05538_language_translation]
+> State one conclusion and one uncertainty: Translate the small house into French.
+<~ maison
+[parrotbench_05539_language_translation]
+> State one conclusion and one uncertainty: Translate the dog runs into English.
+<~ dog
+[parrotbench_05540_language_translation]
+> State one conclusion and one uncertainty: Translate acqua into English.
+<~ water
+[parrotbench_05541_language_translation]
+> Use a concrete example in your answer: Translate hello into Italian.
+<~ ciao
+[parrotbench_05542_language_translation]
+> Use a concrete example in your answer: Translate the small house into French.
+<~ maison
+[parrotbench_05543_language_translation]
+> Use a concrete example in your answer: Translate the dog runs into English.
+<~ dog

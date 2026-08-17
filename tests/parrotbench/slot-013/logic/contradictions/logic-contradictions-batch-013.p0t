@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/contradictions
+# cases: 6
+
+[parrotbench_02876_logic_contradictions]
+> Prima dimmi cosa manca, poi: What should happen when two facts cannot both hold?
+<~ conflict
+[parrotbench_02877_logic_contradictions]
+> What is the shortest useful answer to this? A plan is cheap, fast, safe, and impossible to implement. What conflicts?
+<~ impossible
+[parrotbench_02878_logic_contradictions]
+> What is the shortest useful answer to this? Can something be both entirely known and unknown in the same sense?
+<~ no
+[parrotbench_02879_logic_contradictions]
+> What is the shortest useful answer to this? Find the contradiction: the door is open and never opened.
+<~ contradiction
+[parrotbench_02880_logic_contradictions]
+> What is the shortest useful answer to this? What should happen when two facts cannot both hold?
+<~ conflict
+[parrotbench_02881_logic_contradictions]
+> Challenge your first interpretation: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
+<~ impossible

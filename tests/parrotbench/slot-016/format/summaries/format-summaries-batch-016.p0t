@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-016: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 7
+
+[parrotbench_06894_format_summaries]
+> Give the answer and one reason: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06895_format_summaries]
+> Give the answer and one reason: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06896_format_summaries]
+> Give the answer and one reason: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06897_format_summaries]
+> Separate fact from hypothesis: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06898_format_summaries]
+> Separate fact from hypothesis: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06899_format_summaries]
+> Separate fact from hypothesis: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06900_format_summaries]
+> Separate fact from hypothesis: State the conclusion before the details.
+<~ conclusion

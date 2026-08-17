@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/averages
+# cases: 6
+
+[parrotbench_01588_math_averages]
+> Use the user's constraint as a real constraint: The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01589_math_averages]
+> Check whether the requested format is satisfied: What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01590_math_averages]
+> Check whether the requested format is satisfied: Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01591_math_averages]
+> Check whether the requested format is satisfied: What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01592_math_averages]
+> Check whether the requested format is satisfied: The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01593_math_averages]
+> What would make this answer wrong? What is the average of 2, 4, and 6?
+<~ 4

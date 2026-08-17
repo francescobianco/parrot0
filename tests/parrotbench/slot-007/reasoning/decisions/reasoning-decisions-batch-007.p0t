@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-007: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/decisions
+# cases: 6
+
+[parrotbench_03438_reasoning_decisions]
+> What would you tell an expert? How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03439_reasoning_decisions]
+> What would you tell an expert? What is a reversible decision?
+<~ revers
+[parrotbench_03440_reasoning_decisions]
+> What would you tell an expert? Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03441_reasoning_decisions]
+> Answer cautiously: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03442_reasoning_decisions]
+> Answer cautiously: How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03443_reasoning_decisions]
+> Answer cautiously: What is a reversible decision?
+<~ revers

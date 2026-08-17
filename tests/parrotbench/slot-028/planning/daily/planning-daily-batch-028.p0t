@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-028: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 7
+
+[parrotbench_07169_planning_daily]
+> Rispondi in italiano quando possibile: Give me a plan to make tea.
+<~ plan
+[parrotbench_07170_planning_daily]
+> Rispondi in italiano quando possibile: What is the first step in making tea?
+<~ water
+[parrotbench_07171_planning_daily]
+> Rispondi in italiano quando possibile: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07172_planning_daily]
+> Rispondi in italiano quando possibile: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07173_planning_daily]
+> Distinguish a fact, a rule, and a hypothesis: Give me a plan to make tea.
+<~ plan
+[parrotbench_07174_planning_daily]
+> Distinguish a fact, a rule, and a hypothesis: What is the first step in making tea?
+<~ water
+[parrotbench_07175_planning_daily]
+> Distinguish a fact, a rule, and a hypothesis: Plan a short walk with a time constraint.
+<~ step

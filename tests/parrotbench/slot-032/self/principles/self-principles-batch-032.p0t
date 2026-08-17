@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: self/principles
+# cases: 7
+
+[parrotbench_09794_self_principles]
+> What would make this answer wrong? Why must knowledge live in the KB?
+<~ KB
+[parrotbench_09795_self_principles]
+> What would make this answer wrong? What is functional equivalence?
+<~ behaviour
+[parrotbench_09796_self_principles]
+> What would make this answer wrong? What is the experiment trying to reconstruct?
+<~ structure
+[parrotbench_09797_self_principles]
+> Give a useful answer without pretending certainty: What does introspection propose and tests dispose mean?
+<~ test
+[parrotbench_09798_self_principles]
+> Give a useful answer without pretending certainty: Why must knowledge live in the KB?
+<~ KB
+[parrotbench_09799_self_principles]
+> Give a useful answer without pretending certainty: What is functional equivalence?
+<~ behaviour
+[parrotbench_09800_self_principles]
+> Give a useful answer without pretending certainty: What is the experiment trying to reconstruct?
+<~ structure

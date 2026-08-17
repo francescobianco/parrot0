@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-023: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/register
+# cases: 6
+
+[parrotbench_06138_language_register]
+> State one conclusion and one uncertainty: Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06139_language_register]
+> State one conclusion and one uncertainty: Say this more politely: give me the file.
+<~ please
+[parrotbench_06140_language_register]
+> State one conclusion and one uncertainty: Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06141_language_register]
+> Use a concrete example in your answer: Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06142_language_register]
+> Use a concrete example in your answer: Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06143_language_register]
+> Use a concrete example in your answer: Say this more politely: give me the file.
+<~ please

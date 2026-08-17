@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/follow-up
+# cases: 6
+
+[parrotbench_05076_dialogue_follow-up]
+> Prima dimmi cosa manca, poi: What is a dialogue state?
+<~ dialogue
+[parrotbench_05077_dialogue_follow-up]
+> What is the shortest useful answer to this? What did I ask you first?
+<~ first
+[parrotbench_05078_dialogue_follow-up]
+> What is the shortest useful answer to this? What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05079_dialogue_follow-up]
+> What is the shortest useful answer to this? Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05080_dialogue_follow-up]
+> What is the shortest useful answer to this? What is a dialogue state?
+<~ dialogue
+[parrotbench_05081_dialogue_follow-up]
+> Challenge your first interpretation: What did I ask you first?
+<~ first

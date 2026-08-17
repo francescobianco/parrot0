@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/register
+# cases: 7
+
+[parrotbench_06194_language_register]
+> What would make this answer wrong? Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06195_language_register]
+> What would make this answer wrong? Say this more politely: give me the file.
+<~ please
+[parrotbench_06196_language_register]
+> What would make this answer wrong? Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06197_language_register]
+> Give a useful answer without pretending certainty: Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06198_language_register]
+> Give a useful answer without pretending certainty: Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06199_language_register]
+> Give a useful answer without pretending certainty: Say this more politely: give me the file.
+<~ please
+[parrotbench_06200_language_register]
+> Give a useful answer without pretending certainty: Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain

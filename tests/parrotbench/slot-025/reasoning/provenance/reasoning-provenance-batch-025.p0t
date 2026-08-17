@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/provenance
+# cases: 6
+
+[parrotbench_04151_reasoning_provenance]
+> Answer the user's actual goal: What should an explanation expose?
+<~ reason
+[parrotbench_04152_reasoning_provenance]
+> Answer the user's actual goal: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04153_reasoning_provenance]
+> If the request is underspecified, say what is missing: What evidence supports this answer?
+<~ evidence
+[parrotbench_04154_reasoning_provenance]
+> If the request is underspecified, say what is missing: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04155_reasoning_provenance]
+> If the request is underspecified, say what is missing: What should an explanation expose?
+<~ reason
+[parrotbench_04156_reasoning_provenance]
+> If the request is underspecified, say what is missing: How can a learned fact be corrected?
+<~ forget

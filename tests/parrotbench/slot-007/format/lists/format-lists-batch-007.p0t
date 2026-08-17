@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-007: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 6
+
+[parrotbench_06438_format_lists]
+> What would you tell an expert? Give two reasons to verify sources.
+<~ source
+[parrotbench_06439_format_lists]
+> What would you tell an expert? Name three planets.
+<~ Earth
+[parrotbench_06440_format_lists]
+> What would you tell an expert? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06441_format_lists]
+> Answer cautiously: List exactly three colors.
+<~ blue
+[parrotbench_06442_format_lists]
+> Answer cautiously: Give two reasons to verify sources.
+<~ source
+[parrotbench_06443_format_lists]
+> Answer cautiously: Name three planets.
+<~ Earth

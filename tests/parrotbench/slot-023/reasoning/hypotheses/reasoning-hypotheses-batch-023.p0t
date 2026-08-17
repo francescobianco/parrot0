@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-023: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/hypotheses
+# cases: 6
+
+[parrotbench_03938_reasoning_hypotheses]
+> State one conclusion and one uncertainty: What should a hypothesis be tested against?
+<~ evidence
+[parrotbench_03939_reasoning_hypotheses]
+> State one conclusion and one uncertainty: How do you choose between interpretations?
+<~ support
+[parrotbench_03940_reasoning_hypotheses]
+> State one conclusion and one uncertainty: What is an assumption in a plan?
+<~ assumption
+[parrotbench_03941_reasoning_hypotheses]
+> Use a concrete example in your answer: Why keep competing hypotheses instead of one guess?
+<~ hypoth
+[parrotbench_03942_reasoning_hypotheses]
+> Use a concrete example in your answer: What should a hypothesis be tested against?
+<~ evidence
+[parrotbench_03943_reasoning_hypotheses]
+> Use a concrete example in your answer: How do you choose between interpretations?
+<~ support

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 7
+
+[parrotbench_10119_creative_story]
+> Start with the direct answer, then qualify it: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10120_creative_story]
+> Start with the direct answer, then qualify it: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10121_creative_story]
+> Identify the entities and relations first: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10122_creative_story]
+> Identify the entities and relations first: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10123_creative_story]
+> Identify the entities and relations first: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10124_creative_story]
+> Identify the entities and relations first: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10125_creative_story]
+> Treat this as a new domain and explain your model: Write a short new story about a machine learning language.
+<~ machine

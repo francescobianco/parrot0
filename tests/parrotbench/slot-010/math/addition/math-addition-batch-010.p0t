@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 6
+
+[parrotbench_00857_math_addition]
+> Keep the answer useful and honest: What is 17 plus 6?
+<~ 23
+[parrotbench_00858_math_addition]
+> Keep the answer useful and honest: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00859_math_addition]
+> Keep the answer useful and honest: Add twelve to nine.
+<~ 21
+[parrotbench_00860_math_addition]
+> Keep the answer useful and honest: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00861_math_addition]
+> In italiano, What is 17 plus 6?
+<~ 23
+[parrotbench_00862_math_addition]
+> In italiano, Calculate the sum of 8 and 15.
+<~ 23

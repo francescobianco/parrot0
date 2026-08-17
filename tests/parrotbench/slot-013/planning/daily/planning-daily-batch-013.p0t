@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 6
+
+[parrotbench_07076_planning_daily]
+> Prima dimmi cosa manca, poi: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07077_planning_daily]
+> What is the shortest useful answer to this? Give me a plan to make tea.
+<~ plan
+[parrotbench_07078_planning_daily]
+> What is the shortest useful answer to this? What is the first step in making tea?
+<~ water
+[parrotbench_07079_planning_daily]
+> What is the shortest useful answer to this? Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07080_planning_daily]
+> What is the shortest useful answer to this? How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07081_planning_daily]
+> Challenge your first interpretation: Give me a plan to make tea.
+<~ plan

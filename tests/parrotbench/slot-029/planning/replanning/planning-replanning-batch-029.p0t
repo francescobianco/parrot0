@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/replanning
+# cases: 6
+
+[parrotbench_07576_planning_replanning]
+> Distinguish a fact, a rule, and a hypothesis: What is a stop rule?
+<~ stop
+[parrotbench_07577_planning_replanning]
+> Name the relevant capability: When should an agent revise a plan?
+<~ change
+[parrotbench_07578_planning_replanning]
+> Name the relevant capability: What observation should trigger replanning?
+<~ failure
+[parrotbench_07579_planning_replanning]
+> Name the relevant capability: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07580_planning_replanning]
+> Name the relevant capability: What is a stop rule?
+<~ stop
+[parrotbench_07581_planning_replanning]
+> Explain the reasoning rather than a slogan: When should an agent revise a plan?
+<~ change

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 6
+
+[parrotbench_07163_planning_daily]
+> What would a careful interlocutor say? Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07164_planning_daily]
+> What would a careful interlocutor say? How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07165_planning_daily]
+> Give a short answer in English: Give me a plan to make tea.
+<~ plan
+[parrotbench_07166_planning_daily]
+> Give a short answer in English: What is the first step in making tea?
+<~ water
+[parrotbench_07167_planning_daily]
+> Give a short answer in English: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07168_planning_daily]
+> Give a short answer in English: How should a plan represent prerequisites?
+<~ prerequisite

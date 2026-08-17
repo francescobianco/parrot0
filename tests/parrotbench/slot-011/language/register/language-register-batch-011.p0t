@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-011: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/register
+# cases: 6
+
+[parrotbench_06063_language_register]
+> In italiano, Say this more politely: give me the file.
+<~ please
+[parrotbench_06064_language_register]
+> In italiano, Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06065_language_register]
+> Rispondi brevemente: Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06066_language_register]
+> Rispondi brevemente: Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06067_language_register]
+> Rispondi brevemente: Say this more politely: give me the file.
+<~ please
+[parrotbench_06068_language_register]
+> Rispondi brevemente: Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain

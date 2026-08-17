@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: creative/story
-# cases: 50
+# cases: 6
 
-[parrotbench_10051_creative_story]
-> Use the relevant evidence and answer: Change a playful story into a tragic one.
+[parrotbench_10007_creative_story]
+> Please answer: Change a playful story into a tragic one.
 <~ story
-[parrotbench_10052_creative_story]
-> Use the relevant evidence and answer: Describe an original scene in one paragraph.
+[parrotbench_10008_creative_story]
+> Please answer: Describe an original scene in one paragraph.
 <~ scene
-[parrotbench_10053_creative_story]
-> Do not invent facts. Write a short new story about a machine learning language.
+[parrotbench_10009_creative_story]
+> Can you help me with this? Write a short new story about a machine learning language.
 <~ machine
-[parrotbench_10054_creative_story]
-> Do not invent facts. Continue a story while preserving its characters.
+[parrotbench_10010_creative_story]
+> Can you help me with this? Continue a story while preserving its characters.
 <~ story
-[parrotbench_10055_creative_story]
-> Do not invent facts. Change a playful story into a tragic one.
+[parrotbench_10011_creative_story]
+> Can you help me with this? Change a playful story into a tragic one.
 <~ story
-[parrotbench_10056_creative_story]
-> Do not invent facts. Describe an original scene in one paragraph.
-<~ scene
-[parrotbench_10057_creative_story]
-> Keep the answer useful and honest: Write a short new story about a machine learning language.
-<~ machine
-[parrotbench_10058_creative_story]
-> Keep the answer useful and honest: Continue a story while preserving its characters.
-<~ story
-[parrotbench_10059_creative_story]
-> Keep the answer useful and honest: Change a playful story into a tragic one.
-<~ story
-[parrotbench_10060_creative_story]
-> Keep the answer useful and honest: Describe an original scene in one paragraph.
-<~ scene
-[parrotbench_10061_creative_story]
-> In italiano, Write a short new story about a machine learning language.
-<~ machine
-[parrotbench_10062_creative_story]
-> In italiano, Continue a story while preserving its characters.
-<~ story
-[parrotbench_10063_creative_story]
-> In italiano, Change a playful story into a tragic one.
-<~ story
-[parrotbench_10064_creative_story]
-> In italiano, Describe an original scene in one paragraph.
-<~ scene
-[parrotbench_10065_creative_story]
-> Rispondi brevemente: Write a short new story about a machine learning language.
-<~ machine
-[parrotbench_10066_creative_story]
-> Rispondi brevemente: Continue a story while preserving its characters.
-<~ story
-[parrotbench_10067_creative_story]
-> Rispondi brevemente: Change a playful story into a tragic one.
-<~ story
-[parrotbench_10068_creative_story]
-> Rispondi brevemente: Describe an original scene in one paragraph.
-<~ scene
-[parrotbench_10069_creative_story]
-> Spiegalo in parole semplici: Write a short new story about a machine learning language.
-<~ machine
-[parrotbench_10070_creative_story]
-> Spiegalo in parole semplici: Continue a story while preserving its characters.
-<~ story
-[parrotbench_10071_creative_story]
-> Spiegalo in parole semplici: Change a playful story into a tragic one.
-<~ story
-[parrotbench_10072_creative_story]
-> Spiegalo in parole semplici: Describe an original scene in one paragraph.
-<~ scene
-[parrotbench_10073_creative_story]
-> Prima dimmi cosa manca, poi: Write a short new story about a machine learning language.
-<~ machine
-[parrotbench_10074_creative_story]
-> Prima dimmi cosa manca, poi: Continue a story while preserving its characters.
-<~ story
-[parrotbench_10075_creative_story]
-> Prima dimmi cosa manca, poi: Change a playful story into a tragic one.
-<~ story
-[parrotbench_10076_creative_story]
-> Prima dimmi cosa manca, poi: Describe an original scene in one paragraph.
-<~ scene
-[parrotbench_10077_creative_story]
-> What is the shortest useful answer to this? Write a short new story about a machine learning language.
-<~ machine
-[parrotbench_10078_creative_story]
-> What is the shortest useful answer to this? Continue a story while preserving its characters.
-<~ story
-[parrotbench_10079_creative_story]
-> What is the shortest useful answer to this? Change a playful story into a tragic one.
-<~ story
-[parrotbench_10080_creative_story]
-> What is the shortest useful answer to this? Describe an original scene in one paragraph.
-<~ scene
-[parrotbench_10081_creative_story]
-> Challenge your first interpretation: Write a short new story about a machine learning language.
-<~ machine
-[parrotbench_10082_creative_story]
-> Challenge your first interpretation: Continue a story while preserving its characters.
-<~ story
-[parrotbench_10083_creative_story]
-> Challenge your first interpretation: Change a playful story into a tragic one.
-<~ story
-[parrotbench_10084_creative_story]
-> Challenge your first interpretation: Describe an original scene in one paragraph.
-<~ scene
-[parrotbench_10085_creative_story]
-> State uncertainty if needed: Write a short new story about a machine learning language.
-<~ machine
-[parrotbench_10086_creative_story]
-> State uncertainty if needed: Continue a story while preserving its characters.
-<~ story
-[parrotbench_10087_creative_story]
-> State uncertainty if needed: Change a playful story into a tragic one.
-<~ story
-[parrotbench_10088_creative_story]
-> State uncertainty if needed: Describe an original scene in one paragraph.
-<~ scene
-[parrotbench_10089_creative_story]
-> Answer without a generic template: Write a short new story about a machine learning language.
-<~ machine
-[parrotbench_10090_creative_story]
-> Answer without a generic template: Continue a story while preserving its characters.
-<~ story
-[parrotbench_10091_creative_story]
-> Answer without a generic template: Change a playful story into a tragic one.
-<~ story
-[parrotbench_10092_creative_story]
-> Answer without a generic template: Describe an original scene in one paragraph.
-<~ scene
-[parrotbench_10093_creative_story]
-> Give the answer and one reason: Write a short new story about a machine learning language.
-<~ machine
-[parrotbench_10094_creative_story]
-> Give the answer and one reason: Continue a story while preserving its characters.
-<~ story
-[parrotbench_10095_creative_story]
-> Give the answer and one reason: Change a playful story into a tragic one.
-<~ story
-[parrotbench_10096_creative_story]
-> Give the answer and one reason: Describe an original scene in one paragraph.
-<~ scene
-[parrotbench_10097_creative_story]
-> Separate fact from hypothesis: Write a short new story about a machine learning language.
-<~ machine
-[parrotbench_10098_creative_story]
-> Separate fact from hypothesis: Continue a story while preserving its characters.
-<~ story
-[parrotbench_10099_creative_story]
-> Separate fact from hypothesis: Change a playful story into a tragic one.
-<~ story
-[parrotbench_10100_creative_story]
-> Separate fact from hypothesis: Describe an original scene in one paragraph.
+[parrotbench_10012_creative_story]
+> Can you help me with this? Describe an original scene in one paragraph.
 <~ scene

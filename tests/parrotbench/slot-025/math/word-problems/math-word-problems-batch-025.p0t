@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/word-problems
+# cases: 6
+
+[parrotbench_01951_math_word-problems]
+> Answer the user's actual goal: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01952_math_word-problems]
+> Answer the user's actual goal: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01953_math_word-problems]
+> If the request is underspecified, say what is missing: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01954_math_word-problems]
+> If the request is underspecified, say what is missing: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01955_math_word-problems]
+> If the request is underspecified, say what is missing: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01956_math_word-problems]
+> If the request is underspecified, say what is missing: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12

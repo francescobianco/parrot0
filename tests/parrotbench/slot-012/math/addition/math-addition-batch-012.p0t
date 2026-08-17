@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 7
+
+[parrotbench_00869_math_addition]
+> Spiegalo in parole semplici: What is 17 plus 6?
+<~ 23
+[parrotbench_00870_math_addition]
+> Spiegalo in parole semplici: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00871_math_addition]
+> Spiegalo in parole semplici: Add twelve to nine.
+<~ 21
+[parrotbench_00872_math_addition]
+> Spiegalo in parole semplici: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00873_math_addition]
+> Prima dimmi cosa manca, poi: What is 17 plus 6?
+<~ 23
+[parrotbench_00874_math_addition]
+> Prima dimmi cosa manca, poi: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00875_math_addition]
+> Prima dimmi cosa manca, poi: Add twelve to nine.
+<~ 21

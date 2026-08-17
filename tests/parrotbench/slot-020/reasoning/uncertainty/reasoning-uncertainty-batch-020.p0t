@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/uncertainty
+# cases: 7
+
+[parrotbench_03319_reasoning_uncertainty]
+> Start with the direct answer, then qualify it: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03320_reasoning_uncertainty]
+> Start with the direct answer, then qualify it: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03321_reasoning_uncertainty]
+> Identify the entities and relations first: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03322_reasoning_uncertainty]
+> Identify the entities and relations first: What is the difference between not proved and false?
+<~ not
+[parrotbench_03323_reasoning_uncertainty]
+> Identify the entities and relations first: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03324_reasoning_uncertainty]
+> Identify the entities and relations first: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03325_reasoning_uncertainty]
+> Treat this as a new domain and explain your model: How should you answer a claim with weak evidence?
+<~ uncertain

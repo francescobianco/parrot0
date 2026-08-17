@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/word-problems
+# cases: 6
+
+[parrotbench_01857_math_word-problems]
+> Keep the answer useful and honest: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01858_math_word-problems]
+> Keep the answer useful and honest: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01859_math_word-problems]
+> Keep the answer useful and honest: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01860_math_word-problems]
+> Keep the answer useful and honest: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01861_math_word-problems]
+> In italiano, I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01862_math_word-problems]
+> In italiano, A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5

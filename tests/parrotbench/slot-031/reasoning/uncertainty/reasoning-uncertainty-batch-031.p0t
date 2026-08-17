@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/uncertainty
+# cases: 6
+
+[parrotbench_03388_reasoning_uncertainty]
+> Use the user's constraint as a real constraint: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03389_reasoning_uncertainty]
+> Check whether the requested format is satisfied: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03390_reasoning_uncertainty]
+> Check whether the requested format is satisfied: What is the difference between not proved and false?
+<~ not
+[parrotbench_03391_reasoning_uncertainty]
+> Check whether the requested format is satisfied: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03392_reasoning_uncertainty]
+> Check whether the requested format is satisfied: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03393_reasoning_uncertainty]
+> What would make this answer wrong? How should you answer a claim with weak evidence?
+<~ uncertain

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/register
+# cases: 6
+
+[parrotbench_06151_language_register]
+> Answer the user's actual goal: Say this more politely: give me the file.
+<~ please
+[parrotbench_06152_language_register]
+> Answer the user's actual goal: Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06153_language_register]
+> If the request is underspecified, say what is missing: Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06154_language_register]
+> If the request is underspecified, say what is missing: Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06155_language_register]
+> If the request is underspecified, say what is missing: Say this more politely: give me the file.
+<~ please
+[parrotbench_06156_language_register]
+> If the request is underspecified, say what is missing: Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/hypotheses
+# cases: 6
+
+[parrotbench_03857_reasoning_hypotheses]
+> Keep the answer useful and honest: Why keep competing hypotheses instead of one guess?
+<~ hypoth
+[parrotbench_03858_reasoning_hypotheses]
+> Keep the answer useful and honest: What should a hypothesis be tested against?
+<~ evidence
+[parrotbench_03859_reasoning_hypotheses]
+> Keep the answer useful and honest: How do you choose between interpretations?
+<~ support
+[parrotbench_03860_reasoning_hypotheses]
+> Keep the answer useful and honest: What is an assumption in a plan?
+<~ assumption
+[parrotbench_03861_reasoning_hypotheses]
+> In italiano, Why keep competing hypotheses instead of one guess?
+<~ hypoth
+[parrotbench_03862_reasoning_hypotheses]
+> In italiano, What should a hypothesis be tested against?
+<~ evidence

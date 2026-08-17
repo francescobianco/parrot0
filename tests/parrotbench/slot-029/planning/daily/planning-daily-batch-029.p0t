@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 6
+
+[parrotbench_07176_planning_daily]
+> Distinguish a fact, a rule, and a hypothesis: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07177_planning_daily]
+> Name the relevant capability: Give me a plan to make tea.
+<~ plan
+[parrotbench_07178_planning_daily]
+> Name the relevant capability: What is the first step in making tea?
+<~ water
+[parrotbench_07179_planning_daily]
+> Name the relevant capability: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07180_planning_daily]
+> Name the relevant capability: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07181_planning_daily]
+> Explain the reasoning rather than a slogan: Give me a plan to make tea.
+<~ plan

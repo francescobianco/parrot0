@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-026: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/causality
+# cases: 6
+
+[parrotbench_02557_logic_causality]
+> Can this be answered from known facts? If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02558_logic_causality]
+> Can this be answered from known facts? The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02559_logic_causality]
+> Can this be answered from known facts? What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02560_logic_causality]
+> Can this be answered from known facts? What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02561_logic_causality]
+> What would a careful interlocutor say? If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02562_logic_causality]
+> What would a careful interlocutor say? The ground is wet. Did it necessarily rain?
+<~ not

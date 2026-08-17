@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/negation
+# cases: 6
+
+[parrotbench_02232_logic_negation]
+> Check this for me: Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02233_logic_negation]
+> What would you tell a beginner? No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no
+[parrotbench_02234_logic_negation]
+> What would you tell a beginner? Some birds cannot fly. Can you say every bird flies?
+<~ no
+[parrotbench_02235_logic_negation]
+> What would you tell a beginner? If nobody is both, does one counterexample prove the rule?
+<~ no
+[parrotbench_02236_logic_negation]
+> What would you tell a beginner? Is not knowing a fact the same as proving it false?
+<~ no
+[parrotbench_02237_logic_negation]
+> What would you tell an expert? No cats are dogs. Milo is a cat. Can Milo be a dog?
+<~ no

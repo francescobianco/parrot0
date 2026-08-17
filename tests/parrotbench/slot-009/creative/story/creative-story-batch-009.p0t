@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-009: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 6
+
+[parrotbench_10051_creative_story]
+> Use the relevant evidence and answer: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10052_creative_story]
+> Use the relevant evidence and answer: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10053_creative_story]
+> Do not invent facts. Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10054_creative_story]
+> Do not invent facts. Continue a story while preserving its characters.
+<~ story
+[parrotbench_10055_creative_story]
+> Do not invent facts. Change a playful story into a tragic one.
+<~ story
+[parrotbench_10056_creative_story]
+> Do not invent facts. Describe an original scene in one paragraph.
+<~ scene

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-005: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/gaps
+# cases: 6
+
+[parrotbench_00426_knowledge_gaps]
+> Explain your answer briefly: How should a knowledge gap become a research plan?
+<~ research
+[parrotbench_00427_knowledge_gaps]
+> Explain your answer briefly: What should you do when the KB lacks a fact?
+<~ learn
+[parrotbench_00428_knowledge_gaps]
+> Explain your answer briefly: What would you search for before comparing two cities?
+<~ know
+[parrotbench_00429_knowledge_gaps]
+> Check this for me: What information is missing before answering a causal question?
+<~ missing
+[parrotbench_00430_knowledge_gaps]
+> Check this for me: How should a knowledge gap become a research plan?
+<~ research
+[parrotbench_00431_knowledge_gaps]
+> Check this for me: What should you do when the KB lacks a fact?
+<~ learn

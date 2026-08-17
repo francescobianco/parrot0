@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/italian
+# cases: 6
+
+[parrotbench_05382_language_italian]
+> Explain the reasoning rather than a slogan: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05383_language_italian]
+> Explain the reasoning rather than a slogan: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05384_language_italian]
+> Explain the reasoning rather than a slogan: Qual e il contrario di grande?
+<~ small
+[parrotbench_05385_language_italian]
+> Use the user's constraint as a real constraint: Come ti chiami?
+<~ parrot0
+[parrotbench_05386_language_italian]
+> Use the user's constraint as a real constraint: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05387_language_italian]
+> Use the user's constraint as a real constraint: Qual e la capitale del Giappone?
+<~ Tokyo

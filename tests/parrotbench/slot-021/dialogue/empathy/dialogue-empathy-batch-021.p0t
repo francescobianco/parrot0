@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/empathy
+# cases: 6
+
+[parrotbench_04926_dialogue_empathy]
+> Treat this as a new domain and explain your model: I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04927_dialogue_empathy]
+> Treat this as a new domain and explain your model: Can you have feelings of your own?
+<~ not
+[parrotbench_04928_dialogue_empathy]
+> Treat this as a new domain and explain your model: How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04929_dialogue_empathy]
+> What would you need to verify before answering? I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04930_dialogue_empathy]
+> What would you need to verify before answering? I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04931_dialogue_empathy]
+> What would you need to verify before answering? Can you have feelings of your own?
+<~ not

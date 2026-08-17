@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/grammar
+# cases: 6
+
+[parrotbench_05776_language_grammar]
+> Distinguish a fact, a rule, and a hypothesis: Is 'Me likes apples' grammatical?
+<~ no
+[parrotbench_05777_language_grammar]
+> Name the relevant capability: What is the plural of child?
+<~ children
+[parrotbench_05778_language_grammar]
+> Name the relevant capability: What is the past tense of go?
+<~ went
+[parrotbench_05779_language_grammar]
+> Name the relevant capability: Correct: She go to school.
+<~ goes
+[parrotbench_05780_language_grammar]
+> Name the relevant capability: Is 'Me likes apples' grammatical?
+<~ no
+[parrotbench_05781_language_grammar]
+> Explain the reasoning rather than a slogan: What is the plural of child?
+<~ children

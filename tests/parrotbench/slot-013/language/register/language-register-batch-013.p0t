@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/register
+# cases: 6
+
+[parrotbench_06076_language_register]
+> Prima dimmi cosa manca, poi: Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06077_language_register]
+> What is the shortest useful answer to this? Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06078_language_register]
+> What is the shortest useful answer to this? Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06079_language_register]
+> What is the shortest useful answer to this? Say this more politely: give me the file.
+<~ please
+[parrotbench_06080_language_register]
+> What is the shortest useful answer to this? Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06081_language_register]
+> Challenge your first interpretation: Explain photosynthesis to a child.
+<~ plants

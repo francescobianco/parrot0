@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 7
+
+[parrotbench_02069_logic_entailment]
+> Spiegalo in parole semplici: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02070_logic_entailment]
+> Spiegalo in parole semplici: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02071_logic_entailment]
+> Spiegalo in parole semplici: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02072_logic_entailment]
+> Spiegalo in parole semplici: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02073_logic_entailment]
+> Prima dimmi cosa manca, poi: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02074_logic_entailment]
+> Prima dimmi cosa manca, poi: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02075_logic_entailment]
+> Prima dimmi cosa manca, poi: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/learning
+# cases: 6
+
+[parrotbench_08988_kb_learning]
+> Use the user's constraint as a real constraint: What is a learned rule?
+<~ rule
+[parrotbench_08989_kb_learning]
+> Check whether the requested format is satisfied: What does runtime teaching change?
+<~ learn
+[parrotbench_08990_kb_learning]
+> Check whether the requested format is satisfied: Why should learning be inspectable?
+<~ evidence
+[parrotbench_08991_kb_learning]
+> Check whether the requested format is satisfied: What is ablation of a learned cue?
+<~ forget
+[parrotbench_08992_kb_learning]
+> Check whether the requested format is satisfied: What is a learned rule?
+<~ rule
+[parrotbench_08993_kb_learning]
+> What would make this answer wrong? What does runtime teaching change?
+<~ learn

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/memory
+# cases: 6
+
+[parrotbench_04676_dialogue_memory]
+> Prima dimmi cosa manca, poi: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04677_dialogue_memory]
+> What is the shortest useful answer to this? Remember that my name is Luca.
+<~ Luca
+[parrotbench_04678_dialogue_memory]
+> What is the shortest useful answer to this? Remember that my favorite color is green.
+<~ green
+[parrotbench_04679_dialogue_memory]
+> What is the shortest useful answer to this? What should a memory record include?
+<~ fact
+[parrotbench_04680_dialogue_memory]
+> What is the shortest useful answer to this? What does forgetting a fact mean?
+<~ forget
+[parrotbench_04681_dialogue_memory]
+> Challenge your first interpretation: Remember that my name is Luca.
+<~ Luca

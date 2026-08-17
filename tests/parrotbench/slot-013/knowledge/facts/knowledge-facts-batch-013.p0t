@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 6
+
+[parrotbench_00076_knowledge_facts]
+> Prima dimmi cosa manca, poi: What is water made of chemically?
+<~ H2O
+[parrotbench_00077_knowledge_facts]
+> What is the shortest useful answer to this? What is the capital of France?
+<~ Paris
+[parrotbench_00078_knowledge_facts]
+> What is the shortest useful answer to this? Which ocean is the largest?
+<~ Pacific
+[parrotbench_00079_knowledge_facts]
+> What is the shortest useful answer to this? Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00080_knowledge_facts]
+> What is the shortest useful answer to this? What is water made of chemically?
+<~ H2O
+[parrotbench_00081_knowledge_facts]
+> Challenge your first interpretation: What is the capital of France?
+<~ Paris

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 7
+
+[parrotbench_06919_format_summaries]
+> Start with the direct answer, then qualify it: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06920_format_summaries]
+> Start with the direct answer, then qualify it: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06921_format_summaries]
+> Identify the entities and relations first: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06922_format_summaries]
+> Identify the entities and relations first: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06923_format_summaries]
+> Identify the entities and relations first: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06924_format_summaries]
+> Identify the entities and relations first: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06925_format_summaries]
+> Treat this as a new domain and explain your model: Summarize evolution in two sentences.
+<~ evolution

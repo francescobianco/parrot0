@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/definition
+# cases: 7
+
+[parrotbench_05869_language_definition]
+> Spiegalo in parole semplici: Define democracy in simple terms.
+<~ people
+[parrotbench_05870_language_definition]
+> Spiegalo in parole semplici: What does ephemeral mean?
+<~ short
+[parrotbench_05871_language_definition]
+> Spiegalo in parole semplici: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05872_language_definition]
+> Spiegalo in parole semplici: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05873_language_definition]
+> Prima dimmi cosa manca, poi: Define democracy in simple terms.
+<~ people
+[parrotbench_05874_language_definition]
+> Prima dimmi cosa manca, poi: What does ephemeral mean?
+<~ short
+[parrotbench_05875_language_definition]
+> Prima dimmi cosa manca, poi: Explain recursion in one sentence.
+<~ recursion

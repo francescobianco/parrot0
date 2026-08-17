@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: language/italian
-# cases: 50
+# cases: 6
 
-[parrotbench_05301_language_italian]
-> Answer as if this were a release review: Come ti chiami?
+[parrotbench_05213_language_italian]
+> In simple terms, Come ti chiami?
 <~ parrot0
-[parrotbench_05302_language_italian]
-> Answer as if this were a release review: Quanto fa 15 piu 27?
+[parrotbench_05214_language_italian]
+> In simple terms, Quanto fa 15 piu 27?
 <~ 42
-[parrotbench_05303_language_italian]
-> Answer as if this were a release review: Qual e la capitale del Giappone?
+[parrotbench_05215_language_italian]
+> In simple terms, Qual e la capitale del Giappone?
 <~ Tokyo
-[parrotbench_05304_language_italian]
-> Answer as if this were a release review: Qual e il contrario di grande?
+[parrotbench_05216_language_italian]
+> In simple terms, Qual e il contrario di grande?
 <~ small
-[parrotbench_05305_language_italian]
-> Give the strongest answer supported by the KB: Come ti chiami?
+[parrotbench_05217_language_italian]
+> Give a concise answer. Come ti chiami?
 <~ parrot0
-[parrotbench_05306_language_italian]
-> Give the strongest answer supported by the KB: Quanto fa 15 piu 27?
-<~ 42
-[parrotbench_05307_language_italian]
-> Give the strongest answer supported by the KB: Qual e la capitale del Giappone?
-<~ Tokyo
-[parrotbench_05308_language_italian]
-> Give the strongest answer supported by the KB: Qual e il contrario di grande?
-<~ small
-[parrotbench_05309_language_italian]
-> Do not confuse a wall with an answer. Come ti chiami?
-<~ parrot0
-[parrotbench_05310_language_italian]
-> Do not confuse a wall with an answer. Quanto fa 15 piu 27?
-<~ 42
-[parrotbench_05311_language_italian]
-> Do not confuse a wall with an answer. Qual e la capitale del Giappone?
-<~ Tokyo
-[parrotbench_05312_language_italian]
-> Do not confuse a wall with an answer. Qual e il contrario di grande?
-<~ small
-[parrotbench_05313_language_italian]
-> What is the operational interpretation of this? Come ti chiami?
-<~ parrot0
-[parrotbench_05314_language_italian]
-> What is the operational interpretation of this? Quanto fa 15 piu 27?
-<~ 42
-[parrotbench_05315_language_italian]
-> What is the operational interpretation of this? Qual e la capitale del Giappone?
-<~ Tokyo
-[parrotbench_05316_language_italian]
-> What is the operational interpretation of this? Qual e il contrario di grande?
-<~ small
-[parrotbench_05317_language_italian]
-> Start with the direct answer, then qualify it: Come ti chiami?
-<~ parrot0
-[parrotbench_05318_language_italian]
-> Start with the direct answer, then qualify it: Quanto fa 15 piu 27?
-<~ 42
-[parrotbench_05319_language_italian]
-> Start with the direct answer, then qualify it: Qual e la capitale del Giappone?
-<~ Tokyo
-[parrotbench_05320_language_italian]
-> Start with the direct answer, then qualify it: Qual e il contrario di grande?
-<~ small
-[parrotbench_05321_language_italian]
-> Identify the entities and relations first: Come ti chiami?
-<~ parrot0
-[parrotbench_05322_language_italian]
-> Identify the entities and relations first: Quanto fa 15 piu 27?
-<~ 42
-[parrotbench_05323_language_italian]
-> Identify the entities and relations first: Qual e la capitale del Giappone?
-<~ Tokyo
-[parrotbench_05324_language_italian]
-> Identify the entities and relations first: Qual e il contrario di grande?
-<~ small
-[parrotbench_05325_language_italian]
-> Treat this as a new domain and explain your model: Come ti chiami?
-<~ parrot0
-[parrotbench_05326_language_italian]
-> Treat this as a new domain and explain your model: Quanto fa 15 piu 27?
-<~ 42
-[parrotbench_05327_language_italian]
-> Treat this as a new domain and explain your model: Qual e la capitale del Giappone?
-<~ Tokyo
-[parrotbench_05328_language_italian]
-> Treat this as a new domain and explain your model: Qual e il contrario di grande?
-<~ small
-[parrotbench_05329_language_italian]
-> What would you need to verify before answering? Come ti chiami?
-<~ parrot0
-[parrotbench_05330_language_italian]
-> What would you need to verify before answering? Quanto fa 15 piu 27?
-<~ 42
-[parrotbench_05331_language_italian]
-> What would you need to verify before answering? Qual e la capitale del Giappone?
-<~ Tokyo
-[parrotbench_05332_language_italian]
-> What would you need to verify before answering? Qual e il contrario di grande?
-<~ small
-[parrotbench_05333_language_italian]
-> Keep alternatives separate while answering: Come ti chiami?
-<~ parrot0
-[parrotbench_05334_language_italian]
-> Keep alternatives separate while answering: Quanto fa 15 piu 27?
-<~ 42
-[parrotbench_05335_language_italian]
-> Keep alternatives separate while answering: Qual e la capitale del Giappone?
-<~ Tokyo
-[parrotbench_05336_language_italian]
-> Keep alternatives separate while answering: Qual e il contrario di grande?
-<~ small
-[parrotbench_05337_language_italian]
-> State one conclusion and one uncertainty: Come ti chiami?
-<~ parrot0
-[parrotbench_05338_language_italian]
-> State one conclusion and one uncertainty: Quanto fa 15 piu 27?
-<~ 42
-[parrotbench_05339_language_italian]
-> State one conclusion and one uncertainty: Qual e la capitale del Giappone?
-<~ Tokyo
-[parrotbench_05340_language_italian]
-> State one conclusion and one uncertainty: Qual e il contrario di grande?
-<~ small
-[parrotbench_05341_language_italian]
-> Use a concrete example in your answer: Come ti chiami?
-<~ parrot0
-[parrotbench_05342_language_italian]
-> Use a concrete example in your answer: Quanto fa 15 piu 27?
-<~ 42
-[parrotbench_05343_language_italian]
-> Use a concrete example in your answer: Qual e la capitale del Giappone?
-<~ Tokyo
-[parrotbench_05344_language_italian]
-> Use a concrete example in your answer: Qual e il contrario di grande?
-<~ small
-[parrotbench_05345_language_italian]
-> Avoid changing the subject: Come ti chiami?
-<~ parrot0
-[parrotbench_05346_language_italian]
-> Avoid changing the subject: Quanto fa 15 piu 27?
-<~ 42
-[parrotbench_05347_language_italian]
-> Avoid changing the subject: Qual e la capitale del Giappone?
-<~ Tokyo
-[parrotbench_05348_language_italian]
-> Avoid changing the subject: Qual e il contrario di grande?
-<~ small
-[parrotbench_05349_language_italian]
-> Answer the user's actual goal: Come ti chiami?
-<~ parrot0
-[parrotbench_05350_language_italian]
-> Answer the user's actual goal: Quanto fa 15 piu 27?
+[parrotbench_05218_language_italian]
+> Give a concise answer. Quanto fa 15 piu 27?
 <~ 42

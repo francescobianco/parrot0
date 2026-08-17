@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/transform
+# cases: 6
+
+[parrotbench_10307_creative_transform]
+> Give the strongest answer supported by the KB: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10308_creative_transform]
+> Give the strongest answer supported by the KB: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10309_creative_transform]
+> Do not confuse a wall with an answer. Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10310_creative_transform]
+> Do not confuse a wall with an answer. Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10311_creative_transform]
+> Do not confuse a wall with an answer. Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10312_creative_transform]
+> Do not confuse a wall with an answer. Give three different phrasings of the same idea.
+<~ different

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/causality
+# cases: 6
+
+[parrotbench_02582_logic_causality]
+> Explain the reasoning rather than a slogan: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02583_logic_causality]
+> Explain the reasoning rather than a slogan: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02584_logic_causality]
+> Explain the reasoning rather than a slogan: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02585_logic_causality]
+> Use the user's constraint as a real constraint: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02586_logic_causality]
+> Use the user's constraint as a real constraint: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02587_logic_causality]
+> Use the user's constraint as a real constraint: What is the difference between cause and correlation?
+<~ cause

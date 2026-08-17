@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05476_language_translation]
+> Prima dimmi cosa manca, poi: Translate acqua into English.
+<~ water
+[parrotbench_05477_language_translation]
+> What is the shortest useful answer to this? Translate hello into Italian.
+<~ ciao
+[parrotbench_05478_language_translation]
+> What is the shortest useful answer to this? Translate the small house into French.
+<~ maison
+[parrotbench_05479_language_translation]
+> What is the shortest useful answer to this? Translate the dog runs into English.
+<~ dog
+[parrotbench_05480_language_translation]
+> What is the shortest useful answer to this? Translate acqua into English.
+<~ water
+[parrotbench_05481_language_translation]
+> Challenge your first interpretation: Translate hello into Italian.
+<~ ciao

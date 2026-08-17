@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/italian
+# cases: 6
+
+[parrotbench_05363_language_italian]
+> What would a careful interlocutor say? Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05364_language_italian]
+> What would a careful interlocutor say? Qual e il contrario di grande?
+<~ small
+[parrotbench_05365_language_italian]
+> Give a short answer in English: Come ti chiami?
+<~ parrot0
+[parrotbench_05366_language_italian]
+> Give a short answer in English: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05367_language_italian]
+> Give a short answer in English: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05368_language_italian]
+> Give a short answer in English: Qual e il contrario di grande?
+<~ small

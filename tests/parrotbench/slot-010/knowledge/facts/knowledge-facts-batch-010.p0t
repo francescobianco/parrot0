@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-010: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 6
+
+[parrotbench_00057_knowledge_facts]
+> Keep the answer useful and honest: What is the capital of France?
+<~ Paris
+[parrotbench_00058_knowledge_facts]
+> Keep the answer useful and honest: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00059_knowledge_facts]
+> Keep the answer useful and honest: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00060_knowledge_facts]
+> Keep the answer useful and honest: What is water made of chemically?
+<~ H2O
+[parrotbench_00061_knowledge_facts]
+> In italiano, What is the capital of France?
+<~ Paris
+[parrotbench_00062_knowledge_facts]
+> In italiano, Which ocean is the largest?
+<~ Pacific

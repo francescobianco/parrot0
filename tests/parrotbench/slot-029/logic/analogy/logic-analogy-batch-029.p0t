@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/analogy
+# cases: 6
+
+[parrotbench_03176_logic_analogy]
+> Distinguish a fact, a rule, and a hypothesis: How can two different graphs be analogous?
+<~ invariant
+[parrotbench_03177_logic_analogy]
+> Name the relevant capability: What structure is shared by a deadlock and two people waiting for each other?
+<~ wait
+[parrotbench_03178_logic_analogy]
+> Name the relevant capability: Can a relation pattern transfer when the nouns change?
+<~ structure
+[parrotbench_03179_logic_analogy]
+> Name the relevant capability: What remains when domain-specific names are removed?
+<~ structure
+[parrotbench_03180_logic_analogy]
+> Name the relevant capability: How can two different graphs be analogous?
+<~ invariant
+[parrotbench_03181_logic_analogy]
+> Explain the reasoning rather than a slogan: What structure is shared by a deadlock and two people waiting for each other?
+<~ wait

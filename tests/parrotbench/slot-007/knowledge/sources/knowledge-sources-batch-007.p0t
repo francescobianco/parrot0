@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-007: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/sources
+# cases: 6
+
+[parrotbench_00638_knowledge_sources]
+> What would you tell an expert? How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00639_knowledge_sources]
+> What would you tell an expert? What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00640_knowledge_sources]
+> What would you tell an expert? Should you invent an answer without evidence?
+<~ no
+[parrotbench_00641_knowledge_sources]
+> Answer cautiously: Why should a claim have a source?
+<~ source
+[parrotbench_00642_knowledge_sources]
+> Answer cautiously: How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00643_knowledge_sources]
+> Answer cautiously: What makes a conclusion cautious?
+<~ uncertain

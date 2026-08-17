@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/register
+# cases: 6
+
+[parrotbench_06107_language_register]
+> Give the strongest answer supported by the KB: Say this more politely: give me the file.
+<~ please
+[parrotbench_06108_language_register]
+> Give the strongest answer supported by the KB: Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06109_language_register]
+> Do not confuse a wall with an answer. Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06110_language_register]
+> Do not confuse a wall with an answer. Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06111_language_register]
+> Do not confuse a wall with an answer. Say this more politely: give me the file.
+<~ please
+[parrotbench_06112_language_register]
+> Do not confuse a wall with an answer. Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain

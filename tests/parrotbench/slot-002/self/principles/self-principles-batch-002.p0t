@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: self/principles
-# cases: 50
+# cases: 6
 
-[parrotbench_09651_self_principles]
-> Use the relevant evidence and answer: What is functional equivalence?
+[parrotbench_09607_self_principles]
+> Please answer: What is functional equivalence?
 <~ behaviour
-[parrotbench_09652_self_principles]
-> Use the relevant evidence and answer: What is the experiment trying to reconstruct?
+[parrotbench_09608_self_principles]
+> Please answer: What is the experiment trying to reconstruct?
 <~ structure
-[parrotbench_09653_self_principles]
-> Do not invent facts. What does introspection propose and tests dispose mean?
+[parrotbench_09609_self_principles]
+> Can you help me with this? What does introspection propose and tests dispose mean?
 <~ test
-[parrotbench_09654_self_principles]
-> Do not invent facts. Why must knowledge live in the KB?
+[parrotbench_09610_self_principles]
+> Can you help me with this? Why must knowledge live in the KB?
 <~ KB
-[parrotbench_09655_self_principles]
-> Do not invent facts. What is functional equivalence?
+[parrotbench_09611_self_principles]
+> Can you help me with this? What is functional equivalence?
 <~ behaviour
-[parrotbench_09656_self_principles]
-> Do not invent facts. What is the experiment trying to reconstruct?
-<~ structure
-[parrotbench_09657_self_principles]
-> Keep the answer useful and honest: What does introspection propose and tests dispose mean?
-<~ test
-[parrotbench_09658_self_principles]
-> Keep the answer useful and honest: Why must knowledge live in the KB?
-<~ KB
-[parrotbench_09659_self_principles]
-> Keep the answer useful and honest: What is functional equivalence?
-<~ behaviour
-[parrotbench_09660_self_principles]
-> Keep the answer useful and honest: What is the experiment trying to reconstruct?
-<~ structure
-[parrotbench_09661_self_principles]
-> In italiano, What does introspection propose and tests dispose mean?
-<~ test
-[parrotbench_09662_self_principles]
-> In italiano, Why must knowledge live in the KB?
-<~ KB
-[parrotbench_09663_self_principles]
-> In italiano, What is functional equivalence?
-<~ behaviour
-[parrotbench_09664_self_principles]
-> In italiano, What is the experiment trying to reconstruct?
-<~ structure
-[parrotbench_09665_self_principles]
-> Rispondi brevemente: What does introspection propose and tests dispose mean?
-<~ test
-[parrotbench_09666_self_principles]
-> Rispondi brevemente: Why must knowledge live in the KB?
-<~ KB
-[parrotbench_09667_self_principles]
-> Rispondi brevemente: What is functional equivalence?
-<~ behaviour
-[parrotbench_09668_self_principles]
-> Rispondi brevemente: What is the experiment trying to reconstruct?
-<~ structure
-[parrotbench_09669_self_principles]
-> Spiegalo in parole semplici: What does introspection propose and tests dispose mean?
-<~ test
-[parrotbench_09670_self_principles]
-> Spiegalo in parole semplici: Why must knowledge live in the KB?
-<~ KB
-[parrotbench_09671_self_principles]
-> Spiegalo in parole semplici: What is functional equivalence?
-<~ behaviour
-[parrotbench_09672_self_principles]
-> Spiegalo in parole semplici: What is the experiment trying to reconstruct?
-<~ structure
-[parrotbench_09673_self_principles]
-> Prima dimmi cosa manca, poi: What does introspection propose and tests dispose mean?
-<~ test
-[parrotbench_09674_self_principles]
-> Prima dimmi cosa manca, poi: Why must knowledge live in the KB?
-<~ KB
-[parrotbench_09675_self_principles]
-> Prima dimmi cosa manca, poi: What is functional equivalence?
-<~ behaviour
-[parrotbench_09676_self_principles]
-> Prima dimmi cosa manca, poi: What is the experiment trying to reconstruct?
-<~ structure
-[parrotbench_09677_self_principles]
-> What is the shortest useful answer to this? What does introspection propose and tests dispose mean?
-<~ test
-[parrotbench_09678_self_principles]
-> What is the shortest useful answer to this? Why must knowledge live in the KB?
-<~ KB
-[parrotbench_09679_self_principles]
-> What is the shortest useful answer to this? What is functional equivalence?
-<~ behaviour
-[parrotbench_09680_self_principles]
-> What is the shortest useful answer to this? What is the experiment trying to reconstruct?
-<~ structure
-[parrotbench_09681_self_principles]
-> Challenge your first interpretation: What does introspection propose and tests dispose mean?
-<~ test
-[parrotbench_09682_self_principles]
-> Challenge your first interpretation: Why must knowledge live in the KB?
-<~ KB
-[parrotbench_09683_self_principles]
-> Challenge your first interpretation: What is functional equivalence?
-<~ behaviour
-[parrotbench_09684_self_principles]
-> Challenge your first interpretation: What is the experiment trying to reconstruct?
-<~ structure
-[parrotbench_09685_self_principles]
-> State uncertainty if needed: What does introspection propose and tests dispose mean?
-<~ test
-[parrotbench_09686_self_principles]
-> State uncertainty if needed: Why must knowledge live in the KB?
-<~ KB
-[parrotbench_09687_self_principles]
-> State uncertainty if needed: What is functional equivalence?
-<~ behaviour
-[parrotbench_09688_self_principles]
-> State uncertainty if needed: What is the experiment trying to reconstruct?
-<~ structure
-[parrotbench_09689_self_principles]
-> Answer without a generic template: What does introspection propose and tests dispose mean?
-<~ test
-[parrotbench_09690_self_principles]
-> Answer without a generic template: Why must knowledge live in the KB?
-<~ KB
-[parrotbench_09691_self_principles]
-> Answer without a generic template: What is functional equivalence?
-<~ behaviour
-[parrotbench_09692_self_principles]
-> Answer without a generic template: What is the experiment trying to reconstruct?
-<~ structure
-[parrotbench_09693_self_principles]
-> Give the answer and one reason: What does introspection propose and tests dispose mean?
-<~ test
-[parrotbench_09694_self_principles]
-> Give the answer and one reason: Why must knowledge live in the KB?
-<~ KB
-[parrotbench_09695_self_principles]
-> Give the answer and one reason: What is functional equivalence?
-<~ behaviour
-[parrotbench_09696_self_principles]
-> Give the answer and one reason: What is the experiment trying to reconstruct?
-<~ structure
-[parrotbench_09697_self_principles]
-> Separate fact from hypothesis: What does introspection propose and tests dispose mean?
-<~ test
-[parrotbench_09698_self_principles]
-> Separate fact from hypothesis: Why must knowledge live in the KB?
-<~ KB
-[parrotbench_09699_self_principles]
-> Separate fact from hypothesis: What is functional equivalence?
-<~ behaviour
-[parrotbench_09700_self_principles]
-> Separate fact from hypothesis: What is the experiment trying to reconstruct?
+[parrotbench_09612_self_principles]
+> Can you help me with this? What is the experiment trying to reconstruct?
 <~ structure

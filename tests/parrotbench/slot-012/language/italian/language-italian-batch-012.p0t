@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/italian
+# cases: 7
+
+[parrotbench_05269_language_italian]
+> Spiegalo in parole semplici: Come ti chiami?
+<~ parrot0
+[parrotbench_05270_language_italian]
+> Spiegalo in parole semplici: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05271_language_italian]
+> Spiegalo in parole semplici: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05272_language_italian]
+> Spiegalo in parole semplici: Qual e il contrario di grande?
+<~ small
+[parrotbench_05273_language_italian]
+> Prima dimmi cosa manca, poi: Come ti chiami?
+<~ parrot0
+[parrotbench_05274_language_italian]
+> Prima dimmi cosa manca, poi: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05275_language_italian]
+> Prima dimmi cosa manca, poi: Qual e la capitale del Giappone?
+<~ Tokyo

@@ -2,155 +2,26 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: knowledge/gaps
-# cases: 50
+# cases: 7
 
-[parrotbench_00551_knowledge_gaps]
-> Answer the user's actual goal: What should you do when the KB lacks a fact?
+[parrotbench_00419_knowledge_gaps]
+> Give a concise answer. What should you do when the KB lacks a fact?
 <~ learn
-[parrotbench_00552_knowledge_gaps]
-> Answer the user's actual goal: What would you search for before comparing two cities?
+[parrotbench_00420_knowledge_gaps]
+> Give a concise answer. What would you search for before comparing two cities?
 <~ know
-[parrotbench_00553_knowledge_gaps]
-> If the request is underspecified, say what is missing: What information is missing before answering a causal question?
+[parrotbench_00421_knowledge_gaps]
+> I need a careful answer: What information is missing before answering a causal question?
 <~ missing
-[parrotbench_00554_knowledge_gaps]
-> If the request is underspecified, say what is missing: How should a knowledge gap become a research plan?
+[parrotbench_00422_knowledge_gaps]
+> I need a careful answer: How should a knowledge gap become a research plan?
 <~ research
-[parrotbench_00555_knowledge_gaps]
-> If the request is underspecified, say what is missing: What should you do when the KB lacks a fact?
+[parrotbench_00423_knowledge_gaps]
+> I need a careful answer: What should you do when the KB lacks a fact?
 <~ learn
-[parrotbench_00556_knowledge_gaps]
-> If the request is underspecified, say what is missing: What would you search for before comparing two cities?
+[parrotbench_00424_knowledge_gaps]
+> I need a careful answer: What would you search for before comparing two cities?
 <~ know
-[parrotbench_00557_knowledge_gaps]
-> Can this be answered from known facts? What information is missing before answering a causal question?
+[parrotbench_00425_knowledge_gaps]
+> Explain your answer briefly: What information is missing before answering a causal question?
 <~ missing
-[parrotbench_00558_knowledge_gaps]
-> Can this be answered from known facts? How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00559_knowledge_gaps]
-> Can this be answered from known facts? What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00560_knowledge_gaps]
-> Can this be answered from known facts? What would you search for before comparing two cities?
-<~ know
-[parrotbench_00561_knowledge_gaps]
-> What would a careful interlocutor say? What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00562_knowledge_gaps]
-> What would a careful interlocutor say? How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00563_knowledge_gaps]
-> What would a careful interlocutor say? What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00564_knowledge_gaps]
-> What would a careful interlocutor say? What would you search for before comparing two cities?
-<~ know
-[parrotbench_00565_knowledge_gaps]
-> Give a short answer in English: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00566_knowledge_gaps]
-> Give a short answer in English: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00567_knowledge_gaps]
-> Give a short answer in English: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00568_knowledge_gaps]
-> Give a short answer in English: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00569_knowledge_gaps]
-> Rispondi in italiano quando possibile: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00570_knowledge_gaps]
-> Rispondi in italiano quando possibile: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00571_knowledge_gaps]
-> Rispondi in italiano quando possibile: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00572_knowledge_gaps]
-> Rispondi in italiano quando possibile: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00573_knowledge_gaps]
-> Distinguish a fact, a rule, and a hypothesis: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00574_knowledge_gaps]
-> Distinguish a fact, a rule, and a hypothesis: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00575_knowledge_gaps]
-> Distinguish a fact, a rule, and a hypothesis: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00576_knowledge_gaps]
-> Distinguish a fact, a rule, and a hypothesis: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00577_knowledge_gaps]
-> Name the relevant capability: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00578_knowledge_gaps]
-> Name the relevant capability: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00579_knowledge_gaps]
-> Name the relevant capability: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00580_knowledge_gaps]
-> Name the relevant capability: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00581_knowledge_gaps]
-> Explain the reasoning rather than a slogan: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00582_knowledge_gaps]
-> Explain the reasoning rather than a slogan: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00583_knowledge_gaps]
-> Explain the reasoning rather than a slogan: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00584_knowledge_gaps]
-> Explain the reasoning rather than a slogan: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00585_knowledge_gaps]
-> Use the user's constraint as a real constraint: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00586_knowledge_gaps]
-> Use the user's constraint as a real constraint: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00587_knowledge_gaps]
-> Use the user's constraint as a real constraint: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00588_knowledge_gaps]
-> Use the user's constraint as a real constraint: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00589_knowledge_gaps]
-> Check whether the requested format is satisfied: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00590_knowledge_gaps]
-> Check whether the requested format is satisfied: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00591_knowledge_gaps]
-> Check whether the requested format is satisfied: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00592_knowledge_gaps]
-> Check whether the requested format is satisfied: What would you search for before comparing two cities?
-<~ know
-[parrotbench_00593_knowledge_gaps]
-> What would make this answer wrong? What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00594_knowledge_gaps]
-> What would make this answer wrong? How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00595_knowledge_gaps]
-> What would make this answer wrong? What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00596_knowledge_gaps]
-> What would make this answer wrong? What would you search for before comparing two cities?
-<~ know
-[parrotbench_00597_knowledge_gaps]
-> Give a useful answer without pretending certainty: What information is missing before answering a causal question?
-<~ missing
-[parrotbench_00598_knowledge_gaps]
-> Give a useful answer without pretending certainty: How should a knowledge gap become a research plan?
-<~ research
-[parrotbench_00599_knowledge_gaps]
-> Give a useful answer without pretending certainty: What should you do when the KB lacks a fact?
-<~ learn
-[parrotbench_00600_knowledge_gaps]
-> Give a useful answer without pretending certainty: What would you search for before comparing two cities?
-<~ know

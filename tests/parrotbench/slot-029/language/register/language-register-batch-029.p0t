@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/register
+# cases: 6
+
+[parrotbench_06176_language_register]
+> Distinguish a fact, a rule, and a hypothesis: Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06177_language_register]
+> Name the relevant capability: Explain photosynthesis to a child.
+<~ plants
+[parrotbench_06178_language_register]
+> Name the relevant capability: Explain photosynthesis to an expert.
+<~ photosynthesis
+[parrotbench_06179_language_register]
+> Name the relevant capability: Say this more politely: give me the file.
+<~ please
+[parrotbench_06180_language_register]
+> Name the relevant capability: Rewrite this in simple language: epistemic uncertainty.
+<~ uncertain
+[parrotbench_06181_language_register]
+> Explain the reasoning rather than a slogan: Explain photosynthesis to a child.
+<~ plants

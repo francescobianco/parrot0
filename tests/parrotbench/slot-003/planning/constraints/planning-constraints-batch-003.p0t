@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: planning/constraints
-# cases: 50
+# cases: 6
 
-[parrotbench_07301_planning_constraints]
-> Answer as if this were a release review: Make a plan without using sugar.
+[parrotbench_07213_planning_constraints]
+> In simple terms, Make a plan without using sugar.
 <~ without
-[parrotbench_07302_planning_constraints]
-> Answer as if this were a release review: How should a plan obey a user constraint?
+[parrotbench_07214_planning_constraints]
+> In simple terms, How should a plan obey a user constraint?
 <~ constraint
-[parrotbench_07303_planning_constraints]
-> Answer as if this were a release review: What happens when a prerequisite is missing?
+[parrotbench_07215_planning_constraints]
+> In simple terms, What happens when a prerequisite is missing?
 <~ missing
-[parrotbench_07304_planning_constraints]
-> Answer as if this were a release review: When should a plan ask for clarification?
+[parrotbench_07216_planning_constraints]
+> In simple terms, When should a plan ask for clarification?
 <~ goal
-[parrotbench_07305_planning_constraints]
-> Give the strongest answer supported by the KB: Make a plan without using sugar.
+[parrotbench_07217_planning_constraints]
+> Give a concise answer. Make a plan without using sugar.
 <~ without
-[parrotbench_07306_planning_constraints]
-> Give the strongest answer supported by the KB: How should a plan obey a user constraint?
-<~ constraint
-[parrotbench_07307_planning_constraints]
-> Give the strongest answer supported by the KB: What happens when a prerequisite is missing?
-<~ missing
-[parrotbench_07308_planning_constraints]
-> Give the strongest answer supported by the KB: When should a plan ask for clarification?
-<~ goal
-[parrotbench_07309_planning_constraints]
-> Do not confuse a wall with an answer. Make a plan without using sugar.
-<~ without
-[parrotbench_07310_planning_constraints]
-> Do not confuse a wall with an answer. How should a plan obey a user constraint?
-<~ constraint
-[parrotbench_07311_planning_constraints]
-> Do not confuse a wall with an answer. What happens when a prerequisite is missing?
-<~ missing
-[parrotbench_07312_planning_constraints]
-> Do not confuse a wall with an answer. When should a plan ask for clarification?
-<~ goal
-[parrotbench_07313_planning_constraints]
-> What is the operational interpretation of this? Make a plan without using sugar.
-<~ without
-[parrotbench_07314_planning_constraints]
-> What is the operational interpretation of this? How should a plan obey a user constraint?
-<~ constraint
-[parrotbench_07315_planning_constraints]
-> What is the operational interpretation of this? What happens when a prerequisite is missing?
-<~ missing
-[parrotbench_07316_planning_constraints]
-> What is the operational interpretation of this? When should a plan ask for clarification?
-<~ goal
-[parrotbench_07317_planning_constraints]
-> Start with the direct answer, then qualify it: Make a plan without using sugar.
-<~ without
-[parrotbench_07318_planning_constraints]
-> Start with the direct answer, then qualify it: How should a plan obey a user constraint?
-<~ constraint
-[parrotbench_07319_planning_constraints]
-> Start with the direct answer, then qualify it: What happens when a prerequisite is missing?
-<~ missing
-[parrotbench_07320_planning_constraints]
-> Start with the direct answer, then qualify it: When should a plan ask for clarification?
-<~ goal
-[parrotbench_07321_planning_constraints]
-> Identify the entities and relations first: Make a plan without using sugar.
-<~ without
-[parrotbench_07322_planning_constraints]
-> Identify the entities and relations first: How should a plan obey a user constraint?
-<~ constraint
-[parrotbench_07323_planning_constraints]
-> Identify the entities and relations first: What happens when a prerequisite is missing?
-<~ missing
-[parrotbench_07324_planning_constraints]
-> Identify the entities and relations first: When should a plan ask for clarification?
-<~ goal
-[parrotbench_07325_planning_constraints]
-> Treat this as a new domain and explain your model: Make a plan without using sugar.
-<~ without
-[parrotbench_07326_planning_constraints]
-> Treat this as a new domain and explain your model: How should a plan obey a user constraint?
-<~ constraint
-[parrotbench_07327_planning_constraints]
-> Treat this as a new domain and explain your model: What happens when a prerequisite is missing?
-<~ missing
-[parrotbench_07328_planning_constraints]
-> Treat this as a new domain and explain your model: When should a plan ask for clarification?
-<~ goal
-[parrotbench_07329_planning_constraints]
-> What would you need to verify before answering? Make a plan without using sugar.
-<~ without
-[parrotbench_07330_planning_constraints]
-> What would you need to verify before answering? How should a plan obey a user constraint?
-<~ constraint
-[parrotbench_07331_planning_constraints]
-> What would you need to verify before answering? What happens when a prerequisite is missing?
-<~ missing
-[parrotbench_07332_planning_constraints]
-> What would you need to verify before answering? When should a plan ask for clarification?
-<~ goal
-[parrotbench_07333_planning_constraints]
-> Keep alternatives separate while answering: Make a plan without using sugar.
-<~ without
-[parrotbench_07334_planning_constraints]
-> Keep alternatives separate while answering: How should a plan obey a user constraint?
-<~ constraint
-[parrotbench_07335_planning_constraints]
-> Keep alternatives separate while answering: What happens when a prerequisite is missing?
-<~ missing
-[parrotbench_07336_planning_constraints]
-> Keep alternatives separate while answering: When should a plan ask for clarification?
-<~ goal
-[parrotbench_07337_planning_constraints]
-> State one conclusion and one uncertainty: Make a plan without using sugar.
-<~ without
-[parrotbench_07338_planning_constraints]
-> State one conclusion and one uncertainty: How should a plan obey a user constraint?
-<~ constraint
-[parrotbench_07339_planning_constraints]
-> State one conclusion and one uncertainty: What happens when a prerequisite is missing?
-<~ missing
-[parrotbench_07340_planning_constraints]
-> State one conclusion and one uncertainty: When should a plan ask for clarification?
-<~ goal
-[parrotbench_07341_planning_constraints]
-> Use a concrete example in your answer: Make a plan without using sugar.
-<~ without
-[parrotbench_07342_planning_constraints]
-> Use a concrete example in your answer: How should a plan obey a user constraint?
-<~ constraint
-[parrotbench_07343_planning_constraints]
-> Use a concrete example in your answer: What happens when a prerequisite is missing?
-<~ missing
-[parrotbench_07344_planning_constraints]
-> Use a concrete example in your answer: When should a plan ask for clarification?
-<~ goal
-[parrotbench_07345_planning_constraints]
-> Avoid changing the subject: Make a plan without using sugar.
-<~ without
-[parrotbench_07346_planning_constraints]
-> Avoid changing the subject: How should a plan obey a user constraint?
-<~ constraint
-[parrotbench_07347_planning_constraints]
-> Avoid changing the subject: What happens when a prerequisite is missing?
-<~ missing
-[parrotbench_07348_planning_constraints]
-> Avoid changing the subject: When should a plan ask for clarification?
-<~ goal
-[parrotbench_07349_planning_constraints]
-> Answer the user's actual goal: Make a plan without using sugar.
-<~ without
-[parrotbench_07350_planning_constraints]
-> Answer the user's actual goal: How should a plan obey a user constraint?
+[parrotbench_07218_planning_constraints]
+> Give a concise answer. How should a plan obey a user constraint?
 <~ constraint

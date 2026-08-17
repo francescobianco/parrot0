@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/identity
+# cases: 7
+
+[parrotbench_04319_dialogue_identity]
+> Start with the direct answer, then qualify it: What kind of system are you?
+<~ AI
+[parrotbench_04320_dialogue_identity]
+> Start with the direct answer, then qualify it: What generation are you running?
+<~ gen
+[parrotbench_04321_dialogue_identity]
+> Identify the entities and relations first: What is your name?
+<~ parrot0
+[parrotbench_04322_dialogue_identity]
+> Identify the entities and relations first: Who are you?
+<~ parrot0
+[parrotbench_04323_dialogue_identity]
+> Identify the entities and relations first: What kind of system are you?
+<~ AI
+[parrotbench_04324_dialogue_identity]
+> Identify the entities and relations first: What generation are you running?
+<~ gen
+[parrotbench_04325_dialogue_identity]
+> Treat this as a new domain and explain your model: What is your name?
+<~ parrot0

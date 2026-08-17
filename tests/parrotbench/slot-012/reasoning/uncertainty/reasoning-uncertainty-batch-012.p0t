@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/uncertainty
+# cases: 7
+
+[parrotbench_03269_reasoning_uncertainty]
+> Spiegalo in parole semplici: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03270_reasoning_uncertainty]
+> Spiegalo in parole semplici: What is the difference between not proved and false?
+<~ not
+[parrotbench_03271_reasoning_uncertainty]
+> Spiegalo in parole semplici: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03272_reasoning_uncertainty]
+> Spiegalo in parole semplici: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03273_reasoning_uncertainty]
+> Prima dimmi cosa manca, poi: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03274_reasoning_uncertainty]
+> Prima dimmi cosa manca, poi: What is the difference between not proved and false?
+<~ not
+[parrotbench_03275_reasoning_uncertainty]
+> Prima dimmi cosa manca, poi: Name two things that increase confidence in a claim.
+<~ evidence

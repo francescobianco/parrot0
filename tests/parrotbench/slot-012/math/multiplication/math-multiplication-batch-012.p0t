@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 7
+
+[parrotbench_01069_math_multiplication]
+> Spiegalo in parole semplici: What is 9 times 8?
+<~ 72
+[parrotbench_01070_math_multiplication]
+> Spiegalo in parole semplici: Calculate three groups of seven.
+<~ 21
+[parrotbench_01071_math_multiplication]
+> Spiegalo in parole semplici: What do five pairs contain?
+<~ 10
+[parrotbench_01072_math_multiplication]
+> Spiegalo in parole semplici: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01073_math_multiplication]
+> Prima dimmi cosa manca, poi: What is 9 times 8?
+<~ 72
+[parrotbench_01074_math_multiplication]
+> Prima dimmi cosa manca, poi: Calculate three groups of seven.
+<~ 21
+[parrotbench_01075_math_multiplication]
+> Prima dimmi cosa manca, poi: What do five pairs contain?
+<~ 10

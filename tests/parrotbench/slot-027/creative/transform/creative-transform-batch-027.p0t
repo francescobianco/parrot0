@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/transform
+# cases: 6
+
+[parrotbench_10363_creative_transform]
+> What would a careful interlocutor say? Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10364_creative_transform]
+> What would a careful interlocutor say? Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10365_creative_transform]
+> Give a short answer in English: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10366_creative_transform]
+> Give a short answer in English: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10367_creative_transform]
+> Give a short answer in English: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10368_creative_transform]
+> Give a short answer in English: Give three different phrasings of the same idea.
+<~ different

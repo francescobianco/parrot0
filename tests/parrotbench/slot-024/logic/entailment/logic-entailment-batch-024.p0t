@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 7
+
+[parrotbench_02144_logic_entailment]
+> Use a concrete example in your answer: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02145_logic_entailment]
+> Avoid changing the subject: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02146_logic_entailment]
+> Avoid changing the subject: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02147_logic_entailment]
+> Avoid changing the subject: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02148_logic_entailment]
+> Avoid changing the subject: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02149_logic_entailment]
+> Answer the user's actual goal: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02150_logic_entailment]
+> Answer the user's actual goal: All roses are flowers. This is a rose. Is it a flower?
+<~ yes

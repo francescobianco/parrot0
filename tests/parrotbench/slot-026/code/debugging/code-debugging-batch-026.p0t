@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-026: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: code/debugging
+# cases: 6
+
+[parrotbench_08557_code_debugging]
+> Can this be answered from known facts? A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08558_code_debugging]
+> Can this be answered from known facts? What is a regression?
+<~ change
+[parrotbench_08559_code_debugging]
+> Can this be answered from known facts? How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08560_code_debugging]
+> Can this be answered from known facts? Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08561_code_debugging]
+> What would a careful interlocutor say? A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08562_code_debugging]
+> What would a careful interlocutor say? What is a regression?
+<~ change

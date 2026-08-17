@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: code/debugging
+# cases: 6
+
+[parrotbench_08526_code_debugging]
+> Treat this as a new domain and explain your model: What is a regression?
+<~ change
+[parrotbench_08527_code_debugging]
+> Treat this as a new domain and explain your model: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08528_code_debugging]
+> Treat this as a new domain and explain your model: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08529_code_debugging]
+> What would you need to verify before answering? A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08530_code_debugging]
+> What would you need to verify before answering? What is a regression?
+<~ change
+[parrotbench_08531_code_debugging]
+> What would you need to verify before answering? How should a bug report become a hypothesis?
+<~ hypoth

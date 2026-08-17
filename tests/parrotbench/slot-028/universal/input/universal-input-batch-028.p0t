@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-028: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: universal/input
+# cases: 7
+
+[parrotbench_10969_universal_input]
+> Rispondi in italiano quando possibile: What can a raw stream contain?
+<~ input
+[parrotbench_10970_universal_input]
+> Rispondi in italiano quando possibile: How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10971_universal_input]
+> Rispondi in italiano quando possibile: Why delay domain classification?
+<~ domain
+[parrotbench_10972_universal_input]
+> Rispondi in italiano quando possibile: What comes after segmentation?
+<~ interpret
+[parrotbench_10973_universal_input]
+> Distinguish a fact, a rule, and a hypothesis: What can a raw stream contain?
+<~ input
+[parrotbench_10974_universal_input]
+> Distinguish a fact, a rule, and a hypothesis: How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10975_universal_input]
+> Distinguish a fact, a rule, and a hypothesis: Why delay domain classification?
+<~ domain

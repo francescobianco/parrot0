@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/unknowns
+# cases: 6
+
+[parrotbench_00313_knowledge_unknowns]
+> What is the operational interpretation of this? Who is the president of Mars?
+<~ don't know
+[parrotbench_00314_knowledge_unknowns]
+> What is the operational interpretation of this? Did Zorblax invent the moon?
+<~ don't know
+[parrotbench_00315_knowledge_unknowns]
+> What is the operational interpretation of this? What evidence supports an unknown claim?
+<~ don't know
+[parrotbench_00316_knowledge_unknowns]
+> What is the operational interpretation of this? Tell me a fact when you have no source.
+<~ don't know
+[parrotbench_00317_knowledge_unknowns]
+> Start with the direct answer, then qualify it: Who is the president of Mars?
+<~ don't know
+[parrotbench_00318_knowledge_unknowns]
+> Start with the direct answer, then qualify it: Did Zorblax invent the moon?
+<~ don't know

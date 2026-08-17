@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/capabilities
+# cases: 6
+
+[parrotbench_04526_dialogue_capabilities]
+> Treat this as a new domain and explain your model: What can you not do reliably?
+<~ cannot
+[parrotbench_04527_dialogue_capabilities]
+> Treat this as a new domain and explain your model: Which abilities are still immature?
+<~ immature
+[parrotbench_04528_dialogue_capabilities]
+> Treat this as a new domain and explain your model: Do you use a language model at runtime?
+<~ no
+[parrotbench_04529_dialogue_capabilities]
+> What would you need to verify before answering? What can you do?
+<~ capability
+[parrotbench_04530_dialogue_capabilities]
+> What would you need to verify before answering? What can you not do reliably?
+<~ cannot
+[parrotbench_04531_dialogue_capabilities]
+> What would you need to verify before answering? Which abilities are still immature?
+<~ immature

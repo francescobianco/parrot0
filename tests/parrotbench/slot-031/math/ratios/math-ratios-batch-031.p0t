@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/ratios
+# cases: 6
+
+[parrotbench_01388_math_ratios]
+> Use the user's constraint as a real constraint: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01389_math_ratios]
+> Check whether the requested format is satisfied: What is 19 percent of 200?
+<~ 38
+[parrotbench_01390_math_ratios]
+> Check whether the requested format is satisfied: What is one quarter of 24?
+<~ 6
+[parrotbench_01391_math_ratios]
+> Check whether the requested format is satisfied: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01392_math_ratios]
+> Check whether the requested format is satisfied: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01393_math_ratios]
+> What would make this answer wrong? What is 19 percent of 200?
+<~ 38

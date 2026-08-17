@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-023: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 6
+
+[parrotbench_02138_logic_entailment]
+> State one conclusion and one uncertainty: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02139_logic_entailment]
+> State one conclusion and one uncertainty: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02140_logic_entailment]
+> State one conclusion and one uncertainty: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02141_logic_entailment]
+> Use a concrete example in your answer: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02142_logic_entailment]
+> Use a concrete example in your answer: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02143_logic_entailment]
+> Use a concrete example in your answer: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 6
+
+[parrotbench_02076_logic_entailment]
+> Prima dimmi cosa manca, poi: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02077_logic_entailment]
+> What is the shortest useful answer to this? All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02078_logic_entailment]
+> What is the shortest useful answer to this? All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02079_logic_entailment]
+> What is the shortest useful answer to this? Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02080_logic_entailment]
+> What is the shortest useful answer to this? If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02081_logic_entailment]
+> Challenge your first interpretation: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes

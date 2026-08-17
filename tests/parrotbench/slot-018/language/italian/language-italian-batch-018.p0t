@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/italian
+# cases: 6
+
+[parrotbench_05307_language_italian]
+> Give the strongest answer supported by the KB: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05308_language_italian]
+> Give the strongest answer supported by the KB: Qual e il contrario di grande?
+<~ small
+[parrotbench_05309_language_italian]
+> Do not confuse a wall with an answer. Come ti chiami?
+<~ parrot0
+[parrotbench_05310_language_italian]
+> Do not confuse a wall with an answer. Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05311_language_italian]
+> Do not confuse a wall with an answer. Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05312_language_italian]
+> Do not confuse a wall with an answer. Qual e il contrario di grande?
+<~ small

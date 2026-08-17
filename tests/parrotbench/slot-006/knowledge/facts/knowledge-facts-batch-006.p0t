@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-006: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 6
+
+[parrotbench_00032_knowledge_facts]
+> Check this for me: What is water made of chemically?
+<~ H2O
+[parrotbench_00033_knowledge_facts]
+> What would you tell a beginner? What is the capital of France?
+<~ Paris
+[parrotbench_00034_knowledge_facts]
+> What would you tell a beginner? Which ocean is the largest?
+<~ Pacific
+[parrotbench_00035_knowledge_facts]
+> What would you tell a beginner? Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00036_knowledge_facts]
+> What would you tell a beginner? What is water made of chemically?
+<~ H2O
+[parrotbench_00037_knowledge_facts]
+> What would you tell an expert? What is the capital of France?
+<~ Paris

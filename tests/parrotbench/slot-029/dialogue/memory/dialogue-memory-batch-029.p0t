@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/memory
+# cases: 6
+
+[parrotbench_04776_dialogue_memory]
+> Distinguish a fact, a rule, and a hypothesis: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04777_dialogue_memory]
+> Name the relevant capability: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04778_dialogue_memory]
+> Name the relevant capability: Remember that my favorite color is green.
+<~ green
+[parrotbench_04779_dialogue_memory]
+> Name the relevant capability: What should a memory record include?
+<~ fact
+[parrotbench_04780_dialogue_memory]
+> Name the relevant capability: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04781_dialogue_memory]
+> Explain the reasoning rather than a slogan: Remember that my name is Luca.
+<~ Luca

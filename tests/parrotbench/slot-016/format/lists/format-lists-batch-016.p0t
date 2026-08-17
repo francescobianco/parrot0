@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-016: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 7
+
+[parrotbench_06494_format_lists]
+> Give the answer and one reason: Give two reasons to verify sources.
+<~ source
+[parrotbench_06495_format_lists]
+> Give the answer and one reason: Name three planets.
+<~ Earth
+[parrotbench_06496_format_lists]
+> Give the answer and one reason: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06497_format_lists]
+> Separate fact from hypothesis: List exactly three colors.
+<~ blue
+[parrotbench_06498_format_lists]
+> Separate fact from hypothesis: Give two reasons to verify sources.
+<~ source
+[parrotbench_06499_format_lists]
+> Separate fact from hypothesis: Name three planets.
+<~ Earth
+[parrotbench_06500_format_lists]
+> Separate fact from hypothesis: Give four steps for a safe experiment.
+<~ step

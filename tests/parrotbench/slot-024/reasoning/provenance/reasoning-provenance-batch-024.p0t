@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-024: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/provenance
+# cases: 7
+
+[parrotbench_04144_reasoning_provenance]
+> Use a concrete example in your answer: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04145_reasoning_provenance]
+> Avoid changing the subject: What evidence supports this answer?
+<~ evidence
+[parrotbench_04146_reasoning_provenance]
+> Avoid changing the subject: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04147_reasoning_provenance]
+> Avoid changing the subject: What should an explanation expose?
+<~ reason
+[parrotbench_04148_reasoning_provenance]
+> Avoid changing the subject: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04149_reasoning_provenance]
+> Answer the user's actual goal: What evidence supports this answer?
+<~ evidence
+[parrotbench_04150_reasoning_provenance]
+> Answer the user's actual goal: Why record which rule produced a conclusion?
+<~ provenance

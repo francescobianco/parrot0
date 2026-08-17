@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-013: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/names
+# cases: 6
+
+[parrotbench_09876_creative_names]
+> Prima dimmi cosa manca, poi: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09877_creative_names]
+> What is the shortest useful answer to this? Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09878_creative_names]
+> What is the shortest useful answer to this? Give three distinct names for a robot.
+<~ robot
+[parrotbench_09879_creative_names]
+> What is the shortest useful answer to this? Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09880_creative_names]
+> What is the shortest useful answer to this? Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09881_creative_names]
+> Challenge your first interpretation: Invent a funny name for a parrot database.
+<~ parrot

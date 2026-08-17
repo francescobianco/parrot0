@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/analogy
+# cases: 7
+
+[parrotbench_03119_logic_analogy]
+> Start with the direct answer, then qualify it: What remains when domain-specific names are removed?
+<~ structure
+[parrotbench_03120_logic_analogy]
+> Start with the direct answer, then qualify it: How can two different graphs be analogous?
+<~ invariant
+[parrotbench_03121_logic_analogy]
+> Identify the entities and relations first: What structure is shared by a deadlock and two people waiting for each other?
+<~ wait
+[parrotbench_03122_logic_analogy]
+> Identify the entities and relations first: Can a relation pattern transfer when the nouns change?
+<~ structure
+[parrotbench_03123_logic_analogy]
+> Identify the entities and relations first: What remains when domain-specific names are removed?
+<~ structure
+[parrotbench_03124_logic_analogy]
+> Identify the entities and relations first: How can two different graphs be analogous?
+<~ invariant
+[parrotbench_03125_logic_analogy]
+> Treat this as a new domain and explain your model: What structure is shared by a deadlock and two people waiting for each other?
+<~ wait

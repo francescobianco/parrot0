@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-020: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/inference
+# cases: 7
+
+[parrotbench_09319_kb_inference]
+> Start with the direct answer, then qualify it: Why preserve evidence for a conclusion?
+<~ evidence
+[parrotbench_09320_kb_inference]
+> Start with the direct answer, then qualify it: What should happen when rules conflict?
+<~ conflict
+[parrotbench_09321_kb_inference]
+> Identify the entities and relations first: What is a rule of inference?
+<~ rule
+[parrotbench_09322_kb_inference]
+> Identify the entities and relations first: What is a derived fact?
+<~ derived
+[parrotbench_09323_kb_inference]
+> Identify the entities and relations first: Why preserve evidence for a conclusion?
+<~ evidence
+[parrotbench_09324_kb_inference]
+> Identify the entities and relations first: What should happen when rules conflict?
+<~ conflict
+[parrotbench_09325_kb_inference]
+> Treat this as a new domain and explain your model: What is a rule of inference?
+<~ rule

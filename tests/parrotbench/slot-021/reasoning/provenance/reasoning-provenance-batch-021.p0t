@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/provenance
+# cases: 6
+
+[parrotbench_04126_reasoning_provenance]
+> Treat this as a new domain and explain your model: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04127_reasoning_provenance]
+> Treat this as a new domain and explain your model: What should an explanation expose?
+<~ reason
+[parrotbench_04128_reasoning_provenance]
+> Treat this as a new domain and explain your model: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04129_reasoning_provenance]
+> What would you need to verify before answering? What evidence supports this answer?
+<~ evidence
+[parrotbench_04130_reasoning_provenance]
+> What would you need to verify before answering? Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04131_reasoning_provenance]
+> What would you need to verify before answering? What should an explanation expose?
+<~ reason

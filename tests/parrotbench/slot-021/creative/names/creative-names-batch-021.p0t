@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/names
+# cases: 6
+
+[parrotbench_09926_creative_names]
+> Treat this as a new domain and explain your model: Give three distinct names for a robot.
+<~ robot
+[parrotbench_09927_creative_names]
+> Treat this as a new domain and explain your model: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09928_creative_names]
+> Treat this as a new domain and explain your model: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09929_creative_names]
+> What would you need to verify before answering? Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09930_creative_names]
+> What would you need to verify before answering? Give three distinct names for a robot.
+<~ robot
+[parrotbench_09931_creative_names]
+> What would you need to verify before answering? Suggest a memorable title for a science story.
+<~ story

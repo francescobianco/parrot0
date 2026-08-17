@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-027: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/contradictions
+# cases: 6
+
+[parrotbench_02963_logic_contradictions]
+> What would a careful interlocutor say? Find the contradiction: the door is open and never opened.
+<~ contradiction
+[parrotbench_02964_logic_contradictions]
+> What would a careful interlocutor say? What should happen when two facts cannot both hold?
+<~ conflict
+[parrotbench_02965_logic_contradictions]
+> Give a short answer in English: A plan is cheap, fast, safe, and impossible to implement. What conflicts?
+<~ impossible
+[parrotbench_02966_logic_contradictions]
+> Give a short answer in English: Can something be both entirely known and unknown in the same sense?
+<~ no
+[parrotbench_02967_logic_contradictions]
+> Give a short answer in English: Find the contradiction: the door is open and never opened.
+<~ contradiction
+[parrotbench_02968_logic_contradictions]
+> Give a short answer in English: What should happen when two facts cannot both hold?
+<~ conflict

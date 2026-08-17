@@ -2,155 +2,26 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: language/register
-# cases: 50
+# cases: 7
 
-[parrotbench_06151_language_register]
-> Answer the user's actual goal: Say this more politely: give me the file.
+[parrotbench_06019_language_register]
+> Give a concise answer. Say this more politely: give me the file.
 <~ please
-[parrotbench_06152_language_register]
-> Answer the user's actual goal: Rewrite this in simple language: epistemic uncertainty.
+[parrotbench_06020_language_register]
+> Give a concise answer. Rewrite this in simple language: epistemic uncertainty.
 <~ uncertain
-[parrotbench_06153_language_register]
-> If the request is underspecified, say what is missing: Explain photosynthesis to a child.
+[parrotbench_06021_language_register]
+> I need a careful answer: Explain photosynthesis to a child.
 <~ plants
-[parrotbench_06154_language_register]
-> If the request is underspecified, say what is missing: Explain photosynthesis to an expert.
+[parrotbench_06022_language_register]
+> I need a careful answer: Explain photosynthesis to an expert.
 <~ photosynthesis
-[parrotbench_06155_language_register]
-> If the request is underspecified, say what is missing: Say this more politely: give me the file.
+[parrotbench_06023_language_register]
+> I need a careful answer: Say this more politely: give me the file.
 <~ please
-[parrotbench_06156_language_register]
-> If the request is underspecified, say what is missing: Rewrite this in simple language: epistemic uncertainty.
+[parrotbench_06024_language_register]
+> I need a careful answer: Rewrite this in simple language: epistemic uncertainty.
 <~ uncertain
-[parrotbench_06157_language_register]
-> Can this be answered from known facts? Explain photosynthesis to a child.
+[parrotbench_06025_language_register]
+> Explain your answer briefly: Explain photosynthesis to a child.
 <~ plants
-[parrotbench_06158_language_register]
-> Can this be answered from known facts? Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06159_language_register]
-> Can this be answered from known facts? Say this more politely: give me the file.
-<~ please
-[parrotbench_06160_language_register]
-> Can this be answered from known facts? Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06161_language_register]
-> What would a careful interlocutor say? Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06162_language_register]
-> What would a careful interlocutor say? Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06163_language_register]
-> What would a careful interlocutor say? Say this more politely: give me the file.
-<~ please
-[parrotbench_06164_language_register]
-> What would a careful interlocutor say? Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06165_language_register]
-> Give a short answer in English: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06166_language_register]
-> Give a short answer in English: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06167_language_register]
-> Give a short answer in English: Say this more politely: give me the file.
-<~ please
-[parrotbench_06168_language_register]
-> Give a short answer in English: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06169_language_register]
-> Rispondi in italiano quando possibile: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06170_language_register]
-> Rispondi in italiano quando possibile: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06171_language_register]
-> Rispondi in italiano quando possibile: Say this more politely: give me the file.
-<~ please
-[parrotbench_06172_language_register]
-> Rispondi in italiano quando possibile: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06173_language_register]
-> Distinguish a fact, a rule, and a hypothesis: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06174_language_register]
-> Distinguish a fact, a rule, and a hypothesis: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06175_language_register]
-> Distinguish a fact, a rule, and a hypothesis: Say this more politely: give me the file.
-<~ please
-[parrotbench_06176_language_register]
-> Distinguish a fact, a rule, and a hypothesis: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06177_language_register]
-> Name the relevant capability: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06178_language_register]
-> Name the relevant capability: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06179_language_register]
-> Name the relevant capability: Say this more politely: give me the file.
-<~ please
-[parrotbench_06180_language_register]
-> Name the relevant capability: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06181_language_register]
-> Explain the reasoning rather than a slogan: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06182_language_register]
-> Explain the reasoning rather than a slogan: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06183_language_register]
-> Explain the reasoning rather than a slogan: Say this more politely: give me the file.
-<~ please
-[parrotbench_06184_language_register]
-> Explain the reasoning rather than a slogan: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06185_language_register]
-> Use the user's constraint as a real constraint: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06186_language_register]
-> Use the user's constraint as a real constraint: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06187_language_register]
-> Use the user's constraint as a real constraint: Say this more politely: give me the file.
-<~ please
-[parrotbench_06188_language_register]
-> Use the user's constraint as a real constraint: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06189_language_register]
-> Check whether the requested format is satisfied: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06190_language_register]
-> Check whether the requested format is satisfied: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06191_language_register]
-> Check whether the requested format is satisfied: Say this more politely: give me the file.
-<~ please
-[parrotbench_06192_language_register]
-> Check whether the requested format is satisfied: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06193_language_register]
-> What would make this answer wrong? Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06194_language_register]
-> What would make this answer wrong? Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06195_language_register]
-> What would make this answer wrong? Say this more politely: give me the file.
-<~ please
-[parrotbench_06196_language_register]
-> What would make this answer wrong? Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06197_language_register]
-> Give a useful answer without pretending certainty: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06198_language_register]
-> Give a useful answer without pretending certainty: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06199_language_register]
-> Give a useful answer without pretending certainty: Say this more politely: give me the file.
-<~ please
-[parrotbench_06200_language_register]
-> Give a useful answer without pretending certainty: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain

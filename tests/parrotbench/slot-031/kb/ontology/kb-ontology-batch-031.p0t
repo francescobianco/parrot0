@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/ontology
+# cases: 6
+
+[parrotbench_09188_kb_ontology]
+> Use the user's constraint as a real constraint: Why separate entities from states?
+<~ state
+[parrotbench_09189_kb_ontology]
+> Check whether the requested format is satisfied: What is ontology induction?
+<~ ontology
+[parrotbench_09190_kb_ontology]
+> Check whether the requested format is satisfied: Can a new domain require a temporary model?
+<~ model
+[parrotbench_09191_kb_ontology]
+> Check whether the requested format is satisfied: What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09192_kb_ontology]
+> Check whether the requested format is satisfied: Why separate entities from states?
+<~ state
+[parrotbench_09193_kb_ontology]
+> What would make this answer wrong? What is ontology induction?
+<~ ontology

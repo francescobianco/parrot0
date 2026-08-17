@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-011: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/names
+# cases: 6
+
+[parrotbench_09863_creative_names]
+> In italiano, Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09864_creative_names]
+> In italiano, Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09865_creative_names]
+> Rispondi brevemente: Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09866_creative_names]
+> Rispondi brevemente: Give three distinct names for a robot.
+<~ robot
+[parrotbench_09867_creative_names]
+> Rispondi brevemente: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09868_creative_names]
+> Rispondi brevemente: Create a playful slogan about knowledge.
+<~ knowledge

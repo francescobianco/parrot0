@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/uncertainty
+# cases: 6
+
+[parrotbench_03313_reasoning_uncertainty]
+> What is the operational interpretation of this? How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03314_reasoning_uncertainty]
+> What is the operational interpretation of this? What is the difference between not proved and false?
+<~ not
+[parrotbench_03315_reasoning_uncertainty]
+> What is the operational interpretation of this? Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03316_reasoning_uncertainty]
+> What is the operational interpretation of this? Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03317_reasoning_uncertainty]
+> Start with the direct answer, then qualify it: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03318_reasoning_uncertainty]
+> Start with the direct answer, then qualify it: What is the difference between not proved and false?
+<~ not

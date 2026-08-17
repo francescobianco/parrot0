@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: code/debugging
+# cases: 6
+
+[parrotbench_08513_code_debugging]
+> What is the operational interpretation of this? A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08514_code_debugging]
+> What is the operational interpretation of this? What is a regression?
+<~ change
+[parrotbench_08515_code_debugging]
+> What is the operational interpretation of this? How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08516_code_debugging]
+> What is the operational interpretation of this? Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08517_code_debugging]
+> Start with the direct answer, then qualify it: A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08518_code_debugging]
+> Start with the direct answer, then qualify it: What is a regression?
+<~ change

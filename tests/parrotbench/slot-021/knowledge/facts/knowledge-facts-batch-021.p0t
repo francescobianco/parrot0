@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 6
+
+[parrotbench_00126_knowledge_facts]
+> Treat this as a new domain and explain your model: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00127_knowledge_facts]
+> Treat this as a new domain and explain your model: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00128_knowledge_facts]
+> Treat this as a new domain and explain your model: What is water made of chemically?
+<~ H2O
+[parrotbench_00129_knowledge_facts]
+> What would you need to verify before answering? What is the capital of France?
+<~ Paris
+[parrotbench_00130_knowledge_facts]
+> What would you need to verify before answering? Which ocean is the largest?
+<~ Pacific
+[parrotbench_00131_knowledge_facts]
+> What would you need to verify before answering? Who wrote Hamlet?
+<~ Shakespeare

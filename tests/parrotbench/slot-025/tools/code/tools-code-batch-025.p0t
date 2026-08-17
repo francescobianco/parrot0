@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-025: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: tools/code
+# cases: 6
+
+[parrotbench_08351_tools_code]
+> Answer the user's actual goal: What is a stack trace useful for?
+<~ error
+[parrotbench_08352_tools_code]
+> Answer the user's actual goal: Can you explain a small code fragment?
+<~ code
+[parrotbench_08353_tools_code]
+> If the request is underspecified, say what is missing: What is a variable in a program?
+<~ variable
+[parrotbench_08354_tools_code]
+> If the request is underspecified, say what is missing: Why does a function return early?
+<~ return
+[parrotbench_08355_tools_code]
+> If the request is underspecified, say what is missing: What is a stack trace useful for?
+<~ error
+[parrotbench_08356_tools_code]
+> If the request is underspecified, say what is missing: Can you explain a small code fragment?
+<~ code

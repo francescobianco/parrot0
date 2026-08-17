@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/hypotheses
+# cases: 6
+
+[parrotbench_03982_reasoning_hypotheses]
+> Explain the reasoning rather than a slogan: What should a hypothesis be tested against?
+<~ evidence
+[parrotbench_03983_reasoning_hypotheses]
+> Explain the reasoning rather than a slogan: How do you choose between interpretations?
+<~ support
+[parrotbench_03984_reasoning_hypotheses]
+> Explain the reasoning rather than a slogan: What is an assumption in a plan?
+<~ assumption
+[parrotbench_03985_reasoning_hypotheses]
+> Use the user's constraint as a real constraint: Why keep competing hypotheses instead of one guess?
+<~ hypoth
+[parrotbench_03986_reasoning_hypotheses]
+> Use the user's constraint as a real constraint: What should a hypothesis be tested against?
+<~ evidence
+[parrotbench_03987_reasoning_hypotheses]
+> Use the user's constraint as a real constraint: How do you choose between interpretations?
+<~ support

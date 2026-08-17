@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: tools/files
+# cases: 6
+
+[parrotbench_07988_tools_files]
+> Use the user's constraint as a real constraint: Why should a file operation be reported?
+<~ file
+[parrotbench_07989_tools_files]
+> Check whether the requested format is satisfied: List the files in the current directory.
+<~ README
+[parrotbench_07990_tools_files]
+> Check whether the requested format is satisfied: Can you inspect a file without modifying it?
+<~ file
+[parrotbench_07991_tools_files]
+> Check whether the requested format is satisfied: What is the current working directory?
+<~ directory
+[parrotbench_07992_tools_files]
+> Check whether the requested format is satisfied: Why should a file operation be reported?
+<~ file
+[parrotbench_07993_tools_files]
+> What would make this answer wrong? List the files in the current directory.
+<~ README

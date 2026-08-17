@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 6
+
+[parrotbench_00188_knowledge_facts]
+> Use the user's constraint as a real constraint: What is water made of chemically?
+<~ H2O
+[parrotbench_00189_knowledge_facts]
+> Check whether the requested format is satisfied: What is the capital of France?
+<~ Paris
+[parrotbench_00190_knowledge_facts]
+> Check whether the requested format is satisfied: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00191_knowledge_facts]
+> Check whether the requested format is satisfied: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00192_knowledge_facts]
+> Check whether the requested format is satisfied: What is water made of chemically?
+<~ H2O
+[parrotbench_00193_knowledge_facts]
+> What would make this answer wrong? What is the capital of France?
+<~ Paris

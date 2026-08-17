@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 7
+
+[parrotbench_05469_language_translation]
+> Spiegalo in parole semplici: Translate hello into Italian.
+<~ ciao
+[parrotbench_05470_language_translation]
+> Spiegalo in parole semplici: Translate the small house into French.
+<~ maison
+[parrotbench_05471_language_translation]
+> Spiegalo in parole semplici: Translate the dog runs into English.
+<~ dog
+[parrotbench_05472_language_translation]
+> Spiegalo in parole semplici: Translate acqua into English.
+<~ water
+[parrotbench_05473_language_translation]
+> Prima dimmi cosa manca, poi: Translate hello into Italian.
+<~ ciao
+[parrotbench_05474_language_translation]
+> Prima dimmi cosa manca, poi: Translate the small house into French.
+<~ maison
+[parrotbench_05475_language_translation]
+> Prima dimmi cosa manca, poi: Translate the dog runs into English.
+<~ dog

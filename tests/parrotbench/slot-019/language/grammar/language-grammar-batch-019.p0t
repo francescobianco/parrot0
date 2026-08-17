@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/grammar
+# cases: 6
+
+[parrotbench_05713_language_grammar]
+> What is the operational interpretation of this? What is the plural of child?
+<~ children
+[parrotbench_05714_language_grammar]
+> What is the operational interpretation of this? What is the past tense of go?
+<~ went
+[parrotbench_05715_language_grammar]
+> What is the operational interpretation of this? Correct: She go to school.
+<~ goes
+[parrotbench_05716_language_grammar]
+> What is the operational interpretation of this? Is 'Me likes apples' grammatical?
+<~ no
+[parrotbench_05717_language_grammar]
+> Start with the direct answer, then qualify it: What is the plural of child?
+<~ children
+[parrotbench_05718_language_grammar]
+> Start with the direct answer, then qualify it: What is the past tense of go?
+<~ went

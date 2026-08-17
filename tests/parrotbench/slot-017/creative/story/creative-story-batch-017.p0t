@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-017: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 6
+
+[parrotbench_10101_creative_story]
+> Answer as if this were a release review: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10102_creative_story]
+> Answer as if this were a release review: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10103_creative_story]
+> Answer as if this were a release review: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10104_creative_story]
+> Answer as if this were a release review: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10105_creative_story]
+> Give the strongest answer supported by the KB: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10106_creative_story]
+> Give the strongest answer supported by the KB: Continue a story while preserving its characters.
+<~ story

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-011: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/causality
+# cases: 6
+
+[parrotbench_02463_logic_causality]
+> In italiano, What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02464_logic_causality]
+> In italiano, What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02465_logic_causality]
+> Rispondi brevemente: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02466_logic_causality]
+> Rispondi brevemente: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02467_logic_causality]
+> Rispondi brevemente: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02468_logic_causality]
+> Rispondi brevemente: What connects an initial condition to an observable result?
+<~ mechanism

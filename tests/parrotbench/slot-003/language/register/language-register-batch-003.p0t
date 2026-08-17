@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: language/register
-# cases: 50
+# cases: 6
 
-[parrotbench_06101_language_register]
-> Answer as if this were a release review: Explain photosynthesis to a child.
+[parrotbench_06013_language_register]
+> In simple terms, Explain photosynthesis to a child.
 <~ plants
-[parrotbench_06102_language_register]
-> Answer as if this were a release review: Explain photosynthesis to an expert.
+[parrotbench_06014_language_register]
+> In simple terms, Explain photosynthesis to an expert.
 <~ photosynthesis
-[parrotbench_06103_language_register]
-> Answer as if this were a release review: Say this more politely: give me the file.
+[parrotbench_06015_language_register]
+> In simple terms, Say this more politely: give me the file.
 <~ please
-[parrotbench_06104_language_register]
-> Answer as if this were a release review: Rewrite this in simple language: epistemic uncertainty.
+[parrotbench_06016_language_register]
+> In simple terms, Rewrite this in simple language: epistemic uncertainty.
 <~ uncertain
-[parrotbench_06105_language_register]
-> Give the strongest answer supported by the KB: Explain photosynthesis to a child.
+[parrotbench_06017_language_register]
+> Give a concise answer. Explain photosynthesis to a child.
 <~ plants
-[parrotbench_06106_language_register]
-> Give the strongest answer supported by the KB: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06107_language_register]
-> Give the strongest answer supported by the KB: Say this more politely: give me the file.
-<~ please
-[parrotbench_06108_language_register]
-> Give the strongest answer supported by the KB: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06109_language_register]
-> Do not confuse a wall with an answer. Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06110_language_register]
-> Do not confuse a wall with an answer. Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06111_language_register]
-> Do not confuse a wall with an answer. Say this more politely: give me the file.
-<~ please
-[parrotbench_06112_language_register]
-> Do not confuse a wall with an answer. Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06113_language_register]
-> What is the operational interpretation of this? Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06114_language_register]
-> What is the operational interpretation of this? Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06115_language_register]
-> What is the operational interpretation of this? Say this more politely: give me the file.
-<~ please
-[parrotbench_06116_language_register]
-> What is the operational interpretation of this? Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06117_language_register]
-> Start with the direct answer, then qualify it: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06118_language_register]
-> Start with the direct answer, then qualify it: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06119_language_register]
-> Start with the direct answer, then qualify it: Say this more politely: give me the file.
-<~ please
-[parrotbench_06120_language_register]
-> Start with the direct answer, then qualify it: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06121_language_register]
-> Identify the entities and relations first: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06122_language_register]
-> Identify the entities and relations first: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06123_language_register]
-> Identify the entities and relations first: Say this more politely: give me the file.
-<~ please
-[parrotbench_06124_language_register]
-> Identify the entities and relations first: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06125_language_register]
-> Treat this as a new domain and explain your model: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06126_language_register]
-> Treat this as a new domain and explain your model: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06127_language_register]
-> Treat this as a new domain and explain your model: Say this more politely: give me the file.
-<~ please
-[parrotbench_06128_language_register]
-> Treat this as a new domain and explain your model: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06129_language_register]
-> What would you need to verify before answering? Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06130_language_register]
-> What would you need to verify before answering? Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06131_language_register]
-> What would you need to verify before answering? Say this more politely: give me the file.
-<~ please
-[parrotbench_06132_language_register]
-> What would you need to verify before answering? Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06133_language_register]
-> Keep alternatives separate while answering: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06134_language_register]
-> Keep alternatives separate while answering: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06135_language_register]
-> Keep alternatives separate while answering: Say this more politely: give me the file.
-<~ please
-[parrotbench_06136_language_register]
-> Keep alternatives separate while answering: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06137_language_register]
-> State one conclusion and one uncertainty: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06138_language_register]
-> State one conclusion and one uncertainty: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06139_language_register]
-> State one conclusion and one uncertainty: Say this more politely: give me the file.
-<~ please
-[parrotbench_06140_language_register]
-> State one conclusion and one uncertainty: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06141_language_register]
-> Use a concrete example in your answer: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06142_language_register]
-> Use a concrete example in your answer: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06143_language_register]
-> Use a concrete example in your answer: Say this more politely: give me the file.
-<~ please
-[parrotbench_06144_language_register]
-> Use a concrete example in your answer: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06145_language_register]
-> Avoid changing the subject: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06146_language_register]
-> Avoid changing the subject: Explain photosynthesis to an expert.
-<~ photosynthesis
-[parrotbench_06147_language_register]
-> Avoid changing the subject: Say this more politely: give me the file.
-<~ please
-[parrotbench_06148_language_register]
-> Avoid changing the subject: Rewrite this in simple language: epistemic uncertainty.
-<~ uncertain
-[parrotbench_06149_language_register]
-> Answer the user's actual goal: Explain photosynthesis to a child.
-<~ plants
-[parrotbench_06150_language_register]
-> Answer the user's actual goal: Explain photosynthesis to an expert.
+[parrotbench_06018_language_register]
+> Give a concise answer. Explain photosynthesis to an expert.
 <~ photosynthesis

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/unknowns
+# cases: 6
+
+[parrotbench_00388_knowledge_unknowns]
+> Use the user's constraint as a real constraint: Tell me a fact when you have no source.
+<~ don't know
+[parrotbench_00389_knowledge_unknowns]
+> Check whether the requested format is satisfied: Who is the president of Mars?
+<~ don't know
+[parrotbench_00390_knowledge_unknowns]
+> Check whether the requested format is satisfied: Did Zorblax invent the moon?
+<~ don't know
+[parrotbench_00391_knowledge_unknowns]
+> Check whether the requested format is satisfied: What evidence supports an unknown claim?
+<~ don't know
+[parrotbench_00392_knowledge_unknowns]
+> Check whether the requested format is satisfied: Tell me a fact when you have no source.
+<~ don't know
+[parrotbench_00393_knowledge_unknowns]
+> What would make this answer wrong? Who is the president of Mars?
+<~ don't know

@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-016: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/uncertainty
+# cases: 7
+
+[parrotbench_03294_reasoning_uncertainty]
+> Give the answer and one reason: What is the difference between not proved and false?
+<~ not
+[parrotbench_03295_reasoning_uncertainty]
+> Give the answer and one reason: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03296_reasoning_uncertainty]
+> Give the answer and one reason: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03297_reasoning_uncertainty]
+> Separate fact from hypothesis: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03298_reasoning_uncertainty]
+> Separate fact from hypothesis: What is the difference between not proved and false?
+<~ not
+[parrotbench_03299_reasoning_uncertainty]
+> Separate fact from hypothesis: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03300_reasoning_uncertainty]
+> Separate fact from hypothesis: Should a low-confidence answer sound certain?
+<~ no

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-005: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05426_language_translation]
+> Explain your answer briefly: Translate the small house into French.
+<~ maison
+[parrotbench_05427_language_translation]
+> Explain your answer briefly: Translate the dog runs into English.
+<~ dog
+[parrotbench_05428_language_translation]
+> Explain your answer briefly: Translate acqua into English.
+<~ water
+[parrotbench_05429_language_translation]
+> Check this for me: Translate hello into Italian.
+<~ ciao
+[parrotbench_05430_language_translation]
+> Check this for me: Translate the small house into French.
+<~ maison
+[parrotbench_05431_language_translation]
+> Check this for me: Translate the dog runs into English.
+<~ dog

@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: math/addition
-# cases: 50
+# cases: 6
 
-[parrotbench_00901_math_addition]
-> Answer as if this were a release review: What is 17 plus 6?
+[parrotbench_00813_math_addition]
+> In simple terms, What is 17 plus 6?
 <~ 23
-[parrotbench_00902_math_addition]
-> Answer as if this were a release review: Calculate the sum of 8 and 15.
+[parrotbench_00814_math_addition]
+> In simple terms, Calculate the sum of 8 and 15.
 <~ 23
-[parrotbench_00903_math_addition]
-> Answer as if this were a release review: Add twelve to nine.
+[parrotbench_00815_math_addition]
+> In simple terms, Add twelve to nine.
 <~ 21
-[parrotbench_00904_math_addition]
-> Answer as if this were a release review: A box has 7 items and receives 5 more. How many?
+[parrotbench_00816_math_addition]
+> In simple terms, A box has 7 items and receives 5 more. How many?
 <~ 12
-[parrotbench_00905_math_addition]
-> Give the strongest answer supported by the KB: What is 17 plus 6?
+[parrotbench_00817_math_addition]
+> Give a concise answer. What is 17 plus 6?
 <~ 23
-[parrotbench_00906_math_addition]
-> Give the strongest answer supported by the KB: Calculate the sum of 8 and 15.
-<~ 23
-[parrotbench_00907_math_addition]
-> Give the strongest answer supported by the KB: Add twelve to nine.
-<~ 21
-[parrotbench_00908_math_addition]
-> Give the strongest answer supported by the KB: A box has 7 items and receives 5 more. How many?
-<~ 12
-[parrotbench_00909_math_addition]
-> Do not confuse a wall with an answer. What is 17 plus 6?
-<~ 23
-[parrotbench_00910_math_addition]
-> Do not confuse a wall with an answer. Calculate the sum of 8 and 15.
-<~ 23
-[parrotbench_00911_math_addition]
-> Do not confuse a wall with an answer. Add twelve to nine.
-<~ 21
-[parrotbench_00912_math_addition]
-> Do not confuse a wall with an answer. A box has 7 items and receives 5 more. How many?
-<~ 12
-[parrotbench_00913_math_addition]
-> What is the operational interpretation of this? What is 17 plus 6?
-<~ 23
-[parrotbench_00914_math_addition]
-> What is the operational interpretation of this? Calculate the sum of 8 and 15.
-<~ 23
-[parrotbench_00915_math_addition]
-> What is the operational interpretation of this? Add twelve to nine.
-<~ 21
-[parrotbench_00916_math_addition]
-> What is the operational interpretation of this? A box has 7 items and receives 5 more. How many?
-<~ 12
-[parrotbench_00917_math_addition]
-> Start with the direct answer, then qualify it: What is 17 plus 6?
-<~ 23
-[parrotbench_00918_math_addition]
-> Start with the direct answer, then qualify it: Calculate the sum of 8 and 15.
-<~ 23
-[parrotbench_00919_math_addition]
-> Start with the direct answer, then qualify it: Add twelve to nine.
-<~ 21
-[parrotbench_00920_math_addition]
-> Start with the direct answer, then qualify it: A box has 7 items and receives 5 more. How many?
-<~ 12
-[parrotbench_00921_math_addition]
-> Identify the entities and relations first: What is 17 plus 6?
-<~ 23
-[parrotbench_00922_math_addition]
-> Identify the entities and relations first: Calculate the sum of 8 and 15.
-<~ 23
-[parrotbench_00923_math_addition]
-> Identify the entities and relations first: Add twelve to nine.
-<~ 21
-[parrotbench_00924_math_addition]
-> Identify the entities and relations first: A box has 7 items and receives 5 more. How many?
-<~ 12
-[parrotbench_00925_math_addition]
-> Treat this as a new domain and explain your model: What is 17 plus 6?
-<~ 23
-[parrotbench_00926_math_addition]
-> Treat this as a new domain and explain your model: Calculate the sum of 8 and 15.
-<~ 23
-[parrotbench_00927_math_addition]
-> Treat this as a new domain and explain your model: Add twelve to nine.
-<~ 21
-[parrotbench_00928_math_addition]
-> Treat this as a new domain and explain your model: A box has 7 items and receives 5 more. How many?
-<~ 12
-[parrotbench_00929_math_addition]
-> What would you need to verify before answering? What is 17 plus 6?
-<~ 23
-[parrotbench_00930_math_addition]
-> What would you need to verify before answering? Calculate the sum of 8 and 15.
-<~ 23
-[parrotbench_00931_math_addition]
-> What would you need to verify before answering? Add twelve to nine.
-<~ 21
-[parrotbench_00932_math_addition]
-> What would you need to verify before answering? A box has 7 items and receives 5 more. How many?
-<~ 12
-[parrotbench_00933_math_addition]
-> Keep alternatives separate while answering: What is 17 plus 6?
-<~ 23
-[parrotbench_00934_math_addition]
-> Keep alternatives separate while answering: Calculate the sum of 8 and 15.
-<~ 23
-[parrotbench_00935_math_addition]
-> Keep alternatives separate while answering: Add twelve to nine.
-<~ 21
-[parrotbench_00936_math_addition]
-> Keep alternatives separate while answering: A box has 7 items and receives 5 more. How many?
-<~ 12
-[parrotbench_00937_math_addition]
-> State one conclusion and one uncertainty: What is 17 plus 6?
-<~ 23
-[parrotbench_00938_math_addition]
-> State one conclusion and one uncertainty: Calculate the sum of 8 and 15.
-<~ 23
-[parrotbench_00939_math_addition]
-> State one conclusion and one uncertainty: Add twelve to nine.
-<~ 21
-[parrotbench_00940_math_addition]
-> State one conclusion and one uncertainty: A box has 7 items and receives 5 more. How many?
-<~ 12
-[parrotbench_00941_math_addition]
-> Use a concrete example in your answer: What is 17 plus 6?
-<~ 23
-[parrotbench_00942_math_addition]
-> Use a concrete example in your answer: Calculate the sum of 8 and 15.
-<~ 23
-[parrotbench_00943_math_addition]
-> Use a concrete example in your answer: Add twelve to nine.
-<~ 21
-[parrotbench_00944_math_addition]
-> Use a concrete example in your answer: A box has 7 items and receives 5 more. How many?
-<~ 12
-[parrotbench_00945_math_addition]
-> Avoid changing the subject: What is 17 plus 6?
-<~ 23
-[parrotbench_00946_math_addition]
-> Avoid changing the subject: Calculate the sum of 8 and 15.
-<~ 23
-[parrotbench_00947_math_addition]
-> Avoid changing the subject: Add twelve to nine.
-<~ 21
-[parrotbench_00948_math_addition]
-> Avoid changing the subject: A box has 7 items and receives 5 more. How many?
-<~ 12
-[parrotbench_00949_math_addition]
-> Answer the user's actual goal: What is 17 plus 6?
-<~ 23
-[parrotbench_00950_math_addition]
-> Answer the user's actual goal: Calculate the sum of 8 and 15.
+[parrotbench_00818_math_addition]
+> Give a concise answer. Calculate the sum of 8 and 15.
 <~ 23

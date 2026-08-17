@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/yes-no
+# cases: 6
+
+[parrotbench_06313_format_yes-no]
+> What is the operational interpretation of this? Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06314_format_yes-no]
+> What is the operational interpretation of this? Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06315_format_yes-no]
+> What is the operational interpretation of this? Use only one word: is 2 even?
+<~ yes
+[parrotbench_06316_format_yes-no]
+> What is the operational interpretation of this? Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06317_format_yes-no]
+> Start with the direct answer, then qualify it: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06318_format_yes-no]
+> Start with the direct answer, then qualify it: Answer yes/no: is water wet?
+<~ yes

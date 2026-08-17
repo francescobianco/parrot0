@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/provenance
+# cases: 6
+
+[parrotbench_04182_reasoning_provenance]
+> Explain the reasoning rather than a slogan: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04183_reasoning_provenance]
+> Explain the reasoning rather than a slogan: What should an explanation expose?
+<~ reason
+[parrotbench_04184_reasoning_provenance]
+> Explain the reasoning rather than a slogan: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04185_reasoning_provenance]
+> Use the user's constraint as a real constraint: What evidence supports this answer?
+<~ evidence
+[parrotbench_04186_reasoning_provenance]
+> Use the user's constraint as a real constraint: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04187_reasoning_provenance]
+> Use the user's constraint as a real constraint: What should an explanation expose?
+<~ reason

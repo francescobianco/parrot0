@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 6
+
+[parrotbench_07113_planning_daily]
+> What is the operational interpretation of this? Give me a plan to make tea.
+<~ plan
+[parrotbench_07114_planning_daily]
+> What is the operational interpretation of this? What is the first step in making tea?
+<~ water
+[parrotbench_07115_planning_daily]
+> What is the operational interpretation of this? Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07116_planning_daily]
+> What is the operational interpretation of this? How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07117_planning_daily]
+> Start with the direct answer, then qualify it: Give me a plan to make tea.
+<~ plan
+[parrotbench_07118_planning_daily]
+> Start with the direct answer, then qualify it: What is the first step in making tea?
+<~ water

@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-017: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/comparison
+# cases: 6
+
+[parrotbench_01701_math_comparison]
+> Answer as if this were a release review: Which is greater, 41 or 14?
+<~ 41
+[parrotbench_01702_math_comparison]
+> Answer as if this were a release review: Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01703_math_comparison]
+> Answer as if this were a release review: Put 5, 1, 9, and 3 in ascending order.
+<~ 1
+[parrotbench_01704_math_comparison]
+> Answer as if this were a release review: Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01705_math_comparison]
+> Give the strongest answer supported by the KB: Which is greater, 41 or 14?
+<~ 41
+[parrotbench_01706_math_comparison]
+> Give the strongest answer supported by the KB: Is 3.41 larger than 3.14?
+<~ yes

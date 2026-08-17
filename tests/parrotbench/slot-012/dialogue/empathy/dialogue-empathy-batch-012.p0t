@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-012: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/empathy
+# cases: 7
+
+[parrotbench_04869_dialogue_empathy]
+> Spiegalo in parole semplici: I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04870_dialogue_empathy]
+> Spiegalo in parole semplici: I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04871_dialogue_empathy]
+> Spiegalo in parole semplici: Can you have feelings of your own?
+<~ not
+[parrotbench_04872_dialogue_empathy]
+> Spiegalo in parole semplici: How can you acknowledge a user's emotion without pretending?
+<~ feel
+[parrotbench_04873_dialogue_empathy]
+> Prima dimmi cosa manca, poi: I am sad today. Can you respond empathetically?
+<~ sorry
+[parrotbench_04874_dialogue_empathy]
+> Prima dimmi cosa manca, poi: I am worried about an exam. What can you say?
+<~ help
+[parrotbench_04875_dialogue_empathy]
+> Prima dimmi cosa manca, poi: Can you have feelings of your own?
+<~ not

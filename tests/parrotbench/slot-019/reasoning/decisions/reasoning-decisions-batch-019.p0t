@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-019: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/decisions
+# cases: 6
+
+[parrotbench_03513_reasoning_decisions]
+> What is the operational interpretation of this? A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03514_reasoning_decisions]
+> What is the operational interpretation of this? How should an option be evaluated when it has risk and an alternative?
+<~ risk
+[parrotbench_03515_reasoning_decisions]
+> What is the operational interpretation of this? What is a reversible decision?
+<~ revers
+[parrotbench_03516_reasoning_decisions]
+> What is the operational interpretation of this? Name a criterion for choosing between plans.
+<~ benefit
+[parrotbench_03517_reasoning_decisions]
+> Start with the direct answer, then qualify it: A proposal costs 100 and saves 20 yearly. What must we compare?
+<~ cost
+[parrotbench_03518_reasoning_decisions]
+> Start with the direct answer, then qualify it: How should an option be evaluated when it has risk and an alternative?
+<~ risk

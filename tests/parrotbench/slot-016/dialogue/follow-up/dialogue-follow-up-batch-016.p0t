@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-016: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/follow-up
+# cases: 7
+
+[parrotbench_05094_dialogue_follow-up]
+> Give the answer and one reason: What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05095_dialogue_follow-up]
+> Give the answer and one reason: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05096_dialogue_follow-up]
+> Give the answer and one reason: What is a dialogue state?
+<~ dialogue
+[parrotbench_05097_dialogue_follow-up]
+> Separate fact from hypothesis: What did I ask you first?
+<~ first
+[parrotbench_05098_dialogue_follow-up]
+> Separate fact from hypothesis: What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05099_dialogue_follow-up]
+> Separate fact from hypothesis: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05100_dialogue_follow-up]
+> Separate fact from hypothesis: What is a dialogue state?
+<~ dialogue

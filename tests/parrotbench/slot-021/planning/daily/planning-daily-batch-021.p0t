@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 6
+
+[parrotbench_07126_planning_daily]
+> Treat this as a new domain and explain your model: What is the first step in making tea?
+<~ water
+[parrotbench_07127_planning_daily]
+> Treat this as a new domain and explain your model: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07128_planning_daily]
+> Treat this as a new domain and explain your model: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07129_planning_daily]
+> What would you need to verify before answering? Give me a plan to make tea.
+<~ plan
+[parrotbench_07130_planning_daily]
+> What would you need to verify before answering? What is the first step in making tea?
+<~ water
+[parrotbench_07131_planning_daily]
+> What would you need to verify before answering? Plan a short walk with a time constraint.
+<~ step

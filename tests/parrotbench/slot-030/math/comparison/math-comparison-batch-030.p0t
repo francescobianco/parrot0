@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-030: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/comparison
+# cases: 6
+
+[parrotbench_01782_math_comparison]
+> Explain the reasoning rather than a slogan: Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01783_math_comparison]
+> Explain the reasoning rather than a slogan: Put 5, 1, 9, and 3 in ascending order.
+<~ 1
+[parrotbench_01784_math_comparison]
+> Explain the reasoning rather than a slogan: Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01785_math_comparison]
+> Use the user's constraint as a real constraint: Which is greater, 41 or 14?
+<~ 41
+[parrotbench_01786_math_comparison]
+> Use the user's constraint as a real constraint: Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01787_math_comparison]
+> Use the user's constraint as a real constraint: Put 5, 1, 9, and 3 in ascending order.
+<~ 1

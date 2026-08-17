@@ -2,155 +2,26 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: reasoning/salience
-# cases: 50
+# cases: 7
 
-[parrotbench_03751_reasoning_salience]
-> Answer the user's actual goal: Why should irrelevant input be pruned?
+[parrotbench_03619_reasoning_salience]
+> Give a concise answer. Why should irrelevant input be pruned?
 <~ goal
-[parrotbench_03752_reasoning_salience]
-> Answer the user's actual goal: In a long report, what deserves attention first?
+[parrotbench_03620_reasoning_salience]
+> Give a concise answer. In a long report, what deserves attention first?
 <~ goal
-[parrotbench_03753_reasoning_salience]
-> If the request is underspecified, say what is missing: Which line matters in a log: INFO ready or ERROR connection refused?
+[parrotbench_03621_reasoning_salience]
+> I need a careful answer: Which line matters in a log: INFO ready or ERROR connection refused?
 <~ error
-[parrotbench_03754_reasoning_salience]
-> If the request is underspecified, say what is missing: What does goal-conditioned salience select?
+[parrotbench_03622_reasoning_salience]
+> I need a careful answer: What does goal-conditioned salience select?
 <~ relevant
-[parrotbench_03755_reasoning_salience]
-> If the request is underspecified, say what is missing: Why should irrelevant input be pruned?
+[parrotbench_03623_reasoning_salience]
+> I need a careful answer: Why should irrelevant input be pruned?
 <~ goal
-[parrotbench_03756_reasoning_salience]
-> If the request is underspecified, say what is missing: In a long report, what deserves attention first?
+[parrotbench_03624_reasoning_salience]
+> I need a careful answer: In a long report, what deserves attention first?
 <~ goal
-[parrotbench_03757_reasoning_salience]
-> Can this be answered from known facts? Which line matters in a log: INFO ready or ERROR connection refused?
+[parrotbench_03625_reasoning_salience]
+> Explain your answer briefly: Which line matters in a log: INFO ready or ERROR connection refused?
 <~ error
-[parrotbench_03758_reasoning_salience]
-> Can this be answered from known facts? What does goal-conditioned salience select?
-<~ relevant
-[parrotbench_03759_reasoning_salience]
-> Can this be answered from known facts? Why should irrelevant input be pruned?
-<~ goal
-[parrotbench_03760_reasoning_salience]
-> Can this be answered from known facts? In a long report, what deserves attention first?
-<~ goal
-[parrotbench_03761_reasoning_salience]
-> What would a careful interlocutor say? Which line matters in a log: INFO ready or ERROR connection refused?
-<~ error
-[parrotbench_03762_reasoning_salience]
-> What would a careful interlocutor say? What does goal-conditioned salience select?
-<~ relevant
-[parrotbench_03763_reasoning_salience]
-> What would a careful interlocutor say? Why should irrelevant input be pruned?
-<~ goal
-[parrotbench_03764_reasoning_salience]
-> What would a careful interlocutor say? In a long report, what deserves attention first?
-<~ goal
-[parrotbench_03765_reasoning_salience]
-> Give a short answer in English: Which line matters in a log: INFO ready or ERROR connection refused?
-<~ error
-[parrotbench_03766_reasoning_salience]
-> Give a short answer in English: What does goal-conditioned salience select?
-<~ relevant
-[parrotbench_03767_reasoning_salience]
-> Give a short answer in English: Why should irrelevant input be pruned?
-<~ goal
-[parrotbench_03768_reasoning_salience]
-> Give a short answer in English: In a long report, what deserves attention first?
-<~ goal
-[parrotbench_03769_reasoning_salience]
-> Rispondi in italiano quando possibile: Which line matters in a log: INFO ready or ERROR connection refused?
-<~ error
-[parrotbench_03770_reasoning_salience]
-> Rispondi in italiano quando possibile: What does goal-conditioned salience select?
-<~ relevant
-[parrotbench_03771_reasoning_salience]
-> Rispondi in italiano quando possibile: Why should irrelevant input be pruned?
-<~ goal
-[parrotbench_03772_reasoning_salience]
-> Rispondi in italiano quando possibile: In a long report, what deserves attention first?
-<~ goal
-[parrotbench_03773_reasoning_salience]
-> Distinguish a fact, a rule, and a hypothesis: Which line matters in a log: INFO ready or ERROR connection refused?
-<~ error
-[parrotbench_03774_reasoning_salience]
-> Distinguish a fact, a rule, and a hypothesis: What does goal-conditioned salience select?
-<~ relevant
-[parrotbench_03775_reasoning_salience]
-> Distinguish a fact, a rule, and a hypothesis: Why should irrelevant input be pruned?
-<~ goal
-[parrotbench_03776_reasoning_salience]
-> Distinguish a fact, a rule, and a hypothesis: In a long report, what deserves attention first?
-<~ goal
-[parrotbench_03777_reasoning_salience]
-> Name the relevant capability: Which line matters in a log: INFO ready or ERROR connection refused?
-<~ error
-[parrotbench_03778_reasoning_salience]
-> Name the relevant capability: What does goal-conditioned salience select?
-<~ relevant
-[parrotbench_03779_reasoning_salience]
-> Name the relevant capability: Why should irrelevant input be pruned?
-<~ goal
-[parrotbench_03780_reasoning_salience]
-> Name the relevant capability: In a long report, what deserves attention first?
-<~ goal
-[parrotbench_03781_reasoning_salience]
-> Explain the reasoning rather than a slogan: Which line matters in a log: INFO ready or ERROR connection refused?
-<~ error
-[parrotbench_03782_reasoning_salience]
-> Explain the reasoning rather than a slogan: What does goal-conditioned salience select?
-<~ relevant
-[parrotbench_03783_reasoning_salience]
-> Explain the reasoning rather than a slogan: Why should irrelevant input be pruned?
-<~ goal
-[parrotbench_03784_reasoning_salience]
-> Explain the reasoning rather than a slogan: In a long report, what deserves attention first?
-<~ goal
-[parrotbench_03785_reasoning_salience]
-> Use the user's constraint as a real constraint: Which line matters in a log: INFO ready or ERROR connection refused?
-<~ error
-[parrotbench_03786_reasoning_salience]
-> Use the user's constraint as a real constraint: What does goal-conditioned salience select?
-<~ relevant
-[parrotbench_03787_reasoning_salience]
-> Use the user's constraint as a real constraint: Why should irrelevant input be pruned?
-<~ goal
-[parrotbench_03788_reasoning_salience]
-> Use the user's constraint as a real constraint: In a long report, what deserves attention first?
-<~ goal
-[parrotbench_03789_reasoning_salience]
-> Check whether the requested format is satisfied: Which line matters in a log: INFO ready or ERROR connection refused?
-<~ error
-[parrotbench_03790_reasoning_salience]
-> Check whether the requested format is satisfied: What does goal-conditioned salience select?
-<~ relevant
-[parrotbench_03791_reasoning_salience]
-> Check whether the requested format is satisfied: Why should irrelevant input be pruned?
-<~ goal
-[parrotbench_03792_reasoning_salience]
-> Check whether the requested format is satisfied: In a long report, what deserves attention first?
-<~ goal
-[parrotbench_03793_reasoning_salience]
-> What would make this answer wrong? Which line matters in a log: INFO ready or ERROR connection refused?
-<~ error
-[parrotbench_03794_reasoning_salience]
-> What would make this answer wrong? What does goal-conditioned salience select?
-<~ relevant
-[parrotbench_03795_reasoning_salience]
-> What would make this answer wrong? Why should irrelevant input be pruned?
-<~ goal
-[parrotbench_03796_reasoning_salience]
-> What would make this answer wrong? In a long report, what deserves attention first?
-<~ goal
-[parrotbench_03797_reasoning_salience]
-> Give a useful answer without pretending certainty: Which line matters in a log: INFO ready or ERROR connection refused?
-<~ error
-[parrotbench_03798_reasoning_salience]
-> Give a useful answer without pretending certainty: What does goal-conditioned salience select?
-<~ relevant
-[parrotbench_03799_reasoning_salience]
-> Give a useful answer without pretending certainty: Why should irrelevant input be pruned?
-<~ goal
-[parrotbench_03800_reasoning_salience]
-> Give a useful answer without pretending certainty: In a long report, what deserves attention first?
-<~ goal

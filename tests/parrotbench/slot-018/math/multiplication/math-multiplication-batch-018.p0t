@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-018: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 6
+
+[parrotbench_01107_math_multiplication]
+> Give the strongest answer supported by the KB: What do five pairs contain?
+<~ 10
+[parrotbench_01108_math_multiplication]
+> Give the strongest answer supported by the KB: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01109_math_multiplication]
+> Do not confuse a wall with an answer. What is 9 times 8?
+<~ 72
+[parrotbench_01110_math_multiplication]
+> Do not confuse a wall with an answer. Calculate three groups of seven.
+<~ 21
+[parrotbench_01111_math_multiplication]
+> Do not confuse a wall with an answer. What do five pairs contain?
+<~ 10
+[parrotbench_01112_math_multiplication]
+> Do not confuse a wall with an answer. A row has 6 seats and there are 4 rows. How many seats?
+<~ 24

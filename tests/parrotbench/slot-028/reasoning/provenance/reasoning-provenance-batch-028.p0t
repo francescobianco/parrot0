@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-028: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/provenance
+# cases: 7
+
+[parrotbench_04169_reasoning_provenance]
+> Rispondi in italiano quando possibile: What evidence supports this answer?
+<~ evidence
+[parrotbench_04170_reasoning_provenance]
+> Rispondi in italiano quando possibile: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04171_reasoning_provenance]
+> Rispondi in italiano quando possibile: What should an explanation expose?
+<~ reason
+[parrotbench_04172_reasoning_provenance]
+> Rispondi in italiano quando possibile: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04173_reasoning_provenance]
+> Distinguish a fact, a rule, and a hypothesis: What evidence supports this answer?
+<~ evidence
+[parrotbench_04174_reasoning_provenance]
+> Distinguish a fact, a rule, and a hypothesis: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04175_reasoning_provenance]
+> Distinguish a fact, a rule, and a hypothesis: What should an explanation expose?
+<~ reason

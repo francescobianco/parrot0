@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 7
+
+[parrotbench_06594_format_lists]
+> What would make this answer wrong? Give two reasons to verify sources.
+<~ source
+[parrotbench_06595_format_lists]
+> What would make this answer wrong? Name three planets.
+<~ Earth
+[parrotbench_06596_format_lists]
+> What would make this answer wrong? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06597_format_lists]
+> Give a useful answer without pretending certainty: List exactly three colors.
+<~ blue
+[parrotbench_06598_format_lists]
+> Give a useful answer without pretending certainty: Give two reasons to verify sources.
+<~ source
+[parrotbench_06599_format_lists]
+> Give a useful answer without pretending certainty: Name three planets.
+<~ Earth
+[parrotbench_06600_format_lists]
+> Give a useful answer without pretending certainty: Give four steps for a safe experiment.
+<~ step

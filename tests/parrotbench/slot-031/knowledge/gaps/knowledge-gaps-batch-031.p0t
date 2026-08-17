@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/gaps
+# cases: 6
+
+[parrotbench_00588_knowledge_gaps]
+> Use the user's constraint as a real constraint: What would you search for before comparing two cities?
+<~ know
+[parrotbench_00589_knowledge_gaps]
+> Check whether the requested format is satisfied: What information is missing before answering a causal question?
+<~ missing
+[parrotbench_00590_knowledge_gaps]
+> Check whether the requested format is satisfied: How should a knowledge gap become a research plan?
+<~ research
+[parrotbench_00591_knowledge_gaps]
+> Check whether the requested format is satisfied: What should you do when the KB lacks a fact?
+<~ learn
+[parrotbench_00592_knowledge_gaps]
+> Check whether the requested format is satisfied: What would you search for before comparing two cities?
+<~ know
+[parrotbench_00593_knowledge_gaps]
+> What would make this answer wrong? What information is missing before answering a causal question?
+<~ missing

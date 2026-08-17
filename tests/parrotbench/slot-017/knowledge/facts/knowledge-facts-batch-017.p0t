@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-017: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 6
+
+[parrotbench_00101_knowledge_facts]
+> Answer as if this were a release review: What is the capital of France?
+<~ Paris
+[parrotbench_00102_knowledge_facts]
+> Answer as if this were a release review: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00103_knowledge_facts]
+> Answer as if this were a release review: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00104_knowledge_facts]
+> Answer as if this were a release review: What is water made of chemically?
+<~ H2O
+[parrotbench_00105_knowledge_facts]
+> Give the strongest answer supported by the KB: What is the capital of France?
+<~ Paris
+[parrotbench_00106_knowledge_facts]
+> Give the strongest answer supported by the KB: Which ocean is the largest?
+<~ Pacific

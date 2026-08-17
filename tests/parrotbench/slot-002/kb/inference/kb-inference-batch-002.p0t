@@ -2,155 +2,23 @@
 # DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
 # Run only through make parrotbench when release intent requests it.
 # category: kb/inference
-# cases: 50
+# cases: 6
 
-[parrotbench_09251_kb_inference]
-> Use the relevant evidence and answer: Why preserve evidence for a conclusion?
+[parrotbench_09207_kb_inference]
+> Please answer: Why preserve evidence for a conclusion?
 <~ evidence
-[parrotbench_09252_kb_inference]
-> Use the relevant evidence and answer: What should happen when rules conflict?
+[parrotbench_09208_kb_inference]
+> Please answer: What should happen when rules conflict?
 <~ conflict
-[parrotbench_09253_kb_inference]
-> Do not invent facts. What is a rule of inference?
+[parrotbench_09209_kb_inference]
+> Can you help me with this? What is a rule of inference?
 <~ rule
-[parrotbench_09254_kb_inference]
-> Do not invent facts. What is a derived fact?
+[parrotbench_09210_kb_inference]
+> Can you help me with this? What is a derived fact?
 <~ derived
-[parrotbench_09255_kb_inference]
-> Do not invent facts. Why preserve evidence for a conclusion?
+[parrotbench_09211_kb_inference]
+> Can you help me with this? Why preserve evidence for a conclusion?
 <~ evidence
-[parrotbench_09256_kb_inference]
-> Do not invent facts. What should happen when rules conflict?
-<~ conflict
-[parrotbench_09257_kb_inference]
-> Keep the answer useful and honest: What is a rule of inference?
-<~ rule
-[parrotbench_09258_kb_inference]
-> Keep the answer useful and honest: What is a derived fact?
-<~ derived
-[parrotbench_09259_kb_inference]
-> Keep the answer useful and honest: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09260_kb_inference]
-> Keep the answer useful and honest: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09261_kb_inference]
-> In italiano, What is a rule of inference?
-<~ rule
-[parrotbench_09262_kb_inference]
-> In italiano, What is a derived fact?
-<~ derived
-[parrotbench_09263_kb_inference]
-> In italiano, Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09264_kb_inference]
-> In italiano, What should happen when rules conflict?
-<~ conflict
-[parrotbench_09265_kb_inference]
-> Rispondi brevemente: What is a rule of inference?
-<~ rule
-[parrotbench_09266_kb_inference]
-> Rispondi brevemente: What is a derived fact?
-<~ derived
-[parrotbench_09267_kb_inference]
-> Rispondi brevemente: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09268_kb_inference]
-> Rispondi brevemente: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09269_kb_inference]
-> Spiegalo in parole semplici: What is a rule of inference?
-<~ rule
-[parrotbench_09270_kb_inference]
-> Spiegalo in parole semplici: What is a derived fact?
-<~ derived
-[parrotbench_09271_kb_inference]
-> Spiegalo in parole semplici: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09272_kb_inference]
-> Spiegalo in parole semplici: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09273_kb_inference]
-> Prima dimmi cosa manca, poi: What is a rule of inference?
-<~ rule
-[parrotbench_09274_kb_inference]
-> Prima dimmi cosa manca, poi: What is a derived fact?
-<~ derived
-[parrotbench_09275_kb_inference]
-> Prima dimmi cosa manca, poi: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09276_kb_inference]
-> Prima dimmi cosa manca, poi: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09277_kb_inference]
-> What is the shortest useful answer to this? What is a rule of inference?
-<~ rule
-[parrotbench_09278_kb_inference]
-> What is the shortest useful answer to this? What is a derived fact?
-<~ derived
-[parrotbench_09279_kb_inference]
-> What is the shortest useful answer to this? Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09280_kb_inference]
-> What is the shortest useful answer to this? What should happen when rules conflict?
-<~ conflict
-[parrotbench_09281_kb_inference]
-> Challenge your first interpretation: What is a rule of inference?
-<~ rule
-[parrotbench_09282_kb_inference]
-> Challenge your first interpretation: What is a derived fact?
-<~ derived
-[parrotbench_09283_kb_inference]
-> Challenge your first interpretation: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09284_kb_inference]
-> Challenge your first interpretation: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09285_kb_inference]
-> State uncertainty if needed: What is a rule of inference?
-<~ rule
-[parrotbench_09286_kb_inference]
-> State uncertainty if needed: What is a derived fact?
-<~ derived
-[parrotbench_09287_kb_inference]
-> State uncertainty if needed: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09288_kb_inference]
-> State uncertainty if needed: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09289_kb_inference]
-> Answer without a generic template: What is a rule of inference?
-<~ rule
-[parrotbench_09290_kb_inference]
-> Answer without a generic template: What is a derived fact?
-<~ derived
-[parrotbench_09291_kb_inference]
-> Answer without a generic template: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09292_kb_inference]
-> Answer without a generic template: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09293_kb_inference]
-> Give the answer and one reason: What is a rule of inference?
-<~ rule
-[parrotbench_09294_kb_inference]
-> Give the answer and one reason: What is a derived fact?
-<~ derived
-[parrotbench_09295_kb_inference]
-> Give the answer and one reason: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09296_kb_inference]
-> Give the answer and one reason: What should happen when rules conflict?
-<~ conflict
-[parrotbench_09297_kb_inference]
-> Separate fact from hypothesis: What is a rule of inference?
-<~ rule
-[parrotbench_09298_kb_inference]
-> Separate fact from hypothesis: What is a derived fact?
-<~ derived
-[parrotbench_09299_kb_inference]
-> Separate fact from hypothesis: Why preserve evidence for a conclusion?
-<~ evidence
-[parrotbench_09300_kb_inference]
-> Separate fact from hypothesis: What should happen when rules conflict?
+[parrotbench_09212_kb_inference]
+> Can you help me with this? What should happen when rules conflict?
 <~ conflict

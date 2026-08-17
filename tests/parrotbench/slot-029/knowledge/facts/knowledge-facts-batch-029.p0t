@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-029: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 6
+
+[parrotbench_00176_knowledge_facts]
+> Distinguish a fact, a rule, and a hypothesis: What is water made of chemically?
+<~ H2O
+[parrotbench_00177_knowledge_facts]
+> Name the relevant capability: What is the capital of France?
+<~ Paris
+[parrotbench_00178_knowledge_facts]
+> Name the relevant capability: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00179_knowledge_facts]
+> Name the relevant capability: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00180_knowledge_facts]
+> Name the relevant capability: What is water made of chemically?
+<~ H2O
+[parrotbench_00181_knowledge_facts]
+> Explain the reasoning rather than a slogan: What is the capital of France?
+<~ Paris

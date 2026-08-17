@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-032: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 7
+
+[parrotbench_07194_planning_daily]
+> What would make this answer wrong? What is the first step in making tea?
+<~ water
+[parrotbench_07195_planning_daily]
+> What would make this answer wrong? Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07196_planning_daily]
+> What would make this answer wrong? How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07197_planning_daily]
+> Give a useful answer without pretending certainty: Give me a plan to make tea.
+<~ plan
+[parrotbench_07198_planning_daily]
+> Give a useful answer without pretending certainty: What is the first step in making tea?
+<~ water
+[parrotbench_07199_planning_daily]
+> Give a useful answer without pretending certainty: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07200_planning_daily]
+> Give a useful answer without pretending certainty: How should a plan represent prerequisites?
+<~ prerequisite

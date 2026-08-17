@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-031: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/comparison
+# cases: 6
+
+[parrotbench_01788_math_comparison]
+> Use the user's constraint as a real constraint: Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01789_math_comparison]
+> Check whether the requested format is satisfied: Which is greater, 41 or 14?
+<~ 41
+[parrotbench_01790_math_comparison]
+> Check whether the requested format is satisfied: Is 3.41 larger than 3.14?
+<~ yes
+[parrotbench_01791_math_comparison]
+> Check whether the requested format is satisfied: Put 5, 1, 9, and 3 in ascending order.
+<~ 1
+[parrotbench_01792_math_comparison]
+> Check whether the requested format is satisfied: Which is smaller, minus 2 or minus 5?
+<~ 5
+[parrotbench_01793_math_comparison]
+> What would make this answer wrong? Which is greater, 41 or 14?
+<~ 41

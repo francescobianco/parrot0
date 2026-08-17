@@ -1,0 +1,27 @@
+# PARROTBENCH SLOT slot-028: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/transform
+# cases: 7
+
+[parrotbench_10369_creative_transform]
+> Rispondi in italiano quando possibile: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10370_creative_transform]
+> Rispondi in italiano quando possibile: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10371_creative_transform]
+> Rispondi in italiano quando possibile: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10372_creative_transform]
+> Rispondi in italiano quando possibile: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10373_creative_transform]
+> Distinguish a fact, a rule, and a hypothesis: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10374_creative_transform]
+> Distinguish a fact, a rule, and a hypothesis: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10375_creative_transform]
+> Distinguish a fact, a rule, and a hypothesis: Make this explanation shorter without losing its point.
+<~ short

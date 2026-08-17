@@ -1,0 +1,24 @@
+# PARROTBENCH SLOT slot-021: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 6
+
+[parrotbench_05526_language_translation]
+> Treat this as a new domain and explain your model: Translate the small house into French.
+<~ maison
+[parrotbench_05527_language_translation]
+> Treat this as a new domain and explain your model: Translate the dog runs into English.
+<~ dog
+[parrotbench_05528_language_translation]
+> Treat this as a new domain and explain your model: Translate acqua into English.
+<~ water
+[parrotbench_05529_language_translation]
+> What would you need to verify before answering? Translate hello into Italian.
+<~ ciao
+[parrotbench_05530_language_translation]
+> What would you need to verify before answering? Translate the small house into French.
+<~ maison
+[parrotbench_05531_language_translation]
+> What would you need to verify before answering? Translate the dog runs into English.
+<~ dog
