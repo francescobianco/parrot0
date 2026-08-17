@@ -489,6 +489,8 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/reasoning/conditional_plan.p0t
 	@./$(BIN) --test tests/p0t/reasoning/situation_plan.p0t
 	@./$(BIN) --test tests/p0t/meta/turn_frame_producer.p0t
+	@./$(BIN) --test tests/p0t/conversation/stipulated_world.p0t
+	@./$(BIN) --test tests/p0t/language/inflected_lookup.p0t
 	@./$(BIN) --test tests/p0t/math/wordproblem.p0t
 	@./$(BIN) --test tests/p0t/math/wordproblem_multi.p0t
 	@./$(BIN) --test tests/p0t/reasoning/belief.p0t

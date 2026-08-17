@@ -1,0 +1,83 @@
+# IL PRODUTTORE DEI CONTESTI — gen395.
+#
+# `context-scope.p0` sapeva gia' tenere insieme mondo e ipotesi senza cancellare
+# nessuna vista; quello che mancava era la porta, perche' nessun turno reale
+# produceva `context/2` e `holds_in/2`. Il piano lo chiama senza sconti il gate
+# della generazione, ed e' quello che questo file esercita.
+#
+# Il percorso storico delle ipotesi resta e fa un'altra cosa: applica le premesse
+# sotto provenienza ipotetica, risponde, e le ritira a fine turno. Va bene per
+# «se tutti i gatti sono pesci...», dove l'ipotesi serve una volta sola. Qui
+# l'impegno SOPRAVVIVE al turno, ed e' cio' che rende possibile una
+# conversazione: si stipula, poi si chiede, e la risposta tiene insieme le due
+# viste dicendo a quale scope appartiene ciascuna.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test the world answers alone before anything is stipulated]
+> dove si trova milano
+< Lombardia.
+
+# Una stipulazione non fa una domanda: la mossa dovuta e' riconoscere l'impegno,
+# non dedurne una conseguenza che nessuno ha chiesto.
+[test stipulating is acknowledged and not answered]
+> supponiamo che milano sia in francia
+< D'accordo: lo tengo come ipotesi, separata da cio' che so.
+
+# Il gate: l'impegno e' sopravvissuto al turno, ed e' un contesto tipizzato con
+# le sue credenze — non una premessa consumata e buttata.
+[test the stipulated world survives the turn as a typed context]
+!clause probe_ctx($T, kind($K)) :- context(stipulated_world, $K)
+!clause turn_plan_candidate($T) :- probe_ctx($T, $X)
+!clause turn_response($T, $X) :- probe_ctx($T, $X)
+> dimmi qualcosa
+< kind(hypothesis)
+!forget probe_ctx($T, kind($K)) :- context(stipulated_world, $K)
+
+# La definizione di done del piano: due risposte diverse messe in relazione,
+# senza confonderle e senza perdere la provenienza. Il mondo NON viene corretto.
+[test the same question now carries both scopes, each labelled]
+> dove si trova milano
+< Per quello che so, lombardia; per la tua ipotesi, francia.
+
+# Ritirare la credenza ipotetica lascia il mondo intatto: l'ipotesi non aveva
+# cancellato nulla, quindi toglierla non deve ripristinare nulla.
+[test releasing the hypothesis leaves the world untouched]
+!forget holds_in(stipulated_world, fact(located_in, milan, france))
+> dove si trova milano
+< Lombardia.
+
+# La stessa struttura in inglese, su un'altra entita': la lingua e' una riga di
+# superficie, non un ramo del motore.
+[test the same move in english and on another entity]
+!set PARROT0_LANG=en
+> where is paris
+< France.
+> suppose that paris were in germany
+< All right: I am holding that as a hypothesis, separately from what I know.
+> where is paris
+< In what I know, france; under your hypothesis, germany.
+!forget holds_in(stipulated_world, fact(located_in, paris, germany))
+> where is paris
+< France.
+
+# Crescita e ablazione della SUPERFICIE che stipula: una cue nuova apre il ruolo
+# al turno successivo, e ritrarla lo chiude.
+[test the stipulating surface is knowledge]
+> let us pretend milan were in spain
+<! holding that as a hypothesis
+!assert stipulation_cue("let us pretend")
+> let us pretend milan were in spain
+< All right: I am holding that as a hypothesis, separately from what I know.
+> where is milan
+< In what I know, lombardy; under your hypothesis, spain.
+!forget stipulation_cue("let us pretend")
+!forget holds_in(stipulated_world, fact(located_in, milan, spain))
+> let us pretend milan were in spain
+<! holding that as a hypothesis

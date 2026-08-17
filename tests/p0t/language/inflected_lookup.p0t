@@ -1,0 +1,78 @@
+# LA FORMA FLESSA E' LA STESSA ENTITA' — gen395.
+#
+# Il turno reale: «cosa e' una variabile» rispondeva, «cosa sono le variabili»
+# murava. Erano DUE archi mancanti, non uno, ed e' la ragione per cui il caso
+# vale un ratchet invece di una riga in piu' in una tabella:
+#
+#   1. il plurale del NOME — la KB aveva un elenco di 54 singolari a mano, e
+#      «variabili» non c'era. Un elenco non e' la classe: la flessione e' una
+#      procedura, e vive ora come regole su `chars/2` + `append_list/3`;
+#   2. il plurale della DOMANDA — «cosa sono» non canonicalizzava, perche'
+#      «sono» da solo e' ambiguo in italiano (prima e terza persona) e il
+#      per-parole non puo' sceglierne una senza inventare.
+#
+# Il terzo pezzo e' il confine fra candidato e decisione: le regole di flessione
+# SOVRAGENERANO di proposito, quindi un consumer che prende il primo candidato
+# trasforma un'ipotesi in una scelta. Il controllo negativo qui sotto e' quello.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test the same concept answers in the singular and in the plural]
+> cosa è una variabile
+<~ Una variabile è
+> cosa sono le variabili
+<~ Una variabile è
+> che cosa sono le variabili
+<~ Una variabile è
+
+[test the english plural reaches the same concept]
+> what is a variable
+<~ A variable is
+> what are variables
+<~ A variable is
+
+# La regola, non l'istanza: un concetto inventato adesso deve rispondere al
+# plurale senza che nessuno insegni il suo plurale.
+[test a concept taught at runtime answers in the plural it was never taught]
+!assert wiki_concept(zorble, tech, "A zorble is a taught widget with three sides")
+!assert semantic_topic_cue(zorble, keyword(zorble))
+> what is a zorble
+<~ zorble is a taught widget
+> what are zorbles
+<~ zorble is a taught widget
+!forget wiki_concept(zorble, tech, "A zorble is a taught widget with three sides")
+> what are zorbles
+<! taught widget
+
+# Il controllo negativo che ha trovato il difetto: le regole propongono
+# «florbla» per «florble», e prendere il primo candidato faceva cercare una
+# parola che l'utente non ha mai scritto. Un candidato vale solo se la KB lo
+# conosce gia'; altrimenti la superficie resta quella detta.
+[test an overgenerated lemma never replaces an unknown word]
+!set PARROT0_LANG=en
+> what is a florble
+<~ florble
+<! florbla
+
+# L'elenco resta come struttura secondaria, e non e' ridondanza: copre gli
+# irregolari, che nessuna regola di desinenza raggiunge. La regola propone
+# «uomino» e «uomine»; solo la tabella sa «uomo».
+[test rules and curated table cover different halves of the class]
+!assert answer_frame("lemma of", lemma_candidate)
+!assert answer_frame_input_arg("lemma of", lemma_candidate, 1)
+> what is the lemma of cavalli
+<~ Cavallo
+> what is the lemma of uomini
+<~ Uomo
+!forget singular(uomini, uomo)
+> what is the lemma of uomini
+<! Uomo
+!assert singular(uomini, uomo)
+> what is the lemma of uomini
+<~ Uomo

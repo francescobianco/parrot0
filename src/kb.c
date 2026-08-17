@@ -1425,6 +1425,40 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         return 0;                              /* both unbound: flounder */
     }
 
+    /* gen395: `concat_atoms/3` — la concatenazione come meccanica.
+     *
+     * Esisteva come procedura KB sopra `chars/2` e `append_list/3`, ed era la
+     * scelta giusta finche' le risposte composte erano corte. Misurato: oltre
+     * una sessantina di caratteri la LISTA di caratteri intermedia sfonda
+     * KB_TERM_LEN (una stringa di 58 caratteri diventa un termine di ~470, e il
+     * livello successivo del fold la supera), quindi il piano proposizionale a
+     * cinque pezzi perdeva la risposta — non con un errore, ma con zero
+     * soluzioni, e il turno cadeva al percorso storico. E' la stessa specie di
+     * fallimento silenzioso del §2.1 vincolo 5.
+     *
+     * Concatenare due stringhe non e' conoscenza: e' aritmetica di byte, come
+     * `is/2`. Il fold del §K6 resta interamente in KB — questo primitivo non
+     * decide nulla su COSA dire, e la clausola in `procedures.p0` resta come
+     * struttura secondaria e come documentazione della semantica. */
+    if (strcmp(g->pred, "concat_atoms") == 0 && g->argc == 3) {
+        char a0[KB_TERM_LEN], a1[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], a0, sizeof a0, 0);
+        deep_resolve(s, g->args[1], a1, sizeof a1, 0);
+        if (is_var(a0) || is_var(a1)) return 0;   /* both inputs must be ground */
+        char *t0 = a0, *t1 = a1;
+        size_t l0 = strlen(t0), l1 = strlen(t1);
+        if (l0 >= 2 && t0[0] == '"' && t0[l0 - 1] == '"') { t0[l0 - 1] = '\0'; t0++; }
+        if (l1 >= 2 && t1[0] == '"' && t1[l1 - 1] == '"') { t1[l1 - 1] = '\0'; t1++; }
+        char joined[KB_TERM_LEN];
+        if ((int)snprintf(joined, sizeof joined, "%s%s", t0, t1) >= (int)sizeof joined)
+            return 0;
+        Subst *s2 = &scratch->subst;
+        *s2 = *s;
+        if (unify(s2, g->args[2], joined))
+            return solve(S, goals, ngoals, idx + 1, s2, depth);
+        return 0;
+    }
+
     /* gen393: `upcase_first/2` — the case transform, and only the transform.
      *
      * A KB-composed answer could add a language's sentence terminator (that fact
@@ -1906,7 +1940,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
      * no rules. Avoid constructing an SLD search that scans every unrelated fact
      * at every evidence query; rule-bearing predicates keep the full solver. */
     int has_rule = (argc == 2 && (strcmp(pred, "chars") == 0 ||   /* solver builtins */
-        strcmp(pred,"upcase_first")==0 ||
+        strcmp(pred,"upcase_first")==0 || strcmp(pred,"concat_atoms")==0 ||
         strcmp(pred,"kb_fact")==0 || strcmp(pred,"apply")==0 ||
         strcmp(pred,"is")==0 || strcmp(pred,"lt")==0 || strcmp(pred,"le")==0 ||
         strcmp(pred,"gt")==0 || strcmp(pred,"ge")==0 || strcmp(pred,"eq")==0 ||

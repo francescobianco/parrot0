@@ -2,6 +2,67 @@
 
 ## HANDOFF prioritario — ragionamento situazionale dal universal input — 2026-08-17
 
+### AGGIORNAMENTO 3 — gen395 ha il suo producer, e quattro difetti trovati strada facendo
+
+`kb/core/stipulation.p0` chiude il gate di gen395: un turno che stipula produce
+`context/2` + `holds_in/2` che SOPRAVVIVONO al turno, e la domanda successiva
+riceve entrambe le viste etichettate. Ratchet in
+`conversation/stipulated_world.p0t`, 13 asserzioni, IT ed EN.
+
+La scoperta che vale piu' del taglio: **`assert/1` e' gia' una primitiva del
+solver**, quindi la KB puo' rendere persistenti le proprie conclusioni senza che
+un modulo C decida per lei quando farlo. E' cio' che rende una stipulazione un
+impegno invece di una premessa usa-e-getta. L'effetto sta dentro la
+realizzazione della mossa `acknowledge`: stipulare in silenzio mentre si risponde
+ad altro sarebbe un cambiamento di stato invisibile all'interlocutore.
+
+Quattro difetti trovati lungo la strada, tutti silenziosi, tutti da ricordare:
+
+1. **`KB_MAX_BODY` e' 8.** Una regola con nove goal viene scartata dal loader
+   SENZA UNA PAROLA, e ogni suo pezzo interrogato separatamente continua a
+   funzionare — la diagnosi piu' lenta di questa sessione. Se una regola
+   «esiste ma non risolve», contare i goal del corpo e' il primo controllo;
+2. **la composizione via `chars/2` + `append_list/3` si rompe oltre ~60
+   caratteri.** La lista di caratteri intermedia sfonda `KB_TERM_LEN` (58
+   caratteri diventano un termine di ~470, e il livello successivo del fold lo
+   supera): il piano proposizionale a cinque pezzi perdeva la risposta con ZERO
+   soluzioni e il turno cadeva al percorso storico. `concat_atoms/3` e' ora una
+   primitiva; la clausola KB resta come struttura secondaria e documentazione.
+   Concatenare due stringhe non e' conoscenza, e la prova e' che non scala;
+3. **il produttore universale vede il turno NORMALIZZATO, non canonicalizzato.**
+   Il percorso storico riceve il turno gia' tradotto, quindi una superficie
+   italiana non poteva entrare nel frame e i fatti stavano sotto il termine
+   canonico. Servono entrambe le cose, ed entrambe sono conoscenza: la
+   superficie italiana in `answer_frame/2`, e `canonical_value/2` sulle parole
+   del turno. Un frame deve poter parlare delle parole che l'interlocutore ha
+   usato;
+4. **`te_split_args` spezzava gli argomenti su ogni virgola.** Il dialetto della
+   KB annida i termini, quello dei test no: `!forget holds_in(w, fact(r,s,o))`
+   ritraeva un fatto inesistente e non toglieva niente, in silenzio. Corretto
+   contando le parentesi — e la correzione ha subito **invalidato una proprieta'
+   che un ratchet dava per misurata**: `gap_dialogue.p0t` affermava che togliere
+   i due ponti verso `pump` non rompeva il legame. Non lo rompeva perche' il
+   `!forget` non ritraeva. Ora ogni ponte porta il suo peso, e il test lo dice.
+
+**Bonus dallo stesso giro, dal turno reale segnalato:** «cosa e' una variabile»
+rispondeva e «cosa sono le variabili» murava. Erano DUE archi mancanti, non uno:
+il plurale del NOME (l'elenco `singular/2` a mano non conteneva «variabili» — la
+flessione e' una procedura, ora regole su `chars/2`) e il plurale della DOMANDA
+(«cosa sono» non canonicalizzava, perche' «sono» da solo e' ambiguo in italiano).
+Piu' il confine fra i due livelli: le regole di flessione SOVRAGENERANO, quindi
+vivono sotto `lemma_candidate/2` e un consumer che decide sul primo risultato
+continua a leggere la tabella curata — mescolarli faceva cercare «florbla» al
+posto di «florble». Ratchet in `language/inflected_lookup.p0t`.
+
+**Costo misurato:** 80 ms su un turno qualunque (invariato rispetto a prima del
+producer), ~420 ms su un turno italiano che il frame risponde davvero, contro il
+secondo di contratto. `make test` 2098 verdi; `make soft-test` verde e fuori
+budget (28s contro 15, da 21 di base). La causa e' nota e non e' mascherata: fra
+`turn_plan_candidate` e le due clausole di `turn_response` lo stesso insieme di
+letture viene enumerato tre volte. Il rimedio — memoizzazione per turno, che il
+§17.9 gia' autorizza — resta il primo lavoro di performance da fare, prima di
+allargare l'ammissione al frame.
+
 ### AGGIORNAMENTO 2 — il producer NL -> frame di gen393 e' collegato
 
 Era il pezzo che bloccava quattro generazioni con la stessa forma (393 aspetta

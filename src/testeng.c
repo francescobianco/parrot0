@@ -261,10 +261,22 @@ static size_t te_split_args(char *q, char argbuf[KB_MAX_ARGS][KB_TERM_LEN],
     while (*q && *q != ')' && argc < KB_MAX_ARGS) {
         while (*q == ' ' || *q == '\t') q++;
         size_t a = 0;
-        int quoted = 0;
+        int quoted = 0, depth = 0;
         while (*q && a + 1 < KB_TERM_LEN) {
+            /* gen395: un argomento puo' essere un TERMINE COMPOSTO.
+             *
+             * Spezzando su ogni virgola fuori dalle virgolette, `!forget
+             * holds_in(w, fact(r, s, o))` diventava quattro argomenti e non
+             * ritraeva nulla — in silenzio, perche' retract su un fatto che non
+             * esiste non e' un errore. Il dialetto della KB annida i termini
+             * (`cons/2`, `fact/3`, le proposizioni reificate del gen395), quindi
+             * il dialetto dei test deve saperli NOMINARE: un ratchet che non puo'
+             * dire cosa gli serve assente non e' un ratchet. La profondita' di
+             * parentesi e' l'unica cosa che serve saper contare. */
             if (*q == '"') quoted = !quoted;
-            else if (!quoted && (*q == ',' || *q == ')')) break;
+            else if (!quoted && *q == '(') depth++;
+            else if (!quoted && *q == ')' && depth > 0) depth--;
+            else if (!quoted && depth == 0 && (*q == ',' || *q == ')')) break;
             argbuf[argc][a++] = *q++;
         }
         while (a > 0 && (argbuf[argc][a-1] == ' ' || argbuf[argc][a-1] == '\t')) a--;

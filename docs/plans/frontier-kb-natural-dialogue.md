@@ -1929,9 +1929,41 @@ Avvio della gen395:
    alternative; firme di proposizione compatibili derivano conflitti fra scope;
 3. **crescita e ablazione:** il `.p0t` cambia la scelta di scope ritraendo una
    policy e prova che i fatti degli altri contesti restano disponibili;
-4. **producer aperto:** i mondi locali, le ipotesi e le premesse dei consumer
-   storici non producono ancora automaticamente `context/2` e `holds_in/2`; la
-   loro proiezione e' il gate della generazione;
+4. **PRODUCER CHIUSO (gen395, secondo taglio):** `kb/core/stipulation.p0`
+   proietta un turno che stipula in `context/2` + `holds_in/2`. La superficie e'
+   un ruolo di span aperto da `stipulation_cue/1` — la stessa conoscenza che il
+   percorso storico usava per decidere se rinominare i concetti — e la lettura
+   riusa le procedure del piano condizionale (forma canonica, tipi degli
+   argomenti), quindi non nasce un secondo parser: cambia l'ATTO, non la
+   meccanica. L'impegno e' reso persistente da `assert/1`, che e' gia' una
+   primitiva del solver: la KB rende durevoli le proprie conclusioni senza che un
+   modulo C decida per lei quando farlo, e l'effetto accade dentro la
+   realizzazione della mossa `acknowledge` — stipulare in silenzio sarebbe un
+   cambiamento di stato che l'interlocutore non puo' vedere.
+
+   La differenza col percorso storico e' il punto della generazione: quello
+   applica le premesse sotto provenienza ipotetica, risponde e le ritira a fine
+   turno — giusto per «se tutti i gatti sono pesci...», dove l'ipotesi serve una
+   volta sola. Qui il mondo stipulato SOPRAVVIVE al turno, quindi si puo'
+   stipulare e poi chiedere. Le due strade convivono; nessuna e' stata amputata.
+
+   La definizione di done e' raggiunta e ratchettata in
+   `conversation/stipulated_world.p0t` (13 asserzioni, IT e EN):
+
+   ```text
+   dove si trova milano                  -> Lombardia.
+   supponiamo che milano sia in francia  -> D'accordo: lo tengo come ipotesi, [...]
+   dove si trova milano                  -> Per quello che so, lombardia;
+                                            per la tua ipotesi, francia.
+   ```
+
+   Due risposte diverse, messe in relazione, ciascuna con lo scope in cui vale:
+   il mondo non viene corretto, e ritrarre la credenza ipotetica non deve
+   ripristinare nulla — perche' non aveva cancellato nulla;
+5. **producer degli altri scope aperto:** citazione, credenza riportata e
+   premessa di task non hanno ancora la loro porta; e il mondo stipulato e' uno
+   solo (`stipulated_world`), quindi due ipotesi concorrenti non sono ancora
+   distinguibili;
 5. **ratchet di precondizione:** faccetta esplicita, query sullo stato di un
    registro misto e clausole multiple per riga sono ora protette da `.p0t` con
    crescita/ablazione. `make soft-test` resta nel budget invariato (11s/15s),

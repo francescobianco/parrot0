@@ -177,6 +177,16 @@ sentence_opening($Language, $Value, $Piece) :- sentence_initial($Language, upper
 sentence_opening($Language, $Value, $Value) :- naf(sentence_initial($Language, upper)).
 value_statement($Language, $Value, $Text) :- sentence_opening($Language, $Value, $Opened), value_sentence($Language, $Opened, $Text).
 
+% gen395: un valore provato e' un TERMINE della KB, e i termini sono canonici.
+% Renderlo nella lingua del turno e' realizzazione, non contenuto: la stessa
+% proof dice `lombardy` e `Lombardia` senza che cambi cio' che afferma. Il verso
+% di `tr/2` e' gia' il contratto — primo argomento canonico, secondo italiano —
+% e una lingua nuova entra come fatto, non come ramo.
+translated_term($Value) :- tr($Value, $Local).
+value_in_language(en, $Value, $Value).
+value_in_language(it, $Value, $Local) :- tr($Value, $Local).
+value_in_language(it, $Value, $Value) :- naf(translated_term($Value)).
+
 % ── PIANO PROPOSIZIONALE (K6): prima COSA va detto, poi COME dirlo ──
 %
 % Una risposta composta e' una sequenza ordinata di pezzi, e ogni pezzo porta il
@@ -991,6 +1001,7 @@ machinery(sides).
 :- include(code-plans.p0).
 :- include(situation.p0).
 :- include(turn-frames.p0).
+:- include(stipulation.p0).
 :- include(denotation.p0).
 :- include(language-forms.p0).
 
@@ -1049,6 +1060,8 @@ machinery(append_list).
 machinery(concat_atoms).
 machinery(sentence_terminator).
 machinery(sentence_initial).
+machinery(value_in_language).
+machinery(translated_term).
 machinery(value_sentence).
 machinery(answer_content).
 machinery(answer_has_content).

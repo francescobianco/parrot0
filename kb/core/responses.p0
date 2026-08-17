@@ -256,6 +256,20 @@ response_template(situation_blocked, it, "Conosco un'azione adatta, ma in quella
 response_template(situation_plan_ambiguous, en, "More than one action would change it that way, and nothing in the situation chooses between them.").
 response_template(situation_plan_ambiguous, it, "Piu' di un'azione lo cambierebbe in quel verso, e la situazione non sceglie fra loro.").
 
+% gen395: la mossa `acknowledge`. Una stipulazione non fa una domanda, quindi
+% cio' che e' dovuto e' dire che l'impegno e' stato preso — non dedurne una
+% conseguenza che nessuno ha chiesto.
+response_template(stipulation_acknowledged, en, "All right: I am holding that as a hypothesis, separately from what I know.").
+response_template(stipulation_acknowledged, it, "D'accordo: lo tengo come ipotesi, separata da cio' che so.").
+
+% gen395: le due viste nella stessa risposta. Non sono connettivi neutri —
+% dicono a quale SCOPE appartiene ciascuna proposizione, che e' esattamente
+% l'informazione che sceglierne una sola cancellerebbe.
+world_view_opener(en, "In what I know, ").
+world_view_opener(it, "Per quello che so, ").
+hypothesis_view_opener(en, "; under your hypothesis, ").
+hypothesis_view_opener(it, "; per la tua ipotesi, ").
+
 % gen396: i CONNETTIVI della risposta composta (piano proposizionale, §K6).
 %
 % Non sono risposte: sono i pezzi di lingua che tengono insieme proposizioni gia'

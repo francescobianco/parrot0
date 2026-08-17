@@ -1051,6 +1051,17 @@ answer_frame(language, language_of_country).
 % landmark entrano dalla stessa porta attraverso i loro fatti o regole; il
 % consumer non conosce nessuna classe geografica e la superficie resta KB.
 answer_frame("where is", located_in).
+% gen395: la superficie italiana e' conoscenza quanto quella inglese, e serve
+% due lettori diversi. Il consumer storico vede il turno gia' canonicalizzato,
+% quindi «dove si trova» gli arrivava tradotto; il produttore universale del
+% frame lavora invece sul turno NORMALIZZATO — deve vedere le parole che
+% l'interlocutore ha detto, non la loro traduzione — e senza questa riga una
+% domanda italiana non poteva entrare nel frame. La lingua non e' un ramo del
+% motore: e' una riga in piu' nello stesso registro.
+answer_frame("dove si trova", located_in).
+answer_frame("dove sono", located_in).
+answer_frame_input_arg("dove si trova", located_in, 1).
+answer_frame_input_arg("dove sono", located_in, 1).
 % La domanda lega il luogo cercato al primo argomento. Senza questo fatto il
 % consumer binario potrebbe scambiare "dove e' la Campania?" con l'inversa
 % located_in(naples, campania) e rispondere Napoli.

@@ -67,14 +67,26 @@
 > cosa è una pompa
 <~ Una pompa muove un fluido
 
-# The exonym and the Italian cue are two bridges to the same concept, and they
-# are not the only ones: with both retracted the surface still resolves, because
-# a near-form hypothesis reaches `pump` on its own. Recorded as measured rather
-# than assumed — the ablation that was meant to break the link does not, and that
-# is a property worth holding still.
-[test the concept survives the loss of one bridge]
+# gen395 — questo blocco asseriva che l'ablazione dei due ponti NON rompeva il
+# legame, e lo registrava come proprieta' misurata. Era un artefatto
+# dell'harness: `!forget semantic_topic_cue(pump, keyword(pompa))` spezzava gli
+# argomenti su OGNI virgola, quindi ritraeva un fatto inesistente e non toglieva
+# niente. Il legame reggeva perche' la cue era ancora li'.
+#
+# Con il `!forget` che conta le parentesi, l'ablazione fa cio' che diceva di
+# fare, e il comportamento vero e' l'opposto: tolti l'esonimo e la cue, la
+# superficie italiana non raggiunge piu' il concetto e parrot0 declina in modo
+# informato. Ogni ponte porta davvero il suo peso — che e' l'affermazione piu'
+# forte, e ora e' quella provata.
+[test each bridge to the concept really carries its weight]
 !forget tr(pump, pompa)
+> cosa è una pompa
+<~ Una pompa muove un fluido
 !forget semantic_topic_cue(pump, keyword(pompa))
+> cosa è una pompa
+<! Una pompa muove un fluido
+<~ pompa
+!assert semantic_topic_cue(pump, keyword(pompa))
 > cosa è una pompa
 <~ Una pompa muove un fluido
 !forget concept_gloss(pump, it, "Una pompa muove un fluido cedendogli energia, o intrappolandone un volume e spingendolo avanti, o accelerandolo con una girante in rotazione.")

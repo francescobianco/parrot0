@@ -60,6 +60,28 @@ singular(fish, fish).
 singular(sheep, sheep).
 singular(deer, deer).
 
+% --- CANDIDATI DI LEMMA: regole, non elenco (gen395) --------------------------
+%
+% Le 54 righe qui sopra sono un elenco, e un elenco ha un difetto strutturale:
+% «variabili» non c'era, quindi «cosa sono le variabili» murava mentre «cosa e'
+% una variabile» rispondeva. Aggiungere la riga mancante sarebbe stato il fix
+% dell'istanza; la CLASSE e' la flessione, e la flessione e' una procedura.
+% `chars/2` e `append_list/3` bastano: il motore non impara nessuna desinenza.
+%
+% Vivono sotto un nome PROPRIO, e la distinzione non e' cosmetica. `singular/2`
+% e' una DECISIONE — il research loop la usa cosi', prendendo il primo risultato
+% come il lemma — mentre una regola di flessione produce CANDIDATI: «variabili»
+% propone sia «variabilo» sia «variabile», e una parola inventata come «florble»
+% propone «florbla». Misurato: mescolarli faceva cercare «florbla» al posto di
+% «florble». Un candidato che non ha fatti muore alla giunzione, ma solo se chi
+% lo consuma sa che e' un candidato; chi decide sul primo che trova ha bisogno di
+% una tabella curata, e continua ad averla.
+lemma_candidate($Word, $Lemma) :- singular($Word, $Lemma).
+lemma_candidate($Plural, $Singular) :- chars($Plural, $Chars), append_list($Stem, cons(i, nil), $Chars), append_list($Stem, cons(o, nil), $SingChars), chars($Singular, $SingChars).
+lemma_candidate($Plural, $Singular) :- chars($Plural, $Chars), append_list($Stem, cons(i, nil), $Chars), append_list($Stem, cons(e, nil), $SingChars), chars($Singular, $SingChars).
+lemma_candidate($Plural, $Singular) :- chars($Plural, $Chars), append_list($Stem, cons(e, nil), $Chars), append_list($Stem, cons(a, nil), $SingChars), chars($Singular, $SingChars).
+lemma_candidate($Plural, $Singular) :- chars($Plural, $Chars), append_list($SingChars, cons(s, nil), $Chars), chars($Singular, $SingChars).
+
 % --- Disambiguation flags: phrases inside a definition that signal it may NOT
 % match the user's intended meaning. Detected post-fetch to warn or refuse. ---
 disambig_flag(en, "may refer to").

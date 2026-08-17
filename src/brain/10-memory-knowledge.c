@@ -4175,6 +4175,30 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                 const char *fbw[2] = { NULL, v };
                 na = kb_match(b->kb, pred, fbw, 2, ans, 16);    /* pred(?, v) -> arg1 */
             }
+            /* gen395: la forma FLESSA e la stessa entita'.
+             *
+             * «cosa e' una variabile» rispondeva e «cosa sono le variabili»
+             * murava, perche' il turno cercava i fatti sotto la parola esatta.
+             * Il ponte era gia' in KB (`singular/2`, che il research loop
+             * consulta da gen335) ma nessuno lo attraversava qui. Quale forma
+             * sia il lemma resta interamente conoscenza — elenco per gli
+             * irregolari, regole di flessione per la classe — e il motore fa
+             * solo cio' che gli compete: riprovare la stessa ricerca sotto il
+             * candidato che la KB propone. Una lingua nuova non tocca questo
+             * codice. */
+            if (na == 0) {
+                char lemma[8][KB_TERM_LEN];
+                const char *lq[2] = { v, NULL };
+                size_t nl = kb_match(b->kb, "lemma_candidate", lq, 2, lemma, 8);
+                for (size_t li = 0; li < nl && na == 0; li++) {
+                    const char *lfw[2] = { lemma[li], NULL };
+                    na = allow_arg1 ? kb_match(b->kb, pred, lfw, 2, ans, 16) : 0;
+                    if (na == 0 && allow_arg2) {
+                        const char *lbw[2] = { NULL, lemma[li] };
+                        na = kb_match(b->kb, pred, lbw, 2, ans, 16);
+                    }
+                }
+            }
             if (na == 0) continue;
             char msg[400]; size_t mo = 0;
             /* Il LAYOUT di un elenco e' conoscenza (gen382e).

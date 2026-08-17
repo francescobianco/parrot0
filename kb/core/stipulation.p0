@@ -1,0 +1,90 @@
+% stipulation.p0 — IL PRODUTTORE DEI CONTESTI (gen395).
+%
+% `context-scope.p0` sa gia' tenere insieme mondo, ipotesi, citazione e credenza
+% riportata, e sa derivarne conflitti senza cancellare nessuna vista. Quello che
+% mancava era la porta: nessun turno reale produceva `context/2` e `holds_in/2`,
+% quindi il kernel restava un oggetto che soltanto un `.p0t` sapeva riempire. Il
+% piano lo dice senza sconti — «la loro proiezione e' il gate della generazione».
+%
+% Il percorso storico delle ipotesi esiste ed e' diverso: applica le premesse
+% sotto la provenienza `KB_HYPOTHETICAL`, risponde, e alla fine del turno le
+% ritira tutte. E' giusto per «se tutti i gatti sono pesci, un gatto e' un
+% pesce?», dove l'ipotesi serve una volta sola. Non basta per una CONVERSAZIONE:
+% un mondo stipulato in un turno deve poter essere interrogato nel successivo, e
+% deve restare distinguibile dal mondo invece di sovrascriverlo.
+%
+% Qui la stipulazione diventa percio' un impegno REIFICATO: un contesto tipizzato
+% piu' le sue credenze, che sopravvivono al turno e restano interrogabili accanto
+% al mondo. Le due strade convivono — quella storica non viene amputata.
+
+:- file_attribute(machinery).
+
+% ── 1. LA SUPERFICIE: stipulare e' un ruolo di span ─────────────────────────
+%
+% `stipulation_cue/1` esisteva gia' in `grammar.p0` e serviva un ramo del C che
+% decideva se rinominare i concetti della premessa. La stessa conoscenza apre
+% ora un ruolo dell'universal input: nessuna cue nuova, nessuna lingua nel
+% motore, e una forma insegnata stasera segmenta il turno di stasera.
+segment_role(stipulation, $Cue) :- stipulation_cue($Cue).
+
+% Il congiuntivo italiano e' una forma della stessa relazione spaziale, non una
+% relazione nuova. Sta qui e non fra le cue condizionali perche' e' la forma che
+% una STIPULAZIONE usa: «supponiamo che milano sia in francia».
+proposition_cue(located_in, "sia in").
+proposition_cue(located_in, "were in").
+proposition_arg_form(located_in, 1, canonical).
+proposition_arg_form(located_in, 2, canonical).
+proposition_arg_kind(located_in, 1, place).
+proposition_arg_kind(located_in, 2, place).
+
+% ── 2. LA LETTURA: soggetto stipulato, relazione e oggetto ──────────────────
+%
+% Il layout e' quello che il segmentatore produce da solo: la cue di
+% stipulazione apre lo span del soggetto, la cue di proposizione apre quello
+% dell'oggetto. E' la stessa forma del piano condizionale, quindi non nasce un
+% secondo parser — cambia l'ATTO, non la meccanica.
+% Il dialetto ammette otto goal per corpo, e la conversione delle superfici in
+% atomi sta percio' QUI, come `conditional_raw_proposition/4` fa per il piano
+% condizionale: la lettura sotto ha gia' i suoi sette. Non e' una limatura
+% cosmetica — la stessa regola con nove goal veniva scartata dal loader senza
+% una parola, e ogni pezzo interrogato da solo continuava a funzionare.
+stipulation_raw($Turn, $Relation, $Subject, $Object) :- turn_span($Turn, $I, stipulation, $RawSubject), turn_span($Turn, $J, proposition, $RawObject), turn_span_cue($Turn, $J, $Evidence), proposition_evidence($Relation, $Evidence), span_atom($RawSubject, $Subject), span_atom($RawObject, $Object).
+
+% Argomenti e tipi passano dalle stesse procedure del condizionale: una forma
+% canonica e' una procedura, e un tipo incompatibile toglie la lettura.
+stipulation_reading($Turn, $Relation, $Subject, $Object) :- stipulation_raw($Turn, $Relation, $RawSubject, $RawObject), proposition_arg_form($Relation, 1, $SubjectForm), argument_value($SubjectForm, $RawSubject, $Subject), proposition_arg_valid($Relation, 1, $Subject), proposition_arg_form($Relation, 2, $ObjectForm), argument_value($ObjectForm, $RawObject, $Object), proposition_arg_valid($Relation, 2, $Object).
+
+stipulation_key($Turn, stipulated($Relation, $Subject, $Object)) :- stipulation_reading($Turn, $Relation, $Subject, $Object).
+stipulation_set($Turn, $Readings) :- turn_stipulation_span($Turn), findall($R, stipulation_key($Turn, $R), $Readings).
+turn_stipulation_span($Turn) :- turn_span($Turn, $Index, stipulation, $Payload).
+stipulation_unique($Turn, $Relation, $Subject, $Object) :- stipulation_set($Turn, cons(stipulated($Relation, $Subject, $Object), nil)).
+stipulation_ambiguous($Turn) :- stipulation_set($Turn, cons($First, cons($Second, $Tail))).
+
+% ── 3. L'IMPEGNO: il mondo stipulato sopravvive al turno ────────────────────
+%
+% `assert/1` e' una primitiva del solver, quindi la KB puo' rendere persistenti
+% le proprie conclusioni senza che un modulo C decida per lei quando farlo. E'
+% un EFFETTO, e va guardato come tale: accade solo dentro la realizzazione della
+% mossa `acknowledge`, cioe' quando parrot0 sta dicendo di aver preso l'impegno.
+% Stipulare in silenzio, mentre si risponde ad altro, sarebbe un cambiamento di
+% stato che l'interlocutore non ha modo di vedere.
+%
+% Il contesto e' tipizzato `hypothesis`, quindi eredita da `world` per la regola
+% gia' scritta in `context-scope.p0`: cio' che l'ipotesi non dice resta vero come
+% nel mondo, e cio' che dice non cancella nulla.
+stipulated_world(stipulated_world).
+stipulation_commit($Relation, $Subject, $Object) :- stipulated_world($Context), assert(context, $Context, hypothesis), assert(holds_in, $Context, fact($Relation, $Subject, $Object)).
+
+% Ritirare un mondo stipulato e' l'operazione simmetrica, e appartiene alla KB
+% per la stessa ragione: e' una mossa del dialogo, non un dettaglio di memoria.
+stipulation_release($Context, $Relation, $Subject, $Object) :- retract(holds_in, $Context, fact($Relation, $Subject, $Object)).
+
+% ── 4. LA MOSSA: riconoscere, non rispondere ───────────────────────────────
+%
+% Una stipulazione non fa una domanda. La mossa dovuta e' `acknowledge`, che il
+% gen394 elenca fra quelle invarianti: dire che l'impegno e' stato preso, e
+% renderlo interrogabile. Rispondere qualcosa di piu' significherebbe inventare
+% una conseguenza che nessuno ha ancora chiesto.
+dialogue_state($Turn, new_shared_constraint) :- stipulation_unique($Turn, $Relation, $Subject, $Object).
+turn_plan_candidate($Turn) :- stipulation_unique($Turn, $Relation, $Subject, $Object).
+turn_response($Turn, $Text) :- stipulation_unique($Turn, $Relation, $Subject, $Object), stipulation_commit($Relation, $Subject, $Object), current_language($Language), response_template(stipulation_acknowledged, $Language, $Text).

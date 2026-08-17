@@ -597,6 +597,29 @@ static int mod_deep_reason(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* gen395: un CANDIDATO di lemma diventa la chiave solo se la KB lo conosce.
+ *
+ * `singular/2` e' una tabella curata, cioe' una decisione; `lemma_candidate/2`
+ * aggiunge le regole di flessione, che per costruzione sovragenerano — «florble»
+ * propone «florbla». Prendere il primo candidato, com'era scritto qui, trasforma
+ * un candidato in una decisione: misurato, la ricerca partiva per «florbla» e
+ * mancava la parola che l'utente aveva scritto. La sostituzione va percio'
+ * MERITATA — vale solo se qualche concetto della KB porta gia' quel nome — e
+ * quale forma sia un lemma resta interamente conoscenza. */
+static void research_lemma_key(Brain *b, char *key, size_t sz) {
+    if (!b || !b->kb || !key || !*key) return;
+    char cand[8][KB_TERM_LEN];
+    const char *q[] = { key, NULL };
+    size_t n = kb_match(b->kb, "lemma_candidate", q, 2, cand, 8);
+    for (size_t i = 0; i < n; i++) {
+        if (strcmp(cand[i], key) == 0) continue;
+        if (kb_is_concept_key(b->kb, cand[i])) {
+            snprintf(key, sz, "%s", cand[i]);
+            return;
+        }
+    }
+}
+
 static int mod_learn(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     if (!b) return 0;
@@ -743,11 +766,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
 
     /* gen335 (KB-first morphology): normalize plural key to singular for lookup.
      * "cavalli" → "cavallo" so Wikipedia finds the animal, not the surname. */
-    char sing[4][KB_TERM_LEN];
-    const char *sq[] = { key, NULL };
-    if (kb_match(b->kb, "singular", sq, 2, sing, 4) > 0) {
-        snprintf(key, sizeof key, "%s", sing[0]);
-    }
+    research_lemma_key(b, key, sizeof key);
 
     /* deep-reasoning M2: a DEEP read extracts every fact from the page's prose
      * (extract_page_facts), each with its source (M1) — distinct from the shallow
@@ -810,11 +829,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     /* gen335 (KB-first morphology): also normalize the English-fallback key,
      * so a plural key_en ("cavalli") doesn't override a singular key ("cavallo")
      * and re-find the wrong concept. */
-    if (key_en[0]) {
-        const char *sq2[] = { key_en, NULL };
-        if (kb_match(b->kb, "singular", sq2, 2, sing, 4) > 0)
-            snprintf(key_en, sizeof key_en, "%s", sing[0]);
-    }
+    if (key_en[0]) research_lemma_key(b, key_en, sizeof key_en);
 
     /* gen240 (universal-comprehension §7): pursue the precondition know(X) via the
      * acquire-knowledge action — already in RAM, learned from the local certified

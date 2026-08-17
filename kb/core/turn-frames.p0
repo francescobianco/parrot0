@@ -106,7 +106,14 @@ relation_input_arg($Cue, $Relation, $Arg) :- answer_frame_input_arg($Cue, $Relat
 % Le parole funzionali non sono candidate entita'. `stopword/1` e' la stessa
 % classe dichiarativa che il resto del motore gia' consulta: un membro nuovo la
 % cambia, e il filtro non conosce nessuna lingua per conto proprio.
-turn_word($Turn, $Word) :- turn_span_token($Turn, $Index, $Position, $Token), span_atom($Token, $Word), naf(stopword($Word)).
+% La parola del turno e' quella DETTA; il termine sotto cui la KB tiene i fatti
+% puo' essere un altro. `canonical_value/2` e' la procedura che gia' fa questo
+% passaggio per il piano condizionale, ed e' l'identita' per una forma che
+% nessuna traduzione copre — quindi una clausola sola serve entrambi i casi.
+% Senza questo, il produttore universale capiva soltanto l'inglese: il percorso
+% storico riceve il turno gia' canonicalizzato, mentre qui arriva normalizzato,
+% perche' un frame deve poter parlare delle parole che l'interlocutore ha usato.
+turn_word($Turn, $Value) :- turn_span_token($Turn, $Index, $Position, $Token), span_atom($Token, $Word), naf(stopword($Word)), canonical_value($Word, $Value).
 relation_mentions($Relation, $Entity) :- apply($Relation, cons($Entity, cons($Value, nil))).
 relation_mentions($Relation, $Entity) :- apply($Relation, cons($Value, cons($Entity, nil))).
 turn_entity($Turn, $Relation, $Entity) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Entity), relation_mentions($Relation, $Entity).
@@ -163,4 +170,32 @@ turn_move($Turn, $Move) :- dialogue_state($Turn, $Evidence), move_policy($Eviden
 turn_answers($Turn) :- turn_move($Turn, answer).
 
 turn_plan_candidate($Turn) :- turn_reading_unique($Turn, $Relation, $Entity, $Value), turn_answers($Turn).
-turn_response($Turn, $Text) :- turn_reading_unique($Turn, $Relation, $Entity, $Value), turn_answers($Turn), current_language($Language), value_statement($Language, $Value, $Text).
+turn_response($Turn, $Text) :- turn_reading_unique($Turn, $Relation, $Entity, $Value), turn_answers($Turn), naf(turn_has_scope_reading($Turn)), current_language($Language), value_in_language($Language, $Value, $Local), value_statement($Language, $Local, $Text).
+
+% ── 8. DUE SCOPE NELLA STESSA RISPOSTA (gen395) ─────────────────────────────
+%
+% Un contesto ipotetico non sostituisce il mondo e non lo corregge: dice un'altra
+% cosa, in un altro scope. Quando la domanda tocca entrambi, rispondere con uno
+% solo cancellerebbe per costruzione l'informazione piu' importante — QUALE dei
+% due si sta usando. Le due proposizioni sono gia' provate ciascuna nel proprio
+% contesto; il renderer aggiunge soltanto le etichette che dicono dove valgono.
+%
+% Il caso vale solo quando le due viste DIVERGONO: un'ipotesi che conferma il
+% mondo non merita un turno piu' lungo, e `dif/2` e' il confine.
+% La lettura di scope NON ri-deriva la lettura del mondo. Farlo costava una
+% seconda enumerazione completa dentro la NAF della risposta semplice, e il
+% turno sforava il secondo di contratto: misurato 1,12s, cioe' il frame taceva e
+% il percorso storico rispondeva al posto suo. Qui l'ipotesi si confronta col
+% mondo nel modo piu' diretto — dice qualcosa che il mondo NON tiene — e
+% `apply/2` con entrambi gli argomenti legati e' una ricerca indicizzata.
+turn_scope_reading($Turn, $Context, $Value) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Entity), context($Context, hypothesis), context_effective_belief($Context, fact($Relation, $Entity, $Value)), naf(apply($Relation, cons($Entity, cons($Value, nil)))).
+turn_has_scope_reading($Turn) :- turn_scope_reading($Turn, $Context, $Value).
+
+answer_content(two_views($World, $Hypothesis, $Language), 0, opener, $Piece) :- world_view_opener($Language, $Piece).
+answer_content(two_views($World, $Hypothesis, $Language), 1, world_value, $World).
+answer_content(two_views($World, $Hypothesis, $Language), 2, connective, $Piece) :- hypothesis_view_opener($Language, $Piece).
+answer_content(two_views($World, $Hypothesis, $Language), 3, hypothesis_value, $Hypothesis).
+answer_content(two_views($World, $Hypothesis, $Language), 4, terminator, $Piece) :- sentence_terminator($Language, $Piece).
+
+turn_plan_candidate($Turn) :- turn_scope_reading($Turn, $Context, $Value), turn_answers($Turn).
+turn_response($Turn, $Text) :- turn_reading_unique($Turn, $Relation, $Entity, $W), turn_scope_reading($Turn, $Context, $H), current_language($Language), value_in_language($Language, $W, $World), value_in_language($Language, $H, $Hypothesis), answer_text(two_views($World, $Hypothesis, $Language), $Text).

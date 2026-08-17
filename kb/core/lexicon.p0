@@ -113,6 +113,14 @@ phrase_canon("parte di", "part of").
 % --- copule e ausiliari: `sono` da solo diventa "am" (prima persona), che e'
 % sbagliato in ogni domanda impersonale.
 phrase_canon("quali sono", "which are").
+% gen395 — «cosa e' una variabile» rispondeva, «cosa sono le variabili» murava.
+% Non era il plurale del NOME (quello lo risolve la flessione in morphology.p0):
+% era il plurale della DOMANDA. «sono» da solo e' ambiguo in italiano — prima e
+% terza persona — quindi il per-parole non puo' produrre «are» senza inventare
+% una scelta; la locuzione la porta, come «quali sono» qui sopra.
+phrase_canon("cosa sono", "what are").
+phrase_canon("che cosa sono", "what are").
+phrase_canon("cosa erano", "what were").
 phrase_canon("quale sono", "which are").
 phrase_canon("quante sono", "how many are").
 phrase_canon("quanti sono", "how many are").
