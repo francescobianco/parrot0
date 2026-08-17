@@ -2,6 +2,49 @@
 
 ## HANDOFF prioritario — ragionamento situazionale dal universal input — 2026-08-17
 
+### AGGIORNAMENTO 5 — gen398a e' CHIUSA: la situazione arriva dalla prosa
+
+`kb/core/state-description.p0` porta la meta' che mancava. «La valvola e'
+chiusa» diventa una credenza di una situazione, e il pianificatore del primo
+taglio ci lavora sopra senza sapere che e' arrivata parlando:
+
+```text
+come faccio ad abbassare il livello  -> Non capisco ancora.   (nessuna situazione)
+la valvola e' chiusa                 -> Annotato: lo tengo come stato attuale.
+la valvola funziona                  -> Annotato: ...
+il livello sta salendo               -> Annotato: ...
+come faccio ad abbassare il livello  -> Puoi aprire la valvola.
+```
+
+Nel core non vive un fatto di quel mondo: azione, precondizioni, effetto, legge
+causale e forme entrano tutte da assert runtime. 21 asserzioni in
+`reasoning/described_situation.p0t`, con secondo dominio in inglese.
+
+Tre riusi e nessuno e' una coincidenza: il ruolo di span e' quello della
+stipulazione, la credenza e' `holds_in/2`, e l'aggiornamento di stato e'
+`supersedes_in/3` — cioe' la correzione locale del gen395 diventa gia' meta'
+della ripianificazione che gen398e chiedera'.
+
+Due difetti trovati, entrambi della specie «un filtro che accetta tutto»:
+
+1. la clausola unitaria `state_prop(st(E,P,V), E, P, V)` ha reso VACUO
+   `situation_property/1`, che filtrava sullo SCHEMA invece che sulle credenze.
+   Cosi' «abbassare» valeva insieme come verso e come proprieta', le due letture
+   si annullavano e il piano spariva. Una proprieta' e' situazionale quando una
+   situazione ci tiene davvero uno stato;
+2. tornare a un valore gia' detto lasciava DUE supersessioni incrociate, ciascuna
+   a escludere l'altra: la proprieta' restava senza valore, cioe' una situazione
+   muta che nessuno aveva descritto. Una correzione e' reversibile perche' e' una
+   vista e non una distruzione — ma la vista va davvero riaperta.
+
+Lo stimolo guida della mongolfiera **mura ancora, come deve**: non esiste un
+dominio pallone, e «cosa faresti se» non e' una cue di goal. Il livello sotto di
+esso ora c'e' per intero; fabbricare quel dominio per far passare il prompt che
+ha aperto il fronte sarebbe esattamente cio' che il piano vieta.
+
+`make test` 2145 verdi; `make soft-test` 20s contro 15 (era 18s, e 21s a inizio
+sessione).
+
 ### AGGIORNAMENTO 4 — gen396.1-396.2 (il registro) e la latenza pagata
 
 `kb/core/register.p0` chiude le due task del registro. Il registro non e' piu' un

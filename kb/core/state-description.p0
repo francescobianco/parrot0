@@ -1,0 +1,112 @@
+% state-description.p0 — DALLA PROSA ALLO STATO (gen398a, meta' mancante).
+%
+% Il primo taglio di gen398a sapeva pianificare su una situazione, ma la
+% situazione doveva essere gia' conoscenza: il turno contribuiva il GOAL e
+% qualcun altro doveva aver scritto lo stato. Il piano lo dichiarava aperto senza
+% sconti, ed e' il gate onesto della generazione — «un solo producer trasforma
+% DESCRIZIONI e domande in entita', stato, goal, risorse, vincoli e fonti».
+%
+% Qui arriva la descrizione. «La valvola e' chiusa» diventa una credenza di una
+% situazione, e il pianificatore che gia' esiste ci lavora sopra senza sapere che
+% e' arrivata parlando invece che da un file.
+%
+% Tre riusi, nessuno dei quali e' una coincidenza:
+%
+%   il ruolo di span      la stessa meccanica della stipulazione (gen395)
+%   `holds_in/2`          la stessa credenza contestuale (gen395)
+%   `supersedes_in/3`     la stessa correzione locale (gen395), che qui diventa
+%                         l'aggiornamento di stato che gen398e chiedera'
+%
+% Se questo livello avesse avuto bisogno di un magazzino di stato tutto suo, la
+% reificazione delle proposizioni del gen395 sarebbe stata sbagliata.
+
+:- file_attribute(machinery).
+
+% ── 1. UNA PROPOSIZIONE DI STATO E' LA SUA PROPRIA STRUTTURA ────────────────
+%
+% `st(Entita', Proprieta', Valore)` non ha bisogno di un'anagrafe: la clausola
+% unitaria qui sotto rende OGNI termine di quella forma una proposizione di
+% stato leggibile. E' il motivo per cui una descrizione puo' asserire una
+% credenza senza dover prima inventare un identificatore — e il planner del
+% gen398a la legge con la vista che aveva gia'.
+state_prop(st($Entity, $Property, $Value), $Entity, $Property, $Value).
+
+% ── 2. IL VALORE PORTA LA PROPRIETA' ───────────────────────────────────────
+%
+% «chiusa» non dice quale proprieta' sta fissando: lo dice la KB. E' la stessa
+% mossa del verso del cambiamento in `situation.p0` — la parola denota un valore,
+% e il valore appartiene a un asse. Un asse nuovo e' un fatto, e una lingua nuova
+% e' una riga di `state_cue/2`: il motore non conosce nessuna delle due.
+property_of_value(closed, position).
+property_of_value(open, position).
+property_of_value(rising, level).
+property_of_value(falling, level).
+property_of_value(working, condition).
+property_of_value(broken, condition).
+
+state_cue(closed, "è chiusa").      state_cue(closed, "è chiuso").
+state_cue(closed, "is closed").     state_cue(open, "è aperta").
+state_cue(open, "è aperto").        state_cue(open, "is open").
+state_cue(rising, "sta salendo").   state_cue(rising, "is rising").
+state_cue(falling, "sta scendendo"). state_cue(falling, "is falling").
+state_cue(working, "funziona").     state_cue(working, "is working").
+state_cue(broken, "è guasta").      state_cue(broken, "è guasto").
+state_cue(broken, "is broken").
+
+state_evidence($Value, keyword($Cue)) :- state_cue($Value, $Cue).
+segment_role(state, $Evidence) :- state_evidence($Value, $Evidence).
+
+% ── 3. LA LETTURA: chi, e in che stato ─────────────────────────────────────
+%
+% La cue di stato chiude la frase, quindi l'entita' sta nello span che la
+% precede — quello che `segment_default(before, ...)` classifica da solo. Non si
+% prende l'ultima parola per posizione: si prendono i token e si scarta cio' che
+% e' funzionale, come fa il resto del motore.
+% Quale RUOLO porti il soggetto e' conoscenza, non una costante: il
+% segmentatore classifica lo span che precede la cue con il proprio default, e
+% quel default dipende da cosa c'e' intorno — `prose` in una frase nuda,
+% `instruction` prima di un registro strutturato. Fissarne uno solo avrebbe
+% legato questo livello a una coincidenza di contorno.
+state_subject_role(prose).
+state_subject_role(instruction).
+state_subject($Turn, $Entity) :- state_subject_role($Role), turn_span($Turn, $Index, $Role, $Payload), turn_span_token($Turn, $Index, $Position, $Token), span_atom($Token, $Word), naf(stopword($Word)), canonical_value($Word, $Entity).
+state_claim($Turn, $Value) :- turn_span($Turn, $Index, state, $Payload), turn_span_cue($Turn, $Index, $Evidence), state_evidence($Value, $Evidence).
+state_reading($Turn, $Entity, $Property, $Value) :- state_claim($Turn, $Value), property_of_value($Value, $Property), state_subject($Turn, $Entity).
+
+state_key($Turn, described($Entity, $Property, $Value)) :- state_reading($Turn, $Entity, $Property, $Value).
+state_set($Turn, $Readings) :- state_claim($Turn, $Value), findall($R, state_key($Turn, $R), $Readings).
+state_unique($Turn, $Entity, $Property, $Value) :- state_set($Turn, cons(described($Entity, $Property, $Value), nil)).
+
+% ── 4. L'IMPEGNO, e l'aggiornamento come correzione locale ─────────────────
+%
+% La situazione descritta e' un contesto come gli altri. Un valore NUOVO sulla
+% stessa proprieta' non cancella il vecchio: lo SUPERA, con la relazione che il
+% gen395 usa gia' per le correzioni. Cosi' «la valvola e' aperta» dopo «la
+% valvola e' chiusa» non lascia una situazione che si contraddice, e non
+% distrugge la storia di cio' che era stato detto — che e' precisamente cio' che
+% la ripianificazione di gen398e dovra' poter leggere.
+described_situation(described_situation).
+state_superseded($Situation, $Entity, $Property, $Value) :- situation_state($Situation, $Entity, $Property, $Old), dif($Old, $Value), assert(supersedes_in, $Situation, st($Entity, $Property, $Value), st($Entity, $Property, $Old)).
+
+% Tornare a un valore gia' detto deve CANCELLARE il record che lo aveva
+% superato, altrimenti «chiusa, poi aperta, poi chiusa di nuovo» lascia due
+% supersessioni incrociate: ciascuna esclude l'altra e la proprieta' resta senza
+% valore — una situazione muta, che nessuno ha descritto cosi'. Una correzione
+% e' reversibile perche' e' una vista, non una distruzione, ma la vista va
+% davvero riaperta.
+inverse_supersession($Situation, $Entity, $Property, $Value) :- supersedes_in($Situation, st($Entity, $Property, $Old), st($Entity, $Property, $Value)).
+state_uncover($Situation, $Entity, $Property, $Value) :- supersedes_in($Situation, st($Entity, $Property, $Old), st($Entity, $Property, $Value)), retract(supersedes_in, $Situation, st($Entity, $Property, $Old), st($Entity, $Property, $Value)).
+state_uncover($Situation, $Entity, $Property, $Value) :- naf(inverse_supersession($Situation, $Entity, $Property, $Value)).
+
+state_commit($Entity, $Property, $Value) :- described_situation($Situation), assert(context, $Situation, world), assert(holds_in, $Situation, st($Entity, $Property, $Value)), state_uncover($Situation, $Entity, $Property, $Value), state_settled($Situation, $Entity, $Property, $Value).
+state_settled($Situation, $Entity, $Property, $Value) :- state_superseded($Situation, $Entity, $Property, $Value).
+state_settled($Situation, $Entity, $Property, $Value) :- naf(state_superseded($Situation, $Entity, $Property, $Value)).
+
+% ── 5. LA MOSSA ────────────────────────────────────────────────────────────
+%
+% Descrivere non fa una domanda: la mossa dovuta e' riconoscere. Dedurne una
+% conseguenza sarebbe rispondere a qualcosa che nessuno ha chiesto — e la
+% conseguenza, quando servira', la chiedera' il turno dopo.
+dialogue_state($Turn, new_shared_constraint) :- state_unique($Turn, $Entity, $Property, $Value).
+turn_plan_candidate($Turn) :- state_unique($Turn, $Entity, $Property, $Value).
+turn_response($Turn, $Text) :- state_unique($Turn, $Entity, $Property, $Value), state_commit($Entity, $Property, $Value), current_language($Language), response_template(state_acknowledged, $Language, $Text).

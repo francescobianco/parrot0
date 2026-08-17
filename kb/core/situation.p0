@@ -69,7 +69,14 @@ goal_span_word($Turn, $Word) :- turn_span($Turn, $Index, goal, $Payload), turn_s
 % denota un verso, e come proprieta' se una situazione nota ha davvero uno stato
 % su quella proprieta'. La seconda condizione e' il filtro che impedisce a
 % «il», «the» o a un concetto qualunque di entrare in un ruolo semantico.
-situation_property($Property) :- state_prop($Proposition, $Entity, $Property, $Value).
+% La proprieta' e' situazionale quando una situazione ci tiene davvero uno
+% stato, non quando lo SCHEMA di una proposizione la nomina. La differenza e'
+% diventata visibile appena `state_prop/4` ha acquistato una clausola unitaria
+% con variabili libere (gen398a): la vista era vera per qualunque parola, quindi
+% «abbassare» valeva insieme come verso del cambiamento e come proprieta', le
+% due letture si annullavano a vicenda e il piano spariva. Un filtro che accetta
+% tutto non e' un filtro.
+situation_property($Property) :- situation_state($Situation, $Entity, $Property, $Value).
 goal_word_direction($Turn, $Direction) :- goal_span_word($Turn, $Word), linguistic_form($Word, $Direction, $Language, $Register), change_direction($Direction).
 goal_word_property($Turn, $Property) :- goal_span_word($Turn, $Word), linguistic_form($Word, $Property, $Language, $Register), situation_property($Property).
 

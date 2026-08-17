@@ -262,6 +262,11 @@ response_template(situation_plan_ambiguous, it, "Piu' di un'azione lo cambierebb
 % gen396: chiedere un registro e' una mossa, e riconoscerla e' la risposta
 % dovuta — cambiare stile in silenzio lascerebbe l'interlocutore senza modo di
 % sapere che l'ha ottenuto.
+% gen398a: descrivere non fa una domanda. La mossa dovuta e' riconoscere che lo
+% stato e' stato registrato — dedurne una conseguenza sarebbe rispondere a
+% qualcosa che nessuno ha ancora chiesto.
+response_template(state_acknowledged, en, "Noted: I am holding that as the current state.").
+response_template(state_acknowledged, it, "Annotato: lo tengo come stato attuale.").
 response_template(register_acknowledged, en, "Noted: I will keep that register from here on.").
 response_template(register_acknowledged, it, "Annotato: da qui in avanti tengo quel registro.").
 response_template(stipulation_acknowledged, en, "All right: I am holding that as a hypothesis, separately from what I know.").

@@ -1,0 +1,116 @@
+# DALLA PROSA ALLO STATO — gen398a, la meta' che mancava.
+#
+# Il primo taglio di gen398a pianificava su una situazione che doveva essere
+# gia' conoscenza: il turno portava il GOAL e qualcun altro doveva aver scritto
+# lo stato. Qui la situazione arriva PARLANDO, e il pianificatore che gia'
+# esisteva ci lavora sopra senza sapere da dove venga.
+#
+# Nel core non vive un solo fatto di questo mondo: azione, precondizioni,
+# effetto, legge causale e forme entrano tutti da assert runtime. Le uniche cose
+# che il core porta sono le RELAZIONI e il vocabolario di stato generale
+# (chiuso/aperto/funziona/guasto), che non appartiene a nessun dominio.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test the world of this test is taught, not built in]
+!assert concept_label(level, it, common, livello)
+!assert concept_label(decrease, it, common, abbassare)
+!assert action_schema(fluido, apri_valvola)
+!assert action_precondition(apri_valvola, st(valvola, position, closed))
+!assert action_precondition(apri_valvola, st(valvola, condition, working))
+!assert action_effect(apri_valvola, st(valvola, position, open))
+!assert causal_law(st(valvola, position, open), deflusso)
+!assert change_prop(deflusso, level, decrease)
+!assert concept_label(apri_valvola, it, common, "aprire la valvola")
+> come faccio ad abbassare il livello
+<! aprire la valvola
+
+# Tre descrizioni, tre riconoscimenti. Descrivere non fa una domanda: dedurne
+# una conseguenza sarebbe rispondere a qualcosa che nessuno ha chiesto.
+[test prose becomes the state of a situation]
+> la valvola è chiusa
+< Annotato: lo tengo come stato attuale.
+> la valvola funziona
+< Annotato: lo tengo come stato attuale.
+> il livello sta salendo
+< Annotato: lo tengo come stato attuale.
+
+# Il gate: la stessa domanda che prima murava ora ha un piano, e nessuno ha
+# scritto lo stato a mano.
+[test the same question now has a plan]
+> come faccio ad abbassare il livello
+< Puoi aprire la valvola.
+
+# L'aggiornamento e' una correzione locale, non una cancellazione: il valore
+# nuovo SUPERA il vecchio con la relazione che il gen395 usa gia'. La
+# precondizione dell'azione non vale piu', e il piano lo dice invece di sparire.
+[test a new value supersedes the old one and the plan follows]
+> la valvola è aperta
+< Annotato: lo tengo come stato attuale.
+> come faccio ad abbassare il livello
+< Conosco un'azione adatta, ma in quella situazione una sua precondizione non vale.
+> la valvola è chiusa
+< Annotato: lo tengo come stato attuale.
+> come faccio ad abbassare il livello
+< Puoi aprire la valvola.
+
+# Negativo vicino: la precondizione di CONDIZIONE, non di posizione. Un'azione
+# bloccata resta un'azione conosciuta — sono due residui diversi.
+[test a broken part blocks the step without erasing the action]
+> la valvola è guasta
+< Annotato: lo tengo come stato attuale.
+> come faccio ad abbassare il livello
+< Conosco un'azione adatta, ma in quella situazione una sua precondizione non vale.
+> la valvola funziona
+< Annotato: lo tengo come stato attuale.
+> come faccio ad abbassare il livello
+< Puoi aprire la valvola.
+
+# La superficie che descrive uno stato e' conoscenza: una forma nuova entra
+# parlando e il turno successivo la usa; ritratta, il turno torna a non essere
+# una descrizione.
+[test the describing surface grows and retracts at runtime]
+> la valvola risulta serrata
+<! Annotato: lo tengo come stato attuale.
+!assert state_cue(closed, "risulta serrata")
+> la valvola risulta serrata
+< Annotato: lo tengo come stato attuale.
+!forget state_cue(closed, "risulta serrata")
+> la valvola risulta serrata
+<! Annotato: lo tengo come stato attuale.
+
+# Trasferimento: secondo dominio, altra lingua, zero parole in comune col primo.
+# Gli operatori sono gli stessi — se servisse una regola nuova, il taglio sarebbe
+# una soluzione idraulica invece che un livello.
+[test the same operators work in an unrelated domain and language]
+!set PARROT0_LANG=en
+!reload
+!assert concept_label(charge, en, common, charge)
+!assert concept_label(increase, en, common, raise)
+!assert action_schema(power, connect_charger)
+!assert action_precondition(connect_charger, st(charger, condition, working))
+!assert action_effect(connect_charger, st(charger, position, open))
+!assert causal_law(st(charger, position, open), refill)
+!assert change_prop(refill, charge, increase)
+!assert concept_label(connect_charger, en, common, "connect the charger")
+!assert property_of_value(low, charge)
+!assert state_cue(low, "is low")
+> how do i raise the charge
+<! connect the charger
+> the charge is low
+< Noted: I am holding that as the current state.
+> the charger is working
+< Noted: I am holding that as the current state.
+> how do i raise the charge
+< You can connect the charger.
+
+# Un turno che non descrive nulla non deve diventare una descrizione.
+[test an ordinary turn is not mistaken for a description]
+> what is the capital of france
+< Paris.
