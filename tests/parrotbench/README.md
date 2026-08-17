@@ -94,6 +94,17 @@ parrot0 --bench-engine --sock obj/bench-engine.sock \
   --bench-stats tests/parrotbench/results/progress.tsv
 ```
 
+Prima di inviare gli slot esegue il warmup sullo stesso daemon:
+
+```sh
+parrot0 --bench-health tests/p0t/health.p0t --sock obj/bench-engine.sock
+```
+
+Il warmup usa il parser e le asserzioni `.p0t` reali, verifica che il socket
+risponda con `HEALTH passed failed total` e non scrive alcun record nello stato
+degli slot. Se fallisce, `make parrotbench` si ferma e indica il log del daemon;
+nessun dato parziale viene scambiato per una misura della release.
+
 Poi invia ogni slot con:
 
 ```sh

@@ -38,6 +38,7 @@ int test_engine_send_str(const char *sockpath, const char *payload, const char *
 int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path);
 int bench_engine_send(const char *sockpath, FILE *in, const char *label);
 int bench_engine_send_str(const char *sockpath, const char *payload, const char *label);
+int bench_engine_health(const char *sockpath, FILE *in, const char *label);
 /* Expand one file, directory (recursive), or shell-style glob and send every
  * matching .p0t file as an independent resumable slot. */
 int bench_engine_send_path(const char *sockpath, const char *path);

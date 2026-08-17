@@ -62,6 +62,7 @@ static void print_usage(FILE *out) {
             "    --bench-stats PATH         Persistent benchmark progress TSV\n"
             "  --bench PATH                Send a .p0t file, glob, or directory recursively\n"
             "  --bench-report              Print benchmark totals and stop the daemon\n"
+            "  --bench-health FILE         Warm up and verify the benchmark daemon\n"
             "  --dream TOPIC               Explore a topic recursively\n"
             "    --depth=N                 Limit dream traversal depth\n"
             "    --nodes=N                 Limit dream traversal nodes\n"
@@ -197,7 +198,7 @@ int main(int argc, char **argv) {
      * OpenAI-compatible HTTP API directly (replacing scripts/pi_server.py). */
     int daemon_mode = 0, mcp_mode = 0, test_mode = 0, port = 9902;
     int send_mode = 0, report_mode = 0;
-    int bench_mode = 0, bench_send_mode = 0, bench_report_mode = 0;
+    int bench_mode = 0, bench_send_mode = 0, bench_report_mode = 0, bench_health_mode = 0;
     /* gen382 — `--dream <topic>`: esplorazione ricorsiva di un topic attraverso
      * la sua prosa, parola per parola. Vedi src/dream.h. */
     const char *dream_topic = NULL;
@@ -206,6 +207,7 @@ int main(int argc, char **argv) {
     const char *sockpath = TEST_ENGINE_SOCK_DEFAULT;
     const char *send_file = NULL;
     const char *bench_file = NULL;
+    const char *bench_health_file = NULL;
     const char *bench_stats = BENCH_STATS_DEFAULT;
     const char *profile = NULL;
     for (int i = 1; i < argc; i++) {
@@ -230,6 +232,10 @@ int main(int argc, char **argv) {
             if (i + 1 < argc && strncmp(argv[i + 1], "--", 2) != 0) bench_file = argv[++i];
         }
         else if (strcmp(argv[i], "--bench-report") == 0) bench_report_mode = 1;
+        else if (strcmp(argv[i], "--bench-health") == 0) {
+            bench_health_mode = 1;
+            if (i + 1 < argc && strncmp(argv[i + 1], "--", 2) != 0) bench_health_file = argv[++i];
+        }
         else if (strcmp(argv[i], "--bench-stats") == 0 && i + 1 < argc) bench_stats = argv[++i];
         else if (strncmp(argv[i], "--bench-stats=", 14) == 0) bench_stats = argv[i] + 14;
         else if (strcmp(argv[i], "--profile") == 0) {
@@ -287,6 +293,13 @@ int main(int argc, char **argv) {
     if (bench_send_mode) {
         if (bench_file) return bench_engine_send_path(sockpath, bench_file);
         return bench_engine_send(sockpath, stdin, "stdin");
+    }
+    if (bench_health_mode) {
+        FILE *in = bench_health_file ? fopen(bench_health_file, "rb") : stdin;
+        if (!in) { fprintf(stderr, "parrot0: cannot open '%s'\n", bench_health_file); return 2; }
+        int rc = bench_engine_health(sockpath, in, bench_health_file ? bench_health_file : "stdin");
+        if (in != stdin) fclose(in);
+        return rc;
     }
     if (report_mode) return test_engine_send_str(sockpath, "!shutdown\n", NULL);
     if (bench_report_mode) return bench_engine_send_str(sockpath, "!bench-shutdown\n", NULL);

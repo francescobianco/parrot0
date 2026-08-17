@@ -826,6 +826,13 @@ int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path) {
             for (size_t i = 0; i < ledger.count; i++) if (strcmp(ledger.rows[i].status, "complete") == 0) { p += ledger.rows[i].passed; ff += ledger.rows[i].failed; }
             fprintf(fout, "BENCH %d %d %d\nEXIT 0\n", p, ff, p + ff);
             t.shutdown = 1;
+        } else if (strcmp(control, "!bench-health") == 0) {
+            p0env_clear(); t.out = fout; t.line_no = 0; t.shutdown = 0;
+            int pb = t.passed, fb = t.failed;
+            te_process_stream(&t, fin);
+            int passed = t.passed - pb, failed = t.failed - fb;
+            fprintf(fout, "HEALTH %d %d %d\nEXIT %d\n", passed, failed,
+                    passed + failed, failed > 0 ? 1 : 0);
         } else if (strncmp(control, "!bench-slot ", 12) != 0) {
             fprintf(fout, "BENCH ERROR missing !bench-slot\nEXIT 2\n");
         } else {
@@ -851,7 +858,8 @@ int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path) {
     close(lfd); unlink(sockpath); return 0;
 }
 
-static int be_client_send_payload(const char *sockpath, const char *payload, size_t plen, const char *label) {
+static int be_client_send_payload(const char *sockpath, const char *payload, size_t plen,
+                                  const char *label, const char *kind) {
     int fd = socket(AF_UNIX, SOCK_STREAM, 0); if (fd < 0) return 2;
     struct sockaddr_un addr; memset(&addr, 0, sizeof addr); addr.sun_family = AF_UNIX;
     snprintf(addr.sun_path, sizeof addr.sun_path, "%s", sockpath);
@@ -859,13 +867,16 @@ static int be_client_send_payload(const char *sockpath, const char *payload, siz
     for (int i = 0; i < 300; i++) { if (connect(fd, (struct sockaddr *)&addr, sizeof addr) == 0) { connected = 1; break; } struct timespec ts = {0, 10 * 1000 * 1000}; nanosleep(&ts, NULL); }
     if (!connected) { close(fd); fprintf(stderr, "bench: cannot reach engine at %s\n", sockpath); return 2; }
     char head[BE_FIELD + 32];
-    int control = strncmp(payload, "!bench-shutdown", 15) == 0;
-    int hn = control ? 0 : snprintf(head, sizeof head, "!bench-slot %s\n", label ? label : "stdin");
+    int is_shutdown = strcmp(kind, "shutdown") == 0;
+    int health = strcmp(kind, "health") == 0;
+    int hn = is_shutdown ? 0 : health ? snprintf(head, sizeof head, "!bench-health\n") :
+                                  snprintf(head, sizeof head, "!bench-slot %s\n", label ? label : "stdin");
     if (hn) write_all(fd, head, (size_t)hn);
     write_all(fd, payload, plen); shutdown(fd, SHUT_WR);
     char buf[4096], *rep = NULL; size_t cap = 0, len = 0; ssize_t k;
     while ((k = read(fd, buf, sizeof buf)) > 0) { if (len + (size_t)k + 1 > cap) { size_t nc = cap ? cap * 2 : 8192; char *g = realloc(rep, nc); if (!g) break; rep = g; cap = nc; } memcpy(rep + len, buf, (size_t)k); len += (size_t)k; }
     close(fd);
+    int exit_code = 0;
     if (rep) {
         rep[len] = '\0';
         char *line = rep;
@@ -874,24 +885,40 @@ static int be_client_send_payload(const char *sockpath, const char *payload, siz
             if (next) *next = '\0';
             if (strncmp(line, "SLOT ", 5) == 0 ||
                 strncmp(line, "COUNT ", 6) == 0 ||
-                strncmp(line, "BENCH ", 6) == 0)
+                strncmp(line, "BENCH ", 6) == 0 ||
+                strncmp(line, "HEALTH ", 7) == 0)
                 puts(line);
+            if (strncmp(line, "EXIT ", 5) == 0) exit_code = atoi(line + 5);
             if (!next) break;
             line = next + 1;
         }
     }
-    free(rep); return 0;
+    free(rep);
+    return health ? exit_code : 0;
 }
 
 int bench_engine_send(const char *sockpath, FILE *in, const char *label) {
     if (fseek(in, 0, SEEK_END) != 0) return 2;
     long n = ftell(in);
     if (n < 0 || fseek(in, 0, SEEK_SET) != 0) return 2;
-    char *buf = malloc((size_t)n + 1); if (!buf) return 2; size_t got = fread(buf, 1, (size_t)n, in); int rc = be_client_send_payload(sockpath, buf, got, label); free(buf); return rc;
+    char *buf = malloc((size_t)n + 1); if (!buf) return 2; size_t got = fread(buf, 1, (size_t)n, in); int rc = be_client_send_payload(sockpath, buf, got, label, "slot"); free(buf); return rc;
 }
 
 int bench_engine_send_str(const char *sockpath, const char *payload, const char *label) {
-    return be_client_send_payload(sockpath, payload, strlen(payload), label);
+    return be_client_send_payload(sockpath, payload, strlen(payload), label,
+                                  "shutdown");
+}
+
+int bench_engine_health(const char *sockpath, FILE *in, const char *label) {
+    if (fseek(in, 0, SEEK_END) != 0) return 2;
+    long n = ftell(in);
+    if (n < 0 || fseek(in, 0, SEEK_SET) != 0) return 2;
+    char *buf = malloc((size_t)n + 1);
+    if (!buf) return 2;
+    size_t got = fread(buf, 1, (size_t)n, in);
+    int rc = be_client_send_payload(sockpath, buf, got, label, "health");
+    free(buf);
+    return rc;
 }
 
 static int be_is_p0t(const char *path) {
@@ -986,7 +1013,7 @@ static int be_send_slot(const char *sockpath, const char *path) {
         free(files.paths[i]);
     }
     free(files.paths);
-    if (rc == 0) rc = be_client_send_payload(sockpath, data, len, path);
+    if (rc == 0) rc = be_client_send_payload(sockpath, data, len, path, "slot");
     free(data);
     return rc;
 }

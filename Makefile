@@ -144,7 +144,10 @@ parrotbench: build
 	 trap 'test -f "$$pid" && kill "$$(cat "$$pid")" 2>/dev/null || true; rm -f "$$pid" "$$sock"' EXIT INT TERM; \
 	 i=0; while [ ! -S "$$sock" ] && [ "$$i" -lt 150 ]; do sleep 0.1; i=$$((i+1)); done; \
 	 if [ ! -S "$$sock" ]; then echo "parrotbench: bench-engine failed; see $$log"; exit 1; fi; \
-	 ./$(BIN) --bench tests/parrotbench/corpus --sock "$$sock"; \
+	 if ! ./$(BIN) --bench-health tests/p0t/health.p0t --sock "$$sock"; then \
+	   echo "parrotbench: bench-engine warmup failed; see $$log"; exit 1; \
+	 fi; \
+	 ./$(BIN) --bench tests/parrotbench --sock "$$sock"; \
 	 ./$(BIN) --bench-report --sock "$$sock"; \
 	 trap - EXIT INT TERM; rm -f "$$pid" "$$sock"
 
