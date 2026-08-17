@@ -46,5 +46,9 @@ __pycache__/
 tests/longtalk-sessions/
 LONGTALK.md
 
+# parrotbench release measurements (the corpus is tracked; live progress and
+# histogram output are local state, intentionally not source or regression data)
+tests/parrotbench/results/
+
 # gen278: per-process code-oracle temp files (parallel-safe)
 .p0_*

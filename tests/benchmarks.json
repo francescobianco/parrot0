@@ -236,6 +236,17 @@
       "requires": [],
       "oracle": "tests/bench.sh bbh (LOCAL fixture slices, not the BIG-Bench Hard dataset)",
       "gate": "none — gen320: was marked 'external'; it reads local fixtures offline and downloads nothing (§3.4)."
+    },
+    {
+      "id": "parrotbench",
+      "target": "parrotbench",
+      "script": "tests/parrotbench.py",
+      "area": "conversation",
+      "semantics": "discovery",
+      "exit_contract": "always-zero",
+      "requires": [],
+      "oracle": "tests/parrotbench/corpus/*.p0t with resumable slot registry and skill histogram",
+      "gate": "none — manual release-intent measurement only; never TDD, regression, soft-test, or promotion gate"
     }
   ]
 }

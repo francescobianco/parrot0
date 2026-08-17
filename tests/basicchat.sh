@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 #
+# TODO PARROTBENCH MIGRATION: questo benchmark legacy non usa il corpus .p0t.
+# Ricondurre a .p0t tutti i prompt rappresentabili e lasciare qui soltanto
+# l'adapter di misura finche' la migrazione non e' completa. Non e' TDD.
+#
 # basic-chat discovery harness (gen189).
 #
 # docs/plans/basic-chat.md is a catalogue of elementary prompts where parrot0

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 #
+# TODO PARROTBENCH MIGRATION: questo benchmark legacy non usa il corpus .p0t.
+# Ricondurre a .p0t tutti i prompt/dialoghi rappresentabili; conservarlo solo
+# finche' la migrazione non copre la stessa misura. Non aggiungerlo a TDD.
+#
 # C0 (gen50): the felt-intelligence conversation benchmark.
 #
 # Unlike tests/run.sh (exact-match pass/fail unit cases), this MEASURES how

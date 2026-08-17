@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 #
+# TODO PARROTBENCH MIGRATION: questo benchmark legacy usa file .dlg, non .p0t.
+# Migrare a .p0t i dialoghi e i metadati rappresentabili, mantenendo separata
+# la misura dal TDD. Non aggiungere questo harness alla suite di regressione.
+#
 # gen160 (E1): compositional emergence benchmark.
 #
 # Each tests/compose/*.dlg is ONE persistent session whose success requires

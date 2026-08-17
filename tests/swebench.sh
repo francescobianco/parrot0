@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 #
+# TODO PARROTBENCH MIGRATION: valutare la parte di prompt/dialogo di questo
+# benchmark legacy per una migrazione a .p0t. I dati SWE e l'oracolo tecnico
+# possono restare adapter separati, ma ogni caso conversazionale rappresentabile
+# deve finire nel corpus .p0t. Non aggiungerlo a TDD o regressione automatica.
+#
 # gen195: make swe-bench — the REAL SWE-bench_Lite north star (CODE-MASTERY.md §8),
 # run OFFLINE in DEGRADE / behavioural mode.
 #

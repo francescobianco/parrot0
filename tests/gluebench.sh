@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 #
+# TODO PARROTBENCH MIGRATION: questo benchmark legacy codifica dialoghi in
+# shell. Portare a .p0t prompt, turni, aspettative e controlli rappresentabili;
+# lasciare qui solo l'adapter finche' la migrazione non e' completa. Non e' TDD.
+#
 # gen215: make glue-bench — the LINGUISTIC-GLUE discovery harness
 # (docs/plans/the-linguistic-glue.md, G1). The essay's insight: the "colla linguistica"
 # becomes visible WHEN IT IS MISSING. So we make its five absence-symptoms into metrics:

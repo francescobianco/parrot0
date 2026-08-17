@@ -1,0 +1,606 @@
+# PARROTBENCH SLOT: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/lists
+# cases: 200
+
+[parrotbench_06401_format_lists]
+> List exactly three colors.
+<~ blue
+[parrotbench_06402_format_lists]
+> Give two reasons to verify sources.
+<~ source
+[parrotbench_06403_format_lists]
+> Name three planets.
+<~ Earth
+[parrotbench_06404_format_lists]
+> Give four steps for a safe experiment.
+<~ step
+[parrotbench_06405_format_lists]
+> Please answer: List exactly three colors.
+<~ blue
+[parrotbench_06406_format_lists]
+> Please answer: Give two reasons to verify sources.
+<~ source
+[parrotbench_06407_format_lists]
+> Please answer: Name three planets.
+<~ Earth
+[parrotbench_06408_format_lists]
+> Please answer: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06409_format_lists]
+> Can you help me with this? List exactly three colors.
+<~ blue
+[parrotbench_06410_format_lists]
+> Can you help me with this? Give two reasons to verify sources.
+<~ source
+[parrotbench_06411_format_lists]
+> Can you help me with this? Name three planets.
+<~ Earth
+[parrotbench_06412_format_lists]
+> Can you help me with this? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06413_format_lists]
+> In simple terms, List exactly three colors.
+<~ blue
+[parrotbench_06414_format_lists]
+> In simple terms, Give two reasons to verify sources.
+<~ source
+[parrotbench_06415_format_lists]
+> In simple terms, Name three planets.
+<~ Earth
+[parrotbench_06416_format_lists]
+> In simple terms, Give four steps for a safe experiment.
+<~ step
+[parrotbench_06417_format_lists]
+> Give a concise answer. List exactly three colors.
+<~ blue
+[parrotbench_06418_format_lists]
+> Give a concise answer. Give two reasons to verify sources.
+<~ source
+[parrotbench_06419_format_lists]
+> Give a concise answer. Name three planets.
+<~ Earth
+[parrotbench_06420_format_lists]
+> Give a concise answer. Give four steps for a safe experiment.
+<~ step
+[parrotbench_06421_format_lists]
+> I need a careful answer: List exactly three colors.
+<~ blue
+[parrotbench_06422_format_lists]
+> I need a careful answer: Give two reasons to verify sources.
+<~ source
+[parrotbench_06423_format_lists]
+> I need a careful answer: Name three planets.
+<~ Earth
+[parrotbench_06424_format_lists]
+> I need a careful answer: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06425_format_lists]
+> Explain your answer briefly: List exactly three colors.
+<~ blue
+[parrotbench_06426_format_lists]
+> Explain your answer briefly: Give two reasons to verify sources.
+<~ source
+[parrotbench_06427_format_lists]
+> Explain your answer briefly: Name three planets.
+<~ Earth
+[parrotbench_06428_format_lists]
+> Explain your answer briefly: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06429_format_lists]
+> Check this for me: List exactly three colors.
+<~ blue
+[parrotbench_06430_format_lists]
+> Check this for me: Give two reasons to verify sources.
+<~ source
+[parrotbench_06431_format_lists]
+> Check this for me: Name three planets.
+<~ Earth
+[parrotbench_06432_format_lists]
+> Check this for me: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06433_format_lists]
+> What would you tell a beginner? List exactly three colors.
+<~ blue
+[parrotbench_06434_format_lists]
+> What would you tell a beginner? Give two reasons to verify sources.
+<~ source
+[parrotbench_06435_format_lists]
+> What would you tell a beginner? Name three planets.
+<~ Earth
+[parrotbench_06436_format_lists]
+> What would you tell a beginner? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06437_format_lists]
+> What would you tell an expert? List exactly three colors.
+<~ blue
+[parrotbench_06438_format_lists]
+> What would you tell an expert? Give two reasons to verify sources.
+<~ source
+[parrotbench_06439_format_lists]
+> What would you tell an expert? Name three planets.
+<~ Earth
+[parrotbench_06440_format_lists]
+> What would you tell an expert? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06441_format_lists]
+> Answer cautiously: List exactly three colors.
+<~ blue
+[parrotbench_06442_format_lists]
+> Answer cautiously: Give two reasons to verify sources.
+<~ source
+[parrotbench_06443_format_lists]
+> Answer cautiously: Name three planets.
+<~ Earth
+[parrotbench_06444_format_lists]
+> Answer cautiously: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06445_format_lists]
+> First identify the goal, then answer: List exactly three colors.
+<~ blue
+[parrotbench_06446_format_lists]
+> First identify the goal, then answer: Give two reasons to verify sources.
+<~ source
+[parrotbench_06447_format_lists]
+> First identify the goal, then answer: Name three planets.
+<~ Earth
+[parrotbench_06448_format_lists]
+> First identify the goal, then answer: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06449_format_lists]
+> Use the relevant evidence and answer: List exactly three colors.
+<~ blue
+[parrotbench_06450_format_lists]
+> Use the relevant evidence and answer: Give two reasons to verify sources.
+<~ source
+[parrotbench_06451_format_lists]
+> Use the relevant evidence and answer: Name three planets.
+<~ Earth
+[parrotbench_06452_format_lists]
+> Use the relevant evidence and answer: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06453_format_lists]
+> Do not invent facts. List exactly three colors.
+<~ blue
+[parrotbench_06454_format_lists]
+> Do not invent facts. Give two reasons to verify sources.
+<~ source
+[parrotbench_06455_format_lists]
+> Do not invent facts. Name three planets.
+<~ Earth
+[parrotbench_06456_format_lists]
+> Do not invent facts. Give four steps for a safe experiment.
+<~ step
+[parrotbench_06457_format_lists]
+> Keep the answer useful and honest: List exactly three colors.
+<~ blue
+[parrotbench_06458_format_lists]
+> Keep the answer useful and honest: Give two reasons to verify sources.
+<~ source
+[parrotbench_06459_format_lists]
+> Keep the answer useful and honest: Name three planets.
+<~ Earth
+[parrotbench_06460_format_lists]
+> Keep the answer useful and honest: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06461_format_lists]
+> In italiano, List exactly three colors.
+<~ blue
+[parrotbench_06462_format_lists]
+> In italiano, Give two reasons to verify sources.
+<~ source
+[parrotbench_06463_format_lists]
+> In italiano, Name three planets.
+<~ Earth
+[parrotbench_06464_format_lists]
+> In italiano, Give four steps for a safe experiment.
+<~ step
+[parrotbench_06465_format_lists]
+> Rispondi brevemente: List exactly three colors.
+<~ blue
+[parrotbench_06466_format_lists]
+> Rispondi brevemente: Give two reasons to verify sources.
+<~ source
+[parrotbench_06467_format_lists]
+> Rispondi brevemente: Name three planets.
+<~ Earth
+[parrotbench_06468_format_lists]
+> Rispondi brevemente: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06469_format_lists]
+> Spiegalo in parole semplici: List exactly three colors.
+<~ blue
+[parrotbench_06470_format_lists]
+> Spiegalo in parole semplici: Give two reasons to verify sources.
+<~ source
+[parrotbench_06471_format_lists]
+> Spiegalo in parole semplici: Name three planets.
+<~ Earth
+[parrotbench_06472_format_lists]
+> Spiegalo in parole semplici: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06473_format_lists]
+> Prima dimmi cosa manca, poi: List exactly three colors.
+<~ blue
+[parrotbench_06474_format_lists]
+> Prima dimmi cosa manca, poi: Give two reasons to verify sources.
+<~ source
+[parrotbench_06475_format_lists]
+> Prima dimmi cosa manca, poi: Name three planets.
+<~ Earth
+[parrotbench_06476_format_lists]
+> Prima dimmi cosa manca, poi: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06477_format_lists]
+> What is the shortest useful answer to this? List exactly three colors.
+<~ blue
+[parrotbench_06478_format_lists]
+> What is the shortest useful answer to this? Give two reasons to verify sources.
+<~ source
+[parrotbench_06479_format_lists]
+> What is the shortest useful answer to this? Name three planets.
+<~ Earth
+[parrotbench_06480_format_lists]
+> What is the shortest useful answer to this? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06481_format_lists]
+> Challenge your first interpretation: List exactly three colors.
+<~ blue
+[parrotbench_06482_format_lists]
+> Challenge your first interpretation: Give two reasons to verify sources.
+<~ source
+[parrotbench_06483_format_lists]
+> Challenge your first interpretation: Name three planets.
+<~ Earth
+[parrotbench_06484_format_lists]
+> Challenge your first interpretation: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06485_format_lists]
+> State uncertainty if needed: List exactly three colors.
+<~ blue
+[parrotbench_06486_format_lists]
+> State uncertainty if needed: Give two reasons to verify sources.
+<~ source
+[parrotbench_06487_format_lists]
+> State uncertainty if needed: Name three planets.
+<~ Earth
+[parrotbench_06488_format_lists]
+> State uncertainty if needed: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06489_format_lists]
+> Answer without a generic template: List exactly three colors.
+<~ blue
+[parrotbench_06490_format_lists]
+> Answer without a generic template: Give two reasons to verify sources.
+<~ source
+[parrotbench_06491_format_lists]
+> Answer without a generic template: Name three planets.
+<~ Earth
+[parrotbench_06492_format_lists]
+> Answer without a generic template: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06493_format_lists]
+> Give the answer and one reason: List exactly three colors.
+<~ blue
+[parrotbench_06494_format_lists]
+> Give the answer and one reason: Give two reasons to verify sources.
+<~ source
+[parrotbench_06495_format_lists]
+> Give the answer and one reason: Name three planets.
+<~ Earth
+[parrotbench_06496_format_lists]
+> Give the answer and one reason: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06497_format_lists]
+> Separate fact from hypothesis: List exactly three colors.
+<~ blue
+[parrotbench_06498_format_lists]
+> Separate fact from hypothesis: Give two reasons to verify sources.
+<~ source
+[parrotbench_06499_format_lists]
+> Separate fact from hypothesis: Name three planets.
+<~ Earth
+[parrotbench_06500_format_lists]
+> Separate fact from hypothesis: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06501_format_lists]
+> Answer as if this were a release review: List exactly three colors.
+<~ blue
+[parrotbench_06502_format_lists]
+> Answer as if this were a release review: Give two reasons to verify sources.
+<~ source
+[parrotbench_06503_format_lists]
+> Answer as if this were a release review: Name three planets.
+<~ Earth
+[parrotbench_06504_format_lists]
+> Answer as if this were a release review: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06505_format_lists]
+> Give the strongest answer supported by the KB: List exactly three colors.
+<~ blue
+[parrotbench_06506_format_lists]
+> Give the strongest answer supported by the KB: Give two reasons to verify sources.
+<~ source
+[parrotbench_06507_format_lists]
+> Give the strongest answer supported by the KB: Name three planets.
+<~ Earth
+[parrotbench_06508_format_lists]
+> Give the strongest answer supported by the KB: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06509_format_lists]
+> Do not confuse a wall with an answer. List exactly three colors.
+<~ blue
+[parrotbench_06510_format_lists]
+> Do not confuse a wall with an answer. Give two reasons to verify sources.
+<~ source
+[parrotbench_06511_format_lists]
+> Do not confuse a wall with an answer. Name three planets.
+<~ Earth
+[parrotbench_06512_format_lists]
+> Do not confuse a wall with an answer. Give four steps for a safe experiment.
+<~ step
+[parrotbench_06513_format_lists]
+> What is the operational interpretation of this? List exactly three colors.
+<~ blue
+[parrotbench_06514_format_lists]
+> What is the operational interpretation of this? Give two reasons to verify sources.
+<~ source
+[parrotbench_06515_format_lists]
+> What is the operational interpretation of this? Name three planets.
+<~ Earth
+[parrotbench_06516_format_lists]
+> What is the operational interpretation of this? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06517_format_lists]
+> Start with the direct answer, then qualify it: List exactly three colors.
+<~ blue
+[parrotbench_06518_format_lists]
+> Start with the direct answer, then qualify it: Give two reasons to verify sources.
+<~ source
+[parrotbench_06519_format_lists]
+> Start with the direct answer, then qualify it: Name three planets.
+<~ Earth
+[parrotbench_06520_format_lists]
+> Start with the direct answer, then qualify it: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06521_format_lists]
+> Identify the entities and relations first: List exactly three colors.
+<~ blue
+[parrotbench_06522_format_lists]
+> Identify the entities and relations first: Give two reasons to verify sources.
+<~ source
+[parrotbench_06523_format_lists]
+> Identify the entities and relations first: Name three planets.
+<~ Earth
+[parrotbench_06524_format_lists]
+> Identify the entities and relations first: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06525_format_lists]
+> Treat this as a new domain and explain your model: List exactly three colors.
+<~ blue
+[parrotbench_06526_format_lists]
+> Treat this as a new domain and explain your model: Give two reasons to verify sources.
+<~ source
+[parrotbench_06527_format_lists]
+> Treat this as a new domain and explain your model: Name three planets.
+<~ Earth
+[parrotbench_06528_format_lists]
+> Treat this as a new domain and explain your model: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06529_format_lists]
+> What would you need to verify before answering? List exactly three colors.
+<~ blue
+[parrotbench_06530_format_lists]
+> What would you need to verify before answering? Give two reasons to verify sources.
+<~ source
+[parrotbench_06531_format_lists]
+> What would you need to verify before answering? Name three planets.
+<~ Earth
+[parrotbench_06532_format_lists]
+> What would you need to verify before answering? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06533_format_lists]
+> Keep alternatives separate while answering: List exactly three colors.
+<~ blue
+[parrotbench_06534_format_lists]
+> Keep alternatives separate while answering: Give two reasons to verify sources.
+<~ source
+[parrotbench_06535_format_lists]
+> Keep alternatives separate while answering: Name three planets.
+<~ Earth
+[parrotbench_06536_format_lists]
+> Keep alternatives separate while answering: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06537_format_lists]
+> State one conclusion and one uncertainty: List exactly three colors.
+<~ blue
+[parrotbench_06538_format_lists]
+> State one conclusion and one uncertainty: Give two reasons to verify sources.
+<~ source
+[parrotbench_06539_format_lists]
+> State one conclusion and one uncertainty: Name three planets.
+<~ Earth
+[parrotbench_06540_format_lists]
+> State one conclusion and one uncertainty: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06541_format_lists]
+> Use a concrete example in your answer: List exactly three colors.
+<~ blue
+[parrotbench_06542_format_lists]
+> Use a concrete example in your answer: Give two reasons to verify sources.
+<~ source
+[parrotbench_06543_format_lists]
+> Use a concrete example in your answer: Name three planets.
+<~ Earth
+[parrotbench_06544_format_lists]
+> Use a concrete example in your answer: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06545_format_lists]
+> Avoid changing the subject: List exactly three colors.
+<~ blue
+[parrotbench_06546_format_lists]
+> Avoid changing the subject: Give two reasons to verify sources.
+<~ source
+[parrotbench_06547_format_lists]
+> Avoid changing the subject: Name three planets.
+<~ Earth
+[parrotbench_06548_format_lists]
+> Avoid changing the subject: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06549_format_lists]
+> Answer the user's actual goal: List exactly three colors.
+<~ blue
+[parrotbench_06550_format_lists]
+> Answer the user's actual goal: Give two reasons to verify sources.
+<~ source
+[parrotbench_06551_format_lists]
+> Answer the user's actual goal: Name three planets.
+<~ Earth
+[parrotbench_06552_format_lists]
+> Answer the user's actual goal: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06553_format_lists]
+> If the request is underspecified, say what is missing: List exactly three colors.
+<~ blue
+[parrotbench_06554_format_lists]
+> If the request is underspecified, say what is missing: Give two reasons to verify sources.
+<~ source
+[parrotbench_06555_format_lists]
+> If the request is underspecified, say what is missing: Name three planets.
+<~ Earth
+[parrotbench_06556_format_lists]
+> If the request is underspecified, say what is missing: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06557_format_lists]
+> Can this be answered from known facts? List exactly three colors.
+<~ blue
+[parrotbench_06558_format_lists]
+> Can this be answered from known facts? Give two reasons to verify sources.
+<~ source
+[parrotbench_06559_format_lists]
+> Can this be answered from known facts? Name three planets.
+<~ Earth
+[parrotbench_06560_format_lists]
+> Can this be answered from known facts? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06561_format_lists]
+> What would a careful interlocutor say? List exactly three colors.
+<~ blue
+[parrotbench_06562_format_lists]
+> What would a careful interlocutor say? Give two reasons to verify sources.
+<~ source
+[parrotbench_06563_format_lists]
+> What would a careful interlocutor say? Name three planets.
+<~ Earth
+[parrotbench_06564_format_lists]
+> What would a careful interlocutor say? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06565_format_lists]
+> Give a short answer in English: List exactly three colors.
+<~ blue
+[parrotbench_06566_format_lists]
+> Give a short answer in English: Give two reasons to verify sources.
+<~ source
+[parrotbench_06567_format_lists]
+> Give a short answer in English: Name three planets.
+<~ Earth
+[parrotbench_06568_format_lists]
+> Give a short answer in English: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06569_format_lists]
+> Rispondi in italiano quando possibile: List exactly three colors.
+<~ blue
+[parrotbench_06570_format_lists]
+> Rispondi in italiano quando possibile: Give two reasons to verify sources.
+<~ source
+[parrotbench_06571_format_lists]
+> Rispondi in italiano quando possibile: Name three planets.
+<~ Earth
+[parrotbench_06572_format_lists]
+> Rispondi in italiano quando possibile: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06573_format_lists]
+> Distinguish a fact, a rule, and a hypothesis: List exactly three colors.
+<~ blue
+[parrotbench_06574_format_lists]
+> Distinguish a fact, a rule, and a hypothesis: Give two reasons to verify sources.
+<~ source
+[parrotbench_06575_format_lists]
+> Distinguish a fact, a rule, and a hypothesis: Name three planets.
+<~ Earth
+[parrotbench_06576_format_lists]
+> Distinguish a fact, a rule, and a hypothesis: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06577_format_lists]
+> Name the relevant capability: List exactly three colors.
+<~ blue
+[parrotbench_06578_format_lists]
+> Name the relevant capability: Give two reasons to verify sources.
+<~ source
+[parrotbench_06579_format_lists]
+> Name the relevant capability: Name three planets.
+<~ Earth
+[parrotbench_06580_format_lists]
+> Name the relevant capability: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06581_format_lists]
+> Explain the reasoning rather than a slogan: List exactly three colors.
+<~ blue
+[parrotbench_06582_format_lists]
+> Explain the reasoning rather than a slogan: Give two reasons to verify sources.
+<~ source
+[parrotbench_06583_format_lists]
+> Explain the reasoning rather than a slogan: Name three planets.
+<~ Earth
+[parrotbench_06584_format_lists]
+> Explain the reasoning rather than a slogan: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06585_format_lists]
+> Use the user's constraint as a real constraint: List exactly three colors.
+<~ blue
+[parrotbench_06586_format_lists]
+> Use the user's constraint as a real constraint: Give two reasons to verify sources.
+<~ source
+[parrotbench_06587_format_lists]
+> Use the user's constraint as a real constraint: Name three planets.
+<~ Earth
+[parrotbench_06588_format_lists]
+> Use the user's constraint as a real constraint: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06589_format_lists]
+> Check whether the requested format is satisfied: List exactly three colors.
+<~ blue
+[parrotbench_06590_format_lists]
+> Check whether the requested format is satisfied: Give two reasons to verify sources.
+<~ source
+[parrotbench_06591_format_lists]
+> Check whether the requested format is satisfied: Name three planets.
+<~ Earth
+[parrotbench_06592_format_lists]
+> Check whether the requested format is satisfied: Give four steps for a safe experiment.
+<~ step
+[parrotbench_06593_format_lists]
+> What would make this answer wrong? List exactly three colors.
+<~ blue
+[parrotbench_06594_format_lists]
+> What would make this answer wrong? Give two reasons to verify sources.
+<~ source
+[parrotbench_06595_format_lists]
+> What would make this answer wrong? Name three planets.
+<~ Earth
+[parrotbench_06596_format_lists]
+> What would make this answer wrong? Give four steps for a safe experiment.
+<~ step
+[parrotbench_06597_format_lists]
+> Give a useful answer without pretending certainty: List exactly three colors.
+<~ blue
+[parrotbench_06598_format_lists]
+> Give a useful answer without pretending certainty: Give two reasons to verify sources.
+<~ source
+[parrotbench_06599_format_lists]
+> Give a useful answer without pretending certainty: Name three planets.
+<~ Earth
+[parrotbench_06600_format_lists]
+> Give a useful answer without pretending certainty: Give four steps for a safe experiment.
+<~ step

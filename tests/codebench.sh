@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 #
+# TODO PARROTBENCH MIGRATION: verificare quali prompt/dialoghi di questo
+# benchmark legacy possono essere espressi come casi .p0t, migrarli prima
+# possibile e lasciare qui solo l'adapter per gli artefatti di codice non
+# rappresentabili. Non trasformarlo in un gate TDD durante la migrazione.
+#
 # gen173: code-mastery discovery harness (docs/CODE-MASTERY.md).
 #
 # Each tests/code/*.code is ONE session that submits code snippets and observes

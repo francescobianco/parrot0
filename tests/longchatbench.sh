@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 #
+# TODO PARROTBENCH MIGRATION: questo benchmark legacy usa .dlg invece di .p0t.
+# Migrare il corpus multi-turno e i metric tags rappresentabili al benchmark
+# .p0t universale; non inserirlo in make test o soft-test.
+#
 # gen147 (E6): deterministic long casual conversation benchmark.
 #
 # Each tests/longchat/*.dlg file is one persistent session:

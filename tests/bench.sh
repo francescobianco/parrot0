@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 #
+# TODO PARROTBENCH MIGRATION: questo driver legacy va esaminato caso per caso.
+# Tutti i prompt e le aspettative riconducibili a .p0t devono essere migrati
+# prima possibile; mantenere qui soltanto adapter/dataset logic non esprimibile
+# nel corpus. Non usarlo come test TDD per la migrazione.
+#
 # Local benchmark driver for parrot0.
 #
 # These are benchmark-driver slices adapted to parrot0's deterministic KB/C

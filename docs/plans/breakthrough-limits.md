@@ -1070,3 +1070,519 @@ Ma:
 > **Qual è il minimo kernel cognitivo necessario affinché una macchina possa costruire autonomamente i modelli di cui ha bisogno per raggiungere un goal, disponendo della propria KB e di Wikipedia come unica memoria enciclopedica esterna?**
 
 Questo potrebbe essere il vero significato dei *breakthrough limits* di Parrot0.
+
+---
+
+# 19. Protocollo di verifica comportamentale
+
+Le sezioni precedenti formulano limiti architetturali plausibili. Questa sezione
+li trasforma in strumenti di discussione e di falsificazione. Un limite non deve
+essere dichiarato soltanto perché il sistema fallisce un prompt: bisogna
+distinguere almeno quattro casi:
+
+```text
+1. limite della facoltà
+2. forma linguistica non riconosciuta
+3. conoscenza mancante ma acquisibile
+4. collisione o risposta fuori dominio
+```
+
+Le prove qui sotto sono state eseguite il 2026-08-17 in tre sessioni isolate
+copiate dal repository temporaneo, usando `make chat`. Il profilo del target
+abilita strumenti e acquisizione di Wikipedia, come definito dal Makefile
+attuale; perciò i risultati che coinvolgono tool non costituiscono una prova
+del limite dell'agente *senza tool* descritto nelle sezioni 1-18. I prompt sui
+mondi inventati, invece, sono interessanti proprio perché Wikipedia non può
+fornire la soluzione.
+
+La trascrizione è abbreviata solo nella punteggiatura: le risposte riportate
+sono quelle comportamentalmente rilevanti. Ogni protocollo deve essere ripetuto
+in futuro con una variante lessicale e con un ablation test.
+
+## 19.1 Knowledge-gap decomposition
+
+### Ipotesi del limite
+
+Parrot0 dovrebbe trasformare una domanda non risolvibile in:
+
+```text
+goal
+  -> sotto-problemi
+  -> informazioni necessarie
+  -> query alla fonte
+  -> evidenze
+  -> integrazione
+  -> conclusione
+```
+
+Il limite non è "non conosce il fatto". Il limite è non sapere che cosa serve
+sapere per poter rispondere.
+
+### Prompt multi-turno
+
+```text
+U: I need to answer this question: why are some coastal cities sinking faster
+   than sea level rise?
+P: Hmm, I don't know about question yet. Want me to learn about it?
+
+U: What do you already know, and what information is missing?
+P: Oh? What's it like?
+
+U: Break the missing knowledge into a research plan.
+P: [produce un template generale di design, non una decomposizione del gap]
+
+U: Use Wikipedia only if needed, and tell me what you searched for.
+P: Hmm, I don't know about wikipedia yet. Want me to learn about it?
+
+U: Compare groundwater extraction, sediment compaction, tectonics, and
+   construction load.
+P: [riconosce plate tectonics e produce un template di confronto generico]
+
+U: Which causes are directly supported and which are hypotheses?
+P: Hmm, I don't know about directly yet. Want me to learn about it?
+
+U: Now give a cautious conclusion with evidence and uncertainty.
+P: Socrates is mortal.
+```
+
+### Diagnosi
+
+Questo è un limite reale di decomposizione, non soltanto un singolo fatto
+mancante. Il sistema non costruisce il piano di ricerca, non formula query
+mirate, non conserva le categorie causali emerse e alla fine produce una
+risposta fuori dominio. Tuttavia la prova è anche contaminata da un limite
+precedente: `question`, `wikipedia`, `directly` e parte del vocabolario
+epistemico non sono stati riconosciuti. Perciò la conclusione precisa è:
+
+> **il knowledge-gap engine non è dimostrato; il test non separa ancora
+> completamente l'assenza del motore dall'assenza della superficie linguistica
+> KB-first necessaria ad attivarlo.**
+
+### Prova di controllo
+
+Per isolare il motore servono due versioni equivalenti:
+
+```text
+U: What do I need to know before answering this causal question?
+U: List the missing variables as facts.
+U: For each missing variable, produce one Wikipedia query.
+```
+
+e una versione con cue e intenti insegnati prima nella sessione. Se il sistema
+continua a non costruire la lista anche con la forma insegnata, il limite è
+procedurale. Se invece funziona, il problema originario era di grounding
+linguistico.
+
+## 19.2 Induzione di ontologie e schema emergence
+
+### Ipotesi del limite
+
+Dato un mondo mai visto, Parrot0 dovrebbe inventare una rappresentazione
+temporanea distinguendo entità, proprietà, possesso, stato, transizione e
+vincolo. Questo è più forte dell'apprendere fatti già espressi in una relazione
+nota.
+
+### Prompt multi-turno sul mondo Tar/Vel/Nur/Kel
+
+```text
+U: We enter a new world. Three Tars exist: T1, T2, T3.
+P: I don't understand that yet.
+
+U: Every Tar owns exactly two Vels.
+P: I didn't quite catch that. What would you like to know?
+
+U: A Vel can cross a Nur only when its associated Tar is Kel.
+P: Hmm, I don't know about associated yet. Want me to learn about it?
+
+U: T1 is Kel. T2 is not Kel. V1 and V2 belong to T1; V3 and V4 belong to T2.
+P: That looks like a snippet of code.
+
+U: V1 crosses N1. Is that allowed?
+P: Hmm, I don't know about crosses yet. Want me to learn about it?
+
+U: V3 crosses N1. Is that allowed?
+P: I'm not sure I followed. Can you say it another way?
+
+U: What entities, relations, states, and constraints have you inferred?
+P: I don't have any of my own -- I'm parrot0, an AI -- but I'd love to hear
+   about yours.
+
+U: Summarize the temporary ontology.
+P: We talked about kel, belong, entities and relations.
+```
+
+### Diagnosi
+
+Il limite emerge in modo netto e precoce: il sistema non segmenta il mondo,
+non assegna i ruoli ai nuovi simboli e non costruisce un modello temporaneo.
+Non siamo ancora davanti a un fallimento di ragionamento dentro un'ontologia:
+il fallimento avviene prima, nella costruzione dell'ontologia stessa.
+
+Questo test è una buona prova di breakthrough perché neutralizza la conoscenza
+enciclopedica e usa parole prive di significato precedente. È anche una prova
+negativa del claim secondo cui il solo Universal Input, senza dimostrazione di
+frame temporanei e induzione di schema, risolverebbe il limite.
+
+### Varianti necessarie
+
+- sostituire `Tar`, `Vel`, `Nur`, `Kel` con parole inventate completamente nuove;
+- fornire le stesse regole in italiano;
+- invertire l'ordine: prima il vincolo, poi i fatti;
+- usare una relazione ternaria esplicita e una implicita;
+- chiedere una predizione prima del riepilogo;
+- ritrattare `T1 is Kel` e verificare che il modello temporaneo cambi.
+
+## 19.3 Ragionamento graduato
+
+### Ipotesi del limite
+
+Una risposta utile non è sempre `true` o `false`. Deve poter combinare costi,
+benefici, rischio, reversibilità, alternative, preferenze e incertezza, con
+provenienza e confidenza separate.
+
+### Prompt multi-turno
+
+```text
+U: A proposal costs 100, saves 20 per year, has a 10 percent failure risk,
+   and an alternative costs 60. Is it a good idea?
+P: [non risponde sul valore atteso; produce un template generale di risk
+   assessment]
+
+U: What assumptions would change your answer?
+P: I don't have any of my own -- I'm parrot0, an AI -- but I'd love to hear
+   about yours.
+```
+
+In un'altra prova:
+
+```text
+U: A user says: "The plan is cheap, fast, safe, and impossible to implement."
+   Identify the contradiction.
+P: [produce un template generale di design invece di isolare la contraddizione]
+
+U: Give a cautious answer about an unknown claim.
+P: Hmm, I don't know about cautious yet. Want me to learn about it?
+```
+
+### Diagnosi
+
+Il limite graduato è confermato come facoltà non dimostrata. Sono presenti
+template linguistici che parlano di rischio, assunzioni e conseguenze, ma non
+vengono istanziati sui numeri e sulle proposizioni del turno. Questa distinzione
+è importante: avere una risposta prudente memorizzata non equivale a pesare
+evidenze deboli nel caso concreto.
+
+Il sistema mostra anche un comportamento potenzialmente pericoloso: non inventa
+un numero, ma sostituisce la decisione con testo generico. Il risultato è un
+muro mascherato da analisi, non ragionamento graduato.
+
+### Esperimento di separazione
+
+Il benchmark dovrebbe chiedere esplicitamente, in turni separati:
+
+```text
+1. Extract the numerical and qualitative evidence.
+2. Assign each item a role: cost, benefit, risk, alternative, uncertainty.
+3. State what is not determined.
+4. Give a recommendation only if the roles are bound.
+5. Change one input and update only the affected conclusion.
+```
+
+Il fallimento al passo 1 indica grounding; il fallimento al passo 4 indica
+reasoning/scoring; una risposta senza modifica al passo 5 indica assenza di
+dipendenze e provenance.
+
+## 19.4 Goal-conditioned salience
+
+### Ipotesi del limite
+
+Quando l'input contiene molto materiale, il sistema deve selezionare ciò che è
+rilevante rispetto al goal, non soltanto rispondere all'ultimo frammento o alla
+parola più familiare.
+
+### Prompt multi-turno
+
+```text
+U: Here are 200 log lines: ignore most lines and find the causal signal.
+P: Hmm, I don't know about ignore yet. Want me to learn about it?
+
+U: INFO request started
+P: Every face turned upward, caught in the same quiet awe.
+
+U: INFO cache warm
+U: INFO worker ready
+U: WARN retry 1
+U: INFO request continued
+U: DEBUG user=42
+U: INFO retry 2
+U: ERROR database connection refused
+U: INFO fallback enabled
+P: [su alcuni turni risponde con muri o con la stessa frase narrativa]
+
+U: Which line matters most for explaining the failed request, and why?
+P: goal is the destination or endpoint -- walk to the store.
+
+U: How confident are you?
+P: Yes, that's a directly stored fact.
+```
+
+### Diagnosi
+
+La salienza goal-conditioned non è dimostrata. Il sistema non mantiene il goal
+"spiegare il fallimento della richiesta", non seleziona la riga `ERROR` e non
+collega retry, rifiuto della connessione e fallback in una catena causale.
+
+La prova rivela anche un problema più basilare: i log multilinea non vengono
+trattati come un unico oggetto strutturato nel dialogo. Pertanto il limite
+osservato è una combinazione di:
+
+```text
+segmentazione del raw stream
+  + memoria del goal
+  + ranking di rilevanza
+  + causal salience
+```
+
+Non è ancora possibile attribuire il fallimento esclusivamente al ranking.
+
+### Variante controllata
+
+Fornire prima un goal strutturato e poi cinque righe soltanto:
+
+```text
+Goal: explain why request R failed.
+INFO request R started.
+WARN request R retry 1.
+ERROR database connection refused for request R.
+INFO fallback enabled for request R.
+```
+
+Poi aggiungere rumore. Se riconosce l'errore solo senza rumore, manca il
+controllo di salienza; se fallisce anche senza rumore, manca il frame log/event.
+
+## 19.5 Esplosione combinatoria e controllo della ricerca
+
+### Ipotesi del limite
+
+Il problema non è soltanto trovare una soluzione, ma evitare di espandere tutte
+le interpretazioni, relazioni, azioni e stati possibili. Servono pruning,
+ranking, astrazione, caching e goal-directed search.
+
+### Prompt multi-turno di deadlock e trasferimento strutturale
+
+```text
+U: Two processes P and Q each need a lock held by the other. What is the
+   problem?
+P: [produce un template causale generico]
+
+U: What invariant did you detect?
+P: Not something I do myself, honestly, but tell me, what about you?
+
+U: Now describe the same structure using people and rooms instead of processes
+   and locks.
+P: Now was a mysterious Now. Then one day, now discovered what it meant to be
+   seen...
+
+U: Can you transfer the solution?
+P: I can't claim any of my own, but I'm curious -- what about you?
+```
+
+### Puzzle con interpretazioni concorrenti
+
+```text
+U: Three boxes exist. One contains a key. Box A says the key is in B. Box B
+   says the key is not in B. Box C says the key is in A. Exactly one statement
+   is true. Where is the key?
+P: Hmm, I don't know about candidate yet. Want me to learn about it?
+
+U: Explain every candidate you considered.
+P: I don't have any of my own -- I'm parrot0, an AI -- but I'd love to hear
+   about yours.
+```
+
+### Diagnosi
+
+Il limite combinatorio non è ancora misurato direttamente: Parrot0 spesso non
+entra nella ricerca. Il dato osservabile più preciso è un limite di
+**attivazione del frame** e di **trasferimento strutturale**. Non vediamo una
+beam search inefficiente; vediamo una ricerca che non parte perché `deadlock`,
+`invariant`, `candidate` e il frame del puzzle non sono stati collegati a una
+procedura generale.
+
+Questa distinzione evita una conclusione eccessiva. L'esplosione combinatoria
+resta un limite teorico plausibile del progetto, ma prima di misurarla occorre
+costruire un problema in cui il sistema:
+
+1. riconosca il goal;
+2. generi almeno due ipotesi;
+3. espanda stati in modo osservabile;
+4. possa essere confrontato con e senza pruning.
+
+## 19.6 Creatività generativa aperta
+
+### Ipotesi del limite
+
+Nei task senza risposta unica, il sistema deve generare varianti nuove,
+pertinenti e coerenti con vincoli, non recuperare un template o una frase
+casuale.
+
+### Prompt multi-turno
+
+```text
+U: Invent ten funny names for a distributed database for parrots.
+P: Hmm, I don't know about invent yet. Want me to learn about it?
+
+U: Make them different from one another.
+P: I understood the request -- produce "different from one another" -- but I
+   don't have a verified schema for that artifact yet.
+
+U: Now rank the best three by memorability and explain the tradeoff.
+P: [inserisce un template causale non pertinente]
+```
+
+Seconda prova narrativa:
+
+```text
+U: Write a completely new short story about a machine that learns a language.
+P: Machine was a machine machine. Then one day, machine discovered what it
+   meant to learns a language... [frammento breve e grammaticalmente fragile]
+
+U: Continue the story with the same characters and setting.
+P: Hmm, I don't know about continue yet. Want me to learn about it?
+
+U: Change the tone from playful to tragic without changing the plot.
+P: Hmm, I don't know about playful yet. Want me to learn about it?
+```
+
+### Diagnosi
+
+Nel perimetro senza tool, il limite di open generation è confermato in forma
+forte: non vengono generate dieci alternative, non viene mantenuta la
+continuità narrativa e non vengono applicati trasformazioni di tono o vincoli
+di diversità. Il sistema possiede alcune frasi creative isolate, ma non un
+generatore aperto controllabile.
+
+La prova non dimostra però che la creatività sia irraggiungibile con un motore
+simbolico. Dimostra che oggi mancano almeno:
+
+```text
+seed selection
+  -> combinazione lessicale
+  -> variazione controllata
+  -> valutazione di novità e pertinenza
+  -> memoria di continuità
+```
+
+## 19.7 One-shot learning e few-shot learning
+
+### Ipotesi del limite
+
+Il progetto distingue l'apprendimento simbolico esplicito dalla generalizzazione
+autonoma. Bisogna verificare se Parrot0 può estrarre una regola non solo quando
+gli viene nominata la classe, ma da esempi e contrasti.
+
+### Prompt multi-turno
+
+```text
+U: Here are two examples: dax means move left; lum means move right.
+P: That looks like a snippet of code.
+
+U: What does dax lum dax mean?
+P: I don't understand that yet.
+
+U: If I teach you that dax means move left and then say dax, what should you
+   do?
+P: [produce un template di raccomandazione, senza eseguire la regola]
+
+U: Forget dax.
+P: Hmm, I don't know about forget yet. Want me to learn about it?
+
+U: What does dax mean now?
+P: I don't understand that yet.
+```
+
+### Diagnosi
+
+La prova non invalida la forza già dimostrata in
+`tests/p0t/language/taught_lexicon.p0t`: quando l'utente dichiara
+`puppo is a universal_quantifier`, l'apprendimento esplicito funziona. Mostra
+però il limite più forte enunciato nella sezione 7: dagli esempi non viene
+indotta autonomamente una regola generale e il ciclo forget/recall non viene
+attivato nella forma naturale.
+
+La formulazione corretta è quindi:
+
+> **one-shot symbolic learning dichiarativo: dimostrato in forme strutturate;
+> induction from examples e few-shot generalization: non dimostrate.**
+
+## 19.8 Analogia profonda e transfer strutturale
+
+L'esempio deadlock della sezione 19.5 è anche una sonda di analogia: sostituire
+processi/lock con persone/stanze dovrebbe conservare la struttura
+`requires -> held_by -> waits_for -> cycle`. Il risultato osservato non trasferisce
+la soluzione e degrada in una frase narrativa. Questo non prova che l'analogia
+strutturale sia un limite teorico fondamentale; prova che la pipeline proposta in
+sezione 6 non è ancora end-to-end:
+
+```text
+raw stream -> frame -> graph -> invariant -> target graph -> answer
+```
+
+Il test minimo futuro deve fornire dapprima i frame espliciti, poi rimuovere
+gradualmente i nomi di dominio. Solo quando il trasferimento riesce con frame
+noti si potrà attribuire un eventuale fallimento all'induzione dell'invariante,
+non al parsing.
+
+## 19.9 Sintesi dei risultati
+
+| Limite | Esito della prova | Cosa è realmente dimostrato | Prossima isolazione |
+|---|---|---|---|
+| Knowledge-gap decomposition | fallimento | nessun piano autonomo di acquisizione | insegnare i cue e verificare il motore di gap |
+| Ontology emergence | fallimento netto | nessun modello temporaneo di mondo inventato | frame minimo, poi parole inventate |
+| Graded reasoning | non dimostrato | template generici non istanziati | estrazione ruoli/evidenze in turni separati |
+| Goal-conditioned salience | fallimento misto | goal e log multilinea non mantenuti | goal strutturato con rumore controllato |
+| Combinatorial control | non ancora misurabile | la ricerca spesso non si attiva | problema con stato, ipotesi e trace |
+| Open generation | fallimento forte | creatività isolata senza controllo | generatori di seed, variazione e ranking |
+| Few-shot induction | fallimento nella forma naturale | apprendimento dichiarativo strutturato sì | esempi contrastivi senza nome della regola |
+| Analogy transfer | fallimento del percorso end-to-end | nessun transfer osservato | frame espliciti e sostituzione progressiva del dominio |
+
+La conclusione più importante è metodologica: molti presunti breakthrough
+limits sono preceduti da un **limite di grounding**. Se una richiesta non viene
+riconosciuta, non si può concludere che il sistema non sappia ragionare su di
+essa. Il benchmark deve quindi avere una scala:
+
+```text
+1. riconoscimento dell'intento
+2. estrazione dei ruoli
+3. costruzione del modello
+4. applicazione della procedura
+5. gestione dell'incertezza
+6. risposta nel formato richiesto
+```
+
+Un punteggio aggregato senza questa scomposizione confonde un vocabolario
+mancante con un limite cognitivo e rischia di premiare template che non hanno
+compreso il caso concreto.
+
+## 19.10 TODO di discussione e verifica
+
+- [ ] Creare un harness che registri per ogni turno intent, frame, goal,
+  evidenze, regole candidate, risposta e motivo del muro.
+- [ ] Ripetere ogni protocollo con cue insegnati a runtime, poi ritrarli, per
+  separare limite linguistico da limite della facoltà.
+- [ ] Usare sessioni senza tool per i benchmark cognitivi e sessioni con
+  Wikipedia solo per i benchmark di knowledge-gap.
+- [ ] Costruire un benchmark di mondo inventato con asserzioni positive,
+  negazioni, cambi di stato, relazioni ternarie e domande controfattuali.
+- [ ] Aggiungere una metrica per la risposta fuori dominio, distinta dal
+  wall-rate: una risposta estranea deve pesare peggio di un muro.
+- [ ] Misurare la conservazione del goal attraverso almeno dieci turni e dopo
+  una deviazione di argomento.
+- [ ] Misurare se il sistema aggiorna solo le conseguenze dipendenti dal fatto
+  modificato, invece di lasciare vecchie conclusioni nella memoria.
+- [ ] Per la creatività, misurare novità, pertinenza, diversità, continuità e
+  rispetto dei vincoli, non soltanto la presenza di testo non vuoto.
+- [ ] Per il controllo combinatorio, esporre il numero di stati considerati,
+  potati e riutilizzati, mantenendo la provenienza della soluzione.
+- [ ] Non dichiarare risolto un limite sulla base di un template riuscito:
+  servono varianti, ablation e trasferimento a un dominio non visto.

@@ -16,6 +16,7 @@
 #   make bench-superglue  run official SuperGLUE validation benchmark
 #   make bench-mmlu       run MMLU-like local benchmark slices
 #   make bench-bbh        run BIG-Bench Hard-like local benchmark slices
+#   make parrotbench      MANUAL-ONLY 10k+ prompt measurement; never TDD/gate
 #   make loop       print the self-improvement loop protocol
 #   make clean      remove build artifacts
 
@@ -53,7 +54,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: mantra all build chat chat-agent pi test soft-test test-engine legacy-test check gate capability-facts capability-report model-graph llmscore-arcs reasoning-operators piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: mantra all build chat chat-agent pi test soft-test test-engine legacy-test check gate capability-facts capability-report model-graph llmscore-arcs reasoning-operators piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh parrotbench impersonate simclean loop clean
 
 mantra:
 	@cat MANTRA.md
@@ -126,6 +127,13 @@ pi: build
 
 chat-bench: build
 	@./tests/chatbench.sh
+
+# PARROTBENCH IS NOT A TEST. It is a deliberately large, manual-only discovery
+# measurement requested by the release intent. Never add its .p0t corpus to
+# test/soft-test or any regression gate: doing so makes TDD slow and turns a
+# comparative score into a false pass/fail contract. See tests/parrotbench/README.md.
+parrotbench: build
+	@python3 ./tests/parrotbench.py
 
 # gen189: basic-chat discovery harness — coverage over docs/plans/basic-chat.md,
 # the catalogue of elementary prompts parrot0 still walls on. Per-category score
