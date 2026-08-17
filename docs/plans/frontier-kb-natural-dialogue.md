@@ -2410,8 +2410,35 @@ negativo che conta: tolta l'azione che abilita, non compare un piano piu' corto
 inventato — resta il residuo onesto. Un pianificatore che allunga il passo per
 non tacere e' peggio di uno che tace.
 
-Restano aperti i piani oltre i due passi, gli stati intermedi quantitativi, le
-soglie e il bilancio temporale del caso barca — cioe' il resto di 398c.
+**Secondo taglio: la sequenza.** `plan_state/3` non ha piu' profondita': regge
+una sequenza di qualunque lunghezza. La lista e' in ordine INVERSO — l'ultima
+azione in testa — perche' cosi' la ricorsione dice esattamente cio' che si vuole
+dire: vale cio' che l'ultima azione produce, e vale cio' che sopravviveva prima e
+l'ultima non contraddice. `plan_ok/2` verifica ogni passo NELLO STATO IN CUI
+VIENE ESEGUITO, che e' la differenza fra un elenco di azioni possibili e un piano.
+
+Ad avere un limite e' la GENERAZIONE delle catene, ed e' un limite dichiarato e
+non un caso: cercare senza confini in uno spazio combinatorio non e' piu'
+ragionare, e il §17.5 autorizza una ricerca bounded proprio per questo.
+Allungarlo e' una riga; toglierlo no.
+
+```text
+la valvola e' bloccata, il pannello e' serrato
+come faccio ad abbassare il livello -> Prima aprire il pannello, poi sbloccare
+                                       la valvola, poi aprire la valvola.
+il pannello e' dischiuso
+come faccio ad abbassare il livello -> Prima sbloccare la valvola,
+                                       poi aprire la valvola.
+la valvola e' sbloccata
+come faccio ad abbassare il livello -> Puoi aprire la valvola.
+```
+
+Il piano si ACCORCIA da solo man mano che il mondo migliora, e non perche'
+qualcuno lo riscriva: e' la stessa derivazione su uno stato diverso. Un
+pianificatore che tenesse il piano da parte continuerebbe a dirlo di tre passi.
+
+Restano aperti gli stati intermedi quantitativi, le soglie e il bilancio
+temporale del caso barca — cioe' il resto di 398c.
 
 **gen398d — Mondi concorrenti e azioni informative.** Conservare alternative,
 calcolare quale osservazione le distingue e separare proof da fonte debole. I

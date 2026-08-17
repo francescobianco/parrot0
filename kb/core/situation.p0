@@ -149,6 +149,23 @@ action_overrides($Action, $Proposition) :- action_effect($Action, $Effect), same
 holds_after($Situation, $Action, $Proposition) :- action_effect($Action, $Proposition).
 holds_after($Situation, $Action, $Proposition) :- context_visible_belief($Situation, $Proposition), naf(action_overrides($Action, $Proposition)).
 
+% Lo stato dopo una SEQUENZA, non piu' dopo una sola azione. La lista e' in
+% ordine inverso — l'ultima azione in testa — perche' cosi' la ricorsione dice
+% esattamente cio' che si vuole dire: vale cio' che l'ultima azione produce, e
+% vale cio' che sopravviveva prima e l'ultima non contraddice. Nessun contatore,
+% nessuna profondita' cablata: la vista regge una lista di qualunque lunghezza.
+plan_state($Situation, nil, $Proposition) :- context_visible_belief($Situation, $Proposition).
+plan_state($Situation, cons($Last, $Earlier), $Proposition) :- action_effect($Last, $Proposition).
+plan_state($Situation, cons($Last, $Earlier), $Proposition) :- plan_state($Situation, $Earlier, $Proposition), naf(action_overrides($Last, $Proposition)).
+
+% Una sequenza e' applicabile quando ogni passo lo e' NELLO STATO IN CUI VIENE
+% ESEGUITO, non nello stato iniziale. E' la differenza fra un elenco di azioni
+% possibili e un piano.
+plan_missing($Situation, $Earlier, $Last, missing($Proposition)) :- action_precondition($Last, $Proposition), naf(plan_state($Situation, $Earlier, $Proposition)).
+plan_missing_set($Situation, $Earlier, $Last, $Missing) :- findall($M, plan_missing($Situation, $Earlier, $Last, $M), $Missing).
+plan_ok($Situation, nil).
+plan_ok($Situation, cons($Last, $Earlier)) :- plan_ok($Situation, $Earlier), plan_missing_set($Situation, $Earlier, $Last, nil).
+
 missing_after($Situation, $First, $Second, missing($Proposition)) :- action_precondition($Second, $Proposition), naf(holds_after($Situation, $First, $Proposition)).
 missing_after_set($Situation, $First, $Second, $Missing) :- findall($M, missing_after($Situation, $First, $Second, $M), $Missing).
 applicable_after($Situation, $First, $Second) :- action_schema($Domain, $Second), missing_after_set($Situation, $First, $Second, nil).
@@ -167,6 +184,15 @@ turn_plan_step($Turn, $Action) :- turn_action_candidate($Turn, $Situation, $Acti
 % risposta e fare un piano — e nasce dalla stessa applicabilita' di prima, letta
 % nello stato che la prima azione produrrebbe.
 turn_enabled_step($Turn, $First, $Second) :- turn_action_candidate($Turn, $Situation, $Second), naf(applicable($Situation, $Second)), applicable($Situation, $First), applicable_after($Situation, $First, $Second), dif($First, $Second).
+% Tre passi. La macchina dello STATO non ha profondita': quella e' la GENERAZIONE
+% delle catene, ed e' bounded per scelta dichiarata — cercare senza limite in uno
+% spazio combinatorio non e' piu' ragionare, e il §17.5 autorizza una ricerca
+% limitata proprio per questo. Allungare il limite e' una riga; toglierlo no.
+turn_enabled_three($Turn, $First, $Second, $Third) :- turn_action_candidate($Turn, $Situation, $Third), action_schema($D1, $First), action_schema($D2, $Second), dif($First, $Second), dif($Second, $Third), plan_ok($Situation, cons($Third, cons($Second, cons($First, nil)))).
+turn_triple_key($Turn, triple($First, $Second, $Third)) :- turn_enabled_three($Turn, $First, $Second, $Third).
+turn_triple_set($Turn, $Triples) :- turn_has_candidate($Turn), findall($T, turn_triple_key($Turn, $T), $Triples).
+turn_three_step($Turn, $First, $Second, $Third) :- turn_triple_set($Turn, cons(triple($First, $Second, $Third), nil)).
+
 turn_enabled_key($Turn, pair($First, $Second)) :- turn_enabled_step($Turn, $First, $Second).
 turn_enabled_set($Turn, $Pairs) :- turn_has_candidate($Turn), findall($P, turn_enabled_key($Turn, $P), $Pairs).
 turn_two_step($Turn, $First, $Second) :- turn_enabled_set($Turn, cons(pair($First, $Second), nil)).
@@ -192,7 +218,8 @@ turn_blocked_action($Turn, $Action) :- turn_action_candidate($Turn, $Situation, 
 % del produttore NL. Una condizione va scritta con il predicato che nomina la
 % PROPRIA specie, mai col contratto che tutti condividono.
 situation_residue($Turn, situation_no_action) :- turn_task($Turn, $Situation, $Property, $Direction), naf(turn_has_candidate($Turn)).
-situation_residue($Turn, situation_blocked) :- turn_blocked_action($Turn, $Action), naf(turn_has_plan($Turn)), naf(turn_has_two_step($Turn)).
+situation_residue($Turn, situation_blocked) :- turn_blocked_action($Turn, $Action), naf(turn_has_plan($Turn)), naf(turn_has_two_step($Turn)), naf(turn_has_three_step($Turn)).
+turn_has_three_step($Turn) :- turn_triple_set($Turn, cons($T, $Tail)).
 
 % Il turno e' candidato solo quando la KB possiede davvero la situazione di cui
 % parla. Una domanda «come faccio a ...» su una proprieta' che nessun mondo noto
@@ -219,8 +246,18 @@ answer_content(situation_pair($First, $Second, $Language), 3, second, $Piece) :-
 answer_content(situation_pair($First, $Second, $Language), 4, terminator, $Piece) :- sentence_terminator($Language, $Piece).
 
 turn_plan_candidate($Turn) :- turn_two_step($Turn, $First, $Second).
+turn_plan_candidate($Turn) :- turn_three_step($Turn, $First, $Second, $Third).
+
+answer_content(situation_triple($A, $B, $C, $Language), 0, opener, $Piece) :- first_step_opener($Language, $Piece).
+answer_content(situation_triple($A, $B, $C, $Language), 1, first, $Piece) :- linguistic_form($Piece, $A, $Language, common).
+answer_content(situation_triple($A, $B, $C, $Language), 2, connective, $Piece) :- next_step_connective($Language, $Piece).
+answer_content(situation_triple($A, $B, $C, $Language), 3, second, $Piece) :- linguistic_form($Piece, $B, $Language, common).
+answer_content(situation_triple($A, $B, $C, $Language), 4, connective, $Piece) :- next_step_connective($Language, $Piece).
+answer_content(situation_triple($A, $B, $C, $Language), 5, third, $Piece) :- linguistic_form($Piece, $C, $Language, common).
+answer_content(situation_triple($A, $B, $C, $Language), 6, terminator, $Piece) :- sentence_terminator($Language, $Piece).
 turn_response($Turn, $Text) :- turn_single_plan($Turn, $Action), current_language($Language), answer_text(situation_step($Action, $Language), $Text).
 turn_response($Turn, $Text) :- turn_two_step($Turn, $First, $Second), naf(turn_has_plan($Turn)), current_language($Language), answer_text(situation_pair($First, $Second, $Language), $Text).
+turn_response($Turn, $Text) :- turn_three_step($Turn, $A, $B, $C), naf(turn_has_plan($Turn)), naf(turn_has_two_step($Turn)), current_language($Language), answer_text(situation_triple($A, $B, $C, $Language), $Text).
 turn_response($Turn, $Text) :- turn_plan_ambiguous($Turn), current_language($Language), response_template(situation_plan_ambiguous, $Language, $Text).
 turn_response($Turn, $Text) :- situation_residue($Turn, $Kind), current_language($Language), response_template($Kind, $Language, $Text).
 
