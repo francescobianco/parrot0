@@ -738,3 +738,28 @@ register_hint(arithmetic, remainder). register_hint(arithmetic, divided).
 register_hint(arithmetic, median).    register_hint(arithmetic, average).
 register_hint(arithmetic, minutes).   register_hint(arithmetic, hours).
 register_hint(arithmetic, greater).   register_hint(arithmetic, total).
+
+% gen415b — altri registri. Ogni riga qui e' un turno che smette di ricevere una
+% parola a caso e riceve il nome del proprio problema. Costa zero C: e' il senso
+% dello strato, e il modo piu' economico di far crescere il numero di lacune
+% NOMINABILI — cioe' riparabili.
+register_hint(translation, translate).   register_hint(translation, spanish).
+register_hint(translation, french).      register_hint(translation, italian).
+register_hint(translation, german).      register_hint(translation, language).
+
+register_hint(artifact, json).    register_hint(artifact, yaml).
+register_hint(artifact, csv).     register_hint(artifact, regex).
+register_hint(artifact, schema).  register_hint(artifact, format).
+register_hint(artifact, write).   register_hint(artifact, produce).
+
+register_hint(salience, salient).  register_hint(salience, matters).
+register_hint(salience, important).register_hint(salience, most).
+register_hint(salience, log).      register_hint(salience, line).
+
+register_hint(dialogue_memory, remember). register_hint(dialogue_memory, forget).
+register_hint(dialogue_memory, discussed). register_hint(dialogue_memory, earlier).
+register_hint(dialogue_memory, conversation). register_hint(dialogue_memory, turns).
+
+register_hint(planning, plan).      register_hint(planning, steps).
+register_hint(planning, research).  register_hint(planning, break).
+register_hint(planning, design).    register_hint(planning, approach).
