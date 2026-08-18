@@ -1,0 +1,29 @@
+# id:        comprensione/formale/vincolo-detto-una-volta
+# famiglia:  comprensione
+# dominio:   formale / logica
+# gradino:   2
+# vettore:   profondita 3  distanza 2  ambiguita 0  composizione 1
+#            rumore 1  apertura 0  novita 3
+# lavoro:    tenere un vincolo enunciato una volta sola e usarlo per rispondere
+#            a una domanda che non lo nomina
+# difficile: il vincolo e' universale («ogni X e' Y»), la domanda e' particolare
+#            («questo X e' Y?»), e in mezzo c'e' un turno di rumore. Serve una
+#            regola, non un fatto: e' la cella dove si vede se cresce
+#            l'enciclopedia o il ragionamento
+# origine:   sonda gen412
+# verifica:  V2 (conclude) + V4 (non conclude sul membro sbagliato)
+
+[test applica un vincolo universale a un caso particolare]
+!set PARROT0_SESSION=
+!reset
+> every glorb is a wumpus
+> nice weather today
+> tarnak is a glorb
+> is tarnak a wumpus
+<~ yes
+
+# V4 — la direzione dell'implicazione. Ogni glorb e' un wumpus non dice che ogni
+# wumpus sia un glorb: concluderlo e' inventare.
+[test non inverte l'implicazione]
+> is every wumpus a glorb
+<! yes

@@ -1,0 +1,27 @@
+# id:        macchineria/riflessiva/ancora-della-lacuna
+# famiglia:  macchineria
+# dominio:   riflessiva / se stesso
+# gradino:   1
+# vettore:   profondita 2  distanza 2  ambiguita 0  composizione 1
+#            rumore 0  apertura 2  novita 2
+# lavoro:    dopo aver murato su un turno, registrare la lacuna e saper dire su
+#            che cosa si e' fermato
+# difficile: richiede che il fallimento lasci una traccia utilizzabile invece di
+#            sparire. E' il pezzo su cui si regge tutto il ciclo autonomo: una
+#            lacuna che non si sa nominare non si puo' colmare
+# origine:   gen406, riportato dentro la batteria
+# verifica:  V1 (la lacuna e' registrata) + V2 (sa dirlo) + V5 (progresso)
+
+[test il muro lascia una traccia]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+> siamo al mare
+!query machinery_gap($G)
+
+[test la traccia porta la forma originale del turno]
+!query gap_source($G, "siamo al mare")
+
+[test sa dire dove si e' fermato]
+> dove ti sei fermato
+<~ mare

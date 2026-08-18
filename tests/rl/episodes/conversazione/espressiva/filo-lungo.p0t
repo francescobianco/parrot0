@@ -1,0 +1,25 @@
+# id:        conversazione/espressiva/filo-lungo
+# famiglia:  conversazione
+# dominio:   espressiva / musica
+# gradino:   2
+# vettore:   profondita 1  distanza 3  ambiguita 1  composizione 1
+#            rumore 2  apertura 1  novita 3
+# lavoro:    ricordare un dato dato all'inizio quando serve sei turni dopo,
+#            attraverso materiale che non c'entra
+# difficile: la dimensione qui e' la DISTANZA e nient'altro: il lavoro sarebbe
+#            banale nello stesso turno. Se fallisce, il problema non e' il
+#            dominio ma la memoria di lavoro — e vale per tutte le celle
+# origine:   sonda gen412
+# verifica:  V2 (il dato torna) + V4 (non ne inventa un altro)
+
+[test il dato regge sei turni di distanza]
+!set PARROT0_SESSION=
+!reset
+> my favourite instrument is the bandoneon
+> what is the capital of france
+> how much is 7 times 6
+> tell me something about copper
+> what day is it
+> thanks
+> which instrument did I say I liked
+<~ bandoneon

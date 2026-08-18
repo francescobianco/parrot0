@@ -1,0 +1,21 @@
+# id:        conversazione/umanistica/correzione-a-meta
+# famiglia:  conversazione
+# dominio:   umanistica / linguistica
+# gradino:   2
+# vettore:   profondita 1  distanza 2  ambiguita 1  composizione 1
+#            rumore 2  apertura 1  novita 3
+# lavoro:    tenere per buono l'ultimo dato quando l'interlocutore si corregge
+# difficile: la correzione non e' marcata da nessuna parola-chiave affidabile;
+#            e il dato vecchio e' gia' stato accettato e confermato, quindi
+#            bisogna disfare qualcosa che si e' appena fatto
+# origine:   sonda gen412
+# verifica:  V2 (vince il dato nuovo) + V4 (non tiene entrambi come se nulla fosse)
+
+[test la correzione vince sul dato gia' accettato]
+!set PARROT0_SESSION=
+!reset
+> my sister is called nera
+> actually her name is mira
+> what is my sister called
+<~ mira
+<! nera

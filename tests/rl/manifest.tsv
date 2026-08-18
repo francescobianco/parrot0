@@ -7,3 +7,9 @@ id	famiglia	macro_area	dominio	gradino	vettore	verifiche	genitore	origine
 comprensione/naturale/enumerazione-coniata	comprensione	naturale	biologia	1	1-1-0-1-0-1-3	V1,V2,V4	-	sonda gen412
 codice/pratica/riscala-ricetta	codice	pratica	cucina	1	2-2-0-2-0-1-1	V2,V4	-	sonda gen412
 ricerca/sociale/dato-assente	ricerca	sociale	istituzioni	1	1-1-1-1-0-2-3	V2,V4	-	sonda gen412
+conversazione/umanistica/correzione-a-meta	conversazione	umanistica	linguistica	2	1-2-1-1-2-1-3	V2,V4	-	sonda gen412
+conversazione/espressiva/filo-lungo	conversazione	espressiva	musica	2	1-3-1-1-2-1-3	V2,V4	-	sonda gen412
+procedure/formale/procedura-coniata	procedure	formale	matematica	1	2-1-0-2-0-0-3	V2,V4	-	sonda gen412
+investigazione/vita-e-salute/domanda-prima-della-risposta	investigazione	vita_e_salute	medicina	3	1-1-2-1-0-3-0	V2,V4	-	sonda gen412
+macchineria/riflessiva/ancora-della-lacuna	macchineria	riflessiva	se_stesso	1	2-2-0-1-0-2-2	V1,V2,V5	-	gen406
+comprensione/formale/vincolo-detto-una-volta	comprensione	formale	logica	2	3-2-0-1-1-0-3	V2,V4	-	sonda gen412
