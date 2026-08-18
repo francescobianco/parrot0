@@ -3364,6 +3364,145 @@ static int p0_fact_is_clean(Brain *b, const char *pred, const char *const *args,
     return 1;
 }
 
+/* gen405 — LA SECONDA FORMA DELLA PROSA: L'ENUMERAZIONE APPOSITIVA.
+ *
+ * Misurato sul sogno di `photosynthesis`: sei frasi dense di enciclopedia, UN
+ * fatto estratto — `system(photosynthesis)`, vero e quasi vuoto. L'estrattore
+ * conosceva una sola forma, «X e' un Y», e in prosa enciclopedica quella e'
+ * rara: l'autore la usa una volta, nella prima riga, e poi passa alla forma che
+ * usa davvero per dire di che cosa parla.
+ *
+ *     «...organismi autotrofi, COME la maggior parte delle piante, le alghe e i
+ *      cianobatteri...»
+ *     «...carboidrati COME zuccheri, amidi, fitoglicogeno e cellulosa.»
+ *
+ * Sono sette fatti IS-A in una pagina sola, nella stessa forma che parrot0 gia'
+ * rappresenta — e li lasciava tutti per terra. Non e' una lacuna di
+ * rappresentazione ne' di ragionamento: e' una forma di frase che nessuno gli
+ * aveva mostrato.
+ *
+ * Il motore e' fisso — testa nominale prima della cue, lista dopo — e le CUE
+ * sono conoscenza (`enumeration_cue/1`), quindi una lingua nuova e' una riga.
+ * Il taglio della lista si ferma al primo confine forte, perche' una virgola
+ * che continua la frase non elenca piu': in «alghe e cianobatteri, che
+ * convertono la luce» il pezzo dopo la virgola non e' un membro.
+ *
+ * La guardia contro l'entusiasmo: la testa dev'essere una parola sola e piena,
+ * i membri devono essere parole piene, e vale lo stesso cancello semantico
+ * dell'altra forma. Un'enumerazione letta male scrive fatti FALSI in KB e li
+ * annuncia come appresi, che e' la cosa peggiore che questo progetto possa
+ * fare. */
+static int extract_enumeration(Brain *b, const char *norm,
+                               char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    size_t L = strlen(norm);
+    if (L < 12 || L >= 400 || norm[L - 1] == '?') return 0;
+
+    char cues[16][KB_TERM_LEN];
+    const char *cq[1] = { NULL };
+    size_t nc = kb_match(b->kb, "enumeration_cue", cq, 1, cues, 16);
+    if (!nc) return 0;
+
+    char low[400];
+    for (size_t i = 0; i <= L && i < sizeof low; i++)
+        low[i] = (char)tolower((unsigned char)norm[i]);
+    low[sizeof low - 1] = '\0';
+
+    const char *at = NULL; size_t clen = 0;
+    for (size_t i = 0; i < nc; i++) {
+        const char *c = kb_dequote(cues[i]);
+        size_t l = strlen(c);
+        const char *p = strstr(low, c);
+        /* la cue deve stare su un confine di parola da entrambi i lati */
+        while (p) {
+            int okl = (p == low) || !isalnum((unsigned char)p[-1]);
+            int okr = !isalnum((unsigned char)p[l]);
+            if (okl && okr) break;
+            p = strstr(p + 1, c);
+        }
+        if (p && (!at || p < at)) { at = p; clen = l; }
+    }
+    if (!at) return 0;
+
+    /* LA TESTA: l'ultima parola piena prima della cue. */
+    char before[400];
+    size_t bl = (size_t)(at - low);
+    if (bl == 0 || bl >= sizeof before) return 0;
+    memcpy(before, low, bl); before[bl] = '\0';
+    char *bw[64]; size_t nb = split_words(before, bw, 64);
+    if (!nb) return 0;
+    char head[KB_TERM_LEN];
+    snprintf(head, sizeof head, "%s", strip_edge_punct(bw[nb - 1]));
+    if (strlen(head) < 4 || is_stopword(b, head)) return 0;
+    /* una testa PLURALE e' il caso normale: «organisms such as…» */
+    size_t hl = strlen(head);
+    if (hl > 4 && head[hl - 1] == 's') head[hl - 1] = '\0';
+
+    /* LA LISTA: fino al primo confine forte. Un pezzo che riprende la frase
+     * («, che convertono…») non elenca piu'. */
+    char after[400];
+    snprintf(after, sizeof after, "%s", at + clen);
+    for (char *p = after; *p; p++)
+        if (*p == '.' || *p == ';' || *p == ':') { *p = '\0'; break; }
+
+    char item[16][KB_TERM_LEN]; size_t ni = 0;
+    char *save = after;
+    while (*save && ni < 16) {
+        char *piece = save;
+        char *comma = strchr(save, ',');
+        if (comma) { *comma = '\0'; save = comma + 1; } else save = piece + strlen(piece);
+        /* «X e Y» / «X and Y» chiudono l'ultimo pezzo in due membri */
+        char *sub[8]; size_t ns = 0;
+        char *tok = piece;
+        for (;;) {
+            char *w2 = NULL;
+            char *cand1 = strstr(tok, " and ");
+            char *cand2 = strstr(tok, " e ");
+            w2 = cand1; if (cand2 && (!w2 || cand2 < w2)) w2 = cand2;
+            if (!w2 || ns >= 7) { sub[ns++] = tok; break; }
+            size_t skip = (w2 == cand1) ? 5 : 3;
+            *w2 = '\0';
+            sub[ns++] = tok;
+            tok = w2 + skip;
+        }
+        for (size_t k = 0; k < ns && ni < 16; k++) {
+            char *cw[16]; size_t ncw = split_words(sub[k], cw, 16);
+            if (!ncw) continue;
+            /* il membro e' l'ULTIMA parola piena del pezzo: «most plants» -> plants */
+            char *m = strip_edge_punct(cw[ncw - 1]);
+            if (strlen(m) < 3 || is_stopword(b, m)) continue;
+            int bad = 0;
+            for (char *c = m; *c; c++) if (!isalpha((unsigned char)*c)) bad = 1;
+            if (bad || !strcmp(m, head)) continue;
+            snprintf(item[ni], sizeof item[0], "%s", m);
+            ni++;
+        }
+        if (!comma) break;
+    }
+    /* un solo membro non e' un'enumerazione: e' una similitudine, e leggerla
+     * come una classe e' esattamente il modo di scrivere un fatto falso */
+    if (ni < 2) return 0;
+
+    /* Il ritorno e' il NUMERO di fatti entrati, non «e' andata bene»: la prima
+     * versione tornava 0/1 e il resoconto diceva «2 facts» elencandone otto.
+     * Un conto sbagliato in un annuncio di crescita e' un piccolo inganno, ed
+     * e' proprio la cosa che questo estrattore serve a non fare. */
+    size_t o = 0; int wrote = 0;
+    for (size_t i = 0; i < ni; i++) {
+        const char *fa[] = { item[i] };
+        if (kb_query(b->kb, head, fa, 1)) continue;    /* gia' saputo */
+        kb_set_origin(b->kb, KB_INDUCED);
+        kb_assert(b->kb, head, fa, 1);
+        kb_set_origin(b->kb, KB_SESSION);
+        if (o + 64 < out_size) {
+            o += (size_t)snprintf(out + o, out_size - o, "%s%s(%s)",
+                                  wrote ? ", " : "", head, item[i]);
+        }
+        wrote++;
+    }
+    return wrote;
+}
+
 static int extract_class_statement(Brain *b, const char *norm,
                                    char *out, size_t out_size, int extract_only) {
     if (!b || !b->kb) return 0;

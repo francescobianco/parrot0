@@ -21,6 +21,7 @@
 
 #define DREAM_MAX_FRONTIER 4096
 #define DREAM_KEY_LEN      96
+#define DREAM_MAX_BRIDGE   32
 
 typedef struct {
     char   key[DREAM_KEY_LEN];
@@ -39,6 +40,12 @@ typedef struct {
     size_t facts_seen, silent_pages;
     char (*lost)[DREAM_KEY_LEN];
     size_t nlost, lost_cap;
+
+    /* gen405: il sogno guidato dalle lacune — i turni ancora senza ponte, e il
+     * conto di cio' che il sogno ha effettivamente CHIUSO. Un sogno che estrae
+     * mille fatti e non chiude niente e' un dato, non un successo. */
+    char   bridge[DREAM_MAX_BRIDGE][KB_TERM_LEN];
+    size_t nbridge, walls_closed, from_gap_w, from_gap_m, prose_unread;
 } DreamState;
 
 /* Un valore di politica letto dalla KB: `pred(N).` con N numerico. Se la KB non
@@ -147,6 +154,102 @@ static void indent(FILE *o, int depth) {
     for (int i = 0; i < depth; i++) fputs("  ", o);
 }
 
+
+/* I fatti arrivano dalla KB con le virgolette con cui sono stati scritti. */
+static const char *kb_dequote_dream(const char *s) {
+    static char buf[KB_TERM_LEN];
+    size_t n = strlen(s);
+    if (n >= 2 && s[0] == '"' && s[n - 1] == '"') {
+        snprintf(buf, sizeof buf, "%.*s", (int)(n - 2), s + 1);
+        return buf;
+    }
+    return s;
+}
+
+/* ── L'AGENDA DEL SOGNO SONO LE PROPRIE LACUNE (gen405) ────────────────────
+ *
+ * Fin qui il topic lo dava una persona, e il sogno era esplorazione pura: utile
+ * da leggere, ma senza un criterio interno per dire se fosse servito a
+ * qualcosa. Un sogno che non sa cosa gli manca puo' solo sapere di piu'; per
+ * capire di piu' deve sapere DOVE si e' fermato.
+ *
+ * Le due sorgenti sono gia' scritte in KB dal ciclo conversazionale:
+ *   pending_gap(parola)     — classe W: il turno nominava qualcosa di ignoto.
+ *                             La parola E' gia' un topic: si sogna com'e'.
+ *   machinery_gap("turno")  — classe M: le parole c'erano tutte e a mancare era
+ *                             il ponte. Qui il topic non e' dato, va estratto:
+ *                             le parole di contenuto del turno sono i semi.
+ *
+ * Notare l'asimmetria, ed e' quella di question-emergence.md §10.2: una lacuna
+ * W si colma leggendo, una lacuna M no. Sognare su una lacuna M serve lo stesso
+ * — spesso il ponte manca perche' manca la nozione sotto — ma la verifica e'
+ * diversa, e infatti e' l'unica che sappiamo fare da soli. */
+static void agenda_from_gaps(Brain *b, DreamState *st, FILE *o) {
+    KB *kb = brain_kb(b);
+    if (!kb) return;
+    const char *q1[1] = { NULL };
+    char rows[64][KB_TERM_LEN];
+
+    size_t nw = kb_match(kb, "pending_gap", q1, 1, rows, 64);
+    for (size_t i = 0; i < nw; i++) {
+        char key[DREAM_KEY_LEN];
+        key_normalize(kb_dequote_dream(rows[i]), key, sizeof key);
+        if (*key && !seen_has(st, key)) { push(st, key, 0, "gap:W"); seen_add(st, key); st->from_gap_w++; }
+    }
+
+    char mrows[64][KB_TERM_LEN];
+    size_t nm = kb_match(kb, "machinery_gap", q1, 1, mrows, 64);
+    for (size_t i = 0; i < nm && st->nbridge < DREAM_MAX_BRIDGE; i++) {
+        const char *turn = kb_dequote_dream(mrows[i]);
+        snprintf(st->bridge[st->nbridge], sizeof st->bridge[0], "%s", turn);
+        st->nbridge++;
+        /* i semi: le parole di contenuto del turno, lunghe abbastanza da poter
+         * essere il nome di qualcosa. La soglia e' grezza e va detta: e' la
+         * stessa euristica del declino informato, e quando il lessico sapra'
+         * distinguere una parola piena da una funzione, sparira'. */
+        char buf[KB_TERM_LEN]; snprintf(buf, sizeof buf, "%s", turn);
+        for (char *tok = strtok(buf, " \t,.;:?!"); tok; tok = strtok(NULL, " \t,.;:?!")) {
+            if (strlen(tok) < 4) continue;
+            char key[DREAM_KEY_LEN];
+            key_normalize(tok, key, sizeof key);
+            if (*key && !seen_has(st, key)) { push(st, key, 0, "gap:M"); seen_add(st, key); st->from_gap_m++; }
+        }
+    }
+    fprintf(o, "agenda: %zu lacune di parola, %zu turni senza ponte -> %zu semi\n",
+            nw, nm, st->from_gap_w + st->from_gap_m);
+}
+
+/* LA VERIFICA, e non e' un giudizio: si ri-pone il turno che murava. Se ora
+ * risponde, `turn_done` ritira la lacuna da solo (gen404) — quindi qui basta
+ * guardare se il fatto e' sparito. E' il motivo per cui la classe M e' l'unica
+ * decidibile: il rimedio si prova da se'.
+ *
+ * Il costo e' un turno per lacuna aperta, dopo ogni nodo che ha prodotto fatti.
+ * Vale la pena solo se qualcosa e' entrato: sognare non cambia niente finche'
+ * la KB non cresce. */
+static size_t retry_open_walls(Brain *b, DreamState *st, FILE *o, int depth) {
+    KB *kb = brain_kb(b);
+    if (!kb) return 0;
+    size_t closed = 0;
+    for (size_t i = 0; i < st->nbridge; i++) {
+        if (!st->bridge[i][0]) continue;
+        char q[KB_TERM_LEN];
+        snprintf(q, sizeof q, "\"%s\"", st->bridge[i]);
+        const char *ga[1] = { q };
+        if (!kb_query(kb, "machinery_gap", ga, 1)) { st->bridge[i][0] = 0; continue; }
+        char reply[4096];
+        ask(b, st->bridge[i], reply, sizeof reply);
+        if (!kb_query(kb, "machinery_gap", ga, 1)) {
+            closed++;
+            st->bridge[i][0] = 0;
+            indent(o, depth);
+            fprintf(o, "  ✔ ponte trovato: «%s» -> %s\n", st->bridge[i], reply);
+        }
+    }
+    st->walls_closed += closed;
+    return closed;
+}
+
 int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
     if (!b || !topic || !*topic || !opts) return 0;
     FILE *o = opts->out ? opts->out : stdout;
@@ -170,12 +273,18 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
     }
 
     char root[DREAM_KEY_LEN];
-    key_normalize(topic, root, sizeof root);
-    push(&st, root, 0, NULL);
-    seen_add(&st, root);
+    int guided = (*topic == '\0');
+    if (guided) {
+        snprintf(root, sizeof root, "%s", "(le proprie lacune)");
+    } else {
+        key_normalize(topic, root, sizeof root);
+        push(&st, root, 0, NULL);
+        seen_add(&st, root);
+    }
 
     fprintf(o, "dream: %s   (profondita' max %d, nodi max %d, fetch %s)\n",
             root, max_depth, max_nodes, opts->fetch ? "on" : "off");
+    if (guided) agenda_from_gaps(b, &st, o);
     fprintf(o, "%s\n", "----------------------------------------------------------------------");
 
     DreamNode node;
@@ -206,6 +315,17 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
         }
         if (fetched) st.pages_fetched++; else st.pages_local++;
 
+        /* gen405: quante forme di prosa hanno battuto l'estrattore su QUESTA
+         * pagina. Va misurato PRIMA della lettura — la prima versione contava
+         * dopo, e riportava zero mentre le frasi cadevano davvero. Il registro
+         * delle lacune e' lo stesso della conversazione, quindi il conto di
+         * questa pagina si legge solo come differenza. */
+        size_t gaps_before;
+        {
+            const char *gq[1] = { NULL }; char rows[128][KB_TERM_LEN];
+            gaps_before = kb_match(brain_kb(b), "machinery_gap", gq, 1, rows, 128);
+        }
+
         /* La comprensione: lo stesso turno che userebbe una persona. */
         char prompt[256], reply[4096];
         snprintf(prompt, sizeof prompt, "read the page on %s", node.key);
@@ -217,6 +337,20 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
             fprintf(o, "▸ %s%s\n", node.key, fetched ? "  [fetch]" : "");
             indent(o, node.depth);
             fprintf(o, "  %s\n", reply);
+            {
+                const char *gq[1] = { NULL }; char rows[128][KB_TERM_LEN];
+                size_t after = kb_match(brain_kb(b), "machinery_gap", gq, 1, rows, 128);
+                if (after > gaps_before) {
+                    st.prose_unread += after - gaps_before;
+                    indent(o, node.depth);
+                    fprintf(o, "  ✗ %zu frasi non lette (forma sconosciuta)\n",
+                            after - gaps_before);
+                }
+            }
+            /* Qualcosa e' entrato: e' l'unico momento in cui vale la pena
+             * ri-provare i turni che murarono. Sognare non cambia niente
+             * finche' la KB non cresce. */
+            if (st.nbridge) retry_open_walls(b, &st, o, node.depth);
         } else {
             st.silent_pages++;
             lost_add(&st, node.key);
@@ -261,6 +395,46 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
     fprintf(o, "  lette ma mute    %zu\n", st.silent_pages);
     fprintf(o, "in coda non visti  %zu\n", st.tail - st.head);
     fprintf(o, "fatti nella KB     %zu\n", kb_size(brain_kb(b)));
+    /* gen405 (F.): la meta' che mancava al trace. «lette ma mute» contava le
+     * PAGINE da cui non e' uscito niente; questo conta le FRASI dentro le
+     * pagine che invece hanno prodotto — la prosa che parrot0 ha avuto sotto
+     * gli occhi e non ha saputo leggere. E' la misura di quanto il sogno
+     * SEMBRI produttivo piu' di quanto sia, e l'agenda di cosa insegnargli. */
+    fprintf(o, "frasi non lette    %zu  (forme di prosa che non riconosce)\n",
+            st.prose_unread);
+    /* E QUALI. Il numero dice quanto il sogno sembri produttivo piu' di quanto
+     * sia; l'elenco dice cosa fare — ogni riga qui e' una forma di frase da
+     * insegnare a leggere, e quando la si insegna il conto scende da solo. */
+    if (st.prose_unread) {
+        const char *gq[1] = { NULL }; char rows[128][KB_TERM_LEN];
+        size_t n = kb_match(brain_kb(b), "machinery_gap", gq, 1, rows, 128);
+        fprintf(o, "\nforme di prosa che lo battono:\n");
+        for (size_t i = 0; i < n && i < 12; i++)
+            fprintf(o, "  · %s\n", kb_dequote_dream(rows[i]));
+        if (n > 12) fprintf(o, "  … e altre %zu\n", n - 12);
+    }
+
+    /* gen405: LA RESA, che e' la sola cosa che dice se il sogno e' servito.
+     *
+     * «fatti nella KB» misura quanto parrot0 SA; questo misura quanto ha
+     * CAPITO in piu': quanti turni che murarono ora rispondono. Un sogno che
+     * estrae mille fatti e non chiude nessun ponte non e' un successo piccolo,
+     * e' un dato — dice che stava leggendo la cosa sbagliata, o che la lacuna
+     * non era di conoscenza. Tenere separate le due misure e' cio' che
+     * impedisce di scambiare l'accumulo per la comprensione. */
+    if (st.nbridge || st.from_gap_w || st.from_gap_m) {
+        fprintf(o, "\nresa sulle lacune\n");
+        fprintf(o, "  semi da lacune   %zu (parola %zu, ponte %zu)\n",
+                st.from_gap_w + st.from_gap_m, st.from_gap_w, st.from_gap_m);
+        fprintf(o, "  ponti trovati    %zu\n", st.walls_closed);
+        size_t still = 0;
+        for (size_t i = 0; i < st.nbridge; i++) if (st.bridge[i][0]) still++;
+        if (still) {
+            fprintf(o, "  ancora aperti    %zu:\n", still);
+            for (size_t i = 0; i < st.nbridge; i++)
+                if (st.bridge[i][0]) fprintf(o, "    · %s\n", st.bridge[i]);
+        }
+    }
 
     /* Cio' che si e' PERSO, per nome. E' la meta' del trace che conta: un sogno
      * che mostra solo cio' che ha imparato non permette di accorgersi di nulla. */

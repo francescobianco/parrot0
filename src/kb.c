@@ -2796,6 +2796,18 @@ static size_t split_goals(char *body, char *goals[], size_t max) {
  * feed it MULTIPLE clauses per physical line — the .p0 parser is now mature enough
  * to read "a(1). b(2). c(3)." on one line instead of silently dropping all but the
  * first (F.: multi-clause lines were not read). */
+/* L'implicazione `:-` di una clausola sta sempre FUORI da una stringa quotata.
+ * Cercarla con strstr trovava anche quella dentro `":-)"`. */
+static char *find_implication(char *s) {
+    int q = 0;
+    for (char *p = s; *p; p++) {
+        if (*p == '\\' && p[1]) { p++; continue; }
+        if (*p == '"') { q = !q; continue; }
+        if (!q && p[0] == ':' && p[1] == '-') return p;
+    }
+    return NULL;
+}
+
 static int load_clause(KB *kb, const char *path, const char *dir, char *s) {
     size_t n = strlen(s);
     if (n == 0) return 0;
@@ -2836,7 +2848,15 @@ static int load_clause(KB *kb, const char *path, const char *dir, char *s) {
         return kb_assert_neg(kb, neg_pred, argp, neg_argc) ? 1 : 0;
     }
 
-    char *arrow = strstr(s, ":-");
+    /* gen405: l'implicazione va cercata FUORI dalle stringhe. `intent_cue(playful,
+     * ":-)")` contiene `:-` dentro le virgolette, e il caricatore lo leggeva come
+     * una regola malformata e lo scartava — silenziosamente per chi non guardava
+     * stderr. Erano cinque emoticon del registro affettivo, entrate al gen403 e
+     * mai arrivate nella KB.
+     *
+     * La regola generale e' quella: la conoscenza non puo' essere limitata dalla
+     * punteggiatura che contiene. Una faccina e' un dato come un altro. */
+    char *arrow = find_implication(s);
     if (arrow) {                                /* rule: head :- goals */
         char *rulebuf = malloc(n + 1);           /* keep `s` intact for error text */
         if (!rulebuf) {
@@ -2845,7 +2865,7 @@ static int load_clause(KB *kb, const char *path, const char *dir, char *s) {
             return 0;
         }
         memcpy(rulebuf, s, n + 1);
-        char *rarrow = strstr(rulebuf, ":-");
+        char *rarrow = find_implication(rulebuf);
         *rarrow = '\0';
         Rule r;
         memset(&r, 0, sizeof r);

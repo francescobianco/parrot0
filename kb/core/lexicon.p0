@@ -852,3 +852,25 @@ language_marker(en, tell).   language_marker(en, think).  language_marker(en, wo
 language_marker(en, live).   language_marker(en, name).   language_marker(en, born).
 language_marker(en, when).   language_marker(en, which).  language_marker(en, going).
 language_marker(en, really). language_marker(en, just).   language_marker(en, need).
+
+% gen405 — LE CUE DELL'ENUMERAZIONE APPOSITIVA.
+%
+% In prosa enciclopedica «X e' un Y» compare una volta, nella prima riga; la
+% forma che l'autore usa davvero per dire di che cosa parla e' l'elenco con un
+% appiglio: «organismi come le piante, le alghe e i cianobatteri». Sulla pagina
+% di photosynthesis sono sette fatti IS-A che l'estrattore lasciava per terra.
+%
+% Il motore e' fisso (testa nominale prima della cue, lista dopo); queste sono
+% la parte che cambia da lingua a lingua, ed e' per questo che stanno qui.
+enumeration_cue("such as").
+enumeration_cue("including").
+enumeration_cue("for example").
+enumeration_cue("for instance").
+enumeration_cue("ad esempio").
+enumeration_cue("per esempio").
+% «like» e «come» sono ambigui: introducono tanto un elenco quanto una
+% similitudine («si comporta come un fluido»). Il cancello dei due membri li
+% rende usabili — una similitudine ha un termine solo.
+enumeration_cue("like").
+enumeration_cue("come").
+machinery(enumeration_cue).

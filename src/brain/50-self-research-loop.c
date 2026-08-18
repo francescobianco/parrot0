@@ -5,6 +5,8 @@
  * external agent poses a problem about parrot0 itself, propose a comparable
  * engineering move in the same discipline the loop uses - smallest behavioral
  * change, executable ratchet, version bump, and journaled observation. */
+
+static void machinery_gap_record(Brain *b, const char *canon);  /* definita in 99-registry.c */
 static int mod_loop(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
     char pre[256];
@@ -326,6 +328,12 @@ static int extract_page_facts(Brain *b, const char *key, char *out, size_t out_s
         if (slen > 4 && slen < 380) {
             char sent[400], nrm[400], canon[400], msg[256];
             memcpy(sent, p, slen); sent[slen] = '\0';
+            /* MISURATO E SCARTATO (gen405): togliere le parentetiche di glossa
+             * («ribonucleic acid (RNA)») non ha cambiato nessun conto sulle
+             * cinque pagine provate, perche' quelle frasi cadono per un altro
+             * motivo. Resta il fatto che la glossa E' conoscenza:
+             * TODO(kb-first): `alias(rna, ribonucleic_acid)` dalla parentetica —
+             * ma va fatto perche' rende un fatto, non per ripulire l'ingresso. */
             normalize(sent, nrm, sizeof nrm);
             canonicalize_lang(b, nrm, canon, sizeof canon);
             msg[0] = '\0';
@@ -333,9 +341,61 @@ static int extract_page_facts(Brain *b, const char *key, char *out, size_t out_s
              * fondo al corpo, quindi saltare il fondo e' un loop infinito (lo
              * era: due pagine su dodici non tornavano piu'). Il rifiuto si
              * esprime come condizione, non come salto. */
+            /* gen405: la SECONDA forma della prosa, provata per prima perche'
+             * e' piu' specifica — una frase che elenca («organismi come le
+             * piante, le alghe e i cianobatteri») e' anche una frase «X e' un
+             * Y», e letta come tale rende un fatto vuoto al posto di tre veri. */
+            /* TODO(kb-first): l'enumerazione e' agganciata SOLO a questo
+             * percorso — la lettura profonda di una pagina. Chi DICE «metals
+             * such as copper, tin and lead» in conversazione riceve ancora un
+             * muro, mentre chi la fa leggere viene capito. E' la stessa
+             * conoscenza per due strade diverse, e l'asimmetria non ha ragione
+             * di esistere: va chiamata anche dal percorso della frase detta. */
+            char emsg[512]; emsg[0] = '\0';
+            int ne = extract_enumeration(b, canon, emsg, sizeof emsg);
+            if (ne && emsg[0]) {
+                if (mo + strlen(emsg) + 4 < out_sz) {
+                    mo += (size_t)snprintf(out + mo, out_sz - mo, "%s%s",
+                                           (nfacts || nrules) ? ", " : "", emsg);
+                    /* `ne` e' il numero di MEMBRI entrati, non di frasi: il
+                     * resoconto deve dire quanti fatti, non quante letture. */
+                    nfacts += ne;
+                }
+                if (!*q) break;
+                p = q + 1;
+                continue;
+            }
+            /* MISURATO E SCARTATO (gen405). Sognando cinque pagine, le frasi
+             * che battono l'estrattore sembravano bloccate dal soggetto
+             * coordinato — «dna and ribonucleic acid are nucleic acids». Ho
+             * spezzato il soggetto e non e' cambiato niente: le due meta' non
+             * si leggono lo stesso. Il bloccante vero e' un altro, e ora e'
+             * misurato invece che immaginato.
+             * TODO(kb-first): la forma PLURALE SENZA ARTICOLO. «entropy is a
+             * thermodynamic state variable» entra (classe multiparola, con
+             * articolo); «dna are nucleic acids» no. E' la forma con cui
+             * un'enciclopedia dice l'appartenenza a una categoria, e oggi cade
+             * tutta. */
             int r = extract_class_statement(b, canon, msg, sizeof msg, 1);
             if (r == 2) nrejected++;                 /* cancello: respinto */
-            else if (r) {
+            else if (!r) {
+                /* gen405 (F.): UNA FORMA DI PROSA CHE NON SO LEGGERE E' UNA
+                 * LACUNA, e va nello stesso registro dei turni senza ponte.
+                 *
+                 * Prima la frase spariva: la pagina diceva «rilascia ossigeno
+                 * come sottoprodotto della scissione dell'acqua» e parrot0
+                 * andava avanti come se non ci fosse. Non e' una pagina povera,
+                 * e' una forma che nessuno gli ha mostrato — la stessa cosa che
+                 * al gen404 abbiamo smesso di lasciar cadere in conversazione.
+                 *
+                 * Registrarla ha due effetti, e il secondo e' quello che conta:
+                 * il sogno smette di sembrare produttivo quando non lo e', e
+                 * l'elenco delle forme che lo battono diventa l'agenda di cosa
+                 * insegnargli a leggere. Il cancello (`r == 2`) resta fuori: un
+                 * rifiuto e' una decisione presa, non una lacuna subita. */
+                machinery_gap_record(b, canon);
+            }
+            if (r == 1) {
                 /* gen382: la prosa produce anche REGOLE (il generico plurale
                  * "whales are mammals"), e vanno contate come tali. Prima solo
                  * "Learned: " veniva tolto, quindi il testo del messaggio di una

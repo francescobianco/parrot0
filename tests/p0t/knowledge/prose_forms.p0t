@@ -1,0 +1,64 @@
+# LE FORME DELLA PROSA, E CIO' CHE NON SO LEGGERE — gen405.
+#
+# L'estrattore conosceva UNA forma, «X e' un Y». Misurato sul sogno di
+# photosynthesis: sei frasi dense di enciclopedia, UN fatto — `system(...)`,
+# vero e quasi vuoto. In prosa enciclopedica quella forma compare una volta,
+# nella prima riga; la forma che l'autore usa davvero per dire di che cosa parla
+# e' l'elenco con un appiglio.
+#
+# E la seconda meta', che e' quella che chiude il cerchio col gen404: una frase
+# che l'estrattore NON sa leggere e' una lacuna di macchineria, e va nello
+# stesso registro dei turni senza ponte. Prima spariva.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+# La testa nominale prima della cue, la lista dopo. La testa plurale e' il caso
+# normale e va al singolare: «organisms such as…» -> organism(...).
+[test an appositive enumeration yields one fact per member]
+> read the page on photosynthesis
+<~ organism(plants)
+!query organism(algae)
+!query carbohydrate(cellulose)
+
+# Un solo membro NON e' un'enumerazione: e' una similitudine, e leggerla come
+# una classe scrive un fatto falso. E' il cancello che rende usabili cue
+# ambigue come «like» e «come».
+[test one member is a simile, not a class]
+!reset
+!assert enumeration_cue("behaves like")
+> a fluid behaves like a gas
+<! Learned
+
+# La cue e' conoscenza, e la prova e' toglierla: senza «such as» la stessa
+# pagina rende molto meno. Nessuna ricompilazione in mezzo.
+#
+# Il test gira sulla LETTURA di una pagina e non su una frase detta, e il motivo
+# va detto invece che nascosto: l'enumerazione e' agganciata solo al percorso
+# profondo. Chi DICE «metals such as copper, tin and lead» in conversazione
+# riceve ancora un muro, mentre chi la fa LEGGERE viene capito. E' la stessa
+# conoscenza per due strade diverse, ed e' un'asimmetria da chiudere.
+[test the cue is data, not code]
+!reset
+> read the page on photosynthesis
+<~ carbohydrate(cellulose)
+!reset
+!forget enumeration_cue("such as")
+!forget enumeration_cue("like")
+> read the page on photosynthesis
+<! carbohydrate(cellulose)
+
+# La seconda meta': cio' che non ha saputo leggere lo sa dire.
+[test unreadable prose becomes a machinery gap]
+!reset
+!query! machinery_gap($X)
+> read the page on photosynthesis
+<~ extracted
+!query machinery_gap($X)
+> what did you fail on
+<~ could not bridge

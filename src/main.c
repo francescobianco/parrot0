@@ -64,7 +64,8 @@ static void print_usage(FILE *out) {
             "  --bench PATH                Send a .p0t file, glob, or directory recursively\n"
             "  --bench-report              Print benchmark totals and stop the daemon\n"
             "  --bench-health FILE         Warm up and verify the benchmark daemon\n"
-            "  --dream TOPIC               Explore a topic recursively\n"
+            "  --dream [TOPIC]             Explore a topic recursively\n"
+            "                              (no TOPIC: dream its own open gaps)\n"
             "    --depth=N                 Limit dream traversal depth\n"
             "    --nodes=N                 Limit dream traversal nodes\n"
             "    --fetch                   Allow fetching sources while dreaming\n"
@@ -262,6 +263,10 @@ int main(int argc, char **argv) {
         else if (strcmp(argv[i], "--host") == 0 && i + 1 < argc) host = argv[++i];
         else if (strncmp(argv[i], "--host=", 7) == 0) host = argv[i] + 7;
         else if (strcmp(argv[i], "--dream") == 0) {
+            /* gen405: senza topic, il sogno prende l'agenda dalle PROPRIE
+             * lacune. La stringa vuota e' il modo di dirlo restando un
+             * puntatore non nullo. */
+            dream_topic = "";
             if (i + 1 < argc && strncmp(argv[i + 1], "--", 2) != 0) dream_topic = argv[++i];
         }
         else if (strncmp(argv[i], "--depth=", 8) == 0) dream_depth = atoi(argv[i] + 8);
@@ -356,7 +361,7 @@ int main(int argc, char **argv) {
 
     /* gen382: il sogno gira sul cervello COMPLETO (e' esplorazione, non un test
      * ermetico), stampa il suo trace su stdout ed esce. */
-    if (dream_topic) {
+    if (dream_topic) {   /* "" = sogna le lacune aperte, vedi dream.c */
         DreamOpts dopts = { dream_depth, dream_nodes, dream_fetch, dream_persist, stdout };
         int n = dream_run(brain, dream_topic, &dopts);
         brain_destroy(brain);
