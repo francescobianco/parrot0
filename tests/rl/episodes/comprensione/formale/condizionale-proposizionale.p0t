@@ -1,0 +1,44 @@
+# id:        comprensione/formale/condizionale-proposizionale
+# famiglia:  comprensione
+# dominio:   formale / logica
+# gradino:   2
+# vettore:   profondita 3  distanza 2  ambiguita 1  composizione 2
+#            rumore 0  apertura 0  novita 1
+# lavoro:    leggere un condizionale fra due PROPOSIZIONI (non fra due classi),
+#            tenere il fatto che ne verifica una, e rispondere sull'altra
+# difficile: «if someone is a doctor then they are a scientist» si legge da
+#            sempre perche' i due lati sono appartenenze. «if it rains then the
+#            ground is wet» ha due proposizioni intere, che e' la forma in cui la
+#            logica si dice quasi sempre — e cadeva, con un messaggio che
+#            nominava «ground», la parola meno rilevante della frase.
+#
+#            E' il primo blocco della classe B di docs/autocorrezione.md:
+#            quarantanove prompt su cento finiscono su una parola opaca che non
+#            c'entra niente, perche' la FORMA non e' leggibile e il motore
+#            ripiega sul lessico
+# origine:   F., gen413 — «quella domanda deve pure essere risolvibile»
+# verifica:  V1 (la regola e il fatto entrano) + V2 (la conclusione) + V4
+
+[test il condizionale fra proposizioni entra come regola]
+!set PARROT0_SESSION=
+!reset
+> if it rains then the ground is wet
+<~ holds(ground_is_wet)
+<~ holds(it_rains)
+
+# Il dizionario se lo scrive da solo leggendo la regola: senza, la regola
+# resterebbe muta — parlerebbe di simboli che nessun turno successivo sa produrre.
+[test la proposizione detta da sola si aggancia alla regola]
+> the ground is wet
+!query holds(ground_is_wet)
+
+[test e la domanda polare ci arriva]
+> is the ground wet
+< Yes.
+
+# V4 — il cancello. Una frase qualunque NON deve diventare una proposizione:
+# si legge in modo proposizionale solo cio' di cui una regola gia' parla.
+[test una frase qualunque non diventa una proposizione]
+!reset
+> the pavement is slippery
+!query! holds(pavement_is_slippery)

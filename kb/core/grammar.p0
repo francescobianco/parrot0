@@ -519,3 +519,32 @@ stipulation_cue("imagine that").     stipulation_cue("imagine").
 stipulation_cue("assuming that").    stipulation_cue("assume that").
 stipulation_cue("hypothetically").   stipulation_cue("for the sake of argument").
 stipulation_cue("pretend that").     stipulation_cue("say that").
+
+% gen413 — I CONDIZIONALI PROPOSIZIONALI.
+%
+% «if someone is a doctor then they are a scientist» si legge da sempre, perche'
+% i due lati sono APPARTENENZE. «if it rains then the ground is wet» no: i due
+% lati sono proposizioni intere, che e' la forma in cui la logica si dice quasi
+% sempre. Acceso, un segmento che nessuna forma tipata riconosce diventa un atomo
+% opaco sotto `holds/1` — e per la logica proposizionale basta: da «Q :- P» e «Q»
+% non segue «P», e per saperlo non serve sapere cosa siano P e Q.
+%
+% E' un interruttore perche' allarga parecchio cio' che il lettore di regole
+% accetta: chi vuole solo le forme tipate lo spegne.
+machinery(propositional_conditionals).
+propositional_conditionals(on).
+
+% gen413 — GLI AUSILIARI CHE SI SPOSTANO IN TESTA in una domanda polare.
+%
+% «is the ground wet» e «the ground is wet» sono la stessa proposizione: la
+% domanda e' l'asserzione con l'ausiliare portato davanti. Rimetterlo al suo
+% posto e' una trasformazione generica, e quali parole si spostino cosi' e'
+% conoscenza — una lingua nuova costa righe qui, non C.
+%
+% E' una classe a se' e non `aux_question/1` perche' quella serve alla
+% traduzione (l'ausiliare che sparisce quando il verbo si coniuga) ed e' un
+% insieme diverso: «do you speak» perde il «do», «is the ground wet» no.
+machinery(polar_fronted).
+polar_fronted(is).   polar_fronted(are).
+polar_fronted(was).  polar_fronted(were).
+polar_fronted(does). polar_fronted(do).  polar_fronted(did).

@@ -724,3 +724,10 @@ response_template(class_arity_conflict, it, "Conosco {class} come un fatto in {a
 % dare da una che ha potuto dare solo dopo essersi modificato.
 response_template(self_corrected_on_wall, "{answer}  (I was missing a piece and taught it to myself: {bridge})").
 response_template(self_corrected_on_wall, it, "{answer}  (mi mancava un pezzo e me lo sono insegnato: {bridge})").
+
+% gen413 — la risposta a una domanda polare su una proposizione nota che NON e'
+% derivabile. «Non lo so» sarebbe vero ma debole: qui il motore sa qualcosa di
+% piu' preciso — che dalla regola quella conclusione non segue — e dirlo e' la
+% differenza fra ignorare e ragionare.
+response_template(not_necessarily, "Not necessarily.").
+response_template(not_necessarily, it, "Non necessariamente.").

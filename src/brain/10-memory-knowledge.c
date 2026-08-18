@@ -841,7 +841,7 @@ static const char *p0_rule_term(Brain *b, P0RuleVars *v, const char *w) {
 }
 
 /* Una clausola in un goal. Ritorna 1 se l'ha riconosciuta. */
-static int p0_rule_clause(Brain *b, P0RuleVars *v, char **w, size_t n,
+static int p0_rule_clause_typed(Brain *b, P0RuleVars *v, char **w, size_t n,
                           char store[3][KB_TERM_LEN], KbGoal *g) {
     if (n < 3) return 0;
     const char *subj = p0_rule_term(b, v, w[0]);
@@ -872,6 +872,88 @@ static int p0_rule_clause(Brain *b, P0RuleVars *v, char **w, size_t n,
         g->argc = 1;
         return 1;
     }
+}
+
+/* gen413 — LA PROPOSIZIONE ATOMICA: quando un segmento non e' una clausola.
+ *
+ * «if someone is a doctor then they are a scientist» si legge da sempre; «if it
+ * rains then the ground is wet» no, e non per una parola mancante: perche' i due
+ * segmenti non sono APPARTENENZE. «it rains» non ha soggetto e classe, e' una
+ * proposizione intera — la forma in cui la logica si dice quasi sempre.
+ *
+ * E' il primo blocco della classe B di docs/autocorrezione.md, quarantanove
+ * prompt su cento: il turno cadeva su «ground», che e' la parola meno rilevante
+ * della frase, perche' nessuno dei due lati poteva essere letto.
+ *
+ * Qui un segmento che nessuna forma tipata riconosce diventa un ATOMO: le sue
+ * parole, minuscole, unite da underscore, sotto un predicato unico. Il motore
+ * non capisce la proposizione — la tratta come un simbolo opaco, ed e'
+ * esattamente cio' che la logica proposizionale chiede: da «Q :- P» e «Q» non
+ * segue «P», e per saperlo non serve sapere cosa siano P e Q.
+ *
+ * E' dietro un fatto (`propositional_conditionals/1`) perche' allarga di molto
+ * cio' che il lettore di regole accetta, e chi non lo vuole lo spegne. */
+static int p0_proposition_atom(Brain *b, char **w, size_t n, char *out, size_t osz) {
+    if (!b || n == 0 || n > 8) return 0;
+    /* UN RAMO ALTERNATIVO VUOL DIRE PIANO, NON IMPLICAZIONE. «se nivra brilla
+     * accanto a sola, di' bright, altrimenti di' dim» e' un piano condizionale e
+     * ha gia' il suo lettore: leggerlo come proposizione lo distruggeva
+     * (misurato su conditional_plan.p0t). Quali parole aprano un'alternativa e'
+     * gia' conoscenza — `logic_connector(alternative, …)` — quindi la guardia
+     * non nomina nessuna parola. */
+    for (size_t i = 0; i < n; i++) {
+        char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[i]);
+        const char *aq[] = { "alternative", strip_edge_punct(t) };
+        if (kb_query(b->kb, "logic_connector", aq, 2)) return 0;
+    }
+    size_t o = 0;
+    out[0] = '\0';
+    for (size_t i = 0; i < n; i++) {
+        char t[KB_TERM_LEN];
+        snprintf(t, sizeof t, "%s", w[i]);
+        char *tok = strip_edge_punct(t);
+        if (!*tok || !isalpha((unsigned char)*tok)) return 0;
+        /* l'articolo non fa parte della proposizione: «the ground is wet» e
+         * «ground is wet» sono la stessa cosa detta due volte */
+        if (is_definite_article(b, tok) || is_article(b, tok)) continue;
+        if (o && o + 1 < osz) out[o++] = '_';
+        for (const char *c = tok; *c && o + 1 < osz; c++)
+            out[o++] = (char)tolower((unsigned char)*c);
+    }
+    out[o] = '\0';
+    return o > 0;
+}
+
+static int p0_propositional_on(Brain *b) {
+    const char *q[] = { "on" };
+    return b && b->kb && kb_query(b->kb, "propositional_conditionals", q, 1);
+}
+
+static int p0_rule_clause(Brain *b, P0RuleVars *v, char **w, size_t n,
+                          char store[3][KB_TERM_LEN], KbGoal *g) {
+    if (p0_rule_clause_typed(b, v, w, n, store, g)) return 1;
+    if (!p0_propositional_on(b)) return 0;
+    char slug[KB_TERM_LEN];
+    if (!p0_proposition_atom(b, w, n, slug, sizeof slug)) return 0;
+    /* IL DIZIONARIO SE LO SCRIVE DA SOLO. Ogni atomo nato leggendo una regola
+     * viene registrato, e da quel momento la stessa proposizione detta da sola
+     * («The ground is wet.») e' asseribile. Senza questo passaggio la regola
+     * imparata resta muta: parla di simboli che nessun turno successivo sa
+     * produrre. E' lo stesso cancello del gen133 — si legge in quel modo solo
+     * cio' di cui una regola gia' parla — spostato dalle classi alle
+     * proposizioni. */
+    {
+        const char *pa[] = { slug };
+        int prev = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_INDUCED);
+        kb_assert(b->kb, "proposition_seen", pa, 1);
+        kb_set_origin(b->kb, prev);
+    }
+    snprintf(store[0], KB_TERM_LEN, "holds");
+    snprintf(store[1], KB_TERM_LEN, "%s", slug);
+    g->pred = store[0];
+    g->argc = 1;
+    return 1;
 }
 
 static int mod_teach_rule(Brain *b, const char *norm, const char *raw,
@@ -7295,6 +7377,63 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     if (completion_chain_resolve(b, norm, out, out_size)) return 1;
     if (taxonomy_definition_reply(b, norm, raw, out, out_size)) return 1;
 
+    /* gen413 — UNA PROPOSIZIONE GIA' VISTA IN UNA REGOLA, detta da sola.
+     *
+     * «The ground is wet.» dopo «if it rains then the ground is wet» deve
+     * asserire lo stesso simbolo che la regola nomina, altrimenti la regola
+     * imparata resta muta — parla di cose che nessun turno successivo sa
+     * produrre. Il cancello e' il dizionario che il lettore di regole si scrive
+     * da solo (`proposition_seen/1`): si legge in modo proposizionale SOLO cio'
+     * di cui una regola gia' parla, mai una frase qualunque. */
+    if (p0_propositional_on(b)) {
+        char pbuf[400];
+        snprintf(pbuf, sizeof pbuf, "%s", norm);
+        char *pw[16];
+        size_t pn = split_words(pbuf, pw, 16);
+        char slug[KB_TERM_LEN];
+        /* LA DOMANDA POLARE e' l'asserzione con l'ausiliare davanti: «is the
+         * ground wet» e «the ground is wet» sono la stessa proposizione, e per
+         * riconoscerlo basta rimettere l'ausiliare al suo posto — quali parole
+         * lo siano e' gia' conoscenza (`aux_question/1`). Senza questo, la
+         * regola imparata risponderebbe solo a chi la sa gia'. */
+        if (pn >= 3 && lex_class_member(b, "polar_fronted", pw[0])) {
+            /* il soggetto e' il primo termine dopo l'ausiliare, articolo incluso */
+            size_t subj_end = 1;
+            if (is_definite_article(b, pw[1]) || is_article(b, pw[1])) subj_end = 2;
+            if (subj_end < pn) {
+                char *qw[16]; size_t k = 0;
+                for (size_t i = 1; i <= subj_end && k < 15; i++) qw[k++] = pw[i];
+                if (k < 15) qw[k++] = pw[0];                    /* l'ausiliare torna a posto */
+                for (size_t i = subj_end + 1; i < pn && k < 15; i++) qw[k++] = pw[i];
+                char qslug[KB_TERM_LEN];
+                if (p0_proposition_atom(b, qw, k, qslug, sizeof qslug)) {
+                    const char *qq[] = { qslug };
+                    if (kb_query(b->kb, "proposition_seen", qq, 1)) {
+                        int yes = kb_query(b->kb, "holds", qq, 1);
+                        kb_say(b, yes ? "polar_yes" : "not_necessarily",
+                               yes ? "Yes." : "Not necessarily.", out, out_size);
+                        return 1;
+                    }
+                }
+            }
+        }
+        if (pn >= 2 && p0_proposition_atom(b, pw, pn, slug, sizeof slug)) {
+            const char *sq[] = { slug };
+            if (kb_query(b->kb, "proposition_seen", sq, 1)) {
+                int prev = kb_origin(b->kb);
+                kb_set_origin(b->kb, KB_SESSION);
+                int ok = kb_assert(b->kb, "holds", sq, 1);
+                kb_set_origin(b->kb, prev);
+                if (ok) {
+                    char msg[256];
+                    snprintf(msg, sizeof msg, "Learned: holds(%s).", slug);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+        }
+    }
+
     if (kb_cue_match(b, "relational_country_constraint", norm)) {
         const char *q[] = { NULL };
         char hit[1][KB_TERM_LEN];
@@ -11378,14 +11517,29 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * conjuncts of a learned conjunctive concept ("every friendly dog is a
      * goodboy") assertable in natural English ("rex is friendly"), without the
      * frame ever firing on arbitrary "X is Y" prose. */
-    if (nw == 3 && strcmp(w[1], "is") == 0 &&
-        !is_stopword(b, w[0]) && isalpha((unsigned char)w[0][0])) {
+    /* gen413 — E LO STESSO CON L'ARTICOLO DAVANTI.
+     *
+     * «ground is wet» entrava e «the ground is wet» no, per l'unica ragione che
+     * il secondo ha una parola in piu'. Misurato studiando perche' i 49 prompt
+     * della classe B (docs/autocorrezione.md §3) finiscano tutti su una parola
+     * opaca: quella frase e' il secondo pezzo di «If it rains then the ground is
+     * wet. The ground is wet. Did it necessarily rain?», e cadeva sull'articolo.
+     *
+     * L'articolo non porta significato al soggetto — dice solo che ce n'e' uno —
+     * e QUALI parole siano articoli e' gia' conoscenza (`definite_article/1`,
+     * `indefinite_article/1` in grammar.p0), quindi il soggetto comincia dopo,
+     * senza che il motore sappia niente di inglese. */
+    size_t a3 = 0;
+    if (nw == 4 && strcmp(w[2], "is") == 0 &&
+        (is_definite_article(b, w[0]) || is_article(b, w[0]))) a3 = 1;
+    if (nw - a3 == 3 && strcmp(w[1 + a3], "is") == 0 &&
+        !is_stopword(b, w[a3]) && isalpha((unsigned char)w[a3][0])) {
         char clsbuf[KB_TERM_LEN];
-        snprintf(clsbuf, sizeof clsbuf, "%s", w[2]);
+        snprintf(clsbuf, sizeof clsbuf, "%s", w[2 + a3]);
         char *cl2 = strip_edge_punct(clsbuf);
         if (kb_rule_body_mentions(b->kb, cl2)) {
             const char *subj;
-            if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
+            if (!resolve_entity(b, w[a3], &subj, out, out_size)) return 1;
             const char *args[] = {subj};
             char msg[128];
             int before = b->has_last_goal ? goal_truth(b) : -1;
@@ -11394,7 +11548,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             else
                 snprintf(msg, sizeof msg, "I couldn't store that.");
             put(msg, out, out_size);
-            remember_entity(b, w[0], subj);
+            remember_entity(b, w[a3], subj);
             note_consequence(b, cl2, before, out, out_size);
             return 1;
         }

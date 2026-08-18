@@ -143,6 +143,68 @@ registro.
 
 ---
 
+## 3b. ANATOMIA DI UN CASO DELLA CLASSE B — tre strati, non uno
+
+F.: *«questa domanda deve pure essere risolvibile con l'autocorrezione»*. Il
+rappresentante della classe B è stato smontato pezzo per pezzo, e sotto c'erano
+**tre blocchi in fila**, nessuno dei quali è quello che il messaggio d'errore
+nomina.
+
+```
+If it rains then the ground is wet. The ground is wet. Did it necessarily rain?
+                                  →  «Hmm, I don't know about ground yet.»
+```
+
+**«ground» non c'entra niente.** È solo la prima parola che il motore non
+riconosce, e viene nominata perché *nessuna* delle tre frasi era leggibile. Il
+lessico è il ripiego, non la causa — ed è la ragione per cui i 49 prompt della
+classe B sembrano tutti problemi di vocabolario e nessuno lo è.
+
+| strato | cosa bloccava | stato |
+|---|---|---|
+| 1 | **il condizionale fra proposizioni.** `if someone is a doctor then they are a scientist` si legge da sempre (due appartenenze); `if it rains then the ground is wet` no — due proposizioni intere, la forma in cui la logica si dice quasi sempre | **rimosso** (gen413) |
+| 2 | **l'articolo sul soggetto.** `ground is wet` entrava, `the ground is wet` no. Una parola in più, e le classi di articoli erano già dichiarate in KB | **rimosso** (gen413) |
+| 3 | **tre frasi in un turno solo.** Il prompt è un periodo con tre atti: regola, fatto, domanda. Il lettore lavora sul turno intero | aperto |
+
+Rimossi i primi due, la catena funziona — a patto di dare le tre frasi come tre
+turni:
+
+```
+> if it rains then the ground is wet   Learned rule: holds(ground_is_wet) :- holds(it_rains).
+> the ground is wet                    Learned: holds(ground_is_wet).
+> is the ground wet                    Yes.
+```
+
+Lo stesso contenuto in un turno solo continua a fallire. **Sui 100 prompt il
+guadagno misurato è quindi zero**, ed è un risultato onesto da tenere: due
+blocchi reali rimossi non spostano il numero finché il terzo regge.
+
+### Il dizionario che si scrive da solo
+
+La proposta di F. era di mettere in KB un dizionario per autoalimentare la
+correzione. La forma che ha preso è più stretta e più sicura: **il dizionario lo
+costruisce il lettore di regole mentre legge**. Ogni atomo nato da un
+condizionale viene registrato (`proposition_seen/1`), e da quel momento — e solo
+da quel momento — la stessa proposizione detta da sola è asseribile.
+
+È lo stesso cancello del gen133 («si legge in quel modo solo ciò di cui una
+regola già parla»), spostato dalle classi alle proposizioni, e serve a impedire
+l'effetto opposto: senza, *qualunque* frase diventerebbe una proposizione opaca e
+il motore smetterebbe di capire quelle che capiva. Il costo di sbagliare qui è
+stato misurato subito — la prima versione si mangiava i piani condizionali
+(«…altrimenti…»), e la guardia è anch'essa conoscenza: un ramo alternativo vuol
+dire piano, non implicazione.
+
+### Che cosa dice questo all'autocorrezione
+
+Lo strato 3 è il posto giusto per il ciclo, e la ragione è la forma del rimedio:
+**dove finisce una frase è una regola generale, non un fatto sul mondo**, e un
+candidato si può leggere nel turno stesso — esattamente come una cue. È il primo
+caso in cui una lacuna della classe B ha una riparazione della forma che il ciclo
+sa già proporre.
+
+---
+
 ## 4. LE TRE CECITÀ, per causa
 
 ### 4a — Il declino informato non è considerato un fallimento (classi B e C, 54 casi)
