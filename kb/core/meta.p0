@@ -703,9 +703,30 @@ machinery(self_correct_on_wall).
 % log della conversazione, che parrot0 tiene, e' esattamente il materiale per
 % quella prova.
 %
-% Finche' non c'e', l'interruttore resta a `off`. Non e' una rinuncia: e' che il
-% criterio per accenderlo si e' fatto piu' preciso — da «non dirottare i turni di
-% un certo registro» a «non cambiare nessuna risposta che gia' funzionava».
+% TRE GUARDIE COSTRUITE, E IL DIFETTO E' ANCORA UN QUARTO — che e' il risultato
+% vero di gen417, perche' ora e' isolato invece che sospettato:
+%
+%   1. il REGISTRO del ponte (gen417): un cue di auto-resoconto non si insegna su
+%      una domanda sul mondo. Chiude gap_report_cue e gap_stop_cue;
+%   2. la NON-REGRESSIONE (gen417b, `repair_breaks_past`): i turni recenti che
+%      gia' rispondevano devono rispondere ancora uguale. E' la seconda meta' del
+%      criterio di gen410, finalmente implementata, e non guarda la famiglia del
+%      ponte ma l'effetto;
+%   3. il PONTE CHE COPRE TUTTO IL TURNO (gen417c): timbrare la frase intera
+%      dentro un registro non generalizza niente — e' «una per superficie» invece
+%      che «una per classe», il criterio di falsificazione del piano applicato al
+%      candidato invece che al risultato.
+%
+% Nessuna delle tre prende il caso residuo, e adesso si sa perche'. Con il turno
+% «what is gold plus silver?» il ciclo propone `bridge_ask_cue("what is gold")`:
+% e' un pezzo del turno (guardia 3 non morde), non e' auto-resoconto per registro
+% dichiarato (guardia 1 non morde), e non rompe nessun turno passato perche' e' la
+% PRIMA volta che quella frase compare (guardia 2 non morde). Eppure la risposta e'
+% l'elenco dei registri di cue: pertinente a un'altra domanda.
+%
+% CIO' CHE MANCA E' UNO SOLO, ed e' il substrato S3 di docs/autocorrezione.md: una
+% prova che la risposta sia UNA RISPOSTA A QUELLA DOMANDA. Le altre tre strade
+% sono state percorse e chiuse; questa non si puo' aggirare.
 self_correct_on_wall(off).
 
 % ── gen414: IL FALLIMENTO HA QUATTRO FORME ──────────────────────────────────

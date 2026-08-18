@@ -2126,6 +2126,14 @@ static int continue_resolve(Brain *b, const char *canon, char *out, size_t out_s
 #define CONV_LOG_WINDOW 80
 static void conv_log_one(Brain *b, const char *speaker, const char *text) {
     if (!b || !b->kb || !text || !*text) return;
+    /* gen417b: un turno RIPOSTO per verificare una riparazione non e'
+     * conversazione. Senza questa riga, la verifica di non-regressione
+     * inquinerebbe il log con i propri tentativi — e siccome legge il log per
+     * decidere, si guarderebbe le mani mentre le muove. */
+    {
+        const char *rq[1] = { "1" };
+        if (kb_query(b->kb, "repairing", rq, 1)) return;
+    }
     char t[KB_TERM_LEN]; size_t o = 0;
     for (const char *c = text; *c && o + 4 < sizeof t; c++) {  /* leave room for quotes */
         char ch = *c;
@@ -2545,6 +2553,70 @@ static int repair_fits_class(Brain *b, const char *reg, const char *cand) {
     return 0;
 }
 
+/* gen417b — «SE RISPONDE E NIENT'ALTRO REGREDISCE».
+ *
+ * La seconda meta' del criterio di gen410, mai implementata. Da sola, la prima
+ * — «il turno adesso risponde» — non distingue una riparazione da un
+ * dirottamento, e accendere l'autocorrezione faceva ricomparire il difetto da
+ * una famiglia di cue dopo l'altra: gap_report_cue, poi gap_stop_cue, poi
+ * bridge_ask_cue. Sedici famiglie: dichiararle una per una sarebbe chiudere casi
+ * a mano.
+ *
+ * Il vincolo giusto non guarda la famiglia del ponte, guarda l'EFFETTO: si
+ * ripongono i turni recenti che gia' rispondevano, e se una risposta cambia il
+ * ponte si ritira. Il materiale c'e' — parrot0 tiene il log della conversazione
+ * come conoscenza (`utterance/3`) — e questa e' la prima volta che gli serve per
+ * decidere invece che per raccontare.
+ *
+ * I turni si FOTOGRAFANO prima di riporli: `brain_respond` fa crescere il log, e
+ * iterare su una lista che si allunga mentre la si legge non finirebbe mai. */
+#define REPAIR_CANARIES 4
+static int repair_breaks_past(Brain *b, const char *under_repair) {
+    if (!b || !b->kb) return 0;
+    char turns[REPAIR_CANARIES][KB_TERM_LEN];
+    char befores[REPAIR_CANARIES][KB_TERM_LEN];
+    size_t nc = 0;
+    for (long n = b->utter_seq; n > 1 && nc < REPAIR_CANARIES; n--) {
+        char ns[24]; snprintf(ns, sizeof ns, "%ld", n - 1);
+        const char *uq[3] = { ns, "user", NULL };
+        char txt[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "utterance", uq, 3, txt, 1) != 1) continue;
+        char rs[24]; snprintf(rs, sizeof rs, "%ld", n);
+        const char *rq[3] = { rs, "self", NULL };
+        char rep[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "utterance", rq, 3, rep, 1) != 1) continue;
+        char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", txt[0]);
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rep[0]);
+        const char *tt = kb_dequote(tb);
+        /* IL TURNO IN RIPARAZIONE NON E' CANARINO DI SE STESSO. Compare nel log
+         * con il suo muro, e riposto adesso risponde — che e' lo scopo. Contarlo
+         * come regressione faceva rifiutare ogni riparazione buona (misurato:
+         * self_repair.p0t, sei assert rossi). */
+        if (under_repair && !strcmp(tt, under_repair)) continue;
+        snprintf(turns[nc], KB_TERM_LEN, "%s", tt);
+        snprintf(befores[nc], KB_TERM_LEN, "%s", kb_dequote(rb));
+        nc++;
+    }
+    for (size_t i = 0; i < nc; i++) {
+        char now[900]; now[0] = '\0';
+        unsigned long fb = b->fallbacks;
+        brain_respond(b, turns[i], now, sizeof now);
+        /* SOLO I TURNI CHE GIA' RISPONDEVANO fanno da canarino. Un turno che era
+         * gia' un muro non ha niente da preservare — e per giunta il ripiego
+         * varia apposta la frase per non ripetersi, quindi confrontarlo con se
+         * stesso darebbe sempre «regredito» e nessuna riparazione passerebbe
+         * mai (misurato: self_repair.p0t, sei assert rossi). */
+        if (b->fallbacks != fb) continue;
+        /* il log normalizza virgolette e a capo: si confronta sulla stessa forma */
+        for (char *c = now; *c; c++) {
+            if (*c == '"') *c = '\'';
+            else if (*c == '\n' || *c == '\r' || *c == '\t') *c = ' ';
+        }
+        if (strncmp(now, befores[i], strlen(befores[i])) != 0) return 1;
+    }
+    return 0;
+}
+
 static int repair_try(Brain *b, const char *gapq, const char *turn,
                       const char *reg, const char *const *args, size_t argc) {
     kb_set_origin(b->kb, KB_HYPOTHETICAL);
@@ -2555,7 +2627,16 @@ static int repair_try(Brain *b, const char *gapq, const char *turn,
     brain_respond(b, turn, reply, sizeof reply);
     const char *ga[1] = { gapq };
     if (!kb_query(b->kb, "machinery_gap", ga, 1)) {
-        /* Ha risposto: il candidato smette di essere un'ipotesi. */
+        /* gen417b: ha risposto — ma la meta' del criterio che conta di piu' e'
+         * l'altra. Se una risposta che gia' funzionava e' cambiata, questo non
+         * e' un ponte: e' un dirottamento, e va ritirato come se non fosse mai
+         * esistito. */
+        if (repair_breaks_past(b, turn)) {
+            kb_retract(b->kb, reg, args, argc);
+            return 0;
+        }
+        /* Ha risposto e non ha rotto niente: il candidato smette di essere
+         * un'ipotesi. */
         kb_retract(b->kb, reg, args, argc);
         kb_set_origin(b->kb, KB_INDUCED);
         kb_assert(b->kb, reg, args, argc);
@@ -2629,6 +2710,25 @@ static int self_repair_target(Brain *b, const char *only, char *out, size_t out_
                 char quoted[KB_TERM_LEN];
                 snprintf(quoted, sizeof quoted, "\"%s\"", cand[c]);
                 if (!repair_fits_class(b, reg, cand[c])) continue;
+                /* gen417c — UN PONTE CHE COPRE TUTTO IL TURNO NON E' UN PONTE.
+                 *
+                 * `setting_cue("ci sistemiamo al")` e' un pezzo del turno: copre
+                 * anche «ci sistemiamo al bivacco», che nessuno ha mai detto.
+                 * `bridge_ask_cue("what is gold")` e' il turno INTERO: non
+                 * generalizza niente, timbra quella frase dentro un registro e
+                 * la fa rispondere da un modulo che non c'entra.
+                 *
+                 * E' il criterio di falsificazione che il piano si e' dato —
+                 * «una per superficie invece che una per classe» — applicato al
+                 * candidato invece che al risultato: non si aspetta di scoprire
+                 * che il ciclo ha compilato un frasario, gli si impedisce di
+                 * cominciare. Vale per tutte e sedici le famiglie di cue senza
+                 * nominarne nessuna, che e' la differenza fra un vincolo e
+                 * sedici casi chiusi a mano. */
+                {
+                    size_t lc = strlen(cand[c]), lt = strlen(turn);
+                    if (lc >= lt) continue;
+                }
                 /* gen417 — LA PERTINENZA, come requisito di registro.
                  *
                  * La verifica di gen410 chiede «il turno adesso risponde?», e
