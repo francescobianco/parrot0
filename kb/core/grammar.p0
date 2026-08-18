@@ -428,7 +428,6 @@ extract_frame("@S also known as @O", also_known_as).
 extract_frame("@S is called @O", also_known_as).
 extract_frame("@S is also called @O", also_known_as).
 extract_frame("@S is referred to as @O", also_known_as).
-extract_frame(runs_version).
 
 % ── PAGINE CHE DICHIARANO DI NON CONTENERE CONOSCENZA ────────────────────────
 % gen382. "X may refer to ..." e' l'apertura di una pagina di DISAMBIGUAZIONE:

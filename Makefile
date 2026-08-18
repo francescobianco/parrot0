@@ -681,6 +681,7 @@ test: test-engine
 # soft-test: il file che porta lo standard di prova di ogni migrazione KB-first
 # non veniva eseguito dalla suite (gen382).
 	@./$(BIN) --test tests/p0t/language/taught_lexicon.p0t
+	@./$(BIN) --test tests/p0t/language/teaching_arity.p0t
 	@./$(BIN) --test tests/p0t/language/translate.p0t
 	@./$(BIN) --test tests/p0t/agent/agent_branch.it.p0t
 	@./$(BIN) --test tests/p0t/agent/agent_induce.it.p0t

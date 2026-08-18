@@ -1,0 +1,42 @@
+# INSEGNARE UNA CLASSE A CIO' CHE HA UN'ALTRA FORMA — il cancello dell'arita'.
+#
+# «puppo is a universal_quantifier» funziona perche' quella classe e' unaria.
+# «runs_version is an extract_frame» ha la forma IDENTICA ma extract_frame/2 e'
+# binario — un pattern e una relazione — e produceva `extract_frame(runs_version)`:
+# un fatto che non servira' mai, accettato in silenzio. Non un muro e non un
+# errore: un successo apparente, dove chi insegna crede di aver insegnato.
+#
+# PROVENIENZA (gen412): nato nella batteria di rinforzo come meta-problema
+# (tests/rl/.../insegnamento-malformato.p0t), trovato provando se una forma
+# grammaticale si possa insegnare PARLANDO. Chiuso, quindi promosso a cricchetto.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test un nome conosciuto con un'altra arita' non e' una classe]
+> runs_version is an extract_frame
+<~ 2-part
+!query! extract_frame(runs_version)
+
+# Il rifiuto e' INFORMATO: nomina la forma vera, cosi' chi insegna sa in che modo
+# ha sbagliato e puo' riprovare. E' il declino informato applicato
+# all'insegnamento invece che alla domanda.
+[test e nomina il predicato di cui parla]
+> runs_version is an extract_frame
+<~ extract_frame
+
+# E i casi buoni non vengono morsi: una classe unaria si insegna come sempre, e
+# un predicato NUOVO resta liberamente insegnabile — e' solo la contraddizione
+# con cio' che si sa gia' a essere rifiutata.
+[test la classe unaria si insegna ancora]
+> puppo is a universal_quantifier
+< Learned: universal_quantifier(puppo).
+!forget universal_quantifier(puppo)
+
+[test un predicato mai visto resta insegnabile]
+> zibbo is a florbnak
+<~ Learned

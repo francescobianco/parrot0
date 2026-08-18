@@ -3550,6 +3550,24 @@ static int extract_enumeration(Brain *b, const char *norm,
     return wrote;
 }
 
+/* Con che FORMA la KB conosce gia' questo nome di predicato? Ritorna l'arita'
+ * dei fatti che gia' esistono con quel simbolo, 0 se il simbolo e' nuovo.
+ *
+ * Serve a distinguere «insegnami una classe nuova» da «hai sbagliato la forma di
+ * una cosa che gia' conosco», e non contiene nessun nome di predicato: la
+ * risposta viene dai fatti, quindi vale anche per una macchineria aggiunta
+ * domani (gen412). */
+static size_t class_known_arity(Brain *b, const char *cls) {
+    if (!b || !b->kb || !cls || !*cls) return 0;
+    if (kb_pred_fact_count(b->kb, cls) == 0) return 0;
+    for (size_t a = 1; a <= KB_MAX_ARGS; a++) {
+        const char *q[KB_MAX_ARGS] = { NULL, NULL, NULL, NULL };
+        char row[1][KB_TERM_LEN];
+        if (kb_match(b->kb, cls, q, a, row, 1) > 0) return a;
+    }
+    return 0;
+}
+
 static int extract_class_statement(Brain *b, const char *norm,
                                    char *out, size_t out_size, int extract_only) {
     if (!b || !b->kb) return 0;
@@ -3838,12 +3856,38 @@ static int extract_class_statement(Brain *b, const char *norm,
     char msg[256]; size_t mo = 0;
     mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "Learned: ");
     int any = 0, rejected = 0;
+    size_t arity_ar = 0; char arity_cls[KB_TERM_LEN] = "";
     for (size_t i = 0; i < ncls; i++) {
         /* Il cancello, sulla forma piu' comune di tutte: la dichiarazione di
          * classe. Un predicato che ha inghiottito una subordinata viene respinto
          * e CONTATO — chi legge deve sapere che una frase e' stata letta e
          * scartata, non credere che non ci fosse nulla. */
         if (!p0_atom_is_concept(b, classes[i])) { rejected++; continue; }
+        /* gen412 — e il secondo cancello, sulla stessa riga di pensiero: un
+         * nome che la KB conosce gia' con un'ALTRA FORMA non e' una classe.
+         *
+         * «puppo is a universal_quantifier» funziona perche' quella classe e'
+         * unaria. «runs_version is an extract_frame» ha la forma identica ma
+         * extract_frame/2 e' binario — un pattern e una relazione — e produceva
+         * `extract_frame(runs_version)`: un fatto che non servira' mai,
+         * accettato in silenzio. Non un muro e non un errore: un SUCCESSO
+         * APPARENTE, dove chi insegna crede di aver insegnato. E' il caso che il
+         * mantra #7 teme piu' di tutti, e l'ha trovato la batteria di rinforzo
+         * provando a insegnare una forma grammaticale PARLANDO.
+         *
+         * Il cancello non conosce nessun predicato e non ne elenca nessuno:
+         * chiede alla KB con che forma quel nome esiste gia'. Un predicato nuovo
+         * resta liberamente insegnabile — e' solo la contraddizione con cio' che
+         * si sa gia' a essere rifiutata. */
+        {
+            size_t known = class_known_arity(b, classes[i]);
+            if (known > 1) {
+                arity_ar = known;
+                snprintf(arity_cls, sizeof arity_cls, "%s", classes[i]);
+                rejected++;
+                continue;
+            }
+        }
         if (kb_assert(b->kb, classes[i], ca, 1)) {
             p0_learn_source(b, classes[i], ca, 1, norm);
             mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%s%s(%s)",
@@ -3860,6 +3904,25 @@ static int extract_class_statement(Brain *b, const char *norm,
         }
     }
     if (!any) {
+        /* gen412: un rifiuto per ARITA' si spiega, non si conta. Chi insegna
+         * deve poter capire IN CHE MODO ha sbagliato — «extract_frame lo
+         * conosco in due parti» e' l'informazione che permette di riprovare;
+         * «una classe respinta» non lo e'. E' il declino informato di
+         * universal-comprehension.md applicato all'insegnamento invece che
+         * alla domanda. */
+        if (arity_ar > 1) {
+            KbResponseSlot sl[2];
+            char ar[8]; snprintf(ar, sizeof ar, "%zu", arity_ar);
+            sl[0].name = "class"; sl[0].value = arity_cls;
+            sl[1].name = "arity"; sl[1].value = ar;
+            char amsg[256];
+            if (!kb_response_slots(b, "class_arity_conflict", sl, 2, amsg, sizeof amsg))
+                snprintf(amsg, sizeof amsg,
+                         "I know %s as a %zu-part fact, not a class.",
+                         arity_cls, arity_ar);
+            put(amsg, out, out_size);
+            return 2;
+        }
         if (rejected) {           /* letta e respinta: dirlo, non tacerlo */
             snprintf(out, out_size, "Scartato: %d classe/i non fatte di concetti.", rejected);
             return 2;
@@ -11537,6 +11600,37 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *subj;
         if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
+        /* gen412 — UN INSEGNAMENTO DI ARITA' SBAGLIATA NON E' UN INSEGNAMENTO.
+         *
+         * «puppo is a universal_quantifier» funziona perche' quella classe e'
+         * unaria. «runs_version is an extract_frame» ha la stessa identica forma
+         * ma extract_frame/2 e' binario — un pattern e una relazione — e
+         * produceva `extract_frame(runs_version)`: un fatto che non servira' mai,
+         * accettato in silenzio. Non un muro e non un errore: un SUCCESSO
+         * APPARENTE, dove chi insegna crede di aver insegnato. E' il caso che il
+         * mantra #7 teme piu' di tutti, e l'ha trovato la batteria di rinforzo
+         * provando a insegnare una forma grammaticale parlando.
+         *
+         * La guardia non conosce nessun predicato e non ne elenca nessuno:
+         * chiede alla KB se quel nome esiste gia' e con quale forma. Un
+         * predicato NUOVO resta liberamente insegnabile — e' solo la
+         * contraddizione con cio' che si sa gia' a essere rifiutata. */
+        {
+            size_t known = class_known_arity(b, cls);
+            if (known > 1) {
+                KbResponseSlot sl[2];
+                char ar[8]; snprintf(ar, sizeof ar, "%zu", known);
+                sl[0].name = "class"; sl[0].value = cls;
+                sl[1].name = "arity"; sl[1].value = ar;
+                char msg[256];
+                if (!kb_response_slots(b, "class_arity_conflict", sl, 2, msg, sizeof msg))
+                    snprintf(msg, sizeof msg,
+                             "I know %s as a %zu-part fact, not a class, "
+                             "so I can't put %s in it.", cls, known, subj);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
         int before = goal_truth(b); /* gen103 (L16): snapshot before mutation */
         note_contradiction(b, cls, subj, 1); /* gen142 (E8): self-contradiction? */
         if (kb_assert(b->kb, cls, args, 1)) {

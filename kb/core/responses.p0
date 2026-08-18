@@ -710,3 +710,11 @@ response_template(taught_reply, it, "Capito: quando mi chiedi di {cue} risponder
 % concetto, non ci sarebbe nessun conflitto da nominare.
 response_template(premise_conflict, "Before I answer: what you state clashes with what I hold — I have {held}({subject}), and {claimed} and {held} cannot both apply.").
 response_template(premise_conflict, it, "Prima di rispondere: quello che affermi stride con quello che tengo — ho {held}({subject}), e {claimed} e {held} non possono valere insieme.").
+
+% gen412 — insegnare una CLASSE a qualcosa che la KB conosce con un'altra forma.
+% «runs_version is an extract_frame» ha la forma di un insegnamento valido ma
+% extract_frame/2 e' binario: il fatto unario che ne nasceva era inutile e veniva
+% accettato in silenzio. Il rifiuto e' INFORMATO — nomina la forma vera — perche'
+% chi insegna deve poter capire in che modo ha sbagliato, non solo che ha sbagliato.
+response_template(class_arity_conflict, "I know {class} as a {arity}-part fact, not a class, so I can't put something in it that way.").
+response_template(class_arity_conflict, it, "Conosco {class} come un fatto in {arity} parti, non come una classe, quindi non posso metterci dentro qualcosa in quel modo.").
