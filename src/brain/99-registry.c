@@ -946,6 +946,34 @@ const char *brain_version(void) {
  * Qui si scrive solo il fatto. Chi lo trasformera' in domanda, e la domanda in
  * rimedio, sono le frecce successive dell'anello: questa e' la prima, e senza
  * di essa nessuna delle altre ha un ingresso. */
+/* gen414 — IL FALLIMENTO HA QUATTRO FORME, non una.
+ *
+ * §9.1 di question-emergence.md aveva gia' decomposto il problema — knowledge,
+ * reachability, surface, wrong-answer — e poi gen406-411 hanno costruito per il
+ * solo muro cieco. Misurato sui cento fallimenti di parrot0-100-failures.md:
+ * 88 fallimenti, 85 invisibili al ciclo, perche' un declino informato («I don't
+ * know about X yet») e' considerato un turno GESTITO e non lascia traccia.
+ *
+ * Qui l'esito dichiara la propria forma, e QUALI esiti siano fallimenti e' un
+ * fatto (`unsatisfying_outcome/2`): togliere quella riga dalla KB rimette le
+ * cose come stavano, senza ricompilare. `machinery_gap/1` resta esattamente
+ * com'era, con tutti i suoi consumatori — `gap_kind/2` gli si affianca. */
+static void gap_record_as(Brain *b, const char *canon, const char *raw,
+                          const char *outcome) {
+    if (!b || !b->kb || !canon || !*canon) return;
+    const char *q[2] = { outcome, NULL };
+    char kind[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "unsatisfying_outcome", q, 2, kind, 1) != 1) return;
+    machinery_gap_record(b, canon, raw);
+    char cq[KB_TERM_LEN];
+    snprintf(cq, sizeof cq, "\"%s\"", canon);
+    const char *ka[2] = { cq, kind[0] };
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_SESSION);
+    kb_assert(b->kb, "gap_kind", ka, 2);
+    kb_set_origin(b->kb, prev);
+}
+
 /* gen413: l'autocorrezione sul muro sta piu' su della sua implementazione. */
 static int self_repair_target(Brain *b, const char *only, char *out, size_t out_size);
 
@@ -1213,6 +1241,10 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
         int already_gap = kb_query(b->kb, "pending_gap", gq, 1);
         const char *fq[] = { sw, NULL };
         int already_failed = kb_query(b->kb, "pending_gap_failed", fq, 1);
+        /* gen414: anche questo e' un fallimento. Il turno ha nominato una
+         * parola e offerto di impararla, il che LO FA SEMBRARE gestito — ma il
+         * lavoro non e' stato fatto, e sono quarantanove prompt su cento. */
+        gap_record_as(b, canon, raw, "informed_decline");
         if (!already_gap && !already_failed) {
             kb_set_origin(b->kb, KB_REFLECTIVE);
             const char *ga[] = { sw };
@@ -1237,6 +1269,7 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
         /* Nessuna parola opaca da nominare: le parole c'erano tutte e a non
          * esserci e' il ponte. */
         machinery_gap_record(b, canon, raw);
+        gap_record_as(b, canon, raw, "blind_wall");
         /* ── gen413: L'AUTOCORREZIONE AVVIENE QUI, NEL TURNO ─────────────────
          *
          * Questo ramo e' l'unico posto dove ha senso, e l'ancora del gen406 dice
@@ -1295,6 +1328,7 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
     }
     else {
         machinery_gap_record(b, canon, raw);
+        gap_record_as(b, canon, raw, "blind_wall");
         snprintf(cand, sizeof cand, "%s", v[k % NV]);
     }
     for (size_t t = 0; t < NV && strcmp(cand, b->last_reply) == 0; t++)
@@ -2430,6 +2464,12 @@ int brain_gaps_save(Brain *b) {
         char src[1][KB_TERM_LEN];
         if (kb_match(b->kb, "gap_source", sq, 2, src, 1) > 0)
             fprintf(f, "gap_source(%s, %s).\n", gaps[i], src[0]);
+        /* gen414: e di che FORMA e'. Senza, il registro dice che qualcosa e'
+         * fallito ma non che cosa serva per ripararlo, e il rimedio torna a
+         * essere uno solo per tutti. */
+        char kind[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "gap_kind", sq, 2, kind, 1) > 0)
+            fprintf(f, "gap_kind(%s, %s).\n", gaps[i], kind[0]);
     }
     fclose(f);
     return (int)n;

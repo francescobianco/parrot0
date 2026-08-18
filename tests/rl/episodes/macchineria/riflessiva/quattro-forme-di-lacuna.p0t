@@ -1,0 +1,39 @@
+# id:        macchineria/riflessiva/quattro-forme-di-lacuna
+# famiglia:  macchineria
+# dominio:   riflessiva / la propria macchineria
+# gradino:   2
+# vettore:   profondita 2  distanza 1  ambiguita 1  composizione 2
+#            rumore 0  apertura 2  novita 2
+# lavoro:    accorgersi di essere fallito ANCHE quando il fallimento sembra una
+#            risposta, e registrare di che forma e' la lacuna
+# difficile: «Hmm, I don't know about X yet. Want me to learn about it?» ha
+#            nominato una parola e offerto un rimedio, quindi SEMBRA un turno
+#            gestito — ed era considerato tale. Sono 49 prompt su 100
+#            (docs/autocorrezione.md §3): il lavoro non era stato fatto e non
+#            restava nessuna traccia.
+#
+#            §9.1 di question-emergence.md l'aveva gia' scritto — «non e' andato
+#            a muro non equivale a ha risposto» — e le sette generazioni
+#            successive hanno costruito per il solo muro cieco
+# origine:   gen414, dalla revisione R1
+# verifica:  V1 (la lacuna esiste e porta la sua forma)
+
+[test un declino informato e' un fallimento, e lascia traccia]
+!set PARROT0_SESSION=
+!reset
+> can two contradictory claims both be true in the same sense
+<~ don't know about
+!query machinery_gap($G)
+!query gap_kind($G, reachability)
+
+# La sorgente resta la forma VERA del turno: un ponte si prova riponendo cio' che
+# e' stato detto, non la sua canonicalizzazione.
+[test la lacuna conserva come e' stata detta]
+!query gap_source($G, $S)
+
+# E il muro cieco continua a registrarsi come prima: lo strato si e' AGGIUNTO,
+# non ha sostituito niente.
+[test il muro cieco resta registrato com'era]
+!reset
+> what does goal-conditioned salience mean
+!query machinery_gap($G2)

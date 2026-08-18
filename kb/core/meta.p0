@@ -687,3 +687,25 @@ machinery(self_correct_on_wall).
 % Acceso a mano (`self_correct_on_wall(on)`) il comportamento e' quello descritto
 % sopra: utile per lavorarci, non da spedire.
 self_correct_on_wall(off).
+
+% ── gen414: IL FALLIMENTO HA QUATTRO FORME ──────────────────────────────────
+%
+% §9.1 di question-emergence.md aveva decomposto il problema in quattro difetti
+% — knowledge, reachability, surface, wrong-answer — e poi le sette generazioni
+% hanno costruito per il solo muro cieco. Misurato sui cento fallimenti reali:
+% 88 fallimenti, 85 invisibili al ciclo, perche' un declino informato («I don't
+% know about X yet») viene considerato un turno GESTITO.
+%
+% Qui si dichiara QUALI esiti sono fallimenti e di che forma. Il motore non
+% impara nessun caso nuovo: impara che anche quelli sono fallimenti, e li
+% registra come gia' fa per il muro. Togliere una riga rimette le cose come
+% stavano, senza ricompilare — ed e' il test del mantra #2 su questo strato.
+%
+% reachability: il turno non ha raggiunto nessun consumatore. Il muro cieco e il
+% declino informato sono LA STESSA COSA vista da due punti — nel secondo il
+% ripiego e' riuscito a nominare una parola, e quella parola quasi mai e'
+% l'argomento (docs/autocorrezione.md §3b).
+machinery(unsatisfying_outcome).
+machinery(gap_kind).
+unsatisfying_outcome(blind_wall, reachability).
+unsatisfying_outcome(informed_decline, reachability).
