@@ -1,0 +1,75 @@
+# ledger — la linea di partenza per episodio, per generazione.
+# Un episodio che passa e poi regredisce vale piu di uno che non e mai passato:
+# per questo il ledger si APPENDE e non si riscrive mai.
+#
+generazione	id	passati	falliti	nota
+gen412	comprensione/naturale/enumerazione-coniata	3	3	perde l ultimo membro dell elenco e prende una parola dalla coda; e non sa rielencare cio che ha appena imparato
+gen412	codice/pratica/riscala-ricetta	1	2	nessuna proporzione; V4 tiene (non ripete il dato di partenza come risposta)
+gen412	ricerca/sociale/dato-assente	4	1	V4 tiene; il limite e dichiarato bene con una formulazione e male con l altra
+gen412	conversazione/umanistica/correzione-a-meta	0	2	la correzione non viene applicata: il dato vecchio resta e il nuovo non entra
+gen412	conversazione/espressiva/filo-lungo	0	1	distanza 3: il dato dato sei turni prima e perso
+gen412	procedure/formale/procedura-coniata	1	2	non impara una procedura detta nel dialogo; V4 tiene (non inverte i passi)
+gen412	investigazione/vita-e-salute/domanda-prima-della-risposta	4	1	non prescrive nulla (V4 tiene, dominio sensibile) ma non chiede: declina invece di condurre
+gen412	macchineria/riflessiva/ancora-della-lacuna	2	1	la lacuna E registrata con la sua sorgente (V1 verde); ma il resoconto dice sea invece di mare
+gen412	comprensione/formale/vincolo-detto-una-volta	1	1	il vincolo universale non si applica al caso particolare; V4 tiene (non inverte l implicazione)
+gen412	strumenti/tecnica/leggi-e-riporta	4	0	VERDE — guarda l albero vero e non inventa file
+gen412	ricerca/naturale/fonte-locale-e-suo-limite	3	0	VERDE — riporta la fonte e si ferma dove finisce
+gen412	investigazione/sociale/premessa-falsa	5	0	VERDE — non accetta la premessa falsa e non perde pezzi di motore (in italiano)
+gen412	codice/formale/aritmetica-a-parole	1	1	non compone due numeri con i loro ruoli; V4 tiene
+gen412	comprensione/tecnica/prosa-tecnica	1	1	non estrae la proprieta detta come scopo; V4 tiene (non attribuisce cio che non e detto)
+gen412	procedure/pratica/passi-in-ordine	1	1	non conserva l ordine dei passi; V4 tiene (non risponde col passo precedente)
+gen412	strumenti/tecnica/conta-invece-di-elencare	3	1	elenca (verde) ma non conta: stesso strumento stesso ancoraggio, cade solo la composizione. Su fixture dalla iterazione 4
+gen412	investigazione/sociale/premessa-falsa.en	3	2	il gemello italiano e VERDE al gradino 4, questo no: il limite regge in una lingua e perde pezzi nell altra
+gen412	ricerca/naturale/due-fonti-a-confronto	1	1	recupera (verde) ma non confronta: stessa dimensione isolata, altra famiglia
+gen412	comprensione/vita-e-salute/sintomo-implicito	2	1	non collega la domanda al dato senza appigli lessicali; V4 tiene
+gen412	conversazione/pratica/impegno-preso	0	1	un impegno preso non sopravvive a tre turni
+gen412	macchineria/riflessiva/sa-cosa-non-sa	1	1	le tre lacune SONO registrate (V1 verde) ma non le sa contare: l ipotesi vale anche su se stesso
+#
+# LETTURA DELLA MATRICE (iterazione 4, `make rl-report`) — e una correzione.
+#
+# L iterazione 3 aveva concluso che i falliti si raggruppano per COMPOSIZIONE.
+# Lo strumento dice altro, e va scritto: la composizione e un gradiente dolce
+# (composizione=1 -> 68%, =2 -> 59%), mentre due dimensioni collassano del tutto:
+#
+#   distanza=3   0/2     un dato dato piu di cinque turni prima e sempre perso
+#   rumore=2     0/4     una correzione a meta strada non viene mai applicata
+#   novita=3    48%      contro l 80% di novita=0: e il divario piu largo su
+#                        campione ampio, ed e quello che separa conosce da sa fare
+#
+# I campioni sono minuscoli (2 e 4 episodi): sono indizi su dove scrivere il
+# prossimo lotto, non conclusioni. Il modo di trasformarli in conclusioni e
+# scrivere altri episodi a distanza 3 e rumore 2 in domini diversi.
+#
+# ITERAZIONE 5 — due letture mie, sbagliate, e quella che regge.
+#
+# Avevo concluso due volte di seguito, e due volte era un artefatto:
+#
+#  1. «i falliti si raggruppano per composizione» (iterazione 3).
+#     Falso: la composizione degrada (68% -> 59%), non collassa.
+#
+#  2. «distanza=3 collassa a 0/10» (iterazione 5, prima stesura).
+#     Falso, ed e' il piu' istruttivo. Le quattro sonde chiedevano
+#     «what did I say X was». Con la forma piana — «what is my locker number»
+#     — il dato torna PERFETTAMENTE dopo sei turni di altro. Non misuravo la
+#     memoria: misuravo una forma interrogativa.
+#
+# Cio' che regge, dopo la correzione:
+#
+#  - la memoria a distanza 3 NON e un difetto: distanza-numero e distanza-luogo
+#    sono verdi. Distanza 3 sta a 4/10, e la differenza fra chi passa e chi no
+#    non e il dominio: e la FORMA della frase dichiarativa. «my locker number is
+#    4172» e «the meeting is in bruges» entrano; «the bird I saw was a kestrel»
+#    (relativa) e «we are running version 3.9.7» (progressivo) no;
+#
+#  - la porta meta e chiusa: parrot0 risponde sul MONDO e non sulla
+#    CONVERSAZIONE. Il registro ce l ha — risponde alla forma piana sei turni
+#    dopo — ma «che numero ti ho detto» non lo interroga. E un reperto, non un
+#    inciampo, e ha il suo episodio: conversazione/riflessiva/meta-domanda;
+#
+#  - rumore=2 resta 4/16 e resta NON misurato: tre delle quattro sonde falliscono
+#    il caso base per la stessa ragione di forma. Vanno riscritte con forme che
+#    entrano, ed e la prima cosa dell iterazione 6.
+#
+# La lezione di metodo, che vale piu degli episodi: una sonda a variabile
+# isolata isola qualcosa solo se il CASO BASE e verde, e il caso base va
+# DIMOSTRATO DENTRO L EPISODIO. Ora tutte le sonde lo fanno.

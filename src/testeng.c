@@ -156,6 +156,29 @@ static void te_apply_config(TeState *t) {
 
 /* ── assertion ─────────────────────────────────────────────────────────────── */
 
+/* `<~` e `<!` confrontano SENZA distinguere maiuscole e minuscole.
+ *
+ * Il confronto esatto (`<`) resta letterale: li' si sta fissando una risposta
+ * breve e determinata, e la forma conta. Ma `<~` e `<!` asseriscono che una
+ * PAROLA compare o non compare in una risposta in lingua naturale, e li' la
+ * maiuscola e' un accidente della resa: parrot0 scrive «Orwell.» a inizio frase
+ * e «orwell» dentro un elenco, e un'asserzione che passa o fallisce per quello
+ * non misura niente — produce falsi negativi, che in una batteria di misura
+ * sono peggio di un buco (gen412, trovato scrivendo la batteria di rinforzo).
+ *
+ * Su `<!` la insensibilita' e' anche piu' stretta: «non deve comparire nera»
+ * deve valere anche per «Nera». */
+static const char *te_casestr(const char *hay, const char *needle) {
+    if (!hay || !needle) return NULL;
+    if (!*needle) return hay;
+    for (const char *h = hay; *h; h++) {
+        const char *a = h, *b = needle;
+        while (*a && *b && tolower((unsigned char)*a) == tolower((unsigned char)*b)) { a++; b++; }
+        if (!*b) return h;
+    }
+    return NULL;
+}
+
 static void te_flush(TeState *t) {
     if (t->poisoned) {                /* the turn already failed (timeout) — absorb its < */
         t->poisoned = 0;
@@ -166,8 +189,8 @@ static void te_flush(TeState *t) {
     const char *got = t->have_reply ? t->reply : "";
     int ok;
     switch (t->expect_mode) {
-        case TE_EXPECT_HAS:   ok = strstr(got, t->expect) != NULL; break;
-        case TE_EXPECT_LACKS: ok = strstr(got, t->expect) == NULL; break;
+        case TE_EXPECT_HAS:   ok = te_casestr(got, t->expect) != NULL; break;
+        case TE_EXPECT_LACKS: ok = te_casestr(got, t->expect) == NULL; break;
         default:              ok = strcmp(t->expect, got) == 0;    break;
     }
     if (ok) {

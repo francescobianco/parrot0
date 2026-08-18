@@ -915,10 +915,7 @@ clean:
 # DA SOLI. Il giorno in cui i due insiemi si mescolano, la batteria smette di
 # misurare e comincia a essere potata.
 rl-bench: test-engine
-	@for f in $$(find tests/rl/episodes -name '*.p0t' | sort); do \
-	   ./$(BIN) --test $$f || true; \
-	 done
-	@./$(BIN) --test-report || true
+	@./tests/rl/run.sh
 
 # rl-report — la MATRICE letta: i tagli per famiglia, macro-area, gradino e
 # dimensione del vettore. Il totale della batteria e' il numero meno

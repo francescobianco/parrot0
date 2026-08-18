@@ -1,0 +1,43 @@
+# id:        conversazione/naturale/distanza-specie
+# famiglia:  conversazione
+# dominio:   naturale / biologia
+# gradino:   2
+# vettore:   profondita 1  distanza 3  ambiguita 0  composizione 1
+#            rumore 0  apertura 1  novita 2
+# lavoro:    ricordare un dato dato all'inizio quando serve sei turni dopo
+# difficile: NIENTE, tranne la distanza. Ogni altra dimensione e' al minimo, e i
+#            turni in mezzo non contraddicono nulla: sono solo altro. E' una
+#            sonda a variabile isolata — se cade qui, cade per la distanza
+# origine:   iterazione 5, promozione dell'indizio distanza=3
+# CORREZIONE (iterazione 5): la prima stesura chiedeva «what did I say X was».
+#            Con quella forma l'episodio era rosso e sembrava un fallimento
+#            della distanza; con la forma piana e' verde a distanza 3. Non
+#            misurava la memoria, misurava una forma interrogativa che parrot0
+#            non tratta — vedi conversazione/*/meta-domanda.p0t, dove quella
+#            forma e' l'oggetto invece che l'inciampo
+
+# PRECONDIZIONE (iterazione 5, lezione pagata): una sonda a variabile isolata
+# isola qualcosa solo se il CASO BASE funziona. La prima stesura di questo
+# episodio saltava direttamente alla dimensione alta e attribuiva a quella un
+# fallimento che era della precondizione — misurava la distanza su un dato che
+# non era mai entrato. Il caso base ora sta dentro l'episodio, prima, e se e'
+# rosso l'episodio non dice niente sulla dimensione: dice che non e' misurabile.
+# verifica:  V2 (il dato torna)
+
+[test caso base — a distanza 1 il dato torna]
+!set PARROT0_SESSION=
+!reset
+> the bird I saw was a kestrel
+> which bird did I see
+<~ kestrel
+
+[test la sola dimensione isolata: distanza 3]
+!reset
+> the bird I saw was a kestrel
+> nice weather
+> how much is 7 times 6
+> what is the capital of france
+> tell me about copper
+> thanks
+> which bird did I see
+<~ kestrel

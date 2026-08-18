@@ -1,0 +1,34 @@
+# id:        comprensione/umanistica/relazione-nuova
+# famiglia:  comprensione
+# dominio:   umanistica / linguistica
+# gradino:   1
+# vettore:   profondita 1  distanza 1  ambiguita 0  composizione 1
+#            rumore 0  apertura 0  novita 3
+# lavoro:    trattenere un fatto detto in una frase dichiarativa semplice, e
+#            restituirlo alla domanda corrispondente, nello stesso giro
+# difficile: niente — ed e' il punto. Questo episodio non misura una dimensione
+#            alta: misura la PRECONDIZIONE di meta' della batteria.
+#
+#            Le due coppie sono identiche per forma. La prima usa una relazione
+#            che la KB gia' conosce (la parentela), la seconda una che non
+#            conosce (un numero di armadietto). Se la prima passa e la seconda
+#            no, allora tutto cio' che gli episodi di conversazione hanno
+#            attribuito alla distanza e al rumore e' in realta' questo: un fatto
+#            su una relazione mai vista NON ENTRA, e non c'e' distanza ne'
+#            correzione che tenga su un dato che non e' mai stato preso
+# origine:   iterazione 5, dopo che le sonde su distanza e rumore si sono
+#            rivelate rosse gia' al caso base
+# verifica:  V2 (il dato torna) — due volte, sulla stessa forma
+
+[test una relazione che la KB conosce entra]
+!set PARROT0_SESSION=
+!reset
+> my sister is called nera
+> what is my sister called
+<~ nera
+
+[test la stessa forma con una relazione mai vista]
+!reset
+> my locker number is 4172
+> what is my locker number
+<~ 4172

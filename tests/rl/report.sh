@@ -12,11 +12,18 @@
 set -u
 cd "$(dirname "$0")/.." || exit 1
 MAN=rl/manifest.tsv
-LED=$(ls -1 rl/ledger/*.tsv 2>/dev/null | sort | tail -1)
+LED=$(ls -1 rl/ledger/*.tsv 2>/dev/null | grep -v "\.note\." | sort | tail -1)
 [ -f "$MAN" ] && [ -n "$LED" ] || { echo "report: manifest o ledger mancanti" >&2; exit 1; }
 
 echo "batteria di rinforzo — $(basename "$LED" .tsv)"
 echo
+
+# Integrita': il report unisce per id, quindi un episodio che gira ma non e' a
+# catalogo sparisce dai tagli senza dirlo. Un totale che non torna e' il modo
+# piu' silenzioso di leggere una matrice sbagliata: si segnala.
+orfani=$(awk -F"\t" 'NR==FNR { if ($0 !~ /^#/ && $1!="id") k[$1]; next }
+                       { if ($0 ~ /^#/ || $1=="generazione") next; if (!($2 in k)) print "  ! " $2 }' "$MAN" "$LED")
+[ -n "$orfani" ] && { echo "episodi che girano ma NON sono a catalogo (esclusi dai tagli):"; echo "$orfani"; echo; }
 
 join_tsv() {
   awk -F'\t' '

@@ -25,3 +25,13 @@ ricerca/naturale/due-fonti-a-confronto	ricerca	naturale	biologia	2	2-2-1-3-0-2-0
 comprensione/vita-e-salute/sintomo-implicito	comprensione	vita_e_salute	medicina	2	2-2-2-1-1-2-3	V2,V4	-	sonda gen412
 conversazione/pratica/impegno-preso	conversazione	pratica	casa_e_burocrazia	2	1-3-1-2-2-2-3	V2,V4	-	sonda gen412
 macchineria/riflessiva/sa-cosa-non-sa	macchineria	riflessiva	se_stesso	2	2-2-1-2-0-3-2	V1,V2	macchineria/riflessiva/ancora-della-lacuna	ipotesi gen412
+conversazione/formale/distanza-numero	conversazione	formale	aritmetica	2	1-3-0-1-0-1-2	V2	-	iterazione 5 (isola distanza)
+conversazione/naturale/distanza-specie	conversazione	naturale	biologia	2	1-3-0-1-0-1-2	V2	-	iterazione 5 (isola distanza)
+conversazione/tecnica/distanza-versione	conversazione	tecnica	programmazione	2	1-3-0-1-0-1-2	V2	-	iterazione 5 (isola distanza)
+conversazione/sociale/distanza-luogo	conversazione	sociale	istituzioni	2	1-3-0-1-0-1-2	V2	-	iterazione 5 (isola distanza)
+conversazione/pratica/correzione-quantita	conversazione	pratica	casa_e_burocrazia	2	1-1-1-1-2-1-2	V2,V4	-	iterazione 5 (isola rumore)
+conversazione/espressiva/correzione-titolo	conversazione	espressiva	musica	2	1-1-1-1-2-1-2	V2,V4	-	iterazione 5 (isola rumore)
+conversazione/vita-e-salute/correzione-sintomo	conversazione	vita_e_salute	medicina	2	1-1-1-1-2-1-2	V2,V4	-	iterazione 5 (isola rumore)
+conversazione/umanistica/correzione-autore	conversazione	umanistica	letteratura	2	1-1-1-1-2-1-2	V2,V4	-	iterazione 5 (isola rumore)
+comprensione/umanistica/relazione-nuova	comprensione	umanistica	linguistica	1	1-1-0-1-0-0-3	V2	-	iterazione 5 (precondizione)
+conversazione/riflessiva/meta-domanda	conversazione	riflessiva	la_conversazione	2	2-2-1-1-0-1-2	V2	-	iterazione 5 (reperto isolato)

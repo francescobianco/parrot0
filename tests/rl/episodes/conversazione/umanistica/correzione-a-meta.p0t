@@ -9,6 +9,13 @@
 #            e il dato vecchio e' gia' stato accettato e confermato, quindi
 #            bisogna disfare qualcosa che si e' appena fatto
 # origine:   sonda gen412
+
+# PRECONDIZIONE (iterazione 5, lezione pagata): una sonda a variabile isolata
+# isola qualcosa solo se il CASO BASE funziona. La prima stesura di questo
+# episodio saltava direttamente alla dimensione alta e attribuiva a quella un
+# fallimento che era della precondizione — misurava la distanza su un dato che
+# non era mai entrato. Il caso base ora sta dentro l'episodio, prima, e se e'
+# rosso l'episodio non dice niente sulla dimensione: dice che non e' misurabile.
 # verifica:  V2 (vince il dato nuovo) + V4 (non tiene entrambi come se nulla fosse)
 
 [test la correzione vince sul dato gia' accettato]

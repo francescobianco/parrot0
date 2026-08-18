@@ -1,0 +1,38 @@
+# id:        conversazione/riflessiva/meta-domanda
+# famiglia:  conversazione
+# dominio:   riflessiva / la conversazione stessa
+# gradino:   2
+# vettore:   profondita 2  distanza 2  ambiguita 1  composizione 1
+#            rumore 0  apertura 1  novita 2
+# lavoro:    rispondere a una domanda che non riguarda il mondo ma LA
+#            CONVERSAZIONE: non «qual e' il mio numero» ma «che numero ti ho
+#            detto»
+# difficile: le due domande hanno la stessa risposta e sono cose diverse. La
+#            prima interroga un fatto, la seconda interroga il registro di cio'
+#            che e' stato detto — e quel registro parrot0 ce l'ha (risponde
+#            benissimo alla forma piana, anche sei turni dopo) ma non lo sa
+#            interrogare da quella porta
+# origine:   iterazione 5. Questo episodio esiste perche' la forma «what did I
+#            say» era l'INCIAMPO di quattro sonde sulla distanza: le faceva
+#            sembrare rosse per un motivo che non era il loro. Isolarlo l'ha
+#            trasformato da rumore di misura in reperto
+# verifica:  V2 (la forma meta funziona quanto quella piana)
+
+[test la forma piana funziona — il riferimento]
+!set PARROT0_SESSION=
+!reset
+> my locker number is 4172
+> what is my locker number
+<~ 4172
+
+[test la stessa cosa chiesta come domanda sulla conversazione]
+!reset
+> my locker number is 4172
+> what did I say my locker number was
+<~ 4172
+
+[test l'altra forma meta, con il verbo di dire in mezzo]
+!reset
+> the meeting is in bruges
+> where did I say the meeting is
+<~ bruges

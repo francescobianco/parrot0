@@ -1,0 +1,34 @@
+# id:        conversazione/espressiva/correzione-titolo
+# famiglia:  conversazione
+# dominio:   espressiva / musica
+# gradino:   2
+# vettore:   profondita 1  distanza 1  ambiguita 1  composizione 1
+#            rumore 2  apertura 1  novita 2
+# lavoro:    tenere per buono il dato corretto, non quello accettato per primo
+# difficile: NIENTE, tranne il rumore. La correzione arriva subito dopo, non c'e'
+#            distanza ne' composizione. Ma il dato vecchio e' gia' stato accolto,
+#            e accoglierne uno nuovo significa DISFARE, che e' un'altra operazione
+# origine:   iterazione 5, promozione dell'indizio rumore=2
+
+# PRECONDIZIONE (iterazione 5, lezione pagata): una sonda a variabile isolata
+# isola qualcosa solo se il CASO BASE funziona. La prima stesura di questo
+# episodio saltava direttamente alla dimensione alta e attribuiva a quella un
+# fallimento che era della precondizione — misurava la distanza su un dato che
+# non era mai entrato. Il caso base ora sta dentro l'episodio, prima, e se e'
+# rosso l'episodio non dice niente sulla dimensione: dice che non e' misurabile.
+# verifica:  V2 (vince il nuovo) + V4 (il vecchio non sopravvive)
+
+[test caso base — senza correzione il primo dato torna]
+!set PARROT0_SESSION=
+!reset
+> my favourite song is nocturne
+> which song is my favourite
+<~ nocturne
+
+[test la sola dimensione isolata: rumore 2]
+!reset
+> my favourite song is nocturne
+> actually my favourite song is prelude
+> which song is my favourite
+<~ prelude
+<! nocturne

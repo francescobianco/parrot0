@@ -78,7 +78,12 @@
 !reset
 > tell me about the printing press
 <~ printing press
-<! La
+# gen412: era `<! La`, e passava solo grazie alla maiuscola — da quando `<!` non
+# distingue maiuscole e minuscole, «La» cattura circu-LA-tion. Era il MANTRA #8
+# in azione: un cue a sottostringa di due lettere non discrimina niente. La fuga
+# che questa riga sorveglia e' una FRASE italiana, e si asserisce come tale —
+# esattamente come fa `<! Un algoritmo` due righe piu' sotto.
+<! La stampa
 > what is an algorithm
 <~ finite, well-defined sequence
 <! Un algoritmo
