@@ -1,0 +1,31 @@
+# id:        macchineria/riflessiva/registro-nominato
+# famiglia:  macchineria
+# dominio:   riflessiva / la propria macchineria
+# gradino:   2
+# vettore:   profondita 2  distanza 1  ambiguita 2  composizione 2
+#            rumore 0  apertura 2  novita 1
+# lavoro:    davanti a un turno che nessuno schema riconosce, dire di che TIPO
+#            di problema si tratta invece di nominare una parola a caso
+# difficile: `looks_code` lo fa da sempre per il codice — riconosce per indizi,
+#            senza schema, e quando non sa eseguire dice quale registro e'. Per
+#            la logica gli indizi erano gia' in KB e nessuno li leggeva.
+#            La soglia e' il punto delicato: un indizio solo ruberebbe il
+#            messaggio storico a turni che non c'entrano
+# origine:   gen415, dalla revisione R2
+# verifica:  V2 (nomina il registro) + V1 (la lacuna lo conserva) + V4 (non ruba)
+
+[test nomina il registro invece di una parola]
+!set PARROT0_SESSION=
+!reset
+> what is the contrapositive of that premise
+<~ logic
+<! know about
+!query gap_register($G, logic)
+
+# V4 — LA SOGLIA. Un indizio solo non basta: «if» compare in mezzo a frasi che
+# non hanno niente di logico, e rubare loro il messaggio storico sarebbe una
+# diagnosi falsa di segno opposto.
+[test un indizio solo non dichiara nessun registro]
+!reset
+> tell me about the ferblunk if you can
+<! problem

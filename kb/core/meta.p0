@@ -709,3 +709,32 @@ machinery(unsatisfying_outcome).
 machinery(gap_kind).
 unsatisfying_outcome(blind_wall, reachability).
 unsatisfying_outcome(informed_decline, reachability).
+
+% ── gen415: GLI INDIZI DI REGISTRO ──────────────────────────────────────────
+%
+% `looks_code` riconosce il codice per indizi, senza schema, e quando non sa
+% eseguire dice quale registro e'. Per la logica gli indizi sono altrettanto
+% robusti — e stanno gia' in KB da sempre — ma nessuno li usava per classificare.
+% Il fondo della catena, prima di nominare una parola a caso, guarda qui.
+%
+% LA SOGLIA non e' prudenza generica: un indizio solo ruberebbe il messaggio
+% storico a turni che non c'entrano, perche' «all» e «some» stanno in mezzo a
+% mille frasi. Servono due indizi DISTINTI, e la soglia e' un fatto.
+machinery(register_hint).
+machinery(register_hint_min).
+machinery(gap_register).
+register_hint_min(2).
+
+% Logica: implicazione, quantificazione, modalita', contraddizione.
+register_hint(logic, if).            register_hint(logic, then).
+register_hint(logic, necessarily).   register_hint(logic, contrapositive).
+register_hint(logic, contradictory). register_hint(logic, therefore).
+register_hint(logic, implies).       register_hint(logic, counterexample).
+register_hint(logic, premise).       register_hint(logic, conclusion).
+register_hint(logic, valid).         register_hint(logic, follows).
+
+% Aritmetica su grandezze dette a parole: le unita' e i verbi del calcolo.
+register_hint(arithmetic, remainder). register_hint(arithmetic, divided).
+register_hint(arithmetic, median).    register_hint(arithmetic, average).
+register_hint(arithmetic, minutes).   register_hint(arithmetic, hours).
+register_hint(arithmetic, greater).   register_hint(arithmetic, total).

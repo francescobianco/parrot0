@@ -946,6 +946,58 @@ const char *brain_version(void) {
  * Qui si scrive solo il fatto. Chi lo trasformera' in domanda, e la domanda in
  * rimedio, sono le frecce successive dell'anello: questa e' la prima, e senza
  * di essa nessuna delle altre ha un ingresso. */
+/* gen415 — IL REGISTRO SI ANNUNCIA.
+ *
+ * `looks_code` riconosce il codice per INDIZI — `{`, `;`, `==`, un `(` preceduto
+ * da un identificatore — senza nessuno schema da far combaciare, e quando
+ * riconosce senza saper eseguire dice quale registro e'. Per la logica gli
+ * indizi sono altrettanto robusti e SONO GIA' IN KB (`logic_connector/2`), ma
+ * nessuno li usava per classificare: o il lettore di regole faceva combaciare lo
+ * schema, o si finiva a nominare una parola a caso.
+ *
+ * Qui il fondo della catena, prima di nominare una parola, guarda se il turno
+ * appartiene a un registro dichiarato. Gli indizi sono fatti
+ * (`register_hint/2`), la soglia e' un fatto (`register_hint_min/1`): una lingua
+ * nuova o un registro nuovo non costano C.
+ *
+ * La soglia esiste per una ragione precisa: un indizio solo ruberebbe il
+ * messaggio storico a turni che non c'entrano — «all» e «some» stanno in mezzo
+ * a mille frasi. Servono DUE indizi distinti perche' il registro si dichiari.
+ * Il match e' a parola intera (MANTRA #8: «eat» sta dentro «f-EAT-hers»). */
+static int register_of_turn(Brain *b, char **w, size_t nw, char *out, size_t osz) {
+    if (!b || !b->kb || nw == 0) return 0;
+    char mins[1][KB_TERM_LEN];
+    const char *mq[1] = { NULL };
+    long need = 2;
+    if (kb_match(b->kb, "register_hint_min", mq, 1, mins, 1) > 0) {
+        char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mins[0]);
+        long v = strtol(kb_dequote(mb), NULL, 10);
+        if (v > 0) need = v;
+    }
+    char regs[16][KB_TERM_LEN];
+    const char *rq[2] = { NULL, NULL };
+    size_t nr = kb_match(b->kb, "register_hint", rq, 2, regs, 16);
+    for (size_t r = 0; r < nr; r++) {
+        char reg[KB_TERM_LEN]; snprintf(reg, sizeof reg, "%s", regs[r]);
+        long hits = 0;
+        char seen[16][KB_TERM_LEN]; size_t nseen = 0;
+        for (size_t i = 0; i < nw; i++) {
+            char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[i]);
+            char *tok = strip_edge_punct(t);
+            if (!*tok) continue;
+            const char *hq[2] = { reg, tok };
+            if (!kb_query(b->kb, "register_hint", hq, 2)) continue;
+            int dup = 0;
+            for (size_t k = 0; k < nseen; k++) if (!strcmp(seen[k], tok)) dup = 1;
+            if (dup) continue;
+            if (nseen < 16) snprintf(seen[nseen++], KB_TERM_LEN, "%s", tok);
+            hits++;
+        }
+        if (hits >= need) { snprintf(out, osz, "%s", reg); return 1; }
+    }
+    return 0;
+}
+
 /* gen414 — IL FALLIMENTO HA QUATTRO FORME, non una.
  *
  * §9.1 di question-emergence.md aveva gia' decomposto il problema — knowledge,
@@ -1218,6 +1270,33 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
         if (strlen(t) >= 6 && isalpha((unsigned char)t[0]) &&
             !is_stopword(b, t) && !known) {
             sw = t; break;
+        }
+    }
+    /* gen415: PRIMA di nominare una parola, prova a nominare il REGISTRO.
+     * Nominare una parola a caso e' una diagnosi falsa spacciata per
+     * informazione (docs/autocorrezione.md §11); dire «questo e' un problema di
+     * logica che non so ancora risolvere» e' vero, ed e' una lacuna nominabile
+     * — cioe' riparabile. Se nessun registro si dichiara, tutto prosegue
+     * esattamente come prima: lo strato si aggiunge, non sostituisce. */
+    {
+        char reg[KB_TERM_LEN];
+        if (b && b->kb && register_of_turn(b, w, nw, reg, sizeof reg)) {
+            gap_record_as(b, canon, raw, "recognized_register");
+            char rq2[KB_TERM_LEN];
+            snprintf(rq2, sizeof rq2, "\"%s\"", canon);
+            const char *ra2[2] = { rq2, reg };
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            kb_assert(b->kb, "gap_register", ra2, 2);
+            kb_set_origin(b->kb, prev);
+            char rmsg[400];
+            const KbResponseSlot rs[] = { {"register", reg} };
+            if (!kb_response_slots(b, "register_declined", rs, 1, rmsg, sizeof rmsg))
+                snprintf(rmsg, sizeof rmsg,
+                         "That looks like a %s problem, and I cannot solve it yet.", reg);
+            put(rmsg, out, out_size);
+            if (b) b->fallbacks++;
+            return;
         }
     }
     /* gen404: IL MURO DIVENTA UN FATTO ANCHE QUANDO NON HA UNA PAROLA DA

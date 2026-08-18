@@ -731,3 +731,10 @@ response_template(self_corrected_on_wall, it, "{answer}  (mi mancava un pezzo e 
 % differenza fra ignorare e ragionare.
 response_template(not_necessarily, "Not necessarily.").
 response_template(not_necessarily, it, "Non necessariamente.").
+
+% gen415 — il turno appartiene a un registro riconosciuto ma non risolvibile.
+% E' il declino informato fatto bene: nomina la FORMA del problema invece di una
+% parola qualunque, e cosi' chi legge — persona o ciclo di riparazione — sa da
+% che parte guardare.
+response_template(register_declined, "That looks like a {register} problem, and I cannot solve it yet.").
+response_template(register_declined, it, "Mi sembra un problema di {register}, e non so ancora risolverlo.").
