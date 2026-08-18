@@ -274,6 +274,8 @@ static int acquire_knowledge(Brain *b, const char *key, char *def, size_t def_sz
  * (M1). Broad by design (§4.4): over-extraction is tolerated; the deep-reasoning
  * loop re-checks facts against their source (M4). Returns the number of facts
  * asserted and appends a readable list to `out`. */
+static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz);
+
 static int extract_page_facts(Brain *b, const char *key, char *out, size_t out_sz) {
     if (!b || !b->kb || !key || !*key) return 0;
     const char *dir = getenv("PARROT0_WIKI_DIR");
@@ -296,7 +298,33 @@ static int extract_page_facts(Brain *b, const char *key, char *out, size_t out_s
     fclose(f);
     extract[eo] = '\0';
     if (eo == 0) return 0;
+    return learn_from_prose(b, extract, out, out_sz);
+}
 
+/* gen407 — UN SOLO ATTO DI APPRENDIMENTO.
+ *
+ * Questa funzione era il corpo di `extract_page_facts`, cioe' una cosa che
+ * parrot0 sapeva fare SOLO leggendo una pagina. Misurato con la stessa prosa
+ * per le due strade — la pagina di photosynthesis letta, e la sua identica
+ * prosa incollata in conversazione:
+ *
+ *     letta   -> 8 fatti
+ *     detta   -> 0 fatti, e al loro posto duecento parole di analisi generica
+ *
+ * Non e' una sfumatura: e' la stessa conoscenza che entra o non entra a seconda
+ * di CHI l'ha portata. E il motivo per cui era passato inosservato e' che la
+ * strada detta non produceva un muro visibile — murava davvero, e un modulo
+ * generativo di ultima istanza copriva il muro con un saggio.
+ *
+ * La tesi di F. (question-emergence.md): il sogno non e' una facolta'
+ * superiore, e' lo stesso atto che avviene quando si incolla della prosa con un
+ * prompt che chiede di acquisirla. Se le due strade divergono, una delle due e'
+ * un ramo morto che nessuno manutiene. Da qui in poi c'e' una funzione sola, e
+ * la pagina e' solo un testo piu' lungo. */
+static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
+    size_t eo = strlen(extract);
+
+    (void)eo;
     /* gen382: una pagina che DICHIARA di non contenere conoscenza non va letta.
      * "X may refer to ..." apre una disambiguazione: elenca cose diverse che
      * portano lo stesso nome. E' la trappola degli omonimi che --dream ha

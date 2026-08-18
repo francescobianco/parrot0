@@ -502,6 +502,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/meta/gap_is_a_fact.p0t
 	@./$(BIN) --test tests/p0t/meta/gap_anchor.p0t
 	@./$(BIN) --test tests/p0t/knowledge/prose_forms.p0t
+	@./$(BIN) --test tests/p0t/knowledge/one_act_of_learning.p0t
 	@./$(BIN) --test tests/p0t/math/numwords.p0t
 	@./$(BIN) --test tests/p0t/knowledge/initials.p0t
 	@./$(BIN) --test tests/p0t/conversation/social_reaction.p0t

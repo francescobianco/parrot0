@@ -1,0 +1,54 @@
+# UN SOLO ATTO DI APPRENDIMENTO — gen407.
+#
+# La tesi di F. (question-emergence.md): il sogno non e' una facolta' superiore,
+# e' lo stesso atto che avviene quando si incolla della prosa insieme a un prompt
+# che chiede di acquisirla. Se le due strade divergono, una delle due e' un ramo
+# morto che nessuno manutiene.
+#
+# Divergevano, e di brutto. La stessa prosa — quella vera della pagina di
+# photosynthesis — rendeva OTTO fatti se letta e ZERO se detta, e al loro posto
+# duecento parole di analisi generica. La stessa conoscenza entrava o no a
+# seconda di CHI l'aveva portata.
+#
+# Il motivo per cui non se n'era accorto nessuno e' istruttivo: la strada detta
+# non produceva un muro visibile. Murava davvero, e il pianificatore analitico di
+# ultima istanza copriva il muro con un saggio.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+# Il criterio della generazione, in due blocchi che devono finire uguali.
+[test la prosa DETTA]
+> Photosynthesis is a system of biological processes by which photopigment-bearing autotrophic organisms, such as most plants, algae and cyanobacteria, convert light energy  typically from sunlight  into the chemical energy necessary to fuel their metabolism. The term photosynthesis usually refers to oxygenic photosynthesis, a process that releases oxygen as a byproduct of water splitting. Photosynthetic organisms store the converted chemical energy within the bonds of intracellular organic compounds, typically carbohydrates like sugars, starches, phytoglycogen and cellulose. When needing to use this stored energy, an organism's cells then metabolize the organic compounds through cellular respiration. Photosynthesis plays a critical role in producing and maintaining the oxygen content of the Earth's atmosphere, and it supplies most of the biological energy necessary for complex life on Earth.
+<~ Learned 8 facts
+!query organism(algae)
+!query carbohydrate(cellulose)
+
+[test la prosa LETTA]
+!reset
+> read the page on photosynthesis
+<~ extracted 8 facts
+!query organism(algae)
+!query carbohydrate(cellulose)
+
+# Il cancello e' strutturale — piu' di una frase, nessuna domanda — e non deve
+# togliere il turno a chi lo serve meglio. `read: …` ha il suo lettore da
+# gen32, e va lasciato in pace: la prima versione glielo rubava e ne ricavava
+# `man(read_socrates)`, cioe' il prefisso inghiottito dentro un'entita'.
+[test un lettore dichiarato resta suo]
+!reset
+> read: socrates is a man. plato is a man. every man is a mortal. zeus is a god.
+< Learned 4 fact(s), skipped 0.
+!query man(plato)
+!query! man(read_socrates)
+
+# Una domanda non insegna, e una frase sola ha gia' la sua strada.
+[test il cancello non reclama cio' che non gli spetta]
+!reset
+> what is a mammal? and what is a bird?
+<! Learned 0 facts

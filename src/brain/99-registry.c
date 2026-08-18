@@ -2175,6 +2175,48 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     return n;
 }
 
+/* gen407 — UNA PROSA CHE INSEGNA, riconosciuta per struttura e non per parole:
+ * piu' di una frase, e nessuna domanda. Una frase sola ha gia' la sua strada
+ * (mod_knowledge); una domanda non insegna niente.
+ *
+ * Serve in due posti opposti, ed e' il motivo per cui e' una funzione. Dice al
+ * pianificatore analitico di NON reclamare il turno — un testo dichiarativo
+ * multi-frase e' qualcuno che insegna, non qualcuno che chiede un'analisi — e
+ * dice al percorso di apprendimento che quel turno lo riguarda. Senza la prima
+ * meta', la seconda non riceverebbe mai il turno: misurato, il pianificatore lo
+ * prendeva a stadio 0, cioe' prima di ogni consumatore specializzato. */
+static int teaching_prose(const char *input) {
+    if (!input || strchr(input, '?')) return 0;
+    const char *dot = strchr(input, '.');
+    return dot && strchr(dot + 1, '.') != NULL;
+}
+
+static int prose_learn_lead(Brain *b, const char *canon, const char *input,
+                            char *out, size_t out_size) {
+    if (!b || !b->kb || !canon || !input) return 0;
+    /* Il cancello guarda il turno GREZZO, non `canon`: la canonicalizzazione
+     * lavora in un buffer da 256 byte, e una prosa vera e' piu' lunga. Su
+     * `canon` la stessa prosa risultava di UNA frase — la prima — e su quel
+     * frammento il pianificatore analitico costruiva il suo saggio. Il taglio
+     * e' un limite reale della strada detta, e va ricordato: qui si aggira
+     * leggendo l'originale, ma la canonicalizzazione di un testo lungo resta da
+     * fare.
+     * TODO(kb-first): `canon[256]` tronca la prosa lunga prima del dispatch. */
+    (void)canon;
+    if (strchr(input, '?')) return 0;
+    const char *dot = strchr(input, '.');
+    if (!dot || !strchr(dot + 1, '.')) return 0;      /* una frase sola */
+    char prose[4096];
+    snprintf(prose, sizeof prose, "%s", input);
+    char learned[700]; learned[0] = '\0';
+    int nf = learn_from_prose(b, prose, learned, sizeof learned);
+    if (nf <= 0 || !learned[0]) return 0;
+    char msg[900];
+    snprintf(msg, sizeof msg, "Learned %d facts: %s.", nf, learned);
+    put(msg, out, out_size);
+    return 1;
+}
+
 static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
     if (b) {
@@ -2238,7 +2280,8 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * assertion. Both the act and the broad subject must win the universal KB
      * evidence scorer, and every answer_plan slot must be filled, so uncertain or
      * incomplete candidates decline without disturbing the established registry. */
-    if (b && structured_analysis_lead(b, canon, input, 0, out, out_size)) {
+    if (b && !teaching_prose(input) &&
+        structured_analysis_lead(b, canon, input, 0, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "analysis_plan");
         return turn_done(b, canon, input, out);
@@ -2257,7 +2300,8 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * it only after semantic_lead had the chance to use concrete knowledge, so
      * words such as "proof", "physical", or "system" cannot replace a known
      * subject with generic methodology. */
-    if (b && structured_analysis_lead(b, canon, input, 1, out, out_size)) {
+    if (b && !teaching_prose(input) &&
+        structured_analysis_lead(b, canon, input, 1, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "analysis_family");
         return turn_done(b, canon, input, out);
@@ -2538,6 +2582,33 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         size_t nm = surrendered ? 0
                                 : kb_match(b->kb, "wall_marker", mq, 1,
                                            markers, 32);
+        /* gen407 — PRIMA DI COPRIRE UN MURO CON UN SAGGIO, PROVA A IMPARARE.
+         *
+         * Misurato: la prosa di una pagina, incollata in conversazione, rendeva
+         * ZERO fatti e duecento parole di analisi generica; la stessa prosa
+         * letta da quella pagina ne rendeva otto. La strada detta murava
+         * davvero — semplicemente il muro non si vedeva, perche' l'analisi di
+         * ultima istanza lo copriva.
+         *
+         * Il gancio sta qui e non prima apposta: non toglie il turno a nessuno,
+         * perche' arriva solo dove il turno era gia' fallito. Ed e' anche il
+         * posto giusto per un'altra ragione — un turno che nessuna facolta' ha
+         * saputo servire, se e' prosa, e' esattamente la situazione in cui una
+         * persona sta INSEGNANDO qualcosa. Rispondere con un saggio invece di
+         * imparare e' il peggiore dei due esiti possibili.
+         *
+         * La condizione e' strutturale, non una lista: piu' di una frase, e non
+         * una domanda. Una frase sola ha gia' la sua strada (mod_knowledge). */
+        /* gen407: anche qui, prima di coprire un muro con un saggio, si prova a
+         * imparare. Il turno e' formalmente `handled` — un modulo ha risposto —
+         * ma la risposta ignora il soggetto, cioe' e' una resa travestita. Su
+         * una prosa che insegna, imparare e' sempre meglio che commentare. */
+        if (surrendered && teaching_prose(input) &&
+            prose_learn_lead(b, canon, input, out, out_size)) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", "prose_learn");
+            surrendered = 0;
+        }
         if (surrendered &&
             structured_analysis_lead(b, canon, input, 2, out, out_size)) {
             snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
@@ -2565,6 +2636,28 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
          * recent entity and re-dispatching — carries a reference across turns. */
         if (coref_resolve(b, canon, out, out_size)) {
             handled = 1;
+            if (!handled_by_discourse) update_topics(b, canon);
+        } else if (b && prose_learn_lead(b, canon, input, out, out_size)) {
+            /* gen407 — PRIMA DI COPRIRE UN MURO CON UN SAGGIO, PROVA A IMPARARE.
+             *
+             * Misurato: la prosa della pagina di photosynthesis, incollata in
+             * conversazione, rendeva ZERO fatti e duecento parole di analisi
+             * generica; la stessa prosa letta da quella pagina ne rendeva otto.
+             * La stessa conoscenza entrava o no a seconda di CHI l'aveva
+             * portata — e il motivo per cui non se n'era accorto nessuno e' che
+             * la strada detta non produceva un muro visibile: murava davvero, e
+             * l'analisi di ultima istanza lo copriva.
+             *
+             * Il gancio sta qui, e non prima, apposta: non toglie il turno a
+             * nessuno, perche' arriva solo dove nessuna facolta' ha saputo
+             * servirlo. Ed e' anche il posto piu' giusto per un'altra ragione —
+             * un turno che nessuno ha saputo servire, se e' prosa dichiarativa,
+             * e' esattamente la situazione in cui una persona sta INSEGNANDO
+             * qualcosa. Rispondere con un saggio invece di imparare e' il
+             * peggiore dei due esiti possibili. */
+            handled = 1;
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", "prose_learn");
             if (!handled_by_discourse) update_topics(b, canon);
         } else if (b && structured_analysis_lead(b, canon, input, 2,
                                                  out, out_size)) {
