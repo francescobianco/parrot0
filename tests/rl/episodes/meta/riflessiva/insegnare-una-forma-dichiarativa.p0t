@@ -1,0 +1,37 @@
+# id:        meta/riflessiva/insegnare-una-forma-dichiarativa
+# famiglia:  meta
+# dominio:   riflessiva / la grammatica di parrot0
+# gradino:   2
+# vettore:   profondita 3  distanza 2  ambiguita 2  composizione 2
+#            rumore 0  apertura 2  novita 3
+# genitore:  conversazione/tecnica/distanza-versione (tre colpi a vuoto)
+# lavoro:    imparare PARLANDO una forma dichiarativa che non entra, e da quel
+#            momento leggerla
+# difficile: e' il meta-problema di un problema che non entra. La forma
+#            «we are running version X» produce tre volte su tre la stessa
+#            non-risposta: ripetere non insegna niente, quindi il lavoro non e'
+#            piu' capire la frase — e' imparare a capirla.
+#
+#            La comprensione mancante e' un `extract_frame`, che e' un fatto
+#            BINARIO con un pattern citato, e non esiste turno di conversazione
+#            che lo dica. Questo episodio propone la sola forma che una persona
+#            userebbe: dare un ESEMPIO e la sua lettura, e lasciare che il
+#            pattern si induca. Se resta rosso per sempre, la diagonale e' li'
+# origine:   regola dei tre colpi (F., gen412)
+# verifica:  V2 (la forma entra dopo l'insegnamento) + V1 (il fatto e' quello giusto)
+
+[test PRIMA — la forma non entra]
+!set PARROT0_SESSION=
+!reset
+> we are running version 3.9.7
+<! Learned
+
+[test INSEGNAMENTO — un esempio e la sua lettura, non uno schema]
+> when I say "we are running version 3.9.7" I am telling you the version
+<~ version
+
+[test DOPO — la stessa identica frase, ora letta]
+!reset
+> we are running version 3.9.7
+> which version are we running
+<~ 3.9.7

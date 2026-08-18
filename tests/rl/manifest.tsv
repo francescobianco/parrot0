@@ -36,3 +36,6 @@ conversazione/umanistica/correzione-autore	conversazione	umanistica	letteratura	
 comprensione/umanistica/relazione-nuova	comprensione	umanistica	linguistica	1	1-1-0-1-0-0-3	V2	-	iterazione 5 (precondizione)
 conversazione/riflessiva/meta-domanda	conversazione	riflessiva	la_conversazione	2	2-2-1-1-0-1-2	V2	-	iterazione 5 (reperto isolato)
 conversazione/riflessiva/meta-domanda.g2	conversazione	riflessiva	la_conversazione	3	2-3-2-2-2-1-2	V2,V4	conversazione/riflessiva/meta-domanda	promozione
+meta/riflessiva/insegnare-una-forma-dichiarativa	meta	riflessiva	grammatica	2	3-2-2-2-0-2-3	V1,V2	conversazione/tecnica/distanza-versione	tre colpi
+meta/riflessiva/insegnare-una-forma-interrogativa	meta	riflessiva	grammatica	2	3-1-2-2-0-2-3	V2	conversazione/riflessiva/meta-domanda	tre colpi
+meta/riflessiva/insegnamento-malformato	meta	riflessiva	grammatica	1	2-1-1-1-0-1-2	V1,V4	-	diagonale gen412

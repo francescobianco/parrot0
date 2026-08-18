@@ -69,6 +69,7 @@ answer_content(recall($Kind, $Words, $Language), 2, terminator, $Piece) :- sente
 % cioe' non esiste discorso. L'orologio e' un contabile come gli altri e sta
 % nella KB — il motore non conta i turni per conto suo.
 turn_counter(0).
+turn_counter(1).
 bookkeeper(clock).
 turn_bookkeeping($Turn, clock) :- turn_counter($N), is($M, add($N, 1)), retract(turn_counter, $N), assert(turn_counter, $M).
 

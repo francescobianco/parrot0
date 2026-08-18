@@ -139,6 +139,30 @@ non un tool MCP. MCP insegna **conoscenza** (forme, significati, relazioni), non
 *(caccia esplicita a "qualcosa che via MCP non si può insegnare", dopo che U1/U1b
 hanno chiuso A.1)*
 
+> **AGGIORNAMENTO gen412 — un D.3 misurato, e non è espressivo: è DIALOGICO.**
+> La caccia di questo secchio chiedeva «cosa non si può insegnare via MCP». La
+> batteria di rinforzo ([`reinforcement-suite.md`](reinforcement-suite.md)) ha
+> trovato un taglio adiacente e più stretto, che vale per il canale che conta di
+> più — **la conversazione**:
+>
+> **la porta dialogica esiste solo per i fatti UNARI.** «puppo is a
+> universal_quantifier» funziona e cambia comportamento nel turno dopo
+> (`taught_lexicon.p0t`). Ma tutto ciò la cui comprensione richiede un **pattern
+> con slot** — `extract_frame("@S is running version @O", runs_version)`,
+> `phrase_canon("what did i tell you", "what is")` — è un fatto binario con una
+> stringa citata, e nessun turno di conversazione lo esprime. Provate tutte e
+> tre le strade: il pattern in chiaro non è compreso; la clausola letterale è
+> classificata come *codice*; la forma naturale (`runs_version is an
+> extract_frame`) produce **un fatto di arità sbagliata accettato in silenzio**,
+> che è peggio di un rifiuto perché chi insegna crede di aver insegnato.
+>
+> Non è un limite del linguaggio KB — il fatto si scrive benissimo in un `.p0`,
+> ed è quello che ho fatto a mano a gen412 per aprire la porta meta. È che **non
+> si può DIRE**. E la direzione che il reperto indica è che i pattern non vanno
+> dettati ma **indotti da un esempio**: nessuno insegna una forma linguistica
+> recitandone lo schema, la si insegna dandone un caso e la sua lettura. I tre
+> meta-problemi in `tests/rl/episodes/meta/` sono la specifica, e sono rossi.
+
 Con i letterali e le variabili a posto, il limite si è spostato dai *bordi* al
 **potere espressivo del linguaggio delle clausole** stesso. Due reperti, provati
 dal vivo:

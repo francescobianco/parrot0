@@ -460,6 +460,97 @@ una funzione di ricompensa si ottimizza — anche per le vie sbagliate.
 
 ---
 
+## IL META-PROBLEMA — quando un problema non entra affatto
+
+C'è un fallimento diverso da tutti gli altri, e va trattato diversamente.
+
+Un episodio normale fallisce perché parrot0 **non sa fare** il lavoro. Ma alcuni
+falliscono un gradino più sotto: la frase **non entra**. Non è che risponda male
+— è che non c'è nessuna lettura, e ripetere non aiuta. Provato tre volte di
+seguito, la stessa frase produce le stesse non-risposte, oscillando fra due modi
+diversi di non aver capito:
+
+```
+> we are running version 3.9.7     Hmm, I don't know about running yet.
+> we are running version 3.9.7     I didn't quite catch that.
+> we are running version 3.9.7     Hmm, I don't know about running yet.
+```
+
+**La regola (F.): tre colpi a vuoto e nasce il meta-problema.** Se ripetere non
+migliora di niente, il problema non è il lavoro: è la **forma**. E allora
+accanto all'episodio se ne scrive un altro, il cui oggetto non è più il compito
+ma la comprensione che manca — un **meta-problema grammaticale, in forma
+dialogica**, che faccia emergere quella parte come *apprendimento*.
+
+La forma è già in casa, ed è quella di `tests/p0t/language/taught_lexicon.p0t`:
+
+1. **PRIMA** — la frase non è compresa;
+2. **INSEGNAMENTO** — un turno di conversazione normale, nessuna sintassi
+   speciale, mette la parte mancante nella sua classe;
+3. **DOPO** — la stessa identica frase è letta diversamente.
+
+Fra 1 e 3 non cambia il codice, non cambia un file, non cambia la configurazione:
+cambia solo ciò che parrot0 **sa**. È il mantra #2 nella forma più esigente —
+non domani e non ricompilando: adesso, dicendoglielo.
+
+### La diagonalizzazione
+
+Il punto non è scrivere meta-problemi a mano per sempre. È che **ogni problema
+che non entra ne genera uno**, e la domanda che conta è se esiste un problema per
+cui il meta-problema **non si può costruire**. Quella è la diagonale, ed è il
+confine vero dell'approccio: se c'è una comprensione che non si può insegnare
+parlando, allora non tutti i processi di comprensione sono insegnabili, e i piani
+che lo assumono — [`universal-comprehension.md`](universal-comprehension.md),
+[`teach-comprehension-via-mcp.md`](teach-comprehension-via-mcp.md),
+[`frontier-kb-natural-dialogue.md`](frontier-kb-natural-dialogue.md),
+[`question-emergence.md`](question-emergence.md) — vanno rivisti lì.
+
+### Dove passa la diagonale, misurato a gen412
+
+La prima sonda l'ha già trovata, e taglia in un punto netto:
+
+| ciò che manca | forma del fatto | insegnabile parlando? |
+|---|---|---|
+| una parola in una classe | `universal_quantifier(puppo)` — unario | **sì**, e funziona subito |
+| una forma dichiarativa | `extract_frame("@S is running version @O", runs_version)` | **no** |
+| una forma interrogativa | `phrase_canon("what did i tell you", "what is")` | **no** |
+
+La porta dialogica esiste **solo per i fatti unari**. Tutto ciò la cui
+comprensione richiede un **pattern con slot** è un fatto binario con una stringa
+citata, e non esiste turno di conversazione che lo dica. Provate tutte e tre le
+strade:
+
+- il pattern in chiaro (`"@S is running version @O" is an extract_frame for
+  runs_version`) → non compreso;
+- la clausola letterale → classificata come **codice** («That looks like a
+  snippet of code»);
+- la forma naturale sul modello del lessico (`runs_version is an extract_frame`)
+  → **peggio di un rifiuto**: produce `Learned: extract_frame(runs_version)`, un
+  fatto di arità sbagliata, accettato in silenzio e inutile. Insegnare male non
+  viene distinto da non insegnare.
+
+### Cosa indica la diagonale — teachability per ESEMPIO
+
+Il taglio non dice che i pattern non siano insegnabili: dice che non sono
+**dettabili**. Ed è ragionevole, perché nessuno insegna una forma linguistica
+recitandone lo schema — la si insegna dandone un **caso** e la sua lettura:
+
+```
+non:   «"@S is running version @O" è un frame di estrazione»
+ma:    «quando dico "we are running version 3.9.7" ti sto dicendo la versione»
+```
+
+Il pattern va **indotto dall'esempio**, non dettato. È la stessa mossa che
+parrot0 fa già altrove (`mod_induce`, l'abduzione, la proposta-e-verifica di
+gen410), applicata alla grammatica invece che al dominio — ed è, se regge, la
+chiusura vera di `universal-comprehension.md`: le strutture vivono in KB *e* ci
+arrivano parlando.
+
+I meta-problemi di `tests/rl/episodes/meta/` sono scritti su questa forma. Sono
+rossi, e sono la specifica di ciò che manca.
+
+---
+
 ## LA PROMOZIONE — quando un episodio si chiude a buon mercato
 
 Prima o poi succede, e succederà spesso: un episodio si chiude **imparando un

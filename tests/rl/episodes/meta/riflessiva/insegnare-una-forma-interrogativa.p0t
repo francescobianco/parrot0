@@ -1,0 +1,36 @@
+# id:        meta/riflessiva/insegnare-una-forma-interrogativa
+# famiglia:  meta
+# dominio:   riflessiva / la grammatica di parrot0
+# gradino:   2
+# vettore:   profondita 3  distanza 1  ambiguita 2  composizione 2
+#            rumore 0  apertura 2  novita 3
+# genitore:  conversazione/riflessiva/meta-domanda (chiuso A MANO a gen412)
+# lavoro:    imparare parlando una forma di domanda nuova
+# difficile: la porta meta e' stata aperta a gen412 con dieci `phrase_canon`
+#            scritti a mano in lexicon.p0. Ha funzionato, ma e' esattamente cio'
+#            che il mantra #2 chiede di non accontentarsi: la prova forte non e'
+#            «un fatto e zero C», e' «glielo dico e cambia comportamento».
+#
+#            Qui la forma e' un'ALTRA — «what did I tell you», non «what did I
+#            say» — quindi i dieci fatti non la coprono, e l'unica via e'
+#            insegnarla. Se l'episodio resta rosso, quella chiusura era KB-first
+#            ma non dialogica, e la differenza va scritta invece che taciuta
+# origine:   regola dei tre colpi (F., gen412)
+# verifica:  V2 (la forma nuova funziona dopo l'insegnamento)
+
+[test PRIMA — la forma nuova non e' coperta]
+!set PARROT0_SESSION=
+!reset
+> my locker number is 4172
+> what did I tell you my locker number was
+<! 4172
+
+[test INSEGNAMENTO — l'equivalenza fra due modi di chiedere]
+> "what did I tell you" means the same as "what did I say"
+<~ ?
+
+[test DOPO — la forma nuova risponde come la vecchia]
+!reset
+> my locker number is 4172
+> what did I tell you my locker number was
+<~ 4172

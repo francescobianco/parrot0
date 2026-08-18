@@ -124,6 +124,18 @@ dato**.
    plausibilità). Questo è il pezzo realmente difficile e va trattato come la
    classe "abduci" del manifesto, non come magia.
 
+> **AGGIORNAMENTO gen412 — cosa manca, misurato.** «Le strutture vivono nella KB,
+> non cablate nel C» è vero e verificato: `extract_frame/2` in grammar.p0 dice
+> che aggiungere una forma estraibile costa **un fatto**. Ma questo piano assume
+> anche il passo successivo — che le strutture ci si possa **arrivare parlando**
+> — e lì la batteria di rinforzo ha misurato il taglio: la porta dialogica
+> esiste solo per i fatti **unari** (una parola in una classe), mentre ogni
+> struttura con **slot** è un fatto binario con pattern citato che nessun turno
+> di conversazione sa dire. Il dettaglio, le tre strade provate e la direzione
+> (indurre il pattern da un esempio invece di dettarlo) stanno in
+> [`reinforcement-suite.md`](reinforcement-suite.md) §«Il meta-problema», e i
+> casi rossi in `tests/rl/episodes/meta/`.
+
 ## 5. Cosa esiste già e cosa manca
 
 - **Esiste:** classi chiuse in KB (`conjunction`, `stopword`), `intent_phrase`/

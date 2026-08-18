@@ -13,3 +13,6 @@
 %
 % Se questo file torna a crescere, la risposta non e' ordinarlo: e' creare la
 % categoria che manca e includerla nell'albero.
+fact_source(extract_frame(runs_version), runs_version, "runs_version is an extract_frame").
+utterance(1, user, "runs_version is an extract_frame").
+utterance(2, self, "Learned: extract_frame(runs_version).").
