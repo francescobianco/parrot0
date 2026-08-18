@@ -270,6 +270,131 @@ e ogni fatto entrato sa dire da quale lettura viene.
 
 ---
 
+## IL SECONDO PIANO — cinque generazioni, tutte ADDITIVE
+
+> **La regola che vale su tutte e cinque, e viene prima di ogni altra cosa (F.):
+> non si toglie niente.** Nessun fatto esce dalla KB, nessun modulo viene
+> sostituito, nessuna delle sette generazioni precedenti viene rimessa in
+> discussione. Si costruisce **sopra**. Ogni meccanismo nuovo nasce accanto a
+> quello che c'è e si prende soltanto ciò che oggi cade nel vuoto — è la regola
+> delle strutture secondarie ([`one-kb.md`](one-kb.md)): si evolve per
+> selezione, non per potatura.
+>
+> Il posto naturale di quasi tutto quello che segue è perciò lo stesso: **il
+> fondo della catena**, dove oggi c'è `not_understood` e dove non c'è niente da
+> perdere, perché tutti i sessantotto moduli hanno già rifiutato il turno.
+
+Le cinque discendono dalla revisione, una per ragionamento corretto, più quella
+che li unisce. L'ordine è di dipendenza: nessuna si può anticipare senza fingere.
+
+### gen414 — Il fallimento ha quattro forme *(da R1)*
+
+`§9.1` diventa specifica. Accanto a `machinery_gap/1` — che **resta**, con tutti
+i suoi consumatori — nasce `gap_kind/2`, e quali esiti appartengano a quale forma
+è un **fatto**: `unsatisfying_outcome(informed_decline, reachability).`,
+`unsatisfying_outcome(off_target_answer, wrong_answer).`
+
+Il motore non impara nessun caso nuovo: impara che *anche quelli* sono
+fallimenti, e li registra come già fa per il muro. Il declino informato porta
+inoltre un'ancora migliore di quella del muro — la parola l'ha già isolata.
+
+**Criterio:** sui 100 prompt in una sessione sola, il numero di lacune registrate
+passa da 0 a ≥ 50, ognuna con la sua forma. E lo stesso prompt non cambia più
+categoria a seconda di cosa è successo prima.
+
+### gen415 — Il registro si annuncia *(da R2)*
+
+`looks_code` riconosce il codice per **indizi**, senza schema, e quando non sa
+eseguire dice quale registro è. Per la logica gli indizi sono altrettanto
+robusti e **sono già in KB** (`logic_connector/2`), ma nessuno li usa per
+classificare.
+
+Nasce `register_hint/2` — additivo, letto solo dal fondo della catena. Un turno
+che non combacia con nessuno schema smette di ricevere una parola a caso e
+riceve il nome del proprio registro: *«questo è un problema di logica
+proposizionale che non so ancora risolvere»*.
+
+Il messaggio storico non si tocca: resta per il caso in cui è **vero**, cioè
+quando il turno è stato riconosciuto e manca davvero un fatto su quel termine.
+
+**Criterio:** dei 49 prompt della classe B, quanti passano da «parola opaca» a
+«registro nominato». E zero regressioni sui 42 `.p0t` che asseriscono la frase
+storica — se qualcuno cambia, il nuovo strato ha morso dove non doveva.
+
+### gen416 — Lo schema composizionale *(da R3, idea di F.)*
+
+Uno schema è una **sequenza di ruoli**, non un conteggio di token. I ruoli
+esistono già come fatti (`np_opener`, `np_closer`, `generic_copula`,
+`preposition`); manca la composizione, e soprattutto manca che **fallendo dica
+quale posizione è vuota**.
+
+Montato come **ultimo tentativo prima del ripiego**: i sessantotto lettori a
+conteggio di token restano dove sono e hanno la precedenza. Lo schema prende solo
+ciò che oggi finisce nel vuoto.
+
+È il passo che rende l'inferenza loquace, e quindi quello che rende gratis le
+altre: una lacuna che nasce già nominata non ha bisogno di essere indovinata.
+
+**Criterio:** sui 49, quanti producono una lacuna con **la posizione mancante
+nominata** invece di una parola. E la fragilità che ha bloccato la classe B per
+due strati su tre — `nw == 3` che diventa `nw == 4` per un articolo — non si
+ripresenta: lo schema legge il sintagma, non conta le parole.
+
+### gen417 — La pertinenza *(da R4)*
+
+Il criterio di accettazione smette di essere «la risposta è diversa dal muro».
+Una domanda dichiara la propria forma (`question_form/2`, già in KB); serve la
+relazione fra **forma della domanda e registro della risposta attesa**, e con
+quella una risposta che non è di quel tipo diventa sospetta.
+
+Sblocca due cose insieme, ed è la ragione per cui vale più di quanto costa:
+il *wrong-answer gap* di gen414 diventa rilevabile, e `self_correct_on_wall` si
+può accendere senza comprare il verde con una risposta falsa.
+
+**Criterio:** «what is gold» non viene dirottato nemmeno con una lacuna aperta,
+l'episodio `autocorrezione-sul-muro` è verde con l'interruttore acceso, e i 31
+prompt della classe D producono una lacuna invece di un paragrafo.
+
+### gen418 — Il rimedio si sceglie per forma di lacuna
+
+Con quattro forme di lacuna (gen414) e il pezzo mancante nominato (gen416), la
+riparazione smette di provare sempre la stessa cosa. Ogni forma ha il suo
+rimedio, e **quale rimedio per quale forma è un fatto**:
+
+| forma della lacuna | rimedio |
+|---|---|
+| knowledge | leggere — è il solo caso in cui leggere serve |
+| reachability | proporre la posizione mancante dello schema, o una cue |
+| wrong-answer | proporre il vincolo di pertinenza che mancava |
+| surface | proporre una riscrittura (`phrase_canon`) |
+
+`bridge_shape/2` resta e continua a coprire le cue; le righe nuove si aggiungono
+accanto.
+
+**Criterio, ed è quello che conta per tutte e cinque:** almeno una lacuna di
+forma **diversa dal muro cieco** viene chiusa dal ciclo senza che nessuno scriva
+il fatto, e resta chiusa dopo un riavvio.
+
+---
+
+### Che cosa NON fanno queste cinque
+
+Vale la pena scriverlo, perché è la differenza fra un piano e una lista di
+desideri:
+
+- **non toccano la diagonale** (`autocorrezione.md` §4c): dopo tutte e cinque, il
+  ciclo saprà proporre cue e posizioni di schema — entrambe leggibili nel turno —
+  ma non un pattern con slot, che va **indotto da esempi**. Quello resta il tetto,
+  e resta fuori;
+- **non chiudono i 100 prompt.** Rendono visibili ~85 fallimenti su 88 e danno al
+  ciclo qualcosa su cui lavorare. Quanti ne chiuda è la misura che verrà dopo,
+  non una promessa da fare adesso;
+- **non sostituiscono niente.** Se una qualunque delle cinque richiede di
+  rimuovere un fatto o riscrivere un modulo esistente, è stata progettata male e
+  va ridisegnata.
+
+---
+
 ## COME SI MISURA, E COSA FALSIFICA IL PIANO
 
 Non «quanti fatti in KB»: quello misura quanto parrot0 **sa**. Le due misure che
