@@ -330,6 +330,10 @@ static int eval_operand(char **w, size_t s, size_t e, double *val) {
  * 4 * anything). The "exactly one numeral per span" check alone could not
  * see the difference. */
 static int expr_vocab_ok(char **w, size_t nw) {
+    /* TODO(kb-first): le parole ammesse dentro una domanda aritmetica, e piu'
+     * avanti in questo file la gemella bilingue per le equazioni. Sono
+     * `stopword`/`question_word` piu' un pugno di verbi di calcolo: la lista
+     * va costruita interrogando le classi, non riscritta. */
     static const char *const ok[] = {
         "what", "whats", "is", "how", "much", "calculate", "compute",
         "evaluate", "tell", "me", "the", "a", "an", "of", "and", "equals",

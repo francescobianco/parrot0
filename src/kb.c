@@ -565,7 +565,7 @@ static PredBucket pred_bucket(const KB *kb, const char *pred) {
 /* The rule-head candidates for `pred`, with the same fallback contract as
  * pred_bucket(). */
 static PredBucket rule_bucket(const KB *kb, const char *pred) {
-    PredBucket b = { NULL, 0, 0 };
+    PredBucket b = { NULL, 0, 0, 0 };
     int live = 0;
     const PredStat *ps = pred_stats_get((KB *)kb, pred, &live);
     if (!live) return b;
@@ -1526,7 +1526,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
          * asked, not an oversight. Behaviour is identical either way. */
         char rp[KB_TERM_LEN];
         deep_resolve(s, g->args[0], rp, sizeof rp, 0);
-        PredBucket fbk = { NULL, 0, 0 };
+        PredBucket fbk = { NULL, 0, 0, 0 };
         int bound = !is_var(rp) && term_ok(rp) && !term_contains_var(rp, 0);
         if (bound) {
             fbk = pred_bucket(S->kb, rp);
@@ -4566,6 +4566,11 @@ static int word_sim(const char *a, const char *b) {
 /* Tokenise a snake_case key OR a quoted description into lowercased content
  * tokens (>=3 chars, minus a tiny stoplist and punctuation). */
 static size_t concept_tokens(const char *s, char toks[][KB_TERM_LEN], size_t max) {
+    /* TODO(kb-first): una lista di stopword dentro il KERNEL, mentre
+     * `stopword/1` in kb/core/lexicon.p0 ne ha duecentonovantasette. Qui il
+     * vincolo e' reale — kb.c non deve dipendere dal contenuto di una KB
+     * specifica — quindi la strada non e' interrogare la KB da qui, ma far
+     * passare la lista dal chiamante, che la KB ce l'ha. */
     static const char *const stop[] = {"the","and","its","their","that","for",
         "with","two","one","into","from","each","than","not", NULL};
     size_t n = 0;

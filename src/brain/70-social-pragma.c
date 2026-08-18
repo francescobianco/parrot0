@@ -456,6 +456,10 @@ static int is_discourse_opener(Brain *b, char **w, size_t nw, size_t *skip) {
 
 /* a hedge / hesitation marker anywhere in the turn. */
 static int has_hedge(char **w, size_t nw) {
+    /* TODO(kb-first): vocabolario dell'INCERTEZZA, bilingue, dentro il C.
+     * «maybe/forse/boh» sono parole, e le parole stanno nella KB: una riga
+     * `hedge_word/1` per ciascuna, come `stopword/1`. Il test: parrot0 puo'
+     * imparare domani che «chissa'» esprime incertezza, senza ricompilare? */
     static const char *const h[] = {
         "maybe", "perhaps", "guess", "suppose", "dunno", "probably", "unsure",
         "kinda", "sorta", "idk", "forse", "magari", "boh", "credo",
@@ -473,6 +477,10 @@ static int has_hedge(char **w, size_t nw) {
 
 /* a contrastive connective anywhere in the turn. */
 static int has_contrastive(char **w, size_t nw) {
+    /* TODO(kb-first): i connettivi di CONTRASTO. Stessa specie della lista
+     * qui sopra; `connector/1` esiste gia' in kb/core/lexicon.p0 e non viene
+     * interrogato. Quando due liste della stessa cosa convivono, quella nel C
+     * vince in silenzio ed e' l'unica che nessuno puo' correggere. */
     static const char *const c[] = {
         "but", "however", "though", "although", "yet",
         "pero", "per`o", "tuttavia", "invece",
@@ -507,6 +515,9 @@ static int has_negation(char **w, size_t nw) {
  * mere objects: "that"/"you" alone are not stance ("dont say that" is an order,
  * not a disagreement), so the move keys on the predicate. */
 static int is_stance_pred(const char *t) {
+    /* TODO(kb-first): le parole dell'ASSENSO — e il file accanto ha gia'
+     * `intent_cue(agree, …)` in kb/core/reactions.p0 dal gen403. Due sorgenti
+     * per la stessa nozione: questa va tolta, non allineata. */
     static const char *const s[] = {
         "agree", "right", "sure", "true", "correct", "convinced", "sense",
         "convince", "persuaded", "ragione", "giusto", "vero", "accordo",
@@ -542,6 +553,9 @@ static int is_disagreement(char **w, size_t nw) {
  * story" stays a real (unfulfillable) request and hits the honest wall instead
  * of this fill-the-silence move. */
 static int has_open_quantifier(char **w, size_t nw) {
+    /* TODO(kb-first): i pronomi indefiniti. Sono una CLASSE grammaticale, e
+     * le classi grammaticali di parrot0 vivono in lexicon.p0 accanto ad
+     * articoli e ausiliari. */
     static const char *const q[] = {
         "something", "anything", "qualcosa", "qualunque", "whatever", NULL
     };
@@ -581,6 +595,9 @@ static int has_content_predicate(Brain *b, const char *canon, char **w, size_t n
  * "about/discuss/discutere/switch to/change to/parlare di/parliamo di". Returns
  * 1 and writes the object (first substantive token after the cue) into dst. */
 static int topic_object(char **w, size_t nw, char *dst, size_t dstn) {
+    /* TODO(kb-first): le preposizioni che introducono un TOPIC. La stessa
+     * conoscenza serve a chiunque debba trovare «di che cosa» parla un turno,
+     * e oggi ognuno se la riscrive. */
     static const char *const after[] = {
         "about", "discuss", "to", "of", "di", "su", NULL
     };
@@ -600,6 +617,12 @@ static int topic_object(char **w, size_t nw, char *dst, size_t dstn) {
              * We deliberately do NOT filter on the general stopword lexicon — a
              * topic word like "formaggio" happens to be listed there for a
              * chitchat test, but after "di"/"about" it is the genuine topic. */
+            /* TODO(kb-first): GLI ARTICOLI SONO GIA' NELLA KB.
+             * `definite_article/1` e `indefinite_article/1` esistono in
+             * lexicon.p0 e sono interrogati altrove (vedi la lista `classes`
+             * in 10-memory-knowledge.c). Questa copia nel C e' il caso
+             * peggiore dell'audit: non una conoscenza che manca alla KB, ma
+             * una che c'e' e che il codice ignora. */
             static const char *const arts[] = {
                 "the","a","an","il","lo","la","i","gli","le","un","una","uno",NULL
             };

@@ -3018,6 +3018,10 @@ static int p0_lead_det(Brain *b, const char *t) {
  * from mistaking a question ("what is your sister's name") or a greeting ("how is
  * your day going") or a predicate-adjective clause for a membership statement. */
 static int p0_bad_subject(const char *t) {
+    /* TODO(kb-first): pronomi, ausiliari e parole interrogative — e sono TUTTI
+     * gia' nella KB (`question_word/1` in social.p0, `auxiliary/1` e
+     * `stopword/1` in lexicon.p0). Va sostituita da una domanda alle classi
+     * che gia' esistono, come fa `classes[]` poco sopra in questo stesso file. */
     static const char *const bad[] = {
         "what","who","how","where","when","why","which","whose","whom",
         "it","this","that","these","those","there","here","one",

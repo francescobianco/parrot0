@@ -120,6 +120,10 @@ struct Brain {
     /* gen57: personal-possession display table. The KB treats uppercase-initial
      * atoms as variables, so the lookup key is lowercased while the original
      * casing is remembered here for natural replies. */
+    /* TODO(kb-first): le COSE dell'utente («il mio cane si chiama Rex») in un
+     * array C di otto slot. Sono fatti — `called(cane, rex)` esiste gia' come
+     * predicato — e finche' stanno qui il nono possesso si perde in silenzio,
+     * nessuno puo' ritrattarne uno, e non sopravvivono a un salvataggio. */
     char possessions[8][2][64];
     size_t possession_count;
     /* gen217 (glue): the most recently mentioned possession's "thing" (e.g.
@@ -131,6 +135,9 @@ struct Brain {
     /* gen148 (E4): lightweight user model for ordinary conversation. Durable
      * personal facts are separate from session-only context so "what do you
      * remember about me?" can be grounded without overclaiming permanence. */
+    /* TODO(kb-first): le PREFERENZE dell'utente sono `user_value(like, …)`,
+     * come il nome (gen403) e l'umore. Tre campi C per una cosa che la KB
+     * rappresenta gia' con un fatto. */
     char user_preference_verb[16];
     char user_preference_value[64];
     int  has_user_preference;
@@ -171,6 +178,9 @@ struct Brain {
      * about the kind/figure (a dog barks, Dante wrote the Commedia) is queried
      * from kb/core/roles.p0. Cleared by "stop pretending" / "be yourself". */
     int  in_role;
+    /* TODO(kb-first): l'identita' assunta in un gioco di ruolo e' conoscenza
+     * sulla conversazione, non due stringhe nel motore: `session_value(role,
+     * …)` la renderebbe interrogabile («chi stai facendo?») e ritrattabile. */
     char role_name[64];   /* display name: "Rex", "Mario", "Cleopatra"        */
     char role_kind[64];   /* what it is: "dog", "robot", or an identity atom   */
     char role_attrs[8][2][64]; /* parsed inline attributes: key -> value       */

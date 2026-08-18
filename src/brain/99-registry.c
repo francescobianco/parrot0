@@ -892,6 +892,10 @@ const char *brain_version(void) {
 static void not_understood(Brain *b, const char *canon,
                            char *out, size_t out_size) {
     /* gen240 (universal-comprehension): the honest fallback in the CURRENT language. */
+    /* TODO(kb-first): LE FRASI DEL MURO, in due lingue, dentro il C. Sono la
+     * cosa che parrot0 dice piu' spesso, e l'unica che non si puo' insegnare:
+     * `response_template(fallback, …)` con la rotazione che kb_response fa
+     * gia' da sola. Il default in C resta come rete, non come sorgente. */
     static const char *const v_en[] = {
         "I'm not sure I followed. Can you say it another way?",
         "I didn't quite catch that. What would you like to know?",
@@ -1123,6 +1127,8 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
      * sub-turn so "<acquire X> and THEN <use X>" dispatches the clean clause to its
      * module (e.g. "look up X and then tell me about X" -> acquire, then recall). */
     {
+        /* TODO(kb-first): terza copia dei sequenziatori (vedi 60-agent-tools.c).
+         * `sequencer/1` in lexicon.p0 e' la sorgente. */
         static const char *const seqw[] = {"then", "also", "next", "finally",
             "afterwards", "poi", "dopo", "infine", "inoltre", NULL};
         for (;;) {

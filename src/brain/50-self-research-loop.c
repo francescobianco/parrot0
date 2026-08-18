@@ -645,6 +645,10 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     const char *x = NULL;
     int weak = 0;
     int use_raw = 0;  /* gen335e: flag: extract topic from raw form */
+    /* TODO(kb-first): le TESTE di domanda che chiedono di documentarsi, con la
+     * distinzione forte/debole scritta come due array. E' `intent_cue` piu'
+     * una priorita' dichiarata — la stessa forma di `chitchat_reaction/2`
+     * (gen403), che questa distinzione la esprime come dato. */
     static const char *const strong_heads[] = {
         "what is a ", "what is an ", "tell me about ",
         "what do you know about ", "who is ", "who was ",

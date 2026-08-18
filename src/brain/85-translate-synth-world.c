@@ -762,6 +762,9 @@ static int mod_synth(Brain *b, const char *norm, const char *raw,
     char low[256];
     lowercase_copy(low, sizeof low, raw);
 
+    /* TODO(kb-first): le superfici che chiedono un comando di shell.
+     * `intent_cue(shell_request, …)`: una formulazione nuova deve essere una
+     * riga di conoscenza. */
     static const char *const triggers[] = {
         "what command ", "which command ",
         "write a command to ", "write a command that ",
@@ -1450,6 +1453,8 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
 
 /* first word is an interrogative/auxiliary that opens a question */
 static int is_question_opener(const char *w) {
+    /* TODO(kb-first): ausiliari e parole interrogative, gia' nella KB
+     * (`auxiliary/1`, `question_word/1`). Quarta copia nel codice. */
     static const char *const q[] = {
         "is", "are", "was", "were", "does", "do", "did", "can", "could",
         "will", "would", "should", "what", "who", "where", "when", "why",
@@ -1462,6 +1467,9 @@ static int is_question_opener(const char *w) {
 /* an arithmetic operator cue, so the clarification can ask for a NUMBER rather
  * than a referent when the gap is an operand. */
 static int has_arith_cue(Brain *b, char **w, size_t nw) {
+    /* TODO(kb-first): i nomi delle OPERAZIONI. `operator_word/2` (parola ->
+     * operatore) li renderebbe insegnabili in qualunque lingua, ed e' la
+     * stessa forma che `numeric_cue/2` usa gia' in numeric-questions.p0. */
     static const char *const ops[] = {
         "plus", "minus", "times", "divided", "multiplied", "double", "triple",
         "half", "square", "sum", "product", NULL };

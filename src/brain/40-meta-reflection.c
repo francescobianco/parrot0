@@ -811,6 +811,10 @@ static int role_uptake(Brain *b, const char *raw) {
 
     /* The descriptor segment begins after the role-introducing phrase. */
     const char *desc = NULL;
+    /* TODO(kb-first): le SUPERFICI che aprono un gioco di ruolo, bilingui,
+     * nel C. Sono esattamente `intent_cue(role_open, "…")`: un modo nuovo di
+     * chiedere un gioco di ruolo — o una terza lingua — deve essere una riga
+     * di conoscenza, non una ricompilazione. */
     static const char *const intros[] = {
         "pretend you are ", "pretend you re ", "pretend to be ",
         "you are now ", "you re now ", "you are ", "you re ",
@@ -912,6 +916,10 @@ static int role_uptake(Brain *b, const char *raw) {
         role_set_attr(b, "code", attr);
     /* title: a ruler word anywhere in the descriptor */
     {
+        /* TODO(kb-first): CONOSCENZA DEL MONDO nel motore. «queen», «faraone»,
+         * «imperatrice» sono titoli, e i titoli sono fatti — `title/1`, o
+         * meglio una classe in world-facts.p0 con le sue traduzioni. Finche'
+         * stanno qui, parrot0 non puo' imparare un titolo che non conosce. */
         static const char *const titles[] = {"queen","king","emperor","empress",
             "pharaoh","prince","princess","regina","re","imperatore", NULL};
         for (const char *const *t = titles; *t; t++)

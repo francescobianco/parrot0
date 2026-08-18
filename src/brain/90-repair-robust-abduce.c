@@ -272,6 +272,10 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
     /* locate the un-known fact after the trigger phrase (read from raw so the
      * fact clause keeps its original words for parsing). */
     const char *fact = NULL;
+    /* TODO(kb-first): le superfici della SORPRESA («non sapevo che…»), e piu'
+     * avanti in questo file quelle dell'abduzione — sei array bilingui in
+     * tutto. Sono `intent_cue`, con la stessa forma del registro sociale del
+     * gen403. */
     static const char *const markers[] = {
         "didn't know that ", "didnt know that ",
         "did not know that ", "didn't know ", "didnt know ", "did not know ",
@@ -627,6 +631,9 @@ static int mod_calibrate(Brain *b, const char *norm, const char *raw,
      * answers that rest on it grade HYPOTHETICAL. */
     {
         const char *rest = NULL;
+        /* TODO(kb-first): le superfici della SUPPOSIZIONE, bilingui, nel C.
+         * `intent_cue(suppose, …)`: un modo nuovo di dire «mettiamo che» deve
+         * essere una riga. */
         static const char *const sup[] = {
             "suppose that ", "suppose ", "assume that ", "assume ",
             "let's say ", "lets say ", "supponi che ", "supponi ",

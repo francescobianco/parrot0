@@ -20,6 +20,11 @@
  * "sizeof (") and look like a definition head; it is not a function name, so it
  * is excluded. The function's own name is never a keyword. */
 static int is_c_keyword(const char *w) {
+    /* TODO(kb-first): le parole chiave di un LINGUAGGIO — qui il C, poco piu'
+     * avanti Python, poi i tipi e i metodi puri. Sono la definizione di quel
+     * linguaggio, e finche' stanno nel motore parrot0 non puo' imparare un
+     * linguaggio nuovo: `language_keyword(rust, "fn")` lo renderebbe una
+     * conoscenza come le altre. */
     static const char *const kw[] = {
         "if", "else", "for", "while", "do", "switch", "case", "return",
         "sizeof", "struct", "union", "enum", "typedef", "static", "const",

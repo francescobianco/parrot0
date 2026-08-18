@@ -192,6 +192,10 @@ static void rstrip_punct(char *t) {
  * Returns 1 if a glob was found. Recognizes an explicit "*.ext" and ".ext" as
  * well as a handful of language words. */
 static int detect_glob(const char *low, char *glob, size_t cap) {
+    /* TODO(kb-first): le estensioni di file sono conoscenza sul mondo del
+     * codice, non struttura del motore. Un linguaggio nuovo deve entrare come
+     * fatto — `file_extension(rust, ".rs")` — insieme al resto di cio' che
+     * parrot0 sa di quel linguaggio. */
     static const char *const exts[] = {
         ".c",".h",".py",".js",".ts",".md",".txt",".json",".sh",
         ".cpp",".cc",".go",".rs",".java",".rb",".html",".css", NULL };
@@ -1000,6 +1004,11 @@ static int dispatch_one(Brain *b, const char *clause, char *out, size_t out_size
  * a later "use it to compute NAME(x,y)" evaluates the real artifact. Every step is
  * oracle-checked; the reply is a numbered, grounded transcript. */
 static int compose_plan(Brain *b, const char *raw, char *out, size_t out_size) {
+    /* TODO(kb-first): SEQUENZIATORI, e `sequencer/1` esiste gia' in
+     * lexicon.p0 con dieci righe. Questa lista e' scritta tre volte nel C
+     * (qui, piu' avanti in questo file, e in 99-registry.c) con contenuti
+     * leggermente diversi: tre verita' divergenti sulla stessa nozione, che e'
+     * il sintomo tipico della conoscenza duplicata nel codice. */
     static const char *const seq[] = {
         " and then ", " and also ", " after that ", " afterwards ",
         " e poi ", " e infine ", " e inoltre ",
@@ -1035,6 +1044,8 @@ static int compose_plan(Brain *b, const char *raw, char *out, size_t out_size) {
         char *clause = cl;
         for (;;) {
             while (*clause==' ' || *clause==',' || *clause=='.') clause++;
+            /* TODO(kb-first): parole di riempimento — `stopword/1` e
+             * `function_word/1` coprono gia' quasi tutta questa lista. */
             static const char *const fill[] = {"and","also","then","next","finally",
                 "first","please","use","it","to","poi","dopo","e","inoltre","infine",
                 "la","lo","then,", NULL};

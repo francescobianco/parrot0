@@ -702,6 +702,10 @@ static int has_social_pattern(Brain *b, const char *type, const char *text) {
  * structural machinery; the phrases themselves stay KB knowledge. */
 static int is_exact_social_pattern(Brain *b, const char *buf) {
     if (!b || !b->kb) return 0;
+    /* TODO(kb-first): l'elenco dei TIPI di pattern sociale duplica cio' che
+     * `social_pattern/…` gia' dichiara nella KB. Va enumerato dalla KB
+     * (kb_match sui tipi distinti), non riscritto qui: oggi un tipo nuovo
+     * aggiunto alla KB resta invisibile a questa funzione. */
     static const char *const types[] = {
         "opening", "closing", "wellbeing", "goodnight", "felicitation",
         "wellwish", "condolence", "blessing", "politeness", NULL };

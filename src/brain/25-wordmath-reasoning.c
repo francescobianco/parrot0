@@ -893,6 +893,10 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
  * is + unless the clause carries a removal verb, and clauses split on
  * then/and/poi/e and commas. */
 static int wp_removal_word(const char *t) {
+    /* TODO(kb-first): i VERBI DI SOTTRAZIONE di un problema di parole
+     * («mangia», «perde», «vende»). E' conoscenza lessicale pura e sta al
+     * centro di una facolta': `polarity(eat, minus)` renderebbe insegnabile un
+     * verbo nuovo, e in una lingua nuova, senza toccare il motore. */
     static const char *const ex[] = {
         "ate","eats","eat","lost","loses","lose","gave","gives","spent",
         "spends","spend","sold","sells","sell","broke","removed","removes",

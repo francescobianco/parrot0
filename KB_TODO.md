@@ -38,6 +38,23 @@ verifica il segmentatore, che durante il bug rispondeva correttamente; verifica
 che i livelli SOPRA continuino a rispondere quando l'apostrofo c'e'. Un test
 puntato sulla causa sarebbe stato verde per tutta la durata del guasto.
 
+## 🔎 AUDIT KB-FIRST DEL C — `docs/plans/kb-first-audit.md`
+
+Trenta marcatori `TODO(kb-first):` nel codice, indicizzati e ordinati per DANNO
+in `docs/plans/kb-first-audit.md`. `grep -rn "TODO(kb-first)" src/` e' sempre
+allineato con quel documento.
+
+Il caso peggiore non e' la lista piu' lunga, e' il DUPLICATO: gli articoli, le
+stopword, i sequenziatori e gli ausiliari sono gia' nella KB, e il C ne tiene una
+copia propria che vince in silenzio. I sequenziatori sono scritti TRE volte con
+contenuti divergenti.
+
+E la lezione delle due conversioni del gen403: spostare la conoscenza ha fatto
+emergere ogni volta un guasto che il C nascondeva — cue italiane morte perche'
+confrontate con il turno tradotto, una cue vorace che rubava i turni di
+inferenza, un marcatore di autoreferenza mancante. Una lista nel C e' un posto
+dove i buchi non si vedono.
+
 ## ⛔ TODO APERTI DEL PIANO — non chiuderlo senza questi
 
 Il piano `docs/plans/frontier-kb-natural-dialogue.md` ha copertura FUNZIONALE
