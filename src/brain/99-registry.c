@@ -2926,6 +2926,86 @@ int brain_self_repair(Brain *b, char *out, size_t out_size) {
     return n;
 }
 
+/* gen419 — IL TRANSCODER: da token opaco a termine strutturato.
+ *
+ * Le procedure su orari, date e complessi (procedures.p0) sanno calcolare, ma
+ * non servono a niente finche' «14:30» resta un token opaco: tracciato pezzo per
+ * pezzo, parrot0 aveva l'aritmetica, le unita' di tempo e la relazione «un'ora ha
+ * 60 minuti», e cadeva perche' nessuno leggeva quel token come una QUANTITA'.
+ *
+ * Qui un token che ha la forma dichiarata diventa un termine: `14:30` ->
+ * `time(14, 30)`, `2024-02-28` -> `date(2024, 2, 28)`, e il fatto
+ * `transcoded("14:30", time(14,30))` lo mette a disposizione di qualunque regola.
+ * Il motore non sa che cosa sia un orario: sa spezzare un token su un separatore
+ * e contarne i pezzi. QUALI forme esistano e' un fatto (`transcode_shape/3`),
+ * quindi una notazione nuova — un'altra lingua, un altro formato di data — costa
+ * una riga di KB.
+ *
+ * Additivo: pubblica fatti e non toglie niente. Un token che non ha nessuna forma
+ * dichiarata resta esattamente quello che era. */
+static void turn_publish_transcodes(Brain *b, const char *surface) {
+    if (!b || !b->kb || !surface) return;
+    char shapes[16][KB_TERM_LEN];
+    const char *nq[3] = { NULL, NULL, NULL };
+    size_t ns = kb_match(b->kb, "transcode_shape", nq, 3, shapes, 16);
+    if (!ns) return;
+    char buf[512];
+    snprintf(buf, sizeof buf, "%s", surface);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    for (size_t i = 0; i < nw; i++) {
+        char tok[KB_TERM_LEN];
+        snprintf(tok, sizeof tok, "%s", w[i]);
+        char *t = strip_edge_punct(tok);
+        if (!*t) continue;
+        for (size_t k = 0; k < ns; k++) {
+            char fn[KB_TERM_LEN];
+            snprintf(fn, sizeof fn, "%s", shapes[k]);
+            const char *sepq[3] = { fn, NULL, NULL };
+            char sep[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "transcode_shape", sepq, 3, sep, 1) != 1) continue;
+            char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", sep[0]);
+            const char *sc = kb_dequote(sb);
+            if (!sc || !*sc) continue;
+            const char *cntq[3] = { fn, sep[0], NULL };
+            char cnt[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "transcode_shape", cntq, 3, cnt, 1) != 1) continue;
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cnt[0]);
+            long want = strtol(kb_dequote(cb), NULL, 10);
+            if (want < 2 || want > KB_MAX_ARGS) continue;
+            /* spezza il token e pretende che ogni pezzo sia un numero */
+            char work[KB_TERM_LEN]; snprintf(work, sizeof work, "%s", t);
+            char term[KB_TERM_LEN];
+            size_t o = (size_t)snprintf(term, sizeof term, "%s(", fn);
+            long parts = 0; int ok = 1;
+            char *p = work;
+            while (p && *p && ok) {
+                char *q = strchr(p, sc[0]);
+                if (q) *q = '\0';
+                if (!*p) { ok = 0; break; }
+                for (const char *d = p; *d; d++)
+                    if (!isdigit((unsigned char)*d)) { ok = 0; break; }
+                if (!ok) break;
+                long v = strtol(p, NULL, 10);   /* toglie gli zeri iniziali */
+                o += (size_t)snprintf(term + o, sizeof term - o, "%s%ld",
+                                      parts ? ", " : "", v);
+                parts++;
+                p = q ? q + 1 : NULL;
+            }
+            if (!ok || parts != want || o + 2 >= sizeof term) continue;
+            snprintf(term + o, sizeof term - o, ")");
+            char quoted[KB_TERM_LEN];
+            snprintf(quoted, sizeof quoted, "\"%s\"", t);
+            const char *a[2] = { quoted, term };
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            kb_assert(b->kb, "transcoded", a, 2);
+            kb_set_origin(b->kb, prev);
+            break;                       /* una forma sola per token */
+        }
+    }
+}
+
 static void turn_publish_cues(Brain *b, const char *surface) {
     char regs[16][KB_TERM_LEN];
     const char *rq[2] = { NULL, NULL };
@@ -3014,6 +3094,7 @@ static int universal_turn_lead(Brain *b, const char *surface,
     kb_retract_pred(b->kb, "turn_cue");
     kb_set_origin(b->kb, KB_REFLECTIVE);
     turn_publish_cues(b, surface);
+    turn_publish_transcodes(b, surface);
     for (size_t i = 0; i < ns; i++) {
         char index[24], type[KB_TERM_LEN];
         char text[KB_TERM_LEN], payload[KB_TERM_LEN];

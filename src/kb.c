@@ -3265,7 +3265,26 @@ int kb_load(KB *kb, const char *path) {
                      * dominio. Ora e' una DIRETTIVA, come `:- include(...)`: il
                      * `:-` dice "questa riga istruisce il caricatore". La forma
                      * nuda resta riconosciuta per compatibilita', ma nell'albero
-                     * non ne sopravvive nessuna. */
+                     * non ne sopravvive nessuna.
+                     *
+                     * ── L'ATTRIBUTO NON SI EREDITA (gen419, nota di F.) ──────
+                     *
+                     * Vale per il file che lo dichiara e SOLO per i predicati che
+                     * quel file introduce. Un `:- include(altro.p0)` e' una
+                     * chiamata RICORSIVA a kb_load, e `file_attr` e' una
+                     * variabile locale di quella chiamata: il file incluso parte
+                     * con la lavagna pulita, dichiara i propri attributi o non ne
+                     * ha nessuno.
+                     *
+                     * Va detto qui perche' il malinteso opposto era gia' scritto
+                     * nell'albero e ha fatto danno: un commento in procedures.p0
+                     * sosteneva che non si potesse mettere l'attributo su quel
+                     * file «perche' include meta.p0, che contiene anche
+                     * conoscenza del mondo». Non e' un rischio che esista —
+                     * meta.p0 se lo gestisce da solo — e nel frattempo quella
+                     * frase ha convinto chi la leggeva a dichiarare la
+                     * macchineria una riga per predicato, che e' il lavoro che
+                     * questa direttiva esiste per evitare. */
                     const char *fa = clause;
                     if (strncmp(fa, ":-", 2) == 0) {
                         fa += 2;

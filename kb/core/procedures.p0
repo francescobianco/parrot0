@@ -1017,10 +1017,19 @@ machinery(count_reading).
 machinery(part_count).
 machinery(sides).
 
-% gen391: viste linguistiche omogenee in un file proprio. Non si puo' mettere
-% `file_attribute(machinery)` su procedures.p0: questo file include meta.p0, che
-% contiene anche conoscenza del mondo. Il file incluso puo' invece dichiarare
-% correttamente la provenienza una volta sola per tutti i suoi predicati.
+% gen391: viste linguistiche omogenee in un file proprio.
+%
+% CORREZIONE gen419 (F.): la frase che stava qui — «non si puo' mettere
+% file_attribute(machinery) su procedures.p0 perche' include meta.p0, che
+% contiene anche conoscenza del mondo» — era SBAGLIATA, e ha fatto danno finche'
+% e' rimasta. L'attributo NON SI EREDITA: vale per il file che lo dichiara e solo
+% per i predicati che quel file introduce, perche' un include e' una chiamata
+% ricorsiva al caricatore e il file incluso parte con la lavagna pulita (vedi la
+% documentazione della direttiva in src/kb.c). Includere meta.p0 non e' mai stato
+% un rischio.
+%
+% Le `machinery(...)` una per predicato qui sotto restano valide e non fanno
+% danno, ma non erano l'unica strada: chi aggiunge procedure puo' scegliere.
 :- include(dialogue-frames.p0).
 :- include(dialogue-policy.p0).
 :- include(context-scope.p0).
@@ -1110,3 +1119,108 @@ machinery(answer_content).
 machinery(answer_has_content).
 machinery(answer_tail).
 machinery(answer_text).
+
+% ═══ gen419 — ORARI, DATE E NUMERI COMPLESSI, come PROCEDURE ═══════════════
+%
+% Tirate da un fallimento reale, non inventate: «A train leaves at 14:30 and
+% travels for 2 hours 45 minutes. When does it arrive?» (#4 dei cento). Tracciato
+% pezzo per pezzo, parrot0 aveva gia' TUTTI i mattoni — l'aritmetica pura
+% (870+165=1035), le unita' di tempo in KB, la relazione «un'ora ha 60 minuti» —
+% e nessuna PROCEDURA che li mettesse in fila. Il MANTRA #12 non applicato al
+% tempo: tre numeri nel turno, nessuno dei quali e' la risposta.
+%
+% Sono regole, non C: si interrogano, si compongono, e domani se ne insegna una
+% nuova senza ricompilare (docs/plans/teachable-procedures.md §2.2).
+
+% Le procedure sono MACCHINERIA e qui si dichiarano una per una, come fa il resto
+% del file. Dimenticarlo si vede subito — introspect.p0t elenca i predicati che
+% parrot0 crede di sapere sul MONDO, e `days_in_month` fra quelli e' un errore che
+% si legge a occhio. (Quel test dice anche la cosa giusta da fare: «mettila li',
+% non alzare il numero qui», ed e' cosi' che questa svista e' stata corretta.)
+machinery(int_div).       machinery(minutes_of).     machinery(time_of_minutes).
+machinery(time_plus).     machinery(time_minus).     machinery(time_diff).
+machinery(time_before).   machinery(leap_year).      machinery(days_in_month).
+machinery(next_day).      machinery(date_plus_days).
+machinery(c_add).  machinery(c_sub).   machinery(c_mul).  machinery(c_conj).
+machinery(c_scale). machinery(c_norm2). machinery(c_div).
+
+% ── la divisione INTERA, che il motore non ha ────────────────────────────────
+% `div` e' reale: div(165,60) = 2.75. Il quoziente intero si compone dalle
+% primitive che ci sono — togli il resto, poi dividi — ed e' il primo esempio del
+% metodo: non si aggiunge una primitiva al C, si scrive una procedura.
+int_div($A, $B, $Q) :- is($Q, div(sub($A, mod($A, $B)), $B)).
+
+% ── ORARI ────────────────────────────────────────────────────────────────────
+% Un orario e' time(Ore, Minuti); una durata e' dur(Ore, Minuti). Tenerli
+% distinti non e' pedanteria: «14:30» e «2 ore 45» sono lo stesso paio di numeri
+% con ruoli diversi, ed e' esattamente il ruolo che mancava.
+minutes_of(time($H, $M), $T) :- is($T, add(mul($H, 60), $M)).
+minutes_of(dur($H, $M), $T)  :- is($T, add(mul($H, 60), $M)).
+
+% Dai minuti all'orario: il modulo 60 e' tutto il mestiere.
+time_of_minutes($T, time($H, $M)) :- int_div($T, 60, $H), is($M, mod($T, 60)).
+
+% Sommare una durata a un orario. Il giorno gira: 23:30 + 1h = 00:30.
+time_plus($T0, $D, $T1) :-
+    minutes_of($T0, $A), minutes_of($D, $B),
+    is($S, mod(add($A, $B), 1440)), time_of_minutes($S, $T1).
+
+time_minus($T0, $D, $T1) :-
+    minutes_of($T0, $A), minutes_of($D, $B),
+    is($S, mod(add(sub($A, $B), 1440), 1440)), time_of_minutes($S, $T1).
+
+% Quanto passa fra due orari, in minuti e come durata.
+% Il termine composto si costruisce nella TESTA, non con un eq nel corpo: e' il
+% posto in cui l'unificazione lo sa riempire.
+time_diff($T0, $T1, dur($H, $M)) :-
+    minutes_of($T0, $A), minutes_of($T1, $B),
+    is($S, mod(add(sub($B, $A), 1440), 1440)),
+    int_div($S, 60, $H), is($M, mod($S, 60)).
+
+time_before($T0, $T1) :- minutes_of($T0, $A), minutes_of($T1, $B), lt($A, $B).
+
+% ── DATE ─────────────────────────────────────────────────────────────────────
+% Una data e' date(Anno, Mese, Giorno).
+leap_year($Y) :- eq(mod($Y, 400), 0).
+leap_year($Y) :- eq(mod($Y, 4), 0), naf(eq(mod($Y, 100), 0)).
+
+days_in_month(1, $Y, 31).   days_in_month(3, $Y, 31).  days_in_month(4, $Y, 30).
+days_in_month(5, $Y, 31).   days_in_month(6, $Y, 30).  days_in_month(7, $Y, 31).
+days_in_month(8, $Y, 31).   days_in_month(9, $Y, 30).  days_in_month(10, $Y, 31).
+days_in_month(11, $Y, 30).  days_in_month(12, $Y, 31).
+days_in_month(2, $Y, 29) :- leap_year($Y).
+days_in_month(2, $Y, 28) :- naf(leap_year($Y)).
+
+% Il giorno dopo, con i tre travasi: giorno -> mese -> anno.
+next_day(date($Y, $M, $D), date($Y, $M, $D1)) :-
+    days_in_month($M, $Y, $L), lt($D, $L), is($D1, add($D, 1)).
+next_day(date($Y, $M, $D), date($Y, $M1, 1)) :-
+    days_in_month($M, $Y, $D), lt($M, 12), is($M1, add($M, 1)).
+next_day(date($Y, 12, 31), date($Y1, 1, 1)) :- is($Y1, add($Y, 1)).
+
+% Sommare giorni: ricorsione sul giorno dopo. Zero e' il caso base.
+date_plus_days($D, 0, $D).
+date_plus_days($D0, $N, $D2) :-
+    gt($N, 0), next_day($D0, $D1),
+    is($N1, sub($N, 1)), date_plus_days($D1, $N1, $D2).
+
+% ── NUMERI COMPLESSI ─────────────────────────────────────────────────────────
+% Un complesso e' c(Reale, Immaginario). Le quattro operazioni sono definizioni,
+% non calcoli cablati: si leggono come le si scriverebbe alla lavagna.
+c_add(c($A, $B), c($C, $D), c($R, $I)) :- is($R, add($A, $C)), is($I, add($B, $D)).
+c_sub(c($A, $B), c($C, $D), c($R, $I)) :- is($R, sub($A, $C)), is($I, sub($B, $D)).
+c_mul(c($A, $B), c($C, $D), c($R, $I)) :-
+    is($R, sub(mul($A, $C), mul($B, $D))),
+    is($I, add(mul($A, $D), mul($B, $C))).
+c_conj(c($A, $B), c($A, $N)) :- is($N, sub(0, $B)).
+c_scale(c($A, $B), $K, c($R, $I)) :- is($R, mul($A, $K)), is($I, mul($B, $K)).
+
+% Il modulo al quadrato evita la radice, che il motore non ha: e' la forma in cui
+% i confronti fra moduli si fanno comunque.
+c_norm2(c($A, $B), $N) :- is($N, add(mul($A, $A), mul($B, $B))).
+
+% La divisione, per il coniugato — e qui si vede che sono procedure e non tabelle:
+% c_div si APPOGGIA a c_mul, c_conj e c_norm2 invece di riscriverne il contenuto.
+c_div($Z, $W, c($R, $I)) :-
+    c_conj($W, $WC), c_mul($Z, $WC, c($P, $Q)), c_norm2($W, $N),
+    is($R, div($P, $N)), is($I, div($Q, $N)).

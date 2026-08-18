@@ -1,0 +1,68 @@
+# PROCEDURE SU ORARI, DATE E NUMERI COMPLESSI (gen419).
+#
+# Tirate da un fallimento reale: «A train leaves at 14:30 and travels for 2 hours
+# 45 minutes. When does it arrive?» (#4 dei cento). Tracciato pezzo per pezzo,
+# parrot0 aveva gia' TUTTI i mattoni — l'aritmetica pura (870+165=1035), le unita'
+# di tempo in KB, la relazione «un'ora ha 60 minuti» — e nessuna PROCEDURA che li
+# mettesse in fila. Il MANTRA #12 non applicato al tempo: tre numeri nel turno,
+# nessuno dei quali e' la risposta.
+#
+# Sono regole in KB, non C: chi ne vuole una nuova la scrive, non ricompila.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!reset
+
+# La divisione INTERA non e' una primitiva del motore (`div` e' reale:
+# div(165,60) = 2.75). Si compone da quelle che ci sono — togli il resto, poi
+# dividi — ed e' il primo esempio del metodo: non si aggiunge C, si scrive una
+# procedura.
+[test la divisione intera si compone dalle primitive]
+!query int_div(165, 60, 2)
+!query int_div(1035, 60, 17)
+
+[test somma di una durata a un orario]
+!query time_plus(time(14, 30), dur(2, 45), time(17, 15))
+# il giorno gira
+!query time_plus(time(23, 30), dur(1, 0), time(0, 30))
+!query time_minus(time(0, 15), dur(0, 30), time(23, 45))
+
+[test distanza fra due orari]
+!query time_diff(time(9, 15), time(17, 0), dur(7, 45))
+!query time_before(time(9, 15), time(17, 0))
+
+[test date, con i bisestili e i tre travasi]
+!query leap_year(2024)
+!query! leap_year(1900)
+!query days_in_month(2, 2024, 29)
+!query days_in_month(2, 2023, 28)
+!query next_day(date(2024, 2, 28), date(2024, 2, 29))
+!query next_day(date(2023, 12, 31), date(2024, 1, 1))
+!query date_plus_days(date(2024, 2, 27), 3, date(2024, 3, 1))
+
+[test numeri complessi]
+# (3+2i)(1+7i) = 3+21i+2i-14 = -11+23i
+!query c_mul(c(3, 2), c(1, 7), c(-11, 23))
+!query c_add(c(3, 2), c(1, 7), c(4, 9))
+!query c_conj(c(3, 2), c(3, -2))
+!query c_norm2(c(3, 4), 25)
+# 1/i = -i, e si appoggia a c_conj + c_mul + c_norm2 invece di riscriverli
+!query c_div(c(1, 0), c(0, 1), c(0, -1))
+
+# IL TRANSCODER. Le procedure non servono a niente finche' «14:30» resta un token
+# opaco: e' li' che il caso del treno cadeva davvero. Quali forme si
+# transcodifichino e' un fatto, quindi una notazione nuova costa una riga.
+[test un token con una forma dichiarata diventa un termine]
+!set PARROT0_SESSION=
+!reset
+> a train leaves at 14:30
+!query transcoded("14:30", time(14, 30))
+> the deadline is 2024-02-28
+!query transcoded("2024-02-28", date(2024, 2, 28))
+
+# E la catena intera: dal token letto nel turno alla risposta calcolata.
+[test dal token alla risposta, senza passare dal C]
+!clause arrival($T) :- transcoded("14:30", $T0), time_plus($T0, dur(2, 45), $T).
+!query arrival(time(17, 15))

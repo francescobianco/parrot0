@@ -548,3 +548,16 @@ machinery(polar_fronted).
 polar_fronted(is).   polar_fronted(are).
 polar_fronted(was).  polar_fronted(were).
 polar_fronted(does). polar_fronted(do).  polar_fronted(did).
+
+% ── gen419: LE FORME TRANSCODIFICABILI ──────────────────────────────────────
+%
+% Un token che ha una di queste forme smette di essere opaco e diventa un termine
+% strutturato, disponibile a qualunque regola come `transcoded(Token, Termine)`.
+% Il motore non sa che cosa sia un orario: sa spezzare su un separatore e contare
+% i pezzi. Una notazione nuova — un altro formato di data, un'altra lingua —
+% costa una riga qui.
+machinery(transcode_shape).
+machinery(transcoded).
+transcode_shape(time, ":", 2).
+transcode_shape(date, "-", 3).
+transcode_shape(date, "/", 3).
