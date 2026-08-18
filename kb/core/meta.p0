@@ -804,3 +804,13 @@ role_open(np).  role_open(predicate).  role_open(proposition).
 % finiscono. Un `np` che si ferma a `np_closer` puo' dire «qui il contenuto manca
 % davvero», e allora una riga qui accende tutto.
 machinery(role_required).
+
+% gen416b — e adesso si puo' dire quale assenza e' un difetto.
+%
+% Un ruolo aperto che conosce il proprio confine distingue «il contenuto manca»
+% da «me lo sono mangiato io»: se davanti trova subito il marcatore successivo,
+% lo slot e' vuoto davvero. «if then the ground is wet» non ha antecedente,
+% «is wet» non ha soggetto — e queste sono assenze vere, non omissioni di stile
+% come il «then» opzionale.
+role_required(proposition).
+role_required(np).

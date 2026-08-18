@@ -1007,9 +1007,34 @@ static int schema_probe(Brain *b, char **w, size_t nw,
             } else {
                 const char *oq[1] = { roles[r] };
                 if (!kb_query(b->kb, "role_open", oq, 1)) { missing = roles[r]; break; }
-                if (ti >= nw) { missing = roles[r]; break; }
-                ti++; filled++;      /* almeno un token; il ruolo di classe che
-                                      * segue cerchera' in avanti */
+                /* gen416b — IL RUOLO APERTO CONOSCE IL PROPRIO CONFINE.
+                 *
+                 * Prima consumava un token e basta, e cosi' non sapeva
+                 * distinguere «qui il contenuto manca davvero» da «me lo sono
+                 * mangiato io». Ora si ferma davanti al ruolo di CLASSE che
+                 * segue: se il primo token e' gia' quel marcatore, lo slot di
+                 * contenuto e' VUOTO — «if then the ground is wet» non ha
+                 * antecedente, «is wet» non ha soggetto — ed e' l'unica assenza
+                 * che valga la pena denunciare (criterio 2). */
+                const char *stop = NULL;
+                char nb[KB_TERM_LEN];
+                if (r + 1 < nr) {
+                    const char *ncq[2] = { roles[r + 1], NULL };
+                    char ncls[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "role_class", ncq, 2, ncls, 1) == 1) {
+                        snprintf(nb, sizeof nb, "%s", ncls[0]);
+                        stop = kb_dequote(nb);
+                    }
+                }
+                size_t took = 0;
+                while (ti < nw) {
+                    char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[ti]);
+                    const char *tq[1] = { strip_edge_punct(t) };
+                    if (stop && kb_query(b->kb, stop, tq, 1)) break;
+                    ti++; took++;
+                }
+                if (took == 0) { missing = roles[r]; break; }
+                filled++;
             }
         }
         /* SERVE UN'EVIDENZA VERA. Un ruolo aperto accetta qualunque token,

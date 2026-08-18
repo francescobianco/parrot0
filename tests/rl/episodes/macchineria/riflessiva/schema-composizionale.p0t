@@ -34,7 +34,18 @@
 > if a is bigger than b and b is taller than c, is a bigger than c?
 <! missing
 
-# 3. E la macchineria e' dichiarata: gli schemi, i ruoli e le classi che li
+# 3. E l'assenza che VALE si denuncia. Un ruolo aperto che conosce il proprio
+#    confine (si ferma davanti al marcatore successivo) distingue «il contenuto
+#    manca» da «me lo sono mangiato io»: qui fra «if» e «then» non c'e' niente,
+#    e l'antecedente e' vuoto davvero.
+[test uno slot di contenuto vuoto si denuncia, e si nomina]
+!reset
+> if then the ground is wet
+<~ proposition
+<! know about
+!query gap_missing($G, implication, proposition)
+
+# 4. E la macchineria e' dichiarata: gli schemi, i ruoli e le classi che li
 #    riempiono sono fatti, quindi uno schema nuovo non costa una riga di C.
 [test gli schemi sono conoscenza]
 !query schema_shape(implication, $S)
