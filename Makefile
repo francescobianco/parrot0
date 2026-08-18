@@ -919,3 +919,9 @@ rl-bench: test-engine
 	   ./$(BIN) --test $$f || true; \
 	 done
 	@./$(BIN) --test-report || true
+
+# rl-report — la MATRICE letta: i tagli per famiglia, macro-area, gradino e
+# dimensione del vettore. Il totale della batteria e' il numero meno
+# interessante; questo dice se i falliti sono tanti problemi o uno solo.
+rl-report:
+	@./tests/rl/report.sh

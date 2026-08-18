@@ -12,19 +12,23 @@
 #            «forte dove e' ancorato, debole dove deve comporre» — e vale piu'
 #            di dieci celle nuove, perche' isola la variabile
 # origine:   ipotesi gen412, iterazione 3
+# fixture:   tests/rl/fixtures/conta-invece-di-elencare — 4 file .c e 2 .h.
+#            La prima stesura contava i .c di src/ e quindi dipendeva dallo stato
+#            del repo: un episodio la cui risposta cambia quando qualcuno aggiunge
+#            un sorgente non misura parrot0, misura il repo
 # verifica:  V2 (il numero) + V4 (mai un numero inventato)
 
 [test conta cio' che ha appena saputo elencare]
 !set PARROT0_SESSION=
 !set PARROT0_TOOLS=1
 !reset
-> list the files in src
-<~ kb.c
-> how many .c files are in src
-<~ 15
+> list the files in tests/rl/fixtures/conta-invece-di-elencare
+<~ alpha.c
+> how many .c files are in tests/rl/fixtures/conta-invece-di-elencare
+<~ 4
 
 # V4 — se non sa contarli deve dirlo. Un numero qualunque qui e' peggio del muro,
 # perche' e' verificabile e sbagliato.
 [test non spara un numero]
-<! 3 files
+<! 6
 <! 100
