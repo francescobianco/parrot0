@@ -79,6 +79,7 @@ tr(mouse, topo).
 tr(spider, ragno).
 tr(insect, insetto).
 tr(fish, pesce).
+tr(shark, squalo).
 tr(whale, balena).
 tr(donkey, asino).
 tr(rooster, gallo).
@@ -115,6 +116,7 @@ gender(topo, m).
 gender(ragno, m).
 gender(insetto, m).
 gender(pesce, m).
+gender(squalo, m).
 gender(balena, f).
 gender(asino, m).
 gender(gallo, m).

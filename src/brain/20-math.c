@@ -56,7 +56,8 @@ static void format_num(double v, char *buf, size_t sz) {
 static int is_arith_op(const char *s) {
     return strcmp(s, "plus") == 0 || strcmp(s, "minus") == 0 ||
            strcmp(s, "times") == 0 ||
-           strcmp(s, "+") == 0 || strcmp(s, "-") == 0 || strcmp(s, "*") == 0;
+           strcmp(s, "+") == 0 || strcmp(s, "-") == 0 ||
+           strcmp(s, "*") == 0 || strcmp(s, "/") == 0;
 }
 
 /* Apply an arithmetic operator, returning the result. Sets *ok=0 for unknown ops. */
@@ -928,6 +929,49 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* A compact symbolic expression may carry its request words after the
+     * expression ("8/0 quanto fa").  The ordinary infix fold deliberately
+     * rejects non-expression tails, so bind the one binary expression only
+     * when every remaining token belongs to the KB-owned arithmetic-request
+     * class (or to the general stopword class).  The symbols and slot ordering
+     * are mechanics; the natural-language vocabulary remains teachable. */
+    if (kb_cue_match(b, "arith_request", norm)) {
+        size_t pair = enw, pairs = 0;
+        for (size_t i = 0; i + 2 < enw; i++) {
+            double a, c;
+            if (parse_value(ew[i], &a) && is_arith_op(ew[i + 1]) &&
+                parse_value(ew[i + 2], &c)) {
+                pair = i;
+                pairs++;
+            }
+        }
+        if (pairs == 1) {
+            int clean = 1;
+            for (size_t i = 0; i < enw; i++) {
+                if (i >= pair && i <= pair + 2) continue;
+                if (!is_stopword(b, ew[i]) &&
+                    !kb_cue_match(b, "arith_request", ew[i])) {
+                    clean = 0;
+                    break;
+                }
+            }
+            if (clean) {
+                double a, c;
+                parse_value(ew[pair], &a);
+                parse_value(ew[pair + 2], &c);
+                if (!strcmp(ew[pair + 1], "/") && c == 0)
+                    return kb_say(b, "arith_division_zero",
+                                  "I can't divide by zero.", out, out_size);
+                int ok = 0;
+                double r = apply_arith_op(ew[pair + 1], a, c, &ok);
+                if (ok) {
+                    arith_answer(r, out, out_size);
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* Exact-shape arith: "what is <a> OP <b>?" with expanded tokens. */
     if (enw == 5 && strcmp(ew[0], "what") == 0 && strcmp(ew[1], "is") == 0 &&
         is_arith_op(ew[3])) {
@@ -1006,7 +1050,9 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         strcmp(ew[3], "by") == 0) {
         double a, c;
         if (!parse_num(ew[1], &a) || !parse_num(ew[4], &c)) return 0;
-        if (c == 0) { put("I can't divide by zero.", out, out_size); return 1; }
+        if (c == 0)
+            return kb_say(b, "arith_division_zero",
+                          "I can't divide by zero.", out, out_size);
         long long ai = (long long)a, ci = (long long)c;
         int divisible;
         if ((double)ai == a && (double)ci == c) {
@@ -1412,7 +1458,9 @@ static int mod_algebra(Brain *b, const char *norm, const char *raw,
             case '+': r = av + bv; break;
             case '-': r = av - bv; break;
             case '*': r = av * bv; break;
-            case '/': if (bv == 0) { put("I can't divide by zero.", out, out_size); return 1; }
+            case '/': if (bv == 0)
+                          return kb_say(b, "arith_division_zero",
+                                        "I can't divide by zero.", out, out_size);
                       r = av / bv; break;
             default: return 0;
         }

@@ -1286,7 +1286,9 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                      kb_cue_match(b, "50_self_research_loop_chain450", ribuf);
     /* gen240: "if you're happy and you know it, what do you do?" is a song, not a
      * capability query — a leading conditional means it isn't asking about me. */
-    if (capability && (kb_cue_match(b, "50_self_research_loop_chain458", buf)))
+    if (capability &&
+        (kb_cue_match(b, "conditional_context", buf) ||
+         kb_cue_match(b, "conditional_context", ribuf)))
         capability = 0;
 
     /* gen335 (long-conversation): "what do you do FOR FUN / in your free time / for a

@@ -92,6 +92,16 @@ humanities_summary($Topic, $Summary) :-
     humanities_topic($Topic),
     means($Topic, $Summary).
 
+% Quali relazioni binarie possono fornire la proiezione minima di una
+% definizione tassonomica e' conoscenza. `apply/2` tiene l'adattatore aperto:
+% una relazione nuova entra (o esce) a runtime registrando una sola riga.
+definition_relation(is_a).
+definition_value($Entity, $Kind) :-
+    definition_relation($Relation),
+    apply($Relation, cons($Entity, cons($Kind, nil))).
+machinery(definition_relation).
+machinery(definition_value).
+
 % Normalized view of the split invented_object/2 + trait/3 representation.  It
 % keeps every callable relation within the engine's four-argument contract and
 % makes a newly taught object's taste immediately answerable by answer_frame/2.

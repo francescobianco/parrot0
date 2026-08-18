@@ -2770,11 +2770,26 @@ static int kb_topic_task(Brain *b, const char *step_pred, const char *topic_pred
     const char *all_steps[] = { NULL, NULL, NULL };
     char raw_tasks[64][KB_TERM_LEN];
     size_t nr = kb_match(b->kb, step_pred, all_steps, 3, raw_tasks, 64);
-    char tasks[32][KB_TERM_LEN];
+    char tasks[64][KB_TERM_LEN];
     size_t nt = 0;
-    for (size_t i = 0; i < nr && nt < 32; i++) {
+    for (size_t i = 0; i < nr && nt < 64; i++) {
         if (seen_term(tasks, nt, raw_tasks[i])) continue;
         snprintf(tasks[nt++], KB_TERM_LEN, "%s", raw_tasks[i]);
+    }
+
+    /* A localized task may have only step_pred(Task, Language, N, Text), while
+     * the historical catalogue is step_pred(Task, N, Text).  The topic
+     * registry is the common declaration of which tasks exist, so enumerate it
+     * too instead of requiring a dummy language-neutral step. */
+    {
+        const char *all_topics[] = { NULL, NULL };
+        char topic_tasks[64][KB_TERM_LEN];
+        size_t nz = kb_match(b->kb, topic_pred, all_topics, 2,
+                             topic_tasks, 64);
+        for (size_t i = 0; i < nz && nt < 64; i++) {
+            if (seen_term(tasks, nt, topic_tasks[i])) continue;
+            snprintf(tasks[nt++], KB_TERM_LEN, "%s", topic_tasks[i]);
+        }
     }
 
     int best_score = 0;
@@ -2806,9 +2821,29 @@ static int kb_topic_task(Brain *b, const char *step_pred, const char *topic_pred
 
 static int kb_render_steps(Brain *b, const char *step_pred, const char *task,
                            const char *intro, char *out, size_t out_size) {
-    const char *q[] = { task, NULL, NULL };
     char nums[16][KB_TERM_LEN];
-    size_t sn = kb_match(b->kb, step_pred, q, 3, nums, 16);
+    size_t sn = 0;
+    char selected_lang[8] = "";
+
+    /* Prefer localized step_pred(Task, Language, N, Text), falling back to its
+     * English rows and finally to the additive legacy /3 relation.  The engine
+     * knows only arity and ordering; every sentence remains KB knowledge. */
+    {
+        char lang[8];
+        current_lang(b, lang, sizeof lang);
+        const char *langs[2] = { lang, "en" };
+        size_t passes = strcmp(lang, "en") == 0 ? 1 : 2;
+        for (size_t pass = 0; pass < passes && sn == 0; pass++) {
+            const char *q4[] = { task, langs[pass], NULL, NULL };
+            sn = kb_match(b->kb, step_pred, q4, 4, nums, 16);
+            if (sn) snprintf(selected_lang, sizeof selected_lang, "%s",
+                             langs[pass]);
+        }
+    }
+    if (sn == 0) {
+        const char *q3[] = { task, NULL, NULL };
+        sn = kb_match(b->kb, step_pred, q3, 3, nums, 16);
+    }
     if (sn == 0) return 0;
 
     char msg[1000];
@@ -2817,9 +2852,16 @@ static int kb_render_steps(Brain *b, const char *step_pred, const char *task,
     if (intro && *intro)
         off += (size_t)snprintf(msg + off, sizeof msg - off, "%s", intro);
     for (size_t i = 0; i < sn; i++) {
-        const char *nq[] = { task, nums[i], NULL };
         char th[1][KB_TERM_LEN];
-        if (kb_match(b->kb, step_pred, nq, 3, th, 1) == 0) continue;
+        size_t got;
+        if (selected_lang[0]) {
+            const char *nq4[] = { task, selected_lang, nums[i], NULL };
+            got = kb_match(b->kb, step_pred, nq4, 4, th, 1);
+        } else {
+            const char *nq3[] = { task, nums[i], NULL };
+            got = kb_match(b->kb, step_pred, nq3, 3, th, 1);
+        }
+        if (got == 0) continue;
         char *p = kb_dequote(th[0]);
         off += (size_t)snprintf(msg + off, sizeof msg - off, "%s%s. %s",
                                 (off || i) ? "\n" : "", nums[i], p);
@@ -7131,12 +7173,59 @@ static int causal_lookup_robust(Brain *b, const char *norm,
     return 0;
 }
 
+/* A definition may be a projection of any binary KB relation registered in
+ * definition_relation/1.  C does not know that `is_a` (or a relation taught
+ * tomorrow) means "definition": it only binds the entity, asks the derived
+ * definition_value/2 view, and realizes the two returned atoms through a KB
+ * frame.  The request surface is likewise an intent_cue, so both sides of the
+ * adapter can grow and retract while the process is running. */
+static int taxonomy_definition_reply(Brain *b, const char *norm,
+                                     const char *raw,
+                                     char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    char rawnorm[256];
+    normalize(raw && *raw ? raw : norm, rawnorm, sizeof rawnorm);
+    if (!kb_cue_match(b, "taxonomy_definition_request", norm) &&
+        !kb_cue_match(b, "taxonomy_definition_request", rawnorm))
+        return 0;
+
+    char nb[512]; snprintf(nb, sizeof nb, "%s", norm);
+    char *w[96]; size_t nw = split_words(nb, w, 96);
+    for (size_t i = nw; i-- > 0; ) {
+        char *entity = strip_edge_punct(w[i]);
+        if (!*entity || is_article(b, entity) || is_stopword(b, entity)) continue;
+        /* Preserve the older, deliberately plural/member reading of
+         * "what is a dog?" when dog/1 is a known predicate. */
+        if (kb_knows_pred(b->kb, entity)) continue;
+        const char *q[] = { entity, NULL };
+        char kinds[2][KB_TERM_LEN];
+        size_t nk = kb_match(b->kb, "definition_value", q, 2, kinds, 2);
+        if (nk != 1) continue;              /* ambiguity is not a definition */
+        char subject[KB_TERM_LEN], category[KB_TERM_LEN];
+        present_atom(b, entity, subject, sizeof subject);
+        present_atom(b, kb_dequote(kinds[0]), category, sizeof category);
+        const KbResponseSlot slots[] = {
+            { "subject", subject }, { "category", category }
+        };
+        if (!kb_response_slots(b, "taxonomy_definition", slots, 2,
+                               out, out_size))
+            return 0;
+        char proof[256];
+        snprintf(proof, sizeof proof, "definition_value(%s, %s).",
+                 entity, kinds[0]);
+        store_proof(b, proof);
+        remember_entity(b, entity, entity);
+        return 1;
+    }
+    return 0;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
-    (void)raw;
     if (!b || !b->kb) return 0;
 
     if (completion_chain_resolve(b, norm, out, out_size)) return 1;
+    if (taxonomy_definition_reply(b, norm, raw, out, out_size)) return 1;
 
     if (kb_cue_match(b, "relational_country_constraint", norm)) {
         const char *q[] = { NULL };
@@ -10431,8 +10520,15 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen363: same factoring. "Is this asking for MY favourite?" is a distinct
      * request class, not a conjunction of substrings, so it is its own KB intent
      * and the honest "I have no real favourites" lead follows from knowledge. */
-    int activity_favorite = kb_cue_match(b, "activity_favorite_request", buf);
-    if (activity_favorite || kb_cue_match(b, "activity_request", buf)) {
+    char activity_raw[512];
+    normalize(raw && *raw ? raw : norm, activity_raw, sizeof activity_raw);
+    int activity_favorite =
+        kb_cue_match(b, "activity_favorite_request", buf) ||
+        kb_cue_match(b, "activity_favorite_request", activity_raw);
+    int activity_request =
+        kb_cue_match(b, "activity_request", buf) ||
+        kb_cue_match(b, "activity_request", activity_raw);
+    if (activity_favorite || activity_request) {
         char ab[512]; snprintf(ab, sizeof ab, "%s", buf);
         char *aw[96]; size_t an = split_words(ab, aw, 96);
         char scene[KB_TERM_LEN];
@@ -10447,10 +10543,13 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     return 1;
                 }
             }
-            if (kb_render_steps(b, "activity_step", scene,
-                                activity_favorite ?
-                                "I don't have real favorites, but a good plan is:" :
-                                "From what I know, a good plan is:",
+            char intro[256];
+            const char *intro_key = activity_favorite ?
+                "activity_favorite_intro" : "activity_intro";
+            if (!kb_response_slots(b, intro_key, NULL, 0,
+                                   intro, sizeof intro))
+                intro[0] = '\0';
+            if (kb_render_steps(b, "activity_step", scene, intro,
                                 out, out_size))
                 return 1;
         }

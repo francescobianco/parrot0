@@ -467,6 +467,19 @@ activity_topic(time_historian_day, day).
 activity_topic(time_historian_day, historian).
 activity_topic(time_historian_day, time).
 activity_topic(time_historian_day, traveling).
+
+% Piano di sicurezza, non folklore: mantenere la calma e uscire senza spruzzi,
+% avvisare i responsabili e non avvicinare/inseguire/toccare/nutrire lo squalo.
+% Fonti: NSW SharkSmart, Florida Museum International Shark Attack File.
+activity_topic(shark_encounter, shark).
+activity_step(shark_encounter, en, 1, "If you are in the water, stay calm, keep the shark in sight, and move smoothly toward shore or a boat without splashing").
+activity_step(shark_encounter, en, 2, "Stay with other people if possible and leave the water as soon as it is safe").
+activity_step(shark_encounter, en, 3, "Alert the lifeguard or beach authority and follow any alarm or closure").
+activity_step(shark_encounter, en, 4, "Do not approach, chase, touch, or feed the shark").
+activity_step(shark_encounter, it, 1, "Se sei in acqua, mantieni la calma, tieni lo squalo in vista e dirigiti senza spruzzi verso riva o una barca").
+activity_step(shark_encounter, it, 2, "Resta con le altre persone, se possibile, ed esci dall'acqua appena puoi farlo in sicurezza").
+activity_step(shark_encounter, it, 3, "Avvisa il bagnino o l'autorità della spiaggia e segui eventuali allarmi o divieti").
+activity_step(shark_encounter, it, 4, "Non avvicinarti allo squalo e non inseguirlo, toccarlo o nutrirlo").
 intent_cue(activity_request, "day in the life").
 intent_cue(activity_request, "describe a day").
 intent_cue(activity_request, "advice").

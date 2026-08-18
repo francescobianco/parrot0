@@ -3035,7 +3035,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         case '+': r = a + c; break;
         case '-': r = a - c; break;
         case '*': r = a * c; break;
-        case '/': if (c == 0) { put("I can't divide by zero.", out, out_size); return 1; }
+        case '/': if (c == 0)
+                      return kb_say(b, "arith_division_zero",
+                                    "I can't divide by zero.", out, out_size);
                   r = a / c; break;
         default: return 0;
     }

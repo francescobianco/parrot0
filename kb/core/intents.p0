@@ -477,6 +477,28 @@ intent_cue(arith_range_from_close, keyword(to)).
 intent_cue(arith_range_from_close, keyword(through)).
 intent_cue(arith_range_from_close, keyword(until)).
 intent_cue(arith_range_from_close, keyword(a)).
+
+% Una espressione simbolica puo' portare in coda parole di richiesta. Il motore
+% lega NUM OP NUM; quali parole autorizzino quella lettura resta vocabolario KB.
+intent_cue(arith_request, keyword(calculate)).
+intent_cue(arith_request, keyword(compute)).
+intent_cue(arith_request, keyword(result)).
+intent_cue(arith_request, keyword(equals)).
+intent_cue(arith_request, keyword(much)).
+intent_cue(arith_request, keyword(makes)).
+intent_cue(arith_request, keyword(quanto)).
+intent_cue(arith_request, keyword(fa)).
+
+% Richiesta di definizione per categoria. La relazione che vale come
+% definizione e' separatamente registrata in definition_relation/1.
+intent_cue(taxonomy_definition_request, "what is a").
+intent_cue(taxonomy_definition_request, "what is an").
+intent_cue(taxonomy_definition_request, "cosa è un").
+intent_cue(taxonomy_definition_request, "cosa è uno").
+intent_cue(taxonomy_definition_request, "cosa è una").
+intent_cue(taxonomy_definition_request, "cos'è un").
+intent_cue(taxonomy_definition_request, "cos'è uno").
+intent_cue(taxonomy_definition_request, "cos'è una").
 intent_family(initials, initials_projection).
 intent_family(initials, initials_word_scope).
 intent_family(initials, initials_exclusion).
@@ -2024,6 +2046,12 @@ intent_cue(activity_request, "how should i spend").
 intent_cue(activity_request, "way to spend").
 intent_cue(activity_request, keyword(recommend)).
 intent_cue(activity_request, keyword(suggest)).
+intent_cue(activity_request, "what do you do if").
+intent_cue(activity_request, "what should i do if").
+intent_cue(activity_request, "cosa fai se").
+intent_cue(activity_request, "cosa faccio se").
+intent_cue(activity_request, "cosa fare se").
+intent_cue(activity_request, "come comportarsi se").
 
 % "Qual è la TUA preferita?" è una classe di richiesta a sé: il consumer deve
 % premettere che parrot0 non ha preferenze reali prima di proporre un piano.

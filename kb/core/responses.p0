@@ -646,6 +646,14 @@ response_template(repair_commit_conflict, "The base of {path} changed while the 
 % questo e' l'unico messaggio che l'utente vede, e deve dire DI COSA non sa i passi.
 response_template(process_step_gap, "I understood you're asking how to make {topic}, but I don't have the steps for it yet.").
 response_template(activity_step_gap, "I understood you're asking for a recommendation, but I don't have a grounded plan for that situation yet.").
+response_template(activity_intro, "From what I know, a good plan is:").
+response_template(activity_intro, it, "Per quanto ne so, un buon piano è:").
+response_template(activity_favorite_intro, "I don't have real favorites, but a good plan is:").
+response_template(activity_favorite_intro, it, "Non ho vere preferenze, ma un buon piano è:").
+response_template(taxonomy_definition, "{Subject} belongs to the category {category}.").
+response_template(taxonomy_definition, it, "{Subject} appartiene alla categoria {category}.").
+response_template(arith_division_zero, "I can't divide by zero.").
+response_template(arith_division_zero, it, "Non posso dividere per zero.").
 
 % gen363: lo stesso scambio, ma fra i partecipanti che il turno ha nominato.
 % La forma è identica a generic_dialogue_answer — cambia solo chi parla, ed è

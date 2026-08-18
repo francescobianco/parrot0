@@ -20,6 +20,12 @@ conditional_role_evidence(alternative, keyword($Cue)) :- logic_connector(alterna
 conditional_role_evidence(reply, keyword($Cue)) :- branch_action_cue($Action, $Cue).
 segment_role($Role, $Evidence) :- conditional_role_evidence($Role, $Evidence).
 
+% La stessa classe segnala che una domanda contiene uno scenario ipotetico e
+% non sta necessariamente chiedendo l'elenco delle capacita' di parrot0.
+% Aggiungere o ritrarre un logic_connector(condition, ...) cambia entrambe le
+% letture, senza una seconda lista di parole nel consumer.
+intent_cue(conditional_context, keyword($Cue)) :- logic_connector(condition, $Cue).
+
 % Una stessa superficie puo' proporre piu' relazioni. I tipi degli argomenti
 % conservano entrambe le letture finche' una sola e' compatibile.
 proposition_cue(located_in_t, "is in").

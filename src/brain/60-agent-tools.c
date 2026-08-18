@@ -1686,6 +1686,18 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(buf, w, 64);
     if (nw < 2) return 0;
 
+    /* A make-verb inside a question is not an imperative.  The old positional
+     * shortcut accepted any make_verb among the first three tokens, so the
+     * Italian question "cosa fai se ..." became a request to manufacture the
+     * words after `fai`.  Which words open questions is KB knowledge; C only
+     * enforces the speech-act boundary.  Adding/retracting question_word/1 now
+     * changes this guard in the running process. */
+    {
+        const char *first = strip_edge_punct(w[0]);
+        const char *q[] = { first };
+        if (*first && kb_query(b->kb, "question_word", q, 1)) return 0;
+    }
+
     /* gen335 (long-conversation): "cosa fai nel tempo libero" / "what do you do for fun"
      * is an experiential smalltalk move, not a produce-this request — an experiential_move
      * marker defers it to mod_smalltalk's honest deflect. Evidence, not a phrase list. */

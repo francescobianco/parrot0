@@ -1,0 +1,103 @@
+# REGRESSIONE issue1 — una sessione, quattro lacune, nessun fix puntuale.
+#
+# Oltre a riprodurre il dialogo italiano, ogni nuova frontiera linguistica o
+# semantica ha il contrasto forte richiesto dal mantra: prima non vale, viene
+# aggiunta alla KB del processo vivo, vale, viene ritratta e smette di valere.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test la sessione italiana usa conoscenza e piani verificabili]
+> siamo in spiaggia
+< Ci siamo, siamo in spiaggia — cosa vuoi fare?
+> cosa fai se ce uno squalo
+<~ Per quanto ne so, un buon piano è:
+<~ mantieni la calma
+<~ Avvisa il bagnino
+<! verified schema
+<! capability ledger
+> cosa è uno squalo
+< Squalo appartiene alla categoria pesce.
+> 8/0 quanto fa
+< Non posso dividere per zero.
+> 8 diviso 0 quanto fa
+< Non posso dividere per zero.
+
+[test una parola interrogativa aggiunta e ritratta cambia la guardia imperativa]
+!set PARROT0_LANG=en
+!reset
+> ponder make a widget
+<~ verified schema
+!assert question_word(ponder)
+> ponder make a widget
+<! verified schema
+!forget question_word(ponder)
+> ponder make a widget
+<~ verified schema
+
+[test i connettori condizionali proteggono live dalle false capability]
+> what do you do provided there is fog
+<~ capability ledger
+!assert logic_connector(condition, provided)
+> what do you do provided there is fog
+<! capability ledger
+!forget logic_connector(condition, provided)
+> what do you do provided there is fog
+<~ capability ledger
+
+[test una forma di consiglio e un piano localizzato crescono e si ritraggono]
+!assert activity_topic(runtime_hazard, quokka)
+!assert activity_step(runtime_hazard, en, 1, "Runtime plan selected")
+> prepare for quokka
+<! Runtime plan selected
+!assert intent_cue(activity_request, "prepare for")
+> prepare for quokka
+<~ Runtime plan selected
+!forget intent_cue(activity_request, "prepare for")
+> prepare for quokka
+<! Runtime plan selected
+
+[test forma e relazione di definizione sono entrambe conoscenza viva]
+!assert exemplar_kind(zorble, gadget)
+> classify zorble
+<! Zorble belongs to the category gadget.
+!assert definition_relation(exemplar_kind)
+!assert intent_cue(taxonomy_definition_request, "classify")
+> classify zorble
+< Zorble belongs to the category gadget.
+!forget definition_relation(exemplar_kind)
+> classify zorble
+<! Zorble belongs to the category gadget.
+!assert definition_relation(exemplar_kind)
+> classify zorble
+< Zorble belongs to the category gadget.
+!forget intent_cue(taxonomy_definition_request, "classify")
+> classify zorble
+<! Zorble belongs to the category gadget.
+
+[test il ponte lessicale squalo shark e ablabile]
+!set PARROT0_LANG=it
+!reset
+!forget tr(shark, squalo)
+> cosa è uno squalo
+<! Squalo appartiene alla categoria pesce.
+!assert tr(shark, squalo)
+> cosa è uno squalo
+< Squalo appartiene alla categoria pesce.
+
+[test le parole di richiesta aritmetica crescono e si ritraggono]
+!set PARROT0_LANG=en
+!reset
+> 6/2 reckon
+<! 3.
+!assert intent_cue(arith_request, keyword(reckon))
+> 6/2 reckon
+< 3.
+!forget intent_cue(arith_request, keyword(reckon))
+> 6/2 reckon
+<! 3.
