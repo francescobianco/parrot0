@@ -894,3 +894,22 @@ register_hint(self, bloccato).   register_hint(self, capito).
 % la lacuna, e il ciclo resterebbe senza niente da riparare.
 machinery(register_silent).
 register_silent(self).
+
+% ── gen418: QUALE RIMEDIO PER QUALE FORMA DI LACUNA ─────────────────────────
+%
+% Il ciclo provava le cue su qualunque lacuna, anche dove non possono funzionare
+% per costruzione. Una forma incompleta (gen416) non si ripara insegnando una
+% cue: le manca uno SLOT, non un aggancio — e provarci brucia i tentativi e puo'
+% far passare per caso un ponte che non c'entra.
+%
+% Oggi c'e' una riga sola, ed e' la verita' di adesso: le lacune di
+% raggiungibilita' si riparano proponendo una cue. Le altre forme aspettano il
+% loro rimedio, e finche' non ce l'hanno vengono SALTATE — che e' meglio che
+% ripararle a caso.
+%
+% Le righe che verranno, quando i rimedi esisteranno:
+%   remedy_for(incomplete_schema, slot).   proporre il riempimento del ruolo vuoto
+%   remedy_for(wrong_answer, pertinence).  proporre il vincolo di pertinenza
+%   remedy_for(knowledge, reading).        leggere — l'unico caso in cui serve
+machinery(remedy_for).
+remedy_for(reachability, cue).

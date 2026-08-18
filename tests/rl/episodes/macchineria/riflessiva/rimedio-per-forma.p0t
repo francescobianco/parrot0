@@ -1,0 +1,34 @@
+# id:        macchineria/riflessiva/rimedio-per-forma
+# famiglia:  macchineria
+# dominio:   riflessiva / la propria macchineria
+# gradino:   2
+# vettore:   profondita 2  distanza 1  ambiguita 1  composizione 2
+#            rumore 0  apertura 2  novita 1
+# lavoro:    non provare a riparare una lacuna con un rimedio che, per come e'
+#            fatta quella lacuna, non puo' funzionare
+# difficile: il ciclo provava le cue su qualunque lacuna. Una forma incompleta
+#            (gen416) non si ripara insegnando una cue — le manca uno SLOT, non
+#            un aggancio — e provarci brucia i tentativi e puo' far passare per
+#            caso un ponte che non c'entra.
+#
+#            Oggi c'e' un rimedio solo, ed e' giusto che sia cosi': la struttura
+#            e' dichiarata e una forma nuova con il suo rimedio costa una riga
+# origine:   gen418, l'ultima delle cinque additive
+# verifica:  V1 (la mappa e' conoscenza) + V2 (il rimedio giusto funziona ancora)
+
+[test la lacuna di raggiungibilita' ha il suo rimedio, e funziona]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+> ci ritroviamo al porto
+!query gap_kind($G, reachability)
+> prova a ripararti
+<~ ci ritroviamo al
+> ci ritroviamo al mercato
+<~ mercato
+
+# La mappa e' conoscenza, non un ramo del motore: e' il test del mantra #2 su
+# questo strato — un rimedio nuovo domani, senza ricompilare.
+[test quale rimedio per quale forma e' un fatto]
+!query remedy_for(reachability, cue)
+!query! remedy_for(incomplete_schema, cue)

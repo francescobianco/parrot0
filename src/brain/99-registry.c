@@ -2680,6 +2680,29 @@ static int self_repair_target(Brain *b, const char *only, char *out, size_t out_
             snprintf(bare, sizeof bare, "%s", gapq);
             if (strcmp(kb_dequote(bare), only) != 0) continue;
         }
+        /* gen418 — IL RIMEDIO SI SCEGLIE PER FORMA DI LACUNA.
+         *
+         * Finora il ciclo provava le cue su qualunque lacuna, anche dove non
+         * possono funzionare per costruzione: una forma incompleta (gen416) non
+         * si ripara insegnando una cue — le manca uno SLOT, non un aggancio.
+         * Provarci comunque brucia i tentativi e, peggio, puo' far passare per
+         * caso un ponte che non c'entra.
+         *
+         * Quale rimedio per quale forma e' un fatto (`remedy_for/2`): oggi mappa
+         * la sola `reachability` sulle cue, che e' la verita' di adesso, e una
+         * forma nuova con il suo rimedio costa una riga. Una lacuna la cui forma
+         * non ha rimedio dichiarato viene SALTATA — e saltarla dicendolo e'
+         * meglio che ripararla a caso. */
+        {
+            const char *kq[2] = { gapq, NULL };
+            char kind[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "gap_kind", kq, 2, kind, 1) == 1) {
+                char kb2[KB_TERM_LEN];
+                snprintf(kb2, sizeof kb2, "%s", kind[0]);
+                const char *rq2[2] = { kb_dequote(kb2), "cue" };
+                if (!kb_query(b->kb, "remedy_for", rq2, 2)) continue;
+            }
+        }
         /* Il turno da riporre e' quello VERO, non la sua canonicalizzazione:
          * una riparazione verificata contro una traduzione non e' una
          * riparazione. La lacuna e' indicizzata sul canon — due modi di dire la
