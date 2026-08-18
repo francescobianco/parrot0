@@ -11,6 +11,82 @@
 
 ---
 
+## 0. LA TESI — l'autocorrezione non è un rimedio, è una forma di inferenza
+
+La formulazione che segue è di F., e riordina tutto il resto del documento:
+
+> **L'autocorrezione non è un processo postumo. È preliminare e operativo, e
+> abbraccia l'inferenza stessa.**
+
+Detta così sembra una sfumatura. Non lo è, ed è la differenza fra ciò che il
+meccanismo è oggi e ciò che può essere.
+
+### I due modi di intenderla
+
+**Postumo** — come funziona adesso. Il turno fallisce → si emette un muro → si
+registra una lacuna → *più tardi*, qualcuno tenta una riparazione. La correzione
+è una **seconda passata su un fallimento**, e per farla bisogna prima aver
+fallito in un modo riconoscibile. Da qui tutti i numeri di §3: su ottantotto
+fallimenti reali, tre sono riconoscibili.
+
+**Preliminare** — l'idea. Ogni atto di inferenza è già un **tentativo di
+composizione che sa dire dove si è fermato**. Non c'è un momento in cui il turno
+"fallisce" e un momento successivo in cui si ripara: c'è un solo movimento —
+prova a comporre — e il punto in cui la composizione si arresta è
+*contemporaneamente* la risposta («sono arrivato fin qui») e il bersaglio della
+riparazione («mi manca questo, in questa posizione»).
+
+### Perché oggi non può esserlo: l'inferenza è booleana
+
+È qui che le due visioni si separano, e la causa è misurabile.
+
+I lettori di parrot0 restituiscono `1` o `0`. `p0_rule_clause` legge una clausola
+o non la legge; `nw == 3 && w[1] == "is"` combacia o non combacia. **Un fallimento
+non porta nessuna informazione**: non dice che cosa mancava, né dove.
+
+E siccome il fallimento è muto, chi deve ripararlo non ha niente in mano — e
+tira a indovinare. Le due manifestazioni di questo, entrambe misurate:
+
+- **il messaggio**: non sapendo che cosa dire, il ripiego nomina la prima parola
+  di sei lettere o più su cui la KB non ha fatti. Su «If it rains then the ground
+  is wet…» esce «ground» — la parola meno rilevante della frase (§3b);
+- **la riparazione**: non sapendo che cosa proporre, il ciclo prova sottostringhe
+  del turno. Funziona per le cue, perché una cue *è* una sottostringa; per tutto
+  il resto no (§4c).
+
+**Un'inferenza che riporta dove si è fermata rende la riparazione gratuita.** Non
+serve indovinare il pezzo mancante se il lettore lo ha appena nominato. È questo
+che intende «preliminare»: la correzione non viene dopo l'inferenza, **è una
+proprietà di come l'inferenza è scritta**.
+
+### Il framework
+
+Da cui la definizione operativa, che è il vero contenuto di questo file:
+
+> **L'autocorrezione è un metodo, non un modulo.** Dato un prompt che fallisce:
+> lo si studia fino a trovare che cosa manca davvero; si stabilisce che quel
+> qualcosa sia **conoscenza** e non codice; si scrive il meccanismo generico che
+> lo consuma; e da quel momento il sistema chiude da solo tutta la classe.
+
+Le tre proprietà che un meccanismo deve avere per entrare in questo framework:
+
+1. **KB-first** — ciò che manca è un fatto, e domani se ne aggiunge un altro senza
+   ricompilare. Se il rimedio è una riga di C, la classe non è stata chiusa: è
+   stato chiuso un caso.
+2. **Parziale e loquace** — il meccanismo deve poter riuscire *a metà* e dirlo.
+   Un lettore che restituisce solo sì/no non partecipa all'autocorrezione,
+   qualunque cosa sappia leggere.
+3. **Il candidato si legge nel turno** — la riparazione dev'essere proponibile.
+   Una cue lo è perché è una sottostringa; **una posizione mancante in uno schema
+   lo è per la stessa ragione**. Un pattern con slot no, e questa è la diagonale
+   di §4c.
+
+Il resto del documento è la verifica di questa tesi contro i numeri: §1-§3 cosa
+il meccanismo fa e quanto poco arriva, §3b-§4 perché, §5-§6 cosa gli manca, e
+§9-§10 le due idee che lo renderebbero preliminare invece che postumo.
+
+---
+
 ## 1. IL MECCANISMO, per intero
 
 Trascritto da una sessione vera, senza tagli:
@@ -205,6 +281,31 @@ sa già proporre.
 
 ---
 
+## 3c. I QUARANTANOVE NON SONO UNA CLASSE
+
+La classe B si chiama «declino su parola opaca» perché è così che *finisce*, non
+perché i prompt si assomiglino. Classificati per forma:
+
+| forma | n | esempio |
+|---|---:|---|
+| altro | 20 | *Forget my name.* |
+| domanda-wh | 14 | *What information is missing before comparing two cities?* |
+| imperativo / compito | 7 | *Translate the dog runs into Spanish.* |
+| numeri / tempo | 4 | *A train leaves at 14:30 and travels for 2h45. When does it arrive?* |
+| logica | 4 | *If it rains then the ground is wet. …* |
+
+**Cinque problemi diversi con la stessa etichetta appiccicata sopra.** L'unico
+tratto comune è il messaggio, che è un artefatto del ripiego — e la parola
+nominata non è mai l'argomento: `travels`, `ground`, `missing`, `matters`.
+
+Ne segue una cosa scomoda e utile: **non esiste un rimedio unico per la classe
+B**, e cercarlo è tempo perso. Esistono cinque letture mancanti, ognuna con il
+suo meccanismo — che è esattamente ciò che il framework di §0 prescrive
+(«processi KB-first dedicati»). Il lavoro fatto a gen413 ne ha chiusa una parte
+di una: il condizionale proposizionale, quattro prompt su quarantanove.
+
+---
+
 ## 4. LE TRE CECITÀ, per causa
 
 ### 4a — Il declino informato non è considerato un fallimento (classi B e C, 54 casi)
@@ -334,6 +435,17 @@ riprovare in eterno, e soprattutto ad applicare la **regola dei tre colpi**: se
 ripetere non migliora di niente, il problema non è il lavoro ma la forma, e nasce
 un meta-problema grammaticale.
 
+**S4b — gli schemi come sequenze di RUOLI.** *(oggi: i ruoli ci sono, gli schemi no)*
+`np_opener`, `np_closer`, `generic_copula`, `preposition`, `logic_connector` sono
+già fatti; manca la **composizione**, cioè uno schema che li metta in sequenza e
+che, fallendo, dica quale posizione è vuota. È il substrato che rende l'inferenza
+loquace (§0) e quindi la riparazione proponibile. Vedi §9.
+
+**S4c — gli indizi di registro.** *(oggi: solo per il codice)*
+Quali segni dicono «questo turno è di questo tipo» anche senza combaciare con uno
+schema. Per il codice sono in C e funzionano; per la logica sono in KB e nessuno
+li legge. Vedi §10.
+
 **S5 — la revocabilità.** *(oggi: c'è)*
 `learned_bridge/2`, `KB_INDUCED`, `bridges.p0` versionato a parte. Ciò che il
 ciclo si è insegnato resta distinguibile da ciò che una persona ha deciso, e si
@@ -366,14 +478,129 @@ Il passo grande, e va per ultimo perché gli altri tre lo rendono misurabile.
 *Criterio:* una forma dichiarativa mai vista viene letta dopo due esempi, senza
 che nessuno scriva un `extract_frame`.
 
-**Perché quest'ordine.** P1 dà al ciclo qualcosa da fare (oggi ha tre casi su
+**P0 — l'inferenza che riporta dove si è fermata (S4b, §9).**
+Aggiunto dopo la riformulazione di F.: viene **prima di tutto il resto**, perché
+è ciò che rende le altre fasi possibili invece che faticose. Con un lettore
+composizionale, P1 e P2 quasi si scrivono da soli — la lacuna nasce già nominata
+e il criterio di accettazione ha qualcosa da confrontare.
+*Criterio:* sui 49 prompt della classe B, quanti passano da «parola opaca» a
+«forma riconosciuta, pezzo mancante nominato».
+
+**Perché quest'ordine.** P0 rende l'inferenza loquace, e senza quello ogni altra
+fase deve indovinare. P1 dà al ciclo qualcosa da fare (oggi ha tre casi su
 cento). P2 gli permette di farlo senza mentire. P3 gli impedisce di girare a
 vuoto. P4 allarga ciò che può proporre — ed è l'unico che sposta il tetto, ma su
 tre lacune all'anno non lo si potrebbe nemmeno misurare.
 
+**Una nota sull'ordine, che vale come avvertimento.** Prima della riformulazione
+questo elenco cominciava da P1 — «rendere il fallimento un fatto». Era l'ordine
+giusto per un'autocorrezione *postuma*: prima raccogli i fallimenti, poi li
+ripari. Visto come processo **preliminare**, il primo passo è un altro, e i
+quattro che seguono cambiano di costo. È la differenza pratica che la tesi di §0
+produce, ed è il motivo per cui vale la pena averla scritta.
+
 ---
 
-## 8. LA DOMANDA DA TENERE APERTA
+## 9. GLI SCHEMI COMPOSIZIONALI — l'idea che rende l'inferenza loquace
+
+*(F., gen413: «tutte queste categorie di prompt possono essere autoriparate con
+processi KB-first dedicati — per esempio la costruzione compositiva degli schemi
+delle proposizioni».)*
+
+È la forma concreta della tesi di §0, e i pezzi esistono già: `np_opener`,
+`np_closer`, `generic_copula`, `preposition`, `logic_connector` sono fatti in
+`grammar.p0`. Il C li usa in sedici punti sparsi — **come filtri, mai per
+costruire**.
+
+La differenza è tutta qui:
+
+```
+oggi        nw == 3 && w[1] == "is"          →  combacia, o niente
+composito   [soggetto][copula][predicato]    →  «soggetto e predicato trovati,
+                                                 manca la copula in posizione 2»
+```
+
+Il primo, fallendo, non ha niente da dire: e infatti finisce a nominare `ground`.
+Il secondo, fallendo, **sa quale pezzo manca e dove** — che è esattamente la
+proprietà 2 del framework, e produce una lacuna proponibile (proprietà 3): una
+posizione mancante in uno schema si legge nel turno come una sottostringa.
+
+**Uno schema è una sequenza di RUOLI, non un conteggio di token.** È anche la
+correzione della fragilità che ha bloccato la classe B per due strati su tre:
+`ground is wet` entrava e `the ground is wet` no, perché `nw == 3` diventava
+`nw == 4`. Uno schema di ruoli non ha quel problema — l'articolo è parte del
+sintagma nominale, non una parola in più.
+
+**Cosa costa, onestamente.** Non è come spostare un indice. È un lettore nuovo,
+e va montato senza disturbare i sessantotto `mod_*` che leggono a conteggio di
+token. Il posto sicuro è **come ultimo tentativo prima del ripiego**, dove oggi
+c'è `not_understood` e non c'è niente da perdere.
+
+**E non basta da solo per due delle cinque forme** (§3c): per «numeri/tempo» e
+per gli imperativi il pezzo mancante non è sintattico ma una **procedura**. Lì lo
+schema dirà correttamente *«ho riconosciuto la forma, non so eseguirla»* — che è
+una lacuna di tipo diverso, riparabile insegnando la procedura invece del ponte,
+e comunque incomparabilmente meglio di una parola a caso.
+
+---
+
+## 10. IL CLASSIFICATORE DI REGISTRO — un'asimmetria che costa quarantanove prompt
+
+*(F., gen413: «siamo in grado di riconoscere il codice dentro la prosa e non
+siamo in grado di classificare un prompt come problema proposizionale anche
+quando non c'è il match con lo schema».)*
+
+L'osservazione è esatta, e il codice la conferma. `looks_code`
+(`src/brain/70-social-pragma.c:846`) riconosce il codice **per indizi
+strutturali**, senza nessuno schema da far combaciare: `{`, `}`, `;`, `==`, un
+`(` preceduto da un identificatore, una keyword seguita da `:`. Ha perfino una
+finezza — un `(` con lo spazio davanti è una parentetica in prosa, non una
+chiamata.
+
+Ed è un **classificatore di registro**: dice *«questo è di quel tipo»* senza
+dover capire il contenuto, e quando riconosce senza saper eseguire **dice quale
+registro è**.
+
+Per la logica non esiste niente del genere, benché gli indizi siano altrettanto
+robusti — `if…then`, `necessarily`, `all…are`, `contradictory`, `contrapositive`
+— e **siano già in KB** (`logic_connector/2`). Ma sono usati solo *dentro* il
+lettore di regole, che o fa combaciare lo schema o restituisce 0.
+
+È la stessa asimmetria del messaggio finale: il registro `codice`, riconosciuto e
+non eseguibile, si annuncia; il registro `logica`, non riconosciuto affatto,
+finisce nel ripiego che nomina una parola a caso.
+
+Per l'autocorrezione il guadagno è diretto: un classificatore di registro
+trasforma *«non conosco ground»* in *«questo è un problema di logica
+proposizionale che non so ancora risolvere»* — cioè una lacuna **nominabile**,
+quindi riparabile. Venti righe di indizi, e per la logica sono già dichiarati.
+
+---
+
+## 11. IL MESSAGGIO FINALE — dire che non si è capito
+
+*(F., gen413: «quando qualcosa sfugge a tutti i moduli deve dare come risposta
+"non sono riuscito a comprendere"».)*
+
+Nominare una parola è una **diagnosi falsa spacciata per informazione**. Il
+turno non ha fallito su `ground`: ha fallito interamente, e `ground` è solo il
+primo token di sei lettere senza fatti in KB (§3b). Chi legge — utente o ciclo di
+riparazione — viene mandato a inseguire il lessico mentre il problema è la forma.
+
+Finché il classificatore di registro (§10) non esiste, la risposta onesta è
+ammettere di non aver compreso. La nomina della parola va tenuta **solo** per il
+caso in cui è vera: quando il turno è stato riconosciuto e l'unica cosa che manca
+è un fatto su quel termine.
+
+**Il freno è misurato:** quarantadue file `.p0t` asseriscono quella frase. Non è
+una riga da cambiare, è un lavoro suo — ma va fatto, perché ogni giorno che resta
+produce diagnosi false che finiscono nei documenti e nelle decisioni. Questo
+stesso file ci è cascato: la classe B si chiamava «parola opaca» finché non l'ho
+smontata.
+
+---
+
+## 12. LA DOMANDA DA TENERE APERTA
 
 L'autocorrezione è la prima cosa che parrot0 fa che **non è stata scritta da
 nessuno**: la conoscenza che entra non viene né da una persona né da una pagina,
