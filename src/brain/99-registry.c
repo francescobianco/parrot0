@@ -597,7 +597,14 @@ Brain *brain_create(void) {
      * default reply language: a lone ambiguous "ciao" greets in Italian on an
      * Italian machine, English elsewhere. Per-turn detection still overrides. */
     {
-        kb_set_origin(b->kb, KB_SESSION);
+        /* gen411 (F.): RIFLESSIVO, non sessione. Il pid, la lingua del sistema e
+         * la lingua corrente sono il modello del GIRO IN CORSO, e KB_REFLECTIVE
+         * significa esattamente questo — «il modello di se', mai persistito».
+         * Sotto KB_SESSION finivano nel file di ricaduta a ogni `/save`:
+         * `process_pid(445600).` scritto nell'albero curato come se fosse
+         * conoscenza. Non e' un filtro aggiunto al salvataggio, e' l'origine
+         * giusta nel punto dove il fatto nasce. */
+        kb_set_origin(b->kb, KB_REFLECTIVE);
         /* gen346: the PID is a system read too, so it is pilotable — PARROT0_PID
          * overrides getpid() (a test can freeze it for a deterministic reply). */
         char pid[24];
@@ -613,6 +620,7 @@ Brain *brain_create(void) {
         if (loc && (loc[0] == 'i' && loc[1] == 't')) snprintf(osl, sizeof osl, "it");
         const char *oa[] = { osl }; kb_assert(b->kb, "os_language", oa, 1);
         const char *ca[] = { osl }; kb_assert(b->kb, "current_language", ca, 1);
+        kb_set_origin(b->kb, KB_SESSION);
     }
 
     /* gen408 — LE REGOLE MORTE DIVENTANO FATTI, alla nascita.
@@ -829,9 +837,14 @@ static void brain_policy(Brain *b) {
     const char *pt[] = { "tools",   tools ? "on" : "off" };
     const char *pn[] = { "network", net   ? "on" : "off" };
     const char *pm[] = { "mode",    net ? "acquire" : (tools ? "agent" : "conversational") };
+    /* gen411: riflessivo per la stessa ragione del pid — quale politica vale in
+     * QUESTO giro non e' conoscenza da depositare nell'albero. */
+    int prev_origin = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
     kb_assert(b->kb, "policy", pt, 2);
     kb_assert(b->kb, "policy", pn, 2);
     kb_assert(b->kb, "policy", pm, 2);
+    kb_set_origin(b->kb, prev_origin);
 
     /* policy/2 is machinery: knowing that parrot0 may run tools is knowing
      * something about parrot0, not about the world. (gen329's rule, applied at the

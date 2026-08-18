@@ -527,12 +527,17 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
          * memoria, e' una cache.
          *
          * La destinazione giusta e' l'albero CURATO, dove il save-map instrada
-         * ogni fatto accanto ai suoi simili (PARROT0_KB_ROOT). Il file di ricaduta
-         * e' kb/learning/dreamed.p0 — versionato — per cio' che il routing non sa
-         * dove mettere. Cosi' un sogno e' un contributo committabile, non un giro
-         * a vuoto. */
+         * ogni fatto accanto ai suoi simili. Cosi' un sogno e' un contributo
+         * committabile, non un giro a vuoto.
+         *
+         * gen411 (F.): la ricaduta e' quella di tutti, kb/learning/learned.p0, e
+         * non un `dreamed.p0` a parte. Un secondo deposito indistinto e' un
+         * secondo posto dove la conoscenza si ferma senza categoria, e la
+         * domanda «di che cosa parla questo, e dove vive la sua specie?» va
+         * fatta in un posto solo. Chi legge il sogno vede da dove viene un fatto
+         * dal registro delle letture, non dal nome del file in cui e' caduto. */
         const char *dst = p0env("PARROT0_DREAM_KB");
-        if (!dst || !*dst) dst = "kb/learning/dreamed.p0";
+        if (!dst || !*dst) dst = "kb/learning/learned.p0";
         if (!p0env("PARROT0_KB_ROOT")) p0env_set("PARROT0_KB_ROOT", "kb");
         int n = brain_save_session(b, dst);
         fprintf(o, "\npersistito: %d clausole instradate nell'albero curato "

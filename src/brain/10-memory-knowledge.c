@@ -1459,9 +1459,14 @@ static void detect_set_language(Brain *b, const char *norm) {
     const char *qa[] = { NULL };
     size_t k = kb_match(b->kb, "current_language", qa, 1, old, 4);
     for (size_t i = 0; i < k; i++) { const char *o[] = { old[i] }; kb_retract(b->kb, "current_language", o, 1); }
-    kb_set_origin(b->kb, KB_SESSION);
+    /* gen411: riflessivo — la lingua del giro in corso e' stato, non conoscenza.
+     * Anche il sito di nascita al boot lo e'; se qui restasse KB_SESSION la
+     * riscriveremmo persistibile a ogni cambio di lingua. */
+    int prev_origin = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
     const char *a[] = { lang };
     kb_assert(b->kb, "current_language", a, 1);
+    kb_set_origin(b->kb, prev_origin);
 }
 
 /* Fetch a localized response_template(Intent, Lang, "…") for the CURRENT language,

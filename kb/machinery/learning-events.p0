@@ -1,15 +1,15 @@
 :- file_attribute(machinery).
 
-%% Il registro delle LETTURE: quando parrot0 ha letto una pagina, di che dominio
-%% era, quale revisione, dove stanno l'istantanea Markdown e il log.
-%%
-%% E' macchineria, non conoscenza sul mondo — dice COME si e' imparato, non che
-%% cosa si e' imparato — e percio' sta in una cartella dedicata alle meccaniche e
-%% si dichiara tale in testa: `file_attribute(machinery)` marca al caricamento
-%% ogni predicato che il file introduce, quindi la separazione e' interrogabile e
-%% non una convenzione di cartella.
-%%
-%% I fatti che questi eventi accompagnano stanno in kb/wiki/, per dominio.
+% Il registro delle LETTURE: quando parrot0 ha letto una pagina, di che dominio
+% era, quale revisione, dove stanno l'istantanea Markdown e il log.
+%
+% E' macchineria, non conoscenza sul mondo — dice COME si e' imparato, non che
+% cosa si e' imparato — e percio' sta in una cartella dedicata alle meccaniche e
+% si dichiara tale in testa: `file_attribute(machinery)` marca al caricamento
+% ogni predicato che il file introduce, quindi la separazione e' interrogabile e
+% non una convenzione di cartella.
+%
+% I fatti che questi eventi accompagnano stanno in kb/wiki/, per dominio.
 % --- learning event audit trail ---
 % event learn_2026_06_21t01_32_24z_prime_number
 learning_event(learn_2026_06_21t01_32_24z_prime_number, "learned prime_number: natural number greater than 1 that is not a product of two smaller natural numbers").
