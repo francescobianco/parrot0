@@ -1,0 +1,26 @@
+# id:        ricerca/naturale/fonte-locale-e-suo-limite
+# famiglia:  ricerca
+# dominio:   naturale / biologia
+# gradino:   2
+# vettore:   profondita 1  distanza 1  ambiguita 1  composizione 1
+#            rumore 0  apertura 2  novita 0
+# lavoro:    riportare cio' che le fonti locali dicono di un concetto, e poi
+#            fermarsi dove le fonti finiscono invece di continuare
+# difficile: la prima domanda ha una risposta ricca, e rispondere bene crea lo
+#            slancio a rispondere anche alla seconda, che non ha fonte. Il lavoro
+#            e' sapere dove il proprio sapere finisce, subito dopo averlo usato
+# origine:   sonda gen412
+# verifica:  V2 (riporta) + V4 (si ferma dove finisce la fonte)
+
+[test riporta cio' che sa]
+!set PARROT0_SESSION=
+!reset
+> what do you know about photosynthesis
+<~ light
+
+# V4 — la resa quantitativa non sta in nessuna fonte locale. Un numero qui
+# sarebbe inventato, e sarebbe inventato subito dopo una risposta giusta.
+[test si ferma dove la fonte finisce]
+> what percentage of sunlight does a leaf convert
+<! %
+<! percent

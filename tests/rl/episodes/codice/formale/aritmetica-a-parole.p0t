@@ -1,0 +1,25 @@
+# id:        codice/formale/aritmetica-a-parole
+# famiglia:  codice
+# dominio:   formale / aritmetica
+# gradino:   1
+# vettore:   profondita 2  distanza 1  ambiguita 0  composizione 2
+#            rumore 0  apertura 0  novita 0
+# lavoro:    legare i numeri ai loro ruoli e comporli — quanti oggetti in N
+#            contenitori, dato quanti ne tiene uno
+# difficile: nessun numero e' la risposta e nessuno dei due e' speciale; vanno
+#            legati a slot (capienza, quantita') prima di moltiplicarli.
+#            MANTRA #12: ogni numero deve avere un ruolo
+# origine:   sonda gen412
+# verifica:  V2 (il prodotto) + V4 (mai un operando ripetuto come risposta)
+
+[test compone due numeri con i loro ruoli]
+!set PARROT0_SESSION=
+!reset
+> a box holds 12 pencils
+> how many pencils are in 7 boxes
+<~ 84
+
+# V4 — 12 e 7 sono i dati, non la risposta. Restituirne uno e' il modo tipico di
+# sembrare di aver capito.
+[test non restituisce un operando]
+<! 12 pencils

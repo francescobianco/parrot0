@@ -1,0 +1,23 @@
+# id:        procedure/pratica/passi-in-ordine
+# famiglia:  procedure
+# dominio:   pratica / cucina
+# gradino:   2
+# vettore:   profondita 2  distanza 2  ambiguita 1  composizione 2
+#            rumore 1  apertura 2  novita 3
+# lavoro:    tenere una sequenza di passi insegnata nel dialogo e saper dire che
+#            cosa viene dopo un passo dato
+# difficile: la domanda non chiede la procedura ma un suo PUNTO — «dopo X cosa
+#            viene» — che richiede di aver conservato l'ordine e non solo
+#            l'insieme dei passi
+# origine:   sonda gen412
+# verifica:  V2 (il passo giusto) + V4 (non risponde col passo sbagliato)
+
+[test conserva l'ordine dei passi]
+!set PARROT0_SESSION=
+!reset
+> to make a grumble you first toast the seeds, then you grind them, and last you boil the powder
+> what do you do after grinding
+<~ boil
+
+[test non confonde il passo precedente col successivo]
+<! toast

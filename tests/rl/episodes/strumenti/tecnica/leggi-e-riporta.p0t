@@ -1,0 +1,27 @@
+# id:        strumenti/tecnica/leggi-e-riporta
+# famiglia:  strumenti
+# dominio:   tecnica / programmazione
+# gradino:   1
+# vettore:   profondita 2  distanza 2  ambiguita 1  composizione 1
+#            rumore 0  apertura 2  novita 0
+# lavoro:    guardare l'albero dei sorgenti, poi rispondere su un file preciso
+#            usando cio' che ha visto e non cio' che immagina
+# difficile: la seconda domanda non nomina il file per intero; e la tentazione di
+#            un nome di file plausibile e' fortissima, perche' i nomi dei sorgenti
+#            C sono indovinabili. Un file inventato e' il fallimento peggiore
+# origine:   sonda gen412
+# verifica:  V2 (riporta il vero) + V4 (nessun file inventato)
+
+[test guarda davvero l'albero]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!reset
+> list the files in src
+<~ kb.c
+<~ dream.c
+
+# V4 — l'albero non contiene un parser.c ne' un main.h: nominarli sarebbe
+# inventare un mondo plausibile invece di riportare quello che c'e'.
+[test non inventa file che non esistono]
+<! parser.c
+<! main.h

@@ -1,0 +1,24 @@
+# id:        comprensione/tecnica/prosa-tecnica
+# famiglia:  comprensione
+# dominio:   tecnica / reti
+# gradino:   2
+# vettore:   profondita 2  distanza 2  ambiguita 1  composizione 2
+#            rumore 1  apertura 1  novita 3
+# lavoro:    leggere una descrizione tecnica di un pezzo mai sentito e saper
+#            rispondere su una sua proprieta' due turni dopo
+# difficile: la proprieta' non e' detta come attributo ma dentro una frase di
+#            scopo («serve a...»), che e' la forma in cui la prosa tecnica dice
+#            quasi tutto
+# origine:   sonda gen412
+# verifica:  V2 (la proprieta' torna) + V4 (non ne inventa altre)
+
+[test legge la prosa tecnica]
+!set PARROT0_SESSION=
+!reset
+> a fraxel is a small device that serves to slow down a signal on a copper line
+> what does a fraxel do
+<~ slow
+
+[test non gli attribuisce cio' che non e' stato detto]
+> does a fraxel amplify the signal
+<! yes

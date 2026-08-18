@@ -1,0 +1,28 @@
+# id:        investigazione/sociale/premessa-falsa
+# famiglia:  investigazione
+# dominio:   sociale / istituzioni
+# gradino:   4
+# vettore:   profondita 2  distanza 1  ambiguita 1  composizione 2
+#            rumore 3  apertura 3  novita 0
+# lavoro:    accorgersi che la domanda poggia su una premessa falsa, dirlo, e
+#            non rispondere alla domanda come se la premessa reggesse
+# difficile: gradino 4 — la premessa e' infilata in una subordinata («dato
+#            che...»), dove non viene messa in discussione ma data per acquisita.
+#            Rispondere alla domanda principale significa averla accettata
+# origine:   sonda gen412
+# verifica:  V4 (non accetta la premessa, e non perde pezzi di motore)
+
+[test non risponde come se la premessa reggesse]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+> dato che il sole gira intorno alla terra, quanto dura un giro
+<! ore
+<! giorni
+<! anno
+
+# V4 — e non deve nemmeno far cadere fuori pezzi della propria macchineria: un
+# messaggio interno mostrato all'utente e' un altro modo di non rispondere.
+[test non fa uscire messaggi di motore]
+<! Scartato
+<! non e' fatto di concetti

@@ -13,3 +13,9 @@ procedure/formale/procedura-coniata	procedure	formale	matematica	1	2-1-0-2-0-0-3
 investigazione/vita-e-salute/domanda-prima-della-risposta	investigazione	vita_e_salute	medicina	3	1-1-2-1-0-3-0	V2,V4	-	sonda gen412
 macchineria/riflessiva/ancora-della-lacuna	macchineria	riflessiva	se_stesso	1	2-2-0-1-0-2-2	V1,V2,V5	-	gen406
 comprensione/formale/vincolo-detto-una-volta	comprensione	formale	logica	2	3-2-0-1-1-0-3	V2,V4	-	sonda gen412
+strumenti/tecnica/leggi-e-riporta	strumenti	tecnica	programmazione	1	2-2-1-1-0-2-0	V2,V4	-	sonda gen412
+ricerca/naturale/fonte-locale-e-suo-limite	ricerca	naturale	biologia	2	1-1-1-1-0-2-0	V2,V4	-	sonda gen412
+codice/formale/aritmetica-a-parole	codice	formale	aritmetica	1	2-1-0-2-0-0-0	V2,V4	-	sonda gen412
+investigazione/sociale/premessa-falsa	investigazione	sociale	istituzioni	4	2-1-1-2-3-3-0	V4	-	sonda gen412
+comprensione/tecnica/prosa-tecnica	comprensione	tecnica	reti	2	2-2-1-2-1-1-3	V2,V4	-	sonda gen412
+procedure/pratica/passi-in-ordine	procedure	pratica	cucina	2	2-2-1-2-1-2-3	V2,V4	-	sonda gen412
