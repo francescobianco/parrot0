@@ -143,6 +143,26 @@ ragionatore, e sono entrambe mute.
 - `what were we talking about before?` → «We talked about name, francesco, work
   and carpenter»: onesto ma e' un elenco di token, non un tema.
 
+## 🎯 IL PROGETTO DELL'AUTOCORREZIONE — `docs/plans/question-emergence.md`
+
+Riformulato a gen405 (F.). La tesi che riordina tutto: **il sogno non e' una
+capacita' superiore, e' lo stesso atto di apprendimento che avviene quando si
+incolla della prosa con un prompt che chiede di acquisirla.** Cambia solo chi lo
+innesca e quante volte — quindi `--dream` e' il COMANDO DI RUN del processo
+autonomo, non un modo di imparare a parte.
+
+Piano in sette generazioni, ognuna con un criterio che e' una misura e non un
+«funziona»: gen406 l'ancora nella lacuna, gen407 un solo atto di apprendimento
+(detto = letto), gen408 l'intenzione dichiarata, gen409 il registro delle
+forme-ponte, gen410 proponi-e-prova, gen411 il processo autonomo, gen412
+ufficializzare.
+
+Il criterio unico: **le lacune aperte devono scendere senza che nessuno le
+chiuda a mano.** E cio' che lo falsifica: se a gen410 le proposte che passano la
+verifica sono una per SUPERFICIE invece che una per CLASSE, il ciclo non impara
+— si compila un frasario da solo, che e' peggio che compilarlo a mano perche'
+nessuno lo sta guardando.
+
 ## 🔎 AUDIT KB-FIRST DEL C — `docs/plans/kb-first-audit.md`
 
 Trenta marcatori `TODO(kb-first):` nel codice, indicizzati e ordinati per DANNO

@@ -130,6 +130,11 @@ concreto, per continuare a spostare il parser dentro la KB.
 
 ## 4. Ordine di lavoro
 
+Il piano completo, in sette generazioni con i criteri di riuscita, sta in
+[`question-emergence.md`](question-emergence.md), che a gen405 è diventato il
+progetto dell'autocorrezione. Qui resta l'ordine in breve, perché è il sogno a
+eseguirlo:
+
 1. **L'ancora nella lacuna** (barriera B). `machinery_gap(Turno, Ancora,
    PiuVicino)`: cosa aveva capito, e chi è arrivato più vicino. È poco codice,
    usa una traccia che già esiste, e senza di essa le altre due non hanno

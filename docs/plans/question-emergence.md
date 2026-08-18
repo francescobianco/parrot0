@@ -1,13 +1,187 @@
-# L'emersione delle domande
+# L'autocorrezione — dalle domande che emergono all'apprendimento autonomo
 
-> **La domanda fondamentale.** Esiste un meccanismo — KB-based, e KB-first anche
-> nel modo in cui è costruito — che faccia **emergere dalla KB stessa le domande
-> a cui parrot0 non saprebbe rispondere ma a cui dovrebbe saper rispondere**?
+> **L'obiettivo.** Portare parrot0 sullo strato dell'**autocorrezione e
+> dell'autoapprendimento**: ogni muro e ogni fallimento vengono interiorizzati e
+> diretti verso la crescita, e le lacune si colmano **senza che nessuno le
+> chiuda a mano**. `--dream` è il comando di run di quel processo, non una
+> facoltà a parte.
 >
-> Documento aperto a gen382m. Serve a far ragionare in parallelo più agenti sullo
-> stesso problema: qui c'è il contesto completo, il perché la strada ovvia non
-> funziona, e i vincoli che una proposta deve rispettare per essere accettabile in
-> questo progetto.
+> Aperto a gen382m come «l'emersione delle domande»; riformulato a gen405 (F.),
+> quando è diventato chiaro che quella era metà del problema. Il quaderno di
+> allora è conservato integralmente più sotto: è la misura di come ci siamo
+> arrivati, non va riscritta.
+
+---
+
+## LA TESI, che riordina tutto il resto
+
+**Il sogno non è una capacità superiore. È lo stesso atto di apprendimento che
+avviene quando si incolla della prosa insieme a un prompt che chiede di
+acquisirla.** L'unica differenza è chi lo innesca, e quante volte.
+
+Averlo interpretato come una facoltà a sé ha prodotto due errori che si vedono
+ancora nel codice:
+
+1. **due strade per la stessa conoscenza.** «metals such as copper, tin and
+   lead» faceva crescere parrot0 se stava in una pagina e produceva un muro se
+   gliela diceva una persona. Una è stata chiusa a gen405; la asimmetria di
+   fondo — un percorso «profondo» per la lettura e uno «normale» per la frase
+   detta — è ancora lì;
+2. **una lettura senza intenzione.** `tests/dream_intent_probe.py` misura che
+   davanti alla stessa prosa, senza intenzione dichiarata, un ragionatore NON
+   impara: chiede quale atto compiere. `--dream` chiede sempre «read the page on
+   X», a qualunque pagina e per qualunque motivo — è quella cornice nuda, senza
+   saperlo.
+
+Le conseguenze di progetto sono due, e sono vincoli, non preferenze:
+
+- **un solo atto di apprendimento.** Prosa incollata da una persona e pagina
+  presa da parrot0 devono percorrere la stessa strada e produrre gli stessi
+  fatti. Se le due strade divergono, una delle due è un ramo morto che nessuno
+  manutiene;
+- **`--dream` è il comando di run.** Non introduce un modo di imparare: innesca
+  ripetutamente quello che c'è, con un budget, un'agenda e un bilancio. Tutto
+  ciò che il sogno «sa fare in più» è un difetto di simmetria da chiudere.
+
+Vedi `docs/plans/dream.md` per la sonda, il bilancio del sogno e le tre barriere
+verificate nel codice.
+
+---
+
+## COSA CI IMPEDISCE L'AUTONOMIA — verificato, non dedotto
+
+Delle lacune chiuse a gen404-405, **due erano fatti** che parrot0 avrebbe potuto
+scrivere da solo (una `numeric_cue`, una `enumeration_cue`); **una richiedeva di
+cambiare il C**. Questa è la linea vera, ed è più stretta di quella fra mondo e
+macchineria: passa fra **macchineria in KB** e **macchineria compilata**. Ogni
+forma di prosa che resta nel C è una lacuna che parrot0 non potrà mai chiudere
+da solo.
+
+Per le altre, tre barriere:
+
+| | barriera | stato |
+|---|---|---|
+| **A** | non sa di che cosa è fatta la propria macchineria: nessun fatto dice che `numeric_cue`, `answer_frame`, `enumeration_cue` sono le forme con cui un turno diventa rispondibile | da costruire |
+| **B** | la lacuna non ha un'ancora: `machinery_gap` scrive il turno e nient'altro, mentre `trace_declined` sa già chi ha declinato | la traccia esiste, non viene scritta |
+| **C** | nessuno propone e prova | i pezzi ci sono tutti: `KB_HYPOTHETICAL`, `kb_retract_origin`, `retry_open_walls`, la suite a cricchetto, `mod_induce` |
+
+---
+
+## IL PIANO IN SETTE GENERAZIONI
+
+Ogni generazione è un taglio verticale con il suo cricchetto, e ha un criterio
+di riuscita che non è «funziona» ma una **misura che cambia**. L'ordine è di
+dipendenza: nessuna si può anticipare senza fare finta.
+
+### gen406 — L'ancora nella lacuna
+
+`machinery_gap(Turno, Ancora, PiuVicino)`: cosa il turno nominava, cosa parrot0
+ne aveva capito, e quale facoltà è arrivata più vicino prima di declinare. La
+traccia esiste già (`b->trace_declined`) e oggi viene buttata.
+
+*Perché prima di tutto:* senza ancora, lo spazio di ricerca di un rimedio è
+l'intera KB, e le due generazioni successive non hanno un ingresso.
+
+**Criterio:** alla domanda «su cosa hai fallito?» parrot0 non risponde solo con
+il turno, ma con *dove* si è fermato e *chi* c'era andato vicino.
+
+### gen407 — Un solo atto di apprendimento
+
+Prosa detta e prosa letta percorrono la stessa strada. Il percorso «profondo»
+smette di essere un modo diverso di leggere: diventa lo stesso, ripetuto su un
+testo più lungo. `--dream` perde la sua lettura propria.
+
+**Criterio:** un cricchetto dà la stessa prosa per le due strade — incollata in
+conversazione e presa da una pagina — e ottiene **gli stessi fatti**. Oggi non è
+così, e la differenza non è documentata da nessuna parte.
+
+### gen408 — L'intenzione dichiarata
+
+`reading_intent/2` come fatto, e la scelta è di parrot0: *leggo per sapere di
+più* è un atto diverso da *leggo per chiudere questo ponte*. L'intenzione arriva
+all'estrattore: le frasi che toccano l'ancora della lacuna non cadono in
+silenzio.
+
+**Criterio:** leggere la stessa pagina con un'intenzione mirata trattiene cose
+che la lettura senza intenzione non trattiene — misurato come la sonda misura
+l'oracolo, sullo stesso testo.
+
+### gen409 — Il registro delle forme-ponte
+
+`bridge_shape/3`: quali predicati rendono un turno rispondibile, e con quale
+arietà. È la conoscenza che oggi vive solo nei commenti in prosa e nella testa
+di chi scrive il codice — macchineria che descrive la macchineria, cioè la
+stessa mossa che il progetto fa già ovunque.
+
+**Criterio:** data una lacuna, parrot0 **enumera** le forme candidate del fatto
+mancante. Non ne sceglie ancora una: le sa dire.
+
+### gen410 — Proponi e prova
+
+Il ciclo, con i pezzi già esistenti: proponi un fatto → assericilo in
+`KB_HYPOTHETICAL` → ri-poni il turno che murava → se risponde e nient'altro
+regredisce, promuovilo; altrimenti `kb_retract_origin` e la proposta non è mai
+esistita.
+
+La prima classe di proposte è quella più facile da generare **e** da verificare:
+una **cue**. Quale sottostringa comune alle frasi non lette, promossa a
+`enumeration_cue`, farebbe entrare più fatti senza romperne nessuno.
+
+**Criterio, ed è il primo che conta davvero:** almeno una lacuna si chiude
+**senza che nessuno scriva il fatto**.
+
+### gen411 — Il processo autonomo
+
+`--dream` diventa il comando di run: budget dichiarato, ripartenza, agenda dalle
+proprie lacune, e un bilancio come output — ponti trovati, frasi non lette,
+proposte accettate e ritirate. La politica (profondità, ordine, arresto) passa
+in KB; `dream.c` resta l'adattatore che porta le pagine e conta il budget.
+
+**Criterio:** una sessione lanciata e lasciata andare **riduce il numero di
+lacune aperte**, e il bilancio lo dice senza che nessuno legga il codice.
+
+### gen412 — Ufficializzare
+
+Ciò che sopravvive alla verifica diventa KB ufficiale, con la sua provenienza e
+un modo di revocarlo — la decisione già presa per i fatti verificati di
+autolearn, applicata a tutto il ciclo.
+
+**Criterio:** la crescita **persiste** fra due esecuzioni, la suite resta verde,
+e ogni fatto entrato sa dire da quale lettura viene.
+
+---
+
+## COME SI MISURA, E COSA FALSIFICA IL PIANO
+
+Non «quanti fatti in KB»: quello misura quanto parrot0 **sa**. Le due misure che
+dicono se ha **capito** di più sono già stampate dal sogno:
+
+- **ponti trovati** — turni che murarono e ora rispondono;
+- **frasi non lette** — prosa che ha avuto sotto gli occhi e non ha saputo
+  leggere.
+
+Il criterio unico che riassume il piano: **il numero delle lacune aperte deve
+scendere senza che nessuno le chiuda a mano.**
+
+Il piano è falsificato se, arrivati a gen410, le proposte che superano la
+verifica sono **una per superficie** invece che **una per classe**. In quel caso
+il ciclo non impara: compila un frasario da solo, il che è peggio che compilarlo
+a mano, perché nessuno lo sta guardando.
+
+---
+
+## COME LEGGERE IL RESTO
+
+Tutto ciò che segue è il **quaderno** aperto a gen382m, conservato integralmente.
+Vale ancora, e in due punti è la base del piano qui sopra:
+
+- **§4** — le cinque sorgenti di spazio negativo calcolabili dalla KB: è il
+  materiale grezzo da cui la gen409 ricava le forme-ponte;
+- **§10** — la distinzione fra lacune in **M** (macchineria) e in **W** (mondo),
+  e la tesi che solo M sia decidibile. Regge, e la gen405 l'ha resa più precisa:
+  la linea vera è fra macchineria **in KB** e macchineria **compilata**;
+- **§9.10-§9.13** — cosa è stato misurato e cosa no, compreso lo ZERO sulla KB
+  vera, che resta il risultato più informativo del primo giro.
 
 ---
 
