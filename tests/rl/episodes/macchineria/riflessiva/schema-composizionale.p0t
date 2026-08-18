@@ -1,0 +1,42 @@
+# id:        macchineria/riflessiva/schema-composizionale
+# famiglia:  macchineria
+# dominio:   riflessiva / la propria macchineria
+# gradino:   3
+# vettore:   profondita 3  distanza 1  ambiguita 2  composizione 3
+#            rumore 1  apertura 2  novita 1
+# lavoro:    riconoscere la FORMA di un turno come sequenza di ruoli, e quando
+#            non si completa dire quale ruolo manca invece di una parola a caso
+# difficile: e' il passo che rende l'inferenza loquace — i lettori di parrot0
+#            restituiscono 1 o 0, quindi un fallimento non porta informazione, e
+#            da li' vengono entrambe le patologie: il messaggio indovina una
+#            parola, la riparazione indovina una sottostringa.
+#
+#            IL MECCANISMO C'E' E OGGI TACE, e l'episodio fissa il perche':
+#            due criteri di sicurezza, entrambi pagati con un test rosso.
+# origine:   gen416, dalla revisione R3 (idea di F.)
+# verifica:  V4 (non ruba turni che funzionavano) + V2
+
+# 1. Un ruolo APERTO accetta qualunque token, quindi averne riempito uno non
+#    dimostra niente. «tell me about C» riempiva `np` con «tell» e annunciava una
+#    forma copulare mancante di copula (misurato su greet.p0t).
+[test un ruolo aperto non e' un'evidenza]
+!set PARROT0_SESSION=
+!reset
+> tell me about C
+< I don't understand that yet.
+
+# 2. Un MARCATORE assente non e' un difetto: la lingua li omette. «if a is
+#    bigger than b, is a bigger than c?» e' inglese corretto — la virgola fa il
+#    lavoro del «then» — e lo schema lo denunciava come implicazione monca
+#    (misurato su transitivity.p0t).
+[test un marcatore omesso non e' una forma incompleta]
+!reset
+> if a is bigger than b and b is taller than c, is a bigger than c?
+<! missing
+
+# 3. E la macchineria e' dichiarata: gli schemi, i ruoli e le classi che li
+#    riempiono sono fatti, quindi uno schema nuovo non costa una riga di C.
+[test gli schemi sono conoscenza]
+!query schema_shape(implication, $S)
+!query role_class(copula, generic_copula)
+!query role_open(np)

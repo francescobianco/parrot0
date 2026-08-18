@@ -946,6 +946,109 @@ const char *brain_version(void) {
  * Qui si scrive solo il fatto. Chi lo trasformera' in domanda, e la domanda in
  * rimedio, sono le frecce successive dell'anello: questa e' la prima, e senza
  * di essa nessuna delle altre ha un ingresso. */
+/* gen416 — LO SCHEMA COMPOSIZIONALE: un'inferenza che dice dove si e' fermata.
+ *
+ * I lettori di parrot0 restituiscono 1 o 0. `nw == 3 && w[1] == "is"` combacia o
+ * non combacia, e fallendo non porta nessuna informazione — da li' le due
+ * patologie misurate in docs/autocorrezione.md: il messaggio indovina una parola
+ * e la riparazione indovina una sottostringa.
+ *
+ * Uno schema e' una SEQUENZA DI RUOLI, non un conteggio di token, e quando non
+ * si completa sa dire QUALE ruolo manca. E' la differenza fra «non ho capito» e
+ * «riconosco una forma copulare, manca la copula»: la seconda e' una lacuna
+ * nominabile, quindi riparabile — e il candidato si legge nel turno, come una
+ * cue.
+ *
+ * Additivo fino in fondo: gira soltanto in fondo alla catena, dove tutti i
+ * sessantotto moduli hanno gia' rifiutato, e riporta SOLO le corrispondenze
+ * parziali. Una forma completa che nessuno ha saputo usare non e' affar suo.
+ *
+ * Gli schemi, i ruoli e le classi che li riempiono sono fatti (`schema_shape/2`,
+ * `role_class/2`, `role_open/1`): uno schema nuovo non costa una riga di C. */
+static int schema_probe(Brain *b, char **w, size_t nw,
+                        char *out_schema, size_t ssz,
+                        char *out_role, size_t rsz) {
+    if (!b || !b->kb || nw == 0) return 0;
+    char shapes[16][KB_TERM_LEN];
+    const char *nq[2] = { NULL, NULL };
+    size_t ns = kb_match(b->kb, "schema_shape", nq, 2, shapes, 16);
+    size_t best_filled = 0;
+    int found = 0;
+    for (size_t k = 0; k < ns; k++) {
+        char sch[KB_TERM_LEN];
+        snprintf(sch, sizeof sch, "%s", shapes[k]);
+        const char *shq[2] = { sch, NULL };
+        char seq[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "schema_shape", shq, 2, seq, 1) != 1) continue;
+        char sb[KB_TERM_LEN];
+        snprintf(sb, sizeof sb, "%s", kb_dequote(seq[0]));
+        char *roles[12];
+        size_t nr = split_words(sb, roles, 12);
+        size_t ti = 0, filled = 0, class_filled = 0;
+        const char *missing = NULL;
+        for (size_t r = 0; r < nr; r++) {
+            const char *cq[2] = { roles[r], NULL };
+            char cls[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "role_class", cq, 2, cls, 1) == 1) {
+                /* ruolo di CLASSE: si cerca in avanti il primo token che le
+                 * appartiene — cosi' un ruolo aperto che ha consumato poco non
+                 * fa fallire lo schema intero. */
+                char cb[KB_TERM_LEN];
+                snprintf(cb, sizeof cb, "%s", cls[0]);
+                const char *cname = kb_dequote(cb);
+                size_t j = ti;
+                for (; j < nw; j++) {
+                    char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[j]);
+                    const char *tq[1] = { strip_edge_punct(t) };
+                    if (kb_query(b->kb, cname, tq, 1)) break;
+                }
+                if (j >= nw) { missing = roles[r]; break; }
+                ti = j + 1; filled++; class_filled++;
+            } else {
+                const char *oq[1] = { roles[r] };
+                if (!kb_query(b->kb, "role_open", oq, 1)) { missing = roles[r]; break; }
+                if (ti >= nw) { missing = roles[r]; break; }
+                ti++; filled++;      /* almeno un token; il ruolo di classe che
+                                      * segue cerchera' in avanti */
+            }
+        }
+        /* SERVE UN'EVIDENZA VERA. Un ruolo aperto accetta qualunque token,
+         * quindi averne riempito uno non dimostra niente: «tell me about C»
+         * riempiva `np` con «tell» e annunciava una forma copulare mancante di
+         * copula (misurato su greet.p0t). Almeno un ruolo di CLASSE — un
+         * marcatore dichiarato, un «if», una copula — dev'essere stato trovato
+         * davvero, altrimenti lo schema non ha riconosciuto nulla e tace.
+         *
+         * Ne segue che `copular` oggi non si annuncia mai: il suo unico ruolo di
+         * classe e' proprio la copula, cioe' il pezzo che manca. Resta dichiarato
+         * ed e' corretto cosi' — diventera' utile il giorno in cui esistera' una
+         * classe per il verbo, che gli darebbe una seconda ancora. */
+        /* E IL PEZZO MANCANTE DEV'ESSERE OBBLIGATORIO.
+         *
+         * Misurato su transitivity.p0t: «if a is bigger than b and b is taller
+         * than c, is a bigger than c?» e' inglese CORRETTO — il «then» e'
+         * opzionale, la virgola fa lo stesso lavoro — e lo schema lo denunciava
+         * come implicazione monca. Un marcatore assente non e' un difetto: la
+         * lingua li omette di continuo.
+         *
+         * Quello che manca DAVVERO, quando manca, e' uno slot di contenuto. Quali
+         * ruoli siano obbligatori e' un fatto (`role_required/1`), e oggi non ne
+         * e' dichiarato nessuno: il meccanismo c'e', tace, e si accende con una
+         * riga il giorno in cui uno schema sa distinguere un contenuto assente da
+         * un contenuto che il ruolo aperto si e' mangiato. Serve che i ruoli
+         * aperti conoscano il proprio confine (`np_closer`), ed e' il passo dopo. */
+        const char *rq[1] = { missing ? missing : "" };
+        if (missing && !kb_query(b->kb, "role_required", rq, 1)) missing = NULL;
+        if (missing && class_filled > 0 && filled > best_filled) {
+            best_filled = filled;
+            snprintf(out_schema, ssz, "%s", sch);
+            snprintf(out_role, rsz, "%s", missing);
+            found = 1;
+        }
+    }
+    return found && best_filled > 0;
+}
+
 /* gen415 — IL REGISTRO SI ANNUNCIA.
  *
  * `looks_code` riconosce il codice per INDIZI — `{`, `;`, `==`, un `(` preceduto
@@ -1270,6 +1373,30 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
         if (strlen(t) >= 6 && isalpha((unsigned char)t[0]) &&
             !is_stopword(b, t) && !known) {
             sw = t; break;
+        }
+    }
+    /* gen416: prima ancora del registro, prova a nominare IL PEZZO CHE MANCA.
+     * E' l'informazione piu' specifica che il fondo della catena possa dare, e
+     * l'unica che indichi un rimedio invece di un'area. */
+    {
+        char sch[KB_TERM_LEN], role[KB_TERM_LEN];
+        if (b && b->kb && schema_probe(b, w, nw, sch, sizeof sch, role, sizeof role)) {
+            gap_record_as(b, canon, raw, "incomplete_schema");
+            char cq2[KB_TERM_LEN];
+            snprintf(cq2, sizeof cq2, "\"%s\"", canon);
+            const char *ma[3] = { cq2, sch, role };
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            kb_assert(b->kb, "gap_missing", ma, 3);
+            kb_set_origin(b->kb, prev);
+            char smsg[400];
+            const KbResponseSlot ss[] = { {"schema", sch}, {"role", role} };
+            if (!kb_response_slots(b, "schema_incomplete", ss, 2, smsg, sizeof smsg))
+                snprintf(smsg, sizeof smsg,
+                         "I can see a %s shape here, but the %s is missing.", sch, role);
+            put(smsg, out, out_size);
+            if (b) b->fallbacks++;
+            return;
         }
     }
     /* gen415: PRIMA di nominare una parola, prova a nominare il REGISTRO.

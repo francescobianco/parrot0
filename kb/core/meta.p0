@@ -763,3 +763,44 @@ register_hint(dialogue_memory, conversation). register_hint(dialogue_memory, tur
 register_hint(planning, plan).      register_hint(planning, steps).
 register_hint(planning, research).  register_hint(planning, break).
 register_hint(planning, design).    register_hint(planning, approach).
+
+% ── gen416: GLI SCHEMI COMPOSIZIONALI ───────────────────────────────────────
+%
+% Uno schema e' una SEQUENZA DI RUOLI, non un conteggio di token — ed e' la
+% correzione della fragilita' che ha bloccato la classe B per due strati su tre:
+% «ground is wet» entrava e «the ground is wet» no, perche' `nw == 3` diventava
+% `nw == 4` per un articolo. Un ruolo aperto si prende l'articolo senza
+% accorgersene.
+%
+% Ma il motivo per cui esiste non e' leggere di piu': e' FALLIRE MEGLIO. Quando
+% lo schema non si completa dice quale ruolo manca, e «riconosco una forma
+% copulare, manca la copula» e' una lacuna nominabile — cioe' riparabile —
+% mentre «non conosco ground» non lo e'.
+%
+% Uno schema nuovo costa una riga qui. Un ruolo si riempie o con una classe
+% dichiarata (`role_class/2`) o con un token qualunque (`role_open/1`).
+machinery(schema_shape).
+machinery(role_class).
+machinery(role_open).
+machinery(gap_missing).
+
+schema_shape(copular, "np copula predicate").
+schema_shape(implication, "condition proposition consequence proposition").
+
+role_class(copula, generic_copula).
+role_class(condition, rule_antecedent_marker).
+role_class(consequence, rule_consequent_marker).
+role_open(np).  role_open(predicate).  role_open(proposition).
+
+% gen416 — QUALI RUOLI SONO OBBLIGATORI, cioe' quali assenze sono un difetto.
+%
+% Un marcatore mancante NON lo e': «if a is bigger than b, is a bigger than c?»
+% e' inglese corretto e il «then» e' opzionale — la virgola fa lo stesso lavoro.
+% Denunciarlo come implicazione monca era un falso positivo (misurato su
+% transitivity.p0t).
+%
+% Nessun ruolo e' dichiarato obbligatorio, quindi lo schema oggi TACE. Non e' un
+% ripiego: e' il criterio giusto in attesa che i ruoli aperti sappiano dove
+% finiscono. Un `np` che si ferma a `np_closer` puo' dire «qui il contenuto manca
+% davvero», e allora una riga qui accende tutto.
+machinery(role_required).

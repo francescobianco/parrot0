@@ -738,3 +738,9 @@ response_template(not_necessarily, it, "Non necessariamente.").
 % che parte guardare.
 response_template(register_declined, "That looks like a {register} problem, and I cannot solve it yet.").
 response_template(register_declined, it, "Mi sembra un problema di {register}, e non so ancora risolverlo.").
+
+% gen416 — la forma e' stata riconosciuta ma non si completa. E' il declino piu'
+% informativo che parrot0 sappia dare: nomina il PEZZO, non l'area e non una
+% parola, ed e' l'unico che indichi da solo un rimedio.
+response_template(schema_incomplete, "I can see a {schema} shape here, but the {role} is missing.").
+response_template(schema_incomplete, it, "Ci vedo una forma di tipo {schema}, ma manca {role}.").
