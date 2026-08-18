@@ -909,6 +909,41 @@ static void machinery_gap_record(Brain *b, const char *canon) {
     if (kb_query(b->kb, "machinery_gap", ga, 1)) return;   /* gia' registrata */
     kb_set_origin(b->kb, KB_REFLECTIVE);
     kb_assert(b->kb, "machinery_gap", ga, 1);
+
+    /* gen406 — L'ANCORA: DOVE SI E' FERMATO.
+     *
+     * Fin qui la lacuna era il turno e nient'altro, e chi volesse rimediarla
+     * aveva come spazio di ricerca l'intera KB. Ma un muro non e' opaco: il
+     * turno si divide sempre in due, cio' di cui parrot0 SA qualcosa e cio' che
+     * per lui non e' niente, e quella divisione e' gia' calcolabile — la stessa
+     * domanda che il declino informato fa per scegliere quale parola nominare.
+     *
+     *   «in three years how old will Bea be»  ancora: years  opaco: bea
+     *   «what is the total of 4, 5 and 6»     ancora: (nessuna)
+     *
+     * La seconda riga e' la piu' istruttiva: nessuna ancora vuol dire che non
+     * manca conoscenza sul mondo — manca un PONTE, e nessuna lettura lo
+     * portera'. E' la distinzione M/W di question-emergence.md §10 calcolata sul
+     * singolo turno invece che ragionata a tavolino.
+     *
+     * Qui si scrive solo la divisione. Chi la usera' per restringere l'ipotesi
+     * e' la gen409; senza, non ha un ingresso. */
+    {
+        char buf[KB_TERM_LEN];
+        snprintf(buf, sizeof buf, "%s", canon);
+        char *w[64];
+        size_t nw = split_words(buf, w, 64);
+        for (size_t i = 0; i < nw; i++) {
+            char *t = strip_edge_punct(w[i]);
+            if (strlen(t) < 3 || !isalpha((unsigned char)t[0])) continue;
+            if (is_stopword(b, t)) continue;
+            char desc[KB_TERM_LEN];
+            int known = kb_knows_pred(b->kb, t) ||
+                        kb_describe_entity(b->kb, t, desc, sizeof desc);
+            const char *aa[] = { q, t };
+            kb_assert(b->kb, known ? "gap_anchor" : "gap_opaque", aa, 2);
+        }
+    }
     kb_set_origin(b->kb, KB_SESSION);
 }
 
@@ -922,6 +957,24 @@ static void machinery_gap_close(Brain *b, const char *canon) {
     const char *ga[] = { q };
     if (!kb_query(b->kb, "machinery_gap", ga, 1)) return;
     kb_retract(b->kb, "machinery_gap", ga, 1);
+    /* Una lacuna colmata non lascia il proprio scavo: l'ancora serviva a
+     * cercarne il rimedio, e il rimedio c'e'. Lasciarla renderebbe il registro
+     * monotono crescente dal lato dei dettagli, che e' lo stesso difetto da cui
+     * il gen404 ci ha tirati fuori dal lato delle lacune. */
+    for (;;) {
+        const char *aq[2] = { q, NULL };
+        char hit[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "gap_anchor", aq, 2, hit, 1) < 1) break;
+        const char *ra[2] = { q, hit[0] };
+        if (!kb_retract(b->kb, "gap_anchor", ra, 2)) break;
+    }
+    for (;;) {
+        const char *aq[2] = { q, NULL };
+        char hit[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "gap_opaque", aq, 2, hit, 1) < 1) break;
+        const char *ra[2] = { q, hit[0] };
+        if (!kb_retract(b->kb, "gap_opaque", ra, 2)) break;
+    }
     /* gen405 (F.): UN PONTE TROVATO DAL CICLO E UNO MESSO A MANO SONO DUE
      * EVENTI OPPOSTI, e finora lasciavano la stessa traccia.
      *

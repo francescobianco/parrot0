@@ -1,0 +1,63 @@
+# L'ANCORA: DOVE SI E' FERMATO — gen406.
+#
+# Prima freccia del piano dell'autocorrezione (question-emergence.md). La lacuna
+# era il turno e nient'altro, e chi volesse rimediarla aveva come spazio di
+# ricerca l'intera KB.
+#
+# Ma un muro non e' opaco: il turno si divide sempre in cio' di cui parrot0 SA
+# qualcosa e cio' che per lui non e' niente, e quella divisione e' gia'
+# calcolabile — e' la stessa domanda che il declino informato fa per scegliere
+# quale parola nominare.
+#
+# Il caso che conta di piu' e' il terzo qui sotto: una lacuna SENZA ancora e
+# senza opaco vuol dire che non manca conoscenza sul mondo, manca un PONTE — e
+# nessuna lettura lo portera'. E' la distinzione M/W di question-emergence.md
+# §10 calcolata sul singolo turno invece che ragionata a tavolino.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test with no wall there is nothing to say]
+> where did you stop
+< Nothing walled on me yet in this conversation.
+
+[test the turn splits into what it had and what it did not]
+> in three years how old will Bea be
+<~ .
+!query gap_anchor($T, three)
+!query gap_opaque($T, bea)
+> where did you stop
+<~ I had something on
+> where did you stop
+<~ Nothing at all on
+
+# Nessuna parola nota e nessuna ignota: e' il caso in cui la risposta e' la piu'
+# informativa che parrot0 possa dare su di se'.
+[test a gap with every word known is a bridge, not a lack of knowledge]
+!reset
+!assert person(bea)
+!assert age(bea, 4)
+> bea age
+<~ .
+!query! gap_opaque($T, bea)
+
+# Una lacuna colmata non lascia il proprio scavo: l'ancora serviva a cercarne il
+# rimedio, e il rimedio c'e'.
+[test closing a gap clears its anchor]
+!reset
+> what is the total of 4, 5 and 6
+<~ .
+!query gap_opaque($T, total)
+!clause apply_numeric(total, $List, $Result) :- sum_list($List, $Result)
+!assert numeric_cue("what is the total of", total)
+> what is the total of 4, 5 and 6
+< 15.
+!query! gap_opaque($T, total)
+!query! machinery_gap($X)
+> where did you stop
+< Nothing walled on me yet in this conversation.

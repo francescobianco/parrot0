@@ -426,3 +426,69 @@ machinery(bridged).
 % gen405 — il sogno si dichiara mentre e' in corso, cosi' che una lacuna chiusa
 % leggendo si distingua da una chiusa perche' qualcuno ha portato la conoscenza.
 machinery(dreaming).
+
+% ── gen406: L'ANCORA — DOVE SI E' FERMATO ─────────────────────────────────
+%
+% Un muro non e' opaco. Il turno si divide in cio' di cui parrot0 sa qualcosa
+% (`gap_anchor`) e cio' che per lui non e' niente (`gap_opaque`), e la divisione
+% e' la prima informazione utile a chi debba rimediare: senza, lo spazio di
+% ricerca e' l'intera KB.
+%
+% La lacuna SENZA ancora e' il caso che conta di piu': vuol dire che non manca
+% conoscenza sul mondo — manca un PONTE, e nessuna lettura lo portera'. E' la
+% distinzione M/W calcolata sul singolo turno invece che ragionata a tavolino.
+machinery(gap_anchor).
+machinery(gap_opaque).
+
+gap_stop_cue("where did you stop").
+gap_stop_cue("what did you understand").
+gap_stop_cue("dove ti sei fermato").
+gap_stop_cue("cosa avevi capito").
+turn_cue_registry(gap_stop_cue, 1).
+machinery(gap_stop_cue).
+
+turn_gap_stop($Turn) :- turn_cue_form($Turn, gap_stop_cue, $Cue), gap_stop_cue($Cue).
+turn_gap_anchors($Turn, $Words) :- turn_gap_stop($Turn), findall($W, gap_anchor($G, $W), $Words).
+turn_gap_opaques($Turn, $Words) :- turn_gap_stop($Turn), findall($W, gap_opaque($G, $W), $Words).
+
+% I quattro casi sono DISGIUNTI, e ognuno ha la sua cornice. Tenerli in una sola
+% con dei pezzi opzionali sembrava piu' economico e rendeva «I had something on:
+% » con la lista vuota: `list_text` non ha una clausola per nil, e un frame che
+% ne dipende produce una frase mutilata invece di una risposta.
+answer_content(stopped_both($Known, $Opaque, $Language), 0, opener, $Piece) :- gap_stop_opener($Language, $Piece).
+answer_content(stopped_both($Known, $Opaque, $Language), 1, known, $Piece) :- list_text($Language, $Known, $Piece).
+answer_content(stopped_both($Known, $Opaque, $Language), 2, joint, $Piece) :- gap_stop_joint($Language, $Piece).
+answer_content(stopped_both($Known, $Opaque, $Language), 3, opaque, $Piece) :- list_text($Language, $Opaque, $Piece).
+
+answer_content(stopped_known($Known, $Language), 0, opener, $Piece) :- gap_stop_opener($Language, $Piece).
+answer_content(stopped_known($Known, $Language), 1, known, $Piece) :- list_text($Language, $Known, $Piece).
+
+answer_content(stopped_opaque($Opaque, $Language), 0, opener, $Piece) :- gap_stop_nothing($Language, $Piece).
+answer_content(stopped_opaque($Opaque, $Language), 1, opaque, $Piece) :- list_text($Language, $Opaque, $Piece).
+
+gap_stop_opener(en, "I had something on: ").
+gap_stop_opener(it, "Qualcosa lo avevo: ").
+gap_stop_joint(en, ". Nothing at all on: ").
+gap_stop_joint(it, ". Di questo invece niente: ").
+gap_stop_nothing(en, "I had nothing on: ").
+gap_stop_nothing(it, "Non avevo niente su: ").
+machinery(gap_stop_opener).
+machinery(gap_stop_joint).
+machinery(gap_stop_nothing).
+
+% Quattro stati del mondo, non uno con tre eccezioni. Il terzo — mi sono
+% bloccato e conoscevo TUTTE le parole — e' il piu' informativo di tutti,
+% perche' dice che a mancare non e' la conoscenza ma il ponte, e che leggere
+% non servirebbe a niente.
+turn_plan_candidate($Turn) :- turn_gap_stop($Turn).
+turn_response($Turn, $Text) :- turn_gap_stop($Turn), naf(has_open_gap), current_language($Language), no_gap_text($Language, $Text).
+turn_response($Turn, $Text) :- turn_gap_anchors($Turn, nil), turn_gap_opaques($Turn, nil), has_open_gap, current_language($Language), bridge_only_text($Language, $Text).
+turn_response($Turn, $Text) :- turn_gap_anchors($Turn, cons($K, $KT)), turn_gap_opaques($Turn, cons($O, $OT)), current_language($Language), answer_text(stopped_both(cons($K, $KT), cons($O, $OT), $Language), $Text).
+turn_response($Turn, $Text) :- turn_gap_anchors($Turn, cons($K, $KT)), turn_gap_opaques($Turn, nil), current_language($Language), answer_text(stopped_known(cons($K, $KT), $Language), $Text).
+turn_response($Turn, $Text) :- turn_gap_anchors($Turn, nil), turn_gap_opaques($Turn, cons($O, $OT)), current_language($Language), answer_text(stopped_opaque(cons($O, $OT), $Language), $Text).
+
+has_open_gap :- machinery_gap($G).
+bridge_only_text(en, "I knew every word, and still had no way through: what is missing is a bridge, not knowledge.").
+bridge_only_text(it, "Conoscevo tutte le parole e non sono passato lo stesso: a mancare non è la conoscenza, è un ponte.").
+machinery(bridge_only_text).
+machinery(has_open_gap).
