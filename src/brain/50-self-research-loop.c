@@ -6,7 +6,7 @@
  * engineering move in the same discipline the loop uses - smallest behavioral
  * change, executable ratchet, version bump, and journaled observation. */
 
-static void machinery_gap_record(Brain *b, const char *canon);  /* definita in 99-registry.c */
+static void machinery_gap_record(Brain *b, const char *canon, const char *raw);  /* 99-registry.c */
 static int mod_loop(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
     char pre[256];
@@ -503,7 +503,7 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
                  * l'elenco delle forme che lo battono diventa l'agenda di cosa
                  * insegnargli a leggere. Il cancello (`r == 2`) resta fuori: un
                  * rifiuto e' una decisione presa, non una lacuna subita. */
-                machinery_gap_record(b, canon);
+                machinery_gap_record(b, canon, sent);
             }
             if (r == 1) {
                 /* gen382: la prosa produce anche REGOLE (il generico plurale

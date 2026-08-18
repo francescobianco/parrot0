@@ -571,3 +571,63 @@ turn_plan_candidate($Turn) :- turn_example_only($Turn).
 turn_response($Turn, $Text) :- turn_example_count($Turn, $N), current_language($Language), answer_text(only_examples($N, $Language), $Text).
 
 
+
+% ── gen409: LE FORME DEL PONTE ────────────────────────────────────────────
+%
+% Barriera A del piano (question-emergence.md): parrot0 non sapeva di che cosa
+% e' fatta la propria macchineria. Ha `numeric_cue`, `setting_cue`,
+% `gap_report_cue` e altre dodici, e nessun fatto diceva che quelle sono LE
+% FORME CON CUI UN TURNO DIVENTA RISPONDIBILE. Percio', davanti a una lacuna,
+% non poteva nemmeno formulare l'ipotesi «mi manca una cue»: quella conoscenza
+% viveva solo nei commenti in prosa e nella testa di chi scrive il codice.
+%
+% La cosa buffa e' che era gia' quasi tutta dichiarata. `turn_cue_registry/2`
+% elenca i registri di cue da quando esiste il contratto di turno — serviva a
+% pubblicarli, non a descriversi. Leggerlo come autodescrizione non costa niente
+% e chiude la barriera per tutta quella famiglia.
+bridge_shape(cue, $Registry) :- turn_cue_registry($Registry, $Position).
+
+% Le forme che non passano dal contratto di turno vanno dette. `setting_cue`
+% alimenta il SEGMENTATORE (`segment_role(setting, keyword(Cue))`), non il
+% dispatcher, ed e' il caso che ha fatto nascere questa generazione: «siamo in
+% spiaggia» funziona e «siamo al mare» no, per una cue che manca di un carattere.
+bridge_shape(cue, setting_cue).
+bridge_shape(cue, slot_evidence).
+bridge_shape(cue, enumeration_cue).
+bridge_shape(cue, intent_cue).
+machinery(bridge_shape).
+
+bridge_ask_cue("what would you need to answer that").
+bridge_ask_cue("what kind of fact are you missing").
+bridge_ask_cue("cosa ti servirebbe per rispondere").
+bridge_ask_cue("che fatto ti manca").
+turn_cue_registry(bridge_ask_cue, 1).
+machinery(bridge_ask_cue).
+
+turn_bridge_ask($Turn) :- turn_cue_form($Turn, bridge_ask_cue, $Cue), bridge_ask_cue($Cue).
+turn_bridge_shapes($Turn, $Shapes) :- turn_bridge_ask($Turn), findall($R, bridge_shape(cue, $R), $Shapes).
+
+answer_content(shapes($Shapes, $Language), 0, opener, $Piece) :- bridge_shape_opener($Language, $Piece).
+answer_content(shapes($Shapes, $Language), 1, items, $Piece) :- list_text($Language, $Shapes, $Piece).
+bridge_shape_opener(en, "A turn becomes answerable when one of these is taught: ").
+bridge_shape_opener(it, "Un turno diventa rispondibile quando gli si insegna una di queste: ").
+machinery(bridge_shape_opener).
+
+turn_plan_candidate($Turn) :- turn_bridge_ask($Turn).
+turn_response($Turn, $Text) :- turn_bridge_shapes($Turn, cons($S, $T)), current_language($Language), answer_text(shapes(cons($S, $T), $Language), $Text).
+
+% gen410 — la richiesta di ripararsi. E' una cue come tutte le altre, e sta qui
+% per la stessa ragione per cui ci stanno le altre: un modo nuovo di chiederlo,
+% o una lingua nuova, deve essere una riga.
+self_repair_cue("try to fix yourself").
+self_repair_cue("fix your own walls").
+self_repair_cue("repair yourself").
+self_repair_cue("prova a ripararti").
+self_repair_cue("riparati da solo").
+machinery(self_repair_cue).
+response_template(self_repair_none, "I tried the bridges I know how to build and none of them closed a wall.").
+response_template(self_repair_none, it, "Ho provato i ponti che so costruire e nessuno ha chiuso un muro.").
+% gen410 — la lacuna ricorda anche COME e' stata detta: e' indicizzata sul turno
+% canonicalizzato (due modi di dire la stessa cosa sono la stessa lacuna) ma un
+% ponte si prova riponendo il turno vero.
+machinery(gap_source).

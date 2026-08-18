@@ -1,0 +1,60 @@
+# PARROT0 SI CORREGGE DA SOLO — gen409+gen410.
+#
+# Il punto a cui tutto il piano dell'autocorrezione puntava
+# (question-emergence.md): una lacuna si chiude SENZA che nessuno scriva il
+# fatto. I pezzi c'erano tutti da prima — `KB_HYPOTHETICAL` per asserire senza
+# impegno, `kb_retract_origin` per ritirare, il registro delle lacune del gen404
+# per sapere cosa riprovare, l'ancora del gen406, le forme-ponte del gen409 —
+# mancava che qualcuno li mettesse in fila.
+#
+# I due casi sono conversazioni vere di F., non esempi costruiti.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+# «siamo in spiaggia» funzionava e «siamo al mare» no, per una cue che manca di
+# un carattere: `setting_cue("siamo a")` non aggancia «siamo AL».
+[test la lacuna si chiude senza che nessuno scriva il fatto]
+> siamo al mare
+< Non capisco ancora.
+!query! setting_cue("siamo al")
+> prova a ripararti
+<~ setting_cue
+!query setting_cue("siamo al")
+> siamo al mare
+<~ siamo in mare
+
+# Il ponte e' INDOTTO, non curato: si distingue da quelli scritti a mano, e si
+# puo' ritirare come tutto il resto.
+[test cio' che ha imparato si puo' ritirare]
+!forget setting_cue("siamo al")
+> siamo al mare
+< Non capisco ancora.
+
+# La verifica «ora il turno risponde» NON basta, ed e' il caso che l'ha
+# dimostrato: proponendo `setting_cue("dove hai")` la domanda «dove hai
+# fallito» rispondeva — «Ci siamo, siamo in fallito» — cioe' veniva letta come
+# la dichiarazione di un luogo. Il ponte passava la prova e diceva una
+# sciocchezza.
+#
+# Il criterio in piu' e' quello che il progetto usa dappertutto: una cue nuova
+# e' un nuovo MEMBRO di una classe, e un membro assomiglia alla classe.
+[test un ponte deve assomigliare alla classe in cui entra]
+!reset
+> dove hai fallito
+<~ .
+> prova a ripararti
+<~ gap_report_cue
+!query gap_report_cue("dove hai")
+!query! setting_cue("dove hai")
+
+# E se non c'e' niente da riparare, lo dice invece di inventare.
+[test senza muri non si inventa niente]
+!reset
+> prova a ripararti
+< Ho provato i ponti che so costruire e nessuno ha chiuso un muro.

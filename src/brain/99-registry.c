@@ -295,7 +295,7 @@ static int repair_dispatch(Brain *b, const char *canon, const char *raw,
             return 1;
         }
     }
-    not_understood(b, canon, out, out_size);
+    not_understood(b, canon, raw, out, out_size);
     return 0;
 }
 
@@ -432,7 +432,7 @@ static int replay_dispatch(Brain *b, const char *canon, const char *raw,
     }
     if (!claimed) {
         snprintf(who, who_size, "fallback");
-        not_understood(b, canon, out, out_size);
+        not_understood(b, canon, raw, out, out_size);
     }
 
     /* restore the live state so the counterfactual probe leaves no footprint */
@@ -923,7 +923,7 @@ const char *brain_version(void) {
  * Qui si scrive solo il fatto. Chi lo trasformera' in domanda, e la domanda in
  * rimedio, sono le frecce successive dell'anello: questa e' la prima, e senza
  * di essa nessuna delle altre ha un ingresso. */
-static void machinery_gap_record(Brain *b, const char *canon) {
+static void machinery_gap_record(Brain *b, const char *canon, const char *raw) {
     if (!b || !b->kb || !canon || !*canon) return;
     char q[KB_TERM_LEN];
     snprintf(q, sizeof q, "\"%s\"", canon);
@@ -931,6 +931,22 @@ static void machinery_gap_record(Brain *b, const char *canon) {
     if (kb_query(b->kb, "machinery_gap", ga, 1)) return;   /* gia' registrata */
     kb_set_origin(b->kb, KB_REFLECTIVE);
     kb_assert(b->kb, "machinery_gap", ga, 1);
+
+    /* gen410: LA LACUNA RICORDA ANCHE COME E' STATA DETTA.
+     *
+     * La lacuna e' indicizzata sul turno CANONICALIZZATO, che e' giusto — due
+     * modi di dire la stessa cosa sono la stessa lacuna. Ma un ponte si prova
+     * riponendo il turno VERO: la prima versione del ciclo di autoriparazione
+     * proponeva `setting_cue("are to")`, cioe' una cue nello spazio
+     * canonicalizzato, la verificava contro il canon stesso e la dichiarava
+     * buona — e poi «siamo al mare» murava ancora. Una riparazione verificata
+     * contro una traduzione non e' una riparazione. */
+    if (raw && *raw) {
+        char rq[KB_TERM_LEN];
+        snprintf(rq, sizeof rq, "\"%s\"", raw);
+        const char *sa[2] = { q, rq };
+        kb_assert(b->kb, "gap_source", sa, 2);
+    }
 
     /* gen406 — L'ANCORA: DOVE SI E' FERMATO.
      *
@@ -977,7 +993,23 @@ static void machinery_gap_close(Brain *b, const char *canon) {
     char q[KB_TERM_LEN];
     snprintf(q, sizeof q, "\"%s\"", canon);
     const char *ga[] = { q };
-    if (!kb_query(b->kb, "machinery_gap", ga, 1)) return;
+    if (!kb_query(b->kb, "machinery_gap", ga, 1)) {
+        /* gen410: la lacuna e' indicizzata sul turno CANONICALIZZATO, ma su
+         * alcuni percorsi la chiusura arriva con il turno normalizzato — un
+         * limite che il gen404 aveva dichiarato e che ora morde: una lacuna
+         * italiana restava aperta anche dopo essere stata colmata, e il ciclo
+         * di autoriparazione concludeva che il suo ponte non aveva funzionato
+         * mentre aveva funzionato benissimo.
+         *
+         * `gap_source` conserva come il turno era stato detto: si chiude anche
+         * per quella chiave. E' la ragione per cui la sorgente e' un fatto e
+         * non un dettaglio di comodo. */
+        const char *sq[2] = { NULL, q };
+        char key[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "gap_source", sq, 2, key, 1) < 1) return;
+        snprintf(q, sizeof q, "%s", key[0]);
+        if (!kb_query(b->kb, "machinery_gap", ga, 1)) return;
+    }
     kb_retract(b->kb, "machinery_gap", ga, 1);
     /* Una lacuna colmata non lascia il proprio scavo: l'ancora serviva a
      * cercarne il rimedio, e il rimedio c'e'. Lasciarla renderebbe il registro
@@ -1025,7 +1057,7 @@ static void machinery_gap_close(Brain *b, const char *canon) {
  * occurrence (no test churn, still honest), but when it would repeat our previous
  * reply we vary — reflecting a salient word from the user so it feels heard, else
  * rotating honest redirects. It never feigns understanding. */
-static void not_understood(Brain *b, const char *canon,
+static void not_understood(Brain *b, const char *canon, const char *raw,
                            char *out, size_t out_size) {
     /* gen240 (universal-comprehension): the honest fallback in the CURRENT language. */
     /* TODO(kb-first): LE FRASI DEL MURO, in due lingue, dentro il C. Sono la
@@ -1172,13 +1204,13 @@ static void not_understood(Brain *b, const char *canon,
     else if (strcmp(classic, b->last_reply) != 0) {
         /* Nessuna parola opaca da nominare: le parole c'erano tutte e a non
          * esserci e' il ponte. La frase generica va bene una volta. */
-        machinery_gap_record(b, canon);
+        machinery_gap_record(b, canon, raw);
         put(classic, out, out_size);
         b->fallbacks++;
         return;
     }
     else {
-        machinery_gap_record(b, canon);
+        machinery_gap_record(b, canon, raw);
         snprintf(cand, sizeof cand, "%s", v[k % NV]);
     }
     for (size_t t = 0; t < NV && strcmp(cand, b->last_reply) == 0; t++)
@@ -2034,6 +2066,226 @@ static void dead_rules_publish(Brain *b) {
     kb_set_origin(b->kb, KB_SESSION);
 }
 
+/* La richiesta di ripararsi e' una cue come tutte le altre: sta nella KB. */
+static int repair_requested(Brain *b, const char *canon, const char *input) {
+    if (!b || !b->kb) return 0;
+    char cues[12][KB_TERM_LEN];
+    const char *q[1] = { NULL };
+    size_t n = kb_match(b->kb, "self_repair_cue", q, 1, cues, 12);
+    for (size_t i = 0; i < n; i++) {
+        const char *needle = kb_dequote(cues[i]);
+        if (*needle && (cue(canon, needle) || (input && cue(input, needle))))
+            return 1;
+    }
+    return 0;
+}
+
+/* ── gen410: PROPONI E PROVA — il ciclo che chiude una lacuna da solo ──────
+ *
+ * Barriera C del piano (question-emergence.md), e i pezzi c'erano tutti da
+ * prima: `KB_HYPOTHETICAL` per asserire senza impegno, `kb_retract_origin` per
+ * ritirare, il registro delle lacune del gen404 per sapere COSA riprovare,
+ * l'ancora del gen406 per sapere dove si e' fermato, e le forme-ponte del
+ * gen409 per sapere che cosa proporre. Mancava solo che qualcuno li mettesse in
+ * fila.
+ *
+ * Il ciclo, per ogni lacuna aperta:
+ *
+ *   1. genera i CANDIDATI — i prefissi del turno, da due a cinque parole, piu'
+ *      il turno intero. Non e' una scelta furba: una cue e' quasi sempre
+ *      l'apertura di cio' che si dice, e le aperture di un turno sono poche;
+ *   2. per ogni forma-ponte dichiarata, ASSERISCE il candidato in ipotetico;
+ *   3. RIPONE il turno che murava;
+ *   4. se ora risponde, `turn_done` ritira la lacuna da solo (gen404) — quindi
+ *      la verifica non e' un giudizio di nessuno: si guarda se il fatto e'
+ *      sparito. Il candidato viene promosso a indotto e si passa alla lacuna
+ *      successiva;
+ *   5. altrimenti si ritira e non e' mai esistito.
+ *
+ * Il caso che l'ha fatto nascere e' una conversazione vera di F.: «siamo in
+ * spiaggia» funzionava e «siamo al mare» no, per una cue che manca. E la stessa
+ * riga chiude «dove hai fallito» — la superficie con cui parrot0 racconta le
+ * proprie lacune, che era un frasario come tutti gli altri.
+ *
+ * Il costo e' un turno per tentativo, quindi questo NON gira dentro una
+ * conversazione ordinaria: si chiede, oppure lo innesca il sogno. */
+#define REPAIR_MAX_TRIES 240
+
+static size_t repair_candidates(const char *turn, char out[][KB_TERM_LEN],
+                                size_t max) {
+    char buf[KB_TERM_LEN];
+    snprintf(buf, sizeof buf, "%s", turn);
+    char *w[32];
+    size_t nw = split_words(buf, w, 32);
+    size_t n = 0;
+    for (size_t k = 2; k <= 5 && k <= nw && n < max; k++) {
+        size_t o = 0;
+        out[n][0] = '\0';
+        for (size_t i = 0; i < k; i++)
+            o += (size_t)snprintf(out[n] + o, KB_TERM_LEN - o, "%s%s",
+                                  i ? " " : "", strip_edge_punct(w[i]));
+        if (out[n][0]) n++;
+    }
+    if (n < max && nw > 5) snprintf(out[n++], KB_TERM_LEN, "%s", turn);
+    return n;
+}
+
+/* I valori del SECONDO argomento che un registro usa gia'. Un ponte a due
+ * argomenti («questa cue significa quell'operazione») non si inventa: si prova
+ * a comportarsi come una cue che quel registro ha gia'. */
+static size_t repair_second_args(Brain *b, const char *reg,
+                                 char out[][KB_TERM_LEN], size_t max) {
+    char firsts[24][KB_TERM_LEN];
+    const char *q[2] = { NULL, NULL };
+    size_t nf = kb_match(b->kb, reg, q, 2, firsts, 24);
+    size_t n = 0;
+    for (size_t i = 0; i < nf && n < max; i++) {
+        char val[1][KB_TERM_LEN];
+        const char *vq[2] = { firsts[i], NULL };
+        if (kb_match(b->kb, reg, vq, 2, val, 1) < 1) continue;
+        int dup = 0;
+        for (size_t j = 0; j < n; j++) if (!strcmp(out[j], val[0])) dup = 1;
+        if (!dup) snprintf(out[n++], KB_TERM_LEN, "%s", val[0]);
+    }
+    return n;
+}
+
+/* gen410 — UN NUOVO MEMBRO DI UNA CLASSE DEVE ASSOMIGLIARE ALLA CLASSE.
+ *
+ * La verifica «ora il turno risponde» e' necessaria e NON basta, e il caso che
+ * l'ha dimostrato e' istruttivo: proponendo `setting_cue("dove hai")` la domanda
+ * «dove hai fallito» improvvisamente rispondeva — «Ci siamo, siamo in fallito»
+ * — cioe' veniva letta come la dichiarazione di un luogo. Il ponte passava la
+ * prova e diceva una sciocchezza. E' la falsificazione scritta nel piano: una
+ * proposta che chiude il muro rispondendo a caso e' peggio del muro.
+ *
+ * Il criterio in piu' e' quello che questo progetto usa dappertutto: una cue
+ * nuova e' un nuovo MEMBRO di una classe, e un membro assomiglia alla classe.
+ * «siamo al» sta con «siamo a» e «siamo in»; «dove hai» sta con «dove ti sei
+ * fermato», non con le dichiarazioni di luogo. Condividere la prima parola con
+ * una cue che il registro ha gia' e' grezzo, falsificabile e discrimina
+ * esattamente questi due casi. */
+static int repair_fits_class(Brain *b, const char *reg, const char *cand) {
+    char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cand);
+    char *cw[8];
+    if (split_words(cb, cw, 8) == 0) return 0;
+    const char *head = strip_edge_punct(cw[0]);
+    if (!*head) return 0;
+    char rows[64][KB_TERM_LEN];
+    const char *q1[1] = { NULL };
+    size_t n = kb_match(b->kb, reg, q1, 1, rows, 64);
+    if (n == 0) {
+        const char *q2[2] = { NULL, NULL };
+        n = kb_match(b->kb, reg, q2, 2, rows, 64);
+    }
+    for (size_t i = 0; i < n; i++) {
+        char eb[KB_TERM_LEN];
+        snprintf(eb, sizeof eb, "%s", kb_dequote(rows[i]));
+        char *ew[8];
+        if (split_words(eb, ew, 8) == 0) continue;
+        if (!strcmp(strip_edge_punct(ew[0]), head)) return 1;
+    }
+    return 0;
+}
+
+static int repair_try(Brain *b, const char *gapq, const char *turn,
+                      const char *reg, const char *const *args, size_t argc) {
+    kb_set_origin(b->kb, KB_HYPOTHETICAL);
+    int ok = kb_assert(b->kb, reg, args, argc);
+    kb_set_origin(b->kb, KB_SESSION);
+    if (!ok) return 0;
+    char reply[2048];
+    brain_respond(b, turn, reply, sizeof reply);
+    const char *ga[1] = { gapq };
+    if (!kb_query(b->kb, "machinery_gap", ga, 1)) {
+        /* Ha risposto: il candidato smette di essere un'ipotesi. */
+        kb_retract(b->kb, reg, args, argc);
+        kb_set_origin(b->kb, KB_INDUCED);
+        kb_assert(b->kb, reg, args, argc);
+        kb_set_origin(b->kb, KB_SESSION);
+        return 1;
+    }
+    kb_retract(b->kb, reg, args, argc);
+    return 0;
+}
+
+static int self_repair(Brain *b, char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    char gaps[16][KB_TERM_LEN];
+    const char *gq[1] = { NULL };
+    size_t ng = kb_match(b->kb, "machinery_gap", gq, 1, gaps, 16);
+    if (!ng) return 0;
+
+    char regs[24][KB_TERM_LEN];
+    const char *bq[2] = { "cue", NULL };
+    size_t nr = kb_match(b->kb, "bridge_shape", bq, 2, regs, 24);
+
+    size_t tries = 0, fixed = 0, o = 0;
+    if (out_size) out[0] = '\0';
+    for (size_t g = 0; g < ng && tries < REPAIR_MAX_TRIES; g++) {
+        char gapq[KB_TERM_LEN];
+        snprintf(gapq, sizeof gapq, "%s", gaps[g]);
+        /* Il turno da riporre e' quello VERO, non la sua canonicalizzazione:
+         * una riparazione verificata contro una traduzione non e' una
+         * riparazione. La lacuna e' indicizzata sul canon — due modi di dire la
+         * stessa cosa sono la stessa lacuna — e `gap_source` conserva come e'
+         * stata detta davvero. */
+        char turn[KB_TERM_LEN];
+        {
+            const char *sq[2] = { gapq, NULL };
+            char src[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "gap_source", sq, 2, src, 1) > 0)
+                snprintf(turn, sizeof turn, "%s", kb_dequote(src[0]));
+            else
+                snprintf(turn, sizeof turn, "%s", kb_dequote(gapq));
+        }
+        char cand[8][KB_TERM_LEN];
+        size_t nc = repair_candidates(turn, cand, 8);
+        int done = 0;
+        for (size_t r = 0; r < nr && !done && tries < REPAIR_MAX_TRIES; r++) {
+            char reg[KB_TERM_LEN];
+            snprintf(reg, sizeof reg, "%s", kb_dequote(regs[r]));
+            /* l'arita' non e' dichiarata: si guarda quella che il registro usa */
+            char probe[1][KB_TERM_LEN];
+            const char *p1[1] = { NULL };
+            int unary = kb_match(b->kb, reg, p1, 1, probe, 1) > 0;
+            char vals[8][KB_TERM_LEN];
+            size_t nv = unary ? 0 : repair_second_args(b, reg, vals, 8);
+            for (size_t c = 0; c < nc && !done && tries < REPAIR_MAX_TRIES; c++) {
+                char quoted[KB_TERM_LEN];
+                snprintf(quoted, sizeof quoted, "\"%s\"", cand[c]);
+                if (!repair_fits_class(b, reg, cand[c])) continue;
+                if (unary) {
+                    const char *a[1] = { quoted };
+                    tries++;
+                    if (repair_try(b, gapq, turn, reg, a, 1)) {
+                        done = 1;
+                        o += (size_t)snprintf(out + o, out_size - o,
+                                              "%s%s(\"%s\")", fixed ? ", " : "",
+                                              reg, cand[c]);
+                        fixed++;
+                    }
+                } else {
+                    for (size_t v = 0; v < nv && !done &&
+                                       tries < REPAIR_MAX_TRIES; v++) {
+                        const char *a[2] = { quoted, vals[v] };
+                        tries++;
+                        if (repair_try(b, gapq, turn, reg, a, 2)) {
+                            done = 1;
+                            o += (size_t)snprintf(out + o, out_size - o,
+                                                  "%s%s(\"%s\", %s)",
+                                                  fixed ? ", " : "", reg,
+                                                  cand[c], vals[v]);
+                            fixed++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return (int)fixed;
+}
+
 static void turn_publish_cues(Brain *b, const char *surface) {
     char regs[16][KB_TERM_LEN];
     const char *rq[2] = { NULL, NULL };
@@ -2688,7 +2940,28 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         if (coref_resolve(b, canon, out, out_size)) {
             handled = 1;
             if (!handled_by_discourse) update_topics(b, canon);
-        } else if (b && prose_learn_lead(b, canon, input, out, out_size)) {
+        } else if (b && repair_requested(b, canon, input)) {
+            /* gen410: il ciclo di autoriparazione si CHIEDE. Costa un turno per
+             * ogni tentativo, quindi non puo' girare dentro una conversazione
+             * ordinaria; e dev'essere esplicito anche per una ragione piu'
+             * importante — parrot0 che cambia la propria macchineria e' un
+             * atto, e un atto si annuncia. */
+            char learned[900]; learned[0] = '\0';
+            int nfix = self_repair(b, learned, sizeof learned);
+            char msg[1100];
+            if (nfix > 0)
+                snprintf(msg, sizeof msg,
+                         "I bridged %d of my own walls by teaching myself: %s.",
+                         nfix, learned);
+            else
+                kb_say(b, "self_repair_none",
+                       "I tried the bridges I know how to build and none of "
+                       "them closed a wall.", msg, sizeof msg);
+            put(msg, out, out_size);
+            handled = 1;
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", "self_repair");
+    } else if (b && prose_learn_lead(b, canon, input, out, out_size)) {
             /* gen407 — PRIMA DI COPRIRE UN MURO CON UN SAGGIO, PROVA A IMPARARE.
              *
              * Misurato: la prosa della pagina di photosynthesis, incollata in
@@ -2726,7 +2999,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                      "analysis_last_resort");
             if (!handled_by_discourse) update_topics(b, canon);
         } else {
-            not_understood(b, canon, out, out_size);
+            not_understood(b, canon, input, out, out_size);
             if (b) {
                 snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
                 snprintf(b->last_module, sizeof b->last_module, "%s", "fallback");

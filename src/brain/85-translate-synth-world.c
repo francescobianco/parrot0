@@ -879,7 +879,8 @@ static int replay_dispatch(Brain *b, const char *canon, const char *raw,
                            const char *suppress, char *who, size_t who_size,
                            char *out, size_t out_size);
 static int is_registry_module(const char *name); /* defined after the table */
-static void not_understood(Brain *b, const char *canon, char *out, size_t out_size);
+static void not_understood(Brain *b, const char *canon, const char *raw,
+                           char *out, size_t out_size);
 static int repair_dispatch(Brain *b, const char *canon, const char *raw,
                            char *out, size_t out_size); /* gen141, after the table */
 static int is_intent_starter(Brain *b, const char *w);           /* gen80/gen335, KB-first */
