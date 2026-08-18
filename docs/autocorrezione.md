@@ -6,7 +6,7 @@
 > solo se ora funziona. Nessuno gli dice cosa imparare.
 >
 > Isolato e verificato a gen412-413. Questo file esiste perché è la candidata più
-> seria al ruolo di arma di crescita di parrot0, e perché oggi **su cento
+> seria al ruolo di arma di crescita di parrot0, e perché oggi **su ottantotto
 > fallimenti reali si attiva tre volte**. Le due cose vanno lette insieme.
 
 ---
@@ -87,20 +87,45 @@ spento.
 fallisce. Sono stati rieseguiti uno per uno con l'autocorrezione accesa, e
 incrociati con il giudizio che quel documento dà di ognuno.
 
-| come risponde oggi | giudizio del documento | n | l'autocorrezione lo vede? |
-|---|---|---:|---|
-| declino informato («I don't know about X yet») | FALLITO | 49 | **no** |
-| testo prodotto, non la soluzione | PARZIALE | 31 | **no** |
-| testo prodotto, fuori bersaglio | FALLITO | 13 | **no** |
-| testo prodotto, corretto | RISOLTO | 4 | non serve |
-| **muro cieco** | FALLITO | **3** | **sì** |
+| # | come il turno finisce oggi | n | prompt rappresentativo | risposta | lacuna? |
+|---|---|---:|---|---|---|
+| **A** | **muro cieco** | **3** | *Compare two graphs structurally.* | «Non capisco ancora.» | **sì** |
+| **B** | declino su parola opaca | **49** | *If it rains then the ground is wet. The ground is wet. Did it necessarily rain?* | «Hmm, I don't know about **ground** yet. Want me to learn about it?» | no |
+| **C** | declino su schema assente | **5** | *Write a decision record with alternatives and rejected options.* | «I understood the request … but I don't have a verified schema for that artifact yet.» | no |
+| **D** | template fuori bersaglio | **31** | *Explain a counterexample to every swan is white.* | «On a counterexample to every swan is white, **a causal account turns on the condition that starts**…» | no |
+| **E1** | rifiuto corretto per limite reale | 7 | *What is the latest price of Bitcoin?* | «I have no live source for a market price: it changes while we speak…» | — |
+| **E2** | risposta corretta | 4 | *What is the remainder of 29 divided by 5?* | «4.» | — |
+| **E3** | risposta secca non motivata | 1 | *If all doctors are scientists and some scientists are artists, are all doctors artists?* | «No.» | no |
+| | **totale** | **100** | | | |
 
-> **96 fallimenti su 100. Novantatré sono invisibili all'autocorrezione.**
+> **88 fallimenti reali, e 85 sono invisibili all'autocorrezione.**
+> Solo la classe A registra una lacuna. B, C, D ed E3 non lasciano niente.
 
-Il numero da non fraintendere è proprio questo. I 97 prompt che non arrivano al
+Due precisazioni che il conto impone, ed entrambe correggono qualcosa.
+
+**E1 non sono fallimenti.** Sette dei prompt che `parrot0-100-failures.md`
+classifica FALLITO sono rifiuti corretti — nessuna fonte viva per un prezzo che
+si muove, nessuna consulenza legale, il numero di emergenza davanti a un dolore
+toracico. Il disclaimer di quel documento dice esattamente questo («non
+considero fallimento il rifiuto prudente»), quindi il suo stesso indice va
+corretto: i fallimenti sono **88**, non 96.
+
+**D è la classe peggiore, e non lo sembra.** Trentuno turni producono un
+paragrafo plausibile che non risponde alla domanda — «a causal account turns
+on…» applicato a un controesempio logico. Chi legge in fretta vede un successo, e
+il motore *crede* di aver risposto. Sono più numerosi dei muri di dieci volte e
+non lasciano nessuna traccia.
+
+Il numero da non fraintendere è proprio questo. Gli 85 prompt che non arrivano al
 ciclo **non sono casi gestiti bene**: sono fallimenti che il meccanismo non ha
 modo di vedere. L'autocorrezione non sta rifiutando di ripararli — non sa che
 esistono.
+
+E la distribuzione dice anche in che ordine conviene lavorare, perché le classi
+non costano uguale: **B è la più numerosa e la più economica** (il turno ha già
+individuato la parola che manca: diventa una lacuna con un fatto), mentre **D è
+la più insidiosa** (bisogna prima saper dire che una risposta non è pertinente —
+il substrato S3 di §6).
 
 E c'è un aggravante misurato per caso: **lo stesso prompt cambia categoria a
 seconda della conversazione**.
@@ -120,7 +145,7 @@ registro.
 
 ## 4. LE TRE CECITÀ, per causa
 
-### 4a — Il declino informato non è considerato un fallimento (49 casi)
+### 4a — Il declino informato non è considerato un fallimento (classi B e C, 54 casi)
 
 «I don't know about *compare* yet. Want me to learn about it?» è una risposta
 onesta e, dal punto di vista del motore, **riuscita**: ha nominato l'anello
@@ -132,10 +157,12 @@ meccanismo non ne conserva traccia. **La categoria «fallimento» vive nel C com
 una biforcazione di rami**, non in KB come conoscenza.
 
 *Cosa servirebbe:* che quali esiti contino come fallimento sia un **fatto**, non
-un ramo. Con `unsatisfying_outcome(informed_decline).` in KB, quei 49 casi
+un ramo. Con `unsatisfying_outcome(informed_decline).` in KB, quei 54 casi
 entrerebbero nel registro senza toccare il motore — e chi non li vuole li toglie.
+E' il passo piu' economico di tutti: il turno ha gia' individuato la parola che
+manca, quindi la lacuna nasce gia' con la sua ancora.
 
-### 4b — Una risposta sbagliata non è un fallimento visibile (44 casi)
+### 4b — Una risposta non pertinente non è un fallimento visibile (classi D ed E3, 32 casi)
 
 Il caso peggiore, e per costruzione il più silenzioso:
 
@@ -149,8 +176,8 @@ verità, imparato in silenzio. Non c'è niente da riparare perché il sistema
 
 È il MANTRA #9 («il wall-rate non vede le risposte sbagliate») che morde il ciclo
 autonomo nel punto in cui fa più male: l'autocorrezione si nutre di muri, e una
-risposta sbagliata non è un muro. Trentuno di questi casi il documento li chiama
-PARZIALI — template causali o progettuali applicati a domande di tutt'altro tipo.
+risposta sbagliata non è un muro. Trentuno di questi sono la classe D — template causali o progettuali applicati
+a domande di tutt'altro tipo, dieci volte piu' numerosi dei muri.
 
 *Cosa servirebbe:* un segnale di **non pertinenza** derivabile senza un giudice
 esterno. La forma più promettente è già in casa: se la domanda dichiara la
