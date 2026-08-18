@@ -13,6 +13,120 @@
 
 ---
 
+## ⛔ REVISIONE gen413 — quattro ragionamenti da correggere
+
+> Rilettura integrale dopo la riformulazione di F.: *«l'autocorrezione non è un
+> processo postumo ma preliminare operativo, e abbraccia l'inferenza stessa»*
+> ([`../autocorrezione.md`](../autocorrezione.md) §0). Il ciclo costruito da
+> questo piano **funziona** — gen411 chiude il suo criterio, verificato — ma
+> quattro dei ragionamenti che lo hanno guidato non reggono alla misura. Si
+> conservano com'erano, più sotto: la revisione sta qui.
+
+### R1 — Il piano sapeva già che il muro non è l'unico fallimento, e ha costruito solo per il muro
+
+**§9.1 di questo stesso file** aveva decomposto il problema in quattro predicati
+(`O`, `K`, `R`, `V`) e in quattro difetti distinti — *knowledge gap*,
+**reachability gap**, *surface gap*, **wrong-answer gap** — con la frase che dice
+tutto: «non è andato a muro non equivale a ha risposto».
+
+Poi gen406-411 hanno implementato **un solo predicato**, `machinery_gap/1`, che
+registra il muro cieco e nient'altro. La tassonomia a quattro vie è stata ridotta
+a un caso, e nessuno se n'è accorto — perché il criterio che il piano si è dato
+(«le lacune aperte scendono») conta soltanto il tipo che sa vedere.
+
+Misurato sui cento fallimenti reali di
+[`parrot0-100-failures.md`](parrot0-100-failures.md):
+
+| difetto di §9.1 | come finisce oggi | n | registra una lacuna? |
+|---|---|---:|---|
+| — (muro cieco) | «Non capisco ancora» | **3** | **sì** |
+| reachability gap | «I don't know about X yet» | 49 | no |
+| reachability gap (schema) | «…but I don't have a verified schema» | 5 | no |
+| **wrong-answer gap** | un paragrafo che non risponde | 31 | no |
+| rifiuto corretto | «I have no live source…» | 7 | non serve |
+| risposta corretta | | 4 | non serve |
+| wrong-answer gap | risposta secca non motivata | 1 | no |
+
+**88 fallimenti, 85 invisibili al ciclo.** Il *wrong-answer gap* — che §9.1
+nominava per primo come il caso insidioso — è dieci volte più frequente del muro
+e non lascia nessuna traccia.
+
+*Correzione:* la barriera **B** della tabella qui sotto è formulata male. Non è
+«la lacuna non ha un'ancora»: è **la lacuna non esiste per tre difetti su
+quattro**. L'ancora è arrivata a gen406 e non ha spostato niente, perché il
+problema non era la qualità della traccia ma la sua assenza.
+
+### R2 — «Il muro» era la definizione sbagliata di fallimento, e produce diagnosi false
+
+Il ripiego che genera il messaggio (`not_understood`, `99-registry.c:1092`) non è
+un modulo che ha capito qualcosa: è il **fondo della catena**, chiamato quando
+tutti i sessantotto moduli hanno rifiutato il turno. Non sapendo che cosa dire,
+nomina **il primo token di sei lettere o più su cui la KB non ha fatti**.
+
+Su «If it rains then the ground is wet. The ground is wet. Did it necessarily
+rain?» esce «ground»: `rains` è sotto soglia, `necessarily` arriva dopo. La
+parola nominata non è quasi mai l'argomento — `travels`, `missing`, `matters`.
+
+*Conseguenza per questo piano:* i cinquantanove prompt raggruppati sotto «parola
+opaca» **non sono una classe**. Per forma: 20 «altro», 14 domande-wh, 7
+imperativi, 4 numeri/tempo, 4 logica. Cercare *il* rimedio per quel gruppo è
+tempo perso — l'unico tratto comune è il messaggio, che è un artefatto.
+
+### R3 — L'ordine delle sette generazioni è quello di un'autocorrezione postuma
+
+Le sette generazioni assumono la sequenza: **registra il fallimento** (gen406) →
+dichiara le forme (gen409) → proponi e prova (gen410) → automatizza (gen411).
+È l'ordine giusto se la correzione viene **dopo**: prima raccogli i fallimenti,
+poi li ripari.
+
+Vista come processo **preliminare**, il primo passo è un altro, e viene prima di
+gen406: **rendere l'inferenza loquace**. Oggi i lettori restituiscono `1` o `0` —
+`p0_rule_clause` legge una clausola o non la legge, `nw == 3 && w[1] == "is"`
+combacia o non combacia. **Un fallimento non porta nessuna informazione**, e da
+lì discendono entrambe le patologie misurate: il messaggio indovina una parola,
+e la riparazione indovina una sottostringa.
+
+Un lettore che dice *dove* si è fermato rende gen406 e gen410 quasi gratuiti: la
+lacuna nasce già nominata, e il criterio di accettazione ha finalmente qualcosa
+da confrontare. Vedi `autocorrezione.md` §9 (schemi composizionali: uno schema è
+una **sequenza di ruoli**, non un conteggio di token) e §10 (il classificatore di
+registro: `looks_code` riconosce per indizi senza schema, la logica no benché gli
+indizi siano già in KB).
+
+### R4 — Il criterio di falsificazione è troppo debole, e il piano lo ha superato senza meritarlo
+
+Il criterio scritto è: *«falsificato se le proposte che superano la verifica sono
+una per superficie invece che una per classe»*. Ed è stato soddisfatto —
+`setting_cue("ci ritroviamo al")` copre frasi mai viste, e si ferma dove finisce
+l'evidenza.
+
+Ma quel criterio non vede il difetto che c'è: **la verifica chiede soltanto «la
+risposta è diversa dal muro?»**, e non distingue una riparazione da un
+**dirottamento**. Misurato: su una lacuna aperta, «what is gold» otteneva
+`gap_report_cue("what is gold")` e rispondeva «Nothing walled on me yet» — diverso
+dal muro, e falso. Per questo `self_correct_on_wall(off)` in `meta.p0`.
+
+*Correzione:* al criterio va aggiunta una clausola. Il piano è falsificato anche
+se **le proposte accettate producono risposte non pertinenti** — cioè se il ciclo
+compra il verde con una risposta sbagliata, che è peggio del muro che sostituisce
+(MANTRA #7). E questo richiede il substrato della **pertinenza**
+(`autocorrezione.md` §6, S3), che il piano non nomina da nessuna parte.
+
+### Che cosa resta valido, e non è poco
+
+- **gen406-411 funzionano** per la classe che vedono, e la prova più forte è che
+  il ponte imparato **generalizza** senza estrapolare (`ponte-che-generalizza.p0t`);
+- **la tesi** — «il sogno non è una facoltà superiore, è lo stesso atto di
+  apprendimento» — regge, e la riformulazione di F. la estende invece di negarla:
+  non solo un solo atto di apprendimento, ma **un solo atto di inferenza e
+  riparazione**;
+- **§9.1 era giusto** e va promosso da quaderno a specifica: i quattro difetti
+  sono la struttura che a `machinery_gap/1` manca;
+- **la regola sulla chiusura a mano** (§«Il ruolo della chiusura a mano») resta il
+  termometro migliore che il piano abbia.
+
+---
+
 ## LA TESI, che riordina tutto il resto
 
 **Il sogno non è una capacità superiore. È lo stesso atto di apprendimento che
@@ -62,7 +176,7 @@ Per le altre, tre barriere:
 | | barriera | stato |
 |---|---|---|
 | **A** | non sa di che cosa è fatta la propria macchineria: nessun fatto dice che `numeric_cue`, `answer_frame`, `enumeration_cue` sono le forme con cui un turno diventa rispondibile | da costruire |
-| **B** | la lacuna non ha un'ancora: `machinery_gap` scrive il turno e nient'altro, mentre `trace_declined` sa già chi ha declinato | la traccia esiste, non viene scritta |
+| **B** | la lacuna non ha un'ancora: `machinery_gap` scrive il turno e nient'altro, mentre `trace_declined` sa già chi ha declinato | ~~la traccia esiste, non viene scritta~~ → **formulata male, vedi R1**: l'ancora è arrivata a gen406 e non ha spostato niente. La barriera vera è che **la lacuna non esiste per tre difetti su quattro** (§9.1) |
 | **C** | nessuno propone e prova | i pezzi ci sono tutti: `KB_HYPOTHETICAL`, `kb_retract_origin`, `retry_open_walls`, la suite a cricchetto, `mod_induce` |
 
 ---
@@ -213,6 +327,11 @@ Il piano è falsificato se, arrivati a gen410, le proposte che superano la
 verifica sono **una per superficie** invece che **una per classe**. In quel caso
 il ciclo non impara: compila un frasario da solo, il che è peggio che compilarlo
 a mano, perché nessuno lo sta guardando.
+
+Ed è falsificato — **terza clausola, aggiunta a gen413 (R4)** — se le proposte
+accettate producono risposte **non pertinenti**: un ciclo che compra il verde con
+una risposta sbagliata è peggio del muro che sostituisce (MANTRA #7). Misurato, e
+il motivo per cui `self_correct_on_wall` è a `off`.
 
 Ed è falsificato — più silenziosamente, quindi peggio — se il registro delle
 chiusure a mano continua a crescere di lacune di contenuto. Vuol dire che il
