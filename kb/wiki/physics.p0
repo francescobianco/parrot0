@@ -1,0 +1,37 @@
+% Conoscenza generale dal wiki — dominio: physics.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello). La conoscenza specialistica si raffina altrove, in
+% kb/experts/, con predicati che non sono `wiki_*`.
+%
+% Prima stava tutto in kb/learning/learned.p0, che e' la RICADUTA del save-map:
+% il posto per cio' che non ha trovato posto. Non era una casa, era l'assenza di
+% una casa. Ora questo file e' la casa del predicato per questo dominio, e il
+% prossimo wiki_concept(_, physics, _) ci arriva da solo — il save-map instrada
+% sulla coppia (predicato, primo argomento) e in mancanza sul solo predicato.
+
+% physics / Newton's laws of motion
+% source: https://en.wikipedia.org/wiki/Newton's_laws_of_motion
+% revision: 1353646690; processed: 2026-06-28T18:44:17Z
+wiki_concept(newtons_laws_of_motion, physics, "three physical laws that describe the relationship between the motion of an object and the forces acting on it").
+
+% physics / Entropy
+% source: https://en.wikipedia.org/wiki/Entropy
+% revision: 1361126134; processed: 2026-06-28T19:49:05Z
+wiki_concept(entropy, physics, "thermodynamic state variable that quantifies the probabilistic distribution of accessible microstates in a system").
+
+% physics / Electromagnetism
+% source: https://en.wikipedia.org/wiki/Electromagnetism
+% revision: 1360320920; processed: 2026-06-28T20:42:45Z
+wiki_concept(electromagnetism, physics, "interaction that occurs between particles with electric charge via electromagnetic fields").
+
+% physics / Special relativity
+% source: https://en.wikipedia.org/wiki/Special_relativity
+% revision: 1360902546; processed: 2026-06-28T21:41:54Z
+wiki_concept(special_relativity, physics, "In physics, the special theory of relativity, or simply special relativity, is a scientific theory of the...").
+
+% physics / Quantum mechanics
+% source: https://en.wikipedia.org/wiki/Quantum_mechanics
+% revision: 1360718020; processed: 2026-06-27T15:45:59Z
+wiki_concept(quantum_mechanics, physics, "Quantum mechanics, also known as quantum physics, is the fundamental physical theory that describes the behavior of...").

@@ -1,0 +1,14 @@
+% Conoscenza generale dal wiki — dominio: vocabulary.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello). La conoscenza specialistica si raffina altrove, in
+% kb/experts/, con predicati che non sono `wiki_*`.
+%
+% Prima stava tutto in kb/learning/learned.p0, che e' la RICADUTA del save-map:
+% il posto per cio' che non ha trovato posto. Non era una casa, era l'assenza di
+% una casa. Ora questo file e' la casa del predicato per questo dominio, e il
+% prossimo wiki_concept(_, vocabulary, _) ci arriva da solo — il save-map instrada
+% sulla coppia (predicato, primo argomento) e in mancanza sul solo predicato.
+
+wiki_concept(serendipity, vocabulary, "the occurrence and development of events by chance in a happy or beneficial way").

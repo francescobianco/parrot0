@@ -3869,7 +3869,27 @@ answer_frame("miles to km", miles_to_km).
 % gen356: the deterministic Wikipedia summaries produced by scripts/learn.py were
 % previously dormant in ordinary chat. They are certified static data, not an
 % external reasoner; load them into the same world layer as curated definitions.
-:- include(../learning/learned.p0).
+%
+% gen411 (F.): stavano in kb/learning/learned.p0, che e' la RICADUTA del save-map
+% — il posto di cio' che non ha trovato posto. Non ci stavano per scelta ma per
+% mancanza di una casa, e finche' e' cosi' il save-map non puo' instradarci
+% niente: si instrada verso i parenti, e un deposito indistinto non ha parenti.
+% Ora la casa c'e', e l'asse e' la SORGENTE: `wiki_*` sta insieme perche' viene
+% dal wiki, e si divide per dominio. La conoscenza specialistica si raffinera'
+% altrove, in kb/experts/, con predicati che non sono `wiki_*`.
+:- include(../wiki/mathematics.p0).
+:- include(../wiki/physics.p0).
+:- include(../wiki/chemistry.p0).
+:- include(../wiki/biology.p0).
+:- include(../wiki/medicine.p0).
+:- include(../wiki/astronomy.p0).
+:- include(../wiki/computer_science.p0).
+:- include(../wiki/vocabulary.p0).
+:- include(../wiki/adjective.p0).
+% E il registro di COME sono stati letti — quando, quale revisione, quale
+% istantanea — che e' macchineria e non conoscenza sul mondo: sta in una cartella
+% dedicata alle meccaniche e si dichiara tale in testa.
+:- include(../machinery/learning-events.p0).
 :- include(facts/reasoning.p0).
 :- include(facts/operator-worlds.p0).
 :- include(facts/geography-world.p0).

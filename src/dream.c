@@ -45,7 +45,7 @@ typedef struct {
      * conto di cio' che il sogno ha effettivamente CHIUSO. Un sogno che estrae
      * mille fatti e non chiude niente e' un dato, non un successo. */
     char   bridge[DREAM_MAX_BRIDGE][KB_TERM_LEN];
-    size_t nbridge, walls_closed, from_gap_w, from_gap_m, prose_unread;
+    size_t nbridge, walls_closed, from_gap_w, from_gap_m, prose_unread, proposed;
 } DreamState;
 
 /* Un valore di politica letto dalla KB: `pred(N).` con N numerico. Se la KB non
@@ -251,7 +251,11 @@ static size_t retry_open_walls(Brain *b, DreamState *st, FILE *o, int depth) {
 }
 
 int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
-    if (!b || !topic || !*topic || !opts) return 0;
+    /* Un topic VUOTO non e' un errore: e' il sogno guidato dalle proprie lacune
+     * (gen405). Il guardiano lo rifiutava prima ancora di guardarlo, quindi
+     * `--dream` senza argomenti usciva in silenzio con zero nodi — e sembrava
+     * che non ci fosse niente da sognare. */
+    if (!b || !topic || !opts) return 0;
     FILE *o = opts->out ? opts->out : stdout;
 
     int max_depth = opts->max_depth > 0 ? opts->max_depth
@@ -293,6 +297,14 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
     fprintf(o, "dream: %s   (profondita' max %d, nodi max %d, fetch %s)\n",
             root, max_depth, max_nodes, opts->fetch ? "on" : "off");
     if (guided) agenda_from_gaps(b, &st, o);
+
+    /* Il conto di partenza: senza, la riga finale non e' una misura ma
+     * un'affermazione. */
+    size_t gaps_at_start = 0;
+    {
+        const char *gq[1] = { NULL }; char rows[128][KB_TERM_LEN];
+        gaps_at_start = kb_match(brain_kb(b), "machinery_gap", gq, 1, rows, 128);
+    }
     fprintf(o, "%s\n", "----------------------------------------------------------------------");
 
     DreamNode node;
@@ -395,9 +407,52 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
         }
     }
 
+    /* ── gen411: IL RIMEDIO SI SCEGLIE ────────────────────────────────────
+     *
+     * Il sogno finora sapeva fare una cosa sola — leggere — e la faceva su ogni
+     * lacuna. Ma l'ancora del gen406 dice quali lacune leggere puo' colmare e
+     * quali no: se il turno non aveva nessuna parola opaca, tutte le parole
+     * erano note e a mancare e' un PONTE. Su quella, leggere e' tempo perso per
+     * definizione, e l'unica mossa e' proporre.
+     *
+     * Qui il sogno smette di essere un lettore e diventa un processo che decide
+     * cosa fare delle proprie lacune. E' il senso di «il sogno e' il comando di
+     * run», non un modo di imparare a parte.
+     *
+     * Va in fondo, dopo la lettura: cio' che si e' letto puo' aver chiuso da
+     * solo qualche lacuna, e proporre un ponte per una lacuna gia' chiusa
+     * sarebbe rumore. */
+    {
+        char bridges[900]; bridges[0] = '\0';
+        st.proposed = (size_t)brain_self_repair(b, bridges, sizeof bridges);
+        /* Le lacune chiuse proponendo escono dall'elenco degli aperti come
+         * quelle chiuse leggendo: il bilancio si contraddiceva da solo,
+         * dicendo «-2» e poi elencandone due ancora aperte. */
+        for (size_t i = 0; i < st.nbridge; i++) {
+            if (!st.bridge[i][0]) continue;
+            char q[KB_TERM_LEN];
+            snprintf(q, sizeof q, "\"%s\"", st.bridge[i]);
+            const char *ga[1] = { q };
+            if (!kb_query(brain_kb(b), "machinery_gap", ga, 1)) st.bridge[i][0] = 0;
+        }
+        if (st.proposed) {
+            fprintf(o, "\nponti proposti e tenuti (%zu):\n  %s\n",
+                    st.proposed, bridges);
+        }
+    }
+
     {
         const char *da[] = { "1" };
         kb_retract(brain_kb(b), "dreaming", da, 1);
+    }
+
+    /* gen411: IL CRITERIO DEL PIANO, stampato. «una sessione lasciata andare
+     * riduce il numero di lacune aperte» non e' verificabile leggendo il
+     * codice: dev'essere un numero in fondo al bilancio. */
+    size_t gaps_after = 0;
+    {
+        const char *gq[1] = { NULL }; char rows[128][KB_TERM_LEN];
+        gaps_after = kb_match(brain_kb(b), "machinery_gap", gq, 1, rows, 128);
     }
 
     fprintf(o, "%s\n", "----------------------------------------------------------------------");
@@ -435,11 +490,15 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
      * e' un dato — dice che stava leggendo la cosa sbagliata, o che la lacuna
      * non era di conoscenza. Tenere separate le due misure e' cio' che
      * impedisce di scambiare l'accumulo per la comprensione. */
-    if (st.nbridge || st.from_gap_w || st.from_gap_m) {
+    fprintf(o, "lacune aperte      %zu -> %zu", gaps_at_start, gaps_after);
+    if (gaps_after < gaps_at_start) fprintf(o, "   (-%zu)", gaps_at_start - gaps_after);
+    fprintf(o, "\n");
+    if (st.nbridge || st.from_gap_w || st.from_gap_m || st.proposed) {
         fprintf(o, "\nresa sulle lacune\n");
         fprintf(o, "  semi da lacune   %zu (parola %zu, ponte %zu)\n",
                 st.from_gap_w + st.from_gap_m, st.from_gap_w, st.from_gap_m);
-        fprintf(o, "  ponti trovati    %zu\n", st.walls_closed);
+        fprintf(o, "  ponti leggendo   %zu\n", st.walls_closed);
+        fprintf(o, "  ponti proponendo %zu\n", st.proposed);
         size_t still = 0;
         for (size_t i = 0; i < st.nbridge; i++) if (st.bridge[i][0]) still++;
         if (still) {

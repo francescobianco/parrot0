@@ -503,6 +503,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/meta/gap_anchor.p0t
 	@./$(BIN) --test tests/p0t/meta/example_only.p0t
 	@./$(BIN) --test tests/p0t/meta/self_repair.p0t
+	@./$(BIN) --test tests/p0t/meta/autonomous_cycle.p0t
 	@./$(BIN) --test tests/p0t/knowledge/prose_forms.p0t
 	@./$(BIN) --test tests/p0t/knowledge/one_act_of_learning.p0t
 	@./$(BIN) --test tests/p0t/math/numwords.p0t

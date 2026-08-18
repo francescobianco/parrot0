@@ -631,3 +631,7 @@ response_template(self_repair_none, it, "Ho provato i ponti che so costruire e n
 % canonicalizzato (due modi di dire la stessa cosa sono la stessa lacuna) ma un
 % ponte si prova riponendo il turno vero.
 machinery(gap_source).
+% gen411 — il marcatore che il ciclo lascia sul proprio lavoro: distingue un
+% ponte che parrot0 si e' insegnato dai fatti che ha estratto leggendo, che sono
+% conoscenza sul mondo e vanno altrove.
+machinery(learned_bridge).

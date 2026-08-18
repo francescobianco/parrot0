@@ -37,13 +37,21 @@ P0
 DEF="$TREE/core/session.p0"
 : > "$DEF"
 
+# gen411: la save-map si costruisce CARICANDO, non riscandendo l'albero — quindi
+# un file e' una casa possibile solo se parrot0 lo ha davvero letto. L'albero
+# finto va caricato come il vero: una radice con gli include.
+cat > "$TREE/base.p0" <<'P0'
+:- include(experts/psychology/cognitive.p0).
+:- include(core/animals.p0).
+P0
+
 mcp() {
   {
     printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05"}}'
     printf '%s\n' '{"jsonrpc":"2.0","method":"notifications/initialized"}'
     cat
     printf '%s\n' "{\"jsonrpc\":\"2.0\",\"id\":9,\"method\":\"tools/call\",\"params\":{\"name\":\"kb.save\",\"arguments\":{\"path\":\"$DEF\"}}}"
-  } | PARROT0_BASE= PARROT0_SESSION= PARROT0_WORLD_FACTS=0 PARROT0_PROFILE= \
+  } | PARROT0_BASE="$TREE/base.p0" PARROT0_SESSION= PARROT0_WORLD_FACTS=0 PARROT0_PROFILE= \
       PARROT0_KB_ROOT="$TREE" "$BIN" --mcp-engine 2>/dev/null
 }
 

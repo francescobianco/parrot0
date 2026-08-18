@@ -63,6 +63,35 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size);
  * una trasformazione che il motore gia' esegue a ogni turno. */
 size_t brain_canonical(Brain *b, const char *input, char *out, size_t out_size);
 
+/* gen411 — IL CICLO DI AUTORIPARAZIONE, come atto invocabile.
+ *
+ * Per ogni lacuna di macchineria aperta propone un ponte (una cue tratta dal
+ * turno stesso), lo asserisce in ipotetico, RIPONE il turno che murava e lo
+ * tiene solo se il turno ora risponde e se il candidato assomiglia alla classe
+ * in cui entrerebbe. Scrive in `out` i ponti tenuti; ritorna quanti sono.
+ *
+ * E' esposto qui perche' il sogno — che e' il comando di run del processo
+ * autonomo — deve poterlo scegliere come RIMEDIO: una lacuna con parole ignote
+ * si colma leggendo, una lacuna in cui tutte le parole erano note non si colma
+ * leggendo per definizione, e li' l'unica mossa e' proporre. */
+int brain_self_repair(Brain *b, char *out, size_t out_size);
+
+/* gen411: il registro di lavoro del processo autonomo — i turni che hanno
+ * murato e aspettano un ponte. Vive in un file proprio (`PARROT0_GAPS`, di
+ * default kb/learning/gaps.p0) e NON nell'albero curato: non e' qualcosa che
+ * parrot0 sa, e' qualcosa che deve fare. Si ricarica alla nascita, ed e' cio'
+ * che rende il processo un processo e non un episodio. */
+const char *brain_gaps_path(void);
+int brain_gaps_save(Brain *b);
+
+/* gen411: i ponti che parrot0 si e' insegnato da solo. Indotti, non curati,
+ * in un file proprio: senza persistenza il bilancio del sogno era una misura
+ * falsa — le lacune si azzeravano dentro il giro e tornavano tutte al giro
+ * dopo. Un processo il cui effetto non sopravvive al processo non e' un
+ * processo. */
+const char *brain_bridges_path(void);
+int brain_bridges_save(Brain *b);
+
 const char *brain_version(void);
 
 /* Load a knowledge file into the brain's KB. `as_base` non-zero tags the

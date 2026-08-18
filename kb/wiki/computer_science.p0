@@ -1,0 +1,32 @@
+% Conoscenza generale dal wiki — dominio: computer_science.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello). La conoscenza specialistica si raffina altrove, in
+% kb/experts/, con predicati che non sono `wiki_*`.
+%
+% Prima stava tutto in kb/learning/learned.p0, che e' la RICADUTA del save-map:
+% il posto per cio' che non ha trovato posto. Non era una casa, era l'assenza di
+% una casa. Ora questo file e' la casa del predicato per questo dominio, e il
+% prossimo wiki_concept(_, computer_science, _) ci arriva da solo — il save-map instrada
+% sulla coppia (predicato, primo argomento) e in mancanza sul solo predicato.
+
+% computer_science / Algorithm
+% source: https://en.wikipedia.org/wiki/Algorithm
+% revision: 1360948503; processed: 2026-06-28T05:46:52Z
+wiki_concept(algorithm, computer_science, "finite sequence of mathematically rigorous instructions, typically used to solve a class of specific problems or to...").
+
+% computer_science / Binary search
+% source: https://en.wikipedia.org/wiki/Binary_search
+% revision: 1360038372; processed: 2026-06-28T07:39:40Z
+wiki_concept(binary_search_algorithm, computer_science, "In computer science, binary search, also known as half-interval search, logarithmic search, or binary chop, is a...").
+
+% computer_science / Hash table
+% source: https://en.wikipedia.org/wiki/Hash_table
+% revision: 1352708183; processed: 2026-06-28T09:26:48Z
+wiki_concept(hash_table, computer_science, "data structure that implements an associative array, also called a dictionary or simply map; an associative array...").
+
+% computer_science / Turing machine
+% source: https://en.wikipedia.org/wiki/Turing_machine
+% revision: 1361332484; processed: 2026-06-28T11:01:30Z
+wiki_concept(turing_machine, computer_science, "mathematical model of computation describing an abstract machine that manipulates symbols on a strip of tape...").

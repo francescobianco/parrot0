@@ -1,0 +1,22 @@
+% Conoscenza generale dal wiki — dominio: astronomy.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello). La conoscenza specialistica si raffina altrove, in
+% kb/experts/, con predicati che non sono `wiki_*`.
+%
+% Prima stava tutto in kb/learning/learned.p0, che e' la RICADUTA del save-map:
+% il posto per cio' che non ha trovato posto. Non era una casa, era l'assenza di
+% una casa. Ora questo file e' la casa del predicato per questo dominio, e il
+% prossimo wiki_concept(_, astronomy, _) ci arriva da solo — il save-map instrada
+% sulla coppia (predicato, primo argomento) e in mancanza sul solo predicato.
+
+% astronomy / Black hole
+% source: https://en.wikipedia.org/wiki/Black_hole
+% revision: 1360460563; processed: 2026-06-28T11:55:55Z
+wiki_concept(black_hole, astronomy, "astronomical body so compact that its gravity prevents anything, including light, from escaping").
+
+% astronomy / Galaxy
+% source: https://en.wikipedia.org/wiki/Galaxy
+% revision: 1360786961; processed: 2026-06-28T12:48:10Z
+wiki_concept(galaxy, astronomy, "system of stars, stellar remnants, interstellar gas, dust, and dark matter bound together by gravity").

@@ -1,0 +1,27 @@
+% Conoscenza generale dal wiki — dominio: medicine.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello). La conoscenza specialistica si raffina altrove, in
+% kb/experts/, con predicati che non sono `wiki_*`.
+%
+% Prima stava tutto in kb/learning/learned.p0, che e' la RICADUTA del save-map:
+% il posto per cio' che non ha trovato posto. Non era una casa, era l'assenza di
+% una casa. Ora questo file e' la casa del predicato per questo dominio, e il
+% prossimo wiki_concept(_, medicine, _) ci arriva da solo — il save-map instrada
+% sulla coppia (predicato, primo argomento) e in mancanza sul solo predicato.
+
+% medicine / Immune system
+% source: https://en.wikipedia.org/wiki/Immune_system
+% revision: 1350208094; processed: 2026-06-27T23:38:57Z
+wiki_concept(immune_system, medicine, "network of biological systems that protects an organism from diseases").
+
+% medicine / Antibiotic
+% source: https://en.wikipedia.org/wiki/Antibiotic
+% revision: 1360675320; processed: 2026-06-28T01:24:50Z
+wiki_concept(antibiotic, medicine, "type of antimicrobial substance which is active against bacteria").
+
+% medicine / Neuron
+% source: https://en.wikipedia.org/wiki/Neuron
+% revision: 1360647446; processed: 2026-06-28T03:29:59Z
+wiki_concept(neuron, medicine, "A neuron, neurone, or nerve cell, is a cell that is excitable, firing electric signals called action potentials...").

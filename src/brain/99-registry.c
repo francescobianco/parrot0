@@ -632,6 +632,16 @@ Brain *brain_create(void) {
      *
      * Il calcolo va DOPO tutti i caricamenti, altrimenti dichiara morto cio'
      * che non e' ancora arrivato. */
+    /* Il registro di lavoro si ricarica: e' cio' che rende il processo
+     * autonomo un processo e non un episodio. */
+    {
+        const char *gp = brain_gaps_path();
+        kb_set_origin(b->kb, KB_SESSION);
+        kb_load(b->kb, gp);
+        kb_set_origin(b->kb, KB_INDUCED);
+        kb_load(b->kb, brain_bridges_path());
+    }
+
     dead_rules_publish(b);
 
     kb_set_origin(b->kb, KB_SESSION); /* conversation default */
@@ -929,7 +939,12 @@ static void machinery_gap_record(Brain *b, const char *canon, const char *raw) {
     snprintf(q, sizeof q, "\"%s\"", canon);
     const char *ga[] = { q };
     if (kb_query(b->kb, "machinery_gap", ga, 1)) return;   /* gia' registrata */
-    kb_set_origin(b->kb, KB_REFLECTIVE);
+    /* gen411: SESSIONE, non riflessivo. Il modello di se' non si persiste per
+     * scelta — si ricalcola a ogni nascita — ma una lacuna non e' il modello di
+     * se': e' un registro di LAVORO, e un processo autonomo che riparte da zero
+     * a ogni avvio non ha nessuna agenda su cui lavorare. Era il blocco vero
+     * fra «il ciclo funziona se glielo chiedi» e «il ciclo gira da solo». */
+    kb_set_origin(b->kb, KB_SESSION);
     kb_assert(b->kb, "machinery_gap", ga, 1);
 
     /* gen410: LA LACUNA RICORDA ANCHE COME E' STATA DETTA.
@@ -1043,9 +1058,10 @@ static void machinery_gap_close(Brain *b, const char *canon) {
      * sapra' PROPORRE (gen410) ne servira' una terza, e sara' quella che conta. */
     const char *dq[] = { NULL };
     char who[1][KB_TERM_LEN];
-    const char *by = (kb_match(b->kb, "dreaming", dq, 1, who, 1) > 0) ? "dream"
-                                                                     : "dialogue";
-    kb_set_origin(b->kb, KB_REFLECTIVE);
+    const char *by = "dialogue";
+    if (kb_match(b->kb, "repairing", dq, 1, who, 1) > 0) by = "proposal";
+    else if (kb_match(b->kb, "dreaming", dq, 1, who, 1) > 0) by = "dream";
+    kb_set_origin(b->kb, KB_SESSION);
     const char *ba[] = { q, by };
     kb_assert(b->kb, "bridged", ba, 2);
     kb_set_origin(b->kb, KB_SESSION);
@@ -2202,6 +2218,12 @@ static int repair_try(Brain *b, const char *gapq, const char *turn,
         kb_retract(b->kb, reg, args, argc);
         kb_set_origin(b->kb, KB_INDUCED);
         kb_assert(b->kb, reg, args, argc);
+        /* Il marcatore che distingue il lavoro del ciclo dal resto
+         * dell'induzione: i fatti estratti dalla prosa sono conoscenza sul
+         * mondo e vanno altrove, questi sono macchineria che parrot0 si e'
+         * insegnato. */
+        const char *lb[2] = { reg, args[0] };
+        kb_assert(b->kb, "learned_bridge", lb, 2);
         kb_set_origin(b->kb, KB_SESSION);
         return 1;
     }
@@ -2284,6 +2306,106 @@ static int self_repair(Brain *b, char *out, size_t out_size) {
         }
     }
     return (int)fixed;
+}
+
+/* Il ciclo come atto invocabile: vedi brain.h. Marca la propria durata con
+ * `repairing/1`, cosi' che un ponte trovato PROPONENDO si distingua nel
+ * registro da uno trovato leggendo o portato da qualcun altro — sono tre eventi
+ * diversi, e solo il primo dice che il processo cammina da solo. */
+/* gen411 — IL REGISTRO DELLE LACUNE SOPRAVVIVE AL PROCESSO.
+ *
+ * Un processo autonomo che riparte da zero a ogni avvio non ha nessuna agenda
+ * su cui lavorare: e' il blocco vero fra «il ciclo funziona se glielo chiedi» e
+ * «il ciclo gira da solo». Le lacune vanno in un file PROPRIO e non nell'albero
+ * curato — `/save` instrada nella KB curata, ed e' giusto per la conoscenza ma
+ * sbagliato per un registro di lavoro, che e' effimero per natura e non e'
+ * qualcosa che parrot0 SA: e' qualcosa che parrot0 DEVE FARE.
+ *
+ * Si scrivono anche le sorgenti, perche' un ponte si prova riponendo il turno
+ * vero: una lacuna senza la propria forma originale e' irreparabile. */
+const char *brain_gaps_path(void);
+int brain_gaps_save(Brain *b);
+const char *brain_bridges_path(void);
+int brain_bridges_save(Brain *b);
+
+const char *brain_gaps_path(void) {
+    const char *p = p0env("PARROT0_GAPS");
+    return (p && *p) ? p : "kb/learning/gaps.p0";
+}
+
+int brain_gaps_save(Brain *b) {
+    if (!b || !b->kb) return -1;
+    char gaps[128][KB_TERM_LEN];
+    const char *gq[1] = { NULL };
+    size_t n = kb_match(b->kb, "machinery_gap", gq, 1, gaps, 128);
+    const char *path = brain_gaps_path();
+    if (n == 0) { remove(path); return 0; }
+    FILE *f = fopen(path, "w");
+    if (!f) return -1;
+    fprintf(f, "%% gaps.p0 — il registro di lavoro del processo autonomo (gen411).\n");
+    fprintf(f, "%% Scritto dal motore, non a mano: sono i turni che hanno murato e\n");
+    fprintf(f, "%% aspettano un ponte. Non e' conoscenza — e' un'agenda.\n");
+    for (size_t i = 0; i < n; i++) {
+        fprintf(f, "machinery_gap(%s).\n", gaps[i]);
+        const char *sq[2] = { gaps[i], NULL };
+        char src[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "gap_source", sq, 2, src, 1) > 0)
+            fprintf(f, "gap_source(%s, %s).\n", gaps[i], src[0]);
+    }
+    fclose(f);
+    return (int)n;
+}
+
+/* gen411 — I PONTI IMPARATI SOPRAVVIVONO AL PROCESSO.
+ *
+ * Senza questo, il bilancio del sogno era una misura FALSA: le lacune si
+ * azzeravano dentro il giro e tornavano tutte alla conversazione successiva,
+ * perche' cio' che il ciclo aveva imparato viveva solo in memoria. Un processo
+ * autonomo il cui effetto non sopravvive al processo non e' un processo.
+ *
+ * Vanno in un file proprio, come le lacune e per la stessa ragione: sono
+ * INDOTTI, non curati. Nessuno li ha scritti, si possono ritirare, e chi guarda
+ * l'albero della conoscenza dev'essere in grado di distinguerli da cio' che una
+ * persona ha deciso. Promuoverli a conoscenza ufficiale e' un'altra decisione,
+ * ed e' la generazione successiva. */
+const char *brain_bridges_path(void) {
+    const char *p = p0env("PARROT0_BRIDGES");
+    return (p && *p) ? p : "kb/learning/bridges.p0";
+}
+
+int brain_bridges_save(Brain *b) {
+    if (!b || !b->kb) return -1;
+    /* Si scrive cio' che il ciclo ha PROMOSSO, non «tutto cio' che e' indotto»:
+     * l'induzione comprende anche i fatti estratti dalla prosa, che sono
+     * conoscenza sul mondo e vanno altrove. `learned_bridge/2` e' il marcatore
+     * che il ciclo lascia sul proprio lavoro. */
+    char preds[64][KB_TERM_LEN];
+    const char *q[2] = { NULL, NULL };
+    size_t n = kb_match(b->kb, "learned_bridge", q, 2, preds, 64);
+    if (!n) return 0;
+    FILE *f = fopen(brain_bridges_path(), "a");
+    if (!f) return -1;
+    int w = 0;
+    for (size_t i = 0; i < n; i++) {
+        char cues[16][KB_TERM_LEN];
+        const char *cq[2] = { preds[i], NULL };
+        size_t nc = kb_match(b->kb, "learned_bridge", cq, 2, cues, 16);
+        for (size_t k = 0; k < nc; k++) {
+            fprintf(f, "%s(%s).\n", kb_dequote(preds[i]), cues[k]);
+            w++;
+        }
+    }
+    fclose(f);
+    return w;
+}
+
+int brain_self_repair(Brain *b, char *out, size_t out_size) {
+    if (!b || !brain_kb(b)) return 0;
+    const char *ra[1] = { "1" };
+    kb_assert(b->kb, "repairing", ra, 1);
+    int n = self_repair(b, out, out_size);
+    kb_retract(b->kb, "repairing", ra, 1);
+    return n;
 }
 
 static void turn_publish_cues(Brain *b, const char *surface) {
@@ -2947,7 +3069,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
              * importante — parrot0 che cambia la propria macchineria e' un
              * atto, e un atto si annuncia. */
             char learned[900]; learned[0] = '\0';
-            int nfix = self_repair(b, learned, sizeof learned);
+            int nfix = brain_self_repair(b, learned, sizeof learned);
             char msg[1100];
             if (nfix > 0)
                 snprintf(msg, sizeof msg,

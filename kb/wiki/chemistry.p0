@@ -1,0 +1,27 @@
+% Conoscenza generale dal wiki — dominio: chemistry.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello). La conoscenza specialistica si raffina altrove, in
+% kb/experts/, con predicati che non sono `wiki_*`.
+%
+% Prima stava tutto in kb/learning/learned.p0, che e' la RICADUTA del save-map:
+% il posto per cio' che non ha trovato posto. Non era una casa, era l'assenza di
+% una casa. Ora questo file e' la casa del predicato per questo dominio, e il
+% prossimo wiki_concept(_, chemistry, _) ci arriva da solo — il save-map instrada
+% sulla coppia (predicato, primo argomento) e in mancanza sul solo predicato.
+
+% chemistry / Periodic table
+% source: https://en.wikipedia.org/wiki/Periodic_table
+% revision: 1360487132; processed: 2026-06-27T16:41:36Z
+wiki_concept(periodic_table, chemistry, "The periodic table, also known as the periodic table of the elements, is an ordered arrangement of the chemical...").
+
+% chemistry / Covalent bond
+% source: https://en.wikipedia.org/wiki/Covalent_bond
+% revision: 1347405474; processed: 2026-06-27T17:41:19Z
+wiki_concept(covalent_bond, chemistry, "chemical bond that involves the sharing of electrons to form electron pairs between atoms").
+
+% chemistry / Catalysis
+% source: https://en.wikipedia.org/wiki/Catalysis
+% revision: 1358271976; processed: 2026-06-27T18:44:15Z
+wiki_concept(catalysis, chemistry, "increase in rate of a chemical reaction due to an added substance known as a catalyst").

@@ -1,0 +1,48 @@
+# IL PROCESSO AUTONOMO — gen411.
+#
+# Il criterio del piano (question-emergence.md): «una sessione lanciata e
+# lasciata andare riduce il numero di lacune aperte, e il bilancio lo dice senza
+# che nessuno legga il codice».
+#
+# Il giro completo gira fra PROCESSI diversi e si vede solo dalla riga di
+# comando — un cricchetto vive dentro un cervello solo, quindi qui si verifica
+# ogni pezzo del giro; la prova end-to-end sta nel commit e si rifa' cosi':
+#
+#   printf 'siamo al mare\n/gaps\n/quit\n' | ./bin/parrot0
+#   ./bin/parrot0 --dream --nodes=3      ->  lacune aperte 1 -> 0  (-1)
+#   printf 'siamo al mare\n/quit\n' | ./bin/parrot0
+#                                        ->  Ci siamo, siamo in mare
+#
+# e nessuno ha scritto `setting_cue("siamo al")`.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+# Il rimedio si SCEGLIE, e la scelta e' l'ancora del gen406: una lacuna con
+# parole ignote si colma leggendo, una in cui tutte le parole erano note non si
+# colma leggendo per definizione, e li' l'unica mossa e' proporre.
+[test una lacuna senza parole opache non si colma leggendo]
+> siamo al mare
+< Non capisco ancora.
+!query machinery_gap($G)
+!query gap_source($G, "siamo al mare")
+
+# Il ponte imparato porta il proprio marcatore: distingue il lavoro del ciclo
+# dai fatti estratti leggendo, che sono conoscenza sul mondo e vanno altrove.
+[test il ciclo marca il proprio lavoro]
+> prova a ripararti
+<~ setting_cue
+!query learned_bridge(setting_cue, "siamo al")
+> siamo al mare
+<~ siamo in mare
+
+# E il registro torna vuoto: e' la misura del piano, non una frase.
+[test il registro si svuota]
+!query! machinery_gap($G)
+> dove ti sei fermato
+< In questa conversazione non mi sono ancora bloccato su niente.

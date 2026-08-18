@@ -138,6 +138,39 @@ typedef struct {
     size_t  ridx_cap;
 } PredStat;
 
+/* ── LA MAPPA DI SALVATAGGIO (save-map), IN RAM ───────────────────────────────
+ *
+ * Dove va a finire un fatto nuovo. La coordinata e' (predicato, primo
+ * argomento) e la risposta e' (file, riga): il posto dove i suoi parenti stanno
+ * gia', cosi' che la conoscenza nuova si attacchi a quella vecchia invece di
+ * accumularsi in un deposito indistinto.
+ *
+ * SI COSTRUISCE CARICANDO, non rileggendo (F., gen411). Prima il salvataggio
+ * riapriva e riparsava l'intero albero ogni volta — una seconda lettura della
+ * KB, con un secondo parser piu' rozzo del vero, che e' il modo tipico di far
+ * divergere due letture della stessa cosa. Ma il caricatore la posizione ce
+ * l'ha gia' in mano: sa in che file e' e a che riga la clausola si chiude. La
+ * mappa e' quel dato, tenuto invece che buttato.
+ *
+ * E' una MAPPA, non un elenco: una chiave, una posizione. Se la stessa chiave
+ * torna, la posizione si aggiorna — vince l'ultima vista — invece di aggiungere
+ * una riga. Dopo un inserimento la mappa NON si corregge: le righe sotto sono
+ * slittate di uno, ma un fatto instradato «una riga piu' in la'» resta accanto
+ * ai suoi parenti, ed e' l'unica cosa che conta. L'esattezza dell'ordine non e'
+ * un obiettivo; la prossimita' lo e'.
+ *
+ * Il percorso del file si scrive UNA volta e le voci ne tengono l'indice: i file
+ * sono cento, i fatti settemila. */
+#define SM_PRED 64
+#define SM_ARG  192
+
+typedef struct { char *key; int file; int line; } SmSlot;
+
+typedef struct {
+    SmSlot *slots; size_t n, cap;      /* hash aperto, cap potenza di due */
+    char  **files; size_t nfiles, fcap;
+} SaveMap;
+
 struct KB {
     Fact  *facts;
     size_t n;
@@ -176,6 +209,8 @@ struct KB {
     struct timespec prof_t0;
     KbProfileRow  prof_top[64];
     size_t        prof_ntop;
+
+    SaveMap smap;              /* dove abita ogni fatto: vedi SaveMap sopra */
 };
 
 void kb_profile_set(KB *kb, int on) { if (kb) kb->prof_on = on ? 1 : 0; }
@@ -257,6 +292,10 @@ void kb_destroy(KB *kb) {
             free(kb->pred_stats[i].ridx);
         }
     free(kb->pred_stats);
+    for (size_t i = 0; i < kb->smap.cap; i++) free(kb->smap.slots[i].key);
+    free(kb->smap.slots);
+    for (size_t i = 0; i < kb->smap.nfiles; i++) free(kb->smap.files[i]);
+    free(kb->smap.files);
     free(kb);
 }
 
@@ -2945,6 +2984,175 @@ static void loadbuf_trim(char *buf, size_t *len) {
  * optional — load_clause is fed the clause with the period already stripped, so
  * we drop one here if present. `dir` is "." so a bare include would resolve from
  * the CWD; test mocks assert facts, not includes. Returns clauses added (0/1). */
+/* ── la mappa di salvataggio: primitive ──────────────────────────────────────
+ *
+ * Parse di una clausola gia' normalizzata (una riga, senza il punto finale) in
+ * (predicato, primo argomento). Ritorna 1 solo per un fatto ground: commenti,
+ * regole, direttive e negativi espliciti non sono case per nessuno — infilare
+ * un fatto dentro il corpo di una regola e' esattamente il difetto che questa
+ * funzione esiste per non commettere. */
+static int sm_parse(const char *line, char *pred, char *arg1) {
+    const char *s = line;
+    while (*s && isspace((unsigned char)*s)) s++;
+    if (*s == '\0' || *s == '%' || *s == ':') return 0;
+    if (strstr(s, ":-")) return 0;              /* a rule */
+    if (!strncmp(s, "not(", 4)) return 0;       /* explicit negative */
+    const char *lp = strchr(s, '(');
+    if (!lp || lp == s) return 0;
+    size_t pl = (size_t)(lp - s);
+    if (pl >= SM_PRED) return 0;
+    for (size_t i = 0; i < pl; i++)
+        if (!isalnum((unsigned char)s[i]) && s[i] != '_') return 0;
+    memcpy(pred, s, pl); pred[pl] = '\0';
+    const char *a = lp + 1;
+    while (*a && isspace((unsigned char)*a)) a++;
+    int depth = 0, q = 0;
+    const char *start = a, *end = NULL;
+    for (const char *p = a; *p; p++) {
+        char c = *p;
+        if (c == '"') q = !q;
+        else if (q) continue;
+        else if (c == '(') depth++;
+        else if (c == ')') { if (depth == 0) { end = p; break; } depth--; }
+        else if (c == ',' && depth == 0) { end = p; break; }
+    }
+    if (!end) return 0;
+    size_t al = (size_t)(end - start);
+    while (al > 0 && isspace((unsigned char)start[al - 1])) al--;
+    if (al >= 2 && start[0] == '"' && start[al - 1] == '"') { start++; al -= 2; }
+    if (al == 0 || al >= SM_ARG) return 0;
+    memcpy(arg1, start, al); arg1[al] = '\0';
+    return 1;
+}
+
+/* La chiave di un argomento: senza virgolette. In KB lo stesso atomo puo'
+ * arrivare citato o nudo (`blue` e `"blue"` sono la stessa cosa) mentre la mappa
+ * tiene sempre la forma nuda; confrontare le due forme com'erano faceva fallire
+ * in silenzio ogni instradamento per entita' citata. */
+static void sm_key(const char *arg, char *out) {
+    size_t l = strlen(arg);
+    if (l >= 2 && arg[0] == '"' && arg[l - 1] == '"') { arg++; l -= 2; }
+    if (l >= SM_ARG) l = SM_ARG - 1;
+    memcpy(out, arg, l); out[l] = '\0';
+}
+
+/* ── la tabella: UNA chiave, UNA posizione ───────────────────────────────────
+ *
+ * Non un elenco di righe, una MAPPA (F., gen411). Se la stessa chiave torna, la
+ * posizione si AGGIORNA invece di aggiungere una riga: vince l'ultima vista.
+ * Cosi' la tabella non cresce con i fatti ma con le coppie distinte, e la
+ * ricerca e' un accesso, non una scansione.
+ *
+ * Due forme di chiave nella stessa tabella — e' questo il «multichiave»:
+ *
+ *     "sound_of\\x01dog"  -> (file, riga)     la coppia
+ *     "sound_of"          -> (file, riga)     la sola relazione
+ *
+ * Non possono collidere fra loro perche' un predicato non contiene \\x01. */
+static unsigned long sm_hash(const char *s) {
+    unsigned long h = 5381;
+    while (*s) h = h * 33u ^ (unsigned char)*s++;
+    return h;
+}
+
+static int smap_grow(SaveMap *m) {
+    size_t cap = m->cap ? m->cap * 2 : 2048;
+    SmSlot *ns = calloc(cap, sizeof *ns);
+    if (!ns) return 0;
+    for (size_t i = 0; i < m->cap; i++) {
+        if (!m->slots[i].key) continue;
+        size_t j = sm_hash(m->slots[i].key) & (cap - 1);
+        while (ns[j].key) j = (j + 1) & (cap - 1);
+        ns[j] = m->slots[i];
+    }
+    free(m->slots);
+    m->slots = ns; m->cap = cap;
+    return 1;
+}
+
+static void smap_put(SaveMap *m, const char *key, int file, int line) {
+    if (m->n * 10 >= m->cap * 7 && !smap_grow(m)) return;
+    size_t j = sm_hash(key) & (m->cap - 1);
+    while (m->slots[j].key) {
+        if (!strcmp(m->slots[j].key, key)) {      /* gia' nota: si AGGIORNA */
+            m->slots[j].file = file; m->slots[j].line = line;
+            return;
+        }
+        j = (j + 1) & (m->cap - 1);
+    }
+    size_t l = strlen(key);
+    char *cp = malloc(l + 1);
+    if (!cp) return;
+    memcpy(cp, key, l + 1);
+    m->slots[j].key = cp; m->slots[j].file = file; m->slots[j].line = line;
+    m->n++;
+}
+
+static int smap_get(const SaveMap *m, const char *key, int *file, int *line) {
+    if (!m->cap) return 0;
+    size_t j = sm_hash(key) & (m->cap - 1);
+    while (m->slots[j].key) {
+        if (!strcmp(m->slots[j].key, key)) {
+            *file = m->slots[j].file; *line = m->slots[j].line;
+            return 1;
+        }
+        j = (j + 1) & (m->cap - 1);
+    }
+    return 0;
+}
+
+/* L'indice di un percorso, interned: i file sono cento, i fatti settemila. */
+static int smap_file(SaveMap *m, const char *path) {
+    for (size_t i = 0; i < m->nfiles; i++)
+        if (!strcmp(m->files[i], path)) return (int)i;
+    if (m->nfiles >= m->fcap) {
+        size_t cap = m->fcap ? m->fcap * 2 : 32;
+        char **nv = realloc(m->files, cap * sizeof *nv);
+        if (!nv) return -1;
+        m->files = nv; m->fcap = cap;
+    }
+    size_t l = strlen(path);
+    char *cp = malloc(l + 1);
+    if (!cp) return -1;
+    memcpy(cp, path, l + 1);
+    m->files[m->nfiles] = cp;
+    return (int)m->nfiles++;
+}
+
+/* La posizione di una clausola appena caricata. Chiamata dal caricatore, che e'
+ * l'unico posto dove file e riga si sanno gia' senza rileggere niente.
+ *
+ * `line` e' l'ULTIMA riga della clausola, non la prima: un inserimento fatto
+ * «subito dopo» dev'essere subito dopo la clausola intera. E le REGOLE non
+ * entrano — sm_parse le scarta — perche' `animal($X)` nel corpo di una regola
+ * non e' una casa per `animal(cow, mammal)`. */
+static void smap_note(KB *kb, const char *path, int line, const char *clause) {
+    if (!kb || !path || !*path) return;
+    char pred[SM_PRED], arg1[SM_ARG];
+    if (!sm_parse(clause, pred, arg1)) return;
+    int fi = smap_file(&kb->smap, path);
+    if (fi < 0) return;
+    char key[SM_PRED + SM_ARG + 2];
+    smap_put(&kb->smap, pred, fi, line);
+    snprintf(key, sizeof key, "%s\x01%s", pred, arg1);
+    smap_put(&kb->smap, key, fi, line);
+}
+
+/* La casa di un fatto: prima la coppia, poi la sola relazione. Se nessuna delle
+ * due risponde, il chiamante usa la ricaduta — ed e' l'unico caso legittimo. */
+static int smap_home(const KB *kb, const char *pred, const char *arg0,
+                     const char **path, int *line) {
+    char key[SM_PRED + SM_ARG + 2], arg1[SM_ARG];
+    int fi = -1;
+    sm_key(arg0, arg1);
+    snprintf(key, sizeof key, "%s\x01%s", pred, arg1);
+    if (!smap_get(&kb->smap, key, &fi, line) &&
+        !smap_get(&kb->smap, pred, &fi, line)) return 0;
+    if (fi < 0 || (size_t)fi >= kb->smap.nfiles) return 0;
+    *path = kb->smap.files[fi];
+    return 1;
+}
+
 int kb_load_clause(KB *kb, const char *text) {
     if (!kb || !text) return 0;
     char buf[KB_CLAUSE_MAX + 1];
@@ -3001,8 +3209,12 @@ int kb_load(KB *kb, const char *path) {
     int quoted = 0, escaped = 0, comment = 0, depth = 0, oom = 0;
     int discarding = 0;
     int ch;
+    /* La riga corrente, per la save-map: il caricatore e' l'unico posto dove la
+     * posizione di una clausola si sa senza rileggere niente. */
+    int line = 1;
     while ((ch = fgetc(f)) != EOF) {
         char c = (char)ch;
+        if (c == '\n') line++;
         if (comment) {
             if (c != '\n') continue;
             comment = 0;
@@ -3069,7 +3281,13 @@ int kb_load(KB *kb, const char *path) {
                             n_file_attr++;
                         }
                     }
-                    else count += load_clause(kb, path, dir, clause);
+                    else {
+                        count += load_clause(kb, path, dir, clause);
+                        /* `line` e' la riga del punto che chiude la clausola:
+                         * la sua ULTIMA riga, che e' il confine dove un fatto
+                         * imparato puo' essere inserito senza spezzare nulla. */
+                        smap_note(kb, path, line, clause);
+                    }
                 }
                 len = 0;
                 clause[0] = '\0';
@@ -4023,121 +4241,80 @@ int kb_save(const KB *kb, const char *path, int origin_mask) {
 }
 
 /* ----------------------------------------------------------------------------
- * soft save-map: place a newly learned fact next to visually-similar ones
+ * save-map: mettere un fatto nuovo accanto ai suoi parenti
  * ----------------------------------------------------------------------------
- * A best-effort mechanism (NOT exact provenance tracking, by design). When new
- * knowledge is persisted (MCP kb.save, /save, or any future path), instead of
- * dumping it all into one session blob we slot each ground fact into the curated
- * topic file that already holds its nearest kin — so the good upstream
- * organisation is dirtied as little as possible. The "coordinate" of a fact is
- * (predicate, first-arg); routing tiers: exact pair -> same predicate -> a default
- * fallback file. The index of positions is rebuilt by scanning the KB tree at save
- * time (transient, so it is never stale) and also written to disk for inspection.
- * Enabled only when PARROT0_KB_ROOT is set, so hermetic unit tests keep the legacy
- * single-file behaviour. */
-
-#define SM_MAX_ROWS 40000
-#define SM_PRED 64
-#define SM_ARG  192
+ * Quando la conoscenza nuova si persiste (MCP kb.save, /save, il sogno), invece
+ * di ammucchiarla in un file unico ogni fatto ground va nel file curato che
+ * tiene gia' i suoi parenti. Non e' tracciamento di provenienza ed e' per
+ * progetto approssimativo: l'obiettivo e' la PROSSIMITA' fra fatti simili, non
+ * l'ordine esatto delle righe.
+ *
+ * La coordinata di un fatto e' (predicato, primo argomento), la risposta e'
+ * (file, riga). La mappa vive in RAM ed e' costruita CARICANDO — vedi SaveMap
+ * in testa al file. I gradi sono due e bastano:
+ *
+ *   1. la coppia (pred, arg1)  — la stessa cosa detta dello stesso soggetto
+ *   2. il solo pred            — la casa della relazione
+ *   3. altrimenti la ricaduta, ed e' l'unico caso in cui learned.p0 e' giusto.
+ */
 #define SM_PATH 512
-typedef struct { char pred[SM_PRED]; char arg1[SM_ARG]; char file[SM_PATH]; int line; } SmRow;
 
-/* Parse a ground-fact line "pred(arg1, ...)." -> pred + arg1 (surrounding quotes
- * stripped from arg1). Returns 1 for a plain ground fact; 0 for comments, rules,
- * directives, negatives — those are left to the default file. */
-static int sm_parse(const char *line, char *pred, char *arg1) {
-    const char *s = line;
-    while (*s && isspace((unsigned char)*s)) s++;
-    if (*s == '\0' || *s == '%' || *s == ':') return 0;
-    if (strstr(s, ":-")) return 0;              /* a rule */
-    if (!strncmp(s, "not(", 4)) return 0;       /* explicit negative */
-    const char *lp = strchr(s, '(');
-    if (!lp || lp == s) return 0;
-    size_t pl = (size_t)(lp - s);
-    if (pl >= SM_PRED) return 0;
-    for (size_t i = 0; i < pl; i++)
-        if (!isalnum((unsigned char)s[i]) && s[i] != '_') return 0;
-    memcpy(pred, s, pl); pred[pl] = '\0';
-    const char *a = lp + 1;
-    while (*a && isspace((unsigned char)*a)) a++;
-    int depth = 0, q = 0;
-    const char *start = a, *end = NULL;
-    for (const char *p = a; *p; p++) {
-        char c = *p;
-        if (c == '"') q = !q;
-        else if (q) continue;
-        else if (c == '(') depth++;
-        else if (c == ')') { if (depth == 0) { end = p; break; } depth--; }
-        else if (c == ',' && depth == 0) { end = p; break; }
+/* Il primo confine di clausola da `after` in poi.
+ *
+ * `kb_load` non legge per righe: accumula caratteri e chiude la clausola al
+ * punto a profondita' zero fuori dalle virgolette, trattando il fine-riga come
+ * uno spazio qualunque. Una clausola su piu' righe percio' e' legale, e
+ * nell'albero ce ne sono (le regole di context-scope.p0, le quartine di
+ * responses.p0: 336 righe di continuazione). Inserire un fatto in mezzo a una
+ * di quelle non da' errore di sintassi — cambia solo cio' che la regola dice, e
+ * nessuno se ne accorge:
+ *
+ *     noisy($X) :-            noisy($X) :-
+ *         animal($X),             animal($X),
+ *         has_sound($X, $S).  animal(cow, mammal).      <- il fatto instradato
+ *                                 has_sound($X, $S).    <- ora e' un fatto a se'
+ *
+ * La guardia sta qui, nello scrittore, e non nella mappa: il file lo stiamo
+ * leggendo comunque per deduplicare, quindi sapere dove finiscono le clausole
+ * non costa niente. Se la riga puntata cade dentro una clausola si va alla sua
+ * fine. La mappa resta ferma e approssimativa. */
+static int sm_safe_after(char *const *lines, size_t n, int after) {
+    int in_clause = 0, in_quote = 0;
+    for (size_t i = 0; i < n; i++) {
+        const char *s = lines[i];
+        while (*s && isspace((unsigned char)*s)) s++;
+        if (!in_clause) {
+            if (*s == '\0' || *s == '%') { if ((int)(i + 1) >= after) return (int)(i + 1); continue; }
+            in_clause = 1;
+        } else if (*s == '%') {
+            continue;              /* un commento in mezzo non chiude nulla */
+        }
+        int dot = 0;
+        for (const char *p = lines[i]; *p; p++) {
+            if (*p == '"') { in_quote = !in_quote; dot = 0; continue; }
+            if (in_quote) continue;
+            if (*p == '.') dot = 1;
+            else if (!isspace((unsigned char)*p)) dot = 0;
+        }
+        if (in_quote || !dot) continue;                 /* la clausola continua */
+        in_clause = 0;
+        if ((int)(i + 1) >= after) return (int)(i + 1);
     }
-    if (!end) return 0;
-    size_t al = (size_t)(end - start);
-    while (al > 0 && isspace((unsigned char)start[al - 1])) al--;
-    if (al >= 2 && start[0] == '"' && start[al - 1] == '"') { start++; al -= 2; }
-    if (al == 0 || al >= SM_ARG) return 0;
-    memcpy(arg1, start, al); arg1[al] = '\0';
-    return 1;
-}
-
-static void sm_scan_file(const char *path, SmRow *rows, size_t *nrows) {
-    FILE *f = fopen(path, "r");
-    if (!f) return;
-    char line[1024];
-    int ln = 0;
-    while (fgets(line, sizeof line, f)) {
-        ln++;
-        if (*nrows >= SM_MAX_ROWS) break;
-        char pred[SM_PRED], arg1[SM_ARG];
-        if (sm_parse(line, pred, arg1)) {
-            SmRow *r = &rows[(*nrows)++];
-            snprintf(r->pred, SM_PRED, "%s", pred);
-            snprintf(r->arg1, SM_ARG, "%s", arg1);
-            snprintf(r->file, SM_PATH, "%s", path);
-            r->line = ln;
-        }
-    }
-    fclose(f);
-}
-
-static void sm_scan_dir(const char *dir, SmRow *rows, size_t *nrows) {
-    DIR *d = opendir(dir);
-    if (!d) return;
-    struct dirent *e;
-    while ((e = readdir(d)) && *nrows < SM_MAX_ROWS) {
-        if (e->d_name[0] == '.') continue;
-        char path[SM_PATH];
-        if ((size_t)snprintf(path, sizeof path, "%s/%s", dir, e->d_name) >= sizeof path)
-            continue;
-        struct stat st;
-        if (stat(path, &st) != 0) continue;
-        if (S_ISDIR(st.st_mode)) sm_scan_dir(path, rows, nrows);
-        else {
-            size_t l = strlen(e->d_name);
-            if (l > 3 && !strcmp(e->d_name + l - 3, ".p0"))
-                sm_scan_file(path, rows, nrows);
-        }
-    }
-    closedir(d);
-}
-
-/* Route (pred,arg1) to a home: exact pair (last) -> same predicate (last) -> none.
- * Returns 1 and fills out_file/out_line on a hit; 0 for the default fallback. */
-static int sm_route(const SmRow *rows, size_t nrows, const char *pred,
-                    const char *arg1, char *out_file, int *out_line) {
-    for (size_t i = nrows; i-- > 0; )
-        if (!strcmp(rows[i].pred, pred) && !strcmp(rows[i].arg1, arg1)) {
-            snprintf(out_file, SM_PATH, "%s", rows[i].file); *out_line = rows[i].line; return 1;
-        }
-    for (size_t i = nrows; i-- > 0; )
-        if (!strcmp(rows[i].pred, pred)) {
-            snprintf(out_file, SM_PATH, "%s", rows[i].file); *out_line = rows[i].line; return 1;
-        }
-    return 0;
+    return (int)n;
 }
 
 /* Insert `text` (a full "fact." line, no newline) into `file` right after 1-based
  * line `after`. If the exact line already exists anywhere in the file, do nothing
- * (dedup) and report success. Returns 1 on success. */
+ * (dedup).
+ *
+ * Ritorna 0 se non ha potuto, 1 se ha INSERITO, 2 se il fatto era gia' a casa.
+ *
+ * LA RIGA PUNTATA PUO' ESSERE VECCHIA, e va bene: la mappa non si corregge dopo
+ * un inserimento, quindi il secondo fatto instradato nello stesso file mira a
+ * una riga slittata di uno. Non e' un problema — resta accanto ai suoi parenti,
+ * ed e' quello che si vuole. L'UNICA cosa che non deve succedere e' cadere in
+ * mezzo a una clausola, e per quella basta guardare il file mentre lo si legge
+ * comunque: vedi sm_safe_after. */
 static int sm_insert(const char *file, int after, const char *text) {
     FILE *f = fopen(file, "r");
     if (!f) return 0;
@@ -4148,7 +4325,7 @@ static int sm_insert(const char *file, int after, const char *text) {
         while (tl && (t[tl - 1] == '\n' || t[tl - 1] == '\r' || t[tl - 1] == ' ')) t[--tl] = '\0';
         if (!strcmp(t, text)) {
             for (size_t i = 0; i < n; i++) free(lines[i]);
-            free(lines); fclose(f); return 1;                 /* already home */
+            free(lines); fclose(f); return 2;                 /* already home */
         }
         if (n >= cap) { cap = cap ? cap * 2 : 128;
             char **nl = realloc(lines, cap * sizeof *lines);
@@ -4162,6 +4339,7 @@ static int sm_insert(const char *file, int after, const char *text) {
     }
     fclose(f);
     if (after < 0 || (size_t)after > n) after = (int)n;
+    after = sm_safe_after(lines, n, after);
     FILE *o = fopen(file, "w");
     if (!o) { for (size_t i = 0; i < n; i++) free(lines[i]); free(lines); return 0; }
     int inserted = 0;
@@ -4178,6 +4356,60 @@ static int sm_insert(const char *file, int after, const char *text) {
     return 1;
 }
 
+/* Un elenco di righe in memoria: serve a trattare il file di ricaduta come un
+ * testo da RISCRIVERE (leggi, decidi, riscrivi) invece che come un flusso a cui
+ * accodare alla cieca. Vedi kb_save_routed per il perche'. */
+typedef struct { char **v; size_t n, cap; } SmLines;
+
+static int sml_push(SmLines *L, const char *s) {
+    if (L->n >= L->cap) {
+        size_t cap = L->cap ? L->cap * 2 : 128;
+        char **nv = realloc(L->v, cap * sizeof *nv);
+        if (!nv) return 0;
+        L->v = nv; L->cap = cap;
+    }
+    size_t sl = strlen(s);
+    L->v[L->n] = malloc(sl + 1);
+    if (!L->v[L->n]) return 0;
+    memcpy(L->v[L->n], s, sl + 1);
+    L->n++;
+    return 1;
+}
+
+static int sml_has(const SmLines *L, const char *s) {
+    for (size_t i = 0; i < L->n; i++) if (!strcmp(L->v[i], s)) return 1;
+    return 0;
+}
+
+static void sml_free(SmLines *L) {
+    for (size_t i = 0; i < L->n; i++) free(L->v[i]);
+    free(L->v); L->v = NULL; L->n = L->cap = 0;
+}
+
+/* Le righe del file, senza il fine-riga: il confronto fra «cio' che c'e' gia'» e
+ * «cio' che si vuole scrivere» dev'essere fra testi, non fra buffer. */
+static void sml_read(SmLines *L, const char *path) {
+    FILE *f = fopen(path, "r");
+    if (!f) return;
+    char buf[2048];
+    while (fgets(buf, sizeof buf, f)) {
+        size_t l = strlen(buf);
+        while (l && (buf[l - 1] == '\n' || buf[l - 1] == '\r')) buf[--l] = '\0';
+        if (!sml_push(L, buf)) break;
+    }
+    fclose(f);
+}
+
+/* write_term, ma su stringa: la ricaduta si compone in memoria prima di essere
+ * confrontata con cio' che il file contiene gia'. */
+static size_t sm_term_str(const Term *t, char *out, size_t sz) {
+    size_t o = (size_t)snprintf(out, sz, "%s(", t->pred);
+    for (size_t i = 0; i < t->argc && o < sz; i++)
+        o += (size_t)snprintf(out + o, sz - o, "%s%s", i ? ", " : "", t->args[i]);
+    if (o < sz) o += (size_t)snprintf(out + o, sz - o, ")");
+    return o;
+}
+
 static void sm_fact_text(const Fact *fa, char *out, size_t sz) {
     size_t o = (size_t)snprintf(out, sz, "%s(", fa->pred);
     for (size_t j = 0; j < fa->argc && o < sz; j++)
@@ -4191,79 +4423,137 @@ static void sm_fact_text(const Fact *fa, char *out, size_t sz) {
  * clause count. The on-disk index at `<root>/savemap.tsv` is refreshed for
  * inspection. */
 int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
-    if (!kb || !default_path || !root || !*root) return -1;
-    SmRow *rows = malloc(SM_MAX_ROWS * sizeof *rows);
-    if (!rows) return kb_save(kb, default_path, KB_SESSION | KB_INDUCED);
-    size_t nrows = 0;
-    sm_scan_dir(root, rows, &nrows);
+    if (!kb || !default_path || !*default_path) return -1;
+    /* `root` non serve piu' a trovare le case — la mappa e' in RAM — ma resta il
+     * posto dove si deposita l'indice ispezionabile. */
 
     int count = 0;
     char *routed = calloc(kb->n ? kb->n : 1, 1);
-    int default_targeted = 0;   /* set when a fact was sm_inser'd INTO default_path */
+    if (!routed) return kb_save(kb, default_path, KB_SESSION | KB_INDUCED);
+
+    /* I fatti che hanno trovato una casa ALTROVE: servono dopo, per togliere
+     * dalla ricaduta cio' che nel frattempo ha imparato dove stare. */
+    SmLines homed = {0};
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *fa = &kb->facts[i];
         if (!(fa->origin & (KB_SESSION | KB_INDUCED)) || fa->argc == 0) continue;
+        const char *file = NULL; int line = 0;
+        if (!smap_home(kb, fa->pred, fa->args[0], &file, &line)) continue;
         char text[2048];
         sm_fact_text(fa, text, sizeof text);
-        char file[SM_PATH]; int line;
-        if (sm_route(rows, nrows, fa->pred, fa->args[0], file, &line) &&
-            sm_insert(file, line, text)) {
-            if (!strcmp(file, default_path)) default_targeted = 1;
-            routed[i] = 1; count++;
-            if (nrows < SM_MAX_ROWS) {
-                SmRow *r = &rows[nrows++];
-                snprintf(r->pred, SM_PRED, "%s", fa->pred);
-                snprintf(r->arg1, SM_ARG, "%s", fa->args[0]);
-                snprintf(r->file, SM_PATH, "%s", file);
-                r->line = line + 1;
+        if (!sm_insert(file, line, text)) continue;
+        routed[i] = 1; count++;
+        if (strcmp(file, default_path)) sml_push(&homed, text);
+    }
+
+    /* ── LA RICADUTA SI RISCRIVE ─────────────────────────────────────────────
+     *
+     * Qui finisce solo cio' che la mappa non sa collocare: fatti di predicati
+     * che l'albero non ha mai visto, negativi e regole. E' il caso in cui
+     * `learned.p0` e' la risposta giusta — l'unico.
+     *
+     * Due errori gia' commessi su questo file, per non rifarli:
+     *
+     *  - aprirlo in "w": un `/save` qualunque lo riscriveva da zero e cancellava
+     *    tutto cio' che le sessioni precedenti avevano depositato li'. Misurato
+     *    mentre accadeva: 1403 righe -> 14. L'intenzione era «riscrivere
+     *    l'istantanea della sessione», che sarebbe giusta per un file di
+     *    sessione — ma questo e' un accumulatore, e un accumulatore non si
+     *    tronca;
+     *  - aprirlo in "a" e basta: nessuna perdita, ma ogni giro riappendeva cio'
+     *    che era gia' dentro e il file cresceva di doppioni a ogni salvataggio.
+     *
+     * La forma giusta e' la terza: si rilegge cio' che c'e', si TOGLIE cio' che
+     * nel frattempo ha trovato una casa vera (l'albero cresce, e un fatto che
+     * ieri non aveva parenti oggi puo' averne), si aggiunge solo cio' che manca,
+     * si riscrive il file intero. Cosi' la ricaduta resta cio' che dice di
+     * essere: il deposito di cio' che non ha ancora un posto. */
+    SmLines keep = {0};
+    sml_read(&keep, default_path);
+    if (homed.n) {
+        size_t w = 0;
+        for (size_t i = 0; i < keep.n; i++) {
+            if (sml_has(&homed, keep.v[i])) { free(keep.v[i]); continue; }
+            keep.v[w++] = keep.v[i];
+        }
+        keep.n = w;
+    }
+
+    size_t kept = keep.n;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *fa = &kb->facts[i];
+        if (!(fa->origin & (KB_SESSION | KB_INDUCED)) || routed[i]) continue;
+        char text[2048]; sm_fact_text(fa, text, sizeof text);
+        if (!sml_has(&keep, text)) sml_push(&keep, text);
+        count++;
+    }
+    for (size_t i = 0; i < kb->nn; i++) {
+        const Fact *fa = &kb->neg[i];
+        if (!(fa->origin & (KB_SESSION | KB_INDUCED))) continue;
+        char text[2048];
+        size_t o = (size_t)snprintf(text, sizeof text, "not(%s(", fa->pred);
+        for (size_t j = 0; j < fa->argc && o < sizeof text; j++)
+            o += (size_t)snprintf(text + o, sizeof text - o, "%s%s", j ? ", " : "", fa->args[j]);
+        if (o < sizeof text) snprintf(text + o, sizeof text - o, ")).");
+        if (!sml_has(&keep, text)) sml_push(&keep, text);
+        count++;
+    }
+    for (size_t i = 0; i < kb->nr; i++) {
+        const Rule *r = &kb->rules[i];
+        if (!(r->origin & (KB_SESSION | KB_INDUCED))) continue;
+        char text[2048];
+        size_t o = sm_term_str(&r->head, text, sizeof text);
+        if (o < sizeof text) o += (size_t)snprintf(text + o, sizeof text - o, " :- ");
+        for (size_t j = 0; j < r->nbody && o < sizeof text; j++) {
+            if (j) o += (size_t)snprintf(text + o, sizeof text - o, ", ");
+            if (o >= sizeof text) break;
+            if (r->body[j].neg) {
+                o += (size_t)snprintf(text + o, sizeof text - o, "naf(");
+                o += sm_term_str(&r->body[j], text + o, sizeof text - o);
+                if (o < sizeof text) o += (size_t)snprintf(text + o, sizeof text - o, ")");
+            } else {
+                o += sm_term_str(&r->body[j], text + o, sizeof text - o);
             }
+        }
+        if (o < sizeof text) snprintf(text + o, sizeof text - o, ".");
+        if (!sml_has(&keep, text)) sml_push(&keep, text);
+        count++;
+    }
+
+    /* Si riscrive solo se qualcosa e' davvero cambiato: un salvataggio che non
+     * ha niente da dire non deve toccare il file. */
+    if (keep.n != kept || homed.n) {
+        FILE *df = fopen(default_path, "w");
+        if (df) {
+            for (size_t i = 0; i < keep.n; i++) fprintf(df, "%s\n", keep.v[i]);
+            fclose(df);
         }
     }
 
-    /* default file: unrouted facts + all negatives + all rules.
-     * When sm_insert has already routed facts INTO default_path, we APPEND instead
-     * of truncating — otherwise the freshly-routed facts are lost. */
-    FILE *df = fopen(default_path, default_targeted ? "a" : "w");
-    if (df) {
-        for (size_t i = 0; i < kb->n; i++) {
-            const Fact *fa = &kb->facts[i];
-            if (!(fa->origin & (KB_SESSION | KB_INDUCED)) || routed[i]) continue;
-            char text[2048]; sm_fact_text(fa, text, sizeof text);
-            fprintf(df, "%s\n", text); count++;
-        }
-        for (size_t i = 0; i < kb->nn; i++) {
-            const Fact *fa = &kb->neg[i];
-            if (!(fa->origin & (KB_SESSION | KB_INDUCED))) continue;
-            fprintf(df, "not(%s(", fa->pred);
-            for (size_t j = 0; j < fa->argc; j++) fprintf(df, "%s%s", j ? ", " : "", fa->args[j]);
-            fprintf(df, ")).\n"); count++;
-        }
-        for (size_t i = 0; i < kb->nr; i++) {
-            const Rule *r = &kb->rules[i];
-            if (!(r->origin & (KB_SESSION | KB_INDUCED))) continue;
-            write_term(df, &r->head); fprintf(df, " :- ");
-            for (size_t j = 0; j < r->nbody; j++) {
-                if (j) fprintf(df, ", ");
-                if (r->body[j].neg) { fprintf(df, "naf("); write_term(df, &r->body[j]); fputc(')', df); }
-                else write_term(df, &r->body[j]);
-            }
-            fprintf(df, ".\n"); count++;
-        }
-        fclose(df);
-    }
-
-    /* refresh the inspectable on-disk index (soft; failure is harmless). */
+    /* L'indice ispezionabile: la mappa cosi' com'e' in RAM, su disco. Non viene
+     * mai riletta — serve a un umano per rispondere alla sola domanda che conta
+     * su un instradamento, «perche' e' finito li'». */
     char idx[SM_PATH];
-    if ((size_t)snprintf(idx, sizeof idx, "%s/savemap.tsv", root) < sizeof idx) {
+    if (root && *root &&
+        (size_t)snprintf(idx, sizeof idx, "%s/savemap.tsv", root) < sizeof idx) {
         FILE *ix = fopen(idx, "w");
         if (ix) {
-            for (size_t i = 0; i < nrows; i++)
-                fprintf(ix, "%s\t%s\t%s\t%d\n", rows[i].pred, rows[i].arg1,
-                        rows[i].file, rows[i].line);
+            for (size_t i = 0; i < kb->smap.cap; i++) {
+                const SmSlot *sl = &kb->smap.slots[i];
+                if (!sl->key || sl->file < 0 || (size_t)sl->file >= kb->smap.nfiles) continue;
+                const char *sep = strchr(sl->key, '\x01');
+                if (sep) fprintf(ix, "%.*s\t%s\t%s\t%d\n", (int)(sep - sl->key), sl->key,
+                                 sep + 1, kb->smap.files[sl->file], sl->line);
+                else     fprintf(ix, "%s\t*\t%s\t%d\n", sl->key,
+                                 kb->smap.files[sl->file], sl->line);
+            }
             fclose(ix);
         }
     }
-    free(routed); free(rows);
+
+    sml_free(&keep);
+    sml_free(&homed);
+    free(routed);
     return count;
 }
 

@@ -52,3 +52,8 @@ tests/parrotbench/results/
 
 # gen278: per-process code-oracle temp files (parallel-safe)
 .p0_*
+
+# gen411: i registri di lavoro del processo autonomo — agenda e ponti indotti,
+# non conoscenza curata. Si rigenerano, e non vanno versionati.
+kb/learning/gaps.p0
+kb/learning/bridges.p0

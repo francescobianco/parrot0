@@ -364,6 +364,12 @@ int main(int argc, char **argv) {
     if (dream_topic) {   /* "" = sogna le lacune aperte, vedi dream.c */
         DreamOpts dopts = { dream_depth, dream_nodes, dream_fetch, dream_persist, stdout };
         int n = dream_run(brain, dream_topic, &dopts);
+        /* gen411: il registro di lavoro si riscrive alla fine del giro — le
+         * lacune chiuse spariscono, quelle rimaste aspettano il prossimo. E'
+         * l'unica cosa che rende il criterio del piano osservabile fra due
+         * esecuzioni invece che dentro una sola. */
+        brain_gaps_save(brain);
+        brain_bridges_save(brain);
         brain_destroy(brain);
         return n > 0 ? 0 : 1;
     }
@@ -420,6 +426,15 @@ int main(int argc, char **argv) {
         }
         if (strcmp(line, "/session") == 0) {
             fprintf(stderr, "parrot0: session dump at %s\n", brain_session_dump_path());
+            continue;
+        }
+        if (strcmp(line, "/gaps") == 0) {
+            /* gen411: il registro di LAVORO, che e' un'altra cosa dalla
+             * conoscenza: `/save` instrada nell'albero curato, e un'agenda non
+             * va nell'albero curato. */
+            int n = brain_gaps_save(brain);
+            fprintf(stderr, "parrot0: %d gap(s) written to %s\n",
+                    n, brain_gaps_path());
             continue;
         }
         if (strcmp(line, "/save") == 0) {
