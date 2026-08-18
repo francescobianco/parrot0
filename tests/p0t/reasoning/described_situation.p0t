@@ -141,3 +141,30 @@
 < Conosco un'azione adatta, ma in quella situazione una sua precondizione non vale.
 > la valvola è chiusa, come faccio ad abbassare il livello
 < Puoi aprire la valvola.
+
+# ── IL CONTESTO DICHIARATO (gen399) ────────────────────────────────────────
+#
+# «siamo in spiaggia» murava. La sonda `failure_modes_probe.py` ha mostrato che
+# un modello di frontiera fa la cosa piu' semplice: accetta il contesto e ci sta
+# dentro. Non e' una domanda e non chiede un piano — e' un'ambientazione, e la
+# mossa dovuta e' riconoscerla, perche' un interlocutore che ignora dove siete
+# non e' un interlocutore.
+#
+# Il layout e' l'opposto delle descrizioni di sopra: li' il valore sta nella cue
+# («e' chiusa») e il soggetto la precede, qui la cue apre e il valore e' il
+# payload. Due forme della stessa idea, due letture, un solo parser.
+[test a declared setting is acknowledged and named back]
+!set PARROT0_LANG=it
+!reset
+> siamo in spiaggia
+< Ci siamo, siamo in spiaggia — cosa vuoi fare?
+
+[test the setting surface is knowledge like every other]
+> ci ritroviamo in montagna
+<! Ci siamo, siamo in
+!assert setting_cue("ci ritroviamo in")
+> ci ritroviamo in montagna
+< Ci siamo, siamo in montagna — cosa vuoi fare?
+!forget setting_cue("ci ritroviamo in")
+> ci ritroviamo in montagna
+<! Ci siamo, siamo in

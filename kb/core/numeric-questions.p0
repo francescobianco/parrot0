@@ -1,0 +1,87 @@
+% numeric-questions.p0 — I NUMERI CHE IL TURNO PORTA (gen399).
+%
+% Dal censimento di `docs/plans/parrot0-100-failures.md`: «which is greater,
+% 3.14 or 3.41?» rispondeva «I don't know about greater yet», e con lui
+% l'ordinamento, il resto della divisione e la mediana. Non era una lacuna di
+% CALCOLO — `is/2`, `gt/2`, `le/2` e `mod` esistono dal gen335 e `max_list/2` sta
+% in `procedures.p0` da allora. Mancava il ponte: nessuna superficie portava i
+% numeri del turno dentro un operatore.
+%
+% Il fascio si chiude una volta sola perche' il ponte e' generico: una domanda
+% numerica nuova e' UNA cue piu' UNA procedura, e nessun consumer cambia. La
+% sonda `failure_modes_probe.py` ha mostrato che la mossa giusta e' anche corta —
+% «3.41 is greater», «2, 4, 8, 11» — quindi la resa non spiega se non le si
+% chiede.
+
+:- file_attribute(machinery).
+
+% ── 1. LE PROCEDURE, che sono conoscenza ───────────────────────────────────
+%
+% `max_list/2` c'era gia'. Le altre sono la stessa specie: fold e ricorsione
+% sopra i primitivi, nessuna riga di C. L'ordinamento e' un inserimento — la
+% forma piu' piccola che sia ancora un ordinamento — e mediana e minimo ci si
+% appoggiano invece di rifare il lavoro.
+min_list(cons($X, nil), $X).
+min_list(cons($H, $T), $M) :- min_list($T, $M1), le($H, $M1), is($M, $H).
+min_list(cons($H, $T), $M) :- min_list($T, $M1), gt($H, $M1), is($M, $M1).
+
+insert_sorted($X, nil, cons($X, nil)).
+insert_sorted($X, cons($H, $T), cons($X, cons($H, $T))) :- le($X, $H).
+insert_sorted($X, cons($H, $T), cons($H, $R)) :- gt($X, $H), insert_sorted($X, $T, $R).
+sort_list(nil, nil).
+sort_list(cons($H, $T), $R) :- sort_list($T, $S), insert_sorted($H, $S, $R).
+
+nth_item(cons($H, $T), 0, $H).
+nth_item(cons($H, $T), $K, $X) :- gt($K, 0), is($K1, sub($K, 1)), nth_item($T, $K1, $X).
+
+% Con un numero pari di valori questa mediana prende quello centrale INFERIORE
+% invece della media dei due: e' una scelta, e va detta. La media dei centrali
+% entra il giorno in cui un caso reale la chiede, non oggi per completezza.
+median_list($List, $M) :- sort_list($List, $Sorted), count_list($List, $N), is($K, div(sub($N, 1), 2)), nth_item($Sorted, $K, $M).
+
+% ── 2. I NUMERI DEL TURNO ──────────────────────────────────────────────────
+%
+% `turn_span_token/4` pubblica gia' ogni parola del turno; un token e' un NUMERO
+% quando l'aritmetica lo accetta, che e' lo stesso criterio che `code-plans.p0`
+% usa per le obbligazioni. Non serve una classe lessicale: lo decide l'operatore
+% che dovra' leggerlo.
+turn_number($Turn, $Number) :- turn_span_token($Turn, $Index, $Position, $Token), span_number($Token, $Number).
+turn_number_list($Turn, $Numbers) :- findall($N, turn_number($Turn, $N), $Numbers).
+
+% ── 3. LA SUPERFICIE E L'OPERATORE ─────────────────────────────────────────
+%
+% Una cue nomina un operatore; l'operatore e' una procedura. Aggiungerne uno e'
+% due fatti e nessun codice — ed e' il motivo per cui questo file chiude un
+% fascio dei cento fallimenti invece di quattro casi.
+numeric_cue("which is greater", greatest).
+numeric_cue("which is larger", greatest).
+numeric_cue("which is bigger", greatest).
+numeric_cue("qual è il maggiore", greatest).
+numeric_cue("qual è il più grande", greatest).
+numeric_cue("which is smaller", least).
+numeric_cue("which is less", least).
+numeric_cue("qual è il minore", least).
+numeric_cue("sort these numbers", ascending).
+numeric_cue("sort the numbers", ascending).
+numeric_cue("ordina questi numeri", ascending).
+numeric_cue("in ascending order", ascending).
+numeric_cue("what is the median of", median).
+numeric_cue("qual è la mediana di", median).
+numeric_cue("what is the remainder of", remainder).
+numeric_cue("qual è il resto di", remainder).
+turn_cue_registry(numeric_cue, 1).
+
+turn_numeric_op($Turn, $Op) :- turn_cue_form($Turn, numeric_cue, $Cue), numeric_cue($Cue, $Op).
+
+apply_numeric(greatest, $List, $Result) :- max_list($List, $Result).
+apply_numeric(least, $List, $Result) :- min_list($List, $Result).
+apply_numeric(median, $List, $Result) :- median_list($List, $Result).
+apply_numeric(remainder, cons($A, cons($B, nil)), $Result) :- is($Result, mod($A, $B)).
+
+% L'ordinamento non produce un numero ma una LISTA, quindi ha la sua resa: il
+% fold su lista del gen397, con il separatore della lingua come dato.
+numeric_answer($Turn, $Text) :- turn_numeric_op($Turn, ascending), turn_number_list($Turn, $Numbers), sort_list($Numbers, $Sorted), current_language($Language), list_text($Language, $Sorted, $Text).
+numeric_answer($Turn, $Text) :- turn_numeric_op($Turn, $Op), dif($Op, ascending), turn_number_list($Turn, $Numbers), apply_numeric($Op, $Numbers, $Value), current_language($Language), value_statement($Language, $Value, $Text).
+
+turn_plan_candidate($Turn) :- numeric_answer($Turn, $Text).
+turn_response($Turn, $Text) :- numeric_answer($Turn, $Text).

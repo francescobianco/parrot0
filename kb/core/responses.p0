@@ -341,6 +341,12 @@ ability_opener(en, "You can ").
 % soltanto in che rapporto stanno due proposizioni gia' provate.
 % gen398b: la penuria si NOMINA. «Non posso» e «mi manca X» chiudono due
 % conversazioni diverse: la seconda dice che cosa potrebbe cambiare.
+% gen399: un contesto dichiarato si riconosce e ci si sta dentro. La frase
+% NOMINA il posto invece di dire «ok»: e' la prova che e' stato capito.
+setting_opener(en, "Got it, we are at ").
+setting_opener(it, "Ci siamo, siamo in ").
+setting_closer(en, " — what would you like to do?").
+setting_closer(it, " — cosa vuoi fare?").
 shortage_opener(en, "I cannot: I am short of ").
 shortage_opener(it, "Non posso: mi manca ").
 reason_opener(en, "Because ").

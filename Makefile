@@ -545,6 +545,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/reasoning/plan_assumption.p0t
 	@./$(BIN) --test tests/p0t/reasoning/plan_reason.p0t
 	@./$(BIN) --test tests/p0t/reasoning/plan_resources.p0t
+	@./$(BIN) --test tests/p0t/reasoning/numeric_questions.p0t
 	@./$(BIN) --test tests/p0t/conversation/open_issues.p0t
 	@./$(BIN) --test tests/p0t/conversation/move_precedence.p0t
 	@./$(BIN) --test tests/p0t/conversation/attributed_belief.p0t

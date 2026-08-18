@@ -7,6 +7,42 @@ sul budget 15 (era fuori budget da settimane). Tutte e sette le generazioni del
 piano `docs/plans/frontier-kb-natural-dialogue.md` hanno ora almeno un taglio
 verticale funzionante; il piano e' intorno al **70%**.
 
+## ⛔ TODO APERTI DEL PIANO — non chiuderlo senza questi
+
+Il piano `docs/plans/frontier-kb-natural-dialogue.md` ha copertura FUNZIONALE
+completa: tutte e sette le generazioni del §15 e tutte e sette le
+sotto-generazioni del §17 hanno tagli verticali ratchettati. Quello che manca non
+e' piu' capacita' mancante, ed e' scritto qui perche' non diventi invisibile.
+
+1. **§9 — il confronto empirico non e' stato fatto.** Le batterie del §9.2
+   (parafrasi, ambiguita', ponte fra entita', uso/menzione, registro,
+   pragmatica, correzione, piano situazionale, sopravvivenza, triangolazione,
+   azione informativa, bilancio dinamico, multi-goal, scope, conversazione
+   lunga, cross-domain, negativo vicino) esistono come ratchet SPARSI, non come
+   batteria unica con le metriche del §9.3. Finche' non esiste, la percentuale
+   di completamento e' una stima nostra e non una misura.
+2. **La latenza (§10).** `reflexive_audit.p0t` porta un `!timeout 3` messo come
+   CEROTTO: quel turno costava 0,18s al gen382 e oggi ne costa 0,9. E' un
+   fattore cinque riguadagnato mentre la KB cresceva, e il §10 dice di
+   classificarlo come meccanica del solver. `findall/3` senza uscita anticipata
+   e' il nodo noto.
+3. **Due descrizioni nello stesso turno** non compongono: enumerarle
+   esaustivamente intreccia effetti e ricerca, e il solver ribacktracka dentro
+   gli assert. Si chiude separando gli effetti dalla ricerca.
+4. **Rifiniture dichiarate dei livelli situazionali:** alternative scartate e
+   residui nella resa (398g), dipendenze PER-PASSO invece del solo traguardo
+   (398e), separazione fra prova e fonte debole (398d), reversibilita' come
+   dimensione a se' (398f).
+5. **Dimensioni di registro oltre tecnicita' e formalita'** (396.1): concisione,
+   direttezza, cortesia, hedging.
+6. **`docs/plans/parrot0-100-failures.md`** — il censimento e' chiuso solo in
+   parte. Chiuse le famiglie numeriche (confronto, ordinamento, resto, mediana)
+   e il contesto dichiarato; restano logica formale (contrapposizione,
+   affermazione del conseguente), meta-domande sul sapere, salienza in un log,
+   trasferimento di pattern, e la stipulazione su un SIMBOLO
+   («immagina che 2 vale 3 quanto fa 2+2»), che chiede una sostituzione dentro
+   l'aritmetica e non solo un contesto ipotetico.
+
 ### Che cosa e' cambiato, in una frase
 
 Il pilastro che mancava quattro volte — il producer NL — ora esiste UNA volta:

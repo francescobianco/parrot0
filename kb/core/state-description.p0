@@ -102,6 +102,44 @@ state_commit($Entity, $Property, $Value) :- described_situation($Situation), ass
 state_settled($Situation, $Entity, $Property, $Value) :- state_superseded($Situation, $Entity, $Property, $Value).
 state_settled($Situation, $Entity, $Property, $Value) :- naf(state_superseded($Situation, $Entity, $Property, $Value)).
 
+% ── 4b. IL CONTESTO DICHIARATO (gen399) ────────────────────────────────────
+%
+% «siamo in spiaggia» murava, e la sonda ha mostrato che un modello di frontiera
+% fa la cosa piu' semplice: accetta il contesto e ci sta dentro. Non e' una
+% domanda e non chiede un piano — e' un'ambientazione, e la mossa dovuta e'
+% riconoscerla, perche' un interlocutore che ignora dove siete non e' un
+% interlocutore.
+%
+% La differenza con le descrizioni di sopra sta nel LAYOUT: li' il valore e'
+% nella cue («e' chiusa») e il soggetto la precede; qui la cue apre e il valore
+% e' il payload. Sono due forme della stessa idea, e servono due letture — non
+% due parser.
+setting_cue("siamo in").
+setting_cue("siamo a").
+setting_cue("ci troviamo in").
+setting_cue("ci troviamo a").
+setting_cue("we are at").
+setting_cue("we are in").
+setting_cue("i am at").
+setting_cue("sono in").
+setting_role_evidence(keyword($Cue)) :- setting_cue($Cue).
+segment_role(setting, $Evidence) :- setting_role_evidence($Evidence).
+
+setting_word($Turn, $Place) :- turn_span($Turn, $Index, setting, $Payload), turn_span_token($Turn, $Index, $Position, $Token), span_atom($Token, $Word), naf(stopword($Word)), canonical_value($Word, $Place).
+setting_key($Turn, place($Place)) :- setting_word($Turn, $Place).
+setting_set($Turn, $Places) :- turn_span($Turn, $Index, setting, $Payload), findall($P, setting_key($Turn, $P), $Places).
+setting_unique($Turn, $Place) :- setting_set($Turn, cons(place($Place), nil)).
+
+% L'ambientazione e' uno stato come gli altri, quindi entra nella stessa
+% situazione descritta: da li' un piano potra' usarla senza sapere che e'
+% arrivata come ambientazione invece che come descrizione.
+bookkeeper(setting).
+turn_bookkeeping($Turn, setting) :- setting_unique($Turn, $Place), state_commit(here, place, $Place).
+
+answer_content(setting_ack($Place, $Language), 0, opener, $Piece) :- setting_opener($Language, $Piece).
+answer_content(setting_ack($Place, $Language), 1, place, $Piece) :- value_in_language($Language, $Place, $Piece).
+answer_content(setting_ack($Place, $Language), 2, closer, $Piece) :- setting_closer($Language, $Piece).
+
 % ── 5. LA MOSSA ────────────────────────────────────────────────────────────
 %
 % Descrivere non fa una domanda: la mossa dovuta e' riconoscere. Dedurne una
@@ -136,4 +174,7 @@ answer_content(broken_plan($Action, $Language), 2, closer, $Piece) :- broken_pla
 
 turn_response($Turn, $Text) :- state_unique($Turn, $Entity, $Property, $Value), naf(turn_goal_span($Turn)), plan_broken($Goal, $Action), current_language($Language), answer_text(broken_plan($Action, $Language), $Text).
 turn_response($Turn, $Text) :- state_unique($Turn, $Entity, $Property, $Value), naf(turn_goal_span($Turn)), naf(any_broken_plan), current_language($Language), response_template(state_acknowledged, $Language, $Text).
+
+turn_plan_candidate($Turn) :- setting_unique($Turn, $Place).
+turn_response($Turn, $Text) :- setting_unique($Turn, $Place), naf(turn_goal_span($Turn)), current_language($Language), answer_text(setting_ack($Place, $Language), $Text).
 any_broken_plan :- plan_broken($Goal, $Action).

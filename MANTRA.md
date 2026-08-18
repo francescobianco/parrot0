@@ -88,6 +88,16 @@ La KB di parrot0 deve passare da "grande dizionario di fatti interrogabili" a
 casi, budget 15 secondi: se sfora, si tolgono casi, non si alza il budget. La
 suite intera è `make test`.
 
+## ⛔ TODO aperti, se stai cercando da dove ripartire
+
+`KB_TODO.md` in testa porta l'elenco dei residui del piano
+`docs/plans/frontier-kb-natural-dialogue.md` — copertura funzionale completa, ma
+il §9 (confronto empirico), la latenza del §10 e il censimento di
+`docs/plans/parrot0-100-failures.md` restano aperti. Il metodo per chiuderli e'
+quello delle sonde: `tests/*_probe.py` scopre la MOSSA di un modello di
+frontiera, la KB la riproduce come regola, il `.p0t` la tiene ferma. Chiudere un
+prompt senza chiudere la sua classe non conta come progresso.
+
 ## Dove sta il resto
 
 - `PRINCIPLES.md` — il *perché* dell'esperimento (la regola anti-inganno).

@@ -1761,7 +1761,15 @@ static void turn_publish_tokens(Brain *b, const char *surface,
     for (size_t p = start; p < end && k < TURN_MAX_TOKENS; ) {
         if (!(isalnum((unsigned char)surface[p]) || surface[p] == '_')) { p++; continue; }
         size_t t = p;
-        while (p < end && (isalnum((unsigned char)surface[p]) || surface[p] == '_')) p++;
+        /* gen399: un punto FRA DUE CIFRE appartiene al numero. Spezzando «3.14»
+         * in «3» e «14» la memoria di lavoro non registrava piu' cio' che il
+         * turno aveva detto — e «which is greater, 3.14 or 3.41?» rispondeva
+         * «41», che e' un pezzo di una parola. Il confine e' stretto apposta: il
+         * punto di fine frase non ha una cifra dopo, quindi resta un confine. */
+        while (p < end && (isalnum((unsigned char)surface[p]) || surface[p] == '_' ||
+                           (surface[p] == '.' && p > t && p + 1 < end &&
+                            isdigit((unsigned char)surface[p - 1]) &&
+                            isdigit((unsigned char)surface[p + 1])))) p++;
         char tok[KB_TERM_LEN];
         if (!turn_quote(surface, t, p - t, tok, sizeof tok)) continue;
         char pos[24];

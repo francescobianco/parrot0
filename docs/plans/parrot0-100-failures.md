@@ -35,6 +35,32 @@ regressioni da miglioramenti.
 | `FUORI` | Risposta estranea, spesso un template causale o progettuale |
 | `SCHEMA` | Riconosce la richiesta ma non possiede uno schema verificato per produrre l'artefatto |
 
+## ⛔ TODO — stato di chiusura (aggiornato 2026-08-18)
+
+CHIUSE come CLASSI, non come casi (ratchet in `tests/p0t/reasoning/`):
+
+- famiglie numeriche — confronto, ordinamento, resto, mediana (#1, #2, #3, #5):
+  `numeric_questions.p0t`. Il ponte e' generico: una domanda numerica nuova e'
+  una cue piu' una procedura, e il test lo prova aggiungendone una a runtime;
+- contesto dichiarato («siamo in spiaggia»): `described_situation.p0t`.
+
+APERTE, e vanno chiuse come classi allo stesso modo:
+
+- logica formale: contrapposizione, affermazione del conseguente, sillogismi con
+  quantificatori misti (#6, #7, #8, #9);
+- meta-domande sul sapere: che cosa manca per rispondere, come si sa di non
+  sapere (#11, #13, #14);
+- salienza dentro un testo o un log (#15, #16, #17);
+- trasferimento di pattern fra domini (#18, #19);
+- stipulazione su un SIMBOLO — «immagina che 2 vale 3 quanto fa 2+2» — che
+  chiede una sostituzione dentro l'aritmetica e non soltanto un mondo ipotetico.
+  La sonda `tests/failure_modes_probe.py` ne ha registrato la mossa
+  dell'oracolo: «Se 2 vale 3, allora 2 + 2 vale 3 + 3 = 6».
+
+Il metodo resta quello: la sonda scopre la MOSSA, la KB la riproduce come regola,
+il ratchet la tiene ferma. Chiudere un prompt senza chiudere la sua classe non
+conta come progresso.
+
 ## Elenco dei fallimenti
 
 | # | Prompt | Esito osservato |
