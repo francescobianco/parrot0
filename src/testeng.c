@@ -457,10 +457,18 @@ static int te_process_stream(TeState *t, FILE *in) {
             const char *args[KB_MAX_ARGS];
             size_t argc = te_split_args(q, argbuf, args, &q);
             if (argc == 0) { syntax_err = 1; continue; }
-            /* una `$Var` e' una posizione libera: kb_match la lega, kb_query no */
+            /* Ogni `$Var` e' una posizione libera. La prima versione ne
+             * liberava una sola — l'ultima incontrata — e `dead_rule($H, $M)`
+             * finiva per cercare un fatto il cui secondo argomento fosse la
+             * stringa «$M». Falliva sempre, e sembrava che il predicato non
+             * esistesse: un errore dello strumento di misura travestito da
+             * risultato, che e' il tipo peggiore. */
             int free_slot = -1;
             for (size_t i = 0; i < argc; i++)
-                if (args[i] && args[i][0] == '$') { free_slot = (int)i; args[i] = NULL; }
+                if (args[i] && args[i][0] == '$') {
+                    if (free_slot < 0) free_slot = (int)i;
+                    args[i] = NULL;
+                }
             int found;
             if (free_slot >= 0) {
                 char hit[1][KB_TERM_LEN];

@@ -234,6 +234,37 @@ ancestor_of($X, $Y) :- parent_of($X, $Y).
 ancestor_of($X, $Z) :- parent_of($X, $Y), ancestor_of($Y, $Z).
 descendant_of($X, $Y) :- ancestor_of($Y, $X).
 grandfather_of($X, $Z) :- parent_of($X, $Y), parent_of($Y, $Z).
+% ── gen408: IL PONTE CHE MANCAVA ──────────────────────────────────────────
+%
+% Trovato da una domanda vera — «il padre del padre è inteso il?» — e da nessun
+% test, perche' nessun test lo attraversava.
+%
+% Tutto lo strato del ragionamento familiare qui sopra legge `parent_of/2`, e
+% `parent_of/2` esisteva SOLO come i sette fatti di esempio scritti qui sotto.
+% La conversazione, quando qualcuno dice «marco is the father of luca», scrive
+% `father/2`. Due vocabolari per la stessa relazione, e nessun ponte fra loro:
+% `ancestor_of`, `grandfather_of`, `sibling_of`, `descendant_of` potevano
+% rispondere soltanto delle sette persone di esempio, e di nessuna famiglia che
+% qualcuno raccontasse davvero.
+%
+% Non e' una lacuna di conoscenza: e' un dialetto privato, §4d di
+% question-emergence.md. E si chiude con due righe, che e' esattamente cio' che
+% lo rendeva difficile da vedere — nessuno cerca due righe in una KB che
+% funziona.
+parent_of($X, $Y) :- father($X, $Y).
+parent_of($X, $Y) :- mother($X, $Y).
+
+% E lo stesso dialetto privato si ripete un piano piu' su: le REGOLE si chiamano
+% `grandfather_of`, `ancestor_of`, `sibling_of`; le DOMANDE, quando qualcuno
+% chiede «is marco the grandfather of anna», cercano `grandfather/2`. Il
+% suffisso `_of` e' una convenzione di chi ha scritto le regole, e nessuno
+% l'aveva detto a chi scrive le domande.
+grandfather($X, $Y) :- grandfather_of($X, $Y).
+ancestor($X, $Y) :- ancestor_of($X, $Y).
+descendant($X, $Y) :- descendant_of($X, $Y).
+sibling($X, $Y) :- sibling_of($X, $Y).
+child($X, $Y) :- child_of($X, $Y).
+
 parent_of(ann, tom).
 parent_of(john, mary).
 parent_of(john, peter).

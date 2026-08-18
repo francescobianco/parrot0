@@ -492,3 +492,82 @@ bridge_only_text(en, "I knew every word, and still had no way through: what is m
 bridge_only_text(it, "Conoscevo tutte le parole e non sono passato lo stesso: a mancare non è la conoscenza, è un ponte.").
 machinery(bridge_only_text).
 machinery(has_open_gap).
+
+% ── gen408: LO SCOPO DI UNA LETTURA ───────────────────────────────────────
+%
+% La sonda `dream_intent_probe.py` misura che davanti alla stessa prosa e' la
+% CORNICE a decidere l'atto: senza intenzione un ragionatore chiede cosa
+% dovrebbe farne, con «acquisisci» trattiene, con «acquisisci per rispondere a
+% X» va dritto alla risposta e non riassume nemmeno.
+%
+% Queste sono le superfici con cui uno scopo si dichiara. Un modo nuovo, o una
+% lingua nuova, e' una riga.
+reading_purpose_cue("to answer").
+reading_purpose_cue("to find out").
+reading_purpose_cue("looking for").
+reading_purpose_cue("per rispondere a").
+reading_purpose_cue("per sapere").
+reading_purpose_cue("cercando").
+machinery(reading_purpose_cue).
+% `reading_intent(bridge, "<domanda>")` vive solo per la durata della lettura:
+% e' come si legge QUELLA pagina, non una proprieta' di parrot0.
+machinery(reading_intent).
+
+% ── gen408: I PREDICATI CHE HANNO SOLO I PROPRI ESEMPI ────────────────────
+%
+% §4d di question-emergence.md, calcolato invece che elencato — e con il nome
+% corretto solo al secondo tentativo, che vale la pena raccontare.
+%
+% Il primo rilevatore cercava le regole MORTE: un predicato del corpo senza
+% nessun produttore. Ne ha trovate ZERO, ed era vero — la KB non ha regole
+% formalmente morte. Ma la domanda che l'aveva fatto nascere («il padre del
+% padre è inteso il?») falliva lo stesso, quindi il concetto era quello
+% sbagliato.
+%
+% Quello giusto e' piu' sottile: un predicato i cui UNICI fatti sono gli esempi
+% curati scritti accanto alle regole che lo leggono. Non e' morto, non crescera'
+% mai parlando, e le regole che ne dipendono varranno per sempre soltanto su
+% quelle poche righe. Sono 256 e passa, e leggendone l'elenco si vedono due
+% specie diverse:
+%
+%   `north_of`, `heavier_than`, `capital_of_country`  — pochi dati, non un
+%       difetto: nessuno ha ancora raccontato abbastanza mondo;
+%   `parent_of`  — un DIALETTO PRIVATO: la conversazione scrive `father/2`, le
+%       regole leggono `parent_of/2`, e fra i due non c'era niente.
+%
+% La differenza non e' calcolabile staticamente: si vede solo confrontando cio'
+% che le regole leggono con cio' che l'uso davvero scrive. E' la meta' dinamica,
+% e appartiene alle generazioni successive del piano.
+machinery(dead_rule).
+machinery(inert_rule).
+machinery(inert_rule_count).
+
+example_only_cue("which predicates have only examples").
+example_only_cue("rules that only work on examples").
+example_only_cue("quali predicati hanno solo esempi").
+turn_cue_registry(example_only_cue, 1).
+machinery(example_only_cue).
+
+turn_example_only($Turn) :- turn_cue_form($Turn, example_only_cue, $Cue), example_only_cue($Cue).
+% Il conto lo pubblica il motore (`inert_rule_count/1`): contarlo qui con
+% `count_list` su centinaia di elementi e' una ricorsione profonda quanto
+% l'elenco, e il turno non tornava affatto.
+turn_example_count($Turn, $N) :- turn_example_only($Turn), inert_rule_count($N).
+
+answer_content(only_examples($N, $Language), 0, opener, $Piece) :- example_only_opener($Language, $Piece).
+answer_content(only_examples($N, $Language), 1, count, $Piece) :- is($Piece, $N).
+answer_content(only_examples($N, $Language), 2, closer, $Piece) :- example_only_closer($Language, $Piece).
+example_only_opener(en, "At least ").
+example_only_opener(it, "Almeno ").
+example_only_closer(en, " of my rules read something that only exists as the examples shipped beside them.").
+example_only_closer(it, " delle mie regole leggono qualcosa che esiste solo come gli esempi scritti accanto a loro.").
+machinery(example_only_opener).
+machinery(example_only_closer).
+
+% L'elenco NON si stampa, e non e' pudore: sono centinaia, e un termine di
+% lista con centinaia di elementi sfonda `KB_TERM_LEN` — il primo tentativo lo
+% faceva e la risposta spariva in silenzio, che e' il modo peggiore di sbagliare.
+turn_plan_candidate($Turn) :- turn_example_only($Turn).
+turn_response($Turn, $Text) :- turn_example_count($Turn, $N), current_language($Language), answer_text(only_examples($N, $Language), $Text).
+
+

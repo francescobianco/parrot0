@@ -4911,6 +4911,103 @@ int kb_knows_pred(const KB *kb, const char *pred) {
     return 0;
 }
 
+/* gen408 — LE REGOLE MORTE, cioe' §4d di question-emergence.md finalmente
+ * calcolato invece che elencato.
+ *
+ * Una regola e' morta quando un predicato del suo CORPO non ha nessun
+ * produttore: nessun fatto lo asserisce e nessuna regola lo conclude. Non
+ * fallira' mai rumorosamente — semplicemente non si dimostrera' mai, e chi
+ * guarda la KB la vede piena di capacita' che non esistono.
+ *
+ * E' la forma di spazio negativo piu' economica da trovare di tutte: si calcola
+ * dalla sola KB, senza corpus, senza oracolo, senza conversazione. Il caso che
+ * l'ha fatta nascere e' istruttivo — l'intero strato del ragionamento familiare
+ * (`ancestor_of`, `grandfather_of`, `sibling_of`, `child_of`) legge
+ * `parent_of/2`, che nessuno scrive mai: la conversazione produce `father/2` e
+ * `mother/2`. Due vocabolari che non si toccano, e uno strato di ragionamento
+ * che poteva funzionare solo sui cinque fatti di esempio scritti a mano accanto
+ * alle regole.
+ *
+ * Restano fuori i builtin del solutore, che non hanno produttori per
+ * definizione. Scrive coppie (testa, predicato-mancante): la stessa regola puo'
+ * comparire piu' volte se le mancano piu' pezzi, ed e' giusto cosi' — sono
+ * lacune distinte. */
+/* Un predicato e' INERTE quando nessuna regola lo conclude e i suoi unici fatti
+ * sono quelli curati a mano: non puo' crescere parlando, quindi le regole che lo
+ * leggono varranno per sempre soltanto sui propri esempi.
+ *
+ * E' il caso vero trovato da una domanda di F. — «il padre del padre è inteso
+ * il?». Lo strato del ragionamento familiare legge `parent_of/2`, che esiste
+ * come cinque fatti di esempio scritti accanto alle regole e che nessun'altra
+ * strada scrive mai: la conversazione produce `father/2`. Formalmente la regola
+ * non e' morta e infatti il rilevatore degli orfani non trova niente; nei fatti
+ * non potra' mai rispondere di nessuna famiglia che non sia quella di esempio.
+ *
+ * Due vocabolari per la stessa relazione, senza un ponte: e' §4d di
+ * question-emergence.md, «dialetti privati», e questa e' la sua forma
+ * calcolabile. */
+static int kb_pred_is_inert(const KB *kb, const char *pred) {
+    if (!kb || !pred || !*pred) return 0;
+    PredBucket rb = rule_bucket(kb, pred);
+    size_t rvisits = rb.live ? rb.n : kb->nr;
+    for (size_t vi = 0; vi < rvisits; vi++) {
+        size_t at = rb.live ? rb.idx[vi] : vi;
+        if (at < kb->nr && strcmp(kb->rules[at].head.pred, pred) == 0) return 0;
+    }
+    int any = 0;
+    PredBucket fb = pred_bucket(kb, pred);
+    for (size_t vi = 0; vi < PRED_VISITS(fb, kb); vi++) {
+        const Fact *f = &kb->facts[PRED_AT(fb, vi)];
+        if (strcmp(f->pred, pred) != 0) continue;
+        any = 1;
+        if (f->origin != KB_BASE) return 0;   /* qualcosa lo scrive davvero */
+    }
+    return any;
+}
+
+static int kb_pred_has_producer(const KB *kb, const char *pred, size_t argc) {
+    if (!kb || !pred || !*pred) return 1;
+    static const char *const builtins[] = {
+        "is","lt","le","gt","ge","eq","ne","dif","call","naf","not",
+        "findall","findall_bag","prob","ranges_over","assert","retract",
+        "chars","upcase_first","concat_atoms","kb_fact","apply", NULL };
+    for (size_t i = 0; builtins[i]; i++)
+        if (strcmp(pred, builtins[i]) == 0) return 1;
+    /* L'indice per predicato esiste dal gen401 e va usato: una scansione
+     * lineare qui sarebbe O(regole x fatti), cioe' centinaia di milioni di
+     * confronti su una KB vera. */
+    PredBucket fb = pred_bucket(kb, pred);
+    for (size_t vi = 0; vi < PRED_VISITS(fb, kb); vi++)
+        if (strcmp(kb->facts[PRED_AT(fb, vi)].pred, pred) == 0) return 1;
+    PredBucket rb = rule_bucket(kb, pred);
+    size_t rvisits = rb.live ? rb.n : kb->nr;   /* il fallback e' sulle REGOLE */
+    for (size_t vi = 0; vi < rvisits; vi++) {
+        size_t at = rb.live ? rb.idx[vi] : vi;
+        if (at < kb->nr && strcmp(kb->rules[at].head.pred, pred) == 0) return 1;
+    }
+    (void)argc;
+    return 0;
+}
+
+size_t kb_dead_rules(const KB *kb, char heads[][KB_TERM_LEN],
+                     char missing[][KB_TERM_LEN], size_t max) {
+    if (!kb || !heads || !missing || !max) return 0;
+    size_t n = 0;
+    for (size_t i = 0; i < kb->nr && n < max; i++) {
+        const Rule *r = &kb->rules[i];
+        for (size_t j = 0; j < r->nbody && n < max; j++) {
+            const char *bp = r->body[j].pred;
+            if (!bp || !*bp) continue;
+            if (kb_pred_has_producer(kb, bp, r->body[j].argc) &&
+                !kb_pred_is_inert(kb, bp)) continue;
+            snprintf(heads[n], KB_TERM_LEN, "%s", r->head.pred);
+            snprintf(missing[n], KB_TERM_LEN, "%s", bp);
+            n++;
+        }
+    }
+    return n;
+}
+
 int kb_rule_body_mentions(const KB *kb, const char *pred) {
     if (!kb || !pred) return 0;
     for (size_t r = 0; r < kb->nr; r++)

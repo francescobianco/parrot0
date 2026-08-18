@@ -1,0 +1,60 @@
+# I PREDICATI CHE HANNO SOLO I PROPRI ESEMPI — gen408.
+#
+# §4d di question-emergence.md, «regole morte e dialetti privati», calcolato
+# invece che elencato. E' la sorgente di spazio negativo piu' economica di
+# tutte: si calcola dalla sola KB, senza corpus, senza oracolo e senza
+# conversazione.
+#
+# L'ha fatta nascere una domanda vera — «il padre del padre è inteso il?» — che
+# non era una lacuna di conoscenza ma un DIALETTO PRIVATO: tutto lo strato del
+# ragionamento familiare legge `parent_of/2`, che esisteva solo come sette fatti
+# di esempio; la conversazione scrive `father/2`. Fra i due non c'era niente, e
+# `ancestor_of`, `grandfather_of`, `sibling_of` potevano rispondere soltanto
+# delle sette persone di esempio.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+# Il rilevatore c'e' e conta. Il numero non e' l'obiettivo — e' la misura di
+# quanta KB SEMBRA capace e non lo e'.
+[test the detector counts what can never grow]
+> which predicates have only examples
+<~ of my rules read something that only exists
+!query inert_rule_count($N)
+
+# E il ponte regge: una famiglia RACCONTATA, non quella di esempio. E' la
+# domanda di F. che prima murava.
+[test a told family reaches the composed relation]
+> marco is the father of luca
+<~ Learned
+> luca is the father of anna
+<~ Learned
+> is marco the grandfather of anna
+< Yes.
+
+# La composizione non inventa: se manca l'anello di mezzo, la risposta non e' si.
+[test the composition does not invent]
+!reset
+> bruno is the father of carla
+<~ Learned
+> is bruno the grandfather of dario
+<! Yes.
+
+# Il dialetto privato era DOPPIO, e il secondo strato e' lo stesso errore un
+# piano piu' su: le regole si chiamano `grandfather_of`, e la domanda «is X the
+# grandfather of Y» cerca `grandfather/2`. Il suffisso `_of` era una convenzione
+# di chi ha scritto le regole, e nessuno l'aveva detto a chi scrive le domande —
+# quindi anche col ponte sui genitori la domanda sarebbe rimasta muta.
+[test the naming was a second private dialect]
+!reset
+> gino is the father of ivo
+<~ Learned
+> ivo is the father of lea
+<~ Learned
+!query grandfather_of(gino, lea)
+!query grandfather(gino, lea)

@@ -308,6 +308,17 @@ int    kb_knows_pred(const KB *kb, const char *pred);
  * cannot hijack arbitrary "X is Y" prose. */
 int    kb_rule_body_mentions(const KB *kb, const char *pred);
 
+/* gen408: le REGOLE MORTE — §4d di question-emergence.md, calcolato. Una regola
+ * e' morta quando un predicato del suo corpo non ha nessun produttore: nessun
+ * fatto lo asserisce, nessuna regola lo conclude. Non fallisce rumorosamente,
+ * semplicemente non si dimostra mai, e la KB sembra piena di capacita' che non
+ * esistono. E' la forma di spazio negativo piu' economica da trovare: si
+ * calcola dalla sola KB, senza corpus e senza oracolo. Scrive coppie (testa,
+ * predicato mancante); la stessa regola compare piu' volte se le mancano piu'
+ * pezzi, perche' sono lacune distinte. */
+size_t kb_dead_rules(const KB *kb, char heads[][KB_TERM_LEN],
+                     char missing[][KB_TERM_LEN], size_t max);
+
 /* Collect the distinct UNARY predicate symbols known to the KB — those that
  * appear as a 1-arg fact or as a 1-arg rule head. Used by grounded
  * verbalization (gen39) to enumerate the classes an entity might belong to,

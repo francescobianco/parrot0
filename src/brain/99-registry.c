@@ -410,6 +410,8 @@ static int correction_peel(Brain *b, const char *canon, const char *raw,
     return claimed;
 }
 
+static void dead_rules_publish(Brain *b);   /* gen408: §4d, definita piu' avanti */
+
 static int replay_dispatch(Brain *b, const char *canon, const char *raw,
                            const char *suppress, char *who, size_t who_size,
                            char *out, size_t out_size) {
@@ -463,6 +465,7 @@ Brain *brain_create(void) {
         kb_set_origin(b->kb, KB_BASE);
         kb_load(b->kb, lexicon);
     }
+
 
     /* gen73 (PLAN.md Phase 3): social markers, question words and reaction words
      * live in kb/core/social.p0, not as hardcoded C arrays. The KB is the
@@ -611,6 +614,25 @@ Brain *brain_create(void) {
         const char *oa[] = { osl }; kb_assert(b->kb, "os_language", oa, 1);
         const char *ca[] = { osl }; kb_assert(b->kb, "current_language", ca, 1);
     }
+
+    /* gen408 — LE REGOLE MORTE DIVENTANO FATTI, alla nascita.
+     *
+     * §4d di question-emergence.md e' la sorgente di spazio negativo piu'
+     * economica di tutte: si calcola dalla sola KB, senza corpus, senza oracolo
+     * e senza conversazione. Era elencata nel documento da gen382m e non era
+     * mai stata calcolata.
+     *
+     * L'ha fatta nascere una domanda vera di F. — «il padre del padre è inteso
+     * il?» — che ha rivelato molto piu' di un muro: l'intero strato del
+     * ragionamento familiare (`ancestor_of`, `grandfather_of`, `sibling_of`,
+     * `child_of`) legge `parent_of/2`, che nessuno scrive mai. La conversazione
+     * produce `father/2` e `mother/2`. Due vocabolari che non si toccano, e uno
+     * strato di ragionamento che poteva funzionare solo sui cinque fatti di
+     * esempio scritti a mano accanto alle regole.
+     *
+     * Il calcolo va DOPO tutti i caricamenti, altrimenti dichiara morto cio'
+     * che non e' ancora arrivato. */
+    dead_rules_publish(b);
 
     kb_set_origin(b->kb, KB_SESSION); /* conversation default */
     return b;
@@ -1983,6 +2005,35 @@ static void turn_publish_state(Brain *b, const char *surface,
  * failing. Working memory records what was SEEN; only a rule may promote a
  * surface to a term, and `turn_cue_form/3` is that rule. */
 #define TURN_MAX_CUES 512
+/* Pubblica le regole morte come fatti interrogabili. Vedi la chiamata. */
+static void dead_rules_publish(Brain *b) {
+    if (!b || !b->kb) return;
+    static char heads[256][KB_TERM_LEN];
+    static char missing[256][KB_TERM_LEN];
+    size_t n = kb_dead_rules(b->kb, heads, missing, 256);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    for (size_t i = 0; i < n; i++) {
+        const char *a[2] = { heads[i], missing[i] };
+        kb_assert(b->kb, "dead_rule", a, 2);
+        /* La vista unaria e' un FATTO, non una regola. `findall` su un predicato
+         * derivato non raccoglieva niente e la risposta spariva in silenzio —
+         * la stessa famiglia del bug di cattura del gen382o. Un elenco che
+         * qualcuno dovra' scorrere e' meglio che sia materializzato. */
+        const char *u[1] = { heads[i] };
+        kb_assert(b->kb, "inert_rule", u, 1);
+    }
+    /* Il CONTO lo pubblica il motore, che ce l'ha gia'. Farlo contare alla KB
+     * con `count_list` su un elenco di centinaia di elementi significa una
+     * ricorsione profonda quanto l'elenco, e il turno non tornava affatto. */
+    {
+        char num[32];
+        snprintf(num, sizeof num, "%zu", n);
+        const char *c[1] = { num };
+        kb_assert(b->kb, "inert_rule_count", c, 1);
+    }
+    kb_set_origin(b->kb, KB_SESSION);
+}
+
 static void turn_publish_cues(Brain *b, const char *surface) {
     char regs[16][KB_TERM_LEN];
     const char *rq[2] = { NULL, NULL };

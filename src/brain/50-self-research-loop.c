@@ -321,6 +321,28 @@ static int extract_page_facts(Brain *b, const char *key, char *out, size_t out_s
  * prompt che chiede di acquisirla. Se le due strade divergono, una delle due e'
  * un ramo morto che nessuno manutiene. Da qui in poi c'e' una funzione sola, e
  * la pagina e' solo un testo piu' lungo. */
+/* gen408: una frase RIGUARDA cio' che si cerca se ne condivide una parola
+ * piena. E' grezzo e falsificabile, e va bene che lo sia: il criterio non deve
+ * essere intelligente, deve essere lo stesso che userebbe una persona che
+ * scorre una pagina cercando una parola. */
+static int prose_touches_purpose(Brain *b, const char *sentence,
+                                 const char *purpose) {
+    char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", purpose);
+    char low[400];
+    size_t i = 0;
+    for (; sentence[i] && i + 1 < sizeof low; i++)
+        low[i] = (char)tolower((unsigned char)sentence[i]);
+    low[i] = '\0';
+    char *pw[40];
+    size_t np = split_words(pb, pw, 40);
+    for (size_t k = 0; k < np; k++) {
+        char *t = strip_edge_punct(pw[k]);
+        if (strlen(t) < 4 || is_stopword(b, t)) continue;
+        if (strstr(low, t)) return 1;
+    }
+    return 0;
+}
+
 static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
     size_t eo = strlen(extract);
 
@@ -348,11 +370,71 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
 
     int nfacts = 0, nrules = 0, nrejected = 0; size_t mo = 0;
     if (out_sz) out[0] = '\0';
+
+    /* ── gen408: L'INTENZIONE CON CUI SI LEGGE ─────────────────────────────
+     *
+     * `tests/dream_intent_probe.py` misura che davanti alla stessa prosa la
+     * cornice decide l'ATTO: senza intenzione un ragionatore chiede cosa
+     * dovrebbe farne, con «acquisisci» trattiene, con «acquisisci per
+     * rispondere a X» va dritto alla risposta e non riassume nemmeno.
+     *
+     * Qui parrot0 aveva un solo modo di leggere. Ora la KB puo' dichiarare
+     * `reading_intent(bridge, "<turno che murava>")`, e cambiano due cose reali:
+     *
+     *   l'ORDINE  — le frasi che nominano le parole del turno rimasto senza
+     *               risposta si leggono per prime;
+     *   la FINE   — appena quel turno risponde, si smette. L'intenzione era
+     *               quella, ed e' soddisfatta.
+     *
+     * Non e' «leggere meglio»: e' leggere PER qualcosa, che e' l'unica cosa che
+     * la sonda mostra fare la differenza. E su un budget limitato — cioe' nel
+     * sogno, dove il budget e' il punto — l'ordine E' il risultato. */
+    char purpose[KB_TERM_LEN]; purpose[0] = '\0';
+    {
+        const char *iq[2] = { "bridge", NULL };
+        char row[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "reading_intent", iq, 2, row, 1) > 0)
+            snprintf(purpose, sizeof purpose, "%s", kb_dequote(row[0]));
+    }
+
+    /* Con un'intenzione mirata si legge SOLO cio' che la riguarda. E' quello che
+     * fa una persona che cerca una risposta in una pagina, ed e' l'unica cosa
+     * che rende l'intenzione misurabile invece che decorativa: se leggessimo
+     * tutto lo stesso, l'ordine non cambierebbe nessun risultato finale.
+     *
+     * Se pero' nessuna frase nomina cio' che si cerca, l'intenzione non ha
+     * presa: si legge tutto, come senza. Meglio imparare qualcosa d'altro che
+     * non imparare niente per aver cercato male. */
+    int selective = 0;
+    if (purpose[0]) {
+        for (char *r = extract; *r && !selective; ) {
+            char *e = r;
+            while (*e && *e != '.' && *e != '!' && *e != '?') e++;
+            size_t l = (size_t)(e - r);
+            if (l > 4 && l < 380) {
+                char probe[400];
+                memcpy(probe, r, l); probe[l] = '\0';
+                if (prose_touches_purpose(b, probe, purpose)) selective = 1;
+            }
+            if (!*e) break;
+            r = e + 1;
+        }
+    }
+
     char *p = extract;
     while (*p) {
         char *q = p;
         while (*q && *q != '.' && *q != '!' && *q != '?') q++;
         size_t slen = (size_t)(q - p);
+        if (selective && slen > 4 && slen < 380) {
+            char probe[400];
+            memcpy(probe, p, slen); probe[slen] = '\0';
+            if (!prose_touches_purpose(b, probe, purpose)) {
+                if (!*q) break;
+                p = q + 1;
+                continue;
+            }
+        }
         if (slen > 4 && slen < 380) {
             char sent[400], nrm[400], canon[400], msg[256];
             memcpy(sent, p, slen); sent[slen] = '\0';
@@ -711,6 +793,49 @@ static void research_lemma_key(Brain *b, char *key, size_t sz) {
 static int mod_learn(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     if (!b) return 0;
+
+    /* gen408: LO SCOPO SI STACCA PRIMA DI TUTTO IL RESTO.
+     *
+     * «read the page on X to answer: Y» ha due parti, e la seconda non e' parte
+     * del titolo. La prima versione la staccava tardi, dopo che la chiave della
+     * pagina era gia' stata costruita: la chiave diventava
+     * `photosynthesis_to_answer_which_carbohydrates…`, nessuna pagina la
+     * corrispondeva, e il turno finiva nel registro sociale. Uno scopo
+     * dichiarato dev'essere tolto dal turno prima che qualcuno legga il turno. */
+    char scoped_norm[512];
+    char scoped_raw[512];
+    char purpose[KB_TERM_LEN]; purpose[0] = '\0';
+    if (b->kb) {
+        char cues[8][KB_TERM_LEN];
+        const char *cq[1] = { NULL };
+        size_t nc = kb_match(b->kb, "reading_purpose_cue", cq, 1, cues, 8);
+        for (size_t i = 0; i < nc && !purpose[0]; i++) {
+            const char *cue_text = kb_dequote(cues[i]);
+            const char *at = strstr(norm, cue_text);
+            if (!at || at == norm) continue;
+            const char *tail = at + strlen(cue_text);
+            while (*tail == ' ' || *tail == ':') tail++;
+            if (strlen(tail) < 4) continue;
+            snprintf(purpose, sizeof purpose, "%s", tail);
+            snprintf(scoped_norm, sizeof scoped_norm, "%.*s",
+                     (int)(at - norm), norm);
+            const char *rat = raw ? strstr(raw, cue_text) : NULL;
+            snprintf(scoped_raw, sizeof scoped_raw, "%.*s",
+                     rat ? (int)(rat - raw) : (int)strlen(raw ? raw : ""),
+                     raw ? raw : "");
+            norm = scoped_norm;
+            raw = scoped_raw;
+        }
+    }
+    if (purpose[0]) {
+        char q[KB_TERM_LEN];
+        snprintf(q, sizeof q, "\"%s\"", purpose);
+        const char *ia[2] = { "bridge", q };
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        kb_assert(b->kb, "reading_intent", ia, 2);
+        kb_set_origin(b->kb, KB_SESSION);
+    }
+
     char buf[256];
     canonicalize_lang(b, norm, buf, sizeof buf);
 
@@ -872,6 +997,16 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
         char facts[512];
         facts[0] = '\0';   /* l'estrattore puo' uscire prima di scrivere qui */
         int nf = extract_page_facts(b, key, facts, sizeof facts);
+        /* L'intenzione vive solo per la durata della lettura: e' come si legge
+         * QUESTA pagina, non una proprieta' di parrot0. */
+        if (purpose[0]) {
+            const char *iq[2] = { "bridge", NULL };
+            char row[1][KB_TERM_LEN];
+            while (kb_match(b->kb, "reading_intent", iq, 2, row, 1) > 0) {
+                const char *ra[2] = { "bridge", row[0] };
+                if (!kb_retract(b->kb, "reading_intent", ra, 2)) break;
+            }
+        }
         char dmsg[700];
         if (nf > 0)
             snprintf(dmsg, sizeof dmsg,
