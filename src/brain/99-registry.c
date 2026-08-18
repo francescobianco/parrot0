@@ -2324,6 +2324,31 @@ static void turn_publish_tokens(Brain *b, const char *surface,
     size_t start = span->start + (span->cue_len > span->len ? span->len
                                                             : span->cue_len);
     size_t end = span->start + span->len;
+    /* gen419b — I SEPARATORI DICHIARATI TENGONO INSIEME IL TOKEN.
+     *
+     * gen399 aveva gia' scoperto la regola su un carattere: un punto FRA DUE
+     * CIFRE appartiene al numero, altrimenti «3.14» si spezzava e «which is
+     * greater» rispondeva «41». Lo stesso vale per i due punti di «14:30» e per
+     * i trattini di «2024-02-28» — e la differenza e' che quei separatori sono
+     * gia' dichiarati in KB dal transcoder (`transcode_shape/3`).
+     *
+     * Quindi la regola si generalizza senza cablare un secondo carattere: una
+     * notazione nuova aggiunge una riga di KB e il tokenizzatore la segue. Se un
+     * token non si tiene insieme, il transcoder non lo vede mai. */
+    char seps[16]; size_t nsep = 0;
+    {
+        char shapes[16][KB_TERM_LEN];
+        const char *nq[3] = { NULL, NULL, NULL };
+        size_t ns = kb_match(b->kb, "transcode_shape", nq, 3, shapes, 16);
+        for (size_t i = 0; i < ns && nsep + 1 < sizeof seps; i++) {
+            const char *sq[3] = { shapes[i], NULL, NULL };
+            char sv[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "transcode_shape", sq, 3, sv, 1) != 1) continue;
+            char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", sv[0]);
+            const char *sc = kb_dequote(sb);
+            if (sc && *sc && !memchr(seps, sc[0], nsep)) seps[nsep++] = sc[0];
+        }
+    }
     size_t k = 0;
     for (size_t p = start; p < end && k < TURN_MAX_TOKENS; ) {
         if (!(isalnum((unsigned char)surface[p]) || surface[p] == '_')) { p++; continue; }
@@ -2334,7 +2359,8 @@ static void turn_publish_tokens(Brain *b, const char *surface,
          * «41», che e' un pezzo di una parola. Il confine e' stretto apposta: il
          * punto di fine frase non ha una cifra dopo, quindi resta un confine. */
         while (p < end && (isalnum((unsigned char)surface[p]) || surface[p] == '_' ||
-                           (surface[p] == '.' && p > t && p + 1 < end &&
+                           ((surface[p] == '.' || memchr(seps, surface[p], nsep)) &&
+                            p > t && p + 1 < end &&
                             isdigit((unsigned char)surface[p - 1]) &&
                             isdigit((unsigned char)surface[p + 1])))) p++;
         char tok[KB_TERM_LEN];

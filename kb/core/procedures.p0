@@ -1030,6 +1030,7 @@ machinery(sides).
 %
 % Le `machinery(...)` una per predicato qui sotto restano valide e non fanno
 % danno, ma non erano l'unica strada: chi aggiunge procedure puo' scegliere.
+:- include(time-questions.p0).
 :- include(dialogue-frames.p0).
 :- include(dialogue-policy.p0).
 :- include(context-scope.p0).

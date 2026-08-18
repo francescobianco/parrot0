@@ -1,0 +1,114 @@
+% time-questions.p0 — GLI ORARI CHE IL TURNO PORTA (gen419c).
+%
+% Stesso disegno di numeric-questions.p0, e per la stessa ragione: le procedure
+% sugli orari esistono (`time_plus`, `time_diff`… in procedures.p0) e il
+% transcoder fa di «14:30» il termine `time(14, 30)`, ma nessuna superficie
+% portava l'uno dentro l'altro. Mancava il PONTE, non il calcolo — come per «which
+% is greater» a gen399.
+%
+% Il fascio si chiude una volta sola perche' il ponte e' generico: una domanda
+% nuova sugli orari e' UNA cue piu' UNA procedura, e nessun consumer cambia.
+%
+% Tirato da docs/issues/01-orario-e-durata.md, che lasciava aperto esattamente
+% questo: «le regole ci sono e il token e' strutturato, ma nessuno lega "travels
+% for 2 hours 45 minutes" allo slot durata».
+
+:- file_attribute(machinery).
+
+% ── 1. CHE COSA IL TURNO PORTA ─────────────────────────────────────────────
+%
+% L'orario e' il token che il transcoder ha saputo leggere. La giunzione passa
+% per `turn_span_token/4`, che pubblica le parole del turno — ed e' il motivo per
+% cui i separatori dichiarati devono tenere insieme il token (gen419b): se «14:30»
+% si spezza in «14» e «30», qui non arriva niente.
+turn_time($Turn, $Time) :- turn_span_token($Turn, $Index, $Position, $Token), transcoded($Token, $Time).
+
+% LA DURATA VUOLE L'UNITA', e la prima stesura di questo file l'aveva sbagliata:
+% prendeva i numeri nudi nell'ordine in cui comparivano, quindi «30 minutes before
+% 09:15» leggeva 30 ORE e rispondeva 03:15 invece di 08:45. Numero giusto, ruolo
+% sbagliato — il MANTRA #12 preso in castagna proprio nel file scritto per
+% applicarlo.
+%
+% Il ruolo lo da' l'unita' PRESENTE nel turno. Legarlo alla posizione del token
+% sarebbe piu' preciso, ed e' la forma che verra': per adesso i due casi che
+% contano — «2 ore e 45 minuti» e «30 minuti» — si distinguono da quali unita'
+% compaiono, e i numeri arrivano nell'ordine in cui sono stati detti.
+%
+% L'unita' si riconosce con una CUE, non guardando i token: `turn_span_token`
+% pubblica la forma singolarizzata e non sempre la stessa, mentre le cue lavorano
+% sulla superficie e sono lo stesso meccanismo con cui l'operatore gia' funziona.
+% Usare due strade diverse per due pezzi dello stesso turno era il difetto.
+time_unit_cue("hours", hours).     time_unit_cue("hour", hours).
+time_unit_cue("ore", hours).       time_unit_cue("ora", hours).
+time_unit_cue("minutes", minutes). time_unit_cue("minute", minutes).
+time_unit_cue("minuti", minutes).  time_unit_cue("minuto", minutes).
+turn_cue_registry(time_unit_cue, 1).
+
+turn_unit_present($Turn, $Unit) :- turn_cue_form($Turn, time_unit_cue, $Cue), time_unit_cue($Cue, $Unit).
+
+% L'ordine delle clausole fa il lavoro che `naf` non riusciva a fare qui: la
+% negazione su una cue si e' rivelata inaffidabile (le cue sono sottostringhe, e
+% «hours» risultava presente anche dove non c'era), quindi si discrimina sulla
+% FORMA della lista dei numeri, che e' un dato certo.
+%
+%   due numeri  -> ore e minuti, nell'ordine in cui sono stati detti
+%   un numero   -> l'unita' che il turno nomina, e i minuti hanno la precedenza
+%                  perche' «30 minutes» e' la forma piu' comune di durata corta
+turn_duration($Turn, dur($H, $M)) :-
+    turn_unit_present($Turn, hours), turn_unit_present($Turn, minutes),
+    turn_number_list($Turn, cons($H, cons($M, $Rest))).
+turn_duration($Turn, dur(0, $M)) :-
+    turn_unit_present($Turn, minutes),
+    turn_number_list($Turn, cons($M, nil)).
+turn_duration($Turn, dur($H, 0)) :-
+    turn_unit_present($Turn, hours),
+    turn_number_list($Turn, cons($H, nil)).
+
+% ── 2. LA RESA ─────────────────────────────────────────────────────────────
+%
+% «17:5» non e' un orario: i minuti sotto dieci vogliono lo zero. E' una regola,
+% non una stampa formattata nel C.
+pad2($N, $N) :- ge($N, 10).
+pad2($N, $P) :- lt($N, 10), concat_atoms(0, $N, $P).
+time_text(time($H, $M), $Text) :- pad2($H, $HH), pad2($M, $MM), concat_atoms($HH, ":", $Head), concat_atoms($Head, $MM, $Text).
+
+% ── 3. LA SUPERFICIE E L'OPERATORE ─────────────────────────────────────────
+%
+% Una cue nomina un operatore; l'operatore e' una procedura di procedures.p0.
+% Aggiungerne uno e' due fatti e nessun codice.
+time_cue("after", time_after).
+time_cue("later than", time_after).
+time_cue("dopo", time_after).
+time_cue("before", time_before_op).
+time_cue("prima di", time_before_op).
+turn_cue_registry(time_cue, 1).
+
+turn_time_op($Turn, $Op) :- turn_cue_form($Turn, time_cue, $Cue), time_cue($Cue, $Op).
+
+apply_time(time_after, $T0, $D, $T1)     :- time_plus($T0, $D, $T1).
+apply_time(time_before_op, $T0, $D, $T1) :- time_minus($T0, $D, $T1).
+
+% ── 4. LE RISPOSTE ─────────────────────────────────────────────────────────
+%
+% Con un operatore: si calcola. «what is 2 hours 45 minutes after 14:30» -> 17:15.
+time_answer($Turn, $Text) :- turn_time_op($Turn, $Op), turn_time($Turn, $T0), turn_duration($Turn, $D), apply_time($Op, $T0, $D, $T1), time_text($T1, $Text).
+
+% Senza operatore, ma con una domanda di identita': si dice che cos'e'. «what is
+% 14:30» non chiede un calcolo — chiede se quel token vuol dire qualcosa, e la
+% risposta onesta e' che si', e' un orario. Prima non lo era: «I don't understand
+% that yet».
+time_identity_cue("what is").
+time_identity_cue("che ora e").
+time_identity_cue("cos e").
+turn_cue_registry(time_identity_cue, 1).
+
+% La negazione vuole un goal SENZA variabili libere: `naf(turn_time_op($T, $Op))`
+% con $Op libero e' la cattura gia' registrata a gen382o, e si maschera da «nessuna
+% soluzione». Il predicato ausiliario la chiude.
+turn_has_time_op($Turn) :- turn_time_op($Turn, $Op).
+time_answer($Turn, $Text) :- turn_cue_form($Turn, time_identity_cue, $Cue), naf(turn_has_time_op($Turn)), turn_time($Turn, $T), time_text($T, $HM), time_identity_text($HM, $Text).
+time_identity_text($HM, $Text) :- current_language(en), concat_atoms($HM, " is a time of day.", $Text).
+time_identity_text($HM, $Text) :- current_language(it), concat_atoms($HM, " e' un orario.", $Text).
+
+turn_plan_candidate($Turn) :- time_answer($Turn, $Text).
+turn_response($Turn, $Text) :- time_answer($Turn, $Text).

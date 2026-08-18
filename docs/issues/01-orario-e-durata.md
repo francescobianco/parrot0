@@ -56,12 +56,46 @@ arrival($T) :- transcoded("14:30", $T0), time_plus($T0, dur(2, 45), $T).
 → time(17, 15)
 ```
 
+## Il ponte, chiuso a gen419c
+
+Restava il punto 2 — i ruoli — e ora c'è, in `kb/core/time-questions.p0`, con lo
+stesso disegno di `numeric-questions.p0`: **una cue nomina un operatore,
+l'operatore è una procedura**, e nessun consumatore cambia.
+
+```
+what is 2 hours 45 minutes after 14:30   →  17:15
+what is 30 minutes before 09:15          →  08:45
+what is 3 hours after 22:00              →  01:00
+what is 5 minutes after 09:00            →  09:05
+what is 14:30                            →  14:30 is a time of day.
+```
+
+Tre cose imparate scrivendolo, tutte pagate:
+
+1. **Il token deve sopravvivere alla tokenizzazione.** `14:30` si spezzava in
+   `14` e `30`, quindi il transcoder non lo vedeva mai. gen399 aveva già la
+   regola giusta su un carattere (un punto fra due cifre appartiene al numero);
+   ora vale per **ogni separatore dichiarato**, quindi una notazione nuova non
+   tocca il C.
+2. **Il MANTRA #12 preso in castagna nel file scritto per applicarlo.** La prima
+   stesura leggeva i numeri nudi in sequenza: `30 minutes before 09:15` diventava
+   30 *ore* e rispondeva 03:15. Numero giusto, ruolo sbagliato.
+3. **`naf` su una cue non è affidabile.** Le cue sono sottostringhe, quindi
+   «hours» risultava presente dove non c'era. Si discrimina sulla **forma della
+   lista dei numeri**, che è un dato certo.
+
 ## Cosa resta aperto
 
-**Il ponte fra la frase e la procedura.** Le regole ci sono e il token è
-strutturato, ma nessuno lega *«travels for 2 hours 45 minutes»* allo slot
-`durata` e *«when does it arrive»* alla domanda `time_plus`. È il punto 2 —
-i ruoli — ed è l'unico dei quattro ancora scoperto.
+**Il prompt originale**, che è ancora tre frasi in un turno solo:
+
+```
+A train leaves at 14:30 and travels for 2 hours 45 minutes. When does it arrive?
+→ «That looks like a arithmetic problem, and I cannot solve it yet.»
+```
+
+Le tre frasi separate ora funzionano; il periodo no. È lo **strato 3** di
+[02](02-contrapposizione.md) e di tutti gli altri — un turno con più atti — e
+resta il blocco più trasversale dei nove.
 
 ## Dove sta l'autocorrezione
 

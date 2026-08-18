@@ -66,3 +66,38 @@
 [test dal token alla risposta, senza passare dal C]
 !clause arrival($T) :- transcoded("14:30", $T0), time_plus($T0, dur(2, 45), $T).
 !query arrival(time(17, 15))
+
+# ── IL PONTE FRA LA FRASE E LA PROCEDURA (gen419c) ───────────────────────────
+#
+# Le procedure e il transcoder da soli non bastavano: nessuna superficie portava
+# l'orario del turno dentro l'operatore. E' lo stesso ponte di
+# numeric-questions.p0 — una cue nomina un operatore, l'operatore e' una
+# procedura — e chiude un fascio invece di quattro casi.
+[test dalla domanda alla risposta, tutto in KB]
+!set PARROT0_SESSION=
+!reset
+> what is 2 hours 45 minutes after 14:30
+< 17:15
+> what is 30 minutes before 09:15
+< 08:45
+> what is 3 hours after 22:00
+< 01:00
+
+# I MINUTI SOTTO DIECI VOGLIONO LO ZERO: «17:5» non e' un orario.
+[test la resa impagina i minuti]
+> what is 5 minutes after 09:00
+< 09:05
+
+# Un orario da solo non e' un calcolo: e' una domanda di identita', e la risposta
+# onesta e' dire che cos'e'. Prima era «I don't understand that yet».
+[test un orario da solo si sa nominare]
+> what is 14:30
+<~ time of day
+
+# IL RUOLO, NON L'ORDINE. La prima stesura leggeva i numeri nudi in sequenza,
+# quindi «30 minutes» diventava 30 ORE e la risposta era 03:15 invece di 08:45:
+# numero giusto, ruolo sbagliato — il MANTRA #12 preso in castagna nel file
+# scritto per applicarlo.
+[test un numero senza il suo ruolo e' un numero sbagliato]
+> what is 30 minutes before 09:15
+<! 03:15
