@@ -1,0 +1,40 @@
+# L'APOSTROFO E' UNA LETTERA — gen402.
+#
+# Un apostrofo dentro una parola apriva il registro di citazione e non lo
+# chiudeva mai: il turno risultava ambiguo, `universal_turn_lead` si fermava
+# prima di pubblicare `turn_span/4`, e con lui taceva ogni livello costruito dal
+# gen393 in poi. In inglese l'apostrofo sta in ogni possessivo e in ogni
+# contrazione, quindi la classe muta era enorme mentre la causa era una riga.
+#
+# Il cricchetto non guarda l'apostrofo: guarda che i livelli SOPRA continuino a
+# rispondere quando c'e'. Un test sul solo segmentatore sarebbe passato anche
+# durante il bug, perche' il segmentatore aveva gia' la regola giusta.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test a possessive does not silence the turn]
+> who won yesterday's match?
+<~ live
+
+[test a contraction does not silence the numeric bridge]
+> it doesn't matter, which is greater, 3.14 or 3.41?
+< 3.41.
+
+# Due apostrofi in un turno restano due lettere finche' nessuno dei due apre una
+# citazione vera: e' il caso che distingue «conta gli apostrofi» da «guarda i
+# vicini di ciascuno».
+[test two intra-word apostrophes are still two letters]
+> i can't tell if it's greater, which is greater, 9 or 4?
+< 9.
+
+# E il registro di citazione deve restare vivo: la guardia toglie l'apostrofo
+# INTERNO alla parola, non la citazione.
+[test a real quotation still opens the mention register]
+> the word 'greater' is a comparison
+<! Non capisco

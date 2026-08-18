@@ -1,0 +1,86 @@
+% honest-limits.p0 — DIRE PRECISAMENTE CHE COSA NON SI PUO' SAPERE (gen402).
+%
+% Dal censimento `docs/plans/parrot0-100-failures.md`, #87-#90 e #91-#93:
+% «What is the latest price of Bitcoin?», «Fetch the current weather in Rome»,
+% «Who won yesterday's match?», «Give medical advice for chest pain». Parrot0
+% rispondeva «Hmm, I don't know about latest yet. Want me to learn about it?».
+%
+% Quella risposta e' sbagliata due volte. E' un muro dove esisteva una risposta,
+% e per giunta offre di IMPARARE una cosa che non si puo' imparare: il prezzo di
+% domani non entra in nessuna KB, e saperlo oggi non aiuta. Un declino preciso
+% e' informazione; un muro generico e' rumore travestito da modestia.
+%
+% La sonda ha registrato la mossa dell'oracolo, ed e' esattamente questa: «I
+% can't access live market data. Check a real-time source like CoinMarketCap».
+% Dichiara il limite, dice PERCHE', e indirizza. Nessuna di quelle tre parti e'
+% opzionale — senza la seconda sembra pigrizia, senza la terza sembra un rifiuto.
+%
+% Qui non entra nessun fatto sul mondo: entra la conoscenza di quali domande
+% hanno una risposta che cambia mentre la si pronuncia, e di quali domini
+% chiedono una competenza che parrot0 non ha. Sono due classi, e vanno tenute
+% distinte perche' le mosse sono diverse: la prima indirizza a una FONTE, la
+% seconda a una PERSONA.
+
+:- file_attribute(machinery).
+
+% ── 1. CIO' CHE CAMBIA PIU' IN FRETTA DI QUANTO SI POSSA SAPERE ────────────
+volatile_cue("latest price", market).
+volatile_cue("current price", market).
+volatile_cue("price of bitcoin", market).
+volatile_cue("prezzo attuale", market).
+volatile_cue("quotazione", market).
+volatile_cue("current weather", weather).
+volatile_cue("weather in", weather).
+volatile_cue("che tempo fa", weather).
+volatile_cue("meteo", weather).
+volatile_cue("who won yesterday", live_result).
+volatile_cue("chi ha vinto ieri", live_result).
+volatile_cue("latest news", live_result).
+volatile_cue("ultime notizie", live_result).
+% NON entrano qui gli avverbi di tempo nudi. «this year», «right now» e simili
+% sembrano marcatori di volatilita' e non lo sono: hanno rubato il turno a un
+% problema di eta' («how old are they both right now?»), che ha una risposta
+% esatta e non dipende da nessuna fonte esterna. A rendere volatile una domanda
+% e' il TOPIC — un prezzo, il meteo, un risultato appena accaduto — non il fatto
+% che nomini l'adesso. La cue deve nominare la cosa che cambia.
+volatile_cue("population of tokyo this year", moving_figure).
+volatile_cue("current population of", moving_figure).
+turn_cue_registry(volatile_cue, 1).
+
+turn_volatile($Turn, $Kind) :- turn_cue_form($Turn, volatile_cue, $Cue), volatile_cue($Cue, $Kind).
+
+answer_content(no_live($Kind, $Language), 0, opener, $Piece) :- no_live_opener($Language, $Piece).
+answer_content(no_live($Kind, $Language), 1, kind, $Piece) :- volatile_label($Kind, $Language, $Piece).
+answer_content(no_live($Kind, $Language), 2, closer, $Piece) :- no_live_closer($Language, $Piece).
+answer_content(no_live($Kind, $Language), 3, hint, $Piece) :- volatile_source($Kind, $Language, $Piece).
+
+turn_plan_candidate($Turn) :- turn_volatile($Turn, $Kind).
+turn_response($Turn, $Text) :- turn_volatile($Turn, $Kind), current_language($Language), answer_text(no_live($Kind, $Language), $Text).
+
+% ── 2. CIO' CHE CHIEDE UNA COMPETENZA CHE NON SI HA ────────────────────────
+%
+% Qui la mossa e' diversa e la differenza non e' formale. Un dato volatile manca
+% e basta; un consiglio medico o legale sbagliato fa DANNO, quindi la risposta
+% non indirizza a una fonte da consultare ma a una persona responsabile — e nel
+% caso di un sintomo urgente dice per prima cosa la sola cosa che conta.
+%
+% Il testo dell'avvertenza e' conoscenza, non una frase nel C: un dominio nuovo
+% entra con tre righe e nessuno tocca il motore.
+expert_only_cue("medical advice", medical).
+expert_only_cue("diagnose", medical).
+expert_only_cue("chest pain", medical).
+expert_only_cue("consiglio medico", medical).
+expert_only_cue("legal status", legal).
+expert_only_cue("is this contract", legal).
+expert_only_cue("valore legale", legal).
+turn_cue_registry(expert_only_cue, 1).
+
+turn_expert_only($Turn, $Domain) :- turn_cue_form($Turn, expert_only_cue, $Cue), expert_only_cue($Cue, $Domain).
+
+answer_content(expert_only($Domain, $Language), 0, urgent, $Piece) :- expert_urgent($Domain, $Language, $Piece).
+answer_content(expert_only($Domain, $Language), 1, opener, $Piece) :- expert_only_opener($Language, $Piece).
+answer_content(expert_only($Domain, $Language), 2, domain, $Piece) :- expert_domain_label($Domain, $Language, $Piece).
+answer_content(expert_only($Domain, $Language), 3, closer, $Piece) :- expert_only_closer($Language, $Piece).
+
+turn_plan_candidate($Turn) :- turn_expert_only($Turn, $Domain).
+turn_response($Turn, $Text) :- turn_expert_only($Turn, $Domain), current_language($Language), answer_text(expert_only($Domain, $Language), $Text).

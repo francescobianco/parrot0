@@ -2783,7 +2783,12 @@ static int input_find_delim_open(const char *s, size_t from, const InputDelim *d
             skipped = 1;
         }
         if (skipped) continue;
-        if (input_starts(s, i, n, d->open)) {
+        /* The literal match below is the general case, and for a quote-mark
+         * pair it would open exactly where `input_quote_at` just refused to:
+         * the apostrophe of «yesterday's» is a letter of the word, not the
+         * start of a quotation. When the pair IS the mark, the guarded branch
+         * above is the only legitimate opener. */
+        if (!mark_quote && input_starts(s, i, n, d->open)) {
             if (at_out) *at_out = i;
             return 1;
         }

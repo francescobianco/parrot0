@@ -28,7 +28,18 @@ delim_pair(paren, "(", ")").
 delim_pair(bracket, "[", "]").
 % Una citazione singola e' un confine strutturale come parentesi o fence. Il
 % motore bilancia il delimitatore; la KB decide che il registro risultante ha
-% ruolo di menzione. Gli apostrofi interni alle parole non aprono il registro.
+% ruolo di menzione. Gli apostrofi interni alle parole non aprono il registro:
+% quello di «yesterday's» e' una lettera della parola.
+%
+% Quella distinzione e' costata un bug largo (gen402). `input_quote_at` la
+% faceva gia' — apostrofo fra due alfanumerici, nessuna apertura — ma il
+% cercatore di delimitatori, dopo averla interrogata, ricadeva sul confronto
+% letterale con `d->open` e apriva lo stesso. Il turno restava ambiguo, il
+% produttore universale non partiva, e TUTTO cio' che sta sopra `turn_span/4`
+% taceva per ogni possessivo e ogni contrazione inglese. Il fascio era enorme e
+% la causa una riga: `src/code.c`, il ramo generico ora escluso quando la
+% coppia e' il segno di citazione. Il cricchetto e'
+% `tests/p0t/language/apostrophe.p0t`.
 delim_pair(quotation, ', ').
 delim_line_comment(brace, "//").
 delim_block_comment(brace, "/*", "*/").

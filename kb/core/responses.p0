@@ -343,6 +343,43 @@ ability_opener(en, "You can ").
 % conversazioni diverse: la seconda dice che cosa potrebbe cambiare.
 % gen399: un contesto dichiarato si riconosce e ci si sta dentro. La frase
 % NOMINA il posto invece di dire «ok»: e' la prova che e' stato capito.
+% gen402: il declino preciso. Tre parti, nessuna opzionale — senza il perche'
+% sembra pigrizia, senza l'indirizzo sembra un rifiuto.
+no_live_opener(en, "I have no live source for ").
+no_live_opener(it, "Non ho una fonte in tempo reale per ").
+no_live_closer(en, ": it changes while we speak, so anything I held would be stale. ").
+no_live_closer(it, ": cambia mentre ne parliamo, quindi quello che tenessi sarebbe vecchio. ").
+volatile_label(market, en, "a market price").
+volatile_label(market, it, "un prezzo di mercato").
+volatile_label(weather, en, "current weather").
+volatile_label(weather, it, "il meteo attuale").
+volatile_label(live_result, en, "a result that just happened").
+volatile_label(live_result, it, "un risultato appena accaduto").
+volatile_label(moving_figure, en, "a figure that keeps moving").
+volatile_label(moving_figure, it, "un dato che continua a cambiare").
+volatile_source(market, en, "An exchange or a market tracker will have it.").
+volatile_source(market, it, "Ce l'ha un exchange o un tracker di mercato.").
+volatile_source(weather, en, "A weather service will have it.").
+volatile_source(weather, it, "Ce l'ha un servizio meteo.").
+volatile_source(live_result, en, "A news or sports feed will have it.").
+volatile_source(live_result, it, "Ce l'ha un feed di notizie o di sport.").
+volatile_source(moving_figure, en, "A current statistical source will have it.").
+volatile_source(moving_figure, it, "Ce l'ha una fonte statistica aggiornata.").
+
+% Il dominio dove un errore fa danno indirizza a una PERSONA, non a una fonte —
+% e se il sintomo e' urgente dice per prima cosa la sola cosa che conta.
+expert_urgent(medical, en, "If the pain is severe, sudden, or comes with breathlessness, call emergency services now. ").
+expert_urgent(medical, it, "Se il dolore e' forte, improvviso o si accompagna ad affanno, chiama subito il numero di emergenza. ").
+expert_urgent(legal, en, "").
+expert_urgent(legal, it, "").
+expert_only_opener(en, "Beyond that I will not stand in for ").
+expert_only_opener(it, "Oltre a questo non mi sostituisco a ").
+expert_domain_label(medical, en, "a doctor").
+expert_domain_label(medical, it, "un medico").
+expert_domain_label(legal, en, "a lawyer").
+expert_domain_label(legal, it, "un avvocato").
+expert_only_closer(en, ": a wrong answer here does harm, and I have no way to check mine.").
+expert_only_closer(it, ": una risposta sbagliata qui fa danno, e non ho modo di verificare la mia.").
 setting_opener(en, "Got it, we are at ").
 setting_opener(it, "Ci siamo, siamo in ").
 setting_closer(en, " — what would you like to do?").

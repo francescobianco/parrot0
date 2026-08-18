@@ -2,10 +2,41 @@
 
 ## HANDOFF — dove riprendere dopo la sessione del 17 agosto 2026
 
-**Stato:** albero pulito, `make test` 2230 verdi, `make soft-test` verde in 14s
-sul budget 15 (era fuori budget da settimane). Tutte e sette le generazioni del
+**Stato:** albero pulito, `make test` 2347 verdi in ~90s, `make soft-test` verde
+in ~6s sul budget 15 (i due `!timeout` di cerotto sono stati tolti, non alzati). Tutte e sette le generazioni del
 piano `docs/plans/frontier-kb-natural-dialogue.md` hanno ora almeno un taglio
 verticale funzionante; il piano e' intorno al **70%**.
+
+## ✅ BUG CHIUSO — l'apostrofo spegneva il produttore universale (gen402)
+
+Trovato chiudendo #89 del censimento, e vale la pena tenerlo scritto perche' la
+sproporzione fra la causa e il danno e' la lezione.
+
+```text
+> who won yesterday match      -> I have no live source for a result that ...
+> who won yesterday's match    -> Hmm, I don't know about yesterday's yet
+```
+
+Con un apostrofo nel turno, `turn_span/4` non veniva pubblicato affatto: il
+turno risultava `ambiguous`, `universal_turn_lead` usciva subito, e con lui
+tacevano tutti i livelli costruiti dal gen393 in poi — frame, issue, situazione,
+registro, contabilita'. In inglese l'apostrofo sta in ogni possessivo e in ogni
+contrazione, quindi la classe muta era enorme.
+
+La causa non era dove sembrava. `input_quote_at()` la regola giusta ce l'aveva
+gia' — un apostrofo fra due alfanumerici non apre niente — ma
+`input_find_delim_open()`, dopo averla interrogata e ricevuto un no, proseguiva
+fino al confronto letterale con `d->open` e apriva lo stesso. La guardia era
+scritta e poi scavalcata due rami piu' sotto. Il ramo generico ora e' escluso
+quando la coppia di delimitatori E' il segno di citazione.
+
+Due cose da portarsi dietro. La prima: nessun `.p0t` lo aveva preso perche' i
+test scritti finora usavano forme senza apostrofo — una lacuna di CAMPIONE, non
+di copertura, e le lacune di campione non si vedono guardando quanti test sono
+verdi. La seconda: il cricchetto `tests/p0t/language/apostrophe.p0t` non
+verifica il segmentatore, che durante il bug rispondeva correttamente; verifica
+che i livelli SOPRA continuino a rispondere quando l'apostrofo c'e'. Un test
+puntato sulla causa sarebbe stato verde per tutta la durata del guasto.
 
 ## ⛔ TODO APERTI DEL PIANO — non chiuderlo senza questi
 
