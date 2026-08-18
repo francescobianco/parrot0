@@ -922,8 +922,25 @@ static void machinery_gap_close(Brain *b, const char *canon) {
     const char *ga[] = { q };
     if (!kb_query(b->kb, "machinery_gap", ga, 1)) return;
     kb_retract(b->kb, "machinery_gap", ga, 1);
+    /* gen405 (F.): UN PONTE TROVATO DAL CICLO E UNO MESSO A MANO SONO DUE
+     * EVENTI OPPOSTI, e finora lasciavano la stessa traccia.
+     *
+     * Il criterio del progetto non e' «nessuna lacuna chiusa a mano» — sarebbe
+     * aspettare che il ciclo si sblocchi proprio dove e' bloccato. E' che le
+     * lacune chiuse a mano siano le MINIME che fanno evincere che il processo
+     * non progredisce. Un registro che non distingue i due casi non puo'
+     * misurarlo: da qui in poi ogni chiusura dice da chi.
+     *
+     * `dreaming/1` e' asserito dal sogno per la sua durata. Oggi le uniche due
+     * provenienze sono «durante un sogno» e «in conversazione»; quando il ciclo
+     * sapra' PROPORRE (gen410) ne servira' una terza, e sara' quella che conta. */
+    const char *dq[] = { NULL };
+    char who[1][KB_TERM_LEN];
+    const char *by = (kb_match(b->kb, "dreaming", dq, 1, who, 1) > 0) ? "dream"
+                                                                     : "dialogue";
     kb_set_origin(b->kb, KB_REFLECTIVE);
-    kb_assert(b->kb, "bridged", ga, 1);
+    const char *ba[] = { q, by };
+    kb_assert(b->kb, "bridged", ba, 2);
     kb_set_origin(b->kb, KB_SESSION);
 }
 

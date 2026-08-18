@@ -157,11 +157,21 @@ Piano in sette generazioni, ognuna con un criterio che e' una misura e non un
 forme-ponte, gen410 proponi-e-prova, gen411 il processo autonomo, gen412
 ufficializzare.
 
-Il criterio unico: **le lacune aperte devono scendere senza che nessuno le
-chiuda a mano.** E cio' che lo falsifica: se a gen410 le proposte che passano la
-verifica sono una per SUPERFICIE invece che una per CLASSE, il ciclo non impara
-— si compila un frasario da solo, che e' peggio che compilarlo a mano perche'
-nessuno lo sta guardando.
+IL CRITERIO, nella forma corretta da F.: **le lacune che devono essere chiuse a
+mano sono quelle MINIME che fanno evincere che il processo di autoapprendimento
+non progredisce.** Non «zero interventi» — sarebbe aspettare che il ciclo si
+sblocchi proprio dove e' bloccato. L'intervento manuale ha un solo bersaglio, la
+lacuna che BLOCCA il ciclo, e ogni intervento e' un dato, non una riparazione.
+
+Tre regole: minima e non comoda (mai la classe intera, o si toglie
+l'esperimento invece del blocco); sulla macchineria e non sul contenuto (chiudere
+a mano una lacuna di contenuto e' sostituirsi al ciclo); registrata col motivo.
+
+Il registro delle chiusure a mano E' lo strumento di misura: se si riempie di
+blocchi del ciclo e poi tace, si progredisce; se si riempie di lacune di
+contenuto, il processo e' fermo e noi lo stiamo mascherando lavorando al posto
+suo. Percio' `bridged/1` deve sapere DA CHI — oggi un ponte trovato dal ciclo e
+uno messo a mano lasciano la stessa traccia.
 
 ## 🔎 AUDIT KB-FIRST DEL C — `docs/plans/kb-first-audit.md`
 

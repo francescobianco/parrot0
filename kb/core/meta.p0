@@ -423,3 +423,6 @@ machinery(no_gap_text).
 % gen404 — una lacuna COLMATA e' un'informazione diversa da una mai avuta: e'
 % quella che dice se l'anello sta girando. Anche lei e' macchineria.
 machinery(bridged).
+% gen405 — il sogno si dichiara mentre e' in corso, cosi' che una lacuna chiusa
+% leggendo si distingua da una chiusa perche' qualcuno ha portato la conoscenza.
+machinery(dreaming).

@@ -96,6 +96,9 @@
 
 # E la lacuna si e' chiusa da sola, perche' il turno ha risposto.
 !query! machinery_gap("what is the total of 4, 5 and 6")
-!query bridged("what is the total of 4, 5 and 6")
+# gen405: una lacuna chiusa sa DA CHI. Qui la conoscenza l'ha portata il turno
+# di insegnamento, non una lettura: e' una chiusura «a mano», ed e' proprio la
+# classe che il registro deve saper distinguere da un ponte trovato dal ciclo.
+!query bridged("what is the total of 4, 5 and 6", dialogue)
 > what did you fail on
 < Nothing walled on me yet in this conversation.

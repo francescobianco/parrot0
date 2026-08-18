@@ -82,8 +82,13 @@ traccia esiste già (`b->trace_declined`) e oggi viene buttata.
 *Perché prima di tutto:* senza ancora, lo spazio di ricerca di un rimedio è
 l'intera KB, e le due generazioni successive non hanno un ingresso.
 
+Insieme all'ancora, la **provenienza della chiusura**: `bridged/1` oggi non
+distingue un ponte trovato dal ciclo da uno messo a mano, e sono due eventi
+opposti. Senza quella distinzione il criterio del piano non è misurabile.
+
 **Criterio:** alla domanda «su cosa hai fallito?» parrot0 non risponde solo con
-il turno, ma con *dove* si è fermato e *chi* c'era andato vicino.
+il turno, ma con *dove* si è fermato e *chi* c'era andato vicino; e ogni lacuna
+chiusa sa dire **da chi**.
 
 ### gen407 — Un solo atto di apprendimento
 
@@ -160,13 +165,59 @@ dicono se ha **capito** di più sono già stampate dal sogno:
 - **frasi non lette** — prosa che ha avuto sotto gli occhi e non ha saputo
   leggere.
 
-Il criterio unico che riassume il piano: **il numero delle lacune aperte deve
-scendere senza che nessuno le chiuda a mano.**
+### Il ruolo della chiusura a mano — e non è «zero»
+
+Il criterio ovvio sarebbe *«le lacune devono scendere senza che nessuno le
+chiuda a mano»*, ed è sbagliato per eccesso: chiuderne a mano nessuna
+significherebbe aspettare che il ciclo si sblocchi da solo proprio dove è
+bloccato. La formulazione giusta è di F. (gen405):
+
+> **Le lacune che devono essere chiuse a mano sono quelle minime che fanno
+> evincere che il processo di autoapprendimento non progredisce.**
+
+Cioè: l'intervento manuale è legittimo, ma ha **un solo bersaglio** — la lacuna
+che blocca il ciclo, non quella che il ciclo dovrebbe chiudere. E ogni
+intervento è un **dato**, non una riparazione: nomina un punto in cui il
+processo non sa avanzare da sé.
+
+Da qui tre regole operative, e sono verificabili:
+
+1. **Minima, non comoda.** Si chiude la cosa più piccola che sblocca, mai la
+   classe intera. Chiudere a mano tutta la classe nasconde per sempre se il
+   ciclo l'avrebbe chiusa: si è tolto l'esperimento invece del blocco.
+2. **Sulla macchineria, non sul contenuto.** Chiudere a mano una lacuna di
+   contenuto — un fatto sul mondo, una cue in più — significa sostituirsi al
+   ciclo, non ripararlo. È esattamente il lavoro che il gen404-405 ha fatto, ed
+   è per quello che F. l'ha corretto: era la mia assegnazione, non la sua.
+3. **Registrata con il motivo.** Ogni chiusura a mano va scritta come *«qui il
+   ciclo non poteva perché …»*. Il registro di quelle motivazioni è il vero
+   strumento di misura del piano.
+
+### Come si legge il registro
+
+- **si riempie di blocchi del ciclo, poi tace** → il processo progredisce: ogni
+  intervento ha tolto un ostacolo che non si è ripresentato;
+- **si riempie di lacune di contenuto** → il processo non progredisce e noi lo
+  stiamo mascherando lavorando al posto suo;
+- **si riempie sempre dello stesso genere di blocco** → il blocco non era quello
+  che avevamo capito, e la diagnosi va rifatta prima di continuare.
+
+Perciò `bridged/1` non basta a misurare: una lacuna chiusa deve sapere **da
+chi**. Un ponte trovato dal ciclo e un ponte messo a mano sono due eventi
+opposti che oggi lasciano la stessa traccia — ed è la prima cosa che la gen406
+deve sistemare insieme all'ancora.
+
+### Cosa falsifica il piano
 
 Il piano è falsificato se, arrivati a gen410, le proposte che superano la
 verifica sono **una per superficie** invece che **una per classe**. In quel caso
 il ciclo non impara: compila un frasario da solo, il che è peggio che compilarlo
 a mano, perché nessuno lo sta guardando.
+
+Ed è falsificato — più silenziosamente, quindi peggio — se il registro delle
+chiusure a mano continua a crescere di lacune di contenuto. Vuol dire che il
+ciclo non sta avanzando e che il lavoro umano lo sta coprendo: la misura sale,
+il processo è fermo.
 
 ---
 

@@ -282,6 +282,14 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
         seen_add(&st, root);
     }
 
+    /* gen405: il sogno si dichiara. Una lacuna chiusa mentre e' in corso e' un
+     * ponte trovato leggendo; una chiusa in conversazione l'ha portata qualcun
+     * altro. Il registro deve poterli distinguere (vedi machinery_gap_close). */
+    {
+        const char *da[] = { "1" };
+        kb_assert(brain_kb(b), "dreaming", da, 1);
+    }
+
     fprintf(o, "dream: %s   (profondita' max %d, nodi max %d, fetch %s)\n",
             root, max_depth, max_nodes, opts->fetch ? "on" : "off");
     if (guided) agenda_from_gaps(b, &st, o);
@@ -385,6 +393,11 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
             indent(o, node.depth);
             fprintf(o, "  → %zu parole in coda\n", queued);
         }
+    }
+
+    {
+        const char *da[] = { "1" };
+        kb_retract(brain_kb(b), "dreaming", da, 1);
     }
 
     fprintf(o, "%s\n", "----------------------------------------------------------------------");
