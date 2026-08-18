@@ -38,6 +38,111 @@ verifica il segmentatore, che durante il bug rispondeva correttamente; verifica
 che i livelli SOPRA continuino a rispondere quando l'apostrofo c'e'. Un test
 puntato sulla causa sarebbe stato verde per tutta la durata del guasto.
 
+## 🗣️ LACUNE VISTE IN CONVERSAZIONE — gen403, sonda `make chat`
+
+Due conversazioni da quattordici turni sul profilo di `make chat`, un solo
+cervello attraverso i turni (non prompt isolati: e' li' che si vedono le cose
+che i `.p0t` a turno singolo non prendono). Trascrizioni riprodotte con
+`--mcp-engine`. In ordine di GRAVITA', non di difficolta'.
+
+### 1. Risposte confidenti e completamente sbagliate — peggio di un muro
+
+Sono quattro, e sono la cosa piu' urgente del file. Un muro dice il vero; questi
+dicono il falso con la stessa faccia con cui direbbero il vero.
+
+```text
+you> is pine strong enough for that?
+p0 > Straight_flush.
+you> I'm thinking of building a bookshelf for them
+p0 > A low hum filled the room as the dust lifted into the air.
+you> it needs to hold about 30 kg
+p0 > Learned 4 prerequisites for it.
+you> what should I change to make it consistent?
+p0 > [150 parole su COME si formula una raccomandazione, non sulla domanda]
+```
+
+La causa e' strutturale e comune: i moduli generativi (narrativa,
+raccomandazione, prerequisiti, e qualunque cosa abbia tirato fuori il poker)
+rispondono per ULTIMI RIMASTI, senza dover dichiarare perche' il turno sia loro.
+Serve una soglia di ammissione — la stessa mossa dell'`answer_frame_input_arg`
+del gen393: un modulo che non sa dire su quale ancora del turno sta lavorando
+non risponde. Mettere un muro al loro posto e' gia' un miglioramento
+misurabile.
+
+### 2. Una frase, due fatti → si perde tutto (regressione parziale gen403)
+
+```text
+you> my name is Francesco and I work as a carpenter
+p0 > Got it: your name is carpenter.
+you> I have two kids, Anna and Bea
+p0 > I don't understand that yet.
+you> Anna is 7 and Bea is 4
+p0 > I didn't quite catch that. What would you like to know?
+```
+
+Lo slot mangia la coda dell'INTERO turno invece di fermarsi al confine di
+proposizione. Prima del gen403 memorizzava tutta la coda («Francesco and I work
+as a carpenter»), ora l'ultima parola: sbagliato in modo diverso, non meno.
+
+Il fix e' uno solo e chiude tutte e tre le righe: **un `and` o una virgola
+chiudono il valore, e la seconda proposizione torna al dispatch come turno
+proprio.** E' il prerequisito di quasi tutto il resto di questo elenco, perche'
+finche' una frase con due fatti si perde, nessuna catena multi-turno parte.
+
+### 3. Nessuna aritmetica sui fatti INSEGNATI
+
+```text
+you> Anna is 7 and Bea is 4          (non entra, vedi §2)
+you> how much older is Anna than Bea?   -> muro
+you> in three years, how old will Bea be? -> muro
+you> I have 12 apples, I give 3 to Anna and eat 2. how many are left?  -> 7.
+```
+
+L'ultima riga dimostra che il motore aritmetico c'e'. Il gen399 ha costruito il
+ponte fra i numeri **nel turno** e gli operatori; manca quello fra i numeri
+**nella KB** (`user_value`, fatti insegnati) e gli stessi operatori. E' la
+stessa forma — `numeric_cue` + `apply_numeric` — con una sorgente diversa per
+la lista.
+
+### 4. Le regole universali non entrano
+
+```text
+you> every bird can fly        -> I don't understand that yet.
+you> a penguin is a bird       -> Learned: bird(penguin).
+you> can a penguin fly?        -> I don't understand that yet.
+you> actually penguins cannot fly -> Hmm, I don't know about penguins yet.
+```
+
+`every X can Y` deve asserire una CLAUSOLA, non murare. Con questa riga cade
+tutta la catena che ci sta sopra e che oggi non e' nemmeno provabile:
+contraddizione rilevata, revisione della regola, controesempio, modus ponens
+inverso. Il censimento `docs/plans/parrot0-100-failures.md` #6-#10 e #46-#50 e'
+tutto qui dentro.
+
+### 5. Il seguito non e' ancorato al turno precedente
+
+```text
+you> what if I had started with 20?  -> That sounds nice -- tell me more about it.
+you> explain your reasoning          -> Hmm, I don't know about reasoning yet.
+you> why not?                        -> I don't understand that yet.
+```
+
+Una domanda di follow-up non vede il turno che la precede. «explain your
+reasoning» e «why not?» sono le due richieste piu' ovvie che si facciano a un
+ragionatore, e sono entrambe mute.
+
+### 6. Minori, ma registrate
+
+- `who is the older one?` → «I don't know much about older one yet» — il muro
+  nomina un frammento sintattico come se fosse un'entita'.
+- `which is heavier, a kilo of feathers or a kilo of iron?` → «I don't have
+  magnitudes for Feathers and Kilo» — segmentazione della quantita' sbagliata
+  (prende «Kilo» come entita'), e comunque la risposta e' «pesano uguale», che
+  e' una domanda sull'UGUAGLIANZA non sulle magnitudini.
+- `name three things that are red` → muro su «things».
+- `what were we talking about before?` → «We talked about name, francesco, work
+  and carpenter»: onesto ma e' un elenco di token, non un tema.
+
 ## 🔎 AUDIT KB-FIRST DEL C — `docs/plans/kb-first-audit.md`
 
 Trenta marcatori `TODO(kb-first):` nel codice, indicizzati e ordinati per DANNO
