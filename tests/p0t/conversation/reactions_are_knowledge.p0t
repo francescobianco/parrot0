@@ -1,0 +1,61 @@
+# IL REGISTRO SOCIALE E' CONOSCENZA — gen403.
+#
+# `mod_chitchat` teneva tredici bandiere, ognuna una catena di `cue(norm, "…")`:
+# ottantotto stringhe letterali nel C, le risposte accanto, e l'ordine in cui
+# provarle sepolto nella cascata di `if`.
+#
+# Anche qui il test non verifica che le reazioni funzionino — funzionavano.
+# Verifica le tre cose che una catena di `||` non poteva fare: aggiungerne una a
+# runtime, dichiararne la precedenza come dato, e lasciare una traccia nella
+# memoria che poi si possa interrogare.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test a new reaction is facts, not a branch]
+> fair enough
+< Glad that lands. What would you like to do next?
+!assert chitchat_reaction(patience, 5)
+!assert intent_cue(patience, "fair enough")
+!assert response_template(patience, "I am slow, and I would rather be slow than wrong. What next?")
+> fair enough
+< I am slow, and I would rather be slow than wrong. What next?
+
+# E si ritira come si e' data: tolta la riga del registro, la reazione non
+# esiste piu' e il turno torna a chi lo serviva prima.
+!forget chitchat_reaction(patience, 5)
+> fair enough
+< Glad that lands. What would you like to do next?
+
+# La precedenza e' un DATO, non l'ordine in cui e' scritto il C. «can we talk in
+# italian instead» contiene sia una cue di chiacchiera («can we talk») sia una
+# di cambio lingua («in italian»): vince la seconda perche' e' dichiarata prima,
+# e basta cambiare il numero per cambiare la risposta.
+[test precedence is declared, not written]
+> can we talk in italian instead
+< We can chat in either language — I'll do my best.
+!forget chitchat_reaction(language_switch, 40)
+!assert chitchat_reaction(language_switch, 85)
+> can we talk in italian instead
+< Happy to just chat. Tell me a little, and I'll follow the thread as best I can.
+!forget chitchat_reaction(language_switch, 85)
+!assert chitchat_reaction(language_switch, 40)
+
+# Cio' che il turno LASCIA e' un fatto sull'utente, non un campo C: `b->user_mood`
+# non era interrogabile da nessuno, e il modello di se' lo riportava solo perche'
+# aveva un ramo scritto apposta.
+[test what the turn leaves is a fact]
+!reset
+> I am tired
+<~ low-energy
+> what mood am I in?
+< You told me you feel tired.
+> I am bored
+<~ low-energy
+> what mood am I in?
+< You told me you feel bored.

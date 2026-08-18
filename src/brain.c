@@ -134,8 +134,10 @@ struct Brain {
     char user_preference_verb[16];
     char user_preference_value[64];
     int  has_user_preference;
-    char user_mood[64];
-    int  has_user_mood;
+    /* gen403: l'umore stava qui e ora e' `user_value(mood, …)` nella KB, con
+     * `session_slot(mood)` a dire che appartiene alla sessione. I due campi qui
+     * sotto sono la stessa specie e aspettano lo stesso trattamento.
+     * TODO(kb-first): current_topic e user_constraint -> user_value/2. */
     char current_topic[64];
     int  has_current_topic;
     char user_constraint[96];

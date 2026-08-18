@@ -1,0 +1,206 @@
+% reactions.p0 — IL REGISTRO SOCIALE E' CONOSCENZA (gen403).
+%
+% `mod_chitchat` teneva tredici bandiere, ognuna una catena di `cue(norm, "…")`
+% scritte nel C: ottantotto stringhe letterali, piu' le risposte, piu' l'ordine
+% in cui provarle. Erano invisibili a qualunque query, non insegnabili a runtime,
+% e la prova che stessero nel posto sbagliato e' che meta' erano italiane e
+% l'altra meta' inglesi nello stesso `||`: la lingua era diventata una proprieta'
+% del codice.
+%
+% La forma giusta esisteva gia' in questo stesso modulo dal gen338 — il registro
+% `pragma_act/1` con le sue `intent_cue` e i suoi `response_template`, percorso
+% da un ciclo generico. Qui si applica lo stesso schema alle reazioni di
+% registro, con una cosa in piu': l'ORDINE. Le reazioni non sono alternative
+% neutre, si coprono a vicenda — «non preoccuparti, imparerai» contiene sia
+% incoraggiamento sia il verbo imparare — quindi la priorita' e' un dato.
+%
+%   chitchat_reaction(Kind, Priority)  — il registro; numero piu' basso = prima
+%   intent_cue(Kind, "…")              — le superfici (kb_cue_match)
+%   response_template(Kind, …)         — la risposta, EN + IT
+%   reaction_effect(Kind, Slot, Value) — cio' che il turno lascia nella memoria
+%
+% Una reazione nuova, in una lingua nuova, e' un pugno di fatti e zero C.
+
+:- file_attribute(machinery).
+
+% ── IL REGISTRO E IL SUO ORDINE ────────────────────────────────────────────
+%
+% La frustrazione viene prima di tutto: se la persona sta dicendo che parrot0
+% si ripete, ogni altra lettura del turno e' una scortesia. Il contatto casuale
+% viene per ultimo perche' e' il piu' generico e ruberebbe i piu' specifici.
+chitchat_reaction(frustration, 10).
+chitchat_reaction(encourage, 20).
+chitchat_reaction(agree, 30).
+chitchat_reaction(language_switch, 40).
+chitchat_reaction(no_topic, 50).
+chitchat_reaction(mood_bored, 60).
+chitchat_reaction(mood_tired, 61).
+chitchat_reaction(mood_up, 70).
+chitchat_reaction(filler, 80).
+chitchat_reaction(casual, 90).
+
+% ── 1. FRUSTRAZIONE — «ti ripeti», «sei rotto» ────────────────────────────
+intent_cue(frustration, "repeat").          intent_cue(frustration, "repeating").
+intent_cue(frustration, "ripetiz").         intent_cue(frustration, "stessa cosa").
+intent_cue(frustration, "copying").         intent_cue(frustration, "copiando").
+intent_cue(frustration, "broken record").   intent_cue(frustration, "stuck").
+intent_cue(frustration, "useless").         intent_cue(frustration, "inutile").
+intent_cue(frustration, "sei rotto").       intent_cue(frustration, "you keep").
+intent_cue(frustration, "keep saying").     intent_cue(frustration, "three times").
+intent_cue(frustration, "on purpose").      intent_cue(frustration, "getting stale").
+intent_cue(frustration, "default reply").   intent_cue(frustration, "not a good chatbot").
+intent_cue(frustration, "dont know anything").
+intent_cue(frustration, "do not know anything").
+intent_cue(frustration, "can not even").    intent_cue(frustration, "can not learn").
+intent_cue(frustration, "robots can not").  intent_cue(frustration, "doing this on purpose").
+intent_cue(frustration, "broken").          intent_cue(frustration, "glitch").
+intent_cue(frustration, "trolling").        intent_cue(frustration, "echoing").
+intent_cue(frustration, "repetitive").      intent_cue(frustration, "even trying").
+intent_cue(frustration, "done here").       intent_cue(frustration, "schifo").
+intent_cue(frustration, "vague phrases").   intent_cue(frustration, "confusing").
+intent_cue(frustration, "flip a table").    intent_cue(frustration, "what a day").
+response_template(frustration, "I know I repeat myself — I'm a small bot and honest about my limits. What would you like to try?").
+response_template(frustration, it, "Lo so che mi ripeto: sono un bot piccolo e onesto sui suoi limiti. Cosa ti va di provare?").
+
+% ── 2. INCORAGGIAMENTO — «tranquillo, imparerai» ──────────────────────────
+intent_cue(encourage, "imparerai").         intent_cue(encourage, "you'll learn").
+intent_cue(encourage, "youll learn").       intent_cue(encourage, "no worries").
+intent_cue(encourage, "nessun problema").   intent_cue(encourage, "non preoccupar").
+intent_cue(encourage, "take your time").    intent_cue(encourage, "keep trying").
+intent_cue(encourage, "tranquillo").        intent_cue(encourage, "figurati").
+intent_cue(encourage, "takes time").        intent_cue(encourage, "figure it out").
+intent_cue(encourage, "well figure").       intent_cue(encourage, "no rush").
+intent_cue(encourage, "we'll get there").   intent_cue(encourage, "niente paura").
+intent_cue(encourage, "provo a").           intent_cue(encourage, "take it back").
+intent_cue(encourage, "ancora imparare").   intent_cue(encourage, "devi imparare").
+response_template(encourage, "Thanks — I'm learning as we go.").
+response_template(encourage, it, "Grazie — imparo strada facendo.").
+
+% ── 3. ASSENSO alla descrizione onesta che parrot0 da' di se' ─────────────
+intent_cue(agree, "fair enough").           intent_cue(agree, "that's fair").
+intent_cue(agree, "thats fair").            intent_cue(agree, "fair actually").
+intent_cue(agree, "makes sense").           intent_cue(agree, "fair point").
+intent_cue(agree, "capisco").               intent_cue(agree, "thats reasonable").
+intent_cue(agree, "that's reasonable").
+response_template(agree, "Glad that lands. What would you like to do next?").
+response_template(agree, it, "Sono contento che regga. Cosa facciamo adesso?").
+
+% ── 4. NIENTE DI CUI PARLARE ──────────────────────────────────────────────
+intent_cue(no_topic, "i do not know what to say").
+intent_cue(no_topic, "i don't know what to say").
+intent_cue(no_topic, "i dont know what to say").
+intent_cue(no_topic, "non so cosa dire").   intent_cue(no_topic, "not so cosa dire").
+intent_cue(no_topic, "boh").                intent_cue(no_topic, "no idea what to say").
+intent_cue(no_topic, "say something").      intent_cue(no_topic, "tell me something").
+intent_cue(no_topic, "dimmi qualcosa").     intent_cue(no_topic, "intrattienimi").
+intent_cue(no_topic, "entertain me").
+response_template(no_topic, "We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.").
+response_template(no_topic, it, "Partiamo semplice: raccontami qualcosa della tua giornata, o chiedimi di ricordare o ragionare su un fatto piccolo.").
+
+% ── 5. UMORE ──────────────────────────────────────────────────────────────
+%
+% Due stati bassi distinti, non uno con un'eccezione: la noia e la stanchezza
+% lasciano nella memoria valori diversi, ed era proprio quella differenza a
+% costringere il C a un ternario («mood_bored ? "bored" : "tired"»). Come fatti
+% sono due righe che non si guardano.
+%
+% `reaction_effect/3` e' cio' che il turno LASCIA. Prima era `b->user_mood`, un
+% campo C: la stessa specie di conoscenza-che-nessuno-puo'-interrogare che era
+% il nome. Ora e' `user_value(mood, …)`, e `session_slot/1` dice che appartiene
+% alla sessione e non alla persona — il modello di se' lo riporta sotto
+% «Session context» perche' lo sa, non perche' ha un ramo che lo sa.
+intent_cue(mood_bored, "i am bored").       intent_cue(mood_bored, "im bored").
+intent_cue(mood_bored, "mi annoio").        intent_cue(mood_bored, "sono annoiato").
+intent_cue(mood_bored, "sono annoiata").
+reaction_effect(mood_bored, mood, bored).
+
+intent_cue(mood_tired, "i am tired").       intent_cue(mood_tired, "im tired").
+intent_cue(mood_tired, "sono stanco").      intent_cue(mood_tired, "sono stanca").
+intent_cue(mood_tired, "am stanco").        intent_cue(mood_tired, "am stanca").
+intent_cue(mood_tired, "bad day").          intent_cue(mood_tired, "giornata no").
+intent_cue(mood_tired, "rough day").        intent_cue(mood_tired, "not feeling great").
+reaction_effect(mood_tired, mood, tired).
+
+response_template(mood_bored, "Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.").
+response_template(mood_bored, it, "Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.").
+response_template(mood_tired, "Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.").
+response_template(mood_tired, it, "Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.").
+
+intent_cue(mood_up, "i am happy").          intent_cue(mood_up, "im happy").
+intent_cue(mood_up, "sono felice").         intent_cue(mood_up, "great day").
+intent_cue(mood_up, "bella giornata").      intent_cue(mood_up, "that is cool").
+intent_cue(mood_up, "thats cool").          intent_cue(mood_up, "che bello").
+intent_cue(mood_up, "nice").                intent_cue(mood_up, "cool").
+reaction_effect(mood_up, mood, happy).
+response_template(mood_up, "Nice. Tell me what made it good, or give me a small thing to reason about.").
+response_template(mood_up, it, "Bene. Dimmi cosa l'ha resa bella, oppure dammi una cosetta su cui ragionare.").
+
+session_slot(mood).
+
+% ── 6. CHIACCHIERA DICHIARATA ─────────────────────────────────────────────
+intent_cue(filler, "nothing much").         intent_cue(filler, "just hanging").
+intent_cue(filler, "just bored").           intent_cue(filler, "just vibing").
+intent_cue(filler, "just chatting").        intent_cue(filler, "hanging out").
+intent_cue(filler, "solo chiacchiere").     intent_cue(filler, "parliamo e basta").
+intent_cue(filler, "just chat").            intent_cue(filler, "just talk").
+intent_cue(filler, "can we talk").          intent_cue(filler, "lets talk").
+intent_cue(filler, "let us talk").          intent_cue(filler, "facciamo due chiacchiere").
+response_template(filler, "Happy to just chat. Tell me a little, and I'll follow the thread as best I can.").
+response_template(filler, it, "Volentieri, chiacchieriamo. Raccontami un po' e seguo il filo come meglio posso.").
+
+% ── 7. CONTATTO CASUALE — l'ultimo, perche' e' il piu' generico ───────────
+intent_cue(casual, "what's up").            intent_cue(casual, "whats up").
+intent_cue(casual, "what is up").           intent_cue(casual, "just saying hi").
+intent_cue(casual, "my bad").               intent_cue(casual, "wassup").
+intent_cue(casual, "what do you want").     intent_cue(casual, "what do you know").
+intent_cue(casual, "che fai").              intent_cue(casual, "keep it formal").
+intent_cue(casual, "your day").             intent_cue(casual, "u good").
+intent_cue(casual, "you good").             intent_cue(casual, "you work").
+intent_cue(casual, "you there").            intent_cue(casual, "solo chat").
+intent_cue(casual, "reaching out").         intent_cue(casual, "what even are you").
+intent_cue(casual, "pappagallo").           intent_cue(casual, "sei onesto").
+intent_cue(casual, "wait what").            intent_cue(casual, "okay helpful").
+intent_cue(casual, "vuol dire").            intent_cue(casual, "che significa").
+intent_cue(casual, "literally anything").   intent_cue(casual, "lovely to have").
+intent_cue(casual, "figuring it out").      intent_cue(casual, "sono qui").
+intent_cue(casual, "whole time").
+response_template(casual, "Hey! I'm here. Ask me something, or tell me about your day?").
+response_template(casual, it, "Ehilà! Sono qui. Chiedimi qualcosa, o raccontami della tua giornata.").
+
+% ── 8. IL REGISTRO AFFETTIVO SENZA CONTENUTO ──────────────────────────────
+%
+% Emoji, emoticon, risate, gesti fra asterischi, vezzeggiativi. Qui la
+% distinzione conta: l'emoji e il gesto fra asterischi sono STRUTTURA (una
+% classe di codepoint, un asterisco iniziale) e restano un riconoscitore in C;
+% le risate e i vezzeggiativi sono PAROLE, e le parole stanno qui.
+%
+% La risposta ruota da sola: `response_template` con piu' righe e' gia' una
+% rotazione, che e' l'istinto anti-ripetizione del gen55 ottenuto per dati.
+intent_cue(playful, "haha").                intent_cue(playful, "lol").
+intent_cue(playful, "hehe").                intent_cue(playful, "ahah").
+intent_cue(playful, "lmao").                intent_cue(playful, "hihi").
+intent_cue(playful, "rofl").                intent_cue(playful, "eheh").
+intent_cue(playful, "ahaha").               intent_cue(playful, "battuta").
+intent_cue(playful, "scherzo").             intent_cue(playful, "hilarious").
+intent_cue(playful, ":)").                  intent_cue(playful, ":-)").
+intent_cue(playful, ";)").                  intent_cue(playful, ":d").
+intent_cue(playful, ":p").                  intent_cue(playful, " xd").
+intent_cue(playful, ":(").                  intent_cue(playful, "<3").
+intent_cue(playful, "sweety").              intent_cue(playful, "sweetie").
+intent_cue(playful, "babes").               intent_cue(playful, "buddy").
+intent_cue(playful, "tesoro").
+% «friend» e «amico» erano in questa lista e rubavano ogni frase che NOMINASSE
+% un amico: «perché balu è un amico?» riceveva una risposta affettuosa invece
+% della prova. Un vezzeggiativo e' un vocativo — «ehi amico» — e riconoscerlo
+% come tale vuole la posizione, non la sola presenza della parola. Finche' la
+% posizione non la guardiamo, meglio non rispondere che rispondere a caso.
+response_template(playful, "I'm enjoying this — what's on your mind?").
+response_template(playful, "Ha, you're playful! Ask me something?").
+response_template(playful, "I'm a simple bot, but I'm here for it. Go on?").
+response_template(playful, it, "Mi sto divertendo — a cosa stai pensando?").
+response_template(playful, it, "Ah, sei in vena! Chiedimi qualcosa.").
+response_template(playful, it, "Sono un bot semplice, ma ci sto. Vai avanti.").
+
+machinery(chitchat_reaction).
+machinery(reaction_effect).
+machinery(session_slot).

@@ -25,7 +25,15 @@
 < Yes.
 > quanto è robusta questa conclusione?
 < My conclusion that balu is a friend rests on 2 load-bearing facts: bear(balu), happy(balu). Removing any one would overturn it.
-# gen161: the affirmative why-proof now travels in Italian too (subject-verb
-# order: "perché X è un Y?"), the same proof the English "why is X a Y?" renders.
+# gen161 diceva che la prova affermativa viaggia anche in italiano. Non e' vero,
+# e questa riga lo registrava senza dirlo: l'attesa era «I'm a simple bot, but
+# I'm here for it. Go on?», cioe' una risposta AFFETTUOSA a una domanda di
+# inferenza. Arrivava li' perche' «amico» era una cue di vezzeggiativo, e una
+# frase che NOMINA un amico veniva scambiata per una che si rivolge a un amico.
+#
+# gen403: la cue vorace e' stata tolta, e sotto c'era un muro. Il muro e' la
+# verita' — la domanda «perché X è un Y?» in italiano non raggiunge la prova
+# che la sua gemella inglese raggiunge — e vale piu' di una risposta sbagliata
+# che la nascondeva. Il lavoro da fare e' quello, non il ripristino della cue.
 > perché balu è un amico?
-< I'm a simple bot, but I'm here for it. Go on?
+< Non capisco ancora.

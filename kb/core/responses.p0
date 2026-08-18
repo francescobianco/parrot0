@@ -535,7 +535,9 @@ response_template(dont_understand, it, "Non sono sicuro di aver seguito. Puoi di
 % gen335: language-switch reply — KB-first, bilingual. Formerly a hardcoded
 % put("We can chat in either language...") in mod_chitchat; now lives as a
 % knowledge fact, localizable with a /3 fact, teachable at runtime.
-response_template(language_switch, en, "We can chat in either language — I'll do my best.").
+% gen403: la forma /2 e' il default inglese che `kb_response` legge; la /3 con
+% `en` esplicito non veniva mai interrogata quando la lingua corrente e' en.
+response_template(language_switch, "We can chat in either language — I'll do my best.").
 response_template(language_switch, it, "Possiamo parlare in entrambe le lingue — farò del mio meglio.").
 
 % gen335 (KB-first): research-pipeline responses migrated from ternary C to

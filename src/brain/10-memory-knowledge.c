@@ -511,9 +511,10 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
 
     if (cue(norm, "what mood") || cue(norm, "how do i feel") ||
         cue(norm, "come mi sento") || cue(norm, "che umore")) {
-        if (b->has_user_mood) {
+        char mood[64];
+        if (user_value_read(b, "mood", mood, sizeof mood)) {
             char msg[160];
-            snprintf(msg, sizeof msg, "You told me you feel %s.", b->user_mood);
+            snprintf(msg, sizeof msg, "You told me you feel %s.", mood);
             put(msg, out, out_size);
         } else {
             kb_say(b, "i_do_not_know_your_current_mood_yet", "I do not know your current mood yet.", out, out_size);
@@ -578,13 +579,22 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             off += (size_t)snprintf(msg + off, sizeof msg - off, ".");
         }
 
-        int session = b->has_user_mood || b->has_current_topic || b->has_user_constraint;
+        /* gen403: l'umore non e' piu' un campo C ma `user_value(mood, …)`, e la
+         * KB dichiara `session_slot(mood)` — appartiene alla sessione, non alla
+         * persona. Il modello di se' lo riporta qui sotto perche' lo SA, non
+         * perche' ha un ramo che lo sa.
+         * TODO(kb-first): `current_topic` e `user_constraint` sono ancora due
+         * campi C con la stessa forma. Vanno a `user_value` + `session_slot`,
+         * e allora questo blocco diventa un ciclo sui session_slot dichiarati. */
+        char mood[64];
+        int has_mood = user_value_read(b, "mood", mood, sizeof mood);
+        int session = has_mood || b->has_current_topic || b->has_user_constraint;
         if (session && off < sizeof msg) {
             int s = 0;
             off += (size_t)snprintf(msg + off, sizeof msg - off, " Session context:");
-            if (b->has_user_mood && off < sizeof msg) {
+            if (has_mood && off < sizeof msg) {
                 off += (size_t)snprintf(msg + off, sizeof msg - off,
-                                        "%s you feel %s", s ? ";" : "", b->user_mood);
+                                        "%s you feel %s", s ? ";" : "", mood);
                 s = 1;
             }
             if (b->has_current_topic && off < sizeof msg) {

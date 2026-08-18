@@ -45,5 +45,9 @@
 > haha
 < :) Glad you're enjoying the conversation.
 > what would you have said without social?
-< Without 'social', the next module that matches is 'chitchat', and it would answer "Ha, you're playful! Ask me something?"
+# gen403: la risposta affettiva non e' piu' una terna di letterali con
+# `b->turns % 3`, ma tre `response_template(playful, …)` ruotate dalla stessa
+# macchina di ogni altra risposta — quindi cambia la variante estratta, non la
+# facolta' simulata, che e' cio' che questo test verifica.
+< Without 'social', the next module that matches is 'chitchat', and it would answer "I'm enjoying this — what's on your mind?"
 

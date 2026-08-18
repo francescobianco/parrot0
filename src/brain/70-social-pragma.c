@@ -187,155 +187,78 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* register signals: emoji, ASCII emoticons, laughter, stage-direction emotes */
+    /* gen403: qui stavano tredici bandiere, ognuna una catena di `cue(norm,
+     * "…")` — ottantotto stringhe letterali nel C, con le risposte accanto e
+     * l'ordine in cui provarle sepolto nella cascata di `if`. Meta' erano
+     * italiane e meta' inglesi dentro lo stesso `||`: la lingua era diventata
+     * una proprieta' del codice.
+     *
+     * Ora sono `chitchat_reaction(Kind, Priorita')` in kb/core/reactions.p0,
+     * con le loro `intent_cue` e i loro `response_template` — la stessa forma
+     * che il registro `pragma_act` qui sopra usa dal gen338. L'ordine e' un
+     * dato perche' le reazioni si coprono a vicenda: «non preoccuparti,
+     * imparerai» e' incoraggiamento e nomina l'imparare, e senza una priorita'
+     * dichiarata quale delle due vinca dipenderebbe da come e' scritto il C.
+     *
+     * Il ciclo e' generico: una reazione nuova, in una lingua nuova, e' un
+     * pugno di fatti e zero righe qui. */
+    {
+        char kinds[32][KB_TERM_LEN];
+        char prios[32][KB_TERM_LEN];
+        const char *rq[2] = { NULL, NULL };
+        char rows[32][KB_TERM_LEN];
+        size_t nk = kb_match(b->kb, "chitchat_reaction", rq, 2, kinds, 32);
+        for (size_t i = 0; i < nk; i++) {
+            const char *pq[2] = { kinds[i], NULL };
+            if (kb_match(b->kb, "chitchat_reaction", pq, 2, rows, 1) >= 1)
+                snprintf(prios[i], sizeof prios[i], "%s", rows[0]);
+            else
+                snprintf(prios[i], sizeof prios[i], "999");
+        }
+        /* ordine dichiarato, non ordine di scrittura */
+        for (size_t i = 0; i + 1 < nk; i++)
+            for (size_t j = i + 1; j < nk; j++)
+                if (atoi(prios[j]) < atoi(prios[i])) {
+                    char t[KB_TERM_LEN];
+                    snprintf(t, sizeof t, "%s", kinds[i]);
+                    snprintf(kinds[i], sizeof kinds[i], "%s", kinds[j]);
+                    snprintf(kinds[j], sizeof kinds[j], "%s", t);
+                    snprintf(t, sizeof t, "%s", prios[i]);
+                    snprintf(prios[i], sizeof prios[i], "%s", prios[j]);
+                    snprintf(prios[j], sizeof prios[j], "%s", t);
+                }
+        for (size_t i = 0; i < nk; i++) {
+            if (!kb_cue_match(b, kinds[i], norm) &&
+                !(raw && kb_cue_match(b, kinds[i], raw))) continue;
+            /* Cio' che il turno LASCIA nella memoria, se lascia qualcosa. Era
+             * `b->user_mood`, un campo C: la stessa conoscenza-che-nessuno-
+             * puo'-interrogare che era il nome. Ora e' un fatto sull'utente. */
+            const char *eq[3] = { kinds[i], NULL, NULL };
+            char slotrow[1][KB_TERM_LEN], valrow[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "reaction_effect", eq, 3, slotrow, 1) >= 1) {
+                /* kb_match riporta solo la PRIMA variabile: il valore vuole la
+                 * seconda domanda, con lo slot ormai legato. */
+                const char *vq[3] = { kinds[i], slotrow[0], NULL };
+                if (kb_match(b->kb, "reaction_effect", vq, 3, valrow, 1) >= 1)
+                    user_value_write(b, kb_dequote(slotrow[0]), kb_dequote(valrow[0]));
+            }
+            if (kb_response(b, kinds[i], NULL, out, out_size)) return 1;
+        }
+    }
+
+    /* Struttura, non parole: una classe di codepoint e un asterisco iniziale.
+     * Le risate e i vezzeggiativi sono parole e stanno nella KB, sotto
+     * `playful`. */
     int emoji = has_emoji(raw);
-    int emoticon = cue(norm, ":)") || cue(norm, ":-)") || cue(norm, ";)") ||
-                   cue(norm, ":d") || cue(norm, ":p") || cue(norm, " xd") ||
-                   cue(norm, ":(") || cue(norm, "<3");
-    int laugh = cue(norm, "haha") || cue(norm, "lol") || cue(norm, "hehe") ||
-                cue(norm, "ahah") || cue(norm, "lmao") || cue(norm, "hihi") ||
-                cue(norm, "rofl") || cue(norm, "eheh") || cue(norm, "ahaha") ||
-                cue(norm, "battuta") || cue(norm, "scherzo") || cue(norm, "hilarious");
     const char *t = raw; while (*t && isspace((unsigned char)*t)) t++;
     int emote = (*t == '*');     /* "*sighs heavily*", "*rolls eyes*" */
-
-    /* Tailored sub-registers — clear enough to answer on the cue alone. NOTE:
-     * apology is deliberately NOT handled here — pure apologies are mod_social's,
-     * and an apology tangled with a real request must stay an honest wall. */
-    int frustration = cue(norm, "repeat") || cue(norm, "repeating") ||
-                      cue(norm, "ripetiz") || cue(norm, "stessa cosa") ||
-                      cue(norm, "copying") || cue(norm, "copiando") ||
-                      cue(norm, "broken record") || cue(norm, "stuck") ||
-                      cue(norm, "useless") || cue(norm, "inutile") ||
-                      cue(norm, "sei rotto") || cue(norm, "you keep") ||
-                      cue(norm, "keep saying") || cue(norm, "three times") ||
-                      cue(norm, "on purpose") || cue(norm, "getting stale") ||
-                      cue(norm, "default reply") || cue(norm, "not a good chatbot") ||
-                      cue(norm, "dont know anything") || cue(norm, "can not even") ||
-                      cue(norm, "can not learn") || cue(norm, "robots can not") ||
-                      cue(norm, "doing this on purpose") || cue(norm, "broken") ||
-                      cue(norm, "glitch") || cue(norm, "trolling") ||
-                      cue(norm, "echoing") || cue(norm, "repetitive") ||
-                      cue(norm, "even trying") || cue(norm, "done here") ||
-                      cue(norm, "schifo") || cue(norm, "vague phrases") ||
-                      cue(norm, "do not know anything") || cue(norm, "confusing") ||
-                      cue(norm, "flip a table") || cue(norm, "what a day");
-    int encourage   = cue(norm, "imparerai") || cue(norm, "you'll learn") ||
-                      cue(norm, "youll learn") || cue(norm, "no worries") ||
-                      cue(norm, "nessun problema") || cue(norm, "non preoccupar") ||
-                      cue(norm, "take your time") || cue(norm, "keep trying") ||
-                      cue(norm, "tranquillo") || cue(norm, "figurati") ||
-                      cue(norm, "takes time") || cue(norm, "figure it out") ||
-                      cue(norm, "well figure") || cue(norm, "no rush") ||
-                      cue(norm, "we'll get there") || cue(norm, "niente paura") ||
-                      cue(norm, "provo a") || cue(norm, "take it back") ||
-                      cue(norm, "ancora imparare") || cue(norm, "devi imparare");
-    /* agreement / acknowledgement of parrot0's honest self-description */
-    int agree       = cue(norm, "fair enough") || cue(norm, "that's fair") ||
-                      cue(norm, "thats fair") || cue(norm, "fair actually") ||
-                      cue(norm, "makes sense") || cue(norm, "fair point") ||
-                      cue(norm, "capisco") || cue(norm, "thats reasonable") ||
-                      cue(norm, "that's reasonable");
-    /* casual contact phrasings that no content module claims */
-    int casual      = cue(norm, "what's up") || cue(norm, "whats up") ||
-                      cue(norm, "what is up") || cue(norm, "just saying hi") ||
-                      cue(norm, "my bad") || cue(norm, "wassup") ||
-                      cue(norm, "what do you want") || cue(norm, "what do you know") ||
-                      cue(norm, "che fai") || cue(norm, "keep it formal") ||
-                      cue(norm, "your day") || cue(norm, "u good") ||
-                      cue(norm, "you good") || cue(norm, "you work") ||
-                      cue(norm, "you there") || cue(norm, "solo chat") ||
-                      cue(norm, "reaching out") || cue(norm, "what even are you") ||
-                      cue(norm, "pappagallo") || cue(norm, "sei onesto") ||
-                      cue(norm, "wait what") || cue(norm, "okay helpful") ||
-                      cue(norm, "vuol dire") || cue(norm, "che significa") ||
-                      cue(norm, "literally anything") || cue(norm, "lovely to have") ||
-                      cue(norm, "figuring it out") || cue(norm, "sono qui") ||
-                      cue(norm, "whole time");
-    /* terms of endearment / excitement mark the casual register too */
-    int endear      = cue(norm, "sweety") || cue(norm, "sweetie") ||
-                      cue(norm, "babes") || cue(norm, "friend") ||
-                      cue(norm, "buddy") || cue(norm, "amico") ||
-                      cue(norm, "tesoro");
-    int language = kb_cue_match(b, "language_switch", norm);
-    int filler      = cue(norm, "nothing much") || cue(norm, "just hanging") ||
-                      cue(norm, "just bored") || cue(norm, "just vibing") ||
-                      cue(norm, "just chatting") || cue(norm, "hanging out") ||
-                      cue(norm, "solo chiacchiere") || cue(norm, "parliamo e basta") ||
-                      cue(norm, "just chat") || cue(norm, "just talk") ||
-                      cue(norm, "can we talk") || cue(norm, "lets talk") ||
-                      cue(norm, "let us talk") || cue(norm, "parliamo e basta") ||
-                      cue(norm, "facciamo due chiacchiere");
-    int no_topic    = cue(norm, "i do not know what to say") ||
-                      cue(norm, "i don't know what to say") ||
-                      cue(norm, "i dont know what to say") ||
-                      cue(norm, "non so cosa dire") || cue(norm, "not so cosa dire") ||
-                      cue(norm, "boh") || cue(norm, "no idea what to say") ||
-                      cue(norm, "say something") || cue(norm, "tell me something") ||
-                      cue(norm, "dimmi qualcosa") || cue(norm, "intrattienimi") ||
-                      cue(norm, "entertain me");
-    int mood_bored  = cue(norm, "i am bored") || cue(norm, "im bored");
-    int mood_down   = mood_bored || cue(norm, "i am tired") || cue(norm, "im tired") ||
-                      cue(norm, "sono stanco") || cue(norm, "sono stanca") ||
-                      cue(norm, "am stanco") || cue(norm, "am stanca") ||
-                      cue(norm, "bad day") || cue(norm, "giornata no") ||
-                      cue(norm, "mi annoio") || cue(norm, "sono annoiato") ||
-                      cue(norm, "sono annoiata") || cue(norm, "rough day") ||
-                      cue(norm, "not feeling great");
-    int mood_up     = cue(norm, "i am happy") || cue(norm, "im happy") ||
-                      cue(norm, "sono felice") || cue(norm, "great day") ||
-                      cue(norm, "bella giornata") || cue(norm, "that is cool") ||
-                      cue(norm, "thats cool") || cue(norm, "che bello") ||
-                      cue(norm, "nice") || cue(norm, "cool");
-
-    if (frustration) {
-        put("I know I repeat myself — I'm a small bot and honest about my limits. "
-            "What would you like to try?", out, out_size);
-        return 1;
-    }
-    if (encourage) { put("Thanks — I'm learning as we go.", out, out_size); return 1; }
-    if (agree)     { put("Glad that lands. What would you like to do next?",
-                         out, out_size); return 1; }
-    if (language)  {
-        char msg[256];
-        if (!lang_template(b, "language_switch", msg, sizeof msg))
-            snprintf(msg, sizeof msg, "%s", "We can chat in either language — I'll do my best.");
-        put(msg, out, out_size);
-        return 1;
-    }
-    if (no_topic)  { put("We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.",
-                         out, out_size); return 1; }
-    if (mood_down) {
-        snprintf(b->user_mood, sizeof b->user_mood, "%s", mood_bored ? "bored" : "tired");
-        b->has_user_mood = 1;
-        tput(b, "Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.",
-             "Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.", out, out_size);
-        return 1;
-    }
-    if (mood_up) {
-        snprintf(b->user_mood, sizeof b->user_mood, "%s", "happy");
-        b->has_user_mood = 1;
-        tput(b, "Nice. Tell me what made it good, or give me a small thing to reason about.",
-             "Bene. Dimmi cosa l'ha resa bella, oppure dammi una cosetta su cui ragionare.", out, out_size);
-        return 1;
-    }
-    if (filler)    { tput(b, "Happy to just chat. Tell me a little, and I'll follow the thread as best I can.",
-                         "Volentieri, chiacchieriamo. Raccontami un po' e seguo il filo come meglio posso.",
-                         out, out_size); return 1; }
-    if (casual)    { tput(b, "Hey! I'm here. Ask me something, or tell me about your day?",
-                         "Ehilà! Sono qui. Chiedimi qualcosa, o raccontami della tua giornata.",
-                         out, out_size); return 1; }
 
     /* Generic affective contact (emoji/emoticon/laughter/emote/endearment and
      * nothing more specific): engage in register, rotating so it never becomes a
      * broken record. Still honest — it names no understanding of the content. */
-    if (emoji || emoticon || laugh || emote || endear) {
-        static const char *const v[] = {
-            "I'm enjoying this — what's on your mind?",
-            "Ha, you're playful! Ask me something?",
-            "I'm a simple bot, but I'm here for it. Go on?",
-        };
-        put(v[b->turns % 3], out, out_size);
+    if (emoji || emote || kb_cue_match(b, "playful", norm)) {
+        if (kb_response(b, "playful", NULL, out, out_size)) return 1;
+        put("I'm a simple bot, but I'm here for it. Go on?", out, out_size);
         return 1;
     }
     return 0;

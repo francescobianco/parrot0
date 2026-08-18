@@ -21,17 +21,26 @@
 < Possiamo parlare in entrambe le lingue — farò del mio meglio.
 
 # gen140: Italian casual companion cues through the same chitchat branches.
+#
+# gen403: qui c'erano quattro muri, e nascondevano un guasto invece di
+# registrare un limite. Le cue italiane esistevano gia' — «non so cosa dire»,
+# «facciamo due chiacchiere», «che bello» erano scritte nel C accanto alle
+# inglesi — ma venivano confrontate con il turno CANONICALIZZATO, cioe' con la
+# sua traduzione in inglese, dove quelle stringhe non compaiono mai. Erano cue
+# morte: presenti, invisibili, e ogni tanto una veniva aggiunta senza che
+# nessuno notasse che non poteva scattare.
+#
+# Spostandole nella KB il ciclo interroga sia il turno normalizzato sia quello
+# GREZZO, e la competenza di registro e' finalmente dove il commento qui sopra
+# diceva che fosse.
 > non so cosa dire
-< Non capisco ancora.
+< Partiamo semplice: raccontami qualcosa della tua giornata, o chiedimi di ricordare o ragionare su un fatto piccolo.
 > dimmi qualcosa
-# gen384: in italiano il muro NON nomina la parola: il vocabolario copre una
-# lingua sola (lexicon_language/1), quindi li' un'assenza non e' informativa e
-# nominarla direbbe il vero senza servire. Il sensore registra comunque.
-< Non ho afferrato bene. Cosa vorresti sapere?
+< Partiamo semplice: raccontami qualcosa della tua giornata, o chiedimi di ricordare o ragionare su un fatto piccolo.
 > facciamo due chiacchiere
-< Non capisco ancora.
+< Volentieri, chiacchieriamo. Raccontami un po' e seguo il filo come meglio posso.
 > sono stanco
 < Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.
 > che bello
-< Non capisco ancora.
+< Bene. Dimmi cosa l'ha resa bella, oppure dammi una cosetta su cui ragionare.
 
