@@ -684,8 +684,28 @@ machinery(self_correct_on_wall).
 % nuova sia una risposta A QUELLA DOMANDA. Finche' non c'e', l'interruttore resta
 % a `off`.
 %
-% Acceso a mano (`self_correct_on_wall(on)`) il comportamento e' quello descritto
-% sopra: utile per lavorarci, non da spedire.
+% ── ANCORA SPENTO dopo gen417, e la ragione e' cambiata ─────────────────────
+%
+% gen417 ha chiuso il dirottamento per REGISTRO: un cue di auto-resoconto non si
+% insegna piu' su una domanda sul mondo (`bridge_needs_register/2`), e il ponte
+% legittimo — gap_report_cue("dove hai") su un turno che parla di parrot0 —
+% continua a passare. Verificato in entrambe le direzioni.
+%
+% Ma provando ad accendere l'interruttore il dirottamento si e' ripresentato
+% identico da un'ALTRA famiglia, poi da una terza: gap_stop_cue, poi
+% bridge_ask_cue. Le famiglie di cue sono sedici, e dichiararle una per una e'
+% chiudere casi a mano — cioe' il difetto che questo progetto rifiuta ovunque.
+%
+% IL VINCOLO GIUSTO E' UN ALTRO, e il piano lo aveva gia' scritto a gen410: «se
+% risponde e NIENT'ALTRO REGREDISCE». La seconda meta' non e' mai stata
+% implementata. Un ponte va accettato solo se, oltre a far rispondere il turno
+% che murava, lascia invariate le risposte dei turni che gia' rispondevano — e il
+% log della conversazione, che parrot0 tiene, e' esattamente il materiale per
+% quella prova.
+%
+% Finche' non c'e', l'interruttore resta a `off`. Non e' una rinuncia: e' che il
+% criterio per accenderlo si e' fatto piu' preciso — da «non dirottare i turni di
+% un certo registro» a «non cambiare nessuna risposta che gia' funzionava».
 self_correct_on_wall(off).
 
 % ── gen414: IL FALLIMENTO HA QUATTRO FORME ──────────────────────────────────
@@ -814,3 +834,42 @@ machinery(role_required).
 % come il «then» opzionale.
 role_required(proposition).
 role_required(np).
+
+% ── gen417: LA PERTINENZA COME REQUISITO DI REGISTRO ────────────────────────
+%
+% La verifica di gen410 chiede «il turno adesso risponde?» e non distingue una
+% riparazione da un DIROTTAMENTO. Misurato: davanti a un muro il ciclo proponeva
+% gap_report_cue("what is gold"), il turno «rispondeva» con «Nothing walled on me
+% yet» — la risposta di un'altra domanda — e il ponte passava. Una risposta falsa
+% data con sicurezza e' peggio del muro che sostituisce.
+%
+% Certe famiglie di ponte hanno un registro e vivono solo li': un cue di
+% AUTO-RESOCONTO non si insegna su una domanda sul mondo. Il registro del turno
+% lo riconosce lo stesso meccanismo di gen415, quindi il vincolo costa una riga.
+machinery(bridge_needs_register).
+%
+% TUTTE le famiglie di auto-resoconto, non una sola: la prima stesura dichiarava
+% il solo `gap_report_cue` e il dirottamento si e' ripresentato identico da
+% `gap_stop_cue` (misurato su arith.p0t). Un vincolo che copre un membro di una
+% famiglia e non gli altri non e' un vincolo — e' un caso chiuso a mano.
+bridge_needs_register(gap_report_cue, self).
+bridge_needs_register(gap_stop_cue, self).
+
+% Gli indizi del registro «self»: il turno parla di parrot0, non del mondo. Sono
+% soprattutto marcatori di SECONDA PERSONA, ed e' la scelta giusta — «parla di
+% te» e' letteralmente questo — piu' le parole con cui si nomina uno stato
+% proprio. «dove hai fallito» ne ha due; «what is gold» nessuno.
+register_hint(self, you).        register_hint(self, yourself).
+register_hint(self, your).       register_hint(self, stuck).
+register_hint(self, ti).         register_hint(self, tu).
+register_hint(self, hai).        register_hint(self, sei).
+register_hint(self, tuo).        register_hint(self, tua).
+register_hint(self, fermato).    register_hint(self, fallito).
+register_hint(self, bloccato).   register_hint(self, capito).
+
+% gen417 — `self` e' un vincolo, non un annuncio. Serve a dire «questo turno
+% parla di parrot0», cosi' che un ponte di auto-resoconto non venga proposto per
+% una domanda sul mondo. Annunciarlo ruberebbe il turno al ripiego che registra
+% la lacuna, e il ciclo resterebbe senza niente da riparare.
+machinery(register_silent).
+register_silent(self).

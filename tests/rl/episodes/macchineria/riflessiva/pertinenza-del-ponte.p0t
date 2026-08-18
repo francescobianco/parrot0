@@ -1,0 +1,38 @@
+# id:        macchineria/riflessiva/pertinenza-del-ponte
+# famiglia:  macchineria
+# dominio:   riflessiva / la propria macchineria
+# gradino:   3
+# vettore:   profondita 3  distanza 2  ambiguita 2  composizione 3
+#            rumore 0  apertura 2  novita 1
+# lavoro:    non insegnarsi un ponte che risponde alla domanda sbagliata
+# difficile: la verifica di gen410 chiede «il turno adesso risponde?», e quella
+#            domanda da sola non distingue una riparazione da un DIROTTAMENTO.
+#            Misurato: davanti a un muro il ciclo proponeva
+#            gap_report_cue("what is gold"), il turno «rispondeva» con «Nothing
+#            walled on me yet» — la risposta di un'ALTRA domanda — e il ponte
+#            passava. Una risposta falsa data con sicurezza e' peggio del muro
+#            che sostituisce
+# origine:   gen417, dalla revisione R4
+# verifica:  V4 (non dirotta) + V2 (il ponte legittimo passa lo stesso)
+
+[test un ponte di auto-resoconto non si insegna su una domanda sul mondo]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+!assert self_correct_on_wall(on)
+> il glorbo frulla
+!set PARROT0_LANG=en
+> what is gold
+<! Nothing walled on me yet
+<~ gold
+
+# L'altra direzione, che vale quanto la prima: il vincolo non deve uccidere il
+# ponte GIUSTO. «dove hai fallito» parla di parrot0 — due marcatori di seconda
+# persona — quindi li' un cue di auto-resoconto e' esattamente cio' che serve.
+[test il ponte legittimo passa ancora]
+!set PARROT0_LANG=it
+!reset
+> dove hai fallito
+> prova a ripararti
+<~ gap_report_cue
+!query gap_report_cue("dove hai")

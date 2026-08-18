@@ -1432,7 +1432,15 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
      * esattamente come prima: lo strato si aggiunge, non sostituisce. */
     {
         char reg[KB_TERM_LEN];
-        if (b && b->kb && register_of_turn(b, w, nw, reg, sizeof reg)) {
+        const char *slq[1] = { reg };
+        /* gen417: un registro puo' servire come VINCOLO senza essere una cosa da
+         * annunciare. `self` dice «questo turno parla di parrot0» e serve a
+         * impedire che un ponte di auto-resoconto venga proposto per una domanda
+         * sul mondo — ma annunciarlo ruberebbe il turno al ripiego che registra
+         * la lacuna, e il ciclo resterebbe senza niente da riparare (misurato:
+         * self_repair.p0t). Quali registri tacciano e' un fatto. */
+        if (b && b->kb && register_of_turn(b, w, nw, reg, sizeof reg) &&
+            !kb_query(b->kb, "register_silent", slq, 1)) {
             gap_record_as(b, canon, raw, "recognized_register");
             char rq2[KB_TERM_LEN];
             snprintf(rq2, sizeof rq2, "\"%s\"", canon);
@@ -2621,6 +2629,39 @@ static int self_repair_target(Brain *b, const char *only, char *out, size_t out_
                 char quoted[KB_TERM_LEN];
                 snprintf(quoted, sizeof quoted, "\"%s\"", cand[c]);
                 if (!repair_fits_class(b, reg, cand[c])) continue;
+                /* gen417 — LA PERTINENZA, come requisito di registro.
+                 *
+                 * La verifica di gen410 chiede «il turno adesso risponde?», e
+                 * quella domanda da sola non distingue una riparazione da un
+                 * DIROTTAMENTO. Misurato: davanti a un muro, il ciclo proponeva
+                 * `gap_report_cue("what is gold")` — il turno «rispondeva», con
+                 * «Nothing walled on me yet», che e' la risposta di un'altra
+                 * domanda. Una risposta falsa data con sicurezza e' peggio del
+                 * muro che sostituisce (MANTRA #7), ed e' per questo che
+                 * l'autocorrezione sul muro e' rimasta spenta.
+                 *
+                 * Il criterio: certe famiglie di ponte hanno un REGISTRO, e
+                 * possono essere proposte solo per turni di quel registro. Un
+                 * cue di auto-resoconto non si insegna su una domanda sul mondo.
+                 * Quale famiglia richieda quale registro e' un fatto
+                 * (`bridge_needs_register/2`), e il registro del turno lo
+                 * riconosce lo stesso meccanismo di gen415. */
+                {
+                    const char *nq[2] = { reg, NULL };
+                    char need[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "bridge_needs_register", nq, 2, need, 1) == 1) {
+                        char nb2[KB_TERM_LEN];
+                        snprintf(nb2, sizeof nb2, "%s", need[0]);
+                        const char *want = kb_dequote(nb2);
+                        char tb[400]; snprintf(tb, sizeof tb, "%s", turn);
+                        char *tw[64];
+                        size_t tn = split_words(tb, tw, 64);
+                        char got[KB_TERM_LEN];
+                        if (!register_of_turn(b, tw, tn, got, sizeof got) ||
+                            strcmp(got, want) != 0)
+                            continue;      /* fuori registro: non e' pertinente */
+                    }
+                }
                 if (unary) {
                     const char *a[1] = { quoted };
                     tries++;
