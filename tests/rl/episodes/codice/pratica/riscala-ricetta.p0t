@@ -1,0 +1,37 @@
+# id:        codice/pratica/riscala-ricetta
+# famiglia:  codice
+# dominio:   pratica / cucina
+# gradino:   1
+# vettore:   profondita 2  distanza 2  ambiguita 0  composizione 2
+#            rumore 0  apertura 1  novita 1
+# lavoro:    prendere una dose data per un numero di persone e riportarla a un
+#            altro numero di persone, per due ingredienti, mantenendo la
+#            proporzione
+# difficile: nessun numero e' la risposta; ognuno va legato al suo ruolo (dose,
+#            resa, ingrediente) prima di poterci fare aritmetica — MANTRA #12.
+#            E la seconda domanda arriva due turni dopo il dato che le serve
+# origine:   sonda gen412, prima passata della batteria
+# verifica:  V2 (il numero giusto) + V4 (mai un numero inventato)
+#
+# NOTA DI FORMATO (F0a): la verifica giusta per questa famiglia sarebbe V3 — un
+# artefatto su disco che passa una prova indipendente. Il motore di test non sa
+# ancora asserire su un file ne' eseguire un comando esterno, quindi qui si
+# ripiega su V2. E' il primo buco di formato trovato usando il formato.
+
+[test la proporzione, due turni dopo]
+!set PARROT0_SESSION=
+!reset
+> a recipe for 4 people needs 200 grams of flour
+> it also needs 3 eggs
+> how much flour do I need for 12 people
+<~ 600
+
+[test la proporzione sull'altro ingrediente]
+> and how many eggs
+<~ 9
+
+# V4 — se non sa fare la proporzione deve dirlo, non produrre un numero.
+# Questo e' il fallimento che conta piu' di tutti: 200 ripetuto e' peggio del muro.
+[test non ripete il dato di partenza come se fosse la risposta]
+> how much flour for 12 people
+<! 200 grams

@@ -229,17 +229,31 @@ Forma di un episodio, nella sintassi che il motore già legge:
 # origine:   fallimento reale, sessione gen382o
 # verifica:  V1 + V4
 
-[premessa]
-!set PARROT0_PROFILE=kb/profiles/agi.p0
+[test la prosa entra come fatti]
+!set PARROT0_SESSION=
 !reset
+> mushrooms such as briomite, calderugo and tessone grow in that forest
+!query mushroom(briomite)
 
-[turni]
-> ...
-< ...
-
-[verifiche]
-!query ...
+[test sa rielencare cio' che ha appena imparato]
+> name three mushrooms
+<~ briomite
 ```
+
+La sintassi è quella del motore, non una nuova: `[etichetta]`, `>` `<` `<~` `<!`,
+`!set` `!reset` `!query` `!query!` `!assert` `!forget` `!timeout`. L'intestazione
+è fatta di commenti `#`, che il motore già ignora — ecco perché il formato non è
+costato nemmeno una riga di C.
+
+**Due buchi di formato, trovati alla prima passata (F0a) e non ancora chiusi:**
+
+- **manca V3.** Il motore non sa asserire sul contenuto di un file né eseguire un
+  comando esterno, quindi la famiglia *codice* ripiega su V2 — che è proprio la
+  verifica che le regole anti-imbroglio vietano da sola. È il primo debito del
+  formato, e va pagato prima che la famiglia codice conti davvero.
+- **`<~` distingue maiuscole e minuscole.** parrot0 minuscola i nomi di entità,
+  quindi `<~ Vallenera` fallisce su una risposta corretta. Non è un difetto del
+  motore, è una trappola per chi scrive episodi: si asserisce in minuscolo.
 
 Le entità degli episodi sono **nuove**, mai prese dalla KB curata: la memoria di
 progetto è esplicita su questo — non si prova la comprensione amputando il

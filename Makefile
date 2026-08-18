@@ -906,3 +906,16 @@ loop:
 
 clean:
 	@rm -rf obj bin
+
+# ── rl-bench — la BATTERIA DI RINFORZO (docs/plans/reinforcement-suite.md) ────
+#
+# NON e' `make test` e non deve entrarci mai. La suite e' un cricchetto che deve
+# restare verde; questa e' una MISURA, ed e' normale e sano che sia rossa: il
+# numero che conta non e' quanti episodi passano, e' quanti sono diventati verdi
+# DA SOLI. Il giorno in cui i due insiemi si mescolano, la batteria smette di
+# misurare e comincia a essere potata.
+rl-bench: test-engine
+	@for f in $$(find tests/rl/episodes -name '*.p0t' | sort); do \
+	   ./$(BIN) --test $$f || true; \
+	 done
+	@./$(BIN) --test-report || true

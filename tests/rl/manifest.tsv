@@ -1,0 +1,9 @@
+# manifest.tsv — il catalogo della batteria di rinforzo (docs/plans/reinforcement-suite.md).
+# Una riga per episodio. Il vettore di complessita e in ordine fisso:
+#   profondita-distanza-ambiguita-composizione-rumore-apertura-novita   (0..3)
+# stato: la linea di partenza, non un verdetto — la batteria e una MISURA e puo essere rossa.
+#
+id	famiglia	macro_area	dominio	gradino	vettore	verifiche	genitore	origine
+comprensione/naturale/enumerazione-coniata	comprensione	naturale	biologia	1	1-1-0-1-0-1-3	V1,V2,V4	-	sonda gen412
+codice/pratica/riscala-ricetta	codice	pratica	cucina	1	2-2-0-2-0-1-1	V2,V4	-	sonda gen412
+ricerca/sociale/dato-assente	ricerca	sociale	istituzioni	1	1-1-1-1-0-2-3	V2,V4	-	sonda gen412

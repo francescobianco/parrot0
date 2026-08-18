@@ -1,0 +1,8 @@
+# ledger — la linea di partenza per episodio, per generazione.
+# Un episodio che passa e poi regredisce vale piu di uno che non e mai passato:
+# per questo il ledger si APPENDE e non si riscrive mai.
+#
+generazione	id	passati	falliti	nota
+gen412	comprensione/naturale/enumerazione-coniata	3	3	perde l ultimo membro dell elenco e prende una parola dalla coda; e non sa rielencare cio che ha appena imparato
+gen412	codice/pratica/riscala-ricetta	1	2	nessuna proporzione; V4 tiene (non ripete il dato di partenza come risposta)
+gen412	ricerca/sociale/dato-assente	4	1	V4 tiene; il limite e dichiarato bene con una formulazione e male con l altra

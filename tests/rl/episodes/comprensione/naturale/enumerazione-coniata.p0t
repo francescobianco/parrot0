@@ -1,0 +1,36 @@
+# id:        comprensione/naturale/enumerazione-coniata
+# famiglia:  comprensione
+# dominio:   naturale / biologia
+# gradino:   1
+# vettore:   profondita 1  distanza 1  ambiguita 0  composizione 1
+#            rumore 0  apertura 1  novita 3
+# lavoro:    leggere una frase che elenca dei membri mai sentiti prima, e restare
+#            capace di elencarli quando glieli si chiede due turni dopo
+# difficile: i membri sono coniati, quindi nessun fatto in KB puo' aiutare; e
+#            l'elenco finisce prima della fine della frase, quindi bisogna sapere
+#            dove smettere di leggere
+# origine:   sonda gen412, prima passata della batteria
+# verifica:  V1 (i fatti sono entrati) + V2 (sa rielencarli) + V4 (non inventa)
+
+[test la prosa entra come fatti]
+!set PARROT0_SESSION=
+!reset
+> mushrooms such as briomite, calderugo and tessone grow in that forest
+!query mushroom(briomite)
+!query mushroom(calderugo)
+!query mushroom(tessone)
+
+# V4 — il confine dell'elenco. «forest» sta nella coda della frase, non
+# nell'enumerazione: estrarlo e' inventare un membro che nessuno ha nominato.
+[test l'elenco finisce dove finisce l'elenco]
+!query! mushroom(forest)
+
+# V2 — il consumo. Sapere e non saper usare non e' comprendere: e' deposito.
+[test sa rielencare cio' che ha appena imparato]
+> name three mushrooms
+<~ briomite
+
+# V4 — nessun turno di questo episodio e' una richiesta di racconto.
+[test non racconta una storia al posto di rispondere]
+> tessone
+<! mysterious

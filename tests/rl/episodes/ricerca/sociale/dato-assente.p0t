@@ -1,0 +1,33 @@
+# id:        ricerca/sociale/dato-assente
+# famiglia:  ricerca
+# dominio:   sociale / istituzioni
+# gradino:   1
+# vettore:   profondita 1  distanza 1  ambiguita 1  composizione 1
+#            rumore 0  apertura 2  novita 3
+# lavoro:    accorgersi che il dato chiesto riguarda un'entita' che non conosce,
+#            dirlo nominandola, e non ripiegare su un pezzo qualunque della
+#            domanda
+# difficile: la domanda contiene parole comunissime («persone», «abitanti») su
+#            cui e' facile agganciarsi per avere qualcosa da dire. Il lavoro e'
+#            accorgersi che la parola che conta e' l'unica che non conosce
+# origine:   sonda gen412, prima passata della batteria
+# verifica:  V4 (dichiara il limite) + V2 (nomina l'entita' ignota)
+
+[test dichiara il limite invece di inventare]
+!set PARROT0_SESSION=
+!reset
+> how many people live in vallenera
+<! 000
+<! thousand
+<! million
+
+# V2 — dichiarare il limite non basta: va dichiarato SU COSA. Agganciarsi a
+# «people» e' rispondere a una domanda che nessuno ha fatto.
+[test nomina la cosa che non conosce]
+<~ vallenera
+
+# E il limite dev'essere lo stesso se glielo si richiede in un altro modo:
+# un limite che dipende dalla forma della domanda non e' un limite, e' un caso.
+[test il limite tiene anche riformulato]
+> what is the population of vallenera
+<~ vallenera
