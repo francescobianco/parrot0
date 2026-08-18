@@ -883,6 +883,35 @@ const char *brain_version(void) {
     return parrot0_version();
 }
 
+/* gen404: IL MURO DIVENTA UN FATTO — e proprio nel caso che finora non lasciava
+ * traccia.
+ *
+ * Il sensore delle lacune esiste dal gen335d, ma registra `pending_gap(parola)`
+ * SOLO quando il turno contiene una parola che parrot0 non conosce. Cioe' copre
+ * la classe W — manca conoscenza del mondo — e lascia muta la classe M: tutte
+ * le parole erano note, e a mancare e' il PONTE. «is pine strong enough for
+ * that?», «in three years how old will Bea be?», «why not?»: nessuna parola
+ * ignota, nessun fatto scritto, nessun oggetto su cui tornare.
+ *
+ * E' la classe che conta di piu' (question-emergence.md §10.2-10.3): una lacuna
+ * in M e' peggio di una in W perche' nessuna quantita' di lettura la colma, ed
+ * e' anche l'unica DECIDIBILE — il rimedio si verifica da solo, perche' la prova
+ * e' che il turno che murava ora risponde.
+ *
+ * Qui si scrive solo il fatto. Chi lo trasformera' in domanda, e la domanda in
+ * rimedio, sono le frecce successive dell'anello: questa e' la prima, e senza
+ * di essa nessuna delle altre ha un ingresso. */
+static void machinery_gap_record(Brain *b, const char *canon) {
+    if (!b || !b->kb || !canon || !*canon) return;
+    char q[KB_TERM_LEN];
+    snprintf(q, sizeof q, "\"%s\"", canon);
+    const char *ga[] = { q };
+    if (kb_query(b->kb, "machinery_gap", ga, 1)) return;   /* gia' registrata */
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_assert(b->kb, "machinery_gap", ga, 1);
+    kb_set_origin(b->kb, KB_SESSION);
+}
+
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
  * showed that repeating "I don't understand that yet." verbatim is the #1
  * naturalness killer (a broken record). So the classic line is kept for a LONE
@@ -992,6 +1021,8 @@ static void not_understood(Brain *b, const char *canon,
             sw = t; break;
         }
     }
+    /* gen404: IL MURO DIVENTA UN FATTO ANCHE QUANDO NON HA UNA PAROLA DA
+     * NOMINARE — vedi machinery_gap_record poco sopra questa funzione. */
     /* Inizializzato alla frase generica: se un template KB manca o non rende,
      * il declino resta comunque una frase vera invece di memoria non scritta. */
     char cand[256];
@@ -1034,11 +1065,15 @@ static void not_understood(Brain *b, const char *canon,
     else if (strcmp(classic, b->last_reply) != 0) {
         /* Nessuna parola opaca da nominare: le parole c'erano tutte e a non
          * esserci e' il ponte. La frase generica va bene una volta. */
+        machinery_gap_record(b, canon);
         put(classic, out, out_size);
         b->fallbacks++;
         return;
     }
-    else    snprintf(cand, sizeof cand, "%s", v[k % NV]);
+    else {
+        machinery_gap_record(b, canon);
+        snprintf(cand, sizeof cand, "%s", v[k % NV]);
+    }
     for (size_t t = 0; t < NV && strcmp(cand, b->last_reply) == 0; t++)
         snprintf(cand, sizeof cand, "%s", v[(k + t) % NV]);
     put(cand, out, out_size);

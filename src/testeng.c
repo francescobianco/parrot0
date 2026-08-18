@@ -44,6 +44,8 @@
  *   !forget @LAYER            drop a whole provenance layer: @base, @session,
  *                             @induced, @reflective, @hypothetical
  *   !assert PRED(a, b, …)     add a ground fact from inside the test
+ *   !query  PRED(a, $X)       assert that a FACT is provable ($X = free slot)
+ *   !query! PRED(a, $X)       assert that it is NOT
  *
  * On `!forget` (F.): what a test needs ABSENT is the test's job, not the load's.
  * The KB is part of parrot0, not a mounted volume, so knowledge is subtracted
@@ -420,6 +422,62 @@ static int te_process_stream(TeState *t, FILE *in) {
             argc = te_split_args(q, argbuf, args, &q);
             if (argc == 0) { syntax_err = 1; continue; }
             kb_assert(brain_kb(t->b), pred, args, argc);
+            continue;
+        }
+        /* `!query PRED(a, …)` / `!query! PRED(a, …)` — un'ASSERZIONE su un FATTO
+         * (gen404). Fino a qui un cricchetto poteva asserire solo su una FRASE:
+         * poteva scrivere conoscenza (`!assert`, `!clause`) e toglierla
+         * (`!forget`), ma per sapere se un fatto c'era doveva sperare che
+         * qualche superficie lo raccontasse.
+         *
+         * E' una lacuna di MISURA, e si e' vista appena e' servita: il sensore
+         * delle lacune di macchineria (`machinery_gap/1`) scrive un fatto che
+         * nessuna frase legge, quindi era invisibile a tutta la suite. Un anello
+         * che produce fatti e non risposte non e' verificabile con asserzioni
+         * sulle risposte — e questo vale per l'autocorrezione in generale, non
+         * solo per questo predicato.
+         *
+         * `!query` passa se il fatto e' dimostrabile, `!query!` se non lo e'. Un
+         * argomento `$Var` e' una variabile: `!query machinery_gap($X)` chiede
+         * «ne esiste almeno uno». */
+        if (strncmp(p, "!query", 6) == 0 &&
+            (p[6] == ' ' || p[6] == '\t' || (p[6] == '!' && (p[7] == ' ' || p[7] == '\t')))) {
+            te_flush(t);
+            int want = (p[6] != '!');
+            char *q = p + (want ? 6 : 7);
+            while (*q == ' ' || *q == '\t') q++;
+            char pred[TE_NAME]; size_t k = 0;
+            while (*q && *q != '(' && *q != ' ' && *q != '\t' && k + 1 < sizeof pred)
+                pred[k++] = *q++;
+            pred[k] = '\0';
+            while (*q == ' ' || *q == '\t') q++;
+            if (k == 0 || *q != '(') { syntax_err = 1; continue; }
+            q++;
+            char argbuf[KB_MAX_ARGS][KB_TERM_LEN];
+            const char *args[KB_MAX_ARGS];
+            size_t argc = te_split_args(q, argbuf, args, &q);
+            if (argc == 0) { syntax_err = 1; continue; }
+            /* una `$Var` e' una posizione libera: kb_match la lega, kb_query no */
+            int free_slot = -1;
+            for (size_t i = 0; i < argc; i++)
+                if (args[i] && args[i][0] == '$') { free_slot = (int)i; args[i] = NULL; }
+            int found;
+            if (free_slot >= 0) {
+                char hit[1][KB_TERM_LEN];
+                found = kb_match(brain_kb(t->b), pred, args, argc, hit, 1) > 0;
+            } else {
+                found = kb_query(brain_kb(t->b), pred, args, argc);
+            }
+            if (found == want) {
+                t->passed++;
+            } else {
+                t->failed++;
+                fprintf(t->out, "  FAIL  [%s] line %d\n",
+                        t->section[0] ? t->section : "-", t->line_no);
+                fprintf(t->out, "        %s: %s/%zu\n",
+                        want ? "atteso dimostrabile" : "atteso NON dimostrabile",
+                        pred, argc);
+            }
             continue;
         }
         if (strncmp(p, "!forget", 7) == 0 && (p[7] == ' ' || p[7] == '\t')) {

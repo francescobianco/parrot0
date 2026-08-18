@@ -1,0 +1,66 @@
+# IL MURO DIVENTA UN FATTO, E IL FATTO DIVENTA DICIBILE — gen404.
+#
+# Il sensore delle lacune esisteva dal gen335d, ma registrava solo la classe W:
+# il turno nominava una parola che parrot0 non conosce. La classe M — tutte le
+# parole note, a mancare e' il PONTE — non lasciava traccia di nessun tipo.
+#
+# E' la classe che conta di piu' (question-emergence.md §10.2-10.3): nessuna
+# quantita' di lettura la colma, ed e' l'unica DECIDIBILE, perche' la prova del
+# rimedio e' che il turno che murava ora risponde.
+#
+# Questo file verifica le prime due frecce dell'anello dell'autocorrezione:
+# il muro diventa un fatto, e il fatto diventa dicibile. Le successive — dal
+# fatto alla domanda, dalla domanda al rimedio — non esistono ancora, e questo
+# test e' il loro ingresso.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+# Prima freccia. Nessuna parola di questo turno e' ignota: a mancare e' il
+# ponte, e finora questo caso non scriveva niente.
+[test a bridge wall writes a fact]
+!query! machinery_gap($X)
+> in three years how old will Bea be
+<~ .
+!query machinery_gap($X)
+
+# Lo stesso muro due volte non e' due lacune.
+[test the same wall is not two gaps]
+> in three years how old will Bea be
+<~ .
+!query machinery_gap("in three years how old will bea be")
+
+# Seconda freccia: il fatto e' DICIBILE. Un fatto che nessuna frase legge e'
+# scritto e cieco — la stessa condizione delle cue italiane morte del gen403.
+# Nessuna riga di C: il contratto di turno universale del gen393 basta.
+[test parrot0 can say where it walled]
+!reset
+> what did you fail on
+< Nothing walled on me yet in this conversation.
+> in three years how old will Bea be
+<~ .
+> every bird can fly
+<~ .
+> what did you fail on
+<~ in three years how old will bea be
+> what did you fail on
+<~ every bird can fly
+
+# «Non ho fallito su niente» e «ho fallito su queste» sono due stati del mondo
+# diversi, e il primo e' una risposta piena quanto il secondo: si ottiene
+# ritirando i fatti, non azzerando una variabile.
+[test the empty case is a state, not a silence]
+!forget machinery_gap("in three years how old will bea be")
+!forget machinery_gap("every bird can fly")
+> what did you fail on
+< Nothing walled on me yet in this conversation.
+
+# La lacuna e' MACCHINERIA: non deve comparire fra le cose che parrot0 sa del
+# mondo. Il gen382e ha gia' pagato una volta questo errore.
+[test a gap is machinery, not world knowledge]
+!query machinery(machinery_gap)

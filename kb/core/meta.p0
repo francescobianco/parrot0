@@ -367,3 +367,56 @@ machinery(relation_type).
 machinery(inverse_of).
 machinery(asks_slot).
 machinery(question_form).
+
+% gen404 — LE LACUNE DI MACCHINERIA SONO FATTI.
+%
+% `pending_gap/1` registra la classe W: il turno nominava qualcosa che parrot0
+% non conosce. `machinery_gap/1` registra la classe M: tutte le parole erano
+% note e a mancare era il PONTE — nessuna superficie portava quel turno a una
+% facolta'. E' la classe che nessuna lettura colma e l'unica che si verifica da
+% sola, perche' la prova del rimedio e' che il turno che murava ora risponde.
+%
+% Sono macchineria, non conoscenza del mondo: non devono comparire quando si
+% chiede a parrot0 che cosa sa.
+machinery(machinery_gap).
+
+% ── «SU COSA HO FALLITO?» — la seconda freccia dell'anello (gen404) ────────
+%
+% Un fatto che nessuna frase legge e' scritto e cieco: e' la stessa condizione
+% in cui erano le cue italiane morte del gen403, presenti e invisibili. Il
+% sensore di `machinery_gap/1` scriveva senza che nulla potesse guardarlo, e
+% infatti per verificarlo e' servito prima inventare `!query` nel formato dei
+% test.
+%
+% Qui la lacuna diventa DICIBILE, e senza una riga di C: il contratto di turno
+% universale del gen393 basta gia'. Una cue, una regola che raccoglie i fatti
+% con findall, il fold di lista del gen397 per renderli. E' anche il primo posto
+% in cui parrot0 puo' parlare del proprio spazio negativo invece che del proprio
+% contenuto.
+gap_report_cue("what did you fail on").
+gap_report_cue("what did you not understand").
+gap_report_cue("where did you get stuck").
+gap_report_cue("su cosa hai fallito").
+gap_report_cue("cosa non hai capito").
+gap_report_cue("dove ti sei bloccato").
+turn_cue_registry(gap_report_cue, 1).
+machinery(gap_report_cue).
+
+turn_gap_report($Turn) :- turn_cue_form($Turn, gap_report_cue, $Cue), gap_report_cue($Cue).
+turn_gap_list($Turn, $Gaps) :- turn_gap_report($Turn), findall($G, machinery_gap($G), $Gaps).
+
+% Due risposte, e la differenza non e' cosmetica: «non ho fallito su niente» e
+% «ho fallito su queste tre cose» sono due stati del mondo diversi, e il primo
+% e' una risposta piena quanto il secondo.
+answer_content(gaps($Gaps, $Language), 0, opener, $Piece) :- gap_report_opener($Language, $Piece).
+answer_content(gaps($Gaps, $Language), 1, items, $Piece) :- list_text($Language, $Gaps, $Piece).
+gap_report_opener(en, "So far I could not bridge: ").
+gap_report_opener(it, "Finora non sono riuscito a coprire: ").
+machinery(gap_report_opener).
+
+turn_plan_candidate($Turn) :- turn_gap_report($Turn).
+turn_response($Turn, $Text) :- turn_gap_list($Turn, nil), current_language($Language), no_gap_text($Language, $Text).
+turn_response($Turn, $Text) :- turn_gap_list($Turn, cons($H, $T)), current_language($Language), answer_text(gaps(cons($H, $T), $Language), $Text).
+no_gap_text(en, "Nothing walled on me yet in this conversation.").
+no_gap_text(it, "In questa conversazione non mi sono ancora bloccato su niente.").
+machinery(no_gap_text).

@@ -65,6 +65,23 @@ retest, e la sessione/KB puo' influenzare alcune risposte. Il dato va quindi
 conservato come misura comportamentale dell'interazione osservata, non come
 prova di una regressione o di un miglioramento del C.
 
+### Stato Corrente Dei 100 Indici
+
+Per rendere il file riesaminabile senza ricostruire il transcript, lo stato del
+retest e' riportato per indice:
+
+| Stato | Indici |
+|---|---|
+| `FULL` — risposta pertinente e risolutiva | 1, 2, 3, 5 |
+| `PARTIAL` — testo prodotto, ma compito non risolto | 10, 12, 13, 14, 18, 21, 22, 25, 39, 41, 45, 49, 52, 55, 57, 58, 61, 62, 63, 65, 67, 68, 70, 71, 72, 75, 76, 83, 95, 96, 100 |
+| `FAIL` — muro, richiesta di apprendimento o mancata comprensione | 4, 6, 7, 8, 9, 11, 15, 16, 17, 19, 20, 23, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 42, 43, 44, 46, 47, 48, 50, 51, 53, 54, 56, 59, 60, 64, 66, 69, 73, 74, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 97, 98, 99 |
+
+Controllo aritmetico del retest:
+
+```text
+FULL 4 + PARTIAL 31 + FAIL 65 = 100
+```
+
 ## Legenda
 
 | Codice | Significato |
