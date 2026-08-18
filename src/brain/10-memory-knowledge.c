@@ -3717,8 +3717,34 @@ static int extract_class_statement(Brain *b, const char *norm,
      * ("is long"); a conjunct without its own article ("and most populous city …")
      * stops the scan, leaving the relational/apposition case for later. --- */
     (void)cls;
-    if (!p0_lead_det(b, w[p])) return 0;
-    p++;
+    /* gen405 — LA FORMA PLURALE SENZA ARTICOLO, misurata sognando cinque pagine.
+     *
+     *     «entropy is a thermodynamic state variable»   entrava
+     *     «dna are nucleic acids»                       no
+     *
+     * ed e' la forma con cui un'enciclopedia dice l'appartenenza a una
+     * categoria — un'intera classe di frasi cadeva. L'articolo serviva a
+     * distinguere un'appartenenza («is a country») da un aggettivo predicativo
+     * («is long»), ed e' una distinzione giusta: ma con la copula PLURALE quel
+     * lavoro lo fa il plurale stesso. «sono acidi» e' un'appartenenza, «sono
+     * grandi» no, e la differenza si vede sul nome, non sull'articolo.
+     *
+     * Il soggetto plurale non arriva mai qui: «whales are mammals» e' gia' stato
+     * preso come REGOLA da p0_generic_plural_rule poco sopra. Cio' che resta e'
+     * esattamente il caso che serve — soggetto singolare, classe plurale. */
+    int plural_copula = !strcmp(w[cop], "are");
+    int bare_plural = 0;
+    if (!p0_lead_det(b, w[p])) {
+        if (!plural_copula) return 0;
+        size_t last = p;
+        while (last + 1 < n && !p0_np_closer(b, strip_edge_punct(w[last + 1]))) last++;
+        const char *tail = strip_edge_punct(w[last]);
+        size_t tl = strlen(tail);
+        if (tl < 4 || tail[tl - 1] != 's') return 0;   /* aggettivo, non classe */
+        bare_plural = 1;
+    } else {
+        p++;
+    }
     char classes[4][KB_TERM_LEN]; size_t ncls = 0;
     for (;;) {
         size_t cstart = p;
@@ -3735,6 +3761,14 @@ static int extract_class_statement(Brain *b, const char *norm,
         break;                                   /* prep, bare "and", or end */
     }
     if (ncls == 0) return 0;
+    /* La classe si nomina al singolare: `nucleic_acids` e' il modo in cui la
+     * frase la dice, non il nome della categoria. */
+    if (bare_plural) {
+        for (size_t i = 0; i < ncls; i++) {
+            size_t cl = strlen(classes[i]);
+            if (cl > 3 && classes[i][cl - 1] == 's') classes[i][cl - 1] = '\0';
+        }
+    }
 
     int loc = 0;
     if (p < n && p0_is_loc_prep(w[p])) {         /* trailing PP -> located_in (4) */
@@ -11311,6 +11345,23 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * (multi-word phrase, trailing PP, or locative) that the rigid 4-word path below
      * cannot express. Runs only on assertions; the simple single-word case is
      * deferred back to the proven path. */
+    /* gen405: l'enumerazione appositiva vale tanto DETTA quanto LETTA. Era
+     * agganciata al solo percorso profondo, quindi «metals such as copper, tin
+     * and lead» faceva crescere parrot0 se stava in una pagina e produceva un
+     * muro se gliela diceva una persona. La stessa conoscenza per due strade
+     * diverse non ha ragione di avere due esiti; va provata PRIMA, perche' una
+     * frase che elenca e' anche una frase «X e' un Y» e letta cosi' rende un
+     * fatto vuoto al posto di tre veri. */
+    if (!interrogative) {
+        char emsg[512]; emsg[0] = '\0';
+        int ne = extract_enumeration(b, norm, emsg, sizeof emsg);
+        if (ne && emsg[0]) {
+            char msg[600];
+            snprintf(msg, sizeof msg, "Learned: %s.", emsg);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
     if (!interrogative && extract_class_statement(b, norm, out, out_size, 0)) return 1;
 
     if (nw != 4 || !is_article(b, w[2])) return 0;
