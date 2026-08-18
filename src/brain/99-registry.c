@@ -1845,13 +1845,21 @@ static void turn_publish_cues(Brain *b, const char *surface) {
          * ground rows is also markedly cheaper to enumerate than a derived view:
          * this runs on every turn, so the C reads facts and lets the KB do the
          * deciding — publishing is seeing, filtering is understanding. */
+        /* L'arita' del registro non e' una seconda cosa da dichiarare: si prova
+         * quella unaria, poi la binaria, poi la ternaria, e la prima che porta
+         * righe vince. Un elenco di superfici puo' essere `cue/1`, `cue/2` con
+         * una classe davanti o `cue/3` con classe e valore — sono tutte forme
+         * legittime della stessa idea, e chiedere alla KB di annunciare quale
+         * sia significherebbe farle dichiarare la propria implementazione. */
         char (*rows)[KB_TERM_LEN] = NULL;
         size_t nrows = 0;
         const char *aq[3] = { NULL, NULL, NULL };
-        if (!kb_match_all(b->kb, reg, aq, 2, &rows, &nrows) || nrows == 0) {
+        size_t tries[3] = { 1, 2, 3 };
+        for (size_t t = 0; t < 3 && nrows == 0; t++) {
             free(rows); rows = NULL; nrows = 0;
-            if (!kb_match_all(b->kb, reg, aq, 3, &rows, &nrows)) { free(rows); continue; }
+            if (!kb_match_all(b->kb, reg, aq, tries[t], &rows, &nrows)) { rows = NULL; nrows = 0; }
         }
+        if (nrows == 0) { free(rows); continue; }
         char posbuf[KB_TERM_LEN];
         snprintf(posbuf, sizeof posbuf, "%s", pos[0]);
         int second = strcmp(kb_dequote(posbuf), "2") == 0;

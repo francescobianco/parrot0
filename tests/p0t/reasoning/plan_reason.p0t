@@ -1,0 +1,91 @@
+# IL MOTIVO E' LA CATENA, DETTA — gen398g.
+#
+# Un piano che non sa dirsi non e' ispezionabile, e il §17.10 chiede che ogni
+# proposizione della risposta risalga a testo, KB o derivazione. Il motivo qui e'
+# letteralmente la catena che lo ha prodotto — l'azione rende vero un effetto, e
+# una legge causale porta quell'effetto al cambiamento chiesto. Non una
+# spiegazione scritta a parte: la stessa derivazione, detta.
+#
+# La superficie NON e' «perche'» nuda: quella ha gia' un consumer dal proof-trace
+# e fa una cosa diversa. Rubargliela sarebbe amputare una struttura secondaria
+# per far posto a una nuova — e le due convivono.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test the world of this test is taught, not built in]
+!assert concept_label(level, it, common, livello)
+!assert concept_label(decrease, it, common, abbassare)
+!assert action_schema(fluido, apri_valvola)
+!assert action_precondition(apri_valvola, st(valvola, position, closed))
+!assert action_effect(apri_valvola, st(valvola, position, open))
+!assert causal_law(st(valvola, position, open), deflusso)
+!assert change_prop(deflusso, level, decrease)
+!assert concept_label(apri_valvola, it, common, "aprire la valvola")
+!assert proposition_label(st(valvola, position, open), it, "la valvola aperta")
+!assert proposition_label(deflusso, it, "il deflusso abbassa il livello")
+> il livello sta salendo
+< Annotato: lo tengo come stato attuale.
+> la valvola è chiusa
+< Annotato: lo tengo come stato attuale.
+
+# Prima che un piano esista non c'e' niente da motivare, e dirlo e' meglio che
+# improvvisare una spiegazione plausibile.
+[test there is nothing to explain before a plan exists]
+> perché questo piano
+<! rende vero
+
+[test after the plan, the reason is the chain that produced it]
+> come faccio ad abbassare il livello
+< Puoi aprire la valvola.
+> perché questo piano
+< Perche' aprire la valvola rende vero: la valvola aperta, e da li' il deflusso abbassa il livello.
+
+# Tolto il nome di un anello, la spiegazione non esce a meta': o si dice tutta
+# la catena o non si dice. Una frase troncata sembrerebbe una risposta.
+[test half a chain is not half an explanation]
+!forget proposition_label(deflusso, it, "il deflusso abbassa il livello")
+> perché questo piano
+<! rende vero
+!assert proposition_label(deflusso, it, "il deflusso abbassa il livello")
+> perché questo piano
+< Perche' aprire la valvola rende vero: la valvola aperta, e da li' il deflusso abbassa il livello.
+
+# Tolta la legge causale, non resta una spiegazione memorizzata a fare da fondo:
+# e' l'ablazione che distingue una derivazione da una frase.
+[test removing the causal law removes the reason]
+!forget causal_law(st(valvola, position, open), deflusso)
+> perché questo piano
+<! rende vero
+
+# «perche'» nuda continua a fare cio' che faceva prima: le due superfici
+# convivono, e il consumer storico non e' stato toccato.
+[test the bare why keeps its own consumer]
+> perché
+<! rende vero
+
+[test the same explanation in another language]
+!set PARROT0_LANG=en
+!reset
+!assert concept_label(charge, en, common, charge)
+!assert concept_label(increase, en, common, raise)
+!assert property_of_value(low, charge)
+!assert state_cue(low, "is low")
+!assert action_schema(power, connect_charger)
+!assert action_effect(connect_charger, st(cell, link, connected))
+!assert causal_law(st(cell, link, connected), refill)
+!assert change_prop(refill, charge, increase)
+!assert concept_label(connect_charger, en, common, "connect the charger")
+!assert proposition_label(st(cell, link, connected), en, "the cell linked")
+!assert proposition_label(refill, en, "the refill raises the charge")
+> the charge is low
+< Noted: I am holding that as the current state.
+> how do i raise the charge
+< You can connect the charger.
+> why that plan
+< Because connect the charger makes true: the cell linked, and then the refill raises the charge.

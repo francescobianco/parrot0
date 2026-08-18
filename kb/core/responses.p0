@@ -332,6 +332,14 @@ ability_opener(en, "You can ").
 % obiettare alla regola invece di indovinare il motivo.
 % gen398g: l'assunzione va NOMINATA. Un piano proposto senza dire sotto che cosa
 % vale chiede fiducia al buio.
+% gen398g: il motivo e' la catena, detta. I connettivi non portano claim: dicono
+% soltanto in che rapporto stanno due proposizioni gia' provate.
+reason_opener(en, "Because ").
+reason_opener(it, "Perche' ").
+reason_makes_true(en, " makes true: ").
+reason_makes_true(it, " rende vero: ").
+reason_therefore(en, ", and then ").
+reason_therefore(it, ", e da li' ").
 assumption_connective(en, ", assuming ").
 assumption_connective(it, ", se ").
 refusal_opener(en, "I will not do that: ").

@@ -2579,8 +2579,28 @@ lo ha reso evidente vale la pena ricordarlo: un'assunzione non nominabile
 sopprimeva il residuo senza produrre una proposta, e quando la frase partiva
 usciva troncata — il fold si ferma sul pezzo che manca.
 
-Restano aperti l'esposizione dei MOTIVI (perche' quel passo e non un altro),
-delle alternative scartate e dei residui, e il confronto frontier vero e proprio.
+**Secondo taglio: il MOTIVO.** Un piano che non sa dirsi non e' ispezionabile, e
+il §17.10 chiede che ogni proposizione della risposta risalga a testo, KB o
+derivazione. Il motivo e' letteralmente la catena che lo ha prodotto:
+
+```text
+come faccio ad abbassare il livello -> Puoi aprire la valvola.
+perche' questo piano                -> Perche' aprire la valvola rende vero:
+                                       la valvola aperta, e da li' il deflusso
+                                       abbassa il livello.
+```
+
+Non una spiegazione scritta a parte — la stessa derivazione, detta. Tolto il nome
+di un anello la spiegazione non esce a meta': o si dice tutta la catena o non si
+dice, perche' una frase troncata sembrerebbe una risposta. E tolta la legge
+causale non resta una spiegazione memorizzata a fare da fondo: e' l'ablazione che
+distingue una derivazione da una frase.
+
+La superficie «perche'» nuda NON e' stata presa: ha gia' un consumer dal
+proof-trace e fa una cosa diversa. Le due convivono.
+
+Restano aperte le alternative scartate, i residui e il confronto frontier vero e
+proprio.
 
 Ogni sottogenerazione e' un taglio verticale: producer universale, inferenza,
 piano proposizionale, resa minima, test IT/EN, crescita/retrazione e negativo

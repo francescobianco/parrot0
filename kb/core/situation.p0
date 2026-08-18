@@ -311,6 +311,39 @@ turn_assumed_set($Turn, $Assumed) :- turn_has_candidate($Turn), findall($A, turn
 turn_assumed_plan($Turn, $Action, $Proposition) :- turn_assumed_set($Turn, cons(assumed($Action, $Proposition), nil)).
 turn_has_assumed_plan($Turn) :- turn_assumed_set($Turn, cons($First, $Tail)).
 
+% ── 4c. IL MOTIVO: perche' QUEL passo (gen398g) ────────────────────────────
+%
+% Un piano che non sa dirsi non e' ispezionabile, e il §17.10 chiede che ogni
+% proposizione della risposta risalga a testo, KB o derivazione. Il motivo qui e'
+% letteralmente la catena che lo ha prodotto: l'azione rende vero un effetto, e
+% una legge causale porta quell'effetto al cambiamento chiesto. Non una
+% spiegazione scritta a parte — la stessa derivazione, detta.
+%
+% La superficie NON e' «perche'» nuda: quella ha gia' un consumer dal proof-trace
+% e fa una cosa diversa. Rubargliela sarebbe amputare una struttura secondaria
+% per far posto a una nuova.
+plan_reason_cue("perché questo piano").
+plan_reason_cue("perché quel piano").
+plan_reason_cue("come mai questo piano").
+plan_reason_cue("why that plan").
+plan_reason_cue("why this plan").
+turn_cue_registry(plan_reason_cue, 1).
+turn_plan_reason($Turn) :- turn_cue_form($Turn, plan_reason_cue, $Cue).
+
+plan_reason($Action, $Effect, $Change) :- planned_for($Property, $Action), action_effect($Action, $Effect), causal_law($Effect, $Change).
+plan_reason_nameable($Action, $Effect, $Change) :- plan_reason($Action, $Effect, $Change), nameable_proposition($Effect), nameable_proposition($Change).
+
+answer_content(explain($Action, $Effect, $Change, $Language), 0, opener, $Piece) :- reason_opener($Language, $Piece).
+answer_content(explain($Action, $Effect, $Change, $Language), 1, action, $Piece) :- linguistic_form($Piece, $Action, $Language, common).
+answer_content(explain($Action, $Effect, $Change, $Language), 2, connective, $Piece) :- reason_makes_true($Language, $Piece).
+answer_content(explain($Action, $Effect, $Change, $Language), 3, effect, $Piece) :- proposition_label($Effect, $Language, $Piece).
+answer_content(explain($Action, $Effect, $Change, $Language), 4, connective, $Piece) :- reason_therefore($Language, $Piece).
+answer_content(explain($Action, $Effect, $Change, $Language), 5, change, $Piece) :- proposition_label($Change, $Language, $Piece).
+answer_content(explain($Action, $Effect, $Change, $Language), 6, terminator, $Piece) :- sentence_terminator($Language, $Piece).
+
+turn_plan_candidate($Turn) :- turn_plan_reason($Turn), plan_reason_nameable($A, $E, $C).
+turn_response($Turn, $Text) :- turn_plan_reason($Turn), plan_reason_nameable($Action, $Effect, $Change), current_language($Language), answer_text(explain($Action, $Effect, $Change, $Language), $Text).
+
 % ── 5. REALIZZAZIONE: il piano proposizionale, non una frase memorizzata ────
 %
 % Il renderer riceve un'azione gia' provata applicabile e i connettivi della
