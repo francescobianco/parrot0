@@ -420,3 +420,6 @@ turn_response($Turn, $Text) :- turn_gap_list($Turn, cons($H, $T)), current_langu
 no_gap_text(en, "Nothing walled on me yet in this conversation.").
 no_gap_text(it, "In questa conversazione non mi sono ancora bloccato su niente.").
 machinery(no_gap_text).
+% gen404 — una lacuna COLMATA e' un'informazione diversa da una mai avuta: e'
+% quella che dice se l'anello sta girando. Anche lei e' macchineria.
+machinery(bridged).

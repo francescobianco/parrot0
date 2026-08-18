@@ -912,6 +912,21 @@ static void machinery_gap_record(Brain *b, const char *canon) {
     kb_set_origin(b->kb, KB_SESSION);
 }
 
+/* La chiusura: vedi la nota alla chiamata, in fondo a brain_respond. `bridged/1`
+ * resta come traccia — una lacuna colmata e' un'informazione diversa da una
+ * lacuna mai avuta, ed e' quella che dice se l'anello sta girando. */
+static void machinery_gap_close(Brain *b, const char *canon) {
+    if (!b || !b->kb || !canon || !*canon) return;
+    char q[KB_TERM_LEN];
+    snprintf(q, sizeof q, "\"%s\"", canon);
+    const char *ga[] = { q };
+    if (!kb_query(b->kb, "machinery_gap", ga, 1)) return;
+    kb_retract(b->kb, "machinery_gap", ga, 1);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_assert(b->kb, "bridged", ga, 1);
+    kb_set_origin(b->kb, KB_SESSION);
+}
+
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
  * showed that repeating "I don't understand that yet." verbatim is the #1
  * naturalness killer (a broken record). So the classic line is kept for a LONE
@@ -1661,6 +1676,28 @@ static void conv_log(Brain *b, const char *input, const char *reply) {
     conv_log_one(b, "self", reply);
 }
 
+/* gen404: L'USCITA UNICA DI UN TURNO.
+ *
+ * `brain_respond` aveva undici punti di ritorno, ognuno con la stessa coppia di
+ * chiusure copiata a mano. Finche' erano due effetti innocui la duplicazione
+ * costava poco; appena si e' aggiunta la terza — chiudere la lacuna quando il
+ * turno RISPONDE — e' costata un bug silenzioso: la lacuna si chiudeva solo sui
+ * turni che arrivavano in fondo alla funzione, e una risposta prodotta da una
+ * scorciatoia lasciava il registro sporco per sempre.
+ *
+ * La chiusura non e' un giudizio di nessuno: una lacuna di macchineria e'
+ * decidibile proprio perche' la prova del rimedio e' che il turno che murava ora
+ * risponde. Senza di essa il registro sarebbe monotono crescente — un elenco di
+ * rimpianti invece di una misura. */
+static size_t turn_done(Brain *b, const char *canon, const char *input,
+                        const char *out) {
+    note_arith_result(b, out);
+    if (b && b->kb && strcmp(b->last_module, "fallback") != 0)
+        machinery_gap_close(b, canon);
+    conv_log(b, input, out);
+    return strlen(out);
+}
+
 /* ── gen386: IL VINCOLO POSTO PRIMA PLASMA LA RISPOSTA DOPO ─────────────────
  *
  * E' l'ultimo dei cinque sintomi di the-linguistic-glue.md, qualitativo dal
@@ -2095,13 +2132,19 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * must reach the teach handler, not mod_self). */
     if (b && try_teach_form(b, norm, input, out, out_size)) {
         note_arith_result(b, out); conv_log(b, input, out);
-        return strlen(out);
+        return strlen(out);   /* insegnare non e' rispondere: nessuna lacuna si chiude */
     }
 
     if (b && universal_turn_lead(b, norm, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "turn_plan");
-        note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
+        /* Qui `canon` non esiste ancora — la canonicalizzazione avviene piu' in
+         * basso — quindi la chiusura usa `norm`. Per l'inglese sono la stessa
+         * stringa; per una lingua che viene tradotta la lacuna resterebbe
+         * aperta anche dopo essere stata colmata. E' un limite reale e va
+         * chiuso spostando la canonicalizzazione prima del contratto di turno,
+         * non nascosto qui. */
+        return turn_done(b, norm, input, out);
     }
 
     /* gen43: canonicalize the parsing surface (function words -> English tokens)
@@ -2117,7 +2160,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     if (b && reasoning_task_lead(b, canon, input, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "reasoning_task");
-        note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
+        return turn_done(b, canon, input, out);
     }
 
     /* gen360 (LLMSCORE-max): open analytical requests are planned before any
@@ -2128,7 +2171,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     if (b && structured_analysis_lead(b, canon, input, 0, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "analysis_plan");
-        note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
+        return turn_done(b, canon, input, out);
     }
 
     /* gen359 (LLMSCORE-max, motorize-the-class): a well-formed definitional or
@@ -2137,7 +2180,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     if (b && semantic_lead(b, canon, input, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "semantic_lead");
-        note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
+        return turn_done(b, canon, input, out);
     }
 
     /* A reusable field family is broader than an indexed concept summary. Try
@@ -2147,7 +2190,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     if (b && structured_analysis_lead(b, canon, input, 1, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "analysis_family");
-        note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
+        return turn_done(b, canon, input, out);
     }
 
     /* gen360: part_of materialization is an expensive reflective inference over
@@ -2164,7 +2207,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     /* gen80: try to decompose compound turns (e.g. "chi sei e ricordati X")
      * before the normal single-turn dispatch. */
     if (b && decompose_and_dispatch(b, canon, input, out, out_size))
-        { note_arith_result(b, out); conv_log(b, input, out); return strlen(out); }
+        { return turn_done(b, canon, input, out); }
 
     /* gen142 (E3): peel a leading discourse-marker opener and re-dispatch the
      * residue, so a content task wrapped in a channel-management opener survives
@@ -2172,20 +2215,20 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * actually owned by a module; otherwise the original turn dispatches normally
      * and its pragmatic shape is read by mod_pragma. */
     if (b && pragma_peel(b, canon, input, out, out_size))
-        { note_arith_result(b, out); conv_log(b, input, out); return strlen(out); }
+        { return turn_done(b, canon, input, out); }
 
     /* gen218: an explicit correction ("no, X is not a Y") peels its marker and
      * re-dispatches the negative claim with the correction flag set, so the
      * standing belief is overridden and the conclusion re-derives. */
     if (b && correction_peel(b, canon, input, out, out_size))
-        { note_arith_result(b, out); conv_log(b, input, out); return strlen(out); }
+        { return turn_done(b, canon, input, out); }
 
     /* gen221 (glue, symptom #5): a numeric personal fact remembered earlier feeds a
      * later computation — resolve "my <key>" to its KB value and re-dispatch so the
      * arithmetic core computes it ("what is my favorite number plus 3" -> "10.").
      * Pre-dispatch so mod_memory cannot mis-claim the unresolved reference first. */
     if (b && memref_resolve(b, canon, out, out_size))
-        { note_arith_result(b, out); conv_log(b, input, out); return strlen(out); }
+        { return turn_done(b, canon, input, out); }
 
     /* gen222 (glue, symptom #3): a precisation that continues the previous computation
      * ("and times 3" after "what is 2 plus 2") — prepend the last result, inferred from
@@ -2196,7 +2239,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         return strlen(out);
     }
     if (b && continue_resolve(b, canon, out, out_size))
-        { note_arith_result(b, out); conv_log(b, input, out); return strlen(out); }
+        { return turn_done(b, canon, input, out); }
 
     /* gen335d (linguistic glue, KB-first): knowledge-gap bridge. The gap
      * state lives as KB facts (pending_gap/1, pending_gap_question/1) in the
@@ -2479,7 +2522,15 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     /* gen222 (glue, symptom #3): carry a bare numeric answer as the KB last_result so a
      * later precisation ("and times 3") can continue the computation. No-op for any
      * non-numeric reply. */
-    note_arith_result(b, out);
-    conv_log(b, input, out);
-    return strlen(out);
+    /* gen404: LA LACUNA SI CHIUDE DA SOLA — la terza freccia dell'anello.
+     *
+     * Una lacuna di macchineria e' l'unica classe DECIDIBILE proprio per questo:
+     * la prova del rimedio non e' un giudizio, e' che il turno che murava ora
+     * risponde. Quindi non serve nessuno che dichiari chiusa una lacuna — la
+     * chiude il fatto stesso di aver risposto.
+     *
+     * Senza questa riga il registro sarebbe monotono crescente, cioe' un elenco
+     * di rimpianti invece di una misura: il numero delle lacune aperte deve
+     * SCENDERE quando la conoscenza cresce, altrimenti non misura niente. */
+    return turn_done(b, canon, input, out);
 }

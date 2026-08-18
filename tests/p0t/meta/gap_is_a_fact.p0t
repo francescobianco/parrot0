@@ -64,3 +64,38 @@
 # mondo. Il gen382e ha gia' pagato una volta questo errore.
 [test a gap is machinery, not world knowledge]
 !query machinery(machinery_gap)
+
+# ── IL GIRO COMPLETO, SU UN CASO VERO ─────────────────────────────────────
+#
+# Terza freccia. Una lacuna di macchineria e' l'unica classe DECIDIBILE proprio
+# per questo: la prova del rimedio non e' un giudizio, e' che il turno che
+# murava ora risponde. Nessuno deve dichiarare chiusa una lacuna — la chiude il
+# fatto stesso di aver risposto.
+#
+# Senza questo, il registro sarebbe monotono crescente: un elenco di rimpianti
+# invece di una misura. Il numero delle lacune aperte deve SCENDERE quando la
+# conoscenza cresce, altrimenti non misura niente.
+#
+# Il caso e' reale e non costruito: il ponte numerico del gen399 e' generico, e
+# una domanda numerica nuova e' una cue piu' una procedura. Qui la stessa
+# crescita viene guardata dal lato dell'anello.
+[test the loop closes on a real case]
+!reset
+> what is the total of 4, 5 and 6
+<! 15.
+!query machinery_gap("what is the total of 4, 5 and 6")
+> what did you fail on
+<~ what is the total of
+
+# La conoscenza arriva. Nessuno tocca il motore, nessuno dichiara niente
+# sull'anello.
+!clause apply_numeric(total, $List, $Result) :- sum_list($List, $Result)
+!assert numeric_cue("what is the total of", total)
+> what is the total of 4, 5 and 6
+< 15.
+
+# E la lacuna si e' chiusa da sola, perche' il turno ha risposto.
+!query! machinery_gap("what is the total of 4, 5 and 6")
+!query bridged("what is the total of 4, 5 and 6")
+> what did you fail on
+< Nothing walled on me yet in this conversation.
