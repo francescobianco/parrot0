@@ -29,6 +29,11 @@ typedef struct KB KB;
  * kb.h primitives directly on it — expose the engine, don't wrap every call. */
 KB *brain_kb(Brain *b);
 
+/* gen400: quale modulo ha chiuso l'ultimo turno. Lo stato c'era gia' (la chat
+ * sa rispondere «which part of you answered that?»); questa e' la porta per il
+ * profiler, che deve poter dire dove il tempo e' stato speso E chi ha parlato. */
+const char *brain_last_module(Brain *b);
+
 /* Atomically change one typed agent record's state. The in-memory P0AStore and
  * its live rec(Id,Kind,Parent,State) projection either both move or both remain
  * at the old state. Returns 1 on success, 0 for an unknown id/invalid input or

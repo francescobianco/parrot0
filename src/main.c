@@ -23,6 +23,7 @@
 #include "env.h"
 
 #include <stdio.h>
+#include <time.h>
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
@@ -439,11 +440,54 @@ int main(int argc, char **argv) {
                                 "the session is unchanged\n");
             continue;
         }
+        /* gen400: /debug — il profiler dell'inferenza, acceso a runtime.
+         *
+         * Spento non costa nulla: i contatori sono dietro un flag e nessuna
+         * misura viene presa. Acceso, ogni turno successivo stampa dove sono
+         * finiti i passi — non quanto e' costato un goal, che il motore sapeva
+         * gia' dire, ma come si distribuisce il costo di un turno intero, che
+         * di goal ne apre decine. E' la domanda che serve per ottimizzare.
+         *
+         * Deliberatamente piccolo. Cresce quando una domanda di ottimizzazione
+         * lo chiede — un profiler scritto tutto in anticipo misura cio' che
+         * l'autore immaginava, non cio' che poi rallenta. */
+        if (strcmp(line, "/debug") == 0) {
+            KB *kb = brain_kb(brain);
+            int on = !kb_profile_on(kb);
+            kb_profile_set(kb, on);
+            fprintf(stderr, "parrot0: debug %s\n",
+                    on ? "ON — ogni turno riporta chiamate, passi e i goal piu' cari"
+                       : "OFF");
+            continue;
+        }
         if (line[0] == '\0') {
             continue; /* ignore empty turns */
         }
 
+        struct timespec t0, t1;
+        int profiling = kb_profile_on(brain_kb(brain));
+        if (profiling) {
+            kb_profile_reset(brain_kb(brain));
+            timespec_get(&t0, TIME_UTC);
+        }
         brain_respond(brain, line, resp, sizeof resp);
+        if (profiling) {
+            timespec_get(&t1, TIME_UTC);
+            double ms = (t1.tv_sec - t0.tv_sec) * 1000.0
+                      + (t1.tv_nsec - t0.tv_nsec) / 1000000.0;
+            KB *kb = brain_kb(brain);
+            KbProfileRow top[8];
+            size_t n = kb_profile_top(kb, top, 8);
+            fprintf(stderr, "\n[debug] %.1f ms turno · %.1f ms nel solver · %zu query · %lu passi\n",
+                    ms, kb_profile_ms(kb), kb_profile_calls(kb), kb_profile_steps(kb));
+            fprintf(stderr, "[debug] %zu fatti · %zu regole · fuori dal solver: %.1f ms\n",
+                    kb_size(kb), kb_rule_count(kb), ms - kb_profile_ms(kb));
+            fprintf(stderr, "[debug] modulo: %s\n", brain_last_module(brain));
+            for (size_t i = 0; i < n && top[i].calls > 0; i++)
+                fprintf(stderr, "[debug]   %7.1f ms  %8lu passi  %5zu call  %s\n",
+                        top[i].ms, top[i].steps, top[i].calls, top[i].pred);
+            fflush(stderr);
+        }
         /* gen382g: il dump della sessione si riscrive a ogni turno, cosi' un
          * `cat` mostra sempre cio' che parrot0 ha in memoria ADESSO. Si scrive e
          * non si rilegge: non e' conoscenza da caricare, e' una finestra. */

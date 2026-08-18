@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <time.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
@@ -142,7 +143,62 @@ struct KB {
     size_t    pred_stats_cap;  /* power of two, open addressing               */
     size_t    pred_stats_n;    /* distinct predicates recorded                */
     int       pred_stats_dirty;/* a removal happened: rebuild before reading  */
+
+    /* gen400: il profiler, dietro un flag. Spento non costa nulla. */
+    int           prof_on;
+    size_t        prof_calls;
+    unsigned long prof_steps;
+    double        prof_ms;
+    struct timespec prof_t0;
+    KbProfileRow  prof_top[64];
+    size_t        prof_ntop;
 };
+
+void kb_profile_set(KB *kb, int on) { if (kb) kb->prof_on = on ? 1 : 0; }
+int  kb_profile_on(const KB *kb)    { return kb ? kb->prof_on : 0; }
+unsigned long kb_profile_steps(const KB *kb) { return kb ? kb->prof_steps : 0; }
+double kb_profile_ms(const KB *kb) { return kb ? kb->prof_ms : 0.0; }
+
+/* gen400b: il primo giro del profiler ha misurato 960 passi per 482 ms — cioe'
+ * mezzo millisecondo a passo, che per un passo di risoluzione e' assurdo. La
+ * conclusione e' che il tempo NON sta dove sta il lavoro logico, e un profiler
+ * che conta solo i passi non puo' dirlo. Da qui il cronometro per query. */
+static void kb_prof_start(KB *kb) {
+    if (kb && kb->prof_on) timespec_get(&kb->prof_t0, TIME_UTC);
+}
+static double kb_prof_elapsed(const KB *kb) {
+    if (!kb || !kb->prof_on) return 0.0;
+    struct timespec now;
+    timespec_get(&now, TIME_UTC);
+    return (now.tv_sec - kb->prof_t0.tv_sec) * 1000.0
+         + (now.tv_nsec - kb->prof_t0.tv_nsec) / 1000000.0;
+}
+size_t kb_profile_calls(const KB *kb)        { return kb ? kb->prof_calls : 0; }
+
+void kb_profile_reset(KB *kb) {
+    if (!kb) return;
+    kb->prof_calls = 0;
+    kb->prof_steps = 0;
+    kb->prof_ms = 0.0;
+    kb->prof_ntop = 0;
+}
+
+size_t kb_profile_top(const KB *kb, KbProfileRow *out, size_t max) {
+    if (!kb || !out || max == 0) return 0;
+    size_t n = kb->prof_ntop < max ? kb->prof_ntop : max;
+    /* ordinato per TEMPO decrescente: e' la colonna che decide dove guardare,
+     * e il primo giro ha mostrato che non coincide con quella dei passi. */
+    for (size_t i = 0; i < kb->prof_ntop; i++) {
+        KbProfileRow row = kb->prof_top[i];
+        size_t place = 0;
+        while (place < n && place < max && out[place].ms >= row.ms &&
+               place < i) place++;
+        if (place >= max) continue;
+        for (size_t j = (i < max ? i : max - 1); j > place; j--) out[j] = out[j - 1];
+        out[place] = row;
+    }
+    return n;
+}
 
 KB *kb_create(void) {
     KB *kb = calloc(1, sizeof *kb);
@@ -1929,6 +1985,29 @@ static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
     kb->infer_budget_hit = S->budget_hit;
     kb->infer_loops_cut  = S->loops_cut;
     snprintf(kb->infer_goal, sizeof kb->infer_goal, "%s", goalpred ? goalpred : "");
+    /* gen400: accumulo per TURNO. La domanda vera non e' quanto costa un goal —
+     * quella la dice gia' `infer_steps` — ma dove siano finiti i passi di un
+     * turno intero, che di goal ne apre decine. */
+    if (!kb->prof_on) return;
+    double ms = kb_prof_elapsed(kb);
+    kb->prof_calls++;
+    kb->prof_steps += S->steps;
+    kb->prof_ms += ms;
+    const char *name = goalpred ? goalpred : "";
+    for (size_t i = 0; i < kb->prof_ntop; i++)
+        if (strcmp(kb->prof_top[i].pred, name) == 0) {
+            kb->prof_top[i].calls++;
+            kb->prof_top[i].steps += S->steps;
+            kb->prof_top[i].ms += ms;
+            return;
+        }
+    if (kb->prof_ntop < sizeof kb->prof_top / sizeof kb->prof_top[0]) {
+        KbProfileRow *row = &kb->prof_top[kb->prof_ntop++];
+        snprintf(row->pred, sizeof row->pred, "%s", name);
+        row->calls = 1;
+        row->steps = S->steps;
+        row->ms = ms;
+    }
 }
 
 int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
@@ -2022,6 +2101,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     memset(&S, 0, sizeof S);
     S.kb = kb; S.kb_mut = kb;
     S.budget = KB_MAX_STEPS;
+    kb_prof_start(kb);
     Subst *s = malloc(sizeof *s);
     if (!s) return 0;
     s->n = 0; s->ndif = 0; s->overflow = &S.budget_hit;
@@ -2119,6 +2199,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     memset(&S, 0, sizeof S);
     S.kb = kb; S.kb_mut = (KB *)kb;
     S.budget = KB_MAX_STEPS;
+    kb_prof_start((KB *)kb);
     S.qvar = hasvar ? "$Q" : NULL;
     S.out = out;
     S.max = max;

@@ -1984,6 +1984,10 @@ static int universal_turn_lead(Brain *b, const char *surface,
     return 1;
 }
 
+const char *brain_last_module(Brain *b) {
+    return (b && b->last_module[0]) ? b->last_module : "(nessuno)";
+}
+
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     size_t n = brain_respond_dispatch(b, input, out, out_size);
     /* ── gen388: L'ARGOMENTO DEL TURNO LO REGISTRA IL DISPATCH ──────────────

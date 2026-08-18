@@ -21,7 +21,48 @@ e' piu' capacita' mancante, ed e' scritto qui perche' non diventi invisibile.
    lunga, cross-domain, negativo vicino) esistono come ratchet SPARSI, non come
    batteria unica con le metriche del §9.3. Finche' non esiste, la percentuale
    di completamento e' una stima nostra e non una misura.
-2. **La latenza (§10).** `reflexive_audit.p0t` porta un `!timeout 3` messo come
+2. **La latenza (§10) — CAUSA TROVATA col profiler `/debug` (gen400).**
+
+   Il costo NON e' nella KB e non e' nel numero di passi: e' un costo FISSO PER
+   PASSO. Misurato su «dove si trova milano»: 488 ms di turno per **960 passi**,
+   cioe' ~0,5 ms a passo, dove un passo di risoluzione dovrebbe costare
+   microsecondi. Il motivo e' nelle dimensioni delle struct che ogni passo
+   copia:
+
+   ```text
+   Bind      = KB_VAR_LEN 96 + KB_TERM_LEN 512            =   608 byte
+   Subst     = 384 Bind + 32 DifConstraint                = ~266 KB
+   SolveFrame= Subst + 64 Term (2,6 KB l'uno)             = ~430 KB   malloc()
+   ```
+
+   e il commento del codice lo dice da solo: «A substitution is copied by value
+   all the way down a derivation». Ogni passo fa un `malloc` da ~430 KB e almeno
+   una `memcpy` da ~266 KB.
+
+   **Esperimento di conferma** (fatto e RITIRATO, non committato):
+
+   | configurazione | ms turno | ms nel solver | chi risponde |
+   |---|---:|---:|---|
+   | attuale (384 / 512) | 488 | 476 | `turn_plan` |
+   | `KB_MAX_BIND` 64 | 177 | 117 | `answerframe` ⚠ |
+   | + `KB_TERM_LEN` 192 | 115 | **53** | `answerframe` ⚠ |
+
+   Nove volte piu' veloce a parita' di passi — ma la risposta CAMBIA PRODUTTORE:
+   con i limiti ridotti alcune derivazioni traboccano e vengono dichiarate
+   incomplete. Rimpicciolire i limiti non e' un'ottimizzazione, e' un'amputazione,
+   e per questo l'esperimento e' stato ritirato.
+
+   La correzione vera e' strutturale e va nell'ordine: (a) non allocare
+   `SolveFrame` a ogni chiamata — un pool per profondita' toglie il `malloc`
+   senza toccare la semantica; (b) non copiare `Subst` per valore — trail con
+   undo, oppure `Bind.val` come offset in un'arena, cosi' la copia diventa
+   O(bindings) invece che O(KB_MAX_BIND). Nessuna delle due cambia una risposta.
+
+   Contesto: `make test` sta oggi a **214 s** per 2343 prove. Ogni ratchet nuovo
+   paga quel costo per passo, quindi la suite rallenta mentre la KB cresce anche
+   quando nessuna singola prova peggiora.
+
+3. **La latenza, i sintomi gia' visibili.** `reflexive_audit.p0t` porta un `!timeout 3` messo come
    CEROTTO: quel turno costava 0,18s al gen382 e oggi ne costa 0,9. E' un
    fattore cinque riguadagnato mentre la KB cresceva, e il §10 dice di
    classificarlo come meccanica del solver. `findall/3` senza uscita anticipata

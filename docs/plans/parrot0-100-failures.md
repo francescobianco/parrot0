@@ -27,6 +27,44 @@ Le risposte sono abbreviate per leggibilita', ma la classificazione deriva dal
 transcript reale. La prova va ripetuta dopo ogni release per distinguere
 regressioni da miglioramenti.
 
+## Retest Attuale
+
+Il 2026-08-18 gli stessi 100 prompt sono stati rieseguiti in una nuova sessione
+con `make chat`, sullo stesso binario osservato. La valutazione attuale usa una
+regola piu' severa: una risposta conta come riuscita solo se affronta il
+compito richiesto, e non se contiene semplicemente testo, un fatto correlato o
+un template generico.
+
+### Risultato
+
+| Stato attuale | Numero | Interpretazione |
+|---|---:|---|
+| Risposta pienamente pertinente | **4** | Il compito e' stato effettivamente risolto |
+| Testo prodotto ma non soluzione | 31 | Template fuori dominio, definizione laterale o piano non istanziato |
+| Fallimento persistente | 65 | Muro, richiesta di apprendimento o mancata comprensione |
+| **Totale** | **100** | |
+
+Le quattro risposte pienamente pertinenti sono:
+
+| Prompt | Risposta attuale |
+|---|---|
+| `Which is greater, 3.14 or 3.41?` | `3.41.` |
+| `Sort these numbers: 8, 2, 11, 4.` | `2, 4, 8, 11` |
+| `What is the remainder of 29 divided by 5?` | `4.` |
+| `What is the median of 1, 4, 9, 10, 20?` | `9.` |
+
+Quindi, dopo il retest, il valore misurato e' **4/100 = 4% di risposte
+pienamente risolutive**. Le 31 risposte non vuote ma non pertinenti non vengono
+conteggiate come successo: includono il template causale ripetuto, il template
+di progettazione generica, la definizione di `ecosystem` al posto dell'ontologia
+richiesta e la definizione di `stack` al posto dell'analisi di un trace.
+
+Questo 4% non va interpretato automaticamente come avanzamento di release:
+non sono state modificate le facolta' di parrot0 tra la prima batteria e il
+retest, e la sessione/KB puo' influenzare alcune risposte. Il dato va quindi
+conservato come misura comportamentale dell'interazione osservata, non come
+prova di una regressione o di un miglioramento del C.
+
 ## Legenda
 
 | Codice | Significato |

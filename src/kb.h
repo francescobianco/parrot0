@@ -365,6 +365,31 @@ typedef struct {
 
 void kb_inference_report(const KB *kb, KbInferenceReport *out);
 
+/* ── profiling dell'inferenza (gen400) ────────────────────────────────────
+ *
+ * Attivabile a runtime da `/debug` nella chat. Spento non costa niente: il
+ * contatore e' dietro un flag e nessuna misura viene presa. Acceso accumula
+ * per TURNO, non per query, perche' la domanda vera non e' «quanto costa
+ * questo goal» ma «dove sono finiti i passi di questo turno».
+ *
+ * Deliberatamente piccolo: chiamate, passi, e i predicati piu' cari. Cresce
+ * quando una domanda di ottimizzazione lo chiede, non prima. */
+typedef struct {
+    char          pred[KB_TERM_LEN];
+    size_t        calls;
+    unsigned long steps;
+    double        ms;      /* gen400b: i PASSI non sono il TEMPO — vedi sotto */
+} KbProfileRow;
+
+void          kb_profile_set(KB *kb, int on);
+int           kb_profile_on(const KB *kb);
+void          kb_profile_reset(KB *kb);
+unsigned long kb_profile_steps(const KB *kb);
+double        kb_profile_ms(const KB *kb);
+size_t        kb_profile_calls(const KB *kb);
+/* Righe ordinate per passi decrescenti; ritorna quante ne ha scritte. */
+size_t        kb_profile_top(const KB *kb, KbProfileRow *out, size_t max);
+
 /* Count direct stored facts for a predicate (no rule resolution). gen77. */
 size_t kb_pred_fact_count(const KB *kb, const char *pred);
 

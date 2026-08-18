@@ -15,6 +15,11 @@
 # gen169 (E1 reflexive): the self-audit matrix in Italian — "verifica quali tuoi
 # moduli si compongono" reaches the same mod_loop path and runs the same triples
 # on fresh sub-brains, no duplicated logic.
+# ⚠ CEROTTO (gen400), gemello di quello in `reflexive_audit.p0t`. Il profiler
+# `/debug` ha ora misurato la causa e non e' la KB: un turno da ~1000 passi
+# costa ~480ms perche' ogni passo copia una `Subst` da 266 KB e alloca uno
+# scratch da ~430 KB. Il costo e' per PASSO e fisso, non per fatto.
+!timeout 3
 > verifica quali tuoi moduli si compongono
 < Ho verificato la mia stessa composizione su copie fresche di me: knowledge+abduce+robust compose; knowledge+abduce+calibrate compose; knowledge+robust+calibrate seam. 2 di 3 triple reggono. Nessun file è stato toccato; le modifiche e i commit spettano a un agente esterno.
 
