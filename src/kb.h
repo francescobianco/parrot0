@@ -387,6 +387,16 @@ void          kb_profile_reset(KB *kb);
 unsigned long kb_profile_steps(const KB *kb);
 double        kb_profile_ms(const KB *kb);
 size_t        kb_profile_calls(const KB *kb);
+/* gen401: quante volte il censimento per predicato e' stato RICOSTRUITO nel
+ * turno. Ogni retract lo invalida e la ricostruzione e' O(fatti+regole): se il
+ * numero non e' minuscolo, il turno sta ripagando l'indice invece di usarlo. */
+size_t        kb_profile_rebuilds(const KB *kb);
+/* gen401: quanti FATTI il turno ha davvero guardato, e quante volte lo ha fatto
+ * senza indice. Se le visite crescono con la KB mentre i passi restano uguali,
+ * il difetto e' l'indicizzazione e non la logica — che e' precisamente cio' che
+ * il §10 del piano chiede di saper distinguere. */
+unsigned long kb_profile_visits(const KB *kb);
+size_t        kb_profile_scans(const KB *kb);
 /* Righe ordinate per passi decrescenti; ritorna quante ne ha scritte. */
 size_t        kb_profile_top(const KB *kb, KbProfileRow *out, size_t max);
 

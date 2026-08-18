@@ -480,8 +480,11 @@ int main(int argc, char **argv) {
             size_t n = kb_profile_top(kb, top, 8);
             fprintf(stderr, "\n[debug] %.1f ms turno · %.1f ms nel solver · %zu query · %lu passi\n",
                     ms, kb_profile_ms(kb), kb_profile_calls(kb), kb_profile_steps(kb));
-            fprintf(stderr, "[debug] %zu fatti · %zu regole · fuori dal solver: %.1f ms\n",
-                    kb_size(kb), kb_rule_count(kb), ms - kb_profile_ms(kb));
+            fprintf(stderr, "[debug] %zu fatti · %zu regole · fuori dal solver: %.1f ms · %zu ricostruzioni indice\n",
+                    kb_size(kb), kb_rule_count(kb), ms - kb_profile_ms(kb),
+                    kb_profile_rebuilds(kb));
+            fprintf(stderr, "[debug] fatti visitati: %lu · scansioni senza indice: %zu\n",
+                    kb_profile_visits(kb), kb_profile_scans(kb));
             fprintf(stderr, "[debug] modulo: %s\n", brain_last_module(brain));
             for (size_t i = 0; i < n && top[i].calls > 0; i++)
                 fprintf(stderr, "[debug]   %7.1f ms  %8lu passi  %5zu call  %s\n",

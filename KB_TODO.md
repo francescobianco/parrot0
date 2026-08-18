@@ -21,46 +21,37 @@ e' piu' capacita' mancante, ed e' scritto qui perche' non diventi invisibile.
    lunga, cross-domain, negativo vicino) esistono come ratchet SPARSI, non come
    batteria unica con le metriche del §9.3. Finche' non esiste, la percentuale
    di completamento e' una stima nostra e non una misura.
-2. **La latenza (§10) — CAUSA TROVATA col profiler `/debug` (gen400).**
+2. **La latenza (§10) — CAUSA TROVATA E CORRETTA (gen401).** Il profiler
+   `/debug` ha isolato un costo FISSO PER PASSO: non la KB, non il numero di
+   passi. `Subst` dimensiona i propri array sul caso peggiore (384 binding da
+   608 byte = ~266 KB) e veniva copiata per valore PRIMA DI OGNI FATTO
+   CANDIDATO — misurati 81.842 fatti visitati per 960 passi in un solo turno.
 
-   Il costo NON e' nella KB e non e' nel numero di passi: e' un costo FISSO PER
-   PASSO. Misurato su «dove si trova milano»: 488 ms di turno per **960 passi**,
-   cioe' ~0,5 ms a passo, dove un passo di risoluzione dovrebbe costare
-   microsecondi. Il motivo e' nelle dimensioni delle struct che ogni passo
-   copia:
+   Corretto in tre mosse, tutte a semantica invariata:
 
-   ```text
-   Bind      = KB_VAR_LEN 96 + KB_TERM_LEN 512            =   608 byte
-   Subst     = 384 Bind + 32 DifConstraint                = ~266 KB
-   SolveFrame= Subst + 64 Term (2,6 KB l'uno)             = ~430 KB   malloc()
-   ```
+   - `subst_copy/2` copia il PREFISSO VIVO invece dell'array intero;
+   - una copia per GOAL invece che per fatto, con annullamento dei due contatori
+     dopo un tentativo fallito (`bind_add`/`dif_add` solo appendono, quindi
+     riportare `n` e `ndif` cancella esattamente cio' che il tentativo aveva
+     aggiunto — **se un giorno una delle due modificasse in luogo, quella riga
+     diventa sbagliata**);
+   - lo scratch da ~430 KB non si alloca piu' a ogni passo: pool per profondita',
+     allocato pigramente;
+   - il test «questo fatto ha variabili?» si salta quando il censimento dice che
+     l'intero bucket e' ground.
 
-   e il commento del codice lo dice da solo: «A substitution is copied by value
-   all the way down a derivation». Ogni passo fa un `malloc` da ~430 KB e almeno
-   una `memcpy` da ~266 KB.
+   Risultato: turno 488 ms -> **54 ms**, `make test` 214 s -> **92 s**,
+   `soft-test` 14 s -> **6 s** sul budget 15. Entrambi i cerotti `!timeout 3`
+   dell'auto-audit sono stati TOLTI: quel turno e' tornato a ~0,44 s.
 
-   **Esperimento di conferma** (fatto e RITIRATO, non committato):
+   Un tentativo RITIRATO, da non ripetere alla leggera: filtrare i fatti
+   candidati con una `strcmp` sugli argomenti letterali del goal sembra esatto e
+   invece rompe — l'unificazione normalizza qualcosa che il confronto di stringa
+   non vede. Zero guadagno e quattro test rossi.
 
-   | configurazione | ms turno | ms nel solver | chi risponde |
-   |---|---:|---:|---|
-   | attuale (384 / 512) | 488 | 476 | `turn_plan` |
-   | `KB_MAX_BIND` 64 | 177 | 117 | `answerframe` ⚠ |
-   | + `KB_TERM_LEN` 192 | 115 | **53** | `answerframe` ⚠ |
-
-   Nove volte piu' veloce a parita' di passi — ma la risposta CAMBIA PRODUTTORE:
-   con i limiti ridotti alcune derivazioni traboccano e vengono dichiarate
-   incomplete. Rimpicciolire i limiti non e' un'ottimizzazione, e' un'amputazione,
-   e per questo l'esperimento e' stato ritirato.
-
-   La correzione vera e' strutturale e va nell'ordine: (a) non allocare
-   `SolveFrame` a ogni chiamata — un pool per profondita' toglie il `malloc`
-   senza toccare la semantica; (b) non copiare `Subst` per valore — trail con
-   undo, oppure `Bind.val` come offset in un'arena, cosi' la copia diventa
-   O(bindings) invece che O(KB_MAX_BIND). Nessuna delle due cambia una risposta.
-
-   Contesto: `make test` sta oggi a **214 s** per 2343 prove. Ogni ratchet nuovo
-   paga quel costo per passo, quindi la suite rallenta mentre la KB cresce anche
-   quando nessuna singola prova peggiora.
+   **Il prossimo collo e' FUORI dal solver.** Il profiler ora lo mostra: su
+   alcuni turni «fuori dal solver» supera il tempo di risoluzione (32 ms su 44).
+   Li' dentro ci sono segmentazione, pubblicazione delle cue e i moduli C.
 
 3. **La latenza, i sintomi gia' visibili.** `reflexive_audit.p0t` porta un `!timeout 3` messo come
    CEROTTO: quel turno costava 0,18s al gen382 e oggi ne costa 0,9. E' un

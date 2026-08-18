@@ -70,6 +70,27 @@ typedef struct {
                  * facts, heads, and ordinary positive goals. */
 } Term;
 
+/* gen401: copiare un TERMINE costava 2,6 KB per un termine da cinquanta byte.
+ *
+ * Stessa specie del difetto della sostituzione, un livello sotto. `Term` porta
+ * `pred` piu' quattro argomenti da KB_TERM_LEN ciascuno: la copia per valore
+ * muove sempre 2,6 KB, e il risolvente viene ricopiato a OGNI regola tentata,
+ * per ogni goal rimasto. Con il profiler si vedeva che un passo di
+ * `turn_response` costava venti volte un passo di `segment_role` a parita' di
+ * numero: la differenza era quanta memoria quei passi muovevano.
+ *
+ * Si copia il PREFISSO VIVO — la stringa fino al terminatore, e solo gli
+ * argomenti che `argc` dichiara. Il resto del buffer non viene mai letto da
+ * nessuno: ogni lettore si ferma al NUL. Semantica identica, limiti identici. */
+static void term_copy(Term *dst, const Term *src) {
+    dst->argc = src->argc;
+    dst->neg  = src->neg;
+    memcpy(dst->pred, src->pred, strlen(src->pred) + 1);
+    for (size_t i = 0; i < src->argc && i < KB_MAX_ARGS; i++)
+        memcpy(dst->args[i], src->args[i], strlen(src->args[i]) + 1);
+}
+
+
 typedef struct {
     char   pred[KB_TERM_LEN];
     size_t argc;
@@ -149,6 +170,9 @@ struct KB {
     size_t        prof_calls;
     unsigned long prof_steps;
     double        prof_ms;
+    size_t        prof_rebuilds;
+    unsigned long prof_visits;
+    size_t        prof_scans;
     struct timespec prof_t0;
     KbProfileRow  prof_top[64];
     size_t        prof_ntop;
@@ -174,12 +198,18 @@ static double kb_prof_elapsed(const KB *kb) {
          + (now.tv_nsec - kb->prof_t0.tv_nsec) / 1000000.0;
 }
 size_t kb_profile_calls(const KB *kb)        { return kb ? kb->prof_calls : 0; }
+size_t kb_profile_rebuilds(const KB *kb)     { return kb ? kb->prof_rebuilds : 0; }
+unsigned long kb_profile_visits(const KB *kb) { return kb ? kb->prof_visits : 0; }
+size_t kb_profile_scans(const KB *kb)         { return kb ? kb->prof_scans : 0; }
 
 void kb_profile_reset(KB *kb) {
     if (!kb) return;
     kb->prof_calls = 0;
     kb->prof_steps = 0;
     kb->prof_ms = 0.0;
+    kb->prof_rebuilds = 0;
+    kb->prof_visits = 0;
+    kb->prof_scans = 0;
     kb->prof_ntop = 0;
 }
 
@@ -473,6 +503,7 @@ static void pred_stats_note_rule(KB *kb, size_t ri) {
 static void pred_stats_invalidate(KB *kb) { if (kb) kb->pred_stats_dirty = 1; }
 
 static void pred_stats_rebuild(KB *kb) {
+    if (kb->prof_on) kb->prof_rebuilds++;
     if (kb->pred_stats)
         for (size_t i = 0; i < kb->pred_stats_cap; i++) {
             kb->pred_stats[i].pred[0] = '\0';
@@ -514,15 +545,20 @@ static const PredStat *pred_stats_get(KB *kb, const char *pred, int *census_live
  *
  * The KB is logically const for readers, so the lazy recount casts it away: the
  * census is a cache OF the facts, never a change TO them. */
-typedef struct { const size_t *idx; size_t n; int live; } PredBucket;
+/* gen401: `nonground` dice se il bucket contiene ANCHE una sola clausola
+ * unitaria con variabili. Il censimento lo conta gia' (`nnonground`), e saperlo
+ * risparmia a ogni fatto una scansione dei propri argomenti: quando nessuna
+ * clausola del predicato ha variabili — il caso normale, e nella KB di parrot0
+ * la stragrande maggioranza — la domanda non va posta per ottantamila volte. */
+typedef struct { const size_t *idx; size_t n; int live; int nonground; } PredBucket;
 
 static PredBucket pred_bucket(const KB *kb, const char *pred) {
-    PredBucket b = { NULL, 0, 0 };
+    PredBucket b = { NULL, 0, 0, 1 };
     int live = 0;
     const PredStat *ps = pred_stats_get((KB *)kb, pred, &live);
     if (!live) return b;
     b.live = 1;
-    if (ps) { b.idx = ps->idx; b.n = ps->nfacts; }
+    if (ps) { b.idx = ps->idx; b.n = ps->nfacts; b.nonground = ps->nnonground > 0; }
     return b;
 }
 
@@ -822,6 +858,27 @@ typedef struct { char a[KB_TERM_LEN]; char b[KB_TERM_LEN]; } DifConstraint;
 typedef struct { Bind b[KB_MAX_BIND]; size_t n;
                  DifConstraint dif[KB_MAX_DIF]; size_t ndif;
                  int *overflow; } Subst;
+
+/* gen401: copiare una sostituzione costava 266 KB A PASSO.
+ *
+ * `Subst` dimensiona i propri array sul CASO PEGGIORE — 384 binding da 608 byte
+ * piu' 32 vincoli `dif` — ma una derivazione tipica ne usa una manciata. La
+ * copia per valore (`*s2 = *s`) copiava sempre tutto, e il profiler `/debug` ha
+ * misurato il conto: mezzo millisecondo per passo di risoluzione, dove il lavoro
+ * logico era di microsecondi.
+ *
+ * Qui non cambia ne' la semantica ne' il limite: si copia soltanto il PREFISSO
+ * VIVO, che e' esattamente cio' che il resto del codice legge (`s->n`,
+ * `s->ndif`). Il caso peggiore resta identico, il caso normale diventa
+ * proporzionale a quanto si e' davvero legato. */
+static void subst_copy(Subst *dst, const Subst *src) {
+    dst->n = src->n;
+    dst->ndif = src->ndif;
+    dst->overflow = src->overflow;
+    for (size_t i = 0; i < src->n; i++) dst->b[i] = src->b[i];
+    for (size_t i = 0; i < src->ndif; i++) dst->dif[i] = src->dif[i];
+}
+
 
 /* fwd: structural unification (U3) splits compound-term strings with parse_term,
  * defined further down with the .p0 loader. */
@@ -1312,6 +1369,42 @@ static int eval_num(const char *e, double *out) {
     return 0;
 }
 
+/* gen401: lo scratch di un passo non si alloca, si riusa.
+ *
+ * `SolveFrame` porta una `Subst` piu' 64 goal: mezzo megabyte scarso, chiesto e
+ * restituito al sistema A OGNI PASSO di risoluzione. Il profiler `/debug` ha
+ * mostrato che il costo per passo era di mezzo millisecondo mentre il lavoro
+ * logico era di microsecondi, e questo `malloc` ne era la seconda meta' dopo la
+ * copia della sostituzione.
+ *
+ * L'uso e' rigorosamente a pila — si prende entrando, si rende uscendo — quindi
+ * un pool indicizzato dalla profondita' di annidamento e' esatto e non ha nulla
+ * da liberare: le prime profondita' restano allocate e vengono riusate, oltre il
+ * pool si torna al comportamento di prima. Le celle sono allocate PIGRAMENTE,
+ * quindi una conversazione che non annida a fondo non paga la memoria che non
+ * usa. parrot0 risolve in un solo thread: il pool e' statico per questo, e se un
+ * giorno il solver diventera' concorrente questa e' la riga da spostare nel
+ * Solver. */
+#define KB_FRAME_POOL 64
+static SolveFrame *frame_pool[KB_FRAME_POOL];
+static size_t frame_depth;
+
+static SolveFrame *frame_take(void) {
+    if (frame_depth < KB_FRAME_POOL) {
+        if (!frame_pool[frame_depth] &&
+            !(frame_pool[frame_depth] = malloc(sizeof(SolveFrame)))) return NULL;
+        return frame_pool[frame_depth++];
+    }
+    frame_depth++;
+    return malloc(sizeof(SolveFrame));
+}
+
+static void frame_give(SolveFrame *scratch) {
+    if (!scratch) return;
+    frame_depth--;
+    if (frame_depth >= KB_FRAME_POOL) free(scratch);
+}
+
 static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                  const Subst *s, int depth) {
     if (idx == ngoals) {                       /* a complete solution */
@@ -1353,10 +1446,10 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     if (S->budget && S->steps >= S->budget) { S->budget_hit = 1; return 0; }
     S->steps++;
 
-    SolveFrame *scratch = malloc(sizeof *scratch);
+    SolveFrame *scratch = frame_take();
     if (!scratch) return 0;
     int result = solve_frame(S, goals, ngoals, idx, s, depth, scratch);
-    free(scratch);
+    frame_give(scratch);
     return result;
 }
 
@@ -1447,7 +1540,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             char list[KB_TERM_LEN];
             if (!args_to_list(f->args, f->argc, list, sizeof list)) continue;
             Subst *s2 = &scratch->subst;
-            *s2 = *s;
+            subst_copy(s2, s);
             if (!unify(s2, g->args[0], f->pred) ||
                 !unify(s2, g->args[1], list))
                 continue;
@@ -1463,7 +1556,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         int g0 = !is_var(a0) && strchr(a0, '$') == NULL;   /* arg0 fully ground */
         int g1 = !is_var(a1) && strchr(a1, '$') == NULL;   /* arg1 fully ground */
         Subst *s2 = &scratch->subst;
-        *s2 = *s;
+        subst_copy(s2, s);
         if (g0) {                              /* atom -> char-list */
             char list[KB_CHARLIST_MAX];
             if (atom_to_charlist(a0, list, sizeof list) &&
@@ -1509,7 +1602,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if ((int)snprintf(joined, sizeof joined, "%s%s", t0, t1) >= (int)sizeof joined)
             return 0;
         Subst *s2 = &scratch->subst;
-        *s2 = *s;
+        subst_copy(s2, s);
         if (unify(s2, g->args[2], joined))
             return solve(S, goals, ngoals, idx + 1, s2, depth);
         return 0;
@@ -1538,7 +1631,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             break;
         }
         Subst *s2 = &scratch->subst;
-        *s2 = *s;
+        subst_copy(s2, s);
         if (unify(s2, g->args[1], up))
             return solve(S, goals, ngoals, idx + 1, s2, depth);
         return 0;
@@ -1557,7 +1650,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (r == (double)(long long)r) snprintf(rs, sizeof rs, "%lld", (long long)r);
         else snprintf(rs, sizeof rs, "%g", r);
         Subst *s2 = &scratch->subst;
-        *s2 = *s;
+        subst_copy(s2, s);
         if (unify(s2, g->args[0], rs))
             return solve(S, goals, ngoals, idx + 1, s2, depth);
         return 0;
@@ -1600,7 +1693,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         char cs[64];
         snprintf(cs, sizeof cs, "%lld", count);
         Subst *s2 = &scratch->subst;
-        *s2 = *s;
+        subst_copy(s2, s);
         if (unify(s2, g->args[3], cs))
             return solve(S, goals, ngoals, idx + 1, s2, depth);
         return 0;
@@ -1613,9 +1706,9 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (!parse_to_term(resolved, &called) || called.argc == 0) return 0;
         Term *ng = scratch->goals;
         size_t m = 0;
-        if (m < KB_MAX_GOALS) ng[m++] = called;
+        if (m < KB_MAX_GOALS) term_copy(&ng[m++], &called);
         for (size_t k = idx + 1; k < ngoals && m < KB_MAX_GOALS; k++)
-            ng[m++] = goals[k];
+            term_copy(&ng[m++], &goals[k]);
         /* gen396: the resolvent ceiling is a cut short, not an absence — see
          * the depth guard in solve(). */
         if (m >= KB_MAX_GOALS && idx + 1 < ngoals) { S->budget_hit = 1; return 0; }
@@ -1638,9 +1731,9 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
 
         Term *ng = scratch->goals;
         size_t m = 0;
-        if (m < KB_MAX_GOALS) ng[m++] = called;
+        if (m < KB_MAX_GOALS) term_copy(&ng[m++], &called);
         for (size_t k = idx + 1; k < ngoals && m < KB_MAX_GOALS; k++)
-            ng[m++] = goals[k];
+            term_copy(&ng[m++], &goals[k]);
         /* gen396: the resolvent ceiling is a cut short, not an absence — see
          * the depth guard in solve(). */
         if (m >= KB_MAX_GOALS && idx + 1 < ngoals) { S->budget_hit = 1; return 0; }
@@ -1678,7 +1771,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (!is_var(ra) && !is_var(rb))
             return strcmp(ra, rb) != 0 ? solve(S, goals, ngoals, idx + 1, s, depth) : 0;
         Subst *s2 = &scratch->subst;
-        *s2 = *s;
+        subst_copy(s2, s);
         if (!dif_add(s2, g->args[0], g->args[1])) return 0;
         return solve(S, goals, ngoals, idx + 1, s2, depth);
     }
@@ -1718,7 +1811,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         F.frame = S->frame;
         F.budget = S->budget;
         Subst *fs = &scratch->subst;
-        *fs = *s;
+        subst_copy(fs, s);
         solve(&F, &goal, 1, 0, fs, 0);
         S->frame = F.frame;
         if (F.budget_hit) S->budget_hit = 1;
@@ -1732,7 +1825,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         }
         free(solutions);
         Subst *s2 = &scratch->subst;
-        *s2 = *s;
+        subst_copy(s2, s);
         if (unify(s2, g->args[2], list_buf))
             return solve(S, goals, ngoals, idx + 1, s2, depth);
         return 0;
@@ -1748,7 +1841,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         size_t nm = kb_match(S->kb, "fact_confidence", cargs, 2, matches, 1);
         snprintf(pbuf, sizeof pbuf, "%s", nm > 0 ? matches[0] : "0.5");
         Subst *s2 = &scratch->subst;
-        *s2 = *s;
+        subst_copy(s2, s);
         if (unify(s2, g->args[1], pbuf))
             return solve(S, goals, ngoals, idx + 1, s2, depth);
         return 0;
@@ -1813,15 +1906,36 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
      * predicate, so the census bucket visits exactly the candidates instead of
      * the whole KB at every resolution step. */
     PredBucket gbk = pred_bucket(S->kb, g->pred);
+    if (S->kb->prof_on) {
+        KB *pm = (KB *)S->kb;   /* il contatore e' diagnostica, non stato logico */
+        pm->prof_visits += PRED_VISITS(gbk, S->kb);
+        if (!gbk.live) pm->prof_scans++;
+    }
     for (size_t vi = 0; ground_fact_mode != 2 &&
                         vi < PRED_VISITS(gbk, S->kb); vi++) {  /* match facts */
         const Fact *f = &S->kb->facts[PRED_AT(gbk, vi)];
         Subst *s2 = &scratch->subst;
         int nonground = 0;
-        for (size_t a = 0; a < f->argc && !nonground; a++)
-            nonground = term_contains_var(f->args[a], 0);
+        if (gbk.nonground)
+            for (size_t a = 0; a < f->argc && !nonground; a++)
+                nonground = term_contains_var(f->args[a], 0);
         if (ground_fact_mode == 1 && !nonground) continue;
-        *s2 = *s;
+        /* gen401: la sostituzione si copia UNA VOLTA per goal, non una per
+         * fatto candidato.
+         *
+         * Prima si copiava prima di ogni tentativo, cioe' anche per gli
+         * ottantamila fatti che poi non unificavano: il profiler ha misurato
+         * 81.842 visite per 960 passi, e ogni visita portava con se' l'intera
+         * sostituzione viva. Era il grosso del costo per passo.
+         *
+         * L'annullamento e' esatto e non ha bisogno di un trail: `bind_add` e
+         * `dif_add` APPENDONO soltanto — nessuno riscrive una voce esistente —
+         * quindi riportare i due contatori dove erano cancella esattamente cio'
+         * che il tentativo fallito aveva aggiunto. Se un giorno una di quelle
+         * due funzioni cominciasse a modificare in luogo, questa riga diventa
+         * sbagliata: e' la condizione da tenere d'occhio. */
+        if (vi == 0 || s2->overflow != s->overflow) subst_copy(s2, s);
+        size_t undo_n = s2->n, undo_ndif = s2->ndif;
         int matched = 0;
         if (!nonground) {
             matched = unify_term_fact(s2, g, f);
@@ -1842,9 +1956,12 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (matched) {
             if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
         }
+        s2->n = undo_n;            /* annulla il tentativo, riusa la copia */
+        s2->ndif = undo_ndif;
     }
 
     PredBucket rbk = rule_bucket(S->kb, g->pred);
+    int rule_copy_done = 0;
     for (size_t vi = 0; vi < PRED_VISITS(rbk, S->kb); vi++) { /* expand rules */
         const Rule *R = &S->kb->rules[PRED_AT(rbk, vi)];
         if (R->head.argc != g->argc || strcmp(R->head.pred, g->pred) != 0)
@@ -1855,8 +1972,16 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         Term rhead;
         rename_term(&R->head, fr, &anon, &rhead);
         Subst *s2 = &scratch->subst;
-        *s2 = *s;
-        if (!unify_term_term(s2, g, &rhead)) continue;
+        /* gen401: stessa economia del ciclo dei fatti — una copia per goal e
+         * l'annullamento dei due contatori dopo un tentativo fallito. Le teste
+         * di regola che non unificano sono la maggioranza, e copiare la
+         * sostituzione per ciascuna era lavoro buttato. */
+        if (!rule_copy_done) { subst_copy(s2, s); rule_copy_done = 1; }
+        size_t rundo_n = s2->n, rundo_ndif = s2->ndif;
+        if (!unify_term_term(s2, g, &rhead)) {
+            s2->n = rundo_n; s2->ndif = rundo_ndif;
+            continue;
+        }
 
         /* gen382 — the loop check. Before descending into this rule, note the
          * goal it is expanding. If that exact GROUND goal is already open above
@@ -1899,7 +2024,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         }
         for (size_t k = idx + 1; k < ngoals && !overflow; k++) {
             if (m >= KB_MAX_GOALS) { overflow = 1; break; }
-            ng[m++] = goals[k];
+            term_copy(&ng[m++], &goals[k]);
         }
         /* gen396: the resolvent could not hold this rule's body plus the
          * caller's continuation. Skipping the rule silently is the third face of
@@ -1909,11 +2034,18 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (overflow) {
             if (pushed) S->nanc--;
             S->budget_hit = 1;
+            s2->n = rundo_n; s2->ndif = rundo_ndif;
             continue;
         }
         int ok = solve(S, ng, m, 0, s2, depth + 1);
         if (pushed) S->nanc--;
         if (ok) return 1;
+        /* La regola non ha portato una soluzione: la sostituzione torna dov'era
+         * PRIMA della sua testa. Senza questa riga la clausola successiva
+         * partirebbe da un contesto sporcato da quella fallita — che e' il
+         * prezzo esatto di aver smesso di ricopiare a ogni tentativo, e va
+         * pagato qui invece che ottantamila volte piu' in la'. */
+        s2->n = rundo_n; s2->ndif = rundo_ndif;
     }
     return 0;
 }
@@ -2283,7 +2415,7 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
         size_t m = 0;
         if (m < KB_PROOF_PG) comb[m++] = called;
         for (size_t k = idx + 1; k < n && m < KB_PROOF_PG; k++)
-            comb[m++] = goals[k];
+            term_copy(&comb[m++], &goals[k]);
         char (*cout)[KB_PROOF_LEN] = scratch->proofs;
         if (prove_seq_ex(kb, comb, m, 0, s, depth, frame, cout)) {
             snprintf(out[idx], KB_PROOF_LEN, "%s", cout[0]);
@@ -2351,7 +2483,7 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
     PredBucket pbk = pred_bucket(kb, g->pred);
     for (size_t vi = 0; vi < PRED_VISITS(pbk, kb); vi++) {  /* close by a fact */
         Subst *s2 = &scratch->subst;
-        *s2 = *s;
+        subst_copy(s2, s);
         if (unify_term_fact(s2, g, &kb->facts[PRED_AT(pbk, vi)])) {
             if (prove_seq_ex(kb, goals, n, idx + 1, s2, depth, frame, out)) {
                 render_goal(s2, g, out[idx], KB_PROOF_LEN);
@@ -2370,7 +2502,7 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
         Term rhead;
         rename_term(&R->head, fr, &anon, &rhead);
         Subst *s2 = &scratch->subst;
-        *s2 = *s;
+        subst_copy(s2, s);
         if (!unify_term_term(s2, g, &rhead)) continue;
 
         Term *comb = scratch->goals;
@@ -2382,7 +2514,7 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
         }
         for (size_t k = idx + 1; k < n && !overflow; k++) {
             if (m >= KB_PROOF_PG) { overflow = 1; break; }
-            comb[m++] = goals[k];
+            term_copy(&comb[m++], &goals[k]);
         }
         if (overflow) continue;
 

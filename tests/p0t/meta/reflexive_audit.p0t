@@ -6,6 +6,12 @@
 !set PARROT0_LANG=en
 !reset
 
+# gen401: il cerotto e' STATO TOLTO. Il `!timeout 3` era rientrato ieri perche'
+# il turno era risalito a ~0,9s contro il secondo ordinario; il profiler `/debug`
+# ha poi mostrato che la causa non era la natura del lavoro ne' la crescita della
+# KB, ma il costo FISSO per passo del solver — una sostituzione da 266 KB copiata
+# a ogni fatto candidato. Tolto quello, questo turno misura ~0,44s e il budget
+# ordinario torna a bastare, come al gen382. Il numero da non perdere e' questo.
 [test reflexive_audit]
 # L\'auto-audit gira la matrice di triple su sub-brain freschi. Aveva `!timeout 3`
 # perche' costava ~1.2s: NON era la natura del lavoro, era il costo per-query del
@@ -16,17 +22,5 @@
 # and reports a real cooperation map (the compose-bench matrix turned inward).
 # A triple composes iff every part is one it still believes it has (module(X)
 # holds) AND each fired when actually run; computed, not tabulated.
-# ⚠ CEROTTO (gen398g), e la nota qui sopra dice da sola perche'. Il `!timeout 3`
-# era stato TOLTO al gen382 perche' il costo era sceso da ~1,2s a 0,18s: oggi
-# quello stesso turno misura 0,79-0,96s, cioe' un fattore CINQUE riguadagnato
-# mentre la KB cresceva. Non e' una regressione delle modifiche di oggi —
-# disattivandole i tempi restano identici — ed e' esattamente il difetto che il
-# §10 dice di classificare come meccanica del solver e non come limite naturale.
-#
-# Il timeout alzato NON e' la correzione, e questa riga non va letta come un
-# budget legittimo: tiene la suite deterministica invece di lasciarla flaky
-# mentre il fronte del piano avanza. Va tolta quando il costo per query tornera'
-# dove il gen382 lo aveva portato — e il numero da battere e' scritto sopra.
-!timeout 3
 > audit your composition
 < I audited my own composition on fresh copies of myself: knowledge+abduce+robust compose; knowledge+abduce+calibrate compose; knowledge+robust+calibrate seam. 2 of 3 triples hold. No file was touched; an external agent owns edits and commits.
