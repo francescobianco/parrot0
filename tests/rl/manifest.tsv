@@ -35,3 +35,4 @@ conversazione/vita-e-salute/correzione-sintomo	conversazione	vita_e_salute	medic
 conversazione/umanistica/correzione-autore	conversazione	umanistica	letteratura	2	1-1-1-1-2-1-2	V2,V4	-	iterazione 5 (isola rumore)
 comprensione/umanistica/relazione-nuova	comprensione	umanistica	linguistica	1	1-1-0-1-0-0-3	V2	-	iterazione 5 (precondizione)
 conversazione/riflessiva/meta-domanda	conversazione	riflessiva	la_conversazione	2	2-2-1-1-0-1-2	V2	-	iterazione 5 (reperto isolato)
+conversazione/riflessiva/meta-domanda.g2	conversazione	riflessiva	la_conversazione	3	2-3-2-2-2-1-2	V2,V4	conversazione/riflessiva/meta-domanda	promozione

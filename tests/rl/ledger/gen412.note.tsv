@@ -73,3 +73,28 @@ gen412	macchineria/riflessiva/sa-cosa-non-sa	1	1	le tre lacune SONO registrate (
 # La lezione di metodo, che vale piu degli episodi: una sonda a variabile
 # isolata isola qualcosa solo se il CASO BASE e verde, e il caso base va
 # DIMOSTRATO DENTRO L EPISODIO. Ora tutte le sonde lo fanno.
+#
+# ITERAZIONE 6 — la prima CRESCITA, e la prima promozione.
+#
+# Fino a qui la batteria aveva solo misurato: `git diff -- kb/` sulle iterazioni
+# 1-5 era vuoto, non una riga di conoscenza. Era previsto (F0 misura, F2 cresce)
+# ma una batteria che misura e basta e una pagella.
+#
+# Chiuso conversazione/riflessiva/meta-domanda con DIECI FATTI phrase_canon in
+# kb/core/lexicon.p0 e ZERO C. La cornice meta e una locuzione, e phrase_canon
+# esisteva gia: il motore non e stato toccato. Test del mantra #2 superato — una
+# forma meta nuova, in qualunque lingua, e una riga di KB.
+#
+#   KB      15412 -> 15422 fatti al boot
+#   suite   2477 -> 2480 assert (l episodio promosso porta i suoi 3)
+#
+# PROMOZIONE applicata come da regola:
+#   - il fatto resta in KB;
+#   - l episodio chiuso MIGRA nel cricchetto (tests/p0t/conversation/meta_question.p0t),
+#     dove diventa cio che non deve regredire;
+#   - nasce meta-domanda.g2 al gradino 3, e rispetta il vincolo: la porta meta e
+#     NECESSARIA (ci passa — risponde «Your locker number is...» invece di murare)
+#     ma NON SUFFICIENTE (sceglie 4172, il numero sostituito, invece di 5008).
+#
+# Il successore fallisce quindi sul RUMORE, che e il debito ancora aperto. La
+# batteria si e spostata da sola sul prossimo problema.

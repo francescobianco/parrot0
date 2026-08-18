@@ -1,0 +1,32 @@
+# La porta META: domande sulla CONVERSAZIONE, non sul mondo.
+#
+# «che numero ti ho detto» e «qual e' il mio numero» hanno la stessa risposta e
+# sono due domande diverse: la prima interroga il registro di cio' che e' stato
+# detto, la seconda un fatto. parrot0 il registro ce l'ha sempre avuto —
+# rispondeva alla forma piana anche sei turni dopo — ma non lo sapeva
+# interrogare da quella porta.
+#
+# PROVENIENZA (gen412): questo file e' nato nella batteria di rinforzo come
+# tests/rl/.../meta-domanda.p0t ed era rosso. Si e' chiuso con dieci fatti
+# `phrase_canon` in lexicon.p0 e zero C, e per la regola della promozione
+# l'episodio chiuso cambia mestiere: non e' piu' una misura — e' un cricchetto,
+# cioe' il posto di cio' che e' stato conquistato e non deve regredire. Il suo
+# successore piu' difficile e' rimasto nella batteria.
+[test la forma piana risponde]
+!set PARROT0_SESSION=
+!reset
+> my locker number is 4172
+> what is my locker number
+<~ 4172
+
+[test la stessa cosa chiesta come domanda sulla conversazione]
+!reset
+> my locker number is 4172
+> what did I say my locker number was
+<~ 4172
+
+[test l'altra forma meta, con il verbo di dire in mezzo]
+!reset
+> the meeting is in bruges
+> where did I say the meeting is
+<~ bruges

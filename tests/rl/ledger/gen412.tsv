@@ -16,7 +16,7 @@ gen412	conversazione/formale/distanza-numero	2	0
 gen412	conversazione/naturale/distanza-specie	0	2
 gen412	conversazione/pratica/correzione-quantita	1	2
 gen412	conversazione/pratica/impegno-preso	0	1
-gen412	conversazione/riflessiva/meta-domanda	1	2
+gen412	conversazione/riflessiva/meta-domanda.g2	1	2
 gen412	conversazione/sociale/distanza-luogo	2	0
 gen412	conversazione/tecnica/distanza-versione	0	2
 gen412	conversazione/umanistica/correzione-a-meta	0	2

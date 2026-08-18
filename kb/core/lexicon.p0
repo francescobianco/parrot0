@@ -113,6 +113,30 @@ phrase_canon("parte di", "part of").
 % --- copule e ausiliari: `sono` da solo diventa "am" (prima persona), che e'
 % sbagliato in ogni domanda impersonale.
 phrase_canon("quali sono", "which are").
+
+% --- la porta META: domande sulla CONVERSAZIONE, non sul mondo (gen412) ---
+%
+% «che numero ti ho detto» e «qual e' il mio numero» hanno la stessa risposta e
+% sono due domande diverse: la prima interroga il registro di cio' che e' stato
+% detto, la seconda un fatto. parrot0 il registro ce l'ha — risponde alla forma
+% piana anche sei turni dopo — ma non lo sapeva interrogare da quella porta, e
+% l'intera famiglia «conversazione» della batteria di rinforzo ci sbatteva contro
+% (tests/rl/episodes/conversazione/riflessiva/meta-domanda.p0t).
+%
+% La cornice meta e' una LOCUZIONE, quindi si toglie qui e non nel motore: la
+% coda che resta («... was», «... is») e' gia' tollerata dal parser, come lo era
+% per le altre riscritture. Una forma meta nuova, in qualunque lingua, e' una
+% riga di KB e zero C — e' il test del mantra #2.
+phrase_canon("what did i say", "what is").
+phrase_canon("what did you say", "what is").
+phrase_canon("where did i say", "where is").
+phrase_canon("where did you say", "where is").
+phrase_canon("when did i say", "when is").
+phrase_canon("who did i say", "who is").
+phrase_canon("how many did i say", "how many are").
+phrase_canon("che cosa ti ho detto", "qual e'").
+phrase_canon("cosa ti ho detto", "qual e'").
+phrase_canon("dove ti ho detto", "dov'e'").
 % gen395 — «cosa e' una variabile» rispondeva, «cosa sono le variabili» murava.
 % Non era il plurale del NOME (quello lo risolve la flessione in morphology.p0):
 % era il plurale della DOMANDA. «sono» da solo e' ambiguo in italiano — prima e

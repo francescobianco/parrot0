@@ -1,0 +1,33 @@
+# id:        conversazione/riflessiva/meta-domanda.g2
+# famiglia:  conversazione
+# dominio:   riflessiva / la conversazione stessa
+# gradino:   3
+# vettore:   profondita 2  distanza 3  ambiguita 2  composizione 2
+#            rumore 2  apertura 1  novita 2
+# genitore:  conversazione/riflessiva/meta-domanda  (chiuso a gen412, promosso
+#            a cricchetto in tests/p0t/conversation/meta_question.p0t)
+# lavoro:    rispondere a una domanda sulla conversazione quando i dati detti
+#            sono DUE, uno e' stato corretto, e la domanda arriva molti turni dopo
+# difficile: e' il successore per promozione, e rispetta il vincolo che lo rende
+#            un successore invece di un altro episodio facile — la porta meta
+#            aperta a gen412 e' NECESSARIA (senza, nemmeno si parte) ma NON
+#            SUFFICIENTE: aperta la porta, resta da scegliere QUALE dei due
+#            numeri detti, e da sapere che il secondo ha sostituito il primo
+# origine:   promozione, iterazione 6
+# verifica:  V2 (il numero giusto) + V4 (mai quello sostituito)
+
+[test la porta meta regge con due dati e una correzione]
+!set PARROT0_SESSION=
+!reset
+> my locker number is 4172
+> my office number is 12
+> sorry, my locker number is 5008
+> what is the capital of france
+> thanks
+> what did I say my locker number was
+<~ 5008
+<! 4172
+
+[test e non confonde i due dati]
+> what did I say my office number was
+<~ 12
