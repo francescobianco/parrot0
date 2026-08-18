@@ -718,3 +718,9 @@ response_template(premise_conflict, it, "Prima di rispondere: quello che affermi
 % chi insegna deve poter capire in che modo ha sbagliato, non solo che ha sbagliato.
 response_template(class_arity_conflict, "I know {class} as a {arity}-part fact, not a class, so I can't put something in it that way.").
 response_template(class_arity_conflict, it, "Conosco {class} come un fatto in {arity} parti, non come una classe, quindi non posso metterci dentro qualcosa in quel modo.").
+
+% gen413 — parrot0 ha cambiato la propria macchineria per rispondere. E' un atto,
+% e un atto si annuncia: chi legge deve poter distinguere una risposta che sapeva
+% dare da una che ha potuto dare solo dopo essersi modificato.
+response_template(self_corrected_on_wall, "{answer}  (I was missing a piece and taught it to myself: {bridge})").
+response_template(self_corrected_on_wall, it, "{answer}  (mi mancava un pezzo e me lo sono insegnato: {bridge})").

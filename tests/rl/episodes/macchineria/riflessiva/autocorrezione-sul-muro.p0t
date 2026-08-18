@@ -1,0 +1,53 @@
+# id:        macchineria/riflessiva/autocorrezione-sul-muro
+# famiglia:  macchineria
+# dominio:   riflessiva / la propria macchineria
+# gradino:   3
+# vettore:   profondita 3  distanza 1  ambiguita 2  composizione 2
+#            rumore 0  apertura 3  novita 3
+# lavoro:    ripararsi da solo NEL TURNO, senza che nessuno lo chieda, e non
+#            dirottare le domande che gia' funzionavano
+# difficile: il meccanismo esiste e funziona (ponte-che-generalizza lo prova),
+#            ma va innescato: «prova a ripararti» e' un turno dell'utente. Un
+#            sistema che si ripara solo se glielo chiedi non si sta riparando
+#            da solo, e la porta dev'essere quella normale — il prompt.
+#
+#            Il pezzo che manca non e' il tentativo, e' il CRITERIO. La verifica
+#            di gen410 chiede «il turno adesso risponde?», e non distingue una
+#            riparazione da un DIROTTAMENTO: misurato, «what is gold» otteneva
+#            gap_report_cue("what is gold") e rispondeva «Nothing walled on me
+#            yet» — diverso dal muro, e sbagliato. Acceso su tutti i muri, il
+#            meccanismo produce risposte false: peggio del muro (MANTRA #7).
+#
+#            L'interruttore self_correct_on_wall(off) in meta.p0 tiene il
+#            meccanismo spento finche' il criterio non c'e'. Questo episodio e'
+#            la specifica di quel criterio
+# origine:   F., gen413 — «come lo fa in automatico lo deve fare dal prompt»
+# verifica:  V2 (si ripara nel turno) + V4 (non dirotta cio' che funzionava)
+
+[test si ripara nel turno, senza che nessuno lo chieda]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+!assert self_correct_on_wall(on)
+> ci sistemiamo al rifugio
+<~ rifugio
+<! Non capisco ancora
+
+[test e lo dichiara: cambiare la propria macchineria e' un atto]
+<~ insegnato
+
+# IL CRITERIO CHE MANCA. Questa domanda non ha mai murato e non deve diventare
+# il pretesto di un ponte: un ponte che la dirotta passa la verifica di gen410
+# ed e' una risposta falsa.
+# Con una lacuna APERTA in corso — quella che rende possibile il dirottamento,
+# perche' e' su quella che il ciclo cerca un ponte — una domanda che gia'
+# rispondeva deve continuare a rispondere quella cosa li'.
+[test non dirotta una domanda che gia' funzionava]
+!reset
+!assert self_correct_on_wall(on)
+> il glorbo frulla
+!query machinery_gap($G)
+!set PARROT0_LANG=en
+> what is gold
+<~ gold
+<! Nothing walled on me yet

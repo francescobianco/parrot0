@@ -635,3 +635,55 @@ machinery(gap_source).
 % ponte che parrot0 si e' insegnato dai fatti che ha estratto leggendo, che sono
 % conoscenza sul mondo e vanno altrove.
 machinery(learned_bridge).
+
+% gen413 — L'AUTOCORREZIONE SUL MURO, come interruttore dichiarato.
+%
+% Quando un turno mura senza nessuna parola opaca, le parole c'erano tutte e a
+% mancare e' un ponte: leggere non servirebbe (l'ancora del gen406), proporre si'.
+% Finora il ciclo andava innescato a mano — «prova a ripararti» era un turno
+% dell'utente — e un sistema che si ripara solo se glielo chiedi non si sta
+% riparando da solo. Con questo fatto il tentativo avviene sul muro, nel turno,
+% dalla stessa porta di tutto il resto: il prompt.
+%
+% E' un interruttore e non una costante del motore: toglierlo restituisce il muro
+% nudo senza ricompilare niente.
+machinery(self_correct_on_wall).
+
+% ── SPENTO, e la ragione va letta prima di riaccenderlo (gen413) ─────────────
+%
+% Il meccanismo funziona: «ci sistemiamo al rifugio» mura, parrot0 propone
+% setting_cue("ci sistemiamo al"), lo verifica riponendo il turno, risponde, e
+% da quel momento capisce anche «ci sistemiamo al bivacco». Nessuno gli ha
+% chiesto niente. E' esattamente l'autocorrezione dalla porta normale.
+%
+% Ma acceso su TUTTI i muri produce anche questo, misurato su arith.p0t:
+%
+%   > what is gold
+%   ponte proposto:  gap_report_cue("what is gold")
+%   risposta:        «Nothing walled on me yet in this conversation.»
+%
+% Il ponte PASSA la verifica di gen410 — il turno adesso "risponde" — perche'
+% quella verifica chiede solo «la risposta e' diversa dal muro?». Non lo e' piu',
+% infatti: e' la risposta di un'ALTRA domanda. Il turno e' stato dirottato in un
+% registro che non c'entra, e il risultato e' una risposta sbagliata data con
+% sicurezza — cioe' la cosa peggiore che parrot0 possa fare (MANTRA #7), e
+% peggiore del muro che ha sostituito.
+%
+% Una guardia e' stata aggiunta e serviva: la riparazione mira solo alla lacuna
+% del turno, altrimenti c'era diafonia — il turno che murava tornava indietro con
+% il ponte di un'altra lacuna addosso (misurato).
+%
+% Una seconda l'ho provata e ERA SBAGLIATA, e vale la pena averla scritta qui
+% perche' non venga riprovata: «un candidato deve portare almeno una parola
+% piena» sembra ovvia e uccide un ponte legittimo — `gap_report_cue("dove hai")`
+% e' fatto di due parole funzionali ed e' giusto (lo fissa self_repair.p0t). Il
+% problema non era MAI la forma del candidato.
+%
+% Il buco e' nel CRITERIO DI ACCETTAZIONE: «la risposta e' diversa dal muro» non
+% distingue una riparazione da un DIROTTAMENTO. Serve una prova che la risposta
+% nuova sia una risposta A QUELLA DOMANDA. Finche' non c'e', l'interruttore resta
+% a `off`.
+%
+% Acceso a mano (`self_correct_on_wall(on)`) il comportamento e' quello descritto
+% sopra: utile per lavorarci, non da spedire.
+self_correct_on_wall(off).

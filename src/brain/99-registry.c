@@ -946,6 +946,9 @@ const char *brain_version(void) {
  * Qui si scrive solo il fatto. Chi lo trasformera' in domanda, e la domanda in
  * rimedio, sono le frecce successive dell'anello: questa e' la prima, e senza
  * di essa nessuna delle altre ha un ingresso. */
+/* gen413: l'autocorrezione sul muro sta piu' su della sua implementazione. */
+static int self_repair_target(Brain *b, const char *only, char *out, size_t out_size);
+
 static void machinery_gap_record(Brain *b, const char *canon, const char *raw) {
     if (!b || !b->kb || !canon || !*canon) return;
     char q[KB_TERM_LEN];
@@ -1232,8 +1235,60 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
     }
     else if (strcmp(classic, b->last_reply) != 0) {
         /* Nessuna parola opaca da nominare: le parole c'erano tutte e a non
-         * esserci e' il ponte. La frase generica va bene una volta. */
+         * esserci e' il ponte. */
         machinery_gap_record(b, canon, raw);
+        /* ── gen413: L'AUTOCORREZIONE AVVIENE QUI, NEL TURNO ─────────────────
+         *
+         * Questo ramo e' l'unico posto dove ha senso, e l'ancora del gen406 dice
+         * perche': se nessuna parola era opaca, leggere non puo' colmare niente
+         * — le parole c'erano tutte. L'unica mossa e' proporre, ed e' proprio
+         * adesso che serve, non quando qualcuno lo chiede.
+         *
+         * Finora il ciclo funzionava ma andava INNESCATO: «prova a ripararti»
+         * era un turno dell'utente. Un sistema che si ripara solo se glielo
+         * chiedi non si sta riparando da solo. La porta e' sempre la stessa —
+         * il prompt — quindi il tentativo va fatto sul muro, prima di
+         * dichiararlo.
+         *
+         * E' sicuro per costruzione, non per fiducia: `repair_try` asserisce in
+         * ipotetico, RIPONE il turno, e tiene solo cio' che lo fa rispondere.
+         * Un tentativo fallito non lascia niente. Percio' il peggio che puo'
+         * capitare e' lo stesso muro di prima, pagato un po' piu' caro.
+         *
+         * L'interruttore e' un fatto (`self_correct_on_wall/1`): spegnerlo non
+         * richiede di ricompilare, e chi vuole il muro nudo lo puo' avere. */
+        {
+            const char *onq[] = { "on" };
+            const char *busy[] = { "1" };
+            if (kb_query(b->kb, "self_correct_on_wall", onq, 1) &&
+                !kb_query(b->kb, "repairing", busy, 1) &&
+                !kb_query(b->kb, "self_correcting", busy, 1)) {
+                kb_set_origin(b->kb, KB_REFLECTIVE);
+                kb_assert(b->kb, "self_correcting", busy, 1);
+                kb_set_origin(b->kb, KB_SESSION);
+                char learned[512]; learned[0] = '\0';
+                const char *ra[1] = { "1" };
+                kb_assert(b->kb, "repairing", ra, 1);
+                int fixed = self_repair_target(b, canon, learned, sizeof learned);
+                kb_retract(b->kb, "repairing", ra, 1);
+                char again[900]; again[0] = '\0';
+                if (fixed > 0) brain_respond(b, raw, again, sizeof again);
+                kb_retract(b->kb, "self_correcting", busy, 1);
+                /* Si tiene solo se il turno ORA risponde davvero: un ponte che
+                 * sposta il muro da una frase all'altra non e' una riparazione. */
+                if (fixed > 0 && again[0] && strcmp(again, classic) != 0) {
+                    char msg[1100];
+                    const KbResponseSlot sl[] = { {"bridge", learned}, {"answer", again} };
+                    if (!kb_response_slots(b, "self_corrected_on_wall", sl, 2,
+                                           msg, sizeof msg))
+                        snprintf(msg, sizeof msg,
+                                 "%s  (I was missing a piece and taught it to myself: %s)",
+                                 again, learned);
+                    put(msg, out, out_size);
+                    return;
+                }
+            }
+        }
         put(classic, out, out_size);
         b->fallbacks++;
         return;
@@ -2244,7 +2299,13 @@ static int repair_try(Brain *b, const char *gapq, const char *turn,
     return 0;
 }
 
-static int self_repair(Brain *b, char *out, size_t out_size) {
+/* `only` non NULL = ripara SOLO quella lacuna (gen413).
+ *
+ * Serve all'autocorrezione sul muro, che avviene dentro il turno: riparare li'
+ * tutte le lacune aperte fa diafonia — il turno che ha murato riceve la risposta
+ * di un'altra frase, murata dieci turni prima. Misurato su arith.p0t, dove «tell
+ * me about c» tornava indietro con il ponte di un'altra lacuna addosso. */
+static int self_repair_target(Brain *b, const char *only, char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
     char gaps[16][KB_TERM_LEN];
     const char *gq[1] = { NULL };
@@ -2260,6 +2321,11 @@ static int self_repair(Brain *b, char *out, size_t out_size) {
     for (size_t g = 0; g < ng && tries < REPAIR_MAX_TRIES; g++) {
         char gapq[KB_TERM_LEN];
         snprintf(gapq, sizeof gapq, "%s", gaps[g]);
+        if (only) {                       /* una sola lacuna: quella del turno */
+            char bare[KB_TERM_LEN];
+            snprintf(bare, sizeof bare, "%s", gapq);
+            if (strcmp(kb_dequote(bare), only) != 0) continue;
+        }
         /* Il turno da riporre e' quello VERO, non la sua canonicalizzazione:
          * una riparazione verificata contro una traduzione non e' una
          * riparazione. La lacuna e' indicizzata sul canon — due modi di dire la
@@ -2410,6 +2476,10 @@ int brain_bridges_save(Brain *b) {
     }
     fclose(f);
     return w;
+}
+
+static int self_repair(Brain *b, char *out, size_t out_size) {
+    return self_repair_target(b, NULL, out, out_size);
 }
 
 int brain_self_repair(Brain *b, char *out, size_t out_size) {
