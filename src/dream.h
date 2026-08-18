@@ -29,6 +29,24 @@
  * se PARROT0_WIKI_FETCH lo consente, dall'API di Wikipedia — le stesse due
  * sorgenti dell'apprendimento normale.
  *
+ * gen405 — VEDI `docs/plans/dream.md`. Due cose che questo file non diceva e
+ * che cambiano cosa il sogno E':
+ *
+ * (1) LA PROSA DA SOLA NON E' UN ATTO. Misurato con
+ *     `tests/dream_intent_probe.py`: davanti alla stessa pagina, senza
+ *     intenzione dichiarata un ragionatore non impara — chiede quale atto
+ *     compiere («summarize, simplify, paraphrase, or fact-check?»). Con
+ *     «acquisisci» trattiene; con «acquisisci per rispondere a X» risponde
+ *     direttamente alla domanda. Qui si chiede sempre «read the page on X», a
+ *     qualunque pagina e per qualunque motivo: e' la cornice NUDA senza saperlo.
+ *
+ * (2) IL SOGNO DOVREBBE ESSERE UN'ATTIVITA' DI PARROT0, NON UNA MODALITA' DEL
+ *     PROGRAMMA. L'agenda ora viene dalle sue lacune e la verifica e' sua (si
+ *     ri-pone il turno che murava), ma l'INTENZIONE non e' dichiarata e la
+ *     politica — profondita', ordine, arresto — e' ancora qui in C invece che
+ *     in KB. Questo file deve restare l'adattatore che porta le pagine e conta
+ *     il budget.
+ *
  * Ritorna il numero di nodi sognati. */
 typedef struct {
     int   max_depth;      /* quanto in profondita' (default: dream_max_depth/1)  */
