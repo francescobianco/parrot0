@@ -293,6 +293,11 @@ response_template(state_acknowledged, en, "Noted: I am holding that as the curre
 response_template(state_acknowledged, it, "Annotato: lo tengo come stato attuale.").
 response_template(register_acknowledged, en, "Noted: I will keep that register from here on.").
 response_template(register_acknowledged, it, "Annotato: da qui in avanti tengo quel registro.").
+% gen395: una credenza riportata non e' una cosa che parrot0 crede. Riconoscerla
+% dicendo A CHI appartiene e' la mossa dovuta — assorbirla in silenzio sarebbe
+% cambiare di padrone a un'affermazione.
+response_template(attribution_acknowledged, en, "Noted as theirs, not as mine: I am keeping it attributed.").
+response_template(attribution_acknowledged, it, "Annotato come loro, non come mio: lo tengo attribuito.").
 response_template(stipulation_acknowledged, en, "All right: I am holding that as a hypothesis, separately from what I know.").
 response_template(stipulation_acknowledged, it, "D'accordo: lo tengo come ipotesi, separata da cio' che so.").
 
@@ -334,6 +339,10 @@ ability_opener(en, "You can ").
 % vale chiede fiducia al buio.
 % gen398g: il motivo e' la catena, detta. I connettivi non portano claim: dicono
 % soltanto in che rapporto stanno due proposizioni gia' provate.
+% gen398b: la penuria si NOMINA. «Non posso» e «mi manca X» chiudono due
+% conversazioni diverse: la seconda dice che cosa potrebbe cambiare.
+shortage_opener(en, "I cannot: I am short of ").
+shortage_opener(it, "Non posso: mi manca ").
 reason_opener(en, "Because ").
 reason_opener(it, "Perche' ").
 reason_makes_true(en, " makes true: ").

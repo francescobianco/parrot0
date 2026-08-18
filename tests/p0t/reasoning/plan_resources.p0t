@@ -1,0 +1,99 @@
+# UNA RISORSA NON NOMINATA NON ESISTE — gen398b.
+#
+# Una precondizione dice come dev'essere il mondo; una risorsa dice quanto ce
+# n'e'. Sono due domande diverse, e la seconda ha una regola di onesta' tutta
+# sua che il piano scrive senza sfumature: «una risorsa non menzionata e non
+# derivabile non puo' apparire nel piano».
+#
+# Percio' l'ignoto NON e' un'assunzione, qui. Di una proprieta' si puo' dire «se
+# la valvola funziona» ed e' una proposta legittima; di una risorsa mai nominata
+# non si puo' dire «se hai tre secchi», perche' quella frase suggerisce che i
+# secchi ci siano. Il silenzio sul mondo si assume, quello su cio' che si
+# possiede no.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test the world of this test is taught, not built in]
+!assert concept_label(level, it, common, livello)
+!assert concept_label(decrease, it, common, abbassare)
+!assert action_schema(fluido, svuota)
+!assert action_precondition(svuota, st(valvola, position, closed))
+!assert action_effect(svuota, st(valvola, position, open))
+!assert causal_law(st(valvola, position, open), deflusso)
+!assert change_prop(deflusso, level, decrease)
+!assert concept_label(svuota, it, common, "svuotare a mano")
+!assert resource_label(secchio, it, "un secchio")
+> il livello sta salendo
+< Annotato: lo tengo come stato attuale.
+> la valvola è chiusa
+< Annotato: lo tengo come stato attuale.
+> come faccio ad abbassare il livello
+< Puoi svuotare a mano.
+
+# L'azione ora consuma qualcosa, e di quel qualcosa nessuno ha mai parlato: il
+# piano NON viene proposto sperando che ci sia. E il residuo nomina cio' che
+# manca, perche' «non posso» e «mi manca un secchio» chiudono due conversazioni
+# diverse — la seconda dice che cosa potrebbe cambiare.
+[test an unmentioned resource is not assumed into existence]
+!assert action_uses(svuota, secchio, 1)
+> come faccio ad abbassare il livello
+< Non posso: mi manca un secchio.
+
+[test the resource, once available, restores the plan]
+!assert resource_available(described_situation, secchio, 1)
+> come faccio ad abbassare il livello
+< Puoi svuotare a mano.
+
+# Zero non e' silenzio: dichiarare di averne zero e' un'informazione, e porta
+# allo stesso esito della penuria. La quantita' viene CONFRONTATA, non
+# semplicemente cercata.
+[test having zero is a shortage, not an unknown]
+!forget resource_available(described_situation, secchio, 1)
+!assert resource_available(described_situation, secchio, 0)
+> come faccio ad abbassare il livello
+< Non posso: mi manca un secchio.
+
+[test more than enough is enough, and not enough is not]
+!forget resource_available(described_situation, secchio, 0)
+!assert resource_available(described_situation, secchio, 5)
+> come faccio ad abbassare il livello
+< Puoi svuotare a mano.
+!forget action_uses(svuota, secchio, 1)
+!assert action_uses(svuota, secchio, 9)
+> come faccio ad abbassare il livello
+< Non posso: mi manca un secchio.
+
+# La risorsa e' conoscenza come tutto il resto: ritratto il consumo, l'azione
+# torna libera.
+[test the consumption is knowledge and retracts]
+!forget action_uses(svuota, secchio, 9)
+> come faccio ad abbassare il livello
+< Puoi svuotare a mano.
+
+[test the same rule in an unrelated domain and language]
+!set PARROT0_LANG=en
+!reset
+!assert concept_label(charge, en, common, charge)
+!assert concept_label(increase, en, common, raise)
+!assert property_of_value(low, charge)
+!assert state_cue(low, "is low")
+!assert action_schema(power, swap_pack)
+!assert action_effect(swap_pack, st(cell, link, connected))
+!assert causal_law(st(cell, link, connected), refill)
+!assert change_prop(refill, charge, increase)
+!assert concept_label(swap_pack, en, common, "swap the battery pack")
+!assert resource_label(spare_pack, en, "a spare pack")
+!assert action_uses(swap_pack, spare_pack, 1)
+> the charge is low
+< Noted: I am holding that as the current state.
+> how do i raise the charge
+< I cannot: I am short of a spare pack.
+!assert resource_available(described_situation, spare_pack, 2)
+> how do i raise the charge
+< You can swap the battery pack.

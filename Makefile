@@ -544,7 +544,10 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/reasoning/risk_policy.p0t
 	@./$(BIN) --test tests/p0t/reasoning/plan_assumption.p0t
 	@./$(BIN) --test tests/p0t/reasoning/plan_reason.p0t
+	@./$(BIN) --test tests/p0t/reasoning/plan_resources.p0t
 	@./$(BIN) --test tests/p0t/conversation/open_issues.p0t
+	@./$(BIN) --test tests/p0t/conversation/move_precedence.p0t
+	@./$(BIN) --test tests/p0t/conversation/attributed_belief.p0t
 	@./$(BIN) --test tests/p0t/conversation/discourse_recall.p0t
 	@./$(BIN) --test tests/p0t/math/wordproblem.p0t
 	@./$(BIN) --test tests/p0t/math/wordproblem_multi.p0t

@@ -2381,6 +2381,24 @@ consumi e azioni inapplicabili. Tre domini minimi: controllo della discesa,
 contenimento di un flusso, uscita da un ambiente. Ablare una precondizione deve
 ritirare il passo senza cambiare il motore.
 
+**Stato di attuazione.** Precondizioni, effetti e applicabilita' sono arrivati
+con gen398a; i CONSUMI sono ora in `situation.p0` (`action_uses/3`,
+`resource_available/3`), e portano una regola di onesta' tutta loro:
+
+```text
+come faccio ad abbassare il livello -> Puoi svuotare a mano.
+!assert action_uses(svuota, secchio, 1)
+come faccio ad abbassare il livello -> Non posso: mi manca un secchio.
+```
+
+L'ignoto NON e' un'assunzione, qui. Di una proprieta' si puo' dire «se la valvola
+funziona» ed e' una proposta legittima; di una risorsa mai nominata non si puo'
+dire «se hai tre secchi», perche' quella frase suggerisce che i secchi ci siano.
+Il silenzio sul mondo si assume, quello su cio' che si possiede no — ed e'
+esattamente la riga del piano «una risorsa non menzionata e non derivabile non
+puo' apparire nel piano». Dichiarare di averne zero e' invece un'informazione, e
+porta allo stesso esito della penuria: la quantita' viene CONFRONTATA.
+
 **gen398c — Transizioni temporali e invarianti.** Comporre due o piu' passi,
 calcolare stati intermedi e verificare soglie. Il caso barca e' membro guida;
 stress con almeno dieci passi/azioni irrilevanti e stesso budget ordinario.

@@ -1,0 +1,74 @@
+# UNA CREDENZA RIPORTATA NON E' UNA COSA CHE SI CREDE — gen395, ultimo scope.
+#
+# `context-scope.p0` tipizzava quattro specie di contesto e ne dichiarava la
+# politica di impegno fin dal primo taglio: mondo e ipotesi impegnano chi parla
+# o nessuno, citazione e credenza riportata impegnano soltanto CHI E' CITATO.
+# Esisteva la macchina e non la porta — nessun turno produceva un contesto di
+# quelle due specie, e la politica restava teorica.
+#
+# Il contrasto con la stipulazione e' tutto il punto, e questo file lo mette una
+# riga sotto l'altra: «supponiamo che» cambia cio' che parrot0 risponde,
+# «secondo anna» no. Assorbire in silenzio una credenza altrui sarebbe cambiare
+# di padrone a un'affermazione.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test the world answers on its own]
+> dove si trova milano
+< Lombardia.
+
+# Riconosciuta, e attribuita: la mossa dice A CHI appartiene.
+[test a reported belief is acknowledged as someone else's]
+> secondo anna milano è in francia
+< Annotato come loro, non come mio: lo tengo attribuito.
+
+# LA PROPRIETA' CHE CONTA: la risposta non cambia. Una credenza riportata non
+# entra in cio' che parrot0 sa — e questo la distingue da una stipulazione, che
+# invece la sua vista la porta.
+[test the attributed belief does not change what parrot0 answers]
+> dove si trova milano
+< Lombardia.
+
+# Il contrasto, una riga sotto l'altra: la stessa proposizione, stipulata invece
+# che attribuita, cambia la risposta e la mette accanto a quella del mondo.
+[test the same proposition stipulated does change the answer]
+> supponiamo che milano sia in francia
+< D'accordo: lo tengo come ipotesi, separata da cio' che so.
+> dove si trova milano
+< Per quello che so, lombardia; per la tua ipotesi, francia.
+
+# E toltala, resta soltanto quella attribuita — che continua a non contare.
+[test removing the hypothesis leaves the attribution inert]
+!forget holds_in(stipulated_world, fact(located_in, milan, france))
+> dove si trova milano
+< Lombardia.
+
+# Il contesto porta il NOME di chi ha parlato, ed e' cio' che rende la credenza
+# attribuibile invece che anonima: si puo' chiedere di che specie sia.
+[test the attributed context is typed and named after the speaker]
+> what is the context kind for anna?
+< Reported belief.
+
+# La superficie e' conoscenza come tutte le altre.
+# La domanda inglese di sopra ha spostato la lingua del turno: una riga italiana
+# la riporta dov'era. La lingua la decide il TURNO, non una variabile — ed e'
+# giusto cosi', ma un test che lo dimentica misura altro.
+[test the attributing surface grows and retracts at runtime]
+> dove si trova milano
+< Lombardia.
+> a detta di bruno milano è in spagna
+<! Annotato come loro
+!assert attribution_cue(reported_belief, "a detta di")
+> a detta di bruno milano è in spagna
+< Annotato come loro, non come mio: lo tengo attribuito.
+> dove si trova milano
+< Lombardia.
+!forget attribution_cue(reported_belief, "a detta di")
+> a detta di bruno milano è in spagna
+<! Annotato come loro

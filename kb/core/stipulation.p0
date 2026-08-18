@@ -79,6 +79,60 @@ stipulation_commit($Relation, $Subject, $Object) :- stipulated_world($Context), 
 % per la stessa ragione: e' una mossa del dialogo, non un dettaglio di memoria.
 stipulation_release($Context, $Relation, $Subject, $Object) :- retract(holds_in, $Context, fact($Relation, $Subject, $Object)).
 
+% ── 3b. GLI ALTRI SCOPE: citazione e credenza riportata (gen395) ───────────
+%
+% `context-scope.p0` tipizza quattro specie di contesto e ne dichiara la politica
+% di impegno: mondo e ipotesi impegnano chi parla o nessuno, citazione e credenza
+% riportata impegnano soltanto CHI E' CITATO. Finora esisteva la macchina e non
+% la porta: nessun turno produceva un contesto di quelle due specie.
+%
+% La forma e' quella della stipulazione — cue, span, lettura, impegno — con una
+% differenza sola e decisiva: il contesto porta il nome di chi ha parlato. Non
+% e' un dettaglio anagrafico, e' cio' che rende la credenza attribuibile invece
+% che assorbita: «Anna dice che...» non diventa una cosa che parrot0 crede.
+attribution_cue(reported_belief, "secondo").
+attribution_cue(reported_belief, "according to").
+attribution_cue(quotation, "ha detto che").
+attribution_cue(quotation, "said that").
+attribution_role_evidence($Kind, keyword($Cue)) :- attribution_cue($Kind, $Cue).
+segment_role(attribution, $Evidence) :- attribution_role_evidence($Kind, $Evidence).
+
+% La fonte e' la parola di contenuto che precede la cue quando la cue e' un
+% verbo di dire, e quella che la segue quando e' una preposizione: due layout,
+% e la KB dice quale cue ha quale — il motore non conosce nessuna delle due.
+attribution_source_side(quotation, before).
+attribution_source_side(reported_belief, after).
+attribution_span_word($Turn, $Index, $Word) :- turn_span_token($Turn, $Index, $Position, $Token), span_atom($Token, $Word), naf(stopword($Word)).
+attribution_kind($Turn, $Index, $Kind) :- turn_span($Turn, $Index, attribution, $Payload), turn_span_cue($Turn, $Index, $Evidence), attribution_role_evidence($Kind, $Evidence).
+
+% Fonte e soggetto si distinguono per GIUNZIONE, non per posizione: il soggetto
+% e' la parola che la relazione accetta come primo argomento, la fonte e' quella
+% che non accetta. E' la stessa disciplina di `code-plans.p0` sui nomi legati da
+% una traccia — chi parla e di che cosa si parla non si riconoscono dall'ordine.
+attribution_raw($Turn, $Relation, $Object) :- turn_span($Turn, $J, proposition, $RawObject), turn_span_cue($Turn, $J, $Evidence), proposition_evidence($Relation, $Evidence), span_atom($RawObject, $Surface), canonical_value($Surface, $Object).
+attribution_subject($Turn, $Index, $Relation, $Subject) :- attribution_span_word($Turn, $Index, $Word), canonical_value($Word, $Subject), proposition_arg_valid($Relation, 1, $Subject).
+attribution_who($Turn, $Index, $Relation, $Who) :- attribution_span_word($Turn, $Index, $Who), naf(valid_first_argument($Relation, $Who)).
+valid_first_argument($Relation, $Word) :- canonical_value($Word, $Value), proposition_arg_valid($Relation, 1, $Value).
+
+attribution_reading($Turn, $Kind, $Who, $Fact) :- attribution_kind($Turn, $Index, $Kind), attribution_raw($Turn, $Relation, $Object), attribution_subject($Turn, $Index, $Relation, $Subject), attribution_who($Turn, $Index, $Relation, $Who), proposition_arg_valid($Relation, 2, $Object), attribution_fact($Relation, $Subject, $Object, $Fact).
+attribution_fact($Relation, $Subject, $Object, fact($Relation, $Subject, $Object)).
+
+attribution_key($Turn, attributed($Kind, $Who, $Fact)) :- attribution_reading($Turn, $Kind, $Who, $Fact).
+attribution_set($Turn, $Readings) :- turn_span($Turn, $Index, attribution, $Payload), findall($R, attribution_key($Turn, $R), $Readings).
+attribution_unique($Turn, $Kind, $Who, $Fact) :- attribution_set($Turn, cons(attributed($Kind, $Who, $Fact), nil)).
+
+% L'impegno: il contesto porta il NOME di chi ha parlato, ed e' cio' che rende la
+% credenza attribuibile invece che assorbita. `commitment_policy/2` del gen395
+% dice gia' che quelle specie impegnano soltanto chi e' citato: qui si crea
+% finalmente un contesto di quelle specie, e la politica smette di essere
+% teorica.
+attribution_commit($Kind, $Who, $Fact) :- assert(context, $Who, $Kind), assert(holds_in, $Who, $Fact).
+bookkeeper(attribution).
+turn_bookkeeping($Turn, attribution) :- attribution_unique($Turn, $Kind, $Who, $Fact), attribution_commit($Kind, $Who, $Fact).
+
+turn_plan_candidate($Turn) :- attribution_unique($Turn, $Kind, $Who, $Fact).
+turn_response($Turn, $Text) :- attribution_unique($Turn, $Kind, $Who, $Fact), current_language($Language), response_template(attribution_acknowledged, $Language, $Text).
+
 % ── 4. LA MOSSA: riconoscere, non rispondere ───────────────────────────────
 %
 % Una stipulazione non fa una domanda. La mossa dovuta e' `acknowledge`, che il

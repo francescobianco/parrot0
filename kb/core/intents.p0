@@ -2258,6 +2258,11 @@ answer_frame("frame residue", frame_residue).
 answer_frame("frame answer", frame_answer).
 answer_frame("frame gap", frame_gap).
 answer_frame("frame move", frame_move).
+% gen394: la mossa DECISA, cioe' quella che resta dopo aver applicato le
+% precedenze. `frame_move/2` continua a mostrare tutte le candidate, e le due
+% viste servono a cose diverse: una dice che cosa era possibile, l'altra che
+% cosa e' stato scelto.
+answer_frame("frame decision", frame_decision).
 answer_frame("dialogue policy", move_policy).
 answer_frame("context kind", context_kind).
 answer_frame("local belief", context_effective_belief).

@@ -1,0 +1,70 @@
+# LA PRECEDENZA FRA MOSSE — gen394, ultimo pezzo.
+#
+# Uno stesso frame puo' raggiungere piu' mosse: due classi di evidenza valgono
+# insieme e ciascuna propone la sua. Elencarle tutte non e' rispondere — la
+# conversazione ne vuole una — ma sceglierla per ordine di caricamento sarebbe
+# far decidere al caso cio' che il piano chiede di rendere esplicito.
+#
+# `move_priority/3` esisteva dal primo taglio di gen394 e nessuno la leggeva.
+# Il terzo argomento e' la CONDIZIONE della precedenza, non un peso: «sempre»
+# vale senza riserve, «preferita quando non blocca» vale solo se la mossa
+# perdente non era la richiesta di chiarire un'ambiguita' che blocca davvero.
+# Un numero non avrebbe potuto dire questa differenza.
+#
+# `frame_move/2` continua a mostrare tutte le candidate: le due viste servono a
+# cose diverse — una dice che cosa era possibile, l'altra che cosa e' stato
+# scelto — e tenerle entrambe e' la regola delle strutture secondarie.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test with one candidate the decision is that candidate]
+!assert frame_act(caso_alpha, ask)
+!assert frame_slot(caso_alpha, relation, located_in)
+!assert frame_slot(caso_alpha, entity, nivora)
+!assert continent_of(nivora, oceania)
+> what is the frame move for caso_alpha?
+< Answer.
+> what is the frame decision for caso_alpha?
+< Answer.
+
+# Due classi di evidenza, due mosse, e nessuna regola che le ordini: restano due.
+# Sceglierne una senza una precedenza dichiarata sarebbe inventare una gerarchia.
+[test two candidates with no rule between them stay two]
+!assert dialogue_state(caso_alpha, unverified_repair)
+> what is the frame move for caso_alpha?
+< Propose hypothesis and answer.
+> what is the frame decision for caso_alpha?
+< Propose hypothesis and answer.
+
+# Dichiarata la precedenza, la decisione e' una — e la vista delle candidate
+# non cambia: continua a dire che cosa era possibile.
+[test a declared precedence decides, without hiding what was possible]
+!assert move_priority(answer, propose_hypothesis, always)
+> what is the frame decision for caso_alpha?
+< Answer.
+> what is the frame move for caso_alpha?
+< Propose hypothesis and answer.
+
+# La regola e' conoscenza: ritratta, tornano due.
+[test the precedence is knowledge and retracts]
+!forget move_priority(answer, propose_hypothesis, always)
+> what is the frame decision for caso_alpha?
+< Propose hypothesis and answer.
+
+# La precedenza CONDIZIONATA: «preferita quando non blocca» non vale se la mossa
+# perdente e' proprio quella che l'ambiguita' bloccante impone. E' la ragione per
+# cui il terzo argomento non poteva essere un numero.
+[test a conditional precedence yields to a blocking ambiguity]
+!assert move_priority(answer, clarify, preferred_when_nonblocking)
+!assert dialogue_state(caso_alpha, blocking_incompatible_readings)
+> what is the frame decision for caso_alpha?
+<~ clarify
+!forget dialogue_state(caso_alpha, blocking_incompatible_readings)
+> what is the frame decision for caso_alpha?
+<! clarify

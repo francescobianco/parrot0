@@ -121,8 +121,30 @@ missing_precondition_set($Situation, $Action, $Missing) :- findall($M, missing_p
 % conoscenza negativa. E' la forma peggiore di divergenza — una risposta
 % sbagliata col costume di un'assenza onesta — e il ratchet la falsifica
 % chiedendo l'azione bloccata di una situazione che non e' mai stata dichiarata.
-applicable($Situation, $Action) :- context($Situation, $Kind), action_schema($Domain, $Action), missing_precondition_set($Situation, $Action, nil).
+% ── RISORSE (gen398b) ──────────────────────────────────────────────────────
+%
+% Una precondizione dice come dev'essere il mondo; una risorsa dice quanto ce
+% n'e'. Sono due domande diverse e la seconda ha una regola di onesta' tutta
+% sua, che il piano scrive senza sfumature: «una risorsa non menzionata e non
+% derivabile non puo' apparire nel piano».
+%
+% Percio' l'ignoto NON e' un'assunzione, qui. Di una proprieta' si puo' dire «se
+% la valvola funziona» ed e' una proposta legittima; di una risorsa mai
+% nominata non si puo' dire «se hai tre secchi», perche' quella frase suggerisce
+% che i secchi ci siano. Il silenzio sul mondo si assume, il silenzio su cio'
+% che si possiede no.
+resource_covers($Situation, $Resource, $Need) :- resource_available($Situation, $Resource, $Have), ge($Have, $Need).
+resource_short($Situation, $Action, short($Resource)) :- action_uses($Action, $Resource, $Need), naf(resource_covers($Situation, $Resource, $Need)).
+resource_short_set($Situation, $Action, $Short) :- findall($S, resource_short($Situation, $Action, $S), $Short).
+
+applicable($Situation, $Action) :- context($Situation, $Kind), action_schema($Domain, $Action), missing_precondition_set($Situation, $Action, nil), resource_short_set($Situation, $Action, nil).
 blocked_action($Situation, $Action) :- context($Situation, $Kind), action_schema($Domain, $Action), missing_precondition_set($Situation, $Action, cons($First, $Tail)).
+blocked_action($Situation, $Action) :- context($Situation, $Kind), action_schema($Domain, $Action), resource_short_set($Situation, $Action, cons($First, $Tail)).
+
+% Il residuo NOMINA la risorsa che manca, perche' «non posso» e «mi mancano due
+% secchi» chiudono due conversazioni diverse: la seconda dice all'interlocutore
+% che cosa potrebbe cambiare.
+turn_short_resource($Turn, $Resource) :- turn_action_candidate($Turn, $Situation, $Action), missing_precondition_set($Situation, $Action, nil), resource_short($Situation, $Action, short($Resource)).
 
 % L'EFFETTO e' cio' che l'azione rende vero; la CONSEGUENZA puo' essere mediata
 % da una legge causale del mondo. Restano relazioni distinte perche' hanno
@@ -352,6 +374,10 @@ turn_response($Turn, $Text) :- turn_plan_reason($Turn), plan_reason_nameable($Ac
 % ha dimostrato. La forma dell'azione e' la sua `concept_label/4`, quindi la
 % stessa proof si realizza in italiano e in inglese senza cambiare cio' che
 % afferma — e senza che questo file contenga una frase di dominio.
+answer_content(missing_resource($Resource, $Language), 0, opener, $Piece) :- shortage_opener($Language, $Piece).
+answer_content(missing_resource($Resource, $Language), 1, resource, $Piece) :- resource_label($Resource, $Language, $Piece).
+answer_content(missing_resource($Resource, $Language), 2, terminator, $Piece) :- sentence_terminator($Language, $Piece).
+
 answer_content(situation_step($Action, $Language), 0, opener, $Piece) :- ability_opener($Language, $Piece).
 answer_content(situation_step($Action, $Language), 1, action, $Piece) :- linguistic_form($Piece, $Action, $Language, common).
 answer_content(situation_step($Action, $Language), 2, terminator, $Piece) :- sentence_terminator($Language, $Piece).
@@ -384,7 +410,9 @@ turn_response($Turn, $Text) :- turn_two_step($Turn, $First, $Second), naf(turn_h
 turn_response($Turn, $Text) :- turn_three_step($Turn, $A, $B, $C), naf(turn_has_plan($Turn)), naf(turn_has_two_step($Turn)), current_language($Language), answer_text(situation_triple($A, $B, $C, $Language), $Text).
 turn_response($Turn, $Text) :- turn_assumed_plan($Turn, $Action, $Proposition), naf(turn_has_plan($Turn)), current_language($Language), answer_text(situation_assumed($Action, $Proposition, $Language), $Text).
 turn_response($Turn, $Text) :- turn_plan_ambiguous($Turn), current_language($Language), response_template(situation_plan_ambiguous, $Language, $Text).
-turn_response($Turn, $Text) :- situation_residue($Turn, $Kind), current_language($Language), response_template($Kind, $Language, $Text).
+turn_response($Turn, $Text) :- turn_short_resource($Turn, $Resource), naf(turn_has_plan($Turn)), resource_label($Resource, $Language, $Piece), current_language($Language), answer_text(missing_resource($Resource, $Language), $Text).
+turn_response($Turn, $Text) :- situation_residue($Turn, $Kind), naf(turn_has_shortage($Turn)), current_language($Language), response_template($Kind, $Language, $Text).
+turn_has_shortage($Turn) :- turn_short_resource($Turn, $Resource).
 
 % ── 6. PORTE: la situazione e' interrogabile come qualunque altra relazione ─
 %
