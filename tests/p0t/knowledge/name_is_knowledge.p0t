@@ -1,0 +1,61 @@
+# IL NOME E' CONOSCENZA, NON UN CAMPO C — gen403.
+#
+# Il nome dell'utente stava in `b->name` + `b->has_name`, ed era l'ultima cosa
+# che parrot0 sapeva di chi gli parlava senza SAPERLA: nessuna query lo trovava,
+# nessun `retract` lo dimenticava, e le quattro frasi che lo insegnavano erano
+# quattro prefissi letterali dentro `mod_memory`.
+#
+# Questo file non verifica che il nome funzioni — funzionava anche prima. Verifica
+# le tre cose che un campo C non poteva fare: interrogarlo, dimenticarlo, e
+# imparare domani una forma nuova per dirlo, senza ricompilare.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test the name is a fact like any other]
+> my name is Francesco
+< Nice to meet you, Francesco!
+> what is my name?
+< Your name is Francesco.
+
+# Dimenticare. Con un campo C non c'era niente da ritrattare: il valore vecchio
+# restava finche' un altro non lo sovrascriveva.
+!forget user_value(name, Francesco)
+> what is my name?
+< I don't know your name yet.
+
+# Il primo dei tre: una forma nuova, in una lingua che nessuno aveva previsto,
+# e' DUE fatti. La cue dice dove sta il valore, `self_reference` dice che la
+# frase parla di chi la pronuncia — senza la seconda, il turno non risulta
+# nemmeno rivolto all'utente.
+[test a new language is two facts and no recompile]
+> je m'appelle Colette
+<! Colette
+!assert self_reference("je")
+!assert slot_evidence(name, "je m'appelle")
+> je m'appelle Colette
+< Nice to meet you, Colette!
+> what is my name?
+< Your name is Colette.
+
+# E si ritira come si e' data: tolta la cue, la frase torna a non essere capita.
+!forget slot_evidence(name, "je m'appelle")
+!forget user_value(name, Colette)
+> je m'appelle Colette
+<! Colette
+
+# Il nome non ha piu' un ramo dedicato nel modello di se': ci arriva perche' e'
+# un fatto sull'utente come gli altri.
+[test the self-model reads the same fact]
+!reset
+> call me Dana
+< Nice to meet you, Dana!
+> I live in Rome
+<~ .
+> what do you remember about me?
+<~ your name is Dana

@@ -497,6 +497,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/conversation/casefold.p0t
 	@./$(BIN) --test tests/p0t/conversation/contractions.p0t
 	@./$(BIN) --test tests/p0t/language/apostrophe.p0t
+	@./$(BIN) --test tests/p0t/knowledge/name_is_knowledge.p0t
 	@./$(BIN) --test tests/p0t/math/numwords.p0t
 	@./$(BIN) --test tests/p0t/knowledge/initials.p0t
 	@./$(BIN) --test tests/p0t/conversation/social_reaction.p0t

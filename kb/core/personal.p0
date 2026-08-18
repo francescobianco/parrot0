@@ -19,6 +19,56 @@ slot_evidence(occupation, "lavoro").
 % Va risolto l'ordine di dispatch (o l'handler deve cedere su una frase in prima
 % persona "I was born in X") — allora basta aggiungere qui gli slot_evidence(origin,…).
 
+% --- il NOME e' uno slot come gli altri (gen403) ---
+%
+% Fino al gen402 il nome viveva in due campi C, `b->name` e `b->has_name`. Era
+% l'ultima cosa che parrot0 sapeva dell'utente senza SAPERLA: non compariva fra
+% i fatti, non si dimenticava con lo stesso `retract` di tutto il resto, e il
+% modello di se' doveva avere un ramo dedicato per dirlo. Un campo C e' una
+% conoscenza che nessuno puo' interrogare.
+%
+% Adesso e' `user_value(name, X)`, cioe' esattamente dove stanno la residenza e
+% il mestiere, e le superfici che lo insegnano sono fatti invece che prefissi
+% letterali dentro `mod_memory`. La prova che il cambio e' reale: una nuova
+% forma per dire il proprio nome, in una lingua qualunque, e' UNA riga qui.
+slot_evidence(name, "my name is").
+slot_evidence(name, "call me").
+slot_evidence(name, "mi chiamo").
+slot_evidence(name, "chiamami").
+slot_evidence(name, "il mio nome è").
+
+% Uno slot EAGER si riconosce PRIMA delle facolta' di contenuto. Non e' un
+% privilegio del nome: e' cio' che si dichiara quando le cue di uno slot sono
+% cosi' specifiche che nessun'altra lettura del turno e' plausibile. «my name is
+% Francesco» non ha una seconda lettura; «my father works in a bank» ne ha due,
+% e infatti `occupation` non e' eager e cede a mod_family.
+slot_eager(name).
+
+% L'accoglienza di un nome non e' l'accoglienza di un indirizzo: si saluta la
+% persona. Il template resta quello del gen212, ora raggiunto per slot invece
+% che per ramo.
+slot_ack(name, greet_name).
+
+% E la cornice del RICHIAMO. «Come mi chiamo?» rispondeva «Non capisco ancora»
+% (il muro registrato in compose_social.it.p0t): la superficie italiana non
+% arrivava allo strato degli intent, e senza questa riga la risposta sarebbe il
+% valore nudo, «Mia.». Per una residenza il valore nudo va bene — «Roma.» e' una
+% risposta; per un nome no.
+slot_recall(name, name_recall).
+
+% Chi parla di se'. Era una lista di parole nel C — dove nessuno la vedeva e
+% dove «chiamami» mancava, cosi' che l'imperativo italiano non risultava
+% autoreferenziale. Una lingua nuova e' una riga.
+self_reference("i").      self_reference("my").     self_reference("me").
+self_reference("im").     self_reference("i'm").
+self_reference("io").     self_reference("mi").     self_reference("mio").
+self_reference("mia").    self_reference("chiamami").
+
+machinery(slot_eager).
+machinery(slot_ack).
+machinery(slot_recall).
+machinery(self_reference).
+
 % --- risposte (KB, EN + IT) ---
 response_template(personal_ack, en, "Got it, I'll remember that.").
 response_template(personal_ack, it, "Perfetto, me lo ricordo.").

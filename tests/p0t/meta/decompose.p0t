@@ -25,6 +25,10 @@
 # Two independent queries.
 > what is 2 plus 2 and is 9 divisible by 3?
 < 4. Yes.
-# Only one recognized intent in sub1 — decomposition falls back to normal.
+# gen403: prima parrot0 rispondeva solo «Mi chiamo parrot0.» e la seconda meta'
+# del turno cadeva nel vuoto — a chi gli stava dicendo il proprio nome non
+# rispondeva niente. Ora il nome e' uno slot come gli altri e la cue non deve
+# piu' stare all'inizio del turno, quindi la richiesta viene servita: entrambe
+# le meta' hanno una risposta.
 > chi sei e ricordati che mi chiamo Francesco
-< Mi chiamo parrot0.
+< Mi chiamo parrot0. Piacere di conoscerti, Francesco!

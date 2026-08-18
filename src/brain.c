@@ -43,8 +43,11 @@
 
 struct Brain {
     unsigned long turns;   /* how many exchanges we've had this session */
-    char name[64];         /* the user's name, once they tell us */
-    int  has_name;         /* whether `name` is set */
+    /* gen403: il nome dell'utente NON sta qui. Sta in `user_value(name, X)`
+     * nella KB, con la residenza e il mestiere — vedi la nota in testa a
+     * 10-memory-knowledge.c. Un campo C e' una conoscenza che nessuno puo'
+     * interrogare, non si dimentica con `retract` e non sopravvive a un
+     * salvataggio; questo era l'ultimo rimasto sull'utente. */
     char last_entity[KB_TERM_LEN]; /* most recent concrete KB entity */
     /* gen388: IL TOPIC NON E' L'ANTECEDENTE.
      *

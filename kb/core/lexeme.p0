@@ -3,6 +3,13 @@
 % word-query so it never bloats a normal brain. The enumeration MOTOR is fixed C;
 % this pool is knowledge — a new word extends every word puzzle (rhyme, letters,
 % length, prefix/suffix) for free.
+%
+% gen403: `lexeme/1` e' MACCHINERIA, non conoscenza sul mondo. Da quando la
+% guardia dell'introduzione nuda («i'm vera» e' un nome, «i'm tired» no) chiede
+% al lessico, il pool si carica anche in una conversazione ordinaria — e senza
+% questa dichiarazione «what do you know about smoke?» rispondeva «smoke is a
+% lexeme», che e' vero del vocabolario e non del gatto.
+machinery(lexeme).
 lexeme(aardvark).
 lexeme(abaci).
 lexeme(aback).

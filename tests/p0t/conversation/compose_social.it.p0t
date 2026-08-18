@@ -28,5 +28,10 @@
 < Your cat is neve.
 # gen161: Italian name recall "come mi chiamo?" now hits the same store the
 # "mi chiamo X" teach fills — the read-side mirror of the intake.
+# gen403: il muro e' caduto. Il nome non e' piu' un campo C ma `user_value(name,
+# X)`, quindi la domanda italiana lo trova passando per la stessa macchina degli
+# altri slot invece che per la superficie inglese di ask_name — e la cornice
+# della risposta e' anch'essa un fatto, `slot_recall(name, name_recall)`, cosi'
+# che una conversazione italiana senta una frase italiana.
 > come mi chiamo?
-< Non capisco ancora.
+< Ti chiami Mia.

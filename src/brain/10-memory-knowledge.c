@@ -12,10 +12,74 @@
  * kb/core/responses.p0) so the wording is knowledge and new phrasings can be taught at
  * runtime. Falls back to the original literal only if no template is registered (e.g.
  * the KB file is absent), so the agent is never mute. */
-static void greet_name_reply(Brain *b, char *out, size_t outsz) {
-    if (!kb_response(b, "greet_name", b->name, out, outsz))
-        snprintf(out, outsz, "Nice to meet you, %s!", b->name);
+/* gen403: IL NOME NON E' UN CAMPO C.
+ *
+ * Stava in `b->name` + `b->has_name`, ed era l'ultima cosa che parrot0 sapeva
+ * dell'utente senza SAPERLA: invisibile a una query, non dimenticabile con lo
+ * stesso `retract` di ogni altro fatto, e presente nel modello di se' solo
+ * grazie a un ramo scritto apposta. Ora sta in `user_value(name, X)`, dove
+ * stanno gia' la residenza e il mestiere, e queste due funzioni sono l'unico
+ * accesso — nessun altro punto del C tiene il nome per conto proprio.
+ *
+ * Il valore conserva le maiuscole di chi l'ha detto: un nome non e' una parola
+ * minuscola. Gli spazi diventano `_` per stare in un atomo e tornano spazi in
+ * lettura, che e' la convenzione che mod_personal usa gia' per gli altri slot. */
+static char *kb_dequote(char *s);   /* definita piu' avanti nel file */
+static void ensure_lexeme(Brain *b);  /* 20-math.c: il pool lessicale, pigro */
+static int user_value_read(Brain *b, const char *slot, char *out, size_t outsz) {
+    if (out && outsz) out[0] = '\0';
+    if (!b || !b->kb || !slot || !out || !outsz) return 0;
+    const char *q[2] = { slot, NULL };
+    char val[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "user_value", q, 2, val, 1) < 1) return 0;
+    snprintf(out, outsz, "%s", kb_dequote(val[0]));
+    for (char *p = out; *p; p++) if (*p == '_') *p = ' ';
+    return out[0] != '\0';
 }
+
+/* Uno slot ha UN valore: ridirlo lo cambia, non lo affianca. Senza il retract,
+ * «my name is Bob» dopo «my name is Francesco» lascerebbe due fatti e la
+ * lettura continuerebbe a rispondere Francesco — il campo C, sovrascrivendosi,
+ * questo problema non ce l'aveva, ed e' il prezzo onesto del cambio. */
+static void user_value_write(Brain *b, const char *slot, const char *value) {
+    if (!b || !b->kb || !slot || !value || !*value) return;
+    const char *q[2] = { slot, NULL };
+    char old[8][KB_TERM_LEN];
+    size_t nold = kb_match(b->kb, "user_value", q, 2, old, 8);
+    for (size_t i = 0; i < nold; i++) {
+        const char *ra[2] = { slot, old[i] };
+        kb_retract(b->kb, "user_value", ra, 2);
+    }
+    char store[KB_TERM_LEN];
+    size_t o = 0;
+    for (const char *p = value; *p && o + 1 < sizeof store; p++)
+        store[o++] = (*p == ' ') ? '_' : *p;
+    store[o] = '\0';
+    kb_set_origin(b->kb, KB_SESSION);
+    const char *uv[2] = { slot, store };
+    kb_assert(b->kb, "user_value", uv, 2);
+}
+
+/* gen403: «Your name is X.» era un letterale inglese scritto in tre punti del
+ * C, e in una conversazione italiana rispondeva comunque in inglese. Ora e' un
+ * template come il saluto — stessa macchina, stesso slot {name}. */
+static void name_recall_reply(Brain *b, const char *nm, char *out, size_t outsz) {
+    if (!kb_response(b, "name_recall", nm, out, outsz))
+        snprintf(out, outsz, "Your name is %s.", nm);
+}
+
+static void greet_name_reply(Brain *b, char *out, size_t outsz) {
+    char nm[64];
+    user_value_read(b, "name", nm, sizeof nm);
+    if (!kb_response(b, "greet_name", nm, out, outsz))
+        snprintf(out, outsz, "Nice to meet you, %s!", nm);
+}
+
+/* La macchina degli slot personali vive in fondo al file (mod_personal); qui
+ * serve la sua passata EAGER, che gira prima delle facolta' di contenuto per
+ * gli slot dichiarati `slot_eager/1` nella KB. */
+static int personal_slot_turn(Brain *b, const char *norm, const char *raw,
+                              char *out, size_t out_size, int eager_only);
 
 /* gen221 (the-linguistic-glue.md, KB-first memory): parse_value/word_number live at
  * the end of this file (with the arithmetic helpers); forward-declare so the memory
@@ -67,47 +131,15 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
      * consumed as the intent it is teaching. */
     if (try_teach_form(b, norm, raw, out, out_size)) return 1;
 
-    /* Teach: "my name is <X>" */
-    static const char *const prefix = "my name is ";
-    size_t plen = strlen(prefix);
-    if (strncmp(norm, prefix, plen) == 0) {
-        const char *name = skip_ws(skip_ws(raw) + plen);
-        if (*name == '\0') {
-            kb_say(b, "i_didn_t_catch_your_name", "I didn't catch your name.", out, out_size);
-            return 1;
-        }
-        copy_trim(b->name, sizeof b->name, name);
-        b->has_name = 1;
-        char msg[128];
-        greet_name_reply(b, msg, sizeof msg);
-        put(msg, out, out_size);
-        return 1;
-    }
-
-    /* Teach: "call me <X>" and Italian equivalents (chiamami / mi chiamo). */
-    static const char *const call_me = "call me ";
-    static const char *const chiamami = "chiamami ";
-    static const char *const mi_chiamo = "mi chiamo ";
-    const char *name_from = NULL;
-    if (strncmp(norm, call_me, strlen(call_me)) == 0)
-        name_from = raw + strlen(call_me);
-    else if (strncmp(norm, chiamami, strlen(chiamami)) == 0)
-        name_from = raw + strlen(chiamami);
-    else if (strncmp(norm, mi_chiamo, strlen(mi_chiamo)) == 0)
-        name_from = raw + strlen(mi_chiamo);
-    if (name_from) {
-        const char *name = skip_ws(name_from);
-        if (*name == '\0') {
-            kb_say(b, "i_didn_t_catch_your_name", "I didn't catch your name.", out, out_size);
-            return 1;
-        }
-        copy_trim(b->name, sizeof b->name, name);
-        b->has_name = 1;
-        char msg[128];
-        greet_name_reply(b, msg, sizeof msg);
-        put(msg, out, out_size);
-        return 1;
-    }
+    /* gen403: «my name is X», «call me X», «mi chiamo X», «chiamami X» erano
+     * quattro prefissi letterali scritti qui, con quattro copie della stessa
+     * risposta. Ora sono cinque fatti `slot_evidence(name, …)` in
+     * kb/core/personal.p0 e li serve la stessa macchina che serve residenza e
+     * mestiere. Gira qui, prima delle facolta' di contenuto, perche' la KB
+     * dichiara `slot_eager(name)`: uno slot le cui cue non hanno una seconda
+     * lettura non deve aspettare il proprio turno in fondo al registro.
+     * Una forma nuova, in una lingua qualunque, e' una riga di conoscenza. */
+    if (personal_slot_turn(b, norm, raw, out, out_size, 1)) return 1;
 
     /* Bare self-introduction: "i'm <X>" / "i am <X>" / "im <X>", optionally
      * behind a greeting ("hi, i'm vera"), feeds the SAME name memory that
@@ -134,25 +166,40 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             }
             if (cand < nnw && cand == nnw - 1) {     /* single-word name only */
                 char *c = strip_edge_punct(nwds[cand]);
-                static const char *const nonname[] = {
-                    "tired","bored","happy","sad","fine","good","ok","okay",
-                    "here","ready","sorry","busy","lost","sure","hungry","cold",
-                    "hot","sleepy","angry","scared","confused","done","back",
-                    "late","free","alone","well","great","bad","new","young",
-                    "old","right","wrong","not","sick","glad","nervous",
-                    "excited","curious","afraid","awake","hurt","convinced",
-                    "kidding","joking","serious","worried","calm","listening",
-                    NULL,
-                };
+                /* gen403: qui stava una lista di cinquanta aggettivi nel C
+                 * («tired», «bored», «happy»…) per non scambiare uno stato
+                 * d'animo per un nome. Era una lista di parole nel posto
+                 * sbagliato, e per giunta incompleta per costruzione: il
+                 * cinquantunesimo aggettivo sarebbe diventato un nome.
+                 *
+                 * Il criterio giusto era gia' nella KB e non lo si guardava: un
+                 * nome e' una parola che il LESSICO non conosce. «tired» sta in
+                 * `lexeme/1` con altre ventimila parole inglesi; «vera»,
+                 * «anna», «marco» no. Un aggettivo nuovo entra nel lessico
+                 * quando lo si impara, e la guardia si aggiorna da sola.
+                 *
+                 * Il limite va detto: un nome che E' anche una parola comune
+                 * («Bob», «Grace», «May») non passa nella forma NUDA. Passa
+                 * benissimo con una cue esplicita — «my name is Bob» — che e'
+                 * anche il modo in cui una persona lo direbbe se temesse di non
+                 * essere capita. Una lista di eccezioni qui riaprirebbe il
+                 * problema che stiamo chiudendo. */
+                /* Il pool `lexeme/1` e' caricato pigramente (35k fatti, per i
+                 * giochi di parole). Qui serve per la stessa ragione per cui
+                 * serve li': e' il vocabolario comune, e un nome ne sta fuori.
+                 * Il costo si paga una volta per sessione, alla prima frase
+                 * che suona come una presentazione. */
+                ensure_lexeme(b);
+                const char *lex[1] = { c };
                 int ok = c[0] && isalpha((unsigned char)c[0]) &&
                          strlen(c) >= 2 && !is_article(b, c) &&
-                         !is_stopword(b, c) && !matches_any(c, nonname) &&
+                         !is_stopword(b, c) &&
+                         !(b->kb && kb_query(b->kb, "lexeme", lex, 1)) &&
                          !(b->kb && kb_knows_pred(b->kb, c));
                 if (ok) {
                     char nm[64];
                     copy_last_word(nm, sizeof nm, raw);
-                    copy_trim(b->name, sizeof b->name, nm);
-                    b->has_name = 1;
+                    user_value_write(b, "name", nm);
                     char msg[128];
                     greet_name_reply(b, msg, sizeof msg);
                     put(msg, out, out_size);
@@ -365,9 +412,10 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                             has_called = (strcmp(strip_edge_punct(tmp), "called") == 0);
                         }
                         if (strcmp(thing, "name") == 0) {
-                            if (b->has_name) {
+                            char nm[64];
+                            if (user_value_read(b, "name", nm, sizeof nm)) {
                                 char msg[128];
-                                snprintf(msg, sizeof msg, "Your name is %s.", b->name);
+                                name_recall_reply(b, nm, msg, sizeof msg);
                                 put(msg, out, out_size);
                             } else {
                                 kb_say(b, "i_don_t_know_your_name_yet", "I don't know your name yet.", out, out_size);
@@ -505,9 +553,10 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         size_t off = 0;
         int any = 0;
         off = (size_t)snprintf(msg, sizeof msg, "I remember:");
-        if (b->has_name && off < sizeof msg) {
+        char nm[64];
+        if (user_value_read(b, "name", nm, sizeof nm) && off < sizeof msg) {
             off += (size_t)snprintf(msg + off, sizeof msg - off,
-                                    "%s your name is %s", any ? ";" : "", b->name);
+                                    "%s your name is %s", any ? ";" : "", nm);
             any = 1;
         }
         for (size_t i = 0; i < b->possession_count && off < sizeof msg; i++) {
@@ -557,9 +606,10 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
      * (intent_phrase(ask_name, …) in kb/core/intents.p0), matched here and
      * extensible at runtime via the teach handler above (gen211). */
     if (kb_intent_match(b, "ask_name", norm)) {
-        if (b->has_name) {
+        char nm[64];
+        if (user_value_read(b, "name", nm, sizeof nm)) {
             char msg[128];
-            snprintf(msg, sizeof msg, "Your name is %s.", b->name);
+            name_recall_reply(b, nm, msg, sizeof msg);
             put(msg, out, out_size);
         } else {
             kb_say(b, "i_don_t_know_your_name_yet", "I don't know your name yet.", out, out_size);
@@ -6627,22 +6677,65 @@ static int is_personal_stop(const char *w) {
     for (size_t i = 0; PERSONAL_STOP[i]; i++) if (!strcmp(w, PERSONAL_STOP[i])) return 1;
     return 0;
 }
-static int mod_personal(Brain *b, const char *norm, const char *raw, char *out,
-                        size_t out_size) {
-    (void)raw;
+
+/* gen403: chi parla di se'. Era una lista di otto parole scritta qui dentro, e
+ * si vedeva che era nel posto sbagliato dal buco che aveva: «chiamami Sam» non
+ * risultava autoreferenziale, perche' l'imperativo italiano non nomina chi
+ * parla e nessuno aveva pensato ad aggiungerlo. Ora e' `self_reference/1` nella
+ * KB, e una lingua nuova e' una riga. */
+static int personal_selfref_word(Brain *b, const char *word) {
+    if (!b || !b->kb || !word || !*word) return 0;
+    char marks[24][KB_TERM_LEN];
+    const char *q[1] = { NULL };
+    size_t n = kb_match(b->kb, "self_reference", q, 1, marks, 24);
+    for (size_t i = 0; i < n; i++)
+        if (!strcmp(kb_dequote(marks[i]), word)) return 1;
+    return 0;
+}
+
+/* La KB conserva quello che l'utente ha DETTO: `norm` serve a TROVARE il valore,
+ * `raw` a scriverlo. La differenza non e' solo di maiuscole — la
+ * normalizzazione traduce anche le parole, e «mi chiamo mia» arriva qui come
+ * «my name is my»: cercare in `raw` il token normalizzato non trova niente.
+ *
+ * Il valore e' la CODA del turno, quindi bastano gli ultimi K token di `raw`,
+ * con K contato su `norm`. Vale finche' il valore sta in fondo, che e' la forma
+ * di tutte le cue dichiarate; una cue con il valore in mezzo vorrebbe un
+ * allineamento vero, e allora sara' quel giorno a chiederlo. */
+static void personal_raw_tail(const char *raw, size_t k, char *out, size_t outsz) {
+    if (!out || !outsz) return;
+    out[0] = '\0';
+    if (!raw || !k) return;
+    char rb[512]; snprintf(rb, sizeof rb, "%s", raw);
+    char *rw[80]; size_t rn = split_words(rb, rw, 80);
+    if (k > rn) k = rn;
+    size_t off = 0;
+    for (size_t i = rn - k; i < rn; i++) {
+        char *t = strip_edge_punct(rw[i]);
+        if (!*t) continue;
+        off += (size_t)snprintf(out + off, outsz - off, "%s%s", off ? " " : "", t);
+        if (off + 1 >= outsz) break;
+    }
+}
+
+static int personal_slot_turn(Brain *b, const char *norm, const char *raw,
+                              char *out, size_t out_size, int eager_only) {
     if (!b || !b->kb || !norm || !*norm) return 0;
 
     /* structure: is this about the USER (self-reference), and a question or a statement? */
     char nb[512]; snprintf(nb, sizeof nb, "%s", norm);
     char *w[80]; size_t nw = split_words(nb, w, 80);
+    /* gen403: una domanda si annuncia in TESTA, o con il punto interrogativo.
+     * Cercare una parola interrogativa ovunque nel turno scambiava
+     * «ricordati CHE mi chiamo Francesco» per una domanda sul nome, e parrot0
+     * rispondeva «non me l'hai ancora detto» a chi glielo stava dicendo: in
+     * italiano «che» a meta' frase e' un complementatore, non un interrogativo. */
     int selfref = 0, question = (strchr(norm, '?') != NULL);
     for (size_t i = 0; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
-        if (!strcmp(t,"i")||!strcmp(t,"my")||!strcmp(t,"im")||!strcmp(t,"me")||
-            !strcmp(t,"io")||!strcmp(t,"mi")||!strcmp(t,"mio")||!strcmp(t,"mia"))
-            selfref = 1;
+        if (personal_selfref_word(b, t)) selfref = 1;
         const char *qa[1] = { t };
-        if (kb_query(b->kb, "question_word", qa, 1)) question = 1;
+        if (i == 0 && kb_query(b->kb, "question_word", qa, 1)) question = 1;
     }
     if (!selfref) return 0;   /* not about the user — leave it to another faculty */
 
@@ -6652,14 +6745,44 @@ static int mod_personal(Brain *b, const char *norm, const char *raw, char *out,
                                slot, sizeof slot, &score, proof, sizeof proof);
     if (r != 1 || !slot[0]) return 0;   /* gap or ambiguous -> decline, don't guess */
 
+    /* La passata anticipata serve SOLO gli slot che la KB dichiara eager. Uno
+     * slot ordinario aspetta il proprio posto nel registro, dopo le facolta'
+     * che potrebbero avere una lettura migliore del turno. */
+    if (eager_only) {
+        const char *eq[1] = { slot };
+        if (!kb_query(b->kb, "slot_eager", eq, 1)) return 0;
+        /* La passata anticipata INSEGNA, non ricorda. Una dichiarazione non ha
+         * una seconda lettura, quindi puo' precedere tutti; una DOMANDA sullo
+         * stesso slot puo' avere mille superfici, comprese quelle insegnate a
+         * runtime («learn "how do you call me" to ask my name»), e quelle le
+         * conosce lo strato degli intent. Rispondere qui vorrebbe dire
+         * scavalcarlo con una forma piu' povera. */
+        if (question) return 0;
+    }
+
     if (question) {                     /* RECALL from user_value(Slot, ?) */
         const char *vq[2] = { slot, NULL };
         char val[1][KB_TERM_LEN];
-        if (kb_match(b->kb, "user_value", vq, 2, val, 1) == 1) {
+        if (kb_match(b->kb, "user_value", vq, 2, val, 1) >= 1) {
             char pres[KB_TERM_LEN];
             present_atom(b, kb_dequote(val[0]), pres, sizeof pres);
             if (pres[0]) pres[0] = (char)toupper((unsigned char)pres[0]);
-            char msg[220]; snprintf(msg, sizeof msg, "%s.", pres);
+            /* Uno slot puo' dichiarare la propria CORNICE di richiamo, come
+             * dichiara la propria accoglienza: «Ti chiami Mia» invece del nudo
+             * «Mia». Senza dichiarazione resta il valore e basta, che per una
+             * residenza o un mestiere e' gia' la risposta giusta. */
+            char msg[220];
+            const char *rq[2] = { slot, NULL };
+            char rrow[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "slot_recall", rq, 2, rrow, 1) >= 1) {
+                char key[KB_TERM_LEN];
+                snprintf(key, sizeof key, "%s", kb_dequote(rrow[0]));
+                if (kb_response(b, key, pres, msg, sizeof msg)) {
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+            snprintf(msg, sizeof msg, "%s.", pres);
             put(msg, out, out_size);
             return 1;
         }
@@ -6689,21 +6812,49 @@ static int mod_personal(Brain *b, const char *norm, const char *raw, char *out,
     if (!bestpos) return 0;
     char tbuf[256]; snprintf(tbuf, sizeof tbuf, "%s", bestpos + bestlen);
     char *tw[40]; size_t tn = split_words(tbuf, tw, 40);
-    char value[128]; size_t off = 0; value[0] = '\0';
+    char value[128]; size_t off = 0; size_t nval = 0; value[0] = '\0';
     for (size_t k = 0; k < tn && off + 1 < sizeof value; k++) {
         char *t = strip_edge_punct(tw[k]);
         if (!*t) continue;
         if (off == 0 && is_personal_stop(t)) continue;   /* skip leading prep/article */
-        off += (size_t)snprintf(value + off, sizeof value - off, "%s%s", off ? "_" : "", t);
+        off += (size_t)snprintf(value + off, sizeof value - off, "%s%s",
+                                off ? " " : "", t);
+        nval++;
     }
-    if (!value[0]) return 0;
-    kb_set_origin(b->kb, KB_SESSION);
-    const char *uv[2] = { slot, value };
-    kb_assert(b->kb, "user_value", uv, 2);
+    if (nval) personal_raw_tail(raw, nval, value, sizeof value);
+    if (!value[0]) {
+        /* La cue c'era e il valore no: «my name is» e basta. Dirlo e' meglio che
+         * tacere, perche' l'utente ha appena provato a insegnare qualcosa. */
+        const char *eq[1] = { slot };
+        if (!kb_query(b->kb, "slot_eager", eq, 1)) return 0;
+        kb_say(b, "i_didn_t_catch_your_name", "I didn't catch your name.", out, out_size);
+        return 1;
+    }
+    user_value_write(b, slot, value);
+
+    /* L'accoglienza puo' essere propria dello slot: si saluta una persona, non
+     * si saluta un indirizzo. `slot_ack(Slot, Chiave)` sceglie il template e il
+     * valore ci entra dentro; senza dichiarazione resta l'ack generico. */
+    char ack[KB_TERM_LEN];
+    const char *aq[2] = { slot, NULL };
+    char ackrow[1][KB_TERM_LEN];
+    char msg[220];
+    if (kb_match(b->kb, "slot_ack", aq, 2, ackrow, 1) >= 1) {
+        snprintf(ack, sizeof ack, "%s", kb_dequote(ackrow[0]));
+        if (kb_response(b, ack, value, msg, sizeof msg)) { put(msg, out, out_size); return 1; }
+    }
     char tmpl[220];
     if (lang_template(b, "personal_ack", tmpl, sizeof tmpl)) put(tmpl, out, out_size);
     else put("Got it, I'll remember that.", out, out_size);
     return 1;
+}
+
+/* Il modulo registrato: la passata ORDINARIA, che gira dopo mod_family e serve
+ * ogni slot, eager compreso — se la passata anticipata ha declinato per una
+ * ragione che qui non vale piu', il turno ha ancora la sua occasione. */
+static int mod_personal(Brain *b, const char *norm, const char *raw, char *out,
+                        size_t out_size) {
+    return personal_slot_turn(b, norm, raw, out, out_size, 0);
 }
 
 /* gen349 (Fase 1, motorize-the-class): robust causal lookup. Two content tokens
