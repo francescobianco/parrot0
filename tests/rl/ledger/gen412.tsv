@@ -18,3 +18,9 @@ gen412	investigazione/sociale/premessa-falsa	5	0	VERDE — non accetta la premes
 gen412	codice/formale/aritmetica-a-parole	1	1	non compone due numeri con i loro ruoli; V4 tiene
 gen412	comprensione/tecnica/prosa-tecnica	1	1	non estrae la proprieta detta come scopo; V4 tiene (non attribuisce cio che non e detto)
 gen412	procedure/pratica/passi-in-ordine	1	1	non conserva l ordine dei passi; V4 tiene (non risponde col passo precedente)
+gen412	strumenti/tecnica/conta-invece-di-elencare	3	1	elenca (verde) ma non conta: stesso strumento stesso ancoraggio, cade solo la composizione
+gen412	investigazione/sociale/premessa-falsa.en	3	2	il gemello italiano e VERDE al gradino 4, questo no: il limite regge in una lingua e perde pezzi nell altra
+gen412	ricerca/naturale/due-fonti-a-confronto	1	1	recupera (verde) ma non confronta: stessa dimensione isolata, altra famiglia
+gen412	comprensione/vita-e-salute/sintomo-implicito	2	1	non collega la domanda al dato senza appigli lessicali; V4 tiene
+gen412	conversazione/pratica/impegno-preso	0	1	un impegno preso non sopravvive a tre turni
+gen412	macchineria/riflessiva/sa-cosa-non-sa	1	1	le tre lacune SONO registrate (V1 verde) ma non le sa contare: l ipotesi vale anche su se stesso

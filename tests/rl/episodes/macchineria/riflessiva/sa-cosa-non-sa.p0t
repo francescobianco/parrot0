@@ -1,0 +1,28 @@
+# id:        macchineria/riflessiva/sa-cosa-non-sa
+# famiglia:  macchineria
+# dominio:   riflessiva / se stesso
+# gradino:   2
+# vettore:   profondita 2  distanza 2  ambiguita 1  composizione 2
+#            rumore 0  apertura 3  novita 2
+# lavoro:    dopo aver murato piu' volte, saper dire su quante cose si e'
+#            fermato — non riraccontarle una per una, ma saperle contare
+# difficile: e' la cella riflessiva del gemello composto: la lacuna singola la
+#            sa gia' nominare (ancora-della-lacuna e' quasi verde), ma qui le
+#            lacune sono tre e la risposta va costruita. Se cade anche qui,
+#            l'ipotesi «debole dove deve comporre» vale pure su se' stesso, e
+#            allora non e' un difetto di dominio ma di motore
+# origine:   ipotesi gen412, iterazione 3
+# verifica:  V1 (le lacune ci sono) + V2 (le sa contare)
+
+[test tre muri lasciano tre tracce]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+> siamo al mare
+> il glorbo frulla
+> tarnak zibbla forte
+!query machinery_gap($G)
+
+[test sa dire quante sono]
+> su quante cose ti sei fermato
+<~ 3

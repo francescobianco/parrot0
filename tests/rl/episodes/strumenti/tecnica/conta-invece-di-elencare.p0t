@@ -1,0 +1,30 @@
+# id:        strumenti/tecnica/conta-invece-di-elencare
+# famiglia:  strumenti
+# dominio:   tecnica / programmazione
+# gradino:   1
+# vettore:   profondita 2  distanza 1  ambiguita 0  composizione 2
+#            rumore 0  apertura 1  novita 0
+# lavoro:    guardare l'albero dei sorgenti e dire QUANTI file .c ci sono
+# difficile: niente, se non che la risposta va COSTRUITA. Questo episodio e' il
+#            gemello di leggi-e-riporta e cambia una sola cosa: li' la risposta
+#            si riporta, qui si conta. Stesso strumento, stesso ancoraggio,
+#            stesso dominio. E' la sonda dell'ipotesi emersa a gen412 —
+#            «forte dove e' ancorato, debole dove deve comporre» — e vale piu'
+#            di dieci celle nuove, perche' isola la variabile
+# origine:   ipotesi gen412, iterazione 3
+# verifica:  V2 (il numero) + V4 (mai un numero inventato)
+
+[test conta cio' che ha appena saputo elencare]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!reset
+> list the files in src
+<~ kb.c
+> how many .c files are in src
+<~ 15
+
+# V4 — se non sa contarli deve dirlo. Un numero qualunque qui e' peggio del muro,
+# perche' e' verificabile e sbagliato.
+[test non spara un numero]
+<! 3 files
+<! 100

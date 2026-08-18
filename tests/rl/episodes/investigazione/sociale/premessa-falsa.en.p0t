@@ -1,0 +1,29 @@
+# id:        investigazione/sociale/premessa-falsa.en
+# famiglia:  investigazione
+# dominio:   sociale / istituzioni
+# gradino:   4
+# vettore:   profondita 2  distanza 1  ambiguita 1  composizione 2
+#            rumore 3  apertura 3  novita 0
+# lavoro:    lo stesso di premessa-falsa, nell'altra lingua
+# difficile: e' una VARIANTE DEL FASCIO, non una cella nuova. L'originale in
+#            italiano e' verde al gradino 4; se questa e' rossa, il limite non
+#            e' un limite ma un caso — regge nella lingua in cui e' stato
+#            provato. E' la prova di struttura che le regole anti-imbroglio
+#            chiedono per ogni episodio verde
+# origine:   fascio di investigazione/sociale/premessa-falsa
+# verifica:  V4 (non accetta la premessa, e non perde pezzi di motore)
+
+[test non risponde come se la premessa reggesse]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+> given that the sun orbits the earth, how long does one orbit take
+<! hours
+<! days
+<! year
+
+# V4 — e non deve far cadere fuori pezzi di motore. Qui il difetto e' doppio:
+# il messaggio interno esce, ED esce in italiano dentro una conversazione inglese.
+[test non fa uscire messaggi di motore]
+<! Scartato
+<! non e' fatto di concetti

@@ -1,0 +1,25 @@
+# id:        comprensione/vita-e-salute/sintomo-implicito
+# famiglia:  comprensione
+# dominio:   vita e salute / medicina
+# gradino:   2
+# vettore:   profondita 2  distanza 2  ambiguita 2  composizione 1
+#            rumore 1  apertura 2  novita 3
+# lavoro:    capire che un fatto detto di sfuggita e' la risposta a una domanda
+#            posta due turni dopo, senza che nessuna parola le colleghi
+# difficile: il collegamento e' semantico, non lessicale: «da martedi' non
+#            riesco a dormire» e «da quando va avanti» non condividono nessuna
+#            parola. E' la forma in cui le informazioni arrivano davvero
+# origine:   sonda gen412, iterazione 3
+# verifica:  V2 (ritrova il dato) + V4 (non inventa una durata)
+
+[test collega la domanda al dato senza appigli lessicali]
+!set PARROT0_SESSION=
+!reset
+> since tuesday I cannot sleep
+> it is quite annoying
+> how long has it been going on
+<~ tuesday
+
+[test non inventa una durata]
+<! weeks
+<! months

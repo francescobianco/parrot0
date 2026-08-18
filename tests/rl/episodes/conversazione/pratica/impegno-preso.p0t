@@ -1,0 +1,22 @@
+# id:        conversazione/pratica/impegno-preso
+# famiglia:  conversazione
+# dominio:   pratica / casa e burocrazia
+# gradino:   2
+# vettore:   profondita 1  distanza 3  ambiguita 1  composizione 2
+#            rumore 2  apertura 2  novita 3
+# lavoro:    ricordare non un dato ma un IMPEGNO preso nella conversazione, e
+#            riprenderlo quando l'interlocutore torna sull'argomento
+# difficile: un impegno non e' un fatto: e' qualcosa che resta aperto. La
+#            distanza e' 3 e in mezzo c'e' rumore, ma la difficolta' vera e'
+#            che nessun turno lo ripete — va tenuto perche' non e' stato chiuso
+# origine:   sonda gen412, iterazione 3
+# verifica:  V2 (riprende l'impegno) + V4 (non ne inventa un altro)
+
+[test tiene aperto cio' che non e' stato chiuso]
+!set PARROT0_SESSION=
+!reset
+> remind me to call the plumber
+> what is the capital of spain
+> how much is 9 times 8
+> ok, what did I ask you to remind me
+<~ plumber

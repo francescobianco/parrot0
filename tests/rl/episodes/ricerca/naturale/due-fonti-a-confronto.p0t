@@ -1,0 +1,23 @@
+# id:        ricerca/naturale/due-fonti-a-confronto
+# famiglia:  ricerca
+# dominio:   naturale / biologia
+# gradino:   2
+# vettore:   profondita 2  distanza 2  ambiguita 1  composizione 3
+#            rumore 0  apertura 2  novita 0
+# lavoro:    recuperare due cose che sa e metterle a confronto per rispondere a
+#            una domanda che non e' su nessuna delle due
+# difficile: il gemello composto di fonte-locale-e-suo-limite, che e' verde.
+#            Cambia solo la composizione: li' si riporta una fonte, qui se ne
+#            tengono due e si sceglie. Stessa dimensione isolata dell'episodio
+#            conta-invece-di-elencare, in un'altra famiglia
+# origine:   ipotesi gen412, iterazione 3
+# verifica:  V2 (sceglie il giusto) + V4 (non sceglie l'altro)
+
+[test tiene due fonti e sceglie fra loro]
+!set PARROT0_SESSION=
+!reset
+> what do you know about photosynthesis
+> what do you know about prime numbers
+> which of those two is about plants
+<~ photosynthesis
+<! prime

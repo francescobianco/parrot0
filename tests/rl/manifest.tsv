@@ -19,3 +19,9 @@ codice/formale/aritmetica-a-parole	codice	formale	aritmetica	1	2-1-0-2-0-0-0	V2,
 investigazione/sociale/premessa-falsa	investigazione	sociale	istituzioni	4	2-1-1-2-3-3-0	V4	-	sonda gen412
 comprensione/tecnica/prosa-tecnica	comprensione	tecnica	reti	2	2-2-1-2-1-1-3	V2,V4	-	sonda gen412
 procedure/pratica/passi-in-ordine	procedure	pratica	cucina	2	2-2-1-2-1-2-3	V2,V4	-	sonda gen412
+strumenti/tecnica/conta-invece-di-elencare	strumenti	tecnica	programmazione	1	2-1-0-2-0-1-0	V2,V4	strumenti/tecnica/leggi-e-riporta	ipotesi gen412
+investigazione/sociale/premessa-falsa.en	investigazione	sociale	istituzioni	4	2-1-1-2-3-3-0	V4	investigazione/sociale/premessa-falsa	fascio
+ricerca/naturale/due-fonti-a-confronto	ricerca	naturale	biologia	2	2-2-1-3-0-2-0	V2,V4	ricerca/naturale/fonte-locale-e-suo-limite	ipotesi gen412
+comprensione/vita-e-salute/sintomo-implicito	comprensione	vita_e_salute	medicina	2	2-2-2-1-1-2-3	V2,V4	-	sonda gen412
+conversazione/pratica/impegno-preso	conversazione	pratica	casa_e_burocrazia	2	1-3-1-2-2-2-3	V2,V4	-	sonda gen412
+macchineria/riflessiva/sa-cosa-non-sa	macchineria	riflessiva	se_stesso	2	2-2-1-2-0-3-2	V1,V2	macchineria/riflessiva/ancora-della-lacuna	ipotesi gen412
