@@ -1,0 +1,56 @@
+# id:        macchineria/riflessiva/ponte-che-generalizza
+# famiglia:  macchineria
+# dominio:   riflessiva / la propria macchineria
+# gradino:   3
+# vettore:   profondita 3  distanza 2  ambiguita 1  composizione 2
+#            rumore 0  apertura 3  novita 3
+# lavoro:    murare su una frase mai vista, ripararsi da solo, e poi capire una
+#            frase DIVERSA che nessuno ha mai detto
+# difficile: e' lo scenario piu' sorprendente che la batteria abbia trovato, e la
+#            cosa notevole non e' la riparazione — e' la GENERALIZZAZIONE. Il
+#            ponte che parrot0 si insegna non e' la frase che ha murato: e' una
+#            forma, e copre frasi che non ha mai visto.
+#
+#            E copre esattamente quelle: il quarto turno e' il CONFINE, ed e'
+#            quello che rende il risultato credibile invece che magico. Il cue
+#            imparato e' «ci ritroviamo al», quindi «alla stazione» resta un
+#            muro. Non ha generalizzato un millimetro oltre l'evidenza che
+#            aveva, e un'estensione che si fermasse dove finisce la prova e'
+#            precisamente cio' che si vuole da un sistema che modifica se stesso
+# origine:   caccia allo scenario piu' sorprendente, gen412
+# verifica:  V5 (la lacuna si chiude proponendo) + V2 + V4 (il confine tiene)
+
+[test una frase mai vista mura]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+> ci ritroviamo al porto
+< Non capisco ancora.
+!query machinery_gap($G)
+
+# Nessuno gli dice COSA imparare. Gli si dice solo di provarci.
+[test si insegna da solo la macchineria che gli manca]
+> prova a ripararti
+<~ ci ritroviamo al
+!query learned_bridge(setting_cue, "ci ritroviamo al")
+
+[test ora la frase che aveva murato si capisce]
+> ci ritroviamo al porto
+<~ porto
+
+# IL PUNTO. Questa frase non e' mai stata detta, ne' da lui ne' da nessuno.
+# Il ponte non era la frase: era la forma.
+[test e capisce anche una frase che nessuno ha mai detto]
+> ci ritroviamo al mercato
+<~ mercato
+
+# IL CONFINE, che vale quanto il successo. «alla» non e' «al»: il cue imparato
+# non lo copre, e parrot0 non finge che lo copra. Ha generalizzato fin dove
+# arrivava la prova e non oltre.
+[test e non generalizza oltre l'evidenza che aveva]
+> ci ritroviamo alla stazione
+< Non capisco ancora.
+
+# E il registro torna vuoto: la lacuna aperta all'inizio non c'e' piu'.
+[test la lacuna si e' chiusa davvero]
+!query! machinery_gap("ci ritroviamo al porto")
