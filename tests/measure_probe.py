@@ -14,8 +14,8 @@ e' la mossa, non la frase.
 Provider/auth come le altre sonde (opencode-GO, $OPENCODE_API_KEY).
 
 Uso:
-  .venv/bin/python tests/measure_probe.py --class 1
-  .venv/bin/python tests/measure_probe.py --class 1 --no-llm
+  .venv/bin/python tests/measure_probe.py --length 1
+  .venv/bin/python tests/measure_probe.py --length 1 --no-llm
 """
 from __future__ import annotations
 
@@ -33,11 +33,11 @@ BASE = "https://opencode.ai/zen/go/v1/chat/completions"
 SYS = ("You are a concise, friendly chatbot. Answer naturally in the user's "
        "language. Be concrete and brief.")
 
-# Gli stimoli di classe 1: un byte. Scelti per COPRIRE lo spazio, non per essere
+# Gli stimoli di lunghezza 1: un byte. Scelti per COPRIRE lo spazio, non per essere
 # interessanti — lettere, cifre, punteggiatura, simboli.
 STIMULI = {
     1: ["a", "i", "z", "0", "7", "?", "!", ".", ",", "-", "+", "@", "%", "/"],
-    # classe 2: le FORME che due byte possono avere, non i casi interessanti.
+    # lunghezza 2: le FORME che due byte possono avere, non i casi interessanti.
     # parola inglese, parola italiana, non-parola, numero, numero segnato,
     # lettera+cifra, punteggiatura doppia, parola+punteggiatura.
     2: ["hi", "ok", "no", "if",          # parole inglesi
@@ -48,7 +48,7 @@ STIMULI = {
         "a1",                            # lettera + cifra
         "??", "!?", "..",                # punteggiatura
         ],
-    # classe 3: a tre byte lo spazio cambia natura — ci stanno parole vere,
+    # lunghezza 3: a tre byte lo spazio cambia natura — ci stanno parole vere,
     # domande vere e un CALCOLO COMPLETO.
     3: ["who", "why", "how",             # parole interrogative
         "yes", "sun", "dog",             # parole piene
@@ -57,7 +57,7 @@ STIMULI = {
         "hi!", "ok?",                    # parola + punteggiatura
         "qzx", "???",                    # non-parola, punteggiatura
         ],
-    # classe 4: a quattro byte entrano le cose scoperte in questa sessione —
+    # lunghezza 4: a quattro byte entrano le cose scoperte in questa sessione —
     # un operatore INSEGNATO, un orario, una domanda vera, una negazione.
     4: ["12+3", "10-7", "2*21",          # aritmetica a due cifre
         "9:15", "1/2",                   # orario, frazione
@@ -130,7 +130,7 @@ def main() -> int:
     parser.add_argument("--binary", default="./bin/parrot0")
     parser.add_argument("--model", default="gpt-5.6-luna")
     parser.add_argument("--temperature", type=float, default=0.2)
-    parser.add_argument("--class", dest="cls", type=int, default=1)
+    parser.add_argument("--length", dest="length_class", type=int, default=1)
     parser.add_argument("--no-llm", action="store_true")
     parser.add_argument("--out", default="")
     args = parser.parse_args()
@@ -140,15 +140,15 @@ def main() -> int:
         print("OPENCODE_API_KEY assente: uso --no-llm", file=sys.stderr)
         args.no_llm = True
 
-    stimuli = STIMULI.get(args.cls)
+    stimuli = STIMULI.get(args.length_class)
     if not stimuli:
-        print(f"nessuno stimolo per la classe {args.cls}", file=sys.stderr)
+        print(f"nessuno stimolo per la lunghezza {args.length_class}", file=sys.stderr)
         return 2
 
     stamp = time.strftime("%Y%m%d-%H%M%S")
-    out = args.out or f"tests/sym/measure-class{args.cls}-{stamp}.md"
+    out = args.out or f"tests/sym/measure-len{args.length_class}-{stamp}.md"
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    lines = [f"# measure probe — classe {args.cls} ({args.cls} byte) — {stamp}", "",
+    lines = [f"# measure probe — classe {args.length_class} ({args.length_class} byte) — {stamp}", "",
              f"modello: `{args.model}`", "",
              "Sonda di SCOPERTA: si copia la MOSSA, mai il contenuto. Serve a curare",
              "le risposte attese di tests/measure/ senza inventarle e senza copiarle",

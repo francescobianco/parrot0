@@ -326,6 +326,109 @@ static int mod_initiative(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+
+/* gen426 — UN TOKEN SOLO NON E' UNA CHIACCHIERA.
+ *
+ * Le classi misurate hanno mostrato che «what», «help», «true», «qzxv», «dog» e
+ * «yes» ricevevano tutti la STESSA risposta — «Hi there! What would you like to
+ * talk about?» — e con la stessa firma di ragionamento: sei turni diversi,
+ * indistinguibili da dentro e da fuori. Non era un difetto di una risposta: era
+ * che nessuno guardava CHE COSA fosse quel token prima che lo smalltalk lo
+ * prendesse.
+ *
+ * Qui il turno di una parola sola viene classificato prima del ripiego sociale,
+ * e ogni classe ha la sua risposta:
+ *
+ *   una parola interrogativa   -> e' l'inizio di una domanda, non una domanda
+ *   una cosa che la KB conosce -> si nomina e si chiede che cosa se ne voglia sapere
+ *   un token che non dice nulla-> lo si cita e si chiede che cosa significhi
+ *
+ * Le classi sono conoscenza (`question_word/1`, e per il resto la KB stessa
+ * risponde se conosce il termine) e le frasi sono template: aggiungere una
+ * classe non costa C.
+ *
+ * Corre DOPO tutti i moduli di contenuto — se qualcuno sa rispondere davvero,
+ * risponde lui — e PRIMA dello smalltalk, che altrimenti li acchiappa tutti. */
+static int mod_lone(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb || !norm || !*norm) return 0;
+    char buf[128];
+    if (strlen(norm) >= sizeof buf) return 0;
+    snprintf(buf, sizeof buf, "%s", norm);
+    char *w[4];
+    if (split_words(buf, w, 4) != 1) return 0;
+    char *tok = strip_edge_punct(w[0]);
+    if (!*tok) return 0;
+    /* alfanumerico, ma non tutto cifre: «a1» e' un token opaco quanto «qz», e
+     * lasciarlo fuori per un carattere era una distinzione senza differenza. I
+     * numeri nudi hanno gia' il loro riconoscitore. */
+    int has_alpha = 0;
+    for (const char *p = tok; *p; p++) {
+        if (isalpha((unsigned char)*p)) has_alpha = 1;
+        else if (!isdigit((unsigned char)*p)) return 0;
+    }
+    if (!has_alpha) return 0;
+    char msg[400];
+    /* LA PAROLA INTERROGATIVA VIENE PRIMA DI OGNI GUARDIA. «what» e «when» sono
+     * anche stopword, e mettere il filtro sociale davanti al controllo le
+     * lasciava al saluto generico — cioe' proprio il caso che questo modulo
+     * esiste per separare. */
+    const char *qq[1] = { tok };
+    if (kb_query(b->kb, "question_word", qq, 1)) {
+        if (!kb_response_slots(b, "lone_question_word", NULL, 0, msg, sizeof msg))
+            snprintf(msg, sizeof msg,
+                     "That's the start of a question — what would you like to know?");
+        put(msg, out, out_size);
+        return 1;
+    }
+    /* L'ASSENSO E IL DINIEGO sono una mossa, non un topic: «ok» non chiede di
+     * sapere qualcosa su «ok», accusa ricezione. Le due classi sono conoscenza,
+     * quindi una parola nuova — in qualunque lingua — costa una riga. */
+    {
+        const char *aq[1] = { tok };
+        if (kb_query(b->kb, "assent_word", aq, 1) ||
+            kb_query(b->kb, "dissent_word", aq, 1)) {
+            if (!kb_response_slots(b, "lone_assent", NULL, 0, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "Got it — what would you like to do?");
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    /* I SALUTI E I MARCATORI SOCIALI RESTANO SOCIALI. «hi» da solo e' contatto,
+     * non un topic da interrogare: rubarglielo produrrebbe «che cosa vorresti
+     * sapere su hi?», che e' peggio del saluto generico che si sta sostituendo. */
+    {
+        const char *smq[2] = { NULL, tok };
+        char hit[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "social_marker", smq, 2, hit, 1) > 0) return 0;
+        const char *rq[1] = { tok };
+        if (kb_query(b->kb, "reaction_word", rq, 1)) return 0;
+        if (is_stopword(b, tok)) return 0;
+    }
+
+    /* UNA LETTERA SOLA NON E' UN TOPIC, anche quando la KB ha per caso un
+     * predicato che si chiama cosi'. «What would you like to know about b?» e'
+     * una domanda che nessuno puo' raccogliere: e' un token opaco e va detto. */
+    char desc[256];
+    int known = strlen(tok) >= 2 &&
+                (kb_knows_pred(b->kb, tok) ||
+                 kb_describe_entity(b->kb, tok, desc, sizeof desc));
+    const KbResponseSlot sl[] = { { "token", tok } };
+    if (known) {
+        if (!kb_response_slots(b, "lone_known_topic", sl, 1, msg, sizeof msg))
+            snprintf(msg, sizeof msg,
+                     "What would you like to know about %s?", tok);
+    } else {
+        if (!kb_response_slots(b, "lone_unknown_token", sl, 1, msg, sizeof msg))
+            snprintf(msg, sizeof msg,
+                     "I have nothing on \"%s\" — could you say what you mean by it?", tok);
+    }
+    put(msg, out, out_size);
+    return 1;
+}
+
 static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;

@@ -264,10 +264,10 @@ static int measure_run(const char *dir) {
     if (!dir || !*dir) return 1;
     /* i file si prendono in ordine di CLASSE, cioe' numerico: 2.qa viene dopo
      * 1.qa e prima di 10.qa, che l'ordine alfabetico sbaglierebbe. */
-    long total_ok = 0, total_n = 0, max_cls = 0;
-    for (long cls = 1; cls <= 512; cls++) {
+    long total_ok = 0, total_n = 0, max_len = 0;
+    for (long len_class = 1; len_class <= 512; len_class++) {
         char path[512];
-        if ((size_t)snprintf(path, sizeof path, "%s/%ld.qa", dir, cls) >= sizeof path) continue;
+        if ((size_t)snprintf(path, sizeof path, "%s/%ld.qa", dir, len_class) >= sizeof path) continue;
         FILE *f = fopen(path, "r");
         if (!f) continue;
         long ok = 0, n = 0;
@@ -353,9 +353,9 @@ static int measure_run(const char *dir) {
                         path, line);
                 continue;
             }
-            if ((size_t)(sep - line) != (size_t)cls) {
+            if ((size_t)(sep - line) != (size_t)len_class) {
                 fprintf(stderr, "measure: %s: la domanda non e' lunga %ld byte: %s\n",
-                        path, cls, line);
+                        path, len_class, line);
                 continue;
             }
             *sep = '\0'; *sep2 = '\0';
@@ -398,7 +398,7 @@ static int measure_run(const char *dir) {
         fclose(f);
         long dist_ok = 0;
         for (size_t a = 0; a < nans; a++) if (solved[a]) dist_ok++;
-        total_ok += dist_ok; total_n += (long)nans; max_cls = cls;
+        total_ok += dist_ok; total_n += (long)nans; max_len = len_class;
     }
     if (total_n == 0) {
         fprintf(stderr, "measure: nessun file 1.qa, 2.qa, … in %s\n", dir);
@@ -416,7 +416,7 @@ static int measure_run(const char *dir) {
      * quante ne risolve, e quali membri cadono — serve a curare il corpus, non a
      * leggerlo, e ingombrava il titolo. */
     (void)total_ok;
-    printf("tonnage %ld   max length %ld\n", total_n, max_cls);
+    printf("tonnage %ld   max length %ld\n", total_n, max_len);
     return 0;
 }
 

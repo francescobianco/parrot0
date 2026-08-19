@@ -561,3 +561,15 @@ machinery(transcoded).
 transcode_shape(time, ":", 2).
 transcode_shape(date, "-", 3).
 transcode_shape(date, "/", 3).
+
+% gen426 — ASSENSO E DINIEGO, come classi.
+%
+% «ok», «yes» e «no» da soli non chiedono di sapere qualcosa su «ok»: accusano
+% ricezione. Erano solo stopword, quindi finivano nel saluto generico insieme a
+% «what», «dog» e «qzxv» — sei turni diversi con la stessa risposta e la stessa
+% firma. Una parola nuova, in qualunque lingua, costa una riga qui.
+machinery(assent_word).
+machinery(dissent_word).
+assent_word(yes).  assent_word(ok).   assent_word(okay).
+assent_word(si).   assent_word(certo). assent_word(va).
+dissent_word(no).  dissent_word(nope). dissent_word(nah).

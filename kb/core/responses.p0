@@ -749,3 +749,16 @@ response_template(schema_incomplete, it, "Ci vedo una forma di tipo {schema}, ma
 % e' indistinguibile da un turno non capito.
 response_template(forgotten_ack, "Done — I've let go of your {slot}.").
 response_template(forgotten_ack, it, "Fatto — ho lasciato andare il tuo {slot}.").
+
+% gen426 — un turno di UNA PAROLA SOLA, classificato invece che salutato.
+% Le classi misurate mostravano «what», «help», «true», «qzxv», «dog» e «yes»
+% con la stessa risposta E la stessa firma: sei turni indistinguibili da dentro e
+% da fuori. Ognuno ha la sua mossa.
+response_template(lone_question_word, "That's the start of a question — what would you like to know?").
+response_template(lone_question_word, it, "E' l'inizio di una domanda — che cosa vorresti sapere?").
+response_template(lone_known_topic, "What would you like to know about {token}?").
+response_template(lone_known_topic, it, "Che cosa vorresti sapere su {token}?").
+response_template(lone_unknown_token, "I have nothing on {token} — could you say what you mean by it?").
+response_template(lone_unknown_token, it, "Non ho niente su {token} — mi dici che cosa intendi?").
+response_template(lone_assent, "Got it — what would you like to do?").
+response_template(lone_assent, it, "Ricevuto — che cosa vuoi fare?").

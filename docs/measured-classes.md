@@ -1,9 +1,28 @@
 # Le classi misurate — la stazza di parrot0
 
-> **In una riga.** La **stazza** è quante **risposte distinte** il corpus curato
-> contiene — cioè quante capacità diverse si stanno chiedendo a parrot0. `make
-> measure` la stampa insieme a quante ne risolve, e alla lunghezza massima a cui
-> la misura è stata fatta.
+> **In una riga.** La **stazza** è quante **classi di prompt** parrot0 sa
+> trattare in modo distinto — la grossezza della sua intelligenza. `make measure`
+> la stampa con la lunghezza massima a cui il corpus è stato spazzolato.
+
+
+## 0. Due parole che non vanno confuse
+
+**Classe** = una **famiglia di prompt** che parrot0 sa trattare in modo suo. È
+quello che la stazza conta, ed è quello che si cerca di far crescere: *quante
+classi di prompt parrot0 sa gestire*. Il nome «classi misurate» viene da qui.
+
+**Lunghezza** = i byte del prompt. È solo il modo in cui il corpus è
+**organizzato** — `1.qa` tiene i prompt di un byte, `2.qa` quelli di due — perché
+a lunghezza fissa lo spazio d'ingresso è enumerabile e si può dire con onestà che
+cosa è stato coperto.
+
+I file non sono classi: **i file organizzano lo spazio, le classi sono quello che
+si scopre dentro.** Un file di lunghezza 1 può contenere cinque classi (lettere,
+cifre, punteggiatura, assenso, saluto) e un file di lunghezza 4 può contenerne
+undici. La stazza le somma tutte.
+
+> **La stazza è la grossezza dell'intelligenza**: quante famiglie di prompt
+> distinte parrot0 sa trattare. Si fa crescere insegnandogli a *distinguere*.
 
 ## 1. Che cos'è, e perché non è un'altra suite di test
 
@@ -36,7 +55,7 @@ parole: in byte. È la scelta che rende il corpus sistematico invece che
 aneddotico — a lunghezza fissa lo spazio è enumerabile, e si può dire con onestà
 che cosa è coperto e che cosa no.
 
-Le classi si aprono **una alla volta e solo quando c'è la volontà di curarle**.
+Le **lunghezze** si aprono una alla volta e solo quando c'è la volontà di curarle.
 Un file scritto in anticipo è un elenco di righe che nessuno ha guardato, e
 questa misura si regge tutta sulla cura. Il comando prende i file in ordine
 numerico e ignora quelli che non esistono, quindi la cartella può restare a
@@ -169,15 +188,15 @@ una volta.
 
 ### 3c. Il muro è limitato dalla scala
 
-Una conseguenza della regola dei doppioni che vale la pena vedere, perché è ciò
-che rende questa scala **ben fatta** e non solo comoda (F.).
+Una conseguenza della regola che vale la pena vedere, perché è ciò che rende
+questa scala **ben fatta** e non solo comoda (F.).
 
 Un muro è **una risposta sola** — *«I don't understand that yet.»* — quindi
 dentro un file conta **uno**, che ci caschino tre prompt o trecento. Ne segue un
 limite duro:
 
-> Fra la classe 1 e la classe N, i muri possono contribuire alla stazza **al
-> massimo N**: uno per classe. A lunghezza 10 ci potranno essere al più dieci
+> Fra la lunghezza 1 e la lunghezza N, i muri possono contribuire alla stazza
+> **al massimo N**: uno per file. A lunghezza 10 ci potranno essere al più dieci
 > muri in tutto il corpus.
 
 Tutto il resto della stazza è fatto di **risposte diverse**, e una risposta
@@ -192,7 +211,7 @@ Da qui tre cose che sarebbe difficile ottenere altrimenti:
   è tenuto separato apposta;
 - **il muro è un'abilità come le altre, e a volte è quella giusta.** Declinare in
   modo informato è la risposta corretta a certi prompt, e la scala lo ammette
-  senza permettergli di gonfiarsi: costa uno slot per classe, come ogni altra
+  senza permettergli di gonfiarsi: costa uno slot per file, come ogni altra
   risposta ripetuta.
 
 ## 4. Da dove vengono le attese — le sonde
@@ -202,7 +221,7 @@ righe.** Le attese non le decide chi scrive il file: le decide una **sonda** che
 mostra che cosa fa un modello di frontiera davanti allo stesso stimolo.
 
 ```
-.venv/bin/python tests/measure_probe.py --class 1
+.venv/bin/python tests/measure_probe.py --length 1
 ```
 
 Come tutte le sonde del progetto, **non usa l'LLM come fonte di verità**: osserva
@@ -210,7 +229,7 @@ la **mossa**. La domanda non è «che cosa risponde il modello» ma «che cosa *
 — chiede, nomina ciò che ha ricevuto, saluta, dichiara il limite, o finge di aver
 capito. Nel file finisce la mossa, mai la frase copiata.
 
-**Esempio, classe 1 (19 agosto 2026).** Quattordici stimoli di un byte, oracolo
+**Esempio, lunghezza 1 (19 agosto 2026).** Quattordici stimoli di un byte, oracolo
 `gpt-5.6-luna`:
 
 ```
@@ -286,7 +305,7 @@ Il quinto punto è l'unico che conta. Gli altri quattro sono contabilità.
 
 ## 8. Le misure fatte
 
-### Classe 1 — un byte (19 agosto 2026)
+### Lunghezza 1 — un byte (19 agosto 2026)
 
 Tre capacità, perché davanti a un byte ci sono tre risposte giuste diverse.
 
@@ -300,7 +319,7 @@ La punteggiatura è il caso istruttivo: la capacità c'è e funziona su ventinov
 segni su trentadue. **Tre caratteri non entrano in una classe che esiste già ed è
 dichiarata in KB** — e finché non ci entrano, la capacità non conta.
 
-### Classe 2 — due byte (19 agosto 2026)
+### Lunghezza 2 — due byte (19 agosto 2026)
 
 La sonda ha mostrato una mossa **più netta** che a un byte, ed è il reperto
 principale del secondo giro: con due byte c'è abbastanza da **rimandare
@@ -336,7 +355,7 @@ in rumeno, `ne` in turco, `!?` di nuovo in arabo. Quando l'ingresso non porta
 tracce di lingua, anche un modello di frontiera tira a indovinare. Non è una
 stranezza di parrot0.
 
-### Classe 3 — tre byte (19 agosto 2026)
+### Lunghezza 3 — tre byte (19 agosto 2026)
 
 A tre byte lo spazio cambia natura: ci stanno parole vere, domande vere e **un
 calcolo completo**. Ed è la prima classe in cui parrot0 fa qualcosa di
@@ -367,7 +386,7 @@ Due cose che la sonda ha mostrato di traverso:
   lingua (la misura sì), quindi lì si vede la deriva allo stato brado: la lingua
   segue il turno, e un token che non ne porta traccia la lascia dov'era.
 
-### Classe 4 — quattro byte, e il difetto che spiegava tre classi
+### Lunghezza 4 — quattro byte, e il difetto che spiegava tre lunghezze
 
 ```
 tonnage 24   max length 4
@@ -412,6 +431,64 @@ qualcun altro — la varietà cala, la correttezza sale.
 Ne segue che **la stazza da sola non dice se le cose vanno meglio**, e non deve
 essere letta come un punteggio da massimizzare. Dice quante cose diverse
 succedono; se siano quelle giuste lo dicono le righe che passano.
+
+### Massimizzare la stazza a lunghezza 4 (19 agosto 2026)
+
+```
+tonnage 30   max length 4
+lunghezza 1: 62/68     2: 18/19     3: 16/18     4: 12/15
+```
+
+Da **24 a 30 classi**, e non aggiungendo righe al corpus: **facendo distinguere a
+parrot0 turni che trattava allo stesso modo.**
+
+Il punto di partenza era una diagnosi che solo la firma poteva dare:
+
+```
+what | 047ca2b7 | help | 047ca2b7 | qzxv | 047ca2b7 | true | 047ca2b7
+```
+
+Sei prompt, una firma, **una sola risposta vera** — *«Hi there! What would you
+like to talk about?»*. Non era un difetto di una risposta: era che nessuno
+guardava **che cosa fosse** quel token prima che lo smalltalk lo prendesse. La
+«mossa per eliminazione» di `mod_social` — *una parola sola al primo turno è
+contatto fatico* — acchiappava insieme i saluti veri, le parole interrogative, le
+entità note e il rumore da tastiera.
+
+`mod_lone` classifica il token **prima** del ripiego sociale, e ogni classe ha la
+sua mossa:
+
+| classe | esempio | risposta |
+|---|---|---|
+| parola interrogativa | `what` `when` | *That's the start of a question — …* |
+| entità nota | `dog` `sun` | *What would you like to know about dog?* |
+| assenso / diniego | `ok` `yes` `no` | *Got it — what would you like to do?* |
+| token opaco | `qzxv` `a1` `b` | *I have nothing on qzxv — …* |
+| saluto | `hi` `thanks` | resta al sociale, che è il suo posto |
+
+Le classi sono conoscenza (`question_word/1`, `assent_word/1`, `dissent_word/1`)
+e le frasi sono template: **una parola nuova, in qualunque lingua, costa una
+riga.**
+
+Tre dettagli pagati per strada, tutti misurati:
+
+- **la parola interrogativa viene prima di ogni guardia.** `what` e `when` sono
+  anche stopword, e mettere il filtro sociale davanti al controllo le lasciava al
+  saluto generico — cioè proprio il caso che il modulo esiste per separare;
+- **una lettera sola non è un topic.** La KB ha per caso predicati che si chiamano
+  `b` o `r`, e *«What would you like to know about b?»* è una domanda che nessuno
+  può raccogliere. Sotto i due caratteri, è un token opaco;
+- **i saluti restano al sociale.** Rubarglieli avrebbe prodotto *«che cosa
+  vorresti sapere su hi?»*, peggio del generico che si stava sostituendo.
+
+E le attese del corpus sono state **armonizzate** dove la risposta nuova è più
+giusta di quella curata: le lettere sole ricevevano un saluto (la mossa
+dell'oracolo a un byte) e ora vengono **nominate**, che è più informativo. È lo
+stesso caso della punteggiatura — parrot0 fa meglio dell'oracolo, e il corpus lo
+registra.
+
+**Cosa resta**, per nome: le cinque vocali e `r`, `u` (che la KB conosce come
+predicati), `if`, `3.5`, `why`, `9:15`, `help`, `true`.
 
 ### Lo stato### Lo stato### Lo stato
 

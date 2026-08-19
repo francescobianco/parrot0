@@ -283,6 +283,12 @@ static const Module registry[] = {
     {"family",    mod_family},
     {"personal",  mod_personal},   /* gen335: user self-facts; AFTER family so "my father
                                     * works in a bank" stays a family statement, not a job */
+    /* gen426: un token solo si classifica PRIMA del sociale. La «mossa per
+     * eliminazione» di mod_social — una parola sola al primo turno e' contatto
+     * fatico — acchiappava «what», «dog» e «qzxv» insieme ai saluti veri, e le
+     * classi misurate mostravano sei turni diversi con la stessa risposta E la
+     * stessa firma. I saluti restano a lui: mod_lone li lascia passare. */
+    {"lone",      mod_lone},
     {"social",    mod_social},
     {"chitchat",  mod_chitchat},
     {"reqgen",    mod_reqgen},

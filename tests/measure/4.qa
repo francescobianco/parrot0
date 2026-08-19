@@ -7,9 +7,9 @@
 2*21 | 8a7d532c | 42
 9:15 | 018703a2 | is a time of day
 ???? | 00f24344 | That's just punctuation, not words — what would you like to ask?
-help | 047ca2b7 | what would you like to know about
-qzxv | 047ca2b7 | what you mean by
-true | 047ca2b7 | what would you like to know about
-what | 047ca2b7 | that's the start of a question
-when | 047ca2b7 | that's the start of a question
-zqwv | 047ca2b7 | what you mean by
+help | 4379dc78 | What would you like to know about
+qzxv | 4379dc78 | I have nothing on
+true | 4379dc78 | What would you like to know about
+what | fc5f22ea | That's the start of a question
+when | fc5f22ea | That's the start of a question
+zqwv | 4379dc78 | I have nothing on
