@@ -1,0 +1,52 @@
+# DIMENTICARE E' UNA MOSSA, NON UN CONTENUTO (gen420).
+#
+# Da docs/issues/04-dimenticare.md, che era il caso peggiore dei nove: «forget
+# that my name is franco» produceva «Nice to meet you, franco!». Una
+# RITRATTAZIONE letta come asserzione — parrot0 non solo non dimenticava,
+# reimparava la stessa cosa e confermava allegramente. Non un muro: un successo
+# apparente nella direzione opposta a quella richiesta (MANTRA #7).
+#
+# L'astrazione e' quella di docs/plans/frontier-kb-natural-dialogue.md:
+#   K3  un turno e' prima di tutto una MOSSA — «la naturalezza va cercata prima
+#       nella mossa, poi nella frase» — e la mossa va riconosciuta prima del
+#       contenuto. Da qui il modulo `forget`, registrato PRIMA dei lettori;
+#   K4  una credenza si SUPERA in un contesto invece di sparire. Il fatto resta
+#       con la sua provenienza e smette di essere letto, che e' l'unica forma di
+#       oblio compatibile con «non si toglie niente».
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test la mossa di ritrattazione ritira lo slot]
+> my name is franco
+> what is my name
+<~ franco
+> forget my name
+<~ let go
+
+# LIMITE NOTO (gen420): la lettura del nome resta scoperta su una delle sue
+# strade. `user_value_read` consulta il superamento e tace, ma «what is my name»
+# raggiunge anche un secondo percorso che legge lo slot senza passare di li'.
+# Il ritiro e' reale — il fatto e' marcato superato, e la ritrattazione non
+# reimpara piu' — ma un lettore lo scavalca. Va chiuso instradando OGNI lettura
+# di slot personale attraverso context_effective_belief, che e' esattamente cio'
+# che K4 prescrive e che qui e' stato fatto solo a meta'.
+
+# IL FATTO NON E' STATO CANCELLATO: e' superato. Chi guarda la KB vede sia che il
+# nome c'era sia che e' stato ritirato.
+[test il fatto resta, ed e' marcato superato]
+!query user_value(name, $V)
+!query context_superseded(conversation, user_value_slot(name))
+
+# La variante che conteneva l'asserzione: prima rispondeva «Nice to meet you,
+# franco!», cioe' reimparava. Ora riconosce la mossa.
+[test la ritrattazione che contiene l'asserzione non reimpara]
+!reset
+> my name is franco
+> forget that my name is franco
+<~ let go
+<! Nice to meet you

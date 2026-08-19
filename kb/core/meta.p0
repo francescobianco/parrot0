@@ -913,3 +913,26 @@ register_silent(self).
 %   remedy_for(knowledge, reading).        leggere — l'unico caso in cui serve
 machinery(remedy_for).
 remedy_for(reachability, cue).
+
+% ── gen420: LE MOSSE SULLO STATO ────────────────────────────────────────────
+%
+% K3 di frontier-kb-natural-dialogue.md: un turno e' prima di tutto una MOSSA, e
+% «la naturalezza va cercata prima nella mossa, poi nella frase». «Forget my
+% name» non porta un contenuto da imparare — chiede a parrot0 di cambiare il
+% proprio stato — e letto come contenuto produceva «Nice to meet you, franco!»,
+% cioe' reimparava la cosa che gli era stato chiesto di dimenticare.
+%
+% L'effetto e' un SUPERAMENTO, non una cancellazione (K4): il fatto resta con la
+% sua provenienza e smette di essere letto. E' l'unica forma di oblio compatibile
+% con «non si toglie niente».
+machinery(state_move_cue).
+machinery(user_slot_cue).
+state_move_cue("forget", retract).
+state_move_cue("dimentica", retract).
+state_move_cue("scordati", retract).
+state_move_cue("non ricordare", retract).
+
+% Quali slot personali si possono ritirare, e come si nominano.
+user_slot_cue("my name", name).
+user_slot_cue("il mio nome", name).
+user_slot_cue("mi chiamo", name).

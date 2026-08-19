@@ -130,6 +130,10 @@ static const Module registry[] = {
     {"compose",   mod_compose},
     {"repair",    mod_repair},
     {"input",     mod_input},
+    /* gen420: la MOSSA prima del contenuto. «forget that my name is franco»
+     * contiene un'asserzione che piu' moduli sanno leggere, e ognuno se la
+     * prendeva a turno; registrarsi qui e' l'unico modo di non inseguirli. */
+    {"forget",    mod_forget},
     /* gen335+: moved earlier so riddle/story handlers claim before coref (174). */
     /* gen382c: l'atto di INSEGNARE una risposta corre prima del motore che le
      * consuma — altrimenti "quando ti chiedo di X rispondi Y" verrebbe letto

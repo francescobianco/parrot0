@@ -483,6 +483,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/conversation/context_scope.p0t
 	@./$(BIN) --test tests/p0t/conversation/conversation.p0t
 	@./$(BIN) --test tests/p0t/conversation/meta_question.p0t
+	@./$(BIN) --test tests/p0t/conversation/forget_move.p0t
 	@./$(BIN) --test tests/p0t/conversation/greet.p0t
 	@./$(BIN) --test tests/p0t/math/arith.p0t
 	@./$(BIN) --test tests/p0t/math/time_date_complex.p0t

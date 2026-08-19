@@ -744,3 +744,8 @@ response_template(register_declined, it, "Mi sembra un problema di {register}, e
 % parola, ed e' l'unico che indichi da solo un rimedio.
 response_template(schema_incomplete, "I can see a {schema} shape here, but the {role} is missing.").
 response_template(schema_incomplete, it, "Ci vedo una forma di tipo {schema}, ma manca {role}.").
+
+% gen420 — la conferma di aver dimenticato. Va detta, perche' un oblio silenzioso
+% e' indistinguibile da un turno non capito.
+response_template(forgotten_ack, "Done — I've let go of your {slot}.").
+response_template(forgotten_ack, it, "Fatto — ho lasciato andare il tuo {slot}.").

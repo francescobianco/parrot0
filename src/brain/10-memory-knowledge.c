@@ -32,6 +32,24 @@ static int user_value_read(Brain *b, const char *slot, char *out, size_t outsz) 
     const char *q[2] = { slot, NULL };
     char val[1][KB_TERM_LEN];
     if (kb_match(b->kb, "user_value", q, 2, val, 1) < 1) return 0;
+    /* gen420 — UNO SLOT SUPERATO NON SI LEGGE PIU', E NON E' STATO CANCELLATO.
+     *
+     * «Forget my name» non toglie niente dalla KB: dichiara che quel valore e'
+     * stato SUPERATO nel contesto della conversazione (`supersedes_in/3` di
+     * context-scope.p0, l'astrazione K4 di frontier-kb-natural-dialogue.md). Il
+     * fatto resta, con la sua provenienza, e chi guarda la KB vede sia che il
+     * nome c'era sia che e' stato ritirato — che e' l'unica forma di oblio
+     * compatibile con «non si toglie niente». */
+    {
+        /* Si supera lo SLOT, non il valore: «dimentica il mio nome» ritira il
+         * campo, non quella particolare stringa — e cosi' i due lati non devono
+         * ricostruire lo stesso termine carattere per carattere, che era
+         * fragile e infatti non combaciava. */
+        char prop[KB_TERM_LEN];
+        snprintf(prop, sizeof prop, "user_value_slot(%s)", slot);
+        const char *sq[2] = { "conversation", prop };
+        if (kb_query(b->kb, "context_superseded", sq, 2)) return 0;
+    }
     snprintf(out, outsz, "%s", kb_dequote(val[0]));
     for (char *p = out; *p; p++) if (*p == '_') *p = ' ';
     return out[0] != '\0';
@@ -7099,6 +7117,27 @@ static void personal_raw_tail(const char *raw, size_t k, char *out, size_t outsz
 
 static int personal_slot_turn(Brain *b, const char *norm, const char *raw,
                               char *out, size_t out_size, int eager_only) {
+    /* gen420 — UNA MOSSA DI RITRATTAZIONE NON E' UN'ASSERZIONE.
+     *
+     * «forget that my name is franco» contiene «my name is franco», che questa
+     * passata legge benissimo — e infatti rispondeva «Nice to meet you,
+     * franco!», reimparando la cosa che le era stato chiesto di dimenticare. E'
+     * il caso peggiore del mantra #7: non un muro, un successo apparente nella
+     * direzione opposta.
+     *
+     * K3 di frontier-kb-natural-dialogue.md lo dice come principio: un turno e'
+     * prima di tutto una MOSSA, e la mossa va riconosciuta prima del contenuto.
+     * Qui basta cedere il passo: se il turno porta una mossa di ritrattazione,
+     * questa passata non e' la sua. */
+    if (b && b->kb) {
+        char mv[8][KB_TERM_LEN];
+        const char *mq[2] = { NULL, "retract" };
+        size_t nmv = kb_match(b->kb, "state_move_cue", mq, 2, mv, 8);
+        for (size_t i = 0; i < nmv; i++) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", mv[i]);
+            if (cue(norm, kb_dequote(cb))) return 0;
+        }
+    }
     if (!b || !b->kb || !norm || !*norm) return 0;
 
     /* structure: is this about the USER (self-reference), and a question or a statement? */
@@ -7367,6 +7406,81 @@ static int taxonomy_definition_reply(Brain *b, const char *norm,
         remember_entity(b, entity, entity);
         return 1;
     }
+    return 0;
+}
+
+/* gen420 — la mossa di ritrattazione, come MODULO e non come ramo.
+ *
+ * Deve correre PRIMA di chi legge i contenuti, e non basta far cedere il passo a
+ * un lettore: «forget that my name is franco» contiene «my name is franco», che
+ * piu' di un modulo sa leggere, e ognuno se lo prendeva a turno («Nice to meet
+ * you», poi «Got it: your name is…»). Inseguirli uno per uno e' chiudere casi a
+ * mano; registrarsi prima e' riconoscere che la MOSSA viene prima del contenuto,
+ * che e' esattamente quello che K3 di frontier-kb-natural-dialogue.md prescrive. */
+static int mod_forget(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+    /* ── gen420: DIMENTICARE E' UNA MOSSA, NON UN CONTENUTO ──────────────────
+     *
+     * «Forget my name» non chiede un'informazione: chiede a parrot0 di cambiare
+     * il proprio stato. Letto come contenuto finiva nei lettori di asserzione, e
+     * «forget that my name is franco» produceva «Nice to meet you, franco!» —
+     * una RITRATTAZIONE che reimparava la stessa cosa e confermava allegramente.
+     * Il caso peggiore per il mantra #7: non un muro, un successo apparente
+     * nella direzione opposta a quella richiesta (docs/issues/04-dimenticare.md).
+     *
+     * L'astrazione e' quella di frontier-kb-natural-dialogue.md: K3 dice che un
+     * turno e' prima di tutto una MOSSA — «la naturalezza va cercata prima nella
+     * mossa, poi nella frase» — e K4 dice che una credenza si SUPERA in un
+     * contesto invece di sparire. Qui le due cose si incontrano: la mossa e'
+     * `retract`, e il suo effetto e' un `supersedes_in/3`.
+     *
+     * Quali parole aprano la mossa e quali slot si possano ritirare sono fatti
+     * (`state_move_cue/2`, `user_slot_cue/2`): una lingua nuova o uno slot nuovo
+     * non costano C. */
+        char mv[8][KB_TERM_LEN];
+        const char *mq[2] = { NULL, "retract" };
+        size_t nm2 = kb_match(b->kb, "state_move_cue", mq, 2, mv, 8);
+        int is_retract = 0;
+        for (size_t i = 0; i < nm2 && !is_retract; i++) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", mv[i]);
+            if (cue(norm, kb_dequote(cb))) is_retract = 1;
+        }
+        if (is_retract) {
+            char sl[8][KB_TERM_LEN];
+            const char *sq2[2] = { NULL, NULL };
+            size_t nsl = kb_match(b->kb, "user_slot_cue", sq2, 2, sl, 8);
+            for (size_t i = 0; i < nsl; i++) {
+                char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", sl[i]);
+                const char *surface = kb_dequote(cb);
+                if (!cue(norm, surface)) continue;
+                const char *slq[2] = { sl[i], NULL };
+                char slot[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "user_slot_cue", slq, 2, slot, 1) != 1) continue;
+                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", slot[0]);
+                const char *slotname = kb_dequote(sb);
+                const char *vq[2] = { slotname, NULL };
+                char val[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "user_value", vq, 2, val, 1) < 1) continue;
+                char prop[KB_TERM_LEN], mark[KB_TERM_LEN];
+                snprintf(prop, sizeof prop, "user_value_slot(%s)", slotname);
+                snprintf(mark, sizeof mark, "forgotten(%s)", slotname);
+                int prev = kb_origin(b->kb);
+                kb_set_origin(b->kb, KB_SESSION);
+                const char *ha[2] = { "conversation", mark };
+                kb_assert(b->kb, "holds_in", ha, 2);
+                const char *sa[3] = { "conversation", mark, prop };
+                kb_assert(b->kb, "supersedes_in", sa, 3);
+                kb_set_origin(b->kb, prev);
+                char msg[256];
+                const KbResponseSlot rs[] = { {"slot", slotname} };
+                if (!kb_response_slots(b, "forgotten_ack", rs, 1, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "Done — I've let go of your %s.", slotname);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
     return 0;
 }
 
