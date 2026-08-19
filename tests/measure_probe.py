@@ -57,6 +57,16 @@ STIMULI = {
         "hi!", "ok?",                    # parola + punteggiatura
         "qzx", "???",                    # non-parola, punteggiatura
         ],
+    # classe 4: a quattro byte entrano le cose scoperte in questa sessione —
+    # un operatore INSEGNATO, un orario, una domanda vera, una negazione.
+    4: ["12+3", "10-7", "2*21",          # aritmetica a due cifre
+        "9:15", "1/2",                   # orario, frazione
+        "what", "when", "help",          # parole intere
+        "1234", "-100",                  # numeri
+        "true", "none",                  # valori logici
+        "qzxv", "!!!!",                  # non-parola, punteggiatura
+        "a = b",                         # (5 byte: controllo)
+        ],
 }
 
 

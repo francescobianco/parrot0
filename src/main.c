@@ -218,10 +218,15 @@ static Brain *setup_brain(const char **out_sess) {
  *
  * Vedi docs/measured-classes.md. */
 static int measure_line_ok(Brain *brain, const char *query, const char *want,
-                           unsigned long *out_fp) {
+                           unsigned long *out_fp, unsigned long *out_rh) {
     char reply[2048]; reply[0] = '\0';
     brain_respond(brain, query, reply, sizeof reply);
     if (out_fp) *out_fp = brain_footprint(brain);
+    if (out_rh) {   /* la RISPOSTA, ridotta a un numero per confrontarla */
+        unsigned long h = 5381;
+        for (const char *p = reply; *p; p++) h = h * 33u ^ (unsigned char)*p;
+        *out_rh = h;
+    }
     if (!*want) return 0;
     /* «contiene», senza distinguere maiuscole: la resa di una frase varia, cio'
      * che deve esserci no. E' la stessa semantica di `<~` nei .p0t. */
@@ -301,7 +306,19 @@ static int measure_run(const char *dir) {
          * Cambia anche cosa misura la stazza, ed e' bene dirlo: non piu' quante
          * cose il corpus CHIEDE, ma quante strade diverse parrot0 PERCORRE su
          * quel corpus. E' la varieta' comportamentale, nel bene e nel male. */
-        unsigned long paths[256]; int solved[256]; size_t nans = 0;
+        /* gen424 — UN PUNTO E' UNA COPPIA NUOVA (F.).
+         *
+         * Non basta che sia nuova la firma, e non basta che sia nuova la
+         * risposta: devono esserlo ENTRAMBE. Una strada nuova che produce
+         * un'uscita gia' vista non e' comportamento nuovo visto da fuori;
+         * un'uscita nuova prodotta da una strada gia' vista non e' comportamento
+         * nuovo visto da dentro. Il punto e' la coppia (come, cosa).
+         *
+         * E' l'INTERSEZIONE delle due regole precedenti, quindi piu' stretta di
+         * entrambe: tiene chiusa la crepa delle famiglie parametriche (cento
+         * addizioni condividono la firma) e in piu' non regala niente a strade
+         * diverse che finiscono per dire la stessa frase. */
+        unsigned long paths[256], replies[256]; int solved[256]; size_t nans = 0;
         while (fgets(line, sizeof line, f)) {
             size_t l = strlen(line);
             while (l && (line[l-1] == '\n' || line[l-1] == '\r')) line[--l] = '\0';
@@ -350,8 +367,8 @@ static int measure_run(const char *dir) {
              * qualcosa. */
             Brain *b = setup_brain(NULL);
             if (!b) { fclose(f); return 1; }
-            unsigned long fp = 0;
-            int good = measure_line_ok(b, query, want, &fp);
+            unsigned long fp = 0, rh = 0;
+            int good = measure_line_ok(b, query, want, &fp, &rh);
             fp &= 0xfffffffful;   /* la firma si scrive a 32 bit, come --footprint */
             brain_destroy(b);
             /* la firma si segnala quando e' cambiata: vuol dire che il turno ha
@@ -364,12 +381,17 @@ static int measure_run(const char *dir) {
             n++;
             if (good) ok++;
             else if (nfail < 64) snprintf(failed[nfail++], sizeof failed[0], "%s", query);
-            size_t a = 0;
-            while (a < nans && paths[a] != fp) a++;
-            if (a == nans && nans < 256) {
-                paths[nans] = fp;
+            /* nuova solo se NE' la firma NE' la risposta si sono gia' viste */
+            int fp_seen = 0, rh_seen = 0;
+            size_t a = nans;
+            for (size_t k = 0; k < nans; k++) {
+                if (paths[k] == fp)   { fp_seen = 1; a = k; }
+                if (replies[k] == rh) { rh_seen = 1; if (a == nans) a = k; }
+            }
+            if (!fp_seen && !rh_seen && nans < 256) {
+                paths[nans] = fp; replies[nans] = rh;
                 solved[nans] = 1;          /* si presume dimostrata... */
-                nans++;
+                a = nans; nans++;
             }
             if (a < nans && !good) solved[a] = 0;   /* ...finche' un membro non cade */
         }

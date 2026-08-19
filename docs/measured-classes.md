@@ -111,25 +111,30 @@ nessuna riscrittura del corpus può gonfiarla senza che si veda nel diff.
 Il confronto è **«contiene», senza distinguere maiuscole** — la stessa semantica
 di `<~` nei `.p0t`. La resa di una frase varia; ciò che deve esserci no.
 
-### 3b. Si conta per FIRMA
+### 3b. Un punto è una COPPIA nuova
 
-**Dentro un file, prompt con la stessa firma valgono uno.** La stazza non conta i
-prompt e nemmeno le risposte: conta le **strade distinte** che parrot0 percorre.
+**Dentro un file, un prompt vale un punto solo se sono nuove *entrambe*: la
+firma e la risposta.** Se una delle due si è già vista, non conta.
 
-La regola è nata come «risposte uguali valgono uno» — per impedire che mille
-righe identiche valessero mille — ed è diventata questa quando la classe 3 ha
-mostrato il buco: `1+1|2`, `9-4|5`, `2*3|6` sono tre risposte *diverse*, quindi
-la vecchia regola le contava tre, e nulla impediva di aggiungerne cento con un
-ciclo `for`.
+La regola ci è arrivata in tre passi, e ognuno ha chiuso un buco del precedente:
 
-Contare per firma lo chiude alla radice, e per la ragione giusta: **una risposta
-diversa prodotta dalla stessa strada non è un'abilità nuova** — è lo stesso
-ragionamento con altri valori.
+1. *«risposte uguali valgono uno»* — impediva che mille righe identiche valessero
+   mille. Ma la classe 3 ha mostrato la crepa: `1+1|2`, `9-4|5`, `2*3|6` sono tre
+   risposte *diverse*, quindi valevano tre, e bastava un ciclo `for` per farsi
+   cento punti con cento addizioni;
+2. *«firme uguali valgono uno»* — chiude quella crepa, perché le cento addizioni
+   condividono la strada. Ma regala un punto a strade diverse che finiscono per
+   dire la stessa identica frase;
+3. **la coppia** — l'intersezione delle due, quindi più stretta di entrambe.
 
-Cambia anche cosa misura la stazza, ed è bene dirlo: non più quante cose il
-corpus **chiede**, ma quante strade diverse parrot0 **percorre** su quel corpus.
-È la varietà comportamentale, nel bene e nel male — che è esattamente ciò che
-serve, perché una capacità nuova si vede come una strada nuova.
+Ed è la formulazione giusta, non solo la più severa. Una strada nuova che produce
+un'uscita già vista non è comportamento nuovo **visto da fuori**; un'uscita nuova
+prodotta da una strada già vista non è comportamento nuovo **visto da dentro**.
+Il punto è la coppia **(come, cosa)**.
+
+Cambia anche cosa misura la stazza, ed è bene dirlo: non quante cose il corpus
+**chiede**, ma quanti comportamenti distinti parrot0 **mostra** su quel corpus —
+distinti dentro e fuori insieme.
 
 **La stazza è la mole del CORPUS**, non il punteggio: dice quante capacità
 diverse si stanno chiedendo, e cresce solo curando altre righe. Quante ne risolve
@@ -362,40 +367,24 @@ Due cose che la sonda ha mostrato di traverso:
   lingua (la misura sì), quindi lì si vede la deriva allo stato brado: la lingua
   segue il turno, e un token che non ne porta traccia la lascia dov'era.
 
-### Contando per firma (19 agosto 2026)
+### Contando le coppie (19 agosto 2026)
 
 ```
-tonnage 31   max length 3
+tonnage 14   max length 3
 ```
 
-Il passaggio da «risposte distinte» a «firme distinte» ha fatto **salire** il
-numero da 18 a 31, non scendere — perché parrot0 distingue più strade di quante
-il raggruppamento del corpus supponesse.
+Il numero si è mosso due volte, e le due volte dicono cose diverse:
 
-| classe | righe | firme | il gruppo più grosso |
-|---:|---:|---:|---|
-| 1 | 68 | 14 | `6c4ba113` ×24 — tutte le lettere |
-| 2 | 19 | 9 | `6c4ba113` ×7 — `a1 no ok qz vq xk zj` |
-| 3 | 18 | 8 | `810e4ea0` ×8 — `cat dog how qzx sun who yes zqw` |
+| regola | stazza | perché |
+|---|---:|---|
+| risposte distinte | 18 | il corpus chiede diciotto cose |
+| firme distinte | 31 | parrot0 percorre trentuno strade — **più** di quante il corpus supponesse |
+| **coppie distinte** | **14** | i comportamenti davvero distinti, dentro e fuori |
 
-**E la firma ha trovato un'asimmetria vera del motore.** L'addizione e la
-moltiplicazione condividono la strada; la sottrazione no:
-
-```
-c2e586ee  1+1   2+3   2*3   5*6
-87f43982  9-4   8-2
-```
-
-Il `-` apre un percorso suo — quello del segno numerico — ed è coerente con un
-altro dato che avevamo già senza saperlo leggere: `-` è **uno dei tre caratteri
-che falliscono in classe 1**, insieme a `.` e `/`. Due misure diverse indicano lo
-stesso punto del motore.
-
-L'altra cosa che si legge subito è il gruppo `810e4ea0` della classe 3: `cat`,
-`dog`, `sun`, `who`, `yes`, `qzx` percorrono **la stessa identica strada**,
-mentre il corpus dice che dovrebbero avere quattro risposte diverse. Non è che
-sbaglia: è che **non distingue**, e la firma lo rende visibile in un colpo
-d'occhio.
+Il passaggio da 31 a 14 è quello che dà più informazione: **più della metà delle
+strade finisce per dire qualcosa che un'altra strada aveva già detto.** Vie
+diverse, stesso esito — che è precisamente il tipo di ridondanza che una misura
+di varietà deve smascherare.
 
 ### Lo stato### Lo stato### Lo stato
 
