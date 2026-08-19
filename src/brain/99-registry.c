@@ -42,7 +42,27 @@ static int mod_input(Brain *b, const char *norm, const char *raw,
                 morse_only = 0; break;
             }
         }
-        if (morse_only) return 0;    /* let the symbolic recognizer name it */
+        /* gen425 — SI CEDE AL MORSE SOLO SE IL MORSE LO PRENDE.
+         *
+         * «.», «-» e «/» sono l'alfabeto del morse, quindi questo ramo cedeva
+         * loro il turno — ma il riconoscitore simbolico ne vuole almeno tre, e
+         * uno o due simboli cadevano nel vuoto FRA I DUE, fino al muro cieco.
+         * Erano esattamente i tre caratteri che la classe 1 delle classi
+         * misurate segnalava da giorni, mentre gli altri ventinove ricevevano la
+         * risposta giusta.
+         *
+         * Quanti simboli servano perche' un morse sia un morse e' conoscenza. */
+        long morse_min = 3;
+        if (b && b->kb) {
+            const char *mq[1] = { NULL };
+            char mv[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "morse_min_symbols", mq, 1, mv, 1) > 0) {
+                char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mv[0]);
+                long v = strtol(kb_dequote(mb), NULL, 10);
+                if (v > 0) morse_min = v;
+            }
+        }
+        if (morse_only && (long)len >= morse_min) return 0;  /* lo nomina il simbolico */
         put("That's just punctuation, not words — what would you like to ask?",
             out, out_size);
         return 1;
@@ -59,17 +79,55 @@ static int mod_input(Brain *b, const char *norm, const char *raw,
     size_t tlen = strlen(tok);
     if (tlen == 0) return 0;
 
-    /* (2) A bare number (>=4 digits, no operator). mod_arith owns anything with
-     * an operation; a lone long digit-run has nothing to compute. The >=4 gate
-     * leaves short numbers (a game pick, "7", "100") for future modules. */
-    int all_digit = 1;
-    for (size_t i = 0; i < tlen; i++)
-        if (!isdigit((unsigned char)tok[i])) { all_digit = 0; break; }
-    if (all_digit && tlen >= 4) {
+    /* (2) UN NUMERO NUDO, senza operatori: non c'e' niente da calcolare, e la
+     * risposta onesta e' dirlo nominandolo.
+     *
+     * gen425 — LA SOGLIA ERA CABLATA A QUATTRO CIFRE, con un commento che la
+     * giustificava «per moduli futuri» che non sono mai arrivati. L'effetto,
+     * misurato dalle classi misurate:
+     *
+     *     5     ->  I don't understand that yet.
+     *     42    ->  I don't understand that yet.
+     *     123   ->  I don't understand that yet.
+     *     1234  ->  That's just the number 1234 with nothing to do — …
+     *
+     * Un solo numero cablato spiegava i fallimenti di tre classi: le dieci cifre
+     * della classe 1, i numeri della 2 e quelli della 3. Ora la soglia e' un
+     * fatto (`bare_number_min_digits/1`) e vale UNO: ogni numero nudo si nomina.
+     *
+     * La precedenza fra moduli e' il modo giusto di riservarsi i numeri corti —
+     * un modulo che li vuole si registra prima — e una soglia di lunghezza non
+     * lo era: negava a tutti per riservare a nessuno.
+     *
+     * Il segno fa parte del numero: «-100» e' un numero quanto «100», e
+     * lasciarlo fuori era la stessa svista in piccolo. */
+    /* IL SEGNO E' PARTE DEL NUMERO, e va anche RIDETTO: `strip_edge_punct` lo
+     * toglie, e la prima stesura rispondeva «the number 100» a «-100», cioe'
+     * rinominava il numero mentre lo nominava. Si guarda il token com'era. */
+    const char *shown = tok;
+    if ((w[0][0] == '-' || w[0][0] == '+') && isdigit((unsigned char)w[0][1]))
+        shown = w[0];
+    const char *tnum = tok;
+    if ((*tnum == '-' || *tnum == '+') && tnum[1]) tnum++;
+    int all_digit = *tnum != '\0';
+    for (const char *p = tnum; *p; p++)
+        if (!isdigit((unsigned char)*p)) { all_digit = 0; break; }
+    size_t ndig = strlen(tnum);
+    long need = 1;
+    if (b && b->kb) {
+        const char *mq[1] = { NULL };
+        char mv[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "bare_number_min_digits", mq, 1, mv, 1) > 0) {
+            char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mv[0]);
+            long v = strtol(kb_dequote(mb), NULL, 10);
+            if (v > 0) need = v;
+        }
+    }
+    if (all_digit && (long)ndig >= need) {
         char msg[160];
         snprintf(msg, sizeof msg,
                  "That's just the number %s with nothing to do — what would "
-                 "you like me to do with it?", tok);
+                 "you like me to do with it?", shown);
         put(msg, out, out_size);
         return 1;
     }

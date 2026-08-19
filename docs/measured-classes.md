@@ -367,24 +367,51 @@ Due cose che la sonda ha mostrato di traverso:
   lingua (la misura sì), quindi lì si vede la deriva allo stato brado: la lingua
   segue il turno, e un token che non ne porta traccia la lascia dov'era.
 
-### Contando le coppie (19 agosto 2026)
+### Classe 4 — quattro byte, e il difetto che spiegava tre classi
 
 ```
-tonnage 14   max length 3
+tonnage 24   max length 4
+classe 1: 68/68     classe 2: 11/19     classe 3: 7/18     classe 4: 8/15
 ```
 
-Il numero si è mosso due volte, e le due volte dicono cose diverse:
+**La classe 1 è piena**, e ci è arrivata grazie a un reperto della classe 4.
 
-| regola | stazza | perché |
-|---|---:|---|
-| risposte distinte | 18 | il corpus chiede diciotto cose |
-| firme distinte | 31 | parrot0 percorre trentuno strade — **più** di quante il corpus supponesse |
-| **coppie distinte** | **14** | i comportamenti davvero distinti, dentro e fuori |
+La sonda a quattro byte ha mostrato che `1234` riceve *«That's just the number
+1234 with nothing to do — what would you like me to do with it?»*. Quella
+capacità **esisteva** — ed era esattamente ciò che mancava alle dieci cifre della
+classe 1. Provata la soglia:
 
-Il passaggio da 31 a 14 è quello che dà più informazione: **più della metà delle
-strade finisce per dire qualcosa che un'altra strada aveva già detto.** Vie
-diverse, stesso esito — che è precisamente il tipo di ridondanza che una misura
-di varietà deve smascherare.
+```
+5     →  I don't understand that yet.
+42    →  I don't understand that yet.
+123   →  I don't understand that yet.
+1234  →  That's just the number 1234 with nothing to do — …
+```
+
+Un `tlen >= 4` cablato nel C, con un commento che lo giustificava «per moduli
+futuri» mai arrivati. **Un solo numero spiegava i fallimenti di tre classi.** Ora
+è un fatto (`bare_number_min_digits`) e vale uno: la precedenza fra moduli è il
+modo giusto di riservarsi i numeri corti, non una soglia di lunghezza che nega a
+tutti per riservare a nessuno.
+
+E i **tre segni** `-` `.` `/` che cadevano dalla prima misura avevano una causa
+diversa e altrettanto precisa: sono l'alfabeto del morse, quindi il ripiego sulla
+punteggiatura cedeva loro il turno — ma il riconoscitore simbolico ne vuole
+almeno tre, e uno o due simboli cadevano **nel vuoto fra i due**, fino al muro.
+Anche quella soglia è ora un fatto (`morse_min_symbols`).
+
+### Una proprietà scomoda, e va detta
+
+La stazza è passata da **26 a 24** *mentre* si aggiustavano quei difetti.
+
+Non è un errore: la stazza misura la **varietà**, e un difetto che produce
+comportamenti accidentalmente diversi è varietà anche lui. I tre segni prima
+davano tre esiti storti e ora danno il comportamento giusto, che era già di
+qualcun altro — la varietà cala, la correttezza sale.
+
+Ne segue che **la stazza da sola non dice se le cose vanno meglio**, e non deve
+essere letta come un punteggio da massimizzare. Dice quante cose diverse
+succedono; se siano quelle giuste lo dicono le righe che passano.
 
 ### Lo stato### Lo stato### Lo stato
 

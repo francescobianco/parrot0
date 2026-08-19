@@ -936,3 +936,27 @@ state_move_cue("non ricordare", retract).
 user_slot_cue("my name", name).
 user_slot_cue("il mio nome", name).
 user_slot_cue("mi chiamo", name).
+
+% gen425 — DA QUANTE CIFRE un numero nudo si nomina.
+%
+% Era una soglia cablata a quattro nel C, con un commento che la giustificava
+% «per moduli futuri» mai arrivati — e negava a tutti per riservare a nessuno.
+% Le classi misurate l'hanno resa visibile: «5», «42» e «123» ricevevano un muro
+% cieco mentre «1234» riceveva la risposta giusta, e quel solo numero spiegava i
+% fallimenti di tre classi.
+%
+% Vale uno: ogni numero nudo si nomina. Chi volesse riservarsi i numeri corti si
+% registra PRIMA nella catena dei moduli, che e' il modo giusto — la precedenza,
+% non una soglia di lunghezza.
+machinery(bare_number_min_digits).
+bare_number_min_digits(1).
+
+% gen425 — QUANTI SIMBOLI SERVONO perche' un morse sia un morse.
+%
+% «.», «-» e «/» sono l'alfabeto del morse, e il ripiego sulla punteggiatura
+% cedeva loro il turno — ma il riconoscitore simbolico ne vuole almeno tre, e uno
+% o due simboli cadevano NEL VUOTO FRA I DUE, fino al muro cieco. Erano
+% esattamente i tre caratteri che la classe 1 delle classi misurate segnalava da
+% giorni mentre gli altri ventinove ricevevano la risposta giusta.
+machinery(morse_min_symbols).
+morse_min_symbols(3).
