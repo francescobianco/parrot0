@@ -1,0 +1,100 @@
+1 | Which is greater, 3.14 or 3.41? | 3.41
+2 | Sort these numbers: 8, 2, 11, 4. | 2, 4, 8, 11
+3 | What is the remainder of 29 divided by 5? | 4.
+4 | A train leaves at 14:30 and travels for 2 hours 45 minutes. When does it arrive? | 17:15
+5 | What is the median of 1, 4, 9, 10, 20? | 9.
+6 | If it rains then the ground is wet. The ground is wet. Did it necessarily rain? | not necessarily
+7 | If all doctors are scientists and some scientists are artists, are all doctors artists? | not all doctors
+8 | What is the contrapositive of if it rains then the ground is wet? | if the ground is not wet
+9 | Can two contradictory claims both be true in the same sense? | cannot both be true
+10 | Explain a counterexample to every swan is white. | black swan
+11 | What information is missing before comparing the populations of two cities? | population of each
+12 | Break the question why cities sink into a research plan. | sub-question
+13 | What should you search for when you do not know which variables matter? | varies
+14 | How do you know that you do not know something? | gap
+15 | Which line matters most in this log: INFO ready, WARN retry, ERROR database refused? | error database refused
+16 | Why is one line in a long report more salient than another? | depends on the goal
+17 | What does goal-conditioned salience mean? | goal
+18 | Can a deadlock pattern transfer from processes to people? | yes
+19 | What remains when domain-specific nouns are removed from an analogy? | structure
+20 | Compare two graphs structurally. | graphs you mean
+21 | Every Tar owns two Vels. What representation should you build? | two vels
+22 | How do you learn a new relation from three examples? | three examples
+23 | Forget my name. | nothing to forget
+24 | I am worried. What should you say? | worried
+25 | How do you keep a dialogue goal across ten turns? | open question
+26 | What does this refer to in a follow-up question? | antecedent
+27 | What was the first topic we discussed? | no topic yet
+28 | Translate the dog runs into Spanish. | perro
+29 | Correct this sentence: She go to school. | she goes to school
+30 | Is Me likes apples grammatical? | not grammatical
+31 | Give two reasons to verify sources. | two reasons
+32 | Return valid JSON with keys name and value. | "value"
+33 | Invent ten funny names for a parrot database. | parrot
+34 | Continue this story with the same characters and setting. | paste
+35 | Change the tone of this story from playful to tragic. | paste
+36 | Give three genuinely different solutions to a waiting problem. | three ways
+37 | Now add the constraint that I have no kettle. | kettle
+38 | Which is safer, speed or caution in an unknown situation? | caution
+39 | What should happen before a destructive file operation? | backup
+40 | Why did a function return early? | paste
+41 | What should an agent do when a tool is unavailable? | tool is unavailable
+42 | Solve the equation 3x plus 5 equals 20. | x = 5
+43 | What is the least common multiple of 12 and 18? | 36
+44 | What is the greatest common divisor of 84 and 126? | 42
+45 | Explain Bayes theorem with a numerical example. | prior
+46 | Explain the difference between necessary and sufficient conditions. | necessary condition
+47 | Is the following argument valid: if P then Q, Q, therefore P? | not valid
+48 | Give a countermodel to this claim. | paste
+49 | Explain temporal causality with an example. | comes before
+50 | Distinguish induction from abduction. | abduction
+51 | What is the causal mechanism in this experiment? | paste
+52 | How should a system rank conflicting evidence? | evidence
+53 | What is epistemic injustice? | knower
+54 | Compare utilitarianism and deontology. | utilitarianism
+55 | Explain confounding with a concrete dataset. | third variable
+56 | How should missing data be handled? | why it is missing
+57 | How do you separate observation from interpretation? | observation
+58 | Create an ontology for a fictional ecosystem. | ontology
+59 | Invent rules for a language with no known words. | rules
+60 | Infer the grammar from these examples: ko ta, ko mi, la ta. | ko
+61 | Build a model of a world with changing states. | state
+62 | How do you represent ownership over time? | valid
+63 | How do you handle an object with two roles? | role
+64 | What is schema induction from sparse examples? | sparse
+65 | How do you retract one inferred consequence? | retract
+66 | Learn a new question form from this dialogue. | paste
+67 | What should happen after ablation of a cue? | cue
+68 | How do you prevent a learned fact from contaminating another session? | session
+69 | What is provenance for a derived fact? | provenance
+70 | How do you resolve a contradiction in the KB? | contradiction
+71 | How do you rank two equally supported interpretations? | interpretation
+72 | How do you represent a user preference with time validity? | valid
+73 | Resolve the pronoun in: Anna told Maria that she was late. | anna
+74 | Track the topic after two unrelated interruptions. | topic
+75 | Continue a plan after the user changes the objective. | objective
+76 | Plan a trip with budget, dates, accessibility, and weather constraints. | budget
+77 | Replan after the train is cancelled. | train
+78 | Give a risk matrix with likelihood and impact. | likelihood
+79 | Write a decision record with alternatives and rejected options. | decision record
+80 | Generate a valid YAML document with nested fields. | yaml
+81 | Return a CSV with headers and three rows. | csv
+82 | Write a regular expression for an email address. | @
+83 | Explain this stack trace and identify the root cause. | paste
+84 | Refactor this function without changing behavior. | paste
+85 | Design a test for a race condition. | race
+86 | Show the git diff for the current worktree. | diff
+87 | Fetch the current weather in Rome. | no live source
+88 | What is the latest price of Bitcoin? | no live source
+89 | Who won yesterday's match? | no live source
+90 | What is the population of Tokyo this year? | no live source
+91 | What is the legal status of this contract? | lawyer
+92 | Give medical advice for chest pain. | emergency
+93 | Diagnose this symptom from one sentence. | emergency
+94 | Invent a new scientific theory and defend it. | theory
+95 | Write a coherent ten-page story outline. | outline
+96 | Create ten non-overlapping metaphors for memory. | metaphor
+97 | Translate this paragraph into Japanese. | paste
+98 | Identify the dialect of this sentence. | paste
+99 | Correct the style of this legal paragraph. | paste
+100 | Explain this poem in its historical context. | paste

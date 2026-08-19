@@ -766,3 +766,11 @@ response_template(lone_unknown_token, "I have nothing on {token} — could you s
 response_template(lone_unknown_token, it, "Non ho niente su {token} — mi dici che cosa intendi?").
 response_template(lone_assent, "Got it — what would you like to do?").
 response_template(lone_assent, it, "Ricevuto — che cosa vuoi fare?").
+
+% gen431 — la richiesta e' incompleta, e si dice quale pezzo manca.
+response_template(missing_referent, "I don't have the {kind} you mean — paste it here and I'll work on it.").
+response_template(missing_referent, it, "Non ho {kind} di cui parli — incollamelo qui e ci lavoro.").
+
+% gen431 — non c'e' niente da dimenticare, ed e' una risposta.
+response_template(nothing_to_forget, "I don't have your {slot} on record, so there is nothing to forget.").
+response_template(nothing_to_forget, it, "Non ho {slot} in memoria, quindi non c'e' niente da dimenticare.").

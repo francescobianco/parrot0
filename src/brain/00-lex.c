@@ -592,3 +592,104 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
     }
     return 0;
 }
+
+static void singularize_kb(Brain *b, const char *word, char *out, size_t sz);
+static int lex_class_member(Brain *b, const char *cls, const char *word);
+
+/* gen431 — DOPO IL SINTAGMA C'E' UNA FRASE? Allora il contenuto e' ALLEGATO.
+ *
+ * «in this story rex is a dragon» nomina «questa storia» e poi la RIEMPIE: e'
+ * un turno che apre un mondo, non una richiesta incompleta, e chiedere di
+ * incollare la storia sarebbe non aver letto la frase (misurato: world.p0t).
+ * Il segno e' la copula — «rex E' un drago» — e quali parole siano copule e'
+ * gia' conoscenza. Un modificatore («in its historical context», «from playful
+ * to tragic») non ne ha nessuna, e infatti non allega niente. */
+static int p0_clause_follows(Brain *b, char **w, size_t nw, size_t from) {
+    for (size_t i = from + 1; i < nw; i++) {
+        char t[64]; snprintf(t, sizeof t, "%s", w[i]);
+        char *c = strip_edge_punct(t);
+        if (!*c) continue;
+        const char *cq[1] = { c };
+        if (kb_query(b->kb, "clause_copula", cq, 1)) return 1;
+    }
+    return 0;
+}
+
+
+/* gen431 — «QUESTO» CHE COSA? Il referente che non e' stato allegato.
+ *
+ * Dodici dei cento fallimenti (docs/plans/parrot0-100-failures.md) chiedono di
+ * lavorare su un testo che nessuno ha allegato: «explain this stack trace»,
+ * «refactor this function», «translate this paragraph». Non sono richieste
+ * difficili — sono richieste INCOMPLETE, e la risposta giusta e' dirlo e
+ * chiedere il pezzo, invece di produrre un paragrafo generico.
+ *
+ * Il riconoscimento sta qui, in un posto solo, perche' serve a DUE moduli: chi
+ * compone deve tacere (altrimenti si mette a comporre su un testo che non ha) e
+ * chi ripara deve chiedere. Quali generi di contenuto e quali dimostrativi
+ * esistano e' conoscenza (`content_kind/1`, `demonstrative_word/1`).
+ *
+ * Restituisce 1 e scrive il genere se il turno nomina «questo <genere>» e il
+ * contenuto non c'e': turno corto e su una riga sola. Se il testo e' allegato —
+ * piu' righe, o un turno lungo — questo non e' il caso e la funzione tace. */
+static int p0_unattached_kind(Brain *b, const char *norm, const char *raw,
+                              char *kind, size_t ksz) {
+    if (!b || !b->kb || !norm) return 0;
+    if (raw && strchr(raw, '\n')) return 0;
+    /* gen431 — I DUE PUNTI ALLEGANO. «which line matters most in this log: INFO
+     * ready, WARN retry, ERROR database refused?» nomina «questo log» e POI lo
+     * porta: chiedere di incollarlo sarebbe non aver letto la frase. Il segno e'
+     * strutturale — due punti seguiti da qualcosa di sostanzioso — e vale per
+     * ogni genere senza sapere niente del genere. */
+    {
+        const char *colon = strchr(norm, ':');
+        if (colon && strlen(colon) > 8) return 0;
+    }
+    char buf[512];
+    if (strlen(norm) >= sizeof buf) return 0;
+    snprintf(buf, sizeof buf, "%s", norm);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    if (nw < 2 || nw > 14) return 0;
+    for (size_t i = 0; i + 1 < nw; i++) {
+        char dbuf[64]; snprintf(dbuf, sizeof dbuf, "%s", w[i]);
+        const char *dq[1] = { strip_edge_punct(dbuf) };
+        /* gen431 — anche un PLURALE NUMERATO apre lo stesso vuoto: «compare two
+         * graphs structurally» non porta i due grafi piu' di quanto «explain
+         * this poem» porti la poesia. Quali parole contino come quantificatore
+         * e' conoscenza (`countable_opener/1`); il singolare lo fa la
+         * morfologia che c'e' gia'. */
+        int counted = kb_query(b->kb, "countable_opener", dq, 1);
+        if (!counted && !kb_query(b->kb, "demonstrative_word", dq, 1)) continue;
+        /* il genere e' la TESTA del sintagma, non la parola subito dopo: in
+         * «this stack trace» il genere e' «trace», e fermarsi al primo token
+         * perdeva meta' dei casi. Si guardano i tre token successivi. */
+        for (size_t k = i + 1; k < nw && k <= i + 3; k++) {
+            char kbuf[64]; snprintf(kbuf, sizeof kbuf, "%s", w[k]);
+            char *h = strip_edge_punct(kbuf);
+            const char *kq[1] = { h };
+            if (kb_query(b->kb, "content_kind", kq, 1)) {
+                if (p0_clause_follows(b, w, nw, k)) return 0;
+                snprintf(kind, ksz, "%s", h);
+                return 1;
+            }
+            if (counted) {
+                /* TODO(kb-first) (F., gen431): il passaggio plurale→singolare
+                 * deve essere fatto in KB, non da una funzione del C.
+                 * `singularize_kb` legge gia' regole di morfologia, ma la
+                 * chiamata e' cablata qui: la forma giusta e' una relazione
+                 * interrogabile, cosi' una lingua nuova non passa da questo file. */
+                char sing[KB_TERM_LEN];
+                singularize_kb(b, h, sing, sizeof sing);
+                const char *sq[1] = { sing };
+                if (*sing && kb_query(b->kb, "content_kind", sq, 1)) {
+                    if (p0_clause_follows(b, w, nw, k)) return 0;
+                    snprintf(kind, ksz, "%s", h);
+                    return 1;
+                }
+            }
+            continue;
+        }
+    }
+    return 0;
+}

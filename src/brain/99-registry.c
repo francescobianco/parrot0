@@ -3574,6 +3574,32 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     char canon[256];
     canonicalize_lang(b, norm, canon, sizeof canon);
 
+    /* gen431 — UNA RICHIESTA INCOMPLETA SI DICE SUBITO, PRIMA DI OGNI FACOLTA'.
+     *
+     * «explain this stack trace», «translate this paragraph», «continue this
+     * story»: il testo non e' stato allegato, e nessuna facolta' puo' fare
+     * meglio di dirlo. Finora il pianificatore analitico — che corre prima della
+     * registry — ci costruiva sopra sei paragrafi che non nominano mai la cosa
+     * chiesta: e' la classe piu' numerosa dei cento fallimenti, e la peggiore,
+     * perche' SEMBRA una risposta.
+     *
+     * Il controllo sta qui, prima di tutti i lead, perche' e' una proprieta'
+     * della RICHIESTA e non di una facolta': se manca il referente, manca per
+     * tutti. Quali generi di contenuto esistano e' conoscenza. */
+    if (b && b->kb) {
+        char kind_[64];
+        if (p0_unattached_kind(b, canon, input, kind_, sizeof kind_)) {
+            char msg_[400];
+            const KbResponseSlot sl_[] = { { "kind", kind_ } };
+            if (kb_response_slots(b, "missing_referent", sl_, 1, msg_, sizeof msg_)) {
+                put(msg_, out, out_size);
+                snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+                snprintf(b->last_module, sizeof b->last_module, "%s", "missing_referent");
+                return turn_done(b, canon, input, out);
+            }
+        }
+    }
+
     /* gen366: typed Task IR + proof-carrying operators run before the old open
      * analysis planner.  A complete operator result is more specific than a
      * rhetorical template; an incomplete IR or proof declines cleanly. */

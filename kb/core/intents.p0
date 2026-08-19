@@ -1283,8 +1283,13 @@ projection_source(semantic_summary, because, binary).
 % compound_guard registry, so a comparison, ordered procedure, code explanation,
 % translation, or recommendation cannot be truncated to a one-facet summary.
 intent_cue(contrast_request, "difference between").
+% gen431: le due forme che i cento fallimenti usavano e che nessuna cue copriva.
+intent_cue(contrast_request, "distinguish").
+intent_cue(contrast_request, "compare").
+intent_cue(contrast_request, "separate").
 intent_cue(contrast_request, "differences between").
 intent_cue(contrast_request, "compare").
+intent_cue(contrast_request, "separate").
 intent_cue(process_id_request, "your pid").
 intent_cue(process_id_request, "process id").
 intent_cue(process_id_request, "process pid").

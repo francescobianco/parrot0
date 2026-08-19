@@ -82,6 +82,70 @@ Controllo aritmetico del retest:
 FULL 4 + PARTIAL 31 + FAIL 65 = 100
 ```
 
+## MISURA VIVA — `make hundred` (gen431)
+
+Questo file era un **transcript**: cento righe scritte a mano, riesaminabili solo
+rieseguendo a mano. Dal gen431 e' una **misura che gira**:
+
+```
+$ make hundred
+hundred 54/100
+```
+
+- il corpus e' `tests/hundred/hundred.qa`, una riga per prompt:
+  `numero | prompt | attesa`;
+- l'**attesa** e' cio' che una risposta corretta deve contenere, curata perche'
+  **nessun ripiego possa passarla** — non combacia con il muro cieco, col
+  declino su parola opaca, con «looks like a X problem» ne' col template
+  causale/progettuale. Un ripiego che passasse la misura la renderebbe inutile,
+  ed e' esattamente il difetto che questi cento documentano;
+- ogni prompt gira in un **cervello nuovo**: il retest del 2026-08-18 aveva gia'
+  misurato che lo stesso prompt cambia categoria a seconda di cosa e' successo
+  prima, e una misura che dipende dalla storia non e' una misura;
+- `make hundred-v` elenca i mancanti con la risposta di oggi.
+
+### Il salto del gen431: 32 → 54
+
+La misura al primo giro dava **32/100** (non 4: fra il gen396 e oggi le famiglie
+numeriche, i rifiuti corretti e altro sono stati chiusi). In una sessione e'
+arrivata a **54**, e non prompt per prompt — per **classi**:
+
+| classe chiusa | quanti | come |
+|---|---:|---|
+| **richiesta incompleta** — «explain this stack trace», «translate this paragraph» | 11 | il referente non e' stato allegato: si dice e si chiede il pezzo. `content_kind/1` + `demonstrative_word/1`, e il controllo corre **prima di ogni facolta'** |
+| **contrasti** — «distinguish X from Y», «compare X and Y» | 4 | le parole che aprono e separano un contrasto erano tre stringhe in C, ora sono fatti; piu' i `difference_between/3` che mancavano |
+| **concetti mai scritti** — ingiustizia epistemica, provenienza, confondimento… | 3 | quindici `wiki_concept/3`: il consumatore esisteva dal gen344, mancava la conoscenza |
+| **numeri** — MCD, mcm, «3x plus 5 equals 20» | 3 | una cue piu' una procedura, come il file prometteva; il mcm si **compone** dal MCD |
+| **niente da dimenticare** | 1 | «forget my name» a chi non ha mai saputo il nome: la mossa era capita, e il motivo per cui non si puo' eseguire e' dicibile |
+
+Le due riparazioni che valgono piu' del punteggio, perche' toglievano
+**misclaim**:
+
+1. il pianificatore analitico costruiva sei paragrafi su un testo che non aveva
+   («On this poem …, a causal account turns on…»). Ora una richiesta incompleta
+   si dichiara **prima** di lui: e' la classe piu' numerosa dei cento e la
+   peggiore, perche' *sembra* una risposta;
+2. il guardiano nuovo non deve rubare il turno a chi il contenuto lo **porta**:
+   «in this story rex is a dragon» apre un mondo, e la copula lo dice. Misurato
+   da `world.p0t`, che e' cascato subito.
+
+### Cosa resta, per classe
+
+I 46 mancanti non sono 46 problemi. Contati per forma:
+
+- **logica** (#6, #7, #8, #9, #47) — contrapposizione, affermazione del
+  conseguente, sillogismo motivato, non-contraddizione. Serve un lettore di
+  condizionali che dica *dove* si e' fermato;
+- **meta-domande sul metodo** (~14: #12, #13, #14, #22, #25, #39, #41, #52, #62,
+  #63, #65, #68, #70, #71) — «come fai a…»: parrot0 **ha** quei meccanismi, e la
+  risposta giusta e' il suo stesso modello di se'. E' la classe piu' numerosa e
+  la piu' promettente;
+- **salienza** (#15, #16) — quale riga conta di piu': ordine di gravita' in KB;
+- **artefatti** (#32, #78, #79, #80, #81, #82) — JSON, CSV, YAML, regex, matrice
+  di rischio: schemi verificabili, che e' il quarto dei nove `docs/issues/`;
+- **generativi** (#33, #59, #94, #95, #96) — inventare nomi, regole, metafore;
+- **il resto** — casi singoli, da guardare uno a uno.
+
 ## Legenda
 
 | Codice | Significato |

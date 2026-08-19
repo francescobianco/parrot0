@@ -70,6 +70,20 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
     char buf[256]; snprintf(buf, sizeof buf, "%s", norm);
     char *w[64]; size_t nw = split_words(buf, w, 64);
     if (nw < 2) return 0;
+
+    /* gen431: il referente che non e' stato allegato — il riconoscimento sta in
+     * `p0_unattached_kind` perche' serve anche a chi compone, che deve tacere. */
+    {
+        char kind[64];
+        if (p0_unattached_kind(b, norm, raw, kind, sizeof kind)) {
+            char msg[400];
+            const KbResponseSlot sl[] = { { "kind", kind } };
+            if (kb_response_slots(b, "missing_referent", sl, 1, msg, sizeof msg)) {
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
     if (!is_question_opener(w[0])) return 0;     /* only questions/commands */
     if (strstr(norm, "refer to")) return 0;      /* WSC coref judgement (mod_same) */
     /* Translation requests quote or mention the source expression. A pronoun in

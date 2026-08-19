@@ -1123,6 +1123,15 @@ static int compose_plan(Brain *b, const char *raw, char *out, size_t out_size) {
 
 static int mod_compose(Brain *b, const char *norm, const char *raw,
                        char *out, size_t out_size) {
+    /* gen431: se la richiesta nomina un testo che non e' stato allegato, non si
+     * compone niente — si chiede il testo. Comporre su un referente assente
+     * produceva sei paragrafi che non nominano mai la cosa richiesta, che e' la
+     * classe peggiore dei cento fallimenti: sembra una risposta e non lo e'. */
+    {
+        char kind_[64];
+        if (p0_unattached_kind(b, norm, raw, kind_, sizeof kind_)) return 0;
+    }
+
     (void)norm;
     if (!b) return 0;
     const char *en = getenv("PARROT0_TOOLS");

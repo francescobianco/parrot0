@@ -278,6 +278,7 @@ difference_between(correlation, causation, "Correlation means two things vary to
 difference_between(fact, rule, "A fact states one concrete case; a rule derives new conclusions from other facts").
 difference_between(fact, opinion, "A fact can be checked against the world; an opinion expresses a preference or a judgement").
 difference_between(knowledge, belief, "Knowledge is belief that is true and justified; a belief may be neither").
+difference_between(necessary, sufficient_conditions, "A necessary condition must hold for the thing to hold — without it, no; a sufficient condition guarantees the thing — with it, yes. Oxygen is necessary for fire, a lit match in a full fuel tank is sufficient").
 difference_between(necessary, sufficient, "A necessary condition must hold for the effect; a sufficient one guarantees it by itself").
 difference_between(syntax, semantics, "Syntax is the form of an expression; semantics is its meaning").
 difference_between(metaphor, simile, "A simile compares with like or as; a metaphor asserts that one thing IS the other").
@@ -967,3 +968,26 @@ morse_min_symbols(3).
 % solo non porta informazione che valga la pena di leggere come codice.
 machinery(morse_min_distinct_symbols).
 morse_min_distinct_symbols(2).
+
+% gen431 — LE PAROLE CHE APRONO E SEPARANO UN CONTRASTO. Erano tre stringhe nel
+% C e tenevano fuori «distinguish X from Y» e «compare X and Y», due dei cento
+% fallimenti. Un terzo modo di dirlo, o un'altra lingua, ora costa una riga.
+machinery(contrast_lead).
+machinery(contrast_sep).
+contrast_lead(between).
+contrast_lead(distinguish).
+contrast_lead(compare).
+contrast_lead(separate).
+contrast_lead(distingui).
+contrast_lead(confronta).
+contrast_sep(and).
+contrast_sep(or).
+contrast_sep(from).
+contrast_sep(e).
+contrast_sep(da).
+
+difference_between(induction, abduction, "Induction generalizes a rule from repeated cases; abduction picks the hypothesis that would best explain a single surprising observation").
+difference_between(necessary, sufficient_conditions, "A necessary condition must hold for the thing to hold — without it, no; a sufficient condition guarantees the thing — with it, yes. Oxygen is necessary for fire, a lit match in a full fuel tank is sufficient").
+difference_between(necessary, sufficient, "A necessary condition must hold for the thing to hold — without it, no; a sufficient condition guarantees the thing — with it, yes. Oxygen is necessary for fire, a lit match in a full fuel tank is sufficient").
+difference_between(utilitarianism, deontology, "Utilitarianism judges an act by the balance of its consequences; deontology judges it by the duty or rule it obeys, whatever follows").
+difference_between(observation, interpretation, "An observation is what anyone in the room could record; an interpretation is the reading you add to it, and only the second can be wrong about the first").

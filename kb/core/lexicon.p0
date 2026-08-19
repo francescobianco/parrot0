@@ -105,6 +105,11 @@ surface_variation(missing_letter, "insert_one").
 surface_variation(swapped_letters, "swap_adjacent").
 
 % --- appartenenza e parti ---
+% gen431 — «equals» e' il simbolo «=» scritto in lettere, e senza questa riga
+% «solve the equation 3x plus 5 equals 20» (#42 dei cento) cadeva sul muro
+% mentre «3x + 5 = 20» rispondeva. «plus» era gia' coperto; mancava il verbo.
+phrase_canon("equals", "=").
+
 phrase_canon("fa parte", "part of").
 phrase_canon("fanno parte", "part of").
 phrase_canon("far parte", "part of").

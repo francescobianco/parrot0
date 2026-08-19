@@ -7492,7 +7492,21 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
                 const char *slotname = kb_dequote(sb);
                 const char *vq[2] = { slotname, NULL };
                 char val[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "user_value", vq, 2, val, 1) < 1) continue;
+                if (kb_match(b->kb, "user_value", vq, 2, val, 1) < 1) {
+                    /* gen431 — NIENTE DA DIMENTICARE E' UNA RISPOSTA, non un
+                     * muro. «Forget my name» a chi non ha mai saputo il nome
+                     * cadeva sul declino («non conosco forget»), che e' falso
+                     * due volte: la mossa era stata capita, e il motivo per cui
+                     * non si puo' eseguire e' preciso e dicibile. */
+                    char msg[300];
+                    const KbResponseSlot fs[] = { { "slot", slotname } };
+                    if (kb_response_slots(b, "nothing_to_forget", fs, 1,
+                                          msg, sizeof msg)) {
+                        put(msg, out, out_size);
+                        return 1;
+                    }
+                    continue;
+                }
                 char prop[KB_TERM_LEN], mark[KB_TERM_LEN];
                 snprintf(prop, sizeof prop, "user_value_slot(%s)", slotname);
                 snprintf(mark, sizeof mark, "forgotten(%s)", slotname);
@@ -7838,11 +7852,19 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         char db[256]; snprintf(db, sizeof db, "%s", norm);
         char *dw[64]; size_t dn = split_words(db, dw, 64);
         size_t between = dn, sep = dn;
+        /* gen431 — QUALI PAROLE APRONO E SEPARANO UN CONTRASTO E' CONOSCENZA.
+         *
+         * Erano tre stringhe in C — «between», «and», «or» — e tenevano fuori le
+         * due forme piu' comuni della stessa domanda: «distinguish X FROM Y» e
+         * «compare X and Y», due dei cento fallimenti. Ora sono fatti
+         * (`contrast_lead/1`, `contrast_sep/1`): una lingua nuova, o un terzo
+         * modo di dirlo, costa una riga. */
         for (size_t i = 0; i < dn; i++) {
             char *t = strip_edge_punct(dw[i]);
-            if (!strcmp(t, "between")) between = i;
+            const char *lq[1] = { t };
+            if (between == dn && kb_query(b->kb, "contrast_lead", lq, 1)) between = i;
             else if (between < dn && sep == dn &&
-                     (!strcmp(t, "and") || !strcmp(t, "or")))
+                     kb_query(b->kb, "contrast_sep", lq, 1))
                 sep = i;
         }
         if (between + 1 < sep && sep + 1 < dn) {

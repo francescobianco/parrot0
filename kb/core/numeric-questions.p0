@@ -68,6 +68,17 @@ numeric_cue("in ascending order", ascending).
 numeric_cue("what is the median of", median).
 numeric_cue("qual è la mediana di", median).
 numeric_cue("what is the remainder of", remainder).
+% gen431 — il massimo comun divisore e il minimo comune multiplo, che sono due
+% dei cento fallimenti (#43, #44). Costano quello che il file promette: una cue e
+% una procedura. Il gcd e' gia' un operatore insegnato (`gcd_op`, gen423) e il
+% mcm si COMPONE da lui, che e' il modo giusto di aggiungerlo.
+numeric_cue("what is the greatest common divisor of", gcd).
+numeric_cue("greatest common divisor", gcd).
+numeric_cue("what is the gcd of", gcd).
+numeric_cue("massimo comun divisore", gcd).
+numeric_cue("what is the least common multiple of", lcm).
+numeric_cue("least common multiple", lcm).
+numeric_cue("minimo comune multiplo", lcm).
 numeric_cue("qual è il resto di", remainder).
 turn_cue_registry(numeric_cue, 1).
 
@@ -77,6 +88,8 @@ apply_numeric(greatest, $List, $Result) :- max_list($List, $Result).
 apply_numeric(least, $List, $Result) :- min_list($List, $Result).
 apply_numeric(median, $List, $Result) :- median_list($List, $Result).
 apply_numeric(remainder, cons($A, cons($B, nil)), $Result) :- is($Result, mod($A, $B)).
+apply_numeric(gcd, cons($A, cons($B, nil)), $Result) :- apply_operator(gcd_op, $A, $B, $Result).
+apply_numeric(lcm, cons($A, cons($B, nil)), $Result) :- apply_operator(gcd_op, $A, $B, $G), is($Result, div(mul($A, $B), $G)).
 
 % L'ordinamento non produce un numero ma una LISTA, quindi ha la sua resa: il
 % fold su lista del gen397, con il separatore della lingua come dato.

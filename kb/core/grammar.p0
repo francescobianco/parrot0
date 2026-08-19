@@ -717,3 +717,68 @@ word_teaching_offer(relation_noun, "if it names a value of something, say «the 
 % Quante offrirne. Due bastano a insegnare senza trasformare il muro in un
 % modulo d'iscrizione — ed e' un fatto, non una scelta del C.
 teaching_offer_max(2).
+
+% ── «QUESTO» CHE COSA? IL REFERENTE NON ALLEGATO (gen431) ───────────────────
+%
+% «explain this stack trace», «refactor this function», «translate this
+% paragraph»: dodici dei cento fallimenti chiedono di lavorare su un testo che
+% nessuno ha allegato. Non sono richieste difficili, sono richieste INCOMPLETE, e
+% la risposta giusta e' dirlo e chiedere il pezzo.
+%
+% Un genere di contenuto nuovo — un verbale, una fattura, uno spartito — e' una
+% riga qui, e da quel momento «questo <genere>» senza il testo viene riconosciuto.
+machinery(content_kind).
+machinery(demonstrative_word).
+
+demonstrative_word(this).
+demonstrative_word(these).
+demonstrative_word(that).
+demonstrative_word(those).
+
+content_kind(story).
+content_kind(function).
+content_kind(paragraph).
+content_kind(sentence).
+content_kind(poem).
+content_kind(claim).
+content_kind(dialogue).
+content_kind(experiment).
+content_kind(trace).
+content_kind(log).
+content_kind(code).
+content_kind(text).
+content_kind(passage).
+content_kind(article).
+content_kind(contract).
+content_kind(symptom).
+content_kind(argument).
+content_kind(diagram).
+
+% gen431 — i quantificatori che aprono un plurale senza referente: «compare TWO
+% GRAPHS structurally» non porta i due grafi. Un numero nuovo e' una riga.
+machinery(countable_opener).
+countable_opener(two).
+countable_opener(three).
+countable_opener(both).
+countable_opener(due).
+countable_opener(tre).
+content_kind(graph).
+content_kind(table).
+content_kind(file).
+
+% ── LE COPULE CHE SEGNALANO UNA FRASE (gen431) ──────────────────────────────
+% Classe SEPARATA da `generic_copula`, e la separazione e' stata misurata:
+% aggiungere «is» a quella cambiava l'estrazione italiana («Marte e' rosso»
+% diventava un fatto, 4 invece di 3+1 in summary.it.p0t). Quella e' forse una
+% cosa giusta, ma va fatta con la sua prova, non di straforo dentro un'altra
+% riparazione. Qui serve solo a distinguere «in questa storia rex E' un drago»
+% (il contenuto e' allegato) da «spiega questa poesia» (non lo e').
+machinery(clause_copula).
+clause_copula(is).
+clause_copula(are).
+clause_copula(was).
+clause_copula(were).
+clause_copula(e').
+clause_copula(sono).
+clause_copula(era).
+clause_copula(erano).

@@ -492,3 +492,23 @@ semantic_topic_cue(decision_fatigue, "nature of willpower").
 semantic_topic_cue(prometheus_myth, "prometheus").
 semantic_topic_cue(prometheus_myth, "giving fire to humans").
 semantic_topic_cue(prometheus_myth, "eternal punishment").
+
+% gen431 — i concetti che i cento fallimenti chiedevano e che nessuno aveva mai
+% scritto. Il consumatore esiste dal gen344: qui non c'e' nessun meccanismo
+% nuovo, c'e' la conoscenza che gli mancava. Ogni riga e' revocabile e nessuna
+% e' una frase-risposta: sono definizioni, e si ricompongono.
+wiki_concept(epistemic_injustice, philosophy, "a wrong done to someone specifically as a knower, either by giving their word less credit than it deserves or by leaving them without the concepts to make sense of their own experience").
+wiki_concept(utilitarianism, philosophy, "the ethical view that an action is right when it produces the greatest overall balance of good consequences, so the outcome decides the verdict").
+wiki_concept(deontology, philosophy, "the ethical view that some acts are required or forbidden by duty whatever the consequences, so the rule decides the verdict").
+wiki_concept(abduction, logic, "inference to the best explanation: from a surprising observation, one adopts the hypothesis that would make it a matter of course").
+wiki_concept(induction, logic, "inference from observed cases to a general rule, which supports its conclusion without guaranteeing it").
+wiki_concept(necessary_condition, logic, "a condition without which the thing cannot hold: if the thing is true, the condition is true").
+wiki_concept(sufficient_condition, logic, "a condition whose presence guarantees the thing: if the condition is true, the thing is true").
+wiki_concept(confounding, statistics, "the distortion of an apparent link between two variables by a third variable that influences both, so the observed association is not the causal one").
+wiki_concept(provenance, epistemology, "the record of where a fact came from and how it was derived, which lets a conclusion be traced back, audited and retracted").
+wiki_concept(schema_induction, learning, "the derivation of a general structure from a handful of sparse examples, by keeping what the examples share and abstracting away what varies").
+wiki_concept(goal_conditioned_salience, cognition, "the property by which what stands out in a scene or a text depends on the goal being pursued, so the same input has different salient parts for different tasks").
+wiki_concept(temporal_causality, philosophy, "the requirement that a cause comes before its effect in time, which is what separates a causal claim from a mere correlation between two series").
+wiki_concept(bayes_theorem, mathematics, "the rule for updating a prior probability with new evidence, where the posterior is proportional to the prior times the likelihood of the evidence").
+wiki_concept(race_condition, programming, "a defect where the result depends on the unpredictable order of two concurrent operations, so the same input can give different outcomes").
+wiki_concept(risk_matrix, management, "a grid that places each risk by its likelihood and its impact, so the ones that are both likely and severe are visible first").

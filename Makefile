@@ -934,6 +934,18 @@ rl-report:
 # e deve restare verde) ne' `make rl-bench` (che misura la crescita su lavori
 # multi-turno): misura la MOLE, con un corpus che spazzola lo spazio d'ingresso
 # per lunghezza in byte. La lingua si fissa, altrimenti si misura il locale.
+# ── hundred — I CENTO (docs/plans/parrot0-100-failures.md) ──────────────────
+# Quanti dei cento prompt documentati parrot0 risolve DAVVERO. L'attesa di ogni
+# riga e' curata perche' nessun ripiego possa passarla. `make hundred-v` elenca
+# i mancanti con la risposta di oggi.
+hundred:
+	@$(MAKE) --no-print-directory build >/dev/null
+	@python3 scripts/hundred.py
+
+hundred-v:
+	@$(MAKE) --no-print-directory build >/dev/null
+	@python3 scripts/hundred.py -v
+
 measure:
 	@$(MAKE) --no-print-directory build >/dev/null
 	@PARROT0_LANG=en ./$(BIN) --measure tests/measure/
