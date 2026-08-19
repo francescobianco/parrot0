@@ -32,6 +32,16 @@
 > 12 = 4x
 < x = 3.
 
-# "x = 5" has no coefficient and nothing to solve -> decline, don't echo.
+# "x = 5" non ha coefficiente e non c'e' niente da RISOLVERE. Fino al gen427 la
+# risposta era declinare, per non rieccheggiare l'equazione fingendo di averla
+# risolta — giusto finche' l'unica lettura possibile era algebrica.
+#
+# Ora ce n'e' un'altra, e non e' un'eco: e' un'ASSEGNAZIONE. Il valore viene
+# TENUTO come fatto di sessione, e il turno dopo «what is x» lo ritrova —
+# verificato qui sotto, perche' rispondere «ho capito» senza tenere il valore
+# sarebbe fingere di aver capito. La sonda a cinque byte dice che l'oracolo fa
+# la stessa mossa: «Noted: x = 1».
 > x = 5
-< I don't understand that yet.
+< Got it — x is 5.
+> what is x
+< value_of(x, 5).

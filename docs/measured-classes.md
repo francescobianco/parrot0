@@ -257,20 +257,28 @@ aver guardato la mossa dell'oracolo è un'opinione, e le opinioni non si misuran
 
 ```
 $ make measure
-tonnage 3   max length 1
+tonnage 48   solved 48   max length 5
 ```
 
-Una riga sola, due numeri:
+Una riga sola, tre numeri:
 
-- **tonnage** — quante risposte distinte il corpus contiene. È la **mole della
-  misura**, e cresce solo curando altre righe;
+- **tonnage** — quante classi distinte il corpus **esercita**: quante strade
+  diverse parrot0 percorre su queste righe. È la **mole della misura**;
+- **solved** — quante di quelle classi sono **dimostrate**: nuove come coppia, e
+  con *tutti* i membri che incontrano l'attesa. **È il numero da massimizzare**;
 - **max length** — fin dove è arrivato lo spazzolamento. Una stazza di 3 a
   lunghezza 1 e una di 3 a lunghezza 40 non sono la stessa cosa, e il numero da
   solo non lo direbbe.
 
-Il dettaglio — quante capacità parrot0 risolva davvero, e quali membri cadano —
-serve a **curare** il corpus, non a leggerlo, e ingombrava il titolo. Le righe
-che non passano si trovano provandole.
+**Perché due numeri e non uno** (gen427). Chiudendo sette muri — i decimali, gli
+orari, il denaro — la **mole è scesa** da 45 a 43. È corretto, e va capito: un
+muro detto in modo suo *è* un comportamento, e un muro che diventa una risposta
+giusta spesso si **unisce a una classe che esiste già**. La mole misura la
+varietà, e da sola premia anche il rumore. `solved` non si può alzare rompendo
+niente: sale solo insegnando.
+
+Quali membri cadano serve a **curare** il corpus, non a leggerlo, e ingombrava il
+titolo: le righe che non passano si trovano provandole.
 
 ## 6. Riproducibilità
 
@@ -505,6 +513,124 @@ registra.
 - **`3.5` `why` `9:15` `help` `true`** — quattro forme e una parola, ognuna una
   classe che non c'è ancora.
 
+### Lunghezza 5 — cinque byte, e il giro in cui i muri sono finiti (19 agosto 2026)
+
+```
+tonnage 48   solved 48   max length 5
+```
+
+A cinque byte lo spazio si apre davvero: ci stanno due parole, un'**equazione**,
+un orario, una data, una misura, del denaro. Trentatré righe curate con la sonda,
+e diciotto buchi il primo giro — il numero più alto mai visto in una lunghezza
+nuova. Alla fine del giro: **zero**.
+
+**1. La forma di un letterale è conoscenza** (`kb/core/literals.p0`).
+
+`-12.5`, `100.5`, `14:30`, `09:05`, `$1000` finivano tutti nello stesso muro
+cieco, e il riconoscitore in C ne prendeva solo una parte: sapeva leggere le
+cifre e il segno, e nient'altro. La differenza fra `100` e `100.5` non è una
+capacità in più — **è una riga di forma in più**, e stava nel C.
+
+Ora le forme sono regole sui **caratteri** (`chars/2`), e il motore fa tre cose
+sole: passa la superficie alla KB, riceve il **genere**, dice la frase che il
+genere dichiara. Sei generi, e non c'è nessuna lista di esempi:
+
+| genere | esempio | come si sa |
+|---|---|---|
+| numero | `-12.5` `100.5` | quattro clausole: intero, segnato, decimale, decimale segnato |
+| orario | `14:30` `9:15` | due gruppi di cifre e un controllo di intervallo (`99:99` non passa) |
+| denaro | `$1000` | un segno di valuta e un numerale |
+| misura | `10 cm` `5 kg` | numero + unità, e l'unità si **scioglie**: *10 centimetres* |
+| numerale romano | `XVIII` | la regola **sottrattiva**, ricorsiva — nessuna tabella di numerali |
+| valore di verità | `true` | una parola, quattro righe (anche `vero`, `falso`) |
+
+Il romano è quello che dimostra la cosa: `XVIII` → 18 e `IV` → 4 vengono da tre
+clausole ricorsive, e nessun `case` del C li contiene. E **solo in maiuscolo**,
+perché in minuscolo `mix` varrebbe 1009 e `did` sarebbe un numerale: la maiuscola
+è il segnale, e il motore prova apposta la superficie come è stata scritta.
+
+**2. Verificare non è calcolare** (`kb/core/claims.p0`).
+
+`2+2=4` non chiede quanto fa: chiede **se è vero**. Il muro prendeva insieme lui,
+`2+2=5` e `2 > 1` — tre turni diversi, una risposta sola. Ora una relazione è un
+fatto, il verdetto è una regola con quattro argomenti (`true`/`false`, mai un
+fallimento silenzioso: *«è falso»* non è *«non ho capito»*), e le due famiglie si
+dicono in registri diversi perché **sono** diverse:
+
+```
+2+2=4  →  That's right — 2+2 is 4.
+2+2=5  →  That's not right — 2+2 is 4, not 5.
+2 > 1  →  True — 2 is greater than 1.
+```
+
+I due lati si ridicono **come sono stati scritti**: chi ha scritto `2+2` deve
+rileggere `2+2`, non `4`, altrimenti la correzione non si capisce. E il modulo
+corre **prima** del calcolo, perché chi calcola e basta risponde «4» a chi ha già
+scritto 4 — cioè non risponde alla domanda posta.
+
+**3. E `x = 1` non è nessuna delle due: è un'assegnazione.**
+
+A sinistra non c'è un valore da confrontare, c'è un **nome** a cui darne uno, e
+riconoscerlo costa una domanda sola: *il lato sinistro si valuta?* Il valore
+viene **tenuto** — il turno dopo, `what is x` risponde `value_of(x, 1)` — perché
+rispondere «ho capito» senza tenerlo sarebbe fingere di aver capito.
+
+Qui un test diceva il contrario: `algebra2.p0t` chiedeva di **declinare** su
+`x = 5`, «per non rieccheggiare l'equazione fingendo di averla risolta». Era
+giusto finché l'unica lettura possibile era algebrica. L'attesa è stata cambiata
+con la ragione scritta accanto e la verifica del ricovero sotto — un test si
+supera con una capacità nuova, non si aggira.
+
+**4. La parola sola, di nuovo — e la tensione col gen52.**
+
+Sei lettere e `if` ricevevano ancora il saluto generico: erano **stopword**, e la
+guardia le mandava al sociale. Ma una parola-funzione da sola non è contatto
+fatico. Tolta la guardia, però, è caduto un test di dieci generazioni fa:
+
+```
+> ahoy
+< Hi there! What would you like to talk about?
+```
+
+La **mossa per eliminazione** del gen52 — *una parola sola e senza contenuto, al
+primo turno, è contatto fatico* — serve a gestire un saluto che **nessuna lista
+contiene**. E le classi misurate dicevano l'opposto: `qzxvb` non va salutato.
+
+Hanno ragione tutt'e due, e la differenza non è nella posizione nel discorso: è
+nella **forma della parola**. `ahoy` si può pronunciare, `qzxvb` no. Ora si cede
+al sociale solo quando il token ha una vocale, è tutto alfabetico (`a1` no) e la
+KB non lo conosce come parola-funzione (`if`, `the` no). Le vocali sono un fatto,
+non una stringa nel C.
+
+Nello stesso giro: `a dog` chiede di `dog` (un determinante non fa due parole),
+`help` **offre aiuto** invece di chiedere che cosa si voglia sapere sulla parola
+«help», e `why` da sola — con niente ancora da spiegare — smette di rispondere
+«non ho ancora risposto a niente» e torna a essere il frammento di domanda che è.
+
+**5. E una parola sola si guarda come è stata scritta.**
+
+`u` diventava `you` e `r` diventava `are`: la canonicalizzazione espande le
+abbreviazioni, ed è la lettura giusta dentro una frase («r u ok?»). Da sola quella
+parola non ha contesto che la disambigui, e parrot0 rispondeva *«I have nothing
+on **you**»* a chi aveva scritto `u` — nominando una parola che l'utente non ha
+scritto.
+
+**6. Il reperto: un `strcpy` che aspettava dal primo giorno.**
+
+Alla prima esecuzione della suite il demone è morto con *«buffer overflow
+detected»*. Non era una regola sbagliata: `bind_add` copiava il valore di un
+legame con una `strcpy` in un campo da 512 byte, e `chars/2` lavora fino a 4096 —
+la lista di caratteri di una frase di sessanta lettere è un termine di
+cinquecento e passa. **Qualunque** regola che guardi i caratteri del turno faceva
+abortire il processo; nessuna lo faceva ancora, quindi il difetto stava lì da
+quando `chars/2` esiste. Ora è un esaurimento dichiarato (`overflow`), che è
+diverso da «è falso», e la domanda sulla forma non si fa più su una frase: un
+letterale è corto per natura, e **quanto** corto è un fatto.
+
+**Il conto del giro:** 43 → **48 classi, tutte dimostrate**, `make test` a 2520
+assert verdi, e diciotto buchi chiusi con **due file di conoscenza**, quattro
+moduli toccati e un difetto del motore riparato.
+
 ## 9. Nota tecnica — che cosa conta il comando, esattamente
 
 Perché il numero significhi «classi» e non «righe», il conteggio è definito così,
@@ -527,9 +653,10 @@ e vale la pena scriverlo per esteso:
 5. una classe è **dimostrata** solo se *tutti* i suoi membri incontrano l'attesa.
    Un membro che cade la marca come non dimostrata — così non basta aggiungere un
    caso facile per intascare il punto e far sparire i difficili dal numero;
-6. **`tonnage` stampa le classi**, sommate su tutte le lunghezze. Il conto dei
-   membri risolti resta calcolato ma non stampato: serve a **curare** il corpus,
-   non a leggerlo, e ingombrava il titolo.
+6. si stampano **due** numeri: `tonnage` sono le classi **presenti**, `solved`
+   quelle **dimostrate** — nuove come coppia e con ogni membro che incontra
+   l'attesa. Quali membri cadano resta fuori dal titolo: serve a **curare** il
+   corpus, non a leggerlo.
 
 **I punti 4 e 5 sono tutta la misura.** Sono la regola che trasforma un conteggio
 di righe in un conteggio di *comportamenti*: se aggiungere cento addizioni non
@@ -552,10 +679,12 @@ Tre conseguenze da tenere a mente leggendo un risultato:
 
 ```
 $ make measure
-tonnage 30   max length 4
+tonnage 48   solved 48   max length 5
 ```
 
-Trenta classi su quattro lunghezze — 120 righe curate, che parrot0 tratta in
-trenta modi distinti. La prossima lunghezza si apre quando c'è la volontà di
-curarla, e prima conviene guardare i buchi che restano (§8): ognuno è il nome di
-una classe che non c'è ancora.
+Quarantotto classi su cinque lunghezze, e **nessun buco**: ogni classe che il
+corpus esercita è anche dimostrata. È la prima volta che i due numeri coincidono,
+e non è uno stato che si conserva — la lunghezza 6 lo romperà, ed è il suo
+mestiere.
+
+La prossima lunghezza si apre quando c'è la volontà di curarla.

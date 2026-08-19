@@ -413,10 +413,22 @@ static int measure_run(const char *dir) {
      * darebbe un titolo che scende quando il corpus cresce, che e' esattamente
      * il contrario di quello che serve. */
     /* Una riga sola (F.): la MOLE e fin dove e' stata misurata. Il dettaglio —
-     * quante ne risolve, e quali membri cadono — serve a curare il corpus, non a
-     * leggerlo, e ingombrava il titolo. */
-    (void)total_ok;
-    printf("tonnage %ld   max length %ld\n", total_n, max_len);
+     * QUALI membri cadono — serve a curare il corpus, non a leggerlo, e
+     * ingombrava il titolo.
+     *
+     * gen427 — MA I DUE NUMERI VANNO DETTI TUTT'E DUE, e la ragione e' stata
+     * misurata, non temuta: chiudendo sette muri (i decimali, gli orari, il
+     * denaro) la mole e' SCESA da 45 a 43. E' corretto e va capito — un muro
+     * detto in modo suo E' un comportamento, e un muro che diventa una risposta
+     * giusta spesso si UNISCE a una classe che esiste gia'. La mole misura la
+     * varieta'; da sola premia anche il rumore.
+     *
+     * `solved` conta le classi DIMOSTRATE: nuove come coppia, e con tutti i
+     * membri che incontrano l'attesa. Quel numero non si puo' alzare rompendo
+     * niente — sale solo insegnando. E' il numero da massimizzare; la mole
+     * resta accanto perche' dice quanto grande e' la misura che lo produce. */
+    printf("tonnage %ld   solved %ld   max length %ld\n",
+           total_n, total_ok, max_len);
     return 0;
 }
 

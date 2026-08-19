@@ -269,6 +269,36 @@ imperative_opener(recommend).
 imperative_opener(suggest).
 imperative_opener(imagine).
 
+% LE VOCALI (gen427). Servono a distinguere una parola PRONUNCIABILE da una
+% martellata sulla tastiera: «ahoy» e' un saluto che nessuna lista contiene,
+% «qzxvb» non e' niente, e la differenza e' nella forma, non nella posizione nel
+% discorso. Un alfabeto nuovo — un'altra lingua, un'altra scrittura — costa
+% righe qui e nessuna riga di C.
+machinery(vowel_letter).
+vowel_letter(a).
+vowel_letter(e).
+vowel_letter(i).
+vowel_letter(o).
+vowel_letter(u).
+vowel_letter(y).
+
+% I DETERMINANTI (gen427). Non sono una sottolista delle stopword per caso:
+% davanti a un nome un determinante si toglie e il nome resta — «a dog» chiede di
+% «dog». Serve al classificatore della parola sola, che senza questa riga vedeva
+% due parole e passava oltre. Un determinante nuovo, in qualunque lingua, e' una
+% riga.
+machinery(determiner_word).
+determiner_word(a).
+determiner_word(an).
+determiner_word(the).
+determiner_word(this).
+determiner_word(that).
+determiner_word(il).
+determiner_word(lo).
+determiner_word(la).
+determiner_word(un).
+determiner_word(una).
+
 % English function words and high-frequency conversational operators.
 stopword(the).
 stopword(a).

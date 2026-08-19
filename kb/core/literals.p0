@@ -1,0 +1,159 @@
+% parrot0 — LA FORMA DI UN LETTERALE E' CONOSCENZA (gen427)
+%
+% Un turno che e' SOLO un letterale — «12345», «-12.5», «14:30», «$1000» — non
+% ha niente da calcolare: la mossa onesta e' NOMINARLO e chiedere che cosa
+% farne. E' quello che fa un LLM davanti allo stesso byte (sonda
+% tests/measure_probe.py, lunghezza 5), ed e' quello che le classi misurate
+% chiedevano da tre lunghezze.
+%
+% Il motore non sa che cosa sia un numero, un orario o del denaro: sa chiedere
+% alla KB `lone_literal_kind(Superficie, Genere)` e dire la frase che il genere
+% dichiara. QUALI forme esistano e' scritto qui — una notazione nuova (un'altra
+% valuta, un altro formato) costa una riga, senza ricompilare.
+%
+% Le forme sono definite sui CARATTERI (`chars/2`), quindi non c'e' nessuna
+% lista di esempi: «-12.5» e «+0.75» passano per la stessa regola.
+
+% Nessuna riga di questo file e' conoscenza sul MONDO: e' tutta meccanica,
+% e va dichiarata tale in un colpo solo. Senza, l'induttore trova correlazioni
+% fra le cifre e i numeri primi e le propone come regole imparate — misurato.
+:- file_attribute(machinery).
+
+machinery(lone_literal_kind).
+machinery(numeral).
+
+% --- l'alfabeto ---------------------------------------------------------------
+digit_char(0). digit_char(1). digit_char(2). digit_char(3). digit_char(4).
+digit_char(5). digit_char(6). digit_char(7). digit_char(8). digit_char(9).
+
+sign_char("-").
+sign_char("+").
+
+decimal_point(".").
+
+% --- una sequenza di cifre ----------------------------------------------------
+digits(cons($C, nil)) :- digit_char($C).
+digits(cons($C, $T)) :- digit_char($C), digits($T).
+
+% --- un numerale: cifre, con segno e parte decimale facoltativi ---------------
+% Le quattro clausole sono le quattro forme, non quattro casi speciali: intero,
+% intero segnato, decimale, decimale segnato.
+numeral($Cs) :- digits($Cs).
+numeral(cons($S, $T)) :- sign_char($S), digits($T).
+numeral($Cs) :- decimal_point($P), append_list($I, cons($P, $F), $Cs), digits($I), digits($F).
+numeral(cons($S, $T)) :- sign_char($S), decimal_point($P), append_list($I, cons($P, $F), $T), digits($I), digits($F).
+
+% --- i generi di letterale ----------------------------------------------------
+% Un numero nudo.
+lone_literal_kind($S, number) :- chars($S, $Cs), numeral($Cs).
+
+% Un orario: due gruppi di cifre separati da «:», e nelle ore del giorno. Il
+% controllo di intervallo e' quello che tiene «99:99» fuori senza una lista.
+time_separator(":").
+% Un corpo di regola non puo' superare gli otto goal (KB_MAX_BODY) e oltre non
+% fallisce con un errore: non trova soluzioni. Spezzare in due e' anche il
+% fattoraggio giusto — «le parti di un orario» e' conoscenza a se'.
+time_parts($S, $H, $M) :-
+    chars($S, $Cs), time_separator($Sep),
+    append_list($HC, cons($Sep, $MC), $Cs),
+    digits($HC), digits($MC),
+    chars($H, $HC), chars($M, $MC).
+lone_literal_kind($S, time) :- time_parts($S, $H, $M), le($H, 23), le($M, 59).
+
+% Del denaro: un segno di valuta e un numerale.
+currency_char("$").
+currency_char("£").
+lone_literal_kind($S, money) :-
+    chars($S, cons($C, $T)), currency_char($C), numeral($T).
+
+% --- che cosa si dice, per genere --------------------------------------------
+% Il nome del template e' un fatto: il motore non compone nomi, li legge.
+lone_literal_say(number, lone_literal_number).
+lone_literal_say(time, lone_literal_time).
+lone_literal_say(money, lone_literal_money).
+
+response_template(lone_literal_number, "That's just the number {shown} with nothing to do — what would you like me to do with it?").
+response_template(lone_literal_time, "{shown} is a time of day — what would you like me to do with it?").
+response_template(lone_literal_money, "{shown} is an amount of money — what would you like me to do with it?").
+
+
+% --- un numerale romano -------------------------------------------------------
+% Non si NOMINA e basta: si TRADUCE. Il valore e' calcolato dalla regola
+% sottrattiva (IV = 4, XVIII = 18), quindi non c'e' nessuna tabella di numerali:
+% ce n'e' una di CIFRE, che e' un'altra cosa.
+%
+% Solo in MAIUSCOLO. In minuscolo «mix» varrebbe 1009 e «did» sarebbe un
+% numerale: la maiuscola e' il segnale che distingue il numerale dalla parola, e
+% il motore prova la superficie com'e' stata scritta apposta.
+roman_digit(I, 1).
+roman_digit(V, 5).
+roman_digit(X, 10).
+roman_digit(L, 50).
+roman_digit(C, 100).
+roman_digit(D, 500).
+roman_digit(M, 1000).
+
+roman_value(cons($A, nil), $V) :- roman_digit($A, $V).
+roman_value(cons($A, cons($B, $T)), $V) :- roman_digit($A, $VA), roman_digit($B, $VB), lt($VA, $VB), roman_value(cons($B, $T), $R), is($V, sub($R, $VA)).
+roman_value(cons($A, cons($B, $T)), $V) :- roman_digit($A, $VA), roman_digit($B, $VB), ge($VA, $VB), roman_value(cons($B, $T), $R), is($V, add($VA, $R)).
+
+lone_literal_kind($S, roman) :- chars($S, $Cs), roman_value($Cs, $V).
+lone_literal_render(roman, $S, $V) :- chars($S, $Cs), roman_value($Cs, $V).
+lone_literal_say(roman, lone_literal_roman).
+response_template(lone_literal_roman, "{surface} is the Roman numeral for {shown} — what would you like me to do with it?").
+
+% --- una misura: un numero e la sua unita' ------------------------------------
+% «10 cm» non e' un numero nudo: e' una QUANTITA'. Il simbolo si scioglie nel
+% nome per esteso, che e' il minimo per far vedere che e' stato capito.
+%
+% Il simbolo va scritto NUDO, non fra virgolette: `chars/2` ricompone i
+% caratteri in un atomo, e un atomo non unifica con la stringa che gli somiglia.
+unit_symbol(cm, "centimetres").
+unit_symbol(mm, "millimetres").
+unit_symbol(m, "metres").
+unit_symbol(km, "kilometres").
+unit_symbol(kg, "kilograms").
+unit_symbol(g, "grams").
+unit_symbol(s, "seconds").
+unit_symbol(h, "hours").
+
+measure_parts($S, $N, $U) :-
+    chars($S, $Cs), append_list($NC, cons(" ", $UC), $Cs),
+    digits($NC), chars($N, $NC), chars($U, $UC).
+lone_literal_kind($S, measure) :- measure_parts($S, $N, $U), unit_symbol($U, $Name).
+lone_literal_render(measure, $S, $Text) :-
+    measure_parts($S, $N, $U), unit_symbol($U, $Name), concat_atoms($N, " ", $NS), concat_atoms($NS, $Name, $Text).
+lone_literal_say(measure, lone_literal_measure).
+response_template(lone_literal_measure, "That's a measurement — {shown}. What would you like me to do with it?").
+
+% --- parole che hanno una mossa loro ------------------------------------------
+% «help» non chiede che cosa si voglia sapere sulla parola «help»: chiede aiuto.
+% La sonda a quattro byte dice che l'oracolo fa esattamente questo — offre e
+% chiede con che cosa.
+lone_word_say(help, lone_help).
+lone_word_say(aiuto, lone_help).
+response_template(lone_help, "I can answer questions from what I know, work with numbers, times and measures, and learn what you teach me — what do you need help with?").
+response_template(lone_help, it, "Posso rispondere con quello che so, lavorare con numeri, orari e misure, e imparare quello che mi insegni — con che cosa ti serve aiuto?").
+
+% --- un valore di verita' -----------------------------------------------------
+% «true» da solo non e' un argomento su cui rispondere «che cosa vorresti sapere
+% su true?»: e' un valore, e la mossa e' nominarlo e chiedere che cosa
+% verificare. La sonda a quattro byte dice che l'oracolo chiede chiarimenti — qui
+% si chiede la stessa cosa, ma sapendo che cosa si e' ricevuto.
+%
+% Il doppio `chars/2` serve a togliere le virgolette: la superficie arriva come
+% stringa, i fatti sono atomi, e una stringa non unifica con l'atomo che le
+% somiglia.
+truth_word(true).
+truth_word(false).
+truth_word(vero).
+truth_word(falso).
+lone_literal_kind($S, truth) :- chars($S, $Cs), chars($W, $Cs), truth_word($W).
+lone_literal_say(truth, lone_literal_truth).
+response_template(lone_literal_truth, "{surface} is a truth value on its own — what would you like me to check?").
+
+% Quanto puo' essere lungo un letterale. Non e' una soglia di comodo: e' la
+% frontiera fra «un token» e «una frase», e sopra di essa la domanda sulla forma
+% non ha senso — costa e non conclude.
+machinery(lone_literal_max_length).
+lone_literal_max_length(24).

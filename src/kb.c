@@ -1023,12 +1023,26 @@ static void deep_resolve(const Subst *s, const char *t,
 }
 
 static int bind_add(Subst *s, const char *var, const char *val) {
-    if (s->n >= KB_MAX_BIND || strlen(var) >= KB_VAR_LEN) {
+    /* gen427 — UN VALORE PIU' LUNGO DEL SUO POSTO ESAURISCE, NON SFONDA.
+     *
+     * La copia era una `strcpy` in un campo di KB_TERM_LEN, e il valore puo'
+     * arrivare da `chars/2`, che lavora fino a KB_CHARLIST_MAX (4096): la lista
+     * di caratteri di una frase di sessanta lettere e' un termine di
+     * cinquecento e passa, e il processo ABORTIVA con «buffer overflow
+     * detected». Non era un caso di laboratorio — bastava che una regola
+     * guardasse i caratteri del turno, che e' esattamente quello che le forme
+     * dei letterali fanno.
+     *
+     * Trattarlo come esaurimento e' l'unica risposta onesta: la sostituzione
+     * non puo' rappresentare quel legame, e `overflow` esiste apposta per dire
+     * «non l'ho esplorato», che e' diverso da «e' falso». */
+    if (s->n >= KB_MAX_BIND || strlen(var) >= KB_VAR_LEN ||
+        strlen(val) >= sizeof s->b[0].val) {
         if (s->overflow) *s->overflow = 1;   /* exhausted, not disproved */
         return 0;
     }
     snprintf(s->b[s->n].var, KB_VAR_LEN, "%s", var);
-    strcpy(s->b[s->n].val, val);
+    snprintf(s->b[s->n].val, sizeof s->b[0].val, "%s", val);
     s->n++;
     return 1;
 }
@@ -1607,8 +1621,16 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         char a0[KB_CHARLIST_MAX], a1[KB_CHARLIST_MAX];
         deep_resolve(s, g->args[0], a0, sizeof a0, 0);
         deep_resolve(s, g->args[1], a1, sizeof a1, 0);
-        int g0 = !is_var(a0) && strchr(a0, '$') == NULL;   /* arg0 fully ground */
-        int g1 = !is_var(a1) && strchr(a1, '$') == NULL;   /* arg1 fully ground */
+        /* gen427 — UN TESTO FRA VIRGOLETTE E' GROUND ANCHE SE CONTIENE UN «$».
+         *
+         * La prova di groundness era «nessun dollaro nel termine», e il dollaro
+         * e' il marcatore di variabile: giusto per un termine nudo, sbagliato
+         * per una STRINGA. L'effetto era che `chars("$1000", $L)` non produceva
+         * niente — non un errore, zero soluzioni — e con esso ogni regola che
+         * guardi i caratteri di un prezzo, di un identificatore shell, di una
+         * variabile di ambiente. Fra virgolette il dollaro e' un carattere. */
+        int g0 = !is_var(a0) && (a0[0] == '"' || strchr(a0, '$') == NULL);
+        int g1 = !is_var(a1) && (a1[0] == '"' || strchr(a1, '$') == NULL);
         Subst *s2 = &scratch->subst;
         subst_copy(s2, s);
         if (g0) {                              /* atom -> char-list */

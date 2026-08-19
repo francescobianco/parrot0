@@ -67,6 +67,19 @@ STIMULI = {
         "qzxv", "!!!!",                  # non-parola, punteggiatura
         "a = b",                         # (5 byte: controllo)
         ],
+    # lunghezza 5: a cinque byte lo spazio si apre davvero — ci stanno due
+    # parole, un'EQUAZIONE (che si puo' verificare, non solo calcolare), un
+    # orario, una data, una misura, del denaro. Scelti per coprire le FORME.
+    5: ["hello", "where", "which", "water", "horse",   # saluto, interrogative, piene
+        "qzxvb", "xkwqz", "sorry",                    # non-parole, scusa
+        "12+34", "100-1", "1 + 1", "3*3*3", "25/12",  # aritmetica: cifre, spazi, catena
+        "2+2=4", "2+2=5", "2 > 1",                    # equazioni vera/falsa, confronto
+        "14:30", "09:05",                             # orari
+        "12345", "-1000", "-12.5", "100.5",           # numeri: interi, segnati, decimali
+        "$1000", "10 cm", "XVIII",                    # denaro, misura, numerale romano
+        "!!!!!", "?????", ".....",                    # punteggiatura, ellissi
+        "is it", "do it", "a dog", "x = 1",           # coreferenza, imperativo, sintagma, assegnazione
+        ],
 }
 
 

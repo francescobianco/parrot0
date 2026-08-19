@@ -1,18 +1,18 @@
-!!! | 00f24344 | That's just punctuation, not words — what would you like to ask?
-1+1 | 8a7d532c | 2
-100 | afa6f0a2 | That's just the number 100 with nothing to do — what would you like me to do with it?
-2*3 | 8a7d532c | 6
-3.5 | 018703a2 | what would you like me to do with
-9-4 | cf6cec40 | 5
-??? | 00f24344 | That's just punctuation, not words — what would you like to ask?
-cat | 4379dc78 | What would you like to know about
-dog | 4379dc78 | What would you like to know about
-hi! | ef633f35 | Hi there!
-how | fc5f22ea | That's the start of a question
-ok? | d67fca13 | Got it — what would you like to do?
-qzx | 4379dc78 | I have nothing on
-sun | 4379dc78 | What would you like to know about
-who | fc5f22ea | That's the start of a question
-why | 01295499 | That's the start of a question
-yes | 3b3a25a0 | Got it — what would you like to do?
-zqw | 4379dc78 | I have nothing on
+!!! | 696a4bfd | That's just punctuation, not words — what would you like to ask?
+1+1 | 9143893f | 2
+100 | 4195e8e6 | That's just the number 100 with nothing to do — what would you like me to do with it?
+2*3 | 9143893f | 6
+3.5 | 4195e8e6 | what would you like me to do with
+9-4 | d4523653 | 5
+??? | 696a4bfd | That's just punctuation, not words — what would you like to ask?
+cat | 1ec02ec3 | What would you like to know about
+dog | 1ec02ec3 | What would you like to know about
+hi! | b2dacd8e | Hi there!
+how | a1e6d051 | That's the start of a question
+ok? | 8bc638a8 | Got it — what would you like to do?
+qzx | 80196ae0 | I have nothing on
+sun | 1ec02ec3 | What would you like to know about
+who | a1e6d051 | That's the start of a question
+why | dec952c4 | That's the start of a question
+yes | 6683d71b | Got it — what would you like to do?
+zqw | 80196ae0 | I have nothing on

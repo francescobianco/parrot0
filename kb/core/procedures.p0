@@ -1046,6 +1046,8 @@ machinery(sides).
 :- include(inquiry.p0).
 :- include(risk.p0).
 :- include(numeric-questions.p0).
+:- include(literals.p0).
+:- include(claims.p0).
 :- include(honest-limits.p0).
 :- include(denotation.p0).
 :- include(language-forms.p0).

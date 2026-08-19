@@ -62,10 +62,109 @@ static int mod_input(Brain *b, const char *norm, const char *raw,
                 if (v > 0) morse_min = v;
             }
         }
-        if (morse_only && (long)len >= morse_min) return 0;  /* lo nomina il simbolico */
+        /* gen427 — E CON ALMENO DUE SIMBOLI DIVERSI. «.....» ha la lunghezza di
+         * un morse ma non ne ha la forma: un morse e' un'alternanza, una fila
+         * di cinque punti e' un'ellissi. Anche quanti simboli DISTINTI servano
+         * e' conoscenza, come la loro quantita' minima. */
+        long morse_distinct = 1;
+        if (b && b->kb) {
+            const char *dq[1] = { NULL };
+            char dv[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "morse_min_distinct_symbols", dq, 1, dv, 1) > 0) {
+                char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", dv[0]);
+                long v = strtol(kb_dequote(db), NULL, 10);
+                if (v > 0) morse_distinct = v;
+            }
+        }
+        long seen_dot = 0, seen_dash = 0, seen_slash = 0;
+        for (size_t i = 0; i < len; i++) {
+            if (norm[i] == '.') seen_dot = 1;
+            else if (norm[i] == '-') seen_dash = 1;
+            else if (norm[i] == '/') seen_slash = 1;
+        }
+        long ndistinct = seen_dot + seen_dash + seen_slash;
+        if (morse_only && (long)len >= morse_min && ndistinct >= morse_distinct)
+            return 0;                                    /* lo nomina il simbolico */
         put("That's just punctuation, not words — what would you like to ask?",
             out, out_size);
         return 1;
+    }
+
+    /* (0) UN LETTERALE E BASTA — e QUALI forme siano letterali e' conoscenza.
+     *
+     * gen427 — «-12.5», «100.5», «14:30», «9:15», «$1000» finivano tutti nel
+     * muro cieco, e il ramo (2) qui sotto ne prendeva solo una parte: sapeva
+     * leggere le cifre e il segno, e nient'altro. La differenza fra «100» e
+     * «100.5» non e' una capacita' in piu': e' UNA RIGA DI FORMA in piu', e
+     * stava in C.
+     *
+     * Ora la forma sta in `kb/core/literals.p0`, scritta sui CARATTERI
+     * (`chars/2`), e il motore fa tre cose sole: passa la superficie alla KB,
+     * riceve il GENERE, e dice la frase che il genere dichiara. Una notazione
+     * nuova — un'altra valuta, un altro formato di orario, una percentuale —
+     * costa una riga di KB e nessuna ricompilazione.
+     *
+     * Il ramo (2) resta sotto come struttura secondaria: se la KB dei letterali
+     * non c'e', i numeri interi si nominano lo stesso. */
+    if (b && b->kb) {
+        /* La superficie si prova come e' stata SCRITTA e come e' stata
+         * canonicalizzata: «XVIII» e' un numerale romano solo in maiuscolo (in
+         * minuscolo «mix» e «did» sarebbero numerali anche loro), e la forma
+         * canonica perde le maiuscole. Due tentativi, nessuna conoscenza in C. */
+        /* Un letterale e' CORTO per natura, e la domanda non si fa su una frase:
+         * guardare i caratteri di un turno lungo costa e non puo' concludere
+         * niente. Quanto corto e' un fatto (`lone_literal_max_length/1`). */
+        long lit_max = 24;
+        {
+            const char *mq[1] = { NULL };
+            char mv[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "lone_literal_max_length", mq, 1, mv, 1) > 0) {
+                char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mv[0]);
+                long v = strtol(kb_dequote(mb), NULL, 10);
+                if (v > 0) lit_max = v;
+            }
+        }
+        /* Il grezzo si guarda SOLO quando e' lo stesso turno scritto con altre
+         * maiuscole. Se differisce per piu' che il caso, non e' una superficie
+         * alternativa: e' un altro turno — il ricovero della riparazione
+         * ridispaccia «what is 21 plus 10» tenendo il grezzo «21» del turno che
+         * ha riempito lo slot, e leggere quel grezzo faceva rispondere «e' il
+         * numero 21» a una domanda che ormai era un'addizione (misurato:
+         * repair.p0t). */
+        const char *cased = (raw && *raw && norm && strcasecmp(raw, norm) == 0)
+                            ? raw : NULL;
+        const char *surf[2] = { cased, norm };
+        for (size_t si = 0; si < 2; si++) {
+            if (!surf[si] || !*surf[si]) continue;
+            if ((long)strlen(surf[si]) > lit_max) continue;
+            if (si == 1 && surf[0] && strcmp(surf[0], surf[1]) == 0) continue;
+            char q[KB_TERM_LEN];
+            if (snprintf(q, sizeof q, "\"%s\"", surf[si]) >= (int)sizeof q) continue;
+            const char *lq[2] = { q, NULL };
+            char kind[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "lone_literal_kind", lq, 2, kind, 1) != 1) continue;
+            const char *sq[2] = { kind[0], NULL };
+            char tmpl[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "lone_literal_say", sq, 2, tmpl, 1) != 1) continue;
+            char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", tmpl[0]);
+            /* Alcuni generi si NOMINANO e basta (un numero, un orario); altri si
+             * TRADUCONO — un numerale romano vale un numero, una misura si dice
+             * per esteso. Se la KB sa renderla, si dice la resa. */
+            char shown[KB_TERM_LEN];
+            snprintf(shown, sizeof shown, "%s", surf[si]);
+            const char *rq[3] = { kind[0], q, NULL };
+            char rendered[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "lone_literal_render", rq, 3, rendered, 1) == 1) {
+                char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rendered[0]);
+                snprintf(shown, sizeof shown, "%s", kb_dequote(rb));
+            }
+            const KbResponseSlot sl[] = { { "shown", shown }, { "surface", surf[si] } };
+            char msg[400];
+            if (kb_response_slots(b, kb_dequote(tb), sl, 2, msg, sizeof msg)) {
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
     }
 
     /* The remaining shapes are single tokens; multi-word input is linguistic. */
@@ -241,6 +340,10 @@ static const Module registry[] = {
      * sostituisce — mod_arith resta per tutto il resto — ma la forma semplice
      * «A op B» passa dalla KB, cosi' un operatore nuovo costa due righe di
      * conoscenza e zero C. */
+    /* gen427: VERIFICARE prima di CALCOLARE. «2+2=4» contiene un «+», e chi
+     * calcola e basta risponde «4» a chi ha gia' scritto 4 — cioe' non risponde
+     * alla domanda posta, che era «e' vero?». */
+    {"claim",     mod_claim},
     {"operator",  mod_operator},
     {"arith",     mod_arith},
     {"plan",      mod_plan},

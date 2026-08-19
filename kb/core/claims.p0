@@ -1,0 +1,82 @@
+% parrot0 — VERIFICARE UN'AFFERMAZIONE (gen427)
+%
+% «2+2=4» non e' un calcolo: e' un'AFFERMAZIONE, e la mossa giusta non e'
+% rispondere «4» ma dire se e' vera. «2+2=5» chiede la stessa cosa e merita una
+% correzione, non un muro. «2 > 1» e' la stessa forma con un'altra relazione.
+%
+% La differenza fra calcolare e verificare e' tutta qui: il calcolo produce un
+% valore, la verifica CONFRONTA il valore prodotto con quello dichiarato. Il
+% motore sa spezzare «lato relazione lato» e valutare i due lati; QUALI
+% relazioni esistano, che cosa significhi che tengono, e che cosa si dice
+% quando tengono o non tengono, e' scritto qui.
+%
+% Una relazione nuova — «divide», «e' multiplo di», «≡ mod n» — costa tre righe
+% e nessuna ricompilazione.
+
+% Nessuna riga di questo file e' conoscenza sul MONDO: e' tutta meccanica,
+% e va dichiarata tale in un colpo solo. Senza, l'induttore trova correlazioni
+% fra le cifre e i numeri primi e le propone come regole imparate — misurato.
+:- file_attribute(machinery).
+
+machinery(infix_relation).
+machinery(relation_check).
+
+% --- i simboli ----------------------------------------------------------------
+% Il motore prova prima i simboli piu' lunghi, cosi' «>=» non viene letto «>».
+infix_relation("=", equal).
+infix_relation("==", equal).
+infix_relation(">=", at_least).
+infix_relation("<=", at_most).
+infix_relation(">", greater).
+infix_relation("<", less).
+
+% --- che cosa significa che una relazione tiene -------------------------------
+% Il quarto argomento e' il VERDETTO: la regola non fallisce quando la relazione
+% e' falsa — risponde «false». Una verifica che fallisce in silenzio non
+% saprebbe distinguere «e' falso» da «non ho capito».
+relation_check(equal, $A, $B, true) :- eq($A, $B).
+relation_check(equal, $A, $B, false) :- ne($A, $B).
+relation_check(greater, $A, $B, true) :- gt($A, $B).
+relation_check(greater, $A, $B, false) :- le($A, $B).
+relation_check(less, $A, $B, true) :- lt($A, $B).
+relation_check(less, $A, $B, false) :- ge($A, $B).
+relation_check(at_least, $A, $B, true) :- ge($A, $B).
+relation_check(at_least, $A, $B, false) :- lt($A, $B).
+relation_check(at_most, $A, $B, true) :- le($A, $B).
+relation_check(at_most, $A, $B, false) :- gt($A, $B).
+
+% --- come si dice il verdetto -------------------------------------------------
+% L'uguaglianza si dice come una CORREZIONE (chi scrive «2+2=5» ha sbagliato un
+% conto); le altre relazioni si dicono come una RISPOSTA (chi scrive «2 > 1» fa
+% una domanda). Sono due registri diversi, e la differenza e' conoscenza.
+relation_say(equal, true, claim_right).
+relation_say(equal, false, claim_wrong).
+relation_say(greater, true, claim_true).
+relation_say(greater, false, claim_false).
+relation_say(less, true, claim_true).
+relation_say(less, false, claim_false).
+relation_say(at_least, true, claim_true).
+relation_say(at_least, false, claim_false).
+relation_say(at_most, true, claim_true).
+relation_say(at_most, false, claim_false).
+
+relation_name(equal, "equal to").
+relation_name(greater, "greater than").
+relation_name(less, "less than").
+relation_name(at_least, "at least").
+relation_name(at_most, "at most").
+
+response_template(claim_right, "That's right — {left} is {value}.").
+response_template(claim_wrong, "That's not right — {left} is {value}, not {right}.").
+response_template(claim_true, "True — {value} is {relation} {right}.").
+response_template(claim_false, "Not true — {value} is not {relation} {right}.").
+
+% --- assegnare invece che verificare ------------------------------------------
+% «x = 1» non chiede se e' vero: da' un valore a un nome. Quale relazione LEGA un
+% nome a un valore, e sotto quale predicato il legame va tenuto, e' conoscenza:
+% cambiare `value_of` con un altro deposito non tocca una riga di C.
+machinery(relation_binds).
+relation_binds(equal, value_of).
+
+response_template(assignment_noted, "Got it — {name} is {value}.").
+response_template(assignment_noted, it, "Va bene — {name} vale {value}.").

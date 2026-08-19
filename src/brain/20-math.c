@@ -827,6 +827,178 @@ static int arith_paired_dimensions_from_doubled_sum(Brain *b, const char *norm,
 }
 
 
+/* gen427 — VERIFICARE NON E' CALCOLARE.
+ *
+ * «2+2=4» non chiede quanto fa: chiede se e' vero. Il muro cieco lo prendeva
+ * insieme a «2+2=5» e a «2 > 1», tre turni diversi con la stessa risposta, e le
+ * classi misurate a cinque byte lo mostravano in una riga.
+ *
+ * Il motore qui fa tre cose e nessuna di piu': spezza il turno su un simbolo di
+ * relazione, VALUTA i due lati (un numero e' se stesso, «A op B» passa da
+ * `apply_operator/4`), e chiede alla KB il verdetto e la frase. Quali relazioni
+ * esistano, che cosa significhi che tengono e come si dicono sta tutto in
+ * `kb/core/claims.p0` — una relazione nuova costa tre righe di conoscenza.
+ *
+ * Sta PRIMA di mod_operator perche' «2+2=4» contiene «+»: chi calcola e basta
+ * risponderebbe «4» a chi ha gia' scritto 4, cioe' non risponderebbe alla
+ * domanda posta. */
+static int claim_side_value(Brain *b, const char *text, char *val, size_t vsz) {
+    char work[128];
+    snprintf(work, sizeof work, "%s", text);
+    char *t = work;
+    while (*t == ' ') t++;
+    size_t tl = strlen(t);
+    while (tl && t[tl-1] == ' ') t[--tl] = '\0';
+    if (!*t) return 0;
+    /* un numero e' se stesso */
+    const char *d = t;
+    if ((*d == '-' || *d == '+') && d[1]) d++;
+    int numeric = *d != '\0';
+    for (const char *p = d; *p; p++)
+        if (!isdigit((unsigned char)*p)) { numeric = 0; break; }
+    if (numeric) { snprintf(val, vsz, "%s", t); return 1; }
+    /* altrimenti: «A op B», con l'operatore preso dalla KB */
+    char syms[32][KB_TERM_LEN];
+    const char *q[2] = { NULL, NULL };
+    size_t ns = kb_match(b->kb, "infix_operator", q, 2, syms, 32);
+    for (size_t i = 0; i < ns; i++) {
+        char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", syms[i]);
+        const char *sym = kb_dequote(sb);
+        if (!sym || !*sym) continue;
+        const char *at = strstr(t, sym);
+        if (!at || at == t) continue;
+        char left[64], right[64];
+        size_t ll = (size_t)(at - t);
+        if (ll == 0 || ll >= sizeof left) continue;
+        memcpy(left, t, ll); left[ll] = '\0';
+        snprintf(right, sizeof right, "%s", at + strlen(sym));
+        char lv[KB_TERM_LEN], rv[KB_TERM_LEN];
+        if (!claim_side_value(b, left, lv, sizeof lv)) continue;
+        if (!claim_side_value(b, right, rv, sizeof rv)) continue;
+        const char *nq[2] = { syms[i], NULL };
+        char opname[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "infix_operator", nq, 2, opname, 1) != 1) continue;
+        char ob[KB_TERM_LEN]; snprintf(ob, sizeof ob, "%s", opname[0]);
+        const char *aq[4] = { kb_dequote(ob), lv, rv, NULL };
+        char res[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "apply_operator", aq, 4, res, 1) != 1) continue;
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", res[0]);
+        snprintf(val, vsz, "%s", kb_dequote(rb));
+        return 1;
+    }
+    return 0;
+}
+
+static int mod_claim(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb || !norm || !*norm) return 0;
+    char syms[16][KB_TERM_LEN];
+    const char *q[2] = { NULL, NULL };
+    size_t ns = kb_match(b->kb, "infix_relation", q, 2, syms, 16);
+    if (!ns) return 0;
+    /* il simbolo piu' lungo per primo: «>=» non e' un «>» con un carattere in
+     * piu', e leggerlo cosi' cambierebbe la relazione affermata. */
+    size_t order[16];
+    for (size_t i = 0; i < ns; i++) order[i] = i;
+    for (size_t i = 0; i < ns; i++)
+        for (size_t j = i + 1; j < ns; j++)
+            if (strlen(syms[order[j]]) > strlen(syms[order[i]])) {
+                size_t t = order[i]; order[i] = order[j]; order[j] = t;
+            }
+    for (size_t k = 0; k < ns; k++) {
+        char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", syms[order[k]]);
+        const char *sym = kb_dequote(sb);
+        if (!sym || !*sym) continue;
+        const char *at = strstr(norm, sym);
+        if (!at || at == norm) continue;
+        char left[128], right[128];
+        size_t ll = (size_t)(at - norm);
+        if (ll == 0 || ll >= sizeof left) continue;
+        memcpy(left, norm, ll); left[ll] = '\0';
+        snprintf(right, sizeof right, "%s", at + strlen(sym));
+        char lv[KB_TERM_LEN], rv[KB_TERM_LEN];
+        if (!claim_side_value(b, left, lv, sizeof lv)) {
+            /* gen427 — «x = 1» NON E' UNA VERIFICA: e' un'ASSEGNAZIONE.
+             *
+             * A sinistra non c'e' un valore da confrontare, c'e' un NOME a cui
+             * darne uno. La differenza fra «2+2=4» e «x = 1» e' tutta qui, e
+             * riconoscerla costa una domanda sola: il lato sinistro si valuta?
+             *
+             * Si registra davvero, come fatto di sessione: rispondere «ho
+             * capito» senza tenere il valore sarebbe fingere di aver capito, e
+             * infatti subito dopo «what is x» risponde 1. QUALE relazione e'
+             * un'assegnazione e come si dice sta in KB. */
+            char nm[64];
+            snprintf(nm, sizeof nm, "%s", left);
+            char *np = nm; while (*np == ' ') np++;
+            size_t nl = strlen(np); while (nl && np[nl-1] == ' ') np[--nl] = '\0';
+            int ident = *np != '\0';
+            for (const char *c = np; *c && ident; c++)
+                if (!isalnum((unsigned char)*c) && *c != '_') ident = 0;
+            if (!ident) continue;
+            if (!claim_side_value(b, right, rv, sizeof rv)) continue;
+            const char *aq[2] = { syms[order[k]], NULL };
+            char arel[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "infix_relation", aq, 2, arel, 1) != 1) continue;
+            char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", arel[0]);
+            const char *aname = kb_dequote(ab);
+            const char *bq[2] = { aname, NULL };
+            char bind[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "relation_binds", bq, 2, bind, 1) != 1) continue;
+            char bb[KB_TERM_LEN]; snprintf(bb, sizeof bb, "%s", bind[0]);
+            const char *pred = kb_dequote(bb);
+            const char *fa[2] = { np, rv };
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            kb_assert(b->kb, pred, fa, 2);
+            kb_set_origin(b->kb, prev);
+            const KbResponseSlot asl[] = { { "name", np }, { "value", rv } };
+            char amsg[400];
+            if (kb_response_slots(b, "assignment_noted", asl, 2, amsg, sizeof amsg)) {
+                put(amsg, out, out_size);
+                return 1;
+            }
+            continue;
+        }
+        if (!claim_side_value(b, right, rv, sizeof rv)) continue;
+        const char *rq[2] = { syms[order[k]], NULL };
+        char relname[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "infix_relation", rq, 2, relname, 1) != 1) continue;
+        char nb[KB_TERM_LEN]; snprintf(nb, sizeof nb, "%s", relname[0]);
+        const char *rel = kb_dequote(nb);
+        const char *cq[4] = { rel, lv, rv, NULL };
+        char verdict[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "relation_check", cq, 4, verdict, 1) != 1) continue;
+        const char *sq[3] = { rel, verdict[0], NULL };
+        char tmpl[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "relation_say", sq, 3, tmpl, 1) != 1) continue;
+        char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", tmpl[0]);
+        const char *wq[2] = { rel, NULL };
+        char rname[1][KB_TERM_LEN]; char nameb[KB_TERM_LEN] = "";
+        if (kb_match(b->kb, "relation_name", wq, 2, rname, 1) == 1)
+            snprintf(nameb, sizeof nameb, "%s", kb_dequote(rname[0]));
+        /* i due lati si ridicono COME SONO STATI SCRITTI: chi ha scritto «2+2»
+         * deve rileggere «2+2», non «4», altrimenti la correzione non si capisce. */
+        char lt[128], rt[128];
+        snprintf(lt, sizeof lt, "%s", left);
+        snprintf(rt, sizeof rt, "%s", right);
+        char *lp = lt; while (*lp == ' ') lp++;
+        size_t x = strlen(lp); while (x && lp[x-1] == ' ') lp[--x] = '\0';
+        char *rp = rt; while (*rp == ' ') rp++;
+        x = strlen(rp); while (x && rp[x-1] == ' ') rp[--x] = '\0';
+        const KbResponseSlot sl[] = {
+            { "left", lp }, { "right", rp }, { "value", lv }, { "relation", nameb }
+        };
+        char msg[400];
+        if (kb_response_slots(b, kb_dequote(tb), sl, 4, msg, sizeof msg)) {
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* gen423 — L'OPERATORE E' UN FATTO, non un `case` (F.).
  *
  * Trovato dalla firma del ragionamento: «9-4» toccava gli stessi predicati di

@@ -351,15 +351,47 @@ static int mod_initiative(Brain *b, const char *norm, const char *raw,
  * risponde lui — e PRIMA dello smalltalk, che altrimenti li acchiappa tutti. */
 static int mod_lone(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
-    (void)raw;
     if (!b || !b->kb || !norm || !*norm) return 0;
     char buf[128];
     if (strlen(norm) >= sizeof buf) return 0;
     snprintf(buf, sizeof buf, "%s", norm);
     char *w[4];
-    if (split_words(buf, w, 4) != 1) return 0;
+    size_t nw = split_words(buf, w, 4);
+    /* gen427 — UN DETERMINANTE NON FA DUE PAROLE. «a dog» chiede di «dog»
+     * esattamente come «dog», e il modulo lo lasciava passare perche' contava i
+     * token invece di guardarli. Quali parole siano determinanti sta in KB. */
+    int had_determiner = 0;
+    if (nw == 2) {
+        char *d = strip_edge_punct(w[0]);
+        const char *dq[1] = { d };
+        if (!*d || !kb_query(b->kb, "determiner_word", dq, 1)) return 0;
+        w[0] = w[1];
+        nw = 1;
+        had_determiner = 1;
+    }
+    if (nw != 1) return 0;
     char *tok = strip_edge_punct(w[0]);
     if (!*tok) return 0;
+
+    /* gen427 — UNA PAROLA SOLA SI GUARDA COM'E' STATA SCRITTA.
+     *
+     * La canonicalizzazione espande le abbreviazioni — «u» diventa «you», «r»
+     * diventa «are» — ed e' la lettura giusta dentro una frase («r u ok?»).
+     * Da sola quella parola non ha contesto che la disambigui, e l'espansione
+     * faceva rispondere «I have nothing on YOU» a chi aveva scritto «u», cioe'
+     * nominava una parola che l'utente non ha scritto. Se anche il turno grezzo
+     * e' un token solo, e' quello il token: sotto ci sono lookup di KB, e
+     * cercare una parola diversa da quella ricevuta e' un errore di merito. */
+    char rbuf[128];
+    if (!had_determiner && raw && *raw && strlen(raw) < sizeof rbuf) {
+        snprintf(rbuf, sizeof rbuf, "%s", raw);
+        for (char *p = rbuf; *p; p++) *p = (char)tolower((unsigned char)*p);
+        char *rw[4];
+        if (split_words(rbuf, rw, 4) == 1) {
+            char *rtok = strip_edge_punct(rw[0]);
+            if (*rtok) tok = rtok;
+        }
+    }
     /* alfanumerico, ma non tutto cifre: «a1» e' un token opaco quanto «qz», e
      * lasciarlo fuori per un carattere era una distinzione senza differenza. I
      * numeri nudi hanno gia' il loro riconoscitore. */
@@ -374,6 +406,21 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
      * anche stopword, e mettere il filtro sociale davanti al controllo le
      * lasciava al saluto generico — cioe' proprio il caso che questo modulo
      * esiste per separare. */
+    /* gen427 — UNA PAROLA PUO' AVERE UNA MOSSA SUA. «help» non chiede che cosa
+     * si voglia sapere sulla parola «help»: chiede aiuto, e la risposta e'
+     * offrirlo. Quali parole abbiano una mossa dedicata, e quale sia, e' un
+     * fatto: una parola nuova costa una riga e nessuna ricompilazione. */
+    {
+        const char *dsq[2] = { tok, NULL };
+        char say[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "lone_word_say", dsq, 2, say, 1) == 1) {
+            char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", say[0]);
+            if (kb_response_slots(b, kb_dequote(sb), NULL, 0, msg, sizeof msg)) {
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
     const char *qq[1] = { tok };
     if (kb_query(b->kb, "question_word", qq, 1)) {
         if (!kb_response_slots(b, "lone_question_word", NULL, 0, msg, sizeof msg))
@@ -405,8 +452,16 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
         if (kb_match(b->kb, "social_marker", smq, 2, hit, 1) > 0) return 0;
         const char *rq[1] = { tok };
         if (kb_query(b->kb, "reaction_word", rq, 1)) return 0;
-        if (is_stopword(b, tok)) return 0;
     }
+
+    /* gen427 — LA GUARDIA SULLE STOPWORD E' STATA TOLTA, e le classi misurate
+     * dicevano da tre lunghezze che era di troppo: «a», «e», «i», «o», «u»,
+     * «r» e «if» ricevevano il saluto generico perche' sono stopword, cioe'
+     * perche' sono parole-funzione. Ma una parola-funzione DA SOLA non e'
+     * contatto fatico: e' un frammento opaco quanto «qzxv», e la mossa giusta
+     * e' dirlo. Chi merita davvero il sociale e' gia' protetto sopra
+     * (`social_marker`, `reaction_word`), e le interrogative sono prese prima
+     * di ogni guardia: quello che restava qui era solo il caso da separare. */
 
     /* UNA LETTERA SOLA NON E' UN TOPIC, anche quando la KB ha per caso un
      * predicato che si chiama cosi'. «What would you like to know about b?» e'
@@ -421,6 +476,30 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
             snprintf(msg, sizeof msg,
                      "What would you like to know about %s?", tok);
     } else {
+        /* gen427 — UNA PAROLA PLAUSIBILE CHE NON CONOSCO PUO' ESSERE UN SALUTO.
+         *
+         * La mossa per eliminazione del gen52 — una parola sola e senza
+         * contenuto, al primo turno, e' contatto fatico — vale ancora per
+         * «ahoy», che nessuna lista contiene e che un umano ricambierebbe. Non
+         * vale per «qzxvb», e la differenza non e' nella posizione nel discorso:
+         * e' nella FORMA della parola. «ahoy» si puo' pronunciare, «qzxvb» no.
+         *
+         * Quindi si cede al sociale solo quando il token e' pronunciabile E la
+         * KB non lo conosce come parola-funzione: «if» e «the» sono parole vere
+         * e non sono saluti, e a quelle la risposta giusta e' dire che non c'e'
+         * niente. Le vocali sono un fatto (`vowel_letter/1`), non una stringa
+         * nel C: un alfabeto nuovo costa righe di KB. */
+        int pronounceable = 0, all_alpha = 1;
+        for (const char *p = tok; *p; p++) {
+            if (!isalpha((unsigned char)*p)) { all_alpha = 0; continue; }
+            char c[2] = { (char)tolower((unsigned char)*p), '\0' };
+            const char *vq[1] = { c };
+            if (kb_query(b->kb, "vowel_letter", vq, 1)) pronounceable = 1;
+        }
+        /* «a1» ha una vocale e non e' una parola: una cifra in mezzo esclude che
+         * lo sia, e il saluto per eliminazione vale solo per le parole. */
+        pronounceable = pronounceable && all_alpha;
+        if (pronounceable && strlen(tok) >= 2 && !is_stopword(b, tok)) return 0;
         if (!kb_response_slots(b, "lone_unknown_token", sl, 1, msg, sizeof msg))
             snprintf(msg, sizeof msg,
                      "I have nothing on \"%s\" — could you say what you mean by it?", tok);

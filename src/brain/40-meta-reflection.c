@@ -439,6 +439,15 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                     snprintf(msg, sizeof msg, "Because %s.", b->last_proof);
                 put(msg, out, out_size);
                 b->has_last_proof = 0;
+            } else if (wn == 1) {
+                /* gen427 — «why» DA SOLA, e niente ancora da spiegare, non e'
+                 * una domanda sulla prova: e' un frammento di domanda. Dire «non
+                 * ho ancora risposto a niente» a chi apre la conversazione cosi'
+                 * e' esatto e inutile — chiude invece di invitare. Declinando,
+                 * il turno arriva al classificatore della parola sola, che lo
+                 * riconosce per quello che e'. La domanda esplicita («how do you
+                 * know») resta qui: quella parla davvero della prova. */
+                return 0;
             } else {
                 put("I haven't answered a knowledge-based question yet, so I "
                     "don't have a proof to share.",

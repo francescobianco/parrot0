@@ -960,3 +960,10 @@ bare_number_min_digits(1).
 % giorni mentre gli altri ventinove ricevevano la risposta giusta.
 machinery(morse_min_symbols).
 morse_min_symbols(3).
+
+% gen427 — E QUANTI SIMBOLI DIVERSI. La lunghezza da sola non basta: «.....» ha
+% cinque simboli e nessuna alternanza, ed e' un'ellissi, non un messaggio. Un
+% morse vero alterna punti e linee (o separa con «/»); una fila di un simbolo
+% solo non porta informazione che valga la pena di leggere come codice.
+machinery(morse_min_distinct_symbols).
+morse_min_distinct_symbols(2).
