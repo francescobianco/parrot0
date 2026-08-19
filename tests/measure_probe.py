@@ -37,6 +37,17 @@ SYS = ("You are a concise, friendly chatbot. Answer naturally in the user's "
 # interessanti — lettere, cifre, punteggiatura, simboli.
 STIMULI = {
     1: ["a", "i", "z", "0", "7", "?", "!", ".", ",", "-", "+", "@", "%", "/"],
+    # classe 2: le FORME che due byte possono avere, non i casi interessanti.
+    # parola inglese, parola italiana, non-parola, numero, numero segnato,
+    # lettera+cifra, punteggiatura doppia, parola+punteggiatura.
+    2: ["hi", "ok", "no", "if",          # parole inglesi
+        "io", "se", "tu", "ne",          # parole italiane
+        "qz", "xk",                      # non-parole
+        "42", "07",                      # numeri
+        "-5", "+3",                      # numeri segnati
+        "a1",                            # lettera + cifra
+        "??", "!?", "..",                # punteggiatura
+        "hi!", ],                        # (scartato: 3 byte, resta come controllo)
 }
 
 

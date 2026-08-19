@@ -185,32 +185,61 @@ Il quinto punto è l'unico che conta. Gli altri quattro sono contabilità.
 
 ---
 
-## 8. La prima misura — 19 agosto 2026
+## 8. Le misure fatte
 
-```
-tonnage 3   max length 1
-```
+### Classe 1 — un byte (19 agosto 2026)
 
-**Stazza 3 a lunghezza massima 1.** Il corpus chiede tre capacità, perché davanti
-a un byte ci sono tre risposte giuste diverse; parrot0 ne dimostra una per
-intero.
+Tre capacità, perché davanti a un byte ci sono tre risposte giuste diverse.
 
 | capacità | membri | esito |
 |---|---|---|
 | **lettere** — *«Hi there! What would you like to talk about?»* | 26 | **26/26 ✔** |
-| **punteggiatura** — *«That's just punctuation, not words — what would you like to ask?»* | 32 | 29/32 — cadono `-` `.` `/` |
-| **cifre** — *«That's a single digit, not a question — what would you like to ask?»* | 10 | 0/10 — muro cieco su tutte |
+| **punteggiatura** — *«That's just punctuation, not words — …»* | 32 | 29/32 — cadono `-` `.` `/` |
+| **cifre** — *«That's a single digit, not a question — …»* | 10 | 0/10 — muro cieco su tutte |
 
-Il gruppo della punteggiatura è il più istruttivo. Non manca niente: la capacità
-c'è e funziona su ventinove segni su trentadue. **Tre caratteri non entrano in
-una classe che esiste già ed è dichiarata in KB** — e finché non ci entrano, la
-capacità non conta.
+La punteggiatura è il caso istruttivo: la capacità c'è e funziona su ventinove
+segni su trentadue. **Tre caratteri non entrano in una classe che esiste già ed è
+dichiarata in KB** — e finché non ci entrano, la capacità non conta.
 
-Le cifre sono un lavoro diverso: ricevono *«I don't understand that yet.»*, dieci
-muri ciechi. Una cifra non è incomprensibile — è una cifra, e l'attesa scritta
-nel file è una risposta che oggi **non esiste**, che è precisamente il suo
-mestiere.
+### Classe 2 — due byte (19 agosto 2026)
 
-È l'effetto che questa misura deve produrre: **non «parrot0 è scarso», ma «ecco
-i tredici punti dove non arriva, per nome»** — e il numero non si muove finché
-non ci arriva su tutti.
+La sonda ha mostrato una mossa **più netta** che a un byte, ed è il reperto
+principale del secondo giro: con due byte c'è abbastanza da **rimandare
+indietro**, e l'oracolo smette di dire genericamente «How can I help?» per dire
+
+```
+Could you clarify what you mean by “qz”?
+What would you like me to do with −5?
+```
+
+Cita il token e chiede. È la stessa mossa che parrot0 fa già bene sulla
+punteggiatura — *nominare ciò che ha ricevuto* — applicata a tutto il resto.
+
+Cinque capacità:
+
+| capacità | membri | esempio |
+|---|---|---|
+| **saluto** — *«Hi there!»* | 1 | `hi` |
+| **riscontro** — *«Got it — what would you like to do?»* | 2 | `ok` `no` |
+| **token opaco** — *«…what you mean by "qz"»* | 6 | `qz` `xk` `a1` `if` |
+| **numero** — *«…what would you like me to do with 42»* | 5 | `42` `-5` `+3` |
+| **punteggiatura** — la stessa di classe 1 | 5 | `??` `!?` `..` |
+
+Le parole italiane di due lettere (`io`, `se`, `tu`, `ne`) sono state **escluse
+di proposito**: l'oracolo ha risposto in italiano, spagnolo, rumeno e turco a
+seconda del token, e con la lingua di sessione fissata a `en` non si saprebbe se
+si sta misurando la capacità o il salto di lingua. Vanno in una classe loro, il
+giorno in cui la misura saprà dichiarare la lingua attesa.
+
+**E la stessa fragilità dell'oracolo si è vista due volte.** A un byte rispondeva
+in arabo su `.` e `,`; a due byte ha aperto il ventaglio — `se` in spagnolo, `tu`
+in rumeno, `ne` in turco, `!?` di nuovo in arabo. Quando l'ingresso non porta
+tracce di lingua, anche un modello di frontiera tira a indovinare. Non è una
+stranezza di parrot0.
+
+### Lo stato
+
+```
+$ make measure
+tonnage 8   max length 2
+```
