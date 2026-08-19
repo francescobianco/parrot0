@@ -249,7 +249,7 @@ static int footprint_run(void) {
         if (!b) return 1;
         char reply[2048]; reply[0] = '\0';
         brain_respond(b, line, reply, sizeof reply);
-        printf("%08lx\t%s\n", brain_footprint(b) & 0xfffffffful, line);
+        printf("%08lx\t%3zu\t%s\n", brain_footprint(b) & 0xfffffffful, brain_footprint_width(b), line);
         brain_destroy(b);
     }
     return 0;

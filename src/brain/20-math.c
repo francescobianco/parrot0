@@ -89,6 +89,21 @@ static char arith_op_char(const char *s) {
     return 0;
 }
 
+/* TODO(kb-first): GLI OPERATORI SONO QUI, E NON DOVREBBERO ESSERCI.
+ *
+ * Questo `switch` e' la ragione per cui non si poteva insegnare un operatore
+ * nuovo: aggiungerne uno voleva dire un `case` e una ricompilazione. A gen423 la
+ * forma semplice «A op B» e' passata alla KB — `infix_operator/2` e
+ * `apply_operator/4` in procedures.p0, dove `gcd` e `avg` esistono senza una
+ * riga di C — ma tutto cio' che arriva QUI (espressioni composte, catene, la
+ * divisione) calcola ancora cablato.
+ *
+ * La conversione va fatta per gradi e col cricchetto a proteggere ogni passo: il
+ * consumatore generico c'e' gia' (`mod_operator`), manca che lo chiami anche chi
+ * piega un'espressione con piu' operatori. Finche' resta cosi', un operatore
+ * nuovo funziona da solo e non dentro un'espressione, e la differenza si vede
+ * dalla firma del ragionamento (gen422): un turno che calcola senza interrogare
+ * nessun predicato non e' KB-first, e ora e' un numero che si legge. */
 static double apply_op_char(char op, double a, double c, int *ok) {
     *ok = 1;
     switch (op) {
@@ -811,6 +826,78 @@ static int arith_paired_dimensions_from_doubled_sum(Brain *b, const char *norm,
     return 0;
 }
 
+
+/* gen423 — L'OPERATORE E' UN FATTO, non un `case` (F.).
+ *
+ * Trovato dalla firma del ragionamento: «9-4» toccava gli stessi predicati di
+ * «why», cioe' NESSUNO che c'entrasse col calcolo — perche' il calcolo stava
+ * qui sotto come `case '+': return a + c;`. Un turno che risolve un'addizione
+ * senza interrogare un solo predicato e' la definizione operativa di «non e'
+ * KB-first», e ora si legge da un numero.
+ *
+ * F. l'ha detto nella forma che conta: «non si puo' insegnare alla KB che esiste
+ * un operatore nuovo, e non mi piace». Ora si puo', e costa due righe di KB: il
+ * massimo comun divisore e la media sono definiti li' e in nessun altro posto —
+ * il `gcd` per giunta ricorsivo, che nessuna formula cablata potrebbe fingere.
+ *
+ * Il modulo e' STRETTO apposta: fira solo sulla forma «A op B» con due numeri e
+ * nient'altro attorno. Tutto il resto — espressioni composte, parole-numero,
+ * equazioni inverse — resta a mod_arith, che non e' stato toccato. E' la regola
+ * delle strutture secondarie: si affianca, non si sostituisce.
+ */
+static int mod_operator(Brain *b, const char *norm, const char *raw,
+                        char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb || !norm || !*norm) return 0;
+    char syms[32][KB_TERM_LEN];
+    const char *q[2] = { NULL, NULL };
+    size_t ns = kb_match(b->kb, "infix_operator", q, 2, syms, 32);
+    for (size_t i = 0; i < ns; i++) {
+        char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", syms[i]);
+        const char *sym = kb_dequote(sb);
+        if (!sym || !*sym) continue;
+        const char *at = strstr(norm, sym);
+        if (!at || at == norm) continue;
+        /* i due lati devono essere numeri interi, e basta: se avanza altro, il
+         * turno non e' di questa forma e passa a chi lo sa leggere. */
+        char left[64], right[64];
+        size_t ll = (size_t)(at - norm);
+        if (ll == 0 || ll >= sizeof left) continue;
+        memcpy(left, norm, ll); left[ll] = '\0';
+        snprintf(right, sizeof right, "%s", at + strlen(sym));
+        /* NON si ripulisce la punteggiatura: si tolgono solo gli spazi. Ripulirla
+         * faceva diventare «10 / x = 0» un «10 x 0», cioe' inventava una forma
+         * che il turno non aveva. Se ai lati c'e' qualcosa che non e' una cifra,
+         * questo modulo non e' quello giusto e deve lasciar passare. */
+        char *l = left, *r = right;
+        while (*l == ' ') l++;
+        while (*r == ' ') r++;
+        size_t rl = strlen(r);
+        while (rl && r[rl-1] == ' ') r[--rl] = '\0';
+        rl = strlen(l);
+        while (rl && l[rl-1] == ' ') l[--rl] = '\0';
+        if (!*l || !*r) continue;
+        int ok = 1;
+        for (const char *p = l; *p && ok; p++) if (!isdigit((unsigned char)*p)) ok = 0;
+        for (const char *p = r; *p && ok; p++) if (!isdigit((unsigned char)*p)) ok = 0;
+        if (!ok) continue;
+        const char *nq[2] = { syms[i], NULL };
+        char opname[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "infix_operator", nq, 2, opname, 1) != 1) continue;
+        char ob[KB_TERM_LEN]; snprintf(ob, sizeof ob, "%s", opname[0]);
+        const char *op = kb_dequote(ob);
+        const char *aq[4] = { op, l, r, NULL };
+        char res[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "apply_operator", aq, 4, res, 1) != 1) continue;
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", res[0]);
+        char msg[128];
+        snprintf(msg, sizeof msg, "%s.", kb_dequote(rb));
+        put(msg, out, out_size);
+        return 1;
+    }
+    return 0;
+}
+
 static int mod_arith(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)raw;
@@ -1455,6 +1542,9 @@ static int mod_algebra(Brain *b, const char *norm, const char *raw,
     if (!nc) {                                 /* tc unknown: just compute ta op tb */
         x = tc;
         switch (op) {
+            /* TODO(kb-first): stesso debito di `apply_op_char` — vedi li'. Qui
+             * si piega un'espressione a due operandi, e il calcolo dovrebbe
+             * passare da `apply_operator/4` invece che da questi tre `case`. */
             case '+': r = av + bv; break;
             case '-': r = av - bv; break;
             case '*': r = av * bv; break;
@@ -1468,6 +1558,10 @@ static int mod_algebra(Brain *b, const char *norm, const char *raw,
     } else if (!na) {                          /* ta unknown: invert around ta */
         x = ta;
         switch (op) {
+            /* TODO(kb-first): l'INVERSA di un operatore e' anch'essa conoscenza
+             * — «l'inverso di + e' -» dovrebbe essere un fatto, non un `case`.
+             * E' il pezzo che permetterebbe di insegnare un operatore E la sua
+             * inversa insieme, che oggi non si puo'. */
             case '+': r = cv - bv; snprintf(rhs, sizeof rhs, "%g - %g", cv, bv); break;
             case '-': r = cv + bv; snprintf(rhs, sizeof rhs, "%g + %g", cv, bv); break;
             case '*': if (bv == 0) return 0; r = cv / bv; snprintf(rhs, sizeof rhs, "%g / %g", cv, bv); break;

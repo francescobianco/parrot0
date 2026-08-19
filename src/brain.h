@@ -97,6 +97,7 @@ int brain_bridges_save(Brain *b);
  * stesso valore: e' un CRC del ragionamento, non della risposta. Vedi
  * kb_footprint in kb.h e docs/measured-classes.md. */
 unsigned long brain_footprint(const Brain *b);
+size_t        brain_footprint_width(const Brain *b);
 
 const char *brain_version(void);
 

@@ -388,6 +388,13 @@ void kb_inference_report(const KB *kb, KbInferenceReport *out);
  * sola, altrimenti un doppione si cancellerebbe da se'. */
 void          kb_footprint_reset(KB *kb);
 unsigned long kb_footprint(const KB *kb);
+size_t        kb_footprint_width(const KB *kb);   /* quanti predicati distinti */
+
+/* Piega nella firma qualcosa che non e' un predicato — per esempio il modulo che
+ * ha risposto. Serve perche' un turno risolto interamente nel C non interroga
+ * nessuna conoscenza, e senza questo due turni lontanissimi risultavano identici
+ * (misurato: «9-4» e «why»). */
+void          kb_footprint_mark(KB *kb, const char *tag);
 
 /* ── profiling dell'inferenza (gen400) ────────────────────────────────────
  *

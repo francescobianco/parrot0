@@ -179,6 +179,11 @@ static const Module registry[] = {
      * so genuine arithmetic never reaches it. */
     {"rulespec",  mod_rulespec},
     {"algebra",   mod_algebra},
+    /* gen423: l'operatore DICHIARATO corre prima del calcolo cablato. Non lo
+     * sostituisce — mod_arith resta per tutto il resto — ma la forma semplice
+     * «A op B» passa dalla KB, cosi' un operatore nuovo costa due righe di
+     * conoscenza e zero C. */
+    {"operator",  mod_operator},
     {"arith",     mod_arith},
     {"plan",      mod_plan},
     {"wordproblem", mod_wordproblem},
@@ -662,6 +667,10 @@ Brain *brain_create(void) {
 
 unsigned long brain_footprint(const Brain *b) {
     return (b && b->kb) ? kb_footprint(b->kb) : 0;
+}
+
+size_t brain_footprint_width(const Brain *b) {
+    return (b && b->kb) ? kb_footprint_width(b->kb) : 0;
 }
 
 int brain_load(Brain *b, const char *path, int as_base) {
@@ -3200,6 +3209,9 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * cambia sempre e non dice niente. */
     if (b && b->kb) kb_footprint_reset(b->kb);
     size_t n = brain_respond_dispatch(b, input, out, out_size);
+    /* gen422d: e CHI ha risposto fa parte della strada. Va piegato qui, una
+     * volta, invece che nei dieci punti in cui `last_module` viene scritto. */
+    if (b && b->kb) kb_footprint_mark(b->kb, b->last_module);
     /* ── gen388: L'ARGOMENTO DEL TURNO LO REGISTRA IL DISPATCH ──────────────
      *
      * `last_entity` lo scrivevano solo le facolta' che se ne ricordavano. Una

@@ -1225,3 +1225,45 @@ c_norm2(c($A, $B), $N) :- is($N, add(mul($A, $A), mul($B, $B))).
 c_div($Z, $W, c($R, $I)) :-
     c_conj($W, $WC), c_mul($Z, $WC, c($P, $Q)), c_norm2($W, $N),
     is($R, div($P, $N)), is($I, div($Q, $N)).
+
+% ═══ gen423 — GLI OPERATORI SONO CONOSCENZA ═══════════════════════════════
+%
+% Trovato dalla firma del ragionamento (gen422): «9-4» e «why» portavano la
+% stessa firma perche' toccavano gli stessi 57 predicati — cioe' perche' «9-4»
+% NON INTERROGA LA CONOSCENZA PER NIENTE. Il calcolo stava in
+% src/brain/20-math.c come `case '+': return a + c;`, mentre qui accanto
+% `product/3` e `factor/3` esistevano gia' e nessuno le chiamava: due strade per
+% la stessa cosa, e il turno prendeva quella cablata.
+%
+% F.: «non si puo' insegnare alla KB che esiste un operatore chiamato cavallo che
+% e' la somma dei quadrati, e non mi piace». E' il test del mantra #2 nella sua
+% forma piu' esigente, e la risposta e' che ora si puo': un operatore nuovo costa
+% DUE RIGHE qui e nessuna riga di C.
+machinery(infix_operator).
+machinery(apply_operator).
+
+infix_operator("+", plus).
+infix_operator("-", minus).
+infix_operator("*", times).
+% NIENTE «x» per la moltiplicazione: in questo sistema `x` e' la variabile
+% dell'algebra, e dichiararla operatore faceva leggere «10 / x = 0» come una
+% moltiplicazione (misurato: algebra.p0t rispondeva 0 invece di declinare).
+% Un simbolo che ha gia' un mestiere non ne prende un secondo.
+
+apply_operator(plus,  $A, $B, $R) :- is($R, add($A, $B)).
+apply_operator(minus, $A, $B, $R) :- is($R, sub($A, $B)).
+apply_operator(times, $A, $B, $R) :- is($R, mul($A, $B)).
+
+% E la prova che sia davvero insegnabile: due operatori VERI che il motore non
+% conosce e non calcolera' mai in C. Esistono perche' lo dicono queste righe, e
+% nient'altro.
+%
+% Il massimo comun divisore e' l'esempio migliore che ci sia: e' ricorsivo, quindi
+% non lo si puo' fingere con una formula, e nessun `case` del C lo contiene.
+infix_operator("gcd", gcd_op).
+apply_operator(gcd_op, $A, 0, $A).
+apply_operator(gcd_op, $A, $B, $R) :- gt($B, 0), is($M, mod($A, $B)), apply_operator(gcd_op, $B, $M, $R).
+
+% E la media, che e' una composizione: somma e poi divide.
+infix_operator("avg", avg_op).
+apply_operator(avg_op, $A, $B, $R) :- is($R, div(add($A, $B), 2)).

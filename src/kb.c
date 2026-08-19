@@ -2175,6 +2175,9 @@ static unsigned long kb_fp_hash(const char *s) {
 
 void kb_footprint_reset(KB *kb) { if (kb) { kb->fp_acc = 0; kb->fp_n = 0; } }
 unsigned long kb_footprint(const KB *kb) { return kb ? kb->fp_acc : 0; }
+size_t kb_footprint_width(const KB *kb) { return kb ? kb->fp_n : 0; }
+
+
 
 static void kb_footprint_note(KB *kb, const char *pred) {
     if (!kb || !pred || !*pred) return;
@@ -2184,6 +2187,17 @@ static void kb_footprint_note(KB *kb, const char *pred) {
         kb->fp_seen[kb->fp_n++] = h;
     kb->fp_acc ^= h;
 }
+
+/* gen422d — anche CHI ha risposto fa parte della strada.
+ *
+ * Misurato: «9-4» e «why» toccavano gli STESSI 57 predicati e portavano la
+ * stessa firma. Non era una collisione di hash — erano davvero gli stessi
+ * predicati, perche' l'aritmetica non interroga la KB: la calcola in C. La firma
+ * stava catturando l'impalcatura del dispatch, uguale per tutti, e mancava
+ * l'unica cosa che quei due turni avevano di diverso — il modulo che ha
+ * risposto. Un turno risolto in C senza toccare la conoscenza e' comunque una
+ * strada, e va firmata come tale. */
+void kb_footprint_mark(KB *kb, const char *tag) { kb_footprint_note(kb, tag); }
 
 static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
     if (!kb) return;
