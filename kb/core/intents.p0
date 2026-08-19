@@ -1307,6 +1307,11 @@ intent_cue(combination_count_request, "how many codes").
 % gen353: LLMSCORE-general intent cues. The vocabulary is teachable KB data;
 % C only binds slots and renders matching facts.
 intent_cue(grammar_error_query, "grammatically incorrect").
+% gen432: le due superfici piu' ovvie mancavano — «correct this sentence» e la
+% domanda diretta «... grammatical?» — e con loro due dei cento fallimenti.
+intent_cue(grammar_error_query, "correct this sentence").
+intent_cue(grammar_error_query, "grammatical").
+intent_cue(grammar_error_query, "correggi questa frase").
 intent_cue(grammar_error_query, "which word is grammatically incorrect").
 intent_cue(grammar_error_query, "grammar mistake").
 intent_cue(social_emotion_inference, "flat tone").
@@ -1621,6 +1626,11 @@ intent_cue(translation_request, "translate to french").
 intent_cue(translation_request, "translate this sentence into french").
 intent_cue(translation_request, "translate the english sentence").
 intent_cue(translation_request, "how do you say").
+% gen432: la forma imperativa (docs/issues/03). La riscrittura in
+% `phrase_canon` porta «translate X into Y» alla forma canonica, ma i lead
+% pre-dispatch leggono la superficie GREZZA — quindi la cue va dichiarata anche
+% qui, altrimenti un modulo che riconosce «dog» risponde «A dog goes woof».
+intent_cue(translation_request, "translate").
 intent_cue(multi_translation_request, "into french, spanish, and japanese").
 intent_cue(multi_translation_request, "french, spanish, and japanese").
 intent_cue(multi_translation_request, "translate the english sentence").

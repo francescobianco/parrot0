@@ -26,8 +26,8 @@
 26 | What does this refer to in a follow-up question? | antecedent
 27 | What was the first topic we discussed? | no topic yet
 28 | Translate the dog runs into Spanish. | perro
-29 | Correct this sentence: She go to school. | she goes to school
-30 | Is Me likes apples grammatical? | not grammatical
+29 | Correct this sentence: She go to school. | she goes
+30 | Is Me likes apples grammatical? | I like
 31 | Give two reasons to verify sources. | two reasons
 32 | Return valid JSON with keys name and value. | "value"
 33 | Invent ten funny names for a parrot database. | names

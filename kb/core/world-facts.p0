@@ -3650,6 +3650,15 @@ past_participle(write, written).
 time_step(ancient_rome, middle_ages).  time_step(middle_ages, renaissance).
 time_step(industrial_revolution, information_age).
 time_step(renaissance, industrial_revolution).
+% gen432: le forme verbali che mancavano alla traduzione dei cento (#28). La
+% capacita' c'era — «how do you say dog in spanish» → «Perro» — e si fermava
+% sulla parola: «I don't know the Spanish for runs». Una parola e' una riga.
+tr_es(runs, corre).
+tr_es(run, correr).
+tr_es(walks, camina).
+tr_es(sleeps, duerme).
+tr_es(eats, come).
+
 tr_es("thank you", gracias).
 tr_es(a, un).
 tr_es(and, y).
@@ -4113,6 +4122,14 @@ located_in(machu_picchu, peru).
 % gen353: grammar-error knowledge. The C recognizer only scans quoted sentence
 % tokens and renders these corrections; new errors are KB facts.
 grammar_error_correction(dont, "doesn't", "third-person singular subject needs does not").
+% gen432 — L'ERRORE STA NELLA COPPIA, non nella parola. «go» da sola e' giusta:
+% e' «she go» che non lo e'. L'identificatore con l'underscore diventa una
+% superficie di due parole, quindi la coppia si cerca com'e' scritta e una parola
+% innocente non viene accusata.
+grammar_error_correction(she_go, "she goes", "a third-person singular subject takes the -s form of the verb").
+grammar_error_correction(he_go, "he goes", "a third-person singular subject takes the -s form of the verb").
+grammar_error_correction(me_likes, "I like", "the subject pronoun is I, not me, and the verb agrees with it").
+grammar_error_correction(me_like, "I like", "the subject pronoun is I, not me").
 grammar_error_correction(goed, went, "go is irregular in the past tense").
 
 % gen353: social-pragmatic inference from observable signals.

@@ -41,6 +41,49 @@ static int is_progressive_aux(Brain *b, const char *aux, const char *verb) {
  * so a fixed multi-word phrase can be a translation UNIT. Priority: a quoted span
  * (double or single) -> the span between "say " and " in " -> after a colon ->
  * after the language word. Fills buf (trimmed of edge quotes/space/punct). */
+/* gen432 — DOVE COMINCIA E DOVE FINISCE IL TESTO DA TRADURRE E' CONOSCENZA.
+ *
+ * I marcatori erano cablati — le virgolette, «say … in …», i due punti — e
+ * bastava la forma imperativa «translate X into Y» (uno dei cento fallimenti,
+ * docs/issues/03) per non trovare piu' il testo: la ricerca cadeva sull'ultimo
+ * ripiego, «tutto quello che segue il nome della lingua», che li' e' vuoto.
+ * Ora le coppie apri/chiudi stanno in `translate_payload_span/2`, quindi un modo
+ * nuovo di chiedere una traduzione — in qualunque lingua — e' una riga di KB. */
+static int tr_payload_kb(Brain *b, const char *low, char *buf, size_t bufsz) {
+    if (!b || !b->kb) return 0;
+    char opens[16][KB_TERM_LEN];
+    const char *oq[2] = { NULL, NULL };
+    size_t no = kb_match(b->kb, "translate_payload_span", oq, 2, opens, 16);
+    for (size_t i = 0; i < no; i++) {
+        char ob[KB_TERM_LEN]; snprintf(ob, sizeof ob, "%s", opens[i]);
+        const char *open = kb_dequote(ob);
+        if (!open || !*open) continue;
+        const char *at = strstr(low, open);
+        if (!at) continue;
+        const char *start = at + strlen(open);
+        const char *cq[2] = { opens[i], NULL };
+        char closes[8][KB_TERM_LEN];
+        size_t nc = kb_match(b->kb, "translate_payload_span", cq, 2, closes, 8);
+        for (size_t k = 0; k < nc; k++) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", closes[k]);
+            const char *close = kb_dequote(cb);
+            if (!close || !*close) continue;
+            const char *end = strstr(start, close);
+            if (!end || end <= start) continue;
+            size_t n = (size_t)(end - start);
+            if (n >= bufsz) n = bufsz - 1;
+            memcpy(buf, start, n); buf[n] = '\0';
+            size_t l = strlen(buf);
+            while (l > 0 && (buf[l-1] == '.' || buf[l-1] == '?' || buf[l-1] == '!' ||
+                             buf[l-1] == '"' || buf[l-1] == '\'' ||
+                             isspace((unsigned char)buf[l-1])))
+                buf[--l] = '\0';
+            if (l > 0) return 1;
+        }
+    }
+    return 0;
+}
+
 static int tr_payload(const char *low, const char *langword,
                       char *buf, size_t bufsz) {
     const char *start = NULL, *end = NULL;
@@ -254,7 +297,8 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
      * verb, and English pre-noun adjective -> French post-noun adjective. */
     if (strstr(low, "french")) {
         char fbuf[256];
-        if (tr_payload(low, "french", fbuf, sizeof fbuf)) {
+        if (tr_payload_kb(b, low, fbuf, sizeof fbuf) ||
+            tr_payload(low, "french", fbuf, sizeof fbuf)) {
             /* gen310: a fixed multi-word phrase translates as ONE idiomatic unit
              * (non-compositional): try the whole payload as a phrase first. */
             char pg[1][KB_TERM_LEN];
@@ -431,7 +475,8 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
      * benchmark prompts. Words and gender live in KB as tr_es/2 + gender_es/2. */
     if (strstr(low, "spanish")) {
         char sbuf[256];
-        if (tr_payload(low, "spanish", sbuf, sizeof sbuf)) {
+        if (tr_payload_kb(b, low, sbuf, sizeof sbuf) ||
+            tr_payload(low, "spanish", sbuf, sizeof sbuf)) {
             char *sw[32]; size_t sn = split_words(sbuf, sw, 32);
             /* gen311 (teachable-procedures P0): FIRST try a TAUGHT rewrite rule
              * rewrite_es(LHS, RHS) — the interrogative restructuring as DATA, not C

@@ -964,3 +964,14 @@ tr(encryption, cifratura).
 % macchineria di traduzione: struttura del motore, non conoscenza del mondo.
 machinery(tr_multi_phrase).
 machinery(translation_phrase_cue).
+
+% gen432 — DOVE COMINCIA E DOVE FINISCE IL TESTO DA TRADURRE.
+% I marcatori erano cablati nel C e la forma imperativa non ne aveva nessuno:
+% «translate the dog runs into spanish» non trovava il testo (docs/issues/03).
+% Una coppia nuova — un altro verbo, un'altra lingua — e' una riga.
+machinery(translate_payload_span).
+translate_payload_span("translate ", " into ").
+translate_payload_span("translate ", " in ").
+translate_payload_span("say ", " in ").
+translate_payload_span("traduci ", " in ").
+translate_payload_span("come si dice ", " in ").

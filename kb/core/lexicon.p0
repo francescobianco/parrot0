@@ -110,6 +110,18 @@ surface_variation(swapped_letters, "swap_adjacent").
 % mentre «3x + 5 = 20» rispondeva. «plus» era gia' coperto; mancava il verbo.
 phrase_canon("equals", "=").
 
+% gen432 — «translate X into Y» e' «how do you say X in Y» (docs/issues/03).
+% La capacita' c'era tutta — «how do you say the dog runs in spanish» → «El perro
+% corre» — e mancava solo che l'imperativo ci arrivasse. Le coppie di lingua sono
+% esplicite di proposito: «into» → «in» in generale rovinerebbe «look into».
+phrase_canon("translate", "how do you say").
+phrase_canon("into spanish", "in spanish").
+phrase_canon("into italian", "in italian").
+phrase_canon("into french", "in french").
+phrase_canon("into english", "in english").
+phrase_canon("into german", "in german").
+phrase_canon("into japanese", "in japanese").
+
 phrase_canon("fa parte", "part of").
 phrase_canon("fanno parte", "part of").
 phrase_canon("far parte", "part of").

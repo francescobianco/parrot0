@@ -7741,8 +7741,13 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     /* gen240 (LLMSCORE): animal sound — "what sound/noise does a dog make?" /
      * "what does a cow say?" -> sound_of(animal, "…"). */
+    /* gen432 — «say» + «do» NON basta se il turno e' una TRADUZIONE. «how do you
+     * say the dog runs in spanish» contiene entrambe le parole e un animale, e
+     * riceveva «A dog goes woof» invece della traduzione: la domanda non era sul
+     * verso, era sulla lingua. La guardia e' la cue che gia' esiste. */
     if ((cue(norm, "sound") || cue(norm, "noise") || cue(norm, "say") || cue(norm, "says")) &&
-        (cue(norm, "make") || cue(norm, "makes") || cue(norm, "does") || cue(norm, "do"))) {
+        (cue(norm, "make") || cue(norm, "makes") || cue(norm, "does") || cue(norm, "do")) &&
+        !kb_cue_match(b, "translation_request", norm)) {
         char ab[256]; snprintf(ab, sizeof ab, "%s", norm);
         char *aw[64]; size_t an = split_words(ab, aw, 64);
         for (size_t i = 0; i < an; i++) {
@@ -7924,9 +7929,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             const char *q2[] = { ids[i], corr[0], NULL };
             char why[1][KB_TERM_LEN];
             kb_match(b->kb, "grammar_error_correction", q2, 3, why, 1);
+            /* gen432: si ridice la forma COME SI SCRIVE, non l'identificatore:
+             * «"she_go" should be…» mostra all'utente la chiave interna. */
             off += (size_t)snprintf(msg + off, sizeof msg - off,
                                     "%s\"%s\" should be \"%s\"%s%s",
-                                    hits ? "; " : "", id, kb_dequote(corr[0]),
+                                    hits ? "; " : "", form, kb_dequote(corr[0]),
                                     why[0][0] ? " because " : "",
                                     why[0][0] ? kb_dequote(why[0]) : "");
             hits++;
