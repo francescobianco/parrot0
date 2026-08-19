@@ -96,6 +96,34 @@ Riscritto per gruppi, `1.qa` esercita **tre** capacità distinte — punteggiatu
 lettere, cifre — che sono tre risposte giuste diverse. Il conto dei prompt resta
 stampato accanto perché serve a curare: dice *quali* membri non ci arrivano.
 
+### 3c. Il muro è limitato dalla scala
+
+Una conseguenza della regola dei doppioni che vale la pena vedere, perché è ciò
+che rende questa scala **ben fatta** e non solo comoda (F.).
+
+Un muro è **una risposta sola** — *«I don't understand that yet.»* — quindi
+dentro un file conta **uno**, che ci caschino tre prompt o trecento. Ne segue un
+limite duro:
+
+> Fra la classe 1 e la classe N, i muri possono contribuire alla stazza **al
+> massimo N**: uno per classe. A lunghezza 10 ci potranno essere al più dieci
+> muri in tutto il corpus.
+
+Tutto il resto della stazza è fatto di **risposte diverse**, e una risposta
+diversa è un comportamento diverso — nel bene o nel male, **un'abilità distinta**.
+
+Da qui tre cose che sarebbe difficile ottenere altrimenti:
+
+- **la misura non può essere dominata dal fallimento.** Un corpus in cui parrot0
+  mura ovunque ha stazza ≈ N, e si vede subito che non sta misurando niente;
+- **la stazza misura la VARIETÀ, non la correttezza.** Quante cose diverse
+  succedono. Se una di quelle cose è giusta lo dice il numero delle risolte, che
+  è tenuto separato apposta;
+- **il muro è un'abilità come le altre, e a volte è quella giusta.** Declinare in
+  modo informato è la risposta corretta a certi prompt, e la scala lo ammette
+  senza permettergli di gonfiarsi: costa uno slot per classe, come ogni altra
+  risposta ripetuta.
+
 ## 4. Da dove vengono le attese — le sonde
 
 **È il punto che rende il corpus difendibile, e va fatto prima di scrivere le
