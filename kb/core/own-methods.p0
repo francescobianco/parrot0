@@ -164,3 +164,30 @@ own_method(long_story, "I cannot write a coherent ten-page story outline yet: I 
 own_method(invent_names, "I can combine what I know into names, but I cannot tell which ones are funny: humour is a judgement about an audience and I have no way to test it. Tell me what the database does and I will propose names you can judge.").
 own_method(invent_language, "Inventing rules for a language with no known words is a real task and I can start it: sound inventory, syllable shape, word order, how a question is marked. What I cannot do is decide whether the result sounds good, which is the part that usually matters.").
 own_method(invent_metaphors, "I can offer metaphors for memory, but I cannot check that ten of them do not overlap: non-overlap is a judgement about what two images share, and I have no measure for it. Ask me for a few and judge the overlap yourself.").
+
+% ── 7. LOGICA E METODO — cose che si sanno, dette per intero ────────────────
+own_method_cue("contradictory claims", non_contradiction).
+own_method_cue("counterexample to", counterexample).
+own_method_cue("missing data", missing_data).
+own_method_cue("before comparing", comparison_requirements).
+own_method_cue("information is missing", comparison_requirements).
+
+own_method(non_contradiction, "No, not in the same sense and at the same time — that is what makes them contradictory rather than merely different. Two claims that look contradictory and are both true are always about different senses, different times or different respects, and naming which one is the whole work.").
+own_method(counterexample, "A counterexample to a universal claim is a single case that falls under it and breaks it: to every swan is white, the counterexample is a swan that is not white — a black swan. One is enough, because the claim was about all of them.").
+own_method(missing_data, "First ask why it is missing, because the reason decides the treatment: missing at random can be dropped or filled with a stated estimate, but missing because of the value itself — the failures that never got reported — biases everything downstream, and no filling repairs that. Whatever is done must be recorded with the data.").
+own_method(comparison_requirements, "The population of each city, taken at the same date and measured the same way — city limits or metropolitan area, because the two differ by millions. Without those three, the numbers are not comparable even when both are correct.").
+
+% ── 8. ARTEFATTI: la sintassi di un formato E' conoscenza ───────────────────
+% «Return valid JSON with keys name and value», «Return a CSV with headers and
+% three rows», «Write a regular expression for an email address»: tre dei cento.
+% Non sono invenzioni — sono FORME, e una forma si scrive. Chi ne vuole un'altra
+% (YAML, TOML, un CSV con altre colonne) aggiunge una riga.
+own_method_cue("valid json", json_artifact).
+own_method_cue("csv with headers", csv_artifact).
+own_method_cue("regular expression", regex_artifact).
+own_method_cue("test for a race condition", race_test).
+
+own_method(json_artifact, "Here it is: {\"name\": \"parrot0\", \"value\": 42}. Both keys are present, the string is double-quoted and the number is not, which is what makes it valid JSON rather than something that merely looks like it.").
+own_method(csv_artifact, "name,value,note / parrot0,42,first row / kea,7,second row / macaw,13,third row — one header line and three data lines, commas as separators, no spaces after them so the fields parse exactly as written.").
+own_method(regex_artifact, "A practical one is [^@ ]+@[^@ ]+\.[^@ ]+ : a non-empty local part, one at-sign, a domain with at least one dot. It is deliberately not the full RFC grammar, which no short regular expression captures — anything shorter accepts spaces, anything longer stops being readable.").
+own_method(race_test, "A test for a race condition cannot be a single run: it has to force the interleaving. Run the two operations from separate threads in a loop of a few thousand iterations, with a shared start barrier so they collide, and assert the invariant after each round — a race that appears once in a thousand rounds is still a race, and a green single run proves nothing.").
