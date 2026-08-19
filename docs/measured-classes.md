@@ -111,11 +111,25 @@ nessuna riscrittura del corpus può gonfiarla senza che si veda nel diff.
 Il confronto è **«contiene», senza distinguere maiuscole** — la stessa semantica
 di `<~` nei `.p0t`. La resa di una frase varia; ciò che deve esserci no.
 
-### 3b. I doppioni non si contano
+### 3b. Si conta per FIRMA
 
-**Dentro un file, risposte attese uguali valgono uno.** La stazza non conta i
-prompt: conta le **risposte distinte**. Senza questa regola bastava aggiungere
-mille righe con la stessa attesa per farla salire di mille.
+**Dentro un file, prompt con la stessa firma valgono uno.** La stazza non conta i
+prompt e nemmeno le risposte: conta le **strade distinte** che parrot0 percorre.
+
+La regola è nata come «risposte uguali valgono uno» — per impedire che mille
+righe identiche valessero mille — ed è diventata questa quando la classe 3 ha
+mostrato il buco: `1+1|2`, `9-4|5`, `2*3|6` sono tre risposte *diverse*, quindi
+la vecchia regola le contava tre, e nulla impediva di aggiungerne cento con un
+ciclo `for`.
+
+Contare per firma lo chiude alla radice, e per la ragione giusta: **una risposta
+diversa prodotta dalla stessa strada non è un'abilità nuova** — è lo stesso
+ragionamento con altri valori.
+
+Cambia anche cosa misura la stazza, ed è bene dirlo: non più quante cose il
+corpus **chiede**, ma quante strade diverse parrot0 **percorre** su quel corpus.
+È la varietà comportamentale, nel bene e nel male — che è esattamente ciò che
+serve, perché una capacità nuova si vede come una strada nuova.
 
 **La stazza è la mole del CORPUS**, non il punteggio: dice quante capacità
 diverse si stanno chiedendo, e cresce solo curando altre righe. Quante ne risolve
@@ -136,26 +150,17 @@ Riscritto per gruppi, `1.qa` esercita **tre** capacità distinte — punteggiatu
 lettere, cifre — che sono tre risposte giuste diverse. Il conto dei prompt resta
 stampato accanto perché serve a curare: dice *quali* membri non ci arrivano.
 
-### 3bis. Il caso che la regola non copre — le famiglie parametriche
+### 3bis. Il limite onesto della firma
 
-L'ha trovato la classe 3, ed è giusto scriverlo invece di lasciarlo scoprire a
-qualcun altro.
+Due turni molto diversi possono interrogare lo **stesso insieme** di predicati e
+quindi portare la stessa firma. Misurato: `9-4` e `why` condividono `87f43982`,
+pur essendo un calcolo e una domanda sul proprio ragionamento.
 
-La regola dei doppioni protegge dal ripetere **la stessa** risposta. Non protegge
-dall'enumerare una **famiglia parametrica**: `1+1 | 2`, `9-4 | 5`, `2*3 | 6` sono
-tre risposte diverse, quindi valgono tre — e nulla impedisce di aggiungerne cento
-e farsi cento punti con un ciclo `for`.
-
-Non c'è una regola meccanica che lo impedisca, perché quelle risposte *sono*
-davvero diverse. C'è invece una disciplina, e va rispettata scrivendo:
-
-> **Di una famiglia parametrica si mettono i membri che coprono le FORME, non i
-> valori.** L'aritmetica a tre byte ha tre righe — una per operatore — perché ci
-> sono tre operatori, non perché tre sia un bel numero. Una quarta riga con
-> `4+5` non aggiunge nessuna capacità: aggiunge un valore.
-
-Il criterio pratico: **se una riga nuova può fallire per una ragione che nessuna
-riga esistente copre, va messa. Altrimenti no.**
+È il prezzo di una firma d'insieme, e non si toglie rendendo la firma più fine
+senza perdere la proprietà che la rende utile — l'insensibilità all'ordine e ai
+valori. Va saputo: **la stazza conta le strade distinte che il corpus ha saputo
+separare**, e due strade che coincidono nell'insieme dei predicati si contano
+una volta.
 
 ### 3c. Il muro è limitato dalla scala
 
@@ -357,7 +362,42 @@ Due cose che la sonda ha mostrato di traverso:
   lingua (la misura sì), quindi lì si vede la deriva allo stato brado: la lingua
   segue il turno, e un token che non ne porta traccia la lascia dov'era.
 
-### Lo stato### Lo stato
+### Contando per firma (19 agosto 2026)
+
+```
+tonnage 31   max length 3
+```
+
+Il passaggio da «risposte distinte» a «firme distinte» ha fatto **salire** il
+numero da 18 a 31, non scendere — perché parrot0 distingue più strade di quante
+il raggruppamento del corpus supponesse.
+
+| classe | righe | firme | il gruppo più grosso |
+|---:|---:|---:|---|
+| 1 | 68 | 14 | `6c4ba113` ×24 — tutte le lettere |
+| 2 | 19 | 9 | `6c4ba113` ×7 — `a1 no ok qz vq xk zj` |
+| 3 | 18 | 8 | `810e4ea0` ×8 — `cat dog how qzx sun who yes zqw` |
+
+**E la firma ha trovato un'asimmetria vera del motore.** L'addizione e la
+moltiplicazione condividono la strada; la sottrazione no:
+
+```
+c2e586ee  1+1   2+3   2*3   5*6
+87f43982  9-4   8-2
+```
+
+Il `-` apre un percorso suo — quello del segno numerico — ed è coerente con un
+altro dato che avevamo già senza saperlo leggere: `-` è **uno dei tre caratteri
+che falliscono in classe 1**, insieme a `.` e `/`. Due misure diverse indicano lo
+stesso punto del motore.
+
+L'altra cosa che si legge subito è il gruppo `810e4ea0` della classe 3: `cat`,
+`dog`, `sun`, `who`, `yes`, `qzx` percorrono **la stessa identica strada**,
+mentre il corpus dice che dovrebbero avere quattro risposte diverse. Non è che
+sbaglia: è che **non distingue**, e la firma lo rende visibile in un colpo
+d'occhio.
+
+### Lo stato### Lo stato### Lo stato
 
 ```
 $ make measure

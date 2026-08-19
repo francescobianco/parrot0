@@ -289,7 +289,19 @@ static int measure_run(const char *dir) {
          * stretta la stazza si muove per capacita' INTERE — oggi la classe 1
          * vale zero, e vale uno il giorno in cui anche le cifre e i tre segni ci
          * arrivano. E' un numero piu' duro e molto piu' utile. */
-        char answers[256][256]; int solved[256]; size_t nans = 0;
+        /* gen422c — SI CONTA PER FIRMA, non per risposta attesa (F.).
+         *
+         * Una risposta diversa prodotta dalla STESSA STRADA non e' un'abilita'
+         * nuova: e' lo stesso ragionamento con altri valori. Contare le firme
+         * chiude anche la crepa che la classe 3 aveva aperto — «1+1|2»,
+         * «9-4|5», «2*3|6» sono tre risposte diverse e una firma sola, quindi
+         * valgono uno, e aggiungerne cento con un ciclo `for` non regala piu'
+         * niente.
+         *
+         * Cambia anche cosa misura la stazza, ed e' bene dirlo: non piu' quante
+         * cose il corpus CHIEDE, ma quante strade diverse parrot0 PERCORRE su
+         * quel corpus. E' la varieta' comportamentale, nel bene e nel male. */
+        unsigned long paths[256]; int solved[256]; size_t nans = 0;
         while (fgets(line, sizeof line, f)) {
             size_t l = strlen(line);
             while (l && (line[l-1] == '\n' || line[l-1] == '\r')) line[--l] = '\0';
@@ -353,9 +365,9 @@ static int measure_run(const char *dir) {
             if (good) ok++;
             else if (nfail < 64) snprintf(failed[nfail++], sizeof failed[0], "%s", query);
             size_t a = 0;
-            while (a < nans && strcmp(answers[a], want) != 0) a++;
+            while (a < nans && paths[a] != fp) a++;
             if (a == nans && nans < 256) {
-                snprintf(answers[nans], sizeof answers[0], "%s", want);
+                paths[nans] = fp;
                 solved[nans] = 1;          /* si presume dimostrata... */
                 nans++;
             }
