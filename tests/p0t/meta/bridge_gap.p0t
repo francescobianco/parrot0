@@ -48,7 +48,7 @@
 !assert widget_colour(quix, green)
 !assert widget_colour(vint, red)
 > colour of zorb
-< Hmm, I don't know about colour yet. Want me to learn about it?
+<~ Hmm, I don't know about colour yet. Want me to learn about it?
 !assert answer_frame("colour of", widget_colour)
 > colour of zorb
 < Blue.
@@ -64,7 +64,7 @@
 # (porta senza relazione) e qui deve restare un declino, mai una risposta.
 !assert answer_frame("colour of", widget_colour)
 > colour of zorb
-< Hmm, I don't know about colour yet. Want me to learn about it?
+<~ Hmm, I don't know about colour yet. Want me to learn about it?
 
 [test bridge_gap_between_entities]
 !reset
@@ -76,7 +76,7 @@
 > how many slots in zorbrack
 < A zorbrack has 12 slots.
 > how many slots in quixgame
-< Hmm, I don't know about quixgame yet. Want me to learn about it?
+<~ Hmm, I don't know about quixgame yet. Want me to learn about it?
 # Un fatto — l'arco fra le due entita' — e la grandezza si eredita. La regola che
 # lo permette e' una sola e non parla di giochi: vale per ogni attivita' che
 # richieda un attrezzo di cui si conosca una grandezza.
@@ -86,4 +86,4 @@
 # Ablazione: ritirato l'arco, la conoscenza torna irraggiungibile da quel nome.
 !forget requires(quixgame, zorbrack)
 > how many slots in quixgame
-< Hmm, I don't know about quixgame yet. Want me to learn about it?
+<~ Hmm, I don't know about quixgame yet. Want me to learn about it?

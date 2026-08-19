@@ -20,7 +20,7 @@
 < The 'arith' module answered your last question.
 # A not-understood fallback is tracked too.
 > zxcvbnm qwerty
-< Hmm, I don't know about zxcvbnm yet. Want me to learn about it?
+<~ Hmm, I don't know about zxcvbnm yet. Want me to learn about it?
 > which part of you answered that?
 < No module could handle that — it fell through to the not-understood fallback.
 # Italian cues.

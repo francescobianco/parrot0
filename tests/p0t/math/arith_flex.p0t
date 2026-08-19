@@ -37,7 +37,9 @@
 > what is gold + silver
 # gen384: il muro NOMINA cio' su cui non ha fatti invece di tacere. Resta un
 # declino — nulla di inventato — ma dice dove si e' fermato.
-< Hmm, I don't know about silver yet. Want me to learn about it?
+# gen430: e adesso porta anche la FRASE con cui glielo si insegna, quindi
+# l'assert e' «contiene»: la coda e' conoscenza e cambiera' ancora.
+<~ Hmm, I don't know about silver yet. Want me to learn about it?
 # Successful turn resets the fallback state so the classic line can fire.
 > what is 10 + 2
 < 12.

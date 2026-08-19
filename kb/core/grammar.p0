@@ -694,3 +694,26 @@ machinery(dissent_word).
 assent_word(yes).  assent_word(ok).   assent_word(okay).
 assent_word(si).   assent_word(certo). assent_word(va).
 dissent_word(no).  dissent_word(nope). dissent_word(nah).
+
+% ── LE FORME CHE SI POSSONO OFFRIRE PER UNA PAROLA SOLA (gen430) ────────────
+%
+% Quando parrot0 si ferma su una parola che non sa leggere, il ciclo di
+% autocorrezione dovrebbe INDOVINARE il pezzo mancante — e per questo arriva a
+% tre casi su ottantotto. Ma l'interlocutore e' nella stanza: il pezzo non va
+% indovinato, va CHIESTO, e dal gen427-429 la risposta e' gia' l'atto di
+% insegnamento perche' ha effetto nel turno successivo.
+%
+% Ogni riga qui e' una forma che una PAROLA SOLA puo' avere, con la frase da
+% dire per insegnarla. Una forma nuova si affaccia da sola nel messaggio: nessun
+% file di C sa che questa lista esista.
+machinery(word_teaching_offer).
+machinery(teaching_offer_max).
+
+word_teaching_offer(relation_verb, "if {topic} is something one thing does to another, say «{topic} is a relation verb»").
+word_teaching_offer(class, "if it is a kind of thing, say «something is a {topic}»").
+word_teaching_offer(condition_marker, "if it opens a condition, say «{topic} is a condition marker»").
+word_teaching_offer(relation_noun, "if it names a value of something, say «the {topic} of X is Y»").
+
+% Quante offrirne. Due bastano a insegnare senza trasformare il muro in un
+% modulo d'iscrizione — ed e' un fatto, non una scelta del C.
+teaching_offer_max(2).

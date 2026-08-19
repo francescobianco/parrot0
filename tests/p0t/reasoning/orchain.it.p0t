@@ -12,4 +12,4 @@
 # facts in kb/core/intents.p0, matched by the same kb_cue_match — one mechanism,
 # two languages, and the cue list itself is knowledge, teachable at runtime.
 > quante catene or di chiamate a flag in tests/fixtures/orchain/foreign.c?
-< Hmm, I don't know about catene yet. Want me to learn about it?
+<~ Hmm, I don't know about catene yet. Want me to learn about it?

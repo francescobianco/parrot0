@@ -615,8 +615,12 @@ response_template(quantity_in_frame, it, "In {entity} ci sono {count} {unit}.").
 response_template(possession_named_ack, "Got it: your {thing} is called {name}.").
 response_template(possession_named_ack, it, "Ricevuto: il tuo {thing} si chiama {name}.").
 
-response_template(fallback_gap_offer, "Hmm, I don't know about {topic} yet. Want me to learn about it?").
-response_template(fallback_gap_offer, it, "Mmh, non conosco ancora {topic}. Vuoi che cerchi informazioni?").
+% gen430 — IL MURO CHE CHIEDE DI ESSERE INSEGNATO. Il messaggio non si limita a
+% nominare la parola opaca: porta la FRASE GIA' PRONTA con cui gliela si insegna,
+% e quella frase, detta, ha effetto nel turno dopo. E' l'autocorrezione fatta in
+% due invece che da soli (docs/autocorrezione.md §13).
+response_template(fallback_gap_offer, "Hmm, I don't know about {topic} yet. Want me to learn about it? Or teach me: {teach}.").
+response_template(fallback_gap_offer, it, "Mmh, non conosco ancora {topic}. Vuoi che cerchi informazioni? Oppure insegnamelo: {teach}.").
 response_template(fallback_still_gap, "Hmm, I don't know about {topic} yet.").
 response_template(fallback_still_gap, it, "Mmh, non conosco ancora {topic}.").
 

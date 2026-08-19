@@ -196,3 +196,22 @@
 <~ Learned: population_of(nivora, 40000)
 > zorak was founded in 1820
 <~ Learned: founded_in(zorak, 1820)
+
+# ── L'AUTOCORREZIONE FATTA IN DUE (F., gen430) ──────────────────────────────
+#
+# Il ciclo di autocorrezione deve INVENTARSI il pezzo mancante, e per questo
+# arriva a tre casi su ottantotto (docs/autocorrezione.md §3). Ma l'interlocutore
+# e' nella stanza: il pezzo non va indovinato, va CHIESTO — e dal gen427-429 la
+# risposta e' gia' l'atto di insegnamento, perche' ha effetto nel turno dopo.
+#
+# Il giro completo, senza che nessuno sappia in anticipo che cosa insegnare:
+[test il muro chiede di essere insegnato, e la risposta lo chiude]
+!reset
+> zorak governs nivora
+<~ say «governs is a relation verb»
+> governs is a relation verb
+<~ Learned: relation_verb(governs)
+> zorak governs nivora
+<~ Learned: governs(zorak, nivora)
+> who governs nivora
+<~ Zorak

@@ -618,6 +618,142 @@ scrivendo lacune, non ragionandoci sopra.
 
 ---
 
+## 13. L'AUTOCORREZIONE FATTA IN DUE — chiedere invece di indovinare
+
+*(F., gen430: «studiati tutti i prompt di `docs/issues/` e capisci come il
+processo di insegnamento si possa automatizzare dal punto di vista dialogico».)*
+
+### 13.1 Il cambio di ipotesi
+
+Tutto quello che precede descrive un'autocorrezione **solitaria**: parrot0 deve
+accorgersi di aver fallito, **inventare** il pezzo mancante, provarlo. Il passo
+che la uccide è il secondo — sa proporre solo cue (C3), e quindi arriva a tre
+casi su ottantotto.
+
+Ma c'è un fatto che questo documento, scritto a gen413, non poteva usare: **dal
+gen427-429 una forma si insegna parlando, e ha effetto nel turno successivo.** La
+notazione di un letterale, un verbo di relazione, un marcatore di segmento, una
+relazione nuova: tutti si installano dicendo una frase.
+
+Il che cambia la domanda. Non più *«come faccio a indovinare il pezzo che mi
+manca?»*, ma:
+
+> **«come faccio a CHIEDERLO, in una forma che la risposta dell'altro installi da
+> sola?»**
+
+L'interlocutore è già nella stanza. Il pezzo mancante non va inventato — va
+**nominato**, e la frase che lo insegna va **consegnata già scritta**.
+
+### 13.2 Le quattro condizioni, riscritte
+
+Le condizioni di §2 sono strettissime perché descrivono un'invenzione. Chiedere
+ne ha altre, e sono molto più larghe:
+
+| | solitaria (§2) | dialogica |
+|---|---|---|
+| **C1** | il turno deve fallire in modo **visibile** (solo il muro cieco) | basta **fermarsi**: anche un declino informato può chiedere. I 49 della classe B tornano dentro |
+| **C2** | **nessuna** parola dev'essere opaca | una parola opaca **è la domanda migliore**: *«che cos'è "travels"?»* è esattamente ciò che si sa chiedere |
+| **C3** | il ponte dev'essere una **cue** (una sottostringa, quindi indovinabile) | il ponte dev'essere **dicibile**: basta che esista una frase che lo installa |
+| **C4** | verifica: *«la risposta è diversa dal muro?»* | verifica: **si ripone il turno**. Se ora si legge, il pezzo era quello — e non serve S3 per dirlo |
+
+C3 è il cardine. La condizione «indovinabile» è una proprietà della *forma del
+ponte*; la condizione «dicibile» è una proprietà della **KB**, e quindi si
+allarga con una riga. È il passaggio da un limite di principio a un inventario.
+
+### 13.3 Il seme, che gira (gen430)
+
+Il muro non chiede più *«vuoi che lo impari?»*, che è una domanda retorica:
+consegna la frase.
+
+```
+> zorak governs nivora
+< Hmm, I don't know about governs yet. Want me to learn about it? Or teach me:
+  if governs is something one thing does to another, say «governs is a relation
+  verb»; if it is a kind of thing, say «something is a governs».
+> governs is a relation verb
+< Learned: relation_verb(governs).
+> zorak governs nivora
+< Learned: governs(zorak, nivora).
+> who governs nivora?
+< Zorak.
+```
+
+Quattro turni, e nessuno dei due sapeva in anticipo che cosa andasse insegnato.
+Le forme offerte sono fatti (`word_teaching_offer/2`): una forma nuova si affaccia
+da sola nel messaggio, e quante offrirne è un fatto anche quello.
+
+Da notare, perché è il punto di tutta la sezione: **l'ultimo turno non era stato
+insegnato.** Insegnando il verbo si è aperta insieme la porta di lettura e quella
+di risposta (`answer_frame($V,$V) :- relation_verb($V)`), che è la metà che
+manca sempre — il «buco del consumatore» del gen306.
+
+### 13.4 I nove prompt di `docs/issues/`, riletti come richieste di insegnamento
+
+La domanda operativa, per ognuno: **esiste una frase che l'interlocutore potrebbe
+dire, e che chiuderebbe il caso?** Se sì, il caso è automatizzabile in dialogo —
+e ciò che manca è solo la frase con cui chiederla.
+
+| # | forma | la frase che lo chiuderebbe | oggi |
+|---|---|---|---|
+| **01** orario e durata | numeri/tempo | *«"leaves at" is a departure marker»*, *«"travels for" is a duration marker»* | **dicibile** — i marcatori si insegnano (gen429), manca chi li chieda |
+| **02** contrapposizione | logica | *«the contrapositive of "if A then B" is "if not B then not A"»* | **non dicibile** — è una procedura su una forma, serve P4 (induzione del pattern) |
+| **03** traduzione | superficie | *«"translate X into Y" means "how do you say X in Y"»* | **quasi** — una riscrittura di superficie è una relazione fra due forme, e nessuna riga la dichiara |
+| **04** dimenticare | ritrattazione | *«"forget" is a retraction verb»* | **dicibile** — stessa classe di `relation_verb`, manca la riga |
+| **05** confronto senza oggetti | muro cieco | *«a comparison needs two objects and a dimension»* | **non dicibile** — è uno **schema di ruoli**, S4b |
+| **06** artefatto senza schema | schema assente | *«a decision record has a context, alternatives, a decision and rejected options»* | **non dicibile** — stesso schema di ruoli |
+| **07** template fuori bersaglio | non pertinente | *«a counterexample question is answered by an instance, not by a causal account»* | **non dicibile** — è S3, la pertinenza |
+| **08** sillogismo non motivato | risposta secca | *«answer a syllogism with its derivation»* | **non dicibile** — registro della risposta, S3 |
+| **09** metadomanda sul metodo | domanda-wh | *«what is missing before X is the list of X's required roles»* | **non dicibile** — richiede prima 05/06 |
+
+Letta così, la distribuzione dice una cosa netta e non ovvia:
+
+> **Tre dei nove si chiudono con una frase che oggi si sa già dire; quattro
+> chiedono tutti la stessa cosa mancante — uno SCHEMA DI RUOLI dicibile; due
+> chiedono la pertinenza (S3).**
+
+Cioè: il collo di bottiglia dell'insegnamento dialogico **non sono novanta forme
+diverse**. Sono due, e sono esattamente le due che §6 aveva già isolato come
+substrato (S4b e S3). La differenza è che ora hanno un criterio operativo che le
+rende verificabili senza teoria:
+
+> *Esiste una frase che un umano direbbe, che le installi?*
+
+### 13.5 Che cosa manca perché il giro si chiuda da solo
+
+Il seme del §13.3 chiede **quando si ferma su una parola**. Perché diventi il
+processo generale servono, in quest'ordine:
+
+1. **La domanda nasce dove il lettore si è fermato** (P0/S4b). Oggi la parola
+   opaca è l'unico posto che il motore sa nominare; con un lettore composizionale
+   la domanda diventa *«ho letto "compare due X", mi manca il ruolo Y»* — ed è la
+   stessa cosa che serve ai quattro casi di schema.
+2. **Uno schema di ruoli si dice** (S4b, lato superficie). *«un confronto ha due
+   oggetti e una dimensione»* deve installare `schema_shape/2` +
+   `role_required/1`. La forma esiste in KB dal gen412; manca la frase.
+3. **La memoria di ciò che si è già chiesto** (S4). Chiedere due volte la stessa
+   cosa è peggio che non chiedere: è la regola dei tre colpi applicata al
+   dialogo, e senza di essa il muro diventa un questionario.
+4. **La verifica è il ripasso del turno**, non «la risposta è cambiata». Costa
+   poco (si ripone la frase) e non richiede S3 — che resta necessario per i due
+   casi di pertinenza, non per gli altri sette.
+
+### 13.6 Il rischio, e come si riconosce
+
+Un sistema che chiede diventa fastidioso, e c'è un modo preciso di sbagliarlo:
+**offrire forme che non c'entrano**. Il seme già lo mostra — a `governs` propone
+anche *«something is a governs»*, che è la forma sbagliata per un verbo.
+
+Il rimedio non è una guardia nel C: è che **l'offerta sia scelta dalla posizione
+in cui il lettore si è fermato** (punto 1), invece che dal fatto che si è fermato.
+Finché quella posizione non esiste, il menu è un elenco fisso, e va tenuto corto
+di proposito (`teaching_offer_max`, oggi due).
+
+> **La regola che riassume:** una richiesta di insegnamento è onesta se **nomina
+> dove ci si è fermati** e **consegna la frase**. Se nomina solo la parola, è un
+> muro con più parole.
+
+---
+
 ## Riferimenti
 
 - `docs/plans/question-emergence.md` — il piano che ha costruito il ciclo (gen406-411)
@@ -626,3 +762,6 @@ scrivendo lacune, non ragionandoci sopra.
 - `docs/plans/universal-comprehension.md` — il declino informato, di cui §4a è il conto
 - `tests/rl/episodes/macchineria/riflessiva/` — gli episodi vivi: `ponte-che-generalizza`, `autocorrezione-sul-muro`
 - `kb/core/meta.p0` — `bridge_shape/2`, `self_correct_on_wall/1` e il perché è spento
+- `docs/plans/teach-comprehension-via-prompt.md` — le forme che oggi si insegnano
+  parlando: è l'inventario da cui §13 pesca le frasi da consegnare
+- `docs/issues/` — i nove prompt, riletti in §13.4 come richieste di insegnamento

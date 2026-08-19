@@ -66,3 +66,15 @@ oracolo interno — provare una riscrittura e vedere se il muro cade.
 `travels`, `contrapositive`, `missing`, `forget`, `compare`: cinque sintomi, zero
 cause. Se questi file servono a una cosa sola, è a rendere quel fatto difficile da
 dimenticare.
+
+## Riletti come richieste di insegnamento (gen430)
+
+`../autocorrezione.md` §13.4 rilegge questi nove con una domanda sola: **esiste
+una frase che l'interlocutore potrebbe dire, e che chiuderebbe il caso?** Se sì,
+il caso è automatizzabile in dialogo, e ciò che manca è solo chi la chieda.
+
+Il conto che ne esce non è quello che ci si aspetta: **tre si chiudono con una
+frase che parrot0 sa già capire** (01, 04, e quasi 03), **quattro chiedono tutti
+la stessa cosa** — uno schema di ruoli dicibile (05, 06, 09, e 01 per metà) — e
+**due chiedono la pertinenza** (07, 08). Il collo di bottiglia non sono nove
+problemi: sono due.

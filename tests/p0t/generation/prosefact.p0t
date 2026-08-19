@@ -48,7 +48,7 @@
 # The NOUN "era" is not mistaken for a copula (no article follows), so this stays
 # an honest wall rather than a misparse.
 > the victorian era was long
-< Hmm, I don't know about victorian yet. Want me to learn about it?
+<~ Hmm, I don't know about victorian yet. Want me to learn about it?
 
 # gen299 (frame 3): MULTI-WORD subject and class join into one atom.
 > The blue whale is a marine mammal
@@ -75,5 +75,5 @@
 # The relational conjunction ("the capital and largest city of France") has no
 # article on the second conjunct, so it is left alone rather than mis-extracted.
 > Paris is the capital and largest city of France
-< Hmm, I don't know about capital yet. Want me to learn about it?
+<~ Hmm, I don't know about capital yet. Want me to learn about it?
 

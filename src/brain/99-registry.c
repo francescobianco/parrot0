@@ -1699,8 +1699,54 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
             kb_assert(b->kb, "pending_gap_question", qa, 1);
             kb_set_origin(b->kb, KB_SESSION);
             {
-                const KbResponseSlot slots[] = { {"topic", sw} };
-                kb_response_slots(b, "fallback_gap_offer", slots, 1, cand, sizeof cand);
+                /* gen430 — IL MURO DIVENTA UNA RICHIESTA DI INSEGNAMENTO.
+                 *
+                 * Il ciclo di autocorrezione (docs/autocorrezione.md) deve
+                 * INVENTARSI il pezzo mancante, e per questo arriva a tre casi
+                 * su ottantotto: sa proporre solo cue. Ma l'interlocutore e' nella
+                 * stanza, e dal gen427-429 una forma si insegna PARLANDO — quindi
+                 * il pezzo non va indovinato, va CHIESTO.
+                 *
+                 * Qui il declino su una parola opaca smette di essere una
+                 * domanda retorica («vuoi che lo impari?») e diventa una
+                 * richiesta con la FRASE GIA' PRONTA da dire. Quali forme si
+                 * possano offrire per una parola sola, e con che parole
+                 * chiederle, sta in `word_teaching_offer/2`: una forma nuova si
+                 * affaccia da sola nel messaggio, senza toccare questo file. */
+                char teach[512]; teach[0] = '\0';
+                size_t to = 0;
+                long cap = 2;
+                {
+                    const char *cq2[1] = { NULL };
+                    char cv[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "teaching_offer_max", cq2, 1, cv, 1) > 0) {
+                        char cb2[KB_TERM_LEN]; snprintf(cb2, sizeof cb2, "%s", cv[0]);
+                        long v = strtol(kb_dequote(cb2), NULL, 10);
+                        if (v > 0) cap = v;
+                    }
+                }
+                char offers[8][KB_TERM_LEN];
+                const char *oq[2] = { NULL, NULL };
+                size_t no = kb_match(b->kb, "word_teaching_offer", oq, 2, offers, 8);
+                for (size_t oi = 0; oi < no && (long)oi < cap; oi++) {
+                    const char *fq2[2] = { offers[oi], NULL };
+                    char text[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "word_teaching_offer", fq2, 2, text, 1) != 1) continue;
+                    char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", text[0]);
+                    const char *phrase = kb_dequote(tb);
+                    /* la parola entra nella frase dove la frase la chiede */
+                    for (const char *p = phrase; *p && to + 1 < sizeof teach; ) {
+                        if (!strncmp(p, "{topic}", 7)) {
+                            to += (size_t)snprintf(teach + to, sizeof teach - to, "%s", sw);
+                            p += 7;
+                        } else teach[to++] = *p++;
+                        teach[to] = '\0';
+                    }
+                    if (oi + 1 < no && (long)(oi + 1) < cap)
+                        to += (size_t)snprintf(teach + to, sizeof teach - to, "; ");
+                }
+                const KbResponseSlot slots[] = { {"topic", sw}, {"teach", teach} };
+                kb_response_slots(b, "fallback_gap_offer", slots, 2, cand, sizeof cand);
             }
         } else {
             {

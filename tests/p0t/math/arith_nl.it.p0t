@@ -44,7 +44,7 @@
 
 # Percent ("per cento", NOT read as 100) and n-ary list.
 > quanto fa 20 per cento di 100
-< Hmm, I don't know about hundred yet. Want me to learn about it?
+<~ Hmm, I don't know about hundred yet. Want me to learn about it?
 > quanto fa la somma di 3 e 4 e 5
 < 12.
 
