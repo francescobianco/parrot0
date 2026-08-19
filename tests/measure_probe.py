@@ -2,13 +2,13 @@
 """measure_probe — che MOSSA fa un LLM davanti a un prompt di N byte?
 
 Sonda di progetto per le CLASSI MISURATE (docs/measured-classes.md). Serve a
-curare le risposte attese dei file `N.qa` senza inventarle e senza copiarle da
+curare le risposte attese dei file `1.qa`, `2.qa`, … senza inventarle e senza copiarle da
 parrot0 — che sarebbe uno specchio, e uno specchio segna sempre cento.
 
 Come le altre sonde NON usa l'LLM come fonte di verita': osserva la MOSSA.
 Davanti a «a» o a «7» o a «?» la domanda non e' «che cosa risponde il modello»
 ma «che cosa FA»: chiede che cosa si intende, nomina cio' che ha ricevuto,
-saluta, oppure finge di aver capito. La risposta attesa che finisce in `N.qa`
+saluta, oppure finge di aver capito. La risposta attesa che finisce nel file
 e' la mossa, non la frase.
 
 Provider/auth come le altre sonde (opencode-GO, $OPENCODE_API_KEY).
@@ -121,7 +121,7 @@ def main() -> int:
     lines = [f"# measure probe — classe {args.cls} ({args.cls} byte) — {stamp}", "",
              f"modello: `{args.model}`", "",
              "Sonda di SCOPERTA: si copia la MOSSA, mai il contenuto. Serve a curare",
-             "le risposte attese di `measure/N.qa` senza inventarle e senza copiarle",
+             "le risposte attese di tests/measure/ senza inventarle e senza copiarle",
              "da parrot0.", ""]
     tally: dict[str, int] = {}
     for prompt in stimuli:

@@ -66,7 +66,7 @@ static void print_usage(FILE *out) {
             "  --bench-report              Print benchmark totals and stop the daemon\n"
             "  --bench-health FILE         Warm up and verify the benchmark daemon\n"
             "  --dream [TOPIC]             Explore a topic recursively\n"
-            "  --measure DIR               Misura la STAZZA sui file N.qa in DIR\n"
+            "  --measure DIR               Misura la STAZZA sui file 1.qa, 2.qa, … in DIR\n"
             "                              (no TOPIC: dream its own open gaps)\n"
             "    --depth=N                 Limit dream traversal depth\n"
             "    --nodes=N                 Limit dream traversal nodes\n"
@@ -201,8 +201,8 @@ static Brain *setup_brain(const char **out_sess) {
 /* ── gen421: LA STAZZA — `parrot0 --measure PATH` ─────────────────────────────
  *
  * Una misura della MOLE di cio' che parrot0 sa fare, costruita curando invece
- * che inseguendo. Nella cartella stanno file `N.qa`, e in `N.qa` ci sono solo
- * prompt lunghi ESATTAMENTE N byte — uno spazzolamento sistematico dello spazio
+ * che inseguendo. Nella cartella stanno file numerati in progressione — 1.qa, 2.qa, … — e in
+ * ognuno ci sono solo prompt lunghi ESATTAMENTE quanti byte dice il suo nome — uno spazzolamento sistematico dello spazio
  * d'ingresso per lunghezza, non una selezione di casi che ci piacciono.
  *
  * Ogni riga e' `domanda : risposta attesa`, e la risposta attesa e' quello che
@@ -243,6 +243,28 @@ static int measure_run(const char *dir) {
         long ok = 0, n = 0;
         char line[1024];
         char failed[64][256]; size_t nfail = 0;
+        /* gen421b — I DOPPIONI NON SI CONTANO (F.).
+         *
+         * Dentro un file, risposte attese UGUALI valgono uno. La stazza smette
+         * cosi' di contare i prompt e conta le CAPACITA' DISTINTE che parrot0
+         * dimostra: senza questa regola bastava aggiungere mille righe con la
+         * stessa attesa per farla salire di mille, che e' il modo piu' facile di
+         * rendere una misura priva di significato.
+         *
+         * Ne segue una cosa che va guardata in faccia: `1.qa` ha una sola
+         * risposta attesa per tutti e sessantotto i byte, quindi vale UNO. E'
+         * corretto — davanti a un byte la mossa giusta e' sempre la stessa, e
+         * quella classe esercita una capacita' sola. Il conto dei prompt resta
+         * stampato accanto, perche' serve a curare: dice QUALI membri della
+         * classe non ci arrivano.
+         *
+         * E una capacita' conta solo se e' dimostrata su TUTTI i suoi membri: se
+         * bastasse un prompt qualunque, aggiungerne uno facile regalerebbe il
+         * punto e i tredici difficili sparirebbero dal numero. Con questa
+         * stretta la stazza si muove per capacita' INTERE — oggi la classe 1
+         * vale zero, e vale uno il giorno in cui anche le cifre e i tre segni ci
+         * arrivano. E' un numero piu' duro e molto piu' utile. */
+        char answers[256][256]; int solved[256]; size_t nans = 0;
         while (fgets(line, sizeof line, f)) {
             size_t l = strlen(line);
             while (l && (line[l-1] == '\n' || line[l-1] == '\r')) line[--l] = '\0';
@@ -258,7 +280,7 @@ static int measure_run(const char *dir) {
              * d'intestazione portava il separatore. Un formato senza eccezioni
              * non ha quel problema — ed e' anche piu' facile da generare.
              *
-             * Resta un controllo di integrita': in `N.qa` la domanda dev'essere
+             * Resta un controllo di integrita: la domanda dev essere
              * lunga esattamente N byte. Il numero del file valida il corpus, e
              * una riga fuori misura si segnala invece di sparire — un corpus che
              * perde righe in silenzio falsa la stazza verso il basso. */
@@ -287,24 +309,35 @@ static int measure_run(const char *dir) {
             n++;
             if (good) ok++;
             else if (nfail < 64) snprintf(failed[nfail++], sizeof failed[0], "%s", query);
+            size_t a = 0;
+            while (a < nans && strcmp(answers[a], want) != 0) a++;
+            if (a == nans && nans < 256) {
+                snprintf(answers[nans], sizeof answers[0], "%s", want);
+                solved[nans] = 1;          /* si presume dimostrata... */
+                nans++;
+            }
+            if (a < nans && !good) solved[a] = 0;   /* ...finche' un membro non cade */
         }
         fclose(f);
-        printf("classe %3ld   %3ld/%-3ld", cls, ok, n);
-        if (ok == n) printf("   pieno");
+        long dist_ok = 0;
+        for (size_t a = 0; a < nans; a++) if (solved[a]) dist_ok++;
+        printf("classe %3ld   %3ld/%-3ld distinte", cls, dist_ok, (long)nans);
+        printf("   (%ld/%ld prompt)", ok, n);
+        if ((size_t)dist_ok == nans) printf("   pieno");
         printf("\n");
         if (nfail) {
             printf("            non risolti:");
             for (size_t i = 0; i < nfail; i++) printf(" [%s]", failed[i]);
             printf("\n");
         }
-        total_ok += ok; total_n += n;
+        total_ok += dist_ok; total_n += (long)nans;
     }
     if (total_n == 0) {
-        fprintf(stderr, "measure: nessun file N.qa in %s\n", dir);
+        fprintf(stderr, "measure: nessun file 1.qa, 2.qa, … in %s\n", dir);
         return 1;
     }
     printf("%s\n", "----------------------------------------------------------------------");
-    printf("STAZZA %ld   (su %ld prompt curati)\n", total_ok, total_n);
+    printf("STAZZA %ld   (su %ld risposte attese distinte)\n", total_ok, total_n);
     return 0;
 }
 
