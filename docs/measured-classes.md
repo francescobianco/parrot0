@@ -1,6 +1,6 @@
 # Le classi misurate — la stazza di parrot0
 
-> **In una riga.** `parrot0 --measure measure/` conta quanti prompt curati
+> **In una riga.** `parrot0 --measure tests/measure/` conta quanti prompt curati
 > parrot0 risolve e stampa la somma. *«Oggi parrot0 è a classe 103»* vuol dire
 > che di quelli ne risolve centotré.
 
@@ -20,11 +20,11 @@ scelte di comodo. Il corpus non è fatto di casi interessanti — è uno
 
 ## 2. La forma del corpus
 
-Una cartella (`measure/`) con file `N.qa`, dove **N è la lunghezza in byte** dei
+Una cartella (`tests/measure/`) con file `N.qa`, dove **N è la lunghezza in byte** dei
 prompt che contiene:
 
 ```
-measure/
+tests/measure/
   1.qa     prompt lunghi esattamente 1 byte
   2.qa     esattamente 2 byte
   3.qa     …
@@ -33,21 +33,20 @@ measure/
 Dentro ogni file, una riga per prompt, **in ordine alfabetico**:
 
 ```
-domanda : risposta attesa
+domanda | risposta attesa
 ```
 
-Il separatore è ` : ` (spazio, due punti, spazio), così che un prompt possa
-contenere `:` senza ambiguità — e infatti `1.qa` contiene la riga `: : …`.
-**Il numero del file è anche la validazione:** in `N.qa` la domanda dev'essere
-lunga esattamente N byte. Le righe che non lo sono vengono scartate — in silenzio
-se cominciano con `#` (sono commenti), con un avviso altrimenti (sono errori).
+Il separatore è ` | ` — pipe, con gli spazi. **Un file `.qa` non supporta
+nient'altro:** niente commenti, niente direttive, niente righe speciali. Ogni
+riga è un prompt con la sua risposta attesa, e questo è tutto il formato.
 
-Serve davvero, e l'ha imposto il primo giro: `#` è insieme un prompt valido di un
-byte **e** il marcatore di commento, e la riga d'intestazione `# Formato: domanda
-: risposta` porta pure il separatore. Nessuna euristica sul `#` distingue i tre
-casi; la lunghezza sì. Un corpus che perde righe in silenzio falsa la stazza
-verso il basso, ed è il modo più sciocco di sbagliare una misura — trovato
-contando 65 righe su 66.
+Il pipe è anche un prompt valido di un byte, e la riga `| | what would you like`
+si legge senza ambiguità perché il separatore è il **primo** ` | ` della riga.
+**Il numero del file è la validazione:** in `N.qa` la domanda dev'essere lunga
+esattamente N byte, e una riga fuori misura viene segnalata invece di sparire. Un
+corpus che perde righe in silenzio falsa la stazza verso il basso, ed è il modo
+più sciocco di sbagliare una misura — trovato al primo giro contando 65 righe su
+66, quando il formato aveva ancora i commenti.
 
 **La lunghezza è in byte, non in parole.** È la scelta che rende il corpus
 sistematico invece che aneddotico: a lunghezza fissa lo spazio è enumerabile, e
@@ -107,11 +106,11 @@ non si misurano.
 ## 5. Come si legge il risultato
 
 ```
-$ PARROT0_LANG=en ./bin/parrot0 --measure measure/
-classe   1    53/66
+$ make measure
+classe   1    55/68
             non risolti: [-] [.] [/] [0] [1] [2] [3] [4] [5] [6] [7] [8] [9]
 ----------------------------------------------------------------------
-STAZZA 53   (su 66 prompt curati)
+STAZZA 55   (su 68 prompt curati)
 ```
 
 Tre numeri, tre significati diversi:
@@ -134,7 +133,7 @@ una misura che dipende dall'ordine non è una misura.
 Per la stessa ragione **la lingua va fissata**:
 
 ```
-PARROT0_LANG=en ./bin/parrot0 --measure measure/
+PARROT0_LANG=en ./bin/parrot0 --measure tests/measure/
 ```
 
 Senza, la lingua della sessione segue quella del sistema operativo, e le attese
@@ -167,10 +166,10 @@ Il quinto punto è l'unico che conta. Gli altri quattro sono contabilità.
 ## 8. La prima misura — 19 agosto 2026
 
 ```
-STAZZA 53   (su 66 prompt curati)
+STAZZA 55   (su 68 prompt curati)
 ```
 
-**Classe 1 — 53/66.** I non risolti sono tredici e si dividono in due gruppi soli,
+**Classe 1 — 55/68.** I non risolti sono tredici e si dividono in due gruppi soli,
 il che è già una diagnosi:
 
 | gruppo | prompt | che cosa risponde | perché è sbagliato |

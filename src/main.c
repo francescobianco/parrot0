@@ -246,25 +246,31 @@ static int measure_run(const char *dir) {
         while (fgets(line, sizeof line, f)) {
             size_t l = strlen(line);
             while (l && (line[l-1] == '\n' || line[l-1] == '\r')) line[--l] = '\0';
-            char *sep = strstr(line, " : ");
             if (!l) continue;
-            /* IL NUMERO DEL FILE E' LA VALIDAZIONE. In `N.qa` la domanda e' lunga
-             * esattamente N byte: e' l'invariante del formato, e usarlo per
-             * distinguere le righe buone dai commenti risolve una collisione che
-             * nessuna euristica sul «#» risolveva. «#» e' un prompt valido di un
-             * byte, e la riga di intestazione «# Formato: domanda : risposta»
-             * porta il separatore — le due cose si distinguono solo guardando la
-             * LUNGHEZZA della domanda.
+            /* IL SEPARATORE E' « | », con gli spazi. Un file .qa non supporta
+             * nient'altro: niente commenti, niente direttive, niente righe
+             * speciali. Ogni riga e' un prompt con la sua risposta attesa, e
+             * questo e' tutto il formato (F.).
              *
-             * Trovato al primo giro, contando 65 righe su 66: un corpus che perde
-             * righe in silenzio falsa la stazza verso il basso, che e' il modo
-             * piu' sciocco di sbagliare una misura. */
-            if (!sep) { if (line[0] != '#') fprintf(stderr,
-                    "measure: %s: riga senza separatore \" : \": %s\n", path, line);
-                continue; }
+             * La prima stesura usava « : » e aveva i commenti con «#», e le due
+             * cose insieme producevano una collisione che nessuna euristica
+             * risolveva: «#» e' un prompt valido di un byte, «:» pure, e la riga
+             * d'intestazione portava il separatore. Un formato senza eccezioni
+             * non ha quel problema — ed e' anche piu' facile da generare.
+             *
+             * Resta un controllo di integrita': in `N.qa` la domanda dev'essere
+             * lunga esattamente N byte. Il numero del file valida il corpus, e
+             * una riga fuori misura si segnala invece di sparire — un corpus che
+             * perde righe in silenzio falsa la stazza verso il basso. */
+            char *sep = strstr(line, " | ");
+            if (!sep) {
+                fprintf(stderr, "measure: %s: riga senza separatore \" | \": %s\n",
+                        path, line);
+                continue;
+            }
             if ((size_t)(sep - line) != (size_t)cls) {
-                if (line[0] != '#') fprintf(stderr,
-                    "measure: %s: la domanda non e' lunga %ld byte: %s\n", path, cls, line);
+                fprintf(stderr, "measure: %s: la domanda non e' lunga %ld byte: %s\n",
+                        path, cls, line);
                 continue;
             }
             *sep = '\0';

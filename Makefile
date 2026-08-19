@@ -934,4 +934,4 @@ rl-report:
 # multi-turno): misura la MOLE, con un corpus che spazzola lo spazio d'ingresso
 # per lunghezza in byte. La lingua si fissa, altrimenti si misura il locale.
 measure: build
-	@PARROT0_LANG=en ./$(BIN) --measure measure/
+	@PARROT0_LANG=en ./$(BIN) --measure tests/measure/
