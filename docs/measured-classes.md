@@ -96,6 +96,27 @@ Riscritto per gruppi, `1.qa` esercita **tre** capacità distinte — punteggiatu
 lettere, cifre — che sono tre risposte giuste diverse. Il conto dei prompt resta
 stampato accanto perché serve a curare: dice *quali* membri non ci arrivano.
 
+### 3bis. Il caso che la regola non copre — le famiglie parametriche
+
+L'ha trovato la classe 3, ed è giusto scriverlo invece di lasciarlo scoprire a
+qualcun altro.
+
+La regola dei doppioni protegge dal ripetere **la stessa** risposta. Non protegge
+dall'enumerare una **famiglia parametrica**: `1+1 | 2`, `9-4 | 5`, `2*3 | 6` sono
+tre risposte diverse, quindi valgono tre — e nulla impedisce di aggiungerne cento
+e farsi cento punti con un ciclo `for`.
+
+Non c'è una regola meccanica che lo impedisca, perché quelle risposte *sono*
+davvero diverse. C'è invece una disciplina, e va rispettata scrivendo:
+
+> **Di una famiglia parametrica si mettono i membri che coprono le FORME, non i
+> valori.** L'aritmetica a tre byte ha tre righe — una per operatore — perché ci
+> sono tre operatori, non perché tre sia un bel numero. Una quarta riga con
+> `4+5` non aggiunge nessuna capacità: aggiunge un valore.
+
+Il criterio pratico: **se una riga nuova può fallire per una ragione che nessuna
+riga esistente copre, va messa. Altrimenti no.**
+
 ### 3c. Il muro è limitato dalla scala
 
 Una conseguenza della regola dei doppioni che vale la pena vedere, perché è ciò
@@ -265,7 +286,38 @@ in rumeno, `ne` in turco, `!?` di nuovo in arabo. Quando l'ingresso non porta
 tracce di lingua, anche un modello di frontiera tira a indovinare. Non è una
 stranezza di parrot0.
 
-### Lo stato
+### Classe 3 — tre byte (19 agosto 2026)
+
+A tre byte lo spazio cambia natura: ci stanno parole vere, domande vere e **un
+calcolo completo**. Ed è la prima classe in cui parrot0 fa qualcosa di
+sostanziale.
+
+| capacità | membri | esito |
+|---|---|---|
+| **aritmetica** — il risultato esatto | `1+1` `9-4` `2*3` | **✔** — `2.` `5.` `6.` |
+| **parola interrogativa sola** — «that's the start of a question» | `who` `why` `how` | ✘ |
+| **entità nota** — «what would you like to know about» | `cat` `dog` `sun` | ✘ |
+| **numero** | `100` `3.5` | ✘ muro |
+| **token opaco** | `qzx` `zqw` | ✘ |
+| **saluto** | `hi!` | ✔ |
+| **riscontro** | `ok?` `yes` | ✘ |
+| **punteggiatura** | `!!!` `???` | ✔ |
+
+**parrot0 pareggia con l'oracolo sull'aritmetica**, e con una resa migliore
+(`2.` contro `2`). È il primo punto in cui la misura registra una capacità piena
+e non un ripiego.
+
+Due cose che la sonda ha mostrato di traverso:
+
+- l'oracolo su `sun` chiede *«What would you like to know about the Sun?»* — cioè
+  **riconosce l'entità e la nomina**. È la stessa mossa del token opaco, ma con
+  un contenuto: sa che il Sole esiste;
+- parrot0 risponde in **italiano** a `yes`, `sun`, `dog`, `hi!`, `ok?`, `qzx` e
+  in inglese a `who` e `how`, nella stessa sessione. La sonda non fissa la
+  lingua (la misura sì), quindi lì si vede la deriva allo stato brado: la lingua
+  segue il turno, e un token che non ne porta traccia la lascia dov'era.
+
+### Lo stato### Lo stato
 
 ```
 $ make measure

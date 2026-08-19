@@ -47,7 +47,16 @@ STIMULI = {
         "-5", "+3",                      # numeri segnati
         "a1",                            # lettera + cifra
         "??", "!?", "..",                # punteggiatura
-        "hi!", ],                        # (scartato: 3 byte, resta come controllo)
+        ],
+    # classe 3: a tre byte lo spazio cambia natura — ci stanno parole vere,
+    # domande vere e un CALCOLO COMPLETO.
+    3: ["who", "why", "how",             # parole interrogative
+        "yes", "sun", "dog",             # parole piene
+        "1+1", "9-4", "2*3",             # aritmetica completa
+        "100", "3.5",                    # numeri
+        "hi!", "ok?",                    # parola + punteggiatura
+        "qzx", "???",                    # non-parola, punteggiatura
+        ],
 }
 
 
