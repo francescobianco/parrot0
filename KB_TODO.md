@@ -1,11 +1,69 @@
 # Knowledge Base TODO
 
-## HANDOFF — dove riprendere dopo la sessione del 17 agosto 2026
+## HANDOFF — dove riprendere dopo la sessione del 19 agosto 2026
 
-**Stato:** albero pulito, `make test` 2347 verdi in ~90s, `make soft-test` verde
-in ~6s sul budget 15 (i due `!timeout` di cerotto sono stati tolti, non alzati). Tutte e sette le generazioni del
-piano `docs/plans/frontier-kb-natural-dialogue.md` hanno ora almeno un taglio
-verticale funzionante; il piano e' intorno al **70%**.
+**Stato:** albero pulito, tutto committato e pushato. `make test` **2519 assert,
+0 falliti**. Nuovi comandi: `make rl-bench` (la batteria di rinforzo, che e' una
+MISURA e puo' essere rossa) e `make rl-report` (la matrice letta per famiglia,
+macro-area, gradino e dimensione).
+
+### Che cosa e' stato fatto, in una riga per filone
+
+| filone | dove | stato |
+|---|---|---|
+| save-map riscritto: mappa in RAM costruita caricando, niente riscansione | `src/kb.c` | chiuso |
+| KB riorganizzata: `kb/wiki/` per dominio, `kb/machinery/`, `learned.p0` vuoto | albero | chiuso |
+| batteria di rinforzo: 35+ episodi, manifest, ledger, report | `tests/rl/`, `docs/plans/reinforcement-suite.md` | vivo |
+| autocorrezione studiata e misurata | `docs/autocorrezione.md` | **da leggere per primo** |
+| gen414-418: le cinque additive del piano revisionato | `docs/plans/question-emergence.md` | chiuse |
+| gen419: orari, date, complessi + transcoder + ponte alla superficie | `kb/core/procedures.p0`, `time-questions.p0` | chiuso |
+| gen420: dimenticare come MOSSA che supera | `mod_forget`, `context-scope.p0` | chiuso, un limite noto |
+| nove analisi dei prompt che falliscono | `docs/issues/` | **la mappa del lavoro che resta** |
+
+### Da dove riprendere, in ordine
+
+**1. Il substrato S3 — la pertinenza.** E' l'unico blocco fra qui e
+l'autocorrezione accesa (`self_correct_on_wall(on)`), e tre strade alternative
+sono state percorse e chiuse (registro del ponte, non-regressione, ponte che
+copre tutto il turno): il difetto residuo e' isolato senza scampo. Serve una
+prova che la risposta sia **una risposta a quella domanda**. Vedi
+`docs/autocorrezione.md` §5 e §6-S3, e `kb/core/meta.p0` accanto
+all'interruttore, dove la ragione e' scritta per esteso.
+
+**2. `remedy_for(incomplete_schema, slot)`.** Quattro dei nove casi di
+`docs/issues/` chiedono lo **stesso** rimedio — dichiarare che cosa deve esserci
+— e nessuno lo puo' ottenere, perche' il ciclo sa proporre solo cue. E' la riga
+con il rapporto resa/costo piu' alto che sia rimasta.
+
+**3. Il turno con piu' frasi.** E' lo strato trasversale: il prompt del treno
+funziona come tre turni e non come periodo, e lo stesso vale per la
+contrapposizione e per meta' dei cento. Nessuno l'ha ancora attaccato.
+
+**4. Il limite noto di gen420.** `user_value_read` consulta il superamento e
+tace, ma «what is my name» raggiunge un secondo percorso che legge lo slot senza
+passare di li'. Si chiude instradando **ogni** lettura di slot personale
+attraverso `context_effective_belief`. Scritto in
+`docs/issues/04-dimenticare.md` e nel cricchetto `forget_move.p0t`.
+
+**5. Il messaggio finale.** `not_understood` nomina la prima parola di sei
+lettere senza fatti: una diagnosi falsa spacciata per informazione. Va sostituita
+con l'ammissione di non aver compreso, e la nomina tenuta solo dove e' vera. Il
+freno e' misurato: **42 file `.p0t`** asseriscono quella frase, quindi e' un
+lavoro suo. Vedi `docs/autocorrezione.md` §11.
+
+### Due cose da sapere prima di toccare qualcosa
+
+- **Gli episodi vanno provati NEL DEMONE**, non nel binario singolo. Lo stesso
+  turno prende strade diverse (la coreferenza intercetta i pronomi, lo stato di
+  sessione cambia la categoria del fallimento). Mi e' costato tre giri.
+- **`file_attribute` NON si eredita** dagli include: vale per il file che lo
+  dichiara e solo per i predicati che introduce. Un commento sbagliato in
+  `procedures.p0` sosteneva il contrario e ha fatto danno; la nota corretta e'
+  ora nella documentazione della direttiva in `src/kb.c`.
+
+---
+
+## Storico
 
 ## ✅ BUG CHIUSO — l'apostrofo spegneva il produttore universale (gen402)
 
