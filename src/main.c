@@ -234,7 +234,7 @@ static int measure_run(const char *dir) {
     if (!dir || !*dir) return 1;
     /* i file si prendono in ordine di CLASSE, cioe' numerico: 2.qa viene dopo
      * 1.qa e prima di 10.qa, che l'ordine alfabetico sbaglierebbe. */
-    long total_ok = 0, total_n = 0;
+    long total_ok = 0, total_n = 0, max_cls = 0;
     for (long cls = 1; cls <= 512; cls++) {
         char path[512];
         if ((size_t)snprintf(path, sizeof path, "%s/%ld.qa", dir, cls) >= sizeof path) continue;
@@ -321,8 +321,8 @@ static int measure_run(const char *dir) {
         fclose(f);
         long dist_ok = 0;
         for (size_t a = 0; a < nans; a++) if (solved[a]) dist_ok++;
-        printf("classe %3ld   %3ld/%-3ld distinte", cls, dist_ok, (long)nans);
-        printf("   (%ld/%ld prompt)", ok, n);
+        printf("classe %3ld   stazza %-3ld   risolte %ld/%-3ld   (%ld/%ld prompt)",
+               cls, (long)nans, dist_ok, (long)nans, ok, n);
         if ((size_t)dist_ok == nans) printf("   pieno");
         printf("\n");
         if (nfail) {
@@ -330,14 +330,22 @@ static int measure_run(const char *dir) {
             for (size_t i = 0; i < nfail; i++) printf(" [%s]", failed[i]);
             printf("\n");
         }
-        total_ok += dist_ok; total_n += (long)nans;
+        total_ok += dist_ok; total_n += (long)nans; max_cls = cls;
     }
     if (total_n == 0) {
         fprintf(stderr, "measure: nessun file 1.qa, 2.qa, … in %s\n", dir);
         return 1;
     }
     printf("%s\n", "----------------------------------------------------------------------");
-    printf("STAZZA %ld   (su %ld risposte attese distinte)\n", total_ok, total_n);
+    /* LA STAZZA E' LA MOLE DEL CORPUS: quante risposte distinte contiene, cioe'
+     * quante capacita' diverse gli si stanno chiedendo. E' il numero che dice
+     * QUANTO GRANDE E' la misura, e cresce solo curando altre righe.
+     *
+     * Quante ne risolve e' un secondo numero, e va tenuto separato: mescolarli
+     * darebbe un titolo che scende quando il corpus cresce, che e' esattamente
+     * il contrario di quello che serve. */
+    printf("STAZZA %ld   —   risolte %ld/%ld   (lunghezza massima misurata: %ld)\n",
+           total_n, total_ok, total_n, max_cls);
     return 0;
 }
 

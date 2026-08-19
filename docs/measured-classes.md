@@ -1,8 +1,9 @@
 # Le classi misurate — la stazza di parrot0
 
-> **In una riga.** `make measure` conta quante **capacità distinte** parrot0
-> dimostra su un corpus curato, e stampa la somma. *«Oggi parrot0 è a stazza
-> 12»* vuol dire che di quelle ne dimostra dodici, per intero.
+> **In una riga.** La **stazza** è quante **risposte distinte** il corpus curato
+> contiene — cioè quante capacità diverse si stanno chiedendo a parrot0. `make
+> measure` la stampa insieme a quante ne risolve, e alla lunghezza massima a cui
+> la misura è stata fatta.
 
 ## 1. Che cos'è, e perché non è un'altra suite di test
 
@@ -72,14 +73,18 @@ di `<~` nei `.p0t`. La resa di una frase varia; ciò che deve esserci no.
 
 ### 3b. I doppioni non si contano
 
-**Dentro un file, risposte attese uguali valgono uno.** La stazza smette così di
-contare i prompt e conta le **capacità distinte**: senza questa regola bastava
-aggiungere mille righe con la stessa attesa per farla salire di mille.
+**Dentro un file, risposte attese uguali valgono uno.** La stazza non conta i
+prompt: conta le **risposte distinte**. Senza questa regola bastava aggiungere
+mille righe con la stessa attesa per farla salire di mille.
 
-E una capacità conta **solo se è dimostrata su tutti i suoi membri**. Se bastasse
-un prompt qualunque, aggiungerne uno facile regalerebbe il punto e i difficili
-sparirebbero dal numero. Con questa stretta la stazza si muove per capacità
-**intere** — è un numero più duro e molto più utile.
+**La stazza è la mole del CORPUS**, non il punteggio: dice quante capacità
+diverse si stanno chiedendo, e cresce solo curando altre righe. Quante ne risolve
+è un secondo numero, tenuto separato — mescolarli darebbe un titolo che *scende*
+quando il corpus cresce, cioè il contrario di quello che serve.
+
+Nel conteggio delle risolte, una capacità conta **solo se è dimostrata su tutti i
+suoi membri**: se bastasse un prompt qualunque, aggiungerne uno facile
+regalerebbe il punto e i difficili sparirebbero.
 
 Ne segue anche il modo giusto di scrivere un file: **un'attesa per ogni risposta
 che è davvero diversa**, non una formula generica ripetuta. La prima stesura di
@@ -134,20 +139,22 @@ aver guardato la mossa dell'oracolo è un'opinione, e le opinioni non si misuran
 
 ```
 $ make measure
-classe   1     1/3   distinte   (55/68 prompt)
+classe   1   stazza 3     risolte 1/3     (55/68 prompt)
             non risolti: [-] [.] [/] [0] [1] [2] [3] [4] [5] [6] [7] [8] [9]
 ----------------------------------------------------------------------
-STAZZA 1   (su 3 risposte attese distinte)
+STAZZA 3   —   risolte 1/3   (lunghezza massima misurata: 1)
 ```
 
 Quattro numeri, quattro significati diversi:
 
-- **la stazza** — le capacità distinte dimostrate per intero. È il titolo;
-- **le distinte curate** — quante ne esistono nel corpus. Cresce quando si
-  aggiungono classi, e da sola non è un merito;
-- **il conto dei prompt** — a che punto è la copertura *dentro* una capacità.
-  Non entra nella stazza, ma è quello che si guarda mentre si lavora;
-- **i non risolti, per nome** — il lavoro che resta, già elencato.
+- **la stazza** — quante risposte distinte il corpus contiene. È la **mole della
+  misura**, e cresce solo curando altre righe;
+- **le risolte** — quante di quelle capacità parrot0 dimostra per intero;
+- **il conto dei prompt** — a che punto è la copertura *dentro* una capacità. Non
+  entra nei primi due, ma è quello che si guarda mentre si lavora;
+- **la lunghezza massima misurata** — fin dove è arrivato lo spazzolamento. Una
+  stazza di 3 a lunghezza 1 e una stazza di 3 a lunghezza 40 non sono la stessa
+  cosa, e il numero da solo non lo direbbe.
 
 ## 6. Riproducibilità
 
@@ -183,11 +190,12 @@ Il quinto punto è l'unico che conta. Gli altri quattro sono contabilità.
 ## 8. La prima misura — 19 agosto 2026
 
 ```
-STAZZA 1   (su 3 risposte attese distinte)
+STAZZA 3   —   risolte 1/3   (lunghezza massima misurata: 1)
 ```
 
-La classe 1 esercita **tre** capacità, perché davanti a un byte ci sono tre
-risposte giuste diverse. Una sola è dimostrata per intero.
+**Stazza 3 a lunghezza massima 1.** Il corpus chiede tre capacità, perché davanti
+a un byte ci sono tre risposte giuste diverse; parrot0 ne dimostra una per
+intero.
 
 | capacità | membri | esito |
 |---|---|---|
