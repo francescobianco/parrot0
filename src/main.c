@@ -211,7 +211,7 @@ static Brain *setup_brain(const char **out_sess) {
  * misura utile: un corpus riempito con le risposte correnti sarebbe uno specchio,
  * e uno specchio segna sempre cento.
  *
- * La stazza e' la somma dei prompt risolti. «Oggi parrot0 e' a classe 103» vuol
+ * La stazza e' la somma dei prompt risolti. «Oggi parrot0 e' a stazza 103» vuol
  * dire che di quelli curati ne risolve centotre — un numero che sale solo
  * lavorando, e che nessuna riscrittura del corpus puo' gonfiare senza che si
  * veda nel diff.
@@ -291,14 +291,14 @@ static int measure_run(const char *dir) {
          * E una capacita' conta solo se e' dimostrata su TUTTI i suoi membri: se
          * bastasse un prompt qualunque, aggiungerne uno facile regalerebbe il
          * punto e i tredici difficili sparirebbero dal numero. Con questa
-         * stretta la stazza si muove per capacita' INTERE — oggi la classe 1
+         * stretta la stazza si muove per capacita' INTERE — oggi la lunghezza 1
          * vale zero, e vale uno il giorno in cui anche le cifre e i tre segni ci
          * arrivano. E' un numero piu' duro e molto piu' utile. */
         /* gen422c — SI CONTA PER FIRMA, non per risposta attesa (F.).
          *
          * Una risposta diversa prodotta dalla STESSA STRADA non e' un'abilita'
          * nuova: e' lo stesso ragionamento con altri valori. Contare le firme
-         * chiude anche la crepa che la classe 3 aveva aperto — «1+1|2»,
+         * chiude anche la crepa che la lunghezza 3 aveva aperto — «1+1|2»,
          * «9-4|5», «2*3|6» sono tre risposte diverse e una firma sola, quindi
          * valgono uno, e aggiungerne cento con un ciclo `for` non regala piu'
          * niente.

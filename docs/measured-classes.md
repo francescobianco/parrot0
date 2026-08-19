@@ -138,7 +138,7 @@ firma e la risposta.** Se una delle due si è già vista, non conta.
 La regola ci è arrivata in tre passi, e ognuno ha chiuso un buco del precedente:
 
 1. *«risposte uguali valgono uno»* — impediva che mille righe identiche valessero
-   mille. Ma la classe 3 ha mostrato la crepa: `1+1|2`, `9-4|5`, `2*3|6` sono tre
+   mille. Ma la lunghezza 3 ha mostrato la crepa: `1+1|2`, `9-4|5`, `2*3|6` sono tre
    risposte *diverse*, quindi valevano tre, e bastava un ciclo `for` per farsi
    cento punti con cento addizioni;
 2. *«firme uguali valgono uno»* — chiude quella crepa, perché le cento addizioni
@@ -341,7 +341,7 @@ Cinque capacità:
 | **riscontro** — *«Got it — what would you like to do?»* | 2 | `ok` `no` |
 | **token opaco** — *«…what you mean by "qz"»* | 6 | `qz` `xk` `a1` `if` |
 | **numero** — *«…what would you like me to do with 42»* | 5 | `42` `-5` `+3` |
-| **punteggiatura** — la stessa di classe 1 | 5 | `??` `!?` `..` |
+| **punteggiatura** — la stessa di lunghezza 1 | 5 | `??` `!?` `..` |
 
 Le parole italiane di due lettere (`io`, `se`, `tu`, `ne`) sono state **escluse
 di proposito**: l'oracolo ha risposto in italiano, spagnolo, rumeno e turco a
@@ -390,15 +390,17 @@ Due cose che la sonda ha mostrato di traverso:
 
 ```
 tonnage 24   max length 4
-classe 1: 68/68     classe 2: 11/19     classe 3: 7/18     classe 4: 8/15
 ```
 
-**La classe 1 è piena**, e ci è arrivata grazie a un reperto della classe 4.
+*Membri che incontrano l'attesa, contati curando (§9.6 — il comando non li
+stampa): lunghezza 1: 68/68, 2: 11/19, 3: 7/18, 4: 8/15.*
+
+**La lunghezza 1 è piena**, e ci è arrivata grazie a un reperto della lunghezza 4.
 
 La sonda a quattro byte ha mostrato che `1234` riceve *«That's just the number
 1234 with nothing to do — what would you like me to do with it?»*. Quella
 capacità **esisteva** — ed era esattamente ciò che mancava alle dieci cifre della
-classe 1. Provata la soglia:
+lunghezza 1. Provata la soglia:
 
 ```
 5     →  I don't understand that yet.
@@ -436,8 +438,11 @@ succedono; se siano quelle giuste lo dicono le righe che passano.
 
 ```
 tonnage 30   max length 4
-lunghezza 1: 62/68     2: 18/19     3: 16/18     4: 12/15
 ```
+
+*Membri: lunghezza 1: 62/68, 2: 18/19, 3: 16/18, 4: 12/15. La lunghezza 1 scende
+da 68 a 62 — sei righe la cui attesa curata è stata riscritta e non è ancora
+raggiunta: `a` `e` `i` `o` `u` `r`, per il motivo detto in fondo alla sezione.*
 
 Da **24 a 30 classi**, e non aggiungendo righe al corpus: **facendo distinguere a
 parrot0 turni che trattava allo stesso modo.**
@@ -487,12 +492,70 @@ dell'oracolo a un byte) e ora vengono **nominate**, che è più informativo. È 
 stesso caso della punteggiatura — parrot0 fa meglio dell'oracolo, e il corpus lo
 registra.
 
-**Cosa resta**, per nome: le cinque vocali e `r`, `u` (che la KB conosce come
-predicati), `if`, `3.5`, `why`, `9:15`, `help`, `true`.
+**Cosa resta**, per nome — e con la ragione misurata, non congetturata:
 
-### Lo stato### Lo stato### Lo stato
+- **`a` `e` `i` `o` `u` `r`** (lunghezza 1) e **`if`** (lunghezza 2) ricevono
+  ancora il saluto generico. Il motivo è nel `mod_lone` stesso: l'ultima guardia
+  prima della classificazione è `is_stopword`, e queste sette *sono* stopword.
+  Una parola-funzione da sola però non è contatto fatico — è un token opaco
+  quanto `qzxv`, e l'attesa curata dice infatti *«I have nothing on a»*. La
+  guardia va tolta con misura: `what` e `when` sono già presi prima, i saluti
+  sono già protetti da `social_marker`, quindi resta da capire solo quali
+  stopword meritino davvero di cadere al sociale — se ne esistono;
+- **`3.5` `why` `9:15` `help` `true`** — quattro forme e una parola, ognuna una
+  classe che non c'è ancora.
+
+## 9. Nota tecnica — che cosa conta il comando, esattamente
+
+Perché il numero significhi «classi» e non «righe», il conteggio è definito così,
+e vale la pena scriverlo per esteso:
+
+1. il comando legge i file `N.qa` **in ordine di lunghezza** e verifica che ogni
+   prompt sia lungo davvero `N` byte — una riga fuori misura è un errore del
+   corpus, e viene segnalata come tale, non come un fallimento di parrot0;
+2. ogni prompt è posto a un **cervello nuovo**: nessuna riga eredita il contesto
+   della precedente, altrimenti la misura dipenderebbe dall'ordine (parrot0 varia
+   la frase per non ripetersi, e la lingua segue il turno prima);
+3. per ogni riga si prendono due numeri, **entrambi da ciò che parrot0 fa
+   davvero** — la **firma** del ragionamento e l'hash della **risposta emessa**.
+   Non dall'attesa curata: la classe è un fatto sul comportamento, non sul
+   corpus;
+4. la coppia apre una **classe nuova** solo se **né la firma né la risposta**
+   sono già comparse *in quel file*. Stessa strada con altri valori: nessuna
+   classe nuova. Stessa frase per strade diverse: nessuna classe nuova. Le altre
+   righe **entrano** nella classe già aperta;
+5. una classe è **dimostrata** solo se *tutti* i suoi membri incontrano l'attesa.
+   Un membro che cade la marca come non dimostrata — così non basta aggiungere un
+   caso facile per intascare il punto e far sparire i difficili dal numero;
+6. **`tonnage` stampa le classi**, sommate su tutte le lunghezze. Il conto dei
+   membri risolti resta calcolato ma non stampato: serve a **curare** il corpus,
+   non a leggerlo, e ingombrava il titolo.
+
+**I punti 4 e 5 sono tutta la misura.** Sono la regola che trasforma un conteggio
+di righe in un conteggio di *comportamenti*: se aggiungere cento addizioni non
+muove il numero, allora il numero non sta contando righe. E l'unico modo di farlo
+salire è quello giusto — insegnare a parrot0 a **trattare in modo distinto**
+qualcosa che prima trattava allo stesso modo.
+
+Tre conseguenze da tenere a mente leggendo un risultato:
+
+- **la stazza misura la varietà, non la bravura** — nel bene e nel male. Un muro
+  detto in modo suo è una classe come un'altra: è la scala che lo tiene onesto
+  (§3c), non il conteggio;
+- **non è confrontabile fra corpus diversi.** È relativa a queste righe, curate
+  così. Confrontabile è la sua *crescita* a corpus fermo, che è esattamente il
+  modo in cui la si usa;
+- **la lunghezza massima fa parte del numero.** `tonnage 30 max length 4` è un
+  fatto solo: «stazza 30» da solo non dice niente.
+
+## 10. Lo stato
 
 ```
 $ make measure
-tonnage 8   max length 2
+tonnage 30   max length 4
 ```
+
+Trenta classi su quattro lunghezze — 120 righe curate, che parrot0 tratta in
+trenta modi distinti. La prossima lunghezza si apre quando c'è la volontà di
+curarla, e prima conviene guardare i buchi che restano (§8): ognuno è il nome di
+una classe che non c'è ancora.
