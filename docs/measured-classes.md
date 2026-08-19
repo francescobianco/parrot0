@@ -45,15 +45,55 @@ numerico e ignora quelli che non esistono, quindi la cartella può restare a
 ### Il formato di una riga
 
 ```
-domanda | risposta attesa
+domanda | firma | risposta attesa
 ```
 
 Il separatore è ` | ` — pipe, con gli spazi. **Un file `.qa` non supporta
 nient'altro:** niente commenti, niente direttive, niente righe speciali. Ogni
 riga è un prompt con la sua risposta attesa, e quello è tutto il formato.
 
-Il pipe è anche un prompt valido di un byte, e la riga `| | what would you like`
-si legge senza ambiguità perché il separatore è il **primo** ` | ` della riga.
+Il pipe è anche un prompt valido di un byte, e la riga `| | 9198c9eb | …` si
+legge senza ambiguità perché la domanda è il testo **prima del primo** ` | `.
+
+### La colonna centrale — la firma del ragionamento
+
+La colonna di mezzo è un **CRC del flusso di inferenza**: l'XOR degli hash dei
+predicati risolti nel turno, ognuno preso una volta sola, in esadecimale a 32
+bit. Si legge con `parrot0 --footprint` (un prompt per riga da stdin).
+
+È una firma del **percorso**, non della risposta, e la proprietà che la rende
+utile è questa:
+
+> **Prompt diversi, con valori diversi, risolti dalla stessa inferenza portano la
+> stessa firma.**
+
+```
+$ printf '1+1\n2+3\n7+9\nwhat is gold\nwhat is copper\n' | ./bin/parrot0 --footprint
+c2e586ee    1+1
+c2e586ee    2+3
+c2e586ee    7+9
+5787df8c    what is gold
+5787df8c    what is copper
+```
+
+Tre addizioni diverse: una firma. Due entità diverse chieste allo stesso modo:
+una firma. E ragionamenti diversi si separano — `hi` è `2c56da6e`, `?` è
+`e2f65c7f`, `42` è `4aeda9af`.
+
+**Perché l'XOR.** È insensibile all'ordine, e la stessa strada percorsa in ordine
+diverso *è* la stessa strada. Per la stessa ragione ogni predicato si conta una
+volta sola: XOR di un valore due volte lo cancella, e un turno che interroga due
+volte lo stesso predicato non sta facendo meno strada.
+
+**A che serve nel corpus.** Le righe di un gruppo dovrebbero avere la stessa
+firma: se due prompt hanno la stessa risposta attesa ma firme diverse, il gruppo
+è **eterogeneo** — arriva allo stesso posto per vie diverse, e una delle due
+potrebbe rompersi da sola. Se invece hanno firme uguali e risposte attese
+diverse, si sta chiedendo a una sola strada di produrre due esiti.
+
+`--measure` segnala su `stderr` quando la firma di una riga è cambiata rispetto a
+quella registrata: la risposta può essere ancora giusta e il percorso no, ed è
+una cosa che vale la pena sapere.
 
 Le righe sono in **ordine alfabetico**, e il numero del file fa da validazione:
 in `2.qa` la domanda dev'essere lunga due byte, e una riga fuori misura viene

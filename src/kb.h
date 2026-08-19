@@ -376,6 +376,19 @@ typedef struct {
 
 void kb_inference_report(const KB *kb, KbInferenceReport *out);
 
+/* ── gen422: LA FIRMA DEL FLUSSO DI INFERENZA ─────────────────────────────────
+ *
+ * Un CRC del RAGIONAMENTO, non della risposta: l'XOR degli hash dei predicati
+ * risolti da `kb_footprint_reset` in poi, ognuno preso una volta sola. Due turni
+ * che percorrono la stessa strada portano la stessa firma anche se dicono parole
+ * diverse; due turni che dicono la stessa cosa per vie diverse no.
+ *
+ * L'XOR e' insensibile all'ordine — la stessa strada percorsa in ordine diverso
+ * e' la stessa strada — e per la stessa ragione i predicati si contano una volta
+ * sola, altrimenti un doppione si cancellerebbe da se'. */
+void          kb_footprint_reset(KB *kb);
+unsigned long kb_footprint(const KB *kb);
+
 /* ── profiling dell'inferenza (gen400) ────────────────────────────────────
  *
  * Attivabile a runtime da `/debug` nella chat. Spento non costa niente: il

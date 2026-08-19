@@ -211,6 +211,21 @@ struct KB {
     size_t        prof_ntop;
 
     SaveMap smap;              /* dove abita ogni fatto: vedi SaveMap sopra */
+
+    /* gen422 — LA FIRMA DEL FLUSSO DI INFERENZA (F.).
+     *
+     * Un CRC del RAGIONAMENTO, non della risposta: due turni che percorrono la
+     * stessa strada portano la stessa firma anche se dicono parole diverse, e
+     * due turni che dicono la stessa cosa per vie diverse no.
+     *
+     * E' l'XOR degli hash dei predicati risolti nel turno, ognuno preso UNA
+     * VOLTA. L'XOR e' la scelta giusta perche' e' insensibile all'ordine — la
+     * stessa strada percorsa in ordine diverso e' la stessa strada — ma per la
+     * stessa ragione un predicato contato due volte si cancellerebbe: da qui
+     * l'insieme dei gia' visti. */
+    unsigned long fp_acc;
+    unsigned long fp_seen[128];
+    size_t        fp_n;
 };
 
 void kb_profile_set(KB *kb, int on) { if (kb) kb->prof_on = on ? 1 : 0; }
@@ -2150,8 +2165,29 @@ int kb_assert_clause(KB *kb, const KbGoal *head,
 
 /* Record what a finished search cost. `kb` may be the const-cast query target;
  * this writes only the report, never the knowledge. */
+/* djb2: basta e costa poco. Non deve resistere a un avversario — deve
+ * distinguere due strade diverse. */
+static unsigned long kb_fp_hash(const char *s) {
+    unsigned long h = 5381;
+    while (s && *s) h = h * 33u ^ (unsigned char)*s++;
+    return h;
+}
+
+void kb_footprint_reset(KB *kb) { if (kb) { kb->fp_acc = 0; kb->fp_n = 0; } }
+unsigned long kb_footprint(const KB *kb) { return kb ? kb->fp_acc : 0; }
+
+static void kb_footprint_note(KB *kb, const char *pred) {
+    if (!kb || !pred || !*pred) return;
+    unsigned long h = kb_fp_hash(pred);
+    for (size_t i = 0; i < kb->fp_n; i++) if (kb->fp_seen[i] == h) return;
+    if (kb->fp_n < sizeof kb->fp_seen / sizeof kb->fp_seen[0])
+        kb->fp_seen[kb->fp_n++] = h;
+    kb->fp_acc ^= h;
+}
+
 static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
     if (!kb) return;
+    kb_footprint_note(kb, goalpred);
     kb->infer_steps      = S->steps;
     kb->infer_budget_hit = S->budget_hit;
     kb->infer_loops_cut  = S->loops_cut;
@@ -2182,6 +2218,14 @@ static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
 }
 
 int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
+    /* gen422b: la firma si raccoglie QUI e in kb_match, non solo alla fine di
+     * una ricerca del solver. La prima stesura annotava solo `kb_note_inference`
+     * — cioe' le sole risoluzioni con regole — e la firma veniva identica per
+     * turni lontanissimi: «1+1», «dog», «?» e «is rex a dog» davano tutti
+     * 19e0ffa3, perche' la maggior parte dei moduli interroga fatti ground per
+     * la via rapida e non passava mai di li'. La strada di un turno e' fatta
+     * soprattutto di QUELLE domande. */
+    kb_footprint_note(kb, pred);
     if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args)) return 0;
     for (size_t i = 0; i < argc; i++) if (!term_ok(args[i])) return 0;
     if (kb_is_negated(kb, pred, args, argc)) return 0;
@@ -2286,6 +2330,10 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
                 size_t argc, char out[][KB_TERM_LEN], size_t max) {
     if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args) ||
         (max && !out)) return 0;
+    /* vedi kb_query: la firma e' scritta anche da qui. `kb` e' const per
+     * contratto sulla CONOSCENZA — la firma e' un contatore di percorso, non
+     * conoscenza, come gia' fa kb_note_inference con il report. */
+    kb_footprint_note((KB *)kb, pred);
 
     /* Fast exact-fact pattern match when no rule can derive this predicate and
      * the only variables are the public NULL slots.  Semantics are identical to

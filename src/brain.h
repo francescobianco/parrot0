@@ -92,6 +92,12 @@ int brain_gaps_save(Brain *b);
 const char *brain_bridges_path(void);
 int brain_bridges_save(Brain *b);
 
+/* gen422 — la FIRMA del flusso di inferenza dell'ultimo turno, in esadecimale
+ * quando la si stampa. Due turni che hanno percorso la stessa strada portano lo
+ * stesso valore: e' un CRC del ragionamento, non della risposta. Vedi
+ * kb_footprint in kb.h e docs/measured-classes.md. */
+unsigned long brain_footprint(const Brain *b);
+
 const char *brain_version(void);
 
 /* Load a knowledge file into the brain's KB. `as_base` non-zero tags the

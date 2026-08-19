@@ -67,6 +67,7 @@ static void print_usage(FILE *out) {
             "  --bench-health FILE         Warm up and verify the benchmark daemon\n"
             "  --dream [TOPIC]             Explore a topic recursively\n"
             "  --measure DIR               Misura la STAZZA sui file 1.qa, 2.qa, … in DIR\n"
+            "  --footprint                 Firma del ragionamento, un prompt per riga da stdin\n"
             "                              (no TOPIC: dream its own open gaps)\n"
             "    --depth=N                 Limit dream traversal depth\n"
             "    --nodes=N                 Limit dream traversal nodes\n"
@@ -216,9 +217,11 @@ static Brain *setup_brain(const char **out_sess) {
  * veda nel diff.
  *
  * Vedi docs/measured-classes.md. */
-static int measure_line_ok(Brain *brain, const char *query, const char *want) {
+static int measure_line_ok(Brain *brain, const char *query, const char *want,
+                           unsigned long *out_fp) {
     char reply[2048]; reply[0] = '\0';
     brain_respond(brain, query, reply, sizeof reply);
+    if (out_fp) *out_fp = brain_footprint(brain);
     if (!*want) return 0;
     /* «contiene», senza distinguere maiuscole: la resa di una frase varia, cio'
      * che deve esserci no. E' la stessa semantica di `<~` nei .p0t. */
@@ -226,6 +229,28 @@ static int measure_line_ok(Brain *brain, const char *query, const char *want) {
         const char *a = h, *b = want;
         while (*a && *b && tolower((unsigned char)*a) == tolower((unsigned char)*b)) { a++; b++; }
         if (!*b) return 1;
+    }
+    return 0;
+}
+
+/* gen422 — `parrot0 --footprint`: legge un prompt per riga da stdin e stampa la
+ * firma del ragionamento che ha prodotto la risposta.
+ *
+ * Serve a due cose: a riempire la colonna centrale dei file .qa, e a verificare
+ * l'invariante che da' senso a tutta la firma — prompt DIVERSI con VALORI
+ * diversi ma risolti dalla stessa inferenza devono portare la stessa firma. */
+static int footprint_run(void) {
+    char line[1024];
+    while (fgets(line, sizeof line, stdin)) {
+        size_t l = strlen(line);
+        while (l && (line[l-1] == '\n' || line[l-1] == '\r')) line[--l] = '\0';
+        if (!l) continue;
+        Brain *b = setup_brain(NULL);
+        if (!b) return 1;
+        char reply[2048]; reply[0] = '\0';
+        brain_respond(b, line, reply, sizeof reply);
+        printf("%08lx\t%s\n", brain_footprint(b) & 0xfffffffful, line);
+        brain_destroy(b);
     }
     return 0;
 }
@@ -284,9 +309,18 @@ static int measure_run(const char *dir) {
              * lunga esattamente N byte. Il numero del file valida il corpus, e
              * una riga fuori misura si segnala invece di sparire — un corpus che
              * perde righe in silenzio falsa la stazza verso il basso. */
+            /* TRE COLONNE: `domanda | firma | risposta attesa` (F., gen422).
+             * La firma sta in mezzo perche' e' una proprieta' del PERCORSO, e il
+             * percorso viene prima della risposta. */
             char *sep = strstr(line, " | ");
             if (!sep) {
                 fprintf(stderr, "measure: %s: riga senza separatore \" | \": %s\n",
+                        path, line);
+                continue;
+            }
+            char *sep2 = strstr(sep + 3, " | ");
+            if (!sep2) {
+                fprintf(stderr, "measure: %s: riga senza la colonna della firma: %s\n",
                         path, line);
                 continue;
             }
@@ -295,8 +329,8 @@ static int measure_run(const char *dir) {
                         path, cls, line);
                 continue;
             }
-            *sep = '\0';
-            const char *query = line, *want = sep + 3;
+            *sep = '\0'; *sep2 = '\0';
+            const char *query = line, *fp_want = sep + 3, *want = sep2 + 3;
             /* UN CERVELLO NUOVO PER OGNI PROMPT. La misura dev'essere la stessa
              * a ogni giro: parrot0 varia la frase per non ripetersi e la lingua
              * segue il turno precedente, quindi due prompt di fila si
@@ -304,8 +338,17 @@ static int measure_run(const char *dir) {
              * qualcosa. */
             Brain *b = setup_brain(NULL);
             if (!b) { fclose(f); return 1; }
-            int good = measure_line_ok(b, query, want);
+            unsigned long fp = 0;
+            int good = measure_line_ok(b, query, want, &fp);
+            fp &= 0xfffffffful;   /* la firma si scrive a 32 bit, come --footprint */
             brain_destroy(b);
+            /* la firma si segnala quando e' cambiata: vuol dire che il turno ha
+             * preso una strada diversa da quella registrata, e va guardato anche
+             * se la risposta e' ancora giusta. */
+            unsigned long fp_rec = strtoul(fp_want, NULL, 16);
+            if (fp_rec && fp_rec != fp)
+                fprintf(stderr, "measure: %s: [%s] firma %08lx, attesa %08lx\n",
+                        path, query, fp, fp_rec);
             n++;
             if (good) ok++;
             else if (nfail < 64) snprintf(failed[nfail++], sizeof failed[0], "%s", query);
@@ -361,6 +404,7 @@ int main(int argc, char **argv) {
     const char *bench_stats = BENCH_STATS_DEFAULT;
     const char *profile = NULL;
     const char *measure_dir = NULL;   /* gen421: la stazza */
+    int footprint_mode = 0;           /* gen422: la firma dell'inferenza */
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
             print_usage(stdout);
@@ -411,6 +455,7 @@ int main(int argc, char **argv) {
         else if (strncmp(argv[i], "--port=", 7) == 0) port = atoi(argv[i] + 7);
         else if (strcmp(argv[i], "--host") == 0 && i + 1 < argc) host = argv[++i];
         else if (strncmp(argv[i], "--host=", 7) == 0) host = argv[i] + 7;
+        else if (strcmp(argv[i], "--footprint") == 0) { footprint_mode = 1; }
         else if (strcmp(argv[i], "--measure") == 0 && i + 1 < argc) {
             measure_dir = argv[++i];
         }
@@ -513,6 +558,7 @@ int main(int argc, char **argv) {
 
     /* gen382: il sogno gira sul cervello COMPLETO (e' esplorazione, non un test
      * ermetico), stampa il suo trace su stdout ed esce. */
+    if (footprint_mode) { brain_destroy(brain); return footprint_run(); }
     if (measure_dir) {
         brain_destroy(brain);            /* la misura crea il proprio, uno per prompt */
         return measure_run(measure_dir);

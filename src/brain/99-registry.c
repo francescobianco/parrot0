@@ -660,6 +660,10 @@ Brain *brain_create(void) {
     return b;
 }
 
+unsigned long brain_footprint(const Brain *b) {
+    return (b && b->kb) ? kb_footprint(b->kb) : 0;
+}
+
 int brain_load(Brain *b, const char *path, int as_base) {
     if (!b || !b->kb) return 0;
     kb_set_origin(b->kb, as_base ? KB_BASE : KB_SESSION);
@@ -3191,6 +3195,10 @@ const char *brain_last_module(Brain *b) {
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
+    /* gen422: la firma si azzera A OGNI TURNO. E' l'impronta di QUESTO
+     * ragionamento, non della vita del processo — sommarli darebbe un numero che
+     * cambia sempre e non dice niente. */
+    if (b && b->kb) kb_footprint_reset(b->kb);
     size_t n = brain_respond_dispatch(b, input, out, out_size);
     /* ── gen388: L'ARGOMENTO DEL TURNO LO REGISTRA IL DISPATCH ──────────────
      *
