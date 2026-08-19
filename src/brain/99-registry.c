@@ -174,7 +174,12 @@ static int mod_input(Brain *b, const char *norm, const char *raw,
                 char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rendered[0]);
                 snprintf(shown, sizeof shown, "%s", kb_dequote(rb));
             }
-            const KbResponseSlot sl[] = { { "shown", shown }, { "surface", surf[si] } };
+            /* La superficie che si RIDICE e' quella che l'utente ha scritto: se
+             * ha scritto «50PERC» e la forma ha combaciato sulla canonica
+             * «50perc», rispondergli «50perc» sarebbe rinominare quello che ha
+             * detto — lo stesso difetto di «u» letto «you». */
+            const char *say_surface = cased ? cased : surf[si];
+            const KbResponseSlot sl[] = { { "shown", shown }, { "surface", say_surface } };
             char msg[400];
             if (kb_response_slots(b, kb_dequote(tb), sl, 2, msg, sizeof msg)) {
                 put(msg, out, out_size);

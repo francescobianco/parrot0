@@ -2587,6 +2587,29 @@ static int mod_teach_reply(Brain *b, const char *norm, const char *raw,
     if (!b || !b->kb || !norm) return 0;
     if (!kb_cue_match(b, "teach_reply", norm)) return 0;
 
+    /* gen428 — IL SEPARATORE SI CERCA DOPO LA FORMULAZIONE DELL'ATTO.
+     *
+     * Misurato provando a insegnare una risposta parlando: «when i say bonjour
+     * answer hello there» finiva in «when you ask about I will say so», con la
+     * situazione ridotta a «i». Il motivo e' una collisione, non un difetto di
+     * quella frase: «say» e' anche un separatore, quindi il taglio cadeva DENTRO
+     * la formulazione dell'atto («when i | say ...») e la situazione spariva.
+     *
+     * Cercare il separatore solo DOPO la cue toglie l'intera classe di
+     * collisioni: da qui in avanti una formulazione nuova puo' contenere una
+     * parola che altrove separa, e resta una riga di KB. */
+    size_t cue_end = 0;
+    {
+        char icues[16][KB_TERM_LEN];
+        const char *icq[] = { "teach_reply", NULL };
+        size_t inc = kb_match(b->kb, "intent_cue", icq, 2, icues, 16);
+        for (size_t i = 0; i < inc; i++) {
+            const char *c = kb_dequote(icues[i]);
+            const char *at = c && *c ? strstr(norm, c) : NULL;
+            if (at && (size_t)(at - norm) + strlen(c) > cue_end)
+                cue_end = (size_t)(at - norm) + strlen(c);
+        }
+    }
     /* il separatore fra la situazione e la risposta: quale parola lo sia e' KB */
     char pivots[16][KB_TERM_LEN];
     const char *pq[] = { NULL };
@@ -2595,7 +2618,7 @@ static int mod_teach_reply(Brain *b, const char *norm, const char *raw,
     for (size_t i = 0; i < npv; i++) {
         char pat[KB_TERM_LEN];
         snprintf(pat, sizeof pat, " %s ", kb_dequote(pivots[i]));
-        const char *hit = strstr(norm, pat);
+        const char *hit = strstr(norm + cue_end, pat);
         if (hit && (!cut || hit < cut)) { cut = hit; plen = strlen(pat); }
     }
     if (!cut) return 0;

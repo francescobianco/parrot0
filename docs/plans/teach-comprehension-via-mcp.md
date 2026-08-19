@@ -513,8 +513,31 @@ clausole Peano/lista) sia di U6 (il goal `naf` nel corpo). Ordine consigliato:
 Ogni passo gate-first; U6 e U3 sono estensioni non-monotone/strutturali reali →
 attenzione a terminazione, floundering, stratificazione, con dovere di pivot.
 
+## 6bis. Il canale GEMELLO: insegnare PARLANDO (gen428)
+
+Questo piano misura che cosa si può insegnare **scrivendo nella KB** con `kb.*`.
+A gen428 F. ha chiesto la stessa cosa dall'altro capo — *«tutto deve essere
+insegnabile, anche la formattazione dell'ora con i due punti; e da adesso in poi
+al posto del simbolo percentuale PERC»* — cioè **dicendolo in conversazione**.
+
+Il quadro è lo stesso; cambia dove si accumula il debito. Via MCP il fatto si
+scrive per costruzione, e il debito sta nella tipizzazione dei tool (Secchio A).
+Parlando bisogna prima **essere capiti**, e il debito si sposta tutto
+nell'**inventario delle superfici**: quali frasi sono forme dichiarate.
+
+È un debito migliore, perché ha una risposta KB-first — una forma è un fatto — ma
+ha un rischio proprio, ed è il peggiore del progetto: **il canale-dialogo è la
+via più rapida per riempire parrot0 di frasario**, un modulo per formulazione.
+
+Il gen428 ha chiuso il primo giro con **zero moduli nuovi**: la notazione di una
+forma è una relazione come le altre (`notation_of/2`), e la frase che la dice è
+un `extract_frame` **generato da una regola**, quindi una relazione nuova costa
+un fatto. Misure, gap aperti e piano per gate: **[[teach-comprehension-via-prompt]]**.
+
 ## 7. Collegamenti
 
+[[teach-comprehension-via-prompt]] (**lo stesso quadro dal canale conversazione**:
+che cosa cambia quando il fatto, prima di essere scritto, dev'essere capito),
 [[mcp-engine.md]] (il canale e i suoi limiti), [[generative-prolog.md]] (il motore
 n-ario e il suo sblocco — C2 vive lì), [[prolog-like-engine.md]] (il contratto del
 protocollo, dove `is_var` e la quotatura sono documentati), [[unification.md]] /

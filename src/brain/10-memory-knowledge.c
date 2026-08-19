@@ -3703,6 +3703,28 @@ static int extract_class_statement(Brain *b, const char *norm,
         if (b && b->kb && kb_query(b->kb, "question_word", qw, 1)) return 0;
     }
 
+    /* gen382: i frame DICHIARATI in KB corrono prima di quelli cablati, cosi'
+     * una forma insegnata oggi vince su una compilata ieri.
+     * Il 2 (respinto dal cancello) va PROPAGATO, non appiattito su 1: altrimenti
+     * un rifiuto viene riportato come se fosse un fatto imparato — lo stesso
+     * difetto che nascondeva le regole dentro l'elenco dei fatti.
+     *
+     * gen428 — E CORRONO DAVVERO PRIMA, che finora non era vero. La chiamata
+     * stava sotto due cose che gli portavano via il turno:
+     *
+     *   - la NORMALIZZAZIONE DELLA COPULA, che riscrive «was» in «is» dentro
+     *     `w` prima che i frame la vedano: `extract_frame("@S was born in @O")`
+     *     e `("@S was founded in @O")` non potevano combaciare MAI. Erano
+     *     conoscenza morta, come la riga della sterlina, e nessuno lo sapeva
+     *     perche' un frame che non combacia non si lamenta;
+     *   - l'ESTRATTORE DI CREAZIONE cablato, che legge «X is written as Y» come
+     *     una paternita' e ne fa `created_by(percent_is, as_pct, wrote)` — un
+     *     fatto FALSO, scritto in KB e annunciato come appreso (mantra #7).
+     *
+     * Spostare la chiamata qui e' la riparazione minima: nessuna riga nuova, e
+     * la precedenza che il commento dichiarava dal gen382 diventa vera. */
+    { int r = p0_try_extract_frames(b, w, n, norm, out, out_size); if (r) return r; }
+
     /* past copula -> present (tenseless fact), same rule as the class section */
     for (size_t i = 0; i < n; i++) {
         if (!strcmp(w[i], "was")) { w[i][0]='i'; w[i][1]='s'; w[i][2]='\0'; }
@@ -3776,13 +3798,6 @@ static int extract_class_statement(Brain *b, const char *norm,
      * copula perche' "whales are mammals" ha la forma di una copula ma il
      * contenuto di un universale. */
     if (p0_generic_plural_rule(b, w, n, out, out_size)) return 1;
-
-    /* gen382: i frame DICHIARATI in KB corrono prima di quelli cablati, cosi'
-     * una forma insegnata oggi vince su una compilata ieri. */
-    /* Il 2 (respinto dal cancello) va PROPAGATO, non appiattito su 1: altrimenti
-     * un rifiuto viene riportato come se fosse un fatto imparato — lo stesso
-     * difetto che nascondeva le regole dentro l'elenco dei fatti. */
-    { int r = p0_try_extract_frames(b, w, n, norm, out, out_size); if (r) return r; }
 
     size_t cop = n;
     for (size_t i = 1; i < n; i++)

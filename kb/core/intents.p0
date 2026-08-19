@@ -2312,6 +2312,12 @@ answer_frame("retained reading", retained_reading).
 % chiedo X rispondi Y" — e il pezzo in C ritaglia soltanto i due lati.
 % Aggiungere una formulazione, o una lingua, e' un fatto.
 intent_cue(teach_reply, "when i ask about").
+% gen428: misurata come mancante provando a insegnare parlando — «when i say
+% bonjour answer hello» non veniva capito, e la facolta' c'era gia' tutta. Il
+% buco non era il motore, era l'INVENTARIO delle superfici, e una superficie e'
+% una riga.
+intent_cue(teach_reply, "when i say").
+intent_cue(teach_reply, "quando dico").
 intent_cue(teach_reply, "when i ask you about").
 % Le righe italiane stanno nella grafia che ARRIVA al dispatch: le parole
 % funzionali sono gia' canonicalizzate, quindi la formulazione va scritta come il
@@ -2328,6 +2334,8 @@ intent_cue(teach_reply, "quando parlo di").
 % Il separatore fra la situazione e la risposta da dare.
 machinery(teach_reply_pivot).
 teach_reply_pivot("rispondi").
+teach_reply_pivot("answer").
+teach_reply_pivot("reply").
 teach_reply_pivot("di'").
 teach_reply_pivot("dici").
 teach_reply_pivot("say").

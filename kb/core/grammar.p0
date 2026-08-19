@@ -423,6 +423,71 @@ concept_atom_max_words(3).
 % dominio — sono conoscenza su COME la conoscenza viene detta, ed e' il secondo
 % raccolto del sogno: una forma raccolta migliora l'estrazione di tutti i sogni
 % successivi.
+% ── LA FORMA CHE DICE UN VALORE: «the R of X is Y» ──────────────────────────
+% gen428 (F.). I frame sopra dicono un FATTO («bezra is the capital of nivora»).
+% Manca la forma con cui si dice un VALORE: «the capital of nivora is bezra», che
+% e' come si insegna una capitale, una popolazione, una valuta — e una NOTAZIONE.
+%
+% Non e' una riga per relazione: e' UNA REGOLA che, per ogni relazione che
+% dichiara il suo nome comune, costruisce il pattern. Insegnare a parrot0 una
+% relazione nuova costa percio' un fatto solo — `relation_noun(peso_of, "peso")`
+% — e da quel momento la frase che la dice viene capita, senza ricompilare e
+% senza aggiungere un secondo pattern a mano.
+%
+% `concat_atoms/3` costruisce in avanti, quindi la regola serve entrambe le
+% direzioni: enumerare i pattern (per provarli tutti) e, dato un pattern, dire
+% di quale relazione sia.
+machinery(relation_noun).
+
+extract_frame($Pat, $Pred) :-
+    relation_noun($Pred, $Noun),
+    concat_atoms("the ", $Noun, $A),
+    concat_atoms($A, " of @S is @O", $Pat).
+
+extract_frame($Pat, $Pred) :-
+    relation_noun_it($Pred, $Noun),
+    concat_atoms("la ", $Noun, $A),
+    concat_atoms($A, " di @S e' @O", $Pat).
+
+relation_noun(capital_of, "capital").
+relation_noun(population_of, "population").
+relation_noun(currency_of, "currency").
+relation_noun(language_of, "language").
+relation_noun(author_of, "author").
+relation_noun(colour_of, "colour").
+relation_noun(price_of, "price").
+% E la relazione che rende insegnabile la FORMA STESSA (gen428): con questa riga
+% «the notation of percent is perc» diventa un turno che parrot0 capisce, e da
+% quel momento «50perc» e' una percentuale. La notazione e' una relazione come
+% le altre — e' esattamente il punto.
+relation_noun(notation_of, "notation").
+
+% E le due forme VERBALI con cui si dice una notazione, che sono il modo in cui
+% la gente la dice davvero: «percent is written perc», «percent si scrive perc».
+% «as» non e' cerimoniale: senza, «percent is written pct» viene preso dal frame
+% cablato della paternita' («X is written by Y») e diventa un `created_by`
+% storto. Una forma nuova deve stare fuori dalle forme che esistono gia'.
+extract_frame("@S is written as @O", notation_of).
+extract_frame("@S si scrive @O", notation_of).
+
+% Una stipulazione si apre spesso dichiarando che vale DA ORA IN POI. Il
+% prefisso non cambia il fatto: cambia solo quando vale, e per ora si legge e si
+% scavalca. Ogni prefisso nuovo e' una riga, e vale per TUTTE le relazioni.
+machinery(stipulation_prefix).
+stipulation_prefix("from now on").
+stipulation_prefix("d'ora in poi").
+stipulation_prefix("da adesso in poi").
+
+extract_frame($Pat, $Pred) :-
+    stipulation_prefix($Pre), relation_noun($Pred, $Noun),
+    concat_atoms($Pre, " the ", $A), concat_atoms($A, $Noun, $B),
+    concat_atoms($B, " of @S is @O", $Pat).
+
+relation_noun_it(capital_of, "capitale").
+relation_noun_it(population_of, "popolazione").
+relation_noun_it(currency_of, "valuta").
+relation_noun_it(notation_of, "notazione").
+
 extract_frame("@S is known as @O", also_known_as).
 extract_frame("@S also known as @O", also_known_as).
 extract_frame("@S is called @O", also_known_as).

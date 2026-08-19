@@ -31,6 +31,8 @@
 <~ Roman numeral for 18
 > true
 <~ truth value
+> 50%
+<~ 50% is a percentage
 
 # Il simbolo di valuta si cerca come PREFISSO di caratteri, non si confronta con
 # il primo byte: «$» e' un byte, «£» ne sono due, «€» tre. La riga della sterlina
@@ -53,18 +55,18 @@
 <~ amount of money
 
 # E non solo un membro nuovo di un genere che esiste: un GENERE INTERO. Tre
-# righe — la forma, il nome della frase, la frase — e parrot0 riconosce le
-# percentuali, che fino alla riga sopra non esistevano per lui.
+# righe — la forma, il nome della frase, la frase — e parrot0 riconosce i numeri
+# binari, che fino alla riga sopra non esistevano per lui.
 [test un genere nuovo si impara vivo]
-> 50%
-<! percentage
-!clause lone_literal_kind($S, percent) :- chars($S, $Cs), append_list($NC, cons("%", nil), $Cs), digits($NC).
-!assert lone_literal_say(percent, lone_literal_percent)
-!assert response_template(lone_literal_percent, "{shown} is a percentage — of what?")
-> 50%
-<~ 50% is a percentage
-> 7%
-<~ 7% is a percentage
+> 0b1010
+<! binary
+!clause lone_literal_kind($S, binary) :- chars($S, cons(0, cons(b, $Bits))), digits($Bits).
+!assert lone_literal_say(binary, lone_literal_binary)
+!assert response_template(lone_literal_binary, "{surface} is a binary number — what would you like me to do with it?")
+> 0b1010
+<~ 0b1010 is a binary number
+> 0b11
+<~ 0b11 is a binary number
 
 # La forma non e' una lista di esempi: e' una regola sui caratteri, quindi vale
 # per membri che nessuno ha scritto da nessuna parte.
@@ -85,3 +87,65 @@
 <! time of day
 > mix
 <! Roman numeral
+
+# ── E ADESSO IL PUNTO VERO (F., gen428) ─────────────────────────────────────
+#
+# «tutto deve essere insegnabile, anche la formattazione dell'ora con i due
+# punti; e da adesso in poi al posto del simbolo percentuale PERC».
+#
+# Non con un `!assert` — PARLANDO. E senza una riga di C nuova: il simbolo di una
+# forma e' un fatto (`notation_of/2`), e la frase che lo dice e' un `extract_frame`
+# generato da una regola. Insegnare a parrot0 una relazione nuova costa un fatto.
+[test la notazione si stipula parlando]
+!reset
+> 50perc
+<! percentage
+> the notation of percent is perc
+<~ Learned: notation_of(percent, perc)
+> 50perc
+<~ 50perc is a percentage
+> 7perc
+<~ 7perc is a percentage
+# additivo: la notazione vecchia non e' stata sostituita, e' stata affiancata
+> 50%
+<~ 50% is a percentage
+
+[test anche i due punti dell'ora sono una notazione]
+!reset
+> 14h30
+<! time of day
+> the notation of time is h
+<~ Learned: notation_of(time, h)
+> 14h30
+<~ 14h30 is a time of day
+> 14:30
+<~ 14:30 is a time of day
+
+# Chi stipula dice «percentage», non `percent`: il nome comune di un genere e' un
+# fatto anche lui. E il prefisso «from now on» non cambia il fatto, cambia solo
+# da quando vale — si legge e si scavalca.
+[test il nome comune del genere e il prefisso di stipulazione]
+!reset
+> from now on the notation of percentage is pc
+<~ Learned: notation_of(percentage, pc)
+> 50pc
+<~ 50pc is a percentage
+
+# La stessa forma serve QUALUNQUE relazione: la notazione non e' un caso
+# speciale, e' un membro. Ed e' anche il verso che mancava — i frame storici
+# dicono un fatto («bezra is the capital of nivora»), questo dice un VALORE.
+[test la stessa forma insegna una relazione qualunque]
+!reset
+> the capital of nivora is bezra
+<~ Learned: capital_of(nivora, bezra)
+> the currency of nivora is thaler
+<~ Learned: currency_of(nivora, thaler)
+
+# gen428: due frame dichiarati in KB erano CONOSCENZA MORTA — la
+# normalizzazione della copula riscriveva «was» in «is» prima che li vedessero.
+[test i frame al passato combaciano davvero]
+!reset
+> zorak was born in nivora
+<~ Learned: born_in(zorak, nivora)
+> zorak was founded in oceania
+<~ Learned: founded_in(zorak, oceania)

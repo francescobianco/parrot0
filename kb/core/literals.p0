@@ -22,14 +22,58 @@
 machinery(lone_literal_kind).
 machinery(numeral).
 
+% --- LA NOTAZIONE E' UN FATTO A SE' -------------------------------------------
+%
+% F.: «tutto deve essere insegnabile, anche la formattazione dell'ora con i due
+% punti; e da adesso in poi al posto del simbolo percentuale PERC».
+%
+% Quindi il SIMBOLO che una forma usa non sta dentro la regola della forma: sta
+% qui, in un fatto suo, e la regola lo va a leggere. Cambiare notazione — perche'
+% e' un'altra lingua, un'altra convenzione, o perche' qualcuno l'ha stipulato a
+% voce nel turno prima — e' un `assert` su questa relazione, non una modifica
+% alla forma e tanto meno al C.
+%
+% E' il K0 del piano di frontiera applicato ai letterali: la FORMA linguistica e'
+% un oggetto della KB, distinta da cio' che denota.
+machinery(notation_of).
+notation_of(time, ":").
+notation_of(decimal, ".").
+notation_of(percent, "%").
+notation_of(measure, " ").
+
+% Il GENERE si puo' nominare con il suo nome comune: chi stipula dice
+% «percentage», non `percent`. Il ponte e' un fatto, quindi una lingua nuova o un
+% sinonimo nuovo costano una riga.
+machinery(genre_name).
+genre_name(percent, "percentage").
+genre_name(percent, "percentages").
+genre_name(percent, "percentuale").
+genre_name(percent, "percentuali").
+genre_name(time, "hour").
+genre_name(time, "ora").
+genre_name(time, "orari").
+genre_name(money, "money").
+genre_name(money, "denaro").
+genre_name(decimal, "decimal").
+genre_name(decimal, "decimali").
+
+% La notazione di un genere: quella scritta col suo nome proprio, o quella
+% scritta col suo nome comune. Il doppio `chars/2` toglie le virgolette — un
+% atomo estratto dalla prosa non e' la stringa che gli somiglia.
+notation_for($G, $S) :- notation_of($G, $S).
+notation_for($G, $S) :- genre_name($G, $Name), chars($Name, $C), chars($A, $C), notation_of($A, $S).
+
+% Le vecchie relazioni restano, e ora DERIVANO dalla notazione: chi le usa non
+% cambia, e chi cambia la notazione le cambia tutte in una volta.
+time_separator($S) :- notation_for(time, $S).
+decimal_point($S) :- notation_for(decimal, $S).
+
 % --- l'alfabeto ---------------------------------------------------------------
 digit_char(0). digit_char(1). digit_char(2). digit_char(3). digit_char(4).
 digit_char(5). digit_char(6). digit_char(7). digit_char(8). digit_char(9).
 
 sign_char("-").
 sign_char("+").
-
-decimal_point(".").
 
 % --- una sequenza di cifre ----------------------------------------------------
 digits(cons($C, nil)) :- digit_char($C).
@@ -49,7 +93,6 @@ lone_literal_kind($S, number) :- chars($S, $Cs), numeral($Cs).
 
 % Un orario: due gruppi di cifre separati da «:», e nelle ore del giorno. Il
 % controllo di intervallo e' quello che tiene «99:99» fuori senza una lista.
-time_separator(":").
 % Un corpo di regola non puo' superare gli otto goal (KB_MAX_BODY) e oltre non
 % fallisce con un errore: non trova soluzioni. Spezzare in due e' anche il
 % fattoraggio giusto — «le parti di un orario» e' conoscenza a se'.
@@ -67,6 +110,7 @@ lone_literal_kind($S, time) :- time_parts($S, $H, $M), le($H, 23), le($M, 59).
 % che guardava un carattere solo teneva fuori tutte le valute che non sono
 % ASCII — la conoscenza c'era (la riga di £ esisteva) e non poteva funzionare.
 % Cosi' una valuta nuova, di qualunque lunghezza, e' UNA RIGA.
+currency_sign($S) :- notation_for(money, $S).
 currency_sign("$").
 currency_sign("£").
 currency_sign("€").
@@ -183,3 +227,16 @@ response_template(lone_literal_truth, "{surface} is a truth value on its own —
 % non ha senso — costa e non conclude.
 machinery(lone_literal_max_length).
 lone_literal_max_length(24).
+
+% --- una percentuale ----------------------------------------------------------
+% Il simbolo NON e' scritto nella regola: si legge da `notation_of(percent, …)`.
+% Chi stipula un'altra notazione — «d'ora in poi usa PERC» — cambia quel fatto e
+% questa regola lo segue senza sapere niente di lui.
+percent_parts($S, $N) :-
+    notation_for(percent, $Sym), chars($Sym, $SC), chars($S, $Cs),
+    append_list($NC, $SC, $Cs), digits($NC), chars($N, $NC).
+lone_literal_kind($S, percent) :- percent_parts($S, $N).
+lone_literal_render(percent, $S, $N) :- percent_parts($S, $N).
+lone_literal_say(percent, lone_literal_percent).
+response_template(lone_literal_percent, "{surface} is a percentage — {shown} out of a hundred. Of what?").
+response_template(lone_literal_percent, it, "{surface} e' una percentuale — {shown} su cento. Di che cosa?").
