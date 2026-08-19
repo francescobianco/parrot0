@@ -124,15 +124,31 @@ static int mod_input(Brain *b, const char *norm, const char *raw,
                 if (v > 0) lit_max = v;
             }
         }
-        /* Il grezzo si guarda SOLO quando e' lo stesso turno scritto con altre
-         * maiuscole. Se differisce per piu' che il caso, non e' una superficie
-         * alternativa: e' un altro turno — il ricovero della riparazione
-         * ridispaccia «what is 21 plus 10» tenendo il grezzo «21» del turno che
-         * ha riempito lo slot, e leggere quel grezzo faceva rispondere «e' il
+        /* IL GREZZO SI GUARDA QUANDO E' DAVVERO QUESTO TURNO.
+         *
+         * La forma canonica perde informazione che alla FORMA serve: le
+         * maiuscole («XVIII» diventa «xviii», e in minuscolo «mix» sarebbe un
+         * numerale romano) e i simboli che la canonicalizzazione scioglie in
+         * parole («50%» diventa «50 percent»). Un letterale va letto come e'
+         * stato scritto.
+         *
+         * Ma il grezzo non e' sempre di questo turno: il ricovero della
+         * riparazione ridispaccia «what is 21 plus 10» tenendo il grezzo «21»
+         * del turno che ha riempito lo slot, e leggerlo faceva rispondere «e' il
          * numero 21» a una domanda che ormai era un'addizione (misurato:
-         * repair.p0t). */
-        const char *cased = (raw && *raw && norm && strcasecmp(raw, norm) == 0)
-                            ? raw : NULL;
+         * repair.p0t). La prova che distingue i due casi e' esatta e non e' una
+         * regola di pollice: SE IL GREZZO SI CANONICALIZZA IN QUESTO NORM,
+         * allora e' questo turno scritto a modo suo; altrimenti e' un altro
+         * turno e non va guardato. */
+        const char *cased = NULL;
+        if (raw && *raw && norm && (long)strlen(raw) <= lit_max) {
+            if (strcasecmp(raw, norm) == 0) cased = raw;
+            else {
+                char cn[256];
+                brain_canonical(b, raw, cn, sizeof cn);
+                if (strcmp(cn, norm) == 0) cased = raw;
+            }
+        }
         const char *surf[2] = { cased, norm };
         for (size_t si = 0; si < 2; si++) {
             if (!surf[si] || !*surf[si]) continue;

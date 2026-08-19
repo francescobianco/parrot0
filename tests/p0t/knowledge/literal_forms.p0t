@@ -1,0 +1,87 @@
+# LA FORMA DI UN LETTERALE E' CONOSCENZA (gen427).
+#
+# Questo file esiste per una richiesta esatta di F.: «il riconoscitore di forme
+# deve essere in puro KB-first, cosi' il giorno che si dice alla KB che esistono
+# le sterline lui subito impara SENZA RICOMPILARE».
+#
+# Non e' una promessa che si puo' fare a parole: si prova insegnando dal vivo,
+# dentro il processo gia' acceso, e chiedendo subito dopo. Ogni test qui sotto
+# insegna qualcosa che il motore non ha mai visto e verifica che il turno
+# successivo la usi. Se un domani una forma tornasse nel C, questi test
+# cadrebbero — e' il loro mestiere.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+# Le forme che la KB porta gia': niente di tutto questo e' scritto in C.
+[test i generi dichiarati si riconoscono]
+> 100.5
+<~ number 100.5
+> 14:30
+<~ is a time of day
+> $1000
+<~ amount of money
+> 10 cm
+<~ 10 centimetres
+> XVIII
+<~ Roman numeral for 18
+> true
+<~ truth value
+
+# Il simbolo di valuta si cerca come PREFISSO di caratteri, non si confronta con
+# il primo byte: «$» e' un byte, «£» ne sono due, «€» tre. La riga della sterlina
+# esisteva gia' e non poteva funzionare finche' il confronto era su un carattere.
+[test una valuta non ASCII e' una valuta come le altre]
+> £1000
+<~ amount of money
+> €50
+<~ amount of money
+
+# IL PUNTO DELLA RICHIESTA. Una valuta che nessuno ha mai nominato — ne' il C ne'
+# la KB su disco — insegnata al processo acceso, e usata dal turno dopo.
+[test una valuta nuova si impara viva]
+> kr500
+<! amount of money
+!assert currency_sign("kr")
+> kr500
+<~ amount of money
+> kr20
+<~ amount of money
+
+# E non solo un membro nuovo di un genere che esiste: un GENERE INTERO. Tre
+# righe — la forma, il nome della frase, la frase — e parrot0 riconosce le
+# percentuali, che fino alla riga sopra non esistevano per lui.
+[test un genere nuovo si impara vivo]
+> 50%
+<! percentage
+!clause lone_literal_kind($S, percent) :- chars($S, $Cs), append_list($NC, cons("%", nil), $Cs), digits($NC).
+!assert lone_literal_say(percent, lone_literal_percent)
+!assert response_template(lone_literal_percent, "{shown} is a percentage — of what?")
+> 50%
+<~ 50% is a percentage
+> 7%
+<~ 7% is a percentage
+
+# La forma non e' una lista di esempi: e' una regola sui caratteri, quindi vale
+# per membri che nessuno ha scritto da nessuna parte.
+[test le forme generalizzano oltre gli esempi]
+> -0.75
+<~ number -0.75
+> 23:59
+<~ is a time of day
+> MCMLXXXIV
+<~ Roman numeral for 1984
+> 7 km
+<~ 7 kilometres
+
+# E i confini tengono: un orario impossibile non e' un orario, e una parola
+# minuscola non e' un numerale romano (in minuscolo «mix» varrebbe 1009).
+[test i confini di una forma sono nella forma]
+> 99:99
+<! time of day
+> mix
+<! Roman numeral

@@ -60,11 +60,37 @@ time_parts($S, $H, $M) :-
     chars($H, $HC), chars($M, $MC).
 lone_literal_kind($S, time) :- time_parts($S, $H, $M), le($H, 23), le($M, 59).
 
-% Del denaro: un segno di valuta e un numerale.
-currency_char("$").
-currency_char("£").
+% Del denaro: un simbolo di valuta e un numerale.
+%
+% Il simbolo si spezza in CARATTERI e si cerca come prefisso, non si confronta
+% con il primo carattere: «$» e' un byte, «£» ne sono due e «€» tre, e la regola
+% che guardava un carattere solo teneva fuori tutte le valute che non sono
+% ASCII — la conoscenza c'era (la riga di £ esisteva) e non poteva funzionare.
+% Cosi' una valuta nuova, di qualunque lunghezza, e' UNA RIGA.
+currency_sign("$").
+currency_sign("£").
+currency_sign("€").
+currency_sign("¥").
+currency_sign("₹").
+currency_sign("CHF").
+
 lone_literal_kind($S, money) :-
-    chars($S, cons($C, $T)), currency_char($C), numeral($T).
+    currency_sign($Sym), chars($Sym, $SC), chars($S, $Cs),
+    append_list($SC, $Rest, $Cs), numeral($Rest).
+
+% E la valuta scritta DOPO l'importo, che e' l'altra meta' del mondo: «1000 yen»,
+% «50 euro», «20 sterline». Stessa forma, altro ordine.
+currency_word(yen).
+currency_word(euro).
+currency_word(euros).
+currency_word(dollars).
+currency_word(pounds).
+currency_word(sterline).
+currency_word(euro_cent).
+
+lone_literal_kind($S, money) :-
+    chars($S, $Cs), append_list($NC, cons(" ", $WC), $Cs),
+    digits($NC), chars($W, $WC), currency_word($W).
 
 % --- che cosa si dice, per genere --------------------------------------------
 % Il nome del template e' un fatto: il motore non compone nomi, li legge.

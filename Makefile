@@ -488,6 +488,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/math/arith.p0t
 	@./$(BIN) --test tests/p0t/math/time_date_complex.p0t
 	@./$(BIN) --test tests/p0t/knowledge/world.p0t
+	@./$(BIN) --test tests/p0t/knowledge/literal_forms.p0t
 	@./$(BIN) --test tests/p0t/knowledge/geographic_location.p0t
 	@./$(BIN) --test tests/p0t/knowledge/facts.p0t
 	@./$(BIN) --test tests/p0t/knowledge/games.p0t
