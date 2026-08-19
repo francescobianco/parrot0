@@ -933,5 +933,6 @@ rl-report:
 # e deve restare verde) ne' `make rl-bench` (che misura la crescita su lavori
 # multi-turno): misura la MOLE, con un corpus che spazzola lo spazio d'ingresso
 # per lunghezza in byte. La lingua si fissa, altrimenti si misura il locale.
-measure: build
+measure:
+	@$(MAKE) --no-print-directory build >/dev/null
 	@PARROT0_LANG=en ./$(BIN) --measure tests/measure/

@@ -321,22 +321,13 @@ static int measure_run(const char *dir) {
         fclose(f);
         long dist_ok = 0;
         for (size_t a = 0; a < nans; a++) if (solved[a]) dist_ok++;
-        printf("classe %3ld   stazza %-3ld   risolte %ld/%-3ld   (%ld/%ld prompt)",
-               cls, (long)nans, dist_ok, (long)nans, ok, n);
-        if ((size_t)dist_ok == nans) printf("   pieno");
-        printf("\n");
-        if (nfail) {
-            printf("            non risolti:");
-            for (size_t i = 0; i < nfail; i++) printf(" [%s]", failed[i]);
-            printf("\n");
-        }
         total_ok += dist_ok; total_n += (long)nans; max_cls = cls;
     }
     if (total_n == 0) {
         fprintf(stderr, "measure: nessun file 1.qa, 2.qa, … in %s\n", dir);
         return 1;
     }
-    printf("%s\n", "----------------------------------------------------------------------");
+
     /* LA STAZZA E' LA MOLE DEL CORPUS: quante risposte distinte contiene, cioe'
      * quante capacita' diverse gli si stanno chiedendo. E' il numero che dice
      * QUANTO GRANDE E' la misura, e cresce solo curando altre righe.
@@ -344,8 +335,11 @@ static int measure_run(const char *dir) {
      * Quante ne risolve e' un secondo numero, e va tenuto separato: mescolarli
      * darebbe un titolo che scende quando il corpus cresce, che e' esattamente
      * il contrario di quello che serve. */
-    printf("STAZZA %ld   —   risolte %ld/%ld   (lunghezza massima misurata: %ld)\n",
-           total_n, total_ok, total_n, max_cls);
+    /* Una riga sola (F.): la MOLE e fin dove e' stata misurata. Il dettaglio —
+     * quante ne risolve, e quali membri cadono — serve a curare il corpus, non a
+     * leggerlo, e ingombrava il titolo. */
+    (void)total_ok;
+    printf("tonnage %ld   max length %ld\n", total_n, max_cls);
     return 0;
 }
 

@@ -139,22 +139,20 @@ aver guardato la mossa dell'oracolo è un'opinione, e le opinioni non si misuran
 
 ```
 $ make measure
-classe   1   stazza 3     risolte 1/3     (55/68 prompt)
-            non risolti: [-] [.] [/] [0] [1] [2] [3] [4] [5] [6] [7] [8] [9]
-----------------------------------------------------------------------
-STAZZA 3   —   risolte 1/3   (lunghezza massima misurata: 1)
+tonnage 3   max length 1
 ```
 
-Quattro numeri, quattro significati diversi:
+Una riga sola, due numeri:
 
-- **la stazza** — quante risposte distinte il corpus contiene. È la **mole della
+- **tonnage** — quante risposte distinte il corpus contiene. È la **mole della
   misura**, e cresce solo curando altre righe;
-- **le risolte** — quante di quelle capacità parrot0 dimostra per intero;
-- **il conto dei prompt** — a che punto è la copertura *dentro* una capacità. Non
-  entra nei primi due, ma è quello che si guarda mentre si lavora;
-- **la lunghezza massima misurata** — fin dove è arrivato lo spazzolamento. Una
-  stazza di 3 a lunghezza 1 e una stazza di 3 a lunghezza 40 non sono la stessa
-  cosa, e il numero da solo non lo direbbe.
+- **max length** — fin dove è arrivato lo spazzolamento. Una stazza di 3 a
+  lunghezza 1 e una di 3 a lunghezza 40 non sono la stessa cosa, e il numero da
+  solo non lo direbbe.
+
+Il dettaglio — quante capacità parrot0 risolva davvero, e quali membri cadano —
+serve a **curare** il corpus, non a leggerlo, e ingombrava il titolo. Le righe
+che non passano si trovano provandole.
 
 ## 6. Riproducibilità
 
@@ -190,7 +188,7 @@ Il quinto punto è l'unico che conta. Gli altri quattro sono contabilità.
 ## 8. La prima misura — 19 agosto 2026
 
 ```
-STAZZA 3   —   risolte 1/3   (lunghezza massima misurata: 1)
+tonnage 3   max length 1
 ```
 
 **Stazza 3 a lunghezza massima 1.** Il corpus chiede tre capacità, perché davanti
