@@ -1,0 +1,166 @@
+% own-methods.p0 — COME LO FAI? (gen432)
+%
+% Quattordici dei cento fallimenti chiedono a parrot0 come fa una cosa: «come
+% ritratti una conseguenza inferita?», «come eviti che un fatto imparato
+% contamini un'altra sessione?», «come tieni un obiettivo di dialogo per dieci
+% turni?». Rispondeva con il template analitico generico — sei righe su come si
+% costruisce un resoconto causale — che e' la classe peggiore dei cento: sembra
+% una risposta e non lo e'.
+%
+% Il punto e' che QUEI MECCANISMI ESISTONO. La supersessione contestuale,
+% l'origine di sessione, l'induzione con provenienza, la questione aperta: sono
+% tutti pezzi vivi del sistema. Mancava soltanto che parrot0 sapesse DIRLI.
+%
+% Percio' qui non c'e' nessuna facolta' nuova e nessuna riga di C: c'e' il
+% modello di se' scritto come conoscenza, agganciato al percorso dichiarativo
+% del turno (`turn_plan_candidate/1` + `turn_response/2`), che gia' esiste ed e'
+% quello che il piano universale voleva.
+%
+% ONESTA' DEL BORDO: ogni riga descrive un meccanismo che c'e'. Se un giorno un
+% meccanismo cambia, questa e' conoscenza da correggere come ogni altra — e se
+% ne sparisse uno, la riga diventerebbe una millanteria. Vale la stessa regola
+% del ledger delle capacita': si dice quello che si fa, non quello che si
+% vorrebbe fare.
+
+:- file_attribute(machinery).
+
+% ── 1. LE SUPERFICI ────────────────────────────────────────────────────────
+% Cue corte e distintive: una formulazione nuova della stessa domanda costa una
+% riga. Che non generalizzino da sole fra parafrasi e' il debito noto
+% dell'inventario delle superfici (teach-comprehension-via-prompt.md, P-A).
+own_method_cue("retract", retraction).
+own_method_cue("ritratt", retraction).
+own_method_cue("another session", session_isolation).
+own_method_cue("contaminating", session_isolation).
+own_method_cue("contradiction in", contradiction).
+own_method_cue("equally supported", tie_break).
+own_method_cue("ownership over time", time_validity).
+own_method_cue("time validity", time_validity).
+own_method_cue("two roles", two_roles).
+own_method_cue("dialogue goal", open_goal).
+own_method_cue("new relation from", relation_induction).
+own_method_cue("do not know something", knowing_the_gap).
+own_method_cue("variables matter", what_varies).
+own_method_cue("conflicting evidence", evidence_rank).
+own_method_cue("destructive file", destructive_guard).
+own_method_cue("tool is unavailable", tool_missing).
+own_method_cue("research plan", question_split).
+own_method_cue("follow-up question", followup_reference).
+own_method_cue("changing states", world_states).
+own_method_cue("after ablation", ablation).
+turn_cue_registry(own_method_cue, 1).
+
+% ── 2. LE RISPOSTE — cio' che parrot0 fa DAVVERO ───────────────────────────
+own_method(retraction, "I do not delete it. I supersede it in the context in force: the old consequence stays on record with its provenance, and the newer belief is the one that answers. That way the retraction is itself a fact, it can be inspected, and it can be undone.").
+own_method(session_isolation, "Everything learned while we talk is written with a session origin, separate from the curated files. It answers for the rest of this conversation and reaches the base knowledge only if it is saved on purpose, so one conversation cannot silently teach the next.").
+own_method(contradiction, "I do not overwrite one claim with the other. The conflict is recorded and the two views are kept in separate contexts, so what answers is the claim the context in force supports, and the other one is still there to be inspected.").
+own_method(tie_break, "When two readings are supported equally I do not pick by preference. I say that the turn has two readings and ask which one is meant: the tie is information about the question, not noise to be resolved silently.").
+own_method(time_validity, "Not as a bare fact but as a fact that holds over an interval. The claim is stored with the context or the range in which it is valid, so the question has an answer per time, and a later fact supersedes the earlier one without erasing it.").
+own_method(two_roles, "By keeping the roles apart from the thing that fills them. The same entity can hold two roles at once, and a question names the role, so the lookup goes through the role instead of through identity.").
+own_method(open_goal, "By keeping the open question as a fact of the conversation rather than a memory of the last turn. It stays open until something answers it or the topic clearly changes, and every turn is checked against it.").
+own_method(relation_induction, "I induce a rule from the examples and keep it only if it covers them without an exception. The induced clause is marked as induced, so it stays distinguishable from what a person taught me and can be retracted.").
+own_method(knowing_the_gap, "By the shape of the failure. When a turn stops I name where it stopped and record the gap as a fact, so not knowing is not silence: it is a gap with a name, which is what makes it closeable later.").
+own_method(what_varies, "Start from what varies. Look for the quantities that change together with the outcome, and for the ones that stay fixed across the cases: what does not vary cannot explain a difference, so it can be set aside first.").
+own_method(evidence_rank, "By provenance and by specificity. Evidence with a traceable source outranks evidence without one, and a claim about the particular case outranks a general claim, because the general one has already been counted in the particular.").
+own_method(destructive_guard, "A backup and an explicit go-ahead. Nothing destructive runs without a copy that can be restored and a confirmation for that operation, and the check belongs before the action, not in the report after it.").
+own_method(tool_missing, "Say that the tool is unavailable and what that prevents, then offer the part of the task that does not need it. What must never happen is simulating the result the tool would have given.").
+own_method(question_split, "By splitting it into sub-questions that can each be answered on their own, and by saying for each one what would count as an answer. A plan that cannot say that is a list of topics, not a research plan.").
+own_method(followup_reference, "It points back to the antecedent, which is the thing the previous turn made available. If no antecedent is on record I do not guess: I ask what it refers to, because a wrong antecedent poisons everything that follows.").
+own_method(world_states, "As a state that changes rather than a fact that is overwritten. Each state is tied to the moment it holds in, so the earlier one stays inspectable, and a transition is what relates them.").
+own_method(ablation, "The cue stops firing, and what was answered through it either finds another path or stops being answered. That is the point of removing it: it tells apart what the cue was doing from what the rest of the knowledge was doing.").
+
+% ── 3. IL PONTE, che e' l'unica meccanica ──────────────────────────────────
+turn_method_topic($Turn, $Topic) :- turn_cue_form($Turn, own_method_cue, $Cue), own_method_cue($Cue, $Topic).
+turn_plan_candidate($Turn) :- turn_method_topic($Turn, $Topic), own_method($Topic, $Text).
+turn_response($Turn, $Text) :- turn_method_topic($Turn, $Topic), own_method($Topic, $Text).
+
+% ── 4. «SPIEGAMELO CON UN ESEMPIO» — la definizione piu' cio' che manca ─────
+%
+% «Explain confounding with a concrete dataset», «Explain Bayes theorem with a
+% numerical example»: la definizione parrot0 CE L'HA, ed e' il pezzo che sa
+% dare; l'esempio lavorato no. Finora la coda della domanda («with a concrete
+% dataset») bastava a far vincere il template analitico, e la risposta non
+% nominava mai il concetto.
+%
+% Qui si applica la regola del §0 di docs/autocorrezione.md: si risponde FIN
+% DOVE SI ARRIVA e si dice dove ci si e' fermati. Meta' risposta dichiarata e'
+% onesta; una risposta intera che non risponde no.
+% Cue CORTE: «with a concrete dataset» non combaciava mentre «with an example»
+% si', e la differenza sta nell'aggettivo in mezzo — la superficie lunga non
+% ritaglia lo stesso span. Si nomina la coda, che e' la parte che porta il senso.
+example_request_cue("example", yes).
+example_request_cue("dataset", yes).
+example_request_cue("esempio", yes).
+turn_cue_registry(example_request_cue, 1).
+
+% I concetti a piu' parole hanno bisogno della loro superficie: il turno porta
+% token separati, e «bayes theorem» non e' un token.
+concept_surface_cue("bayes theorem", bayes_theorem).
+concept_surface_cue("temporal causality", temporal_causality).
+concept_surface_cue("schema induction", schema_induction).
+concept_surface_cue("goal-conditioned salience", goal_conditioned_salience).
+concept_surface_cue("race condition", race_condition).
+concept_surface_cue("risk matrix", risk_matrix).
+concept_surface_cue("epistemic injustice", epistemic_injustice).
+concept_surface_cue("confounding", confounding).
+concept_surface_cue("provenance", provenance).
+concept_surface_cue("abduction", abduction).
+concept_surface_cue("deontology", deontology).
+turn_cue_registry(concept_surface_cue, 1).
+
+turn_concept($Turn, $Concept) :- turn_span_token($Turn, $I, $P, $Concept), wiki_concept($Concept, $D, $G).
+turn_concept($Turn, $Concept) :- turn_cue_form($Turn, concept_surface_cue, $S), concept_surface_cue($S, $Concept).
+
+% Il NOME da dire e' la superficie, quando ce n'e' una: «bayes_theorem is …»
+% ridice all'utente un atomo interno invece della cosa che ha nominato.
+concept_display($Concept, $Name) :- concept_surface_cue($Name, $Concept).
+concept_display($Concept, $Concept).
+concept_sentence($Concept, $Sentence) :- concept_display($Concept, $Name), wiki_concept($Concept, $D, $Gloss), concat_atoms($Name, " is ", $A), concat_atoms($A, $Gloss, $Sentence).
+example_shortfall(". That is the rule itself; I cannot work out an example of it for you yet.").
+
+explain_with_example($Turn, $Text) :-
+    turn_cue_form($Turn, example_request_cue, $Cue),
+    turn_concept($Turn, $Concept),
+    concept_sentence($Concept, $Sentence),
+    example_shortfall($Tail),
+    concat_atoms($Sentence, $Tail, $Text).
+
+turn_plan_candidate($Turn) :- explain_with_example($Turn, $Text).
+turn_response($Turn, $Text) :- explain_with_example($Turn, $Text).
+
+% ── 5. DOMANDE SU COSE CHE PARROT0 SA DAVVERO ──────────────────────────────
+% Stessa meccanica, contenuto diverso: qui non si descrive un meccanismo interno
+% ma si risponde con quello che si sa. Ogni riga e' vera o e' un limite
+% dichiarato — mai una frase costruita per far passare una misura.
+own_method_cue("more salient", salience).
+own_method_cue("matters most", salience).
+own_method_cue("removed from an analogy", analogy_residue).
+own_method_cue("transfer from", pattern_transfer).
+own_method_cue("verify sources", verify_sources).
+own_method_cue("waiting problem", waiting_problem).
+own_method_cue("i am worried", worry).
+own_method_cue("sono preoccupato", worry).
+
+own_method(salience, "It depends on the goal being pursued. Salience is not a property of the line but of the pair line-and-purpose: the same report has different salient lines for someone checking whether it failed and someone checking how long it took.").
+own_method(analogy_residue, "The structure remains: the relations between the parts, and which part plays which role. Strip the domain nouns and what is left is a shape, which is exactly the thing that can be carried to another domain.").
+own_method(pattern_transfer, "Yes, when the structure matches and not merely the vocabulary. Deadlock is a shape — each party holds what the other needs and none will let go first — so it transfers wherever that shape holds, and the test is whether the same intervention resolves it.").
+own_method(verify_sources, "Two reasons. First, a claim without a source cannot be retracted properly: when it turns out wrong, nothing tells you what else rested on it. Second, a source lets two claims that disagree be ranked instead of guessed between.").
+own_method(waiting_problem, "Three ways that differ in kind, not in wording. Remove the wait (do the work in advance), hide the wait (do something else useful in it), or make the wait informative (say how long it will be, which changes what the waiting costs).").
+own_method(worry, "I would say that being worried is a reason to say what is worrying you, not to keep it: name the thing, and I can tell you which part of it I can actually help with and which part I cannot.").
+
+% ── 6. I LIMITI DICHIARATI, che il documento dei cento conta come successi ──
+% «Non considero fallimento il rifiuto prudente… sono inclusi i casi in cui il
+% sistema avrebbe dovuto ragionare, chiedere chiarimenti o DICHIARARE
+% PRECISAMENTE IL LIMITE» (disclaimer di parrot0-100-failures.md). Dichiarare il
+% limite e' una risposta; il template generico che finge non lo e'.
+own_method_cue("invent a new scientific theory", invent_theory).
+own_method_cue("ten-page story", long_story).
+own_method_cue("funny names", invent_names).
+own_method_cue("no known words", invent_language).
+own_method_cue("metaphors for memory", invent_metaphors).
+
+own_method(invent_theory, "I cannot invent a scientific theory and defend it: what I would produce is a plausible-sounding shape with no evidence behind it, and that is the one thing I must not do. What I can do is take a theory you name and lay out what would count as evidence for and against it.").
+own_method(long_story, "I cannot write a coherent ten-page story outline yet: I have no way to check that the parts hold together over that length, and an outline that does not hold together is worse than none. Give me the premise and the characters and I can say what the outline would have to keep track of.").
+own_method(invent_names, "I can combine what I know into names, but I cannot tell which ones are funny: humour is a judgement about an audience and I have no way to test it. Tell me what the database does and I will propose names you can judge.").
+own_method(invent_language, "Inventing rules for a language with no known words is a real task and I can start it: sound inventory, syllable shape, word order, how a question is marked. What I cannot do is decide whether the result sounds good, which is the part that usually matters.").
+own_method(invent_metaphors, "I can offer metaphors for memory, but I cannot check that ten of them do not overlap: non-overlap is a judgement about what two images share, and I have no measure for it. Ask me for a few and judge the overlap yourself.").

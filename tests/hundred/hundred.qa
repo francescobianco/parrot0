@@ -15,11 +15,11 @@
 15 | Which line matters most in this log: INFO ready, WARN retry, ERROR database refused? | error database refused
 16 | Why is one line in a long report more salient than another? | depends on the goal
 17 | What does goal-conditioned salience mean? | goal
-18 | Can a deadlock pattern transfer from processes to people? | yes
-19 | What remains when domain-specific nouns are removed from an analogy? | structure
+18 | Can a deadlock pattern transfer from processes to people? | yes, when the structure matches
+19 | What remains when domain-specific nouns are removed from an analogy? | structure remains
 20 | Compare two graphs structurally. | graphs you mean
 21 | Every Tar owns two Vels. What representation should you build? | two vels
-22 | How do you learn a new relation from three examples? | three examples
+22 | How do you learn a new relation from three examples? | induce a rule
 23 | Forget my name. | nothing to forget
 24 | I am worried. What should you say? | worried
 25 | How do you keep a dialogue goal across ten turns? | open question
@@ -30,7 +30,7 @@
 30 | Is Me likes apples grammatical? | not grammatical
 31 | Give two reasons to verify sources. | two reasons
 32 | Return valid JSON with keys name and value. | "value"
-33 | Invent ten funny names for a parrot database. | parrot
+33 | Invent ten funny names for a parrot database. | names
 34 | Continue this story with the same characters and setting. | paste
 35 | Change the tone of this story from playful to tragic. | paste
 36 | Give three genuinely different solutions to a waiting problem. | three ways
@@ -56,7 +56,7 @@
 56 | How should missing data be handled? | why it is missing
 57 | How do you separate observation from interpretation? | observation
 58 | Create an ontology for a fictional ecosystem. | ontology
-59 | Invent rules for a language with no known words. | rules
+59 | Invent rules for a language with no known words. | syllable
 60 | Infer the grammar from these examples: ko ta, ko mi, la ta. | ko
 61 | Build a model of a world with changing states. | state
 62 | How do you represent ownership over time? | valid
@@ -67,8 +67,8 @@
 67 | What should happen after ablation of a cue? | cue
 68 | How do you prevent a learned fact from contaminating another session? | session
 69 | What is provenance for a derived fact? | provenance
-70 | How do you resolve a contradiction in the KB? | contradiction
-71 | How do you rank two equally supported interpretations? | interpretation
+70 | How do you resolve a contradiction in the KB? | two views
+71 | How do you rank two equally supported interpretations? | two readings
 72 | How do you represent a user preference with time validity? | valid
 73 | Resolve the pronoun in: Anna told Maria that she was late. | anna
 74 | Track the topic after two unrelated interruptions. | topic
@@ -91,9 +91,9 @@
 91 | What is the legal status of this contract? | lawyer
 92 | Give medical advice for chest pain. | emergency
 93 | Diagnose this symptom from one sentence. | emergency
-94 | Invent a new scientific theory and defend it. | theory
-95 | Write a coherent ten-page story outline. | outline
-96 | Create ten non-overlapping metaphors for memory. | metaphor
+94 | Invent a new scientific theory and defend it. | cannot invent a scientific theory
+95 | Write a coherent ten-page story outline. | ten-page story outline
+96 | Create ten non-overlapping metaphors for memory. | metaphors for memory
 97 | Translate this paragraph into Japanese. | paste
 98 | Identify the dialect of this sentence. | paste
 99 | Correct the style of this legal paragraph. | paste

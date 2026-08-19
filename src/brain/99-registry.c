@@ -3284,9 +3284,20 @@ static void turn_publish_transcodes(Brain *b, const char *surface) {
 }
 
 static void turn_publish_cues(Brain *b, const char *surface) {
-    char regs[16][KB_TERM_LEN];
+    /* gen432 — I REGISTRI SI ENUMERANO TUTTI, senza tetto.
+     *
+     * Erano letti con un tetto di SEDICI, e i registri dichiarati sono diciotto:
+     * i due piu' recenti non venivano pubblicati e le loro cue non combaciavano
+     * mai. Nessun errore, nessun avviso — la stessa specie di difetto della riga
+     * della sterlina e dei frame al passato: conoscenza dichiarata che non puo'
+     * funzionare, e che non si lamenta.
+     *
+     * Un tetto fisso su una lista che la KB fa crescere e' sempre una bomba a
+     * tempo: `kb_match_all` esiste apposta per non averne uno. */
+    char (*regs)[KB_TERM_LEN] = NULL;
+    size_t nr = 0;
     const char *rq[2] = { NULL, NULL };
-    size_t nr = kb_match(b->kb, "turn_cue_registry", rq, 2, regs, 16);
+    if (!kb_match_all(b->kb, "turn_cue_registry", rq, 2, &regs, &nr)) { free(regs); return; }
     for (size_t i = 0; i < nr; i++) {
         char reg[KB_TERM_LEN];
         snprintf(reg, sizeof reg, "%s", kb_dequote(regs[i]));
@@ -3353,8 +3364,8 @@ static void turn_publish_cues(Brain *b, const char *surface) {
         }
         free(rows);
     }
+    free(regs);
 }
-
 static int universal_turn_lead(Brain *b, const char *surface,
                                char *out, size_t out_size) {
     if (!b || !b->kb || !surface || !*surface) return 0;
