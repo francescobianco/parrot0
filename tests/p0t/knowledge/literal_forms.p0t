@@ -149,3 +149,50 @@
 <~ Learned: born_in(zorak, nivora)
 > zorak was founded in oceania
 <~ Learned: founded_in(zorak, oceania)
+
+# ── GLI ESTRATTORI DI PROSA E LE PORTE DI RISPOSTA (F., gen429) ─────────────
+#
+# «anche i segmenti di input, gli answer frame e gli estrattori di prosa devono
+# essere insegnabili, col prompting classico interattivo».
+#
+# Un verbo transitivo E' gia' un pattern: «@S governs @O» e' la forma che ogni
+# verbo ha. Quindi non si insegna il pattern, si insegna che una parola e' un
+# verbo di relazione — e la regola costruisce il resto.
+[test un estrattore di prosa si insegna dicendo che cos'e' un verbo]
+!reset
+> zorak governs nivora
+<! Learned: governs
+> governs is a relation verb
+<~ Learned: relation_verb(governs)
+> zorak governs nivora
+<~ Learned: governs(zorak, nivora)
+
+# E la meta' che di solito manca: un fatto imparato e non interrogabile e' un
+# fatto morto. Un verbo di relazione apre PER COSTRUZIONE anche la sua porta di
+# risposta, quindi detto e chiesto restano la stessa cosa.
+[test lo stesso verbo apre anche la porta di risposta]
+!reset
+> governs is a relation verb
+> zorak governs nivora
+> who governs nivora
+<~ Zorak
+
+# I marcatori che la segmentazione legge sono classi come le altre: il nome del
+# predicato si COSTRUISCE dal nome del ruolo, quindi un marcatore nuovo per un
+# ruolo che esiste costa una frase.
+[test un marcatore di segmento si insegna parlando]
+!reset
+> howbeit is a condition marker
+<~ Learned: condition_marker(howbeit)
+!query taught_marker(condition, howbeit)
+!query segment_role(condition, keyword(howbeit))
+
+# gen429: un valore che e' un NUMERO si impara come uno che e' una parola. La
+# guardia chiedeva che il valore cominciasse con una lettera, e teneva fuori
+# popolazioni, anni, prezzi e quote.
+[test un numero e' un valore]
+!reset
+> the population of nivora is 40000
+<~ Learned: population_of(nivora, 40000)
+> zorak was founded in 1820
+<~ Learned: founded_in(zorak, 1820)

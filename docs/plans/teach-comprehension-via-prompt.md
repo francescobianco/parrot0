@@ -200,13 +200,67 @@ KB corrono per primi; non era vero. Ora lo è.
 
 | Gate | Obiettivo | Ratchet |
 |---|---|---|
-| **P0** ✅ | La notazione si stipula parlando; una relazione nuova costa un fatto | `literal_forms.p0t`, 36 assert, dentro `make test` |
-| **P1** | **P-E**: un valore numerico si impara come uno testuale | `the population of nivora is 40000` → `Learned: population_of(nivora, 40000).` |
+| **P0** ✅ | La notazione si stipula parlando; una relazione nuova costa un fatto | `literal_forms.p0t`, 45 assert, dentro `make test` |
+| **P0b** ✅ | **Estrattori di prosa, porte di risposta e marcatori di segmento** si insegnano parlando | `governs is a relation verb` → estrae *e* risponde; `howbeit is a condition marker` → `segment_role(condition, keyword(howbeit))` |
+| **P1** ✅ | **P-E**: un valore numerico si impara come uno testuale | `the population of nivora is 40000` → `Learned: population_of(nivora, 40000).` |
 | **P2** | **P-C**: una frase che insegna non può essere eseguita | la frase del celsius riceve un rifiuto onesto, non `-16.6667` |
 | **P3** | **P-D**: il ponte nome-comune → predicato, generalizzato dai generi alle classi | `ahoy is a greeting` cambia davvero come parrot0 tratta «ahoy» |
 | **P4** | **P-B**: la prima forma condizionale insegnabile a voce | `a shark is a fish that swims fast` → due fatti, o rifiuto onesto |
 | **P5** | **modi ipotetici** (la parte della richiesta di F. non ancora affrontata): una stipulazione vale *dentro un contesto*, e si può revocare | `from now on …` apre un `context/2`; `forget the notation …` lo chiude |
 | **P6** | Il canale si misura: quante forme-che-insegnano parrot0 riconosce | una scala come le classi misurate, ma sugli **atti di insegnamento** |
+
+## 4bis. Il gen429: estrattori, porte di risposta e segmenti — parlando
+
+F.: *«anche i segmenti di input, gli answer frame e gli estrattori di prosa devono
+essere insegnabili, col prompting classico interattivo».* Fatto, e di nuovo con
+zero moduli e zero righe di C per l'insegnamento.
+
+**Un verbo transitivo È già un pattern.** «@S governs @O» non è una forma da
+scrivere: è la forma che *ogni* verbo ha. Quindi non si insegna il pattern — si
+insegna che una parola è un verbo di relazione, e il pattern lo costruisce una
+regola:
+
+```
+> zorak governs nivora        →  (non impara niente)
+> governs is a relation verb  →  Learned: relation_verb(governs).
+> zorak governs nivora        →  Learned: governs(zorak, nivora).
+> who governs nivora?         →  Zorak.
+```
+
+La quarta riga è la metà che di solito manca. Un fatto imparato e non
+interrogabile è un fatto **morto** — è il «buco del consumatore» del gen306, e si
+chiude con una riga:
+
+```prolog
+answer_frame($Verb, $Verb) :- relation_verb($Verb).
+```
+
+Un verbo di relazione apre **per costruzione** anche la sua porta di risposta:
+detto e chiesto restano lo stesso atto di apprendimento.
+
+**I marcatori di segmento** sono classi come le altre, e il ponte è una regola
+sola che *costruisce il nome del predicato* dal nome del ruolo:
+
+```prolog
+taught_marker($Role, $Cue) :-
+    markable_role($Role), concat_atoms($Role, "_marker", $Pred),
+    kb_fact($Pred, cons($Cue, nil)).
+segment_role($Role, keyword($Cue)) :- taught_marker($Role, $Cue).
+```
+
+```
+> howbeit is a condition marker  →  Learned: condition_marker(howbeit).
+                                    → segment_role(condition, keyword(howbeit))
+```
+
+Un marcatore nuovo per un ruolo che esiste costa **una frase**; un ruolo nuovo
+costa una riga (`markable_role/1`). Mai una riga di C.
+
+**Il limite onesto, misurato:** `unless is a condition marker` **non** funziona,
+perché «unless» è già una parola-funzione nota e il percorso che insegna le
+classi la scarta. Insegnare qualcosa *a proposito di una parola che il sistema
+già usa* richiede lo strato uso/menzione (K0 del piano di frontiera): è il gate
+P3bis, e non va aggirato con un'eccezione.
 
 ## 5. Cosa NON fare
 

@@ -417,6 +417,62 @@ extract_frame("@S causes @O", causes).
 machinery(concept_atom_max_words).
 concept_atom_max_words(3).
 
+% ── UN VERBO DI RELAZIONE, INSEGNATO A VOCE (gen429) ────────────────────────
+%
+% F.: «anche gli estrattori di prosa e gli answer frame devono essere
+% insegnabili, col prompting classico interattivo».
+%
+% Un verbo transitivo e' gia' tutto quello che serve per estrarre: «@S governs
+% @O» non e' una forma da scrivere, e' la forma CHE OGNI VERBO HA. Quindi non si
+% insegna il pattern — si insegna che una parola e' un verbo di relazione, e il
+% pattern lo costruisce questa regola:
+%
+%     > governs is a relation verb     →  Learned: relation_verb(governs).
+%     > zorak governs nivora           →  Learned: governs(zorak, nivora).
+%     > who governs nivora?            →  Zorak.
+%
+% La terza riga e' la meta' che di solito manca: un fatto imparato e non
+% interrogabile e' un fatto morto (gen306, il «buco del consumatore»). Un verbo
+% di relazione apre PER COSTRUZIONE anche la sua porta di risposta, quindi detto
+% e chiesto restano la stessa cosa — un solo atto di apprendimento.
+machinery(relation_verb).
+
+extract_frame($Pat, $Pred) :-
+    relation_verb($Pred),
+    concat_atoms("@S ", $Pred, $A),
+    concat_atoms($A, " @O", $Pat).
+
+answer_frame($Verb, $Verb) :- relation_verb($Verb).
+
+% ── I MARCATORI DI SEGMENTO, INSEGNATI A VOCE (gen429) ──────────────────────
+%
+% La segmentazione dell'input sceglie i ruoli degli span leggendo
+% `segment_role/2`. Finora un marcatore nuovo si scriveva in un file; ora si
+% dice, con la stessa forma con cui si insegna qualunque classe:
+%
+%     > unless is a condition marker   →  Learned: condition_marker(unless).
+%
+% Il ponte e' una regola sola: il nome del predicato si COSTRUISCE dal nome del
+% ruolo (`condition` + `_marker`) e `kb_fact/2` lo interroga. Quindi un
+% marcatore nuovo per un ruolo che esiste costa una FRASE, e un ruolo nuovo
+% costa una riga (`markable_role/1`) — mai una riga di C.
+machinery(markable_role).
+machinery(taught_marker).
+
+taught_marker($Role, $Cue) :-
+    markable_role($Role),
+    concat_atoms($Role, "_marker", $Pred),
+    kb_fact($Pred, cons($Cue, nil)).
+
+segment_role($Role, keyword($Cue)) :- taught_marker($Role, $Cue).
+
+markable_role(condition).
+markable_role(consequence).
+markable_role(alternative).
+markable_role(stipulation).
+markable_role(mention).
+markable_role(proposition).
+
 % ── FORME ESPRESSIVE: come la prosa dice l'ALIAS ─────────────────────────────
 % gen382, raccolte MISURANDO il corpus invece che immaginandole: "known as"
 % ricorre 15 volte nelle 49 pagine, "is called" ~10. Non sono conoscenza su un

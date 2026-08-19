@@ -3184,7 +3184,22 @@ static int p0_join(char **w, size_t a, size_t b, char *out, size_t sz) {
     size_t o = 0; out[0] = '\0';
     for (size_t i = a; i < b; i++) {
         char *t = strip_edge_punct(w[i]);
-        if (!*t || !isalpha((unsigned char)t[0])) return 0;
+        if (!*t) return 0;
+        /* gen429 — UN NUMERO E' UN VALORE, e la guardia lo escludeva.
+         *
+         * Misurato: «the population of nivora is large» si impara, «… is 40000»
+         * no. Stessa forma, stessa relazione: cambiava solo che il valore
+         * comincia con una cifra, e questa riga chiedeva una lettera. Erano
+         * fuori tutte le popolazioni, gli anni, i prezzi e le quote — cioe'
+         * meta' dei valori che uno vorrebbe insegnare, e nessun test lo
+         * chiedeva. Un token tutto cifre e' un valore quanto una parola; quello
+         * che resta escluso e' il misto, che non e' ne' l'uno ne' l'altro. */
+        if (!isalpha((unsigned char)t[0])) {
+            int all_digit = 1;
+            for (const char *d = t; *d && all_digit; d++)
+                if (!isdigit((unsigned char)*d)) all_digit = 0;
+            if (!all_digit) return 0;
+        }
         int n = snprintf(out + o, sz - o, "%s%s", o ? "_" : "", t);
         if (n < 0 || (size_t)n >= sz - o) return 0;
         o += (size_t)n;
