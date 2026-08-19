@@ -926,3 +926,12 @@ rl-bench: test-engine
 # interessante; questo dice se i falliti sono tanti problemi o uno solo.
 rl-report:
 	@./tests/rl/report.sh
+
+# ── measure — LA STAZZA (docs/measured-classes.md) ───────────────────────────
+#
+# Quanti prompt curati parrot0 risolve. NON e' `make test` (che e' un cricchetto
+# e deve restare verde) ne' `make rl-bench` (che misura la crescita su lavori
+# multi-turno): misura la MOLE, con un corpus che spazzola lo spazio d'ingresso
+# per lunghezza in byte. La lingua si fissa, altrimenti si misura il locale.
+measure: build
+	@PARROT0_LANG=en ./$(BIN) --measure measure/

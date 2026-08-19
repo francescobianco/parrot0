@@ -1,0 +1,84 @@
+# 1.qa — CLASSE 1: prompt lunghi esattamente UN BYTE.
+#
+# Formato: `domanda : risposta attesa`, separatore « : », ordine alfabetico.
+# L'attesa e' cio' che parrot0 DOVREBBE dire, non cio' che dice — vedi
+# docs/measured-classes.md §3.
+#
+# DA DOVE VIENE L'ATTESA. La sonda tests/measure_probe.py ha chiesto gli stessi
+# stimoli a un modello di frontiera (gpt-5.6-luna, 19 agosto 2026). La mossa e'
+# uniforme e senza eccezioni: davanti a un byte il modello CHIEDE che cosa si
+# intende — «How can I help?» — nove volte su quattordici, e non mura mai ne'
+# inventa un contenuto.
+#
+# Quindi l'attesa e' la MOSSA, non la frase: parrot0 deve chiedere. Un byte non
+# e' una richiesta, non e' un saluto e non e' un contenuto; l'unica risposta
+# onesta e' domandare che cosa si intendeva.
+#
+# La lingua va fissata, altrimenti si misura il locale del sistema:
+#   PARROT0_LANG=en ./bin/parrot0 --measure measure/
+! : what would you like
+" : what would you like
+# : what would you like
+$ : what would you like
+% : what would you like
+& : what would you like
+' : what would you like
+( : what would you like
+) : what would you like
+* : what would you like
++ : what would you like
+, : what would you like
+- : what would you like
+. : what would you like
+/ : what would you like
+0 : what would you like
+1 : what would you like
+2 : what would you like
+3 : what would you like
+4 : what would you like
+5 : what would you like
+6 : what would you like
+7 : what would you like
+8 : what would you like
+9 : what would you like
+: : what would you like
+; : what would you like
+< : what would you like
+= : what would you like
+> : what would you like
+? : what would you like
+@ : what would you like
+[ : what would you like
+] : what would you like
+^ : what would you like
+_ : what would you like
+a : what would you like
+b : what would you like
+c : what would you like
+d : what would you like
+e : what would you like
+f : what would you like
+g : what would you like
+h : what would you like
+i : what would you like
+j : what would you like
+k : what would you like
+l : what would you like
+m : what would you like
+n : what would you like
+o : what would you like
+p : what would you like
+q : what would you like
+r : what would you like
+s : what would you like
+t : what would you like
+u : what would you like
+v : what would you like
+w : what would you like
+x : what would you like
+y : what would you like
+z : what would you like
+{ : what would you like
+| : what would you like
+} : what would you like
+~ : what would you like

@@ -22,6 +22,7 @@
 #include "dream.h"
 #include "env.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
@@ -65,6 +66,7 @@ static void print_usage(FILE *out) {
             "  --bench-report              Print benchmark totals and stop the daemon\n"
             "  --bench-health FILE         Warm up and verify the benchmark daemon\n"
             "  --dream [TOPIC]             Explore a topic recursively\n"
+            "  --measure DIR               Misura la STAZZA sui file N.qa in DIR\n"
             "                              (no TOPIC: dream its own open gaps)\n"
             "    --depth=N                 Limit dream traversal depth\n"
             "    --nodes=N                 Limit dream traversal nodes\n"
@@ -195,6 +197,111 @@ static Brain *setup_brain(const char **out_sess) {
     return brain;
 }
 
+
+/* ── gen421: LA STAZZA — `parrot0 --measure PATH` ─────────────────────────────
+ *
+ * Una misura della MOLE di cio' che parrot0 sa fare, costruita curando invece
+ * che inseguendo. Nella cartella stanno file `N.qa`, e in `N.qa` ci sono solo
+ * prompt lunghi ESATTAMENTE N byte — uno spazzolamento sistematico dello spazio
+ * d'ingresso per lunghezza, non una selezione di casi che ci piacciono.
+ *
+ * Ogni riga e' `domanda : risposta attesa`, e la risposta attesa e' quello che
+ * parrot0 DOVREBBE dire, non quello che dice oggi. E' la sola cosa che rende la
+ * misura utile: un corpus riempito con le risposte correnti sarebbe uno specchio,
+ * e uno specchio segna sempre cento.
+ *
+ * La stazza e' la somma dei prompt risolti. «Oggi parrot0 e' a classe 103» vuol
+ * dire che di quelli curati ne risolve centotre — un numero che sale solo
+ * lavorando, e che nessuna riscrittura del corpus puo' gonfiare senza che si
+ * veda nel diff.
+ *
+ * Vedi docs/measured-classes.md. */
+static int measure_line_ok(Brain *brain, const char *query, const char *want) {
+    char reply[2048]; reply[0] = '\0';
+    brain_respond(brain, query, reply, sizeof reply);
+    if (!*want) return 0;
+    /* «contiene», senza distinguere maiuscole: la resa di una frase varia, cio'
+     * che deve esserci no. E' la stessa semantica di `<~` nei .p0t. */
+    for (const char *h = reply; *h; h++) {
+        const char *a = h, *b = want;
+        while (*a && *b && tolower((unsigned char)*a) == tolower((unsigned char)*b)) { a++; b++; }
+        if (!*b) return 1;
+    }
+    return 0;
+}
+
+static int measure_run(const char *dir) {
+    if (!dir || !*dir) return 1;
+    /* i file si prendono in ordine di CLASSE, cioe' numerico: 2.qa viene dopo
+     * 1.qa e prima di 10.qa, che l'ordine alfabetico sbaglierebbe. */
+    long total_ok = 0, total_n = 0;
+    for (long cls = 1; cls <= 512; cls++) {
+        char path[512];
+        if ((size_t)snprintf(path, sizeof path, "%s/%ld.qa", dir, cls) >= sizeof path) continue;
+        FILE *f = fopen(path, "r");
+        if (!f) continue;
+        long ok = 0, n = 0;
+        char line[1024];
+        char failed[64][256]; size_t nfail = 0;
+        while (fgets(line, sizeof line, f)) {
+            size_t l = strlen(line);
+            while (l && (line[l-1] == '\n' || line[l-1] == '\r')) line[--l] = '\0';
+            char *sep = strstr(line, " : ");
+            if (!l) continue;
+            /* IL NUMERO DEL FILE E' LA VALIDAZIONE. In `N.qa` la domanda e' lunga
+             * esattamente N byte: e' l'invariante del formato, e usarlo per
+             * distinguere le righe buone dai commenti risolve una collisione che
+             * nessuna euristica sul «#» risolveva. «#» e' un prompt valido di un
+             * byte, e la riga di intestazione «# Formato: domanda : risposta»
+             * porta il separatore — le due cose si distinguono solo guardando la
+             * LUNGHEZZA della domanda.
+             *
+             * Trovato al primo giro, contando 65 righe su 66: un corpus che perde
+             * righe in silenzio falsa la stazza verso il basso, che e' il modo
+             * piu' sciocco di sbagliare una misura. */
+            if (!sep) { if (line[0] != '#') fprintf(stderr,
+                    "measure: %s: riga senza separatore \" : \": %s\n", path, line);
+                continue; }
+            if ((size_t)(sep - line) != (size_t)cls) {
+                if (line[0] != '#') fprintf(stderr,
+                    "measure: %s: la domanda non e' lunga %ld byte: %s\n", path, cls, line);
+                continue;
+            }
+            *sep = '\0';
+            const char *query = line, *want = sep + 3;
+            /* UN CERVELLO NUOVO PER OGNI PROMPT. La misura dev'essere la stessa
+             * a ogni giro: parrot0 varia la frase per non ripetersi e la lingua
+             * segue il turno precedente, quindi due prompt di fila si
+             * influenzano. Costa, ed e' il prezzo di un numero che significa
+             * qualcosa. */
+            Brain *b = setup_brain(NULL);
+            if (!b) { fclose(f); return 1; }
+            int good = measure_line_ok(b, query, want);
+            brain_destroy(b);
+            n++;
+            if (good) ok++;
+            else if (nfail < 64) snprintf(failed[nfail++], sizeof failed[0], "%s", query);
+        }
+        fclose(f);
+        printf("classe %3ld   %3ld/%-3ld", cls, ok, n);
+        if (ok == n) printf("   pieno");
+        printf("\n");
+        if (nfail) {
+            printf("            non risolti:");
+            for (size_t i = 0; i < nfail; i++) printf(" [%s]", failed[i]);
+            printf("\n");
+        }
+        total_ok += ok; total_n += n;
+    }
+    if (total_n == 0) {
+        fprintf(stderr, "measure: nessun file N.qa in %s\n", dir);
+        return 1;
+    }
+    printf("%s\n", "----------------------------------------------------------------------");
+    printf("STAZZA %ld   (su %ld prompt curati)\n", total_ok, total_n);
+    return 0;
+}
+
 int main(int argc, char **argv) {
     /* gen221: `parrot0 --daemon [--port N] [--host H]` serves the
      * OpenAI-compatible HTTP API directly (replacing scripts/pi_server.py). */
@@ -212,6 +319,7 @@ int main(int argc, char **argv) {
     const char *bench_health_file = NULL;
     const char *bench_stats = BENCH_STATS_DEFAULT;
     const char *profile = NULL;
+    const char *measure_dir = NULL;   /* gen421: la stazza */
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
             print_usage(stdout);
@@ -262,6 +370,9 @@ int main(int argc, char **argv) {
         else if (strncmp(argv[i], "--port=", 7) == 0) port = atoi(argv[i] + 7);
         else if (strcmp(argv[i], "--host") == 0 && i + 1 < argc) host = argv[++i];
         else if (strncmp(argv[i], "--host=", 7) == 0) host = argv[i] + 7;
+        else if (strcmp(argv[i], "--measure") == 0 && i + 1 < argc) {
+            measure_dir = argv[++i];
+        }
         else if (strcmp(argv[i], "--dream") == 0) {
             /* gen405: senza topic, il sogno prende l'agenda dalle PROPRIE
              * lacune. La stringa vuota e' il modo di dirlo restando un
@@ -361,6 +472,10 @@ int main(int argc, char **argv) {
 
     /* gen382: il sogno gira sul cervello COMPLETO (e' esplorazione, non un test
      * ermetico), stampa il suo trace su stdout ed esce. */
+    if (measure_dir) {
+        brain_destroy(brain);            /* la misura crea il proprio, uno per prompt */
+        return measure_run(measure_dir);
+    }
     if (dream_topic) {   /* "" = sogna le lacune aperte, vedi dream.c */
         DreamOpts dopts = { dream_depth, dream_nodes, dream_fetch, dream_persist, stdout };
         int n = dream_run(brain, dream_topic, &dopts);
