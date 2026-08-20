@@ -762,6 +762,10 @@ di proposito (`teaching_offer_max`, oggi due).
 - `docs/plans/universal-comprehension.md` — il declino informato, di cui §4a è il conto
 - `tests/rl/episodes/macchineria/riflessiva/` — gli episodi vivi: `ponte-che-generalizza`, `autocorrezione-sul-muro`
 - `kb/core/meta.p0` — `bridge_shape/2`, `self_correct_on_wall/1` e il perché è spento
+- `docs/plans/fix-patterns.md` — **lo studio delle riparazioni vere**: 959 righe
+  di KB contate e classificate per forma, sette forme, tre meccanizzabili, e la
+  scoperta che sette difetti su sette erano conoscenza dichiarata che non poteva
+  funzionare
 - `docs/plans/teach-comprehension-via-prompt.md` — le forme che oggi si insegnano
   parlando: è l'inventario da cui §13 pesca le frasi da consegnare
 - `docs/issues/` — i nove prompt, riletti in §13.4 come richieste di insegnamento
