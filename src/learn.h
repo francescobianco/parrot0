@@ -37,5 +37,11 @@ int wiki_fetch_bilingual(KB *kb, const char *en_key);
 /* gen335i: language-specific Wikipedia fetch. `lang` is "en" or "it". Writes
  * the page to kb/learning/pages/<key>.md (EN) or <key>_it.md (IT). */
 int wiki_fetch_topic_lang(const char *key, const char *lang);
+/* gen436 — la stessa cosa, ma la prosa esce IN MEMORIA e non tocca il disco.
+ * Di Wikipedia non si conserva niente: cio' che resta e' la conoscenza che
+ * parrot0 estrae leggendola, con la sua provenienza. Vedi il commento in
+ * learn.c e docs/plans/autocrescita.md §0. */
+int wiki_fetch_topic_lang_prose(const char *key, const char *lang,
+                                char *prose_out, size_t prose_sz);
 
 #endif /* PARROT0_LEARN_H */

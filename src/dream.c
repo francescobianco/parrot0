@@ -118,9 +118,13 @@ static int pop(DreamState *st, DreamNode *out) {
 
 /* La prosa della pagina: la sezione `## Extract` del corpus statico, cioe' la
  * stessa che legge l'estrattore. Ritorna il numero di byte scritti. */
+/* gen436 — RESTA come lettura di un corpus locale se qualcuno ne monta uno
+ * (PARROT0_WIKI_DIR), ma la cartella spedita non esiste piu': parrot0 non
+ * archivia pagine. Senza corpus montato questa funzione dice zero, ed e' il
+ * comportamento giusto — poi decide `--fetch`. */
 static size_t page_prose(const char *key, char *out, size_t sz) {
     const char *dir = p0env("PARROT0_WIKI_DIR");
-    if (!dir || !*dir) dir = "kb/learning/pages";
+    if (!dir || !*dir) return 0;   /* gen436: nessuna cartella di default */
     char path[512];
     snprintf(path, sizeof path, "%s/%s.md", dir, key);
     FILE *f = fopen(path, "r");
@@ -319,8 +323,12 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
              * silenziosamente ignorata dal gate di learn.c e il sogno direbbe
              * "nessuna pagina" mentendo sul motivo. */
             if (!p0env("PARROT0_WIKI_FETCH")) p0env_set("PARROT0_WIKI_FETCH", "1");
-            if (wiki_fetch_topic(node.key)) {
-                plen = page_prose(node.key, prose, sizeof prose);
+            /* gen436: la prosa arriva IN MEMORIA — su disco non resta niente
+             * (F.: «di Wikipedia non si conserva nulla»). Prima si scriveva la
+             * pagina e la si rileggeva: una cache di enciclopedia, cioe'
+             * esattamente cio' che questo progetto non deve avere. */
+            if (wiki_fetch_topic_lang_prose(node.key, "en", prose, sizeof prose)) {
+                plen = strlen(prose);
                 fetched = plen > 0;
             }
         }

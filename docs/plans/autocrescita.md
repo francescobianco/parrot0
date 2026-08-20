@@ -228,6 +228,26 @@ supervisionato, un'altra cosa. Non l'invenzione — quella è il misclaim. Una
 sorgente sola rende il ciclo **verificabile**: ogni riga che entra ha una pagina
 da citare, e chi non ce l'ha non entra.
 
+**3b. E della sorgente non si conserva NIENTE (F., gen436).** La pagina non si
+scarica su disco, non si mette in cache, non si archivia: **si legge**. Ciò che
+resta è quello che parrot0 ha **imparato** leggendola — fatti nella KB, con la
+loro provenienza — e non un ritaglio di enciclopedia in un file `.md`. Un file
+del genere non è interrogabile, non è revocabile, non è collegato al resto: è
+conoscenza *archiviata*, che è il contrario di conoscenza *appresa*.
+
+> **Deve restare uno che, non sapendo, studia e poi risponde** — e il «poi
+> risponde» dev'essere un **effetto dello stato della KB e dell'inferenza**, non
+> un ramo di C che sa già che cosa fare con quel testo.
+
+Da cui due conseguenze operative, e la seconda è un vincolo di progetto:
+
+- la prosa arriva **in memoria** e passa dal percorso di apprendimento che già
+  esiste — lo stesso che legge un testo incollato da una persona. Non c'è un
+  «lettore di Wikipedia»: c'è **il lettore**;
+- **niente C nuovo per il ciclo.** Se per far funzionare il giro servisse un ramo
+  di codice che riconosce la situazione, allora non sarebbe lo stato della KB a
+  indirizzare — sarebbe il C, e saremmo tornati al punto 1.
+
 **4. «per finire il turno» — lo scopo non è la KB, è IL TURNO.** Non si colma per
 avere una KB migliore: si colma **per poter finire di rispondere**. Da cui il
 criterio di promozione più stretto e più semplice che ci sia:

@@ -195,6 +195,10 @@ static int json_extract_field(const char *json, const char *field,
     return o > 0;
 }
 
+int wiki_fetch_topic_lang(const char *key, const char *lang) {
+    return wiki_fetch_topic_lang_prose(key, lang, NULL, 0);
+}
+
 int wiki_fetch_topic(const char *key) {
     return wiki_fetch_topic_lang(key, "en");
 }
@@ -259,7 +263,8 @@ int wiki_fetch_bilingual(KB *kb, const char *en_key) {
     }
 }
 
-int wiki_fetch_topic_lang(const char *key, const char *lang) {
+int wiki_fetch_topic_lang_prose(const char *key, const char *lang,
+                                char *prose_out, size_t prose_sz) {
     /* gen382: letto dal layer di configurazione di parrot0 (p0env), non da
      * getenv. Erano due strati che non si parlavano: `--dream --fetch` alzava il
      * permesso con p0env_set e questo controllo, guardando solo l'ambiente del
@@ -316,22 +321,31 @@ int wiki_fetch_topic_lang(const char *key, const char *lang) {
     if (actual_title[0]) snprintf(page_title, sizeof page_title, "%s", actual_title);
     else snprintf(page_title, sizeof page_title, "%s", title);
 
-    const char *dir = p0env("PARROT0_WIKI_DIR");
-    if (!dir || !*dir) dir = "kb/learning/pages";
-    char path[512];
-    /* gen335i: suffix IT pages with _it to avoid overwriting the EN page */
-    const char *suffix = (strcmp(lang, "en") == 0) ? "" : "_it";
-    snprintf(path, sizeof path, "%s/%s%s.md", dir, k, suffix);
-    FILE *f = fopen(path, "w");
-    if (!f) return 0;
-    fprintf(f,
-            "# %s\n\n- Domain: `general`\n- Language: `%s`\n- Source: "
-            "https://%s.wikipedia.org/wiki/%s\n\n"
-            "## Learned Concept\n\n%s\n\n## Extract\n\n%s\n",
-            page_title, lang, lang, title, concept, extract);
-    fclose(f);
+    /* gen436 — DI WIKIPEDIA NON SI CONSERVA NIENTE (F.).
+     *
+     * Qui la pagina veniva SCRITTA su disco, in `kb/learning/pages/<key>.md`, e
+     * da li' riletta. Era una cache, e una cache di enciclopedia e' esattamente
+     * cio' che questo progetto non deve avere: la conoscenza di parrot0 e' quella
+     * che ha IMPARATO, non quella che ha archiviato. Un file .md non e' ne'
+     * interrogabile, ne' revocabile, ne' collegato al resto — e' un ritaglio.
+     *
+     * Ora la prosa esce di qui in MEMORIA e passa dal percorso di apprendimento
+     * come qualunque altro testo letto: chi la riceve la fa leggere, e cio' che
+     * resta e' la conoscenza estratta, con la sua provenienza. Se non resta
+     * niente, non e' rimasto niente — ed e' il risultato onesto.
+     *
+     * (`page_title` resta calcolato perche' e' il titolo risolto dai redirect:
+     *  serve a chi vuole citare la fonte nella provenienza.) */
+    (void)page_title;
+    if (prose_out && prose_sz) snprintf(prose_out, prose_sz, "%s", extract);
     return 1;
 }
 #else
 int wiki_fetch_topic(const char *key) { (void)key; return 0; }
+int wiki_fetch_topic_lang_prose(const char *key, const char *lang,
+                                char *prose_out, size_t prose_sz) {
+    (void)key; (void)lang;
+    if (prose_out && prose_sz) prose_out[0] = '\0';
+    return 0;
+}
 #endif /* PARROT0_HAVE_CURL */
