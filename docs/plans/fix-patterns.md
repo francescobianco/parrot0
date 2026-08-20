@@ -208,6 +208,8 @@ sicurezza non è un filtro sulle parole: è che **D non abbia un generatore**.
 
 ## Riferimenti
 
+- `docs/plans/autocrescita.md` — il piano che usa questo studio: la mappa
+  sorgente → forma → fonte di §7 esce da qui
 - `docs/autocorrezione.md` — la teoria, e §13 l'autocorrezione fatta in due
 - `docs/plans/parrot0-100-failures.md` — il campo di prova, e `make hundred`
 - `docs/measured-classes.md` — la firma dell'inferenza come sensore

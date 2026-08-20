@@ -127,6 +127,13 @@ compra il verde con una risposta sbagliata, che è peggio del muro che sostituis
 
 ---
 
+> **gen433 — questo piano ha un seguito.** Le cinque sorgenti di §4 non erano mai
+> state messe in ciclo; [`autocrescita.md`](autocrescita.md) le raccoglie, ne
+> aggiunge una sesta (la conoscenza mai toccata, dall'aggregato delle impronte) e
+> definisce l'unico ciclo — lacuna, domanda tipata, candidato, prova per
+> ripetizione del turno, ablazione, gate — dentro cui cinque strategie corrono in
+> parallelo sullo stesso banco.
+
 ## LA TESI, che riordina tutto il resto
 
 **Il sogno non è una capacità superiore. È lo stesso atto di apprendimento che

@@ -762,6 +762,9 @@ di proposito (`teaching_offer_max`, oggi due).
 - `docs/plans/universal-comprehension.md` — il declino informato, di cui §4a è il conto
 - `tests/rl/episodes/macchineria/riflessiva/` — gli episodi vivi: `ponte-che-generalizza`, `autocorrezione-sul-muro`
 - `kb/core/meta.p0` — `bridge_shape/2`, `self_correct_on_wall/1` e il perché è spento
+- `docs/plans/autocrescita.md` — **il piano che chiude il ciclo**: le sei
+  sorgenti di lacuna, le cinque strategie in parallelo, il gate unico e il
+  perimetro anti-impostore (la forma D non ha un generatore)
 - `docs/plans/fix-patterns.md` — **lo studio delle riparazioni vere**: 959 righe
   di KB contate e classificate per forma, sette forme, tre meccanizzabili, e la
   scoperta che sette difetti su sette erano conoscenza dichiarata che non poteva
