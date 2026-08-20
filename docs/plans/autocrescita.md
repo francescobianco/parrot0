@@ -66,6 +66,52 @@ misurati in `fix-patterns.md`.
    domande.** Se lo spazio negativo calcolato è vuoto, la KB non è completa —
    è cieca.
 
+### ⛔ IL PERIMETRO — che cosa questo piano NON è (F., gen435)
+
+> *«Il meccanismo di colmare le lacune staticamente con un tool dedicato non è
+> accettato e non ci serve. Le lacune vanno individuate A TEMPO DI INFERENZA: la
+> scoperta delle lacune è parte dell'inferenza stessa. Tu hai travisato questo
+> piano con una sorta di DEFRAG di memoria della KB. Stiamo parlando di una KB di
+> frontiera capace di essere AUTOCORRETTIVA PER STATUS DI KB, non di colmare
+> meccanicamente tutte le lacune.»*
+
+**La distinzione, in una riga:**
+
+> **Una lacuna non è un'assenza nella KB: è un ARRESTO nell'inferenza.**
+
+Non è una sfumatura, e le tre conseguenze si misurano:
+
+| | assenza *(fuori perimetro)* | **arresto** *(il piano)* |
+|---|---|---|
+| quante ne esistono | **illimitate**, e crescono con la KB | **una per turno**, e solo quando un turno c'è |
+| che rimedio chiede | indeterminato: «riempi» | **determinato e tipato**: quella posizione, quel pezzo |
+| che oracolo ha | nessuno — come sai se colmarla è servito? | **riponi il turno**: o si legge o non si legge |
+| che cosa produce | un **elenco** | una **mossa** |
+
+**«Autocorrettiva per status di KB»** è la parte che avevo perso, e va detta per
+esteso: la capacità di correggersi è una proprietà della **configurazione** della
+conoscenza — quali relazioni esistono, quali superfici le raggiungono, quali
+regole sanno dire *dove si sono fermate* — **non** di un programma che la
+ispeziona. Un tool esterno che ripara lascia la KB **nello stato di prima**: la
+volta dopo serve ancora il tool, e quella non è autocorrezione, è manutenzione.
+È anche il motivo per cui la domanda giusta è quella di §0c: **si cerca lo
+STATO in cui il meccanismo si accende, non la procedura che lo sostituisce.**
+
+**Le tre domande da fare a ogni proposta** — comprese le mie, e soprattutto le
+mie:
+
+1. **gira DENTRO un turno, o accanto a un turno?** Accanto → fuori perimetro;
+2. **quella lacuna esisterebbe se nessuno avesse parlato?** Se sì, non è una
+   lacuna di questo piano: è un'assenza, e le assenze sono infinite;
+3. **produce un elenco o una mossa?** Elenco → fuori perimetro.
+
+**Il verdetto su ciò che è stato costruito a gen435**, scritto qui perché resti
+come esempio e non come precedente: `make audit` risponde *«accanto»*, *«sì»* e
+*«elenco»* — **tre su tre fuori**. Era un defrag della KB travestito da domanda
+autoriflessa. È stato retrocesso a misura dei **banchi** e rinominato
+(`make bench-coverage`), e **non rientra nel ciclo**. La sorgente 3f resta a
+memoria del ragionamento sbagliato, con la misura che l'ha smentita.
+
 ### La KB non si completa: si anima (F., gen435)
 
 Va scritto qui perché è il modo più facile di sbagliare tutto il piano, ed è
@@ -273,7 +319,8 @@ progetto, non un'estetica: se ogni strategia avesse il suo ciclo, avremmo cinque
 modi di sbagliare e nessun modo di confrontarli.
 
 ```
-  (1) SEGNALE          una lacuna si manifesta o si calcola
+  (1) SEGNALE          un'inferenza SI ARRESTA, dentro un turno
+        │              (mai una scansione a freddo: vedi il perimetro in §0a)
         │              — un turno che si ferma, o un buco nello spazio negativo
         ▼
   (2) DOMANDA TIPATA   la lacuna diventa un OGGETTO, non un messaggio:
@@ -341,7 +388,7 @@ combacia**. *Domanda:* «con quali parole me lo stai chiedendo?»
 forma espressiva raccolta dalla prosa** (§4.1). **Forma A.** È la classe più
 numerosa: ~100 righe su 507 (`fix-patterns.md` §1).
 
-### 3f. Conoscenza mai toccata — **provata a gen435 e ridimensionata**
+### 3f. Conoscenza mai toccata — ⛔ *fuori perimetro* (provata a gen435, respinta)
 *Segnale:* l'aggregato delle impronte di inferenza su un corpus dà le righe che
 nessun turno ha mai attivato.
 *Domanda:* «quali cose che dico di sapere non hanno mai fatto niente?»
@@ -765,7 +812,7 @@ successo prima (è il difetto misurato in `autocorrezione.md` §3).
 
 ---
 
-### gen435 — L'audit a freddo  ⚠️ FATTA, E HA SMENTITO SE STESSA
+### gen435 — L'audit a freddo  ⛔ RESPINTA: era un defrag della KB
 
 > **Spedita come `make audit` e ridimensionata lo stesso giorno.** Vale come
 > esempio di generazione che produce più conoscenza dal proprio fallimento che

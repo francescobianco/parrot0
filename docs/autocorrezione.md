@@ -21,6 +21,27 @@ La formulazione che segue è di F., e riordina tutto il resto del documento:
 Detta così sembra una sfumatura. Non lo è, ed è la differenza fra ciò che il
 meccanismo è oggi e ciò che può essere.
 
+### ⛔ Il modo di sbagliarla che si e' presentato davvero (F., gen435)
+
+Fra i due modi qui sotto ne esiste un terzo, che non e' un'interpretazione ma un
+**travisamento**, ed e' capitato: leggere «trovare le lacune» come *scansionare
+la KB a freddo con un tool dedicato e colmarle*.
+
+> **Una lacuna non e' un'assenza nella KB: e' un ARRESTO nell'inferenza.**
+
+Le assenze sono illimitate, non hanno un rimedio determinato e non hanno un
+oracolo; un arresto e' uno per turno, nomina il pezzo che manca e si verifica
+riponendo il turno. Un tool che colma dall'esterno lascia per giunta la KB **nello
+stato di prima**: la volta dopo serve ancora il tool — e quella non e'
+autocorrezione, e' manutenzione. Il bersaglio e' una KB **autocorrettiva per
+stato**, cioe' una configurazione in cui il turno che fallisce produce da se' la
+propria riparazione.
+
+Le tre domande per non ricascarci, da fare a ogni proposta: *gira dentro un turno
+o accanto? quella lacuna esisterebbe se nessuno avesse parlato? produce un elenco
+o una mossa?* Il perimetro per esteso sta in
+[`plans/autocrescita.md`](plans/autocrescita.md) §0a.
+
 ### I due modi di intenderla
 
 **Postumo** — come funziona adesso. Il turno fallisce → si emette un muro → si

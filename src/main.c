@@ -69,7 +69,7 @@ static void print_usage(FILE *out) {
             "  --bench-health FILE         Warm up and verify the benchmark daemon\n"
             "  --dream [TOPIC]             Explore a topic recursively\n"
             "  --measure DIR               Misura la STAZZA sui file 1.qa, 2.qa, … in DIR\n"
-            "  --audit PATH                Riproduce un corpus e dice quale conoscenza non ha mai fatto niente\n"
+            "  --coverage PATH             Che cosa un corpus non mette mai alla prova (NON e' un audit della KB)\n"
             "  --footprint                 Firma del ragionamento, un prompt per riga da stdin\n"
             "                              (no TOPIC: dream its own open gaps)\n"
             "    --depth=N                 Limit dream traversal depth\n"
@@ -241,10 +241,16 @@ static int measure_line_ok(Brain *brain, const char *query, const char *want,
     return 0;
 }
 
-/* gen435 — `parrot0 --audit PATH`: LA CONOSCENZA CHE NON HA MAI FATTO NIENTE.
+/* gen435 — `parrot0 --coverage PATH`: CHE COSA UN CORPUS NON METTE MAI ALLA PROVA.
  *
- * Prima generazione «a freddo» del piano docs/plans/autocrescita.md: una domanda
- * che parrot0 si pone su di se' senza che nessuno gli parli.
+ * ⛔ NON e' un audit della KB, e nasceva come tale: era «la conoscenza che non ha
+ * mai fatto niente», cioe' una scansione a freddo per trovare lacune e colmarle.
+ * F. l'ha respinto e ha ragione: quello e' un DEFRAG della KB. Una lacuna non e'
+ * un'assenza nella KB — e' un ARRESTO nell'inferenza, e si scopre DENTRO un
+ * turno, perche' la scoperta della lacuna E' parte dell'inferenza
+ * (docs/autocorrezione.md §0, docs/plans/autocrescita.md §0a «il perimetro»).
+ *
+ * Quel che resta, e che e' onesto, misura I BANCHI e non la KB.
  *
  * I sette difetti del gen427-432 erano tutti della stessa specie — conoscenza
  * dichiarata che NON POTEVA funzionare: la riga della sterlina confrontata su un
@@ -259,7 +265,7 @@ static int measure_line_ok(Brain *brain, const char *query, const char *want,
  * significhi sta in KB (`dormant_by_design/1`), perche' distinguere una
  * conoscenza che tace per disegno da una che tace per un difetto richiede di
  * sapere a che cosa serve — e quello il motore non lo sa. */
-static int audit_run(const char *const *roots, size_t nroots) {
+static int coverage_run(const char *const *roots, size_t nroots) {
     Brain *b = setup_brain(NULL);
     if (!b) return 1;
     KB *kb = brain_kb(b);
@@ -333,7 +339,7 @@ static int audit_run(const char *const *roots, size_t nroots) {
      * specie della sterlina confrontata su un carattere solo. Quella e' una
      * promessa che il motore non puo' mantenere, ed e' sempre un difetto. */
     (void)tot_facts; (void)tot_unused; (void)silent_preds;
-    printf("audit  %zu corpora · %zu turni — CHE COSA QUESTI BANCHI NON METTONO MAI ALLA PROVA:\n\n",
+    printf("coverage  %zu corpora · %zu turni — CHE COSA QUESTI BANCHI NON METTONO MAI ALLA PROVA:\n\n",
            np, turns);
 
     /* I PREDICATI COMPLETAMENTE MUTI, che sono i sospetti veri: nessuna delle
@@ -840,7 +846,7 @@ int main(int argc, char **argv) {
         else if (strcmp(argv[i], "--host") == 0 && i + 1 < argc) host = argv[++i];
         else if (strncmp(argv[i], "--host=", 7) == 0) host = argv[i] + 7;
         else if (strcmp(argv[i], "--footprint") == 0) { footprint_mode = 1; }
-        else if (strcmp(argv[i], "--audit") == 0 && i + 1 < argc) {
+        else if (strcmp(argv[i], "--coverage") == 0 && i + 1 < argc) {
             if (n_audit < 8) audit_paths[n_audit++] = argv[++i]; else i++;
         }
         else if (strcmp(argv[i], "--measure") == 0 && i + 1 < argc) {
@@ -947,7 +953,7 @@ int main(int argc, char **argv) {
      * ermetico), stampa il suo trace su stdout ed esce. */
     if (footprint_mode) { brain_destroy(brain); return footprint_run(); }
     if (n_audit) {
-        return audit_run(audit_paths, n_audit);
+        return coverage_run(audit_paths, n_audit);
     }
     if (measure_dir) {
         brain_destroy(brain);            /* la misura crea il proprio, uno per prompt */

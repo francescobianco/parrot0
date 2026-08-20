@@ -131,27 +131,30 @@ Tutte le strategie condividono lo stesso ciclo. Cambia la sorgente del
 candidato, non il criterio con cui viene accettato.
 
 ```text
-  1. SEGNALE       fallimento, fatto non consumato o lacuna calcolata
+  1. TURNO         input corrente e piano provvisorio
           |
-  2. DOMANDA       gap(Kind, Subject, Relation, Position)
+  2. TENTATIVO     inferenza reale e traccia dei moduli/evidenze
           |
-  3. CANDIDATO     forma A, B o C con una fonte
+  3. SUPERVISORE   controlla pertinenza, slot, formato e consumo dell'evidenza
           |
-  4. PROVA         asserzione in sessione + ripetizione dello stesso turno
+  4. GAP           gap(Kind, Subject, Relation, Position) del turno corrente
           |
-  5. ABLAZIONE     rimozione + ripetizione; la riga deve essere necessaria
+  5. CANDIDATO     forma A, B o C con una fonte Wikipedia
           |
-  6. GATE          test, holdout e saldo non negativo
+  6. REPLAY        asserzione in quarantena e ripetizione dello stesso turno
           |
-  7. PROMOZIONE    quarantena KB_INDUCED -> KB ufficiale, revocabile
+  7. ABLAZIONE     rimozione + ripetizione; la riga deve essere necessaria
           |
-  8. AUDIT         nuove lacune, lacune morte, R e deriva
+  8. GATE          test, holdout e saldo non negativo
+          |
+  9. PROMOZIONE    quarantena KB_INDUCED -> KB ufficiale, revocabile
 ```
 
 ### 2.1 Segnale
 
-Il motore pubblica l'esito del turno. La KB deriva il tipo di lacuna, senza
-mettere nel C una lista di parole:
+Il supervisore osserva l'esito del tentativo **prima che il turno venga chiuso**.
+La KB deriva il tipo di lacuna dalla traccia, senza mettere nel C una lista di
+parole:
 
 | `Kind` | Significato | Prima domanda |
 |---|---|---|
@@ -161,7 +164,10 @@ mettere nel C una lista di parole:
 | `wrong` | c'e' una risposta ma non affronta il compito | quale vincolo o slot e' stato perso? |
 | `dead_rule` | una regola dichiarata non viene mai attivata | e' conoscenza dormiente, dialetto o difetto del motore? |
 
-`dead_rule` e' una domanda di audit, non un permesso di modificare il motore.
+`dead_rule` e' un segnale dinamico se la regola e' stata provata nel turno e non
+ha prodotto la conseguenza attesa. La stessa categoria puo' essere aggregata in
+seguito da un audit statico, ma l'aggregazione non sostituisce il segnale
+in-linea e non autorizza a modificare il motore.
 
 ### 2.2 Candidato
 
@@ -250,14 +256,14 @@ prova obbligatoria e' doppia: prima il turno fallisce, dopo `assert` passa,
 dopo `retract` torna a fallire. Un controllo negativo deve dimostrare che il
 token non ha acquisito un significato globale non richiesto.
 
-### S4: audit a freddo
+### S4: supervisore della traccia in-linea
 
-**Input:** impronte aggregate di `hundred`, `measure`, `make test` e campagne
-Wikipedia.  
-**Output:** domanda su di se', nessun candidato automatico quando la lacuna e'
-procedurale.
+**Input:** la traccia del tentativo corrente: evidenze, moduli, piano,
+vincoli, slot e risultato.
+**Output:** una lacuna tipata nello stesso turno, oppure un declino preciso se
+la lacuna richiede una procedura E.
 
-L'audit distingue:
+S4 distingue in tempo reale:
 
 - predicato mai attivato ma legittimamente dormiente;
 - regola morta perche' manca un produttore;
@@ -265,8 +271,19 @@ L'audit distingue:
 - procedura mancante che richiede lavoro sul motore;
 - conoscenza viva ma irraggiungibile per mancanza di superficie.
 
-S4 e' l'unica strategia che puo' far crescere direttamente la capacita' di
-decidere **che cosa non imparare**. Non e' autorizzata a riscrivere C.
+S4 e' il supervisore che rende possibile l'autocorrezione: impedisce che il
+primo modulo che produce testo chiuda il turno senza aver soddisfatto il piano.
+Puo' decidere **che cosa non imparare** e puo' aprire S1/S2/S3 nello stesso
+turno. Non e' autorizzata a riscrivere C.
+
+### Audit statico: strumento di controllo, non autocrescita
+
+L'aggregazione di `fired/1`, `never_fired/1`, `dead_rule/1` e
+`dormant_by_design/1` sui banchi resta necessaria per misurare deriva, costo e
+conoscenza morta. Viene eseguita **fuori** dal ciclo di risposta e non produce
+candidati. Serve a confrontare i trattamenti e a scoprire se il supervisore
+in-linea perde una classe di lacune; non e' una sorgente autonoma di
+autocorrezione.
 
 ### S5: dialogo come controllo positivo
 
@@ -320,15 +337,18 @@ del corpus.
 
 ### 4.3 Unita' di coltivazione
 
-Il ciclo non cresce per numero arbitrario di pagine. Cresce per **giri**:
+Il ciclo non cresce per numero arbitrario di pagine. Cresce per **episodi di
+inferenza**, raccolti in giri sperimentali:
 
-1. calcola le lacune dalla KB e dal banco;
-2. sceglie al massimo `B` domande tipate con una politica dichiarata;
-3. interroga Wikipedia solo per quelle domande;
+1. presenta un prompt nuovo a un cervello con lo snapshot corrente;
+2. durante il tentativo il supervisore osserva la traccia e tipizza la lacuna;
+3. interroga Wikipedia solo per la domanda nata da quel turno;
 4. produce candidati in quarantena;
-5. prova e abla ogni candidato;
+5. ripete il turno con il candidato e poi esegue ablazione;
 6. promuove soltanto il sottoinsieme che supera il gate;
-7. ricostruisce lo spazio negativo sulla KB risultante.
+7. apre il prompt successivo con la KB risultante;
+8. a fine giro aggrega le tracce per misurare R e la deriva, senza usarle per
+   fabbricare retroattivamente autocorrezioni.
 
 `B`, timeout, lingua, numero massimo di pagine e soglia di ricorrenza sono
 parametri registrati e non possono cambiare a meta' campagna per migliorare il
@@ -345,12 +365,14 @@ Per ogni seed iniziale si eseguono almeno questi trattamenti:
 | **C0** controllo congelato | no | nessuna | misura deriva e variabilita' del banco |
 | **C1** fatti | si | S1 | misura il contributo della conoscenza B |
 | **C2** fatti + superfici | si | S1+S2 | misura il rapporto fatti/superfici |
-| **C3** ciclo completo | si | S1+S2+S3+S4 | misura l'autocrescita candidata |
+| **C3** ciclo completo | si | S1+S2+S3+S4 in-linea | misura l'autocrescita candidata |
 | **C4** controllo assistito | no | S5 | upper bound di crescita con aiuto umano |
 
 C0 e C4 non sono decorativi. C0 controlla che un miglioramento non sia rumore
 di sessione; C4 mostra quanto costa ancora l'intervento umano. C3 deve battere
-C1 e avvicinarsi a C4 senza usare input umano.
+C1 e avvicinarsi a C4 senza usare input umano. In C3 Wikipedia viene consultata
+solo dopo che il supervisore ha osservato una lacuna nel turno corrente; non si
+precalcolano gap dalla KB prima dell'inferenza.
 
 L'ordine dei trattamenti e' randomizzato per seed e ogni trattamento parte da
 uno snapshot pulito. Non si riusa una quarantena fra condizioni.
@@ -399,8 +421,8 @@ ablation, provenance, bench_before, bench_after, promoted, reason
 |---|---|---|
 | `P` | prompt pertinenti dopo la campagna | comportamento, non testo prodotto |
 | `K` | candidati con fonte sopravvissuti all'ablazione | crescita reale e necessaria |
-| `N` | nuove lacune tipate aperte dalla crescita | fertilita' della KB |
-| `R` | `N / lacune_chiuse` per giro | autosostentamento |
+| `N` | nuove lacune tipate osservate in episodi di inferenza successivi alla crescita | fertilita' dinamica della KB |
+| `R` | `N / lacune_chiuse` per giro, contando solo gap osservati in-linea | autosostentamento |
 | `T` | performance sul test-pages/holdout | trasferimento fuori dal train |
 | `D` | righe promosse ma mai raggiunte | conoscenza morta |
 
@@ -468,11 +490,17 @@ fonti e delle ablazioni. Il cricchetto e' la ripetibilita': due run sullo stesso
 snapshot producono gli stessi tipi di lacuna e identificano gli stessi
 consumatori mancanti.
 
-### F1: audit a freddo
+### F1: supervisore in-linea
 
-Calcolare `fired/1`, `never_fired/1`, `dead_rule/1` e `dormant_by_design/1` dalla
-KB. L'audit deve trovare almeno un difetto noto senza che un umano lo nomini.
-Non promuove fatti.
+Collegare il supervisore alla chiusura provvisoria dell'answer plan e alla
+traccia di inferenza. Deve distinguere, nello stesso turno, fatto mancante,
+fatto non consumato, superficie non riconosciuta e risposta fuori bersaglio.
+L'audit di `fired/1` resta un controllo separato e non viene contato come
+autocorrezione.
+
+**Cricchetto:** un turno che prima produceva un muro o un template fuori
+bersaglio pubblica una lacuna tipata prima della risposta finale, senza che un
+batch abbia preparato quella lacuna.
 
 ### F2: primo coltivatore Wikipedia
 
@@ -509,8 +537,9 @@ una tasca; non si sceglie una strategia dal numero grezzo di righe.
 
 ### F6: ciclo autonomo completo
 
-Collegare S1-S4: il sistema calcola lacune, sceglie domande, visita Wikipedia,
-propone, prova, abla, promuove e ricomincia senza input umano.
+Collegare S1-S4: durante il tentativo il sistema osserva una lacuna, sceglie una
+domanda, visita Wikipedia, propone, prova, abla, promuove e completa il turno o
+declina senza input umano.
 
 **Cricchetto:** tre giri consecutivi producono almeno una promozione necessaria
 e il holdout non peggiora.
@@ -554,20 +583,26 @@ freeze(engine, kb_seed, train_pages, test_pages, prompts, parameters)
 record_hashes_and_seed()
 
 for round in budget:
-    gaps = derive_gaps(kb, traces, audit)
-    questions = select_bounded_questions(gaps)
-    pages = wikipedia_fetch_only(questions)
-    candidates = extract_or_propose_A_B_C(pages, questions)
-
-    for candidate in candidates:
-        prove(candidate)
-        ablate(candidate)
-        run_negative_controls(candidate)
-        if gate(candidate, tests, holdout, provenance, reachability):
-            quarantine(candidate)
-
-    promote_survivors_after_stability_window()
-    recompute_footprints_gaps_and_R()
+    for prompt in next_prompts:
+        trace = infer_provisionally(prompt, kb)
+        gap = supervise_current_turn(trace)
+        if gap:
+            question = derive_question(gap)
+            pages = wikipedia_fetch_only(question)
+            candidates = extract_or_propose_A_B_C(pages, question)
+            for candidate in candidates:
+                replay(prompt, candidate)
+                ablate(candidate, prompt)
+                run_negative_controls(candidate)
+                if gate(candidate, tests, holdout, provenance, reachability):
+                    quarantine(candidate)
+            promote_stable_survivors()
+            replay_or_decline(prompt)
+        else:
+            close_turn(prompt, trace)
+        record_inference_trace(prompt, trace, gap)
+    aggregate_static_audit_only_for_measurement()
+    recompute_R_from_dynamic_gaps()
     stop_on_budget_timeout_regression_or_quarantine_overflow()
 
 report(K, P, N, R, T, D, regressions, provenance, cost)
