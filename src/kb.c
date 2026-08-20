@@ -96,6 +96,14 @@ typedef struct {
     size_t argc;
     char   args[KB_MAX_ARGS][KB_TERM_LEN];
     int    origin;
+    /* gen435 — QUESTO FATTO HA MAI FATTO QUALCOSA?
+     *
+     * Un byte per fatto, scritto solo quando l'audit e' acceso. Serve a una
+     * domanda che parrot0 non sapeva porsi: «quali cose che dico di sapere non
+     * hanno mai unificato con niente?». I sette difetti del gen427-432 erano
+     * tutti di quella specie — conoscenza dichiarata che non poteva funzionare —
+     * e nessuno di loro si e' mai lamentato. */
+    unsigned char used;
 } Fact;
 
 /* A definite rule  head :- body[0], body[1], ...  (nbody >= 1). */
@@ -223,6 +231,7 @@ struct KB {
      * stessa strada percorsa in ordine diverso e' la stessa strada — ma per la
      * stessa ragione un predicato contato due volte si cancellerebbe: da qui
      * l'insieme dei gia' visti. */
+    int           audit_on;   /* gen435: si segna quali fatti unificano */
     unsigned long fp_acc;
     unsigned long fp_seen[128];
     /* gen433 — I NOMI, non solo le impronte, e SOLO col profilo acceso.
@@ -2038,6 +2047,8 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             matched = unify_term_term(s2, g, &renamed);
         }
         if (matched) {
+            if (S->kb->audit_on)
+                ((Fact *)f)->used = 1;      /* gen435: ha unificato almeno una volta */
             if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
         }
         s2->n = undo_n;            /* annulla il tentativo, riusa la copia */
@@ -2203,6 +2214,52 @@ static unsigned long kb_fp_hash(const char *s) {
     return h;
 }
 
+/* gen435 — L'AUDIT A FREDDO.
+ *
+ * Acceso, ogni fatto che unifica si segna. Spento (il default) non costa
+ * nulla, stessa disciplina del profiler. Il giudizio su che cosa significhi
+ * «mai usato» non sta qui: sta in KB (`dormant_by_design/1`), perche' una
+ * conoscenza che tace per disegno e una che tace per un difetto si distinguono
+ * sapendo a che cosa servono, e questo il motore non lo sa. */
+void kb_audit_set(KB *kb, int on) {
+    if (!kb) return;
+    kb->audit_on = on ? 1 : 0;
+    if (on) for (size_t i = 0; i < kb->n; i++) kb->facts[i].used = 0;
+}
+
+size_t kb_unused_by_pred(const KB *kb, char preds[][KB_TERM_LEN],
+                         size_t unused[], size_t total[], size_t max) {
+    if (!kb || !preds || !unused || !total) return 0;
+    size_t np = 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        size_t k = 0;
+        for (; k < np; k++) if (strcmp(preds[k], f->pred) == 0) break;
+        if (k == np) {
+            if (np >= max) continue;
+            snprintf(preds[np], KB_TERM_LEN, "%s", f->pred);
+            unused[np] = 0; total[np] = 0; np++;
+        }
+        total[k]++;
+        if (!f->used) unused[k]++;
+    }
+    return np;
+}
+
+int kb_first_unused_row(const KB *kb, const char *pred, char *out, size_t sz) {
+    if (!kb || !pred || !out || sz == 0) return 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->used || strcmp(f->pred, pred) != 0) continue;
+        size_t o = (size_t)snprintf(out, sz, "%s(", f->pred);
+        for (size_t a = 0; a < f->argc && o < sz; a++)
+            o += (size_t)snprintf(out + o, sz - o, "%s%s", a ? ", " : "", f->args[a]);
+        if (o + 2 < sz) snprintf(out + o, sz - o, ")");
+        return 1;
+    }
+    return 0;
+}
+
 void kb_footprint_reset(KB *kb) { if (kb) { kb->fp_acc = 0; kb->fp_n = 0; } }
 unsigned long kb_footprint(const KB *kb) { return kb ? kb->fp_acc : 0; }
 size_t kb_footprint_width(const KB *kb) { return kb ? kb->fp_n : 0; }
@@ -2329,7 +2386,13 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
         if (ps->nnonground == 0 && query_ground) {
             Fact needle;
             if (!fact_make(&needle, pred, args, argc)) return 0;
-            return kb_find(kb, &needle) != NULL;
+            Fact *hit = (Fact *)kb_find(kb, &needle);
+            /* gen435: anche la via RAPIDA e' un uso. Senza questo segno l'audit
+             * dichiarava muta meta' della KB — «vowel_letter mai usato» mentre
+             * il classificatore della parola sola lo interroga a ogni turno —
+             * cioe' misurava il proprio percorso invece della conoscenza. */
+            if (hit && kb->audit_on) hit->used = 1;
+            return hit != NULL;
         }
     }
 
@@ -2359,7 +2422,10 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
             int same = 1;
             for (size_t a = 0; a < argc; a++)
                 if (!unify(work, args[a], f->args[a])) { same = 0; break; }
-            if (same) { free(work); return 1; }
+            if (same) {
+                if (kb->audit_on) ((Fact *)f)->used = 1;   /* gen435 */
+                free(work); return 1;
+            }
         }
         free(work);
         return 0;
@@ -2442,6 +2508,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
                     match = 0; break;
                 }
             if (match) {
+                if (kb->audit_on) ((Fact *)f)->used = 1;   /* gen435 */
                 char value[KB_TERM_LEN];
                 deep_resolve(work, f->args[first_var], value, sizeof value, 0);
                 push_unique(out, &count, max, value);

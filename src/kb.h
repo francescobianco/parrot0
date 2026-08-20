@@ -388,6 +388,16 @@ void kb_inference_report(const KB *kb, KbInferenceReport *out);
  * sola, altrimenti un doppione si cancellerebbe da se'. */
 void          kb_footprint_reset(KB *kb);
 unsigned long kb_footprint(const KB *kb);
+/* gen435 — l'audit a freddo: quali fatti non hanno mai unificato con niente.
+ * Acceso azzera i segni e comincia a contare; spento non costa nulla. */
+void   kb_audit_set(KB *kb, int on);
+/* Per ogni predicato: quanti dei suoi fatti non hanno mai unificato, su quanti.
+ * Restituisce il numero di predicati scritti (cappato a `max`). */
+size_t kb_unused_by_pred(const KB *kb, char preds[][KB_TERM_LEN],
+                         size_t unused[], size_t total[], size_t max);
+/* La prima riga mai usata di un predicato, resa leggibile. 0 se non ce n'e'. */
+int    kb_first_unused_row(const KB *kb, const char *pred, char *out, size_t sz);
+
 size_t        kb_footprint_width(const KB *kb);   /* quanti predicati distinti */
 /* Il NOME dell'i-esimo predicato toccato, o NULL se non c'e' (o se il profilo
  * era spento quando il turno e' passato: i nomi si raccolgono solo allora). */

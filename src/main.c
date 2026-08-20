@@ -14,6 +14,8 @@
  */
 #define _POSIX_C_SOURCE 200809L
 
+#include <dirent.h>
+#include <sys/stat.h>
 #include "brain.h"
 #include "kb.h"
 #include "serve.h"
@@ -67,6 +69,7 @@ static void print_usage(FILE *out) {
             "  --bench-health FILE         Warm up and verify the benchmark daemon\n"
             "  --dream [TOPIC]             Explore a topic recursively\n"
             "  --measure DIR               Misura la STAZZA sui file 1.qa, 2.qa, … in DIR\n"
+            "  --audit PATH                Riproduce un corpus e dice quale conoscenza non ha mai fatto niente\n"
             "  --footprint                 Firma del ragionamento, un prompt per riga da stdin\n"
             "                              (no TOPIC: dream its own open gaps)\n"
             "    --depth=N                 Limit dream traversal depth\n"
@@ -235,6 +238,134 @@ static int measure_line_ok(Brain *brain, const char *query, const char *want,
         while (*a && *b && tolower((unsigned char)*a) == tolower((unsigned char)*b)) { a++; b++; }
         if (!*b) return 1;
     }
+    return 0;
+}
+
+/* gen435 — `parrot0 --audit PATH`: LA CONOSCENZA CHE NON HA MAI FATTO NIENTE.
+ *
+ * Prima generazione «a freddo» del piano docs/plans/autocrescita.md: una domanda
+ * che parrot0 si pone su di se' senza che nessuno gli parli.
+ *
+ * I sette difetti del gen427-432 erano tutti della stessa specie — conoscenza
+ * dichiarata che NON POTEVA funzionare: la riga della sterlina confrontata su un
+ * carattere solo, i frame al passato uccisi dalla normalizzazione della copula,
+ * diciotto registri letti a sedici. Nessuno di loro si e' mai lamentato, e sono
+ * emersi per caso. Un fatto che non combacia non si lamenta: qui comincia a
+ * farlo.
+ *
+ * Il metodo e' semplice e per questo affidabile: si riproduce un corpus con
+ * l'audit acceso, ogni fatto che unifica si segna, e alla fine si guarda chi non
+ * si e' mai segnato. Il motore MISURA; il giudizio su che cosa quel silenzio
+ * significhi sta in KB (`dormant_by_design/1`), perche' distinguere una
+ * conoscenza che tace per disegno da una che tace per un difetto richiede di
+ * sapere a che cosa serve — e quello il motore non lo sa. */
+static int audit_run(const char *const *roots, size_t nroots) {
+    Brain *b = setup_brain(NULL);
+    if (!b) return 1;
+    KB *kb = brain_kb(b);
+    kb_audit_set(kb, 1);
+
+    /* PIU' CORPORA, e non e' un dettaglio: l'audit e' relativo a cio' che ha
+     * VISTO. Misurato: `stopword` risulta muto sui cento — che sono prompt
+     * analitici lunghi — e si accende con tre turni ordinari. Un corpus stretto
+     * fa sembrare morta della conoscenza sanissima, quindi l'unico uso onesto e'
+     * l'unione dei banchi che ci sono. */
+    char paths[64][512];
+    size_t np = 0;
+    for (size_t r = 0; r < nroots && np < 64; r++) {
+        const char *path = roots[r];
+        struct stat st;
+        if (stat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
+            DIR *d = opendir(path);
+            struct dirent *e;
+            while (d && (e = readdir(d)) && np < 64) {
+                const char *dot = strrchr(e->d_name, '.');
+                if (!dot || strcmp(dot, ".qa") != 0) continue;
+                snprintf(paths[np++], sizeof paths[0], "%s/%s", path, e->d_name);
+            }
+            if (d) closedir(d);
+        } else {
+            snprintf(paths[np++], sizeof paths[0], "%s", path);
+        }
+    }
+    if (np == 0) { fprintf(stderr, "audit: nessun corpus\n"); return 1; }
+
+    size_t turns = 0;
+    char reply[4096];
+    for (size_t i = 0; i < np; i++) {
+        FILE *f = fopen(paths[i], "r");
+        if (!f) continue;
+        char line[1024];
+        while (fgets(line, sizeof line, f)) {
+            size_t l = strlen(line);
+            while (l && (line[l-1] == '\n' || line[l-1] == '\r')) line[--l] = '\0';
+            if (!l) continue;
+            char *bar = strstr(line, " | ");     /* i .qa portano l'attesa accanto */
+            if (bar) *bar = '\0';
+            brain_respond(b, line, reply, sizeof reply);
+            turns++;
+        }
+        fclose(f);
+    }
+
+    /* IL RAPPORTO. Ordinato per quanto silenzio: un predicato con cento fatti e
+     * cento silenzi e' una cosa diversa da uno con cento fatti e un silenzio. */
+    static char preds[4096][KB_TERM_LEN];
+    static size_t unused[4096], total[4096];
+    size_t n = kb_unused_by_pred(kb, preds, unused, total, 4096);
+    size_t tot_facts = 0, tot_unused = 0, silent_preds = 0;
+    for (size_t i = 0; i < n; i++) {
+        tot_facts += total[i];
+        tot_unused += unused[i];
+        if (unused[i] == total[i]) silent_preds++;
+    }
+    /* gen435b — NON SI CENSISCE L'ASSENZA (F.).
+     *
+     * La prima stesura apriva con «13.935 fatti mai usati, 85%». E' il numero
+     * sbagliato: su una KB grande e' illimitato e quasi tutto sano — i fatti di
+     * mondo SONO lo spazio delle risposte, non buchi da tappare — e leggerlo
+     * spinge a «usarli tutti», che e' completezza, non vita. La KB non si
+     * completa: si anima.
+     *
+     * Quello che vale e' un'altra cosa, ed e' piccola: la conoscenza che si
+     * dichiara MECCANICA — cioe' che qualcuno ha promesso di consumare — e che
+     * non fira mai. Non e' un buco: e' un ARCO DICHIARATO E NON PERCORRIBILE, la
+     * specie della sterlina confrontata su un carattere solo. Quella e' una
+     * promessa che il motore non puo' mantenere, ed e' sempre un difetto. */
+    (void)tot_facts; (void)tot_unused; (void)silent_preds;
+    printf("audit  %zu corpora · %zu turni — CHE COSA QUESTI BANCHI NON METTONO MAI ALLA PROVA:\n\n",
+           np, turns);
+
+    /* I PREDICATI COMPLETAMENTE MUTI, che sono i sospetti veri: nessuna delle
+     * loro righe ha mai fatto niente. Chi si dichiara dormiente per disegno esce
+     * dall'elenco — e quella dichiarazione e' conoscenza, non un ramo. */
+    /* Solo la MECCANICA, cioe' cio' che ha un consumatore dichiarato. Un fatto di
+     * mondo che nessuno ha chiesto non e' morto: e' semplicemente non chiesto. */
+    size_t shown = 0, skipped = 0, arcs = 0;
+    for (size_t i = 0; i < n; i++) {
+        if (unused[i] == 0) continue;
+        const char *mq[1] = { preds[i] };
+        if (!kb_query(kb, "machinery", mq, 1)) continue;   /* solo cio' che promette */
+        if (kb_query(kb, "dormant_by_design", mq, 1)) { skipped++; continue; }
+        arcs++;
+        if (shown >= 30) continue;
+        char row[256] = "";
+        if (!kb_first_unused_row(kb, preds[i], row, sizeof row)) continue;
+        printf("  %-26s %3zu/%-4zu   es. %s\n", preds[i], unused[i], total[i], row);
+        shown++;
+    }
+    if (arcs > shown) printf("  … e altri %zu\n", arcs - shown);
+    if (arcs == 0) printf("  (nessuno: ogni meccanica dichiarata ha percorso almeno una riga)\n");
+    printf("\n%zu meccaniche con righe mai percorse", arcs);
+    if (skipped) printf(" · %zu dichiarate dormienti per disegno", skipped);
+    printf("\n\nCHE COSA QUESTO NUMERO E' E CHE COSA NON E' (gen435b, F.).\n"
+           "NON e' un elenco di lacune da riempire, e la KB non si completa: si anima.\n"
+           "E non prova nemmeno che una riga sia morta — «mai chiesta» e «non puo'\n"
+           "combaciare» sono indistinguibili da un conteggio su un corpus, e infatti\n"
+           "in questo elenco le due specie stanno mescolate.\n"
+           "E' una misura DEI BANCHI, non della KB: dice quali meccaniche dichiarate\n"
+           "questi corpora non esercitano mai — cioe' dove le prove sono strette.\n");
+    brain_destroy(b);
     return 0;
 }
 
@@ -656,6 +787,7 @@ int main(int argc, char **argv) {
     const char *bench_stats = BENCH_STATS_DEFAULT;
     const char *profile = NULL;
     const char *measure_dir = NULL;   /* gen421: la stazza */
+    const char *audit_paths[8]; size_t n_audit = 0;  /* gen435: la conoscenza muta */
     int footprint_mode = 0;           /* gen422: la firma dell'inferenza */
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
@@ -708,6 +840,9 @@ int main(int argc, char **argv) {
         else if (strcmp(argv[i], "--host") == 0 && i + 1 < argc) host = argv[++i];
         else if (strncmp(argv[i], "--host=", 7) == 0) host = argv[i] + 7;
         else if (strcmp(argv[i], "--footprint") == 0) { footprint_mode = 1; }
+        else if (strcmp(argv[i], "--audit") == 0 && i + 1 < argc) {
+            if (n_audit < 8) audit_paths[n_audit++] = argv[++i]; else i++;
+        }
         else if (strcmp(argv[i], "--measure") == 0 && i + 1 < argc) {
             measure_dir = argv[++i];
         }
@@ -811,6 +946,9 @@ int main(int argc, char **argv) {
     /* gen382: il sogno gira sul cervello COMPLETO (e' esplorazione, non un test
      * ermetico), stampa il suo trace su stdout ed esce. */
     if (footprint_mode) { brain_destroy(brain); return footprint_run(); }
+    if (n_audit) {
+        return audit_run(audit_paths, n_audit);
+    }
     if (measure_dir) {
         brain_destroy(brain);            /* la misura crea il proprio, uno per prompt */
         return measure_run(measure_dir);

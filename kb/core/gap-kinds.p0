@@ -124,3 +124,17 @@ gap_remedy(wrong_suspect, "non manca niente: c'e' di troppo — serve una GUARDI
 % E il ponte fra le due tabelle: la specie derivata porta con se' il suo rimedio,
 % cosi' l'ispettore non deve saperlo — lo legge.
 turn_gap_remedy($T, $Text) :- turn_gap_kind($T, $Kind), gap_remedy($Kind, $Text).
+
+% ── DORMIENTE PER DISEGNO (gen435) ─────────────────────────────────────────
+% Non tutto cio' che tace e' rotto: qualcosa aspetta un turno che non e' ancora
+% arrivato, e dirlo e' conoscenza. Serve all'audit (`make audit`) per non
+% annegare il segnale — ed e' il motivo per cui il giudizio sta qui e non nel C:
+% distinguere una conoscenza che tace per disegno da una che tace per un difetto
+% richiede di sapere a che cosa serve.
+machinery(dormant_by_design).
+dormant_by_design(needhelp).
+dormant_by_design(capability_wall).
+dormant_by_design(dead_rule).
+dormant_by_design(inert_rule).
+dormant_by_design(learned_bridge).
+dormant_by_design(pending_gap_failed).

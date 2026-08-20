@@ -935,6 +935,14 @@ rl-report:
 # e deve restare verde) ne' `make rl-bench` (che misura la crescita su lavori
 # multi-turno): misura la MOLE, con un corpus che spazzola lo spazio d'ingresso
 # per lunghezza in byte. La lingua si fissa, altrimenti si misura il locale.
+# ── audit — LA CONOSCENZA CHE NON HA MAI FATTO NIENTE (gen435) ──────────────
+# Riproduce l'unione dei banchi con l'audit acceso e dice quali fatti non hanno
+# mai unificato. E' relativo a cio' che ha VISTO: un corpus stretto fa sembrare
+# morta della conoscenza sanissima, quindi si passano tutti i corpora che ci sono.
+audit:
+	@$(MAKE) --no-print-directory build >/dev/null
+	@PARROT0_LANG=en ./$(BIN) --audit tests/hundred/hundred.qa --audit tests/measure/
+
 # ── hundred — I CENTO (docs/plans/parrot0-100-failures.md) ──────────────────
 # Quanti dei cento prompt documentati parrot0 risolve DAVVERO. L'attesa di ogni
 # riga e' curata perche' nessun ripiego possa passarla. `make hundred-v` elenca
