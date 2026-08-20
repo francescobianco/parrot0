@@ -23,14 +23,52 @@ La crescita non e' dimostrata dal numero di fatti scaricati. E' dimostrata da un
 saldo positivo su domande nuove, da candidati necessari e revocabili, e dal fatto
 che il processo continui quando nessun umano aggiunge conoscenza.
 
+## 0. Correzione fondamentale: la lacuna nasce durante l'inferenza
+
+La prima edizione lasciava intendere che si potessero calcolare prima le lacune
+su un corpus, addestrare la KB e poi misurare le risposte. Questo e' un
+fraintendimento architetturale. **Quello e' audit o addestramento batch, non
+autocorrezione.**
+
+L'autocorrezione deve osservare il proprio fallimento mentre sta cercando di
+rispondere al turno corrente. La lacuna deve essere causata dalla traccia reale
+dell'inferenza di quel turno: quali evidenze sono state viste, quale facolta' ha
+preso il turno, quale slot dell'`answer_plan` e' rimasto vuoto, quale fatto non e'
+stato consumato e quale vincolo e' stato perso.
+
+Il ciclo corretto e' quindi **in-linea**:
+
+```text
+turno
+  -> comprensione e piano provvisorio
+  -> inferenza / tentativo di risposta
+  -> supervisore della traccia nello stesso turno
+  -> gap tipato del fallimento osservato
+  -> domanda Wikipedia e candidato in quarantena
+  -> replay dello stesso turno
+  -> verifica, ablazione e risposta finale o declino
+```
+
+Il replay non e' una seconda sessione di addestramento: e' la continuazione
+controllata dell'inferenza corrente. Se il budget di riparazione termina,
+parrot0 deve dichiarare il limite; non puo' usare una risposta generica per
+nascondere che la riparazione non e' riuscita.
+
+Un audit statico su `hundred`, `measure` o sulla KB resta utile per progettare
+esperimenti, trovare predicati dormienti e misurare la coltivazione. Non puo'
+pero' creare da solo una lacuna, una domanda o una riga di autocorrezione. La
+prova dell'autocorrezione e' sempre: **stesso turno, stessa inferenza, gap
+osservato, riparazione in-linea, risposta migliorata**.
+
 ## 1. Ipotesi e definizioni operative
 
 ### H1: la KB fertile chiude lacune proprie
 
 Una KB fertile non contiene soltanto fatti. Contiene connessioni tra fatti,
 superfici linguistiche, frame e procedure dichiarate. Una riga promossa deve
-quindi produrre una o piu' nuove lacune che il sistema sa classificare e per cui
-esiste un candidato ottenibile da Wikipedia o da una forma gia' osservata.
+quindi, quando viene usata in un'inferenza reale, produrre una o piu' nuove
+lacune che il supervisore del turno sa classificare e per cui esiste un
+candidato ottenibile da Wikipedia o da una forma gia' osservata.
 
 Definiamo:
 
@@ -46,8 +84,9 @@ peggiorano.
 
 Wikipedia puo' fornire fatti e concetti, ma una KB composta solo da forma B
 resta piena di conoscenza irraggiungibile. L'ipotesi e' che il trattamento
-`fatti + superfici + audit + gate` produca piu' crescita utile del trattamento
-`soli fatti`, a parita' di pagine e budget.
+`fatti + superfici + supervisore in-linea + gate` produca piu' crescita utile
+del trattamento `soli fatti`, a parita' di pagine e budget. L'audit statico e'
+solo una condizione di osservazione, non un trattamento di autocorrezione.
 
 ### H3: l'autonomia e' trasferimento, non memoria
 
