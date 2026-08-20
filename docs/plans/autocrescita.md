@@ -66,6 +66,78 @@ misurati in `fix-patterns.md`.
    domande.** Se lo spazio negativo calcolato è vuoto, la KB non è completa —
    è cieca.
 
+### La KB non si completa: si anima (F., gen435)
+
+Va scritto qui perché è il modo più facile di sbagliare tutto il piano, ed è
+capitato **subito**, alla seconda generazione.
+
+> *«Quando la KB è grande questa cosa di fare autoscan non serve, i buchi ci
+> saranno: noi dobbiamo far funzionare la KB e animarla, mica compattarla. Questa
+> mi sembra la solita "riempiamo tutti i buchi così non manca nulla".»*
+
+Fertile **non vuol dire completa**. Su una KB grande la conoscenza inutilizzata è
+illimitata e in gran parte sana — i fatti di mondo *sono* lo spazio delle
+risposte, non buchi da tappare — e un censimento dell'assenza spinge esattamente
+nella direzione opposta a quella di §0a: si comincia a colmare invece che a far
+scorrere.
+
+**Il criterio per riconoscere la deriva**, e va applicato a ogni generazione di
+questo piano: *questa cosa aumenta il FLUSSO — quanta conoscenza entra davvero in
+un turno, e quanto si tiene insieme nel tempo — o aumenta soltanto la
+COPERTURA?* Se la risposta è la seconda, è la strada sbagliata anche quando i
+numeri salgono.
+
+### Il leitmotiv: **il set minimo di innesco** (F., gen435)
+
+> *«Ti vorrei più sul fronte scientifico: trovare il set minimo di conoscenza per
+> cui si inneschi un meccanismo. Tu sei sul fronte "build with blocks".»*
+
+È la critica giusta al modo in cui questo piano stava procedendo, e diventa **il
+metodo di tutte le generazioni che seguono**.
+
+| | *build with blocks* | **fronte scientifico** |
+|---|---|---|
+| la domanda | «che cosa aggiungo perché funzioni?» | «qual è la conoscenza **minima** perché si accenda da solo?» |
+| il metodo | si aggiunge finché il caso passa | si parte dal minimo e si cerca **la soglia** |
+| la verifica | il caso passa | **per sottrazione**: si toglie finché smette |
+| il risultato | un pezzo in più | **un numero**, riproducibile e falsificabile |
+| il rischio | crescere per accumulo, e non sapere che cosa serviva | nessuno: anche il fallimento è un dato |
+
+**La forma di un risultato**, e da qui in avanti ogni generazione deve produrne
+uno così:
+
+> *Il meccanismo M si innesca a partire da S — |S| = n righe, di forma A/B/C —
+> e togliendo una qualunque riga di S non si innesca più.*
+
+Non «M funziona», non «ho aggiunto k righe»: **S, con la sua cardinalità e la sua
+prova di minimalità**. Un set minimo dice qualcosa *sul sistema*; un pezzo in più
+fa funzionare un caso.
+
+**Perché non è un vezzo metodologico.** Tutto il piano poggia sull'ipotesi della
+massa critica (§10), che è *esattamente* un set minimo — quello del ciclo intero.
+Se le generazioni intermedie non producono soglie, alla fine non ci sarà nessuna
+curva da guardare: ci sarà una KB più grande e nessun modo di dire perché si è
+accesa, né a partire da cosa. **Un piano che accumula non può misurare
+l'accensione.**
+
+**Il protocollo, uguale per ogni generazione:**
+
+1. si sceglie un meccanismo che *non* si innesca oggi, e si scrive il segnale
+   osservabile che dirà che si è acceso;
+2. si costruisce il **candidato minimo** — non quello comodo: quello piccolo;
+3. si prova. Se non si accende, si aggiunge **una riga sola** e si riprova. Il
+   numero di giri è già un dato;
+4. acceso, si **toglie ogni riga a turno**: quella la cui rimozione non spegne
+   niente non faceva parte del set, e va tolta per sempre;
+5. si registra `S`, la sua cardinalità, e la forma di ogni riga (§7). Le forme
+   che ricorrono attraverso meccanismi diversi sono il vero raccolto.
+
+**E il criterio di anti-deriva** che ne segue, da applicare a ogni proposta —
+compresa una mia: *stai cercando una soglia o stai aggiungendo un pezzo?* Le tre
+generazioni fatte finora (433, 434, 435) erano costruzione, non ricerca: hanno
+lasciato strumenti utili e **nessun numero**. È il debito da cui riparte la
+prossima.
+
 ### Come si vede che siamo ancora nel regime statico
 
 Tre sintomi, tutti osservati questa settimana:
@@ -269,22 +341,29 @@ combacia**. *Domanda:* «con quali parole me lo stai chiedendo?»
 forma espressiva raccolta dalla prosa** (§4.1). **Forma A.** È la classe più
 numerosa: ~100 righe su 507 (`fix-patterns.md` §1).
 
-### 3f. Conoscenza mai toccata *(nuova)*
-*Segnale:* l'aggregato delle **impronte di inferenza** su un corpus dà i
-predicati — e, scendendo, le righe — che nessun turno ha mai attivato.
-*Domanda:* **«quali cose che dico di sapere non hanno mai fatto niente?»**
-*Candidato:* nessuno da generare. La risposta è o un difetto del motore o
-conoscenza da ritirare. **È l'unica sorgente che non richiede un turno**: parrot0
-può porsela a freddo, e i sette difetti del gen427-432 sarebbero caduti tutti
-qui (la sterlina confrontata su un carattere, i frame al passato uccisi dalla
-copula, i registri letti a 16 su 18…).
+### 3f. Conoscenza mai toccata — **provata a gen435 e ridimensionata**
+*Segnale:* l'aggregato delle impronte di inferenza su un corpus dà le righe che
+nessun turno ha mai attivato.
+*Domanda:* «quali cose che dico di sapere non hanno mai fatto niente?»
 
-> Le sei si dividono in due famiglie, ed è la divisione che conta per il piano:
-> **a, b, c, f si calcolano dalla KB a freddo** — parrot0 può porsele mentre
-> nessuno parla, che è la definizione operativa di *crescere da solo*; **d, e
-> nascono da un turno**, e sono il ponte con il dialogo.
+**È stata costruita (`make audit`, gen435) e la misura ha smentito il disegno.**
+Due cose, e vanno tenute perché costano meno che riscoprirle:
 
----
+1. **un conteggio su un corpus non prova che una riga sia morta.** «Mai chiesta»
+   e «non può combaciare» danno lo stesso identico segnale: `currency_sign` fira
+   per `$` e mai per `£` **esattamente come** `stopword` fira per dieci parole e
+   mai per le altre 284. La sterlina — il caso che aveva motivato la sorgente —
+   **non è distinguibile** da una parola che nessuno ha pronunciato. Per provarla
+   serve un controllo *statico* fra consumatore e riga (quel confronto guarda un
+   carattere, quella riga ne occupa due): un'altra cosa, che vive altrove;
+2. **il numero che ne esce è un censimento dell'assenza** — «13.935 fatti mai
+   usati, 85%» — ed è il numero che spinge verso la completezza invece che verso
+   il flusso. Vedi §0a.
+
+**Quello che lo strumento misura davvero, ed è utile**, è un'altra cosa: *quali
+meccaniche dichiarate questi banchi non esercitano mai*. È una **misura dei
+banchi**, non della KB: dice dove le prove sono strette. `make audit` è stato
+tenuto con quella intestazione.
 
 ## 4. Le strategie da sperimentare in parallelo
 
@@ -686,7 +765,13 @@ successo prima (è il difetto misurato in `autocorrezione.md` §3).
 
 ---
 
-### gen435 — L'audit a freddo: la conoscenza che non ha mai fatto niente
+### gen435 — L'audit a freddo  ⚠️ FATTA, E HA SMENTITO SE STESSA
+
+> **Spedita come `make audit` e ridimensionata lo stesso giorno.** Vale come
+> esempio di generazione che produce più conoscenza dal proprio fallimento che
+> dal proprio successo: §3f per il merito, §0a per il principio che ne è uscito.
+> Lo strumento resta con l'intestazione onesta — misura i **banchi**, non la KB.
+> Il disegno originale, per memoria:
 
 **Costruisce:** la sorgente 3f. Il motore aggrega le impronte di inferenza su un
 corpus e pubblica `fired/1`; la KB deriva il resto.
