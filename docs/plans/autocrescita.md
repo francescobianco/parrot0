@@ -461,6 +461,9 @@ solo dopo F6 perché prima non ci sarebbe niente da contare:
 |---|---|---|
 | **F7** | **La curva di R** (§10): a ogni giro, lacune chiuse e nuove lacune autochiudibili, misurate sulle lacune dei banchi larghi | si può disegnare la curva, e si vede se la media mobile sale verso 1 |
 
+Le otto fasi hanno una generazione ciascuna, con la conoscenza che le esprime e
+un arco riparativo verificabile a mano: **§12**.
+
 La scommessa, scritta per poter essere persa: *dopo F6, una campagna di crescita
 autonoma di una settimana muove `make hundred` o `make measure` più di quanto li
 muova una settimana di lavoro supervisionato, e la curva di R non scende.* Se non
@@ -586,6 +589,370 @@ parlando addosso.
   confrontate invece che lette separatamente.
 
 ---
+
+## 12. La strada, generazione per generazione
+
+Otto generazioni, una per fase. Per ognuna: **che cosa costruisce**, la
+**conoscenza** che la esprime (gli snippet sono nel dialetto reale — variabili
+`$X`, liste `cons/nil`, `naf/1`, `findall/3`, arità ≤ 4, corpo ≤ 8 goal),
+**l'arco riparativo** con un caso che si può seguire a mano, e il **cricchetto**
+che la chiude.
+
+> Gli snippet sono **bersagli di progetto**, non codice già in KB: si leggono
+> come si legge una dimostrazione — se il ragionamento non regge sulla carta, non
+> reggerà nemmeno compilato. Ogni esempio è però tratto da un **caso misurato**
+> di questa settimana, quindi la verifica è possibile: si sa già che cosa
+> rispondeva parrot0 prima e dopo.
+
+---
+
+### gen434 — La lacuna smette di essere un messaggio e diventa un oggetto
+
+**Costruisce:** i quattro difetti di `question-emergence.md` §9.1 come classi
+dichiarate, e le regole che li derivano dall'esito del turno. Oggi
+`unsatisfying_outcome/2` conosce solo `reachability`: si completa.
+
+```prolog
+% I QUATTRO MODI DI NON RISPONDERE. Il motore pubblica che cosa e' successo;
+% quale LACUNA sia lo decide la KB — e una quinta specie, domani, e' una riga.
+gap_kind(knowledge).   % so la forma della domanda, non ho il valore
+gap_kind(reach).       % ho il valore, e non ci sono arrivato
+gap_kind(surface).     % non ho riconosciuto che me lo stavi chiedendo
+gap_kind(wrong).       % ho risposto, e la risposta non e' pertinente
+
+% Un turno lascia il suo esito come fatto di sessione (gia' oggi: gap_record_as).
+% Da li' le quattro regole distinguono, e la distinzione e' TUTTO il valore:
+% quattro lacune diverse hanno quattro rimedi diversi e quattro sorgenti diverse.
+
+gap(knowledge, $Subject, $Relation, value) :-
+    turn_outcome(current_turn, $Outcome), unsatisfying_outcome($Outcome, $Any),
+    turn_topic(current_turn, $Subject),
+    answer_frame($Cue, $Relation), turn_cue_present(current_turn, $Cue),
+    naf(kb_fact($Relation, cons($Subject, $Rest))).
+
+gap(reach, $Subject, $Relation, consumer) :-
+    turn_outcome(current_turn, $Outcome), unsatisfying_outcome($Outcome, $Any),
+    turn_topic(current_turn, $Subject),
+    kb_fact($Relation, cons($Subject, $Rest)),
+    naf(turn_consumer(current_turn, $Relation)).
+
+gap(surface, $Subject, $Register, cue) :-
+    turn_outcome(current_turn, $Outcome), unsatisfying_outcome($Outcome, $Any),
+    turn_register(current_turn, $Register), faculty_for($Register, $Faculty),
+    naf(turn_cue_matched(current_turn, $Register)).
+```
+
+**L'arco riparativo, su un caso misurato.** Prima del gen427, `9:15` riceveva il
+muro. Ma il trascodificatore pubblicava già, ogni turno, il fatto
+`transcoded("9:15", time(9, 15))`: il valore c'era e nessuno lo consumava.
+
+```
+turno          9:15
+esito          blind_wall                          → unsatisfying_outcome ✓
+turn_topic     "9:15"
+kb_fact        transcoded("9:15", time(9,15))      → il valore ESISTE
+turn_consumer  (nessuno per transcoded)            → naf ✓
+──────────────────────────────────────────────────────────────────────
+gap(reach, "9:15", transcoded, consumer)
+```
+
+E la differenza che questa riga fa: la lacuna **non dice** «non conosco 9:15» —
+dice *«ho un fatto su 9:15 che nessuno legge»*. È una frase su cui si può agire,
+e il rimedio è di forma **A** (una superficie, cioè `lone_literal_say`), non di
+forma B. Nel gen427 quel rimedio è stato scritto a mano; qui la lacuna lo nomina.
+
+**Cricchetto:** i cento falliti producono un numero di lacune tipate **stabile
+fra due esecuzioni**, e nessun prompt cambia `Kind` a seconda di ciò che è
+successo prima (è il difetto misurato in `autocorrezione.md` §3).
+
+---
+
+### gen435 — L'audit a freddo: la conoscenza che non ha mai fatto niente
+
+**Costruisce:** la sorgente 3f. Il motore aggrega le impronte di inferenza su un
+corpus e pubblica `fired/1`; la KB deriva il resto.
+
+```prolog
+% Il motore pubblica solo un fatto per predicato TOCCATO. Tutto il giudizio
+% e' qui, in tre regole — quindi «dormiente per disegno» e' una riga, non un ramo.
+never_fired($Pred) :- declared_predicate($Pred), naf(fired($Pred)).
+
+% Non tutto cio' che tace e' morto: qualcosa aspetta un turno che non e' arrivato.
+dormant_by_design(needhelp).
+dormant_by_design(capability_wall).
+
+suspect_dead($Pred) :- never_fired($Pred), naf(dormant_by_design($Pred)).
+
+% E la domanda che parrot0 si pone DA SOLO, senza che nessuno parli:
+self_question(audit, $Pred) :- suspect_dead($Pred).
+```
+
+**L'arco riparativo, su tutti e sette i difetti del gen427-432.** Il più netto:
+
+```
+declared_predicate(currency_char)      % la riga c'era dal gen427
+fired(currency_char)                   % MAI: il confronto era su un carattere
+                                       % solo, e «£» ne occupa due
+─────────────────────────────────────────────────────────────────────
+suspect_dead(currency_char)  →  self_question(audit, currency_char)
+```
+
+La domanda che ne esce è la frase che ho scritto tre volte in tre commit senza
+accorgermi che era un pattern: **un fatto che non combacia non si lamenta.** Da
+qui in poi si lamenta.
+
+**Nota di progetto, e non è un dettaglio:** questa sorgente **non propone
+righe**. Produce una domanda il cui destinatario può essere il motore (un
+difetto) o il revisore (conoscenza da ritirare). È l'unica sorgente che
+attraversa il confine di §8.3, ed è per questo che lo attraversa **solo con le
+parole**.
+
+**Cricchetto:** l'elenco contiene almeno uno dei sette difetti noti,
+riprodotto **senza** che nessuno lo indichi.
+
+---
+
+### gen436 — La domanda si pone da sola: lo spazio negativo si calcola
+
+**Costruisce:** le sorgenti 3a, 3b, 3c come regole — non come scansioni in C.
+
+```prolog
+% 3c — ENTITA' OPACA: compare come argomento, mai come soggetto.
+has_subject_fact($E) :- kb_fact($Pred, cons($E, $Rest)).
+appears_as_object($E) :- kb_fact($Pred, cons($X, cons($E, nil))).
+opaque_entity($E) :- appears_as_object($E), naf(has_subject_fact($E)).
+self_question(concept, $E) :- opaque_entity($E), naf(wiki_concept($E, $D, $G)).
+
+% 3b — FRAME DICHIARATO SENZA DATI: la domanda E' il fatto mancante, col buco
+% al posto del valore. E' la sorgente piu' pulita che esista.
+self_question(value($Relation), $Subject) :-
+    answer_frame($Cue, $Relation), known_entity($Subject),
+    naf(kb_fact($Relation, cons($Subject, $Rest))).
+
+% 3a — ASIMMETRIA FRA FRATELLI: il profilo atteso lo dice la MAGGIORANZA,
+% nessuno scrive uno schema.
+sibling_profile($Class, $Relation, $N) :-
+    findall($M, class_member_with($Class, $Relation, $M), $L), count_list($L, $N).
+expected_of($Class, $Relation) :-
+    sibling_profile($Class, $Relation, $N), class_size($Class, $S),
+    is($Half, div($S, 2)), gt($N, $Half).
+self_question(value($Relation), $Member) :-
+    expected_of($Class, $Relation), category_member($Class, $Member),
+    naf(kb_fact($Relation, cons($Member, $Rest))).
+```
+
+**L'arco riparativo, verificabile a mano.** Nella KB di oggi
+`poker_hand(straight_flush)` esiste e `straight_flush` non è soggetto di nulla:
+
+```
+appears_as_object(straight_flush)      % poker_hand(straight_flush)
+has_subject_fact(straight_flush)       % nessuno
+──────────────────────────────────────────────────────────────
+opaque_entity(straight_flush)  →  self_question(concept, straight_flush)
+```
+
+E l'asimmetria, con i numeri della KB reale: se `game_players/2` è dichiarata da
+9 giochi su 15, `expected_of(game, game_players)` tiene (9 > 7), e ogni gioco
+senza quella relazione diventa una domanda **tipata e già formata**.
+
+**Cricchetto:** le tre regole producono un elenco non vuoto e **stabile** su una
+KB ferma; e almeno una domanda dell'elenco corrisponde a un prompt dei cento che
+oggi fallisce — cioè lo spazio negativo *predice* un fallimento osservato.
+
+---
+
+### gen437 — Il candidato, con la sua fonte
+
+**Costruisce:** il ciclo S1. La domanda diventa una riga proposta, e la
+provenienza è parte della proposta, non un'aggiunta successiva.
+
+```prolog
+% Un candidato e' una TERNA: la riga, la domanda che l'ha chiesta, la fonte.
+% Senza fonte non entra (perimetro §8.2) — e la regola lo dice, non un commento.
+candidate($Row, $Question, $Source) :-
+    self_question(concept, $E), source_defines($Source, $E, $Gloss),
+    concept_row($E, $Gloss, $Row), eq($Question, concept($E)).
+
+concept_row($E, $Gloss, wiki_concept($E, $Domain, $Gloss)) :-
+    source_domain($E, $Domain).
+
+% La promozione e' un ATTO SEPARATO, e ha tre condizioni, non una.
+promotable($Row) :-
+    candidate($Row, $Question, $Source),
+    proved($Row, $Turn), ablation_fails($Row, $Turn), bench_delta_nonneg.
+```
+
+**L'arco riparativo, dal caso del gen432 rifatto al contrario.** `epistemic
+injustice` era una domanda che parrot0 capiva e non sapeva; la riga
+`wiki_concept(epistemic_injustice, philosophy, "…")` l'ha chiusa. Il ciclo
+rifarebbe la stessa cosa senza che nessuno la scriva:
+
+```
+self_question(concept, epistemic_injustice)          % 3c, dallo spazio negativo
+source_defines(page(1873), epistemic_injustice, G)   % dal corpus, citabile
+candidate(wiki_concept(epistemic_injustice, philosophy, G), …, page(1873))
+proved                → «what is epistemic injustice» risponde
+ablation_fails        → tolta la riga, torna a fallire   ✓ serviva
+bench_delta_nonneg    → test verde, hundred +1
+──────────────────────────────────────────────────────────────────────
+promotable ✓  → quarantena con learned_from(Row, page(1873))
+```
+
+**Cricchetto:** K entità opache colmate **con provenienza**, `make test` verde,
+saldo `hundred` ≥ 0. E la riga di quarantena si può togliere in blocco.
+
+---
+
+### gen438 — L'ablazione diventa il cancello
+
+**Costruisce:** il punto (5) del ciclo. È la difesa contro il difetto che
+`fix-patterns.md` ha trovato sette volte, e la sua forma è banale — il che è il
+bello.
+
+```prolog
+% Una riga entra solo se la sua ASSENZA si vede. Il motore esegue i due turni;
+% la KB dice che cosa significa il risultato.
+ablation_fails($Row, $Turn) :- without($Row, $Turn, fail).
+useless_row($Row) :- without($Row, $Turn, pass).
+
+% E cio' che non serve non si butta in silenzio: si registra, perche' un
+% candidato inutile e' una LACUNA MAL DIAGNOSTICATA, ed e' un'informazione.
+self_question(misdiagnosis, $Question) :-
+    candidate($Row, $Question, $Source), useless_row($Row).
+```
+
+**L'arco riparativo — il caso che insegna di più è quello che *scarta*.** Se
+parrot0 propone `content_kind(receipt)` per chiudere *«explain this receipt»* e,
+tolta la riga, il turno passa lo stesso, allora la lacuna non era la classe:
+qualcosa d'altro stava già rispondendo. La riga si scarta e nasce
+`self_question(misdiagnosis, …)` — cioè il ciclo impara **dove non guardare**.
+
+**Cricchetto:** il numero di righe scartate dall'ablazione è **> 0**. Se è zero,
+il cancello non sta misurando niente ed è decorativo.
+
+---
+
+### gen439 — La superficie raccolta dalla prosa
+
+**Costruisce:** il ciclo S2, cioè la classe più numerosa (§7). Il precedente è
+il gen382: le forme non si immaginano, si **contano**.
+
+```prolog
+% Una FORMA e' una sequenza di parole che ricorre fra due entita' note. Il
+% motore misura le ricorrenze; la KB decide quando una ricorrenza e' una forma.
+form_support($Between, $N) :-
+    findall($P, corpus_between($P, $Between, $A, $B), $L), count_list($L, $N).
+form_min_support(5).
+
+proposed_frame($Pattern, $Relation) :-
+    form_support($Between, $N), form_min_support($Min), ge($N, $Min),
+    pair_relation($Between, $Relation),
+    frame_pattern($Between, $Pattern), naf(extract_frame($Pattern, $Relation)).
+```
+
+**L'arco riparativo, con i numeri veri del gen382.** Nel corpus di 49 pagine,
+«known as» compare **15 volte** fra due entità che la KB già collega con
+`also_known_as/2`:
+
+```
+form_support("known as", 15)        ≥ form_min_support(5)     ✓
+pair_relation("known as", also_known_as)                      % le coppie coincidono
+frame_pattern("known as", "@S is known as @O")
+naf(extract_frame("@S is known as @O", also_known_as))        % non c'era ancora
+──────────────────────────────────────────────────────────────────────
+proposed_frame("@S is known as @O", also_known_as)
+```
+
+Questa è la riga che nel gen382 ho scritto a mano **dopo** aver contato. Il
+punto del ciclo è che il conteggio e la scrittura sono lo stesso atto.
+
+**Cricchetto:** almeno una `extract_frame` raccolta dal corpus chiude un turno
+che prima falliva, e sopravvive all'ablazione.
+
+---
+
+### gen440 — Le cinque strategie in parallelo, e il saldo per sorgente
+
+**Costruisce:** il registro che permette di confrontarle invece di preferirle.
+
+```prolog
+% Ogni riga promossa ricorda da quale ciclo viene. Il saldo si calcola per
+% sorgente: quante righe ha aggiunto, e quanto ha mosso i banchi.
+yield($Source, $Added, $Delta) :-
+    findall($R, promoted_by($Source, $R), $L), count_list($L, $Added),
+    bench_delta($Source, $Delta).
+
+% Una sorgente che aggiunge molto e muove poco sta lavorando in una tasca.
+pocket($Source) :- yield($Source, $Added, $Delta), gt($Added, 20), le($Delta, 0).
+```
+
+**L'arco riparativo — questo gen non ripara un turno, ripara il PIANO.** Se dopo
+un giro `pocket(opaque_entities)` tiene, la strategia S1 sta colmando entità
+opache di un angolo marginale: il ciclo funziona e il piano no. È il fallimento
+che assomiglia di più al successo (§10), e qui diventa una riga interrogabile.
+
+**Cricchetto:** si può dire, **con i numeri**, quale sorgente ha portato più
+crescita per riga aggiunta.
+
+---
+
+### gen441 — R: la fertilità, misurata
+
+**Costruisce:** la curva di §10, che è la verifica dell'ipotesi di F.
+
+```prolog
+% R di un giro: quante lacune AUTOCHIUDIBILI ha aperto ogni lacuna chiusa.
+% «Autochiudibile» non e' un giudizio: e' avere un generatore di candidati (§7).
+self_closable($Q) :- self_question($Kind, $X), kind_has_generator($Kind).
+kind_has_generator(concept).
+kind_has_generator(value($Relation)).
+kind_has_generator(surface).
+
+r_round($Round, $R) :-
+    closed_in($Round, $C), gt($C, 0),
+    findall($Q, opened_in($Round, $Q), $L), count_list($L, $N),
+    is($R, div($N, $C)).
+
+% E la soglia, che e' OSSERVATA e non decisa.
+fertile($Round) :- r_round($Round, $R), ge($R, 1), bench_delta_nonneg($Round).
+```
+
+**L'arco riparativo — la domanda finale che parrot0 si pone su di sé:**
+
+```
+closed_in(7, 12)                       % dodici lacune chiuse nel giro 7
+opened_in(7, …) × 14                   % quattordici nuove, tutte con generatore
+r_round(7, 1.16)                       % R ≥ 1
+bench_delta_nonneg(7)                  % e i banchi non sono scesi
+──────────────────────────────────────────────────────────────────────
+fertile(7)   → la KB ha attraversato la soglia in quel giro
+```
+
+**Cricchetto — ed è il criterio dell'intero piano:** la curva si può disegnare, e
+si vede se la media mobile sale verso 1. Se resta sotto in ogni configurazione
+delle cinque strategie, **l'ipotesi della massa critica è falsa per questo
+sistema**, e il piano è servito a mostrarlo con dei numeri.
+
+---
+
+### La lettura d'insieme
+
+| gen | che cosa cambia nel regime |
+|---|---|
+| **434** | il fallimento smette di essere un messaggio: diventa un oggetto con un tipo |
+| **435** | la conoscenza morta comincia a lamentarsi |
+| **436** | lo spazio negativo si calcola, quindi le domande esistono prima dei turni |
+| **437** | una domanda diventa una riga, con la sua fonte |
+| **438** | una riga inutile non entra, e il suo rifiuto insegna |
+| **439** | la prosa smette di dare solo fatti e comincia a dare **forme** |
+| **440** | le strategie si confrontano invece di essere preferite |
+| **441** | la fertilità ha un numero, e l'ipotesi si può perdere |
+
+Le prime tre sono **percezione** (vedere le proprie lacune), le tre di mezzo sono
+**azione** (colmarle senza mentire), le ultime due sono **misura** (sapere se sta
+funzionando). Nessuna delle otto aggiunge una facoltà conversazionale: tutte
+aggiungono **conoscenza sulla propria conoscenza**, che è la definizione più
+stretta di ciò che questo piano vuole.
 
 ## Riferimenti
 
