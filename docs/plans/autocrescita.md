@@ -45,6 +45,66 @@ piano fallisce:
 
 ---
 
+## 0b. La condizione che chiude il piano (F., gen433)
+
+Il piano non è finito quando i cicli girano. È finito quando vale **questa
+congiunzione**, e le tre parti vanno insieme:
+
+> **K — crescita.** Un prompt lascia dietro di sé una **riga di KB** che è
+> sopravvissuta all'ablazione e al gate, con la sua provenienza.
+>
+> **P — risposta.** *Lo stesso prompt* riceve una **risposta plausibile**: non un
+> muro, non un template fuori bersaglio, non un'invenzione.
+>
+> **S — LLMSCORE ≥ 80%.** Il giudizio esterno di somiglianza comportamentale sta
+> a quattro quinti, e ci resta su più esecuzioni.
+
+**K e P sullo stesso turno** è la parte esigente, ed è voluta: è *«un solo atto di
+apprendimento — detto e letto coincidono»* (gen407). Un sistema che cresce in un
+processo batch e risponde bene in un'altra sessione non ha dimostrato l'anello:
+ha dimostrato due metà che non si toccano.
+
+### La morsa — perché S da solo sarebbe una trappola
+
+`LLMSCORE.md` all'ultima esecuzione dice **0/20**, e le motivazioni del giudice
+sono quasi tutte la stessa: *«a generic template that completely ignores the
+question»*. È la classe D dei fallimenti, la peggiore, quella che **sembra** una
+risposta. Il che rende evidente il modo sbagliato di arrivare all'80%:
+**inventare**. Un generatore di prosa plausibile salirebbe in fretta.
+
+E c'è di più, e va detto perché è scomodo: **i due banchi non sono d'accordo su
+che cosa sia un successo.** Il disclaimer dei cento conta come risposta il
+*limite dichiarato con precisione*; il giudice di LLMSCORE dà **0** a
+*«the answer explicitly refuses to perform the task»* — è il voto della domanda
+14 dell'ultima esecuzione. Quindi:
+
+> **L'80% di LLMSCORE non si raggiunge dichiarando meglio i limiti. Si raggiunge
+> sapendo fare le cose.**
+
+Da qui il vincolo che tiene onesto l'obiettivo, e che chiamo **la morsa**:
+
+| bene | che cosa premia | come si bara |
+|---|---|---|
+| **LLMSCORE** | fare la cosa chiesta | inventare testo plausibile |
+| **i cento** (`make hundred`) | rispondere *quello che va risposto* | dichiarare limiti a tappeto |
+
+**S vale solo se sale INSIEME a `make hundred`.** Le attese curate dei cento sono
+costruite perché nessun ripiego le passi: un'invenzione plausibile fallisce lì
+mentre passa a LLMSCORE. Le due misure in opposizione formano il rilevatore che
+il perimetro di §8 non può dare da solo — §8 impedisce di scrivere frasi nuove,
+la morsa mostra se qualcuno ha trovato un modo di farlo comunque.
+
+Tre note di misura, perché la condizione sia usabile e non un'aspirazione:
+
+1. **su più esecuzioni.** La coda di LLMSCORE è di 20 domande generate ogni volta:
+   un 80% singolo è rumore. Serve la mediana su almeno cinque giri.
+2. **i timeout contano.** Nell'ultima esecuzione tre zeri su venti erano
+   *«local timeout after 1.0s»*: parte della distanza non è comprensione, è
+   tempo di risposta, e va misurata come tale invece di essere confusa con essa.
+3. **K si conta, non si dichiara.** «Il prompt ha prodotto crescita» significa:
+   la riga esiste, ha una provenienza, e togliendola quel prompt torna a
+   fallire. Le prime due sono registrazione; la terza è l'ablazione di §5.
+
 ## 1. Che cosa è già vero (inventario, con i numeri)
 
 | pezzo | stato | dove |
@@ -324,15 +384,113 @@ per **quanto ciascuna rende possibile la successiva**.
 | **F5** | **Il parallelo.** I cicli corrono insieme, ognuno tiene il proprio saldo | si può dire, con i numeri, quale sorgente ha portato più crescita per riga aggiunta |
 | **F6** | **La promozione.** Quarantena → ufficiale dopo N giri puliti | esiste conoscenza in `kb/core/` che nessuno ha scritto a mano, e il progetto sa dire da dove viene |
 
-**Il criterio dell'intero piano**, e vale la pena scriverlo come una scommessa
-falsificabile: *dopo F6, una campagna di crescita autonoma di una settimana muove
-`make hundred` o `make measure` più di quanto li muova una settimana di lavoro
-supervisionato.* Se non succede, la tesi di F. è sbagliata **per questo sistema**,
-e va detto.
+**Il criterio dell'intero piano** è la congiunzione di §0b — **K, P e S
+insieme**, con la morsa che tiene onesto S. E una fase in più, che si può aprire
+solo dopo F6 perché prima non ci sarebbe niente da contare:
+
+| fase | che cosa costruisce | criterio |
+|---|---|---|
+| **F7** | **La curva di R** (§10): a ogni giro, lacune chiuse e nuove lacune autochiudibili, misurate sulle lacune dei banchi larghi | si può disegnare la curva, e si vede se la media mobile sale verso 1 |
+
+La scommessa, scritta per poter essere persa: *dopo F6, una campagna di crescita
+autonoma di una settimana muove `make hundred` o `make measure` più di quanto li
+muova una settimana di lavoro supervisionato, e la curva di R non scende.* Se non
+succede, la tesi è sbagliata **per questo sistema**, e va detto.
 
 ---
 
-## 10. Come questo piano può fallire (e come ce ne accorgiamo)
+## 10. L'ipotesi della massa critica (F.)
+
+> *«Secondo me esiste una massa critica di KB che garantisce l'autoapprendimento:
+> parrot0 è un processo autoaddestrante a prescindere, ma esiste uno stato della
+> KB dopo il quale l'autoaccrescimento è garantito, almeno in spazi
+> conversazionali ampi.»*
+
+La distinzione che F. fa è giusta e conviene renderla netta, perché cambia che
+cosa si misura:
+
+- **processo**: parrot0 *già* si autoaddestra a ogni turno — scrive fatti di
+  sessione, registra lacune, lascia un'impronta. Questo è vero da molte
+  generazioni e non è ciò che manca;
+- **regime**: ciò che cambia alla massa critica non è che *cominci* a imparare,
+  è che **smette di dover essere alimentato**. Il processo passa da *nutrito* a
+  *autosostenuto*.
+
+### Che cosa sarebbe, meccanicamente
+
+Ogni lacuna chiusa modifica lo spazio negativo: un fatto nuovo rende applicabili
+frame che prima non avevano soggetto, introduce argomenti che diventano entità
+(alcune opache), completa o rompe simmetrie fra fratelli. Cioè **una chiusura
+genera altre lacune** — e la domanda è quante di quelle nuove parrot0 sappia
+chiudere **da solo**.
+
+> **R = numero medio di lacune AUTOCHIUDIBILI aperte da ogni lacuna chiusa.**
+
+- **R < 1** — il processo si spegne: ogni giro produce meno lavoro di quanto ne
+  consumi, e la crescita deve essere alimentata da fuori. **È il regime di oggi**,
+  ed è precisamente il significato di *«cresce solo con miglioramento
+  supervisionato»*;
+- **R ≥ 1** — il processo si sostiene: non finisce le domande che sa aggredire
+  con le proprie sorgenti. **La massa critica è lo stato della KB in cui R
+  attraversa 1.**
+
+È una soglia su uno **stato**, non su una **quantità**, e questo spiega perché
+l'intuizione di F. non è «serve una KB grande»: R dipende dalla *densità delle
+connessioni* — frame × entità, fratelli, entità opache, superfici — non dal
+numero di fatti.
+
+### La previsione che rende l'ipotesi falsificabile
+
+Da `fix-patterns.md` esce una conseguenza non ovvia, e vale come predizione:
+
+> **La massa critica non è una massa di FATTI: è un rapporto fra fatti e
+> SUPERFICI.** Un fatto che nessuna superficie sa raggiungere non apre nessuna
+> domanda nuova — è conoscenza morta (§3f) — quindi **pompare solo la wiki
+> abbassa R** invece di alzarlo: aggiunge numeratore senza denominatore.
+
+Se questa previsione è giusta, si vede: una campagna che aggiunge solo forma B
+fa salire il conto dei fatti e **non** il numero di lacune autochiudibili per
+giro. Se è sbagliata, R sale comunque, e allora la strategia S1 da sola basta e
+S2 è un lusso. **In entrambi i casi lo si misura in un giro di campagna.**
+
+### Come si osserva l'attraversamento
+
+R non va stimato: si conta, e la strumentazione è la stessa dei cicli.
+
+1. a ogni giro si registrano **lacune chiuse** (righe promosse) e **lacune nuove
+   autochiudibili** (quelle le cui sorgenti hanno un generatore di candidati,
+   §7);
+2. `R_giro = nuove_autochiudibili / chiuse`, e si guarda la **curva su più
+   giri**, non il singolo valore;
+3. la massa critica è **osservata**, non decisa: è il primo giro da cui la media
+   mobile di R resta ≥ 1 mentre il saldo sui banchi resta ≥ 0.
+
+Le due condizioni insieme, e nessuna delle due da sola:
+
+- **R ≥ 1 con saldo piatto** = *fuga in una tasca*. Il caso classico: parrot0
+  scopre trecento entità opache di un dominio marginale, le colma tutte, si pone
+  altre trecento domande, e nessun banco si muove. È autosostentamento senza
+  crescita, ed è il fallimento più insidioso perché **assomiglia al successo**;
+- **saldo positivo con R < 1** = crescita vera ma alimentata: è il regime di
+  oggi, ed è esattamente ciò che il piano vuole superare.
+
+### «In spazi conversazionali ampi»
+
+La clausola di F. non è un ammorbidimento: è la definizione del banco. R va
+misurato **sulle lacune che nascono dai corpora larghi** — i cento, le classi
+misurate, la coda di LLMSCORE — non su quelle che il ciclo si genera da solo
+esplorando la KB. La differenza fra le due misure di R **è** la misura della
+tasca: se R è alto sulle proprie e basso su quelle esterne, il sistema si sta
+parlando addosso.
+
+> **La forma finale dell'ipotesi, come scommessa che si può perdere:** esiste
+> uno stato della KB, raggiungibile per aggiunte, in cui `R ≥ 1` misurato sulle
+> lacune dei banchi larghi, con saldo non negativo. Se dopo F6 la curva di R
+> resta sotto 1 in ogni configurazione delle cinque strategie, l'ipotesi della
+> massa critica è **falsa per questo sistema** — e il valore del piano diventa
+> quello di averlo mostrato con dei numeri invece che averlo supposto.
+
+## 11. Come questo piano può fallire (e come ce ne accorgiamo)
 
 - **Fallimento silenzioso**: il ciclo gira, aggiunge righe, i banchi non si
   muovono. Sintomo: molte promozioni, saldo piatto. Rimedio: l'ablazione di §5.2
@@ -347,6 +505,13 @@ e va detto.
 - **L'autoconvinzione**: il ciclo verifica con l'oracolo che ha scelto. Rimedio:
   l'oracolo non è scelto dal ciclo — è *riporre lo stesso turno* più i banchi,
   che il ciclo non controlla.
+- **La fuga in una tasca** (§10): R sale, il saldo no. È il fallimento che
+  assomiglia di più al successo — un sistema che si pone domande sempre più
+  numerose su un angolo sempre più stretto. Rilevatore: la differenza fra R
+  misurato sulle lacune proprie e R misurato su quelle dei banchi larghi.
+- **La scalata a LLMSCORE per invenzione**: S sale e `make hundred` scende.
+  Rilevatore: la morsa di §0b, che è l'unico posto dove le due misure vengono
+  confrontate invece che lette separatamente.
 
 ---
 
@@ -367,5 +532,5 @@ e va detto.
   forma/senso, frame del turno, stato dialogico, contesti
 - [`the-linguistic-glue.md`](the-linguistic-glue.md) — i cinque sintomi che §6
   trasforma in rilevatori
-- `docs/plans/parrot0-100-failures.md`, `docs/measured-classes.md` — i banchi che
-  fanno da giudice
+- `docs/plans/parrot0-100-failures.md`, `docs/measured-classes.md`, `LLMSCORE.md`
+  — i tre banchi che fanno da giudice, e le due misure che formano la morsa (§0b)
