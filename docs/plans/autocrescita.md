@@ -200,33 +200,71 @@ Tre sintomi, tutti osservati questa settimana:
 > un nome in §10 e si chiama **R** — la fertilità *è* R, e la massa critica è il
 > punto in cui la fertilità si autosostiene.
 
-## 0. La riformulazione verificabile
+## 0. LA DEFINIZIONE (F., gen436) — e i quattro vincoli che porta con sé
 
-La tesi, detta in modo che si possa falsificare:
+> **«Autocorrezione è la capacità dello STATO della KB di indirizzare una lacuna
+> attraverso l'unica sorgente esterna — la connessione con Wikipedia — e di
+> portare ciò che manca per finire il turno.»**
 
-> **Esiste un ciclo — lacuna, domanda, candidato, prova, promozione — in cui
-> parrot0 aggiunge alla propria KB conoscenza che NESSUNO gli ha dato, e il saldo
-> sui banchi di misura è positivo dopo il giro.**
+Questa frase non è un riassunto del piano: è il piano. Ogni parola porta un
+vincolo, e i quattro insieme escludono quasi tutto quello che si potrebbe fare.
 
-Le tre parole che portano il peso:
+**1. «lo stato della KB» — il soggetto non è un programma.** A indirizzare è la
+*configurazione* della conoscenza: quali relazioni esistono, quali superfici le
+raggiungono, quali regole sanno dire dove si sono fermate. Un tool che ispeziona
+e ripara lascia la KB nello stato di prima, e la volta dopo serve ancora
+(§0a, il perimetro). **Il lavoro di questo piano è trovare gli STATI, non
+scrivere le procedure.**
 
-- **nessuno gli ha dato**: il candidato non arriva da un turno di F. né da un
-  file curato. Arriva da un corpus statico, dal proprio stato, o dalla forma del
-  proprio fallimento;
-- **saldo positivo**: non «ha aggiunto righe», ma *`make test` resta verde e
-  `make hundred` / `make measure` salgono*. Una riga che chiude un prompt e ne
-  rompe un altro non è crescita;
-- **dopo il giro**: la promozione è un atto separato e revocabile, non l'effetto
-  collaterale di aver risposto.
+**2. «indirizzare una lacuna» — non trovarla: ADDRESSARLA.** Una lacuna serve
+solo se diventa un *indirizzo*: un posto preciso dove andare a prendere il pezzo
+mancante, e la forma in cui riportarlo. *«Non so»* non è un indirizzo. *«Mi manca
+il valore di `R` per `X`, e `X` sta alla pagina `P`»* lo è. Fra le due c'è tutto
+il lavoro.
 
-E la contro-tesi, che va tenuta in vista perché è il modo naturale in cui questo
-piano fallisce:
+**3. «l'unica sorgente esterna» — una, e dichiarata.** Wikipedia (locale, o
+scaricata con consenso esplicito). Non l'utente — quello è addestramento
+supervisionato, un'altra cosa. Non l'invenzione — quella è il misclaim. Una
+sorgente sola rende il ciclo **verificabile**: ogni riga che entra ha una pagina
+da citare, e chi non ce l'ha non entra.
 
-> Un sistema che si autocorregge senza vincolo diventa un sistema che **si
-> convince**. Produrre righe plausibili è facile; produrne di vere è il problema.
-> Il perimetro di §8 non è prudenza: è la parte del progetto.
+**4. «per finire il turno» — lo scopo non è la KB, è IL TURNO.** Non si colma per
+avere una KB migliore: si colma **per poter finire di rispondere**. Da cui il
+criterio di promozione più stretto e più semplice che ci sia:
 
----
+> **La conoscenza portata si tiene se il turno finisce. Se il turno non finisce,
+> si butta.**
+
+La crescita della KB è un **effetto collaterale** di turni completati. Detta
+così, sparisce da sola la tentazione della completezza: nessuno colma una lacuna
+che nessun turno ha aperto, perché non ci sarebbe niente da finire.
+
+### Che cosa questa definizione rende falsificabile
+
+> Esiste uno **stato della KB** in cui un turno che si arresta produce un
+> **indirizzo**, l'indirizzo produce una **pagina**, la pagina produce la
+> **conoscenza mancante**, e il turno **finisce** — senza che nessuno intervenga.
+
+E la misura è il turno stesso: prima non finiva, adesso finisce. Non serve un
+banco per dirlo; i banchi (§0b) servono a dire che non si è rotto altro.
+
+### Il pezzo che manca è più piccolo di quanto sembri
+
+Quasi tutta la catena esiste già, e **nessuno l'ha mai chiusa dentro un turno**:
+
+| pezzo della definizione | stato | dove |
+|---|---|---|
+| il turno si arresta, e l'arresto è tipato | **c'è** (gen434) | `turn_gap_kind/2` |
+| la connessione con Wikipedia | **c'è** | `page_prose()`, `wiki_fetch_topic()` |
+| la prosa diventa fatti | **c'è** | `extract_frame/2` e i lettori |
+| il turno si ripone | **c'è** | il ricovero della riparazione |
+| **l'INDIRIZZO** — dall'arresto alla pagina | **manca** | *questo piano* |
+| **la ripresa** — la conoscenza torna e il turno finisce | **manca** | *questo piano* |
+
+`--dream` fa già tutto questo — **accanto** al turno, come esplorazione a
+batch. Autocorrezione è la stessa catena **dentro** il turno, guidata da un
+indirizzo invece che da una lista di argomenti. È la differenza fra leggere
+l'enciclopedia e andare a cercare la voce che ti serve adesso.
 
 ## 0b. La condizione che chiude il piano (F., gen433)
 
@@ -312,187 +350,175 @@ Tre note di misura, perché la condizione sia usabile e non un'aspirazione:
 
 ---
 
-## 2. Il ciclo unico
-
-Tutte le strategie di §4 sono **istanze dello stesso ciclo**. È una scelta di
-progetto, non un'estetica: se ogni strategia avesse il suo ciclo, avremmo cinque
-modi di sbagliare e nessun modo di confrontarli.
+## 2. Il ciclo, dentro il turno
 
 ```
-  (1) SEGNALE          un'inferenza SI ARRESTA, dentro un turno
-        │              (mai una scansione a freddo: vedi il perimetro in §0a)
-        │              — un turno che si ferma, o un buco nello spazio negativo
-        ▼
-  (2) DOMANDA TIPATA   la lacuna diventa un OGGETTO, non un messaggio:
-        │              gap(Kind, Subject, Relation, Position)
-        ▼
-  (3) CANDIDATO        una riga di KB proposta, di forma A, B o C (mai D)
-        │              generata dalla sorgente che compete a quel Kind
-        ▼
-  (4) PROVA            si asserisce in sessione e SI RIPONE IL TURNO
-        │              — l'oracolo è la ripetizione, non un giudizio
-        ▼
-  (5) ABLAZIONE        si toglie e si ripone: se passa lo stesso, non serviva
-        │
-        ▼
-  (6) GATE             `make test` verde E saldo ≥ 0 su hundred/measure
-        │
-        ▼
-  (7) PROMOZIONE       sessione → quarantena (`KB_INDUCED`) → KB ufficiale
-                       con provenienza, e revocabile in un colpo
+    TURNO
+      │
+      │  l'inferenza prova a comporre e SI ARRESTA
+      ▼
+  (1) ARRESTO          non «il turno e' fallito», ma DOVE si e' fermata
+      │                e CHE COSA le mancava            → turn_arrest/3
+      ▼
+  (2) INDIRIZZO        lo STATO della KB trasforma il pezzo mancante in un
+      │                posto dove andarlo a prendere    → address/3
+      │                (se non ci riesce, il ciclo si ferma qui: e' onesto)
+      ▼
+  (3) SORGENTE         una pagina, e una sola sorgente  → page_prose / fetch
+      │
+      ▼
+  (4) LETTURA          la prosa diventa fatti con i lettori che gia' esistono
+      │                                                  → extract_frame/2
+      ▼
+  (5) RIPRESA          il turno si ripone, con la conoscenza appena arrivata
+      │
+      ▼
+  (6) VERDETTO         il turno FINISCE?
+                         si'  → la conoscenza resta, con la pagina che la cita
+                         no   → si butta tutto, e resta la lacuna (indirizzata)
 ```
 
-**Il punto (4) è quello che rende il ciclo possibile oggi.** Il criterio di
-accettazione attuale — *«la risposta è diversa dal muro?»* — è il buco che tiene
-spento l'interruttore (`autocorrezione.md` §5). Riporre il turno lo sostituisce
-con qualcosa che non richiede il substrato della pertinenza: o la lacuna si
-chiude o non si chiude. E il punto (5) è ciò che impedisce alla KB di gonfiarsi
-di righe che non fanno niente — la prima difesa contro il difetto che
-`fix-patterns.md` §4 ha trovato sette volte.
+**Il punto (2) è il piano.** Gli altri cinque sono costruiti o quasi. Un arresto
+che non sa diventare indirizzo non è un fallimento del ciclo: è la misura di uno
+stato della KB che non basta ancora — ed è esattamente il numero che il leitmotiv
+(§0c) chiede di cercare.
 
----
+**Il punto (6) sostituisce il gate.** Non serve chiedersi «questa riga è utile?»:
+o il turno finisce o non finisce. È l'oracolo che `autocorrezione.md` §5 cercava,
+ed è gratis perché il turno è già lì.
 
-## 3. Le sorgenti di lacuna, e la domanda che ognuna produce
+**E il punto (1) è il perimetro**: nessuno di questi passi esiste senza un turno.
+Non c'è un momento in cui parrot0 «cerca lacune»: c'è un turno che si ferma.
 
-Sei sorgenti. Le prime cinque sono di `question-emergence.md` §4, qui rilette con
-la domanda che generano; la sesta è nuova e viene da `fix-patterns.md`.
+## 3. L'ARRESTO — come si fa a dire dove ci si è fermati
 
-### 3a. Asimmetria fra fratelli
-*Segnale:* quindici membri di un tipo dichiarano una relazione, uno no.
-*Domanda:* «di **questo** membro, quanto vale la relazione che tutti gli altri
-hanno?» → `gap(fact, poker, game_players, _)`.
-*Candidato:* dal corpus. **Forma B.**
+Le cinque sorgenti «a freddo» della prima stesura (asimmetria fra fratelli, frame
+senza dati, entità opache, regole morte, conoscenza mai toccata) sono **fuori
+perimetro**: calcolano assenze senza che nessuno abbia parlato. Restano scritte
+in fondo, come ragionamento, con il verdetto accanto.
 
-### 3b. Frame dichiarati senza dati
-*Segnale:* `answer_frame(Cue, Pred)` esiste, `Pred` non ha fatti per quel
-soggetto. *Domanda:* già nella forma esatta del fatto che la colma.
-*Candidato:* dal corpus. **Forma B.** È la sorgente più pulita che esista: la
-domanda **è** il fatto mancante, con un buco al posto del valore.
+Dentro il perimetro c'è una sorgente sola — **il turno che si arresta** — e il
+lavoro è renderla *loquace*. Un arresto utile dice tre cose:
 
-### 3c. Entità opache
-*Segnale:* un termine compare solo come argomento, mai come soggetto.
-*Domanda:* «che cos'è?» → `gap(concept, straight_flush, _, _)`.
-*Candidato:* `wiki_concept` dal corpus. **Forma B.**
+| | esempio (turno reale) |
+|---|---|
+| **dove** si è fermato | «ho letto la richiesta, non ho il valore» |
+| **che cosa** mancava | il valore di `wiki_concept` per `fotosintesi` |
+| **come** si chiama ciò che manca | una *voce*, non una superficie, non una regola |
 
-### 3d. Regole morte e dialetti privati
-*Segnale:* `inert_rule/1` (statico, già pubblicato).
-*Domanda:* «questa regola non può dedurre niente: le manca un produttore, o parla
-un dialetto che solo lei capisce?»
-*Candidato:* un ponte fra il dialetto privato e la relazione generale. **Forma E**
-— quindi **non automatica**: si propone, non si promuove (vedi §8).
+Oggi parrot0 sa dire la prima e mezza (gen434: `turn_gap_kind/2` distingue
+`knowledge`, `reach`, `surface`, `blind`). Le altre due sono il lavoro di gen436.
 
-### 3e. Superficie irraggiungibile
-*Segnale:* una facoltà dichiarata potrebbe servire il turno e **nessuna cue
-combacia**. *Domanda:* «con quali parole me lo stai chiedendo?»
-*Candidato:* una sottostringa del turno, oppure — ed è la parte nuova — **una
-forma espressiva raccolta dalla prosa** (§4.1). **Forma A.** È la classe più
-numerosa: ~100 righe su 507 (`fix-patterns.md` §1).
+**La verifica che un arresto è abbastanza loquace** è meccanica e non richiede
+giudizio: *da questo arresto si riesce a costruire un indirizzo?* Se sì, era
+abbastanza; se no, manca un pezzo di stato — e quel pezzo è il dato che si cerca.
 
-### 3f. Conoscenza mai toccata — ⛔ *fuori perimetro* (provata a gen435, respinta)
-*Segnale:* l'aggregato delle impronte di inferenza su un corpus dà le righe che
-nessun turno ha mai attivato.
-*Domanda:* «quali cose che dico di sapere non hanno mai fatto niente?»
+## 4. L'INDIRIZZO — le strategie di localizzazione, tutte da provare
 
-**È stata costruita (`make audit`, gen435) e la misura ha smentito il disegno.**
-Due cose, e vanno tenute perché costano meno che riscoprirle:
+Qui stanno le strategie parallele, e sono varianti di **una domanda sola**: dato
+ciò che manca, *dove* lo vado a prendere? Ognuna è uno stato della KB diverso, e
+ognuna ha il suo set minimo.
 
-1. **un conteggio su un corpus non prova che una riga sia morta.** «Mai chiesta»
-   e «non può combaciare» danno lo stesso identico segnale: `currency_sign` fira
-   per `$` e mai per `£` **esattamente come** `stopword` fira per dieci parole e
-   mai per le altre 284. La sterlina — il caso che aveva motivato la sorgente —
-   **non è distinguibile** da una parola che nessuno ha pronunciato. Per provarla
-   serve un controllo *statico* fra consumatore e riga (quel confronto guarda un
-   carattere, quella riga ne occupa due): un'altra cosa, che vive altrove;
-2. **il numero che ne esce è un censimento dell'assenza** — «13.935 fatti mai
-   usati, 85%» — ed è il numero che spinge verso la completezza invece che verso
-   il flusso. Vedi §0a.
+### A1 — L'indirizzo per identità
+Il termine del turno *è* il titolo della pagina. Stato minimo: nessuno.
+*«tell me about photosynthesis»* → pagina `photosynthesis`.
+**Da provare per primo perché costa zero**, e dice quanta parte del problema è
+già risolta senza fare niente.
 
-**Quello che lo strumento misura davvero, ed è utile**, è un'altra cosa: *quali
-meccaniche dichiarate questi banchi non esercitano mai*. È una **misura dei
-banchi**, non della KB: dice dove le prove sono strette. `make audit` è stato
-tenuto con quella intestazione.
+### A2 — L'indirizzo per traduzione
+Il termine è in un'altra lingua: lo stato che serve è **una traduzione**.
+*«raccontami la fotosintesi»* → `tr(photosynthesis, fotosintesi)` → pagina
+`photosynthesis`. È il caso misurato a gen434, ed è interessante perché la KB
+**ha già** la traduzione: l'indirizzo è derivabile *oggi*, e nessuno lo deriva.
 
-## 4. Le strategie da sperimentare in parallelo
+### A3 — L'indirizzo per alias
+Il termine è un altro nome della stessa cosa: `also_known_as/2`, i redirect.
+Stato: una relazione di alias, che la KB ha e che nessuno usa per localizzare.
 
-Cinque cicli. Tutti validi, tutti da provare, **tutti con lo stesso oracolo e lo
-stesso gate** — così si possono far correre insieme e confrontare sul saldo.
+### A4 — L'indirizzo per relazione
+Non manca una voce ma un **valore**: `answer_frame(Cue, Pred)` dice quale
+relazione la domanda chiedeva, e l'indirizzo diventa *(pagina del soggetto,
+relazione da estrarre)*. È la forma più preziosa perché **la domanda è già il
+fatto mancante con un buco al posto del valore**.
 
-### S1 — Il ciclo del fatto (la wiki, e la scommessa di F.)
-*Sorgenti:* 3a, 3b, 3c. *Forma:* B. *Fonte:* corpus statico.
-La lacuna nomina la relazione e il soggetto; il corpus si indicizza per nome; il
-candidato è **citabile** — e questa è la sua forza: la promozione può richiedere
-la provenienza, quindi un fatto entra solo se si può dire da dove viene.
-*Esperimento minimo:* prendere le entità opache che la KB già dichiara, generare
-le domande, cercarle nel corpus, promuovere solo quelle con fonte, e misurare il
-saldo su `hundred`.
-*Come falsisce:* se le entità opache colmate non muovono nessun banco, la
-scommessa «i fatti mancanti sono il collo di bottiglia» è sbagliata — ed è
-esattamente ciò che `fix-patterns.md` sospetta (i fatti sono la terza classe per
-numerosità, non la prima).
+### A5 — L'indirizzo per categoria
+Non si sa quale pagina, ma si sa il **tipo**: «un uccello che non vola» →
+pagina della categoria, e poi si cerca dentro. È l'unico che chiede una ricerca
+invece di una localizzazione, ed è probabilmente il più fragile: va provato per
+ultimo e con la prova di minimalità più severa.
 
-### S2 — Il ciclo della superficie (la più numerosa, e la meno ovvia)
-*Sorgenti:* 3e. *Forma:* A. *Fonte:* il turno, **e la prosa**.
-Il precedente vivo è il gen382: le forme `extract_frame("@S is known as @O", …)`
-non sono state immaginate, sono state **raccolte misurando il corpus** («known
-as» ricorre 15 volte in 49 pagine). Generalizzato: leggere la prosa non per i
-fatti ma per **come i fatti vengono detti**, e proporre le forme ricorrenti come
-`extract_frame` o `intent_cue`.
-*Esperimento minimo:* far girare il raccoglitore su un blocco di pagine, tenere
-le forme che ricorrono sopra una soglia, provarle con l'ablazione su `hundred`.
-*Come falsisce:* se le forme raccolte sono rumore (combaciano su turni che non
-sono di quella relazione), il ciclo va gated con l'ablazione più severa o
-abbandonato.
+> **Come si confrontano.** Non per eleganza: per **quanti turni finiscono**. Ogni
+> strategia si misura con lo stesso numero — *quanti arresti diventano indirizzi,
+> e quanti di quegli indirizzi finiscono il turno* — e le due frazioni si tengono
+> separate, perché sono due difetti diversi.
 
-### S3 — Il ciclo della classe (il più economico, il più rischioso)
-*Sorgenti:* un motore consulta una classe unaria e il token non è membro.
-*Forma:* C. *Fonte:* il token stesso.
-*Esperimento minimo:* registrare per un giorno tutte le interrogazioni di classe
-fallite, proporre il token, e verificare con l'**ablazione doppia**: senza la
-riga il turno fallisce, con la riga passa, e nessun altro turno cambia.
-*Come falsisce:* se l'ablazione doppia scarta quasi tutto, la classe non è la
-lacuna e il segnale era un sintomo.
+## 4b. LA STRUTTURA DELLA KB che serve al ciclo
 
-### S4 — Il ciclo dell'audit (il solo che non aspetta nessuno)
-*Sorgenti:* 3d, 3f. *Forma:* nessuna riga proposta — **una domanda su di sé**.
-*Esperimento minimo:* aggregare le impronte su `hundred` + `measure` + `make
-test`, produrre l'elenco dei predicati mai toccati, e leggerlo. Si prevede che
-contenga: difetti del motore, dialetti privati, e conoscenza legittimamente
-dormiente (che va marcata, non ritirata).
-*Come falsisce:* se l'elenco è dominato dalla terza categoria, serve prima un
-modo di dichiarare «dormiente per disegno», altrimenti il segnale annega.
+Cinque relazioni, e quattro delle cinque esistono già in qualche forma. Sono
+**bersagli di progetto**: la loro cardinalità minima è ciò che gen436-439 devono
+misurare.
 
-### S5 — Il ciclo del dialogo (quello che già gira)
-*Sorgenti:* 3e in conversazione. *Forma:* A, C.
-È il gen430: il muro consegna la frase con cui glielo si insegna, e la risposta
-dell'interlocutore ha effetto nel turno dopo. Non è autocrescita — è crescita
-**assistita a costo minimo**, e serve da controllo: se S1-S4 non battono S5, il
-piano non ha dimostrato niente.
+```prolog
+% (1) L'ARRESTO, reificato. Non «e' fallito»: dove, e che cosa mancava.
+%     `Kind` viene da gen434; `Missing` e' la novita' — il pezzo, non il turno.
+turn_arrest($Turn, $Kind, $Missing).
 
-> **Perché in parallelo e non in sequenza.** Le cinque non competono per lo
-> stesso buco: competono per il **saldo**. Farle correre insieme sullo stesso
-> banco è l'unico modo di scoprire quale sorgente porta crescita vera — ed è
-> anche l'unico modo onesto, perché nessuno di noi sa in anticipo la risposta.
+% (2) CHE COSA E' UN PEZZO MANCANTE. Tre specie, e nessun'altra per ora:
+missing_kind(entry).            % una voce: manca cio' che una pagina dice
+missing_kind(value($Relation)). % un valore: manca R($Soggetto, ?)
+missing_kind(surface).          % una forma: la conoscenza c'e', non la si raggiunge
 
----
+% (3) L'INDIRIZZO: dal pezzo al posto. E' QUI che sta lo stato della KB, ed e'
+%     qui che le strategie A1-A5 si distinguono — ognuna e' una clausola.
+address($Missing, page($Title), $Extract).
 
-## 5. Il gate unico
+address(entry($Term), page($Term), wiki_concept) :- naf(needs_translation($Term)).
+address(entry($Term), page($En), wiki_concept)   :- tr($En, $Term).
+address(entry($Term), page($Alias), wiki_concept) :- also_known_as($Alias, $Term).
+address(value($Rel), page($Subj), $Rel)          :- turn_topic(current_turn, $Subj).
 
-Una riga proposta da qualunque ciclo attraversa gli stessi quattro cancelli:
+% (4) LA SORGENTE, dichiarata e unica. Che sia una sola e' conoscenza, non una
+%     costante del C: il giorno che se ne aggiunge un'altra si vede in un diff.
+external_source(wikipedia).
+source_reach(wikipedia, local).      % una copia locale, gia' presente
+source_reach(wikipedia, fetch).      % o scaricata, con consenso esplicito
 
-1. **prova**: asserita in sessione, il turno che l'ha motivata passa;
-2. **ablazione**: tolta, quel turno torna a fallire (se non torna a fallire, la
-   riga non serviva: si scarta, e si registra che la lacuna era altrove);
-3. **non-regressione**: `make test` verde, e saldo ≥ 0 su `make hundred` e `make
-   measure` — i due banchi sono giudici, non pagelle;
-4. **provenienza**: la riga entra come `KB_INDUCED` con la sorgente che l'ha
-   prodotta e il turno che l'ha motivata, e resta distinguibile da ciò che una
-   persona ha deciso (`kb/learning/`, versionato a parte, revocabile in blocco).
+% (5) LA PROVENIENZA, che e' la condizione perche' una riga possa entrare.
+learned_from($Row, page($Title), $Turn).
+```
 
-La promozione da quarantena a KB ufficiale è **un secondo atto**, con la sua
-soglia: una riga in quarantena che sopravvive a N giri di banco senza essere
-scartata diventa ufficiale. Fino ad allora risponde, ma si sa che è in prova.
+E la regola che tiene insieme il tutto, che è quella che oggi non esiste:
 
----
+```prolog
+% Un turno arrestato che sa dove andare. Se questa fallisce, il ciclo non parte —
+% e il perche' e' il dato: manca lo stato, non la volonta'.
+turn_addressable($Turn) :- turn_arrest($Turn, $Kind, $Missing), address($Missing, $Where, $What).
+```
+
+## 5. Il verdetto — il turno come unico gate
+
+Una riga portata da fuori attraversa **una domanda sola**:
+
+> **il turno che si era fermato, adesso finisce?**
+
+Se sì, resta — con `learned_from(Riga, page(P), Turno)`, e in quarantena
+(`KB_INDUCED`, revocabile in blocco). Se no, si butta **tutta**: la lacuna resta
+aperta, ma adesso è aperta *con un indirizzo che non ha funzionato*, che è un
+dato migliore di prima.
+
+I banchi (`make test`, `hundred`, `measure`) non sono il gate: sono il
+**controllo di non-regressione** che si fa dopo, e servono a una domanda diversa —
+non «questa riga serve» ma «questa riga ha rotto qualcosa».
+
+Tre note che il ciclo impone, e che valgono come vincoli di progetto:
+
+- **la quarantena non è un ripostiglio.** Una riga che ha finito un turno e non
+  ne finisce mai un altro va tolta: il suo posto è la pagina da cui viene;
+- **una pagina letta non è conoscenza acquisita.** Entra ciò che è servito a
+  finire *quel* turno, non tutto ciò che la pagina diceva — altrimenti si è
+  tornati a `--dream`, cioè accanto al turno;
+- **se l'indirizzo non si costruisce, il ciclo si ferma e lo dice.** Non c'è un
+  ripiego che «cerca comunque»: cercare senza indirizzo è il defrag.
 
 ## 6. Perché la colla linguistica è il driver, e non un ornamento
 
@@ -523,20 +549,31 @@ vedere lacune nuove, e sarebbe ironico.
 
 ---
 
-## 7. La mappa sorgente → forma → fonte (il cuore operativo)
+## 7. La mappa: pezzo mancante → indirizzo → forma della riga
 
-| sorgente | forma della riga | chi genera il candidato | automatica? |
+| pezzo mancante | strategia di indirizzo | che cosa torna | forma della riga |
 |---|---|---|---|
-| 3a asimmetria | **B** fatto | corpus, indicizzato per nome | **sì** |
-| 3b frame senza dati | **B** fatto | corpus | **sì** |
-| 3c entità opaca | **B** concetto | corpus | **sì** |
-| 3d regola morta | **E** procedura | — (proposta al revisore) | no |
-| 3e superficie | **A** cue | il turno, o la prosa | **sì**, con ablazione |
-| 3f mai toccata | — | — (audit) | **sì**, ma non propone righe |
-| — | **C** classe | il token del turno | **sì**, con ablazione doppia |
-| — | **D** frase | **nessuno** | **mai** (§8) |
+| una **voce** (`entry`) | A1 identità · A2 traduzione · A3 alias | la definizione della pagina | **B** — `wiki_concept/3` |
+| un **valore** (`value(R)`) | A4 relazione | la frase che porta il valore | **B** — `R(Soggetto, Valore)` |
+| una **forma** (`surface`) | *nessuna*: la sorgente esterna non ce l'ha | — | **A** — e **non è di questo ciclo** |
 
----
+**La terza riga è la più istruttiva**, e va tenuta in vista: Wikipedia porta
+*fatti*, non *modi di chiedere*. Un arresto di specie `surface` — «il fatto ce
+l'ho e non ci arrivo», il caso della fotosintesi in italiano — **non si chiude
+con la sorgente esterna**: si chiude con una forma, che è conoscenza sulla
+lingua e non sul mondo.
+
+Il che dà una previsione netta, e falsificabile in un giro di campagna:
+
+> **La frazione di turni che l'autocorrezione può finire è limitata dalla
+> frazione di arresti di specie `entry` e `value`.** Se i corpora sono dominati
+> da arresti di specie `surface`, il ciclo con Wikipedia chiuderà pochi turni **e
+> non sarà colpa sua.**
+
+Ed è anche il legame con la colla (§6): le superfici si imparano parlando o
+leggendo *come le cose si dicono*, i fatti si prendono dalla sorgente. Due
+canali, due specie di lacuna, e confonderli è il modo più rapido di concludere
+che «non funziona».
 
 ## 8. Il perimetro anti-impostore
 
@@ -564,38 +601,28 @@ automatico che riscrive il proprio motore mentre lo usa per giudicarsi.
 
 ---
 
-## 9. Le fasi, con il criterio che le chiude
+## 9. Le generazioni, come SOGLIE (non come pezzi)
 
-Una per generazione, ognuna col suo cricchetto. L'ordine non è per importanza: è
-per **quanto ciascuna rende possibile la successiva**.
+Ogni riga produce **un numero**, nella forma del leitmotiv (§0c): *il meccanismo
+si innesca a partire da `S`, |S| = n, e togliendo una riga di `S` non si innesca
+più.* Se una generazione finisce senza numero, non è finita.
 
-| fase | che cosa costruisce | criterio (una misura che cambia) |
+| gen | la soglia da trovare | il numero che deve uscire |
 |---|---|---|
-| **F0** | **La lacuna diventa un oggetto tipato.** `gap(Kind, Subject, Relation, Position)` con i quattro Kind di §9.1 di question-emergence, e i banchi che li producono: `make hundred -v` scrive lacune invece di righe di testo | i cento falliti producono N lacune tipate stabili fra due esecuzioni, e lo stesso prompt non cambia tipo a seconda di ciò che è successo prima |
-| **F1** | **L'audit a freddo (3f).** Aggregazione delle impronte su tre corpora, elenco dei predicati mai toccati, `never_fired/1` pubblicato come fatto | l'elenco contiene almeno uno dei sette difetti noti del gen427-432, riprodotto **senza** che nessuno lo indichi |
-| **F2** | **Il ciclo del fatto (S1) su 3c.** Entità opache → domanda → corpus → quarantena | K entità opache colmate con provenienza, `make test` verde, saldo `hundred` ≥ 0 |
-| **F3** | **L'ablazione come cancello.** Ogni riga in quarantena viene tolta e riprovata | il numero di righe scartate dall'ablazione è > 0 — se è zero, il cancello non sta misurando niente |
-| **F4** | **Il ciclo della superficie (S2).** Raccolta di forme espressive dalla prosa | almeno una `extract_frame` raccolta dal corpus chiude un turno che prima falliva |
-| **F5** | **Il parallelo.** I cicli corrono insieme, ognuno tiene il proprio saldo | si può dire, con i numeri, quale sorgente ha portato più crescita per riga aggiunta |
-| **F6** | **La promozione.** Quarantena → ufficiale dopo N giri puliti | esiste conoscenza in `kb/core/` che nessuno ha scritto a mano, e il progetto sa dire da dove viene |
+| **436** | **l'arresto sa dire che cosa manca** — non solo di che specie è | su N turni arrestati, quanti producono un `Missing` utilizzabile |
+| **437** | **il `Missing` diventa un indirizzo** con la strategia più economica (A1/A2) | `|S|` per la prima strategia che accende, e la frazione di arresti indirizzati |
+| **438** | **l'indirizzo porta la pagina e il turno RIPRENDE** | quanti turni indirizzati finiscono davvero |
+| **439** | **la minimalità**: si toglie da `S` finché si spegne | `|S|` finale, e l'elenco delle righe che *non* servivano |
+| **440** | **la generalizzazione**: lo stesso `S` accende una seconda specie di arresto, o una seconda lingua? | quante specie/lingue accende lo stesso `S` |
+| **441** | **R** (§10), misurato su turni veri | la curva |
 
-**Il criterio dell'intero piano** è la congiunzione di §0b — **K, P e S
-insieme**, con la morsa che tiene onesto S. E una fase in più, che si può aprire
-solo dopo F6 perché prima non ci sarebbe niente da contare:
+**Perché quest'ordine.** 436 e 437 sono i due punti che non esistono (§0); 438
+chiude l'anello e dà il primo turno finito da solo — **è il risultato**; 439 lo
+trasforma da aneddoto in misura; 440 dice se è una soglia o una coincidenza; 441
+guarda se si autosostiene.
 
-| fase | che cosa costruisce | criterio |
-|---|---|---|
-| **F7** | **La curva di R** (§10): a ogni giro, lacune chiuse e nuove lacune autochiudibili, misurate sulle lacune dei banchi larghi | si può disegnare la curva, e si vede se la media mobile sale verso 1 |
-
-Le otto fasi hanno una generazione ciascuna, con la conoscenza che le esprime e
-un arco riparativo verificabile a mano: **§12**.
-
-La scommessa, scritta per poter essere persa: *dopo F6, una campagna di crescita
-autonoma di una settimana muove `make hundred` o `make measure` più di quanto li
-muova una settimana di lavoro supervisionato, e la curva di R non scende.* Se non
-succede, la tesi è sbagliata **per questo sistema**, e va detto.
-
----
+**Il gate di ogni generazione è lo stesso**: `make test` verde, e nessun banco
+sceso. Ma il *risultato* non è il banco: è `S`.
 
 ## 10. L'ipotesi della massa critica (F.)
 
@@ -863,226 +890,144 @@ riprodotto **senza** che nessuno lo indichi.
 
 ---
 
-### gen436 — La domanda si pone da sola: lo spazio negativo si calcola
+### gen436 — L'arresto sa dire CHE COSA manca
 
-**Costruisce:** le sorgenti 3a, 3b, 3c come regole — non come scansioni in C.
+**Costruisce:** il terzo campo dell'arresto. Oggi `turn_gap_kind/2` dice la
+*specie* (gen434); qui nasce il **pezzo**.
 
 ```prolog
-% 3c — ENTITA' OPACA: compare come argomento, mai come soggetto.
-has_subject_fact($E) :- kb_fact($Pred, cons($E, $Rest)).
-appears_as_object($E) :- kb_fact($Pred, cons($X, cons($E, nil))).
-opaque_entity($E) :- appears_as_object($E), naf(has_subject_fact($E)).
-self_question(concept, $E) :- opaque_entity($E), naf(wiki_concept($E, $D, $G)).
+% Il pezzo mancante, con la sua specie. Tre sole per ora, e la terza e' quella
+% che la sorgente esterna NON puo' chiudere (§7) — dirlo e' meta' del valore.
+turn_arrest($T, knowledge, entry($Term)) :-
+    turn_gap_kind($T, knowledge), turn_topic($T, $Term).
+turn_arrest($T, reach, surface($Term)) :-
+    turn_gap_kind($T, reach), turn_topic($T, $Term).
+turn_arrest($T, knowledge, value($Rel)) :-
+    turn_gap_kind($T, knowledge), turn_question_relation($T, $Rel).
 
-% 3b — FRAME DICHIARATO SENZA DATI: la domanda E' il fatto mancante, col buco
-% al posto del valore. E' la sorgente piu' pulita che esista.
-self_question(value($Relation), $Subject) :-
-    answer_frame($Cue, $Relation), known_entity($Subject),
-    naf(kb_fact($Relation, cons($Subject, $Rest))).
-
-% 3a — ASIMMETRIA FRA FRATELLI: il profilo atteso lo dice la MAGGIORANZA,
-% nessuno scrive uno schema.
-sibling_profile($Class, $Relation, $N) :-
-    findall($M, class_member_with($Class, $Relation, $M), $L), count_list($L, $N).
-expected_of($Class, $Relation) :-
-    sibling_profile($Class, $Relation, $N), class_size($Class, $S),
-    is($Half, div($S, 2)), gt($N, $Half).
-self_question(value($Relation), $Member) :-
-    expected_of($Class, $Relation), category_member($Class, $Member),
-    naf(kb_fact($Relation, cons($Member, $Rest))).
+% E la domanda che il turno chiedeva, quando l'ha chiesta con un frame noto:
+turn_question_relation($T, $Rel) :- turn_cue_form($T, answer_frame, $Cue), answer_frame($Cue, $Rel).
 ```
 
-**L'arco riparativo, verificabile a mano.** Nella KB di oggi
-`poker_hand(straight_flush)` esiste e `straight_flush` non è soggetto di nulla:
+**L'arco, sul caso misurato a gen434:**
 
 ```
-appears_as_object(straight_flush)      % poker_hand(straight_flush)
-has_subject_fact(straight_flush)       % nessuno
-──────────────────────────────────────────────────────────────
-opaque_entity(straight_flush)  →  self_question(concept, straight_flush)
+turno    raccontami la fotosintesi
+gap_kind reach                                  (gen434: il fatto c'e', non ci arrivo)
+topic    fotosintesi
+─────────────────────────────────────────────────────────────────────
+turn_arrest(current_turn, reach, surface(fotosintesi))
+                                   └── e §7 dice: NON e' roba per Wikipedia.
+                                       Serve una forma, non un fatto.
 ```
 
-E l'asimmetria, con i numeri della KB reale: se `game_players/2` è dichiarata da
-9 giochi su 15, `expected_of(game, game_players)` tiene (9 > 7), e ogni gioco
-senza quella relazione diventa una domanda **tipata e già formata**.
-
-**Cricchetto:** le tre regole producono un elenco non vuoto e **stabile** su una
-KB ferma; e almeno una domanda dell'elenco corrisponde a un prompt dei cento che
-oggi fallisce — cioè lo spazio negativo *predice* un fallimento osservato.
+**Il numero:** su N turni arrestati dei banchi, quanti producono un `Missing`
+utilizzabile — e come si distribuiscono fra `entry`, `value`, `surface`. Quella
+distribuzione **è la previsione di §7**, misurata.
 
 ---
 
-### gen437 — Il candidato, con la sua fonte
+### gen437 — Il `Missing` diventa un INDIRIZZO
 
-**Costruisce:** il ciclo S1. La domanda diventa una riga proposta, e la
-provenienza è parte della proposta, non un'aggiunta successiva.
+**Costruisce:** `address/3`, con la strategia più economica per prima.
 
 ```prolog
-% Un candidato e' una TERNA: la riga, la domanda che l'ha chiesta, la fonte.
-% Senza fonte non entra (perimetro §8.2) — e la regola lo dice, non un commento.
-candidate($Row, $Question, $Source) :-
-    self_question(concept, $E), source_defines($Source, $E, $Gloss),
-    concept_row($E, $Gloss, $Row), eq($Question, concept($E)).
+% A1 — identita': il termine E' il titolo. Costo: zero righe di stato.
+address(entry($Term), page($Term), wiki_concept).
 
-concept_row($E, $Gloss, wiki_concept($E, $Domain, $Gloss)) :-
-    source_domain($E, $Domain).
+% A2 — traduzione: lo stato che serve e' UNA riga, e la KB ce l'ha gia'.
+address(entry($Term), page($En), wiki_concept) :- tr($En, $Term).
 
-% La promozione e' un ATTO SEPARATO, e ha tre condizioni, non una.
-promotable($Row) :-
-    candidate($Row, $Question, $Source),
-    proved($Row, $Turn), ablation_fails($Row, $Turn), bench_delta_nonneg.
+% A4 — relazione: la domanda e' gia' il fatto mancante col buco al posto del valore.
+address(value($Rel), page($Subj), $Rel) :- turn_topic(current_turn, $Subj).
 ```
 
-**L'arco riparativo, dal caso del gen432 rifatto al contrario.** `epistemic
-injustice` era una domanda che parrot0 capiva e non sapeva; la riga
-`wiki_concept(epistemic_injustice, philosophy, "…")` l'ha chiusa. Il ciclo
-rifarebbe la stessa cosa senza che nessuno la scriva:
+**L'arco:**
 
 ```
-self_question(concept, epistemic_injustice)          % 3c, dallo spazio negativo
-source_defines(page(1873), epistemic_injustice, G)   % dal corpus, citabile
-candidate(wiki_concept(epistemic_injustice, philosophy, G), …, page(1873))
-proved                → «what is epistemic injustice» risponde
-ablation_fails        → tolta la riga, torna a fallire   ✓ serviva
-bench_delta_nonneg    → test verde, hundred +1
-──────────────────────────────────────────────────────────────────────
-promotable ✓  → quarantena con learned_from(Row, page(1873))
+turn_arrest(T, knowledge, entry(okapi))
+address(entry(okapi), page(okapi), wiki_concept)      ← A1, senza stato
+─────────────────────────────────────────────────────────────────────
+turn_addressable(T)   →  il ciclo puo' partire
 ```
 
-**Cricchetto:** K entità opache colmate **con provenienza**, `make test` verde,
-saldo `hundred` ≥ 0. E la riga di quarantena si può togliere in blocco.
+**Il numero:** `|S|` della prima strategia che accende, e la frazione di arresti
+che diventano indirizzi. **Con la prova di minimalità**: si toglie A1 e si guarda
+se A2 basta; si toglie `tr/2` e si guarda quanti indirizzi restano.
 
 ---
 
-### gen438 — L'ablazione diventa il cancello
+### gen438 — La pagina arriva e IL TURNO RIPRENDE
 
-**Costruisce:** il punto (5) del ciclo. È la difesa contro il difetto che
-`fix-patterns.md` ha trovato sette volte, e la sua forma è banale — il che è il
-bello.
+**Costruisce:** l'anello. È la generazione che produce il primo turno finito
+senza che nessuno intervenga.
 
 ```prolog
-% Una riga entra solo se la sua ASSENZA si vede. Il motore esegue i due turni;
-% la KB dice che cosa significa il risultato.
-ablation_fails($Row, $Turn) :- without($Row, $Turn, fail).
-useless_row($Row) :- without($Row, $Turn, pass).
+% Che cosa si porta indietro, e in che forma. Non «tutta la pagina»: il pezzo.
+bring($Turn, $Row) :- address($Missing, page($P), $Extract),
+                      source_gives(page($P), $Extract, $Row).
 
-% E cio' che non serve non si butta in silenzio: si registra, perche' un
-% candidato inutile e' una LACUNA MAL DIAGNOSTICATA, ed e' un'informazione.
-self_question(misdiagnosis, $Question) :-
-    candidate($Row, $Question, $Source), useless_row($Row).
+% E il verdetto, che e' l'unico gate (§5).
+keep($Row) :- bring($Turn, $Row), resumed($Turn, finished).
+drop($Row) :- bring($Turn, $Row), resumed($Turn, stuck).
 ```
 
-**L'arco riparativo — il caso che insegna di più è quello che *scarta*.** Se
-parrot0 propone `content_kind(receipt)` per chiudere *«explain this receipt»* e,
-tolta la riga, il turno passa lo stesso, allora la lacuna non era la classe:
-qualcosa d'altro stava già rispondendo. La riga si scarta e nasce
-`self_question(misdiagnosis, …)` — cioè il ciclo impara **dove non guardare**.
+**L'arco, per intero, su un turno che oggi mura:**
 
-**Cricchetto:** il numero di righe scartate dall'ablazione è **> 0**. Se è zero,
-il cancello non sta misurando niente ed è decorativo.
+```
+> quanto pesa un okapi
+  arresto     turn_arrest(T, knowledge, entry(okapi))
+  indirizzo   address(entry(okapi), page(okapi), wiki_concept)      A1
+  sorgente    page_prose("okapi") → prosa
+  lettura     extract_frame → wiki_concept(okapi, biology, "…")
+  ripresa     si ripone «quanto pesa un okapi»
+  verdetto    finisce?  → si': la riga resta, con learned_from(…, page(okapi))
+                        → no:  si butta, e la lacuna resta indirizzata
+```
+
+**Il numero:** quanti turni indirizzati **finiscono davvero**. Ed è qui che si
+scopre la cosa che questo piano non sa ancora: *una voce d'enciclopedia basta a
+finire un turno, o serve altro?* Il verdetto è meccanico e non opinabile.
 
 ---
 
-### gen439 — La superficie raccolta dalla prosa
+### gen439 — La minimalità: si toglie finché si spegne
 
-**Costruisce:** il ciclo S2, cioè la classe più numerosa (§7). Il precedente è
-il gen382: le forme non si immaginano, si **contano**.
+**Costruisce:** niente. **Sottrae**, ed è il primo risultato scientifico del
+piano.
 
-```prolog
-% Una FORMA e' una sequenza di parole che ricorre fra due entita' note. Il
-% motore misura le ricorrenze; la KB decide quando una ricorrenza e' una forma.
-form_support($Between, $N) :-
-    findall($P, corpus_between($P, $Between, $A, $B), $L), count_list($L, $N).
-form_min_support(5).
+Protocollo (§0c): per ogni riga di `S`, la si toglie, si rifà il giro dei turni
+che finivano, e si guarda se finiscono ancora. Chi non spegne niente **non era
+nel set** e va tolto per sempre.
 
-proposed_frame($Pattern, $Relation) :-
-    form_support($Between, $N), form_min_support($Min), ge($N, $Min),
-    pair_relation($Between, $Relation),
-    frame_pattern($Between, $Pattern), naf(extract_frame($Pattern, $Relation)).
-```
-
-**L'arco riparativo, con i numeri veri del gen382.** Nel corpus di 49 pagine,
-«known as» compare **15 volte** fra due entità che la KB già collega con
-`also_known_as/2`:
-
-```
-form_support("known as", 15)        ≥ form_min_support(5)     ✓
-pair_relation("known as", also_known_as)                      % le coppie coincidono
-frame_pattern("known as", "@S is known as @O")
-naf(extract_frame("@S is known as @O", also_known_as))        % non c'era ancora
-──────────────────────────────────────────────────────────────────────
-proposed_frame("@S is known as @O", also_known_as)
-```
-
-Questa è la riga che nel gen382 ho scritto a mano **dopo** aver contato. Il
-punto del ciclo è che il conteggio e la scrittura sono lo stesso atto.
-
-**Cricchetto:** almeno una `extract_frame` raccolta dal corpus chiude un turno
-che prima falliva, e sopravvive all'ablazione.
+**Il numero:** `|S|` finale, e l'elenco delle righe che *sembravano* servire e
+non servivano. Il secondo elenco vale quanto il primo.
 
 ---
 
-### gen440 — Le cinque strategie in parallelo, e il saldo per sorgente
+### gen440 — La generalizzazione: è una soglia o una coincidenza?
 
-**Costruisce:** il registro che permette di confrontarle invece di preferirle.
+Lo stesso `S` accende una **seconda specie** di arresto (`value` dopo `entry`) o
+una **seconda lingua**? Se sì, `S` è uno stato; se no, era un caso.
 
-```prolog
-% Ogni riga promossa ricorda da quale ciclo viene. Il saldo si calcola per
-% sorgente: quante righe ha aggiunto, e quanto ha mosso i banchi.
-yield($Source, $Added, $Delta) :-
-    findall($R, promoted_by($Source, $R), $L), count_list($L, $Added),
-    bench_delta($Source, $Delta).
-
-% Una sorgente che aggiunge molto e muove poco sta lavorando in una tasca.
-pocket($Source) :- yield($Source, $Added, $Delta), gt($Added, 20), le($Delta, 0).
-```
-
-**L'arco riparativo — questo gen non ripara un turno, ripara il PIANO.** Se dopo
-un giro `pocket(opaque_entities)` tiene, la strategia S1 sta colmando entità
-opache di un angolo marginale: il ciclo funziona e il piano no. È il fallimento
-che assomiglia di più al successo (§10), e qui diventa una riga interrogabile.
-
-**Cricchetto:** si può dire, **con i numeri**, quale sorgente ha portato più
-crescita per riga aggiunta.
+**Il numero:** quante specie e quante lingue accende lo stesso `S`, senza
+aggiungere righe.
 
 ---
 
 ### gen441 — R: la fertilità, misurata
 
-**Costruisce:** la curva di §10, che è la verifica dell'ipotesi di F.
+Come nel disegno originale (§10), ma ora `R` ha una definizione operativa che
+non richiede di censire niente: **quante lacune indirizzabili apre, in media, un
+turno finito dal ciclo.** Si conta sui turni, non sulla KB.
 
 ```prolog
-% R di un giro: quante lacune AUTOCHIUDIBILI ha aperto ogni lacuna chiusa.
-% «Autochiudibile» non e' un giudizio: e' avere un generatore di candidati (§7).
-self_closable($Q) :- self_question($Kind, $X), kind_has_generator($Kind).
-kind_has_generator(concept).
-kind_has_generator(value($Relation)).
-kind_has_generator(surface).
-
 r_round($Round, $R) :-
-    closed_in($Round, $C), gt($C, 0),
-    findall($Q, opened_in($Round, $Q), $L), count_list($L, $N),
+    finished_by_cycle($Round, $C), gt($C, 0),
+    findall($Q, addressable_opened($Round, $Q), $L), count_list($L, $N),
     is($R, div($N, $C)).
-
-% E la soglia, che e' OSSERVATA e non decisa.
 fertile($Round) :- r_round($Round, $R), ge($R, 1), bench_delta_nonneg($Round).
 ```
-
-**L'arco riparativo — la domanda finale che parrot0 si pone su di sé:**
-
-```
-closed_in(7, 12)                       % dodici lacune chiuse nel giro 7
-opened_in(7, …) × 14                   % quattordici nuove, tutte con generatore
-r_round(7, 1.16)                       % R ≥ 1
-bench_delta_nonneg(7)                  % e i banchi non sono scesi
-──────────────────────────────────────────────────────────────────────
-fertile(7)   → la KB ha attraversato la soglia in quel giro
-```
-
-**Cricchetto — ed è il criterio dell'intero piano:** la curva si può disegnare, e
-si vede se la media mobile sale verso 1. Se resta sotto in ogni configurazione
-delle cinque strategie, **l'ipotesi della massa critica è falsa per questo
-sistema**, e il piano è servito a mostrarlo con dei numeri.
 
 ---
 
@@ -1090,20 +1035,24 @@ sistema**, e il piano è servito a mostrarlo con dei numeri.
 
 | gen | che cosa cambia nel regime |
 |---|---|
-| **434** | il fallimento smette di essere un messaggio: diventa un oggetto con un tipo |
-| **435** | la conoscenza morta comincia a lamentarsi |
-| **436** | lo spazio negativo si calcola, quindi le domande esistono prima dei turni |
-| **437** | una domanda diventa una riga, con la sua fonte |
-| **438** | una riga inutile non entra, e il suo rifiuto insegna |
-| **439** | la prosa smette di dare solo fatti e comincia a dare **forme** |
-| **440** | le strategie si confrontano invece di essere preferite |
+| **434** ✅ | il fallimento smette di essere un messaggio: diventa un oggetto con un tipo |
+| **435** ⛔ | *respinta*: era una scansione a freddo, cioè un defrag della KB |
+| **436** | l'arresto smette di dire «di che specie» e comincia a dire **che cosa** manca |
+| **437** | il pezzo mancante diventa un **indirizzo**: un posto dove andare |
+| **438** | il turno **riprende e finisce** — il primo turno chiuso senza nessuno |
+| **439** | il set si **riduce**: da aneddoto a soglia |
+| **440** | la soglia si prova altrove: è uno **stato** o era un caso? |
 | **441** | la fertilità ha un numero, e l'ipotesi si può perdere |
 
-Le prime tre sono **percezione** (vedere le proprie lacune), le tre di mezzo sono
-**azione** (colmarle senza mentire), le ultime due sono **misura** (sapere se sta
-funzionando). Nessuna delle otto aggiunge una facoltà conversazionale: tutte
-aggiungono **conoscenza sulla propria conoscenza**, che è la definizione più
-stretta di ciò che questo piano vuole.
+Le prime due sono **percezione** (l'arresto che sa dirsi), 437-438 sono
+**azione** (l'indirizzo e la ripresa), 439-441 sono **misura** (la soglia, la sua
+generalità, la sua fertilità). Nessuna aggiunge una facoltà conversazionale:
+tutte aggiungono lo **stato** in cui un turno arrestato sa finire da solo — che è
+la definizione di §0, presa alla lettera.
+
+E il debito da cui si riparte, scritto perché non si perda: **433, 434 e 435 sono
+state costruzione, non ricerca.** Hanno lasciato strumenti utili e nessun numero.
+Da gen436 ogni generazione consegna un `S`.
 
 ## Riferimenti
 
