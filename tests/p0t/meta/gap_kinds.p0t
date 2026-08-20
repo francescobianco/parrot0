@@ -1,0 +1,54 @@
+# LA SPECIE DELLA LACUNA SI DERIVA (gen434) — prima generazione di
+# docs/plans/autocrescita.md.
+#
+# question-emergence.md §9.1 aveva decomposto il fallimento in quattro difetti;
+# il ciclo ne ha implementato uno, e la tassonomia e' rimasta sulla carta. Il
+# conto misurato sui cento: su 88 fallimenti reali l'autocorrezione ne vede 3,
+# perche' conta soltanto il tipo che sa vedere.
+#
+# Qui la specie smette di essere un ramo del C: si DERIVA da tre fatti che il
+# motore pubblica a ogni turno — l'esito, la parola nominata, il modulo che ha
+# risposto. E il valore non e' la classificazione: e' che quattro specie hanno
+# QUATTRO RIMEDI diversi.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=it
+!reset
+
+# IL CASO CHE HA MOTIVATO LA GENERAZIONE. «raccontami la fotosintesi» mura,
+# mentre in inglese la stessa cosa riceve la definizione: il FATTO c'e' — la voce
+# d'enciclopedia, raggiunta dalla traduzione — e la strada italiana non ci
+# arriva. Non e' cecita': e' irraggiungibilita', e il rimedio e' una FORMA.
+[test un muro che in realta' e' una lacuna di raggiungibilita']
+> raccontami la fotosintesi
+!query turn_outcome(current_turn, blind_wall)
+!query turn_gap_kind(current_turn, reach)
+!query turn_gap_remedy(current_turn, "manca la STRADA: una superficie che porti il fatto che gia' possiedo al turno")
+
+# E la cecita' vera resta cecita'. Il criterio e' stretto apposta: la prima
+# versione chiedeva «esiste un fatto qualunque su questa parola» e tipizzava
+# `reach` anche un turno senza senso, perche' conteneva il nome di una citta'.
+[test la cecita' vera non diventa raggiungibilita']
+> quanto pesa un okapi
+!query turn_gap_kind(current_turn, blind)
+> zorkuz mivvel taranto
+!query turn_gap_kind(current_turn, blind)
+
+# La specie non e' un'etichetta: porta con se' il rimedio, e i due rimedi sono
+# opposti — uno chiede un fatto, l'altro chiede una strada.
+[test specie diverse chiedono rimedi diversi]
+!query gap_remedy(knowledge, "manca il VALORE: un fatto — ma prima chiediti se una forma lo raggiungera'")
+!query gap_remedy(wrong_suspect, "non manca niente: c'e' di troppo — serve una GUARDIA che impedisca a quella facolta' di prendere questo turno")
+
+# I fatti di turno sono di TURNO: non si accumulano, altrimenti la specie del
+# turno prima inquinerebbe quella dopo — che e' esattamente il difetto misurato
+# in docs/autocorrezione.md §3 (lo stesso prompt cambiava categoria a seconda di
+# cosa era successo prima).
+[test lo stato del turno si azzera a ogni turno]
+> raccontami la fotosintesi
+!query turn_gap_kind(current_turn, reach)
+> quanto pesa un okapi
+!query turn_gap_kind(current_turn, blind)

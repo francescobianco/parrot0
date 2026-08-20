@@ -1620,6 +1620,13 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         size_t off = 0, hits = 0;
         for (size_t i = 0; i < k; i++) {
             const char *a[] = {x};
+            /* gen434 — LA MECCANICA NON E' UNA CLASSE. Un predicato di servizio
+             * che risulta vero per un'entita' — `world_fact_about(tariq)` —
+             * veniva annunciato come se fosse conoscenza sul mondo: «tariq is a
+             * world_fact_about». Chi si dichiara `machinery/1` sta fuori, ed e'
+             * la stessa riparazione del gen432 sull'induzione: il marcatore
+             * esiste, mancava che questo consumatore lo leggesse. */
+            if (is_internal_pred(b->kb, preds[i])) continue;
             if (!kb_is_conflicted(b->kb, preds[i], a, 1) &&
                 kb_query(b->kb, preds[i], a, 1)) {
                 if (off < sizeof line)

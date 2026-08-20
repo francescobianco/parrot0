@@ -606,7 +606,26 @@ che la chiude.
 
 ---
 
-### gen434 — La lacuna smette di essere un messaggio e diventa un oggetto
+### gen434 — La lacuna smette di essere un messaggio e diventa un oggetto  ✅ FATTA
+
+> **Spedita il 20 agosto 2026.** `kb/core/gap-kinds.p0`, ratchet
+> `tests/p0t/meta/gap_kinds.p0t` (9 assert, dentro `make test`), visibile da
+> `/debug`. `make test` 2578 verdi, `hundred` 99/100, `measure` 48/48.
+>
+> Lo schema qui sotto e' quello progettato; l'implementazione lo segue con due
+> differenze imparate strada facendo, ed entrambe valgono per le generazioni che
+> seguono:
+>
+> 1. **gli esiti insoddisfacenti erano tre, non due.** «That looks like a X
+>    problem» — il registro riconosciuto — era l'esito piu' informativo e l'unico
+>    che non lasciava traccia, perche' nessuna riga lo dichiarava insoddisfacente;
+> 2. **un muro cieco puo' essere un `reach`.** «raccontami la fotosintesi» mura
+>    mentre «tell me about photosynthesis» risponde: il fatto c'e', raggiunto
+>    dalla traduzione, e la strada italiana non ci arriva. Il primo criterio —
+>    «esiste un fatto qualunque su una parola del turno» — tipizzava `reach`
+>    anche «zorkuz mivvel taranto», perche' Taranto e' una citta' nota: **un
+>    criterio che dice si' a tutto non distingue niente**, e ora si chiede se
+>    esista *una voce che avrei potuto dire*.
 
 **Costruisce:** i quattro difetti di `question-emergence.md` §9.1 come classi
 dichiarate, e le regole che li derivano dall'esito del turno. Oggi

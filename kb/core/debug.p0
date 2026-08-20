@@ -38,6 +38,13 @@ debug_road_max(24).
 %   Chiave = turn  → si interroga con il turno canonicalizzato
 %   Chiave = any   → si elencano le righe presenti (poche, di sessione)
 % Una sonda nuova e' una riga: e' cosi' che questo strumento cresce.
+% gen434: la SPECIE DERIVATA e il suo rimedio — la prima cosa da guardare,
+% perche' e' quella che dice se il seme e' un fatto, una forma o una guardia.
+debug_probe(5, turn_gap_kind, now, "SPECIE della lacuna (derivata)").
+debug_probe(6, turn_outcome, now, "esito del turno").
+debug_probe(7, turn_topic, now, "parola nominata").
+debug_probe(8, turn_module, now, "facolta' che ha risposto").
+debug_probe(9, turn_gap_remedy, now, "IL RIMEDIO che quella specie chiede").
 debug_probe(10, machinery_gap, turn, "lacuna registrata per questo turno").
 debug_probe(20, gap_kind, turn, "specie della lacuna").
 debug_probe(30, gap_source, turn, "il turno come e' stato detto").

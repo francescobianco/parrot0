@@ -553,10 +553,17 @@ static void debug_inspect(Brain *brain, const char *last_line) {
             char lb[KB_TERM_LEN]; snprintf(lb, sizeof lb, "%s", lab[0]);
             const char *pname = kb_dequote_pub(pb), *label = kb_dequote_pub(lb);
             char kb2[KB_TERM_LEN]; snprintf(kb2, sizeof kb2, "%s", key[0]);
-            int by_turn = strcmp(kb_dequote_pub(kb2), "turn") == 0;
+            const char *keyname = kb_dequote_pub(kb2);
+            int by_turn = strcmp(keyname, "turn") == 0;
+            /* gen434: chiave `now` = i fatti di QUESTO turno, indicizzati su
+             * `current_turn` invece che sul testo canonicalizzato. */
+            int by_now = strcmp(keyname, "now") == 0;
             char found[16][KB_TERM_LEN];
             size_t m = 0;
-            if (by_turn) {
+            if (by_now) {
+                const char *nq[2] = { "current_turn", NULL };
+                m = kb_match(kb, pname, nq, 2, found, 16);
+            } else if (by_turn) {
                 const char *tq[2] = { quoted, NULL };
                 m = kb_match(kb, pname, tq, 2, found, 16);
                 if (m == 0 && kb_query(kb, pname, (const char *[]){ quoted }, 1))

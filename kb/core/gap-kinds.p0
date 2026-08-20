@@ -1,0 +1,126 @@
+% gap-kinds.p0 — LA SPECIE DELLA LACUNA SI DERIVA (gen434)
+%
+% Prima generazione del piano docs/plans/autocrescita.md.
+%
+% `question-emergence.md` §9.1 aveva decomposto il fallimento in quattro difetti
+% distinti; poi il ciclo ne ha implementato UNO — il muro cieco — e la tassonomia
+% e' rimasta sulla carta. Il conto, misurato sui cento: su 88 fallimenti reali
+% l'autocorrezione ne vede 3, perche' conta soltanto il tipo che sa vedere.
+%
+% Qui la specie smette di essere decisa da un ramo del C e diventa una
+% DERIVAZIONE su tre fatti che il motore pubblica a ogni turno — l'esito, il
+% topic, il modulo che ha risposto. Il valore non e' la classificazione in se':
+% e' che quattro specie diverse hanno QUATTRO RIMEDI DIVERSI, e finche' erano una
+% sola il rimedio era sempre lo stesso, cioe' quasi sempre quello sbagliato.
+%
+% Una specie nuova, domani, e' una REGOLA — non un ramo, non una generazione.
+
+:- file_attribute(machinery).
+
+% E le TESTE DI REGOLA vanno dichiarate a mano: l'attributo di file marca i
+% fatti, non i predicati che esistono solo come conclusione. Senza queste righe
+% `world_fact_about` compariva fra le classi di un'entita' descritta — «tariq is
+% a world_fact_about» — cioe' la meccanica si presentava come conoscenza sul
+% mondo (misurato: gen_describe.p0t).
+machinery(world_fact_about).
+machinery(reachable_knowledge).
+machinery(token_atom).
+machinery(turn_gap_kind).
+machinery(turn_gap_remedy).
+machinery(turn_has_known_word).
+machinery(gap_class).
+machinery(gap_remedy).
+
+% ── LE SPECIE, dichiarate ──────────────────────────────────────────────────
+gap_class(knowledge, "so la forma della domanda, non ho il valore").
+gap_class(reach, "il valore ce l'ho, e non ci sono arrivato").
+gap_class(surface, "non ho riconosciuto che me lo stavi chiedendo").
+gap_class(blind, "non ho nemmeno riconosciuto di che problema si tratta").
+gap_class(wrong_suspect, "ho risposto, e la risposta potrebbe non rispondere").
+
+% ── IL FATTO CHE FA LA DIFFERENZA FRA `knowledge` E `reach` ────────────────
+% «Ho fatti su questa parola?» — e la meccanica NON conta: `stopword(the)` non e'
+% conoscenza su «the». Senza questa esclusione ogni parola avrebbe un fatto e la
+% distinzione non esisterebbe. E' `machinery/1` che fa il lavoro, di nuovo.
+world_fact_about($Topic) :- kb_fact($Pred, cons($Topic, $Rest)), naf(machinery($Pred)).
+% E anche in posizione di OGGETTO: `tr(photosynthesis, fotosintesi)` e' un fatto
+% SU «fotosintesi» quanto su «photosynthesis» — ed e' proprio quello che rende
+% raggiungibile ciò che il turno italiano non raggiunge.
+world_fact_about($Topic) :- kb_fact($Pred, cons($X, cons($Topic, nil))), naf(machinery($Pred)).
+
+% ── LE REGOLE, una per specie ──────────────────────────────────────────────
+%
+% (1) Ho nominato una parola e non ho niente su di lei: manca il VALORE.
+turn_gap_kind($T, knowledge) :-
+    turn_outcome($T, informed_decline), turn_topic($T, $W),
+    naf(world_fact_about($W)).
+
+% (2) Ho nominato una parola e i fatti su di lei CI SONO: non ci sono arrivato.
+%     E' il caso di «9:15» prima del gen427 — `transcoded("9:15", time(9,15))`
+%     era pubblicato e nessuno lo leggeva. La lacuna qui non dice «non conosco»,
+%     dice «ho un fatto che nessuno legge», e il rimedio e' una SUPERFICIE.
+turn_gap_kind($T, reach) :-
+    turn_outcome($T, informed_decline), turn_topic($T, $W),
+    world_fact_about($W).
+
+% (3) Ho riconosciuto il REGISTRO e non la forma: so di che cosa si parla e non
+%     ho il modo di riceverlo. E' l'esito piu' informativo dei tre, e fino al
+%     gen434 era l'unico che non lasciava traccia.
+turn_gap_kind($T, surface) :-
+    turn_outcome($T, recognized_register), turn_register($T, $R).
+
+% (3b) IL MURO CIECO CHE IN REALTA' E' UN `reach`, ed e' il caso che ha motivato
+%      questa generazione. «raccontami la fotosintesi» mura, mentre «tell me
+%      about photosynthesis» risponde con la definizione: il FATTO c'e' — la
+%      traduzione, la voce d'enciclopedia — e la strada italiana non ci arriva.
+%      Il muro non nomina niente perche' nessuna parola era opaca; ma se una
+%      parola del turno ha un fatto di mondo, allora non e' cecita': e'
+%      irraggiungibilita', e il rimedio e' una forma, non un fatto.
+turn_gap_kind($T, reach) :-
+    turn_outcome($T, blind_wall),
+    turn_span_token($T, $I, $P, $Q), token_atom($Q, $W), reachable_knowledge($W).
+
+% «Esiste una voce che avrei potuto dire?» — ed e' un criterio STRETTO apposta.
+% La prima versione chiedeva soltanto «esiste un fatto qualunque su questa
+% parola», e tipizzava `reach` anche «zorkuz mivvel taranto», perche' «taranto»
+% e' una citta' nota: un turno senza senso diventava una lacuna di
+% raggiungibilita'. Un criterio che dice si' a tutto non distingue niente.
+reachable_knowledge($W) :- wiki_concept($W, $Domain, $Gloss).
+reachable_knowledge($W) :- tr($Concept, $W), wiki_concept($Concept, $Domain, $Gloss).
+reachable_knowledge($W) :- transcoded($W, $Term).
+
+% Il token della memoria di lavoro e' fra virgolette (e' testo ricevuto, non un
+% termine); il doppio `chars/2` lo riporta ad atomo per poterlo interrogare.
+token_atom($Quoted, $Atom) :- chars($Quoted, $Cs), chars($Atom, $Cs).
+
+% (4) Muro cieco vero: cecita' piena, ed e' l'unico caso che il ciclo di
+%     autocorrezione sa vedere oggi.
+turn_gap_kind($T, blind) :- turn_outcome($T, blind_wall), naf(turn_has_known_word($T)).
+turn_has_known_word($T) :- turn_span_token($T, $I, $P, $Q), token_atom($Q, $W), reachable_knowledge($W).
+
+% (5) IL SOSPETTO, che e' la classe piu' numerosa dei cento e la piu' pericolosa:
+%     il turno risulta RISPOSTO, e a rispondere e' stata una facolta' che produce
+%     un testo generico. Non e' una certezza — la pertinenza vera e' il substrato
+%     S3 e non c'e' ancora — ma un sospetto NOMINATO vale infinitamente piu' di
+%     un successo silenzioso: senza questa riga la classe non lascia traccia.
+turn_gap_kind($T, wrong_suspect) :-
+    turn_outcome($T, answered), turn_module($T, $M), template_family($M).
+
+% Quali facolta' producono un testo che puo' non rispondere. Una riga per
+% facolta', e si toglie il giorno in cui quella facolta' impara a declinare.
+machinery(template_family).
+template_family(analysis_plan).
+template_family(analysis_family).
+template_family(reqgen).
+
+% ── IL RIMEDIO, per specie ─────────────────────────────────────────────────
+% E' la ragione per cui distinguere serve: quattro specie, quattro rimedi.
+gap_remedy(knowledge, "manca il VALORE: un fatto — ma prima chiediti se una forma lo raggiungera'").
+gap_remedy(reach, "manca la STRADA: una superficie che porti il fatto che gia' possiedo al turno").
+gap_remedy(surface, "manca la FORMA con cui te l'ho chiesto: una cue, un frame, un verbo di relazione").
+gap_remedy(blind, "manca il registro: insegnami prima DI CHE COSA si tratta").
+gap_remedy(wrong_suspect, "non manca niente: c'e' di troppo — serve una GUARDIA che impedisca a quella facolta' di prendere questo turno").
+
+% E il ponte fra le due tabelle: la specie derivata porta con se' il suo rimedio,
+% cosi' l'ispettore non deve saperlo — lo legge.
+turn_gap_remedy($T, $Text) :- turn_gap_kind($T, $Kind), gap_remedy($Kind, $Text).

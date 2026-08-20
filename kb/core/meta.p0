@@ -751,6 +751,11 @@ machinery(unsatisfying_outcome).
 machinery(gap_kind).
 unsatisfying_outcome(blind_wall, reachability).
 unsatisfying_outcome(informed_decline, reachability).
+% gen434 — E ANCHE IL REGISTRO RICONOSCIUTO. «That looks like a logic problem,
+% and I cannot solve it yet» e' il turno che sa DI CHE COSA si parla e non ha la
+% forma per riceverlo: era l'esito piu' informativo dei tre e l'unico che non
+% lasciava traccia, perche' nessuna riga lo dichiarava insoddisfacente.
+unsatisfying_outcome(recognized_register, surface).
 
 % ── gen415: GLI INDIZI DI REGISTRO ──────────────────────────────────────────
 %

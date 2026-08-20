@@ -1356,6 +1356,11 @@ static void gap_record_as(Brain *b, const char *canon, const char *raw,
     int prev = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_SESSION);
     kb_assert(b->kb, "gap_kind", ka, 2);
+    /* gen434: e l'esito del turno, che e' la prima delle tre cose da cui la
+     * specie si deriva. */
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    const char *oa[2] = { "current_turn", outcome };
+    kb_assert(b->kb, "turn_outcome", oa, 2);
     kb_set_origin(b->kb, prev);
 }
 
@@ -1653,6 +1658,12 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
             int prev = kb_origin(b->kb);
             kb_set_origin(b->kb, KB_SESSION);
             kb_assert(b->kb, "gap_register", ra2, 2);
+            /* gen434: e il registro di QUESTO turno, per la derivazione della
+             * specie — `gap_register` e' indicizzato sul canon e sopravvive al
+             * turno, `turn_register` no. Sono due cose diverse. */
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            const char *tr2[2] = { "current_turn", reg };
+            kb_assert(b->kb, "turn_register", tr2, 2);
             kb_set_origin(b->kb, prev);
             char rmsg[400];
             const KbResponseSlot rs[] = { {"register", reg} };
@@ -1689,6 +1700,15 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
          * parola e offerto di impararla, il che LO FA SEMBRARE gestito — ma il
          * lavoro non e' stato fatto, e sono quarantanove prompt su cento. */
         gap_record_as(b, canon, raw, "informed_decline");
+        /* gen434: la parola nominata e' il TOPIC del turno, e serve a decidere
+         * se manchi il valore o la strada che ci arriva. */
+        {
+            int prev_o = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            const char *ta[2] = { "current_turn", sw };
+            kb_assert(b->kb, "turn_topic", ta, 2);
+            kb_set_origin(b->kb, prev_o);
+        }
         if (!already_gap && !already_failed) {
             kb_set_origin(b->kb, KB_REFLECTIVE);
             const char *ga[] = { sw };
@@ -2432,6 +2452,26 @@ static void conv_log(Brain *b, const char *input, const char *reply) {
 static size_t turn_done(Brain *b, const char *canon, const char *input,
                         const char *out) {
     note_arith_result(b, out);
+    /* gen434: CHI ha risposto, e — se nessuno ha registrato un esito — che il
+     * turno e' stato considerato RISPOSTO. E' la terza gamba della derivazione,
+     * ed e' quella che rende visibile la classe silenziosa: un turno «risposto»
+     * da una facolta' della famiglia dei template e' un sospetto, non un
+     * successo (docs/plans/fix-patterns.md, forma G). */
+    if (b && b->kb) {
+        int prev = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        if (b->last_module[0]) {
+            const char *ma[2] = { "current_turn", b->last_module };
+            kb_assert(b->kb, "turn_module", ma, 2);
+        }
+        const char *oq[2] = { "current_turn", NULL };
+        char seen[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "turn_outcome", oq, 2, seen, 1) == 0) {
+            const char *oa[2] = { "current_turn", "answered" };
+            kb_assert(b->kb, "turn_outcome", oa, 2);
+        }
+        kb_set_origin(b->kb, prev);
+    }
     if (b && b->kb && strcmp(b->last_module, "fallback") != 0)
         machinery_gap_close(b, canon);
     conv_log(b, input, out);
@@ -3546,6 +3586,17 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         }
         b->turns++;
         b->turn_frame[0] = '\0';   /* gen363: provenance is per-turn */
+        /* gen434 — LO STATO DEL TURNO E' UN FATTO, e i fatti di turno si
+         * azzerano qui, prima di tutto: e' l'unico punto che ogni turno
+         * attraversa. La specie della lacuna non e' piu' decisa dal C — si
+         * DERIVA da questi tre (`kb/core/gap-kinds.p0`), e una specie nuova
+         * domani e' una regola, non un ramo. */
+        if (b->kb) {
+            kb_retract_pred(b->kb, "turn_outcome");
+            kb_retract_pred(b->kb, "turn_topic");
+            kb_retract_pred(b->kb, "turn_module");
+            kb_retract_pred(b->kb, "turn_register");
+        }
     }
 
     char norm[256];
