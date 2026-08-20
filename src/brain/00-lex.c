@@ -299,12 +299,31 @@ static void copy_trim(char *dst, size_t dst_size, const char *src) {
 }
 
 /* Write a fixed reply into out, returning its length. */
+/* gen432 — LA SEQUENZA DI FUGA SI SCIOGLIE QUANDO IL TESTO ESCE.
+ *
+ * Una stringa della KB non poteva contenere una VIRGOLETTA: le virgolette
+ * delimitano, e chi scriveva la sequenza di fuga se la ritrovava stampata con la
+ * barra davanti — quindi un documento JSON, che di virgolette e' fatto, non si
+ * poteva scrivere come conoscenza.
+ *
+ * Il primo tentativo fu scioglierla in `kb_dequote`, ed era il posto SBAGLIATO:
+ * quella funzione lavora sul posto e certi chiamanti le passano la memoria della
+ * KB, quindi lo spostamento dei byte corrompeva i fatti — l'induzione cominciava
+ * a produrre predicati fatti di byte a caso (misurato: abduce.p0t). Qui si tocca
+ * solo la COPIA che esce, e la barra da sola resta se' stessa, cosi' il punto
+ * protetto di un'espressione regolare non viene alterato. */
 static size_t put(const char *text, char *out, size_t out_size) {
     size_t n = strlen(text);
     if (n >= out_size) n = out_size - 1;
     memcpy(out, text, n);
     out[n] = '\0';
-    return n;
+    char *r = out, *w = out;
+    while (*r) {
+        if (r[0] == '\\' && (r[1] == '"' || r[1] == '\\')) { *w++ = r[1]; r += 2; }
+        else *w++ = *r++;
+    }
+    *w = '\0';
+    return (size_t)(w - out);
 }
 
 /* gen76: store a proof trace so a follow-up "how do you know?" can cite it. */
@@ -660,7 +679,27 @@ static int p0_unattached_kind(Brain *b, const char *norm, const char *raw,
          * e' conoscenza (`countable_opener/1`); il singolare lo fa la
          * morfologia che c'e' gia'. */
         int counted = kb_query(b->kb, "countable_opener", dq, 1);
-        if (!counted && !kb_query(b->kb, "demonstrative_word", dq, 1)) continue;
+        /* gen432 — «why did A FUNCTION return early?» apre lo stesso vuoto di
+         * «why did THIS function…»: l'articolo indeterminativo in una DOMANDA
+         * indica una cosa precisa che chi chiede ha in mente e non ha allegato.
+         * Solo in una domanda: «design a test for a race condition» e' un ordine
+         * di produrre, non una richiesta su qualcosa che manca. */
+        int indefinite = 0;
+        if (!counted && kb_query(b->kb, "indefinite_opener", dq, 1)) {
+            char q0[64]; snprintf(q0, sizeof q0, "%s", w[0]);
+            const char *qq0[1] = { strip_edge_punct(q0) };
+            if (kb_query(b->kb, "question_word", qq0, 1)) indefinite = 1;
+            /* Ma non se prima dell'articolo c'e' gia' una COPULA: «why isn't zed
+             * a trace?» non chiede una traccia che manca, chiede perche' zed non
+             * appartenga a una classe — e li «trace» e' un predicato, non un
+             * documento da allegare (misurato: abduce_chain.p0t). */
+            for (size_t z = 0; z < i && indefinite; z++) {
+                char cz[64]; snprintf(cz, sizeof cz, "%s", w[z]);
+                const char *czq[1] = { strip_edge_punct(cz) };
+                if (kb_query(b->kb, "clause_copula", czq, 1)) indefinite = 0;
+            }
+        }
+        if (!counted && !indefinite && !kb_query(b->kb, "demonstrative_word", dq, 1)) continue;
         /* il genere e' la TESTA del sintagma, non la parola subito dopo: in
          * «this stack trace» il genere e' «trace», e fermarsi al primo token
          * perdeva meta' dei casi. Si guardano i tre token successivi. */

@@ -1,8 +1,28 @@
 # HANDOFF — dove riprendere (gen431, 19 agosto 2026)
 
 Stato dell'albero al momento dello stacco: **`make test` 2569 verdi**,
-**`make hundred` 54/100**, **`make measure` tonnage 48 / solved 48 / max length 5**.
+**`make hundred` 99/100**, **`make measure` tonnage 48 / solved 48 / max length 5**.
 Tutto committato e pushato.
+
+## 0. I cento sono a 99. Il centesimo e' l'unico che conta
+
+Resta aperto **solo il #8, la contrapposizione**: «what is the contrapositive of
+if it rains then the ground is wet?» → *«se il terreno non e' bagnato, allora non
+e' piovuto»*. E' l'unico dei cento che chiede una **trasformazione su una forma
+letta** invece di una risposta da sapere, ed e' rimasto li' apposta: chiuderlo a
+cue sarebbe stato frasario.
+
+Che cosa serve, e c'e' quasi tutto:
+- il condizionale viene gia' letto (`if X then Y` → `holds(y) :- holds(x)`);
+- la segmentazione pubblica gia' gli span con ruolo `condition` e `consequence`
+  (verificato con `input.segment`);
+- manca **negare una proposizione** — «the ground is wet» → «the ground is not
+  wet», «it rains» → «it does not rain» — e ricomporre. La prima meta' e' uno
+  split sulla copula (fattibile in KB con `chars/2` + `append_list/3`), la
+  seconda vuole la morfologia del verbo, che in KB c'e' gia' (`lemma_candidate`).
+
+E' un buon primo lavoro: piccolo, verificabile, e produce una PROCEDURA
+insegnabile invece di una risposta.
 
 ## 1. La cosa da riprendere per prima: i cento
 

@@ -782,3 +782,10 @@ clause_copula(e').
 clause_copula(sono).
 clause_copula(era).
 clause_copula(erano).
+
+% gen432: gli articoli indeterminativi che, DENTRO UNA DOMANDA, indicano una cosa
+% precisa che chi chiede ha in mente e non ha allegato («why did a function
+% return early?»).
+machinery(indefinite_opener).
+indefinite_opener(a).
+indefinite_opener(an).

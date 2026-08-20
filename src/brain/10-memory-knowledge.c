@@ -2834,22 +2834,7 @@ static char *kb_dequote(char *s) {
     size_t l = strlen(s);
     if (l >= 2 && s[0] == '"' && s[l - 1] == '"') {
         s[l - 1] = '\0';
-        char *body = s + 1;
-        /* gen432 — UNA STRINGA DELLA KB PUO' CONTENERE UNA VIRGOLETTA.
-         *
-         * Finora no: le virgolette delimitano, e chi scriveva `\"` se le
-         * ritrovava stampate con la barra davanti. L'effetto pratico e' che un
-         * documento JSON — che di virgolette e' fatto — non si poteva scrivere
-         * come conoscenza. Qui la sequenza di fuga si scioglie al momento di
-         * leggere il testo, in un posto solo, e la barra da sola resta se' stessa
-         * (il `\.` di un'espressione regolare non va toccato). */
-        char *r = body, *w = body;
-        while (*r) {
-            if (r[0] == '\\' && (r[1] == '"' || r[1] == '\\')) { *w++ = r[1]; r += 2; }
-            else *w++ = *r++;
-        }
-        *w = '\0';
-        return body;
+        return s + 1;
     }
     return s;
 }

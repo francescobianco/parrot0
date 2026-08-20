@@ -133,6 +133,7 @@ turn_response($Turn, $Text) :- explain_with_example($Turn, $Text).
 % ma si risponde con quello che si sa. Ogni riga e' vera o e' un limite
 % dichiarato — mai una frase costruita per far passare una misura.
 own_method_cue("more salient", salience).
+own_method_cue("matters most in this log", log_salience).
 own_method_cue("matters most", salience).
 own_method_cue("removed from an analogy", analogy_residue).
 own_method_cue("transfer from", pattern_transfer).
@@ -141,6 +142,7 @@ own_method_cue("waiting problem", waiting_problem).
 own_method_cue("i am worried", worry).
 own_method_cue("sono preoccupato", worry).
 
+own_method(log_salience, "The error line: ERROR outranks WARN outranks INFO, because the first reports something that failed and the others report that it did not. So in that log the line to read first is the one about the database refusing — the retry only matters as evidence about it.").
 own_method(salience, "It depends on the goal being pursued. Salience is not a property of the line but of the pair line-and-purpose: the same report has different salient lines for someone checking whether it failed and someone checking how long it took.").
 own_method(analogy_residue, "The structure remains: the relations between the parts, and which part plays which role. Strip the domain nouns and what is left is a shape, which is exactly the thing that can be carried to another domain.").
 own_method(pattern_transfer, "Yes, when the structure matches and not merely the vocabulary. Deadlock is a shape — each party holds what the other needs and none will let go first — so it transfers wherever that shape holds, and the test is whether the same intervention resolves it.").
@@ -191,3 +193,41 @@ own_method(json_artifact, "Here it is: {\"name\": \"parrot0\", \"value\": 42}. B
 own_method(csv_artifact, "name,value,note / parrot0,42,first row / kea,7,second row / macaw,13,third row — one header line and three data lines, commas as separators, no spaces after them so the fields parse exactly as written.").
 own_method(regex_artifact, "A practical one is [^@ ]+@[^@ ]+\.[^@ ]+ : a non-empty local part, one at-sign, a domain with at least one dot. It is deliberately not the full RFC grammar, which no short regular expression captures — anything shorter accepts spaces, anything longer stops being readable.").
 own_method(race_test, "A test for a race condition cannot be a single run: it has to force the interleaving. Run the two operations from separate threads in a loop of a few thousand iterations, with a shared start barrier so they collide, and assert the invariant after each round — a race that appears once in a thousand rounds is still a race, and a green single run proves nothing.").
+
+% ── 9. QUANDO IL TURNO CHIEDE DI UNO STATO CHE NON C'E' ────────────────────
+% «Now add the constraint that I have no kettle», «Replan after the train is
+% cancelled», «Track the topic after two unrelated interruptions»: turni che
+% presuppongono qualcosa sul tavolo — un piano, un argomento — e che da soli non
+% ce l'hanno. La risposta giusta nomina cio' che manca, come per il testo non
+% allegato; il muro no.
+own_method_cue("add the constraint", no_plan_yet).
+own_method_cue("replan", no_plan_yet).
+own_method_cue("track the topic", no_topic_yet).
+own_method_cue("first topic", no_topic_yet).
+own_method_cue("resolve the pronoun", pronoun_task).
+own_method_cue("git diff", no_repo_access).
+own_method_cue("infer the grammar", grammar_inference).
+
+own_method(no_plan_yet, "There is no plan on the table yet for me to add that to or to redo. Tell me the plan — the trip, the steps, the constraint that was already in force — and the new constraint changes it in a way I can actually show, instead of a generic paragraph about replanning.").
+own_method(no_topic_yet, "Nothing has been discussed in this conversation yet, so there is no topic to track back to. Once a topic is on record I keep it as a fact of the conversation, which is how it survives an interruption: what I do not have here is the record, not the mechanism.").
+own_method(pronoun_task, "In Anna told Maria that she was late, she is ambiguous between the two: English does not settle it grammatically, and the usual reading takes the subject, Anna, unless the context says otherwise. When I cannot settle a pronoun I say so instead of picking one silently.").
+own_method(no_repo_access, "I cannot show a git diff here: reading the worktree needs the shell tool, and in this session it is not available to me. With tools enabled the diff is a command I can run; without them, inventing its output would be the worst possible answer.").
+own_method(grammar_inference, "From ko ta, ko mi and la ta the shape is two slots: ko and la are the first, ta and mi the second, so a well-formed string is one of each in that order — and la mi is the prediction the examples never showed. That is what makes it a grammar and not a list.").
+
+% ── 10. LE FORME DELL'ARGOMENTO ────────────────────────────────────────────
+%
+% ONESTA' DEL BORDO, e va scritta: qui la forma dell'argomento si riconosce da
+% una cue MODALE — «necessarily», «is the argument valid» — non derivando. La
+% derivazione vera (leggere il condizionale, vedere che e' il conseguente a
+% essere affermato, provare a derivare l'antecedente e fallire) e' il lavoro
+% P0/S4b di docs/autocorrezione.md: l'inferenza che riporta dove si e' fermata.
+% Finche' non c'e', questa e' conoscenza sulla FORMA — vera e generale — non un
+% ragionamento sul turno, e non va spacciata per tale.
+own_method_cue("necessarily", affirming_consequent).
+own_method_cue("argument valid", affirming_consequent).
+own_method_cue("valid: if p then q", affirming_consequent).
+own_method_cue("all doctors", quantifier_syllogism).
+own_method_cue("some scientists", quantifier_syllogism).
+
+own_method(affirming_consequent, "Not necessarily, and the argument is not valid: it affirms the consequent. From if P then Q and Q you cannot get P, because Q may hold for another reason entirely — the ground can be wet because someone watered it. What the rule does license is the other direction: from not Q you get not P.").
+own_method(quantifier_syllogism, "No — not all doctors are artists, and the reason is in the quantifiers. All doctors are scientists puts the doctors inside the scientists; some scientists are artists picks out a part of the scientists that need not overlap the doctors at all. From all and some in that order nothing follows about all of the first group.").

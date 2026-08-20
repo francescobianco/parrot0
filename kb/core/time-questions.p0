@@ -78,6 +78,13 @@ time_text(time($H, $M), $Text) :- pad2($H, $HH), pad2($M, $MM), concat_atoms($HH
 % Aggiungerne uno e' due fatti e nessun codice.
 time_cue("after", time_after).
 time_cue("later than", time_after).
+% gen432 — «travels for» E' un «after»: un treno che parte alle 14:30 e viaggia
+% per due ore e tre quarti arriva 2h45 DOPO. Era il #4 dei cento, e la procedura
+% c'era gia' tutta — mancava che questa superficie nominasse l'operatore.
+time_cue("travels for", time_after).
+time_cue("runs for", time_after).
+time_cue("lasts", time_after).
+time_cue("viaggia per", time_after).
 time_cue("dopo", time_after).
 time_cue("before", time_before_op).
 time_cue("prima di", time_before_op).

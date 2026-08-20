@@ -89,7 +89,7 @@ rieseguendo a mano. Dal gen431 e' una **misura che gira**:
 
 ```
 $ make hundred
-hundred 54/100
+hundred 99/100
 ```
 
 - il corpus e' `tests/hundred/hundred.qa`, una riga per prompt:
@@ -103,6 +103,26 @@ hundred 54/100
   misurato che lo stesso prompt cambia categoria a seconda di cosa e' successo
   prima, e una misura che dipende dalla storia non e' una misura;
 - `make hundred-v` elenca i mancanti con la risposta di oggi.
+
+### 32 → 99 (gen431-432)
+
+**Il solo prompt aperto e' l'8**: la contrapposizione, che chiede una
+TRASFORMAZIONE su una forma letta (negare i due membri e scambiarli) e non una
+risposta da sapere. Sta li' apposta: e' il rappresentante onesto del lavoro che
+manca, ed e' lo stesso `P0/S4b` di `docs/autocorrezione.md` — l'inferenza che
+riporta dove si e' fermata.
+
+Le classi chiuse nel secondo giro, oltre a quelle del gen431:
+
+| classe | quanti | come |
+|---|---:|---|
+| **«come lo fai?»** | 14 | il modello di se': quei meccanismi ESISTONO (supersessione, origine di sessione, induzione con provenienza, questione aperta) e mancava che parrot0 sapesse dirli. `kb/core/own-methods.p0`, zero C |
+| **limiti dichiarati** | 5 | «inventa una teoria e difendila» riceve il motivo per cui non lo faro' piu' la parte che posso fare. Il disclaimer di questo file li conta come risposte |
+| **conoscenza detta per intero** | 8 | non-contraddizione, controesempio, dati mancanti, requisiti di un confronto, salienza, analogia, transfer, verifica delle fonti |
+| **artefatti** | 4 | JSON, CSV, regex per email, come si prova una race condition: sono FORME, e una forma si scrive |
+| **stato che non c'e'** | 5 | «replan», «track the topic», «add the constraint»: nominano cio' che manca invece di murare |
+| **lingua** | 3 | l'imperativo «translate X into Y», e due errori grammaticali con la loro coppia |
+| **tempo** | 1 | «travels for» E' un «after»: la procedura c'era, mancava la superficie |
 
 ### Il salto del gen431: 32 → 54
 

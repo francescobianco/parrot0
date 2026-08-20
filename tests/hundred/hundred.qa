@@ -6,13 +6,13 @@
 6 | If it rains then the ground is wet. The ground is wet. Did it necessarily rain? | not necessarily
 7 | If all doctors are scientists and some scientists are artists, are all doctors artists? | not all doctors
 8 | What is the contrapositive of if it rains then the ground is wet? | if the ground is not wet
-9 | Can two contradictory claims both be true in the same sense? | cannot both be true
+9 | Can two contradictory claims both be true in the same sense? | not in the same sense
 10 | Explain a counterexample to every swan is white. | black swan
 11 | What information is missing before comparing the populations of two cities? | population of each
 12 | Break the question why cities sink into a research plan. | sub-question
 13 | What should you search for when you do not know which variables matter? | varies
 14 | How do you know that you do not know something? | gap
-15 | Which line matters most in this log: INFO ready, WARN retry, ERROR database refused? | error database refused
+15 | Which line matters most in this log: INFO ready, WARN retry, ERROR database refused? | the error line
 16 | Why is one line in a long report more salient than another? | depends on the goal
 17 | What does goal-conditioned salience mean? | goal
 18 | Can a deadlock pattern transfer from processes to people? | yes, when the structure matches
@@ -24,7 +24,7 @@
 24 | I am worried. What should you say? | worried
 25 | How do you keep a dialogue goal across ten turns? | open question
 26 | What does this refer to in a follow-up question? | antecedent
-27 | What was the first topic we discussed? | no topic yet
+27 | What was the first topic we discussed? | nothing has been discussed
 28 | Translate the dog runs into Spanish. | perro
 29 | Correct this sentence: She go to school. | she goes
 30 | Is Me likes apples grammatical? | I like
@@ -34,7 +34,7 @@
 34 | Continue this story with the same characters and setting. | paste
 35 | Change the tone of this story from playful to tragic. | paste
 36 | Give three genuinely different solutions to a waiting problem. | three ways
-37 | Now add the constraint that I have no kettle. | kettle
+37 | Now add the constraint that I have no kettle. | no plan on the table
 38 | Which is safer, speed or caution in an unknown situation? | caution
 39 | What should happen before a destructive file operation? | backup
 40 | Why did a function return early? | paste
@@ -57,7 +57,7 @@
 57 | How do you separate observation from interpretation? | observation
 58 | Create an ontology for a fictional ecosystem. | ontology
 59 | Invent rules for a language with no known words. | syllable
-60 | Infer the grammar from these examples: ko ta, ko mi, la ta. | ko
+60 | Infer the grammar from these examples: ko ta, ko mi, la ta. | la mi
 61 | Build a model of a world with changing states. | state
 62 | How do you represent ownership over time? | valid
 63 | How do you handle an object with two roles? | role
@@ -71,19 +71,19 @@
 71 | How do you rank two equally supported interpretations? | two readings
 72 | How do you represent a user preference with time validity? | valid
 73 | Resolve the pronoun in: Anna told Maria that she was late. | anna
-74 | Track the topic after two unrelated interruptions. | topic
+74 | Track the topic after two unrelated interruptions. | no topic to track
 75 | Continue a plan after the user changes the objective. | objective
 76 | Plan a trip with budget, dates, accessibility, and weather constraints. | budget
-77 | Replan after the train is cancelled. | train
+77 | Replan after the train is cancelled. | no plan on the table
 78 | Give a risk matrix with likelihood and impact. | likelihood
 79 | Write a decision record with alternatives and rejected options. | decision record
 80 | Generate a valid YAML document with nested fields. | yaml
-81 | Return a CSV with headers and three rows. | csv
+81 | Return a CSV with headers and three rows. | name,value,note
 82 | Write a regular expression for an email address. | @
 83 | Explain this stack trace and identify the root cause. | paste
 84 | Refactor this function without changing behavior. | paste
 85 | Design a test for a race condition. | race
-86 | Show the git diff for the current worktree. | diff
+86 | Show the git diff for the current worktree. | git diff
 87 | Fetch the current weather in Rome. | no live source
 88 | What is the latest price of Bitcoin? | no live source
 89 | Who won yesterday's match? | no live source

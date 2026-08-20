@@ -2715,6 +2715,20 @@ size_t kb_induce(KB *kb, size_t min_support,
             strcmp(mp, "flag") == 0 ||
             strcmp(mp, "cont") == 0 ||
             strcmp(mp, "cont2") == 0) continue;
+        /* gen432 — LA MECCANICA NON SI GENERALIZZA, e adesso conta davvero.
+         *
+         * L'elenco cablato qui sopra nomina undici predicati; il resto della
+         * meccanica si dichiara da se' con `machinery/1` dal gen344. Non
+         * filtrarla qui la faceva entrare nell'induzione e RIEMPIRE il buffer
+         * delle regole indotte — sedici posti — con cose come
+         * `content_kind(X) :- countable_opener(X)`, che il chiamante poi
+         * scartava una per una lasciando fuori la regola vera. Il sintomo era
+         * «Nothing new to generalize» su una KB che aveva appena imparato che
+         * ogni uomo e' mortale (misurato: induce.p0t). */
+        {
+            const char *mq[1] = { mp };
+            if (kb_query((KB *)kb, "machinery", mq, 1)) continue;
+        }
         if (kb->facts[i].argc == 1) push_unique(preds, &np, 256, kb->facts[i].pred);
     }
 
@@ -2737,10 +2751,21 @@ size_t kb_induce(KB *kb, size_t min_support,
 
             if (all_q && support >= min_support) {
                 kb_assert_rule(kb, Q, P);
-                if (found < max) {
-                    strcpy(out_head[found], Q);
-                    strcpy(out_body[found], P);
-                }
+                /* gen432 — SI RESTITUISCE QUANTE SE NE SONO SCRITTE.
+                 *
+                 * La firma promette «capped at max» e il conteggio invece
+                 * cresceva oltre il buffer: il chiamante ciclava fino a `found`
+                 * e leggeva righe MAI SCRITTE, cioe' memoria a caso, e la
+                 * stampava come regole indotte — «Induced: <byte a caso>(X) :-
+                 * <byte a caso>(X)». Non si vedeva finche' le regole inducibili
+                 * restavano meno di sedici; e' bastato far crescere la KB di
+                 * qualche fatto per scoprirlo (misurato: abduce.p0t).
+                 *
+                 * Stessa specie del tetto sui registri delle cue: un numero che
+                 * descrive un buffer non puo' superarlo. */
+                if (found >= max) continue;
+                strcpy(out_head[found], Q);
+                strcpy(out_body[found], P);
                 found++;
             }
         }
