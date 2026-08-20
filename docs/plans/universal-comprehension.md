@@ -104,15 +104,15 @@ dato**.
 
 ## 4. Il meccanismo (sketch a piccoli passi)
 
-1. **Skeleton sintattico.** Tokenizza e assegna a ogni token una *parte del
-   discorso* interrogando la KB (`pos(word, noun|verb|adj|…)`, più le classi
-   chiuse già presenti). Le parole ignote restano `unknown` ma **tengono il loro
-   slot posizionale**.
-2. **Schema della frase.** Riconosci lo *schema d'intento* dalla forma, non dal
-   lessico: `[WH] [is|are] the [N] of [N]?` → intento `attribute_of`; `[V-imp]
-   [NP] …` → intento `request/generate`; `[if] [clause], [clause]` → condizionale;
-   ecc. Gli schemi sono fatti KB (`intent_schema(Pattern, Intent)`).
-3. **Assegnazione ruoli.** Lega gli slot ai ruoli dell'intento (soggetto,
+1. **Skeleton gerarchico.** Il motore di [[universal-input]] produce token span
+   e sintagmi annidati (`NP`, `VP`, `PP`, `clause`); la KB assegna le parti del
+   discorso (`pos/2`), i confini e i ruoli. Le parole ignote restano `unknown`
+   ma **tengono il loro slot posizionale**.
+2. **Schema della frase.** Riconosci lo *schema d'intento* dalla struttura dei
+   sintagmi, non dal lessico: `[WH] [VP] [NP]` → domanda su una relazione;
+   `[V-imp] [NP]` → intento `request/generate`; `[if] [clause], [clause]` →
+   condizionale. Gli schemi sono fatti KB (`intent_schema/2`).
+3. **Assegnazione ruoli.** Lega i sintagmi ai ruoli dell'intento (soggetto,
    relazione, oggetto, vincolo). Un content-word ignoto **può** riempire un ruolo:
    "capital of Zembla" → `relation=capital, object=Zembla` anche se `Zembla` è
    ignota.
@@ -136,16 +136,37 @@ dato**.
 > [`reinforcement-suite.md`](reinforcement-suite.md) §«Il meta-problema», e i
 > casi rossi in `tests/rl/episodes/meta/`.
 
+### 4bis. La stessa IR per comprendere e imparare dalla prosa
+
+La span tipizzata `prose` non viene passata a un secondo parser speciale: viene
+esplosa nella stessa gerarchia `token -> sintagma -> clausola` dell'input
+universale. La comprensione interroga `intent_schema/2`; la lettura della prosa
+interroga `extract_frame/2`; entrambe ricevono gli stessi slot, ruoli, offset e
+provenance.
+
+```text
+"The okapi, a giraffid mammal, lives in Congo"
+  -> NP(subject) + apposition(NP) + VP + PP
+  -> extract_frame(...) dalla KB
+  -> is_a(okapi, giraffid_mammal)
+     located_in(okapi, congo)
+```
+
+Il motore deve conoscere solo tokenizzazione, nesting, matching strutturale e
+binding; la KB deve poter aggiungere POS, chiusure di sintagma, marcatori di
+apposizione e frame. Una nuova forma insegnata a runtime deve quindi cambiare
+sia l'interpretazione sia l'estrazione, e la sua ablation deve farle sparire.
+
 ## 5. Cosa esiste già e cosa manca
 
 - **Esiste:** classi chiuse in KB (`conjunction`, `stopword`), `intent_phrase`/
   `intent_cue`, dispatch first-match, coref/pragma/repair (la colla), il declino
   onesto. La materia prima c'è.
-- **Manca:** (a) un vero `pos/2` lessicale in KB e un assegnatore di ruoli
-  generico; (b) `intent_schema/2` come fatti (oggi l'intento si riconosce per
-  cue/frase, non per *schema strutturale*); (c) il **declino informato** come
-  output di default al posto del muro cieco; (d) l'abduzione della mappa per
-  predicati ignoti.
+- **Manca:** (a) la proiezione gerarchica dell'`InputSpan` in token e sintagmi;
+  (b) un vero `pos/2` lessicale in KB e un assegnatore di ruoli generico; (c)
+  `intent_schema/2` applicato alla struttura, non solo a cue/frasi; (d) il
+  **declino informato** come output di default al posto del muro cieco; (e)
+  l'abduzione della mappa per predicati ignoti.
 
 ## 6. Verdetto — ha senso?
 

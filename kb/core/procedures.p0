@@ -68,6 +68,11 @@ part_of_t($X, $Z) :- part_of($X, $Y), part_of($Y, $Z).
 part_of_t($X, $Z) :- part_of($X, $Y), part_of_t($Y, $Z).
 same_category($X, $Y) :- category_member($C, $X), category_member($C, $Y).
 
+% Una misura di peso diventa una relazione binaria interrogabile dal consumer
+% universale answer_frame/2. Il dimensionamento e' conoscenza: il motore non
+% contiene una nozione speciale di "peso".
+weight_of($Item, $Value) :- magnitude(weight, $Item, $Value).
+
 % ── ENUMERAZIONE DI CATEGORIE ────────────────────────────────────────────────
 % La superficie individua una categoria e la clausola GENERA una soluzione per
 % membro. answer_frame/2 sa già presentare tutte le soluzioni di una qualunque

@@ -184,6 +184,57 @@ faculty_for(expected,  contract_builder).
 faculty_for(constraint, planner).
 ```
 
+## 4bis. Dalle span ai sintagmi: la struttura interna resta universale
+
+La segmentazione del registro è il primo livello, non l'ultimo. Una span marcata
+`prose` deve poter essere scomposta senza introdurre un parser per ogni dominio:
+
+```text
+flusso
+  -> segmento/register span
+  -> token span
+  -> sintagmi (NP, VP, PP, clause)
+  -> relazioni fra sintagmi (subject, predicate, object, modifier)
+  -> frame o intent schema della KB
+```
+
+Il C produce soltanto la struttura meccanica: token, offset, confini candidati,
+nesting e legame fra span. La KB decide come interpretarla:
+
+```prolog
+pos(elephant, noun).
+pos(weighs, verb).
+phrase_form(np, "the @N").
+phrase_form(pp, "in @NP").
+phrase_role(subject, np).
+phrase_role(object, np).
+intent_schema("@NP @V @NP", assertion).
+```
+
+Questa è la giunzione con [[universal-comprehension]]: il suo `skeleton
+sintattico`, gli `intent_schema/2` e l'assegnazione dei ruoli operano sulle span
+gerarchiche prodotte da questo documento. `extract_frame/2` consuma la stessa
+struttura per trasformare una frase in fatto; `answer_frame/2` usa il frame
+opposto per trasformare una domanda in query.
+
+Il nuovo livello non significa che ogni token debba essere già conosciuto: una
+parola ignota conserva la propria posizione e può riempire uno slot. La KB può
+poi insegnare `pos/2`, una forma di sintagma o un collegamento e la stessa frase
+può essere risegmentata senza ricompilare.
+
+### Perché evolvere così la KB
+
+- La stessa segmentazione serve a prosa, domande, codice, log e diff.
+- Le forme nuove costano fatti KB, non rami C.
+- Un fatto estratto conserva gli offset e la frase sorgente, quindi può essere
+  verificato, corretto o ritratto.
+- Relative, apposizioni e misure diventano composizioni di sintagmi, non casi
+  speciali del dominio.
+- Una forma appresa migliora sia la lettura della prosa sia la comprensione delle
+  domande che interrogano il fatto.
+- Le ambiguità restano ipotesi confrontabili con proof, invece di essere risolte
+  dal primo `if`.
+
 Tre proprietà da leggere con attenzione, perché sono il **rendimento** dell'operazione:
 
 1. **`segment_role(repro, …)` è un fatto** → TODO 20 (contratto della issue: expected,
@@ -289,6 +340,71 @@ generazione.
       serve entrambi; l'ablation di un `intent_cue` e quella di un
       `register_evidence` producono Gap della stessa forma.
 
+- [ ] **U9 — Struttura gerarchica condivisa.** Esporre token e sintagmi come span
+      annidate, con POS, ruoli e legami dichiarati dalla KB, e far consumare la
+      stessa IR a `intent_schema/2` ed `extract_frame/2`. Oracolo: una forma
+      insegnata a runtime cambia la struttura e l'estrazione, mentre la sua
+      retract la rimuove senza toccare il C.
+
+## 8bis. Piano di migrazione: C come kernel, KB come grammatica
+
+Questo è il piano operativo per portare il massimo della comprensione nella KB
+senza trasformare il C in un parser di dominio. Il documento è collegato a
+[[universal-comprehension]]: quella pagina definisce come la struttura rivela
+l'intento; questa definisce come la struttura viene materialmente costruita.
+
+### Confine definitivo
+
+Il C conserva soltanto:
+
+- lettura dei byte e tokenizzazione;
+- offset, lunghezze e nesting delle span;
+- struttura dell'IR e collegamenti parent/child;
+- unificazione, binding degli slot e iterazione sui candidati KB;
+- scoring generico, provenance e gestione di tie/declino.
+
+La KB contiene:
+
+- POS, classi lessicali, opener/closer e marcatori di clausola;
+- forme `NP`, `VP`, `PP`, apposizione, relativa, passiva e coordinazione;
+- ruoli `subject`, `predicate`, `object`, `modifier` e vincoli di binding;
+- `intent_schema/2`, `extract_frame/2` e mapping verso predicati;
+- regole di composizione e trasformazione, sopra i primitivi del motore;
+- le forme equivalenti con cui lo stesso fatto viene chiesto o dichiarato.
+
+Il C non deve sapere che una parola è un verbo, che una preposizione chiude un
+NP o che una struttura è una relativa: deve chiedere alla KB quali ipotesi
+strutturali provare.
+
+### Incrementi
+
+- [x] **M0 — IR gerarchica minima.** Pubblicare `clause`, `phrase` e `token` con
+      offset, superficie e parent; mantenere `turn_span_token/4` come vista
+      compatibile.
+- [ ] **M1 — Confini dichiarativi.** Sostituire ogni query diretta a classi
+      sintattiche con relazioni KB generiche (`phrase_boundary/3`, `pos/2`,
+      `clause_marker/2`).
+- [ ] **M2 — Matcher strutturale.** Far combaciare `intent_schema/2` ed
+      `extract_frame/2` contro nodi e ruoli dell'IR, non contro una nuova lista
+      di parole in C.
+- [ ] **M3 — Grammatica compositiva.** Aggiungere in KB regole per apposizioni,
+      relative, passive, coordinazioni e quantità; il C esegue solo unificazione
+      e binding.
+- [ ] **M4 — Doppio uso.** Usare lo stesso frame per estrarre un fatto dalla
+      prosa e costruire la query corrispondente; `answer_frame/2` resta una vista
+      interrogativa del frame.
+- [ ] **M5 — Apprendimento runtime.** Insegnare/retrarre POS, forma o frame in
+      una sessione e osservare il cambiamento della IR e dell'estrazione senza
+      rebuild.
+
+### Vantaggio misurabile
+
+Una nuova lingua, forma o relazione deve costare fatti KB e non codice C; una
+nuova struttura deve riusare lo stesso kernel per prosa, domande, log e codice.
+Il progresso si misura su un corpus annotato: span corrette, slot corretti,
+fatti corretti e provenance completa, con holdout separato per evitare una KB
+che memorizza soltanto gli esempi.
+
 ## 9. L'oracolo del piano intero
 
 Il piano è chiuso quando **tutte** queste sono vere insieme:
@@ -299,6 +415,9 @@ Il piano è chiuso quando **tutte** queste sono vere insieme:
 3. `tests/segment.sh` (28/28) e `codebench` (25/25) restano verdi: **nessuna
    regressione di comportamento** in cambio della forma giusta.
 4. Ogni span risponde a «perché?» con un fatto, e una correzione la ritratta.
+5. U9 è verde: token, sintagmi e clausole condividono una IR con
+   `universal-comprehension`, e una forma KB insegnata o ritratta cambia davvero
+   sia la struttura sia l'estrazione.
 
 ### Esito gen332
 

@@ -36,6 +36,39 @@ Regole imposte a noi stessi per non ricadere nel fix puntuale. Prima di scrivere
    insegnabile in `kb/core/procedures.p0` sopra i primitivi (`is/2`, confronti,
    termini composti). Il C deve restare adattatore NL→goal o primitiva generale,
    non consumer della procedura di dominio.
+
+## Gerarchia di Crescita
+
+La crescita della KB segue questa gerarchia obbligatoria, dal canale più fertile
+al più invasivo:
+
+1. **Insegnamento diretto via prompt.** Prima si prova a dire a parrot0 la nuova
+   forma e si verifica che la riconosca immediatamente; il test deve includere
+   anche retract/ablazione. Se una forma non è insegnabile parlando, la KB non
+   ha ancora raggiunto la soglia minima di fertilità per quella classe.
+2. **Lettura della prosa guidata da prompt.** La forma insegnata deve funzionare
+   sul testo reale, frase per frase, conservando i fatti estratti e la provenance;
+   una pagina non è acquisita se il lettore perde la sostanza di una frase.
+3. **Autocorrezione, discovery e remediation.** Gli arresti osservati durante
+   inferenza e lettura diventano gap tipati; il sistema scopre il rimedio minimo,
+   lo prova riponendo lo stesso turno e conserva soltanto ciò che lo fa
+   proseguire senza errore.
+4. **Promozione manuale in `.p0`, ultima spiaggia.** È ammessa soltanto
+   quando manca il motore astratto che rende possibile ai tre canali
+   precedenti di crescere, mai per aggiungere un fatto o chiudere un prompt
+   singolo. La riga deve essere la forma più generale possibile e deve aprire
+   subito crescita via prompt, prosa o autocorrezione.
+
+La domanda di controllo è: **se scrivo questa riga in `.p0`, sto promuovendo un
+motore fertile o sto sostituendo un insegnamento che parrot0 dovrebbe poter
+ricevere parlando?** Nel secondo caso la modifica è una regressione, anche se il
+prompt diventa verde.
+
+Il criterio di soglia minima è operativo: una classe è pronta quando la forma
+può essere insegnata a runtime, la prosa può usarla per produrre fatti e
+l'autocorrezione può riattivarla dopo un arresto. Una
+KB piena di righe manuali ma incapace di questo ciclo è grande, non fertile.
+
 3. **Astrai fino al punto fisso.** Non moltiplicare *predicati* per una relazione
    vista attraverso verbi diversi: `wrote`/`painted`/`composed` = UNA relazione
    `created_by(Creator, Work, Verb)`, il verbo è un campo. Chiedi: *"relazione

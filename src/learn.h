@@ -8,8 +8,8 @@
  * Wikipedia knowledge — local markdown files, never an intelligence API — so the
  * founding "no network = no outsourced intelligence" rule holds. Given a concept
  * `key` (e.g. "prime_number") and its display `title`, it reads the markdown for
- * that topic from the local corpus (PARROT0_WIKI_DIR, default kb/learning/pages),
- * extracts the lead concept deterministically, and ASSERTS it into the live KB as
+ * that topic from the learner's configured source, extracts the lead concept
+ * deterministically, and ASSERTS it into the live KB as
  * wiki_concept/3 — so the knowledge is in RAM immediately, with no hot reload of
  * any file. When PARROT0_LEARN_KB is set it also appends the fact to that file so
  * the dynamically learned knowledge is persisted and can be committed.

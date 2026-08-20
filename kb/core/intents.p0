@@ -1106,6 +1106,26 @@ answer_frame(tallest_mountain, tallest_mountain).
 answer_frame(wrote, author_of).
 answer_frame("know about", kb_knows_about).
 answer_frame("knows about", kb_knows_about).
+% gen436/a2: le domande sul peso sono superfici KB e puntano alla vista binaria
+% derivata `weight_of/2`; il consumer resta quello universale.
+answer_frame("how heavy is", weight_of).
+answer_frame("how heavy are", weight_of).
+answer_frame("how heavy was", weight_of).
+answer_frame("how heavy were", weight_of).
+answer_frame("what is the weight of", weight_of).
+answer_frame("what's the weight of", weight_of).
+answer_frame("what was the weight of", weight_of).
+answer_frame("weight of", weight_of).
+answer_frame("weigh", weight_of).
+answer_frame("weight", weight_of).
+answer_frame("quanto pesa", weight_of).
+answer_frame("quanto pesava", weight_of).
+answer_frame("quanto pesano", weight_of).
+answer_frame("qual e il peso di", weight_of).
+answer_frame("qual è il peso di", weight_of).
+answer_frame("peso di", weight_of).
+answer_frame("quanto e pesante", weight_of).
+answer_frame("quanto è pesante", weight_of).
 answer_frame("transitive relation", transitive).
 answer_frame("symmetric relation", symmetric).
 answer_frame("source of", predicate_source).

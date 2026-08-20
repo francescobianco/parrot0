@@ -66,6 +66,50 @@ misurati in `fix-patterns.md`.
    domande.** Se lo spazio negativo calcolato è vuoto, la KB non è completa —
    è cieca.
 
+### 0a-bis. La soglia minima è la comprensione insegnabile
+
+Il giro supervisionato di `--dream water` (gen436) rende operativa una
+distinzione che prima restava implicita. Il dream legge la prima frase e ottiene
+`inorganic_compound(water)`, poi si ferma sulla frase:
+
+```text
+It is a transparent, tasteless, odorless, and nearly colorless chemical substance.
+```
+
+Provare a insegnare parlando `adjective(transparent)`, `adjective(tasteless)` e
+le altre parole cambia il lessico, ma non insegna la forma compositiva della
+frase: `water is transparent` resta incompresa. Il reperto è importante perché
+separa **dato mancante** da **forma mancante**.
+
+La soglia minima non è quindi «la KB contiene abbastanza righe per rispondere»;
+è lo stato in cui una nuova forma necessaria può essere insegnata attraverso il
+canale naturale di parrot0, poi usata dal dream, dalla lettura della prosa,
+dall'autocorrezione e dalla ripresa dello stesso turno. Il dream supervisionato
+serve a raggiungere questa soglia: espone la frase, arresta il primo scarto,
+permette l'insegnamento, riavvia il topic e non consente di nascondere il difetto
+con profondità o riassunti.
+
+Questo introduce una misura più severa della fertilità: **la teachability della
+forma minima**. Se per far riconoscere una classe occorre aggiungere a mano una
+riga in un file `.p0`, quella riga è ancora un intervento di sviluppo, non una
+crescita fertile; indica che il canale di insegnamento non sa esprimere quella
+struttura. La riga `.p0` può essere ammessa soltanto come ultima promozione della
+forma più astratta che rende poi la classe insegnabile via prompt, dream, lettura
+della prosa o discovery/autocorrezione delle lacune.
+
+Il protocollo diventa:
+
+1. dream supervisionato espone la prima frase e il primo arresto;
+2. si tenta l'insegnamento parlando, non si aggiunge subito un fatto curato;
+3. si riavvia lo stesso dream e si verifica che la forma abbia aperto il passo;
+4. se il prompt non può insegnare la forma, si astrae il motore necessario;
+5. solo allora si promuove una riga `.p0`, una sola, come seme riusabile per
+   tutti i canali di crescita.
+
+La comprensione totale è il limite di questo processo: non significa aver
+memorizzato ogni pagina, ma non perdere la sostanza di una frase perché manca
+una forma che il sistema non sa né riconoscere né insegnare.
+
 ### ⛔ IL PERIMETRO — che cosa questo piano NON è (F., gen435)
 
 > *«Il meccanismo di colmare le lacune staticamente con un tool dedicato non è

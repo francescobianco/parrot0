@@ -3289,6 +3289,10 @@ static void p0_learn_source(Brain *b, const char *pred, const char *const *args,
     kb_set_origin(b->kb, KB_SESSION);
     const char *fa[] = { fr, args[0], rq };
     kb_assert(b->kb, "fact_source", fa, 3);
+    /* Per-read trace: unlike fact_source, this is cleared before each sentence
+     * so callers can show what this reading produced even when the fact existed. */
+    const char *rf[] = { fr, rq };
+    kb_assert(b->kb, "reading_fact", rf, 2);
 }
 
 /* Il GENERICO PLURALE: "whales are mammals" (gen382).

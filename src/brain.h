@@ -48,6 +48,10 @@ void   brain_destroy(Brain *b);
  * `out` plus a NUL terminator. Returns the number of chars written. */
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size);
 
+/* Feed prose already held in memory through the same sentence reader used by
+ * the conversational `read:` path, without routing the prose as a new prompt. */
+size_t brain_read_prose(Brain *b, const char *prose, char *out, size_t out_size);
+
 /* A short, human-readable name/version of the current brain generation.
  * Bump this whenever the algorithm meaningfully changes. */
 /* gen382s — LA FORMA CANONICA E' ISPEZIONABILE.

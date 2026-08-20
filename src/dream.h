@@ -6,10 +6,11 @@
 
 /* --dream — esplorazione ricorsiva di un topic attraverso la sua prosa (gen382).
  *
- * `parrot0 --dream scacchi` legge la pagina del topic, ne estrae i fatti con lo
- * STESSO percorso di comprensione della conversazione ("read the page on X"), e
- * poi prende la prosa PAROLA PER PAROLA: la prima parola diventa a sua volta un
- * topic da sognare, poi la seconda, e cosi' via in profondita'.
+ * `parrot0 --dream scacchi` porta la prosa della pagina direttamente al lettore
+ * con lo STESSO percorso di comprensione della conversazione, una frase alla
+ * volta. Il trace mostra la frase prima del tentativo e l'esito subito dopo, e
+ * si ferma alla prima forma non compresa: niente riassunto e niente discesa
+ * parola-per-parola che nasconda il punto di rottura.
  *
  * Le stopword non sono escluse. Sono anzi il caso interessante: se sognare "of"
  * non produce nulla di utile, e' un dato sul confine della comprensione, non
@@ -25,9 +26,8 @@
  * loro provenienza e, a fine sogno, persistiti attraverso il routing dei file
  * gia' esistente (`dream_persist`).
  *
- * Nessun servizio intelligente: le pagine vengono dal corpus statico locale e,
- * se PARROT0_WIKI_FETCH lo consente, dall'API di Wikipedia — le stesse due
- * sorgenti dell'apprendimento normale.
+ * Nessun servizio intelligente: la prosa viene dalla sola API certificata di
+ * Wikipedia e passa in memoria; non esiste una pagina locale del dream.
  *
  * gen405 — VEDI `docs/plans/dream.md`. Due cose che questo file non diceva e
  * che cambiano cosa il sogno E':
@@ -51,8 +51,9 @@
 typedef struct {
     int   max_depth;      /* quanto in profondita' (default: dream_max_depth/1)  */
     int   max_nodes;      /* tetto di lavoro       (default: dream_max_nodes/1)  */
-    int   fetch;          /* 1 = puo' scaricare le pagine mancanti               */
+    int   fetch;          /* legacy compatibility field; fetch is automatic       */
     int   persist;        /* 1 = scrive cio' che ha imparato nei file della KB   */
+    int   debug;          /* 1 = mostra il trace interpretativo del prompt       */
     FILE *out;            /* dove va il trace                                    */
 } DreamOpts;
 

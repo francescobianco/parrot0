@@ -130,6 +130,24 @@ register_role(log, log).
 register_role(prose, prose).
 register_role(quoted, mention).
 
+% U9: lessico strutturale minimo per la prima IR gerarchica. Il motore interroga
+% `pos/2`; aggiungere una nuova forma o ritirarla cambia i candidati senza C.
+pos(is, verb).
+pos(lives, verb).
+pos(weighs, verb).
+pos(governs, verb).
+pos(borders, verb).
+pos(eats, verb).
+pos(produces, verb).
+pos(causes, verb).
+pos(orbits, verb).
+
+% Il kernel chiede solo la classe di confine; quali parole la compongano resta
+% grammatica KB. Le regole riusano il vocabolario storico senza esporlo al C.
+phrase_boundary(np, opener, $Word) :- np_opener($Word).
+phrase_boundary(np, closer, $Word) :- np_closer($Word).
+phrase_boundary(np, breaker, $Word) :- pos($Word, verb).
+
 register_label(c, "C").
 register_label(python, "Python").
 register_label(json, "JSON").
@@ -231,6 +249,10 @@ machinery(turn_span_cue).
 machinery(turn_span_surface).
 machinery(turn_span_token).
 machinery(turn_span_binding).
+machinery(input_node).
+machinery(input_node_surface).
+machinery(input_node_role).
+machinery(reading_fact).
 % gen393: quali superfici dichiarate dalla KB il turno contiene. E' percezione,
 % non mondo: senza questa riga il censimento la conterebbe come conoscenza.
 machinery(turn_cue).

@@ -72,6 +72,24 @@ static void key_normalize(const char *in, char *out, size_t sz) {
     out[o] = '\0';
 }
 
+static const char *kb_dequote_dream(const char *s);
+static size_t dream_fact_sources(KB *kb, char rows[][KB_TERM_LEN], size_t max);
+static int dream_row_seen(char rows[][KB_TERM_LEN], size_t n, const char *row);
+static size_t dream_reading_facts(KB *kb, char rows[][KB_TERM_LEN], size_t max);
+
+/* Resolve a surface topic through the KB's translation/alias knowledge before
+ * addressing Wikipedia.  `scacchi` must not be sent literally to EN Wikipedia:
+ * that title denotes a surname, while the KB already says tr(chess, scacchi). */
+static void dream_topic_key(Brain *b, const char *surface,
+                            char *out, size_t out_size) {
+    snprintf(out, out_size, "%s", surface ? surface : "");
+    if (!b || !brain_kb(b) || !*out) return;
+    const char *q[] = { NULL, out };
+    char hit[4][KB_TERM_LEN];
+    size_t n = kb_match(brain_kb(b), "tr", q, 2, hit, 4);
+    if (n == 1) snprintf(out, out_size, "%s", kb_dequote_dream(hit[0]));
+}
+
 static int seen_has(DreamState *st, const char *key) {
     for (size_t i = 0; i < st->nseen; i++)
         if (strcmp(st->seen[i], key) == 0) return 1;
@@ -116,42 +134,85 @@ static int pop(DreamState *st, DreamNode *out) {
     return 1;
 }
 
-/* La prosa della pagina: la sezione `## Extract` del corpus statico, cioe' la
- * stessa che legge l'estrattore. Ritorna il numero di byte scritti. */
-/* gen436 — RESTA come lettura di un corpus locale se qualcuno ne monta uno
- * (PARROT0_WIKI_DIR), ma la cartella spedita non esiste piu': parrot0 non
- * archivia pagine. Senza corpus montato questa funzione dice zero, ed e' il
- * comportamento giusto — poi decide `--fetch`. */
-static size_t page_prose(const char *key, char *out, size_t sz) {
-    const char *dir = p0env("PARROT0_WIKI_DIR");
-    if (!dir || !*dir) return 0;   /* gen436: nessuna cartella di default */
-    char path[512];
-    snprintf(path, sizeof path, "%s/%s.md", dir, key);
-    FILE *f = fopen(path, "r");
-    if (!f) return 0;
-    char line[2048];
-    size_t o = 0;
-    int in_extract = 0;
-    out[0] = '\0';
-    while (fgets(line, sizeof line, f)) {
-        if (strncmp(line, "## Extract", 10) == 0) { in_extract = 1; continue; }
-        if (in_extract && strncmp(line, "##", 2) == 0) break;
-        if (!in_extract) continue;
-        size_t l = strlen(line);
-        if (o + l + 1 >= sz) break;
-        memcpy(out + o, line, l);
-        o += l;
-        out[o] = '\0';
-    }
-    fclose(f);
-    return o;
-}
+static void indent(FILE *o, int depth);
 
-/* Un turno di conversazione, guidato: e' il punto in cui il sogno riusa la
- * comprensione invece di duplicarla. */
-static void ask(Brain *b, const char *prompt, char *reply, size_t sz) {
-    reply[0] = '\0';
-    brain_respond(b, prompt, reply, sz);
+/* Expose the fetched bytes to the real reader one sentence at a time. */
+static int dream_read_prose(Brain *b, const char *prose, FILE *o, int depth,
+                            int debug, size_t *learned, size_t *skipped) {
+    if (!b || !prose || !o) return 0;
+    const char *p = prose;
+    size_t sentence_no = 0;
+    while (*p) {
+        while (*p && isspace((unsigned char)*p)) p++;
+        if (!*p) break;
+        const char *q = p;
+        while (*q) {
+            char ch = *q;
+            if (ch == '!' || ch == '?') { q++; break; }
+            if (ch == '.') {
+                char prev = q > p ? q[-1] : '\0';
+                if (!(isdigit((unsigned char)prev) &&
+                      isdigit((unsigned char)q[1]))) { q++; break; }
+            }
+            q++;
+        }
+        size_t len = (size_t)(q - p);
+        while (len && isspace((unsigned char)p[len - 1])) len--;
+        if (!len) { p = q; continue; }
+
+        char sentence[4096], reply[4096];
+        size_t cap = len < sizeof sentence - 1 ? len : sizeof sentence - 1;
+        memcpy(sentence, p, cap);
+        sentence[cap] = '\0';
+        fputc('\n', o);
+        indent(o, depth);
+        fprintf(o, "prompt[%zu]: read: %s\n", sentence_no++, sentence);
+        brain_read_prose(b, sentence, reply, sizeof reply);
+        indent(o, depth);
+        fprintf(o, "learned: %s\n", reply[0] ? reply : "no outcome");
+        fflush(o);
+
+        char before[128][KB_TERM_LEN], after[128][KB_TERM_LEN];
+        size_t nb = dream_fact_sources(brain_kb(b), before, 128);
+        if (debug) {
+            indent(o, depth);
+            fprintf(o, "debug: reader=brain_read_prose prompt=read: %s\n", sentence);
+            fprintf(o, "debug: fact_source_before=%zu\n", nb);
+        }
+
+        size_t got = 0, miss = 0;
+        if (sscanf(reply, "Learned %zu fact(s), skipped %zu.", &got, &miss) != 2) {
+            if (skipped) (*skipped)++;
+            indent(o, depth);
+            fprintf(o, "STOP: esito di apprendimento non riconosciuto.\n");
+            return 0;
+        }
+        char produced[32][KB_TERM_LEN];
+        size_t np = dream_reading_facts(brain_kb(b), produced, 32);
+        for (size_t i = 0; i < np; i++)
+            fprintf(o, "  fact: %s\n", kb_dequote_dream(produced[i]));
+        size_t na = dream_fact_sources(brain_kb(b), after, 128);
+        size_t new_facts = 0;
+        for (size_t i = 0; i < na; i++) {
+            if (dream_row_seen(before, nb, after[i])) continue;
+            new_facts++;
+        }
+        if (debug) {
+            indent(o, depth);
+            fprintf(o, "debug: fact_source_after=%zu new_facts=%zu reported_facts=%zu\n",
+                    na, new_facts, got);
+            fprintf(o, "debug: skipped=%zu\n", miss);
+        }
+        if (learned) *learned += got;
+        if (skipped) *skipped += miss;
+        if (miss > 0) {
+            indent(o, depth);
+            fprintf(o, "STOP: prima forma di prosa non compresa.\n");
+            return 0;
+        }
+        p = q;
+    }
+    return 1;
 }
 
 static void indent(FILE *o, int depth) {
@@ -168,6 +229,24 @@ static const char *kb_dequote_dream(const char *s) {
         return buf;
     }
     return s;
+}
+
+static size_t dream_fact_sources(KB *kb, char rows[][KB_TERM_LEN], size_t max) {
+    if (!kb || !rows || max == 0) return 0;
+    const char *q[] = { NULL, NULL, NULL };
+    return kb_match(kb, "fact_source", q, 3, rows, max);
+}
+
+static size_t dream_reading_facts(KB *kb, char rows[][KB_TERM_LEN], size_t max) {
+    if (!kb || !rows || max == 0) return 0;
+    const char *q[] = { NULL, NULL };
+    return kb_match(kb, "reading_fact", q, 2, rows, max);
+}
+
+static int dream_row_seen(char rows[][KB_TERM_LEN], size_t n, const char *row) {
+    for (size_t i = 0; i < n; i++)
+        if (strcmp(rows[i], row) == 0) return 1;
+    return 0;
 }
 
 /* ── L'AGENDA DEL SOGNO SONO LE PROPRIE LACUNE (gen405) ────────────────────
@@ -223,37 +302,6 @@ static void agenda_from_gaps(Brain *b, DreamState *st, FILE *o) {
             nw, nm, st->from_gap_w + st->from_gap_m);
 }
 
-/* LA VERIFICA, e non e' un giudizio: si ri-pone il turno che murava. Se ora
- * risponde, `turn_done` ritira la lacuna da solo (gen404) — quindi qui basta
- * guardare se il fatto e' sparito. E' il motivo per cui la classe M e' l'unica
- * decidibile: il rimedio si prova da se'.
- *
- * Il costo e' un turno per lacuna aperta, dopo ogni nodo che ha prodotto fatti.
- * Vale la pena solo se qualcosa e' entrato: sognare non cambia niente finche'
- * la KB non cresce. */
-static size_t retry_open_walls(Brain *b, DreamState *st, FILE *o, int depth) {
-    KB *kb = brain_kb(b);
-    if (!kb) return 0;
-    size_t closed = 0;
-    for (size_t i = 0; i < st->nbridge; i++) {
-        if (!st->bridge[i][0]) continue;
-        char q[KB_TERM_LEN];
-        snprintf(q, sizeof q, "\"%s\"", st->bridge[i]);
-        const char *ga[1] = { q };
-        if (!kb_query(kb, "machinery_gap", ga, 1)) { st->bridge[i][0] = 0; continue; }
-        char reply[4096];
-        ask(b, st->bridge[i], reply, sizeof reply);
-        if (!kb_query(kb, "machinery_gap", ga, 1)) {
-            closed++;
-            st->bridge[i][0] = 0;
-            indent(o, depth);
-            fprintf(o, "  ✔ ponte trovato: «%s» -> %s\n", st->bridge[i], reply);
-        }
-    }
-    st->walls_closed += closed;
-    return closed;
-}
-
 int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
     /* Un topic VUOTO non e' un errore: e' il sogno guidato dalle proprie lacune
      * (gen405). Il guardiano lo rifiutava prima ancora di guardarlo, quindi
@@ -285,7 +333,9 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
     if (guided) {
         snprintf(root, sizeof root, "%s", "(le proprie lacune)");
     } else {
-        key_normalize(topic, root, sizeof root);
+        char surface[DREAM_KEY_LEN];
+        key_normalize(topic, surface, sizeof surface);
+        dream_topic_key(b, surface, root, sizeof root);
         push(&st, root, 0, NULL);
         seen_add(&st, root);
     }
@@ -298,17 +348,14 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
         kb_assert(brain_kb(b), "dreaming", da, 1);
     }
 
-    fprintf(o, "dream: %s   (profondita' max %d, nodi max %d, fetch %s)\n",
-            root, max_depth, max_nodes, opts->fetch ? "on" : "off");
+    if (!guided && strcmp(root, topic) != 0)
+        fprintf(o, "dream: %s -> %s   (profondita' max %d, nodi max %d, sorgente Wikipedia in memoria)\n",
+                topic, root, max_depth, max_nodes);
+    else
+        fprintf(o, "dream: %s   (profondita' max %d, nodi max %d, sorgente Wikipedia in memoria)\n",
+                root, max_depth, max_nodes);
     if (guided) agenda_from_gaps(b, &st, o);
 
-    /* Il conto di partenza: senza, la riga finale non e' una misura ma
-     * un'affermazione. */
-    size_t gaps_at_start = 0;
-    {
-        const char *gq[1] = { NULL }; char rows[128][KB_TERM_LEN];
-        gaps_at_start = kb_match(brain_kb(b), "machinery_gap", gq, 1, rows, 128);
-    }
     fprintf(o, "%s\n", "----------------------------------------------------------------------");
 
     DreamNode node;
@@ -316,21 +363,14 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
         st.nodes++;
 
         char prose[8192];
-        size_t plen = page_prose(node.key, prose, sizeof prose);
+        size_t plen = 0;
         int fetched = 0;
-        if (!plen && opts->fetch) {
-            /* --fetch E' il consenso esplicito: senza questo la richiesta sarebbe
-             * silenziosamente ignorata dal gate di learn.c e il sogno direbbe
-             * "nessuna pagina" mentendo sul motivo. */
-            if (!p0env("PARROT0_WIKI_FETCH")) p0env_set("PARROT0_WIKI_FETCH", "1");
-            /* gen436: la prosa arriva IN MEMORIA — su disco non resta niente
-             * (F.: «di Wikipedia non si conserva nulla»). Prima si scriveva la
-             * pagina e la si rileggeva: una cache di enciclopedia, cioe'
-             * esattamente cio' che questo progetto non deve avere. */
-            if (wiki_fetch_topic_lang_prose(node.key, "en", prose, sizeof prose)) {
-                plen = strlen(prose);
-                fetched = plen > 0;
-            }
+        /* A topic dream always acquires the certified prose directly in RAM.
+         * There is no local-page fallback and no opt-in fetch flag anymore. */
+        if (!p0env("PARROT0_WIKI_FETCH")) p0env_set("PARROT0_WIKI_FETCH", "1");
+        if (wiki_fetch_topic_lang_prose(node.key, "en", prose, sizeof prose)) {
+            plen = strlen(prose);
+            fetched = plen > 0;
         }
 
         indent(o, node.depth);
@@ -338,81 +378,24 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
             st.pages_missing++;
             lost_add(&st, node.key);
             fprintf(o, "· %s — nessuna pagina%s\n", node.key,
-                    opts->fetch ? " (nemmeno da wikipedia)" : "");
+                    " (Wikipedia non ha restituito prosa)");
             continue;
         }
         if (fetched) st.pages_fetched++; else st.pages_local++;
 
-        /* gen405: quante forme di prosa hanno battuto l'estrattore su QUESTA
-         * pagina. Va misurato PRIMA della lettura — la prima versione contava
-         * dopo, e riportava zero mentre le frasi cadevano davvero. Il registro
-         * delle lacune e' lo stesso della conversazione, quindi il conto di
-         * questa pagina si legge solo come differenza. */
-        size_t gaps_before;
-        {
-            const char *gq[1] = { NULL }; char rows[128][KB_TERM_LEN];
-            gaps_before = kb_match(brain_kb(b), "machinery_gap", gq, 1, rows, 128);
-        }
-
-        /* La comprensione: lo stesso turno che userebbe una persona. */
-        char prompt[256], reply[4096];
-        snprintf(prompt, sizeof prompt, "read the page on %s", node.key);
-        ask(b, prompt, reply, sizeof reply);
-
-        const char *facts = strstr(reply, "extracted");
-        if (facts) {
-            st.facts_seen++;
-            fprintf(o, "▸ %s%s\n", node.key, fetched ? "  [fetch]" : "");
-            indent(o, node.depth);
-            fprintf(o, "  %s\n", reply);
-            {
-                const char *gq[1] = { NULL }; char rows[128][KB_TERM_LEN];
-                size_t after = kb_match(brain_kb(b), "machinery_gap", gq, 1, rows, 128);
-                if (after > gaps_before) {
-                    st.prose_unread += after - gaps_before;
-                    indent(o, node.depth);
-                    fprintf(o, "  ✗ %zu frasi non lette (forma sconosciuta)\n",
-                            after - gaps_before);
-                }
-            }
-            /* Qualcosa e' entrato: e' l'unico momento in cui vale la pena
-             * ri-provare i turni che murarono. Sognare non cambia niente
-             * finche' la KB non cresce. */
-            if (st.nbridge) retry_open_walls(b, &st, o, node.depth);
-        } else {
-            st.silent_pages++;
+        fprintf(o, "\n");
+        indent(o, node.depth);
+        fprintf(o, "pagina: %s%s\n", node.key, fetched ? " [fetch]" : "");
+        size_t learned = 0, skipped = 0;
+        int complete = dream_read_prose(b, prose, o, node.depth, opts->debug,
+                                        &learned, &skipped);
+        st.facts_seen += learned;
+        st.prose_unread += skipped;
+        if (!complete) {
             lost_add(&st, node.key);
-            fprintf(o, "▸ %s — pagina letta ma NESSUN fatto: %s\n", node.key, reply);
+            break;
         }
-
-        if (node.depth >= max_depth) continue;
-
-        /* Parola per parola, nell'ordine in cui la prosa le presenta. Le
-         * stopword NON sono escluse: sognare "of" e non trovare nulla e' un
-         * dato sul confine della comprensione, non rumore. */
-        size_t queued = 0;
-        char wbuf[8192];
-        snprintf(wbuf, sizeof wbuf, "%s", prose);
-        char words[512][DREAM_KEY_LEN];
-        size_t nw = 0;
-        for (char *tok = strtok(wbuf, " \t\r\n"); tok && nw < 512;
-             tok = strtok(NULL, " \t\r\n")) {
-            char key[DREAM_KEY_LEN];
-            key_normalize(tok, key, sizeof key);
-            if (!key[0] || seen_has(&st, key)) continue;
-            seen_add(&st, key);
-            snprintf(words[nw++], DREAM_KEY_LEN, "%s", key);
-        }
-        /* Impilate al contrario: cosi' la PRIMA parola della prosa e' la prima a
-         * uscire, e la discesa segue l'ordine in cui il testo le presenta. */
-        for (size_t i = nw; i-- > 0; ) {
-            push(&st, words[i], node.depth + 1, node.key);
-            queued++;
-        }
-        if (queued) {
-            indent(o, node.depth);
-            fprintf(o, "  → %zu parole in coda\n", queued);
-        }
+        if (node.depth >= max_depth) break;
     }
 
     /* ── gen411: IL RIMEDIO SI SCEGLIE ────────────────────────────────────
@@ -431,98 +414,8 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
      * solo qualche lacuna, e proporre un ponte per una lacuna gia' chiusa
      * sarebbe rumore. */
     {
-        char bridges[900]; bridges[0] = '\0';
-        st.proposed = (size_t)brain_self_repair(b, bridges, sizeof bridges);
-        /* Le lacune chiuse proponendo escono dall'elenco degli aperti come
-         * quelle chiuse leggendo: il bilancio si contraddiceva da solo,
-         * dicendo «-2» e poi elencandone due ancora aperte. */
-        for (size_t i = 0; i < st.nbridge; i++) {
-            if (!st.bridge[i][0]) continue;
-            char q[KB_TERM_LEN];
-            snprintf(q, sizeof q, "\"%s\"", st.bridge[i]);
-            const char *ga[1] = { q };
-            if (!kb_query(brain_kb(b), "machinery_gap", ga, 1)) st.bridge[i][0] = 0;
-        }
-        if (st.proposed) {
-            fprintf(o, "\nponti proposti e tenuti (%zu):\n  %s\n",
-                    st.proposed, bridges);
-        }
-    }
-
-    {
         const char *da[] = { "1" };
         kb_retract(brain_kb(b), "dreaming", da, 1);
-    }
-
-    /* gen411: IL CRITERIO DEL PIANO, stampato. «una sessione lasciata andare
-     * riduce il numero di lacune aperte» non e' verificabile leggendo il
-     * codice: dev'essere un numero in fondo al bilancio. */
-    size_t gaps_after = 0;
-    {
-        const char *gq[1] = { NULL }; char rows[128][KB_TERM_LEN];
-        gaps_after = kb_match(brain_kb(b), "machinery_gap", gq, 1, rows, 128);
-    }
-
-    fprintf(o, "%s\n", "----------------------------------------------------------------------");
-    fprintf(o, "nodi sognati       %zu\n", st.nodes);
-    fprintf(o, "  pagine locali    %zu\n", st.pages_local);
-    fprintf(o, "  pagine scaricate %zu\n", st.pages_fetched);
-    fprintf(o, "  pagine assenti   %zu\n", st.pages_missing);
-    fprintf(o, "  lette ma mute    %zu\n", st.silent_pages);
-    fprintf(o, "in coda non visti  %zu\n", st.tail - st.head);
-    fprintf(o, "fatti nella KB     %zu\n", kb_size(brain_kb(b)));
-    /* gen405 (F.): la meta' che mancava al trace. «lette ma mute» contava le
-     * PAGINE da cui non e' uscito niente; questo conta le FRASI dentro le
-     * pagine che invece hanno prodotto — la prosa che parrot0 ha avuto sotto
-     * gli occhi e non ha saputo leggere. E' la misura di quanto il sogno
-     * SEMBRI produttivo piu' di quanto sia, e l'agenda di cosa insegnargli. */
-    fprintf(o, "frasi non lette    %zu  (forme di prosa che non riconosce)\n",
-            st.prose_unread);
-    /* E QUALI. Il numero dice quanto il sogno sembri produttivo piu' di quanto
-     * sia; l'elenco dice cosa fare — ogni riga qui e' una forma di frase da
-     * insegnare a leggere, e quando la si insegna il conto scende da solo. */
-    if (st.prose_unread) {
-        const char *gq[1] = { NULL }; char rows[128][KB_TERM_LEN];
-        size_t n = kb_match(brain_kb(b), "machinery_gap", gq, 1, rows, 128);
-        fprintf(o, "\nforme di prosa che lo battono:\n");
-        for (size_t i = 0; i < n && i < 12; i++)
-            fprintf(o, "  · %s\n", kb_dequote_dream(rows[i]));
-        if (n > 12) fprintf(o, "  … e altre %zu\n", n - 12);
-    }
-
-    /* gen405: LA RESA, che e' la sola cosa che dice se il sogno e' servito.
-     *
-     * «fatti nella KB» misura quanto parrot0 SA; questo misura quanto ha
-     * CAPITO in piu': quanti turni che murarono ora rispondono. Un sogno che
-     * estrae mille fatti e non chiude nessun ponte non e' un successo piccolo,
-     * e' un dato — dice che stava leggendo la cosa sbagliata, o che la lacuna
-     * non era di conoscenza. Tenere separate le due misure e' cio' che
-     * impedisce di scambiare l'accumulo per la comprensione. */
-    fprintf(o, "lacune aperte      %zu -> %zu", gaps_at_start, gaps_after);
-    if (gaps_after < gaps_at_start) fprintf(o, "   (-%zu)", gaps_at_start - gaps_after);
-    fprintf(o, "\n");
-    if (st.nbridge || st.from_gap_w || st.from_gap_m || st.proposed) {
-        fprintf(o, "\nresa sulle lacune\n");
-        fprintf(o, "  semi da lacune   %zu (parola %zu, ponte %zu)\n",
-                st.from_gap_w + st.from_gap_m, st.from_gap_w, st.from_gap_m);
-        fprintf(o, "  ponti leggendo   %zu\n", st.walls_closed);
-        fprintf(o, "  ponti proponendo %zu\n", st.proposed);
-        size_t still = 0;
-        for (size_t i = 0; i < st.nbridge; i++) if (st.bridge[i][0]) still++;
-        if (still) {
-            fprintf(o, "  ancora aperti    %zu:\n", still);
-            for (size_t i = 0; i < st.nbridge; i++)
-                if (st.bridge[i][0]) fprintf(o, "    · %s\n", st.bridge[i]);
-        }
-    }
-
-    /* Cio' che si e' PERSO, per nome. E' la meta' del trace che conta: un sogno
-     * che mostra solo cio' che ha imparato non permette di accorgersi di nulla. */
-    if (st.nlost) {
-        fprintf(o, "\nperso per strada (%zu):\n  ", st.nlost);
-        for (size_t i = 0; i < st.nlost; i++)
-            fprintf(o, "%s%s", i ? ", " : "", st.lost[i]);
-        fprintf(o, "\n");
     }
 
     if (opts->persist) {
@@ -547,9 +440,7 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
         const char *dst = p0env("PARROT0_DREAM_KB");
         if (!dst || !*dst) dst = "kb/learning/learned.p0";
         if (!p0env("PARROT0_KB_ROOT")) p0env_set("PARROT0_KB_ROOT", "kb");
-        int n = brain_save_session(b, dst);
-        fprintf(o, "\npersistito: %d clausole instradate nell'albero curato "
-                   "(save-map, ricaduta %s)\n", n, dst);
+        brain_save_session(b, dst);
     }
 
     int nodes = (int)st.nodes;

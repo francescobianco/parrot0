@@ -3420,6 +3420,7 @@ static int universal_turn_lead(Brain *b, const char *surface,
     kb_retract_pred(b->kb, "turn_span_token");
     kb_retract_pred(b->kb, "turn_span_binding");
     kb_retract_pred(b->kb, "turn_cue");
+    input_structure_clear(b->kb);
     kb_set_origin(b->kb, KB_REFLECTIVE);
     turn_publish_cues(b, surface);
     turn_publish_transcodes(b, surface);
@@ -3442,6 +3443,7 @@ static int universal_turn_lead(Brain *b, const char *surface,
         kb_assert(b->kb, "turn_span", span_args, 4);
         kb_assert(b->kb, "turn_span_surface", surface_args, 3);
         kb_assert(b->kb, "turn_span_cue", cue_args, 3);
+        input_structure_publish(b->kb, surface, &spans[i], "current_turn");
         turn_publish_tokens(b, surface, &spans[i], index);
         turn_publish_state(b, surface, &spans[i], index);
     }

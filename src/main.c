@@ -74,7 +74,8 @@ static void print_usage(FILE *out) {
             "                              (no TOPIC: dream its own open gaps)\n"
             "    --depth=N                 Limit dream traversal depth\n"
             "    --nodes=N                 Limit dream traversal nodes\n"
-            "    --fetch                   Allow fetching sources while dreaming\n"
+            "    --debug                   Show dream prompt interpretation\n"
+            "                              (Wikipedia is fetched automatically in memory)\n"
             "    --persist                 Persist facts learned while dreaming\n");
 }
 
@@ -784,7 +785,8 @@ int main(int argc, char **argv) {
     /* gen382 — `--dream <topic>`: esplorazione ricorsiva di un topic attraverso
      * la sua prosa, parola per parola. Vedi src/dream.h. */
     const char *dream_topic = NULL;
-    int dream_depth = 0, dream_nodes = 0, dream_fetch = 0, dream_persist = 0;
+    int dream_depth = 0, dream_nodes = 0, dream_fetch = 1, dream_persist = 0;
+    int dream_debug = 0;
     const char *host = "127.0.0.1";
     const char *sockpath = TEST_ENGINE_SOCK_DEFAULT;
     const char *send_file = NULL;
@@ -861,7 +863,8 @@ int main(int argc, char **argv) {
         }
         else if (strncmp(argv[i], "--depth=", 8) == 0) dream_depth = atoi(argv[i] + 8);
         else if (strncmp(argv[i], "--nodes=", 8) == 0) dream_nodes = atoi(argv[i] + 8);
-        else if (strcmp(argv[i], "--fetch") == 0) dream_fetch = 1;
+        else if (strcmp(argv[i], "--debug") == 0) dream_debug = 1;
+        else if (strcmp(argv[i], "--fetch") == 0) dream_fetch = 1; /* obsolete alias */
         else if (strcmp(argv[i], "--persist") == 0) dream_persist = 1;
         else {
             fprintf(stderr, "parrot0: unknown argument '%s'\n\n", argv[i]);
@@ -960,7 +963,8 @@ int main(int argc, char **argv) {
         return measure_run(measure_dir);
     }
     if (dream_topic) {   /* "" = sogna le lacune aperte, vedi dream.c */
-        DreamOpts dopts = { dream_depth, dream_nodes, dream_fetch, dream_persist, stdout };
+        DreamOpts dopts = { dream_depth, dream_nodes, dream_fetch, dream_persist,
+                            dream_debug, stdout };
         int n = dream_run(brain, dream_topic, &dopts);
         /* gen411: il registro di lavoro si riscrive alla fine del giro — le
          * lacune chiuse spariscono, quelle rimaste aspettano il prossimo. E'

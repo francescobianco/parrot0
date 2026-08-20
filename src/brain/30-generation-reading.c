@@ -1694,6 +1694,11 @@ static void learn_clause_transitions(Brain *b, const char *clause) {
 static int extract_clause(Brain *b, char *clause) {
     char *c = trim_mut(clause);
     if (!*c) return 0;
+    InputSpan prose_span;
+    memset(&prose_span, 0, sizeof prose_span);
+    prose_span.len = strlen(c);
+    snprintf(prose_span.role, sizeof prose_span.role, "prose");
+    input_structure_publish(b->kb, c, &prose_span, "current_prose");
     char norm[256];
     normalize(c, norm, sizeof norm);
     if (!*norm) return 0;
@@ -1733,6 +1738,7 @@ static void store_proposition(Brain *b, char *clause) {
  * extractor (facts) and the generative model (transitions). Shared by the
  * reader and the bench bridge (gen45). Counts assertions and skips. */
 static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) {
+    input_structure_clear(b->kb);
     char *p = buf;
     while (*p) {
         char *q = p;
@@ -1762,6 +1768,22 @@ static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) 
         if (saved == '\0') break;
         p = q + 1;
     }
+}
+
+size_t brain_read_prose(Brain *b, const char *prose, char *out, size_t out_size) {
+    if (!b || !prose || !out || out_size == 0) return 0;
+    char buf[4096];
+    size_t n = strlen(prose);
+    if (n >= sizeof buf) n = sizeof buf - 1;
+    memcpy(buf, prose, n);
+    buf[n] = '\0';
+    size_t learned = 0, skipped = 0;
+    kb_retract_pred(b->kb, "reading_fact");
+    clear_generation_model(b);
+    b->prop_count = 0;
+    read_passage(b, buf, &learned, &skipped);
+    snprintf(out, out_size, "Learned %zu fact(s), skipped %zu.", learned, skipped);
+    return learned;
 }
 
 static int mod_reader(Brain *b, const char *norm, const char *raw,

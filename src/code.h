@@ -318,6 +318,19 @@ typedef struct {
     char   proof[KB_EVIDENCE_PROOF_LEN];  /* exact KB support / typed gap */
 } InputSpan;
 
+/* Hierarchical view shared by universal input, comprehension and prose reading.
+ * The C side owns offsets, token boundaries and parent links; level/kind/role are
+ * open KB terms and may be refined without changing this representation. */
+typedef struct {
+    size_t start;
+    size_t len;
+    int parent;
+    char level[16];                    /* token/phrase/clause */
+    char kind[KB_TERM_LEN];            /* np/vp/pp/... or candidate */
+    char role[KB_TERM_LEN];            /* open KB term, empty when unresolved */
+    char surface[KB_TERM_LEN];
+} InputNode;
+
 /* Historical name retained as an alias while consumers migrate from "code
  * segment" to the universal input type.  The representation itself is open. */
 typedef InputSpan CodeSeg;
@@ -328,7 +341,16 @@ typedef InputSpan CodeSeg;
 size_t input_segment(KB *kb, const char *raw, InputSpan *segs, size_t max,
                      int *ambiguous);
 size_t code_segment(KB *kb, const char *raw, CodeSeg *segs, size_t max,
-                    int *ambiguous);
+                     int *ambiguous);
+
+/* Build and optionally publish the hierarchical view of one typed span.  The
+ * matcher is deliberately conservative: unresolved phrase boundaries remain
+ * candidates instead of being promoted to facts. */
+size_t input_structure(KB *kb, const char *raw, const InputSpan *span,
+                       InputNode *nodes, size_t max, int *ambiguous);
+void input_structure_clear(KB *kb);
+size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
+                               const char *scope);
 
 /* Just the source, please. Returns 1 (extracted), 0 (no code span found), or
  * -1 (ambiguous — say so, do not diagnose). */

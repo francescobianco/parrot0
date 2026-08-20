@@ -147,6 +147,36 @@ else
     no "L14 transitive frame still walled: $(ml 14)"
 fi
 
+# ---- Path 5: weight question surface grows at runtime -----------------------
+# `weight_of/2` is a KB procedure over magnitude(weight, ...), not a C-special
+# case.  A new surface must become live when taught and disappear when ablated.
+weight_growth="$( {
+  printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05"}}'
+  printf '%s\n' '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"what is the bulk of african_elephant?"}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"answer_frame","args":["bulk of","weight_of"]}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"what is the bulk of african_elephant?"}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"kb.retract","arguments":{"pred":"answer_frame","args":["bulk of","weight_of"]}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"what is the bulk of african_elephant?"}}}'
+} | PARROT0_SESSION= PARROT0_PROFILE= "$BIN" --mcp-engine 2>/dev/null)"
+
+wg() { printf '%s\n' "$weight_growth" | grep -F "\"id\":$1,"; }
+if ! wg 2 | grep -Fq '6000'; then
+    ok "weight RED: an untaught surface stays unanswered"
+else
+    no "weight RED unexpectedly answered: $(wg 2)"
+fi
+if wg 4 | grep -Fq '6000'; then
+    ok "weight GREEN: a runtime answer_frame reaches the KB procedure"
+else
+    no "weight GREEN did not resolve weight_of/2: $(wg 4)"
+fi
+if ! wg 6 | grep -Fq '6000'; then
+    ok "weight ablation: retracting the surface removes recognition"
+else
+    no "weight surface survived retraction: $(wg 6)"
+fi
+
 echo "---"
 echo "passed: $pass, failed: $fail"
 [ "$fail" -eq 0 ]

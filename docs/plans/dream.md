@@ -9,6 +9,23 @@ autocolmano?*
 
 ## 1. La prosa da sola non è un atto — e c'è la misura
 
+### Contratto operativo del sogno supervisionato
+
+`--dream` non passa più un comando indiretto come «read the page on X» dopo aver
+scaricato la pagina: la prosa acquisita resta in memoria e viene consegnata al
+lettore reale con `brain_read_prose()`, una frase alla volta. Il trace mostra:
+
+```text
+prompt[0]: read: <frase originale>
+learned: Learned N fact(s), skipped M.
+  fact: <predicato(argomenti)>
+```
+
+Il processo continua solo se `skipped = 0`; al primo `skipped > 0` stampa lo stop
+e termina senza profondità parola-per-parola e senza riepilogo finale. Così il
+primo errore è visibile, addestrabile e riavviabile dallo stesso topic, invece di
+essere mascherato da una pagina «letta ma muta» o da una coda di parole.
+
 L'osservazione di F.: quando a un modello passi della prosa **e basta**, lui non
 la apprende. La enuncia, la commenta, la confronta. Se la stessa prosa arriva
 dentro «acquisisci queste informazioni», la tratta come conoscenza da

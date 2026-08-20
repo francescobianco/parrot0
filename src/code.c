@@ -16,6 +16,141 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+static int input_phrase_boundary(KB *kb, const char *kind,
+                                 const char *boundary, const char *word) {
+    if (!kb || !kind || !boundary || !word || !*word) return 0;
+    const char *q[] = { kind, boundary, word };
+    return kb_query(kb, "phrase_boundary", q, 3);
+}
+
+static int input_quoted(const char *src, size_t start, size_t len,
+                        char *out, size_t out_size) {
+    if (!src || !out || out_size < len + 3) return 0;
+    size_t o = 0;
+    out[o++] = '"';
+    for (size_t i = 0; i < len && o + 2 < out_size; i++) {
+        char c = src[start + i];
+        out[o++] = c == '"' ? '\'' : c;
+    }
+    out[o++] = '"';
+    out[o] = '\0';
+    return 1;
+}
+
+static size_t input_add_node(InputNode *nodes, size_t *count, size_t max,
+                             size_t start, size_t len, int parent,
+                             const char *level, const char *kind,
+                             const char *role, const char *surface) {
+    if (!nodes || !count || *count >= max) return max;
+    InputNode *n = &nodes[(*count)++];
+    memset(n, 0, sizeof *n);
+    n->start = start;
+    n->len = len;
+    n->parent = parent;
+    snprintf(n->level, sizeof n->level, "%s", level ? level : "");
+    snprintf(n->kind, sizeof n->kind, "%s", kind ? kind : "");
+    snprintf(n->role, sizeof n->role, "%s", role ? role : "");
+    snprintf(n->surface, sizeof n->surface, "%s", surface ? surface : "");
+    return *count - 1;
+}
+
+size_t input_structure(KB *kb, const char *raw, const InputSpan *span,
+                       InputNode *nodes, size_t max, int *ambiguous) {
+    if (ambiguous) *ambiguous = 0;
+    if (!kb || !raw || !span || !nodes || max == 0) return 0;
+    size_t begin = span->start + (span->cue_len < span->len ? span->cue_len : 0);
+    size_t end = span->start + span->len;
+    if (begin > end || end > strlen(raw)) return 0;
+
+    size_t count = 0;
+    char root_surface[KB_TERM_LEN] = "";
+    size_t root_len = end - begin;
+    if (root_len >= sizeof root_surface) root_len = sizeof root_surface - 1;
+    memcpy(root_surface, raw + begin, root_len);
+    root_surface[root_len] = '\0';
+    input_add_node(nodes, &count, max, begin, end - begin, -1,
+                   "clause", "clause", "", root_surface);
+
+    typedef struct { size_t start, len; char word[KB_TERM_LEN]; } Word;
+    Word words[64]; size_t nw = 0;
+    for (size_t p = begin; p < end && nw < 64; ) {
+        while (p < end && !(isalnum((unsigned char)raw[p]) || raw[p] == '_')) p++;
+        if (p >= end) break;
+        size_t s = p++;
+        while (p < end && (isalnum((unsigned char)raw[p]) || raw[p] == '_')) p++;
+        size_t len = p - s;
+        if (len >= sizeof words[nw].word) len = sizeof words[nw].word - 1;
+        memcpy(words[nw].word, raw + s, len);
+        words[nw].word[len] = '\0';
+        for (size_t i = 0; i < len; i++)
+            words[nw].word[i] = (char)tolower((unsigned char)words[nw].word[i]);
+        words[nw].start = s;
+        words[nw].len = p - s;
+        input_add_node(nodes, &count, max, s, p - s, 0,
+                       "token", "token", "", words[nw].word);
+        nw++;
+    }
+
+    /* Candidate noun phrases are delimited by KB knowledge.  A verb POS fact
+     * closes the candidate early; otherwise the declared NP closer does. */
+    for (size_t i = 0; i < nw && count < max; i++) {
+        if (!input_phrase_boundary(kb, "np", "opener", words[i].word)) continue;
+        size_t j = i + 1;
+        for (; j < nw; j++) {
+            if (input_phrase_boundary(kb, "np", "breaker", words[j].word) ||
+                input_phrase_boundary(kb, "np", "closer", words[j].word)) break;
+        }
+        if (j <= i + 1) continue;
+        size_t s = words[i].start;
+        size_t e = words[j - 1].start + words[j - 1].len;
+        char surface[KB_TERM_LEN] = "";
+        size_t slen = e - s;
+        if (slen >= sizeof surface) slen = sizeof surface - 1;
+        memcpy(surface, raw + s, slen);
+        surface[slen] = '\0';
+        input_add_node(nodes, &count, max, s, e - s, 0,
+                       "phrase", "np_candidate", "", surface);
+    }
+    return count;
+}
+
+void input_structure_clear(KB *kb) {
+    if (!kb) return;
+    kb_retract_pred(kb, "input_node");
+    kb_retract_pred(kb, "input_node_surface");
+    kb_retract_pred(kb, "input_node_role");
+}
+
+size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
+                               const char *scope) {
+    if (!kb || !raw || !span || !scope || !*scope) return 0;
+    InputNode nodes[128];
+    int ambiguous = 0;
+    size_t nn = input_structure(kb, raw, span, nodes, 128, &ambiguous);
+    if (ambiguous) return 0;
+    kb_set_origin(kb, KB_REFLECTIVE);
+    for (size_t i = 0; i < nn; i++) {
+        char id[24], parent[24], start[24], len[24], qs[KB_TERM_LEN];
+        snprintf(id, sizeof id, "%zu", i);
+        snprintf(parent, sizeof parent, "%d", nodes[i].parent);
+        snprintf(start, sizeof start, "%zu", nodes[i].start);
+        snprintf(len, sizeof len, "%zu", nodes[i].len);
+        if (!input_quoted(nodes[i].surface, 0, strlen(nodes[i].surface),
+                          qs, sizeof qs)) continue;
+        const char *args[] = { scope, id, nodes[i].level, nodes[i].kind,
+                               parent, start, len };
+        kb_assert(kb, "input_node", args, 7);
+        const char *surface[] = { scope, id, qs };
+        kb_assert(kb, "input_node_surface", surface, 3);
+        if (nodes[i].role[0]) {
+            const char *role[] = { scope, id, nodes[i].role };
+            kb_assert(kb, "input_node_role", role, 3);
+        }
+    }
+    kb_set_origin(kb, KB_SESSION);
+    return nn;
+}
+
 /* A C control-flow / type keyword can sit right before '(' (e.g. "if (", "for (",
  * "sizeof (") and look like a definition head; it is not a function name, so it
  * is excluded. The function's own name is never a keyword. */
