@@ -1,0 +1,78 @@
+% debug.p0 — L'ISPETTORE, e la nota che lo accompagna (gen433)
+%
+% `/debug` non e' piu' soltanto un profiler: e' lo strumento con cui un
+% SUPERVISORE guarda dentro un turno andato storto e capisce DOVE piantare il
+% seme che manca. Serve perche' finche' la KB non e' fertile
+% (docs/plans/autocrescita.md §0a) ci saranno turni in cui l'autocorrezione non
+% si innesca — o perche' manca qualcosa di piu' fondamentale, o perche' le
+% quattro condizioni non valgono tutte insieme.
+%
+% TUTTO QUELLO CHE L'ISPETTORE DICE STA QUI. Il C stampa; che cosa valga la pena
+% guardare, con che etichetta, e in che ordine, e' conoscenza — cosi' una
+% ispezione nuova costa UNA RIGA. E' la richiesta esplicita di F.: gli strumenti
+% di debug vanno migliorati di continuo, in relazione a necessita' che oggi non
+% conosciamo, quindi devono essere fatti per crescere senza ricompilare.
+
+:- file_attribute(machinery).
+
+% ── LA NOTA, che si legge PRIMA di qualunque numero ────────────────────────
+% E' il punto piu' importante del comando, non un preambolo di cortesia.
+debug_charter_line(1, "NOTA — a che cosa serve addestrare parrot0 parlandogli.").
+debug_charter_line(2, "L'addestramento via prompt serve a STRUTTURARE le sue abilita' di").
+debug_charter_line(3, "autoapprendimento e automiglioramento: dargli il modo di accorgersi di una").
+debug_charter_line(4, "lacuna, di porsi la domanda giusta e di colmarla da solo la prossima volta.").
+debug_charter_line(5, "NON serve a spingergli dentro fatti e regole secche.").
+debug_charter_line(6, "Un fatto che nessuna forma sa raggiungere non risponde e non genera domande:").
+debug_charter_line(7, "e' peso morto due volte, e non si lamenta. Prima di insegnare un valore,").
+debug_charter_line(8, "chiediti se manca il valore o se manca la STRADA che ci arriva — e se").
+debug_charter_line(9, "quello che stai per dire varra' anche per il caso che non hai davanti.").
+debug_charter_line(10, "La domanda di controllo e' sempre la stessa: parrot0 potra' impararne un").
+debug_charter_line(11, "membro nuovo domani, da solo, senza che nessuno riscriva questa riga?").
+
+% Quanti predicati mostrare della strada percorsa: un turno ne tocca anche cento.
+machinery(debug_road_max).
+debug_road_max(24).
+
+% ── LE SONDE: che cosa guardare di un turno andato storto ──────────────────
+% debug_probe(Ordine, Predicato, Chiave, Etichetta)
+%   Chiave = turn  → si interroga con il turno canonicalizzato
+%   Chiave = any   → si elencano le righe presenti (poche, di sessione)
+% Una sonda nuova e' una riga: e' cosi' che questo strumento cresce.
+debug_probe(10, machinery_gap, turn, "lacuna registrata per questo turno").
+debug_probe(20, gap_kind, turn, "specie della lacuna").
+debug_probe(30, gap_source, turn, "il turno come e' stato detto").
+debug_probe(40, pending_gap, any, "parole opache in attesa").
+debug_probe(50, gap_register, turn, "registro riconosciuto").
+debug_probe(60, learned_bridge, any, "ponti che il ciclo si e' insegnato").
+debug_probe(70, dead_rule, any, "regole che non possono dedurre niente").
+
+% ── LE QUATTRO CONDIZIONI dell'autocorrezione (docs/autocorrezione.md §2) ──
+% Perche' il ciclo NON si e' innescato. Si stampano sempre tutte e quattro:
+% sapere quale manca e' la meta' del lavoro del supervisore.
+debug_condition(1, "il turno e' fallito in modo VISIBILE (muro o declino registrato)").
+debug_condition(2, "nessuna parola era opaca (se lo era, il rimedio e' leggere, non proporre)").
+debug_condition(3, "il ponte mancante e' di una forma PROPONIBILE (oggi: solo le cue)").
+debug_condition(4, "la verifica accetta il rimedio (oggi l'interruttore e' spento apposta)").
+
+% ── I SEMI che il supervisore puo' piantare, in ordine di leva ─────────────
+% supervisor_seed(Ordine, Forma, Frase-da-dire)
+% Le prime tre sono le forme che il ciclo sa poi RIUSARE da solo; l'ultima e'
+% quella da usare per ultima, e la nota dice perche'.
+supervisor_seed(10, superficie, "insegna la FORMA con cui te l'ho chiesto — e' la classe piu' numerosa: «X is a relation verb», «the R of X is Y», «the notation of N is S»").
+supervisor_seed(20, classe, "insegna la CLASSE a cui la parola appartiene — «X is a condition marker», «X is a greeting» — cosi' vale per tutti i membri futuri").
+supervisor_seed(30, procedura, "insegna la PROCEDURA come regola sui pezzi, non il risultato: una riga che vale per ogni caso della stessa forma").
+supervisor_seed(40, fatto, "solo se manca davvero il VALORE, e dopo esserti chiesto se una forma lo raggiungera': un fatto senza strada e' peso morto").
+
+% ── IL CASO SILENZIOSO ─────────────────────────────────────────────────────
+% Nessuna lacuna registrata NON vuol dire che il turno sia andato bene: vuol
+% dire che il motore lo ha considerato GESTITO. E' la classe piu' numerosa dei
+% cento fallimenti e la peggiore, perche' sembra una risposta. Va detta qui,
+% perche' e' esattamente il momento in cui un supervisore rischia di concludere
+% che non c'e' niente da riparare.
+debug_note_silent(1, "nessuna lacuna registrata: il motore ha considerato il turno GESTITO.").
+debug_note_silent(2, "Se la risposta non risponde, questa e' la classe `wrong` — un turno").
+debug_note_silent(3, "riuscito per il motore e fallito per te. Non lascia traccia, quindi").
+debug_note_silent(4, "l'autocorrezione non sa nemmeno che esiste: il seme qui non e' un fatto,").
+debug_note_silent(5, "e' una GUARDIA DI PERTINENZA — dire a parrot0 quando quella facolta' NON").
+debug_note_silent(6, "deve prendere il turno. Vedi docs/autocorrezione.md §4b e la forma G di").
+debug_note_silent(7, "docs/plans/fix-patterns.md.").

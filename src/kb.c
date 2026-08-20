@@ -225,6 +225,14 @@ struct KB {
      * l'insieme dei gia' visti. */
     unsigned long fp_acc;
     unsigned long fp_seen[128];
+    /* gen433 — I NOMI, non solo le impronte, e SOLO col profilo acceso.
+     *
+     * La firma basta a dire «due turni hanno fatto la stessa strada»; a un
+     * supervisore che ispeziona serve sapere QUALE strada. I nomi costano
+     * memoria e una copia per predicato, quindi si raccolgono soltanto quando
+     * qualcuno sta guardando — la stessa disciplina del profiler: spento non
+     * costa nulla. */
+    char          fp_name[128][48];
     size_t        fp_n;
 };
 
@@ -2205,9 +2213,21 @@ static void kb_footprint_note(KB *kb, const char *pred) {
     if (!kb || !pred || !*pred) return;
     unsigned long h = kb_fp_hash(pred);
     for (size_t i = 0; i < kb->fp_n; i++) if (kb->fp_seen[i] == h) return;
-    if (kb->fp_n < sizeof kb->fp_seen / sizeof kb->fp_seen[0])
+    if (kb->fp_n < sizeof kb->fp_seen / sizeof kb->fp_seen[0]) {
+        if (kb->prof_on)
+            snprintf(kb->fp_name[kb->fp_n], sizeof kb->fp_name[0], "%s", pred);
+        else
+            kb->fp_name[kb->fp_n][0] = '\0';
         kb->fp_seen[kb->fp_n++] = h;
+    }
     kb->fp_acc ^= h;
+}
+
+/* I nomi dei predicati toccati in questo turno, in ordine di prima visita.
+ * Vuoto (NULL) se il profilo era spento: si dice, non si finge. */
+const char *kb_footprint_pred(const KB *kb, size_t i) {
+    if (!kb || i >= kb->fp_n || !kb->fp_name[i][0]) return NULL;
+    return kb->fp_name[i];
 }
 
 /* gen422d — anche CHI ha risposto fa parte della strada.

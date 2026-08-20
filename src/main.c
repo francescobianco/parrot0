@@ -432,6 +432,205 @@ static int measure_run(const char *dir) {
     return 0;
 }
 
+/* Le stringhe della KB arrivano fra virgolette; qui si tolgono per stamparle.
+ * Il brain ha il suo `kb_dequote`, ma e' statico nella sua TU. */
+static const char *kb_dequote_pub(char *s) {
+    size_t l = strlen(s);
+    if (l >= 2 && s[0] == '"' && s[l - 1] == '"') { s[l - 1] = '\0'; return s + 1; }
+    return s;
+}
+
+/* gen433 — L'ISPETTORE DEL SUPERVISORE.
+ *
+ * `/debug` non e' piu' solo un profiler. Finche' la KB non e' fertile
+ * (docs/plans/autocrescita.md §0a) ci saranno turni in cui l'autocorrezione non
+ * si innesca — o perche' manca qualcosa di piu' fondamentale, o perche' le
+ * quattro condizioni non valgono tutte insieme — e in quei turni chi addestra
+ * deve poter vedere DOVE piantare il seme che manca.
+ *
+ * Quello che l'ispettore dice sta tutto in `kb/core/debug.p0`: la nota, le
+ * sonde, le condizioni, i semi. Il C stampa e non decide, quindi un'ispezione
+ * nuova costa UNA RIGA DI KB — che e' il modo in cui questo strumento dovra'
+ * crescere, perche' crescera' (F.: gli strumenti di debug vanno migliorati di
+ * continuo, in relazione a necessita' che oggi non conosciamo). */
+static void debug_lines(KB *kb, const char *pred, size_t argc, const char *tag) {
+    char rows[32][KB_TERM_LEN];
+    const char *q2[2] = { NULL, NULL };
+    size_t n = kb_match(kb, pred, q2, argc, rows, 32);
+    for (size_t i = 0; i < n; i++) {
+        char b[KB_TERM_LEN]; snprintf(b, sizeof b, "%s", rows[i]);
+        const char *first = kb_dequote_pub(b);
+        if (argc == 1) { fprintf(stderr, "%s%s\n", tag, first); continue; }
+        const char *q3[3] = { rows[i], NULL, NULL };
+        char snd[1][KB_TERM_LEN];
+        if (kb_match(kb, pred, q3, argc, snd, 1) == 1) {
+            char c[KB_TERM_LEN]; snprintf(c, sizeof c, "%s", snd[0]);
+            fprintf(stderr, "%s%s\n", tag, kb_dequote_pub(c));
+        }
+    }
+}
+
+static void debug_inspect(Brain *brain, const char *last_line) {
+    KB *kb = brain_kb(brain);
+    fprintf(stderr, "\n");
+    /* (1) la nota, che si legge PRIMA di qualunque numero */
+    {
+        char idx[32][KB_TERM_LEN];
+        const char *q[2] = { NULL, NULL };
+        size_t n = kb_match(kb, "debug_charter_line", q, 2, idx, 32);
+        for (long k = 1; k <= (long)n; k++) {
+            char key[16]; snprintf(key, sizeof key, "%ld", k);
+            const char *q2[2] = { key, NULL };
+            char row[1][KB_TERM_LEN];
+            if (kb_match(kb, "debug_charter_line", q2, 2, row, 1) != 1) continue;
+            char b[KB_TERM_LEN]; snprintf(b, sizeof b, "%s", row[0]);
+            fprintf(stderr, "  %s\n", kb_dequote_pub(b));
+        }
+    }
+    if (!last_line || !*last_line) {
+        fprintf(stderr, "\n  (nessun turno da ispezionare: dimmi qualcosa e richiama /debug)\n");
+        return;
+    }
+    /* (2) l'anatomia del turno */
+    fprintf(stderr, "\n  TURNO   %s\n", last_line);
+    fprintf(stderr, "  modulo  %s\n", brain_last_module(brain));
+    fprintf(stderr, "  firma   %08lx  (%zu predicati distinti)\n",
+            kb_footprint(kb) & 0xfffffffful, kb_footprint_width(kb));
+    {
+        /* Quanti nomi mostrare e' un fatto: un turno ne tocca anche cento e
+         * l'elenco intero smette di essere leggibile. */
+        long cap = 24;
+        {
+            const char *cq[1] = { NULL };
+            char cv[1][KB_TERM_LEN];
+            if (kb_match(kb, "debug_road_max", cq, 1, cv, 1) > 0) {
+                char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cv[0]);
+                long v = strtol(kb_dequote_pub(cb), NULL, 10);
+                if (v > 0) cap = v;
+            }
+        }
+        size_t shown = 0, total = 0;
+        for (size_t i = 0; i < kb_footprint_width(kb); i++)
+            if (kb_footprint_pred(kb, i)) total++;
+        for (size_t i = 0; i < kb_footprint_width(kb) && (long)shown < cap; i++) {
+            const char *p = kb_footprint_pred(kb, i);
+            if (!p) continue;
+            if (shown == 0) fprintf(stderr, "  strada  ");
+            else if (shown % 6 == 0) fprintf(stderr, ",\n          ");
+            else fprintf(stderr, ", ");
+            fprintf(stderr, "%s", p);
+            shown++;
+        }
+        if (shown) {
+            if ((long)total > cap)
+                fprintf(stderr, " … e altri %zu\n", total - shown);
+            else fprintf(stderr, "\n");
+        } else {
+            fprintf(stderr, "  strada  (i nomi si raccolgono solo col debug gia' acceso: riponi il turno)\n");
+        }
+    }
+    /* (3) le sonde dichiarate in KB */
+    {
+        char canon[512];
+        brain_canonical(brain, last_line, canon, sizeof canon);
+        char quoted[KB_TERM_LEN];
+        snprintf(quoted, sizeof quoted, "\"%s\"", canon);
+        char ord[32][KB_TERM_LEN];
+        const char *q[4] = { NULL, NULL, NULL, NULL };
+        size_t n = kb_match(kb, "debug_probe", q, 4, ord, 32);
+        fprintf(stderr, "\n  SONDE\n");
+        for (size_t i = 0; i < n; i++) {
+            const char *q2[4] = { ord[i], NULL, NULL, NULL };
+            char pred[1][KB_TERM_LEN];
+            if (kb_match(kb, "debug_probe", q2, 4, pred, 1) != 1) continue;
+            const char *q3[4] = { ord[i], pred[0], NULL, NULL };
+            char key[1][KB_TERM_LEN];
+            if (kb_match(kb, "debug_probe", q3, 4, key, 1) != 1) continue;
+            const char *q4[4] = { ord[i], pred[0], key[0], NULL };
+            char lab[1][KB_TERM_LEN];
+            if (kb_match(kb, "debug_probe", q4, 4, lab, 1) != 1) continue;
+            char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", pred[0]);
+            char lb[KB_TERM_LEN]; snprintf(lb, sizeof lb, "%s", lab[0]);
+            const char *pname = kb_dequote_pub(pb), *label = kb_dequote_pub(lb);
+            char kb2[KB_TERM_LEN]; snprintf(kb2, sizeof kb2, "%s", key[0]);
+            int by_turn = strcmp(kb_dequote_pub(kb2), "turn") == 0;
+            char found[16][KB_TERM_LEN];
+            size_t m = 0;
+            if (by_turn) {
+                const char *tq[2] = { quoted, NULL };
+                m = kb_match(kb, pname, tq, 2, found, 16);
+                if (m == 0 && kb_query(kb, pname, (const char *[]){ quoted }, 1))
+                    { snprintf(found[0], KB_TERM_LEN, "si'"); m = 1; }
+            } else {
+                const char *aq[1] = { NULL };
+                m = kb_match(kb, pname, aq, 1, found, 16);
+            }
+            fprintf(stderr, "    %-22s %s", pname, label);
+            if (m == 0) { fprintf(stderr, " — niente\n"); continue; }
+            fprintf(stderr, " —");
+            for (size_t k = 0; k < m && k < 6; k++) {
+                char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", found[k]);
+                fprintf(stderr, " %s", kb_dequote_pub(fb));
+            }
+            fprintf(stderr, "%s\n", m > 6 ? " …" : "");
+        }
+    }
+    /* (4) le quattro condizioni, con il segno di quelle che si possono
+     * DECIDERE guardando lo stato — un elenco senza segni e' un promemoria,
+     * non una diagnosi. */
+    fprintf(stderr, "\n  PERCHE' L'AUTOCORREZIONE POTREBBE NON ESSERSI INNESCATA\n");
+    {
+        char canon[512];
+        brain_canonical(brain, last_line, canon, sizeof canon);
+        char quoted[KB_TERM_LEN];
+        snprintf(quoted, sizeof quoted, "\"%s\"", canon);
+        const char *gq[1] = { quoted };
+        int c1 = kb_query(kb, "machinery_gap", gq, 1);
+        char pg[4][KB_TERM_LEN];
+        const char *pq[1] = { NULL };
+        int c2 = kb_match(kb, "pending_gap", pq, 1, pg, 4) == 0;
+        const char *sq[1] = { "off" };
+        int c4 = !kb_query(kb, "self_correct_on_wall", sq, 1);
+        int mark[5] = { 0, c1, c2, 1, c4 };
+        char idx[16][KB_TERM_LEN];
+        const char *q[2] = { NULL, NULL };
+        size_t n = kb_match(kb, "debug_condition", q, 2, idx, 16);
+        for (long k = 1; k <= (long)n && k <= 4; k++) {
+            char key[8]; snprintf(key, sizeof key, "%ld", k);
+            const char *q2[2] = { key, NULL };
+            char row[1][KB_TERM_LEN];
+            if (kb_match(kb, "debug_condition", q2, 2, row, 1) != 1) continue;
+            char b[KB_TERM_LEN]; snprintf(b, sizeof b, "%s", row[0]);
+            fprintf(stderr, "    %s %s\n", mark[k] ? "OK  " : "NO  ",
+                    kb_dequote_pub(b));
+        }
+        /* IL CASO SILENZIOSO, che e' il piu' importante da nominare: nessuna
+         * lacuna registrata NON vuol dire che il turno sia andato bene. */
+        if (!c1)
+            debug_lines(kb, "debug_note_silent", 2, "    ! ");
+    }
+    /* (5) i semi, in ordine di leva */
+    fprintf(stderr, "\n  SEMI CHE PUOI PIANTARE, dal piu' generale al piu' stretto\n");
+    {
+        char ord[16][KB_TERM_LEN];
+        const char *q[3] = { NULL, NULL, NULL };
+        size_t n = kb_match(kb, "supervisor_seed", q, 3, ord, 16);
+        for (size_t i = 0; i < n; i++) {
+            const char *q2[3] = { ord[i], NULL, NULL };
+            char kind[1][KB_TERM_LEN];
+            if (kb_match(kb, "supervisor_seed", q2, 3, kind, 1) != 1) continue;
+            const char *q3[3] = { ord[i], kind[0], NULL };
+            char text[1][KB_TERM_LEN];
+            if (kb_match(kb, "supervisor_seed", q3, 3, text, 1) != 1) continue;
+            char kbf[KB_TERM_LEN]; snprintf(kbf, sizeof kbf, "%s", kind[0]);
+            char tbf[KB_TERM_LEN]; snprintf(tbf, sizeof tbf, "%s", text[0]);
+            fprintf(stderr, "    %-11s %s\n", kb_dequote_pub(kbf), kb_dequote_pub(tbf));
+        }
+    }
+    fprintf(stderr, "\n");
+    fflush(stderr);
+}
+
 int main(int argc, char **argv) {
     /* gen221: `parrot0 --daemon [--port N] [--host H]` serves the
      * OpenAI-compatible HTTP API directly (replacing scripts/pi_server.py). */
@@ -643,6 +842,7 @@ int main(int argc, char **argv) {
 
     char line[LINE_MAX_LEN];
     char resp[RESP_MAX_LEN];
+    char last_line[1024] = "";   /* gen433: l'ispettore guarda l'ultimo turno */
 
     /* gen202: the multi-line raw reader (gen197) emits kitty-keyboard + bracketed-
      * paste escape sequences every turn; on terminals that do not implement the
@@ -719,13 +919,20 @@ int main(int argc, char **argv) {
          * Deliberatamente piccolo. Cresce quando una domanda di ottimizzazione
          * lo chiede — un profiler scritto tutto in anticipo misura cio' che
          * l'autore immaginava, non cio' che poi rallenta. */
-        if (strcmp(line, "/debug") == 0) {
+        if (strcmp(line, "/debug") == 0 || strcmp(line, "/debug off") == 0) {
             KB *kb = brain_kb(brain);
-            int on = !kb_profile_on(kb);
-            kb_profile_set(kb, on);
-            fprintf(stderr, "parrot0: debug %s\n",
-                    on ? "ON — ogni turno riporta chiamate, passi e i goal piu' cari"
-                       : "OFF");
+            if (strcmp(line, "/debug off") == 0) {
+                kb_profile_set(kb, 0);
+                fprintf(stderr, "parrot0: debug OFF\n");
+                continue;
+            }
+            debug_inspect(brain, last_line);
+            if (!kb_profile_on(kb)) {
+                kb_profile_set(kb, 1);
+                fprintf(stderr, "  (profilo acceso: i turni successivi riportano anche"
+                                " tempi, passi e la strada per nome — /debug off per"
+                                " spegnerlo)\n\n");
+            }
             continue;
         }
         if (line[0] == '\0') {
@@ -738,6 +945,7 @@ int main(int argc, char **argv) {
             kb_profile_reset(brain_kb(brain));
             timespec_get(&t0, TIME_UTC);
         }
+        snprintf(last_line, sizeof last_line, "%s", line);
         brain_respond(brain, line, resp, sizeof resp);
         if (profiling) {
             timespec_get(&t1, TIME_UTC);

@@ -389,6 +389,9 @@ void kb_inference_report(const KB *kb, KbInferenceReport *out);
 void          kb_footprint_reset(KB *kb);
 unsigned long kb_footprint(const KB *kb);
 size_t        kb_footprint_width(const KB *kb);   /* quanti predicati distinti */
+/* Il NOME dell'i-esimo predicato toccato, o NULL se non c'e' (o se il profilo
+ * era spento quando il turno e' passato: i nomi si raccolgono solo allora). */
+const char   *kb_footprint_pred(const KB *kb, size_t i);
 
 /* Piega nella firma qualcosa che non e' un predicato — per esempio il modulo che
  * ha risposto. Serve perche' un turno risolto interamente nel C non interroga
