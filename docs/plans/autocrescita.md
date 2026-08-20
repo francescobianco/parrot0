@@ -7,6 +7,11 @@
 > domande e produrre dall'interno un upgrade della sua KB tale da superare la
 > missione — e tutto questo è guidato dalla colla linguistica e dal reasoning.»*
 >
+> **La bussola (F., gen433):** *«il piano ci serve per sbloccare parrot0 da una
+> KB statica a una KB fertile»*. Non un punteggio: un **cambiamento di regime**
+> della conoscenza — §0a lo definisce con cinque proprietà verificabili, e §10
+> gli dà il numero che lo misura.
+>
 > **Che cosa aggiunge questo piano** ai cinque che lo precedono: non una facoltà
 > nuova, ma **un solo ciclo** in cui le parti già costruite si chiudono ad anello,
 > e un **portafoglio di strategie parallele** che corrono dentro quel ciclo e si
@@ -16,6 +21,66 @@
 > contato che forma hanno le riparazioni vere. Qui si mettono in fila.
 
 ---
+
+## 0a. Il punto del piano: da KB statica a KB FERTILE (F., gen433)
+
+> *«Non fa nulla che siano discordanti: per adesso il piano ci serve per
+> sbloccare parrot0 da una KB statica a una KB fertile.»*
+
+Questa frase è la bussola, e riordina tutto ciò che segue. L'obiettivo non è un
+punteggio: è un **cambiamento di stato della conoscenza**. I banchi di §0b
+servono a *dimostrare* che il cambiamento è avvenuto — non a guidarlo. Che due
+banchi premino cose diverse è un fatto da tenere a mente al momento di leggere i
+numeri, non un ostacolo da risolvere prima di partire.
+
+**Statica** e **fertile** non sono aggettivi: sono due regimi con sintomi
+distinguibili.
+
+| | KB **statica** (oggi) | KB **fertile** (bersaglio) |
+|---|---|---|
+| chi aggiunge righe | una persona | anche il sistema, sotto gate |
+| che cosa produce una riga nuova | una risposta in più | **una risposta in più e domande nuove** |
+| conoscenza che non fa niente | resta lì e nessuno lo sa | **si segnala da sola** (§3f) |
+| lo spazio negativo | calcolabile ma non calcolato | calcolato a ogni giro, ed è il motore |
+| il limite alla crescita | il tempo di chi scrive | la densità della KB stessa |
+
+### Che cosa rende fertile una KB — cinque proprietà, tutte verificabili
+
+Non sono desiderata: sono le condizioni che, mancando, hanno prodotto i difetti
+misurati in `fix-patterns.md`.
+
+1. **Raggiungibile.** Ogni fatto ha almeno una superficie che lo porta a un
+   turno. Un fatto senza superficie non risponde *e* non genera domande: è peso
+   morto due volte. È la ragione per cui la wiki da sola non basta (§10).
+2. **Connessa.** Le entità compaiono come *soggetti* e non solo come argomenti;
+   i frame dichiarati hanno soggetti; i fratelli hanno profili confrontabili. È
+   la condizione perché lo spazio negativo sia **calcolabile**: le sorgenti 3a,
+   3b, 3c sono tutte deduzioni sopra questa connessione.
+3. **Autodescritta.** La meccanica si dichiara (`machinery/1`), quindi è
+   separabile dal mondo. Senza, l'audit annega nel rumore e l'induzione riempie
+   i suoi sedici posti con `content_kind(X) :- countable_opener(X)` — misurato al
+   gen432.
+4. **Tracciabile e revocabile.** Ogni riga porta provenienza e origine. Senza,
+   una crescita automatica non si può disfare, e nessuno la lascerà girare.
+5. **Interrogante.** La sintesi delle prime quattro: **una KB fertile fa
+   domande.** Se lo spazio negativo calcolato è vuoto, la KB non è completa —
+   è cieca.
+
+### Come si vede che siamo ancora nel regime statico
+
+Tre sintomi, tutti osservati questa settimana:
+
+- **la crescita è proporzionale al tempo di una persona.** 959 righe in sei
+  generazioni, tutte scritte a mano;
+- **la conoscenza morta non si lamenta.** Sette difetti su sette erano righe
+  dichiarate che non potevano funzionare, e sono emersi per caso;
+- **una riga nuova produce una risposta, non una domanda.** Nessuna delle 507
+  righe aggiunte ha fatto nascere una domanda che parrot0 si sia posto da solo.
+
+> **Il piano è finito quando il terzo sintomo si rovescia**: una riga aggiunta
+> genera, in media, almeno una domanda che parrot0 sa aggredire. Quel numero ha
+> un nome in §10 e si chiama **R** — la fertilità *è* R, e la massa critica è il
+> punto in cui la fertilità si autosostiene.
 
 ## 0. La riformulazione verificabile
 
@@ -47,7 +112,9 @@ piano fallisce:
 
 ## 0b. La condizione che chiude il piano (F., gen433)
 
-Il piano non è finito quando i cicli girano. È finito quando vale **questa
+La bussola è §0a — il passaggio da statica a fertile. Questa sezione è la
+**prova esterna** che il passaggio è avvenuto: serve a non poterselo raccontare.
+Il piano non è finito quando i cicli girano; è finito quando vale **questa
 congiunzione**, e le tre parti vanno insieme:
 
 > **K — crescita.** Un prompt lascia dietro di sé una **riga di KB** che è
@@ -88,7 +155,9 @@ Da qui il vincolo che tiene onesto l'obiettivo, e che chiamo **la morsa**:
 | **LLMSCORE** | fare la cosa chiesta | inventare testo plausibile |
 | **i cento** (`make hundred`) | rispondere *quello che va risposto* | dichiarare limiti a tappeto |
 
-**S vale solo se sale INSIEME a `make hundred`.** Le attese curate dei cento sono
+**Per adesso la discordanza non blocca niente** (F.): si prende nota e si
+guardano i due numeri accanto, invece di fermarsi a conciliarli. Ma quando si
+leggeranno, la regola è una: **S vale solo se sale INSIEME a `make hundred`.** Le attese curate dei cento sono
 costruite perché nessun ripiego le passi: un'invenzione plausibile fallisce lì
 mentre passa a LLMSCORE. Le due misure in opposizione formano il rilevatore che
 il perimetro di §8 non può dare da solo — §8 impedisce di scrivere frasi nuove,
@@ -425,6 +494,9 @@ genera altre lacune** — e la domanda è quante di quelle nuove parrot0 sappia
 chiudere **da solo**.
 
 > **R = numero medio di lacune AUTOCHIUDIBILI aperte da ogni lacuna chiusa.**
+>
+> **R è la fertilità della KB, misurata** (§0a): quanto una riga aggiunta
+> *produce lavoro che il sistema sa fare*, invece di produrre solo una risposta.
 
 - **R < 1** — il processo si spegne: ogni giro produce meno lavoro di quanto ne
   consumi, e la crescita deve essere alimentata da fuori. **È il regime di oggi**,
