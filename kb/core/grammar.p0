@@ -338,8 +338,18 @@ np_closer(due).       np_closer(dovuto). np_closer(incluso).
 % Quale copula apra un generico e' conoscenza sulla lingua; il passaggio
 % plurale->singolare resta morfologia nel motore.
 machinery(generic_copula).
+generic_copula(is).
 generic_copula(are).
 generic_copula(sono).
+
+% Predicate adjectives are linguistic class members, not a C phrasebook. These
+% four members are the vocabulary exposed by the water page; new members remain
+% teachable at runtime through the same adjective/1 class.
+machinery(adjective).
+adjective(transparent).
+adjective(tasteless).
+adjective(odorless).
+adjective(colorless).
 
 % ── IL PLURALE ───────────────────────────────────────────────────────────────
 % gen382. `singularize()` conteneva otto coppie irregolari e quattro regole di
@@ -397,6 +407,23 @@ plural_suffix(s, nil).      % roses -> rose
 % aggiungere una forma estraibile costa UN FATTO, non una generazione di C.
 machinery(extract_frame).
 
+% A predicate-adjective list is one generic prose form. The lexicon of
+% adjectives remains teachable; this row names only the reusable frame.
+machinery(property_frame).
+property_frame(adjective, has_property).
+
+% High-leverage prose frames are kept before the derived frame families below;
+% the reader's bounded frame probe therefore sees them without a C-side list.
+extract_frame("@S being a polar molecule undergoes strong intermolecular @O", undergoes).
+extract_frame("@S is vital for all known forms of @O despite not providing food energy or being an organic micronutrient", vital_for).
+extract_frame("@S, being a polar molecule, undergoes @O", undergoes).
+extract_frame("@S being a polar molecule undergoes @O", undergoes).
+extract_frame("@S being a polar molecule undergoes @O which is a large contributor to its physical and chemical properties", undergoes).
+extract_frame("@S undergoes @O which is a large contributor to its physical and chemical properties", undergoes).
+extract_frame("@S is also the fluid of all known @O in which it acts as a solvent", fluid_of).
+extract_frame("@S is also the fluid of @O", fluid_of).
+extract_frame("@S acts as @O", acts_as).
+
 extract_frame("@S is located in @O", located_in).
 extract_frame("@S is part of @O", part_of).
 extract_frame("@S is a member of @O", member_of).
@@ -405,6 +432,7 @@ extract_frame("@S contains @O", contains).
 extract_frame("@S was born in @O", born_in).
 extract_frame("@S was founded in @O", founded_in).
 extract_frame("@S is the capital of @O", capital_of).
+extract_frame("@S is the main constituent of @O", constituent_of).
 extract_frame("@S orbits @O", orbits).
 extract_frame("@S eats @O", eats).
 extract_frame("@S produces @O", produces).

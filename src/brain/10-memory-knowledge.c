@@ -1753,6 +1753,68 @@ static void howknow_reply(Brain *b, const char *pred, const char *const *args,
     store_proof(b, ex);
 }
 
+/* These helpers are defined later in this translation unit. */
+static int p0_lead_det(Brain *b, const char *t);
+static int p0_join(char **w, size_t a, size_t b, char *out, size_t sz);
+static void p0_learn_source(Brain *b, const char *pred, const char *const *args,
+                            size_t argc, const char *raw);
+
+static int p0_property_list(Brain *b, const char *norm, const char *raw,
+                            char *out, size_t out_size) {
+    if (!b || !b->kb || !norm || !*norm || (raw && strchr(raw, '?'))) return 0;
+    char buf[512];
+    snprintf(buf, sizeof buf, "%s", norm);
+    char *w[64];
+    size_t n = split_words(buf, w, 64), cop = n;
+    for (size_t i = 0; i < n; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (lex_class_member(b, "generic_copula", t)) { cop = i; break; }
+    }
+    if (cop == n || cop == 0 || cop + 1 >= n) return 0;
+
+    char subject[KB_TERM_LEN] = "";
+    char *head = strip_edge_punct(w[0]);
+    if (!strcmp(head, "it") && b->has_last_entity) {
+        snprintf(subject, sizeof subject, "%s", b->last_entity);
+    } else if (!p0_join(w, 0, cop, subject, sizeof subject)) {
+        return 0;
+    }
+
+    size_t p = cop + 1;
+    if (p < n && p0_lead_det(b, strip_edge_punct(w[p]))) p++;
+    if (p >= n) return 0;
+
+    char pred[KB_TERM_LEN], predrow[1][KB_TERM_LEN];
+    const char *fq[] = { "adjective", NULL };
+    if (kb_match(b->kb, "property_frame", fq, 2, predrow, 1) != 1) return 0;
+    snprintf(pred, sizeof pred, "%s", kb_dequote(predrow[0]));
+    char props[16][KB_TERM_LEN];
+    size_t np = 0;
+    for (; p < n && np < 16; p++) {
+        char *t = strip_edge_punct(w[p]);
+        if (!*t || !strcmp(t, "and") || !strcmp(t, "or")) continue;
+        const char *aq[] = { t };
+        if (kb_query(b->kb, "adjective", aq, 1))
+            snprintf(props[np++], sizeof props[0], "%s", t);
+    }
+    if (np == 0) return 0;
+
+    kb_set_origin(b->kb, KB_SESSION);
+    char msg[512]; size_t mo = 0; int any = 0;
+    mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "Learned: ");
+    for (size_t i = 0; i < np; i++) {
+        const char *fa[] = { subject, props[i] };
+        if (!kb_assert(b->kb, pred, fa, 2)) continue;
+        p0_learn_source(b, pred, fa, 2, norm);
+        mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%s%s(%s, %s)",
+                               any ? ", " : "", pred, subject, props[i]);
+        any = 1;
+    }
+    if (!any) return 0;
+    put(msg, out, out_size);
+    return 1;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size);
 
@@ -3353,6 +3415,15 @@ static int p0_atom_is_concept(Brain *b, const char *atom);
 static int p0_fact_is_clean(Brain *b, const char *pred, const char *const *args,
                             size_t argc);
 
+/* Generic copular property-list extraction.  The frame and adjective lexicon
+ * are KB knowledge; this helper only scans the fixed shape and binds facts. */
+static int p0_property_list(Brain *b, const char *norm, const char *raw,
+                            char *out, size_t out_size);
+static int p0_lead_det(Brain *b, const char *t);
+static int p0_join(char **w, size_t a, size_t b, char *out, size_t sz);
+static void p0_learn_source(Brain *b, const char *pred, const char *const *args,
+                            size_t argc, const char *raw);
+
 /* Il cancello di qualita', definito piu' sotto: i frame lo usano. */
 static int p0_atom_is_concept(Brain *b, const char *atom);
 static int p0_fact_is_clean(Brain *b, const char *pred, const char *const *args,
@@ -3431,6 +3502,9 @@ static int p0_try_extract_frames(Brain *b, char **w, size_t n,
                 if (ss < (size_t)end && p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
                 if (ss >= (size_t)end || !p0_join(w, ss, (size_t)end, dst, KB_TERM_LEN))
                     { ok = 0; break; }
+                if (pt[ti][1] == 'S' && is_entity_pronoun(dst) &&
+                    b->has_last_entity)
+                    snprintf(dst, KB_TERM_LEN, "%s", b->last_entity);
                 wi = (size_t)end;
             } else {
                 if (wi >= n || strcmp(strip_edge_punct(w[wi]), pt[ti]) != 0)
@@ -3451,6 +3525,7 @@ static int p0_try_extract_frames(Brain *b, char **w, size_t n,
         }
         if (kb_assert(b->kb, pred, fa, 2)) {
             p0_learn_source(b, pred, fa, 2, norm);
+            remember_entity(b, subj, subj);
             char msg[256];
             snprintf(msg, sizeof msg, "Learned: %s(%s, %s).", pred, subj, obj);
             put(msg, out, out_size);
@@ -4064,6 +4139,7 @@ static int extract_class_statement(Brain *b, const char *norm,
         return 0;
     }
     snprintf(msg + mo, sizeof msg - mo, ".");
+    remember_entity(b, subj, subj);
     put(msg, out, out_size);
     return 1;
 }
@@ -7538,6 +7614,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     if (completion_chain_resolve(b, norm, out, out_size)) return 1;
     if (taxonomy_definition_reply(b, norm, raw, out, out_size)) return 1;
+    if (p0_property_list(b, norm, raw, out, out_size)) return 1;
 
     /* gen413 — UNA PROPOSIZIONE GIA' VISTA IN UNA REGOLA, detta da sola.
      *
