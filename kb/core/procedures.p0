@@ -1055,6 +1055,7 @@ machinery(sides).
 :- include(claims.p0).
 :- include(own-methods.p0).
 :- include(gap-kinds.p0).
+:- include(arrests.p0).
 :- include(debug.p0).
 :- include(honest-limits.p0).
 :- include(denotation.p0).

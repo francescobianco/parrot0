@@ -1,0 +1,320 @@
+% arrests.p0 — L'ARRESTO E' UN OGGETTO DI PROVA (autocrescita v3, gen437).
+%
+% `gap-kinds.p0` dice gia' la SPECIE della lacuna. Qui il turno arrestato
+% acquista le coordinate necessarie a una compensazione multilingue:
+%
+%   turn_arrest(Turn, language(Input, Output), Kind, arrest(Missing, Goal))
+%
+% `Missing` e' il primo oggetto che la derivazione non possiede; `Goal` e'
+% l'obbligo esterno rimasto aperto. Input e Output non sono decorazione: la
+% stessa struttura semantica puo' essere ricevuta in una lingua, sostenuta da
+% una fonte in un'altra e resa in una terza. La lingua della fonte entrera'
+% nell'indirizzo/prova (gen440-441); l'arresto conserva gia' quelle del turno.
+%
+% Il percorso che collega Goal e Missing e' anch'esso KB: nessun loop C sceglie
+% una frontiera, un ordine o un limite.
+
+:- file_attribute(machinery).
+
+% Le teste che compaiono soltanto come viste derivate vanno dichiarate: la
+% macchineria non deve sembrare conoscenza sul topic osservato.
+machinery(turn_has_topic).
+machinery(turn_has_gap_kind).
+machinery(turn_language).
+machinery(turn_requested_language).
+machinery(turn_has_requested_language).
+machinery(turn_other_language).
+machinery(turn_language_ambiguous).
+machinery(turn_language_context).
+machinery(turn_has_question_relation).
+machinery(turn_question_relation).
+machinery(turn_gap_term_candidate).
+machinery(turn_gap_term_has_better).
+machinery(turn_gap_term).
+machinery(arrest_form_concept).
+machinery(turn_gap_surface_candidate).
+machinery(turn_gap_surface_has_better).
+machinery(turn_gap_surface).
+machinery(turn_arrest).
+machinery(arrest_intermediate).
+machinery(arrest_depends_on).
+machinery(arrest_blocks).
+machinery(arrest_node).
+machinery(arrest_reaches).
+machinery(arrest_cycle).
+machinery(arrest_local_dag).
+machinery(arrest_dag).
+machinery(arrest_rank).
+machinery(turn_arrest_key).
+machinery(turn_arrest_set).
+machinery(turn_arrest_ambiguous).
+machinery(turn_first_arrest).
+machinery(turn_arrest_complete).
+machinery(turn_compensation_obligation).
+
+% ── 1. CONTESTO LINGUISTICO E TERMINE, SENZA SCELTE NEL C ─────────────────
+%
+% Il producer storico pubblica `current_language/1`; questa vista lo ancora al
+% turno corrente. I turni materializzati (esperimenti, replay, memoria) portano
+% invece `turn_language(Turn,input,Language)` come fatto. Un'eventuale richiesta
+% di output prevale sul default "rispondi nella lingua ricevuta". La regola e'
+% n-lingue: aggiungere un membro non richiede un nuovo ramo.
+turn_language(current_turn, input, $Language) :- current_language($Language).
+turn_language($Turn, output, $Language) :- turn_requested_language($Turn, $Language).
+turn_language($Turn, output, $Language) :-
+    turn_language($Turn, input, $Language),
+    naf(turn_has_requested_language($Turn)).
+
+turn_has_requested_language($Turn) :- turn_requested_language($Turn, $Language).
+turn_other_language($Turn, $Role, $Language) :-
+    turn_language($Turn, $Role, $Other), dif($Other, $Language).
+turn_language_ambiguous($Turn, $Role) :-
+    turn_language($Turn, $Role, $Language),
+    turn_other_language($Turn, $Role, $Language).
+
+turn_language_context($Turn, language($Input, $Output)) :-
+    turn_language($Turn, input, $Input),
+    turn_language($Turn, output, $Output),
+    naf(turn_language_ambiguous($Turn, input)),
+    naf(turn_language_ambiguous($Turn, output)).
+
+% Un declino informato ha gia' pubblicato `turn_topic/2`: e' l'evidenza piu'
+% forte e riceve ordine zero. Un muro di raggiungibilita' non ha necessariamente
+% un topic, ma i token citati del turno possono raggiungere una voce conosciuta.
+% In quel caso l'ordine nasce dagli offset logici span/posizione. Se due
+% candidati restano davvero pari, restano due arresti: non si indovina.
+turn_has_topic($Turn) :- turn_topic($Turn, $Term).
+turn_has_gap_kind($Turn) :- turn_gap_kind($Turn, $Kind).
+
+turn_gap_term_candidate($Turn, $Term, 0) :- turn_topic($Turn, $Term).
+turn_gap_term_candidate($Turn, $Term, $Order) :-
+    naf(turn_has_topic($Turn)),
+    turn_span_token($Turn, $Span, $Position, $Quoted),
+    token_atom($Quoted, $Term), reachable_knowledge($Term),
+    is($Order, add(mul($Span, 100), add($Position, 1))).
+
+turn_gap_term_has_better($Turn, $Order) :-
+    turn_gap_term_candidate($Turn, $Other, $OtherOrder),
+    lt($OtherOrder, $Order).
+
+turn_gap_term($Turn, $Term) :-
+    turn_gap_term_candidate($Turn, $Term, $Order),
+    naf(turn_gap_term_has_better($Turn, $Order)).
+
+% La raggiungibilita' multilingue conserva sia la forma osservata sia il
+% concetto canonico. `linguistic_form/4` e' la porta generale: una lingua nuova
+% cresce aggiungendo `concept_label/4`. Le quattro regole successive sono
+% adattatori dichiarativi dei lessici storici, non l'architettura futura.
+arrest_form_concept($Surface, $Concept, $Language) :-
+    linguistic_form($Surface, $Concept, $Language, $Register).
+arrest_form_concept($Italian, $Concept, it) :- tr($Concept, $Italian).
+arrest_form_concept($Concept, $Concept, en) :- tr($Concept, $Italian).
+arrest_form_concept($French, $Concept, fr) :- tr_fr($Concept, $French).
+arrest_form_concept($Spanish, $Concept, es) :- tr_es($Concept, $Spanish).
+
+turn_gap_surface_candidate($Turn, $Surface, $Concept, $Order) :-
+    turn_language($Turn, input, $Language),
+    turn_span_token($Turn, $Span, $Position, $Quoted),
+    token_atom($Quoted, $Surface),
+    arrest_form_concept($Surface, $Concept, $Language),
+    reachable_knowledge($Surface),
+    is($Order, add(mul($Span, 100), add($Position, 1))).
+
+turn_gap_surface_has_better($Turn, $Order) :-
+    turn_gap_surface_candidate($Turn, $OtherSurface, $OtherConcept, $OtherOrder),
+    lt($OtherOrder, $Order).
+
+turn_gap_surface($Turn, surface($Language, $Surface, $Concept)) :-
+    turn_language($Turn, input, $Language),
+    turn_gap_surface_candidate($Turn, $Surface, $Concept, $Order),
+    naf(turn_gap_surface_has_better($Turn, $Order)).
+
+% La relazione interrogata e' gia' una vista del frame universale. Il turno non
+% viene riparsato e nessun nome di relazione e' privilegiato qui.
+turn_question_relation($Turn, $Relation) :-
+    turn_relation($Turn, $Relation, $Cue).
+turn_has_question_relation($Turn) :-
+    turn_question_relation($Turn, $Relation).
+
+% ── 2. DALLA SPECIE AL PEZZO MANCANTE ──────────────────────────────────────
+%
+% Le entita' e le proposizioni sono canoniche e quindi indipendenti dalla
+% lingua. Le operazioni linguistiche portano sempre la lingua; i goal di
+% risposta portano quella d'uscita.
+turn_arrest($Turn, language($Input, $Output), knowledge,
+            arrest(value($Relation, $Term), answer($Output, $Relation, $Term))) :-
+    turn_language_context($Turn, language($Input, $Output)),
+    turn_gap_kind($Turn, knowledge),
+    turn_question_relation($Turn, $Relation),
+    turn_gap_term($Turn, $Term).
+
+turn_arrest($Turn, language($Input, $Output), knowledge,
+            arrest(entry($Term), describe($Output, $Term))) :-
+    turn_language_context($Turn, language($Input, $Output)),
+    turn_gap_kind($Turn, knowledge),
+    naf(turn_has_question_relation($Turn)),
+    turn_gap_term($Turn, $Term).
+
+turn_arrest($Turn, language($Input, $Output), reach,
+            arrest(surface($Input, $Received, $Concept), describe($Output, $Concept))) :-
+    turn_language_context($Turn, language($Input, $Output)),
+    turn_gap_kind($Turn, reach),
+    turn_gap_surface($Turn, surface($Input, $Received, $Concept)).
+
+turn_arrest($Turn, language($Input, $Output), surface,
+            arrest(form($Input, $Register), interpret($Input, $Turn))) :-
+    turn_language_context($Turn, language($Input, $Output)),
+    turn_gap_kind($Turn, surface),
+    turn_register($Turn, $Register).
+
+turn_arrest($Turn, language($Input, $Output), blind,
+            arrest(register($Input, $Turn), interpret($Input, $Turn))) :-
+    turn_language_context($Turn, language($Input, $Output)),
+    turn_gap_kind($Turn, blind).
+
+turn_arrest($Turn, language($Input, $Output), wrong_suspect,
+            arrest(guard($Module), answer_relevantly($Output, $Turn))) :-
+    turn_language_context($Turn, language($Input, $Output)),
+    turn_gap_kind($Turn, wrong_suspect),
+    turn_module($Turn, $Module).
+
+% I frame e le situazioni possiedono gia' residui piu' precisi del fallback.
+turn_arrest($Turn, language($Input, $Output), surface,
+            arrest(relation($Input, $Turn), interpret($Input, $Turn))) :-
+    turn_language_context($Turn, language($Input, $Output)),
+    naf(turn_has_gap_kind($Turn)),
+    frame_residue($Turn, missing_relation).
+
+turn_arrest($Turn, language($Input, $Output), surface,
+            arrest(entity($Input, $Turn), interpret($Input, $Turn))) :-
+    turn_language_context($Turn, language($Input, $Output)),
+    naf(turn_has_gap_kind($Turn)),
+    frame_residue($Turn, missing_entity).
+
+turn_arrest($Turn, language($Input, $Output), knowledge,
+            arrest(value($Relation, $Entity), answer($Output, $Relation, $Entity))) :-
+    turn_language_context($Turn, language($Input, $Output)),
+    naf(turn_has_gap_kind($Turn)),
+    frame_gap($Turn, missing_fact),
+    frame_slot($Turn, relation, $Relation),
+    frame_slot($Turn, entity, $Entity).
+
+% Un piano arrestato nomina il primo elemento causale che non possiede. Anche
+% il suo goal porta la lingua di realizzazione, senza tradurre la logica interna.
+turn_arrest($Turn, language($Input, $Output), plan,
+            arrest(precondition($Action, $Proposition),
+                   plan($Output, $Situation, $Property, $Direction))) :-
+    turn_language_context($Turn, language($Input, $Output)),
+    turn_task($Turn, $Situation, $Property, $Direction),
+    turn_action_candidate($Turn, $Situation, $Action),
+    missing_precondition($Situation, $Action, missing($Proposition)).
+
+turn_arrest($Turn, language($Input, $Output), plan,
+            arrest(resource($Action, $Resource),
+                   plan($Output, $Situation, $Property, $Direction))) :-
+    turn_language_context($Turn, language($Input, $Output)),
+    turn_task($Turn, $Situation, $Property, $Direction),
+    turn_action_candidate($Turn, $Situation, $Action),
+    resource_short($Situation, $Action, short($Resource)).
+
+turn_arrest($Turn, language($Input, $Output), plan,
+            arrest(action($Situation, $Property, $Direction),
+                   plan($Output, $Situation, $Property, $Direction))) :-
+    turn_language_context($Turn, language($Input, $Output)),
+    situation_residue($Turn, situation_no_action),
+    turn_task($Turn, $Situation, $Property, $Direction).
+
+% ── 3. IL PERCORSO E' CONOSCENZA ───────────────────────────────────────────
+%
+% Sono unit clause non-ground: descrivono famiglie, non esempi. Una nuova specie
+% di pezzo puo' aggiungere un membro senza cambiare l'esecutore.
+arrest_intermediate(value($Relation, $Term), answer($Language, $Relation, $Term), prove($Relation, $Term)).
+arrest_intermediate(entry($Term), describe($Language, $Term), identify($Term)).
+arrest_intermediate(surface($Language, $Form, $Concept), describe($Output, $Concept), map_surface($Language, $Form, $Concept)).
+arrest_intermediate(form($Language, $Register), interpret($Language, $Turn), parse_form($Language, $Turn, $Register)).
+arrest_intermediate(register($Language, $Turn), interpret($Language, $Turn), classify($Language, $Turn)).
+arrest_intermediate(guard($Module), answer_relevantly($Language, $Turn), validate($Turn, $Module)).
+arrest_intermediate(relation($Language, $Turn), interpret($Language, $Turn), bind_relation($Language, $Turn)).
+arrest_intermediate(entity($Language, $Turn), interpret($Language, $Turn), bind_entity($Language, $Turn)).
+arrest_intermediate(precondition($Action, $Proposition), plan($Language, $Situation, $Property, $Direction), establish($Situation, $Proposition)).
+arrest_intermediate(resource($Action, $Resource), plan($Language, $Situation, $Property, $Direction), acquire($Situation, $Resource)).
+arrest_intermediate(action($Situation, $Property, $Direction), plan($Language, $Situation, $Property, $Direction), select_action($Situation, $Property, $Direction)).
+
+arrest_depends_on(arrest($Turn, $Goal), arrest($Turn, $Intermediate)) :-
+    turn_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)),
+    arrest_intermediate($Missing, $Goal, $Intermediate).
+
+arrest_depends_on(arrest($Turn, $Intermediate), arrest($Turn, $Missing)) :-
+    turn_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)),
+    arrest_intermediate($Missing, $Goal, $Intermediate).
+
+arrest_blocks(arrest($Turn, $Missing), obligation($Turn, $Goal)) :-
+    turn_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)).
+
+arrest_node(arrest($Turn, $Missing)) :-
+    turn_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)).
+arrest_node(arrest($Turn, $Goal)) :-
+    turn_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)).
+arrest_node(arrest($Turn, $Intermediate)) :-
+    turn_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)),
+    arrest_intermediate($Missing, $Goal, $Intermediate).
+
+% Chiusura transitiva e rilevazione del ciclo restano regole KB. Il rango non
+% e' contabilizzato dal C: parte dal pezzo mancante e risale il DAG.
+arrest_reaches($From, $To) :- arrest_depends_on($From, $To).
+arrest_reaches($From, $To) :-
+    arrest_depends_on($From, $Middle),
+    arrest_reaches($Middle, $To).
+
+arrest_cycle($Turn) :-
+    arrest_node(arrest($Turn, $Node)),
+    arrest_reaches(arrest($Turn, $Node), arrest($Turn, $Node)).
+
+% Il grafo gen437 ha esattamente tre livelli per arresto. La prova positiva di
+% DAG enumera quindi i tre soli archi inversi possibili. `arrest_cycle/1` resta
+% la chiusura generale e osservabile; non la si mette sotto NAF qui, perche' una
+% ricerca ricorsiva esaurita non deve essere scambiata per una prova di aciclicita'.
+arrest_local_dag($Turn, $Missing, $Intermediate, $Goal) :-
+    dif($Missing, $Intermediate),
+    dif($Intermediate, $Goal),
+    dif($Missing, $Goal),
+    naf(arrest_depends_on(arrest($Turn, $Missing), arrest($Turn, $Intermediate))),
+    naf(arrest_depends_on(arrest($Turn, $Missing), arrest($Turn, $Goal))),
+    naf(arrest_depends_on(arrest($Turn, $Intermediate), arrest($Turn, $Goal))).
+
+arrest_dag($Turn) :-
+    turn_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)),
+    arrest_intermediate($Missing, $Goal, $Intermediate),
+    arrest_local_dag($Turn, $Missing, $Intermediate, $Goal).
+
+arrest_rank(arrest($Turn, $Missing), 0) :-
+    turn_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)).
+arrest_rank(arrest($Turn, $Parent), $Rank) :-
+    arrest_depends_on(arrest($Turn, $Parent), arrest($Turn, $Child)),
+    arrest_rank(arrest($Turn, $Child), $ChildRank),
+    is($Rank, add($ChildRank, 1)).
+
+% ── 4. UN PRIMO ARRESTO SOLO QUANDO E' DAVVERO UNICO ───────────────────────
+%
+% Non si sceglie il primo risultato del solver. Con due arresti concorrenti
+% l'ambiguita' resta visibile. Anche due lingue candidate impediscono la scelta.
+turn_arrest_key($Turn, turn_arrest($Languages, $Kind, arrest($Missing, $Goal))) :-
+    turn_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)).
+turn_arrest_set($Turn, $Arrests) :-
+    findall($Arrest, turn_arrest_key($Turn, $Arrest), $Arrests).
+turn_arrest_ambiguous($Turn) :-
+    turn_arrest_set($Turn, cons($First, cons($Second, $Tail))).
+
+turn_first_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)) :-
+    turn_arrest_set($Turn, cons(turn_arrest($Languages, $Kind, arrest($Missing, $Goal)), nil)),
+    arrest_dag($Turn),
+    arrest_rank(arrest($Turn, $Missing), 0).
+
+turn_arrest_complete($Turn) :-
+    turn_first_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)),
+    arrest_blocks(arrest($Turn, $Missing), obligation($Turn, $Goal)).
+
+% Primo consumer per gen442: oggi non esegue una compensazione, ma l'obbligo e'
+% gia' nella forma che un piano KB potra' usare senza ricostruire il turno.
+turn_compensation_obligation($Turn, $Languages, $Goal) :-
+    turn_first_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)).

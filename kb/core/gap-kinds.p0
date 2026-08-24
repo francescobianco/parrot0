@@ -31,12 +31,28 @@ machinery(turn_has_known_word).
 machinery(gap_class).
 machinery(gap_remedy).
 
+% I sensori runtime sono osservazioni sul processo, non fatti sul mondo. Il
+% producer C li asserisce a runtime e quindi `file_attribute(machinery)` non puo'
+% vederne le teste in questo file. Senza queste dichiarazioni
+% `turn_topic(current_turn, zorbia)` faceva risultare `world_fact_about(zorbia)`:
+% il solo atto di osservare una lacuna diventava, circolarmente, conoscenza sul
+% suo oggetto e ogni declino informato veniva classificato `reach`.
+machinery(turn_outcome).
+machinery(turn_topic).
+machinery(turn_module).
+machinery(turn_register).
+machinery(pending_gap).
+machinery(pending_gap_question).
+machinery(pending_gap_failed).
+machinery(machinery_gap).
+
 % ── LE SPECIE, dichiarate ──────────────────────────────────────────────────
 gap_class(knowledge, "so la forma della domanda, non ho il valore").
 gap_class(reach, "il valore ce l'ho, e non ci sono arrivato").
 gap_class(surface, "non ho riconosciuto che me lo stavi chiedendo").
 gap_class(blind, "non ho nemmeno riconosciuto di che problema si tratta").
 gap_class(wrong_suspect, "ho risposto, e la risposta potrebbe non rispondere").
+gap_class(plan, "ho capito il goal, ma il piano non possiede un prerequisito, una risorsa o un'azione").
 
 % ── IL FATTO CHE FA LA DIFFERENZA FRA `knowledge` E `reach` ────────────────
 % «Ho fatti su questa parola?» — e la meccanica NON conta: `stopword(the)` non e'
@@ -87,6 +103,10 @@ turn_gap_kind($T, reach) :-
 % raggiungibilita'. Un criterio che dice si' a tutto non distingue niente.
 reachable_knowledge($W) :- wiki_concept($W, $Domain, $Gloss).
 reachable_knowledge($W) :- tr($Concept, $W), wiki_concept($Concept, $Domain, $Gloss).
+% Porta n-lingue: `concept_label/4` conserva la lingua della superficie mentre
+% `wiki_concept/3` resta indicizzato dal concetto canonico. Una lingua nuova non
+% richiede un nuovo ramo del classificatore.
+reachable_knowledge($W) :- linguistic_form($W, $Concept, $Language, $Register), wiki_concept($Concept, $Domain, $Gloss).
 reachable_knowledge($W) :- transcoded($W, $Term).
 
 % Il token della memoria di lavoro e' fra virgolette (e' testo ricevuto, non un
@@ -120,6 +140,7 @@ gap_remedy(reach, "manca la STRADA: una superficie che porti il fatto che gia' p
 gap_remedy(surface, "manca la FORMA con cui te l'ho chiesto: una cue, un frame, un verbo di relazione").
 gap_remedy(blind, "manca il registro: insegnami prima DI CHE COSA si tratta").
 gap_remedy(wrong_suspect, "non manca niente: c'e' di troppo — serve una GUARDIA che impedisca a quella facolta' di prendere questo turno").
+gap_remedy(plan, "manca un pezzo del modello causale: indirizza il prerequisito, la risorsa o lo schema d'azione prima di pianificare").
 
 % E il ponte fra le due tabelle: la specie derivata porta con se' il suo rimedio,
 % cosi' l'ispettore non deve saperlo — lo legge.

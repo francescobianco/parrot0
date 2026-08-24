@@ -1,0 +1,285 @@
+# ESPERIMENTO COSTRUTTIVO GEN437 — ARRESTI MULTILINGUI COME OGGETTI DI PROVA.
+#
+# Non appartiene ai bench storici e non misura stringhe di risposta. Dimostra:
+#
+#   1. un turno reale produce lingua, Kind, Missing e Goal;
+#   2. forma ricevuta e concetto canonico non vengono confusi;
+#   3. Goal -> prerequisito -> Missing, rango e blocco vivono nella KB;
+#   4. la costruzione trasferisce su 3 forme x 3 domini x 2 lingue;
+#   5. una terza lingua cresce e si ritrae a runtime senza ricompilare;
+#   6. ambiguita' linguistiche e cicli restano visibili.
+
+# ── A. TRE TAGLI VERTICALI DAL TURNO REALE ─────────────────────────────────
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test a recognized English relation stops on its language-neutral missing value]
+> where is zorbia
+!query turn_arrest(current_turn, language(en, en), knowledge, arrest(value(located_in, zorbia), answer(en, located_in, zorbia)))
+!query arrest_depends_on(arrest(current_turn, answer(en, located_in, zorbia)), arrest(current_turn, prove(located_in, zorbia)))
+!query arrest_depends_on(arrest(current_turn, prove(located_in, zorbia)), arrest(current_turn, value(located_in, zorbia)))
+!query arrest_rank(arrest(current_turn, value(located_in, zorbia)), 0)
+!query arrest_rank(arrest(current_turn, answer(en, located_in, zorbia)), 2)
+!query! arrest_cycle(current_turn)
+!query arrest_dag(current_turn)
+!query! turn_arrest_ambiguous(current_turn)
+!query turn_arrest_set(current_turn, cons(turn_arrest(language(en, en), knowledge, arrest(value(located_in, zorbia), answer(en, located_in, zorbia))), nil))
+!query turn_first_arrest(current_turn, language(en, en), knowledge, arrest(value(located_in, zorbia), answer(en, located_in, zorbia)))
+!query turn_arrest_complete(current_turn)
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test an Italian road preserves received form and reaches a canonical concept]
+> raccontami la fotosintesi
+!query turn_arrest(current_turn, language(it, it), reach, arrest(surface(it, fotosintesi, photosynthesis), describe(it, photosynthesis)))
+!query arrest_depends_on(arrest(current_turn, describe(it, photosynthesis)), arrest(current_turn, map_surface(it, fotosintesi, photosynthesis)))
+!query arrest_depends_on(arrest(current_turn, map_surface(it, fotosintesi, photosynthesis)), arrest(current_turn, surface(it, fotosintesi, photosynthesis)))
+!query turn_first_arrest(current_turn, language(it, it), reach, arrest(surface(it, fotosintesi, photosynthesis), describe(it, photosynthesis)))
+!query turn_arrest_complete(current_turn)
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test an unread Italian question stops before any external factual address]
+> quanto pesa un okapi
+!query turn_arrest(current_turn, language(it, it), blind, arrest(register(it, current_turn), interpret(it, current_turn)))
+!query arrest_depends_on(arrest(current_turn, interpret(it, current_turn)), arrest(current_turn, classify(it, current_turn)))
+!query arrest_depends_on(arrest(current_turn, classify(it, current_turn)), arrest(current_turn, register(it, current_turn)))
+!query turn_first_arrest(current_turn, language(it, it), blind, arrest(register(it, current_turn), interpret(it, current_turn)))
+!query turn_arrest_complete(current_turn)
+
+# ── B. MATRICE 3 FORME x 3 DOMINI x 2 LINGUE ──────────────────────────────
+#
+# I sensori del turno sono materializzati come fatti per isolare H437. Le coppie
+# EN/IT condividono concetto, relazione e struttura; cambiano solo forma e lingua.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test value arrests are language invariant across natural artifact and causal domains]
+!assert answer_frame("spore count of", spore_count)
+!assert answer_frame("numero di spore di", spore_count)
+!assert answer_frame_input_arg("spore count of", spore_count, 1)
+!assert answer_frame_input_arg("numero di spore di", spore_count, 1)
+!assert turn_language(nature_value_en, input, en)
+!assert turn_outcome(nature_value_en, informed_decline)
+!assert turn_topic(nature_value_en, mycelion)
+!assert turn_cue(nature_value_en, answer_frame_input_arg, "spore count of")
+!assert turn_language(nature_value_it, input, it)
+!assert turn_outcome(nature_value_it, informed_decline)
+!assert turn_topic(nature_value_it, mycelion)
+!assert turn_cue(nature_value_it, answer_frame_input_arg, "numero di spore di")
+!query turn_first_arrest(nature_value_en, language(en, en), knowledge, arrest(value(spore_count, mycelion), answer(en, spore_count, mycelion)))
+!query turn_first_arrest(nature_value_it, language(it, it), knowledge, arrest(value(spore_count, mycelion), answer(it, spore_count, mycelion)))
+
+!assert answer_frame("maker of", maker_of)
+!assert answer_frame("costruttore di", maker_of)
+!assert answer_frame_input_arg("maker of", maker_of, 1)
+!assert answer_frame_input_arg("costruttore di", maker_of, 1)
+!assert turn_language(artifact_value_en, input, en)
+!assert turn_outcome(artifact_value_en, informed_decline)
+!assert turn_topic(artifact_value_en, chronogear)
+!assert turn_cue(artifact_value_en, answer_frame_input_arg, "maker of")
+!assert turn_language(artifact_value_it, input, it)
+!assert turn_outcome(artifact_value_it, informed_decline)
+!assert turn_topic(artifact_value_it, chronogear)
+!assert turn_cue(artifact_value_it, answer_frame_input_arg, "costruttore di")
+!query turn_first_arrest(artifact_value_en, language(en, en), knowledge, arrest(value(maker_of, chronogear), answer(en, maker_of, chronogear)))
+!query turn_first_arrest(artifact_value_it, language(it, it), knowledge, arrest(value(maker_of, chronogear), answer(it, maker_of, chronogear)))
+
+!assert answer_frame("flow rate of", flow_rate)
+!assert answer_frame("portata di", flow_rate)
+!assert answer_frame_input_arg("flow rate of", flow_rate, 1)
+!assert answer_frame_input_arg("portata di", flow_rate, 1)
+!assert turn_language(causal_value_en, input, en)
+!assert turn_outcome(causal_value_en, informed_decline)
+!assert turn_topic(causal_value_en, flowcell)
+!assert turn_cue(causal_value_en, answer_frame_input_arg, "flow rate of")
+!assert turn_language(causal_value_it, input, it)
+!assert turn_outcome(causal_value_it, informed_decline)
+!assert turn_topic(causal_value_it, flowcell)
+!assert turn_cue(causal_value_it, answer_frame_input_arg, "portata di")
+!query turn_first_arrest(causal_value_en, language(en, en), knowledge, arrest(value(flow_rate, flowcell), answer(en, flow_rate, flowcell)))
+!query turn_first_arrest(causal_value_it, language(it, it), knowledge, arrest(value(flow_rate, flowcell), answer(it, flow_rate, flowcell)))
+
+[test reach arrests preserve language surface and canonical concept in all domains]
+!assert wiki_concept(sporion, biology, "an invented biological witness")
+!assert concept_label(sporion, en, common, sporion)
+!assert concept_label(sporion, it, common, sporione)
+!assert turn_language(nature_reach_en, input, en)
+!assert turn_outcome(nature_reach_en, blind_wall)
+!assert turn_span_token(nature_reach_en, 0, 0, "sporion")
+!assert turn_language(nature_reach_it, input, it)
+!assert turn_outcome(nature_reach_it, blind_wall)
+!assert turn_span_token(nature_reach_it, 0, 0, "sporione")
+!query turn_first_arrest(nature_reach_en, language(en, en), reach, arrest(surface(en, sporion, sporion), describe(en, sporion)))
+!query turn_first_arrest(nature_reach_it, language(it, it), reach, arrest(surface(it, sporione, sporion), describe(it, sporion)))
+
+!assert wiki_concept(gearion, artifact, "an invented artifact witness")
+!assert concept_label(gearion, en, common, gearion)
+!assert concept_label(gearion, it, common, ingranione)
+!assert turn_language(artifact_reach_en, input, en)
+!assert turn_outcome(artifact_reach_en, blind_wall)
+!assert turn_span_token(artifact_reach_en, 0, 0, "gearion")
+!assert turn_language(artifact_reach_it, input, it)
+!assert turn_outcome(artifact_reach_it, blind_wall)
+!assert turn_span_token(artifact_reach_it, 0, 0, "ingranione")
+!query turn_first_arrest(artifact_reach_en, language(en, en), reach, arrest(surface(en, gearion, gearion), describe(en, gearion)))
+!query turn_first_arrest(artifact_reach_it, language(it, it), reach, arrest(surface(it, ingranione, gearion), describe(it, gearion)))
+
+!assert wiki_concept(fluxion, process, "an invented causal witness")
+!assert concept_label(fluxion, en, common, fluxion)
+!assert concept_label(fluxion, it, common, flussione)
+!assert turn_language(causal_reach_en, input, en)
+!assert turn_outcome(causal_reach_en, blind_wall)
+!assert turn_span_token(causal_reach_en, 0, 0, "fluxion")
+!assert turn_language(causal_reach_it, input, it)
+!assert turn_outcome(causal_reach_it, blind_wall)
+!assert turn_span_token(causal_reach_it, 0, 0, "flussione")
+!query turn_first_arrest(causal_reach_en, language(en, en), reach, arrest(surface(en, fluxion, fluxion), describe(en, fluxion)))
+!query turn_first_arrest(causal_reach_it, language(it, it), reach, arrest(surface(it, flussione, fluxion), describe(it, fluxion)))
+
+[test blind arrests retain their input language without inventing a concept]
+!assert turn_language(nature_blind_en, input, en)
+!assert turn_outcome(nature_blind_en, blind_wall)
+!assert turn_span_token(nature_blind_en, 0, 0, "biovrax")
+!assert turn_language(nature_blind_it, input, it)
+!assert turn_outcome(nature_blind_it, blind_wall)
+!assert turn_span_token(nature_blind_it, 0, 0, "biovrax_it")
+!query turn_first_arrest(nature_blind_en, language(en, en), blind, arrest(register(en, nature_blind_en), interpret(en, nature_blind_en)))
+!query turn_first_arrest(nature_blind_it, language(it, it), blind, arrest(register(it, nature_blind_it), interpret(it, nature_blind_it)))
+
+!assert turn_language(artifact_blind_en, input, en)
+!assert turn_outcome(artifact_blind_en, blind_wall)
+!assert turn_span_token(artifact_blind_en, 0, 0, "gearvrax")
+!assert turn_language(artifact_blind_it, input, it)
+!assert turn_outcome(artifact_blind_it, blind_wall)
+!assert turn_span_token(artifact_blind_it, 0, 0, "gearvrax_it")
+!query turn_first_arrest(artifact_blind_en, language(en, en), blind, arrest(register(en, artifact_blind_en), interpret(en, artifact_blind_en)))
+!query turn_first_arrest(artifact_blind_it, language(it, it), blind, arrest(register(it, artifact_blind_it), interpret(it, artifact_blind_it)))
+
+!assert turn_language(causal_blind_en, input, en)
+!assert turn_outcome(causal_blind_en, blind_wall)
+!assert turn_span_token(causal_blind_en, 0, 0, "flowvrax")
+!assert turn_language(causal_blind_it, input, it)
+!assert turn_outcome(causal_blind_it, blind_wall)
+!assert turn_span_token(causal_blind_it, 0, 0, "flowvrax_it")
+!query turn_first_arrest(causal_blind_en, language(en, en), blind, arrest(register(en, causal_blind_en), interpret(en, causal_blind_en)))
+!query turn_first_arrest(causal_blind_it, language(it, it), blind, arrest(register(it, causal_blind_it), interpret(it, causal_blind_it)))
+
+# ── C. ASSI LINGUISTICI, RESIDUI DI FRAME E PIANO ─────────────────────────
+
+[test input and requested output language are independent]
+!assert answer_frame("density of", density)
+!assert answer_frame_input_arg("density of", density, 1)
+!assert turn_language(cross_output_probe, input, en)
+!assert turn_requested_language(cross_output_probe, it)
+!assert turn_outcome(cross_output_probe, informed_decline)
+!assert turn_topic(cross_output_probe, aerogel_probe)
+!assert turn_cue(cross_output_probe, answer_frame_input_arg, "density of")
+!query turn_first_arrest(cross_output_probe, language(en, it), knowledge, arrest(value(density, aerogel_probe), answer(it, density, aerogel_probe)))
+
+[test frame residues retain language while semantic slots remain canonical]
+!assert turn_language(frame_relation_probe, input, it)
+!assert frame_act(frame_relation_probe, ask)
+!assert frame_slot(frame_relation_probe, entity, frame_subject)
+!query turn_first_arrest(frame_relation_probe, language(it, it), surface, arrest(relation(it, frame_relation_probe), interpret(it, frame_relation_probe)))
+
+!assert turn_language(frame_entity_probe, input, en)
+!assert frame_act(frame_entity_probe, ask)
+!assert frame_slot(frame_entity_probe, relation, frame_property)
+!query turn_first_arrest(frame_entity_probe, language(en, en), surface, arrest(entity(en, frame_entity_probe), interpret(en, frame_entity_probe)))
+
+!assert turn_language(frame_value_probe, input, it)
+!assert frame_act(frame_value_probe, ask)
+!assert frame_slot(frame_value_probe, relation, frame_property)
+!assert frame_slot(frame_value_probe, entity, frame_subject)
+!query turn_first_arrest(frame_value_probe, language(it, it), knowledge, arrest(value(frame_property, frame_subject), answer(it, frame_property, frame_subject)))
+
+[test causal planning residues retain output language]
+!assert turn_language(plan_action_probe, input, it)
+!assert turn_task(plan_action_probe, plan_world_a, level, decrease)
+!query turn_first_arrest(plan_action_probe, language(it, it), plan, arrest(action(plan_world_a, level, decrease), plan(it, plan_world_a, level, decrease)))
+
+!assert turn_language(plan_precondition_probe, input, en)
+!assert context(plan_world_b, hypothesis)
+!assert turn_task(plan_precondition_probe, plan_world_b, level, decrease)
+!assert action_schema(flow_control, open_probe_valve)
+!assert action_effect(open_probe_valve, valve_open_probe)
+!assert causal_law(valve_open_probe, probe_outflow)
+!assert change_prop(probe_outflow, level, decrease)
+!assert action_precondition(open_probe_valve, valve_sound_probe)
+!query turn_first_arrest(plan_precondition_probe, language(en, en), plan, arrest(precondition(open_probe_valve, valve_sound_probe), plan(en, plan_world_b, level, decrease)))
+
+!assert turn_language(plan_resource_probe, input, it)
+!assert context(plan_world_c, hypothesis)
+!assert holds_in(plan_world_c, valve_sound_probe)
+!assert turn_task(plan_resource_probe, plan_world_c, level, decrease)
+!assert action_uses(open_probe_valve, probe_bucket, 1)
+!query turn_first_arrest(plan_resource_probe, language(it, it), plan, arrest(resource(open_probe_valve, probe_bucket), plan(it, plan_world_c, level, decrease)))
+
+# ── D. CRESCITA N-LINGUE, ABLAZIONE, AMBIGUITA' E CICLO ───────────────────
+
+[test a held-out language grows and retracts through concept labels]
+!assert wiki_concept(lumion, natural, "an invented transferable concept")
+!assert turn_language(runtime_language_probe, input, eo)
+!assert turn_outcome(runtime_language_probe, blind_wall)
+!assert turn_span_token(runtime_language_probe, 0, 0, "lumio")
+!query turn_first_arrest(runtime_language_probe, language(eo, eo), blind, arrest(register(eo, runtime_language_probe), interpret(eo, runtime_language_probe)))
+!assert concept_label(lumion, eo, common, lumio)
+!query turn_first_arrest(runtime_language_probe, language(eo, eo), reach, arrest(surface(eo, lumio, lumion), describe(eo, lumion)))
+!forget concept_label(lumion, eo, common, lumio)
+!query turn_first_arrest(runtime_language_probe, language(eo, eo), blind, arrest(register(eo, runtime_language_probe), interpret(eo, runtime_language_probe)))
+
+[test a new dependency member grows and retracts without rebuilding]
+!query! arrest_depends_on(arrest(nature_value_en, answer(en, spore_count, mycelion)), arrest(nature_value_en, inspect_source(spore_count, mycelion)))
+!assert arrest_intermediate(value(spore_count, mycelion), answer(en, spore_count, mycelion), inspect_source(spore_count, mycelion))
+!query arrest_depends_on(arrest(nature_value_en, answer(en, spore_count, mycelion)), arrest(nature_value_en, inspect_source(spore_count, mycelion)))
+!query arrest_rank(arrest(nature_value_en, inspect_source(spore_count, mycelion)), 1)
+!forget arrest_intermediate(value(spore_count, mycelion), answer(en, spore_count, mycelion), inspect_source(spore_count, mycelion))
+!query! arrest_depends_on(arrest(nature_value_en, answer(en, spore_count, mycelion)), arrest(nature_value_en, inspect_source(spore_count, mycelion)))
+
+[test language ambiguity remains explicit until one observation is removed]
+!assert turn_language(language_ambiguous_probe, input, en)
+!assert turn_language(language_ambiguous_probe, input, it)
+!assert turn_outcome(language_ambiguous_probe, blind_wall)
+!assert turn_span_token(language_ambiguous_probe, 0, 0, "qorvex")
+!query turn_language_ambiguous(language_ambiguous_probe, input)
+!query! turn_first_arrest(language_ambiguous_probe, $Languages, $Kind, $Arrest)
+!forget turn_language(language_ambiguous_probe, input, it)
+!query turn_first_arrest(language_ambiguous_probe, language(en, en), blind, arrest(register(en, language_ambiguous_probe), interpret(en, language_ambiguous_probe)))
+
+[test a cyclic dependency is visible and cannot become the first arrest]
+!assert turn_language(cycle_probe, input, en)
+!assert turn_arrest(cycle_probe, language(en, en), knowledge, arrest(entry(cycle_seed), describe(en, cycle_seed)))
+!query arrest_dag(cycle_probe)
+!query turn_first_arrest(cycle_probe, language(en, en), knowledge, arrest(entry(cycle_seed), describe(en, cycle_seed)))
+!assert arrest_depends_on(arrest(cycle_probe, entry(cycle_seed)), arrest(cycle_probe, describe(en, cycle_seed)))
+!query arrest_cycle(cycle_probe)
+!query! arrest_dag(cycle_probe)
+!query! turn_first_arrest(cycle_probe, $Languages, $Kind, $Arrest)
+!forget arrest_depends_on(arrest(cycle_probe, entry(cycle_seed)), arrest(cycle_probe, describe(en, cycle_seed)))
+!query arrest_dag(cycle_probe)
+!query turn_first_arrest(cycle_probe, language(en, en), knowledge, arrest(entry(cycle_seed), describe(en, cycle_seed)))
