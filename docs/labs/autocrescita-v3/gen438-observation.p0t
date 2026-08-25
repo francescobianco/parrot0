@@ -1,0 +1,96 @@
+# GEN438 — PRODUTTORE N-LINGUE E GERARCHIA OSSERVABILE.
+#
+# Esperimento costruttivo, indipendente dai bench storici. Dimostra che:
+# - input_node/4 entra davvero nella KB entro KB_MAX_ARGS;
+# - una lingua non compilata nel C nasce da fatti runtime;
+# - supporti, punteggio, pareggio e sticky state restano interrogabili;
+# - Surface/Language -> Concept precede la canonicalizzazione;
+# - confini di sintagma aggiunti e ritratti cambiano la gerarchia senza rebuild.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test the four-argument node contract preserves hierarchy surface and byte range]
+> tell me about zorbia
+!query input_node(current_turn, 0, node(clause, clause, root), range(0, 20))
+!query input_node(current_turn, 1, node(token, token, 0), range(0, 4))
+!query input_node(current_turn, 4, node(token, token, 0), range(14, 6))
+!query input_node_surface(current_turn, 4, "zorbia")
+!query input_node_level(current_turn, 4, token)
+!query input_node_parent(current_turn, 4, 0)
+!query input_node_range(current_turn, 4, 14, 6)
+!query turn_language_evidence(current_turn, en, 3, 3)
+!query turn_language(current_turn, input, en)
+
+[test an uncompiled language and its denotation grow from runtime facts]
+!assert language_name(eo, "Esperanto")
+!assert language_marker(eo, kio)
+!assert concept_label(lumion, eo, common, lumio)
+> kio lumio
+!query turn_language_support(current_turn, eo, 0, "kio")
+!query turn_language_evidence(current_turn, eo, 1, 1)
+!query turn_language_selected(current_turn, eo)
+!query turn_language(current_turn, input, eo)
+!query current_language(eo)
+!query input_node(current_turn, 2, node(token, token, 0), range(4, 5))
+!query input_node_surface(current_turn, 2, "lumio")
+!query input_node_form(current_turn, 2, eo, form(lumio, lumion))
+
+[test retracting only the form removes denotation but preserves observation]
+!forget concept_label(lumion, eo, common, lumio)
+> kio lumio
+!query input_node(current_turn, 2, node(token, token, 0), range(4, 5))
+!query input_node_surface(current_turn, 2, "lumio")
+!query! input_node_form(current_turn, 2, eo, form(lumio, lumion))
+!query input_node_unresolved(current_turn, 2, form(eo, lumio))
+!assert concept_label(lumion, eo, common, lumio)
+
+[test equal evidence remains an explicit ambiguity instead of a hidden tiebreak]
+!assert language_name(xh, "Tie witness")
+!assert language_marker(xh, kio)
+> kio lumio
+!query turn_language_evidence(current_turn, eo, 1, 1)
+!query turn_language_evidence(current_turn, xh, 1, 1)
+!query turn_language_detection_ambiguous(current_turn)
+!query! turn_language_selected(current_turn, eo)
+!query! turn_language(current_turn, input, eo)
+!query current_language(eo)
+!query! input_node_form(current_turn, 2, eo, form(lumio, lumion))
+
+[test retracting the competitor restores exactly the affected family]
+!forget language_marker(xh, kio)
+> kio lumio
+!query! turn_language_detection_ambiguous(current_turn)
+!query turn_language(current_turn, input, eo)
+!query input_node_form(current_turn, 2, eo, form(lumio, lumion))
+
+[test retracting the language marker removes recognition after a witnessed switch]
+!forget language_marker(eo, kio)
+> tell me about zorbia
+!query turn_language(current_turn, input, en)
+> kio lumio
+!query! turn_language_evidence(current_turn, eo, 1, 1)
+!query turn_language(current_turn, input, en)
+!query! input_node_form(current_turn, 2, eo, form(lumio, lumion))
+!assert language_marker(eo, kio)
+> kio lumio
+!query turn_language(current_turn, input, eo)
+!query input_node_form(current_turn, 2, eo, form(lumio, lumion))
+
+[test phrase structure grows and retracts through KB boundaries]
+> zen aurora vex
+!query! input_node(current_turn, 4, node(phrase, np_candidate, 0), range(0, 10))
+!assert phrase_boundary(np, opener, zen)
+!assert phrase_boundary(np, breaker, vex)
+> zen aurora vex
+!query input_node(current_turn, 4, node(phrase, np_candidate, 0), range(0, 10))
+!query input_node_surface(current_turn, 4, "zen aurora")
+!forget phrase_boundary(np, opener, zen)
+> zen aurora vex
+!query! input_node(current_turn, 4, node(phrase, np_candidate, 0), range(0, 10))
+

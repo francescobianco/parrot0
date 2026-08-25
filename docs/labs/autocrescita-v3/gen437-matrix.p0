@@ -1,0 +1,98 @@
+% MATRICE PREREGISTRATA GEN437 — 3 FORME x 3 DOMINI x 2 LINGUE x 2 SUPERFICI.
+%
+% I 36 testimoni sono dati. Le viste sottostanti li proiettano nei sensori
+% gia' consumati da arrests.p0: aggiungere un membro non richiede una regola.
+% Il profilo serve a due run indipendenti, uno in ordine diretto e uno inverso.
+
+:- file_attribute(machinery).
+
+% gen437_value_witness(Turn, Language, value(Relation, Entity), Cue).
+gen437_value_witness(nature_value_en_a, en, value(spore_count, mycelion), "spore count of").
+gen437_value_witness(nature_value_en_b, en, value(spore_count, mycelion), "how many spores has").
+gen437_value_witness(nature_value_it_a, it, value(spore_count, mycelion), "numero di spore di").
+gen437_value_witness(nature_value_it_b, it, value(spore_count, mycelion), "quante spore ha").
+
+gen437_value_witness(artifact_value_en_a, en, value(maker_of, chronogear), "maker of").
+gen437_value_witness(artifact_value_en_b, en, value(maker_of, chronogear), "who built").
+gen437_value_witness(artifact_value_it_a, it, value(maker_of, chronogear), "costruttore di").
+gen437_value_witness(artifact_value_it_b, it, value(maker_of, chronogear), "chi ha costruito").
+
+gen437_value_witness(causal_value_en_a, en, value(flow_rate, flowcell), "flow rate of").
+gen437_value_witness(causal_value_en_b, en, value(flow_rate, flowcell), "how fast flows").
+gen437_value_witness(causal_value_it_a, it, value(flow_rate, flowcell), "portata di").
+gen437_value_witness(causal_value_it_b, it, value(flow_rate, flowcell), "quanto fluisce").
+
+turn_language($Turn, input, $Language) :-
+    gen437_value_witness($Turn, $Language, value($Relation, $Entity), $Cue).
+turn_outcome($Turn, informed_decline) :-
+    gen437_value_witness($Turn, $Language, value($Relation, $Entity), $Cue).
+turn_topic($Turn, $Entity) :-
+    gen437_value_witness($Turn, $Language, value($Relation, $Entity), $Cue).
+answer_frame($Cue, $Relation) :-
+    gen437_value_witness($Turn, $Language, value($Relation, $Entity), $Cue).
+answer_frame_input_arg($Cue, $Relation, 1) :-
+    gen437_value_witness($Turn, $Language, value($Relation, $Entity), $Cue).
+turn_cue($Turn, answer_frame_input_arg, $Cue) :-
+    gen437_value_witness($Turn, $Language, value($Relation, $Entity), $Cue).
+
+% gen437_reach_witness(Turn, Language, Concept, QuotedSurface).
+gen437_reach_witness(nature_reach_en_a, en, sporion, "sporion").
+gen437_reach_witness(nature_reach_en_b, en, sporion, "sporekin").
+gen437_reach_witness(nature_reach_it_a, it, sporion, "sporione").
+gen437_reach_witness(nature_reach_it_b, it, sporion, "sporale").
+
+gen437_reach_witness(artifact_reach_en_a, en, gearion, "gearion").
+gen437_reach_witness(artifact_reach_en_b, en, gearion, "cogkin").
+gen437_reach_witness(artifact_reach_it_a, it, gearion, "ingranione").
+gen437_reach_witness(artifact_reach_it_b, it, gearion, "rotale").
+
+gen437_reach_witness(causal_reach_en_a, en, fluxion, "fluxion").
+gen437_reach_witness(causal_reach_en_b, en, fluxion, "flowkin").
+gen437_reach_witness(causal_reach_it_a, it, fluxion, "flussione").
+gen437_reach_witness(causal_reach_it_b, it, fluxion, "fluente").
+
+wiki_concept(sporion, biology, "an invented biological witness").
+wiki_concept(gearion, artifact, "an invented artifact witness").
+wiki_concept(fluxion, process, "an invented causal witness").
+concept_label(sporion, en, common, sporion).
+concept_label(sporion, en, common, sporekin).
+concept_label(sporion, it, common, sporione).
+concept_label(sporion, it, common, sporale).
+concept_label(gearion, en, common, gearion).
+concept_label(gearion, en, common, cogkin).
+concept_label(gearion, it, common, ingranione).
+concept_label(gearion, it, common, rotale).
+concept_label(fluxion, en, common, fluxion).
+concept_label(fluxion, en, common, flowkin).
+concept_label(fluxion, it, common, flussione).
+concept_label(fluxion, it, common, fluente).
+
+turn_language($Turn, input, $Language) :-
+    gen437_reach_witness($Turn, $Language, $Concept, $Quoted).
+turn_outcome($Turn, blind_wall) :-
+    gen437_reach_witness($Turn, $Language, $Concept, $Quoted).
+turn_span_token($Turn, 0, 0, $Quoted) :-
+    gen437_reach_witness($Turn, $Language, $Concept, $Quoted).
+
+% gen437_blind_witness(Turn, Language, QuotedSurface).
+gen437_blind_witness(nature_blind_en_a, en, "biovrax").
+gen437_blind_witness(nature_blind_en_b, en, "morphqen").
+gen437_blind_witness(nature_blind_it_a, it, "biovrax_it").
+gen437_blind_witness(nature_blind_it_b, it, "morphqen_it").
+
+gen437_blind_witness(artifact_blind_en_a, en, "gearvrax").
+gen437_blind_witness(artifact_blind_en_b, en, "toolqen").
+gen437_blind_witness(artifact_blind_it_a, it, "gearvrax_it").
+gen437_blind_witness(artifact_blind_it_b, it, "toolqen_it").
+
+gen437_blind_witness(causal_blind_en_a, en, "flowvrax").
+gen437_blind_witness(causal_blind_en_b, en, "causeqen").
+gen437_blind_witness(causal_blind_it_a, it, "flowvrax_it").
+gen437_blind_witness(causal_blind_it_b, it, "causeqen_it").
+
+turn_language($Turn, input, $Language) :-
+    gen437_blind_witness($Turn, $Language, $Quoted).
+turn_outcome($Turn, blind_wall) :-
+    gen437_blind_witness($Turn, $Language, $Quoted).
+turn_span_token($Turn, 0, 0, $Quoted) :-
+    gen437_blind_witness($Turn, $Language, $Quoted).

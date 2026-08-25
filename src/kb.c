@@ -741,6 +741,30 @@ int kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc) {
     return removed;
 }
 
+size_t kb_retract_match(KB *kb, const char *pred,
+                        const char *const *args, size_t argc) {
+    if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args)) return 0;
+    for (size_t a = 0; a < argc; a++)
+        if (args[a] && !term_ok(args[a])) return 0;
+    size_t removed = 0, w = 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        Fact *f = &kb->facts[i];
+        int match = f->argc == argc && strcmp(f->pred, pred) == 0;
+        for (size_t a = 0; a < argc && match; a++)
+            if (args[a] && strcmp(args[a], f->args[a]) != 0) match = 0;
+        if (match) { removed++; continue; }
+        if (w != i) kb->facts[w] = kb->facts[i];
+        w++;
+    }
+    kb->n = w;
+    if (removed) {
+        fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
+                                        kb->facts, kb->n);
+        pred_stats_invalidate(kb);
+    }
+    return removed;
+}
+
 size_t kb_retract_pred(KB *kb, const char *pred) {
     if (!kb || !pred || !*pred) return 0;
     size_t removed = 0, w = 0;

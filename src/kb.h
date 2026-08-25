@@ -58,6 +58,12 @@ int    kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc)
  * explicit negative knowledge. */
 int    kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc);
 
+/* Retract every ground fact matching a predicate/arity pattern; NULL argument
+ * slots are wildcards. This expires one reflective scope without deleting
+ * observations from other scopes. */
+size_t kb_retract_match(KB *kb, const char *pred,
+                        const char *const *args, size_t argc);
+
 /* Retract EVERY positive ground fact whose head predicate is `pred`, whatever
  * its arity or provenance, preserving the order of the rest. Returns how many
  * were removed. The general primitive behind the test engine's `!forget`: it

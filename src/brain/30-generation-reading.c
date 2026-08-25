@@ -1738,7 +1738,7 @@ static void store_proposition(Brain *b, char *clause) {
  * extractor (facts) and the generative model (transitions). Shared by the
  * reader and the bench bridge (gen45). Counts assertions and skips. */
 static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) {
-    input_structure_clear(b->kb);
+    input_structure_clear(b->kb, "current_prose");
     char *p = buf;
     while (*p) {
         char *q = p;

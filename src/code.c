@@ -114,11 +114,13 @@ size_t input_structure(KB *kb, const char *raw, const InputSpan *span,
     return count;
 }
 
-void input_structure_clear(KB *kb) {
-    if (!kb) return;
-    kb_retract_pred(kb, "input_node");
-    kb_retract_pred(kb, "input_node_surface");
-    kb_retract_pred(kb, "input_node_role");
+void input_structure_clear(KB *kb, const char *scope) {
+    if (!kb || !scope || !*scope) return;
+    const char *node[] = { scope, NULL, NULL, NULL };
+    const char *sidecar[] = { scope, NULL, NULL };
+    kb_retract_match(kb, "input_node", node, 4);
+    kb_retract_match(kb, "input_node_surface", sidecar, 3);
+    kb_retract_match(kb, "input_node_role", sidecar, 3);
 }
 
 size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
@@ -130,16 +132,24 @@ size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
     if (ambiguous) return 0;
     kb_set_origin(kb, KB_REFLECTIVE);
     for (size_t i = 0; i < nn; i++) {
-        char id[24], parent[24], start[24], len[24], qs[KB_TERM_LEN];
+        char id[24], parent[24], node[KB_TERM_LEN], range[KB_TERM_LEN];
+        char qs[KB_TERM_LEN];
         snprintf(id, sizeof id, "%zu", i);
-        snprintf(parent, sizeof parent, "%d", nodes[i].parent);
-        snprintf(start, sizeof start, "%zu", nodes[i].start);
-        snprintf(len, sizeof len, "%zu", nodes[i].len);
+        if (nodes[i].parent < 0) snprintf(parent, sizeof parent, "root");
+        else snprintf(parent, sizeof parent, "%d", nodes[i].parent);
+        snprintf(node, sizeof node, "node(%s, %s, %s)",
+                 nodes[i].level, nodes[i].kind, parent);
+        snprintf(range, sizeof range, "range(%zu, %zu)",
+                 nodes[i].start, nodes[i].len);
         if (!input_quoted(nodes[i].surface, 0, strlen(nodes[i].surface),
                           qs, sizeof qs)) continue;
-        const char *args[] = { scope, id, nodes[i].level, nodes[i].kind,
-                               parent, start, len };
-        kb_assert(kb, "input_node", args, 7);
+        /* The KB engine deliberately caps predicates at four arguments.  The
+         * first M0 publisher passed seven and therefore published no hierarchy
+         * at all.  Node metadata and the byte interval are structures, not an
+         * excuse to widen the substrate: consumers can project every component
+         * with ordinary KB rules, while the complete observation stays atomic. */
+        const char *args[] = { scope, id, node, range };
+        kb_assert(kb, "input_node", args, 4);
         const char *surface[] = { scope, id, qs };
         kb_assert(kb, "input_node_surface", surface, 3);
         if (nodes[i].role[0]) {

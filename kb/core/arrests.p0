@@ -47,6 +47,7 @@ machinery(arrest_dag).
 machinery(arrest_rank).
 machinery(turn_arrest_key).
 machinery(turn_arrest_set).
+machinery(turn_other_arrest).
 machinery(turn_arrest_ambiguous).
 machinery(turn_first_arrest).
 machinery(turn_arrest_complete).
@@ -54,12 +55,11 @@ machinery(turn_compensation_obligation).
 
 % ── 1. CONTESTO LINGUISTICO E TERMINE, SENZA SCELTE NEL C ─────────────────
 %
-% Il producer storico pubblica `current_language/1`; questa vista lo ancora al
-% turno corrente. I turni materializzati (esperimenti, replay, memoria) portano
-% invece `turn_language(Turn,input,Language)` come fatto. Un'eventuale richiesta
-% di output prevale sul default "rispondi nella lingua ricevuta". La regola e'
-% n-lingue: aggiungere un membro non richiede un nuovo ramo.
-turn_language(current_turn, input, $Language) :- current_language($Language).
+% `language-observation.p0` deriva la lingua del turno da evidenze materializzate
+% e lascia espliciti i pareggi. I turni materializzati (esperimenti, replay,
+% memoria) possono portare direttamente `turn_language(Turn,input,Language)`.
+% Una richiesta di output prevale sul default "rispondi nella lingua ricevuta".
+% La regola e' n-lingue: aggiungere un membro non richiede un nuovo ramo.
 turn_language($Turn, output, $Language) :- turn_requested_language($Turn, $Language).
 turn_language($Turn, output, $Language) :-
     turn_language($Turn, input, $Language),
@@ -298,23 +298,30 @@ arrest_rank(arrest($Turn, $Parent), $Rank) :-
 %
 % Non si sceglie il primo risultato del solver. Con due arresti concorrenti
 % l'ambiguita' resta visibile. Anche due lingue candidate impediscono la scelta.
+% Unicita' e validita' del grafo sono ortogonali: un arresto unico puo' avere un
+% ciclo, nel qual caso resta osservabile ma `turn_arrest_complete/1` non segue.
 turn_arrest_key($Turn, turn_arrest($Languages, $Kind, arrest($Missing, $Goal))) :-
     turn_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)).
 turn_arrest_set($Turn, $Arrests) :-
     findall($Arrest, turn_arrest_key($Turn, $Arrest), $Arrests).
+turn_other_arrest($Turn, $Languages, $Kind, $Arrest) :-
+    turn_arrest($Turn, $OtherLanguages, $OtherKind, $OtherArrest),
+    dif(turn_arrest($Languages, $Kind, $Arrest),
+        turn_arrest($OtherLanguages, $OtherKind, $OtherArrest)).
 turn_arrest_ambiguous($Turn) :-
-    turn_arrest_set($Turn, cons($First, cons($Second, $Tail))).
+    turn_arrest($Turn, $Languages, $Kind, $Arrest),
+    turn_other_arrest($Turn, $Languages, $Kind, $Arrest).
 
 turn_first_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)) :-
-    turn_arrest_set($Turn, cons(turn_arrest($Languages, $Kind, arrest($Missing, $Goal)), nil)),
-    arrest_dag($Turn),
-    arrest_rank(arrest($Turn, $Missing), 0).
+    turn_arrest_set($Turn, cons(turn_arrest($Languages, $Kind, arrest($Missing, $Goal)), nil)).
 
 turn_arrest_complete($Turn) :-
     turn_first_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)),
+    arrest_dag($Turn),
     arrest_blocks(arrest($Turn, $Missing), obligation($Turn, $Goal)).
 
 % Primo consumer per gen442: oggi non esegue una compensazione, ma l'obbligo e'
 % gia' nella forma che un piano KB potra' usare senza ricostruire il turno.
 turn_compensation_obligation($Turn, $Languages, $Goal) :-
+    turn_arrest_complete($Turn),
     turn_first_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)).

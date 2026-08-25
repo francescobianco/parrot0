@@ -813,10 +813,29 @@ Brain *brain_create(void) {
         if (!loc || !*loc) loc = p0env("LANG");
         if (!loc || !*loc) loc = p0env("LC_ALL");
         if (!loc || !*loc) loc = p0env("LC_MESSAGES");
-        char osl[8] = "en";
-        if (loc && (loc[0] == 'i' && loc[1] == 't')) snprintf(osl, sizeof osl, "it");
-        const char *oa[] = { osl }; kb_assert(b->kb, "os_language", oa, 1);
-        const char *ca[] = { osl }; kb_assert(b->kb, "current_language", ca, 1);
+        char prefix[KB_TERM_LEN] = "";
+        if (loc) {
+            size_t n = 0;
+            while (loc[n] && loc[n] != '_' && loc[n] != '-' && loc[n] != '.' &&
+                   n + 1 < sizeof prefix) {
+                prefix[n] = (char)tolower((unsigned char)loc[n]);
+                n++;
+            }
+            prefix[n] = '\0';
+        }
+        char osl[KB_TERM_LEN];
+        default_lang(b, osl, sizeof osl);
+        if (prefix[0]) {
+            const char *lq[] = { NULL, prefix };
+            char mapped[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "locale_language_prefix", lq, 2,
+                         mapped, 1) > 0)
+                snprintf(osl, sizeof osl, "%s", mapped[0]);
+        }
+        if (osl[0]) {
+            const char *oa[] = { osl }; kb_assert(b->kb, "os_language", oa, 1);
+            const char *ca[] = { osl }; kb_assert(b->kb, "current_language", ca, 1);
+        }
         kb_set_origin(b->kb, KB_SESSION);
     }
 
@@ -3420,7 +3439,7 @@ static int universal_turn_lead(Brain *b, const char *surface,
     kb_retract_pred(b->kb, "turn_span_token");
     kb_retract_pred(b->kb, "turn_span_binding");
     kb_retract_pred(b->kb, "turn_cue");
-    input_structure_clear(b->kb);
+    input_structure_clear(b->kb, "current_turn");
     kb_set_origin(b->kb, KB_REFLECTIVE);
     turn_publish_cues(b, surface);
     turn_publish_transcodes(b, surface);

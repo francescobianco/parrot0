@@ -638,6 +638,12 @@ stopword(again).
 % fact current_language/1, and queryable ("what language are we speaking?"). ---
 language_name(en, "English").
 language_name(it, "Italian").
+% Boot policy is knowledge too.  The engine extracts an opaque locale prefix
+% and asks this relation which language it denotes; an unknown locale falls
+% back through default_language/1 without naming a language in C.
+default_language(en).
+locale_language_prefix(en, en).
+locale_language_prefix(it, it).
 % Italian-only markers (ASCII; do not occur as English words).
 % gen338: everyday-request vocabulary (the L13 pragmatics probes showed
 % «puoi aprire la finestra?» not flipping the language in hermetic runs).

@@ -1,0 +1,69 @@
+# GEN437 GATE — MATRICE 3 x 3 x 2 x 2, ORDINE DIRETTO.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=docs/labs/autocrescita-v3/gen437-matrix.p0
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test value form has two surfaces in two languages across three domains]
+!query turn_first_arrest(nature_value_en_a, language(en, en), knowledge, arrest(value(spore_count, mycelion), answer(en, spore_count, mycelion)))
+!query turn_first_arrest(nature_value_en_b, language(en, en), knowledge, arrest(value(spore_count, mycelion), answer(en, spore_count, mycelion)))
+!query turn_first_arrest(nature_value_it_a, language(it, it), knowledge, arrest(value(spore_count, mycelion), answer(it, spore_count, mycelion)))
+!query turn_first_arrest(nature_value_it_b, language(it, it), knowledge, arrest(value(spore_count, mycelion), answer(it, spore_count, mycelion)))
+!query turn_first_arrest(artifact_value_en_a, language(en, en), knowledge, arrest(value(maker_of, chronogear), answer(en, maker_of, chronogear)))
+!query turn_first_arrest(artifact_value_en_b, language(en, en), knowledge, arrest(value(maker_of, chronogear), answer(en, maker_of, chronogear)))
+!query turn_first_arrest(artifact_value_it_a, language(it, it), knowledge, arrest(value(maker_of, chronogear), answer(it, maker_of, chronogear)))
+!query turn_first_arrest(artifact_value_it_b, language(it, it), knowledge, arrest(value(maker_of, chronogear), answer(it, maker_of, chronogear)))
+!query turn_first_arrest(causal_value_en_a, language(en, en), knowledge, arrest(value(flow_rate, flowcell), answer(en, flow_rate, flowcell)))
+!query turn_first_arrest(causal_value_en_b, language(en, en), knowledge, arrest(value(flow_rate, flowcell), answer(en, flow_rate, flowcell)))
+!query turn_first_arrest(causal_value_it_a, language(it, it), knowledge, arrest(value(flow_rate, flowcell), answer(it, flow_rate, flowcell)))
+!query turn_first_arrest(causal_value_it_b, language(it, it), knowledge, arrest(value(flow_rate, flowcell), answer(it, flow_rate, flowcell)))
+
+[test reach form preserves both surfaces and one canonical concept]
+!query linguistic_form(sporekin, sporion, en, common)
+!query reachable_knowledge(sporekin)
+!query turn_gap_kind(nature_reach_en_b, reach)
+!query turn_arrest(nature_reach_en_b, language(en, en), reach, arrest(surface(en, sporekin, sporion), describe(en, sporion)))
+!query! turn_arrest_ambiguous(nature_reach_en_b)
+!query arrest_rank(arrest(nature_reach_en_b, surface(en, sporekin, sporion)), 0)
+!query arrest_dag(nature_reach_en_b)
+!query turn_arrest_set(nature_reach_en_b, cons(turn_arrest(language(en, en), reach, arrest(surface(en, sporekin, sporion), describe(en, sporion))), nil))
+!query arrest_intermediate(surface(en, sporekin, sporion), describe(en, sporion), map_surface(en, sporekin, sporion))
+!query arrest_local_dag(nature_reach_en_b, surface(en, sporekin, sporion), map_surface(en, sporekin, sporion), describe(en, sporion))
+!query linguistic_form(sporione, sporion, it, common)
+!query reachable_knowledge(sporione)
+!query turn_gap_kind(nature_reach_it_a, reach)
+!query turn_arrest(nature_reach_it_a, language(it, it), reach, arrest(surface(it, sporione, sporion), describe(it, sporion)))
+!query! turn_arrest_ambiguous(nature_reach_it_a)
+!query arrest_rank(arrest(nature_reach_it_a, surface(it, sporione, sporion)), 0)
+!query arrest_dag(nature_reach_it_a)
+!query turn_arrest_set(nature_reach_it_a, cons(turn_arrest(language(it, it), reach, arrest(surface(it, sporione, sporion), describe(it, sporion))), nil))
+!query turn_first_arrest(nature_reach_en_a, language(en, en), reach, arrest(surface(en, sporion, sporion), describe(en, sporion)))
+!query turn_first_arrest(nature_reach_en_b, language(en, en), reach, arrest(surface(en, sporekin, sporion), describe(en, sporion)))
+!query turn_first_arrest(nature_reach_it_a, language(it, it), reach, arrest(surface(it, sporione, sporion), describe(it, sporion)))
+!query turn_first_arrest(nature_reach_it_b, language(it, it), reach, arrest(surface(it, sporale, sporion), describe(it, sporion)))
+!query turn_first_arrest(artifact_reach_en_a, language(en, en), reach, arrest(surface(en, gearion, gearion), describe(en, gearion)))
+!query turn_first_arrest(artifact_reach_en_b, language(en, en), reach, arrest(surface(en, cogkin, gearion), describe(en, gearion)))
+!query turn_first_arrest(artifact_reach_it_a, language(it, it), reach, arrest(surface(it, ingranione, gearion), describe(it, gearion)))
+!query turn_first_arrest(artifact_reach_it_b, language(it, it), reach, arrest(surface(it, rotale, gearion), describe(it, gearion)))
+!query turn_first_arrest(causal_reach_en_a, language(en, en), reach, arrest(surface(en, fluxion, fluxion), describe(en, fluxion)))
+!query turn_first_arrest(causal_reach_en_b, language(en, en), reach, arrest(surface(en, flowkin, fluxion), describe(en, fluxion)))
+!query turn_first_arrest(causal_reach_it_a, language(it, it), reach, arrest(surface(it, flussione, fluxion), describe(it, fluxion)))
+!query turn_first_arrest(causal_reach_it_b, language(it, it), reach, arrest(surface(it, fluente, fluxion), describe(it, fluxion)))
+
+[test blind form retains language for both surfaces in every domain]
+!query turn_first_arrest(nature_blind_en_a, language(en, en), blind, arrest(register(en, nature_blind_en_a), interpret(en, nature_blind_en_a)))
+!query turn_first_arrest(nature_blind_en_b, language(en, en), blind, arrest(register(en, nature_blind_en_b), interpret(en, nature_blind_en_b)))
+!query turn_first_arrest(nature_blind_it_a, language(it, it), blind, arrest(register(it, nature_blind_it_a), interpret(it, nature_blind_it_a)))
+!query turn_first_arrest(nature_blind_it_b, language(it, it), blind, arrest(register(it, nature_blind_it_b), interpret(it, nature_blind_it_b)))
+!query turn_first_arrest(artifact_blind_en_a, language(en, en), blind, arrest(register(en, artifact_blind_en_a), interpret(en, artifact_blind_en_a)))
+!query turn_first_arrest(artifact_blind_en_b, language(en, en), blind, arrest(register(en, artifact_blind_en_b), interpret(en, artifact_blind_en_b)))
+!query turn_first_arrest(artifact_blind_it_a, language(it, it), blind, arrest(register(it, artifact_blind_it_a), interpret(it, artifact_blind_it_a)))
+!query turn_first_arrest(artifact_blind_it_b, language(it, it), blind, arrest(register(it, artifact_blind_it_b), interpret(it, artifact_blind_it_b)))
+!query turn_first_arrest(causal_blind_en_a, language(en, en), blind, arrest(register(en, causal_blind_en_a), interpret(en, causal_blind_en_a)))
+!query turn_first_arrest(causal_blind_en_b, language(en, en), blind, arrest(register(en, causal_blind_en_b), interpret(en, causal_blind_en_b)))
+!query turn_first_arrest(causal_blind_it_a, language(it, it), blind, arrest(register(it, causal_blind_it_a), interpret(it, causal_blind_it_a)))
+!query turn_first_arrest(causal_blind_it_b, language(it, it), blind, arrest(register(it, causal_blind_it_b), interpret(it, causal_blind_it_b)))

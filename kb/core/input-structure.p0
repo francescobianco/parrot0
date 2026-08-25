@@ -1,0 +1,194 @@
+% input-structure.p0 — viste KB sulla gerarchia osservata dell'input (gen438).
+%
+% Il producer misura soltanto struttura e byte:
+%
+%   input_node(Scope, Id, node(Level, Kind, Parent), range(Start, Len))
+%   input_node_surface(Scope, Id, "Surface")
+%   input_node_role(Scope, Id, Role)
+%
+% Le viste seguenti rendono interrogabili le coordinate e conservano la catena
+% Surface + Language -> Concept prima che la canonicalizzazione perda la forma.
+
+:- file_attribute(machinery).
+
+machinery(input_node_level).
+machinery(input_node_kind).
+machinery(input_node_parent).
+machinery(input_node_range).
+machinery(input_scope_language).
+machinery(input_node_atom).
+machinery(input_node_form).
+machinery(input_node_has_form).
+machinery(input_node_unresolved).
+machinery(input_entity_node).
+machinery(input_class_node).
+machinery(input_unit_node).
+machinery(input_operator_node).
+machinery(input_gap_node).
+machinery(input_number_node).
+machinery(node_order3).
+machinery(node_order4).
+machinery(input_semantic_frame).
+machinery(input_frame_gap).
+
+input_node_level($Scope, $Id, $Level) :-
+    input_node($Scope, $Id, node($Level, $Kind, $Parent), $Range).
+input_node_kind($Scope, $Id, $Kind) :-
+    input_node($Scope, $Id, node($Level, $Kind, $Parent), $Range).
+input_node_parent($Scope, $Id, $Parent) :-
+    input_node($Scope, $Id, node($Level, $Kind, $Parent), $Range).
+input_node_range($Scope, $Id, $Start, $Length) :-
+    input_node($Scope, $Id, $Node, range($Start, $Length)).
+
+input_scope_language(current_turn, $Language) :-
+    turn_language(current_turn, input, $Language).
+
+% Il lettore di prosa usa oggi la lingua del turno che lo ha invocato. La lingua
+% della revisione Wikipedia diventera' una coordinata distinta in gen439-440.
+input_scope_language(current_prose, $Language) :-
+    turn_language(current_turn, input, $Language).
+
+input_node_atom($Scope, $Id, $Surface) :-
+    input_node($Scope, $Id, node(token, token, $Parent), $Range),
+    input_node_surface($Scope, $Id, $Quoted),
+    span_atom($Quoted, $Surface).
+
+input_node_form($Scope, $Id, $Language, form($Surface, $Concept)) :-
+    input_node_atom($Scope, $Id, $Surface),
+    input_scope_language($Scope, $Language),
+    linguistic_form($Surface, $Concept, $Language, $Register).
+
+input_node_has_form($Scope, $Id, $Language) :-
+    input_node_form($Scope, $Id, $Language, $Form).
+
+input_node_unresolved($Scope, $Id, form($Language, $Surface)) :-
+    input_node_atom($Scope, $Id, $Surface),
+    input_scope_language($Scope, $Language),
+    naf(input_node_has_form($Scope, $Id, $Language)).
+
+% ── MATCHER COMPOSITIVO MINIMO M1–M4 ──────────────────────────────────────
+%
+% Le categorie, le forme e gli ordini ammessi sono fatti aperti. Le regole
+% sottostanti conoscono soltanto ruoli e relazioni d'ordine fra node id: un
+% idioma che condivide un ordine noto cresce aggiungendo frame_pattern/4 e
+% forme, senza un recognizer C. Le locuzioni e l'induzione degli ordini restano
+% il lavoro M5/gen439.
+
+input_entity_node($Scope, $Language, $Id, $Entity) :-
+    input_node_form($Scope, $Id, $Language, form($Surface, $Entity)),
+    semantic_entity($Entity).
+
+input_class_node($Scope, $Language, $Id, $Class) :-
+    input_node_form($Scope, $Id, $Language, form($Surface, $Class)),
+    semantic_class($Class).
+
+input_unit_node($Scope, $Language, $Id, $Unit) :-
+    input_node_form($Scope, $Id, $Language, form($Surface, $Unit)),
+    measurement_unit($Unit).
+
+input_operator_node($Scope, $Language, operator($Kind, $Relation), $Id) :-
+    input_node_form($Scope, $Id, $Language, form($Surface, $Relation)),
+    frame_operator_concept($Relation, $Kind).
+
+input_gap_node($Scope, $Language, $Role, $Id) :-
+    input_node_atom($Scope, $Id, $Surface),
+    frame_gap_form($Language, $Surface, $Role).
+
+input_number_node($Scope, $Id, $Number) :-
+    input_node_atom($Scope, $Id, $Surface),
+    is($Number, add($Surface, 0)).
+
+node_order3($A, $B, $C) :- lt($A, $B), lt($B, $C).
+node_order4($A, $B, $C, $D) :-
+    lt($A, $B), lt($B, $C), lt($C, $D).
+
+% Relazione binaria: asserzione e domanda condividono operatore e ruoli. Cambia
+% soltanto il valore del ruolo che la domanda lascia aperto.
+input_semantic_frame($Scope, assertion, binary($Relation),
+                     roles(subject($Subject), object($Object))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, binary, assertion, sro),
+    input_entity_node($Scope, $Language, $SId, $Subject),
+    input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
+    input_entity_node($Scope, $Language, $OId, $Object),
+    node_order3($SId, $RId, $OId).
+
+input_semantic_frame($Scope, question, binary($Relation),
+                     roles(subject($Subject), object(missing))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, binary, question, qsr),
+    input_gap_node($Scope, $Language, object, $QId),
+    input_entity_node($Scope, $Language, $SId, $Subject),
+    input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
+    node_order3($QId, $SId, $RId).
+
+input_semantic_frame($Scope, question, binary($Relation),
+                     roles(subject($Subject), object(missing))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, binary, question, qrs),
+    input_gap_node($Scope, $Language, object, $QId),
+    input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
+    input_entity_node($Scope, $Language, $SId, $Subject),
+    node_order3($QId, $RId, $SId).
+
+% Misura: valore e unita' sono ruoli distinti, quindi "numero trovato" non puo'
+% essere scambiato per "misura compresa".
+input_semantic_frame($Scope, assertion, measure($Relation),
+                     roles(subject($Subject), measure(value($Value), unit($Unit)))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, measure, assertion, srvu),
+    input_entity_node($Scope, $Language, $SId, $Subject),
+    input_operator_node($Scope, $Language, operator(measure, $Relation), $RId),
+    input_number_node($Scope, $VId, $Value),
+    input_unit_node($Scope, $Language, $UId, $Unit),
+    node_order4($SId, $RId, $VId, $UId).
+
+input_semantic_frame($Scope, question, measure($Relation),
+                     roles(subject($Subject), measure(value(missing), unit($Unit)))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, measure, question, qusr),
+    input_gap_node($Scope, $Language, value, $QId),
+    input_unit_node($Scope, $Language, $UId, $Unit),
+    input_entity_node($Scope, $Language, $SId, $Subject),
+    input_operator_node($Scope, $Language, operator(measure, $Relation), $RId),
+    node_order4($QId, $UId, $SId, $RId).
+
+input_semantic_frame($Scope, question, measure($Relation),
+                     roles(subject($Subject), measure(value(missing), unit($Unit)))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, measure, question, qurs),
+    input_gap_node($Scope, $Language, value, $QId),
+    input_unit_node($Scope, $Language, $UId, $Unit),
+    input_operator_node($Scope, $Language, operator(measure, $Relation), $RId),
+    input_entity_node($Scope, $Language, $SId, $Subject),
+    node_order4($QId, $UId, $RId, $SId).
+
+% Appartenenza di classe. `membership(Relation)` mantiene esplicita la relazione
+% canonica invece di assumere che ogni copula significhi automaticamente isa.
+input_semantic_frame($Scope, assertion, membership($Relation),
+                     roles(subject($Subject), class($Class))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, membership, assertion, src),
+    input_entity_node($Scope, $Language, $SId, $Subject),
+    input_operator_node($Scope, $Language, operator(membership, $Relation), $RId),
+    input_class_node($Scope, $Language, $CId, $Class),
+    node_order3($SId, $RId, $CId).
+
+input_semantic_frame($Scope, question, membership($Relation),
+                     roles(subject($Subject), class(missing))) :-
+    input_scope_language($Scope, $Language),
+    frame_pattern($Language, membership, question, qrs),
+    input_gap_node($Scope, $Language, class, $QId),
+    input_operator_node($Scope, $Language, operator(membership, $Relation), $RId),
+    input_entity_node($Scope, $Language, $SId, $Subject),
+    node_order3($QId, $RId, $SId).
+
+input_frame_gap($Scope, binary($Relation), object) :-
+    input_semantic_frame($Scope, question, binary($Relation),
+                         roles(subject($Subject), object(missing))).
+input_frame_gap($Scope, measure($Relation), value) :-
+    input_semantic_frame($Scope, question, measure($Relation),
+                         roles(subject($Subject), measure(value(missing), unit($Unit)))).
+input_frame_gap($Scope, membership($Relation), class) :-
+    input_semantic_frame($Scope, question, membership($Relation),
+                         roles(subject($Subject), class(missing))).

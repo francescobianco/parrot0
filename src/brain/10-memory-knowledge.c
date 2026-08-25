@@ -1514,16 +1514,31 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
     }
 }
 
-/* gen240 (universal-comprehension): the CURRENT conversation language lives as the
- * session fact current_language/1 — NOT a C variable — so it persists, /save's, and
- * is queryable ("what language are we speaking?"). Default "en" when no fact yet. */
-static void current_lang(Brain *b, char *out, size_t sz) {
-    snprintf(out, sz, "en");
+/* gen438: default and current language are both KB facts.  C owns neither an
+ * inventory of languages nor the identity of the fallback member. */
+static void default_lang(Brain *b, char *out, size_t sz) {
+    if (!out || sz == 0) return;
+    out[0] = '\0';
     if (!b || !b->kb) return;
     const char *q[] = { NULL };
     char hit[1][KB_TERM_LEN];
-    if (kb_match(b->kb, "current_language", q, 1, hit, 1) > 0)
+    if (kb_match(b->kb, "default_language", q, 1, hit, 1) > 0)
         snprintf(out, sz, "%s", hit[0]);
+}
+
+/* gen240/gen438: the CURRENT conversation language lives as a reflective KB
+ * fact, not a C variable.  When it is absent, use the KB-declared default. */
+static void current_lang(Brain *b, char *out, size_t sz) {
+    if (!out || sz == 0) return;
+    out[0] = '\0';
+    if (!b || !b->kb) return;
+    const char *q[] = { NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "current_language", q, 1, hit, 1) > 0) {
+        snprintf(out, sz, "%s", hit[0]);
+        return;
+    }
+    default_lang(b, out, sz);
 }
 
 /* gen240 (universal-comprehension): emit a hardcoded reply in the CURRENT language.
@@ -1535,49 +1550,116 @@ static void tput(Brain *b, const char *en, const char *it, char *out, size_t sz)
     put((strcmp(lang, "it") == 0 && it && *it) ? it : en, out, sz);
 }
 
-/* Detect the turn's language from KB-first markers (language_marker/2) and, if it
- * differs from the recorded one, REPLACE the session fact. Sticky: a turn with no
- * exclusive marker keeps the prior language (so neutral turns don't flap). */
+typedef struct {
+    char language[KB_TERM_LEN];
+    size_t count;
+} TurnLanguageCount;
+
+/* Detect a turn's language without enumerating languages in C.  The fixed
+ * producer tokenizes and counts every binding returned by language_marker/2,
+ * preserving each support as a reflective fact.  language-observation.p0 owns
+ * the policy that selects a unique maximum, exposes ties, and applies the
+ * sticky fallback only when evidence is genuinely absent. */
 static void detect_set_language(Brain *b, const char *norm) {
     if (!b || !b->kb) return;
+    char sticky[KB_TERM_LEN];
+    current_lang(b, sticky, sizeof sticky);
+
+    kb_retract_pred(b->kb, "turn_language_support");
+    kb_retract_pred(b->kb, "turn_language_evidence");
+    kb_retract_pred(b->kb, "turn_language_sticky");
+
+    int prev_origin = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    if (sticky[0]) {
+        const char *a[] = { "current_turn", sticky };
+        kb_assert(b->kb, "turn_language_sticky", a, 2);
+    }
+
     char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
     char *w[64]; size_t nw = split_words(tmp, w, 64);
-    int it = 0, en = 0;
+    TurnLanguageCount *counts = NULL;
+    size_t ncounts = 0, capcounts = 0;
     for (size_t i = 0; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
         if (!*t) continue;
-        const char *qi[] = { "it", t }; if (kb_query(b->kb, "language_marker", qi, 2)) it++;
-        const char *qe[] = { "en", t }; if (kb_query(b->kb, "language_marker", qe, 2)) en++;
+        char (*languages)[KB_TERM_LEN] = NULL;
+        size_t nlanguages = 0;
+        const char *q[] = { NULL, t };
+        if (!kb_match_all(b->kb, "language_marker", q, 2,
+                          &languages, &nlanguages)) {
+            free(languages);
+            continue;
+        }
+        for (size_t j = 0; j < nlanguages; j++) {
+            size_t k = 0;
+            while (k < ncounts &&
+                   strcmp(counts[k].language, languages[j]) != 0) k++;
+            if (k == ncounts) {
+                if (ncounts == capcounts) {
+                    size_t next = capcounts ? capcounts * 2 : 4;
+                    TurnLanguageCount *grown =
+                        realloc(counts, next * sizeof *grown);
+                    if (!grown) continue;
+                    counts = grown;
+                    capcounts = next;
+                }
+                memset(&counts[ncounts], 0, sizeof counts[ncounts]);
+                snprintf(counts[ncounts].language,
+                         sizeof counts[ncounts].language, "%s", languages[j]);
+                k = ncounts++;
+            }
+            counts[k].count++;
+
+            char position[24], quoted[KB_TERM_LEN];
+            snprintf(position, sizeof position, "%zu", i);
+            snprintf(quoted, sizeof quoted, "\"%.*s\"",
+                     (int)(KB_TERM_LEN - 3), t);
+            const char *support[] = {
+                "current_turn", counts[k].language, position, quoted
+            };
+            kb_assert(b->kb, "turn_language_support", support, 4);
+        }
+        free(languages);
     }
-    const char *lang = NULL;
-    if (it > en) lang = "it";
-    else if (en > it) lang = "en";
-    if (!lang) return;                          /* no clear signal -> keep sticky */
-    char cur[8]; current_lang(b, cur, sizeof cur);
-    if (strcmp(cur, lang) == 0) return;
-    char old[4][KB_TERM_LEN];
-    const char *qa[] = { NULL };
-    size_t k = kb_match(b->kb, "current_language", qa, 1, old, 4);
-    for (size_t i = 0; i < k; i++) { const char *o[] = { old[i] }; kb_retract(b->kb, "current_language", o, 1); }
-    /* gen411: riflessivo — la lingua del giro in corso e' stato, non conoscenza.
-     * Anche il sito di nascita al boot lo e'; se qui restasse KB_SESSION la
-     * riscriveremmo persistibile a ogni cambio di lingua. */
-    int prev_origin = kb_origin(b->kb);
-    kb_set_origin(b->kb, KB_REFLECTIVE);
-    const char *a[] = { lang };
-    kb_assert(b->kb, "current_language", a, 1);
+
+    for (size_t i = 0; i < ncounts; i++) {
+        char score[24], count[24];
+        snprintf(score, sizeof score, "%zu", counts[i].count);
+        snprintf(count, sizeof count, "%zu", counts[i].count);
+        const char *evidence[] = {
+            "current_turn", counts[i].language, score, count
+        };
+        kb_assert(b->kb, "turn_language_evidence", evidence, 4);
+    }
+
+    /* The selected language is a KB derivation.  A tie deliberately yields no
+     * binding, so current_language remains unchanged while the turn itself is
+     * marked ambiguous and cannot silently inherit the sticky member. */
+    const char *sq[] = { "current_turn", NULL };
+    char selected[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "turn_language_selected", sq, 2,
+                 selected, 1) > 0 && selected[0][0] &&
+        strcmp(sticky, selected[0]) != 0) {
+        kb_retract_pred(b->kb, "current_language");
+        const char *a[] = { selected[0] };
+        kb_assert(b->kb, "current_language", a, 1);
+    }
+    free(counts);
     kb_set_origin(b->kb, prev_origin);
 }
 
 /* Fetch a localized response_template(Intent, Lang, "…") for the CURRENT language,
- * falling back to English, into `out` (quotes stripped). Returns 1 if found. This
+ * falling back to default_language/1, into `out` (quotes stripped). Returns 1 if found. This
  * is the /3 (localized) selector — additive beside the language-agnostic /2
  * kb_response, never replacing it. */
 static int lang_template(Brain *b, const char *intent, char *out, size_t sz) {
     if (!b || !b->kb) return 0;
     char lang[8]; current_lang(b, lang, sizeof lang);
+    char fallback[8]; default_lang(b, fallback, sizeof fallback);
     for (int pass = 0; pass < 2; pass++) {
-        const char *L = pass == 0 ? lang : "en";
+        const char *L = pass == 0 ? lang : fallback;
+        if (!L || !*L) break;
         const char *q[] = { intent, L, NULL };
         char hit[1][KB_TERM_LEN];
         if (kb_match(b->kb, "response_template", q, 3, hit, 1) > 0) {
@@ -1586,7 +1668,7 @@ static int lang_template(Brain *b, const char *intent, char *out, size_t sz) {
             snprintf(out, sz, "%s", p);
             return 1;
         }
-        if (pass == 0 && strcmp(lang, "en") == 0) break;   /* no second try needed */
+        if (pass == 0 && strcmp(lang, fallback) == 0) break;
     }
     return 0;
 }

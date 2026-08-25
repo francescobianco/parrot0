@@ -1,6 +1,6 @@
 # Autocrescita v3 — dieci generazioni verso una KB vivente
 
-**Stato:** piano teorico e sperimentale; primo taglio gen437 implementato
+**Stato:** gen437 chiusa; checkpoint costruttivo gen438 implementato, gate aperto
 **Data:** 25 agosto 2026
 **Orizzonte:** gen437–gen446
 **Vincolo:** runtime KB-first; Wikipedia è l'unica sorgente esterna ammessa
@@ -638,11 +638,12 @@ una prova. Tutti i domini successivi useranno lo stesso DAG.
 
 ### Avanzamento registrato il 25 agosto 2026
 
-Il primo taglio è implementato in `kb/core/arrests.p0`, incluso da
+Il nucleo è implementato in `kb/core/arrests.p0`, incluso da
 `kb/core/procedures.p0`, ed è accompagnato da
-`docs/labs/autocrescita-v3/gen437-arrests.p0t`. Il run da snapshot pulito
-produce **63 verifiche strutturali riuscite**. È un esperimento costruttivo
-isolato, non un'aggiunta ai bench storici.
+`docs/labs/autocrescita-v3/gen437-arrests.p0t` e dalla matrice completa nei
+file `gen437-matrix-*`. Da processo pulito i tre dossier producono
+**64 + 54 + 36 verifiche strutturali riuscite**. Sono esperimenti costruttivi
+isolati, non aggiunte ai bench storici.
 
 Oggetti ora presenti:
 
@@ -678,11 +679,13 @@ Risultati causali conservati:
    non contiene una politica di selezione o contabilizzazione introdotta da
    questa generazione.
 
-Stato del gate: il nucleo `K_observable` e il trasferimento bilingue della
-matrice `3 x 3 x 2` sono dimostrati. H437 resta **aperta** fino alla seconda
-superficie per lingua, alla permutazione inversa e alla replica su un secondo
-snapshot. Il punto di ripresa è quindi estendere il dossier, non riscrivere il
-nucleo né correggere bench storici.
+Stato del gate: **H437 chiusa**. La matrice completa contiene 3 forme logiche,
+3 domini, 2 lingue e 2 superfici; il dossier inverso cambia l'ordine dei fatti
+senza cambiare il primo arresto e il reload pulito replica il risultato. Un
+arresto strutturale unico ma ciclico resta osservabile in `turn_first_arrest/4`
+e non diventa azionabile: `turn_arrest_complete/1` richiede separatamente il
+certificato locale `arrest_dag/1`. Questa distinzione evita di confondere
+unicità e validità del grafo.
 
 ---
 
@@ -736,6 +739,57 @@ risolta solo grazie al suo valore lessicale specifico.
 
 Si aggiungono membri e schemi nella KB; il motore continua a unificare strutture
 senza conoscere le parole.
+
+### Avanzamento registrato il 25 agosto 2026
+
+Il checkpoint Gen438 corregge prima di tutto due falsi presupposti di M0:
+
+1. `input_node` veniva asserito con arità 7, ma `KB_MAX_ARGS=4`; la chiamata
+   falliva e in KB restavano soltanto i sidecar di superficie. Il contratto ora
+   è `input_node(Scope,Id,node(Level,Kind,Parent),range(Start,Length))` e tutte le
+   coordinate sono proiettabili da regole;
+2. la pulizia della struttura cancellava indistintamente turno e prosa. La
+   primitiva meccanica `kb_retract_match` scade ora un solo `Scope`, così una
+   lettura interna non distrugge l'IR del turno che l'ha richiesta.
+
+Il detector non contiene più l'enumerazione `it/en`: enumera tutti i binding di
+`language_marker/2` e pubblica supporto, posizione e conteggio. Le regole in
+`language-observation.p0` decidono massimo unico, pareggio esplicito e sticky
+fallback. Anche lingua predefinita e mapping del prefisso locale sono fatti KB.
+
+Il primo matcher compositivo usa nodi, forme linguistiche e vincoli d'ordine
+per produrre la stessa firma nei due modi:
+
+```text
+input_semantic_frame(Scope, assertion|question, Operator, Roles)
+```
+
+Sono presenti tre famiglie: relazione binaria, misura con valore e unità, e
+appartenenza di classe. La domanda conserva lo stesso operatore e pone
+`missing` soltanto nel ruolo aperto; `input_frame_gap/3` rende quel ruolo
+consumabile dall'arresto.
+
+Evidenza costruttiva da processo pulito:
+
+```text
+gen438-observation.p0t  => 41 passed
+gen438-frames.p0t       => 29 passed
+```
+
+La prima prova aggiunge `eo` a runtime, distingue ablazione del marcatore da
+ablazione della denotazione, lascia un pareggio senza tiebreak e fa comparire e
+scomparire un sintagma tramite `phrase_boundary/3`. La seconda copre
+`3 operatori x 2 modi x 2 lingue` e ripete le sei celle in Esperanto aggiunto
+interamente a runtime; togliere una sola forma verbale elimina soltanto la
+famiglia binaria interessata.
+
+Stato del gate: **H438 resta aperta**. Questi risultati dimostrano il produttore
+n-lingue e una composizione minima promettente, non M1–M5 completo. Mancano
+ancora locuzioni multiword risolte come nodi, ruoli annidati, scope e
+coordinazioni, l'uso end-to-end della stessa IR da parte dell'estrattore di
+prosa, trasferimento di ogni operatore su tre domini e rimozione dei rami
+linguistici legacy fuori dal nuovo detector. Chiamare chiusa la generazione su
+questi campioni sarebbe precisamente l'errore che il gate deve impedire.
 
 ---
 
@@ -1280,8 +1334,8 @@ raggiunto l'obiettivo.
 
 ## 12. Checkpoint operativo per la prossima sessione
 
-Baseline osservata: commit `f03c6dc`. Questo checkpoint non dichiara conclusa
-gen437 e non modifica la suite storica.
+Baseline d'ingresso: commit `f730ab8`. Questo checkpoint chiude gen437 e apre
+gen438 senza modificare né usare come obiettivo la suite storica.
 
 ### Artefatti prodotti
 
@@ -1292,6 +1346,13 @@ gen437 e non modifica la suite storica.
 - `kb/core/procedures.p0`: inclusione del nuovo strato;
 - `docs/labs/autocrescita-v3/gen437-arrests.p0t`: matrice costruttiva e prove
   runtime di crescita/retrazione linguistica;
+- `docs/labs/autocrescita-v3/gen437-matrix*.p0*`: seconda superficie, ordine
+  inverso e replica pulita del gate gen437;
+- `kb/core/language-observation.p0`: evidenze linguistiche n-lingue e policy KB;
+- `kb/core/input-structure.p0`: proiezioni gerarchiche, forma-concetto e primo
+  matcher condiviso fra asserzione e domanda;
+- `docs/labs/autocrescita-v3/gen438-*.p0*`: osservazione, crescita/ablazione e
+  matrice dei tre operatori;
 - questo documento: roadmap, misure, gate e debiti aggiornati.
 
 ### Evidenza eseguita
@@ -1299,7 +1360,11 @@ gen437 e non modifica la suite storica.
 ```text
 make build
 ./bin/parrot0 --test docs/labs/autocrescita-v3/gen437-arrests.p0t
-=> ok — 63 passed
+./bin/parrot0 --test docs/labs/autocrescita-v3/gen437-matrix-forward.p0t
+./bin/parrot0 --test docs/labs/autocrescita-v3/gen437-matrix-reverse.p0t
+./bin/parrot0 --test docs/labs/autocrescita-v3/gen438-observation.p0t
+./bin/parrot0 --test docs/labs/autocrescita-v3/gen438-frames.p0t
+=> ok — 64 + 54 + 36 + 41 + 29 passed
 ```
 
 Il primo comando dimostra soltanto che il motore corrente costruisce; il
@@ -1308,24 +1373,24 @@ usato come obiettivo o incluso nel gate.
 
 ### Debiti espliciti, in ordine
 
-1. completare H437 con due superfici per lingua, ordine inverso e secondo
-   snapshot; archiviare hash e traccia nel dossier;
-2. sostituire in gen438 `detect_set_language` a due rami con enumerazione
-   meccanica delle lingue candidate dalla KB e pubblicare la lingua del singolo
-   turno, non soltanto quella sticky di sessione;
+1. risolvere locuzioni e phrase/clause node dichiarativi senza ridurre M1–M5 ai
+   tre ordini già dimostrati;
+2. portare la prosa su `input_semantic_frame/4` e conservare lingua della fonte,
+   span e scope separatamente dalla lingua del turno;
 3. migrare cue e forme sintattiche a evidenza indicizzata per lingua: attribuire
    a posteriori la lingua globale a una cue non prova in quale lingua la cue sia
    stata appresa;
-4. fare consumare a domanda e prosa la stessa IR M1–M5, conservando
-   `Surface/Lin -> Concept` prima della canonicalizzazione;
+4. trasferire ciascuno dei tre operatori su tre domini e due superfici, poi
+   provare l'ablazione dell'ordine oltre a quella lessicale;
 5. prima di estendere il planner oltre tre livelli, introdurre un certificato
    topologico KB generale. `arrest_cycle/1` osserva cicli arbitrari, mentre
    l'attuale `arrest_dag/1` prova positivamente il solo contratto gen437;
 6. soltanto dopo questi gate iniziare indirizzi Wikipedia: cercare prima
    renderebbe un difetto linguistico un falso gap fattuale.
 
-Il prossimo cambiamento corretto è quindi il completamento sperimentale di
-gen437; il prossimo cambiamento architetturale è il producer n-lingue di gen438.
+Il prossimo cambiamento corretto è M1–M5 sul lato prosa: far produrre a una
+asserzione letta la stessa IR già prodotta dalla domanda, con span e lingua di
+fonte, senza passare dai vecchi estrattori lessicali.
 
 Il salto di frontiera non è da KB piccola a KB grande. È da archivio passivo a
 sistema epistemico riflessivo: una KB che osserva i propri limiti, pianifica la

@@ -271,7 +271,7 @@
 !forget turn_language(language_ambiguous_probe, input, it)
 !query turn_first_arrest(language_ambiguous_probe, language(en, en), blind, arrest(register(en, language_ambiguous_probe), interpret(en, language_ambiguous_probe)))
 
-[test a cyclic dependency is visible and cannot become the first arrest]
+[test a cyclic dependency stays visible but cannot become actionable]
 !assert turn_language(cycle_probe, input, en)
 !assert turn_arrest(cycle_probe, language(en, en), knowledge, arrest(entry(cycle_seed), describe(en, cycle_seed)))
 !query arrest_dag(cycle_probe)
@@ -279,7 +279,8 @@
 !assert arrest_depends_on(arrest(cycle_probe, entry(cycle_seed)), arrest(cycle_probe, describe(en, cycle_seed)))
 !query arrest_cycle(cycle_probe)
 !query! arrest_dag(cycle_probe)
-!query! turn_first_arrest(cycle_probe, $Languages, $Kind, $Arrest)
+!query turn_first_arrest(cycle_probe, language(en, en), knowledge, arrest(entry(cycle_seed), describe(en, cycle_seed)))
+!query! turn_arrest_complete(cycle_probe)
 !forget arrest_depends_on(arrest(cycle_probe, entry(cycle_seed)), arrest(cycle_probe, describe(en, cycle_seed)))
 !query arrest_dag(cycle_probe)
 !query turn_first_arrest(cycle_probe, language(en, en), knowledge, arrest(entry(cycle_seed), describe(en, cycle_seed)))

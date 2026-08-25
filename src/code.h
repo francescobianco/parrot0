@@ -345,10 +345,12 @@ size_t code_segment(KB *kb, const char *raw, CodeSeg *segs, size_t max,
 
 /* Build and optionally publish the hierarchical view of one typed span.  The
  * matcher is deliberately conservative: unresolved phrase boundaries remain
- * candidates instead of being promoted to facts. */
+ * candidates instead of being promoted to facts.  The KB representation is
+ * input_node(Scope, Id, node(Level, Kind, Parent), range(Start, Len)); Parent
+ * is `root` for the clause node.  Surface and optional role are sidecars. */
 size_t input_structure(KB *kb, const char *raw, const InputSpan *span,
                        InputNode *nodes, size_t max, int *ambiguous);
-void input_structure_clear(KB *kb);
+void input_structure_clear(KB *kb, const char *scope);
 size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
                                const char *scope);
 

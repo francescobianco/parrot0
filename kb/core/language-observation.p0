@@ -1,0 +1,57 @@
+% language-observation.p0 — la lingua del turno nasce da evidenze aperte.
+%
+% Il producer C misura token e pubblica, per ogni lingua incontrata nella
+% relazione aperta `language_marker/2`:
+%
+%   turn_language_support(Turn, Language, Position, "Marker")
+%   turn_language_evidence(Turn, Language, Score, Count)
+%
+% Non sceglie una lingua.  Vittoria, pareggio e continuita' senza evidenza sono
+% policy della KB.  Aggiungere una lingua significa aggiungere marcatori; il C
+% non contiene un inventario di codici e non viene ricompilato.
+
+:- file_attribute(machinery).
+
+machinery(turn_language_support).
+machinery(turn_language_evidence).
+machinery(turn_language_sticky).
+machinery(turn_has_language_evidence).
+machinery(turn_language_has_better).
+machinery(turn_language_best).
+machinery(turn_language_other_best).
+machinery(turn_language_detection_ambiguous).
+machinery(turn_language_selected).
+machinery(turn_language).
+
+turn_has_language_evidence($Turn) :-
+    turn_language_evidence($Turn, $Language, $Score, $Count).
+
+turn_language_has_better($Turn, $Score) :-
+    turn_language_evidence($Turn, $Other, $OtherScore, $OtherCount),
+    gt($OtherScore, $Score).
+
+turn_language_best($Turn, $Language, $Score) :-
+    turn_language_evidence($Turn, $Language, $Score, $Count),
+    naf(turn_language_has_better($Turn, $Score)).
+
+turn_language_other_best($Turn, $Language) :-
+    turn_language_best($Turn, $Other, $Score),
+    dif($Other, $Language).
+
+turn_language_detection_ambiguous($Turn) :-
+    turn_language_best($Turn, $Language, $Score),
+    turn_language_other_best($Turn, $Language).
+
+turn_language_selected($Turn, $Language) :-
+    turn_language_best($Turn, $Language, $Score),
+    naf(turn_language_other_best($Turn, $Language)).
+
+% Un turno privo di marcatori conserva la lingua precedente. Un pareggio non e'
+% assenza di evidenza: resta osservabile e non viene sciolto dalla sticky state.
+turn_language_selected($Turn, $Language) :-
+    turn_language_sticky($Turn, $Language),
+    naf(turn_has_language_evidence($Turn)).
+
+turn_language($Turn, input, $Language) :-
+    turn_language_selected($Turn, $Language).
+

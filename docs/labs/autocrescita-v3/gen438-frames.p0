@@ -1,0 +1,60 @@
+% Profilo costruttivo Gen438: tre operatori, due lingue curate.
+% I nomi di dominio sono intenzionalmente piccoli; il matcher non li nomina.
+
+machinery(frame_pattern).
+machinery(frame_gap_form).
+machinery(frame_operator_concept).
+
+semantic_entity(million).
+semantic_entity(flourion).
+semantic_entity(lumion).
+semantic_class(organism).
+measurement_unit(gram).
+
+frame_operator_concept(produce_relation, binary).
+frame_operator_concept(mass_of, measure).
+frame_operator_concept(isa, membership).
+
+% Ordini osservati. I token funzione possono stare fra i ruoli: il vincolo e'
+% sull'ordine relativo dei nodi semantici, non su una frase rigida.
+frame_pattern(en, binary, assertion, sro).
+frame_pattern(en, binary, question, qsr).
+frame_pattern(en, measure, assertion, srvu).
+frame_pattern(en, measure, question, qusr).
+frame_pattern(en, membership, assertion, src).
+frame_pattern(en, membership, question, qrs).
+
+frame_pattern(it, binary, assertion, sro).
+frame_pattern(it, binary, question, qrs).
+frame_pattern(it, measure, assertion, srvu).
+frame_pattern(it, measure, question, qurs).
+frame_pattern(it, membership, assertion, src).
+frame_pattern(it, membership, question, qrs).
+
+frame_gap_form(en, what, object).
+frame_gap_form(en, many, value).
+frame_gap_form(en, what, class).
+frame_gap_form(en, which, class).
+frame_gap_form(it, cosa, object).
+frame_gap_form(it, quanti, value).
+frame_gap_form(it, cosa, class).
+
+concept_label(million, en, common, mill).
+concept_label(flourion, en, common, flour).
+concept_label(lumion, en, common, lumion).
+concept_label(organism, en, common, organism).
+concept_label(gram, en, common, grams).
+concept_label(produce_relation, en, common, produces).
+concept_label(produce_relation, en, common, produce).
+concept_label(mass_of, en, common, weighs).
+concept_label(mass_of, en, common, weigh).
+concept_label(isa, en, common, is).
+
+concept_label(million, it, common, mulino).
+concept_label(flourion, it, common, farina).
+concept_label(lumion, it, common, lumion).
+concept_label(organism, it, common, organismo).
+concept_label(gram, it, common, grammi).
+concept_label(produce_relation, it, common, produce).
+concept_label(mass_of, it, common, pesa).
+concept_label(isa, it, common, e).

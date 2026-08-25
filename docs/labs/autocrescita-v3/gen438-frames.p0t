@@ -1,0 +1,111 @@
+# GEN438 — STESSA IR PER ASSERZIONE E DOMANDA.
+#
+# Matrice costruttiva: 3 operatori x 2 modi x 2 lingue curate, poi la stessa
+# famiglia in una terza lingua aggiunta interamente a runtime.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=docs/labs/autocrescita-v3/gen438-frames.p0
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test English assertions and questions share binary measure and membership signatures]
+> mill produces flour
+!query input_semantic_frame(current_turn, assertion, binary(produce_relation), roles(subject(million), object(flourion)))
+> what does mill produce
+!query input_semantic_frame(current_turn, question, binary(produce_relation), roles(subject(million), object(missing)))
+!query input_frame_gap(current_turn, binary(produce_relation), object)
+
+> lumion weighs 7 grams
+!query input_semantic_frame(current_turn, assertion, measure(mass_of), roles(subject(lumion), measure(value(7), unit(gram))))
+> how many grams does lumion weigh
+!query input_semantic_frame(current_turn, question, measure(mass_of), roles(subject(lumion), measure(value(missing), unit(gram))))
+!query input_frame_gap(current_turn, measure(mass_of), value)
+
+> lumion is organism
+!query input_semantic_frame(current_turn, assertion, membership(isa), roles(subject(lumion), class(organism)))
+> which class is lumion
+!query input_semantic_frame(current_turn, question, membership(isa), roles(subject(lumion), class(missing)))
+!query input_frame_gap(current_turn, membership(isa), class)
+
+[mock core]
+!set PARROT0_LANG=it
+!reset
+
+[test Italian changes surface and word order but preserves every canonical signature]
+> mulino produce farina
+!query input_semantic_frame(current_turn, assertion, binary(produce_relation), roles(subject(million), object(flourion)))
+> cosa produce mulino
+!query input_semantic_frame(current_turn, question, binary(produce_relation), roles(subject(million), object(missing)))
+!query input_frame_gap(current_turn, binary(produce_relation), object)
+
+> lumion pesa 7 grammi
+!query input_semantic_frame(current_turn, assertion, measure(mass_of), roles(subject(lumion), measure(value(7), unit(gram))))
+> quanti grammi pesa lumion
+!query input_semantic_frame(current_turn, question, measure(mass_of), roles(subject(lumion), measure(value(missing), unit(gram))))
+!query input_frame_gap(current_turn, measure(mass_of), value)
+
+> lumion e organismo
+!query input_semantic_frame(current_turn, assertion, membership(isa), roles(subject(lumion), class(organism)))
+> cosa e lumion
+!query input_semantic_frame(current_turn, question, membership(isa), roles(subject(lumion), class(missing)))
+!query input_frame_gap(current_turn, membership(isa), class)
+
+[mock core]
+!set PARROT0_LANG=en
+!reset
+
+[test Esperanto joins all three operator families through runtime KB growth]
+!assert language_name(eo, "Esperanto")
+!assert language_marker(eo, kion)
+!assert language_marker(eo, kiom)
+!assert language_marker(eo, kio)
+!assert frame_pattern(eo, binary, assertion, sro)
+!assert frame_pattern(eo, binary, question, qsr)
+!assert frame_pattern(eo, measure, assertion, srvu)
+!assert frame_pattern(eo, measure, question, qusr)
+!assert frame_pattern(eo, membership, assertion, src)
+!assert frame_pattern(eo, membership, question, qrs)
+!assert frame_gap_form(eo, kion, object)
+!assert frame_gap_form(eo, kiom, value)
+!assert frame_gap_form(eo, kio, class)
+!assert concept_label(million, eo, common, muelejo)
+!assert concept_label(flourion, eo, common, faruno)
+!assert concept_label(lumion, eo, common, lumio)
+!assert concept_label(organism, eo, common, organismo)
+!assert concept_label(gram, eo, common, gramoj)
+!assert concept_label(produce_relation, eo, common, produktas)
+!assert concept_label(produce_relation, eo, common, produkti)
+!assert concept_label(mass_of, eo, common, pezas)
+!assert concept_label(isa, eo, common, estas)
+
+> kio
+!query turn_language(current_turn, input, eo)
+> muelejo produktas faruno
+!query input_semantic_frame(current_turn, assertion, binary(produce_relation), roles(subject(million), object(flourion)))
+> kion muelejo produkti
+!query input_semantic_frame(current_turn, question, binary(produce_relation), roles(subject(million), object(missing)))
+
+> lumio pezas 7 gramoj
+!query input_semantic_frame(current_turn, assertion, measure(mass_of), roles(subject(lumion), measure(value(7), unit(gram))))
+> kiom gramoj lumio pezas
+!query input_semantic_frame(current_turn, question, measure(mass_of), roles(subject(lumion), measure(value(missing), unit(gram))))
+
+> lumio estas organismo
+!query input_semantic_frame(current_turn, assertion, membership(isa), roles(subject(lumion), class(organism)))
+> kio estas lumio
+!query input_semantic_frame(current_turn, question, membership(isa), roles(subject(lumion), class(missing)))
+
+[test ablating one Esperanto relation form removes only that question family]
+!forget concept_label(produce_relation, eo, common, produkti)
+> kion muelejo produkti
+!query! input_semantic_frame(current_turn, question, binary(produce_relation), roles(subject(million), object(missing)))
+> kiom gramoj lumio pezas
+!query input_semantic_frame(current_turn, question, measure(mass_of), roles(subject(lumion), measure(value(missing), unit(gram))))
+> kio estas lumio
+!query input_semantic_frame(current_turn, question, membership(isa), roles(subject(lumion), class(missing)))
+!assert concept_label(produce_relation, eo, common, produkti)
+> kion muelejo produkti
+!query input_semantic_frame(current_turn, question, binary(produce_relation), roles(subject(million), object(missing)))
