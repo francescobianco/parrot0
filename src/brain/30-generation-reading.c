@@ -1694,14 +1694,36 @@ static void learn_clause_transitions(Brain *b, const char *clause) {
 static int extract_clause(Brain *b, char *clause) {
     char *c = trim_mut(clause);
     if (!*c) return 0;
+    char norm[256];
+    normalize(c, norm, sizeof norm);
+    if (!*norm) return 0;
+
+    /* Source language is observed from the clause itself through the same open
+     * language_marker/2 producer as a turn. It lives under current_prose, so a
+     * source in another language cannot overwrite the interlocutor's language. */
+    char sticky[KB_TERM_LEN], source_language[KB_TERM_LEN];
+    current_lang(b, sticky, sizeof sticky);
+    observe_language(b, "current_prose", norm, sticky,
+                     source_language, sizeof source_language);
+
+    /* A passage may contain several clauses. Each clause gets a fresh transient
+     * hierarchy; committed propositions and their provenance remain session
+     * knowledge, while nodes from two sentences can never cross-bind. */
+    input_structure_clear(b->kb, "current_prose");
     InputSpan prose_span;
     memset(&prose_span, 0, sizeof prose_span);
     prose_span.len = strlen(c);
     snprintf(prose_span.role, sizeof prose_span.role, "prose");
     input_structure_publish(b->kb, c, &prose_span, "current_prose");
-    char norm[256];
-    normalize(c, norm, sizeof norm);
-    if (!*norm) return 0;
+
+    /* The KB decides whether one and only one assertion frame is commit-ready,
+     * and performs the reified assertion plus provenance writes. C only asks
+     * for the receipt; no relation, word order or language is named here. */
+    char receipts[1][KB_TERM_LEN];
+    const char *commit[] = { "current_prose", NULL };
+    if (kb_match(b->kb, "input_frame_commit", commit, 2,
+                 receipts, 1) == 1)
+        return 1;
 
     /* gen121: canonicalize the clause's function words to English tokens before
      * extraction (gen43's interlingua), so an Italian sentence is parsed into the
@@ -1770,6 +1792,20 @@ static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) 
     }
 }
 
+static int reader_summary(Brain *b, size_t learned, size_t skipped,
+                          char *out, size_t out_size) {
+    if (!b || !out || out_size == 0) return 0;
+    char frame[KB_TERM_LEN];
+    if (!lang_template(b, "reader_summary", frame, sizeof frame)) return 0;
+    char learned_value[32], skipped_value[32];
+    snprintf(learned_value, sizeof learned_value, "%zu", learned);
+    snprintf(skipped_value, sizeof skipped_value, "%zu", skipped);
+    const KbResponseSlot slots[] = {
+        { "learned", learned_value }, { "skipped", skipped_value }
+    };
+    return kb_fill_slots(frame, slots, 2, 1, out, out_size);
+}
+
 size_t brain_read_prose(Brain *b, const char *prose, char *out, size_t out_size) {
     if (!b || !prose || !out || out_size == 0) return 0;
     char buf[4096];
@@ -1782,35 +1818,53 @@ size_t brain_read_prose(Brain *b, const char *prose, char *out, size_t out_size)
     clear_generation_model(b);
     b->prop_count = 0;
     read_passage(b, buf, &learned, &skipped);
-    snprintf(out, out_size, "Learned %zu fact(s), skipped %zu.", learned, skipped);
+    if (!reader_summary(b, learned, skipped, out, out_size)) out[0] = '\0';
     return learned;
 }
 
 static int mod_reader(Brain *b, const char *norm, const char *raw,
                       char *out, size_t out_size) {
-    if (!b) return 0;
-    if (strncmp(norm, "read:", 5) != 0) return 0;
+    (void)norm;
+    if (!b || !b->kb || !raw) return 0;
 
-    /* Take the passage from `raw` (not the 255-char-truncated `norm`) so long
-     * passages survive; per-clause normalization lowercases/trims afterwards. */
-    const char *colon = strchr(raw, ':');
-    const char *passage = colon ? colon + 1 : raw;
+    /* The command surface and its delimiter are segment_role/2 evidence. The
+     * module asks faculty_for/2 which observed span belongs to it and copies
+     * that span's payload by offsets. Teaching another cue changes routing at
+     * runtime; this adapter knows no word or punctuation convention. */
+    InputSpan spans[64]; int ambiguous = 0;
+    size_t ns = input_segment(b->kb, raw, spans, 64, &ambiguous);
+    if (ambiguous || ns == 0) return 0;
+    const InputSpan *source = NULL;
+    for (size_t i = 0; i < ns; i++) {
+        char type[KB_TERM_LEN];
+        input_span_type(&spans[i], type, sizeof type);
+        const char *route[] = { type, "reader" };
+        if (!kb_query(b->kb, "faculty_for", route, 2)) continue;
+        if (source) return 0;                 /* competing source spans: decline */
+        source = &spans[i];
+    }
+    if (!source || source->cue_len > source->len) return 0;
+    size_t passage_start = source->start + source->cue_len;
+    size_t passage_len = source->len - source->cue_len;
+    while (passage_len && isspace((unsigned char)raw[passage_start])) {
+        passage_start++;
+        passage_len--;
+    }
+    while (passage_len &&
+           isspace((unsigned char)raw[passage_start + passage_len - 1]))
+        passage_len--;
     char buf[4096];
-    size_t plen = strlen(passage);
+    size_t plen = passage_len;
     if (plen >= sizeof buf) plen = sizeof buf - 1;
-    memcpy(buf, passage, plen);
+    memcpy(buf, raw + passage_start, plen);
     buf[plen] = '\0';
 
     size_t learned = 0, skipped = 0;
+    kb_retract_pred(b->kb, "reading_fact");
     clear_generation_model(b);
-    b->prop_count = 0;     /* gen121: each `read:` is a fresh passage to summarize */
+    b->prop_count = 0;
     read_passage(b, buf, &learned, &skipped);
-
-    char msg[128];
-    snprintf(msg, sizeof msg, "Learned %zu fact(s), skipped %zu.",
-             learned, skipped);
-    put(msg, out, out_size);
-    return 1;
+    return reader_summary(b, learned, skipped, out, out_size);
 }
 
 /* --- module: bench -------------------------------------------------------

@@ -121,6 +121,7 @@ void input_structure_clear(KB *kb, const char *scope) {
     kb_retract_match(kb, "input_node", node, 4);
     kb_retract_match(kb, "input_node_surface", sidecar, 3);
     kb_retract_match(kb, "input_node_role", sidecar, 3);
+    kb_retract_match(kb, "input_frame_record", sidecar, 3);
 }
 
 size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,

@@ -774,3 +774,8 @@ response_template(missing_referent, it, "Non ho {kind} di cui parli — incollam
 % gen431 — non c'e' niente da dimenticare, ed e' una risposta.
 response_template(nothing_to_forget, "I don't have your {slot} on record, so there is nothing to forget.").
 response_template(nothing_to_forget, it, "Non ho {slot} in memoria, quindi non c'e' niente da dimenticare.").
+
+% Gen438: il lettore riferisce soltanto i due contatori prodotti dal meccanismo;
+% lingua, parole e disposizione degli slot restano sostituibili nella KB.
+response_template(reader_summary, en, "Learned {learned} fact(s), skipped {skipped}.").
+response_template(reader_summary, it, "Ho appreso {learned} fatti, ne ho saltati {skipped}.").

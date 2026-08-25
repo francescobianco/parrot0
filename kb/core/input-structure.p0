@@ -30,6 +30,28 @@ machinery(node_order3).
 machinery(node_order4).
 machinery(input_semantic_frame).
 machinery(input_frame_gap).
+machinery(input_frame_key).
+machinery(input_frame_set).
+machinery(input_frame_unique).
+machinery(input_frame_observe).
+machinery(input_frame_record).
+machinery(input_clause_provenance).
+machinery(input_assertion_key).
+machinery(input_assertion_set).
+machinery(input_assertion_unique).
+machinery(input_assertion_ambiguous).
+machinery(input_frame_commit).
+machinery(proposition_source).
+machinery(proposition_source_record).
+machinery(input_proposition_binding).
+machinery(semantic_binding).
+machinery(input_frame_reading).
+machinery(input_frame_reading_key).
+machinery(input_frame_reading_set).
+machinery(input_frame_reading_unique).
+machinery(input_answer_surface_key).
+machinery(input_answer_surface_set).
+machinery(input_answer_surface_unique).
 
 input_node_level($Scope, $Id, $Level) :-
     input_node($Scope, $Id, node($Level, $Kind, $Parent), $Range).
@@ -40,13 +62,11 @@ input_node_parent($Scope, $Id, $Parent) :-
 input_node_range($Scope, $Id, $Start, $Length) :-
     input_node($Scope, $Id, $Node, range($Start, $Length)).
 
-input_scope_language(current_turn, $Language) :-
-    turn_language(current_turn, input, $Language).
-
-% Il lettore di prosa usa oggi la lingua del turno che lo ha invocato. La lingua
-% della revisione Wikipedia diventera' una coordinata distinta in gen439-440.
-input_scope_language(current_prose, $Language) :-
-    turn_language(current_turn, input, $Language).
+% Turno e prosa passano dallo stesso osservatore n-lingue, ma restano scope
+% separati. Una fonte puo' quindi avere una lingua diversa dalla richiesta che
+% l'ha fatta leggere senza perdere nessuna delle due coordinate.
+input_scope_language($Scope, $Language) :-
+    turn_language_selected($Scope, $Language).
 
 input_node_atom($Scope, $Id, $Surface) :-
     input_node($Scope, $Id, node(token, token, $Parent), $Range),
@@ -192,3 +212,144 @@ input_frame_gap($Scope, measure($Relation), value) :-
 input_frame_gap($Scope, membership($Relation), class) :-
     input_semantic_frame($Scope, question, membership($Relation),
                          roles(subject($Subject), class(missing))).
+
+% La risoluzione completa del frame e' deliberatamente eseguita una volta al
+% confine di osservazione. Il record risultante e' ancora una struttura della
+% KB, non una classificazione C: evita che ogni consumatore debba rieseguire
+% tutta la catena lingua -> forma -> ruolo fino al limite di profondita' del
+% solver, e rende esplicito quale lettura sia stata ammessa nel turno.
+input_frame_key($Scope, observed($Mode, $Operator, $Roles)) :-
+    input_semantic_frame($Scope, $Mode, $Operator, $Roles).
+input_frame_set($Scope, $Frames) :-
+    findall($Frame, input_frame_key($Scope, $Frame), $Frames).
+input_frame_unique($Scope, observed($Mode, $Operator, $Roles)) :-
+    input_frame_set($Scope, cons(observed($Mode, $Operator, $Roles), nil)).
+input_frame_observe($Scope, observed($Mode, $Operator, $Roles)) :-
+    input_frame_unique($Scope, observed($Mode, $Operator, $Roles)),
+    assert(input_frame_record, $Scope, frame($Mode, $Operator), $Roles).
+
+% ── DALLA PROSA ALLA CONOSCENZA, SENZA UN SECONDO ESTRATTORE ──────────────
+%
+% L'asserzione viene reificata esattamente nella forma che la domanda consuma.
+% La commit e' autorizzata soltanto con un frame unico; una lettura concorrente
+% resta un'ambiguita' e non produce conoscenza. Provenienza significa qui lingua
+% osservata, superficie esatta della clausola e byte span locale. Una revisione
+% Wikipedia sostituira' `inline` con il proprio indirizzo senza cambiare il
+% contratto proposition_source/4.
+
+input_clause_provenance($Scope,
+                        provenance($Language, $Quoted, range($Start, $Length))) :-
+    input_scope_language($Scope, $Language),
+    input_node($Scope, 0, node(clause, clause, root), range($Start, $Length)),
+    input_node_surface($Scope, 0, $Quoted).
+
+input_assertion_key($Scope,
+                    proposition(binary($Relation),
+                                roles(subject($Subject), object($Object)))) :-
+    input_semantic_frame($Scope, assertion, binary($Relation),
+                         roles(subject($Subject), object($Object))).
+input_assertion_key($Scope,
+                    proposition(measure($Relation),
+                                roles(subject($Subject),
+                                      measure(value($Value), unit($Unit))))) :-
+    input_semantic_frame($Scope, assertion, measure($Relation),
+                         roles(subject($Subject),
+                               measure(value($Value), unit($Unit)))).
+input_assertion_key($Scope,
+                    proposition(membership($Relation),
+                                roles(subject($Subject), class($Class)))) :-
+    input_semantic_frame($Scope, assertion, membership($Relation),
+                         roles(subject($Subject), class($Class))).
+
+input_assertion_set($Scope, $Assertions) :-
+    findall($Assertion, input_assertion_key($Scope, $Assertion), $Assertions).
+input_assertion_unique($Scope, $Assertion) :-
+    input_assertion_set($Scope, cons($Assertion, nil)).
+input_assertion_ambiguous($Scope) :-
+    input_assertion_set($Scope, cons($First, cons($Second, $Tail))).
+
+% Proiezione relazionale della stessa IR. `semantic_proposition/1` conserva la
+% forma completa e la provenienza; semantic_binding/3 offre al solver un indice
+% poco profondo, senza re-interpretare la frase e senza perdere l'operatore.
+input_proposition_binding(
+    proposition(binary($Relation),
+                roles(subject($Subject), object($Object))),
+    binary($Relation), $Subject, object($Object)).
+input_proposition_binding(
+    proposition(measure($Relation),
+                roles(subject($Subject),
+                      measure(value($Value), unit($Unit)))),
+    measure($Relation), $Subject, measure($Value, $Unit)).
+input_proposition_binding(
+    proposition(membership($Relation),
+                roles(subject($Subject), class($Class))),
+    membership($Relation), $Subject, class($Class)).
+
+input_frame_commit($Scope,
+                   committed($Proposition,
+                             provenance($Language, $Quoted,
+                                        range($Start, $Length)))) :-
+    input_assertion_unique($Scope, $Proposition),
+    input_clause_provenance($Scope,
+                            provenance($Language, $Quoted,
+                                       range($Start, $Length))),
+    input_proposition_binding($Proposition, $Operator, $Subject, $Filler),
+    assert(semantic_proposition, $Proposition),
+    assert(semantic_binding, $Operator, $Subject, $Filler),
+    assert(proposition_source_record, $Proposition, source(inline, $Quoted),
+           provenance(language($Language), range($Start, $Length))),
+    assert(reading_fact, $Proposition, $Quoted).
+
+% Il builtin assert/1 conserva il limite meccanico KB_MAX_ARGS: nome del
+% predicato piu' al massimo tre argomenti. La provenienza e' quindi registrata
+% in un record reificato a tre argomenti e proiettata nella vista pubblica a
+% quattro coordinate; nessuna coordinata informativa viene persa.
+proposition_source($Proposition, $Source, $Language, $Range) :-
+    proposition_source_record($Proposition, $Source,
+                              provenance($Language, $Range)).
+
+% La domanda non viene tradotta in un altro formato: completa il proprio ruolo
+% `missing` contro la proposizione reificata. Questo e' il ponte effettivo fra
+% lettura e dialogo e funziona anche quando le due lingue non coincidono.
+input_frame_reading($Scope, binary($Relation), object, $Object) :-
+    input_frame_record($Scope, frame(question, binary($Relation)),
+                       roles(subject($Subject), object(missing))),
+    semantic_binding(binary($Relation), $Subject, object($Object)).
+input_frame_reading($Scope, measure($Relation), value,
+                    measure($Value, $Unit)) :-
+    input_frame_record($Scope, frame(question, measure($Relation)),
+                       roles(subject($Subject),
+                             measure(value(missing), unit($Unit)))),
+    semantic_binding(measure($Relation), $Subject,
+                     measure($Value, $Unit)).
+input_frame_reading($Scope, membership($Relation), class, $Class) :-
+    input_frame_record($Scope, frame(question, membership($Relation)),
+                       roles(subject($Subject), class(missing))),
+    semantic_binding(membership($Relation), $Subject, class($Class)).
+
+input_frame_reading_key($Scope, reading($Operator, $Role, $Value)) :-
+    input_frame_reading($Scope, $Operator, $Role, $Value).
+input_frame_reading_set($Scope, $Readings) :-
+    findall($Reading, input_frame_reading_key($Scope, $Reading), $Readings).
+input_frame_reading_unique($Scope, $Operator, $Role, $Value) :-
+    input_frame_reading_set($Scope,
+                            cons(reading($Operator, $Role, $Value), nil)).
+
+% Anche la realizzazione rifiuta una scelta arbitraria fra sinonimi di pari
+% stato. Il registro/default della lingua determina i candidati; soltanto un
+% insieme singleton autorizza la risposta.
+input_answer_surface_key($Language, $Value, $Surface) :-
+    lexical_output($Value, $Language, $Surface).
+input_answer_surface_set($Language, $Value, $Surfaces) :-
+    findall($Surface, input_answer_surface_key($Language, $Value, $Surface),
+            $Surfaces).
+input_answer_surface_unique($Language, $Value, $Surface) :-
+    input_answer_surface_set($Language, $Value, cons($Surface, nil)).
+
+turn_plan_candidate($Turn) :-
+    input_frame_reading_unique($Turn, $Operator, $Role, $Value).
+turn_response($Turn, $Text) :-
+    input_frame_reading_unique($Turn, $Operator, $Role, $Value),
+    turn_language($Turn, output, $Language),
+    input_answer_surface_unique($Language, $Value, $Surface),
+    value_statement($Language, $Surface, $Text).

@@ -1555,24 +1555,27 @@ typedef struct {
     size_t count;
 } TurnLanguageCount;
 
-/* Detect a turn's language without enumerating languages in C.  The fixed
- * producer tokenizes and counts every binding returned by language_marker/2,
- * preserving each support as a reflective fact.  language-observation.p0 owns
- * the policy that selects a unique maximum, exposes ties, and applies the
- * sticky fallback only when evidence is genuinely absent. */
-static void detect_set_language(Brain *b, const char *norm) {
-    if (!b || !b->kb) return;
-    char sticky[KB_TERM_LEN];
-    current_lang(b, sticky, sizeof sticky);
+/* Observe a scope's language without enumerating languages in C. The fixed
+ * producer tokenizes and counts every binding returned by language_marker/2;
+ * language-observation.p0 owns winner, ambiguity and sticky policy. The same
+ * mechanism serves turns and source prose, so source language is not inferred
+ * later from the language of the question. */
+static int observe_language(Brain *b, const char *scope, const char *norm,
+                            const char *sticky, char *selected,
+                            size_t selected_size) {
+    if (selected && selected_size) selected[0] = '\0';
+    if (!b || !b->kb || !scope || !*scope || !norm) return 0;
 
-    kb_retract_pred(b->kb, "turn_language_support");
-    kb_retract_pred(b->kb, "turn_language_evidence");
-    kb_retract_pred(b->kb, "turn_language_sticky");
+    const char *support_pattern[] = { scope, NULL, NULL, NULL };
+    const char *sticky_pattern[] = { scope, NULL };
+    kb_retract_match(b->kb, "turn_language_support", support_pattern, 4);
+    kb_retract_match(b->kb, "turn_language_evidence", support_pattern, 4);
+    kb_retract_match(b->kb, "turn_language_sticky", sticky_pattern, 2);
 
     int prev_origin = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_REFLECTIVE);
-    if (sticky[0]) {
-        const char *a[] = { "current_turn", sticky };
+    if (sticky && sticky[0]) {
+        const char *a[] = { scope, sticky };
         kb_assert(b->kb, "turn_language_sticky", a, 2);
     }
 
@@ -1616,7 +1619,7 @@ static void detect_set_language(Brain *b, const char *norm) {
             snprintf(quoted, sizeof quoted, "\"%.*s\"",
                      (int)(KB_TERM_LEN - 3), t);
             const char *support[] = {
-                "current_turn", counts[k].language, position, quoted
+                scope, counts[k].language, position, quoted
             };
             kb_assert(b->kb, "turn_language_support", support, 4);
         }
@@ -1628,25 +1631,39 @@ static void detect_set_language(Brain *b, const char *norm) {
         snprintf(score, sizeof score, "%zu", counts[i].count);
         snprintf(count, sizeof count, "%zu", counts[i].count);
         const char *evidence[] = {
-            "current_turn", counts[i].language, score, count
+            scope, counts[i].language, score, count
         };
         kb_assert(b->kb, "turn_language_evidence", evidence, 4);
     }
 
-    /* The selected language is a KB derivation.  A tie deliberately yields no
-     * binding, so current_language remains unchanged while the turn itself is
-     * marked ambiguous and cannot silently inherit the sticky member. */
-    const char *sq[] = { "current_turn", NULL };
-    char selected[1][KB_TERM_LEN];
-    if (kb_match(b->kb, "turn_language_selected", sq, 2,
-                 selected, 1) > 0 && selected[0][0] &&
-        strcmp(sticky, selected[0]) != 0) {
-        kb_retract_pred(b->kb, "current_language");
-        const char *a[] = { selected[0] };
-        kb_assert(b->kb, "current_language", a, 1);
-    }
+    const char *sq[] = { scope, NULL };
+    char hit[1][KB_TERM_LEN];
+    int found = kb_match(b->kb, "turn_language_selected", sq, 2,
+                         hit, 1) > 0;
+    if (found && selected && selected_size)
+        snprintf(selected, selected_size, "%s", hit[0]);
     free(counts);
     kb_set_origin(b->kb, prev_origin);
+    return found;
+}
+
+/* The turn-selected language updates the conversation's sticky state. A tie
+ * deliberately yields no binding, so it remains explicit and cannot silently
+ * inherit the previous member. */
+static void detect_set_language(Brain *b, const char *norm) {
+    if (!b || !b->kb) return;
+    char sticky[KB_TERM_LEN], selected[KB_TERM_LEN];
+    current_lang(b, sticky, sizeof sticky);
+    if (observe_language(b, "current_turn", norm, sticky,
+                         selected, sizeof selected) &&
+        selected[0] && strcmp(sticky, selected) != 0) {
+        int prev_origin = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        kb_retract_pred(b->kb, "current_language");
+        const char *a[] = { selected };
+        kb_assert(b->kb, "current_language", a, 1);
+        kb_set_origin(b->kb, prev_origin);
+    }
 }
 
 /* Fetch a localized response_template(Intent, Lang, "…") for the CURRENT language,

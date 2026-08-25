@@ -1,0 +1,120 @@
+# GEN438 — PROSA E DOMANDA CONSUMANO LA STESSA IR.
+#
+# Esperimento costruttivo, non bench. Dimostra:
+# - il trigger del lettore e' una relazione runtime, non un literal C;
+# - ogni fonte conserva lingua, superficie e span separati dal turno;
+# - relazione, misura e classe diventano semantic_proposition/1;
+# - una domanda in un'altra lingua completa il proprio ruolo missing contro
+#   quella proposizione e puo' rispondere nella lingua del nuovo turno;
+# - forma, cue e lettura ambigua sono ablabili senza rebuild.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=docs/labs/autocrescita-v3/gen438-frames.p0
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test an English assertion is committed once and answered in Italian]
+> read: mill produces flour.
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(million), object(flourion))))
+!query semantic_binding(binary(produce_relation), million, object(flourion))
+!query proposition_source(proposition(binary(produce_relation), roles(subject(million), object(flourion))), source(inline, "mill produces flour"), language(en), range(0, 19))
+!query reading_fact(proposition(binary(produce_relation), roles(subject(million), object(flourion))), "mill produces flour")
+!query input_scope_language(current_prose, en)
+!query input_semantic_frame(current_prose, assertion, binary(produce_relation), roles(subject(million), object(flourion)))
+!query input_assertion_key(current_prose, proposition(binary(produce_relation), roles(subject(million), object(flourion))))
+!query input_assertion_set(current_prose, cons(proposition(binary(produce_relation), roles(subject(million), object(flourion))), nil))
+!query input_assertion_unique(current_prose, proposition(binary(produce_relation), roles(subject(million), object(flourion))))
+> cosa produce mulino
+< Farina.
+!query input_frame_record(current_turn, frame(question, binary(produce_relation)), roles(subject(million), object(missing)))
+!query input_frame_reading(current_turn, binary(produce_relation), object, flourion)
+!query input_frame_reading_unique(current_turn, binary(produce_relation), object, flourion)
+!query input_scope_language(current_prose, en)
+!query input_scope_language(current_turn, it)
+
+[mock core]
+!set PARROT0_LANG=it
+!reset
+
+[test an Italian measure preserves source language and answers an English gap]
+> leggi: lumion pesa 7 grammi.
+!query semantic_proposition(proposition(measure(mass_of), roles(subject(lumion), measure(value(7), unit(gram)))))
+!query semantic_binding(measure(mass_of), lumion, measure(7, gram))
+!query proposition_source(proposition(measure(mass_of), roles(subject(lumion), measure(value(7), unit(gram)))), source(inline, "lumion pesa 7 grammi"), language(it), range(0, 20))
+!query input_scope_language(current_prose, it)
+> how many grams does lumion weigh
+!query input_semantic_frame(current_turn, question, measure(mass_of), roles(subject(lumion), measure(value(missing), unit(gram))))
+!query input_frame_record(current_turn, frame(question, measure(mass_of)), roles(subject(lumion), measure(value(missing), unit(gram))))
+!query input_frame_reading(current_turn, measure(mass_of), value, measure(7, gram))
+!query input_frame_reading_unique(current_turn, measure(mass_of), value, measure(7, gram))
+!query input_scope_language(current_turn, en)
+!query input_scope_language(current_prose, it)
+
+[mock core]
+!set PARROT0_LANG=en
+!reset
+
+[test an Esperanto source joins at runtime and its class is answerable in English]
+!assert language_name(eo, "Esperanto")
+!assert language_marker(eo, estas)
+!assert segment_role(prose_source, "ingest:")
+!assert frame_pattern(eo, membership, assertion, src)
+!assert concept_label(lumion, eo, common, lumio)
+!assert concept_label(organism, eo, common, organismo)
+!assert concept_label(isa, eo, common, estas)
+> ingest: lumio estas organismo.
+!query input_scope_language(current_prose, eo)
+!query semantic_proposition(proposition(membership(isa), roles(subject(lumion), class(organism))))
+!query semantic_binding(membership(isa), lumion, class(organism))
+!query proposition_source(proposition(membership(isa), roles(subject(lumion), class(organism))), source(inline, "lumio estas organismo"), language(eo), range(0, 21))
+> which class is lumion
+< Organism.
+!query input_frame_record(current_turn, frame(question, membership(isa)), roles(subject(lumion), class(missing)))
+!query input_frame_reading(current_turn, membership(isa), class, organism)
+!query input_scope_language(current_turn, en)
+!query input_scope_language(current_prose, eo)
+
+[test removing a reader cue prevents only acquisition routed by that cue]
+> tell me about kiln
+!assert semantic_entity(kilnion)
+!assert semantic_entity(brickion)
+!assert concept_label(kilnion, en, common, kiln)
+!assert concept_label(brickion, en, common, brick)
+!forget segment_role(prose_source, "ingest:")
+> ingest: kiln produces brick.
+!query! semantic_proposition(proposition(binary(produce_relation), roles(subject(kilnion), object(brickion))))
+!assert segment_role(prose_source, "ingest:")
+> ingest: kiln produces brick.
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(kilnion), object(brickion))))
+
+[test removing one source form prevents its proposition and leaves another operator alive]
+!assert semantic_entity(forgeion)
+!assert semantic_entity(boltion)
+!assert concept_label(forgeion, en, common, forge)
+!assert concept_label(boltion, en, common, bolt)
+!forget concept_label(produce_relation, en, common, produces)
+> read: forge produces bolt.
+!query! semantic_proposition(proposition(binary(produce_relation), roles(subject(forgeion), object(boltion))))
+!query semantic_proposition(proposition(membership(isa), roles(subject(lumion), class(organism))))
+!assert concept_label(produce_relation, en, common, produces)
+> read: forge produces bolt.
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(forgeion), object(boltion))))
+
+[test two equally valid readings remain ambiguous and commit neither]
+!assert semantic_entity(pression)
+!assert semantic_entity(sheetion)
+!assert concept_label(pression, en, common, press)
+!assert concept_label(sheetion, en, common, sheet)
+!assert frame_operator_concept(manufacture_relation, binary)
+!assert concept_label(manufacture_relation, en, common, produces)
+> read: press produces sheet.
+!query input_assertion_ambiguous(current_prose)
+!query! semantic_proposition(proposition(binary(produce_relation), roles(subject(pression), object(sheetion))))
+!query! semantic_proposition(proposition(binary(manufacture_relation), roles(subject(pression), object(sheetion))))
+!forget concept_label(manufacture_relation, en, common, produces)
+> read: press produces sheet.
+!query! input_assertion_ambiguous(current_prose)
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(pression), object(sheetion))))

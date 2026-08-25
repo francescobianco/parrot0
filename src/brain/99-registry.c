@@ -1899,6 +1899,21 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
         size_t ng = kb_match(b->kb, "compound_guard", gq, 2, guards, 32);
         for (size_t gi = 0; gi < ng; gi++)
             if (kb_cue_match(b, kb_dequote(guards[gi]), canon)) return 0;
+
+        /* Some typed spans are atomic for discourse decomposition. The KB
+         * assigns that policy to an open span role; adding a cue to the role
+         * inherits it without a new literal or branch here. */
+        InputSpan spans[64]; int ambiguous = 0;
+        size_t ns = input_segment(b->kb, input, spans, 64, &ambiguous);
+        if (!ambiguous) {
+            for (size_t i = 0; i < ns; i++) {
+                char type[KB_TERM_LEN];
+                input_span_type(&spans[i], type, sizeof type);
+                const char *policy[] = { type, "whole" };
+                if (kb_query(b->kb, "decompose_span_policy", policy, 2))
+                    return 0;
+            }
+        }
     }
     /* Don't decompose structured prompts — they have their own parser. */
     if (strncmp(canon, "premise:", 8) == 0 ||
@@ -1907,7 +1922,6 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
         strncmp(canon, "superglue", 9) == 0 ||
         strncmp(canon, "effect of ", 10) == 0 ||
         strncmp(canon, "cause of ", 9) == 0 ||
-        strncmp(canon, "read:", 5) == 0 ||
         strncmp(canon, "learn sequence:", 15) == 0)
         return 0;
 
@@ -3465,6 +3479,15 @@ static int universal_turn_lead(Brain *b, const char *surface,
         input_structure_publish(b->kb, surface, &spans[i], "current_turn");
         turn_publish_tokens(b, surface, &spans[i], index);
         turn_publish_state(b, surface, &spans[i], index);
+    }
+
+    /* Resolve the accumulated hierarchy once and let the KB materialize its
+     * unique semantic observation.  This call names only the open observation
+     * protocol: words, languages, operators and word orders remain KB facts. */
+    {
+        char observed[1][KB_TERM_LEN];
+        const char *q[] = { "current_turn", NULL };
+        kb_match(b->kb, "input_frame_observe", q, 2, observed, 1);
     }
     kb_set_origin(b->kb, KB_SESSION);
 

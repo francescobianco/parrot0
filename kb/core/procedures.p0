@@ -213,6 +213,9 @@ value_statement($Language, $Value, $Text) :- sentence_opening($Language, $Value,
 translated_term($Value) :- tr($Value, $Local).
 lexical_output($Value, $Language, $Form) :- register_output($Value, $Language, $Form).
 lexical_output($Value, $Language, $Form) :- register_marked($Value, $Language), concept_label($Value, $Language, $Register, $Form), naf(marked_form($Form)).
+machinery(default_register).
+default_register(common).
+lexical_output($Value, $Language, $Form) :- naf(register_renders($Value, $Language)), default_register($Register), concept_label($Value, $Language, $Register, $Form), naf(marked_form($Form)).
 lexical_renders($Value, $Language) :- lexical_output($Value, $Language, $Form).
 value_in_language($Language, $Value, $Form) :- lexical_output($Value, $Language, $Form).
 value_in_language(en, $Value, $Value) :- naf(lexical_renders($Value, en)).

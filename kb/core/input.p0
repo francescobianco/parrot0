@@ -207,6 +207,12 @@ segment_role(query, "what is the value of").
 segment_role(query, "what is").
 segment_role(query, "quanto vale").
 
+% Inline prose acquisition is routed by the same universal span mechanism as
+% every other register. Neither the reader nor the delimiter is recognized in
+% C; a new surface joins this role at runtime through one fact.
+segment_role(prose_source, "read:").
+segment_role(prose_source, "leggi:").
+
 % Uncued gaps are still classified by knowledge about their position relative
 % to a typed register, rather than by a C constant.
 segment_default(before, instruction).
@@ -230,6 +236,12 @@ faculty_for(log, verdict_builder).
 faculty_for(prose, reasoner).
 faculty_for(mention, reasoner).
 faculty_for(query, reasoner).
+faculty_for(prose_source, reader).
+
+% A source span must stay whole until its faculty consumes the payload. This
+% replaces the decompose dispatcher's old special case for the literal `read:`;
+% every future cue inheriting the role receives the same policy at runtime.
+decompose_span_policy(prose_source, whole).
 
 % This schema describes parrot0's perception/routing machinery, not world facts.
 machinery(evidence_weight).
@@ -243,6 +255,7 @@ machinery(register_label).
 machinery(segment_role).
 machinery(segment_default).
 machinery(faculty_for).
+machinery(decompose_span_policy).
 machinery(canonicalization_exempt).
 machinery(turn_span).
 machinery(turn_span_cue).

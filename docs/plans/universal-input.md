@@ -1,6 +1,10 @@
 # L'input è UNO — nessun flusso di testo si classifica nel C
 
-> **Stato:** **chiuso a gen332 (2026-07-12)**. Il debito era stato riconosciuto a
+> **Stato storico:** il primo livello è stato chiuso a gen332 (2026-07-12), ma
+> la decisione del 25 agosto 2026 riapre la migrazione completa: tutti i percorsi
+> linguistici C residui sono obsoleti. La norma operativa e il censimento sono in
+> [`kb-first-c-gold-standard.md`](kb-first-c-gold-standard.md).
+> Il debito era stato riconosciuto a
 > gen331, subito dopo TODO.md 01: il comportamento era verde ma viveva in un enum,
 > in un parser C-only e in un frasario bilingue. Ora `InputSpan` ha ruoli aperti,
 > `input_segment(KB*, …)` confronta evidenze con proof e senza tiebreak, e tutta la
@@ -284,10 +288,11 @@ Per non farne un dogma:
 - **Non dice «tutto nella KB».** Il motore resta nel C, ed è giusto così: bilanciare
   delimitatori e pesare ipotesi sono *motori*, come l'unificazione. Il confine è
   quello della tabella §3, non «zero C».
-- **Non dice di cancellare il C esistente.** Vale la regola di F.
-  ([[keep-secondary-structures]]): cambi **additivi**. `code_segment()` resta come
-  adapter compatibile sopra `input_segment()`; il vecchio estrattore dopo i due
-  punti interviene soltanto su un Gap, mai per sciogliere un'ambiguità KB.
+- **Il C linguistico esistente non è una seconda struttura permanente.** La
+  migrazione può essere additiva soltanto finché serve a confrontare i due
+  percorsi. Dopo crescita, ablazione, multilingua e provenance, l'adapter viene
+  rimosso. `code_segment()` può restare come meccanica sopra `input_segment()`;
+  un recognizer che nomina parole, keyword o ruoli non può restare come fallback.
 - **Non promette che l'evidenza basti sempre.** Quando due registri restano
   equiprobabili, la risposta corretta è `ambiguous_input` — non un tiebreak cablato
   per far passare un test.

@@ -1,6 +1,6 @@
 # Autocrescita v3 — dieci generazioni verso una KB vivente
 
-**Stato:** gen437 chiusa; checkpoint costruttivo gen438 implementato, gate aperto
+**Stato:** gen437 chiusa; Gen438 end-to-end prosa/dialogo implementata, gate aperto
 **Data:** 25 agosto 2026
 **Orizzonte:** gen437–gen446
 **Vincolo:** runtime KB-first; Wikipedia è l'unica sorgente esterna ammessa
@@ -44,6 +44,12 @@ Questa formulazione unifica i programmi di
 `universal-input.md`, `frontier-kb-natural-dialogue.md`,
 `autocrescita.md`, `autocrescita-v2.md` e gli esperimenti di
 `docs/labs/autoupdate` senza fare dei test storici la misura del progetto.
+
+Dal 25 agosto 2026 il confine è normato anche da
+[`kb-first-c-gold-standard.md`](kb-first-c-gold-standard.md): tutti i percorsi
+linguistici C sono debito da convertire o rimuovere. Ogni taglio nuovo deve
+avere `legacy_hits=0`; i fallback esistenti sono soltanto transitori e non
+possono concorrere al gate.
 
 ### Decisioni di sintesi
 
@@ -783,12 +789,46 @@ scomparire un sintagma tramite `phrase_boundary/3`. La seconda copre
 interamente a runtime; togliere una sola forma verbale elimina soltanto la
 famiglia binaria interessata.
 
+Il secondo taglio porta ora la dualità fino al consumer reale. Il lettore inline
+non riconosce più `read:`/`leggi:` nel C: il trigger è `segment_role/2` e la
+facoltà è `faculty_for/2`. La prosa usa un proprio scope linguistico, produce lo
+stesso `input_semantic_frame/4`, commette una `semantic_proposition/1`, conserva
+`proposition_source/4` e pubblica l'indice `semantic_binding/3`. Una domanda in
+un'altra lingua completa il ruolo `missing` contro quell'indice e la risposta
+viene realizzata da forme e template KB.
+
+`input_frame_record/3` materializza una sola volta la lettura ammessa al confine
+di osservazione. Non è una cache linguistica C: è un record KB derivato dalla IR
+e scaduto con lo scope. La proiezione poco profonda è necessaria perché il limite
+di profondità del solver non trasformi la ricostruzione ripetuta della stessa
+proposizione in una falsa assenza. Analogamente, `proposition_source_record/3`
+conserva la provenienza entro `KB_MAX_ARGS=4` e la espone come vista pubblica a
+quattro coordinate.
+
+Nuova evidenza da processo pulito:
+
+```text
+gen438-prose-dialogue.p0t => 44 passed
+```
+
+Il dossier prova fonte inglese interrogata in italiano, fonte italiana
+interrogata in inglese, una fonte Esperanto abilitata a runtime, ablazione e
+ripristino del trigger del lettore, ablazione e ripristino della forma verbale,
+ambiguità non committata e provenance esatta di lingua, superficie e span.
+Il percorso positivo ritorna prima dei vecchi estrattori: per questo il suo
+`legacy_hits` è zero. Il fallback lessicale C sottostante resta debito esplicito
+da rimuovere, non una parte del risultato.
+
 Stato del gate: **H438 resta aperta**. Questi risultati dimostrano il produttore
-n-lingue e una composizione minima promettente, non M1–M5 completo. Mancano
+n-lingue e il primo verticale prosa→proposizione→domanda→risposta, non M1–M5
+completo. Mancano
 ancora locuzioni multiword risolte come nodi, ruoli annidati, scope e
-coordinazioni, l'uso end-to-end della stessa IR da parte dell'estrattore di
-prosa, trasferimento di ogni operatore su tre domini e rimozione dei rami
-linguistici legacy fuori dal nuovo detector. Chiamare chiusa la generazione su
+coordinazioni, trasferimento di ogni operatore su tre domini e rimozione dei
+rami linguistici legacy equivalenti. Il censimento conservativo iniziale trova
+2040 siti sospetti fra `src/brain` e `src/code.c`; la prima migrazione porta il
+checkpoint a 2039. Sono ordinati per classi e gate nel gold standard, non
+trattati come fix locali. Chiamare chiusa la
+generazione su
 questi campioni sarebbe precisamente l'errore che il gate deve impedire.
 
 ---
@@ -1334,8 +1374,9 @@ raggiunto l'obiettivo.
 
 ## 12. Checkpoint operativo per la prossima sessione
 
-Baseline d'ingresso: commit `f730ab8`. Questo checkpoint chiude gen437 e apre
-gen438 senza modificare né usare come obiettivo la suite storica.
+Baseline d'ingresso: commit `f730ab8`; ultimo checkpoint pubblicato prima di
+questo taglio: `52e97a6`. Il lavoro chiude gen437 e porta Gen438 al primo
+verticale prosa/dialogo senza modificare né usare come obiettivo la suite storica.
 
 ### Artefatti prodotti
 
@@ -1353,6 +1394,10 @@ gen438 senza modificare né usare come obiettivo la suite storica.
   matcher condiviso fra asserzione e domanda;
 - `docs/labs/autocrescita-v3/gen438-*.p0*`: osservazione, crescita/ablazione e
   matrice dei tre operatori;
+- `docs/labs/autocrescita-v3/gen438-prose-dialogue.p0t`: commit da prosa,
+  consumo interlinguistico, provenance, crescita/ablazione e ambiguità;
+- `docs/plans/kb-first-c-gold-standard.md`: norma, censimento, classi di
+  migrazione e gate `legacy_hits=0`;
 - questo documento: roadmap, misure, gate e debiti aggiornati.
 
 ### Evidenza eseguita
@@ -1364,7 +1409,8 @@ make build
 ./bin/parrot0 --test docs/labs/autocrescita-v3/gen437-matrix-reverse.p0t
 ./bin/parrot0 --test docs/labs/autocrescita-v3/gen438-observation.p0t
 ./bin/parrot0 --test docs/labs/autocrescita-v3/gen438-frames.p0t
-=> ok — 64 + 54 + 36 + 41 + 29 passed
+./bin/parrot0 --test docs/labs/autocrescita-v3/gen438-prose-dialogue.p0t
+=> ok — 64 + 54 + 36 + 41 + 29 + 44 passed
 ```
 
 Il primo comando dimostra soltanto che il motore corrente costruisce; il
@@ -1373,24 +1419,28 @@ usato come obiettivo o incluso nel gate.
 
 ### Debiti espliciti, in ordine
 
-1. risolvere locuzioni e phrase/clause node dichiarativi senza ridurre M1–M5 ai
+1. mantenere il censimento del gold standard come ratchet: nessun nuovo literal
+   linguistico C e `legacy_hits=0` su ogni verticale promosso;
+2. risolvere locuzioni e phrase/clause node dichiarativi senza ridurre M1–M5 ai
    tre ordini già dimostrati;
-2. portare la prosa su `input_semantic_frame/4` e conservare lingua della fonte,
-   span e scope separatamente dalla lingua del turno;
-3. migrare cue e forme sintattiche a evidenza indicizzata per lingua: attribuire
+3. trasferire la prosa già portata su `input_semantic_frame/4` a locuzioni,
+   ruoli annidati, coordinazione e scope, preservando fonte e span;
+4. migrare cue e forme sintattiche a evidenza indicizzata per lingua: attribuire
    a posteriori la lingua globale a una cue non prova in quale lingua la cue sia
    stata appresa;
-4. trasferire ciascuno dei tre operatori su tre domini e due superfici, poi
+5. trasferire ciascuno dei tre operatori su tre domini e due superfici, poi
    provare l'ablazione dell'ordine oltre a quella lessicale;
-5. prima di estendere il planner oltre tre livelli, introdurre un certificato
+6. rimuovere il fallback di estrazione C famiglia per famiglia appena il relativo
+   producer e consumer KB superano il gate gold;
+7. prima di estendere il planner oltre tre livelli, introdurre un certificato
    topologico KB generale. `arrest_cycle/1` osserva cicli arbitrari, mentre
    l'attuale `arrest_dag/1` prova positivamente il solo contratto gen437;
-6. soltanto dopo questi gate iniziare indirizzi Wikipedia: cercare prima
+8. soltanto dopo questi gate iniziare indirizzi Wikipedia: cercare prima
    renderebbe un difetto linguistico un falso gap fattuale.
 
-Il prossimo cambiamento corretto è M1–M5 sul lato prosa: far produrre a una
-asserzione letta la stessa IR già prodotta dalla domanda, con span e lingua di
-fonte, senza passare dai vecchi estrattori lessicali.
+Il prossimo cambiamento corretto è completare M1–M5 sul lato compositivo:
+locuzioni e strutture di clausola devono produrre la stessa IR appena portata
+end-to-end, poi sostituire e rimuovere per famiglia i vecchi estrattori.
 
 Il salto di frontiera non è da KB piccola a KB grande. È da archivio passivo a
 sistema epistemico riflessivo: una KB che osserva i propri limiti, pianifica la
