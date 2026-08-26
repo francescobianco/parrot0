@@ -808,7 +808,7 @@ quattro coordinate.
 Nuova evidenza da processo pulito:
 
 ```text
-gen438-prose-dialogue.p0t => 44 passed
+gen438-prose-dialogue.p0t => 57 passed
 ```
 
 Il dossier prova fonte inglese interrogata in italiano, fonte italiana
@@ -818,6 +818,13 @@ ambiguità non committata e provenance esatta di lingua, superficie e span.
 Il percorso positivo ritorna prima dei vecchi estrattori: per questo il suo
 `legacy_hits` è zero. Il fallback lessicale C sottostante resta debito esplicito
 da rimuovere, non una parte del risultato.
+
+L'estensione del 27 agosto aggiunge due clausole nella stessa fonte. Lo splitter
+resta una primitiva di confine, ripristina il buffer dopo ogni clausola e la KB
+riceve per la seconda proposizione lo span globale `range(21,21)`, invece di un
+nuovo `range(0,21)`. Questo è il primo testimone Gen439 della catena
+`fonte intera -> clausole -> proposizioni multiple`: la provenienza non è più
+soltanto corretta per una frase isolata.
 
 Stato del gate: **H438 resta aperta**. Questi risultati dimostrano il produttore
 n-lingue e il primo verticale prosa→proposizione→domanda→risposta, non M1–M5
@@ -1410,7 +1417,7 @@ make build
 ./bin/parrot0 --test docs/labs/autocrescita-v3/gen438-observation.p0t
 ./bin/parrot0 --test docs/labs/autocrescita-v3/gen438-frames.p0t
 ./bin/parrot0 --test docs/labs/autocrescita-v3/gen438-prose-dialogue.p0t
-=> ok — 64 + 54 + 36 + 41 + 29 + 44 passed
+=> ok — 64 + 54 + 36 + 41 + 29 + 57 passed
 ```
 
 Il primo comando dimostra soltanto che il motore corrente costruisce; il
@@ -1423,19 +1430,21 @@ usato come obiettivo o incluso nel gate.
    linguistico C e `legacy_hits=0` su ogni verticale promosso;
 2. risolvere locuzioni e phrase/clause node dichiarativi senza ridurre M1–M5 ai
    tre ordini già dimostrati;
-3. trasferire la prosa già portata su `input_semantic_frame/4` a locuzioni,
-   ruoli annidati, coordinazione e scope, preservando fonte e span;
-4. migrare cue e forme sintattiche a evidenza indicizzata per lingua: attribuire
+3. estendere il mantenimento degli span globali a locuzioni,
+   clausole coordinate, ruoli annidati e scope, preservando fonte e span;
+4. comporre la prosa già portata su `input_semantic_frame/4` con locuzioni,
+   ruoli annidati, coordinazione e scope, mantenendo una sola IR;
+5. migrare cue e forme sintattiche a evidenza indicizzata per lingua: attribuire
    a posteriori la lingua globale a una cue non prova in quale lingua la cue sia
    stata appresa;
-5. trasferire ciascuno dei tre operatori su tre domini e due superfici, poi
+6. trasferire ciascuno dei tre operatori su tre domini e due superfici, poi
    provare l'ablazione dell'ordine oltre a quella lessicale;
-6. rimuovere il fallback di estrazione C famiglia per famiglia appena il relativo
+7. rimuovere il fallback di estrazione C famiglia per famiglia appena il relativo
    producer e consumer KB superano il gate gold;
-7. prima di estendere il planner oltre tre livelli, introdurre un certificato
+8. prima di estendere il planner oltre tre livelli, introdurre un certificato
    topologico KB generale. `arrest_cycle/1` osserva cicli arbitrari, mentre
    l'attuale `arrest_dag/1` prova positivamente il solo contratto gen437;
-8. soltanto dopo questi gate iniziare indirizzi Wikipedia: cercare prima
+9. soltanto dopo questi gate iniziare indirizzi Wikipedia: cercare prima
    renderebbe un difetto linguistico un falso gap fattuale.
 
 Il prossimo cambiamento corretto è completare M1–M5 sul lato compositivo:

@@ -282,7 +282,7 @@ Il C in questo taglio misura, pubblica e invoca i protocolli
 decisione del verticale ispeziona `read:`, `leggi:`, `ingest:`, nomi di lingue,
 verbi di relazione o wording del riepilogo.
 
-L'esperimento `gen438-prose-dialogue.p0t` dimostra 44 proprietà strutturali:
+L'esperimento `gen438-prose-dialogue.p0t` dimostra 57 proprietà strutturali:
 
 - fonte inglese interrogata in italiano;
 - fonte italiana interrogata in inglese;
@@ -292,6 +292,7 @@ L'esperimento `gen438-prose-dialogue.p0t` dimostra 44 proprietà strutturali:
 - rifiuto di due letture concorrenti;
 - conservazione di lingua, superficie e byte span;
 - stessa proposizione ricca e indice semantico consumabile.
+- due clausole nella stessa fonte con span globale distinto (`0,19` e `21,21`).
 
 Il vecchio blocco di estrazione sotto `input_frame_commit/2` è ancora un
 fallback transitorio e resta fuori dal gold. La sua presenza tiene aperta la

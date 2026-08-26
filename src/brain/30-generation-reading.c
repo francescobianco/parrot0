@@ -1691,7 +1691,7 @@ static void learn_clause_transitions(Brain *b, const char *clause) {
     learn_word_stream(b, tw, m);
 }
 
-static int extract_clause(Brain *b, char *clause) {
+static int extract_clause(Brain *b, char *clause, const char *source_base) {
     char *c = trim_mut(clause);
     if (!*c) return 0;
     char norm[256];
@@ -1712,9 +1712,12 @@ static int extract_clause(Brain *b, char *clause) {
     input_structure_clear(b->kb, "current_prose");
     InputSpan prose_span;
     memset(&prose_span, 0, sizeof prose_span);
+    prose_span.start = source_base && c >= source_base
+                     ? (size_t)(c - source_base) : 0;
     prose_span.len = strlen(c);
     snprintf(prose_span.role, sizeof prose_span.role, "prose");
-    input_structure_publish(b->kb, c, &prose_span, "current_prose");
+    input_structure_publish(b->kb, source_base ? source_base : c,
+                            &prose_span, "current_prose");
 
     /* The KB decides whether one and only one assertion frame is commit-ready,
      * and performs the reified assertion plus provenance writes. C only asks
@@ -1782,11 +1785,15 @@ static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) 
         char original[192];
         snprintf(original, sizeof original, "%s", p);
         learn_clause_transitions(b, p);   /* gen41: feed the generative model */
-        if (extract_clause(b, p)) {
+        if (extract_clause(b, p, buf)) {
             (*learned)++;
             store_proposition(b, original);
         }
         else if (*trim_mut(p)) (*skipped)++;
+        /* Keep the source buffer intact for the next clause: its absolute span
+         * is measured against the whole passage, not against the truncated
+         * NUL-terminated slice used by this iteration. */
+        *q = saved;
         if (saved == '\0') break;
         p = q + 1;
     }

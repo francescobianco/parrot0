@@ -17,6 +17,9 @@
 !reset
 
 [test an English assertion is committed once and answered in Italian]
+!assert language_marker(en, produces)
+!assert language_marker(en, weighs)
+!assert language_marker(en, grams)
 > read: mill produces flour.
 !query semantic_proposition(proposition(binary(produce_relation), roles(subject(million), object(flourion))))
 !query semantic_binding(binary(produce_relation), million, object(flourion))
@@ -34,6 +37,22 @@
 !query input_frame_reading_unique(current_turn, binary(produce_relation), object, flourion)
 !query input_scope_language(current_prose, en)
 !query input_scope_language(current_turn, it)
+
+[test two clauses preserve distinct source spans while sharing the IR]
+> read: mill produces flour. lumion weighs 7 grams.
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(million), object(flourion))))
+!query input_scope_language(current_prose, en)
+!query! input_assertion_ambiguous(current_prose)
+!query input_node(current_prose, 1, node(token, token, 0), range(21, 6))
+!query input_node_surface(current_prose, 1, "lumion")
+!query input_node_atom(current_prose, 1, lumion)
+!query input_node_form(current_prose, 1, en, form(lumion, lumion))
+!query input_node_form(current_prose, 2, en, form(weighs, mass_of))
+!query input_node_form(current_prose, 4, en, form(grams, gram))
+!query input_semantic_frame(current_prose, assertion, measure(mass_of), roles(subject(lumion), measure(value(7), unit(gram))))
+!query semantic_proposition(proposition(measure(mass_of), roles(subject(lumion), measure(value(7), unit(gram)))))
+!query proposition_source(proposition(binary(produce_relation), roles(subject(million), object(flourion))), source(inline, "mill produces flour"), language(en), range(0, 19))
+!query proposition_source(proposition(measure(mass_of), roles(subject(lumion), measure(value(7), unit(gram)))), source(inline, "lumion weighs 7 grams"), language(en), range(21, 21))
 
 [mock core]
 !set PARROT0_LANG=it
