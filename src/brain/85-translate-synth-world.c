@@ -391,9 +391,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                     if (!piece[0] && !fr_lookup(b, tok, piece, sizeof piece)) {
                         char msg[160];
                         { const KbResponseSlot _rs[] = { { "tok", tok } };
-                          if (!kb_response_slots(b, "i_can_translate_most_of_it_but_i_don_t_know", _rs, 1, msg, sizeof msg))
-                            { const KbResponseSlot _rs[] = { { "tok", tok } };
-      kb_term_say(b, "i_can_translate_most_of_it_but_i_don_t_know", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "i_can_translate_most_of_it_but_i_don_t_know", _rs, 1, msg, sizeof msg);
                           put(msg, out, out_size); }
                         return 1;
                     }
@@ -720,9 +718,7 @@ found:
             if (!gloss_lookup(b, tok, to_it, piece, sizeof piece)) {
                 char msg[160];
                 { const KbResponseSlot _rs[] = { { "tok", tok } };
-                  if (!kb_response_slots(b, "i_can_t_translate_x_yet", _rs, 1, msg, sizeof msg))
-                    { const KbResponseSlot _rs[] = { { "tok", tok } };
-      kb_term_say(b, "i_can_t_translate_x_yet", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "i_can_t_translate_x_yet", _rs, 1, msg, sizeof msg);
                   put(msg, out, out_size); }
                 return 1;
             }
@@ -1328,18 +1324,13 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                     if (b->active_world == id) b->active_world = -1;
                     char m[120];
                     { const KbResponseSlot _rs[] = { { "nm", nm } };
-                      if (!kb_response_slots(b, "left_the_x_world", _rs, 1, m, sizeof m))
-                        { const KbResponseSlot _rs[] = { { "nm", nm } };
-      kb_term_say(b, "left_the_x_world", _rs, 1, m, sizeof m); }
+      kb_term_say(b, "left_the_x_world", _rs, 1, m, sizeof m);
                       put(m, out, out_size); }
                 } else {
                     world_teardown(b, id);
                     char m[140];
                     { const KbResponseSlot _rs[] = { { "nm", nm } };
-                      if (!kb_response_slots(b, "forgotten_the_x_world_none_of_it_reached_my", _rs, 1, m, sizeof m))
-                        { const KbResponseSlot _rs[] = { { "nm", nm } };
-                          if (!kb_response_slots(b, "forgotten_the_x_world_none_of_it_reached_my", _rs, 1, m, sizeof m))
-                            snprintf(m, sizeof m, "Forgotten the %s world; none of it reached my memory.", nm); }
+                          kb_term_say(b, "forgotten_the_x_world_none_of_it_reached_my", _rs, 1, m, sizeof m);
                       put(m, out, out_size); }
                 }
                 return 1;
@@ -1430,9 +1421,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
             }
             char m[160];
             { const KbResponseSlot _rs[] = { { "wname", wname } };
-              if (!kb_response_slots(b, "opened_the_x_world_tell_me_what_is_true_in_i", _rs, 1, m, sizeof m))
-                { const KbResponseSlot _rs[] = { { "wname", wname } };
-      kb_term_say(b, "opened_the_x_world_tell_me_what_is_true_in_i", _rs, 1, m, sizeof m); }
+      kb_term_say(b, "opened_the_x_world_tell_me_what_is_true_in_i", _rs, 1, m, sizeof m);
               put(m, out, out_size); }
             return 1;
         }
@@ -1459,9 +1448,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                                       out, out_size); return 1; }
                     char m[160];
                     { const KbResponseSlot _rs[] = { { "name", name } };
-                      if (!kb_response_slots(b, "opened_the_x_world_tell_me_what_is_true_in_i_2", _rs, 1, m, sizeof m))
-                        { const KbResponseSlot _rs[] = { { "name", name } };
-      kb_term_say(b, "opened_the_x_world_tell_me_what_is_true_in_i_2", _rs, 1, m, sizeof m); }
+      kb_term_say(b, "opened_the_x_world_tell_me_what_is_true_in_i_2", _rs, 1, m, sizeof m);
                       put(m, out, out_size); }
                     return 1;
                 }

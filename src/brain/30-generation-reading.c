@@ -856,9 +856,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         /* gen240: a haiku was asked but no theme has images — CLAIM the turn with an
          * honest decline (the "Genera" ceiling) so a downstream module can't answer
          * a creative request with a dismissive deflection. */
-        kb_say(b, "i_can_only_write_a_haiku_on_a_theme_i_have_i", "I can only write a haiku on a theme I have images for — like the ocean, "
-            "rain, the moon, snow, a tree, a candle, or a robot. Pick one of those?",
-            out, out_size);
+        kb_term_say(b, "i_can_only_write_a_haiku_on_a_theme_i_have_i", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -1214,8 +1212,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
         /* gen240: a couplet was asked but no theme has lines — CLAIM the turn with
          * an honest decline (the "Genera" ceiling) instead of a generic non-answer. */
-        kb_say(b, "i_can_only_do_a_couplet_on_a_theme_i_have_li", "I can only do a couplet on a theme I have lines for -- like the ocean, "
-            "rain, the moon, or AI. Pick one of those?", out, out_size);
+        kb_term_say(b, "i_can_only_do_a_couplet_on_a_theme_i_have_li", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -1402,9 +1399,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 return 1;
             }
         }
-        kb_say(b, "i_don_t_have_story_material_for_that_topic_y", "I don't have story material for that topic yet -- I can tell one "
-            "about a lighthouse, an old house on a quiet street, a stormy night, or a traveler at dusk.",
-            out, out_size);
+        kb_term_say(b, "i_don_t_have_story_material_for_that_topic_y", NULL, 0, out, out_size);
         return 1;
     }
     /* gen246: bare narrative continuation. If the previous turn was generated or
@@ -1470,14 +1465,10 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
       kb_term_say(b, "i_don_t_have_real_desires_but_for_the_prompt_2", _rs, 2, msg, sizeof msg); }
             else if (want == 2)
                 { const KbResponseSlot _rs[] = { { "names", names[0] }, { "names2", names[1] }, { "reasons", reasons[0] }, { "reasons2", reasons[1] } };
-                  if (!kb_response_slots(b, "i_don_t_have_real_desires_but_for_the_prompt_3", _rs, 4, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "I don't have real desires, but for the prompt I'd invite %s and %s: %s; and %s.", names[0], names[1], reasons[0], reasons[1]); }
+                  kb_term_say(b, "i_don_t_have_real_desires_but_for_the_prompt_3", _rs, 4, msg, sizeof msg); }
             else
                 { const KbResponseSlot _rs[] = { { "names", names[0] }, { "names2", names[1] }, { "names3", names[2] }, { "reasons", reasons[0] }, { "reasons2", reasons[1] }, { "reasons3", reasons[2] } };
-                  if (!kb_response_slots(b, "i_don_t_have_real_desires_but_for_the_prompt", _rs, 6, msg, sizeof msg))
-                    { const KbResponseSlot _rs[] = { { "names", names[0] }, { "names2", names[1] }, { "names3", names[2] }, { "reasons", reasons[0] }, { "reasons2", reasons[1] }, { "reasons3", reasons[2] } };
-                      if (!kb_response_slots(b, "i_don_t_have_real_desires_but_for_the_prompt", _rs, 6, msg, sizeof msg))
-                        snprintf(msg, sizeof msg, "I don't have real desires, but for the prompt I'd invite %s, %s, and %s: %s; %s; and %s.", names[0], names[1], names[2], reasons[0], reasons[1], reasons[2]); }
+                      kb_term_say(b, "i_don_t_have_real_desires_but_for_the_prompt", _rs, 6, msg, sizeof msg);
                   put(msg, out, out_size); }
             return 1;
         }
@@ -1619,9 +1610,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         if (hits == 0) {
             char msg[160];
             { const KbResponseSlot _rs[] = { { "x", x } };
-              if (!kb_response_slots(b, "i_have_nothing_to_say_about_x", _rs, 1, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "x", x } };
-      kb_term_say(b, "i_have_nothing_to_say_about_x", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "i_have_nothing_to_say_about_x", _rs, 1, msg, sizeof msg);
               put(msg, out, out_size); }
         } else {
             if (off < sizeof line)
@@ -2210,9 +2199,7 @@ static int mod_coref(Brain *b, const char *norm, const char *raw,
         if (!b->has_last_entity) {
             char msg[160];
             { const KbResponseSlot _rs[] = { { "a", a } };
-              if (!kb_response_slots(b, "i_don_t_know_who_x_refers_to_2", _rs, 1, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "a", a } };
-      kb_term_say(b, "i_don_t_know_who_x_refers_to_2", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "i_don_t_know_who_x_refers_to_2", _rs, 1, msg, sizeof msg);
               put(msg, out, out_size); }
             return 1;
         }

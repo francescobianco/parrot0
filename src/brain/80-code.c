@@ -425,8 +425,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             remove(tmp);
             if (rc == 1) {
                 { const KbResponseSlot _rs[] = { { "fnname", fnname }, { "where", where } };
-                  if (!kb_response_slots(b, "deleted_xx_the_result_still_links", _rs, 2, out, out_size))
-                    snprintf(out, out_size, "Deleted %s%s; the result still links.", fnname, where); }
+                  kb_term_say(b, "deleted_xx_the_result_still_links", _rs, 2, out, out_size); }
             } else if (rc == 0) {
                 /* who still calls it? scan the directory the file lives in. */
                 char cdir[256];
@@ -455,8 +454,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                 }
             } else {
                 { const KbResponseSlot _rs[] = { { "fnname", fnname }, { "where", where } };
-                  if (!kb_response_slots(b, "deleted_xx_in_a_temp_copy_the_original_is_un", _rs, 2, out, out_size))
-                    snprintf(out, out_size, "Deleted %s%s in a temp copy; the original is unchanged.", fnname, where); }
+                  kb_term_say(b, "deleted_xx_in_a_temp_copy_the_original_is_un", _rs, 2, out, out_size); }
             }
             store_proof(b, out);
             return 1;
@@ -466,15 +464,13 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         remove(tmp);
         if (rc == 1)
             { const KbResponseSlot _rs[] = { { "fnname", fnname }, { "where", where } };
-              if (!kb_response_slots(b, "deleted_xx_the_result_still_compiles", _rs, 2, out, out_size))
-                snprintf(out, out_size, "Deleted %s%s; the result still compiles.", fnname, where); }
+              kb_term_say(b, "deleted_xx_the_result_still_compiles", _rs, 2, out, out_size); }
         else if (rc == 0)
             { const KbResponseSlot _rs[] = { { "fnname", fnname }, { "where", where } };
       kb_term_say(b, "deleted_xx_but_the_result_no_longer_compiles", _rs, 2, out, out_size); }
         else
             { const KbResponseSlot _rs[] = { { "fnname", fnname }, { "where", where } };
-              if (!kb_response_slots(b, "deleted_xx_in_a_temp_copy_the_original_is_un", _rs, 2, out, out_size))
-                snprintf(out, out_size, "Deleted %s%s in a temp copy; the original is unchanged.", fnname, where); }
+              kb_term_say(b, "deleted_xx_in_a_temp_copy_the_original_is_un", _rs, 2, out, out_size); }
         store_proof(b, out);
         return 1;
     }
@@ -722,8 +718,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         }
         if (!sym_write) {          /* report-only: localize, do not touch any file */
             { const KbResponseSlot _rs[] = { { "path", path }, { "olds", olds }, { "reason", reason }, { "news", news } };
-              if (!kb_response_slots(b, "in_x_x_x_the_fix_is_x", _rs, 4, out, out_size))
-                snprintf(out, out_size, "In %s, `%s` %s; the fix is `%s`.", path, olds, reason, news); }
+              kb_term_say(b, "in_x_x_x_the_fix_is_x", _rs, 4, out, out_size); }
             store_proof(b, out);
             return 1;
         }
@@ -731,14 +726,12 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         int n = code_replace_expr(path, olds, news, outpath);
         if (n <= 0) {
             { const KbResponseSlot _rs[] = { { "path", path }, { "olds", olds }, { "reason", reason }, { "news", news } };
-              if (!kb_response_slots(b, "in_x_x_x_the_fix_is_x", _rs, 4, out, out_size))
-                snprintf(out, out_size, "In %s, `%s` %s; the fix is `%s`.", path, olds, reason, news); }
+              kb_term_say(b, "in_x_x_x_the_fix_is_x", _rs, 4, out, out_size); }
             store_proof(b, out);
             return 1;
         }
         { const KbResponseSlot _rs[] = { { "path", path }, { "olds", olds }, { "reason", reason }, { "news", news }, { "outpath", outpath } };
-          if (!kb_response_slots(b, "in_x_x_x_the_fix_is_x_patched_copy_written_t", _rs, 5, out, out_size))
-            snprintf(out, out_size, "In %s, `%s` %s; the fix is `%s`. Patched copy written to %s.", path, olds, reason, news, outpath); }
+          kb_term_say(b, "in_x_x_x_the_fix_is_x_patched_copy_written_t", _rs, 5, out, out_size); }
         store_proof(b, out);
         return 1;
     }

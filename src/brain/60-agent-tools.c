@@ -101,9 +101,7 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
 
     char msg[640];
     { const KbResponseSlot _rs[] = { { "result", result }, { "cmd", cmd } };
-      if (!kb_response_slots(b, "x_i_ran_the_tool_x", _rs, 2, msg, sizeof msg))
-        { const KbResponseSlot _rs[] = { { "result", result }, { "cmd", cmd } };
-      kb_term_say(b, "x_i_ran_the_tool_x", _rs, 2, msg, sizeof msg); }
+      kb_term_say(b, "x_i_ran_the_tool_x", _rs, 2, msg, sizeof msg);
       put(msg, out, out_size); }
 
     char proof[640];

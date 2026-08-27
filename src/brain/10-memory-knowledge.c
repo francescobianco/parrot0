@@ -131,18 +131,14 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                 kb_assert(b->kb, "conjunction", ar, 1);
                 char msg[160];
                 { const KbResponseSlot _rs[] = { { "word", word } };
-                  if (!kb_response_slots(b, "got_it_i_ll_treat_x_as_a_conjunction_now_lik", _rs, 1, msg, sizeof msg))
-                    { const KbResponseSlot _rs[] = { { "word", word } };
-      kb_term_say(b, "got_it_i_ll_treat_x_as_a_conjunction_now_lik", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "got_it_i_ll_treat_x_as_a_conjunction_now_lik", _rs, 1, msg, sizeof msg);
                   put(msg, out, out_size); }
                 return 1;
             }
             if (*word) {     /* already known — acknowledge without re-asserting */
                 char msg[160];
                 { const KbResponseSlot _rs[] = { { "word", word } };
-                  if (!kb_response_slots(b, "i_already_treat_x_as_a_conjunction", _rs, 1, msg, sizeof msg))
-                    { const KbResponseSlot _rs[] = { { "word", word } };
-      kb_term_say(b, "i_already_treat_x_as_a_conjunction", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "i_already_treat_x_as_a_conjunction", _rs, 1, msg, sizeof msg);
                   put(msg, out, out_size); }
                 return 1;
             }
@@ -258,8 +254,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                     remember_possession(b, thing, n);
                     char msg[160];
                     { const KbResponseSlot s[] = { {"thing", thing}, {"name", n} };
-                      if (!kb_response_slots(b, "possession_named_ack", s, 2, msg, sizeof msg))
-                          snprintf(msg, sizeof msg, "Got it: your %s is called %s.", thing, n); }
+                      kb_term_say(b, "possession_named_ack", s, 2, msg, sizeof msg); }
                     put(msg, out, out_size);
                     return 1;
                 }
@@ -277,16 +272,14 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                         remember_possession(b, thing, n);
                         char msg[160];
                         { const KbResponseSlot s[] = { {"thing", thing}, {"name", n} };
-                      if (!kb_response_slots(b, "possession_named_ack", s, 2, msg, sizeof msg))
-                          snprintf(msg, sizeof msg, "Got it: your %s is called %s.", thing, n); }
+                      kb_term_say(b, "possession_named_ack", s, 2, msg, sizeof msg); }
                         put(msg, out, out_size);
                         return 1;
                     } else {
                         remember_possession(b, thing, n);
                         char msg[160];
                         { const KbResponseSlot _rs[] = { { "thing", thing }, { "n", n } };
-                          if (!kb_response_slots(b, "got_it_your_x_is_x", _rs, 2, msg, sizeof msg))
-                            snprintf(msg, sizeof msg, "Got it: your %s is %s.", thing, n);
+                          kb_term_say(b, "got_it_your_x_is_x", _rs, 2, msg, sizeof msg);
                           put(msg, out, out_size); }
                         return 1;
                     }
@@ -324,8 +317,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                         for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
                         char msg[200];
                         { const KbResponseSlot _rs[] = { { "disp", disp }, { "val", val } };
-                          if (!kb_response_slots(b, "got_it_your_x_is_x_2", _rs, 2, msg, sizeof msg))
-                            snprintf(msg, sizeof msg, "Got it: your %s is %s.", disp, val);
+                          kb_term_say(b, "got_it_your_x_is_x_2", _rs, 2, msg, sizeof msg);
                           put(msg, out, out_size); }
                         return 1;
                     }
@@ -454,9 +446,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                         char msg[160];
                         if (!n) {
                             { const KbResponseSlot _rs[] = { { "thing", thing } };
-                              if (!kb_response_slots(b, "i_don_t_know_what_your_x_is_called", _rs, 1, msg, sizeof msg))
-                                { const KbResponseSlot _rs[] = { { "thing", thing } };
-      kb_term_say(b, "i_don_t_know_what_your_x_is_called", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "i_don_t_know_what_your_x_is_called", _rs, 1, msg, sizeof msg);
                               put(msg, out, out_size); }
                             return 1;
                         }
@@ -497,8 +487,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             b->has_user_preference = 1;
             char msg[160];
             { const KbResponseSlot _rs[] = { { "verb", verb }, { "val", val } };
-              if (!kb_response_slots(b, "got_it_you_x_x", _rs, 2, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "Got it: you %s %s.", verb, val);
+              kb_term_say(b, "got_it_you_x_x", _rs, 2, msg, sizeof msg);
               put(msg, out, out_size); }
             return 1;
         }
@@ -544,9 +533,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         if (user_value_read(b, "mood", mood, sizeof mood)) {
             char msg[160];
             { const KbResponseSlot _rs[] = { { "mood", mood } };
-              if (!kb_response_slots(b, "you_told_me_you_feel_x", _rs, 1, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "mood", mood } };
-      kb_term_say(b, "you_told_me_you_feel_x", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "you_told_me_you_feel_x", _rs, 1, msg, sizeof msg);
               put(msg, out, out_size); }
         } else {
             kb_term_say(b, "i_do_not_know_your_current_mood_yet", NULL, 0, out, out_size);
@@ -1778,9 +1765,7 @@ static int resolve_entity(Brain *b, const char *word, const char **entity,
 
     char msg[160];
     { const KbResponseSlot _rs[] = { { "word", word } };
-      if (!kb_response_slots(b, "i_don_t_know_who_x_refers_to", _rs, 1, msg, sizeof msg))
-        { const KbResponseSlot _rs[] = { { "word", word } };
-      kb_term_say(b, "i_don_t_know_who_x_refers_to", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "i_don_t_know_who_x_refers_to", _rs, 1, msg, sizeof msg);
       put(msg, out, out_size); }
     return 0;
 }
@@ -1840,9 +1825,7 @@ static void explain_reply(Brain *b, const char *pred, const char *const *args,
         char msg[600];
         if (strstr(ex, " because ")) snprintf(msg, sizeof msg, "%s.", ex);
         else { const KbResponseSlot _rs[] = { { "ex", ex } };
-   if (!kb_response_slots(b, "x_is_a_known_fact", _rs, 1, msg, sizeof msg))
-     { const KbResponseSlot _rs[] = { { "ex", ex } };
-      kb_term_say(b, "x_is_a_known_fact", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "x_is_a_known_fact", _rs, 1, msg, sizeof msg);
    put(msg, out, out_size); }
         store_proof(b, ex);
     } else {
@@ -2938,9 +2921,7 @@ static int answer_magnitude_compare(Brain *b, const char *dim, int want_max,
         if (strcmp(mua, muc) != 0) {
             char msg[220];
             { const KbResponseSlot _rs[] = { { "dim", dim }, { "mua", mua }, { "muc", muc } };
-              if (!kb_response_slots(b, "i_have_x_measurements_for_both_but_the_units", _rs, 3, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "dim", dim }, { "mua", mua }, { "muc", muc } };
-      kb_term_say(b, "i_have_x_measurements_for_both_but_the_units", _rs, 3, msg, sizeof msg); }
+      kb_term_say(b, "i_have_x_measurements_for_both_but_the_units", _rs, 3, msg, sizeof msg);
               put(msg, out, out_size); }
             return 1;
         }
@@ -2958,9 +2939,7 @@ static int answer_magnitude_compare(Brain *b, const char *dim, int want_max,
         if (na == nc) {
             char msg[160];
             { const KbResponseSlot _rs[] = { { "dim", dim } };
-              if (!kb_response_slots(b, "they_are_tied_on_x", _rs, 1, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "dim", dim } };
-      kb_term_say(b, "they_are_tied_on_x", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "they_are_tied_on_x", _rs, 1, msg, sizeof msg);
               put(msg, out, out_size); }
             return 1;
         }
@@ -2993,9 +2972,7 @@ static int answer_magnitude_compare(Brain *b, const char *dim, int want_max,
         display_key(c, dc, sizeof dc);
         char msg[220];
         { const KbResponseSlot _rs[] = { { "dim", dim }, { "da", da }, { "dc", dc } };
-          if (!kb_response_slots(b, "i_recognize_a_comparison_on_x_but_i_don_t_ha", _rs, 3, msg, sizeof msg))
-            { const KbResponseSlot _rs[] = { { "dim", dim }, { "da", da }, { "dc", dc } };
-      kb_term_say(b, "i_recognize_a_comparison_on_x_but_i_don_t_ha", _rs, 3, msg, sizeof msg); }
+      kb_term_say(b, "i_recognize_a_comparison_on_x_but_i_don_t_ha", _rs, 3, msg, sizeof msg);
           put(msg, out, out_size); }
         return 1;
     }
@@ -3013,9 +2990,7 @@ static int answer_magnitude_compare(Brain *b, const char *dim, int want_max,
     if (na == nc) {
         char msg[160];
         { const KbResponseSlot _rs[] = { { "dim", dim } };
-          if (!kb_response_slots(b, "they_are_tied_on_x", _rs, 1, msg, sizeof msg))
-            { const KbResponseSlot _rs[] = { { "dim", dim } };
-      kb_term_say(b, "they_are_tied_on_x", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "they_are_tied_on_x", _rs, 1, msg, sizeof msg);
           put(msg, out, out_size); }
         return 1;
     }
@@ -3542,9 +3517,7 @@ static int p0_generic_plural_rule(Brain *b, char **w, size_t n,
     if (!kb_assert_rule_n(b->kb, cls, body, 1)) return 0;
     char msg[256];
     { const KbResponseSlot _rs[] = { { "cls", cls }, { "subj", subj } };
-      if (!kb_response_slots(b, "learned_rule_x_x_x_x", _rs, 2, msg, sizeof msg))
-        { const KbResponseSlot _rs[] = { { "cls", cls }, { "subj", subj } };
-      kb_term_say(b, "learned_rule_x_x_x_x", _rs, 2, msg, sizeof msg); }
+      kb_term_say(b, "learned_rule_x_x_x_x", _rs, 2, msg, sizeof msg);
       put(msg, out, out_size); }
     return 1;
 }
@@ -4518,8 +4491,7 @@ static int extract_class_statement(Brain *b, const char *norm,
                 if (kb_assert(b->kb, "created_by", ca, 3)) {
                     p0_learn_source(b, "created_by", ca, 3, norm);
                     char msg[256]; { const KbResponseSlot _rs[] = { { "subj2", subj2 }, { "obj2", obj2 }, { "canon", canon } };
-   if (!kb_response_slots(b, "learned_created_by_x_x_x", _rs, 3, msg, sizeof msg))
-     snprintf(msg, sizeof msg, "Learned: created_by(%s, %s, %s).", subj2, obj2, canon);
+   kb_term_say(b, "learned_created_by_x_x_x", _rs, 3, msg, sizeof msg);
    put(msg, out, out_size); } return 1;
                 }
                 break;
@@ -4537,8 +4509,7 @@ static int extract_class_statement(Brain *b, const char *norm,
             if (kb_assert(b->kb, "created_by", ca, 3)) {
                 p0_learn_source(b, "created_by", ca, 3, norm);
                 char msg[256]; { const KbResponseSlot _rs[] = { { "subj2", subj2 }, { "obj2", obj2 }, { "canon", canon } };
-   if (!kb_response_slots(b, "learned_created_by_x_x_x", _rs, 3, msg, sizeof msg))
-     snprintf(msg, sizeof msg, "Learned: created_by(%s, %s, %s).", subj2, obj2, canon);
+   kb_term_say(b, "learned_created_by_x_x_x", _rs, 3, msg, sizeof msg);
    put(msg, out, out_size); } return 1;
             }
             break;
@@ -4605,8 +4576,7 @@ static int extract_class_statement(Brain *b, const char *norm,
             if (kb_assert(b->kb, "located_in", la, 2)) {
                 p0_learn_source(b, "located_in", la, 2, norm);
                 char msg[256]; { const KbResponseSlot _rs[] = { { "subj", subj }, { "obj", obj } };
-   if (!kb_response_slots(b, "learned_located_in_x_x", _rs, 2, msg, sizeof msg))
-     snprintf(msg, sizeof msg, "Learned: located_in(%s, %s).", subj, obj);
+   kb_term_say(b, "learned_located_in_x_x", _rs, 2, msg, sizeof msg);
    put(msg, out, out_size); } return 1;
             }
         }
@@ -4620,8 +4590,7 @@ static int extract_class_statement(Brain *b, const char *norm,
             if (kb_assert(b->kb, "part_of", la, 2)) {
                 p0_learn_source(b, "part_of", la, 2, norm);
                 char msg[256]; { const KbResponseSlot _rs[] = { { "subj", subj }, { "obj", obj } };
-   if (!kb_response_slots(b, "learned_part_of_x_x", _rs, 2, msg, sizeof msg))
-     snprintf(msg, sizeof msg, "Learned: part_of(%s, %s).", subj, obj);
+   kb_term_say(b, "learned_part_of_x_x", _rs, 2, msg, sizeof msg);
    put(msg, out, out_size); } return 1;
             }
         }
@@ -4640,8 +4609,7 @@ static int extract_class_statement(Brain *b, const char *norm,
             if (kb_assert(b->kb, "located_in", la, 2)) {
                 p0_learn_source(b, "located_in", la, 2, norm);
                 char msg[256]; { const KbResponseSlot _rs[] = { { "subj", subj }, { "obj", obj } };
-   if (!kb_response_slots(b, "learned_located_in_x_x", _rs, 2, msg, sizeof msg))
-     snprintf(msg, sizeof msg, "Learned: located_in(%s, %s).", subj, obj);
+   kb_term_say(b, "learned_located_in_x_x", _rs, 2, msg, sizeof msg);
    put(msg, out, out_size); } return 1;
             }
         }
@@ -4788,10 +4756,7 @@ static int extract_class_statement(Brain *b, const char *norm,
             sl[0].name = "class"; sl[0].value = arity_cls;
             sl[1].name = "arity"; sl[1].value = ar;
             char amsg[256];
-            if (!kb_response_slots(b, "class_arity_conflict", sl, 2, amsg, sizeof amsg))
-                snprintf(amsg, sizeof amsg,
-                         "I know %s as a %zu-part fact, not a class.",
-                         arity_cls, arity_ar);
+            kb_term_say(b, "class_arity_conflict", sl, 2, amsg, sizeof amsg);
             put(amsg, out, out_size);
             return 2;
         }
@@ -7985,9 +7950,7 @@ static int personal_slot_turn(Brain *b, const char *norm, const char *raw,
             for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
             char msg[220];
             { const KbResponseSlot _rs[] = { { "disp", disp } };
-              if (!kb_response_slots(b, "you_haven_t_told_me_your_x_yet", _rs, 1, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "disp", disp } };
-      kb_term_say(b, "you_haven_t_told_me_your_x_yet", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "you_haven_t_told_me_your_x_yet", _rs, 1, msg, sizeof msg);
               put(msg, out, out_size); }
         }
         return 1;
@@ -8325,8 +8288,7 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
                 const KbResponseSlot rs[] = { {"slot", slotname} };
                 if (!kb_response_slots(b, "forgotten_ack", rs, 1, msg, sizeof msg))
                     { const KbResponseSlot _rs[] = { { "slotname", slotname } };
-                      if (!kb_response_slots(b, "done_i_ve_let_go_of_your_x", _rs, 1, msg, sizeof msg))
-                        snprintf(msg, sizeof msg, "Done — I've let go of your %s.", slotname);
+                      kb_term_say(b, "done_i_ve_let_go_of_your_x", _rs, 1, msg, sizeof msg);
                       put(msg, out, out_size); }
                 return 1;
             }
@@ -8392,8 +8354,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (ok) {
                     char msg[256];
                     { const KbResponseSlot _rs[] = { { "slug", slug } };
-                      if (!kb_response_slots(b, "learned_holds_x", _rs, 1, msg, sizeof msg))
-                        snprintf(msg, sizeof msg, "Learned: holds(%s).", slug);
+                      kb_term_say(b, "learned_holds_x", _rs, 1, msg, sizeof msg);
                       put(msg, out, out_size); }
                     return 1;
                 }
@@ -8704,9 +8665,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 display_key(a, da, sizeof da);
                 display_key(c, dc, sizeof dc);
                 { const KbResponseSlot _rs[] = { { "da", da }, { "dc", dc } };
-                  if (!kb_response_slots(b, "you_re_asking_for_a_distinction_between_x_an", _rs, 2, msg, sizeof msg))
-                    { const KbResponseSlot _rs[] = { { "da", da }, { "dc", dc } };
-      kb_term_say(b, "you_re_asking_for_a_distinction_between_x_an", _rs, 2, msg, sizeof msg); }
+      kb_term_say(b, "you_re_asking_for_a_distinction_between_x_an", _rs, 2, msg, sizeof msg);
                   put(msg, out, out_size); }
                 return 1;
             }
@@ -9744,9 +9703,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 char *r = kb_dequote(th[0]);
                 char msg[360];
                 { const KbResponseSlot _rs[] = { { "r", r } };
-                  if (!kb_response_slots(b, "i_don_t_actually_taste_things_but_it_is_ofte", _rs, 1, msg, sizeof msg))
-                    { const KbResponseSlot _rs[] = { { "r", r } };
-      kb_term_say(b, "i_don_t_actually_taste_things_but_it_is_ofte", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "i_don_t_actually_taste_things_but_it_is_ofte", _rs, 1, msg, sizeof msg);
                   put(msg, out, out_size); }
                 return 1;
             }
@@ -10110,9 +10067,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (nl == 0 && kb_query(b->kb, "no_land_border", nlb, 1)) {
                 char msg[128];
                 { const KbResponseSlot _rs[] = { { "ctry", ctry } };
-                  if (!kb_response_slots(b, "x_has_no_land_bordering_countries", _rs, 1, msg, sizeof msg))
-                    { const KbResponseSlot _rs[] = { { "ctry", ctry } };
-      kb_term_say(b, "x_has_no_land_bordering_countries", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "x_has_no_land_bordering_countries", _rs, 1, msg, sizeof msg);
                   put(msg, out, out_size); } return 1;
             }
             if (nl > 0) {
@@ -10210,17 +10165,14 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                         char *o1 = kb_dequote(oceans[0]);
                         char *o2 = kb_dequote(oceans[1]);
                         { const KbResponseSlot _rs[] = { { "cap_disp", cap_disp }, { "ctry_disp", ctry_disp }, { "o1", o1 }, { "o2", o2 } };
-                          if (!kb_response_slots(b, "x_x_borders_the_x_and_the_x", _rs, 4, msg, sizeof msg))
-                            snprintf(msg, sizeof msg, "%s; %s borders the %s and the %s.", cap_disp, ctry_disp, o1, o2); }
+                          kb_term_say(b, "x_x_borders_the_x_and_the_x", _rs, 4, msg, sizeof msg); }
                     } else if (no == 1) {
                         char *o1 = kb_dequote(oceans[0]);
                         { const KbResponseSlot _rs[] = { { "cap_disp", cap_disp }, { "ctry_disp", ctry_disp }, { "o1", o1 } };
-                          if (!kb_response_slots(b, "x_x_borders_the_x", _rs, 3, msg, sizeof msg))
-                            snprintf(msg, sizeof msg, "%s; %s borders the %s.", cap_disp, ctry_disp, o1); }
+                          kb_term_say(b, "x_x_borders_the_x", _rs, 3, msg, sizeof msg); }
                     } else {
                         { const KbResponseSlot _rs[] = { { "cap_disp", cap_disp }, { "ctry_disp", ctry_disp } };
-                          if (!kb_response_slots(b, "x_i_don_t_know_which_oceans_border_x_yet", _rs, 2, msg, sizeof msg))
-                            snprintf(msg, sizeof msg, "%s; I don't know which oceans border %s yet.", cap_disp, ctry_disp); }
+                          kb_term_say(b, "x_i_don_t_know_which_oceans_border_x_yet", _rs, 2, msg, sizeof msg); }
                     }
                     put(msg, out, out_size);
                     return 1;
@@ -10242,12 +10194,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     snprintf(b1, sizeof b1, "%s", brd[0]); b1[0] = (char)toupper((unsigned char)b1[0]);
                     snprintf(b2, sizeof b2, "%s", brd[1]); b2[0] = (char)toupper((unsigned char)b2[0]);
                     { const KbResponseSlot _rs[] = { { "cap_disp", cap_disp }, { "ctry_disp", ctry_disp }, { "b1", b1 }, { "b2", b2 } };
-                      if (!kb_response_slots(b, "x_x_borders_x_and_x", _rs, 4, msg, sizeof msg))
-                        snprintf(msg, sizeof msg, "%s; %s borders %s and %s.", cap_disp, ctry_disp, b1, b2); }
+                      kb_term_say(b, "x_x_borders_x_and_x", _rs, 4, msg, sizeof msg); }
                 } else if (has_none) {
                     { const KbResponseSlot _rs[] = { { "cap_disp", cap_disp }, { "ctry_disp", ctry_disp } };
-                      if (!kb_response_slots(b, "x_x_has_no_land_bordering_countries", _rs, 2, msg, sizeof msg))
-                        snprintf(msg, sizeof msg, "%s; %s has no land-bordering countries.", cap_disp, ctry_disp); }
+                      kb_term_say(b, "x_x_has_no_land_bordering_countries", _rs, 2, msg, sizeof msg); }
                 } else if (nb == 1) {
                     char b1[64];
                     snprintf(b1, sizeof b1, "%s", brd[0]); b1[0] = (char)toupper((unsigned char)b1[0]);
@@ -10256,8 +10206,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 } else {
                     /* honest gap: capital known but bordering countries aren't */
                     { const KbResponseSlot _rs[] = { { "cap_disp", cap_disp }, { "ctry_disp", ctry_disp } };
-                      if (!kb_response_slots(b, "x_i_don_t_know_which_countries_border_x_yet", _rs, 2, msg, sizeof msg))
-                        snprintf(msg, sizeof msg, "%s; I don't know which countries border %s yet.", cap_disp, ctry_disp); }
+                      kb_term_say(b, "x_i_don_t_know_which_countries_border_x_yet", _rs, 2, msg, sizeof msg); }
                 }
                 put(msg, out, out_size);
                 return 1;
@@ -10330,9 +10279,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (Y[0]) Y[0] = (char)toupper((unsigned char)Y[0]);
                 char msg[400];
                 { const KbResponseSlot _rs[] = { { "X", X }, { "Y", Y }, { "inc", inc } };
-                  if (!kb_response_slots(b, "yes_x_is_a_x_the_statement_defines_it_as_one", _rs, 3, msg, sizeof msg))
-                    { const KbResponseSlot _rs[] = { { "X", X }, { "Y", Y }, { "inc", inc } };
-      kb_term_say(b, "yes_x_is_a_x_the_statement_defines_it_as_one", _rs, 3, msg, sizeof msg); }
+      kb_term_say(b, "yes_x_is_a_x_the_statement_defines_it_as_one", _rs, 3, msg, sizeof msg);
                   put(msg, out, out_size); }
                 return 1;
             }
@@ -10399,9 +10346,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     }
                     const KbResponseSlot slots[] = { {"value", surface} };
                     char msg[128];
-                    if (!kb_response_slots(b, "inferred_attribute_from_phrase", slots, 1,
-                                           msg, sizeof msg))
-                        snprintf(msg, sizeof msg, "It's %s.", surface);
+                    kb_term_say(b, "inferred_attribute_from_phrase", slots, 1, msg, sizeof msg);
                     put(msg, out, out_size);
                     store_proof(b, "The question contains an attribute value recognized by attribute_word/3 in the KB.");
                     return 1;
@@ -10495,9 +10440,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (cl >= 2 && c[0] == '"' && c[cl - 1] == '"') { c[cl - 1] = '\0'; c++; }
                 char msg[360];
                 { const KbResponseSlot _rs[] = { { "a", a }, { "c", c } };
-                  if (!kb_response_slots(b, "by_day_the_sky_looks_blue_because_x_near_sun", _rs, 2, msg, sizeof msg))
-                    { const KbResponseSlot _rs[] = { { "a", a }, { "c", c } };
-      kb_term_say(b, "by_day_the_sky_looks_blue_because_x_near_sun", _rs, 2, msg, sizeof msg); }
+      kb_term_say(b, "by_day_the_sky_looks_blue_because_x_near_sun", _rs, 2, msg, sizeof msg);
                   put(msg, out, out_size); }
                 store_proof(b, msg);
                 return 1;
@@ -10657,9 +10600,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 kb_query(b->kb, "increases", ip, 2)) {
                 char msg[300];
                 { const KbResponseSlot _rs[] = { { "source", source }, { "target", target }, { "feature", feature } };
-                  if (!kb_response_slots(b, "it_grows_more_x_makes_a_bigger_x_so_its_x_gr", _rs, 3, msg, sizeof msg))
-                    { const KbResponseSlot _rs[] = { { "source", source }, { "target", target }, { "feature", feature } };
-      kb_term_say(b, "it_grows_more_x_makes_a_bigger_x_so_its_x_gr", _rs, 3, msg, sizeof msg); }
+      kb_term_say(b, "it_grows_more_x_makes_a_bigger_x_so_its_x_gr", _rs, 3, msg, sizeof msg);
                   put(msg, out, out_size); }
                 store_proof(b, msg);
                 return 1;
@@ -10883,9 +10824,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (word_for_lookup(b, buf, key, sizeof key, wrd, sizeof wrd)) {
                     char msg[320];
                     { const KbResponseSlot _rs[] = { { "t", t }, { "res", res[0] }, { "key", key }, { "wrd", wrd } };
-                      if (!kb_response_slots(b, "the_opposite_of_x_is_x_and_someone_who_x_is", _rs, 4, msg, sizeof msg))
-                        { const KbResponseSlot _rs[] = { { "t", t }, { "res", res[0] }, { "key", key }, { "wrd", wrd } };
-      kb_term_say(b, "the_opposite_of_x_is_x_and_someone_who_x_is", _rs, 4, msg, sizeof msg); }
+      kb_term_say(b, "the_opposite_of_x_is_x_and_someone_who_x_is", _rs, 4, msg, sizeof msg);
                       put(msg, out, out_size); }
                     return 1;
                 }
@@ -10951,8 +10890,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             singularize_kb(b, qw[4], cls, sizeof cls);
             char msg[220];
             { const KbResponseSlot _rs[] = { { "qw", qw[2] }, { "qw2", qw[4] }, { "qw3", qw[4] }, { "qw4", qw[2] } };
-              if (!kb_response_slots(b, "we_can_conclude_that_x_are_x_the_some_x_fact", _rs, 4, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "We can conclude that %s are %s; the 'some %s' fact does not prove that %s fade.", qw[2], qw[4], qw[4], qw[2]); }
+              kb_term_say(b, "we_can_conclude_that_x_are_x_the_some_x_fact", _rs, 4, msg, sizeof msg); }
             (void)subj; (void)cls;
             put(msg, out, out_size);
             return 1;
@@ -11460,8 +11398,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char *p = hit[0]; size_t l = strlen(p);
             if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
             char msg[200]; { const KbResponseSlot _rs[] = { { "p", p } };
-   if (!kb_response_slots(b, "it_boils_at_x", _rs, 1, msg, sizeof msg))
-     snprintf(msg, sizeof msg, "It boils at %s.", p);
+   kb_term_say(b, "it_boils_at_x", _rs, 1, msg, sizeof msg);
    put(msg, out, out_size); }
             return 1;
         }
@@ -11761,8 +11698,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (ok) { put(msg, out, out_size); return 1; }
         }
         /* limerick asked but no theme matched -> honest decline (Genera ceiling). */
-        kb_say(b, "i_can_only_do_a_limerick_on_a_theme_i_have_l", "I can only do a limerick on a theme I have lines for -- like a programmer, "
-            "coffee, or a cat. Pick one of those?", out, out_size);
+        kb_term_say(b, "i_can_only_do_a_limerick_on_a_theme_i_have_l", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -11899,9 +11835,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         snprintf(pred, sizeof pred, "current_%s", w[1]);
         char msg[256];
         { const KbResponseSlot _rs[] = { { "w", w[1] }, { "pred", pred }, { "w2", w[1] } };
-          if (!kb_response_slots(b, "i_do_not_know_the_current_x_i_have_no_x_fact", _rs, 3, msg, sizeof msg))
-            { const KbResponseSlot _rs[] = { { "w", w[1] }, { "pred", pred }, { "w2", w[1] } };
-      kb_term_say(b, "i_do_not_know_the_current_x_i_have_no_x_fact", _rs, 3, msg, sizeof msg); }
+      kb_term_say(b, "i_do_not_know_the_current_x_i_have_no_x_fact", _rs, 3, msg, sizeof msg);
           put(msg, out, out_size); }
         return 1;
     }
@@ -11917,9 +11851,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (!kb_knows_pred(b->kb, rel)) {
             char msg[320];
             { const KbResponseSlot _rs[] = { { "rel", rel }, { "rel2", rel }, { "obj", obj }, { "rel3", rel }, { "obj2", obj } };
-              if (!kb_response_slots(b, "i_do_not_know_the_relation_x_yet_so_i_cannot", _rs, 5, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "rel", rel }, { "rel2", rel }, { "obj", obj }, { "rel3", rel }, { "obj2", obj } };
-      kb_term_say(b, "i_do_not_know_the_relation_x_yet_so_i_cannot", _rs, 5, msg, sizeof msg); }
+      kb_term_say(b, "i_do_not_know_the_relation_x_yet_so_i_cannot", _rs, 5, msg, sizeof msg);
               put(msg, out, out_size); }
             return 1;
         }
@@ -11936,9 +11868,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             !kb_explain(b->kb, pred, args, 1, ex, sizeof ex)) {
             char msg[320];
             { const KbResponseSlot _rs[] = { { "subj", subj }, { "pred", pred }, { "pred2", pred }, { "subj2", subj } };
-              if (!kb_response_slots(b, "i_do_not_know_why_x_is_x_i_have_no_x_x_fact", _rs, 4, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "subj", subj }, { "pred", pred }, { "pred2", pred }, { "subj2", subj } };
-      kb_term_say(b, "i_do_not_know_why_x_is_x_i_have_no_x_x_fact", _rs, 4, msg, sizeof msg); }
+      kb_term_say(b, "i_do_not_know_why_x_is_x_i_have_no_x_x_fact", _rs, 4, msg, sizeof msg);
               put(msg, out, out_size); }
             return 1;
         }
@@ -12046,9 +11976,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     snprintf(msg, sizeof msg, "Yes, %s is part of %s.", xx, yy);
                 else
                     { const KbResponseSlot _rs[] = { { "xx", xx }, { "yy", yy } };
-                      if (!kb_response_slots(b, "no_i_have_no_evidence_that_x_is_part_of_x", _rs, 2, msg, sizeof msg))
-                        { const KbResponseSlot _rs[] = { { "xx", xx }, { "yy", yy } };
-      kb_term_say(b, "no_i_have_no_evidence_that_x_is_part_of_x", _rs, 2, msg, sizeof msg); }
+      kb_term_say(b, "no_i_have_no_evidence_that_x_is_part_of_x", _rs, 2, msg, sizeof msg);
                       put(msg, out, out_size); }
                 store_proof(b, msg);
                 return 1;
@@ -12085,8 +12013,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                                            cdesc, sizeof cdesc)) {
                 char msg[1200];
                 { const KbResponseSlot _rs[] = { { "x", x }, { "ckey", ckey }, { "cdesc", cdesc } };
-                  if (!kb_response_slots(b, "x_is_part_of_x_x", _rs, 3, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "%s is part of %s: %s.", x, ckey, cdesc);
+                  kb_term_say(b, "x_is_part_of_x_x", _rs, 3, msg, sizeof msg);
                   put(msg, out, out_size); }
                 store_proof(b, msg);
                 remember_entity(b, x, x);
@@ -12223,9 +12150,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 kb_nearest_concept(b->kb, qw, nq, ckey, sizeof ckey, cdesc, sizeof cdesc)) {
                 char msg[1200];
                 { const KbResponseSlot _rs[] = { { "ckey", ckey }, { "cdesc", cdesc } };
-                  if (!kb_response_slots(b, "you_might_mean_x_x", _rs, 2, msg, sizeof msg))
-                    { const KbResponseSlot _rs[] = { { "ckey", ckey }, { "cdesc", cdesc } };
-      kb_term_say(b, "you_might_mean_x_x", _rs, 2, msg, sizeof msg); }
+      kb_term_say(b, "you_might_mean_x_x", _rs, 2, msg, sizeof msg);
                   put(msg, out, out_size); }
                 store_proof(b, msg);
                 remember_entity(b, ckey, ckey);
@@ -12295,9 +12220,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         } else {
             char msg[160];
             { const KbResponseSlot _rs[] = { { "entity", entity } };
-              if (!kb_response_slots(b, "i_don_t_know_anything_about_x", _rs, 1, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "entity", entity } };
-      kb_term_say(b, "i_don_t_know_anything_about_x", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "i_don_t_know_anything_about_x", _rs, 1, msg, sizeof msg);
               put(msg, out, out_size); }
         }
         remember_entity(b, w[5], entity);

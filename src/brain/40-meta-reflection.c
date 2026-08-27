@@ -456,8 +456,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                          (buf[0] == 'n' && buf[1] == 'o' && buf[2] == ' ' &&
                           kb_cue_match(b, "40_meta_reflection_cue459", buf));
         if (correction) {
-            kb_say(b, "i_see_if_i_said_something_incorrect_please_t", "I see. If I said something incorrect, please tell me the right "
-                "fact and I'll learn it.", out, out_size);
+            kb_term_say(b, "i_see_if_i_said_something_incorrect_please_t", NULL, 0, out, out_size);
             return 1;
         }
     }
@@ -537,9 +536,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                  * know») resta qui: quella parla davvero della prova. */
                 return 0;
             } else {
-                kb_say(b, "i_haven_t_answered_a_knowledge_based_questio", "I haven't answered a knowledge-based question yet, so I "
-                    "don't have a proof to share.",
-                    out, out_size);
+                kb_term_say(b, "i_haven_t_answered_a_knowledge_based_questio", NULL, 0, out, out_size);
             }
             return 1;
         }
@@ -555,9 +552,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                   kb_cue_match(b, "40_meta_reflection_cue558", buf) ||
                   kb_cue_match(b, "40_meta_reflection_cue559", buf);
     if (clarify) {
-        kb_say(b, "i_mean_i_can_only_answer_what_my_registered", "I mean I can only answer what my registered modules let me. "
-            "Try asking a simple factual question.",
-            out, out_size);
+        kb_term_say(b, "i_mean_i_can_only_answer_what_my_registered", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -569,9 +564,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                     kb_cue_match(b, "40_meta_reflection_cue572", buf) ||
                     kb_cue_match(b, "40_meta_reflection_cue573", buf);
     if (user_lost) {
-        kb_say(b, "i_understand_some_patterns_and_i_say_when_i", "I understand some patterns and I say when I do not. "
-            "Try a shorter or simpler question.",
-            out, out_size);
+        kb_term_say(b, "i_understand_some_patterns_and_i_say_when_i", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -586,9 +579,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                      kb_cue_match(b, "40_meta_reflection_cue589", buf) ||
                      kb_cue_match(b, "40_meta_reflection_cue590", buf);
     if (help_offer) {
-        kb_say(b, "i_m_a_chatbot_not_a_person_i_don_t_need_help", "I'm a chatbot, not a person — I don't need help. "
-            "But you can ask me questions and I'll try to answer.",
-            out, out_size);
+        kb_term_say(b, "i_m_a_chatbot_not_a_person_i_don_t_need_help", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -1182,8 +1173,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         if (pl[0]) {
             capitalize(pl);
             char msg[96]; { const KbResponseSlot _rs[] = { { "pl", pl } };
-   if (!kb_response_slots(b, "i_rule_over_x", _rs, 1, msg, sizeof msg))
-     snprintf(msg, sizeof msg, "I rule over %s.", pl);
+   kb_term_say(b, "i_rule_over_x", _rs, 1, msg, sizeof msg);
    put(msg, out, out_size); } return 1;
         }
     }
@@ -1202,8 +1192,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         if (tt[0]) {
             capitalize(tt);
             char msg[96]; { const KbResponseSlot _rs[] = { { "tt", tt } };
-   if (!kb_response_slots(b, "my_title_is_x", _rs, 1, msg, sizeof msg))
-     snprintf(msg, sizeof msg, "My title is %s.", tt);
+   kb_term_say(b, "my_title_is_x", _rs, 1, msg, sizeof msg);
    put(msg, out, out_size); } return 1;
         }
     }
@@ -1213,9 +1202,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         const char *age = role_get_attr(b, "age");
         if (age) {
             char msg[64]; { const KbResponseSlot _rs[] = { { "age", age } };
-   if (!kb_response_slots(b, "i_am_x_years_old", _rs, 1, msg, sizeof msg))
-     { const KbResponseSlot _rs[] = { { "age", age } };
-      kb_term_say(b, "i_am_x_years_old", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "i_am_x_years_old", _rs, 1, msg, sizeof msg);
    put(msg, out, out_size); } return 1;
         }
     }
@@ -1225,8 +1212,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         const char *code = role_get_attr(b, "code");
         if (code) {
             char msg[64]; { const KbResponseSlot _rs[] = { { "code", code } };
-   if (!kb_response_slots(b, "my_code_is_x", _rs, 1, msg, sizeof msg))
-     snprintf(msg, sizeof msg, "My code is %s.", code);
+   kb_term_say(b, "my_code_is_x", _rs, 1, msg, sizeof msg);
    put(msg, out, out_size); } return 1;
         }
     }
@@ -1237,9 +1223,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         char org[4][KB_TERM_LEN];
         if (b->role_kind[0] && kb_match(b->kb, "employer", kv, 2, org, 4)) {
             char msg[96]; { const KbResponseSlot _rs[] = { { "org", org[0] } };
-   if (!kb_response_slots(b, "i_work_for_an_x", _rs, 1, msg, sizeof msg))
-     { const KbResponseSlot _rs[] = { { "org", org[0] } };
-      kb_term_say(b, "i_work_for_an_x", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "i_work_for_an_x", _rs, 1, msg, sizeof msg);
    put(msg, out, out_size); } return 1;
         }
     }
@@ -1251,9 +1235,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         if (b->role_kind[0] && kb_match(b->kb, "likes_color", kv, 2, col, 4)) {
             char c[64]; snprintf(c, sizeof c, "%s", col[0]); capitalize(c);
             char msg[96]; { const KbResponseSlot _rs[] = { { "c", c } };
-   if (!kb_response_slots(b, "my_favorite_color_is_x", _rs, 1, msg, sizeof msg))
-     { const KbResponseSlot _rs[] = { { "c", c } };
-      kb_term_say(b, "my_favorite_color_is_x", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "my_favorite_color_is_x", _rs, 1, msg, sizeof msg);
    put(msg, out, out_size); } return 1;
         }
         /* gen240: no role persona — answer honestly but still PICK a colour from
@@ -1462,9 +1444,7 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
       kb_term_say(b, "x_and_x_are_related_by_x_but_i_don_t_know_th", _rs, 4, msg, sizeof msg); }
     else
         { const KbResponseSlot _rs[] = { { "A", A }, { "B", B } };
-          if (!kb_response_slots(b, "i_see_the_analogy_but_i_don_t_know_a_relatio", _rs, 2, msg, sizeof msg))
-            { const KbResponseSlot _rs[] = { { "A", A }, { "B", B } };
-      kb_term_say(b, "i_see_the_analogy_but_i_don_t_know_a_relatio", _rs, 2, msg, sizeof msg); }
+      kb_term_say(b, "i_see_the_analogy_but_i_don_t_know_a_relatio", _rs, 2, msg, sizeof msg);
           put(msg, out, out_size); }
     return 1;
 }
@@ -1705,9 +1685,7 @@ static int mod_archetype(Brain *b, const char *norm, const char *raw,
 
     char msg[420];
     { const KbResponseSlot _rs[] = { { "answer", answer }, { "demo", demo }, { "dconcl", dconcl }, { "qj", qj }, { "answer2", answer } };
-      if (!kb_response_slots(b, "x_same_relational_pattern_as_x_x_so_x_x", _rs, 5, msg, sizeof msg))
-        { const KbResponseSlot _rs[] = { { "answer", answer }, { "demo", demo }, { "dconcl", dconcl }, { "qj", qj }, { "answer2", answer } };
-      kb_term_say(b, "x_same_relational_pattern_as_x_x_so_x_x", _rs, 5, msg, sizeof msg); }
+      kb_term_say(b, "x_same_relational_pattern_as_x_x_so_x_x", _rs, 5, msg, sizeof msg);
       put(msg, out, out_size); }
 
     char proof[420];
@@ -1997,8 +1975,7 @@ static int mod_strategy(Brain *b, const char *norm, const char *raw,
     if (!ask) return 0;
 
     if (!b->has_trace) {
-        kb_say(b, "i_haven_t_answered_anything_substantive_yet", "I haven't answered anything substantive yet, so there's no decision "
-            "to explain.", out, out_size);
+        kb_term_say(b, "i_haven_t_answered_anything_substantive_yet", NULL, 0, out, out_size);
         return 1;
     }
 

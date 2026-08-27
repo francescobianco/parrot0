@@ -895,9 +895,7 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
             b->has_current_topic = 1;
             char msg[160];
             { const KbResponseSlot _rs[] = { { "topic", topic }, { "topic2", topic } };
-              if (!kb_response_slots(b, "sure_let_s_talk_about_x_what_about_x_is_on_y", _rs, 2, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "topic", topic }, { "topic2", topic } };
-      kb_term_say(b, "sure_let_s_talk_about_x_what_about_x_is_on_y", _rs, 2, msg, sizeof msg); }
+      kb_term_say(b, "sure_let_s_talk_about_x_what_about_x_is_on_y", _rs, 2, msg, sizeof msg);
               put(msg, out, out_size); }
             return 1;
         }

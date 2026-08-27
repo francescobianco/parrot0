@@ -284,9 +284,7 @@ static int mod_input(Brain *b, const char *norm, const char *raw,
             int noise = (vowels == 0) || (distinct == 1) ||
                         (max_run >= 4) || (max_cons >= 6);
             if (noise && !known && !is_stopword(b, tok)) {
-                kb_say(b, "that_doesn_t_look_like_words_to_me_did_a_key", "That doesn't look like words to me — did a key get stuck? "
-                    "I'm here when you'd like to ask something.",
-                    out, out_size);
+                kb_term_say(b, "that_doesn_t_look_like_words_to_me_did_a_key", NULL, 0, out, out_size);
                 return 1;
             }
         }
@@ -1656,9 +1654,7 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
             const KbResponseSlot ss[] = { {"schema", sch}, {"role", role} };
             if (!kb_response_slots(b, "schema_incomplete", ss, 2, smsg, sizeof smsg))
                 { const KbResponseSlot _rs[] = { { "sch", sch }, { "role", role } };
-                  if (!kb_response_slots(b, "i_can_see_a_x_shape_here_but_the_x_is_missin", _rs, 2, smsg, sizeof smsg))
-                    { const KbResponseSlot _rs[] = { { "sch", sch }, { "role", role } };
-      kb_term_say(b, "i_can_see_a_x_shape_here_but_the_x_is_missin", _rs, 2, smsg, sizeof smsg); }
+      kb_term_say(b, "i_can_see_a_x_shape_here_but_the_x_is_missin", _rs, 2, smsg, sizeof smsg);
                   put(smsg, out, out_size); }
             if (b) b->fallbacks++;
             return;
@@ -1699,9 +1695,7 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
             const KbResponseSlot rs[] = { {"register", reg} };
             if (!kb_response_slots(b, "register_declined", rs, 1, rmsg, sizeof rmsg))
                 { const KbResponseSlot _rs[] = { { "reg", reg } };
-                  if (!kb_response_slots(b, "that_looks_like_a_x_problem_and_i_cannot_sol", _rs, 1, rmsg, sizeof rmsg))
-                    { const KbResponseSlot _rs[] = { { "reg", reg } };
-      kb_term_say(b, "that_looks_like_a_x_problem_and_i_cannot_sol", _rs, 1, rmsg, sizeof rmsg); }
+      kb_term_say(b, "that_looks_like_a_x_problem_and_i_cannot_sol", _rs, 1, rmsg, sizeof rmsg);
                   put(rmsg, out, out_size); }
             if (b) b->fallbacks++;
             return;
@@ -1887,9 +1881,7 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
                     if (!kb_response_slots(b, "self_corrected_on_wall", sl, 2,
                                            msg, sizeof msg))
                         { const KbResponseSlot _rs[] = { { "again", again }, { "learned", learned } };
-                          if (!kb_response_slots(b, "x_i_was_missing_a_piece_and_taught_it_to_mys", _rs, 2, msg, sizeof msg))
-                            { const KbResponseSlot _rs[] = { { "again", again }, { "learned", learned } };
-      kb_term_say(b, "x_i_was_missing_a_piece_and_taught_it_to_mys", _rs, 2, msg, sizeof msg); }
+      kb_term_say(b, "x_i_was_missing_a_piece_and_taught_it_to_mys", _rs, 2, msg, sizeof msg);
                           put(msg, out, out_size); }
                     return;
                 }
@@ -4130,9 +4122,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                          "I bridged %d of my own walls by teaching myself: %s.",
                          nfix, learned);
             else
-                kb_say(b, "self_repair_none",
-                       "I tried the bridges I know how to build and none of "
-                       "them closed a wall.", msg, sizeof msg);
+                kb_term_say(b, "self_repair_none", NULL, 0, msg, sizeof msg);
             put(msg, out, out_size);
             handled = 1;
             snprintf(b->last_reply, sizeof b->last_reply, "%s", out);

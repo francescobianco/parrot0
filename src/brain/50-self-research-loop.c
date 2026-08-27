@@ -1515,8 +1515,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         if (kb_dump_user(b->kb, dump, sizeof dump)) {
             char msg[4200];
             { const KbResponseSlot _rs[] = { { "dump", dump } };
-              if (!kb_response_slots(b, "here_is_everything_i_know_x", _rs, 1, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "Here is everything I know: %s", dump);
+              kb_term_say(b, "here_is_everything_i_know_x", _rs, 1, msg, sizeof msg);
               put(msg, out, out_size); }
         } else {
             char msg[128];
@@ -1587,9 +1586,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         if (kb_dump_user(b->kb, dump, sizeof dump)) {
             char msg[4200];
             { const KbResponseSlot _rs[] = { { "dump", dump } };
-              if (!kb_response_slots(b, "you_taught_me_x", _rs, 1, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "dump", dump } };
-      kb_term_say(b, "you_taught_me_x", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "you_taught_me_x", _rs, 1, msg, sizeof msg);
               put(msg, out, out_size); }
         } else {
             kb_term_say(b, "you_haven_t_taught_me_any_facts_yet", NULL, 0, out, out_size);
@@ -1643,9 +1640,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                                          "%s%s", i ? ", " : "", b->entities[i]);
             char msg[600];
             { const KbResponseSlot _rs[] = { { "list", list } };
-              if (!kb_response_slots(b, "you_mentioned_x", _rs, 1, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "list", list } };
-      kb_term_say(b, "you_mentioned_x", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "you_mentioned_x", _rs, 1, msg, sizeof msg);
               put(msg, out, out_size); }
         }
         return 1;

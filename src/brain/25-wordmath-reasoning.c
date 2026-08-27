@@ -849,9 +849,7 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
                 if (gr == 0) return 0;
                 const KbResponseSlot hs[] = { { "goal", goal_h } };
                 char header[KB_TERM_LEN * 2];
-                if (!kb_response_slots(b, "plan_header", hs, 1,
-                                        header, sizeof header))
-                    snprintf(header, sizeof header, "%s", goal_h);
+                kb_term_say(b, "plan_header", hs, 1, header, sizeof header);
                 size_t o = (size_t)snprintf(out, out_size, "%s", header);
                 {
                     const char *bq[3] = { goal, NULL, NULL };
@@ -988,9 +986,7 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
     if (!plan_dfs(b, goal, "", done, &ndone, stack, 0, order, par, &norder, 32)) {
         char msg[128];
         { const KbResponseSlot _rs[] = { { "goal", goal } };
-          if (!kb_response_slots(b, "the_steps_for_x_have_a_circular_prerequisite", _rs, 1, msg, sizeof msg))
-            { const KbResponseSlot _rs[] = { { "goal", goal } };
-      kb_term_say(b, "the_steps_for_x_have_a_circular_prerequisite", _rs, 1, msg, sizeof msg); }
+      kb_term_say(b, "the_steps_for_x_have_a_circular_prerequisite", _rs, 1, msg, sizeof msg);
           put(msg, out, out_size); }
         return 1;
     }
@@ -1412,8 +1408,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             char msg[160];
             if (rt != sum)
                 { const KbResponseSlot _rs[] = { { "one", one }, { "two", two } };
-                  if (!kb_response_slots(b, "x_miles_one_way_x_miles_for_the_round_trip", _rs, 2, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "%s miles one way; %s miles for the round trip.", one, two); }
+                  kb_term_say(b, "x_miles_one_way_x_miles_for_the_round_trip", _rs, 2, msg, sizeof msg); }
             else
                 snprintf(msg, sizeof msg, "%s miles.", one);
             put(msg, out, out_size);
@@ -1427,8 +1422,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * the speeds/distances are a distraction. A structural insight, not a sum. */
     if (kb_cue_match(b, "25_wordmath_reasoning_cue1402", q) && (kb_cue_match(b, "25_wordmath_reasoning_chain1405", q)) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain1406", q))) {
-        kb_say(b, "neither_when_they_meet_they_are_at_the_same", "Neither — when they meet they are at the same place, so both are "
-            "exactly the same distance from the destination.", out, out_size);
+        kb_term_say(b, "neither_when_they_meet_they_are_at_the_same", NULL, 0, out, out_size);
         store_proof(b, "Two bodies that meet are co-located, hence equidistant from any point.");
         return 1;
     }
@@ -1563,9 +1557,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 snprintf(dur, sizeof dur, "%ld minutes", mins);
             char msg[200];
             { const KbResponseSlot _rs[] = { { "who", who }, { "dur", dur } };
-              if (!kb_response_slots(b, "x_arrives_first_by_about_x", _rs, 2, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "who", who }, { "dur", dur } };
-      kb_term_say(b, "x_arrives_first_by_about_x", _rs, 2, msg, sizeof msg); }
+      kb_term_say(b, "x_arrives_first_by_about_x", _rs, 2, msg, sizeof msg);
               put(msg, out, out_size); }
             store_proof(b, "Compared destination arrival times: departure plus distance divided by speed.");
             return 1;
@@ -2151,10 +2143,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             format_num(trip, trips, sizeof trips);
             char msg[220];
             { const KbResponseSlot _rs[] = { { "mpgs", mpgs }, { "trips", trips }, { "needs", needs } };
-              if (!kb_response_slots(b, "x_miles_per_gallon_a_x_mile_trip_would_need", _rs, 3, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "mpgs", mpgs }, { "trips", trips }, { "needs", needs } };
-                  if (!kb_response_slots(b, "x_miles_per_gallon_a_x_mile_trip_would_need", _rs, 3, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "%s miles per gallon; a %s-mile trip would need %s gallons.", mpgs, trips, needs); }
+                  kb_term_say(b, "x_miles_per_gallon_a_x_mile_trip_would_need", _rs, 3, msg, sizeof msg);
               put(msg, out, out_size); }
             store_proof(b, "mpg = miles / gallons; fuel = trip / mpg");
             return 1;
@@ -2333,9 +2322,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 store_proof(b, "other = perimeter/2 - side; area = side * other");
                 return 1;
             }
-            kb_say(b, "those_measures_are_inconsistent_half_the_per", "Those measures are inconsistent: half the perimeter is not "
-                "longer than the given side, so no rectangle fits.",
-                out, out_size);
+            kb_term_say(b, "those_measures_are_inconsistent_half_the_per", NULL, 0, out, out_size);
             return 1;
         }
     }
@@ -2400,8 +2387,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                                "x = (b*heads - legs)/(b - a).");
                 return 1;
             }
-            kb_say(b, "those_counts_don_t_work_out_to_whole_animals", "Those counts don't work out to whole animals, so the puzzle "
-                "as stated has no consistent answer.", out, out_size);
+            kb_term_say(b, "those_counts_don_t_work_out_to_whole_animals", NULL, 0, out, out_size);
             return 1;
         }
     }
@@ -2462,9 +2448,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         }
         if (K > 0 && M > 0 && N > 0) {
             if (K == M) {
-                kb_say(b, "those_two_ratios_can_t_both_hold_if_the_rati", "Those two ratios can't both hold: if the ratio never "
-                    "changes, no ages fit. One of the constraints must be "
-                    "different.", out, out_size);
+                kb_term_say(b, "those_two_ratios_can_t_both_hold_if_the_rati", NULL, 0, out, out_size);
                 return 1;
             }
             double bage = ago ? N * (1 - M) / (K - M) : N * (M - 1) / (K - M);
@@ -2499,10 +2483,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * gen253). */
     if ((kb_cue_match(b, "25_wordmath_reasoning_chain2482", q)) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain2484", q))) {
-        kb_say(b, "that_s_a_constrained_arrangement_puzzle_i_ca", "That's a constrained-arrangement puzzle: I can read the quantities, "
-            "but I don't have a solver that can verify an optimal arrangement "
-            "under those sharing constraints, so I won't guess a number.",
-            out, out_size);
+        kb_term_say(b, "that_s_a_constrained_arrangement_puzzle_i_ca", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -3527,9 +3508,7 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
         if (k == 0) {
             char msg[160];
             { const KbResponseSlot _rs[] = { { "w", w[3] }, { "x", x } };
-              if (!kb_response_slots(b, "i_don_t_know_the_x_of_x", _rs, 2, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "w", w[3] }, { "x", x } };
-      kb_term_say(b, "i_don_t_know_the_x_of_x", _rs, 2, msg, sizeof msg); }
+      kb_term_say(b, "i_don_t_know_the_x_of_x", _rs, 2, msg, sizeof msg);
               put(msg, out, out_size); }
             return 1;
         }

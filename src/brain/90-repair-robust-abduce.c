@@ -337,8 +337,7 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
     if (!q) return 0;
 
     if (!b->has_last_goal) {
-        kb_say(b, "ask_me_whether_something_holds_first_then_i", "Ask me whether something holds first — then I can tell you what that "
-            "conclusion rests on.", out, out_size);
+        kb_term_say(b, "ask_me_whether_something_holds_first_then_i", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -354,9 +353,7 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
     if (!kb_query(b->kb, pred, fargs, 1)) {
         char msg[200];
         { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred } };
-          if (!kb_response_slots(b, "but_i_don_t_know_that_x_is_a_x_in_the_first", _rs, 2, msg, sizeof msg))
-            { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred } };
-      kb_term_say(b, "but_i_don_t_know_that_x_is_a_x_in_the_first", _rs, 2, msg, sizeof msg); }
+      kb_term_say(b, "but_i_don_t_know_that_x_is_a_x_in_the_first", _rs, 2, msg, sizeof msg);
           put(msg, out, out_size); }
         return 1;
     }
@@ -417,8 +414,7 @@ static int mod_robust(Brain *b, const char *norm, const char *raw,
         return 1;
     }
     if (goal_truth(b) != 1) {
-        kb_say(b, "that_isn_t_something_i_currently_conclude_so", "That isn't something I currently conclude, so there's nothing to "
-            "stress-test.", out, out_size);
+        kb_term_say(b, "that_isn_t_something_i_currently_conclude_so", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -983,9 +979,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
       kb_term_say(b, "i_already_conclude_that_x", _rs, 1, msg, sizeof msg); }
         else
             { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred } };
-              if (!kb_response_slots(b, "i_already_know_that_x_is_a_x", _rs, 2, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred } };
-      kb_term_say(b, "i_already_know_that_x_is_a_x", _rs, 2, msg, sizeof msg); }
+      kb_term_say(b, "i_already_know_that_x_is_a_x", _rs, 2, msg, sizeof msg);
               put(msg, out, out_size); }
         return 1;
     }
@@ -1178,9 +1172,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         }
         char msg[600];
         { const KbResponseSlot _rs[] = { { "alts", alts }, { "arg", arg }, { "pred", pred } };
-          if (!kb_response_slots(b, "there_s_more_than_one_way_either_x_any_one_w", _rs, 3, msg, sizeof msg))
-            { const KbResponseSlot _rs[] = { { "alts", alts }, { "arg", arg }, { "pred", pred } };
-      kb_term_say(b, "there_s_more_than_one_way_either_x_any_one_w", _rs, 3, msg, sizeof msg); }
+      kb_term_say(b, "there_s_more_than_one_way_either_x_any_one_w", _rs, 3, msg, sizeof msg);
           put(msg, out, out_size); }
         return 1;
     }
