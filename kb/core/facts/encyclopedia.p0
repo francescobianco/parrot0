@@ -9,6 +9,37 @@ wiki_concept(water, chemistry, "a transparent, tasteless liquid made of hydrogen
 % optional game expert profile is not loaded by `make chat`.
 wiki_concept(chess, games, "a two-player strategy game in which players move distinct pieces on a board and aim to checkmate the opposing king").
 concept_gloss(chess, it, "Gli scacchi sono un gioco di strategia per due persone in cui pezzi diversi si muovono su una scacchiera con l'obiettivo di dare scacco matto al re avversario.").
+wiki_concept(pi, mathematics, "Pi is the constant ratio of a circle's circumference to its diameter, approximately 3.141592653589793, and it appears throughout geometry, analysis and physics").
+concept_gloss(pi, it, "Pi greco è il rapporto costante tra la circonferenza di un cerchio e il suo diametro, circa 3,141592653589793.").
+semantic_topic_cue(pi, keyword(pi)).
+semantic_topic_cue(pi, "pi greco").
+wiki_concept(golden_ratio, mathematics, "The golden ratio is the positive number phi equal to (1 plus the square root of 5) divided by 2, approximately 1.618, whose reciprocal is phi minus 1").
+concept_gloss(golden_ratio, it, "Il rapporto aureo è il numero phi uguale a (1 più la radice di 5) diviso 2, circa 1,618.").
+semantic_topic_cue(golden_ratio, "golden ratio").
+semantic_topic_cue(golden_ratio, "rapporto aureo").
+wiki_concept(number_e, mathematics, "The number e is the base of natural logarithms, approximately 2.718281828, and exponential growth with constant relative rate is described by powers of e").
+concept_gloss(number_e, it, "Il numero e è la base dei logaritmi naturali, circa 2,718281828, e descrive la crescita esponenziale a tasso relativo costante.").
+semantic_topic_cue(number_e, "number e").
+semantic_topic_cue(number_e, "numero e").
+wiki_concept(quadratic_formula, mathematics, "The quadratic formula gives the roots of ax squared plus bx plus c equals zero as negative b plus or minus the square root of b squared minus 4ac, divided by 2a").
+concept_gloss(quadratic_formula, it, "La formula risolutiva delle equazioni di secondo grado dà le radici di ax²+bx+c=0 come (-b ± radice di b²-4ac)/(2a).").
+semantic_topic_cue(quadratic_formula, "quadratic formula").
+semantic_topic_cue(quadratic_formula, "formula quadratica").
+wiki_concept(base64, computing, "Base64 is an encoding that represents arbitrary bytes as text using a sixty-four-character alphabet, with padding when the input length is not a multiple of three bytes").
+concept_gloss(base64, it, "Base64 è una codifica che rappresenta byte arbitrari come testo usando un alfabeto di 64 caratteri, con padding quando necessario.").
+semantic_topic_cue(base64, keyword(base64)).
+wiki_concept(seasons, earth_science, "Seasons are recurring periods caused mainly by Earth's axial tilt as it orbits the Sun, changing sunlight angle and day length across each hemisphere").
+concept_gloss(seasons, it, "Le stagioni sono periodi ricorrenti dovuti soprattutto all'inclinazione dell'asse terrestre durante l'orbita attorno al Sole.").
+semantic_topic_cue(seasons, keyword(seasons)).
+semantic_topic_cue(seasons, keyword(stagioni)).
+wiki_concept(fire, chemistry, "Fire is a hot, visible reaction zone where fuel reacts rapidly with an oxidizer, releasing heat, light and reaction products").
+concept_gloss(fire, it, "Il fuoco è una zona calda e visibile in cui un combustibile reagisce rapidamente con un ossidante, liberando calore e luce.").
+semantic_topic_cue(fire, keyword(fire)).
+semantic_topic_cue(fire, keyword(fuoco)).
+wiki_concept(matter, physics, "Matter is physical substance made of particles, with mass and energy, occurring in states such as solid, liquid, gas and plasma").
+concept_gloss(matter, it, "La materia è sostanza fisica composta da particelle, con massa ed energia, presente in stati come solido, liquido, gas e plasma.").
+semantic_topic_cue(matter, keyword(matter)).
+semantic_topic_cue(matter, keyword(materia)).
 semantic_topic_cue(chess, keyword(chess)).
 semantic_topic_cue(chess, keyword(scacchi)).
 wiki_concept(gravity, physics, "the force by which a planet or other body draws objects toward its center, giving weight to matter").

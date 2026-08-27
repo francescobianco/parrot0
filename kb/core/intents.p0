@@ -1258,6 +1258,7 @@ answer_frame("tell me about", semantic_summary).
 % Accesso esplicito alla conoscenza posseduta: non deve cadere nel solo
 % autoricercatore quando il concetto e' gia' nella KB.
 answer_frame("what do you know about", semantic_summary).
+answer_frame("what causes", semantic_summary).
 answer_frame("cosa sai di", semantic_summary).
 answer_frame("cosa sai", semantic_summary).
 answer_frame("cosa sai of", semantic_summary).
