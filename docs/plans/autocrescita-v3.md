@@ -1335,6 +1335,11 @@ il replanning e la contabilità di dipendenze, costi, tempi e budget. La stessa
 struttura è ora accessibile in EN/IT da richieste naturali. Restano aperti il
 secondo round causale completo e la prova su tre famiglie di dominio prevista
 dal gate.
+Come seconda famiglia è ora disponibile `job_onboarding`: la richiesta EN/IT
+deriva una catena distinta (`learn_expectations → make_small_commitments →
+build_trust`) con budget e dipendenze propri. Non condivide termini di dominio
+con gli scacchi o con `compensation_recovery`; condivide soltanto il planner
+KB.
 
 ---
 

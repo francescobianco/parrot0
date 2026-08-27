@@ -129,6 +129,26 @@ action_time(replan_recovery, 20m).
 plan_given(failed_plan).
 plan_budget(compensation_recovery, 4, 1h30m).
 
+% Second family: institutional onboarding, deliberately disjoint from games and
+% recovery. The planner sees only the artifact graph.
+plan_goal(job_onboarding, trusted_contributor).
+goal_cue(job_onboarding, "start a new job").
+goal_cue(job_onboarding, "iniziare un nuovo lavoro").
+action_yields(learn_expectations, expectations_known).
+action_needs(learn_expectations, role_offer).
+action_desc(learn_expectations, "learn the team's expectations and success criteria").
+action_desc(learn_expectations, it, "apprendere aspettative e criteri di successo del gruppo").
+action_yields(make_small_commitments, reliable_record).
+action_needs(make_small_commitments, expectations_known).
+action_desc(make_small_commitments, "complete small commitments reliably and record the results").
+action_desc(make_small_commitments, it, "mantenere piccoli impegni e registrarne i risultati").
+action_yields(build_trust, trusted_contributor).
+action_needs(build_trust, reliable_record).
+action_desc(build_trust, "build trust by communicating clearly and delivering consistently").
+action_desc(build_trust, it, "costruire fiducia comunicando chiaramente e mantenendo continuità").
+plan_given(role_offer).
+plan_budget(job_onboarding, 6, 2w).
+
 % gen259 (Track 5.3): step -> primitive BINDINGS, as knowledge. Walking a derived
 % plan means realizing each step through a mute C capability; WHICH capability
 % realizes WHICH step is a fact, never a C switch on step names:
