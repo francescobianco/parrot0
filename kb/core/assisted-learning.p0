@@ -1,0 +1,343 @@
+% assisted-learning.p0 — lezioni come trasformazioni vive, non come turni da
+% eseguire (M10/M14 di docs/plans/apprendimento-assistito.md).
+%
+% Il producer universale pubblica token, ordine e numeri.  Questa KB decide che
+% una loro composizione e' una LEZIONE, ne conserva gli slot, la applica a
+% ingressi nuovi e registra i replay che ne sostengono la promozione. Il C non
+% conosce convert, multiply, add, le lingue o le unita': espone soltanto il
+% protocollo aperto `turn_learning_response/2` prima degli altri piani del turno.
+
+:- file_attribute(machinery).
+
+machinery(turn_learning_response).
+machinery(assisted_token_between).
+machinery(assisted_next_token).
+machinery(assisted_operation_after).
+machinery(assisted_operation_between).
+machinery(assisted_next_operation).
+machinery(assisted_number_between).
+machinery(assisted_next_number).
+machinery(assisted_step_chain).
+machinery(assisted_conversion_head).
+machinery(assisted_request_input).
+machinery(assisted_request_units).
+machinery(assisted_procedure_lesson).
+machinery(assisted_procedure_request).
+machinery(assisted_procedure_result).
+machinery(assisted_procedure_forget).
+machinery(assisted_procedure_origin).
+machinery(assisted_candidate_store).
+machinery(assisted_state_store).
+machinery(assisted_lesson_commit).
+machinery(assisted_forget_commit).
+machinery(assisted_replay_commit).
+machinery(procedure_apply_steps).
+machinery(procedure_step_text).
+machinery(procedure_steps_text).
+machinery(procedure_value_unit_text).
+machinery(procedure_trace_text).
+machinery(procedure_result_text).
+machinery(procedure_lesson_text).
+machinery(procedure_origin_text).
+machinery(procedure_forget_text).
+machinery(learning_candidate).
+machinery(learning_source).
+machinery(learning_state).
+machinery(learning_event).
+machinery(learning_replay).
+machinery(learning_replay_set).
+machinery(learning_status).
+machinery(capability_parent).
+
+% ── 1. IL VOCABOLARIO DIDATTICO E' CONOSCENZA ─────────────────────────────
+
+procedure_teach_cue("to convert").
+procedure_teach_cue("per convertire").
+procedure_forget_cue("forget the procedure from").
+procedure_forget_cue("dimentica la procedura da").
+procedure_origin_cue("what taught you to convert").
+procedure_origin_cue("cosa ti ha insegnato a convertire").
+
+turn_cue_registry(procedure_teach_cue, 1).
+turn_cue_registry(procedure_forget_cue, 1).
+turn_cue_registry(procedure_origin_cue, 1).
+
+procedure_action_form(convert).
+procedure_action_form(convertire).
+procedure_direction_form(to).
+procedure_direction_form(in).
+procedure_source_form(from).
+procedure_source_form(da).
+
+% Le forme gia' dichiarate dall'aritmetica entrano nella procedura senza una
+% seconda tabella. Le forme imperative che non sono operatori infissi restano
+% membri KB ordinari e sono quindi ampliabili/retraibili a runtime.
+procedure_operation_form($Surface, $Operator) :-
+    infix_operator($Quoted, $Operator), span_atom($Quoted, $Surface).
+procedure_operation_form(multiply, times).
+procedure_operation_form(moltiplica, times).
+procedure_operation_form(add, plus).
+procedure_operation_form(aggiungi, plus).
+procedure_operation_form(subtract, minus).
+procedure_operation_form(sottrai, minus).
+procedure_operation_form(divide, divide).
+procedure_operation_form(dividi, divide).
+
+% ── 2. UNA SOLA MECCANICA DI SLOT ORDINATI ────────────────────────────────
+
+assisted_token_between($Scope, $Left, $Right) :-
+    input_node_atom($Scope, $Middle, $Value),
+    lt($Left, $Middle), lt($Middle, $Right).
+
+assisted_next_token($Scope, $Anchor, $Id, $Value) :-
+    input_node_atom($Scope, $Id, $Value), lt($Anchor, $Id),
+    naf(assisted_token_between($Scope, $Anchor, $Id)).
+
+assisted_operation_after($Scope, $After, $Id, $Operator) :-
+    input_node_atom($Scope, $Id, $Surface),
+    procedure_operation_form($Surface, $Operator), lt($After, $Id).
+
+assisted_operation_between($Scope, $Left, $Right) :-
+    assisted_operation_after($Scope, $Left, $Middle, $Operator),
+    lt($Middle, $Right).
+
+assisted_next_operation($Scope, $After, $Id, $Operator) :-
+    assisted_operation_after($Scope, $After, $Id, $Operator),
+    naf(assisted_operation_between($Scope, $After, $Id)).
+
+assisted_number_between($Scope, $Left, $Right) :-
+    input_number_node($Scope, $Middle, $Value),
+    lt($Left, $Middle), lt($Middle, $Right).
+
+assisted_next_number($Scope, $After, $Id, $Value) :-
+    input_number_node($Scope, $Id, $Value), lt($After, $Id),
+    naf(assisted_number_between($Scope, $After, $Id)).
+
+% Una lista di passi non ha arita' cablata: domani tre o dieci operazioni usano
+% la stessa ricorsione. `apply_operator/4` resta l'unico esecutore.
+assisted_step_chain($Scope, $After, nil) :-
+    naf(assisted_operation_after($Scope, $After, $Id, $Operator)).
+assisted_step_chain($Scope, $After,
+                    cons(step($Operator, $Value), $Tail)) :-
+    assisted_next_operation($Scope, $After, $OpId, $Operator),
+    assisted_next_number($Scope, $OpId, $ValueId, $Value),
+    assisted_step_chain($Scope, $ValueId, $Tail).
+
+% `convert A to B`: lo stesso head serve alla lezione e alla domanda sulla
+% provenienza. Le parole che riempiono A e B non devono essere note in anticipo.
+assisted_conversion_head($Scope, head($FromId, $From, $ToId, $To)) :-
+    input_node_atom($Scope, $VerbId, $Verb), procedure_action_form($Verb),
+    assisted_next_token($Scope, $VerbId, $FromId, $From),
+    assisted_next_token($Scope, $FromId, $DirectionId, $Direction),
+    procedure_direction_form($Direction),
+    assisted_next_token($Scope, $DirectionId, $ToId, $To).
+
+% `convert N A to B`: la richiesta condivide azione e ruoli con la lezione, ma
+% porta un valore immediatamente dopo l'azione. Questa differenza strutturale,
+% non una precedenza fra moduli, separa menzione ed esecuzione.
+assisted_request_input($Scope, request_after($ValueId, $Value)) :-
+    input_node_atom($Scope, $VerbId, $Verb), procedure_action_form($Verb),
+    assisted_next_token($Scope, $VerbId, $ValueId, $Surface),
+    input_number_node($Scope, $ValueId, $Value).
+
+assisted_request_units($Scope, $ValueId, procedure($From, $To)) :-
+    assisted_next_token($Scope, $ValueId, $FromId, $From),
+    assisted_next_token($Scope, $FromId, $DirectionId, $Direction),
+    procedure_direction_form($Direction),
+    assisted_next_token($Scope, $DirectionId, $ToId, $To).
+
+% ── 3. LEZIONE, ESECUZIONE, RETRAZIONE E PROVENIENZA ─────────────────────
+
+assisted_procedure_lesson($Turn, procedure($From, $To), $Steps, $Quoted) :-
+    turn_cue_form($Turn, procedure_teach_cue, $Cue),
+    procedure_teach_cue($Cue),
+    assisted_conversion_head($Turn, head($FromId, $From, $ToId, $To)),
+    assisted_step_chain($Turn, $ToId, $Steps),
+    dif($Steps, nil), turn_span_surface($Turn, 0, $Quoted).
+
+assisted_procedure_request($Turn, $Id, $Value) :-
+    assisted_request_input($Turn, request_after($ValueId, $Value)),
+    assisted_request_units($Turn, $ValueId, $Id).
+
+assisted_procedure_forget($Turn, procedure($From, $To), $Quoted) :-
+    turn_cue_form($Turn, procedure_forget_cue, $Cue),
+    procedure_forget_cue($Cue),
+    input_node_atom($Turn, $SourceId, $Source), procedure_source_form($Source),
+    assisted_next_token($Turn, $SourceId, $FromId, $From),
+    assisted_next_token($Turn, $FromId, $DirectionId, $Direction),
+    procedure_direction_form($Direction),
+    assisted_next_token($Turn, $DirectionId, $ToId, $To),
+    turn_span_surface($Turn, 0, $Quoted).
+
+assisted_procedure_origin($Turn, procedure($From, $To)) :-
+    turn_cue_form($Turn, procedure_origin_cue, $Cue),
+    procedure_origin_cue($Cue),
+    assisted_conversion_head($Turn, head($FromId, $From, $ToId, $To)).
+
+% Sovrascrivere una lezione sullo stesso id e' una correzione atomica del solo
+% candidato: eventi e sorgenti precedenti restano genealogia, non rumore.
+assisted_candidate_store($Id, $Steps) :-
+    learning_candidate($Id, procedure, $Old),
+    retract(learning_candidate, $Id, procedure, $Old),
+    assert(learning_candidate, $Id, procedure, $Steps).
+assisted_candidate_store($Id, $Steps) :-
+    naf(learning_candidate($Id, procedure, $Old)),
+    assert(learning_candidate, $Id, procedure, $Steps).
+
+assisted_state_store($Id, $State) :-
+    learning_state($Id, $Old), retract(learning_state, $Id, $Old),
+    assert(learning_state, $Id, $State).
+assisted_state_store($Id, $State) :-
+    naf(learning_state($Id, $Old)), assert(learning_state, $Id, $State).
+
+assisted_lesson_commit($Id, $Steps, $Quoted) :-
+    assisted_candidate_store($Id, $Steps), assisted_state_store($Id, candidate),
+    assert(learning_source, $Id, $Quoted),
+    assert(learning_event, $Id, taught, $Quoted),
+    assert(capability_parent, capability(procedure, $Id), $Id).
+
+assisted_forget_commit($Id, $Quoted) :-
+    learning_candidate($Id, procedure, $Steps),
+    retract(learning_candidate, $Id, procedure, $Steps),
+    assisted_state_store($Id, retracted),
+    assert(learning_event, $Id, retracted, $Quoted).
+
+assisted_replay_commit($Id, $Input, $Output) :-
+    assert(learning_replay, $Id, $Input, $Output).
+
+bookkeeper(assisted_learning).
+turn_bookkeeping($Turn, assisted_learning) :-
+    assisted_procedure_lesson($Turn, $Id, $Steps, $Quoted),
+    assisted_lesson_commit($Id, $Steps, $Quoted).
+turn_bookkeeping($Turn, assisted_learning) :-
+    assisted_procedure_forget($Turn, $Id, $Quoted),
+    assisted_forget_commit($Id, $Quoted).
+turn_bookkeeping($Turn, assisted_learning) :-
+    assisted_procedure_result($Turn, $Id, $Input, $Output),
+    assisted_replay_commit($Id, $Input, $Output).
+
+% Il candidato e' usabile nella sessione ma non viene chiamato consolidato.
+% Tre input distinti lo promuovono per derivazione; il conteggio non puo'
+% divergere dalla storia dei replay.
+learning_replay_set($Id, $Inputs) :-
+    findall($Input, learning_replay($Id, $Input, $Output), $Inputs).
+learning_status($Id, promoted) :-
+    learning_state($Id, candidate), learning_replay_set($Id, $Inputs),
+    count_list($Inputs, $Count), ge($Count, 3).
+learning_status($Id, candidate) :-
+    learning_state($Id, candidate), naf(learning_status($Id, promoted)).
+learning_status($Id, retracted) :- learning_state($Id, retracted).
+learning_status($Id, active) :- learning_state($Id, active).
+
+procedure_apply_steps(nil, $Input, $Input, nil).
+procedure_apply_steps(cons(step($Operator, $Operand), $Tail), $Input, $Output,
+                      cons(applied($Operator, $Input, $Operand, $Middle), $Trace)) :-
+    apply_operator($Operator, $Input, $Operand, $Middle),
+    procedure_apply_steps($Tail, $Middle, $Output, $Trace).
+
+assisted_procedure_result($Turn, $Id, $Input, $Output) :-
+    assisted_procedure_request($Turn, $Id, $Input),
+    learning_candidate($Id, procedure, $Steps),
+    learning_state($Id, candidate),
+    procedure_apply_steps($Steps, $Input, $Output, $Trace).
+
+% ── 4. REALIZZAZIONE KB-BACKED E PROTOCOLLO DI TURNO ──────────────────────
+
+procedure_operation_label(en, times, "multiply by").
+procedure_operation_label(en, plus, "add").
+procedure_operation_label(en, minus, "subtract").
+procedure_operation_label(en, divide, "divide by").
+procedure_operation_label(it, times, "moltiplica per").
+procedure_operation_label(it, plus, "aggiungi").
+procedure_operation_label(it, minus, "sottrai").
+procedure_operation_label(it, divide, "dividi per").
+procedure_step_separator(en, ", then ").
+procedure_step_separator(it, ", poi ").
+
+procedure_step_text($Language, step($Operator, $Value), $Text) :-
+    procedure_operation_label($Language, $Operator, $Label),
+    is($ValueText, $Value), concat_atoms($Label, " ", $Prefix),
+    concat_atoms($Prefix, $ValueText, $Text).
+
+procedure_steps_text($Language, cons($Step, nil), $Text) :-
+    procedure_step_text($Language, $Step, $Text).
+procedure_steps_text($Language, cons($Step, cons($Next, $Tail)), $Text) :-
+    procedure_step_text($Language, $Step, $Head),
+    procedure_step_separator($Language, $Separator),
+    procedure_steps_text($Language, cons($Next, $Tail), $Rest),
+    concat_atoms($Head, $Separator, $Prefix), concat_atoms($Prefix, $Rest, $Text).
+
+procedure_value_unit_text($Output, procedure($From, $To), $Text) :-
+    is($Value, $Output), concat_atoms($Value, " ", $Prefix),
+    concat_atoms($Prefix, $To, $Text).
+
+procedure_trace_opener(en, "; applied: ").
+procedure_trace_opener(it, "; applicato: ").
+procedure_trace_text($Language, $Steps, $Text) :-
+    procedure_trace_opener($Language, $Opener),
+    procedure_steps_text($Language, $Steps, $Body),
+    concat_atoms($Opener, $Body, $Text).
+
+procedure_result_text($Language, $Id, $Steps, $Output, $Text) :-
+    procedure_value_unit_text($Output, $Id, $ValueUnit),
+    procedure_trace_text($Language, $Steps, $Trace),
+    concat_atoms($ValueUnit, $Trace, $Body), concat_atoms($Body, ".", $Text).
+
+procedure_lesson_opener(en, "Learned candidate procedure ").
+procedure_lesson_opener(it, "Ho appreso la procedura candidata ").
+procedure_arrow(" -> ").
+procedure_lesson_text($Language, procedure($From, $To), $Steps, $Text) :-
+    procedure_lesson_opener($Language, $Opener), procedure_arrow($Arrow),
+    concat_atoms($Opener, $From, $A), concat_atoms($A, $Arrow, $B),
+    concat_atoms($B, $To, $C), procedure_trace_text($Language, $Steps, $Trace),
+    concat_atoms($C, $Trace, $D), concat_atoms($D, ".", $Text).
+
+procedure_forget_known(en, "Retracted procedure ").
+procedure_forget_known(it, "Ho ritratto la procedura ").
+procedure_forget_unknown(en, "I had no active procedure ").
+procedure_forget_unknown(it, "Non avevo una procedura attiva ").
+procedure_forget_text($Language, procedure($From, $To), $Kind, $Text) :-
+    procedure_forget_wording($Language, $Kind, $Opener), procedure_arrow($Arrow),
+    concat_atoms($Opener, $From, $A), concat_atoms($A, $Arrow, $B),
+    concat_atoms($B, $To, $C), concat_atoms($C, ".", $Text).
+procedure_forget_wording($Language, known, $Text) :-
+    procedure_forget_known($Language, $Text).
+procedure_forget_wording($Language, unknown, $Text) :-
+    procedure_forget_unknown($Language, $Text).
+
+procedure_origin_opener(en, "That capability descends from a spoken lesson; status: ").
+procedure_origin_opener(it, "Quella capacita' discende da una lezione parlata; stato: ").
+procedure_origin_steps(en, "; steps: ").
+procedure_origin_steps(it, "; passi: ").
+procedure_origin_text($Language, $Status, $Steps, $Text) :-
+    procedure_origin_opener($Language, $Opener), is($StatusText, $Status),
+    procedure_origin_steps($Language, $StepsLead),
+    procedure_steps_text($Language, $Steps, $StepsText),
+    concat_atoms($Opener, $StatusText, $A), concat_atoms($A, $StepsLead, $B),
+    concat_atoms($B, $StepsText, $C), concat_atoms($C, ".", $Text).
+
+% Le lezioni hanno un protocollo separato dalle risposte ordinarie: e' la
+% barriera che impedisce a una conversione descritta di essere calcolata.
+turn_learning_response($Turn, $Text) :-
+    assisted_procedure_lesson($Turn, $Id, $Steps, $Quoted),
+    current_language($Language), procedure_lesson_text($Language, $Id, $Steps, $Text).
+turn_learning_response($Turn, $Text) :-
+    assisted_procedure_forget($Turn, $Id, $Quoted), learning_state($Id, retracted),
+    current_language($Language), procedure_forget_text($Language, $Id, known, $Text).
+turn_learning_response($Turn, $Text) :-
+    assisted_procedure_forget($Turn, $Id, $Quoted),
+    naf(learning_state($Id, retracted)), current_language($Language),
+    procedure_forget_text($Language, $Id, unknown, $Text).
+
+turn_plan_candidate($Turn) :-
+    assisted_procedure_result($Turn, $Id, $Input, $Output).
+turn_response($Turn, $Text) :-
+    assisted_procedure_result($Turn, $Id, $Input, $Output),
+    learning_candidate($Id, procedure, $Steps), current_language($Language),
+    procedure_result_text($Language, $Id, $Steps, $Output, $Text).
+
+turn_plan_candidate($Turn) :- assisted_procedure_origin($Turn, $Id).
+turn_response($Turn, $Text) :-
+    assisted_procedure_origin($Turn, $Id), learning_candidate($Id, procedure, $Steps),
+    learning_status($Id, $Status), current_language($Language),
+    procedure_origin_text($Language, $Status, $Steps, $Text).
