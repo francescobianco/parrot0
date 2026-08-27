@@ -1397,6 +1397,9 @@ inventa la causa del blocco.
 Le forme interrogative naturali “come posso compensare un passo mancante?” e
 “how do I compensate a missing step?” aprono ora lo stesso piano senza la
 formula esplicita “fai un piano”.
+La verifica d'uso restituisce anche le dipendenze (`needs failed_plan`,
+`needs gap_known`, `needs evidence_ready`) insieme a costi, tempi e budget:
+il piano è quindi un oggetto causale osservabile dalla conversazione.
 
 ### Verifica d'uso reale
 
