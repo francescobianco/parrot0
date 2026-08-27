@@ -1230,6 +1230,16 @@ un trasferimento positivo del meccanismo a un secondo dominio; dimostra anche
 che la copertura conversazionale deve essere misurata per superfici reali e
 non inferita dal numero di esperti caricati.
 
+Il trasferimento successivo su `poker` conferma che il consumer non è legato
+agli scacchi: `ti piace il poker?`, `parliamo di poker` e `giochiamo a poker?`
+producono rispettivamente contenuto italiano sui giri di puntata, una proposta
+di discussione e una prima mossa. Bastano le relazioni KB
+`topic_preference_surface/2`, `topic_action_surface/3` e
+`game_play_localized/3`; nessuna modifica al C è stata necessaria. Questo
+chiude un campione positivo di trasferimento di dominio, ma il gate Gen444
+resta aperto finché la stessa crescita non sarà insegnabile e revocabile a
+runtime su una superficie non precaricata.
+
 Lo stesso audit ha poi mostrato che `come si gioca a scacchi?` raggiungeva il
 fatto corretto ma lo realizzava in inglese, nonostante il turno italiano. Il
 problema era nel consumer `answer_frame(game_play)`, che bypassava la sorgente
