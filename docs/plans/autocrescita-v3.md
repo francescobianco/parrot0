@@ -1392,6 +1392,9 @@ può chiedere un piano per compensare un passo mancante e ottenere
 provenienza e budget aggregato dichiarati nella KB. Il piano non conosce il
 dominio concreto finché il contesto non fornisce `failed_plan`, quindi non
 inventa la causa del blocco.
+Le forme interrogative naturali “come posso compensare un passo mancante?” e
+“how do I compensate a missing step?” aprono ora lo stesso piano senza la
+formula esplicita “fai un piano”.
 
 ### Verifica d'uso reale
 

@@ -664,6 +664,8 @@ intent_cue(plan_request, "plan for getting").
 intent_cue(plan_request, "fai un piano").
 intent_cue(plan_request, "deriva un piano").
 intent_cue(plan_request, "pianifica").
+intent_cue(plan_request, "compensare un passo mancante").
+intent_cue(plan_request, "compensate a missing step").
 intent_cue(plan_execute, "execute the plan").
 intent_cue(plan_execute, "execute the kb-first plan").
 intent_cue(plan_execute, "run the plan").
