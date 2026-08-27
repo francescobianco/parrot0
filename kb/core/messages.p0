@@ -384,3 +384,50 @@ response_template(we_ve_been_talking_for_x_minute_s_and_x_seco, "We've been talk
 response_template(we_ve_been_talking_for_x_hour_s_and_x_minute, "We've been talking for {elapsed} hour(s) and {elapsed2} minute(s).").
 response_template(underneath_the_role_i_am_x, "Underneath the role, I am {parrot0}.").
 response_template(i_see_x_examples_but_i_can_t_find_one_rule_t, "I see {nex} examples, but I can't find one rule that fits them all.").
+
+%% Settima tranche: i messaggi che contengono NUMERI. Il valore diventa testo
+%% prima di entrare nello slot, cosi' anche «ho letto 3 fatti» e' una frase che
+%% si puo' reinsegnare senza toccare il conteggio.
+
+response_template(i_ran_it_on_a_fresh_copy_of_myself_with_held, "I ran it on a fresh copy of myself with held-out names (a {v} {v2} named {v3}): {names} — {fired} of {picked} parts fired and cooperated. Observed: {observed} Composition holds (PASS). No file was touched; an external agent still owns edits and commits.").
+response_template(i_ran_it_on_a_fresh_copy_of_myself_with_held_2, "I ran it on a fresh copy of myself with held-out names (a {v} {v2} named {v3}): {names} — only {fired} of {picked} parts fired, so a seam appeared (FAIL). That gap is the next task for the external loop.").
+response_template(i_would_treat_it_as_a_composition_self_chall_2, "I would treat it as a composition self-challenge, not self-management: from my own module set I would pick three parts I actually have — {gloss}, {gloss2}, and {gloss3} — and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.").
+response_template(i_know_x_fact_s, "I know {kb} fact(s).").
+response_template(i_know_x_fact_s_across_x_predicate_s_ask_me, "I know {nfacts} fact(s) across {np} predicate(s). Ask me about a specific topic.").
+response_template(the_x_module_answered_your_last_question, "The '{last_module}' module answered your last question.").
+response_template(the_x_module_can_x, "The {mod} module can {say}.").
+response_template(there_are_x_letters_in_x, "There are {nl} letters in «{ws}».").
+response_template(x_was_killed_by_signal_x_it_did_not_complete, "`{cmd}` was KILLED by signal {term_signal} — it did not complete.").
+response_template(x_never_started_x, "`{cmd}` never started: {detail}.").
+response_template(unsafe_path_that_is_outside_my_workspace_x_i, "unsafe_path: that is outside my workspace ({p0_root}). I only read inside it.").
+response_template(i_did_not_run_x_x, "I did not run `{cmd}`: {verdict}.").
+response_template(read_ingested_x_x_code_function_fact_s_asser, "read+ingested {file}: {k} code_function fact(s) asserted").
+response_template(verified_by_symbolic_execution_x_x_x_x_x_x_x, "verified by symbolic execution: {nameo}({a1},{b1})={g1}, {nameo2}({a2},{b2})={g2}").
+response_template(x_no_concrete_call_to_evaluate_here, "{step}) (no concrete call to evaluate here)").
+response_template(composed_x_via_code_eval_oracle_x, "composed {name} via code_eval oracle ({refused})").
+response_template(reached_x_after_x_stepx_x, "Reached {nb} after {steps} step{s}: {traj}.").
+response_template(it_didn_t_settle_within_x_steps, "It didn't settle within {CAP} steps.").
+response_template(branching_act_loop_x_observed_steps_x, "branching act-loop: {steps} observed steps, {traj}").
+response_template(act_loop_x_oracle_callx_x, "act-loop: {steps} oracle call{s}, {traj}").
+response_template(reached_x_from_x_in_x_stepx_x, "Reached {tb} from {sb} in {steps} step{s}: {traj}.").
+response_template(search_plan_x_steps_x, "search plan ({steps} steps): {traj}").
+response_template(mainly_about_x_x, "Mainly about {cv}: {s}.").
+response_template(deleted_xx_but_x_still_x_x_so_the_program_no, "Deleted {fnname}{where}, but {who_calls} still {calls} {fnname2}, so the program no longer links.").
+response_template(renamed_x_to_xx_x_occurrences_the_result_sti, "Renamed {oldn} to {newn}{where} ({n} occurrences); the result still compiles.").
+response_template(renamed_x_to_xx_x_occurrences_but_the_result, "Renamed {oldn} to {newn}{where} ({n} occurrences), but the result no longer compiles.").
+response_template(renamed_x_to_xx_x_occurrences_in_a_temp_copy, "Renamed {oldn} to {newn}{where} ({n} occurrences) in a temp copy; the original is unchanged.").
+response_template(i_read_it_as_code_and_worked_it_out_x_return, "I read it as code and worked it out: {callstr} returns {res}.").
+response_template(i_don_t_have_a_module_called_x_to_set_aside, "I don't have a module called «{that}» to set aside.").
+
+%% Settima tranche: i messaggi che contengono NUMERI. Il valore diventa testo
+%% prima di entrare nello slot, cosi' anche «ho letto 3 fatti» e' una frase che
+%% si puo' reinsegnare senza toccare il conteggio.
+
+response_template(not_assumed_in_the_x_world, "Not assumed in the {active_world} world.").
+response_template(i_have_no_assumptions_about_x_in_the_x_world, "I have no assumptions about {subj} in the {active_world} world.").
+response_template(in_the_x_world_x_is_x, "In the {active_world} world, {subj} is {list}.").
+response_template(nothing_is_assumed_yet_in_the_x_world, "Nothing is assumed yet in the {id} world.").
+response_template(in_the_x_world_i_am_assuming_x, "In the {id} world I am assuming: {list}.").
+response_template(that_wouldn_t_change_my_conclusion_about_x_e, "That wouldn't change my conclusion about {last_goal_arg} either way.").
+response_template(learned_x_facts_x, "Learned {nf} facts: {learned}.").
+response_template(i_bridged_x_of_my_own_walls_by_teaching_myse, "I bridged {nfix} of my own walls by teaching myself: {learned}.").

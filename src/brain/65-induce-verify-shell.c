@@ -233,11 +233,17 @@ static int mod_search(Brain *b, const char *norm, const char *raw,
     size_t steps = clen - 1;
     char sb[64], tb[64]; format_num(start, sb, sizeof sb); format_num(target, tb, sizeof tb);
     char msg[520];
-    snprintf(msg, sizeof msg, "Reached %s from %s in %zu step%s: %s.",
-             tb, sb, steps, steps == 1 ? "" : "s", traj);
+    { 
+      char _v2[48]; snprintf(_v2, sizeof _v2, "%zu", steps);
+      char _v3[48]; snprintf(_v3, sizeof _v3, "%s", steps == 1 ? "" : "s");
+  const KbResponseSlot _rs[] = { { "tb", tb }, { "sb", sb }, { "steps", _v2 }, { "s", _v3 }, { "traj", traj } };
+      kb_term_say(b, "reached_x_from_x_in_x_stepx_x", _rs, 5, msg, sizeof msg); }
     put(msg, out, out_size);
     char proof[460];
-    snprintf(proof, sizeof proof, "search plan (%zu steps): %s", steps, traj);
+    { 
+      char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", steps);
+  const KbResponseSlot _rs[] = { { "steps", _v0 }, { "traj", traj } };
+      kb_term_say(b, "search_plan_x_steps_x", _rs, 2, proof, sizeof proof); }
     store_proof(b, proof);
     return 1;
 }
@@ -598,7 +604,10 @@ static int mod_summary(Brain *b, const char *norm, const char *raw,
         size_t sl = strlen(s);
         while (sl > 0 && (s[sl-1]=='.'||s[sl-1]==' ')) s[--sl] = '\0';
         char msg[320];
-        snprintf(msg, sizeof msg, "Mainly about %s: %s.", nv ? vocab[cv] : "", s);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", nv ? vocab[cv] : "");
+  const KbResponseSlot _rs[] = { { "cv", _v0 }, { "s", s } };
+          kb_term_say(b, "mainly_about_x_x", _rs, 2, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }

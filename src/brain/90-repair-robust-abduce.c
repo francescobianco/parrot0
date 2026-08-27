@@ -376,9 +376,10 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
                  "can reach that another way.",
                  arg, pred, b->last_goal_arg, b->last_goal_pred);
     } else {
-        snprintf(msg, sizeof msg,
-                 "That wouldn't change my conclusion about %s either way.",
-                 b->last_goal_arg);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_goal_arg);
+  const KbResponseSlot _rs[] = { { "last_goal_arg", _v0 } };
+          kb_term_say(b, "that_wouldn_t_change_my_conclusion_about_x_e", _rs, 1, msg, sizeof msg); }
     }
     put(msg, out, out_size);
     return 1;

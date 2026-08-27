@@ -65,7 +65,10 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
             if (isalpha((unsigned char)*c)) nl++;
         if (nl == 0) return 0;
         char msg[220];
-        snprintf(msg, sizeof msg, "There are %zu letters in \"%s\".", nl, ws);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", nl);
+  const KbResponseSlot _rs[] = { { "nl", _v0 }, { "ws", ws } };
+          kb_term_say(b, "there_are_x_letters_in_x", _rs, 2, msg, sizeof msg); }
         put(msg, out, out_size);
         store_proof(b, "Counted the alphabetic characters of the named word.");
         return 1;
@@ -374,20 +377,31 @@ static int piact_obs(Brain *b, char *const *argv, const char *label,
                  "would have succeeded.", obs.cmd, obs.duration_ms);
         break;
     case P0_SIGNALED:
-        snprintf(msg, sizeof msg, "`%s` was KILLED by signal %d — it did not complete.",
-                 obs.cmd, obs.term_signal);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", obs.cmd);
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%d", obs.term_signal);
+  const KbResponseSlot _rs[] = { { "cmd", _v0 }, { "term_signal", _v1 } };
+          kb_term_say(b, "x_was_killed_by_signal_x_it_did_not_complete", _rs, 2, msg, sizeof msg); }
         break;
     case P0_SPAWN_FAILED:
-        snprintf(msg, sizeof msg, "`%s` never started: %s.", obs.cmd, obs.detail);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", obs.cmd);
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%s", obs.detail);
+  const KbResponseSlot _rs[] = { { "cmd", _v0 }, { "detail", _v1 } };
+          kb_term_say(b, "x_never_started_x", _rs, 2, msg, sizeof msg); }
         break;
     case P0_UNSAFE_PATH:
-        snprintf(msg, sizeof msg,
-                 "unsafe_path: that is outside my workspace (%s). I only read inside it.",
-                 p0_root());
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", p0_root());
+  const KbResponseSlot _rs[] = { { "p0_root", _v0 } };
+          kb_term_say(b, "unsafe_path_that_is_outside_my_workspace_x_i", _rs, 1, msg, sizeof msg); }
         break;
     default:
-        snprintf(msg, sizeof msg, "I did not run `%s`: %s.", obs.cmd,
-                 obs.detail[0] ? obs.detail : p0_verdict_name(obs.verdict));
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", obs.cmd);
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%s", obs.detail[0] ? obs.detail : p0_verdict_name(obs.verdict));
+  const KbResponseSlot _rs[] = { { "cmd", _v0 }, { "verdict", _v1 } };
+          kb_term_say(b, "i_did_not_run_x_x", _rs, 2, msg, sizeof msg); }
         break;
     }
     put(msg, out, out_size);
@@ -641,8 +655,10 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
                     snprintf(out+off, out_size-off,
                              ". (%zu function%s now in the KB.)", k, k==1?"":"s");
                 char proof[320];
-                snprintf(proof, sizeof proof,
-                         "read+ingested %s: %zu code_function fact(s) asserted", file, k);
+                { 
+                  char _v1[48]; snprintf(_v1, sizeof _v1, "%zu", k);
+  const KbResponseSlot _rs[] = { { "file", file }, { "k", _v1 } };
+                  kb_term_say(b, "read_ingested_x_x_code_function_fact_s_asser", _rs, 2, proof, sizeof proof); }
                 store_proof(b, proof);
                 snprintf(b->last_tool_cmd, sizeof b->last_tool_cmd, "code_ingest(%s)", file);
                 b->has_last_tool_cmd = 1;
@@ -947,9 +963,15 @@ static int compose_one(Brain *b, const char *raw, const char *low,
     int ok = code_eval(src,nameo,A1,2,&g1) && g1==e1 &&
              code_eval(src,nameo,A2,2,&g2) && g2==e2;
     if (ok) {
-        snprintf(note, notesz,
-                 "verified by symbolic execution: %s(%ld,%ld)=%ld, %s(%ld,%ld)=%ld",
-                 nameo,a1,b1,g1, nameo,a2,b2,g2);
+        { 
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%ld", a1);
+          char _v2[48]; snprintf(_v2, sizeof _v2, "%ld", b1);
+          char _v3[48]; snprintf(_v3, sizeof _v3, "%ld", g1);
+          char _v5[48]; snprintf(_v5, sizeof _v5, "%ld", a2);
+          char _v6[48]; snprintf(_v6, sizeof _v6, "%ld", b2);
+          char _v7[48]; snprintf(_v7, sizeof _v7, "%ld", g2);
+  const KbResponseSlot _rs[] = { { "nameo", nameo }, { "a1", _v1 }, { "b1", _v2 }, { "g1", _v3 }, { "nameo2", nameo }, { "a2", _v5 }, { "b2", _v6 }, { "g2", _v7 } };
+          kb_term_say(b, "verified_by_symbolic_execution_x_x_x_x_x_x_x", _rs, 8, note, notesz); }
         return 1;
     }
     kb_term_say(b, "the_oracle_did_not_confirm_it", NULL, 0, note, notesz);
@@ -1095,7 +1117,10 @@ static int compose_plan(Brain *b, const char *raw, char *out, size_t out_size) {
                     snprintf(piece, sizeof piece, "%zu) (can't evaluate %s — compose it first)", step, nm);
                 }
             } else {
-                snprintf(piece, sizeof piece, "%zu) (no concrete call to evaluate here)", step);
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", step);
+  const KbResponseSlot _rs[] = { { "step", _v0 } };
+                  kb_term_say(b, "x_no_concrete_call_to_evaluate_here", _rs, 1, piece, sizeof piece); }
             }
         } else {
             /* gen208: not a compose/eval clause — dispatch it through the registry
@@ -1232,7 +1257,10 @@ static int mod_compose(Brain *b, const char *norm, const char *raw,
     else               snprintf(msg, sizeof msg, "%s", note);
     put(msg, out, out_size);
     char proof[320];
-    snprintf(proof, sizeof proof, "composed %s via code_eval oracle (%s)", name, r==1?"verified":"unverified/refused");
+    { 
+      char _v1[48]; snprintf(_v1, sizeof _v1, "%s", r==1?"verified":"unverified/refused");
+  const KbResponseSlot _rs[] = { { "name", name }, { "refused", _v1 } };
+      kb_term_say(b, "composed_x_via_code_eval_oracle_x", _rs, 2, proof, sizeof proof); }
     store_proof(b, proof);
     return 1;
 }
@@ -1388,16 +1416,23 @@ static int mod_agent(Brain *b, const char *norm, const char *raw,
                 char msg[640];
                 if (cur >= target - 1e-9 && cur <= target + 1e-9) {
                     format_num(target, nb, sizeof nb);
-                    snprintf(msg, sizeof msg, "Reached %s after %ld step%s: %s.",
-                             nb, steps, steps == 1 ? "" : "s", traj);
+                    { 
+                      char _v1[48]; snprintf(_v1, sizeof _v1, "%ld", steps);
+                      char _v2[48]; snprintf(_v2, sizeof _v2, "%s", steps == 1 ? "" : "s");
+  const KbResponseSlot _rs[] = { { "nb", nb }, { "steps", _v1 }, { "s", _v2 }, { "traj", traj } };
+                      kb_term_say(b, "reached_x_after_x_stepx_x", _rs, 4, msg, sizeof msg); }
                 } else {
-                    snprintf(msg, sizeof msg,
-                             "It didn't settle within %ld steps.", CAP);
+                    { 
+                      char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", CAP);
+  const KbResponseSlot _rs[] = { { "CAP", _v0 } };
+                      kb_term_say(b, "it_didn_t_settle_within_x_steps", _rs, 1, msg, sizeof msg); }
                 }
                 put(msg, out, out_size);
                 char proof[512];
-                snprintf(proof, sizeof proof,
-                         "branching act-loop: %ld observed steps, %s", steps, traj);
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", steps);
+  const KbResponseSlot _rs[] = { { "steps", _v0 }, { "traj", traj } };
+                  kb_term_say(b, "branching_act_loop_x_observed_steps_x", _rs, 2, proof, sizeof proof); }
                 store_proof(b, proof);
                 return 1;
             }
@@ -1488,8 +1523,11 @@ static int mod_agent(Brain *b, const char *norm, const char *raw,
     char msg[640];
     if (agent_goal_met(cur, target, cmp)) {
         format_num(cur, nb, sizeof nb);
-        snprintf(msg, sizeof msg, "Reached %s after %ld step%s: %s.",
-                 nb, steps, steps == 1 ? "" : "s", traj);
+        { 
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%ld", steps);
+          char _v2[48]; snprintf(_v2, sizeof _v2, "%s", steps == 1 ? "" : "s");
+  const KbResponseSlot _rs[] = { { "nb", nb }, { "steps", _v1 }, { "s", _v2 }, { "traj", traj } };
+          kb_term_say(b, "reached_x_after_x_stepx_x", _rs, 4, msg, sizeof msg); }
     } else {
         char sb[64], tb[64];
         format_num(start, sb, sizeof sb);
@@ -1501,8 +1539,11 @@ static int mod_agent(Brain *b, const char *norm, const char *raw,
     put(msg, out, out_size);
 
     char proof[512];
-    snprintf(proof, sizeof proof, "act-loop: %ld oracle call%s, %s",
-             steps, steps == 1 ? "" : "s", traj);
+    { 
+      char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", steps);
+      char _v1[48]; snprintf(_v1, sizeof _v1, "%s", steps == 1 ? "" : "s");
+  const KbResponseSlot _rs[] = { { "steps", _v0 }, { "s", _v1 }, { "traj", traj } };
+      kb_term_say(b, "act_loop_x_oracle_callx_x", _rs, 3, proof, sizeof proof); }
     store_proof(b, proof);
     return 1;
 }

@@ -445,9 +445,10 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                         off += (size_t)snprintf(who_calls + off, sizeof who_calls - off,
                                                 "%s%s", i ? (i + 1 == nc ? " and " : ", ") : "",
                                                 callers[i]);
-                    snprintf(out, out_size,
-                             "Deleted %s%s, but %s still %s %s, so the program no longer links.",
-                             fnname, where, who_calls, nc > 1 ? "call" : "calls", fnname);
+                    { 
+                      char _v3[48]; snprintf(_v3, sizeof _v3, "%s", nc > 1 ? "call" : "calls");
+  const KbResponseSlot _rs[] = { { "fnname", fnname }, { "where", where }, { "who_calls", who_calls }, { "calls", _v3 }, { "fnname2", fnname } };
+                      kb_term_say(b, "deleted_xx_but_x_still_x_x_so_the_program_no", _rs, 5, out, out_size); }
                 } else {
                     { const KbResponseSlot _rs[] = { { "fnname", fnname }, { "where", where } };
       kb_term_say(b, "deleted_xx_but_the_result_no_longer_links", _rs, 2, out, out_size); }
@@ -528,17 +529,20 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         int rc = code_compile(tmp, err, sizeof err);
         remove(tmp);
         if (rc == 1)
-            snprintf(out, out_size,
-                     "Renamed %s to %s%s (%d occurrences); the result still compiles.",
-                     oldn, newn, where, n);
+            { 
+              char _v3[48]; snprintf(_v3, sizeof _v3, "%d", n);
+  const KbResponseSlot _rs[] = { { "oldn", oldn }, { "newn", newn }, { "where", where }, { "n", _v3 } };
+              kb_term_say(b, "renamed_x_to_xx_x_occurrences_the_result_sti", _rs, 4, out, out_size); }
         else if (rc == 0)
-            snprintf(out, out_size,
-                     "Renamed %s to %s%s (%d occurrences), but the result no longer compiles.",
-                     oldn, newn, where, n);
+            { 
+              char _v3[48]; snprintf(_v3, sizeof _v3, "%d", n);
+  const KbResponseSlot _rs[] = { { "oldn", oldn }, { "newn", newn }, { "where", where }, { "n", _v3 } };
+              kb_term_say(b, "renamed_x_to_xx_x_occurrences_but_the_result", _rs, 4, out, out_size); }
         else
-            snprintf(out, out_size,
-                     "Renamed %s to %s%s (%d occurrences) in a temp copy; the original is unchanged.",
-                     oldn, newn, where, n);
+            { 
+              char _v3[48]; snprintf(_v3, sizeof _v3, "%d", n);
+  const KbResponseSlot _rs[] = { { "oldn", oldn }, { "newn", newn }, { "where", where }, { "n", _v3 } };
+              kb_term_say(b, "renamed_x_to_xx_x_occurrences_in_a_temp_copy", _rs, 4, out, out_size); }
         store_proof(b, out);
         return 1;
     }
@@ -982,8 +986,10 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
 
         long res;
         if (code_eval(code, fname, argv, nargs, &res))
-            snprintf(out, out_size,
-                     "I read it as code and worked it out: %s returns %ld.", callstr, res);
+            { 
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%ld", res);
+  const KbResponseSlot _rs[] = { { "callstr", callstr }, { "res", _v1 } };
+              kb_term_say(b, "i_read_it_as_code_and_worked_it_out_x_return", _rs, 2, out, out_size); }
         else
             snprintf(out, out_size,
                      "I read it as code, but I cannot compute %s yet — its body is "

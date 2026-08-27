@@ -173,13 +173,17 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
             size_t fired = run_composition(keys, sigs, picked, v,
                                            observed, sizeof observed);
             if (fired == picked)
-                snprintf(msg, sizeof msg,
-                    "I ran it on a fresh copy of myself with held-out names (a %s %s named %s): %s — %zu of %zu parts fired and cooperated. Observed: %s Composition holds (PASS). No file was touched; an external agent still owns edits and commits.",
-                    v[0], v[1], v[3], names, fired, picked, observed);
+                { 
+                  char _v4[48]; snprintf(_v4, sizeof _v4, "%zu", fired);
+                  char _v5[48]; snprintf(_v5, sizeof _v5, "%zu", picked);
+  const KbResponseSlot _rs[] = { { "v", v[0] }, { "v2", v[1] }, { "v3", v[3] }, { "names", names }, { "fired", _v4 }, { "picked", _v5 }, { "observed", observed } };
+                  kb_term_say(b, "i_ran_it_on_a_fresh_copy_of_myself_with_held", _rs, 7, msg, sizeof msg); }
             else
-                snprintf(msg, sizeof msg,
-                    "I ran it on a fresh copy of myself with held-out names (a %s %s named %s): %s — only %zu of %zu parts fired, so a seam appeared (FAIL). That gap is the next task for the external loop.",
-                    v[0], v[1], v[3], names, fired, picked);
+                { 
+                  char _v4[48]; snprintf(_v4, sizeof _v4, "%zu", fired);
+                  char _v5[48]; snprintf(_v5, sizeof _v5, "%zu", picked);
+  const KbResponseSlot _rs[] = { { "v", v[0] }, { "v2", v[1] }, { "v3", v[3] }, { "names", names }, { "fired", _v4 }, { "picked", _v5 } };
+                  kb_term_say(b, "i_ran_it_on_a_fresh_copy_of_myself_with_held_2", _rs, 6, msg, sizeof msg); }
             put(msg, out, out_size);
             store_proof(b, "loop composition self-test: generate fresh vocab, run the derived dialogue on a fresh sub-brain, report pass/seam + observed cooperation from real output; footprint-free, edits external.");
             return 1;
@@ -197,9 +201,12 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
             put(msg, out, out_size);
             store_proof(b, "loop composition skeleton: emit a runnable >-turn dialogue over the parts derived from module/X; external agent fills, runs, commits.");
         } else {
-            snprintf(msg, sizeof msg,
-                "I would treat it as a composition self-challenge, not self-management: from my own module set I would pick three parts I actually have — %s, %s, and %s — and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.",
-                core[pick[0]].gloss, core[pick[1]].gloss, core[pick[2]].gloss);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", core[pick[0]].gloss);
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%s", core[pick[1]].gloss);
+              char _v2[48]; snprintf(_v2, sizeof _v2, "%s", core[pick[2]].gloss);
+  const KbResponseSlot _rs[] = { { "gloss", _v0 }, { "gloss2", _v1 }, { "gloss3", _v2 } };
+              kb_term_say(b, "i_would_treat_it_as_a_composition_self_chall_2", _rs, 3, msg, sizeof msg); }
             put(msg, out, out_size);
             store_proof(b, "loop composition self-challenge: compose >=3 existing parts (derived from module/X) in one held-out dialogue, fresh names, ratchet EN+IT, no new module, edits external.");
         }
@@ -1471,7 +1478,10 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                      (kb_cue_match(b, "50_self_research_loop_cue1480", buf) && wn <= 5);
     if (fact_count) {
         char msg[128];
-        snprintf(msg, sizeof msg, "I know %zu fact(s).", kb_user_facts(b->kb));
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", kb_user_facts(b->kb));
+  const KbResponseSlot _rs[] = { { "kb", _v0 } };
+          kb_term_say(b, "i_know_x_fact_s", _rs, 1, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }
@@ -1539,9 +1549,11 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         if (!preds) return 0;
         size_t np = kb_user_predicates(b->kb, preds, pcap);
         char msg[256];
-        snprintf(msg, sizeof msg,
-                 "I know %zu fact(s) across %zu predicate(s). Ask me about a specific topic.",
-                 nfacts, np);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", nfacts);
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%zu", np);
+  const KbResponseSlot _rs[] = { { "nfacts", _v0 }, { "np", _v1 } };
+          kb_term_say(b, "i_know_x_fact_s_across_x_predicate_s_ask_me", _rs, 2, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }
@@ -1561,9 +1573,10 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                          "No module could handle that — it fell through to "
                          "the not-understood fallback.");
             else
-                snprintf(msg, sizeof msg,
-                         "The '%s' module answered your last question.",
-                         b->last_module);
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_module);
+  const KbResponseSlot _rs[] = { { "last_module", _v0 } };
+                  kb_term_say(b, "the_x_module_answered_your_last_question", _rs, 1, msg, sizeof msg); }
             put(msg, out, out_size);
         } else {
             kb_term_say(b, "i_haven_t_answered_anything_yet", NULL, 0, out, out_size);
@@ -1617,8 +1630,11 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < sizeof cmap / sizeof cmap[0]; i++) {
             if (cue(buf, cmap[i].mod)) {
                 char msg[256];
-                snprintf(msg, sizeof msg, "The %s module can %s.",
-                         cmap[i].mod, cmap[i].say);
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%s", cmap[i].mod);
+                  char _v1[48]; snprintf(_v1, sizeof _v1, "%s", cmap[i].say);
+  const KbResponseSlot _rs[] = { { "mod", _v0 }, { "say", _v1 } };
+                  kb_term_say(b, "the_x_module_can_x", _rs, 2, msg, sizeof msg); }
                 put(msg, out, out_size);
                 return 1;
             }

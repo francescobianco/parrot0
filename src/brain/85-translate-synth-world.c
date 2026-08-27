@@ -988,9 +988,10 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
         }
         if (!suppress[0] || !is_registry_module(suppress)) {
             char msg[128];
-            snprintf(msg, sizeof msg,
-                     "I don't have a module called \"%s\" to set aside.",
-                     suppress[0] ? suppress : "that");
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", suppress[0] ? suppress : "that");
+  const KbResponseSlot _rs[] = { { "that", _v0 } };
+              kb_term_say(b, "i_don_t_have_a_module_called_x_to_set_aside", _rs, 1, msg, sizeof msg); }
             put(msg, out, out_size);
             return 1;
         }
@@ -1161,8 +1162,10 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
         else if (r < 0) put("No.", out, out_size);
         else {
             char m[160];
-            snprintf(m, sizeof m, "Not assumed in the %s world.",
-                     b->worlds[b->active_world]);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->worlds[b->active_world]);
+  const KbResponseSlot _rs[] = { { "active_world", _v0 } };
+              kb_term_say(b, "not_assumed_in_the_x_world", _rs, 1, m, sizeof m); }
             put(m, out, out_size);
         }
         return 1;
@@ -1183,8 +1186,10 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
         else if (r < 0) put("No.", out, out_size);
         else {
             char m[160];
-            snprintf(m, sizeof m, "Not assumed in the %s world.",
-                     b->worlds[b->active_world]);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->worlds[b->active_world]);
+  const KbResponseSlot _rs[] = { { "active_world", _v0 } };
+              kb_term_say(b, "not_assumed_in_the_x_world", _rs, 1, m, sizeof m); }
             put(m, out, out_size);
         }
         return 1;
@@ -1207,13 +1212,17 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
             }
         if (hits == 0) {
             char m[160];
-            snprintf(m, sizeof m, "I have no assumptions about %s in the %s world.",
-                     subj, b->worlds[b->active_world]);
+            { 
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->worlds[b->active_world]);
+  const KbResponseSlot _rs[] = { { "subj", subj }, { "active_world", _v1 } };
+              kb_term_say(b, "i_have_no_assumptions_about_x_in_the_x_world", _rs, 2, m, sizeof m); }
             put(m, out, out_size);
         } else {
             char m[480];
-            snprintf(m, sizeof m, "In the %s world, %s is %s.",
-                     b->worlds[b->active_world], subj, list);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->worlds[b->active_world]);
+  const KbResponseSlot _rs[] = { { "active_world", _v0 }, { "subj", subj }, { "list", list } };
+              kb_term_say(b, "in_the_x_world_x_is_x", _rs, 3, m, sizeof m); }
             put(m, out, out_size);
         }
         return 1;
@@ -1272,11 +1281,15 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
             }
         char m[600];
         if (hits == 0)
-            snprintf(m, sizeof m, "Nothing is assumed yet in the %s world.",
-                     b->worlds[id]);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->worlds[id]);
+  const KbResponseSlot _rs[] = { { "id", _v0 } };
+              kb_term_say(b, "nothing_is_assumed_yet_in_the_x_world", _rs, 1, m, sizeof m); }
         else
-            snprintf(m, sizeof m, "In the %s world I am assuming: %s.",
-                     b->worlds[id], list);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->worlds[id]);
+  const KbResponseSlot _rs[] = { { "id", _v0 }, { "list", list } };
+              kb_term_say(b, "in_the_x_world_i_am_assuming_x", _rs, 2, m, sizeof m); }
         put(m, out, out_size);
         return 1;
     }

@@ -3647,7 +3647,10 @@ static int prose_learn_lead(Brain *b, const char *canon, const char *input,
     int nf = learn_from_prose(b, prose, learned, sizeof learned);
     if (nf <= 0 || !learned[0]) return 0;
     char msg[900];
-    snprintf(msg, sizeof msg, "Learned %d facts: %s.", nf, learned);
+    { 
+      char _v0[48]; snprintf(_v0, sizeof _v0, "%d", nf);
+  const KbResponseSlot _rs[] = { { "nf", _v0 }, { "learned", learned } };
+      kb_term_say(b, "learned_x_facts_x", _rs, 2, msg, sizeof msg); }
     put(msg, out, out_size);
     return 1;
 }
@@ -4118,9 +4121,10 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             int nfix = brain_self_repair(b, learned, sizeof learned);
             char msg[1100];
             if (nfix > 0)
-                snprintf(msg, sizeof msg,
-                         "I bridged %d of my own walls by teaching myself: %s.",
-                         nfix, learned);
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%d", nfix);
+  const KbResponseSlot _rs[] = { { "nfix", _v0 }, { "learned", learned } };
+                  kb_term_say(b, "i_bridged_x_of_my_own_walls_by_teaching_myse", _rs, 2, msg, sizeof msg); }
             else
                 kb_term_say(b, "self_repair_none", NULL, 0, msg, sizeof msg);
             put(msg, out, out_size);
