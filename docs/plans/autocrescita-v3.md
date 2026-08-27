@@ -1416,7 +1416,9 @@ forma deve riportare il turno al limite, secondo il contratto teach/use/retract.
 Il dossier comprende ora tre campagne figlie: forma di piano, offerta di
 collaborazione e richiesta d'opinione. Le ultime due insegnano rispettivamente
 `let's team up` e `your take`, poi riusano gli atti KB esistenti; la risposta è
-generata dal consumer, non dal testo docente.
+generata dal consumer, non dal testo docente. Il dossier ritira infine entrambi
+i cue e verifica che le forme tornino al limite, chiudendo la prova causale di
+necessità del genitore.
 
 ### Ipotesi H446
 
