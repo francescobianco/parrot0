@@ -1228,6 +1228,16 @@ La crescita passa da `un insegnamento -> un fatto` a
 
 ## gen445 — Pianificazione causale e compensativa soltanto dalla KB
 
+### Stato corrente verificato
+
+Il substrato generale è già esercitato da `tests/p0t/reasoning/multi_step_plan.p0t`:
+stato, precondizioni, effetti, legge causale, catene da uno a tre passi,
+accorciamento dopo un cambiamento del mondo e replica inglese su un dominio
+disgiunto. Questo chiude il meccanismo di simulazione, ma non ancora il gate
+Gen445: mancano la provenienza Wikipedia incrociata, l'azione informativa e la
+compensazione completa con alternativa/replanning. Questi restano i prossimi
+oggetti di lavoro; non vengono conteggiati come capacità già acquisite.
+
 ### Ipotesi H445
 
 Gli stessi frame estratti e gli stessi operatori KB possono sostenere piani
