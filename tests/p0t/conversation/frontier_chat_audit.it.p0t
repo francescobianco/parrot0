@@ -72,3 +72,10 @@
 > imparare gli scacchi
 <~ piano derivato
 <~ wikipedia
+
+[piano di compensazione]
+!reset
+> fai un piano per compensare un passo mancante
+<~ compensation recovery
+<~ costo totale 4
+<~ wikipedia
