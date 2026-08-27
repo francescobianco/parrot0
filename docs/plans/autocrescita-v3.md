@@ -1156,6 +1156,12 @@ Lo stesso criterio ha chiuso il muro sulle richieste d'opinione: l'atto
 limite epistemico e offrendo confronto di ragioni e compromessi. La risposta è
 quindi una mossa dialogica riutilizzabile, non una preferenza simulata.
 
+Per il passaggio verso Gen445 è stato aggiunto anche `next_step_request`: le
+forme italiane e inglesi di richiesta del prossimo passo chiedono esplicitamente
+obiettivo e vincoli prima di derivare una sequenza verificabile. Nel dialogo
+italiano il percorso è già attivo; la forma inglese resta in audit perché un
+router di raccomandazione la precede ancora in alcuni contesti.
+
 Il secondo passaggio ha eseguito `tests/basicchat.sh` sulla KB reale: la
 copertura dei concetti matematici è salita da 65% a 88% e quella causale da 50%
 a 75% dopo l'aggiunta del nucleo semantico. Restano muri osservabili su

@@ -66,6 +66,16 @@ intent_cue(opinion_request, "cosa ne pensi").
 response_template(opinion_request, "I can help compare the reasons and trade-offs, but I do not have personal opinions. What should we weigh first?").
 response_template(opinion_request, it, "Posso confrontare ragioni e compromessi, ma non ho opinioni personali. Che cosa vuoi valutare per prima?").
 
+% Act 5: NEXT-STEP REQUEST — open planning prompt. Ask for the missing goal and
+% constraints so the causal planner can work from explicit KB state.
+pragma_act(next_step_request).
+intent_cue(next_step_request, "what should we do next").
+intent_cue(next_step_request, "where do we start").
+intent_cue(next_step_request, "cosa facciamo adesso").
+intent_cue(next_step_request, "da dove partiamo").
+response_template(next_step_request, "Give me the goal and the constraints, and I can derive a verifiable sequence of steps.").
+response_template(next_step_request, it, "Dammi l'obiettivo e i vincoli, e posso derivare una sequenza di passi verificabile.").
+
 intent_cue(environment_hint, "cold in here").
 intent_cue(environment_hint, "hot in here").
 intent_cue(environment_hint, "warm in here").
