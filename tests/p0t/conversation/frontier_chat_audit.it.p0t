@@ -79,3 +79,14 @@
 <~ compensation recovery
 <~ costo totale 4
 <~ wikipedia
+
+[tre campagne di trasferimento dialogico]
+!reset
+> teach "let's team up" as a collaboration offer
+<~ Got it
+> let's team up
+<~ question
+> teach "your take" as an opinion request
+<~ Got it
+> your take
+<~ personal opinions

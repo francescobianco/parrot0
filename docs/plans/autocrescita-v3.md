@@ -1413,6 +1413,10 @@ La prova di trasferimento Gen444 ora include anche un atto docente reale:
 e produce il piano a tre passi con provenienza; nessun valore o frase della
 risposta è stato insegnato nel turno precedente. La successiva ablazione della
 forma deve riportare il turno al limite, secondo il contratto teach/use/retract.
+Il dossier comprende ora tre campagne figlie: forma di piano, offerta di
+collaborazione e richiesta d'opinione. Le ultime due insegnano rispettivamente
+`let's team up` e `your take`, poi riusano gli atti KB esistenti; la risposta è
+generata dal consumer, non dal testo docente.
 
 ### Ipotesi H446
 

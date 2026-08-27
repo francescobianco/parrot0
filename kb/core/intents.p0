@@ -543,6 +543,10 @@ learnable("ask for short answers", brevity,   substring).
 learnable("risposte brevi",       brevity,    substring).
 learnable("a plan request",       plan_request, substring).
 learnable("una richiesta di piano", plan_request, substring).
+learnable("a collaboration offer", collaboration_offer, substring).
+learnable("un'offerta di collaborazione", collaboration_offer, substring).
+learnable("an opinion request", opinion_request, substring).
+learnable("una richiesta di opinione", opinion_request, substring).
 learnable("greet a new name",     greet_name, fill).
 learnable("salutare",             greet_name, fill).
 learnable("a teaching verb",      00_lex_chain332, substring).
