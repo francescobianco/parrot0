@@ -1313,6 +1313,15 @@ nuovi domini e nuove strategie entrano come conoscenza e non come codice.
 
 ## gen446 — Stato vivente: dialogo, crescita e piani nello stesso ciclo
 
+### Primo campione di stato condiviso
+
+`docs/labs/autocrescita-v3/gen446-state-cycle.p0t` materializza il primo
+round: una mossa dialogica, una claim promossa dopo replay e un piano
+compensativo completo sono osservabili nello stesso snapshot KB tramite
+`live_cycle/4`. L'ablazione del replay revoca la promozione e spegne il ciclo;
+non viene mantenuta una copia implicita nel C. È il primo accoppiamento reale
+fra i tre assi della gen446, ma non è ancora il gate finale dei quindici round.
+
 ### Ipotesi H446
 
 Dopo le nove generazioni precedenti esiste uno stato KB dal quale campagne

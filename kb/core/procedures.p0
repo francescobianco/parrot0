@@ -539,6 +539,8 @@ machinery(campaign_quarantine).
 machinery(campaign_promote).
 machinery(campaign_rollback).
 machinery(campaign_replay).
+machinery(live_cycle).
+machinery(live_cycle_ready).
 
 % gen441 — sorgente in memoria: si conserva solo la coordinata dello span e la
 % proposizione verificata, mai il corpo della pagina. La selezione e' guidata
@@ -565,6 +567,17 @@ campaign_promote($Campaign, $Id, $Claim) :-
 campaign_rollback($Campaign, $Id, $Claim) :-
     campaign_claim($Campaign, $Id, $Claim, $Span),
     naf(campaign_replay($Campaign, $Id, $Claim)).
+
+% Gen446 — stato vivente come composizione dichiarativa. Un ciclo è pronto
+% soltanto quando lo stesso stato conserva una mossa dialogica, una crescita
+% promossa e un piano compensativo completo. Il C non sceglie l'ordine né il
+% dominio: osserva questa congiunzione KB e può riprodurla per nuovi membri.
+live_cycle($Cycle, $Dialogue, $Campaign, $Plan) :-
+    dialogue_move($Cycle, $Dialogue),
+    campaign_promote($Campaign, $Claim, $Value),
+    compensation_plan_complete($Plan).
+live_cycle_ready($Cycle) :-
+    live_cycle($Cycle, $Dialogue, $Campaign, $Plan).
 machinery(internal_relation).
 machinery(source_page).
 machinery(source_revision).
