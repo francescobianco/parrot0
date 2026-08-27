@@ -3702,6 +3702,8 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
         if (kb_match(b->kb, "extract_frame", predq, 2, preds, 1) == 0) continue;
         char pred[KB_TERM_LEN];
         snprintf(pred, sizeof pred, "%s", kb_dequote(preds[0]));
+        const char *vk[] = { pred, "text" };
+        int text_value = kb_query(b->kb, "relation_value_kind", vk, 2);
 
         char pbuf[KB_TERM_LEN];
         snprintf(pbuf, sizeof pbuf, "%s", pat);
@@ -3714,7 +3716,10 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
             if (pt[ti][0] == '@') {
                 const char *next = (ti + 1 < pn && pt[ti + 1][0] != '@')
                                    ? pt[ti + 1] : NULL;
-                int end = p0_slot_end(b, w, n, wi, next);
+                int final_text_slot = text_value && pt[ti][1] == 'O' &&
+                                      ti + 1 == pn;
+                int end = final_text_slot ? (int)n :
+                          p0_slot_end(b, w, n, wi, next);
                 if (end < 0 || (size_t)end <= wi) { ok = 0; break; }
                 char *dst = (pt[ti][1] == 'S') ? subj : obj;
                 size_t ss = wi;
@@ -3734,12 +3739,28 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
         if (!ok || !subj[0] || !obj[0]) continue;
         if (p0_bad_subject(subj)) continue;
 
+        char text_term[KB_TERM_LEN];
+        const char *stored_obj = obj;
+        if (text_value) {
+            char surface[KB_TERM_LEN];
+            snprintf(surface, sizeof surface, "%s", obj);
+            for (char *c = surface; *c; c++) if (*c == '_') *c = ' ';
+            snprintf(text_term, sizeof text_term, "\"%.*s\"",
+                     (int)sizeof(text_term) - 3, surface);
+            stored_obj = text_term;
+        }
+
         kb_set_origin(b->kb, KB_SESSION);
-        const char *fa[] = { subj, obj };
-        /* Il cancello: un candidato i cui atomi non sono concetti non entra. */
-        if (!p0_fact_is_clean(b, pred, fa, 2)) {
+        const char *fa[] = { subj, stored_obj };
+        /* Un valore concettuale attraversa il cancello completo. Un valore
+         * testuale e' autorizzato dallo schema KB della relazione: il soggetto
+         * resta un concetto, mentre lo span descrittivo viene conservato. */
+        const char *subject_only[] = { subj };
+        int clean = text_value ? p0_fact_is_clean(b, pred, subject_only, 1) :
+                                 p0_fact_is_clean(b, pred, fa, 2);
+        if (!clean) {
             kb_term_say(b, "rejected_binary_fact", (const KbResponseSlot[]){
-                            { "pred", pred }, { "arg1", subj }, { "arg2", obj } },
+                            { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
                         3, out, out_size);
             return 2;                       /* 2 = respinto, ma non silenzioso */
         }
@@ -3748,7 +3769,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
             remember_entity(b, subj, subj);
             char msg[256];
             kb_term_say(b, "learned_binary_fact", (const KbResponseSlot[]){
-                            { "pred", pred }, { "arg1", subj }, { "arg2", obj } },
+                            { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
                         3, msg, sizeof msg);
             put(msg, out, out_size);
             return 1;
@@ -12448,11 +12469,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (!resolve_entity(b, w[2], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
         char msg[128];
-        if (kb_retract(b->kb, cl, args, 1))
+        if (kb_retract(b->kb, cl, args, 1)) {
             kb_term_say(b, "forgotten_fact", (const KbResponseSlot[]){
                             { "pred", cl }, { "arg", subj } }, 2,
                         msg, sizeof msg);
-        else
+            put(msg, out, out_size);
+        } else
             kb_term_say(b, "i_didn_t_know_that_anyway", NULL, 0, out, out_size);
         remember_entity(b, w[2], subj);
         return 1;

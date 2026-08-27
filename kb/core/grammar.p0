@@ -552,6 +552,7 @@ markable_role(proposition).
 % direzioni: enumerare i pattern (per provarli tutti) e, dato un pattern, dire
 % di quale relazione sia.
 machinery(relation_noun).
+machinery(relation_value_kind).
 
 extract_frame($Pat, $Pred) :-
     relation_noun($Pred, $Noun),
