@@ -4554,6 +4554,21 @@ static int sm_safe_after(char *const *lines, size_t n, int after) {
  * ed e' quello che si vuole. L'UNICA cosa che non deve succedere e' cadere in
  * mezzo a una clausola, e per quella basta guardare il file mentre lo si legge
  * comunque: vedi sm_safe_after. */
+/* Due percorsi possono nominare lo STESSO file: `kb/learning/learned.p0` e
+ * `kb/profiles/../learning/learned.p0` sono la ricaduta, scritta una volta dal
+ * chiamante e una volta dalla mappa che l'ha risolta a partire dal profilo. Il
+ * confronto per stringa li diceva diversi, e kb_save_routed ne concludeva che il
+ * fatto avesse trovato casa ALTROVE: lo inseriva, poi lo toglieva dalla ricaduta
+ * e riscriveva il file senza di lui. Il fatto spariva dopo essere stato contato.
+ * L'identita' di un file la dice il filesystem, non il testo del percorso. */
+static int sm_same_file(const char *a, const char *b) {
+    if (!a || !b) return 0;
+    if (!strcmp(a, b)) return 1;
+    struct stat sa, sb;
+    if (stat(a, &sa) || stat(b, &sb)) return 0;
+    return sa.st_dev == sb.st_dev && sa.st_ino == sb.st_ino;
+}
+
 static int sm_insert(const char *file, int after, const char *text) {
     FILE *f = fopen(file, "r");
     if (!f) return 0;
@@ -4682,7 +4697,7 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
         sm_fact_text(fa, text, sizeof text);
         if (!sm_insert(file, line, text)) continue;
         routed[i] = 1; count++;
-        if (strcmp(file, default_path)) sml_push(&homed, text);
+        if (!sm_same_file(file, default_path)) sml_push(&homed, text);
     }
 
     /* ── LA RICADUTA SI RISCRIVE ─────────────────────────────────────────────
