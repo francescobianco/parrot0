@@ -100,3 +100,101 @@ Non si sostituisce un letterale con una chiave se poi la chiave non ha una riga
 KB: si otterrebbe un muro al posto di una frase. Ogni conversione è
 letterale → `response_template` + chiave, nello stesso commit, con il test che
 prova la formulazione insegnata a runtime.
+
+---
+
+# Parte II — l'audit allargato: quanto siamo indietro
+
+**Misurato il 2026-08-27**, dopo la prima e la seconda tranche. Le sonde sono
+grezze (espressioni regolari su `src/brain/*.c`, 40.918 righe di C): i numeri
+sono ordini di grandezza, non un censimento riga per riga.
+
+## A. La voce — quasi metà fatta, e il resto è la parte difficile
+
+| | conta |
+|---|---:|
+| con chiave KB (`kb_say` / `kb_response_slots`) | **218** |
+| `put("…")` senza chiave | 7 |
+| `snprintf` di frase senza chiave | **293** |
+
+Le due tranche del gen442 hanno svuotato il secchio dei `put` — da 77 a 7, e i
+sette rimasti sono in funzioni senza `Brain` in portata o contengono virgolette
+interne. **Restano 293 frasi con slot**, ed è deliberatamente la parte difficile:
+`snprintf(msg, …, "… %s …", x)` non diventa una chiave da sola, perché il buco
+va nominato. `kb_response_slots(b, chiave, slot, n, …)` esiste già e vuole ruoli
+con un nome — `{topic}`, `{word}`, `{count}` — non `{a}` e `{b}`. Convertirle a
+macchina produrrebbe famiglie insegnabili e illeggibili: si fanno a mano, per
+famiglia, come dice il §4.
+
+**Indietro: ~57% della voce** (293 su 511).
+
+## B. Il vocabolario nel C — il debito grande
+
+| | conta |
+|---|---:|
+| `cue(…, "letterale")` | **1393** |
+| parole confrontate con `strcmp`/`strstr` | **1629** |
+
+**Circa 3.000 letterali di parola dentro il motore.** È il mantra #2, ed è un
+ordine di grandezza più grande del debito della voce. La riga che ha aperto
+questo piano ne contiene sei da sola:
+
+```c
+"conjunction", "congiunzione", "use ", "usa ", "treat ", "tratta "
+```
+
+I file più densi: `10-memory-knowledge.c` (870 confronti),
+`25-wordmath-reasoning.c` (732), `20-math.c` (266), `40-meta-reflection.c` (247),
+`30-generation-reading.c` (238).
+
+Non tutti sono uguali. Un `strcmp(tok, "@S")` confronta un simbolo del
+protocollo e va benissimo; `strstr(low, "three times")` è vocabolario italiano e
+inglese cablato dentro un motore aritmetico. La sonda non li distingue, quindi
+il numero vero è più basso di 3.000 — ma resta nell'ordine delle migliaia, e
+**nessuno di questi è insegnabile a runtime**.
+
+## C. I nomi di predicato scritti nel C
+
+| | distinti | occorrenze |
+|---|---:|---:|
+| di **protocollo** (dichiarati `machinery` in KB) | 214 | 377 |
+| di **dominio** o non dichiarati | **250** | **531** |
+
+Questa distinzione è la sola che conta, e non è pignoleria. Nominare
+`input_frame_commit` o `turn_teaching_offer` è legittimo: è il protocollo aperto
+fra il motore e la conoscenza, ed è documentato. Nominare `borders`,
+`capital_of_country`, `planet_superlative` o `magnitude` significa che il motore
+sa di che cosa si parla — cioè esattamente ciò che l'esperimento nega.
+
+**250 predicati di dominio sono cablati nel C.** Ognuno è un pezzo di mondo che
+parrot0 non può reimparare diversamente.
+
+## D. Debito già marcato
+
+32 `TODO(kb-first)` nei moduli, indicizzati in `docs/plans/kb-first-audit.md`.
+Sono i casi che qualcuno aveva già visto e lasciato: un decimo per cento del
+totale misurato qui.
+
+## Il verdetto
+
+Siamo indietro di **tre ordini di lavoro diversi**, e vanno affrontati in
+quest'ordine, perché ciascuno rende più facile il successivo:
+
+1. **La voce (293 frasi con slot).** È il più piccolo e il più visibile:
+   riguarda ciò che l'interlocutore legge, e ogni conversione lo rende capace di
+   correggere parrot0 parlando. Si fa per famiglie, con il `.p0t` che prova la
+   formulazione insegnata.
+2. **I 250 predicati di dominio nel C.** È il più grave rispetto alla tesi del
+   progetto: finché il motore nomina `borders` e `capital_of_country`, non è un
+   adattatore, è un'enciclopedia con un parser davanti.
+3. **I ~3.000 letterali di parola.** È il più grande e il più meccanico. Va
+   affrontato per classi (`cue` chains prima, confronti aritmetici poi), mai
+   riga per riga, e ogni classe chiusa deve superare il test del mantra #2:
+   *«parrot0 può impararne un nuovo membro domani, senza ricompilare?»*
+
+Una nota sull'onestà della misura: 40.918 righe di C con ~3.000 letterali di
+vocabolario e 250 predicati di dominio non descrivono un motore cieco al
+dominio. Descrivono un motore che **sta diventando** cieco al dominio, con la
+parte già convertita che funziona (218 messaggi con chiave, 214 predicati di
+protocollo dichiarati, l'intero registro sociale insegnabile) e una coda lunga
+che nessuna generazione ha ancora attaccato per intero.
