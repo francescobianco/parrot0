@@ -1355,6 +1355,9 @@ semantica è quindi viva nel dialogo. Il renderer generico cerca ora
 degli scacchi fornisce le tre descrizioni italiane e la relazione
 `action_source/2`; la risposta annota `[wikipedia]` sui passi sostenuti dalla
 fonte, senza un ramo C dedicato.
+La resa mostra inoltre `action_cost/2` quando il dominio lo dichiara: costi,
+dipendenze e supporti restano così contabilità interrogabile della KB, non
+stato nascosto del consumer.
 
 Il dominio `grounded_answer` in `kb/experts/codebase/actions.p0` rende esplicita
 anche l'azione informativa: `read_wikipedia → check_claim →
