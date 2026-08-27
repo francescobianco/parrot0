@@ -1188,6 +1188,16 @@ un trasferimento positivo del meccanismo a un secondo dominio; dimostra anche
 che la copertura conversazionale deve essere misurata per superfici reali e
 non inferita dal numero di esperti caricati.
 
+Lo stesso audit ha poi mostrato che `come si gioca a scacchi?` raggiungeva il
+fatto corretto ma lo realizzava in inglese, nonostante il turno italiano. Il
+problema era nel consumer `answer_frame(game_play)`, che bypassava la sorgente
+localizzata usata dal nuovo atto di preferenza. La KB ora registra la
+proiezione `game_play` con `game_play_localized/3` e la faccetta
+`current_language/1`; il percorso restituisce la regola italiana senza un ramo
+linguistico nel C. Questa correzione chiude una proprietà di realizzazione, ma
+lascia aperti gli atti “giochiamo?” e “parliamo di scacchi?”, che richiedono
+continuità dialogica e non soltanto una risposta fattuale.
+
 Per il passaggio verso Gen445 è stato aggiunto anche `next_step_request`: le
 forme italiane e inglesi di richiesta del prossimo passo chiedono esplicitamente
 obiettivo e vincoli prima di derivare una sequenza verificabile. Nel dialogo

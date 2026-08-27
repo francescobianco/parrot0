@@ -1212,6 +1212,9 @@ answer_frame("how do you play", game_play).
 answer_frame("how to play", game_play).
 answer_frame("how is play", game_play).
 answer_frame("rules of", game_play).
+answer_frame("come si gioca", game_play).
+answer_frame("come giocare", game_play).
+answer_frame("regole di", game_play).
 answer_frame("goal of", game_goal).
 answer_frame("objective of", game_goal).
 answer_frame("how many players", game_players).
@@ -1334,7 +1337,15 @@ answer_projection(semantic_summary, semantic_topic_cue).
 % traduzione inventata.
 projection_source(semantic_summary, concept_gloss, ternary).
 projection_source_facet(semantic_summary, concept_gloss, current_language).
+projection_source(semantic_summary, game_play_localized, ternary).
+projection_source_facet(semantic_summary, game_play_localized, current_language).
 projection_source(semantic_summary, wiki_concept, ternary).
+% The direct game-play frame uses the same indexed projection, so localized
+% rules remain reachable before the English fallback.
+answer_projection(game_play, semantic_topic_cue).
+projection_source(game_play, game_play_localized, ternary).
+projection_source_facet(game_play, game_play_localized, current_language).
+projection_source(game_play, game_play, binary).
 projection_source(semantic_summary, explanation, binary).
 projection_source(semantic_summary, because, binary).
 

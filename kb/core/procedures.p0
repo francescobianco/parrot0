@@ -465,7 +465,12 @@ semantic_summary($Surface, $Text) :-
 % Anche i domini specialistici gia' presenti nella KB devono essere interrogabili
 % dalla stessa faccetta semantica: il consumer non deve conoscere gli scacchi.
 semantic_summary($Topic, $Text) :- game_goal($Topic, $Text).
-semantic_summary($Topic, $Text) :- game_play($Topic, $Text).
+semantic_summary($Topic, $Text) :-
+    current_language(it),
+    game_play_localized($Topic, it, $Text).
+semantic_summary($Topic, $Text) :-
+    naf(current_language(it)),
+    game_play($Topic, $Text).
 machinery(semantic_summary).
 machinery(projection_gate).
 machinery(semantic_topic_gate).
