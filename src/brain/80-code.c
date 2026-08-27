@@ -415,9 +415,9 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
          * compile+link makes it an undefined reference. When it fails, the reverse
          * call graph (code_find_callers) names WHO still calls it — cause derived
          * from KB, verdict grounded in the real linker. */
-        int want_link = cue(qpart, "link") || cue(qpart, "build") ||
-                        cue(qpart, "run") || cue(qpart, "linka") ||
-                        cue(qpart, "esegui") || cue(qpart, "compila e linka");
+        int want_link = kb_cue_match(b, "80_code_cue418", qpart) || kb_cue_match(b, "80_code_cue418_2", qpart) ||
+                        kb_cue_match(b, "80_code_cue419", qpart) || kb_cue_match(b, "80_code_cue419_2", qpart) ||
+                        kb_cue_match(b, "80_code_cue420", qpart) || kb_cue_match(b, "80_code_cue420_2", qpart);
         if (want_link) {
             int rc = code_build(tmp, err, sizeof err);
             remove(tmp);
@@ -476,7 +476,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     /* gen187: F5 edit — "rename <old> to <new> in <file>". The full micro-loop:
      * read the file, rename the identifier (non-destructively, to a temp), compile
      * the result to VERIFY, report, and delete the temp. The original is untouched. */
-    if (cue(qpart, "rename") && cue(qpart, " to ") &&
+    if (kb_cue_match(b, "80_code_cue479", qpart) && kb_cue_match(b, "80_code_cue479_2", qpart) &&
         code_text_has_path(qpart, 1, 0)) {
         char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", qpart);
         char *w[48]; size_t nw = split_words(qbuf, w, 48);
@@ -609,10 +609,10 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
      * NOT decide the fix is correct — it proposes a grounded candidate; the real
      * test suite is the oracle that confirms it (tests/swebench/oracle.sh). This is
      * the non-deceptive repair loop CODE-MASTERY §4/§6 calls for. */
-    int sym_write = cue(qpart, "fix") || cue(qpart, "repair") ||
-                    cue(qpart, "correggi") || cue(qpart, "ripara");
-    int sym_find  = cue(qpart, "find") || cue(qpart, "locate") || cue(qpart, "where") ||
-                    cue(qpart, "trova") || cue(qpart, "dove") || cue(qpart, "identify");
+    int sym_write = kb_cue_match(b, "80_code_cue612", qpart) || kb_cue_match(b, "80_code_cue612_2", qpart) ||
+                    kb_cue_match(b, "80_code_cue613", qpart) || kb_cue_match(b, "80_code_cue613_2", qpart);
+    int sym_find  = kb_cue_match(b, "80_code_cue614", qpart) || kb_cue_match(b, "80_code_cue614_2", qpart) || kb_cue_match(b, "80_code_cue614_3", qpart) ||
+                    kb_cue_match(b, "80_code_cue615", qpart) || kb_cue_match(b, "80_code_cue615_2", qpart) || kb_cue_match(b, "80_code_cue615_3", qpart);
     if ((sym_write || sym_find) &&
         (kb_cue_match(b, "80_code_chain619", qpart)) &&
         code_text_has_path(qpart, 1, 1)) {
@@ -867,8 +867,8 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
      * The eval cue is checked on the QUESTION only, so a snippet's own "return"
      * never reroutes a define/call question. */
     int wants_eval =
-        cue(qpart, "return") || cue(qpart, "returns") || cue(qpart, "evaluate") ||
-        cue(qpart, "restituisce") || cue(qpart, "ritorna") || cue(qpart, "valuta");
+        kb_cue_match(b, "80_code_cue870", qpart) || kb_cue_match(b, "80_code_cue870_2", qpart) || kb_cue_match(b, "80_code_cue870_3", qpart) ||
+        kb_cue_match(b, "80_code_cue871", qpart) || kb_cue_match(b, "80_code_cue871_2", qpart) || kb_cue_match(b, "80_code_cue871_3", qpart);
     char state_target[KB_TERM_LEN];
     int wants_state = code_state_target(b, s, state_target,
                                         sizeof state_target);
@@ -1510,7 +1510,7 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
     if (!*s) return 0;
 
     /* gen323 (TODO.md P1): the question shape is KNOWLEDGE, not a C phrasebook.
-     * These were `cue(s, "explain this code") || …` chains, so the faculty —
+     * These were `kb_cue_match(b, "80_code_cue1513", s) || …` chains, so the faculty —
      * which is real, 25/25 code-bench gates — answered only to the magic words:
      * "explain this code:" worked, "explain what this does:" walled on the SAME
      * snippet. Now the phrasings are intent_cue facts in kb/core/intents.p0 and
@@ -1550,7 +1550,7 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
          * relation; it only avoids letting unrelated weak hypotheses suppress a
          * known repair request before the typed controller can see it. */
         qtype = 2;
-    } else if (cue(s, "what is a") && !strstr(s, "what is a ") &&
+    } else if (kb_cue_match(b, "80_code_cue1553", s) && !strstr(s, "what is a ") &&
                (strstr(s, "in C") || strstr(s, "in Python") || strstr(s, "in programming"))) {
         /* Concept query handled by mod_knowledge via KB concept() facts */
         return 0;
@@ -1965,7 +1965,7 @@ static int mod_symbolic(Brain *b, const char *norm, const char *raw,
         return name_register(b, "That looks like leetspeak.",
                              "Letters as numbers — that's leetspeak.", out, out_size);
 
-    if (!strstr(lc, "what am i") && looks_code(lc, w, nw))
+    if (!strstr(lc, "what am i") && looks_code(b, lc, w, nw))
         return name_register(b, "That looks like a snippet of code.",
                              "Looks like a fragment of code.", out, out_size);
 

@@ -55,7 +55,7 @@ static int kb_intent_match(Brain *b, const char *intent, const char *norm) {
 
 /* gen213 (same cardinal principle, SUBSTRING flavour): true if any cue registered for
  * `intent` as intent_cue(intent, "fragment") in the KB OCCURS ANYWHERE in `norm` — the
- * KB-backed form of a `cue(norm, "…") || cue(norm, "…")` chain. Like kb_intent_match but
+ * KB-backed form of a `kb_cue_match(b, "00_lex_cue58", norm) || kb_cue_match(b, "00_lex_cue58", norm)` chain. Like kb_intent_match but
  * with substring containment instead of whole-turn equality, so the cue set grows at
  * runtime with no code edit. */
 static int kb_cue_match(Brain *b, const char *intent, const char *norm) {

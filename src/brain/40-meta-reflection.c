@@ -120,7 +120,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
     if ((kb_cue_match(b, "40_meta_reflection_chain120", buf)) &&
         /* about THIS conversation, not "what language is this code" */
         (kb_cue_match(b, "40_meta_reflection_chain123", buf)) &&
-        !cue(buf, "code") && !cue(buf, "snippet")) {
+        !kb_cue_match(b, "40_meta_reflection_cue123", buf) && !kb_cue_match(b, "40_meta_reflection_cue123_2", buf)) {
         char msg[160];
         if (lang_template(b, "language_reply", msg, sizeof msg)) {
             put(msg, out, out_size);
@@ -181,15 +181,15 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
      * "what was the last thing you said?", "the first sentence I said", "the last
      * word you said". Inferred from utterance/3 session facts, not stored prose. */
     {
-        int you = cue(buf, "you said") || cue(buf, "you told") ||
-                  cue(buf, "did you say") || cue(buf, "you say");
-        int me  = cue(buf, "i said") || cue(buf, "i told you") ||
-                  cue(buf, "did i say") || cue(buf, "i say");
+        int you = kb_cue_match(b, "40_meta_reflection_cue184", buf) || kb_cue_match(b, "40_meta_reflection_cue184_2", buf) ||
+                  kb_cue_match(b, "40_meta_reflection_cue185", buf) || kb_cue_match(b, "40_meta_reflection_cue185_2", buf);
+        int me  = kb_cue_match(b, "40_meta_reflection_cue186", buf) || kb_cue_match(b, "40_meta_reflection_cue186_2", buf) ||
+                  kb_cue_match(b, "40_meta_reflection_cue187", buf) || kb_cue_match(b, "40_meta_reflection_cue187_2", buf);
         if ((you || me) &&
             (kb_cue_match(b, "40_meta_reflection_chain195", buf)) &&
             (kb_cue_match(b, "40_meta_reflection_chain196", buf))) {
-            int first = cue(buf, "first");
-            int word  = cue(buf, "word");
+            int first = kb_cue_match(b, "40_meta_reflection_cue191", buf);
+            int word  = kb_cue_match(b, "40_meta_reflection_cue192", buf);
             char ans[300];
             if (recall_utterance(b, you ? "self" : "user", first, word, ans, sizeof ans)) {
                 put(ans, out, out_size);
@@ -198,12 +198,12 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    int attention = cue(buf, "paying attention") ||
-                    cue(buf, "reading my messages") ||
-                    cue(buf, "read my messages") ||
-                    cue(buf, "listening") ||
-                    cue(buf, "ascoltando") ||
-                    cue(buf, "mi ascolti");
+    int attention = kb_cue_match(b, "40_meta_reflection_cue201", buf) ||
+                    kb_cue_match(b, "40_meta_reflection_cue202", buf) ||
+                    kb_cue_match(b, "40_meta_reflection_cue203", buf) ||
+                    kb_cue_match(b, "40_meta_reflection_cue204", buf) ||
+                    kb_cue_match(b, "40_meta_reflection_cue205", buf) ||
+                    kb_cue_match(b, "40_meta_reflection_cue206", buf);
     if (attention) {
         if (strcmp(b->last_reply, "Yes. I read each message in this conversation.") == 0)
             kb_say(b, "i_am_reading_this_conversation_turn_by", "I am reading this conversation turn by turn.", out, out_size);
@@ -212,10 +212,10 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    int activity = cue(buf, "what are you up to") ||
-                   cue(buf, "what are you doing") ||
-                   cue(buf, "che stai facendo") ||
-                   cue(buf, "cosa stai facendo");
+    int activity = kb_cue_match(b, "40_meta_reflection_cue215", buf) ||
+                   kb_cue_match(b, "40_meta_reflection_cue216", buf) ||
+                   kb_cue_match(b, "40_meta_reflection_cue217", buf) ||
+                   kb_cue_match(b, "40_meta_reflection_cue218", buf);
     if (activity) {
         char msg[128];
         snprintf(msg, sizeof msg, "I'm tracking this conversation; this is turn %lu.",
@@ -225,20 +225,20 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
     }
 
     /* gen82: session statistics — "how many turns?", "how long?" */
-    int turn_count = cue(buf, "how many turns") ||
-                     cue(buf, "how many messages") ||
-                     cue(buf, "quanti turni") ||
-                     cue(buf, "quanti messaggi");
+    int turn_count = kb_cue_match(b, "40_meta_reflection_cue228", buf) ||
+                     kb_cue_match(b, "40_meta_reflection_cue229", buf) ||
+                     kb_cue_match(b, "40_meta_reflection_cue230", buf) ||
+                     kb_cue_match(b, "40_meta_reflection_cue231", buf);
     if (turn_count) {
         char msg[96];
         snprintf(msg, sizeof msg, "We've exchanged %lu turn(s).", b->turns);
         put(msg, out, out_size);
         return 1;
     }
-    int session_time = cue(buf, "how long have we been talking") ||
-                       cue(buf, "how long has this been") ||
-                       cue(buf, "da quanto tempo parliamo") ||
-                       cue(buf, "da quanto parliamo");
+    int session_time = kb_cue_match(b, "40_meta_reflection_cue238", buf) ||
+                       kb_cue_match(b, "40_meta_reflection_cue239", buf) ||
+                       kb_cue_match(b, "40_meta_reflection_cue240", buf) ||
+                       kb_cue_match(b, "40_meta_reflection_cue241", buf);
     if (session_time) {
         long elapsed;
         struct timespec now_ts;
@@ -263,10 +263,10 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    int understand = cue(buf, "do you understand me") ||
-                     cue(buf, "understand what i say") ||
-                     cue(buf, "capisci") ||
-                     cue(buf, "capire quello");
+    int understand = kb_cue_match(b, "40_meta_reflection_cue266", buf) ||
+                     kb_cue_match(b, "40_meta_reflection_cue267", buf) ||
+                     kb_cue_match(b, "40_meta_reflection_cue268", buf) ||
+                     kb_cue_match(b, "40_meta_reflection_cue269", buf);
     if (understand) {
         kb_say(b, "i_understand_some_patterns_and_i_say_w", "I understand some patterns, and I say when I do not.", out, out_size);
         return 1;
@@ -275,30 +275,30 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
     /* C6 step 2: small polar meta-questions about presence, channel, and
      * identity. Answers are honest and state-grounded: text input is available,
      * audio is not, and the identity claim comes from i_am(parrot0). */
-    int presence = cue(buf, "are you there") ||
-                   cue(buf, "ci sei") ||
-                   cue(buf, "sei li");
+    int presence = kb_cue_match(b, "40_meta_reflection_cue278", buf) ||
+                   kb_cue_match(b, "40_meta_reflection_cue279", buf) ||
+                   kb_cue_match(b, "40_meta_reflection_cue280", buf);
     if (presence) {
         kb_say(b, "yes_i_m_here", "Yes, I'm here.", out, out_size);
         return 1;
     }
 
-    int channel = cue(buf, "can you hear me") ||
-                  cue(buf, "do you hear me") ||
-                  cue(buf, "mi senti") ||
-                  cue(buf, "mi ascolti");
+    int channel = kb_cue_match(b, "40_meta_reflection_cue286", buf) ||
+                  kb_cue_match(b, "40_meta_reflection_cue287", buf) ||
+                  kb_cue_match(b, "40_meta_reflection_cue288", buf) ||
+                  kb_cue_match(b, "40_meta_reflection_cue289", buf);
     if (channel) {
         kb_say(b, "no_i_only_read_text_i_can_t_hear_audio", "No, I only read text. I can't hear audio.", out, out_size);
         return 1;
     }
 
-    int bot = cue(buf, "are you a bot") ||
-              cue(buf, "are you an ai") ||
-              cue(buf, "are you a robot") ||
-              cue(buf, "sei un bot") ||
-              cue(buf, "sei un robot") ||
-              cue(buf, "sei a bot") ||
-              cue(buf, "sei a robot");
+    int bot = kb_cue_match(b, "40_meta_reflection_cue295", buf) ||
+              kb_cue_match(b, "40_meta_reflection_cue296", buf) ||
+              kb_cue_match(b, "40_meta_reflection_cue297", buf) ||
+              kb_cue_match(b, "40_meta_reflection_cue298", buf) ||
+              kb_cue_match(b, "40_meta_reflection_cue299", buf) ||
+              kb_cue_match(b, "40_meta_reflection_cue300", buf) ||
+              kb_cue_match(b, "40_meta_reflection_cue301", buf);
     if (bot) {
         const char *var[] = {NULL};
         char id[4][KB_TERM_LEN];
@@ -337,16 +337,16 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
          * colour, not a dodge). In a role, mod_role answers from likes_color/2;
          * out of role, answer here from default_color/1 before the generic
          * self_preference dodge can claim it. */
-        int is_color_q = cue(buf, "favorite color") || cue(buf, "favourite color") ||
-                         cue(buf, "colore preferito");
+        int is_color_q = kb_cue_match(b, "40_meta_reflection_cue340", buf) || kb_cue_match(b, "40_meta_reflection_cue340_2", buf) ||
+                         kb_cue_match(b, "40_meta_reflection_cue341", buf);
         if ((kb_cue_match(b, "40_meta_reflection_chain349", buf)) &&
             (kb_cue_match(b, "40_meta_reflection_chain350", buf))) {
             kb_say(b, "i_don_t_watch_movies_or_have_recent_vi", "I don't watch movies or have recent viewing experiences, but for the prompt I'd pick an old mystery for its careful clues.", out, out_size);
             return 1;
         }
         int situated_activity_fav =
-            (cue(buf, "favorite thing to do") || cue(buf, "favourite thing to do") ||
-             ((kb_cue_match(b, "40_meta_reflection_chain357", buf)) && cue(buf, "to do"))) &&
+            (kb_cue_match(b, "40_meta_reflection_cue348", buf) || kb_cue_match(b, "40_meta_reflection_cue348_2", buf) ||
+             ((kb_cue_match(b, "40_meta_reflection_chain357", buf)) && kb_cue_match(b, "40_meta_reflection_cue349", buf))) &&
             (kb_cue_match(b, "40_meta_reflection_chain358", buf));
         if (is_color_q && !b->in_role) {
             const char *dq[] = { NULL };
@@ -422,11 +422,11 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    int repeat = cue(buf, "why do you keep saying") ||
-                 cue(buf, "why keep saying") ||
-                 cue(buf, "keep repeating") ||
-                 cue(buf, "perche continui") ||
-                 cue(buf, "perché continui");
+    int repeat = kb_cue_match(b, "40_meta_reflection_cue425", buf) ||
+                 kb_cue_match(b, "40_meta_reflection_cue426", buf) ||
+                 kb_cue_match(b, "40_meta_reflection_cue427", buf) ||
+                 kb_cue_match(b, "40_meta_reflection_cue428", buf) ||
+                 kb_cue_match(b, "40_meta_reflection_cue429", buf);
     if (repeat) {
         kb_say(b, "i_repeat_when_no_module_can_claim_the_messag", "I repeat when no module can claim the message; that is a gap to improve.",
             out, out_size);
@@ -438,8 +438,8 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
 
     /* gen91: "are you sure?" / "how confident?" */
     {
-        int sure = cue(buf, "are you sure") || cue(buf, "how confident") ||
-                   cue(buf, "how sure") || cue(buf, "sei sicuro");
+        int sure = kb_cue_match(b, "40_meta_reflection_cue441", buf) || kb_cue_match(b, "40_meta_reflection_cue441_2", buf) ||
+                   kb_cue_match(b, "40_meta_reflection_cue442", buf) || kb_cue_match(b, "40_meta_reflection_cue442_2", buf);
         if (sure) {
             if (b->has_last_proof) {
                 int is_direct = strstr(b->last_proof, " because ") == NULL;
@@ -453,10 +453,10 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
 
     /* gen92: correction — "no, that's wrong. X is a Y." or "no, X is not a Y." */
     {
-        int correction = (cue(buf, "no that") && cue(buf, "wrong")) ||
-                         (cue(buf, "no, that") && cue(buf, "wrong")) ||
+        int correction = (kb_cue_match(b, "40_meta_reflection_cue456", buf) && kb_cue_match(b, "40_meta_reflection_cue456_2", buf)) ||
+                         (kb_cue_match(b, "40_meta_reflection_cue457", buf) && kb_cue_match(b, "40_meta_reflection_cue457_2", buf)) ||
                          (buf[0] == 'n' && buf[1] == 'o' && buf[2] == ' ' &&
-                          cue(buf, "wrong"));
+                          kb_cue_match(b, "40_meta_reflection_cue459", buf));
         if (correction) {
             kb_say(b, "i_see_if_i_said_something_incorrect_please_t", "I see. If I said something incorrect, please tell me the right "
                 "fact and I'll learn it.", out, out_size);
@@ -480,11 +480,11 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
     }
 
     /* gen85: "explain more" / "in more detail" — re-render last proof. */
-    int explain_more = cue(buf, "explain more") ||
-                       cue(buf, "in more detail") ||
-                       cue(buf, "tell me more") ||
-                       cue(buf, "spiega meglio") ||
-                       cue(buf, "più nel dettaglio");
+    int explain_more = kb_cue_match(b, "40_meta_reflection_cue483", buf) ||
+                       kb_cue_match(b, "40_meta_reflection_cue484", buf) ||
+                       kb_cue_match(b, "40_meta_reflection_cue485", buf) ||
+                       kb_cue_match(b, "40_meta_reflection_cue486", buf) ||
+                       kb_cue_match(b, "40_meta_reflection_cue487", buf);
     if (explain_more) {
         if (b->has_last_proof) {
             char msg[640];
@@ -515,11 +515,11 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
             if (buf[i] == ' ') in_word = 0;
             else if (!in_word) { wn++; in_word = 1; }
         }
-        int howknow = ((cue(buf, "how do you know") && wn <= 4)) ||
-                      ((cue(buf, "why do you say that") && wn <= 5)) ||
+        int howknow = ((kb_cue_match(b, "40_meta_reflection_cue518", buf) && wn <= 4)) ||
+                      ((kb_cue_match(b, "40_meta_reflection_cue519", buf) && wn <= 5)) ||
                       (wn == 1 && strcmp(buf, "why") == 0) ||
-                      ((cue(buf, "perché lo dici") && wn <= 3)) ||
-                      ((cue(buf, "come lo sai") && wn <= 3));
+                      ((kb_cue_match(b, "40_meta_reflection_cue521", buf) && wn <= 3)) ||
+                      ((kb_cue_match(b, "40_meta_reflection_cue522", buf) && wn <= 3));
         if (howknow) {
             if (b->has_last_proof) {
                 char msg[640];
@@ -550,13 +550,13 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
 
     /* gen72: clarification requests — the user wants to understand the bot,
      * not a fact about the world. */
-    int clarify = cue(buf, "what do you mean") ||
-                  cue(buf, "explain yourself") ||
-                  cue(buf, "explain what you mean") ||
-                  cue(buf, "spiegati") ||
-                  cue(buf, "spiegami") ||
-                  cue(buf, "cosa intendi") ||
-                  cue(buf, "che vuoi dire");
+    int clarify = kb_cue_match(b, "40_meta_reflection_cue553", buf) ||
+                  kb_cue_match(b, "40_meta_reflection_cue554", buf) ||
+                  kb_cue_match(b, "40_meta_reflection_cue555", buf) ||
+                  kb_cue_match(b, "40_meta_reflection_cue556", buf) ||
+                  kb_cue_match(b, "40_meta_reflection_cue557", buf) ||
+                  kb_cue_match(b, "40_meta_reflection_cue558", buf) ||
+                  kb_cue_match(b, "40_meta_reflection_cue559", buf);
     if (clarify) {
         kb_say(b, "i_mean_i_can_only_answer_what_my_registered", "I mean I can only answer what my registered modules let me. "
             "Try asking a simple factual question.",
@@ -566,11 +566,11 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
 
     /* User admits they don't understand the bot — different from the bot
      * not understanding the user (which is the fallback). */
-    int user_lost = cue(buf, "i don't get it") ||
-                    cue(buf, "i don't understand you") ||
-                    cue(buf, "not capisco") ||
-                    cue(buf, "not i have capito") ||
-                    cue(buf, "not ti capisco");
+    int user_lost = kb_cue_match(b, "40_meta_reflection_cue569", buf) ||
+                    kb_cue_match(b, "40_meta_reflection_cue570", buf) ||
+                    kb_cue_match(b, "40_meta_reflection_cue571", buf) ||
+                    kb_cue_match(b, "40_meta_reflection_cue572", buf) ||
+                    kb_cue_match(b, "40_meta_reflection_cue573", buf);
     if (user_lost) {
         kb_say(b, "i_understand_some_patterns_and_i_say_when_i", "I understand some patterns and I say when I do not. "
             "Try a shorter or simpler question.",
@@ -580,14 +580,14 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
 
     /* Help-offer reversal: the user offers to help the bot. The bot is not
      * a person that needs help — redirect honestly. */
-    int help_offer = cue(buf, "how can i help you") ||
-                     cue(buf, "let me help you") ||
-                     cue(buf, "i should be helping you") ||
-                     cue(buf, "i should help you") ||
-                     cue(buf, "come posso aiutarti") ||
-                     cue(buf, "ti aiuto io") ||
-                     cue(buf, "am io che aiuto te") ||
-                     cue(buf, "posso aiutarti");
+    int help_offer = kb_cue_match(b, "40_meta_reflection_cue583", buf) ||
+                     kb_cue_match(b, "40_meta_reflection_cue584", buf) ||
+                     kb_cue_match(b, "40_meta_reflection_cue585", buf) ||
+                     kb_cue_match(b, "40_meta_reflection_cue586", buf) ||
+                     kb_cue_match(b, "40_meta_reflection_cue587", buf) ||
+                     kb_cue_match(b, "40_meta_reflection_cue588", buf) ||
+                     kb_cue_match(b, "40_meta_reflection_cue589", buf) ||
+                     kb_cue_match(b, "40_meta_reflection_cue590", buf);
     if (help_offer) {
         kb_say(b, "i_m_a_chatbot_not_a_person_i_don_t_need_help", "I'm a chatbot, not a person — I don't need help. "
             "But you can ask me questions and I'll try to answer.",
@@ -1033,11 +1033,11 @@ static int role_uptake(Brain *b, const char *raw) {
 }
 
 /* True if a query carries a truth-probe that should pierce the role mask. */
-static int is_truth_probe(const char *q) {
-    return cue(q, "really") || cue(q, "underneath") || cue(q, "actually") ||
-           cue(q, "beneath") || cue(q, "truly") ||
-           cue(q, "davvero") || cue(q, "veramente") || cue(q, "in realta") ||
-           cue(q, "sotto sotto");
+static int is_truth_probe(Brain *b, const char *q) {
+    return kb_cue_match(b, "40_meta_reflection_cue1037", q) || kb_cue_match(b, "40_meta_reflection_cue1037_2", q) || kb_cue_match(b, "40_meta_reflection_cue1037_3", q) ||
+           kb_cue_match(b, "40_meta_reflection_cue1038", q) || kb_cue_match(b, "40_meta_reflection_cue1038_2", q) ||
+           kb_cue_match(b, "40_meta_reflection_cue1039", q) || kb_cue_match(b, "40_meta_reflection_cue1039_2", q) || kb_cue_match(b, "40_meta_reflection_cue1039_3", q) ||
+           kb_cue_match(b, "40_meta_reflection_cue1040", q);
 }
 
 static int mod_role(Brain *b, const char *norm, const char *raw,
@@ -1063,9 +1063,9 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
                  strncmp(buf, "torna te stesso", 15) == 0 ||
                  strncmp(buf, "basta fingere", 13) == 0);
     /* role SET cues — checked first, so "you are now X. stop pretending" sets. */
-    int set = cue(buf, "you are") || cue(buf, "you re") || cue(buf, "pretend") ||
-              cue(buf, "your name is") || strncmp(buf, "sei ", 4) == 0 ||
-              cue(buf, "tu sei") || cue(buf, "fai finta") || cue(buf, "comportati come");
+    int set = kb_cue_match(b, "40_meta_reflection_cue1066", buf) || kb_cue_match(b, "40_meta_reflection_cue1066_2", buf) || kb_cue_match(b, "40_meta_reflection_cue1066_3", buf) ||
+              kb_cue_match(b, "40_meta_reflection_cue1067", buf) || strncmp(buf, "sei ", 4) == 0 ||
+              kb_cue_match(b, "40_meta_reflection_cue1068", buf) || kb_cue_match(b, "40_meta_reflection_cue1068_2", buf) || kb_cue_match(b, "40_meta_reflection_cue1068_3", buf);
 
     if (set && role_uptake(b, raw)) {
         char lang[8]; current_lang(b, lang, sizeof lang);
@@ -1092,14 +1092,14 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
     if (!b->in_role) return 0; /* nothing else to do out of role */
 
     /* --- IN-ROLE question answering ------------------------------------- */
-    int probe = is_truth_probe(buf);
+    int probe = is_truth_probe(b, buf);
 
-    int identity = cue(buf, "your name") || cue(buf, "who are you") ||
-                   cue(buf, "who re you") || cue(buf, "who sei") ||
-                   cue(buf, "come ti chiami") || cue(buf, "il tuo nome") ||
-                   cue(buf, "chi sei");
-    int whatare  = cue(buf, "what are you") || cue(buf, "what exactly are you") ||
-                   cue(buf, "cosa sei");
+    int identity = kb_cue_match(b, "40_meta_reflection_cue1097", buf) || kb_cue_match(b, "40_meta_reflection_cue1097_2", buf) ||
+                   kb_cue_match(b, "40_meta_reflection_cue1098", buf) || kb_cue_match(b, "40_meta_reflection_cue1098_2", buf) ||
+                   kb_cue_match(b, "40_meta_reflection_cue1099", buf) || kb_cue_match(b, "40_meta_reflection_cue1099_2", buf) ||
+                   kb_cue_match(b, "40_meta_reflection_cue1100", buf);
+    int whatare  = kb_cue_match(b, "40_meta_reflection_cue1101", buf) || kb_cue_match(b, "40_meta_reflection_cue1101_2", buf) ||
+                   kb_cue_match(b, "40_meta_reflection_cue1102", buf);
 
     /* Truth-probe pierces the mask: the agent knows it is parrot0 underneath. */
     if ((identity || whatare) && probe) {
@@ -1994,11 +1994,11 @@ static int mod_strategy(Brain *b, const char *norm, const char *raw,
     int ask = ((kb_cue_match(b, "40_meta_reflection_chain2003", buf)) ||
                (kb_cue_match(b, "40_meta_reflection_chain2004", buf)) ||
                (kb_cue_match(b, "40_meta_reflection_chain2005", buf)) ||
-               (cue(buf, "why did you choose") && wn <= 7) ||
-               (cue(buf, "how did you decide") && wn <= 6) ||
+               (kb_cue_match(b, "40_meta_reflection_cue1997", buf) && wn <= 7) ||
+               (kb_cue_match(b, "40_meta_reflection_cue1998", buf) && wn <= 6) ||
                (kb_cue_match(b, "40_meta_reflection_chain2008", buf)) ||
-               (cue(buf, "perché così") && wn <= 4) ||
-               (cue(buf, "come hai deciso") && wn <= 5));
+               (kb_cue_match(b, "40_meta_reflection_cue2000", buf) && wn <= 4) ||
+               (kb_cue_match(b, "40_meta_reflection_cue2001", buf) && wn <= 5));
     if (!ask) return 0;
 
     if (!b->has_trace) {

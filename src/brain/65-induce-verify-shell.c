@@ -527,7 +527,7 @@ static int mod_summary(Brain *b, const char *norm, const char *raw,
      * the PASSAGE digest. The focus word follows "about"/"di"/"su". */
     int focus_intent =
         kb_cue_match(b, "65_induce_verify_shell_chain514", norm) ||
-        (want_sum && cue(norm, "about"));
+        (want_sum && kb_cue_match(b, "65_induce_verify_shell_cue530", norm));
     char focus[KB_TERM_LEN] = "";
     if (focus_intent) {
         const char *mk = strstr(norm, "about ");
@@ -776,15 +776,15 @@ static int is_substantive(Brain *b, const char *t) {
 /* True when the substantive part of the turn is itself a wellbeing check-in;
  * such turns are still owned by the social module (marker + wellbeing is not a
  * mixed act we want to decline). */
-static int is_wellbeing_content(const char *buf) {
+static int is_wellbeing_content(Brain *b, const char *buf) {
     /* gen73: patterns from social_pattern(wellbeing, ...) are matched by
      * has_social_pattern in mod_social; this fast substring check stays
      * as a guard in is_mixed_turn.
      * gen274: the kbfirst_migration plan SKIPPED this chain honestly — the
      * KB lookup's call shape imports `b`, which this helper never sees. */
-    return cue(buf, "how are you") || cue(buf, "how r u") ||
-           cue(buf, "how do you do") || cue(buf, "how is it going") ||
-           cue(buf, "come stai") || cue(buf, "come va");
+    return kb_cue_match(b, "65_induce_verify_shell_cue785", buf) || kb_cue_match(b, "65_induce_verify_shell_cue785_2", buf) ||
+           kb_cue_match(b, "65_induce_verify_shell_cue786", buf) || kb_cue_match(b, "65_induce_verify_shell_cue786_2", buf) ||
+           kb_cue_match(b, "65_induce_verify_shell_cue787", buf) || kb_cue_match(b, "65_induce_verify_shell_cue787_2", buf);
 }
 
 /* A mixed act combines a social marker with substantive content. If mixed, the
@@ -801,13 +801,13 @@ static int is_mixed_turn(Brain *b, const char *buf, char **w, size_t nw,
 
     /* question word + marker -> substance wins ("hey, who are you?"),
      * unless the substance is a wellbeing check the social module handles. */
-    if (has_any_question(b, buf, w, nw) && !is_wellbeing_content(buf)) return 1;
+    if (has_any_question(b, buf, w, nw) && !is_wellbeing_content(b, buf)) return 1;
 
     /* marker + substantive content -> substance wins
      * ("Hello there, I hope you don't mind me reaching out.")
      * Thanks-based turns are not mixed here; they have their own rule below. */
     if ((has_opening || has_closing || has_apology || has_ambiguous) && !has_thanks) {
-        if (is_wellbeing_content(buf)) return 0;
+        if (is_wellbeing_content(b, buf)) return 0;
         for (size_t i = 0; i < nw; i++)
             if (is_substantive(b, w[i])) return 1;
     }

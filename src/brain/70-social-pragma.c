@@ -884,12 +884,12 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
         int modal_open = strcmp(first, "can") == 0 || strcmp(first, "could") == 0 ||
                          strcmp(first, "shall") == 0 || strcmp(first, "lets") == 0 ||
                          strcmp(first, "let") == 0;
-        int switch_verb = cue(buf, "switch to") || cue(buf, "change to") ||
-                          cue(buf, "move on to") || cue(buf, "cambiamo");
-        int frame = cue(buf, "talk about") || cue(buf, "chat about") ||
-                    cue(buf, "discuss") || cue(buf, "talk of") ||
-                    cue(buf, "parlare di") || cue(buf, "parliamo di") ||
-                    cue(buf, "discutere") || cue(buf, "discutiamo");
+        int switch_verb = kb_cue_match(b, "70_social_pragma_cue887", buf) || kb_cue_match(b, "70_social_pragma_cue887_2", buf) ||
+                          kb_cue_match(b, "70_social_pragma_cue888", buf) || kb_cue_match(b, "70_social_pragma_cue888_2", buf);
+        int frame = kb_cue_match(b, "70_social_pragma_cue889", buf) || kb_cue_match(b, "70_social_pragma_cue889_2", buf) ||
+                    kb_cue_match(b, "70_social_pragma_cue890", buf) || kb_cue_match(b, "70_social_pragma_cue890_2", buf) ||
+                    kb_cue_match(b, "70_social_pragma_cue891", buf) || kb_cue_match(b, "70_social_pragma_cue891_2", buf) ||
+                    kb_cue_match(b, "70_social_pragma_cue892", buf) || kb_cue_match(b, "70_social_pragma_cue892_2", buf);
         int invite = switch_verb || (modal_open && frame);
         char topic[40];
         if (invite && topic_object(w, nw, topic, sizeof topic)) {
@@ -1019,12 +1019,12 @@ static int looks_leet(const char *s) {
 
 /* Code fragment iff it carries a structural code signal: a bracket/operator
  * rare in chat prose, or a code keyword opening a block ("while True:"). */
-static int looks_code(const char *s, char **w, size_t nw) {
+static int looks_code(Brain *b, const char *s, char **w, size_t nw) {
     /* Strong, unambiguous code markers. NOTE: a bare '(' is NOT one of these —
      * a natural-language sentence with a parenthetical aside ("Chicago (800
      * miles away)", "scatters (spreads out)") is prose, not code (gen240). */
-    if (cue(s, "{") || cue(s, "}") || cue(s, ";") ||
-        cue(s, "==") || cue(s, "<html") || cue(s, "select * from"))
+    if (kb_cue_match(b, "70_social_pragma_cue1026", s) || kb_cue_match(b, "70_social_pragma_cue1026_2", s) || kb_cue_match(b, "70_social_pragma_cue1026_3", s) ||
+        kb_cue_match(b, "70_social_pragma_cue1027", s) || kb_cue_match(b, "70_social_pragma_cue1027_2", s) || kb_cue_match(b, "70_social_pragma_cue1027_3", s))
         return 1;
     /* A '(' counts only as a function-call: an identifier char immediately
      * before it ("printf(", "foo(x)"). A space before '(' is a prose aside. */

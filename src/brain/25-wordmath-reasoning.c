@@ -1,7 +1,27 @@
-static int wp_recipe_multiplier(const char *q, double *mult) {
-    if (cue(q, "triple") || cue(q, "three times")) { *mult = 3.0; return 1; }
-    if (cue(q, "double") || cue(q, "twice")) { *mult = 2.0; return 1; }
-    if (cue(q, "quadruple") || cue(q, "four times")) { *mult = 4.0; return 1; }
+/* QUANTO VALE «triplo» E' CONOSCENZA, non un ramo (gen442).
+ *
+ * Sei letterali e tre numeri stavano qui dentro: la parola e il suo fattore,
+ * in due lingue, dove nessuna query poteva vederli. `word_multiplier/2` li
+ * tiene insieme — superficie e valore — perche' separarli avrebbe rimesso il
+ * numero nel motore. Un moltiplicatore nuovo, in qualunque lingua, e' un
+ * fatto. */
+static int wp_recipe_multiplier(Brain *b, const char *q, double *mult) {
+    if (b && b->kb) {
+        char surf[64][KB_TERM_LEN];
+        const char *anyq[2] = { NULL, NULL };
+        size_t nw = kb_match(b->kb, "word_multiplier", anyq, 2, surf, 64);
+        for (size_t i = 0; i < nw; i++) {
+            char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", surf[i]);
+            const char *word = kb_dequote(sb);
+            if (!*word || !cue(q, word)) continue;
+            const char *vq[2] = { surf[i], NULL };
+            char val[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "word_multiplier", vq, 2, val, 1) != 1) continue;
+            char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", val[0]);
+            double v = atof(kb_dequote(vb));
+            if (v > 0.0) { *mult = v; return 1; }
+        }
+    }
 
     char mb[256]; snprintf(mb, sizeof mb, "%s", q);
     char *mw[64]; size_t mn = split_words(mb, mw, 64);
@@ -921,9 +941,9 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
     if (kb_cue_match(b, "25_wordmath_reasoning_chain921", q))
         return 0; /* owned by the KB-backed process_step handler in mod_knowledge */
     double scale;
-    if ((kb_cue_match(b, "25_wordmath_reasoning_chain925", q)) && wp_recipe_multiplier(q, &scale))
+    if ((kb_cue_match(b, "25_wordmath_reasoning_chain925", q)) && wp_recipe_multiplier(b, q, &scale))
         return 0; /* owned by the recipe-scaling wordproblem frame */
-    if (cue(q, "machines") && cue(q, "minutes") && cue(q, "widgets") && cue(q, "how long")) {
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue926", q) && kb_cue_match(b, "25_wordmath_reasoning_cue926_2", q) && kb_cue_match(b, "25_wordmath_reasoning_cue926_3", q) && kb_cue_match(b, "25_wordmath_reasoning_cue926_4", q)) {
         char rb[256]; snprintf(rb, sizeof rb, "%s", q);
         char *rw[64]; size_t rn = split_words(rb, rw, 64);
         double nums[8]; size_t nn = collect_numbers(rw, rn, nums, 8);
@@ -1051,7 +1071,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * quantity/unit/ingredient triples, then multiplied by the requested scale. */
     double recipe_mult = 0.0;
     if ((kb_cue_match(b, "25_wordmath_reasoning_chain1054", q)) &&
-        wp_recipe_multiplier(q, &recipe_mult)) {
+        wp_recipe_multiplier(b, q, &recipe_mult)) {
         char rb[256]; snprintf(rb, sizeof rb, "%s", q);
         char *rw[64]; size_t rn = split_words(rb, rw, 64);
         char part[8][120]; size_t np = 0;
@@ -1097,7 +1117,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
 
     /* gen252: simultaneous egg boiling. More eggs in the same pot do not multiply
      * the cooking time when the prompt explicitly says they cook at the same time. */
-    if ((kb_cue_match(b, "25_wordmath_reasoning_chain1101", q)) && cue(q, "egg") &&
+    if ((kb_cue_match(b, "25_wordmath_reasoning_chain1101", q)) && kb_cue_match(b, "25_wordmath_reasoning_cue1100", q) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain1102", q))) {
         char eb[256]; snprintf(eb, sizeof eb, "%s", q);
         char *ew[64]; size_t en = split_words(eb, ew, 64);
@@ -1200,7 +1220,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
 
     /* gen249: compare two average speeds from distance/time pairs. */
     if ((kb_cue_match(b, "25_wordmath_reasoning_chain1203", q)) &&
-        cue(q, "mile") && cue(q, "hour")) {
+        kb_cue_match(b, "25_wordmath_reasoning_cue1203", q) && kb_cue_match(b, "25_wordmath_reasoning_cue1203_2", q)) {
         char rb[256]; snprintf(rb, sizeof rb, "%s", q);
         char *rw[64]; size_t rn = split_words(rb, rw, 64);
         double vals[8]; size_t vn = 0;
@@ -1243,9 +1263,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
 
     /* gen248: container remainder with named objects. "baseball and tennis ball;
      * put both in a bag; remove the baseball" -> tennis ball remains. */
-    if (cue(q, "bag") && (kb_cue_match(b, "25_wordmath_reasoning_chain1248", q)) &&
-        cue(q, "baseball") && cue(q, "tennis ball")) {
-        const char *left = cue(q, "remove the baseball") || cue(q, "take out the baseball") ?
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue1246", q) && (kb_cue_match(b, "25_wordmath_reasoning_chain1248", q)) &&
+        kb_cue_match(b, "25_wordmath_reasoning_cue1247", q) && kb_cue_match(b, "25_wordmath_reasoning_cue1247_2", q)) {
+        const char *left = kb_cue_match(b, "25_wordmath_reasoning_cue1248", q) || kb_cue_match(b, "25_wordmath_reasoning_cue1248_2", q) ?
                            "A tennis ball." : NULL;
         if (!left && (kb_cue_match(b, "25_wordmath_reasoning_chain1252", q)))
             left = "A baseball.";
@@ -1259,7 +1279,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     /* gen246: average speed as a weighted rate frame: total distance / total time.
      * It handles multi-leg prose ("120 miles in 2 hours, then 60 miles in 2 more
      * hours") without averaging the two speeds. */
-    if (cue(q, "average speed") &&
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue1262", q) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain1266", q)) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain1267", q))) {
         char rb[256]; snprintf(rb, sizeof rb, "%s", q);
@@ -1299,7 +1319,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     /* gen352: if the prompt asks which departure city is closer to the meeting
      * point, compare the distances each train has covered from its origin. The
      * city separation is KB knowledge; C only binds slots and computes motion. */
-    if (cue(q, "closer") && cue(q, "meeting point") && cue(q, "train") &&
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue1302", q) && kb_cue_match(b, "25_wordmath_reasoning_cue1302_2", q) && kb_cue_match(b, "25_wordmath_reasoning_cue1302_3", q) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain1306", q))) {
         char cb[256]; snprintf(cb, sizeof cb, "%s", q);
         char *cw[64]; size_t cn = split_words(cb, cw, 64);
@@ -1399,7 +1419,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     /* gen240 (LLMSCORE): the "when they meet" trick. Two things moving toward
      * each other are at the SAME point when they meet, so neither is closer —
      * the speeds/distances are a distraction. A structural insight, not a sum. */
-    if (cue(q, "closer") && (kb_cue_match(b, "25_wordmath_reasoning_chain1405", q)) &&
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue1402", q) && (kb_cue_match(b, "25_wordmath_reasoning_chain1405", q)) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain1406", q))) {
         kb_say(b, "neither_when_they_meet_they_are_at_the_same", "Neither — when they meet they are at the same place, so both are "
             "exactly the same distance from the destination.", out, out_size);
@@ -1470,7 +1490,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     /* gen252: destination-arrival race for two trains from opposite cities. This
      * is not the meet-at-one-point trick: each train covers the full separation
      * to the other city, so compare departure_time + distance/speed. */
-    if (cue(q, "train") && cue(q, "arrives") && cue(q, "destination") &&
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue1473", q) && kb_cue_match(b, "25_wordmath_reasoning_cue1473_2", q) && kb_cue_match(b, "25_wordmath_reasoning_cue1473_3", q) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain1477", q))) {
         char db[256]; snprintf(db, sizeof db, "%s", q);
         char *dw[64]; size_t dn = split_words(db, dw, 64);
@@ -1547,7 +1567,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     /* gen251: "which train arrives first" under toward-each-other motion is a
      * meet-time frame. If both are still between the cities, neither arrives
      * first: they meet at the same instant. City distances are KB data. */
-    if (cue(q, "train") && cue(q, "arrives first") &&
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue1550", q) && kb_cue_match(b, "25_wordmath_reasoning_cue1550_2", q) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain1554", q))) {
         char mb[256]; snprintf(mb, sizeof mb, "%s", q);
         char *mw[64]; size_t mnw = split_words(mb, mw, 64);
@@ -1695,7 +1715,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * (distance/2)/speed; the smaller arrival wins. Tightly guarded: needs the
      * "midpoint" cue plus two speeds (mph) and two clock times (am/pm) and a
      * distance, so it never guesses an operation. */
-    if (cue(q, "midpoint") && (kb_cue_match(b, "25_wordmath_reasoning_chain1705", q))) {
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue1698", q) && (kb_cue_match(b, "25_wordmath_reasoning_chain1705", q))) {
         char mb[256]; snprintf(mb, sizeof mb, "%s", q);
         char *mw[64]; size_t mnw = split_words(mb, mw, 64);
         double speed[2], tstart[2], dist = -1; int ns = 0, nt = 0;
@@ -1748,7 +1768,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
 
     /* gen335+: two trains heading toward each other — "how far apart after T hours".
      * Combined speed * time = distance covered. Subtract from total distance. */
-    if (cue(q, "train") && (kb_cue_match(b, "25_wordmath_reasoning_chain1758", q)) &&
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue1751", q) && (kb_cue_match(b, "25_wordmath_reasoning_chain1758", q)) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain1759", q))) {
         char tb[256]; snprintf(tb, sizeof tb, "%s", q);
         char *tw[64]; size_t tnw = split_words(tb, tw, 64);
@@ -1789,9 +1809,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     if ((kb_cue_match(b, "25_wordmath_reasoning_chain1796", q)) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain1797", q)) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain1799", q))) {
-        double mult = cue(q, "double") ? 2.0 : cue(q, "triple") ? 3.0 : 0.5;
-        int sub = cue(q, "subtract") || cue(q, "minus") || cue(q, "take away") || cue(q, "less");
-        int add = cue(q, "add") || cue(q, "plus") || cue(q, "increase");
+        double mult = kb_cue_match(b, "25_wordmath_reasoning_cue1792", q) ? 2.0 : kb_cue_match(b, "25_wordmath_reasoning_cue1792_2", q) ? 3.0 : 0.5;
+        int sub = kb_cue_match(b, "25_wordmath_reasoning_cue1793", q) || kb_cue_match(b, "25_wordmath_reasoning_cue1793_2", q) || kb_cue_match(b, "25_wordmath_reasoning_cue1793_3", q) || kb_cue_match(b, "25_wordmath_reasoning_cue1793_4", q);
+        int add = kb_cue_match(b, "25_wordmath_reasoning_cue1794", q) || kb_cue_match(b, "25_wordmath_reasoning_cue1794_2", q) || kb_cue_match(b, "25_wordmath_reasoning_cue1794_3", q);
         char ab[256]; snprintf(ab, sizeof ab, "%s", q);
         char *aw[64]; size_t anw = split_words(ab, aw, 64);
         double nums[16]; size_t k = collect_numbers(aw, anw, nums, 16);
@@ -1815,12 +1835,12 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * [, unit]); the formula is fixed mathematics (like the arithmetic oracle),
      * the numbers come from the turn, and the reply shows the computation as
      * its own proof. */
-    if ((cue(q, "circumference") ||
-         (cue(q, "area") && (kb_cue_match(b, "25_wordmath_reasoning_chain1827", q)))) &&
+    if ((kb_cue_match(b, "25_wordmath_reasoning_cue1818", q) ||
+         (kb_cue_match(b, "25_wordmath_reasoning_cue1819", q) && (kb_cue_match(b, "25_wordmath_reasoning_chain1827", q)))) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain1828", q))) {
         char gb[256]; snprintf(gb, sizeof gb, "%s", q);
         char *gw[64]; size_t gn = split_words(gb, gw, 64);
-        int have_r = cue(q, "radius") != 0;
+        int have_r = kb_cue_match(b, "25_wordmath_reasoning_cue1823", q) != 0;
         double val = -1.0; char unit[32] = "";
         for (size_t i = 0; i < gn && val < 0; i++) {
             char *t = strip_edge_punct(gw[i]);
@@ -1868,9 +1888,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * constraint set empty instead of inventing a number (NEXTMOVE gen253:
      * inconsistent puzzles must fail honestly, with the impossible constraint
      * named). */
-    if ((cue(q, "thinking of a number") || cue(q, "my number") ||
-         cue(q, "a number that") || cue(q, "the number is") ||
-         (cue(q, "number") && (kb_cue_match(b, "25_wordmath_reasoning_chain1881", q)))) &&
+    if ((kb_cue_match(b, "25_wordmath_reasoning_cue1871", q) || kb_cue_match(b, "25_wordmath_reasoning_cue1871_2", q) ||
+         kb_cue_match(b, "25_wordmath_reasoning_cue1872", q) || kb_cue_match(b, "25_wordmath_reasoning_cue1872_2", q) ||
+         (kb_cue_match(b, "25_wordmath_reasoning_cue1873", q) && (kb_cue_match(b, "25_wordmath_reasoning_chain1881", q)))) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain1882", q))) {
         char nb[256]; snprintf(nb, sizeof nb, "%s", q);
         char *nw2[64]; size_t nn = split_words(nb, nw2, 64);
@@ -1923,12 +1943,12 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             }
         }
         /* number-theoretic predicates, with negation read first */
-        int want_notprime = cue(q, "not prime") || cue(q, "not a prime") ||
-                            cue(q, "isn't prime") || cue(q, "is not prime") ||
-                            cue(q, "composite");
-        int want_prime = !want_notprime && cue(q, "prime");
-        int want_odd  = (cue(q, "odd") && !cue(q, "not odd")) || cue(q, "not even");
-        int want_even = (cue(q, "even") && !cue(q, "not even")) || cue(q, "not odd");
+        int want_notprime = kb_cue_match(b, "25_wordmath_reasoning_cue1926", q) || kb_cue_match(b, "25_wordmath_reasoning_cue1926_2", q) ||
+                            kb_cue_match(b, "25_wordmath_reasoning_cue1927", q) || kb_cue_match(b, "25_wordmath_reasoning_cue1927_2", q) ||
+                            kb_cue_match(b, "25_wordmath_reasoning_cue1928", q);
+        int want_prime = !want_notprime && kb_cue_match(b, "25_wordmath_reasoning_cue1929", q);
+        int want_odd  = (kb_cue_match(b, "25_wordmath_reasoning_cue1930", q) && !kb_cue_match(b, "25_wordmath_reasoning_cue1930_2", q)) || kb_cue_match(b, "25_wordmath_reasoning_cue1930_3", q);
+        int want_even = (kb_cue_match(b, "25_wordmath_reasoning_cue1931", q) && !kb_cue_match(b, "25_wordmath_reasoning_cue1931_2", q)) || kb_cue_match(b, "25_wordmath_reasoning_cue1931_3", q);
         long divby = 0; int notdiv = 0;
         for (size_t i = 0; i + 1 < nn; i++) {
             char *t = strip_edge_punct(nw2[i]);
@@ -2027,7 +2047,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * off: smallest number to GUARANTEE a matching pair?" With k kinds, k+1
      * draws force a repeat. The kinds are counted from the turn (any word the
      * KB knows as a color, plus generic kind nouns), never assumed. */
-    if (cue(q, "guarantee") &&
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue2030", q) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain2040", q))) {
         char pb2[256]; snprintf(pb2, sizeof pb2, "%s", q);
         char *pw2[64]; size_t pn2 = split_words(pb2, pw2, 64);
@@ -2056,7 +2076,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * in KB; C only binds numeric length/width slots and computes the invariant
      * area/perimeter formulas for an orthogonal two-dimensional measure. */
     if (kb_cue_match(b, "geometry_dimension_schema", q) &&
-        cue(q, "length") && cue(q, "width") &&
+        kb_cue_match(b, "25_wordmath_reasoning_cue2059", q) && kb_cue_match(b, "25_wordmath_reasoning_cue2059_2", q) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain2070", q))) {
         char gb[256]; snprintf(gb, sizeof gb, "%s", q);
         char *gw[64]; size_t gn = split_words(gb, gw, 64);
@@ -2254,7 +2274,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * is 5 cm, what is the area?" -> other side = P/2 - s, area = s * other.
      * Same fixed-mathematics family as the circle frame; the numbers bind to
      * the named measures, and the reply carries its own derivation. */
-    if (cue(q, "rectangle") && cue(q, "perimeter") &&
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue2257", q) && kb_cue_match(b, "25_wordmath_reasoning_cue2257_2", q) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain2268", q))) {
         char rb2[256]; snprintf(rb2, sizeof rb2, "%s", q);
         char *rw2[64]; size_t rn2 = split_words(rb2, rw2, 64);
@@ -2287,7 +2307,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                     side = v;
             }
         }
-        if (per > 0 && side > 0 && cue(q, "area")) {
+        if (per > 0 && side > 0 && kb_cue_match(b, "25_wordmath_reasoning_cue2290", q)) {
             double other = per / 2.0 - side;
             if (other > 0) {
                 char n1[32], n2[32], n3[32];
@@ -2315,7 +2335,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * The legs-per-species are KB facts (quantity(Species, legs, L)), so any
      * species pair the KB knows solves with the same algebra:
      * x + y = N, a*x + b*y = L  ->  x = (b*N - L) / (b - a). */
-    if (cue(q, "legs") && (kb_cue_match(b, "25_wordmath_reasoning_chain2328", q))) {
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue2318", q) && (kb_cue_match(b, "25_wordmath_reasoning_chain2328", q))) {
         char hb[256]; snprintf(hb, sizeof hb, "%s", q);
         char *hw2[64]; size_t hn2 = split_words(hb, hw2, 64);
         char sp[2][KB_TERM_LEN]; double legs[2]; int nsp = 0;
@@ -2382,13 +2402,13 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * so b = N*(M-1)/(K-M) (future) or b = N*(1-M)/(K-M) (ago). The C parses the
      * two ratio phrases and the year shift; the algebra is fixed mathematics.
      * Equal ratios are named as inconsistent instead of dividing by zero. */
-    if (cue(q, "as old as") && (kb_cue_match(b, "25_wordmath_reasoning_chain2395", q)) &&
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue2385", q) && (kb_cue_match(b, "25_wordmath_reasoning_chain2395", q)) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain2396", q))) {
         char ab[256]; snprintf(ab, sizeof ab, "%s", q);
         char *aw[64]; size_t an = split_words(ab, aw, 64);
         double K = 0, M = 0, N = 0;
         char who_a[32] = "", who_b[32] = "";
-        int ago = cue(q, "ago") != 0;
+        int ago = kb_cue_match(b, "25_wordmath_reasoning_cue2391", q) != 0;
         for (size_t i = 2; i < an; i++) {
             char *t = strip_edge_punct(aw[i]);
             if (strcmp(t, "old")) continue;
@@ -2493,7 +2513,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 for (size_t j = i + 1; j <= i + 3 && j < mn; j++) {
                     double v; if (parse_value(strip_edge_punct(mw[j]), &v)) { per = v; break; }
                 }
-            } else if (!strcmp(t, "with") && cue(q, "each")) {
+            } else if (!strcmp(t, "with") && kb_cue_match(b, "25_wordmath_reasoning_cue2496", q)) {
                 for (size_t j = i + 1; j <= i + 3 && j < mn; j++) {
                     double v; if (parse_value(strip_edge_punct(mw[j]), &v)) { per = v; break; }
                 }
@@ -2576,8 +2596,8 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             }
         }
         if (price > 0 && money >= 0) {
-            int wants_count = cue(q, "how many") || cue(q, "can you buy") ||
-                              cue(q, "can i buy") || cue(q, "can be bought");
+            int wants_count = kb_cue_match(b, "25_wordmath_reasoning_cue2579", q) || kb_cue_match(b, "25_wordmath_reasoning_cue2579_2", q) ||
+                              kb_cue_match(b, "25_wordmath_reasoning_cue2580", q) || kb_cue_match(b, "25_wordmath_reasoning_cue2580_2", q);
             if (wants_count) {
                 long n = (long)(money / price);
                 double left = money - n * price;
@@ -2603,7 +2623,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * more than B; how much is B?" The intuitive T-D is WRONG; the algebra is
      * B = (T - D)/2 (since A = B + D and A + B = T). Guarded on "more than" + a
      * total, so it only fires on this shape. */
-    if (cue(q, "more than") && (kb_cue_match(b, "25_wordmath_reasoning_chain2622", q))) {
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue2606", q) && (kb_cue_match(b, "25_wordmath_reasoning_chain2622", q))) {
         char bb[256]; snprintf(bb, sizeof bb, "%s", q);
         char *bw[64]; size_t bn = split_words(bb, bw, 64);
         double total = -1, diff = -1;
@@ -2684,7 +2704,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     /* gen240 (LLMSCORE): rate proportion. "N items for $M ... how much do K items
      * cost?" -> K * M / N. Distinct from the buy-with-remainder case (no money you
      * HAVE); needs three numbers and a price cue. */
-    if (cue(q, "for") && !cue(q, "have") &&
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue2687", q) && !kb_cue_match(b, "25_wordmath_reasoning_cue2687_2", q) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain2704", q))) {
         char rb[256]; snprintf(rb, sizeof rb, "%s", q);
         char *rw[64]; size_t rnw = split_words(rb, rw, 64);
@@ -2719,7 +2739,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     /* gen240 (LLMSCORE): rate-with-remainder buy problem. "N for $M ... have $K"
      * -> floor(K/M) packs = floor(K/M)*N items, with (K mod M) money left over.
      * General over the three numbers; reports both the count and the change. */
-    if (cue(q, "for") && cue(q, "have") &&
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue2722", q) && kb_cue_match(b, "25_wordmath_reasoning_cue2722_2", q) &&
         (kb_cue_match(b, "25_wordmath_reasoning_chain2740", q))) {
         char pb[256]; snprintf(pb, sizeof pb, "%s", q);
         char *pw[64]; size_t pnw = split_words(pb, pw, 64);
@@ -2809,7 +2829,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * rotations counted as the same, give (n-1)! arrangements. "including
      * yourself" adds one to the named guest count. */
     if ((kb_cue_match(b, "25_wordmath_reasoning_chain2828", q)) &&
-        cue(q, "arrangement")) {
+        kb_cue_match(b, "25_wordmath_reasoning_cue2812", q)) {
         char rb[256]; snprintf(rb, sizeof rb, "%s", q);
         char *rw[64]; size_t rnw = split_words(rb, rw, 64);
         double gn[8]; size_t gc = collect_numbers(rw, rnw, gn, 8);
@@ -2933,7 +2953,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     }
 
     if (nn < 2) return 0;
-    if (cue(q, "all but") && nn >= 2) {
+    if (kb_cue_match(b, "25_wordmath_reasoning_cue2936", q) && nn >= 2) {
         /* gen254: "all but N" is a STEP, not always the final answer — "sells
          * all but 9, then buys 12 more" must keep folding the later deltas
          * ("17 sheep, all but 9 die" still ends at 9). Resume the walk right
@@ -3016,7 +3036,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         double result = 0; int have = 0, sign = 1, ratio_applied = 0;
         int halve_to_pieces =
             (kb_cue_match(b, "25_wordmath_reasoning_chain3038", q)) &&
-            cue(q, "half") && (kb_cue_match(b, "25_wordmath_reasoning_chain3039", q));
+            kb_cue_match(b, "25_wordmath_reasoning_cue3019", q) && (kb_cue_match(b, "25_wordmath_reasoning_chain3039", q));
         for (size_t i = 0; i < tnw; i++) {
             size_t L = strlen(tw[i]);
             int trailing = L > 0 && (tw[i][L - 1] == ',' || tw[i][L - 1] == ';');
@@ -3359,7 +3379,7 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
                 char msg[200];
                 const KbResponseSlot s[] = {
                     {"entity", ename}, {"count", hits[0]}, {"unit", unit} };
-                const char *key = cue(buf, " in ") ? "quantity_in_frame"
+                const char *key = kb_cue_match(b, "25_wordmath_reasoning_cue3362", buf) ? "quantity_in_frame"
                                                    : "quantity_has_frame";
                 if (!kb_response_slots(b, key, s, 3, msg, sizeof msg)) {
                     if (kb_cue_match(b, "25_wordmath_reasoning_chain3408", buf))

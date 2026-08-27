@@ -60,12 +60,12 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
     int trigger = compose_challenge || want_skeleton || want_selftest ||
                   want_audit ||
                   kb_cue_match(b, "50_self_research_loop_chain85", buf) ||
-                  (cue(buf, "challenge") && self_ref) ||
-                  (cue(buf, "solve") && cue(buf, "challenge") && self_ref) ||
-                  (cue(buf, "improve") && self_ref) ||
-                  (cue(buf, "review this implementation") &&
-                   (self_ref || cue(buf, "loop"))) ||
-                  (cue(buf, "problem") && self_ref &&
+                  (kb_cue_match(b, "50_self_research_loop_cue63", buf) && self_ref) ||
+                  (kb_cue_match(b, "50_self_research_loop_cue64", buf) && kb_cue_match(b, "50_self_research_loop_cue64_2", buf) && self_ref) ||
+                  (kb_cue_match(b, "50_self_research_loop_cue65", buf) && self_ref) ||
+                  (kb_cue_match(b, "50_self_research_loop_cue66", buf) &&
+                   (self_ref || kb_cue_match(b, "50_self_research_loop_cue67", buf))) ||
+                  (kb_cue_match(b, "50_self_research_loop_cue68", buf) && self_ref &&
                    (kb_cue_match(b, "50_self_research_loop_chain92", buf)));
     if (!trigger) return 0;
 
@@ -1476,8 +1476,8 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
     }
 
     /* "how many facts do you know?" → kb_user_facts */
-    int fact_count = (cue(buf, "how many facts") && wn <= 6) ||
-                     (cue(buf, "quanti fatti") && wn <= 5);
+    int fact_count = (kb_cue_match(b, "50_self_research_loop_cue1479", buf) && wn <= 6) ||
+                     (kb_cue_match(b, "50_self_research_loop_cue1480", buf) && wn <= 5);
     if (fact_count) {
         char msg[128];
         snprintf(msg, sizeof msg, "I know %zu fact(s).", kb_user_facts(b->kb));
@@ -1486,9 +1486,9 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
     }
 
     /* "what predicates do you know?" / "what topics do you know about?" */
-    int pred_list = (cue(buf, "what predicates") && wn <= 5) ||
-                    (cue(buf, "what topics") && wn <= 6) ||
-                    (cue(buf, "quali predicati") && wn <= 4);
+    int pred_list = (kb_cue_match(b, "50_self_research_loop_cue1489", buf) && wn <= 5) ||
+                    (kb_cue_match(b, "50_self_research_loop_cue1490", buf) && wn <= 6) ||
+                    (kb_cue_match(b, "50_self_research_loop_cue1491", buf) && wn <= 4);
     if (pred_list) {
         /* gen382e: anche qui il tetto di 128 tagliava, e con una KB cresciuta la
          * risposta degradava a "I know 128 distinct predicate(s)" — un numero
@@ -1513,11 +1513,11 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
     }
 
     /* "show me your knowledge" / "dump everything" */
-    int show_knowledge = (cue(buf, "show me your knowledge") && wn <= 5) ||
-                         (cue(buf, "show me what you know") && wn <= 7) ||
-                         (cue(buf, "dump everything") && wn <= 3) ||
-                         (cue(buf, "dump what you know") && wn <= 6) ||
-                         (cue(buf, "mostrami la conoscenza") && wn <= 4);
+    int show_knowledge = (kb_cue_match(b, "50_self_research_loop_cue1516", buf) && wn <= 5) ||
+                         (kb_cue_match(b, "50_self_research_loop_cue1517", buf) && wn <= 7) ||
+                         (kb_cue_match(b, "50_self_research_loop_cue1518", buf) && wn <= 3) ||
+                         (kb_cue_match(b, "50_self_research_loop_cue1519", buf) && wn <= 6) ||
+                         (kb_cue_match(b, "50_self_research_loop_cue1520", buf) && wn <= 4);
     if (show_knowledge) {
         char dump[4096];
         if (kb_dump_user(b->kb, dump, sizeof dump)) {
@@ -1536,8 +1536,8 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
 
     /* "what do you know?" → stats overview. Only claims short forms;
      * "what do you know about X?" has more words and reaches mod_knowledge. */
-    int what_know = (cue(buf, "what do you know") && wn <= 4) ||
-                    (cue(buf, "cosa sai") && wn <= 3);
+    int what_know = (kb_cue_match(b, "50_self_research_loop_cue1539", buf) && wn <= 4) ||
+                    (kb_cue_match(b, "50_self_research_loop_cue1540", buf) && wn <= 3);
     if (what_know) {
         size_t nfacts = kb_user_facts(b->kb);
         /* gen382e: anche qui il tetto di 128 tagliava, e con una KB cresciuta la
@@ -1557,11 +1557,11 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
 
     /* gen78: "which part of you answered that?" / "what module handled that?"
      * Reads from the last_module stored by the dispatch loop. */
-    int which_module = (cue(buf, "which part of you") && wn <= 6) ||
-                       (cue(buf, "what module") && wn <= 4) ||
-                       (cue(buf, "who answered") && wn <= 4) ||
-                       (cue(buf, "quale parte di te") && wn <= 6) ||
-                       (cue(buf, "quale modulo") && wn <= 4);
+    int which_module = (kb_cue_match(b, "50_self_research_loop_cue1560", buf) && wn <= 6) ||
+                       (kb_cue_match(b, "50_self_research_loop_cue1561", buf) && wn <= 4) ||
+                       (kb_cue_match(b, "50_self_research_loop_cue1562", buf) && wn <= 4) ||
+                       (kb_cue_match(b, "50_self_research_loop_cue1563", buf) && wn <= 6) ||
+                       (kb_cue_match(b, "50_self_research_loop_cue1564", buf) && wn <= 4);
     if (which_module) {
         if (b->last_module[0]) {
             char msg[160];
@@ -1585,9 +1585,9 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
     /* gen86 mod_cap ... (above) */
 
     /* gen89: "what have I taught you?" — show only session facts. */
-    int taught_q = (cue(buf, "what have i taught you") && wn <= 6) ||
-                   (cue(buf, "what did i teach you") && wn <= 6) ||
-                   (cue(buf, "cosa ti ho insegnato") && wn <= 5);
+    int taught_q = (kb_cue_match(b, "50_self_research_loop_cue1588", buf) && wn <= 6) ||
+                   (kb_cue_match(b, "50_self_research_loop_cue1589", buf) && wn <= 6) ||
+                   (kb_cue_match(b, "50_self_research_loop_cue1590", buf) && wn <= 5);
     if (taught_q) {
         /* Dump only user-facing predicates, regardless of origin.
          * kb_user_facts already filters internal predicates. */
@@ -1603,9 +1603,9 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         }
         return 1;
     }
-    int mod_cap = (cue(buf, "what can the") && wn <= 7) ||
-                  (cue(buf, "what does the") && wn <= 7) ||
-                  (cue(buf, "cosa può fare il modulo") && wn <= 7);
+    int mod_cap = (kb_cue_match(b, "50_self_research_loop_cue1606", buf) && wn <= 7) ||
+                  (kb_cue_match(b, "50_self_research_loop_cue1607", buf) && wn <= 7) ||
+                  (kb_cue_match(b, "50_self_research_loop_cue1608", buf) && wn <= 7);
     if (mod_cap) {
         if (kb_cue_match(b, "50_self_research_loop_chain1610", buf))
             return 0;
@@ -1637,10 +1637,10 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
             out, out_size);
         return 1;
     }
-    int entities_q = (cue(buf, "what names have i") && wn <= 6) ||
-                     (cue(buf, "who have i mentioned") && wn <= 5) ||
-                     (cue(buf, "who have i talked about") && wn <= 7) ||
-                     (cue(buf, "quali nomi ho menzionato") && wn <= 5);
+    int entities_q = (kb_cue_match(b, "50_self_research_loop_cue1640", buf) && wn <= 6) ||
+                     (kb_cue_match(b, "50_self_research_loop_cue1641", buf) && wn <= 5) ||
+                     (kb_cue_match(b, "50_self_research_loop_cue1642", buf) && wn <= 7) ||
+                     (kb_cue_match(b, "50_self_research_loop_cue1643", buf) && wn <= 5);
     if (entities_q) {
         if (b->entity_count == 0) {
             kb_say(b, "you_haven_t_mentioned_any_names_i_reco", "You haven't mentioned any names I recognized.", out, out_size);

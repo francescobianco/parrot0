@@ -332,8 +332,8 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
     if (!fact) return 0;
 
     /* must be a genuine "what would you conclude / would X still" question */
-    int q = cue(low, "conclude") || cue(low, "still") || cue(low, "concluderesti") ||
-            cue(low, "ancora") || strstr(low, "what would") || strstr(low, "cosa");
+    int q = kb_cue_match(b, "90_repair_robust_abduce_cue335", low) || kb_cue_match(b, "90_repair_robust_abduce_cue335_2", low) || kb_cue_match(b, "90_repair_robust_abduce_cue335_3", low) ||
+            kb_cue_match(b, "90_repair_robust_abduce_cue336", low) || strstr(low, "what would") || strstr(low, "cosa");
     if (!q) return 0;
 
     if (!b->has_last_goal) {
@@ -403,11 +403,11 @@ static int mod_robust(Brain *b, const char *norm, const char *raw,
 
     char low[256];
     lowercase_copy(low, sizeof low, raw);
-    int trig = cue(low, "robust") || cue(low, "fragile") ||
-               cue(low, "load-bearing") || cue(low, "load bearing") ||
-               cue(low, "stress-test") || cue(low, "stress test") ||
-               cue(low, "depend on") || cue(low, "rest on") ||
-               cue(low, "solida") || cue(low, "dipende") || cue(low, "si regge");
+    int trig = kb_cue_match(b, "90_repair_robust_abduce_cue406", low) || kb_cue_match(b, "90_repair_robust_abduce_cue406_2", low) ||
+               kb_cue_match(b, "90_repair_robust_abduce_cue407", low) || kb_cue_match(b, "90_repair_robust_abduce_cue407_2", low) ||
+               kb_cue_match(b, "90_repair_robust_abduce_cue408", low) || kb_cue_match(b, "90_repair_robust_abduce_cue408_2", low) ||
+               kb_cue_match(b, "90_repair_robust_abduce_cue409", low) || kb_cue_match(b, "90_repair_robust_abduce_cue409_2", low) ||
+               kb_cue_match(b, "90_repair_robust_abduce_cue410", low) || kb_cue_match(b, "90_repair_robust_abduce_cue410_2", low) || kb_cue_match(b, "90_repair_robust_abduce_cue410_3", low);
     if (!trig) return 0;
 
     if (!b->has_last_goal) {
@@ -678,16 +678,16 @@ static int mod_calibrate(Brain *b, const char *norm, const char *raw,
 
     /* (2) metacognitive follow-ups. Two intents, recognized by communicative
      * cue, both answered from the last goal's epistemic state. */
-    int why_think = cue(low, "why do you think") || cue(low, "why do you believe") ||
-                    cue(low, "what makes you think") || cue(low, "what makes you say") ||
-                    cue(low, "how certain") || cue(low, "how do you rate") ||
-                    cue(low, "perché lo pensi") || cue(low, "perche lo pensi") ||
-                    cue(low, "perché lo credi") || cue(low, "perche lo credi") ||
-                    cue(low, "quanto sei certo");
-    int change_mind = cue(low, "change your mind") || cue(low, "change my mind") ||
-                      cue(low, "make you reconsider") || cue(low, "would you reconsider") ||
-                      cue(low, "prove you wrong") || cue(low, "what would change") ||
-                      cue(low, "cambiare idea") || cue(low, "farti ricredere");
+    int why_think = kb_cue_match(b, "90_repair_robust_abduce_cue681", low) || kb_cue_match(b, "90_repair_robust_abduce_cue681_2", low) ||
+                    kb_cue_match(b, "90_repair_robust_abduce_cue682", low) || kb_cue_match(b, "90_repair_robust_abduce_cue682_2", low) ||
+                    kb_cue_match(b, "90_repair_robust_abduce_cue683", low) || kb_cue_match(b, "90_repair_robust_abduce_cue683_2", low) ||
+                    kb_cue_match(b, "90_repair_robust_abduce_cue684", low) || kb_cue_match(b, "90_repair_robust_abduce_cue684_2", low) ||
+                    kb_cue_match(b, "90_repair_robust_abduce_cue685", low) || kb_cue_match(b, "90_repair_robust_abduce_cue685_2", low) ||
+                    kb_cue_match(b, "90_repair_robust_abduce_cue686", low);
+    int change_mind = kb_cue_match(b, "90_repair_robust_abduce_cue687", low) || kb_cue_match(b, "90_repair_robust_abduce_cue687_2", low) ||
+                      kb_cue_match(b, "90_repair_robust_abduce_cue688", low) || kb_cue_match(b, "90_repair_robust_abduce_cue688_2", low) ||
+                      kb_cue_match(b, "90_repair_robust_abduce_cue689", low) || kb_cue_match(b, "90_repair_robust_abduce_cue689_2", low) ||
+                      kb_cue_match(b, "90_repair_robust_abduce_cue690", low) || kb_cue_match(b, "90_repair_robust_abduce_cue690_2", low);
     if (!why_think && !change_mind) return 0;
 
     if (!b->has_last_goal) {

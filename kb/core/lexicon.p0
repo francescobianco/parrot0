@@ -954,3 +954,17 @@ enumeration_cue("per esempio").
 enumeration_cue("like").
 enumeration_cue("come").
 machinery(enumeration_cue).
+
+% ── QUANTO VALE UNA PAROLA MOLTIPLICATIVA (gen442) ─────────────────────────
+%
+% Stavano dentro `wp_recipe_multiplier` in 25-wordmath-reasoning.c: sei
+% letterali e tre numeri, in due lingue, invisibili a qualunque query. La
+% superficie e il fattore stanno insieme, perche' separarli avrebbe lasciato il
+% numero nel motore. Un moltiplicatore nuovo e' un fatto.
+machinery(word_multiplier).
+word_multiplier("double", 2).      word_multiplier("twice", 2).
+word_multiplier("doppio", 2).      word_multiplier("il doppio", 2).
+word_multiplier("triple", 3).      word_multiplier("three times", 3).
+word_multiplier("thrice", 3).      word_multiplier("triplo", 3).
+word_multiplier("quadruple", 4).   word_multiplier("four times", 4).
+word_multiplier("quadruplo", 4).

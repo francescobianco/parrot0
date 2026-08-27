@@ -811,7 +811,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    if (cue(norm, "rubber band") && cue(norm, "stretch") &&
+    if (kb_cue_match(b, "30_generation_reading_cue814", norm) && kb_cue_match(b, "30_generation_reading_cue814_2", norm) &&
         (kb_cue_match(b, "30_generation_reading_chain822", norm))) {
         kb_say(b, "it_stretches_longer_while_you_pull_it_", "It stretches longer while you pull it. When you let go, elasticity pulls it back toward its original shape.", out, out_size);
         return 1;
@@ -887,15 +887,15 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * Pattern C: long input with weekday → override day-of-week false match. */
     {
         int is_story_req = (kb_cue_match(b, "30_generation_reading_chain896", norm)) &&
-                           cue(norm, "story");
-        int is_continuation = !cue(norm, "?") && strlen(norm) > 80;
+                           kb_cue_match(b, "30_generation_reading_cue890", norm);
+        int is_continuation = !kb_cue_match(b, "30_generation_reading_cue891", norm) && strlen(norm) > 80;
         /* Q3 fix: long narrative with a weekday is NOT a day-of-week query */
-        int has_weekday = cue(norm, "monday") || cue(norm, "tuesday") ||
-                          cue(norm, "wednesday") || cue(norm, "thursday") ||
-                          cue(norm, "friday") || cue(norm, "saturday") || cue(norm, "sunday");
-        int is_narrative_cont = is_continuation && !cue(norm, "how") && !cue(norm, "what") &&
-                                !cue(norm, "when") && !cue(norm, "where") && !cue(norm, "who") &&
-                                !cue(norm, "why");
+        int has_weekday = kb_cue_match(b, "30_generation_reading_cue893", norm) || kb_cue_match(b, "30_generation_reading_cue893_2", norm) ||
+                          kb_cue_match(b, "30_generation_reading_cue894", norm) || kb_cue_match(b, "30_generation_reading_cue894_2", norm) ||
+                          kb_cue_match(b, "30_generation_reading_cue895", norm) || kb_cue_match(b, "30_generation_reading_cue895_2", norm) || kb_cue_match(b, "30_generation_reading_cue895_3", norm);
+        int is_narrative_cont = is_continuation && !kb_cue_match(b, "30_generation_reading_cue896", norm) && !kb_cue_match(b, "30_generation_reading_cue896_2", norm) &&
+                                !kb_cue_match(b, "30_generation_reading_cue897", norm) && !kb_cue_match(b, "30_generation_reading_cue897_2", norm) && !kb_cue_match(b, "30_generation_reading_cue897_3", norm) &&
+                                !kb_cue_match(b, "30_generation_reading_cue898", norm);
         /* Tight gate: don't claim imperative/instruction turns ("Write a poem",
          * "Continue this sentence", "Explain why", "Count backward", etc.) */
         {
@@ -1093,10 +1093,10 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     if (kb_cue_match(b, "30_generation_reading_chain1101", norm)) {
         if (kb_response(b, "joke_chicken", NULL, out, out_size)) return 1;
     }
-    if (cue(norm, "bear") && (kb_cue_match(b, "30_generation_reading_chain1104", norm))) {
+    if (kb_cue_match(b, "30_generation_reading_cue1096", norm) && (kb_cue_match(b, "30_generation_reading_chain1104", norm))) {
         if (kb_response(b, "joke_bear_teeth", NULL, out, out_size)) return 1;
     }
-    if (cue(norm, "joke") &&
+    if (kb_cue_match(b, "30_generation_reading_cue1099", norm) &&
         (kb_cue_match(b, "30_generation_reading_chain1108", norm))) {
         if (kb_response(b, "joke_short", NULL, out, out_size)) return 1;
     }
@@ -1108,9 +1108,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     /* gen241 (LLMSCORE-check): four-line poem (quatrain). The four lines per theme
      * live in KB as poem4(Concept, "l1 / l2 / l3 / l4"); the C only selects by topic.
      * Checked before the couplet so a "four-line"/"quatrain" request gets four lines. */
-    if (cue(norm, "four-line") || cue(norm, "four line") || cue(norm, "4-line") ||
-        cue(norm, "4 line") || cue(norm, "quatrain") ||
-        (cue(norm, "poem") && (kb_cue_match(b, "30_generation_reading_chain1121", norm)))) {
+    if (kb_cue_match(b, "30_generation_reading_cue1111", norm) || kb_cue_match(b, "30_generation_reading_cue1111_2", norm) || kb_cue_match(b, "30_generation_reading_cue1111_3", norm) ||
+        kb_cue_match(b, "30_generation_reading_cue1112", norm) || kb_cue_match(b, "30_generation_reading_cue1112_2", norm) ||
+        (kb_cue_match(b, "30_generation_reading_cue1113", norm) && (kb_cue_match(b, "30_generation_reading_chain1121", norm)))) {
         char qt[256]; snprintf(qt, sizeof qt, "%s", norm);
         char *qw[64]; size_t qn = split_words(qt, qw, 64);
         for (size_t i = 0; i < qn; i++) {
@@ -1145,12 +1145,12 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
 
     /* gen241: a "what word rhymes with X" riddle is NOT a couplet request; don't let
      * the poem path hijack it. */
-    if (!cue(norm, "rhymes with") && !cue(norm, "word that rhymes") &&
-        !cue(norm, "rhyme with") &&
-        (cue(norm, "couplet") || cue(norm, "short poem") || cue(norm, "rhyming poem") ||
-        cue(norm, "two-line poem") || cue(norm, "two line poem") ||
-        cue(norm, "two-line rhyme") || cue(norm, "two line rhyme") ||
-        cue(norm, "poem about") || cue(norm, "poem on") || cue(norm, "verse about") ||
+    if (!kb_cue_match(b, "30_generation_reading_cue1148", norm) && !kb_cue_match(b, "30_generation_reading_cue1148_2", norm) &&
+        !kb_cue_match(b, "30_generation_reading_cue1149", norm) &&
+        (kb_cue_match(b, "30_generation_reading_cue1150", norm) || kb_cue_match(b, "30_generation_reading_cue1150_2", norm) || kb_cue_match(b, "30_generation_reading_cue1150_3", norm) ||
+        kb_cue_match(b, "30_generation_reading_cue1151", norm) || kb_cue_match(b, "30_generation_reading_cue1151_2", norm) ||
+        kb_cue_match(b, "30_generation_reading_cue1152", norm) || kb_cue_match(b, "30_generation_reading_cue1152_2", norm) ||
+        kb_cue_match(b, "30_generation_reading_cue1153", norm) || kb_cue_match(b, "30_generation_reading_cue1153_2", norm) || kb_cue_match(b, "30_generation_reading_cue1153_3", norm) ||
         ((kb_cue_match(b, "30_generation_reading_chain1162", norm)) &&
          (kb_cue_match(b, "30_generation_reading_chain1163", norm))))) {
         {
@@ -1269,7 +1269,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         if (kb_cue_match(b, "30_generation_reading_chain1284", norm)) {
             int blanks = 0;
             for (const char *p = norm; (p = strstr(p, "___")); p += 3) blanks++;
-            if (blanks >= 2 || cue(norm, "three words") || cue(norm, "3 words")) {
+            if (blanks >= 2 || kb_cue_match(b, "30_generation_reading_cue1272", norm) || kb_cue_match(b, "30_generation_reading_cue1272_2", norm)) {
                 const char *fq[] = { NULL };
                 char fh[8][KB_TERM_LEN];
                 size_t fn = kb_match(b->kb, "fill_three", fq, 1, fh, 8);
@@ -1330,7 +1330,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                          * — number them; keep the narrative leads for "three more
                          * sentences" style requests. Single line either way (the
                          * interviewer channel is line-based, gen252). */
-                        int ways = cue(norm, "ways") || cue(norm, "different");
+                        int ways = kb_cue_match(b, "30_generation_reading_cue1333", norm) || kb_cue_match(b, "30_generation_reading_cue1333_2", norm);
                         static const char *lead[] = { "Then", "Soon", "At last," };
                         char msg[520]; size_t off = 0;
                         size_t lim = tn < wantn ? tn : wantn;
@@ -1416,8 +1416,8 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * verse expects it continued, not walled. Detected by shape, not by any
      * stored phrase; ordinary statements and questions carry function words
      * that fail the gate, so this stays a last-resort poetic reading. */
-    if ((cue(norm, "...") || strcmp(b->last_module, "gen") == 0 ||
-         gen_poetic_fragment(norm)) && !cue(norm, "?")) {
+    if ((kb_cue_match(b, "30_generation_reading_cue1419", norm) || strcmp(b->last_module, "gen") == 0 ||
+         gen_poetic_fragment(norm)) && !kb_cue_match(b, "30_generation_reading_cue1420", norm)) {
         char nb[256]; snprintf(nb, sizeof nb, "%s", norm);
         char *nw2[64]; size_t nn2 = split_words(nb, nw2, 64);
         char picked_scene[KB_TERM_LEN];
@@ -1440,7 +1440,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * one answer from distinct domains. gen240 broadens the trigger ("dinner with
      * any historical figures", "any person from history") and supports a count of
      * 1–3 ("any three" -> 3; "any person/someone" -> 1; default 3). */
-    if (cue(norm, "dinner") &&
+    if (kb_cue_match(b, "30_generation_reading_cue1443", norm) &&
         (kb_cue_match(b, "30_generation_reading_chain1465", norm))) {
         int want = 3;
         if (kb_cue_match(b, "30_generation_reading_chain1468", norm)) want = 3;
@@ -1486,13 +1486,13 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * country, which would you choose and why?" parrot0 has no real desires, but it
      * engages with an honest pick from default_pick(Topic, "…") instead of walling.
      * The dinner case above handles its own richer answer first. */
-    if (cue(norm, "if you could") &&
-        (cue(norm, "would you choose") || cue(norm, "would you pick") ||
-         cue(norm, "would you visit") || cue(norm, "would you go") ||
-         cue(norm, "would you want") || cue(norm, "which would you") ||
-         cue(norm, "what would you") || cue(norm, "where would you") ||
+    if (kb_cue_match(b, "30_generation_reading_cue1489", norm) &&
+        (kb_cue_match(b, "30_generation_reading_cue1490", norm) || kb_cue_match(b, "30_generation_reading_cue1490_2", norm) ||
+         kb_cue_match(b, "30_generation_reading_cue1491", norm) || kb_cue_match(b, "30_generation_reading_cue1491_2", norm) ||
+         kb_cue_match(b, "30_generation_reading_cue1492", norm) || kb_cue_match(b, "30_generation_reading_cue1492_2", norm) ||
+         kb_cue_match(b, "30_generation_reading_cue1493", norm) || kb_cue_match(b, "30_generation_reading_cue1493_2", norm) ||
          /* gen254: "...what would it be?" is the same desire frame */
-         cue(norm, "what would it be") || cue(norm, "which would it be"))) {
+         kb_cue_match(b, "30_generation_reading_cue1495", norm) || kb_cue_match(b, "30_generation_reading_cue1495_2", norm))) {
         char db[256]; snprintf(db, sizeof db, "%s", norm);
         char *dw[64]; size_t dn = split_words(db, dw, 64);
         char topic[64] = "";
@@ -1538,7 +1538,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * {name} slot the target word fills, rotating like any KB reply; the engine
      * composes a real (if simple) sentence, never a fixed C string (PRINCIPLES.md:
      * the surface forms it PRODUCES live in the KB). */
-    if (cue(norm, "sentence") &&
+    if (kb_cue_match(b, "30_generation_reading_cue1541", norm) &&
         (kb_cue_match(b, "30_generation_reading_chain1566", norm))) {
         char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
         char *ww[64]; size_t nn = split_words(tmp, ww, 64);

@@ -447,9 +447,9 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
      * Only the *structural* anchors (a leading "read "/"grep "/"ls" prefix) and the AND
      * logic ("find" + "named") stay in C, since those are shape, not vocabulary. */
     int want_grep = ci_prefix(low,"grep ") || kb_cue_match(b, "piact_grep", low);
-    int want_find = (cue(low,"find") && (kb_cue_match(b, "60_agent_tools_chain441", low))) ||
+    int want_find = (kb_cue_match(b, "60_agent_tools_cue450", low) && (kb_cue_match(b, "60_agent_tools_chain441", low))) ||
                     kb_cue_match(b, "piact_find", low);
-    int want_list = (cue(low,"list") && (cue(low,"file") || strstr(low,"*."))) ||
+    int want_list = (kb_cue_match(b, "60_agent_tools_cue452", low) && (kb_cue_match(b, "60_agent_tools_cue452_2", low) || strstr(low,"*."))) ||
                     ci_prefix(low,"ls ") || ci_eq(low,"ls") ||
                     kb_cue_match(b, "piact_list", low);
     int want_read = ci_prefix(low,"read ") || ci_prefix(low,"cat ") ||
@@ -1976,9 +1976,9 @@ static int mod_toolpolicy(Brain *b, const char *norm, const char *raw,
      * was understood, and differ only about what is permitted. */
     const char *kind = NULL;
     if (ci_prefix(low,"grep ") || kb_cue_match(b, "piact_grep", low))            kind = "search";
-    else if ((cue(low,"find") && (kb_cue_match(b, "60_agent_tools_chain1929", low))) ||
+    else if ((kb_cue_match(b, "60_agent_tools_cue1979", low) && (kb_cue_match(b, "60_agent_tools_chain1929", low))) ||
              kb_cue_match(b, "piact_find", low))                                 kind = "find";
-    else if ((cue(low,"list") && (cue(low,"file") || strstr(low,"*."))) ||
+    else if ((kb_cue_match(b, "60_agent_tools_cue1981", low) && (kb_cue_match(b, "60_agent_tools_cue1981_2", low) || strstr(low,"*."))) ||
              ci_prefix(low,"ls ") || ci_eq(low,"ls") ||
              kb_cue_match(b, "piact_list", low))                                 kind = "list";
     else if (ci_prefix(low,"read ") || ci_prefix(low,"cat ") ||

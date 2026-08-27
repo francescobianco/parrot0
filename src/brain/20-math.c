@@ -1082,8 +1082,8 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
 
     /* gen252: classic letter riddles contain numbers but are not arithmetic.
      * Catch this before expression folding turns "twice ... thousand" into math. */
-    if (b && b->kb && cue(norm, "once in a minute") &&
-        cue(norm, "twice in a moment") && cue(norm, "thousand years")) {
+    if (b && b->kb && kb_cue_match(b, "20_math_cue1085", norm) &&
+        kb_cue_match(b, "20_math_cue1086", norm) && kb_cue_match(b, "20_math_cue1086_2", norm)) {
         if (kb_response(b, "riddle_letter_m", NULL, out, out_size)) return 1;
     }
 
@@ -1386,7 +1386,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
          * whose real square root does not exist — that is cat.5, not cat.4). */
         size_t ri = find_token(cw, cnw, "root");
         if (ri == cnw) ri = find_token(cw, cnw, "radice");
-        if (ri != cnw && !cue(norm, "negative") && !cue(norm, "negativo")) {
+        if (ri != cnw && !kb_cue_match(b, "20_math_cue1389", norm) && !kb_cue_match(b, "20_math_cue1389_2", norm)) {
             for (size_t i = ri + 1; i < cnw; i++) {
                 double v; if (parse_value(cw[i], &v)) {
                     if (v >= 0) { arith_answer(arith_sqrt(v), out, out_size); return 1; }
@@ -1429,7 +1429,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         double nums[16]; size_t n = collect_numbers(cw, cnw, nums, 16);
         if (n >= 1) {
             double s = 0; for (size_t i = 0; i < n; i++) s += nums[i];
-            int avg = cue(norm, "average") || cue(norm, "mean") || cue(norm, "media");
+            int avg = kb_cue_match(b, "20_math_cue1432", norm) || kb_cue_match(b, "20_math_cue1432_2", norm) || kb_cue_match(b, "20_math_cue1432_3", norm);
             arith_answer(avg ? s / (double)n : s, out, out_size);
             return 1;
         }
@@ -1892,17 +1892,17 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)raw; (void)b;
     const char *buf = norm;
-    int has_cue = cue(buf, "count to") || cue(buf, "count up to") ||
-                  cue(buf, "count from") || cue(buf, "count backwards") ||
-                  cue(buf, "count backward") || cue(buf, "count down") ||
-                  cue(buf, "counting to") || cue(buf, "conta fino") ||
-                  cue(buf, "conta da") || cue(buf, "conta fino a");
+    int has_cue = kb_cue_match(b, "20_math_cue1895", buf) || kb_cue_match(b, "20_math_cue1895_2", buf) ||
+                  kb_cue_match(b, "20_math_cue1896", buf) || kb_cue_match(b, "20_math_cue1896_2", buf) ||
+                  kb_cue_match(b, "20_math_cue1897", buf) || kb_cue_match(b, "20_math_cue1897_2", buf) ||
+                  kb_cue_match(b, "20_math_cue1898", buf) || kb_cue_match(b, "20_math_cue1898_2", buf) ||
+                  kb_cue_match(b, "20_math_cue1899", buf) || kb_cue_match(b, "20_math_cue1899_2", buf);
     if (!has_cue) return 0;
     if (kb_cue_match(b, "20_math_chain1903", buf))
         return 0; /* let mod_sequence infer from the provided terms */
-    int descending = cue(buf, "count down") || cue(buf, "backwards") ||
-                     cue(buf, "backward") || cue(buf, "all'indietro") ||
-                     cue(buf, "all indietro");
+    int descending = kb_cue_match(b, "20_math_cue1903", buf) || kb_cue_match(b, "20_math_cue1903_2", buf) ||
+                     kb_cue_match(b, "20_math_cue1904", buf) || kb_cue_match(b, "20_math_cue1904_2", buf) ||
+                     kb_cue_match(b, "20_math_cue1905", buf);
 
     char tmp[512]; snprintf(tmp, sizeof tmp, "%s", buf);
     long nums[8]; size_t nn = 0; char *save = NULL;
@@ -1952,8 +1952,8 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
             out, out_size);
         return 1;
     }
-    int only_odd = cue(buf, "only the odd") || cue(buf, "only odd") || cue(buf, "odd numbers");
-    int only_even = cue(buf, "only the even") || cue(buf, "only even") || cue(buf, "even numbers");
+    int only_odd = kb_cue_match(b, "20_math_cue1955", buf) || kb_cue_match(b, "20_math_cue1955_2", buf) || kb_cue_match(b, "20_math_cue1955_3", buf);
+    int only_even = kb_cue_match(b, "20_math_cue1956", buf) || kb_cue_match(b, "20_math_cue1956_2", buf) || kb_cue_match(b, "20_math_cue1956_3", buf);
 
     /* gen241 (LLMSCORE-check): a SKIP filter. "skip any number that ends in 5" /
      * "skip multiples of 3" -> drop matching terms while counting. The digit/divisor
@@ -1982,7 +1982,7 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
      * dropping them (distinct from the skip filter above). */
     char repl[32] = "";
     int repl_mult = 0;
-    if ((kb_cue_match(b, "20_math_chain1990", buf)) && cue(buf, "say")) {
+    if ((kb_cue_match(b, "20_math_chain1990", buf)) && kb_cue_match(b, "20_math_cue1985", buf)) {
         char rb[512]; snprintf(rb, sizeof rb, "%s", buf);
         char *rw[64]; size_t rnw = split_words(rb, rw, 64);
         for (size_t i = 0; i < rnw; i++) {
@@ -2108,11 +2108,11 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
      * COUNTED pick. The members live in the KB (category_member/2); the C reads the
      * count word and the category noun and returns that many distinct members. KB-first:
      * add a category_member fact and the capability extends for free. */
-    if (cue(buf, "name ") || cue(buf, "list ") || cue(buf, "give me ") ||
-        cue(buf, "tell me ") ||
+    if (kb_cue_match(b, "20_math_cue2111", buf) || kb_cue_match(b, "20_math_cue2111_2", buf) || kb_cue_match(b, "20_math_cue2111_3", buf) ||
+        kb_cue_match(b, "20_math_cue2112", buf) ||
         /* gen254: the interrogative form of the same intent — "WHAT ARE the
          * three primary colors?" is the counted pick phrased as a question. */
-        cue(buf, "what are") || cue(buf, "which are")) {
+        kb_cue_match(b, "20_math_cue2115", buf) || kb_cue_match(b, "20_math_cue2115_2", buf)) {
         if (kb_cue_match(b, "20_math_chain2121", buf))
             return 0;
         static const struct { const char *w; int n; } nums[] = {
@@ -2146,10 +2146,10 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
 
     }
 
-    int has_name = cue(buf, "name a") || cue(buf, "name an") ||
-                   cue(buf, "name any") || cue(buf, "name me a") ||
-                   cue(buf, "give me a") || cue(buf, "tell me a") ||
-                   cue(buf, "can you name");
+    int has_name = kb_cue_match(b, "20_math_cue2149", buf) || kb_cue_match(b, "20_math_cue2149_2", buf) ||
+                   kb_cue_match(b, "20_math_cue2150", buf) || kb_cue_match(b, "20_math_cue2150_2", buf) ||
+                   kb_cue_match(b, "20_math_cue2151", buf) || kb_cue_match(b, "20_math_cue2151_2", buf) ||
+                   kb_cue_match(b, "20_math_cue2152", buf);
     if (!has_name) return 0;
     /* gen240: a relational constraint ("name a country that BORDERS X") is beyond
      * a plain category pick — defer to the borders handler downstream rather than
@@ -2296,7 +2296,7 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
      * a list size ("five words"), and count vs list mode ("how many"). */
     char nb[512]; snprintf(nb, sizeof nb, "%s", norm);
     char *w[80]; size_t nw = split_words(nb, w, 80);
-    int want_count = cue(norm, "how many") || cue(norm, "how much");
+    int want_count = kb_cue_match(b, "20_math_cue2299", norm) || kb_cue_match(b, "20_math_cue2299_2", norm);
     int list_n = 0, len_filter = 0;
     for (size_t i = 0; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
@@ -2947,7 +2947,7 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
      * operations are structural ("remove first/last letter", "add letter X to
      * end/start"), so held-out words transfer. */
     if ((kb_cue_match(b, "20_math_chain2959", buf)) &&
-        cue(buf, "reverse") && cue(buf, "alphabet")) {
+        kb_cue_match(b, "20_math_cue2950", buf) && kb_cue_match(b, "20_math_cue2950_2", buf)) {
         char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
         char *w[64]; size_t nw = split_words(tmp, w, 64);
         char word[128] = "";
@@ -2975,9 +2975,9 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    if ((cue(buf, "take the word") || cue(buf, "the word") || cue(buf, "word \"")) &&
+    if ((kb_cue_match(b, "20_math_cue2978", buf) || kb_cue_match(b, "20_math_cue2978_2", buf) || cue(buf, "word \"")) &&
         (kb_cue_match(b, "20_math_chain2989", buf)) &&
-        cue(buf, "letter") && cue(buf, "add")) {
+        kb_cue_match(b, "20_math_cue2980", buf) && kb_cue_match(b, "20_math_cue2980_2", buf)) {
         char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
         char *w[64]; size_t nw = split_words(tmp, w, 64);
         char word[128] = "", add[8] = "";
