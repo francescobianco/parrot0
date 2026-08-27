@@ -1145,6 +1145,12 @@ ablazione della testa. Questo è un gate di usabilità, distinto dai campioni
 strutturali; l'audit completo su chat e LLMSCORE resta obbligatorio prima della
 chiusura del piano.
 
+L'audit ha poi isolato un secondo muro reale: «che cosa possiamo fare insieme?».
+Non è stato aggiunto un ramo C: la superficie è stata registrata come atto
+pragmatico `collaboration_offer` in `kb/core/pragmatics.p0`, con cue EN/IT e
+template bilingue. Il dialogo ora propone domanda, memoria e piano nella lingua
+del turno; la stessa forma resta insegnabile e revocabile come gli altri atti.
+
 Il secondo passaggio ha eseguito `tests/basicchat.sh` sulla KB reale: la
 copertura dei concetti matematici è salita da 65% a 88% e quella causale da 50%
 a 75% dopo l'aggiunta del nucleo semantico. Restano muri osservabili su

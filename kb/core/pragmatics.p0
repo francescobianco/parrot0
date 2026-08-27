@@ -46,6 +46,16 @@ response_template(indirect_request, it, "La leggo come una richiesta, non una do
 % ---------------------------------------------------------------------------
 pragma_act(environment_hint).
 
+% Act 3: COLLABORATION OFFER — an open question about what interlocutors can
+% do together is a conversational move, not an unknown factual entity.
+pragma_act(collaboration_offer).
+intent_cue(collaboration_offer, "what can we do together").
+intent_cue(collaboration_offer, "che cosa possiamo fare insieme").
+intent_cue(collaboration_offer, "cosa possiamo fare insieme").
+intent_cue(collaboration_offer, "possiamo parlare").
+response_template(collaboration_offer, "We can explore a question, remember a fact, or build a plan together. What should we start with?").
+response_template(collaboration_offer, it, "Possiamo esplorare una domanda, ricordare un fatto o costruire un piano insieme. Da dove partiamo?").
+
 intent_cue(environment_hint, "cold in here").
 intent_cue(environment_hint, "hot in here").
 intent_cue(environment_hint, "warm in here").
