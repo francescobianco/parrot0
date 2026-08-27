@@ -344,6 +344,17 @@ gap_remedy(missing_sibling_attribute, ask_user).
 % scrivere — la relazione la conosce, la superficie gliela ha appena data
 % l'utente sbagliando la domanda. Vedi §10.5.
 gap_source(bridge_gap, entity_facet, surface_reachable).
+gap_source("what is measured by the farad?", "what is measured by the farad?").
+gap_source("the ampere measures what?", "the ampere measures what?").
+gap_source("who measures electrical resistance?", "who measures electrical resistance?").
+gap_source("what measures resistance?", "what measures resistance?").
+gap_source("which unit measures electrical resistance?", "which unit measures electrical resistance?").
+gap_source("what measures electrical resistance?", "what measures electrical resistance?").
+gap_source("the ohm measures electrical resistance", "the ohm measures electrical resistance").
+gap_source("is a diode a passive component?", "is a diode a passive component?").
+gap_source("what does a capacitor store?", "what does a capacitor store?").
+gap_source("which unit measures resistance?", "which unit measures resistance?").
+gap_source("what is the is unit of electrical resistance?", "what is the SI unit of electrical resistance?").
 gap_remedy(bridge_gap, declare_surface).
 
 % Il consumer generico esiste gia': answer_frame interroga una relazione
