@@ -15,6 +15,14 @@ domani, senza ricompilare?"* Se la risposta è no, quella conoscenza è nel post
 sbagliato. La forma più esigente della prova è dirglielo **parlando** e vedere
 che cambia comportamento subito — vedi `tests/p0t/language/taught_lexicon.p0t`.
 
+**⛔ Anti-barare per l'apprendimento via prompt:** “parlando” significa lingua
+naturale, non Prolog/P0 o una API serializzata nel testo. Se il teacher deve
+conoscere nomi di predicati interni, arità, tuple, `!assert`, MCP o la forma di
+`kb.assert`, non ha insegnato: ha scritto nella KB attraverso un altro
+trasporto. Quel risultato vale zero. Il controllo è: *un esperto del dominio
+che ignora lo schema interno saprebbe formulare la lezione?* Se no, ci si ferma
+e si amplia la meta-comprensione; non si espone la rappresentazione.
+
 **Il criterio di evoluzione (F., dall'esperimento con l'LLM):** una proposta è
 nella direzione giusta se **aumenta ciò che parrot0 vede e la sua capacità di
 decidere** fra le viste; è nella direzione sbagliata se **riduce ciò che un suo

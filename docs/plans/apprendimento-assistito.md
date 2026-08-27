@@ -1,5 +1,24 @@
 # Apprendimento assistito
 
+> ## ⛔ Vincolo zero: la chat non è una API travestita
+>
+> Una lezione è valida soltanto se il teacher la esprime in **lingua naturale**
+> e parrot0 deve ricostruirne forma, ruoli e conseguenze. È vietato far passare
+> dalla chat Prolog/P0, nomi di predicati interni, arità, tuple, `!assert`, MCP o
+> equivalenti testuali di `kb.assert`. Cambiare il trasporto da API a prompt non
+> è comprensione.
+>
+> **Test non negoziabile:** un teacher competente nel dominio ma ignaro dello
+> schema interno della KB saprebbe formulare la lezione? Se deve conoscere
+> `relation_noun/2`, `answer_frame/2`, `topic_action_surface/3`, parentesi o
+> nomi simili, l'esperimento è invalido. Il risultato vale zero anche quando il
+> comportamento successivo è corretto.
+>
+> Quando la lingua naturale non basta, non si abbassa il livello esponendo la
+> rappresentazione: ci si ferma sul confine osservato e si amplia la
+> meta-comprensione. Qualunque run che violi questo vincolo resta soltanto una
+> diagnosi del gap e non può essere riportata come apprendimento riuscito.
+
 **Stato:** piano attivo, 2026-08-27  
 **Missione:** fare della conversazione il canale primario con cui parrot0 amplia
 non soltanto i fatti, ma le forme con cui comprende, compone, interroga e
