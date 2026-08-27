@@ -903,14 +903,14 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             const char *s = norm; while (*s == ' ') s++;
             while (s[fl] && s[fl] != ' ' && fl + 1 < sizeof fw) { fw[fl] = s[fl]; fl++; }
             fw[fl] = '\0';
-            if (!strcmp(fw, "write") || !strcmp(fw, "continue") ||
-                !strcmp(fw, "explain") || !strcmp(fw, "count") ||
-                !strcmp(fw, "name") || !strcmp(fw, "give") || !strcmp(fw, "list") ||
-                !strcmp(fw, "describe") || !strcmp(fw, "what") || !strcmp(fw, "how") ||
-                !strcmp(fw, "why") || !strcmp(fw, "when") || !strcmp(fw, "where") ||
-                !strcmp(fw, "who") || !strcmp(fw, "which") ||
-                !strcmp(fw, "you're") || !strcmp(fw, "youre") ||
-                !strcmp(fw, "if") || !strcmp(fw, "is") || !strcmp(fw, "are"))
+            if (lex_class_member(b, "30_generation_reading_lex906", fw) || lex_class_member(b, "30_generation_reading_lex906_2", fw) ||
+                lex_class_member(b, "30_generation_reading_lex907", fw) || lex_class_member(b, "30_generation_reading_lex907_2", fw) ||
+                lex_class_member(b, "30_generation_reading_lex908", fw) || lex_class_member(b, "30_generation_reading_lex908_2", fw) || lex_class_member(b, "30_generation_reading_lex908_3", fw) ||
+                lex_class_member(b, "30_generation_reading_lex909", fw) || lex_class_member(b, "30_generation_reading_lex909_2", fw) || lex_class_member(b, "30_generation_reading_lex909_3", fw) ||
+                lex_class_member(b, "30_generation_reading_lex910", fw) || lex_class_member(b, "30_generation_reading_lex910_2", fw) || lex_class_member(b, "30_generation_reading_lex910_3", fw) ||
+                lex_class_member(b, "30_generation_reading_lex911", fw) || lex_class_member(b, "30_generation_reading_lex911_2", fw) ||
+                lex_class_member(b, "30_generation_reading_lex912", fw) || lex_class_member(b, "30_generation_reading_lex912_2", fw) ||
+                lex_class_member(b, "30_generation_reading_lex913", fw) || lex_class_member(b, "30_generation_reading_lex913_2", fw) || lex_class_member(b, "30_generation_reading_lex913_3", fw))
                 is_narrative_cont = 0;
             /* gen337: the opener class grows in the KB (imperative_opener/1,
              * lexicon.p0) — "execute the kb-first plan in <path>" is a command
@@ -937,23 +937,23 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             /* Extract slots: try "about a/an [adj] [obj] that [action]" */
             for (size_t i = 0; i + 4 < sn; i++) {
                 char *t = strip_edge_punct(sw[i]);
-                if (!strcmp(t, "about") && i + 1 < sn) {
+                if (lex_class_member(b, "30_generation_reading_lex940", t) && i + 1 < sn) {
                     char *art = strip_edge_punct(sw[i + 1]);
-                    if (!strcmp(art, "a") || !strcmp(art, "an")) {
+                    if (lex_class_member(b, "30_generation_reading_lex942", art) || lex_class_member(b, "30_generation_reading_lex942_2", art)) {
                         size_t j = i + 2;
                         char *w1 = strip_edge_punct(sw[j]);
                         char *w2 = (j + 1 < sn) ? strip_edge_punct(sw[j + 1]) : NULL;
                         char *w3 = (j + 2 < sn) ? strip_edge_punct(sw[j + 2]) : NULL;
-                        if (w2 && w3 && !strcmp(w2, "that")) {
+                        if (w2 && w3 && lex_class_member(b, "30_generation_reading_lex947", w2)) {
                             /* "a [obj] that [action]" — w1 is object */
                             snprintf(obj, sizeof obj, "%s", w1);
                             snprintf(adj, sizeof adj, "%s", w1);
-                        } else if (w3 && !strcmp(w3, "that")) {
+                        } else if (w3 && lex_class_member(b, "30_generation_reading_lex951", w3)) {
                             /* "a [adj] [obj] that [action]" */
                             snprintf(adj, sizeof adj, "%s", w1);
                             snprintf(obj, sizeof obj, "%s", w2);
                             j++;
-                        } else if (w2 && !strcmp(w2, "that")) {
+                        } else if (w2 && lex_class_member(b, "30_generation_reading_lex956", w2)) {
                             snprintf(obj, sizeof obj, "%s", w1);
                             snprintf(adj, sizeof adj, "%s", w1);
                         }
@@ -987,12 +987,12 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                     size_t tl = strlen(t);
                     if (tl >= 2 && isupper((unsigned char)t[0]) && islower((unsigned char)t[1])) {
                         /* Skip weekdays and common words */
-                        if (!strcmp(t, "Monday") || !strcmp(t, "Tuesday") ||
-                            !strcmp(t, "Wednesday") || !strcmp(t, "Thursday") ||
-                            !strcmp(t, "Friday") || !strcmp(t, "Saturday") || !strcmp(t, "Sunday") ||
-                            !strcmp(t, "The") || !strcmp(t, "He") || !strcmp(t, "She") ||
-                            !strcmp(t, "It") || !strcmp(t, "By") || !strcmp(t, "At") ||
-                            !strcmp(t, "His") || !strcmp(t, "Her"))
+                        if (lex_class_member(b, "30_generation_reading_lex990", t) || lex_class_member(b, "30_generation_reading_lex990_2", t) ||
+                            lex_class_member(b, "30_generation_reading_lex991", t) || lex_class_member(b, "30_generation_reading_lex991_2", t) ||
+                            lex_class_member(b, "30_generation_reading_lex992", t) || lex_class_member(b, "30_generation_reading_lex992_2", t) || lex_class_member(b, "30_generation_reading_lex992_3", t) ||
+                            lex_class_member(b, "30_generation_reading_lex993", t) || lex_class_member(b, "30_generation_reading_lex993_2", t) || lex_class_member(b, "30_generation_reading_lex993_3", t) ||
+                            lex_class_member(b, "30_generation_reading_lex994", t) || lex_class_member(b, "30_generation_reading_lex994_2", t) || lex_class_member(b, "30_generation_reading_lex994_3", t) ||
+                            lex_class_member(b, "30_generation_reading_lex995", t) || lex_class_member(b, "30_generation_reading_lex995_2", t))
                             continue;
                         if (!subj[0]) snprintf(subj, sizeof subj, "%s", t);
                         else if (!other_n[0] && strcmp(t, subj))
@@ -1042,18 +1042,18 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                         char slot[32];
                         snprintf(slot, sizeof slot, "%.*s", (int)sl, p + 1);
                         const char *val = subj;  /* default to subject */
-                        if (!strcmp(slot, "subject")) val = subj_lower;
-                        else if (!strcmp(slot, "Subject")) val = subj;
-                        else if (!strcmp(slot, "object")) val = obj;
-                        else if (!strcmp(slot, "adjective")) val = adj;
-                        else if (!strcmp(slot, "action")) val = act;
-                        else if (!strcmp(slot, "place")) val = place;
-                        else if (!strcmp(slot, "element")) val = elem;
-                        else if (!strcmp(slot, "other")) val = other_n;
+                        if (lex_class_member(b, "30_generation_reading_lex1045", slot)) val = subj_lower;
+                        else if (lex_class_member(b, "30_generation_reading_lex1046", slot)) val = subj;
+                        else if (lex_class_member(b, "30_generation_reading_lex1047", slot)) val = obj;
+                        else if (lex_class_member(b, "30_generation_reading_lex1048", slot)) val = adj;
+                        else if (lex_class_member(b, "30_generation_reading_lex1049", slot)) val = act;
+                        else if (lex_class_member(b, "30_generation_reading_lex1050", slot)) val = place;
+                        else if (lex_class_member(b, "30_generation_reading_lex1051", slot)) val = elem;
+                        else if (lex_class_member(b, "30_generation_reading_lex1052", slot)) val = other_n;
                         else if (!strcmp(slot, "other_object")) val = other_n;
-                        else if (!strcmp(slot, "verb")) val = act;
-                        else if (!strcmp(slot, "pronoun")) val = pron;
-                        else if (!strcmp(slot, "Pronoun")) val = Pron;
+                        else if (lex_class_member(b, "30_generation_reading_lex1054", slot)) val = act;
+                        else if (lex_class_member(b, "30_generation_reading_lex1055", slot)) val = pron;
+                        else if (lex_class_member(b, "30_generation_reading_lex1056", slot)) val = Pron;
 
                         size_t vl = strlen(val);
                         if (lo + vl < sizeof line) {
@@ -1236,7 +1236,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             int has_is = 0;
             const char *rest[6]; size_t nr = 0;
             for (size_t i = 0; i < rn; i++) {
-                if (strcmp(tok[i], "is") == 0 || strcmp(tok[i], "are") == 0) { has_is = 1; continue; }
+                if (lex_class_member(b, "30_generation_reading_lex1239", tok[i]) || lex_class_member(b, "30_generation_reading_lex1239_2", tok[i])) { has_is = 1; continue; }
                 if (!art && is_article(b, tok[i])) { art = tok[i]; continue; }
                 rest[nr++] = tok[i];
             }
@@ -1500,7 +1500,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             if (!strcmp(strip_edge_punct(dw[i]), "any")) {
                 size_t j = i + 1;
                 while (j < dn) { char *t = strip_edge_punct(dw[j]);
-                    if (!strcmp(t,"other")||!strcmp(t,"single")||!strcmp(t,"one")) j++; else break; }
+                    if (lex_class_member(b, "30_generation_reading_lex1503", t)||lex_class_member(b, "30_generation_reading_lex1503_2", t)||lex_class_member(b, "30_generation_reading_lex1503_3", t)) j++; else break; }
                 if (j < dn) { snprintf(topic, sizeof topic, "%s", strip_edge_punct(dw[j]));
                     size_t tl = strlen(topic); if (tl>1 && topic[tl-1]=='s') topic[tl-1]='\0'; }
                 break;
@@ -1527,8 +1527,8 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    if (nw == 2 && strcmp(w[0], "say") == 0) {
-        if (strcmp(w[1], "something") == 0) return 0; /* companion cue */
+    if (nw == 2 && lex_class_member(b, "30_generation_reading_lex1530", w[0])) {
+        if (lex_class_member(b, "30_generation_reading_lex1531", w[1])) return 0; /* companion cue */
         generate_from(b, w[1], out, out_size);
         return 1;
     }
@@ -1547,9 +1547,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
          * a sentence"), so take the token AFTER the marker, not the last token. */
         const char *target = NULL;
         for (size_t i = 0; i + 1 < nn; i++) {
-            if (!strcmp(ww[i],"word")  || !strcmp(ww[i],"parola") ||
-                !strcmp(ww[i],"with")  || !strcmp(ww[i],"uses")   ||
-                !strcmp(ww[i],"using") || !strcmp(ww[i],"contains")) {
+            if (lex_class_member(b, "30_generation_reading_lex1550", ww[i])  || lex_class_member(b, "30_generation_reading_lex1550_2", ww[i]) ||
+                lex_class_member(b, "30_generation_reading_lex1551", ww[i])  || lex_class_member(b, "30_generation_reading_lex1551_2", ww[i])   ||
+                lex_class_member(b, "30_generation_reading_lex1552", ww[i]) || lex_class_member(b, "30_generation_reading_lex1552_2", ww[i])) {
                 char *t = strip_edge_punct(ww[i + 1]);
                 if (strlen(t) >= 2 && isalpha((unsigned char)t[0]) &&
                     strcmp(t,"the") && strcmp(t,"word") && strcmp(t,"la")) {
@@ -1565,9 +1565,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * "set trigram weight to N" / "set bigram weight to N" updates the
      * weight(kind, N) fact next_word_ctx reads, so generation behaviour is
      * steered by editable KB knowledge, not hardcoded coefficients (D-prop1). */
-    if (nw == 5 && strcmp(w[0], "set") == 0 && strcmp(w[2], "weight") == 0 &&
-        strcmp(w[3], "to") == 0 &&
-        (strcmp(w[1], "trigram") == 0 || strcmp(w[1], "bigram") == 0)) {
+    if (nw == 5 && lex_class_member(b, "30_generation_reading_lex1568", w[0]) && lex_class_member(b, "30_generation_reading_lex1568_2", w[2]) &&
+        lex_class_member(b, "30_generation_reading_lex1569", w[3]) &&
+        (lex_class_member(b, "30_generation_reading_lex1570", w[1]) || lex_class_member(b, "30_generation_reading_lex1570_2", w[1]))) {
         double v;
         if (parse_num(w[4], &v)) {
             const char *kp[] = { w[1], NULL };
@@ -1591,7 +1591,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * every class x is *provably* a member of — including beliefs reached only
      * through rules, not just stored facts. Reasoning turned back into language,
      * and grounded in real KB state rather than a canned phrase. */
-    if (nw == 2 && strcmp(w[0], "describe") == 0) {
+    if (nw == 2 && lex_class_member(b, "30_generation_reading_lex1594", w[0])) {
         const char *x = w[1];
         char preds[512][KB_TERM_LEN];
         size_t k = kb_unary_predicates_for(b->kb, x, preds, 512);
@@ -2043,8 +2043,8 @@ static int bench_dispatch(Brain *b, const char *raw, const char *low,
         slice_between(low, low, rlen, "premise:", "hypothesis:", prem, sizeof prem);
         slice_between(low, low, rlen, "hypothesis:", "answer", hyp, sizeof hyp);
         int ov = overlap_pct(b, hyp, prem);
-        if (strstr(low, "neutral")) { /* CB lists neutral; RTE does not */
-            int neg = strstr(hyp, " not ") || strstr(hyp, "n't") ||
+        if (kb_cue_match(b, "30_generation_reading_lex2046", low)) { /* CB lists neutral; RTE does not */
+            int neg = strstr(hyp, " not ") ||kb_cue_match(b, "30_generation_reading_lex2047", hyp) ||
                       strstr(hyp, " never ") || strstr(prem, " never ");
             if (ov >= 60) put("entailment", out, out_size);
             else if (neg) put("contradiction", out, out_size);
@@ -2147,9 +2147,9 @@ static int bench_dispatch(Brain *b, const char *raw, const char *low,
 fallback:
     /* Any bench prompt that matched no specific handler still gets a VALID
      * default from its answer-format hint, so no example is ever invalid. */
-    if (strstr(low, "yes or no")) put("no", out, out_size);
+    if (kb_cue_match(b, "30_generation_reading_lex2150", low)) put("no", out, out_size);
     else if (strstr(low, "1 or 2")) put("1", out, out_size);
-    else if (strstr(low, "entailment")) put("entailment", out, out_size);
+    else if (kb_cue_match(b, "30_generation_reading_lex2152", low)) put("entailment", out, out_size);
     else put("nothing", out, out_size);
     return 1;
 }
@@ -2158,7 +2158,7 @@ static int mod_bench(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     if (!b) return 0;
     /* cheap pre-filter: every bench prompt opens with "SuperGLUE <task>." */
-    if (!strstr(norm, "superglue")) return 0;
+    if (!kb_cue_match(b, "30_generation_reading_lex2161", norm)) return 0;
 
     /* Lowercase the WHOLE prompt (raw can far exceed norm's 255 cap and the
      * 4096 a stack buffer allowed — long passages pushed the question/answer
@@ -2199,8 +2199,8 @@ static int mod_coref(Brain *b, const char *norm, const char *raw,
 
     char *w[8];
     size_t nw = split_words(buf, w, 8);
-    if (nw != 5 || strcmp(w[0], "does") != 0 || strcmp(w[2], "refer") != 0 ||
-        strcmp(w[3], "to") != 0)
+    if (nw != 5 || !lex_class_member(b, "30_generation_reading_lex2202", w[0]) || !lex_class_member(b, "30_generation_reading_lex2202_2", w[2]) ||
+        !lex_class_member(b, "30_generation_reading_lex2203", w[3]))
         return 0;
 
     const char *a = w[1], *target = w[4];

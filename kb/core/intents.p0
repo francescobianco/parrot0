@@ -3929,3 +3929,101 @@ intent_cue(70_social_pragma_cue1026_3, ";").
 intent_cue(70_social_pragma_cue1027, "==").
 intent_cue(70_social_pragma_cue1027_2, "<html").
 intent_cue(70_social_pragma_cue1027_3, "select * from").
+
+%% Sottostringhe che stavano in `strstr`: stessa storia, ma la semantica e'
+%% quella dei cue (una frase dentro il turno), quindi vivono come intent_cue.
+
+intent_cue(10_memory_knowledge_lex2544, "who").
+intent_cue(10_memory_knowledge_lex9294, "do ").
+intent_cue(10_memory_knowledge_lex9294_2, "does ").
+intent_cue(10_memory_knowledge_lex9294_3, "are ").
+intent_cue(10_memory_knowledge_lex9295, "is ").
+intent_cue(10_memory_knowledge_lex9295_2, "can ").
+intent_cue(10_memory_knowledge_lex9297, "some").
+intent_cue(10_memory_knowledge_lex9332, "some").
+intent_cue(10_memory_knowledge_lex9332_2, "all").
+intent_cue(10_memory_knowledge_lex9523, "who ").
+intent_cue(10_memory_knowledge_lex10242, "premise").
+intent_cue(10_memory_knowledge_lex10242_2, "hypothesis").
+intent_cue(10_memory_knowledge_lex10243, "suppose").
+intent_cue(10_memory_knowledge_lex10243_2, "entail").
+intent_cue(10_memory_knowledge_lex10418, "complete").
+intent_cue(10_memory_knowledge_lex10418_2, "continue").
+intent_cue(10_memory_knowledge_lex10427, "how ").
+intent_cue(10_memory_knowledge_lex10438, "sky").
+intent_cue(10_memory_knowledge_lex10439, "night").
+intent_cue(10_memory_knowledge_lex10439_2, "dark").
+intent_cue(10_memory_knowledge_lex10450, "sky").
+intent_cue(10_memory_knowledge_lex10451, "sunset").
+intent_cue(10_memory_knowledge_lex10451_2, "orange").
+intent_cue(10_memory_knowledge_lex10451_3, "red").
+intent_cue(10_memory_knowledge_lex10469, "sky").
+intent_cue(10_memory_knowledge_lex10470, "night").
+intent_cue(10_memory_knowledge_lex10470_2, "dark").
+intent_cue(10_memory_knowledge_lex10587, "happens to").
+intent_cue(10_memory_knowledge_lex10588, "when ").
+intent_cue(10_memory_knowledge_lex11347, "planet").
+intent_cue(30_generation_reading_lex2046, "neutral").
+intent_cue(30_generation_reading_lex2047, "n't").
+intent_cue(30_generation_reading_lex2150, "yes or no").
+intent_cue(30_generation_reading_lex2152, "entailment").
+intent_cue(30_generation_reading_lex2161, "superglue").
+intent_cue(40_meta_reflection_lex977, "year").
+intent_cue(50_self_research_loop_lex943, "cos").
+intent_cue(50_self_research_loop_lex943_2, "cosa").
+intent_cue(50_self_research_loop_lex943_3, "parlami").
+intent_cue(50_self_research_loop_lex944, "chi ").
+intent_cue(50_self_research_loop_lex944_2, "impara").
+intent_cue(50_self_research_loop_lex945, "studia").
+intent_cue(50_self_research_loop_lex945_2, "informati").
+intent_cue(50_self_research_loop_lex946, "documentati").
+intent_cue(50_self_research_loop_lex946_2, "leggi").
+intent_cue(50_self_research_loop_lex947, "estrai").
+intent_cue(50_self_research_loop_lex1016, "read the page").
+intent_cue(50_self_research_loop_lex1016_2, "extract facts").
+intent_cue(50_self_research_loop_lex1017, "read everything").
+intent_cue(50_self_research_loop_lex1018, "leggi la pagina").
+intent_cue(50_self_research_loop_lex1019, "estrai i fatti").
+intent_cue(65_induce_verify_shell_lex266, "fit").
+intent_cue(65_induce_verify_shell_lex266_2, "consistent").
+intent_cue(65_induce_verify_shell_lex266_3, "refute").
+intent_cue(65_induce_verify_shell_lex266_4, "hold").
+intent_cue(65_induce_verify_shell_lex267, "coerente").
+intent_cue(65_induce_verify_shell_lex267_2, "rispetta").
+intent_cue(80_code_lex1553, "what is a ").
+intent_cue(80_code_lex1554, "in C").
+intent_cue(80_code_lex1554_2, "in Python").
+intent_cue(80_code_lex1554_3, "in programming").
+intent_cue(80_code_lex1732, "printf").
+intent_cue(80_code_lex1736, "return").
+intent_cue(80_code_lex1742, "for ").
+intent_cue(80_code_lex1742_2, "while ").
+intent_cue(80_code_lex1845, "def ").
+intent_cue(80_code_lex1845_2, "if ").
+intent_cue(80_code_lex1845_3, "for ").
+intent_cue(80_code_lex1845_4, "while ").
+intent_cue(80_code_lex1846, "class ").
+intent_cue(80_code_lex1846_2, "elif ").
+intent_cue(80_code_lex1872, "print").
+intent_cue(80_code_lex1895, "semicolon").
+intent_cue(80_code_lex1897, "Type mismatch").
+intent_cue(80_code_lex1899, "string").
+intent_cue(80_code_lex1901, "braces").
+intent_cue(80_code_lex1903, "parentheses").
+intent_cue(80_code_lex1905, "function").
+intent_cue(80_code_lex1907, "colon").
+intent_cue(80_code_lex1909, "the compiler rejects it").
+intent_cue(80_code_lex1968, "what am i").
+intent_cue(85_translate_synth_world_lex298, "french").
+intent_cue(85_translate_synth_world_lex476, "spanish").
+intent_cue(85_translate_synth_world_lex1263, "is assumed").
+intent_cue(85_translate_synth_world_lex1263_2, "what do you assume").
+intent_cue(85_translate_synth_world_lex1263_3, "what is true in this").
+intent_cue(85_translate_synth_world_lex1264, "what is true in the").
+intent_cue(85_translate_synth_world_lex1265, "what holds in this").
+intent_cue(90_repair_robust_abduce_lex336, "what would").
+intent_cue(99_registry_lex2189, "before").
+intent_cue(99_registry_lex2189_2, "earlier").
+intent_cue(99_registry_lex2189_3, "previous").
+intent_cue(99_registry_lex2189_4, "prima").
+intent_cue(99_registry_lex2190, "precedente").

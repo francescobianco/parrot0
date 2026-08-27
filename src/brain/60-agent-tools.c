@@ -357,7 +357,7 @@ static int piact_obs(Brain *b, char *const *argv, const char *label,
 
     char msg[5200];
     char lang[8]; current_lang(b, lang, sizeof lang);
-    int it = strcmp(lang, "it") == 0;
+    int it = lex_class_member(b, "60_agent_tools_lex360", lang);
     switch (obs.verdict) {
     case P0_OK:
         if (flat[0] == '\0') {
@@ -577,7 +577,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         char *largv_all[]  = {(char*)"find", dirbuf, (char*)"-maxdepth", (char*)"1",
                               (char*)"-type", (char*)"f", NULL};
         char lang[8]; current_lang(b, lang, sizeof lang);
-        int it = strcmp(lang, "it") == 0;
+        int it = lex_class_member(b, "60_agent_tools_lex580", lang);
         if (has_glob)
             snprintf(label, sizeof label, it ? "I file `%s` in %s" : "The `%s` files in %s",
                      glob, dirbuf);
@@ -916,7 +916,7 @@ static int compose_one(Brain *b, const char *raw, const char *low,
         char aname[64], shape[64];
         if (sort_shape_from_kb(b, low, aname, sizeof aname, shape, sizeof shape)) {
             compose_name(raw, nameo, nsz);
-            if (strcmp(nameo, "f") == 0) snprintf(nameo, nsz, "%s", aname);
+            if (lex_class_member(b, "60_agent_tools_lex919", nameo)) snprintf(nameo, nsz, "%s", aname);
             char comparator = '>';           /* algo_io says ascending */
             if (code_synth_from_shape(shape, nameo, comparator, src, srcsz)) {
                 char err[256];
@@ -1862,7 +1862,7 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
      * the rule_print cue class). Only C is emittable; the candidate is
      * DISPOSED by really running it (stdout must be exactly the message).
      * Any missing piece falls through to the informed decline below. */
-    if (!lang[0] || strcmp(lang, "c") == 0) {
+    if (!lang[0] || lex_class_member(b, "60_agent_tools_lex1865", lang)) {
         if (!b->compose_kb_loaded) {
             kb_set_origin(b->kb, KB_REFLECTIVE);
             kb_load(b->kb, "kb/experts/programming/compose.p0");

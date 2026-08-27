@@ -1556,7 +1556,7 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
         "Non capisco ancora.",
     };
     char lang[8]; current_lang(b, lang, sizeof lang);
-    int it = strcmp(lang, "it") == 0;
+    int it = lex_class_member(b, "99_registry_lex1559", lang);
     const char *const *v = it ? v_it : v_en;
     const size_t NV = it ? sizeof v_it / sizeof v_it[0] : sizeof v_en / sizeof v_en[0];
     const char *classic = it ? "Non capisco ancora." : "I don't understand that yet.";
@@ -2180,14 +2180,13 @@ static int coref_resolve(Brain *b, const char *canon, char *out, size_t out_size
     size_t pidx = nw;
     for (size_t i = 0; i < nw; i++) {
         const char *t = w[i];
-        if (!strcmp(t,"it")||!strcmp(t,"its")||!strcmp(t,"he")||!strcmp(t,"him")||
-            !strcmp(t,"she")||!strcmp(t,"they")||!strcmp(t,"them")) { pidx = i; break; }
+        if (lex_class_member(b, "99_registry_lex2183", t)||lex_class_member(b, "99_registry_lex2183_2", t)||lex_class_member(b, "99_registry_lex2183_3", t)||lex_class_member(b, "99_registry_lex2183_4", t)||
+            lex_class_member(b, "99_registry_lex2184", t)||lex_class_member(b, "99_registry_lex2184_2", t)||lex_class_member(b, "99_registry_lex2184_3", t)) { pidx = i; break; }
     }
     if (pidx == nw) return 0;
 
     size_t offset = 0;                               /* ordinal into the history */
-    if (strstr(canon,"before")||strstr(canon,"earlier")||strstr(canon,"previous")||
-        strstr(canon,"prima")||strstr(canon,"precedente"))
+    if (kb_cue_match(b, "99_registry_lex2189", canon)||kb_cue_match(b, "99_registry_lex2189_2", canon)||kb_cue_match(b, "99_registry_lex2189_3", canon)||kb_cue_match(b, "99_registry_lex2189_4", canon)||kb_cue_match(b, "99_registry_lex2190", canon))
         offset = 1;
     if (offset >= nh) return 0;
     const char *ent = names[offset];
@@ -2231,7 +2230,7 @@ static int memref_resolve(Brain *b, const char *canon, char *out, size_t out_siz
     memcpy(buf, canon, len + 1);
     char *w[64]; size_t nw = split_words(buf, w, 64);
     size_t mi = nw;
-    for (size_t i = 0; i < nw; i++) if (!strcmp(w[i], "my")) { mi = i; break; }
+    for (size_t i = 0; i < nw; i++) if (lex_class_member(b, "99_registry_lex2234", w[i])) { mi = i; break; }
     if (mi == nw || mi + 1 >= nw) return 0;
 
     /* the key is the run of words after "my", stopping at the first operator or
@@ -2430,16 +2429,16 @@ static int continue_resolve(Brain *b, const char *canon, char *out, size_t out_s
     if (nw == 0) return 0;
 
     size_t i = 0;                                       /* skip a leading connector */
-    while (i < nw && (!strcmp(w[i], "and") || !strcmp(w[i], "e") ||
-                      !strcmp(w[i], "then") || !strcmp(w[i], "poi") ||
-                      !strcmp(w[i], "also") || !strcmp(w[i], "anche") ||
-                      !strcmp(w[i], "inoltre"))) i++;
+    while (i < nw && (lex_class_member(b, "99_registry_lex2433", w[i]) || lex_class_member(b, "99_registry_lex2433_2", w[i]) ||
+                      lex_class_member(b, "99_registry_lex2434", w[i]) || lex_class_member(b, "99_registry_lex2434_2", w[i]) ||
+                      lex_class_member(b, "99_registry_lex2435", w[i]) || lex_class_member(b, "99_registry_lex2435_2", w[i]) ||
+                      lex_class_member(b, "99_registry_lex2436", w[i]))) i++;
     if (i >= nw || !arith_op_char(w[i])) return 0;      /* must lead with an operator */
 
     int saw_num = 0;                                    /* rest must be a pure arith tail */
     for (size_t k = i; k < nw; k++) {
         double dv;
-        if (arith_op_char(w[k]) || !strcmp(w[k], "by")) continue;
+        if (arith_op_char(w[k]) || lex_class_member(b, "99_registry_lex2442", w[k])) continue;
         if (parse_value(w[k], &dv)) { saw_num = 1; continue; }
         return 0;
     }
@@ -3874,14 +3873,14 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             char rlow[256]; snprintf(rlow, sizeof rlow, "%s", input);
             for (char *cp = rlow; *cp; cp++)
                 *cp = (char)tolower((unsigned char)*cp);
-            int confirm = (strcmp(clow, "yes") == 0 || strcmp(clow, "si") == 0 ||
-                           strcmp(clow, "ok") == 0 || strcmp(clow, "okay") == 0 ||
-                           strcmp(clow, "sure") == 0 || strcmp(clow, "vai") == 0 ||
-                           strcmp(clow, "learn") == 0 || strcmp(clow, "impara") == 0 ||
+            int confirm = (lex_class_member(b, "99_registry_lex3877", clow) || lex_class_member(b, "99_registry_lex3877_2", clow) ||
+                           lex_class_member(b, "99_registry_lex3878", clow) || lex_class_member(b, "99_registry_lex3878_2", clow) ||
+                           lex_class_member(b, "99_registry_lex3879", clow) || lex_class_member(b, "99_registry_lex3879_2", clow) ||
+                           lex_class_member(b, "99_registry_lex3880", clow) || lex_class_member(b, "99_registry_lex3880_2", clow) ||
                            strncmp(clow, "yes ", 4) == 0 || strncmp(clow, "si ", 3) == 0 ||
-                           strcmp(rlow, "si") == 0 || strcmp(rlow, "sì") == 0 ||
-                           strcmp(rlow, "yes") == 0 || strcmp(rlow, "ok") == 0 ||
-                           strcmp(rlow, "vai") == 0);
+                           lex_class_member(b, "99_registry_lex3882", rlow) || strcmp(rlow, "sì") == 0 ||
+                           lex_class_member(b, "99_registry_lex3883", rlow) || lex_class_member(b, "99_registry_lex3883_2", rlow) ||
+                           lex_class_member(b, "99_registry_lex3884", rlow));
 
             /* Always retract the gap facts — single-turn window consumed */
             { const char *rga[] = { gtopics[0] }; kb_retract(b->kb, "pending_gap", rga, 1); }
@@ -4009,8 +4008,8 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * for "what would you have said without X?" — but NOT when this turn was
      * itself one of those introspective questions, so each reports the decision
      * it is being asked about, not its own lookup. */
-    if (b && strcmp(winner, "strategy") != 0 &&
-        strcmp(winner, "counterfactual") != 0) {
+    if (b && !lex_class_member(b, "99_registry_lex4012", winner) &&
+        !lex_class_member(b, "99_registry_lex4013", winner)) {
         b->trace_declined_n = ndecl;
         for (size_t i = 0; i < ndecl; i++)
             snprintf(b->trace_declined[i], sizeof b->trace_declined[0], "%s",

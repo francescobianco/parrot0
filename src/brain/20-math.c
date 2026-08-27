@@ -23,7 +23,7 @@ static int mod_compare(Brain *b, const char *norm, const char *raw,
 
     char *w[8];
     size_t nw = split_words(buf, w, 8);
-    if (nw != 5 || strcmp(w[0], "is") != 0 || strcmp(w[3], "than") != 0)
+    if (nw != 5 || !lex_class_member(b, "20_math_lex26", w[0]) || !lex_class_member(b, "20_math_lex26_2", w[3]))
         return 0;
 
     int greater = compare_word(w[2]);
@@ -1232,7 +1232,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
     }
 
     /* Exact-shape arith: "what is <a> OP <b>?" with expanded tokens. */
-    if (enw == 5 && strcmp(ew[0], "what") == 0 && strcmp(ew[1], "is") == 0 &&
+    if (enw == 5 && lex_class_member(b, "20_math_lex1235", ew[0]) && lex_class_member(b, "20_math_lex1235_2", ew[1]) &&
         is_arith_op(ew[3])) {
         double a, c;
         if (parse_value(ew[2], &a) && parse_value(ew[4], &c)) {
@@ -1289,9 +1289,9 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
             if (!ok) continue;
             const char *op = ew[i + 1];
             const char *verb = "combining", *noun = "result";
-            if (strcmp(op, "plus") == 0 || strcmp(op, "+") == 0) { verb = "adding"; noun = "sum"; }
-            else if (strcmp(op, "minus") == 0 || strcmp(op, "-") == 0) { verb = "subtracting"; noun = "difference"; }
-            else if (strcmp(op, "times") == 0 || strcmp(op, "*") == 0) { verb = "multiplying"; noun = "product"; }
+            if (lex_class_member(b, "20_math_lex1292", op) || strcmp(op, "+") == 0) { verb = "adding"; noun = "sum"; }
+            else if (lex_class_member(b, "20_math_lex1293", op) || strcmp(op, "-") == 0) { verb = "subtracting"; noun = "difference"; }
+            else if (lex_class_member(b, "20_math_lex1294", op) || strcmp(op, "*") == 0) { verb = "multiplying"; noun = "product"; }
             char na[64], nb[64], nr[64], msg[320];
             format_num(a, na, sizeof na);
             format_num(c, nb, sizeof nb);
@@ -1305,8 +1305,8 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
     }
 
     /* "is <a> divisible by <b>?" -> yes/no via integer remainder */
-    if (enw == 5 && strcmp(ew[0], "is") == 0 && strcmp(ew[2], "divisible") == 0 &&
-        strcmp(ew[3], "by") == 0) {
+    if (enw == 5 && lex_class_member(b, "20_math_lex1308", ew[0]) && lex_class_member(b, "20_math_lex1308_2", ew[2]) &&
+        lex_class_member(b, "20_math_lex1309", ew[3])) {
         double a, c;
         if (!parse_num(ew[1], &a) || !parse_num(ew[4], &c)) return 0;
         if (c == 0)
@@ -1357,8 +1357,8 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
     {
         size_t mark = cnw; int attached = 0;
         for (size_t i = 0; i < cnw; i++) {
-            if (!strcmp(cw[i], "percent") || !strcmp(cw[i], "%") ||
-                !strcmp(cw[i], "cento")) { mark = i; break; }
+            if (lex_class_member(b, "20_math_lex1360", cw[i]) || !strcmp(cw[i], "%") ||
+                lex_class_member(b, "20_math_lex1361", cw[i])) { mark = i; break; }
             /* gen240: "15%" is one token — a number with a trailing '%'. */
             size_t li = strlen(cw[i]);
             if (li > 1 && cw[i][li - 1] == '%') { mark = i; attached = 1; break; }
@@ -1398,8 +1398,8 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         if (gn == 1) {
             int sq = 0, cb = 0;
             for (size_t i = 0; i < cnw; i++) {
-                if (!strcmp(cw[i],"squared") || !strcmp(cw[i],"quadrato")) sq = 1;
-                else if (!strcmp(cw[i],"cubed") || !strcmp(cw[i],"cubo")) cb = 1;
+                if (lex_class_member(b, "20_math_lex1401", cw[i]) || lex_class_member(b, "20_math_lex1401_2", cw[i])) sq = 1;
+                else if (lex_class_member(b, "20_math_lex1402", cw[i]) || lex_class_member(b, "20_math_lex1402_2", cw[i])) cb = 1;
             }
             if (sq) { arith_answer(gnums[0] * gnums[0], out, out_size); return 1; }
             if (cb) { arith_answer(gnums[0] * gnums[0] * gnums[0], out, out_size); return 1; }
@@ -1441,21 +1441,21 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         const char *v0 = cw[0];
         double nums[16]; size_t n = collect_numbers(cw, cnw, nums, 16);
         if (n >= 2) {
-            if (!strcmp(v0,"add") || !strcmp(v0,"sum") || !strcmp(v0,"aggiungi") ||
-                !strcmp(v0,"somma")) {
+            if (lex_class_member(b, "20_math_lex1444", v0) || lex_class_member(b, "20_math_lex1444_2", v0) || lex_class_member(b, "20_math_lex1444_3", v0) ||
+                lex_class_member(b, "20_math_lex1445", v0)) {
                 double s = 0; for (size_t i = 0; i < n; i++) s += nums[i];
                 arith_answer(s, out, out_size); return 1;
             }
-            if (!strcmp(v0,"subtract") || !strcmp(v0,"sottrai") || !strcmp(v0,"togli")) {
+            if (lex_class_member(b, "20_math_lex1449", v0) || lex_class_member(b, "20_math_lex1449_2", v0) || lex_class_member(b, "20_math_lex1449_3", v0)) {
                 /* "subtract A from B" -> B - A */
                 if (kb_cue_match(b, "20_math_chain1453", norm)) { arith_answer(nums[1] - nums[0], out, out_size); return 1; }
                 arith_answer(nums[0] - nums[1], out, out_size); return 1;
             }
-            if (!strcmp(v0,"multiply") || !strcmp(v0,"moltiplica")) {
+            if (lex_class_member(b, "20_math_lex1454", v0) || lex_class_member(b, "20_math_lex1454_2", v0)) {
                 double p = 1; for (size_t i = 0; i < n; i++) p *= nums[i];
                 arith_answer(p, out, out_size); return 1;
             }
-            if (!strcmp(v0,"divide") || !strcmp(v0,"dividi")) {
+            if (lex_class_member(b, "20_math_lex1458", v0) || lex_class_member(b, "20_math_lex1458_2", v0)) {
                 if (nums[1] != 0) { arith_answer(nums[0] / nums[1], out, out_size); return 1; }
             }
         }
@@ -1538,7 +1538,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         if (gn == 1 && (wants_prime || wants_even || wants_odd)) {
             for (size_t i = 0; i < cnw; i++) {
                 /* "no one"/"someone" is a pronoun, not the number 1 */
-                if (i > 0 && !strcmp(cw[i], "one") &&
+                if (i > 0 && lex_class_member(b, "20_math_lex1541", cw[i]) &&
                     (!strcmp(cw[i-1],"no") || !strcmp(cw[i-1],"some") ||
                      !strcmp(cw[i-1],"any") || !strcmp(cw[i-1],"every")))
                     continue;
@@ -1836,7 +1836,7 @@ static size_t plan_learn_list(Brain *b, const char *goal, char **w,
     for (size_t i = start; i < nw; i++) {
         char *tk = strip_edge_punct(w[i]);
         if (!*tk) continue;
-        if (is_conjunction(b, tk) || !strcmp(tk, "of") || !strcmp(tk, "di")) continue;
+        if (is_conjunction(b, tk) || lex_class_member(b, "20_math_lex1839", tk) || lex_class_member(b, "20_math_lex1839_2", tk)) continue;
         double v;
         if (parse_num(tk, &v)) { pend = (long)v; continue; }
         const char *ar[] = { goal, tk };
@@ -1917,12 +1917,12 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
             char *t = strip_edge_punct(sw[i]);
             /* "of" is a step only in "steps of N" -- NOT in "multiples of N" (a skip
              * filter). Guard on the previous token (gen241). */
-            int of_step = !strcmp(t, "of") && i > 0 &&
+            int of_step = lex_class_member(b, "20_math_lex1920", t) && i > 0 &&
                           (!strcmp(strip_edge_punct(sw[i - 1]), "steps") ||
                            !strcmp(strip_edge_punct(sw[i - 1]), "step"));
-            int by_step = !strcmp(t, "by") &&
+            int by_step = lex_class_member(b, "20_math_lex1923", t) &&
                           !(i > 0 && !strcmp(strip_edge_punct(sw[i - 1]), "divisible"));
-            if (by_step || !strcmp(t, "every") || of_step) {
+            if (by_step || lex_class_member(b, "20_math_lex1925", t) || of_step) {
                 char nx[64]; snprintf(nx, sizeof nx, "%s", strip_edge_punct(sw[i + 1]));
                 size_t nl = strlen(nx);            /* "3s" -> "3" */
                 if (nl > 1 && nx[nl - 1] == 's') nx[nl - 1] = '\0';
@@ -1964,12 +1964,12 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
         char *fw[64]; size_t fnw = split_words(fb, fw, 64);
         for (size_t i = 0; i + 1 < fnw; i++) {
             char *t = strip_edge_punct(fw[i]);
-            if ((!strcmp(t, "in") || !strcmp(t, "with") || !strcmp(t, "ends")) &&
+            if ((lex_class_member(b, "20_math_lex1967", t) || lex_class_member(b, "20_math_lex1967_2", t) || lex_class_member(b, "20_math_lex1967_3", t)) &&
                 (kb_cue_match(b, "20_math_chain1972", buf))) {
                 long d; if (word_to_int(strip_edge_punct(fw[i + 1]), &d) && d >= 0 && d <= 9)
                     skip_ends = (int)d;
             }
-            if ((!strcmp(t, "of") || !strcmp(t, "multiple") || !strcmp(t, "multiples")) &&
+            if ((lex_class_member(b, "20_math_lex1972", t) || lex_class_member(b, "20_math_lex1972_2", t) || lex_class_member(b, "20_math_lex1972_3", t)) &&
                 (kb_cue_match(b, "20_math_chain1978", buf))) {
                 long m; if (word_to_int(strip_edge_punct(fw[i + 1]), &m) && m > 0)
                     skip_mult = (int)m;
@@ -1987,17 +1987,17 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
         char *rw[64]; size_t rnw = split_words(rb, rw, 64);
         for (size_t i = 0; i < rnw; i++) {
             char *t = strip_edge_punct(rw[i]);
-            if (!strcmp(t, "say") && i + 1 < rnw && !repl[0]) {
+            if (lex_class_member(b, "20_math_lex1990", t) && i + 1 < rnw && !repl[0]) {
                 char *word = strip_edge_punct(rw[i + 1]);
                 if (*word && strlen(word) < sizeof repl) snprintf(repl, sizeof repl, "%s", word);
             }
-            if (!strcmp(t, "divisible") && i + 2 < rnw &&
+            if (lex_class_member(b, "20_math_lex1994", t) && i + 2 < rnw &&
                 !strcmp(strip_edge_punct(rw[i + 1]), "by")) {
                 long m;
                 if (word_to_int(strip_edge_punct(rw[i + 2]), &m) && m > 0)
                     repl_mult = (int)m;
             }
-            if ((!strcmp(t, "multiple") || !strcmp(t, "multiples")) &&
+            if ((lex_class_member(b, "20_math_lex2000", t) || lex_class_member(b, "20_math_lex2000_2", t)) &&
                 i + 2 < rnw && !strcmp(strip_edge_punct(rw[i + 1]), "of")) {
                 long m;
                 if (word_to_int(strip_edge_punct(rw[i + 2]), &m) && m > 0)
@@ -2174,7 +2174,7 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
     const char *category = NULL;
     size_t ni = find_token(w, nw, "name");
     for (size_t i = (ni == nw ? 0 : ni); i + 1 < nw; i++)
-        if (!strcmp(w[i], "a") || !strcmp(w[i], "an") || !strcmp(w[i], "any")) {
+        if (lex_class_member(b, "20_math_lex2177", w[i]) || lex_class_member(b, "20_math_lex2177_2", w[i]) || lex_class_member(b, "20_math_lex2177_3", w[i])) {
             category = strip_edge_punct(w[i + 1]); break;
         }
     if (!category || !*category) return 0;
@@ -2333,7 +2333,7 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
                 char *t = strip_edge_punct(w[i]);
                 if (strcmp(t, "of") && strcmp(t, "in")) continue;
                 char *src = strip_edge_punct(w[i + 1]);
-                if (!strcmp(src, "the") && i + 2 < nw) src = strip_edge_punct(w[i + 2]);
+                if (lex_class_member(b, "20_math_lex2336", src) && i + 2 < nw) src = strip_edge_punct(w[i + 2]);
                 if (strlen(src) >= 3) snprintf(srcbuf, sizeof srcbuf, "%s", src);
             }
         }
@@ -2492,11 +2492,11 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
     if (!have_src) {                       /* fall back to words after the marker */
         for (size_t i = 0; i + 1 < nw; i++) {
             char *t = strip_edge_punct(w[i]);
-            if (strcmp(t, "letters") == 0 || strcmp(t, "string") == 0) {
+            if (lex_class_member(b, "20_math_lex2495", t) || lex_class_member(b, "20_math_lex2495_2", t)) {
                 for (size_t j = i + 1; j < nw; j++) {
                     char *s = strip_edge_punct(w[j]);
-                    if (!strcmp(s, "in") || !strcmp(s, "of") || !strcmp(s, "from") ||
-                        !strcmp(s, "the")) continue;
+                    if (lex_class_member(b, "20_math_lex2498", s) || lex_class_member(b, "20_math_lex2498_2", s) || lex_class_member(b, "20_math_lex2498_3", s) ||
+                        lex_class_member(b, "20_math_lex2499", s)) continue;
                     /* single letters ARE the payload ("t, s, a, r" — 'a' is a
                      * letter here, not the article); only a multi-char stopword
                      * ends the list. */
@@ -2993,9 +2993,9 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
             if (strcmp(strip_edge_punct(w[i]), "add") != 0) continue;
             for (size_t j = i + 1; j < nw; j++) {
                 char *t = strip_edge_punct(w[j]);
-                if (!strcmp(t, "the") || !strcmp(t, "letter") || !strcmp(t, "to") ||
-                    !strcmp(t, "end") || !strcmp(t, "beginning") || !strcmp(t, "start") ||
-                    !strcmp(t, "of")) continue;
+                if (lex_class_member(b, "20_math_lex2996", t) || lex_class_member(b, "20_math_lex2996_2", t) || lex_class_member(b, "20_math_lex2996_3", t) ||
+                    lex_class_member(b, "20_math_lex2997", t) || lex_class_member(b, "20_math_lex2997_2", t) || lex_class_member(b, "20_math_lex2997_3", t) ||
+                    lex_class_member(b, "20_math_lex2998", t)) continue;
                 if (strlen(t) == 1 && isalpha((unsigned char)t[0])) {
                     snprintf(add, sizeof add, "%s", t);
                     break;
@@ -3046,9 +3046,9 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
         for (size_t k = 0; k < tl; k++)
             if (!isalpha((unsigned char)t[k])) { alpha = 0; break; }
         if (!alpha) continue;
-        if (!strcmp(t, "spell") || !strcmp(t, "word") || !strcmp(t, "the") ||
-            !strcmp(t, "you") || !strcmp(t, "how") || !strcmp(t, "can") ||
-            !strcmp(t, "please") || !strcmp(t, "scrive") || !strcmp(t, "come"))
+        if (lex_class_member(b, "20_math_lex3049", t) || lex_class_member(b, "20_math_lex3049_2", t) || lex_class_member(b, "20_math_lex3049_3", t) ||
+            lex_class_member(b, "20_math_lex3050", t) || lex_class_member(b, "20_math_lex3050_2", t) || lex_class_member(b, "20_math_lex3050_3", t) ||
+            lex_class_member(b, "20_math_lex3051", t) || lex_class_member(b, "20_math_lex3051_2", t) || lex_class_member(b, "20_math_lex3051_3", t))
             continue;
         target = t; break;
     }

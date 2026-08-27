@@ -33,7 +33,7 @@ static int is_progressive_aux(Brain *b, const char *aux, const char *verb) {
         return kb_query(b->kb, "aux_progressive", aq, 1) &&
                kb_query(b->kb, "progressive", pq, 1);
     }
-    return strcmp(aux, "is") == 0 && strcmp(verb, "sleeping") == 0;   /* backstop */
+    return lex_class_member(b, "85_translate_synth_world_lex36", aux) && lex_class_member(b, "85_translate_synth_world_lex36_2", verb);   /* backstop */
 }
 
 /* gen310: extract the phrase to translate from any of the request forms —
@@ -295,7 +295,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
     /* gen252: minimal compositional EN->FR. The lexicon is tr_fr/2 + gender_fr/2;
      * C supplies only grammar glue: article agreement, "is sleeping" -> finite
      * verb, and English pre-noun adjective -> French post-noun adjective. */
-    if (strstr(low, "french")) {
+    if (kb_cue_match(b, "85_translate_synth_world_lex298", low)) {
         char fbuf[256];
         if (tr_payload_kb(b, low, fbuf, sizeof fbuf) ||
             tr_payload(low, "french", fbuf, sizeof fbuf)) {
@@ -354,7 +354,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                     if (kb_query(b->kb, "aux_question", qaq, 1)) continue;
                 }
 
-                if (!strcmp(tok, "the")) {
+                if (lex_class_member(b, "85_translate_synth_world_lex357", tok)) {
                     char gender = 'm';
                     if (i + 1 < fn) {
                         char *n1 = strip_edge_punct(fw[i + 1]);
@@ -400,7 +400,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                     if (fr_gender_for_en(b, tok, &gnoun) && i > 0) {
                         char *prev = strip_edge_punct(fw[i - 1]);
                         char adj[KB_TERM_LEN], gdummy;
-                        if (strcmp(prev, "the") != 0 &&
+                        if (!lex_class_member(b, "85_translate_synth_world_lex403", prev) &&
                             !fr_gender_for_en(b, prev, &gdummy) &&
                             fr_lookup(b, prev, adj, sizeof adj)) {
                             size_t pl = strlen(piece), al = strlen(adj);
@@ -473,7 +473,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
 
     /* gen236 (LLMSCORE): minimal EN->ES word-by-word translation for short
      * benchmark prompts. Words and gender live in KB as tr_es/2 + gender_es/2. */
-    if (strstr(low, "spanish")) {
+    if (kb_cue_match(b, "85_translate_synth_world_lex476", low)) {
         char sbuf[256];
         if (tr_payload_kb(b, low, sbuf, sizeof sbuf) ||
             tr_payload(low, "spanish", sbuf, sizeof sbuf)) {
@@ -565,7 +565,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                         if (kb_match(b->kb, "conj_es", cvq, 3, cf, 1) == 1)
                             snprintf(piece, sizeof piece, "%s", cf[0]);
                     }
-                    if (!piece[0] && strcmp(tok, "the") == 0 && i + 1 < sn) {
+                    if (!piece[0] && lex_class_member(b, "85_translate_synth_world_lex568", tok) && i + 1 < sn) {
                         char *nx = strip_edge_punct(sw[i + 1]);
                         char esn[1][KB_TERM_LEN];
                         const char *nq[] = { nx, NULL };
@@ -573,7 +573,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                             char gen[1][KB_TERM_LEN];
                             const char *gq[] = { esn[0], NULL };
                             int fem_es = (kb_match(b->kb, "gender_es", gq, 2, gen, 1) == 1 &&
-                                          strcmp(gen[0], "f") == 0);
+                                          lex_class_member(b, "85_translate_synth_world_lex576", gen[0]));
                             /* U5 (gen288): the Spanish definite article is a KB fact,
                              * article_es(Gender, Form) in grammar.p0, not a C ternary. */
                             const char *aq[] = { fem_es ? "f" : "m", NULL };
@@ -691,7 +691,7 @@ found:
              * definiteness, gender and vowel-initial noun (the fixed substrate);
              * it now SELECTS the form from knowledge, so the grammar (including the
              * elided l'/un') is inspectable via kb.match and teachable via MCP. */
-            int indef = (strcmp(tok, "a") == 0 || strcmp(tok, "an") == 0);
+            int indef = (lex_class_member(b, "85_translate_synth_world_lex694", tok) || lex_class_member(b, "85_translate_synth_world_lex694_2", tok));
             int vowel_next = 0;
             if (i + 1 < nw) {
                 char *nx = strip_edge_punct(w[i + 1]);
@@ -712,8 +712,8 @@ found:
                          indef ? (clause_gender == 'f' ? "una" : "un")
                                : (clause_gender == 'f' ? "la" : "il"));
         } else if (!to_it && is_it_det(tok)) {
-            int indef = (strcmp(tok, "un") == 0 || strcmp(tok, "una") == 0 ||
-                         strcmp(tok, "uno") == 0);
+            int indef = (lex_class_member(b, "85_translate_synth_world_lex715", tok) || lex_class_member(b, "85_translate_synth_world_lex715_2", tok) ||
+                         lex_class_member(b, "85_translate_synth_world_lex716", tok));
             snprintf(piece, sizeof piece, "%s", indef ? "a" : "the");
         } else {
             if (!gloss_lookup(b, tok, to_it, piece, sizeof piece)) {
@@ -839,8 +839,8 @@ static int mod_synth(Brain *b, const char *norm, const char *raw,
     int wants_file = 0, wants_pattern = 0;
     for (size_t i = 0; i < nsw && nw < 32; i++) {
         char *t = strip_edge_punct(sw[i]);
-        if (strcmp(t, "file") == 0 || strcmp(t, "files") == 0) wants_file = 1;
-        if (strcmp(t, "pattern") == 0 || strcmp(t, "string") == 0) wants_pattern = 1;
+        if (lex_class_member(b, "85_translate_synth_world_lex842", t) || lex_class_member(b, "85_translate_synth_world_lex842_2", t)) wants_file = 1;
+        if (lex_class_member(b, "85_translate_synth_world_lex843", t) || lex_class_member(b, "85_translate_synth_world_lex843_2", t)) wants_pattern = 1;
         if (strlen(t) >= 3 && isalpha((unsigned char)t[0]) && !is_stopword(b, t))
             snprintf(words[nw++], KB_TERM_LEN, "%s", t);
     }
@@ -980,9 +980,9 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
             tok[n] = '\0';
             while (*q && isspace((unsigned char)*q)) q++;
             if (n == 0) continue;
-            if (strcmp(tok, "the") == 0 || strcmp(tok, "il") == 0 ||
-                strcmp(tok, "module") == 0 || strcmp(tok, "modulo") == 0 ||
-                strcmp(tok, "a") == 0)
+            if (lex_class_member(b, "85_translate_synth_world_lex983", tok) || lex_class_member(b, "85_translate_synth_world_lex983_2", tok) ||
+                lex_class_member(b, "85_translate_synth_world_lex984", tok) || lex_class_member(b, "85_translate_synth_world_lex984_2", tok) ||
+                lex_class_member(b, "85_translate_synth_world_lex985", tok))
                 continue; /* skip filler, take the real module name next */
             snprintf(suppress, sizeof suppress, "%s", tok);
             break;
@@ -998,7 +998,7 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
     } else {
         /* else-form: suppress the recorded winner. */
         snprintf(suppress, sizeof suppress, "%s", b->trace_winner);
-        if (strcmp(suppress, "fallback") == 0) {
+        if (lex_class_member(b, "85_translate_synth_world_lex1001", suppress)) {
             kb_say(b, "nothing_claimed_the_last_turn_there_was_no_w", "Nothing claimed the last turn — there was no winner to set aside.",
                 out, out_size);
             return 1;
@@ -1153,7 +1153,7 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
     size_t nw = split_words(cb, w, 8);
 
     /* QUERY: "is X [a] Y" */
-    if (nw >= 3 && strcmp(w[0], "is") == 0) {
+    if (nw >= 3 && lex_class_member(b, "85_translate_synth_world_lex1156", w[0])) {
         const char *subj = w[1];
         size_t pi = 2;
         if (is_article(b, w[2]) && nw >= 4) pi = 3;
@@ -1173,11 +1173,11 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
 
     /* QUERY: subject-first interrogative "X is [a] Y?" (the Italian shape
      * "rex è un drago?" canonicalizes here; same rule serves both languages). */
-    if (interrogative && nw >= 3 && strcmp(w[1], "is") == 0 &&
-        strcmp(w[0], "who") != 0 && strcmp(w[0], "what") != 0) {
+    if (interrogative && nw >= 3 && lex_class_member(b, "85_translate_synth_world_lex1176", w[1]) &&
+        !lex_class_member(b, "85_translate_synth_world_lex1177", w[0]) && !lex_class_member(b, "85_translate_synth_world_lex1177_2", w[0])) {
         const char *subj = w[0];
         size_t pi = 2;
-        if (strcmp(w[2], "not") == 0 && nw >= 4) pi = 3;
+        if (lex_class_member(b, "85_translate_synth_world_lex1180", w[2]) && nw >= 4) pi = 3;
         if (pi < nw && is_article(b, w[pi]) && pi + 1 < nw) pi++;
         if (pi != nw - 1) return 0;
         const char *pred = w[pi];
@@ -1194,8 +1194,8 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
     }
 
     /* QUERY: "who is X" / "what is X" -> list X's classes in this world. */
-    if (nw == 3 && (strcmp(w[0], "who") == 0 || strcmp(w[0], "what") == 0) &&
-        strcmp(w[1], "is") == 0) {
+    if (nw == 3 && (lex_class_member(b, "85_translate_synth_world_lex1197", w[0]) || lex_class_member(b, "85_translate_synth_world_lex1197_2", w[0])) &&
+        lex_class_member(b, "85_translate_synth_world_lex1198", w[1])) {
         const char *subj = w[2];
         char list[400]; size_t off = 0, hits = 0;
         for (size_t i = 0; i < b->wfact_count; i++)
@@ -1223,10 +1223,10 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
     }
 
     /* ASSERT: "X is [a] Y" or "X is not [a] Y" (subject-first, no trailing '?'). */
-    if (!interrogative && nw >= 3 && strcmp(w[1], "is") == 0) {
+    if (!interrogative && nw >= 3 && lex_class_member(b, "85_translate_synth_world_lex1226", w[1])) {
         const char *subj = w[0];
         size_t pi = 2; int neg = 0;
-        if (strcmp(w[2], "not") == 0 && nw >= 4) { neg = 1; pi = 3; }
+        if (lex_class_member(b, "85_translate_synth_world_lex1229", w[2]) && nw >= 4) { neg = 1; pi = 3; }
         if (pi < nw && is_article(b, w[pi]) && pi + 1 < nw) pi++;
         if (pi != nw - 1) return 0;            /* one-word class only, for now */
         const char *pred = w[pi];
@@ -1260,10 +1260,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
      * catches the Italian "cosa è assunto?" -> "...is assumed?") cannot fire in
      * ordinary prose where no scope is open. */
     if (b->active_world >= 0 &&
-        (strstr(norm, "is assumed") || strstr(norm, "what do you assume") ||
-         strstr(norm, "what is true in this") ||
-         strstr(norm, "what is true in the") ||
-         strstr(norm, "what holds in this"))) {
+        (kb_cue_match(b, "85_translate_synth_world_lex1263", norm) ||kb_cue_match(b, "85_translate_synth_world_lex1263_2", norm) ||kb_cue_match(b, "85_translate_synth_world_lex1263_3", norm) ||kb_cue_match(b, "85_translate_synth_world_lex1264", norm) ||kb_cue_match(b, "85_translate_synth_world_lex1265", norm))) {
         int id = b->active_world;
         char list[480]; size_t off = 0, hits = 0;
         for (size_t i = 0; i < b->wfact_count; i++)
@@ -1294,10 +1291,10 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
         size_t nw = split_words(tb, w, 12);
         /* "forget/end/close/leave [this|the] [<name>] world/story" */
         int teardown = 0, leave_only = 0;
-        if (nw >= 2 && (strcmp(w[0], "forget") == 0 || strcmp(w[0], "end") == 0 ||
-                        strcmp(w[0], "close") == 0 || strcmp(w[0], "drop") == 0))
+        if (nw >= 2 && (lex_class_member(b, "85_translate_synth_world_lex1297", w[0]) || lex_class_member(b, "85_translate_synth_world_lex1297_2", w[0]) ||
+                        lex_class_member(b, "85_translate_synth_world_lex1298", w[0]) || lex_class_member(b, "85_translate_synth_world_lex1298_2", w[0])))
             teardown = 1;
-        else if (nw >= 2 && strcmp(w[0], "leave") == 0)
+        else if (nw >= 2 && lex_class_member(b, "85_translate_synth_world_lex1300", w[0]))
             { teardown = 1; leave_only = 1; }
         if (teardown) {
             /* find the world noun and an optional name token before it */
@@ -1308,11 +1305,11 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                     has_world_noun = 1;
                     if (i >= 1) {
                         char *prev = strip_edge_punct(w[i-1]);
-                        if (!is_article(b, prev) && strcmp(prev, "this") != 0 &&
-                            strcmp(prev, "the") != 0 && strcmp(prev, "that") != 0 &&
-                            !is_world_noun(prev) && strcmp(prev, "forget") != 0 &&
-                            strcmp(prev, "end") != 0 && strcmp(prev, "close") != 0 &&
-                            strcmp(prev, "leave") != 0 && strcmp(prev, "drop") != 0)
+                        if (!is_article(b, prev) && !lex_class_member(b, "85_translate_synth_world_lex1311", prev) &&
+                            !lex_class_member(b, "85_translate_synth_world_lex1312", prev) && !lex_class_member(b, "85_translate_synth_world_lex1312_2", prev) &&
+                            !is_world_noun(prev) && !lex_class_member(b, "85_translate_synth_world_lex1313", prev) &&
+                            !lex_class_member(b, "85_translate_synth_world_lex1314", prev) && !lex_class_member(b, "85_translate_synth_world_lex1314_2", prev) &&
+                            !lex_class_member(b, "85_translate_synth_world_lex1315", prev) && !lex_class_member(b, "85_translate_synth_world_lex1315_2", prev))
                             named = prev;
                     }
                     break;
@@ -1378,8 +1375,8 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                     size_t name_idx = i; /* default: no name -> use the noun word */
                     char *before = (i >= 1) ? strip_edge_punct(nw_[i-1]) : NULL;
                     if (before && !is_article(b, before) &&
-                        strcmp(before, "the") != 0 && strcmp(before, "this") != 0 &&
-                        strcmp(before, "that") != 0) {
+                        !lex_class_member(b, "85_translate_synth_world_lex1381", before) && !lex_class_member(b, "85_translate_synth_world_lex1381_2", before) &&
+                        !lex_class_member(b, "85_translate_synth_world_lex1382", before)) {
                         snprintf(wname, sizeof wname, "%s", before);
                         name_idx = i; /* clause starts after the noun */
                     } else if (i + 1 < nn) {
@@ -1447,7 +1444,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                 /* prefer the token after "called"/"named", else the one after noun */
                 for (size_t i = 0; i + 1 < nn; i++) {
                     char *t = strip_edge_punct(w2[i]);
-                    if (strcmp(t, "called") == 0 || strcmp(t, "named") == 0)
+                    if (lex_class_member(b, "85_translate_synth_world_lex1450", t) || lex_class_member(b, "85_translate_synth_world_lex1450_2", t))
                         { name = strip_edge_punct(w2[i+1]); break; }
                 }
                 if (!name && (size_t)wn_idx + 1 < nn)

@@ -940,11 +940,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
         if (strncmp(work, *h, hl) == 0) { x = work + hl; weak = 1; matched = *h; break; }
     }
     if (!x || !*x) return 0;
-    int it = matched && (strstr(matched, "cos") || strstr(matched, "cosa") ||
-                         strstr(matched, "parlami") || strstr(matched, "chi ") ||
-                         strstr(matched, "impara") || strstr(matched, "studia") ||
-                         strstr(matched, "informati") || strstr(matched, "documentati") ||
-                         strstr(matched, "leggi") || strstr(matched, "estrai"));
+    int it = matched && (kb_cue_match(b, "50_self_research_loop_lex943", matched) ||kb_cue_match(b, "50_self_research_loop_lex943_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex943_3", matched) ||kb_cue_match(b, "50_self_research_loop_lex944", matched) ||kb_cue_match(b, "50_self_research_loop_lex944_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex945", matched) ||kb_cue_match(b, "50_self_research_loop_lex945_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex946", matched) ||kb_cue_match(b, "50_self_research_loop_lex946_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex947", matched));
 
     /* Build the concept key (drop a leading article, join words with '_') and a
      * display form; guard pronouns and too-short topics. */
@@ -952,11 +948,11 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     char *tok[16]; size_t nt = split_words(xbuf, tok, 16);
     size_t start = 0;
     if (nt > 0 && (is_article(b, tok[0]) ||
-                   !strcmp(tok[0],"the") || !strcmp(tok[0],"il") ||
-                   !strcmp(tok[0],"la")  || !strcmp(tok[0],"lo") ||
-                   !strcmp(tok[0],"un")  || !strcmp(tok[0],"una") ||
-                   !strcmp(tok[0],"uno") || !strcmp(tok[0],"i") ||
-                   !strcmp(tok[0],"gli") || !strcmp(tok[0],"le")))
+                   lex_class_member(b, "50_self_research_loop_lex955", tok[0]) || lex_class_member(b, "50_self_research_loop_lex955_2", tok[0]) ||
+                   lex_class_member(b, "50_self_research_loop_lex956", tok[0])  || lex_class_member(b, "50_self_research_loop_lex956_2", tok[0]) ||
+                   lex_class_member(b, "50_self_research_loop_lex957", tok[0])  || lex_class_member(b, "50_self_research_loop_lex957_2", tok[0]) ||
+                   lex_class_member(b, "50_self_research_loop_lex958", tok[0]) || lex_class_member(b, "50_self_research_loop_lex958_2", tok[0]) ||
+                   lex_class_member(b, "50_self_research_loop_lex959", tok[0]) || lex_class_member(b, "50_self_research_loop_lex959_2", tok[0])))
         start = 1;
     if (start >= nt) return 0;
     if (is_entity_pronoun(tok[start])) return 0;
@@ -966,10 +962,10 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     for (size_t i = start; i < nt; i++) {
         char *t = strip_edge_punct(tok[i]);
         for (char *c = t; *c; c++) if (isdigit((unsigned char)*c)) return 0;
-        if (!strcmp(t,"plus")||!strcmp(t,"minus")||!strcmp(t,"times")||
-            !strcmp(t,"divided")||!strcmp(t,"over")||!strcmp(t,"equals")||
-            !strcmp(t,"più")||!strcmp(t,"piu")||!strcmp(t,"meno")||
-            !strcmp(t,"per")||!strcmp(t,"diviso"))
+        if (lex_class_member(b, "50_self_research_loop_lex969", t)||lex_class_member(b, "50_self_research_loop_lex969_2", t)||lex_class_member(b, "50_self_research_loop_lex969_3", t)||
+            lex_class_member(b, "50_self_research_loop_lex970", t)||lex_class_member(b, "50_self_research_loop_lex970_2", t)||lex_class_member(b, "50_self_research_loop_lex970_3", t)||
+            !strcmp(t,"più")||lex_class_member(b, "50_self_research_loop_lex971", t)||lex_class_member(b, "50_self_research_loop_lex971_2", t)||
+            lex_class_member(b, "50_self_research_loop_lex972", t)||lex_class_member(b, "50_self_research_loop_lex972_2", t))
             return 0;
     }
 
@@ -1013,11 +1009,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     /* deep-reasoning M2: a DEEP read extracts every fact from the page's prose
      * (extract_page_facts), each with its source (M1) — distinct from the shallow
      * concept-learn below. Honest miss if the page has no page or no facts. */
-    int deep = matched && (strstr(matched, "read the page") ||
-                           strstr(matched, "extract facts") ||
-                           strstr(matched, "read everything") ||
-                           strstr(matched, "leggi la pagina") ||
-                           strstr(matched, "estrai i fatti"));
+    int deep = matched && (kb_cue_match(b, "50_self_research_loop_lex1016", matched) ||kb_cue_match(b, "50_self_research_loop_lex1016_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex1017", matched) ||kb_cue_match(b, "50_self_research_loop_lex1018", matched) ||kb_cue_match(b, "50_self_research_loop_lex1019", matched));
     if (deep) {
         char facts[512];
         facts[0] = '\0';   /* l'estrattore puo' uscire prima di scrivere qui */
@@ -1120,7 +1112,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
             size_t dn = kb_match(b->kb, "disambig_flag", dq, 2, dh, 8);
             for (size_t di = 0; di < dn; di++)
                 if (strstr(def, dh[di])) { disambig = 1; break; }
-            if (strcmp(lang, "en") == 0) break;
+            if (lex_class_member(b, "50_self_research_loop_lex1123", lang)) break;
         }
     }
     if (st == 2) {
@@ -1135,7 +1127,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
              * translation the engine invents. */
             char lang[8]; current_lang(b, lang, sizeof lang);
             char body[1024];
-            if (strcmp(lang, "en") == 0 ||
+            if (lex_class_member(b, "50_self_research_loop_lex1138", lang) ||
                 !kb_concept_gloss(b->kb, eff_key, lang, body, sizeof body))
                 snprintf(body, sizeof body, "%s", def);
             strip_sentence_end(b, lang, body);
@@ -1411,7 +1403,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         char list[900];
         size_t off = 0, n = 0;
         char lang[8]; current_lang(b, lang, sizeof lang);
-        int it = strcmp(lang, "it") == 0;
+        int it = lex_class_member(b, "50_self_research_loop_lex1414", lang);
         for (size_t lv = 0; levels[lv]; lv++) {
             char ids[24][KB_TERM_LEN];
             const char *q[2] = { NULL, levels[lv] };

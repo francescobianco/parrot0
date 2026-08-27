@@ -146,7 +146,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         char v[1][KB_TERM_LEN];
         const char *q[] = { NULL };
         if (b->kb && kb_match(b->kb, "os_language", q, 1, v, 1) > 0) {
-            int it = strcmp(v[0], "it") == 0;
+            int it = lex_class_member(b, "40_meta_reflection_lex149", v[0]);
             tput(b, it ? "The system locale is Italian." : "The system locale is English.",
                  it ? "La lingua di sistema è l'italiano." : "La lingua di sistema è l'inglese.",
                  out, out_size);
@@ -375,8 +375,8 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                 size_t j = i + 1;
                 while (j < fn) {                       /* skip "kind of"/"type of"/articles */
                     char *t = strip_edge_punct(fw[j]);
-                    if (!strcmp(t,"kind")||!strcmp(t,"type")||!strcmp(t,"sort")||
-                        !strcmp(t,"of")||!strcmp(t,"a")||!strcmp(t,"the")) j++;
+                    if (lex_class_member(b, "40_meta_reflection_lex378", t)||lex_class_member(b, "40_meta_reflection_lex378_2", t)||lex_class_member(b, "40_meta_reflection_lex378_3", t)||
+                        lex_class_member(b, "40_meta_reflection_lex379", t)||lex_class_member(b, "40_meta_reflection_lex379_2", t)||lex_class_member(b, "40_meta_reflection_lex379_3", t)) j++;
                     else break;
                 }
                 if (j >= fn) break;
@@ -517,7 +517,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         }
         int howknow = ((kb_cue_match(b, "40_meta_reflection_cue518", buf) && wn <= 4)) ||
                       ((kb_cue_match(b, "40_meta_reflection_cue519", buf) && wn <= 5)) ||
-                      (wn == 1 && strcmp(buf, "why") == 0) ||
+                      (wn == 1 && lex_class_member(b, "40_meta_reflection_lex520", buf)) ||
                       ((kb_cue_match(b, "40_meta_reflection_cue521", buf) && wn <= 3)) ||
                       ((kb_cue_match(b, "40_meta_reflection_cue522", buf) && wn <= 3));
         if (howknow) {
@@ -965,16 +965,16 @@ static int role_uptake(Brain *b, const char *raw) {
     char *sw[16];
     char segbuf[128]; snprintf(segbuf, sizeof segbuf, "%s", seg);
     size_t snw = split_words(segbuf, sw, 16);
-    int has_article = snw > 0 && (strcmp(sw[0], "a") == 0 || strcmp(sw[0], "an") == 0 ||
-                                  strcmp(sw[0], "the") == 0 || strcmp(sw[0], "un") == 0 ||
-                                  strcmp(sw[0], "una") == 0 || strcmp(sw[0], "uno") == 0);
+    int has_article = snw > 0 && (lex_class_member(b, "40_meta_reflection_lex968", sw[0]) || lex_class_member(b, "40_meta_reflection_lex968_2", sw[0]) ||
+                                  lex_class_member(b, "40_meta_reflection_lex969", sw[0]) || lex_class_member(b, "40_meta_reflection_lex969_2", sw[0]) ||
+                                  lex_class_member(b, "40_meta_reflection_lex970", sw[0]) || lex_class_member(b, "40_meta_reflection_lex970_2", sw[0]));
     if (snw > 0) {
         const char *kind_tok;
         if (has_article) {
             /* last word that is not an age-adjective like "5-year-old" */
             kind_tok = sw[snw - 1];
             for (size_t i = snw; i-- > 1;) {
-                if (!strstr(sw[i], "year") && !isdigit((unsigned char)sw[i][0])) {
+                if (!kb_cue_match(b, "40_meta_reflection_lex977", sw[i]) && !isdigit((unsigned char)sw[i][0])) {
                     kind_tok = sw[i]; break;
                 }
             }
@@ -1069,7 +1069,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
 
     if (set && role_uptake(b, raw)) {
         char lang[8]; current_lang(b, lang, sizeof lang);
-        int it = strcmp(lang, "it") == 0;
+        int it = lex_class_member(b, "40_meta_reflection_lex1072", lang);
         char msg[160];
         if (b->role_name[0])
             snprintf(msg, sizeof msg, it ? "Va bene — ora sono %s." :
@@ -1315,16 +1315,16 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
     /* separator: "as" (EN) / "come" (IT) splits the two ratios. */
     size_t sep = nw;
     for (size_t i = 1; i + 1 < nw; i++)
-        if (strcmp(w[i], "as") == 0 || strcmp(w[i], "come") == 0) { sep = i; break; }
+        if (lex_class_member(b, "40_meta_reflection_lex1318", w[i]) || lex_class_member(b, "40_meta_reflection_lex1318_2", w[i])) { sep = i; break; }
     if (sep == nw) return 0;
 
     /* relation marker within each ratio: "to" (EN "is to") / "a" (IT "sta a"). */
     size_t lm = sep;
     for (size_t i = 1; i < sep; i++)
-        if (strcmp(w[i], "to") == 0 || strcmp(w[i], "a") == 0) { lm = i; break; }
+        if (lex_class_member(b, "40_meta_reflection_lex1324", w[i]) || lex_class_member(b, "40_meta_reflection_lex1324_2", w[i])) { lm = i; break; }
     size_t rm = nw;
     for (size_t i = sep + 2; i < nw; i++)
-        if (strcmp(w[i], "to") == 0 || strcmp(w[i], "a") == 0) { rm = i; break; }
+        if (lex_class_member(b, "40_meta_reflection_lex1327", w[i]) || lex_class_member(b, "40_meta_reflection_lex1327_2", w[i])) { rm = i; break; }
     if (lm == sep || rm == nw || lm + 1 >= sep || rm + 1 >= nw) return 0;
 
     char A[KB_TERM_LEN], B[KB_TERM_LEN], C[KB_TERM_LEN], target[KB_TERM_LEN];
@@ -1337,10 +1337,10 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
      * blank placeholder ("____", "___", "blank"). gen240 adds the blank forms. */
     int blank = 1;
     for (const char *p = target; *p; p++) if (*p != '_') { blank = 0; break; }
-    if (!(strcmp(target, "what") == 0 || strcmp(target, "who") == 0 ||
-          strcmp(target, "which") == 0 || strcmp(target, "cosa") == 0 ||
-          strcmp(target, "chi") == 0 || strcmp(target, "quale") == 0 ||
-          strcmp(target, "blank") == 0 || blank || target[0] == '\0'))
+    if (!(lex_class_member(b, "40_meta_reflection_lex1340", target) || lex_class_member(b, "40_meta_reflection_lex1340_2", target) ||
+          lex_class_member(b, "40_meta_reflection_lex1341", target) || lex_class_member(b, "40_meta_reflection_lex1341_2", target) ||
+          lex_class_member(b, "40_meta_reflection_lex1342", target) || lex_class_member(b, "40_meta_reflection_lex1342_2", target) ||
+          lex_class_member(b, "40_meta_reflection_lex1343", target) || blank || target[0] == '\0'))
         return 0;
 
     char rels[64][KB_TERM_LEN];

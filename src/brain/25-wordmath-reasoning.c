@@ -921,13 +921,13 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(buf, w, 32);
 
     /* intake: "X requires/needs <list>" — conjunction + optional quantities. */
-    if (nw >= 3 && (strcmp(w[1], "requires") == 0 || strcmp(w[1], "needs") == 0 ||
-                    strcmp(w[1], "richiede") == 0)) {
+    if (nw >= 3 && (lex_class_member(b, "25_wordmath_reasoning_lex924", w[1]) || lex_class_member(b, "25_wordmath_reasoning_lex924_2", w[1]) ||
+                    lex_class_member(b, "25_wordmath_reasoning_lex925", w[1]))) {
         if (plan_learn_list(b, w[0], w, 2, nw, out, out_size)) return 1;
     }
     /* Italian intake: "per X serve/servono <list>" (to X you need ...). */
-    if (nw >= 4 && strcmp(w[0], "per") == 0 &&
-        (strcmp(w[2], "serve") == 0 || strcmp(w[2], "servono") == 0)) {
+    if (nw >= 4 && lex_class_member(b, "25_wordmath_reasoning_lex929", w[0]) &&
+        (lex_class_member(b, "25_wordmath_reasoning_lex930", w[2]) || lex_class_member(b, "25_wordmath_reasoning_lex930_2", w[2]))) {
         if (plan_learn_list(b, w[1], w, 3, nw, out, out_size)) return 1;
     }
 
@@ -1126,7 +1126,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             double v;
             if (!parse_value(strip_edge_punct(ew[i]), &v)) continue;
             char *nx = strip_edge_punct(ew[i + 1]);
-            if (!strcmp(nx, "minute") || !strcmp(nx, "minutes")) {
+            if (lex_class_member(b, "25_wordmath_reasoning_lex1129", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1129_2", nx)) {
                 minutes = v;
                 break;
             }
@@ -1203,9 +1203,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i + 1 < pn; i++) {
             double v; if (!parse_value(strip_edge_punct(pw[i]), &v)) continue;
             char nx[32]; snprintf(nx, sizeof nx, "%s", strip_edge_punct(pw[i + 1]));
-            if (!strcmp(nx, "percent") || !strcmp(nx, "%")) pct = v;
-            else if (!strcmp(nx, "dollars") || !strcmp(nx, "dollar") ||
-                     !strcmp(nx, "euros") || !strcmp(nx, "pounds")) {
+            if (lex_class_member(b, "25_wordmath_reasoning_lex1206", nx) || !strcmp(nx, "%")) pct = v;
+            else if (lex_class_member(b, "25_wordmath_reasoning_lex1207", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1207_2", nx) ||
+                     lex_class_member(b, "25_wordmath_reasoning_lex1208", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1208_2", nx)) {
                 base = v; snprintf(cur, sizeof cur, "%s", nx);
             }
         }
@@ -1290,20 +1290,20 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             if (!parse_value(strip_edge_punct(rw[i]), &v)) continue;
             char *nx = (i + 1 < rn) ? strip_edge_punct(rw[i + 1]) : (char *)"";
             char *nx2 = (i + 2 < rn) ? strip_edge_punct(rw[i + 2]) : (char *)"";
-            if (!strcmp(nx, "miles") || !strcmp(nx, "mile")) {
+            if (lex_class_member(b, "25_wordmath_reasoning_lex1293", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1293_2", nx)) {
                 dist += v;
-            } else if (!strcmp(nx, "km") || !strcmp(nx, "kilometers") ||
-                       !strcmp(nx, "kilometres")) {
+            } else if (lex_class_member(b, "25_wordmath_reasoning_lex1295", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1295_2", nx) ||
+                       lex_class_member(b, "25_wordmath_reasoning_lex1296", nx)) {
                 dist += v; unit_km = 1;
-            } else if (!strcmp(nx, "hours") || !strcmp(nx, "hour")) {
+            } else if (lex_class_member(b, "25_wordmath_reasoning_lex1298", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1298_2", nx)) {
                 hours += v;
-            } else if (!strcmp(nx, "minutes") || !strcmp(nx, "minute")) {
+            } else if (lex_class_member(b, "25_wordmath_reasoning_lex1300", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1300_2", nx)) {
                 hours += v / 60.0;
-            } else if (!strcmp(nx, "more") &&
-                       (!strcmp(nx2, "hours") || !strcmp(nx2, "hour"))) {
+            } else if (lex_class_member(b, "25_wordmath_reasoning_lex1302", nx) &&
+                       (lex_class_member(b, "25_wordmath_reasoning_lex1303", nx2) || lex_class_member(b, "25_wordmath_reasoning_lex1303_2", nx2))) {
                 hours += v;
-            } else if (!strcmp(nx, "more") &&
-                       (!strcmp(nx2, "minutes") || !strcmp(nx2, "minute"))) {
+            } else if (lex_class_member(b, "25_wordmath_reasoning_lex1305", nx) &&
+                       (lex_class_member(b, "25_wordmath_reasoning_lex1306", nx2) || lex_class_member(b, "25_wordmath_reasoning_lex1306_2", nx2))) {
                 hours += v / 60.0;
             }
         }
@@ -1332,21 +1332,21 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             else if (wp_clock_token(t, &v) && nt < 2) tstart[nt++] = v;
             else if (wp_parse_value_clean(t, &v)) {
                 char *nx = (i + 1 < cn) ? strip_edge_punct(cw[i + 1]) : (char *)"";
-                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2)
+                if ((lex_class_member(b, "25_wordmath_reasoning_lex1335", nx) || !strcmp(nx, "km/h")) && ns < 2)
                     speed[ns++] = v;
-                else if ((!strcmp(nx, "am") || !strcmp(nx, "pm")) && nt < 2) {
-                    if (!strcmp(nx, "pm") && v < 12) v += 12;
-                    if (!strcmp(nx, "am") && v == 12) v = 0;
+                else if ((lex_class_member(b, "25_wordmath_reasoning_lex1337", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1337_2", nx)) && nt < 2) {
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex1338", nx) && v < 12) v += 12;
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex1339", nx) && v == 12) v = 0;
                     tstart[nt++] = v;
-                } else if ((!strcmp(nx, "miles") || !strcmp(nx, "mile") ||
-                            !strcmp(nx, "km")) && dist < 0) {
+                } else if ((lex_class_member(b, "25_wordmath_reasoning_lex1341", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1341_2", nx) ||
+                            lex_class_member(b, "25_wordmath_reasoning_lex1342", nx)) && dist < 0) {
                     dist = v;
                 }
             }
-            if ((!strcmp(t, "leaves") || !strcmp(t, "from")) && i + 1 < cn && ncity < 2) {
+            if ((lex_class_member(b, "25_wordmath_reasoning_lex1346", t) || lex_class_member(b, "25_wordmath_reasoning_lex1346_2", t)) && i + 1 < cn && ncity < 2) {
                 char *c1 = strip_edge_punct(cw[i + 1]);
-                if (!strcmp(c1, "new") || !strcmp(c1, "los") || !strcmp(c1, "san") ||
-                    !strcmp(c1, "saint") || !strcmp(c1, "fort")) {
+                if (lex_class_member(b, "25_wordmath_reasoning_lex1348", c1) || lex_class_member(b, "25_wordmath_reasoning_lex1348_2", c1) || lex_class_member(b, "25_wordmath_reasoning_lex1348_3", c1) ||
+                    lex_class_member(b, "25_wordmath_reasoning_lex1349", c1) || lex_class_member(b, "25_wordmath_reasoning_lex1349_2", c1)) {
                     char *c2 = (i + 2 < cn) ? strip_edge_punct(cw[i + 2]) : (char *)"";
                     snprintf(city[ncity], KB_TERM_LEN, "%s %s", c1, c2);
                 } else snprintf(city[ncity], KB_TERM_LEN, "%s", c1);
@@ -1395,9 +1395,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             char *t = strip_edge_punct(dw[i]);
             char *nx = strip_edge_punct(dw[i + 1]);
             if (wp_parse_value_clean(t, &v) &&
-                (!strcmp(nx, "mile") || !strcmp(nx, "miles") ||
-                 !strcmp(nx, "km") || !strcmp(nx, "kilometers") ||
-                 !strcmp(nx, "kilometres")))
+                (lex_class_member(b, "25_wordmath_reasoning_lex1398", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1398_2", nx) ||
+                 lex_class_member(b, "25_wordmath_reasoning_lex1399", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1399_2", nx) ||
+                 lex_class_member(b, "25_wordmath_reasoning_lex1400", nx)))
                 sum += v;
         }
         if (sum > 0.0) {
@@ -1440,13 +1440,13 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 speed[ns++] = v; unit_km = 1;
             } else if (wp_parse_value_clean(t, &v)) {
                 char *nx = (i + 1 < mnw) ? strip_edge_punct(mw[i + 1]) : (char *)"";
-                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2) {
+                if ((lex_class_member(b, "25_wordmath_reasoning_lex1443", nx) || !strcmp(nx, "km/h")) && ns < 2) {
                     speed[ns++] = v; if (!strcmp(nx, "km/h")) unit_km = 1;
-                } else if ((!strcmp(nx, "miles") || !strcmp(nx, "mile") ||
-                            !strcmp(nx, "km") || !strcmp(nx, "kilometers") ||
-                            !strcmp(nx, "kilometres")) && dist < 0) {
-                    dist = v; if (!strcmp(nx, "km") || !strcmp(nx, "kilometers") ||
-                                  !strcmp(nx, "kilometres")) unit_km = 1;
+                } else if ((lex_class_member(b, "25_wordmath_reasoning_lex1445", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1445_2", nx) ||
+                            lex_class_member(b, "25_wordmath_reasoning_lex1446", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1446_2", nx) ||
+                            lex_class_member(b, "25_wordmath_reasoning_lex1447", nx)) && dist < 0) {
+                    dist = v; if (lex_class_member(b, "25_wordmath_reasoning_lex1448", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1448_2", nx) ||
+                                  lex_class_member(b, "25_wordmath_reasoning_lex1449", nx)) unit_km = 1;
                 }
             }
         }
@@ -1503,25 +1503,25 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             else if (wp_clock_token(t, &v) && nt < 2) tstart[nt++] = v;
             else if (wp_parse_value_clean(t, &v)) {
                 char *nx = (i + 1 < dn) ? strip_edge_punct(dw[i + 1]) : (char *)"";
-                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2) speed[ns++] = v;
-                else if ((!strcmp(nx, "am") || !strcmp(nx, "pm")) && nt < 2) {
-                    if (!strcmp(nx, "pm") && v < 12) v += 12;
-                    if (!strcmp(nx, "am") && v == 12) v = 0;
+                if ((lex_class_member(b, "25_wordmath_reasoning_lex1506", nx) || !strcmp(nx, "km/h")) && ns < 2) speed[ns++] = v;
+                else if ((lex_class_member(b, "25_wordmath_reasoning_lex1507", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1507_2", nx)) && nt < 2) {
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex1508", nx) && v < 12) v += 12;
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex1509", nx) && v == 12) v = 0;
                     tstart[nt++] = v;
-                } else if ((!strcmp(nx, "miles") || !strcmp(nx, "mile") ||
-                            !strcmp(nx, "km")) && dist < 0) {
+                } else if ((lex_class_member(b, "25_wordmath_reasoning_lex1511", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1511_2", nx) ||
+                            lex_class_member(b, "25_wordmath_reasoning_lex1512", nx)) && dist < 0) {
                     dist = v;
                 }
             } else if (wp_clock_colon(t, &v) && i + 1 < dn && nt < 2) {
                 char *ap = strip_edge_punct(dw[i + 1]);
-                if (!strcmp(ap, "pm") && v < 12) v += 12;
-                if (!strcmp(ap, "am") && v == 12) v = 0;
-                if (!strcmp(ap, "am") || !strcmp(ap, "pm")) tstart[nt++] = v;
+                if (lex_class_member(b, "25_wordmath_reasoning_lex1517", ap) && v < 12) v += 12;
+                if (lex_class_member(b, "25_wordmath_reasoning_lex1518", ap) && v == 12) v = 0;
+                if (lex_class_member(b, "25_wordmath_reasoning_lex1519", ap) || lex_class_member(b, "25_wordmath_reasoning_lex1519_2", ap)) tstart[nt++] = v;
             }
-            if ((!strcmp(t, "leaves") || !strcmp(t, "from")) && i + 1 < dn && ncity < 2) {
+            if ((lex_class_member(b, "25_wordmath_reasoning_lex1521", t) || lex_class_member(b, "25_wordmath_reasoning_lex1521_2", t)) && i + 1 < dn && ncity < 2) {
                 char *c1 = strip_edge_punct(dw[i + 1]);
-                if (!strcmp(c1, "new") || !strcmp(c1, "los") || !strcmp(c1, "san") ||
-                    !strcmp(c1, "saint") || !strcmp(c1, "fort")) {
+                if (lex_class_member(b, "25_wordmath_reasoning_lex1523", c1) || lex_class_member(b, "25_wordmath_reasoning_lex1523_2", c1) || lex_class_member(b, "25_wordmath_reasoning_lex1523_3", c1) ||
+                    lex_class_member(b, "25_wordmath_reasoning_lex1524", c1) || lex_class_member(b, "25_wordmath_reasoning_lex1524_2", c1)) {
                     char *c2 = (i + 2 < dn) ? strip_edge_punct(dw[i + 2]) : (char *)"";
                     snprintf(city[ncity], KB_TERM_LEN, "%s %s", c1, c2);
                 } else snprintf(city[ncity], KB_TERM_LEN, "%s", c1);
@@ -1580,18 +1580,18 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             else if (wp_clock_token(t, &v) && nt < 2) tstart[nt++] = v;
             else if (wp_parse_value_clean(t, &v)) {
                 char *nx = (i + 1 < mnw) ? strip_edge_punct(mw[i + 1]) : (char *)"";
-                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2) speed[ns++] = v;
-                else if ((!strcmp(nx, "am") || !strcmp(nx, "pm")) && nt < 2) {
-                    if (!strcmp(nx, "pm") && v < 12) v += 12;
-                    if (!strcmp(nx, "am") && v == 12) v = 0;
+                if ((lex_class_member(b, "25_wordmath_reasoning_lex1583", nx) || !strcmp(nx, "km/h")) && ns < 2) speed[ns++] = v;
+                else if ((lex_class_member(b, "25_wordmath_reasoning_lex1584", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1584_2", nx)) && nt < 2) {
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex1585", nx) && v < 12) v += 12;
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex1586", nx) && v == 12) v = 0;
                     tstart[nt++] = v;
-                } else if (!strcmp(nx, "miles") || !strcmp(nx, "mile") ||
-                           !strcmp(nx, "km")) dist = v;
+                } else if (lex_class_member(b, "25_wordmath_reasoning_lex1588", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1588_2", nx) ||
+                           lex_class_member(b, "25_wordmath_reasoning_lex1589", nx)) dist = v;
             }
-            if ((!strcmp(t, "leaves") || !strcmp(t, "from")) && i + 1 < mnw && ncity < 2) {
+            if ((lex_class_member(b, "25_wordmath_reasoning_lex1591", t) || lex_class_member(b, "25_wordmath_reasoning_lex1591_2", t)) && i + 1 < mnw && ncity < 2) {
                 char *c1 = strip_edge_punct(mw[i + 1]);
-                if (!strcmp(c1, "new") || !strcmp(c1, "los") || !strcmp(c1, "san") ||
-                    !strcmp(c1, "saint") || !strcmp(c1, "fort")) {
+                if (lex_class_member(b, "25_wordmath_reasoning_lex1593", c1) || lex_class_member(b, "25_wordmath_reasoning_lex1593_2", c1) || lex_class_member(b, "25_wordmath_reasoning_lex1593_3", c1) ||
+                    lex_class_member(b, "25_wordmath_reasoning_lex1594", c1) || lex_class_member(b, "25_wordmath_reasoning_lex1594_2", c1)) {
                     char *c2 = (i + 2 < mnw) ? strip_edge_punct(mw[i + 2]) : (char *)"";
                     snprintf(city[ncity], KB_TERM_LEN, "%s %s", c1, c2);
                 } else snprintf(city[ncity], KB_TERM_LEN, "%s", c1);
@@ -1643,15 +1643,15 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             char *t = strip_edge_punct(mw[i]); double v;
             if (parse_value(t, &v)) {
                 char *nx = (i + 1 < mnw) ? strip_edge_punct(mw[i + 1]) : (char *)"";
-                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2) {
+                if ((lex_class_member(b, "25_wordmath_reasoning_lex1646", nx) || !strcmp(nx, "km/h")) && ns < 2) {
                     speed[ns++] = v; if (!strcmp(nx, "km/h")) unit_km = 1;
-                } else if ((!strcmp(nx, "am") || !strcmp(nx, "pm")) && nt < 2) {
-                    if (!strcmp(nx, "pm") && v < 12) v += 12;
-                    if (!strcmp(nx, "am") && v == 12) v = 0;
+                } else if ((lex_class_member(b, "25_wordmath_reasoning_lex1648", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1648_2", nx)) && nt < 2) {
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex1649", nx) && v < 12) v += 12;
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex1650", nx) && v == 12) v = 0;
                     tstart[nt++] = v;
-                } else if (!strcmp(nx, "miles") || !strcmp(nx, "mile") ||
-                           !strcmp(nx, "km") || !strcmp(nx, "kilometers") ||
-                           !strcmp(nx, "kilometres")) dist = v;
+                } else if (lex_class_member(b, "25_wordmath_reasoning_lex1652", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1652_2", nx) ||
+                           lex_class_member(b, "25_wordmath_reasoning_lex1653", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1653_2", nx) ||
+                           lex_class_member(b, "25_wordmath_reasoning_lex1654", nx)) dist = v;
             }
         }
         if (ns == 2 && nt < 2 && dist > 0 && speed[0] > 0 && speed[1] > 0 &&
@@ -1694,8 +1694,8 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                     if (strcmp(strip_edge_punct(mw[i]), "before")) continue;
                     double thr; if (!parse_value(strip_edge_punct(mw[i + 1]), &thr)) continue;
                     char *u = (i + 2 < mnw) ? strip_edge_punct(mw[i + 2]) : (char *)"";
-                    if (!strcmp(u, "pm") && thr < 12) thr += 12;
-                    if (!strcmp(u, "am") && thr == 12) thr = 0;
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex1697", u) && thr < 12) thr += 12;
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex1698", u) && thr == 12) thr = 0;
                     snprintf(lead, sizeof lead, "%s -- ", meet < thr ? "Yes" : "No");
                     break;
                 }
@@ -1724,19 +1724,19 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             char *t = strip_edge_punct(mw[i]); double v;
             if (parse_value(t, &v)) {
                 char *nx = (i + 1 < mnw) ? strip_edge_punct(mw[i + 1]) : (char *)"";
-                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2) speed[ns++] = v;
-                else if ((!strcmp(nx, "am") || !strcmp(nx, "pm")) && nt < 2) {
-                    if (!strcmp(nx, "pm") && v < 12) v += 12;
-                    if (!strcmp(nx, "am") && v == 12) v = 0;
+                if ((lex_class_member(b, "25_wordmath_reasoning_lex1727", nx) || !strcmp(nx, "km/h")) && ns < 2) speed[ns++] = v;
+                else if ((lex_class_member(b, "25_wordmath_reasoning_lex1728", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1728_2", nx)) && nt < 2) {
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex1729", nx) && v < 12) v += 12;
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex1730", nx) && v == 12) v = 0;
                     tstart[nt++] = v;
-                } else if (!strcmp(nx, "miles") || !strcmp(nx, "km")) dist = v;
+                } else if (lex_class_member(b, "25_wordmath_reasoning_lex1732", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1732_2", nx)) dist = v;
             }
             /* capture the two departure cities (word after "leaves"/"from"), with a
              * one-word lookahead for "New York"/"Los Angeles"-style names. */
-            if ((!strcmp(t, "leaves") || !strcmp(t, "from")) && i + 1 < mnw && ncity < 2) {
+            if ((lex_class_member(b, "25_wordmath_reasoning_lex1736", t) || lex_class_member(b, "25_wordmath_reasoning_lex1736_2", t)) && i + 1 < mnw && ncity < 2) {
                 char *c1 = strip_edge_punct(mw[i + 1]);
-                if (!strcmp(c1, "new") || !strcmp(c1, "los") || !strcmp(c1, "san") ||
-                    !strcmp(c1, "saint") || !strcmp(c1, "fort")) {
+                if (lex_class_member(b, "25_wordmath_reasoning_lex1738", c1) || lex_class_member(b, "25_wordmath_reasoning_lex1738_2", c1) || lex_class_member(b, "25_wordmath_reasoning_lex1738_3", c1) ||
+                    lex_class_member(b, "25_wordmath_reasoning_lex1739", c1) || lex_class_member(b, "25_wordmath_reasoning_lex1739_2", c1)) {
                     char *c2 = (i + 2 < mnw) ? strip_edge_punct(mw[i + 2]) : (char *)"";
                     snprintf(city[ncity], KB_TERM_LEN, "%s %s", c1, c2);
                 } else snprintf(city[ncity], KB_TERM_LEN, "%s", c1);
@@ -1778,11 +1778,11 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             if (wp_number_suffix(t, "mph", &v) && ns < 2) speed[ns++] = v;
             else if (wp_parse_value_clean(t, &v)) {
                 char *nx = (i + 1 < tnw) ? strip_edge_punct(tw[i + 1]) : (char *)"";
-                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2)
+                if ((lex_class_member(b, "25_wordmath_reasoning_lex1781", nx) || !strcmp(nx, "km/h")) && ns < 2)
                     speed[ns++] = v;
-                else if (!strcmp(nx, "miles") || !strcmp(nx, "mile") || !strcmp(nx, "km"))
+                else if (lex_class_member(b, "25_wordmath_reasoning_lex1783", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1783_2", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1783_3", nx))
                     dist = v;
-                else if ((!strcmp(nx, "hour") || !strcmp(nx, "hours") || !strcmp(nx, "hrs")) && hours < 0)
+                else if ((lex_class_member(b, "25_wordmath_reasoning_lex1785", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1785_2", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1785_3", nx)) && hours < 0)
                     hours = v;
             }
         }
@@ -1899,30 +1899,30 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < nn; i++) {
             char *t = strip_edge_punct(nw2[i]);
             double v;
-            if (!strcmp(t, "than") && i >= 1 && i + 1 < nn) {
+            if (lex_class_member(b, "25_wordmath_reasoning_lex1902", t) && i >= 1 && i + 1 < nn) {
                 char *prev = strip_edge_punct(nw2[i - 1]);
                 for (size_t j = i + 1; j <= i + 2 && j < nn; j++) {
                     if (!parse_value(strip_edge_punct(nw2[j]), &v)) continue;
-                    if (!strcmp(prev, "greater") || !strcmp(prev, "more") ||
-                        !strcmp(prev, "bigger") || !strcmp(prev, "larger") ||
-                        !strcmp(prev, "higher")) {
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex1906", prev) || lex_class_member(b, "25_wordmath_reasoning_lex1906_2", prev) ||
+                        lex_class_member(b, "25_wordmath_reasoning_lex1907", prev) || lex_class_member(b, "25_wordmath_reasoning_lex1907_2", prev) ||
+                        lex_class_member(b, "25_wordmath_reasoning_lex1908", prev)) {
                         if ((long)v + 1 > lo) lo = (long)v + 1;
                         got_bound = 1;
-                    } else if (!strcmp(prev, "less") || !strcmp(prev, "smaller") ||
-                               !strcmp(prev, "lower") || !strcmp(prev, "fewer")) {
+                    } else if (lex_class_member(b, "25_wordmath_reasoning_lex1911", prev) || lex_class_member(b, "25_wordmath_reasoning_lex1911_2", prev) ||
+                               lex_class_member(b, "25_wordmath_reasoning_lex1912", prev) || lex_class_member(b, "25_wordmath_reasoning_lex1912_2", prev)) {
                         if ((long)v - 1 < hi) hi = (long)v - 1;
                         got_bound = 1;
                     }
                     break;
                 }
-            } else if ((!strcmp(t, "least") || !strcmp(t, "most")) && i >= 1 &&
+            } else if ((lex_class_member(b, "25_wordmath_reasoning_lex1918", t) || lex_class_member(b, "25_wordmath_reasoning_lex1918_2", t)) && i >= 1 &&
                        i + 1 < nn &&
                        !strcmp(strip_edge_punct(nw2[i - 1]), "at") &&
                        parse_value(strip_edge_punct(nw2[i + 1]), &v)) {
-                if (!strcmp(t, "least")) { if ((long)v > lo) lo = (long)v; }
+                if (lex_class_member(b, "25_wordmath_reasoning_lex1922", t)) { if ((long)v > lo) lo = (long)v; }
                 else { if ((long)v < hi) hi = (long)v; }
                 got_bound = 1;
-            } else if (!strcmp(t, "between") && i + 3 < nn &&
+            } else if (lex_class_member(b, "25_wordmath_reasoning_lex1925", t) && i + 3 < nn &&
                        parse_value(strip_edge_punct(nw2[i + 1]), &v) &&
                        !strcmp(strip_edge_punct(nw2[i + 2]), "and")) {
                 double v2;
@@ -1932,11 +1932,11 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                     if ((long)v2 - 1 < hi) hi = (long)v2 - 1;
                     got_bound = 1;
                 }
-            } else if ((!strcmp(t, "above") || !strcmp(t, "over")) && i + 1 < nn &&
+            } else if ((lex_class_member(b, "25_wordmath_reasoning_lex1935", t) || lex_class_member(b, "25_wordmath_reasoning_lex1935_2", t)) && i + 1 < nn &&
                        parse_value(strip_edge_punct(nw2[i + 1]), &v)) {
                 if ((long)v + 1 > lo) lo = (long)v + 1;
                 got_bound = 1;
-            } else if ((!strcmp(t, "below") || !strcmp(t, "under")) && i + 1 < nn &&
+            } else if ((lex_class_member(b, "25_wordmath_reasoning_lex1939", t) || lex_class_member(b, "25_wordmath_reasoning_lex1939_2", t)) && i + 1 < nn &&
                        parse_value(strip_edge_punct(nw2[i + 1]), &v)) {
                 if ((long)v - 1 < hi) hi = (long)v - 1;
                 got_bound = 1;
@@ -1953,7 +1953,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i + 1 < nn; i++) {
             char *t = strip_edge_punct(nw2[i]);
             double v;
-            if ((!strcmp(t, "divisible") || !strcmp(t, "multiple")) && i + 2 < nn &&
+            if ((lex_class_member(b, "25_wordmath_reasoning_lex1956", t) || lex_class_member(b, "25_wordmath_reasoning_lex1956_2", t)) && i + 2 < nn &&
                 parse_value(strip_edge_punct(nw2[i + 2]), &v) && (long)v != 0) {
                 divby = (long)v;
                 notdiv = i >= 1 && !strcmp(strip_edge_punct(nw2[i - 1]), "not");
@@ -2021,10 +2021,10 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             if (off < 0 && parse_value(t, &v) && v >= 1 && v <= 60 &&
                 i + 1 < dn2) {
                 char *nx = strip_edge_punct(dw2[i + 1]);
-                if (!strcmp(nx, "days") || !strcmp(nx, "day")) off = v;
+                if (lex_class_member(b, "25_wordmath_reasoning_lex2024", nx) || lex_class_member(b, "25_wordmath_reasoning_lex2024_2", nx)) off = v;
             }
-            if (!strcmp(t, "after") || !strcmp(t, "from")) dir = 1;
-            else if (!strcmp(t, "before")) dir = -1;
+            if (lex_class_member(b, "25_wordmath_reasoning_lex2026", t) || lex_class_member(b, "25_wordmath_reasoning_lex2026_2", t)) dir = 1;
+            else if (lex_class_member(b, "25_wordmath_reasoning_lex2027", t)) dir = -1;
         }
         if (base && dir) {
             if (off < 0) off = 1;                /* "the day after Saturday" */
@@ -2083,8 +2083,8 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         double length = -1, width = -1; char unit[32] = "";
         for (size_t i = 0; i < gn; i++) {
             char *t = strip_edge_punct(gw[i]);
-            int want_len = !strcmp(t, "length");
-            int want_wid = !strcmp(t, "width");
+            int want_len = lex_class_member(b, "25_wordmath_reasoning_lex2086", t);
+            int want_wid = lex_class_member(b, "25_wordmath_reasoning_lex2087", t);
             if (!want_len && !want_wid) continue;
             for (size_t j = i + 1; j <= i + 4 && j < gn; j++) {
                 double v;
@@ -2126,10 +2126,10 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             double v;
             if (!parse_value(strip_edge_punct(rw[i]), &v)) continue;
             char *u = strip_edge_punct(rw[i + 1]);
-            if (!strcmp(u, "mile") || !strcmp(u, "miles")) {
+            if (lex_class_member(b, "25_wordmath_reasoning_lex2129", u) || lex_class_member(b, "25_wordmath_reasoning_lex2129_2", u)) {
                 if (miles < 0) miles = v;
                 else trip = v;
-            } else if (!strcmp(u, "gallon") || !strcmp(u, "gallons")) {
+            } else if (lex_class_member(b, "25_wordmath_reasoning_lex2132", u) || lex_class_member(b, "25_wordmath_reasoning_lex2132_2", u)) {
                 gallons = v;
             }
         }
@@ -2224,8 +2224,8 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             if (!parse_value(t, &v)) continue;
             if (i + 1 < tn) {
                 char *u = strip_edge_punct(tw[i + 1]);
-                if (!strcmp(u, "mph") && ns < 2) speed[ns++] = v;
-                else if ((!strcmp(u, "mile") || !strcmp(u, "miles")) && dist < 0)
+                if (lex_class_member(b, "25_wordmath_reasoning_lex2227", u) && ns < 2) speed[ns++] = v;
+                else if ((lex_class_member(b, "25_wordmath_reasoning_lex2228", u) || lex_class_member(b, "25_wordmath_reasoning_lex2228_2", u)) && dist < 0)
                     dist = v;
             }
         }
@@ -2281,9 +2281,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         double per = -1, side = -1; char unit[32] = "";
         for (size_t i = 0; i < rn2; i++) {
             char *t = strip_edge_punct(rw2[i]);
-            int is_per = !strcmp(t, "perimeter");
-            int is_side = !strcmp(t, "side") || !strcmp(t, "width") ||
-                          !strcmp(t, "length");
+            int is_per = lex_class_member(b, "25_wordmath_reasoning_lex2284", t);
+            int is_side = lex_class_member(b, "25_wordmath_reasoning_lex2285", t) || lex_class_member(b, "25_wordmath_reasoning_lex2285_2", t) ||
+                          lex_class_member(b, "25_wordmath_reasoning_lex2286", t);
             if (!is_per && !is_side) continue;
             for (size_t j = i + 1; j <= i + 3 && j < rn2; j++) {
                 double v;
@@ -2356,10 +2356,10 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         for (size_t i = 1; i < hn2; i++) {
             char *t = strip_edge_punct(hw2[i]);
             double v;
-            if ((!strcmp(t, "legs") || !strcmp(t, "leg")) &&
+            if ((lex_class_member(b, "25_wordmath_reasoning_lex2359", t) || lex_class_member(b, "25_wordmath_reasoning_lex2359_2", t)) &&
                 parse_value(strip_edge_punct(hw2[i - 1]), &v)) total_legs = v;
-            if ((!strcmp(t, "animals") || !strcmp(t, "heads") ||
-                 !strcmp(t, "animali")) &&
+            if ((lex_class_member(b, "25_wordmath_reasoning_lex2361", t) || lex_class_member(b, "25_wordmath_reasoning_lex2361_2", t) ||
+                 lex_class_member(b, "25_wordmath_reasoning_lex2362", t)) &&
                 parse_value(strip_edge_punct(hw2[i - 1]), &v)) total_n = v;
         }
         if (nsp == 2 && total_n > 0 && total_legs > 0 &&
@@ -2415,9 +2415,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             if (strcmp(strip_edge_punct(aw[i - 1]), "as")) continue;
             char *m2 = strip_edge_punct(aw[i - 2]);      /* "<mult> as old" */
             double m = 0, v;
-            if (!strcmp(m2, "twice")) m = 2;
-            else if (!strcmp(m2, "thrice")) m = 3;
-            else if (!strcmp(m2, "times") && i >= 3 &&
+            if (lex_class_member(b, "25_wordmath_reasoning_lex2418", m2)) m = 2;
+            else if (lex_class_member(b, "25_wordmath_reasoning_lex2419", m2)) m = 3;
+            else if (lex_class_member(b, "25_wordmath_reasoning_lex2420", m2) && i >= 3 &&
                      parse_value(strip_edge_punct(aw[i - 3]), &v)) m = v;
             if (m <= 0) continue;
             if (K <= 0) {
@@ -2425,7 +2425,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 /* entities: A before the copula, B after "as old as" */
                 for (size_t j = i - 2; j-- > 0;) {
                     char *tj = strip_edge_punct(aw[j]);
-                    if (!strcmp(tj, "is") || !strcmp(tj, "was")) {
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex2428", tj) || lex_class_member(b, "25_wordmath_reasoning_lex2428_2", tj)) {
                         if (j > 0) snprintf(who_a, sizeof who_a, "%s",
                                             strip_edge_punct(aw[j - 1]));
                         break;
@@ -2434,9 +2434,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 for (size_t j = i + 1; j + 1 < an; j++) {
                     if (strcmp(strip_edge_punct(aw[j]), "as")) continue;
                     char *tb = strip_edge_punct(aw[j + 1]);
-                    if (!strcmp(tb, "his") || !strcmp(tb, "her") ||
-                        !strcmp(tb, "the") || !strcmp(tb, "a") ||
-                        !strcmp(tb, "their")) {
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex2437", tb) || lex_class_member(b, "25_wordmath_reasoning_lex2437_2", tb) ||
+                        lex_class_member(b, "25_wordmath_reasoning_lex2438", tb) || lex_class_member(b, "25_wordmath_reasoning_lex2438_2", tb) ||
+                        lex_class_member(b, "25_wordmath_reasoning_lex2439", tb)) {
                         if (j + 2 < an) tb = strip_edge_punct(aw[j + 2]);
                     }
                     snprintf(who_b, sizeof who_b, "%s", tb);
@@ -2447,7 +2447,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         for (size_t i = 1; i < an && N == 0; i++) {
             char *t = strip_edge_punct(aw[i]);
             double v;
-            if ((!strcmp(t, "years") || !strcmp(t, "year")) &&
+            if ((lex_class_member(b, "25_wordmath_reasoning_lex2450", t) || lex_class_member(b, "25_wordmath_reasoning_lex2450_2", t)) &&
                 parse_value(strip_edge_punct(aw[i - 1]), &v)) N = v;
         }
         if (K > 0 && M > 0 && N > 0) {
@@ -2508,12 +2508,12 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         /* per = the number right after each/every <noun> holds/has/contains */
         for (size_t i = 0; i + 1 < mn; i++) {
             char *t = strip_edge_punct(mw[i]);
-            if (!strcmp(t,"holds")||!strcmp(t,"hold")||!strcmp(t,"contains")||
-                !strcmp(t,"contain")||!strcmp(t,"holding")) {
+            if (lex_class_member(b, "25_wordmath_reasoning_lex2511", t)||lex_class_member(b, "25_wordmath_reasoning_lex2511_2", t)||lex_class_member(b, "25_wordmath_reasoning_lex2511_3", t)||
+                lex_class_member(b, "25_wordmath_reasoning_lex2512", t)||lex_class_member(b, "25_wordmath_reasoning_lex2512_2", t)) {
                 for (size_t j = i + 1; j <= i + 3 && j < mn; j++) {
                     double v; if (parse_value(strip_edge_punct(mw[j]), &v)) { per = v; break; }
                 }
-            } else if (!strcmp(t, "with") && kb_cue_match(b, "25_wordmath_reasoning_cue2496", q)) {
+            } else if (lex_class_member(b, "25_wordmath_reasoning_lex2516", t) && kb_cue_match(b, "25_wordmath_reasoning_cue2496", q)) {
                 for (size_t j = i + 1; j <= i + 3 && j < mn; j++) {
                     double v; if (parse_value(strip_edge_punct(mw[j]), &v)) { per = v; break; }
                 }
@@ -2530,21 +2530,21 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             /* walk signed deltas: add/added/put -> +, remove/take/subtract -> - */
             for (size_t i = 0; i + 1 < mn; i++) {
                 char *t = strip_edge_punct(mw[i]);
-                int plus = !strcmp(t,"add")||!strcmp(t,"added")||!strcmp(t,"adds")||
-                           !strcmp(t,"put")||!strcmp(t,"gain")||!strcmp(t,"buy")||
-                           !strcmp(t,"bought")||!strcmp(t,"insert");
-                int minus = !strcmp(t,"remove")||!strcmp(t,"removed")||!strcmp(t,"removes")||
-                            !strcmp(t,"take")||!strcmp(t,"took")||!strcmp(t,"takes")||
-                            !strcmp(t,"subtract")||!strcmp(t,"lose")||!strcmp(t,"lost")||
-                            !strcmp(t,"sell")||!strcmp(t,"sold")||!strcmp(t,"give")||!strcmp(t,"gave");
+                int plus = lex_class_member(b, "25_wordmath_reasoning_lex2533", t)||lex_class_member(b, "25_wordmath_reasoning_lex2533_2", t)||lex_class_member(b, "25_wordmath_reasoning_lex2533_3", t)||
+                           lex_class_member(b, "25_wordmath_reasoning_lex2534", t)||lex_class_member(b, "25_wordmath_reasoning_lex2534_2", t)||lex_class_member(b, "25_wordmath_reasoning_lex2534_3", t)||
+                           lex_class_member(b, "25_wordmath_reasoning_lex2535", t)||lex_class_member(b, "25_wordmath_reasoning_lex2535_2", t);
+                int minus = lex_class_member(b, "25_wordmath_reasoning_lex2536", t)||lex_class_member(b, "25_wordmath_reasoning_lex2536_2", t)||lex_class_member(b, "25_wordmath_reasoning_lex2536_3", t)||
+                            lex_class_member(b, "25_wordmath_reasoning_lex2537", t)||lex_class_member(b, "25_wordmath_reasoning_lex2537_2", t)||lex_class_member(b, "25_wordmath_reasoning_lex2537_3", t)||
+                            lex_class_member(b, "25_wordmath_reasoning_lex2538", t)||lex_class_member(b, "25_wordmath_reasoning_lex2538_2", t)||lex_class_member(b, "25_wordmath_reasoning_lex2538_3", t)||
+                            lex_class_member(b, "25_wordmath_reasoning_lex2539", t)||lex_class_member(b, "25_wordmath_reasoning_lex2539_2", t)||lex_class_member(b, "25_wordmath_reasoning_lex2539_3", t)||lex_class_member(b, "25_wordmath_reasoning_lex2539_4", t);
                 if (!plus && !minus) continue;
                 for (size_t j = i + 1; j <= i + 3 && j < mn; j++) {
                     double v; if (parse_value(strip_edge_punct(mw[j]), &v)) {
                         int worth = 0;
                         for (size_t k = j + 1; k <= j + 4 && k < mn; k++) {
                             char *wk = strip_edge_punct(mw[k]);
-                            if (!strcmp(wk, "shelf") || !strcmp(wk, "shelves") ||
-                                !strcmp(wk, "worth") || !strcmp(wk, "complete"))
+                            if (lex_class_member(b, "25_wordmath_reasoning_lex2546", wk) || lex_class_member(b, "25_wordmath_reasoning_lex2546_2", wk) ||
+                                lex_class_member(b, "25_wordmath_reasoning_lex2547", wk) || lex_class_member(b, "25_wordmath_reasoning_lex2547_2", wk))
                                 worth = 1;
                         }
                         double delta = worth ? v * per : v;
@@ -2579,8 +2579,8 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             int is_price = 0, is_money = 0;
             for (size_t j = (i >= 2 ? i - 2 : 0); j <= i + 2 && j < cn; j++) {
                 char *k = strip_edge_punct(cw[j]);
-                if (!strcmp(k,"cost")||!strcmp(k,"costs")||!strcmp(k,"price")||!strcmp(k,"costing")) is_price = 1;
-                if (!strcmp(k,"have")||!strcmp(k,"bill")||!strcmp(k,"got")||!strcmp(k,"wallet")) is_money = 1;
+                if (lex_class_member(b, "25_wordmath_reasoning_lex2582", k)||lex_class_member(b, "25_wordmath_reasoning_lex2582_2", k)||lex_class_member(b, "25_wordmath_reasoning_lex2582_3", k)||lex_class_member(b, "25_wordmath_reasoning_lex2582_4", k)) is_price = 1;
+                if (lex_class_member(b, "25_wordmath_reasoning_lex2583", k)||lex_class_member(b, "25_wordmath_reasoning_lex2583_2", k)||lex_class_member(b, "25_wordmath_reasoning_lex2583_3", k)||lex_class_member(b, "25_wordmath_reasoning_lex2583_4", k)) is_money = 1;
             }
             if (is_price && price < 0) price = v;
             else if (is_money && money < 0) money = v;
@@ -2632,8 +2632,8 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             if (!parse_value(strip_edge_punct(bw[i]), &v)) continue;
             for (size_t j = i + 1; j <= i + 2 && j < bn; j++) {
                 char *nx = strip_edge_punct(bw[j]);
-                if (!strcmp(nx, "total") || !strcmp(nx, "altogether")) total = v;
-                if (!strcmp(nx, "more")) diff = v;
+                if (lex_class_member(b, "25_wordmath_reasoning_lex2635", nx) || lex_class_member(b, "25_wordmath_reasoning_lex2635_2", nx)) total = v;
+                if (lex_class_member(b, "25_wordmath_reasoning_lex2636", nx)) diff = v;
             }
         }
         /* fallbacks: the largest number is the total; the diff sits before "more" */
@@ -2747,18 +2747,18 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         const char *item = NULL;
         for (size_t i = 0; i < pnw; i++) {
             char *t = strip_edge_punct(pw[i]);
-            if (!strcmp(t, "for") && i > 0 && i + 1 < pnw) {
+            if (lex_class_member(b, "25_wordmath_reasoning_lex2750", t) && i > 0 && i + 1 < pnw) {
                 double a, c;
                 if (parse_value(strip_edge_punct(pw[i - 1]), &a) &&
                     parse_value(strip_edge_punct(pw[i + 1]), &c)) {
                     packCount = a; packPrice = c;
                 }
             }
-            if (!strcmp(t, "have") && i + 1 < pnw) {
+            if (lex_class_member(b, "25_wordmath_reasoning_lex2757", t) && i + 1 < pnw) {
                 double k;
                 if (parse_value(strip_edge_punct(pw[i + 1]), &k)) money = k;
             }
-            if (!strcmp(t, "sells") && i + 1 < pnw) item = strip_edge_punct(pw[i + 1]);
+            if (lex_class_member(b, "25_wordmath_reasoning_lex2761", t) && i + 1 < pnw) item = strip_edge_punct(pw[i + 1]);
         }
         if (packCount > 0 && packPrice > 0 && money >= 0) {
             long packs = (long)(money / packPrice);
@@ -2878,7 +2878,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 for (size_t si = 0; si < sn; si++) {
                     double v;
                     if (parse_value(strip_edge_punct(sw[si]), &v)) {
-                        if (!strcmp(parties[pi], "user")) user = v;
+                        if (lex_class_member(b, "25_wordmath_reasoning_lex2881", parties[pi])) user = v;
                         else assistant = v;
                         if (si + 1 < sn) {
                             char *it = strip_edge_punct(sw[si + 1]);
@@ -2909,7 +2909,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                     for (size_t si = 0; si < sn; si++) {
                         double v;
                         if (!parse_value(strip_edge_punct(sw[si]), &v)) continue;
-                        if (!strcmp(froms[fi], "user")) ua += v;
+                        if (lex_class_member(b, "25_wordmath_reasoning_lex2912", froms[fi])) ua += v;
                         else au += v;
                         break;
                     }
@@ -2972,10 +2972,10 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 if (sign2) { total += sign2 * v; sign2 = 0; }
                 continue;
             }
-            if (!strcmp(t, "buys") || !strcmp(t, "buy") || !strcmp(t, "bought") ||
-                !strcmp(t, "gains") || !strcmp(t, "gain") || !strcmp(t, "gets") ||
-                !strcmp(t, "get") || !strcmp(t, "adds") || !strcmp(t, "add") ||
-                !strcmp(t, "receives") || !strcmp(t, "finds")) sign2 = 1;
+            if (lex_class_member(b, "25_wordmath_reasoning_lex2975", t) || lex_class_member(b, "25_wordmath_reasoning_lex2975_2", t) || lex_class_member(b, "25_wordmath_reasoning_lex2975_3", t) ||
+                lex_class_member(b, "25_wordmath_reasoning_lex2976", t) || lex_class_member(b, "25_wordmath_reasoning_lex2976_2", t) || lex_class_member(b, "25_wordmath_reasoning_lex2976_3", t) ||
+                lex_class_member(b, "25_wordmath_reasoning_lex2977", t) || lex_class_member(b, "25_wordmath_reasoning_lex2977_2", t) || lex_class_member(b, "25_wordmath_reasoning_lex2977_3", t) ||
+                lex_class_member(b, "25_wordmath_reasoning_lex2978", t) || lex_class_member(b, "25_wordmath_reasoning_lex2978_2", t)) sign2 = 1;
             else if (wp_removal_word(t)) sign2 = -1;
         }
         char num[64]; format_num(total, num, sizeof num);
@@ -2996,11 +2996,11 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         int found_trade = 0, found_for = 0;
         for (size_t i = 0; i < tnw; i++) {
             char *t = strip_edge_punct(tw[i]);
-            if (!strcmp(t, "trade") || !strcmp(t, "trades") || !strcmp(t, "trading") ||
-                !strcmp(t, "exchange") || !strcmp(t, "exchanges") ||
-                !strcmp(t, "swap") || !strcmp(t, "swaps"))
+            if (lex_class_member(b, "25_wordmath_reasoning_lex2999", t) || lex_class_member(b, "25_wordmath_reasoning_lex2999_2", t) || lex_class_member(b, "25_wordmath_reasoning_lex2999_3", t) ||
+                lex_class_member(b, "25_wordmath_reasoning_lex3000", t) || lex_class_member(b, "25_wordmath_reasoning_lex3000_2", t) ||
+                lex_class_member(b, "25_wordmath_reasoning_lex3001", t) || lex_class_member(b, "25_wordmath_reasoning_lex3001_2", t))
                 { found_trade = 1; continue; }
-            if (found_trade && !strcmp(t, "for")) { found_for = 1; continue; }
+            if (found_trade && lex_class_member(b, "25_wordmath_reasoning_lex3003", t)) { found_for = 1; continue; }
             double v;
             if (parse_value(t, &v)) {
                 if (found_for) { trade_get = v; found_for = 0; }
@@ -3042,15 +3042,15 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             int trailing = L > 0 && (tw[i][L - 1] == ',' || tw[i][L - 1] == ';');
             char *t = strip_edge_punct(tw[i]);
             if (!*t) { if (trailing) sign = 1; continue; }
-            if (!strcmp(t, "then") || !strcmp(t, "and") || !strcmp(t, "poi") ||
-                !strcmp(t, "e") || !strcmp(t, "ed")) { sign = 1; continue; }
+            if (lex_class_member(b, "25_wordmath_reasoning_lex3045", t) || lex_class_member(b, "25_wordmath_reasoning_lex3045_2", t) || lex_class_member(b, "25_wordmath_reasoning_lex3045_3", t) ||
+                lex_class_member(b, "25_wordmath_reasoning_lex3046", t) || lex_class_member(b, "25_wordmath_reasoning_lex3046_2", t)) { sign = 1; continue; }
             /* "give/gave away N" is a removal: "give" alone is ambiguous, but
              * the "away" particle disambiguates it (gen240). */
-            if (!strcmp(t, "away")) { sign = -1; continue; }
+            if (lex_class_member(b, "25_wordmath_reasoning_lex3049", t)) { sign = -1; continue; }
             /* gen240: base "give"/"giving N to <someone>" is a removal for the
              * subject. Ambiguous only when the recipient is me/us, so guard on the
              * NEXT token — "give 1 to a friend" subtracts; "give me 2 more" doesn't. */
-            if (!strcmp(t, "give") || !strcmp(t, "giving") || !strcmp(t, "gives")) {
+            if (lex_class_member(b, "25_wordmath_reasoning_lex3053", t) || lex_class_member(b, "25_wordmath_reasoning_lex3053_2", t) || lex_class_member(b, "25_wordmath_reasoning_lex3053_3", t)) {
                 char *nx = (i + 1 < tnw) ? strip_edge_punct(tw[i + 1]) : (char *)"";
                 /* "give ME/US/YOU(rself) N" -> the answerer RECEIVES, so it's a gain;
                  * only "give <other> N" / "give away N" is a removal (gen241). */
@@ -3064,16 +3064,16 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
              * gain adds mult*total ("you give me twice what I have": 4 -> 12);
              * a removal subtracts it ("I eat half of what I have": 4 -> 2). */
             double mult = 0.0;
-            if (!strcmp(t, "twice") || !strcmp(t, "double")) mult = 2.0;
-            else if (!strcmp(t, "triple") || !strcmp(t, "thrice")) mult = 3.0;
-            else if (!strcmp(t, "half")) mult = 0.5;
+            if (lex_class_member(b, "25_wordmath_reasoning_lex3067", t) || lex_class_member(b, "25_wordmath_reasoning_lex3067_2", t)) mult = 2.0;
+            else if (lex_class_member(b, "25_wordmath_reasoning_lex3068", t) || lex_class_member(b, "25_wordmath_reasoning_lex3068_2", t)) mult = 3.0;
+            else if (lex_class_member(b, "25_wordmath_reasoning_lex3069", t)) mult = 0.5;
             if (mult > 0.0 && have) {
                 int rel = 0; size_t skip = i;
                 for (size_t j = i + 1; j <= i + 5 && j < tnw; j++) {
                     char *lj = strip_edge_punct(tw[j]);
-                    if (!strcmp(lj, "have") || !strcmp(lj, "has") ||
-                        !strcmp(lj, "left") || !strcmp(lj, "hold") ||
-                        !strcmp(lj, "holds")) { rel = 1; skip = j; break; }
+                    if (lex_class_member(b, "25_wordmath_reasoning_lex3074", lj) || lex_class_member(b, "25_wordmath_reasoning_lex3074_2", lj) ||
+                        lex_class_member(b, "25_wordmath_reasoning_lex3075", lj) || lex_class_member(b, "25_wordmath_reasoning_lex3075_2", lj) ||
+                        lex_class_member(b, "25_wordmath_reasoning_lex3076", lj)) { rel = 1; skip = j; break; }
                 }
                 if (rel) {
                     result += (double)sign * mult * result;
@@ -3303,7 +3303,7 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(buf, w, 8);
 
     /* assert: "<x> has <n> <unit>" -> quantity(x, unit, n) */
-    if (nw == 4 && strcmp(w[1], "has") == 0) {
+    if (nw == 4 && lex_class_member(b, "25_wordmath_reasoning_lex3306", w[1])) {
         double v;
         if (!parse_num(w[2], &v)) return 0; /* not a quantity; let others try */
         const char *args[] = {w[0], w[3], w[2]};
@@ -3317,8 +3317,8 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
     }
 
     /* recall: "how many <unit> does <x> have" -> quantity(x, unit, ?) */
-    if (nw == 6 && strcmp(w[0], "how") == 0 && strcmp(w[1], "many") == 0 &&
-        strcmp(w[3], "does") == 0 && strcmp(w[5], "have") == 0) {
+    if (nw == 6 && lex_class_member(b, "25_wordmath_reasoning_lex3320", w[0]) && lex_class_member(b, "25_wordmath_reasoning_lex3320_2", w[1]) &&
+        lex_class_member(b, "25_wordmath_reasoning_lex3321", w[3]) && lex_class_member(b, "25_wordmath_reasoning_lex3321_2", w[5])) {
         const char *unit = w[2], *x = w[4];
         const char *pat[] = {x, unit, NULL};
         char hits[4][KB_TERM_LEN];
@@ -3338,7 +3338,7 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
      * token after "many"; entity = last content token. quantity(Entity, Unit, N)
      * is the KB knowledge (engine fixed, lexicon grows). Word problems that start
      * "how many do you have" bind no known entity and fall through untouched. */
-    if (nw >= 4 && strcmp(w[0], "how") == 0 && strcmp(w[1], "many") == 0) {
+    if (nw >= 4 && lex_class_member(b, "25_wordmath_reasoning_lex3341", w[0]) && lex_class_member(b, "25_wordmath_reasoning_lex3341_2", w[1])) {
         static const char *skip[] = {"does","do","did","are","is","was","were",
             "in","a","an","the","have","has","had","got","of","on","per","there",
             "will","would","can","inside","within",NULL};
@@ -3396,8 +3396,8 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
     }
 
     /* compare: "does <x> have more/less <unit> than <y>" */
-    if (nw == 7 && strcmp(w[0], "does") == 0 && strcmp(w[2], "have") == 0 &&
-        strcmp(w[5], "than") == 0) {
+    if (nw == 7 && lex_class_member(b, "25_wordmath_reasoning_lex3399", w[0]) && lex_class_member(b, "25_wordmath_reasoning_lex3399_2", w[2]) &&
+        lex_class_member(b, "25_wordmath_reasoning_lex3400", w[5])) {
         int greater = compare_word(w[3]);
         if (greater < 0) return 0;
         const char *unit = w[4], *x = w[1], *y = w[6];
@@ -3474,7 +3474,7 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(buf, w, 8);
 
     /* assert: "<a> causes <b>" -> causes(a, b) */
-    if (nw == 3 && strcmp(w[1], "causes") == 0) {
+    if (nw == 3 && lex_class_member(b, "25_wordmath_reasoning_lex3477", w[1])) {
         const char *args[] = {w[0], w[2]};
         char msg[160];
         if (kb_assert(b->kb, "causes", args, 2))
@@ -3486,10 +3486,10 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
     }
 
     /* query: "what is the effect/cause of <x>?" -> causes(x, ?) / causes(?, x) */
-    if (nw == 6 && strcmp(w[0], "what") == 0 && strcmp(w[1], "is") == 0 &&
-        strcmp(w[2], "the") == 0 && strcmp(w[4], "of") == 0 &&
-        (strcmp(w[3], "effect") == 0 || strcmp(w[3], "cause") == 0)) {
-        int want_eff = strcmp(w[3], "effect") == 0;
+    if (nw == 6 && lex_class_member(b, "25_wordmath_reasoning_lex3489", w[0]) && lex_class_member(b, "25_wordmath_reasoning_lex3489_2", w[1]) &&
+        lex_class_member(b, "25_wordmath_reasoning_lex3490", w[2]) && lex_class_member(b, "25_wordmath_reasoning_lex3490_2", w[4]) &&
+        (lex_class_member(b, "25_wordmath_reasoning_lex3491", w[3]) || lex_class_member(b, "25_wordmath_reasoning_lex3491_2", w[3]))) {
+        int want_eff = lex_class_member(b, "25_wordmath_reasoning_lex3492", w[3]);
         const char *x = w[5];
         const char *pat_eff[] = {x, NULL};   /* causes(x, ?) -> effects */
         const char *pat_cause[] = {NULL, x}; /* causes(?, x) -> causes  */
@@ -3559,8 +3559,8 @@ static int mod_same(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(buf, w, 8);
 
     /* assert: "<x> is the same as <y>" -> same(x, y) (stored both ways) */
-    if (nw == 6 && strcmp(w[1], "is") == 0 && strcmp(w[2], "the") == 0 &&
-        strcmp(w[3], "same") == 0 && strcmp(w[4], "as") == 0) {
+    if (nw == 6 && lex_class_member(b, "25_wordmath_reasoning_lex3562", w[1]) && lex_class_member(b, "25_wordmath_reasoning_lex3562_2", w[2]) &&
+        lex_class_member(b, "25_wordmath_reasoning_lex3563", w[3]) && lex_class_member(b, "25_wordmath_reasoning_lex3563_2", w[4])) {
         const char *fwd[] = {w[0], w[5]}, *bwd[] = {w[5], w[0]};
         int ok = kb_assert(b->kb, "same", fwd, 2) &&
                  kb_assert(b->kb, "same", bwd, 2);
@@ -3572,8 +3572,8 @@ static int mod_same(Brain *b, const char *norm, const char *raw,
     }
 
     /* query: "are <x> and <y> the same?" -> same(x, y)? */
-    if (nw == 6 && strcmp(w[0], "are") == 0 && strcmp(w[2], "and") == 0 &&
-        strcmp(w[4], "the") == 0 && strcmp(w[5], "same") == 0) {
+    if (nw == 6 && lex_class_member(b, "25_wordmath_reasoning_lex3575", w[0]) && lex_class_member(b, "25_wordmath_reasoning_lex3575_2", w[2]) &&
+        lex_class_member(b, "25_wordmath_reasoning_lex3576", w[4]) && lex_class_member(b, "25_wordmath_reasoning_lex3576_2", w[5])) {
         const char *x = w[1], *y = w[3];
         if (strcmp(x, y) == 0) { put("Yes.", out, out_size); return 1; }
         const char *args[] = {x, y};
@@ -3607,8 +3607,8 @@ static int mod_conj(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(buf, w, 10);
 
     /* "are <x> and <y> both a/an <z>?" -> z(x) AND z(y) */
-    if (nw == 7 && strcmp(w[0], "are") == 0 && strcmp(w[2], "and") == 0 &&
-        strcmp(w[4], "both") == 0 && is_article(b, w[5])) {
+    if (nw == 7 && lex_class_member(b, "25_wordmath_reasoning_lex3610", w[0]) && lex_class_member(b, "25_wordmath_reasoning_lex3610_2", w[2]) &&
+        lex_class_member(b, "25_wordmath_reasoning_lex3611", w[4]) && is_article(b, w[5])) {
         const char *z = w[6], *x = w[1], *y = w[3];
         if (!kb_knows_pred(b->kb, z)) { idk(z, out, out_size); return 1; }
         const char *ax[] = {x}, *ay[] = {y};
@@ -3618,8 +3618,8 @@ static int mod_conj(Brain *b, const char *norm, const char *raw,
     }
 
     /* "is <x> both a/an <y> and a/an <z>?" -> y(x) AND z(x) */
-    if (nw == 8 && strcmp(w[0], "is") == 0 && strcmp(w[2], "both") == 0 &&
-        is_article(b, w[3]) && strcmp(w[5], "and") == 0 && is_article(b, w[6])) {
+    if (nw == 8 && lex_class_member(b, "25_wordmath_reasoning_lex3621", w[0]) && lex_class_member(b, "25_wordmath_reasoning_lex3621_2", w[2]) &&
+        is_article(b, w[3]) && lex_class_member(b, "25_wordmath_reasoning_lex3622", w[5]) && is_article(b, w[6])) {
         const char *x = w[1], *y = w[4], *z = w[7];
         if (!kb_knows_pred(b->kb, y)) { idk(y, out, out_size); return 1; }
         if (!kb_knows_pred(b->kb, z)) { idk(z, out, out_size); return 1; }

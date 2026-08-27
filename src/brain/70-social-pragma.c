@@ -132,7 +132,7 @@ static int is_binary_choice(Brain *b, const char *norm) {
     if (nw < 3 || nw > 5) return 0;
     size_t orpos = nw, orcount = 0;
     for (size_t i = 0; i < nw; i++)
-        if (strcmp(w[i], "or") == 0) { orpos = i; orcount++; }
+        if (lex_class_member(b, "70_social_pragma_lex135", w[i])) { orpos = i; orcount++; }
     if (orcount != 1 || orpos == 0 || orpos == nw - 1) return 0;
     size_t left = orpos, right = nw - orpos - 1;
     if (left < 1 || left > 2 || right < 1 || right > 2) return 0;
@@ -293,7 +293,7 @@ static int mod_initiative(Brain *b, const char *norm, const char *raw,
             return 0;                    /* not an exact self-play echo */
 
     char lang[8]; current_lang(b, lang, sizeof lang);
-    int it = (strcmp(lang, "it") == 0);
+    int it = (lex_class_member(b, "70_social_pragma_lex296", lang));
     char seeds[64][KB_TERM_LEN]; size_t ns;
     if (it) { const char *q[2] = { "it", NULL }; ns = kb_match(b->kb, "conversation_seed", q, 2, seeds, 64); }
     else    { const char *q[1] = { NULL };       ns = kb_match(b->kb, "conversation_seed", q, 1, seeds, 64); }
@@ -528,9 +528,9 @@ static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
         int addressed = 0;
         for (size_t i = 0; i < nw; i++) {
             char *t = strip_edge_punct(w[i]);
-            if (!strcmp(t,"you")||!strcmp(t,"your")||!strcmp(t,"yours")||    /* EN */
-                !strcmp(t,"tu")||!strcmp(t,"tuo")||!strcmp(t,"tua")||        /* IT */
-                !strcmp(t,"tuoi")||!strcmp(t,"tue")||!strcmp(t,"ti")) { addressed = 1; break; }
+            if (lex_class_member(b, "70_social_pragma_lex531", t)||lex_class_member(b, "70_social_pragma_lex531_2", t)||lex_class_member(b, "70_social_pragma_lex531_3", t)||    /* EN */
+                lex_class_member(b, "70_social_pragma_lex532", t)||lex_class_member(b, "70_social_pragma_lex532_2", t)||lex_class_member(b, "70_social_pragma_lex532_3", t)||        /* IT */
+                lex_class_member(b, "70_social_pragma_lex533", t)||lex_class_member(b, "70_social_pragma_lex533_2", t)||lex_class_member(b, "70_social_pragma_lex533_3", t)) { addressed = 1; break; }
         }
         /* an experiential marker ("for fun", "hobby", "tempo libero") is itself a
          * smalltalk signal — covers Italian PRO-DROP questions with no explicit "tu". */
@@ -538,13 +538,13 @@ static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
                            kb_cue_match(b, "experiential_move", raw))) addressed = 1;
         const char *o = w[0];
         int question = (strchr(norm, '?') != NULL) ||
-            !strcmp(o,"do")||!strcmp(o,"does")||!strcmp(o,"did")||!strcmp(o,"have")||
-            !strcmp(o,"has")||!strcmp(o,"are")||!strcmp(o,"is")||!strcmp(o,"was")||
-            !strcmp(o,"were")||!strcmp(o,"can")||!strcmp(o,"could")||!strcmp(o,"would")||
-            !strcmp(o,"will")||!strcmp(o,"what")||!strcmp(o,"how")||!strcmp(o,"why")||
-            !strcmp(o,"ever")||                                              /* EN openers */
-            !strcmp(o,"hai")||!strcmp(o,"sei")||!strcmp(o,"cosa")||          /* IT openers */
-            !strcmp(o,"come")||!strcmp(o,"ti")||!strcmp(o,"che");
+            lex_class_member(b, "70_social_pragma_lex541", o)||lex_class_member(b, "70_social_pragma_lex541_2", o)||lex_class_member(b, "70_social_pragma_lex541_3", o)||lex_class_member(b, "70_social_pragma_lex541_4", o)||
+            lex_class_member(b, "70_social_pragma_lex542", o)||lex_class_member(b, "70_social_pragma_lex542_2", o)||lex_class_member(b, "70_social_pragma_lex542_3", o)||lex_class_member(b, "70_social_pragma_lex542_4", o)||
+            lex_class_member(b, "70_social_pragma_lex543", o)||lex_class_member(b, "70_social_pragma_lex543_2", o)||lex_class_member(b, "70_social_pragma_lex543_3", o)||lex_class_member(b, "70_social_pragma_lex543_4", o)||
+            lex_class_member(b, "70_social_pragma_lex544", o)||lex_class_member(b, "70_social_pragma_lex544_2", o)||lex_class_member(b, "70_social_pragma_lex544_3", o)||lex_class_member(b, "70_social_pragma_lex544_4", o)||
+            lex_class_member(b, "70_social_pragma_lex545", o)||                                              /* EN openers */
+            lex_class_member(b, "70_social_pragma_lex546", o)||lex_class_member(b, "70_social_pragma_lex546_2", o)||lex_class_member(b, "70_social_pragma_lex546_3", o)||          /* IT openers */
+            lex_class_member(b, "70_social_pragma_lex547", o)||lex_class_member(b, "70_social_pragma_lex547_2", o)||lex_class_member(b, "70_social_pragma_lex547_3", o);
         if (addressed && question)
             return kb_response(b, "smalltalk_deflect", NULL, out, out_size);
     }
@@ -613,7 +613,7 @@ static int is_discourse_opener(Brain *b, char **w, size_t nw, size_t *skip) {
     snprintf(tmp, sizeof tmp, "%s", w[0]);
     const char *t = strip_edge_punct(tmp);
     /* "by the way" -> skip 3 tokens */
-    if (nw >= 3 && strcmp(t, "by") == 0) {
+    if (nw >= 3 && lex_class_member(b, "70_social_pragma_lex616", t)) {
         char a[64], c[64];
         snprintf(a, sizeof a, "%s", w[1]); snprintf(c, sizeof c, "%s", w[2]);
         if (strcmp(strip_edge_punct(a), "the") == 0 &&
@@ -881,9 +881,9 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
          * register (chitchat), so we don't override the gen140 decision that a
          * casual "parliamo di formaggio" is just filler — the proposal SHAPE (a
          * modal asking permission to change topic) is the discriminating cue. */
-        int modal_open = strcmp(first, "can") == 0 || strcmp(first, "could") == 0 ||
-                         strcmp(first, "shall") == 0 || strcmp(first, "lets") == 0 ||
-                         strcmp(first, "let") == 0;
+        int modal_open = lex_class_member(b, "70_social_pragma_lex884", first) || lex_class_member(b, "70_social_pragma_lex884_2", first) ||
+                         lex_class_member(b, "70_social_pragma_lex885", first) || lex_class_member(b, "70_social_pragma_lex885_2", first) ||
+                         lex_class_member(b, "70_social_pragma_lex886", first);
         int switch_verb = kb_cue_match(b, "70_social_pragma_cue887", buf) || kb_cue_match(b, "70_social_pragma_cue887_2", buf) ||
                           kb_cue_match(b, "70_social_pragma_cue888", buf) || kb_cue_match(b, "70_social_pragma_cue888_2", buf);
         int frame = kb_cue_match(b, "70_social_pragma_cue889", buf) || kb_cue_match(b, "70_social_pragma_cue889_2", buf) ||
@@ -907,10 +907,10 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
     /* ---- MOVE 2: soft request. An imperative directed at me ("tell/give/show
      * me", "say") with NO content object — an open request to fill the silence. */
     {
-        int soft = strcmp(first, "tell") == 0 || strcmp(first, "give") == 0 ||
-                   strcmp(first, "say") == 0 || strcmp(first, "show") == 0 ||
-                   strcmp(first, "share") == 0 || strcmp(first, "dimmi") == 0 ||
-                   strcmp(first, "dammi") == 0 || strcmp(first, "raccontami") == 0;
+        int soft = lex_class_member(b, "70_social_pragma_lex910", first) || lex_class_member(b, "70_social_pragma_lex910_2", first) ||
+                   lex_class_member(b, "70_social_pragma_lex911", first) || lex_class_member(b, "70_social_pragma_lex911_2", first) ||
+                   lex_class_member(b, "70_social_pragma_lex912", first) || lex_class_member(b, "70_social_pragma_lex912_2", first) ||
+                   lex_class_member(b, "70_social_pragma_lex913", first) || lex_class_member(b, "70_social_pragma_lex913_2", first);
         /* OPEN-ended only: the object must be a quantifier placeholder
          * ("something/anything/qualcosa"), which is what distinguishes a
          * fill-the-silence request from a real (often unfulfillable) one — "tell
@@ -1106,7 +1106,7 @@ static int identify_register(const char *text, Brain *b,
     if (!text || !*text || !b || !b->kb) return 0;
     int r = kb_hypothesis_best(b->kb, "register_evidence", text, NULL, 0,
                                reg, regsz, score, proof, proofsz);
-    if (r == 1 && reg && !strcmp(reg, "prose")) {
+    if (r == 1 && reg && lex_class_member(b, "70_social_pragma_lex1109", reg)) {
         if (regsz) reg[0] = '\0';
         return 0;
     }
@@ -1119,8 +1119,8 @@ static int identify_code_lang(const char *code, Brain *b) {
     char reg[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN]; int score = 0;
     if (identify_register(code, b, reg, sizeof reg,
                           proof, sizeof proof, &score) != 1) return 0;
-    if (!strcmp(reg, "c")) return 1;
-    if (!strcmp(reg, "python")) return 2;
+    if (lex_class_member(b, "70_social_pragma_lex1122", reg)) return 1;
+    if (lex_class_member(b, "70_social_pragma_lex1123", reg)) return 2;
     return 0;
 }
 
@@ -1289,9 +1289,9 @@ static int check_unknown_function(const char *code, Brain *b, char *findings,
                 fname[fn++] = (char)tolower((unsigned char)t[j]);
             fname[fn] = '\0';
             /* Skip known keywords */
-            if (strcmp(fname, "if") == 0 || strcmp(fname, "while") == 0 ||
-                strcmp(fname, "for") == 0 || strcmp(fname, "return") == 0 ||
-                strcmp(fname, "sizeof") == 0 || strcmp(fname, "switch") == 0)
+            if (lex_class_member(b, "70_social_pragma_lex1292", fname) || lex_class_member(b, "70_social_pragma_lex1292_2", fname) ||
+                lex_class_member(b, "70_social_pragma_lex1293", fname) || lex_class_member(b, "70_social_pragma_lex1293_2", fname) ||
+                lex_class_member(b, "70_social_pragma_lex1294", fname) || lex_class_member(b, "70_social_pragma_lex1294_2", fname))
                 continue;
             /* Check against KB */
             { const char *fa[] = { fname };

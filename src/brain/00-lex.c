@@ -58,6 +58,8 @@ static int kb_intent_match(Brain *b, const char *intent, const char *norm) {
  * KB-backed form of a `kb_cue_match(b, "00_lex_cue58", norm) || kb_cue_match(b, "00_lex_cue58", norm)` chain. Like kb_intent_match but
  * with substring containment instead of whole-turn equality, so the cue set grows at
  * runtime with no code edit. */
+static int lex_class_member(Brain *b, const char *cls, const char *word);
+
 static int kb_cue_match(Brain *b, const char *intent, const char *norm) {
     if (!b || !b->kb || !intent || !norm) return 0;
     const char *candidate[] = { intent };
@@ -141,7 +143,7 @@ static int kb_response_slots(Brain *b, const char *intent,
      * fact (KB-first, additive); English stays the /2 default. */
     size_t n = 0;
     char lang[8]; current_lang(b, lang, sizeof lang);
-    if (strcmp(lang, "en") != 0) {
+    if (!lex_class_member(b, "00_lex_lex146", lang)) {
         const char *q3[3] = { intent, lang, NULL };
         n = kb_match(b->kb, "response_template", q3, 3, tpl, 16);
     }
@@ -193,7 +195,7 @@ static int kb_response_slots(Brain *b, const char *intent,
      * a pezzi), mai un `proper_name/1` (Rex resta Rex), mai un numero. Cio' che
      * `tr/2` non copre resta com'e': un'isola inglese e' onesta, un'invenzione no. */
     KbResponseSlot local[8];
-    if (strcmp(lang, "en") != 0 && nslots && nslots <= 8) {
+    if (!lex_class_member(b, "00_lex_lex198", lang) && nslots && nslots <= 8) {
         for (size_t i = 0; i < nslots; i++) {
             local[i] = slots[i];
             const char *v = slots[i].value;
@@ -582,11 +584,11 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
         if      (generic && !strcmp(mode[0], "cue_for"))
                                                 { pred = "intent_cue";        from_raw = 0; }
         else if (generic)                       { pred = "response_template"; from_raw = 1; }
-        else if (!strcmp(mode[0], "exact"))     { pred = "intent_phrase";     from_raw = 0; }
-        else if (!strcmp(mode[0], "substring")) { pred = "intent_cue";        from_raw = 0; }
-        else if (!strcmp(mode[0], "fill"))      { pred = "response_template"; from_raw = 1; }
-        else if (!strcmp(mode[0], "unary"))     { pred = intent[0];           from_raw = 0; unary = 1; }
-        else if (!strcmp(mode[0], "define"))    { pred = intent[0];           from_raw = 1; define = 1; }
+        else if (lex_class_member(b, "00_lex_lex587", mode[0]))     { pred = "intent_phrase";     from_raw = 0; }
+        else if (lex_class_member(b, "00_lex_lex588", mode[0])) { pred = "intent_cue";        from_raw = 0; }
+        else if (lex_class_member(b, "00_lex_lex589", mode[0]))      { pred = "response_template"; from_raw = 1; }
+        else if (lex_class_member(b, "00_lex_lex590", mode[0]))     { pred = intent[0];           from_raw = 0; unary = 1; }
+        else if (lex_class_member(b, "00_lex_lex591", mode[0]))    { pred = intent[0];           from_raw = 1; define = 1; }
         else continue;
         if (generic) snprintf(intent[0], KB_TERM_LEN, "%s", family);
 
@@ -655,7 +657,7 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                 if (kb_match(b->kb, "current_language", cq, 1, ch, 1) > 0)
                     snprintf(clang, sizeof clang, "%s", ch[0]);
             }
-            if (strcmp(clang, "en") != 0) {
+            if (!lex_class_member(b, "00_lex_lex660", clang)) {
                 const char *ar3[3] = { intent[0], clang, quoted };
                 kb_assert(b->kb, pred, ar3, 3);
             } else {

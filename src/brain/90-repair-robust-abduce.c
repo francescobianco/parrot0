@@ -266,10 +266,10 @@ static int parse_ground_unary(Brain *b, const char *clause, char *pred, size_t p
         buf[--n] = '\0';
     char *w[12];
     size_t nw = split_words(buf, w, 12);
-    if (nw >= 4 && strcmp(w[1], "is") == 0 && is_article(b, w[2])) {
+    if (nw >= 4 && lex_class_member(b, "90_repair_robust_abduce_lex269", w[1]) && is_article(b, w[2])) {
         snprintf(pred, ps, "%s", w[3]); snprintf(arg, as, "%s", w[0]); return 1;
     }
-    if (nw == 3 && strcmp(w[1], "is") == 0) {
+    if (nw == 3 && lex_class_member(b, "90_repair_robust_abduce_lex272", w[1])) {
         snprintf(pred, ps, "%s", w[2]); snprintf(arg, as, "%s", w[0]); return 1;
     }
     return 0;
@@ -333,7 +333,7 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
 
     /* must be a genuine "what would you conclude / would X still" question */
     int q = kb_cue_match(b, "90_repair_robust_abduce_cue335", low) || kb_cue_match(b, "90_repair_robust_abduce_cue335_2", low) || kb_cue_match(b, "90_repair_robust_abduce_cue335_3", low) ||
-            kb_cue_match(b, "90_repair_robust_abduce_cue336", low) || strstr(low, "what would") || strstr(low, "cosa");
+            kb_cue_match(b, "90_repair_robust_abduce_cue336", low) ||kb_cue_match(b, "90_repair_robust_abduce_lex336", low) || strstr(low, "cosa");
     if (!q) return 0;
 
     if (!b->has_last_goal) {

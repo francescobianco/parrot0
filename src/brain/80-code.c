@@ -338,13 +338,13 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         char *w[48]; size_t nw = split_words(qbuf, w, 48);
         char fnname[KB_TERM_LEN] = ""; char dir[256] = "";
         for (size_t i = 0; i + 1 < nw; i++) {
-            if (!strcmp(w[i], "defines") || !strcmp(w[i], "define") ||
-                !strcmp(w[i], "definisce") || !strcmp(w[i], "contains") ||
-                !strcmp(w[i], "contiene"))
+            if (lex_class_member(b, "80_code_lex341", w[i]) || lex_class_member(b, "80_code_lex341_2", w[i]) ||
+                lex_class_member(b, "80_code_lex342", w[i]) || lex_class_member(b, "80_code_lex342_2", w[i]) ||
+                lex_class_member(b, "80_code_lex343", w[i]))
                 snprintf(fnname, sizeof fnname, "%s", strip_edge_punct(w[i+1]));
-            if (!strcmp(w[i], "in") || !strcmp(w[i], "under") || !strcmp(w[i], "inside") ||
-                !strcmp(w[i], "within") || !strcmp(w[i], "nella") || !strcmp(w[i], "nel") ||
-                !strcmp(w[i], "dentro"))
+            if (lex_class_member(b, "80_code_lex345", w[i]) || lex_class_member(b, "80_code_lex345_2", w[i]) || lex_class_member(b, "80_code_lex345_3", w[i]) ||
+                lex_class_member(b, "80_code_lex346", w[i]) || lex_class_member(b, "80_code_lex346_2", w[i]) || lex_class_member(b, "80_code_lex346_3", w[i]) ||
+                lex_class_member(b, "80_code_lex347", w[i]))
                 snprintf(dir, sizeof dir, "%s", strip_edge_punct(w[i+1]));
         }
         if (!dir[0]) for (size_t i = 0; i < nw; i++)   /* fallback: a path-like token */
@@ -371,7 +371,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         char *w[48]; size_t nw = split_words(qbuf, w, 48);
         char fnname[KB_TERM_LEN] = "", path[256] = "";
         for (size_t i = 0; i < nw; i++) {
-            if ((!strcmp(w[i], "function") || !strcmp(w[i], "funzione")) && i + 1 < nw)
+            if ((lex_class_member(b, "80_code_lex374", w[i]) || lex_class_member(b, "80_code_lex374_2", w[i])) && i + 1 < nw)
                 snprintf(fnname, sizeof fnname, "%s", strip_edge_punct(w[i+1]));
             if (strchr(w[i], '/') || code_token_extension(w[i], ".c") ||
                 code_token_extension(w[i], ".h"))
@@ -482,7 +482,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         char *w[48]; size_t nw = split_words(qbuf, w, 48);
         char oldn[KB_TERM_LEN] = "", newn[KB_TERM_LEN] = "", path[256] = "";
         for (size_t i = 0; i < nw; i++) {
-            if (!strcmp(w[i], "to") && i > 0 && i + 1 < nw) {
+            if (lex_class_member(b, "80_code_lex485", w[i]) && i > 0 && i + 1 < nw) {
                 snprintf(oldn, sizeof oldn, "%s", strip_edge_punct(w[i-1]));
                 snprintf(newn, sizeof newn, "%s", strip_edge_punct(w[i+1]));
             }
@@ -567,7 +567,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             int ok = (*c != '\0');
             for (const char *t = c; *t; t++)
                 if (!(isalnum((unsigned char)*t) || *t == '_')) { ok = 0; break; }
-            if (ok && strcmp(c, "in") != 0) snprintf(fn, sizeof fn, "%s", c);
+            if (ok && !lex_class_member(b, "80_code_lex570", c)) snprintf(fn, sizeof fn, "%s", c);
         }
         if (!fn[0] || !path[0]) return 0;
         struct stat ost;
@@ -833,10 +833,10 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         char *w[48]; size_t nw = split_words(qbuf, w, 48);
         char target[KB_TERM_LEN] = ""; char dir[256] = "";
         for (size_t i = 0; i + 1 < nw; i++) {
-            if (!strcmp(w[i], "calls") || !strcmp(w[i], "chiama"))
+            if (lex_class_member(b, "80_code_lex836", w[i]) || lex_class_member(b, "80_code_lex836_2", w[i]))
                 snprintf(target, sizeof target, "%s", strip_edge_punct(w[i+1]));
-            if (!strcmp(w[i], "in") || !strcmp(w[i], "under") || !strcmp(w[i], "inside") ||
-                !strcmp(w[i], "within") || !strcmp(w[i], "nella") || !strcmp(w[i], "nel"))
+            if (lex_class_member(b, "80_code_lex838", w[i]) || lex_class_member(b, "80_code_lex838_2", w[i]) || lex_class_member(b, "80_code_lex838_3", w[i]) ||
+                lex_class_member(b, "80_code_lex839", w[i]) || lex_class_member(b, "80_code_lex839_2", w[i]) || lex_class_member(b, "80_code_lex839_3", w[i]))
                 snprintf(dir, sizeof dir, "%s", strip_edge_punct(w[i+1]));
         }
         if (!dir[0]) for (size_t i = 0; i < nw; i++)
@@ -1550,8 +1550,8 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
          * relation; it only avoids letting unrelated weak hypotheses suppress a
          * known repair request before the typed controller can see it. */
         qtype = 2;
-    } else if (kb_cue_match(b, "80_code_cue1553", s) && !strstr(s, "what is a ") &&
-               (strstr(s, "in C") || strstr(s, "in Python") || strstr(s, "in programming"))) {
+    } else if (kb_cue_match(b, "80_code_cue1553", s) && !kb_cue_match(b, "80_code_lex1553", s) &&
+               (kb_cue_match(b, "80_code_lex1554", s) ||kb_cue_match(b, "80_code_lex1554_2", s) ||kb_cue_match(b, "80_code_lex1554_3", s))) {
         /* Concept query handled by mod_knowledge via KB concept() facts */
         return 0;
     }
@@ -1663,8 +1663,8 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
         store_proof(b, reg_proof);
         return 1;
     }
-    int lang = !strcmp(input_reg, "c") ? 1 :
-               !strcmp(input_reg, "python") ? 2 : 0;
+    int lang = lex_class_member(b, "80_code_lex1666", input_reg) ? 1 :
+               lex_class_member(b, "80_code_lex1667", input_reg) ? 2 : 0;
 
     /* gen323: REGISTER EVIDENCE — widening the question surface is only safe if
      * the module refuses turns that are not actually about code. It did not:
@@ -1729,18 +1729,17 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
     if (qtype == 5) {
         char ln[64]; register_name(b, input_reg, ln, sizeof ln);
         snprintf(out, out_size, "This is a %s code snippet.", ln);
-        if (strstr(code, "printf")) {
+        if (kb_cue_match(b, "80_code_lex1732", code)) {
             size_t l = strlen(out);
             snprintf(out + l, out_size - l, " It prints output using printf.");
         }
-        if (strstr(code, "return")) {
+        if (kb_cue_match(b, "80_code_lex1736", code)) {
             size_t l = strlen(out);
             snprintf(out + l, out_size - l, " It returns a value.");
         }
         /* gen323: `for(int i=0;…)` — no space — was not seen as a loop, so the
          * explanation silently dropped the most salient thing in the snippet. */
-        if (strstr(code, "for ") || strstr(code, "for(") ||
-            strstr(code, "while ") || strstr(code, "while(")) {
+        if (kb_cue_match(b, "80_code_lex1742", code) || strstr(code, "for(") ||kb_cue_match(b, "80_code_lex1742_2", code) || strstr(code, "while(")) {
             size_t l = strlen(out);
             snprintf(out + l, out_size - l, " It contains a loop.");
         }
@@ -1842,8 +1841,7 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
             return 1;
         }
     } else if (lang == 2) {  /* Python */
-        if (strstr(code, "def ") || strstr(code, "if ") || strstr(code, "for ") ||
-            strstr(code, "while ") || strstr(code, "class ") || strstr(code, "elif ")) {
+        if (kb_cue_match(b, "80_code_lex1845", code) ||kb_cue_match(b, "80_code_lex1845_2", code) ||kb_cue_match(b, "80_code_lex1845_3", code) ||kb_cue_match(b, "80_code_lex1845_4", code) ||kb_cue_match(b, "80_code_lex1846", code) ||kb_cue_match(b, "80_code_lex1846_2", code)) {
             /* Check for missing colon: the line ends without : */
             char buf[1024]; snprintf(buf, sizeof buf, "%s", code);
             char *lines[64]; int nl = 0;
@@ -1854,11 +1852,11 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
                 char *l = lines[i]; while (*l && isspace((unsigned char)*l)) l++;
                 char tmp[256]; snprintf(tmp, sizeof tmp, "%s", l);
                 char *tw[64]; size_t tnw = split_words(tmp, tw, 64);
-                if (tnw > 0 && (strcmp(tw[0], "def") == 0 || strcmp(tw[0], "if") == 0 ||
-                    strcmp(tw[0], "for") == 0 || strcmp(tw[0], "while") == 0 ||
-                    strcmp(tw[0], "class") == 0 || strcmp(tw[0], "elif") == 0 ||
-                    strcmp(tw[0], "else") == 0 || strcmp(tw[0], "try") == 0 ||
-                    strcmp(tw[0], "except") == 0)) {
+                if (tnw > 0 && (lex_class_member(b, "80_code_lex1857", tw[0]) || lex_class_member(b, "80_code_lex1857_2", tw[0]) ||
+                    lex_class_member(b, "80_code_lex1858", tw[0]) || lex_class_member(b, "80_code_lex1858_2", tw[0]) ||
+                    lex_class_member(b, "80_code_lex1859", tw[0]) || lex_class_member(b, "80_code_lex1859_2", tw[0]) ||
+                    lex_class_member(b, "80_code_lex1860", tw[0]) || lex_class_member(b, "80_code_lex1860_2", tw[0]) ||
+                    lex_class_member(b, "80_code_lex1861", tw[0]))) {
                     size_t len = strlen(l);
                     if (len > 0 && l[len - 1] != ':') {
                         snprintf(findings, sizeof findings,
@@ -1869,7 +1867,7 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
                 }
             }
         }
-        if (strstr(code, "print") && !strstr(code, "print(")) {
+        if (kb_cue_match(b, "80_code_lex1872", code) && !strstr(code, "print(")) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol,
                 "Python 3 requires parentheses for print: use print(...) not print ...");
@@ -1892,21 +1890,21 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
     } else if (qtype == 2) {
         size_t fl = strlen(findings);
         while (fl > 0 && (findings[fl-1] == ' ' || findings[fl-1] == '.')) findings[--fl] = '\0';
-        if (strstr(findings, "semicolon"))
+        if (kb_cue_match(b, "80_code_lex1895", findings))
             snprintf(out, out_size, "Fix: add a semicolon at the end of each statement.");
-        else if (strstr(findings, "Type mismatch"))
+        else if (kb_cue_match(b, "80_code_lex1897", findings))
             snprintf(out, out_size, "Fix: change the variable type or the value to make them compatible.");
-        else if (strstr(findings, "string"))
+        else if (kb_cue_match(b, "80_code_lex1899", findings))
             snprintf(out, out_size, "Fix: add the closing double-quote.");
-        else if (strstr(findings, "braces"))
+        else if (kb_cue_match(b, "80_code_lex1901", findings))
             snprintf(out, out_size, "Fix: add or remove braces to balance them.");
-        else if (strstr(findings, "parentheses"))
+        else if (kb_cue_match(b, "80_code_lex1903", findings))
             snprintf(out, out_size, "Fix: add or remove parentheses to balance them.");
-        else if (strstr(findings, "function"))
+        else if (kb_cue_match(b, "80_code_lex1905", findings))
             snprintf(out, out_size, "Fix: check the function name spelling or include the right header. Did you mean printf instead of print?");
-        else if (strstr(findings, "colon"))
+        else if (kb_cue_match(b, "80_code_lex1907", findings))
             snprintf(out, out_size, "Fix: add a colon at the end of the block-introducing line.");
-        else if (strstr(findings, "the compiler rejects it"))
+        else if (kb_cue_match(b, "80_code_lex1909", findings))
             /* gen330: the compiler refused the code and none of our patterns could
              * name the defect. Before this, that landed in the `else` below — "I did
              * not find a clear fix" — which is a false statement about code we KNOW
@@ -1965,7 +1963,7 @@ static int mod_symbolic(Brain *b, const char *norm, const char *raw,
         return name_register(b, "That looks like leetspeak.",
                              "Letters as numbers — that's leetspeak.", out, out_size);
 
-    if (!strstr(lc, "what am i") && looks_code(b, lc, w, nw))
+    if (!kb_cue_match(b, "80_code_lex1968", lc) && looks_code(b, lc, w, nw))
         return name_register(b, "That looks like a snippet of code.",
                              "Looks like a fragment of code.", out, out_size);
 

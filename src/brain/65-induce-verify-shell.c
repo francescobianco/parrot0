@@ -263,8 +263,7 @@ static int mod_verify(Brain *b, const char *norm, const char *raw,
     for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
 
     /* Intent to judge a transition against a rule. */
-    if (!(strstr(low,"fit") || strstr(low,"consistent") || strstr(low,"refute") ||
-          strstr(low,"hold") || strstr(low,"coerente") || strstr(low,"rispetta")))
+    if (!(kb_cue_match(b, "65_induce_verify_shell_lex266", low) ||kb_cue_match(b, "65_induce_verify_shell_lex266_2", low) ||kb_cue_match(b, "65_induce_verify_shell_lex266_3", low) ||kb_cue_match(b, "65_induce_verify_shell_lex266_4", low) ||kb_cue_match(b, "65_induce_verify_shell_lex267", low) ||kb_cue_match(b, "65_induce_verify_shell_lex267_2", low)))
         return 0;
 
     /* Tokenize, turning arrows into a sentinel, and collect integer pairs. */
