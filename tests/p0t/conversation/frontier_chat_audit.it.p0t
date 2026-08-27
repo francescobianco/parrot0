@@ -32,6 +32,18 @@
 > parliamo di scacchi
 <~ parliamo di scacchi
 <~ esplorare
+% Trasferimento a un dominio non usato nei casi precedenti.
+> ti piace il poker?
+<~ conosco poker
+<~ puntare
+<~ showdown
+<~ insieme
+> parliamo di poker
+<~ parliamo di poker
+<~ esplorare
+> giochiamo a poker?
+<~ giochiamo a poker
+<~ prima mossa
 > cosa sai degli scacchi?
 <~ scacchi
 > come stai?

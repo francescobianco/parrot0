@@ -2,11 +2,15 @@
 expert(poker).
 expert_domain(poker, games).
 expert_description(poker, "poker hand ranks, betting, position and showdown").
+topic_preference_surface(poker, "poker").
+topic_action_surface(game_invitation, poker, "poker").
+topic_action_surface(topic_discussion, poker, "poker").
 means(poker, "a family of card games where players wager on hands whose strength may be shown or represented by betting").
 game_players(poker, "commonly two to ten, depending on the variant").
 game_goal(poker, "win pots by holding the best hand at showdown or by making every opponent fold").
 game_setup(poker, "choose a variant, dealer position, stakes and blind or ante structure, then deal according to that variant").
 game_play(poker, "betting rounds let players check, bet, call, raise or fold; remaining hands are compared at showdown").
+game_play_localized(poker, it, "nei giri di puntata si può bussare, puntare, vedere, rilanciare o passare; le mani rimaste si confrontano allo showdown").
 game_end(poker, "a hand ends when one player remains or the showdown awards the pot").
 game_tip(poker, "play fewer weak starting hands, value position, track pot odds, and treat bluffing as one part of a balanced strategy").
 % gen382q — l'arco che mancava: il dato sulle carte c'era gia' in
