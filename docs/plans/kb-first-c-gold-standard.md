@@ -319,6 +319,9 @@ locuzioni annidate restano il prossimo incremento del gold.
   lingue e crescita/ablazione runtime;
 - **443:** introduce quarantena e promozione minima; `gen443-quarantine.p0t`
   passa 8 proprietà di replay causale e rollback per campagna;
+- **444 (smoke):** l'audit conversazionale ha corretto il muro sulla domanda
+  italiana sugli scacchi; `gen444-chat-smoke.p0t` passa 3 proprietà di risposta,
+  crescita e ablazione della testa interrogativa;
 - **441:** applica il gold alla prosa Wikipedia con provenance di revisione;
 - **442:** migra scelta dialogica e piani di compensazione;
 - **443:** rende transazionali dipendenze, promozione e rollback;

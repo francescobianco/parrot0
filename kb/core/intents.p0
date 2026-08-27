@@ -1255,6 +1255,25 @@ answer_frame("what are", semantic_summary).
 answer_frame("explain", semantic_summary).
 answer_frame("describe", semantic_summary).
 answer_frame("tell me about", semantic_summary).
+% Accesso esplicito alla conoscenza posseduta: non deve cadere nel solo
+% autoricercatore quando il concetto e' gia' nella KB.
+answer_frame("what do you know about", semantic_summary).
+answer_frame("cosa sai di", semantic_summary).
+answer_frame("cosa sai", semantic_summary).
+answer_frame("cosa sai of", semantic_summary).
+answer_frame("cosa sai of the", semantic_summary).
+% Strong knowledge-question heads are data so an articulated Italian preposition
+% can be added without another C recognizer.
+knowledge_head("cosa sai degli ", strong).
+knowledge_head("cosa sai dei ", strong).
+knowledge_head("cosa sai della ", strong).
+knowledge_head("cosa sai delle ", strong).
+answer_frame("cosa sai del", semantic_summary).
+answer_frame("cosa sai della", semantic_summary).
+answer_frame("cosa sai del", semantic_summary).
+answer_frame("cosa sai dei", semantic_summary).
+answer_frame("cosa sai degli", semantic_summary).
+answer_frame("cosa sai delle", semantic_summary).
 answer_frame("concept of", semantic_summary).
 answer_frame("significance", semantic_summary).
 answer_frame("how would", semantic_summary).

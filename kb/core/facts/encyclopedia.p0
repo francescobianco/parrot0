@@ -5,6 +5,12 @@
 % existing consumer serves it with zero C. One clause per line.
 
 wiki_concept(water, chemistry, "a transparent, tasteless liquid made of hydrogen and oxygen (H2O), essential to all known forms of life").
+% Conversational baseline: a common topic must remain answerable even when the
+% optional game expert profile is not loaded by `make chat`.
+wiki_concept(chess, games, "a two-player strategy game in which players move distinct pieces on a board and aim to checkmate the opposing king").
+concept_gloss(chess, it, "Gli scacchi sono un gioco di strategia per due persone in cui pezzi diversi si muovono su una scacchiera con l'obiettivo di dare scacco matto al re avversario.").
+semantic_topic_cue(chess, keyword(chess)).
+semantic_topic_cue(chess, keyword(scacchi)).
 wiki_concept(gravity, physics, "the force by which a planet or other body draws objects toward its center, giving weight to matter").
 wiki_concept(democracy, politics, "a system of government in which power belongs to the people, who rule directly or through elected representatives").
 wiki_concept(inflation, economics, "a general rise in prices over time that reduces the purchasing power of money").

@@ -1134,6 +1134,17 @@ promozione, mentre togliere il replay causale la interrompe e rende osservabile
 il rollback. La genealogia mantiene la campagna e lo span senza contaminare il
 contenuto canonico.
 
+### Evidenza Gen444 — audit conversazionale
+
+Il primo smoke test da utente (`gen444-chat-smoke.p0t`) ha trovato un muro
+reale: `make chat` non rispondeva a «cosa sai degli scacchi?» nel profilo base.
+La correzione ha portato il concetto e il gloss italiano nella KB di base e ha
+spostato le teste articolate su `knowledge_head/2`. Il percorso ora passa con
+**3 proprietà**: risposta italiana, crescita di una nuova testa inglese e
+ablazione della testa. Questo è un gate di usabilità, distinto dai campioni
+strutturali; l'audit completo su chat e LLMSCORE resta obbligatorio prima della
+chiusura del piano.
+
 ## gen444 — Dall'addestramento assistito alla coltivazione autonoma
 
 ### Ipotesi H444

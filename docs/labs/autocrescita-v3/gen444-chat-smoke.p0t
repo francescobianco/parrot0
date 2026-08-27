@@ -1,0 +1,21 @@
+# GEN444 — SMOKE CONVERSAZIONALE: UNA DOMANDA BANALE NON DEVE ANDARE A MURO.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test baseline knowledge question is answered in the requested language]
+> cosa sai degli scacchi?
+< Gli scacchi sono un gioco di strategia per due persone in cui pezzi diversi si muovono su una scacchiera con l'obiettivo di dare scacco matto al re avversario.
+
+[test a new articulated head grows and retracts through the KB]
+!assert knowledge_head("inform me about ", strong)
+> inform me about chess
+< a two-player strategy game in which players move distinct pieces on a board and aim to checkmate the opposing king.
+!forget knowledge_head("inform me about ", strong)
+> inform me about chess
+!query! knowledge_head("inform me about ", strong)

@@ -895,6 +895,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
      * English even if marker counting guessed Italian. The Italian heads are the
      * ones carrying an Italian-only token; flag the match. */
     const char *matched = NULL;
+    char learned_head[KB_TERM_LEN] = "";
     for (const char *const *h = strong_heads; *h; h++) {
         size_t hl = strlen(*h);
         if (strncmp(work, *h, hl) == 0) { x = work + hl; matched = *h; break; }
@@ -909,6 +910,30 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
                 x = rawbuf + hl; matched = *h; use_raw = 1; break;
             }
         }
+    }
+    /* Articulated heads are an open linguistic class.  The KB supplies them
+     * through knowledge_head/2; this bridge keeps the topic extractor generic
+     * and lets a runtime-taught head participate without a C edit. */
+    if (!x && rawbuf[0]) {
+        char (*heads)[KB_TERM_LEN] = NULL;
+        const char *hq[2] = { NULL, NULL };
+        size_t nh = 0;
+        if (kb_match_all(b->kb, "knowledge_head", hq, 2, &heads, &nh)) {
+            for (size_t hi = 0; hi < nh; hi++) {
+                char probe[KB_TERM_LEN];
+                snprintf(probe, sizeof probe, "%s", heads[hi]);
+                const char *head = kb_dequote(probe);
+                size_t hl = strlen(head);
+                if (hl && strncmp(rawbuf, head, hl) == 0) {
+                    x = rawbuf + hl;
+                    use_raw = 1;
+                    snprintf(learned_head, sizeof learned_head, "%s", head);
+                    matched = learned_head;
+                    break;
+                }
+            }
+        }
+        free(heads);
     }
     if (!x) for (const char *const *h = weak_heads; *h; h++) {
         size_t hl = strlen(*h);
