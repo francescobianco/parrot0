@@ -76,6 +76,7 @@ action_source(practice_games, wikipedia).
 action_cost(practice_games, 3).
 action_time(practice_games, 10h).
 plan_given(chess_basics).
+plan_budget(chess_learning, 6, 12h).
 
 % Generic epistemic plan: acquire information before answering when the request
 % explicitly requires grounding. The topic remains an open parameter; only the

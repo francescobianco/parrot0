@@ -819,6 +819,23 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
                                         header, sizeof header))
                     snprintf(header, sizeof header, "%s", goal_h);
                 size_t o = (size_t)snprintf(out, out_size, "%s", header);
+                {
+                    const char *bq[3] = { goal, NULL, NULL };
+                    char cost_total[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "plan_budget", bq, 3, cost_total, 1) > 0) {
+                        const char *tq[3] = { goal, cost_total[0], NULL };
+                        char time_total[1][KB_TERM_LEN];
+                        if (kb_match(b->kb, "plan_budget", tq, 3, time_total, 1) == 0)
+                            time_total[0][0] = '\0';
+                        const KbResponseSlot bs[] = {
+                            { "cost", cost_total[0] }, { "time", time_total[0] }
+                        };
+                        char note[KB_TERM_LEN * 2];
+                        if (kb_response_slots(b, "plan_budget_note", bs, 2,
+                                               note, sizeof note))
+                            o += (size_t)snprintf(out + o, out_size - o, " %s", note);
+                    }
+                }
                 for (size_t i = 0; i < nsteps && o < out_size; i++) {
                     char line[KB_TERM_LEN];
                     plan_step_desc(b, steps[i], line, sizeof line);

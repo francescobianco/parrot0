@@ -654,6 +654,8 @@ response_template(activity_intro, "From what I know, a good plan is:").
 response_template(activity_intro, it, "Per quanto ne so, un buon piano è:").
 response_template(plan_header, "My derived plan for {goal}:").
 response_template(plan_header, it, "Il mio piano derivato per {goal}:").
+response_template(plan_budget_note, "[total cost {cost}, total time {time}]").
+response_template(plan_budget_note, it, "[costo totale {cost}, tempo totale {time}]").
 response_template(activity_favorite_intro, "I don't have real favorites, but a good plan is:").
 response_template(activity_favorite_intro, it, "Non ho vere preferenze, ma un buon piano è:").
 response_template(taxonomy_definition, "{Subject} belongs to the category {category}.").
