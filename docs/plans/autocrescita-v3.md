@@ -1358,6 +1358,8 @@ fonte, senza un ramo C dedicato.
 La resa mostra inoltre `action_cost/2` quando il dominio lo dichiara: costi,
 dipendenze e supporti restano così contabilità interrogabile della KB, non
 stato nascosto del consumer.
+Lo stesso vale per `action_time/2`: il tempo stimato è mostrato solo se
+dichiarato dal dominio, senza budget impliciti o contabilizzazione cablata.
 
 Il dominio `grounded_answer` in `kb/experts/codebase/actions.p0` rende esplicita
 anche l'azione informativa: `read_wikipedia → check_claim →

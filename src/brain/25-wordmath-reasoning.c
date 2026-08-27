@@ -295,6 +295,16 @@ static void plan_step_cost(Brain *b, const char *step, char *line, size_t line_s
     } else line[0] = '\0';
 }
 
+static void plan_step_time(Brain *b, const char *step, char *line, size_t line_sz) {
+    if (!line || line_sz == 0) return;
+    const char *q[2] = { step, NULL };
+    char tm[1][KB_TERM_LEN];
+    if (b && b->kb && kb_match(b->kb, "action_time", q, 2, tm, 1) > 0) {
+        plan_unquote(tm[0]);
+        snprintf(line, line_sz, "%s", tm[0]);
+    } else line[0] = '\0';
+}
+
 static int plan_param_value(Brain *b, const char *goal, const char *name,
                             char *out, size_t out_sz) {
     if (!b || !b->kb || !goal || !name || !out || out_sz == 0) return 0;
@@ -823,6 +833,12 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
                     if (cost[0]) {
                         size_t used = strlen(line);
                         snprintf(line + used, sizeof line - used, " [cost %s]", cost);
+                    }
+                    char tm[KB_TERM_LEN];
+                    plan_step_time(b, steps[i], tm, sizeof tm);
+                    if (tm[0]) {
+                        size_t used = strlen(line);
+                        snprintf(line + used, sizeof line - used, " [time %s]", tm);
                     }
                     o += (size_t)snprintf(out + o, out_size - o, " %zu) %s%s",
                                           i + 1, line,

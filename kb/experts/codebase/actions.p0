@@ -60,18 +60,21 @@ action_desc(learn_rules, "learn the board, pieces, legal moves and checkmate obj
 action_desc(learn_rules, it, "imparare scacchiera, pezzi, mosse legali e obiettivo dello scacco matto").
 action_source(learn_rules, wikipedia).
 action_cost(learn_rules, 1).
+action_time(learn_rules, 30m).
 action_yields(study_openings, opening_basics).
 action_needs(study_openings, chess_rules).
 action_desc(study_openings, "study a small set of principled openings and contest the centre").
 action_desc(study_openings, it, "studiare alcune aperture solide e contendere il centro").
 action_source(study_openings, wikipedia).
 action_cost(study_openings, 2).
+action_time(study_openings, 2h).
 action_yields(practice_games, chess_fluency).
 action_needs(practice_games, opening_basics).
 action_desc(practice_games, "play short games and review threats, king safety and missed tactics").
 action_desc(practice_games, it, "giocare partite brevi e rivedere minacce, sicurezza del re e tattiche mancate").
 action_source(practice_games, wikipedia).
 action_cost(practice_games, 3).
+action_time(practice_games, 10h).
 plan_given(chess_basics).
 
 % Generic epistemic plan: acquire information before answering when the request
