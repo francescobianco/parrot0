@@ -1,0 +1,30 @@
+% units.p0 — LE UNITÀ DI MISURA E LA GRANDEZZA CHE MISURANO
+%
+% `kb/learning/learned.p0` dice che se la ricaduta torna a crescere la risposta
+% non e' ordinarla: e' creare la categoria che manca. Questa e' quella
+% categoria, e l'asse e' la RELAZIONE — non il dominio.
+%
+% Il watt appartiene alla meccanica e l'ohm all'elettromagnetismo, ma «quale
+% grandezza misura questa unita'» e' la stessa domanda in entrambi i casi, e
+% spezzarla per dominio la renderebbe due domande. `kb/experts/physics/` tiene
+% la conoscenza specialistica di ciascun campo; qui sta cio' che le unita'
+% hanno in comune.
+%
+% Non e' un elenco chiuso e non e' scritto a mano per convenzione: queste righe
+% vengono da una sessione di insegnamento reale (LEARN_PROTOCOL, dominio
+% elettronica — docs/labs/apprendimento-assistito/2026-08-28-elettronica.md), in
+% cui la relazione e' stata aperta dicendo «measures is a relation verb» e i
+% membri sono stati insegnati uno alla volta parlando. Il membro successivo si
+% impara nello stesso modo, senza ricompilare e senza toccare questo file a
+% mano: il save-map lo instrada qui perche' qui abita la sua specie.
+%
+% Fonte dei membri attuali: BIPM, «SI Brochure» 9a ed. (2019), unita' derivate
+% coerenti con nome speciale.
+
+measures(ohm, electrical_resistance).
+measures(farad, capacitance).
+measures(henry, inductance).
+measures(volt, voltage).
+measures(watt, power).
+measures(ampere, current).
+measures(kelvin, temperature).

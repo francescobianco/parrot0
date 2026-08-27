@@ -1,0 +1,44 @@
+:- file_attribute(machinery).
+
+% fact-provenance.p0 — DA QUALE FRASE VIENE UN FATTO
+%
+% Il registro delle letture (`kb/machinery/learning-events.p0`) dice da quale
+% PAGINA viene un concetto. Questo dice da quale FRASE viene un fatto, ed e' il
+% gradino piu' fine della stessa scala: `fact_source/3` lega il fatto alla
+% superficie che lo ha prodotto e all'entita' su cui e' stato ancorato,
+% `reading_fact/2` conserva la lettura, `bridged/2` dice che la frase e' stata
+% agganciata a una conoscenza gia' presente invece che presa per nuova.
+%
+% E' macchineria e non conoscenza sul mondo — dice COME si e' saputo, non che
+% cosa si sa — quindi sta qui e si dichiara tale in testa.
+%
+% Perche' non si potano. Sono esattamente i fatti che M14 chiede
+% (docs/plans/apprendimento-assistito.md §6.2): la genealogia che permette a una
+% capacita' di dire da quale lezione discende, e a un retract di togliere quella
+% e non il resto. Una riga di provenienza SOPRAVVIVE al fatto che descrive: le
+% due `is_unit(...)` qui sotto raccontano una lezione ritrattata — «SI unit»
+% letto come «is unit» — e i fatti corrispondenti non sono attivi da nessuna
+% parte. Cancellarle renderebbe invisibile un errore che vale la pena ricordare.
+
+fact_source(is_unit(ohm), ohm, "the ohm is the is unit of electrical resistance").
+reading_fact(is_unit(ohm), "the ohm is the is unit of electrical resistance").
+fact_source(relation_verb(measures), measures, "measures is a relation verb").
+reading_fact(relation_verb(measures), "measures is a relation verb").
+fact_source(measures(ohm, electrical_resistance), ohm, "the ohm measures electrical resistance").
+reading_fact(measures(ohm, electrical_resistance), "the ohm measures electrical resistance").
+bridged("the ohm measures electrical resistance", dialogue).
+bridged("the ampere measures what?", dialogue).
+fact_source(measures(farad, capacitance), farad, "the farad measures capacitance").
+reading_fact(measures(farad, capacitance), "the farad measures capacitance").
+fact_source(measures(henry, inductance), henry, "the henry measures inductance").
+reading_fact(measures(henry, inductance), "the henry measures inductance").
+fact_source(measures(volt, voltage), volt, "the volt measures voltage").
+reading_fact(measures(volt, voltage), "the volt measures voltage").
+fact_source(measures(watt, power), watt, "the watt measures power").
+reading_fact(measures(watt, power), "the watt measures power").
+fact_source(is_unit(forget), forget, "forget that the ohm is a is_unit").
+fact_source(measures(ampere, current), ampere, "the ampere measures current").
+fact_source(measures(kelvin, temperature), kelvin, "the kelvin measures temperature").
+reading_fact(measures(ampere, current), "the ampere measures current").
+reading_fact(measures(kelvin, temperature), "the kelvin measures temperature").
+reading_fact(is_unit(forget), "forget that the ohm is a is_unit").

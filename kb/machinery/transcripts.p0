@@ -1,0 +1,123 @@
+:- file_attribute(machinery).
+
+% transcripts.p0 — I TURNI DETTI E QUELLI RISPOSTI
+%
+% `utterance(N, Chi, "…")` e' il log della conversazione. Cadeva nella ricaduta
+% per l'unica ragione per cui ci cade qualcosa: non aveva una casa.
+%
+% Perche' NON si butta, benche' somigli a rumore. La sessione e' runtime e non
+% rientra dalla porta del boot (docs/session-and-provenance.md §1): quello che
+% qui si conserva non e' lo stato di una sessione viva, e' l'ARCHIVIO di
+% conversazioni chiuse — la fonte da cui `fact_source/3` prende la superficie
+% che ha prodotto un fatto, e la sola traccia che resta dei turni in cui parrot0
+% NON ha imparato niente. Un muro non lascia altro segno di se'.
+%
+% E la regola che vale sopra ogni altra su questo file: il rumore di `/save` non
+% si filtra in automatico. Quando una classe di clausole sembra rumore, quello
+% che manca e' la casa, non l'utilita' della riga.
+%
+% Che cosa invece qui NON deve arrivare: lo scratch del turno corrente —
+% `turn_counter/1`, `turn_span_token/4`. Non e' archivio, e' lo stato di mezzo
+% turno; `turn_counter(42)` caricato al boot accanto a `turn_counter(0)` e
+% `turn_counter(1)` corrompe `turn_bookkeeping`, che fa retract/assert su
+% `turn_counter($N)`. Il save-map oggi lo instrada lo stesso ed e' un gap
+% aperto (G3 in docs/labs/apprendimento-assistito/2026-08-28-elettronica.md).
+
+utterance(5, user, "what is a resistor?").
+utterance(5, user, "the henry measures what?").
+utterance(5, user, "the kelvin measures temperature").
+utterance(6, self, "Inductance.").
+utterance(7, user, "the ampere measures current").
+utterance(8, self, "Learned: measures(ampere, current).").
+utterance(9, user, "the ampere measures what?").
+utterance(10, self, "Current.").
+utterance(6, self, "Learned: measures(kelvin, temperature).").
+utterance(7, user, "the kelvin measures what?").
+utterance(8, self, "Temperature.").
+utterance(6, self, "limits current -- dissipates energy as heat.").
+utterance(7, user, "what does a capacitor store?").
+utterance(8, self, "I don't understand that yet.").
+utterance(9, user, "is a diode a passive component?").
+utterance(10, self, "Hmm, I don't know about passive yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a passive»; if passive is a word you want to talk ABOUT, say «the word passive is a …».").
+utterance(11, user, "the ohm is the SI unit of electrical resistance").
+utterance(12, self, "Learned: is_unit(ohm).").
+utterance(13, user, "what is the SI unit of electrical resistance?").
+utterance(14, self, "Hmm, I don't know about electrical yet. Want me to learn about it? Or teach me: if «x of y» says what you already say another way, say «x of y means x <known verb> y»; if of is something one thing does to another, say «of is a relation verb».").
+utterance(15, user, "the ohm measures electrical resistance").
+utterance(16, self, "Hmm, I don't know about measures yet. Want me to learn about it? Or teach me: if «x measures y» says what you already say another way, say «x measures y means x <known verb> y»; if measures is something one thing does to another, say «measures is a relation verb».").
+utterance(17, user, "what does the ohm measure?").
+utterance(18, self, "I don't have a module by that name. Ask 'what can you do?' for a list.").
+utterance(19, user, "measures is a relation verb").
+utterance(20, self, "Learned: relation_verb(measures).").
+utterance(21, user, "the ohm measures electrical resistance").
+utterance(22, self, "Learned: measures(ohm, electrical_resistance).").
+utterance(23, user, "what does the ohm measure?").
+utterance(24, self, "I don't have a module by that name. Ask 'what can you do?' for a list.").
+utterance(25, user, "what does the ohm measures?").
+utterance(26, self, "I don't have a module by that name. Ask 'what can you do?' for a list.").
+utterance(27, user, "what measures electrical resistance?").
+utterance(28, self, "Hmm, I don't know about electrical yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a electrical»; if electrical is a word you want to talk ABOUT, say «the word electrical is a …».").
+utterance(29, user, "which unit measures electrical resistance?").
+utterance(30, self, "I don't understand that yet.").
+utterance(31, user, "the ohm measures resistance").
+utterance(32, self, "Electrical resistance.").
+utterance(33, user, "what measures resistance?").
+utterance(34, self, "I don't understand that yet.").
+utterance(35, user, "what does the ohm measures?").
+utterance(36, self, "I don't have a module by that name. Ask 'what can you do?' for a list.").
+utterance(37, user, "the ohm measures what?").
+utterance(38, self, "Electrical resistance.").
+utterance(39, user, "who measures electrical resistance?").
+utterance(40, self, "Hmm, I don't know about electrical yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a electrical»; if electrical is a word you want to talk ABOUT, say «the word electrical is a …».").
+utterance(41, user, "why did you answer that way?").
+utterance(42, self, "I try my modules in a fixed order and the first one that matches wins. Last turn initiative, piact, compose, repair, mention, input, forget, teachconstruction, taughtframe, teachrule, teachreply, qa, gen, deepreason, count, namestart, wordquery, sequence, spell, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, robust, calibrate, abduce, role, self, archetype, fewshot, compare, rulespec, algebra, claim, operator, arith, plan, wordproblem, agent, search, tool, quanti").
+utterance(43, user, "the farad measures capacitance").
+utterance(44, self, "Learned: measures(farad, capacitance).").
+utterance(45, user, "the farad measures what?").
+utterance(46, self, "Capacitance.").
+utterance(47, user, "the henry measures inductance").
+utterance(48, self, "Learned: measures(henry, inductance).").
+utterance(49, user, "the henry measures what?").
+utterance(50, self, "Inductance.").
+utterance(51, user, "the volt measures voltage").
+utterance(52, self, "Learned: measures(volt, voltage).").
+utterance(53, user, "the volt measures what?").
+utterance(54, self, "Voltage.").
+utterance(55, user, "the ampere measures what?").
+utterance(56, self, "Hmm, I don't know about ampere yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a ampere»; if ampere is a word you want to talk ABOUT, say «the word ampere is a …».").
+utterance(57, user, "which quantity does the farad measures?").
+utterance(58, self, "Capacitance.").
+utterance(59, user, "what is measured by the farad?").
+utterance(60, self, "Hmm, I don't know about measured yet. Want me to learn about it? Or teach me: if «x by y» says what you already say another way, say «x by y means x <known verb> y»; if by is something one thing does to another, say «by is a relation verb».").
+utterance(61, user, "tell me what the henry measures").
+utterance(62, self, "Inductance.").
+utterance(63, user, "does the ohm measures capacitance?").
+utterance(64, self, "Electrical resistance.").
+utterance(65, user, "what is a capacitor and what does the farad measures?").
+utterance(66, self, "stores energy in an electric field -- blocks DC. I don't have a module by that name. Ask 'what can you do?' for a list.").
+utterance(67, user, "why did you answer that way?").
+utterance(68, self, "I try my modules in a fixed order and the first one that matches wins. Last turn initiative, piact, compose, repair, mention, input, forget, teachconstruction, taughtframe, teachrule, teachreply, qa, gen, deepreason, count, namestart, wordquery, sequence, spell, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, robust, calibrate, abduce, role, self, archetype, fewshot, compare, rulespec, algebra, claim, operator, arith, plan, wordproblem, agent, search, tool, quanti").
+utterance(69, user, "does the farad measures inductance?").
+utterance(70, self, "Capacitance.").
+utterance(71, user, "the ohm measures what?").
+utterance(72, self, "Electrical resistance.").
+utterance(73, user, "the volt measures what?").
+utterance(74, self, "Voltage.").
+utterance(75, user, "forget that the ohm is a is_unit").
+utterance(76, self, "Learned: is_unit(forget).").
+utterance(77, user, "the ohm measures what?").
+utterance(78, self, "Electrical resistance.").
+utterance(79, user, "forget that ohm is a is_unit").
+utterance(80, self, "Electrical resistance.").
+utterance(81, user, "forget that forget is a is_unit").
+utterance(2, self, "Learned: measures(watt, power).").
+utterance(2, self, "Electrical resistance.").
+utterance(1, user, "the watt measures power").
+utterance(1, user, "the ohm measures what?").
+utterance(82, self, "Electrical resistance.").
+utterance(4, self, "Power.").
+utterance(4, self, "Current.").
+utterance(3, user, "the watt measures what?").
+utterance(3, user, "the ampere measures what?").
+utterance(83, user, "the ohm measures what?").
+utterance(84, self, "Electrical resistance.").

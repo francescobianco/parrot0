@@ -1,0 +1,30 @@
+% taught-lexicon.p0 — LE CLASSI DI PAROLA IMPARATE PARLANDO
+%
+% Il terzo fratello di `constructions.p0` e `taught-rules.p0`, e nasce dalla
+% stessa constatazione: una lezione che non ha una casa cade nella ricaduta, e
+% dalla ricaduta non si instrada niente, perche' si instrada verso i parenti e
+% un deposito indistinto non ha parenti.
+%
+% Qui vive il gradino piu' BASSO del metalinguaggio: non una costruzione
+% («x lies in y means x is located in y») e non una regola («ogni fisico e' uno
+% scienziato»), ma la dichiarazione che una parola appartiene a una classe
+% grammaticale — la mossa che parrot0 stesso propone dal suo muro:
+%
+%     > the ohm measures electrical resistance
+%     parrot0: Hmm, I don't know about measures yet. […] if measures is
+%              something one thing does to another, say «measures is a
+%              relation verb».
+%     > measures is a relation verb
+%     parrot0: Learned: relation_verb(measures).
+%
+% Da quel turno `extract_frame/2` e `answer_frame/2` (kb/core/grammar.p0) vedono
+% il verbo come qualunque altro, e la frase che prima era un muro diventa un
+% fatto. E' il mantra alla lettera — il motore e' fisso, il lessico impara — e
+% il suo test operativo: un verbo nuovo domani non costa una ricompilazione.
+%
+% Una riga qui si corregge e si ritratta come tutto il resto.
+
+% Sessione elettronica, 2026-08-28: il verbo che ha aperto la relazione fra una
+% unita' di misura e la grandezza che misura (kb/core/facts/units.p0).
+% Report: docs/labs/apprendimento-assistito/2026-08-28-elettronica.md
+relation_verb(measures).

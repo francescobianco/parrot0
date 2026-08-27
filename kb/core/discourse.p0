@@ -70,6 +70,22 @@ answer_content(recall($Kind, $Words, $Language), 2, terminator, $Piece) :- sente
 % nella KB — il motore non conta i turni per conto suo.
 turn_counter(0).
 turn_counter(1).
+
+% ── CHE COSA NON SOPRAVVIVE AL TURNO ─────────────────────────────────────────
+%
+% `/save` instrada tutto cio' che ha origine di sessione, e finiva per portarsi
+% dietro anche lo stato di mezzo turno: `turn_counter(42)` accanto a
+% `turn_counter(0)` e `turn_counter(1)`, cioe' un terzo orologio che al boot
+% entra in `turn_bookkeeping` — la regola qui sotto fa retract/assert su
+% `turn_counter($N)` — e i token dell'ultima frase come se fossero conoscenza.
+%
+% La sessione e' runtime e non rientra dalla porta del boot
+% (docs/session-and-provenance.md §1). Quali predicati siano scratch del turno
+% e' pero' CONOSCENZA, non un elenco nel C: un predicato effimero nuovo domani
+% e' una riga qui, non una ricompilazione.
+machinery(turn_scratch).
+turn_scratch(turn_counter).
+turn_scratch(turn_span_token).
 bookkeeper(clock).
 turn_bookkeeping($Turn, clock) :- turn_counter($N), is($M, add($N, 1)), retract(turn_counter, $N), assert(turn_counter, $M).
 

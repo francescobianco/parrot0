@@ -1,0 +1,87 @@
+:- file_attribute(machinery).
+
+% gap-registry.p0 — LE LACUNE INCONTRATE, UNA PER UNA
+%
+% `kb/core/gap-kinds.p0` dice come si DERIVA la specie di una lacuna; qui
+% stanno le lacune vere che parrot0 ha incontrato parlando. Schema e istanze
+% sono due cose diverse e vivevano nello stesso posto: il save-map, che sceglie
+% la casa per nome di predicato, instradava le istanze `gap_source/2` dentro
+% `kb/core/meta.p0` accanto allo schema `gap_source/3` — stesso nome, arita'
+% diversa, significato opposto. Da qui in poi lo schema resta in meta.p0 e le
+% istanze vengono qui.
+%
+% Che cosa dicono le quattro voci di una lacuna:
+%
+%   machinery_gap(Domanda)        la domanda che non ha trovato risposta
+%   gap_source(Normalizzata, Cruda)  la forma normalizzata e quella pronunciata
+%   gap_anchor(Domanda, Parola)   la parola che parrot0 SA riconoscere
+%   gap_opaque(Domanda, Parola)   la parola che gli resta opaca
+%   gap_kind(Domanda, Specie)     la specie derivata — perche' specie diverse
+%                                 hanno rimedi diversi
+%
+% Perche' non si potano. Sono lo SPAZIO NEGATIVO della KB: la traccia di che
+% cosa manca, che e' la materia prima dell'autocorrezione (MANTRA, gerarchia di
+% crescita §3) e del teacher automatico. `gap_source` conserva anche la forma
+% cruda accanto alla normalizzata, ed e' li' che si legge un difetto di lettura
+% invece di doverlo indovinare: «what is the SI unit of…» normalizzato in «what
+% is the is unit of…» dice da solo che «SI» e' stato scambiato per «is».
+
+machinery_gap("what is the is unit of electrical resistance?").
+gap_opaque("what is the is unit of electrical resistance?", unit).
+gap_opaque("what is the is unit of electrical resistance?", electrical).
+gap_anchor("what is the is unit of electrical resistance?", resistance).
+gap_kind("what is the is unit of electrical resistance?", reachability).
+machinery_gap("which unit measures resistance?").
+gap_opaque("which unit measures resistance?", unit).
+gap_opaque("which unit measures resistance?", measures).
+gap_anchor("which unit measures resistance?", resistance).
+gap_kind("which unit measures resistance?", reachability).
+machinery_gap("what does a capacitor store?").
+gap_anchor("what does a capacitor store?", capacitor).
+gap_opaque("what does a capacitor store?", store).
+gap_kind("what does a capacitor store?", reachability).
+machinery_gap("is a diode a passive component?").
+gap_anchor("is a diode a passive component?", diode).
+gap_opaque("is a diode a passive component?", passive).
+gap_anchor("is a diode a passive component?", component).
+gap_kind("is a diode a passive component?", reachability).
+gap_kind("the ohm measures electrical resistance", reachability).
+machinery_gap("what measures electrical resistance?").
+gap_anchor("what measures electrical resistance?", measures).
+gap_opaque("what measures electrical resistance?", electrical).
+gap_anchor("what measures electrical resistance?", resistance).
+gap_kind("what measures electrical resistance?", reachability).
+machinery_gap("which unit measures electrical resistance?").
+gap_opaque("which unit measures electrical resistance?", unit).
+gap_anchor("which unit measures electrical resistance?", measures).
+gap_opaque("which unit measures electrical resistance?", electrical).
+gap_anchor("which unit measures electrical resistance?", resistance).
+gap_kind("which unit measures electrical resistance?", reachability).
+machinery_gap("what measures resistance?").
+gap_anchor("what measures resistance?", measures).
+gap_anchor("what measures resistance?", resistance).
+gap_kind("what measures resistance?", reachability).
+machinery_gap("who measures electrical resistance?").
+gap_anchor("who measures electrical resistance?", measures).
+gap_opaque("who measures electrical resistance?", electrical).
+gap_anchor("who measures electrical resistance?", resistance).
+gap_kind("who measures electrical resistance?", reachability).
+machinery_gap("the ampere measures what?").
+gap_opaque("the ampere measures what?", ampere).
+gap_anchor("the ampere measures what?", measures).
+gap_kind("the ampere measures what?", reachability).
+machinery_gap("what is measured by the farad?").
+gap_opaque("what is measured by the farad?", measured).
+gap_anchor("what is measured by the farad?", farad).
+gap_kind("what is measured by the farad?", reachability).
+gap_source("what is measured by the farad?", "what is measured by the farad?").
+gap_source("the ampere measures what?", "the ampere measures what?").
+gap_source("who measures electrical resistance?", "who measures electrical resistance?").
+gap_source("what measures resistance?", "what measures resistance?").
+gap_source("which unit measures electrical resistance?", "which unit measures electrical resistance?").
+gap_source("what measures electrical resistance?", "what measures electrical resistance?").
+gap_source("the ohm measures electrical resistance", "the ohm measures electrical resistance").
+gap_source("is a diode a passive component?", "is a diode a passive component?").
+gap_source("what does a capacitor store?", "what does a capacitor store?").
+gap_source("which unit measures resistance?", "which unit measures resistance?").
+gap_source("what is the is unit of electrical resistance?", "what is the SI unit of electrical resistance?").

@@ -4676,6 +4676,16 @@ static void sm_fact_text(const Fact *fa, char *out, size_t sz) {
  * facts, negatives, rules) is written to `default_path` (rewritten). Returns the
  * clause count. The on-disk index at `<root>/savemap.tsv` is refreshed for
  * inspection. */
+/* Lo scratch del turno non e' patrimonio: `turn_counter/1` e i token dell'ultima
+ * frase descrivono il mezzo turno in corso, e salvarli significa farli rientrare
+ * al boot come conoscenza — un secondo orologio dentro `turn_bookkeeping`. Quali
+ * predicati siano effimeri lo dice la KB (`turn_scratch/1` in discourse.p0), non
+ * un elenco qui: uno nuovo domani e' una riga di conoscenza. */
+static int sm_is_turn_scratch(const KB *kb, const char *pred) {
+    const char *a[1] = { pred };
+    return kb_query((KB *)kb, "turn_scratch", a, 1);
+}
+
 int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
     if (!kb || !default_path || !*default_path) return -1;
     /* `root` non serve piu' a trovare le case — la mappa e' in RAM — ma resta il
@@ -4691,6 +4701,7 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *fa = &kb->facts[i];
         if (!(fa->origin & (KB_SESSION | KB_INDUCED)) || fa->argc == 0) continue;
+        if (sm_is_turn_scratch(kb, fa->pred)) { routed[i] = 1; continue; }
         const char *file = NULL; int line = 0;
         if (!smap_home(kb, fa->pred, fa->args[0], &file, &line)) continue;
         char text[2048];

@@ -494,6 +494,10 @@ extract_frame($Source, $Predicate) :-
 :- include(../learning/constructions.p0).
 % E le regole dette a voce, che `/save` non instrada.
 :- include(../learning/taught-rules.p0).
+% E il gradino piu' basso della stessa scala: non una costruzione e non una
+% regola, ma la classe grammaticale di una parola — «measures is a relation
+% verb» — che e' la mossa che il muro qui sopra propone da se'.
+:- include(../learning/taught-lexicon.p0).
 
 % Nel solo caso in cui la costruzione esponga una cue interrogabile senza
 % perdere i ruoli, il teacher registra anche questa vista. Il pattern sorgente

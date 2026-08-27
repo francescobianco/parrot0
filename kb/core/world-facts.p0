@@ -3927,6 +3927,15 @@ answer_frame("miles to km", miles_to_km).
 % istantanea — che e' macchineria e non conoscenza sul mondo: sta in una cartella
 % dedicata alle meccaniche e si dichiara tale in testa.
 :- include(../machinery/learning-events.p0).
+% Accanto al registro delle letture, le altre tre meccaniche dell'imparare: da
+% quale FRASE viene un fatto, quali lacune si sono incontrate, e l'archivio dei
+% turni. Erano tutte nella ricaduta del save-map per mancanza di una casa.
+:- include(../machinery/fact-provenance.p0).
+:- include(../machinery/gap-registry.p0).
+:- include(../machinery/transcripts.p0).
+% Le unita' di misura e la grandezza che misurano: una relazione sola, comune a
+% piu' domini, imparata parlando e non scritta a mano.
+:- include(facts/units.p0).
 :- include(facts/reasoning.p0).
 :- include(facts/operator-worlds.p0).
 :- include(facts/geography-world.p0).
