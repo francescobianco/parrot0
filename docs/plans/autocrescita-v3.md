@@ -1360,6 +1360,8 @@ dipendenze e supporti restano così contabilità interrogabile della KB, non
 stato nascosto del consumer.
 Lo stesso vale per `action_time/2`: il tempo stimato è mostrato solo se
 dichiarato dal dominio, senza budget impliciti o contabilizzazione cablata.
+La resa mostra ora anche il primo artefatto di `action_needs/2` per ogni passo
+(`[needs ...]`), rendendo osservabile la dipendenza che abilita la sequenza.
 Per i domini che lo dichiarano, `plan_budget/3` aggiunge anche il totale di
 costo e tempo; il consumer legge i due slot dalla KB separatamente e non
 assume che il numero di passi coincida con il budget.
