@@ -760,10 +760,16 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
                     kb_cue_match(b, "plan_execute", praw);
     int want_plan = kb_cue_match(b, "plan_request", norm) ||
                     kb_cue_match(b, "plan_request", praw);
-    if (want_exec || want_plan) {
+    const char *pending_q[1] = { "active" };
+    int pending_plan = kb_query(b->kb, "pending_plan_request", pending_q, 1);
+    if (want_exec || want_plan || pending_plan) {
         plan_load_actions(b);
         char goal[KB_TERM_LEN] = "";
         plan_find_goal(b, norm, praw, goal, sizeof goal);
+        if (pending_plan && goal[0]) {
+            const char *forget_q[1] = { "active" };
+            kb_retract(b->kb, "pending_plan_request", forget_q, 1);
+        }
         if (goal[0]) {
             if (want_exec)
                 return plan_execute_goal(b, goal, praw, out, out_size);
@@ -812,7 +818,12 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
         /* An explicit planning move without a grounded goal is still a valid
          * dialogue act. Ask for the missing goal/constraints through KB data
          * instead of falling into an unrelated artifact generator. */
-        if (kb_response(b, "next_step_request", NULL, out, out_size)) return 1;
+        if (want_plan) {
+            const char *active_q[1] = { "active" };
+            kb_set_origin(b->kb, KB_SESSION);
+            kb_assert(b->kb, "pending_plan_request", active_q, 1);
+            if (kb_response(b, "next_step_request", NULL, out, out_size)) return 1;
+        }
     }
 
     char buf[256];

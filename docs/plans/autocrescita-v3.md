@@ -1373,6 +1373,11 @@ anziché cadere in un generatore di artefatti non pertinente. Questo mantiene
 la conversazione composizionale: il turno successivo può fornire il goal che il
 planner KB deve derivare.
 
+Il dialogo conserva ora anche l'obbligo aperto: dopo `fai un piano`, il turno
+successivo può contenere soltanto `imparare gli scacchi` e il planner riprende
+lo stesso stato per derivare il grafo completo. L'obbligo viene consumato dopo
+la derivazione, così non contamina i turni successivi.
+
 ### Verifica d'uso reale
 
 Una sequenza pulita di cinque turni indipendenti in italiano produce,
