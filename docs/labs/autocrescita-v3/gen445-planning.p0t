@@ -21,3 +21,4 @@
 !forget compensation_step(445_blocked, 2, step(open_gate, source_read, level_safe, 2))
 !query! compensation_plan_complete(445_blocked)
 !query compensation_stop(445_blocked, missing_dependency(1, 2))
+!query compensation_alternative_valid(445_blocked, 445_fallback, goal(level, safe))

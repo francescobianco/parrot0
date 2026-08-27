@@ -1248,6 +1248,12 @@ ponte fonte→piano e del replanning, ma non chiude ancora il gate completo:
 serve integrare lo stesso percorso con un turno reale e con almeno una
 alternativa valida.
 
+Il campione è stato esteso con `compensation_alternative/4` e con la vista
+`compensation_alternative_valid/3`: quando il passo `open_gate` viene ritirato,
+la stessa obbligazione può selezionare il ramo `use_manual_release`, purché il
+ramo abbia un proprio passo dichiarato. L’alternativa è quindi una relazione
+KB verificabile e revocabile, non un fallback implicito nel C.
+
 ### Ipotesi H445
 
 Gli stessi frame estratti e gli stessi operatori KB possono sostenere piani

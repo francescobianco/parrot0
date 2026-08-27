@@ -18,3 +18,5 @@ compensation_step(445_blocked, 1, step(read_source, unknown, source_read, 1)).
 compensation_step(445_blocked, 2, step(open_gate, source_read, level_safe, 2)).
 compensation_dependency(445_blocked, 1, 2).
 source_support(445_blocked, 1, wikipedia_revision(2026, water_gate)).
+compensation_alternative(445_blocked, 445_fallback, goal(level, safe), step(use_manual_release, unknown, level_safe, 3)).
+compensation_step(445_fallback, 1, step(use_manual_release, unknown, level_safe, 3)).

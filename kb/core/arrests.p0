@@ -59,6 +59,8 @@ machinery(compensation_plan).
 machinery(compensation_plan_step).
 machinery(compensation_plan_complete).
 machinery(compensation_stop).
+machinery(compensation_alternative).
+machinery(compensation_alternative_valid).
 
 % ── 1. CONTESTO LINGUISTICO E TERMINE, SENZA SCELTE NEL C ─────────────────
 %
@@ -364,3 +366,10 @@ compensation_stop($Turn, missing_dependency($Before, $After)) :-
     compensation_dependency($Turn, $Before, $After),
     naf(compensation_step($Turn, $Before, $StepBefore)),
     naf(compensation_step($Turn, $After, $StepAfter)).
+
+% Un piano alternativo è una seconda realizzazione dichiarata nella KB. Non è
+% una scelta codificata: è valido solo quando possiede almeno un passo completo
+% e resta legato allo stesso obbligo.
+compensation_alternative_valid($Turn, $Alternative, $Goal) :-
+    compensation_alternative($Turn, $Alternative, $Goal, $Step),
+    compensation_step($Alternative, 1, $Step).
