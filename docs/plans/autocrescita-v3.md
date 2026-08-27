@@ -1359,9 +1359,11 @@ fonte, senza un ramo C dedicato.
 Il dominio `grounded_answer` in `kb/experts/codebase/actions.p0` rende esplicita
 anche l'azione informativa: `read_wikipedia → check_claim →
 compose_grounded_answer`, con artefatti, provenienza e descrizioni EN/IT. La
-forma inglese “make a plan to answer with sources” la percorre già nel dialogo;
-la superficie italiana equivalente resta da riallineare nel prossimo round,
-senza considerare il gate multilingue chiuso in anticipo.
+forma inglese “make a plan to answer with sources” e quella italiana
+“fai un piano per rispondere con fonti” percorrono ora lo stesso grafo; il
+consumer di prosa cede esplicitamente le richieste di piano al planner prima
+del fallback poetico. Il gate multilingue resta comunque distinto dalla prova
+di una sola coppia di frasi.
 Anche l'intestazione del piano è ora `response_template(plan_header,...)`,
 così il renderer non introduce testo naturale fuori dalla KB.
 

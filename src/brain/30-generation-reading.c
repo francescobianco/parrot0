@@ -365,6 +365,12 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         kb_cue_match(b, "python_prime_function_request", norm))
         return 0;
 
+    /* A planning request may contain ordinary prose words that also resemble
+     * a continuation prompt after language canonicalization. Let the generic
+     * KB planner own it before the poetic fallback claims the turn. */
+    if (kb_cue_match(b, "plan_request", norm) ||
+        (raw && kb_cue_match(b, "plan_request", raw))) return 0;
+
     if (kb_cue_match(b, "sentence_completion_request", norm)) {
         char cb[512]; snprintf(cb, sizeof cb, "%s", norm);
         char *cw[96]; size_t cn = split_words(cb, cw, 96);
