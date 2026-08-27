@@ -1350,8 +1350,9 @@ Il primo collegamento a un turno reale è ora verificato manualmente con
 planner carica il dominio dichiarato in `kb/experts/codebase/actions.p0` e
 deriva tre passi (`learn_rules → study_openings → practice_games`) da
 precondizioni e artefatti, senza una risposta speciale sugli scacchi. La
-semantica è quindi viva nel dialogo; la realizzazione delle descrizioni in
-lingua d’uscita resta un lavoro aperto del gate multilingue.
+semantica è quindi viva nel dialogo. Il renderer generico cerca ora
+`action_desc/3` nella lingua d’uscita e ricade su `action_desc/2`; il dominio
+degli scacchi fornisce le tre descrizioni italiane, senza un ramo C dedicato.
 
 ### Ipotesi H446
 

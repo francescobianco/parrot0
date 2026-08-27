@@ -244,6 +244,27 @@ static void plan_record_trace(Brain *b, const char *request, const char *goal,
 
 static void plan_step_desc(Brain *b, const char *step, char *line, size_t line_sz) {
     if (!line || line_sz == 0) return;
+    /* Prefer a language-specific description; the language is KB state, not a
+     * C-side phrase switch. A domain may add action_desc(Action, Lang, Text)
+     * and keep the generic two-argument description as its fallback. */
+    if (b && b->kb) {
+        char lang[KB_TERM_LEN] = "";
+        const char *lq[1] = { NULL };
+        char langs[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "current_language", lq, 1, langs, 1) > 0) {
+            plan_unquote(langs[0]);
+            snprintf(lang, sizeof lang, "%s", langs[0]);
+        }
+        if (lang[0]) {
+            const char *ql[3] = { step, lang, NULL };
+            char localized[2][KB_TERM_LEN];
+            if (kb_match(b->kb, "action_desc", ql, 3, localized, 2) > 0) {
+                plan_unquote(localized[0]);
+                snprintf(line, line_sz, "%s", localized[0]);
+                return;
+            }
+        }
+    }
     const char *qd[2] = { step, NULL };
     char desc[2][KB_TERM_LEN];
     if (b && b->kb && kb_match(b->kb, "action_desc", qd, 2, desc, 2) > 0) {
