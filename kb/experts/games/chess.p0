@@ -6,9 +6,12 @@ means(chess, "a two-player strategy board game in which each side protects its k
 game_players(chess, 2).
 semantic_topic_cue(chess, keyword(chess)).
 semantic_topic_cue(chess, keyword(scacchi)).
+topic_preference_surface(chess, "chess").
+topic_preference_surface(chess, "scacchi").
 game_goal(chess, "checkmate the opposing king so it is attacked and has no legal escape").
 game_setup(chess, "place each side's major pieces on its back rank and eight pawns on the rank in front, with the queen on her own color").
 game_play(chess, "players alternate one legal move; pieces move in distinct ways, captures remove opposing pieces, and a king may never remain in check").
+game_play_localized(chess, it, "i giocatori alternano una mossa legale; ogni pezzo si muove in modo diverso, le catture rimuovono i pezzi avversari e il re non può restare sotto scacco").
 game_end(chess, "the game ends by checkmate, resignation, draw agreement, stalemate, repetition, the fifty-move rule, or insufficient mating material").
 game_tip(chess, "develop pieces, contest the center, castle the king, and check the opponent's threats before moving").
 category_surface(chess, chess_piece).

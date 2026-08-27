@@ -447,6 +447,8 @@ response_template(smalltalk_deflect, "Not something I do myself, honestly -- but
 response_template(smalltalk_deflect, "I can't claim any of my own, but I'm curious -- what about you?").
 response_template(smalltalk_deflect, it, "Non ne ho di miei -- sono parrot0, un'IA -- ma raccontami dei tuoi.").
 response_template(smalltalk_deflect, it, "Non è una cosa che faccio io, ma dimmi -- e tu?").
+response_template(topic_preference_request, "I don't have personal preferences, but I know {topic}: {fact} Would you like to explore it together?").
+response_template(topic_preference_request, it, "Non ho preferenze personali, ma conosco {topic}: {fact} Ti va di esplorarlo insieme?").
 response_template(greeting_reply, it, "Ciao!").
 response_template(greeting_reply, it, "Ehilà!").
 response_template(would_rather, it, "Ci sto, anche se non ho preferenze vere -- quali sono le due opzioni?").

@@ -1,3 +1,62 @@
+/* A preference question can address a known external topic rather than ask for
+ * an agent preference.  The act, topic surfaces, supporting relation and
+ * wording are KB facts; this consumer only joins spans and response slots.
+ * It must run before the generic self_preference fallback, otherwise a known
+ * topic is discarded as smalltalk (the failure exposed by the chess chat).
+ */
+static int topic_preference_move(Brain *b, const char *norm, const char *raw,
+                                 char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    if (!kb_cue_match(b, "topic_preference_request", norm) &&
+        !(raw && kb_cue_match(b, "topic_preference_request", raw))) return 0;
+
+    const char *allq[] = { NULL, NULL };
+    char topics[64][KB_TERM_LEN];
+    size_t nt = kb_match(b->kb, "topic_preference_surface", allq, 2,
+                         topics, 64);
+    for (size_t i = 0; i < nt; i++) {
+        const char *tq[] = { topics[i], NULL };
+        char surfaces[16][KB_TERM_LEN];
+        size_t ns = kb_match(b->kb, "topic_preference_surface", tq, 2,
+                             surfaces, 16);
+        for (size_t j = 0; j < ns; j++) {
+            char surface[KB_TERM_LEN];
+            snprintf(surface, sizeof surface, "%s", surfaces[j]);
+            size_t sl = strlen(surface);
+            if (sl >= 2 && surface[0] == '"' && surface[sl - 1] == '"') {
+                surface[sl - 1] = '\0';
+                memmove(surface, surface + 1, sl - 1);
+            }
+            if (!surface[0] || !strstr(norm, surface)) continue;
+
+            const char *fq[] = { topics[i], NULL };
+            char facts[1][KB_TERM_LEN];
+            size_t nf = 0;
+            char lang[1][KB_TERM_LEN];
+            const char *lq[] = { NULL };
+            if (kb_match(b->kb, "current_language", lq, 1, lang, 1) > 0) {
+                const char *lfg[] = { topics[i], lang[0], NULL };
+                nf = kb_match(b->kb, "game_play_localized", lfg, 3, facts, 1);
+            }
+            if (nf == 0) nf = kb_match(b->kb, "game_play", fq, 2, facts, 1);
+            if (nf == 0) continue;
+            char fact[KB_TERM_LEN];
+            snprintf(fact, sizeof fact, "%s", facts[0]);
+            size_t fl = strlen(fact);
+            if (fl >= 2 && fact[0] == '"' && fact[fl - 1] == '"') {
+                fact[fl - 1] = '\0';
+                memmove(fact, fact + 1, fl - 1);
+            }
+            const KbResponseSlot slots[] = {
+                { "topic", surface }, { "fact", fact }
+            };
+            if (kb_response_slots(b, "topic_preference_request", slots, 2,
+                                  out, out_size)) return 1;
+        }
+    }
+    return 0;
+}
+
 /* --- module: meta --------------------------------------------------------
  * Meta-conversation is not world knowledge: the user is asking about this
  * exchange itself (attention, reading, understanding, repetition, current
@@ -228,6 +287,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
      * recited string). Cues are intent_cue/2 and replies response_template/2
      * (KB-first, EN+IT); {name} is filled from i_am. */
     {
+        if (topic_preference_move(b, norm, raw, out, out_size)) return 1;
         static const char *const ai[] = {
             "ai_not_llm", "ai_no_params", "ai_what_model", "ai_opensource",
             /* gen229: behavioural self-model — embodiment/daily-life probes

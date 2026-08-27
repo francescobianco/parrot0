@@ -430,6 +430,12 @@ intent_cue(self_preference, "il tuo preferito").
 intent_cue(self_preference, "la tua preferita").
 intent_cue(self_preference, "cosa ti piace").
 intent_cue(self_preference, "ti piace").
+% Distinguish a preference question about an external, known topic from a
+% question about the agent's own private tastes.  The topic consumer is generic:
+% only the surface and topic facts vary in the KB.
+intent_cue(topic_preference_request, "do you like").
+intent_cue(topic_preference_request, "ti piace").
+intent_cue(topic_preference_request, "ti piacciono").
 intent_family(range_property_count, arith_count_request).
 intent_family(range_property_count, arith_property_prime).
 intent_family(range_property_count, arith_property_even).
