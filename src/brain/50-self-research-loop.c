@@ -1422,12 +1422,16 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         char msg[1100];
         if (n == 0) {
             if (!kb_response_slots(b, "self_capability_none", NULL, 0, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "Not much yet.");
+                { const KbResponseSlot _rs[] = { { "x", "" } };
+                  if (!kb_response_slots(b, "not_much_yet", _rs, 0, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "Not much yet."); }
         } else {
             const KbResponseSlot slots[] = { {"items", list} };
             if (!kb_response_slots(b, "self_capability_from_ledger", slots, 1,
                                    msg, sizeof msg))
-                snprintf(msg, sizeof msg, "From my capability ledger, I can currently: %s.", list);
+                { const KbResponseSlot _rs[] = { { "list", list } };
+                  if (!kb_response_slots(b, "from_my_capability_ledger_i_can_currently_x", _rs, 1, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "From my capability ledger, I can currently: %s.", list); }
         }
         put(msg, out, out_size);
         store_proof(b, "Derived from capability/2 and capability_label/3 in the KB.");
@@ -1444,12 +1448,16 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         else if (exists) {
             const KbResponseSlot slots[] = { {"name", id[0]} };
             kb_response_slots(b, "self_identity_exists", slots, 1, msg, sizeof msg);
-            snprintf(proof, sizeof proof, "i_am(%s) is a reflective fact in my knowledge base.", id[0]);
+            { const KbResponseSlot _rs[] = { { "id", id[0] } };
+              if (!kb_response_slots(b, "i_am_x_is_a_reflective_fact_in_my_knowledge", _rs, 1, proof, sizeof proof))
+                snprintf(proof, sizeof proof, "i_am(%s) is a reflective fact in my knowledge base.", id[0]); }
         }
         else {
             const KbResponseSlot slots[] = { {"name", id[0]} };
             kb_response_slots(b, "self_identity_name", slots, 1, msg, sizeof msg);
-            snprintf(proof, sizeof proof, "i_am(%s) is a reflective fact in my knowledge base.", id[0]);
+            { const KbResponseSlot _rs[] = { { "id", id[0] } };
+              if (!kb_response_slots(b, "i_am_x_is_a_reflective_fact_in_my_knowledge", _rs, 1, proof, sizeof proof))
+                snprintf(proof, sizeof proof, "i_am(%s) is a reflective fact in my knowledge base.", id[0]); }
         }
         put(msg, out, out_size);
         if (k > 0) store_proof(b, proof);
@@ -1497,7 +1505,9 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                                      "%s%s", i ? ", " : "", preds[i]);
         char msg[1100];
         if (off < sizeof list)
-            snprintf(msg, sizeof msg, "I know these predicates: %s.", list);
+            { const KbResponseSlot _rs[] = { { "list", list } };
+              if (!kb_response_slots(b, "i_know_these_predicates_x", _rs, 1, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "I know these predicates: %s.", list); }
         else
             snprintf(msg, sizeof msg, "I know %zu distinct predicate(s).", np);
         put(msg, out, out_size);
@@ -1588,7 +1598,9 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
             char msg[4200];
             { const KbResponseSlot _rs[] = { { "dump", dump } };
               if (!kb_response_slots(b, "you_taught_me_x", _rs, 1, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "You taught me: %s", dump);
+                { const KbResponseSlot _rs[] = { { "dump", dump } };
+                  if (!kb_response_slots(b, "you_taught_me_x", _rs, 1, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "You taught me: %s", dump); }
               put(msg, out, out_size); }
         } else {
             kb_say(b, "you_haven_t_taught_me_any_facts_yet", "You haven't taught me any facts yet.", out, out_size);
@@ -1644,7 +1656,9 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
             char msg[600];
             { const KbResponseSlot _rs[] = { { "list", list } };
               if (!kb_response_slots(b, "you_mentioned_x", _rs, 1, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "You mentioned: %s.", list);
+                { const KbResponseSlot _rs[] = { { "list", list } };
+                  if (!kb_response_slots(b, "you_mentioned_x", _rs, 1, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "You mentioned: %s.", list); }
               put(msg, out, out_size); }
         }
         return 1;
@@ -1703,7 +1717,9 @@ static int describe_command(Brain *b, const char *cmdline,
         /* unknown command: only claim the turn when it is clearly shell syntax
          * (a flag is present), so we don't hijack "what does a bird do?". */
         if (!has_flag) return 0;
-        snprintf(desc, desc_size, "I don't know the command %s.", lc);
+        { const KbResponseSlot _rs[] = { { "lc", lc } };
+          if (!kb_response_slots(b, "i_don_t_know_the_command_x", _rs, 1, desc, desc_size))
+            snprintf(desc, desc_size, "I don't know the command %s.", lc); }
         return 1;
     }
 

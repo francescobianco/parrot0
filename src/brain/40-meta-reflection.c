@@ -1217,7 +1217,9 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         if (age) {
             char msg[64]; { const KbResponseSlot _rs[] = { { "age", age } };
    if (!kb_response_slots(b, "i_am_x_years_old", _rs, 1, msg, sizeof msg))
-     snprintf(msg, sizeof msg, "I am %s years old.", age);
+     { const KbResponseSlot _rs[] = { { "age", age } };
+       if (!kb_response_slots(b, "i_am_x_years_old", _rs, 1, msg, sizeof msg))
+         snprintf(msg, sizeof msg, "I am %s years old.", age); }
    put(msg, out, out_size); } return 1;
         }
     }
@@ -1240,7 +1242,9 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         if (b->role_kind[0] && kb_match(b->kb, "employer", kv, 2, org, 4)) {
             char msg[96]; { const KbResponseSlot _rs[] = { { "org", org[0] } };
    if (!kb_response_slots(b, "i_work_for_an_x", _rs, 1, msg, sizeof msg))
-     snprintf(msg, sizeof msg, "I work for an %s.", org[0]);
+     { const KbResponseSlot _rs[] = { { "org", org[0] } };
+       if (!kb_response_slots(b, "i_work_for_an_x", _rs, 1, msg, sizeof msg))
+         snprintf(msg, sizeof msg, "I work for an %s.", org[0]); }
    put(msg, out, out_size); } return 1;
         }
     }
@@ -1253,7 +1257,9 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
             char c[64]; snprintf(c, sizeof c, "%s", col[0]); capitalize(c);
             char msg[96]; { const KbResponseSlot _rs[] = { { "c", c } };
    if (!kb_response_slots(b, "my_favorite_color_is_x", _rs, 1, msg, sizeof msg))
-     snprintf(msg, sizeof msg, "My favorite color is %s.", c);
+     { const KbResponseSlot _rs[] = { { "c", c } };
+       if (!kb_response_slots(b, "my_favorite_color_is_x", _rs, 1, msg, sizeof msg))
+         snprintf(msg, sizeof msg, "My favorite color is %s.", c); }
    put(msg, out, out_size); } return 1;
         }
         /* gen240: no role persona — answer honestly but still PICK a colour from
@@ -1458,13 +1464,15 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
      * echo, and name the actual gap — the relation, or the unknown C. */
     char msg[200];
     if (linking)
-        snprintf(msg, sizeof msg,
-                 "%s and %s are related by %s, but I don't know that relation for %s.",
-                 A, B, linking, C);
+        { const KbResponseSlot _rs[] = { { "A", A }, { "B", B }, { "linking", linking }, { "C", C } };
+          if (!kb_response_slots(b, "x_and_x_are_related_by_x_but_i_don_t_know_th", _rs, 4, msg, sizeof msg))
+            snprintf(msg, sizeof msg, "%s and %s are related by %s, but I don't know that relation for %s.", A, B, linking, C); }
     else
         { const KbResponseSlot _rs[] = { { "A", A }, { "B", B } };
           if (!kb_response_slots(b, "i_see_the_analogy_but_i_don_t_know_a_relatio", _rs, 2, msg, sizeof msg))
-            snprintf(msg, sizeof msg, "I see the analogy, but I don't know a relation linking %s and %s.", A, B);
+            { const KbResponseSlot _rs[] = { { "A", A }, { "B", B } };
+              if (!kb_response_slots(b, "i_see_the_analogy_but_i_don_t_know_a_relatio", _rs, 2, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "I see the analogy, but I don't know a relation linking %s and %s.", A, B); }
           put(msg, out, out_size); }
     return 1;
 }
@@ -1706,7 +1714,9 @@ static int mod_archetype(Brain *b, const char *norm, const char *raw,
     char msg[420];
     { const KbResponseSlot _rs[] = { { "answer", answer }, { "demo", demo }, { "dconcl", dconcl }, { "qj", qj }, { "answer2", answer } };
       if (!kb_response_slots(b, "x_same_relational_pattern_as_x_x_so_x_x", _rs, 5, msg, sizeof msg))
-        snprintf(msg, sizeof msg, "%s — same relational pattern as %s ⇒ %s, so %s ⇒ %s.", answer, demo, dconcl, qj, answer);
+        { const KbResponseSlot _rs[] = { { "answer", answer }, { "demo", demo }, { "dconcl", dconcl }, { "qj", qj }, { "answer2", answer } };
+          if (!kb_response_slots(b, "x_same_relational_pattern_as_x_x_so_x_x", _rs, 5, msg, sizeof msg))
+            snprintf(msg, sizeof msg, "%s — same relational pattern as %s ⇒ %s, so %s ⇒ %s.", answer, demo, dconcl, qj, answer); }
       put(msg, out, out_size); }
 
     char proof[420];
@@ -1958,9 +1968,9 @@ static int mod_fewshot(Brain *b, const char *norm, const char *raw,
     put(msg, out, out_size);
 
     char proof[256];
-    snprintf(proof, sizeof proof,
-             "the examples %s -> %s and %s -> %s share the rule \"%s\", so %s -> %s.",
-             in[0], ot[0], in[1], ot[1], rule, probe_in, result);
+    { const KbResponseSlot _rs[] = { { "in", in[0] }, { "ot", ot[0] }, { "in2", in[1] }, { "ot2", ot[1] }, { "rule", rule }, { "probe_in", probe_in }, { "result", result } };
+      if (!kb_response_slots(b, "the_examples_x_x_and_x_x_share_the_rule_x_so", _rs, 7, proof, sizeof proof))
+        snprintf(proof, sizeof proof, "the examples %s -> %s and %s -> %s share the rule \"%s\", so %s -> %s.", in[0], ot[0], in[1], ot[1], rule, probe_in, result); }
     store_proof(b, proof);
     return 1;
 }

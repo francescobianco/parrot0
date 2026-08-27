@@ -1466,17 +1466,19 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         if (ok) {
             char msg[700];
             if (want == 1)
-                snprintf(msg, sizeof msg,
-                         "I don't have real desires, but for the prompt I'd choose %s: %s.",
-                         names[0], reasons[0]);
+                { const KbResponseSlot _rs[] = { { "names", names[0] }, { "reasons", reasons[0] } };
+                  if (!kb_response_slots(b, "i_don_t_have_real_desires_but_for_the_prompt_2", _rs, 2, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "I don't have real desires, but for the prompt I'd choose %s: %s.", names[0], reasons[0]); }
             else if (want == 2)
-                snprintf(msg, sizeof msg,
-                         "I don't have real desires, but for the prompt I'd invite %s and %s: %s; and %s.",
-                         names[0], names[1], reasons[0], reasons[1]);
+                { const KbResponseSlot _rs[] = { { "names", names[0] }, { "names2", names[1] }, { "reasons", reasons[0] }, { "reasons2", reasons[1] } };
+                  if (!kb_response_slots(b, "i_don_t_have_real_desires_but_for_the_prompt_3", _rs, 4, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "I don't have real desires, but for the prompt I'd invite %s and %s: %s; and %s.", names[0], names[1], reasons[0], reasons[1]); }
             else
                 { const KbResponseSlot _rs[] = { { "names", names[0] }, { "names2", names[1] }, { "names3", names[2] }, { "reasons", reasons[0] }, { "reasons2", reasons[1] }, { "reasons3", reasons[2] } };
                   if (!kb_response_slots(b, "i_don_t_have_real_desires_but_for_the_prompt", _rs, 6, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "I don't have real desires, but for the prompt I'd invite %s, %s, and %s: %s; %s; and %s.", names[0], names[1], names[2], reasons[0], reasons[1], reasons[2]);
+                    { const KbResponseSlot _rs[] = { { "names", names[0] }, { "names2", names[1] }, { "names3", names[2] }, { "reasons", reasons[0] }, { "reasons2", reasons[1] }, { "reasons3", reasons[2] } };
+                      if (!kb_response_slots(b, "i_don_t_have_real_desires_but_for_the_prompt", _rs, 6, msg, sizeof msg))
+                        snprintf(msg, sizeof msg, "I don't have real desires, but for the prompt I'd invite %s, %s, and %s: %s; %s; and %s.", names[0], names[1], names[2], reasons[0], reasons[1], reasons[2]); }
                   put(msg, out, out_size); }
             return 1;
         }
@@ -1517,8 +1519,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
         char msg[200];
         if (pick[0])
-            snprintf(msg, sizeof msg,
-                     "I don't have real desires, but for the prompt I'd pick %s.", pick);
+            { const KbResponseSlot _rs[] = { { "pick", pick } };
+              if (!kb_response_slots(b, "i_don_t_have_real_desires_but_for_the_prompt_4", _rs, 1, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "I don't have real desires, but for the prompt I'd pick %s.", pick); }
         else
             snprintf(msg, sizeof msg,
                      "I don't have real desires, but I'm happy to play along -- give me "
@@ -1619,7 +1622,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             char msg[160];
             { const KbResponseSlot _rs[] = { { "x", x } };
               if (!kb_response_slots(b, "i_have_nothing_to_say_about_x", _rs, 1, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "I have nothing to say about %s.", x);
+                { const KbResponseSlot _rs[] = { { "x", x } };
+                  if (!kb_response_slots(b, "i_have_nothing_to_say_about_x", _rs, 1, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "I have nothing to say about %s.", x); }
               put(msg, out, out_size); }
         } else {
             if (off < sizeof line)
@@ -2209,7 +2214,9 @@ static int mod_coref(Brain *b, const char *norm, const char *raw,
             char msg[160];
             { const KbResponseSlot _rs[] = { { "a", a } };
               if (!kb_response_slots(b, "i_don_t_know_who_x_refers_to_2", _rs, 1, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "I don't know who %s refers to.", a);
+                { const KbResponseSlot _rs[] = { { "a", a } };
+                  if (!kb_response_slots(b, "i_don_t_know_who_x_refers_to_2", _rs, 1, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "I don't know who %s refers to.", a); }
               put(msg, out, out_size); }
             return 1;
         }

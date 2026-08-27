@@ -352,9 +352,13 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         if (!fnname[0] || !dir[0]) return 0;
         char file[256];
         if (code_locate(dir, fnname, file, sizeof file))
-            snprintf(out, out_size, "I looked through %s: %s is defined in %s.", dir, fnname, file);
+            { const KbResponseSlot _rs[] = { { "dir", dir }, { "fnname", fnname }, { "file", file } };
+              if (!kb_response_slots(b, "i_looked_through_x_x_is_defined_in_x", _rs, 3, out, out_size))
+                snprintf(out, out_size, "I looked through %s: %s is defined in %s.", dir, fnname, file); }
         else
-            snprintf(out, out_size, "I looked through %s but found no file that defines %s.", dir, fnname);
+            { const KbResponseSlot _rs[] = { { "dir", dir }, { "fnname", fnname } };
+              if (!kb_response_slots(b, "i_looked_through_x_but_found_no_file_that_de", _rs, 2, out, out_size))
+                snprintf(out, out_size, "I looked through %s but found no file that defines %s.", dir, fnname); }
         store_proof(b, out);
         return 1;
     }
@@ -387,8 +391,9 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         } else {
             char rel[256];
             if (!code_locate(path, fnname, rel, sizeof rel)) {
-                snprintf(out, out_size,
-                         "I looked through %s but found no file that defines %s.", path, fnname);
+                { const KbResponseSlot _rs[] = { { "path", path }, { "fnname", fnname } };
+                  if (!kb_response_slots(b, "i_looked_through_x_but_found_no_file_that_de_2", _rs, 2, out, out_size))
+                    snprintf(out, out_size, "I looked through %s but found no file that defines %s.", path, fnname); }
                 store_proof(b, out);
                 return 1;
             }
@@ -402,8 +407,9 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         if (n < 0) return 0;                       /* bad name / unreadable — not ours */
         if (n == 0) {
             remove(tmp);
-            snprintf(out, out_size, "I did not find a definition of %s in %s, so nothing was deleted.",
-                     fnname, fullpath);
+            { const KbResponseSlot _rs[] = { { "fnname", fnname }, { "fullpath", fullpath } };
+              if (!kb_response_slots(b, "i_did_not_find_a_definition_of_x_in_x_so_not", _rs, 2, out, out_size))
+                snprintf(out, out_size, "I did not find a definition of %s in %s, so nothing was deleted.", fnname, fullpath); }
             store_proof(b, out);
             return 1;
         }
@@ -422,7 +428,9 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             int rc = code_build(tmp, err, sizeof err);
             remove(tmp);
             if (rc == 1) {
-                snprintf(out, out_size, "Deleted %s%s; the result still links.", fnname, where);
+                { const KbResponseSlot _rs[] = { { "fnname", fnname }, { "where", where } };
+                  if (!kb_response_slots(b, "deleted_xx_the_result_still_links", _rs, 2, out, out_size))
+                    snprintf(out, out_size, "Deleted %s%s; the result still links.", fnname, where); }
             } else if (rc == 0) {
                 /* who still calls it? scan the directory the file lives in. */
                 char cdir[256];
@@ -446,12 +454,14 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                              "Deleted %s%s, but %s still %s %s, so the program no longer links.",
                              fnname, where, who_calls, nc > 1 ? "call" : "calls", fnname);
                 } else {
-                    snprintf(out, out_size,
-                             "Deleted %s%s, but the result no longer links.", fnname, where);
+                    { const KbResponseSlot _rs[] = { { "fnname", fnname }, { "where", where } };
+                      if (!kb_response_slots(b, "deleted_xx_but_the_result_no_longer_links", _rs, 2, out, out_size))
+                        snprintf(out, out_size, "Deleted %s%s, but the result no longer links.", fnname, where); }
                 }
             } else {
-                snprintf(out, out_size,
-                         "Deleted %s%s in a temp copy; the original is unchanged.", fnname, where);
+                { const KbResponseSlot _rs[] = { { "fnname", fnname }, { "where", where } };
+                  if (!kb_response_slots(b, "deleted_xx_in_a_temp_copy_the_original_is_un", _rs, 2, out, out_size))
+                    snprintf(out, out_size, "Deleted %s%s in a temp copy; the original is unchanged.", fnname, where); }
             }
             store_proof(b, out);
             return 1;
@@ -460,15 +470,17 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         int rc = code_compile(tmp, err, sizeof err);
         remove(tmp);
         if (rc == 1)
-            snprintf(out, out_size,
-                     "Deleted %s%s; the result still compiles.", fnname, where);
+            { const KbResponseSlot _rs[] = { { "fnname", fnname }, { "where", where } };
+              if (!kb_response_slots(b, "deleted_xx_the_result_still_compiles", _rs, 2, out, out_size))
+                snprintf(out, out_size, "Deleted %s%s; the result still compiles.", fnname, where); }
         else if (rc == 0)
-            snprintf(out, out_size,
-                     "Deleted %s%s, but the result no longer compiles (something still uses it).",
-                     fnname, where);
+            { const KbResponseSlot _rs[] = { { "fnname", fnname }, { "where", where } };
+              if (!kb_response_slots(b, "deleted_xx_but_the_result_no_longer_compiles", _rs, 2, out, out_size))
+                snprintf(out, out_size, "Deleted %s%s, but the result no longer compiles (something still uses it).", fnname, where); }
         else
-            snprintf(out, out_size,
-                     "Deleted %s%s in a temp copy; the original is unchanged.", fnname, where);
+            { const KbResponseSlot _rs[] = { { "fnname", fnname }, { "where", where } };
+              if (!kb_response_slots(b, "deleted_xx_in_a_temp_copy_the_original_is_un", _rs, 2, out, out_size))
+                snprintf(out, out_size, "Deleted %s%s in a temp copy; the original is unchanged.", fnname, where); }
         store_proof(b, out);
         return 1;
     }
@@ -502,8 +514,9 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         } else {
             char rel[256];
             if (!code_locate(path, oldn, rel, sizeof rel)) {
-                snprintf(out, out_size,
-                         "I looked through %s but found no file that defines %s.", path, oldn);
+                { const KbResponseSlot _rs[] = { { "path", path }, { "oldn", oldn } };
+                  if (!kb_response_slots(b, "i_looked_through_x_but_found_no_file_that_de_3", _rs, 2, out, out_size))
+                    snprintf(out, out_size, "I looked through %s but found no file that defines %s.", path, oldn); }
                 store_proof(b, out);
                 return 1;
             }
@@ -517,8 +530,9 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         if (n < 0) return 0;                       /* bad names / unreadable — not ours */
         if (n == 0) {
             remove(tmp);
-            snprintf(out, out_size, "I did not find %s in %s, so nothing was renamed.",
-                     oldn, fullpath);
+            { const KbResponseSlot _rs[] = { { "oldn", oldn }, { "fullpath", fullpath } };
+              if (!kb_response_slots(b, "i_did_not_find_x_in_x_so_nothing_was_renamed", _rs, 2, out, out_size))
+                snprintf(out, out_size, "I did not find %s in %s, so nothing was renamed.", oldn, fullpath); }
             store_proof(b, out);
             return 1;
         }
@@ -643,9 +657,9 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             int tr = code_smell_tree(path, hit, sizeof hit);
             if (tr < 0) return 0;              /* sandbox/unreadable — not ours */
             if (tr == 0) {
-                snprintf(out, out_size,
-                         "I swept the sources under %s but found no structural bug to fix.",
-                         path);
+                { const KbResponseSlot _rs[] = { { "path", path } };
+                  if (!kb_response_slots(b, "i_swept_the_sources_under_x_but_found_no_str", _rs, 1, out, out_size))
+                    snprintf(out, out_size, "I swept the sources under %s but found no structural bug to fix.", path); }
                 store_proof(b, out);
                 return 1;
             }
@@ -693,9 +707,9 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                 }
                 if (!all) {                        /* don't emit a half-applied patch */
                     remove(outpath);
-                    snprintf(out, out_size,
-                             "In %s, the code %s, but I could not apply the coupled fix cleanly.",
-                             path, creason);
+                    { const KbResponseSlot _rs[] = { { "path", path }, { "creason", creason } };
+                      if (!kb_response_slots(b, "in_x_the_code_x_but_i_could_not_apply_the_co", _rs, 2, out, out_size))
+                        snprintf(out, out_size, "In %s, the code %s, but I could not apply the coupled fix cleanly.", path, creason); }
                     store_proof(b, out);
                     return 1;
                 }
@@ -711,28 +725,31 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         }
         if (r < 0) return 0;                       /* unreadable / unsafe — not ours */
         if (r == 0 || !reason) {
-            snprintf(out, out_size,
-                     "I read %s but found no structural bug to fix.", path);
+            { const KbResponseSlot _rs[] = { { "path", path } };
+              if (!kb_response_slots(b, "i_read_x_but_found_no_structural_bug_to_fix", _rs, 1, out, out_size))
+                snprintf(out, out_size, "I read %s but found no structural bug to fix.", path); }
             store_proof(b, out);
             return 1;
         }
         if (!sym_write) {          /* report-only: localize, do not touch any file */
-            snprintf(out, out_size,
-                     "In %s, `%s` %s; the fix is `%s`.", path, olds, reason, news);
+            { const KbResponseSlot _rs[] = { { "path", path }, { "olds", olds }, { "reason", reason }, { "news", news } };
+              if (!kb_response_slots(b, "in_x_x_x_the_fix_is_x", _rs, 4, out, out_size))
+                snprintf(out, out_size, "In %s, `%s` %s; the fix is `%s`.", path, olds, reason, news); }
             store_proof(b, out);
             return 1;
         }
         char outpath[300]; snprintf(outpath, sizeof outpath, "%s.p0fix", path);
         int n = code_replace_expr(path, olds, news, outpath);
         if (n <= 0) {
-            snprintf(out, out_size,
-                     "In %s, `%s` %s; the fix is `%s`.", path, olds, reason, news);
+            { const KbResponseSlot _rs[] = { { "path", path }, { "olds", olds }, { "reason", reason }, { "news", news } };
+              if (!kb_response_slots(b, "in_x_x_x_the_fix_is_x", _rs, 4, out, out_size))
+                snprintf(out, out_size, "In %s, `%s` %s; the fix is `%s`.", path, olds, reason, news); }
             store_proof(b, out);
             return 1;
         }
-        snprintf(out, out_size,
-                 "In %s, `%s` %s; the fix is `%s`. Patched copy written to %s.",
-                 path, olds, reason, news, outpath);
+        { const KbResponseSlot _rs[] = { { "path", path }, { "olds", olds }, { "reason", reason }, { "news", news }, { "outpath", outpath } };
+          if (!kb_response_slots(b, "in_x_x_x_the_fix_is_x_patched_copy_written_t", _rs, 5, out, out_size))
+            snprintf(out, out_size, "In %s, `%s` %s; the fix is `%s`. Patched copy written to %s.", path, olds, reason, news, outpath); }
         store_proof(b, out);
         return 1;
     }
@@ -774,11 +791,15 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             char first[200] = ""; size_t fo = 0;
             for (const char *c = err; *c && *c != '\n' && fo + 1 < sizeof first; c++) first[fo++] = *c;
             first[fo] = '\0';
-            snprintf(out, out_size, "It would not build, so it never ran: %s", first);
+            { const KbResponseSlot _rs[] = { { "first", first } };
+              if (!kb_response_slots(b, "it_would_not_build_so_it_never_ran_x", _rs, 1, out, out_size))
+                snprintf(out, out_size, "It would not build, so it never ran: %s", first); }
         } else if (rc < 0) {
             return 0;                          /* unsafe/unrunnable path — not ours */
         } else if (rc == 0) {
-            snprintf(out, out_size, "It built, but the program did not exit normally (it was killed before finishing).");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "it_built_but_the_program_did_not_exit_normal", _rs, 0, out, out_size))
+                snprintf(out, out_size, "It built, but the program did not exit normally (it was killed before finishing)."); }
         } else {
             snprintf(out, out_size, "it ran and exited with code %d.", ec);
         }
@@ -816,9 +837,13 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             for (const char *c = err; *c && *c != '\n' && fo + 1 < sizeof first; c++) first[fo++] = *c;
             first[fo] = '\0';
             if (first[0])
-                snprintf(out, out_size, "No, %s does not compile: %s", path, first);
+                { const KbResponseSlot _rs[] = { { "path", path }, { "first", first } };
+                  if (!kb_response_slots(b, "no_x_does_not_compile_x", _rs, 2, out, out_size))
+                    snprintf(out, out_size, "No, %s does not compile: %s", path, first); }
             else
-                snprintf(out, out_size, "No, %s does not compile.", path);
+                { const KbResponseSlot _rs[] = { { "path", path } };
+                  if (!kb_response_slots(b, "no_x_does_not_compile", _rs, 1, out, out_size))
+                    snprintf(out, out_size, "No, %s does not compile.", path); }
         }
         store_proof(b, out);
         return 1;
@@ -845,7 +870,9 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         char callers[64][KB_TERM_LEN];
         size_t nc = code_find_callers(dir, target, callers, 64);
         if (nc == 0) {
-            snprintf(out, out_size, "I looked through %s but nothing calls %s.", dir, target);
+            { const KbResponseSlot _rs[] = { { "dir", dir }, { "target", target } };
+              if (!kb_response_slots(b, "i_looked_through_x_but_nothing_calls_x", _rs, 2, out, out_size))
+                snprintf(out, out_size, "I looked through %s but nothing calls %s.", dir, target); }
             store_proof(b, out);
             return 1;
         }
@@ -1032,8 +1059,9 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     const char *pat[] = { xfn, NULL };
     size_t c = kb_match(b->kb, "code_calls", pat, 2, callees, 32);
     if (c == 0) {
-        snprintf(out, out_size,
-                 "I read it as code: %s does not call any function.", xfn);
+        { const KbResponseSlot _rs[] = { { "xfn", xfn } };
+          if (!kb_response_slots(b, "i_read_it_as_code_x_does_not_call_any_functi", _rs, 1, out, out_size))
+            snprintf(out, out_size, "I read it as code: %s does not call any function.", xfn); }
         store_proof(b, out);
         return 1;
     }
@@ -1568,9 +1596,9 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
     size_t nspans = input_segment(b->kb, s, spans, 64, &input_ambiguous);
     if (input_ambiguous) {
         const char *why = nspans ? spans[0].proof : "register hypotheses tied";
-        snprintf(out, out_size,
-                 "ambiguous_input: I cannot determine a single closed register span. %s",
-                 why);
+        { const KbResponseSlot _rs[] = { { "why", why } };
+          if (!kb_response_slots(b, "ambiguous_input_i_cannot_determine_a_single", _rs, 1, out, out_size))
+            snprintf(out, out_size, "ambiguous_input: I cannot determine a single closed register span. %s", why); }
         store_proof(b, why);
         return 1;
     }
@@ -1626,7 +1654,9 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
     if (!have_source) {
         int section = find_code_section(b, s, code, sizeof code, &source_span);
         if (section < 0) {
-            snprintf(out, out_size, "ambiguous_input: the input register does not close.");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "ambiguous_input_the_input_register_does_not", _rs, 0, out, out_size))
+                snprintf(out, out_size, "ambiguous_input: the input register does not close."); }
             return 1;
         }
         if (section == 0) return 0;
@@ -1728,7 +1758,9 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
     /* For explain queries */
     if (qtype == 5) {
         char ln[64]; register_name(b, input_reg, ln, sizeof ln);
-        snprintf(out, out_size, "This is a %s code snippet.", ln);
+        { const KbResponseSlot _rs[] = { { "ln", ln } };
+          if (!kb_response_slots(b, "this_is_a_x_code_snippet", _rs, 1, out, out_size))
+            snprintf(out, out_size, "This is a %s code snippet.", ln); }
         if (kb_cue_match(b, "80_code_lex1732", code)) {
             size_t l = strlen(out);
             snprintf(out + l, out_size - l, " It prints output using printf.");
@@ -1859,8 +1891,9 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
                     lex_class_member(b, "80_code_lex1861", tw[0]))) {
                     size_t len = strlen(l);
                     if (len > 0 && l[len - 1] != ':') {
-                        snprintf(findings, sizeof findings,
-                            "Missing colon: the line starting with \"%s\" needs a colon at the end.", tw[0]);
+                        { const KbResponseSlot _rs[] = { { "tw", tw[0] } };
+                          if (!kb_response_slots(b, "missing_colon_the_line_starting_with_x_needs", _rs, 1, findings, sizeof findings))
+                            snprintf(findings, sizeof findings, "Missing colon: the line starting with \"%s\" needs a colon at the end.", tw[0]); }
                         errors++;
                         break;
                     }
@@ -1891,19 +1924,33 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
         size_t fl = strlen(findings);
         while (fl > 0 && (findings[fl-1] == ' ' || findings[fl-1] == '.')) findings[--fl] = '\0';
         if (kb_cue_match(b, "80_code_lex1895", findings))
-            snprintf(out, out_size, "Fix: add a semicolon at the end of each statement.");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "fix_add_a_semicolon_at_the_end_of_each_state", _rs, 0, out, out_size))
+                snprintf(out, out_size, "Fix: add a semicolon at the end of each statement."); }
         else if (kb_cue_match(b, "80_code_lex1897", findings))
-            snprintf(out, out_size, "Fix: change the variable type or the value to make them compatible.");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "fix_change_the_variable_type_or_the_value_to", _rs, 0, out, out_size))
+                snprintf(out, out_size, "Fix: change the variable type or the value to make them compatible."); }
         else if (kb_cue_match(b, "80_code_lex1899", findings))
-            snprintf(out, out_size, "Fix: add the closing double-quote.");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "fix_add_the_closing_double_quote", _rs, 0, out, out_size))
+                snprintf(out, out_size, "Fix: add the closing double-quote."); }
         else if (kb_cue_match(b, "80_code_lex1901", findings))
-            snprintf(out, out_size, "Fix: add or remove braces to balance them.");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "fix_add_or_remove_braces_to_balance_them", _rs, 0, out, out_size))
+                snprintf(out, out_size, "Fix: add or remove braces to balance them."); }
         else if (kb_cue_match(b, "80_code_lex1903", findings))
-            snprintf(out, out_size, "Fix: add or remove parentheses to balance them.");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "fix_add_or_remove_parentheses_to_balance_the", _rs, 0, out, out_size))
+                snprintf(out, out_size, "Fix: add or remove parentheses to balance them."); }
         else if (kb_cue_match(b, "80_code_lex1905", findings))
-            snprintf(out, out_size, "Fix: check the function name spelling or include the right header. Did you mean printf instead of print?");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "fix_check_the_function_name_spelling_or_incl", _rs, 0, out, out_size))
+                snprintf(out, out_size, "Fix: check the function name spelling or include the right header. Did you mean printf instead of print?"); }
         else if (kb_cue_match(b, "80_code_lex1907", findings))
-            snprintf(out, out_size, "Fix: add a colon at the end of the block-introducing line.");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "fix_add_a_colon_at_the_end_of_the_block_intr", _rs, 0, out, out_size))
+                snprintf(out, out_size, "Fix: add a colon at the end of the block-introducing line."); }
         else if (kb_cue_match(b, "80_code_lex1909", findings))
             /* gen330: the compiler refused the code and none of our patterns could
              * name the defect. Before this, that landed in the `else` below — "I did
@@ -1914,10 +1961,14 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
                      "It does not compile — %s. I have no repair rule for that one, "
                      "so I will not invent a patch.", findings);
         else
-            snprintf(out, out_size, "I did not find a clear fix. Can you describe what behavior you expect?");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "i_did_not_find_a_clear_fix_can_you_describe", _rs, 0, out, out_size))
+                snprintf(out, out_size, "I did not find a clear fix. Can you describe what behavior you expect?"); }
     } else if (qtype == 4) {
         if (errors == 0)
-            snprintf(out, out_size, "This code looks valid at first glance (basic syntax checks pass).");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "this_code_looks_valid_at_first_glance_basic", _rs, 0, out, out_size))
+                snprintf(out, out_size, "This code looks valid at first glance (basic syntax checks pass)."); }
         else {
             size_t fl = strlen(findings);
             while (fl > 0 && (findings[fl-1] == ' ' || findings[fl-1] == '.')) findings[--fl] = '\0';

@@ -210,7 +210,9 @@ static int mod_search(Brain *b, const char *norm, const char *raw,
         char msg[256];
         { const KbResponseSlot _rs[] = { { "tb", tb }, { "sb", sb } };
           if (!kb_response_slots(b, "i_couldn_t_reach_x_from_x_with_those_operati", _rs, 2, msg, sizeof msg))
-            snprintf(msg, sizeof msg, "I couldn't reach %s from %s with those operations.", tb, sb);
+            { const KbResponseSlot _rs[] = { { "tb", tb }, { "sb", sb } };
+              if (!kb_response_slots(b, "i_couldn_t_reach_x_from_x_with_those_operati", _rs, 2, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "I couldn't reach %s from %s with those operations.", tb, sb); }
           put(msg, out, out_size); }
         return 1;
     }
@@ -306,11 +308,15 @@ static int mod_verify(Brain *b, const char *norm, const char *raw,
     format_num(pred, pb, sizeof pb);
     char msg[400];
     if (pred == (double)tout)
-        snprintf(msg, sizeof msg, "Yes — %s -> %s fits the rule (%s).", ib, tb, rule);
+        { const KbResponseSlot _rs[] = { { "ib", ib }, { "tb", tb }, { "rule", rule } };
+          if (!kb_response_slots(b, "yes_x_x_fits_the_rule_x", _rs, 3, msg, sizeof msg))
+            snprintf(msg, sizeof msg, "Yes — %s -> %s fits the rule (%s).", ib, tb, rule); }
     else
         { const KbResponseSlot _rs[] = { { "rule", rule }, { "ib", ib }, { "pb", pb }, { "tb", tb } };
           if (!kb_response_slots(b, "no_the_rule_x_predicts_x_x_not_x", _rs, 4, msg, sizeof msg))
-            snprintf(msg, sizeof msg, "No — the rule (%s) predicts %s -> %s, not %s.", rule, ib, pb, tb);
+            { const KbResponseSlot _rs[] = { { "rule", rule }, { "ib", ib }, { "pb", pb }, { "tb", tb } };
+              if (!kb_response_slots(b, "no_the_rule_x_predicts_x_x_not_x", _rs, 4, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "No — the rule (%s) predicts %s -> %s, not %s.", rule, ib, pb, tb); }
           put(msg, out, out_size); }
     store_proof(b, rule);
     return 1;
@@ -394,7 +400,9 @@ static int mod_shell(Brain *b, const char *norm, const char *raw,
             char msg[16384];
             { const KbResponseSlot _rs[] = { { "predicted", predicted }, { "actual", actual } };
               if (!kb_response_slots(b, "i_predicted_x_but_the_shell_said_x", _rs, 2, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "I predicted [%s] but the shell said [%s].", predicted, actual);
+                { const KbResponseSlot _rs[] = { { "predicted", predicted }, { "actual", actual } };
+                  if (!kb_response_slots(b, "i_predicted_x_but_the_shell_said_x", _rs, 2, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "I predicted [%s] but the shell said [%s].", predicted, actual); }
               put(msg, out, out_size); }
         }
         return 1;
@@ -587,7 +595,9 @@ static int mod_summary(Brain *b, const char *norm, const char *raw,
         if (hits == 0)
             { const KbResponseSlot _rs[] = { { "focus", focus } };
               if (!kb_response_slots(b, "the_passage_doesn_t_say_anything_about_x", _rs, 1, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "The passage doesn't say anything about %s.", focus);
+                { const KbResponseSlot _rs[] = { { "focus", focus } };
+                  if (!kb_response_slots(b, "the_passage_doesn_t_say_anything_about_x", _rs, 1, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "The passage doesn't say anything about %s.", focus); }
               put(msg, out, out_size); }
         return 1;
     }

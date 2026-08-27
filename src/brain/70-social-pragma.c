@@ -470,8 +470,9 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
     const KbResponseSlot sl[] = { { "token", tok } };
     if (known) {
         if (!kb_response_slots(b, "lone_known_topic", sl, 1, msg, sizeof msg))
-            snprintf(msg, sizeof msg,
-                     "What would you like to know about %s?", tok);
+            { const KbResponseSlot _rs[] = { { "tok", tok } };
+              if (!kb_response_slots(b, "what_would_you_like_to_know_about_x", _rs, 1, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "What would you like to know about %s?", tok); }
     } else {
         /* gen427 — UNA PAROLA PLAUSIBILE CHE NON CONOSCO PUO' ESSERE UN SALUTO.
          *
@@ -498,8 +499,9 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
         pronounceable = pronounceable && all_alpha;
         if (pronounceable && strlen(tok) >= 2 && !is_stopword(b, tok)) return 0;
         if (!kb_response_slots(b, "lone_unknown_token", sl, 1, msg, sizeof msg))
-            snprintf(msg, sizeof msg,
-                     "I have nothing on \"%s\" — could you say what you mean by it?", tok);
+            { const KbResponseSlot _rs[] = { { "tok", tok } };
+              if (!kb_response_slots(b, "i_have_nothing_on_x_could_you_say_what_you_m", _rs, 1, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "I have nothing on \"%s\" — could you say what you mean by it?", tok); }
     }
     put(msg, out, out_size);
     return 1;
@@ -898,7 +900,9 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
             char msg[160];
             { const KbResponseSlot _rs[] = { { "topic", topic }, { "topic2", topic } };
               if (!kb_response_slots(b, "sure_let_s_talk_about_x_what_about_x_is_on_y", _rs, 2, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "Sure, let's talk about %s. What about %s is on your mind?", topic, topic);
+                { const KbResponseSlot _rs[] = { { "topic", topic }, { "topic2", topic } };
+                  if (!kb_response_slots(b, "sure_let_s_talk_about_x_what_about_x_is_on_y", _rs, 2, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "Sure, let's talk about %s. What about %s is on your mind?", topic, topic); }
               put(msg, out, out_size); }
             return 1;
         }

@@ -227,3 +227,172 @@ response_template(got_it_i_ll_treat_x_as_a_conjunction_now_lik, "Got it - I'll t
 response_template(i_already_treat_x_as_a_conjunction, "I already treat «{word}» as a conjunction.").
 response_template(i_can_translate_most_of_it_but_i_don_t_know, "I can translate most of it, but I don't know the French for «{tok}».").
 response_template(i_can_t_translate_x_yet, "I can't translate «{tok}» yet.").
+
+%% Quinta tranche: gli `snprintf` che riempiono un buffer senza passare da
+%% `put` — scrivono dritti nell'uscita, o in un `msg` che viene emesso piu'
+%% avanti. Si sostituisce il riempimento, non l'emissione, quindi non serve
+%% che le due istruzioni siano adiacenti.
+
+response_template(your_name_is_x, "Your name is {nm}.").
+response_template(nice_to_meet_you_x, "Nice to meet you, {nm}!").
+response_template(got_it_i_ll_treat_x_as_a_conjunction_now_lik, "Got it - I'll treat «{word}» as a conjunction now, like «and».").
+response_template(i_already_treat_x_as_a_conjunction, "I already treat «{word}» as a conjunction.").
+response_template(i_don_t_know_what_your_x_is_called, "I don't know what your {thing} is called.").
+response_template(you_told_me_you_feel_x, "You told me you feel {mood}.").
+response_template(i_don_t_know_who_x_refers_to, "I don't know who {word} refers to.").
+response_template(x_is_a_known_fact, "{ex} is a known fact.").
+response_template(directly_x_is_a_known_fact, "Directly: {ex} is a known fact.").
+response_template(i_have_x_measurements_for_both_but_the_units, "I have {dim} measurements for both, but the units differ ({mua} vs {muc}).").
+response_template(compared_measure_x_x_x_x_with_measure_x_x_x, "Compared measure({dim},{ca},{mva},{mua}) with measure({dim2},{cc},{mvc},{muc}).").
+response_template(they_are_tied_on_x, "They are tied on {dim}.").
+response_template(i_recognize_a_comparison_on_x_but_i_don_t_ha, "I recognize a comparison on {dim}, but I don't have magnitudes for {da} and {dc}.").
+response_template(compared_magnitude_x_x_x_with_magnitude_x_x, "Compared magnitude({dim},{a},{ra}) with magnitude({dim2},{c},{rc}).").
+response_template(sono_parrot0_un_ia_non_ho_una_famiglia_quind, "Sono parrot0, un'IA: non ho una famiglia, quindi niente {kin_disp} da nominare.").
+response_template(learned_rule_x_x_x_x, "Learned rule: {cls}(X) :- {subj}(X).").
+response_template(you_haven_t_told_me_your_x_yet, "You haven't told me your {disp} yet.").
+response_template(you_re_asking_for_a_distinction_between_x_an, "You're asking for a distinction between {da} and {dc}, but I don't have that contrast fact yet.").
+response_template(i_don_t_actually_taste_things_but_it_is_ofte, "I don't actually taste things, but it is often described as {r}.").
+response_template(x_has_no_land_bordering_countries, "{ctry} has no land-bordering countries.").
+response_template(x_x_borders_the_x_and_the_x, "{cap_disp}; {ctry_disp} borders the {o1} and the {o2}.").
+response_template(x_x_borders_the_x, "{cap_disp}; {ctry_disp} borders the {o1}.").
+response_template(x_i_don_t_know_which_oceans_border_x_yet, "{cap_disp}; I don't know which oceans border {ctry_disp} yet.").
+response_template(x_x_borders_x_and_x, "{cap_disp}; {ctry_disp} borders {b1} and {b2}.").
+response_template(x_x_has_no_land_bordering_countries, "{cap_disp}; {ctry_disp} has no land-bordering countries.").
+response_template(x_i_don_t_know_which_countries_border_x_yet, "{cap_disp}; I don't know which countries border {ctry_disp} yet.").
+response_template(yes_x_is_a_x_the_statement_defines_it_as_one, "Yes -- {X} is a {Y}: the statement defines it as one.{inc}").
+response_template(by_day_the_sky_looks_blue_because_x_near_sun, "By day the sky looks blue because {a}. Near sunset it looks orange or red because {c}.").
+response_template(it_grows_more_x_makes_a_bigger_x_so_its_x_gr, "It grows: more {source} makes a bigger {target}, so its {feature} grows with it.").
+response_template(the_opposite_of_x_is_x_and_someone_who_x_is, "The opposite of {t} is {res}, and someone who {key} is {wrd}.").
+response_template(we_can_conclude_that_x_are_x_the_some_x_fact, "We can conclude that {qw} are {qw2}; the 'some {qw3}' fact does not prove that {qw4} fade.").
+response_template(x_runs_through_it, " {p} runs through it.").
+response_template(to_its_west_lies_x, " To its west lies {p}.").
+response_template(i_do_not_know_the_current_x_i_have_no_x_fact, "I do not know the current {w}: I have no {pred} fact or clock/calendar tool. Tell me the {w2}, or give facts I can reason from.").
+response_template(i_do_not_know_the_relation_x_yet_so_i_cannot, "I do not know the relation {rel} yet, so I cannot answer the {rel2} of {obj}. You can teach me with thing is the {rel3} of {obj2}, or give facts/rules to reason from.").
+response_template(i_do_not_know_why_x_is_x_i_have_no_x_x_fact, "I do not know why {subj} is {pred}: I have no {pred2}({subj2}) fact/rule or cause explaining it. Teach me facts or rules, or give me a passage to read.").
+response_template(no_i_have_no_evidence_that_x_is_part_of_x, "No, I have no evidence that {xx} is part of {yy}.").
+response_template(you_might_mean_x_x, "You might mean {ckey}: {cdesc}.").
+response_template(i_don_t_know_anything_about_x, "I don't know anything about {entity}.").
+response_template(i_couldn_t_store_that, "I couldn't store that.").
+response_template(i_couldn_t_store_that_rule, "I couldn't store that rule.").
+response_template(because_x_x_and_x_gives_x_that_is_their_x, "Because {verb} {na} and {nb} gives {nr} — that is their {noun}.").
+response_template(x_needs_a_target_source_path_from_the_reques, "{impl} needs a target source path from the request").
+response_template(x_needs_a_function_name, "{impl} needs a function name").
+response_template(orchain_vocab_could_not_read_x, "orchain_vocab could not read {target}").
+response_template(orchain_vocab_found_no_or_chains_of_calls_to, "orchain_vocab found no OR-chains of calls to `{fn}` in {target}").
+response_template(emit_facts_needs_a_single_source_file_target, "emit_facts needs a single source file target, not a directory").
+response_template(emit_facts_could_not_write_x, "emit_facts could not write {outp}").
+response_template(emit_facts_found_no_or_chains_of_calls_to_x, "emit_facts found no OR-chains of calls to `{fn}` in {target}").
+response_template(patch_chains_needs_a_single_source_file_targ, "patch_chains needs a single source file target, not a directory").
+response_template(patch_chains_could_not_write_x, "patch_chains could not write {outp}").
+response_template(patch_chains_found_no_or_chains_of_calls_to, "patch_chains found no OR-chains of calls to `{fn}` in {target}").
+response_template(verify_behavior_needs_a_single_source_file_t, "verify_behavior needs a single source file target, not a directory").
+response_template(verify_behavior_could_not_build_and_run_both, "verify_behavior could not build and run both versions of {target}").
+response_template(prose_read_page_needs_a_page_path, "prose_read_page needs a page path").
+response_template(split_into_sentences_stub, "split into sentences (stub)").
+response_template(extracted_facts_from_sentences, "extracted facts from sentences").
+response_template(asserted_extracted_facts_with_provenance, "asserted extracted facts with provenance").
+response_template(primitive_x_is_not_implemented_by_this_binar, "primitive {impl} is not implemented by this binary").
+response_template(orchain_scan_could_not_read_x, "orchain_scan could not read {target}").
+response_template(orchain_scan_found_no_or_chains_of_calls_to, "orchain_scan found no OR-chains of calls to `{fn}` under {target}").
+response_template(orchain_scan_found_no_or_chains_of_calls_to_2, "orchain_scan found no OR-chains of calls to `{fn}` in {target}").
+response_template(the_steps_for_x_have_a_circular_prerequisite, "The steps for {goal} have a circular prerequisite — I can't order them.").
+response_template(ordered_by_prerequisites_each_step_follows_e, "ordered by prerequisites: each step follows everything it requires.").
+response_template(x_miles_one_way_x_miles_for_the_round_trip, "{one} miles one way; {two} miles for the round trip.").
+response_template(the_train_from_x, "The train from {cn}").
+response_template(x_arrives_first_by_about_x, "{who} arrives first, by about {dur}.").
+response_template(x_miles_per_gallon_a_x_mile_trip_would_need, "{mpgs} miles per gallon; a {trips}-mile trip would need {needs} gallons.").
+response_template(i_folded_the_remaining_items_then_counted_tw, "I folded the remaining items, then counted two half-pieces per item: {num}.").
+response_template(i_folded_the_steps_left_to_right_to_x, "I folded the steps left to right to {num}.").
+response_template(i_don_t_know_how_many_x_x_has, "I don't know how many {unit} {x} has.").
+response_template(there_are_x_x_in_a_x, "There are {hits} {unit} in a {ename}.").
+response_template(i_don_t_know_the_x_of_x, "I don't know the {w} of {x}.").
+response_template(i_don_t_have_real_desires_but_for_the_prompt_2, "I don't have real desires, but for the prompt I'd choose {names}: {reasons}.").
+response_template(i_don_t_have_real_desires_but_for_the_prompt_3, "I don't have real desires, but for the prompt I'd invite {names} and {names2}: {reasons}; and {reasons2}.").
+response_template(i_don_t_have_real_desires_but_for_the_prompt, "I don't have real desires, but for the prompt I'd invite {names}, {names2}, and {names3}: {reasons}; {reasons2}; and {reasons3}.").
+response_template(i_don_t_have_real_desires_but_for_the_prompt_4, "I don't have real desires, but for the prompt I'd pick {pick}.").
+response_template(i_have_nothing_to_say_about_x, "I have nothing to say about {x}.").
+response_template(i_don_t_know_who_x_refers_to_2, "I don't know who {a} refers to.").
+response_template(i_am_x_years_old, "I am {age} years old.").
+response_template(i_work_for_an_x, "I work for an {org}.").
+response_template(my_favorite_color_is_x, "My favorite color is {c}.").
+response_template(x_and_x_are_related_by_x_but_i_don_t_know_th, "{A} and {B} are related by {linking}, but I don't know that relation for {C}.").
+response_template(i_see_the_analogy_but_i_don_t_know_a_relatio, "I see the analogy, but I don't know a relation linking {A} and {B}.").
+response_template(x_same_relational_pattern_as_x_x_so_x_x, "{answer} — same relational pattern as {demo} ⇒ {dconcl}, so {qj} ⇒ {answer2}.").
+response_template(the_examples_x_x_and_x_x_share_the_rule_x_so, "the examples {in} -> {ot} and {in2} -> {ot2} share the rule «{rule}», so {probe_in} -> {result}.").
+response_template(not_much_yet, "Not much yet.").
+response_template(from_my_capability_ledger_i_can_currently_x, "From my capability ledger, I can currently: {list}.").
+response_template(i_am_x_is_a_reflective_fact_in_my_knowledge, "i_am({id}) is a reflective fact in my knowledge base.").
+response_template(i_know_these_predicates_x, "I know these predicates: {list}.").
+response_template(you_taught_me_x, "You taught me: {dump}").
+response_template(you_mentioned_x, "You mentioned: {list}.").
+response_template(i_don_t_know_the_command_x, "I don't know the command {lc}.").
+response_template(x_i_ran_the_tool_x, "{result}. (I ran the tool: {cmd}.)").
+response_template(structural_locate_of_x_under_x_code_locate_c, "structural locate of {patbuf} under {dirbuf} (code_locate/code_find_callers)").
+response_template(the_synthesized_sort_would_not_build_run_so, "the synthesized sort would not build/run, so I will not report it").
+response_template(the_oracle_did_not_confirm_it, "the oracle did not confirm it").
+response_template(i_couldn_t_reach_x_from_x_with_those_operati, "I couldn't reach {tb} from {sb} with those operations.").
+response_template(yes_x_x_fits_the_rule_x, "Yes — {ib} -> {tb} fits the rule ({rule}).").
+response_template(no_the_rule_x_predicts_x_x_not_x, "No — the rule ({rule}) predicts {ib} -> {pb}, not {tb}.").
+response_template(i_predicted_x_but_the_shell_said_x, "I predicted [{predicted}] but the shell said [{actual}].").
+response_template(the_passage_doesn_t_say_anything_about_x, "The passage doesn't say anything about {focus}.").
+response_template(what_would_you_like_to_know_about_x, "What would you like to know about {tok}?").
+response_template(i_have_nothing_on_x_could_you_say_what_you_m, "I have nothing on «{tok}» — could you say what you mean by it?").
+response_template(sure_let_s_talk_about_x_what_about_x_is_on_y, "Sure, let's talk about {topic}. What about {topic2} is on your mind?").
+response_template(i_looked_through_x_x_is_defined_in_x, "I looked through {dir}: {fnname} is defined in {file}.").
+response_template(i_looked_through_x_but_found_no_file_that_de, "I looked through {dir} but found no file that defines {fnname}.").
+response_template(i_looked_through_x_but_found_no_file_that_de_2, "I looked through {path} but found no file that defines {fnname}.").
+response_template(i_did_not_find_a_definition_of_x_in_x_so_not, "I did not find a definition of {fnname} in {fullpath}, so nothing was deleted.").
+response_template(deleted_xx_the_result_still_links, "Deleted {fnname}{where}; the result still links.").
+response_template(deleted_xx_but_the_result_no_longer_links, "Deleted {fnname}{where}, but the result no longer links.").
+response_template(deleted_xx_in_a_temp_copy_the_original_is_un, "Deleted {fnname}{where} in a temp copy; the original is unchanged.").
+response_template(deleted_xx_the_result_still_compiles, "Deleted {fnname}{where}; the result still compiles.").
+response_template(deleted_xx_but_the_result_no_longer_compiles, "Deleted {fnname}{where}, but the result no longer compiles (something still uses it).").
+response_template(i_looked_through_x_but_found_no_file_that_de_3, "I looked through {path} but found no file that defines {oldn}.").
+response_template(i_did_not_find_x_in_x_so_nothing_was_renamed, "I did not find {oldn} in {fullpath}, so nothing was renamed.").
+response_template(i_swept_the_sources_under_x_but_found_no_str, "I swept the sources under {path} but found no structural bug to fix.").
+response_template(in_x_the_code_x_but_i_could_not_apply_the_co, "In {path}, the code {creason}, but I could not apply the coupled fix cleanly.").
+response_template(i_read_x_but_found_no_structural_bug_to_fix, "I read {path} but found no structural bug to fix.").
+response_template(in_x_x_x_the_fix_is_x, "In {path}, `{olds}` {reason}; the fix is `{news}`.").
+response_template(in_x_x_x_the_fix_is_x_patched_copy_written_t, "In {path}, `{olds}` {reason}; the fix is `{news}`. Patched copy written to {outpath}.").
+response_template(it_would_not_build_so_it_never_ran_x, "It would not build, so it never ran: {first}").
+response_template(it_built_but_the_program_did_not_exit_normal, "It built, but the program did not exit normally (it was killed before finishing).").
+response_template(no_x_does_not_compile_x, "No, {path} does not compile: {first}").
+response_template(no_x_does_not_compile, "No, {path} does not compile.").
+response_template(i_looked_through_x_but_nothing_calls_x, "I looked through {dir} but nothing calls {target}.").
+response_template(i_read_it_as_code_x_does_not_call_any_functi, "I read it as code: {xfn} does not call any function.").
+response_template(ambiguous_input_i_cannot_determine_a_single, "ambiguous_input: I cannot determine a single closed register span. {why}").
+response_template(ambiguous_input_the_input_register_does_not, "ambiguous_input: the input register does not close.").
+response_template(this_is_a_x_code_snippet, "This is a {ln} code snippet.").
+response_template(missing_colon_the_line_starting_with_x_needs, "Missing colon: the line starting with «{tw}» needs a colon at the end.").
+response_template(fix_add_a_semicolon_at_the_end_of_each_state, "Fix: add a semicolon at the end of each statement.").
+response_template(fix_change_the_variable_type_or_the_value_to, "Fix: change the variable type or the value to make them compatible.").
+response_template(fix_add_the_closing_double_quote, "Fix: add the closing double-quote.").
+response_template(fix_add_or_remove_braces_to_balance_them, "Fix: add or remove braces to balance them.").
+response_template(fix_add_or_remove_parentheses_to_balance_the, "Fix: add or remove parentheses to balance them.").
+response_template(fix_check_the_function_name_spelling_or_incl, "Fix: check the function name spelling or include the right header. Did you mean printf instead of print?").
+response_template(fix_add_a_colon_at_the_end_of_the_block_intr, "Fix: add a colon at the end of the block-introducing line.").
+response_template(i_did_not_find_a_clear_fix_can_you_describe, "I did not find a clear fix. Can you describe what behavior you expect?").
+response_template(this_code_looks_valid_at_first_glance_basic, "This code looks valid at first glance (basic syntax checks pass).").
+response_template(i_can_translate_most_of_it_but_i_don_t_know, "I can translate most of it, but I don't know the French for «{tok}».").
+response_template(i_can_t_translate_x_yet, "I can't translate «{tok}» yet.").
+response_template(without_x_nothing_else_matches_i_d_fall_back, "Without '{suppress}', nothing else matches — I'd fall back to «{ans}»").
+response_template(left_the_x_world, "Left the {nm} world.").
+response_template(forgotten_the_x_world_none_of_it_reached_my, "Forgotten the {nm} world; none of it reached my memory.").
+response_template(opened_the_x_world_tell_me_what_is_true_in_i, "Opened the {wname} world. Tell me what is true in it.").
+response_template(opened_the_x_world_tell_me_what_is_true_in_i_2, "Opened the {name} world. Tell me what is true in it.").
+response_template(but_i_don_t_know_that_x_is_a_x_in_the_first, "But I don't know that {arg} is a {pred} in the first place.").
+response_template(i_already_conclude_that_x, "I already conclude that: {ex}.").
+response_template(i_already_know_that_x_is_a_x, "I already know that {arg} is a {pred}.").
+response_template(i_can_see_rules_for_x_but_no_missing_premise, "I can see rules for {pred}, but no missing premise plan stands out.").
+response_template(hypothetically_adding_x_makes_x_a_x_x_i_rest, "Hypothetically adding {need} makes {arg} a {pred}: {ex}. I restored the KB after the simulation.").
+response_template(i_tried_the_cheapest_plan_x_but_it_still_did, "I tried the cheapest plan ({need}), but it still did not derive {pred}({arg}). I restored the KB.").
+response_template(x_is_not_a_x_because_every_alternative_is_bl, "{arg} is not a {pred} because every alternative is blocked: {alts}.").
+response_template(x_is_not_a_x_because_i_am_missing_the_root_p, "{arg} is not a {pred} because I am missing the root premise: {missing}. By {spine}.").
+response_template(x_is_not_a_x_because_i_am_missing_x_the_rule, "{arg} is not a {pred} because I am missing: {missing}. The rule is {rule} -> {pred2}.").
+response_template(i_have_the_premises_for_x_to_be_a_x_but_i_st, "I have the premises for {arg} to be a {pred}, but I still cannot derive it.").
+response_template(there_s_more_than_one_way_either_x_any_one_w, "There's more than one way: either {alts} — any one would make {arg} a {pred}.").
+response_template(if_you_told_me_that_x_then_x_would_be_a_x_by, "If you told me that {prem}, then {arg} would be a {pred} — by {spine}.").
+response_template(if_you_told_me_that_x_then_x_would_be_a_x_th, "If you told me that {prem}, then {arg} would be a {pred} — that's the rule {rule} -> {pred2}.").
+response_template(i_can_see_a_x_shape_here_but_the_x_is_missin, "I can see a {sch} shape here, but the {role} is missing.").
+response_template(that_looks_like_a_x_problem_and_i_cannot_sol, "That looks like a {reg} problem, and I cannot solve it yet.").
+response_template(x_i_was_missing_a_piece_and_taught_it_to_mys, "{again}  (I was missing a piece and taught it to myself: {learned})").

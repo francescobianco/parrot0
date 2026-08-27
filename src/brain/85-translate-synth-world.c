@@ -392,7 +392,9 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                         char msg[160];
                         { const KbResponseSlot _rs[] = { { "tok", tok } };
                           if (!kb_response_slots(b, "i_can_translate_most_of_it_but_i_don_t_know", _rs, 1, msg, sizeof msg))
-                            snprintf(msg, sizeof msg, "I can translate most of it, but I don't know the French for \"%s\".", tok);
+                            { const KbResponseSlot _rs[] = { { "tok", tok } };
+                              if (!kb_response_slots(b, "i_can_translate_most_of_it_but_i_don_t_know", _rs, 1, msg, sizeof msg))
+                                snprintf(msg, sizeof msg, "I can translate most of it, but I don't know the French for \"%s\".", tok); }
                           put(msg, out, out_size); }
                         return 1;
                     }
@@ -720,7 +722,9 @@ found:
                 char msg[160];
                 { const KbResponseSlot _rs[] = { { "tok", tok } };
                   if (!kb_response_slots(b, "i_can_t_translate_x_yet", _rs, 1, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "I can't translate \"%s\" yet.", tok);
+                    { const KbResponseSlot _rs[] = { { "tok", tok } };
+                      if (!kb_response_slots(b, "i_can_t_translate_x_yet", _rs, 1, msg, sizeof msg))
+                        snprintf(msg, sizeof msg, "I can't translate \"%s\" yet.", tok); }
                   put(msg, out, out_size); }
                 return 1;
             }
@@ -1012,9 +1016,9 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
 
     char msg[768];
     if (!claimed) {
-        snprintf(msg, sizeof msg,
-                 "Without '%s', nothing else matches — I'd fall back to \"%s\"",
-                 suppress, ans);
+        { const KbResponseSlot _rs[] = { { "suppress", suppress }, { "ans", ans } };
+          if (!kb_response_slots(b, "without_x_nothing_else_matches_i_d_fall_back", _rs, 2, msg, sizeof msg))
+            snprintf(msg, sizeof msg, "Without '%s', nothing else matches — I'd fall back to \"%s\"", suppress, ans); }
     } else if (strcmp(who, b->trace_winner) == 0) {
         snprintf(msg, sizeof msg,
                  "Setting '%s' aside changes nothing — '%s' ran first anyway and "
@@ -1329,14 +1333,18 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                     char m[120];
                     { const KbResponseSlot _rs[] = { { "nm", nm } };
                       if (!kb_response_slots(b, "left_the_x_world", _rs, 1, m, sizeof m))
-                        snprintf(m, sizeof m, "Left the %s world.", nm);
+                        { const KbResponseSlot _rs[] = { { "nm", nm } };
+                          if (!kb_response_slots(b, "left_the_x_world", _rs, 1, m, sizeof m))
+                            snprintf(m, sizeof m, "Left the %s world.", nm); }
                       put(m, out, out_size); }
                 } else {
                     world_teardown(b, id);
                     char m[140];
                     { const KbResponseSlot _rs[] = { { "nm", nm } };
                       if (!kb_response_slots(b, "forgotten_the_x_world_none_of_it_reached_my", _rs, 1, m, sizeof m))
-                        snprintf(m, sizeof m, "Forgotten the %s world; none of it reached my memory.", nm);
+                        { const KbResponseSlot _rs[] = { { "nm", nm } };
+                          if (!kb_response_slots(b, "forgotten_the_x_world_none_of_it_reached_my", _rs, 1, m, sizeof m))
+                            snprintf(m, sizeof m, "Forgotten the %s world; none of it reached my memory.", nm); }
                       put(m, out, out_size); }
                 }
                 return 1;
@@ -1428,7 +1436,9 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
             char m[160];
             { const KbResponseSlot _rs[] = { { "wname", wname } };
               if (!kb_response_slots(b, "opened_the_x_world_tell_me_what_is_true_in_i", _rs, 1, m, sizeof m))
-                snprintf(m, sizeof m, "Opened the %s world. Tell me what is true in it.", wname);
+                { const KbResponseSlot _rs[] = { { "wname", wname } };
+                  if (!kb_response_slots(b, "opened_the_x_world_tell_me_what_is_true_in_i", _rs, 1, m, sizeof m))
+                    snprintf(m, sizeof m, "Opened the %s world. Tell me what is true in it.", wname); }
               put(m, out, out_size); }
             return 1;
         }
@@ -1456,7 +1466,9 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                     char m[160];
                     { const KbResponseSlot _rs[] = { { "name", name } };
                       if (!kb_response_slots(b, "opened_the_x_world_tell_me_what_is_true_in_i_2", _rs, 1, m, sizeof m))
-                        snprintf(m, sizeof m, "Opened the %s world. Tell me what is true in it.", name);
+                        { const KbResponseSlot _rs[] = { { "name", name } };
+                          if (!kb_response_slots(b, "opened_the_x_world_tell_me_what_is_true_in_i_2", _rs, 1, m, sizeof m))
+                            snprintf(m, sizeof m, "Opened the %s world. Tell me what is true in it.", name); }
                       put(m, out, out_size); }
                     return 1;
                 }

@@ -428,11 +428,15 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
     if (fn_from_req && *fn_from_req) snprintf(fn, sizeof fn, "%s", fn_from_req);
     else (void)plan_param_value(b, goal, "vocab_fn", fn, sizeof fn);
     if (!target || !*target) {
-        snprintf(obs, obs_sz, "%s needs a target source path from the request", impl);
+        { const KbResponseSlot _rs[] = { { "impl", impl } };
+          if (!kb_response_slots(b, "x_needs_a_target_source_path_from_the_reques", _rs, 1, obs, obs_sz))
+            snprintf(obs, obs_sz, "%s needs a target source path from the request", impl); }
         return 0;
     }
     if (!fn[0]) {
-        snprintf(obs, obs_sz, "%s needs a function name", impl);
+        { const KbResponseSlot _rs[] = { { "impl", impl } };
+          if (!kb_response_slots(b, "x_needs_a_function_name", _rs, 1, obs, obs_sz))
+            snprintf(obs, obs_sz, "%s needs a function name", impl); }
         return 0;
     }
 
@@ -448,12 +452,15 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
             nwords = code_orchain_vocabulary(target, fn, words, 32,
                                              &chains, &calls);
         if (nwords < 0) {
-            snprintf(obs, obs_sz, "orchain_vocab could not read %s", target);
+            { const KbResponseSlot _rs[] = { { "target", target } };
+              if (!kb_response_slots(b, "orchain_vocab_could_not_read_x", _rs, 1, obs, obs_sz))
+                snprintf(obs, obs_sz, "orchain_vocab could not read %s", target); }
             return 0;
         }
         if (chains == 0) {
-            snprintf(obs, obs_sz, "orchain_vocab found no OR-chains of calls to `%s` in %s",
-                     fn, target);
+            { const KbResponseSlot _rs[] = { { "fn", fn }, { "target", target } };
+              if (!kb_response_slots(b, "orchain_vocab_found_no_or_chains_of_calls_to", _rs, 2, obs, obs_sz))
+                snprintf(obs, obs_sz, "orchain_vocab found no OR-chains of calls to `%s` in %s", fn, target); }
             return 0;
         }
         if (nwords == 0) {
@@ -478,8 +485,9 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         }
         struct stat est;
         if (stat(target, &est) == 0 && S_ISDIR(est.st_mode)) {
-            snprintf(obs, obs_sz,
-                     "emit_facts needs a single source file target, not a directory");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "emit_facts_needs_a_single_source_file_target", _rs, 0, obs, obs_sz))
+                snprintf(obs, obs_sz, "emit_facts needs a single source file target, not a directory"); }
             return 0;
         }
         char outp[320];
@@ -487,12 +495,15 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         int chains = 0;
         int nfacts = code_orchain_emit_facts(target, fn, pred, outp, &chains);
         if (nfacts < 0) {
-            snprintf(obs, obs_sz, "emit_facts could not write %s", outp);
+            { const KbResponseSlot _rs[] = { { "outp", outp } };
+              if (!kb_response_slots(b, "emit_facts_could_not_write_x", _rs, 1, obs, obs_sz))
+                snprintf(obs, obs_sz, "emit_facts could not write %s", outp); }
             return 0;
         }
         if (chains == 0) {
-            snprintf(obs, obs_sz,
-                     "emit_facts found no OR-chains of calls to `%s` in %s", fn, target);
+            { const KbResponseSlot _rs[] = { { "fn", fn }, { "target", target } };
+              if (!kb_response_slots(b, "emit_facts_found_no_or_chains_of_calls_to_x", _rs, 2, obs, obs_sz))
+                snprintf(obs, obs_sz, "emit_facts found no OR-chains of calls to `%s` in %s", fn, target); }
             return 0;
         }
         if (nfacts == 0) {
@@ -546,8 +557,9 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         }
         struct stat pst;
         if (stat(target, &pst) == 0 && S_ISDIR(pst.st_mode)) {
-            snprintf(obs, obs_sz,
-                     "patch_chains needs a single source file target, not a directory");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "patch_chains_needs_a_single_source_file_targ", _rs, 0, obs, obs_sz))
+                snprintf(obs, obs_sz, "patch_chains needs a single source file target, not a directory"); }
             return 0;
         }
         char outp[320];
@@ -558,12 +570,15 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
                                    &comp, cerr, sizeof cerr,
                                    &skipped, sid, sizeof sid);
         if (n < 0) {
-            snprintf(obs, obs_sz, "patch_chains could not write %s", outp);
+            { const KbResponseSlot _rs[] = { { "outp", outp } };
+              if (!kb_response_slots(b, "patch_chains_could_not_write_x", _rs, 1, obs, obs_sz))
+                snprintf(obs, obs_sz, "patch_chains could not write %s", outp); }
             return 0;
         }
         if (n == 0) {
-            snprintf(obs, obs_sz,
-                     "patch_chains found no OR-chains of calls to `%s` in %s", fn, target);
+            { const KbResponseSlot _rs[] = { { "fn", fn }, { "target", target } };
+              if (!kb_response_slots(b, "patch_chains_found_no_or_chains_of_calls_to", _rs, 2, obs, obs_sz))
+                snprintf(obs, obs_sz, "patch_chains found no OR-chains of calls to `%s` in %s", fn, target); }
             return 0;
         }
         /* gen274: name the sites the call shape cannot reach — a chain in a
@@ -605,8 +620,9 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         }
         struct stat vst2;
         if (stat(target, &vst2) == 0 && S_ISDIR(vst2.st_mode)) {
-            snprintf(obs, obs_sz,
-                     "verify_behavior needs a single source file target, not a directory");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "verify_behavior_needs_a_single_source_file_t", _rs, 0, obs, obs_sz))
+                snprintf(obs, obs_sz, "verify_behavior needs a single source file target, not a directory"); }
             return 0;
         }
         char patched[320];
@@ -626,9 +642,9 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
                          "fragment of a larger unit; the codebase's own test "
                          "suite must judge the patch", target);
             else
-                snprintf(obs, obs_sz,
-                         "verify_behavior could not build and run both versions of %s",
-                         target);
+                { const KbResponseSlot _rs[] = { { "target", target } };
+                  if (!kb_response_slots(b, "verify_behavior_could_not_build_and_run_both", _rs, 1, obs, obs_sz))
+                    snprintf(obs, obs_sz, "verify_behavior could not build and run both versions of %s", target); }
             return 0;
         }
         if (r == 0) {
@@ -651,7 +667,9 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
      * entirely in kb/experts/codebase/actions.p0. */
     if (strcmp(impl, "prose_read_page") == 0) {
         if (!target[0]) {
-            snprintf(obs, obs_sz, "prose_read_page needs a page path");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "prose_read_page_needs_a_page_path", _rs, 0, obs, obs_sz))
+                snprintf(obs, obs_sz, "prose_read_page needs a page path"); }
             return 0;
         }
         char page[8192]; size_t po = 0; page[0] = '\0';
@@ -674,20 +692,28 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         return 1;
     }
     if (strcmp(impl, "prose_split_sent") == 0) {
-        snprintf(obs, obs_sz, "split into sentences (stub)");
+        { const KbResponseSlot _rs[] = { { "x", "" } };
+          if (!kb_response_slots(b, "split_into_sentences_stub", _rs, 0, obs, obs_sz))
+            snprintf(obs, obs_sz, "split into sentences (stub)"); }
         return 1;
     }
     if (strcmp(impl, "prose_extract") == 0) {
-        snprintf(obs, obs_sz, "extracted facts from sentences");
+        { const KbResponseSlot _rs[] = { { "x", "" } };
+          if (!kb_response_slots(b, "extracted_facts_from_sentences", _rs, 0, obs, obs_sz))
+            snprintf(obs, obs_sz, "extracted facts from sentences"); }
         return 1;
     }
     if (strcmp(impl, "prose_assert") == 0) {
-        snprintf(obs, obs_sz, "asserted extracted facts with provenance");
+        { const KbResponseSlot _rs[] = { { "x", "" } };
+          if (!kb_response_slots(b, "asserted_extracted_facts_with_provenance", _rs, 0, obs, obs_sz))
+            snprintf(obs, obs_sz, "asserted extracted facts with provenance"); }
         return 1;
     }
 
     if (strcmp(impl, "orchain_scan") != 0) {
-        snprintf(obs, obs_sz, "primitive %s is not implemented by this binary", impl);
+        { const KbResponseSlot _rs[] = { { "impl", impl } };
+          if (!kb_response_slots(b, "primitive_x_is_not_implemented_by_this_binar", _rs, 1, obs, obs_sz))
+            snprintf(obs, obs_sz, "primitive %s is not implemented by this binary", impl); }
         return 0;
     }
 
@@ -697,12 +723,15 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         char top[256] = "";
         int n = code_orchain_tree(target, fn, &files, &calls, top, sizeof top, &topn);
         if (n < 0) {
-            snprintf(obs, obs_sz, "orchain_scan could not read %s", target);
+            { const KbResponseSlot _rs[] = { { "target", target } };
+              if (!kb_response_slots(b, "orchain_scan_could_not_read_x", _rs, 1, obs, obs_sz))
+                snprintf(obs, obs_sz, "orchain_scan could not read %s", target); }
             return 0;
         }
         if (n == 0)
-            snprintf(obs, obs_sz, "orchain_scan found no OR-chains of calls to `%s` under %s",
-                     fn, target);
+            { const KbResponseSlot _rs[] = { { "fn", fn }, { "target", target } };
+              if (!kb_response_slots(b, "orchain_scan_found_no_or_chains_of_calls_to", _rs, 2, obs, obs_sz))
+                snprintf(obs, obs_sz, "orchain_scan found no OR-chains of calls to `%s` under %s", fn, target); }
         else
             snprintf(obs, obs_sz,
                      "orchain_scan found %d OR-chains of calls to `%s` under %s "
@@ -714,12 +743,15 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
     int lines[1] = {0}, calls = 0;
     int n = code_find_or_chains(target, fn, lines, 1, &calls);
     if (n < 0) {
-        snprintf(obs, obs_sz, "orchain_scan could not read %s", target);
+        { const KbResponseSlot _rs[] = { { "target", target } };
+          if (!kb_response_slots(b, "orchain_scan_could_not_read_x", _rs, 1, obs, obs_sz))
+            snprintf(obs, obs_sz, "orchain_scan could not read %s", target); }
         return 0;
     }
     if (n == 0)
-        snprintf(obs, obs_sz, "orchain_scan found no OR-chains of calls to `%s` in %s",
-                 fn, target);
+        { const KbResponseSlot _rs[] = { { "fn", fn }, { "target", target } };
+          if (!kb_response_slots(b, "orchain_scan_found_no_or_chains_of_calls_to_2", _rs, 2, obs, obs_sz))
+            snprintf(obs, obs_sz, "orchain_scan found no OR-chains of calls to `%s` in %s", fn, target); }
     else
         snprintf(obs, obs_sz,
                  "orchain_scan found %d OR-chains of calls to `%s` in %s "
@@ -985,7 +1017,9 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
         char msg[128];
         { const KbResponseSlot _rs[] = { { "goal", goal } };
           if (!kb_response_slots(b, "the_steps_for_x_have_a_circular_prerequisite", _rs, 1, msg, sizeof msg))
-            snprintf(msg, sizeof msg, "The steps for %s have a circular prerequisite — I can't order them.", goal);
+            { const KbResponseSlot _rs[] = { { "goal", goal } };
+              if (!kb_response_slots(b, "the_steps_for_x_have_a_circular_prerequisite", _rs, 1, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "The steps for %s have a circular prerequisite — I can't order them.", goal); }
           put(msg, out, out_size); }
         return 1;
     }
@@ -1010,8 +1044,9 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
     put(msg, out, out_size);
 
     char proof[256];
-    snprintf(proof, sizeof proof,
-             "ordered by prerequisites: each step follows everything it requires.");
+    { const KbResponseSlot _rs[] = { { "x", "" } };
+      if (!kb_response_slots(b, "ordered_by_prerequisites_each_step_follows_e", _rs, 0, proof, sizeof proof))
+        snprintf(proof, sizeof proof, "ordered by prerequisites: each step follows everything it requires."); }
     store_proof(b, proof);
     return 1;
 }
@@ -1407,7 +1442,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             format_num(rt, two, sizeof two);
             char msg[160];
             if (rt != sum)
-                snprintf(msg, sizeof msg, "%s miles one way; %s miles for the round trip.", one, two);
+                { const KbResponseSlot _rs[] = { { "one", one }, { "two", two } };
+                  if (!kb_response_slots(b, "x_miles_one_way_x_miles_for_the_round_trip", _rs, 2, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "%s miles one way; %s miles for the round trip.", one, two); }
             else
                 snprintf(msg, sizeof msg, "%s miles.", one);
             put(msg, out, out_size);
@@ -1542,7 +1579,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 if (cn[0]) cn[0] = (char)toupper((unsigned char)cn[0]);
                 for (char *p = cn; *p; p++) if (p > cn && p[-1] == ' ')
                     *p = (char)toupper((unsigned char)*p);
-                snprintf(who, sizeof who, "The train from %s", cn);
+                { const KbResponseSlot _rs[] = { { "cn", cn } };
+                  if (!kb_response_slots(b, "the_train_from_x", _rs, 1, who, sizeof who))
+                    snprintf(who, sizeof who, "The train from %s", cn); }
             } else snprintf(who, sizeof who, "%s train", first == 0 ? "The first" : "The second");
             char dur[80];
             if (mins >= 60) {
@@ -1557,7 +1596,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             char msg[200];
             { const KbResponseSlot _rs[] = { { "who", who }, { "dur", dur } };
               if (!kb_response_slots(b, "x_arrives_first_by_about_x", _rs, 2, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "%s arrives first, by about %s.", who, dur);
+                { const KbResponseSlot _rs[] = { { "who", who }, { "dur", dur } };
+                  if (!kb_response_slots(b, "x_arrives_first_by_about_x", _rs, 2, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "%s arrives first, by about %s.", who, dur); }
               put(msg, out, out_size); }
             store_proof(b, "Compared destination arrival times: departure plus distance divided by speed.");
             return 1;
@@ -1754,7 +1795,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 if (cn[0]) cn[0] = (char)toupper((unsigned char)cn[0]);
                 for (char *p = cn; *p; p++)        /* capitalize each word ("New York") */
                     if (p > cn && p[-1] == ' ') *p = (char)toupper((unsigned char)*p);
-                snprintf(who, sizeof who, "The train from %s", cn);
+                { const KbResponseSlot _rs[] = { { "cn", cn } };
+                  if (!kb_response_slots(b, "the_train_from_x", _rs, 1, who, sizeof who))
+                    snprintf(who, sizeof who, "The train from %s", cn); }
             } else snprintf(who, sizeof who, "%s train", first == 0 ? "The first" : "The second");
             char msg[200];
             snprintf(msg, sizeof msg,
@@ -2144,7 +2187,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             char msg[220];
             { const KbResponseSlot _rs[] = { { "mpgs", mpgs }, { "trips", trips }, { "needs", needs } };
               if (!kb_response_slots(b, "x_miles_per_gallon_a_x_mile_trip_would_need", _rs, 3, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "%s miles per gallon; a %s-mile trip would need %s gallons.", mpgs, trips, needs);
+                { const KbResponseSlot _rs[] = { { "mpgs", mpgs }, { "trips", trips }, { "needs", needs } };
+                  if (!kb_response_slots(b, "x_miles_per_gallon_a_x_mile_trip_would_need", _rs, 3, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "%s miles per gallon; a %s-mile trip would need %s gallons.", mpgs, trips, needs); }
               put(msg, out, out_size); }
             store_proof(b, "mpg = miles / gallons; fuel = trip / mpg");
             return 1;
@@ -3101,12 +3146,13 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         put(msg, out, out_size);
         char proof[160];
         if (halve_to_pieces)
-            snprintf(proof, sizeof proof,
-                     "I folded the remaining items, then counted two half-pieces per item: %s.",
-                     num);
+            { const KbResponseSlot _rs[] = { { "num", num } };
+              if (!kb_response_slots(b, "i_folded_the_remaining_items_then_counted_tw", _rs, 1, proof, sizeof proof))
+                snprintf(proof, sizeof proof, "I folded the remaining items, then counted two half-pieces per item: %s.", num); }
         else
-            snprintf(proof, sizeof proof,
-                     "I folded the steps left to right to %s.", num);
+            { const KbResponseSlot _rs[] = { { "num", num } };
+              if (!kb_response_slots(b, "i_folded_the_steps_left_to_right_to_x", _rs, 1, proof, sizeof proof))
+                snprintf(proof, sizeof proof, "I folded the steps left to right to %s.", num); }
         store_proof(b, proof);
         return 1;
     }
@@ -3311,7 +3357,9 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
         if (kb_assert(b->kb, "quantity", args, 3))
             snprintf(msg, sizeof msg, "Learned: %s has %s %s.", w[0], w[2], w[3]);
         else
-            snprintf(msg, sizeof msg, "I couldn't store that.");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "i_couldn_t_store_that", _rs, 0, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "I couldn't store that."); }
         put(msg, out, out_size);
         return 1;
     }
@@ -3325,7 +3373,9 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
         size_t k = kb_match(b->kb, "quantity", pat, 3, hits, 4);
         char msg[160];
         if (k == 0)
-            snprintf(msg, sizeof msg, "I don't know how many %s %s has.", unit, x);
+            { const KbResponseSlot _rs[] = { { "unit", unit }, { "x", x } };
+              if (!kb_response_slots(b, "i_don_t_know_how_many_x_x_has", _rs, 2, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "I don't know how many %s %s has.", unit, x); }
         else
             snprintf(msg, sizeof msg, "%s has %s %s.", x, hits[0], unit);
         put(msg, out, out_size);
@@ -3383,8 +3433,9 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
                                                    : "quantity_has_frame";
                 if (!kb_response_slots(b, key, s, 3, msg, sizeof msg)) {
                     if (kb_cue_match(b, "25_wordmath_reasoning_chain3408", buf))
-                        snprintf(msg, sizeof msg, "There are %s %s in a %s.",
-                                 hits[0], unit, ename);
+                        { const KbResponseSlot _rs[] = { { "hits", hits[0] }, { "unit", unit }, { "ename", ename } };
+                          if (!kb_response_slots(b, "there_are_x_x_in_a_x", _rs, 3, msg, sizeof msg))
+                            snprintf(msg, sizeof msg, "There are %s %s in a %s.", hits[0], unit, ename); }
                     else
                         snprintf(msg, sizeof msg, "A %s has %s %s.",
                                  ename, hits[0], unit);
@@ -3480,7 +3531,9 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
         if (kb_assert(b->kb, "causes", args, 2))
             snprintf(msg, sizeof msg, "Learned: causes(%s, %s).", w[0], w[2]);
         else
-            snprintf(msg, sizeof msg, "I couldn't store that.");
+            { const KbResponseSlot _rs[] = { { "x", "" } };
+              if (!kb_response_slots(b, "i_couldn_t_store_that", _rs, 0, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "I couldn't store that."); }
         put(msg, out, out_size);
         return 1;
     }
@@ -3519,7 +3572,9 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
             char msg[160];
             { const KbResponseSlot _rs[] = { { "w", w[3] }, { "x", x } };
               if (!kb_response_slots(b, "i_don_t_know_the_x_of_x", _rs, 2, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "I don't know the %s of %s.", w[3], x);
+                { const KbResponseSlot _rs[] = { { "w", w[3] }, { "x", x } };
+                  if (!kb_response_slots(b, "i_don_t_know_the_x_of_x", _rs, 2, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "I don't know the %s of %s.", w[3], x); }
               put(msg, out, out_size); }
             return 1;
         }
