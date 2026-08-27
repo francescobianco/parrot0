@@ -52,3 +52,11 @@
 !forget intent_phrase(ask_name, "what is your designation")
 > what is your designation
 <~ don't understand
+
+[operatore di piano insegnato a runtime]
+!reset
+> teach "build me a roadmap" as a plan request
+<~ Got it
+> build me a roadmap to learn chess
+<~ chess learning
+<~ wikipedia

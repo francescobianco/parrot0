@@ -1367,6 +1367,13 @@ provenienza Wikipedia. Non è una prova di copertura generale, ma dimostra che
 il percorso prioritario dell'utente non cade più nel muro né cambia registro
 senza motivo.
 
+La prova di trasferimento Gen444 ora include anche un atto docente reale:
+`teach "build me a roadmap" as a plan request`, seguito da
+`build me a roadmap to learn chess`. La forma nuova apre il planner esistente
+e produce il piano a tre passi con provenienza; nessun valore o frase della
+risposta è stato insegnato nel turno precedente. La successiva ablazione della
+forma deve riportare il turno al limite, secondo il contratto teach/use/retract.
+
 ### Ipotesi H446
 
 Dopo le nove generazioni precedenti esiste uno stato KB dal quale campagne
