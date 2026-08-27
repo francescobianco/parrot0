@@ -1211,6 +1211,15 @@ Questo non chiude la Gen444: dimostra invece che il gate deve richiedere
 pertinenza, contenuto sostenuto e continuabilità, non soltanto assenza di muro.
 Il campione `.p0t` è stato rafforzato con queste proprietà osservabili.
 
+La verifica runtime successiva conferma due mosse di continuità sullo stesso
+tema: `giochiamo a scacchi?` produce «Volentieri, giochiamo a scacchi.
+Cominciamo dalla prima mossa?», mentre `parliamo di scacchi` produce «Certo,
+parliamo di scacchi. Che cosa vuoi esplorare per prima?». Entrambe sono derivate
+da `topic_action_surface/3` e dai template KB, non da una risposta speciale nel
+C. Questa evidenza chiude il buco osservato per quei due ingressi, ma non
+autorizza ancora la chiusura generale di Gen444: la stessa prova va replicata
+su temi nuovi e dopo teach/use/retract.
+
 Una seconda esecuzione manuale ha trovato il limite successivo:
 `ti piace la dama?` ricadeva ancora sulla preferenza generica, benché la KB
 contenesse già l'esperto `checkers`. La causa era una forma non indirizzata,

@@ -26,6 +26,12 @@
 <~ giocatori
 <~ mossa legale
 <~ scacco
+> giochiamo a scacchi?
+<~ Volentieri
+<~ prima mossa
+> parliamo di scacchi
+<~ parliamo di scacchi
+<~ esplorare
 > cosa sai degli scacchi?
 <~ scacchi
 > come stai?
