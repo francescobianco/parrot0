@@ -310,7 +310,8 @@ locuzioni annidate restano il prossimo incremento del gold.
 
 - **438:** definisce il gold e porta il primo taglio prosa/domanda end-to-end;
 - **439:** estende composizione e rimuove gli estrattori di prosa equivalenti;
-- **440:** migra canonicalizzazione e indirizzamento;
+- **440:** migra canonicalizzazione e indirizzamento; il campione
+  `gen440-addressing.p0t` passa 15 proprietà con crescita/ablazione runtime;
 - **441:** applica il gold alla prosa Wikipedia con provenance di revisione;
 - **442:** migra scelta dialogica e piani di compensazione;
 - **443:** rende transazionali dipendenze, promozione e rollback;

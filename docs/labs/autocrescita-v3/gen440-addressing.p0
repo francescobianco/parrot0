@@ -1,0 +1,11 @@
+% Gen440 profile: dynamic addressing vocabulary is declared, not hard-coded.
+machinery(internal_relation).
+machinery(source_page).
+machinery(source_revision).
+machinery(source_section).
+
+internal_relation(mountainion, height, measure, known).
+source_page(mountainion, en, wikipedia, "Blue Mountain").
+source_revision("Blue Mountain", 20260827).
+source_section("Blue Mountain", geography).
+source_address(mountainion, address(en, wikipedia, "Blue Mountain", revision(20260827, geography))).

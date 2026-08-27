@@ -1,0 +1,34 @@
+# GEN440 — L'INDIRIZZO E' UNA TUPLA KB, NON UN URL NEL C.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=docs/labs/autocrescita-v3/gen440-addressing.p0
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=it
+!reset
+
+[test address is resolved from a runtime alias and complete source facts]
+!assert semantic_entity(mountainion)
+!assert semantic_alias("montagna blu", mountainion)
+!query address_identity("montagna blu", mountainion)
+!query internal_relation(mountainion, height, measure, $Value)
+!query address_relation(mountainion, height, measure)
+!query address_target("montagna blu", height, measure, mountainion)
+!query source_page(mountainion, en, wikipedia, "Blue Mountain")
+!query source_address(mountainion, $Address)
+!query address_external("montagna blu", height, measure, $Address)
+!query address_internal("montagna blu", height, measure, internal(mountainion, height, measure))
+!query address_external("montagna blu", height, measure, address(en, wikipedia, "Blue Mountain", revision(20260827, geography)))
+!query! address_stop("montagna blu", height, measure)
+
+[test a missing relation stops before an external lookup]
+!query address_stop("montagna blu", mass, measure)
+!query! address_external("montagna blu", mass, measure, $Address)
+
+[test retracting the alias removes the complete address]
+!forget semantic_alias("montagna blu", mountainion)
+!query! address_identity("montagna blu", mountainion)
+!query! address_external("montagna blu", height, measure, $Address)
+!assert semantic_alias("montagna blu", mountainion)
+!query address_external("montagna blu", height, measure, address(en, wikipedia, "Blue Mountain", revision(20260827, geography)))

@@ -467,6 +467,68 @@ machinery(projection_gate).
 machinery(semantic_topic_gate).
 projection_gate(semantic_summary, semantic_topic_gate).
 
+% gen440 — indirizzamento interno prima di qualunque sorgente esterna.
+% L'indirizzo non e' un URL scritto nel C: e' una tupla KB che conserva lingua
+% della pagina, edizione, titolo, revisione e sezione.  Le forme superficiali
+% sono risolte attraverso alias, traduzioni e locuzioni insegnabili a runtime.
+address_identity($Surface, $Concept) :-
+    semantic_alias($Surface, $Concept).
+address_identity($Surface, $Concept) :-
+    entity_alias($Surface, $Concept).
+address_identity($Surface, $Concept) :-
+    phrase_form($Surface, $Concept, $Language, $Register).
+address_identity($Surface, $Concept) :-
+    linguistic_form($Surface, $Concept, $Language, $Register).
+address_identity($Surface, $Concept) :-
+    tr($Concept, $Surface).
+
+address_relation($Concept, $Relation, $Shape) :-
+    internal_relation($Concept, $Relation, $Shape, $Value).
+
+address_target($Surface, $Relation, $Shape, $Concept) :-
+    address_identity($Surface, $Concept),
+    address_relation($Concept, $Relation, $Shape).
+
+address_internal($Surface, $Relation, $Shape,
+                 internal($Concept, $Relation, $Shape)) :-
+    address_identity($Surface, $Concept),
+    address_relation($Concept, $Relation, $Shape).
+
+address_external($Surface, $Relation, $Shape, $Address) :-
+    address_target($Surface, $Relation, $Shape, $Concept),
+    source_address($Concept, $Address).
+
+source_address($Concept,
+               address($Language, $Edition, $Title, revision($Revision, $Section))) :-
+    source_page($Concept, $Language, $Edition, $Title),
+    source_revision($Title, $Revision),
+    source_section($Title, $Section).
+
+% Uno stop e' positivo: impedisce un fetch quando identita', relazione o shape
+% non sono determinati.  La query resta leggibile e il chiamante puo' chiedere
+% esattamente il prerequisito mancante.
+address_stop($Surface, $Relation, $Shape) :-
+    naf(address_identity($Surface, $Concept)).
+address_stop($Surface, $Relation, $Shape) :-
+    address_identity($Surface, $Concept),
+    naf(address_relation($Concept, $Relation, $Shape)).
+address_stop($Surface, $Relation, $Shape) :-
+    address_identity($Surface, $Concept),
+    address_relation($Concept, $Relation, $Shape),
+    naf(address_external($Surface, $Relation, $Shape, $Address)).
+
+machinery(address_identity).
+machinery(address_relation).
+machinery(address_target).
+machinery(address_internal).
+machinery(address_external).
+machinery(address_stop).
+machinery(source_address).
+machinery(internal_relation).
+machinery(source_page).
+machinery(source_revision).
+machinery(source_section).
+
 % gen360: finite analytical acts as complete facet plans. The subject remains
 % open: semantic_atom/3 in the world layer supplies domain knowledge, while the
 % fixed consumer verifies every required facet before rendering anything.

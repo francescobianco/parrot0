@@ -953,6 +953,15 @@ strategia vale per qualsiasi entità raggiungibile.
 
 ---
 
+### Evidenza Gen440
+
+Il profilo `gen440-addressing.p0` e l'esperimento `gen440-addressing.p0t`
+dimostrano **15 proprietà passate**. Un alias insegnato a runtime viene
+risolto in identità, relazione e shape; la KB costruisce l'indirizzo esterno
+con lingua della pagina, edizione, titolo, revisione e sezione. Un prerequisito
+mancante produce `address_stop/3` e non abilita alcun fetch. La retrazione e il
+ripristino dell'alias cambiano l'indirizzamento senza ricompilare.
+
 ## gen441 — Wikipedia diventa una sorgente mirata in memoria
 
 ### Ipotesi H441
