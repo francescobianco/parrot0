@@ -541,6 +541,7 @@ machinery(campaign_rollback).
 machinery(campaign_replay).
 machinery(live_cycle).
 machinery(live_cycle_ready).
+machinery(live_cycle_language).
 
 % gen441 — sorgente in memoria: si conserva solo la coordinata dello span e la
 % proposizione verificata, mai il corpo della pagina. La selezione e' guidata
@@ -578,6 +579,10 @@ live_cycle($Cycle, $Dialogue, $Campaign, $Plan) :-
     compensation_plan_complete($Plan).
 live_cycle_ready($Cycle) :-
     live_cycle($Cycle, $Dialogue, $Campaign, $Plan).
+live_cycle_language($Cycle, $Input, $Source, $Output) :-
+    live_cycle($Cycle, $Dialogue, $Campaign, $Plan),
+    dialogue_language($Cycle, $Input, $Output),
+    campaign_source_language($Campaign, $Source).
 machinery(internal_relation).
 machinery(source_page).
 machinery(source_revision).

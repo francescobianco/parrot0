@@ -1327,6 +1327,9 @@ compensativo completo sono osservabili nello stesso snapshot KB tramite
 `live_cycle/4`. L'ablazione del replay revoca la promozione e spegne il ciclo;
 non viene mantenuta una copia implicita nel C. È il primo accoppiamento reale
 fra i tre assi della gen446, ma non è ancora il gate finale dei quindici round.
+Lo stesso campione dichiara inoltre `live_cycle_language/4`: input e output
+italiani con claim sostenuta da una fonte inglese (`Lin != Lsrc`), così la
+provenienza linguistica resta parte dello stato e non una scelta del renderer.
 
 ### Ipotesi H446
 

@@ -13,6 +13,7 @@
 !query compensation_plan_complete(plan_alpha)
 !query live_cycle(cycle_alpha, ask_clarification, campaign_alpha, plan_alpha)
 !query live_cycle_ready(cycle_alpha)
+!query live_cycle_language(cycle_alpha, it, en, it)
 
 [ablazione della crescita spegne il ciclo]
 !forget campaign_replay(campaign_alpha, claim_1, learned_surface)

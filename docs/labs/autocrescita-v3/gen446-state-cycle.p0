@@ -1,8 +1,9 @@
 % Gen446 — snapshot di stato condiviso fra dialogo, crescita e piano.
 dialogue_move(cycle_alpha, ask_clarification).
+dialogue_language(cycle_alpha, it, it).
 campaign_claim(campaign_alpha, claim_1, learned_surface, span(4, 2)).
 campaign_required(campaign_alpha, claim_1).
 campaign_replay(campaign_alpha, claim_1, learned_surface).
+campaign_source_language(campaign_alpha, en).
 compensation_obligation(plan_alpha, goal(level, safe), language(en, it)).
 compensation_step(plan_alpha, 1, step(read_source, unknown, source_read, 1)).
-
