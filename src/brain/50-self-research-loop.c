@@ -1607,7 +1607,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                   (cue(buf, "what does the") && wn <= 7) ||
                   (cue(buf, "cosa può fare il modulo") && wn <= 7);
     if (mod_cap) {
-        if (cue(buf, "what does the word") || cue(buf, "what does word"))
+        if (kb_cue_match(b, "50_self_research_loop_chain1610", buf))
             return 0;
         static const struct { const char *mod, *say; } cmap[] = {
             {"knowledge", "answer questions about facts and logical rules"},

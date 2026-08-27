@@ -1279,7 +1279,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
      * just the value. Pulled by the impersonation benchmark's math-teacher role,
      * but it is a general capability: the answer is grounded in the operation
      * (adding -> sum), so it transfers to any operands and any of the operators. */
-    if (cue(buf, "explain") || cue(buf, "why")) {
+    if (kb_cue_match(b, "20_math_chain1282", buf)) {
         for (size_t i = 0; i + 2 < enw; i++) {
             if (!is_arith_op(ew[i + 1])) continue;
             double a, c;
@@ -1414,20 +1414,18 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
             }
         }
         /* half of N / metà di N */
-        if (gn == 1 && (cue(norm, "half") || cue(norm, "metà") || cue(norm, "meta"))) {
+        if (gn == 1 && (kb_cue_match(b, "20_math_chain1417", norm))) {
             arith_answer(gnums[0] / 2.0, out, out_size); return 1;
         }
         /* double / twice / triple / thrice (optionally "of") N */
-        if (gn == 1 && (cue(norm, "double") || cue(norm, "twice") || cue(norm, "doppio") ||
-            cue(norm, "triple") || cue(norm, "thrice") || cue(norm, "triplo"))) {
-            double mul = (cue(norm, "triple") || cue(norm, "thrice") || cue(norm, "triplo")) ? 3 : 2;
+        if (gn == 1 && (kb_cue_match(b, "20_math_chain1421", norm))) {
+            double mul = (kb_cue_match(b, "20_math_chain1423", norm)) ? 3 : 2;
             arith_answer(gnums[0] * mul, out, out_size); return 1;
         }
     }
 
     /* N-ary "sum of A and B and C..." and "average/mean of ...". */
-    if (cue(norm, "sum of") || cue(norm, "average of") || cue(norm, "mean of") ||
-        cue(norm, "somma di") || cue(norm, "media di")) {
+    if (kb_cue_match(b, "20_math_chain1429", norm)) {
         double nums[16]; size_t n = collect_numbers(cw, cnw, nums, 16);
         if (n >= 1) {
             double s = 0; for (size_t i = 0; i < n; i++) s += nums[i];
@@ -1450,7 +1448,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
             }
             if (!strcmp(v0,"subtract") || !strcmp(v0,"sottrai") || !strcmp(v0,"togli")) {
                 /* "subtract A from B" -> B - A */
-                if (cue(norm, "from") || cue(norm, " da ")) { arith_answer(nums[1] - nums[0], out, out_size); return 1; }
+                if (kb_cue_match(b, "20_math_chain1453", norm)) { arith_answer(nums[1] - nums[0], out, out_size); return 1; }
                 arith_answer(nums[0] - nums[1], out, out_size); return 1;
             }
             if (!strcmp(v0,"multiply") || !strcmp(v0,"moltiplica")) {
@@ -1900,8 +1898,7 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
                   cue(buf, "counting to") || cue(buf, "conta fino") ||
                   cue(buf, "conta da") || cue(buf, "conta fino a");
     if (!has_cue) return 0;
-    if (cue(buf, "what comes next") || cue(buf, "comes next") ||
-        cue(buf, "next number") || cue(buf, "next term"))
+    if (kb_cue_match(b, "20_math_chain1903", buf))
         return 0; /* let mod_sequence infer from the provided terms */
     int descending = cue(buf, "count down") || cue(buf, "backwards") ||
                      cue(buf, "backward") || cue(buf, "all'indietro") ||
@@ -1962,20 +1959,18 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
      * "skip multiples of 3" -> drop matching terms while counting. The digit/divisor
      * is read from after the relevant phrase; honest deductive filtering, not a memo. */
     int skip_ends = -1, skip_mult = 0;
-    if (cue(buf, "skip") || cue(buf, "except") || cue(buf, "but not") ||
-        cue(buf, "leave out") || cue(buf, "omit")) {
+    if (kb_cue_match(b, "20_math_chain1965", buf)) {
         char fb[512]; snprintf(fb, sizeof fb, "%s", buf);
         char *fw[64]; size_t fnw = split_words(fb, fw, 64);
         for (size_t i = 0; i + 1 < fnw; i++) {
             char *t = strip_edge_punct(fw[i]);
             if ((!strcmp(t, "in") || !strcmp(t, "with") || !strcmp(t, "ends")) &&
-                (cue(buf, "ends in") || cue(buf, "ending in") || cue(buf, "end in") ||
-                 cue(buf, "ends with") || cue(buf, "ending with"))) {
+                (kb_cue_match(b, "20_math_chain1972", buf))) {
                 long d; if (word_to_int(strip_edge_punct(fw[i + 1]), &d) && d >= 0 && d <= 9)
                     skip_ends = (int)d;
             }
             if ((!strcmp(t, "of") || !strcmp(t, "multiple") || !strcmp(t, "multiples")) &&
-                (cue(buf, "multiple of") || cue(buf, "multiples of"))) {
+                (kb_cue_match(b, "20_math_chain1978", buf))) {
                 long m; if (word_to_int(strip_edge_punct(fw[i + 1]), &m) && m > 0)
                     skip_mult = (int)m;
             }
@@ -1987,7 +1982,7 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
      * dropping them (distinct from the skip filter above). */
     char repl[32] = "";
     int repl_mult = 0;
-    if ((cue(buf, "instead of") || cue(buf, "replace")) && cue(buf, "say")) {
+    if ((kb_cue_match(b, "20_math_chain1990", buf)) && cue(buf, "say")) {
         char rb[512]; snprintf(rb, sizeof rb, "%s", buf);
         char *rw[64]; size_t rnw = split_words(rb, rw, 64);
         for (size_t i = 0; i < rnw; i++) {
@@ -2118,7 +2113,7 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
         /* gen254: the interrogative form of the same intent — "WHAT ARE the
          * three primary colors?" is the counted pick phrased as a question. */
         cue(buf, "what are") || cue(buf, "which are")) {
-        if (cue(buf, "border") || cue(buf, "neighbour") || cue(buf, "neighbor"))
+        if (kb_cue_match(b, "20_math_chain2121", buf))
             return 0;
         static const struct { const char *w; int n; } nums[] = {
             {"two", 2}, {"three", 3}, {"four", 4}, {"five", 5}, {"six", 6},
@@ -2159,15 +2154,14 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
     /* gen240: a relational constraint ("name a country that BORDERS X") is beyond
      * a plain category pick — defer to the borders handler downstream rather than
      * returning an arbitrary member that ignores the constraint. */
-    if (cue(buf, "border") || cue(buf, "neighbour") || cue(buf, "neighbor")) return 0;
+    if (kb_cue_match(b, "20_math_chain2162", buf)) return 0;
 
     char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
     char *w[64]; size_t nw = split_words(tmp, w, 64);
 
     /* OPTIONAL initial-letter constraint: token after "letter", else after "with". */
     char init = 0;
-    if (cue(buf,"start with")||cue(buf,"starts with")||cue(buf,"starting with")||
-        cue(buf,"begin with")||cue(buf,"begins with")||cue(buf,"beginning with")) {
+    if (kb_cue_match(b, "20_math_chain2169", buf)) {
         size_t li = find_token(w, nw, "letter");
         if (li != nw && li + 1 < nw) init = w[li + 1][0];
         if (!init) {
@@ -2742,11 +2736,7 @@ static int mod_sequence(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     (void)raw; (void)b;
     const char *buf = norm;
-    if (!(cue(buf, "comes next") || cue(buf, "come next") ||
-          cue(buf, "next number") || cue(buf, "next term") ||
-          cue(buf, "next in the") || cue(buf, "continue the sequence") ||
-          cue(buf, "continue the pattern") || cue(buf, "continue this sequence") ||
-          cue(buf, "viene dopo") || cue(buf, "numero successivo")))
+    if (!(kb_cue_match(b, "20_math_chain2745", buf)))
         return 0;
 
     const char *seq_src = strchr(buf, ':');
@@ -2956,7 +2946,7 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
     /* gen246: sequential word transformation. The word is data from the prompt;
      * operations are structural ("remove first/last letter", "add letter X to
      * end/start"), so held-out words transfer. */
-    if ((cue(buf, "letters in") || cue(buf, "letters of")) &&
+    if ((kb_cue_match(b, "20_math_chain2959", buf)) &&
         cue(buf, "reverse") && cue(buf, "alphabet")) {
         char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
         char *w[64]; size_t nw = split_words(tmp, w, 64);
@@ -2986,7 +2976,7 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
     }
 
     if ((cue(buf, "take the word") || cue(buf, "the word") || cue(buf, "word \"")) &&
-        (cue(buf, "remove") || cue(buf, "drop")) &&
+        (kb_cue_match(b, "20_math_chain2989", buf)) &&
         cue(buf, "letter") && cue(buf, "add")) {
         char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
         char *w[64]; size_t nw = split_words(tmp, w, 64);
@@ -3015,21 +3005,16 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
         if (word[0]) {
             char res[160]; snprintf(res, sizeof res, "%s", word);
             size_t rl = strlen(res);
-            if ((cue(buf, "remove the first") || cue(buf, "drop the first") ||
-                 cue(buf, "remove first") || cue(buf, "drop first")) && rl > 0) {
+            if ((kb_cue_match(b, "20_math_chain3018", buf)) && rl > 0) {
                 memmove(res, res + 1, rl);
                 rl--;
             }
-            if ((cue(buf, "remove the last") || cue(buf, "drop the last") ||
-                 cue(buf, "remove last") || cue(buf, "drop last")) && rl > 0) {
+            if ((kb_cue_match(b, "20_math_chain3023", buf)) && rl > 0) {
                 res[--rl] = '\0';
             }
-            if (add[0] && (cue(buf, "to the end") || cue(buf, "at the end") ||
-                           cue(buf, "end"))) {
+            if (add[0] && (kb_cue_match(b, "20_math_chain3027", buf))) {
                 snprintf(res + strlen(res), sizeof res - strlen(res), "%s", add);
-            } else if (add[0] && (cue(buf, "to the start") ||
-                                  cue(buf, "to the beginning") ||
-                                  cue(buf, "beginning") || cue(buf, "start"))) {
+            } else if (add[0] && (kb_cue_match(b, "20_math_chain3030", buf))) {
                 char tmp2[160]; snprintf(tmp2, sizeof tmp2, "%s%s", add, res);
                 snprintf(res, sizeof res, "%s", tmp2);
             }
@@ -3046,8 +3031,7 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
     /* gen240: don't misfire on an anagram/rearrange task that merely mentions
      * "spell" in an example ("rearrange Listen to spell Silent — now do X"). That
      * is not a spelling request; spelling a stray word there is nonsense. */
-    if (cue(buf, "rearrange") || cue(buf, "anagram") || cue(buf, "unscramble") ||
-        cue(buf, "scrambled") || cue(buf, "form a word") || cue(buf, "real word"))
+    if (kb_cue_match(b, "20_math_chain3049", buf))
         return 0;
 
     char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);

@@ -2530,3 +2530,869 @@ format_constraint(markdown_numbered, "numbered markdown").
 % gen382e: una checklist stile GitHub, insegnata con DUE fatti e zero C — e' la
 % prova che il layout e' davvero conoscenza e non un realizzatore in piu'.
 format_constraint(checklist, "checklist").
+
+% ── IL VOCABOLARIO CHE ERA NEL MOTORE (gen442) ─────────────────────────────
+%
+% Mantra #2: niente liste di parole nel C. Queste erano catene
+% `cue(x, "a") || cue(x, "b") || …` dentro i moduli — 855 letterali in 242
+% catene — cioe' vocabolario invisibile a qualunque query e non insegnabile.
+% Ora ogni catena e' una famiglia `intent_cue/2`: un membro nuovo e' un fatto,
+% e la maniglia generica lo rende insegnabile parlando.
+%
+% I nomi seguono la convenzione del gen271: <file>_chain<riga d'origine>.
+
+intent_cue(10_memory_knowledge_chain117, "conjunction").
+intent_cue(10_memory_knowledge_chain117, "congiunzione").
+intent_cue(10_memory_knowledge_chain118, "use ").
+intent_cue(10_memory_knowledge_chain118, "usa ").
+intent_cue(10_memory_knowledge_chain118, "treat ").
+intent_cue(10_memory_knowledge_chain118, "tratta ").
+intent_cue(10_memory_knowledge_chain516, "not too technical").
+intent_cue(10_memory_knowledge_chain516, "avoid technical").
+intent_cue(10_memory_knowledge_chain516, "non essere tecnico").
+intent_cue(10_memory_knowledge_chain516, "non troppo tecnico").
+intent_cue(10_memory_knowledge_chain524, "what do i like").
+intent_cue(10_memory_knowledge_chain524, "what do i prefer").
+intent_cue(10_memory_knowledge_chain524, "cosa mi piace").
+intent_cue(10_memory_knowledge_chain524, "cosa preferisco").
+intent_cue(10_memory_knowledge_chain537, "what mood").
+intent_cue(10_memory_knowledge_chain537, "how do i feel").
+intent_cue(10_memory_knowledge_chain537, "come mi sento").
+intent_cue(10_memory_knowledge_chain537, "che umore").
+intent_cue(10_memory_knowledge_chain552, "what topic").
+intent_cue(10_memory_knowledge_chain552, "which topic").
+intent_cue(10_memory_knowledge_chain552, "what are we talking about").
+intent_cue(10_memory_knowledge_chain552, "di cosa parliamo").
+intent_cue(10_memory_knowledge_chain552, "di cosa stiamo parlando").
+intent_cue(10_memory_knowledge_chain565, "what constraint").
+intent_cue(10_memory_knowledge_chain565, "what did i ask you to keep in mind").
+intent_cue(10_memory_knowledge_chain565, "what should you remember for this chat").
+intent_cue(10_memory_knowledge_chain565, "che vincolo").
+intent_cue(10_memory_knowledge_chain577, "what do you remember about me").
+intent_cue(10_memory_knowledge_chain577, "what do you know about me").
+intent_cue(10_memory_knowledge_chain577, "cosa ricordi di me").
+intent_cue(10_memory_knowledge_chain577, "cosa sai di me").
+intent_cue(10_memory_knowledge_chain8506, "word").
+intent_cue(10_memory_knowledge_chain8506, "comes").
+intent_cue(10_memory_knowledge_chain8536, "sound").
+intent_cue(10_memory_knowledge_chain8536, "noise").
+intent_cue(10_memory_knowledge_chain8536, "say").
+intent_cue(10_memory_knowledge_chain8536, "says").
+intent_cue(10_memory_knowledge_chain8537, "make").
+intent_cue(10_memory_knowledge_chain8537, "makes").
+intent_cue(10_memory_knowledge_chain8537, "does").
+intent_cue(10_memory_knowledge_chain8537, "do").
+intent_cue(10_memory_knowledge_chain8561, "animal").
+intent_cue(10_memory_knowledge_chain8561, "known for saying").
+intent_cue(10_memory_knowledge_chain8561, "known for making").
+intent_cue(10_memory_knowledge_chain8952, "larger").
+intent_cue(10_memory_knowledge_chain8952, "bigger").
+intent_cue(10_memory_knowledge_chain8952, "smaller").
+intent_cue(10_memory_knowledge_chain8952, "biggest").
+intent_cue(10_memory_knowledge_chain8952, "largest").
+intent_cue(10_memory_knowledge_chain8952, "smallest").
+intent_cue(10_memory_knowledge_chain8952, "closer").
+intent_cue(10_memory_knowledge_chain8952, "nearer").
+intent_cue(10_memory_knowledge_chain8952, "closest").
+intent_cue(10_memory_knowledge_chain8952, "farther").
+intent_cue(10_memory_knowledge_chain8952, "further").
+intent_cue(10_memory_knowledge_chain8952, "farthest").
+intent_cue(10_memory_knowledge_chain8952, "heavier").
+intent_cue(10_memory_knowledge_chain8952, "tinier").
+intent_cue(10_memory_knowledge_chain8958, "larger").
+intent_cue(10_memory_knowledge_chain8958, "bigger").
+intent_cue(10_memory_knowledge_chain8958, "largest").
+intent_cue(10_memory_knowledge_chain8958, "biggest").
+intent_cue(10_memory_knowledge_chain8958, "heavier").
+intent_cue(10_memory_knowledge_chain8960, "smaller").
+intent_cue(10_memory_knowledge_chain8960, "smallest").
+intent_cue(10_memory_knowledge_chain8960, "tinier").
+intent_cue(10_memory_knowledge_chain8961, "closer").
+intent_cue(10_memory_knowledge_chain8961, "nearer").
+intent_cue(10_memory_knowledge_chain8961, "closest").
+intent_cue(10_memory_knowledge_chain8962, "farther").
+intent_cue(10_memory_knowledge_chain8962, "further").
+intent_cue(10_memory_knowledge_chain8962, "farthest").
+intent_cue(10_memory_knowledge_chain9000, "pass").
+intent_cue(10_memory_knowledge_chain9000, "overtake").
+intent_cue(10_memory_knowledge_chain9000, "overtook").
+intent_cue(10_memory_knowledge_chain9000, "passed").
+intent_cue(10_memory_knowledge_chain9002, "place").
+intent_cue(10_memory_knowledge_chain9002, "position").
+intent_cue(10_memory_knowledge_chain9003, "what position").
+intent_cue(10_memory_knowledge_chain9003, "which position").
+intent_cue(10_memory_knowledge_chain9003, "what place").
+intent_cue(10_memory_knowledge_chain9003, "which place").
+intent_cue(10_memory_knowledge_chain9003, "now in").
+intent_cue(10_memory_knowledge_chain9113, "every").
+intent_cue(10_memory_knowledge_chain9113, "all").
+intent_cue(10_memory_knowledge_chain9170, "conclude").
+intent_cue(10_memory_knowledge_chain9170, "does it follow").
+intent_cue(10_memory_knowledge_chain9170, "can we say").
+intent_cue(10_memory_knowledge_chain9396, "conclude").
+intent_cue(10_memory_knowledge_chain9396, "what can you conclude").
+intent_cue(10_memory_knowledge_chain9441, "can").
+intent_cue(10_memory_knowledge_chain9441, "could").
+intent_cue(10_memory_knowledge_chain9442, "also be").
+intent_cue(10_memory_knowledge_chain9442, " be ").
+intent_cue(10_memory_knowledge_chain9607, "are there").
+intent_cue(10_memory_knowledge_chain9607, "in the world").
+intent_cue(10_memory_knowledge_chain9607, "in total").
+intent_cue(10_memory_knowledge_chain9607, "exist").
+intent_cue(10_memory_knowledge_chain9724, "taste").
+intent_cue(10_memory_knowledge_chain9724, "tasted").
+intent_cue(10_memory_knowledge_chain9746, "describe").
+intent_cue(10_memory_knowledge_chain9746, "look like").
+intent_cue(10_memory_knowledge_chain9746, "looks like").
+intent_cue(10_memory_knowledge_chain9746, "what does").
+intent_cue(10_memory_knowledge_chain9746, "what do").
+intent_cue(10_memory_knowledge_chain9780, "mix").
+intent_cue(10_memory_knowledge_chain9780, "what color").
+intent_cue(10_memory_knowledge_chain9780, "what colour").
+intent_cue(10_memory_knowledge_chain9780, "get").
+intent_cue(10_memory_knowledge_chain9782, "paint").
+intent_cue(10_memory_knowledge_chain9782, "mix").
+intent_cue(10_memory_knowledge_chain9821, "what am i").
+intent_cue(10_memory_knowledge_chain9919, "what am i").
+intent_cue(10_memory_knowledge_chain9919, "what has").
+intent_cue(10_memory_knowledge_chain10070, "border").
+intent_cue(10_memory_knowledge_chain10070, "bordering").
+intent_cue(10_memory_knowledge_chain10070, "borders").
+intent_cue(10_memory_knowledge_chain10070, "neighbor").
+intent_cue(10_memory_knowledge_chain10070, "neighbour").
+intent_cue(10_memory_knowledge_chain10109, "three").
+intent_cue(10_memory_knowledge_chain10110, "two").
+intent_cue(10_memory_knowledge_chain10111, "four").
+intent_cue(10_memory_knowledge_chain10112, "five").
+intent_cue(10_memory_knowledge_chain10113, "name a ").
+intent_cue(10_memory_knowledge_chain10113, "one country").
+intent_cue(10_memory_knowledge_chain10113, "a country").
+intent_cue(10_memory_knowledge_chain10189, "ocean").
+intent_cue(10_memory_knowledge_chain10858, "opposite of").
+intent_cue(10_memory_knowledge_chain10887, "what word").
+intent_cue(10_memory_knowledge_chain10887, "which word").
+intent_cue(10_memory_knowledge_chain10887, "word for").
+intent_cue(10_memory_knowledge_chain10887, "what do you call").
+intent_cue(10_memory_knowledge_chain10887, "one word for").
+intent_cue(10_memory_knowledge_chain10887, "a word that").
+intent_cue(10_memory_knowledge_chain10949, "describe").
+intent_cue(10_memory_knowledge_chain10949, "what happens").
+intent_cue(10_memory_knowledge_chain10970, "same as").
+intent_cue(10_memory_knowledge_chain10970, "synonym").
+intent_cue(10_memory_knowledge_chain10970, "another word").
+intent_cue(10_memory_knowledge_chain11096, "river").
+intent_cue(10_memory_knowledge_chain11096, "flows through").
+intent_cue(10_memory_knowledge_chain11105, "ocean").
+intent_cue(10_memory_knowledge_chain11105, "sea").
+intent_cue(10_memory_knowledge_chain11164, "landmark").
+intent_cue(10_memory_knowledge_chain11181, "river").
+intent_cue(10_memory_knowledge_chain11193, "year").
+intent_cue(10_memory_knowledge_chain11193, "when").
+intent_cue(10_memory_knowledge_chain11203, "replace").
+intent_cue(10_memory_knowledge_chain11232, "what city").
+intent_cue(10_memory_knowledge_chain11232, "which city").
+intent_cue(10_memory_knowledge_chain11232, "where is").
+intent_cue(10_memory_knowledge_chain11232, "what country").
+intent_cue(10_memory_knowledge_chain11234, "located").
+intent_cue(10_memory_knowledge_chain11234, "city").
+intent_cue(10_memory_knowledge_chain11234, "where").
+intent_cue(10_memory_knowledge_chain11234, "found").
+intent_cue(10_memory_knowledge_chain11258, "planet").
+intent_cue(10_memory_knowledge_chain11258, "solar system").
+intent_cue(10_memory_knowledge_chain11319, "describe").
+intent_cue(10_memory_knowledge_chain11319, "tell").
+intent_cue(10_memory_knowledge_chain11319, "one of").
+intent_cue(10_memory_knowledge_chain11319, "its moon").
+intent_cue(10_memory_knowledge_chain11319, "a moon").
+intent_cue(10_memory_knowledge_chain11393, "mean").
+intent_cue(10_memory_knowledge_chain11393, "means").
+intent_cue(10_memory_knowledge_chain11393, "idiom").
+intent_cue(10_memory_knowledge_chain11393, "expression").
+intent_cue(10_memory_knowledge_chain11393, "phrase").
+intent_cue(10_memory_knowledge_chain11393, "intent").
+intent_cue(10_memory_knowledge_chain11393, "say").
+intent_cue(10_memory_knowledge_chain11393, "saying").
+intent_cue(10_memory_knowledge_chain11393, "those words").
+intent_cue(10_memory_knowledge_chain11393, "the words").
+intent_cue(10_memory_knowledge_chain11393, "tell").
+intent_cue(10_memory_knowledge_chain11393, "want").
+intent_cue(10_memory_knowledge_chain11393, "imply").
+intent_cue(10_memory_knowledge_chain11393, "implies").
+intent_cue(10_memory_knowledge_chain11427, "who was").
+intent_cue(10_memory_knowledge_chain11427, "who is").
+intent_cue(10_memory_knowledge_chain11427, "who were").
+intent_cue(10_memory_knowledge_chain11449, "boil").
+intent_cue(10_memory_knowledge_chain11449, "boiling").
+intent_cue(10_memory_knowledge_chain11465, "world war").
+intent_cue(10_memory_knowledge_chain11465, "ww2").
+intent_cue(10_memory_knowledge_chain11465, "wwii").
+intent_cue(10_memory_knowledge_chain11465, "world war ii").
+intent_cue(10_memory_knowledge_chain11465, "second world war").
+intent_cue(10_memory_knowledge_chain11467, "end").
+intent_cue(10_memory_knowledge_chain11467, "ended").
+intent_cue(10_memory_knowledge_chain11467, "over").
+intent_cue(10_memory_knowledge_chain11467, "surrender").
+intent_cue(10_memory_knowledge_chain11467, "finish").
+intent_cue(10_memory_knowledge_chain11485, "people").
+intent_cue(10_memory_knowledge_chain11485, "population").
+intent_cue(10_memory_knowledge_chain11485, "populous").
+intent_cue(10_memory_knowledge_chain11485, "populated").
+intent_cue(10_memory_knowledge_chain11487, "most").
+intent_cue(10_memory_knowledge_chain11487, "fewest").
+intent_cue(10_memory_knowledge_chain11487, "least").
+intent_cue(10_memory_knowledge_chain11487, "largest").
+intent_cue(10_memory_knowledge_chain11487, "smallest").
+intent_cue(10_memory_knowledge_chain11487, "highest").
+intent_cue(10_memory_knowledge_chain11487, "biggest").
+intent_cue(10_memory_knowledge_chain11487, "which country").
+intent_cue(10_memory_knowledge_chain11487, "what country").
+intent_cue(10_memory_knowledge_chain11490, "fewest").
+intent_cue(10_memory_knowledge_chain11490, "least").
+intent_cue(10_memory_knowledge_chain11490, "smallest").
+intent_cue(10_memory_knowledge_chain11490, "lowest").
+intent_cue(10_memory_knowledge_chain11554, "river").
+intent_cue(10_memory_knowledge_chain11562, "replace").
+intent_cue(10_memory_knowledge_chain11613, "place where").
+intent_cue(10_memory_knowledge_chain11613, "place to see").
+intent_cue(10_memory_knowledge_chain11613, "place you").
+intent_cue(10_memory_knowledge_chain11613, "place for").
+intent_cue(10_memory_knowledge_chain11613, "where you might see").
+intent_cue(10_memory_knowledge_chain11613, "where you can see").
+intent_cue(10_memory_knowledge_chain11613, "where you keep").
+intent_cue(10_memory_knowledge_chain11640, "days of the week").
+intent_cue(10_memory_knowledge_chain11640, "seven days").
+intent_cue(10_memory_knowledge_chain11640, "weekdays").
+intent_cue(10_memory_knowledge_chain11641, "alphabet").
+intent_cue(10_memory_knowledge_chain11641, "alphabetical").
+intent_cue(10_memory_knowledge_chain11641, "abc order").
+intent_cue(10_memory_knowledge_chain11743, "limerick").
+intent_cue(10_memory_knowledge_chain11772, "what would you do").
+intent_cue(10_memory_knowledge_chain11772, "how would you handle").
+intent_cue(10_memory_knowledge_chain11772, "how would you respond").
+intent_cue(10_memory_knowledge_chain11772, "how do you handle").
+intent_cue(10_memory_knowledge_chain11772, "what should i do").
+intent_cue(10_memory_knowledge_chain11775, "manager").
+intent_cue(10_memory_knowledge_chain11775, "as a").
+intent_cue(10_memory_knowledge_chain11775, "customer").
+intent_cue(10_memory_knowledge_chain11775, "refund").
+intent_cue(10_memory_knowledge_chain11775, "complaint").
+intent_cue(10_memory_knowledge_chain11775, "return").
+intent_cue(10_memory_knowledge_chain11778, "refund").
+intent_cue(10_memory_knowledge_chain11778, "return").
+intent_cue(10_memory_knowledge_chain11778, "receipt").
+intent_cue(10_memory_knowledge_chain11779, "complaint").
+intent_cue(10_memory_knowledge_chain11779, "complain").
+intent_cue(10_memory_knowledge_chain11779, "angry").
+intent_cue(10_memory_knowledge_chain11779, "upset").
+intent_cue(20_math_chain1282, "explain").
+intent_cue(20_math_chain1282, "why").
+intent_cue(20_math_chain1417, "half").
+intent_cue(20_math_chain1417, "metà").
+intent_cue(20_math_chain1417, "meta").
+intent_cue(20_math_chain1421, "double").
+intent_cue(20_math_chain1421, "twice").
+intent_cue(20_math_chain1421, "doppio").
+intent_cue(20_math_chain1421, "triple").
+intent_cue(20_math_chain1421, "thrice").
+intent_cue(20_math_chain1421, "triplo").
+intent_cue(20_math_chain1423, "triple").
+intent_cue(20_math_chain1423, "thrice").
+intent_cue(20_math_chain1423, "triplo").
+intent_cue(20_math_chain1429, "sum of").
+intent_cue(20_math_chain1429, "average of").
+intent_cue(20_math_chain1429, "mean of").
+intent_cue(20_math_chain1429, "somma di").
+intent_cue(20_math_chain1429, "media di").
+intent_cue(20_math_chain1453, "from").
+intent_cue(20_math_chain1453, " da ").
+intent_cue(20_math_chain1903, "what comes next").
+intent_cue(20_math_chain1903, "comes next").
+intent_cue(20_math_chain1903, "next number").
+intent_cue(20_math_chain1903, "next term").
+intent_cue(20_math_chain1965, "skip").
+intent_cue(20_math_chain1965, "except").
+intent_cue(20_math_chain1965, "but not").
+intent_cue(20_math_chain1965, "leave out").
+intent_cue(20_math_chain1965, "omit").
+intent_cue(20_math_chain1972, "ends in").
+intent_cue(20_math_chain1972, "ending in").
+intent_cue(20_math_chain1972, "end in").
+intent_cue(20_math_chain1972, "ends with").
+intent_cue(20_math_chain1972, "ending with").
+intent_cue(20_math_chain1978, "multiple of").
+intent_cue(20_math_chain1978, "multiples of").
+intent_cue(20_math_chain1990, "instead of").
+intent_cue(20_math_chain1990, "replace").
+intent_cue(20_math_chain2121, "border").
+intent_cue(20_math_chain2121, "neighbour").
+intent_cue(20_math_chain2121, "neighbor").
+intent_cue(20_math_chain2162, "border").
+intent_cue(20_math_chain2162, "neighbour").
+intent_cue(20_math_chain2162, "neighbor").
+intent_cue(20_math_chain2169, "start with").
+intent_cue(20_math_chain2169, "starts with").
+intent_cue(20_math_chain2169, "starting with").
+intent_cue(20_math_chain2169, "begin with").
+intent_cue(20_math_chain2169, "begins with").
+intent_cue(20_math_chain2169, "beginning with").
+intent_cue(20_math_chain2745, "comes next").
+intent_cue(20_math_chain2745, "come next").
+intent_cue(20_math_chain2745, "next number").
+intent_cue(20_math_chain2745, "next term").
+intent_cue(20_math_chain2745, "next in the").
+intent_cue(20_math_chain2745, "continue the sequence").
+intent_cue(20_math_chain2745, "continue the pattern").
+intent_cue(20_math_chain2745, "continue this sequence").
+intent_cue(20_math_chain2745, "viene dopo").
+intent_cue(20_math_chain2745, "numero successivo").
+intent_cue(20_math_chain2959, "letters in").
+intent_cue(20_math_chain2959, "letters of").
+intent_cue(20_math_chain2989, "remove").
+intent_cue(20_math_chain2989, "drop").
+intent_cue(20_math_chain3018, "remove the first").
+intent_cue(20_math_chain3018, "drop the first").
+intent_cue(20_math_chain3018, "remove first").
+intent_cue(20_math_chain3018, "drop first").
+intent_cue(20_math_chain3023, "remove the last").
+intent_cue(20_math_chain3023, "drop the last").
+intent_cue(20_math_chain3023, "remove last").
+intent_cue(20_math_chain3023, "drop last").
+intent_cue(20_math_chain3027, "to the end").
+intent_cue(20_math_chain3027, "at the end").
+intent_cue(20_math_chain3027, "end").
+intent_cue(20_math_chain3030, "to the start").
+intent_cue(20_math_chain3030, "to the beginning").
+intent_cue(20_math_chain3030, "beginning").
+intent_cue(20_math_chain3030, "start").
+intent_cue(20_math_chain3049, "rearrange").
+intent_cue(20_math_chain3049, "anagram").
+intent_cue(20_math_chain3049, "unscramble").
+intent_cue(20_math_chain3049, "scrambled").
+intent_cue(20_math_chain3049, "form a word").
+intent_cue(20_math_chain3049, "real word").
+intent_cue(25_wordmath_reasoning_chain921, "step by step").
+intent_cue(25_wordmath_reasoning_chain921, "describe how to").
+intent_cue(25_wordmath_reasoning_chain921, "describe the process").
+intent_cue(25_wordmath_reasoning_chain921, "process of making").
+intent_cue(25_wordmath_reasoning_chain925, "recipe").
+intent_cue(25_wordmath_reasoning_chain925, "calls for").
+intent_cue(25_wordmath_reasoning_chain1054, "recipe").
+intent_cue(25_wordmath_reasoning_chain1054, "calls for").
+intent_cue(25_wordmath_reasoning_chain1054, "ingredients").
+intent_cue(25_wordmath_reasoning_chain1101, "boil").
+intent_cue(25_wordmath_reasoning_chain1101, "boiling").
+intent_cue(25_wordmath_reasoning_chain1102, "same time").
+intent_cue(25_wordmath_reasoning_chain1102, "same pot").
+intent_cue(25_wordmath_reasoning_chain1102, "at once").
+intent_cue(25_wordmath_reasoning_chain1130, "how long").
+intent_cue(25_wordmath_reasoning_chain1155, "speed").
+intent_cue(25_wordmath_reasoning_chain1155, "how fast").
+intent_cue(25_wordmath_reasoning_chain1179, "percent off").
+intent_cue(25_wordmath_reasoning_chain1179, "% off").
+intent_cue(25_wordmath_reasoning_chain1179, "off").
+intent_cue(25_wordmath_reasoning_chain1180, "price").
+intent_cue(25_wordmath_reasoning_chain1180, "cost").
+intent_cue(25_wordmath_reasoning_chain1180, "pay").
+intent_cue(25_wordmath_reasoning_chain1180, "final").
+intent_cue(25_wordmath_reasoning_chain1203, "how much faster").
+intent_cue(25_wordmath_reasoning_chain1203, "how much slower").
+intent_cue(25_wordmath_reasoning_chain1203, "faster is the second").
+intent_cue(25_wordmath_reasoning_chain1203, "slower is the second").
+intent_cue(25_wordmath_reasoning_chain1226, "you take").
+intent_cue(25_wordmath_reasoning_chain1226, "you took").
+intent_cue(25_wordmath_reasoning_chain1227, "how many do you have").
+intent_cue(25_wordmath_reasoning_chain1227, "how many have you got").
+intent_cue(25_wordmath_reasoning_chain1248, "remove").
+intent_cue(25_wordmath_reasoning_chain1248, "take out").
+intent_cue(25_wordmath_reasoning_chain1252, "remove the tennis ball").
+intent_cue(25_wordmath_reasoning_chain1252, "take out the tennis ball").
+intent_cue(25_wordmath_reasoning_chain1254, "left").
+intent_cue(25_wordmath_reasoning_chain1254, "what do you have").
+intent_cue(25_wordmath_reasoning_chain1254, "what is in").
+intent_cue(25_wordmath_reasoning_chain1254, "in the bag").
+intent_cue(25_wordmath_reasoning_chain1266, "mile").
+intent_cue(25_wordmath_reasoning_chain1266, "km").
+intent_cue(25_wordmath_reasoning_chain1266, "kilometer").
+intent_cue(25_wordmath_reasoning_chain1266, "kilometre").
+intent_cue(25_wordmath_reasoning_chain1267, "hour").
+intent_cue(25_wordmath_reasoning_chain1267, "minute").
+intent_cue(25_wordmath_reasoning_chain1306, "mph").
+intent_cue(25_wordmath_reasoning_chain1306, "km/h").
+intent_cue(25_wordmath_reasoning_chain1387, "round-trip").
+intent_cue(25_wordmath_reasoning_chain1387, "round trip").
+intent_cue(25_wordmath_reasoning_chain1405, "when they meet").
+intent_cue(25_wordmath_reasoning_chain1405, "meet").
+intent_cue(25_wordmath_reasoning_chain1406, "train").
+intent_cue(25_wordmath_reasoning_chain1406, "car").
+intent_cue(25_wordmath_reasoning_chain1406, "they").
+intent_cue(25_wordmath_reasoning_chain1414, "mph").
+intent_cue(25_wordmath_reasoning_chain1414, "km/h").
+intent_cue(25_wordmath_reasoning_chain1477, "first").
+intent_cue(25_wordmath_reasoning_chain1477, "by how much").
+intent_cue(25_wordmath_reasoning_chain1554, "toward").
+intent_cue(25_wordmath_reasoning_chain1554, "towards").
+intent_cue(25_wordmath_reasoning_chain1554, "each other").
+intent_cue(25_wordmath_reasoning_chain1554, "between").
+intent_cue(25_wordmath_reasoning_chain1620, "meet").
+intent_cue(25_wordmath_reasoning_chain1620, "what time").
+intent_cue(25_wordmath_reasoning_chain1620, "when will").
+intent_cue(25_wordmath_reasoning_chain1620, "when do").
+intent_cue(25_wordmath_reasoning_chain1620, "pass each other").
+intent_cue(25_wordmath_reasoning_chain1622, "mph").
+intent_cue(25_wordmath_reasoning_chain1622, "km/h").
+intent_cue(25_wordmath_reasoning_chain1623, "toward").
+intent_cue(25_wordmath_reasoning_chain1623, "towards").
+intent_cue(25_wordmath_reasoning_chain1623, "each other").
+intent_cue(25_wordmath_reasoning_chain1623, "apart").
+intent_cue(25_wordmath_reasoning_chain1623, "away").
+intent_cue(25_wordmath_reasoning_chain1623, "between").
+intent_cue(25_wordmath_reasoning_chain1644, "how long").
+intent_cue(25_wordmath_reasoning_chain1644, "how many hours").
+intent_cue(25_wordmath_reasoning_chain1644, "how much time").
+intent_cue(25_wordmath_reasoning_chain1644, "after how long").
+intent_cue(25_wordmath_reasoning_chain1679, "before").
+intent_cue(25_wordmath_reasoning_chain1705, "mph").
+intent_cue(25_wordmath_reasoning_chain1705, "km/h").
+intent_cue(25_wordmath_reasoning_chain1758, "another train").
+intent_cue(25_wordmath_reasoning_chain1758, "other train").
+intent_cue(25_wordmath_reasoning_chain1759, "how far apart").
+intent_cue(25_wordmath_reasoning_chain1759, "how far apart are they").
+intent_cue(25_wordmath_reasoning_chain1796, "double").
+intent_cue(25_wordmath_reasoning_chain1796, "triple").
+intent_cue(25_wordmath_reasoning_chain1796, "halve").
+intent_cue(25_wordmath_reasoning_chain1796, "half").
+intent_cue(25_wordmath_reasoning_chain1797, "get").
+intent_cue(25_wordmath_reasoning_chain1797, "gives").
+intent_cue(25_wordmath_reasoning_chain1797, "equals").
+intent_cue(25_wordmath_reasoning_chain1797, "result").
+intent_cue(25_wordmath_reasoning_chain1797, "you get").
+intent_cue(25_wordmath_reasoning_chain1797, "i get").
+intent_cue(25_wordmath_reasoning_chain1799, "number").
+intent_cue(25_wordmath_reasoning_chain1799, "thinking of").
+intent_cue(25_wordmath_reasoning_chain1827, "circle").
+intent_cue(25_wordmath_reasoning_chain1827, "circular").
+intent_cue(25_wordmath_reasoning_chain1828, "radius").
+intent_cue(25_wordmath_reasoning_chain1828, "diameter").
+intent_cue(25_wordmath_reasoning_chain1851, "circumference").
+intent_cue(25_wordmath_reasoning_chain1881, "could").
+intent_cue(25_wordmath_reasoning_chain1881, "what is it").
+intent_cue(25_wordmath_reasoning_chain1882, "than").
+intent_cue(25_wordmath_reasoning_chain1882, "between").
+intent_cue(25_wordmath_reasoning_chain1882, "at least").
+intent_cue(25_wordmath_reasoning_chain1882, "at most").
+intent_cue(25_wordmath_reasoning_chain1998, "day").
+intent_cue(25_wordmath_reasoning_chain1998, "giorno").
+intent_cue(25_wordmath_reasoning_chain1999, "after").
+intent_cue(25_wordmath_reasoning_chain1999, "before").
+intent_cue(25_wordmath_reasoning_chain1999, "from").
+intent_cue(25_wordmath_reasoning_chain2040, "pair").
+intent_cue(25_wordmath_reasoning_chain2040, "matching").
+intent_cue(25_wordmath_reasoning_chain2040, "same color").
+intent_cue(25_wordmath_reasoning_chain2040, "same colour").
+intent_cue(25_wordmath_reasoning_chain2070, "area").
+intent_cue(25_wordmath_reasoning_chain2070, "perimeter").
+intent_cue(25_wordmath_reasoning_chain2268, "area").
+intent_cue(25_wordmath_reasoning_chain2268, "side").
+intent_cue(25_wordmath_reasoning_chain2328, "how many").
+intent_cue(25_wordmath_reasoning_chain2328, "quant").
+intent_cue(25_wordmath_reasoning_chain2395, "years").
+intent_cue(25_wordmath_reasoning_chain2395, "year").
+intent_cue(25_wordmath_reasoning_chain2396, "old are").
+intent_cue(25_wordmath_reasoning_chain2396, "old is").
+intent_cue(25_wordmath_reasoning_chain2396, "their ages").
+intent_cue(25_wordmath_reasoning_chain2396, "how old").
+intent_cue(25_wordmath_reasoning_chain2472, "how many").
+intent_cue(25_wordmath_reasoning_chain2472, "how much").
+intent_cue(25_wordmath_reasoning_chain2472, "quant").
+intent_cue(25_wordmath_reasoning_chain2472, "number of").
+intent_cue(25_wordmath_reasoning_chain2472, "arrangement").
+intent_cue(25_wordmath_reasoning_chain2482, "maximum").
+intent_cue(25_wordmath_reasoning_chain2482, "minimum").
+intent_cue(25_wordmath_reasoning_chain2482, "at most").
+intent_cue(25_wordmath_reasoning_chain2482, "arrange").
+intent_cue(25_wordmath_reasoning_chain2482, "arranged").
+intent_cue(25_wordmath_reasoning_chain2484, "so that").
+intent_cue(25_wordmath_reasoning_chain2484, "such that").
+intent_cue(25_wordmath_reasoning_chain2484, "assuming").
+intent_cue(25_wordmath_reasoning_chain2484, "shares").
+intent_cue(25_wordmath_reasoning_chain2484, "share ").
+intent_cue(25_wordmath_reasoning_chain2497, "each").
+intent_cue(25_wordmath_reasoning_chain2497, "every").
+intent_cue(25_wordmath_reasoning_chain2498, "holds").
+intent_cue(25_wordmath_reasoning_chain2498, "hold").
+intent_cue(25_wordmath_reasoning_chain2498, "has").
+intent_cue(25_wordmath_reasoning_chain2498, "have").
+intent_cue(25_wordmath_reasoning_chain2498, "contains").
+intent_cue(25_wordmath_reasoning_chain2498, "contain").
+intent_cue(25_wordmath_reasoning_chain2498, "with").
+intent_cue(25_wordmath_reasoning_chain2563, "cost").
+intent_cue(25_wordmath_reasoning_chain2563, "costs").
+intent_cue(25_wordmath_reasoning_chain2563, "price").
+intent_cue(25_wordmath_reasoning_chain2564, "have").
+intent_cue(25_wordmath_reasoning_chain2564, "bill").
+intent_cue(25_wordmath_reasoning_chain2565, "$").
+intent_cue(25_wordmath_reasoning_chain2565, "dollar").
+intent_cue(25_wordmath_reasoning_chain2565, "cent").
+intent_cue(25_wordmath_reasoning_chain2565, "euro").
+intent_cue(25_wordmath_reasoning_chain2606, "change").
+intent_cue(25_wordmath_reasoning_chain2606, "left").
+intent_cue(25_wordmath_reasoning_chain2606, "remain").
+intent_cue(25_wordmath_reasoning_chain2606, "back").
+intent_cue(25_wordmath_reasoning_chain2622, "total").
+intent_cue(25_wordmath_reasoning_chain2622, "cost").
+intent_cue(25_wordmath_reasoning_chain2622, "altogether").
+intent_cue(25_wordmath_reasoning_chain2704, "$").
+intent_cue(25_wordmath_reasoning_chain2704, "dollar").
+intent_cue(25_wordmath_reasoning_chain2704, "cost").
+intent_cue(25_wordmath_reasoning_chain2704, "cent").
+intent_cue(25_wordmath_reasoning_chain2704, "price").
+intent_cue(25_wordmath_reasoning_chain2740, "$").
+intent_cue(25_wordmath_reasoning_chain2740, "dollar").
+intent_cue(25_wordmath_reasoning_chain2740, "cent").
+intent_cue(25_wordmath_reasoning_chain2783, "legs").
+intent_cue(25_wordmath_reasoning_chain2828, "round table").
+intent_cue(25_wordmath_reasoning_chain2828, "circular").
+intent_cue(25_wordmath_reasoning_chain2828, "around a table").
+intent_cue(25_wordmath_reasoning_chain2835, "including yourself").
+intent_cue(25_wordmath_reasoning_chain2835, "including myself").
+intent_cue(25_wordmath_reasoning_chain2835, "and yourself").
+intent_cue(25_wordmath_reasoning_chain2835, "plus yourself").
+intent_cue(25_wordmath_reasoning_chain2841, "rotation").
+intent_cue(25_wordmath_reasoning_chain2990, "trade").
+intent_cue(25_wordmath_reasoning_chain2990, "trades").
+intent_cue(25_wordmath_reasoning_chain2990, "trading").
+intent_cue(25_wordmath_reasoning_chain2990, "exchange").
+intent_cue(25_wordmath_reasoning_chain2990, "exchanges").
+intent_cue(25_wordmath_reasoning_chain2990, "swap").
+intent_cue(25_wordmath_reasoning_chain2990, "swaps").
+intent_cue(25_wordmath_reasoning_chain3038, "cut").
+intent_cue(25_wordmath_reasoning_chain3038, "cuts").
+intent_cue(25_wordmath_reasoning_chain3038, "slice").
+intent_cue(25_wordmath_reasoning_chain3038, "sliced").
+intent_cue(25_wordmath_reasoning_chain3039, "piece").
+intent_cue(25_wordmath_reasoning_chain3039, "pieces").
+intent_cue(25_wordmath_reasoning_chain3094, "give half").
+intent_cue(25_wordmath_reasoning_chain3094, "gave half").
+intent_cue(25_wordmath_reasoning_chain3094, "gives half").
+intent_cue(25_wordmath_reasoning_chain3120, "shared").
+intent_cue(25_wordmath_reasoning_chain3120, "share").
+intent_cue(25_wordmath_reasoning_chain3120, "divided").
+intent_cue(25_wordmath_reasoning_chain3120, "divide").
+intent_cue(25_wordmath_reasoning_chain3120, "split").
+intent_cue(25_wordmath_reasoning_chain3120, "among").
+intent_cue(25_wordmath_reasoning_chain3120, "equally").
+intent_cue(25_wordmath_reasoning_chain3120, "divis").
+intent_cue(25_wordmath_reasoning_chain3120, "condivi").
+intent_cue(25_wordmath_reasoning_chain3120, "ripartit").
+intent_cue(25_wordmath_reasoning_chain3125, "how many more").
+intent_cue(25_wordmath_reasoning_chain3125, "how much more").
+intent_cue(25_wordmath_reasoning_chain3125, "how many fewer").
+intent_cue(25_wordmath_reasoning_chain3125, "how many less").
+intent_cue(25_wordmath_reasoning_chain3125, "more than").
+intent_cue(25_wordmath_reasoning_chain3125, "fewer than").
+intent_cue(25_wordmath_reasoning_chain3125, "difference").
+intent_cue(25_wordmath_reasoning_chain3125, "quanti in più").
+intent_cue(25_wordmath_reasoning_chain3125, "differenza").
+intent_cue(25_wordmath_reasoning_chain3125, "ate").
+intent_cue(25_wordmath_reasoning_chain3125, "eats").
+intent_cue(25_wordmath_reasoning_chain3125, "lost").
+intent_cue(25_wordmath_reasoning_chain3125, "loses").
+intent_cue(25_wordmath_reasoning_chain3125, "gave").
+intent_cue(25_wordmath_reasoning_chain3125, "gives away").
+intent_cue(25_wordmath_reasoning_chain3125, "left").
+intent_cue(25_wordmath_reasoning_chain3125, "remain").
+intent_cue(25_wordmath_reasoning_chain3125, "fewer").
+intent_cue(25_wordmath_reasoning_chain3125, "spent").
+intent_cue(25_wordmath_reasoning_chain3125, "spends").
+intent_cue(25_wordmath_reasoning_chain3125, "sold").
+intent_cue(25_wordmath_reasoning_chain3125, "sells").
+intent_cue(25_wordmath_reasoning_chain3125, "broke").
+intent_cue(25_wordmath_reasoning_chain3125, "removed").
+intent_cue(25_wordmath_reasoning_chain3125, "drops").
+intent_cue(25_wordmath_reasoning_chain3125, " away").
+intent_cue(25_wordmath_reasoning_chain3125, "mangi").
+intent_cue(25_wordmath_reasoning_chain3125, "pers").
+intent_cue(25_wordmath_reasoning_chain3125, "perde").
+intent_cue(25_wordmath_reasoning_chain3125, "regal").
+intent_cue(25_wordmath_reasoning_chain3125, "vend").
+intent_cue(25_wordmath_reasoning_chain3125, "riman").
+intent_cue(25_wordmath_reasoning_chain3125, "spend").
+intent_cue(25_wordmath_reasoning_chain3139, "each").
+intent_cue(25_wordmath_reasoning_chain3139, "times").
+intent_cue(25_wordmath_reasoning_chain3139, "groups of").
+intent_cue(25_wordmath_reasoning_chain3139, "rows of").
+intent_cue(25_wordmath_reasoning_chain3139, "boxes of").
+intent_cue(25_wordmath_reasoning_chain3139, "ciascun").
+intent_cue(25_wordmath_reasoning_chain3139, "ognuno").
+intent_cue(25_wordmath_reasoning_chain3139, "ogni").
+intent_cue(25_wordmath_reasoning_chain3143, "more").
+intent_cue(25_wordmath_reasoning_chain3143, "gets").
+intent_cue(25_wordmath_reasoning_chain3143, "got").
+intent_cue(25_wordmath_reasoning_chain3143, "gains").
+intent_cue(25_wordmath_reasoning_chain3143, "buys").
+intent_cue(25_wordmath_reasoning_chain3143, "buy").
+intent_cue(25_wordmath_reasoning_chain3143, "found").
+intent_cue(25_wordmath_reasoning_chain3143, "finds").
+intent_cue(25_wordmath_reasoning_chain3143, "altogether").
+intent_cue(25_wordmath_reasoning_chain3143, "total").
+intent_cue(25_wordmath_reasoning_chain3143, "in all").
+intent_cue(25_wordmath_reasoning_chain3143, "combined").
+intent_cue(25_wordmath_reasoning_chain3143, "receive").
+intent_cue(25_wordmath_reasoning_chain3143, "plus").
+intent_cue(25_wordmath_reasoning_chain3143, "adds").
+intent_cue(25_wordmath_reasoning_chain3143, "compr").
+intent_cue(25_wordmath_reasoning_chain3143, "trov").
+intent_cue(25_wordmath_reasoning_chain3143, "totale").
+intent_cue(25_wordmath_reasoning_chain3143, "insieme").
+intent_cue(25_wordmath_reasoning_chain3143, "ancora").
+intent_cue(25_wordmath_reasoning_chain3143, "aggiun").
+intent_cue(25_wordmath_reasoning_chain3408, " in ").
+intent_cue(30_generation_reading_chain454, "say hello").
+intent_cue(30_generation_reading_chain454, "say hi").
+intent_cue(30_generation_reading_chain454, "say hey").
+intent_cue(30_generation_reading_chain454, "greet me").
+intent_cue(30_generation_reading_chain482, "two words").
+intent_cue(30_generation_reading_chain482, "2 words").
+intent_cue(30_generation_reading_chain482, "three words").
+intent_cue(30_generation_reading_chain482, "3 words").
+intent_cue(30_generation_reading_chain482, "four words").
+intent_cue(30_generation_reading_chain482, "4 words").
+intent_cue(30_generation_reading_chain482, "exactly").
+intent_cue(30_generation_reading_chain487, "two words").
+intent_cue(30_generation_reading_chain487, "2 words").
+intent_cue(30_generation_reading_chain488, "three words").
+intent_cue(30_generation_reading_chain488, "3 words").
+intent_cue(30_generation_reading_chain489, "four words").
+intent_cue(30_generation_reading_chain489, "4 words").
+intent_cue(30_generation_reading_chain793, "describe").
+intent_cue(30_generation_reading_chain793, "in three words").
+intent_cue(30_generation_reading_chain793, "in 3 words").
+intent_cue(30_generation_reading_chain795, "two words").
+intent_cue(30_generation_reading_chain795, "2 words").
+intent_cue(30_generation_reading_chain795, "three words").
+intent_cue(30_generation_reading_chain795, "3 words").
+intent_cue(30_generation_reading_chain795, "four words").
+intent_cue(30_generation_reading_chain795, "4 words").
+intent_cue(30_generation_reading_chain799, "two words").
+intent_cue(30_generation_reading_chain799, "2 words").
+intent_cue(30_generation_reading_chain800, "three words").
+intent_cue(30_generation_reading_chain800, "3 words").
+intent_cue(30_generation_reading_chain801, "four words").
+intent_cue(30_generation_reading_chain801, "4 words").
+intent_cue(30_generation_reading_chain822, "let go").
+intent_cue(30_generation_reading_chain822, "release").
+intent_cue(30_generation_reading_chain835, "haiku").
+intent_cue(30_generation_reading_chain873, "what word becomes").
+intent_cue(30_generation_reading_chain873, "what word gets").
+intent_cue(30_generation_reading_chain896, "tell me a").
+intent_cue(30_generation_reading_chain896, "tell a").
+intent_cue(30_generation_reading_chain896, "write a").
+intent_cue(30_generation_reading_chain896, "make up a").
+intent_cue(30_generation_reading_chain1101, "chicken cross the road").
+intent_cue(30_generation_reading_chain1104, "no teeth").
+intent_cue(30_generation_reading_chain1104, "without teeth").
+intent_cue(30_generation_reading_chain1108, "short").
+intent_cue(30_generation_reading_chain1108, "tell me").
+intent_cue(30_generation_reading_chain1108, "make me laugh").
+intent_cue(30_generation_reading_chain1121, "four").
+intent_cue(30_generation_reading_chain1121, "4").
+intent_cue(30_generation_reading_chain1162, "poem").
+intent_cue(30_generation_reading_chain1162, "rhyme").
+intent_cue(30_generation_reading_chain1163, "two line").
+intent_cue(30_generation_reading_chain1163, "two-line").
+intent_cue(30_generation_reading_chain1163, "rhym").
+intent_cue(30_generation_reading_chain1194, "artificial intelligence").
+intent_cue(30_generation_reading_chain1194, " ai").
+intent_cue(30_generation_reading_chain1232, "rearrange").
+intent_cue(30_generation_reading_chain1232, "put these words in order").
+intent_cue(30_generation_reading_chain1232, "make a sentence from").
+intent_cue(30_generation_reading_chain1272, "complete this sentence").
+intent_cue(30_generation_reading_chain1272, "continue this sentence").
+intent_cue(30_generation_reading_chain1272, "finish this sentence").
+intent_cue(30_generation_reading_chain1272, "continue this story").
+intent_cue(30_generation_reading_chain1272, "continue the story").
+intent_cue(30_generation_reading_chain1272, "finish this story").
+intent_cue(30_generation_reading_chain1272, "finish the story").
+intent_cue(30_generation_reading_chain1272, "continue the sentence").
+intent_cue(30_generation_reading_chain1272, "complete the following sentence").
+intent_cue(30_generation_reading_chain1272, "complete the sentence").
+intent_cue(30_generation_reading_chain1272, "complete the following").
+intent_cue(30_generation_reading_chain1272, "finish the following").
+intent_cue(30_generation_reading_chain1272, "continue the following").
+intent_cue(30_generation_reading_chain1284, "___").
+intent_cue(30_generation_reading_chain1284, "three words").
+intent_cue(30_generation_reading_chain1284, "3 words").
+intent_cue(30_generation_reading_chain1284, "blank").
+intent_cue(30_generation_reading_chain1308, "two words").
+intent_cue(30_generation_reading_chain1308, "2 words").
+intent_cue(30_generation_reading_chain1309, "three words").
+intent_cue(30_generation_reading_chain1309, "3 words").
+intent_cue(30_generation_reading_chain1310, "four words").
+intent_cue(30_generation_reading_chain1310, "4 words").
+intent_cue(30_generation_reading_chain1311, "five words").
+intent_cue(30_generation_reading_chain1311, "5 words").
+intent_cue(30_generation_reading_chain1312, "six words").
+intent_cue(30_generation_reading_chain1312, "6 words").
+intent_cue(30_generation_reading_chain1341, "three").
+intent_cue(30_generation_reading_chain1341, "3 different").
+intent_cue(30_generation_reading_chain1341, "3 more").
+intent_cue(30_generation_reading_chain1341, "three more").
+intent_cue(30_generation_reading_chain1343, "two").
+intent_cue(30_generation_reading_chain1343, "2 different").
+intent_cue(30_generation_reading_chain1343, "two different").
+intent_cue(30_generation_reading_chain1343, "two ways").
+intent_cue(30_generation_reading_chain1343, "two options").
+intent_cue(30_generation_reading_chain1343, "couple of").
+intent_cue(30_generation_reading_chain1378, "story").
+intent_cue(30_generation_reading_chain1395, "story about").
+intent_cue(30_generation_reading_chain1395, "tell me a story").
+intent_cue(30_generation_reading_chain1395, "tell a story").
+intent_cue(30_generation_reading_chain1395, "write a story").
+intent_cue(30_generation_reading_chain1395, "write me a story").
+intent_cue(30_generation_reading_chain1395, "make up a story").
+intent_cue(30_generation_reading_chain1465, "historical").
+intent_cue(30_generation_reading_chain1465, "from history").
+intent_cue(30_generation_reading_chain1465, "in history").
+intent_cue(30_generation_reading_chain1465, "historic").
+intent_cue(30_generation_reading_chain1468, "three").
+intent_cue(30_generation_reading_chain1468, " 3 ").
+intent_cue(30_generation_reading_chain1469, "two").
+intent_cue(30_generation_reading_chain1469, " 2 ").
+intent_cue(30_generation_reading_chain1470, "one ").
+intent_cue(30_generation_reading_chain1470, "any person").
+intent_cue(30_generation_reading_chain1470, "any one").
+intent_cue(30_generation_reading_chain1470, "someone").
+intent_cue(30_generation_reading_chain1470, "a person").
+intent_cue(30_generation_reading_chain1470, "single").
+intent_cue(30_generation_reading_chain1566, "using the word").
+intent_cue(30_generation_reading_chain1566, "with the word").
+intent_cue(30_generation_reading_chain1566, "that uses").
+intent_cue(30_generation_reading_chain1566, "contains the word").
+intent_cue(30_generation_reading_chain1566, "use the word").
+intent_cue(30_generation_reading_chain1566, "con la parola").
+intent_cue(30_generation_reading_chain1566, "usando la parola").
+intent_cue(40_meta_reflection_chain120, "what language").
+intent_cue(40_meta_reflection_chain120, "which language").
+intent_cue(40_meta_reflection_chain120, "che lingua").
+intent_cue(40_meta_reflection_chain120, "quale lingua").
+intent_cue(40_meta_reflection_chain123, "we ").
+intent_cue(40_meta_reflection_chain123, "speaking").
+intent_cue(40_meta_reflection_chain123, "talking").
+intent_cue(40_meta_reflection_chain123, "using").
+intent_cue(40_meta_reflection_chain123, "stiamo").
+intent_cue(40_meta_reflection_chain123, "parlando").
+intent_cue(40_meta_reflection_chain123, "parliamo").
+intent_cue(40_meta_reflection_chain123, "conversation").
+intent_cue(40_meta_reflection_chain123, "right now").
+intent_cue(40_meta_reflection_chain148, "system language").
+intent_cue(40_meta_reflection_chain148, "os language").
+intent_cue(40_meta_reflection_chain148, "system locale").
+intent_cue(40_meta_reflection_chain148, "lingua del sistema").
+intent_cue(40_meta_reflection_chain148, "locale").
+intent_cue(40_meta_reflection_chain164, "what").
+intent_cue(40_meta_reflection_chain164, "which").
+intent_cue(40_meta_reflection_chain164, "list").
+intent_cue(40_meta_reflection_chain165, "you created").
+intent_cue(40_meta_reflection_chain165, "you made").
+intent_cue(40_meta_reflection_chain165, "have you created").
+intent_cue(40_meta_reflection_chain165, "did you create").
+intent_cue(40_meta_reflection_chain165, "files you").
+intent_cue(40_meta_reflection_chain165, "artifacts").
+intent_cue(40_meta_reflection_chain195, "last").
+intent_cue(40_meta_reflection_chain195, "first").
+intent_cue(40_meta_reflection_chain196, "said").
+intent_cue(40_meta_reflection_chain196, "told").
+intent_cue(40_meta_reflection_chain196, "say").
+intent_cue(40_meta_reflection_chain196, "thing").
+intent_cue(40_meta_reflection_chain196, "word").
+intent_cue(40_meta_reflection_chain196, "sentence").
+intent_cue(40_meta_reflection_chain349, "movie").
+intent_cue(40_meta_reflection_chain349, "film").
+intent_cue(40_meta_reflection_chain350, "watched recently").
+intent_cue(40_meta_reflection_chain350, "watched").
+intent_cue(40_meta_reflection_chain350, "seen recently").
+intent_cue(40_meta_reflection_chain357, "favorite").
+intent_cue(40_meta_reflection_chain357, "favourite").
+intent_cue(40_meta_reflection_chain358, "rainy").
+intent_cue(40_meta_reflection_chain358, "afternoon").
+intent_cue(40_meta_reflection_chain358, "sunday").
+intent_cue(40_meta_reflection_chain377, "favorite").
+intent_cue(40_meta_reflection_chain377, "favourite").
+intent_cue(40_meta_reflection_chain483, "my goals").
+intent_cue(40_meta_reflection_chain483, "miei obiettivi").
+intent_cue(40_meta_reflection_chain1176, "you write").
+intent_cue(40_meta_reflection_chain1176, "did you write").
+intent_cue(40_meta_reflection_chain1176, "scritto").
+intent_cue(40_meta_reflection_chain1188, "rule").
+intent_cue(40_meta_reflection_chain1188, "reign").
+intent_cue(40_meta_reflection_chain1188, "govern").
+intent_cue(40_meta_reflection_chain1208, "title").
+intent_cue(40_meta_reflection_chain1208, "titolo").
+intent_cue(40_meta_reflection_chain1228, "how old").
+intent_cue(40_meta_reflection_chain1228, "quanti anni").
+intent_cue(40_meta_reflection_chain1239, "code").
+intent_cue(40_meta_reflection_chain1239, "codice").
+intent_cue(40_meta_reflection_chain1250, "work for").
+intent_cue(40_meta_reflection_chain1250, "lavori per").
+intent_cue(40_meta_reflection_chain1250, "employer").
+intent_cue(40_meta_reflection_chain1262, "favorite color").
+intent_cue(40_meta_reflection_chain1262, "favourite color").
+intent_cue(40_meta_reflection_chain1262, "colore preferito").
+intent_cue(40_meta_reflection_chain2003, "why did you answer that way").
+intent_cue(40_meta_reflection_chain2004, "why did you respond that way").
+intent_cue(40_meta_reflection_chain2005, "why that way").
+intent_cue(40_meta_reflection_chain2008, "perché hai risposto così").
+intent_cue(50_self_research_loop_chain1610, "what does the word").
+intent_cue(50_self_research_loop_chain1610, "what does word").
+intent_cue(70_social_pragma_chain756, " is a ").
+intent_cue(70_social_pragma_chain756, " is an ").
+intent_cue(70_social_pragma_chain756, " plus ").
+intent_cue(70_social_pragma_chain756, " minus ").
+intent_cue(70_social_pragma_chain756, " times ").
+intent_cue(70_social_pragma_chain756, "+").
+intent_cue(70_social_pragma_chain756, "-").
+intent_cue(70_social_pragma_chain756, "*").
+intent_cue(70_social_pragma_chain756, "=").
+intent_cue(80_code_chain335, "which file").
+intent_cue(80_code_chain335, "what file").
+intent_cue(80_code_chain335, "quale file").
+intent_cue(80_code_chain336, "define").
+intent_cue(80_code_chain336, "defines").
+intent_cue(80_code_chain336, "definisce").
+intent_cue(80_code_chain336, "contains").
+intent_cue(80_code_chain336, "contiene").
+intent_cue(80_code_chain369, "delete").
+intent_cue(80_code_chain369, "remove").
+intent_cue(80_code_chain369, "elimina").
+intent_cue(80_code_chain369, "rimuovi").
+intent_cue(80_code_chain370, "function").
+intent_cue(80_code_chain370, "funzione").
+intent_cue(80_code_chain619, "symmetry").
+intent_cue(80_code_chain619, "simmetria").
+intent_cue(80_code_chain619, "bug").
+intent_cue(80_code_chain755, "run").
+intent_cue(80_code_chain755, "execute").
+intent_cue(80_code_chain755, "esegui").
+intent_cue(80_code_chain755, "esegu").
+intent_cue(80_code_chain795, "compile").
+intent_cue(80_code_chain795, "compiles").
+intent_cue(80_code_chain795, "compila").
+intent_cue(80_code_chain833, "what calls").
+intent_cue(80_code_chain833, "who calls").
+intent_cue(80_code_chain833, "chi chiama").
+intent_cue(80_code_chain835, " in ").
+intent_cue(80_code_chain835, " under ").
+intent_cue(80_code_chain835, "/").
+intent_cue(80_code_chain880, "function").
+intent_cue(80_code_chain880, "funzioni").
+intent_cue(80_code_chain880, "funzione").
+intent_cue(80_code_chain881, "define").
+intent_cue(80_code_chain881, "defined").
+intent_cue(80_code_chain881, "definisce").
+intent_cue(80_code_chain881, "definite").
+intent_cue(80_code_chain881, "definisci").
+intent_cue(80_code_chain884, "call").
+intent_cue(80_code_chain884, "calls").
+intent_cue(80_code_chain884, "invoke").
+intent_cue(80_code_chain884, "chiama").
+intent_cue(80_code_chain884, "invoca").

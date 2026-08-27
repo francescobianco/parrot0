@@ -753,10 +753,7 @@ static int has_open_quantifier(char **w, size_t nw) {
  * swallowing real tasks: a digit or arithmetic operator, an assertion shape
  * (" is a "/" is an "), or a token that is a known KB predicate or entity. */
 static int has_content_predicate(Brain *b, const char *canon, char **w, size_t nw) {
-    if (cue(canon, " is a ") || cue(canon, " is an ") ||
-        cue(canon, " plus ") || cue(canon, " minus ") ||
-        cue(canon, " times ") || cue(canon, "+") || cue(canon, "-") ||
-        cue(canon, "*") || cue(canon, "=")) return 1;
+    if (kb_cue_match(b, "70_social_pragma_chain756", canon)) return 1;
     for (size_t i = 0; i < nw; i++) {
         char tmp[64];
         snprintf(tmp, sizeof tmp, "%s", w[i]);

@@ -117,12 +117,9 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
     /* gen240 (universal-comprehension): "what language are we speaking?" — answered
      * from the session fact current_language/1 (inferred, not a C variable), and
      * phrased IN that language via the localized template. */
-    if ((cue(buf, "what language") || cue(buf, "which language") ||
-         cue(buf, "che lingua") || cue(buf, "quale lingua")) &&
+    if ((kb_cue_match(b, "40_meta_reflection_chain120", buf)) &&
         /* about THIS conversation, not "what language is this code" */
-        (cue(buf, "we ") || cue(buf, "speaking") || cue(buf, "talking") ||
-         cue(buf, "using") || cue(buf, "stiamo") || cue(buf, "parlando") ||
-         cue(buf, "parliamo") || cue(buf, "conversation") || cue(buf, "right now")) &&
+        (kb_cue_match(b, "40_meta_reflection_chain123", buf)) &&
         !cue(buf, "code") && !cue(buf, "snippet")) {
         char msg[160];
         if (lang_template(b, "language_reply", msg, sizeof msg)) {
@@ -145,9 +142,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
             return 1;
         }
     }
-    if ((cue(buf, "system language") || cue(buf, "os language") ||
-         cue(buf, "system locale") || cue(buf, "lingua del sistema") ||
-         cue(buf, "locale")) ) {
+    if ((kb_cue_match(b, "40_meta_reflection_chain148", buf)) ) {
         char v[1][KB_TERM_LEN];
         const char *q[] = { NULL };
         if (b->kb && kb_match(b->kb, "os_language", q, 1, v, 1) > 0) {
@@ -161,9 +156,8 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
 
     /* gen240 (universal-comprehension): "what have you created?" — list session
      * artifacts (files/dirs parrot0 made) from artifact/2 facts. */
-    if ((cue(buf, "what") || cue(buf, "which") || cue(buf, "list")) &&
-        (cue(buf, "you created") || cue(buf, "you made") || cue(buf, "have you created") ||
-         cue(buf, "did you create") || cue(buf, "files you") || cue(buf, "artifacts"))) {
+    if ((kb_cue_match(b, "40_meta_reflection_chain164", buf)) &&
+        (kb_cue_match(b, "40_meta_reflection_chain165", buf))) {
         char paths[16][KB_TERM_LEN];
         const char *q[] = { "file", NULL };
         size_t n = b->kb ? kb_match(b->kb, "artifact", q, 2, paths, 16) : 0;
@@ -192,9 +186,8 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         int me  = cue(buf, "i said") || cue(buf, "i told you") ||
                   cue(buf, "did i say") || cue(buf, "i say");
         if ((you || me) &&
-            (cue(buf, "last") || cue(buf, "first")) &&
-            (cue(buf, "said") || cue(buf, "told") || cue(buf, "say") ||
-             cue(buf, "thing") || cue(buf, "word") || cue(buf, "sentence"))) {
+            (kb_cue_match(b, "40_meta_reflection_chain195", buf)) &&
+            (kb_cue_match(b, "40_meta_reflection_chain196", buf))) {
             int first = cue(buf, "first");
             int word  = cue(buf, "word");
             char ans[300];
@@ -346,16 +339,15 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
          * self_preference dodge can claim it. */
         int is_color_q = cue(buf, "favorite color") || cue(buf, "favourite color") ||
                          cue(buf, "colore preferito");
-        if ((cue(buf, "movie") || cue(buf, "film")) &&
-            (cue(buf, "watched recently") || cue(buf, "watched") ||
-             cue(buf, "seen recently"))) {
+        if ((kb_cue_match(b, "40_meta_reflection_chain349", buf)) &&
+            (kb_cue_match(b, "40_meta_reflection_chain350", buf))) {
             kb_say(b, "i_don_t_watch_movies_or_have_recent_vi", "I don't watch movies or have recent viewing experiences, but for the prompt I'd pick an old mystery for its careful clues.", out, out_size);
             return 1;
         }
         int situated_activity_fav =
             (cue(buf, "favorite thing to do") || cue(buf, "favourite thing to do") ||
-             ((cue(buf, "favorite") || cue(buf, "favourite")) && cue(buf, "to do"))) &&
-            (cue(buf, "rainy") || cue(buf, "afternoon") || cue(buf, "sunday"));
+             ((kb_cue_match(b, "40_meta_reflection_chain357", buf)) && cue(buf, "to do"))) &&
+            (kb_cue_match(b, "40_meta_reflection_chain358", buf));
         if (is_color_q && !b->in_role) {
             const char *dq[] = { NULL };
             char dc[1][KB_TERM_LEN];
@@ -374,7 +366,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
          * the colour answer, instead of the generic no-preference dodge. */
         int answered_fav = 0;
         if (!b->in_role && !is_color_q && !situated_activity_fav &&
-            (cue(buf, "favorite") || cue(buf, "favourite"))) {
+            (kb_cue_match(b, "40_meta_reflection_chain377", buf))) {
             char fbb[256]; snprintf(fbb, sizeof fbb, "%s", buf);
             char *fw[32]; size_t fn = split_words(fbb, fw, 32);
             for (size_t i = 0; i + 1 < fn && !answered_fav; i++) {
@@ -480,7 +472,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
             * the matched IT/EN prefix. */
         int g = strncmp(buf,"remember to ",12)==0 || it_goal;
         if(g && b->goal_count<8){ snprintf(b->goals[b->goal_count++],128,"%s",buf+(it_goal?13:12)); put("Ok, noted.",out,out_size); return 1; }
-        if(cue(buf,"my goals")||cue(buf,"miei obiettivi")){
+        if(kb_cue_match(b, "40_meta_reflection_chain483", buf)){
             if(!b->goal_count) kb_say(b, "no_goals_set", "No goals set.",out,out_size);
             else { char l[1024]=""; for(size_t i=0;i<b->goal_count;i++){char t[200];snprintf(t,200,"%zu) %s. ",i+1,b->goals[i]);strcat(l,t);} put(l,out,out_size); }
             return 1;
@@ -1173,7 +1165,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
     }
 
     /* "what did you write?" / "cosa hai scritto?" -> wrote(figure, Work) */
-    if (cue(buf, "you write") || cue(buf, "did you write") || cue(buf, "scritto")) {
+    if (kb_cue_match(b, "40_meta_reflection_chain1176", buf)) {
         const char *fv[] = { b->role_kind, NULL };
         char work[4][KB_TERM_LEN];
         if (b->role_kind[0] && kb_match(b->kb, "wrote", fv, 2, work, 4)) {
@@ -1185,7 +1177,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
     }
 
     /* "where do you rule?" -> inline place, else rules_over(figure, Place) */
-    if (cue(buf, "rule") || cue(buf, "reign") || cue(buf, "govern")) {
+    if (kb_cue_match(b, "40_meta_reflection_chain1188", buf)) {
         const char *place = role_get_attr(b, "place");
         char pl[64] = "";
         if (place) snprintf(pl, sizeof pl, "%s", place);
@@ -1205,7 +1197,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
     }
 
     /* "what is your title?" -> inline title, else title(figure, Title) */
-    if (cue(buf, "title") || cue(buf, "titolo")) {
+    if (kb_cue_match(b, "40_meta_reflection_chain1208", buf)) {
         const char *t = role_get_attr(b, "title");
         char tt[64] = "";
         if (t) snprintf(tt, sizeof tt, "%s", t);
@@ -1225,7 +1217,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
     }
 
     /* "how old are you?" -> parsed age */
-    if (cue(buf, "how old") || cue(buf, "quanti anni")) {
+    if (kb_cue_match(b, "40_meta_reflection_chain1228", buf)) {
         const char *age = role_get_attr(b, "age");
         if (age) {
             char msg[64]; { const KbResponseSlot _rs[] = { { "age", age } };
@@ -1236,7 +1228,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
     }
 
     /* "what is your code?" -> parsed code */
-    if (cue(buf, "code") || cue(buf, "codice")) {
+    if (kb_cue_match(b, "40_meta_reflection_chain1239", buf)) {
         const char *code = role_get_attr(b, "code");
         if (code) {
             char msg[64]; { const KbResponseSlot _rs[] = { { "code", code } };
@@ -1247,7 +1239,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
     }
 
     /* "who do you work for?" -> employer(kind, Org) */
-    if (cue(buf, "work for") || cue(buf, "lavori per") || cue(buf, "employer")) {
+    if (kb_cue_match(b, "40_meta_reflection_chain1250", buf)) {
         const char *kv[] = { b->role_kind, NULL };
         char org[4][KB_TERM_LEN];
         if (b->role_kind[0] && kb_match(b->kb, "employer", kv, 2, org, 4)) {
@@ -1259,8 +1251,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
     }
 
     /* "what is your favorite color?" -> likes_color(kind, Color) */
-    if (cue(buf, "favorite color") || cue(buf, "favourite color") ||
-        cue(buf, "colore preferito")) {
+    if (kb_cue_match(b, "40_meta_reflection_chain1262", buf)) {
         const char *kv[] = { b->role_kind, NULL };
         char col[4][KB_TERM_LEN];
         if (b->role_kind[0] && kb_match(b->kb, "likes_color", kv, 2, col, 4)) {
@@ -2000,12 +1991,12 @@ static int mod_strategy(Brain *b, const char *norm, const char *raw,
     size_t wn = 0; { char wb[256]; snprintf(wb, sizeof wb, "%s", norm);
                      char *w[64]; wn = split_words(wb, w, 64); }
 
-    int ask = ((cue(buf, "why did you answer that way")) ||
-               (cue(buf, "why did you respond that way")) ||
-               (cue(buf, "why that way")) ||
+    int ask = ((kb_cue_match(b, "40_meta_reflection_chain2003", buf)) ||
+               (kb_cue_match(b, "40_meta_reflection_chain2004", buf)) ||
+               (kb_cue_match(b, "40_meta_reflection_chain2005", buf)) ||
                (cue(buf, "why did you choose") && wn <= 7) ||
                (cue(buf, "how did you decide") && wn <= 6) ||
-               (cue(buf, "perché hai risposto così")) ||
+               (kb_cue_match(b, "40_meta_reflection_chain2008", buf)) ||
                (cue(buf, "perché così") && wn <= 4) ||
                (cue(buf, "come hai deciso") && wn <= 5));
     if (!ask) return 0;

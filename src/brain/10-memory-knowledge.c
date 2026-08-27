@@ -114,9 +114,8 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
      * a coordinator parrot0 was just taught splits lists like "and"/"e". This is
      * the KB-migration direction made concrete (PRINCIPLES.md: a fixed engine,
      * lexicon and world both growing as KB). */
-    if (b->kb && (cue(norm, "conjunction") || cue(norm, "congiunzione")) &&
-        (cue(norm, "use ") || cue(norm, "usa ") ||
-         cue(norm, "treat ") || cue(norm, "tratta "))) {
+    if (b->kb && (kb_cue_match(b, "10_memory_knowledge_chain117", norm)) &&
+        (kb_cue_match(b, "10_memory_knowledge_chain118", norm))) {
         char nb[256]; snprintf(nb, sizeof nb, "%s", norm);
         char *cw[32]; size_t cnw = split_words(nb, cw, 32);
         size_t marker = cnw;
@@ -513,16 +512,14 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         kb_say(b, "got_it_i_will_keep_it_short", "Got it: I will keep it short.", out, out_size);
         return 1;
     }
-    if (cue(norm, "not too technical") || cue(norm, "avoid technical") ||
-        cue(norm, "non essere tecnico") || cue(norm, "non troppo tecnico")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain516", norm)) {
         snprintf(b->user_constraint, sizeof b->user_constraint, "%s", "avoid technical detail");
         b->has_user_constraint = 1;
         kb_say(b, "got_it_i_will_avoid_technical_detail", "Got it: I will avoid technical detail.", out, out_size);
         return 1;
     }
 
-    if (cue(norm, "what do i like") || cue(norm, "what do i prefer") ||
-        cue(norm, "cosa mi piace") || cue(norm, "cosa preferisco")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain524", norm)) {
         if (b->has_user_preference) {
             char msg[160];
             snprintf(msg, sizeof msg, "You %s %s.",
@@ -534,8 +531,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    if (cue(norm, "what mood") || cue(norm, "how do i feel") ||
-        cue(norm, "come mi sento") || cue(norm, "che umore")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain537", norm)) {
         char mood[64];
         if (user_value_read(b, "mood", mood, sizeof mood)) {
             char msg[160];
@@ -549,9 +545,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    if (cue(norm, "what topic") || cue(norm, "which topic") ||
-        cue(norm, "what are we talking about") || cue(norm, "di cosa parliamo") ||
-        cue(norm, "di cosa stiamo parlando")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain552", norm)) {
         if (b->has_current_topic) {
             char msg[160];
             snprintf(msg, sizeof msg, "The current topic is %s.", b->current_topic);
@@ -562,8 +556,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    if (cue(norm, "what constraint") || cue(norm, "what did i ask you to keep in mind") ||
-        cue(norm, "what should you remember for this chat") || cue(norm, "che vincolo")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain565", norm)) {
         if (b->has_user_constraint) {
             char msg[192];
             snprintf(msg, sizeof msg, "Your current constraint is: %s.", b->user_constraint);
@@ -574,9 +567,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    if (cue(norm, "what do you remember about me") ||
-        cue(norm, "what do you know about me") || cue(norm, "cosa ricordi di me") ||
-        cue(norm, "cosa sai di me")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain577", norm)) {
         char msg[640];
         size_t off = 0;
         int any = 0;
@@ -8503,7 +8494,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * the pair forms no known compound. */
     if ((cue(norm, "follows") && cue(norm, "precedes")) ||
         (cue(norm, "after") && cue(norm, "before") &&
-         (cue(norm, "word") || cue(norm, "comes")))) {
+         (kb_cue_match(b, "10_memory_knowledge_chain8506", norm)))) {
         char cb[256]; snprintf(cb, sizeof cb, "%s", norm);
         char *cw[64]; size_t cn = split_words(cb, cw, 64);
         const char *X = NULL, *Y = NULL;
@@ -8533,8 +8524,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * say the dog runs in spanish» contiene entrambe le parole e un animale, e
      * riceveva «A dog goes woof» invece della traduzione: la domanda non era sul
      * verso, era sulla lingua. La guardia e' la cue che gia' esiste. */
-    if ((cue(norm, "sound") || cue(norm, "noise") || cue(norm, "say") || cue(norm, "says")) &&
-        (cue(norm, "make") || cue(norm, "makes") || cue(norm, "does") || cue(norm, "do")) &&
+    if ((kb_cue_match(b, "10_memory_knowledge_chain8536", norm)) &&
+        (kb_cue_match(b, "10_memory_knowledge_chain8537", norm)) &&
         !kb_cue_match(b, "translation_request", norm)) {
         char ab[256]; snprintf(ab, sizeof ab, "%s", norm);
         char *aw[64]; size_t an = split_words(ab, aw, 64);
@@ -8558,8 +8549,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * gen334: broadened to accept "say"/"says"/"make"/"makes"/"making" in addition
      * to "saying"/"sound"/"noise", and the bare sound word (e.g. "barks") without
      * requiring an explicit conveyor. */
-    if (cue(norm, "animal") || cue(norm, "known for saying") ||
-        cue(norm, "known for making")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain8561", norm)) {
         const char *aq[] = { NULL, NULL };
         char animals[64][KB_TERM_LEN];
         size_t an = kb_match(b->kb, "sound_of", aq, 2, animals, 64);
@@ -8949,17 +8939,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * magnitude(Dim, Item, Rank); the cue word picks the Dim and direction. KB-first:
      * add a magnitude fact and the comparison extends with no code edit. */
     if (cue(norm, " or ") &&
-        (cue(norm, "larger") || cue(norm, "bigger") || cue(norm, "smaller") ||
-         cue(norm, "biggest") || cue(norm, "largest") || cue(norm, "smallest") ||
-         cue(norm, "closer") || cue(norm, "nearer") || cue(norm, "closest") ||
-         cue(norm, "farther") || cue(norm, "further") || cue(norm, "farthest") ||
-         cue(norm, "heavier") || cue(norm, "tinier"))) {
+        (kb_cue_match(b, "10_memory_knowledge_chain8952", norm))) {
         const char *dim = NULL; int want_max = 1;
-        if (cue(norm, "larger")||cue(norm, "bigger")||cue(norm, "largest")||
-            cue(norm, "biggest")||cue(norm, "heavier")) { dim = "size"; want_max = 1; }
-        else if (cue(norm, "smaller")||cue(norm, "smallest")||cue(norm, "tinier")) { dim = "size"; want_max = 0; }
-        else if (cue(norm, "closer")||cue(norm, "nearer")||cue(norm, "closest")) { dim = "distance_from_sun"; want_max = 0; }
-        else if (cue(norm, "farther")||cue(norm, "further")||cue(norm, "farthest")) { dim = "distance_from_sun"; want_max = 1; }
+        if (kb_cue_match(b, "10_memory_knowledge_chain8958", norm)) { dim = "size"; want_max = 1; }
+        else if (kb_cue_match(b, "10_memory_knowledge_chain8960", norm)) { dim = "size"; want_max = 0; }
+        else if (kb_cue_match(b, "10_memory_knowledge_chain8961", norm)) { dim = "distance_from_sun"; want_max = 0; }
+        else if (kb_cue_match(b, "10_memory_knowledge_chain8962", norm)) { dim = "distance_from_sun"; want_max = 1; }
         if (dim) {
             char cb[256]; snprintf(cb, sizeof cb, "%s", norm);
             char *cw[64]; size_t cn = split_words(cb, cw, 64);
@@ -8997,11 +8982,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen240 (LLMSCORE): the race-overtaking trick. If you pass the runner in Nth
      * place you TAKE their position — you are now Nth (not (N-1)th). A general rule
      * over the ordinal, not a memorized answer. */
-    if ((cue(norm, "pass") || cue(norm, "overtake") || cue(norm, "overtook") ||
-         cue(norm, "passed")) &&
-        (cue(norm, "place") || cue(norm, "position")) &&
-        (cue(norm, "what position") || cue(norm, "which position") ||
-         cue(norm, "what place") || cue(norm, "which place") || cue(norm, "now in"))) {
+    if ((kb_cue_match(b, "10_memory_knowledge_chain9000", norm)) &&
+        (kb_cue_match(b, "10_memory_knowledge_chain9002", norm)) &&
+        (kb_cue_match(b, "10_memory_knowledge_chain9003", norm))) {
         static const char *ord[] = { "first","second","third","fourth","fifth",
             "sixth","seventh","eighth","ninth","tenth","last", NULL };
         char rb[256]; snprintf(rb, sizeof rb, "%s", norm);
@@ -9110,7 +9093,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * subjects (e.g. "all A have four legs") are ignored because the bridge B must
      * match the universal's subject. */
     if (cue(norm, "conclude") && cue(norm, "some") &&
-        (cue(norm, "every") || cue(norm, "all"))) {
+        (kb_cue_match(b, "10_memory_knowledge_chain9113", norm))) {
         char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
         char *w[64]; size_t n = split_words(sb, w, 64);
         for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
@@ -9167,8 +9150,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * gives no C are A (or no A are C — E-propositions convert). Real deduction
      * with the witness named; anything outside the schema falls through to the
      * honest paths below. */
-    if ((cue(norm, "conclude") || cue(norm, "does it follow") ||
-         cue(norm, "can we say")) &&
+    if ((kb_cue_match(b, "10_memory_knowledge_chain9170", norm)) &&
         cue(norm, "some") && cue(norm, "no ") && cue(norm, "not ")) {
         char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
         char *w[64]; size_t n = split_words(sb, w, 64);
@@ -9393,7 +9375,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     /* gen248: universal syllogism chain. "All dogs are mammals; all mammals
      * breathe; what can you conclude about dogs?" -> Dogs breathe. */
-    if ((cue(norm, "conclude") || cue(norm, "what can you conclude")) &&
+    if ((kb_cue_match(b, "10_memory_knowledge_chain9396", norm)) &&
         cue(norm, "all") && !cue(norm, "some")) {
         char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
         char *w[64]; size_t n = split_words(sb, w, 64);
@@ -9438,8 +9420,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     /* gen249: explicit no-overlap beats existential uncertainty. gen348: accept
      * both "can a X also be a Y" and "can any X be a Y" existential phrasings. */
-    if ((cue(norm, "can") || cue(norm, "could")) && cue(norm, "no ") &&
-        cue(norm, " are ") && (cue(norm, "also be") || cue(norm, " be "))) {
+    if ((kb_cue_match(b, "10_memory_knowledge_chain9441", norm)) && cue(norm, "no ") &&
+        cue(norm, " are ") && (kb_cue_match(b, "10_memory_knowledge_chain9442", norm))) {
         char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
         char *w[64]; size_t n = split_words(sb, w, 64);
         for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
@@ -9604,8 +9586,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen349 (Fase 2, motorize-the-class): "how many X are there / in the world?"
      * -> count_of(X, N). One motor for the whole count class; a new count is a
      * fact, not C. */
-    if (cue(norm, "how many") && (cue(norm, "are there") ||
-        cue(norm, "in the world") || cue(norm, "in total") || cue(norm, "exist"))) {
+    if (cue(norm, "how many") && (kb_cue_match(b, "10_memory_knowledge_chain9607", norm))) {
         char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
         char *w[64]; size_t n = split_words(sb, w, 64);
         for (size_t i = 0; i + 1 < n; i++) {
@@ -9721,7 +9702,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * no senses, so it says so honestly — then gives the DESCRIPTION from KB
      * knowledge (appearance/2) rather than walling. The C only selects by the
      * concept named; any concept taught extends it with no code edit. */
-    if (cue(norm, "taste") || cue(norm, "tasted")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain9724", norm)) {
         char tb[256]; snprintf(tb, sizeof tb, "%s", norm);
         char *tw[64]; size_t tn = split_words(tb, tw, 64);
         for (size_t i = 0; i < tn; i++) {
@@ -9743,8 +9724,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     /* gen254: a MIX question asks for the RESULT of combining, not a
      * description of one ingredient — leave it to the mix reader below. */
-    if ((cue(norm, "describe") || cue(norm, "look like") ||
-         cue(norm, "looks like") || cue(norm, "what does") || cue(norm, "what do")) &&
+    if ((kb_cue_match(b, "10_memory_knowledge_chain9746", norm)) &&
         !cue(norm, "mix") &&
         !kb_cue_match(b, "causal_explanation_query", norm)) {
         char db[256]; snprintf(db, sizeof db, "%s", norm);
@@ -9777,9 +9757,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * hardcoded as printf are now SEMANTIC recognizers over KB facts. The C
      * only SELECTS from knowledge; the surface lives in the KB so adding a
      * mix pair, a riddle, a country border, etc. is DATA, never code. */
-    if ((cue(norm, "mix") || cue(norm, "what color") || cue(norm, "what colour") || cue(norm, "get")) &&
+    if ((kb_cue_match(b, "10_memory_knowledge_chain9780", norm)) &&
         !cue(norm, "all over") &&
-        (cue(norm, "paint") || cue(norm, "mix"))) {
+        (kb_cue_match(b, "10_memory_knowledge_chain9782", norm))) {
         /* pick the two named colours mentioned; resolve symmetrically against
          * paint_mix/3. Honest if no such pair is recorded. */
         char mb[256]; snprintf(mb, sizeof mb, "%s", norm);
@@ -9818,7 +9798,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * evaluates the rules), so an unseen riddle over the same property/metaphor
      * facts solves with no new template. The riddle_sig block below stays as a
      * secondary fallback (keep-and-select). Claims only on a full solve. */
-    if (cue(norm, "what am i")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain9821", norm)) {
         char rb[256]; snprintf(rb, sizeof rb, "%s", norm);
         char *rw[64]; size_t rn = split_words(rb, rw, 64);
         char preds[8][KB_TERM_LEN]; size_t npr = 0;
@@ -9916,7 +9896,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * the negated (NAF as a !kb_query guard). Load-bearing negation: a clock has
      * hands but ¬can_do clap; a person has hands AND can_do clap. Inference, not a
      * template. */
-    if (cue(norm, "what am i") || cue(norm, "what has")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain9919", norm)) {
         char cb[256]; snprintf(cb, sizeof cb, "%s", norm);
         char *cw[64]; size_t cn = split_words(cb, cw, 64);
         struct { const char *pred; char val[KB_TERM_LEN]; int pos; } con[16]; size_t ncon = 0;
@@ -10067,8 +10047,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * borders(_,X), dedupe, and answer N of them (three/two/one/a) or all. The same
      * relation answers "which country borders both X and Y" elsewhere. KB-first:
      * add a borders/2 fact and every such question extends with no code edit. */
-    if ((cue(norm, "border") || cue(norm, "bordering") || cue(norm, "borders") ||
-         cue(norm, "neighbor") || cue(norm, "neighbour")) &&
+    if ((kb_cue_match(b, "10_memory_knowledge_chain10070", norm)) &&
         !cue(norm, "both") && !cue(norm, "capital")) {
         char nb[256]; snprintf(nb, sizeof nb, "%s", norm);
         char *nw2[64]; size_t nn2 = split_words(nb, nw2, 64);
@@ -10106,12 +10085,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             }
             if (nl > 0) {
                 size_t want = nl;
-                if (cue(norm, "three")) want = 3;
-                else if (cue(norm, "two")) want = 2;
-                else if (cue(norm, "four")) want = 4;
-                else if (cue(norm, "five")) want = 5;
-                else if (cue(norm, "name a ") || cue(norm, "one country") ||
-                         cue(norm, "a country")) want = 1;
+                if (kb_cue_match(b, "10_memory_knowledge_chain10109", norm)) want = 3;
+                else if (kb_cue_match(b, "10_memory_knowledge_chain10110", norm)) want = 2;
+                else if (kb_cue_match(b, "10_memory_knowledge_chain10111", norm)) want = 4;
+                else if (kb_cue_match(b, "10_memory_knowledge_chain10112", norm)) want = 5;
+                else if (kb_cue_match(b, "10_memory_knowledge_chain10113", norm)) want = 1;
                 if (want > nl) want = nl;
                 char body[400]; size_t off = 0;
                 for (size_t i = 0; i < want; i++) {
@@ -10186,7 +10164,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             const char *capq[2] = { NULL, country };
             size_t nc = kb_match(b->kb, "capital_of_country", capq, 2, cap, 2);
             if (nc > 0) {
-                if (cue(norm, "ocean")) {
+                if (kb_cue_match(b, "10_memory_knowledge_chain10189", norm)) {
                     char oceans[4][KB_TERM_LEN];
                     const char *oq[2] = { country, NULL };
                     size_t no = kb_match(b->kb, "ocean_borders", oq, 2, oceans, 4);
@@ -10855,7 +10833,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * tells the truth?"). The defining phrases live in word_for(KeyPhrase, Word)
      * — matched as a substring of the turn like idiom_meaning — so both halves
      * are KB facts and the C only composes them into one line. */
-    if (cue(buf, "opposite of")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain10858", buf)) {
         char qb[256]; snprintf(qb, sizeof qb, "%s", buf);
         char *qw[32]; size_t qn = split_words(qb, qw, 32);
         for (size_t i = qn; i > 0; i--) {
@@ -10884,9 +10862,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen254: standalone defining-phrase vocabulary. "what word describes a
      * person who never gives up?" / "what do you call someone who ...?" ->
      * word_for(KeyPhrase, Word). One fact per entry, no code edit to extend. */
-    if (cue(buf, "what word") || cue(buf, "which word") || cue(buf, "word for") ||
-        cue(buf, "what do you call") || cue(buf, "one word for") ||
-        cue(buf, "a word that")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain10887", buf)) {
         char key[KB_TERM_LEN], wrd[KB_TERM_LEN];
         if (word_for_lookup(b, buf, key, sizeof key, wrd, sizeof wrd)) {
             if (wrd[0]) wrd[0] = (char)toupper((unsigned char)wrd[0]);
@@ -10946,7 +10922,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     }
 
     /* gen236 (LLMSCORE): basic physical change, grounded in very_cold_result/2. */
-    if ((cue(buf, "describe") || cue(buf, "what happens")) && cue(buf, "very cold")) {
+    if ((kb_cue_match(b, "10_memory_knowledge_chain10949", buf)) && cue(buf, "very cold")) {
         char qb[256]; snprintf(qb, sizeof qb, "%s", buf);
         char *qw[32]; size_t qn = split_words(qb, qw, 32);
         for (size_t i = 0; i < qn; i++) {
@@ -10967,7 +10943,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen236 (LLMSCORE): synonym lookup for "means the same as X" prompts.
      * gen344: "another word for X" is the most common synonym phrasing — the
      * cue joins the same lookup (the target-word scan already skips "word"). */
-    if (cue(buf, "same as") || cue(buf, "synonym") || cue(buf, "another word")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain10970", buf)) {
         char qb[256]; snprintf(qb, sizeof qb, "%s", buf);
         char *qw[32]; size_t qn = split_words(qb, qw, 32);
         for (size_t i = qn; i > 0; i--) {
@@ -11093,7 +11069,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
             if (disp[0]) disp[0] = (char)toupper((unsigned char)disp[0]);
             char msg[360]; int off = snprintf(msg, sizeof msg, "%s.", disp);
-            if (cue(buf, "river") || cue(buf, "flows through")) {
+            if (kb_cue_match(b, "10_memory_knowledge_chain11096", buf)) {
                 const char *rq[] = { capital, NULL };
                 char rh[1][KB_TERM_LEN];
                 if (kb_match(b->kb, "river_of", rq, 2, rh, 1) > 0) {
@@ -11102,7 +11078,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                                     " %s runs through it.", p);
                 }
             }
-            if (cue(buf, "ocean") || cue(buf, "sea")) {
+            if (kb_cue_match(b, "10_memory_knowledge_chain11105", buf)) {
                 const char *oq[] = { country, NULL };
                 char oh[2][KB_TERM_LEN];
                 size_t on = kb_match(b->kb, "ocean_borders", oq, 2, oh, 2);
@@ -11161,7 +11137,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (disp[0]) disp[0] = (char)toupper((unsigned char)disp[0]);
                 char msg[360]; int off = snprintf(msg, sizeof msg, "%s.", disp);
                 /* gen240: compound — also answer the landmark part if asked. */
-                if (cue(buf, "landmark")) {
+                if (kb_cue_match(b, "10_memory_knowledge_chain11164", buf)) {
                     const char *lq[] = { hits[0], NULL };
                     char lm[1][KB_TERM_LEN];
                     if (kb_match(b->kb, "landmark_of", lq, 2, lm, 1) == 0) {
@@ -11178,7 +11154,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     }
                 }
                 /* gen241 (LLMSCORE-check): compound — the river through the capital. */
-                if (cue(buf, "river")) {
+                if (kb_cue_match(b, "10_memory_knowledge_chain11181", buf)) {
                     const char *rq[] = { hits[0], NULL };
                     char rh[1][KB_TERM_LEN];
                     if (kb_match(b->kb, "river_of", rq, 2, rh, 1) > 0) {
@@ -11190,7 +11166,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     }
                 }
                 /* gen254: compound — since when it has been the capital. */
-                if (cue(buf, "year") || cue(buf, "when")) {
+                if (kb_cue_match(b, "10_memory_knowledge_chain11193", buf)) {
                     const char *yq[] = { country, NULL };
                     char yh[1][KB_TERM_LEN];
                     if (kb_match(b->kb, "capital_since", yq, 2, yh, 1) > 0) {
@@ -11200,7 +11176,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     }
                 }
                 /* gen254: compound — which city the capital replaced in that role. */
-                if (cue(buf, "replace")) {
+                if (kb_cue_match(b, "10_memory_knowledge_chain11203", buf)) {
                     const char *pq2[] = { country, NULL };
                     char ph3[1][KB_TERM_LEN];
                     if (kb_match(b->kb, "capital_predecessor", pq2, 2, ph3, 1) > 0) {
@@ -11229,10 +11205,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen240 (LLMSCORE): reverse landmark lookup — "what city is the Eiffel Tower
      * in?" / "where is the Colosseum?" -> the city, matched by a distinctive word
      * of the landmark name (landmark_city/2). */
-    if ((cue(norm, "what city") || cue(norm, "which city") || cue(norm, "where is") ||
-         cue(norm, "what country")) &&
-        (cue(norm, "located") || cue(norm, "city") || cue(norm, "where") ||
-         cue(norm, "found"))) {
+    if ((kb_cue_match(b, "10_memory_knowledge_chain11232", norm)) &&
+        (kb_cue_match(b, "10_memory_knowledge_chain11234", norm))) {
         char lb[256]; snprintf(lb, sizeof lb, "%s", norm);
         char *lw[64]; size_t ln = split_words(lb, lw, 64);
         for (size_t i = 0; i < ln; i++) {
@@ -11255,7 +11229,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * a cue word in the question to the Property and reads the phrase. Each half of
      * a compound ("closest to the Sun ... largest ...") is answered independently
      * and joined by decompose_and_dispatch. */
-    if (cue(buf, "planet") || cue(buf, "solar system")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain11258", buf)) {
         {
             char pcues[32][KB_TERM_LEN];
             const char *acq[] = { NULL, NULL };
@@ -11316,8 +11290,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     char msg[400]; int off = snprintf(msg, sizeof msg, "%s is %s.", planet, p);
                     /* gen241 (LLMSCORE-check): compound "...and describe one of its
                      * moons" -> append a moon of that planet from moon_of/3. */
-                    if (cue(buf, "moon") && (cue(buf, "describe") || cue(buf, "tell") ||
-                        cue(buf, "one of") || cue(buf, "its moon") || cue(buf, "a moon"))) {
+                    if (cue(buf, "moon") && (kb_cue_match(b, "10_memory_knowledge_chain11319", buf))) {
                         const char *mq[] = { planet_lc, NULL, NULL };
                         char mh[2][KB_TERM_LEN];
                         if (kb_match(b->kb, "moon_of", mq, 3, mh, 2) > 0) {
@@ -11390,11 +11363,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * says 'break a leg', what's the usual intent behind those words?"). The
      * broader cues stay safe because the branch still requires a stored
      * idiom_meaning phrase to occur verbatim in the turn. */
-    if (cue(buf, "mean") || cue(buf, "means") || cue(buf, "idiom") ||
-        cue(buf, "expression") || cue(buf, "phrase") || cue(buf, "intent") ||
-        cue(buf, "say") || cue(buf, "saying") || cue(buf, "those words") ||
-        cue(buf, "the words") || cue(buf, "tell") || cue(buf, "want") ||
-        cue(buf, "imply") || cue(buf, "implies")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain11393", buf)) {
         char ph[64][KB_TERM_LEN];
         const char *anyq[] = { NULL, NULL };
         size_t pn = kb_match(b->kb, "idiom_meaning", anyq, 2, ph, 64);
@@ -11424,7 +11393,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * the united states?" -> role_holder(KeyPhrase, "answer"), matched as a
      * substring of the turn like idiom_meaning. One fact per role; any "who
      * was/is the <role>" phrasing that contains the key resolves. */
-    if (cue(buf, "who was") || cue(buf, "who is") || cue(buf, "who were")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain11427", buf)) {
         char ph[64][KB_TERM_LEN];
         const char *anyq2[] = { NULL, NULL };
         size_t pn2 = kb_match(b->kb, "role_holder", anyq2, 2, ph, 64);
@@ -11446,7 +11415,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     /* gen241 (LLMSCORE-check): phase change. "what happens when you boil water at
      * sea level, and at what temperature?" -> boils_at/freezes_at give both. */
-    if ((cue(buf, "boil") || cue(buf, "boiling")) && cue(buf, "water")) {
+    if ((kb_cue_match(b, "10_memory_knowledge_chain11449", buf)) && cue(buf, "water")) {
         const char *q[] = { "water", NULL };
         char hit[1][KB_TERM_LEN];
         if (kb_match(b->kb, "boils_at", q, 2, hit, 1) > 0) {
@@ -11462,10 +11431,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     /* gen241 (LLMSCORE-check): historical fact. "what year did WWII end, and where
      * was the surrender?" -> one historical_fact phrase covering both halves. */
-    if ((cue(buf, "world war") || cue(buf, "ww2") || cue(buf, "wwii") ||
-         cue(buf, "world war ii") || cue(buf, "second world war")) &&
-        (cue(buf, "end") || cue(buf, "ended") || cue(buf, "over") ||
-         cue(buf, "surrender") || cue(buf, "finish"))) {
+    if ((kb_cue_match(b, "10_memory_knowledge_chain11465", buf)) &&
+        (kb_cue_match(b, "10_memory_knowledge_chain11467", buf))) {
         const char *key = (cue(buf, "world war i") && !cue(buf, "world war ii")) ||
                           cue(buf, "first world war") || cue(buf, "ww1") ?
                           "wwi_end" : "wwii_end";
@@ -11482,13 +11449,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen241 (LLMSCORE-check): "which country has the most people?" Collect the
      * country tokens mentioned and pick the one with the highest (or lowest)
      * magnitude(population, _, Rank). KB-first: add a magnitude fact, extend for free. */
-    if ((cue(buf, "people") || cue(buf, "population") || cue(buf, "populous") ||
-         cue(buf, "populated")) &&
-        (cue(buf, "most") || cue(buf, "fewest") || cue(buf, "least") ||
-         cue(buf, "largest") || cue(buf, "smallest") || cue(buf, "highest") ||
-         cue(buf, "biggest") || cue(buf, "which country") || cue(buf, "what country"))) {
-        int want_max = !(cue(buf, "fewest") || cue(buf, "least") ||
-                         cue(buf, "smallest") || cue(buf, "lowest"));
+    if ((kb_cue_match(b, "10_memory_knowledge_chain11485", buf)) &&
+        (kb_cue_match(b, "10_memory_knowledge_chain11487", buf))) {
+        int want_max = !(kb_cue_match(b, "10_memory_knowledge_chain11490", buf));
         char pb[256]; snprintf(pb, sizeof pb, "%s", buf);
         char *pw[64]; size_t pnw = split_words(pb, pw, 64);
         const char *best = NULL; double bestrank = 0; int found = 0;
@@ -11551,7 +11514,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
             disp[0] = (char)toupper((unsigned char)disp[0]);
             char extra[256] = "";
-            if (cue(buf, "river")) {
+            if (kb_cue_match(b, "10_memory_knowledge_chain11554", buf)) {
                 const char *rq[] = { capital, NULL };
                 char rh[1][KB_TERM_LEN];
                 if (kb_match(b->kb, "river_of", rq, 2, rh, 1) > 0) {
@@ -11559,7 +11522,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
                     snprintf(extra, sizeof extra, " %s runs through it.", p);
                 }
-            } else if (cue(buf, "replace")) {
+            } else if (kb_cue_match(b, "10_memory_knowledge_chain11562", buf)) {
                 /* gen254: "...and which city did it replace in that role?" —
                  * capital_predecessor(Country, "gloss") is one KB fact per
                  * country; teaching another country is no code edit. */
@@ -11610,10 +11573,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen241 (LLMSCORE-check): "a place where you might see X" -> the place from
      * place_for/2. Answers the definition half of rhyme riddles ("...means a place
      * where you see exotic animals" -> a zoo). */
-    if (cue(buf, "place where") || cue(buf, "place to see") ||
-        cue(buf, "place you") || cue(buf, "place for") ||
-        cue(buf, "where you might see") || cue(buf, "where you can see") ||
-        cue(buf, "where you keep")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain11613", buf)) {
         char pb[256]; snprintf(pb, sizeof pb, "%s", buf);
         char *pw[64]; size_t pnw = split_words(pb, pw, 64);
         for (size_t i = 0; i < pnw; i++) {
@@ -11637,8 +11597,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     /* gen241 (LLMSCORE-check): days of the week in alphabetical order -> the first is
      * Friday. Computed by sorting the seven names, not memorized. */
-    if ((cue(buf, "days of the week") || cue(buf, "seven days") || cue(buf, "weekdays")) &&
-        (cue(buf, "alphabet") || cue(buf, "alphabetical") || cue(buf, "abc order"))) {
+    if ((kb_cue_match(b, "10_memory_knowledge_chain11640", buf)) &&
+        (kb_cue_match(b, "10_memory_knowledge_chain11641", buf))) {
         static const char *days[] = { "Monday","Tuesday","Wednesday","Thursday",
                                       "Friday","Saturday","Sunday" };
         const char *firstd = days[0];
@@ -11740,7 +11700,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     /* gen241 (LLMSCORE-check): limerick. A fixed AABBA form; the five lines per theme
      * live in KB as limerick_l1..l5(Theme). The C only selects the theme and joins. */
-    if (cue(buf, "limerick")) {
+    if (kb_cue_match(b, "10_memory_knowledge_chain11743", buf)) {
         char lb[256]; snprintf(lb, sizeof lb, "%s", buf);
         char *lw[64]; size_t lnw = split_words(lb, lw, 64);
         for (size_t i = 0; i < lnw; i++) {
@@ -11769,15 +11729,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen241 (LLMSCORE-check): roleplay scenario advice. "As a store manager, what
      * would you do?" about a refund/complaint -> an honest preface plus the ordered
      * scenario_step(Scene, N, "step") facts. KB-first: add a scenario, no code edit. */
-    if ((cue(buf, "what would you do") || cue(buf, "how would you handle") ||
-         cue(buf, "how would you respond") || cue(buf, "how do you handle") ||
-         cue(buf, "what should i do")) &&
-        (cue(buf, "manager") || cue(buf, "as a") || cue(buf, "customer") ||
-         cue(buf, "refund") || cue(buf, "complaint") || cue(buf, "return"))) {
+    if ((kb_cue_match(b, "10_memory_knowledge_chain11772", buf)) &&
+        (kb_cue_match(b, "10_memory_knowledge_chain11775", buf))) {
         const char *scene = NULL;
-        if (cue(buf, "refund") || cue(buf, "return") || cue(buf, "receipt")) scene = "refund";
-        else if (cue(buf, "complaint") || cue(buf, "complain") || cue(buf, "angry") ||
-                 cue(buf, "upset")) scene = "complaint";
+        if (kb_cue_match(b, "10_memory_knowledge_chain11778", buf)) scene = "refund";
+        else if (kb_cue_match(b, "10_memory_knowledge_chain11779", buf)) scene = "complaint";
         if (scene) {
             const char *q[] = { scene, NULL, NULL };
             char nums[8][KB_TERM_LEN];

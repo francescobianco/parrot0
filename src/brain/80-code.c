@@ -332,9 +332,8 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     /* gen182: F4 localization — "which file in <dir> defines <X>?". Scan a
      * directory (sandboxed) for the file that defines the named function. Handled
      * before the snippet questions because it takes a directory, not code. */
-    if ((cue(qpart, "which file") || cue(qpart, "what file") || cue(qpart, "quale file")) &&
-        (cue(qpart, "define") || cue(qpart, "defines") || cue(qpart, "definisce") ||
-         cue(qpart, "contains") || cue(qpart, "contiene"))) {
+    if ((kb_cue_match(b, "80_code_chain335", qpart)) &&
+        (kb_cue_match(b, "80_code_chain336", qpart))) {
         char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", qpart);
         char *w[48]; size_t nw = split_words(qbuf, w, 48);
         char fnname[KB_TERM_LEN] = ""; char dir[256] = "";
@@ -366,8 +365,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
      * rule-shaped rather than a single hardcoded operation. Deleting a function
      * that is still called yields an honest "no longer compiles" from the real
      * compiler — the grounded oracle, not a guess. */
-    if ((cue(qpart, "delete") || cue(qpart, "remove") || cue(qpart, "elimina") ||
-         cue(qpart, "rimuovi")) && (cue(qpart, "function") || cue(qpart, "funzione")) &&
+    if ((kb_cue_match(b, "80_code_chain369", qpart)) && (kb_cue_match(b, "80_code_chain370", qpart)) &&
         code_text_has_path(qpart, 1, 0)) {
         char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", qpart);
         char *w[48]; size_t nw = split_words(qbuf, w, 48);
@@ -616,7 +614,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     int sym_find  = cue(qpart, "find") || cue(qpart, "locate") || cue(qpart, "where") ||
                     cue(qpart, "trova") || cue(qpart, "dove") || cue(qpart, "identify");
     if ((sym_write || sym_find) &&
-        (cue(qpart, "symmetry") || cue(qpart, "simmetria") || cue(qpart, "bug")) &&
+        (kb_cue_match(b, "80_code_chain619", qpart)) &&
         code_text_has_path(qpart, 1, 1)) {
         char path[256] = "";
         for (const char *p = qpart; *p; ) {
@@ -752,8 +750,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
      * code" it hands each sub-clause but passes the WHOLE raw input, so reading
      * the verb from raw would make the trailing "tell me ..." clause re-fire and
      * double the answer. The path is still taken from raw to preserve case. */
-    if ((cue(norm, "run") || cue(norm, "execute") || cue(norm, "esegui") ||
-         cue(norm, "esegu")) &&
+    if ((kb_cue_match(b, "80_code_chain755", norm)) &&
         code_text_has_path(qpart, 1, 1)) {
         char path[256] = "";
         for (const char *p = qpart; *p; ) {
@@ -792,7 +789,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     /* gen186: F5 verification — "does <file> compile?". Run the compiler (a
      * deterministic tool) on a sandboxed path and report. Handled before the
      * snippet questions because it takes a file path, not inline code. */
-    if (cue(qpart, "compile") || cue(qpart, "compiles") || cue(qpart, "compila")) {
+    if (kb_cue_match(b, "80_code_chain795", qpart)) {
         char path[256] = "";
         for (const char *p = qpart; *p; ) {
             while (*p == ' ' || *p == '\t') p++;
@@ -830,9 +827,8 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     /* gen185: reverse call graph — "what/who calls <X> in <dir>?". Scan the
      * directory (sandboxed, recursive) for the functions whose body calls X — the
      * blast radius before an edit. Distinct phrasing from "what does X call". */
-    if ((cue(qpart, "what calls") || cue(qpart, "who calls") ||
-         cue(qpart, "chi chiama")) &&
-        (cue(qpart, " in ") || cue(qpart, " under ") || cue(qpart, "/"))) {
+    if ((kb_cue_match(b, "80_code_chain833", qpart)) &&
+        (kb_cue_match(b, "80_code_chain835", qpart))) {
         char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", qpart);
         char *w[48]; size_t nw = split_words(qbuf, w, 48);
         char target[KB_TERM_LEN] = ""; char dir[256] = "";
@@ -877,12 +873,10 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     int wants_state = code_state_target(b, s, state_target,
                                         sizeof state_target);
     int wants_funcs = !wants_eval &&
-        (cue(s, "function") || cue(s, "funzioni") || cue(s, "funzione")) &&
-        (cue(s, "define") || cue(s, "defined") || cue(s, "definisce") ||
-         cue(s, "definite") || cue(s, "definisci"));
+        (kb_cue_match(b, "80_code_chain880", s)) &&
+        (kb_cue_match(b, "80_code_chain881", s));
     int wants_calls = !wants_eval && !wants_funcs &&
-        (cue(s, "call") || cue(s, "calls") || cue(s, "invoke") ||
-         cue(s, "chiama") || cue(s, "invoca"));
+        (kb_cue_match(b, "80_code_chain884", s));
     if (!wants_eval && !wants_state && !wants_funcs && !wants_calls) return 0;
 
     /* The code comes either inline (after a ':') or, gen181, from a real file on

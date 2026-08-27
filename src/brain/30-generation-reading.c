@@ -451,8 +451,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     /* gen234 (LLMSCORE): greeting imperative — "say hello (to me)", "say hi",
      * "greet me" -> reply with a greeting from response_template(greeting_reply).
      * Checked before the generic "say <word>" so it isn't decoded as a seed. */
-    if (cue(norm, "say hello") || cue(norm, "say hi") || cue(norm, "say hey") ||
-        cue(norm, "greet me")) {
+    if (kb_cue_match(b, "30_generation_reading_chain454", norm)) {
         if (kb_response(b, "greeting_reply", "", out, out_size)) return 1;
     }
     if (nw == 1) {
@@ -479,14 +478,11 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
 
     /* gen247: exact-word concise explanation. The explanation content is KB data
      * (`concise_explain/3`); C only maps topic cues and enforces the requested N. */
-    if ((cue(norm, "two words") || cue(norm, "2 words") ||
-         cue(norm, "three words") || cue(norm, "3 words") ||
-         cue(norm, "four words") || cue(norm, "4 words") ||
-         cue(norm, "exactly"))) {
+    if ((kb_cue_match(b, "30_generation_reading_chain482", norm))) {
         int wantw = 0;
-        if (cue(norm, "two words") || cue(norm, "2 words")) wantw = 2;
-        else if (cue(norm, "three words") || cue(norm, "3 words")) wantw = 3;
-        else if (cue(norm, "four words") || cue(norm, "4 words")) wantw = 4;
+        if (kb_cue_match(b, "30_generation_reading_chain487", norm)) wantw = 2;
+        else if (kb_cue_match(b, "30_generation_reading_chain488", norm)) wantw = 3;
+        else if (kb_cue_match(b, "30_generation_reading_chain489", norm)) wantw = 4;
         char eb[256]; snprintf(eb, sizeof eb, "%s", norm);
         char *ew[64]; size_t en = split_words(eb, ew, 64);
         char topic[KB_TERM_LEN];
@@ -790,15 +786,12 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
 
     /* gen245: constrained sensory-description frame. Topic detection is KB-backed
      * (sensory_topic/2) and the exact word-count surface lives in sensory_phrase/3. */
-    if ((cue(norm, "describe") || cue(norm, "in three words") ||
-         cue(norm, "in 3 words")) &&
-        (cue(norm, "two words") || cue(norm, "2 words") ||
-         cue(norm, "three words") || cue(norm, "3 words") ||
-         cue(norm, "four words") || cue(norm, "4 words"))) {
+    if ((kb_cue_match(b, "30_generation_reading_chain793", norm)) &&
+        (kb_cue_match(b, "30_generation_reading_chain795", norm))) {
         int wantw = 0;
-        if (cue(norm, "two words") || cue(norm, "2 words")) wantw = 2;
-        else if (cue(norm, "three words") || cue(norm, "3 words")) wantw = 3;
-        else if (cue(norm, "four words") || cue(norm, "4 words")) wantw = 4;
+        if (kb_cue_match(b, "30_generation_reading_chain799", norm)) wantw = 2;
+        else if (kb_cue_match(b, "30_generation_reading_chain800", norm)) wantw = 3;
+        else if (kb_cue_match(b, "30_generation_reading_chain801", norm)) wantw = 4;
         char db[256]; snprintf(db, sizeof db, "%s", norm);
         char *dw[64]; size_t dn = split_words(db, dw, 64);
         char topic[KB_TERM_LEN];
@@ -819,7 +812,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     }
 
     if (cue(norm, "rubber band") && cue(norm, "stretch") &&
-        (cue(norm, "let go") || cue(norm, "release"))) {
+        (kb_cue_match(b, "30_generation_reading_chain822", norm))) {
         kb_say(b, "it_stretches_longer_while_you_pull_it_", "It stretches longer while you pull it. When you let go, elasticity pulls it back toward its original shape.", out, out_size);
         return 1;
     }
@@ -832,7 +825,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * open(first) / mid(last) / close(first) — subject opens and closes, the
      * object/phenomenon carries the middle. Honest ceiling: if no mentioned
      * concept has lines, fall through and decline (the "Genera" limit). */
-    if (cue(norm, "haiku")) {
+    if (kb_cue_match(b, "30_generation_reading_chain835", norm)) {
         char ht[256]; snprintf(ht, sizeof ht, "%s", norm);
         char *hw[64]; size_t hn = split_words(ht, hw, 64);
         char concept[2][KB_TERM_LEN]; int nc = 0;
@@ -870,7 +863,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     }
 
     /* gen335+: riddle answers — "what word becomes X when you Y" queries KB. */
-    if (cue(norm, "what word becomes") || cue(norm, "what word gets")) {
+    if (kb_cue_match(b, "30_generation_reading_chain873", norm)) {
         char rb[256]; snprintf(rb, sizeof rb, "%s", norm);
         char *rw[32]; size_t rn = split_words(rb, rw, 32);
         for (size_t i = 0; i < rn; i++) {
@@ -893,8 +886,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * Pattern B: long narrative input (no '?', >100 chars) — continuation.
      * Pattern C: long input with weekday → override day-of-week false match. */
     {
-        int is_story_req = (cue(norm, "tell me a") || cue(norm, "tell a") ||
-                            cue(norm, "write a") || cue(norm, "make up a")) &&
+        int is_story_req = (kb_cue_match(b, "30_generation_reading_chain896", norm)) &&
                            cue(norm, "story");
         int is_continuation = !cue(norm, "?") && strlen(norm) > 80;
         /* Q3 fix: long narrative with a weekday is NOT a day-of-week query */
@@ -1098,14 +1090,14 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    if (cue(norm, "chicken cross the road")) {
+    if (kb_cue_match(b, "30_generation_reading_chain1101", norm)) {
         if (kb_response(b, "joke_chicken", NULL, out, out_size)) return 1;
     }
-    if (cue(norm, "bear") && (cue(norm, "no teeth") || cue(norm, "without teeth"))) {
+    if (cue(norm, "bear") && (kb_cue_match(b, "30_generation_reading_chain1104", norm))) {
         if (kb_response(b, "joke_bear_teeth", NULL, out, out_size)) return 1;
     }
     if (cue(norm, "joke") &&
-        (cue(norm, "short") || cue(norm, "tell me") || cue(norm, "make me laugh"))) {
+        (kb_cue_match(b, "30_generation_reading_chain1108", norm))) {
         if (kb_response(b, "joke_short", NULL, out, out_size)) return 1;
     }
 
@@ -1118,7 +1110,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * Checked before the couplet so a "four-line"/"quatrain" request gets four lines. */
     if (cue(norm, "four-line") || cue(norm, "four line") || cue(norm, "4-line") ||
         cue(norm, "4 line") || cue(norm, "quatrain") ||
-        (cue(norm, "poem") && (cue(norm, "four") || cue(norm, "4")))) {
+        (cue(norm, "poem") && (kb_cue_match(b, "30_generation_reading_chain1121", norm)))) {
         char qt[256]; snprintf(qt, sizeof qt, "%s", norm);
         char *qw[64]; size_t qn = split_words(qt, qw, 64);
         for (size_t i = 0; i < qn; i++) {
@@ -1159,8 +1151,8 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         cue(norm, "two-line poem") || cue(norm, "two line poem") ||
         cue(norm, "two-line rhyme") || cue(norm, "two line rhyme") ||
         cue(norm, "poem about") || cue(norm, "poem on") || cue(norm, "verse about") ||
-        ((cue(norm, "poem") || cue(norm, "rhyme")) &&
-         (cue(norm, "two line") || cue(norm, "two-line") || cue(norm, "rhym"))))) {
+        ((kb_cue_match(b, "30_generation_reading_chain1162", norm)) &&
+         (kb_cue_match(b, "30_generation_reading_chain1163", norm))))) {
         {
             char pt[256]; snprintf(pt, sizeof pt, "%s", norm);
             char *pw[64]; size_t pn = split_words(pt, pw, 64);
@@ -1191,7 +1183,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             }
         }
         /* legacy alias: "ai"/"artificial intelligence" map to concept `ai` */
-        if (cue(norm, "artificial intelligence") || cue(norm, " ai")) {
+        if (kb_cue_match(b, "30_generation_reading_chain1194", norm)) {
             char l[KB_TERM_LEN];
             if (haiku_line(b, "couplet", "ai", l, sizeof l)) {
                 render_couplet_with_format(b, norm, l, out, out_size);
@@ -1229,8 +1221,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
 
     /* gen235 (LLMSCORE): short word-order repair. The C only scores a tiny
      * grammar shape; noun/adjective evidence comes from KB facts like color_of/2. */
-    if (cue(norm, "rearrange") || cue(norm, "put these words in order") ||
-        cue(norm, "make a sentence from")) {
+    if (kb_cue_match(b, "30_generation_reading_chain1232", norm)) {
         const char *src = strchr(norm, ':');
         if (src) src++; else src = norm;
         char rb[256]; snprintf(rb, sizeof rb, "%s", src);
@@ -1269,20 +1260,13 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
 
     /* gen235 (LLMSCORE): bounded creative continuation. Scene cues and the
      * continuation surface live in KB; unknown scenes still decline honestly. */
-    if (cue(norm, "complete this sentence") || cue(norm, "continue this sentence") ||
-        cue(norm, "finish this sentence") || cue(norm, "continue this story") ||
-        cue(norm, "continue the story") || cue(norm, "finish this story") ||
-        cue(norm, "finish the story") || cue(norm, "continue the sentence") ||
-        cue(norm, "complete the following sentence") || cue(norm, "complete the sentence") ||
-        cue(norm, "complete the following") || cue(norm, "finish the following") ||
-        cue(norm, "continue the following")) {
+    if (kb_cue_match(b, "30_generation_reading_chain1272", norm)) {
         char cb[256]; snprintf(cb, sizeof cb, "%s", norm);
         char *cw[48]; size_t cn = split_words(cb, cw, 48);
 
         /* gen241 (LLMSCORE-check): three-word fill-in-the-blank ("...and always ___
          * ___ ___"). Recognized by the blank run; emit a verified three-word value. */
-        if (cue(norm, "___") || cue(norm, "three words") || cue(norm, "3 words") ||
-            cue(norm, "blank")) {
+        if (kb_cue_match(b, "30_generation_reading_chain1284", norm)) {
             int blanks = 0;
             for (const char *p = norm; (p = strstr(p, "___")); p += 3) blanks++;
             if (blanks >= 2 || cue(norm, "three words") || cue(norm, "3 words")) {
@@ -1305,11 +1289,11 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
          * words"). Detect N, find the scene, emit a completion_exact(Scene, N, _)
          * whose length the KB guarantees; fall through to the free completion if none. */
         int wantw = 0;
-        if (cue(norm,"two words")||cue(norm,"2 words")) wantw = 2;
-        else if (cue(norm,"three words")||cue(norm,"3 words")) wantw = 3;
-        else if (cue(norm,"four words")||cue(norm,"4 words")) wantw = 4;
-        else if (cue(norm,"five words")||cue(norm,"5 words")) wantw = 5;
-        else if (cue(norm,"six words")||cue(norm,"6 words")) wantw = 6;
+        if (kb_cue_match(b, "30_generation_reading_chain1308", norm)) wantw = 2;
+        else if (kb_cue_match(b, "30_generation_reading_chain1309", norm)) wantw = 3;
+        else if (kb_cue_match(b, "30_generation_reading_chain1310", norm)) wantw = 4;
+        else if (kb_cue_match(b, "30_generation_reading_chain1311", norm)) wantw = 5;
+        else if (kb_cue_match(b, "30_generation_reading_chain1312", norm)) wantw = 6;
         if (wantw) {
             char wn[8]; snprintf(wn, sizeof wn, "%d", wantw);
             for (size_t i = 0; i < cn; i++) {
@@ -1338,11 +1322,8 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 if (tn > 0) {
                     /* gen240: N alternative continuations — three or two. */
                     size_t wantn = 0;
-                    if (cue(norm, "three") || cue(norm, "3 different") ||
-                        cue(norm, "3 more") || cue(norm, "three more")) wantn = 3;
-                    else if (cue(norm, "two") || cue(norm, "2 different") ||
-                             cue(norm, "two different") || cue(norm, "two ways") ||
-                             cue(norm, "two options") || cue(norm, "couple of")) wantn = 2;
+                    if (kb_cue_match(b, "30_generation_reading_chain1341", norm)) wantn = 3;
+                    else if (kb_cue_match(b, "30_generation_reading_chain1343", norm)) wantn = 2;
                     if (wantn >= 2) {
                         /* gen254: "in three different WAYS" asks for N alternative
                          * completions of the SAME stem, not a story that moves on
@@ -1375,7 +1356,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                     char msg[220];
                     /* gen241: only a STORY continuation gets the dramatic lead; a plain
                      * "finish this sentence" reads better as the bare clause. */
-                    if (cue(norm, "story")) {
+                    if (kb_cue_match(b, "30_generation_reading_chain1378", norm)) {
                         snprintf(msg, sizeof msg, "Suddenly, %s.", p);
                     } else {
                         snprintf(msg, sizeof msg, "%s.", p);  /* bare continuation clause */
@@ -1392,9 +1373,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * continuation_template/2 facts, chained with narrative leads. One line
      * (the interviewer channel is line-based, gen252). Unknown topics get an
      * informed decline that names real alternatives from the KB. */
-    if (cue(norm, "story about") || cue(norm, "tell me a story") ||
-        cue(norm, "tell a story") || cue(norm, "write a story") ||
-        cue(norm, "write me a story") || cue(norm, "make up a story")) {
+    if (kb_cue_match(b, "30_generation_reading_chain1395", norm)) {
         char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
         char *sw[48]; size_t sn = split_words(sb, sw, 48);
         char picked_scene[KB_TERM_LEN];
@@ -1462,14 +1441,11 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * any historical figures", "any person from history") and supports a count of
      * 1–3 ("any three" -> 3; "any person/someone" -> 1; default 3). */
     if (cue(norm, "dinner") &&
-        (cue(norm, "historical") || cue(norm, "from history") ||
-         cue(norm, "in history") || cue(norm, "historic"))) {
+        (kb_cue_match(b, "30_generation_reading_chain1465", norm))) {
         int want = 3;
-        if (cue(norm, "three") || cue(norm, " 3 ")) want = 3;
-        else if (cue(norm, "two") || cue(norm, " 2 ")) want = 2;
-        else if (cue(norm, "one ") || cue(norm, "any person") ||
-                 cue(norm, "any one") || cue(norm, "someone") ||
-                 cue(norm, "a person") || cue(norm, "single")) want = 1;
+        if (kb_cue_match(b, "30_generation_reading_chain1468", norm)) want = 3;
+        else if (kb_cue_match(b, "30_generation_reading_chain1469", norm)) want = 2;
+        else if (kb_cue_match(b, "30_generation_reading_chain1470", norm)) want = 1;
         const char *domains[] = { "science", "philosophy", "leadership" };
         char names[3][KB_TERM_LEN];
         char reasons[3][KB_TERM_LEN];
@@ -1563,10 +1539,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * composes a real (if simple) sentence, never a fixed C string (PRINCIPLES.md:
      * the surface forms it PRODUCES live in the KB). */
     if (cue(norm, "sentence") &&
-        (cue(norm, "using the word") || cue(norm, "with the word") ||
-         cue(norm, "that uses") || cue(norm, "contains the word") ||
-         cue(norm, "use the word") || cue(norm, "con la parola") ||
-         cue(norm, "usando la parola"))) {
+        (kb_cue_match(b, "30_generation_reading_chain1566", norm))) {
         char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
         char *ww[64]; size_t nn = split_words(tmp, ww, 64);
         /* the target word follows the marker "word"/"parola", else "with"/"uses"/
