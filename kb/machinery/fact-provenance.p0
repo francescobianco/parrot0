@@ -29,6 +29,7 @@ reading_fact(measures(ohm, electrical_resistance), "the ohm measures electrical 
 bridged("the ohm measures electrical resistance", dialogue).
 bridged("the ampere measures what?", dialogue).
 bridged("a counterexample refutes a universal claim", dialogue).
+bridged("dropout prevents what?", dialogue).
 fact_source(measures(farad, capacitance), farad, "the farad measures capacitance").
 reading_fact(measures(farad, capacitance), "the farad measures capacitance").
 fact_source(measures(henry, inductance), henry, "the henry measures inductance").
@@ -64,8 +65,52 @@ reading_fact(weakens(hedging, claim), "hedging weakens a claim").
 fact_source(refutes(counterexample, universal_claim), counterexample, "a counterexample refutes a universal claim").
 reading_fact(relation_verb(weakens), "weakens is a relation verb").
 fact_source(relation_verb(refutes), refutes, "refutes is a relation verb").
+fact_source(encodes(tokenizer, text), tokenizer, "a tokenizer encodes text").
+fact_source(relation_verb(encodes), encodes, "encodes is a relation verb").
+fact_source(applies(transformer, self_attention), transformer, "a transformer applies self attention").
+fact_source(relation_verb(applies), applies, "applies is a relation verb").
+fact_source(discovers(unsupervised_learning, structure), unsupervised_learning, "unsupervised learning discovers structure").
+reading_fact(encodes(tokenizer, text), "a tokenizer encodes text").
+fact_source(relation_verb(discovers), discovers, "discovers is a relation verb").
+reading_fact(relation_verb(encodes), "encodes is a relation verb").
+fact_source(represents(embedding, word), embedding, "an embedding represents a word").
+reading_fact(applies(transformer, self_attention), "a transformer applies self attention").
+fact_source(relation_verb(represents), represents, "represents is a relation verb").
+reading_fact(relation_verb(applies), "applies is a relation verb").
+fact_source(penalizes(regularization, complexity), regularization, "regularization penalizes complexity").
+reading_fact(discovers(unsupervised_learning, structure), "unsupervised learning discovers structure").
+fact_source(relation_verb(penalizes), penalizes, "penalizes is a relation verb").
+reading_fact(relation_verb(discovers), "discovers is a relation verb").
+fact_source(harms(overfitting, generalization), overfitting, "overfitting harms generalization").
+reading_fact(represents(embedding, word), "an embedding represents a word").
+fact_source(relation_verb(harms), harms, "harms is a relation verb").
+reading_fact(relation_verb(represents), "represents is a relation verb").
+fact_source(splits(tokenization, text), tokenization, "tokenization splits text").
+reading_fact(penalizes(regularization, complexity), "regularization penalizes complexity").
+fact_source(relation_verb(splits), splits, "splits is a relation verb").
+reading_fact(relation_verb(penalizes), "penalizes is a relation verb").
+fact_source(predicts(language_model, next_token), language_model, "a language model predicts the next token").
+reading_fact(harms(overfitting, generalization), "overfitting harms generalization").
+fact_source(relation_verb(predicts), predicts, "predicts is a relation verb").
+reading_fact(relation_verb(harms), "harms is a relation verb").
+fact_source(computes(backpropagation, gradients), backpropagation, "backpropagation computes gradients").
+reading_fact(splits(tokenization, text), "tokenization splits text").
+fact_source(relation_verb(computes), computes, "computes is a relation verb").
+reading_fact(relation_verb(splits), "splits is a relation verb").
+fact_source(minimizes(gradient_descent, loss_function), gradient_descent, "gradient descent minimizes a loss function").
+reading_fact(predicts(language_model, next_token), "a language model predicts the next token").
+fact_source(relation_verb(minimizes), minimizes, "minimizes is a relation verb").
+fact_source(prevents(dropout, overfitting), dropout, "dropout prevents overfitting").
+fact_source(relation_verb(prevents), prevents, "prevents is a relation verb").
+reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(measures(ampere, current), "the ampere measures current").
+reading_fact(computes(backpropagation, gradients), "backpropagation computes gradients").
 reading_fact(refutes(counterexample, universal_claim), "a counterexample refutes a universal claim").
+reading_fact(relation_verb(computes), "computes is a relation verb").
 reading_fact(measures(kelvin, temperature), "the kelvin measures temperature").
+reading_fact(minimizes(gradient_descent, loss_function), "gradient descent minimizes a loss function").
 reading_fact(relation_verb(refutes), "refutes is a relation verb").
+reading_fact(prevents(dropout, overfitting), "dropout prevents overfitting").
+reading_fact(relation_verb(minimizes), "minimizes is a relation verb").
+reading_fact(relation_verb(prevents), "prevents is a relation verb").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").

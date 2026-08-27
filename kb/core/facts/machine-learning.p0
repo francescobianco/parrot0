@@ -1,0 +1,36 @@
+% machine-learning.p0 — L'APPRENDIMENTO AUTOMATICO E IL TRATTAMENTO DELLA LINGUA
+%
+% Terza casa aperta con lo stesso criterio di kb/core/facts/units.p0 e
+% scientific-discourse.p0: l'asse e' la MATERIA, non il predicato. Dieci verbi
+% diversi, una sola cosa di cui parlano — come si addestra un modello e come si
+% tratta il testo.
+%
+% Le righe vengono da una sessione di insegnamento reale (LEARN_PROTOCOL,
+% dominio apprendimento automatico e NLP —
+% docs/labs/apprendimento-assistito/2026-08-28-ml-nlp.md): ogni verbo aperto
+% dicendo «<verbo> is a relation verb», ogni fatto detto in lingua naturale.
+%
+% Fonti: Rumelhart, Hinton & Williams, Nature 323 (1986) per la
+% retropropagazione; Mikolov et al. (2013) per le rappresentazioni vettoriali;
+% Vaswani et al., «Attention Is All You Need» (2017) per la self-attention;
+% Goodfellow, Bengio & Courville, «Deep Learning» (2016) per regolarizzazione,
+% overfitting e discesa del gradiente.
+%
+% Un verbo che collide non entra. `needs` canonicalizza in `requires`, che il
+% modulo `plan` possiede gia' per le precondizioni: la domanda «supervised
+% learning needs what?» veniva letta come ASSERZIONE e produceva il fatto falso
+% `requires(supervised_learning, what)`. La sessione che lo conteneva e' stata
+% abbandonata senza salvare, non ripulita dopo. Il fatto vero corrispondente —
+% che l'apprendimento supervisionato richieda dati etichettati — resta percio'
+% fuori da qui finche' non c'e' un verbo che non collide.
+
+minimizes(gradient_descent, loss_function).
+computes(backpropagation, gradients).
+predicts(language_model, next_token).
+splits(tokenization, text).
+harms(overfitting, generalization).
+penalizes(regularization, complexity).
+represents(embedding, word).
+discovers(unsupervised_learning, structure).
+applies(transformer, self_attention).
+encodes(tokenizer, text).

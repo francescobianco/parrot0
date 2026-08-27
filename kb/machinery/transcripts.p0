@@ -27,6 +27,8 @@ utterance(5, user, "what is a resistor?").
 utterance(5, user, "the henry measures what?").
 utterance(5, user, "the kelvin measures temperature").
 utterance(5, user, "what is hedging in scientific writing?").
+utterance(5, user, "gradient_descent minimizes what?").
+utterance(5, user, "overfitting harms what?").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -37,6 +39,8 @@ utterance(7, user, "the kelvin measures what?").
 utterance(8, self, "Temperature.").
 utterance(6, self, "The scientific method is a cycle of forming testable explanations, deriving predictions, gathering reproducible evidence and revising claims in light of results and criticism.").
 utterance(7, user, "what does a counterexample do?").
+utterance(6, self, "Loss function.").
+utterance(6, self, "Generalization.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -105,6 +109,76 @@ utterance(72, self, "Research article.").
 utterance(73, user, "the counterexample refutes what?").
 utterance(74, self, "Universal claim.").
 utterance(75, user, "hedging weakens what?").
+utterance(7, user, "computes is a relation verb").
+utterance(8, self, "Learned: relation_verb(computes).").
+utterance(9, user, "backpropagation computes gradients").
+utterance(10, self, "Learned: computes(backpropagation, gradients).").
+utterance(11, user, "backpropagation computes what?").
+utterance(12, self, "Gradients.").
+utterance(13, user, "predicts is a relation verb").
+utterance(14, self, "Learned: relation_verb(predicts).").
+utterance(15, user, "a language model predicts the next token").
+utterance(16, self, "Learned: predicts(language_model, next_token).").
+utterance(17, user, "language_model predicts what?").
+utterance(18, self, "Next token.").
+utterance(19, user, "splits is a relation verb").
+utterance(20, self, "Learned: relation_verb(splits).").
+utterance(21, user, "tokenization splits text").
+utterance(22, self, "Learned: splits(tokenization, text).").
+utterance(23, user, "tokenization splits what?").
+utterance(24, self, "Text.").
+utterance(25, user, "harms is a relation verb").
+utterance(26, self, "Learned: relation_verb(harms).").
+utterance(27, user, "overfitting harms generalization").
+utterance(28, self, "Learned: harms(overfitting, generalization).").
+utterance(29, user, "overfitting harms what?").
+utterance(30, self, "Generalization.").
+utterance(31, user, "penalizes is a relation verb").
+utterance(32, self, "Learned: relation_verb(penalizes).").
+utterance(33, user, "regularization penalizes complexity").
+utterance(34, self, "Learned: penalizes(regularization, complexity).").
+utterance(35, user, "regularization penalizes what?").
+utterance(36, self, "Complexity.").
+utterance(37, user, "represents is a relation verb").
+utterance(38, self, "Learned: relation_verb(represents).").
+utterance(39, user, "an embedding represents a word").
+utterance(40, self, "Learned: represents(embedding, word).").
+utterance(41, user, "embedding represents what?").
+utterance(42, self, "Word.").
+utterance(43, user, "discovers is a relation verb").
+utterance(44, self, "Learned: relation_verb(discovers).").
+utterance(45, user, "unsupervised learning discovers structure").
+utterance(46, self, "Learned: discovers(unsupervised_learning, structure).").
+utterance(47, user, "unsupervised_learning discovers what?").
+utterance(48, self, "Structure.").
+utterance(49, user, "applies is a relation verb").
+utterance(50, self, "Learned: relation_verb(applies).").
+utterance(51, user, "a transformer applies self attention").
+utterance(52, self, "Learned: applies(transformer, self_attention).").
+utterance(53, user, "transformer applies what?").
+utterance(54, self, "Self attention.").
+utterance(55, user, "encodes is a relation verb").
+utterance(56, self, "Learned: relation_verb(encodes).").
+utterance(57, user, "a tokenizer encodes text").
+utterance(58, self, "Learned: encodes(tokenizer, text).").
+utterance(59, user, "tokenizer encodes what?").
+utterance(60, self, "Text.").
+utterance(61, user, "gradient_descent minimizes what?").
+utterance(62, self, "Loss function.").
+utterance(63, user, "backpropagation computes what?").
+utterance(64, self, "Gradients.").
+utterance(65, user, "dropout prevents what?").
+utterance(66, self, "Hmm, I don't know about dropout yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a dropout»; if dropout is a word you want to talk ABOUT, say «the word dropout is a …».").
+utterance(7, user, "embedding represents what?").
+utterance(8, self, "Word.").
+utterance(9, user, "which quantity does the tokenizer encodes?").
+utterance(10, self, "Text.").
+utterance(11, user, "prevents is a relation verb").
+utterance(12, self, "Learned: relation_verb(prevents).").
+utterance(13, user, "dropout prevents overfitting").
+utterance(14, self, "Learned: prevents(dropout, overfitting).").
+utterance(15, user, "dropout prevents what?").
+utterance(16, self, "Overfitting.").
 utterance(76, self, "Claim.").
 utterance(7, user, "what does a capacitor store?").
 utterance(8, self, "I don't understand that yet.").
@@ -184,14 +258,22 @@ utterance(81, user, "forget that forget is a is_unit").
 utterance(2, self, "Learned: measures(watt, power).").
 utterance(2, self, "Electrical resistance.").
 utterance(2, self, "I don't have the article you mean — paste it here and I'll work on it.").
+utterance(2, self, "Learned: relation_verb(minimizes).").
+utterance(2, self, "Loss function.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
+utterance(1, user, "minimizes is a relation verb").
+utterance(1, user, "gradient_descent minimizes what?").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
+utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
+utterance(4, self, "Self attention.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
+utterance(3, user, "gradient descent minimizes a loss function").
+utterance(3, user, "transformer applies what?").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

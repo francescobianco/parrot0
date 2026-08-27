@@ -35,3 +35,14 @@ relation_verb(maps).
 relation_verb(surveys).
 relation_verb(weakens).
 relation_verb(refutes).
+relation_verb(encodes).
+relation_verb(applies).
+relation_verb(discovers).
+relation_verb(represents).
+relation_verb(penalizes).
+relation_verb(harms).
+relation_verb(splits).
+relation_verb(predicts).
+relation_verb(computes).
+relation_verb(minimizes).
+relation_verb(prevents).

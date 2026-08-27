@@ -3014,6 +3014,7 @@ exchange_initial_cue(assistant, "i have").
 exchange_transfer_cue(user, assistant, "you give me").
 exchange_transfer_cue(assistant, user, "i give you").
 prevents(vaccine, disease).
+prevents(dropout, overfitting).
 pro_drop(es).
 process_step(bread_rise, 1, "Yeast consumes sugars in the dough and releases carbon dioxide gas").
 process_step(bread_rise, 2, "Gluten strands trap that gas in small bubbles, stretching the dough").
@@ -3940,6 +3941,8 @@ answer_frame("miles to km", miles_to_km).
 % E le forme della letteratura scientifica con gli strumenti della sua prosa:
 % stessa scelta d'asse, la materia e non il predicato.
 :- include(facts/scientific-discourse.p0).
+% E come si addestra un modello e si tratta il testo: stesso asse, la materia.
+:- include(facts/machine-learning.p0).
 :- include(facts/reasoning.p0).
 :- include(facts/operator-worlds.p0).
 :- include(facts/geography-world.p0).
