@@ -148,7 +148,7 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
             return 1;
         }
         if (picked < 3) {
-            put("I would treat it as a composition self-challenge, not self-management: pick three parts I already have and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.",
+            kb_say(b, "i_would_treat_it_as_a_composition_self_chall", "I would treat it as a composition self-challenge, not self-management: pick three parts I already have and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.",
                 out, out_size);
         } else if (want_selftest) {
             /* gen167/168: actually RUN the derived composition on a fresh copy of
@@ -212,13 +212,13 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
                              kb_cue_match(b, "50_self_research_loop_chain241", buf);
 
     if (implementation_gap && (!fallback_gap || strong_implementation_gap)) {
-        put("I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.",
+        kb_say(b, "i_would_solve_it_by_parity_with_the_external", "I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.",
             out, out_size);
     } else if (fallback_gap) {
-        put("I would treat it as a fallback gap: make the fallback or owning module handle that turn without pretending to understand, ratchet it with held-out English and Italian chats, bump my version, and record whether the wall got smaller. I can propose the change; an external agent still edits and verifies the files.",
+        kb_say(b, "i_would_treat_it_as_a_fallback_gap_make_the", "I would treat it as a fallback gap: make the fallback or owning module handle that turn without pretending to understand, ratchet it with held-out English and Italian chats, bump my version, and record whether the wall got smaller. I can propose the change; an external agent still edits and verifies the files.",
             out, out_size);
     } else {
-        put("I would treat it as a self-challenge, not self-management: identify the missing behavior, choose the smallest module or dispatch change, ratchet it with English and Italian tests, bump my version, and record what changed. I can propose the change; an external agent still edits and verifies the files.",
+        kb_say(b, "i_would_treat_it_as_a_self_challenge_not_sel", "I would treat it as a self-challenge, not self-management: identify the missing behavior, choose the smallest module or dispatch change, ratchet it with English and Italian tests, bump my version, and record what changed. I can propose the change; an external agent still edits and verifies the files.",
             out, out_size);
     }
     store_proof(b, "loop self-challenge parity: classify the gap, name the smallest behavior change, require tests, version, and journal, and keep file edits external.");
@@ -1497,7 +1497,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         char (*preds)[KB_TERM_LEN] = malloc(pcap * KB_TERM_LEN);
         if (!preds) return 0;
         size_t np = kb_user_predicates(b->kb, preds, pcap);
-        if (np == 0) { put("I don't know any predicates yet.", out, out_size); return 1; }
+        if (np == 0) { kb_say(b, "i_don_t_know_any_predicates_yet", "I don't know any predicates yet.", out, out_size); return 1; }
         char list[1024];
         size_t off = 0;
         for (size_t i = 0; i < np && off < sizeof list; i++)
@@ -1629,7 +1629,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                 return 1;
             }
         }
-        put("I don't have a module by that name. Ask 'what can you do?' for a list.",
+        kb_say(b, "i_don_t_have_a_module_by_that_name_ask_what", "I don't have a module by that name. Ask 'what can you do?' for a list.",
             out, out_size);
         return 1;
     }

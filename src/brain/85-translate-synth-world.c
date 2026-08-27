@@ -647,7 +647,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
     return 0;
 found:
     while (*clause && isspace((unsigned char)*clause)) clause++;
-    if (!*clause) { put("Translate what?", out, out_size); return 1; }
+    if (!*clause) { kb_say(b, "translate_what", "Translate what?", out, out_size); return 1; }
 
     char buf[256];
     copy_trim(buf, sizeof buf, clause);
@@ -844,7 +844,7 @@ static int mod_synth(Brain *b, const char *norm, const char *raw,
         if (strlen(t) >= 3 && isalpha((unsigned char)t[0]) && !is_stopword(b, t))
             snprintf(words[nw++], KB_TERM_LEN, "%s", t);
     }
-    if (nw == 0) { put("Specify what the command should do.", out, out_size); return 1; }
+    if (nw == 0) { kb_say(b, "specify_what_the_command_should_do", "Specify what the command should do.", out, out_size); return 1; }
 
     /* enumerate known commands; score each by spec-word matches on its desc */
     char cmds[64][KB_TERM_LEN];
@@ -999,7 +999,7 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
         /* else-form: suppress the recorded winner. */
         snprintf(suppress, sizeof suppress, "%s", b->trace_winner);
         if (strcmp(suppress, "fallback") == 0) {
-            put("Nothing claimed the last turn — there was no winner to set aside.",
+            kb_say(b, "nothing_claimed_the_last_turn_there_was_no_w", "Nothing claimed the last turn — there was no winner to set aside.",
                 out, out_size);
             return 1;
         }
@@ -1411,7 +1411,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
         }
         if (*wname) {
             int id = world_enter(b, wname);
-            if (id < 0) { put("I can't open another world right now.", out, out_size);
+            if (id < 0) { kb_say(b, "i_can_t_open_another_world_right_now", "I can't open another world right now.", out, out_size);
                           return 1; }
             /* an inline clause after the noun (skip a leading colon / "where") */
             const char *clause = rest ? rest : "";

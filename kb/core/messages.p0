@@ -77,3 +77,63 @@ response_template(yes_i_m_here, "Yes, I'm here.").
 response_template(yes_i_read_each_message_in_this_conver, "Yes. I read each message in this conversation.").
 response_template(you_haven_t_mentioned_any_names_i_reco, "You haven't mentioned any names I recognized.").
 response_template(you_haven_t_taught_me_any_facts_yet, "You haven't taught me any facts yet.").
+
+%% ── LA VOCE CHE ERA COMPILATA (gen442) ─────────────────────────────────────
+%%
+%% Il mantra #16 dice che cio' che parrot0 DICE e' conoscenza quanto cio' che
+%% legge. Queste righe erano `put("…")` dentro i moduli: vere, corrette e mute.
+%% Ora hanno una famiglia, quindi si possono interrogare, tradurre e soprattutto
+%% INSEGNARE — «learn "…" as a reply for <famiglia>» vale dal turno dopo.
+
+response_template(i_couldn_t_evaluate_that_entailment, "I couldn't evaluate that entailment.").
+response_template(got_it_i_ll_remember_that, "Got it, I'll remember that.").
+response_template(none_of_them, "None of them.").
+response_template(i_can_only_do_a_limerick_on_a_theme_i_have_l, "I can only do a limerick on a theme I have lines for -- like a programmer, coffee, or a cat. Pick one of those?").
+response_template(both_as_far_as_i_know, "Both, as far as I know.").
+response_template(nothing_new_to_generalize, "Nothing new to generalize.").
+response_template(nobody_that_i_know_of, "Nobody that I know of.").
+response_template(that_s_a_long_way_to_count_give_me_a_smaller, "That's a long way to count. Give me a smaller range and I'll list it.").
+response_template(neither_when_they_meet_they_are_at_the_same, "Neither — when they meet they are at the same place, so both are exactly the same distance from the destination.").
+response_template(neither_train_arrives_first_moving_toward_ea, "Neither train arrives first; moving toward each other means they meet at the same time, but I need the distance to say when.").
+response_template(those_measures_are_inconsistent_half_the_per, "Those measures are inconsistent: half the perimeter is not longer than the given side, so no rectangle fits.").
+response_template(those_counts_don_t_work_out_to_whole_animals, "Those counts don't work out to whole animals, so the puzzle as stated has no consistent answer.").
+response_template(those_two_ratios_can_t_both_hold_if_the_rati, "Those two ratios can't both hold: if the ratio never changes, no ages fit. One of the constraints must be different.").
+response_template(that_s_a_constrained_arrangement_puzzle_i_ca, "That's a constrained-arrangement puzzle: I can read the quantities, but I don't have a solver that can verify an optimal arrangement under those sharing constraints, so I won't guess a number.").
+response_template(i_can_only_write_a_haiku_on_a_theme_i_have_i, "I can only write a haiku on a theme I have images for — like the ocean, rain, the moon, snow, a tree, a candle, or a robot. Pick one of those?").
+response_template(i_can_only_do_a_couplet_on_a_theme_i_have_li, "I can only do a couplet on a theme I have lines for -- like the ocean, rain, the moon, or AI. Pick one of those?").
+response_template(i_don_t_have_story_material_for_that_topic_y, "I don't have story material for that topic yet -- I can tell one about a lighthouse, an old house on a quiet street, a stormy night, or a traveler at dusk.").
+response_template(i_m_parrot0_a_small_program_written_in_c_not, "I'm parrot0, a small program written in C, not an LLM.").
+response_template(i_repeat_when_no_module_can_claim_the_messag, "I repeat when no module can claim the message; that is a gap to improve.").
+response_template(i_can_t_verify_no_proof_was_stored, "I can't verify — no proof was stored.").
+response_template(i_see_if_i_said_something_incorrect_please_t, "I see. If I said something incorrect, please tell me the right fact and I'll learn it.").
+response_template(no_goals_set, "No goals set.").
+response_template(there_is_no_recent_reasoning_to_explain_in_m, "There is no recent reasoning to explain in more detail.").
+response_template(i_haven_t_answered_a_knowledge_based_questio, "I haven't answered a knowledge-based question yet, so I don't have a proof to share.").
+response_template(i_mean_i_can_only_answer_what_my_registered, "I mean I can only answer what my registered modules let me. Try asking a simple factual question.").
+response_template(i_understand_some_patterns_and_i_say_when_i, "I understand some patterns and I say when I do not. Try a shorter or simpler question.").
+response_template(i_m_a_chatbot_not_a_person_i_don_t_need_help, "I'm a chatbot, not a person — I don't need help. But you can ask me questions and I'll try to answer.").
+response_template(i_haven_t_answered_anything_substantive_yet, "I haven't answered anything substantive yet, so there's no decision to explain.").
+response_template(i_would_treat_it_as_a_composition_self_chall, "I would treat it as a composition self-challenge, not self-management: pick three parts I already have and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.").
+response_template(i_would_solve_it_by_parity_with_the_external, "I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.").
+response_template(i_would_treat_it_as_a_fallback_gap_make_the, "I would treat it as a fallback gap: make the fallback or owning module handle that turn without pretending to understand, ratchet it with held-out English and Italian chats, bump my version, and record whether the wall got smaller. I can propose the change; an external agent still edits and verifies the files.").
+response_template(i_would_treat_it_as_a_self_challenge_not_sel, "I would treat it as a self-challenge, not self-management: identify the missing behavior, choose the smallest module or dispatch change, ratchet it with English and Italian tests, bump my version, and record what changed. I can propose the change; an external agent still edits and verifies the files.").
+response_template(i_don_t_know_any_predicates_yet, "I don't know any predicates yet.").
+response_template(i_don_t_have_a_module_by_that_name_ask_what, "I don't have a module by that name. Ask 'what can you do?' for a list.").
+response_template(it_contains_every_letter_of_the_alphabet_it, "It contains every letter of the alphabet -- it's a pangram.").
+response_template(i_can_only_count_plain_words_for_now_letters, "I can only count plain words for now (letters and digits, no punctuation).").
+response_template(those_examples_don_t_all_follow_one_rule_i_c, "Those examples don't all follow one rule I can express yet.").
+response_template(i_m_a_simple_bot_but_i_m_here_for_it_go_on, "I'm a simple bot, but I'm here for it. Go on?").
+response_template(fair_enough_tell_me_where_i_went_wrong_and_w, "Fair enough — tell me where I went wrong, and we can take it from there.").
+response_template(no_pressure_we_can_take_it_slowly_what_s_on, "No pressure — we can take it slowly. What's on your mind?").
+response_template(happy_to_pick_a_thread_your_day_a_small_fact, "Happy to. Pick a thread — your day, a small fact to remember, or something to reason about — and I'll run with it.").
+response_template(i_read_that_as_code_but_i_do_not_see_any_fun, "I read that as code, but I do not see any function definitions in it.").
+response_template(i_read_that_as_code_but_i_am_not_sure_which, "I read that as code, but I am not sure which function you mean.").
+response_template(translate_what, "Translate what?").
+response_template(specify_what_the_command_should_do, "Specify what the command should do.").
+response_template(nothing_claimed_the_last_turn_there_was_no_w, "Nothing claimed the last turn — there was no winner to set aside.").
+response_template(i_can_t_open_another_world_right_now, "I can't open another world right now.").
+response_template(ask_me_whether_something_holds_first_then_i, "Ask me whether something holds first — then I can tell you what that conclusion rests on.").
+response_template(that_isn_t_something_i_currently_conclude_so, "That isn't something I currently conclude, so there's nothing to stress-test.").
+response_template(tell_me_what_you_d_like_me_to_account_for_as, "Tell me what you'd like me to account for, as 'X is a Y'.").
+response_template(that_s_just_punctuation_not_words_what_would, "That's just punctuation, not words — what would you like to ask?").
+response_template(that_doesn_t_look_like_words_to_me_did_a_key, "That doesn't look like words to me — did a key get stuck? I'm here when you'd like to ask something.").

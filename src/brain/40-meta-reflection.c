@@ -424,7 +424,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                 char id[1][KB_TERM_LEN];
                 size_t k = b->kb ? kb_match(b->kb, "i_am", var, 1, id, 1) : 0;
                 if (!kb_response(b, ai[i], k ? id[0] : "parrot0", out, out_size))
-                    put("I'm parrot0, a small program written in C, not an LLM.",
+                    kb_say(b, "i_m_parrot0_a_small_program_written_in_c_not", "I'm parrot0, a small program written in C, not an LLM.",
                         out, out_size);
                 return 1;
             }
@@ -437,7 +437,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                  cue(buf, "perche continui") ||
                  cue(buf, "perché continui");
     if (repeat) {
-        put("I repeat when no module can claim the message; that is a gap to improve.",
+        kb_say(b, "i_repeat_when_no_module_can_claim_the_messag", "I repeat when no module can claim the message; that is a gap to improve.",
             out, out_size);
         return 1;
     }
@@ -455,7 +455,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                 put(is_direct ? "Yes, that's a directly stored fact."
                               : "I'm confident — derived through logical rules.",
                     out, out_size);
-            } else put("I can't verify — no proof was stored.", out, out_size);
+            } else kb_say(b, "i_can_t_verify_no_proof_was_stored", "I can't verify — no proof was stored.", out, out_size);
             return 1;
         }
     }
@@ -467,7 +467,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                          (buf[0] == 'n' && buf[1] == 'o' && buf[2] == ' ' &&
                           cue(buf, "wrong"));
         if (correction) {
-            put("I see. If I said something incorrect, please tell me the right "
+            kb_say(b, "i_see_if_i_said_something_incorrect_please_t", "I see. If I said something incorrect, please tell me the right "
                 "fact and I'll learn it.", out, out_size);
             return 1;
         }
@@ -482,7 +482,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         int g = strncmp(buf,"remember to ",12)==0 || it_goal;
         if(g && b->goal_count<8){ snprintf(b->goals[b->goal_count++],128,"%s",buf+(it_goal?13:12)); put("Ok, noted.",out,out_size); return 1; }
         if(cue(buf,"my goals")||cue(buf,"miei obiettivi")){
-            if(!b->goal_count) put("No goals set.",out,out_size);
+            if(!b->goal_count) kb_say(b, "no_goals_set", "No goals set.",out,out_size);
             else { char l[1024]=""; for(size_t i=0;i<b->goal_count;i++){char t[200];snprintf(t,200,"%zu) %s. ",i+1,b->goals[i]);strcat(l,t);} put(l,out,out_size); }
             return 1;
         }
@@ -513,7 +513,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                          "stored directly in my knowledge base.", b->last_proof);
             put(msg, out, out_size);
         } else {
-            put("There is no recent reasoning to explain in more detail.",
+            kb_say(b, "there_is_no_recent_reasoning_to_explain_in_m", "There is no recent reasoning to explain in more detail.",
                 out, out_size);
         }
         return 1;
@@ -549,7 +549,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                  * know») resta qui: quella parla davvero della prova. */
                 return 0;
             } else {
-                put("I haven't answered a knowledge-based question yet, so I "
+                kb_say(b, "i_haven_t_answered_a_knowledge_based_questio", "I haven't answered a knowledge-based question yet, so I "
                     "don't have a proof to share.",
                     out, out_size);
             }
@@ -567,7 +567,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                   cue(buf, "cosa intendi") ||
                   cue(buf, "che vuoi dire");
     if (clarify) {
-        put("I mean I can only answer what my registered modules let me. "
+        kb_say(b, "i_mean_i_can_only_answer_what_my_registered", "I mean I can only answer what my registered modules let me. "
             "Try asking a simple factual question.",
             out, out_size);
         return 1;
@@ -581,7 +581,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                     cue(buf, "not i have capito") ||
                     cue(buf, "not ti capisco");
     if (user_lost) {
-        put("I understand some patterns and I say when I do not. "
+        kb_say(b, "i_understand_some_patterns_and_i_say_when_i", "I understand some patterns and I say when I do not. "
             "Try a shorter or simpler question.",
             out, out_size);
         return 1;
@@ -598,7 +598,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                      cue(buf, "am io che aiuto te") ||
                      cue(buf, "posso aiutarti");
     if (help_offer) {
-        put("I'm a chatbot, not a person — I don't need help. "
+        kb_say(b, "i_m_a_chatbot_not_a_person_i_don_t_need_help", "I'm a chatbot, not a person — I don't need help. "
             "But you can ask me questions and I'll try to answer.",
             out, out_size);
         return 1;
@@ -2000,7 +2000,7 @@ static int mod_strategy(Brain *b, const char *norm, const char *raw,
     if (!ask) return 0;
 
     if (!b->has_trace) {
-        put("I haven't answered anything substantive yet, so there's no decision "
+        kb_say(b, "i_haven_t_answered_anything_substantive_yet", "I haven't answered anything substantive yet, so there's no decision "
             "to explain.", out, out_size);
         return 1;
     }

@@ -85,7 +85,7 @@ static int mod_input(Brain *b, const char *norm, const char *raw,
         long ndistinct = seen_dot + seen_dash + seen_slash;
         if (morse_only && (long)len >= morse_min && ndistinct >= morse_distinct)
             return 0;                                    /* lo nomina il simbolico */
-        put("That's just punctuation, not words — what would you like to ask?",
+        kb_say(b, "that_s_just_punctuation_not_words_what_would", "That's just punctuation, not words — what would you like to ask?",
             out, out_size);
         return 1;
     }
@@ -285,7 +285,7 @@ static int mod_input(Brain *b, const char *norm, const char *raw,
             int noise = (vowels == 0) || (distinct == 1) ||
                         (max_run >= 4) || (max_cons >= 6);
             if (noise && !known && !is_stopword(b, tok)) {
-                put("That doesn't look like words to me — did a key get stuck? "
+                kb_say(b, "that_doesn_t_look_like_words_to_me_did_a_key", "That doesn't look like words to me — did a key get stuck? "
                     "I'm here when you'd like to ask something.",
                     out, out_size);
                 return 1;

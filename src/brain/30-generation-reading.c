@@ -863,7 +863,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         /* gen240: a haiku was asked but no theme has images — CLAIM the turn with an
          * honest decline (the "Genera" ceiling) so a downstream module can't answer
          * a creative request with a dismissive deflection. */
-        put("I can only write a haiku on a theme I have images for — like the ocean, "
+        kb_say(b, "i_can_only_write_a_haiku_on_a_theme_i_have_i", "I can only write a haiku on a theme I have images for — like the ocean, "
             "rain, the moon, snow, a tree, a candle, or a robot. Pick one of those?",
             out, out_size);
         return 1;
@@ -1222,7 +1222,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
         /* gen240: a couplet was asked but no theme has lines — CLAIM the turn with
          * an honest decline (the "Genera" ceiling) instead of a generic non-answer. */
-        put("I can only do a couplet on a theme I have lines for -- like the ocean, "
+        kb_say(b, "i_can_only_do_a_couplet_on_a_theme_i_have_li", "I can only do a couplet on a theme I have lines for -- like the ocean, "
             "rain, the moon, or AI. Pick one of those?", out, out_size);
         return 1;
     }
@@ -1423,7 +1423,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 return 1;
             }
         }
-        put("I don't have story material for that topic yet -- I can tell one "
+        kb_say(b, "i_don_t_have_story_material_for_that_topic_y", "I don't have story material for that topic yet -- I can tell one "
             "about a lighthouse, an old house on a quiet street, a stormy night, or a traveler at dusk.",
             out, out_size);
         return 1;

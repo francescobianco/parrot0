@@ -36,7 +36,7 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
                     seen[*c - 'a'] = 1; distinct++;
                 }
             if (distinct == 26) {
-                put("It contains every letter of the alphabet -- it's a pangram.",
+                kb_say(b, "it_contains_every_letter_of_the_alphabet_it", "It contains every letter of the alphabet -- it's a pangram.",
                     out, out_size);
                 store_proof(b, "Counted 26 distinct letters in the quoted text.");
                 return 1;
@@ -93,7 +93,7 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
     snprintf(cmd, sizeof cmd, "echo %s | wc -w", text);
     char result[64];
     if (!simulate_pipeline(cmd, result, sizeof result)) {
-        put("I can only count plain words for now (letters and digits, no punctuation).",
+        kb_say(b, "i_can_only_count_plain_words_for_now_letters", "I can only count plain words for now (letters and digits, no punctuation).",
             out, out_size);
         return 1;
     }

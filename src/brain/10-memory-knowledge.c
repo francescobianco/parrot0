@@ -2031,7 +2031,7 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
 static int entailment_reply(Brain *b, const char *premises, const char *hypothesis,
                             int mode, char *out, size_t out_size) {
     Brain tmp;
-    if (!brain_scratch_init(&tmp, b)) { put("I couldn't evaluate that entailment.", out, out_size); return 1; }
+    if (!brain_scratch_init(&tmp, b)) { kb_say(b, "i_couldn_t_evaluate_that_entailment", "I couldn't evaluate that entailment.", out, out_size); return 1; }
 
     char pbuf[512];
     size_t plen = strlen(premises);
@@ -7989,7 +7989,7 @@ static int personal_slot_turn(Brain *b, const char *norm, const char *raw,
     }
     char tmpl[220];
     if (lang_template(b, "personal_ack", tmpl, sizeof tmpl)) put(tmpl, out, out_size);
-    else put("Got it, I'll remember that.", out, out_size);
+    else kb_say(b, "got_it_i_ll_remember_that", "Got it, I'll remember that.", out, out_size);
     return 1;
 }
 
@@ -10731,7 +10731,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             }
             choices = next;
         }
-        if (hits == 0) put("None of them.", out, out_size);
+        if (hits == 0) kb_say(b, "none_of_them", "None of them.", out, out_size);
         else {
             char msg[600];
             snprintf(msg, sizeof msg, "%s.", list);
@@ -11723,7 +11723,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (ok) { put(msg, out, out_size); return 1; }
         }
         /* limerick asked but no theme matched -> honest decline (Genera ceiling). */
-        put("I can only do a limerick on a theme I have lines for -- like a programmer, "
+        kb_say(b, "i_can_only_do_a_limerick_on_a_theme_i_have_l", "I can only do a limerick on a theme I have lines for -- like a programmer, "
             "coffee, or a cat. Pick one of those?", out, out_size);
         return 1;
     }
@@ -11793,7 +11793,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                         put(msg, out, out_size);
                         return 1;
                     }
-                    if (yes1 && yes2) { put("Both, as far as I know.", out, out_size); return 1; }
+                    if (yes1 && yes2) { kb_say(b, "both_as_far_as_i_know", "Both, as far as I know.", out, out_size); return 1; }
                 }
             }
         }
@@ -12272,7 +12272,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             snprintf(fbodies[kept], KB_TERM_LEN, "%s", bodies[i]);
             kept++;
         }
-        if (kept == 0) { put("Nothing new to generalize.", out, out_size); return 1; }
+        if (kept == 0) { kb_say(b, "nothing_new_to_generalize", "Nothing new to generalize.", out, out_size); return 1; }
         char msg[600];
         size_t off = (size_t)snprintf(msg, sizeof msg, "Induced: ");
         for (size_t i = 0; i < kept && off < sizeof msg; i++) {
@@ -12411,7 +12411,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 (strcmp(slot[0], "object") == 0) ? obj_pat : subj_pat;
             char hits[64][KB_TERM_LEN];
             size_t k = kb_match(b->kb, rel, pat, 2, hits, 64);
-            if (k == 0) { put("Nobody that I know of.", out, out_size); return 1; }
+            if (k == 0) { kb_say(b, "nobody_that_i_know_of", "Nobody that I know of.", out, out_size); return 1; }
             char list[512];
             size_t off = 0;
             for (size_t i = 0; i < k && off < sizeof list; i++)

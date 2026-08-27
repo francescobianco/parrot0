@@ -258,7 +258,7 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
      * broken record. Still honest — it names no understanding of the content. */
     if (emoji || emote || kb_cue_match(b, "playful", norm)) {
         if (kb_response(b, "playful", NULL, out, out_size)) return 1;
-        put("I'm a simple bot, but I'm here for it. Go on?", out, out_size);
+        kb_say(b, "i_m_a_simple_bot_but_i_m_here_for_it_go_on", "I'm a simple bot, but I'm here for it. Go on?", out, out_size);
         return 1;
     }
     return 0;
@@ -864,14 +864,14 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
      * also negates ("nice try, but no") — with no content to act on. Keys on the
      * stance predicate, so an imperative like "dont say that" is NOT disagreement. */
     if (disagree || (contrastive && negation && nw <= 8)) {
-        put("Fair enough — tell me where I went wrong, and we can take it from there.",
+        kb_say(b, "fair_enough_tell_me_where_i_went_wrong_and_w", "Fair enough — tell me where I went wrong, and we can take it from there.",
             out, out_size);
         return 1;
     }
 
     /* ---- MOVE 4: hesitation. A hedge with nothing concrete to chew on. */
     if (hedge && nw <= 9) {
-        put("No pressure — we can take it slowly. What's on your mind?",
+        kb_say(b, "no_pressure_we_can_take_it_slowly_what_s_on", "No pressure — we can take it slowly. What's on your mind?",
             out, out_size);
         return 1;
     }
@@ -925,7 +925,7 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
          * "tell me something" family stays chitchat's established no-topic
          * register, so we require >= 4 tokens here and leave those to chitchat. */
         if (soft && has_open_quantifier(w, nw) && nw >= 4 && nw <= 8) {
-            put("Happy to. Pick a thread — your day, a small fact to remember, or something to reason about — and I'll run with it.",
+            kb_say(b, "happy_to_pick_a_thread_your_day_a_small_fact", "Happy to. Pick a thread — your day, a small fact to remember, or something to reason about — and I'll run with it.",
                 out, out_size);
             return 1;
         }

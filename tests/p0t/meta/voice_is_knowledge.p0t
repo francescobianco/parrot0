@@ -1,0 +1,28 @@
+# LA VOCE E' CONOSCENZA — mantra #16.
+#
+# `messages.p0` fu creato al gen382d per portare in KB ~140 letterali dei
+# moduli, e il lavoro si fermo' a meta': l'audit del gen442 ha contato ~374
+# testi rivolti all'interlocutore ancora senza nessuna chiave. Erano veri,
+# corretti e muti — non interrogabili, non traducibili e soprattutto non
+# insegnabili, perche' non c'era una famiglia da nominare.
+#
+# La prova non e' che il testo stia in un file .p0: e' che si possa CAMBIARE
+# PARLANDO, e che valga dal turno dopo.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test una frase del motore si reinsegna parlando]
+> ???
+<~ punctuation
+> learn "Those are just marks - what did you want to say?" as a reply for that_s_just_punctuation_not_words_what_would
+<~ as a reply for that_s_just_punctuation_not_words_what_would
+> ???
+< Those are just marks - what did you want to say?
+
+[test la famiglia esiste come conoscenza interrogabile]
+!query response_template(that_s_just_punctuation_not_words_what_would, "Those are just marks - what did you want to say?")

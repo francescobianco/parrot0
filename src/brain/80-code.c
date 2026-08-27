@@ -1006,7 +1006,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
 
     if (wants_funcs) {
         if (k == 0) {
-            put("I read that as code, but I do not see any function definitions in it.",
+            kb_say(b, "i_read_that_as_code_but_i_do_not_see_any_fun", "I read that as code, but I do not see any function definitions in it.",
                 out, out_size);
             return 1;
         }
@@ -1028,7 +1028,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         if (strstr(qpart, names[i])) { xfn = names[i]; break; }
     if (!xfn && k == 1) xfn = names[0];
     if (!xfn) {
-        put("I read that as code, but I am not sure which function you mean.",
+        kb_say(b, "i_read_that_as_code_but_i_am_not_sure_which", "I read that as code, but I am not sure which function you mean.",
             out, out_size);
         return 1;
     }

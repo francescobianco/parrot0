@@ -1951,7 +1951,7 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
 
     long span = start <= end ? end - start : start - end;
     if (span > 99) {
-        put("That's a long way to count. Give me a smaller range and I'll list it.",
+        kb_say(b, "that_s_a_long_way_to_count_give_me_a_smaller", "That's a long way to count. Give me a smaller range and I'll list it.",
             out, out_size);
         return 1;
     }

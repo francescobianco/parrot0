@@ -294,7 +294,7 @@ static int mod_verify(Brain *b, const char *norm, const char *raw,
 
     InducedRule r; char rule[160];
     if (!induce_rule(in, out_, nex, &r, rule, sizeof rule)) {
-        put("Those examples don't all follow one rule I can express yet.",
+        kb_say(b, "those_examples_don_t_all_follow_one_rule_i_c", "Those examples don't all follow one rule I can express yet.",
             out, out_size);
         return 1;
     }

@@ -1404,7 +1404,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
      * the speeds/distances are a distraction. A structural insight, not a sum. */
     if (cue(q, "closer") && (cue(q, "when they meet") || cue(q, "meet")) &&
         (cue(q, "train") || cue(q, "car") || cue(q, "they"))) {
-        put("Neither — when they meet they are at the same place, so both are "
+        kb_say(b, "neither_when_they_meet_they_are_at_the_same", "Neither — when they meet they are at the same place, so both are "
             "exactly the same distance from the destination.", out, out_size);
         store_proof(b, "Two bodies that meet are co-located, hence equidistant from any point.");
         return 1;
@@ -1584,7 +1584,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             (void)wp_distance_between(b, city[0], city[1], &dist);
         if (ns == 2 && nt == 2 && speed[0] > 0 && speed[1] > 0) {
             if (dist <= 0.0) {
-                put("Neither train arrives first; moving toward each other means they meet at the same time, but I need the distance to say when.",
+                kb_say(b, "neither_train_arrives_first_moving_toward_ea", "Neither train arrives first; moving toward each other means they meet at the same time, but I need the distance to say when.",
                     out, out_size);
                 store_proof(b, "Toward-each-other motion meets at one shared event; distance is needed only for the time.");
                 return 1;
@@ -2314,7 +2314,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 store_proof(b, "other = perimeter/2 - side; area = side * other");
                 return 1;
             }
-            put("Those measures are inconsistent: half the perimeter is not "
+            kb_say(b, "those_measures_are_inconsistent_half_the_per", "Those measures are inconsistent: half the perimeter is not "
                 "longer than the given side, so no rectangle fits.",
                 out, out_size);
             return 1;
@@ -2381,7 +2381,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                                "x = (b*heads - legs)/(b - a).");
                 return 1;
             }
-            put("Those counts don't work out to whole animals, so the puzzle "
+            kb_say(b, "those_counts_don_t_work_out_to_whole_animals", "Those counts don't work out to whole animals, so the puzzle "
                 "as stated has no consistent answer.", out, out_size);
             return 1;
         }
@@ -2444,7 +2444,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         }
         if (K > 0 && M > 0 && N > 0) {
             if (K == M) {
-                put("Those two ratios can't both hold: if the ratio never "
+                kb_say(b, "those_two_ratios_can_t_both_hold_if_the_rati", "Those two ratios can't both hold: if the ratio never "
                     "changes, no ages fit. One of the constraints must be "
                     "different.", out, out_size);
                 return 1;
@@ -2484,7 +2484,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
          cue(q, "arrange") || cue(q, "arranged")) &&
         (cue(q, "so that") || cue(q, "such that") || cue(q, "assuming") ||
          cue(q, "shares") || cue(q, "share "))) {
-        put("That's a constrained-arrangement puzzle: I can read the quantities, "
+        kb_say(b, "that_s_a_constrained_arrangement_puzzle_i_ca", "That's a constrained-arrangement puzzle: I can read the quantities, "
             "but I don't have a solver that can verify an optimal arrangement "
             "under those sharing constraints, so I won't guess a number.",
             out, out_size);

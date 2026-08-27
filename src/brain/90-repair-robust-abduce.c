@@ -337,7 +337,7 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
     if (!q) return 0;
 
     if (!b->has_last_goal) {
-        put("Ask me whether something holds first — then I can tell you what that "
+        kb_say(b, "ask_me_whether_something_holds_first_then_i", "Ask me whether something holds first — then I can tell you what that "
             "conclusion rests on.", out, out_size);
         return 1;
     }
@@ -415,7 +415,7 @@ static int mod_robust(Brain *b, const char *norm, const char *raw,
         return 1;
     }
     if (goal_truth(b) != 1) {
-        put("That isn't something I currently conclude, so there's nothing to "
+        kb_say(b, "that_isn_t_something_i_currently_conclude_so", "That isn't something I currently conclude, so there's nothing to "
             "stress-test.", out, out_size);
         return 1;
     }
@@ -969,7 +969,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
 
     char pred[KB_TERM_LEN], arg[KB_TERM_LEN];
     if (!parse_goal_loose(clause, pred, sizeof pred, arg, sizeof arg)) {
-        put("Tell me what you'd like me to account for, as 'X is a Y'.",
+        kb_say(b, "tell_me_what_you_d_like_me_to_account_for_as", "Tell me what you'd like me to account for, as 'X is a Y'.",
             out, out_size);
         return 1;
     }
