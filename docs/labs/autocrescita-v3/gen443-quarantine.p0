@@ -1,0 +1,9 @@
+% Gen443 profile: one causal claim, two irrelevant candidates.
+machinery(campaign_claim).
+machinery(campaign_required).
+machinery(campaign_replay).
+campaign_claim(c1, causal, proposition(height(mountainion, 1200)), range(10, 18)).
+campaign_claim(c1, noise1, proposition(color(mountainion, blue)), range(30, 12)).
+campaign_claim(c1, noise2, proposition(region(mountainion, north)), range(50, 15)).
+campaign_required(c1, causal).
+campaign_replay(c1, causal, proposition(height(mountainion, 1200))).

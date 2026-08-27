@@ -317,6 +317,8 @@ locuzioni annidate restano il prossimo incremento del gold.
 - **442:** collega gli arresti al piano di compensazione KB; il campione
   `gen442-compensation.p0t` passa 9 proprietà su passi, costi, dipendenze,
   lingue e crescita/ablazione runtime;
+- **443:** introduce quarantena e promozione minima; `gen443-quarantine.p0t`
+  passa 8 proprietà di replay causale e rollback per campagna;
 - **441:** applica il gold alla prosa Wikipedia con provenance di revisione;
 - **442:** migra scelta dialogica e piani di compensazione;
 - **443:** rende transazionali dipendenze, promozione e rollback;

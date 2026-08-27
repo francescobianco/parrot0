@@ -528,6 +528,13 @@ machinery(source_claim).
 machinery(source_candidate).
 machinery(source_supported).
 machinery(source_replay).
+machinery(campaign_claim).
+machinery(campaign_required).
+machinery(campaign_dependency).
+machinery(campaign_quarantine).
+machinery(campaign_promote).
+machinery(campaign_rollback).
+machinery(campaign_replay).
 
 % gen441 — sorgente in memoria: si conserva solo la coordinata dello span e la
 % proposizione verificata, mai il corpo della pagina. La selezione e' guidata
@@ -540,6 +547,20 @@ source_supported($Address, $Relation, $Shape, $Value) :-
 source_replay($Address, $Relation, $Shape, $Value) :-
     source_supported($Address, $Relation, $Shape, $Value),
     replay_check($Relation, $Shape, $Value).
+
+% gen443 — la fonte resta in quarantena finche' il replay non sostiene il
+% sottoinsieme minimo. Le claim non richieste non ereditano autorita' dalla
+% pagina; il rollback opera per campagna e lascia intatta la KB stabile.
+campaign_quarantine($Campaign, $Id, $Claim) :-
+    campaign_claim($Campaign, $Id, $Claim, $Span),
+    naf(campaign_promote($Campaign, $Id, $Claim)).
+campaign_promote($Campaign, $Id, $Claim) :-
+    campaign_claim($Campaign, $Id, $Claim, $Span),
+    campaign_required($Campaign, $Id),
+    campaign_replay($Campaign, $Id, $Claim).
+campaign_rollback($Campaign, $Id, $Claim) :-
+    campaign_claim($Campaign, $Id, $Claim, $Span),
+    naf(campaign_replay($Campaign, $Id, $Claim)).
 machinery(internal_relation).
 machinery(source_page).
 machinery(source_revision).

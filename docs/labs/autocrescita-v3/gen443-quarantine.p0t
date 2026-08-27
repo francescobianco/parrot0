@@ -1,0 +1,25 @@
+# GEN443 — PROMOZIONE MINIMA, QUARANTENA E ROLLBACK CAUSALE.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=docs/labs/autocrescita-v3/gen443-quarantine.p0
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=it
+!reset
+
+[test only the replayed required claim is promoted]
+!query campaign_promote(c1, causal, proposition(height(mountainion, 1200)))
+!query! campaign_promote(c1, noise1, proposition(color(mountainion, blue)))
+!query! campaign_promote(c1, noise2, proposition(region(mountainion, north)))
+!query campaign_quarantine(c1, noise1, proposition(color(mountainion, blue)))
+!query campaign_quarantine(c1, noise2, proposition(region(mountainion, north)))
+
+[test removing a non-minimal claim does not alter causal promotion]
+!forget campaign_claim(c1, noise1, proposition(color(mountainion, blue)), range(30, 12))
+!query campaign_promote(c1, causal, proposition(height(mountainion, 1200)))
+
+[test removing the minimal replay breaks promotion and exposes rollback]
+!forget campaign_replay(c1, causal, proposition(height(mountainion, 1200)))
+!query! campaign_promote(c1, causal, proposition(height(mountainion, 1200)))
+!query campaign_rollback(c1, causal, proposition(height(mountainion, 1200)))

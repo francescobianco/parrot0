@@ -1125,6 +1125,15 @@ impedisce che il rumore della sorgente diventi debito permanente.
 
 ---
 
+### Evidenza Gen443
+
+Il profilo `gen443-quarantine.p0` dimostra **8 proprietà passate**: di tre
+claim candidate solo quella richiesta e verificata dal replay viene promossa;
+le altre restano in quarantena. Togliere una claim irrilevante non altera la
+promozione, mentre togliere il replay causale la interrompe e rende osservabile
+il rollback. La genealogia mantiene la campagna e lo span senza contaminare il
+contenuto canonico.
+
 ## gen444 — Dall'addestramento assistito alla coltivazione autonoma
 
 ### Ipotesi H444
