@@ -69,3 +69,25 @@
 !query marcatore_condizionale(sebbene)
 > la parola gatto è un nome
 < Learned: nome(gatto).
+
+# ── LA MENZIONE SI PUO' CHIEDERE (M2) ──────────────────────────────────────
+#
+# Un atto che si sa solo dichiarare non e' ancora un pezzo di lingua. La domanda
+# ha la stessa struttura con la copula spostata in testa (inglese) o con lo
+# stesso ordine e il punto interrogativo (italiano): quale parola sia una copula
+# lo dice `clause_copula/1`, quindi il motore non conosce nessuna delle due.
+[test la menzione si interroga oltre che dichiarare]
+!set PARROT0_LANG=en
+!reset
+> the word unless is a condition marker
+< Learned: condition_marker(unless).
+> is the word unless a condition marker?
+< Yes.
+> is the word although a condition marker?
+< No.
+> is "unless" a condition marker?
+< Yes.
+# Stesso ordine dell'asserzione piu' il punto interrogativo: non asserisce.
+> the word although is a condition marker?
+< No.
+!query! condition_marker(although)

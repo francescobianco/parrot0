@@ -4226,16 +4226,31 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
                        char *out, size_t out_size) {
     if (!b || !b->kb || !norm) return 0;
     size_t L = strlen(norm);
-    if (L < 5 || L >= 400 || norm[L - 1] == '?') return 0;
+    if (L < 5 || L >= 400) return 0;
 
     char s[400]; memcpy(s, norm, L + 1);
     char *w[32]; size_t n = split_words(s, w, 32);
     if (n < 4) return 0;
 
+    /* LA MENZIONE SI PUO' ANCHE CHIEDERE. Un atto che si sa solo dichiarare non
+     * e' ancora un pezzo di lingua: «is the word unless a condition marker?» ha
+     * la stessa struttura dell'asserzione con la copula spostata in testa, e
+     * quale parola sposti la copula lo dice gia' `clause_copula/1`. */
     size_t i = 0;
+    int fronted = 0;
+    {
+        char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", w[0]);
+        const char *cq[1] = { cb };
+        if (kb_query(b->kb, "clause_copula", cq, 1)) { fronted = 1; i = 1; }
+    }
+    /* Due modi di chiedere, e nessuno dei due e' inglese: la copula in testa,
+     * oppure lo stesso ordine dell'asserzione con il punto interrogativo — che
+     * e' come l'italiano chiede. */
+    int asking = fronted || norm[L - 1] == '?';
+
     char mentioned[KB_TERM_LEN] = "";
-    if (p0_quoted_token(w[0], mentioned, sizeof mentioned)) {
-        i = 1;
+    if (p0_quoted_token(w[i], mentioned, sizeof mentioned)) {
+        i++;
     } else {
         /* Il determinante davanti al marcatore e' facoltativo e vive in tre
          * classi KB gia' esistenti; nessuna delle tre e' nominata qui. */
@@ -4254,7 +4269,7 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
     /* Quale parola sia una copula e' conoscenza (`clause_copula/1`), e vale gia'
      * per l'italiano: il motore non nomina nessun verbo essere, e una lingua
      * nuova costa una riga di KB. */
-    {
+    if (!fronted) {
         if (i >= n) return 0;
         /* La forma NUDA si interroga per prima: `strip_edge_punct` ragiona in
          * byte e su una copula accentata come «è» cancella l'intero token. Una
@@ -4271,13 +4286,22 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
         }
         if (!is_cop) return 0;
     }
-    i++;
+    if (!fronted) i++;
     if (i < n && p0_any_determiner(b, w[i])) i++;
     if (i >= n) return 0;
 
     char cls[KB_TERM_LEN];
     if (!p0_join(w, i, n, cls, sizeof cls)) return 0;
     if (!p0_atom_within_cap(b, cls)) return 0;
+
+    /* La domanda non asserisce: interroga la stessa classe che l'asserzione
+     * avrebbe scritto, e non registra nulla. */
+    if (asking) {
+        const char *qa[] = { mentioned };
+        int held = kb_query(b->kb, cls, qa, 1);
+        kb_say(b, held ? "yes" : "no", held ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
 
     size_t known = class_known_arity(b, cls);
     if (known > 1) {

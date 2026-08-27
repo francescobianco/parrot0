@@ -826,7 +826,22 @@ turn_gap_flanked($T, after, $Id) :-
 turn_gap_shape($T, binary_frame) :-
     input_node_atom($T, $Id, $W),
     turn_gap_flanked($T, before, $Id),
-    turn_gap_flanked($T, after, $Id).
+    turn_gap_flanked($T, after, $Id),
+    naf(turn_opens_question($T)).
+
+% UNA DOMANDA NON HA LA FORMA DI UN'ASSERZIONE, e la differenza si vedeva:
+% «is the word unless a condition marker?» offriva di insegnare «is is a
+% relation verb», cioe' proponeva la copula come relazione. Un'offerta sbagliata
+% e' peggio di nessuna offerta, perche' chi insegna la segue.
+machinery(turn_opens_question).
+machinery(input_node_precedes).
+input_node_precedes($T, $Id) :- input_node_before($T, $Other, $Id).
+turn_opens_question($T) :-
+    input_node_atom($T, $Id, $W), naf(input_node_precedes($T, $Id)),
+    question_word($W).
+turn_opens_question($T) :-
+    input_node_atom($T, $Id, $W), naf(input_node_precedes($T, $Id)),
+    clause_copula($W).
 
 % E l'ordine in cui offrirle, che e' esso stesso conoscenza: davanti a una forma
 % binaria la costruzione viene prima, perche' e' la lezione che non richiede di
@@ -836,7 +851,8 @@ turn_gap_shape($T, binary_frame) :-
 turn_gap_middle($T, $W) :-
     input_node_atom($T, $Id, $W),
     turn_gap_flanked($T, before, $Id),
-    turn_gap_flanked($T, after, $Id).
+    turn_gap_flanked($T, after, $Id),
+    naf(clause_copula($W)).
 
 turn_teaching_offer($T, construction) :- turn_gap_shape($T, binary_frame).
 turn_teaching_offer($T, relation_verb) :- turn_gap_shape($T, binary_frame).
