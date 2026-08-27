@@ -63,3 +63,11 @@
 !forget intent_cue(plan_request, "build me a roadmap")
 > build me a roadmap to learn chess
 <~ don't understand
+
+[continuità del goal fra turni]
+!reset
+> fai un piano
+<~ obiettivo
+> imparare gli scacchi
+<~ piano derivato
+<~ wikipedia
