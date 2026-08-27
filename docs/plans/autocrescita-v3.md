@@ -1156,6 +1156,28 @@ Lo stesso criterio ha chiuso il muro sulle richieste d'opinione: l'atto
 limite epistemico e offrendo confronto di ragioni e compromessi. La risposta è
 quindi una mossa dialogica riutilizzabile, non una preferenza simulata.
 
+### Falsificazione utente e correzione del criterio Gen444
+
+La prova manuale successiva ha falsificato una parte della precedente evidenza:
+`ti piacciono gli scacchi?` riceveva soltanto il deflect di
+`self_preference`. Il sistema era onesto sul proprio stato, ma ignorava il
+tema conosciuto e non offriva alcuna continuazione informativa. Il vecchio
+controllo `<~ scacchi` nel campione conversazionale era quindi troppo debole:
+non vincolava la qualità della risposta visibile e non poteva impedire questa
+regressione di routing.
+
+La correzione separa ora due atti: preferenza personale dell'agente e domanda
+di preferenza su un tema esterno. L'atto `topic_preference_request` è KB-first;
+`topic_preference_surface/2`, `game_play_localized/3` e i template bilingui
+forniscono tema, prova e lingua. Il consumer generico viene eseguito prima del
+fallback `self_preference`, senza conoscere gli scacchi nel C. Il caso reale
+produce ora una risposta italiana che dichiara il limite personale, usa la
+regola di gioco dalla KB e propone di esplorare il tema insieme.
+
+Questo non chiude la Gen444: dimostra invece che il gate deve richiedere
+pertinenza, contenuto sostenuto e continuabilità, non soltanto assenza di muro.
+Il campione `.p0t` è stato rafforzato con queste proprietà osservabili.
+
 Per il passaggio verso Gen445 è stato aggiunto anche `next_step_request`: le
 forme italiane e inglesi di richiesta del prossimo passo chiedono esplicitamente
 obiettivo e vincoli prima di derivare una sequenza verificabile. Nel dialogo
