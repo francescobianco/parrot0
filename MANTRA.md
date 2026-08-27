@@ -31,6 +31,9 @@ Regole imposte a noi stessi per non ricadere nel fix puntuale. Prima di scrivere
 2. **Niente liste di parole nel C.** Trigger, cue, sinonimi, unità, verbi: sono
    fatti KB enumerabili (`causal_process_verb/1`, `verb_syn/2`, `time_unit/1`).
    Test: *"parrot0 può impararne un nuovo membro domani senza ricompilare?"*
+   **E vale nei due sensi:** questo elenco nomina solo ciò che parrot0 LEGGE, e
+   per anni ha lasciato fuori ciò che DICE. Le frasi di risposta stanno in KB
+   esattamente come le cue — vedi il mantra #16.
    **Estensione procedure:** se il fix introduce una trasformazione o un calcolo
    di classe, non fermarti a mettere cue/template in KB: cerca prima una procedura
    insegnabile in `kb/core/procedures.p0` sopra i primitivi (`is/2`, confronti,
@@ -108,6 +111,21 @@ KB piena di righe manuali ma incapace di questo ciclo è grande, non fertile.
 15. **Un failure LLMSCORE vale come seed di fuzzing.** Dopo il fix, genera varianti
     della classe: sinonimi, ordine invertito, numeri diversi, multiword entities,
     formato diverso. Il test non deve coprire il prompt, ma il fascio.
+16. **⚠️ Ciò che parrot0 DICE è conoscenza quanto ciò che legge.** Nessun testo
+    rivolto all'interlocutore si scrive nel C — nemmeno un errore, un rifiuto o
+    un messaggio meccanico. Ogni frase ha una famiglia `response_template`, e il
+    test è: *«posso insegnargli a dirlo diversamente, parlando, e vale dal turno
+    dopo?»* Un `snprintf(msg, …, "Got it - I'll treat …")` non lo passa.
+    **Attenzione — questo mantra è nato perché i quattordici precedenti hanno
+    lasciato passare 374 messaggi compilati:** il #2 elenca solo categorie
+    d'ingresso (trigger, cue, sinonimi, unità, verbi) e nessuna d'uscita; il suo
+    test («impararne un nuovo membro domani?») sembra non applicarsi a una frase,
+    perché una frase non ha membri, quindi passa in silenzio invece di fallire; e
+    `kb_say(b, chiave, "default", …)` **sembra** conforme perché la chiave c'è,
+    mentre il letterale accanto è ciò che viene detto davvero. Fra il #2
+    (l'ingresso) e il #11 (il formato richiesto) c'era un buco, ed è lì che sono
+    passati. L'audit e la direzione stanno in
+    `docs/plans/messages-are-knowledge.md`.
 
 ## Evoluzione KB richiesta per LLMSCORE-max
 
