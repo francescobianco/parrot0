@@ -238,12 +238,11 @@ static int mod_rulespec(Brain *b, const char *norm, const char *raw,
                     code_check_counter_game(src, token, (int)thr, winword,
                                             err, sizeof err) == 1) {
                     /* gen269: multi-line reply, code in a markdown fence. */
-                    snprintf(out, out_size,
-                             "Verified by execution: %ld \"%s\" inputs print "
-                             "%s and %ld do not (count_to_threshold schema, "
-                             "two scripted plays via the counter-game "
-                             "oracle).\n\n```c\n%s\n```",
-                             thr, token, winword, thr - 1, src);
+                    { 
+                      char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", thr);
+                      char _v3[48]; snprintf(_v3, sizeof _v3, "%ld", thr - 1);
+  const KbResponseSlot _rs[] = { { "thr", _v0 }, { "token", token }, { "winword", winword }, { "thr2", _v3 }, { "src", src } };
+                      kb_term_say(b, "verified_by_execution_x_x_inputs_print_x_and", _rs, 5, out, out_size); }
                     store_proof(b, out);
                     return 1;
                 }
@@ -585,10 +584,13 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                 snprintf(out, out_size,
                          "Under %s, I found no OR-chains of calls to `%s`.", path, fn);
             else
-                snprintf(out, out_size,
-                         "Under %s, I found %d OR-chains of calls to `%s` in %d files "
-                         "(%d calls in chains); the densest is %s (%d chains).",
-                         path, n, fn, files, calls, top, topn);
+                { 
+                  char _v1[48]; snprintf(_v1, sizeof _v1, "%d", n);
+                  char _v3[48]; snprintf(_v3, sizeof _v3, "%d", files);
+                  char _v4[48]; snprintf(_v4, sizeof _v4, "%d", calls);
+                  char _v6[48]; snprintf(_v6, sizeof _v6, "%d", topn);
+  const KbResponseSlot _rs[] = { { "path", path }, { "n", _v1 }, { "fn", fn }, { "files", _v3 }, { "calls", _v4 }, { "top", top }, { "topn", _v6 } };
+                  kb_term_say(b, "under_x_i_found_x_or_chains_of_calls_to_x_in", _rs, 7, out, out_size); }
             store_proof(b, out);
             return 1;
         }
@@ -599,10 +601,12 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             snprintf(out, out_size,
                      "In %s, I found no OR-chains of calls to `%s`.", path, fn);
         else
-            snprintf(out, out_size,
-                     "In %s, I found %d OR-chains of calls to `%s` (%d calls in chains); "
-                     "the first starts at line %d.",
-                     path, n, fn, calls, lines[0]);
+            { 
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%d", n);
+              char _v3[48]; snprintf(_v3, sizeof _v3, "%d", calls);
+              char _v4[48]; snprintf(_v4, sizeof _v4, "%d", lines[0]);
+  const KbResponseSlot _rs[] = { { "path", path }, { "n", _v1 }, { "fn", fn }, { "calls", _v3 }, { "lines", _v4 } };
+              kb_term_say(b, "in_x_i_found_x_or_chains_of_calls_to_x_x_cal", _rs, 5, out, out_size); }
         store_proof(b, out);
         return 1;
     }
@@ -784,7 +788,10 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         } else if (rc == 0) {
             kb_term_say(b, "it_built_but_the_program_did_not_exit_normal", NULL, 0, out, out_size);
         } else {
-            snprintf(out, out_size, "it ran and exited with code %d.", ec);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%d", ec);
+  const KbResponseSlot _rs[] = { { "ec", _v0 } };
+              kb_term_say(b, "it_ran_and_exited_with_code_x", _rs, 1, out, out_size); }
         }
         store_proof(b, out);
         return 1;
@@ -991,9 +998,8 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
   const KbResponseSlot _rs[] = { { "callstr", callstr }, { "res", _v1 } };
               kb_term_say(b, "i_read_it_as_code_and_worked_it_out_x_return", _rs, 2, out, out_size); }
         else
-            snprintf(out, out_size,
-                     "I read it as code, but I cannot compute %s yet — its body is "
-                     "beyond my arithmetic evaluator.", callstr);
+            {   const KbResponseSlot _rs[] = { { "callstr", callstr } };
+              kb_term_say(b, "i_read_it_as_code_but_i_cannot_compute_x_yet", _rs, 1, out, out_size); }
         store_proof(b, out);
         return 1;
     }
@@ -1353,10 +1359,8 @@ static int repair_loop(Brain *b, const char *src, const char *fn,
         return 0;
 
     if (result.terminal == P0_REPAIR_ALREADY_GREEN) {
-        snprintf(out, out_size,
-                 "I ran it against the sort oracle (8 vectors, compiled and "
-                 "executed): it sorts every one and never loses an element. I "
-                 "found nothing to repair.");
+        {   const KbResponseSlot _rs[] = { { "x", "" } };
+          kb_term_say(b, "i_ran_it_against_the_sort_oracle_8_vectors_c", _rs, 0, out, out_size); }
         p0_patch_free(result.winner);
         return 1;
     }
@@ -1391,11 +1395,11 @@ static int repair_loop(Brain *b, const char *src, const char *fn,
             p0_patch_free(result.winner);
             return 0;
         }
-        snprintf(out, out_size,
-                 "Repaired, and verified by running it: %s. The fix: %s.\n"
-                 "```c\n%s\n```\n(Trace: %s.)",
-                 "it now sorts all 8 vectors and loses no element",
-                 result.winner_transform, repaired, trace);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", "it now sorts all 8 vectors and loses no element");
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%s", result.winner_transform);
+  const KbResponseSlot _rs[] = { { "element", _v0 }, { "winner_transform", _v1 }, { "repaired", repaired }, { "trace", trace } };
+          kb_term_say(b, "repaired_and_verified_by_running_it_x_the_fi", _rs, 4, out, out_size); }
         p0_patch_free(result.winner);
         store_proof(b, trace);
         return 1;
@@ -1403,11 +1407,10 @@ static int repair_loop(Brain *b, const char *src, const char *fn,
 
     /* No candidate survived the oracle. Say what was actually observed and stop —
      * a repair nobody ran is a fabrication, and a wall is better than that. */
-    snprintf(out, out_size,
-             "I can't repair that yet. %s. I have %zu repair rule(s) for that "
-             "diagnosis and none of them made the oracle pass, so I won't hand "
-             "you a patch I could not verify.",
-             trace, result.last_rule_count);
+    { 
+      char _v1[48]; snprintf(_v1, sizeof _v1, "%zu", result.last_rule_count);
+  const KbResponseSlot _rs[] = { { "trace", trace }, { "last_rule_count", _v1 } };
+      kb_term_say(b, "i_can_t_repair_that_yet_x_i_have_x_repair_ru", _rs, 2, out, out_size); }
     store_proof(b, trace);
     return 1;
 }
@@ -1469,13 +1472,11 @@ static int repair_file_loop(Brain *b, const char *rel_path, const char *src,
              * disposes it), but never narrate a success the graph lacks. */
             snprintf(out, out_size, "%s", terminal);
         } else {
-            snprintf(out, out_size,
-                     "I can't repair %s yet. The last real diagnosis is %s "
-                     "and no live rule made the oracle pass within budget, so "
-                     "the file is unchanged.",
-                     rel_path,
-                     result.last_diagnosis[0] ? result.last_diagnosis
+            { 
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%s", result.last_diagnosis[0] ? result.last_diagnosis
                                               : terminal);
+  const KbResponseSlot _rs[] = { { "rel_path", rel_path }, { "terminal", _v1 } };
+              kb_term_say(b, "i_can_t_repair_x_yet_the_last_real_diagnosis", _rs, 2, out, out_size); }
         }
     }
     if (result.winner) p0_patch_free(result.winner);
@@ -1719,8 +1720,8 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
     if (qtype == 3) {
         char ln[64]; register_name(b, input_reg, ln, sizeof ln);
         if (!input_reg[0]) {
-            snprintf(out, out_size, "I can not identify the language. "
-                     "It does not look like C or Python to me.");
+            {   const KbResponseSlot _rs[] = { { "x", "" } };
+              kb_term_say(b, "i_can_not_identify_the_language_it_does_not", _rs, 0, out, out_size); }
         } else {
             char roles[1][KB_TERM_LEN]; const char *rq[2] = { input_reg, NULL };
             int code_role = kb_match(b->kb, "code_register", rq, 2, roles, 1) == 1;
@@ -1796,27 +1797,27 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
         char diag[256] = "";
         int syn = code_syntax_verdict(code, diag, sizeof diag);
 
-        if (syn == 0 && check_missing_semicolons(code, r, sizeof r)) {
+        if (syn == 0 && check_missing_semicolons(b, code, r, sizeof r)) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
         }
-        if (check_type_mismatch(code, r, sizeof r)) {
+        if (check_type_mismatch(b, code, r, sizeof r)) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
         }
-        if (syn == 0 && check_unclosed_string(code, r, sizeof r)) {
+        if (syn == 0 && check_unclosed_string(b, code, r, sizeof r)) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
         }
-        if (syn == 0 && check_balanced_braces(code, r, sizeof r)) {
+        if (syn == 0 && check_balanced_braces(b, code, r, sizeof r)) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
         }
-        if (syn == 0 && check_balanced_parens(code, r, sizeof r)) {
+        if (syn == 0 && check_balanced_parens(b, code, r, sizeof r)) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
@@ -1841,10 +1842,8 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
          * and name the limit honestly — a clean syntax check says nothing about
          * whether the code COMPUTES the right thing. */
         if (errors == 0 && syn == 1 && (qtype == 1 || qtype == 2)) {
-            snprintf(out, out_size,
-                     "I compiled it (cc -fsyntax-only) and it has no syntax errors. "
-                     "That is all I checked: I cannot yet tell you whether it "
-                     "computes what you intended.");
+            {   const KbResponseSlot _rs[] = { { "x", "" } };
+              kb_term_say(b, "i_compiled_it_cc_fsyntax_only_and_it_has_no", _rs, 0, out, out_size); }
             return 1;
         }
     } else if (lang == 2) {  /* Python */
@@ -1883,9 +1882,8 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
     }
 
     if (errors == 0 && (qtype == 1 || qtype == 2)) {
-        snprintf(out, out_size, "I did not find obvious errors in this code snippet. "
-                 "(I only check basic syntax: semicolons, braces, parentheses, "
-                 "string quotes, and known function names.)");
+        {   const KbResponseSlot _rs[] = { { "x", "" } };
+          kb_term_say(b, "i_did_not_find_obvious_errors_in_this_code_s", _rs, 0, out, out_size); }
         return 1;
     }
 
@@ -1917,9 +1915,8 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
              * not find a clear fix" — which is a false statement about code we KNOW
              * is broken, and it hid a real finding behind a shrug. Report cc's own
              * words: the defect is a fact, the repair is what we don't have. */
-            snprintf(out, out_size,
-                     "It does not compile — %s. I have no repair rule for that one, "
-                     "so I will not invent a patch.", findings);
+            {   const KbResponseSlot _rs[] = { { "findings", findings } };
+              kb_term_say(b, "it_does_not_compile_x_i_have_no_repair_rule", _rs, 1, out, out_size); }
         else
             kb_term_say(b, "i_did_not_find_a_clear_fix_can_you_describe", NULL, 0, out, out_size);
     } else if (qtype == 4) {

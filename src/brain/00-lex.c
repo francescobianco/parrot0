@@ -606,13 +606,11 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                 const char *other = !strcmp(mode[0], "cue_for") ? "response_template"
                                                                 : "intent_cue";
                 if (kb_match(b->kb, other, famq, 2, row, 1) > 0)
-                    snprintf(msg, sizeof msg,
-                             "I know %s, but nothing reads its %s, so that lesson "
-                             "would not change what I do.", family, wanted);
+                    {   const KbResponseSlot _rs[] = { { "family", family }, { "wanted", wanted } };
+                      kb_term_say(b, "i_know_x_but_nothing_reads_its_x_so_that_les", _rs, 2, msg, sizeof msg); }
                 else
-                    snprintf(msg, sizeof msg,
-                             "I don't have a family called %s, so I can't attach "
-                             "that to it.", family);
+                    {   const KbResponseSlot _rs[] = { { "family", family } };
+                      kb_term_say(b, "i_don_t_have_a_family_called_x_so_i_can_t_at", _rs, 1, msg, sizeof msg); }
                 put(msg, out, outsz);
                 return 1;
             }
@@ -643,9 +641,11 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
              * story generator) would fabricate a reply to a teaching turn: a
              * misclaim, worse than a wall. Name the mechanical limit instead. */
             char lim[160];
-            snprintf(lim, sizeof lim,
-                     "That quoted span is too long for one fact (%zu chars, "
-                     "limit %d) - can you shorten it?", pl, KB_TERM_LEN - 3);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", pl);
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%d", KB_TERM_LEN - 3);
+  const KbResponseSlot _rs[] = { { "pl", _v0 }, { "KB_TERM_LEN", _v1 } };
+              kb_term_say(b, "that_quoted_span_is_too_long_for_one_fact_x", _rs, 2, lim, sizeof lim); }
             put(lim, out, outsz);
             return 1;
         }

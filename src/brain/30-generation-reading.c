@@ -1517,9 +1517,8 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             { const KbResponseSlot _rs[] = { { "pick", pick } };
       kb_term_say(b, "i_don_t_have_real_desires_but_for_the_prompt_4", _rs, 1, msg, sizeof msg); }
         else
-            snprintf(msg, sizeof msg,
-                     "I don't have real desires, but I'm happy to play along -- give me "
-                     "a couple of options and I'll reason out a choice.");
+            {   const KbResponseSlot _rs[] = { { "x", "" } };
+              kb_term_say(b, "i_don_t_have_real_desires_but_i_m_happy_to_p", _rs, 0, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }

@@ -1120,7 +1120,7 @@ static int identify_code_lang(const char *code, Brain *b) {
     return 0;
 }
 
-static int check_missing_semicolons(const char *code, char *findings,
+static int check_missing_semicolons(Brain *b, const char *code, char *findings,
                                      size_t findings_size) {
     int issues = 0;
     /* Check each physical line: if it looks like a C statement but doesn't
@@ -1179,20 +1179,23 @@ static int check_missing_semicolons(const char *code, char *findings,
         }
     }
     if (issues == 1)
-        snprintf(findings, findings_size, "Missing semicolon at the end of a statement.");
+        {   const KbResponseSlot _rs[] = { { "x", "" } };
+          kb_term_say(b, "missing_semicolon_at_the_end_of_a_statement", _rs, 0, findings, findings_size); }
     else if (issues > 1)
-        snprintf(findings, findings_size, "Missing semicolons at the end of %d statements.", issues);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%d", issues);
+  const KbResponseSlot _rs[] = { { "issues", _v0 } };
+          kb_term_say(b, "missing_semicolons_at_the_end_of_x_statement", _rs, 1, findings, findings_size); }
     return issues;
 }
 
-static int check_type_mismatch(const char *code, char *findings,
+static int check_type_mismatch(Brain *b, const char *code, char *findings,
                                 size_t findings_size) {
     /* Simple patterns: "int x = \"...\"" (string assigned to int)
      *                 "char y = 42" (number assigned to char pointer) */
     if (strstr(code, "int ") && strstr(code, "= \"") && strstr(code, "\"")) {
-        snprintf(findings, findings_size,
-            "Type mismatch: a string is assigned to an int variable. "
-            "Use char * or char[] for strings.");
+        {   const KbResponseSlot _rs[] = { { "x", "" } };
+          kb_term_say(b, "type_mismatch_a_string_is_assigned_to_an_int", _rs, 0, findings, findings_size); }
         return 1;
     }
     /* char *x = number (without quotes) */
@@ -1207,9 +1210,8 @@ static int check_type_mismatch(const char *code, char *findings,
                   for (const char *d = v; *d && *d != ';' && *d != '\n'; d++)
                       if (isdigit((unsigned char)*d)) { has_digit = 1; break; }
                   if (has_digit && !strstr(v, "\"")) {
-                      snprintf(findings, findings_size,
-                          "Suspicious assignment: a number assigned to a char * variable. "
-                          "If this is meant as a character literal, use single quotes: 'x'.");
+                      {   const KbResponseSlot _rs[] = { { "x", "" } };
+                        kb_term_say(b, "suspicious_assignment_a_number_assigned_to_a", _rs, 0, findings, findings_size); }
                       return 1;
                   }
               }
@@ -1220,20 +1222,20 @@ static int check_type_mismatch(const char *code, char *findings,
     return 0;
 }
 
-static int check_unclosed_string(const char *code, char *findings,
+static int check_unclosed_string(Brain *b, const char *code, char *findings,
                                   size_t findings_size) {
     int quotes = 0;
     for (const char *p = code; *p; p++)
         if (*p == '\"' && (p == code || *(p-1) != '\\')) quotes++;
     if (quotes % 2 != 0) {
-        snprintf(findings, findings_size,
-            "Unclosed string literal: there is an odd number of double-quote characters.");
+        {   const KbResponseSlot _rs[] = { { "x", "" } };
+          kb_term_say(b, "unclosed_string_literal_there_is_an_odd_numb", _rs, 0, findings, findings_size); }
         return 1;
     }
     return 0;
 }
 
-static int check_balanced_braces(const char *code, char *findings,
+static int check_balanced_braces(Brain *b, const char *code, char *findings,
                                   size_t findings_size) {
     int open = 0;
     for (const char *p = code; *p; p++) {
@@ -1241,19 +1243,23 @@ static int check_balanced_braces(const char *code, char *findings,
         if (*p == '}') open--;
     }
     if (open > 0) {
-        snprintf(findings, findings_size,
-            "Unbalanced braces: %d more opening brace(s) than closing.", open);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%d", open);
+  const KbResponseSlot _rs[] = { { "open", _v0 } };
+          kb_term_say(b, "unbalanced_braces_x_more_opening_brace_s_tha", _rs, 1, findings, findings_size); }
         return 1;
     }
     if (open < 0) {
-        snprintf(findings, findings_size,
-            "Unbalanced braces: %d more closing brace(s) than opening.", -open);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%d", -open);
+  const KbResponseSlot _rs[] = { { "open", _v0 } };
+          kb_term_say(b, "unbalanced_braces_x_more_closing_brace_s_tha", _rs, 1, findings, findings_size); }
         return 1;
     }
     return 0;
 }
 
-static int check_balanced_parens(const char *code, char *findings,
+static int check_balanced_parens(Brain *b, const char *code, char *findings,
                                   size_t findings_size) {
     int open = 0;
     for (const char *p = code; *p; p++) {
@@ -1261,11 +1267,12 @@ static int check_balanced_parens(const char *code, char *findings,
         if (*p == ')') open--;
     }
     if (open != 0) {
-        snprintf(findings, findings_size,
-            "Unbalanced parentheses: %d more %s than %s.",
-            open > 0 ? open : -open,
-            open > 0 ? "opening" : "closing",
-            open > 0 ? "closing" : "opening");
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%d", open > 0 ? open : -open);
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%s", open > 0 ? "opening" : "closing");
+          char _v2[48]; snprintf(_v2, sizeof _v2, "%s", open > 0 ? "closing" : "opening");
+  const KbResponseSlot _rs[] = { { "open", _v0 }, { "closing", _v1 }, { "opening", _v2 } };
+          kb_term_say(b, "unbalanced_parentheses_x_more_x_than_x", _rs, 3, findings, findings_size); }
         return 1;
     }
     return 0;

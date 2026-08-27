@@ -591,9 +591,8 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                              * and claims the turn, so the request isn't met with a worse
                              * generic deflection downstream. */
                             char msg[160];
-                            snprintf(msg, sizeof msg,
-                                     "I can translate most of it, but I don't know the "
-                                     "Spanish for \"%s\".", tok);
+                            {   const KbResponseSlot _rs[] = { { "tok", tok } };
+                              kb_term_say(b, "i_can_translate_most_of_it_but_i_don_t_know_2", _rs, 1, msg, sizeof msg); }
                             put(msg, out, out_size);
                             return 1;
                         }
@@ -1013,13 +1012,11 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
         { const KbResponseSlot _rs[] = { { "suppress", suppress }, { "ans", ans } };
       kb_term_say(b, "without_x_nothing_else_matches_i_d_fall_back", _rs, 2, msg, sizeof msg); }
     } else if (strcmp(who, b->trace_winner) == 0) {
-        snprintf(msg, sizeof msg,
-                 "Setting '%s' aside changes nothing — '%s' ran first anyway and "
-                 "still answers \"%s\"", suppress, who, ans);
+        {   const KbResponseSlot _rs[] = { { "suppress", suppress }, { "who", who }, { "ans", ans } };
+          kb_term_say(b, "setting_x_aside_changes_nothing_x_ran_first", _rs, 3, msg, sizeof msg); }
     } else {
-        snprintf(msg, sizeof msg,
-                 "Without '%s', the next module that matches is '%s', and it would "
-                 "answer \"%s\"", suppress, who, ans);
+        {   const KbResponseSlot _rs[] = { { "suppress", suppress }, { "who", who }, { "ans", ans } };
+          kb_term_say(b, "without_x_the_next_module_that_matches_is_x", _rs, 3, msg, sizeof msg); }
     }
     put(msg, out, out_size);
     return 1;
@@ -1241,9 +1238,12 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
             return 1;
         }
         char m[300];
-        snprintf(m, sizeof m, "In the %s world, %s is%s %s %s.",
-                 b->worlds[b->active_world], subj, neg ? " not" : "",
-                 world_art(pred), pred);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->worlds[b->active_world]);
+          char _v2[48]; snprintf(_v2, sizeof _v2, "%s", neg ? " not" : "");
+          char _v3[48]; snprintf(_v3, sizeof _v3, "%s", world_art(pred));
+  const KbResponseSlot _rs[] = { { "active_world", _v0 }, { "subj", subj }, { "not", _v2 }, { "pred", _v3 }, { "pred2", pred } };
+          kb_term_say(b, "in_the_x_world_x_isx_x_x", _rs, 5, m, sizeof m); }
         put(m, out, out_size);
         return 1;
     }

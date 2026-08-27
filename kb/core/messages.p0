@@ -431,3 +431,137 @@ response_template(in_the_x_world_i_am_assuming_x, "In the {id} world I am assumi
 response_template(that_wouldn_t_change_my_conclusion_about_x_e, "That wouldn't change my conclusion about {last_goal_arg} either way.").
 response_template(learned_x_facts_x, "Learned {nf} facts: {learned}.").
 response_template(i_bridged_x_of_my_own_walls_by_teaching_myse, "I bridged {nfix} of my own walls by teaching myself: {learned}.").
+
+%% Settima tranche: i messaggi che contengono NUMERI. Il valore diventa testo
+%% prima di entrare nello slot, cosi' anche «ho letto 3 fatti» e' una frase che
+%% si puo' reinsegnare senza toccare il conteggio.
+
+response_template(missing_semicolon_at_the_end_of_a_statement, "Missing semicolon at the end of a statement.").
+response_template(missing_semicolons_at_the_end_of_x_statement, "Missing semicolons at the end of {issues} statements.").
+response_template(unclosed_string_literal_there_is_an_odd_numb, "Unclosed string literal: there is an odd number of double-quote characters.").
+response_template(unbalanced_braces_x_more_opening_brace_s_tha, "Unbalanced braces: {open} more opening brace(s) than closing.").
+response_template(unbalanced_braces_x_more_closing_brace_s_tha, "Unbalanced braces: {open} more closing brace(s) than opening.").
+response_template(unbalanced_parentheses_x_more_x_than_x, "Unbalanced parentheses: {open} more {closing} than {opening}.").
+
+%% Settima tranche: i messaggi che contengono NUMERI. Il valore diventa testo
+%% prima di entrare nello slot, cosi' anche «ho letto 3 fatti» e' una frase che
+%% si puo' reinsegnare senza toccare il conteggio.
+
+response_template(i_know_x_but_nothing_reads_its_x_so_that_les, "I know {family}, but nothing reads its {wanted}, so that lesson would not change what I do.").
+response_template(i_don_t_have_a_family_called_x_so_i_can_t_at, "I don't have a family called {family}, so I can't attach that to it.").
+response_template(that_quoted_span_is_too_long_for_one_fact_x, "That quoted span is too long for one fact ({pl} chars, limit {KB_TERM_LEN}) - can you shorten it?").
+response_template(task_goal_match_x_x_x_x_because_reasoning_op, "task_goal_match({candidate}, {goal}, {i}, {value}) because reasoning_operator_active(goal_comparison) and effective_goal_prefers({goal2}, {i2}, {value2}) and effective_property({candidate2}, {i3}, {value3})").
+response_template(task_difference_x_x_x_x_because_reasoning_op, "task_difference({x}, {y}, {i}, {pair}) because reasoning_operator_active(goal_comparison) and effective_property({x2}, {i2}, {vx}) and effective_property({y2}, {i3}, {vy}) and dif({vx2}, {vy2})").
+response_template(failure_mechanism_x_x_x_x_because_reasoning, "failure_mechanism({system}, {phenomenon}, {strategy}, {condition}) because reasoning_operator_active(failure_explanation) and effective_system_relies_on({system2}, {strategy2}) and strategy_failure_condition({strategy3}, {condition2}) and effective_phenomenon_exploits({phenomenon2}, {condition3})").
+response_template(constraint_synthesis_x_selected_x_feature_s, "constraint_synthesis({arguments}) selected {nselected} feature(s); each selection is a task_feature_match and the union covers {nrequirements} task_requirement conclusions").
+response_template(process_reaches_x_x_by_dependency_ordered_ap, "process_reaches({process}, {goals}) by dependency-ordered applications of process_action, action_requires, and action_produces; every declared product_input is process_input_covered").
+response_template(you_re_now_in_x_place_you_take_the_spot_of_t, "You're now in {got} place -- you take the spot of the runner you passed, not the one ahead of them.").
+response_template(yes_some_xs_are_xs_and_no_xs_are_xs_so_those, "Yes -- some {P}s are {C}s, and no {C2}s are {Q}s, so those {P2}s cannot be {Q2}s: some {P3}s are definitely not {Q3}s.").
+response_template(no_that_doesn_t_follow_from_all_x_are_x_and, "No -- that doesn't follow. From «all {A} are {B}» and «some {B2} ...», nothing follows about {A2}: the {B3} in question need not be {A3} (the middle term is undistributed).").
+response_template(i_don_t_actually_see_or_experience_things_bu, "I don't actually see or experience things, but I can describe it: {r}.").
+response_template(riddle_solved_by_inference_x_satisfies_all_x, "Riddle solved by inference: {c} satisfies all {npr} clue constraints (not a stored answer).").
+response_template(riddle_solved_by_inference_x_depicts_all_x_h, "Riddle solved by inference: {c} depicts all {nh} haves and contains none of the {nn} negatives.").
+response_template(riddle_solved_by_inference_x_satisfies_all_x_2, "Riddle solved by inference: {c} satisfies all {ncon} property constraints.").
+
+%% Settima tranche: i messaggi che contengono NUMERI. Il valore diventa testo
+%% prima di entrare nello slot, cosi' anche «ho letto 3 fatti» e' una frase che
+%% si puo' reinsegnare senza toccare il conteggio.
+
+response_template(by_day_the_sky_looks_blue_because_x_at_night, "By day the sky looks blue because {a}. At night it is dark because {c}.").
+response_template(orchain_vocab_found_x_or_chains_of_calls_to, "orchain_vocab found {chains} OR-chains of calls to `{fn}` but no string cues").
+response_template(emit_facts_has_no_fact_pred_knowledge_for_th, "emit_facts has no fact_pred knowledge for this goal — teach me a plan_param fact naming the predicate to write").
+response_template(emit_facts_found_x_or_chains_of_calls_to_x_b, "emit_facts found {chains} OR-chains of calls to `{fn}` but no string cues to write").
+response_template(patch_chains_has_no_lookup_fn_knowledge_for, "patch_chains has no lookup_fn knowledge for this goal — teach me a plan_param fact naming the lookup call to patch in").
+response_template(patch_chains_replaced_x_chains_with_calls_to, "patch_chains replaced {skipped} chains with calls to `{lfn}` in {outp}{skipmsg} but the result no longer compiles").
+response_template(patch_chains_replaced_x_chains_with_calls_to_2, "patch_chains replaced {skipped} chains with calls to `{lfn}` in {outp}{skipmsg}; the target is a fragment of a larger unit, so its own build must judge the copy").
+response_template(patch_chains_replaced_x_chains_with_calls_to_3, "patch_chains replaced {skipped} chains with calls to `{lfn}` in {outp}{skipmsg} and the result still compiles").
+response_template(verify_behavior_has_no_probe_fn_knowledge_fo, "verify_behavior has no probe_fn knowledge for this goal — teach me a plan_param fact naming the function to probe").
+response_template(verify_behavior_cannot_run_x_standalone_it_i, "verify_behavior cannot run {target} standalone — it is a fragment of a larger unit; the codebase's own test suite must judge the patch").
+response_template(verify_behavior_ran_x_on_x_probes_and_the_pa, "verify_behavior ran `{pfn}` on {nprobes} probes and the patched copy DIVERGES from the original — the refactor is not behavior-preserving").
+response_template(verify_behavior_ran_x_on_x_probes_in_both_ve, "verify_behavior ran `{pfn}` on {nprobes} probes in both versions; outputs are byte-identical — the patch preserves behavior").
+response_template(orchain_scan_found_x_or_chains_of_calls_to_x, "orchain_scan found {n} OR-chains of calls to `{fn}` under {target} in {files} files ({calls} calls in chains); densest is {top} ({topn} chains)").
+response_template(orchain_scan_found_x_or_chains_of_calls_to_x_2, "orchain_scan found {n} OR-chains of calls to `{fn}` in {target} ({calls} calls in chains)").
+response_template(my_action_knowledge_for_x_is_incomplete_noth, "My action knowledge for {goal_h} is incomplete: nothing yields {miss_h} and it is not given — teach me the missing action facts.").
+response_template(x_reaches_the_midpoint_first_each_must_cover, "{who} reaches the midpoint first (each must cover {mid} miles; it gets there sooner).").
+response_template(no_number_fits_nothing_from_x_to_x_satisfies, "No number fits: nothing from {lo} to {hi} satisfies all those constraints together.").
+response_template(it_must_be_x_the_only_number_from_x_to_x_tha, "It must be {picks} -- the only number from {lo} to {hi} that fits.").
+response_template(x_with_x_colors_any_x_pulls_must_include_two, "{nk} -- with {nk2} colors, any {nk3} pulls must include two of the same color (pigeonhole).").
+
+%% Settima tranche: i messaggi che contengono NUMERI. Il valore diventa testo
+%% prima di entrare nello slot, cosi' anche «ho letto 3 fatti» e' una frase che
+%% si puo' reinsegnare senza toccare il conteggio.
+
+response_template(x_square_x_the_other_side_is_x_2_x_x_and_x_x, "{n3} square {units} -- the other side is {per}/2 - {n1} = {n2}, and {n12} x {n22} = {n32}.").
+response_template(x_with_x_people_and_rotations_counted_as_the, "{f}. With {n} people and rotations counted as the same, there are ({n2}-1)! = {f2} arrangements.").
+response_template(i_don_t_have_real_desires_but_i_m_happy_to_p, "I don't have real desires, but I'm happy to play along -- give me a couple of options and I'll reason out a choice.").
+response_template(i_don_t_have_real_preferences_but_if_i_had_t, "I don't have real preferences, but if I had to choose one, I'd pick {c}.").
+response_template(i_don_t_have_real_preferences_but_if_i_had_t_2, "I don't have real preferences, but if I had to choose, I'd pick {p}.").
+response_template(the_reasoning_chain_is_x_each_because_is_one, "The reasoning chain is: {last_proof}. Each 'because' is one inference step applying a rule to known facts.").
+response_template(this_is_a_direct_fact_x_i_store_it_explicitl, "This is a direct fact: {last_proof} I store it explicitly in my knowledge base, so it needs no further justification.").
+response_template(the_supporting_fact_is_x_this_is_stored_dire, "The supporting fact is: {last_proof}. This is stored directly in my knowledge base.").
+response_template(i_can_see_the_shape_x_x_as_the_worked_exampl, "I can see the shape ({demo} ⇒ {dconcl} as the worked example, then {qj} ⇒ ?), but {qj2} doesn't instantiate that same relational structure, so I won't guess.").
+response_template(the_symbols_are_arbitrary_the_worked_example, "the symbols are arbitrary; the worked example {demo} ⇒ {dconcl} fixes a relational archetype, and applying it to {qj} yields {answer}.").
+response_template(i_try_my_modules_in_a_fixed_order_and_the_fi, "I try my modules in a fixed order and the first one that matches wins. Last turn {declined} each looked and declined, and nothing else claimed it, so I fell back to an honest «I don't understand.»").
+response_template(no_module_matched_your_last_turn_so_i_fell_b, "No module matched your last turn, so I fell back to an honest «I don't understand.»").
+response_template(i_try_my_modules_in_a_fixed_order_and_the_fi_2, "I try my modules in a fixed order and the first one that matches wins. Last turn {declined} looked first and declined; then '{trace_winner}' claimed it — so the modules after '{trace_winner2}' were never consulted.").
+response_template(i_try_my_modules_in_a_fixed_order_and_the_fi_3, "I try my modules in a fixed order and the first one that matches wins. Last turn '{trace_winner}' was the first to match and claimed it, so the modules after it were never consulted.").
+response_template(i_audited_my_own_composition_on_fresh_copies, "I audited my own composition on fresh copies of myself: {map}. {n} of {total} triples hold. No file was touched; an external agent owns edits and commits.").
+response_template(i_know_x_distinct_predicate_s, "I know {np} distinct predicate(s).").
+response_template(i_know_x_fact_s_total, "I know {kb} fact(s) total.").
+response_template(no_module_could_handle_that_it_fell_through, "No module could handle that — it fell through to the not-understood fallback.").
+response_template(x_timed_out_after_x_ms_i_killed_it_i_do_not, "`{cmd}` TIMED OUT after {duration_ms} ms — I killed it. I do not know whether it would have succeeded.").
+response_template(unsafe_path_x_is_not_a_regular_file_inside_m, "unsafe_path: `{file}` is not a regular file inside my workspace ({p0_root}), so I did not read it.").
+response_template(unsafe_command_i_do_not_run_shell_syntax_i_e, "unsafe_command: I do not run shell syntax — I execute one program with its arguments, so `;`, `|`, `&&` and `$(…)` have no meaning here. Ask me to run a single tool (e.g. `run make test`).").
+response_template(unsafe_command_i_am_not_authorized_to_run_x, "unsafe_command: I am not authorized to run `{cargv}` — {why}. My tool contracts live in the KB (tool_for/2, tool_subcmd/2); teach me one and I will.").
+response_template(verified_by_execution_sorted_ascending_and_a, "verified by execution: sorted ascending AND a permutation of the input on 8 vectors (run via the code_check_sort oracle)").
+response_template(i_can_only_synthesize_and_verify_the_sum_pro, "I can only synthesize and VERIFY the sum, product, or difference of two integers so far — I will not emit code I cannot check.").
+
+%% Settima tranche: i messaggi che contengono NUMERI. Il valore diventa testo
+%% prima di entrare nello slot, cosi' anche «ho letto 3 fatti» e' una frase che
+%% si puo' reinsegnare senza toccare il conteggio.
+
+response_template(i_read_those_steps_but_they_do_not_describe, "I read those steps but they do not describe a structure I can build yet{means}{missing}. I will not invent a schema I cannot instantiate and verify.").
+response_template(learned_those_steps_describe_the_x_structure, "Learned: those steps describe the {shape} structure, so I now have a schema for {key}. Ask me to write it and I will synthesize it and run it against the sort oracle.").
+response_template(starting_from_x_that_step_never_reaches_x_th, "Starting from {sb}, that step never reaches {tb} — the goal can't be met this way.").
+response_template(created_the_empty_file_x_in_the_working_dire, "Created the empty file {name} in the working directory — verified: it exists and is empty.").
+response_template(i_understood_create_the_file_x_but_a_file_wi, "I understood — create the file {name} — but a file with that name already exists here, and I won't overwrite it.").
+response_template(verified_by_execution_it_prints_x_and_exits, "Verified by execution: it prints «{msg}» and exits 0 (print_message schema, run via the code_run oracle).\n\n```c\n{src}\n```").
+response_template(tools_disabled_i_understood_that_it_is_a_x_r, "tools_disabled: I understood that — it is a {kind} request, and I can do it — but in {mode} mode I may not touch the filesystem. Start me with `make chat-agent` and I will run it.").
+response_template(type_mismatch_a_string_is_assigned_to_an_int, "Type mismatch: a string is assigned to an int variable. Use char * or char[] for strings.").
+response_template(suspicious_assignment_a_number_assigned_to_a, "Suspicious assignment: a number assigned to a char * variable. If this is meant as a character literal, use single quotes: 'x'.").
+response_template(verified_by_execution_x_x_inputs_print_x_and, "Verified by execution: {thr} «{token}» inputs print {winword} and {thr2} do not (count_to_threshold schema, two scripted plays via the counter-game oracle).\n\n```c\n{src}\n```").
+response_template(under_x_i_found_x_or_chains_of_calls_to_x_in, "Under {path}, I found {n} OR-chains of calls to `{fn}` in {files} files ({calls} calls in chains); the densest is {top} ({topn} chains).").
+response_template(in_x_i_found_x_or_chains_of_calls_to_x_x_cal, "In {path}, I found {n} OR-chains of calls to `{fn}` ({calls} calls in chains); the first starts at line {lines}.").
+response_template(it_ran_and_exited_with_code_x, "it ran and exited with code {ec}.").
+response_template(i_read_it_as_code_but_i_cannot_compute_x_yet, "I read it as code, but I cannot compute {callstr} yet — its body is beyond my arithmetic evaluator.").
+response_template(i_ran_it_against_the_sort_oracle_8_vectors_c, "I ran it against the sort oracle (8 vectors, compiled and executed): it sorts every one and never loses an element. I found nothing to repair.").
+response_template(repaired_and_verified_by_running_it_x_the_fi, "Repaired, and verified by running it: {element}. The fix: {winner_transform}.\n```c\n{repaired}\n```\n(Trace: {trace}.)").
+response_template(i_can_t_repair_that_yet_x_i_have_x_repair_ru, "I can't repair that yet. {trace}. I have {last_rule_count} repair rule(s) for that diagnosis and none of them made the oracle pass, so I won't hand you a patch I could not verify.").
+response_template(i_can_t_repair_x_yet_the_last_real_diagnosis, "I can't repair {rel_path} yet. The last real diagnosis is {terminal} and no live rule made the oracle pass within budget, so the file is unchanged.").
+response_template(i_can_not_identify_the_language_it_does_not, "I can not identify the language. It does not look like C or Python to me.").
+response_template(i_compiled_it_cc_fsyntax_only_and_it_has_no, "I compiled it (cc -fsyntax-only) and it has no syntax errors. That is all I checked: I cannot yet tell you whether it computes what you intended.").
+response_template(i_did_not_find_obvious_errors_in_this_code_s, "I did not find obvious errors in this code snippet. (I only check basic syntax: semicolons, braces, parentheses, string quotes, and known function names.)").
+response_template(it_does_not_compile_x_i_have_no_repair_rule, "It does not compile — {findings}. I have no repair rule for that one, so I will not invent a patch.").
+response_template(i_can_translate_most_of_it_but_i_don_t_know_2, "I can translate most of it, but I don't know the Spanish for «{tok}».").
+response_template(setting_x_aside_changes_nothing_x_ran_first, "Setting '{suppress}' aside changes nothing — '{who}' ran first anyway and still answers «{ans}»").
+response_template(without_x_the_next_module_that_matches_is_x, "Without '{suppress}', the next module that matches is '{who}', and it would answer «{ans}»").
+response_template(in_the_x_world_x_isx_x_x, "In the {active_world} world, {subj} is{not} {pred} {pred2}.").
+response_template(if_i_didn_t_know_that_x_is_a_x_i_could_no_lo, "If I didn't know that {arg} is a {pred}, I could no longer conclude that {last_goal_arg} is a {last_goal_pred} — that conclusion rests on it.").
+response_template(even_without_knowing_that_x_is_a_x_x_would_s, "Even without knowing that {arg} is a {pred}, {last_goal_arg} would still be a {last_goal_pred} — I can reach that another way.").
+response_template(my_conclusion_that_x_is_a_x_is_robust_there, "My conclusion that {last_goal_arg} is a {last_goal_pred} is robust — there's no single fact I could forget that would overturn it.").
+response_template(my_conclusion_that_x_is_a_x_is_fragile_it_re, "My conclusion that {last_goal_arg} is a {last_goal_pred} is fragile: it rests entirely on one fact — {crit}. Forget that and it falls.").
+response_template(all_right_assuming_x_is_a_x_anything_i_concl, "All right — assuming {arg} is a {pred}. Anything I conclude from it will be conditional on that.").
+response_template(i_m_certain_x_is_a_x_is_a_fact_you_stated_di, "I'm certain: {last_goal_arg} is a {last_goal_pred} is a fact you stated directly, so I hold it as known, not inferred.").
+response_template(i_m_confident_but_it_s_derived_not_given_x_i, "I'm confident but it's derived, not given: {chain}. I concluded it by applying a rule, so it's only as sound as those premises.").
+response_template(i_m_genuinely_unsure_i_hold_conflicting_clai, "I'm genuinely unsure — I hold conflicting claims about {last_goal_arg}: you told me it is a {last_goal_pred} and also that it is not. Until that's resolved I can't commit either way.").
+response_template(only_conditionally_x_is_a_x_holds_because_i, "Only conditionally: {last_goal_arg} is a {last_goal_pred} holds because I'm ASSUMING {hypo_idx} is a {hypo_idx2}. Drop that assumption and I'd have no ground for it.").
+response_template(i_don_t_actually_think_that_i_have_no_suppor, "I don't actually think that — I have no support for {last_goal_arg} being a {last_goal_pred}, so I can't claim it either way.").
+response_template(learning_that_x_is_not_a_x_that_s_the_single, "Learning that {last_goal_arg} is NOT a {last_goal_pred} — that's the single fact it rests on, so contradicting it would overturn my belief.").
+response_template(nothing_simple_i_can_reach_that_another_way, "Nothing simple — I can reach that another way, so no single fact I drop would change it.").
+response_template(it_hangs_on_one_premise_if_i_learned_that_x, "It hangs on one premise: if I learned that {crit} were false, I'd stop concluding {last_goal_arg} is a {last_goal_pred}.").
+response_template(telling_me_which_to_trust_you_ve_claimed_bot, "Telling me which to trust — you've claimed both that {last_goal_arg} is a {last_goal_pred} and that it is not. Retract one and I'd settle on the other.").
+response_template(dropping_the_assumption_i_only_conclude_x_is, "Dropping the assumption — I only conclude {last_goal_arg} is a {last_goal_pred} because I'm supposing {hypo_idx} is a {hypo_idx2}. Withdraw that and the conclusion goes with it.").
+response_template(learning_whether_x_is_a_x_at_all_right_now_i, "Learning whether {last_goal_arg} is a {last_goal_pred} at all — right now I have no support either way, so any fact about it would be new ground.").
+response_template(i_have_no_rule_that_would_make_anything_a_x, "I have no rule that would make anything a {pred}, so I can't say what would.").
+response_template(the_easiest_way_is_to_tell_me_that_x_x_missi, "The easiest way is to tell me that {need} — {best_n} missing premise{s} via {best_rule} -> {pred}.").
+response_template(that_s_just_the_number_x_with_nothing_to_do, "That's just the number {shown} with nothing to do — what would you like me to do with it?").

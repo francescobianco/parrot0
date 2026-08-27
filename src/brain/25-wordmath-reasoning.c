@@ -460,9 +460,10 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
             return 0;
         }
         if (nwords == 0) {
-            snprintf(obs, obs_sz,
-                     "orchain_vocab found %d OR-chains of calls to `%s` but no string cues",
-                     chains, fn);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%d", chains);
+  const KbResponseSlot _rs[] = { { "chains", _v0 }, { "fn", fn } };
+              kb_term_say(b, "orchain_vocab_found_x_or_chains_of_calls_to", _rs, 2, obs, obs_sz); }
             return 0;
         }
         char list[384];
@@ -477,9 +478,8 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
     if (strcmp(impl, "emit_facts") == 0) {
         char pred[64] = "";
         if (!plan_param_value(b, goal, "fact_pred", pred, sizeof pred)) {
-            snprintf(obs, obs_sz,
-                     "emit_facts has no fact_pred knowledge for this goal — teach me "
-                     "a plan_param fact naming the predicate to write");
+            {   const KbResponseSlot _rs[] = { { "x", "" } };
+              kb_term_say(b, "emit_facts_has_no_fact_pred_knowledge_for_th", _rs, 0, obs, obs_sz); }
             return 0;
         }
         struct stat est;
@@ -502,9 +502,10 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
             return 0;
         }
         if (nfacts == 0) {
-            snprintf(obs, obs_sz,
-                     "emit_facts found %d OR-chains of calls to `%s` but no string "
-                     "cues to write", chains, fn);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%d", chains);
+  const KbResponseSlot _rs[] = { { "chains", _v0 }, { "fn", fn } };
+              kb_term_say(b, "emit_facts_found_x_or_chains_of_calls_to_x_b", _rs, 2, obs, obs_sz); }
             return 0;
         }
         { 
@@ -539,9 +540,8 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
             }
         }
         if (!lfn[0] && !plan_param_value(b, goal, "lookup_fn", lfn, sizeof lfn)) {
-            snprintf(obs, obs_sz,
-                     "patch_chains has no lookup_fn knowledge for this goal — teach "
-                     "me a plan_param fact naming the lookup call to patch in");
+            {   const KbResponseSlot _rs[] = { { "x", "" } };
+              kb_term_say(b, "patch_chains_has_no_lookup_fn_knowledge_for", _rs, 0, obs, obs_sz); }
             return 0;
         }
         char tpl[KB_TERM_LEN] = "";
@@ -585,32 +585,33 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
   const KbResponseSlot _rs[] = { { "skipped", _v0 }, { "sid", sid } };
               kb_term_say(b, "and_skipped_x_sites_where_x_is_not_in_scope", _rs, 2, skipmsg, sizeof skipmsg); }
         if (comp == 0) {
-            snprintf(obs, obs_sz,
-                     "patch_chains replaced %d chains with calls to `%s` in %s%s but "
-                     "the result no longer compiles", n - skipped, lfn, outp, skipmsg);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%d", n - skipped);
+  const KbResponseSlot _rs[] = { { "skipped", _v0 }, { "lfn", lfn }, { "outp", outp }, { "skipmsg", skipmsg } };
+              kb_term_say(b, "patch_chains_replaced_x_chains_with_calls_to", _rs, 4, obs, obs_sz); }
             return 0;
         }
         if (comp < 0) {
             /* honest deferral, not a false FAIL: the target never compiled
              * standalone, so only its own build can judge the patched copy */
-            snprintf(obs, obs_sz,
-                     "patch_chains replaced %d chains with calls to `%s` in %s%s; "
-                     "the target is a fragment of a larger unit, so its own "
-                     "build must judge the copy", n - skipped, lfn, outp, skipmsg);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%d", n - skipped);
+  const KbResponseSlot _rs[] = { { "skipped", _v0 }, { "lfn", lfn }, { "outp", outp }, { "skipmsg", skipmsg } };
+              kb_term_say(b, "patch_chains_replaced_x_chains_with_calls_to_2", _rs, 4, obs, obs_sz); }
             return 1;
         }
-        snprintf(obs, obs_sz,
-                 "patch_chains replaced %d chains with calls to `%s` in %s%s and the "
-                 "result still compiles", n - skipped, lfn, outp, skipmsg);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%d", n - skipped);
+  const KbResponseSlot _rs[] = { { "skipped", _v0 }, { "lfn", lfn }, { "outp", outp }, { "skipmsg", skipmsg } };
+          kb_term_say(b, "patch_chains_replaced_x_chains_with_calls_to_3", _rs, 4, obs, obs_sz); }
         return 1;
     }
 
     if (strcmp(impl, "verify_behavior") == 0) {
         char pfn[64] = "";
         if (!plan_param_value(b, goal, "probe_fn", pfn, sizeof pfn)) {
-            snprintf(obs, obs_sz,
-                     "verify_behavior has no probe_fn knowledge for this goal — teach "
-                     "me a plan_param fact naming the function to probe");
+            {   const KbResponseSlot _rs[] = { { "x", "" } };
+              kb_term_say(b, "verify_behavior_has_no_probe_fn_knowledge_fo", _rs, 0, obs, obs_sz); }
             return 0;
         }
         struct stat vst2;
@@ -630,25 +631,24 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
              * judge is the codebase's own test suite, and saying so names the
              * frontier instead of reporting a false failure. */
             if (code_compile(target, NULL, 0) != 1)
-                snprintf(obs, obs_sz,
-                         "verify_behavior cannot run %s standalone — it is a "
-                         "fragment of a larger unit; the codebase's own test "
-                         "suite must judge the patch", target);
+                {   const KbResponseSlot _rs[] = { { "target", target } };
+                  kb_term_say(b, "verify_behavior_cannot_run_x_standalone_it_i", _rs, 1, obs, obs_sz); }
             else
                 { const KbResponseSlot _rs[] = { { "target", target } };
       kb_term_say(b, "verify_behavior_could_not_build_and_run_both", _rs, 1, obs, obs_sz); }
             return 0;
         }
         if (r == 0) {
-            snprintf(obs, obs_sz,
-                     "verify_behavior ran `%s` on %d probes and the patched copy "
-                     "DIVERGES from the original — the refactor is not behavior-"
-                     "preserving", pfn, nprobes);
+            { 
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%d", nprobes);
+  const KbResponseSlot _rs[] = { { "pfn", pfn }, { "nprobes", _v1 } };
+              kb_term_say(b, "verify_behavior_ran_x_on_x_probes_and_the_pa", _rs, 2, obs, obs_sz); }
             return 0;
         }
-        snprintf(obs, obs_sz,
-                 "verify_behavior ran `%s` on %d probes in both versions; outputs "
-                 "are byte-identical — the patch preserves behavior", pfn, nprobes);
+        { 
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%d", nprobes);
+  const KbResponseSlot _rs[] = { { "pfn", pfn }, { "nprobes", _v1 } };
+          kb_term_say(b, "verify_behavior_ran_x_on_x_probes_in_both_ve", _rs, 2, obs, obs_sz); }
         return 1;
     }
 
@@ -717,10 +717,13 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
             { const KbResponseSlot _rs[] = { { "fn", fn }, { "target", target } };
       kb_term_say(b, "orchain_scan_found_no_or_chains_of_calls_to", _rs, 2, obs, obs_sz); }
         else
-            snprintf(obs, obs_sz,
-                     "orchain_scan found %d OR-chains of calls to `%s` under %s "
-                     "in %d files (%d calls in chains); densest is %s (%d chains)",
-                     n, fn, target, files, calls, top, topn);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%d", n);
+              char _v3[48]; snprintf(_v3, sizeof _v3, "%d", files);
+              char _v4[48]; snprintf(_v4, sizeof _v4, "%d", calls);
+              char _v6[48]; snprintf(_v6, sizeof _v6, "%d", topn);
+  const KbResponseSlot _rs[] = { { "n", _v0 }, { "fn", fn }, { "target", target }, { "files", _v3 }, { "calls", _v4 }, { "top", top }, { "topn", _v6 } };
+              kb_term_say(b, "orchain_scan_found_x_or_chains_of_calls_to_x", _rs, 7, obs, obs_sz); }
         return 1;
     }
 
@@ -735,10 +738,11 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         { const KbResponseSlot _rs[] = { { "fn", fn }, { "target", target } };
       kb_term_say(b, "orchain_scan_found_no_or_chains_of_calls_to_2", _rs, 2, obs, obs_sz); }
     else
-        snprintf(obs, obs_sz,
-                 "orchain_scan found %d OR-chains of calls to `%s` in %s "
-                 "(%d calls in chains)",
-                 n, fn, target, calls);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%d", n);
+          char _v3[48]; snprintf(_v3, sizeof _v3, "%d", calls);
+  const KbResponseSlot _rs[] = { { "n", _v0 }, { "fn", fn }, { "target", target }, { "calls", _v3 } };
+          kb_term_say(b, "orchain_scan_found_x_or_chains_of_calls_to_x_2", _rs, 4, obs, obs_sz); }
     return 1;
 }
 
@@ -755,10 +759,8 @@ static int plan_execute_goal(Brain *b, const char *goal, const char *praw,
     if (gr < 0) {
         char miss_h[KB_TERM_LEN];
         plan_humanize(missing, miss_h, sizeof miss_h);
-        snprintf(out, out_size,
-                 "My action knowledge for %s is incomplete: nothing yields %s "
-                 "and it is not given — teach me the missing action facts.",
-                 goal_h, miss_h);
+        {   const KbResponseSlot _rs[] = { { "goal_h", goal_h }, { "miss_h", miss_h } };
+          kb_term_say(b, "my_action_knowledge_for_x_is_incomplete_noth", _rs, 2, out, out_size); }
         return 1;
     }
 
@@ -850,10 +852,8 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
                 if (gr < 0) {
                     char miss_h[KB_TERM_LEN];
                     plan_humanize(missing, miss_h, sizeof miss_h);
-                    snprintf(out, out_size,
-                             "My action knowledge for %s is incomplete: nothing yields %s "
-                             "and it is not given — teach me the missing action facts.",
-                             goal_h, miss_h);
+                    {   const KbResponseSlot _rs[] = { { "goal_h", goal_h }, { "miss_h", miss_h } };
+                      kb_term_say(b, "my_action_knowledge_for_x_is_incomplete_noth", _rs, 2, out, out_size); }
                     return 1;
                 }
                 if (gr == 0) return 0;
@@ -1779,9 +1779,10 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
       kb_term_say(b, "the_train_from_x", _rs, 1, who, sizeof who); }
             } else snprintf(who, sizeof who, "%s train", first == 0 ? "The first" : "The second");
             char msg[200];
-            snprintf(msg, sizeof msg,
-                     "%s reaches the midpoint first (each must cover %g miles; "
-                     "it gets there sooner).", who, mid);
+            { 
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%g", mid);
+  const KbResponseSlot _rs[] = { { "who", who }, { "mid", _v1 } };
+              kb_term_say(b, "x_reaches_the_midpoint_first_each_must_cover", _rs, 2, msg, sizeof msg); }
             put(msg, out, out_size);
             store_proof(b, "Midpoint arrival = departure + (distance/2)/speed; smaller wins.");
             return 1;
@@ -2003,12 +2004,18 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             }
             char msg[300];
             if (total == 0) {
-                snprintf(msg, sizeof msg,
-                         "No number fits: nothing from %ld to %ld satisfies all "
-                         "those constraints together.", lo, hi);
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", lo);
+                  char _v1[48]; snprintf(_v1, sizeof _v1, "%ld", hi);
+  const KbResponseSlot _rs[] = { { "lo", _v0 }, { "hi", _v1 } };
+                  kb_term_say(b, "no_number_fits_nothing_from_x_to_x_satisfies", _rs, 2, msg, sizeof msg); }
             } else if (total == 1) {
-                snprintf(msg, sizeof msg, "It must be %ld -- the only number "
-                         "from %ld to %ld that fits.", picks[0], lo, hi);
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", picks[0]);
+                  char _v1[48]; snprintf(_v1, sizeof _v1, "%ld", lo);
+                  char _v2[48]; snprintf(_v2, sizeof _v2, "%ld", hi);
+  const KbResponseSlot _rs[] = { { "picks", _v0 }, { "lo", _v1 }, { "hi", _v2 } };
+                  kb_term_say(b, "it_must_be_x_the_only_number_from_x_to_x_tha", _rs, 3, msg, sizeof msg); }
             } else {
                 size_t off = (size_t)snprintf(msg, sizeof msg, "It could be ");
                 size_t shown = np < 8 ? np : 8;
@@ -2090,9 +2097,12 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         }
         if (nk >= 2) {
             char msg[240];
-            snprintf(msg, sizeof msg,
-                     "%zu -- with %zu colors, any %zu pulls must include two of "
-                     "the same color (pigeonhole).", nk + 1, nk, nk + 1);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", nk + 1);
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%zu", nk);
+              char _v2[48]; snprintf(_v2, sizeof _v2, "%zu", nk + 1);
+  const KbResponseSlot _rs[] = { { "nk", _v0 }, { "nk2", _v1 }, { "nk3", _v2 } };
+              kb_term_say(b, "x_with_x_colors_any_x_pulls_must_include_two", _rs, 3, msg, sizeof msg); }
             put(msg, out, out_size);
             store_proof(b, "Pigeonhole: k kinds need k+1 draws to force a repeat.");
             return 1;
@@ -2341,10 +2351,11 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 format_num(other, n2, sizeof n2);
                 format_num(side * other, n3, sizeof n3);
                 char msg[240];
-                snprintf(msg, sizeof msg,
-                         "%s square %s -- the other side is %g/2 - %s = %s, "
-                         "and %s x %s = %s.",
-                         n3, unit[0] ? unit : "units", per, n1, n2, n1, n2, n3);
+                { 
+                  char _v1[48]; snprintf(_v1, sizeof _v1, "%s", unit[0] ? unit : "units");
+                  char _v2[48]; snprintf(_v2, sizeof _v2, "%g", per);
+  const KbResponseSlot _rs[] = { { "n3", n3 }, { "units", _v1 }, { "per", _v2 }, { "n1", n1 }, { "n2", n2 }, { "n12", n1 }, { "n22", n2 }, { "n32", n3 } };
+                  kb_term_say(b, "x_square_x_the_other_side_is_x_2_x_x_and_x_x", _rs, 8, msg, sizeof msg); }
                 put(msg, out, out_size);
                 store_proof(b, "other = perimeter/2 - side; area = side * other");
                 return 1;
@@ -2875,10 +2886,13 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 for (long k = 2; k <= n - 1; k++) f *= k;
                 char msg[200];
                 if (kb_cue_match(b, "25_wordmath_reasoning_chain2841", q))
-                    snprintf(msg, sizeof msg,
-                             "%ld. With %ld people and rotations counted as the "
-                             "same, there are (%ld-1)! = %ld arrangements.",
-                             f, n, n, f);
+                    { 
+                      char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", f);
+                      char _v1[48]; snprintf(_v1, sizeof _v1, "%ld", n);
+                      char _v2[48]; snprintf(_v2, sizeof _v2, "%ld", n);
+                      char _v3[48]; snprintf(_v3, sizeof _v3, "%ld", f);
+  const KbResponseSlot _rs[] = { { "f", _v0 }, { "n", _v1 }, { "n2", _v2 }, { "f2", _v3 } };
+                      kb_term_say(b, "x_with_x_people_and_rotations_counted_as_the", _rs, 4, msg, sizeof msg); }
                 else
                     snprintf(msg, sizeof msg, "%ld arrangements.", f);
                 put(msg, out, out_size);

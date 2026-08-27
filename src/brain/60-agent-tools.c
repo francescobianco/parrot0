@@ -372,9 +372,11 @@ static int piact_obs(Brain *b, char *const *argv, const char *label,
                  eflat[0] ? " " : "", eflat[0] ? eflat : (flat[0] ? flat : ""));
         break;
     case P0_TIMEOUT:
-        snprintf(msg, sizeof msg,
-                 "`%s` TIMED OUT after %ld ms — I killed it. I do not know whether it "
-                 "would have succeeded.", obs.cmd, obs.duration_ms);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", obs.cmd);
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%ld", obs.duration_ms);
+  const KbResponseSlot _rs[] = { { "cmd", _v0 }, { "duration_ms", _v1 } };
+          kb_term_say(b, "x_timed_out_after_x_ms_i_killed_it_i_do_not", _rs, 2, msg, sizeof msg); }
         break;
     case P0_SIGNALED:
         { 
@@ -616,9 +618,10 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         P0Verdict rv = p0_read_in_root(file, code, sizeof code, &trunc);
         if (rv != P0_OK) {
             char m[600];
-            snprintf(m, sizeof m,
-                     "unsafe_path: `%s` is not a regular file inside my workspace (%s), "
-                     "so I did not read it.", file, p0_root());
+            { 
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%s", p0_root());
+  const KbResponseSlot _rs[] = { { "file", file }, { "p0_root", _v1 } };
+              kb_term_say(b, "unsafe_path_x_is_not_a_regular_file_inside_m", _rs, 2, m, sizeof m); }
             put(m, out, out_size);
             if (b) {
                 char proof[320];
@@ -714,10 +717,8 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         rstrip_punct(cmdline);
         if (strpbrk(cmdline, ";|&$`><\n")) {
             char m[600];
-            snprintf(m, sizeof m,
-                     "unsafe_command: I do not run shell syntax — I execute one program "
-                     "with its arguments, so `;`, `|`, `&&` and `$(…)` have no meaning "
-                     "here. Ask me to run a single tool (e.g. `run make test`).");
+            {   const KbResponseSlot _rs[] = { { "x", "" } };
+              kb_term_say(b, "unsafe_command_i_do_not_run_shell_syntax_i_e", _rs, 0, m, sizeof m); }
             put(m, out, out_size);
             if (b) store_proof(b, "refused: unsafe_command (shell metacharacters, no shell exists)");
             return 1;
@@ -734,10 +735,8 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         char why[256];
         if (!tool_authorized(b, cargv, cargc, why, sizeof why)) {
             char m[700];
-            snprintf(m, sizeof m,
-                     "unsafe_command: I am not authorized to run `%s` — %s. "
-                     "My tool contracts live in the KB (tool_for/2, tool_subcmd/2); "
-                     "teach me one and I will.", cargv[0], why);
+            {   const KbResponseSlot _rs[] = { { "cargv", cargv[0] }, { "why", why } };
+              kb_term_say(b, "unsafe_command_i_am_not_authorized_to_run_x", _rs, 2, m, sizeof m); }
             put(m, out, out_size);
             if (b) {
                 char proof[400];
@@ -934,9 +933,8 @@ static int compose_one(Brain *b, const char *raw, const char *low,
                 char err[256];
                 int v = code_check_sort(src, nameo, err, sizeof err);
                 if (v == 1) {
-                    snprintf(note, notesz,
-                             "verified by execution: sorted ascending AND a permutation "
-                             "of the input on 8 vectors (run via the code_check_sort oracle)");
+                    {   const KbResponseSlot _rs[] = { { "x", "" } };
+                      kb_term_say(b, "verified_by_execution_sorted_ascending_and_a", _rs, 0, note, notesz); }
                     return 1;
                 }
                 if (v == 0) { snprintf(note, notesz, "the judge ran it but it did not sort every vector"); return -1; }
@@ -949,9 +947,8 @@ static int compose_one(Brain *b, const char *raw, const char *low,
     char opword[KB_TERM_LEN];
     char op = compose_op_from_kb(b, low, opword, sizeof opword);
     if (!op) {
-        snprintf(note, notesz,
-                 "I can only synthesize and VERIFY the sum, product, or difference of "
-                 "two integers so far — I will not emit code I cannot check.");
+        {   const KbResponseSlot _rs[] = { { "x", "" } };
+          kb_term_say(b, "i_can_only_synthesize_and_verify_the_sum_pro", _rs, 0, note, notesz); }
         return 0;
     }
     compose_name(raw, nameo, nsz);
@@ -1218,12 +1215,11 @@ static int mod_compose(Brain *b, const char *norm, const char *raw,
                                      missing, sizeof missing)) {
             /* No signature is covered. Say what was missing and refuse to invent
              * a schema — a schema nobody can build from is worse than none. */
-            snprintf(out, out_size,
-                     "I read those steps but they do not describe a structure I "
-                     "can build yet%s%s. I will not invent a schema I cannot "
-                     "instantiate and verify.",
-                     *missing ? ": I found no step that means " : "",
-                     *missing ? missing : "");
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", *missing ? ": I found no step that means " : "");
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%s", *missing ? missing : "");
+  const KbResponseSlot _rs[] = { { "means", _v0 }, { "missing", _v1 } };
+              kb_term_say(b, "i_read_those_steps_but_they_do_not_describe", _rs, 2, out, out_size); }
             return 1;
         }
         const char *fa[2] = { key, shape };
@@ -1232,10 +1228,8 @@ static int mod_compose(Brain *b, const char *norm, const char *raw,
         /* provenance: this schema was LEARNED, not curated. */
         const char *fp[2] = { key, "taught_from_steps" };
         kb_assert(b->kb, "algo_source", fp, 2);
-        snprintf(out, out_size,
-                 "Learned: those steps describe the %s structure, so I now have a "
-                 "schema for %s. Ask me to write it and I will synthesize it and "
-                 "run it against the sort oracle.", shape, key);
+        {   const KbResponseSlot _rs[] = { { "shape", shape }, { "key", key } };
+          kb_term_say(b, "learned_those_steps_describe_the_x_structure", _rs, 2, out, out_size); }
         return 1;
     }
 
@@ -1532,9 +1526,8 @@ static int mod_agent(Brain *b, const char *norm, const char *raw,
         char sb[64], tb[64];
         format_num(start, sb, sizeof sb);
         format_num(target, tb, sizeof tb);
-        snprintf(msg, sizeof msg,
-                 "Starting from %s, that step never reaches %s — the goal can't "
-                 "be met this way.", sb, tb);
+        {   const KbResponseSlot _rs[] = { { "sb", sb }, { "tb", tb } };
+          kb_term_say(b, "starting_from_x_that_step_never_reaches_x_th", _rs, 2, msg, sizeof msg); }
     }
     put(msg, out, out_size);
 
@@ -1868,20 +1861,16 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
                 if (cr == 1) {
                     struct stat fst;
                     if (stat(name, &fst) == 0 && fst.st_size == 0) {
-                        snprintf(out, out_size,
-                                 "Created the empty file %s in the working "
-                                 "directory — verified: it exists and is empty.",
-                                 name);
+                        {   const KbResponseSlot _rs[] = { { "name", name } };
+                          kb_term_say(b, "created_the_empty_file_x_in_the_working_dire", _rs, 1, out, out_size); }
                         note_artifact(b, "file", name);
                         store_proof(b, out);
                         return 1;
                     }
                 }
                 if (cr == 0) {
-                    snprintf(out, out_size,
-                             "I understood — create the file %s — but a file "
-                             "with that name already exists here, and I won't "
-                             "overwrite it.", name);
+                    {   const KbResponseSlot _rs[] = { { "name", name } };
+                      kb_term_say(b, "i_understood_create_the_file_x_but_a_file_wi", _rs, 1, out, out_size); }
                     store_proof(b, out);
                     return 1;
                 }
@@ -1945,10 +1934,8 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
                     code_check_print_program(src, msg, err, sizeof err) == 1) {
                     /* gen269: multi-line reply, code in a markdown fence, so
                      * clients (opencode, pi) render it as real code. */
-                    snprintf(out, out_size,
-                             "Verified by execution: it prints \"%s\" and "
-                             "exits 0 (print_message schema, run via the "
-                             "code_run oracle).\n\n```c\n%s\n```", msg, src);
+                    {   const KbResponseSlot _rs[] = { { "msg", msg }, { "src", src } };
+                      kb_term_say(b, "verified_by_execution_it_prints_x_and_exits", _rs, 2, out, out_size); }
                     store_proof(b, out);
                     return 1;
                 }
@@ -2025,10 +2012,8 @@ static int mod_toolpolicy(Brain *b, const char *norm, const char *raw,
 
     char mode[32]; brain_mode(b, mode, sizeof mode);
     char m[440];
-    snprintf(m, sizeof m,
-             "tools_disabled: I understood that — it is a %s request, and I can do it — "
-             "but in %s mode I may not touch the filesystem. Start me with "
-             "`make chat-agent` and I will run it.", kind, mode);
+    {   const KbResponseSlot _rs[] = { { "kind", kind }, { "mode", mode } };
+      kb_term_say(b, "tools_disabled_i_understood_that_it_is_a_x_r", _rs, 2, m, sizeof m); }
     put(m, out, out_size);
     store_proof(b, "declined: tools_disabled (policy(tools, off))");
     return 1;

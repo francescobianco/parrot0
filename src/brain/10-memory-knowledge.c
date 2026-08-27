@@ -6218,14 +6218,12 @@ static size_t reasoning_goal_matches(Brain *b, const char *candidate,
                                       phrases[n], KB_TERM_LEN))
             continue;
         if (n == 0 && proof && proof_size) {
-            snprintf(proof, proof_size,
-                     "task_goal_match(%s, %s, %s, %s) because "
-                     "reasoning_operator_active(goal_comparison) and "
-                     "effective_goal_prefers(%s, %s, %s) and "
-                     "effective_property(%s, %s, %s)",
-                     candidate, goal, dimensions[i], value,
-                     goal, dimensions[i], value,
-                     candidate, dimensions[i], value);
+            { 
+              char _v2[48]; snprintf(_v2, sizeof _v2, "%s", dimensions[i]);
+              char _v5[48]; snprintf(_v5, sizeof _v5, "%s", dimensions[i]);
+              char _v8[48]; snprintf(_v8, sizeof _v8, "%s", dimensions[i]);
+  const KbResponseSlot _rs[] = { { "candidate", candidate }, { "goal", goal }, { "i", _v2 }, { "value", value }, { "goal2", goal }, { "i2", _v5 }, { "value2", value }, { "candidate2", candidate }, { "i3", _v8 }, { "value3", value } };
+              kb_term_say(b, "task_goal_match_x_x_x_x_because_reasoning_op", _rs, 10, proof, proof_size); }
         }
         n++;
     }
@@ -6283,14 +6281,12 @@ static int reasoning_goal_comparison(Brain *b, const ReasoningTask *task,
             !reasoning_append(out, out_size, sentence))
             return 0;
         if (!written) {
-            snprintf(combined_proof, sizeof combined_proof,
-                     "task_difference(%s, %s, %s, %s) because "
-                     "reasoning_operator_active(goal_comparison) and "
-                     "effective_property(%s, %s, %s) and "
-                     "effective_property(%s, %s, %s) "
-                     "and dif(%s, %s)",
-                     x, y, dimensions[i], pair,
-                     x, dimensions[i], vx, y, dimensions[i], vy, vx, vy);
+            { 
+              char _v2[48]; snprintf(_v2, sizeof _v2, "%s", dimensions[i]);
+              char _v5[48]; snprintf(_v5, sizeof _v5, "%s", dimensions[i]);
+              char _v8[48]; snprintf(_v8, sizeof _v8, "%s", dimensions[i]);
+  const KbResponseSlot _rs[] = { { "x", x }, { "y", y }, { "i", _v2 }, { "pair", pair }, { "x2", x }, { "i2", _v5 }, { "vx", vx }, { "y2", y }, { "i3", _v8 }, { "vy", vy }, { "vx2", vx }, { "vy2", vy } };
+              kb_term_say(b, "task_difference_x_x_x_x_because_reasoning_op", _rs, 12, combined_proof, sizeof combined_proof); }
         }
         written++;
     }
@@ -6400,14 +6396,8 @@ static int reasoning_failure_explanation(Brain *b,
     out[0] = (char)toupper((unsigned char)out[0]);
 
     char proof[512];
-    snprintf(proof, sizeof proof,
-             "failure_mechanism(%s, %s, %s, %s) because "
-             "reasoning_operator_active(failure_explanation) and "
-             "effective_system_relies_on(%s, %s) and "
-             "strategy_failure_condition(%s, %s) and "
-             "effective_phenomenon_exploits(%s, %s)",
-             system, phenomenon, strategy, condition,
-             system, strategy, strategy, condition, phenomenon, condition);
+    {   const KbResponseSlot _rs[] = { { "system", system }, { "phenomenon", phenomenon }, { "strategy", strategy }, { "condition", condition }, { "system2", system }, { "strategy2", strategy }, { "strategy3", strategy }, { "condition2", condition }, { "phenomenon2", phenomenon }, { "condition3", condition } };
+      kb_term_say(b, "failure_mechanism_x_x_x_x_because_reasoning", _rs, 10, proof, sizeof proof); }
     store_proof(b, proof);
     return 1;
 }
@@ -6629,11 +6619,12 @@ static int reasoning_constraint_synthesis(Brain *b,
         return 0;
 
     char proof[512];
-    snprintf(proof, sizeof proof,
-             "constraint_synthesis(%s) selected %zu feature(s); each "
-             "selection is a task_feature_match and the union covers %zu "
-             "task_requirement conclusions",
-             task->arguments[0], nselected, nrequirements);
+    { 
+      char _v0[48]; snprintf(_v0, sizeof _v0, "%s", task->arguments[0]);
+      char _v1[48]; snprintf(_v1, sizeof _v1, "%zu", nselected);
+      char _v2[48]; snprintf(_v2, sizeof _v2, "%zu", nrequirements);
+  const KbResponseSlot _rs[] = { { "arguments", _v0 }, { "nselected", _v1 }, { "nrequirements", _v2 } };
+      kb_term_say(b, "constraint_synthesis_x_selected_x_feature_s", _rs, 3, proof, sizeof proof); }
     store_proof(b, proof);
     return 1;
 }
@@ -6830,11 +6821,8 @@ static int reasoning_ordered_procedure(Brain *b,
         return 0;
 
     char proof[512];
-    snprintf(proof, sizeof proof,
-             "process_reaches(%s, %s) by dependency-ordered applications of "
-             "process_action, action_requires, and action_produces; every "
-             "declared product_input is process_input_covered",
-             process, goals[0]);
+    {   const KbResponseSlot _rs[] = { { "process", process }, { "goals", goals[0] } };
+      kb_term_say(b, "process_reaches_x_x_by_dependency_ordered_ap", _rs, 2, proof, sizeof proof); }
     store_proof(b, proof);
     return 1;
 }
@@ -9009,9 +8997,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
         if (got && !lex_class_member(b, "10_memory_knowledge_lex9001", got) && !lex_class_member(b, "10_memory_knowledge_lex9001_2", got)) {
             char msg[160];
-            snprintf(msg, sizeof msg,
-                     "You're now in %s place -- you take the spot of the runner you "
-                     "passed, not the one ahead of them.", got);
+            {   const KbResponseSlot _rs[] = { { "got", got } };
+              kb_term_say(b, "you_re_now_in_x_place_you_take_the_spot_of_t", _rs, 1, msg, sizeof msg); }
             put(msg, out, out_size);
             store_proof(b, "Overtaking the Nth runner puts you in Nth place.");
             return 1;
@@ -9198,10 +9185,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                  (!strcmp(nA, Q) && !strcmp(nB, C)));    /* no Q are C */
             if (separated) {
                 char msg[300];
-                snprintf(msg, sizeof msg,
-                         "Yes -- some %ss are %ss, and no %ss are %ss, so those "
-                         "%ss cannot be %ss: some %ss are definitely not %ss.",
-                         P, C, C, Q, P, Q, P, Q);
+                {   const KbResponseSlot _rs[] = { { "P", P }, { "C", C }, { "C2", C }, { "Q", Q }, { "P2", P }, { "Q2", Q }, { "P3", P }, { "Q3", Q } };
+                  kb_term_say(b, "yes_some_xs_are_xs_and_no_xs_are_xs_so_those", _rs, 8, msg, sizeof msg); }
                 put(msg, out, out_size);
                 store_proof(b, "Ferio: some P are C and no C are Q entail "
                                "some P are not Q (witness: the P that are C).");
@@ -9281,11 +9266,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             /* some-clause about B, conclusion about A -> undistributed middle */
             if (!strcmp(sf, b2) && !strcmp(sl, a2) && strcmp(a2, b2) != 0) {
                 char msg[300];
-                snprintf(msg, sizeof msg,
-                         "No -- that doesn't follow. From \"all %s are %s\" and "
-                         "\"some %s ...\", nothing follows about %s: the %s in question "
-                         "need not be %s (the middle term is undistributed).",
-                         A, B, B, A, B, A);
+                {   const KbResponseSlot _rs[] = { { "A", A }, { "B", B }, { "B2", B }, { "A2", A }, { "B3", B }, { "A3", A } };
+                  kb_term_say(b, "no_that_doesn_t_follow_from_all_x_are_x_and", _rs, 6, msg, sizeof msg); }
                 put(msg, out, out_size);
                 store_proof(b, "Undistributed middle: all A are B + some B are C does not give some A are C.");
                 return 1;
@@ -9750,9 +9732,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     char *r = ad[0]; size_t rl = strlen(r);
                     if (rl >= 2 && r[0] == '"' && r[rl - 1] == '"') { r[rl - 1] = '\0'; r++; }
                     char msg[400];
-                    snprintf(msg, sizeof msg,
-                             "I don't actually see or experience things, but I can "
-                             "describe it: %s.", r);
+                    {   const KbResponseSlot _rs[] = { { "r", r } };
+                      kb_term_say(b, "i_don_t_actually_see_or_experience_things_bu", _rs, 1, msg, sizeof msg); }
                     put(msg, out, out_size);
                     return 1;
                 }
@@ -9832,9 +9813,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 }
                 if (ok) {
                     char proof[256];
-                    snprintf(proof, sizeof proof,
-                             "Riddle solved by inference: %s satisfies all %zu clue "
-                             "constraints (not a stored answer).", cands[c], npr);
+                    { 
+                      char _v0[48]; snprintf(_v0, sizeof _v0, "%s", cands[c]);
+                      char _v1[48]; snprintf(_v1, sizeof _v1, "%zu", npr);
+  const KbResponseSlot _rs[] = { { "c", _v0 }, { "npr", _v1 } };
+                      kb_term_say(b, "riddle_solved_by_inference_x_satisfies_all_x", _rs, 2, proof, sizeof proof); }
                     store_proof(b, proof);
                     char msg[128]; snprintf(msg, sizeof msg, "A %s.", cands[c]);
                     put(msg, out, out_size);
@@ -9885,8 +9868,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 }
                 if (ok) {
                     char proof[256];
-                    snprintf(proof, sizeof proof, "Riddle solved by inference: %s depicts all "
-                             "%zu haves and contains none of the %zu negatives.", cands[c], nh, nn);
+                    { 
+                      char _v0[48]; snprintf(_v0, sizeof _v0, "%s", cands[c]);
+                      char _v1[48]; snprintf(_v1, sizeof _v1, "%zu", nh);
+                      char _v2[48]; snprintf(_v2, sizeof _v2, "%zu", nn);
+  const KbResponseSlot _rs[] = { { "c", _v0 }, { "nh", _v1 }, { "nn", _v2 } };
+                      kb_term_say(b, "riddle_solved_by_inference_x_depicts_all_x_h", _rs, 3, proof, sizeof proof); }
                     store_proof(b, proof);
                     char msg[128]; snprintf(msg, sizeof msg, "A %s.", cands[c]);
                     put(msg, out, out_size);
@@ -9946,8 +9933,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 }
                 if (ok) {
                     char proof[256];
-                    snprintf(proof, sizeof proof, "Riddle solved by inference: %s satisfies "
-                             "all %zu property constraints.", cands[c], ncon);
+                    { 
+                      char _v0[48]; snprintf(_v0, sizeof _v0, "%s", cands[c]);
+                      char _v1[48]; snprintf(_v1, sizeof _v1, "%zu", ncon);
+  const KbResponseSlot _rs[] = { { "c", _v0 }, { "ncon", _v1 } };
+                      kb_term_say(b, "riddle_solved_by_inference_x_satisfies_all_x_2", _rs, 2, proof, sizeof proof); }
                     store_proof(b, proof);
                     char msg[128]; snprintf(msg, sizeof msg, "A %s.", cands[c]);
                     put(msg, out, out_size);
@@ -10477,9 +10467,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 char *c = r2[0]; size_t cl = strlen(c);
                 if (cl >= 2 && c[0] == '"' && c[cl - 1] == '"') { c[cl - 1] = '\0'; c++; }
                 char msg[360];
-                snprintf(msg, sizeof msg,
-                         "By day the sky looks blue because %s. At night it is dark "
-                         "because %s.", a, c);
+                {   const KbResponseSlot _rs[] = { { "a", a }, { "c", c } };
+                  kb_term_say(b, "by_day_the_sky_looks_blue_because_x_at_night", _rs, 2, msg, sizeof msg); }
                 put(msg, out, out_size);
                 store_proof(b, msg);
                 return 1;

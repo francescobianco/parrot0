@@ -244,9 +244,8 @@ static int mod_input(Brain *b, const char *norm, const char *raw,
     }
     if (all_digit && (long)ndig >= need) {
         char msg[160];
-        snprintf(msg, sizeof msg,
-                 "That's just the number %s with nothing to do — what would "
-                 "you like me to do with it?", shown);
+        {   const KbResponseSlot _rs[] = { { "shown", shown } };
+          kb_term_say(b, "that_s_just_the_number_x_with_nothing_to_do", _rs, 1, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }

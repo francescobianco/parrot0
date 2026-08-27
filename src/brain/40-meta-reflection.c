@@ -369,9 +369,8 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                 char c[64]; snprintf(c, sizeof c, "%s", dc[0]);
                 if (c[0]) c[0] = (char)toupper((unsigned char)c[0]);
                 char msg[128];
-                snprintf(msg, sizeof msg,
-                         "I don't have real preferences, but if I had to choose "
-                         "one, I'd pick %s.", c);
+                {   const KbResponseSlot _rs[] = { { "c", c } };
+                  kb_term_say(b, "i_don_t_have_real_preferences_but_if_i_had_t", _rs, 1, msg, sizeof msg); }
                 put(msg, out, out_size); return 1;
             }
         }
@@ -414,9 +413,8 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                             return 1;
                     }
                     char msg[160];
-                    snprintf(msg, sizeof msg,
-                             "I don't have real preferences, but if I had to choose, "
-                             "I'd pick %s.", p);
+                    {   const KbResponseSlot _rs[] = { { "p", p } };
+                      kb_term_say(b, "i_don_t_have_real_preferences_but_if_i_had_t_2", _rs, 1, msg, sizeof msg); }
                     put(msg, out, out_size); return 1;
                 }
             }
@@ -502,17 +500,20 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
             size_t plen = strlen(b->last_proof);
             int is_chain = strstr(b->last_proof, " because ") != NULL;
             if (is_chain)
-                snprintf(msg, sizeof msg,
-                         "The reasoning chain is: %s. Each 'because' is one "
-                         "inference step applying a rule to known facts.",
-                         b->last_proof);
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_proof);
+  const KbResponseSlot _rs[] = { { "last_proof", _v0 } };
+                  kb_term_say(b, "the_reasoning_chain_is_x_each_because_is_one", _rs, 1, msg, sizeof msg); }
             else if (plen > 0 && b->last_proof[plen - 1] == '.')
-                snprintf(msg, sizeof msg, "This is a direct fact: %s I store it "
-                         "explicitly in my knowledge base, so it needs no "
-                         "further justification.", b->last_proof);
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_proof);
+  const KbResponseSlot _rs[] = { { "last_proof", _v0 } };
+                  kb_term_say(b, "this_is_a_direct_fact_x_i_store_it_explicitl", _rs, 1, msg, sizeof msg); }
             else
-                snprintf(msg, sizeof msg, "The supporting fact is: %s. This is "
-                         "stored directly in my knowledge base.", b->last_proof);
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_proof);
+  const KbResponseSlot _rs[] = { { "last_proof", _v0 } };
+                  kb_term_say(b, "the_supporting_fact_is_x_this_is_stored_dire", _rs, 1, msg, sizeof msg); }
             put(msg, out, out_size);
         } else {
             kb_term_say(b, "there_is_no_recent_reasoning_to_explain_in_m", NULL, 0, out, out_size);
@@ -1261,9 +1262,8 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         if (kb_match(b->kb, "default_color", dq, 1, dc, 1) > 0) {
             char c[64]; snprintf(c, sizeof c, "%s", dc[0]); capitalize(c);
             char msg[128];
-            snprintf(msg, sizeof msg,
-                     "I don't have real preferences, but if I had to choose one, "
-                     "I'd pick %s.", c);
+            {   const KbResponseSlot _rs[] = { { "c", c } };
+              kb_term_say(b, "i_don_t_have_real_preferences_but_if_i_had_t", _rs, 1, msg, sizeof msg); }
             put(msg, out, out_size); return 1;
         }
     }
@@ -1691,10 +1691,8 @@ static int mod_archetype(Brain *b, const char *norm, const char *raw,
 
     if (!ok || !*answer) {
         char msg[400];
-        snprintf(msg, sizeof msg,
-                 "I can see the shape (%s ⇒ %s as the worked example, then %s ⇒ ?), "
-                 "but %s doesn't instantiate that same relational structure, so I "
-                 "won't guess.", demo, dconcl, qj, qj);
+        {   const KbResponseSlot _rs[] = { { "demo", demo }, { "dconcl", dconcl }, { "qj", qj }, { "qj2", qj } };
+          kb_term_say(b, "i_can_see_the_shape_x_x_as_the_worked_exampl", _rs, 4, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }
@@ -1705,10 +1703,8 @@ static int mod_archetype(Brain *b, const char *norm, const char *raw,
       put(msg, out, out_size); }
 
     char proof[420];
-    snprintf(proof, sizeof proof,
-             "the symbols are arbitrary; the worked example %s ⇒ %s fixes a "
-             "relational archetype, and applying it to %s yields %s.",
-             demo, dconcl, qj, answer);
+    {   const KbResponseSlot _rs[] = { { "demo", demo }, { "dconcl", dconcl }, { "qj", qj }, { "answer", answer } };
+      kb_term_say(b, "the_symbols_are_arbitrary_the_worked_example", _rs, 4, proof, sizeof proof); }
     store_proof(b, proof);
     return 1;
 }
@@ -2009,27 +2005,22 @@ static int mod_strategy(Brain *b, const char *norm, const char *raw,
     char msg[1400];
     if (strcmp(b->trace_winner, "fallback") == 0) {
         if (nlisted)
-            snprintf(msg, sizeof msg,
-                     "I try my modules in a fixed order and the first one that "
-                     "matches wins. Last turn %s each looked and declined, and "
-                     "nothing else claimed it, so I fell back to an honest "
-                     "\"I don't understand.\"", declined);
+            {   const KbResponseSlot _rs[] = { { "declined", declined } };
+              kb_term_say(b, "i_try_my_modules_in_a_fixed_order_and_the_fi", _rs, 1, msg, sizeof msg); }
         else
-            snprintf(msg, sizeof msg,
-                     "No module matched your last turn, so I fell back to an "
-                     "honest \"I don't understand.\"");
+            {   const KbResponseSlot _rs[] = { { "x", "" } };
+              kb_term_say(b, "no_module_matched_your_last_turn_so_i_fell_b", _rs, 0, msg, sizeof msg); }
     } else if (nlisted) {
-        snprintf(msg, sizeof msg,
-                 "I try my modules in a fixed order and the first one that matches "
-                 "wins. Last turn %s looked first and declined; then '%s' claimed "
-                 "it — so the modules after '%s' were never consulted.",
-                 declined, b->trace_winner, b->trace_winner);
+        { 
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->trace_winner);
+          char _v2[48]; snprintf(_v2, sizeof _v2, "%s", b->trace_winner);
+  const KbResponseSlot _rs[] = { { "declined", declined }, { "trace_winner", _v1 }, { "trace_winner2", _v2 } };
+          kb_term_say(b, "i_try_my_modules_in_a_fixed_order_and_the_fi_2", _rs, 3, msg, sizeof msg); }
     } else {
-        snprintf(msg, sizeof msg,
-                 "I try my modules in a fixed order and the first one that matches "
-                 "wins. Last turn '%s' was the first to match and claimed it, so "
-                 "the modules after it were never consulted.",
-                 b->trace_winner);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->trace_winner);
+  const KbResponseSlot _rs[] = { { "trace_winner", _v0 } };
+          kb_term_say(b, "i_try_my_modules_in_a_fixed_order_and_the_fi_3", _rs, 1, msg, sizeof msg); }
     }
     put(msg, out, out_size);
     return 1;

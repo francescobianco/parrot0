@@ -366,15 +366,17 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
 
     char msg[400];
     if (before == 1 && after == 0) {
-        snprintf(msg, sizeof msg,
-                 "If I didn't know that %s is a %s, I could no longer conclude that "
-                 "%s is a %s — that conclusion rests on it.",
-                 arg, pred, b->last_goal_arg, b->last_goal_pred);
+        { 
+          char _v2[48]; snprintf(_v2, sizeof _v2, "%s", b->last_goal_arg);
+          char _v3[48]; snprintf(_v3, sizeof _v3, "%s", b->last_goal_pred);
+  const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred }, { "last_goal_arg", _v2 }, { "last_goal_pred", _v3 } };
+          kb_term_say(b, "if_i_didn_t_know_that_x_is_a_x_i_could_no_lo", _rs, 4, msg, sizeof msg); }
     } else if (before == 1 && after == 1) {
-        snprintf(msg, sizeof msg,
-                 "Even without knowing that %s is a %s, %s would still be a %s — I "
-                 "can reach that another way.",
-                 arg, pred, b->last_goal_arg, b->last_goal_pred);
+        { 
+          char _v2[48]; snprintf(_v2, sizeof _v2, "%s", b->last_goal_arg);
+          char _v3[48]; snprintf(_v3, sizeof _v3, "%s", b->last_goal_pred);
+  const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred }, { "last_goal_arg", _v2 }, { "last_goal_pred", _v3 } };
+          kb_term_say(b, "even_without_knowing_that_x_is_a_x_x_would_s", _rs, 4, msg, sizeof msg); }
     } else {
         { 
           char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_goal_arg);
@@ -485,15 +487,17 @@ static int mod_robust(Brain *b, const char *norm, const char *raw,
 
     char msg[640];
     if (ncrit == 0) {
-        snprintf(msg, sizeof msg,
-                 "My conclusion that %s is a %s is robust — there's no single fact "
-                 "I could forget that would overturn it.",
-                 b->last_goal_arg, b->last_goal_pred);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_goal_arg);
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->last_goal_pred);
+  const KbResponseSlot _rs[] = { { "last_goal_arg", _v0 }, { "last_goal_pred", _v1 } };
+          kb_term_say(b, "my_conclusion_that_x_is_a_x_is_robust_there", _rs, 2, msg, sizeof msg); }
     } else if (ncrit == 1) {
-        snprintf(msg, sizeof msg,
-                 "My conclusion that %s is a %s is fragile: it rests entirely on one "
-                 "fact — %s. Forget that and it falls.",
-                 b->last_goal_arg, b->last_goal_pred, crit[0]);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_goal_arg);
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->last_goal_pred);
+  const KbResponseSlot _rs[] = { { "last_goal_arg", _v0 }, { "last_goal_pred", _v1 }, { "crit", crit[0] } };
+          kb_term_say(b, "my_conclusion_that_x_is_a_x_is_fragile_it_re", _rs, 3, msg, sizeof msg); }
     } else {
         size_t o = (size_t)snprintf(msg, sizeof msg,
                  "My conclusion that %s is a %s rests on %zu load-bearing facts: ",
@@ -665,9 +669,8 @@ static int mod_calibrate(Brain *b, const char *norm, const char *raw,
                     b->assumed_n++;
                 }
                 char msg[200];
-                snprintf(msg, sizeof msg,
-                         "All right — assuming %s is a %s. Anything I conclude from "
-                         "it will be conditional on that.", arg, pred);
+                {   const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred } };
+                  kb_term_say(b, "all_right_assuming_x_is_a_x_anything_i_concl", _rs, 2, msg, sizeof msg); }
                 put(msg, out, out_size);
                 return 1;
             }
@@ -701,36 +704,40 @@ static int mod_calibrate(Brain *b, const char *norm, const char *raw,
     if (why_think) {
         switch (st) {
         case EPI_KNOWN:
-            snprintf(msg, sizeof msg,
-                     "I'm certain: %s is a %s is a fact you stated directly, so I "
-                     "hold it as known, not inferred.",
-                     b->last_goal_arg, b->last_goal_pred);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_goal_arg);
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->last_goal_pred);
+  const KbResponseSlot _rs[] = { { "last_goal_arg", _v0 }, { "last_goal_pred", _v1 } };
+              kb_term_say(b, "i_m_certain_x_is_a_x_is_a_fact_you_stated_di", _rs, 2, msg, sizeof msg); }
             break;
         case EPI_INFERRED:
-            snprintf(msg, sizeof msg,
-                     "I'm confident but it's derived, not given: %s. I concluded it "
-                     "by applying a rule, so it's only as sound as those premises.",
-                     b->has_last_proof ? b->last_proof : "a rule chain");
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->has_last_proof ? b->last_proof : "a rule chain");
+  const KbResponseSlot _rs[] = { { "chain", _v0 } };
+              kb_term_say(b, "i_m_confident_but_it_s_derived_not_given_x_i", _rs, 1, msg, sizeof msg); }
             break;
         case EPI_CONFLICTED:
-            snprintf(msg, sizeof msg,
-                     "I'm genuinely unsure — I hold conflicting claims about %s: you "
-                     "told me it is a %s and also that it is not. Until that's "
-                     "resolved I can't commit either way.",
-                     b->last_goal_arg, b->last_goal_pred);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_goal_arg);
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->last_goal_pred);
+  const KbResponseSlot _rs[] = { { "last_goal_arg", _v0 }, { "last_goal_pred", _v1 } };
+              kb_term_say(b, "i_m_genuinely_unsure_i_hold_conflicting_clai", _rs, 2, msg, sizeof msg); }
             break;
         case EPI_HYPO:
-            snprintf(msg, sizeof msg,
-                     "Only conditionally: %s is a %s holds because I'm ASSUMING %s is "
-                     "a %s. Drop that assumption and I'd have no ground for it.",
-                     b->last_goal_arg, b->last_goal_pred,
-                     b->assumed_arg[hypo_idx], b->assumed_pred[hypo_idx]);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_goal_arg);
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->last_goal_pred);
+              char _v2[48]; snprintf(_v2, sizeof _v2, "%s", b->assumed_arg[hypo_idx]);
+              char _v3[48]; snprintf(_v3, sizeof _v3, "%s", b->assumed_pred[hypo_idx]);
+  const KbResponseSlot _rs[] = { { "last_goal_arg", _v0 }, { "last_goal_pred", _v1 }, { "hypo_idx", _v2 }, { "hypo_idx2", _v3 } };
+              kb_term_say(b, "only_conditionally_x_is_a_x_holds_because_i", _rs, 4, msg, sizeof msg); }
             break;
         default: /* EPI_UNKNOWN */
-            snprintf(msg, sizeof msg,
-                     "I don't actually think that — I have no support for %s being a "
-                     "%s, so I can't claim it either way.",
-                     b->last_goal_arg, b->last_goal_pred);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_goal_arg);
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->last_goal_pred);
+  const KbResponseSlot _rs[] = { { "last_goal_arg", _v0 }, { "last_goal_pred", _v1 } };
+              kb_term_say(b, "i_don_t_actually_think_that_i_have_no_suppor", _rs, 2, msg, sizeof msg); }
             break;
         }
         put(msg, out, out_size);
@@ -740,23 +747,24 @@ static int mod_calibrate(Brain *b, const char *norm, const char *raw,
     /* change_mind */
     switch (st) {
     case EPI_KNOWN:
-        snprintf(msg, sizeof msg,
-                 "Learning that %s is NOT a %s — that's the single fact it rests on, "
-                 "so contradicting it would overturn my belief.",
-                 b->last_goal_arg, b->last_goal_pred);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_goal_arg);
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->last_goal_pred);
+  const KbResponseSlot _rs[] = { { "last_goal_arg", _v0 }, { "last_goal_pred", _v1 } };
+          kb_term_say(b, "learning_that_x_is_not_a_x_that_s_the_single", _rs, 2, msg, sizeof msg); }
         break;
     case EPI_INFERRED: {
         char crit[8][96];
         size_t nc = calib_load_bearing(b, crit, 8);
         if (nc == 0)
-            snprintf(msg, sizeof msg,
-                     "Nothing simple — I can reach that another way, so no single "
-                     "fact I drop would change it.");
+            {   const KbResponseSlot _rs[] = { { "x", "" } };
+              kb_term_say(b, "nothing_simple_i_can_reach_that_another_way", _rs, 0, msg, sizeof msg); }
         else if (nc == 1)
-            snprintf(msg, sizeof msg,
-                     "It hangs on one premise: if I learned that %s were false, I'd "
-                     "stop concluding %s is a %s.",
-                     crit[0], b->last_goal_arg, b->last_goal_pred);
+            { 
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->last_goal_arg);
+              char _v2[48]; snprintf(_v2, sizeof _v2, "%s", b->last_goal_pred);
+  const KbResponseSlot _rs[] = { { "crit", crit[0] }, { "last_goal_arg", _v1 }, { "last_goal_pred", _v2 } };
+              kb_term_say(b, "it_hangs_on_one_premise_if_i_learned_that_x", _rs, 3, msg, sizeof msg); }
         else {
             size_t o = (size_t)snprintf(msg, sizeof msg,
                      "It hangs on %zu premises — overturning any one would change it: ",
@@ -769,23 +777,27 @@ static int mod_calibrate(Brain *b, const char *norm, const char *raw,
         break;
     }
     case EPI_CONFLICTED:
-        snprintf(msg, sizeof msg,
-                 "Telling me which to trust — you've claimed both that %s is a %s and "
-                 "that it is not. Retract one and I'd settle on the other.",
-                 b->last_goal_arg, b->last_goal_pred);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_goal_arg);
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->last_goal_pred);
+  const KbResponseSlot _rs[] = { { "last_goal_arg", _v0 }, { "last_goal_pred", _v1 } };
+          kb_term_say(b, "telling_me_which_to_trust_you_ve_claimed_bot", _rs, 2, msg, sizeof msg); }
         break;
     case EPI_HYPO:
-        snprintf(msg, sizeof msg,
-                 "Dropping the assumption — I only conclude %s is a %s because I'm "
-                 "supposing %s is a %s. Withdraw that and the conclusion goes with it.",
-                 b->last_goal_arg, b->last_goal_pred,
-                 b->assumed_arg[hypo_idx], b->assumed_pred[hypo_idx]);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_goal_arg);
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->last_goal_pred);
+          char _v2[48]; snprintf(_v2, sizeof _v2, "%s", b->assumed_arg[hypo_idx]);
+          char _v3[48]; snprintf(_v3, sizeof _v3, "%s", b->assumed_pred[hypo_idx]);
+  const KbResponseSlot _rs[] = { { "last_goal_arg", _v0 }, { "last_goal_pred", _v1 }, { "hypo_idx", _v2 }, { "hypo_idx2", _v3 } };
+          kb_term_say(b, "dropping_the_assumption_i_only_conclude_x_is", _rs, 4, msg, sizeof msg); }
         break;
     default: /* EPI_UNKNOWN */
-        snprintf(msg, sizeof msg,
-                 "Learning whether %s is a %s at all — right now I have no support "
-                 "either way, so any fact about it would be new ground.",
-                 b->last_goal_arg, b->last_goal_pred);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_goal_arg);
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->last_goal_pred);
+  const KbResponseSlot _rs[] = { { "last_goal_arg", _v0 }, { "last_goal_pred", _v1 } };
+          kb_term_say(b, "learning_whether_x_is_a_x_at_all_right_now_i", _rs, 2, msg, sizeof msg); }
         break;
     }
     put(msg, out, out_size);
@@ -989,9 +1001,8 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
     size_t nb = kb_rule_body_preds(b->kb, pred, 1, bodies, 8);
     if (nb == 0) {
         char msg[200];
-        snprintf(msg, sizeof msg,
-                 "I have no rule that would make anything a %s, so I can't say "
-                 "what would.", pred);
+        {   const KbResponseSlot _rs[] = { { "pred", pred } };
+          kb_term_say(b, "i_have_no_rule_that_would_make_anything_a_x", _rs, 1, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }
@@ -1045,9 +1056,11 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
                     { const KbResponseSlot _rs[] = { { "need", need }, { "pred", pred }, { "arg", arg } };
       kb_term_say(b, "i_tried_the_cheapest_plan_x_but_it_still_did", _rs, 3, msg, sizeof msg); }
             } else {
-                snprintf(msg, sizeof msg,
-                         "The easiest way is to tell me that %s — %zu missing premise%s via %s -> %s.",
-                         need, best_n, best_n == 1 ? "" : "s", best_rule, pred);
+                { 
+                  char _v1[48]; snprintf(_v1, sizeof _v1, "%zu", best_n);
+                  char _v2[48]; snprintf(_v2, sizeof _v2, "%s", best_n == 1 ? "" : "s");
+  const KbResponseSlot _rs[] = { { "need", need }, { "best_n", _v1 }, { "s", _v2 }, { "best_rule", best_rule }, { "pred", pred } };
+                  kb_term_say(b, "the_easiest_way_is_to_tell_me_that_x_x_missi", _rs, 5, msg, sizeof msg); }
             }
         }
         put(msg, out, out_size);

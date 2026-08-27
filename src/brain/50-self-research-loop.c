@@ -128,10 +128,8 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
              * {map}/{n}/{total} filled here — not a hardcoded C phrasebook string. */
             char tpl[400];
             if (!lang_template(b, "audit_report", tpl, sizeof tpl))
-                snprintf(tpl, sizeof tpl,
-                    "I audited my own composition on fresh copies of myself: {map}. "
-                    "{n} of {total} triples hold. No file was touched; an external "
-                    "agent owns edits and commits.");
+                {   const KbResponseSlot _rs[] = { { "x", "" } };
+                  kb_term_say(b, "i_audited_my_own_composition_on_fresh_copies", _rs, 0, tpl, sizeof tpl); }
             char ns[16], ts[16];
             snprintf(ns, sizeof ns, "%zu", pass_count);
             snprintf(ts, sizeof ts, "%zu", nt);
@@ -1509,7 +1507,10 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
             { const KbResponseSlot _rs[] = { { "list", list } };
       kb_term_say(b, "i_know_these_predicates_x", _rs, 1, msg, sizeof msg); }
         else
-            snprintf(msg, sizeof msg, "I know %zu distinct predicate(s).", np);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", np);
+  const KbResponseSlot _rs[] = { { "np", _v0 } };
+              kb_term_say(b, "i_know_x_distinct_predicate_s", _rs, 1, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }
@@ -1529,7 +1530,10 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
               put(msg, out, out_size); }
         } else {
             char msg[128];
-            snprintf(msg, sizeof msg, "I know %zu fact(s) total.", kb_user_facts(b->kb));
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", kb_user_facts(b->kb));
+  const KbResponseSlot _rs[] = { { "kb", _v0 } };
+              kb_term_say(b, "i_know_x_fact_s_total", _rs, 1, msg, sizeof msg); }
             put(msg, out, out_size);
         }
         return 1;
@@ -1569,9 +1573,8 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         if (b->last_module[0]) {
             char msg[160];
             if (strcmp(b->last_module, "fallback") == 0)
-                snprintf(msg, sizeof msg,
-                         "No module could handle that — it fell through to "
-                         "the not-understood fallback.");
+                {   const KbResponseSlot _rs[] = { { "x", "" } };
+                  kb_term_say(b, "no_module_could_handle_that_it_fell_through", _rs, 0, msg, sizeof msg); }
             else
                 { 
                   char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_module);
