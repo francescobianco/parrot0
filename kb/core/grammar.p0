@@ -472,6 +472,30 @@ extract_frame($Pat, $Pred) :-
 
 answer_frame($Verb, $Verb) :- relation_verb($Verb).
 
+% ── COSTRUZIONI INSEGNATE PER EQUIVALENZA (apprendimento assistito A1) ────
+%
+% Una lezione come
+%
+%     X glints Y means X glorphs Y
+%
+% non deve creare un secondo parser. Il confine C allinea soltanto i due slot,
+% verifica che il lato destro sia gia' un frame comprensibile e conserva questa
+% relazione. Da quel momento il lettore universale vede il lato sinistro come
+% un altro `extract_frame/2`: la costruzione vale nella chat e nella prosa, e il
+% predicato di dominio resta interamente conoscenza.
+machinery(construction_frame).
+machinery(construction_answer_cue).
+
+extract_frame($Source, $Predicate) :-
+    construction_frame($Source, $Target, $Predicate).
+
+% Nel solo caso in cui la costruzione esponga una cue interrogabile senza
+% perdere i ruoli, il teacher registra anche questa vista. Il pattern sorgente
+% resta nella riga perche' retract e provenienza possano riferirsi alla lezione,
+% non a una parola globale decontestualizzata.
+answer_frame($Cue, $Predicate) :-
+    construction_answer_cue($Source, $Cue, $Predicate).
+
 % ── I MARCATORI DI SEGMENTO, INSEGNATI A VOCE (gen429) ──────────────────────
 %
 % La segmentazione dell'input sceglie i ruoli degli span leggendo

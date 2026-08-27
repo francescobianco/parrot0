@@ -718,6 +718,23 @@ response_template(page_disambiguates, it, "quella pagina disambigua piu' signifi
 response_template(taught_reply, "Understood: when you ask about {cue} I will say so.").
 response_template(taught_reply, it, "Capito: quando mi chiedi di {cue} risponderò così.").
 
+% Apprendimento assistito A1. La prima risposta dice CANDIDATO, non "ho capito":
+% la comprensione viene disposta dal replay e dal transfer nei turni successivi.
+response_template(construction_candidate, "I learned a candidate construction: {source} maps to {target}. Test me with new names before we call it understood.").
+response_template(construction_candidate, it, "Ho appreso una costruzione candidata: {source} corrisponde a {target}. Provala con nomi nuovi prima di chiamarla comprensione.").
+response_template(construction_already_known, "That construction is already active: {source} maps to {target}.").
+response_template(construction_already_known, it, "Quella costruzione è già attiva: {source} corrisponde a {target}.").
+response_template(construction_target_unknown, "I cannot anchor that lesson yet: I do not have one unambiguous reading for {target}.").
+response_template(construction_target_unknown, it, "Non posso ancora ancorare quella lezione: non ho una lettura univoca per {target}.").
+response_template(construction_shape_unsupported, "I found the teaching pivot, but I cannot align exactly two shared variables on both sides. I have not learned the construction.").
+response_template(construction_shape_unsupported, it, "Ho trovato il separatore didattico, ma non riesco ad allineare esattamente due variabili condivise sui due lati. Non ho appreso la costruzione.").
+response_template(construction_conflict, "I already read {source} through a different frame, so I have kept both readings visible and have not selected the new one.").
+response_template(construction_conflict, it, "Leggo già {source} attraverso un frame diverso, quindi ho lasciato visibili entrambe le letture e non ho selezionato quella nuova.").
+response_template(construction_forgotten, "The construction {source} -> {target} is no longer active; I kept its lesson trace.").
+response_template(construction_forgotten, it, "La costruzione {source} -> {target} non è più attiva; ho conservato la traccia della lezione.").
+response_template(construction_not_known, "I did not have that construction active, so there was nothing to retract.").
+response_template(construction_not_known, it, "Non avevo quella costruzione attiva, quindi non c'era nulla da ritrarre.").
+
 % gen382k: una premessa ASSERITIVA che contraddice cio' che parrot0 tiene. Non e'
 % un rifiuto — chi parla puo' avere ragione — ed e' esattamente cio' che la
 % rinominazione rende impossibile dire: se il gatto dell'ipotesi fosse un altro

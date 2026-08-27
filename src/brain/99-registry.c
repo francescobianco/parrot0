@@ -319,6 +319,7 @@ static const Module registry[] = {
     /* gen382h: insegnare una REGOLA con variabili corre prima di chi legge le
      * frasi come domande — "if someone is a X then they are a Y" ha la forma di
      * un condizionale e il contenuto di una quantificazione. */
+    {"teachconstruction", mod_teach_construction},
     {"teachrule",  mod_teach_rule},
     {"teachreply", mod_teach_reply},
     {"qa",        mod_qa},

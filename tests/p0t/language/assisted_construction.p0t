@@ -1,0 +1,133 @@
+# APPRENDIMENTO ASSISTITO A1 — "QUESTO SIGNIFICA QUESTO".
+#
+# La prova non monta un profilo che contiene glints/glorphs e non usa !assert
+# per insegnare la costruzione. Un processo gia' acceso riceve una spiegazione
+# normale, rilegge la frase prima rossa, trasferisce su nomi nuovi e usa lo
+# stesso frame dentro `read:`. Il retract parlato deve poi togliere soltanto la
+# capacita', non i fatti gia' estratti ne' la traccia della lezione.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test una costruzione con slot si insegna parlando]
+> glorphs is a relation verb
+< Learned: relation_verb(glorphs).
+
+# PRIMA: la sorgente non ha alcun frame.
+> mira glints kora
+<! Learned: glorphs
+
+# LEZIONE: le variabili sono membri KB di rule_variable/1; il C non conosce X/Y.
+> x glints y means x glorphs y
+<~ I learned a candidate construction: @S glints @O maps to @S glorphs @O
+
+# REPLAY e tre transfer indipendenti.
+> mira glints kora
+< Learned: glorphs(mira, kora).
+> who glints kora?
+< Mira.
+> arun glints selene
+< Learned: glorphs(arun, selene).
+> who glorphs selene?
+< Arun.
+> tavi glints luma
+< Learned: glorphs(tavi, luma).
+!query glorphs(mira, kora)
+!query glorphs(arun, selene)
+!query glorphs(tavi, luma)
+
+[test la forma breve questo significa questo produce lo stesso frame]
+> gleams means glorphs
+<~ I learned a candidate construction: @S gleams @O maps to @S glorphs @O
+> nora gleams vega
+< Learned: glorphs(nora, vega).
+> who gleams vega?
+< Nora.
+
+[test una costruzione multiword trasferisce e il quasi esempio resta fuori]
+> nira shimmers brightly at sola
+<! Learned: orbits
+> x shimmers brightly at y means x orbits y
+<~ I learned a candidate construction: @S shimmers brightly at @O maps to @S orbits @O
+> nira shimmers brightly at sola
+< Learned: orbits(nira, sola).
+> vega shimmers brightly at arkon
+< Learned: orbits(vega, arkon).
+> who shimmers brightly at arkon?
+< Vega.
+
+# CONTROESEMPIO: una parola strutturale diversa non viene assorbita.
+> nira shimmers dimly at cera
+<! Learned: orbits
+!query! orbits(nira, cera)
+!query! orbits(nira, dimly_at_cera)
+
+[test la prosa usa lo stesso frame insegnato]
+> read: tari shimmers brightly at luma. nova shimmers brightly at cera.
+< Learned 2 fact(s), skipped 0.
+> who shimmers brightly at luma?
+< Tari.
+> who shimmers brightly at cera?
+< Nova.
+
+[test il retract parlato abla la capacita e conserva i fatti prodotti]
+> forget that x glints y means x glorphs y
+<~ The construction @S glints @O -> @S glorphs @O is no longer active
+!query! construction_frame("@S glints @O", "@S glorphs @O", glorphs)
+# I fatti appresi quando la lezione era attiva sono storia, non vengono cancellati.
+!query glorphs(mira, kora)
+> zera glints pono
+<! Learned: glorphs
+!query! glorphs(zera, pono)
+
+[test il pivot didattico stesso cresce e si abla a runtime]
+# PRIMA: `denotes` non appartiene alla classe. Il vecchio estrattore puo'
+# respingere tecnicamente il turno, ma non deve dichiarare la costruzione appresa.
+> x gleams2 y denotes x glorphs y
+<! candidate construction
+!query! construction_frame("@S gleams2 @O", "@S glorphs @O", glorphs)
+
+> learn "denotes" as a construction teaching pivot
+<~ I'll take "denotes" as a way to a construction teaching pivot now
+> x gleams2 y denotes x glorphs y
+<~ I learned a candidate construction: @S gleams2 @O maps to @S glorphs @O
+> mara gleams2 nilo
+< Learned: glorphs(mara, nilo).
+
+# Ablazione del solo vocabolario didattico: le costruzioni gia' apprese restano,
+# ma una nuova lezione con quella superficie non puo' piu' entrare.
+!forget intent_cue(teach_construction, "denotes")
+> x flares y denotes x glorphs y
+<! candidate construction
+!query! construction_frame("@S flares @O", "@S glorphs @O", glorphs)
+> mara2 gleams2 nilo2
+< Learned: glorphs(mara2, nilo2).
+
+[test target ignoto mapping incompatibile e conflitto declinano]
+> x blinks y means x unknowableverb y
+<~ I cannot anchor that lesson yet
+!query! construction_frame("@S blinks @O", "@S unknowableverb @O", unknowableverb)
+
+> x folds y means z glorphs y
+<~ I found the teaching pivot, but I cannot align exactly two shared variables
+!query! construction_frame("@S folds @O", "@S glorphs @O", glorphs)
+
+# `orbits` ha gia' un frame diverso: una nuova lettura non lo sovrascrive.
+> orbits means glorphs
+<~ I already read @S orbits @O through a different frame
+!query! construction_frame("@S orbits @O", "@S glorphs @O", glorphs)
+
+[test il pivot italiano e dati non un ramo]
+> x sfiora y significa x glorphs y
+<~ candidate construction: @S sfiora @O
+> ava sfiora teo
+< Learned: glorphs(ava, teo).
+> dimentica che x sfiora y significa x glorphs y
+<~ @S sfiora @O -> @S glorphs @O
+> bia sfiora rio
+<! Learned: glorphs
+!query! glorphs(bia, rio)

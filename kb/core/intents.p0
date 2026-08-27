@@ -563,6 +563,14 @@ learnable("greet a new name",     greet_name, fill).
 learnable("salutare",             greet_name, fill).
 learnable("a teaching verb",      00_lex_chain332, substring).
 learnable("verbo di insegnamento", 00_lex_chain332, substring).
+% A1 apprendimento assistito: anche la parola che separa costruzione nuova e
+% costruzione nota e' lessico vivo. Il motore `mod_teach_construction` cerca
+% soltanto questa classe; "learn \"denotes\" as a construction teaching pivot"
+% amplia il suo linguaggio nello stesso processo.
+learnable("a construction teaching pivot", teach_construction, substring).
+learnable("separatore per insegnare una costruzione", teach_construction, substring).
+intent_cue(teach_construction, "means").
+intent_cue(teach_construction, "significa").
 % gen337: definitional teaching (mode=define) — the CAPTURE frame that makes any
 % concept teachable by prompt: «learn the definition of X: "…"» asserts
 % concept(X, "…") into the session; the consumer (kb_concept_def and the what-is

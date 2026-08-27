@@ -3634,6 +3634,300 @@ static int p0_try_extract_frames(Brain *b, char **w, size_t n,
     return 0;
 }
 
+/* APPRENDIMENTO ASSISTITO A1 — "QUESTA COSTRUZIONE SIGNIFICA QUESTA".
+ *
+ * Il consumer esiste gia': extract_frame/2 traduce un pattern con @S/@O in un
+ * fatto binario. Qui c'e' soltanto l'atto didattico che produce una nuova riga
+ * `construction_frame(Source, Target, Predicate)` a partire da due superfici.
+ *
+ * Il vocabolario dell'atto non e' nel C: i pivot sono
+ * intent_cue(teach_construction, Surface), e la classe stessa e' learnable/3.
+ * Anche le variabili sono conoscenza (`rule_variable/1`). Il C possiede solo le
+ * meccaniche fisse: confine di parola, tokenizzazione, allineamento di due slot,
+ * verifica del target e commit atomico nella sessione. */
+typedef struct {
+    char source[KB_TERM_LEN];
+    char target[KB_TERM_LEN];
+    char predicate[KB_TERM_LEN];
+    char answer_cue[KB_TERM_LEN];
+    int has_answer_cue;
+} P0ConstructionLesson;
+
+enum {
+    P0_CONSTRUCTION_NONE = 0,
+    P0_CONSTRUCTION_OK = 1,
+    P0_CONSTRUCTION_BAD_SHAPE = -1,
+    P0_CONSTRUCTION_UNKNOWN_TARGET = -2
+};
+
+static int p0_word_byte(unsigned char c) {
+    return isalnum(c) || c == '_';
+}
+
+/* Substring su confini di parola. `cue()` resta volutamente substring per gli
+ * intenti generici; un pivot che DIVIDE due span non puo' scattare dentro una
+ * parola ("means" dentro un token piu' lungo). */
+static const char *p0_bounded_phrase(const char *text, const char *phrase) {
+    if (!text || !phrase || !*phrase) return NULL;
+    size_t pl = strlen(phrase);
+    for (const char *p = text; (p = strstr(p, phrase)) != NULL; p++) {
+        int left = (p == text) || !p0_word_byte((unsigned char)p[-1]);
+        int right = !p[pl] || !p0_word_byte((unsigned char)p[pl]);
+        if (left && right) return p;
+    }
+    return NULL;
+}
+
+static const char *p0_construction_pivot(Brain *b, const char *text,
+                                         size_t *pivot_len) {
+    if (pivot_len) *pivot_len = 0;
+    if (!b || !b->kb || !text) return NULL;
+    char cues[32][KB_TERM_LEN];
+    const char *q[2] = { "teach_construction", NULL };
+    size_t n = kb_match(b->kb, "intent_cue", q, 2, cues, 32);
+    const char *best = NULL; size_t best_len = 0;
+    for (size_t i = 0; i < n; i++) {
+        char cb[KB_TERM_LEN];
+        snprintf(cb, sizeof cb, "%s", cues[i]);
+        const char *surface = kb_dequote(cb);
+        const char *hit = p0_bounded_phrase(text, surface);
+        if (!hit) continue;
+        size_t sl = strlen(surface);
+        if (!best || hit < best || (hit == best && sl > best_len)) {
+            best = hit; best_len = sl;
+        }
+    }
+    if (pivot_len) *pivot_len = best_len;
+    return best;
+}
+
+static int p0_pattern_add(char *out, size_t outsz, size_t *off,
+                          const char *token) {
+    if (!out || !outsz || !off || !token || !*token) return 0;
+    size_t need = strlen(token) + (*off ? 1u : 0u);
+    if (*off + need + 1 > outsz) return 0;
+    if (*off) out[(*off)++] = ' ';
+    memcpy(out + *off, token, strlen(token));
+    *off += strlen(token); out[*off] = '\0';
+    return 1;
+}
+
+static int p0_explicit_pattern(Brain *b, char *text,
+                               char vars[2][KB_TERM_LEN], size_t *nvars,
+                               int introduce, char *out, size_t outsz) {
+    char *w[32]; size_t nw = split_words(text, w, 32);
+    if (nw < 2) return 0;
+    size_t off = 0; int seen[2] = {0, 0}; int literals = 0;
+    out[0] = '\0';
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (!*t) continue;
+        const char *vq[1] = { t };
+        int is_var = strlen(t) == 1 && isalpha((unsigned char)t[0]) &&
+                     kb_query(b->kb, "rule_variable", vq, 1);
+        int vi = -1;
+        if (is_var) {
+            for (size_t k = 0; k < *nvars; k++)
+                if (!strcmp(vars[k], t)) { vi = (int)k; break; }
+            if (vi < 0 && introduce && *nvars < 2) {
+                snprintf(vars[*nvars], KB_TERM_LEN, "%s", t);
+                vi = (int)(*nvars); (*nvars)++;
+            }
+            if (vi < 0 || vi > 1) return 0;
+            seen[vi]++;
+            if (!p0_pattern_add(out, outsz, &off, vi == 0 ? "@S" : "@O"))
+                return 0;
+        } else {
+            literals++;
+            if (!p0_pattern_add(out, outsz, &off, t)) return 0;
+        }
+    }
+    if (literals == 0 || *nvars != 2 || seen[0] != 1 || seen[1] != 1)
+        return 0;
+    return 1;
+}
+
+/* Solo per la forma SVO canonica: la parte letterale fra @S e @O puo' aprire
+ * anche la porta di risposta. Pattern con prefissi, slot interni o ordine
+ * diverso restano estrattori; A2 insegnera' le loro domande esplicitamente. */
+static int p0_construction_answer_cue(const char *pattern,
+                                      char *out, size_t outsz) {
+    char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", pattern);
+    char *w[24]; size_t n = split_words(pb, w, 24);
+    if (n < 3 || strcmp(w[0], "@S") || strcmp(w[n - 1], "@O")) return 0;
+    size_t off = 0; out[0] = '\0';
+    for (size_t i = 1; i + 1 < n; i++) {
+        if (w[i][0] == '@' || !p0_pattern_add(out, outsz, &off, w[i])) return 0;
+    }
+    return out[0] != '\0';
+}
+
+static void p0_quote_pattern(const char *pattern, char *out, size_t outsz) {
+    snprintf(out, outsz, "\"%.*s\"", (int)(outsz > 3 ? outsz - 3 : 0), pattern);
+}
+
+/* Ritorna il predicato unico a cui il target e' gia' ancorato. Se una lezione
+ * uguale esiste gia', construction_frame/3 e' anche un'ancora legittima: serve
+ * soprattutto al retract quando nel frattempo il frame target e' stato tolto. */
+static int p0_construction_target(Brain *b, const char *source,
+                                  const char *target, char *pred, size_t psz) {
+    char qs[KB_TERM_LEN], qt[KB_TERM_LEN];
+    p0_quote_pattern(source, qs, sizeof qs);
+    p0_quote_pattern(target, qt, sizeof qt);
+    const char *cq[3] = { qs, qt, NULL };
+    char existing[8][KB_TERM_LEN];
+    size_t ne = kb_match(b->kb, "construction_frame", cq, 3, existing, 8);
+    if (ne > 0) {
+        snprintf(pred, psz, "%s", kb_dequote(existing[0]));
+        return pred[0] != '\0';
+    }
+
+    /* Le regole che COSTRUISCONO un pattern con concat_atoms/3 lavorano in
+     * avanti: enumerano `extract_frame(Pattern, Pred)`, ma non necessariamente
+     * ricostruiscono la catena al contrario quando Pattern e' gia' ground. E'
+     * la stessa ragione per cui il consumer storico enumera prima tutti i
+     * frame. Facciamo lo stesso, senza un tetto fisso, e poi rileggiamo la
+     * seconda colonna dalla forma raw esatta. */
+    char (*patterns)[KB_TERM_LEN] = NULL; size_t nframes = 0;
+    const char *any[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "extract_frame", any, 2, &patterns, &nframes)) {
+        free(patterns);
+        return 0;
+    }
+    pred[0] = '\0';
+    for (size_t i = 0; i < nframes; i++) {
+        char display[KB_TERM_LEN];
+        snprintf(display, sizeof display, "%s", patterns[i]);
+        if (strcmp(kb_dequote(display), target)) continue;
+        const char *tq[2] = { patterns[i], NULL };
+        char rows[16][KB_TERM_LEN];
+        size_t nr = kb_match(b->kb, "extract_frame", tq, 2, rows, 16);
+        for (size_t j = 0; j < nr; j++) {
+            char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[j]);
+            const char *candidate = kb_dequote(rb);
+            if (!*candidate) continue;
+            if (!pred[0]) snprintf(pred, psz, "%s", candidate);
+            else if (strcmp(pred, candidate)) { free(patterns); return 0; }
+        }
+    }
+    free(patterns);
+    return pred[0] != '\0';
+}
+
+static int p0_parse_construction_lesson(Brain *b, const char *text,
+                                        P0ConstructionLesson *lesson) {
+    if (!b || !b->kb || !text || !lesson) return P0_CONSTRUCTION_NONE;
+    size_t pivot_len = 0;
+    const char *pivot = p0_construction_pivot(b, text, &pivot_len);
+    if (!pivot || !pivot_len) return P0_CONSTRUCTION_NONE;
+    memset(lesson, 0, sizeof *lesson);
+
+    char left[KB_TERM_LEN], right[KB_TERM_LEN];
+    size_t ll = (size_t)(pivot - text);
+    if (ll >= sizeof left) ll = sizeof left - 1;
+    memcpy(left, text, ll); left[ll] = '\0';
+    snprintf(right, sizeof right, "%s", pivot + pivot_len);
+    char *lhs = trim_mut(left), *rhs = trim_mut(right);
+    if (!*lhs || !*rhs) return P0_CONSTRUCTION_BAD_SHAPE;
+
+    /* Scorciatoia lessicale ma non frasario: `glints means glorphs` dichiara la
+     * costruzione binaria standard, con gli stessi due slot espliciti nel fatto
+     * risultante. La forma lunga resta il gate piu' forte. */
+    char lb[KB_TERM_LEN], rb[KB_TERM_LEN];
+    snprintf(lb, sizeof lb, "%s", lhs); snprintf(rb, sizeof rb, "%s", rhs);
+    char *lw[4], *rw[4];
+    size_t ln = split_words(lb, lw, 4), rn = split_words(rb, rw, 4);
+    if (ln == 1 && rn == 1) {
+        char *ls = strip_edge_punct(lw[0]), *rs = strip_edge_punct(rw[0]);
+        if (!*ls || !*rs) return P0_CONSTRUCTION_BAD_SHAPE;
+        snprintf(lesson->source, sizeof lesson->source, "@S %s @O", ls);
+        snprintf(lesson->target, sizeof lesson->target, "@S %s @O", rs);
+    } else {
+        char vars[2][KB_TERM_LEN] = {{0}}; size_t nv = 0;
+        char lp[KB_TERM_LEN], rp[KB_TERM_LEN];
+        snprintf(lp, sizeof lp, "%s", lhs); snprintf(rp, sizeof rp, "%s", rhs);
+        if (!p0_explicit_pattern(b, lp, vars, &nv, 1,
+                                 lesson->source, sizeof lesson->source) ||
+            !p0_explicit_pattern(b, rp, vars, &nv, 0,
+                                 lesson->target, sizeof lesson->target))
+            return P0_CONSTRUCTION_BAD_SHAPE;
+    }
+
+    if (!p0_construction_target(b, lesson->source, lesson->target,
+                                lesson->predicate, sizeof lesson->predicate))
+        return P0_CONSTRUCTION_UNKNOWN_TARGET;
+    lesson->has_answer_cue = p0_construction_answer_cue(
+        lesson->source, lesson->answer_cue, sizeof lesson->answer_cue);
+    return P0_CONSTRUCTION_OK;
+}
+
+static int p0_construction_say(Brain *b, const char *key,
+                               const P0ConstructionLesson *lesson,
+                               char *out, size_t out_size) {
+    const KbResponseSlot slots[] = {
+        { "source", lesson && lesson->source[0] ? lesson->source : "?" },
+        { "target", lesson && lesson->target[0] ? lesson->target : "?" }
+    };
+    if (kb_response_slots(b, key, slots, 2, out, out_size)) return 1;
+    kb_say(b, "i_dont_understand_that_yet", "I don't understand that yet.",
+           out, out_size);
+    return 1;
+}
+
+static int mod_teach_construction(Brain *b, const char *norm, const char *raw,
+                                  char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    P0ConstructionLesson lesson;
+    int parsed = p0_parse_construction_lesson(b, norm, &lesson);
+    if (parsed == P0_CONSTRUCTION_NONE) return 0;
+    if (parsed == P0_CONSTRUCTION_BAD_SHAPE)
+        return p0_construction_say(b, "construction_shape_unsupported", &lesson,
+                                   out, out_size);
+    if (parsed == P0_CONSTRUCTION_UNKNOWN_TARGET)
+        return p0_construction_say(b, "construction_target_unknown", &lesson,
+                                   out, out_size);
+
+    char qs[KB_TERM_LEN], qt[KB_TERM_LEN];
+    p0_quote_pattern(lesson.source, qs, sizeof qs);
+    p0_quote_pattern(lesson.target, qt, sizeof qt);
+    const char *exact[3] = { qs, qt, lesson.predicate };
+    if (kb_query(b->kb, "construction_frame", exact, 3))
+        return p0_construction_say(b, "construction_already_known", &lesson,
+                                   out, out_size);
+
+    /* Una superficie gia' legata a un altro predicato non viene sovrascritta.
+     * Le due viste restano osservabili e la lezione declina onestamente. */
+    const char *sq[2] = { qs, NULL };
+    char prior[16][KB_TERM_LEN];
+    size_t np = kb_match(b->kb, "extract_frame", sq, 2, prior, 16);
+    for (size_t i = 0; i < np; i++) {
+        char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", prior[i]);
+        if (strcmp(kb_dequote(pb), lesson.predicate))
+            return p0_construction_say(b, "construction_conflict", &lesson,
+                                       out, out_size);
+    }
+
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_SESSION);
+    if (!kb_assert(b->kb, "construction_frame", exact, 3)) {
+        kb_set_origin(b->kb, prev);
+        return p0_construction_say(b, "construction_already_known", &lesson,
+                                   out, out_size);
+    }
+    if (lesson.has_answer_cue) {
+        char qc[KB_TERM_LEN];
+        if (strchr(lesson.answer_cue, ' ')) p0_quote_pattern(lesson.answer_cue, qc, sizeof qc);
+        else snprintf(qc, sizeof qc, "%s", lesson.answer_cue);
+        const char *ca[3] = { qs, qc, lesson.predicate };
+        kb_assert(b->kb, "construction_answer_cue", ca, 3);
+    }
+    p0_learn_source(b, "construction_frame", exact, 3,
+                    raw && *raw ? raw : norm);
+    kb_set_origin(b->kb, prev);
+    return p0_construction_say(b, "construction_candidate", &lesson,
+                               out, out_size);
+}
+
 /* Questo atomo e' un CONCETTO, o e' una frase travestita? (gen382)
  *
  * Il cancello di qualita' fra l'estrazione e la KB. Serve perche' sognare senza
@@ -7657,6 +7951,64 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
             if (cue(norm, kb_dequote(cb))) is_retract = 1;
         }
         if (is_retract) {
+            /* Una costruzione e' una credenza operativa come le altre. Il
+             * contenuto dopo la cue di mossa viene ripassato allo stesso
+             * allineatore usato per insegnarla; la sua fact_source resta come
+             * traccia, mentre soltanto le viste attive vengono ritratte. */
+            const char *content = norm;
+            size_t best_end = 0;
+            for (size_t i = 0; i < nm2; i++) {
+                char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", mv[i]);
+                const char *surface = kb_dequote(cb);
+                const char *hit = p0_bounded_phrase(norm, surface);
+                if (hit && (size_t)(hit - norm) + strlen(surface) > best_end)
+                    best_end = (size_t)(hit - norm) + strlen(surface);
+            }
+            if (best_end) {
+                content = norm + best_end;
+                while (*content && isspace((unsigned char)*content)) content++;
+                /* Complementatori e articoli di apertura sono conoscenza
+                 * `stopword/1`; si scavalcano senza nominarli nel motore. */
+                for (;;) {
+                    char first[KB_TERM_LEN]; size_t fl = 0;
+                    while (content[fl] && !isspace((unsigned char)content[fl]) &&
+                           fl + 1 < sizeof first) {
+                        first[fl] = content[fl]; fl++;
+                    }
+                    first[fl] = '\0';
+                    char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", first);
+                    const char *sw[1] = { strip_edge_punct(fb) };
+                    if (!fl || !kb_query(b->kb, "stopword", sw, 1)) break;
+                    content += fl;
+                    while (*content && isspace((unsigned char)*content)) content++;
+                }
+            }
+            P0ConstructionLesson lesson;
+            int cp = p0_parse_construction_lesson(b, content, &lesson);
+            if (cp != P0_CONSTRUCTION_NONE) {
+                if (cp == P0_CONSTRUCTION_BAD_SHAPE)
+                    return p0_construction_say(b, "construction_shape_unsupported",
+                                               &lesson, out, out_size);
+                if (cp == P0_CONSTRUCTION_UNKNOWN_TARGET)
+                    return p0_construction_say(b, "construction_target_unknown",
+                                               &lesson, out, out_size);
+                char qs[KB_TERM_LEN], qt[KB_TERM_LEN];
+                p0_quote_pattern(lesson.source, qs, sizeof qs);
+                p0_quote_pattern(lesson.target, qt, sizeof qt);
+                const char *fa[3] = { qs, qt, lesson.predicate };
+                int removed = kb_retract(b->kb, "construction_frame", fa, 3);
+                if (lesson.has_answer_cue) {
+                    char qc[KB_TERM_LEN];
+                    if (strchr(lesson.answer_cue, ' '))
+                        p0_quote_pattern(lesson.answer_cue, qc, sizeof qc);
+                    else snprintf(qc, sizeof qc, "%s", lesson.answer_cue);
+                    const char *ca[3] = { qs, qc, lesson.predicate };
+                    kb_retract(b->kb, "construction_answer_cue", ca, 3);
+                }
+                return p0_construction_say(
+                    b, removed ? "construction_forgotten" : "construction_not_known",
+                    &lesson, out, out_size);
+            }
             char sl[8][KB_TERM_LEN];
             const char *sq2[2] = { NULL, NULL };
             size_t nsl = kb_match(b->kb, "user_slot_cue", sq2, 2, sl, 8);
