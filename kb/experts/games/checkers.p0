@@ -4,9 +4,12 @@ expert_domain(checkers, games).
 expert_description(checkers, "checkers movement, captures, promotion and tactics").
 means(checkers, "a two-player diagonal capture game played on the dark squares of a board").
 game_players(checkers, 2).
+topic_preference_surface(checkers, "checkers").
+topic_preference_surface(checkers, "dama").
 game_goal(checkers, "capture all opposing pieces or leave the opponent with no legal move").
 game_setup(checkers, "each player places twelve men on the dark squares of the three nearest rows").
 game_play(checkers, "men move diagonally forward, capture by jumping, and become kings on the far row; when a capture is available it is compulsory").
+game_play_localized(checkers, it, "le pedine si muovono in diagonale in avanti, catturano saltando e diventano dame sull'ultima fila; quando è possibile catturare, la presa è obbligatoria").
 game_end(checkers, "a player wins when the opponent has no pieces or no legal move; some repeated or blocked positions are draws").
 game_tip(checkers, "keep pieces connected, watch forced multi-jumps, and time promotion races carefully").
 category_surface(checkers, checker_kind).

@@ -1178,6 +1178,16 @@ Questo non chiude la Gen444: dimostra invece che il gate deve richiedere
 pertinenza, contenuto sostenuto e continuabilità, non soltanto assenza di muro.
 Il campione `.p0t` è stato rafforzato con queste proprietà osservabili.
 
+Una seconda esecuzione manuale ha trovato il limite successivo:
+`ti piace la dama?` ricadeva ancora sulla preferenza generica, benché la KB
+contenesse già l'esperto `checkers`. La causa era una forma non indirizzata,
+non l'assenza della conoscenza. L'aggiunta di due soli fatti
+`topic_preference_surface(checkers, ...)` e della regola di gioco italiana ha
+attivato lo stesso consumer per `dama`, senza modificare il router. Questo è
+un trasferimento positivo del meccanismo a un secondo dominio; dimostra anche
+che la copertura conversazionale deve essere misurata per superfici reali e
+non inferita dal numero di esperti caricati.
+
 Per il passaggio verso Gen445 è stato aggiunto anche `next_step_request`: le
 forme italiane e inglesi di richiesta del prossimo passo chiedono esplicitamente
 obiettivo e vincoli prima di derivare una sequenza verificabile. Nel dialogo

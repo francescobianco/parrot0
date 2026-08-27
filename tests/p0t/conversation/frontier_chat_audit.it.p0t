@@ -17,6 +17,11 @@
 <~ giocatori
 <~ scacco
 <~ insieme
+> ti piace la dama?
+<~ conosco dama
+<~ pedine
+<~ obbligatoria
+<~ insieme
 > cosa sai degli scacchi?
 <~ scacchi
 > come stai?
