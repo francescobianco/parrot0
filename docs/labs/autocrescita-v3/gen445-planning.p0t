@@ -1,0 +1,23 @@
+# Gen445 — prova del planner con fonte, azione informativa e replanning.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=docs/labs/autocrescita-v3/gen445-planning.p0
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=it
+!reset
+
+[fonte e piano multilingue]
+!query source_address(water_gate, address(en, wikipedia, "Water_gate", revision(2026, operation)))
+!query source_candidate(address(en, wikipedia, "Water_gate", revision(2026, operation)), causal, gate_open, source_read)
+!query source_replay(address(en, wikipedia, "Water_gate", revision(2026, operation)), causal, gate_open, source_read)
+!query compensation_plan(445_water, goal(level, safe), $Plan)
+!query compensation_plan_step(445_water, 1, step(read_source, unknown, source_read, meta(1, wikipedia_revision(2026, water_gate))))
+!query compensation_plan_step(445_water, 2, step(open_gate, source_read, level_safe, meta(2, local)))
+
+[replanning dopo ritiro del passo]
+!query compensation_plan_complete(445_blocked)
+!forget compensation_step(445_blocked, 2, step(open_gate, source_read, level_safe, 2))
+!query! compensation_plan_complete(445_blocked)
+!query compensation_stop(445_blocked, missing_dependency(1, 2))

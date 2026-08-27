@@ -1238,6 +1238,16 @@ Gen445: mancano la provenienza Wikipedia incrociata, l'azione informativa e la
 compensazione completa con alternativa/replanning. Questi restano i prossimi
 oggetti di lavoro; non vengono conteggiati come capacità già acquisite.
 
+È stato aggiunto il campione isolato
+`docs/labs/autocrescita-v3/gen445-planning.p0t` con profilo
+`gen445-planning.p0`: una claim è indirizzata a una revisione Wikipedia,
+verificata tramite provenienza e replay, diventa il supporto dell’azione
+informativa e abilita il passo causale successivo. La sottrazione del secondo
+passo riapre il residuo `missing_dependency(1,2)`. È una prova positiva del
+ponte fonte→piano e del replanning, ma non chiude ancora il gate completo:
+serve integrare lo stesso percorso con un turno reale e con almeno una
+alternativa valida.
+
 ### Ipotesi H445
 
 Gli stessi frame estratti e gli stessi operatori KB possono sostenere piani

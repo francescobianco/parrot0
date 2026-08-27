@@ -1,0 +1,20 @@
+% Gen445 — campione costruttivo: piano causale, informazione e replanning.
+% Il dominio è dichiarato qui, non nel C né nel core.
+
+compensation_obligation(445_water, goal(level, safe), language(it, it)).
+compensation_step(445_water, 1, step(read_source, unknown, source_read, 1)).
+compensation_step(445_water, 2, step(open_gate, source_read, level_safe, 2)).
+compensation_dependency(445_water, 1, 2).
+source_support(445_water, 1, wikipedia_revision(2026, water_gate)).
+source_page(water_gate, en, wikipedia, "Water_gate").
+source_revision("Water_gate", 2026).
+source_section("Water_gate", operation).
+source_claim(address(en, wikipedia, "Water_gate", revision(2026, operation)), causal, gate_open, source_read).
+source_provenance(address(en, wikipedia, "Water_gate", revision(2026, operation)), span(12, 4), en).
+replay_check(causal, gate_open, source_read).
+
+compensation_obligation(445_blocked, goal(level, safe), language(en, it)).
+compensation_step(445_blocked, 1, step(read_source, unknown, source_read, 1)).
+compensation_step(445_blocked, 2, step(open_gate, source_read, level_safe, 2)).
+compensation_dependency(445_blocked, 1, 2).
+source_support(445_blocked, 1, wikipedia_revision(2026, water_gate)).
