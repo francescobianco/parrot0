@@ -1296,10 +1296,10 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
             format_num(a, na, sizeof na);
             format_num(c, nb, sizeof nb);
             format_num(r, nr, sizeof nr);
-            snprintf(msg, sizeof msg,
-                     "Because %s %s and %s gives %s — that is their %s.",
-                     verb, na, nb, nr, noun);
-            put(msg, out, out_size);
+            { const KbResponseSlot _rs[] = { { "verb", verb }, { "na", na }, { "nb", nb }, { "nr", nr }, { "noun", noun } };
+              if (!kb_response_slots(b, "because_x_x_and_x_gives_x_that_is_their_x", _rs, 5, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "Because %s %s and %s gives %s — that is their %s.", verb, na, nb, nr, noun);
+              put(msg, out, out_size); }
             return 1;
         }
     }

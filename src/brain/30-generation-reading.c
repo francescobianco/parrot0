@@ -1498,10 +1498,10 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                          "I don't have real desires, but for the prompt I'd invite %s and %s: %s; and %s.",
                          names[0], names[1], reasons[0], reasons[1]);
             else
-                snprintf(msg, sizeof msg,
-                         "I don't have real desires, but for the prompt I'd invite %s, %s, and %s: %s; %s; and %s.",
-                         names[0], names[1], names[2], reasons[0], reasons[1], reasons[2]);
-            put(msg, out, out_size);
+                { const KbResponseSlot _rs[] = { { "names", names[0] }, { "names2", names[1] }, { "names3", names[2] }, { "reasons", reasons[0] }, { "reasons2", reasons[1] }, { "reasons3", reasons[2] } };
+                  if (!kb_response_slots(b, "i_don_t_have_real_desires_but_for_the_prompt", _rs, 6, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "I don't have real desires, but for the prompt I'd invite %s, %s, and %s: %s; %s; and %s.", names[0], names[1], names[2], reasons[0], reasons[1], reasons[2]);
+                  put(msg, out, out_size); }
             return 1;
         }
     }
@@ -1644,8 +1644,10 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
         if (hits == 0) {
             char msg[160];
-            snprintf(msg, sizeof msg, "I have nothing to say about %s.", x);
-            put(msg, out, out_size);
+            { const KbResponseSlot _rs[] = { { "x", x } };
+              if (!kb_response_slots(b, "i_have_nothing_to_say_about_x", _rs, 1, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "I have nothing to say about %s.", x);
+              put(msg, out, out_size); }
         } else {
             if (off < sizeof line)
                 snprintf(line + off, sizeof line - off, ".");
@@ -2232,8 +2234,10 @@ static int mod_coref(Brain *b, const char *norm, const char *raw,
     if (is_entity_pronoun(a)) {
         if (!b->has_last_entity) {
             char msg[160];
-            snprintf(msg, sizeof msg, "I don't know who %s refers to.", a);
-            put(msg, out, out_size);
+            { const KbResponseSlot _rs[] = { { "a", a } };
+              if (!kb_response_slots(b, "i_don_t_know_who_x_refers_to_2", _rs, 1, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "I don't know who %s refers to.", a);
+              put(msg, out, out_size); }
             return 1;
         }
         put(strcmp(b->last_entity, target) == 0 ? "Yes." : "No.", out, out_size);

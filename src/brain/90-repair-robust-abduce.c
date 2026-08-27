@@ -353,9 +353,10 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
     const char *fargs[] = {arg};
     if (!kb_query(b->kb, pred, fargs, 1)) {
         char msg[200];
-        snprintf(msg, sizeof msg,
-                 "But I don't know that %s is a %s in the first place.", arg, pred);
-        put(msg, out, out_size);
+        { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred } };
+          if (!kb_response_slots(b, "but_i_don_t_know_that_x_is_a_x_in_the_first", _rs, 2, msg, sizeof msg))
+            snprintf(msg, sizeof msg, "But I don't know that %s is a %s in the first place.", arg, pred);
+          put(msg, out, out_size); }
         return 1;
     }
 
@@ -980,8 +981,10 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         if (kb_explain(b->kb, pred, gargs, 1, ex, sizeof ex) && strstr(ex, " because "))
             snprintf(msg, sizeof msg, "I already conclude that: %s.", ex);
         else
-            snprintf(msg, sizeof msg, "I already know that %s is a %s.", arg, pred);
-        put(msg, out, out_size);
+            { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred } };
+              if (!kb_response_slots(b, "i_already_know_that_x_is_a_x", _rs, 2, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "I already know that %s is a %s.", arg, pred);
+              put(msg, out, out_size); }
         return 1;
     }
 
@@ -1179,10 +1182,10 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
             shown++;
         }
         char msg[600];
-        snprintf(msg, sizeof msg,
-                 "There's more than one way: either %s — any one would make %s a %s.",
-                 alts, arg, pred);
-        put(msg, out, out_size);
+        { const KbResponseSlot _rs[] = { { "alts", alts }, { "arg", arg }, { "pred", pred } };
+          if (!kb_response_slots(b, "there_s_more_than_one_way_either_x_any_one_w", _rs, 3, msg, sizeof msg))
+            snprintf(msg, sizeof msg, "There's more than one way: either %s — any one would make %s a %s.", alts, arg, pred);
+          put(msg, out, out_size); }
         return 1;
     }
 

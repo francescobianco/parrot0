@@ -145,3 +145,75 @@ response_template(yes_i_am_parrot0, "Yes, I am parrot0.").
 response_template(i_am_in_character, "I am in character.").
 response_template(that_s_the_start_of_a_question_what_would_yo, "That's the start of a question — what would you like to know?").
 response_template(got_it_what_would_you_like_to_do, "Got it — what would you like to do?").
+
+%% Terza tranche: le frasi CON SLOT. Il buco ha un nome — {topic}, {word},
+%% {verb} — quindi la famiglia si puo' reinsegnare senza perdere il valore che
+%% ci va dentro. Lo snprintf resta sotto come rete se la riga KB sparisce.
+response_template(got_it_your_x_is_x, "Got it: your {thing} is {n}.").
+response_template(got_it_your_x_is_x_2, "Got it: your {disp} is {val}.").
+response_template(i_don_t_know_what_your_x_is_called, "I don't know what your {thing} is called.").
+response_template(got_it_you_x_x, "Got it: you {verb} {val}.").
+response_template(you_told_me_you_feel_x, "You told me you feel {mood}.").
+response_template(i_don_t_know_who_x_refers_to, "I don't know who {word} refers to.").
+response_template(x_is_a_known_fact, "{ex} is a known fact.").
+response_template(i_have_x_measurements_for_both_but_the_units, "I have {dim} measurements for both, but the units differ ({mua} vs {muc}).").
+response_template(they_are_tied_on_x, "They are tied on {dim}.").
+response_template(i_recognize_a_comparison_on_x_but_i_don_t_ha, "I recognize a comparison on {dim}, but I don't have magnitudes for {da} and {dc}.").
+response_template(learned_rule_x_x_x_x, "Learned rule: {cls}(X) :- {subj}(X).").
+response_template(learned_created_by_x_x_x, "Learned: created_by({subj2}, {obj2}, {canon}).").
+response_template(learned_located_in_x_x, "Learned: located_in({subj}, {obj}).").
+response_template(learned_part_of_x_x, "Learned: part_of({subj}, {obj}).").
+response_template(you_haven_t_told_me_your_x_yet, "You haven't told me your {disp} yet.").
+response_template(done_i_ve_let_go_of_your_x, "Done — I've let go of your {slotname}.").
+response_template(learned_holds_x, "Learned: holds({slug}).").
+response_template(you_re_asking_for_a_distinction_between_x_an, "You're asking for a distinction between {da} and {dc}, but I don't have that contrast fact yet.").
+response_template(i_don_t_actually_taste_things_but_it_is_ofte, "I don't actually taste things, but it is often described as {r}.").
+response_template(x_has_no_land_bordering_countries, "{ctry} has no land-bordering countries.").
+response_template(yes_x_is_a_x_the_statement_defines_it_as_one, "Yes -- {X} is a {Y}: the statement defines it as one.{inc}").
+response_template(by_day_the_sky_looks_blue_because_x_near_sun, "By day the sky looks blue because {a}. Near sunset it looks orange or red because {c}.").
+response_template(it_grows_more_x_makes_a_bigger_x_so_its_x_gr, "It grows: more {source} makes a bigger {target}, so its {feature} grows with it.").
+response_template(the_opposite_of_x_is_x_and_someone_who_x_is, "The opposite of {t} is {res}, and someone who {key} is {wrd}.").
+response_template(it_boils_at_x, "It boils at {p}.").
+response_template(i_do_not_know_the_current_x_i_have_no_x_fact, "I do not know the current {w}: I have no {pred} fact or clock/calendar tool. Tell me the {w2}, or give facts I can reason from.").
+response_template(i_do_not_know_the_relation_x_yet_so_i_cannot, "I do not know the relation {rel} yet, so I cannot answer the {rel2} of {obj}. You can teach me with thing is the {rel3} of {obj2}, or give facts/rules to reason from.").
+response_template(i_do_not_know_why_x_is_x_i_have_no_x_x_fact, "I do not know why {subj} is {pred}: I have no {pred2}({subj2}) fact/rule or cause explaining it. Teach me facts or rules, or give me a passage to read.").
+response_template(no_i_have_no_evidence_that_x_is_part_of_x, "No, I have no evidence that {xx} is part of {yy}.").
+response_template(x_is_part_of_x_x, "{x} is part of {ckey}: {cdesc}.").
+response_template(you_might_mean_x_x, "You might mean {ckey}: {cdesc}.").
+response_template(i_don_t_know_anything_about_x, "I don't know anything about {entity}.").
+response_template(because_x_x_and_x_gives_x_that_is_their_x, "Because {verb} {na} and {nb} gives {nr} — that is their {noun}.").
+response_template(the_steps_for_x_have_a_circular_prerequisite, "The steps for {goal} have a circular prerequisite — I can't order them.").
+response_template(x_arrives_first_by_about_x, "{who} arrives first, by about {dur}.").
+response_template(x_miles_per_gallon_a_x_mile_trip_would_need, "{mpgs} miles per gallon; a {trips}-mile trip would need {needs} gallons.").
+response_template(i_don_t_know_the_x_of_x, "I don't know the {w} of {x}.").
+response_template(i_don_t_have_real_desires_but_for_the_prompt, "I don't have real desires, but for the prompt I'd invite {names}, {names2}, and {names3}: {reasons}; {reasons2}; and {reasons3}.").
+response_template(i_have_nothing_to_say_about_x, "I have nothing to say about {x}.").
+response_template(i_don_t_know_who_x_refers_to_2, "I don't know who {a} refers to.").
+response_template(i_rule_over_x, "I rule over {pl}.").
+response_template(my_title_is_x, "My title is {tt}.").
+response_template(i_am_x_years_old, "I am {age} years old.").
+response_template(my_code_is_x, "My code is {code}.").
+response_template(i_work_for_an_x, "I work for an {org}.").
+response_template(my_favorite_color_is_x, "My favorite color is {c}.").
+response_template(i_see_the_analogy_but_i_don_t_know_a_relatio, "I see the analogy, but I don't know a relation linking {A} and {B}.").
+response_template(x_same_relational_pattern_as_x_x_so_x_x, "{answer} — same relational pattern as {demo} ⇒ {dconcl}, so {qj} ⇒ {answer2}.").
+response_template(here_is_everything_i_know_x, "Here is everything I know: {dump}").
+response_template(you_taught_me_x, "You taught me: {dump}").
+response_template(you_mentioned_x, "You mentioned: {list}.").
+response_template(x_i_ran_the_tool_x, "{result}. (I ran the tool: {cmd}.)").
+response_template(i_couldn_t_reach_x_from_x_with_those_operati, "I couldn't reach {tb} from {sb} with those operations.").
+response_template(no_the_rule_x_predicts_x_x_not_x, "No — the rule ({rule}) predicts {ib} -> {pb}, not {tb}.").
+response_template(it_prints_x, "It prints: {show}.").
+response_template(i_predicted_x_but_the_shell_said_x, "I predicted [{predicted}] but the shell said [{actual}].").
+response_template(the_passage_doesn_t_say_anything_about_x, "The passage doesn't say anything about {focus}.").
+response_template(sure_let_s_talk_about_x_what_about_x_is_on_y, "Sure, let's talk about {topic}. What about {topic2} is on your mind?").
+response_template(left_the_x_world, "Left the {nm} world.").
+response_template(forgotten_the_x_world_none_of_it_reached_my, "Forgotten the {nm} world; none of it reached my memory.").
+response_template(opened_the_x_world_tell_me_what_is_true_in_i, "Opened the {wname} world. Tell me what is true in it.").
+response_template(opened_the_x_world_tell_me_what_is_true_in_i_2, "Opened the {name} world. Tell me what is true in it.").
+response_template(but_i_don_t_know_that_x_is_a_x_in_the_first, "But I don't know that {arg} is a {pred} in the first place.").
+response_template(i_already_know_that_x_is_a_x, "I already know that {arg} is a {pred}.").
+response_template(there_s_more_than_one_way_either_x_any_one_w, "There's more than one way: either {alts} — any one would make {arg} a {pred}.").
+response_template(i_can_see_a_x_shape_here_but_the_x_is_missin, "I can see a {sch} shape here, but the {role} is missing.").
+response_template(that_looks_like_a_x_problem_and_i_cannot_sol, "That looks like a {reg} problem, and I cannot solve it yet.").
+response_template(x_i_was_missing_a_piece_and_taught_it_to_mys, "{again}  (I was missing a piece and taught it to myself: {learned})").

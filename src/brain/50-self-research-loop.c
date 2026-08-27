@@ -1522,8 +1522,10 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         char dump[4096];
         if (kb_dump_user(b->kb, dump, sizeof dump)) {
             char msg[4200];
-            snprintf(msg, sizeof msg, "Here is everything I know: %s", dump);
-            put(msg, out, out_size);
+            { const KbResponseSlot _rs[] = { { "dump", dump } };
+              if (!kb_response_slots(b, "here_is_everything_i_know_x", _rs, 1, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "Here is everything I know: %s", dump);
+              put(msg, out, out_size); }
         } else {
             char msg[128];
             snprintf(msg, sizeof msg, "I know %zu fact(s) total.", kb_user_facts(b->kb));
@@ -1592,8 +1594,10 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         char dump[4096];
         if (kb_dump_user(b->kb, dump, sizeof dump)) {
             char msg[4200];
-            snprintf(msg, sizeof msg, "You taught me: %s", dump);
-            put(msg, out, out_size);
+            { const KbResponseSlot _rs[] = { { "dump", dump } };
+              if (!kb_response_slots(b, "you_taught_me_x", _rs, 1, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "You taught me: %s", dump);
+              put(msg, out, out_size); }
         } else {
             kb_say(b, "you_haven_t_taught_me_any_facts_yet", "You haven't taught me any facts yet.", out, out_size);
         }
@@ -1646,8 +1650,10 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                 off += (size_t)snprintf(list + off, sizeof list - off,
                                          "%s%s", i ? ", " : "", b->entities[i]);
             char msg[600];
-            snprintf(msg, sizeof msg, "You mentioned: %s.", list);
-            put(msg, out, out_size);
+            { const KbResponseSlot _rs[] = { { "list", list } };
+              if (!kb_response_slots(b, "you_mentioned_x", _rs, 1, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "You mentioned: %s.", list);
+              put(msg, out, out_size); }
         }
         return 1;
     }

@@ -899,10 +899,10 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
             snprintf(b->current_topic, sizeof b->current_topic, "%s", topic);
             b->has_current_topic = 1;
             char msg[160];
-            snprintf(msg, sizeof msg,
-                     "Sure, let's talk about %s. What about %s is on your mind?",
-                     topic, topic);
-            put(msg, out, out_size);
+            { const KbResponseSlot _rs[] = { { "topic", topic }, { "topic2", topic } };
+              if (!kb_response_slots(b, "sure_let_s_talk_about_x_what_about_x_is_on_y", _rs, 2, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "Sure, let's talk about %s. What about %s is on your mind?", topic, topic);
+              put(msg, out, out_size); }
             return 1;
         }
     }

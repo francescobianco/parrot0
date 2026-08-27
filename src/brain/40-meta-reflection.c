@@ -1197,8 +1197,10 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         }
         if (pl[0]) {
             capitalize(pl);
-            char msg[96]; snprintf(msg, sizeof msg, "I rule over %s.", pl);
-            put(msg, out, out_size); return 1;
+            char msg[96]; { const KbResponseSlot _rs[] = { { "pl", pl } };
+   if (!kb_response_slots(b, "i_rule_over_x", _rs, 1, msg, sizeof msg))
+     snprintf(msg, sizeof msg, "I rule over %s.", pl);
+   put(msg, out, out_size); } return 1;
         }
     }
 
@@ -1215,8 +1217,10 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         }
         if (tt[0]) {
             capitalize(tt);
-            char msg[96]; snprintf(msg, sizeof msg, "My title is %s.", tt);
-            put(msg, out, out_size); return 1;
+            char msg[96]; { const KbResponseSlot _rs[] = { { "tt", tt } };
+   if (!kb_response_slots(b, "my_title_is_x", _rs, 1, msg, sizeof msg))
+     snprintf(msg, sizeof msg, "My title is %s.", tt);
+   put(msg, out, out_size); } return 1;
         }
     }
 
@@ -1224,8 +1228,10 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
     if (cue(buf, "how old") || cue(buf, "quanti anni")) {
         const char *age = role_get_attr(b, "age");
         if (age) {
-            char msg[64]; snprintf(msg, sizeof msg, "I am %s years old.", age);
-            put(msg, out, out_size); return 1;
+            char msg[64]; { const KbResponseSlot _rs[] = { { "age", age } };
+   if (!kb_response_slots(b, "i_am_x_years_old", _rs, 1, msg, sizeof msg))
+     snprintf(msg, sizeof msg, "I am %s years old.", age);
+   put(msg, out, out_size); } return 1;
         }
     }
 
@@ -1233,8 +1239,10 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
     if (cue(buf, "code") || cue(buf, "codice")) {
         const char *code = role_get_attr(b, "code");
         if (code) {
-            char msg[64]; snprintf(msg, sizeof msg, "My code is %s.", code);
-            put(msg, out, out_size); return 1;
+            char msg[64]; { const KbResponseSlot _rs[] = { { "code", code } };
+   if (!kb_response_slots(b, "my_code_is_x", _rs, 1, msg, sizeof msg))
+     snprintf(msg, sizeof msg, "My code is %s.", code);
+   put(msg, out, out_size); } return 1;
         }
     }
 
@@ -1243,8 +1251,10 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         const char *kv[] = { b->role_kind, NULL };
         char org[4][KB_TERM_LEN];
         if (b->role_kind[0] && kb_match(b->kb, "employer", kv, 2, org, 4)) {
-            char msg[96]; snprintf(msg, sizeof msg, "I work for an %s.", org[0]);
-            put(msg, out, out_size); return 1;
+            char msg[96]; { const KbResponseSlot _rs[] = { { "org", org[0] } };
+   if (!kb_response_slots(b, "i_work_for_an_x", _rs, 1, msg, sizeof msg))
+     snprintf(msg, sizeof msg, "I work for an %s.", org[0]);
+   put(msg, out, out_size); } return 1;
         }
     }
 
@@ -1255,8 +1265,10 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         char col[4][KB_TERM_LEN];
         if (b->role_kind[0] && kb_match(b->kb, "likes_color", kv, 2, col, 4)) {
             char c[64]; snprintf(c, sizeof c, "%s", col[0]); capitalize(c);
-            char msg[96]; snprintf(msg, sizeof msg, "My favorite color is %s.", c);
-            put(msg, out, out_size); return 1;
+            char msg[96]; { const KbResponseSlot _rs[] = { { "c", c } };
+   if (!kb_response_slots(b, "my_favorite_color_is_x", _rs, 1, msg, sizeof msg))
+     snprintf(msg, sizeof msg, "My favorite color is %s.", c);
+   put(msg, out, out_size); } return 1;
         }
         /* gen240: no role persona — answer honestly but still PICK a colour from
          * KB (default_color/1) rather than dodging the question. */
@@ -1464,10 +1476,10 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
                  "%s and %s are related by %s, but I don't know that relation for %s.",
                  A, B, linking, C);
     else
-        snprintf(msg, sizeof msg,
-                 "I see the analogy, but I don't know a relation linking %s and %s.",
-                 A, B);
-    put(msg, out, out_size);
+        { const KbResponseSlot _rs[] = { { "A", A }, { "B", B } };
+          if (!kb_response_slots(b, "i_see_the_analogy_but_i_don_t_know_a_relatio", _rs, 2, msg, sizeof msg))
+            snprintf(msg, sizeof msg, "I see the analogy, but I don't know a relation linking %s and %s.", A, B);
+          put(msg, out, out_size); }
     return 1;
 }
 
@@ -1706,9 +1718,10 @@ static int mod_archetype(Brain *b, const char *norm, const char *raw,
     }
 
     char msg[420];
-    snprintf(msg, sizeof msg, "%s — same relational pattern as %s ⇒ %s, so %s ⇒ %s.",
-             answer, demo, dconcl, qj, answer);
-    put(msg, out, out_size);
+    { const KbResponseSlot _rs[] = { { "answer", answer }, { "demo", demo }, { "dconcl", dconcl }, { "qj", qj }, { "answer2", answer } };
+      if (!kb_response_slots(b, "x_same_relational_pattern_as_x_x_so_x_x", _rs, 5, msg, sizeof msg))
+        snprintf(msg, sizeof msg, "%s — same relational pattern as %s ⇒ %s, so %s ⇒ %s.", answer, demo, dconcl, qj, answer);
+      put(msg, out, out_size); }
 
     char proof[420];
     snprintf(proof, sizeof proof,

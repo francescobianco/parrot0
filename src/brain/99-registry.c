@@ -1656,9 +1656,10 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
             char smsg[400];
             const KbResponseSlot ss[] = { {"schema", sch}, {"role", role} };
             if (!kb_response_slots(b, "schema_incomplete", ss, 2, smsg, sizeof smsg))
-                snprintf(smsg, sizeof smsg,
-                         "I can see a %s shape here, but the %s is missing.", sch, role);
-            put(smsg, out, out_size);
+                { const KbResponseSlot _rs[] = { { "sch", sch }, { "role", role } };
+                  if (!kb_response_slots(b, "i_can_see_a_x_shape_here_but_the_x_is_missin", _rs, 2, smsg, sizeof smsg))
+                    snprintf(smsg, sizeof smsg, "I can see a %s shape here, but the %s is missing.", sch, role);
+                  put(smsg, out, out_size); }
             if (b) b->fallbacks++;
             return;
         }
@@ -1697,9 +1698,10 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
             char rmsg[400];
             const KbResponseSlot rs[] = { {"register", reg} };
             if (!kb_response_slots(b, "register_declined", rs, 1, rmsg, sizeof rmsg))
-                snprintf(rmsg, sizeof rmsg,
-                         "That looks like a %s problem, and I cannot solve it yet.", reg);
-            put(rmsg, out, out_size);
+                { const KbResponseSlot _rs[] = { { "reg", reg } };
+                  if (!kb_response_slots(b, "that_looks_like_a_x_problem_and_i_cannot_sol", _rs, 1, rmsg, sizeof rmsg))
+                    snprintf(rmsg, sizeof rmsg, "That looks like a %s problem, and I cannot solve it yet.", reg);
+                  put(rmsg, out, out_size); }
             if (b) b->fallbacks++;
             return;
         }
@@ -1883,10 +1885,10 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
                     const KbResponseSlot sl[] = { {"bridge", learned}, {"answer", again} };
                     if (!kb_response_slots(b, "self_corrected_on_wall", sl, 2,
                                            msg, sizeof msg))
-                        snprintf(msg, sizeof msg,
-                                 "%s  (I was missing a piece and taught it to myself: %s)",
-                                 again, learned);
-                    put(msg, out, out_size);
+                        { const KbResponseSlot _rs[] = { { "again", again }, { "learned", learned } };
+                          if (!kb_response_slots(b, "x_i_was_missing_a_piece_and_taught_it_to_mys", _rs, 2, msg, sizeof msg))
+                            snprintf(msg, sizeof msg, "%s  (I was missing a piece and taught it to myself: %s)", again, learned);
+                          put(msg, out, out_size); }
                     return;
                 }
             }

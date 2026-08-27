@@ -102,8 +102,10 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
         result[--resl] = '\0';
 
     char msg[640];
-    snprintf(msg, sizeof msg, "%s. (I ran the tool: %s.)", result, cmd);
-    put(msg, out, out_size);
+    { const KbResponseSlot _rs[] = { { "result", result }, { "cmd", cmd } };
+      if (!kb_response_slots(b, "x_i_ran_the_tool_x", _rs, 2, msg, sizeof msg))
+        snprintf(msg, sizeof msg, "%s. (I ran the tool: %s.)", result, cmd);
+      put(msg, out, out_size); }
 
     char proof[640];
     snprintf(proof, sizeof proof, "tool call %s = %s", cmd, result);

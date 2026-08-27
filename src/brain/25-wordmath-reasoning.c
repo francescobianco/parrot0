@@ -964,10 +964,10 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
     size_t ndone = 0, norder = 0;
     if (!plan_dfs(b, goal, "", done, &ndone, stack, 0, order, par, &norder, 32)) {
         char msg[128];
-        snprintf(msg, sizeof msg,
-                 "The steps for %s have a circular prerequisite — I can't order them.",
-                 goal);
-        put(msg, out, out_size);
+        { const KbResponseSlot _rs[] = { { "goal", goal } };
+          if (!kb_response_slots(b, "the_steps_for_x_have_a_circular_prerequisite", _rs, 1, msg, sizeof msg))
+            snprintf(msg, sizeof msg, "The steps for %s have a circular prerequisite — I can't order them.", goal);
+          put(msg, out, out_size); }
         return 1;
     }
 
@@ -1538,8 +1538,10 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             } else
                 snprintf(dur, sizeof dur, "%ld minutes", mins);
             char msg[200];
-            snprintf(msg, sizeof msg, "%s arrives first, by about %s.", who, dur);
-            put(msg, out, out_size);
+            { const KbResponseSlot _rs[] = { { "who", who }, { "dur", dur } };
+              if (!kb_response_slots(b, "x_arrives_first_by_about_x", _rs, 2, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "%s arrives first, by about %s.", who, dur);
+              put(msg, out, out_size); }
             store_proof(b, "Compared destination arrival times: departure plus distance divided by speed.");
             return 1;
         }
@@ -2130,10 +2132,10 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             format_num(need, needs, sizeof needs);
             format_num(trip, trips, sizeof trips);
             char msg[220];
-            snprintf(msg, sizeof msg,
-                     "%s miles per gallon; a %s-mile trip would need %s gallons.",
-                     mpgs, trips, needs);
-            put(msg, out, out_size);
+            { const KbResponseSlot _rs[] = { { "mpgs", mpgs }, { "trips", trips }, { "needs", needs } };
+              if (!kb_response_slots(b, "x_miles_per_gallon_a_x_mile_trip_would_need", _rs, 3, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "%s miles per gallon; a %s-mile trip would need %s gallons.", mpgs, trips, needs);
+              put(msg, out, out_size); }
             store_proof(b, "mpg = miles / gallons; fuel = trip / mpg");
             return 1;
         }
@@ -3538,8 +3540,10 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
         }
         if (k == 0) {
             char msg[160];
-            snprintf(msg, sizeof msg, "I don't know the %s of %s.", w[3], x);
-            put(msg, out, out_size);
+            { const KbResponseSlot _rs[] = { { "w", w[3] }, { "x", x } };
+              if (!kb_response_slots(b, "i_don_t_know_the_x_of_x", _rs, 2, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "I don't know the %s of %s.", w[3], x);
+              put(msg, out, out_size); }
             return 1;
         }
         char list[512];

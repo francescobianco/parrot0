@@ -1329,15 +1329,17 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                     /* leave: deactivate but keep the world and its facts alive */
                     if (b->active_world == id) b->active_world = -1;
                     char m[120];
-                    snprintf(m, sizeof m, "Left the %s world.", nm);
-                    put(m, out, out_size);
+                    { const KbResponseSlot _rs[] = { { "nm", nm } };
+                      if (!kb_response_slots(b, "left_the_x_world", _rs, 1, m, sizeof m))
+                        snprintf(m, sizeof m, "Left the %s world.", nm);
+                      put(m, out, out_size); }
                 } else {
                     world_teardown(b, id);
                     char m[140];
-                    snprintf(m, sizeof m,
-                             "Forgotten the %s world; none of it reached my memory.",
-                             nm);
-                    put(m, out, out_size);
+                    { const KbResponseSlot _rs[] = { { "nm", nm } };
+                      if (!kb_response_slots(b, "forgotten_the_x_world_none_of_it_reached_my", _rs, 1, m, sizeof m))
+                        snprintf(m, sizeof m, "Forgotten the %s world; none of it reached my memory.", nm);
+                      put(m, out, out_size); }
                 }
                 return 1;
             }
@@ -1426,9 +1428,10 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                 }
             }
             char m[160];
-            snprintf(m, sizeof m,
-                     "Opened the %s world. Tell me what is true in it.", wname);
-            put(m, out, out_size);
+            { const KbResponseSlot _rs[] = { { "wname", wname } };
+              if (!kb_response_slots(b, "opened_the_x_world_tell_me_what_is_true_in_i", _rs, 1, m, sizeof m))
+                snprintf(m, sizeof m, "Opened the %s world. Tell me what is true in it.", wname);
+              put(m, out, out_size); }
             return 1;
         }
         /* "start/open a world called <name>" / "new world <name>" */
@@ -1454,9 +1457,10 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                     if (id < 0) { put("I can't open another world right now.",
                                       out, out_size); return 1; }
                     char m[160];
-                    snprintf(m, sizeof m,
-                             "Opened the %s world. Tell me what is true in it.", name);
-                    put(m, out, out_size);
+                    { const KbResponseSlot _rs[] = { { "name", name } };
+                      if (!kb_response_slots(b, "opened_the_x_world_tell_me_what_is_true_in_i_2", _rs, 1, m, sizeof m))
+                        snprintf(m, sizeof m, "Opened the %s world. Tell me what is true in it.", name);
+                      put(m, out, out_size); }
                     return 1;
                 }
             }
