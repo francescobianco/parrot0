@@ -350,7 +350,11 @@ lezione, la promozione solo se verde, il rollback atomico, e la genealogia degli
 stati `active`/`superseded`/`failed`/`partial`.  
 *Gate:* una lezione che fallisce le prove non lascia mezza grammatica attiva; ogni
 capacità sa dire da quale lezione discende; il retract di quella lezione la fa
-sparire e non tocca il resto.
+sparire e non tocca il resto.  
+*Nota:* i fatti che servono a questo strato — `fact_source/3`, `reading_fact/2`,
+`utterance/3`, i registri di gap — sono esattamente quelli che oggi finiscono
+nella ricaduta di `/save` e che verrebbe facile scambiare per rumore. M14 non si
+costruisce sopra a un filtro che li butta.
 
 ### 6.3 Quando uno strato si può dichiarare chiuso
 
@@ -522,6 +526,16 @@ Conseguenze operative:
   indipendente; si dichiara il rosso, non lo si usa come lucchetto;
 - il messaggio di commit dice che cosa parrot0 ha imparato e che cosa non ha
   ancora imparato, non soltanto quali file sono cambiati.
+
+E una precisazione che vale quanto la regola: **committare tutto non autorizza a
+filtrare il resto.** Una sessione salva anche fatti che non parlano del mondo —
+il registro della conversazione, la provenienza delle letture, i gap aperti, i
+contatori. La tentazione è chiamarli rumore e toglierli automaticamente al
+salvataggio; è vietato, perché ciò che oggi sembra rumore può essere conoscenza
+di ordine superiore, e un filtro la distrugge prima che qualcuno capisca a che
+cosa serviva. La questione è aperta e sta in
+[`session-and-provenance.md`](../session-and-provenance.md#6-il-rumore-di-sessione--questione-aperta-da-non-chiudere-con-un-filtro):
+finché è aperta, ciò che sembra fuori posto si annota, non si scarta.
 
 ## 12. Milestone
 

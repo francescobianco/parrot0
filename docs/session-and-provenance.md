@@ -139,3 +139,89 @@ contratto completo, inclusi i limiti e l'esempio di espansione, è in
 misto non si dichiara. `meta.p0` tiene sia la grammatica interrogativa sia
 `incompatible/2` — che è conoscenza del mondo per davvero — e marca solo ciò che
 serve.
+
+## 6. Il rumore di sessione — questione aperta, da non chiudere con un filtro
+
+> Nota di F., 2026-08-27. **Non si implementa nulla per gestire il "rumore" di
+> sessione.** Quello che oggi sembra rumore potrebbe essere conoscenza di ordine
+> superiore, e un filtro al momento del salvataggio la distruggerebbe prima che
+> qualcuno capisca a che cosa serviva.
+
+### Il fatto osservato
+
+Una sessione di apprendimento reale
+([`sessione-01`](labs/apprendimento-assistito/sessione-01-conoscenza-vera.md))
+ha salvato 93 clausole. Sette erano fatti sul mondo, cinque erano costruzioni
+imparate parlando. Il resto era di un'altra natura, e due righe sono finite
+dentro file curati accanto a conoscenza del mondo:
+
+```prolog
+turn_counter(18).                                    % in discourse.p0
+gap_source("what orbits saturn?", "what orbits saturn?").  % in meta.p0
+```
+
+Sono state tolte a mano. La domanda non è come toglierle da sole: è **perché
+erano lì**, e se debbano sparire o avere una casa.
+
+### Perché il routing le ha collocate lì
+
+Il save-map instrada su due chiavi — `(predicato, primo_argomento)` e predicato
+con casa univoca. Nessuna delle due sa distinguere un **seme** da uno **stato**:
+`turn_counter(0)` e `turn_counter(1)` stanno in `discourse.p0` come semi del
+contatore, quindi `turn_counter(18)` ha trovato lì la sua casa e ci è andato.
+Ha funzionato esattamente come progettato. Il difetto non è nel meccanismo di
+collocazione, è che **non esiste il posto giusto dove collocarlo**.
+
+### L'ipotesi centrale: non è rumore, è un altro ordine
+
+Molto di ciò che cade nella ricaduta è già conoscenza dichiarata tale altrove:
+
+- `utterance/3` — il registro della conversazione, che dal gen240 è KB
+  interrogabile e non una variabile di C;
+- `fact_source/3` e `reading_fact/2` — la **provenienza**, che il piano
+  dell'apprendimento assistito mette fra i gate di comprensione: una capacità
+  deve sapere da quale lezione discende;
+- `gap_source`, `pending_gap`, `machinery_gap` — il registro di ciò che parrot0
+  **non** sa, che è il materiale di lavoro dell'autocorrezione e che il piano
+  §10 vieta esplicitamente di cancellare;
+- `turn_counter` — oggi un contatore; ma una serie di contatori è una misura
+  della sessione, e la sessione è essa stessa oggetto di conoscenza.
+
+Chiamare "rumore" queste righe significa presupporre che la conoscenza sia
+soltanto quella di primo ordine — sul mondo. Il progetto non può permetterselo:
+la riflessività è la scommessa, e un sistema che sa dire «questa risposta
+l'ho data così, e questa lezione la sostiene» ha bisogno proprio di questi
+fatti.
+
+### Tre ipotesi, nessuna da implementare adesso
+
+1. **Il problema è la casa, non il filtro.** La conoscenza di secondo ordine non
+   va scartata: va messa dove sta con i suoi simili, come è appena successo per
+   `construction_frame/3` con `kb/learning/constructions.p0`. `learned.p0` lo
+   dice già: se la ricaduta cresce, si crea la categoria mancante. La ricaduta è
+   quindi un **indicatore di categorie assenti**, e leggerla come sporcizia
+   spreca il segnale.
+
+2. **La distinzione esiste già e si chiama provenienza.** `file_attribute/1`
+   permette a un file di dichiarare la natura di ciò che introduce. Il giorno in
+   cui il routing vivrà nella registry di provenienza del loader — direzione già
+   scritta nel §4 — la chiave non sarà più «quale file contiene un fatto con
+   questo predicato» ma «quale casa dichiara di ospitare fatti di questa
+   natura». Un seme in un file `machinery` non attirerebbe più uno stato di
+   runtime dentro un file di conoscenza del mondo.
+
+3. **L'ordine potrebbe essere derivabile invece che dichiarato.** Un fatto che
+   parla di un turno, di una lezione o di un'altra clausola è di ordine
+   superiore per la sua *forma*, non per il file in cui si trova. Se questa
+   derivazione si dimostrasse solida, la collocazione diventerebbe una
+   conseguenza della semantica del fatto e non della cronologia di chi l'ha
+   scritto per primo.
+
+### Il vincolo, finché la questione è aperta
+
+Qualunque cosa si faccia, **non si scarta al salvataggio**. Un fatto tolto prima
+di essere capito non lascia traccia, e il piano dell'apprendimento assistito
+chiede il contrario: le strutture secondarie si marcano `superseded`, `failed` o
+`partial` e restano consultabili. Nel frattempo il diff della KB si legge riga
+per riga prima di committare, e ciò che sembra fuori posto si annota qui invece
+di sparire.

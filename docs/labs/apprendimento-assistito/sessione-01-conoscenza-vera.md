@@ -128,10 +128,20 @@ domanda inversa. E `where was galileo galilei born?` mura su `galileo`, perché
 l'entità è stata memorizzata come `galileo_galilei` e la domanda non la
 ricompone.
 
-**`/save` instrada nell'albero curato anche ciò che non è conoscenza.** Sono
+**`/save` instrada nell'albero curato anche fatti di un altro ordine.** Sono
 finiti nei file curati `turn_counter(18)` — un contatore di runtime — e un
 `gap_source/2` del registro di lavoro, accanto ai `gap_source/3` semantici.
-Tolti a mano; il difetto resta.
+Tolti a mano.
+
+Ma chiamarlo «rumore» sarebbe una conclusione affrettata, e per ora è vietato
+automatizzarne la rimozione: quello che oggi sembra scarto può essere conoscenza
+di ordine superiore — il registro della conversazione, la provenienza delle
+letture e i gap aperti sono già dichiarati conoscenza altrove, e M14 si
+costruisce proprio su di essi. L'ipotesi di lavoro è che manchi la **casa**, non
+che avanzi il fatto: è la stessa storia di `construction_frame/3`, che finiva
+nella ricaduta finché non ha avuto `kb/learning/constructions.p0`. La questione
+è aperta in
+[`session-and-provenance.md` §6](../../session-and-provenance.md#6-il-rumore-di-sessione--questione-aperta-da-non-chiudere-con-un-filtro).
 
 ## 5. Bilancio
 
