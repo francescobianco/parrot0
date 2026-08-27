@@ -1386,6 +1386,13 @@ successivo può contenere soltanto `imparare gli scacchi` e il planner riprende
 lo stesso stato per derivare il grafo completo. L'obbligo viene consumato dopo
 la derivazione, così non contamina i turni successivi.
 
+È disponibile inoltre il dominio generico `compensation_recovery`: il dialogo
+può chiedere un piano per compensare un passo mancante e ottenere
+`identify_gap → acquire_missing_evidence → replan_recovery`, con costi, tempi,
+provenienza e budget aggregato dichiarati nella KB. Il piano non conosce il
+dominio concreto finché il contesto non fornisce `failed_plan`, quindi non
+inventa la causa del blocco.
+
 ### Verifica d'uso reale
 
 Una sequenza pulita di cinque turni indipendenti in italiano produce,

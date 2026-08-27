@@ -101,6 +101,34 @@ action_desc(compose_grounded_answer, "compose the answer with its provenance and
 action_desc(compose_grounded_answer, it, "comporre la risposta con provenienza e incertezza").
 plan_given(topic_question).
 
+% Generic compensation plan: diagnose the failed prerequisite, acquire only the
+% missing evidence, then replan. A concrete domain supplies `failed_plan` and
+% can replace any action by asserting new KB members.
+plan_goal(compensation_recovery, recovered_plan).
+goal_cue(compensation_recovery, "compensate a missing step").
+goal_cue(compensation_recovery, "compensare un passo mancante").
+action_yields(identify_gap, gap_known).
+action_needs(identify_gap, failed_plan).
+action_desc(identify_gap, "identify the first unsupported prerequisite in the failed plan").
+action_desc(identify_gap, it, "identificare il primo prerequisito non sostenuto del piano fallito").
+action_cost(identify_gap, 1).
+action_time(identify_gap, 10m).
+action_yields(acquire_missing_evidence, evidence_ready).
+action_needs(acquire_missing_evidence, gap_known).
+action_desc(acquire_missing_evidence, "acquire and replay only the evidence needed for that prerequisite").
+action_desc(acquire_missing_evidence, it, "acquisire e riprodurre solo la prova necessaria per quel prerequisito").
+action_source(acquire_missing_evidence, wikipedia).
+action_cost(acquire_missing_evidence, 2).
+action_time(acquire_missing_evidence, 1h).
+action_yields(replan_recovery, recovered_plan).
+action_needs(replan_recovery, evidence_ready).
+action_desc(replan_recovery, "replan the remaining steps and preserve unaffected work").
+action_desc(replan_recovery, it, "ripianificare i passi restanti e conservare il lavoro non toccato").
+action_cost(replan_recovery, 1).
+action_time(replan_recovery, 20m).
+plan_given(failed_plan).
+plan_budget(compensation_recovery, 4, 1h30m).
+
 % gen259 (Track 5.3): step -> primitive BINDINGS, as knowledge. Walking a derived
 % plan means realizing each step through a mute C capability; WHICH capability
 % realizes WHICH step is a fact, never a C switch on step names:
