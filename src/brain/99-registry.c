@@ -307,6 +307,12 @@ static const Module registry[] = {
     {"piact",     mod_piact},
     {"compose",   mod_compose},
     {"repair",    mod_repair},
+    /* M2: la menzione corre PRIMA del lettore universale. Misurato in italiano:
+     * «il termine sebbene è un marcatore» veniva letto come appartenenza con
+     * soggetto `termine_sebbene`, cioe' la parola di cui si parla finiva
+     * inglobata nel sintagma che la nomina. Chi dichiara di menzionare una
+     * parola deve poterlo fare prima che la frase venga interpretata. */
+    {"mention",   mod_mention},
     {"input",     mod_input},
     /* gen420: la MOSSA prima del contenuto. «forget that my name is franco»
      * contiene un'asserzione che piu' moduli sanno leggere, e ognuno se la

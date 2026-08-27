@@ -1,0 +1,71 @@
+# USO E MENZIONE (M2) — parlare DI una parola invece che usarla.
+#
+# Misurato prima di questo strato: «unless is a condition marker» finisce a
+# muro mentre «glorphs is a relation verb» funziona. Non e' la classe a fare la
+# differenza: `unless` e' un subordinatore, quindi la scansione del sintagma si
+# ferma su di lui e il soggetto resta vuoto. La parola viene consumata dal
+# proprio ruolo grammaticale — e vale per ogni parola-funzione, cioe' proprio
+# quelle di cui un teacher ha bisogno di parlare quando insegna a comprendere.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test una parola funzionale diventa oggetto della lezione]
+# PRIMA: la forma nuda non arriva a destinazione, e non deve fingere di esserci.
+> unless is a condition marker
+<! Learned: condition_marker
+
+# La menzione dichiarata passa, e il fatto parla della PAROLA.
+> the word unless is a condition marker
+< Learned: condition_marker(unless).
+!query condition_marker(unless)
+
+# Le virgolette sono l'altra superficie della stessa meccanica.
+> "whereas" is a contrast marker
+< Learned: contrast_marker(whereas).
+!query contrast_marker(whereas)
+# Il fatto non conserva la citazione: si parla della parola, non del testo.
+!query! contrast_marker("whereas")
+
+[test il marcatore di menzione e' conoscenza e cresce a runtime]
+# PRIMA: `lemma` non e' un marcatore, quindi la frase non e' una menzione. Il
+# lettore generico la prende alla lettera e finisce per parlare del marcatore
+# invece che della parola menzionata — la classe finisce addosso a `lemma`.
+# Non e' un muro: e' esattamente il fallimento silenzioso che la menzione
+# esplicita elimina.
+> the lemma although is a concession marker
+!query! concession_marker(although)
+> "lemma" is a mention_marker
+< Learned: mention_marker(lemma).
+> the lemma although is a concession marker
+< Learned: concession_marker(although).
+!query concession_marker(although)
+
+# ABLAZIONE: tolto il marcatore, quella superficie non menziona piu'.
+!forget mention_marker(lemma)
+> the lemma despite is a concession marker
+<! Learned: concession_marker(despite)
+!query! concession_marker(despite)
+
+[test la menzione non inventa una classe che la KB conosce con altra forma]
+# gen412: `extract_frame/2` e' un pattern piu' una relazione. Dichiararlo come
+# classe unaria sarebbe un successo apparente, che e' peggio di un muro.
+> the word runs_version is an extract_frame
+<~ I know extract_frame with 2 arguments
+!query! extract_frame(runs_version)
+
+[test una frase normale che comincia con un marcatore non e' una menzione]
+> the word of the day is nice
+<! Learned:
+
+[test la menzione vale in italiano senza motore nuovo]
+!set PARROT0_LANG=it
+> il termine sebbene è un marcatore_condizionale
+< Learned: marcatore_condizionale(sebbene).
+!query marcatore_condizionale(sebbene)
+> la parola gatto è un nome
+< Learned: nome(gatto).

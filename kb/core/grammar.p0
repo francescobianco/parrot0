@@ -655,6 +655,19 @@ rule_variable(x). rule_variable(y). rule_variable(z).
 rule_anaphor(they). rule_anaphor(them). rule_anaphor(he). rule_anaphor(she).
 rule_anaphor(it).   rule_anaphor(lui).  rule_anaphor(lei). rule_anaphor(esso).
 
+% ── USO E MENZIONE (M2) ────────────────────────────────────────────────────
+%
+% Come si annuncia che si sta parlando DI una parola invece che usarla. Serve
+% perche' una parola-funzione viene altrimenti consumata dal proprio ruolo:
+% «unless is a condition marker» si ferma sul subordinatore prima di avere un
+% soggetto. Le virgolette sono l'altra superficie, ed e' meccanica pura.
+%
+% Un marcatore nuovo — in questa o in un'altra lingua — e' una riga, non una
+% ricompilazione.
+machinery(mention_marker).
+mention_marker(word).    mention_marker(term).
+mention_marker(parola).  mention_marker(termine).  mention_marker(vocabolo).
+
 % Dove finiscono antecedente, conseguente e alternativa. `logic_connector/2`
 % e' la sorgente unica: il parser delle regole vede le due viste storiche,
 % mentre il producer universale puo' costruire un piano a tre span. Una lingua
@@ -831,6 +844,10 @@ clause_copula(are).
 clause_copula(was).
 clause_copula(were).
 clause_copula(e').
+% La forma accentata e' un membro come gli altri: il turno di chat non passa
+% sempre dalla riscrittura che produce `e'`, e una classe non deve dipendere da
+% quale normalizzazione ha toccato la frase prima.
+clause_copula(è).
 clause_copula(sono).
 clause_copula(era).
 clause_copula(erano).

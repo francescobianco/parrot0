@@ -4168,6 +4168,141 @@ static size_t class_known_arity(Brain *b, const char *cls) {
     return 0;
 }
 
+/* USO E MENZIONE (M2) — parlare DI una parola, non con quella parola.
+ *
+ * Misurato: «unless is a condition marker» finisce a muro, mentre «glorphs is a
+ * relation verb» funziona. La differenza non e' la classe: e' che `unless` e'
+ * un subordinatore, quindi la scansione del sintagma si ferma SU di lui e il
+ * soggetto resta vuoto. La parola viene consumata dal proprio ruolo
+ * grammaticale prima che si possa dire qualcosa su di lei — ed e' il caso di
+ * ogni parola-funzione, cioe' proprio quelle di cui un teacher ha piu' bisogno
+ * di parlare quando insegna a comprendere.
+ *
+ * La menzione e' un atto, e ha due superfici meccaniche: le VIRGOLETTE, e un
+ * marcatore dichiarato in KB (`mention_marker/1`: word, term, parola, …). Il C
+ * conosce solo queste due meccaniche — dove comincia e finisce un token
+ * quotato, e che il marcatore lo prende dalla KB. Non conosce nessun
+ * marcatore, nessuna classe e nessuna parola menzionabile.
+ *
+ * Dentro una menzione i confini di sintagma non valgono: e' il punto. Restano
+ * invece i cancelli che impediscono il successo apparente — una classe che la
+ * KB conosce gia' con un'altra arita' viene rifiutata come altrove. */
+static int p0_mention_marker(Brain *b, const char *t) {
+    if (!b || !b->kb || !t || !*t) return 0;
+    char buf[KB_TERM_LEN]; snprintf(buf, sizeof buf, "%s", t);
+    const char *q[1] = { strip_edge_punct(buf) };
+    return kb_query(b->kb, "mention_marker", q, 1);
+}
+
+/* Un token e' una menzione se e' racchiuso fra virgolette. La superficie
+ * conservata e' quella nuda: il fatto parla della parola, non della citazione. */
+static int p0_quoted_token(const char *t, char *out, size_t outsz) {
+    if (!t || !out) return 0;
+    size_t l = strlen(t);
+    if (l < 3) return 0;
+    char open = t[0];
+    if (open != '"' && open != '\'') return 0;
+    if (t[l - 1] != open) return 0;
+    if (l - 2 >= outsz) return 0;
+    memcpy(out, t + 1, l - 2); out[l - 2] = '\0';
+    return out[0] != '\0';
+}
+
+/* Un determinante, in qualunque lingua la KB descriva. Oltre alle tre classi
+ * inglesi c'e' `article/4` — genere, elisione e definitezza degli articoli
+ * italiani — che qui interessa solo per la sua ultima colonna: la superficie.
+ * Nessun articolo e' nominato nel motore. */
+static int p0_any_determiner(Brain *b, const char *t) {
+    if (!b || !b->kb || !t || !*t) return 0;
+    if (p0_lead_det(b, t) || is_article(b, t) || is_definite_article(b, t))
+        return 1;
+    char buf[KB_TERM_LEN]; snprintf(buf, sizeof buf, "%s", t);
+    const char *q[4] = { NULL, NULL, NULL, buf };
+    char row[1][KB_TERM_LEN];
+    return kb_match(b->kb, "article", q, 4, row, 1) > 0;
+}
+
+static int mod_mention(Brain *b, const char *norm, const char *raw,
+                       char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    size_t L = strlen(norm);
+    if (L < 5 || L >= 400 || norm[L - 1] == '?') return 0;
+
+    char s[400]; memcpy(s, norm, L + 1);
+    char *w[32]; size_t n = split_words(s, w, 32);
+    if (n < 4) return 0;
+
+    size_t i = 0;
+    char mentioned[KB_TERM_LEN] = "";
+    if (p0_quoted_token(w[0], mentioned, sizeof mentioned)) {
+        i = 1;
+    } else {
+        /* Il determinante davanti al marcatore e' facoltativo e vive in tre
+         * classi KB gia' esistenti; nessuna delle tre e' nominata qui. */
+        if (p0_any_determiner(b, w[i])) i++;
+        if (i >= n || !p0_mention_marker(b, w[i])) return 0;
+        i++;
+        if (i >= n) return 0;
+        if (!p0_quoted_token(w[i], mentioned, sizeof mentioned)) {
+            char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", w[i]);
+            snprintf(mentioned, sizeof mentioned, "%s", strip_edge_punct(tb));
+        }
+        i++;
+    }
+    if (!mentioned[0] || strchr(mentioned, ' ')) return 0;
+
+    /* Quale parola sia una copula e' conoscenza (`clause_copula/1`), e vale gia'
+     * per l'italiano: il motore non nomina nessun verbo essere, e una lingua
+     * nuova costa una riga di KB. */
+    {
+        if (i >= n) return 0;
+        /* La forma NUDA si interroga per prima: `strip_edge_punct` ragiona in
+         * byte e su una copula accentata come «è» cancella l'intero token. Una
+         * meccanica di bordo non deve poter far sparire una parola. */
+        char cb[KB_TERM_LEN];
+        snprintf(cb, sizeof cb, "%s", w[i]);
+        const char *rawq[1] = { cb };
+        int is_cop = kb_query(b->kb, "clause_copula", rawq, 1);
+        if (!is_cop) {
+            char sb[KB_TERM_LEN];
+            snprintf(sb, sizeof sb, "%s", w[i]);
+            const char *sq[1] = { strip_edge_punct(sb) };
+            is_cop = sq[0][0] && kb_query(b->kb, "clause_copula", sq, 1);
+        }
+        if (!is_cop) return 0;
+    }
+    i++;
+    if (i < n && p0_any_determiner(b, w[i])) i++;
+    if (i >= n) return 0;
+
+    char cls[KB_TERM_LEN];
+    if (!p0_join(w, i, n, cls, sizeof cls)) return 0;
+    if (!p0_atom_within_cap(b, cls)) return 0;
+
+    size_t known = class_known_arity(b, cls);
+    if (known > 1) {
+        char msg[256];
+        snprintf(msg, sizeof msg,
+                 "I know %s with %zu arguments, so I cannot use it as a class.",
+                 cls, known);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_SESSION);
+    const char *ca[] = { mentioned };
+    int fresh = kb_assert(b->kb, cls, ca, 1);
+    if (fresh) p0_learn_source(b, cls, ca, 1, raw && *raw ? raw : norm);
+    kb_set_origin(b->kb, prev);
+
+    char msg[256];
+    snprintf(msg, sizeof msg, fresh ? "Learned: %s(%s)." : "%s(%s) is a known fact.",
+             cls, mentioned);
+    put(msg, out, out_size);
+    return 1;
+}
+
 static int extract_class_statement(Brain *b, const char *norm,
                                    char *out, size_t out_size, int extract_only) {
     if (!b || !b->kb) return 0;
