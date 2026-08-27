@@ -1352,7 +1352,9 @@ deriva tre passi (`learn_rules → study_openings → practice_games`) da
 precondizioni e artefatti, senza una risposta speciale sugli scacchi. La
 semantica è quindi viva nel dialogo. Il renderer generico cerca ora
 `action_desc/3` nella lingua d’uscita e ricade su `action_desc/2`; il dominio
-degli scacchi fornisce le tre descrizioni italiane, senza un ramo C dedicato.
+degli scacchi fornisce le tre descrizioni italiane e la relazione
+`action_source/2`; la risposta annota `[wikipedia]` sui passi sostenuti dalla
+fonte, senza un ramo C dedicato.
 
 ### Ipotesi H446
 
