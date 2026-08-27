@@ -635,6 +635,8 @@ intent_cue(smalltalk_continue, "anche tu").
 intent_cue(smalltalk_continue, "preferisci").
 intent_cue(smalltalk_continue, "secondo te").
 intent_cue(smalltalk_continue, "che ne pensi").
+intent_cue(smalltalk_continue, "che cosa possiamo fare insieme").
+intent_cue(smalltalk_continue, "what can we do together").
 intent_cue(smalltalk_continue, "c'è un").
 intent_cue(smalltalk_continue, "c e un").
 intent_cue(smalltalk_continue, "hai un").
@@ -828,6 +830,8 @@ intent_cue(50_self_research_loop_chain40, "comporre").
 intent_cue(50_self_research_loop_chain40, "composizione").
 intent_cue(50_self_research_loop_chain40, "cooperano").
 intent_cue(50_self_research_loop_chain40, "insieme").
+intent_cue(50_self_research_loop_chain40, "what can we do together").
+intent_cue(50_self_research_loop_chain40, "che cosa possiamo fare insieme").
 intent_cue(50_self_research_loop_chain50, "dialogue").
 intent_cue(50_self_research_loop_chain50, "dialog").
 intent_cue(50_self_research_loop_chain50, "transcript").
