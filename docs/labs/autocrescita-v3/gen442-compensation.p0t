@@ -1,0 +1,27 @@
+# GEN442 — IL PIANO DI COMPENSAZIONE E' KB, NON SEQUENZA C.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=docs/labs/autocrescita-v3/gen442-compensation.p0
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=it
+!reset
+
+[test internal and source plans retain canonical steps and language bounds]
+!query compensation_plan(internal_case, answer(height), $Plan)
+!query compensation_plan_complete(internal_case)
+!query compensation_plan(source_case, answer(climate), $SourcePlan)
+!query compensation_plan_complete(source_case)
+!query compensation_plan_step(source_case, 2, step(read_source, identity_resolved, source_read, meta(3, wikipedia_revision)))
+
+[test missing obligation has an explicit clarification stop]
+!query compensation_stop(clarify_case, no_steps)
+!query! compensation_plan_complete(clarify_case)
+
+[test runtime recipe growth changes the plan without rebuild]
+!assert compensation_obligation(runtime_case, answer(mass), language(en, it))
+!assert compensation_step(runtime_case, 1, step(resolve_alias, unknown, identity_resolved, 1))
+!query compensation_plan_complete(runtime_case)
+!forget compensation_step(runtime_case, 1, step(resolve_alias, unknown, identity_resolved, 1))
+!query! compensation_plan_complete(runtime_case)

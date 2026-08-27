@@ -1069,6 +1069,16 @@ compensazione si insegnano come schemi, senza modificare l'esecutore.
 
 ---
 
+### Evidenza Gen442
+
+Il profilo `gen442-compensation.p0` e l'esperimento associato passano **9
+proprietà**. Un obbligo interno e uno con `read_source → replay` producono
+passi canonici con precondizioni, effetti, costi, dipendenze e supporto
+Wikipedia; un obbligo senza ricetta produce `compensation_stop(no_steps)`. Una
+ricetta aggiunta e poi ritratta a runtime apre e chiude il piano senza
+ricompilare. Questo è il primo consumer dichiarativo degli arresti; la verifica
+dell'effetto terminale su ogni passo resta il lavoro di completamento H442.
+
 ## gen443 — Promozione minima, quarantena e rollback causale
 
 ### Ipotesi H443

@@ -1,0 +1,19 @@
+% Gen442 profile: recipes are data, not C branches.
+machinery(compensation_obligation).
+machinery(compensation_step).
+machinery(compensation_dependency).
+machinery(source_support).
+compensation_obligation(internal_case, answer(height), language(it, it)).
+compensation_step(internal_case, 1, step(resolve_alias, unknown, identity_resolved, 1)).
+compensation_step(internal_case, 2, step(derive_answer, identity_resolved, answer_ready, 2)).
+compensation_dependency(internal_case, 1, 2).
+
+compensation_obligation(source_case, answer(climate), language(it, en)).
+compensation_step(source_case, 1, step(resolve_alias, unknown, identity_resolved, 1)).
+compensation_step(source_case, 2, step(read_source, identity_resolved, source_read, 3)).
+compensation_step(source_case, 3, step(replay, source_read, answer_ready, 1)).
+source_support(source_case, 2, wikipedia_revision).
+compensation_dependency(source_case, 1, 2).
+compensation_dependency(source_case, 2, 3).
+
+compensation_obligation(clarify_case, answer(unknown_relation), language(en, it)).

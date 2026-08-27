@@ -52,6 +52,13 @@ machinery(turn_arrest_ambiguous).
 machinery(turn_first_arrest).
 machinery(turn_arrest_complete).
 machinery(turn_compensation_obligation).
+machinery(compensation_obligation).
+machinery(compensation_step).
+machinery(compensation_dependency).
+machinery(compensation_plan).
+machinery(compensation_plan_step).
+machinery(compensation_plan_complete).
+machinery(compensation_stop).
 
 % ── 1. CONTESTO LINGUISTICO E TERMINE, SENZA SCELTE NEL C ─────────────────
 %
@@ -325,3 +332,35 @@ turn_arrest_complete($Turn) :-
 turn_compensation_obligation($Turn, $Languages, $Goal) :-
     turn_arrest_complete($Turn),
     turn_first_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)).
+
+% Gen442 — piano di compensazione come grafo KB. Le coordinate del turno sono
+% separate dal concetto canonico: la realizzazione puo' cambiare lingua senza
+% cambiare passi, prerequisiti o costi. Il piano e' ammissibile solo se ogni
+% passo dichiarato esiste e ogni dipendenza punta a un passo dello stesso turno.
+compensation_plan_step($Turn, $Index, step($Action, $Pre, $Effect, meta($Cost, $Support))) :-
+    compensation_step($Turn, $Index, step($Action, $Pre, $Effect, $Cost)),
+    eq($Support, local).
+compensation_plan_step($Turn, $Index, step($Action, $Pre, $Effect, meta($Cost, $Support))) :-
+    compensation_step($Turn, $Index, step($Action, $Pre, $Effect, $Cost)),
+    source_support($Turn, $Index, $Support).
+
+compensation_plan($Turn, $Goal, plan($Goal, $Steps)) :-
+    compensation_obligation($Turn, $Goal, language($InputLanguage, $OutputLanguage)),
+    findall(step($Index, $Action, $Pre, $Effect, meta($Cost, $Support)),
+            compensation_plan_step($Turn, $Index, step($Action, $Pre, $Effect, meta($Cost, $Support))),
+            $Steps).
+
+compensation_plan_complete($Turn) :-
+    compensation_obligation($Turn, $Goal, language($InputLanguage, $OutputLanguage)),
+    compensation_step($Turn, 1, $Step).
+
+% Uno stop informativo evita di chiudere il turno quando mancano tutti i passi
+% o una dipendenza dichiarata. La contabilità resta interrogabile dalla KB.
+compensation_stop($Turn, no_steps) :-
+    compensation_obligation($Turn, $Goal, language($InputLanguage, $OutputLanguage)),
+    compensation_plan($Turn, $Goal, plan($Goal, nil)).
+compensation_stop($Turn, missing_dependency($Before, $After)) :-
+    compensation_obligation($Turn, $Goal, language($InputLanguage, $OutputLanguage)),
+    compensation_dependency($Turn, $Before, $After),
+    naf(compensation_step($Turn, $Before, $StepBefore)),
+    naf(compensation_step($Turn, $After, $StepAfter)).
