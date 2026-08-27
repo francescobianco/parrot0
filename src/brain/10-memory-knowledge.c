@@ -1818,9 +1818,10 @@ static size_t auto_induce(Brain *b, char *out, size_t out_size) {
 
 /* Admit ignorance about a predicate we've never heard of (gen16 scaffold;
  * see DESIGN.md D6 — to become emergent meta-knowledge). */
-static void idk(const char *pred, char *out, size_t out_size) {
+static void idk(Brain *b, const char *pred, char *out, size_t out_size) {
     char msg[160];
-    snprintf(msg, sizeof msg, "I don't know about %s.", pred);
+    {   const KbResponseSlot _rs[] = { { "pred", pred } };
+      kb_term_say(b, "i_don_t_know_about_x", _rs, 1, msg, sizeof msg); }
     put(msg, out, out_size);
 }
 
@@ -10712,7 +10713,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
         *colon = '\0';
         const char *cls = trim_mut(choice_start);
-        if (!kb_knows_pred(b->kb, cls)) { idk(cls, out, out_size); return 1; }
+        if (!kb_knows_pred(b->kb, cls)) { idk(b, cls, out, out_size); return 1; }
 
         char *choices = colon + 1;
         char list[512];
@@ -12382,7 +12383,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *slot_q[] = { w[0], NULL };
         if (kb_match(b->kb, "asks_slot", slot_q, 2, slot, 1) == 1 &&
             lex_class_member(b, "10_memory_knowledge_lex12406", w[1])) {
-            if (!kb_knows_pred(b->kb, rel)) { idk(rel, out, out_size); return 1; }
+            if (!kb_knows_pred(b->kb, rel)) { idk(b, rel, out, out_size); return 1; }
             const char *subj_pat[] = {NULL, obj};   /* rel(X, y) — asks the 1st arg */
             const char *obj_pat[]  = {obj, NULL};   /* rel(y, X) — asks the 2nd arg */
             const char *const *pat =
@@ -12405,7 +12406,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (lex_class_member(b, "10_memory_knowledge_lex12427", w[0])) {
             const char *subj = w[1];
             const char *args[] = {subj, obj};
-            if (!kb_knows_pred(b->kb, rel)) idk(rel, out, out_size);
+            if (!kb_knows_pred(b->kb, rel)) idk(b, rel, out, out_size);
             else if (kb_is_conflicted(b->kb, rel, args, 2))
                 kb_term_say(b, "conflicted", NULL, 0, out, out_size);
             else put(kb_query(b->kb, rel, args, 2) ? "Yes." : "No.",
@@ -12612,7 +12613,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
              * offers to). "who is a <X>?" stays a member query, so it keeps the
              * gen16 idk wall ("Nobody that I know of." is the known-but-empty case). */
             if (lex_class_member(b, "10_memory_knowledge_lex12636", w[0])) return 0;
-            idk(cls, out, out_size); return 1;
+            idk(b, cls, out, out_size); return 1;
         }
         const char *pat[] = {NULL}; /* one variable in arg 0 */
         char hits[96][KB_TERM_LEN];
@@ -12637,7 +12638,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *subj;
         if (!resolve_entity(b, w[1], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
-        if (!kb_knows_pred(b->kb, cls)) idk(cls, out, out_size);
+        if (!kb_knows_pred(b->kb, cls)) idk(b, cls, out, out_size);
         else if (kb_is_conflicted(b->kb, cls, args, 1)) {
             kb_term_say(b, "conflicted", NULL, 0, out, out_size);
             char ex[512];
@@ -12657,7 +12658,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *subj;
         if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
-        if (!kb_knows_pred(b->kb, cls)) idk(cls, out, out_size);
+        if (!kb_knows_pred(b->kb, cls)) idk(b, cls, out, out_size);
         else if (kb_is_conflicted(b->kb, cls, args, 1)) put("Conflicted.", out, out_size);
         else polar_class_answer(b, subj, cls, out, out_size);
         remember_entity(b, w[0], subj);

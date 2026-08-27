@@ -423,15 +423,16 @@ static int piact_obs(Brain *b, char *const *argv, const char *label,
  * relative form that the resolution actually produced — never the user's spelling.
  * If it escapes, parrot0 declines by NAME (`unsafe_path`) and claims the turn: a
  * precise decline is green, a quiet look outside the repository is not. */
-static int piact_dir(const char *dir, char *rel, size_t cap,
+static int piact_dir(Brain *b, const char *dir, char *rel, size_t cap,
                      char *out, size_t out_size, int *claimed) {
     *claimed = 0;
     if (!dir || !pathish_token(dir)) { snprintf(rel, cap, "."); return 1; }
     if (p0_safe_rel(dir, 1, rel, cap) != P0_OK) {
         char m[600];
-        snprintf(m, sizeof m,
-                 "unsafe_path: `%s` is not a directory inside my workspace (%s), "
-                 "so I did not look there.", dir, p0_root());
+        { 
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%s", p0_root());
+  const KbResponseSlot _rs[] = { { "dir", dir }, { "p0_root", _v1 } };
+          kb_term_say(b, "unsafe_path_x_is_not_a_directory_inside_my_w", _rs, 2, m, sizeof m); }
         put(m, out, out_size);
         *claimed = 1;
         return 0;
@@ -508,7 +509,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         snprintf(patbuf, sizeof patbuf, "%s", pat);
         const char *dir = find_dir(w, nw);
         char dirbuf[256]; int claimed;
-        if (!piact_dir(dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
+        if (!piact_dir(b, dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
 
         /* KB-FIRST: when the target is a bare code identifier, answer by STRUCTURE,
          * not by text. code_locate / code_find_callers are the very localizers that
@@ -571,7 +572,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         if (!pathish_token(name)) return 0;
         const char *dir = find_dir(w, nw);
         char dirbuf[256]; int claimed;
-        if (!piact_dir(dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
+        if (!piact_dir(b, dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
         char *fargv[] = {(char*)"find", dirbuf, (char*)"-name", (char*)name, NULL};
         char label[200]; snprintf(label, sizeof label, "Found `%s`", name);
         return piact_obs(b, fargv, label, out, out_size);
@@ -581,7 +582,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
     if (want_list) {
         const char *dir = find_dir(w, nw);
         char dirbuf[256]; int claimed;
-        if (!piact_dir(dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
+        if (!piact_dir(b, dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
         char glob[64]; int has_glob = detect_glob(low, glob, sizeof glob);
         char label[200];
         char *largv_glob[] = {(char*)"find", dirbuf, (char*)"-maxdepth", (char*)"1",

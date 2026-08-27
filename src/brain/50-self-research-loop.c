@@ -193,7 +193,7 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
                 "Here is a held-out dialogue I would run (fresh names; an external agent fills and runs it, I do not):");
             for (size_t k = 0; k < picked; k++) {
                 char trn[256];
-                build_turn(core[pick[k]].key, compose_vocab[0], trn, sizeof trn);
+                build_turn(b, core[pick[k]].key, compose_vocab[0], trn, sizeof trn);
                 o += (size_t)snprintf(msg + o, sizeof msg - o, " > %s", trn);
             }
             put(msg, out, out_size);

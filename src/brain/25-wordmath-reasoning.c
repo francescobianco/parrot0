@@ -3661,7 +3661,7 @@ static int mod_conj(Brain *b, const char *norm, const char *raw,
     if (nw == 7 && lex_class_member(b, "25_wordmath_reasoning_lex3610", w[0]) && lex_class_member(b, "25_wordmath_reasoning_lex3610_2", w[2]) &&
         lex_class_member(b, "25_wordmath_reasoning_lex3611", w[4]) && is_article(b, w[5])) {
         const char *z = w[6], *x = w[1], *y = w[3];
-        if (!kb_knows_pred(b->kb, z)) { idk(z, out, out_size); return 1; }
+        if (!kb_knows_pred(b->kb, z)) { idk(b, z, out, out_size); return 1; }
         const char *ax[] = {x}, *ay[] = {y};
         int yes = kb_query(b->kb, z, ax, 1) && kb_query(b->kb, z, ay, 1);
         put(yes ? "Yes." : "No.", out, out_size);
@@ -3672,8 +3672,8 @@ static int mod_conj(Brain *b, const char *norm, const char *raw,
     if (nw == 8 && lex_class_member(b, "25_wordmath_reasoning_lex3621", w[0]) && lex_class_member(b, "25_wordmath_reasoning_lex3621_2", w[2]) &&
         is_article(b, w[3]) && lex_class_member(b, "25_wordmath_reasoning_lex3622", w[5]) && is_article(b, w[6])) {
         const char *x = w[1], *y = w[4], *z = w[7];
-        if (!kb_knows_pred(b->kb, y)) { idk(y, out, out_size); return 1; }
-        if (!kb_knows_pred(b->kb, z)) { idk(z, out, out_size); return 1; }
+        if (!kb_knows_pred(b->kb, y)) { idk(b, y, out, out_size); return 1; }
+        if (!kb_knows_pred(b->kb, z)) { idk(b, z, out, out_size); return 1; }
         const char *a[] = {x};
         int yes = kb_query(b->kb, y, a, 1) && kb_query(b->kb, z, a, 1);
         put(yes ? "Yes." : "No.", out, out_size);

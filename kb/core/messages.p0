@@ -565,3 +565,15 @@ response_template(learning_whether_x_is_a_x_at_all_right_now_i, "Learning whethe
 response_template(i_have_no_rule_that_would_make_anything_a_x, "I have no rule that would make anything a {pred}, so I can't say what would.").
 response_template(the_easiest_way_is_to_tell_me_that_x_x_missi, "The easiest way is to tell me that {need} — {best_n} missing premise{s} via {best_rule} -> {pred}.").
 response_template(that_s_just_the_number_x_with_nothing_to_do, "That's just the number {shown} with nothing to do — what would you like me to do with it?").
+
+%% Settima tranche: i messaggi che contengono NUMERI. Il valore diventa testo
+%% prima di entrare nello slot, cosi' anche «ho letto 3 fatti» e' una frase che
+%% si puo' reinsegnare senza toccare il conteggio.
+
+response_template(i_don_t_know_about_x, "I don't know about {pred}.").
+response_template(why_isn_t_x_a_x_x_is_x, "why isn't {name} a {cls}? > {name2} is {adj}").
+response_template(how_robust_is_that_conclusion, "how robust is that conclusion?").
+response_template(is_x_a_x_how_sure_are_you, "is {name} a {cls}? > how sure are you?").
+response_template(x_causes_floods_what_does_x_cause, "{noun} causes floods > what does {noun2} cause?").
+response_template(5_is_greater_than_3_which_is_greater_5_or_3, "5 is greater than 3 > which is greater, 5 or 3?").
+response_template(unsafe_path_x_is_not_a_directory_inside_my_w, "unsafe_path: `{dir}` is not a directory inside my workspace ({p0_root}), so I did not look there.").

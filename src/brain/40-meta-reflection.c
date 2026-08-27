@@ -2041,26 +2041,31 @@ static const char *const compose_vocab[][4] = {
 /* Build the runnable `>`-separated turn fragment for one composable part with a
  * given vocab tuple. Parts outside the analytical schema use fixed vocab. The
  * fragments are the same whether displayed (skeleton) or executed (self-test). */
-static void build_turn(const char *key, const char *const v[4],
+static void build_turn(Brain *b, const char *key, const char *const v[4],
                        char *dst, size_t size) {
     const char *adj = v[0], *noun = v[1], *cls = v[2], *name = v[3];
     if (!strcmp(key, "knowledge"))
         snprintf(dst, size, "every %s %s is a %s > %s is a %s > is %s a %s?",
                  adj, noun, cls, name, noun, name, cls);
     else if (!strcmp(key, "abduce"))
-        snprintf(dst, size, "why isn't %s a %s? > %s is %s", name, cls, name, adj);
+        {   const KbResponseSlot _rs[] = { { "name", name }, { "cls", cls }, { "name2", name }, { "adj", adj } };
+          kb_term_say(b, "why_isn_t_x_a_x_x_is_x", _rs, 4, dst, size); }
     else if (!strcmp(key, "robust"))
-        snprintf(dst, size, "how robust is that conclusion?");
+        {   const KbResponseSlot _rs[] = { { "x", "" } };
+          kb_term_say(b, "how_robust_is_that_conclusion", _rs, 0, dst, size); }
     else if (!strcmp(key, "calibrate"))
-        snprintf(dst, size, "is %s a %s? > how sure are you?", name, cls);
+        {   const KbResponseSlot _rs[] = { { "name", name }, { "cls", cls } };
+          kb_term_say(b, "is_x_a_x_how_sure_are_you", _rs, 2, dst, size); }
     else if (!strcmp(key, "memory"))
         snprintf(dst, size, "my name is %s > what is my name?", name);
     else if (!strcmp(key, "coref"))
         snprintf(dst, size, "%s is a %s > is he a %s?", name, cls, cls);
     else if (!strcmp(key, "cause"))
-        snprintf(dst, size, "%s causes floods > what does %s cause?", noun, noun);
+        {   const KbResponseSlot _rs[] = { { "noun", noun }, { "noun2", noun } };
+          kb_term_say(b, "x_causes_floods_what_does_x_cause", _rs, 2, dst, size); }
     else if (!strcmp(key, "compare"))
-        snprintf(dst, size, "5 is greater than 3 > which is greater, 5 or 3?");
+        {   const KbResponseSlot _rs[] = { { "x", "" } };
+          kb_term_say(b, "5_is_greater_than_3_which_is_greater_5_or_3", _rs, 0, dst, size); }
     else
         snprintf(dst, size, " ");
 }
@@ -2081,7 +2086,7 @@ static size_t run_composition(const char *const keys[], const char *const sigs[]
     if (observed && obs_size) observed[0] = '\0';
     for (size_t k = 0; k < n; k++) {
         char trn[256];
-        build_turn(keys[k], v, trn, sizeof trn);
+        build_turn(sub, keys[k], v, trn, sizeof trn);
         int part_fired = 0;
         char *p = trn;                    /* split on " > ", run each sub-turn */
         while (p && *p) {
