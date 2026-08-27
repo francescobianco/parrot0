@@ -71,6 +71,29 @@ action_desc(practice_games, it, "giocare partite brevi e rivedere minacce, sicur
 action_source(practice_games, wikipedia).
 plan_given(chess_basics).
 
+% Generic epistemic plan: acquire information before answering when the request
+% explicitly requires grounding. The topic remains an open parameter; only the
+% causal artefacts and their dependencies are declared here.
+plan_goal(grounded_answer, verified_answer).
+goal_cue(grounded_answer, "answer with sources").
+goal_cue(grounded_answer, "rispondi con fonti").
+goal_cue(grounded_answer, "rispondere con fonti").
+action_yields(read_wikipedia, source_notes).
+action_needs(read_wikipedia, topic_question).
+action_desc(read_wikipedia, "read the relevant Wikipedia entry and retain its cited span").
+action_desc(read_wikipedia, it, "leggere la voce Wikipedia pertinente e conservarne lo span citato").
+action_source(read_wikipedia, wikipedia).
+action_yields(check_claim, checked_claim).
+action_needs(check_claim, source_notes).
+action_desc(check_claim, "replay the claim against the requested question and its source span").
+action_desc(check_claim, it, "riprodurre la claim contro la domanda e lo span della fonte").
+action_source(check_claim, wikipedia).
+action_yields(compose_grounded_answer, verified_answer).
+action_needs(compose_grounded_answer, checked_claim).
+action_desc(compose_grounded_answer, "compose the answer with its provenance and uncertainty").
+action_desc(compose_grounded_answer, it, "comporre la risposta con provenienza e incertezza").
+plan_given(topic_question).
+
 % gen259 (Track 5.3): step -> primitive BINDINGS, as knowledge. Walking a derived
 % plan means realizing each step through a mute C capability; WHICH capability
 % realizes WHICH step is a fact, never a C switch on step names:

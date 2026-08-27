@@ -1355,6 +1355,13 @@ semantica è quindi viva nel dialogo. Il renderer generico cerca ora
 degli scacchi fornisce le tre descrizioni italiane e la relazione
 `action_source/2`; la risposta annota `[wikipedia]` sui passi sostenuti dalla
 fonte, senza un ramo C dedicato.
+
+Il dominio `grounded_answer` in `kb/experts/codebase/actions.p0` rende esplicita
+anche l'azione informativa: `read_wikipedia → check_claim →
+compose_grounded_answer`, con artefatti, provenienza e descrizioni EN/IT. La
+forma inglese “make a plan to answer with sources” la percorre già nel dialogo;
+la superficie italiana equivalente resta da riallineare nel prossimo round,
+senza considerare il gate multilingue chiuso in anticipo.
 Anche l'intestazione del piano è ora `response_template(plan_header,...)`,
 così il renderer non introduce testo naturale fuori dalla KB.
 
