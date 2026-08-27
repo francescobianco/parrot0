@@ -1395,6 +1395,11 @@ provenienza Wikipedia. Non è una prova di copertura generale, ma dimostra che
 il percorso prioritario dell'utente non cade più nel muro né cambia registro
 senza motivo.
 
+Nel caso di piano concreto la stessa risposta espone ora il budget aggregato
+(`plan_budget/3`) oltre ai costi e tempi dei passi. Questa è evidenza di
+contabilità KB-first nel percorso conversazionale; non viene ancora usata per
+dichiarare chiuso il gate di replanning multi-round.
+
 La prova di trasferimento Gen444 ora include anche un atto docente reale:
 `teach "build me a roadmap" as a plan request`, seguito da
 `build me a roadmap to learn chess`. La forma nuova apre il planner esistente
