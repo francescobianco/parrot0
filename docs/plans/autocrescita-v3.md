@@ -962,6 +962,16 @@ con lingua della pagina, edizione, titolo, revisione e sezione. Un prerequisito
 mancante produce `address_stop/3` e non abilita alcun fetch. La retrazione e il
 ripristino dell'alias cambiano l'indirizzamento senza ricompilare.
 
+### Evidenza Gen441
+
+Il profilo `gen441-wikipedia-memory.p0` e il relativo esperimento dimostrano
+**7 proprietà passate**: uno span con lingua e coordinate di revisione sostiene
+solo la claim richiesta (`height/measure`), mentre il contenuto irrilevante e i
+frame non supportati non vengono riprodotti. Il protocollo
+`source_candidate/4 → source_supported/4 → source_replay/4` conserva coordinate
+e proposizione, non il corpo della pagina. È il gate KB per collegare in
+seguito il fetch reale senza promuovere dati prima del replay.
+
 ## gen441 — Wikipedia diventa una sorgente mirata in memoria
 
 ### Ipotesi H441

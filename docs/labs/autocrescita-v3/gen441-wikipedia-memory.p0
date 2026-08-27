@@ -1,0 +1,7 @@
+% Gen441 profile: only source coordinates and claims are retained.
+machinery(source_provenance).
+machinery(replay_check).
+source_provenance(address(en, wikipedia, "Blue Mountain", revision(20260827, geography)), range(10, 18), en).
+source_claim(address(en, wikipedia, "Blue Mountain", revision(20260827, geography)), height, measure, 1200).
+source_claim(address(en, wikipedia, "Blue Mountain", revision(20260827, geography)), climate, summary, irrelevant).
+replay_check(height, measure, 1200).

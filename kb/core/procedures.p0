@@ -524,6 +524,22 @@ machinery(address_internal).
 machinery(address_external).
 machinery(address_stop).
 machinery(source_address).
+machinery(source_claim).
+machinery(source_candidate).
+machinery(source_supported).
+machinery(source_replay).
+
+% gen441 — sorgente in memoria: si conserva solo la coordinata dello span e la
+% proposizione verificata, mai il corpo della pagina. La selezione e' guidata
+% da relazione e shape richiesti dal frame.
+source_candidate($Address, $Relation, $Shape, $Value) :-
+    source_claim($Address, $Relation, $Shape, $Value).
+source_supported($Address, $Relation, $Shape, $Value) :-
+    source_candidate($Address, $Relation, $Shape, $Value),
+    source_provenance($Address, $Span, $Language).
+source_replay($Address, $Relation, $Shape, $Value) :-
+    source_supported($Address, $Relation, $Shape, $Value),
+    replay_check($Relation, $Shape, $Value).
 machinery(internal_relation).
 machinery(source_page).
 machinery(source_revision).
