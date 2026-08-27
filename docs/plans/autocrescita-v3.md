@@ -1354,6 +1354,15 @@ della prova e ripianificazione. La copertura delle tre famiglie è quindi
 presente; resta da dimostrare la replica completa con ordine inverso e fonti
 incrociate nel gate Gen445.
 
+Il medesimo dossier ora contiene anche la coppia interlinguistica
+`fai un piano per rispondere con fonti` / `make a plan to start a new job`.
+Nel primo caso le azioni `read_wikipedia` e `check_claim` conservano
+`action_source(..., wikipedia)` mentre la realizzazione resta italiana; nel
+secondo la stessa catena `job_onboarding` viene resa in inglese con identico
+budget, dipendenze ed effetti. È una prova positiva di `Lin ≠ Lsrc` e di
+replica della macchina, ma non sostituisce ancora l'ablazione e il confronto in
+ordine inverso richiesti dal gate.
+
 ---
 
 ## gen446 — Stato vivente: dialogo, crescita e piani nello stesso ciclo
