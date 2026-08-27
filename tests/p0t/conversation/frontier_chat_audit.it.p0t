@@ -19,6 +19,8 @@
 <~ parrot0
 > che cosa possiamo fare insieme?
 <~ insieme
+> che ne pensi?
+<~ opinioni personali
 
 [conoscenza trasferibile fra lingue]
 !set PARROT0_LANG=en
@@ -29,6 +31,8 @@
 <~ 3.14159
 > what causes the seasons?
 <~ tilt
+> what do you think?
+<~ personal opinions
 
 [forma insegnata: un atto, tre usi successivi]
 !reset
