@@ -544,7 +544,10 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
     if (kb_cue_match(b, "10_memory_knowledge_chain552", norm)) {
         if (b->has_current_topic) {
             char msg[160];
-            snprintf(msg, sizeof msg, "The current topic is %s.", b->current_topic);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->current_topic);
+  const KbResponseSlot _rs[] = { { "current_topic", _v0 } };
+              kb_term_say(b, "the_current_topic_is_x", _rs, 1, msg, sizeof msg); }
             put(msg, out, out_size);
         } else {
             kb_term_say(b, "i_do_not_know_the_current_topic_yet", NULL, 0, out, out_size);
@@ -555,7 +558,10 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
     if (kb_cue_match(b, "10_memory_knowledge_chain565", norm)) {
         if (b->has_user_constraint) {
             char msg[192];
-            snprintf(msg, sizeof msg, "Your current constraint is: %s.", b->user_constraint);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->user_constraint);
+  const KbResponseSlot _rs[] = { { "user_constraint", _v0 } };
+              kb_term_say(b, "your_current_constraint_is_x", _rs, 1, msg, sizeof msg); }
             put(msg, out, out_size);
         } else {
             kb_term_say(b, "i_do_not_know_any_current_constraint_y", NULL, 0, out, out_size);
@@ -1742,9 +1748,15 @@ static int recall_utterance(Brain *b, const char *speaker, int first, int word,
         char *w[64]; size_t nw = split_words(wb, w, 64);
         if (nw == 0) return 0;
         char *wd = strip_edge_punct(first ? w[0] : w[nw - 1]);
-        snprintf(out, sz, "The %s word %s said was \"%s\".", first ? "first" : "last", who, wd);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", first ? "first" : "last");
+  const KbResponseSlot _rs[] = { { "last", _v0 }, { "who", who }, { "wd", wd } };
+          kb_term_say(b, "the_x_word_x_said_was_x", _rs, 3, out, sz); }
     } else {
-        snprintf(out, sz, "The %s thing %s said was: \"%s\"", first ? "first" : "last", who, p);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", first ? "first" : "last");
+  const KbResponseSlot _rs[] = { { "last", _v0 }, { "who", who }, { "p", p } };
+          kb_term_say(b, "the_x_thing_x_said_was_x", _rs, 3, out, sz); }
     }
     return 1;
 }
@@ -4369,9 +4381,10 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
     size_t known = class_known_arity(b, cls);
     if (known > 1) {
         char msg[256];
-        snprintf(msg, sizeof msg,
-                 "I know %s with %zu arguments, so I cannot use it as a class.",
-                 cls, known);
+        { 
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%zu", known);
+  const KbResponseSlot _rs[] = { { "cls", cls }, { "known", _v1 } };
+          kb_term_say(b, "i_know_x_with_x_arguments_so_i_cannot_use_it", _rs, 2, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }
@@ -4761,7 +4774,10 @@ static int extract_class_statement(Brain *b, const char *norm,
             return 2;
         }
         if (rejected) {           /* letta e respinta: dirlo, non tacerlo */
-            snprintf(out, out_size, "Scartato: %d classe/i non fatte di concetti.", rejected);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%d", rejected);
+  const KbResponseSlot _rs[] = { { "rejected", _v0 } };
+              kb_term_say(b, "scartato_x_classe_i_non_fatte_di_concetti", _rs, 1, out, out_size); }
             return 2;
         }
         return 0;
@@ -7498,9 +7514,12 @@ static int analysis_plan_render(Brain *b, const char *norm, const char *subject,
     }
 
     char plan_proof[220];
-    snprintf(plan_proof, sizeof plan_proof,
-             "answer_plan(%s) complete for %s (%zu facets; evidence %d/%d).",
-             act, domain, ns, act_score, domain_score);
+    { 
+      char _v2[48]; snprintf(_v2, sizeof _v2, "%zu", ns);
+      char _v3[48]; snprintf(_v3, sizeof _v3, "%d", act_score);
+      char _v4[48]; snprintf(_v4, sizeof _v4, "%d", domain_score);
+  const KbResponseSlot _rs[] = { { "act", act }, { "domain", domain }, { "ns", _v2 }, { "act_score", _v3 }, { "domain_score", _v4 } };
+      kb_term_say(b, "answer_plan_x_complete_for_x_x_facets_eviden", _rs, 5, plan_proof, sizeof plan_proof); }
     store_proof(b, plan_proof);
     return out[0] != '\0';
 }
@@ -10265,9 +10284,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                             if (noun2 && !strcmp(noun2, noun1) && v2 != num1) {
                                 char Yc[KB_TERM_LEN]; snprintf(Yc, sizeof Yc, "%s", qy);
                                 if (Yc[0]) Yc[0] = (char)toupper((unsigned char)Yc[0]);
-                                snprintf(inc, sizeof inc,
-                                    " (Though that contradicts \"all %ss have %ld %s,\" so the premises are inconsistent.)",
-                                    Yc, num1, noun1);
+                                { 
+                                  char _v1[48]; snprintf(_v1, sizeof _v1, "%ld", num1);
+  const KbResponseSlot _rs[] = { { "Yc", Yc }, { "num1", _v1 }, { "noun1", noun1 } };
+                                  kb_term_say(b, "though_that_contradicts_all_xs_have_x_x_so_t", _rs, 3, inc, sizeof inc); }
                             }
                         }
                     }

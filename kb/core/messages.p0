@@ -337,3 +337,50 @@ response_template(x_is_not_a_x_because_i_am_missing_x_the_rule, "{arg} is not a 
 response_template(i_have_the_premises_for_x_to_be_a_x_but_i_st, "I have the premises for {arg} to be a {pred}, but I still cannot derive it.").
 response_template(if_you_told_me_that_x_then_x_would_be_a_x_by, "If you told me that {prem}, then {arg} would be a {pred} — by {spine}.").
 response_template(if_you_told_me_that_x_then_x_would_be_a_x_th, "If you told me that {prem}, then {arg} would be a {pred} — that's the rule {rule} -> {pred2}.").
+
+%% Settima tranche: i messaggi che contengono NUMERI. Il valore diventa testo
+%% prima di entrare nello slot, cosi' anche «ho letto 3 fatti» e' una frase che
+%% si puo' reinsegnare senza toccare il conteggio.
+
+response_template(now_x_is_a_x_after_all, " Now {last_goal_arg} is a {last_goal_pred} after all.").
+response_template(the_current_topic_is_x, "The current topic is {current_topic}.").
+response_template(your_current_constraint_is_x, "Your current constraint is: {user_constraint}.").
+response_template(the_x_word_x_said_was_x, "The {last} word {who} said was «{wd}».").
+response_template(the_x_thing_x_said_was_x, "The {last} thing {who} said was: «{p}»").
+response_template(i_know_x_with_x_arguments_so_i_cannot_use_it, "I know {cls} with {known} arguments, so I cannot use it as a class.").
+response_template(scartato_x_classe_i_non_fatte_di_concetti, "Scartato: {rejected} classe/i non fatte di concetti.").
+response_template(answer_plan_x_complete_for_x_x_facets_eviden, "answer_plan({act}) complete for {domain} ({ns} facets; evidence {act_score}/{domain_score}).").
+response_template(though_that_contradicts_all_xs_have_x_x_so_t, " (Though that contradicts «all {Yc}s have {num1} {noun1},» so the premises are inconsistent.)").
+response_template(x_x_is_xa_prime_number, "{No}, {n} is {not}a prime number.").
+response_template(learned_x_prerequisites_for_x, "Learned {learned} prerequisites for {goal}.").
+response_template(i_can_t_think_of_a_x_starting_with_x_from_wh, "I can't think of a {category} starting with '{init}' from what I know.").
+
+%% Settima tranche: i messaggi che contengono NUMERI. Il valore diventa testo
+%% prima di entrare nello slot, cosi' anche «ho letto 3 fatti» e' una frase che
+%% si puo' reinsegnare senza toccare il conteggio.
+
+response_template(orchain_vocab_extracted_x_cues_x, "orchain_vocab extracted {nwords} cues: {list}").
+response_template(emit_facts_wrote_x_x_facts_for_x_chains_to_x, "emit_facts wrote {nfacts} {pred} facts for {chains} chains to {outp}").
+response_template(and_skipped_x_sites_where_x_is_not_in_scope, " and skipped {skipped} sites where `{sid}` is not in scope").
+response_template(read_x_bytes_from_x, "read {po} bytes from {target}").
+response_template(x_is_closer_to_the_meeting_point_the_trains, "{name} is closer to the meeting point: the trains meet after covering about {from0} miles from {city} and {from1} miles from {city2}.").
+response_template(x_hourx_x_minutes, "{h} hour{s} {m} minutes").
+response_template(neither_train_arrives_first_they_meet_each_o, "Neither train arrives first; they meet each other at about {h12}:{mm} {ap}.").
+response_template(xthey_meet_at_about_x_x_x, "{lead}they meet at about {h12}:{mm} {ap}.").
+response_template(combined_speed_x_mph_x_x_h_x_miles_covered_x, "Combined speed {speed} mph x {hours} h = {covered} miles covered. {dist} - {covered2} = {num} miles apart.").
+response_template(the_x_is_x_and_the_x_is_x, "The {one} is {nb2} and the {one2} is {na2}.").
+response_template(you_can_buy_x_with_x_left_over, "You can buy {n}, with ${left} left over.").
+response_template(x_not_x_if_one_costs_x_more_the_cheaper_is_x, "${num}. (Not ${diff}: if one costs ${diff2} more, the cheaper is ({total}-{diff3})/2.)").
+response_template(x_xx_with_x_left_over, "{items} {items2}{item}, with ${change} left over.").
+response_template(x_xx_with_no_change_left_over, "{items} {items2}{item}, with no change left over.").
+response_template(i_started_with_x_items_traded_away_x_got_x_x, "I started with {total} items, traded away {trade_away}, got {trade_get}: {num}.").
+response_template(i_don_t_know_how_many_x_x_has_2, "I don't know how many {unit} {y} has.").
+response_template(learned_x_transition_s, "Learned {pairs} transition(s).").
+response_template(x_tastes_like_x_has_x_and_is_best_for_x, "{nm} tastes like {taste}, has {texture}, and is best for {use}.").
+response_template(i_m_tracking_this_conversation_this_is_turn, "I'm tracking this conversation; this is turn {turns}.").
+response_template(we_ve_exchanged_x_turn_s, "We've exchanged {turns} turn(s).").
+response_template(we_ve_been_talking_for_x_second_s, "We've been talking for {elapsed} second(s).").
+response_template(we_ve_been_talking_for_x_minute_s_and_x_seco, "We've been talking for {elapsed} minute(s) and {elapsed2} second(s).").
+response_template(we_ve_been_talking_for_x_hour_s_and_x_minute, "We've been talking for {elapsed} hour(s) and {elapsed2} minute(s).").
+response_template(underneath_the_role_i_am_x, "Underneath the role, I am {parrot0}.").
+response_template(i_see_x_examples_but_i_can_t_find_one_rule_t, "I see {nex} examples, but I can't find one rule that fits them all.").

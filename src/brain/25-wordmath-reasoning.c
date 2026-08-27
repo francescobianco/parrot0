@@ -467,7 +467,10 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         }
         char list[384];
         plan_join_words(words, nwords, list, sizeof list);
-        snprintf(obs, obs_sz, "orchain_vocab extracted %d cues: %s", nwords, list);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%d", nwords);
+  const KbResponseSlot _rs[] = { { "nwords", _v0 }, { "list", list } };
+          kb_term_say(b, "orchain_vocab_extracted_x_cues_x", _rs, 2, obs, obs_sz); }
         return 1;
     }
 
@@ -504,8 +507,11 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
                      "cues to write", chains, fn);
             return 0;
         }
-        snprintf(obs, obs_sz, "emit_facts wrote %d %s facts for %d chains to %s",
-                 nfacts, pred, chains, outp);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%d", nfacts);
+          char _v2[48]; snprintf(_v2, sizeof _v2, "%d", chains);
+  const KbResponseSlot _rs[] = { { "nfacts", _v0 }, { "pred", pred }, { "chains", _v2 }, { "outp", outp } };
+          kb_term_say(b, "emit_facts_wrote_x_x_facts_for_x_chains_to_x", _rs, 4, obs, obs_sz); }
         return 1;
     }
 
@@ -574,9 +580,10 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
          * verbatim, honestly, instead of patched into code that cannot compile */
         char skipmsg[112] = "";
         if (skipped > 0)
-            snprintf(skipmsg, sizeof skipmsg,
-                     " and skipped %d sites where `%s` is not in scope",
-                     skipped, sid);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%d", skipped);
+  const KbResponseSlot _rs[] = { { "skipped", _v0 }, { "sid", sid } };
+              kb_term_say(b, "and_skipped_x_sites_where_x_is_not_in_scope", _rs, 2, skipmsg, sizeof skipmsg); }
         if (comp == 0) {
             snprintf(obs, obs_sz,
                      "patch_chains replaced %d chains with calls to `%s` in %s%s but "
@@ -671,7 +678,10 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         page[po] = '\0';
         const char *pa[] = { "\"", target, "\"", NULL };
         kb_assert(b->kb, "plan_artifact", pa, 0);  /* mark artifact */
-        snprintf(obs, obs_sz, "read %zu bytes from %s", po, target);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", po);
+  const KbResponseSlot _rs[] = { { "po", _v0 }, { "target", target } };
+          kb_term_say(b, "read_x_bytes_from_x", _rs, 2, obs, obs_sz); }
         return 1;
     }
     if (strcmp(impl, "prose_split_sent") == 0) {
@@ -1377,9 +1387,11 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             for (char *p = name + 1; *p; p++)
                 if (p[-1] == ' ') *p = (char)toupper((unsigned char)*p);
             char msg[220];
-            snprintf(msg, sizeof msg,
-                     "%s is closer to the meeting point: the trains meet after covering about %.0f miles from %s and %.0f miles from %s.",
-                     name, from0, city[0], from1, city[1]);
+            { 
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%.0f", from0);
+              char _v3[48]; snprintf(_v3, sizeof _v3, "%.0f", from1);
+  const KbResponseSlot _rs[] = { { "name", name }, { "from0", _v1 }, { "city", city[0] }, { "from1", _v3 }, { "city2", city[1] } };
+              kb_term_say(b, "x_is_closer_to_the_meeting_point_the_trains", _rs, 5, msg, sizeof msg); }
             put(msg, out, out_size);
             store_proof(b, "Compared origin-to-meeting-point distances after accounting for departure-time headstart.");
             return 1;
@@ -1549,8 +1561,12 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             if (mins >= 60) {
                 long h = mins / 60, m = mins % 60;
                 if (m)
-                    snprintf(dur, sizeof dur, "%ld hour%s %ld minutes",
-                             h, h == 1 ? "" : "s", m);
+                    { 
+                      char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", h);
+                      char _v1[48]; snprintf(_v1, sizeof _v1, "%s", h == 1 ? "" : "s");
+                      char _v2[48]; snprintf(_v2, sizeof _v2, "%ld", m);
+  const KbResponseSlot _rs[] = { { "h", _v0 }, { "s", _v1 }, { "m", _v2 } };
+                      kb_term_say(b, "x_hourx_x_minutes", _rs, 3, dur, sizeof dur); }
                 else
                     snprintf(dur, sizeof dur, "%ld hour%s", h, h == 1 ? "" : "s");
             } else
@@ -1619,9 +1635,11 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             const char *ap = hh < 12 ? "AM" : "PM";
             long h12 = hh % 12; if (h12 == 0) h12 = 12;
             char msg[200];
-            snprintf(msg, sizeof msg,
-                     "Neither train arrives first; they meet each other at about %ld:%02ld %s.",
-                     h12, mm, ap);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", h12);
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%02ld", mm);
+  const KbResponseSlot _rs[] = { { "h12", _v0 }, { "mm", _v1 }, { "ap", ap } };
+              kb_term_say(b, "neither_train_arrives_first_they_meet_each_o", _rs, 3, msg, sizeof msg); }
             put(msg, out, out_size);
             store_proof(b, "Head start of the earlier train, then the remaining gap closes at the combined speed.");
             return 1;
@@ -1700,7 +1718,11 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 }
             }
             char msg[180];
-            snprintf(msg, sizeof msg, "%sthey meet at about %ld:%02ld %s.", lead, h12, mm, ap);
+            { 
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%ld", h12);
+              char _v2[48]; snprintf(_v2, sizeof _v2, "%02ld", mm);
+  const KbResponseSlot _rs[] = { { "lead", lead }, { "h12", _v1 }, { "mm", _v2 }, { "ap", ap } };
+              kb_term_say(b, "xthey_meet_at_about_x_x_x", _rs, 4, msg, sizeof msg); }
             if (!lead[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
             put(msg, out, out_size);
             store_proof(b, "Head start of the earlier train, then the gap closes at the combined speed.");
@@ -1794,9 +1816,14 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             char msg[80]; snprintf(msg, sizeof msg, "%s miles.", num);
             put(msg, out, out_size);
             char proof[160];
-            snprintf(proof, sizeof proof,
-                     "Combined speed %.0f mph x %.0f h = %.0f miles covered. %.0f - %.0f = %s miles apart.",
-                     speed[0] + speed[1], hours, covered, dist, covered, num);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%.0f", speed[0] + speed[1]);
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%.0f", hours);
+              char _v2[48]; snprintf(_v2, sizeof _v2, "%.0f", covered);
+              char _v3[48]; snprintf(_v3, sizeof _v3, "%.0f", dist);
+              char _v4[48]; snprintf(_v4, sizeof _v4, "%.0f", covered);
+  const KbResponseSlot _rs[] = { { "speed", _v0 }, { "hours", _v1 }, { "covered", _v2 }, { "dist", _v3 }, { "covered2", _v4 }, { "num", num } };
+              kb_term_say(b, "combined_speed_x_mph_x_x_h_x_miles_covered_x", _rs, 6, proof, sizeof proof); }
             store_proof(b, proof);
             return 1;
         }
@@ -2458,9 +2485,11 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 format_num(bage, nb2, sizeof nb2);
                 format_num(aage, na2, sizeof na2);
                 char msg[220];
-                snprintf(msg, sizeof msg, "The %s is %s and the %s is %s.",
-                         who_b[0] ? who_b : "younger one", nb2,
-                         who_a[0] ? who_a : "older one", na2);
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%s", who_b[0] ? who_b : "younger one");
+                  char _v2[48]; snprintf(_v2, sizeof _v2, "%s", who_a[0] ? who_a : "older one");
+  const KbResponseSlot _rs[] = { { "one", _v0 }, { "nb2", nb2 }, { "one2", _v2 }, { "na2", na2 } };
+                  kb_term_say(b, "the_x_is_x_and_the_x_is_x", _rs, 4, msg, sizeof msg); }
                 msg[0] = (char)toupper((unsigned char)msg[0]);
                 put(msg, out, out_size);
                 store_proof(b, "a = K*b and a + N = M*(b + N) give "
@@ -2593,8 +2622,11 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 long n = (long)(money / price);
                 double left = money - n * price;
                 char msg[200];
-                snprintf(msg, sizeof msg,
-                         "You can buy %ld, with $%g left over.", n, left);
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", n);
+                  char _v1[48]; snprintf(_v1, sizeof _v1, "%g", left);
+  const KbResponseSlot _rs[] = { { "n", _v0 }, { "left", _v1 } };
+                  kb_term_say(b, "you_can_buy_x_with_x_left_over", _rs, 2, msg, sizeof msg); }
                 put(msg, out, out_size);
                 store_proof(b, "Bought as many as the money allows; remainder is the change.");
                 return 1;
@@ -2639,9 +2671,13 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             double ball = (total - diff) / 2.0;
             char num[64]; format_num(ball, num, sizeof num);
             char msg[160];
-            snprintf(msg, sizeof msg,
-                     "$%s. (Not $%g: if one costs $%g more, the cheaper is (%g-%g)/2.)",
-                     num, total - diff, diff, total, diff);
+            { 
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%g", total - diff);
+              char _v2[48]; snprintf(_v2, sizeof _v2, "%g", diff);
+              char _v3[48]; snprintf(_v3, sizeof _v3, "%g", total);
+              char _v4[48]; snprintf(_v4, sizeof _v4, "%g", diff);
+  const KbResponseSlot _rs[] = { { "num", num }, { "diff", _v1 }, { "diff2", _v2 }, { "total", _v3 }, { "diff3", _v4 } };
+              kb_term_say(b, "x_not_x_if_one_costs_x_more_the_cheaper_is_x", _rs, 5, msg, sizeof msg); }
             put(msg, out, out_size);
             store_proof(b, "Bat-and-ball: cheaper = (total - difference)/2, not total - difference.");
             return 1;
@@ -2757,13 +2793,20 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             double change = money - packs * packPrice;
             char msg[220];
             if (change > 0)
-                snprintf(msg, sizeof msg,
-                         "%ld %s%s, with $%g left over.", items,
-                         item ? item : "items", item ? "" : "", change);
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", items);
+                  char _v1[48]; snprintf(_v1, sizeof _v1, "%s", item ? item : "items");
+                  char _v2[48]; snprintf(_v2, sizeof _v2, "%s", item ? "" : "");
+                  char _v3[48]; snprintf(_v3, sizeof _v3, "%g", change);
+  const KbResponseSlot _rs[] = { { "items", _v0 }, { "items2", _v1 }, { "item", _v2 }, { "change", _v3 } };
+                  kb_term_say(b, "x_xx_with_x_left_over", _rs, 4, msg, sizeof msg); }
             else
-                snprintf(msg, sizeof msg,
-                         "%ld %s%s, with no change left over.", items,
-                         item ? item : "items", item ? "" : "");
+                { 
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", items);
+                  char _v1[48]; snprintf(_v1, sizeof _v1, "%s", item ? item : "items");
+                  char _v2[48]; snprintf(_v2, sizeof _v2, "%s", item ? "" : "");
+  const KbResponseSlot _rs[] = { { "items", _v0 }, { "items2", _v1 }, { "item", _v2 } };
+                  kb_term_say(b, "x_xx_with_no_change_left_over", _rs, 3, msg, sizeof msg); }
             put(msg, out, out_size);
             store_proof(b, "Bought as many fixed-price packs as the money allows; remainder is the change.");
             return 1;
@@ -3009,9 +3052,12 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             char msg[80]; snprintf(msg, sizeof msg, "%s.", num);
             put(msg, out, out_size);
             char proof[160];
-            snprintf(proof, sizeof proof,
-                     "I started with %.0f items, traded away %.0f, got %.0f: %s.",
-                     total, trade_away, trade_get, num);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%.0f", total);
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%.0f", trade_away);
+              char _v2[48]; snprintf(_v2, sizeof _v2, "%.0f", trade_get);
+  const KbResponseSlot _rs[] = { { "total", _v0 }, { "trade_away", _v1 }, { "trade_get", _v2 }, { "num", num } };
+              kb_term_say(b, "i_started_with_x_items_traded_away_x_got_x_x", _rs, 4, proof, sizeof proof); }
             store_proof(b, proof);
             return 1;
         }
@@ -3397,8 +3443,10 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
         size_t ky = kb_match(b->kb, "quantity", py, 3, hy, 4);
         if (kx == 0 || ky == 0) {
             char msg[200];
-            snprintf(msg, sizeof msg, "I don't know how many %s %s has.",
-                     unit, kx == 0 ? x : y);
+            { 
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%s", kx == 0 ? x : y);
+  const KbResponseSlot _rs[] = { { "unit", unit }, { "y", _v1 } };
+              kb_term_say(b, "i_don_t_know_how_many_x_x_has_2", _rs, 2, msg, sizeof msg); }
             put(msg, out, out_size);
             return 1;
         }

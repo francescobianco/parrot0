@@ -397,8 +397,11 @@ static void note_consequence(Brain *b, const char *just_asserted, int before,
         snprintf(note, sizeof note, " Then %s is no longer a %s.",
                  b->last_goal_arg, b->last_goal_pred);
     else
-        snprintf(note, sizeof note, " Now %s is a %s after all.",
-                 b->last_goal_arg, b->last_goal_pred);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->last_goal_arg);
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%s", b->last_goal_pred);
+  const KbResponseSlot _rs[] = { { "last_goal_arg", _v0 }, { "last_goal_pred", _v1 } };
+          kb_term_say(b, "now_x_is_a_x_after_all", _rs, 2, note, sizeof note); }
     size_t cur = strlen(out);
     if (cur + strlen(note) + 1 < out_size)
         memcpy(out + cur, note, strlen(note) + 1);

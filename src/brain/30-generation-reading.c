@@ -435,7 +435,10 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         size_t nw = split_words(rem, w, 64);
         size_t pairs = learn_word_stream(b, w, nw);
         char msg[128];
-        snprintf(msg, sizeof msg, "Learned %zu transition(s).", pairs);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", pairs);
+  const KbResponseSlot _rs[] = { { "pairs", _v0 } };
+          kb_term_say(b, "learned_x_transition_s", _rs, 1, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }
@@ -657,10 +660,12 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                             for (char *p = nm; *p; p++) if (*p == '_') *p = ' ';
                             if (nm[0]) nm[0] = (char)toupper((unsigned char)nm[0]);
                             char msg[520];
-                            snprintf(msg, sizeof msg,
-                                     "%s tastes like %s, has %s, and is best for %s.",
-                                     nm, kb_dequote(taste[0]), kb_dequote(texture[0]),
-                                     kb_dequote(use[0]));
+                            { 
+                              char _v1[48]; snprintf(_v1, sizeof _v1, "%s", kb_dequote(taste[0]));
+                              char _v2[48]; snprintf(_v2, sizeof _v2, "%s", kb_dequote(texture[0]));
+                              char _v3[48]; snprintf(_v3, sizeof _v3, "%s", kb_dequote(use[0]));
+  const KbResponseSlot _rs[] = { { "nm", nm }, { "taste", _v1 }, { "texture", _v2 }, { "use", _v3 } };
+                              kb_term_say(b, "x_tastes_like_x_has_x_and_is_best_for_x", _rs, 4, msg, sizeof msg); }
                             put(msg, out, out_size);
                             return 1;
                         }

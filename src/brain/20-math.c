@@ -1544,9 +1544,12 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
                 long long n = (long long)v;
                 char msg[96];
                 if (wants_prime) {
-                    snprintf(msg, sizeof msg, "%s, %lld is %sa prime number.",
-                             arith_is_prime(n) ? "Yes" : "No", n,
-                             arith_is_prime(n) ? "" : "not ");
+                    { 
+                      char _v0[48]; snprintf(_v0, sizeof _v0, "%s", arith_is_prime(n) ? "Yes" : "No");
+                      char _v1[48]; snprintf(_v1, sizeof _v1, "%lld", n);
+                      char _v2[48]; snprintf(_v2, sizeof _v2, "%s", arith_is_prime(n) ? "" : "not ");
+  const KbResponseSlot _rs[] = { { "No", _v0 }, { "n", _v1 }, { "not", _v2 } };
+                      kb_term_say(b, "x_x_is_xa_prime_number", _rs, 3, msg, sizeof msg); }
                 } else {
                     int even = (n % 2 == 0);
                     int yes = wants_even ? even : !even;
@@ -1850,7 +1853,10 @@ static size_t plan_learn_list(Brain *b, const char *goal, char **w,
     if (learned == 1)
         snprintf(msg, sizeof msg, "Learned: requires(%s, %s).", goal, last_step);
     else
-        snprintf(msg, sizeof msg, "Learned %zu prerequisites for %s.", learned, goal);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", learned);
+  const KbResponseSlot _rs[] = { { "learned", _v0 }, { "goal", goal } };
+          kb_term_say(b, "learned_x_prerequisites_for_x", _rs, 2, msg, sizeof msg); }
     put(msg, out, out_size);
     return learned;
 }
@@ -2186,9 +2192,10 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
                 put(msg, out, out_size); return 1;
             }
         char msg[200];
-        snprintf(msg, sizeof msg,
-                 "I can't think of a %s starting with '%c' from what I know.",
-                 category, init);
+        { 
+          char _v1[48]; snprintf(_v1, sizeof _v1, "%c", init);
+  const KbResponseSlot _rs[] = { { "category", category }, { "init", _v1 } };
+          kb_term_say(b, "i_can_t_think_of_a_x_starting_with_x_from_wh", _rs, 2, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }

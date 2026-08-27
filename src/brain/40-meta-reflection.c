@@ -218,8 +218,10 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                    kb_cue_match(b, "40_meta_reflection_cue218", buf);
     if (activity) {
         char msg[128];
-        snprintf(msg, sizeof msg, "I'm tracking this conversation; this is turn %lu.",
-                 b->turns);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%lu", b->turns);
+  const KbResponseSlot _rs[] = { { "turns", _v0 } };
+          kb_term_say(b, "i_m_tracking_this_conversation_this_is_turn", _rs, 1, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }
@@ -231,7 +233,10 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                      kb_cue_match(b, "40_meta_reflection_cue231", buf);
     if (turn_count) {
         char msg[96];
-        snprintf(msg, sizeof msg, "We've exchanged %lu turn(s).", b->turns);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%lu", b->turns);
+  const KbResponseSlot _rs[] = { { "turns", _v0 } };
+          kb_term_say(b, "we_ve_exchanged_x_turn_s", _rs, 1, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }
@@ -252,13 +257,22 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         }
         char msg[128];
         if (elapsed < 60)
-            snprintf(msg, sizeof msg, "We've been talking for %ld second(s).", elapsed);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", elapsed);
+  const KbResponseSlot _rs[] = { { "elapsed", _v0 } };
+              kb_term_say(b, "we_ve_been_talking_for_x_second_s", _rs, 1, msg, sizeof msg); }
         else if (elapsed < 3600)
-            snprintf(msg, sizeof msg, "We've been talking for %ld minute(s) and %ld second(s).",
-                     elapsed / 60, elapsed % 60);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", elapsed / 60);
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%ld", elapsed % 60);
+  const KbResponseSlot _rs[] = { { "elapsed", _v0 }, { "elapsed2", _v1 } };
+              kb_term_say(b, "we_ve_been_talking_for_x_minute_s_and_x_seco", _rs, 2, msg, sizeof msg); }
         else
-            snprintf(msg, sizeof msg, "We've been talking for %ld hour(s) and %ld minute(s).",
-                     elapsed / 3600, (elapsed % 3600) / 60);
+            { 
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%ld", elapsed / 3600);
+              char _v1[48]; snprintf(_v1, sizeof _v1, "%ld", (elapsed % 3600) / 60);
+  const KbResponseSlot _rs[] = { { "elapsed", _v0 }, { "elapsed2", _v1 } };
+              kb_term_say(b, "we_ve_been_talking_for_x_hour_s_and_x_minute", _rs, 2, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }
@@ -1089,8 +1103,10 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         char id[4][KB_TERM_LEN]; const char *var[] = {NULL};
         size_t k = kb_match(b->kb, "i_am", var, 1, id, 4);
         char msg[128];
-        snprintf(msg, sizeof msg, "Underneath the role, I am %s.",
-                 k ? id[0] : "parrot0");
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%s", k ? id[0] : "parrot0");
+  const KbResponseSlot _rs[] = { { "parrot0", _v0 } };
+          kb_term_say(b, "underneath_the_role_i_am_x", _rs, 1, msg, sizeof msg); }
         put(msg, out, out_size);
         store_proof(b, "Even in a role, i_am(parrot0) remains my real self-model.");
         return 1;
@@ -1925,9 +1941,10 @@ static int mod_fewshot(Brain *b, const char *norm, const char *raw,
         /* recognized the few-shot shape but no single rule fits all examples:
          * be honest, name the gap, never guess a continuation. */
         char msg[200];
-        snprintf(msg, sizeof msg,
-                 "I see %zu examples, but I can't find one rule that fits them all.",
-                 nex);
+        { 
+          char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", nex);
+  const KbResponseSlot _rs[] = { { "nex", _v0 } };
+          kb_term_say(b, "i_see_x_examples_but_i_can_t_find_one_rule_t", _rs, 1, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }
