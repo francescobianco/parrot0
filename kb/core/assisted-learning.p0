@@ -25,6 +25,7 @@ machinery(assisted_procedure_lesson).
 machinery(assisted_procedure_request).
 machinery(assisted_procedure_result).
 machinery(assisted_procedure_forget).
+machinery(assisted_forget_tail).
 machinery(assisted_procedure_origin).
 machinery(assisted_candidate_store).
 machinery(assisted_state_store).
@@ -37,6 +38,9 @@ machinery(procedure_steps_text).
 machinery(procedure_value_unit_text).
 machinery(procedure_trace_text).
 machinery(procedure_result_text).
+machinery(procedure_result_body).
+machinery(procedure_sentence).
+machinery(assisted_result_text).
 machinery(procedure_lesson_text).
 machinery(procedure_origin_text).
 machinery(procedure_forget_text).
@@ -159,14 +163,18 @@ assisted_procedure_request($Turn, $Id, $Value) :-
     assisted_request_input($Turn, request_after($ValueId, $Value)),
     assisted_request_units($Turn, $ValueId, $Id).
 
-assisted_procedure_forget($Turn, procedure($From, $To), $Quoted) :-
-    turn_cue_form($Turn, procedure_forget_cue, $Cue),
-    procedure_forget_cue($Cue),
+assisted_forget_tail($Turn, $SourceId, procedure($From, $To)) :-
     input_node_atom($Turn, $SourceId, $Source), procedure_source_form($Source),
     assisted_next_token($Turn, $SourceId, $FromId, $From),
     assisted_next_token($Turn, $FromId, $DirectionId, $Direction),
     procedure_direction_form($Direction),
-    assisted_next_token($Turn, $DirectionId, $ToId, $To),
+    assisted_next_token($Turn, $DirectionId, $ToId, $To).
+
+assisted_procedure_forget($Turn, $Id, $Quoted) :-
+    turn_cue_form($Turn, procedure_forget_cue, $Cue),
+    procedure_forget_cue($Cue),
+    input_node_atom($Turn, $SourceId, $Source), procedure_source_form($Source),
+    assisted_forget_tail($Turn, $SourceId, $Id),
     turn_span_surface($Turn, 0, $Quoted).
 
 assisted_procedure_origin($Turn, procedure($From, $To)) :-
@@ -278,10 +286,16 @@ procedure_trace_text($Language, $Steps, $Text) :-
     procedure_steps_text($Language, $Steps, $Body),
     concat_atoms($Opener, $Body, $Text).
 
-procedure_result_text($Language, $Id, $Steps, $Output, $Text) :-
+procedure_result_body($Language, result($Id, $Steps, $Output), $Body) :-
     procedure_value_unit_text($Output, $Id, $ValueUnit),
     procedure_trace_text($Language, $Steps, $Trace),
-    concat_atoms($ValueUnit, $Trace, $Body), concat_atoms($Body, ".", $Text).
+    concat_atoms($ValueUnit, $Trace, $Body).
+
+procedure_sentence($Body, $Text) :- concat_atoms($Body, ".", $Text).
+
+procedure_result_text($Language, result($Id, $Steps, $Output), $Text) :-
+    procedure_result_body($Language, result($Id, $Steps, $Output), $Body),
+    procedure_sentence($Body, $Text).
 
 procedure_lesson_opener(en, "Learned candidate procedure ").
 procedure_lesson_opener(it, "Ho appreso la procedura candidata ").
@@ -331,10 +345,12 @@ turn_learning_response($Turn, $Text) :-
 
 turn_plan_candidate($Turn) :-
     assisted_procedure_result($Turn, $Id, $Input, $Output).
+assisted_result_text($Id, $Output, $Text) :-
+    learning_candidate($Id, procedure, $Steps), current_language($Language),
+    procedure_result_text($Language, result($Id, $Steps, $Output), $Text).
 turn_response($Turn, $Text) :-
     assisted_procedure_result($Turn, $Id, $Input, $Output),
-    learning_candidate($Id, procedure, $Steps), current_language($Language),
-    procedure_result_text($Language, $Id, $Steps, $Output, $Text).
+    assisted_result_text($Id, $Output, $Text).
 
 turn_plan_candidate($Turn) :- assisted_procedure_origin($Turn, $Id).
 turn_response($Turn, $Text) :-
