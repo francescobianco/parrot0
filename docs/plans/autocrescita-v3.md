@@ -1165,6 +1165,15 @@ muro.
 
 ## gen444 — Dall'addestramento assistito alla coltivazione autonoma
 
+### Decisione di lavoro registrata
+
+La priorità resta il completamento del percorso KB-first e della conversazione
+continua in `make chat`. I test `.p0t` servono come esperimenti costruttivi e
+tracce replicabili; non si investe tempo nel riallineare meccanicamente i
+vecchi `.sh`. Gli script non immediatamente convertibili vengono inventariati
+e discussi prima di qualunque rimozione, per non perdere strumenti di processo
+o prove non ancora sostituite.
+
 ### Ipotesi H444
 
 Un insegnamento umano di forme, classi e operatori generali può produrre più
