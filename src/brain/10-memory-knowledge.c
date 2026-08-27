@@ -11073,6 +11073,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return kb_response(b, "process_step_gap", NULL, out, out_size);
     }
 
+    char activity_raw[512];
+    normalize(raw && *raw ? raw : norm, activity_raw, sizeof activity_raw);
+
+    /* Gen446: an open next-step request is a planning move, not an activity
+     * recommendation. Let the KB-backed pragmatic act claim it before the
+     * broader activity vocabulary turns it into an ungrounded recommendation. */
+    if (kb_cue_match(b, "next_step_request", buf) ||
+        kb_cue_match(b, "next_step_request", activity_raw)) {
+        if (kb_response(b, "next_step_request", NULL, out, out_size)) return 1;
+    }
+
     /* gen244: practical advice as KB-backed activity steps. This is not a generic
      * preference persona: activity_topic/2 selects a situation, activity_step/3
      * supplies the grounded recommendation, and unknown situations get a scoped
@@ -11080,8 +11091,6 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen363: same factoring. "Is this asking for MY favourite?" is a distinct
      * request class, not a conjunction of substrings, so it is its own KB intent
      * and the honest "I have no real favourites" lead follows from knowledge. */
-    char activity_raw[512];
-    normalize(raw && *raw ? raw : norm, activity_raw, sizeof activity_raw);
     int activity_favorite =
         kb_cue_match(b, "activity_favorite_request", buf) ||
         kb_cue_match(b, "activity_favorite_request", activity_raw);

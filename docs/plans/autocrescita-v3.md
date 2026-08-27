@@ -1159,8 +1159,9 @@ quindi una mossa dialogica riutilizzabile, non una preferenza simulata.
 Per il passaggio verso Gen445 è stato aggiunto anche `next_step_request`: le
 forme italiane e inglesi di richiesta del prossimo passo chiedono esplicitamente
 obiettivo e vincoli prima di derivare una sequenza verificabile. Nel dialogo
-italiano il percorso è già attivo; la forma inglese resta in audit perché un
-router di raccomandazione la precede ancora in alcuni contesti.
+italiano e inglese il percorso è ora attivo: il consumer interroga il cue KB
+prima del più ampio router di raccomandazione, mantenendo il lessico fuori dal
+C.
 
 Il secondo passaggio ha eseguito `tests/basicchat.sh` sulla KB reale: la
 copertura dei concetti matematici è salita da 65% a 88% e quella causale da 50%
