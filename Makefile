@@ -449,6 +449,8 @@ SOFT_BUDGET := 15
 # La regola resta: si toglie un caso, non si alza il budget.
 SOFT_TESTS := \
   tests/p0t/health.p0t \
+  tests/p0t/conversation/frontier_chat_audit.it.p0t \
+  tests/p0t/meta/legacy-shell-migration.p0t \
   tests/p0t/conversation/basics.p0t \
   tests/p0t/math/arith.p0t \
   tests/p0t/reasoning/syllogism.p0t \

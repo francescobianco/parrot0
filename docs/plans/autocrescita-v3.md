@@ -1152,6 +1152,17 @@ sequenze, calendario, geografia e simboli; sono lacune registrate, non
 considerate risolte per assenza di crash. Questo audit impedisce di confondere
 la chiusura dei campioni Gen con una conversazione di frontiera già completa.
 
+Per rendere l'audit riproducibile senza dipendere dal vecchio harness POSIX,
+sono stati portati nel test-engine i casi utente ad alto valore in
+`tests/p0t/conversation/frontier_chat_audit.it.p0t`: i quattro ingressi italiani,
+la replica inglese, il nucleo di conoscenza e una campagna teach/use/retract.
+Il registro `tests/p0t/meta/legacy-shell-migration.p0t` fissa inoltre il
+criterio: ogni prova comportamentale deve avere un corpus `.p0t`; gli `.sh`
+rimasti sono soltanto adapter di processo, report o compatibilità e non sono
+il gold standard. La migrazione completa dell'inventario shell è una attività
+meccanica separata, non un motivo per chiamare verde una risposta che resta un
+muro.
+
 ## gen444 — Dall'addestramento assistito alla coltivazione autonoma
 
 ### Ipotesi H444

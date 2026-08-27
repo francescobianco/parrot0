@@ -1,0 +1,47 @@
+# Audit conversazionale costruttivo (sostituisce i casi utente ad alto valore
+# di basicchat.sh). Le shell legacy restano solo adapter di misura; il
+# comportamento riproducibile vive qui, nel test-engine .p0t.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[dialogo italiano — nessun muro sui casi di ingresso]
+> ti piacciono gli scacchi?
+<~ scacchi
+> cosa sai degli scacchi?
+<~ scacchi
+> come stai?
+<~ parrot0
+> che cosa possiamo fare insieme?
+<~ insieme
+
+[conoscenza trasferibile fra lingue]
+!set PARROT0_LANG=en
+!reset
+> what do you know about chess?
+<~ chess
+> what is pi?
+<~ 3.14159
+> what causes the seasons?
+<~ tilt
+
+[forma insegnata: un atto, tre usi successivi]
+!reset
+> what is your designation
+<~ don't know
+> teach "what is your designation" as ask my name
+<~ Got it
+> what is your designation
+<~ name
+> what is your designation
+<~ name
+
+[forma ritratta: l'ablazione riapre il limite]
+!forget intent_phrase(ask_name, "what is your designation")
+> what is your designation
+<~ don't understand
