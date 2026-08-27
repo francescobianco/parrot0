@@ -3843,13 +3843,26 @@ static int p0_parse_construction_lesson(Brain *b, const char *text,
         snprintf(lesson->source, sizeof lesson->source, "@S %s @O", ls);
         snprintf(lesson->target, sizeof lesson->target, "@S %s @O", rs);
     } else {
+        /* I NOMI DEGLI SLOT LI DA' IL TARGET, non l'ordine di lettura.
+         *
+         * Le variabili si introducono leggendo PRIMA il lato gia' compreso: chi
+         * riempie il soggetto del frame noto diventa @S, chi ne riempie
+         * l'oggetto diventa @O. Il pattern sorgente eredita quei nomi nelle
+         * proprie posizioni, quindi una lezione inversa —
+         * «X glints Y means Y glorphs X» — si conserva come
+         * `construction_frame("@O glints @S", "@S glorphs @O", glorphs)`.
+         *
+         * Non serve altro motore: il matcher dei frame riempie subj/obj
+         * leggendo la lettera dello slot, non la sua posizione, quindi
+         * l'inversione dei ruoli era gia' eseguibile e mancava soltanto l'atto
+         * didattico capace di dirla. */
         char vars[2][KB_TERM_LEN] = {{0}}; size_t nv = 0;
         char lp[KB_TERM_LEN], rp[KB_TERM_LEN];
         snprintf(lp, sizeof lp, "%s", lhs); snprintf(rp, sizeof rp, "%s", rhs);
-        if (!p0_explicit_pattern(b, lp, vars, &nv, 1,
-                                 lesson->source, sizeof lesson->source) ||
-            !p0_explicit_pattern(b, rp, vars, &nv, 0,
-                                 lesson->target, sizeof lesson->target))
+        if (!p0_explicit_pattern(b, rp, vars, &nv, 1,
+                                 lesson->target, sizeof lesson->target) ||
+            !p0_explicit_pattern(b, lp, vars, &nv, 0,
+                                 lesson->source, sizeof lesson->source))
             return P0_CONSTRUCTION_BAD_SHAPE;
     }
 

@@ -131,3 +131,57 @@
 > bia sfiora rio
 <! Learned: glorphs
 !query! glorphs(bia, rio)
+
+# ── M3: L'INVERSIONE DEI RUOLI (gen440) ─────────────────────────────────────
+#
+# I nomi degli slot li da' il lato GIA' COMPRESO, non l'ordine di lettura. Chi
+# riempie il soggetto del frame noto e' @S ovunque compaia nella sorgente,
+# quindi una costruzione che rovescia i ruoli si conserva come pattern con gli
+# slot invertiti. Il matcher li leggeva gia' per lettera: mancava solo l'atto
+# didattico capace di dirlo.
+#
+# Gli assert stanno sulla parte neutra rispetto alla lingua: il blocco eredita
+# l'italiano dal test precedente, e la prova che conta e' comportamentale.
+[test una costruzione inverte i ruoli e li mantiene invertiti]
+> x wanes y means y glorphs x
+<~ @O wanes @S
+> oberon wanes quintal
+< Learned: glorphs(quintal, oberon).
+# L'INVERSIONE E' LA PROVA: il fatto diretto non deve esistere.
+!query glorphs(quintal, oberon)
+!query! glorphs(oberon, quintal)
+
+# TRANSFER su nomi mai pronunciati.
+> riven wanes sylas
+< Learned: glorphs(sylas, riven).
+> who glorphs sylas?
+< Riven.
+!query! glorphs(riven, sylas)
+
+# CONTRASTO: la costruzione diretta appresa prima non e' stata toccata.
+> thalo gleams umbra
+< Learned: glorphs(thalo, umbra).
+
+# Il retract di una costruzione inversa usa la stessa forma con cui e' nata.
+> forget that x wanes y means y glorphs x
+<~ @O wanes @S
+> zenit wanes vardo
+<! Learned: glorphs
+!query! glorphs(vardo, zenit)
+
+# ── M3: L'ALFABETO DELLE VARIABILI E' CONOSCENZA ────────────────────────────
+#
+# `rule_variable/1` non e' una lista nel motore. Un teacher che preferisce altre
+# lettere ne insegna i membri e la stessa lezione passa, senza ricompilare.
+[test le variabili della lezione si insegnano a runtime]
+> a folds2 b means a glorphs b
+<! costruzione candidata
+> a is a rule_variable
+< Learned: rule_variable(a).
+> b is a rule_variable
+< Learned: rule_variable(b).
+> a folds2 b means a glorphs b
+<~ @S folds2 @O
+> kaleo folds2 ivor
+< Learned: glorphs(kaleo, ivor).
+!query glorphs(kaleo, ivor)
