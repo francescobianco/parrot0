@@ -60,3 +60,6 @@
 > build me a roadmap to learn chess
 <~ chess learning
 <~ wikipedia
+!forget intent_cue(plan_request, "build me a roadmap")
+> build me a roadmap to learn chess
+<~ don't understand
