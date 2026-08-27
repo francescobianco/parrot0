@@ -7,7 +7,9 @@ ragiona.
 **Prima evidenza:**
 [`depth-session-01.md`](../labs/apprendimento-assistito/depth-session-01.md).  
 **Cancello:** §6 — nessuna sessione lunga prima che gli strati di
-meta-comprensione M0–M14 siano chiusi.
+meta-comprensione M0–M14 siano chiusi.  
+**Ritmo:** §11 — ogni cosa appresa è un piccolo incremento, e si committa e
+pusha anche se parziale.
 
 ## 1. Il pensiero da rendere vero
 
@@ -471,7 +473,46 @@ emerge. Si marcano come `superseded`, `failed` o `partial` e restano consultabil
 Un tentativo incompleto che alza il livello di astrazione è materiale di ricerca,
 non spazzatura.
 
-## 11. Milestone
+## 11. Ogni incremento è committabile
+
+**Regola.** La conoscenza e le regole che parrot0 apprende durante una sessione
+si committano e si pushano **sempre**, anche parziali, anche incomplete. Non
+esiste il contributo compatto: non è ammesso tenere l'apprendimento in staging
+finché la sessione non è completa.
+
+Il principio è quello dei piccoli incrementi. **Ogni cosa appresa è un piccolo
+incremento**, e in qualunque momento è legittimo committare e pushare un piccolo
+avanzamento della KB. Non serve che chiuda uno strato, una milestone o un'ora di
+curriculum. Non serve nemmeno che sia elegante.
+
+Questo **non** significa commit compulsivo. Non c'è un obbligo di frequenza e non
+c'è un merito nel numero di commit. Significa soltanto togliere il permesso
+implicito che si dava all'attesa: nessun avanzamento resta fuori dal repository
+perché «è ancora poco», «lo committo quando ho finito il resto» o «da solo non si
+capisce». Un incremento parziale nel repository vale più di un incremento
+completo che vive soltanto nella sessione di chi lo ha prodotto.
+
+Le ragioni sono le stesse del §10:
+
+- una lezione non committata è una traccia persa, e le tracce non si cancellano;
+- un incremento visibile può essere contraddetto, superato o ritratto da
+  chiunque; uno invisibile no;
+- la genealogia delle capacità si costruisce dai passi, non dal risultato;
+- un lotto grande nasconde quale lezione ha prodotto quale capacità, che è
+  esattamente ciò che il gate di provenienza del §3 chiede di sapere.
+
+Conseguenze operative:
+
+- ciò che è parziale si dichiara parziale nel messaggio di commit, non si
+  trattiene fino a diventare completo;
+- una lezione che ha fallito i gate si committa come `failed` o `partial` con la
+  sua evidenza, coerentemente con il §10: è inventario, non spazzatura;
+- una suite rossa preesistente non è motivo per trattenere un incremento
+  indipendente; si dichiara il rosso, non lo si usa come lucchetto;
+- il messaggio di commit dice che cosa parrot0 ha imparato e che cosa non ha
+  ancora imparato, non soltanto quali file sono cambiati.
+
+## 12. Milestone
 
 ### A0 — Misura iniziale (completato)
 
@@ -524,7 +565,7 @@ gate di milestone verde sugli esempi che l'hanno guidata non chiude lo strato
 corrispondente (§6.3). Il risultato è un checkpoint della KB con genealogia, non
 una promozione opaca di tutto ciò che è stato detto.
 
-## 12. Criterio di missione
+## 13. Criterio di missione
 
 Non si può essere sicuri in anticipo di eguagliare un LLM. Si può però evitare di
 auto-convincersi con traguardi minimi: la missione resta falsificabile e ogni
