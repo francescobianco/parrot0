@@ -166,7 +166,11 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
             return 1;
         }
         char msg[480]; size_t o = 0;
-        o += (size_t)snprintf(msg + o, sizeof msg - o, "This session I created: ");
+        { char _t1[512];
+        const KbResponseSlot _r1[] = { { "x", "" } };
+        kb_term_say(b, "this_session_i_created", _r1, 0, _t1, sizeof _t1);
+        o += (size_t)snprintf(msg + o, sizeof msg - o, "%s", _t1);
+        }
         for (size_t i = 0; i < n && o + 2 < sizeof msg; i++) {
             char *p = paths[i]; size_t l = strlen(p);
             if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }

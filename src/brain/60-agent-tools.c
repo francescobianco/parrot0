@@ -530,15 +530,22 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
                     off += (size_t)snprintf(msg+off, sizeof msg-off,
                                             "`%s` is defined in %s", patbuf, file);
                 else
-                    off += (size_t)snprintf(msg+off, sizeof msg-off,
-                                            "`%s` is not defined under %s", patbuf, dirbuf);
+                    { char _t1[512];
+                    const KbResponseSlot _r1[] = { { "patbuf", patbuf }, { "dirbuf", dirbuf } };
+                    kb_term_say(b, "x_is_not_defined_under_x", _r1, 2, _t1, sizeof _t1);
+                    off += (size_t)snprintf(msg+off, sizeof msg-off, "%s", _t1);
+                    }
                 if (nc && (want_callers || located)) {
                     off += (size_t)snprintf(msg+off, sizeof msg-off, "; called by ");
                     for (size_t i = 0; i < nc && off < sizeof msg; i++)
                         off += (size_t)snprintf(msg+off, sizeof msg-off, "%s%s",
                                                 i ? ", " : "", callers[i]);
                 } else if (located && !nc && want_callers) {
-                    off += (size_t)snprintf(msg+off, sizeof msg-off, "; nothing calls it");
+                    { char _t2[512];
+                    const KbResponseSlot _r2[] = { { "x", "" } };
+                    kb_term_say(b, "nothing_calls_it", _r2, 0, _t2, sizeof _t2);
+                    off += (size_t)snprintf(msg+off, sizeof msg-off, "%s", _t2);
+                    }
                 }
                 if (off < sizeof msg) snprintf(msg+off, sizeof msg-off, ".");
                 put(msg, out, out_size);
@@ -649,15 +656,22 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
                                     : code_ingest(b->kb, code, names, 32);
             if (k > 0) {
                 size_t shown = k < 32 ? k : 32;
-                size_t off = (size_t)snprintf(out, out_size,
-                             "I read %s into structure: it defines ", file);
+                char _t3[512];
+                const KbResponseSlot _r3[] = { { "file", file } };
+                kb_term_say(b, "i_read_x_into_structure_it_defines", _r3, 1, _t3, sizeof _t3);
+                size_t off = (size_t)snprintf(out, out_size, "%s", _t3);
                 for (size_t i = 0; i < shown && off < out_size; i++) {
                     const char *sep = (i==0) ? "" : (i==shown-1) ? " and " : ", ";
                     off += (size_t)snprintf(out+off, out_size-off, "%s%s", sep, names[i]);
                 }
                 if (off < out_size)
-                    snprintf(out+off, out_size-off,
-                             ". (%zu function%s now in the KB.)", k, k==1?"":"s");
+                    { char _t4[512];
+                    char _t4_v0[48]; snprintf(_t4_v0, sizeof _t4_v0, "%zu", k);
+                    char _t4_v1[48]; snprintf(_t4_v1, sizeof _t4_v1, "%s", k==1?"":"s");
+                    const KbResponseSlot _r4[] = { { "k", _t4_v0 }, { "s", _t4_v1 } };
+                    kb_term_say(b, "x_functionx_now_in_the_kb", _r4, 2, _t4, sizeof _t4);
+                    snprintf(out+off, out_size-off, "%s", _t4);
+                    }
                 char proof[320];
                 { 
                   char _v1[48]; snprintf(_v1, sizeof _v1, "%zu", k);
@@ -1944,14 +1958,17 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    size_t oo = (size_t)snprintf(out, out_size,
-                                 "I understood the request — produce \"%s\"", obj);
+    char _t1[512];
+    const KbResponseSlot _r1[] = { { "obj", obj } };
+    kb_term_say(b, "i_understood_the_request_produce_x", _r1, 1, _t1, sizeof _t1);
+    size_t oo = (size_t)snprintf(out, out_size, "%s", _t1);
     if (lang[0])
         oo += (size_t)snprintf(out + oo, out_size - oo, " in %s", lang);
-    snprintf(out + oo, out_size - oo,
-             " — but I don't have a verified schema for that artifact yet; I "
-             "only synthesize what an oracle can check (a sort from a learned "
-             "shape, arithmetic composition, a count-to-threshold game).");
+    { char _t2[512];
+    const KbResponseSlot _r2[] = { { "x", "" } };
+    kb_term_say(b, "but_i_don_t_have_a_verified_schema_for_that", _r2, 0, _t2, sizeof _t2);
+    snprintf(out + oo, out_size - oo, "%s", _t2);
+    }
     store_proof(b, out);
     return 1;
 }

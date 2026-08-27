@@ -499,14 +499,22 @@ static int mod_robust(Brain *b, const char *norm, const char *raw,
   const KbResponseSlot _rs[] = { { "last_goal_arg", _v0 }, { "last_goal_pred", _v1 }, { "crit", crit[0] } };
           kb_term_say(b, "my_conclusion_that_x_is_a_x_is_fragile_it_re", _rs, 3, msg, sizeof msg); }
     } else {
-        size_t o = (size_t)snprintf(msg, sizeof msg,
-                 "My conclusion that %s is a %s rests on %zu load-bearing facts: ",
-                 b->last_goal_arg, b->last_goal_pred, ncrit);
+        char _t1[512];
+        char _t1_v0[48]; snprintf(_t1_v0, sizeof _t1_v0, "%s", b->last_goal_arg);
+        char _t1_v1[48]; snprintf(_t1_v1, sizeof _t1_v1, "%s", b->last_goal_pred);
+        char _t1_v2[48]; snprintf(_t1_v2, sizeof _t1_v2, "%zu", ncrit);
+        const KbResponseSlot _r1[] = { { "last_goal_arg", _t1_v0 }, { "last_goal_pred", _t1_v1 }, { "ncrit", _t1_v2 } };
+        kb_term_say(b, "my_conclusion_that_x_is_a_x_rests_on_x_load", _r1, 3, _t1, sizeof _t1);
+        size_t o = (size_t)snprintf(msg, sizeof msg, "%s", _t1);
         for (size_t i = 0; i < ncrit && o < sizeof msg; i++)
             o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s",
                                   i ? ", " : "", crit[i]);
         if (o < sizeof msg)
-            snprintf(msg + o, sizeof msg - o, ". Removing any one would overturn it.");
+            { char _t2[512];
+            const KbResponseSlot _r2[] = { { "x", "" } };
+            kb_term_say(b, "removing_any_one_would_overturn_it", _r2, 0, _t2, sizeof _t2);
+            snprintf(msg + o, sizeof msg - o, "%s", _t2);
+            }
     }
     put(msg, out, out_size);
     return 1;
@@ -766,9 +774,11 @@ static int mod_calibrate(Brain *b, const char *norm, const char *raw,
   const KbResponseSlot _rs[] = { { "crit", crit[0] }, { "last_goal_arg", _v1 }, { "last_goal_pred", _v2 } };
               kb_term_say(b, "it_hangs_on_one_premise_if_i_learned_that_x", _rs, 3, msg, sizeof msg); }
         else {
-            size_t o = (size_t)snprintf(msg, sizeof msg,
-                     "It hangs on %zu premises — overturning any one would change it: ",
-                     nc);
+            char _t3[512];
+            char _t3_v0[48]; snprintf(_t3_v0, sizeof _t3_v0, "%zu", nc);
+            const KbResponseSlot _r3[] = { { "nc", _t3_v0 } };
+            kb_term_say(b, "it_hangs_on_x_premises_overturning_any_one_w", _r3, 1, _t3, sizeof _t3);
+            size_t o = (size_t)snprintf(msg, sizeof msg, "%s", _t3);
             for (size_t i = 0; i < nc && o < sizeof msg; i++)
                 o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s",
                                       i ? ", " : "", crit[i]);

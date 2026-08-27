@@ -769,8 +769,10 @@ static int plan_execute_goal(Brain *b, const char *goal, const char *praw,
     (void)plan_request_path(praw, target, sizeof target);
     (void)plan_request_fn(praw, fn, sizeof fn);
 
-    size_t o = (size_t)snprintf(out, out_size, "Executed derived plan for %s:",
-                                goal_h);
+    char _t1[512];
+    const KbResponseSlot _r1[] = { { "goal_h", goal_h } };
+    kb_term_say(b, "executed_derived_plan_for_x", _r1, 1, _t1, sizeof _t1);
+    size_t o = (size_t)snprintf(out, out_size, "%s", _t1);
     size_t ran = 0;
     for (size_t i = 0; i < nsteps && o < out_size; i++) {
         const char *qi[2] = { steps[i], NULL };

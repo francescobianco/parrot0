@@ -2527,9 +2527,13 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
 
     char msg[700];
     if (want_count) {
-        size_t o = (size_t)snprintf(msg, sizeof msg,
-            "I count %d%s word%s you can build: ", total,
-            len_filter ? "" : "", total == 1 ? "" : "s");
+        char _t1[512];
+        char _t1_v0[48]; snprintf(_t1_v0, sizeof _t1_v0, "%d", total);
+        char _t1_v1[48]; snprintf(_t1_v1, sizeof _t1_v1, "%s", len_filter ? "" : "");
+        char _t1_v2[48]; snprintf(_t1_v2, sizeof _t1_v2, "%s", total == 1 ? "" : "s");
+        const KbResponseSlot _r1[] = { { "total", _t1_v0 }, { "len_filter", _t1_v1 }, { "s", _t1_v2 } };
+        kb_term_say(b, "i_count_xx_wordx_you_can_build", _r1, 3, _t1, sizeof _t1);
+        size_t o = (size_t)snprintf(msg, sizeof msg, "%s", _t1);
         size_t show = nh < 12 ? nh : 12;
         for (size_t i = 0; i < show && o + 4 < sizeof msg; i++)
             o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s", i ? ", " : "", hits[i]);
@@ -2537,7 +2541,10 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
         if (o + 2 < sizeof msg) snprintf(msg + o, sizeof msg - o, ".");
     } else {
         size_t want = list_n > 0 ? (size_t)list_n : (nh < 8 ? nh : 8);
-        size_t o = (size_t)snprintf(msg, sizeof msg, "You can make: ");
+        char _t2[512];
+        const KbResponseSlot _r2[] = { { "x", "" } };
+        kb_term_say(b, "you_can_make", _r2, 0, _t2, sizeof _t2);
+        size_t o = (size_t)snprintf(msg, sizeof msg, "%s", _t2);
         for (size_t i = 0; i < nh && i < want && o + 4 < sizeof msg; i++)
             o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s",
                                   i ? (i + 1 == want ? " and " : ", ") : "", hits[i]);

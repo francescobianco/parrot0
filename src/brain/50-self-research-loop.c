@@ -189,8 +189,10 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
             /* gen166: emit a runnable, single-line `>`-turn skeleton over the
              * derived parts (a fixed example tuple). An external agent fills the
              * names and drops it into tests/compose/; parrot0 does not run it. */
-            size_t o = (size_t)snprintf(msg, sizeof msg,
-                "Here is a held-out dialogue I would run (fresh names; an external agent fills and runs it, I do not):");
+            char _t1[512];
+            const KbResponseSlot _r1[] = { { "x", "" } };
+            kb_term_say(b, "here_is_a_held_out_dialogue_i_would_run_fres", _r1, 0, _t1, sizeof _t1);
+            size_t o = (size_t)snprintf(msg, sizeof msg, "%s", _t1);
             for (size_t k = 0; k < picked; k++) {
                 char trn[256];
                 build_turn(b, core[pick[k]].key, compose_vocab[0], trn, sizeof trn);
@@ -535,7 +537,12 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
      * e' una pagina povera, e' una pagina letta male — e chi guarda deve poterlo
      * distinguere. */
     if (nrejected && mo + 40 < out_sz)
-        snprintf(out + mo, out_sz - mo, " (%d scartati dal cancello)", nrejected);
+        { char _t2[512];
+        char _t2_v0[48]; snprintf(_t2_v0, sizeof _t2_v0, "%d", nrejected);
+        const KbResponseSlot _r2[] = { { "nrejected", _t2_v0 } };
+        kb_term_say(b, "x_scartati_dal_cancello", _r2, 1, _t2, sizeof _t2);
+        snprintf(out + mo, out_sz - mo, "%s", _t2);
+        }
     return nfacts + nrules;
 }
 
@@ -1359,9 +1366,10 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         if (na == 0 && ns == 0) return 0;   /* no ledger loaded -> claim nothing */
 
         char body[900];
-        size_t off = (size_t)snprintf(body, sizeof body,
-            "From my capability ledger, which is generated from real test results "
-            "and not a description I wrote about myself: ");
+        char _t3[512];
+        const KbResponseSlot _r3[] = { { "x", "" } };
+        kb_term_say(b, "from_my_capability_ledger_which_is_generated", _r3, 0, _t3, sizeof _t3);
+        size_t off = (size_t)snprintf(body, sizeof body, "%s", _t3);
 
         if (na > 0 && off < sizeof body) {
             off += (size_t)snprintf(body + off, sizeof body - off, "I cannot do ");
@@ -1378,9 +1386,11 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                 off += (size_t)snprintf(body + off, sizeof body - off, ". ");
         }
         if (ns > 0 && off < sizeof body) {
-            off += (size_t)snprintf(body + off, sizeof body - off,
-                "These I can only do as a seed — one demonstrated case, not "
-                "reliably: ");
+            { char _t4[512];
+            const KbResponseSlot _r4[] = { { "x", "" } };
+            kb_term_say(b, "these_i_can_only_do_as_a_seed_one_demonstrat", _r4, 0, _t4, sizeof _t4);
+            off += (size_t)snprintf(body + off, sizeof body - off, "%s", _t4);
+            }
             for (size_t i = 0; i < ns && off < sizeof body; i++) {
                 char nm[KB_TERM_LEN]; self_readable(nm, sizeof nm, seed[i]);
                 off += (size_t)snprintf(body + off, sizeof body - off, "%s%s",
@@ -1763,8 +1773,11 @@ static int describe_command(Brain *b, const char *cmdline,
     if (kn) o += (size_t)snprintf(desc + o, desc_size - o, ", %s", known);
     if (o < desc_size) o += (size_t)snprintf(desc + o, desc_size - o, ".");
     if (un && o < desc_size)
-        snprintf(desc + o, desc_size - o,
-                 " I don't know the option %s.", unknown);
+        { char _t5[512];
+        const KbResponseSlot _r5[] = { { "unknown", unknown } };
+        kb_term_say(b, "i_don_t_know_the_option_x", _r5, 1, _t5, sizeof _t5);
+        snprintf(desc + o, desc_size - o, "%s", _t5);
+        }
     return 1;
 }
 

@@ -577,3 +577,53 @@ response_template(is_x_a_x_how_sure_are_you, "is {name} a {cls}? > how sure are 
 response_template(x_causes_floods_what_does_x_cause, "{noun} causes floods > what does {noun2} cause?").
 response_template(5_is_greater_than_3_which_is_greater_5_or_3, "5 is greater than 3 > which is greater, 5 or 3?").
 response_template(unsafe_path_x_is_not_a_directory_inside_my_w, "unsafe_path: `{dir}` is not a directory inside my workspace ({p0_root}), so I did not look there.").
+
+%% Ottava tranche: le frasi che venivano APPESE a un buffer, o il cui snprintf
+%% serviva anche per il valore di ritorno. La frase esce in un buffer
+%% temporaneo e l'append resta identico: cambia da dove viene il testo.
+
+response_template(i_remember_no_durable_personal_facts_yet, "I remember no durable personal facts yet.").
+response_template(session_context, " Session context:").
+response_template(x_runs_through_it, " {p} runs through it.").
+response_template(it_borders_the_x, " It borders the {p}.").
+response_template(a_famous_landmark_there_is_x, " A famous landmark there is {p}.").
+response_template(i_don_t_know_a_famous_landmark_there_yet, " I don't know a famous landmark there yet.").
+response_template(it_became_the_capital_in_x, " It became the capital in {p}.").
+response_template(to_its_west_lies_x, " To its west lies {p}.").
+response_template(one_of_its_moons_is_x_x, " One of its moons is {mn}, {dp}.").
+response_template(i_m_a_small_program_not_a_real_manager_but_h, "I'm a small program, not a real manager, but here's how I'd handle it:").
+response_template(i_know_x_as_a_x_part_fact_not_a_class_so_i_c, "I know {cls} as a {known}-part fact, not a class, so I can't put {subj} in it.").
+response_template(i_count_xx_wordx_you_can_build, "I count {total}{len_filter} word{s} you can build: ").
+response_template(you_can_make, "You can make: ").
+response_template(executed_derived_plan_for_x, "Executed derived plan for {goal_h}:").
+response_template(this_session_i_created, "This session I created: ").
+response_template(here_is_a_held_out_dialogue_i_would_run_fres, "Here is a held-out dialogue I would run (fresh names; an external agent fills and runs it, I do not):").
+response_template(x_scartati_dal_cancello, " ({nrejected} scartati dal cancello)").
+response_template(from_my_capability_ledger_which_is_generated, "From my capability ledger, which is generated from real test results and not a description I wrote about myself: ").
+response_template(these_i_can_only_do_as_a_seed_one_demonstrat, "These I can only do as a seed — one demonstrated case, not reliably: ").
+response_template(i_don_t_know_the_option_x, " I don't know the option {unknown}.").
+response_template(x_is_not_defined_under_x, "`{patbuf}` is not defined under {dirbuf}").
+response_template(nothing_calls_it, "; nothing calls it").
+response_template(i_read_x_into_structure_it_defines, "I read {file} into structure: it defines ").
+response_template(x_functionx_now_in_the_kb, ". ({k} function{s} now in the KB.)").
+
+%% Ottava tranche: le frasi che venivano APPESE a un buffer, o il cui snprintf
+%% serviva anche per il valore di ritorno. La frase esce in un buffer
+%% temporaneo e l'append resta identico: cambia da dove viene il testo.
+
+response_template(i_understood_the_request_produce_x, "I understood the request — produce «{obj}»").
+response_template(but_i_don_t_have_a_verified_schema_for_that, " — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).").
+response_template(we_talked_about, "We talked about ").
+response_template(that_is_a_rules_spec, "That is a rules spec — ").
+response_template(x_numbered_rules, "{nrules} numbered rules").
+response_template(i_can_recognize_the_x_rules, "; I can recognize the {catlist} rules").
+response_template(but_i_cannot_yet_translate_free_text_rules_i, ", but I cannot yet translate free-text rules into a program. My code synthesis covers verified schemas (a sort from a learned shape, arithmetic composition), not open rule specs — the text-to-code bridge is the gap.").
+response_template(in_x_the_code_x_the_coupled_fix_is, "In {path}, the code {creason}; the coupled fix is:").
+response_template(in_x_the_code_x_patched_copy_written_to_x_x, "In {path}, the code {creason}. Patched copy written to {outpath}; {ne} edits:").
+response_template(the_oracle_ran_it_and_reported_x, "the oracle ran it and reported {initial_diagnosis}").
+response_template(it_prints_output_using_printf, " It prints output using printf.").
+response_template(the_compiler_rejects_it_x, "the compiler rejects it: {diag}. ").
+response_template(python_3_requires_parentheses_for_print_use, "Python 3 requires parentheses for print: use print(...) not print ...").
+response_template(my_conclusion_that_x_is_a_x_rests_on_x_load, "My conclusion that {last_goal_arg} is a {last_goal_pred} rests on {ncrit} load-bearing facts: ").
+response_template(removing_any_one_would_overturn_it, ". Removing any one would overturn it.").
+response_template(it_hangs_on_x_premises_overturning_any_one_w, "It hangs on {nc} premises — overturning any one would change it: ").

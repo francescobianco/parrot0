@@ -651,7 +651,10 @@ static int mod_discourse(Brain *b, const char *norm, const char *raw,
         return 1;
     }
     char msg[256];
-    size_t off = (size_t)snprintf(msg, sizeof msg, "We talked about ");
+    char _t1[512];
+    const KbResponseSlot _r1[] = { { "x", "" } };
+    kb_term_say(b, "we_talked_about", _r1, 0, _t1, sizeof _t1);
+    size_t off = (size_t)snprintf(msg, sizeof msg, "%s", _t1);
     for (size_t i = 0; i < b->topic_count && off < sizeof msg; i++) {
         const char *sep;
         if (i == 0) sep = "";

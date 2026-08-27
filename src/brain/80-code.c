@@ -250,18 +250,29 @@ static int mod_rulespec(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    size_t o = (size_t)snprintf(out, out_size, "That is a rules spec — ");
+    char _t1[512];
+    const KbResponseSlot _r1[] = { { "x", "" } };
+    kb_term_say(b, "that_is_a_rules_spec", _r1, 0, _t1, sizeof _t1);
+    size_t o = (size_t)snprintf(out, out_size, "%s", _t1);
     if (title[0])
         o += (size_t)snprintf(out + o, out_size - o, "\"%s\", ", title);
-    o += (size_t)snprintf(out + o, out_size - o, "%d numbered rules", nrules);
+    { char _t2[512];
+    char _t2_v0[48]; snprintf(_t2_v0, sizeof _t2_v0, "%d", nrules);
+    const KbResponseSlot _r2[] = { { "nrules", _t2_v0 } };
+    kb_term_say(b, "x_numbered_rules", _r2, 1, _t2, sizeof _t2);
+    o += (size_t)snprintf(out + o, out_size - o, "%s", _t2);
+    }
     if (nc > 0)
-        o += (size_t)snprintf(out + o, out_size - o,
-                              "; I can recognize the %s rules", catlist);
-    snprintf(out + o, out_size - o,
-             ", but I cannot yet translate free-text rules into a program. My "
-             "code synthesis covers verified schemas (a sort from a learned "
-             "shape, arithmetic composition), not open rule specs — the "
-             "text-to-code bridge is the gap.");
+        { char _t3[512];
+        const KbResponseSlot _r3[] = { { "catlist", catlist } };
+        kb_term_say(b, "i_can_recognize_the_x_rules", _r3, 1, _t3, sizeof _t3);
+        o += (size_t)snprintf(out + o, out_size - o, "%s", _t3);
+        }
+    { char _t4[512];
+    const KbResponseSlot _r4[] = { { "x", "" } };
+    kb_term_say(b, "but_i_cannot_yet_translate_free_text_rules_i", _r4, 0, _t4, sizeof _t4);
+    snprintf(out + o, out_size - o, "%s", _t4);
+    }
     store_proof(b, out);
     return 1;
 }
@@ -686,8 +697,10 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                 const char *creason = "matches all-caps keywords case-sensitively "
                     "(a flagless re.compile and an uppercase-literal ==) where case should not matter";
                 if (!sym_write) {                  /* report-only: localize, touch nothing */
-                    size_t o = (size_t)snprintf(out, out_size,
-                                 "In %s, the code %s; the coupled fix is:", path, creason);
+                    char _t5[512];
+                    const KbResponseSlot _r5[] = { { "path", path }, { "creason", creason } };
+                    kb_term_say(b, "in_x_the_code_x_the_coupled_fix_is", _r5, 2, _t5, sizeof _t5);
+                    size_t o = (size_t)snprintf(out, out_size, "%s", _t5);
                     for (int i = 0; i < ne && o < out_size; i++)
                         o += (size_t)snprintf(out + o, out_size - o,
                                               " [%d] `%s` -> `%s`", i + 1, colds[i], cnews[i]);
@@ -707,9 +720,11 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                     store_proof(b, out);
                     return 1;
                 }
-                size_t o = (size_t)snprintf(out, out_size,
-                             "In %s, the code %s. Patched copy written to %s; %d edits:",
-                             path, creason, outpath, ne);
+                char _t6[512];
+                char _t6_v3[48]; snprintf(_t6_v3, sizeof _t6_v3, "%d", ne);
+                const KbResponseSlot _r6[] = { { "path", path }, { "creason", creason }, { "outpath", outpath }, { "ne", _t6_v3 } };
+                kb_term_say(b, "in_x_the_code_x_patched_copy_written_to_x_x", _r6, 4, _t6, sizeof _t6);
+                size_t o = (size_t)snprintf(out, out_size, "%s", _t6);
                 for (int i = 0; i < ne && o < out_size; i++)
                     o += (size_t)snprintf(out + o, out_size - o,
                                           " [%d] `%s` -> `%s`", i + 1, colds[i], cnews[i]);
@@ -1378,8 +1393,11 @@ static int repair_loop(Brain *b, const char *src, const char *fn,
     /* Keep the established user renderer; it consumes the typed trace instead
      * of controlling the search. */
     char trace[512];
-    size_t to = (size_t)snprintf(trace, sizeof trace,
-        "the oracle ran it and reported %s", result.initial_diagnosis);
+    char _t7[512];
+    char _t7_v0[48]; snprintf(_t7_v0, sizeof _t7_v0, "%s", result.initial_diagnosis);
+    const KbResponseSlot _r7[] = { { "initial_diagnosis", _t7_v0 } };
+    kb_term_say(b, "the_oracle_ran_it_and_reported_x", _r7, 1, _t7, sizeof _t7);
+    size_t to = (size_t)snprintf(trace, sizeof trace, "%s", _t7);
     for (size_t i = 0; i < result.attempts; i++) {
         if (to < sizeof trace)
             to += (size_t)snprintf(trace + to, sizeof trace - to,
@@ -1739,7 +1757,11 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
       kb_term_say(b, "this_is_a_x_code_snippet", _rs, 1, out, out_size); }
         if (kb_cue_match(b, "80_code_lex1732", code)) {
             size_t l = strlen(out);
-            snprintf(out + l, out_size - l, " It prints output using printf.");
+            { char _t8[512];
+            const KbResponseSlot _r8[] = { { "x", "" } };
+            kb_term_say(b, "it_prints_output_using_printf", _r8, 0, _t8, sizeof _t8);
+            snprintf(out + l, out_size - l, "%s", _t8);
+            }
         }
         if (kb_cue_match(b, "80_code_lex1736", code)) {
             size_t l = strlen(out);
@@ -1828,8 +1850,11 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
          * failure this generation exists to end. */
         if (syn == 0 && errors == 0 && diag[0]) {
             size_t ol = strlen(findings);
-            snprintf(findings + ol, sizeof findings - ol, "the compiler rejects it: %s. ",
-                     diag);
+            { char _t9[512];
+            const KbResponseSlot _r9[] = { { "diag", diag } };
+            kb_term_say(b, "the_compiler_rejects_it_x", _r9, 1, _t9, sizeof _t9);
+            snprintf(findings + ol, sizeof findings - ol, "%s", _t9);
+            }
             errors++;
         }
         if (check_unknown_function(code, b, r, sizeof r)) {
@@ -1875,8 +1900,11 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
         }
         if (kb_cue_match(b, "80_code_lex1872", code) && !strstr(code, "print(")) {
             size_t ol = strlen(findings);
-            snprintf(findings + ol, sizeof findings - ol,
-                "Python 3 requires parentheses for print: use print(...) not print ...");
+            { char _t10[512];
+            const KbResponseSlot _r10[] = { { "x", "" } };
+            kb_term_say(b, "python_3_requires_parentheses_for_print_use", _r10, 0, _t10, sizeof _t10);
+            snprintf(findings + ol, sizeof findings - ol, "%s", _t10);
+            }
             errors++;
         }
     }

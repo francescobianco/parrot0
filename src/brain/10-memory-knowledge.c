@@ -593,8 +593,11 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             any = 1;
         }
         if (!any) {
-            off = (size_t)snprintf(msg, sizeof msg,
-                                   "I remember no durable personal facts yet.");
+            { char _t1[512];
+            const KbResponseSlot _r1[] = { { "x", "" } };
+            kb_term_say(b, "i_remember_no_durable_personal_facts_yet", _r1, 0, _t1, sizeof _t1);
+            off = (size_t)snprintf(msg, sizeof msg, "%s", _t1);
+            }
         } else if (off < sizeof msg) {
             off += (size_t)snprintf(msg + off, sizeof msg - off, ".");
         }
@@ -611,7 +614,11 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         int session = has_mood || b->has_current_topic || b->has_user_constraint;
         if (session && off < sizeof msg) {
             int s = 0;
-            off += (size_t)snprintf(msg + off, sizeof msg - off, " Session context:");
+            { char _t2[512];
+            const KbResponseSlot _r2[] = { { "x", "" } };
+            kb_term_say(b, "session_context", _r2, 0, _t2, sizeof _t2);
+            off += (size_t)snprintf(msg + off, sizeof msg - off, "%s", _t2);
+            }
             if (has_mood && off < sizeof msg) {
                 off += (size_t)snprintf(msg + off, sizeof msg - off,
                                         "%s you feel %s", s ? ";" : "", mood);
@@ -11060,8 +11067,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 char rh[1][KB_TERM_LEN];
                 if (kb_match(b->kb, "river_of", rq, 2, rh, 1) > 0) {
                     char *p = kb_dequote(rh[0]);
-                    off += snprintf(msg + off, sizeof msg - off,
-                                    " %s runs through it.", p);
+                    { char _t4[512];
+                    const KbResponseSlot _r4[] = { { "p", p } };
+                    kb_term_say(b, "x_runs_through_it", _r4, 1, _t4, sizeof _t4);
+                    off += snprintf(msg + off, sizeof msg - off, "%s", _t4);
+                    }
                 }
             }
             if (kb_cue_match(b, "10_memory_knowledge_chain11105", buf)) {
@@ -11070,8 +11080,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 size_t on = kb_match(b->kb, "ocean_borders", oq, 2, oh, 2);
                 if (on > 0) {
                     char *p = kb_dequote(oh[0]);
-                    off += snprintf(msg + off, sizeof msg - off,
-                                    " It borders the %s.", p);
+                    { char _t5[512];
+                    const KbResponseSlot _r5[] = { { "p", p } };
+                    kb_term_say(b, "it_borders_the_x", _r5, 1, _t5, sizeof _t5);
+                    off += snprintf(msg + off, sizeof msg - off, "%s", _t5);
+                    }
                 }
             }
             put(msg, out, out_size);
@@ -11132,11 +11145,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     if (kb_match(b->kb, "landmark_of", lq, 2, lm, 1) > 0) {
                         char *p = lm[0]; size_t l = strlen(p);
                         if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
-                        off += snprintf(msg + off, sizeof msg - off,
-                                        " A famous landmark there is %s.", p);
+                        { char _t6[512];
+                        const KbResponseSlot _r6[] = { { "p", p } };
+                        kb_term_say(b, "a_famous_landmark_there_is_x", _r6, 1, _t6, sizeof _t6);
+                        off += snprintf(msg + off, sizeof msg - off, "%s", _t6);
+                        }
                     } else {
-                        off += snprintf(msg + off, sizeof msg - off,
-                                        " I don't know a famous landmark there yet.");
+                        { char _t7[512];
+                        const KbResponseSlot _r7[] = { { "x", "" } };
+                        kb_term_say(b, "i_don_t_know_a_famous_landmark_there_yet", _r7, 0, _t7, sizeof _t7);
+                        off += snprintf(msg + off, sizeof msg - off, "%s", _t7);
+                        }
                     }
                 }
                 /* gen241 (LLMSCORE-check): compound — the river through the capital. */
@@ -11147,8 +11166,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                         char *p = rh[0]; size_t l = strlen(p);
                         if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
                         if (*p) p[0] = (char)toupper((unsigned char)p[0]);
-                        off += snprintf(msg + off, sizeof msg - off,
-                                        " %s runs through it.", p);
+                        { char _t8[512];
+                        const KbResponseSlot _r8[] = { { "p", p } };
+                        kb_term_say(b, "x_runs_through_it", _r8, 1, _t8, sizeof _t8);
+                        off += snprintf(msg + off, sizeof msg - off, "%s", _t8);
+                        }
                     }
                 }
                 /* gen254: compound — since when it has been the capital. */
@@ -11157,8 +11179,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     char yh[1][KB_TERM_LEN];
                     if (kb_match(b->kb, "capital_since", yq, 2, yh, 1) > 0) {
                         char *p = kb_dequote(yh[0]);
-                        off += snprintf(msg + off, sizeof msg - off,
-                                        " It became the capital in %s.", p);
+                        { char _t9[512];
+                        const KbResponseSlot _r9[] = { { "p", p } };
+                        kb_term_say(b, "it_became_the_capital_in_x", _r9, 1, _t9, sizeof _t9);
+                        off += snprintf(msg + off, sizeof msg - off, "%s", _t9);
+                        }
                     }
                 }
                 /* gen254: compound — which city the capital replaced in that role. */
@@ -11178,8 +11203,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     if (kb_match(b->kb, "ocean_west_of", oq, 2, oh, 1) > 0) {
                         char *p = oh[0]; size_t l = strlen(p);
                         if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
-                        off += snprintf(msg + off, sizeof msg - off,
-                                        " To its west lies %s.", p);
+                        { char _t10[512];
+                        const KbResponseSlot _r10[] = { { "p", p } };
+                        kb_term_say(b, "to_its_west_lies_x", _r10, 1, _t10, sizeof _t10);
+                        off += snprintf(msg + off, sizeof msg - off, "%s", _t10);
+                        }
                     }
                 }
                 put(msg, out, out_size);
@@ -11288,8 +11316,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                                 if (ml >= 2 && mn[0]=='"' && mn[ml-1]=='"') { mn[ml-1]='\0'; mn++; }
                                 char *dp = md[0]; size_t dl = strlen(dp);
                                 if (dl >= 2 && dp[0]=='"' && dp[dl-1]=='"') { dp[dl-1]='\0'; dp++; }
-                                snprintf(msg + off, sizeof msg - off,
-                                         " One of its moons is %s, %s.", mn, dp);
+                                { char _t11[512];
+                                const KbResponseSlot _r11[] = { { "mn", mn }, { "dp", dp } };
+                                kb_term_say(b, "one_of_its_moons_is_x_x", _r11, 2, _t11, sizeof _t11);
+                                snprintf(msg + off, sizeof msg - off, "%s", _t11);
+                                }
                             }
                         }
                     }
@@ -11726,8 +11757,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             size_t sn = kb_match(b->kb, "scenario_step", q, 3, nums, 8);
             if (sn > 0) {
                 char msg[800];
-                int off = snprintf(msg, sizeof msg,
-                    "I'm a small program, not a real manager, but here's how I'd handle it:");
+                char _t12[512];
+                const KbResponseSlot _r12[] = { { "x", "" } };
+                kb_term_say(b, "i_m_a_small_program_not_a_real_manager_but_h", _r12, 0, _t12, sizeof _t12);
+                int off = snprintf(msg, sizeof msg, "%s", _t12);
                 for (size_t i = 0; i < sn; i++) {
                     const char *nq[] = { scene, nums[i], NULL };
                     char th[1][KB_TERM_LEN];
@@ -12694,9 +12727,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 sl[1].name = "arity"; sl[1].value = ar;
                 char msg[256];
                 if (!kb_response_slots(b, "class_arity_conflict", sl, 2, msg, sizeof msg))
-                    snprintf(msg, sizeof msg,
-                             "I know %s as a %zu-part fact, not a class, "
-                             "so I can't put %s in it.", cls, known, subj);
+                    { char _t14[512];
+                    char _t14_v1[48]; snprintf(_t14_v1, sizeof _t14_v1, "%zu", known);
+                    const KbResponseSlot _r14[] = { { "cls", cls }, { "known", _t14_v1 }, { "subj", subj } };
+                    kb_term_say(b, "i_know_x_as_a_x_part_fact_not_a_class_so_i_c", _r14, 3, _t14, sizeof _t14);
+                    snprintf(msg, sizeof msg, "%s", _t14);
+                    }
                 put(msg, out, out_size);
                 return 1;
             }
