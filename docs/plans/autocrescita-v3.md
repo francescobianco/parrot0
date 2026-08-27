@@ -1345,6 +1345,14 @@ provenienza linguistica resta parte dello stato e non una scelta del renderer.
 Il profilo contiene ora anche un secondo snapshot con firma diversa e traiettoria
 inglese→francese→italiano; la regola è la stessa e non riceve un ramo dedicato.
 
+Il primo collegamento a un turno reale è ora verificato manualmente con
+«fai un piano per imparare gli scacchi» e «make a plan to learn chess»: il
+planner carica il dominio dichiarato in `kb/experts/codebase/actions.p0` e
+deriva tre passi (`learn_rules → study_openings → practice_games`) da
+precondizioni e artefatti, senza una risposta speciale sugli scacchi. La
+semantica è quindi viva nel dialogo; la realizzazione delle descrizioni in
+lingua d’uscita resta un lavoro aperto del gate multilingue.
+
 ### Ipotesi H446
 
 Dopo le nove generazioni precedenti esiste uno stato KB dal quale campagne

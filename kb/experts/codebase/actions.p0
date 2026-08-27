@@ -48,6 +48,23 @@ action_desc(run_test_suite, "run the full test suite; the refactor must be behav
 
 plan_given(target_source).
 
+% Domain example: learning a game is a causal plan, not a canned paragraph.
+% The surface cues are KB data; the generic planner derives the chain below.
+plan_goal(chess_learning, chess_fluency).
+goal_cue(chess_learning, "learn chess").
+goal_cue(chess_learning, "imparare gli scacchi").
+goal_cue(chess_learning, "imparare a giocare a scacchi").
+action_yields(learn_rules, chess_rules).
+action_needs(learn_rules, chess_basics).
+action_desc(learn_rules, "learn the board, pieces, legal moves and checkmate objective").
+action_yields(study_openings, opening_basics).
+action_needs(study_openings, chess_rules).
+action_desc(study_openings, "study a small set of principled openings and contest the centre").
+action_yields(practice_games, chess_fluency).
+action_needs(practice_games, opening_basics).
+action_desc(practice_games, "play short games and review threats, king safety and missed tactics").
+plan_given(chess_basics).
+
 % gen259 (Track 5.3): step -> primitive BINDINGS, as knowledge. Walking a derived
 % plan means realizing each step through a mute C capability; WHICH capability
 % realizes WHICH step is a fact, never a C switch on step names:
