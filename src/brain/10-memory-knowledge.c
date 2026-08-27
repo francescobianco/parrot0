@@ -3560,8 +3560,15 @@ static int p0_slot_end(Brain *b, char **w, size_t n, size_t from,
     return next_literal ? -1 : (int)n;
 }
 
-static int p0_try_extract_frames(Brain *b, char **w, size_t n,
-                                 const char *norm, char *out, size_t out_size) {
+static int p0_frame_is_taught(Brain *b, const char *raw_pattern) {
+    const char *q[3] = { raw_pattern, NULL, NULL };
+    char row[1][KB_TERM_LEN];
+    return kb_match(b->kb, "construction_frame", q, 3, row, 1) > 0;
+}
+
+static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
+                                      const char *norm, char *out,
+                                      size_t out_size, int taught_only) {
     if (!b || !b->kb || n < 3) return 0;
 
     char pats[64][KB_TERM_LEN];
@@ -3574,6 +3581,7 @@ static int p0_try_extract_frames(Brain *b, char **w, size_t n,
          * quindi l'unica con cui si puo' rileggere la sua seconda colonna. */
         char raw[KB_TERM_LEN];
         snprintf(raw, sizeof raw, "%s", pats[pi]);
+        if (taught_only && !p0_frame_is_taught(b, raw)) continue;
         char pat[KB_TERM_LEN];
         snprintf(pat, sizeof pat, "%s", kb_dequote(pats[pi]));
 
@@ -3632,6 +3640,49 @@ static int p0_try_extract_frames(Brain *b, char **w, size_t n,
         }
     }
     return 0;
+}
+
+static int p0_try_extract_frames(Brain *b, char **w, size_t n,
+                                 const char *norm, char *out, size_t out_size) {
+    return p0_try_extract_frames_only(b, w, n, norm, out, out_size, 0);
+}
+
+/* M1 — UN SOLO ATTO DI LETTURA, E LA LEZIONE HA LA PRECEDENZA.
+ *
+ * Misurato su conoscenza VERA, che e' il punto: con nomi inventati la
+ * costruzione insegnata vinceva sempre, perche' nessun altro modulo aveva
+ * qualcosa da dire. Su «Siena lies in Tuscany» e «Europa revolves around
+ * Jupiter» un consumer che sa gia' qualcosa di Siena e di Europa prende il
+ * turno e risponde — «Italy», «Sun» — e la lezione appena data non viene mai
+ * applicata. La costruzione sembrava appresa e non produceva conoscenza.
+ *
+ * Qui corre PRIMA di chi risponde, e soltanto sui pattern che una lezione ha
+ * creato: i frame di serie restano dove sono, nella loro posizione storica.
+ * Cio' che una lezione ha reso leggibile viene letto; tutto il resto scorre. */
+static int mod_taught_frame(Brain *b, const char *norm, const char *raw,
+                            char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb || !norm) return 0;
+    size_t L = strlen(norm);
+    if (L < 5 || L >= 400) return 0;
+    /* Una domanda non asserisce: la lettura vale per le dichiarative. */
+    if (norm[L - 1] == '?') return 0;
+    /* E UNA SOLA FRASE. Misurato: su «read: tari shimmers brightly at luma.
+     * nova shimmers brightly at cera.» questo modulo faceva combaciare il
+     * pattern insegnato attraverso l'intero testo e produceva
+     * `orbits(read_tari, luma_nova_shimmers_brightly)` — un fatto falso al
+     * posto di due veri. Un separatore interno significa piu' di una frase, e
+     * leggere piu' frasi non e' compito di questo modulo: e' del lettore. */
+    {
+        size_t last = L;
+        while (last > 0 && isspace((unsigned char)norm[last - 1])) last--;
+        for (size_t k = 0; k + 1 < last; k++)
+            if (norm[k] == '.' || norm[k] == ':' || norm[k] == ';') return 0;
+    }
+    char s[400]; memcpy(s, norm, L + 1);
+    char *w[32]; size_t n = split_words(s, w, 32);
+    if (n < 3) return 0;
+    return p0_try_extract_frames_only(b, w, n, norm, out, out_size, 1);
 }
 
 /* APPRENDIMENTO ASSISTITO A1 — "QUESTA COSTRUZIONE SIGNIFICA QUESTA".

@@ -326,6 +326,9 @@ static const Module registry[] = {
      * frasi come domande — "if someone is a X then they are a Y" ha la forma di
      * un condizionale e il contenuto di una quantificazione. */
     {"teachconstruction", mod_teach_construction},
+    /* M1: cio' che una LEZIONE ha reso leggibile si legge prima che un modulo
+     * generico risponda. Vale solo per i pattern nati da una lezione. */
+    {"taughtframe", mod_taught_frame},
     {"teachrule",  mod_teach_rule},
     {"teachreply", mod_teach_reply},
     {"qa",        mod_qa},
