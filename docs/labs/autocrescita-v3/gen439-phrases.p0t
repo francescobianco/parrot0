@@ -25,6 +25,11 @@
 !query input_node_order3(current_prose, 5, 3, 4)
 !query semantic_proposition(proposition(binary(produce_relation), roles(subject(new_yorkion), object(flourion))))
 !query input_clause_provenance(current_prose, $Prov)
+!assert pos(produce, verb)
+> what does new york produce
+!query input_node_phrase_form(current_turn, $Id, en, form("new york", new_yorkion))
+!query input_frame_reading(current_turn, binary(produce_relation), object, flourion)
+< Flour.
 
 [test retracting the phrase removes only the multiword path]
 !reset

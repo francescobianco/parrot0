@@ -829,11 +829,13 @@ soltanto corretta per una frase isolata.
 Il taglio Gen439 aggiunge inoltre le locuzioni come nodi `phrase` della stessa
 IR. Una relazione `phrase_form/4` insegnata a runtime (`"new york" ->
 new_yorkion`) viene risolta senza modifiche al C, ordinata per gli span e
-composta nella proposizione della prosa; rimuovendo la relazione, la stessa
+composta nella proposizione della prosa; la stessa locuzione viene poi
+riconosciuta nella domanda e consumata dal frame di risposta. Anche il confine
+verbale (`pos(produce,verb)`) è insegnato nella KB. Rimuovendo la forma, la
 prosa non produce più quella proposizione. L'esperimento costruttivo
-`gen439-phrases.p0t` chiude con **11 proprietà passate**. Questo campione
-conferma il percorso prosa→locuzione→IR; l'indicizzazione di locuzioni nelle
-domande resta il passo successivo, non viene dichiarata già risolta.
+`gen439-phrases.p0t` chiude con **14 proprietà passate**. Questo campione
+conferma il percorso prosa→locuzione→IR→domanda; restano da generalizzare
+coordinazioni e locuzioni annidate.
 
 Stato del gate: **H438 resta aperta** e H439 è in avanzamento. Questi risultati dimostrano il produttore
 n-lingue e il primo verticale prosa→proposizione→domanda→risposta, non M1–M5
