@@ -1,0 +1,49 @@
+# M13 — IL MURO DICE CHE TIPO DI LACUNA HA.
+#
+# Fino a qui il declino informato offriva SEMPRE le prime due forme dell'elenco,
+# qualunque cosa fosse successa. Su «zilvan brinks torvo» nominava `zilvan` — la
+# prima parola opaca, cioe' il SOGGETTO — e proponeva di dichiararlo verbo di
+# relazione: la diagnosi giusta per la forma sbagliata.
+#
+# Ora la specie dell'offerta si deriva dalla forma del turno, che e' gia'
+# pubblicata (`input_node_atom/3`, `input_node_before/3` sotto `current_turn`).
+# Una specie nuova domani e' una regola, non un ramo di C.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test la forma binaria chiede la costruzione e nomina la parola in mezzo]
+> zilvan brinks torvo
+<~ x brinks y means x <known verb> y
+# La seconda offerta parla della stessa parola, non del soggetto.
+> zilvan brinks torvo
+<~ «brinks is a relation verb»
+# E il consiglio funziona: seguirlo chiude il muro nel turno dopo.
+> brinks is a relation verb
+< Learned: relation_verb(brinks).
+> zilvan brinks torvo
+< Learned: brinks(zilvan, torvo).
+> who brinks torvo?
+< Zilvan.
+
+[test una parola sola non chiede una costruzione]
+# Due parole soltanto: nessun nodo e' fiancheggiato da entrambi i lati, quindi
+# la forma binaria non c'e' e non viene offerta.
+# Ogni assert usa parole nuove: una lacuna gia' registrata riceve un'altra
+# risposta, che e' corretto e non c'entra con l'offerta.
+> seldo glimmers
+<~ something is a glimmers
+> torvan shivers
+<~ the word torvan is a
+> pellim wobbles
+<! means x <known verb> y
+
+[test la derivazione non toglie l'offerta quando non ha nulla da dire]
+# `turn_gap_middle/2` puo' non esserci: l'offerta ricade sulla parola nominata
+# invece di sparire.
+> kessil
+<~ Or teach me

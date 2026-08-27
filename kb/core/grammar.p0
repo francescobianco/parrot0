@@ -774,14 +774,74 @@ dissent_word(no).  dissent_word(nope). dissent_word(nah).
 machinery(word_teaching_offer).
 machinery(teaching_offer_max).
 
-word_teaching_offer(relation_verb, "if {topic} is something one thing does to another, say «{topic} is a relation verb»").
+% `{middle}` e' la parola al posto della relazione quando il turno ha la forma
+% «X ? Y»; dove quella derivazione non c'e', il motore ricade sulla parola
+% nominata, quindi la vecchia frase resta valida per il vecchio caso.
+word_teaching_offer(relation_verb, "if {middle} is something one thing does to another, say «{middle} is a relation verb»").
 word_teaching_offer(class, "if it is a kind of thing, say «something is a {topic}»").
 word_teaching_offer(condition_marker, "if it opens a condition, say «{topic} is a condition marker»").
 word_teaching_offer(relation_noun, "if it names a value of something, say «the {topic} of X is Y»").
+% M3/M13: se la forma nuova dice a modo suo qualcosa di gia' compreso, la
+% lezione non e' una classe — e' una COSTRUZIONE.
+word_teaching_offer(construction, "if «x {middle} y» says what you already say another way, say «x {middle} y means x <known verb> y»").
+% M2: e la parola di cui si parla puo' essere una parola-funzione, che nessuna
+% delle offerte precedenti sa ricevere perche' verrebbe consumata dal proprio
+% ruolo.
+word_teaching_offer(mention, "if {topic} is a word you want to talk ABOUT, say «the word {topic} is a …»").
 
 % Quante offrirne. Due bastano a insegnare senza trasformare il muro in un
 % modulo d'iscrizione — ed e' un fatto, non una scelta del C.
 teaching_offer_max(2).
+
+% ── QUALE OFFERTA, DATA LA FORMA DEL TURNO (M13) ───────────────────────────
+%
+% Fino a qui il muro offriva SEMPRE le prime due forme dell'elenco, qualunque
+% cosa fosse successo: «say «X is a relation verb»» anche quando la lacuna era
+% una costruzione, una procedura o una parola-funzione. E' il difetto che il
+% piano chiama M13 — parrot0 non sa dire CHE TIPO di lacuna ha, quindi la
+% diagnosi resta a carico di chi insegna, e un teacher automatico la sbaglia.
+%
+% La forma del turno e' gia' pubblicata: `input_node_atom/3` e
+% `input_node_before/3` sotto lo scope `current_turn`. La scelta diventa quindi
+% una derivazione, e una specie nuova domani e' una regola.
+machinery(turn_gap_shape).
+machinery(turn_teaching_offer).
+machinery(turn_gap_flanked).
+machinery(turn_gap_middle).
+
+% La parola opaca ha qualcosa PRIMA e qualcosa DOPO che non sia funzionale: e'
+% la forma di una relazione binaria, non di una classe.
+turn_gap_flanked($T, before, $Id) :-
+    input_node_before($T, $Other, $Id),
+    input_node_atom($T, $Other, $Word), naf(stopword($Word)).
+turn_gap_flanked($T, after, $Id) :-
+    input_node_before($T, $Id, $Other),
+    input_node_atom($T, $Other, $Word), naf(stopword($Word)).
+
+% La condizione NON e' che sia la parola nominata a stare in mezzo: in «zilvan
+% brinks torvo» sono opache tutte e tre, e il muro nomina la prima. Cio' che
+% conta e' che il TURNO abbia la forma di una relazione binaria — qualcosa,
+% qualcosa in mezzo, qualcosa — perche' e' quella forma a rendere sensata la
+% lezione di costruzione.
+turn_gap_shape($T, binary_frame) :-
+    input_node_atom($T, $Id, $W),
+    turn_gap_flanked($T, before, $Id),
+    turn_gap_flanked($T, after, $Id).
+
+% E l'ordine in cui offrirle, che e' esso stesso conoscenza: davanti a una forma
+% binaria la costruzione viene prima, perche' e' la lezione che non richiede di
+% sapere gia' come parrot0 chiama quella relazione.
+% E la parola di cui parla la lezione di costruzione non e' quella nominata dal
+% muro — e' quella IN MEZZO, cioe' quella che sta al posto della relazione.
+turn_gap_middle($T, $W) :-
+    input_node_atom($T, $Id, $W),
+    turn_gap_flanked($T, before, $Id),
+    turn_gap_flanked($T, after, $Id).
+
+turn_teaching_offer($T, construction) :- turn_gap_shape($T, binary_frame).
+turn_teaching_offer($T, relation_verb) :- turn_gap_shape($T, binary_frame).
+turn_teaching_offer($T, class) :- naf(turn_gap_shape($T, binary_frame)).
+turn_teaching_offer($T, mention) :- naf(turn_gap_shape($T, binary_frame)).
 
 % ── «QUESTO» CHE COSA? IL REFERENTE NON ALLEGATO (gen431) ───────────────────
 %

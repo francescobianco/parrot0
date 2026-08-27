@@ -1705,7 +1705,9 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
      * NOMINARE — vedi machinery_gap_record poco sopra questa funzione. */
     /* Inizializzato alla frase generica: se un template KB manca o non rende,
      * il declino resta comunque una frase vera invece di memoria non scritta. */
-    char cand[256];
+    /* Il messaggio porta ora due frasi didattiche complete: 256 byte lo
+     * troncavano a meta' dell'offerta, cioe' proprio sulla parte utile. */
+    char cand[768];
     snprintf(cand, sizeof cand, "%s", classic);
     unsigned long k = b ? b->fallbacks : 0;
     if (!b) { put(classic, out, out_size); return; }
@@ -1761,6 +1763,19 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
                  * affaccia da sola nel messaggio, senza toccare questo file. */
                 char teach[512]; teach[0] = '\0';
                 size_t to = 0;
+                /* La parola che sta al POSTO DELLA RELAZIONE, quando il turno
+                 * ha la forma di una relazione binaria: il muro nomina la prima
+                 * parola opaca, che nella forma «X ? Y» e' il soggetto, non la
+                 * forma da insegnare. Chi la sceglie e' la KB. */
+                char middle[KB_TERM_LEN] = "";
+                {
+                    const char *mq[2] = { "current_turn", NULL };
+                    char mv[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "turn_gap_middle", mq, 2, mv, 1) == 1) {
+                        char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mv[0]);
+                        snprintf(middle, sizeof middle, "%s", kb_dequote(mb));
+                    }
+                }
                 long cap = 2;
                 {
                     const char *cq2[1] = { NULL };
@@ -1771,9 +1786,20 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
                         if (v > 0) cap = v;
                     }
                 }
+                /* M13: QUALI forme offrire lo decide la KB guardando la forma
+                 * del turno (`turn_teaching_offer/2`), non l'ordine in cui
+                 * l'elenco e' scritto. Se la derivazione non produce nulla —
+                 * perche' il turno non ha struttura pubblicata, o perche'
+                 * nessuna regola combacia — resta l'elenco completo: una
+                 * diagnosi assente non deve poter togliere l'offerta. */
                 char offers[8][KB_TERM_LEN];
-                const char *oq[2] = { NULL, NULL };
-                size_t no = kb_match(b->kb, "word_teaching_offer", oq, 2, offers, 8);
+                const char *sq[2] = { "current_turn", NULL };
+                size_t no = kb_match(b->kb, "turn_teaching_offer", sq, 2,
+                                     offers, 8);
+                if (no == 0) {
+                    const char *oq[2] = { NULL, NULL };
+                    no = kb_match(b->kb, "word_teaching_offer", oq, 2, offers, 8);
+                }
                 for (size_t oi = 0; oi < no && (long)oi < cap; oi++) {
                     const char *fq2[2] = { offers[oi], NULL };
                     char text[1][KB_TERM_LEN];
@@ -1785,6 +1811,10 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
                         if (!strncmp(p, "{topic}", 7)) {
                             to += (size_t)snprintf(teach + to, sizeof teach - to, "%s", sw);
                             p += 7;
+                        } else if (!strncmp(p, "{middle}", 8)) {
+                            to += (size_t)snprintf(teach + to, sizeof teach - to,
+                                                   "%s", middle[0] ? middle : sw);
+                            p += 8;
                         } else teach[to++] = *p++;
                         teach[to] = '\0';
                     }
