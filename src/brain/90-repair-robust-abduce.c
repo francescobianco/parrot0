@@ -232,10 +232,10 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
     b->pending_repair = 1;
 
     char msg[160];
-    if (has_arith_cue(b, w, nw))
-        snprintf(msg, sizeof msg, "What number should I use for \"%s\"?", pron);
-    else
-        snprintf(msg, sizeof msg, "Who or what does \"%s\" refer to?", pron);
+    { const KbResponseSlot _rs[] = { { "pron", pron } };
+      kb_term_say(b, has_arith_cue(b, w, nw) ? "what_number_should_i_use_for_x"
+                                             : "who_or_what_does_x_refer_to",
+                  _rs, 1, msg, sizeof msg); }
     put(msg, out, out_size);
     return 1;
 }

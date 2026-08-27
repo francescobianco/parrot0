@@ -627,3 +627,8 @@ response_template(python_3_requires_parentheses_for_print_use, "Python 3 require
 response_template(my_conclusion_that_x_is_a_x_rests_on_x_load, "My conclusion that {last_goal_arg} is a {last_goal_pred} rests on {ncrit} load-bearing facts: ").
 response_template(removing_any_one_would_overturn_it, ". Removing any one would overturn it.").
 response_template(it_hangs_on_x_premises_overturning_any_one_w, "It hangs on {nc} premises — overturning any one would change it: ").
+
+% La domanda di chiarimento sul referente: due famiglie, perche' chiedere un
+% numero e chiedere una persona non sono la stessa richiesta.
+response_template(what_number_should_i_use_for_x, "What number should I use for «{pron}»?").
+response_template(who_or_what_does_x_refer_to, "Who or what does «{pron}» refer to?").
