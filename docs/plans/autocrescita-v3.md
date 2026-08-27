@@ -40,6 +40,39 @@ turno
   -> promozione minima oppure rollback
 ```
 
+### Contratto di aspettativa dell'utente e criterio di supervisione
+
+Questo piano viene giudicato anche dal punto di vista dell'interlocutore, non
+soltanto da quello dei suoi artefatti interni. L'ambizione dichiarata è la
+**comprensione universale operativa**: davanti a una domanda ordinaria su un
+tema noto, parrot0 deve rispondere in modo pertinente, mantenere il filo e
+aprire una continuazione naturale; davanti a un tema non noto deve riconoscere
+con precisione il limite, formulare il gap e, quando la richiesta lo consente,
+usare la sola Wikipedia per acquisire la prosa necessaria, estrarne conoscenza,
+riprovare il turno e conservare la genealogia della correzione.
+
+Per evitare che una KB grande mascheri buchi di comportamento, valgono questi
+obblighi d'uscita:
+
+1. nessun caso banale già sostenuto dalla KB può terminare in un muro,
+   deflect irrilevante o risposta nella lingua sbagliata;
+2. una risposta onesta sull'assenza di esperienza personale deve comunque
+   restare ancorata al tema conosciuto e proporre una mossa successiva;
+3. una lacuna nuova deve diventare un arresto tipizzato e non una frase vuota;
+4. l'acquisizione da Wikipedia deve essere mirata al gap, verificata,
+   interrogabile e revocabile, non un precaricamento indiscriminato di fatti;
+5. ogni miglioramento deve sopravvivere a una conversazione reale successiva,
+   alla prova teach/use/retract e all'ablazione della causa che lo ha prodotto.
+
+Il ruolo del supervisore è quindi parte del progetto: non certifica una
+generazione perché esistono relazioni eleganti o campioni positivi, ma mantiene
+aperti i gate finché la chat reale non soddisfa insieme pertinenza, copertura,
+lingua, provenienza e continuità. Se la copertura manca, la risposta corretta
+è ampliare la KB tramite il ciclo di compensazione e documentare il nuovo
+dominio; non è abbassare la soglia o nascondere il buco dietro un fallback.
+Il piano è finito solo quando questo ciclo è effettivamente autonomo e
+riproducibile su una superficie nuova.
+
 Questa formulazione unifica i programmi di
 `universal-input.md`, `frontier-kb-natural-dialogue.md`,
 `autocrescita.md`, `autocrescita-v2.md` e gli esperimenti di
