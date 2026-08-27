@@ -436,6 +436,12 @@ intent_cue(self_preference, "ti piace").
 intent_cue(topic_preference_request, "do you like").
 intent_cue(topic_preference_request, "ti piace").
 intent_cue(topic_preference_request, "ti piacciono").
+% Topic-directed continuation moves. The engine enumerates their surfaces from
+% topic_action_surface/3; adding a topic or a language is KB-only.
+intent_cue(game_invitation, "let's play").
+intent_cue(game_invitation, "giochiamo").
+intent_cue(topic_discussion, "talk about").
+intent_cue(topic_discussion, "parliamo di").
 intent_family(range_property_count, arith_count_request).
 intent_family(range_property_count, arith_property_prime).
 intent_family(range_property_count, arith_property_even).

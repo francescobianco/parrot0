@@ -8,6 +8,10 @@ semantic_topic_cue(chess, keyword(chess)).
 semantic_topic_cue(chess, keyword(scacchi)).
 topic_preference_surface(chess, "chess").
 topic_preference_surface(chess, "scacchi").
+topic_action_surface(game_invitation, chess, "scacchi").
+topic_action_surface(game_invitation, chess, "chess").
+topic_action_surface(topic_discussion, chess, "scacchi").
+topic_action_surface(topic_discussion, chess, "chess").
 game_goal(chess, "checkmate the opposing king so it is attacked and has no legal escape").
 game_setup(chess, "place each side's major pieces on its back rank and eight pawns on the rank in front, with the queen on her own color").
 game_play(chess, "players alternate one legal move; pieces move in distinct ways, captures remove opposing pieces, and a king may never remain in check").

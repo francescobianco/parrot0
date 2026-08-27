@@ -449,6 +449,10 @@ response_template(smalltalk_deflect, it, "Non ne ho di miei -- sono parrot0, un'
 response_template(smalltalk_deflect, it, "Non è una cosa che faccio io, ma dimmi -- e tu?").
 response_template(topic_preference_request, "I don't have personal preferences, but I know {topic}: {fact} Would you like to explore it together?").
 response_template(topic_preference_request, it, "Non ho preferenze personali, ma conosco {topic}: {fact} Ti va di esplorarlo insieme?").
+response_template(game_invitation, "I'd be glad to play {topic}. Shall we start with the first move?").
+response_template(game_invitation, it, "Volentieri, giochiamo a {topic}. Cominciamo dalla prima mossa?").
+response_template(topic_discussion, "Sure, let's talk about {topic}. What would you like to explore first?").
+response_template(topic_discussion, it, "Certo, parliamo di {topic}. Che cosa vuoi esplorare per prima?").
 response_template(greeting_reply, it, "Ciao!").
 response_template(greeting_reply, it, "Ehilà!").
 response_template(would_rather, it, "Ci sto, anche se non ho preferenze vere -- quali sono le due opzioni?").

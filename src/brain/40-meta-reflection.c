@@ -57,6 +57,45 @@ static int topic_preference_move(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* Resolve a topic-directed continuation (play or discussion) before generic
+ * social fallbacks.  The act/topic/surface triple and localized realization
+ * are all KB relations; C only enumerates candidates and binds {topic}. */
+static int topic_action_move(Brain *b, const char *norm, const char *raw,
+                             char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    const char *aq[] = { NULL, NULL, NULL };
+    char acts[16][KB_TERM_LEN];
+    size_t na = kb_match(b->kb, "topic_action_surface", aq, 3, acts, 16);
+    for (size_t i = 0; i < na; i++) {
+        if (!kb_cue_match(b, acts[i], norm) &&
+            !(raw && kb_cue_match(b, acts[i], raw))) continue;
+        const char *tq[] = { acts[i], NULL, NULL };
+        char topics[32][KB_TERM_LEN];
+        size_t nt = kb_match(b->kb, "topic_action_surface", tq, 3,
+                             topics, 32);
+        for (size_t j = 0; j < nt; j++) {
+            const char *sq[] = { acts[i], topics[j], NULL };
+            char surfaces[16][KB_TERM_LEN];
+            size_t ns = kb_match(b->kb, "topic_action_surface", sq, 3,
+                                 surfaces, 16);
+            for (size_t k = 0; k < ns; k++) {
+                char surface[KB_TERM_LEN];
+                snprintf(surface, sizeof surface, "%s", surfaces[k]);
+                size_t sl = strlen(surface);
+                if (sl >= 2 && surface[0] == '"' && surface[sl - 1] == '"') {
+                    surface[sl - 1] = '\0';
+                    memmove(surface, surface + 1, sl - 1);
+                }
+                if (!surface[0] || !strstr(norm, surface)) continue;
+                const KbResponseSlot slot[] = { { "topic", surface } };
+                if (kb_response_slots(b, acts[i], slot, 1,
+                                      out, out_size)) return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 /* --- module: meta --------------------------------------------------------
  * Meta-conversation is not world knowledge: the user is asking about this
  * exchange itself (attention, reading, understanding, repetition, current
@@ -287,6 +326,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
      * recited string). Cues are intent_cue/2 and replies response_template/2
      * (KB-first, EN+IT); {name} is filled from i_am. */
     {
+        if (topic_action_move(b, norm, raw, out, out_size)) return 1;
         if (topic_preference_move(b, norm, raw, out, out_size)) return 1;
         static const char *const ai[] = {
             "ai_not_llm", "ai_no_params", "ai_what_model", "ai_opensource",

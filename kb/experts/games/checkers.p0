@@ -6,6 +6,10 @@ means(checkers, "a two-player diagonal capture game played on the dark squares o
 game_players(checkers, 2).
 topic_preference_surface(checkers, "checkers").
 topic_preference_surface(checkers, "dama").
+topic_action_surface(game_invitation, checkers, "dama").
+topic_action_surface(game_invitation, checkers, "checkers").
+topic_action_surface(topic_discussion, checkers, "dama").
+topic_action_surface(topic_discussion, checkers, "checkers").
 game_goal(checkers, "capture all opposing pieces or leave the opponent with no legal move").
 game_setup(checkers, "each player places twelve men on the dark squares of the three nearest rows").
 game_play(checkers, "men move diagonally forward, capture by jumping, and become kings on the far row; when a capture is available it is compulsory").
