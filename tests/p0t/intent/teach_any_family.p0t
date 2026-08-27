@@ -1,0 +1,47 @@
+# OGNI FAMIGLIA E' INSEGNABILE — la maniglia generica (M11).
+#
+# Misurato prima di questo strato: 222 famiglie hanno `intent_cue/2`, 301 hanno
+# `response_template`, e una quarantina ha una riga `learnable/3` che le nomini.
+# Quasi tutto il comportamento conversazionale — umore, cortesia, battute,
+# deflessioni — era gia' dichiarativo e restava comunque fuori dalla portata di
+# chi insegna parlando, per mancanza della sola maniglia.
+#
+# Un'etichetta per famiglia sarebbe un frasario, e non starebbe nemmeno nel
+# tetto dell'enumerazione. Qui la lezione NOMINA la famiglia, e le famiglie sono
+# conoscenza: una aggiunta domani e' insegnabile lo stesso giorno.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test si insegna una cue a una famiglia che non ha etichetta]
+> learn "what a slog" as a cue for mood_bored
+<~ as a cue for mood_bored
+!query intent_cue(mood_bored, "what a slog")
+# E cambia il comportamento nel turno dopo, senza ricompilare.
+> what a slog
+<! don't understand
+
+[test si insegna anche come rispondere]
+> learn "Let's switch: tell me something you're curious about." as a reply for mood_bored
+<~ as a reply for mood_bored
+> what a slog
+< Let's switch: tell me something you're curious about.
+
+[test una famiglia non si inventa]
+> learn "hello" as a cue for zorbolino
+<~ I don't have a family called zorbolino
+!query! intent_cue(zorbolino, "hello")
+
+[test una lezione che non cambierebbe nulla viene declinata]
+# `politeness` ha risposte ma nessuno ne legge le cue: attaccargliene una
+# scriverebbe un fatto vero e invisibile — il caso `greeting(ahoy)`.
+> learn "how kind of you" as a cue for politeness
+<~ nothing reads its intent_cue
+!query! intent_cue(politeness, "how kind of you")
+# La direzione che invece qualcuno legge resta aperta.
+> learn "That's kind — thank you." as a reply for politeness
+<~ as a reply for politeness

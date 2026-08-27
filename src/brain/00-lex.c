@@ -521,12 +521,74 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
         if (kb_match(b->kb, "learnable", qm, 3, mode, 1) != 1) continue;
 
         const char *pred; int from_raw; int unary = 0; int define = 0;
-        if      (!strcmp(mode[0], "exact"))     { pred = "intent_phrase";     from_raw = 0; }
+        /* LA MANIGLIA GENERICA (M11).
+         *
+         * Misurato: 222 famiglie hanno una `intent_cue`, 301 hanno un
+         * `response_template`, e soltanto una quarantina ha una riga
+         * `learnable/3` che le nomini. Il 90% del comportamento di un agente
+         * conversazionale — umore, cortesia, battute, deflessioni, registri —
+         * era gia' interamente dichiarativo e restava comunque fuori dalla
+         * portata di chi insegna parlando, per mancanza della sola maniglia.
+         *
+         * Scrivere un'etichetta per famiglia sarebbe un frasario, e non
+         * starebbe nemmeno nel tetto di questa enumerazione. Qui invece la
+         * lezione NOMINA la famiglia: «learn "…" as a cue for mood_tired».
+         * Le famiglie esistenti sono conoscenza, quindi una famiglia aggiunta
+         * domani e' insegnabile lo stesso giorno, senza righe nuove. */
+        char family[KB_TERM_LEN] = "";
+        int generic = 0;
+        if (!strcmp(mode[0], "cue_for") || !strcmp(mode[0], "reply_for")) {
+            const char *after = strstr(low, ls);
+            if (!after) continue;
+            after += strlen(ls);
+            while (*after && (isspace((unsigned char)*after) || *after == '"'))
+                after++;
+            size_t fl = 0;
+            while (after[fl] && (isalnum((unsigned char)after[fl]) ||
+                                 after[fl] == '_') && fl + 1 < sizeof family) {
+                family[fl] = after[fl]; fl++;
+            }
+            family[fl] = '\0';
+            if (!family[0]) continue;
+            /* Una famiglia si insegna, non si inventa: deve gia' esistere,
+             * altrimenti la lezione scriverebbe in un cassetto che nessuno
+             * apre — il caso `greeting(ahoy)` di conoscenza morta. */
+            /* E il controllo e' quello GIUSTO per la lezione: una cue ha senso
+             * solo dove qualcuno legge cue, una risposta solo dove qualcuno
+             * rende risposte. Attaccare una cue a una famiglia che nessuno
+             * interroga per cue produrrebbe il fatto morto di `greeting(ahoy)`:
+             * vero in KB, invisibile al comportamento. */
+            char row[1][KB_TERM_LEN];
+            const char *wanted = !strcmp(mode[0], "cue_for") ? "intent_cue"
+                                                             : "response_template";
+            const char *famq[2] = { family, NULL };
+            if (kb_match(b->kb, wanted, famq, 2, row, 1) == 0) {
+                char msg[256];
+                const char *other = !strcmp(mode[0], "cue_for") ? "response_template"
+                                                                : "intent_cue";
+                if (kb_match(b->kb, other, famq, 2, row, 1) > 0)
+                    snprintf(msg, sizeof msg,
+                             "I know %s, but nothing reads its %s, so that lesson "
+                             "would not change what I do.", family, wanted);
+                else
+                    snprintf(msg, sizeof msg,
+                             "I don't have a family called %s, so I can't attach "
+                             "that to it.", family);
+                put(msg, out, outsz);
+                return 1;
+            }
+            generic = 1;
+        }
+        if      (generic && !strcmp(mode[0], "cue_for"))
+                                                { pred = "intent_cue";        from_raw = 0; }
+        else if (generic)                       { pred = "response_template"; from_raw = 1; }
+        else if (!strcmp(mode[0], "exact"))     { pred = "intent_phrase";     from_raw = 0; }
         else if (!strcmp(mode[0], "substring")) { pred = "intent_cue";        from_raw = 0; }
         else if (!strcmp(mode[0], "fill"))      { pred = "response_template"; from_raw = 1; }
         else if (!strcmp(mode[0], "unary"))     { pred = intent[0];           from_raw = 0; unary = 1; }
         else if (!strcmp(mode[0], "define"))    { pred = intent[0];           from_raw = 1; define = 1; }
         else continue;
+        if (generic) snprintf(intent[0], KB_TERM_LEN, "%s", family);
 
         /* span: raw (keep casing) for fill; the canonicalized `norm` for exact/substring
          * so the stored form matches what the recognizer sees on a later turn. */
@@ -605,7 +667,11 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
             kb_assert(b->kb, pred, ar, 2);
         }
         char msg[256];
-        snprintf(msg, sizeof msg, "Got it - I'll take \"%s\" as a way to %s now.", phrase, ls);
+        if (generic)
+            snprintf(msg, sizeof msg, "Got it - I'll take \"%s\" as %s %s now.",
+                     phrase, ls, family);
+        else
+            snprintf(msg, sizeof msg, "Got it - I'll take \"%s\" as a way to %s now.", phrase, ls);
         put(msg, out, outsz);
         return 1;
     }

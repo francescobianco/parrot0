@@ -610,6 +610,71 @@ learnable("fallback gap offer",            fallback_gap_offer, fill).
 learnable("offerta gap fallback",          fallback_gap_offer, fill).
 learnable("fallback still unknown",        fallback_still_gap,  fill).
 learnable("fallback ancora sconosciuto",   fallback_still_gap,  fill).
+% ── LA MANIGLIA GENERICA: OGNI FAMIGLIA E' INSEGNABILE ─────────────────────
+%
+% Misurato: 222 famiglie hanno `intent_cue/2`, 301 hanno `response_template`, e
+% una quarantina ha una riga `learnable/3` che le nomini. Quasi tutto il
+% comportamento conversazionale — umore, cortesia, battute, deflessioni,
+% registri — era gia' dichiarativo e restava fuori dalla portata di chi insegna
+% parlando, per mancanza della sola maniglia.
+%
+% Un'etichetta per famiglia sarebbe un frasario. Qui la lezione NOMINA la
+% famiglia, e le famiglie sono conoscenza: una aggiunta domani e' insegnabile
+% lo stesso giorno, senza righe nuove.
+%
+%   learn "sono a pezzi" as a cue for mood_tired
+%   learn "Riposati, riprendiamo quando vuoi." as a reply for mood_tired
+learnable("a cue for",        generic_family, cue_for).
+learnable("un indizio per",   generic_family, cue_for).
+learnable("a reply for",      generic_family, reply_for).
+learnable("una risposta per", generic_family, reply_for).
+
+% ── IL REGISTRO SOCIALE SI INSEGNA PARLANDO ────────────────────────────────
+%
+% `reactions.p0` dice gia' che l'umore, l'incoraggiamento, la frustrazione e il
+% tono sono conoscenza: `chitchat_reaction/2` con le sue `intent_cue/2` e i suoi
+% `response_template/2-3`. Mancava soltanto la MANIGLIA — nessuna riga
+% `learnable/3` puntava a quelle specie, quindi un registro interamente
+% dichiarativo restava fuori dalla portata di chi insegna parlando.
+%
+% Due etichette per specie, perche' sono due lezioni diverse:
+%   substring -> COME SI RICONOSCE   («learn "sono a pezzi" as a sign of tiredness»)
+%   fill      -> COME SI RISPONDE    («learn "Riposati un po'." to reply to tiredness»)
+%
+% Nessun C: la reazione era gia' percorsa da un ciclo generico.
+learnable("a sign of tiredness",        mood_tired,   substring).
+learnable("segno di stanchezza",        mood_tired,   substring).
+learnable("reply to tiredness",         mood_tired,   fill).
+learnable("risposta alla stanchezza",   mood_tired,   fill).
+learnable("a sign of boredom",          mood_bored,   substring).
+learnable("segno di noia",              mood_bored,   substring).
+learnable("reply to boredom",           mood_bored,   fill).
+learnable("risposta alla noia",         mood_bored,   fill).
+learnable("a sign of good mood",        mood_up,      substring).
+learnable("segno di buonumore",         mood_up,      substring).
+learnable("reply to good mood",         mood_up,      fill).
+learnable("risposta al buonumore",      mood_up,      fill).
+learnable("a sign of frustration",      frustration,  substring).
+learnable("segno di frustrazione",      frustration,  substring).
+learnable("reply to frustration",       frustration,  fill).
+learnable("risposta alla frustrazione", frustration,  fill).
+learnable("an encouragement",           encourage,    substring).
+learnable("un incoraggiamento",         encourage,    substring).
+learnable("reply to encouragement",     encourage,    fill).
+learnable("risposta a un incoraggiamento", encourage, fill).
+learnable("a way of agreeing",          agree,        substring).
+learnable("un modo di essere d'accordo", agree,       substring).
+learnable("reply when I agree",         agree,        fill).
+learnable("risposta a un accordo",      agree,        fill).
+learnable("a playful remark",           playful,      substring).
+learnable("una battuta",                playful,      substring).
+learnable("reply to a playful remark",  playful,      fill).
+learnable("risposta a una battuta",     playful,      fill).
+learnable("a casual opener",            casual,       substring).
+learnable("un attacco informale",       casual,       substring).
+learnable("reply to a casual opener",   casual,       fill).
+learnable("risposta a un attacco informale", casual,  fill).
+
 learnable("a proper name not to translate", proper_name, unary).
 learnable("un nome proprio da non tradurre", proper_name, unary).
 intent_cue(smalltalk_continue, "i just").
