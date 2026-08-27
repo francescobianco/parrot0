@@ -424,9 +424,7 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
     const char *qq[1] = { tok };
     if (kb_query(b->kb, "question_word", qq, 1)) {
         if (!kb_response_slots(b, "lone_question_word", NULL, 0, msg, sizeof msg))
-            snprintf(msg, sizeof msg,
-                     "That's the start of a question — what would you like to know?");
-        put(msg, out, out_size);
+            kb_say(b, "that_s_the_start_of_a_question_what_would_yo", "That's the start of a question — what would you like to know?", out, out_size);
         return 1;
     }
     /* L'ASSENSO E IL DINIEGO sono una mossa, non un topic: «ok» non chiede di
@@ -437,8 +435,7 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
         if (kb_query(b->kb, "assent_word", aq, 1) ||
             kb_query(b->kb, "dissent_word", aq, 1)) {
             if (!kb_response_slots(b, "lone_assent", NULL, 0, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "Got it — what would you like to do?");
-            put(msg, out, out_size);
+                kb_say(b, "got_it_what_would_you_like_to_do", "Got it — what would you like to do?", out, out_size);
             return 1;
         }
     }

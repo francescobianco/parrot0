@@ -137,3 +137,11 @@ response_template(that_isn_t_something_i_currently_conclude_so, "That isn't some
 response_template(tell_me_what_you_d_like_me_to_account_for_as, "Tell me what you'd like me to account for, as 'X is a Y'.").
 response_template(that_s_just_punctuation_not_words_what_would, "That's just punctuation, not words — what would you like to ask?").
 response_template(that_doesn_t_look_like_words_to_me_did_a_key, "That doesn't look like words to me — did a key get stuck? I'm here when you'd like to ask something.").
+
+%% Seconda tranche: la stessa frase, scritta prima in un buffer e poi emessa.
+response_template(i_didn_t_know_that_anyway, "I didn't know that anyway.").
+response_template(the_earlier_train_arrives_first_before_the_o, "The earlier train arrives first, before the other departs.").
+response_template(yes_i_am_parrot0, "Yes, I am parrot0.").
+response_template(i_am_in_character, "I am in character.").
+response_template(that_s_the_start_of_a_question_what_would_yo, "That's the start of a question — what would you like to know?").
+response_template(got_it_what_would_you_like_to_do, "Got it — what would you like to do?").

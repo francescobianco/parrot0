@@ -1592,10 +1592,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             int early = tstart[0] <= tstart[1] ? 0 : 1, late = 1 - early;
             double headstart = speed[early] * (tstart[late] - tstart[early]);
             if (headstart >= dist) {
-                char msg[180];
-                snprintf(msg, sizeof msg,
-                         "The earlier train arrives first, before the other departs.");
-                put(msg, out, out_size);
+                kb_say(b, "the_earlier_train_arrives_first_before_the_o", "The earlier train arrives first, before the other departs.", out, out_size);
                 store_proof(b, "The earlier train's head start covers the full separation.");
                 return 1;
             }

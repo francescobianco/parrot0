@@ -314,8 +314,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         if (k > 0)
             snprintf(msg, sizeof msg, "Yes, I am %s.", id[0]);
         else
-            snprintf(msg, sizeof msg, "Yes, I am parrot0.");
-        put(msg, out, out_size);
+            kb_say(b, "yes_i_am_parrot0", "Yes, I am parrot0.", out, out_size);
         return 1;
     }
 
@@ -1134,8 +1133,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
             snprintf(msg, sizeof msg, "I am %s.", b->role_name);
         else if (b->role_kind[0])
             snprintf(msg, sizeof msg, "I am a %s.", b->role_kind);
-        else snprintf(msg, sizeof msg, "I am in character.");
-        put(msg, out, out_size);
+        else kb_say(b, "i_am_in_character", "I am in character.", out, out_size);
         return 1;
     }
 

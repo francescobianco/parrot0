@@ -12327,8 +12327,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (kb_retract(b->kb, cl, args, 1))
             snprintf(msg, sizeof msg, "Forgotten: %s(%s).", cl, subj);
         else
-            snprintf(msg, sizeof msg, "I didn't know that anyway.");
-        put(msg, out, out_size);
+            kb_say(b, "i_didn_t_know_that_anyway", "I didn't know that anyway.", out, out_size);
         remember_entity(b, w[2], subj);
         return 1;
     }
