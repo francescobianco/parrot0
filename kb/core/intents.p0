@@ -317,6 +317,7 @@ intent_cue(brevity, "be brief").
 intent_cue(brevity, "short answers").
 intent_cue(brevity, "risposte brevi").
 intent_cue(brevity, "sii breve").
+intent_cue(brevity, "in a nutshell").
 intent_cue(piact_grep, "search for").
 % Una domanda locativa non e' evidenza di una ricerca nel filesystem. Il tool
 % richiede una forma che dichiari la relazione col codice; "where is" resta la
@@ -1110,6 +1111,7 @@ intent_cue(ai_not_llm, "sei umano").
 intent_cue(ai_not_llm, "cosa sei").
 intent_phrase(ask_name, "come ti chiami").
 intent_phrase(ask_name, "come ti chiami?").
+intent_phrase(ask_name, "do you remember my name").
 intent_cue(ask_name, "ti chiami").
 intent_cue(self_capability, "cosa puoi fare").
 intent_cue(self_capability, "che cosa sai fare").

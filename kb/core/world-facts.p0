@@ -2860,6 +2860,15 @@ pair_magnitude(border, argentina, chile, 5308).
 pair_magnitude(border, botswana, zambia, 0.15).
 pair_magnitude(border, canada, united_states, 8891).
 pair_magnitude(border, kazakhstan, russia, 7644).
+% Imparati parlando nella sessione 02, attraverso costruzioni insegnate a voce
+% («x goes by the name of y», «x is mostly made of y»): non avevano una casa e
+% cadevano nella ricaduta.
+also_known_as(constantinople, istanbul).
+also_known_as(mumbai, bombay).
+constituent_of(water, blood).
+precedes(monday, tuesday).
+physicist(curie).
+
 part_of(arm, human_body).
 part_of(book, library).
 part_of(branch, tree_trunk).
@@ -2872,6 +2881,10 @@ part_of(leaf, branch).
 part_of(page, chapter).
 part_of(tree_trunk, tree).
 part_of(wheel, car).
+part_of(padua, veneto).
+part_of(verona, veneto).
+part_of(sicily, italy).
+part_of(tuscany, italy).
 period_contains(20th_century, 1914).
 period_contains(20th_century, 1939).
 period_contains(20th_century, 1945).
@@ -4271,6 +4284,8 @@ qa_reply(q_samurai_significance, "In feudal Japan, samurai were the warrior clas
 qa_cue(q_curiosity_cat_fr, "curious").
 qa_cue(q_curiosity_cat_fr, "cat").
 qa_cue(q_curiosity_cat_fr, "warm").
+qa_cue(taught_goodnight, "goodnight").
+qa_reply(taught_goodnight, "goodnight - talk tomorrow.").
 qa_cue(q_curiosity_cat_fr, "windowsill").
 qa_cue(q_curiosity_cat_fr, "french").
 qa_reply(q_curiosity_cat_fr, "Le chat curieux est monté sur le rebord de fenêtre chaud.").

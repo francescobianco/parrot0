@@ -462,6 +462,7 @@ response_template(self_preference, it, "Non ho preferenze vere, ma per stare al 
 % gen334: more Italian localized responses (response_template/3 form).
 % KB-first: localize a reply by adding its /3 fact — no code edit.
 response_template(greet_name, it, "Piacere di conoscerti, {name}!").
+response_template(greet_name, "Nice to see you again, {name}!").
 response_template(name_recall, it, "Ti chiami {name}.").
 response_template(goodnight, it, "Buonanotte!").
 response_template(goodnight, it, "Dormi bene!").

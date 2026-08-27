@@ -492,6 +492,8 @@ extract_frame($Source, $Predicate) :-
 % E le costruzioni gia' imparate hanno una casa nell'albero curato, cosi' una
 % lezione data oggi vale ancora domani senza che nessuno la ricopi.
 :- include(../learning/constructions.p0).
+% E le regole dette a voce, che `/save` non instrada.
+:- include(../learning/taught-rules.p0).
 
 % Nel solo caso in cui la costruzione esponga una cue interrogabile senza
 % perdere i ruoli, il teacher registra anche questa vista. Il pattern sorgente

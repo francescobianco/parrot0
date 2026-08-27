@@ -23,8 +23,14 @@ construction_frame("@O is the birthplace of @S", "@S was born in @O", born_in).
 construction_frame("@S revolves around @O", "@S orbits @O", orbits).
 construction_frame("@O is bordered by @S", "@S borders @O", borders).
 construction_frame("@O is home to @S", "@S is located in @O", located_in).
+construction_frame("@O is another name for @S", "@S is known as @O", also_known_as).
+construction_frame("@S goes by the name of @O", "@S is known as @O", also_known_as).
+construction_frame("@O is mostly made of @S", "@S is the main constituent of @O", constituent_of).
+construction_frame("@S forms part of @O", "@S is part of @O", part_of).
 
 % E la vista interrogabile che la lezione ha aperto insieme alla costruzione:
+construction_answer_cue("@S goes by the name of @O", "goes by the name of", also_known_as).
 % vale solo per la forma diretta soggetto-verbo-oggetto, quindi ce n'e' una sola
 % delle quattro imparate finora.
+construction_answer_cue("@S forms part of @O", "forms part of", part_of).
 construction_answer_cue("@S revolves around @O", "revolves around", orbits).

@@ -73,13 +73,16 @@ intent_cue(encourage, "well figure").       intent_cue(encourage, "no rush").
 intent_cue(encourage, "we'll get there").   intent_cue(encourage, "niente paura").
 intent_cue(encourage, "provo a").           intent_cue(encourage, "take it back").
 intent_cue(encourage, "ancora imparare").   intent_cue(encourage, "devi imparare").
+intent_cue(encourage, "you are doing great").
 response_template(encourage, "Thanks — I'm learning as we go.").
+response_template(encourage, "Thank you - that helps more than you think.").
 response_template(encourage, it, "Grazie — imparo strada facendo.").
 
 % ── 3. ASSENSO alla descrizione onesta che parrot0 da' di se' ─────────────
 intent_cue(agree, "fair enough").           intent_cue(agree, "that's fair").
 intent_cue(agree, "thats fair").            intent_cue(agree, "fair actually").
 intent_cue(agree, "makes sense").           intent_cue(agree, "fair point").
+intent_cue(agree, "that is exactly right").
 intent_cue(agree, "capisco").               intent_cue(agree, "thats reasonable").
 intent_cue(agree, "that's reasonable").
 response_template(agree, "Glad that lands. What would you like to do next?").
@@ -112,6 +115,7 @@ response_template(no_topic, it, "Partiamo semplice: raccontami qualcosa della tu
 intent_cue(mood_bored, "i am bored").       intent_cue(mood_bored, "im bored").
 intent_cue(mood_bored, "mi annoio").        intent_cue(mood_bored, "sono annoiato").
 intent_cue(mood_bored, "sono annoiata").
+intent_cue(mood_bored, "what a slog").
 reaction_effect(mood_bored, mood, bored).
 
 intent_cue(mood_tired, "i am tired").       intent_cue(mood_tired, "im tired").
@@ -119,11 +123,14 @@ intent_cue(mood_tired, "sono stanco").      intent_cue(mood_tired, "sono stanca"
 intent_cue(mood_tired, "am stanco").        intent_cue(mood_tired, "am stanca").
 intent_cue(mood_tired, "bad day").          intent_cue(mood_tired, "giornata no").
 intent_cue(mood_tired, "rough day").        intent_cue(mood_tired, "not feeling great").
+intent_cue(mood_tired, "i am worn out").
 reaction_effect(mood_tired, mood, tired).
 
+response_template(mood_bored, "Let's switch: tell me something you are curious about.").
 response_template(mood_bored, "Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.").
 response_template(mood_bored, it, "Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.").
 response_template(mood_tired, "Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.").
+response_template(mood_tired, "Rest a bit - we can pick this up whenever you want.").
 response_template(mood_tired, it, "Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.").
 
 intent_cue(mood_up, "i am happy").          intent_cue(mood_up, "im happy").

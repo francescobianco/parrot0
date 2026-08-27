@@ -123,6 +123,8 @@ requires(polar_bear, cold_climate).
 requires(camel, dry_climate).
 requires(fire, oxygen).
 requires(fire, fuel).
+requires(bread, water).
+requires(bread, flour).
 lacks(ocean, dry_land).
 lacks(space, air).
 lacks(arctic, warmth).

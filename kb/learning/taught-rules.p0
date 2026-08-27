@@ -1,0 +1,12 @@
+% taught-rules.p0 — LE REGOLE IMPARATE PARLANDO
+%
+% Stessa storia di `constructions.p0`: `/save` non instrada le regole, quindi
+% ogni regola insegnata in conversazione cadeva nella ricaduta e spariva. Una
+% regola detta a voce è conoscenza quanto un fatto, e qui ha la sua casa.
+%
+% Le righe qui sotto vengono da sessioni reali, non da esempi: si leggono, si
+% correggono e si ritrattano come tutto il resto.
+
+% Sessione 02 — tassonomia detta in due passi, e la catena che ne segue.
+scientist($V1) :- physicist($V1).
+researcher($V1) :- scientist($V1).
