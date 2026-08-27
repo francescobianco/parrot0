@@ -787,8 +787,12 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
                     return 1;
                 }
                 if (gr == 0) return 0;
-                size_t o = (size_t)snprintf(out, out_size,
-                                            "My derived plan for %s:", goal_h);
+                const KbResponseSlot hs[] = { { "goal", goal_h } };
+                char header[KB_TERM_LEN * 2];
+                if (!kb_response_slots(b, "plan_header", hs, 1,
+                                        header, sizeof header))
+                    snprintf(header, sizeof header, "%s", goal_h);
+                size_t o = (size_t)snprintf(out, out_size, "%s", header);
                 for (size_t i = 0; i < nsteps && o < out_size; i++) {
                     char line[KB_TERM_LEN];
                     plan_step_desc(b, steps[i], line, sizeof line);

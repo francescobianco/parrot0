@@ -1355,6 +1355,8 @@ semantica è quindi viva nel dialogo. Il renderer generico cerca ora
 degli scacchi fornisce le tre descrizioni italiane e la relazione
 `action_source/2`; la risposta annota `[wikipedia]` sui passi sostenuti dalla
 fonte, senza un ramo C dedicato.
+Anche l'intestazione del piano è ora `response_template(plan_header,...)`,
+così il renderer non introduce testo naturale fuori dalla KB.
 
 ### Verifica d'uso reale
 
