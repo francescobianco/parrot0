@@ -1301,9 +1301,12 @@ static int check_unknown_function(const char *code, Brain *b, char *findings,
             if (!kb_query(b->kb, "c_stdlib", fa, 1)) {
                 size_t fl = strlen(t);
                 if (fl < sizeof(fname)) {
-                    snprintf(findings, findings_size,
-                        "Unknown function: \"%.*s\" is not a standard C library function. "
-                        "Did you spell it correctly or forget an #include?", (int)fl, t);
+                    { char _t1[512];
+                    char _t1_v0[96]; snprintf(_t1_v0, sizeof _t1_v0, "%.*s", (int)fl, t);
+                    const KbResponseSlot _r1[] = { { "t", _t1_v0 } };
+                    kb_term_say(b, "unknown_function_x_is_not_a_standard_c_libra", _r1, 1, _t1, sizeof _t1);
+                    snprintf(findings, findings_size, "%s", _t1);
+                    }
                     return 1;
                 }
             }

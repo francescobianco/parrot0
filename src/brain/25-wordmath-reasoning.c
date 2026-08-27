@@ -664,7 +664,8 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         }
         char page[8192]; size_t po = 0; page[0] = '\0';
         FILE *pf = fopen(target, "r");
-        if (!pf) { snprintf(obs, obs_sz, "prose_read_page could not open %s", target); return 0; }
+        if (!pf) { const KbResponseSlot _rs[] = { { "target", target } };
+                   kb_term_say(b, "prose_read_page_could_not_open_x", _rs, 1, obs, obs_sz); return 0; }
         char lbuf[1024];
         while (fgets(lbuf, sizeof lbuf, pf) && po + 2 < sizeof page) {
             size_t ll = strlen(lbuf);
@@ -3619,7 +3620,7 @@ static int mod_same(Brain *b, const char *norm, const char *raw,
                  kb_assert(b->kb, "same", bwd, 2);
         char msg[160];
         if (ok) snprintf(msg, sizeof msg, "Learned: same(%s, %s).", w[0], w[5]);
-        else    snprintf(msg, sizeof msg, "I couldn't store that.");
+        else    kb_term_say(b, "i_couldn_t_store_that_2", NULL, 0, msg, sizeof msg);
         put(msg, out, out_size);
         return 1;
     }

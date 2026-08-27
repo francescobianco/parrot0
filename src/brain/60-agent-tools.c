@@ -244,9 +244,8 @@ static int tool_authorized(Brain *b, char *const *argv, size_t argc,
     const char *q[2] = {NULL, argv[0]};
     char purpose[4][KB_TERM_LEN];
     if (kb_match(b->kb, "tool_for", q, 2, purpose, 4) == 0) {
-        if (why) snprintf(why, whysz,
-                          "no tool_for(_, %s) — I have no contract authorizing `%s`",
-                          argv[0], argv[0]);
+        if (why) { const KbResponseSlot _rs[] = { { "tool", argv[0] } };
+                   kb_term_say(b, "no_contract_authorizing_x", _rs, 1, why, whysz); }
         return 0;
     }
     /* If the KB constrains this tool's subcommands, argv[1] must be one of them. */
@@ -255,8 +254,8 @@ static int tool_authorized(Brain *b, char *const *argv, size_t argc,
     size_t ns = kb_match(b->kb, "tool_subcmd", qs, 2, subs, 16);
     if (ns > 0) {
         if (argc < 2) {
-            if (why) snprintf(why, whysz, "`%s` needs one of its authorized subcommands",
-                              argv[0]);
+            if (why) { const KbResponseSlot _rs[] = { { "tool", argv[0] } };
+                       kb_term_say(b, "x_needs_one_of_its_authorized_subcommands", _rs, 1, why, whysz); }
             return 0;
         }
         for (size_t i = 0; i < ns; i++)
@@ -696,8 +695,10 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         put(msg, out, out_size);
         if (b) {
             char proof[320];
-            snprintf(proof, sizeof proof, "read %s inside the workspace (%zu bytes%s)",
-                     file, strlen(code), trunc ? ", truncated" : "");
+            char _n[48]; snprintf(_n, sizeof _n, "%zu", strlen(code));
+            { const KbResponseSlot _rs[] = { { "file", file }, { "bytes", _n },
+                                             { "trunc", trunc ? ", truncated" : "" } };
+              kb_term_say(b, "read_x_inside_the_workspace", _rs, 3, proof, sizeof proof); }
             store_proof(b, proof);
             snprintf(b->last_tool_cmd, sizeof b->last_tool_cmd, "read(%s)", file);
             b->has_last_tool_cmd = 1;
@@ -952,7 +953,7 @@ static int compose_one(Brain *b, const char *raw, const char *low,
                       kb_term_say(b, "verified_by_execution_sorted_ascending_and_a", _rs, 0, note, notesz); }
                     return 1;
                 }
-                if (v == 0) { snprintf(note, notesz, "the judge ran it but it did not sort every vector"); return -1; }
+                if (v == 0) { kb_term_say(b, "the_judge_ran_it_but_it_did_not_sort_every_ve", NULL, 0, note, notesz); return -1; }
                 kb_term_say(b, "the_synthesized_sort_would_not_build_run_so", NULL, 0, note, notesz);
                 return -1;
             }

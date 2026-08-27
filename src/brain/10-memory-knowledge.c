@@ -2051,7 +2051,8 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
                 if (strstr(ex, " because "))
                     snprintf(msg, sizeof msg, "Entailed: %s.", ex);
                 else
-                    snprintf(msg, sizeof msg, "Entailed: %s is a known fact.", ex);
+                    { const KbResponseSlot _rs[] = { { "ex", ex } };
+                      kb_term_say(tmp, "entailed_x_is_a_known_fact", _rs, 1, msg, sizeof msg); }
                 put(msg, out, out_size);
             } else {
                 kb_say(tmp, "entailed", "Entailed.", out, out_size);

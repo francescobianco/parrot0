@@ -632,3 +632,20 @@ response_template(it_hangs_on_x_premises_overturning_any_one_w, "It hangs on {nc
 % numero e chiedere una persona non sono la stessa richiesta.
 response_template(what_number_should_i_use_for_x, "What number should I use for «{pron}»?").
 response_template(who_or_what_does_x_refer_to, "Who or what does «{pron}» refer to?").
+
+%% Ottava tranche: le frasi che venivano APPESE a un buffer, o il cui snprintf
+%% serviva anche per il valore di ritorno. La frase esce in un buffer
+%% temporaneo e l'append resta identico: cambia da dove viene il testo.
+
+response_template(unknown_function_x_is_not_a_standard_c_libra, "Unknown function: «{t}» is not a standard C library function. Did you spell it correctly or forget an #include?").
+
+% Gli ultimi messaggi convertiti a mano: la sonda non li prendeva perche' il
+% Brain si chiama `tmp`, o perche' l'istruzione stava tutta su una riga dentro
+% un `if`.
+response_template(entailed_x_is_a_known_fact, "Entailed: {ex} is a known fact.").
+response_template(prose_read_page_could_not_open_x, "I could not open {target}.").
+response_template(i_couldn_t_store_that_2, "I couldn't store that.").
+response_template(the_judge_ran_it_but_it_did_not_sort_every_ve, "The judge ran it, but it did not sort every vector.").
+response_template(no_contract_authorizing_x, "I have no contract authorizing «{tool}».").
+response_template(x_needs_one_of_its_authorized_subcommands, "«{tool}» needs one of its authorized subcommands.").
+response_template(read_x_inside_the_workspace, "read {file} inside the workspace ({bytes} bytes{trunc})").
