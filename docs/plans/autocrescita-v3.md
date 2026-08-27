@@ -826,7 +826,16 @@ nuovo `range(0,21)`. Questo è il primo testimone Gen439 della catena
 `fonte intera -> clausole -> proposizioni multiple`: la provenienza non è più
 soltanto corretta per una frase isolata.
 
-Stato del gate: **H438 resta aperta**. Questi risultati dimostrano il produttore
+Il taglio Gen439 aggiunge inoltre le locuzioni come nodi `phrase` della stessa
+IR. Una relazione `phrase_form/4` insegnata a runtime (`"new york" ->
+new_yorkion`) viene risolta senza modifiche al C, ordinata per gli span e
+composta nella proposizione della prosa; rimuovendo la relazione, la stessa
+prosa non produce più quella proposizione. L'esperimento costruttivo
+`gen439-phrases.p0t` chiude con **11 proprietà passate**. Questo campione
+conferma il percorso prosa→locuzione→IR; l'indicizzazione di locuzioni nelle
+domande resta il passo successivo, non viene dichiarata già risolta.
+
+Stato del gate: **H438 resta aperta** e H439 è in avanzamento. Questi risultati dimostrano il produttore
 n-lingue e il primo verticale prosa→proposizione→domanda→risposta, non M1–M5
 completo. Mancano
 ancora locuzioni multiword risolte come nodi, ruoli annidati, scope e

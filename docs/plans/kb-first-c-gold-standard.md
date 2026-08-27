@@ -299,6 +299,12 @@ fallback transitorio e resta fuori dal gold. La sua presenza tiene aperta la
 bonifica C2/C3; il suo mancato attraversamento nel testimone prova però che il
 nuovo percorso è già autonomo rispetto a esso.
 
+La prima prova Gen439 (`gen439-phrases.p0t`) aggiunge una locuzione insegnata a
+runtime come nodo `phrase`: 11 proprietà passano includendo riconoscimento,
+ordine per span, composizione nella proposizione e ablazione della forma. La
+prova è deliberatamente limitata alla prosa; la scansione multiword nelle
+domande rimane il prossimo incremento del gold.
+
 ## 9. Rapporto con le dieci generazioni
 
 - **438:** definisce il gold e porta il primo taglio prosa/domanda end-to-end;

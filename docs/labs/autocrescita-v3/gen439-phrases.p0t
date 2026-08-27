@@ -1,0 +1,38 @@
+# GEN439 — LE LOCUZIONI SONO SPAN KB, NON TOKEN SPECIALI.
+# Esperimento costruttivo: una forma multiword insegnata a runtime entra nella
+# stessa IR di una singola entita', alimenta prosa e domanda, e la retract la
+# rende nuovamente irraggiungibile senza rebuild.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=docs/labs/autocrescita-v3/gen438-frames.p0
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test a runtime multiword entity is a phrase node in prose and question]
+!assert semantic_entity(new_yorkion)
+!assert np_opener(new)
+!assert phrase_form("new york", new_yorkion, en, common)
+> read: new york produces flour.
+!query input_node_phrase_form(current_prose, 5, en, form("new york", new_yorkion))
+!query input_node_form(current_prose, 5, en, form("new york", new_yorkion))
+!query semantic_entity(new_yorkion)
+!query input_entity_node(current_prose, en, 5, new_yorkion)
+!query input_operator_node(current_prose, en, operator(binary, produce_relation), 3)
+!query input_entity_node(current_prose, en, 4, flourion)
+!query input_node_order3(current_prose, 5, 3, 4)
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(new_yorkion), object(flourion))))
+!query input_clause_provenance(current_prose, $Prov)
+
+[test retracting the phrase removes only the multiword path]
+!reset
+!assert semantic_entity(new_yorkion)
+!assert np_opener(new)
+!forget phrase_form("new york", new_yorkion, en, common)
+> read: new york produces flour.
+!query! semantic_proposition(proposition(binary(produce_relation), roles(subject(new_yorkion), object(flourion))))
+!assert phrase_form("new york", new_yorkion, en, common)
+> read: new york produces flour.
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(new_yorkion), object(flourion))))
