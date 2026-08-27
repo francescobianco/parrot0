@@ -36,8 +36,7 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
                     seen[*c - 'a'] = 1; distinct++;
                 }
             if (distinct == 26) {
-                kb_say(b, "it_contains_every_letter_of_the_alphabet_it", "It contains every letter of the alphabet -- it's a pangram.",
-                    out, out_size);
+                kb_term_say(b, "it_contains_every_letter_of_the_alphabet_it", NULL, 0, out, out_size);
                 store_proof(b, "Counted 26 distinct letters in the quoted text.");
                 return 1;
             }
@@ -93,8 +92,7 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
     snprintf(cmd, sizeof cmd, "echo %s | wc -w", text);
     char result[64];
     if (!simulate_pipeline(cmd, result, sizeof result)) {
-        kb_say(b, "i_can_only_count_plain_words_for_now_letters", "I can only count plain words for now (letters and digits, no punctuation).",
-            out, out_size);
+        kb_term_say(b, "i_can_only_count_plain_words_for_now_letters", NULL, 0, out, out_size);
         return 1;
     }
     size_t resl = strlen(result);
@@ -105,8 +103,7 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
     { const KbResponseSlot _rs[] = { { "result", result }, { "cmd", cmd } };
       if (!kb_response_slots(b, "x_i_ran_the_tool_x", _rs, 2, msg, sizeof msg))
         { const KbResponseSlot _rs[] = { { "result", result }, { "cmd", cmd } };
-          if (!kb_response_slots(b, "x_i_ran_the_tool_x", _rs, 2, msg, sizeof msg))
-            snprintf(msg, sizeof msg, "%s. (I ran the tool: %s.)", result, cmd); }
+      kb_term_say(b, "x_i_ran_the_tool_x", _rs, 2, msg, sizeof msg); }
       put(msg, out, out_size); }
 
     char proof[640];
@@ -533,8 +530,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
                 if (b) {
                     char proof[320];
                     { const KbResponseSlot _rs[] = { { "patbuf", patbuf }, { "dirbuf", dirbuf } };
-                      if (!kb_response_slots(b, "structural_locate_of_x_under_x_code_locate_c", _rs, 2, proof, sizeof proof))
-                        snprintf(proof, sizeof proof, "structural locate of %s under %s (code_locate/code_find_callers)", patbuf, dirbuf); }
+      kb_term_say(b, "structural_locate_of_x_under_x_code_locate_c", _rs, 2, proof, sizeof proof); }
                     store_proof(b, proof);
                 }
                 return 1;
@@ -930,9 +926,7 @@ static int compose_one(Brain *b, const char *raw, const char *low,
                     return 1;
                 }
                 if (v == 0) { snprintf(note, notesz, "the judge ran it but it did not sort every vector"); return -1; }
-                { const KbResponseSlot _rs[] = { { "x", "" } };
-                  if (!kb_response_slots(b, "the_synthesized_sort_would_not_build_run_so", _rs, 0, note, notesz))
-                    snprintf(note, notesz, "the synthesized sort would not build/run, so I will not report it"); }
+                kb_term_say(b, "the_synthesized_sort_would_not_build_run_so", NULL, 0, note, notesz);
                 return -1;
             }
         }
@@ -960,9 +954,7 @@ static int compose_one(Brain *b, const char *raw, const char *low,
                  nameo,a1,b1,g1, nameo,a2,b2,g2);
         return 1;
     }
-    { const KbResponseSlot _rs[] = { { "x", "" } };
-      if (!kb_response_slots(b, "the_oracle_did_not_confirm_it", _rs, 0, note, notesz))
-        snprintf(note, notesz, "the oracle did not confirm it"); }
+    kb_term_say(b, "the_oracle_did_not_confirm_it", NULL, 0, note, notesz);
     return -1;
 }
 

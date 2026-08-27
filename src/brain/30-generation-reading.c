@@ -813,7 +813,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
 
     if (kb_cue_match(b, "30_generation_reading_cue814", norm) && kb_cue_match(b, "30_generation_reading_cue814_2", norm) &&
         (kb_cue_match(b, "30_generation_reading_chain822", norm))) {
-        kb_say(b, "it_stretches_longer_while_you_pull_it_", "It stretches longer while you pull it. When you let go, elasticity pulls it back toward its original shape.", out, out_size);
+        kb_term_say(b, "it_stretches_longer_while_you_pull_it_", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -1084,7 +1084,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             /* Q3 fallback: long narrative with a weekday — give a generic
              * continuation instead of letting it fall through to "Monday." */
             if (is_continuation && has_weekday) {
-                kb_say(b, "the_day_unfolded_quietly_each_moment_c", "The day unfolded quietly, each moment carrying the weight of something unspoken. And in that stillness, a new chapter was beginning.", out, out_size);
+                kb_term_say(b, "the_day_unfolded_quietly_each_moment_c", NULL, 0, out, out_size);
                 return 1;
             }
         }
@@ -1467,8 +1467,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             char msg[700];
             if (want == 1)
                 { const KbResponseSlot _rs[] = { { "names", names[0] }, { "reasons", reasons[0] } };
-                  if (!kb_response_slots(b, "i_don_t_have_real_desires_but_for_the_prompt_2", _rs, 2, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "I don't have real desires, but for the prompt I'd choose %s: %s.", names[0], reasons[0]); }
+      kb_term_say(b, "i_don_t_have_real_desires_but_for_the_prompt_2", _rs, 2, msg, sizeof msg); }
             else if (want == 2)
                 { const KbResponseSlot _rs[] = { { "names", names[0] }, { "names2", names[1] }, { "reasons", reasons[0] }, { "reasons2", reasons[1] } };
                   if (!kb_response_slots(b, "i_don_t_have_real_desires_but_for_the_prompt_3", _rs, 4, msg, sizeof msg))
@@ -1520,8 +1519,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         char msg[200];
         if (pick[0])
             { const KbResponseSlot _rs[] = { { "pick", pick } };
-              if (!kb_response_slots(b, "i_don_t_have_real_desires_but_for_the_prompt_4", _rs, 1, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "I don't have real desires, but for the prompt I'd pick %s.", pick); }
+      kb_term_say(b, "i_don_t_have_real_desires_but_for_the_prompt_4", _rs, 1, msg, sizeof msg); }
         else
             snprintf(msg, sizeof msg,
                      "I don't have real desires, but I'm happy to play along -- give me "
@@ -1623,8 +1621,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             { const KbResponseSlot _rs[] = { { "x", x } };
               if (!kb_response_slots(b, "i_have_nothing_to_say_about_x", _rs, 1, msg, sizeof msg))
                 { const KbResponseSlot _rs[] = { { "x", x } };
-                  if (!kb_response_slots(b, "i_have_nothing_to_say_about_x", _rs, 1, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "I have nothing to say about %s.", x); }
+      kb_term_say(b, "i_have_nothing_to_say_about_x", _rs, 1, msg, sizeof msg); }
               put(msg, out, out_size); }
         } else {
             if (off < sizeof line)
@@ -2057,7 +2054,7 @@ static int bench_dispatch(Brain *b, const char *raw, const char *low,
         } else {
             /* RTE: the bench's parser maps only the 'entailment' label (it is a
              * substring of 'not_entailment'), so that is the only valid output. */
-            kb_say(b, "entailment_3374", "entailment", out, out_size);
+            kb_term_say(b, "entailment_3374", NULL, 0, out, out_size);
         }
         return 1;
     }
@@ -2215,8 +2212,7 @@ static int mod_coref(Brain *b, const char *norm, const char *raw,
             { const KbResponseSlot _rs[] = { { "a", a } };
               if (!kb_response_slots(b, "i_don_t_know_who_x_refers_to_2", _rs, 1, msg, sizeof msg))
                 { const KbResponseSlot _rs[] = { { "a", a } };
-                  if (!kb_response_slots(b, "i_don_t_know_who_x_refers_to_2", _rs, 1, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "I don't know who %s refers to.", a); }
+      kb_term_say(b, "i_don_t_know_who_x_refers_to_2", _rs, 1, msg, sizeof msg); }
               put(msg, out, out_size); }
             return 1;
         }

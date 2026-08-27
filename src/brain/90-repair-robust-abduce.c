@@ -347,7 +347,7 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
     { char n1[256]; normalize(fact, n1, sizeof n1); canonicalize_lang(b, n1, fc, sizeof fc); }
     char pred[KB_TERM_LEN], arg[KB_TERM_LEN];
     if (!parse_ground_unary(b, fc, pred, sizeof pred, arg, sizeof arg)) {
-        kb_say(b, "i_can_only_reconsider_a_simple_x_is_a_", "I can only reconsider a simple 'X is a Y' fact for now.", out, out_size);
+        kb_term_say(b, "i_can_only_reconsider_a_simple_x_is_a_", NULL, 0, out, out_size);
         return 1;
     }
     const char *fargs[] = {arg};
@@ -356,8 +356,7 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
         { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred } };
           if (!kb_response_slots(b, "but_i_don_t_know_that_x_is_a_x_in_the_first", _rs, 2, msg, sizeof msg))
             { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred } };
-              if (!kb_response_slots(b, "but_i_don_t_know_that_x_is_a_x_in_the_first", _rs, 2, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "But I don't know that %s is a %s in the first place.", arg, pred); }
+      kb_term_say(b, "but_i_don_t_know_that_x_is_a_x_in_the_first", _rs, 2, msg, sizeof msg); }
           put(msg, out, out_size); }
         return 1;
     }
@@ -972,8 +971,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
 
     char pred[KB_TERM_LEN], arg[KB_TERM_LEN];
     if (!parse_goal_loose(clause, pred, sizeof pred, arg, sizeof arg)) {
-        kb_say(b, "tell_me_what_you_d_like_me_to_account_for_as", "Tell me what you'd like me to account for, as 'X is a Y'.",
-            out, out_size);
+        kb_term_say(b, "tell_me_what_you_d_like_me_to_account_for_as", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -982,14 +980,12 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         char ex[400], msg[480];
         if (kb_explain(b->kb, pred, gargs, 1, ex, sizeof ex) && strstr(ex, " because "))
             { const KbResponseSlot _rs[] = { { "ex", ex } };
-              if (!kb_response_slots(b, "i_already_conclude_that_x", _rs, 1, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "I already conclude that: %s.", ex); }
+      kb_term_say(b, "i_already_conclude_that_x", _rs, 1, msg, sizeof msg); }
         else
             { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred } };
               if (!kb_response_slots(b, "i_already_know_that_x_is_a_x", _rs, 2, msg, sizeof msg))
                 { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred } };
-                  if (!kb_response_slots(b, "i_already_know_that_x_is_a_x", _rs, 2, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "I already know that %s is a %s.", arg, pred); }
+      kb_term_say(b, "i_already_know_that_x_is_a_x", _rs, 2, msg, sizeof msg); }
               put(msg, out, out_size); }
         return 1;
     }
@@ -1026,8 +1022,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         char msg[1400];
         if (best_n == 999) {
             { const KbResponseSlot _rs[] = { { "pred", pred } };
-              if (!kb_response_slots(b, "i_can_see_rules_for_x_but_no_missing_premise", _rs, 1, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "I can see rules for %s, but no missing premise plan stands out.", pred); }
+      kb_term_say(b, "i_can_see_rules_for_x_but_no_missing_premise", _rs, 1, msg, sizeof msg); }
         } else {
             char need[500]; size_t no = 0;
             for (size_t i = 0; i < best_n; i++)
@@ -1050,12 +1045,10 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
                 }
                 if (ok)
                     { const KbResponseSlot _rs[] = { { "need", need }, { "arg", arg }, { "pred", pred }, { "ex", ex } };
-                      if (!kb_response_slots(b, "hypothetically_adding_x_makes_x_a_x_x_i_rest", _rs, 4, msg, sizeof msg))
-                        snprintf(msg, sizeof msg, "Hypothetically adding %s makes %s a %s: %s. I restored the KB after the simulation.", need, arg, pred, ex); }
+      kb_term_say(b, "hypothetically_adding_x_makes_x_a_x_x_i_rest", _rs, 4, msg, sizeof msg); }
                 else
                     { const KbResponseSlot _rs[] = { { "need", need }, { "pred", pred }, { "arg", arg } };
-                      if (!kb_response_slots(b, "i_tried_the_cheapest_plan_x_but_it_still_did", _rs, 3, msg, sizeof msg))
-                        snprintf(msg, sizeof msg, "I tried the cheapest plan (%s), but it still did not derive %s(%s). I restored the KB.", need, pred, arg); }
+      kb_term_say(b, "i_tried_the_cheapest_plan_x_but_it_still_did", _rs, 3, msg, sizeof msg); }
             } else {
                 snprintf(msg, sizeof msg,
                          "The easiest way is to tell me that %s — %zu missing premise%s via %s -> %s.",
@@ -1111,8 +1104,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
                 shown++;
             }
             { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred }, { "alts", alts } };
-              if (!kb_response_slots(b, "x_is_not_a_x_because_every_alternative_is_bl", _rs, 3, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "%s is not a %s because every alternative is blocked: %s.", arg, pred, alts); }
+      kb_term_say(b, "x_is_not_a_x_because_every_alternative_is_bl", _rs, 3, msg, sizeof msg); }
         } else {
             int deeper_missing = 0;
             for (size_t i = 0; i < nb; i++) {
@@ -1136,8 +1128,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
                                            arg, roots[i]);
                 char spine[256]; abduce_spine(b->kb, pred, spine, sizeof spine);
                 { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred }, { "missing", missing }, { "spine", spine } };
-                  if (!kb_response_slots(b, "x_is_not_a_x_because_i_am_missing_the_root_p", _rs, 4, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "%s is not a %s because I am missing the root premise: %s. By %s.", arg, pred, missing, spine); }
+      kb_term_say(b, "x_is_not_a_x_because_i_am_missing_the_root_p", _rs, 4, msg, sizeof msg); }
             } else {
                 char missing[400]; size_t mo = 0; int nm = 0;
                 char rule[200]; size_t ro = 0;
@@ -1156,12 +1147,10 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
                 }
                 if (nm > 0)
                     { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred }, { "missing", missing }, { "rule", rule }, { "pred2", pred } };
-                      if (!kb_response_slots(b, "x_is_not_a_x_because_i_am_missing_x_the_rule", _rs, 5, msg, sizeof msg))
-                        snprintf(msg, sizeof msg, "%s is not a %s because I am missing: %s. The rule is %s -> %s.", arg, pred, missing, rule, pred); }
+      kb_term_say(b, "x_is_not_a_x_because_i_am_missing_x_the_rule", _rs, 5, msg, sizeof msg); }
                 else
                     { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred } };
-                      if (!kb_response_slots(b, "i_have_the_premises_for_x_to_be_a_x_but_i_st", _rs, 2, msg, sizeof msg))
-                        snprintf(msg, sizeof msg, "I have the premises for %s to be a %s, but I still cannot derive it.", arg, pred); }
+      kb_term_say(b, "i_have_the_premises_for_x_to_be_a_x_but_i_st", _rs, 2, msg, sizeof msg); }
             }
         }
         put(msg, out, out_size);
@@ -1191,8 +1180,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         { const KbResponseSlot _rs[] = { { "alts", alts }, { "arg", arg }, { "pred", pred } };
           if (!kb_response_slots(b, "there_s_more_than_one_way_either_x_any_one_w", _rs, 3, msg, sizeof msg))
             { const KbResponseSlot _rs[] = { { "alts", alts }, { "arg", arg }, { "pred", pred } };
-              if (!kb_response_slots(b, "there_s_more_than_one_way_either_x_any_one_w", _rs, 3, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "There's more than one way: either %s — any one would make %s a %s.", alts, arg, pred); }
+      kb_term_say(b, "there_s_more_than_one_way_either_x_any_one_w", _rs, 3, msg, sizeof msg); }
           put(msg, out, out_size); }
         return 1;
     }
@@ -1219,8 +1207,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
                                    "%s%s is a %s", i ? " and " : "", arg, roots[i]);
         char spine[256]; abduce_spine(b->kb, pred, spine, sizeof spine);
         { const KbResponseSlot _rs[] = { { "prem", prem }, { "arg", arg }, { "pred", pred }, { "spine", spine } };
-          if (!kb_response_slots(b, "if_you_told_me_that_x_then_x_would_be_a_x_by", _rs, 4, msg, sizeof msg))
-            snprintf(msg, sizeof msg, "If you told me that %s, then %s would be a %s — by %s.", prem, arg, pred, spine); }
+      kb_term_say(b, "if_you_told_me_that_x_then_x_would_be_a_x_by", _rs, 4, msg, sizeof msg); }
     } else {
         /* name only the MISSING conjuncts as the premise to supply, but show the
          * full rule body so the rule itself is reported faithfully. */
@@ -1238,8 +1225,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
                                    "%s%s", i ? " and " : "", bodies[i]);
         }
         { const KbResponseSlot _rs[] = { { "prem", prem }, { "arg", arg }, { "pred", pred }, { "rule", rule }, { "pred2", pred } };
-          if (!kb_response_slots(b, "if_you_told_me_that_x_then_x_would_be_a_x_th", _rs, 5, msg, sizeof msg))
-            snprintf(msg, sizeof msg, "If you told me that %s, then %s would be a %s — that's the rule %s -> %s.", prem, arg, pred, rule, pred); }
+      kb_term_say(b, "if_you_told_me_that_x_then_x_would_be_a_x_th", _rs, 5, msg, sizeof msg); }
     }
     put(msg, out, out_size);
     return 1;

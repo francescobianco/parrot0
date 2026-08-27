@@ -162,7 +162,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         const char *q[] = { "file", NULL };
         size_t n = b->kb ? kb_match(b->kb, "artifact", q, 2, paths, 16) : 0;
         if (n == 0) {
-            kb_say(b, "i_haven_t_created_any_files_this_sessi", "I haven't created any files this session.", out, out_size);
+            kb_term_say(b, "i_haven_t_created_any_files_this_sessi", NULL, 0, out, out_size);
             return 1;
         }
         char msg[480]; size_t o = 0;
@@ -206,9 +206,9 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                     kb_cue_match(b, "40_meta_reflection_cue206", buf);
     if (attention) {
         if (strcmp(b->last_reply, "Yes. I read each message in this conversation.") == 0)
-            kb_say(b, "i_am_reading_this_conversation_turn_by", "I am reading this conversation turn by turn.", out, out_size);
+            kb_term_say(b, "i_am_reading_this_conversation_turn_by", NULL, 0, out, out_size);
         else
-            kb_say(b, "yes_i_read_each_message_in_this_conver", "Yes. I read each message in this conversation.", out, out_size);
+            kb_term_say(b, "yes_i_read_each_message_in_this_conver", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -268,7 +268,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                      kb_cue_match(b, "40_meta_reflection_cue268", buf) ||
                      kb_cue_match(b, "40_meta_reflection_cue269", buf);
     if (understand) {
-        kb_say(b, "i_understand_some_patterns_and_i_say_w", "I understand some patterns, and I say when I do not.", out, out_size);
+        kb_term_say(b, "i_understand_some_patterns_and_i_say_w", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -279,7 +279,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                    kb_cue_match(b, "40_meta_reflection_cue279", buf) ||
                    kb_cue_match(b, "40_meta_reflection_cue280", buf);
     if (presence) {
-        kb_say(b, "yes_i_m_here", "Yes, I'm here.", out, out_size);
+        kb_term_say(b, "yes_i_m_here", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -288,7 +288,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                   kb_cue_match(b, "40_meta_reflection_cue288", buf) ||
                   kb_cue_match(b, "40_meta_reflection_cue289", buf);
     if (channel) {
-        kb_say(b, "no_i_only_read_text_i_can_t_hear_audio", "No, I only read text. I can't hear audio.", out, out_size);
+        kb_term_say(b, "no_i_only_read_text_i_can_t_hear_audio", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -307,7 +307,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         if (k > 0)
             snprintf(msg, sizeof msg, "Yes, I am %s.", id[0]);
         else
-            kb_say(b, "yes_i_am_parrot0", "Yes, I am parrot0.", out, out_size);
+            kb_term_say(b, "yes_i_am_parrot0", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -341,7 +341,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                          kb_cue_match(b, "40_meta_reflection_cue341", buf);
         if ((kb_cue_match(b, "40_meta_reflection_chain349", buf)) &&
             (kb_cue_match(b, "40_meta_reflection_chain350", buf))) {
-            kb_say(b, "i_don_t_watch_movies_or_have_recent_vi", "I don't watch movies or have recent viewing experiences, but for the prompt I'd pick an old mystery for its careful clues.", out, out_size);
+            kb_term_say(b, "i_don_t_watch_movies_or_have_recent_vi", NULL, 0, out, out_size);
             return 1;
         }
         int situated_activity_fav =
@@ -415,8 +415,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                 char id[1][KB_TERM_LEN];
                 size_t k = b->kb ? kb_match(b->kb, "i_am", var, 1, id, 1) : 0;
                 if (!kb_response(b, ai[i], k ? id[0] : "parrot0", out, out_size))
-                    kb_say(b, "i_m_parrot0_a_small_program_written_in_c_not", "I'm parrot0, a small program written in C, not an LLM.",
-                        out, out_size);
+                    kb_term_say(b, "i_m_parrot0_a_small_program_written_in_c_not", NULL, 0, out, out_size);
                 return 1;
             }
         }
@@ -428,8 +427,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                  kb_cue_match(b, "40_meta_reflection_cue428", buf) ||
                  kb_cue_match(b, "40_meta_reflection_cue429", buf);
     if (repeat) {
-        kb_say(b, "i_repeat_when_no_module_can_claim_the_messag", "I repeat when no module can claim the message; that is a gap to improve.",
-            out, out_size);
+        kb_term_say(b, "i_repeat_when_no_module_can_claim_the_messag", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -446,7 +444,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                 put(is_direct ? "Yes, that's a directly stored fact."
                               : "I'm confident — derived through logical rules.",
                     out, out_size);
-            } else kb_say(b, "i_can_t_verify_no_proof_was_stored", "I can't verify — no proof was stored.", out, out_size);
+            } else kb_term_say(b, "i_can_t_verify_no_proof_was_stored", NULL, 0, out, out_size);
             return 1;
         }
     }
@@ -473,7 +471,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         int g =!lex_prefix_member(b, "40_meta_reflection_lex473", buf)==0 || it_goal;
         if(g && b->goal_count<8){ snprintf(b->goals[b->goal_count++],128,"%s",buf+(it_goal?13:12)); put("Ok, noted.",out,out_size); return 1; }
         if(kb_cue_match(b, "40_meta_reflection_chain483", buf)){
-            if(!b->goal_count) kb_say(b, "no_goals_set", "No goals set.",out,out_size);
+            if(!b->goal_count) kb_term_say(b, "no_goals_set", NULL, 0, out, out_size);
             else { char l[1024]=""; for(size_t i=0;i<b->goal_count;i++){char t[200];snprintf(t,200,"%zu) %s. ",i+1,b->goals[i]);strcat(l,t);} put(l,out,out_size); }
             return 1;
         }
@@ -504,8 +502,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                          "stored directly in my knowledge base.", b->last_proof);
             put(msg, out, out_size);
         } else {
-            kb_say(b, "there_is_no_recent_reasoning_to_explain_in_m", "There is no recent reasoning to explain in more detail.",
-                out, out_size);
+            kb_term_say(b, "there_is_no_recent_reasoning_to_explain_in_m", NULL, 0, out, out_size);
         }
         return 1;
     }
@@ -1080,7 +1077,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         b->in_role = 0;
         b->role_name[0] = b->role_kind[0] = '\0';
         b->role_attr_count = 0;
-        kb_say(b, "okay_i_m_myself_again_i_am_parrot0", "Okay, I'm myself again. I am parrot0.", out, out_size);
+        kb_term_say(b, "okay_i_m_myself_again_i_am_parrot0", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -1120,7 +1117,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
             snprintf(msg, sizeof msg, "I am %s.", b->role_name);
         else if (b->role_kind[0])
             snprintf(msg, sizeof msg, "I am a %s.", b->role_kind);
-        else kb_say(b, "i_am_in_character", "I am in character.", out, out_size);
+        else kb_term_say(b, "i_am_in_character", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -1218,8 +1215,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
             char msg[64]; { const KbResponseSlot _rs[] = { { "age", age } };
    if (!kb_response_slots(b, "i_am_x_years_old", _rs, 1, msg, sizeof msg))
      { const KbResponseSlot _rs[] = { { "age", age } };
-       if (!kb_response_slots(b, "i_am_x_years_old", _rs, 1, msg, sizeof msg))
-         snprintf(msg, sizeof msg, "I am %s years old.", age); }
+      kb_term_say(b, "i_am_x_years_old", _rs, 1, msg, sizeof msg); }
    put(msg, out, out_size); } return 1;
         }
     }
@@ -1243,8 +1239,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
             char msg[96]; { const KbResponseSlot _rs[] = { { "org", org[0] } };
    if (!kb_response_slots(b, "i_work_for_an_x", _rs, 1, msg, sizeof msg))
      { const KbResponseSlot _rs[] = { { "org", org[0] } };
-       if (!kb_response_slots(b, "i_work_for_an_x", _rs, 1, msg, sizeof msg))
-         snprintf(msg, sizeof msg, "I work for an %s.", org[0]); }
+      kb_term_say(b, "i_work_for_an_x", _rs, 1, msg, sizeof msg); }
    put(msg, out, out_size); } return 1;
         }
     }
@@ -1258,8 +1253,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
             char msg[96]; { const KbResponseSlot _rs[] = { { "c", c } };
    if (!kb_response_slots(b, "my_favorite_color_is_x", _rs, 1, msg, sizeof msg))
      { const KbResponseSlot _rs[] = { { "c", c } };
-       if (!kb_response_slots(b, "my_favorite_color_is_x", _rs, 1, msg, sizeof msg))
-         snprintf(msg, sizeof msg, "My favorite color is %s.", c); }
+      kb_term_say(b, "my_favorite_color_is_x", _rs, 1, msg, sizeof msg); }
    put(msg, out, out_size); } return 1;
         }
         /* gen240: no role persona — answer honestly but still PICK a colour from
@@ -1465,14 +1459,12 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
     char msg[200];
     if (linking)
         { const KbResponseSlot _rs[] = { { "A", A }, { "B", B }, { "linking", linking }, { "C", C } };
-          if (!kb_response_slots(b, "x_and_x_are_related_by_x_but_i_don_t_know_th", _rs, 4, msg, sizeof msg))
-            snprintf(msg, sizeof msg, "%s and %s are related by %s, but I don't know that relation for %s.", A, B, linking, C); }
+      kb_term_say(b, "x_and_x_are_related_by_x_but_i_don_t_know_th", _rs, 4, msg, sizeof msg); }
     else
         { const KbResponseSlot _rs[] = { { "A", A }, { "B", B } };
           if (!kb_response_slots(b, "i_see_the_analogy_but_i_don_t_know_a_relatio", _rs, 2, msg, sizeof msg))
             { const KbResponseSlot _rs[] = { { "A", A }, { "B", B } };
-              if (!kb_response_slots(b, "i_see_the_analogy_but_i_don_t_know_a_relatio", _rs, 2, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "I see the analogy, but I don't know a relation linking %s and %s.", A, B); }
+      kb_term_say(b, "i_see_the_analogy_but_i_don_t_know_a_relatio", _rs, 2, msg, sizeof msg); }
           put(msg, out, out_size); }
     return 1;
 }
@@ -1715,8 +1707,7 @@ static int mod_archetype(Brain *b, const char *norm, const char *raw,
     { const KbResponseSlot _rs[] = { { "answer", answer }, { "demo", demo }, { "dconcl", dconcl }, { "qj", qj }, { "answer2", answer } };
       if (!kb_response_slots(b, "x_same_relational_pattern_as_x_x_so_x_x", _rs, 5, msg, sizeof msg))
         { const KbResponseSlot _rs[] = { { "answer", answer }, { "demo", demo }, { "dconcl", dconcl }, { "qj", qj }, { "answer2", answer } };
-          if (!kb_response_slots(b, "x_same_relational_pattern_as_x_x_so_x_x", _rs, 5, msg, sizeof msg))
-            snprintf(msg, sizeof msg, "%s — same relational pattern as %s ⇒ %s, so %s ⇒ %s.", answer, demo, dconcl, qj, answer); }
+      kb_term_say(b, "x_same_relational_pattern_as_x_x_so_x_x", _rs, 5, msg, sizeof msg); }
       put(msg, out, out_size); }
 
     char proof[420];
@@ -1969,8 +1960,7 @@ static int mod_fewshot(Brain *b, const char *norm, const char *raw,
 
     char proof[256];
     { const KbResponseSlot _rs[] = { { "in", in[0] }, { "ot", ot[0] }, { "in2", in[1] }, { "ot2", ot[1] }, { "rule", rule }, { "probe_in", probe_in }, { "result", result } };
-      if (!kb_response_slots(b, "the_examples_x_x_and_x_x_share_the_rule_x_so", _rs, 7, proof, sizeof proof))
-        snprintf(proof, sizeof proof, "the examples %s -> %s and %s -> %s share the rule \"%s\", so %s -> %s.", in[0], ot[0], in[1], ot[1], rule, probe_in, result); }
+      kb_term_say(b, "the_examples_x_x_and_x_x_share_the_rule_x_so", _rs, 7, proof, sizeof proof); }
     store_proof(b, proof);
     return 1;
 }

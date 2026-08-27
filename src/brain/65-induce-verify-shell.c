@@ -80,7 +80,7 @@ static int mod_induce(Brain *b, const char *norm, const char *raw,
     numbuf[kk] = '\0';
     double n0;
     if (kk == 0 || !parse_value(numbuf, &n0)) {
-        kb_say(b, "i_found_the_rule_but_not_the_number_to", "I found the rule but not the number to apply it to.", out, out_size);
+        kb_term_say(b, "i_found_the_rule_but_not_the_number_to", NULL, 0, out, out_size);
         store_proof(b, rule);
         return 1;
     }
@@ -211,8 +211,7 @@ static int mod_search(Brain *b, const char *norm, const char *raw,
         { const KbResponseSlot _rs[] = { { "tb", tb }, { "sb", sb } };
           if (!kb_response_slots(b, "i_couldn_t_reach_x_from_x_with_those_operati", _rs, 2, msg, sizeof msg))
             { const KbResponseSlot _rs[] = { { "tb", tb }, { "sb", sb } };
-              if (!kb_response_slots(b, "i_couldn_t_reach_x_from_x_with_those_operati", _rs, 2, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "I couldn't reach %s from %s with those operations.", tb, sb); }
+      kb_term_say(b, "i_couldn_t_reach_x_from_x_with_those_operati", _rs, 2, msg, sizeof msg); }
           put(msg, out, out_size); }
         return 1;
     }
@@ -296,8 +295,7 @@ static int mod_verify(Brain *b, const char *norm, const char *raw,
 
     InducedRule r; char rule[160];
     if (!induce_rule(in, out_, nex, &r, rule, sizeof rule)) {
-        kb_say(b, "those_examples_don_t_all_follow_one_rule_i_c", "Those examples don't all follow one rule I can express yet.",
-            out, out_size);
+        kb_term_say(b, "those_examples_don_t_all_follow_one_rule_i_c", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -309,14 +307,12 @@ static int mod_verify(Brain *b, const char *norm, const char *raw,
     char msg[400];
     if (pred == (double)tout)
         { const KbResponseSlot _rs[] = { { "ib", ib }, { "tb", tb }, { "rule", rule } };
-          if (!kb_response_slots(b, "yes_x_x_fits_the_rule_x", _rs, 3, msg, sizeof msg))
-            snprintf(msg, sizeof msg, "Yes — %s -> %s fits the rule (%s).", ib, tb, rule); }
+      kb_term_say(b, "yes_x_x_fits_the_rule_x", _rs, 3, msg, sizeof msg); }
     else
         { const KbResponseSlot _rs[] = { { "rule", rule }, { "ib", ib }, { "pb", pb }, { "tb", tb } };
           if (!kb_response_slots(b, "no_the_rule_x_predicts_x_x_not_x", _rs, 4, msg, sizeof msg))
             { const KbResponseSlot _rs[] = { { "rule", rule }, { "ib", ib }, { "pb", pb }, { "tb", tb } };
-              if (!kb_response_slots(b, "no_the_rule_x_predicts_x_x_not_x", _rs, 4, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "No — the rule (%s) predicts %s -> %s, not %s.", rule, ib, pb, tb); }
+      kb_term_say(b, "no_the_rule_x_predicts_x_x_not_x", _rs, 4, msg, sizeof msg); }
           put(msg, out, out_size); }
     store_proof(b, rule);
     return 1;
@@ -377,13 +373,13 @@ static int mod_shell(Brain *b, const char *norm, const char *raw,
     if (pred_cmd) {
         char predicted[4096], actual[4096];
         if (!simulate_pipeline(pred_cmd, predicted, sizeof predicted)) {
-            kb_say(b, "i_can_t_predict_the_output_of_that_yet", "I can't predict the output of that yet.", out, out_size);
+            kb_term_say(b, "i_can_t_predict_the_output_of_that_yet", NULL, 0, out, out_size);
             return 1;
         }
         char safe_cmd[512];
         snprintf(safe_cmd, sizeof safe_cmd, "%s", pred_cmd);
         if (!run_shell(safe_cmd, actual, sizeof actual)) {
-            kb_say(b, "i_couldn_t_run_the_shell_oracle", "I couldn't run the shell oracle.", out, out_size);
+            kb_term_say(b, "i_couldn_t_run_the_shell_oracle", NULL, 0, out, out_size);
             return 1;
         }
         if (strcmp(predicted, actual) == 0) {
@@ -401,8 +397,7 @@ static int mod_shell(Brain *b, const char *norm, const char *raw,
             { const KbResponseSlot _rs[] = { { "predicted", predicted }, { "actual", actual } };
               if (!kb_response_slots(b, "i_predicted_x_but_the_shell_said_x", _rs, 2, msg, sizeof msg))
                 { const KbResponseSlot _rs[] = { { "predicted", predicted }, { "actual", actual } };
-                  if (!kb_response_slots(b, "i_predicted_x_but_the_shell_said_x", _rs, 2, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "I predicted [%s] but the shell said [%s].", predicted, actual); }
+      kb_term_say(b, "i_predicted_x_but_the_shell_said_x", _rs, 2, msg, sizeof msg); }
               put(msg, out, out_size); }
         }
         return 1;
@@ -596,8 +591,7 @@ static int mod_summary(Brain *b, const char *norm, const char *raw,
             { const KbResponseSlot _rs[] = { { "focus", focus } };
               if (!kb_response_slots(b, "the_passage_doesn_t_say_anything_about_x", _rs, 1, msg, sizeof msg))
                 { const KbResponseSlot _rs[] = { { "focus", focus } };
-                  if (!kb_response_slots(b, "the_passage_doesn_t_say_anything_about_x", _rs, 1, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "The passage doesn't say anything about %s.", focus); }
+      kb_term_say(b, "the_passage_doesn_t_say_anything_about_x", _rs, 1, msg, sizeof msg); }
               put(msg, out, out_size); }
         return 1;
     }
@@ -653,7 +647,7 @@ static int mod_discourse(Brain *b, const char *norm, const char *raw,
     int summary = kb_cue_match(b, "65_induce_verify_shell_chain628", norm);
     if (!summary) return 0;
     if (b->topic_count == 0) {
-        kb_say(b, "we_haven_t_talked_about_much_yet", "We haven't talked about much yet.", out, out_size);
+        kb_term_say(b, "we_haven_t_talked_about_much_yet", NULL, 0, out, out_size);
         return 1;
     }
     char msg[256];

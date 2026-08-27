@@ -148,8 +148,7 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
             return 1;
         }
         if (picked < 3) {
-            kb_say(b, "i_would_treat_it_as_a_composition_self_chall", "I would treat it as a composition self-challenge, not self-management: pick three parts I already have and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.",
-                out, out_size);
+            kb_term_say(b, "i_would_treat_it_as_a_composition_self_chall", NULL, 0, out, out_size);
         } else if (want_selftest) {
             /* gen167/168: actually RUN the derived composition on a fresh copy of
              * myself and report from real output. gen168: a FRESH vocab tuple is
@@ -212,14 +211,11 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
                              kb_cue_match(b, "50_self_research_loop_chain241", buf);
 
     if (implementation_gap && (!fallback_gap || strong_implementation_gap)) {
-        kb_say(b, "i_would_solve_it_by_parity_with_the_external", "I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.",
-            out, out_size);
+        kb_term_say(b, "i_would_solve_it_by_parity_with_the_external", NULL, 0, out, out_size);
     } else if (fallback_gap) {
-        kb_say(b, "i_would_treat_it_as_a_fallback_gap_make_the", "I would treat it as a fallback gap: make the fallback or owning module handle that turn without pretending to understand, ratchet it with held-out English and Italian chats, bump my version, and record whether the wall got smaller. I can propose the change; an external agent still edits and verifies the files.",
-            out, out_size);
+        kb_term_say(b, "i_would_treat_it_as_a_fallback_gap_make_the", NULL, 0, out, out_size);
     } else {
-        kb_say(b, "i_would_treat_it_as_a_self_challenge_not_sel", "I would treat it as a self-challenge, not self-management: identify the missing behavior, choose the smallest module or dispatch change, ratchet it with English and Italian tests, bump my version, and record what changed. I can propose the change; an external agent still edits and verifies the files.",
-            out, out_size);
+        kb_term_say(b, "i_would_treat_it_as_a_self_challenge_not_sel", NULL, 0, out, out_size);
     }
     store_proof(b, "loop self-challenge parity: classify the gap, name the smallest behavior change, require tests, version, and journal, and keep file edits external.");
     return 1;
@@ -1422,16 +1418,13 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         char msg[1100];
         if (n == 0) {
             if (!kb_response_slots(b, "self_capability_none", NULL, 0, msg, sizeof msg))
-                { const KbResponseSlot _rs[] = { { "x", "" } };
-                  if (!kb_response_slots(b, "not_much_yet", _rs, 0, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "Not much yet."); }
+                kb_term_say(b, "not_much_yet", NULL, 0, msg, sizeof msg);
         } else {
             const KbResponseSlot slots[] = { {"items", list} };
             if (!kb_response_slots(b, "self_capability_from_ledger", slots, 1,
                                    msg, sizeof msg))
                 { const KbResponseSlot _rs[] = { { "list", list } };
-                  if (!kb_response_slots(b, "from_my_capability_ledger_i_can_currently_x", _rs, 1, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "From my capability ledger, I can currently: %s.", list); }
+      kb_term_say(b, "from_my_capability_ledger_i_can_currently_x", _rs, 1, msg, sizeof msg); }
         }
         put(msg, out, out_size);
         store_proof(b, "Derived from capability/2 and capability_label/3 in the KB.");
@@ -1449,15 +1442,13 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
             const KbResponseSlot slots[] = { {"name", id[0]} };
             kb_response_slots(b, "self_identity_exists", slots, 1, msg, sizeof msg);
             { const KbResponseSlot _rs[] = { { "id", id[0] } };
-              if (!kb_response_slots(b, "i_am_x_is_a_reflective_fact_in_my_knowledge", _rs, 1, proof, sizeof proof))
-                snprintf(proof, sizeof proof, "i_am(%s) is a reflective fact in my knowledge base.", id[0]); }
+      kb_term_say(b, "i_am_x_is_a_reflective_fact_in_my_knowledge", _rs, 1, proof, sizeof proof); }
         }
         else {
             const KbResponseSlot slots[] = { {"name", id[0]} };
             kb_response_slots(b, "self_identity_name", slots, 1, msg, sizeof msg);
             { const KbResponseSlot _rs[] = { { "id", id[0] } };
-              if (!kb_response_slots(b, "i_am_x_is_a_reflective_fact_in_my_knowledge", _rs, 1, proof, sizeof proof))
-                snprintf(proof, sizeof proof, "i_am(%s) is a reflective fact in my knowledge base.", id[0]); }
+      kb_term_say(b, "i_am_x_is_a_reflective_fact_in_my_knowledge", _rs, 1, proof, sizeof proof); }
         }
         put(msg, out, out_size);
         if (k > 0) store_proof(b, proof);
@@ -1497,7 +1488,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         char (*preds)[KB_TERM_LEN] = malloc(pcap * KB_TERM_LEN);
         if (!preds) return 0;
         size_t np = kb_user_predicates(b->kb, preds, pcap);
-        if (np == 0) { kb_say(b, "i_don_t_know_any_predicates_yet", "I don't know any predicates yet.", out, out_size); return 1; }
+        if (np == 0) { kb_term_say(b, "i_don_t_know_any_predicates_yet", NULL, 0, out, out_size); return 1; }
         char list[1024];
         size_t off = 0;
         for (size_t i = 0; i < np && off < sizeof list; i++)
@@ -1506,8 +1497,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         char msg[1100];
         if (off < sizeof list)
             { const KbResponseSlot _rs[] = { { "list", list } };
-              if (!kb_response_slots(b, "i_know_these_predicates_x", _rs, 1, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "I know these predicates: %s.", list); }
+      kb_term_say(b, "i_know_these_predicates_x", _rs, 1, msg, sizeof msg); }
         else
             snprintf(msg, sizeof msg, "I know %zu distinct predicate(s).", np);
         put(msg, out, out_size);
@@ -1577,7 +1567,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                          b->last_module);
             put(msg, out, out_size);
         } else {
-            kb_say(b, "i_haven_t_answered_anything_yet", "I haven't answered anything yet.", out, out_size);
+            kb_term_say(b, "i_haven_t_answered_anything_yet", NULL, 0, out, out_size);
         }
         return 1;
     }
@@ -1599,11 +1589,10 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
             { const KbResponseSlot _rs[] = { { "dump", dump } };
               if (!kb_response_slots(b, "you_taught_me_x", _rs, 1, msg, sizeof msg))
                 { const KbResponseSlot _rs[] = { { "dump", dump } };
-                  if (!kb_response_slots(b, "you_taught_me_x", _rs, 1, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "You taught me: %s", dump); }
+      kb_term_say(b, "you_taught_me_x", _rs, 1, msg, sizeof msg); }
               put(msg, out, out_size); }
         } else {
-            kb_say(b, "you_haven_t_taught_me_any_facts_yet", "You haven't taught me any facts yet.", out, out_size);
+            kb_term_say(b, "you_haven_t_taught_me_any_facts_yet", NULL, 0, out, out_size);
         }
         return 1;
     }
@@ -1637,8 +1626,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                 return 1;
             }
         }
-        kb_say(b, "i_don_t_have_a_module_by_that_name_ask_what", "I don't have a module by that name. Ask 'what can you do?' for a list.",
-            out, out_size);
+        kb_term_say(b, "i_don_t_have_a_module_by_that_name_ask_what", NULL, 0, out, out_size);
         return 1;
     }
     int entities_q = (kb_cue_match(b, "50_self_research_loop_cue1640", buf) && wn <= 6) ||
@@ -1647,7 +1635,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                      (kb_cue_match(b, "50_self_research_loop_cue1643", buf) && wn <= 5);
     if (entities_q) {
         if (b->entity_count == 0) {
-            kb_say(b, "you_haven_t_mentioned_any_names_i_reco", "You haven't mentioned any names I recognized.", out, out_size);
+            kb_term_say(b, "you_haven_t_mentioned_any_names_i_reco", NULL, 0, out, out_size);
         } else {
             char list[512]; size_t off = 0;
             for (size_t i = 0; i < b->entity_count && off < sizeof list; i++)
@@ -1657,8 +1645,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
             { const KbResponseSlot _rs[] = { { "list", list } };
               if (!kb_response_slots(b, "you_mentioned_x", _rs, 1, msg, sizeof msg))
                 { const KbResponseSlot _rs[] = { { "list", list } };
-                  if (!kb_response_slots(b, "you_mentioned_x", _rs, 1, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "You mentioned: %s.", list); }
+      kb_term_say(b, "you_mentioned_x", _rs, 1, msg, sizeof msg); }
               put(msg, out, out_size); }
         }
         return 1;
@@ -1718,8 +1705,7 @@ static int describe_command(Brain *b, const char *cmdline,
          * (a flag is present), so we don't hijack "what does a bird do?". */
         if (!has_flag) return 0;
         { const KbResponseSlot _rs[] = { { "lc", lc } };
-          if (!kb_response_slots(b, "i_don_t_know_the_command_x", _rs, 1, desc, desc_size))
-            snprintf(desc, desc_size, "I don't know the command %s.", lc); }
+      kb_term_say(b, "i_don_t_know_the_command_x", _rs, 1, desc, desc_size); }
         return 1;
     }
 

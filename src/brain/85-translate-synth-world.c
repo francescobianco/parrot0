@@ -393,8 +393,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                         { const KbResponseSlot _rs[] = { { "tok", tok } };
                           if (!kb_response_slots(b, "i_can_translate_most_of_it_but_i_don_t_know", _rs, 1, msg, sizeof msg))
                             { const KbResponseSlot _rs[] = { { "tok", tok } };
-                              if (!kb_response_slots(b, "i_can_translate_most_of_it_but_i_don_t_know", _rs, 1, msg, sizeof msg))
-                                snprintf(msg, sizeof msg, "I can translate most of it, but I don't know the French for \"%s\".", tok); }
+      kb_term_say(b, "i_can_translate_most_of_it_but_i_don_t_know", _rs, 1, msg, sizeof msg); }
                           put(msg, out, out_size); }
                         return 1;
                     }
@@ -649,7 +648,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
     return 0;
 found:
     while (*clause && isspace((unsigned char)*clause)) clause++;
-    if (!*clause) { kb_say(b, "translate_what", "Translate what?", out, out_size); return 1; }
+    if (!*clause) { kb_term_say(b, "translate_what", NULL, 0, out, out_size); return 1; }
 
     char buf[256];
     copy_trim(buf, sizeof buf, clause);
@@ -723,8 +722,7 @@ found:
                 { const KbResponseSlot _rs[] = { { "tok", tok } };
                   if (!kb_response_slots(b, "i_can_t_translate_x_yet", _rs, 1, msg, sizeof msg))
                     { const KbResponseSlot _rs[] = { { "tok", tok } };
-                      if (!kb_response_slots(b, "i_can_t_translate_x_yet", _rs, 1, msg, sizeof msg))
-                        snprintf(msg, sizeof msg, "I can't translate \"%s\" yet.", tok); }
+      kb_term_say(b, "i_can_t_translate_x_yet", _rs, 1, msg, sizeof msg); }
                   put(msg, out, out_size); }
                 return 1;
             }
@@ -849,7 +847,7 @@ static int mod_synth(Brain *b, const char *norm, const char *raw,
         if (strlen(t) >= 3 && isalpha((unsigned char)t[0]) && !is_stopword(b, t))
             snprintf(words[nw++], KB_TERM_LEN, "%s", t);
     }
-    if (nw == 0) { kb_say(b, "specify_what_the_command_should_do", "Specify what the command should do.", out, out_size); return 1; }
+    if (nw == 0) { kb_term_say(b, "specify_what_the_command_should_do", NULL, 0, out, out_size); return 1; }
 
     /* enumerate known commands; score each by spec-word matches on its desc */
     char cmds[64][KB_TERM_LEN];
@@ -872,7 +870,7 @@ static int mod_synth(Brain *b, const char *norm, const char *raw,
         }
     }
     if (!best) {
-        kb_say(b, "i_don_t_know_a_command_for_that_yet", "I don't know a command for that yet.", out, out_size);
+        kb_term_say(b, "i_don_t_know_a_command_for_that_yet", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -963,7 +961,7 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
     if (without_form && !question_shape) return 0;
 
     if (!b->has_last_input || !b->has_trace) {
-        kb_say(b, "i_don_t_have_a_previous_turn_to_recons", "I don't have a previous turn to reconsider yet.", out, out_size);
+        kb_term_say(b, "i_don_t_have_a_previous_turn_to_recons", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -1004,8 +1002,7 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
         /* else-form: suppress the recorded winner. */
         snprintf(suppress, sizeof suppress, "%s", b->trace_winner);
         if (lex_class_member(b, "85_translate_synth_world_lex1001", suppress)) {
-            kb_say(b, "nothing_claimed_the_last_turn_there_was_no_w", "Nothing claimed the last turn — there was no winner to set aside.",
-                out, out_size);
+            kb_term_say(b, "nothing_claimed_the_last_turn_there_was_no_w", NULL, 0, out, out_size);
             return 1;
         }
     }
@@ -1017,8 +1014,7 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
     char msg[768];
     if (!claimed) {
         { const KbResponseSlot _rs[] = { { "suppress", suppress }, { "ans", ans } };
-          if (!kb_response_slots(b, "without_x_nothing_else_matches_i_d_fall_back", _rs, 2, msg, sizeof msg))
-            snprintf(msg, sizeof msg, "Without '%s', nothing else matches — I'd fall back to \"%s\"", suppress, ans); }
+      kb_term_say(b, "without_x_nothing_else_matches_i_d_fall_back", _rs, 2, msg, sizeof msg); }
     } else if (strcmp(who, b->trace_winner) == 0) {
         snprintf(msg, sizeof msg,
                  "Setting '%s' aside changes nothing — '%s' ran first anyway and "
@@ -1236,7 +1232,7 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
         if (pi != nw - 1) return 0;            /* one-word class only, for now */
         const char *pred = w[pi];
         if (!world_assert(b, subj, pred, neg)) {
-            kb_say(b, "this_world_is_full_i_can_t_assume_more", "This world is full; I can't assume more here.", out, out_size);
+            kb_term_say(b, "this_world_is_full_i_can_t_assume_more", NULL, 0, out, out_size);
             return 1;
         }
         char m[300];
@@ -1323,7 +1319,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
             if (has_world_noun) {
                 int id = named ? world_find(b, named) : b->active_world;
                 if (id < 0) {
-                    kb_say(b, "there_is_no_such_world_open", "There is no such world open.", out, out_size);
+                    kb_term_say(b, "there_is_no_such_world_open", NULL, 0, out, out_size);
                     return 1;
                 }
                 char nm[48]; snprintf(nm, sizeof nm, "%s", b->worlds[id]);
@@ -1334,8 +1330,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                     { const KbResponseSlot _rs[] = { { "nm", nm } };
                       if (!kb_response_slots(b, "left_the_x_world", _rs, 1, m, sizeof m))
                         { const KbResponseSlot _rs[] = { { "nm", nm } };
-                          if (!kb_response_slots(b, "left_the_x_world", _rs, 1, m, sizeof m))
-                            snprintf(m, sizeof m, "Left the %s world.", nm); }
+      kb_term_say(b, "left_the_x_world", _rs, 1, m, sizeof m); }
                       put(m, out, out_size); }
                 } else {
                     world_teardown(b, id);
@@ -1419,7 +1414,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
         }
         if (*wname) {
             int id = world_enter(b, wname);
-            if (id < 0) { kb_say(b, "i_can_t_open_another_world_right_now", "I can't open another world right now.", out, out_size);
+            if (id < 0) { kb_term_say(b, "i_can_t_open_another_world_right_now", NULL, 0, out, out_size);
                           return 1; }
             /* an inline clause after the noun (skip a leading colon / "where") */
             const char *clause = rest ? rest : "";
@@ -1437,8 +1432,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
             { const KbResponseSlot _rs[] = { { "wname", wname } };
               if (!kb_response_slots(b, "opened_the_x_world_tell_me_what_is_true_in_i", _rs, 1, m, sizeof m))
                 { const KbResponseSlot _rs[] = { { "wname", wname } };
-                  if (!kb_response_slots(b, "opened_the_x_world_tell_me_what_is_true_in_i", _rs, 1, m, sizeof m))
-                    snprintf(m, sizeof m, "Opened the %s world. Tell me what is true in it.", wname); }
+      kb_term_say(b, "opened_the_x_world_tell_me_what_is_true_in_i", _rs, 1, m, sizeof m); }
               put(m, out, out_size); }
             return 1;
         }
@@ -1467,8 +1461,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                     { const KbResponseSlot _rs[] = { { "name", name } };
                       if (!kb_response_slots(b, "opened_the_x_world_tell_me_what_is_true_in_i_2", _rs, 1, m, sizeof m))
                         { const KbResponseSlot _rs[] = { { "name", name } };
-                          if (!kb_response_slots(b, "opened_the_x_world_tell_me_what_is_true_in_i_2", _rs, 1, m, sizeof m))
-                            snprintf(m, sizeof m, "Opened the %s world. Tell me what is true in it.", name); }
+      kb_term_say(b, "opened_the_x_world_tell_me_what_is_true_in_i_2", _rs, 1, m, sizeof m); }
                       put(m, out, out_size); }
                     return 1;
                 }

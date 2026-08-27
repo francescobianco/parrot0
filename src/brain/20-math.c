@@ -1219,8 +1219,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
                 parse_value(ew[pair], &a);
                 parse_value(ew[pair + 2], &c);
                 if (!strcmp(ew[pair + 1], "/") && c == 0)
-                    return kb_say(b, "arith_division_zero",
-                                  "I can't divide by zero.", out, out_size);
+                    return kb_term_say(b, "arith_division_zero", NULL, 0, out, out_size);
                 int ok = 0;
                 double r = apply_arith_op(ew[pair + 1], a, c, &ok);
                 if (ok) {
@@ -1299,8 +1298,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
             { const KbResponseSlot _rs[] = { { "verb", verb }, { "na", na }, { "nb", nb }, { "nr", nr }, { "noun", noun } };
               if (!kb_response_slots(b, "because_x_x_and_x_gives_x_that_is_their_x", _rs, 5, msg, sizeof msg))
                 { const KbResponseSlot _rs[] = { { "verb", verb }, { "na", na }, { "nb", nb }, { "nr", nr }, { "noun", noun } };
-                  if (!kb_response_slots(b, "because_x_x_and_x_gives_x_that_is_their_x", _rs, 5, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "Because %s %s and %s gives %s — that is their %s.", verb, na, nb, nr, noun); }
+      kb_term_say(b, "because_x_x_and_x_gives_x_that_is_their_x", _rs, 5, msg, sizeof msg); }
               put(msg, out, out_size); }
             return 1;
         }
@@ -1312,8 +1310,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         double a, c;
         if (!parse_num(ew[1], &a) || !parse_num(ew[4], &c)) return 0;
         if (c == 0)
-            return kb_say(b, "arith_division_zero",
-                          "I can't divide by zero.", out, out_size);
+            return kb_term_say(b, "arith_division_zero", NULL, 0, out, out_size);
         long long ai = (long long)a, ci = (long long)c;
         int divisible;
         if ((double)ai == a && (double)ci == c) {
@@ -1721,8 +1718,7 @@ static int mod_algebra(Brain *b, const char *norm, const char *raw,
             case '-': r = av - bv; break;
             case '*': r = av * bv; break;
             case '/': if (bv == 0)
-                          return kb_say(b, "arith_division_zero",
-                                        "I can't divide by zero.", out, out_size);
+                          return kb_term_say(b, "arith_division_zero", NULL, 0, out, out_size);
                       r = av / bv; break;
             default: return 0;
         }
@@ -1950,8 +1946,7 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
 
     long span = start <= end ? end - start : start - end;
     if (span > 99) {
-        kb_say(b, "that_s_a_long_way_to_count_give_me_a_smaller", "That's a long way to count. Give me a smaller range and I'll list it.",
-            out, out_size);
+        kb_term_say(b, "that_s_a_long_way_to_count_give_me_a_smaller", NULL, 0, out, out_size);
         return 1;
     }
     int only_odd = kb_cue_match(b, "20_math_cue1955", buf) || kb_cue_match(b, "20_math_cue1955_2", buf) || kb_cue_match(b, "20_math_cue1955_3", buf);
@@ -2695,7 +2690,7 @@ static int mod_teach_reply(Brain *b, const char *norm, const char *raw,
 
     const KbResponseSlot sl[] = { { "cue", topic } };
     if (kb_response_slots(b, "taught_reply", sl, 1, out, out_size)) return 1;
-    kb_say(b, "understood", "Understood.", out, out_size);
+    kb_term_say(b, "understood", NULL, 0, out, out_size);
     return 1;
 }
 

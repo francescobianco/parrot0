@@ -85,8 +85,7 @@ static int mod_input(Brain *b, const char *norm, const char *raw,
         long ndistinct = seen_dot + seen_dash + seen_slash;
         if (morse_only && (long)len >= morse_min && ndistinct >= morse_distinct)
             return 0;                                    /* lo nomina il simbolico */
-        kb_say(b, "that_s_just_punctuation_not_words_what_would", "That's just punctuation, not words — what would you like to ask?",
-            out, out_size);
+        kb_term_say(b, "that_s_just_punctuation_not_words_what_would", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -1659,8 +1658,7 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
                 { const KbResponseSlot _rs[] = { { "sch", sch }, { "role", role } };
                   if (!kb_response_slots(b, "i_can_see_a_x_shape_here_but_the_x_is_missin", _rs, 2, smsg, sizeof smsg))
                     { const KbResponseSlot _rs[] = { { "sch", sch }, { "role", role } };
-                      if (!kb_response_slots(b, "i_can_see_a_x_shape_here_but_the_x_is_missin", _rs, 2, smsg, sizeof smsg))
-                        snprintf(smsg, sizeof smsg, "I can see a %s shape here, but the %s is missing.", sch, role); }
+      kb_term_say(b, "i_can_see_a_x_shape_here_but_the_x_is_missin", _rs, 2, smsg, sizeof smsg); }
                   put(smsg, out, out_size); }
             if (b) b->fallbacks++;
             return;
@@ -1703,8 +1701,7 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
                 { const KbResponseSlot _rs[] = { { "reg", reg } };
                   if (!kb_response_slots(b, "that_looks_like_a_x_problem_and_i_cannot_sol", _rs, 1, rmsg, sizeof rmsg))
                     { const KbResponseSlot _rs[] = { { "reg", reg } };
-                      if (!kb_response_slots(b, "that_looks_like_a_x_problem_and_i_cannot_sol", _rs, 1, rmsg, sizeof rmsg))
-                        snprintf(rmsg, sizeof rmsg, "That looks like a %s problem, and I cannot solve it yet.", reg); }
+      kb_term_say(b, "that_looks_like_a_x_problem_and_i_cannot_sol", _rs, 1, rmsg, sizeof rmsg); }
                   put(rmsg, out, out_size); }
             if (b) b->fallbacks++;
             return;
@@ -1892,8 +1889,7 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
                         { const KbResponseSlot _rs[] = { { "again", again }, { "learned", learned } };
                           if (!kb_response_slots(b, "x_i_was_missing_a_piece_and_taught_it_to_mys", _rs, 2, msg, sizeof msg))
                             { const KbResponseSlot _rs[] = { { "again", again }, { "learned", learned } };
-                              if (!kb_response_slots(b, "x_i_was_missing_a_piece_and_taught_it_to_mys", _rs, 2, msg, sizeof msg))
-                                snprintf(msg, sizeof msg, "%s  (I was missing a piece and taught it to myself: %s)", again, learned); }
+      kb_term_say(b, "x_i_was_missing_a_piece_and_taught_it_to_mys", _rs, 2, msg, sizeof msg); }
                           put(msg, out, out_size); }
                     return;
                 }

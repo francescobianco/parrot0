@@ -247,6 +247,37 @@ static int kb_response(Brain *b, const char *intent, const char *slot,
  * cosa dice di solito. */
 static size_t put(const char *s, char *out, size_t out_size);   /* fwd */
 
+/* IL DEFAULT NON E' UNA FRASE (gen443).
+ *
+ * F.: «i default previsti nel caso in cui la KB non sia addestrata non devono
+ * essere formali e umanizzati ma meccanicisti — una versione funzionale del
+ * messaggio. Non devono esistere testi umanizzati di nessun tipo nel C.»
+ *
+ * E' piu' netto di quello che il mantra #16 chiedeva, ed e' giusto: finche' nel
+ * C resta una frase «bella», quella frase e' la voce vera e la riga KB e' un
+ * ornamento. Qui il motore non sa parlare — sa solo dire QUALE messaggio
+ * starebbe dando e con quali valori. La forma e' quella di un termine, che e'
+ * la lingua in cui questo progetto scrive tutto il resto:
+ *
+ *     conjunction_taught(blen)
+ *
+ * Se si legge un termine in chat, non e' un errore: e' una famiglia che nessuno
+ * ha ancora insegnato, e si vede subito quale. */
+static int kb_term_say(Brain *b, const char *key,
+                       const KbResponseSlot *slots, size_t n,
+                       char *out, size_t outsz) {
+    if (b && kb_response_slots(b, key, slots, n, out, outsz) && out[0]) return 1;
+    size_t o = (size_t)snprintf(out, outsz, "%s", key ? key : "?");
+    if (n && slots) {
+        if (o < outsz) o += (size_t)snprintf(out + o, outsz - o, "(");
+        for (size_t i = 0; i < n && o < outsz; i++)
+            o += (size_t)snprintf(out + o, outsz - o, "%s%s", i ? ", " : "",
+                                  slots[i].value ? slots[i].value : "");
+        if (o < outsz) snprintf(out + o, outsz - o, ")");
+    }
+    return 1;
+}
+
 static int kb_say(Brain *b, const char *key, const char *fallback,
                   char *out, size_t outsz) {
     char buf[1024];

@@ -57,7 +57,7 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; phatic[i]; i++) {
             if (has_social_pattern(b, phatic[i], buf)) {
                 if (!kb_response(b, phatic[i], NULL, out, out_size))
-                    kb_say(b, "that_s_kind_of_you_thank_you", "That's kind of you — thank you!", out, out_size);
+                    kb_term_say(b, "that_s_kind_of_you_thank_you", NULL, 0, out, out_size);
                 return 1;
             }
         }
@@ -85,7 +85,7 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
         }
     }
     if (has_reaction && nw <= 3) {
-        kb_say(b, "glad_you_re_enjoying_the_conversation", ":) Glad you're enjoying the conversation.", out, out_size);
+        kb_term_say(b, "glad_you_re_enjoying_the_conversation", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -178,12 +178,12 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
      * opener. Cues/replies are KB-first (intent_cue/response_template, EN+IT). */
     if (kb_cue_match(b, "would_rather", norm)) {
         if (!kb_response(b, "would_rather", NULL, out, out_size))
-            kb_say(b, "i_ll_play_along_what_are_my_two_option", "I'll play along — what are my two options?", out, out_size);
+            kb_term_say(b, "i_ll_play_along_what_are_my_two_option", NULL, 0, out, out_size);
         return 1;
     }
     if (is_binary_choice(b, norm)) {
         if (!kb_response(b, "binary_choice", NULL, out, out_size))
-            kb_say(b, "between_the_two_i_don_t_have_a_real_pr", "Between the two? I don't have a real preference.", out, out_size);
+            kb_term_say(b, "between_the_two_i_don_t_have_a_real_pr", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -258,7 +258,7 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
      * broken record. Still honest — it names no understanding of the content. */
     if (emoji || emote || kb_cue_match(b, "playful", norm)) {
         if (kb_response(b, "playful", NULL, out, out_size)) return 1;
-        kb_say(b, "i_m_a_simple_bot_but_i_m_here_for_it_go_on", "I'm a simple bot, but I'm here for it. Go on?", out, out_size);
+        kb_term_say(b, "i_m_a_simple_bot_but_i_m_here_for_it_go_on", NULL, 0, out, out_size);
         return 1;
     }
     return 0;
@@ -424,7 +424,7 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
     const char *qq[1] = { tok };
     if (kb_query(b->kb, "question_word", qq, 1)) {
         if (!kb_response_slots(b, "lone_question_word", NULL, 0, msg, sizeof msg))
-            kb_say(b, "that_s_the_start_of_a_question_what_would_yo", "That's the start of a question — what would you like to know?", out, out_size);
+            kb_term_say(b, "that_s_the_start_of_a_question_what_would_yo", NULL, 0, out, out_size);
         return 1;
     }
     /* L'ASSENSO E IL DINIEGO sono una mossa, non un topic: «ok» non chiede di
@@ -435,7 +435,7 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
         if (kb_query(b->kb, "assent_word", aq, 1) ||
             kb_query(b->kb, "dissent_word", aq, 1)) {
             if (!kb_response_slots(b, "lone_assent", NULL, 0, msg, sizeof msg))
-                kb_say(b, "got_it_what_would_you_like_to_do", "Got it — what would you like to do?", out, out_size);
+                kb_term_say(b, "got_it_what_would_you_like_to_do", NULL, 0, out, out_size);
             return 1;
         }
     }
@@ -471,8 +471,7 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
     if (known) {
         if (!kb_response_slots(b, "lone_known_topic", sl, 1, msg, sizeof msg))
             { const KbResponseSlot _rs[] = { { "tok", tok } };
-              if (!kb_response_slots(b, "what_would_you_like_to_know_about_x", _rs, 1, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "What would you like to know about %s?", tok); }
+      kb_term_say(b, "what_would_you_like_to_know_about_x", _rs, 1, msg, sizeof msg); }
     } else {
         /* gen427 — UNA PAROLA PLAUSIBILE CHE NON CONOSCO PUO' ESSERE UN SALUTO.
          *
@@ -500,8 +499,7 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
         if (pronounceable && strlen(tok) >= 2 && !is_stopword(b, tok)) return 0;
         if (!kb_response_slots(b, "lone_unknown_token", sl, 1, msg, sizeof msg))
             { const KbResponseSlot _rs[] = { { "tok", tok } };
-              if (!kb_response_slots(b, "i_have_nothing_on_x_could_you_say_what_you_m", _rs, 1, msg, sizeof msg))
-                snprintf(msg, sizeof msg, "I have nothing on \"%s\" — could you say what you mean by it?", tok); }
+      kb_term_say(b, "i_have_nothing_on_x_could_you_say_what_you_m", _rs, 1, msg, sizeof msg); }
     }
     put(msg, out, out_size);
     return 1;
@@ -860,15 +858,13 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
      * also negates ("nice try, but no") — with no content to act on. Keys on the
      * stance predicate, so an imperative like "dont say that" is NOT disagreement. */
     if (disagree || (contrastive && negation && nw <= 8)) {
-        kb_say(b, "fair_enough_tell_me_where_i_went_wrong_and_w", "Fair enough — tell me where I went wrong, and we can take it from there.",
-            out, out_size);
+        kb_term_say(b, "fair_enough_tell_me_where_i_went_wrong_and_w", NULL, 0, out, out_size);
         return 1;
     }
 
     /* ---- MOVE 4: hesitation. A hedge with nothing concrete to chew on. */
     if (hedge && nw <= 9) {
-        kb_say(b, "no_pressure_we_can_take_it_slowly_what_s_on", "No pressure — we can take it slowly. What's on your mind?",
-            out, out_size);
+        kb_term_say(b, "no_pressure_we_can_take_it_slowly_what_s_on", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -901,8 +897,7 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
             { const KbResponseSlot _rs[] = { { "topic", topic }, { "topic2", topic } };
               if (!kb_response_slots(b, "sure_let_s_talk_about_x_what_about_x_is_on_y", _rs, 2, msg, sizeof msg))
                 { const KbResponseSlot _rs[] = { { "topic", topic }, { "topic2", topic } };
-                  if (!kb_response_slots(b, "sure_let_s_talk_about_x_what_about_x_is_on_y", _rs, 2, msg, sizeof msg))
-                    snprintf(msg, sizeof msg, "Sure, let's talk about %s. What about %s is on your mind?", topic, topic); }
+      kb_term_say(b, "sure_let_s_talk_about_x_what_about_x_is_on_y", _rs, 2, msg, sizeof msg); }
               put(msg, out, out_size); }
             return 1;
         }
@@ -923,8 +918,7 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
          * "tell me something" family stays chitchat's established no-topic
          * register, so we require >= 4 tokens here and leave those to chitchat. */
         if (soft && has_open_quantifier(w, nw) && nw >= 4 && nw <= 8) {
-            kb_say(b, "happy_to_pick_a_thread_your_day_a_small_fact", "Happy to. Pick a thread — your day, a small fact to remember, or something to reason about — and I'll run with it.",
-                out, out_size);
+            kb_term_say(b, "happy_to_pick_a_thread_your_day_a_small_fact", NULL, 0, out, out_size);
             return 1;
         }
     }
