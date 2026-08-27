@@ -1,0 +1,34 @@
+% scientific-discourse.p0 — GLI STRUMENTI DELLA PROSA SCIENTIFICA
+%
+% Le forme in cui la letteratura scientifica si scrive, e gli strumenti — logici
+% e retorici — con cui quella prosa argomenta. L'asse e' la materia, come per
+% kb/core/facts/units.p0: predicati diversi, una sola cosa di cui parlano.
+%
+% Le righe qui sotto non sono scritte a mano: vengono da una sessione di
+% insegnamento reale (LEARN_PROTOCOL, dominio letteratura scientifica —
+% docs/labs/apprendimento-assistito/2026-08-28-letteratura-scientifica.md), in
+% cui ogni verbo e' stato aperto dicendo «<verbo> is a relation verb» e ogni
+% fatto e' stato detto in lingua naturale.
+%
+% Fonti dei membri attuali: Swales, «Genre Analysis» (1990); Hyland, «Hedging in
+% Scientific Research Articles» (1998); Sollaci & Pereira, JMLA 92(3) (2004) per
+% IMRaD; Lakoff & Johnson, «Metaphors We Live By» (1980).
+%
+% Che cosa NON e' ancora qui, e perche' conta. «A metaphor maps a source domain
+% onto a target domain» ha TRE ruoli, e parrot0 lo dice da se':
+%
+%     > x maps y onto z means x maps y
+%     parrot0: I found the teaching pivot, but I cannot align exactly two
+%              shared variables on both sides. I have not learned the
+%              construction.
+%
+% E' il gap M3 («arita' diversa da due») nominato dal sistema stesso. Il fatto
+% ternario NON e' stato scritto a mano per aggirarlo: finche' la costruzione a
+% tre ruoli non si puo' insegnare parlando, quella conoscenza resta fuori, e la
+% sua assenza qui e' l'informazione.
+
+refutes(counterexample, universal_claim).
+weakens(hedging, claim).
+surveys(review_article, published_work).
+tests(thought_experiment, theory).
+organizes(imrad, research_article).

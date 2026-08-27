@@ -28,6 +28,7 @@ fact_source(measures(ohm, electrical_resistance), ohm, "the ohm measures electri
 reading_fact(measures(ohm, electrical_resistance), "the ohm measures electrical resistance").
 bridged("the ohm measures electrical resistance", dialogue).
 bridged("the ampere measures what?", dialogue).
+bridged("a counterexample refutes a universal claim", dialogue).
 fact_source(measures(farad, capacitance), farad, "the farad measures capacitance").
 reading_fact(measures(farad, capacitance), "the farad measures capacitance").
 fact_source(measures(henry, inductance), henry, "the henry measures inductance").
@@ -38,7 +39,33 @@ fact_source(measures(watt, power), watt, "the watt measures power").
 reading_fact(measures(watt, power), "the watt measures power").
 fact_source(is_unit(forget), forget, "forget that the ohm is a is_unit").
 fact_source(measures(ampere, current), ampere, "the ampere measures current").
+fact_source(organizes(imrad, research_article), imrad, "imrad organizes a research article").
+fact_source(relation_verb(organizes), organizes, "organizes is a relation verb").
+fact_source(precedes(preprint, peer_review), preprint, "a preprint precedes peer review").
+reading_fact(organizes(imrad, research_article), "imrad organizes a research article").
+fact_source(relation_verb(precedes), precedes, "precedes is a relation verb").
+reading_fact(relation_verb(organizes), "organizes is a relation verb").
+fact_source(tests(thought_experiment, theory), thought_experiment, "a thought experiment tests a theory").
+reading_fact(precedes(preprint, peer_review), "a preprint precedes peer review").
+fact_source(relation_verb(tests), tests, "tests is a relation verb").
+reading_fact(relation_verb(precedes), "precedes is a relation verb").
+fact_source(relation_verb(maps), maps, "maps is a relation verb").
+reading_fact(tests(thought_experiment, theory), "a thought experiment tests a theory").
+fact_source(surveys(review_article, published_work), review_article, "a review article surveys published work").
+reading_fact(relation_verb(tests), "tests is a relation verb").
+fact_source(relation_verb(surveys), surveys, "surveys is a relation verb").
+reading_fact(relation_verb(maps), "maps is a relation verb").
+fact_source(weakens(hedging, claim), hedging, "hedging weakens a claim").
+reading_fact(surveys(review_article, published_work), "a review article surveys published work").
+fact_source(relation_verb(weakens), weakens, "weakens is a relation verb").
+reading_fact(relation_verb(surveys), "surveys is a relation verb").
 fact_source(measures(kelvin, temperature), kelvin, "the kelvin measures temperature").
+reading_fact(weakens(hedging, claim), "hedging weakens a claim").
+fact_source(refutes(counterexample, universal_claim), counterexample, "a counterexample refutes a universal claim").
+reading_fact(relation_verb(weakens), "weakens is a relation verb").
+fact_source(relation_verb(refutes), refutes, "refutes is a relation verb").
 reading_fact(measures(ampere, current), "the ampere measures current").
+reading_fact(refutes(counterexample, universal_claim), "a counterexample refutes a universal claim").
 reading_fact(measures(kelvin, temperature), "the kelvin measures temperature").
+reading_fact(relation_verb(refutes), "refutes is a relation verb").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").

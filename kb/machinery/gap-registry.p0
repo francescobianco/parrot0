@@ -71,17 +71,38 @@ gap_opaque("the ampere measures what?", ampere).
 gap_anchor("the ampere measures what?", measures).
 gap_kind("the ampere measures what?", reachability).
 machinery_gap("what is measured by the farad?").
+machinery_gap("the metaphor maps what?").
+gap_opaque("the metaphor maps what?", maps).
+gap_opaque("the metaphor maps what?", metaphor).
+gap_kind("the metaphor maps what?", reachability).
+machinery_gap("the review article surveys what?").
+gap_opaque("the review article surveys what?", review).
+gap_anchor("the review article surveys what?", surveys).
+gap_kind("the review article surveys what?", reachability).
+gap_anchor("the review article surveys what?", article).
+machinery_gap("what does a metaphor do?").
+gap_opaque("what does a metaphor do?", metaphor).
+machinery_gap("what does a counterexample do?").
+gap_kind("a counterexample refutes a universal claim", reachability).
+gap_kind("what does a metaphor do?", reachability).
 gap_opaque("what is measured by the farad?", measured).
+gap_anchor("what does a counterexample do?", counterexample).
+gap_kind("what does a counterexample do?", reachability).
+gap_source("the metaphor maps what?", "the metaphor maps what?").
 gap_anchor("what is measured by the farad?", farad).
 gap_kind("what is measured by the farad?", reachability).
 gap_source("what is measured by the farad?", "what is measured by the farad?").
 gap_source("the ampere measures what?", "the ampere measures what?").
 gap_source("who measures electrical resistance?", "who measures electrical resistance?").
+gap_source("the review article surveys what?", "the review article surveys what?").
 gap_source("what measures resistance?", "what measures resistance?").
 gap_source("which unit measures electrical resistance?", "which unit measures electrical resistance?").
+gap_source("a counterexample refutes a universal claim", "a counterexample refutes a universal claim").
 gap_source("what measures electrical resistance?", "what measures electrical resistance?").
 gap_source("the ohm measures electrical resistance", "the ohm measures electrical resistance").
+gap_source("what does a metaphor do?", "what does a metaphor do?").
 gap_source("is a diode a passive component?", "is a diode a passive component?").
 gap_source("what does a capacitor store?", "what does a capacitor store?").
 gap_source("which unit measures resistance?", "which unit measures resistance?").
+gap_source("what does a counterexample do?", "what does a counterexample do?").
 gap_source("what is the is unit of electrical resistance?", "what is the SI unit of electrical resistance?").

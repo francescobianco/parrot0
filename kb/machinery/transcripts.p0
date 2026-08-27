@@ -26,6 +26,7 @@
 utterance(5, user, "what is a resistor?").
 utterance(5, user, "the henry measures what?").
 utterance(5, user, "the kelvin measures temperature").
+utterance(5, user, "what is hedging in scientific writing?").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -34,7 +35,77 @@ utterance(10, self, "Current.").
 utterance(6, self, "Learned: measures(kelvin, temperature).").
 utterance(7, user, "the kelvin measures what?").
 utterance(8, self, "Temperature.").
+utterance(6, self, "The scientific method is a cycle of forming testable explanations, deriving predictions, gathering reproducible evidence and revising claims in light of results and criticism.").
+utterance(7, user, "what does a counterexample do?").
 utterance(6, self, "limits current -- dissipates energy as heat.").
+utterance(9, user, "what is a thought experiment?").
+utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
+utterance(11, user, "what does a metaphor do?").
+utterance(12, self, "Hmm, I don't know about metaphor yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a metaphor»; if metaphor is a word you want to talk ABOUT, say «the word metaphor is a …».").
+utterance(13, user, "what is abduction?").
+utterance(14, self, "abduction is inference to the best explanation: from a surprising observation, one adopts the hypothesis that would make it a matter of course.").
+utterance(15, user, "a counterexample refutes a universal claim").
+utterance(16, self, "Hmm, I don't know about refutes yet. Want me to learn about it? Or teach me: if «x refutes y» says what you already say another way, say «x refutes y means x <known verb> y»; if refutes is something one thing does to another, say «refutes is a relation verb».").
+utterance(17, user, "refutes is a relation verb").
+utterance(18, self, "Learned: relation_verb(refutes).").
+utterance(19, user, "a counterexample refutes a universal claim").
+utterance(20, self, "Learned: refutes(counterexample, universal_claim).").
+utterance(21, user, "the counterexample refutes what?").
+utterance(22, self, "Universal claim.").
+utterance(23, user, "weakens is a relation verb").
+utterance(24, self, "Learned: relation_verb(weakens).").
+utterance(25, user, "hedging weakens a claim").
+utterance(26, self, "Learned: weakens(hedging, claim).").
+utterance(27, user, "surveys is a relation verb").
+utterance(28, self, "Learned: relation_verb(surveys).").
+utterance(29, user, "a review article surveys published work").
+utterance(30, self, "Learned: surveys(review_article, published_work).").
+utterance(31, user, "the review article surveys what?").
+utterance(32, self, "Hmm, I don't know about review yet. Want me to learn about it? Or teach me: if «x article y» says what you already say another way, say «x article y means x <known verb> y»; if article is something one thing does to another, say «article is a relation verb».").
+utterance(33, user, "hedging weakens what?").
+utterance(34, self, "Claim.").
+utterance(35, user, "the counterexample refutes what?").
+utterance(36, self, "Universal claim.").
+utterance(37, user, "review_article surveys what?").
+utterance(38, self, "Published work.").
+utterance(39, user, "maps is a relation verb").
+utterance(40, self, "Learned: relation_verb(maps).").
+utterance(41, user, "a metaphor maps a source domain onto a target domain").
+utterance(42, self, "Scartato: maps(metaphor, source_domain_onto_a_target_domain) non e' fatto di concetti.").
+utterance(43, user, "the metaphor maps what?").
+utterance(44, self, "Hmm, I don't know about metaphor yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a metaphor»; if metaphor is a word you want to talk ABOUT, say «the word metaphor is a …».").
+utterance(45, user, "in «x maps y onto z», x is the device, y is what it starts from and z is what it explains").
+utterance(46, self, "Scartato: maps(in_x, y_onto_z_x_is_the_device_y_is_what_it_starts) non e' fatto di concetti.").
+utterance(47, user, "x maps y onto z means x maps y").
+utterance(48, self, "I found the teaching pivot, but I cannot align exactly two shared variables on both sides. I have not learned the construction.").
+utterance(49, user, "tests is a relation verb").
+utterance(50, self, "Learned: relation_verb(tests).").
+utterance(51, user, "a thought experiment tests a theory").
+utterance(52, self, "Learned: tests(thought_experiment, theory).").
+utterance(53, user, "thought_experiment tests what?").
+utterance(54, self, "Theory.").
+utterance(55, user, "precedes is a relation verb").
+utterance(56, self, "Learned: relation_verb(precedes).").
+utterance(57, user, "a preprint precedes peer review").
+utterance(58, self, "Learned: precedes(preprint, peer_review).").
+utterance(59, user, "the preprint precedes what?").
+utterance(60, self, "Peer review.").
+utterance(61, user, "explains is a relation verb").
+utterance(62, self, "explains is {subject} explains {object}..").
+utterance(63, user, "a metaphor explains an unfamiliar idea").
+utterance(64, self, "explains is {subject} explains {object}..").
+utterance(65, user, "the metaphor explains what?").
+utterance(66, self, "explains is {subject} explains {object}..").
+utterance(67, user, "organizes is a relation verb").
+utterance(68, self, "Learned: relation_verb(organizes).").
+utterance(69, user, "imrad organizes a research article").
+utterance(70, self, "Learned: organizes(imrad, research_article).").
+utterance(71, user, "imrad organizes what?").
+utterance(72, self, "Research article.").
+utterance(73, user, "the counterexample refutes what?").
+utterance(74, self, "Universal claim.").
+utterance(75, user, "hedging weakens what?").
+utterance(76, self, "Claim.").
 utterance(7, user, "what does a capacitor store?").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -112,11 +183,15 @@ utterance(80, self, "Electrical resistance.").
 utterance(81, user, "forget that forget is a is_unit").
 utterance(2, self, "Learned: measures(watt, power).").
 utterance(2, self, "Electrical resistance.").
+utterance(2, self, "I don't have the article you mean — paste it here and I'll work on it.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
+utterance(1, user, "what structure does a research article use?").
 utterance(82, self, "Electrical resistance.").
+utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
+utterance(3, user, "what is IMRAD?").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").
