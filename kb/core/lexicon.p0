@@ -264,6 +264,7 @@ conjunction(e).
 conjunction(ed).
 conjunction(o).
 conjunction(oppure).
+conjunction(whereas).
 
 % gen337: imperative openers — first words that mark a COMMAND turn, so the
 % narrative-continuation gate (30-generation-reading.c) never claims a long

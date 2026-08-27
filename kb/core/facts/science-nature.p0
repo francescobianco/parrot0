@@ -165,6 +165,9 @@ orbits(saturn, sun).
 orbits(uranus, sun).
 orbits(neptune, sun).
 orbits(moon, earth).
+orbits(titan, saturn).
+orbits(callisto, jupiter).
+orbits(europa, jupiter).
 planet_order(mercury, 1).
 planet_order(venus, 2).
 planet_order(earth, 3).

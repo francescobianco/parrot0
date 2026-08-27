@@ -1,0 +1,30 @@
+% constructions.p0 — LE COSTRUZIONI IMPARATE PARLANDO
+%
+% `kb/learning/learned.p0` dice che se la ricaduta torna a crescere la risposta
+% non e' ordinarla: e' creare la categoria che manca. Questa e' quella
+% categoria.
+%
+% Ogni riga qui e' una forma che qualcuno ha spiegato a parrot0 in una
+% conversazione — «x lies in y means x is located in y» — e che da quel momento
+% vale nella chat e nella prosa, perche' `extract_frame/2` la vede come
+% qualunque altro frame (kb/core/grammar.p0). Il pattern SORGENTE puo' avere gli
+% slot in qualunque ordine: e' cosi' che si conserva una parafrasi che inverte i
+% ruoli, come «x is home to y».
+%
+% Non e' un file di appoggio: e' conoscenza linguistica vera quanto quella
+% scritta a mano, e si corregge o si ritratta come tutto il resto. Il save-map
+% instrada qui ogni `construction_frame/3` appreso, quindi una lezione data
+% oggi si ritrova domani senza che nessuno la ricopi.
+
+% Seme: la prima costruzione imparata in sessione, e la casa che il predicato
+% non aveva.
+construction_frame("@S lies in @O", "@S is located in @O", located_in).
+construction_frame("@O is the birthplace of @S", "@S was born in @O", born_in).
+construction_frame("@S revolves around @O", "@S orbits @O", orbits).
+construction_frame("@O is bordered by @S", "@S borders @O", borders).
+construction_frame("@O is home to @S", "@S is located in @O", located_in).
+
+% E la vista interrogabile che la lezione ha aperto insieme alla costruzione:
+% vale solo per la forma diretta soggetto-verbo-oggetto, quindi ce n'e' una sola
+% delle quattro imparate finora.
+construction_answer_cue("@S revolves around @O", "revolves around", orbits).

@@ -836,6 +836,8 @@ borders_country(united_states, mexico).
 born_in(einstein, ulm).
 born_in(marie_curie, warsaw).
 born_in(napoleon, ajaccio).
+born_in(galileo_galilei, pisa).
+born_in(christopher_columbus, genoa).
 can_do(person, clap).
 can_fly($X) :- is_a($X, bird), naf(flightless($X)).
 capital_of_country(amsterdam, netherlands).
@@ -4118,6 +4120,7 @@ qa_reply(q_machu_picchu_builder_country, "Machu Picchu was built by the Inca civ
 element_type(gold, metal).
 heritage_built_by(machu_picchu, inca).
 located_in(machu_picchu, peru).
+located_in(bergamo, lombardy).
 
 % gen353: grammar-error knowledge. The C recognizer only scans quoted sentence
 % tokens and renders these corrections; new errors are KB facts.
