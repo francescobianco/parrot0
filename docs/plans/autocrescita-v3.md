@@ -1151,6 +1151,11 @@ pragmatico `collaboration_offer` in `kb/core/pragmatics.p0`, con cue EN/IT e
 template bilingue. Il dialogo ora propone domanda, memoria e piano nella lingua
 del turno; la stessa forma resta insegnabile e revocabile come gli altri atti.
 
+Lo stesso criterio ha chiuso il muro sulle richieste d'opinione: l'atto
+`opinion_request` in `kb/core/pragmatics.p0` risponde in EN/IT dichiarando il
+limite epistemico e offrendo confronto di ragioni e compromessi. La risposta è
+quindi una mossa dialogica riutilizzabile, non una preferenza simulata.
+
 Il secondo passaggio ha eseguito `tests/basicchat.sh` sulla KB reale: la
 copertura dei concetti matematici è salita da 65% a 88% e quella causale da 50%
 a 75% dopo l'aggiunta del nucleo semantico. Restano muri osservabili su

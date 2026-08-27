@@ -56,6 +56,16 @@ intent_cue(collaboration_offer, "possiamo parlare").
 response_template(collaboration_offer, "We can explore a question, remember a fact, or build a plan together. What should we start with?").
 response_template(collaboration_offer, it, "Possiamo esplorare una domanda, ricordare un fatto o costruire un piano insieme. Da dove partiamo?").
 
+% Act 4: OPINION REQUEST — answer with an honest, actionable frame rather than
+% falling through to the unknown-topic wall.
+pragma_act(opinion_request).
+intent_cue(opinion_request, "what do you think").
+intent_cue(opinion_request, "what's your view").
+intent_cue(opinion_request, "che ne pensi").
+intent_cue(opinion_request, "cosa ne pensi").
+response_template(opinion_request, "I can help compare the reasons and trade-offs, but I do not have personal opinions. What should we weigh first?").
+response_template(opinion_request, it, "Posso confrontare ragioni e compromessi, ma non ho opinioni personali. Che cosa vuoi valutare per prima?").
+
 intent_cue(environment_hint, "cold in here").
 intent_cue(environment_hint, "hot in here").
 intent_cue(environment_hint, "warm in here").
