@@ -223,24 +223,31 @@ preferenza deve valere per la *classe* del testo, non per quel testo.
 contenuto e profilo; ciò che non viene estratto è riportato come frase saltata
 con il tipo di gap, mai sostituito da narrativa.
 
-**M2 — Uso e menzione.**  
-*Manca:* parlare *di* una parola che il motore già usa. `unless is a condition
-marker` finisce a muro perché la superficie viene consumata dal proprio ruolo.  
-*Atto didattico:* qualunque superficie — piena o funzionale, già attiva o
-ignota — deve poter diventare l'oggetto della lezione.  
+**M2 — Uso e menzione.** *(aperto — l'atto esiste, il gate non è chiuso)*  
+*Fatto:* la menzione è un atto con due superfici, le virgolette e un marcatore
+dichiarato (`mention_marker/1`). Il motore non nomina marcatori, classi,
+articoli né copule. L'atto estende il proprio vocabolario: `"lemma" is a
+mention_marker` abilita `the lemma albeit is a concession marker`, e l'ablazione
+del marcatore lo richiude.  
+*Manca:* la forma interrogativa (`is unless a condition marker?`); e una classe
+dichiarata su una parola-funzione resta spesso conoscenza morta per i consumer,
+che è il problema `greeting(ahoy)` e appartiene a M12.  
 *Gate:* insegnare una proprietà di una parola-funzione attiva, usarla nello stesso
 processo, ritrarla e vedere la capacità sparire.
 
 **M3 — Denotazione ed equivalenza operativa.** *(A1: aperto, non chiuso)*  
 *Fatto:* `construction_frame/3` con la vista `extract_frame/2`, pivot insegnabile,
 retract parlato.  
-*Manca:* solo due slot, allineati per posizione; vista interrogativa limitata al
-caso SVO; nessuna inversione dei ruoli; nessuna arità diversa da due; nessuna
-catena di costruzioni verificata; nessuna induzione dai soli esempi concreti.  
-*Atto didattico:* «`X glints Y` significa `Y glorphs X`», «`X glints Y con Z`
-significa …».  
-*Gate:* inversione, arità ≠ 2 e catena a due passi, ciascuna con transfer
-held-out e ablation.
+*Fatto anche:* l'**inversione dei ruoli** — i nomi degli slot li dà il lato già
+compreso, quindi «`X glints Y` significa `Y glorphs X`» si conserva come
+`construction_frame("@O glints @S", "@S glorphs @O", glorphs)`. E l'alfabeto
+delle variabili è conoscenza: `a is a rule_variable` abilita nuovi slot nella
+stessa sessione.  
+*Manca:* arità diversa da due; catena di costruzioni verificata; induzione dai
+soli esempi concreti; vista interrogativa ancora limitata al caso SVO diretto.  
+*Atto didattico:* «`X glints Y con Z` significa …».  
+*Gate:* arità ≠ 2 e catena a due passi, ciascuna con transfer held-out e
+ablation.
 
 **M4 — Ruoli nominabili.**  
 *Manca:* il teacher può allineare due slot, ma non *nominare* i ruoli, che è
@@ -252,9 +259,13 @@ luogo, tempo, beneficiario).
 *Gate:* una costruzione a tre ruoli insegnata a voce e interrogabile su ciascun
 ruolo; un ordine non canonico insegnato senza toccare il motore.
 
-**M5 — Morfologia e dualità delle domande.** *(A2)*  
-*Manca:* `glorphs` non porta `glorph`; `who glorphs X?` non porta `what does X
-glorph?`; `organism(algae)` risponde al singolare e non al plurale.  
+**M5 — Morfologia e dualità delle domande.** *(A2 — parzialmente aperto)*  
+*Fatto:* la dualità c'è già per la forma flessa — `who brinks X?` e `what does Y
+brinks?` rispondono entrambe dallo stesso verbo insegnato. E la forma base è
+*addressable*: `krell means brinks` la apre in una frase.  
+*Manca:* la forma base non emerge da sola dalla lezione, e resta il divario
+singolare/plurale (`organism(algae)` risponde a una formulazione e non alla sua
+variante).  
 *Atto didattico:* una sola lezione su un verbo relazionale deve aprire
 dichiarativa, domanda su ogni slot e varianti flesse; le irregolarità si insegnano
 come eccezioni, non come seconda abilità.  
