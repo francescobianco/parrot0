@@ -29,6 +29,7 @@ ricompilare?"** Se no, quella conoscenza è nel posto sbagliato.
 | `MANTRA.md` | le 15 regole operative — **il punto di partenza** |
 | `PRINCIPLES.md` | il *perché* dell'esperimento, e la regola anti-inganno |
 | `AGENTS.md` | regole operative per chi modifica il codice |
+| `C_TODO.md` | che cosa deve ancora uscire dal C — i residui del motore |
 | `docs/plans/` | i piani vivi (uno per direzione di lavoro) |
 | `docs/sessions/` | resoconti di sessione: cosa si è scoperto e perché |
 | `kb/core/*.p0` | la conoscenza — è qui che va la roba nuova |

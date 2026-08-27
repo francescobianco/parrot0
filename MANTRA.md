@@ -125,7 +125,7 @@ KB piena di righe manuali ma incapace di questo ciclo è grande, non fertile.
     mentre il letterale accanto è ciò che viene detto davvero. Fra il #2
     (l'ingresso) e il #11 (il formato richiesto) c'era un buco, ed è lì che sono
     passati. L'audit e la direzione stanno in
-    `docs/plans/messages-are-knowledge.md`.
+    `docs/plans/messages-are-knowledge.md`, i residui aperti in `C_TODO.md`.
 
 ## Evoluzione KB richiesta per LLMSCORE-max
 
