@@ -135,7 +135,7 @@ static int gen_has_complete_riddle_sig(Brain *b, const char *norm) {
     if (!b || !b->kb) return 0;
     char ids[256][KB_TERM_LEN];
     const char *anyq[] = { NULL, NULL };
-    size_t nid = kb_match(b->kb, "riddle_sig", anyq, 2, ids, 256);
+    size_t nid = domain_match(b, "riddle_signature", anyq, 2, ids, 256);
     char done[128][KB_TERM_LEN];
     size_t nd = 0;
     for (size_t i = 0; i < nid; i++) {
@@ -147,7 +147,7 @@ static int gen_has_complete_riddle_sig(Brain *b, const char *norm) {
 
         const char *q[] = { ids[i], NULL };
         char cues[8][KB_TERM_LEN];
-        size_t ncue = kb_match(b->kb, "riddle_sig", q, 2, cues, 8);
+        size_t ncue = domain_match(b, "riddle_signature", q, 2, cues, 8);
         if (ncue < 2) continue;
         int all = 1;
         for (size_t c = 0; c < ncue && all; c++)
@@ -765,7 +765,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             for (size_t i = 0; i < sn && !best[0]; i++) {
                 char *t = strip_edge_punct(sw[i]);
                 const char *cq[] = { "color", t };
-                if (kb_query(b->kb, "category_member", cq, 2))
+                if (domain_query(b, "membership", cq, 2))
                     snprintf(best, sizeof best, "%s", t);
             }
         }
@@ -874,7 +874,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             if (strlen(t) < 3) continue;
             char ans[1][KB_TERM_LEN];
             const char *q[] = { t, NULL };
-            if (kb_match(b->kb, "riddle_answer", q, 2, ans, 1) > 0) {
+            if (domain_match(b, "riddle_answer", q, 2, ans, 1) > 0) {
                 char *p = ans[0];
                 size_t l = strlen(p);
                 if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
@@ -1018,8 +1018,13 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             snprintf(subj_lower, sizeof subj_lower, "%s", subj);
             if (subj_lower[0]) subj_lower[0] = (char)tolower((unsigned char)subj_lower[0]);
 
-            /* Defaults for missing slots */
-            if (!place[0]) snprintf(place, sizeof place, "quiet street");
+            /* Defaults for missing slots are story knowledge, not parser text. */
+            if (!place[0]) {
+                const char *dq[] = { "place", NULL };
+                char dh[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "story_default", dq, 2, dh, 1) > 0)
+                    snprintf(place, sizeof place, "%s", kb_dequote(dh[0]));
+            }
             if (!elem[0]) snprintf(elem, sizeof elem, "rain");
             if (!other_n[0]) snprintf(other_n, sizeof other_n, "someone");
 
@@ -1246,7 +1251,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 for (size_t i = 0; i < nr && !noun; i++) {
                     for (size_t j = 0; j < nr && !noun; j++) if (i != j) {
                         const char *qa[] = { rest[i], rest[j] };
-                        if (kb_query(b->kb, "color_of", qa, 2)) { noun = rest[i]; adj = rest[j]; }
+                        if (domain_query(b, "color", qa, 2)) { noun = rest[i]; adj = rest[j]; }
                     }
                 }
                 if (!noun) { noun = rest[0]; adj = rest[1]; }
@@ -1358,11 +1363,10 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                     char msg[220];
                     /* gen241: only a STORY continuation gets the dramatic lead; a plain
                      * "finish this sentence" reads better as the bare clause. */
-                    if (kb_cue_match(b, "30_generation_reading_chain1378", norm)) {
-                        snprintf(msg, sizeof msg, "Suddenly, %s.", p);
-                    } else {
-                        snprintf(msg, sizeof msg, "%s.", p);  /* bare continuation clause */
-                    }
+                    const char *key = kb_cue_match(b, "30_generation_reading_chain1378", norm)
+                                    ? "suddenly_x" : "continuation_x";
+                    const KbResponseSlot slots[] = { { "text", p } };
+                    kb_term_say(b, key, slots, 1, msg, sizeof msg);
                     put(msg, out, out_size);
                     return 1;
                 }
@@ -1577,7 +1581,11 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             const char *ar[] = { w[1], ns };
             kb_assert(b->kb, "weight", ar, 2);
             char msg[96];
-            snprintf(msg, sizeof msg, "Ok, %s weight is now %ld.", w[1], (long)v);
+            char value[32];
+            snprintf(value, sizeof value, "%ld", (long)v);
+            kb_term_say(b, "weight_updated", (const KbResponseSlot[]){
+                            { "kind", w[1] }, { "value", value } },
+                        2, msg, sizeof msg);
             put(msg, out, out_size);
             return 1;
         }
@@ -2199,7 +2207,7 @@ static int mod_coref(Brain *b, const char *norm, const char *raw,
         return 0;
 
     const char *a = w[1], *target = w[4];
-    if (is_entity_pronoun(a)) {
+    if (is_entity_pronoun(b, a)) {
         if (!b->has_last_entity) {
             char msg[160];
             { const KbResponseSlot _rs[] = { { "a", a } };

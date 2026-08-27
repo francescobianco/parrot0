@@ -52,21 +52,30 @@ static void format_num(double v, char *buf, size_t sz) {
     else                 snprintf(buf, sz, "%g", v);
 }
 
-/* True if `s` is a supported arithmetic operator keyword or symbol. */
-static int is_arith_op(const char *s) {
-    return strcmp(s, "plus") == 0 || strcmp(s, "minus") == 0 ||
-           strcmp(s, "times") == 0 ||
-           strcmp(s, "+") == 0 || strcmp(s, "-") == 0 ||
-           strcmp(s, "*") == 0 || strcmp(s, "/") == 0;
+static char arith_op_char(Brain *b, const char *s) {
+    if (!b || !b->kb || !s) return 0;
+    const char *q[] = { s, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "infix_operator", q, 2, hit, 1) != 1) return 0;
+    if (!strcmp(hit[0], "plus")) return '+';
+    if (!strcmp(hit[0], "minus")) return '-';
+    if (!strcmp(hit[0], "times")) return '*';
+    if (!strcmp(hit[0], "divide")) return '/';
+    return 0;
+}
+
+static int is_arith_op(Brain *b, const char *s) {
+    return arith_op_char(b, s) != 0;
 }
 
 /* Apply an arithmetic operator, returning the result. Sets *ok=0 for unknown ops. */
-static double apply_arith_op(const char *op, double a, double c, int *ok) {
+static double apply_arith_op(Brain *b, const char *op, double a, double c, int *ok) {
     *ok = 1;
-    if (strcmp(op, "plus") == 0 || strcmp(op, "+") == 0) return a + c;
-    if (strcmp(op, "minus") == 0 || strcmp(op, "-") == 0) return a - c;
-    if (strcmp(op, "times") == 0 || strcmp(op, "*") == 0) return a * c;
-    if (strcmp(op, "/") == 0) { if (c == 0) { *ok = 0; return 0; } return a / c; }
+    char symbol = arith_op_char(b, op);
+    if (symbol == '+') return a + c;
+    if (symbol == '-') return a - c;
+    if (symbol == '*') return a * c;
+    if (symbol == '/') { if (c == 0) { *ok = 0; return 0; } return a / c; }
     *ok = 0;
     return 0;
 }
@@ -80,15 +89,6 @@ static double apply_arith_op(const char *op, double a, double c, int *ok) {
  * so the bilingual probe rides the same path. */
 
 /* Canonical operator char from a single operator word or symbol (EN+IT). */
-static char arith_op_char(const char *s) {
-    if (!strcmp(s,"plus")||!strcmp(s,"+")||!strcmp(s,"più")||!strcmp(s,"piu")) return '+';
-    if (!strcmp(s,"minus")||!strcmp(s,"-")||!strcmp(s,"meno")) return '-';
-    if (!strcmp(s,"times")||!strcmp(s,"*")||!strcmp(s,"x")||!strcmp(s,"per")) return '*';
-    if (!strcmp(s,"multiplied")) return '*';
-    if (!strcmp(s,"divided")||!strcmp(s,"diviso")||!strcmp(s,"over")||!strcmp(s,"/")) return '/';
-    return 0;
-}
-
 /* TODO(kb-first): GLI OPERATORI SONO QUI, E NON DOVREBBERO ESSERCI.
  *
  * Questo `switch` e' la ragione per cui non si poteva insegnare un operatore
@@ -234,7 +234,7 @@ static int arith_range_bounds(Brain *b, const char *text,
  * "divided"/"multiplied" and reading a bare "by" between numbers as times
  * ("six by seven"). Returns 1 with *res iff >=1 op applied and the whole tail
  * parsed cleanly (so prose like "5 apples ..." never matches). */
-static int arith_eval_infix(char **ew, size_t enw, double *res) {
+static int arith_eval_infix(Brain *b, char **ew, size_t enw, double *res) {
     size_t i = 0;
     double cur;
     while (i < enw && !parse_value(ew[i], &cur)) i++;
@@ -242,13 +242,12 @@ static int arith_eval_infix(char **ew, size_t enw, double *res) {
     i++;
     int ops = 0;
     while (i < enw) {
-        char op = arith_op_char(ew[i]);
+        char op = arith_op_char(b, ew[i]);
         if (!op) {
-            if (!strcmp(ew[i], "by")) op = '*';      /* "six by seven" */
-            else return 0;
+            return 0;
         }
-        if ((!strcmp(ew[i], "divided") || !strcmp(ew[i], "multiplied")) &&
-            i + 1 < enw && !strcmp(ew[i + 1], "by"))
+        if ((op == '/' || op == '*') && i + 1 < enw &&
+            arith_op_char(b, ew[i + 1]) == '*')
             i++;                                      /* consume the "by" */
         i++;
         if (i >= enw) return 0;
@@ -282,15 +281,20 @@ static void arith_answer(double v, char *out, size_t out_size) {
  * eval_operand evaluates one operand span w[s..e) as a small computation:
  * "P percent of N", "square root of N", "half/third/quarter of N",
  * "N squared/cubed", or a plain number (exactly one numeral in the span). */
-static int eval_operand(char **w, size_t s, size_t e, double *val) {
+static int eval_operand(Brain *b, char **w, size_t s, size_t e, double *val) {
     if (s >= e) return 0;
     size_t ofp = e;
-    for (size_t i = s; i < e; i++) if (!strcmp(w[i], "of")) { ofp = i; break; }
+    for (size_t i = s; i < e; i++) {
+        const char *q[] = { w[i] };
+        if (b && b->kb && kb_query(b->kb, "fraction_connector", q, 1)) { ofp = i; break; }
+    }
 
     /* P percent of N */
     long pctpos = -1;
-    for (size_t i = s; i < e; i++)
-        if (!strcmp(w[i], "percent") || !strcmp(w[i], "%")) { pctpos = (long)i; break; }
+    for (size_t i = s; i < e; i++) {
+        const char *q[] = { w[i] };
+        if (b && b->kb && kb_query(b->kb, "percentage_marker", q, 1)) { pctpos = (long)i; break; }
+    }
     if (pctpos >= 0 && ofp < e) {
         double P = 0, N = 0; int haveP = 0, haveN = 0;
         for (size_t i = s; i < (size_t)pctpos; i++) if (parse_value(w[i], &P)) haveP = 1;
@@ -299,21 +303,24 @@ static int eval_operand(char **w, size_t s, size_t e, double *val) {
     }
 
     /* square root of N */
-    for (size_t i = s; i < e; i++)
-        if (!strcmp(w[i], "sqrt") || !strcmp(w[i], "root")) {
+    for (size_t i = s; i < e; i++) {
+        const char *q[] = { w[i] };
+        if (b && b->kb && kb_query(b->kb, "root_word", q, 1)) {
             double N = 0; int haveN = 0;
             for (size_t j = s; j < e; j++) if (parse_value(w[j], &N)) { haveN = 1; break; }
             if (haveN && N >= 0) { *val = arith_sqrt(N); return 1; }
             return 0;
         }
+    }
 
     /* fraction of N: half/third/quarter */
     if (ofp < e) {
         double denom = 0;
         for (size_t i = s; i < ofp; i++) {
-            if (!strcmp(w[i], "half")) denom = 2;
-            else if (!strcmp(w[i], "third")) denom = 3;
-            else if (!strcmp(w[i], "quarter") || !strcmp(w[i], "fourth")) denom = 4;
+            const char *q[] = { w[i], NULL };
+            char hit[1][KB_TERM_LEN];
+            if (b && b->kb && kb_match(b->kb, "fraction_word", q, 2, hit, 1) == 1)
+                parse_value(kb_dequote(hit[0]), &denom);
         }
         if (denom > 0) {
             double N = 0; int haveN = 0;
@@ -323,12 +330,18 @@ static int eval_operand(char **w, size_t s, size_t e, double *val) {
     }
 
     /* N squared / N cubed */
-    for (size_t i = s; i < e; i++)
-        if (!strcmp(w[i], "squared") || !strcmp(w[i], "cubed")) {
+    for (size_t i = s; i < e; i++) {
+        const char *q[] = { w[i], NULL };
+        char hit[1][KB_TERM_LEN];
+        if (b && b->kb && kb_match(b->kb, "power_word", q, 2, hit, 1) == 1) {
+            double exponent = 0;
+            parse_value(kb_dequote(hit[0]), &exponent);
             double N = 0; int haveN = 0;
             for (size_t j = s; j < e; j++) if (parse_value(w[j], &N)) { haveN = 1; break; }
-            if (haveN) { *val = !strcmp(w[i], "squared") ? N * N : N * N * N; return 1; }
+            if (haveN && exponent == 2) { *val = N * N; return 1; }
+            if (haveN && exponent == 3) { *val = N * N * N; return 1; }
         }
+    }
 
     /* plain: exactly one numeral in the span (rejects prose spans) */
     double only = 0; int cnt = 0;
@@ -345,26 +358,12 @@ static int eval_operand(char **w, size_t s, size_t e, double *val) {
  * decline instead of stealing them ("four times as old as his son" is not
  * 4 * anything). The "exactly one numeral per span" check alone could not
  * see the difference. */
-static int expr_vocab_ok(char **w, size_t nw) {
-    /* TODO(kb-first): le parole ammesse dentro una domanda aritmetica, e piu'
-     * avanti in questo file la gemella bilingue per le equazioni. Sono
-     * `stopword`/`question_word` piu' un pugno di verbi di calcolo: la lista
-     * va costruita interrogando le classi, non riscritta. */
-    static const char *const ok[] = {
-        "what", "whats", "is", "how", "much", "calculate", "compute",
-        "evaluate", "tell", "me", "the", "a", "an", "of", "and", "equals",
-        "equal", "to", "result", "value", "sum",
-        "percent", "%", "sqrt", "root", "square", "squared", "cubed",
-        "half", "third", "quarter", "fourth",
-        "plus", "minus", "times", "multiplied", "divided", "by",
-        NULL };
+static int expr_vocab_ok(Brain *b, char **w, size_t nw) {
     for (size_t i = 0; i < nw; i++) {
         double v;
         if (!w[i][0] || parse_value(w[i], &v)) continue;
-        int hit = 0;
-        for (size_t k = 0; ok[k]; k++)
-            if (!strcmp(w[i], ok[k])) { hit = 1; break; }
-        if (!hit) return 0;
+        const char *q[] = { w[i] };
+        if (!b || !b->kb || !kb_query(b->kb, "arithmetic_word", q, 1)) return 0;
     }
     return 1;
 }
@@ -374,7 +373,7 @@ static int expr_vocab_ok(char **w, size_t nw) {
  * through to the single-op handlers) when there is no operator or any span is
  * not a clean operand. Uses its own wide tokenization because mod_arith's w[8]
  * would truncate a long expression before the second operand. */
-static int arith_compound(const char *norm, char *out, size_t out_size) {
+static int arith_compound(Brain *b, const char *norm, char *out, size_t out_size) {
     char buf[256];
     size_t len = strlen(norm);
     if (len == 0 || len >= sizeof buf) return 0;
@@ -384,15 +383,12 @@ static int arith_compound(const char *norm, char *out, size_t out_size) {
     char *w[40];
     size_t nw = split_words(buf, w, 40);
     for (size_t i = 0; i < nw; i++) w[i] = strip_edge_punct(w[i]);
-    if (!expr_vocab_ok(w, nw)) return 0;
+    if (!expr_vocab_ok(b, w, nw)) return 0;
 
     size_t opos[16]; char ochar[16]; size_t nop = 0;
     for (size_t i = 0; i < nw && nop < 16; i++) {
         char o = 0;
-        if (!strcmp(w[i], "plus")) o = '+';
-        else if (!strcmp(w[i], "minus")) o = '-';
-        else if (!strcmp(w[i], "times") || !strcmp(w[i], "multiplied")) o = '*';
-        else if (!strcmp(w[i], "divided")) o = '/';
+        o = arith_op_char(b, w[i]);
         if (o) { opos[nop] = i; ochar[nop] = o; nop++; }
     }
     if (nop == 0 || nop > 15) return 0;
@@ -401,11 +397,12 @@ static int arith_compound(const char *norm, char *out, size_t out_size) {
     for (size_t k = 0; k <= nop; k++) {
         size_t end = (k < nop) ? opos[k] : nw;
         double v;
-        if (!eval_operand(w, start, end, &v)) return 0;
+        if (!eval_operand(b, w, start, end, &v)) return 0;
         vals[nv++] = v;
         if (k < nop) {
             start = opos[k] + 1;
-            if ((ochar[k] == '*' || ochar[k] == '/') && start < nw && !strcmp(w[start], "by"))
+            if ((ochar[k] == '*' || ochar[k] == '/') && start < nw &&
+                arith_op_char(b, w[start]) == '*')
                 start++;                    /* "multiplied by" / "divided by" */
         }
     }
@@ -1096,7 +1093,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
 
     /* gen312: compound arithmetic expression (self-guards: fires only when a
      * top-level operator joins clean operand phrases, else falls through). */
-    if (arith_compound(norm, out, out_size)) return 1;
+    if (arith_compound(b, norm, out, out_size)) return 1;
 
     if (p0_probability_draw(b, norm, out, out_size)) return 1;
 
@@ -1198,7 +1195,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         size_t pair = enw, pairs = 0;
         for (size_t i = 0; i + 2 < enw; i++) {
             double a, c;
-            if (parse_value(ew[i], &a) && is_arith_op(ew[i + 1]) &&
+            if (parse_value(ew[i], &a) && is_arith_op(b, ew[i + 1]) &&
                 parse_value(ew[i + 2], &c)) {
                 pair = i;
                 pairs++;
@@ -1221,7 +1218,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
                 if (!strcmp(ew[pair + 1], "/") && c == 0)
                     return kb_term_say(b, "arith_division_zero", NULL, 0, out, out_size);
                 int ok = 0;
-                double r = apply_arith_op(ew[pair + 1], a, c, &ok);
+                double r = apply_arith_op(b, ew[pair + 1], a, c, &ok);
                 if (ok) {
                     arith_answer(r, out, out_size);
                     return 1;
@@ -1232,11 +1229,11 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
 
     /* Exact-shape arith: "what is <a> OP <b>?" with expanded tokens. */
     if (enw == 5 && lex_class_member(b, "20_math_lex1235", ew[0]) && lex_class_member(b, "20_math_lex1235_2", ew[1]) &&
-        is_arith_op(ew[3])) {
+        is_arith_op(b, ew[3])) {
         double a, c;
         if (parse_value(ew[2], &a) && parse_value(ew[4], &c)) {
             int ok;
-            double r = apply_arith_op(ew[3], a, c, &ok);
+            double r = apply_arith_op(b, ew[3], a, c, &ok);
             if (ok) {
                 char num[64], msg[80];
                 format_num(r, num, sizeof num);
@@ -1256,11 +1253,11 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
             if (si < enw - wi) {
                 si += wi;
                 for (size_t i = si + 1; i + 2 < enw; i++) {
-                    if (!is_arith_op(ew[i + 1])) continue;
+                    if (!is_arith_op(b, ew[i + 1])) continue;
                     double a, c;
                     if (parse_value(ew[i], &a) && parse_value(ew[i + 2], &c)) {
                         int ok;
-                        double r = apply_arith_op(ew[i + 1], a, c, &ok);
+                        double r = apply_arith_op(b, ew[i + 1], a, c, &ok);
                         if (ok) {
                             char num[64], msg[80];
                             format_num(r, num, sizeof num);
@@ -1280,11 +1277,11 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
      * (adding -> sum), so it transfers to any operands and any of the operators. */
     if (kb_cue_match(b, "20_math_chain1282", buf)) {
         for (size_t i = 0; i + 2 < enw; i++) {
-            if (!is_arith_op(ew[i + 1])) continue;
+            if (!is_arith_op(b, ew[i + 1])) continue;
             double a, c;
             if (!parse_num(ew[i], &a) || !parse_num(ew[i + 2], &c)) continue;
             int ok;
-            double r = apply_arith_op(ew[i + 1], a, c, &ok);
+                double r = apply_arith_op(b, ew[i + 1], a, c, &ok);
             if (!ok) continue;
             const char *op = ew[i + 1];
             const char *verb = "combining", *noun = "result";
@@ -1567,7 +1564,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
      * "100 divided by 4", "how much is 1+1+1+1+1"). */
     {
         double r;
-        if (arith_eval_infix(ew, enw, &r)) { arith_answer(r, out, out_size); return 1; }
+        if (arith_eval_infix(b, ew, enw, &r)) { arith_answer(r, out, out_size); return 1; }
     }
 
     return 0;
@@ -1850,8 +1847,10 @@ static size_t plan_learn_list(Brain *b, const char *goal, char **w,
     }
     if (learned == 0) return 0;
     char msg[256];
-    if (learned == 1)
-        snprintf(msg, sizeof msg, "Learned: requires(%s, %s).", goal, last_step);
+    if (learned == 1) {
+        const KbResponseSlot slots[] = { { "goal", goal }, { "step", last_step } };
+        kb_term_say(b, "learned_requires", slots, 2, msg, sizeof msg);
+    }
     else
         { 
           char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", learned);
@@ -2060,7 +2059,7 @@ static size_t enum_category_lookup(Brain *b, const char *prevtok,
         char comp[KB_TERM_LEN];
         snprintf(comp, sizeof comp, "%s_%s", prevtok, head);
         const char *cp[2] = { comp, NULL };
-        size_t k = kb_match(b->kb, "category_member", cp, 2, members, max);
+        size_t k = domain_match(b, "membership", cp, 2, members, max);
         if (k) return k;
     }
     char s1[KB_TERM_LEN];
@@ -2071,7 +2070,7 @@ static size_t enum_category_lookup(Brain *b, const char *prevtok,
     for (size_t c = 0; c < 3; c++) {
         if (!cands[c] || !cands[c][0]) continue;
         const char *pat[2] = { cands[c], NULL };
-        size_t k = kb_match(b->kb, "category_member", pat, 2, members, max);
+        size_t k = domain_match(b, "membership", pat, 2, members, max);
         if (k) return k;
     }
     return 0;
@@ -2182,7 +2181,7 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
 
     const char *pat[2] = { category, NULL };
     char members[64][KB_TERM_LEN];
-    size_t k = kb_match(b->kb, "category_member", pat, 2, members, 64);
+    size_t k = domain_match(b, "membership", pat, 2, members, 64);
     if (k == 0) return 0;   /* unknown category: let an honest wall handle it */
 
     if (init) {             /* constrained: first member with that initial */
@@ -2428,13 +2427,15 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
                 }
         if (nh > want) nh = want;
         if (nh == 0) return 0;
-        char msg[600]; size_t o = (size_t)snprintf(msg, sizeof msg,
-            "Near-rhymes for \"%s\": ", target);
-        for (size_t i = 0; i < nh && o + 4 < sizeof msg; i++)
-            o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s",
+        char list[512]; size_t o = 0;
+        for (size_t i = 0; i < nh && o + 4 < sizeof list; i++)
+            o += (size_t)snprintf(list + o, sizeof list - o, "%s%s",
                                   i ? (i + 1 == nh ? " and " : ", ") : "", hits[i]);
-        if (o + 2 < sizeof msg) snprintf(msg + o, sizeof msg - o, ".");
-        put(msg, out, out_size);
+        char target_slot[KB_TERM_LEN];
+        snprintf(target_slot, sizeof target_slot, "%s", target);
+        kb_term_say(b, "near_rhymes_for_x", (const KbResponseSlot[]){
+                        { "target", target_slot }, { "list", list } },
+                    2, out, out_size);
         return 1;
     }
 

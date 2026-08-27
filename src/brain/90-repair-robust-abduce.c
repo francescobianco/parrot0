@@ -16,7 +16,7 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
         /* If the user changed the subject instead of answering, expire and let
          * normal dispatch handle this turn fresh (acceptance: repair state
          * expires when the topic clearly changes). */
-        if (is_question_opener(tw[0]) || is_intent_starter(b, tw[0]) ||
+        if (is_question_opener(b, tw[0]) || is_intent_starter(b, tw[0]) ||
             strstr(norm, "refer to"))
             return 0;
 
@@ -39,7 +39,7 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
             const char *ref = NULL;
             for (size_t i = tnw; i-- > 0; ) {
                 char *t = strip_edge_punct(tw[i]);
-                if (!*t || is_entity_pronoun(t) || is_stopword(b, t)) continue;
+                if (!*t || is_entity_pronoun(b, t) || is_stopword(b, t)) continue;
                 if (isalpha((unsigned char)t[0]) || isdigit((unsigned char)t[0])) {
                     ref = t; break;
                 }
@@ -84,7 +84,7 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
             }
         }
     }
-    if (!is_question_opener(w[0])) return 0;     /* only questions/commands */
+    if (!is_question_opener(b, w[0])) return 0;     /* only questions/commands */
     if (strstr(norm, "refer to")) return 0;      /* WSC coref judgement (mod_same) */
     /* Translation requests quote or mention the source expression. A pronoun in
      * that payload ("how much does it cost") is linguistic material, not a
@@ -132,7 +132,7 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
     if (b->kb) {
         char rids[64][KB_TERM_LEN];
         const char *rq[] = { NULL, NULL };
-        size_t nr = kb_match(b->kb, "riddle_sig", rq, 2, rids, 64);
+        size_t nr = domain_match(b, "riddle_signature", rq, 2, rids, 64);
         char seen[64][KB_TERM_LEN]; size_t nseen = 0;
         for (size_t i = 0; i < nr; i++) {
             int dup = 0;
@@ -141,7 +141,7 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
             snprintf(seen[nseen++], KB_TERM_LEN, "%s", rids[i]);
             const char *cq[] = { rids[i], NULL };
             char cues[8][KB_TERM_LEN];
-            size_t nc = kb_match(b->kb, "riddle_sig", cq, 2, cues, 8);
+            size_t nc = domain_match(b, "riddle_signature", cq, 2, cues, 8);
             if (nc < 2) continue;
             int all = 1;
             for (size_t c = 0; c < nc && all; c++) {
@@ -156,7 +156,7 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
     const char *pron = NULL;
     for (size_t i = 1; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
-        if (!is_entity_pronoun(t)) continue;
+        if (!is_entity_pronoun(b, t)) continue;
         /* gen338 (L13 pragmatics probe): a pronoun INSIDE a double-quoted span
          * is MENTION, not use — «what does "nice weather, isn't it" usually
          * mean?» quotes the pronoun; it refers to nothing in the discourse.
@@ -195,7 +195,7 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
             char *t = strip_edge_punct(w[i]);
             if (!*t || !isalpha((unsigned char)t[0])) continue;
             const char *cq[] = { "country", t };
-            if (kb_query(b->kb, "category_member", cq, 2)) resolved = t;
+            if (domain_query(b, "membership", cq, 2)) resolved = t;
         }
         if (resolved) {
             char rebuilt[256]; size_t o = 0; int rep = 0;
@@ -412,8 +412,8 @@ static int mod_robust(Brain *b, const char *norm, const char *raw,
     if (!trig) return 0;
 
     if (!b->has_last_goal) {
-        put("Ask me whether something holds first — then I can stress-test it.",
-            out, out_size);
+        kb_term_say(b, "ask_me_whether_something_holds_first_then_i",
+                    NULL, 0, out, out_size);
         return 1;
     }
     if (goal_truth(b) != 1) {
@@ -700,8 +700,8 @@ static int mod_calibrate(Brain *b, const char *norm, const char *raw,
     if (!why_think && !change_mind) return 0;
 
     if (!b->has_last_goal) {
-        put("Ask me whether something holds first — then I can tell you how I know "
-            "it and what would change my mind.", out, out_size);
+        kb_term_say(b, "ask_me_whether_something_holds_first_then_i_know",
+                    NULL, 0, out, out_size);
         return 1;
     }
 
@@ -831,7 +831,7 @@ static int mod_calibrate(Brain *b, const char *norm, const char *raw,
  * infinitive filler and take the first surviving token as the subject and the
  * last as the class. Handles "socrates a mortal", "socrates be a mortal",
  * "socrates to be a mortal". Returns 1 on a clean two-token reading. */
-static int parse_goal_loose(const char *clause, char *pred, size_t ps,
+static int parse_goal_loose(Brain *b, const char *clause, char *pred, size_t ps,
                             char *arg, size_t as) {
     char buf[256];
     copy_trim(buf, sizeof buf, clause);
@@ -843,10 +843,8 @@ static int parse_goal_loose(const char *clause, char *pred, size_t ps,
     char kept[16][KB_TERM_LEN]; size_t nk = 0;
     for (size_t i = 0; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
-        if (strcmp(t,"is")==0 || strcmp(t,"be")==0 || strcmp(t,"a")==0 ||
-            strcmp(t,"an")==0 || strcmp(t,"to")==0 || strcmp(t,"the")==0 ||
-            strcmp(t,"would")==0 || strcmp(t,"still")==0 ||
-            strcmp(t,"not")==0)
+        const char *q[] = { t };
+        if (b && b->kb && kb_query(b->kb, "goal_filler", q, 1))
             continue;
         if (nk < 16) snprintf(kept[nk++], KB_TERM_LEN, "%s", t);
     }
@@ -989,7 +987,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
     if (!clause) return 0;
 
     char pred[KB_TERM_LEN], arg[KB_TERM_LEN];
-    if (!parse_goal_loose(clause, pred, sizeof pred, arg, sizeof arg)) {
+    if (!parse_goal_loose(b, clause, pred, sizeof pred, arg, sizeof arg)) {
         kb_term_say(b, "tell_me_what_you_d_like_me_to_account_for_as", NULL, 0, out, out_size);
         return 1;
     }

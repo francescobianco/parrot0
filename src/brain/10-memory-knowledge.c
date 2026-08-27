@@ -1,3 +1,41 @@
+static char *kb_dequote(char *s);
+static void concept_label_lookup(Brain *b, const char *atom,
+                                 char *out, size_t n);
+
+static int domain_predicate(Brain *b, const char *role, char *pred, size_t n) {
+    if (!b || !b->kb || !role || !pred || n == 0) return 0;
+    const char *q[] = { role, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "domain_relation", q, 2, hit, 1) != 1) return 0;
+    snprintf(pred, n, "%s", kb_dequote(hit[0]));
+    return pred[0] != '\0';
+}
+
+static int domain_query(Brain *b, const char *role, const char *const *args, size_t argc) {
+    char pred[KB_TERM_LEN];
+    return domain_predicate(b, role, pred, sizeof pred) &&
+           kb_query(b->kb, pred, args, argc);
+}
+
+static size_t domain_match(Brain *b, const char *role, const char *const *args, size_t argc,
+                           char out[][KB_TERM_LEN], size_t max) {
+    char pred[KB_TERM_LEN];
+    if (!domain_predicate(b, role, pred, sizeof pred)) return 0;
+    return kb_match(b->kb, pred, args, argc, out, max);
+}
+
+static int domain_assert(Brain *b, const char *role, const char *const *args, size_t argc) {
+    char pred[KB_TERM_LEN];
+    return domain_predicate(b, role, pred, sizeof pred) &&
+           kb_assert(b->kb, pred, args, argc);
+}
+
+static int domain_retract(Brain *b, const char *role, const char *const *args, size_t argc) {
+    char pred[KB_TERM_LEN];
+    return domain_predicate(b, role, pred, sizeof pred) &&
+           kb_retract(b->kb, pred, args, argc);
+}
+
 /* --- module: memory ------------------------------------------------------
  * The first *stateful* part: it learns the user's name and recalls it. This
  * is where the brain stops being purely reactive and starts carrying context
@@ -24,7 +62,6 @@
  * Il valore conserva le maiuscole di chi l'ha detto: un nome non e' una parola
  * minuscola. Gli spazi diventano `_` per stare in un atomo e tornano spazi in
  * lettura, che e' la convenzione che mod_personal usa gia' per gli altri slot. */
-static char *kb_dequote(char *s);   /* definita piu' avanti nel file */
 static void ensure_lexeme(Brain *b);  /* 20-math.c: il pool lessicale, pigro */
 static int user_value_read(Brain *b, const char *slot, char *out, size_t outsz) {
     if (out && outsz) out[0] = '\0';
@@ -573,23 +610,35 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         char msg[640];
         size_t off = 0;
         int any = 0;
-        off = (size_t)snprintf(msg, sizeof msg, "I remember:");
+        kb_term_say(b, "memory_recall_header", NULL, 0, msg, sizeof msg);
+        off = strlen(msg);
         char nm[64];
         if (user_value_read(b, "name", nm, sizeof nm) && off < sizeof msg) {
+            char piece[160];
+            kb_term_say(b, "memory_name_fragment", (const KbResponseSlot[]){
+                            { "name", nm } }, 1, piece, sizeof piece);
             off += (size_t)snprintf(msg + off, sizeof msg - off,
-                                    "%s your name is %s", any ? ";" : "", nm);
+                                    "%s%s", any ? ";" : "", piece);
             any = 1;
         }
         for (size_t i = 0; i < b->possession_count && off < sizeof msg; i++) {
+            char piece[160];
+            kb_term_say(b, "memory_possession_fragment", (const KbResponseSlot[]){
+                            { "thing", b->possessions[i][0] },
+                            { "value", b->possessions[i][1] } }, 2,
+                        piece, sizeof piece);
             off += (size_t)snprintf(msg + off, sizeof msg - off,
-                                    "%s your %s is %s", any ? ";" : "",
-                                    b->possessions[i][0], b->possessions[i][1]);
+                                    "%s%s", any ? ";" : "", piece);
             any = 1;
         }
         if (b->has_user_preference && off < sizeof msg) {
+            char piece[160];
+            kb_term_say(b, "memory_preference_fragment", (const KbResponseSlot[]){
+                            { "verb", b->user_preference_verb },
+                            { "value", b->user_preference_value } }, 2,
+                        piece, sizeof piece);
             off += (size_t)snprintf(msg + off, sizeof msg - off,
-                                    "%s you %s %s", any ? ";" : "",
-                                    b->user_preference_verb, b->user_preference_value);
+                                    "%s%s", any ? ";" : "", piece);
             any = 1;
         }
         if (!any) {
@@ -620,18 +669,29 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             off += (size_t)snprintf(msg + off, sizeof msg - off, "%s", _t2);
             }
             if (has_mood && off < sizeof msg) {
+                char piece[160];
+                kb_term_say(b, "memory_mood_fragment", (const KbResponseSlot[]){
+                                { "mood", mood } }, 1, piece, sizeof piece);
                 off += (size_t)snprintf(msg + off, sizeof msg - off,
-                                        "%s you feel %s", s ? ";" : "", mood);
+                                        "%s%s", s ? ";" : "", piece);
                 s = 1;
             }
             if (b->has_current_topic && off < sizeof msg) {
+                char piece[160];
+                kb_term_say(b, "memory_topic_fragment", (const KbResponseSlot[]){
+                                { "topic", b->current_topic } }, 1,
+                            piece, sizeof piece);
                 off += (size_t)snprintf(msg + off, sizeof msg - off,
-                                        "%s current topic is %s", s ? ";" : "", b->current_topic);
+                                        "%s%s", s ? ";" : "", piece);
                 s = 1;
             }
             if (b->has_user_constraint && off < sizeof msg) {
+                char piece[160];
+                kb_term_say(b, "memory_constraint_fragment", (const KbResponseSlot[]){
+                                { "constraint", b->user_constraint } }, 1,
+                            piece, sizeof piece);
                 off += (size_t)snprintf(msg + off, sizeof msg - off,
-                                        "%s constraint: %s", s ? ";" : "", b->user_constraint);
+                                        "%s%s", s ? ";" : "", piece);
             }
             if (off < sizeof msg) snprintf(msg + off, sizeof msg - off, ".");
         }
@@ -1069,7 +1129,10 @@ static int mod_teach_rule(Brain *b, const char *norm, const char *raw,
         mo += (size_t)snprintf(msg + mo, sizeof msg - mo, ")");
     }
     snprintf(msg + mo, sizeof msg - mo, ".");
-    put(msg, out, out_size);
+    char rule_text[512];
+    snprintf(rule_text, sizeof rule_text, "%s", msg);
+    kb_term_say(b, "learned_rule_text", (const KbResponseSlot[]){
+                    { "rule", rule_text } }, 1, out, out_size);
     return 1;
 }
 
@@ -1093,7 +1156,7 @@ static void note_class_conflict(Brain *b, const char *cls, const char *subj,
     if (!b || !b->kb || !cls || !subj) return;
     char held[16][KB_TERM_LEN];
     const char *q[] = { subj, NULL };
-    size_t n = kb_match(b->kb, "is_a", q, 2, held, 16);
+    size_t n = domain_match(b, "isa", q, 2, held, 16);
     for (size_t i = 0; i < n; i++) {
         if (strcmp(held[i], cls) == 0) continue;
         const char *inc[] = { cls, held[i] };
@@ -1770,16 +1833,14 @@ static int recall_utterance(Brain *b, const char *speaker, int first, int word,
 
 /* Minimal discourse coreference (gen22): pronouns resolve to the most recent
  * concrete entity mentioned in the knowledge surface. */
-static int is_entity_pronoun(const char *w) {
-    return strcmp(w, "he") == 0 || strcmp(w, "she") == 0 ||
-           strcmp(w, "it") == 0 || strcmp(w, "they") == 0 ||
-           strcmp(w, "him") == 0 || strcmp(w, "her") == 0 ||
-           strcmp(w, "them") == 0;
+static int is_entity_pronoun(Brain *b, const char *w) {
+    const char *q[] = { w };
+    return b && b->kb && w && kb_query(b->kb, "entity_pronoun", q, 1);
 }
 
 static int resolve_entity(Brain *b, const char *word, const char **entity,
                           char *out, size_t out_size) {
-    if (!is_entity_pronoun(word)) { *entity = word; return 1; }
+    if (!is_entity_pronoun(b, word)) { *entity = word; return 1; }
     if (b->has_last_entity) { *entity = b->last_entity; return 1; }
 
     char msg[160];
@@ -1790,7 +1851,7 @@ static int resolve_entity(Brain *b, const char *word, const char **entity,
 }
 
 static void remember_entity(Brain *b, const char *word, const char *entity) {
-    if (is_entity_pronoun(word) || !entity || strlen(entity) >= KB_TERM_LEN)
+    if (is_entity_pronoun(b, word) || !entity || strlen(entity) >= KB_TERM_LEN)
         return;
     snprintf(b->last_entity, sizeof b->last_entity, "%s", entity);
     b->has_last_entity = 1;
@@ -1881,9 +1942,13 @@ static void howknow_reply(Brain *b, const char *pred, const char *const *args,
     if (steps == 0)
         { const KbResponseSlot _rs[] = { { "ex", ex } };
       kb_term_say(b, "directly_x_is_a_known_fact", _rs, 1, msg, sizeof msg); }
-    else
-        snprintf(msg, sizeof msg, "By %zu step%s of reasoning: %s.",
-                 steps, steps == 1 ? "" : "s", ex);
+    else {
+        char count[32];
+        snprintf(count, sizeof count, "%zu", steps);
+        const KbResponseSlot slots[] = {
+            { "steps", count }, { "s", steps == 1 ? "" : "s" }, { "ex", ex } };
+        kb_term_say(b, "reasoning_steps", slots, 3, msg, sizeof msg);
+    }
     put(msg, out, out_size);
     store_proof(b, ex);
 }
@@ -1936,7 +2001,6 @@ static int p0_property_list(Brain *b, const char *norm, const char *raw,
 
     kb_set_origin(b->kb, KB_SESSION);
     char msg[512]; size_t mo = 0; int any = 0;
-    mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "Learned: ");
     for (size_t i = 0; i < np; i++) {
         const char *fa[] = { subject, props[i] };
         if (!kb_assert(b->kb, pred, fa, 2)) continue;
@@ -1946,7 +2010,10 @@ static int p0_property_list(Brain *b, const char *norm, const char *raw,
         any = 1;
     }
     if (!any) return 0;
-    put(msg, out, out_size);
+    char facts[512];
+    snprintf(facts, sizeof facts, "%s", msg);
+    kb_term_say(b, "learned_properties", (const KbResponseSlot[]){
+                    { "facts", facts } }, 1, out, out_size);
     return 1;
 }
 
@@ -2007,7 +2074,11 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
                               char *out, size_t out_size) {
     char hbuf[256];
     size_t len = strlen(hyp);
-    if (len >= sizeof hbuf) { put("I don't understand that entailment yet.", out, out_size); return; }
+    if (len >= sizeof hbuf) {
+        kb_term_say(tmp, "i_don_t_understand_that_entailment_yet",
+                    NULL, 0, out, out_size);
+        return;
+    }
     memcpy(hbuf, hyp, len + 1);
     if (len > 0 && hbuf[len - 1] == '?') hbuf[len - 1] = '\0';
 
@@ -2036,9 +2107,11 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
     }
 
     if (!kb_knows_pred(tmp->kb, pred))
-        put(mode == ENT_LABEL ? "Neutral." : "Unknown.", out, out_size);
+        kb_term_say(tmp, mode == ENT_LABEL ? "neutral_entailment" : "unknown_entailment",
+                    NULL, 0, out, out_size);
     else if (kb_is_conflicted(tmp->kb, pred, args, argc))
-        put(mode == ENT_LABEL ? "Neutral." : "Conflicted.", out, out_size);
+        kb_term_say(tmp, mode == ENT_LABEL ? "neutral_entailment" : "conflicted",
+                    NULL, 0, out, out_size);
     else if (kb_query(tmp->kb, pred, args, argc)) {
         if (mode == ENT_LABEL) {
             kb_say(tmp, "entailment", "Entailment.", out, out_size);
@@ -2049,7 +2122,8 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
             if (kb_explain(tmp->kb, pred, args, argc, ex, sizeof ex)) {
                 char msg[640];
                 if (strstr(ex, " because "))
-                    snprintf(msg, sizeof msg, "Entailed: %s.", ex);
+                    { const KbResponseSlot _rs[] = { { "ex", ex } };
+                      kb_term_say(tmp, "entailed_explanation", _rs, 1, msg, sizeof msg); }
                 else
                     { const KbResponseSlot _rs[] = { { "ex", ex } };
                       kb_term_say(tmp, "entailed_x_is_a_known_fact", _rs, 1, msg, sizeof msg); }
@@ -2060,7 +2134,8 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
         }
     }
     else if (kb_is_negated(tmp->kb, pred, args, argc))
-        put(mode == ENT_LABEL ? "Contradiction." : "Contradicted.", out, out_size);
+        kb_term_say(tmp, mode == ENT_LABEL ? "contradiction_entailment" : "contradicted_entailment",
+                    NULL, 0, out, out_size);
     else
         put(mode == ENT_LABEL ? "Neutral." : "Not entailed.", out, out_size);
 }
@@ -2316,7 +2391,7 @@ static int premise_conflict_note(Brain *b, const char *prem,
 
         char held[16][KB_TERM_LEN];
         const char *q[] = { sing, NULL };
-        size_t n = kb_match(b->kb, "is_a", q, 2, held, 16);
+        size_t n = domain_match(b, "isa", q, 2, held, 16);
         for (size_t h = 0; h < n; h++) {
             if (strcmp(held[h], claimed) == 0) continue;
             const char *inc[] = { claimed, held[h] };
@@ -2590,7 +2665,10 @@ static int transitive_comparison(Brain *b, const char *norm,
             if (!ans[0]) return 0;
             char msg[80]; snprintf(msg, sizeof msg, "%c%s.",
                 (char)toupper((unsigned char)ans[0]), ans + 1);
-            put(msg, out, out_size);
+            char rule_text[256];
+            snprintf(rule_text, sizeof rule_text, "%s", msg);
+            kb_term_say(b, "learned_rule_text", (const KbResponseSlot[]){
+                            { "rule", rule_text } }, 1, out, out_size);
             store_proof(b, "Transitive order: chained comparisons, extremum by stem polarity.");
             return 1;
         }
@@ -2713,20 +2791,20 @@ static char *kb_dequote(char *s);
 static int magnitude_lookup(Brain *b, const char *dim, const char *item, char *rank) {
     const char *q[] = { dim, item, NULL };
     char hit[1][KB_TERM_LEN];
-    if (kb_match(b->kb, "magnitude", q, 3, hit, 1) > 0) { snprintf(rank, KB_TERM_LEN, "%s", hit[0]); return 1; }
+    if (domain_match(b, "magnitude", q, 3, hit, 1) > 0) { snprintf(rank, KB_TERM_LEN, "%s", hit[0]); return 1; }
     if (strncmp(item, "fully_grown_", 12) == 0) {
         const char *qg[] = { dim, item + 12, NULL };
-        if (kb_match(b->kb, "magnitude", qg, 3, hit, 1) > 0) { snprintf(rank, KB_TERM_LEN, "%s", hit[0]); return 1; }
+        if (domain_match(b, "magnitude", qg, 3, hit, 1) > 0) { snprintf(rank, KB_TERM_LEN, "%s", hit[0]); return 1; }
     }
     if (strncmp(item, "grown_", 6) == 0) {
         const char *qg[] = { dim, item + 6, NULL };
-        if (kb_match(b->kb, "magnitude", qg, 3, hit, 1) > 0) { snprintf(rank, KB_TERM_LEN, "%s", hit[0]); return 1; }
+        if (domain_match(b, "magnitude", qg, 3, hit, 1) > 0) { snprintf(rank, KB_TERM_LEN, "%s", hit[0]); return 1; }
     }
     size_t l = strlen(item);
     if (l > 1 && item[l - 1] == 's') {
         char sg[64]; snprintf(sg, sizeof sg, "%.*s", (int)(l - 1), item);
         const char *q2[] = { dim, sg, NULL };
-        if (kb_match(b->kb, "magnitude", q2, 3, hit, 1) > 0) { snprintf(rank, KB_TERM_LEN, "%s", hit[0]); return 1; }
+        if (domain_match(b, "magnitude", q2, 3, hit, 1) > 0) { snprintf(rank, KB_TERM_LEN, "%s", hit[0]); return 1; }
     }
     return 0;
 }
@@ -2863,7 +2941,7 @@ static int names_category(Brain *b, const char *t) {
     if (!b || !b->kb) return 0;
     const char *q[] = { t, NULL };
     char hit[1][KB_TERM_LEN];
-    return kb_match(b->kb, "category_member", q, 2, hit, 1) > 0;
+    return domain_match(b, "membership", q, 2, hit, 1) > 0;
 }
 
 static int compare_entity_token(Brain *b, const char *t) {
@@ -3038,9 +3116,9 @@ static int difference_lookup(Brain *b, const char *a, const char *c,
                              char *out, size_t out_sz) {
     const char *q[] = { a, c, NULL };
     char hit[1][KB_TERM_LEN];
-    if (kb_match(b->kb, "difference_between", q, 3, hit, 1) == 0) {
+    if (domain_match(b, "difference", q, 3, hit, 1) == 0) {
         const char *qr[] = { c, a, NULL };
-        if (kb_match(b->kb, "difference_between", qr, 3, hit, 1) == 0) return 0;
+        if (domain_match(b, "difference", qr, 3, hit, 1) == 0) return 0;
     }
     char *p = kb_dequote(hit[0]);
     snprintf(out, out_sz, "%s", p);
@@ -3415,7 +3493,7 @@ static int p0_complete_riddle_sig(Brain *b, const char *norm) {
     if (!b || !b->kb) return 0;
     char ids[256][KB_TERM_LEN];
     const char *anyq[] = { NULL, NULL };
-    size_t nid = kb_match(b->kb, "riddle_sig", anyq, 2, ids, 256);
+    size_t nid = domain_match(b, "riddle_signature", anyq, 2, ids, 256);
     char done[128][KB_TERM_LEN];
     size_t nd = 0;
     for (size_t i = 0; i < nid; i++) {
@@ -3426,7 +3504,7 @@ static int p0_complete_riddle_sig(Brain *b, const char *norm) {
         snprintf(done[nd++], KB_TERM_LEN, "%s", ids[i]);
         const char *q[] = { ids[i], NULL };
         char cues[8][KB_TERM_LEN];
-        size_t ncue = kb_match(b->kb, "riddle_sig", q, 2, cues, 8);
+        size_t ncue = domain_match(b, "riddle_signature", q, 2, cues, 8);
         if (ncue < 2) continue;
         int all = 1;
         for (size_t c = 0; c < ncue && all; c++)
@@ -3643,7 +3721,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                 if (ss < (size_t)end && p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
                 if (ss >= (size_t)end || !p0_join(w, ss, (size_t)end, dst, KB_TERM_LEN))
                     { ok = 0; break; }
-                if (pt[ti][1] == 'S' && is_entity_pronoun(dst) &&
+                if (pt[ti][1] == 'S' && is_entity_pronoun(b, dst) &&
                     b->has_last_entity)
                     snprintf(dst, KB_TERM_LEN, "%s", b->last_entity);
                 wi = (size_t)end;
@@ -3660,15 +3738,18 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
         const char *fa[] = { subj, obj };
         /* Il cancello: un candidato i cui atomi non sono concetti non entra. */
         if (!p0_fact_is_clean(b, pred, fa, 2)) {
-            snprintf(out, out_size, "Scartato: %s(%s, %s) non e' fatto di concetti.",
-                     pred, subj, obj);
+            kb_term_say(b, "rejected_binary_fact", (const KbResponseSlot[]){
+                            { "pred", pred }, { "arg1", subj }, { "arg2", obj } },
+                        3, out, out_size);
             return 2;                       /* 2 = respinto, ma non silenzioso */
         }
         if (kb_assert(b->kb, pred, fa, 2)) {
             p0_learn_source(b, pred, fa, 2, norm);
             remember_entity(b, subj, subj);
             char msg[256];
-            snprintf(msg, sizeof msg, "Learned: %s(%s, %s).", pred, subj, obj);
+            kb_term_say(b, "learned_binary_fact", (const KbResponseSlot[]){
+                            { "pred", pred }, { "arg1", subj }, { "arg2", obj } },
+                        3, msg, sizeof msg);
             put(msg, out, out_size);
             return 1;
         }
@@ -4406,8 +4487,10 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
     kb_set_origin(b->kb, prev);
 
     char msg[256];
-    snprintf(msg, sizeof msg, fresh ? "Learned: %s(%s)." : "%s(%s) is a known fact.",
-             cls, mentioned);
+    kb_term_say(b, fresh ? "learned_unary_fact" : "known_unary_fact",
+                (const KbResponseSlot[]){
+                    { "pred", cls }, { "arg", mentioned } }, 2,
+                msg, sizeof msg);
     put(msg, out, out_size);
     return 1;
 }
@@ -7821,12 +7904,9 @@ static int structured_analysis_lead(Brain *b, const char *norm, const char *raw,
  * vs question, self-reference) is recognised generically in C; only the winning slot's own
  * cues are re-scanned to locate the value. Adding "i was born in X" (origin) or an Italian
  * marker is ONE fact, ZERO C. */
-static const char *PERSONAL_STOP[] = {
-    "in","at","as","from","to","of","on","a","an","the","for","by","with",
-    "di","da","del","della","un","uno","una","il","lo","la","come","a_", NULL };
-static int is_personal_stop(const char *w) {
-    for (size_t i = 0; PERSONAL_STOP[i]; i++) if (!strcmp(w, PERSONAL_STOP[i])) return 1;
-    return 0;
+static int is_personal_stop(Brain *b, const char *w) {
+    const char *q[] = { w };
+    return b && b->kb && w && kb_query(b->kb, "personal_stop", q, 1);
 }
 
 /* gen403: chi parla di se'. Era una lista di otto parole scritta qui dentro, e
@@ -7989,7 +8069,7 @@ static int personal_slot_turn(Brain *b, const char *norm, const char *raw,
     for (size_t k = 0; k < tn && off + 1 < sizeof value; k++) {
         char *t = strip_edge_punct(tw[k]);
         if (!*t) continue;
-        if (off == 0 && is_personal_stop(t)) continue;   /* skip leading prep/article */
+        if (off == 0 && is_personal_stop(b, t)) continue;   /* skip leading prep/article */
         off += (size_t)snprintf(value + off, sizeof value - off, "%s%s",
                                 off ? " " : "", t);
         nval++;
@@ -8107,7 +8187,9 @@ static int causal_lookup_robust(Brain *b, const char *norm,
                 char *r = res[0]; size_t rl = strlen(r);
                 if (rl >= 2 && r[0] == '"' && r[rl - 1] == '"') { r[rl - 1] = '\0'; r++; }
                 if (p == 0) { put(r, out, out_size); }
-                else { char msg[360]; snprintf(msg, sizeof msg, "Because %s.", r);
+                else { char msg[360];
+                       kb_term_say(b, "because_proof", (const KbResponseSlot[]){
+                                       { "proof", r } }, 1, msg, sizeof msg);
                        put(msg, out, out_size); }
                 store_proof(b, "Causal reason matched by subject+verb (motorize-the-class Fase 1).");
                 return 1;
@@ -8542,10 +8624,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char sg[64]; snprintf(sg, sizeof sg, "%s", t);
             if (tl > 1 && sg[tl-1]=='s') sg[tl-1]='\0';
             const char *q[] = { sg, NULL }; char hit[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "sound_of", q, 2, hit, 1) > 0) {
+            if (domain_match(b, "sound", q, 2, hit, 1) > 0) {
                 char *p = hit[0]; size_t l = strlen(p);
                 if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
-                char msg[96]; snprintf(msg, sizeof msg, "A %s goes \"%s\".", sg, p);
+            char msg[96];
+            kb_term_say(b, "animal_sound_answer", (const KbResponseSlot[]){
+                            { "animal", sg }, { "sound", p } }, 2, msg, sizeof msg);
                 put(msg, out, out_size); return 1;
             }
         }
@@ -8559,15 +8643,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     if (kb_cue_match(b, "10_memory_knowledge_chain8561", norm)) {
         const char *aq[] = { NULL, NULL };
         char animals[64][KB_TERM_LEN];
-        size_t an = kb_match(b->kb, "sound_of", aq, 2, animals, 64);
+        size_t an = domain_match(b, "sound", aq, 2, animals, 64);
         for (size_t i = 0; i < an; i++) {
             const char *sq[] = { animals[i], NULL };
             char hit[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "sound_of", sq, 2, hit, 1) == 0) continue;
+            if (domain_match(b, "sound", sq, 2, hit, 1) == 0) continue;
             char *p = kb_dequote(hit[0]);
             if (!*p || !cue(norm, p)) continue;
             char name[KB_TERM_LEN]; snprintf(name, sizeof name, "%s", animals[i]);
-            char msg[96]; snprintf(msg, sizeof msg, "A %s.", name);
+            char msg[96];
+            kb_term_say(b, "indefinite_entity_answer", (const KbResponseSlot[]){
+                            { "entity", name } }, 1, msg, sizeof msg);
             put(msg, out, out_size);
             return 1;
         }
@@ -8610,7 +8696,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (mo + 2 < sizeof msg) snprintf(msg + mo, sizeof msg - mo, ".");
                 if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
                 char outm[256];
-                snprintf(outm, sizeof outm, "A %s eats %s", sg, msg);
+                kb_term_say(b, "animal_eats_answer", (const KbResponseSlot[]){
+                                { "animal", sg }, { "food", msg } }, 2,
+                            outm, sizeof outm);
                 put(outm, out, out_size);
                 return 1;
             }
@@ -8627,7 +8715,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 char *fd = kb_dequote(food[f]);
                 if (!*fd || !cue(norm, fd)) continue;
                 char msg[128];
-                snprintf(msg, sizeof msg, "A %s.", eaters[i]);
+                kb_term_say(b, "indefinite_entity_answer", (const KbResponseSlot[]){
+                                { "entity", eaters[i] } }, 1, msg, sizeof msg);
                 put(msg, out, out_size);
                 return 1;
             }
@@ -8831,7 +8920,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 }
                 char items[128][KB_TERM_LEN];
                 const char *iq[3] = { dim, NULL, NULL };
-                size_t ni = kb_match(b->kb, "magnitude", iq, 3, items, 128);
+                size_t ni = domain_match(b, "magnitude", iq, 3, items, 128);
                 /* category filter: keep only items matching cat (category_member,
                  * part_of, or substring). If a category is given but nothing
                  * matches, refuse to answer (don't return a wrong item). */
@@ -8846,7 +8935,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                      * returns 0 when there is no variable, silently failing the
                      * category filter even for a provable category_member fact. */
                     const char *cq[2] = { cat, items[k] };
-                    if (kb_query(b->kb, "category_member", cq, 2))
+                    if (domain_query(b, "membership", cq, 2))
                         { keep[k] = 1; nf++; continue; }
                     const char *pq[2] = { items[k], cat };
                     if (kb_query(b->kb, "part_of", pq, 2))
@@ -8857,7 +8946,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     for (size_t k = 0; k < ni; k++) {
                         if (!keep[k]) continue;
                         const char *rqreg[2] = { region, items[k] };
-                        if (kb_query(b->kb, "category_member", rqreg, 2)) nr++;
+                        if (domain_query(b, "membership", rqreg, 2)) nr++;
                         else keep[k] = 0;
                     }
                     nf = nr;
@@ -8868,7 +8957,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                         if (cat[0] && !keep[k]) continue;
                         char rank[1][KB_TERM_LEN];
                         const char *rq[3] = { dim, items[k], NULL };
-                        if (kb_match(b->kb, "magnitude", rq, 3, rank, 1) == 1) {
+                        if (domain_match(b, "magnitude", rq, 3, rank, 1) == 1) {
                             double val = 0; parse_value(rank[0], &val);
                             if (first || (want_max ? val > best_val : val < best_val)) {
                                 best = k; best_val = val; first = 0;
@@ -9593,9 +9682,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char noun[64]; snprintf(noun, sizeof noun, "%s", strip_edge_punct(w[i + 1]));
             size_t l = strlen(noun); if (l > 1 && noun[l - 1] == 's') noun[l - 1] = '\0';
             const char *cq[2] = { noun, NULL }; char cr[1][KB_TERM_LEN];
-            if (b->kb && kb_match(b->kb, "count_of", cq, 2, cr, 1) == 1) {
-                char msg[160]; snprintf(msg, sizeof msg, "There are %s %ss.",
-                                        kb_dequote(cr[0]), noun);
+            if (b->kb && domain_match(b, "count", cq, 2, cr, 1) == 1) {
+                char msg[160];
+                kb_term_say(b, "count_of_answer", (const KbResponseSlot[]){
+                                { "count", kb_dequote(cr[0]) },
+                                { "noun", noun } }, 2, msg, sizeof msg);
                 put(msg, out, out_size);
                 store_proof(b, "Answered from a count_of/2 fact in the KB.");
                 return 1;
@@ -9766,7 +9857,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char *t = strip_edge_punct(mw[i]);
             if (!*t || !isalpha((unsigned char)t[0])) continue;
             const char *cq[] = { "color", t };
-            if (!kb_query(b->kb, "category_member", cq, 2)) continue;
+            if (!domain_query(b, "membership", cq, 2)) continue;
             if (!col[0]) col[0] = t;
             else if (!col[1] && strcmp(t, col[0]) != 0) col[1] = t;
         }
@@ -9828,7 +9919,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
   const KbResponseSlot _rs[] = { { "c", _v0 }, { "npr", _v1 } };
                       kb_term_say(b, "riddle_solved_by_inference_x_satisfies_all_x", _rs, 2, proof, sizeof proof); }
                     store_proof(b, proof);
-                    char msg[128]; snprintf(msg, sizeof msg, "A %s.", cands[c]);
+                    char msg[128];
+                    kb_term_say(b, "indefinite_entity_answer", (const KbResponseSlot[]){
+                                    { "entity", cands[c] } }, 1, msg, sizeof msg);
                     put(msg, out, out_size);
                     return 1;
                 }
@@ -9884,7 +9977,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
   const KbResponseSlot _rs[] = { { "c", _v0 }, { "nh", _v1 }, { "nn", _v2 } };
                       kb_term_say(b, "riddle_solved_by_inference_x_depicts_all_x_h", _rs, 3, proof, sizeof proof); }
                     store_proof(b, proof);
-                    char msg[128]; snprintf(msg, sizeof msg, "A %s.", cands[c]);
+                    char msg[128];
+                    kb_term_say(b, "indefinite_entity_answer", (const KbResponseSlot[]){
+                                    { "entity", cands[c] } }, 1, msg, sizeof msg);
                     put(msg, out, out_size);
                     return 1;
                 }
@@ -9948,7 +10043,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
   const KbResponseSlot _rs[] = { { "c", _v0 }, { "ncon", _v1 } };
                       kb_term_say(b, "riddle_solved_by_inference_x_satisfies_all_x_2", _rs, 2, proof, sizeof proof); }
                     store_proof(b, proof);
-                    char msg[128]; snprintf(msg, sizeof msg, "A %s.", cands[c]);
+                    char msg[128];
+                    kb_term_say(b, "indefinite_entity_answer", (const KbResponseSlot[]){
+                                    { "entity", cands[c] } }, 1, msg, sizeof msg);
                     put(msg, out, out_size);
                     return 1;
                 }
@@ -9964,7 +10061,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     {
         char ids[256][KB_TERM_LEN];
         const char *anyq3[] = { NULL, NULL };
-        size_t nid = kb_match(b->kb, "riddle_sig", anyq3, 2, ids, 256);
+        size_t nid = domain_match(b, "riddle_signature", anyq3, 2, ids, 256);
         /* gen311 fix: the enumeration (ids) and dedup buffer (done) must both hold
          * as many riddle_sig facts/ids as exist — a small cap silently dropped every
          * riddle past it (incl. runtime-TAUGHT ones and the proverb batch). */
@@ -9976,7 +10073,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             snprintf(done[nd++], KB_TERM_LEN, "%s", ids[i]);
             const char *sq2[] = { ids[i], NULL };
             char cues[8][KB_TERM_LEN];
-            size_t ncue = kb_match(b->kb, "riddle_sig", sq2, 2, cues, 8);
+            size_t ncue = domain_match(b, "riddle_signature", sq2, 2, cues, 8);
             if (ncue < 2) continue;                /* one cue is too weak */
             int all = 1;
             for (size_t c = 0; c < ncue && all; c++)
@@ -10062,19 +10159,19 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char *t = strip_edge_punct(nw2[i]);
             if (!*t || !isalpha((unsigned char)t[0])) continue;
             const char *cq[] = { "country", t };
-            if (kb_query(b->kb, "category_member", cq, 2)) country = t;
+            if (domain_query(b, "membership", cq, 2)) country = t;
         }
         if (country) {
             char list[16][KB_TERM_LEN]; size_t nl = 0;
             char r[32][KB_TERM_LEN];
             const char *q1[] = { country, NULL };
-            size_t k1 = kb_match(b->kb, "borders", q1, 2, r, 32);
+            size_t k1 = domain_match(b, "neighbor", q1, 2, r, 32);
             for (size_t i = 0; i < k1 && nl < 16; i++) {
                 int dup = 0; for (size_t j = 0; j < nl; j++) if (!strcmp(list[j], r[i])) dup = 1;
                 if (!dup) snprintf(list[nl++], KB_TERM_LEN, "%s", r[i]);
             }
             const char *q2[] = { NULL, country };
-            size_t k2 = kb_match(b->kb, "borders", q2, 2, r, 32);
+            size_t k2 = domain_match(b, "neighbor", q2, 2, r, 32);
             for (size_t i = 0; i < k2 && nl < 16; i++) {
                 int dup = 0; for (size_t j = 0; j < nl; j++) if (!strcmp(list[j], r[i])) dup = 1;
                 if (!dup) snprintf(list[nl++], KB_TERM_LEN, "%s", r[i]);
@@ -10082,7 +10179,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char ctry[64]; snprintf(ctry, sizeof ctry, "%s", country);
             if (ctry[0]) ctry[0] = (char)toupper((unsigned char)ctry[0]);
             const char *nlb[] = { country };
-            if (nl == 0 && kb_query(b->kb, "no_land_border", nlb, 1)) {
+            if (nl == 0 && domain_query(b, "no_land_border", nlb, 1)) {
                 char msg[128];
                 { const KbResponseSlot _rs[] = { { "ctry", ctry } };
       kb_term_say(b, "x_has_no_land_bordering_countries", _rs, 1, msg, sizeof msg);
@@ -10122,26 +10219,26 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < cnw; i++) {
             if (!left) {
                 const char *cq[] = { "country", cw[i] };
-                if (kb_query(b->kb, "category_member", cq, 2)) left = cw[i];
+                if (domain_query(b, "membership", cq, 2)) left = cw[i];
                 continue;
             }
             if (strcmp(cw[i], left) == 0) continue;
             const char *cq[] = { "country", cw[i] };
-            if (kb_query(b->kb, "category_member", cq, 2)) { right = cw[i]; break; }
+            if (domain_query(b, "membership", cq, 2)) { right = cw[i]; break; }
         }
         if (left && right) {
             const char *cp[] = { "country", NULL };
             char countries[64][KB_TERM_LEN];
-            size_t n = kb_match(b->kb, "category_member", cp, 2, countries, 64);
+            size_t n = domain_match(b, "membership", cp, 2, countries, 64);
             for (size_t i = 0; i < n; i++) {
                 if (!strcmp(countries[i], left) || !strcmp(countries[i], right)) continue;
                 const char *ba[] = { countries[i], left };
                 const char *bb[] = { countries[i], right };
-                if (!kb_query(b->kb, "borders", ba, 2) ||
-                    !kb_query(b->kb, "borders", bb, 2)) continue;
+                if (!domain_query(b, "neighbor", ba, 2) ||
+                    !domain_query(b, "neighbor", bb, 2)) continue;
                 const char *capq[] = { NULL, countries[i] };
                 char cap[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "capital_of_country", capq, 2, cap, 1) > 0) {
+                if (domain_match(b, "capital", capq, 2, cap, 1) > 0) {
                     char disp[64]; snprintf(disp, sizeof disp, "%s", cap[0]);
                     for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
                     if (disp[0]) disp[0] = (char)toupper((unsigned char)disp[0]);
@@ -10162,17 +10259,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char *t = strip_edge_punct(cw[i]);
             if (!*t || !isalpha((unsigned char)t[0])) continue;
             const char *cq[] = { "country", t };
-            if (kb_query(b->kb, "category_member", cq, 2)) country = t;
+            if (domain_query(b, "membership", cq, 2)) country = t;
         }
         if (country) {
             char cap[2][KB_TERM_LEN];
             const char *capq[2] = { NULL, country };
-            size_t nc = kb_match(b->kb, "capital_of_country", capq, 2, cap, 2);
+            size_t nc = domain_match(b, "capital", capq, 2, cap, 2);
             if (nc > 0) {
                 if (kb_cue_match(b, "10_memory_knowledge_chain10189", norm)) {
                     char oceans[4][KB_TERM_LEN];
                     const char *oq[2] = { country, NULL };
-                    size_t no = kb_match(b->kb, "ocean_borders", oq, 2, oceans, 4);
+                    size_t no = domain_match(b, "ocean_border", oq, 2, oceans, 4);
                     char cap_disp[64], ctry_disp[64];
                     snprintf(cap_disp, sizeof cap_disp, "%s", cap[0]);
                     if (cap_disp[0]) cap_disp[0] = (char)toupper((unsigned char)cap_disp[0]);
@@ -10197,9 +10294,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 }
                 char brd[8][KB_TERM_LEN];
                 const char *bq[2] = { country, NULL };
-                size_t nb = kb_match(b->kb, "borders", bq, 2, brd, 8);
+            size_t nb = domain_match(b, "neighbor", bq, 2, brd, 8);
                 const char *nlb[2] = { country };
-                int has_none = kb_query(b->kb, "no_land_border", nlb, 1);
+                int has_none = domain_query(b, "no_land_border", nlb, 1);
                 /* pretty-print capital + country with initial caps */
                 char cap_disp[64], ctry_disp[64];
                 snprintf(cap_disp, sizeof cap_disp, "%s", cap[0]);
@@ -10395,9 +10492,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 lex_class_member(b, "10_memory_knowledge_lex10394", t)) continue;
             const char *pat[2] = { t, NULL };
             char res[8][KB_TERM_LEN];
-            if (kb_match(b->kb, "color_of", pat, 2, res, 8) > 0) {
+            if (domain_match(b, "color", pat, 2, res, 8) > 0) {
                 char msg[160];
-                snprintf(msg, sizeof msg, "It's %s.", res[0]);
+                kb_term_say(b, "color_answer", (const KbResponseSlot[]){
+                                { "color", res[0] } }, 1, msg, sizeof msg);
                 put(msg, out, out_size);
                 return 1;
             }
@@ -10562,7 +10660,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                         r[rlen - 1] = '\0'; r++;
                     }
                     char msg[300];
-                    snprintf(msg, sizeof msg, "Because %s.", r);
+                    kb_term_say(b, "because_proof", (const KbResponseSlot[]){
+                                    { "proof", r } }, 1, msg, sizeof msg);
                     put(msg, out, out_size);
                     store_proof(b, msg);
                     return 1;
@@ -10837,7 +10936,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (!*t || lex_class_member(b, "10_memory_knowledge_lex10841", t) || lex_class_member(b, "10_memory_knowledge_lex10841_2", t)) continue;
             const char *pat[] = { t, NULL };
             char res[4][KB_TERM_LEN];
-            if (kb_match(b->kb, "opposite", pat, 2, res, 4) > 0) {
+            if (domain_match(b, "opposite", pat, 2, res, 4) > 0) {
                 char key[KB_TERM_LEN], wrd[KB_TERM_LEN];
                 if (word_for_lookup(b, buf, key, sizeof key, wrd, sizeof wrd)) {
                     char msg[320];
@@ -10880,11 +10979,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (a && c) {
             const char *cp[] = { "country", NULL };
             char countries[32][KB_TERM_LEN];
-            size_t n = kb_match(b->kb, "category_member", cp, 2, countries, 32);
+            size_t n = domain_match(b, "membership", cp, 2, countries, 32);
             for (size_t i = 0; i < n; i++) {
                 const char *ba[] = { countries[i], a };
                 const char *bc[] = { countries[i], c };
-                if (kb_query(b->kb, "borders", ba, 2) && kb_query(b->kb, "borders", bc, 2)) {
+                if (domain_query(b, "neighbor", ba, 2) && domain_query(b, "neighbor", bc, 2)) {
                     char msg[160]; snprintf(msg, sizeof msg, "%s.", countries[i]);
                     if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
                     put(msg, out, out_size);
@@ -10959,7 +11058,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         char cap[1][KB_TERM_LEN];
         const char *rq[] = { "canberra", "compromise_reason", NULL };
         char reason[1][KB_TERM_LEN];
-        if (kb_match(b->kb, "capital_of_country", capq, 2, cap, 1) > 0 &&
+        if (domain_match(b, "capital", capq, 2, cap, 1) > 0 &&
             kb_match(b->kb, "event_attr", rq, 3, reason, 1) > 0) {
             char disp[KB_TERM_LEN];
             snprintf(disp, sizeof disp, "%s", kb_dequote(cap[0]));
@@ -11003,7 +11102,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char *tok = strip_edge_punct(cw[i]);
             const char *cq[] = { NULL, tok };
             char caphit[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "capital_of_country", cq, 2, caphit, 1) > 0) {
+            if (domain_match(b, "capital", cq, 2, caphit, 1) > 0) {
                 snprintf(country, sizeof country, "%s", tok);
                 snprintf(capital, sizeof capital, "%s", kb_dequote(caphit[0]));
                 break;
@@ -11051,7 +11150,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char *tok = strip_edge_punct(cw[i]);
             const char *cq[] = { NULL, tok };
             char caphit[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "capital_of_country", cq, 2, caphit, 1) > 0) {
+            if (domain_match(b, "capital", cq, 2, caphit, 1) > 0) {
                 snprintf(country, sizeof country, "%s", tok);
                 snprintf(capital, sizeof capital, "%s", kb_dequote(caphit[0]));
                 break;
@@ -11066,7 +11165,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (kb_cue_match(b, "10_memory_knowledge_chain11096", buf)) {
                 const char *rq[] = { capital, NULL };
                 char rh[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "river_of", rq, 2, rh, 1) > 0) {
+                if (domain_match(b, "river", rq, 2, rh, 1) > 0) {
                     char *p = kb_dequote(rh[0]);
                     { char _t4[512];
                     const KbResponseSlot _r4[] = { { "p", p } };
@@ -11078,7 +11177,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (kb_cue_match(b, "10_memory_knowledge_chain11105", buf)) {
                 const char *oq[] = { country, NULL };
                 char oh[2][KB_TERM_LEN];
-                size_t on = kb_match(b->kb, "ocean_borders", oq, 2, oh, 2);
+                size_t on = domain_match(b, "ocean_border", oq, 2, oh, 2);
                 if (on > 0) {
                     char *p = kb_dequote(oh[0]);
                     { char _t5[512];
@@ -11128,8 +11227,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (country) {
             const char *pat[] = { NULL, country };
             char hits[4][KB_TERM_LEN] = {{0}};
-            if (kb_match(b->kb, "capital_of_country", pat, 2, hits, 4) == 0)
-                (void)kb_match(b->kb, "capital", pat, 2, hits, 4);
+            if (domain_match(b, "capital", pat, 2, hits, 4) == 0)
+                (void)domain_match(b, "capital_fallback", pat, 2, hits, 4);
             if (hits[0][0]) {
                 char disp[KB_TERM_LEN];
                 snprintf(disp, sizeof disp, "%s", hits[0]);
@@ -11140,10 +11239,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (kb_cue_match(b, "10_memory_knowledge_chain11164", buf)) {
                     const char *lq[] = { hits[0], NULL };
                     char lm[1][KB_TERM_LEN];
-                    if (kb_match(b->kb, "landmark_of", lq, 2, lm, 1) == 0) {
+                    if (domain_match(b, "landmark", lq, 2, lm, 1) == 0) {
                         lq[0] = country;
                     }
-                    if (kb_match(b->kb, "landmark_of", lq, 2, lm, 1) > 0) {
+                    if (domain_match(b, "landmark", lq, 2, lm, 1) > 0) {
                         char *p = lm[0]; size_t l = strlen(p);
                         if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
                         { char _t6[512];
@@ -11163,7 +11262,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (kb_cue_match(b, "10_memory_knowledge_chain11181", buf)) {
                     const char *rq[] = { hits[0], NULL };
                     char rh[1][KB_TERM_LEN];
-                    if (kb_match(b->kb, "river_of", rq, 2, rh, 1) > 0) {
+            if (domain_match(b, "river", rq, 2, rh, 1) > 0) {
                         char *p = rh[0]; size_t l = strlen(p);
                         if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
                         if (*p) p[0] = (char)toupper((unsigned char)p[0]);
@@ -11201,7 +11300,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (kb_cue_match(b, "10_memory_knowledge_cue11189", buf) && kb_cue_match(b, "10_memory_knowledge_cue11189_2", buf)) {
                     const char *oq[] = { country, NULL };
                     char oh[1][KB_TERM_LEN];
-                    if (kb_match(b->kb, "ocean_west_of", oq, 2, oh, 1) > 0) {
+            if (domain_match(b, "western_ocean", oq, 2, oh, 1) > 0) {
                         char *p = oh[0]; size_t l = strlen(p);
                         if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
                         { char _t10[512];
@@ -11259,11 +11358,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 for (size_t ki = 0; ki < nk0; ki++) {
                     const char *pq[] = { keys0[ki], NULL, NULL };
                     char hit[1][KB_TERM_LEN];
-                    if (kb_match(b->kb, "planet_superlative", pq, 3, hit, 1) <= 0) continue;
+                    if (domain_match(b, "planet_superlative", pq, 3, hit, 1) <= 0) continue;
                     char planet[KB_TERM_LEN]; snprintf(planet, sizeof planet, "%s", hit[0]);
                     const char *pq2[] = { keys0[ki], planet, NULL };
                     char ph[1][KB_TERM_LEN];
-                    if (kb_match(b->kb, "planet_superlative", pq2, 3, ph, 1) <= 0) continue;
+                    if (domain_match(b, "planet_superlative", pq2, 3, ph, 1) <= 0) continue;
                     char *p = kb_dequote(ph[0]);
                     if (planet[0]) planet[0] = (char)toupper((unsigned char)planet[0]);
                     char msg[220]; snprintf(msg, sizeof msg, "%s is %s.", planet, p);
@@ -11291,13 +11390,13 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (map[i].c2 && !cue(buf, map[i].c2)) continue;
             const char *pq[] = { map[i].key, NULL, NULL };
             char hit[2][KB_TERM_LEN];
-            if (kb_match(b->kb, "planet_superlative", pq, 3, hit, 2) > 0) {
+            if (domain_match(b, "planet_superlative", pq, 3, hit, 2) > 0) {
                 /* kb_match returns only the first var slot (Planet); fetch the
                  * phrase with a second query binding the planet. */
                 char planet[KB_TERM_LEN]; snprintf(planet, sizeof planet, "%s", hit[0]);
                 const char *pq2[] = { map[i].key, planet, NULL };
                 char ph[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "planet_superlative", pq2, 3, ph, 1) > 0) {
+                if (domain_match(b, "planet_superlative", pq2, 3, ph, 1) > 0) {
                     char *p = ph[0]; size_t l = strlen(p);
                     if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
                     char planet_lc[KB_TERM_LEN]; snprintf(planet_lc, sizeof planet_lc, "%s", planet);
@@ -11339,7 +11438,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         {
             char keys[32][KB_TERM_LEN];
             const char *aq[] = { NULL, NULL, NULL };
-            size_t nk = kb_match(b->kb, "planet_superlative", aq, 3, keys, 32);
+            size_t nk = domain_match(b, "planet_superlative", aq, 3, keys, 32);
             char donek[32][KB_TERM_LEN]; size_t ndk = 0;
             for (size_t i = 0; i < nk; i++) {
                 int dup = 0;
@@ -11348,11 +11447,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 snprintf(donek[ndk++], KB_TERM_LEN, "%s", keys[i]);
                 const char *pq[] = { keys[i], NULL, NULL };
                 char hit[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "planet_superlative", pq, 3, hit, 1) <= 0) continue;
+                if (domain_match(b, "planet_superlative", pq, 3, hit, 1) <= 0) continue;
                 char planet[KB_TERM_LEN]; snprintf(planet, sizeof planet, "%s", hit[0]);
                 const char *pq2[] = { keys[i], planet, NULL };
                 char ph[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "planet_superlative", pq2, 3, ph, 1) <= 0) continue;
+                if (domain_match(b, "planet_superlative", pq2, 3, ph, 1) <= 0) continue;
                 char *phr = ph[0]; size_t l = strlen(phr);
                 if (l >= 2 && phr[0] == '"' && phr[l - 1] == '"') { phr[l - 1] = '\0'; phr++; }
                 char *core = phr;
@@ -11482,15 +11581,18 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             }
             const char *q[] = { "population", tok, NULL };
             char hit[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "magnitude", q, 3, hit, 1) > 0) {
+            if (domain_match(b, "magnitude", q, 3, hit, 1) > 0) {
                 double r; if (!parse_value(hit[0], &r)) continue;
                 if (!found || (want_max ? r > bestrank : r < bestrank)) {
                     bestrank = r; best = pw[i]; found = 1;
                     /* keep a clean display name */
                     static char disp[KB_TERM_LEN];
-                    if (!strcmp(tok, "united_states")) snprintf(disp, sizeof disp, "the United States");
-                    else if (!strcmp(tok, "united_kingdom")) snprintf(disp, sizeof disp, "the United Kingdom");
-                    else { snprintf(disp, sizeof disp, "%s", tok); disp[0] = (char)toupper((unsigned char)disp[0]); }
+                    if (!strcmp(tok, "united_states") || !strcmp(tok, "united_kingdom"))
+                        concept_label_lookup(b, tok, disp, sizeof disp);
+                    else {
+                        snprintf(disp, sizeof disp, "%s", tok);
+                        disp[0] = (char)toupper((unsigned char)disp[0]);
+                    }
                     best = disp;
                 }
             }
@@ -11520,7 +11622,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             }
             const char *q[] = { NULL, tok, NULL };
             char hit[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "capital_of_country", q, 2, hit, 1) > 0) {
+            if (domain_match(b, "capital", q, 2, hit, 1) > 0) {
                 snprintf(country, sizeof country, "%s", tok);
                 snprintf(capital, sizeof capital, "%s", hit[0]);
                 break;
@@ -11534,7 +11636,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (kb_cue_match(b, "10_memory_knowledge_chain11554", buf)) {
                 const char *rq[] = { capital, NULL };
                 char rh[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "river_of", rq, 2, rh, 1) > 0) {
+            if (domain_match(b, "river", rq, 2, rh, 1) > 0) {
                     char *p = rh[0]; size_t l = strlen(p);
                     if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
                     { const KbResponseSlot _rs[] = { { "p", p } };
@@ -11553,7 +11655,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             } else {
                 const char *oq[] = { country, NULL };
                 char oh[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "ocean_west_of", oq, 2, oh, 1) > 0) {
+            if (domain_match(b, "western_ocean", oq, 2, oh, 1) > 0) {
                     char *p = oh[0]; size_t l = strlen(p);
                     if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
                     { const KbResponseSlot _rs[] = { { "p", p } };
@@ -11799,11 +11901,14 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     singularize_kb(b, c20, c2, sizeof c2);
                     const char *a1[] = { kind, c1 };
                     const char *a2[] = { kind, c2 };
-                    int yes1 = kb_query(b->kb, "kind_is", a1, 2);
-                    int yes2 = kb_query(b->kb, "kind_is", a2, 2);
+                    int yes1 = domain_query(b, "kind", a1, 2);
+                    int yes2 = domain_query(b, "kind", a2, 2);
                     if (yes1 != yes2) {
                         char msg[200];
-                        snprintf(msg, sizeof msg, "A %s is a %s.", kind, yes1 ? c1 : c2);
+                        kb_term_say(b, "entity_kind_answer", (const KbResponseSlot[]){
+                                        { "kind", kind },
+                                        { "class", yes1 ? c1 : c2 } }, 2,
+                                    msg, sizeof msg);
                         put(msg, out, out_size);
                         return 1;
                     }
@@ -12017,7 +12122,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 const char *args[2] = { xx, yy };
                 char msg[200];
                 if (kb_query(b->kb, "part_of", args, 2))
-                    snprintf(msg, sizeof msg, "Yes, %s is part of %s.", xx, yy);
+                    kb_term_say(b, "part_of_answer", (const KbResponseSlot[]){
+                                    { "part", xx }, { "whole", yy } }, 2,
+                                msg, sizeof msg);
                 else
                     { const KbResponseSlot _rs[] = { { "xx", xx }, { "yy", yy } };
       kb_term_say(b, "no_i_have_no_evidence_that_x_is_part_of_x", _rs, 2, msg, sizeof msg);
@@ -12288,14 +12395,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
         if (kept == 0) { kb_term_say(b, "nothing_new_to_generalize", NULL, 0, out, out_size); return 1; }
         char msg[600];
-        size_t off = (size_t)snprintf(msg, sizeof msg, "Induced: ");
+        size_t off = 0;
         for (size_t i = 0; i < kept && off < sizeof msg; i++) {
             off += (size_t)snprintf(msg + off, sizeof msg - off,
                                     "%s%s(X) :- %s(X)", i ? "; " : "",
                                     fheads[i], fbodies[i]);
         }
         if (off < sizeof msg) snprintf(msg + off, sizeof msg - off, ".");
-        put(msg, out, out_size);
+        char facts[600];
+        snprintf(facts, sizeof facts, "%s", msg);
+        kb_term_say(b, "induced_rules", (const KbResponseSlot[]){
+                        { "rules", facts } }, 1, out, out_size);
         return 1;
     }
 
@@ -12316,13 +12426,13 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < nbody; i++) bodies[i] = w[1 + i];
         if (kb_assert_rule_n(b->kb, head, bodies, nbody)) {
             char msg[256];
-            size_t o = (size_t)snprintf(msg, sizeof msg, "Learned rule: %s(X) :- ",
-                                        head);
+            size_t o = 0;
             for (size_t i = 0; i < nbody && o < sizeof msg; i++)
                 o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s(X)",
                                       i ? ", " : "", bodies[i]);
             if (o < sizeof msg) snprintf(msg + o, sizeof msg - o, ".");
-            put(msg, out, out_size);
+            kb_term_say(b, "learned_rule_text", (const KbResponseSlot[]){
+                            { "rule", msg } }, 1, out, out_size);
             auto_induce(b, out, out_size);
         } else {
             kb_term_say(b, "i_couldn_t_store_that_rule", NULL, 0, out, out_size);
@@ -12339,7 +12449,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *args[] = {subj};
         char msg[128];
         if (kb_retract(b->kb, cl, args, 1))
-            snprintf(msg, sizeof msg, "Forgotten: %s(%s).", cl, subj);
+            kb_term_say(b, "forgotten_fact", (const KbResponseSlot[]){
+                            { "pred", cl }, { "arg", subj } }, 2,
+                        msg, sizeof msg);
         else
             kb_term_say(b, "i_didn_t_know_that_anyway", NULL, 0, out, out_size);
         remember_entity(b, w[2], subj);
@@ -12371,7 +12483,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
          * a Y" (no marker) keeps the honest conflict. Session-only, reversible. */
         if (b->correcting) while (kb_retract(b->kb, cl, args, 1)) {}
         if (kb_assert_neg(b->kb, cl, args, 1))
-            snprintf(msg, sizeof msg, "Learned: not %s(%s).", cl, subj);
+            kb_term_say(b, "learned_negative_fact", (const KbResponseSlot[]){
+                            { "pred", cl }, { "arg", subj } }, 2,
+                        msg, sizeof msg);
         else
             kb_term_say(b, "i_couldn_t_store_that", NULL, 0, msg, sizeof msg);
         put(msg, out, out_size);
@@ -12390,7 +12504,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *args[] = {subj};
         char msg[128];
         if (kb_assert(b->kb, cl, args, 1))
-            snprintf(msg, sizeof msg, "Learned: %s(%s).", cl, subj);
+            kb_term_say(b, "learned_unary_fact", (const KbResponseSlot[]){
+                            { "pred", cl }, { "arg", subj } }, 2,
+                        msg, sizeof msg);
         else
             kb_term_say(b, "i_couldn_t_store_that", NULL, 0, msg, sizeof msg);
         put(msg, out, out_size);
@@ -12454,7 +12570,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             const char *args[] = {subj, obj};
             char msg[160];
             if (kb_assert(b->kb, rel, args, 2))
-                snprintf(msg, sizeof msg, "Learned: %s(%s, %s).", rel, subj, obj);
+                kb_term_say(b, "learned_binary_fact", (const KbResponseSlot[]){
+                                { "pred", rel }, { "arg1", subj }, { "arg2", obj } },
+                            3, msg, sizeof msg);
             else
                 kb_term_say(b, "i_couldn_t_store_that", NULL, 0, msg, sizeof msg);
             put(msg, out, out_size);
@@ -12569,7 +12687,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             const char *subj;
             if (!resolve_entity(b, subjw, &subj, out, out_size)) return 1;
             const char *args[] = {subj};
-            if (kb_is_conflicted(b->kb, cl, args, 1)) put("Conflicted.", out, out_size);
+            if (kb_is_conflicted(b->kb, cl, args, 1))
+                kb_term_say(b, "conflicted", NULL, 0, out, out_size);
             else {
                 int yes = kb_query(b->kb, cl, args, 1);
                 put(yes ? "Yes." : "No.", out, out_size);
@@ -12652,7 +12771,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *pat[] = {NULL}; /* one variable in arg 0 */
         char hits[96][KB_TERM_LEN];
         size_t k = kb_match(b->kb, cls, pat, 1, hits, 96);
-        if (k == 0) { put("Nobody that I know of.", out, out_size); return 1; }
+         if (k == 0) {
+             kb_term_say(b, "nobody_that_i_know_of", NULL, 0, out, out_size);
+             return 1;
+         }
         /* buffers sized for the longest such list — the module roster ("who is a
          * module?"), ~61 names and growing; keep comfortable headroom. */
         char list[1536];
@@ -12693,7 +12815,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
         if (!kb_knows_pred(b->kb, cls)) idk(b, cls, out, out_size);
-        else if (kb_is_conflicted(b->kb, cls, args, 1)) put("Conflicted.", out, out_size);
+        else if (kb_is_conflicted(b->kb, cls, args, 1))
+            kb_term_say(b, "conflicted", NULL, 0, out, out_size);
         else polar_class_answer(b, subj, cls, out, out_size);
         remember_entity(b, w[0], subj);
         return 1;

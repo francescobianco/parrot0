@@ -36,30 +36,16 @@ static int wp_recipe_multiplier(Brain *b, const char *q, double *mult) {
     return 0;
 }
 
-static int wp_recipe_unit(const char *s) {
-    return !strcmp(s, "cup") || !strcmp(s, "cups") ||
-           !strcmp(s, "tablespoon") || !strcmp(s, "tablespoons") ||
-           !strcmp(s, "teaspoon") || !strcmp(s, "teaspoons") ||
-           !strcmp(s, "gram") || !strcmp(s, "grams") ||
-           !strcmp(s, "ounce") || !strcmp(s, "ounces") ||
-           !strcmp(s, "pound") || !strcmp(s, "pounds");
+static int wp_recipe_unit(Brain *b, const char *s) {
+    const char *q[] = { s };
+    return b && b->kb && s && kb_query(b->kb, "recipe_unit", q, 1);
 }
 
 /* gen254: length units for the circle-geometry frame (same closed-class scheme
  * as wp_recipe_unit above). */
-static int wp_length_unit(const char *s) {
-    return !strcmp(s, "centimeter") || !strcmp(s, "centimeters") ||
-           !strcmp(s, "centimetre") || !strcmp(s, "centimetres") ||
-           !strcmp(s, "cm") || !strcmp(s, "mm") || !strcmp(s, "km") ||
-           !strcmp(s, "millimeter") || !strcmp(s, "millimeters") ||
-           !strcmp(s, "meter") || !strcmp(s, "meters") ||
-           !strcmp(s, "metre") || !strcmp(s, "metres") ||
-           !strcmp(s, "kilometer") || !strcmp(s, "kilometers") ||
-           !strcmp(s, "inch") || !strcmp(s, "inches") ||
-           !strcmp(s, "foot") || !strcmp(s, "feet") ||
-           !strcmp(s, "yard") || !strcmp(s, "yards") ||
-           !strcmp(s, "mile") || !strcmp(s, "miles") ||
-           !strcmp(s, "unit") || !strcmp(s, "units");
+static int wp_length_unit(Brain *b, const char *s) {
+    const char *q[] = { s };
+    return b && b->kb && s && kb_query(b->kb, "length_unit", q, 1);
 }
 
 /* gen254: trial-division primality for the constrained-number solver. */
@@ -136,7 +122,7 @@ static int wp_distance_between(Brain *b, const char *a, const char *c, double *d
     wp_city_key(c, ck, sizeof ck);
     const char *q[] = { ak, ck, NULL };
     char hit[1][KB_TERM_LEN];
-    if (kb_match(b->kb, "distance_between", q, 3, hit, 1) == 0) return 0;
+    if (domain_match(b, "distance", q, 3, hit, 1) == 0) return 0;
     return parse_value(hit[0], dist);
 }
 
@@ -781,10 +767,13 @@ static int plan_execute_goal(Brain *b, const char *goal, const char *praw,
         if (kb_match(b->kb, "action_impl", qi, 2, impls, 2) == 0) {
             char step_h[KB_TERM_LEN];
             plan_humanize(steps[i], step_h, sizeof step_h);
-            o += (size_t)snprintf(out + o, out_size - o,
-                                  "%s stopped at step %zu %s because no "
-                                  "action_impl fact names its primitive.",
-                                  ran ? ";" : " ", i + 1, step_h);
+            char detail[512], step[32];
+            snprintf(step, sizeof step, "%zu", i + 1);
+            kb_term_say(b, "plan_stopped_missing_action", (const KbResponseSlot[]){
+                            { "prefix", ran ? ";" : " " },
+                            { "step", step }, { "step_h", step_h } },
+                        3, detail, sizeof detail);
+            o += (size_t)snprintf(out + o, out_size - o, "%s", detail);
             store_proof(b, out);
             return 1;
         }
@@ -795,9 +784,14 @@ static int plan_execute_goal(Brain *b, const char *goal, const char *praw,
         if (!ok) {
             char step_h[KB_TERM_LEN];
             plan_humanize(steps[i], step_h, sizeof step_h);
-            o += (size_t)snprintf(out + o, out_size - o,
-                                  "%s stopped at step %zu %s via %s: %s.",
-                                  ran ? ";" : " ", i + 1, step_h, impls[0], obs);
+            char detail[640], step[32];
+            snprintf(step, sizeof step, "%zu", i + 1);
+            kb_term_say(b, "plan_stopped_via_action", (const KbResponseSlot[]){
+                            { "prefix", ran ? ";" : " " },
+                            { "step", step }, { "step_h", step_h },
+                            { "impl", impls[0] }, { "obs", obs } },
+                        5, detail, sizeof detail);
+            o += (size_t)snprintf(out + o, out_size - o, "%s", detail);
             store_proof(b, out);
             return 1;
         }
@@ -1045,20 +1039,16 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
  * chain ("has 3, buys 5 more, then eats 2" -> 3 + 5 - 2 = 6): each clause's sign
  * is + unless the clause carries a removal verb, and clauses split on
  * then/and/poi/e and commas. */
-static int wp_removal_word(const char *t) {
-    /* TODO(kb-first): i VERBI DI SOTTRAZIONE di un problema di parole
-     * («mangia», «perde», «vende»). E' conoscenza lessicale pura e sta al
-     * centro di una facolta': `polarity(eat, minus)` renderebbe insegnabile un
-     * verbo nuovo, e in una lingua nuova, senza toccare il motore. */
-    static const char *const ex[] = {
-        "ate","eats","eat","lost","loses","lose","gave","gives","spent",
-        "spends","spend","sold","sells","sell","broke","removed","removes",
-        "remove","took","takes","take","dropped","drops","drop","used","use","threw","throws",
-        "throw", NULL };  /* base/imperative forms too: "then eat 1" must subtract.
-        NB: "give" is deliberately absent — "I give YOU 2 more" means a GAIN. */
-    for (size_t i = 0; ex[i]; i++) if (strcmp(t, ex[i]) == 0) return 1;
-    return strstr(t, "mangi") || strstr(t, "perso") || strstr(t, "perde") ||
-           strstr(t, "regal") || strstr(t, "vend")  || strstr(t, "spes");
+static int wp_removal_word(Brain *b, const char *t) {
+    if (!b || !b->kb || !t) return 0;
+    const char *q[] = { t };
+    if (kb_query(b->kb, "removal_verb", q, 1)) return 1;
+    char stems[16][KB_TERM_LEN];
+    const char *sq[] = { NULL };
+    size_t ns = kb_match(b->kb, "removal_verb_stem", sq, 1, stems, 16);
+    for (size_t i = 0; i < ns; i++)
+        if (strstr(t, kb_dequote(stems[i]))) return 1;
+    return 0;
 }
 
 /* gen349: is `word` a KB time_unit (sing/plural)? Enumerates time_unit/1 and
@@ -1093,7 +1083,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             if (!parse_value(strip_edge_punct(rw[i]), &qty)) continue;
             char *nx = strip_edge_punct(rw[i + 1]);
             char unit[32] = "", item[KB_TERM_LEN] = "";
-            if (wp_recipe_unit(nx)) {
+            if (wp_recipe_unit(b, nx)) {
                 snprintf(unit, sizeof unit, "%s", nx);
                 size_t j = i + 2;
                 if (j < rn && lex_class_member(b, "25_wordmath_reasoning_lex1086", strip_edge_punct(rw[j]))) j++;
@@ -1472,7 +1462,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             snprintf(v2s, sizeof v2s, "%.15g", speed[1]);
             const char *mq[] = { ds, v1s, v2s, NULL };
             char hit[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "meet_time", mq, 4, hit, 1) > 0) {
+            if (domain_match(b, "meeting_time", mq, 4, hit, 1) > 0) {
                 double hours = atof(hit[0]);
                 long mins = (long)(hours * 60.0 + 0.5);
                 char dur[64];
@@ -1882,7 +1872,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 val = v;
                 if (j + 1 < gn) {
                     char *u = strip_edge_punct(gw[j + 1]);
-                    if (wp_length_unit(u)) snprintf(unit, sizeof unit, "%s", u);
+                    if (wp_length_unit(b, u)) snprintf(unit, sizeof unit, "%s", u);
                 }
                 break;
             }
@@ -2093,7 +2083,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             char *t = strip_edge_punct(pw2[i]);
             if (!*t || !isalpha((unsigned char)t[0])) continue;
             const char *cq2[] = { "color", t };
-            if (!kb_query(b->kb, "category_member", cq2, 2)) continue;
+            if (!domain_query(b, "membership", cq2, 2)) continue;
             int dup = 0;
             for (size_t k = 0; k < nk; k++) if (!strcmp(kinds[k], t)) dup = 1;
             if (!dup) snprintf(kinds[nk++], KB_TERM_LEN, "%s", t);
@@ -2133,7 +2123,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 if (want_wid && width < 0) width = v;
                 if (j + 1 < gn) {
                     char *u = strip_edge_punct(gw[j + 1]);
-                    if (!unit[0] && wp_length_unit(u))
+                if (!unit[0] && wp_length_unit(b, u))
                         snprintf(unit, sizeof unit, "%s", u);
                 }
                 break;
@@ -2331,7 +2321,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 if (is_side && side < 0) side = v;
                 if (j + 1 < rn2) {
                     char *u = strip_edge_punct(rw2[j + 1]);
-                    if (!unit[0] && wp_length_unit(u))
+                if (!unit[0] && wp_length_unit(b, u))
                         snprintf(unit, sizeof unit, "%s", u);
                 }
                 break;
@@ -2383,7 +2373,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             if (!*sg) continue;
             const char *lq[] = { sg, "legs", NULL };
             char lh[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "quantity", lq, 3, lh, 1) == 0) continue;
+            if (domain_match(b, "quantity", lq, 3, lh, 1) == 0) continue;
             int dup = nsp == 1 && !strcmp(sp[0], sg);
             if (dup) continue;
             snprintf(sp[nsp], KB_TERM_LEN, "%s", sg);
@@ -2722,9 +2712,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             format_num(qty, qs, sizeof qs);
             format_num(paid, paid_s, sizeof paid_s);
             const char *cq[] = { bs, ps, qs, NULL };
-            if (kb_match(b->kb, "proportional_cost", cq, 4, cost, 1) > 0) {
+            if (domain_match(b, "proportional_cost", cq, 4, cost, 1) > 0) {
                 const char *dq[] = { paid_s, cost[0], NULL };
-                if (kb_match(b->kb, "change_due", dq, 3, change, 1) > 0) {
+                if (domain_match(b, "change_due", dq, 3, change, 1) > 0) {
                     KbResponseSlot slots[] = {
                         { "cost", kb_dequote(cost[0]) },
                         { "quantity", qs },
@@ -2842,7 +2832,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             if (sl > 1 && sgl[sl - 1] == 's') sgl[sl - 1] = '\0';
             const char *pat[] = { sgl, "legs", NULL };
             char hh[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "quantity", pat, 3, hh, 1) > 0) {
+            if (domain_match(b, "quantity", pat, 3, hh, 1) > 0) {
                 int dup = 0;
                 for (int k = 0; k < na; k++) if (!strcmp(aname[k], sgl)) dup = 1;
                 if (!dup) { snprintf(aname[na], KB_TERM_LEN, "%s", sgl);
@@ -3027,7 +3017,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 lex_class_member(b, "25_wordmath_reasoning_lex2976", t) || lex_class_member(b, "25_wordmath_reasoning_lex2976_2", t) || lex_class_member(b, "25_wordmath_reasoning_lex2976_3", t) ||
                 lex_class_member(b, "25_wordmath_reasoning_lex2977", t) || lex_class_member(b, "25_wordmath_reasoning_lex2977_2", t) || lex_class_member(b, "25_wordmath_reasoning_lex2977_3", t) ||
                 lex_class_member(b, "25_wordmath_reasoning_lex2978", t) || lex_class_member(b, "25_wordmath_reasoning_lex2978_2", t)) sign2 = 1;
-            else if (wp_removal_word(t)) sign2 = -1;
+            else if (wp_removal_word(b, t)) sign2 = -1;
         }
         char num[64]; format_num(total, num, sizeof num);
         char msg[80]; snprintf(msg, sizeof msg, "%s.", num);
@@ -3112,7 +3102,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                     !lex_class_member(b, "25_wordmath_reasoning_lex3058", nx) && !lex_class_member(b, "25_wordmath_reasoning_lex3058_2", nx))
                     sign = -1;
             }
-            if (wp_removal_word(t)) sign = -1;
+            if (wp_removal_word(b, t)) sign = -1;
             /* gen254: RELATIVE quantity step — "twice/half of what I currently
              * have/left" refers to the running total, not a literal number. A
              * gain adds mult*total ("you give me twice what I have": 4 -> 12);
@@ -3291,7 +3281,7 @@ static int count_readings_answer(Brain *b, const char *canon,
         long kinds = 0, per_side = 0;
         char names[24][KB_TERM_LEN];
         const char *pq[3] = { ent, NULL, NULL };
-        size_t np = kb_match(b->kb, "part_count", pq, 3, names, 24);
+        size_t np = domain_match(b, "part_count", pq, 3, names, 24);
         if (np == 0) continue;
         for (size_t k = 0; k < np; k++) {
             if (reg[0]) {                       /* il registro restringe l'insieme */
@@ -3300,7 +3290,7 @@ static int count_readings_answer(Brain *b, const char *canon,
             }
             char cnt[1][KB_TERM_LEN];
             const char *cq[3] = { ent, names[k], NULL };
-            if (kb_match(b->kb, "part_count", cq, 3, cnt, 1) != 1) continue;
+            if (domain_match(b, "part_count", cq, 3, cnt, 1) != 1) continue;
             kinds++;
             per_side += atol(cnt[0]);
             char pres[KB_TERM_LEN];
@@ -3360,8 +3350,11 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
         if (!parse_num(w[2], &v)) return 0; /* not a quantity; let others try */
         const char *args[] = {w[0], w[3], w[2]};
         char msg[160];
-        if (kb_assert(b->kb, "quantity", args, 3))
-            snprintf(msg, sizeof msg, "Learned: %s has %s %s.", w[0], w[2], w[3]);
+        if (domain_assert(b, "quantity", args, 3)) {
+            const KbResponseSlot slots[] = {
+                { "subject", w[0] }, { "amount", w[2] }, { "unit", w[3] } };
+            kb_term_say(b, "learned_quantity", slots, 3, msg, sizeof msg);
+        }
         else
             kb_term_say(b, "i_couldn_t_store_that", NULL, 0, msg, sizeof msg);
         put(msg, out, out_size);
@@ -3374,7 +3367,7 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
         const char *unit = w[2], *x = w[4];
         const char *pat[] = {x, unit, NULL};
         char hits[4][KB_TERM_LEN];
-        size_t k = kb_match(b->kb, "quantity", pat, 3, hits, 4);
+        size_t k = domain_match(b, "quantity", pat, 3, hits, 4);
         char msg[160];
         if (k == 0)
             { const KbResponseSlot _rs[] = { { "unit", unit }, { "x", x } };
@@ -3416,7 +3409,7 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
             char hits[4][KB_TERM_LEN]; size_t k = 0; const char *entity = NULL;
             for (size_t c = 0; c < ncand && k == 0; c++) {
                 const char *pat[] = {cand[c], unit, NULL};
-                k = kb_match(b->kb, "quantity", pat, 3, hits, 4);
+                k = domain_match(b, "quantity", pat, 3, hits, 4);
                 if (k) entity = cand[c];
             }
             if (k > 0) {
@@ -3439,8 +3432,7 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
                         { const KbResponseSlot _rs[] = { { "hits", hits[0] }, { "unit", unit }, { "ename", ename } };
       kb_term_say(b, "there_are_x_x_in_a_x", _rs, 3, msg, sizeof msg); }
                     else
-                        snprintf(msg, sizeof msg, "A %s has %s %s.",
-                                 ename, hits[0], unit);
+                        kb_term_say(b, "quantity_has_frame", s, 3, msg, sizeof msg);
                 }
                 put(msg, out, out_size);
                 return 1;
@@ -3456,8 +3448,8 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
         const char *unit = w[4], *x = w[1], *y = w[6];
         const char *px[] = {x, unit, NULL}, *py[] = {y, unit, NULL};
         char hx[4][KB_TERM_LEN], hy[4][KB_TERM_LEN];
-        size_t kx = kb_match(b->kb, "quantity", px, 3, hx, 4);
-        size_t ky = kb_match(b->kb, "quantity", py, 3, hy, 4);
+        size_t kx = domain_match(b, "quantity", px, 3, hx, 4);
+        size_t ky = domain_match(b, "quantity", py, 3, hy, 4);
         if (kx == 0 || ky == 0) {
             char msg[200];
             { 
@@ -3513,8 +3505,8 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
             const char *p1[2], *p2[2];
             if (eff) { p1[0]=a; p1[1]=c1; p2[0]=a; p2[1]=c2; }
             else     { p1[0]=c1; p1[1]=a; p2[0]=c2; p2[1]=a; }
-            int ok1 = kb_query(b->kb, "causes", p1, 2);
-            int ok2 = kb_query(b->kb, "causes", p2, 2);
+            int ok1 = domain_query(b, "causal", p1, 2);
+            int ok2 = domain_query(b, "causal", p2, 2);
             char msg[160];
             if (ok1 && !ok2)      snprintf(msg, sizeof msg, "%s.", c1);
             else if (ok2 && !ok1) snprintf(msg, sizeof msg, "%s.", c2);
@@ -3532,8 +3524,11 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
     if (nw == 3 && lex_class_member(b, "25_wordmath_reasoning_lex3477", w[1])) {
         const char *args[] = {w[0], w[2]};
         char msg[160];
-        if (kb_assert(b->kb, "causes", args, 2))
-            snprintf(msg, sizeof msg, "Learned: causes(%s, %s).", w[0], w[2]);
+        if (domain_assert(b, "causal", args, 2)) {
+            const KbResponseSlot slots[] = {
+                { "cause", w[0] }, { "effect", w[2] } };
+            kb_term_say(b, "learned_causal_relation", slots, 2, msg, sizeof msg);
+        }
         else
             kb_term_say(b, "i_couldn_t_store_that", NULL, 0, msg, sizeof msg);
         put(msg, out, out_size);
@@ -3549,18 +3544,18 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
         const char *pat_eff[] = {x, NULL};   /* causes(x, ?) -> effects */
         const char *pat_cause[] = {NULL, x}; /* causes(?, x) -> causes  */
         char hits[64][KB_TERM_LEN];
-        size_t k = kb_match(b->kb, "causes", want_eff ? pat_eff : pat_cause,
+        size_t k = domain_match(b, "causal", want_eff ? pat_eff : pat_cause,
                              2, hits, 64);
         /* gen90: also find indirect/transitive causes. */
         {
             char mid[64][KB_TERM_LEN];
-            size_t kmid = kb_match(b->kb, "causes",
+            size_t kmid = domain_match(b, "causal",
                                     want_eff ? pat_eff : pat_cause, 2, mid, 64);
             for (size_t m = 0; m < kmid && k < 64; m++) {
                 const char *indirect[] = {mid[m], NULL};
                 const char *indirect_rev[] = {NULL, mid[m]};
                 char chain[64][KB_TERM_LEN];
-                size_t kc = kb_match(b->kb, "causes",
+                size_t kc = domain_match(b, "causal",
                                       want_eff ? indirect : indirect_rev, 2, chain, 64);
                 for (size_t c = 0; c < kc && k < 64; c++) {
                     int dup = 0;
@@ -3616,10 +3611,14 @@ static int mod_same(Brain *b, const char *norm, const char *raw,
     if (nw == 6 && lex_class_member(b, "25_wordmath_reasoning_lex3562", w[1]) && lex_class_member(b, "25_wordmath_reasoning_lex3562_2", w[2]) &&
         lex_class_member(b, "25_wordmath_reasoning_lex3563", w[3]) && lex_class_member(b, "25_wordmath_reasoning_lex3563_2", w[4])) {
         const char *fwd[] = {w[0], w[5]}, *bwd[] = {w[5], w[0]};
-        int ok = kb_assert(b->kb, "same", fwd, 2) &&
-                 kb_assert(b->kb, "same", bwd, 2);
+        int ok = domain_assert(b, "same", fwd, 2) &&
+                 domain_assert(b, "same", bwd, 2);
         char msg[160];
-        if (ok) snprintf(msg, sizeof msg, "Learned: same(%s, %s).", w[0], w[5]);
+        if (ok) {
+            const KbResponseSlot slots[] = {
+                { "left", w[0] }, { "right", w[5] } };
+            kb_term_say(b, "learned_same_relation", slots, 2, msg, sizeof msg);
+        }
         else    kb_term_say(b, "i_couldn_t_store_that_2", NULL, 0, msg, sizeof msg);
         put(msg, out, out_size);
         return 1;
@@ -3629,9 +3628,13 @@ static int mod_same(Brain *b, const char *norm, const char *raw,
     if (nw == 6 && lex_class_member(b, "25_wordmath_reasoning_lex3575", w[0]) && lex_class_member(b, "25_wordmath_reasoning_lex3575_2", w[2]) &&
         lex_class_member(b, "25_wordmath_reasoning_lex3576", w[4]) && lex_class_member(b, "25_wordmath_reasoning_lex3576_2", w[5])) {
         const char *x = w[1], *y = w[3];
-        if (strcmp(x, y) == 0) { put("Yes.", out, out_size); return 1; }
+        if (strcmp(x, y) == 0) {
+            kb_term_say(b, "yes", NULL, 0, out, out_size);
+            return 1;
+        }
         const char *args[] = {x, y};
-        put(kb_query(b->kb, "same", args, 2) ? "Yes." : "No.", out, out_size);
+        kb_term_say(b, domain_query(b, "same", args, 2) ? "yes" : "no",
+                    NULL, 0, out, out_size);
         return 1;
     }
 
@@ -3718,17 +3721,17 @@ static int mod_conj(Brain *b, const char *norm, const char *raw,
 static void learn_transition(Brain *b, const char *prev, const char *word) {
     const char *pat[] = {prev, word, NULL};
     char cnt[4][KB_TERM_LEN];
-    size_t k = kb_match(b->kb, "cont", pat, 3, cnt, 4);
+    size_t k = domain_match(b, "continuation", pat, 3, cnt, 4);
     long n = 1;
     if (k > 0) {
         n = strtol(cnt[0], NULL, 10) + 1;
         const char *old[] = {prev, word, cnt[0]};
-        kb_retract(b->kb, "cont", old, 3);
+        domain_retract(b, "continuation", old, 3);
     }
     char ns[32];
     snprintf(ns, sizeof ns, "%ld", n);
     const char *args[] = {prev, word, ns};
-    kb_assert(b->kb, "cont", args, 3);
+    domain_assert(b, "continuation", args, 3);
 }
 
 /* Learn one trigram transition (p1 p2)->word with a count (gen38). */
@@ -3805,18 +3808,18 @@ static void clear_generation_model(Brain *b) {
 
     char prevs[128][KB_TERM_LEN];
     const char *any3[] = {NULL, NULL, NULL};
-    size_t np = kb_match(b->kb, "cont", any3, 3, prevs, 128);
+    size_t np = domain_match(b, "continuation", any3, 3, prevs, 128);
     for (size_t i = 0; i < np; i++) {
         const char *word_pat[] = {prevs[i], NULL, NULL};
         char words[128][KB_TERM_LEN];
-        size_t nw = kb_match(b->kb, "cont", word_pat, 3, words, 128);
+        size_t nw = domain_match(b, "continuation", word_pat, 3, words, 128);
         for (size_t j = 0; j < nw; j++) {
             const char *cnt_pat[] = {prevs[i], words[j], NULL};
             char counts[16][KB_TERM_LEN];
-            size_t nc = kb_match(b->kb, "cont", cnt_pat, 3, counts, 16);
+            size_t nc = domain_match(b, "continuation", cnt_pat, 3, counts, 16);
             for (size_t k = 0; k < nc; k++) {
                 const char *old[] = {prevs[i], words[j], counts[k]};
-                kb_retract(b->kb, "cont", old, 3);
+                domain_retract(b, "continuation", old, 3);
             }
         }
     }
@@ -3888,7 +3891,7 @@ static int next_word_ctx(Brain *b, const char *p2, const char *p1,
     const long W2 = gen_weight(b, "trigram", 3), W1 = gen_weight(b, "bigram", 1);
     const char *pat[] = {p1, NULL, NULL};
     char words[64][KB_TERM_LEN];
-    size_t k = kb_match(b->kb, "cont", pat, 3, words, 64);
+    size_t k = domain_match(b, "continuation", pat, 3, words, 64);
     if (k == 0) return 0;
 
     long best = -1;

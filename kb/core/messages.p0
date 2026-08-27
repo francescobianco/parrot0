@@ -107,6 +107,7 @@ response_template(i_repeat_when_no_module_can_claim_the_messag, "I repeat when n
 response_template(i_can_t_verify_no_proof_was_stored, "I can't verify — no proof was stored.").
 response_template(i_see_if_i_said_something_incorrect_please_t, "I see. If I said something incorrect, please tell me the right fact and I'll learn it.").
 response_template(no_goals_set, "No goals set.").
+response_template(goal_noted, "Ok, noted.").
 response_template(there_is_no_recent_reasoning_to_explain_in_m, "There is no recent reasoning to explain in more detail.").
 response_template(i_haven_t_answered_a_knowledge_based_questio, "I haven't answered a knowledge-based question yet, so I don't have a proof to share.").
 response_template(i_mean_i_can_only_answer_what_my_registered, "I mean I can only answer what my registered modules let me. Try asking a simple factual question.").
@@ -133,6 +134,7 @@ response_template(specify_what_the_command_should_do, "Specify what the command 
 response_template(nothing_claimed_the_last_turn_there_was_no_w, "Nothing claimed the last turn — there was no winner to set aside.").
 response_template(i_can_t_open_another_world_right_now, "I can't open another world right now.").
 response_template(ask_me_whether_something_holds_first_then_i, "Ask me whether something holds first — then I can tell you what that conclusion rests on.").
+response_template(ask_me_whether_something_holds_first_then_i_know, "Ask me whether something holds first — then I can tell you how I know it and what would change my mind.").
 response_template(that_isn_t_something_i_currently_conclude_so, "That isn't something I currently conclude, so there's nothing to stress-test.").
 response_template(tell_me_what_you_d_like_me_to_account_for_as, "Tell me what you'd like me to account for, as 'X is a Y'.").
 response_template(that_s_just_punctuation_not_words_what_would, "That's just punctuation, not words — what would you like to ask?").
@@ -160,6 +162,14 @@ response_template(i_have_x_measurements_for_both_but_the_units, "I have {dim} me
 response_template(they_are_tied_on_x, "They are tied on {dim}.").
 response_template(i_recognize_a_comparison_on_x_but_i_don_t_ha, "I recognize a comparison on {dim}, but I don't have magnitudes for {da} and {dc}.").
 response_template(learned_rule_x_x_x_x, "Learned rule: {cls}(X) :- {subj}(X).").
+response_template(learned_rule_text, "{rule}").
+response_template(near_rhymes_for_x, "Near-rhymes for \"{target}\": {list}.").
+response_template(matches_for_x, "Matches for `{pattern}`").
+response_template(suddenly_x, "Suddenly, {text}.").
+response_template(continuation_x, "{text}.").
+response_template(weight_updated, "Ok, {kind} weight is now {value}.").
+response_template(plan_stopped_missing_action, "{prefix} stopped at step {step} {step_h} because no action_impl fact names its primitive.").
+response_template(plan_stopped_via_action, "{prefix} stopped at step {step} {step_h} via {impl}: {obs}.").
 response_template(learned_created_by_x_x_x, "Learned: created_by({subj2}, {obj2}, {canon}).").
 response_template(learned_located_in_x_x, "Learned: located_in({subj}, {obj}).").
 response_template(learned_part_of_x_x, "Learned: part_of({subj}, {obj}).").
@@ -584,6 +594,13 @@ response_template(unsafe_path_x_is_not_a_directory_inside_my_w, "unsafe_path: `{
 
 response_template(i_remember_no_durable_personal_facts_yet, "I remember no durable personal facts yet.").
 response_template(session_context, " Session context:").
+response_template(memory_recall_header, "I remember:").
+response_template(memory_name_fragment, " your name is {name}").
+response_template(memory_possession_fragment, " your {thing} is {value}").
+response_template(memory_preference_fragment, " you {verb} {value}").
+response_template(memory_mood_fragment, " you feel {mood}").
+response_template(memory_topic_fragment, " current topic is {topic}").
+response_template(memory_constraint_fragment, " constraint: {constraint}").
 response_template(x_runs_through_it, " {p} runs through it.").
 response_template(it_borders_the_x, " It borders the {p}.").
 response_template(a_famous_landmark_there_is_x, " A famous landmark there is {p}.").
@@ -643,6 +660,42 @@ response_template(unknown_function_x_is_not_a_standard_c_libra, "Unknown functio
 % Brain si chiama `tmp`, o perche' l'istruzione stava tutta su una riga dentro
 % un `if`.
 response_template(entailed_x_is_a_known_fact, "Entailed: {ex} is a known fact.").
+response_template(unknown_entailment, "Unknown.").
+response_template(neutral_entailment, "Neutral.").
+response_template(contradicted_entailment, "Contradicted.").
+response_template(contradiction_entailment, "Contradiction.").
+response_template(entailed_explanation, "Entailed: {ex}.").
+response_template(learned_quantity, "Learned: {subject} has {amount} {unit}.").
+response_template(learned_causal_relation, "Learned: causes({cause}, {effect}).").
+response_template(learned_same_relation, "Learned: same({left}, {right}).").
+response_template(learned_requires, "Learned: requires({goal}, {step}).").
+response_template(because_proof, "Because {proof}.").
+response_template(because_proof_existing_period, "Because {proof}").
+response_template(compile_success, "Yes, it compiles: {path} has no errors.").
+response_template(code_not_valid, "Not valid: {findings}.").
+response_template(self_identity, "Yes, I am {id}.").
+response_template(self_role_named, "I am a {kind} named {name}.").
+response_template(self_role_kind, "I am a {kind}.").
+response_template(self_role_name, "I am {name}.").
+response_template(code_calls_answer, "I read it as code: {function} calls {callees}.").
+response_template(self_trait_direct, "Yes, I {verb}.").
+response_template(self_trait_general, "Yes, I do — I {verb}.").
+response_template(color_answer, "It's {color}.").
+response_template(animal_sound_answer, "A {animal} goes \"{sound}\".").
+response_template(indefinite_entity_answer, "A {entity}.").
+response_template(animal_eats_answer, "A {animal} eats {food}").
+response_template(entity_kind_answer, "A {kind} is a {class}.").
+response_template(part_of_answer, "Yes, {part} is part of {whole}.").
+response_template(forgotten_fact, "Forgotten: {pred}({arg}).").
+response_template(learned_negative_fact, "Learned: not {pred}({arg}).").
+response_template(learned_unary_fact, "Learned: {pred}({arg}).").
+response_template(learned_binary_fact, "Learned: {pred}({arg1}, {arg2}).").
+response_template(known_unary_fact, "{pred}({arg}) is a known fact.").
+response_template(rejected_binary_fact, "Scartato: {pred}({arg1}, {arg2}) non e' fatto di concetti.").
+response_template(count_of_answer, "There are {count} {noun}s.").
+response_template(learned_properties, "Learned: {facts}.").
+response_template(reasoning_steps, "By {steps} step{s} of reasoning: {ex}.").
+response_template(induced_rules, "Induced: {rules}.").
 response_template(prose_read_page_could_not_open_x, "I could not open {target}.").
 response_template(i_couldn_t_store_that_2, "I couldn't store that.").
 response_template(the_judge_ran_it_but_it_did_not_sort_every_ve, "The judge ran it, but it did not sort every vector.").

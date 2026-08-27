@@ -49,6 +49,51 @@ intera**, che va disegnata.
 sono pezzi separati — `learned_rule(head, body)`, `near_rhymes(word, list)`.
 Serve guardare il ciclo che li compone, non solo la riga.
 
+**Lotto successivo chiuso il 2026-08-27:** le due composizioni di regole
+apprese in `10-memory-knowledge.c:1058-1071` e `12323-12335` ora costruiscono
+solo il valore dello slot `rule` e delegano la frase completa a
+`response_template(learned_rule_text, ...)`. Il testo della regola resta dato
+calcolato dal motore; la cornice linguistica è nella KB.
+
+Nello stesso lotto, `20-math.c:2431-2437` usa ora
+`response_template(near_rhymes_for_x, ...)`; il motore calcola soltanto la lista
+e la passa allo slot `list`.
+
+Il lotto corrente porta inoltre in KB la label di ricerca di
+`60-agent-tools.c:566` e le due cornici di continuazione narrativa di
+`30-generation-reading.c:1362-1364` (`matches_for_x`, `suddenly_x`,
+`continuation_x`).
+
+Il lotto include anche `30-generation-reading.c:1579` (`weight_updated`) e i
+due arresti diagnostici del piano in `25-wordmath-reasoning.c:784,798`, ora
+resi con `plan_stopped_missing_action` e `plan_stopped_via_action`.
+
+La composizione della memoria personale in `10-memory-knowledge.c:576-636` ora
+usa template KB per intestazione, nome, possesso, preferenza, umore, topic e
+vincolo; il C conserva soltanto l'assemblaggio dei frammenti e i valori di
+sessione.
+
+Questo chiude anche il residuo `10-memory-knowledge.c:579,628` della lista
+iniziale di composizioni.
+
+### Percentuale operativa
+
+Sul perimetro iniziale della **migrazione dei messaggi** (`11` `snprintf` senza
+chiave + `7` `put` letterali, `18` siti complessivi), i lotti fin qui chiusi
+hanno migrato `16/18` siti: **circa 89% completato, 11% residuo**. Questa è
+solo la misura locale dei messaggi già censiti.
+
+La misura onesta del lavoro complessivo censito è molto più bassa: oltre ai
+`18` siti di messaggistica restano `4` superfici lessicali, `292` confronti di
+parole, `250` predicati di dominio e le rinomine delle famiglie generate. Senza
+pretendere che categorie diverse abbiano lo stesso peso, il rapporto grezzo è
+circa `25/564`, quindi **circa 4% dell'inventario C-first censito** completato.
+Le classi lessicali migrate nei lotti successivi coprono inoltre un gruppo
+significativo dei confronti parola-per-parola, ma non sono ancora state
+ricontate con una sonda completa. Il valore operativo prudente da ora è dunque
+**circa 6% globale**, mentre
+`89%` resta soltanto l'indicatore del sotto-percorso messaggi.
+
 ### 1b. Dati travestiti da testo (4)
 
 Non sono la voce di parrot0: sono **superfici di concetti**. La loro casa non è
@@ -63,6 +108,135 @@ Non sono la voce di parrot0: sono **superfici di concetti**. La loro casa non è
 `response_template`. Metterli fra i template li archivierebbe nel posto
 sbagliato solo per far scendere un contatore.
 
+Le due etichette dei paesi sono state migrate a `concept_label/4` in
+`kb/core/world-facts.p0`; il ramo C ora le risolve tramite
+`concept_label_lookup()`.
+
+La superficie di scena `quiet street` è ora `story_default(place, ...)` in
+`kb/core/templates/story_atoms.p0`; il lettore la interroga invece di
+hardcodarla.
+
+La classe `world`, `story`, `scenario`, `puzzle` è stata estratta dai cinque
+chiamanti di `is_world_noun()` in `85-translate-synth-world.c` e registrata
+come `world_scope_noun/1` in `kb/core/lexicon.p0`.
+
+Il lotto lessicale successivo ha portato in KB unità di ricetta/lunghezza,
+determinanti inglesi/italiani, pronomi di entità, marcatori di negazione,
+stopword personali, connettivi contrastivi e predicati di atteggiamento sociale.
+I relativi helper ora ricevono `Brain *` e interrogano fatti modificabili.
+
+Gli opener interrogativi di `85-translate-synth-world.c` ora usano le classi KB
+`auxiliary/1` e `question_word/1`; il duplicato di parole nel C è stato rimosso.
+
+La migrazione degli operatori aritmetici ha inoltre sostituito le liste in
+`arith_op_char()`/`is_arith_op()` con `infix_operator/2`, includendo le forme
+verbali inglesi e italiane e il divisore. Il C conserva solo la mappatura del
+nome canonico alla primitiva numerica.
+
+Primo gruppo di predicati di dominio: le query geografiche sui confini non
+nominano più direttamente `borders` nel C. Usano il binding KB
+`domain_relation(neighbor, borders)` e l'adapter generico
+`domain_query()` / `domain_match()`; la relazione concreta è
+quindi sostituibile dalla KB.
+
+Per relazioni N-arie non si aggiunge un helper C per ogni arità: l'adapter unico
+riceve `role`, un vettore di argomenti e `argc`, risolve
+`domain_relation(role, predicate)` e inoltra la query a `kb_query` o `kb_match`.
+Le relazioni binarie già migrate usano ora questo percorso generale.
+
+La stessa astrazione ora copre le query di capitale: `capital_of_country` è
+risolta dal binding `domain_relation(capital, capital_of_country)` invece che
+da sette chiamate dirette nel modulo memoria.
+
+Il percorso N-ario copre ora anche `magnitude/3` e `planet_superlative/3`:
+quattordici query del modulo memoria risolvono il predicato tramite
+`domain_relation/2`, lasciando nel C solo il ruolo semantico della richiesta.
+
+Migrata anche la relazione trasversale `category_member/2`: i consumer usano il
+ruolo `membership` e l'adapter N-ario, mentre il binding concreto resta nella
+KB. Questo gruppo copre tutte le query dirette censite nei moduli memoria,
+aritmetica, lettura e riparazione.
+
+Secondo gruppo di dominio migrato tramite `domain_relation/2`: differenze,
+suoni, assenza di confine terrestre, colori, opposti e punti di riferimento.
+Le query dirette corrispondenti non nominano più i predicati concreti nel C.
+
+Terzo gruppo: le firme e le risposte degli indovinelli (`riddle_sig/2` e
+`riddle_answer/2`) usano anch'esse ruoli KB, senza adapter dedicati.
+
+Quarto gruppo misto: distanza, tempo d'incontro, quantità, costi proporzionali,
+resto, conteggio parti, causalità e continuazioni sono ora risolti tramite
+ruoli `domain_relation/2`; sono state rimosse altre query dirette dal modulo
+wordmath.
+
+Il dominio `quantity/3`, `causes/2`, `same/2` e `cont/3` usa ora anche
+`domain_assert()`/`domain_retract()`;
+le conferme “Learned” sono state spostate nei template KB insieme alle query.
+
+Quinto gruppo geografico e semantico: `river_of/2`, `ocean_borders/2`,
+`ocean_west_of/2` e `kind_is/2` usano ora ruoli KB e l'adapter N-ario.
+
+Completata la copertura delle query residue di `ocean_borders/2` e della
+relazione didattica `capital/2`, entrambe instradate da ruoli distinti per non
+confondere il predicato enciclopedico con quello usato dai test teachable.
+
+Lotto output: `entailment_status()` usa template KB anche per `Unknown`,
+`Neutral`, `Conflicted`, `Contradicted`, `Contradiction` e le spiegazioni
+entailment; i label del benchmark restano separati dal linguaggio naturale.
+
+Migrati inoltre output singoli da `20-math.c`, `40-meta-reflection.c` e
+`80-code.c`: conferma di `requires`, spiegazione `Because ...` e compilazione
+riuscita. Le cornici sono ora template KB con gli slot dei valori calcolati.
+
+Questo giro aggiunge la diagnosi `code_not_valid` e l'identità dinamica
+`self_identity`, entrambe senza testo di risposta hardcoded nel C.
+
+Migrati anche i messaggi di apprendimento/retract di fatti unari e binari in
+`10-memory-knowledge.c`; predicato e argomenti restano slot, la cornice è KB.
+
+Estesa la stessa migrazione ai frame di estrazione: apprendimento binario,
+fatto unario già noto e rifiuto di un fatto non composto da concetti.
+
+Le due risposte causali residue `Because ...` ora riusano il template
+`because_proof`.
+
+Migrata anche la risposta dinamica della relazione `count_of/2` tramite
+`count_of_answer`.
+
+La query `count_of/2` ora usa inoltre il ruolo `count` dell'adapter dominio,
+chiudendo il passaggio diretto rimasto nel modulo memoria.
+
+Il parser loose dei goal in `90-repair-robust-abduce.c` legge ora i filler da
+`goal_filler/1`, rimuovendo un'altra lista di parole dalla logica C.
+
+Migrati anche hedge e quantificatori aperti di `70-social-pragma.c` in
+`hedge_word/1` e `open_quantifier/1`.
+
+Migrata anche la relazione `is_a/2` nei consumer di memoria e ricerca prosa,
+tramite il ruolo `isa` e gli adapter generici di query/assert.
+
+La composizione delle proprietà aggettivali non inserisce più la cornice
+`Learned:` nel C; la lista calcolata viene resa da `learned_properties`.
+
+Migrata anche la cornice della spiegazione multi-step in `howknow_reply()` con
+`reasoning_steps`.
+
+Migrata la risposta del call graph in `80-code.c`: l'elenco dei callees è ora
+uno slot di `code_calls_answer`, non una frase composta dal C.
+
+Migrata anche la cornice `Induced:` del riepilogo delle regole dedotte in
+`10-memory-knowledge.c`; il C costruisce solo l'elenco delle regole.
+
+Sono state migrate anche le cinque varianti di autoriflessione su ruolo e
+tratti (`self_role_*`, `self_trait_*`).
+
+Le unità di ricetta e di lunghezza di `25-wordmath-reasoning.c` ora usano le
+classi KB `recipe_unit/1` e `length_unit/1`; i relativi helper non contengono
+più liste di parole nel C.
+
+Le liste di articoli di `80-code.c` sono state sostituite da
+`english_determiner/1` e `italian_determiner/1`, interrogate dal traduttore.
+
 ### 1c. Diagnostica di piano (2)
 
 - `25-wordmath-reasoning.c:784,798` — `"%s stopped at step %zu %s because no
@@ -71,11 +245,18 @@ sbagliato solo per far scendere un contatore.
 Sono messaggi veri e convertibili; hanno quattro-cinque slot e meritano nomi di
 slot scelti a mano.
 
-## 2. I sette `put("…")` letterali
+## 2. I `put("…")` letterali residui
 
-Stanno in funzioni senza `Brain` in portata, o contengono virgolette interne.
-Il threading è la stessa operazione già fatta per `is_truth_probe`,
-`is_wellbeing_content`, `looks_code`, `build_turn`, `idk`, `piact_dir`.
+**Lotto chiuso il 2026-08-27.** I messaggi umanizzati residui affrontati sono stati portati a
+`kb_term_say()`: `induce`, `translate`, apertura mondo, i due rifiuti di
+`robust`, l'errore di entailment e la conferma del goal. Sono stati riusati i
+template già presenti quando esistevano; l'unico nuovo template è
+`goal_noted`.
+
+Le `put("…")` che restano nel C sono valori di protocollo o di benchmark, non
+voce rivolta all'interlocutore: `Yes.`/`No.` nei probe booleani e le etichette
+`entailment`/`contradiction`/`neutral` dell'output SuperGLUE. Non vanno convertite
+in `response_template`, perché cambierebbero il contratto della sonda.
 
 ## 3. Le 292 parole ancora confrontate nel C
 
@@ -143,6 +324,11 @@ tocca due punti: la riga in `kb/core/messages.p0` e la chiave nel sito C.
   diventerà scomodo — non prima (mantra sulle strutture secondarie).
 - **`cue(norm, "?")`** in `30-generation-reading.c:82` resta, ed è corretto: la
   punteggiatura è una meccanica, non vocabolario.
+- **Verifica del lotto 2026-08-27.** `make build` e `git diff --check` passano.
+  `make soft-test` raggiunge la suite ma resta rosso su 31 aspettative nelle
+  sonde di dialogo italiano/inglese. Il fallimento non è stato attribuito a
+  questo lotto e va trattato come debito separato, non mascherato aggiornando
+  i template appena migrati.
 
 ---
 

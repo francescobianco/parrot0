@@ -607,7 +607,7 @@ static void deep_expand(Brain *b, const char *facts, int class_mode,
         } else if (class_mode && !a1[0] && a0[0]) {
             const char *ia[] = { a0, pred };            /* is_a(concept, class) */
             kb_set_origin(b->kb, KB_SESSION);
-            kb_assert(b->kb, "is_a", ia, 2);
+            domain_assert(b, "isa", ia, 2);
             if (*ftail < fmax) snprintf(frontier[(*ftail)++], 64, "%s", pred);
         }
         p = (*rp == ')') ? rp + 1 : rp;
@@ -963,7 +963,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
                    lex_class_member(b, "50_self_research_loop_lex959", tok[0]) || lex_class_member(b, "50_self_research_loop_lex959_2", tok[0])))
         start = 1;
     if (start >= nt) return 0;
-    if (is_entity_pronoun(tok[start])) return 0;
+    if (is_entity_pronoun(b, tok[start])) return 0;
     /* A bare "what is <X>" is only definitional for a single concept word. */
     if (weak && nt - start != 1) return 0;
     /* Reject arithmetic / numeric expressions in any head (they should wall). */

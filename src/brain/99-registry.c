@@ -569,7 +569,7 @@ static int pragma_peel(Brain *b, const char *canon, const char *raw,
  * essay's "integrate a later correction" made into a deterministic state change.
  * Gated on BOTH the explicit marker AND a real negation marker in the residue, so
  * it never fires on a bare "no" answer or "no thanks". Mirror of pragma_peel. */
-static int is_negation_marker(const char *w);
+static int is_negation_marker(Brain *b, const char *w);
 
 static int correction_peel(Brain *b, const char *canon, const char *raw,
                            char *out, size_t out_size) {
@@ -582,7 +582,7 @@ static int correction_peel(Brain *b, const char *canon, const char *raw,
     if (nw < 4 || !lex_class_member(b, "99_registry_lex586", strip_edge_punct(w[0]))) return 0;
     int has_neg = 0;
     for (size_t i = 1; i < nw; i++)
-        if (is_negation_marker(w[i])) { has_neg = 1; break; }
+        if (is_negation_marker(b, w[i])) { has_neg = 1; break; }
     if (!has_neg) return 0;                             /* correct a negation only */
 
     char residue[256]; size_t off = 0; residue[0] = '\0';
@@ -1919,8 +1919,9 @@ static int is_intent_starter(Brain *b, const char *w) {
 
 /* gen88: true if word `w` is a negation marker that should cause the sub-turn
  * to be suppressed (e.g., "dont answer", "non rispondere"). */
-static int is_negation_marker(const char *w) {
-    return strcmp(w, "dont") == 0 || strcmp(w, "non") == 0 || strcmp(w, "not") == 0;
+static int is_negation_marker(Brain *b, const char *w) {
+    const char *q[] = { w };
+    return b && b->kb && w && kb_query(b->kb, "negation_marker", q, 1);
 }
 
 /* gen80: split `canon` on discourse connectors where the second half starts
@@ -2021,9 +2022,9 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
         snprintf(b1, sizeof b1, "%s", sub1);
         snprintf(b2, sizeof b2, "%s", sub2);
         size_t n1 = split_words(b1, sw, 8);
-        if (n1 > 0 && is_negation_marker(sw[0])) negate1 = 1;
+        if (n1 > 0 && is_negation_marker(b, sw[0])) negate1 = 1;
         size_t n2 = split_words(b2, sw, 8);
-        if (n2 > 0 && is_negation_marker(sw[0])) negate2 = 1;
+        if (n2 > 0 && is_negation_marker(b, sw[0])) negate2 = 1;
     }
 
     if (!is_but) {
@@ -2229,12 +2230,12 @@ static int memref_resolve(Brain *b, const char *canon, char *out, size_t out_siz
     while (mi + 1 + run < nw) {
         const char *t = w[mi + 1 + run];
         double dv;
-        if (arith_op_char(t) || parse_value(t, &dv)) break;
+        if (arith_op_char(b, t) || parse_value(t, &dv)) break;
         run++;
     }
     if (run == 0) return 0;
     /* an operator must follow the key (else it is a recall, not a computation). */
-    if (mi + 1 + run >= nw || !arith_op_char(w[mi + 1 + run])) return 0;
+    if (mi + 1 + run >= nw || !arith_op_char(b, w[mi + 1 + run])) return 0;
 
     /* longest-first: the longest key prefix that names a stored value wins. */
     char value[KB_TERM_LEN]; int found = 0; size_t span = 0;
@@ -2423,12 +2424,12 @@ static int continue_resolve(Brain *b, const char *canon, char *out, size_t out_s
                       lex_class_member(b, "99_registry_lex2434", w[i]) || lex_class_member(b, "99_registry_lex2434_2", w[i]) ||
                       lex_class_member(b, "99_registry_lex2435", w[i]) || lex_class_member(b, "99_registry_lex2435_2", w[i]) ||
                       lex_class_member(b, "99_registry_lex2436", w[i]))) i++;
-    if (i >= nw || !arith_op_char(w[i])) return 0;      /* must lead with an operator */
+    if (i >= nw || !arith_op_char(b, w[i])) return 0;      /* must lead with an operator */
 
     int saw_num = 0;                                    /* rest must be a pure arith tail */
     for (size_t k = i; k < nw; k++) {
         double dv;
-        if (arith_op_char(w[k]) || lex_class_member(b, "99_registry_lex2442", w[k])) continue;
+            if (arith_op_char(b, w[k]) || lex_class_member(b, "99_registry_lex2442", w[k])) continue;
         if (parse_value(w[k], &dv)) { saw_num = 1; continue; }
         return 0;
     }

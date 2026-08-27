@@ -835,7 +835,8 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         int rc = code_compile(path, err, sizeof err);
         if (rc < 0) return 0;                       /* unsafe/unrunnable — not ours */
         if (rc == 1) {
-            snprintf(out, out_size, "Yes, it compiles: %s has no errors.", path);
+            kb_term_say(b, "compile_success", (const KbResponseSlot[]){
+                            { "path", path } }, 1, out, out_size);
         } else {
             /* quote the first diagnostic line, trimmed */
             char first[200] = ""; size_t fo = 0;
@@ -1065,13 +1066,14 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         store_proof(b, out);
         return 1;
     }
-    size_t off = (size_t)snprintf(out, out_size, "I read it as code: %s calls ", xfn);
+    char list[1024]; size_t off = 0;
     size_t cshown = c < 32 ? c : 32;
-    for (size_t i = 0; i < cshown && off < out_size; i++) {
+    for (size_t i = 0; i < cshown && off < sizeof list; i++) {
         const char *sep = (i == 0) ? "" : (i == cshown - 1) ? " and " : ", ";
-        off += (size_t)snprintf(out + off, out_size - off, "%s%s", sep, callees[i]);
+        off += (size_t)snprintf(list + off, sizeof list - off, "%s%s", sep, callees[i]);
     }
-    if (off < out_size) snprintf(out + off, out_size - off, ".");
+    kb_term_say(b, "code_calls_answer", (const KbResponseSlot[]){
+                    { "function", xfn }, { "callees", list } }, 2, out, out_size);
     store_proof(b, out);
     return 1;
 }
@@ -1953,7 +1955,8 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
         else {
             size_t fl = strlen(findings);
             while (fl > 0 && (findings[fl-1] == ' ' || findings[fl-1] == '.')) findings[--fl] = '\0';
-            snprintf(out, out_size, "Not valid: %s.", findings);
+            kb_term_say(b, "code_not_valid", (const KbResponseSlot[]){
+                            { "findings", findings } }, 1, out, out_size);
         }
     }
 
@@ -2036,11 +2039,11 @@ static void agree_adj(char *adj, char gender) {
     if (gender == 'f' && n > 0 && adj[n - 1] == 'o') adj[n - 1] = 'a';
 }
 
-static int is_en_det(const char *w) {
-    return strcmp(w, "the") == 0 || strcmp(w, "a") == 0 || strcmp(w, "an") == 0;
+static int is_en_det(Brain *b, const char *w) {
+    const char *q[] = { w };
+    return b && b->kb && w && kb_query(b->kb, "english_determiner", q, 1);
 }
-static int is_it_det(const char *w) {
-    return strcmp(w, "il") == 0 || strcmp(w, "la") == 0 ||
-           strcmp(w, "lo") == 0 || strcmp(w, "un") == 0 ||
-           strcmp(w, "una") == 0 || strcmp(w, "uno") == 0;
+static int is_it_det(Brain *b, const char *w) {
+    const char *q[] = { w };
+    return b && b->kb && w && kb_query(b->kb, "italian_determiner", q, 1);
 }

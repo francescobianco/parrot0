@@ -56,8 +56,8 @@ static int mod_induce(Brain *b, const char *norm, const char *raw,
      * examples are unmistakably ours) but decline honestly. */
     InducedRule r; char rule[160];
     if (!induce_rule(in, out_, npair, &r, rule, sizeof rule)) {
-        put("Those examples don't all follow one rule I can express yet.",
-            out, out_size);
+        kb_term_say(b, "those_examples_don_t_all_follow_one_rule_i_c",
+                    NULL, 0, out, out_size);
         return 1;
     }
 
@@ -86,7 +86,7 @@ static int mod_induce(Brain *b, const char *norm, const char *raw,
     }
 
     if (q == Q_NEXT) {
-        double v = apply_rule(&r, n0);
+        double v = apply_rule(b, &r, n0);
         char nb[64]; format_num(v, nb, sizeof nb);
         snprintf(msg, sizeof msg, "%s. (rule: %s.)", nb, rule);
         put(msg, out, out_size);
@@ -103,7 +103,7 @@ static int mod_induce(Brain *b, const char *norm, const char *raw,
     size_t to = (size_t)snprintf(traj, sizeof traj, "%s", nb);
     for (int step = 0; step < 14; step++) {
         if (cur >= 1 - 1e-9 && cur <= 1 + 1e-9) break;
-        double nx = apply_rule(&r, cur);
+        double nx = apply_rule(b, &r, cur);
         if (nx == cur) break;            /* fixed point */
         cur = nx;
         format_num(cur, nb, sizeof nb);
@@ -189,7 +189,7 @@ static int mod_search(Brain *b, const char *norm, const char *raw,
         double cur = val[qh];
         for (size_t a = 0; a < nacts && goal < 0; a++) {
             int ok; char o[2] = { acts[a].op, 0 };
-            double nx = apply_arith_op(o, cur, acts[a].k, &ok);
+            double nx = apply_arith_op(b, o, cur, acts[a].k, &ok);
             if (!ok) continue;
             if ((double)(long long)nx != nx) continue;   /* integer states only */
             if (nx < lo || nx > hi) continue;
@@ -303,7 +303,7 @@ static int mod_verify(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    double pred = apply_rule(&r, (double)tin);
+    double pred = apply_rule(b, &r, (double)tin);
     char ib[64], tb[64], pb[64];
     format_num((double)tin, ib, sizeof ib);
     format_num((double)tout, tb, sizeof tb);
@@ -826,4 +826,3 @@ static int is_mixed_turn(Brain *b, const char *buf, char **w, size_t nw,
 
     return 0;
 }
-

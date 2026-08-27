@@ -62,3 +62,4 @@ story_arc(short_story, full, cons(intro, cons(setting, cons(routine, cons(event,
 
 % Romantic arc: intro → event → feeling → waiting → ending → moral
 story_arc(love_story, romantic, cons(intro, cons(event, cons(feeling, cons(waiting, cons(ending, cons(moral, nil))))))).
+story_default(place, "quiet street").

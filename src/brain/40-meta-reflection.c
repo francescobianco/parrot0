@@ -323,7 +323,8 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         size_t k = b->kb ? kb_match(b->kb, "i_am", var, 1, id, 4) : 0;
         char msg[128];
         if (k > 0)
-            snprintf(msg, sizeof msg, "Yes, I am %s.", id[0]);
+            kb_term_say(b, "self_identity", (const KbResponseSlot[]){
+                            { "id", id[0] } }, 1, msg, sizeof msg);
         else
             kb_term_say(b, "yes_i_am_parrot0", NULL, 0, out, out_size);
         return 1;
@@ -484,7 +485,11 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
             * prefix, so the goal text was read from the wrong offset. Now skip exactly
             * the matched IT/EN prefix. */
         int g =!lex_prefix_member(b, "40_meta_reflection_lex473", buf)==0 || it_goal;
-        if(g && b->goal_count<8){ snprintf(b->goals[b->goal_count++],128,"%s",buf+(it_goal?13:12)); put("Ok, noted.",out,out_size); return 1; }
+         if(g && b->goal_count<8){
+             snprintf(b->goals[b->goal_count++],128,"%s",buf+(it_goal?13:12));
+             kb_term_say(b, "goal_noted", NULL, 0, out, out_size);
+             return 1;
+         }
         if(kb_cue_match(b, "40_meta_reflection_chain483", buf)){
             if(!b->goal_count) kb_term_say(b, "no_goals_set", NULL, 0, out, out_size);
             else { char l[1024]=""; for(size_t i=0;i<b->goal_count;i++){char t[200];snprintf(t,200,"%zu) %s. ",i+1,b->goals[i]);strcat(l,t);} put(l,out,out_size); }
@@ -539,10 +544,11 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
             if (b->has_last_proof) {
                 char msg[640];
                 size_t plen = strlen(b->last_proof);
-                if (plen > 0 && b->last_proof[plen - 1] == '.')
-                    snprintf(msg, sizeof msg, "Because %s", b->last_proof);
-                else
-                    snprintf(msg, sizeof msg, "Because %s.", b->last_proof);
+                const char *key = plen > 0 && b->last_proof[plen - 1] == '.'
+                                ? "because_proof_existing_period"
+                                : "because_proof";
+                const KbResponseSlot slots[] = { { "proof", b->last_proof } };
+                kb_term_say(b, key, slots, 1, msg, sizeof msg);
                 put(msg, out, out_size);
                 b->has_last_proof = 0;
             } else if (wn == 1) {
@@ -1137,11 +1143,15 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         char msg[160];
         if (b->role_name[0] && b->role_kind[0] &&
             strcmp(b->role_name, b->role_kind) != 0)
-            snprintf(msg, sizeof msg, "I am a %s named %s.", b->role_kind, b->role_name);
+            kb_term_say(b, "self_role_named", (const KbResponseSlot[]){
+                            { "kind", b->role_kind }, { "name", b->role_name } },
+                        2, msg, sizeof msg);
         else if (b->role_kind[0])
-            snprintf(msg, sizeof msg, "I am a %s.", b->role_kind);
+            kb_term_say(b, "self_role_kind", (const KbResponseSlot[]){
+                            { "kind", b->role_kind } }, 1, msg, sizeof msg);
         else if (b->role_name[0])
-            snprintf(msg, sizeof msg, "I am %s.", b->role_name);
+            kb_term_say(b, "self_role_name", (const KbResponseSlot[]){
+                            { "name", b->role_name } }, 1, msg, sizeof msg);
         else return 0;
         put(msg, out, out_size);
         return 1;
@@ -1158,11 +1168,15 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
             const char *kv[] = { b->role_kind, NULL };
             char any[4][KB_TERM_LEN];
             if (kb_query(b->kb, "trait", ta, 2)) {
-                char msg[96]; snprintf(msg, sizeof msg, "Yes, I %s.", verb);
+                char msg[96];
+                kb_term_say(b, "self_trait_direct", (const KbResponseSlot[]){
+                                { "verb", verb } }, 1, msg, sizeof msg);
                 put(msg, out, out_size); return 1;
             }
             if (kb_match(b->kb, "trait", kv, 2, any, 4)) {
-                char msg[96]; snprintf(msg, sizeof msg, "Yes, I do — I %s.", any[0]);
+                char msg[96];
+                kb_term_say(b, "self_trait_general", (const KbResponseSlot[]){
+                                { "verb", any[0] } }, 1, msg, sizeof msg);
                 put(msg, out, out_size); return 1;
             }
         }

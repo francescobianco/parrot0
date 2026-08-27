@@ -655,7 +655,10 @@ found:
         buf[--bl] = '\0';
     char *w[32];
     size_t nw = split_words(buf, w, 32);
-    if (nw == 0) { put("Translate what?", out, out_size); return 1; }
+    if (nw == 0) {
+        kb_term_say(b, "translate_what", NULL, 0, out, out_size);
+        return 1;
+    }
 
     char result[512] = "";
     size_t rn = 0;
@@ -682,7 +685,7 @@ found:
         char *tok = strip_edge_punct(w[i]);
         char piece[KB_TERM_LEN] = "";
 
-        if (to_it && is_en_det(tok)) {
+        if (to_it && is_en_det(b, tok)) {
             /* U5 (gen286, teach-comprehension §5.5): the Italian article FORM is a
              * KB fact table, article(Def, Gender, VowelInitial, Form) in
              * grammar.p0 — not a C ternary. The engine still classifies
@@ -709,7 +712,7 @@ found:
                 snprintf(piece, sizeof piece, "%s",
                          indef ? (clause_gender == 'f' ? "una" : "un")
                                : (clause_gender == 'f' ? "la" : "il"));
-        } else if (!to_it && is_it_det(tok)) {
+        } else if (!to_it && is_it_det(b, tok)) {
             int indef = (lex_class_member(b, "85_translate_synth_world_lex715", tok) || lex_class_member(b, "85_translate_synth_world_lex715_2", tok) ||
                          lex_class_member(b, "85_translate_synth_world_lex716", tok));
             snprintf(piece, sizeof piece, "%s", indef ? "a" : "the");
@@ -1129,9 +1132,10 @@ static const char *skip_article(const char *s) {
 }
 
 /* True if `w` is a noun naming a local scope ("world"/"story"/"scenario"). */
-static int is_world_noun(const char *w) {
-    return strcmp(w, "world") == 0 || strcmp(w, "story") == 0 ||
-           strcmp(w, "scenario") == 0 || strcmp(w, "puzzle") == 0;
+static int is_world_noun(Brain *b, const char *w) {
+    if (!b || !b->kb || !w || !*w) return 0;
+    const char *q[] = { w };
+    return kb_query(b->kb, "world_scope_noun", q, 1);
 }
 
 /* Try to ASSERT/QUERY a single "X is [a] Y" clause inside the active world.
@@ -1155,8 +1159,8 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
         if (pi != nw - 1) return 0;            /* one-word class only, for now */
         const char *pred = w[pi];
         int r = world_query(b, subj, pred);
-        if (r > 0)      put("Yes.", out, out_size);
-        else if (r < 0) put("No.", out, out_size);
+        if (r > 0)      kb_term_say(b, "yes", NULL, 0, out, out_size);
+        else if (r < 0) kb_term_say(b, "no", NULL, 0, out, out_size);
         else {
             char m[160];
             { 
@@ -1179,8 +1183,8 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
         if (pi != nw - 1) return 0;
         const char *pred = w[pi];
         int r = world_query(b, subj, pred);
-        if (r > 0)      put("Yes.", out, out_size);
-        else if (r < 0) put("No.", out, out_size);
+        if (r > 0)      kb_term_say(b, "yes", NULL, 0, out, out_size);
+        else if (r < 0) kb_term_say(b, "no", NULL, 0, out, out_size);
         else {
             char m[160];
             { 
@@ -1311,13 +1315,13 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
             int has_world_noun = 0; const char *named = NULL;
             for (size_t i = 1; i < nw; i++) {
                 char *t = strip_edge_punct(w[i]);
-                if (is_world_noun(t)) {
+                if (is_world_noun(b, t)) {
                     has_world_noun = 1;
                     if (i >= 1) {
                         char *prev = strip_edge_punct(w[i-1]);
                         if (!is_article(b, prev) && !lex_class_member(b, "85_translate_synth_world_lex1311", prev) &&
                             !lex_class_member(b, "85_translate_synth_world_lex1312", prev) && !lex_class_member(b, "85_translate_synth_world_lex1312_2", prev) &&
-                            !is_world_noun(prev) && !lex_class_member(b, "85_translate_synth_world_lex1313", prev) &&
+                            !is_world_noun(b, prev) && !lex_class_member(b, "85_translate_synth_world_lex1313", prev) &&
                             !lex_class_member(b, "85_translate_synth_world_lex1314", prev) && !lex_class_member(b, "85_translate_synth_world_lex1314_2", prev) &&
                             !lex_class_member(b, "85_translate_synth_world_lex1315", prev) && !lex_class_member(b, "85_translate_synth_world_lex1315_2", prev))
                             named = prev;
@@ -1365,7 +1369,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                 { first[fi] = q[fi]; fi++; }
             first[fi] = '\0';
             char bare[32]; snprintf(bare, sizeof bare, "%s", first);
-            if (is_world_noun(strip_edge_punct(bare))) {
+            if (is_world_noun(b, strip_edge_punct(bare))) {
                 snprintf(wname, sizeof wname, "%s", strip_edge_punct(bare));
                 rest = q + fi;
             }
@@ -1379,7 +1383,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
             char *nw_[12]; size_t nn = split_words(nb, nw_, 12);
             for (size_t i = 0; i < nn; i++) {
                 char *t = strip_edge_punct(nw_[i]);
-                if (is_world_noun(t)) {
+            if (is_world_noun(b, t)) {
                     size_t name_idx = i; /* default: no name -> use the noun word */
                     char *before = (i >= 1) ? strip_edge_punct(nw_[i-1]) : NULL;
                     if (before && !is_article(b, before) &&
@@ -1444,7 +1448,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
             size_t nn = split_words(sb, w2, 12);
             int wn_idx = -1;
             for (size_t i = 0; i < nn; i++)
-                if (is_world_noun(strip_edge_punct(w2[i]))) { wn_idx = (int)i; break; }
+                if (is_world_noun(b, strip_edge_punct(w2[i]))) { wn_idx = (int)i; break; }
             if (wn_idx >= 0) {
                 const char *name = NULL;
                 /* prefer the token after "called"/"named", else the one after noun */
@@ -1457,8 +1461,11 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                     name = strip_edge_punct(w2[wn_idx + 1]);
                 if (name && *name) {
                     int id = world_enter(b, name);
-                    if (id < 0) { put("I can't open another world right now.",
-                                      out, out_size); return 1; }
+                    if (id < 0) {
+                        kb_term_say(b, "i_can_t_open_another_world_right_now",
+                                    NULL, 0, out, out_size);
+                        return 1;
+                    }
                     char m[160];
                     { const KbResponseSlot _rs[] = { { "name", name } };
       kb_term_say(b, "opened_the_x_world_tell_me_what_is_true_in_i_2", _rs, 1, m, sizeof m);
@@ -1504,16 +1511,11 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
  * implemented after the registry table (same shape as mod_counterfactual). */
 
 /* first word is an interrogative/auxiliary that opens a question */
-static int is_question_opener(const char *w) {
-    /* TODO(kb-first): ausiliari e parole interrogative, gia' nella KB
-     * (`auxiliary/1`, `question_word/1`). Quarta copia nel codice. */
-    static const char *const q[] = {
-        "is", "are", "was", "were", "does", "do", "did", "can", "could",
-        "will", "would", "should", "what", "who", "where", "when", "why",
-        "how", NULL };
-    for (const char *const *p = q; *p; p++)
-        if (strcmp(w, *p) == 0) return 1;
-    return 0;
+static int is_question_opener(Brain *b, const char *w) {
+    const char *q[] = { w };
+    return b && b->kb && w &&
+           (kb_query(b->kb, "auxiliary", q, 1) ||
+            kb_query(b->kb, "question_word", q, 1));
 }
 
 /* an arithmetic operator cue, so the clarification can ask for a NUMBER rather

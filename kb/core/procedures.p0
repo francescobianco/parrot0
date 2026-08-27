@@ -1383,10 +1383,55 @@ c_div($Z, $W, c($R, $I)) :-
 % DUE RIGHE qui e nessuna riga di C.
 machinery(infix_operator).
 machinery(apply_operator).
+machinery(domain_relation).
+
+domain_relation(neighbor, borders).
+domain_relation(capital, capital_of_country).
+domain_relation(magnitude, magnitude).
+domain_relation(planet_superlative, planet_superlative).
+domain_relation(membership, category_member).
+domain_relation(difference, difference_between).
+domain_relation(sound, sound_of).
+domain_relation(no_land_border, no_land_border).
+domain_relation(color, color_of).
+domain_relation(opposite, opposite).
+domain_relation(landmark, landmark_of).
+domain_relation(riddle_signature, riddle_sig).
+domain_relation(riddle_answer, riddle_answer).
+domain_relation(distance, distance_between).
+domain_relation(meeting_time, meet_time).
+domain_relation(quantity, quantity).
+domain_relation(proportional_cost, proportional_cost).
+domain_relation(change_due, change_due).
+domain_relation(part_count, part_count).
+domain_relation(causal, causes).
+domain_relation(continuation, cont).
+domain_relation(river, river_of).
+domain_relation(ocean_border, ocean_borders).
+domain_relation(western_ocean, ocean_west_of).
+domain_relation(kind, kind_is).
+domain_relation(capital_fallback, capital).
+domain_relation(count, count_of).
+domain_relation(isa, is_a).
+domain_relation(same, same).
 
 infix_operator("+", plus).
 infix_operator("-", minus).
 infix_operator("*", times).
+infix_operator("plus", plus).
+infix_operator("più", plus).
+infix_operator("piu", plus).
+infix_operator("minus", minus).
+infix_operator("meno", minus).
+infix_operator("times", times).
+infix_operator("per", times).
+infix_operator("multiplied", times).
+infix_operator("by", times).
+infix_operator("/", divide).
+infix_operator("divided", divide).
+infix_operator("diviso", divide).
+infix_operator("over", divide).
+apply_operator(divide, $A, $B, $R) :- dif($B, 0), is($R, div($A, $B)).
 % NIENTE «x» per la moltiplicazione: in questo sistema `x` e' la variabile
 % dell'algebra, e dichiararla operatore faceva leggere «10 / x = 0» come una
 % moltiplicazione (misurato: algebra.p0t rispondeva 0 invece di declinare).

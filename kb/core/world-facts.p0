@@ -4312,3 +4312,5 @@ creative_text_gate(ai_society_dialogue, "benefit or harm society").
 % (stessa famiglia del declined[64] di gen376). Tolto il troncamento, sono
 % emersi — e nessuno di questi e' conoscenza del mondo: sono la grammatica
 % interrogativa, gli slot, il registro di riparazione e i semi di conversazione.
+concept_label(united_states, en, common, "the United States").
+concept_label(united_kingdom, en, common, "the United Kingdom").

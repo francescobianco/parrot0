@@ -563,8 +563,10 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
          * an option: with the shell gone, argv-level confusion is the only injection
          * left, and it is closed by construction rather than by scrubbing. */
         char *gargv[] = {(char*)"grep", (char*)"-rn", (char*)"--", patbuf, dirbuf, NULL};
-        char label[160]; snprintf(label, sizeof label, "Matches for `%s`", patbuf);
-        return piact_obs(b, gargv, label, out, out_size);
+         char label[160];
+         kb_term_say(b, "matches_for_x", (const KbResponseSlot[]){
+                         { "pattern", patbuf } }, 1, label, sizeof label);
+         return piact_obs(b, gargv, label, out, out_size);
     }
 
     /* ---- find a file by name ---- */
@@ -1407,7 +1409,7 @@ static int mod_agent(Brain *b, const char *norm, const char *raw,
                     double before = cur;
                     for (size_t s = 0; s < nseq; s++) {
                         int ok; char o[2] = { seq[s].op, 0 };
-                        double nx = apply_arith_op(o, cur, seq[s].k, &ok);
+                        double nx = apply_arith_op(b, o, cur, seq[s].k, &ok);
                         if (ok) cur = nx;
                     }
                     if (cur == before) break;       /* no-progress guard */
@@ -1514,7 +1516,7 @@ static int mod_agent(Brain *b, const char *norm, const char *raw,
 
     while (!agent_goal_met(cur, target, cmp) && steps < CAP) {
         int ok;
-        double next = apply_arith_op(op, cur, k, &ok);
+        double next = apply_arith_op(b, op, cur, k, &ok);
         if (!ok) break;
         if (next == cur) break;             /* no-progress guard */
         cur = next;
@@ -1622,7 +1624,7 @@ static int fit_class(const long *in, const long *out, size_t n,
     return 0;
 }
 
-static double apply_rule(const InducedRule *r, double cur) {
+static double apply_rule(Brain *b, const InducedRule *r, double cur) {
     const AgentOp *seq; size_t n;
     if (r->conditional) {
         long long iv = (long long)cur;
@@ -1632,7 +1634,7 @@ static double apply_rule(const InducedRule *r, double cur) {
     } else { seq = r->even_ops; n = r->ne; }
     for (size_t s = 0; s < n; s++) {
         int ok; char o[2] = { seq[s].op, 0 };
-        double nx = apply_arith_op(o, cur, seq[s].k, &ok);
+        double nx = apply_arith_op(b, o, cur, seq[s].k, &ok);
         if (ok) cur = nx;
     }
     return cur;

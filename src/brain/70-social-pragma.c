@@ -634,56 +634,37 @@ static int is_discourse_opener(Brain *b, char **w, size_t nw, size_t *skip) {
 }
 
 /* a hedge / hesitation marker anywhere in the turn. */
-static int has_hedge(char **w, size_t nw) {
-    /* TODO(kb-first): vocabolario dell'INCERTEZZA, bilingue, dentro il C.
-     * «maybe/forse/boh» sono parole, e le parole stanno nella KB: una riga
-     * `hedge_word/1` per ciascuna, come `stopword/1`. Il test: parrot0 puo'
-     * imparare domani che «chissa'» esprime incertezza, senza ricompilare? */
-    static const char *const h[] = {
-        "maybe", "perhaps", "guess", "suppose", "dunno", "probably", "unsure",
-        "kinda", "sorta", "idk", "forse", "magari", "boh", "credo",
-        NULL
-    };
+static int has_hedge(Brain *b, char **w, size_t nw) {
     for (size_t i = 0; i < nw; i++) {
         char tmp[64];
         snprintf(tmp, sizeof tmp, "%s", w[i]);
         const char *t = strip_edge_punct(tmp);
-        for (const char *const *p = h; *p; p++)
-            if (strcmp(t, *p) == 0) return 1;
+        const char *q[] = { t };
+        if (b && b->kb && kb_query(b->kb, "hedge_word", q, 1)) return 1;
     }
     return 0;
 }
 
 /* a contrastive connective anywhere in the turn. */
-static int has_contrastive(char **w, size_t nw) {
-    /* TODO(kb-first): i connettivi di CONTRASTO. Stessa specie della lista
-     * qui sopra; `connector/1` esiste gia' in kb/core/lexicon.p0 e non viene
-     * interrogato. Quando due liste della stessa cosa convivono, quella nel C
-     * vince in silenzio ed e' l'unica che nessuno puo' correggere. */
-    static const char *const c[] = {
-        "but", "however", "though", "although", "yet",
-        "pero", "per`o", "tuttavia", "invece",
-        NULL
-    };
+static int has_contrastive(Brain *b, char **w, size_t nw) {
     for (size_t i = 0; i < nw; i++) {
         char tmp[64];
         snprintf(tmp, sizeof tmp, "%s", w[i]);
         const char *t = strip_edge_punct(tmp);
-        for (const char *const *p = c; *p; p++)
-            if (strcmp(t, *p) == 0) return 1;
+        const char *q[] = { t };
+        if (b && b->kb && kb_query(b->kb, "contrastive_connector", q, 1)) return 1;
     }
     return 0;
 }
 
 /* a negation marker anywhere in the turn. */
-static int has_negation(char **w, size_t nw) {
+static int has_negation(Brain *b, char **w, size_t nw) {
     for (size_t i = 0; i < nw; i++) {
         char tmp[64];
         snprintf(tmp, sizeof tmp, "%s", w[i]);
         const char *t = strip_edge_punct(tmp);
-        if (strcmp(t, "not") == 0 || strcmp(t, "no") == 0 ||
-            strcmp(t, "never") == 0 || strcmp(t, "dont") == 0 ||
-            strcmp(t, "nor") == 0) return 1;
+        const char *q[] = { t };
+        if (b && b->kb && kb_query(b->kb, "negation_marker", q, 1)) return 1;
     }
     return 0;
 }
@@ -693,35 +674,25 @@ static int has_negation(char **w, size_t nw) {
  * true/correct/convinced", "(doesn't) make sense". These are PREDICATES, not
  * mere objects: "that"/"you" alone are not stance ("dont say that" is an order,
  * not a disagreement), so the move keys on the predicate. */
-static int is_stance_pred(const char *t) {
-    /* TODO(kb-first): le parole dell'ASSENSO — e il file accanto ha gia'
-     * `intent_cue(agree, …)` in kb/core/reactions.p0 dal gen403. Due sorgenti
-     * per la stessa nozione: questa va tolta, non allineata. */
-    static const char *const s[] = {
-        "agree", "right", "sure", "true", "correct", "convinced", "sense",
-        "convince", "persuaded", "ragione", "giusto", "vero", "accordo",
-        "sicuro", "convinto", "convince", "d'accordo", NULL
-    };
-    for (const char *const *p = s; *p; p++)
-        if (strcmp(t, *p) == 0) return 1;
-    return 0;
+static int is_stance_pred(Brain *b, const char *t) {
+    const char *q[] = { t };
+    return b && b->kb && kb_query(b->kb, "stance_predicate", q, 1);
 }
 
 /* A disagreement is a NEGATED stance predicate ("i don't agree", "that is not
  * right", "not so sure", "non sono d'accordo"), or the standalone verb
  * "disagree"/"dissento". Shape, not phrase: any negation co-occurring with a
  * stance predicate in a short turn reads as pushback. */
-static int is_disagreement(char **w, size_t nw) {
+static int is_disagreement(Brain *b, char **w, size_t nw) {
     int neg = 0, stance = 0, plain = 0;
     for (size_t i = 0; i < nw; i++) {
         char tmp[64];
         snprintf(tmp, sizeof tmp, "%s", w[i]);
         const char *t = strip_edge_punct(tmp);
-        if (strcmp(t, "not") == 0 || strcmp(t, "no") == 0 ||
-            strcmp(t, "never") == 0 || strcmp(t, "dont") == 0) neg = 1;
-        if (is_stance_pred(t)) stance = 1;
-        if (strcmp(t, "disagree") == 0 || strcmp(t, "dissento") == 0 ||
-            strcmp(t, "dubito") == 0) plain = 1;
+        const char *q[] = { t };
+        if (b && b->kb && kb_query(b->kb, "negation_marker", q, 1)) neg = 1;
+        if (is_stance_pred(b, t)) stance = 1;
+        if (b && b->kb && kb_query(b->kb, "standalone_disagreement", q, 1)) plain = 1;
     }
     return plain || (neg && stance);
 }
@@ -731,19 +702,13 @@ static int is_disagreement(char **w, size_t nw) {
  * cosa"). A CONCRETE object ("a story", "about C") is not open, so "tell me a
  * story" stays a real (unfulfillable) request and hits the honest wall instead
  * of this fill-the-silence move. */
-static int has_open_quantifier(char **w, size_t nw) {
-    /* TODO(kb-first): i pronomi indefiniti. Sono una CLASSE grammaticale, e
-     * le classi grammaticali di parrot0 vivono in lexicon.p0 accanto ad
-     * articoli e ausiliari. */
-    static const char *const q[] = {
-        "something", "anything", "qualcosa", "qualunque", "whatever", NULL
-    };
+static int has_open_quantifier(Brain *b, char **w, size_t nw) {
     for (size_t i = 0; i < nw; i++) {
         char tmp[64];
         snprintf(tmp, sizeof tmp, "%s", w[i]);
         const char *t = strip_edge_punct(tmp);
-        for (const char *const *p = q; *p; p++)
-            if (strcmp(t, *p) == 0) return 1;
+        const char *q[] = { t };
+        if (b && b->kb && kb_query(b->kb, "open_quantifier", q, 1)) return 1;
     }
     return 0;
 }
@@ -848,10 +813,10 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
      * what reaches here is a turn with no actionable content predicate.) */
     if (content) return 0;
 
-    int hedge       = has_hedge(w, nw);
-    int contrastive = has_contrastive(w, nw);
-    int negation    = has_negation(w, nw);
-    int disagree    = is_disagreement(w, nw);
+    int hedge       = has_hedge(b, w, nw);
+    int contrastive = has_contrastive(b, w, nw);
+    int negation    = has_negation(b, w, nw);
+    int disagree    = is_disagreement(b, w, nw);
 
     /* ---- MOVE 5: disagreement. A NEGATED stance predicate ("i don't agree",
      * "that's not right", "non sono d'accordo"), or a contrastive pushback that
@@ -915,7 +880,7 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
          * they fall through to the honest wall, not this move. The bare 3-token
          * "tell me something" family stays chitchat's established no-topic
          * register, so we require >= 4 tokens here and leave those to chitchat. */
-        if (soft && has_open_quantifier(w, nw) && nw >= 4 && nw <= 8) {
+        if (soft && has_open_quantifier(b, w, nw) && nw >= 4 && nw <= 8) {
             kb_term_say(b, "happy_to_pick_a_thread_your_day_a_small_fact", NULL, 0, out, out_size);
             return 1;
         }
