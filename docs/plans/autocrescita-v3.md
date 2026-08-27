@@ -1145,6 +1145,13 @@ ablazione della testa. Questo è un gate di usabilità, distinto dai campioni
 strutturali; l'audit completo su chat e LLMSCORE resta obbligatorio prima della
 chiusura del piano.
 
+Il secondo passaggio ha eseguito `tests/basicchat.sh` sulla KB reale: la
+copertura dei concetti matematici è salita da 65% a 88% e quella causale da 50%
+a 75% dopo l'aggiunta del nucleo semantico. Restano muri osservabili su
+sequenze, calendario, geografia e simboli; sono lacune registrate, non
+considerate risolte per assenza di crash. Questo audit impedisce di confondere
+la chiusura dei campioni Gen con una conversazione di frontiera già completa.
+
 ## gen444 — Dall'addestramento assistito alla coltivazione autonoma
 
 ### Ipotesi H444
