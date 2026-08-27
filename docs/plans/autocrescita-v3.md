@@ -1356,6 +1356,15 @@ degli scacchi fornisce le tre descrizioni italiane e la relazione
 `action_source/2`; la risposta annota `[wikipedia]` sui passi sostenuti dalla
 fonte, senza un ramo C dedicato.
 
+### Verifica d'uso reale
+
+Una sequenza pulita di cinque turni indipendenti in italiano produce,
+nell'ordine: preferenza onesta sugli scacchi, definizione dalla KB, opinione
+epistemicamente limitata, proposta di collaborazione e piano a tre passi con
+provenienza Wikipedia. Non è una prova di copertura generale, ma dimostra che
+il percorso prioritario dell'utente non cade più nel muro né cambia registro
+senza motivo.
+
 ### Ipotesi H446
 
 Dopo le nove generazioni precedenti esiste uno stato KB dal quale campagne
