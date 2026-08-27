@@ -1327,6 +1327,15 @@ Il planner KB non contiene privilegi per valvole, itinerari o istituzioni.
 Deriva la ricerca da stati, azioni, dipendenze e budget descritti nella KB;
 nuovi domini e nuove strategie entrano come conoscenza e non come codice.
 
+### Evidenza operativa Gen445
+
+I campioni `gen445-planning.p0t` e il percorso reale di `make chat` dimostrano
+il ponte fonte→azione informativa→piano, l’alternativa dopo ritiro di un passo,
+il replanning e la contabilità di dipendenze, costi, tempi e budget. La stessa
+struttura è ora accessibile in EN/IT da richieste naturali. Restano aperti il
+secondo round causale completo e la prova su tre famiglie di dominio prevista
+dal gate.
+
 ---
 
 ## gen446 — Stato vivente: dialogo, crescita e piani nello stesso ciclo
