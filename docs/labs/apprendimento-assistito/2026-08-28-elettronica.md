@@ -285,3 +285,24 @@ Gate per **nuova capacità generale**: **non superato** — `Contrast` e
 - `kb/learning/learned.p0` — i fatti, la provenienza, il log
 - `kb/core/meta.p0` — `gap_source/2` dei muri incontrati
 - `src/kb.c` — `sm_same_file/2`, il fix di persistenza del §7
+
+## 12. Addendum — lo sparpagliamento della ricaduta
+
+Dopo il commit del checkpoint, `kb/learning/learned.p0` è stato svuotato
+creando le cinque case che mancavano (commit successivo). Durante la verifica a
+caldo dell'instradamento sono stati insegnati parlando altri **due fatti veri**,
+dalla stessa fonte (BIPM, *SI Brochure* 9ª ed., unità di base):
+
+| fatto | verifica |
+|---|---|
+| `measures(ampere, current)` | instradato in `kb/core/facts/units.p0` |
+| `measures(kelvin, temperature)` | instradato in `kb/core/facts/units.p0` |
+
+`W` complessivo del dominio sale così a **7**. Entrambi sono stati assorbiti
+senza rispiegare la forma, in processi nuovi, e instradati accanto ai loro
+simili invece che nella ricaduta — che è la prova che le case sono quelle
+giuste.
+
+Il gap **G3** risulta chiuso: `turn_scratch/1` in `kb/core/discourse.p0`
+dichiara quali predicati sono scratch di turno, e `/save` li salta. G1 e G2
+restano aperti.
