@@ -636,6 +636,7 @@ intent_cue(smalltalk_continue, "preferisci").
 intent_cue(smalltalk_continue, "secondo te").
 intent_cue(smalltalk_continue, "che ne pensi").
 intent_cue(smalltalk_continue, "che cosa possiamo fare insieme").
+intent_cue(smalltalk_continue, "cosa possiamo fare insieme").
 intent_cue(smalltalk_continue, "what can we do together").
 intent_cue(smalltalk_continue, "c'è un").
 intent_cue(smalltalk_continue, "c e un").
