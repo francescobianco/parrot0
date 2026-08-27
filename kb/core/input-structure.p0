@@ -21,9 +21,13 @@ machinery(input_node_form).
 machinery(input_node_has_form).
 machinery(input_node_unresolved).
 machinery(input_entity_node).
+machinery(input_entity_between).
+machinery(input_nearest_entity_before).
+machinery(input_nearest_entity_after).
 machinery(input_class_node).
 machinery(input_unit_node).
 machinery(input_operator_node).
+machinery(input_coordination_node).
 machinery(input_gap_node).
 machinery(input_number_node).
 machinery(node_order3).
@@ -31,6 +35,8 @@ machinery(node_order4).
 machinery(input_node_before).
 machinery(input_node_order3).
 machinery(input_node_order4).
+machinery(input_binary_assertion).
+machinery(input_binary_object_coordination).
 machinery(input_semantic_frame).
 machinery(input_frame_gap).
 machinery(input_frame_key).
@@ -42,7 +48,10 @@ machinery(input_clause_provenance).
 machinery(input_assertion_key).
 machinery(input_assertion_set).
 machinery(input_assertion_unique).
+machinery(input_assertion_coordinated).
+machinery(input_assertion_bundle).
 machinery(input_assertion_ambiguous).
+machinery(input_assertion_store).
 machinery(input_frame_commit).
 machinery(proposition_source).
 machinery(proposition_source_record).
@@ -52,9 +61,13 @@ machinery(input_frame_reading).
 machinery(input_frame_reading_key).
 machinery(input_frame_reading_set).
 machinery(input_frame_reading_unique).
+machinery(input_reading_values).
+machinery(input_frame_reading_many).
 machinery(input_answer_surface_key).
 machinery(input_answer_surface_set).
 machinery(input_answer_surface_unique).
+machinery(input_answer_surface_list).
+machinery(input_answer_list_text).
 
 input_node_level($Scope, $Id, $Level) :-
     input_node($Scope, $Id, node($Level, $Kind, $Parent), $Range).
@@ -116,6 +129,28 @@ input_entity_node($Scope, $Language, $Id, $Entity) :-
     input_node_surface($Scope, $Id, $Quoted),
     phrase_form($Quoted, $Entity, $Language, $Register).
 
+% Un ruolo non si lega a un nome qualunque che cada dalla parte giusta del
+% verbo. Si lega al nodo semantico piu' vicino. Questo elimina il prodotto
+% cartesiano che trasformava `A R B and C` in due letture concorrenti prima
+% ancora che la coordinazione potesse spiegare perche' B e C sono entrambi
+% filler legittimi.
+input_entity_between($Scope, $Language, interval($Left, $Right)) :-
+    input_entity_node($Scope, $Language, $Middle, $Entity),
+    input_node_before($Scope, $Left, $Middle),
+    input_node_before($Scope, $Middle, $Right).
+
+input_nearest_entity_before($Scope, $Language, $Anchor,
+                            entity($Id, $Entity)) :-
+    input_entity_node($Scope, $Language, $Id, $Entity),
+    input_node_before($Scope, $Id, $Anchor),
+    naf(input_entity_between($Scope, $Language, interval($Id, $Anchor))).
+
+input_nearest_entity_after($Scope, $Language, $Anchor,
+                           entity($Id, $Entity)) :-
+    input_entity_node($Scope, $Language, $Id, $Entity),
+    input_node_before($Scope, $Anchor, $Id),
+    naf(input_entity_between($Scope, $Language, interval($Anchor, $Id))).
+
 input_class_node($Scope, $Language, $Id, $Class) :-
     input_node_form($Scope, $Id, $Language, form($Surface, $Class)),
     semantic_class($Class).
@@ -127,6 +162,14 @@ input_unit_node($Scope, $Language, $Id, $Unit) :-
 input_operator_node($Scope, $Language, operator($Kind, $Relation), $Id) :-
     input_node_form($Scope, $Id, $Language, form($Surface, $Relation)),
     frame_operator_concept($Relation, $Kind).
+
+% La superficie della congiunzione resta una classe KB aperta. Il nodo conserva
+% la lingua osservata nello scope; insegnare un nuovo membro a runtime attraverso
+% `use X as a conjunction` abilita questa stessa composizione senza rebuild.
+input_coordination_node($Scope, $Language, $Id, $Surface) :-
+    input_scope_language($Scope, $Language),
+    input_node_atom($Scope, $Id, $Surface),
+    conjunction($Surface).
 
 input_gap_node($Scope, $Language, $Role, $Id) :-
     input_node_atom($Scope, $Id, $Surface),
@@ -153,24 +196,54 @@ input_node_order4($Scope, order($A, $B, $C, $D)) :-
     input_node_before($Scope, $A, $B), input_node_before($Scope, $B, $C),
     input_node_before($Scope, $C, $D).
 
-% Relazione binaria: asserzione e domanda condividono operatore e ruoli. Cambia
-% soltanto il valore del ruolo che la domanda lascia aperto.
-input_semantic_frame($Scope, assertion, binary($Relation),
-                     roles(subject($Subject), object($Object))) :-
+% Relazione binaria: prima si costruisce il frame locale attorno all'operatore;
+% poi gli operatori compositivi possono distribuirne un ruolo. Asserzione e
+% domanda continuano a condividere firma e ruoli.
+input_binary_assertion($Scope, $Language, relation($Relation, $RId),
+                       roles(entity($SId, $Subject),
+                             entity($OId, $Object))) :-
     input_scope_language($Scope, $Language),
     frame_pattern($Language, binary, assertion, sro),
-    input_entity_node($Scope, $Language, $SId, $Subject),
     input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
-    input_entity_node($Scope, $Language, $OId, $Object),
-    input_node_order3($Scope, $SId, $RId, $OId).
+    input_nearest_entity_before($Scope, $Language, $RId,
+                                entity($SId, $Subject)),
+    input_nearest_entity_after($Scope, $Language, $RId,
+                               entity($OId, $Object)).
+
+input_binary_object_coordination(
+    $Scope, $Language, relation($Relation, $RId),
+    coordination(subject($SId, $Subject), first($O1Id, $Object1),
+                 cue($CId), second($O2Id, $Object2))) :-
+    input_binary_assertion(
+        $Scope, $Language, relation($Relation, $RId),
+        roles(entity($SId, $Subject), entity($O1Id, $Object1))),
+    input_coordination_node($Scope, $Language, $CId, $Surface),
+    input_entity_node($Scope, $Language, $O2Id, $Object2),
+    input_node_before($Scope, $O1Id, $CId),
+    input_node_before($Scope, $CId, $O2Id),
+    dif($Object1, $Object2).
+
+input_semantic_frame($Scope, assertion, binary($Relation),
+                     roles(subject($Subject), object($Object))) :-
+    input_binary_assertion(
+        $Scope, $Language, relation($Relation, $RId),
+        roles(entity($SId, $Subject), entity($OId, $Object))).
+
+input_semantic_frame($Scope, assertion, binary($Relation),
+                     roles(subject($Subject), object($Object2))) :-
+    input_binary_object_coordination(
+        $Scope, $Language, relation($Relation, $RId),
+        coordination(subject($SId, $Subject), first($O1Id, $Object1),
+                     cue($CId), second($O2Id, $Object2))).
 
 input_semantic_frame($Scope, question, binary($Relation),
                      roles(subject($Subject), object(missing))) :-
     input_scope_language($Scope, $Language),
     frame_pattern($Language, binary, question, qsr),
     input_gap_node($Scope, $Language, object, $QId),
-    input_entity_node($Scope, $Language, $SId, $Subject),
     input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
+    input_nearest_entity_before($Scope, $Language, $RId,
+                                entity($SId, $Subject)),
     input_node_order3($Scope, $QId, $SId, $RId).
 
 input_semantic_frame($Scope, question, binary($Relation),
@@ -179,7 +252,8 @@ input_semantic_frame($Scope, question, binary($Relation),
     frame_pattern($Language, binary, question, qrs),
     input_gap_node($Scope, $Language, object, $QId),
     input_operator_node($Scope, $Language, operator(binary, $Relation), $RId),
-    input_entity_node($Scope, $Language, $SId, $Subject),
+    input_nearest_entity_after($Scope, $Language, $RId,
+                               entity($SId, $Subject)),
     input_node_order3($Scope, $QId, $RId, $SId).
 
 % Misura: valore e unita' sono ruoli distinti, quindi "numero trovato" non puo'
@@ -188,8 +262,9 @@ input_semantic_frame($Scope, assertion, measure($Relation),
                      roles(subject($Subject), measure(value($Value), unit($Unit)))) :-
     input_scope_language($Scope, $Language),
     frame_pattern($Language, measure, assertion, srvu),
-    input_entity_node($Scope, $Language, $SId, $Subject),
     input_operator_node($Scope, $Language, operator(measure, $Relation), $RId),
+    input_nearest_entity_before($Scope, $Language, $RId,
+                                entity($SId, $Subject)),
     input_number_node($Scope, $VId, $Value),
     input_unit_node($Scope, $Language, $UId, $Unit),
     input_node_order4($Scope, order($SId, $RId, $VId, $UId)).
@@ -200,8 +275,9 @@ input_semantic_frame($Scope, question, measure($Relation),
     frame_pattern($Language, measure, question, qusr),
     input_gap_node($Scope, $Language, value, $QId),
     input_unit_node($Scope, $Language, $UId, $Unit),
-    input_entity_node($Scope, $Language, $SId, $Subject),
     input_operator_node($Scope, $Language, operator(measure, $Relation), $RId),
+    input_nearest_entity_before($Scope, $Language, $RId,
+                                entity($SId, $Subject)),
     input_node_order4($Scope, order($QId, $UId, $SId, $RId)).
 
 input_semantic_frame($Scope, question, measure($Relation),
@@ -211,7 +287,8 @@ input_semantic_frame($Scope, question, measure($Relation),
     input_gap_node($Scope, $Language, value, $QId),
     input_unit_node($Scope, $Language, $UId, $Unit),
     input_operator_node($Scope, $Language, operator(measure, $Relation), $RId),
-    input_entity_node($Scope, $Language, $SId, $Subject),
+    input_nearest_entity_after($Scope, $Language, $RId,
+                               entity($SId, $Subject)),
     input_node_order4($Scope, order($QId, $UId, $RId, $SId)).
 
 % Appartenenza di classe. `membership(Relation)` mantiene esplicita la relazione
@@ -220,8 +297,9 @@ input_semantic_frame($Scope, assertion, membership($Relation),
                      roles(subject($Subject), class($Class))) :-
     input_scope_language($Scope, $Language),
     frame_pattern($Language, membership, assertion, src),
-    input_entity_node($Scope, $Language, $SId, $Subject),
     input_operator_node($Scope, $Language, operator(membership, $Relation), $RId),
+    input_nearest_entity_before($Scope, $Language, $RId,
+                                entity($SId, $Subject)),
     input_class_node($Scope, $Language, $CId, $Class),
     input_node_order3($Scope, $SId, $RId, $CId).
 
@@ -231,7 +309,8 @@ input_semantic_frame($Scope, question, membership($Relation),
     frame_pattern($Language, membership, question, qrs),
     input_gap_node($Scope, $Language, class, $QId),
     input_operator_node($Scope, $Language, operator(membership, $Relation), $RId),
-    input_entity_node($Scope, $Language, $SId, $Subject),
+    input_nearest_entity_after($Scope, $Language, $RId,
+                               entity($SId, $Subject)),
     input_node_order3($Scope, $QId, $RId, $SId).
 
 input_frame_gap($Scope, binary($Relation), object) :-
@@ -296,8 +375,27 @@ input_assertion_set($Scope, $Assertions) :-
     findall($Assertion, input_assertion_key($Scope, $Assertion), $Assertions).
 input_assertion_unique($Scope, $Assertion) :-
     input_assertion_set($Scope, cons($Assertion, nil)).
+
+input_assertion_coordinated(
+    $Scope,
+    cons(proposition(binary($Relation),
+                     roles(subject($Subject), object($Object1))),
+         cons(proposition(binary($Relation),
+                          roles(subject($Subject), object($Object2))), nil))) :-
+    input_binary_object_coordination(
+        $Scope, $Language, relation($Relation, $RId),
+        coordination(subject($SId, $Subject), first($O1Id, $Object1),
+                     cue($CId), second($O2Id, $Object2))).
+
+input_assertion_bundle($Scope, cons($Assertion, nil)) :-
+    input_assertion_unique($Scope, $Assertion).
+input_assertion_bundle($Scope, $Assertions) :-
+    input_assertion_coordinated($Scope, $Assertions).
+
 input_assertion_ambiguous($Scope) :-
-    input_assertion_set($Scope, cons($First, cons($Second, $Tail))).
+    input_assertion_set($Scope, cons($First, cons($Second, $Tail))),
+    naf(input_assertion_coordinated(
+        $Scope, cons($First, cons($Second, $Tail)))).
 
 % Proiezione relazionale della stessa IR. `semantic_proposition/1` conserva la
 % forma completa e la provenienza; semantic_binding/3 offre al solver un indice
@@ -316,20 +414,27 @@ input_proposition_binding(
                 roles(subject($Subject), class($Class))),
     membership($Relation), $Subject, class($Class)).
 
-input_frame_commit($Scope,
-                   committed($Proposition,
-                             provenance($Language, $Quoted,
-                                        range($Start, $Length)))) :-
-    input_assertion_unique($Scope, $Proposition),
-    input_clause_provenance($Scope,
-                            provenance($Language, $Quoted,
-                                       range($Start, $Length))),
+input_assertion_store(nil, $Language, $Quoted, $Range).
+input_assertion_store(cons($Proposition, $Tail), $Language, $Quoted,
+                      range($Start, $Length)) :-
     input_proposition_binding($Proposition, $Operator, $Subject, $Filler),
     assert(semantic_proposition, $Proposition),
     assert(semantic_binding, $Operator, $Subject, $Filler),
     assert(proposition_source_record, $Proposition, source(inline, $Quoted),
            provenance(language($Language), range($Start, $Length))),
-    assert(reading_fact, $Proposition, $Quoted).
+    assert(reading_fact, $Proposition, $Quoted),
+    input_assertion_store($Tail, $Language, $Quoted, range($Start, $Length)).
+
+% Il bundle viene osservato una volta al confine e ripassato come termine opaco
+% dal producer. Evita di rieseguire l'intera catena forma -> frame mentre si
+% scrivono le proposizioni, senza spostare nel C alcuna scelta semantica.
+input_frame_commit($Scope, $Assertions, $Count) :-
+    count_list($Assertions, $Count),
+    input_clause_provenance($Scope,
+                            provenance($Language, $Quoted,
+                                       range($Start, $Length))),
+    input_assertion_store($Assertions, $Language, $Quoted,
+                          range($Start, $Length)).
 
 % Il builtin assert/1 conserva il limite meccanico KB_MAX_ARGS: nome del
 % predicato piu' al massimo tre argomenti. La provenienza e' quindi registrata
@@ -366,6 +471,21 @@ input_frame_reading_unique($Scope, $Operator, $Role, $Value) :-
     input_frame_reading_set($Scope,
                             cons(reading($Operator, $Role, $Value), nil)).
 
+input_reading_values(nil, $Operator, $Role, nil).
+input_reading_values(cons(reading($Operator, $Role, $Value), $Tail),
+                     $Operator, $Role, cons($Value, $Values)) :-
+    input_reading_values($Tail, $Operator, $Role, $Values).
+
+input_frame_reading_many($Scope, $Operator, $Role, $Values) :-
+    input_frame_reading_set(
+        $Scope,
+        cons(reading($Operator, $Role, $First),
+             cons(reading($Operator, $Role, $Second), $Tail))),
+    input_reading_values(
+        cons(reading($Operator, $Role, $First),
+             cons(reading($Operator, $Role, $Second), $Tail)),
+        $Operator, $Role, $Values).
+
 % Anche la realizzazione rifiuta una scelta arbitraria fra sinonimi di pari
 % stato. Il registro/default della lingua determina i candidati; soltanto un
 % insieme singleton autorizza la risposta.
@@ -377,10 +497,36 @@ input_answer_surface_set($Language, $Value, $Surfaces) :-
 input_answer_surface_unique($Language, $Value, $Surface) :-
     input_answer_surface_set($Language, $Value, cons($Surface, nil)).
 
+input_answer_surface_list($Language, nil, nil).
+input_answer_surface_list($Language, cons($Value, $Tail),
+                          cons($Surface, $Surfaces)) :-
+    input_answer_surface_unique($Language, $Value, $Surface),
+    input_answer_surface_list($Language, $Tail, $Surfaces).
+
+input_answer_list_text($Language, cons($First, cons($Second, nil)), $Text) :-
+    list_final_joiner($Language, $Joiner),
+    concat_atoms($First, " ", $FirstSpace),
+    concat_atoms($FirstSpace, $Joiner, $FirstJoiner),
+    concat_atoms($FirstJoiner, " ", $Prefix),
+    concat_atoms($Prefix, $Second, $Text).
+input_answer_list_text($Language, cons($First, cons($Second, $Tail)), $Text) :-
+    list_separator($Language, $Separator),
+    concat_atoms($First, $Separator, $Prefix),
+    input_answer_list_text($Language, cons($Second, $Tail), $Rest),
+    concat_atoms($Prefix, $Rest, $Text).
+
 turn_plan_candidate($Turn) :-
     input_frame_reading_unique($Turn, $Operator, $Role, $Value).
+turn_plan_candidate($Turn) :-
+    input_frame_reading_many($Turn, $Operator, $Role, $Values).
 turn_response($Turn, $Text) :-
     input_frame_reading_unique($Turn, $Operator, $Role, $Value),
     turn_language($Turn, output, $Language),
     input_answer_surface_unique($Language, $Value, $Surface),
+    value_statement($Language, $Surface, $Text).
+turn_response($Turn, $Text) :-
+    input_frame_reading_many($Turn, $Operator, $Role, $Values),
+    turn_language($Turn, output, $Language),
+    input_answer_surface_list($Language, $Values, $Surfaces),
+    input_answer_list_text($Language, $Surfaces, $Surface),
     value_statement($Language, $Surface, $Text).

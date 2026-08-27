@@ -1,0 +1,61 @@
+# GEN439 — COORDINAZIONE COME COMPOSIZIONE DI RUOLI.
+#
+# Un solo operatore dichiarativo deve leggere piu' filler dello stesso ruolo,
+# conservarli come proposizioni distinte e renderli insieme. Il test trasferisce
+# la costruzione fra mondo naturale, artefatti e istituzioni. Infine insegna una
+# congiunzione parlando, la usa su membri nuovi e la ritrae senza rebuild.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=docs/labs/autocrescita-v3/gen439-coordination.p0
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test one coordination operator transfers across three domains]
+> read: mill produces flour and bran.
+< Learned 2 fact(s), skipped 0.
+!query input_coordination_node(current_prose, en, 4, and)
+!query input_nearest_entity_after(current_prose, en, 4, entity(5, branion))
+!query input_binary_assertion(current_prose, en, relation(produce_relation, 2), roles(entity(1, million), entity(3, flourion)))
+!query input_binary_object_coordination(current_prose, en, relation(produce_relation, 2), coordination(subject(1, million), first(3, flourion), cue(4), second(5, branion)))
+!query input_semantic_frame(current_prose, assertion, binary(produce_relation), roles(subject(million), object(flourion)))
+!query input_semantic_frame(current_prose, assertion, binary(produce_relation), roles(subject(million), object(branion)))
+!query input_assertion_set(current_prose, cons(proposition(binary(produce_relation), roles(subject(million), object(flourion))), cons(proposition(binary(produce_relation), roles(subject(million), object(branion))), nil)))
+!query input_assertion_bundle(current_prose, cons(proposition(binary(produce_relation), roles(subject(million), object(flourion))), cons(proposition(binary(produce_relation), roles(subject(million), object(branion))), nil)))
+!query input_clause_provenance(current_prose, provenance(en, "mill produces flour and bran", range(0, 28)))
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(million), object(flourion))))
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(million), object(branion))))
+!query! input_assertion_ambiguous(current_prose)
+> cosa produce mulino
+< Farina e crusca.
+
+> read: tree produces oxygen and shade.
+< Learned 2 fact(s), skipped 0.
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(treeion), object(oxygenion))))
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(treeion), object(shadeion))))
+
+> read: university produces research and graduates.
+< Learned 2 fact(s), skipped 0.
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(universityion), object(researchion))))
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(universityion), object(graduateion))))
+
+[test a spoken conjunction grows, is used, and retracts]
+!reset
+> use plus as a conjunction
+< Got it - I'll treat "plus" as a conjunction now, like "and".
+> read: panel produces electricity plus heat.
+< Learned 2 fact(s), skipped 0.
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(panelion), object(electricityion))))
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(panelion), object(heation))))
+> what does panel produce
+< Electricity and heat.
+
+!forget conjunction(plus)
+> read: press produces sheets plus parts.
+< Learned 1 fact(s), skipped 0.
+!query semantic_proposition(proposition(binary(produce_relation), roles(subject(pression), object(sheetion))))
+!query! semantic_proposition(proposition(binary(produce_relation), roles(subject(pression), object(partion))))
+> what does press produce
+< Sheets.

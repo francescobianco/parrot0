@@ -1,0 +1,54 @@
+% Profilo Gen439: la coordinazione distribuisce un ruolo semantico, non spezza
+% una frase in due stringhe. I tre domini condividono soltanto frame e operatore.
+
+semantic_entity(million).
+semantic_entity(flourion).
+semantic_entity(branion).
+semantic_entity(treeion).
+semantic_entity(oxygenion).
+semantic_entity(shadeion).
+semantic_entity(universityion).
+semantic_entity(researchion).
+semantic_entity(graduateion).
+semantic_entity(panelion).
+semantic_entity(electricityion).
+semantic_entity(heation).
+semantic_entity(pression).
+semantic_entity(sheetion).
+semantic_entity(partion).
+
+frame_operator_concept(produce_relation, binary).
+frame_pattern(en, binary, assertion, sro).
+frame_pattern(en, binary, question, qsr).
+frame_pattern(it, binary, question, qrs).
+
+frame_gap_form(en, what, object).
+frame_gap_form(it, cosa, object).
+
+language_marker(en, produces).
+language_marker(en, what).
+language_marker(it, cosa).
+
+concept_label(produce_relation, en, common, produces).
+concept_label(produce_relation, en, common, produce).
+concept_label(produce_relation, it, common, produce).
+
+concept_label(million, en, common, mill).
+concept_label(flourion, en, common, flour).
+concept_label(branion, en, common, bran).
+concept_label(treeion, en, common, tree).
+concept_label(oxygenion, en, common, oxygen).
+concept_label(shadeion, en, common, shade).
+concept_label(universityion, en, common, university).
+concept_label(researchion, en, common, research).
+concept_label(graduateion, en, common, graduates).
+concept_label(panelion, en, common, panel).
+concept_label(electricityion, en, common, electricity).
+concept_label(heation, en, common, heat).
+concept_label(pression, en, common, press).
+concept_label(sheetion, en, common, sheets).
+concept_label(partion, en, common, parts).
+
+concept_label(million, it, common, mulino).
+concept_label(flourion, it, common, farina).
+concept_label(branion, it, common, crusca).

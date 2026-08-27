@@ -1,7 +1,8 @@
 # Autocrescita v3 — dieci generazioni verso una KB vivente
 
-**Stato:** gen437 chiusa; Gen438 end-to-end prosa/dialogo implementata, gate aperto
-**Data:** 25 agosto 2026
+**Stato:** gen437 chiusa; H438 aperta; H439 in avanzamento; le evidenze
+gen440–gen446 sono prototipi verticali e non chiusure sequenziali
+**Data:** 27 agosto 2026
 **Orizzonte:** gen437–gen446
 **Vincolo:** runtime KB-first; Wikipedia è l'unica sorgente esterna ammessa
 
@@ -72,6 +73,65 @@ lingua, provenienza e continuità. Se la copertura manca, la risposta corretta
 dominio; non è abbassare la soglia o nascondere il buco dietro un fallback.
 Il piano è finito solo quando questo ciclo è effettivamente autonomo e
 riproducibile su una superficie nuova.
+
+L'equivalenza attesa dall'utente non e' «un database che sa molte risposte» e
+non e' «assenza cosmetica del muro». Il bersaglio e' la **potenza di
+comprensione operativa di un LLM**: ricevere prosa non preparata, costruirne una
+rappresentazione compositiva, acquisire fatti e relazioni, generalizzarli in
+inferenze e rispondere a parafrasi e continuazioni che non erano state
+precaricate. Le generazioni di questo piano sono impalcatura verso quel
+bersaglio; nessuna etichetta `K_readable`, `K_alive` o «gate locale passato» e'
+un sinonimo autorizzato di comprensione universale.
+
+### Questa non e' la prima falsificazione dell'aspettativa
+
+La storia del repository mostra che il richiamo e' ricorrente e che quindi il
+problema e' di priorita', non di formulazione occasionale:
+
+1. il 28 giugno 2026 `universal-comprehension.md` registra l'aspettativa che
+   parrot0 sappia estrarre grammaticalmente la struttura di qualsiasi frase e
+   leggere l'intento anche con parole ignote (commit `e10cd7b`);
+2. il 12 agosto una conversazione sul poker viene descritta esplicitamente come
+   deludente: la KB possedeva regole e ranghi, ma domande banali restavano muri
+   (commit `9d30f5f`);
+3. il 25 agosto questo piano riconosce che la prosa reale, non il fetch, e' il
+   collo di bottiglia di tutta l'autocrescita;
+4. il 27 agosto l'audit su scacchi, dama e poker mostra di nuovo che aggiungere
+   superfici e continuita' locali puo' migliorare il dialogo senza risolvere la
+   comprensione compositiva generale;
+5. la falsificazione odierna ribadisce che una sequenza di costrutti validi ma
+   locali non soddisfa il progetto se parrot0 non sa leggere prosa nuova,
+   acquisirla e riusarla.
+
+La correzione di processo e' vincolante: si riparte sempre dalla **prima ipotesi
+aperta nella catena causale**. Oggi e' H438, seguita da H439. Le evidenze gia'
+costruite per gen440–gen446 restano vive come prototipi e testimoni secondari,
+ma non autorizzano a dichiarare avanzata la sequenza finche' composizione,
+prosa e domanda non superano i propri gate. Un nuovo fix conversazionale su un
+tema nominato e' fuori ordine, a meno che il caso non diventi un testimone di un
+operatore trasferibile su prosa e domini nuovi.
+
+### Gate di comprensione universale operativa
+
+Il gate Gen446 non conclude da solo l'esperimento. Dopo i gate strutturali serve
+un confronto comportamentale su prosa esogena e mai usata per costruire la KB.
+Per ogni brano parrot0 deve sostenere insieme:
+
+1. estrazione di proposizioni esplicite e relativa provenienza;
+2. parafrasi della stessa struttura senza una nuova procedura;
+3. composizione di coordinazioni, apposizioni, relative, misure e scope;
+4. continuita' di referente e obbligo attraverso piu' frasi e turni;
+5. almeno una conseguenza non copiata letteralmente dal testo;
+6. domanda su un ruolo mancante, risposta sostenuta oppure arresto esatto;
+7. teach/use/retract di una forma nuova che cambi sia lettura sia domanda;
+8. su una lacuna fattuale, acquisizione Wikipedia mirata e replay dello stesso
+   turno.
+
+Le mosse di un LLM di frontiera sono il comparatore comportamentale del metodo,
+non una sorgente fattuale al runtime. Se il modello legge una relazione o
+mantiene un referente che parrot0 perde, il caso resta rosso e deve motorizzare
+la classe. Nessuna media, risposta plausibile o fallback tematico puo'
+compensare una di queste perdite.
 
 Questa formulazione unifica i programmi di
 `universal-input.md`, `frontier-kb-natural-dialogue.md`,
@@ -215,7 +275,9 @@ Una KB è **viva sulla superficie sperimentata** se, su tutti questi strati:
 10. almeno una lingua non enumerata dal C può crescere e ritrarsi a runtime.
 
 La qualifica è deliberatamente relativa alla superficie dimostrata. Non
-significa comprensione universale e non può essere ottenuta per dichiarazione.
+significa ancora comprensione universale e non può essere ottenuta per
+dichiarazione; questa cautela limita cio' che una milestone puo' rivendicare,
+non abbassa il bersaglio di equivalenza operativa appena definito.
 
 ## 2. Confine fra C, KB e sorgente
 
@@ -873,8 +935,8 @@ coordinazioni e locuzioni annidate.
 Stato del gate: **H438 resta aperta** e H439 è in avanzamento. Questi risultati dimostrano il produttore
 n-lingue e il primo verticale prosa→proposizione→domanda→risposta, non M1–M5
 completo. Mancano
-ancora locuzioni multiword risolte come nodi, ruoli annidati, scope e
-coordinazioni, trasferimento di ogni operatore su tre domini e rimozione dei
+ancora locuzioni annidate e disambiguate, ruoli annidati, scope, coordinazioni
+di predicati e clausole, trasferimento di ogni operatore su tre domini e rimozione dei
 rami linguistici legacy equivalenti. Il censimento conservativo iniziale trova
 2040 siti sospetti fra `src/brain` e `src/code.c`; la prima migrazione porta il
 checkpoint a 2039. Sono ordinati per classi e gate nel gold standard, non
@@ -931,6 +993,48 @@ richiede codice.
 
 Un fatto aggiunge un punto; un operatore di lettura aggiunge una famiglia di
 punti a tutte le pagine future. È il primo vero moltiplicatore della crescita.
+
+### Evidenza Gen439 — primo operatore di coordinazione
+
+Il profilo `gen439-coordination.p0` e il dossier omonimo aggiungono la prima
+composizione che produce piu' proposizioni da una clausola. Il binding binario
+non sceglie piu' qualsiasi entita' alla sinistra e alla destra dell'operatore:
+lega i nodi semantici piu' vicini. Un nodo riconosciuto dalla classe KB aperta
+`conjunction/1` distribuisce poi il ruolo `object` sul secondo filler.
+
+Il consumer non nasconde la pluralita': la domanda sul ruolo aperto raccoglie
+tutti i valori provati e li realizza con il connettivo finale della lingua
+presente nella KB. Il receipt del lettore conta le proposizioni committate, non
+le sole clausole visitate; `Learned 2 fact(s)` corrisponde quindi a due oggetti
+interrogabili e dotati di provenienza.
+
+Il dossier passa **29 proprieta'**. La stessa costruzione viene trasferita fra
+artefatti, mondo naturale e istituzioni. In una seconda campagna la forma
+`plus` viene insegnata parlando come congiunzione, usata su entita' mai viste
+nella campagna e poi ritratta: dopo l'ablazione viene acquisito soltanto il
+primo filler. Nessun nome di dominio o connettivo nuovo e' entrato nel C.
+
+Questo e' un avanzamento di H439, non la sua chiusura. Restano coordinazione di
+predicati con soggetto condiviso, coordinazione n-aria, apposizione, relativa,
+anafora locale, causalita' e scope. Il testimone impedisce pero' di tornare al
+comportamento precedente, nel quale il lettore dichiarava successo su una
+frase coordinata senza produrre conoscenza riusabile.
+
+### Audit del gate rapido al 27 agosto
+
+`make soft-test` non e' verde nel checkpoint d'ingresso `4596837`:
+`frontier_chat_audit.it.p0t` chiude con **25 proprieta' passate e 31 fallite**.
+La stessa identica firma e' stata riprodotta costruendo ed eseguendo un archivio
+pulito di `HEAD`, senza il taglio Gen439 corrente. Non e' quindi una regressione
+della coordinazione, ma falsifica l'idea che le patch conversazionali registrate
+ieri avessero gia' superato il gate che ora le contiene.
+
+I fallimenti includono pertinenza tematica su scacchi/dama/poker, continuita',
+lingua d'uscita e ablazione. Non vengono chiusi cambiando le aspettative e non
+vengono inseguiti con trentuno fix locali: restano il controllo comportamentale
+rosso mentre H438/H439 costruiscono gli operatori generali che devono ridurne la
+classe. Di conseguenza le sezioni Gen444–Gen446 documentano prototipi e
+falsificazioni utili, non gate chiusi sullo stato corrente.
 
 ---
 
@@ -1769,6 +1873,11 @@ verticale prosa/dialogo senza modificare né usare come obiettivo la suite stori
   matrice dei tre operatori;
 - `docs/labs/autocrescita-v3/gen438-prose-dialogue.p0t`: commit da prosa,
   consumo interlinguistico, provenance, crescita/ablazione e ambiguità;
+- `docs/labs/autocrescita-v3/gen439-coordination.p0{,t}`: binding locale dei
+  ruoli, coordinazione di oggetti, risposta plurale e teach/use/retract;
+- `docs/labs/autocrescita-v3/gen439-shared-subject-prototype.md`: ipotesi,
+  regole tentate, falsificazione e prossimo salto per la coordinazione di
+  predicati; conservato fuori dal runtime per non perdere il lavoro incompleto;
 - `docs/plans/kb-first-c-gold-standard.md`: norma, censimento, classi di
   migrazione e gate `legacy_hits=0`;
 - questo documento: roadmap, misure, gate e debiti aggiornati.
@@ -1783,7 +1892,9 @@ make build
 ./bin/parrot0 --test docs/labs/autocrescita-v3/gen438-observation.p0t
 ./bin/parrot0 --test docs/labs/autocrescita-v3/gen438-frames.p0t
 ./bin/parrot0 --test docs/labs/autocrescita-v3/gen438-prose-dialogue.p0t
-=> ok — 64 + 54 + 36 + 41 + 29 + 57 passed
+./bin/parrot0 --test docs/labs/autocrescita-v3/gen439-phrases.p0t
+./bin/parrot0 --test docs/labs/autocrescita-v3/gen439-coordination.p0t
+=> ok — 64 + 54 + 36 + 41 + 29 + 57 + 14 + 29 passed
 ```
 
 Il primo comando dimostra soltanto che il motore corrente costruisce; il
@@ -1794,12 +1905,12 @@ usato come obiettivo o incluso nel gate.
 
 1. mantenere il censimento del gold standard come ratchet: nessun nuovo literal
    linguistico C e `legacy_hits=0` su ogni verticale promosso;
-2. risolvere locuzioni e phrase/clause node dichiarativi senza ridurre M1–M5 ai
+2. estendere le locuzioni a nesting e disambiguazione senza ridurre M1–M5 ai
    tre ordini già dimostrati;
-3. estendere il mantenimento degli span globali a locuzioni,
-   clausole coordinate, ruoli annidati e scope, preservando fonte e span;
-4. comporre la prosa già portata su `input_semantic_frame/4` con locuzioni,
-   ruoli annidati, coordinazione e scope, mantenendo una sola IR;
+3. estendere il mantenimento degli span globali a coordinazione di predicati e
+   clausole, ruoli annidati e scope, preservando fonte e span;
+4. comporre la prosa già portata su `input_semantic_frame/4` con soggetto
+   condiviso, apposizione, relativa, anafora locale e scope, mantenendo una sola IR;
 5. migrare cue e forme sintattiche a evidenza indicizzata per lingua: attribuire
    a posteriori la lingua globale a una cue non prova in quale lingua la cue sia
    stata appresa;
@@ -1813,9 +1924,15 @@ usato come obiettivo o incluso nel gate.
 9. soltanto dopo questi gate iniziare indirizzi Wikipedia: cercare prima
    renderebbe un difetto linguistico un falso gap fattuale.
 
-Il prossimo cambiamento corretto è completare M1–M5 sul lato compositivo:
-locuzioni e strutture di clausola devono produrre la stessa IR appena portata
-end-to-end, poi sostituire e rimuovere per famiglia i vecchi estrattori.
+Il prossimo cambiamento corretto è continuare H439 sul lato compositivo:
+coordinazione di predicati con soggetto condiviso e apposizione devono produrre
+proposizioni distinte dalla stessa IR e dalla stessa clausola. Il prototipo
+conservato mostra che il primo prerequisito e' una porta generale
+`input_composition_atom -> input_composition_record`, che materializzi frame
+locali opachi prima di comporli senza far rieseguire al solver tutta la catena
+linguistica. Subito dopo
+vengono relativa, anafora locale e scope; soltanto allora si sostituiscono e si
+rimuovono per famiglia i vecchi estrattori.
 
 Il salto di frontiera non è da KB piccola a KB grande. È da archivio passivo a
 sistema epistemico riflessivo: una KB che osserva i propri limiti, pianifica la

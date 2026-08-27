@@ -1725,14 +1725,26 @@ static int extract_clause(Brain *b, char *clause, const char *source_base) {
     input_structure_publish(b->kb, source_base ? source_base : c,
                             &prose_span, "current_prose");
 
-    /* The KB decides whether one and only one assertion frame is commit-ready,
-     * and performs the reified assertion plus provenance writes. C only asks
-     * for the receipt; no relation, word order or language is named here. */
-    char receipts[1][KB_TERM_LEN];
-    const char *commit[] = { "current_prose", NULL };
-    if (kb_match(b->kb, "input_frame_commit", commit, 2,
-                 receipts, 1) == 1)
-        return 1;
+    /* The KB decides whether one unambiguous assertion bundle is commit-ready
+     * and performs the reified assertions plus provenance writes. C only asks
+     * for the opaque bundle and its numeric receipt; no relation, composition,
+     * word order or language is named here. */
+    char bundles[1][KB_TERM_LEN];
+    const char *observe[] = { "current_prose", NULL };
+    if (kb_match(b->kb, "input_assertion_bundle", observe, 2,
+                 bundles, 1) == 1) {
+        char receipts[1][KB_TERM_LEN];
+        const char *commit[] = { "current_prose", bundles[0], NULL };
+        if (kb_match(b->kb, "input_frame_commit", commit, 3,
+                     receipts, 1) != 1)
+            return 0;
+        /* Il receipt e' il numero di proposizioni che la KB ha effettivamente
+         * committato. Il C non decide se una coordinazione, un'apposizione o un
+         * altro operatore producano uno o piu' fatti: somma soltanto l'esito
+         * numerico del protocollo aperto. */
+        long committed = strtol(kb_dequote(receipts[0]), NULL, 10);
+        return committed > 0 ? (int)committed : 0;
+    }
 
     /* gen121: canonicalize the clause's function words to English tokens before
      * extraction (gen43's interlingua), so an Italian sentence is parsed into the
@@ -1791,8 +1803,9 @@ static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) 
         char original[192];
         snprintf(original, sizeof original, "%s", p);
         learn_clause_transitions(b, p);   /* gen41: feed the generative model */
-        if (extract_clause(b, p, buf)) {
-            (*learned)++;
+        int extracted = extract_clause(b, p, buf);
+        if (extracted > 0) {
+            (*learned) += (size_t)extracted;
             store_proposition(b, original);
         }
         else if (*trim_mut(p)) (*skipped)++;
