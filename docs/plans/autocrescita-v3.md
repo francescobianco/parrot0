@@ -1340,6 +1340,11 @@ deriva una catena distinta (`learn_expectations → make_small_commitments →
 build_trust`) con budget e dipendenze propri. Non condivide termini di dominio
 con gli scacchi o con `compensation_recovery`; condivide soltanto il planner
 KB.
+La terza famiglia è `compensation_recovery`, già esercitata da richiesta
+naturale e distinta per firma logica: diagnosi di un prerequisito, acquisizione
+della prova e ripianificazione. La copertura delle tre famiglie è quindi
+presente; resta da dimostrare la replica completa con ordine inverso e fonti
+incrociate nel gate Gen445.
 
 ---
 
