@@ -1340,6 +1340,14 @@ deriva una catena distinta (`learn_expectations → make_small_commitments →
 build_trust`) con budget e dipendenze propri. Non condivide termini di dominio
 con gli scacchi o con `compensation_recovery`; condivide soltanto il planner
 KB.
+Il nuovo campione positivo nella sezione `[seconda famiglia: piano naturale
+senza riusare il dominio scacchi]` di
+`docs/labs/autocrescita-v3/gen445-planning.p0t` porta questa dimostrazione nel
+formato riproducibile: la richiesta italiana viene risolta dal solo
+`goal_cue(job_onboarding, ...)`, e il renderer riporta budget e precondizioni
+derivati dalla KB. È un trasferimento di schema, non una risposta
+precaricata; il gate completo resta aperto finché non saranno riprodotti anche
+ordine inverso, ablazione e fonte interlinguistica sulla stessa famiglia.
 La terza famiglia è `compensation_recovery`, già esercitata da richiesta
 naturale e distinta per firma logica: diagnosi di un prerequisito, acquisizione
 della prova e ripianificazione. La copertura delle tre famiglie è quindi

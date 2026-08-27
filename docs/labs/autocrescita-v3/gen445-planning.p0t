@@ -22,3 +22,10 @@
 !query! compensation_plan_complete(445_blocked)
 !query compensation_stop(445_blocked, missing_dependency(1, 2))
 !query compensation_alternative_valid(445_blocked, 445_fallback, goal(level, safe))
+
+[seconda famiglia: piano naturale senza riusare il dominio scacchi]
+% Il planner riceve una richiesta conversazionale in italiano. Il dominio
+% job_onboarding viene scelto soltanto da goal_cue/2 nella KB e attraversa la
+% stessa macchina causale: nessun ramo C conosce "lavoro" o i nomi dei passi.
+> fai un piano per iniziare un nuovo lavoro
+< Il mio piano derivato per job onboarding: [costo totale 6, tempo totale 2w] 1) apprendere aspettative e criteri di successo del gruppo [needs role_offer]; 2) mantenere piccoli impegni e registrarne i risultati [needs expectations_known]; 3) costruire fiducia comunicando chiaramente e mantenendo continuità [needs reliable_record].
