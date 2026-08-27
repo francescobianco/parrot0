@@ -809,6 +809,10 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
                 return 1;
             }
         }
+        /* An explicit planning move without a grounded goal is still a valid
+         * dialogue act. Ask for the missing goal/constraints through KB data
+         * instead of falling into an unrelated artifact generator. */
+        if (kb_response(b, "next_step_request", NULL, out, out_size)) return 1;
     }
 
     char buf[256];

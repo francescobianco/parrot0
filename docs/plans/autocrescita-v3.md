@@ -1367,6 +1367,12 @@ di una sola coppia di frasi.
 Anche l'intestazione del piano è ora `response_template(plan_header,...)`,
 così il renderer non introduce testo naturale fuori dalla KB.
 
+È stato inoltre chiuso il caso di piano privo di obiettivo: `fai un piano` e
+`make a plan` ora chiedono obiettivo e vincoli tramite `next_step_request`,
+anziché cadere in un generatore di artefatti non pertinente. Questo mantiene
+la conversazione composizionale: il turno successivo può fornire il goal che il
+planner KB deve derivare.
+
 ### Verifica d'uso reale
 
 Una sequenza pulita di cinque turni indipendenti in italiano produce,
