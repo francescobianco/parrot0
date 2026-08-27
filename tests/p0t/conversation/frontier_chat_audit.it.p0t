@@ -90,3 +90,9 @@
 <~ Got it
 > your take
 <~ personal opinions
+!forget intent_cue(collaboration_offer, "lets team up")
+!forget intent_cue(opinion_request, "your take")
+> lets team up
+<~ don't understand
+> your take
+<~ don't understand
