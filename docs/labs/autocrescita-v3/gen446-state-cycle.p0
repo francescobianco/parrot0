@@ -7,3 +7,14 @@ campaign_replay(campaign_alpha, claim_1, learned_surface).
 campaign_source_language(campaign_alpha, en).
 compensation_obligation(plan_alpha, goal(level, safe), language(en, it)).
 compensation_step(plan_alpha, 1, step(read_source, unknown, source_read, 1)).
+
+% Secondo snapshot: firma diversa, input inglese, fonte francese e uscita
+% italiana. La stessa regola deve attraversare il ciclo senza un ramo nuovo.
+dialogue_move(cycle_beta, ask_for_plan).
+dialogue_language(cycle_beta, en, it).
+campaign_claim(campaign_beta, claim_7, causal_effect, span(9, 3)).
+campaign_required(campaign_beta, claim_7).
+campaign_replay(campaign_beta, claim_7, causal_effect).
+campaign_source_language(campaign_beta, fr).
+compensation_obligation(plan_beta, goal(route, safe), language(en, it)).
+compensation_step(plan_beta, 1, step(read_source, unknown, route_known, 1)).

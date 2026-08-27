@@ -19,3 +19,7 @@
 !forget campaign_replay(campaign_alpha, claim_1, learned_surface)
 !query! campaign_promote(campaign_alpha, claim_1, learned_surface)
 !query! live_cycle_ready(cycle_alpha)
+
+[secondo snapshot, firma e lingue diverse]
+!query live_cycle(cycle_beta, ask_for_plan, campaign_beta, plan_beta)
+!query live_cycle_language(cycle_beta, en, fr, it)

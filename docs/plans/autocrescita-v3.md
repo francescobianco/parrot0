@@ -1330,6 +1330,8 @@ fra i tre assi della gen446, ma non è ancora il gate finale dei quindici round.
 Lo stesso campione dichiara inoltre `live_cycle_language/4`: input e output
 italiani con claim sostenuta da una fonte inglese (`Lin != Lsrc`), così la
 provenienza linguistica resta parte dello stato e non una scelta del renderer.
+Il profilo contiene ora anche un secondo snapshot con firma diversa e traiettoria
+inglese→francese→italiano; la regola è la stessa e non riceve un ramo dedicato.
 
 ### Ipotesi H446
 
