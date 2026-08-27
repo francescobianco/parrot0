@@ -2015,3 +2015,219 @@ word_multiplier("quadruplo", 4).
 99_registry_lex3884(vai).
 99_registry_lex4012(strategy).
 99_registry_lex4013(counterfactual).
+
+%% Quarta passata: i confronti di DISUGUAGLIANZA e i PREFISSI. Un `strcmp`
+%% nudo dice «diverso da», e uno `strncmp` dice «comincia per»: la meccanica
+%% resta nel motore, la parola no.
+
+10_memory_knowledge_lex471("i like ").
+10_memory_knowledge_lex473("i prefer ").
+10_memory_knowledge_lex475("mi piace ").
+10_memory_knowledge_lex477("preferisco ").
+10_memory_knowledge_lex2308("if ").
+10_memory_knowledge_lex2313("is ").
+10_memory_knowledge_lex2313_2("are ").
+10_memory_knowledge_lex2358("Yes").
+10_memory_knowledge_lex2358_2("No").
+10_memory_knowledge_lex2358_3("Conflicted").
+10_memory_knowledge_lex2442("Yes").
+10_memory_knowledge_lex2442_2("No").
+10_memory_knowledge_lex2442_3("Conflicted").
+10_memory_knowledge_lex9113(every).
+10_memory_knowledge_lex9113_2(all).
+10_memory_knowledge_lex9130("is ").
+10_memory_knowledge_lex9132("has ").
+10_memory_knowledge_lex9345(all).
+10_memory_knowledge_lex9394(all).
+10_memory_knowledge_lex9435(can).
+10_memory_knowledge_lex9435_2(could).
+10_memory_knowledge_lex9443_2(be).
+10_memory_knowledge_lex9592(many).
+10_memory_knowledge_lex9663(is).
+10_memory_knowledge_lex9677(is).
+10_memory_knowledge_lex9677_2(can).
+10_memory_knowledge_lex9678(could).
+10_memory_knowledge_lex10269(all).
+10_memory_knowledge_lex10276(with).
+10_memory_knowledge_lex10276_2(has).
+10_memory_knowledge_lex10276_3(have).
+10_memory_knowledge_lex10631("suppose ").
+10_memory_knowledge_lex10715("which is a ").
+10_memory_knowledge_lex10716("which is an ").
+10_memory_knowledge_lex10902("if all ").
+10_memory_knowledge_lex11338("the ").
+20_math_lex2334(of).
+20_math_lex2334_2(in).
+20_math_lex2446(with).
+20_math_lex2446_2(letter).
+20_math_lex2956(in).
+20_math_lex2956_2(of).
+25_wordmath_reasoning_lex1088(and).
+25_wordmath_reasoning_lex1088_2(then).
+25_wordmath_reasoning_lex1089(recipe).
+25_wordmath_reasoning_lex1089_2(amount).
+25_wordmath_reasoning_lex1250(take).
+25_wordmath_reasoning_lex1250_2(took).
+25_wordmath_reasoning_lex2414(old).
+25_wordmath_reasoning_lex3057(me).
+25_wordmath_reasoning_lex3057_2(us).
+25_wordmath_reasoning_lex3057_3(myself).
+25_wordmath_reasoning_lex3058(you).
+25_wordmath_reasoning_lex3058_2(yourself).
+25_wordmath_reasoning_lex3447("effect of ").
+25_wordmath_reasoning_lex3448("cause of ").
+30_generation_reading_lex685("to ").
+30_generation_reading_lex1555(the).
+30_generation_reading_lex1555_2(word).
+30_generation_reading_lex1555_3(la).
+30_generation_reading_lex1736("Learned").
+40_meta_reflection_lex374(favorite).
+40_meta_reflection_lex374_2(favourite).
+40_meta_reflection_lex469("ricordati di ").
+40_meta_reflection_lex473("remember to ").
+40_meta_reflection_lex1059("stop pretending").
+40_meta_reflection_lex1059_2("be yourself").
+40_meta_reflection_lex1060("stop being").
+40_meta_reflection_lex1061(smetti).
+40_meta_reflection_lex1062("torna te stesso").
+40_meta_reflection_lex1063("basta fingere").
+40_meta_reflection_lex1067("sei ").
+40_meta_reflection_lex1147("do you ").
+60_agent_tools_lex57("the word ").
+60_agent_tools_lex58("the name ").
+65_induce_verify_shell_lex361("what does ").
+65_induce_verify_shell_lex368("predict the output of ").
+65_induce_verify_shell_lex404("what does ").
+65_induce_verify_shell_lex410("explain ").
+65_induce_verify_shell_lex544(this).
+65_induce_verify_shell_lex544_2(it).
+80_code_lex565(to).
+80_code_lex565_2(a).
+80_code_lex565_3(su).
+80_code_lex1583("because ").
+85_translate_synth_world_lex25(sleeping).
+85_translate_synth_world_lex1351("in the ").
+85_translate_synth_world_lex1352("in this ").
+85_translate_synth_world_lex1419("where ").
+85_translate_synth_world_lex1435("start a ").
+85_translate_synth_world_lex1435_2("open a ").
+85_translate_synth_world_lex1435_3("new ").
+90_repair_robust_abduce_lex958("not ").
+99_registry_lex1963(superglue).
+99_registry_lex1964("effect of ").
+99_registry_lex1965("cause of ").
+99_registry_lex3879_3("yes ").
+99_registry_lex3880_3("si ").
+
+%% Quinta passata: gli stessi confronti, ma con il primo argomento che e' una
+%% espressione — `w[i + 1]`, `strip_edge_punct(t)` — non un semplice nome.
+
+10_memory_knowledge_lex180(am).
+10_memory_knowledge_lex246(have).
+10_memory_knowledge_lex247(named).
+10_memory_knowledge_lex264(is).
+10_memory_knowledge_lex268(called).
+10_memory_knowledge_lex335(is).
+10_memory_knowledge_lex336(his).
+10_memory_knowledge_lex336_2(her).
+10_memory_knowledge_lex337(its).
+10_memory_knowledge_lex340(name).
+10_memory_knowledge_lex366(called).
+10_memory_knowledge_lex367(named).
+10_memory_knowledge_lex389(is).
+10_memory_knowledge_lex420(is).
+10_memory_knowledge_lex433(called).
+10_memory_knowledge_lex1408("w[i + 1]").
+10_memory_knowledge_lex1409(cose).
+10_memory_knowledge_lex1412_2(nome).
+10_memory_knowledge_lex1421(vale).
+10_memory_knowledge_lex1433(di).
+10_memory_knowledge_lex1434(di).
+10_memory_knowledge_lex1446(che).
+10_memory_knowledge_lex1456(nato).
+10_memory_knowledge_lex1456_2(nata).
+10_memory_knowledge_lex1457(born).
+10_memory_knowledge_lex2479(than).
+10_memory_knowledge_lex2488(more).
+10_memory_knowledge_lex2848(s).
+10_memory_knowledge_lex2850_2(is).
+10_memory_knowledge_lex3218_4(have).
+10_memory_knowledge_lex3227(have).
+10_memory_knowledge_lex4476(is).
+10_memory_knowledge_lex4477(are).
+10_memory_knowledge_lex4478(been).
+10_memory_knowledge_lex4584(of).
+10_memory_knowledge_lex4825(min).
+10_memory_knowledge_lex5185(binary).
+10_memory_knowledge_lex5188(ternary).
+10_memory_knowledge_lex8818(in).
+10_memory_knowledge_lex8820(and).
+10_memory_knowledge_lex8950(or).
+10_memory_knowledge_lex9024(is).
+10_memory_knowledge_lex9045(is).
+10_memory_knowledge_lex9046(to).
+10_memory_knowledge_lex9100(are).
+10_memory_knowledge_lex9161(are).
+10_memory_knowledge_lex9171(are).
+10_memory_knowledge_lex9172(not).
+10_memory_knowledge_lex9172_2(definitely).
+10_memory_knowledge_lex9175(are).
+10_memory_knowledge_lex9210(are).
+10_memory_knowledge_lex9214(are).
+10_memory_knowledge_lex9253(are).
+10_memory_knowledge_lex9300(are).
+10_memory_knowledge_lex9335(are).
+10_memory_knowledge_lex9382(are).
+10_memory_knowledge_lex9396(are).
+10_memory_knowledge_lex9427(are).
+10_memory_knowledge_lex9654(are).
+10_memory_knowledge_lex9667(no).
+10_memory_knowledge_lex10247(a).
+10_memory_knowledge_lex10247_2(an).
+10_memory_knowledge_lex10254(is).
+10_memory_knowledge_lex10255(a).
+10_memory_knowledge_lex10255_2(an).
+10_memory_knowledge_lex10413(because).
+10_memory_knowledge_lex10597(happens).
+10_memory_knowledge_lex11107(capital).
+10_memory_knowledge_lex11108(city).
+10_memory_knowledge_lex11109(capital).
+10_memory_knowledge_lex12294(is).
+10_memory_knowledge_lex12467(is).
+20_math_lex1542(no).
+20_math_lex1542_2(some).
+20_math_lex1543(any).
+20_math_lex1543_2(every).
+20_math_lex1921(steps).
+20_math_lex1922(step).
+20_math_lex1924(divisible).
+20_math_lex1995(by).
+20_math_lex2001(of).
+20_math_lex2306("strip_edge_punct(w[i + 1])").
+20_math_lex2404(with).
+20_math_lex2985(word).
+20_math_lex2993(add).
+25_wordmath_reasoning_lex29(times).
+25_wordmath_reasoning_lex1086(of).
+25_wordmath_reasoning_lex1694(before).
+25_wordmath_reasoning_lex1920(at).
+25_wordmath_reasoning_lex1927(and).
+25_wordmath_reasoning_lex1959(not).
+25_wordmath_reasoning_lex2220(pm).
+25_wordmath_reasoning_lex2370(many).
+25_wordmath_reasoning_lex2415(as).
+25_wordmath_reasoning_lex2435(as).
+25_wordmath_reasoning_lex2713(for).
+25_wordmath_reasoning_lex2809(legs).
+25_wordmath_reasoning_lex3880(is).
+25_wordmath_reasoning_lex3881(a).
+25_wordmath_reasoning_lex3881_2(an).
+30_generation_reading_lex963(that).
+30_generation_reading_lex1500(any).
+50_self_research_loop_lex628(is).
+50_self_research_loop_lex635(in).
+60_agent_tools_lex1746(in).
+70_social_pragma_lex619(the).
+70_social_pragma_lex620(way).
+85_translate_synth_world_lex1387(is).
+99_registry_lex586(no).

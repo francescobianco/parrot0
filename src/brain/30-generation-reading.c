@@ -682,7 +682,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                     memcpy(verb, q1 + 1, n); verb[n] = '\0';
                     char *v = verb;
                     while (*v && isspace((unsigned char)*v)) v++;
-                    if (!strncmp(v, "to ", 3)) memmove(v, v + 3, strlen(v + 3) + 1);
+                    if (lex_prefix_member(b, "30_generation_reading_lex685", v)) memmove(v, v + 3, strlen(v + 3) + 1);
                     if (v != verb) memmove(verb, v, strlen(v) + 1);
                     for (char *p = verb; *p; p++) *p = (char)tolower((unsigned char)*p);
                     strip_edge_punct(verb);
@@ -960,7 +960,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                         /* collect action after "that" */
                         size_t that_idx = 0;
                         for (size_t k = j + 1; k < sn; k++)
-                            if (!strcmp(strip_edge_punct(sw[k]), "that")) { that_idx = k + 1; break; }
+                            if (lex_class_member(b, "30_generation_reading_lex963", strip_edge_punct(sw[k]))) { that_idx = k + 1; break; }
                         if (that_idx > 0 && that_idx < sn) {
                             char abuf[256] = {0}; size_t ao = 0;
                             for (size_t k = that_idx; k < sn && ao + 10 < sizeof abuf; k++) {
@@ -1497,7 +1497,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         char *dw[64]; size_t dn = split_words(db, dw, 64);
         char topic[64] = "";
         for (size_t i = 0; i + 1 < dn; i++)
-            if (!strcmp(strip_edge_punct(dw[i]), "any")) {
+            if (lex_class_member(b, "30_generation_reading_lex1500", strip_edge_punct(dw[i]))) {
                 size_t j = i + 1;
                 while (j < dn) { char *t = strip_edge_punct(dw[j]);
                     if (lex_class_member(b, "30_generation_reading_lex1503", t)||lex_class_member(b, "30_generation_reading_lex1503_2", t)||lex_class_member(b, "30_generation_reading_lex1503_3", t)) j++; else break; }
@@ -1552,7 +1552,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 lex_class_member(b, "30_generation_reading_lex1552", ww[i]) || lex_class_member(b, "30_generation_reading_lex1552_2", ww[i])) {
                 char *t = strip_edge_punct(ww[i + 1]);
                 if (strlen(t) >= 2 && isalpha((unsigned char)t[0]) &&
-                    strcmp(t,"the") && strcmp(t,"word") && strcmp(t,"la")) {
+                    !lex_class_member(b, "30_generation_reading_lex1555", t) && !lex_class_member(b, "30_generation_reading_lex1555_2", t) && !lex_class_member(b, "30_generation_reading_lex1555_3", t)) {
                     target = t; break;
                 }
             }
@@ -1733,7 +1733,7 @@ static int extract_clause(Brain *b, char *clause, const char *source_base) {
         mod_cause(b, canon, c, resp, sizeof resp) ||
         mod_same(b, canon, c, resp, sizeof resp) ||
         mod_knowledge(b, canon, c, resp, sizeof resp)) {
-        return strncmp(resp, "Learned", 7) == 0; /* an assertion, not a query */
+        return!lex_prefix_member(b, "30_generation_reading_lex1736", resp) == 0; /* an assertion, not a query */
     }
     return 0;
 }

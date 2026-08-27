@@ -128,15 +128,18 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                 kb_set_origin(b->kb, KB_SESSION);
                 kb_assert(b->kb, "conjunction", ar, 1);
                 char msg[160];
-                snprintf(msg, sizeof msg,
-                         "Got it - I'll treat \"%s\" as a conjunction now, like \"and\".", word);
-                put(msg, out, out_size);
+                { const KbResponseSlot _rs[] = { { "word", word } };
+                  if (!kb_response_slots(b, "got_it_i_ll_treat_x_as_a_conjunction_now_lik", _rs, 1, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "Got it - I'll treat \"%s\" as a conjunction now, like \"and\".", word);
+                  put(msg, out, out_size); }
                 return 1;
             }
             if (*word) {     /* already known — acknowledge without re-asserting */
                 char msg[160];
-                snprintf(msg, sizeof msg, "I already treat \"%s\" as a conjunction.", word);
-                put(msg, out, out_size);
+                { const KbResponseSlot _rs[] = { { "word", word } };
+                  if (!kb_response_slots(b, "i_already_treat_x_as_a_conjunction", _rs, 1, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "I already treat \"%s\" as a conjunction.", word);
+                  put(msg, out, out_size); }
                 return 1;
             }
         }
@@ -177,7 +180,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                     cand = i + 1; break;
                 }
                 if (lex_class_member(b, "10_memory_knowledge_lex179", nwds[i]) && i + 2 < nnw &&
-                    strcmp(nwds[i + 1], "am") == 0) {
+                    lex_class_member(b, "10_memory_knowledge_lex180", nwds[i + 1])) {
                     cand = i + 2; break;
                 }
             }
@@ -243,8 +246,8 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             /* "I have a <thing> named <name>" */
             {
                 size_t i = find_token(w, nw, "i");
-                if (i + 4 < nw && strcmp(w[i + 1], "have") == 0 &&
-                    is_article(b, w[i + 2]) && strcmp(w[i + 4], "named") == 0) {
+                if (i + 4 < nw && lex_class_member(b, "10_memory_knowledge_lex246", w[i + 1]) &&
+                    is_article(b, w[i + 2]) && lex_class_member(b, "10_memory_knowledge_lex247", w[i + 4])) {
                     const char *thing = w[i + 3];
                     char n[64];
                     copy_last_word(n, sizeof n, raw);
@@ -261,11 +264,11 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             /* "my <thing> is <name>" and "my <thing> is called <name>" */
             {
                 size_t i = find_token(w, nw, "my");
-                if (i + 3 < nw && strcmp(w[i + 2], "is") == 0) {
+                if (i + 3 < nw && lex_class_member(b, "10_memory_knowledge_lex264", w[i + 2])) {
                     const char *thing = w[i + 1];
                     char n[64];
                     copy_last_word(n, sizeof n, raw);
-                    int has_called = (i + 4 < nw && strcmp(w[i + 3], "called") == 0);
+                    int has_called = (i + 4 < nw && lex_class_member(b, "10_memory_knowledge_lex268", w[i + 3]));
                     if (has_called) {
                         remember_possession(b, thing, n);
                         char msg[160];
@@ -332,12 +335,12 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
              * claims only when a recent possession is actually on record. */
             {
                 size_t i = find_token(w, nw, "what");
-                if (i + 3 < nw && strcmp(w[i + 1], "is") == 0 &&
-                    (strcmp(w[i + 2], "his") == 0 || strcmp(w[i + 2], "her") == 0 ||
-                     strcmp(w[i + 2], "its") == 0)) {
+                if (i + 3 < nw && lex_class_member(b, "10_memory_knowledge_lex335", w[i + 1]) &&
+                    (lex_class_member(b, "10_memory_knowledge_lex336", w[i + 2]) || lex_class_member(b, "10_memory_knowledge_lex336_2", w[i + 2]) ||
+                     lex_class_member(b, "10_memory_knowledge_lex337", w[i + 2]))) {
                     char tail[64];
                     snprintf(tail, sizeof tail, "%s", w[i + 3]);
-                    if (strcmp(strip_edge_punct(tail), "name") == 0 &&
+                    if (lex_class_member(b, "10_memory_knowledge_lex340", strip_edge_punct(tail)) &&
                         b->has_last_possession) {
                         const char *n = find_possession_name(b, b->last_possession_thing);
                         if (n) {
@@ -363,8 +366,8 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
              * the IT counterpart of "what is his name", completing the bilingual
              * coref ratchet. */
             if (nw == 3 && lex_class_member(b, "10_memory_knowledge_lex365", w[1]) &&
-                (strcmp(strip_edge_punct(w[2]), "called") == 0 ||
-                 strcmp(strip_edge_punct(w[2]), "named") == 0) &&
+                (lex_class_member(b, "10_memory_knowledge_lex366", strip_edge_punct(w[2])) ||
+                 lex_class_member(b, "10_memory_knowledge_lex367", strip_edge_punct(w[2]))) &&
                 !lex_class_member(b, "10_memory_knowledge_lex368", w[0]) && !lex_class_member(b, "10_memory_knowledge_lex368_2", w[0]) &&
                 b->has_last_possession) {
                 const char *n = find_possession_name(b, b->last_possession_thing);
@@ -386,7 +389,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
              * is intercepted earlier by memref_resolve, so it never reaches here.) */
             {
                 size_t i = find_token(w, nw, "what");
-                if (i + 2 < nw && strcmp(w[i + 1], "is") == 0) {
+                if (i + 2 < nw && lex_class_member(b, "10_memory_knowledge_lex389", w[i + 1])) {
                     size_t m = find_token(w + i, nw - i, "my");
                     if (m < nw - i) {
                         m += i;
@@ -417,7 +420,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             /* Queries: "what is my <thing> called?" and "what is my <thing>?" */
             {
                 size_t i = find_token(w, nw, "what");
-                if (i + 2 < nw && strcmp(w[i + 1], "is") == 0) {
+                if (i + 2 < nw && lex_class_member(b, "10_memory_knowledge_lex420", w[i + 1])) {
                     size_t m = find_token(w + i, nw - i, "my");
                     /* gen254 (repair): claim ONLY when "my" is actually present.
                      * find_token returns nw-i when absent; the old code fell
@@ -430,7 +433,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                         if (has_called) {
                             char tmp[64];
                             snprintf(tmp, sizeof tmp, "%s", w[m + 2]);
-                            has_called = (strcmp(strip_edge_punct(tmp), "called") == 0);
+                            has_called = (lex_class_member(b, "10_memory_knowledge_lex433", strip_edge_punct(tmp)));
                         }
                         if (lex_class_member(b, "10_memory_knowledge_lex435", thing)) {
                             char nm[64];
@@ -468,13 +471,13 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
     {
         const char *val_from = NULL;
         const char *verb = NULL;
-        if (strncmp(norm, "i like ", 7) == 0) {
+        if (!lex_prefix_member(b, "10_memory_knowledge_lex471", norm) == 0) {
             val_from = raw + 7; verb = "like";
-        } else if (strncmp(norm, "i prefer ", 9) == 0) {
+        } else if (!lex_prefix_member(b, "10_memory_knowledge_lex473", norm) == 0) {
             val_from = raw + 9; verb = "prefer";
-        } else if (strncmp(norm, "mi piace ", 9) == 0) {
+        } else if (!lex_prefix_member(b, "10_memory_knowledge_lex475", norm) == 0) {
             val_from = raw + 9; verb = "like";
-        } else if (strncmp(norm, "preferisco ", 11) == 0) {
+        } else if (!lex_prefix_member(b, "10_memory_knowledge_lex477", norm) == 0) {
             val_from = raw + 11; verb = "prefer";
         }
         if (val_from) {
@@ -690,6 +693,23 @@ static size_t split_words(char *s, char **argv, size_t max) {
 static int lex_class_member(Brain *b, const char *cls, const char *w) {
     const char *q[] = { w };
     return brain_substrate_query(b, cls, q, 1);
+}
+
+/* Il PREFISSO e' una meccanica, il vocabolario no (gen442). `strncmp(t, "un ", 3)`
+ * teneva insieme le due cose: qui la meccanica resta nel C — confrontare l'inizio
+ * di una parola — e le superfici diventano membri di una classe come tutte le
+ * altre. Un prefisso nuovo e' un fatto. */
+static int lex_prefix_member(Brain *b, const char *cls, const char *w) {
+    if (!b || !b->kb || !cls || !w) return 0;
+    char rows[64][KB_TERM_LEN];
+    const char *q[1] = { NULL };
+    size_t n = kb_match(b->kb, cls, q, 1, rows, 64);
+    for (size_t i = 0; i < n; i++) {
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[i]);
+        const char *p = kb_dequote(rb);
+        if (*p && !strncmp(w, p, strlen(p))) return 1;
+    }
+    return 0;
 }
 
 /* Opens a UNIVERSAL proposition: "all X are Y", "every X is a Y". */
@@ -1405,11 +1425,11 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
          * interrogative, not a separate "what"; drop it so the pair does not
          * canonicalize to "what what is". */
         if (lex_class_member(b, "10_memory_knowledge_lex1407", tok) && i + 1 < nw &&
-            (strncmp(w[i + 1], "cos'", 4) == 0 || strncmp(w[i + 1], "cosè", 4) == 0 ||
-             strcmp(w[i + 1], "cose") == 0)) {
+            (lex_prefix_member(b, "10_memory_knowledge_lex1408", w[i + 1]) || strncmp(w[i + 1], "cosè", 4) == 0 ||
+             lex_class_member(b, "10_memory_knowledge_lex1409", w[i + 1]))) {
             continue;
         }
-        if (lex_class_member(b, "10_memory_knowledge_lex1412", tok) && i + 1 < nw && strcmp(w[i + 1], "nome") == 0) {
+        if (lex_class_member(b, "10_memory_knowledge_lex1412", tok) && i + 1 < nw && lex_class_member(b, "10_memory_knowledge_lex1412_2", w[i + 1])) {
             off += (size_t)snprintf(out + off, out_size - off, "%snamed",
                                     i ? " " : "");
             i++;            /* consume "nome" */
@@ -1418,7 +1438,7 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
         /* gen292: Italian "quanto vale <X>" ("what is the value of X") -> "what is
          * <X>", so the equality-chain wh-query reaches the SAME handler in Italian. */
         if (lex_class_member(b, "10_memory_knowledge_lex1420", tok) && i + 1 < nw &&
-            strcmp(w[i + 1], "vale") == 0) {
+            lex_class_member(b, "10_memory_knowledge_lex1421", w[i + 1])) {
             off += (size_t)snprintf(out + off, out_size - off, "%swhat is",
                                     i ? " " : "");
             i++;            /* consume "vale" */
@@ -1430,8 +1450,8 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
          * rewritten: a standalone "più" (arithmetic "plus", "2 più 2") and a bare
          * "di" ("of") are left untouched — "più" is NOT globally mapped. */
         if ((strcmp(tok, "più") == 0 || lex_class_member(b, "10_memory_knowledge_lex1432", tok)) &&
-            i + 2 < nw && strcmp(w[i + 1], "di") != 0 &&
-            strcmp(w[i + 2], "di") == 0) {
+            i + 2 < nw && !lex_class_member(b, "10_memory_knowledge_lex1433", w[i + 1]) &&
+            lex_class_member(b, "10_memory_knowledge_lex1434", w[i + 2])) {
             off += (size_t)snprintf(out + off, out_size - off, "%smore %s than",
                                     i ? " " : "", w[i + 1]);
             i += 2;         /* consume <adj> and "di" */
@@ -1443,7 +1463,7 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
          * "che"->"what" + <noun> avoids the reader module mis-parsing the
          * canonicalized "of what ..." as an assertion. */
         if (lex_class_member(b, "10_memory_knowledge_lex1445", tok) && i + 1 < nw &&
-            strcmp(w[i + 1], "che") == 0) {
+            lex_class_member(b, "10_memory_knowledge_lex1446", w[i + 1])) {
             off += (size_t)snprintf(out + off, out_size - off, "%swhat",
                                     i ? " " : "");
             i++;            /* consume "che" (keep "che"->"what" logic from above) */
@@ -1453,8 +1473,8 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
          * "a" means "in" after birthplace verbs. Collapse "a" → "in" when the
          * previous token is a form of "born"/"nato". Works for both languages. */
         if (lex_class_member(b, "10_memory_knowledge_lex1455", tok) && i >= 1 &&
-            (strcmp(w[i - 1], "nato") == 0 || strcmp(w[i - 1], "nata") == 0 ||
-             strcmp(w[i - 1], "born") == 0)) {
+            (lex_class_member(b, "10_memory_knowledge_lex1456", w[i - 1]) || lex_class_member(b, "10_memory_knowledge_lex1456_2", w[i - 1]) ||
+             lex_class_member(b, "10_memory_knowledge_lex1457", w[i - 1]))) {
             off += (size_t)snprintf(out + off, out_size - off, "%sin",
                                     i ? " " : "");
             continue;
@@ -2305,12 +2325,12 @@ static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_
      * "if " prefix + comma + "is/are" tail keep this from hijacking prose, and a
      * non-deductive turn still declines when apply_premises or the query fail. */
     if (L < 10 || L >= 480) return 0;
-    if (strncmp(norm, "if ", 3) != 0) return 0;
+    if (!lex_prefix_member(b, "10_memory_knowledge_lex2308", norm) != 0) return 0;
     const char *comma = strrchr(norm, ',');
     if (!comma) return 0;
     const char *q = comma + 1;
     while (*q == ' ') q++;
-    if (strncmp(q, "is ", 3) != 0 && strncmp(q, "are ", 4) != 0) return 0;
+    if (!lex_prefix_member(b, "10_memory_knowledge_lex2313", q) != 0 &&!lex_prefix_member(b, "10_memory_knowledge_lex2313_2", q) != 0) return 0;
 
     char prem[512];
     size_t plen = (size_t)(comma - (norm + 3));
@@ -2355,8 +2375,7 @@ static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_
     kb_retract_origin(b->kb, KB_HYPOTHETICAL);
     kb_set_origin(b->kb, prev_origin);
     if (!claimed) return 0;
-    if (strncmp(ans, "Yes", 3) != 0 && strncmp(ans, "No", 2) != 0 &&
-        strncmp(ans, "Conflicted", 10) != 0) return 0;
+    if (!lex_prefix_member(b, "10_memory_knowledge_lex2358", ans) != 0 &&!lex_prefix_member(b, "10_memory_knowledge_lex2358_2", ans) != 0 &&!lex_prefix_member(b, "10_memory_knowledge_lex2358_3", ans) != 0) return 0;
     /* Se la premessa ASSERIVA e stride con cio' che parrot0 tiene, lo si dice
      * PRIMA della risposta — e la risposta arriva lo stesso, perche' chi parla
      * puo' avere ragione o stare supponendo. Tenere i due livelli in vista
@@ -2439,8 +2458,7 @@ static int multi_sentence_syllogism(Brain *b, const char *norm,
     int claimed = mod_knowledge(&tmp, qbuf, qbuf, ans, sizeof ans);
     kb_destroy(tmp.kb);
     if (!claimed) return 0;
-    if (strncmp(ans, "Yes", 3) != 0 && strncmp(ans, "No", 2) != 0 &&
-        strncmp(ans, "Conflicted", 10) != 0) return 0;
+    if (!lex_prefix_member(b, "10_memory_knowledge_lex2442", ans) != 0 &&!lex_prefix_member(b, "10_memory_knowledge_lex2442_2", ans) != 0 &&!lex_prefix_member(b, "10_memory_knowledge_lex2442_3", ans) != 0) return 0;
     put(ans, out, out_size);
     return 1;
 }
@@ -2478,7 +2496,7 @@ static int transitive_comparison(Brain *b, const char *norm,
     char lefts[8][KB_TERM_LEN], rels[8][KB_TERM_LEN], rights[8][KB_TERM_LEN];
     size_t nt = 0;
     for (size_t i = 2; i + 1 < nw; i++) {
-        if (strcmp(strip_edge_punct(w[i]), "than") != 0) continue;
+        if (!lex_class_member(b, "10_memory_knowledge_lex2479", strip_edge_punct(w[i]))) continue;
         char *rel = strip_edge_punct(w[i - 1]);
         char *right = strip_edge_punct(w[i + 1]);
         /* The relation must be a comparative. Two shapes are transitive orders:
@@ -2487,7 +2505,7 @@ static int transitive_comparison(Brain *b, const char *norm,
          * "più <adj> di" canonicalizes to, so one handler covers both languages. */
         size_t rl = strlen(rel);
         int synthetic = (rl >= 4 && rel[rl - 1] == 'r' && rel[rl - 2] == 'e');
-        int analytic = (i >= 2 && strcmp(strip_edge_punct(w[i - 2]), "more") == 0);
+        int analytic = (i >= 2 && lex_class_member(b, "10_memory_knowledge_lex2488", strip_edge_punct(w[i - 2])));
         if (!synthetic && !analytic) continue;
         /* left = token before the comparative PHRASE, skipping a copula. The
          * analytic phrase is two tokens ("more <adj>"), the synthetic one. */
@@ -2847,9 +2865,9 @@ static int join_entity_span(Brain *b, char **w, size_t start, size_t end,
     for (size_t i = start; i < end; i++) {
         char *t = strip_edge_punct(w[i]);
         if (!compare_entity_token(b, t)) continue;
-        if (lex_class_member(b, "10_memory_knowledge_lex2850", t) && i + 1 < end && !strcmp(strip_edge_punct(w[i + 1]), "s")) {
+        if (lex_class_member(b, "10_memory_knowledge_lex2850", t) && i + 1 < end && lex_class_member(b, "10_memory_knowledge_lex2848", strip_edge_punct(w[i + 1]))) {
             t = (char *)"usa"; i++;
-        } else if (lex_class_member(b, "10_memory_knowledge_lex2852", t) && i + 1 < end && !strcmp(strip_edge_punct(w[i + 1]), "is")) {
+        } else if (lex_class_member(b, "10_memory_knowledge_lex2852", t) && i + 1 < end && lex_class_member(b, "10_memory_knowledge_lex2850_2", strip_edge_punct(w[i + 1]))) {
             t = (char *)"it_is"; i++;
         } else if (lex_class_member(b, "10_memory_knowledge_lex2854", t) && i + 1 < end) {
             char *n = strip_edge_punct(w[i + 1]);
@@ -3217,7 +3235,7 @@ static int mod_family(Brain *b, const char *norm, const char *raw,
             lex_class_member(b, "10_memory_knowledge_lex3217", t) || lex_class_member(b, "10_memory_knowledge_lex3217_2", t)) has_your = 1;
         else if (lex_class_member(b, "10_memory_knowledge_lex3218", t) || lex_class_member(b, "10_memory_knowledge_lex3218_2", t) || lex_class_member(b, "10_memory_knowledge_lex3218_3", t)) has_my = 1;
         if ((lex_class_member(b, "10_memory_knowledge_lex3219", t) && i + 1 < nw &&
-             !strcmp(strip_edge_punct(w[i + 1]), "have")) ||
+             lex_class_member(b, "10_memory_knowledge_lex3218_4", strip_edge_punct(w[i + 1]))) ||
             lex_class_member(b, "10_memory_knowledge_lex3221", t))
             has_ihave = 1;
         /* gen297: SECOND-PERSON possession — "do you have <kin>", "you have <kin>",
@@ -3226,7 +3244,7 @@ static int mod_family(Brain *b, const char *norm, const char *raw,
          * "you" elsewhere ("my brother knows you") does NOT flip a first-person
          * statement into a decline. */
         if ((lex_class_member(b, "10_memory_knowledge_lex3228", t) && i + 1 < nw &&
-             !strcmp(strip_edge_punct(w[i + 1]), "have")) ||
+             lex_class_member(b, "10_memory_knowledge_lex3227", strip_edge_punct(w[i + 1]))) ||
             lex_class_member(b, "10_memory_knowledge_lex3230", t) || lex_class_member(b, "10_memory_knowledge_lex3230_2", t))
             has_youhave = 1;
         char canon[KB_TERM_LEN];
@@ -4475,9 +4493,9 @@ static int extract_class_statement(Brain *b, const char *norm,
                 if (os >= i) break;
                 char obj2[KB_TERM_LEN];
                 size_t oe = i;
-                if (oe > os && (!strcmp(strip_edge_punct(w[oe - 1]), "is") ||
-                                !strcmp(strip_edge_punct(w[oe - 1]), "are") ||
-                                !strcmp(strip_edge_punct(w[oe - 1]), "been")))
+                if (oe > os && (lex_class_member(b, "10_memory_knowledge_lex4476", strip_edge_punct(w[oe - 1])) ||
+                                lex_class_member(b, "10_memory_knowledge_lex4477", strip_edge_punct(w[oe - 1])) ||
+                                lex_class_member(b, "10_memory_knowledge_lex4478", strip_edge_punct(w[oe - 1]))))
                     oe--;
                 if (!p0_join(w, os, oe, obj2, sizeof obj2)) break;
                 size_t ss = agent + 1; if (ss < n && p0_lead_det(b, w[ss])) ss++;
@@ -4583,7 +4601,7 @@ static int extract_class_statement(Brain *b, const char *norm,
         }
         return 0;
     }
-    if (lex_class_member(b, "10_memory_knowledge_lex4586", w[p]) && p + 1 < n && !strcmp(w[p + 1], "of")) {
+    if (lex_class_member(b, "10_memory_knowledge_lex4586", w[p]) && p + 1 < n && lex_class_member(b, "10_memory_knowledge_lex4584", w[p + 1])) {
         size_t os = p + 2; if (os < n && p0_lead_det(b, w[os])) os++;
         if (os < n && p0_join(w, os, n, obj, sizeof obj)) {
             kb_set_origin(b->kb, KB_SESSION);
@@ -4824,7 +4842,7 @@ static int mod_aggregate(Brain *b, const char *norm, const char *raw,
         if (!*pred) continue;
         const char *rd = kb_dequote(rrow[0]);
         int ret_second = (lex_class_member(b, "10_memory_knowledge_lex4826", rd) || strcmp(rd, "2") == 0);
-        int want_max = (strcmp(kb_dequote(mrow[0]), "min") != 0);   /* default max */
+        int want_max = (!lex_class_member(b, "10_memory_knowledge_lex4825", kb_dequote(mrow[0])));   /* default max */
 
         /* build a count map keyed by the RETURN arg. */
         char keys[128][KB_TERM_LEN]; int cnt[128]; size_t nk = 0;
@@ -5184,10 +5202,10 @@ static int answer_projection_resolve(Brain *b, const char *relation,
         for (size_t m = 0; m < nm; m++) {
             char text[1][KB_TERM_LEN];
             size_t nt = 0;
-            if (strcmp(kb_dequote(modes[m]), "binary") == 0) {
+            if (lex_class_member(b, "10_memory_knowledge_lex5185", kb_dequote(modes[m]))) {
                 const char *q[] = { topic, NULL };
                 nt = kb_match(b->kb, kb_dequote(sources[i]), q, 2, text, 1);
-            } else if (strcmp(kb_dequote(modes[m]), "ternary") == 0) {
+            } else if (lex_class_member(b, "10_memory_knowledge_lex5188", kb_dequote(modes[m]))) {
                 /* gen396: the middle argument of a ternary source is not always
                  * a metadatum to enumerate — it can be a FACET the session
                  * already fixes. `concept_gloss(Key, Lang, Sentence)` is the
@@ -8817,9 +8835,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 }
                 char region[KB_TERM_LEN] = "";
                 for (size_t j = cue_i + 1; j + 1 < mn && !region[0]; j++) {
-                    if (strcmp(strip_edge_punct(mw[j]), "in") != 0) continue;
+                    if (!lex_class_member(b, "10_memory_knowledge_lex8818", strip_edge_punct(mw[j]))) continue;
                     size_t end = j + 1;
-                    while (end < mn && strcmp(strip_edge_punct(mw[end]), "and") != 0)
+                    while (end < mn && !lex_class_member(b, "10_memory_knowledge_lex8820", strip_edge_punct(mw[end])))
                         end++;
                     (void)join_entity_span(b, mw, j + 1, end, region, sizeof region);
                 }
@@ -8949,7 +8967,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char cb[256]; snprintf(cb, sizeof cb, "%s", norm);
             char *cw[64]; size_t cn = split_words(cb, cw, 64);
             size_t orp = cn;
-            for (size_t i = 0; i < cn; i++) if (!strcmp(strip_edge_punct(cw[i]), "or")) { orp = i; break; }
+            for (size_t i = 0; i < cn; i++) if (lex_class_member(b, "10_memory_knowledge_lex8950", strip_edge_punct(cw[i]))) { orp = i; break; }
             const char *A = NULL, *B = NULL;
             static const char *skip[] = {"a","an","the","is","are","which","what",
                 "planet","bigger","larger","smaller","closer","nearer","farther",
@@ -9023,7 +9041,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         struct { char from[48], to[48]; long lvl; char g; } link[6];
         size_t nl = 0;
         for (size_t i = 0; i + 3 < n && nl < 6; i++) {
-            if (strcmp(w[i + 1], "is")) continue;
+            if (!lex_class_member(b, "10_memory_knowledge_lex9024", w[i + 1])) continue;
             char *poss = w[i + 2]; size_t pl = strlen(poss);
             if (pl < 3 || poss[pl - 2] != '\'' || poss[pl - 1] != 's') continue;
             char owner[48]; snprintf(owner, sizeof owner, "%.*s", (int)(pl - 2), poss);
@@ -9044,8 +9062,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         /* the question: "what relation is X to Z" */
         char qx[48] = "", qz[48] = "";
         for (size_t i = 0; i + 3 < n; i++)
-            if (lex_class_member(b, "10_memory_knowledge_lex9047", w[i]) && !strcmp(w[i + 1], "is") &&
-                !strcmp(w[i + 3], "to") && i + 4 < n) {
+            if (lex_class_member(b, "10_memory_knowledge_lex9047", w[i]) && lex_class_member(b, "10_memory_knowledge_lex9045", w[i + 1]) &&
+                lex_class_member(b, "10_memory_knowledge_lex9046", w[i + 3]) && i + 4 < n) {
                 snprintf(qx, sizeof qx, "%s", w[i + 2]);
                 snprintf(qz, sizeof qz, "%s", w[i + 4]);
                 break;
@@ -9099,7 +9117,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
         char setA[64] = "", bridge[64] = "";
         for (size_t i = 0; i + 3 < n; i++)
-            if (lex_class_member(b, "10_memory_knowledge_lex9102", w[i]) && !strcmp(w[i + 2], "are")) {
+            if (lex_class_member(b, "10_memory_knowledge_lex9102", w[i]) && lex_class_member(b, "10_memory_knowledge_lex9100", w[i + 2])) {
                 snprintf(setA, sizeof setA, "%s", w[i + 1]);
                 snprintf(bridge, sizeof bridge, "%s", w[i + 3]);
                 break;
@@ -9110,7 +9128,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             /* find the universal whose subject equals the bridge, collect its predicate */
             char pred[160] = "";
             for (size_t i = 0; i + 1 < n; i++) {
-                if (strcmp(w[i], "every") && strcmp(w[i], "all")) continue;
+                if (!lex_class_member(b, "10_memory_knowledge_lex9113", w[i]) && !lex_class_member(b, "10_memory_knowledge_lex9113_2", w[i])) continue;
                 char csing[64]; snprintf(csing, sizeof csing, "%s", w[i + 1]);
                 size_t cl = strlen(csing); if (cl > 1 && csing[cl - 1] == 's') csing[cl - 1] = '\0';
                 if (strcmp(csing, bsing) != 0) continue;
@@ -9127,9 +9145,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 /* the conclusion subject is plural ("some A"), so a singular
                  * copula in the predicate ("is loved") agrees as "are loved". */
                 char fixed[180];
-                if (!strncmp(pred, "is ", 3))
+                if (lex_prefix_member(b, "10_memory_knowledge_lex9130", pred))
                     snprintf(fixed, sizeof fixed, "are %s", pred + 3);
-                else if (!strncmp(pred, "has ", 4))
+                else if (lex_prefix_member(b, "10_memory_knowledge_lex9132", pred))
                     snprintf(fixed, sizeof fixed, "have %s", pred + 4);
                 else
                     snprintf(fixed, sizeof fixed, "%s", pred);
@@ -9160,7 +9178,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         /* conclusion: the "some P are (definitely) not Q" clause */
         char P[64] = "", Q[64] = "";
         for (size_t i = 0; i + 3 < n; i++)
-            if (lex_class_member(b, "10_memory_knowledge_lex9163", w[i]) && !strcmp(w[i + 2], "are")) {
+            if (lex_class_member(b, "10_memory_knowledge_lex9163", w[i]) && lex_class_member(b, "10_memory_knowledge_lex9161", w[i + 2])) {
                 size_t j = i + 3;
                 if (j < n && lex_class_member(b, "10_memory_knowledge_lex9165", w[j])) j++;
                 if (j + 1 < n && lex_class_member(b, "10_memory_knowledge_lex9166", w[j])) {
@@ -9170,11 +9188,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         /* premises: some X are Y (affirmative) and no X are Y */
         char sA[64] = "", sB[64] = "", nA[64] = "", nB[64] = "";
         for (size_t i = 0; i + 3 < n; i++) {
-            if (lex_class_member(b, "10_memory_knowledge_lex9173", w[i]) && !strcmp(w[i + 2], "are") &&
-                strcmp(w[i + 3], "not") && strcmp(w[i + 3], "definitely")) {
+            if (lex_class_member(b, "10_memory_knowledge_lex9173", w[i]) && lex_class_member(b, "10_memory_knowledge_lex9171", w[i + 2]) &&
+                !lex_class_member(b, "10_memory_knowledge_lex9172", w[i + 3]) && !lex_class_member(b, "10_memory_knowledge_lex9172_2", w[i + 3])) {
                 if (!sA[0]) { KSING(sA, w[i + 1]); KSING(sB, w[i + 3]); }
             }
-            if (lex_class_member(b, "10_memory_knowledge_lex9177", w[i]) && !strcmp(w[i + 2], "are")) {
+            if (lex_class_member(b, "10_memory_knowledge_lex9177", w[i]) && lex_class_member(b, "10_memory_knowledge_lex9175", w[i + 2])) {
                 KSING(nA, w[i + 1]); KSING(nB, w[i + 3]);
             }
         }
@@ -9209,11 +9227,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
         char A[64] = "", B[64] = "", C[64] = "";
         for (size_t i = 0; i + 3 < n; i++) {
-            if (!A[0] && lex_class_member(b, "10_memory_knowledge_lex9212", w[i]) && !strcmp(w[i + 2], "are")) {
+            if (!A[0] && lex_class_member(b, "10_memory_knowledge_lex9212", w[i]) && lex_class_member(b, "10_memory_knowledge_lex9210", w[i + 2])) {
                 snprintf(A, sizeof A, "%s", w[i + 1]);
                 snprintf(B, sizeof B, "%s", w[i + 3]);
             }
-            if (!C[0] && lex_class_member(b, "10_memory_knowledge_lex9216", w[i]) && !strcmp(w[i + 2], "are")) {
+            if (!C[0] && lex_class_member(b, "10_memory_knowledge_lex9216", w[i]) && lex_class_member(b, "10_memory_knowledge_lex9214", w[i + 2])) {
                 char bsing[64], ssing[64];
                 snprintf(bsing, sizeof bsing, "%s", B);
                 snprintf(ssing, sizeof ssing, "%s", w[i + 1]);
@@ -9252,7 +9270,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
         char A[64] = "", B[64] = "";
         for (size_t i = 0; i + 3 < n; i++)
-            if (lex_class_member(b, "10_memory_knowledge_lex9255", w[i]) && !strcmp(w[i + 2], "are")) {
+            if (lex_class_member(b, "10_memory_knowledge_lex9255", w[i]) && lex_class_member(b, "10_memory_knowledge_lex9253", w[i + 2])) {
                 snprintf(A, sizeof A, "%s", w[i + 1]);
                 snprintf(B, sizeof B, "%s", w[i + 3]);
                 break;
@@ -9299,7 +9317,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
             char A[64] = "", B[64] = "";
             for (size_t i = 0; i + 3 < n; i++)
-                if (lex_class_member(b, "10_memory_knowledge_lex9303", w[i]) && !strcmp(w[i + 2], "are")) {
+                if (lex_class_member(b, "10_memory_knowledge_lex9303", w[i]) && lex_class_member(b, "10_memory_knowledge_lex9300", w[i + 2])) {
                     snprintf(A, sizeof A, "%s", w[i + 1]);
                     snprintf(B, sizeof B, "%s", w[i + 3]); break;
                 }
@@ -9334,7 +9352,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
         char sA[64] = "", sB[64] = "", C[64] = "";
         for (size_t i = 0; i + 3 < n; i++)
-            if (lex_class_member(b, "10_memory_knowledge_lex9338", w[i]) && !strcmp(w[i + 2], "are")) {
+            if (lex_class_member(b, "10_memory_knowledge_lex9338", w[i]) && lex_class_member(b, "10_memory_knowledge_lex9335", w[i + 2])) {
                 snprintf(sA, sizeof sA, "%s", w[i + 1]);
                 snprintf(sB, sizeof sB, "%s", w[i + 3]); break;
             }
@@ -9342,7 +9360,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char sbs[64]; snprintf(sbs, sizeof sbs, "%s", sB);
             { size_t l = strlen(sbs); if (l > 1 && sbs[l-1]=='s') sbs[l-1]='\0'; }
             for (size_t i = 0; i + 1 < n && !C[0]; i++) {
-                if (strcmp(w[i], "all")) continue;
+                if (!lex_class_member(b, "10_memory_knowledge_lex9345", w[i])) continue;
                 int midB = 0; size_t arepos = 0;
                 for (size_t j = i + 1; j < n; j++) {
                     if (lex_class_member(b, "10_memory_knowledge_lex9349", w[j])) { arepos = j; break; }
@@ -9381,7 +9399,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
         char A[64] = "", B[64] = "", pred[160] = "";
         for (size_t i = 0; i + 3 < n; i++) {
-            if (lex_class_member(b, "10_memory_knowledge_lex9385", w[i]) && !strcmp(w[i + 2], "are")) {
+            if (lex_class_member(b, "10_memory_knowledge_lex9385", w[i]) && lex_class_member(b, "10_memory_knowledge_lex9382", w[i + 2])) {
                 snprintf(A, sizeof A, "%s", w[i + 1]);
                 snprintf(B, sizeof B, "%s", w[i + 3]);
                 break;
@@ -9391,11 +9409,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char bsing[64]; snprintf(bsing, sizeof bsing, "%s", B);
             size_t bl = strlen(bsing); if (bl > 1 && bsing[bl - 1] == 's') bsing[bl - 1] = '\0';
             for (size_t i = 0; i + 2 < n; i++) {
-                if (strcmp(w[i], "all")) continue;
+                if (!lex_class_member(b, "10_memory_knowledge_lex9394", w[i])) continue;
                 char subj[64]; snprintf(subj, sizeof subj, "%s", w[i + 1]);
                 size_t sl = strlen(subj); if (sl > 1 && subj[sl - 1] == 's') subj[sl - 1] = '\0';
                 if (strcmp(subj, bsing) != 0) continue;
-                size_t start = (!strcmp(w[i + 2], "are")) ? i + 4 : i + 2;
+                size_t start = (lex_class_member(b, "10_memory_knowledge_lex9396", w[i + 2])) ? i + 4 : i + 2;
                 size_t off = 0;
                 for (size_t j = start; j < n; j++) {
                     if (lex_class_member(b, "10_memory_knowledge_lex9402", w[j]) || lex_class_member(b, "10_memory_knowledge_lex9402_2", w[j]) ||
@@ -9426,13 +9444,13 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
         char X[64] = "", Y[64] = "", qx[64] = "", qy[64] = "";
         for (size_t i = 0; i + 3 < n; i++)
-            if (lex_class_member(b, "10_memory_knowledge_lex9430", w[i]) && !strcmp(w[i + 2], "are")) {
+            if (lex_class_member(b, "10_memory_knowledge_lex9430", w[i]) && lex_class_member(b, "10_memory_knowledge_lex9427", w[i + 2])) {
                 snprintf(X, sizeof X, "%s", w[i + 1]);
                 snprintf(Y, sizeof Y, "%s", w[i + 3]);
                 break;
             }
         for (size_t i = 0; i + 2 < n; i++) {
-            if (strcmp(w[i], "can") && strcmp(w[i], "could")) continue;
+            if (!lex_class_member(b, "10_memory_knowledge_lex9435", w[i]) && !lex_class_member(b, "10_memory_knowledge_lex9435_2", w[i])) continue;
             size_t j = i + 1;
             /* optional determiner/quantifier before the subject */
             if (is_article(b, w[j]) || lex_class_member(b, "10_memory_knowledge_lex9439", w[j]) ||
@@ -9440,7 +9458,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (j >= n) break;
             snprintf(qx, sizeof qx, "%s", w[j]); j++;
             if (j < n && lex_class_member(b, "10_memory_knowledge_lex9443", w[j])) j++;       /* optional "also" */
-            if (j >= n || strcmp(w[j], "be")) continue;    /* require copula */
+            if (j >= n || !lex_class_member(b, "10_memory_knowledge_lex9443_2", w[j])) continue;    /* require copula */
             j++;
             if (j < n && is_article(b, w[j])) j++;            /* optional article */
             if (j >= n) continue;
@@ -9589,7 +9607,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
         char *w[64]; size_t n = split_words(sb, w, 64);
         for (size_t i = 0; i + 1 < n; i++) {
-            if (strcmp(w[i], "many")) continue;
+            if (!lex_class_member(b, "10_memory_knowledge_lex9592", w[i])) continue;
             char noun[64]; snprintf(noun, sizeof noun, "%s", strip_edge_punct(w[i + 1]));
             size_t l = strlen(noun); if (l > 1 && noun[l - 1] == 's') noun[l - 1] = '\0';
             const char *cq[2] = { noun, NULL }; char cr[1][KB_TERM_LEN];
@@ -9653,20 +9671,20 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         size_t _l = strlen(dst); if (_l > 1 && dst[_l-1] == 's') dst[_l-1] = '\0'; } while (0)
         char A[64] = "", B[64] = "";
         for (size_t i = 0; i + 3 < n; i++)
-            if (lex_class_member(b, "10_memory_knowledge_lex9657", w[i]) && !strcmp(w[i + 2], "are")) {
+            if (lex_class_member(b, "10_memory_knowledge_lex9657", w[i]) && lex_class_member(b, "10_memory_knowledge_lex9654", w[i + 2])) {
                 P0_SING(A, w[i + 1]); P0_SING(B, w[i + 3]); break;
             }
         if (A[0] && B[0]) {
             /* middle premise: "Z is [a/an] C", C in {A,B}, Z a real subject */
             char Z[64] = "", Zclass[64] = "";
             for (size_t i = 1; i + 1 < n; i++) {
-                if (strcmp(w[i], "is")) continue;
+                if (!lex_class_member(b, "10_memory_knowledge_lex9663", w[i])) continue;
                 size_t c = i + 1;
                 if (c < n && is_article(b, w[c])) c++;
                 if (c >= n) continue;
                 char cs[64]; P0_SING(cs, w[c]);
                 if (strcmp(cs, A) && strcmp(cs, B)) continue;
-                if (!strcmp(w[i - 1], "no") || is_article(b, w[i - 1])) continue;
+                if (lex_class_member(b, "10_memory_knowledge_lex9667", w[i - 1]) || is_article(b, w[i - 1])) continue;
                 P0_SING(Z, w[i - 1]);
                 snprintf(Zclass, sizeof Zclass, "%s", cs);
                 break;
@@ -9674,8 +9692,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             /* question: "is/can Z2 [be] [a/an] D", D in {A,B} */
             char Qs[64] = "", Qclass[64] = "";
             for (size_t i = 0; i + 1 < n && !Qclass[0]; i++) {
-                if (strcmp(w[i], "is") && strcmp(w[i], "can") &&
-                    strcmp(w[i], "could")) continue;
+                if (!lex_class_member(b, "10_memory_knowledge_lex9677", w[i]) && !lex_class_member(b, "10_memory_knowledge_lex9677_2", w[i]) &&
+                    !lex_class_member(b, "10_memory_knowledge_lex9678", w[i])) continue;
                 size_t j = i + 1;
                 if (j < n && is_article(b, w[j])) j++;
                 if (j >= n) continue;
@@ -10246,15 +10264,15 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         /* locate the QUESTION "is <X> a/an <Y>" (the last such occurrence). */
         const char *qx = NULL, *qy = NULL;
         for (size_t i = 0; i + 3 < n; i++)
-            if (lex_class_member(b, "10_memory_knowledge_lex10250", w[i]) && (!strcmp(w[i + 2], "a") || !strcmp(w[i + 2], "an")) &&
+            if (lex_class_member(b, "10_memory_knowledge_lex10250", w[i]) && (lex_class_member(b, "10_memory_knowledge_lex10247", w[i + 2]) || lex_class_member(b, "10_memory_knowledge_lex10247_2", w[i + 2])) &&
                 strlen(w[i + 1]) > 1 && strlen(w[i + 3]) > 1) { qx = w[i + 1]; qy = w[i + 3]; }
         if (qx && qy) {
             /* find an ASSERTION "<X> is a/an ... <Y>" earlier: same subject, and Y
              * occurring as a later token of that copular clause (adjectives between). */
             int declared = 0;
             for (size_t i = 0; i + 2 < n; i++) {
-                if (strcmp(w[i], qx) || strcmp(w[i + 1], "is")) continue;
-                if (strcmp(w[i + 2], "a") && strcmp(w[i + 2], "an")) continue;
+                if (strcmp(w[i], qx) || !lex_class_member(b, "10_memory_knowledge_lex10254", w[i + 1])) continue;
+                if (!lex_class_member(b, "10_memory_knowledge_lex10255", w[i + 2]) && !lex_class_member(b, "10_memory_knowledge_lex10255_2", w[i + 2])) continue;
                 for (size_t j = i + 3; j < n && j < i + 9; j++) {
                     if (!strcmp(w[j], qy)) { declared = 1; break; }
                     if (lex_class_member(b, "10_memory_knowledge_lex10261", w[j]) || lex_class_member(b, "10_memory_knowledge_lex10261_2", w[j]) || !strcmp(w[j], "?")) break;
@@ -10266,14 +10284,14 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                  * "with <num2> <noun>" (same noun, num1 != num2). */
                 char inc[200] = "";
                 for (size_t i = 0; i + 1 < n; i++) {
-                    if (strcmp(w[i], "all")) continue;
+                    if (!lex_class_member(b, "10_memory_knowledge_lex10269", w[i])) continue;
                     long num1 = -1; const char *noun1 = NULL;
                     for (size_t j = i + 1; j < n && j < i + 8; j++) {
                         double v; if (parse_value(w[j], &v) && j + 1 < n) { num1 = (long)v; noun1 = w[j + 1]; break; }
                     }
                     if (num1 < 0 || !noun1) continue;
                     for (size_t k = 0; k + 1 < n; k++) {
-                        if (strcmp(w[k], "with") && strcmp(w[k], "has") && strcmp(w[k], "have")) continue;
+                        if (!lex_class_member(b, "10_memory_knowledge_lex10276", w[k]) && !lex_class_member(b, "10_memory_knowledge_lex10276_2", w[k]) && !lex_class_member(b, "10_memory_knowledge_lex10276_3", w[k])) continue;
                         double v2d; const char *noun2 = NULL;
                         if (k + 2 < n && parse_value(w[k + 1], &v2d)) { long v2 = (long)v2d; noun2 = w[k + 2];
                             if (noun2 && !strcmp(noun2, noun1) && v2 != num1) {
@@ -10412,7 +10430,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
         char *ww[64]; size_t nn = split_words(tmp, ww, 64);
         int trailing_because = nn > 0 &&
-            strcmp(strip_edge_punct(ww[nn - 1]), "because") == 0;
+            lex_class_member(b, "10_memory_knowledge_lex10413", strip_edge_punct(ww[nn - 1]));
         int comp = strstr(norm, "because") &&
                    (kb_cue_match(b, "10_memory_knowledge_lex10418", norm) ||kb_cue_match(b, "10_memory_knowledge_lex10418_2", norm) || trailing_because);
         /* gen240: any "why" question is a candidate — the key lookup below declines
@@ -10596,7 +10614,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                                lex_class_member(b, "10_memory_knowledge_lex10599", ww[t]))) t++;
                 if (t < nn) target = strip_edge_punct(ww[t]);
             }
-            if (lex_class_member(b, "10_memory_knowledge_lex10602", ww[i]) && i >= 1 && !strcmp(ww[i - 1], "happens")) {
+            if (lex_class_member(b, "10_memory_knowledge_lex10602", ww[i]) && i >= 1 && lex_class_member(b, "10_memory_knowledge_lex10597", ww[i - 1])) {
                 size_t f = i + 1;
                 while (f < nn && (lex_class_member(b, "10_memory_knowledge_lex10604", ww[f])||lex_class_member(b, "10_memory_knowledge_lex10604_2", ww[f])||
                        lex_class_member(b, "10_memory_knowledge_lex10605", ww[f])||lex_class_member(b, "10_memory_knowledge_lex10605_2", ww[f])||lex_class_member(b, "10_memory_knowledge_lex10605_3", ww[f])))
@@ -10628,7 +10646,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     }
 
     /* gen84: hypothesis mode — "suppose <fact>, then <query>" */
-    if (strncmp(norm, "suppose ", 8) == 0) {
+    if (!lex_prefix_member(b, "10_memory_knowledge_lex10631", norm) == 0) {
         const char *rest = norm + 8;
         const char *then_pos = strstr(rest, " then ");
         const char *allora_pos = strstr(rest, " allora ");
@@ -10712,8 +10730,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     }
 
     char *choice_start = NULL;
-    if (strncmp(buf, "which is a ", 11) == 0) choice_start = buf + 11;
-    else if (strncmp(buf, "which is an ", 12) == 0) choice_start = buf + 12;
+    if (!lex_prefix_member(b, "10_memory_knowledge_lex10715", buf) == 0) choice_start = buf + 11;
+    else if (!lex_prefix_member(b, "10_memory_knowledge_lex10716", buf) == 0) choice_start = buf + 12;
     if (choice_start) {
         char *colon = strchr(choice_start, ':');
         if (!colon) {
@@ -10899,7 +10917,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen236 (LLMSCORE): cautious all/some quantifier answer. From
      * "all roses are flowers" and "some flowers fade" we can conclude only that
      * roses are flowers, not that roses fade. */
-    if (strncmp(buf, "if all ", 7) == 0 && strstr(buf, " and some ") &&
+    if (!lex_prefix_member(b, "10_memory_knowledge_lex10902", buf) == 0 && strstr(buf, " and some ") &&
         kb_cue_match(b, "10_memory_knowledge_cue10906", buf) && kb_cue_match(b, "10_memory_knowledge_cue10906_2", buf)) {
         char qb[256]; snprintf(qb, sizeof qb, "%s", buf);
         char *qw[48]; size_t qn = split_words(qb, qw, 48);
@@ -11106,9 +11124,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i + 1 < cn; i++)
             if (lex_class_member(b, "10_memory_knowledge_lex11110", cw[i]) && i > 0 &&
                 /* "capital of X" and "capital city of X" both bind X (gen240). */
-                (strcmp(cw[i - 1], "capital") == 0 ||
-                 (strcmp(cw[i - 1], "city") == 0 && i > 1 &&
-                  strcmp(cw[i - 2], "capital") == 0))) {
+                (lex_class_member(b, "10_memory_knowledge_lex11107", cw[i - 1]) ||
+                 (lex_class_member(b, "10_memory_knowledge_lex11108", cw[i - 1]) && i > 1 &&
+                  lex_class_member(b, "10_memory_knowledge_lex11109", cw[i - 2])))) {
                 size_t end = i + 1;
                 while (end < cn && !lex_class_member(b, "10_memory_knowledge_lex11116", cw[end]) &&
                        !lex_class_member(b, "10_memory_knowledge_lex11117", cw[end]) &&
@@ -11335,7 +11353,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 char *phr = ph[0]; size_t l = strlen(phr);
                 if (l >= 2 && phr[0] == '"' && phr[l - 1] == '"') { phr[l - 1] = '\0'; phr++; }
                 char *core = phr;
-                if (strncmp(core, "the ", 4) == 0) core += 4;
+                if (!lex_prefix_member(b, "10_memory_knowledge_lex11338", core) == 0) core += 4;
                 /* match on a lowercased copy (the stored phrase keeps its case,
                  * e.g. "the Ringed Planet", while buf is normalized lowercase). */
                 char corelc[KB_TERM_LEN];
@@ -12293,7 +12311,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * defaults ONLY for a knowledge-less scratch brain (premise sandboxes are a
      * an empty KB), which since gen371 still reaches the shared machinery. */
     if (nw >= 5 && nw <= 4 + KB_MAX_BODY && is_universal_word(b, w[0]) &&
-        strcmp(w[nw - 3], "is") == 0 && is_article(b, w[nw - 2])) {
+        lex_class_member(b, "10_memory_knowledge_lex12294", w[nw - 3]) && is_article(b, w[nw - 2])) {
         const char *head = w[nw - 1];
         const char *bodies[KB_MAX_BODY];
         size_t nbody = nw - 4; /* body words are w[1 .. nw-4] */
@@ -12466,7 +12484,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     size_t a3 = 0;
     if (nw == 4 && lex_class_member(b, "10_memory_knowledge_lex12470", w[2]) &&
         (is_definite_article(b, w[0]) || is_article(b, w[0]))) a3 = 1;
-    if (nw - a3 == 3 && strcmp(w[1 + a3], "is") == 0 &&
+    if (nw - a3 == 3 && lex_class_member(b, "10_memory_knowledge_lex12467", w[1 + a3]) &&
         !is_stopword(b, w[a3]) && isalpha((unsigned char)w[a3][0])) {
         char clsbuf[KB_TERM_LEN];
         snprintf(clsbuf, sizeof clsbuf, "%s", w[2 + a3]);

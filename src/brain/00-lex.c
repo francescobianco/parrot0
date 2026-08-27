@@ -60,6 +60,9 @@ static int kb_intent_match(Brain *b, const char *intent, const char *norm) {
  * runtime with no code edit. */
 static int lex_class_member(Brain *b, const char *cls, const char *word);
 
+static int lex_class_member(Brain *b, const char *cls, const char *word);
+static int lex_prefix_member(Brain *b, const char *cls, const char *word);
+
 static int kb_cue_match(Brain *b, const char *intent, const char *norm) {
     if (!b || !b->kb || !intent || !norm) return 0;
     const char *candidate[] = { intent };
@@ -673,8 +676,10 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
             snprintf(msg, sizeof msg, "Got it - I'll take \"%s\" as %s %s now.",
                      phrase, ls, family);
         else
-            snprintf(msg, sizeof msg, "Got it - I'll take \"%s\" as a way to %s now.", phrase, ls);
-        put(msg, out, outsz);
+            { const KbResponseSlot _rs[] = { { "phrase", phrase }, { "ls", ls } };
+              if (!kb_response_slots(b, "got_it_i_ll_take_x_as_a_way_to_x_now", _rs, 2, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "Got it - I'll take \"%s\" as a way to %s now.", phrase, ls);
+              put(msg, out, outsz); }
         return 1;
     }
     return 0;

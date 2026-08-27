@@ -1539,8 +1539,8 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
             for (size_t i = 0; i < cnw; i++) {
                 /* "no one"/"someone" is a pronoun, not the number 1 */
                 if (i > 0 && lex_class_member(b, "20_math_lex1541", cw[i]) &&
-                    (!strcmp(cw[i-1],"no") || !strcmp(cw[i-1],"some") ||
-                     !strcmp(cw[i-1],"any") || !strcmp(cw[i-1],"every")))
+                    (lex_class_member(b, "20_math_lex1542", cw[i-1]) || lex_class_member(b, "20_math_lex1542_2", cw[i-1]) ||
+                     lex_class_member(b, "20_math_lex1543", cw[i-1]) || lex_class_member(b, "20_math_lex1543_2", cw[i-1])))
                     continue;
                 double v; if (!parse_value(cw[i], &v)) continue;
                 if ((double)(long long)v != v) break;
@@ -1918,10 +1918,10 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
             /* "of" is a step only in "steps of N" -- NOT in "multiples of N" (a skip
              * filter). Guard on the previous token (gen241). */
             int of_step = lex_class_member(b, "20_math_lex1920", t) && i > 0 &&
-                          (!strcmp(strip_edge_punct(sw[i - 1]), "steps") ||
-                           !strcmp(strip_edge_punct(sw[i - 1]), "step"));
+                          (lex_class_member(b, "20_math_lex1921", strip_edge_punct(sw[i - 1])) ||
+                           lex_class_member(b, "20_math_lex1922", strip_edge_punct(sw[i - 1])));
             int by_step = lex_class_member(b, "20_math_lex1923", t) &&
-                          !(i > 0 && !strcmp(strip_edge_punct(sw[i - 1]), "divisible"));
+                          !(i > 0 && lex_class_member(b, "20_math_lex1924", strip_edge_punct(sw[i - 1])));
             if (by_step || lex_class_member(b, "20_math_lex1925", t) || of_step) {
                 char nx[64]; snprintf(nx, sizeof nx, "%s", strip_edge_punct(sw[i + 1]));
                 size_t nl = strlen(nx);            /* "3s" -> "3" */
@@ -1992,13 +1992,13 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
                 if (*word && strlen(word) < sizeof repl) snprintf(repl, sizeof repl, "%s", word);
             }
             if (lex_class_member(b, "20_math_lex1994", t) && i + 2 < rnw &&
-                !strcmp(strip_edge_punct(rw[i + 1]), "by")) {
+                lex_class_member(b, "20_math_lex1995", strip_edge_punct(rw[i + 1]))) {
                 long m;
                 if (word_to_int(strip_edge_punct(rw[i + 2]), &m) && m > 0)
                     repl_mult = (int)m;
             }
             if ((lex_class_member(b, "20_math_lex2000", t) || lex_class_member(b, "20_math_lex2000_2", t)) &&
-                i + 2 < rnw && !strcmp(strip_edge_punct(rw[i + 1]), "of")) {
+                i + 2 < rnw && lex_class_member(b, "20_math_lex2001", strip_edge_punct(rw[i + 1]))) {
                 long m;
                 if (word_to_int(strip_edge_punct(rw[i + 2]), &m) && m > 0)
                     repl_mult = (int)m;
@@ -2303,7 +2303,7 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
         if (strstr(t, "-letter")) { int v = wq_num(t); if (v > 0) len_filter = v; continue; }
         int v = wq_num(t);
         if (v <= 0) continue;
-        int is_len = (i + 1 < nw && strncmp(strip_edge_punct(w[i + 1]), "letter", 6) == 0);
+        int is_len = (i + 1 < nw &&lex_prefix_member(b, "20_math_lex2306", strip_edge_punct(w[i + 1])));
         if (is_len) len_filter = v; else if (!list_n) list_n = v;
     }
 
@@ -2331,7 +2331,7 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
         if (!srcbuf[0]) {
             for (size_t i = 0; i + 1 < nw && !srcbuf[0]; i++) {
                 char *t = strip_edge_punct(w[i]);
-                if (strcmp(t, "of") && strcmp(t, "in")) continue;
+                if (!lex_class_member(b, "20_math_lex2334", t) && !lex_class_member(b, "20_math_lex2334_2", t)) continue;
                 char *src = strip_edge_punct(w[i + 1]);
                 if (lex_class_member(b, "20_math_lex2336", src) && i + 2 < nw) src = strip_edge_punct(w[i + 2]);
                 if (strlen(src) >= 3) snprintf(srcbuf, sizeof srcbuf, "%s", src);
@@ -2401,7 +2401,7 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
     if (is_rhyme) {
         const char *target = NULL;
         for (size_t i = 0; i < nw; i++)
-            if (strcmp(strip_edge_punct(w[i]), "with") == 0 && i + 1 < nw) {
+            if (lex_class_member(b, "20_math_lex2404", strip_edge_punct(w[i])) && i + 1 < nw) {
                 target = strip_edge_punct(w[i + 1]); break;
             }
         char suf[8];
@@ -2443,7 +2443,7 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
         char letter = 0;
         for (size_t i = 0; i + 1 < nw; i++) {
             char *t = strip_edge_punct(w[i]);
-            if (strcmp(t, "with") && strcmp(t, "letter")) continue;
+            if (!lex_class_member(b, "20_math_lex2446", t) && !lex_class_member(b, "20_math_lex2446_2", t)) continue;
             char *nx = strip_edge_punct(w[i + 1]);
             if (nx[0] && isalpha((unsigned char)nx[0])) {
                 letter = (char)tolower((unsigned char)nx[0]); break;
@@ -2953,7 +2953,7 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
         char word[128] = "";
         for (size_t i = 0; i + 1 < nw && !word[0]; i++) {
             char *t = strip_edge_punct(w[i]);
-            if (strcmp(t, "in") && strcmp(t, "of")) continue;
+            if (!lex_class_member(b, "20_math_lex2956", t) && !lex_class_member(b, "20_math_lex2956_2", t)) continue;
             char *cand = strip_edge_punct(w[i + 1]);
             int alpha = 1;
             for (size_t k = 0; cand[k]; k++)
@@ -2982,7 +2982,7 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
         char *w[64]; size_t nw = split_words(tmp, w, 64);
         char word[128] = "", add[8] = "";
         for (size_t i = 0; i + 1 < nw && !word[0]; i++) {
-            if (strcmp(strip_edge_punct(w[i]), "word") != 0) continue;
+            if (!lex_class_member(b, "20_math_lex2985", strip_edge_punct(w[i]))) continue;
             char *t = strip_edge_punct(w[i + 1]);
             int alpha = 1;
             for (size_t k = 0; t[k]; k++)
@@ -2990,7 +2990,7 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
             if (alpha && strlen(t) > 1) snprintf(word, sizeof word, "%s", t);
         }
         for (size_t i = 0; i < nw && !add[0]; i++) {
-            if (strcmp(strip_edge_punct(w[i]), "add") != 0) continue;
+            if (!lex_class_member(b, "20_math_lex2993", strip_edge_punct(w[i]))) continue;
             for (size_t j = i + 1; j < nw; j++) {
                 char *t = strip_edge_punct(w[j]);
                 if (lex_class_member(b, "20_math_lex2996", t) || lex_class_member(b, "20_math_lex2996_2", t) || lex_class_member(b, "20_math_lex2996_3", t) ||

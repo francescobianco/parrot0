@@ -358,14 +358,14 @@ static int mod_shell(Brain *b, const char *norm, const char *raw,
     const char *oracle_env = getenv("PARROT0_ORACLE");
     int oracle_on = oracle_env && strcmp(oracle_env, "1") == 0;
     const char *pred_cmd = NULL;
-    if (oracle_on && strncmp(low, "what does ", 10) == 0) {
+    if (oracle_on &&!lex_prefix_member(b, "65_induce_verify_shell_lex361", low) == 0) {
         const char *print_pos = strstr(low + 10, " print");
         if (print_pos) {
             size_t cmdlen = (size_t)(print_pos - (low + 10));
             rw[10 + cmdlen] = '\0';
             pred_cmd = rw + 10;
         }
-    } else if (oracle_on && strncmp(low, "predict the output of ", 22) == 0) {
+    } else if (oracle_on &&!lex_prefix_member(b, "65_induce_verify_shell_lex368", low) == 0) {
         pred_cmd = rw + 22;
     }
     if (pred_cmd) {
@@ -401,13 +401,13 @@ static int mod_shell(Brain *b, const char *norm, const char *raw,
     }
 
     char *cl;
-    if (strncmp(low, "what does ", 10) == 0) {
+    if (!lex_prefix_member(b, "65_induce_verify_shell_lex404", low) == 0) {
         size_t tl = rl;
         if (tl >= 3 && strcmp(low + tl - 3, " do") == 0) rw[tl - 3] = '\0';
         else if (tl >= 5 && strcmp(low + tl - 5, " mean") == 0) rw[tl - 5] = '\0';
         else return 0;
         cl = rw + 10;
-    } else if (strncmp(low, "explain ", 8) == 0) {
+    } else if (!lex_prefix_member(b, "65_induce_verify_shell_lex410", low) == 0) {
         cl = rw + 8;
     } else {
         return 0;
@@ -541,7 +541,7 @@ static int mod_summary(Brain *b, const char *norm, const char *raw,
             focus[k] = '\0';
         }
     }
-    int want_focus = (*focus && strcmp(focus,"this") && strcmp(focus,"it") &&
+    int want_focus = (*focus && !lex_class_member(b, "65_induce_verify_shell_lex544", focus) && !lex_class_member(b, "65_induce_verify_shell_lex544_2", focus) &&
                       !is_stopword(b, focus));
     if ((!want_sum && !want_gist && !want_focus) || b->prop_count == 0) return 0;
 

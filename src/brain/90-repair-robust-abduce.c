@@ -955,7 +955,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         size_t L = strlen(*p);
         if (strncmp(norm, *p, L) != 0) continue;
         const char *cand = norm + L;
-        if (strstr(cand, " not ") || strncmp(cand, "not ", 4) == 0) {
+        if (strstr(cand, " not ") ||!lex_prefix_member(b, "90_repair_robust_abduce_lex958", cand) == 0) {
             clause = cand;
             contrastive = 1;
             break;

@@ -22,7 +22,7 @@ static int fr_gender_for_en(Brain *b, const char *en, char *gender) {
 }
 
 /* U5 (gen289): the English present progressive "is V-ing" -> drop the auxiliary.
- * Migrated from a hardcoded strcmp(next,"sleeping") to knowledge: the auxiliary
+ * Migrated from a hardcoded !lex_class_member(b, "85_translate_synth_world_lex25", next) to knowledge: the auxiliary
  * is a fact (aux_progressive/1) and the progressive is a morphology RULE (the
  * "-ing" suffix over chars/2) in grammar.p0 — so it generalizes to any -ing verb.
  * Backstop to the historical hardcoded case if grammar.p0 is absent. */
@@ -390,10 +390,10 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                     }
                     if (!piece[0] && !fr_lookup(b, tok, piece, sizeof piece)) {
                         char msg[160];
-                        snprintf(msg, sizeof msg,
-                                 "I can translate most of it, but I don't know the French for \"%s\".",
-                                 tok);
-                        put(msg, out, out_size);
+                        { const KbResponseSlot _rs[] = { { "tok", tok } };
+                          if (!kb_response_slots(b, "i_can_translate_most_of_it_but_i_don_t_know", _rs, 1, msg, sizeof msg))
+                            snprintf(msg, sizeof msg, "I can translate most of it, but I don't know the French for \"%s\".", tok);
+                          put(msg, out, out_size); }
                         return 1;
                     }
                     char gnoun;
@@ -718,9 +718,10 @@ found:
         } else {
             if (!gloss_lookup(b, tok, to_it, piece, sizeof piece)) {
                 char msg[160];
-                snprintf(msg, sizeof msg,
-                         "I can't translate \"%s\" yet.", tok);
-                put(msg, out, out_size);
+                { const KbResponseSlot _rs[] = { { "tok", tok } };
+                  if (!kb_response_slots(b, "i_can_t_translate_x_yet", _rs, 1, msg, sizeof msg))
+                    snprintf(msg, sizeof msg, "I can't translate \"%s\" yet.", tok);
+                  put(msg, out, out_size); }
                 return 1;
             }
             if (to_it) {
@@ -1348,8 +1349,8 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
         const char *rest = NULL; char wname[48] = "";
         /* "in the <name> world[:] ..." / "in the <name> story ..." */
         const char *p = NULL;
-        if (strncmp(buf, "in the ", 7) == 0)      p = buf + 7;
-        else if (strncmp(buf, "in this ", 8) == 0) {
+        if (!lex_prefix_member(b, "85_translate_synth_world_lex1351", buf) == 0)      p = buf + 7;
+        else if (!lex_prefix_member(b, "85_translate_synth_world_lex1352", buf) == 0) {
             /* anonymous scratch scope: name it after the noun (world/story). */
             const char *q = buf + 8;
             char first[32]; size_t fi = 0;
@@ -1384,7 +1385,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                         /* the next token names the world only if it isn't itself
                          * the start of a clause ("X is …"); else stay anonymous. */
                         int looks_clause = (i + 2 < nn) &&
-                            strcmp(strip_edge_punct(nw_[i+2]), "is") == 0;
+                            lex_class_member(b, "85_translate_synth_world_lex1387", strip_edge_punct(nw_[i+2]));
                         if (!looks_clause && *after_tok) {
                             snprintf(wname, sizeof wname, "%s", after_tok);
                             name_idx = i + 1; /* clause starts after the name */
@@ -1416,7 +1417,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
             const char *clause = rest ? rest : "";
             while (*clause == ':' || *clause == ',' || isspace((unsigned char)*clause))
                 clause++;
-            if (strncmp(clause, "where ", 6) == 0) clause += 6;
+            if (!lex_prefix_member(b, "85_translate_synth_world_lex1419", clause) == 0) clause += 6;
             if (*clause) {
                 char ans[300];
                 if (world_clause(b, clause, interrogative, ans, sizeof ans)) {
@@ -1432,8 +1433,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
             return 1;
         }
         /* "start/open a world called <name>" / "new world <name>" */
-        if (strncmp(buf, "start a ", 8) == 0 || strncmp(buf, "open a ", 7) == 0 ||
-            strncmp(buf, "new ", 4) == 0) {
+        if (!lex_prefix_member(b, "85_translate_synth_world_lex1435", buf) == 0 ||!lex_prefix_member(b, "85_translate_synth_world_lex1435_2", buf) == 0 ||!lex_prefix_member(b, "85_translate_synth_world_lex1435_3", buf) == 0) {
             char *w2[12]; char sb[256]; snprintf(sb, sizeof sb, "%s", buf);
             size_t nn = split_words(sb, w2, 12);
             int wn_idx = -1;

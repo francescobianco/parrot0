@@ -371,7 +371,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
             char *fw[32]; size_t fn = split_words(fbb, fw, 32);
             for (size_t i = 0; i + 1 < fn && !answered_fav; i++) {
                 char *fv = strip_edge_punct(fw[i]);
-                if (strcmp(fv, "favorite") && strcmp(fv, "favourite")) continue;
+                if (!lex_class_member(b, "40_meta_reflection_lex374", fv) && !lex_class_member(b, "40_meta_reflection_lex374_2", fv)) continue;
                 size_t j = i + 1;
                 while (j < fn) {                       /* skip "kind of"/"type of"/articles */
                     char *t = strip_edge_punct(fw[j]);
@@ -466,11 +466,11 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
 
     /* gen93: goal tracking */
     {
-        int it_goal = strncmp(buf,"ricordati di ",13)==0;   /* gen223: was buf[2]=="c"
+        int it_goal =!lex_prefix_member(b, "40_meta_reflection_lex469", buf)==0;   /* gen223: was buf[2]=="c"
             * (string-address compare, -Waddress) and buf+12+(...) double-counted the
             * prefix, so the goal text was read from the wrong offset. Now skip exactly
             * the matched IT/EN prefix. */
-        int g = strncmp(buf,"remember to ",12)==0 || it_goal;
+        int g =!lex_prefix_member(b, "40_meta_reflection_lex473", buf)==0 || it_goal;
         if(g && b->goal_count<8){ snprintf(b->goals[b->goal_count++],128,"%s",buf+(it_goal?13:12)); put("Ok, noted.",out,out_size); return 1; }
         if(kb_cue_match(b, "40_meta_reflection_chain483", buf)){
             if(!b->goal_count) kb_say(b, "no_goals_set", "No goals set.",out,out_size);
@@ -1056,15 +1056,10 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
 
     /* --- role CLEAR: only when it is the primary intent of the turn (so a setup
      * line ending "...and be yourself" still establishes the role first). --- */
-    int clear = (strncmp(buf, "stop pretending", 15) == 0 ||
-                 strncmp(buf, "be yourself", 11) == 0 ||
-                 strncmp(buf, "stop being", 10) == 0 ||
-                 strncmp(buf, "smetti", 6) == 0 ||
-                 strncmp(buf, "torna te stesso", 15) == 0 ||
-                 strncmp(buf, "basta fingere", 13) == 0);
+    int clear = (!lex_prefix_member(b, "40_meta_reflection_lex1059", buf) == 0 ||!lex_prefix_member(b, "40_meta_reflection_lex1059_2", buf) == 0 ||!lex_prefix_member(b, "40_meta_reflection_lex1060", buf) == 0 ||!lex_prefix_member(b, "40_meta_reflection_lex1061", buf) == 0 ||!lex_prefix_member(b, "40_meta_reflection_lex1062", buf) == 0 ||!lex_prefix_member(b, "40_meta_reflection_lex1063", buf) == 0);
     /* role SET cues — checked first, so "you are now X. stop pretending" sets. */
     int set = kb_cue_match(b, "40_meta_reflection_cue1066", buf) || kb_cue_match(b, "40_meta_reflection_cue1066_2", buf) || kb_cue_match(b, "40_meta_reflection_cue1066_3", buf) ||
-              kb_cue_match(b, "40_meta_reflection_cue1067", buf) || strncmp(buf, "sei ", 4) == 0 ||
+              kb_cue_match(b, "40_meta_reflection_cue1067", buf) ||!lex_prefix_member(b, "40_meta_reflection_lex1067", buf) == 0 ||
               kb_cue_match(b, "40_meta_reflection_cue1068", buf) || kb_cue_match(b, "40_meta_reflection_cue1068_2", buf) || kb_cue_match(b, "40_meta_reflection_cue1068_3", buf);
 
     if (set && role_uptake(b, raw)) {
@@ -1144,7 +1139,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
     }
 
     /* "do you <action>?" — affirm if the kind has that trait (kb/core/roles.p0). */
-    if (strncmp(buf, "do you ", 7) == 0 && b->role_kind[0]) {
+    if (!lex_prefix_member(b, "40_meta_reflection_lex1147", buf) == 0 && b->role_kind[0]) {
         char *w[8]; char db[256]; snprintf(db, sizeof db, "%s", buf);
         size_t dn = split_words(db, w, 8);
         if (dn >= 3) {

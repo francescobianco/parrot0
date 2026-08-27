@@ -562,7 +562,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                 break;
             }
         for (size_t i = 0; i + 1 < nw && !fn[0]; i++) {
-            if (strcmp(w[i], "to") && strcmp(w[i], "a") && strcmp(w[i], "su")) continue;
+            if (!lex_class_member(b, "80_code_lex565", w[i]) && !lex_class_member(b, "80_code_lex565_2", w[i]) && !lex_class_member(b, "80_code_lex565_3", w[i])) continue;
             char *c = strip_edge_punct(w[i + 1]);
             int ok = (*c != '\0');
             for (const char *t = c; *t; t++)
@@ -1580,7 +1580,7 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
     for (size_t i = 0; i < nspans && ipo + 2 < sizeof intake_proof; i++) {
         if (!spans[i].proof[0]) continue;
         const char *piece = spans[i].proof;
-        if (!strncmp(piece, "because ", 8)) piece += 8;
+        if (lex_prefix_member(b, "80_code_lex1583", piece)) piece += 8;
         int wrote = snprintf(intake_proof + ipo, sizeof intake_proof - ipo,
                              "%s%s", ipo ? "; " : "", piece);
         if (wrote < 0) break;

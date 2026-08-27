@@ -625,14 +625,14 @@ static int mod_deep_reason(Brain *b, const char *norm, const char *raw,
     char *w[40]; size_t n = split_words(q, w, 40);
     size_t ip = n;
     for (size_t i = 0; i < n; i++)
-        if (!strcmp(strip_edge_punct(w[i]), "is")) { ip = i; break; }
+        if (lex_class_member(b, "50_self_research_loop_lex628", strip_edge_punct(w[i]))) { ip = i; break; }
 
     char subj[KB_TERM_LEN] = "", obj[KB_TERM_LEN] = "";
     const char *rel = NULL; int class_mode = 0;
     if (ip < n && ip + 2 < n) {
         size_t inp = n;
         for (size_t i = ip + 1; i < n; i++)
-            if (!strcmp(strip_edge_punct(w[i]), "in")) { inp = i; break; }
+            if (lex_class_member(b, "50_self_research_loop_lex635", strip_edge_punct(w[i]))) { inp = i; break; }
         if (inp != n && inp > ip + 1 && inp + 1 < n &&
             p0_join(w, ip + 1, inp, subj, sizeof subj) &&
             p0_join(w, inp + 1, n, obj, sizeof obj)) {

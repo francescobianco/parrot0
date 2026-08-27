@@ -54,8 +54,8 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
         else { p = strstr(low, " in "); if (p) p += 4; }
         if (!p) return 0;
         while (*p && isspace((unsigned char)*p)) p++;
-        if (!strncmp(p, "the word ", 9)) p += 9;
-        else if (!strncmp(p, "the name ", 9)) p += 9;
+        if (lex_prefix_member(b, "60_agent_tools_lex57", p)) p += 9;
+        else if (lex_prefix_member(b, "60_agent_tools_lex58", p)) p += 9;
         char word[128]; snprintf(word, sizeof word, "%s", p);
         size_t wl = strlen(word);
         while (wl > 0 && !isalpha((unsigned char)word[wl - 1])) word[--wl] = '\0';
@@ -1743,7 +1743,7 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
     char lang[16] = "";                     /* trailing "in <lang_name>" */
     size_t end = nw;
     char *lastw = strip_edge_punct(w[nw-1]);
-    if (nw >= vi + 3 && !strcmp(strip_edge_punct(w[nw-2]), "in") &&
+    if (nw >= vi + 3 && lex_class_member(b, "60_agent_tools_lex1746", strip_edge_punct(w[nw-2])) &&
         reqgen_in_class(b, "lang_name", lastw)) {
         snprintf(lang, sizeof lang, "%s", lastw);
         end = nw - 2;

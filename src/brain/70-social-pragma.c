@@ -616,8 +616,8 @@ static int is_discourse_opener(Brain *b, char **w, size_t nw, size_t *skip) {
     if (nw >= 3 && lex_class_member(b, "70_social_pragma_lex616", t)) {
         char a[64], c[64];
         snprintf(a, sizeof a, "%s", w[1]); snprintf(c, sizeof c, "%s", w[2]);
-        if (strcmp(strip_edge_punct(a), "the") == 0 &&
-            strcmp(strip_edge_punct(c), "way") == 0) { *skip = 3; return 1; }
+        if (lex_class_member(b, "70_social_pragma_lex619", strip_edge_punct(a)) &&
+            lex_class_member(b, "70_social_pragma_lex620", strip_edge_punct(c))) { *skip = 3; return 1; }
     }
     /* gen335 round-3: KB-first migration — query discourse_opener/1 from KB
      * instead of a hardcoded C array. PRINCIPLES.md: engine fixed, lexicon learns. */
