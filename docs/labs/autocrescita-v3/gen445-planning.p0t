@@ -42,5 +42,6 @@
 [replica della stessa macchina in inglese]
 !query plan_goal(job_onboarding, trusted_contributor)
 !query plan_budget(job_onboarding, 6, 2w)
+!query compensation_plan_same_semantics(onboarding_it, onboarding_en)
 > make a plan to start a new job
 < My derived plan for job onboarding: [total cost 6, total time 2w] 1) learn the team's expectations and success criteria [needs role_offer]; 2) complete small commitments reliably and record the results [needs expectations_known]; 3) build trust by communicating clearly and delivering consistently [needs reliable_record].

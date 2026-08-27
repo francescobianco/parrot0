@@ -1363,6 +1363,14 @@ budget, dipendenze ed effetti. È una prova positiva di `Lin ≠ Lsrc` e di
 replica della macchina, ma non sostituisce ancora l'ablazione e il confronto in
 ordine inverso richiesti dal gate.
 
+Per rendere quel confronto falsificabile è stata introdotta la relazione KB
+`compensation_plan_same_semantics/2`: due snapshot sono equivalenti solo se
+pubblicano lo stesso obiettivo e lo stesso grafo canonico dei passi, ignorando
+la superficie linguistica. Il profilo Gen445 contiene ora due snapshot
+`onboarding_it`/`onboarding_en` e il campione interroga esplicitamente questa
+relazione. È il certificato formale del replay; la prova completa dovrà ancora
+generare i due snapshot da esecuzioni in ordine inverso e poi ablare un arco.
+
 ---
 
 ## gen446 — Stato vivente: dialogo, crescita e piani nello stesso ciclo

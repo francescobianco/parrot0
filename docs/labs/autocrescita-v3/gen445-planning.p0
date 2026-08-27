@@ -1,6 +1,13 @@
 % Gen445 — campione costruttivo: piano causale, informazione e replanning.
 % Il dominio è dichiarato qui, non nel C né nel core.
 
+% Snapshot semantici per il replay in ordine inverso. La superficie e' assente:
+% il consumer confronta soltanto obiettivo e grafo causale canonico.
+compensation_plan_semantics(onboarding_it, trusted_contributor,
+  steps(learn_expectations, make_small_commitments, build_trust)).
+compensation_plan_semantics(onboarding_en, trusted_contributor,
+  steps(learn_expectations, make_small_commitments, build_trust)).
+
 compensation_obligation(445_water, goal(level, safe), language(it, it)).
 compensation_step(445_water, 1, step(read_source, unknown, source_read, 1)).
 compensation_step(445_water, 2, step(open_gate, source_read, level_safe, 2)).

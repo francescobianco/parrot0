@@ -57,6 +57,8 @@ machinery(compensation_step).
 machinery(compensation_dependency).
 machinery(compensation_plan).
 machinery(compensation_plan_step).
+machinery(compensation_plan_semantics).
+machinery(compensation_plan_same_semantics).
 machinery(compensation_plan_complete).
 machinery(compensation_stop).
 machinery(compensation_alternative).
@@ -345,6 +347,15 @@ compensation_plan_step($Turn, $Index, step($Action, $Pre, $Effect, meta($Cost, $
 compensation_plan_step($Turn, $Index, step($Action, $Pre, $Effect, meta($Cost, $Support))) :-
     compensation_step($Turn, $Index, step($Action, $Pre, $Effect, $Cost)),
     source_support($Turn, $Index, $Support).
+
+% Una firma canonica separa l'ordine di realizzazione dalla semantica del
+% piano. Le facolta' che riproducono un piano devono pubblicare la stessa
+% quadrupla di obiettivi e passi; il confronto non guarda la frase finale.
+% L'uguaglianza e' quindi una relazione KB riusabile per replay e ordine
+% inverso, non una decisione del renderer.
+compensation_plan_same_semantics($Left, $Right) :-
+    compensation_plan_semantics($Left, $Goal, $Steps),
+    compensation_plan_semantics($Right, $Goal, $Steps).
 
 compensation_plan($Turn, $Goal, plan($Goal, $Steps)) :-
     compensation_obligation($Turn, $Goal, language($InputLanguage, $OutputLanguage)),
