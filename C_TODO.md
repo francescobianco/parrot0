@@ -42,6 +42,21 @@ Secondo avanzamento trasversale:
 Verifica del round: `make build`, `kb_first_round2.p0t` 8/8 e `family.p0t` 9/9.
 Restano separati i tre fallimenti preesistenti di `planact.p0t`.
 
+### Round ibrido 3 — 2026-08-28
+
+Terzo giro completato:
+
+- **Voce:** la lista di capacità mancanti usa ora il template KB con slot
+  `items`, senza cornice umanizzata nel C.
+- **Lessico:** la lista di parole funzionali poetiche è stata spostata nella
+  classe KB, con test di aggiunta e ritiro runtime.
+- **Dominio:** il colore è risolto tramite `surface_color -> color_of` e
+  l’adapter generico di dominio.
+- **Famiglie:** la risposta delle transizioni di sequenza usa la famiglia
+  semantica `sequence_transitions_learned`.
+
+Verifica del round: `make -B build`, test focalizzato `9/9`, nessun warning.
+
 | | inizio campagna | ora |
 |---|---:|---:|
 | punti della voce con chiave KB | 160 | **656** |

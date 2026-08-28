@@ -78,20 +78,14 @@ static int concept_bind(Brain *b, const char *pred, const char *word,
  * request verb. An interviewer offering a verse expects it continued, not
  * walled. Shape-detected, not phrase-stored; ordinary statements and questions
  * carry function words that fail the gate. */
-static int gen_poetic_fragment(const char *norm) {
+static int gen_poetic_fragment(Brain *b, const char *norm) {
     if (cue(norm, "?")) return 0;
     char pb[256]; snprintf(pb, sizeof pb, "%s", norm);
     char *pw[16]; size_t pn = split_words(pb, pw, 16);
     if (pn < 3 || pn > 8) return 0;
-    static const char *fnwords[] = {
-        "what","how","why","when","where","who","which","is","are","was",
-        "were","am","be","do","does","did","can","could","will","would",
-        "should","tell","write","name","list","give","make","explain",
-        "describe","say","show","let","please","i","you","my","your", NULL };
     for (size_t i = 0; i < pn; i++) {
         char *t = strip_edge_punct(pw[i]);
-        for (size_t k = 0; fnwords[k]; k++)
-            if (!strcmp(t, fnwords[k])) return 0;
+        if (lex_class_member(b, "poetic_function_word", t)) return 0;
     }
     return 1;
 }
@@ -438,7 +432,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         { 
           char _v0[48]; snprintf(_v0, sizeof _v0, "%zu", pairs);
   const KbResponseSlot _rs[] = { { "pairs", _v0 } };
-          kb_term_say(b, "learned_x_transition_s", _rs, 1, msg, sizeof msg); }
+          kb_term_say(b, "sequence_transitions_learned", _rs, 1, msg, sizeof msg); }
         put(msg, out, out_size);
         return 1;
     }
@@ -1251,7 +1245,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 for (size_t i = 0; i < nr && !noun; i++) {
                     for (size_t j = 0; j < nr && !noun; j++) if (i != j) {
                         const char *qa[] = { rest[i], rest[j] };
-                        if (domain_query(b, "color", qa, 2)) { noun = rest[i]; adj = rest[j]; }
+                        if (domain_query(b, "surface_color", qa, 2)) { noun = rest[i]; adj = rest[j]; }
                     }
                 }
                 if (!noun) { noun = rest[0]; adj = rest[1]; }
@@ -1421,7 +1415,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * stored phrase; ordinary statements and questions carry function words
      * that fail the gate, so this stays a last-resort poetic reading. */
     if ((kb_cue_match(b, "30_generation_reading_cue1419", norm) || strcmp(b->last_module, "gen") == 0 ||
-         gen_poetic_fragment(norm)) && !kb_cue_match(b, "30_generation_reading_cue1420", norm)) {
+          gen_poetic_fragment(b, norm)) && !kb_cue_match(b, "30_generation_reading_cue1420", norm)) {
         char nb[256]; snprintf(nb, sizeof nb, "%s", norm);
         char *nw2[64]; size_t nn2 = split_words(nb, nw2, 64);
         char picked_scene[KB_TERM_LEN];

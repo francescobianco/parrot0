@@ -1395,6 +1395,7 @@ domain_relation(difference, difference_between).
 domain_relation(sound, sound_of).
 domain_relation(no_land_border, no_land_border).
 domain_relation(color, color_of).
+domain_relation(surface_color, color_of).
 domain_relation(opposite, opposite).
 domain_relation(landmark, landmark_of).
 domain_relation(riddle_signature, riddle_sig).

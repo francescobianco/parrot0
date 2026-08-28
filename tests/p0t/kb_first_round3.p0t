@@ -1,0 +1,32 @@
+# Focused KB-first round three ratchets.
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test output_template_slots]
+!assert response_template(capability_absent_list, "Unable: {items}.")
+!query response_template(capability_absent_list, "Unable: {items}.")
+
+[test lexical_class_growth_and_ablation]
+!assert poetic_function_word(zorp)
+!query poetic_function_word(zorp)
+!forget poetic_function_word(zorp)
+!query! poetic_function_word(zorp)
+
+[test domain_adapter_binding]
+!assert color_of(apple, red)
+!assert domain_relation(surface_color, color_of)
+!query domain_relation(surface_color, color_of)
+!query color_of(apple, red)
+!forget domain_relation(surface_color, color_of)
+!query! domain_relation(surface_color, color_of)
+
+[test semantic_response_family]
+!query response_template(sequence_transitions_learned, "Learned {pairs} transition(s).")
+> learn sequence: red blue
+< Learned 1 transition(s).
+> learn sequence: green yellow
+< Learned 1 transition(s).

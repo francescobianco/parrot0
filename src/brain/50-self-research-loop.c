@@ -1372,18 +1372,25 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         size_t off = (size_t)snprintf(body, sizeof body, "%s", _t3);
 
         if (na > 0 && off < sizeof body) {
-            off += (size_t)snprintf(body + off, sizeof body - off, "I cannot do ");
-            for (size_t i = 0; i < na && off < sizeof body; i++) {
+            char absent_list[700];
+            size_t absent_off = 0;
+            for (size_t i = 0; i < na && absent_off < sizeof absent_list; i++) {
                 char nm[KB_TERM_LEN]; self_readable(nm, sizeof nm, absent[i]);
                 char wall[KB_TERM_LEN];
                 int haswall = self_capability_wall(b, absent[i], wall, sizeof wall);
-                off += (size_t)snprintf(body + off, sizeof body - off,
+                absent_off += (size_t)snprintf(absent_list + absent_off,
+                    sizeof absent_list - absent_off,
                     "%s%s%s%s%s", (i == 0) ? "" : (i + 1 == na) ? " or " : ", ",
                     nm, haswall ? " (it would need " : "",
                     haswall ? wall : "", haswall ? ")" : "");
             }
-            if (off < sizeof body)
-                off += (size_t)snprintf(body + off, sizeof body - off, ". ");
+            char absent_msg[800];
+            const KbResponseSlot slots[] = { { "items", absent_list } };
+            if (!kb_response_slots(b, "capability_absent_list", slots, 1,
+                                   absent_msg, sizeof absent_msg))
+                kb_term_say(b, "capability_absent_list", slots, 1,
+                            absent_msg, sizeof absent_msg);
+            off += (size_t)snprintf(body + off, sizeof body - off, "%s", absent_msg);
         }
         if (ns > 0 && off < sizeof body) {
             { char _t4[512];

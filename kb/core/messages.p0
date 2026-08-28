@@ -391,7 +391,9 @@ response_template(x_xx_with_x_left_over, "{items} {items2}{item}, with ${change}
 response_template(x_xx_with_no_change_left_over, "{items} {items2}{item}, with no change left over.").
 response_template(i_started_with_x_items_traded_away_x_got_x_x, "I started with {total} items, traded away {trade_away}, got {trade_get}: {num}.").
 response_template(i_don_t_know_how_many_x_x_has_2, "I don't know how many {unit} {y} has.").
+response_template(sequence_transitions_learned, "Learned {pairs} transition(s).").
 response_template(learned_x_transition_s, "Learned {pairs} transition(s).").
+response_template(capability_absent_list, "I cannot do {items}. ").
 response_template(x_tastes_like_x_has_x_and_is_best_for_x, "{nm} tastes like {taste}, has {texture}, and is best for {use}.").
 response_template(i_m_tracking_this_conversation_this_is_turn, "I'm tracking this conversation; this is turn {turns}.").
 response_template(we_ve_exchanged_x_turn_s, "We've exchanged {turns} turn(s).").
