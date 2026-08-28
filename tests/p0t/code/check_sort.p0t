@@ -1,0 +1,41 @@
+# check_sort.p0t — il GIUDICE ancorato all'esecuzione per il codice su array.
+# Convertito da tests/check_sort.sh (gen444).
+#
+# `code_check_sort` avvolge un candidato in un main generato, lo esegue su
+# vettori fissi e verifica che ogni risultato sia ordinato E una permutazione
+# dell'ingresso. Qui non si sintetizza niente: si mette alla prova il GIUDICE,
+# dandogli un ordinamento buono e tre modi diversi di essere sbagliato.
+#
+# Le due meta' che rendono il giudizio onesto:
+#   «non fa niente»      -> permutazione ma non ordinato
+#   «azzera tutto»       -> ordinato ma non permutazione
+# Un oracolo che controllasse una sola delle due accetterebbe uno dei due.
+#
+# Prima viveva in shell perche' serviva una directory SCRIVIBILE (il giudice
+# compila ed esegue) e non c'era modo di dirlo in .p0t. Ora `!sandbox` la crea,
+# e `code.check_sort` espone il giudice sul layer MCP.
+
+[test check_sort_judge]
+!sandbox
+!timeout 30
+
+# un bubble sort da manuale: accettato
+!mcp code.check_sort {"source":"void mysort(int a[], int n){ for(int i=0;i<n;i++) for(int j=0;j+1<n-i;j++) if(a[j]>a[j+1]){int t=a[j];a[j]=a[j+1];a[j+1]=t;} }","function":"mysort"}
+<~ "verdict":1
+
+# non fa niente: e' una permutazione, ma l'ingresso resta disordinato
+!mcp code.check_sort {"source":"void mysort(int a[], int n){ (void)a; (void)n; }","function":"mysort"}
+<~ "verdict":0
+
+# azzera tutto: e' ordinato (tutti uguali) ma NON e' una permutazione
+!mcp code.check_sort {"source":"void mysort(int a[], int n){ for(int i=0;i<n;i++) a[i]=0; }","function":"mysort"}
+<~ "verdict":0
+
+# ordina al contrario: permutazione, ma non crescente
+!mcp code.check_sort {"source":"void mysort(int a[], int n){ for(int i=0;i<n;i++) for(int j=0;j+1<n-i;j++) if(a[j]<a[j+1]){int t=a[j];a[j]=a[j+1];a[j+1]=t;} }","function":"mysort"}
+<~ "verdict":0
+
+# non compila: deve dare -1, non un falso positivo
+!mcp code.check_sort {"source":"void mysort(int a[], int n){ this is not c }","function":"mysort"}
+<~ "verdict":-1
+!sandbox off

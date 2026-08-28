@@ -40,6 +40,15 @@
  *                             [test]). A turn slower than the budget is a FAILURE
  *                             (a perf-regression guard); 0 disables it.
  *   !forget PRED              switch a predicate OFF: retract every fact of it
+ *   !sandbox / !sandbox off   run inside a private 0700 temp dir (and clean it up).
+ *                             Some tests need a WRITABLE cwd — the code judge
+ *                             compiles and runs a candidate, writing a work tree
+ *                             where it stands. In shell that was `mktemp -d` +
+ *                             `cd`; it had no .p0t form, which is why that family
+ *                             stayed out. It closes itself at the next `[test …]`
+ *                             and at end of file: the daemon is shared, so a
+ *                             sandbox left open would silently break every test
+ *                             after it.
  *   !mcp TOOL {json}          invoke ONE MCP tool on the SAME brain and put its
  *                             JSON payload where the reply goes, so the `<`/`<~`/`<!`
  *                             lines below check it like any other answer. The MCP
@@ -112,6 +121,12 @@ typedef struct {
     size_t expect_len;
     int  have_expect;
     int  expect_startline;
+    /* !sandbox: la directory privata in cui il test lavora, e quella da cui
+     * veniva. Il demone e' uno solo e condiviso, quindi una sandbox non chiusa
+     * sarebbe un guasto silenzioso per ogni test successivo: si chiude da se'. */
+    char sandbox_dir[512];
+    char sandbox_prev[512];
+    int  in_sandbox;
     /* gen377: how `expect` is compared. Exact match is right for a short, fully
      * determined reply, but a generated ANALYTICAL answer is a paragraph, and what
      * a growth test asserts is that one phrase APPEARS or DISAPPEARS when a fact is
@@ -189,6 +204,37 @@ static const char *te_casestr(const char *hay, const char *needle) {
         if (!*b) return h;
     }
     return NULL;
+}
+
+static int te_sandbox_enter(TeState *t);
+static void te_sandbox_leave(TeState *t);
+
+static int te_sandbox_enter(TeState *t) {
+    if (t->in_sandbox) te_sandbox_leave(t);
+    if (!getcwd(t->sandbox_prev, sizeof t->sandbox_prev)) return 0;
+    const char *tmp = getenv("TMPDIR");
+    if (!tmp || !*tmp) tmp = "/tmp";
+    snprintf(t->sandbox_dir, sizeof t->sandbox_dir,
+             "%s/parrot0-p0t-sandbox.XXXXXX", tmp);
+    if (!mkdtemp(t->sandbox_dir)) return 0;
+    if (chdir(t->sandbox_dir) != 0) return 0;
+    t->in_sandbox = 1;
+    return 1;
+}
+
+static void te_sandbox_leave(TeState *t) {
+    if (!t->in_sandbox) return;
+    if (t->sandbox_prev[0]) { if (chdir(t->sandbox_prev) != 0) { /* niente da fare */ } }
+    /* si porta via il proprio albero: una sandbox che resta e' spazzatura che
+     * si accumula a ogni `make test`. */
+    if (t->sandbox_dir[0]) {
+        char cmd[600];
+        snprintf(cmd, sizeof cmd, "rm -rf '%s'", t->sandbox_dir);
+        if (system(cmd) != 0) { /* best effort */ }
+    }
+    t->in_sandbox = 0;
+    t->sandbox_dir[0] = '\0';
+    t->sandbox_prev[0] = '\0';
 }
 
 static void te_flush(TeState *t) {
@@ -363,6 +409,7 @@ static int te_process_stream(TeState *t, FILE *in) {
 
         if (*p == '[') {
             te_flush(t);
+            te_sandbox_leave(t);   /* una sezione non eredita la sandbox di prima */
             char *close = strchr(p, ']');
             if (!close) { syntax_err = 1; continue; }
             *close = '\0';
@@ -539,6 +586,33 @@ static int te_process_stream(TeState *t, FILE *in) {
          *     !mcp kb.query  {"pred":"dog","args":["rex"]}
          *     <~ true
          */
+        /* ── !sandbox [off] ─────────────────────────────────────────────────
+         *
+         * Alcuni test hanno bisogno di una directory SCRIVIBILE e propria: il
+         * giudice del codice compila ed esegue un candidato, e scrive un albero
+         * di lavoro dove si trova. Nello shell la ricetta era `mktemp -d` +
+         * `cd`; qui non si poteva esprimere, ed e' il motivo per cui quella
+         * famiglia di test e' rimasta fuori dal .p0t.
+         *
+         * `!sandbox` crea una directory privata 0700 e ci sposta il demone;
+         * `!sandbox off` torna dove si era. Il ritorno e' automatico a fine
+         * file e a ogni `[test …]`, cosi' un test che dimentica di chiudere non
+         * lascia il demone in una directory temporanea — che sarebbe un guasto
+         * silenzioso per tutti i test successivi. */
+        if (strncmp(p, "!sandbox", 8) == 0 &&
+            (p[8] == '\0' || p[8] == ' ' || p[8] == '\t')) {
+            te_flush(t);
+            const char *arg = p + 8;
+            while (*arg == ' ' || *arg == '\t') arg++;
+            if (strncmp(arg, "off", 3) == 0) { te_sandbox_leave(t); continue; }
+            if (!te_sandbox_enter(t)) {
+                t->failed++;
+                fprintf(t->out, "  FAIL  [%s] line %d\n",
+                        t->section[0] ? t->section : "-", t->line_no);
+                fprintf(t->out, "        sandbox: non sono riuscito a crearla\n");
+            }
+            continue;
+        }
         if (strncmp(p, "!mcp", 4) == 0 && (p[4] == ' ' || p[4] == '\t')) {
             te_flush(t);
             te_apply_config(t);
@@ -612,6 +686,7 @@ static int te_process_stream(TeState *t, FILE *in) {
         syntax_err = 1;
     }
     te_flush(t);
+    te_sandbox_leave(t);   /* mai lasciare il demone dentro una temporanea */
     return syntax_err ? 2 : 0;
 }
 

@@ -489,6 +489,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/engine/dif.p0t
 	@./$(BIN) --test tests/p0t/engine/ranges.p0t
 	@./$(BIN) --test tests/p0t/engine/anon.p0t
+	@./$(BIN) --test tests/p0t/code/check_sort.p0t
 	@./$(BIN) --test tests/p0t/conversation/dialogue_moves.p0t
 	@./$(BIN) --test tests/p0t/conversation/context_scope.p0t
 	@./$(BIN) --test tests/p0t/conversation/conversation.p0t
@@ -881,7 +882,6 @@ legacy-test: build
 	@./tests/research_learn.sh
 	@./tests/posix.sh
 	@./tests/synth.sh
-	@./tests/check_sort.sh
 	@PARROT0_ORACLE=1 ./tests/posix_oracle.sh
 	@./tests/experts.sh
 	@./tests/profiles.sh

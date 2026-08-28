@@ -161,7 +161,7 @@ sandboxed). Test: feed it a known-good and a known-bad function, assert pass/fai
 > each, recomputes **sortedness AND permutation** itself before `code_run`. Returns
 > 1=all pass / 0=a case failed or crashed / −1=build/run error. The harness owns the
 > vectors and the oracle, so a candidate cannot "pass" by printing. Test:
-> `tests/check_sort.sh` (a C driver linked against the real `code.c`) feeds it a real
+> `tests/p0t/code/check_sort.p0t` (via `!sandbox` + `code.check_sort`) feeds it a real
 > sort + noop + zero-everything + descending + a build error and asserts every verdict.
 > Wired into `make test`.
 
@@ -267,7 +267,7 @@ learn→build→test chain — earned, not faked.
   buggy), not speculatively. Other natural pulls: a second schema (selection/insertion
   sort) to prove `algo_shape` reuse, and the learning→`algo_shape` induction bridge
   (induce structure from a learned page, not just prose).
-- Regression status: `piagent-bench` 14/14, `make test` green, `tests/check_sort.sh`
+- Regression status: `piagent-bench` 14/14, `make test` green, `tests/p0t/code/check_sort.p0t`
   green. No straggler `pi_server` processes (benches clean up in try/finally).
 
 ### Track A — progress (in flight)

@@ -325,6 +325,14 @@ static const McpTool TOOLS[] = {
  "\"required\":[\"value\"]}"},
 {"style.get_temperature", "Read the current style temperature, or null if unset.",
  "{\"type\":\"object\",\"properties\":{}}"},
+{"code.check_sort", "Run the grounded JUDGE for array code: wrap a candidate "
+ "sort in a generated main, run it on fixed vectors and verify each result is "
+ "sorted AND a permutation of the input. Returns verdict 1 (accepted), 0 "
+ "(rejected) or -1 (the candidate did not build), plus the diagnostic. Writes "
+ "into a private scratch tree, so the caller needs a writable working dir.",
+ "{\"type\":\"object\",\"properties\":{\"source\":{\"type\":\"string\"},"
+ "\"function\":{\"type\":\"string\"}},"
+ "\"required\":[\"source\"]}"},
 };
 static const size_t NTOOLS = sizeof TOOLS / sizeof TOOLS[0];
 
@@ -394,6 +402,25 @@ static int tool_call(Brain *b, const char *name, const JVal *a,
                      char *out, size_t outsz) {
     KB *kb = brain_kb(b);
     const char *slots[KB_MAX_ARGS];
+
+    if (strcmp(name, "code.check_sort") == 0) {
+        /* Il giudice ancorato all'ESECUZIONE, finora raggiungibile solo da un
+         * driver C compilato a mano (tests/check_sort.sh). Esposto qui, un
+         * agente esterno puo' far disporre il proprio candidato dallo stesso
+         * oracolo che dispone quelli di parrot0 — e il test-engine puo'
+         * provarlo con `!mcp`. */
+        const char *src = jstr(a, "source");
+        const char *fn  = jstr(a, "function");
+        if (!src) { snprintf(out, outsz, "{\"error\":\"missing 'source'\"}"); return 0; }
+        if (!fn || !*fn) fn = "mysort";
+        char err[512] = "";
+        int verdict = code_check_sort(src, fn, err, sizeof err);
+        char *e = json_escape(err);
+        snprintf(out, outsz, "{\"verdict\":%d,\"diagnostic\":\"%s\"}",
+                 verdict, e ? e : "");
+        free(e);
+        return 1;
+    }
 
     if (strcmp(name, "lang.canonical") == 0) {
         const char *text = jstr(a, "text");

@@ -141,6 +141,9 @@ sessione.
                             suo payload JSON dove va la risposta, così le righe
                             `<` / `<~` / `<!` che seguono lo verificano come una
                             replica qualunque
+!sandbox / !sandbox off     lavora dentro una directory temporanea privata (0700)
+                            e la ripulisce; si chiude da sé al `[test …]` dopo e
+                            a fine file
 ```
 
 L'uguaglianza esatta è giusta per una risposta breve e determinata. Una risposta
@@ -185,6 +188,31 @@ Gli argomenti sono l'oggetto JSON che andrebbe in `arguments`; ometterli è
 lecito per gli strumenti che non ne vogliono. Gli strumenti sono quelli di
 `docs/plans/mcp-engine.md` — `kb.assert`, `kb.query`, `kb.match`, `kb.retract`,
 `gen.respond`, `kb.explain`, …
+
+### 2a-ter. `!sandbox` — una directory scrivibile e propria (gen444)
+
+Alcuni test hanno bisogno di **scrivere**: il giudice del codice compila ed
+esegue un candidato, e si costruisce un albero di lavoro dove si trova. Nello
+shell la ricetta era `mktemp -d` + `cd`; in `.p0t` non era esprimibile, ed è il
+motivo per cui quella famiglia era rimasta fuori.
+
+```
+[test check_sort_judge]
+!sandbox
+!timeout 30
+!mcp code.check_sort {"source":"void mysort(int a[], int n){ … }"}
+<~ "verdict":1
+!sandbox off
+```
+
+**Si chiude da sé** al `[test …]` successivo e a fine file. Non è una comodità:
+il demone è uno solo e condiviso, quindi una sandbox lasciata aperta sposterebbe
+la directory di lavoro di *ogni test successivo* — un guasto silenzioso, la
+categoria peggiore. La directory viene rimossa all'uscita, così `make test` non
+accumula spazzatura.
+
+Il primo caso che sblocca è `tests/p0t/code/check_sort.p0t`: il giudice ancorato
+all'esecuzione, che prima esisteva solo come driver C compilato a mano.
 
 **Ancora da progettare (F.):** mock, stub, flag e altre forme di controllo dello
 stato della KB. Per ora l'engine fa solo l'assert atteso + il pilotaggio env.
