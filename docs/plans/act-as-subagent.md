@@ -105,14 +105,14 @@ parrot0 produce artefatti non distruttivi; il supervisore li integra:
 
 ## 6. La verifica (differenziale, mai autoassolutoria)
 
-- **Baseline PRIMA di toccare:** `make test` + `tests/cuechains.sh` sull'albero
+- **Baseline PRIMA di toccare:** `make test` + `tests/tools/cuechains.sh` sull'albero
   pulito; salva la LISTA dei FAIL, non solo il conteggio. (A gen337 la baseline
   main era rossa: 73 casi `.it` ereditati da gen334 — per questo il criterio è
   il **fail-set byte-identico**, non il verde assoluto, finché quel debito non
   è risolto.)
 - **Dopo l'integrazione:** build a 0 warning; fail-set identico alla baseline
   (`diff` delle liste); `cuechains` DEVE scendere → abbassa `MAX` in
-  `tests/cuechains.sh` al conteggio nuovo.
+  `tests/tools/cuechains.sh` al conteggio nuovo.
 - **Runtime-growth (obbligatorio per ogni migrazione):** un ratchet `.chat`
   ermetico che insegna una frase NUOVA a runtime e mostra che il riconoscitore
   migrato scatta senza rebuild (modello: `tests/cases/toolvocab_growth.chat`).

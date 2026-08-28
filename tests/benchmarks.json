@@ -20,12 +20,12 @@
     {
       "id": "core",
       "target": "test",
-      "script": "tests/run.sh",
+      "script": "tests/tools/run.sh",
       "area": "core",
       "semantics": "gate",
       "exit_contract": "red-on-failure",
       "requires": [],
-      "oracle": "tests/run.sh + the suite scripts in the Makefile 'test' recipe",
+      "oracle": "tests/tools/run.sh + the suite scripts in the Makefile 'test' recipe",
       "gate": "every suite exits 0 (each prints 'passed: N, failed: 0')"
     },
     {
@@ -196,7 +196,7 @@
     {
       "id": "mimic",
       "target": "mimic-bench",
-      "script": "tests/mimic.sh",
+      "script": "tests/bench/mimic.sh",
       "area": "behaviour",
       "semantics": "discovery",
       "exit_contract": "always-zero",

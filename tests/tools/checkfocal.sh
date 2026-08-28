@@ -15,7 +15,7 @@
 #      functional FAIL that a blind re-run could turn green.
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 if [ ! -x "$BIN" ]; then
     echo "checkfocal: binary not built ($BIN)" >&2
@@ -192,7 +192,7 @@ fi
 
 # (b) a 'gate' whose script cannot exit non-zero is not a gate.
 out="$(audit '{"capabilities":[],"benchmarks":[{"id":"mimic","target":"mimic-bench",
-  "script":"tests/mimic.sh","area":"behaviour","semantics":"gate",
+  "script":"tests/bench/mimic.sh","area":"behaviour","semantics":"gate",
   "exit_contract":"red-on-failure","requires":[],"oracle":"x","gate":"x"}]}')"; rc=$?
 if [ "$rc" -eq 1 ] && printf '%s\n' "$out" | grep -q 'CANNOT go red'; then
     ok "a gate whose script cannot fail is caught (the pre-gen320 glue lie)"
@@ -202,7 +202,7 @@ fi
 
 # (c) an 'external' that touches no external resource is not external.
 out="$(audit '{"capabilities":[],"benchmarks":[{"id":"mimic","target":"mimic-bench",
-  "script":"tests/mimic.sh","area":"behaviour","semantics":"external",
+  "script":"tests/bench/mimic.sh","area":"behaviour","semantics":"external",
   "exit_contract":"always-zero","requires":["network"],"oracle":"x","gate":"x"}]}')"; rc=$?
 if [ "$rc" -eq 1 ] && printf '%s\n' "$out" | grep -q 'runs offline, so it is not external'; then
     ok "an offline benchmark declared external is caught (the mimic/mmlu/bbh lie)"

@@ -22,7 +22,7 @@
 # the parallel phase, so PASS/FAIL lines and the summary read identically.
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 CASES_DIR="$ROOT/tests/cases"
 

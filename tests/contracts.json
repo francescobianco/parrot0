@@ -1,10 +1,10 @@
 {
   "_comment": "gen318 (forge-master-plan W0b M-1a, §10.12): the GRANULAR contract catalog. tests/benchmarks.json catalogs whole AREAS ('make test' is one row); this catalogs individual executable CONTRACTS, addressable by id: `make check TEST=routing.agent-search.en`. A contract names its owner, its dependencies, its boot profile, its lane (tier), its isolation, its mechanical oracle and its hard timeout — so a red result names the level that owns it instead of only printing a wrong sentence.",
-  "_migration_comment": "M-1a requires ONE real contract, not a big-bang migration: every area migrates when a generation TOUCHES it. The rows below are the C1 campaign corpus (§16) — the agent-search routing contracts that gen313-315 fixed, plus the arithmetic collision negative that used to steal them. Unmigrated cases still run inside the 'core' area via tests/run.sh and are NOT silently claimed here.",
+  "_migration_comment": "M-1a requires ONE real contract, not a big-bang migration: every area migrates when a generation TOUCHES it. The rows below are the C1 campaign corpus (§16) — the agent-search routing contracts that gen313-315 fixed, plus the arithmetic collision negative that used to steal them. Unmigrated cases still run inside the 'core' area via tests/tools/run.sh and are NOT silently claimed here.",
 
   "boot_profiles": {
     "hermetic-en": {
-      "_comment": "the tests/run.sh boot: no kb/ files, no session, no world facts, language pinned to English so a case is deterministic regardless of the developer's OS locale.",
+      "_comment": "the tests/tools/run.sh boot: no kb/ files, no session, no world facts, language pinned to English so a case is deterministic regardless of the developer's OS locale.",
       "env": {
         "PARROT0_BASE": "",
         "PARROT0_SESSION": "",

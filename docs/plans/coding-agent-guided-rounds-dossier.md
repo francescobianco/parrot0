@@ -43,7 +43,7 @@ Stato iniziale osservato su `main` (`1f39125`, `gen339-meta-reasoning-l14`):
   gen338-gen339 hanno aggiunto due pass e nessuna nuova fixture rossa;
 - la descrizione storica «73 casi `.it`» è imprecisa: sono 50 fixture `.it.chat`
   e 23 non italiane;
-- `tests/cuechains.sh`: **226/226**, quindi 226 è il ratchet iniziale;
+- `tests/tools/cuechains.sh`: **226/226**, quindi 226 è il ratchet iniziale;
 - al boot del profilo AGI vengono scartate **20 clausole** con parse error:
   2 template `audit_report`, 9 template lunghi, 8 regole in `procedures.p0` e
   `consistent_kb` in `meta.p0`;
@@ -567,7 +567,7 @@ non-IT), mostrando che erano regressioni e non golden da aggiornare.
 4. Far consultare raw normalizzato ai consumer IT persi (meta, module tracking,
    pragma, role, user model), con assert/retract runtime dei cue.
 5. Solo dopo questi fix applicare i golden-only sopra elencati e pretendere
-   `tests/run.sh` completamente verde; il vecchio criterio del fail-set
+   `tests/tools/run.sh` completamente verde; il vecchio criterio del fail-set
    differenziale è ritirato per `gen341`.
 
 ### 11.4 Iterazione successiva progettata, non implementata

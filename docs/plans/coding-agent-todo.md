@@ -282,7 +282,7 @@ consigliata presto: è il vocabolario dell'agente stesso.
   70-social, 30-generation, 20-math, 50-self-research); le preposizioni di
   slot-binding (`about/su/di/per/for`) in classi lessicali KB.
   **Dopo parrot0 sa:** il contatore catene `cue(` scende a zero; tutto il
-  vocabolario cresce a runtime. Il ratchet `tests/cuechains.sh` sorveglia.
+  vocabolario cresce a runtime. Il ratchet `tests/tools/cuechains.sh` sorveglia.
   **Dipende da:** T16. **KB-first:** forma booleana, ordine dei moduli e ancoraggi
   strutturali restano C (forma, non vocabolario) — migrazione per categorie, mai cieca.
 

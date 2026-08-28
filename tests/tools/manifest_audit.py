@@ -35,7 +35,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 # $PARROT0_MANIFEST points the audit at a fixture manifest. The ratchet
-# (tests/checkfocal.sh) feeds it manifests that lie, and asserts it goes RED —
+# (tests/tools/checkfocal.sh) feeds it manifests that lie, and asserts it goes RED —
 # an audit nobody has seen fail is just another unverified claim.
 MANIFEST = Path(os.environ.get("PARROT0_MANIFEST")
                 or ROOT / "tests" / "benchmarks.json")

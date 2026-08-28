@@ -23,7 +23,7 @@
 # ratchet red; this migration paid that debt back below the old 246 line too.
 set -u
 MAX=226
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 [ -x "$BIN" ] || { echo "cuechains: binary not built" >&2; exit 1; }
 

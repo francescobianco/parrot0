@@ -18,7 +18,7 @@ rows are the C1 campaign corpus (§16) — agent-search EN/IT plus the arithmeti
 collision negative. Measured: focal contract 0.38 s, C1 family 1.21 s, first
 event 0 ms (budgets: 5 s / 500 ms). Execution and function stay separate — a
 timeout or broken harness is `verdict=unknown`, exit 2, never a functional FAIL
-(§1.8). Ratchet `tests/checkfocal.sh` (9/9, in `make test`) proves the fail-fast
+(§1.8). Ratchet `tests/tools/checkfocal.sh` (9/9, in `make test`) proves the fail-fast
 is real against a known-red fixture.
 
 **Done — gen319 (§15 row 2): every llmscore_world probe addressable.** 131 probes,
@@ -107,7 +107,7 @@ Done through gen275: the whole arc runs on the foreign fixture (gen257–263) AN
 on src/brain. gen271 migrated the FIRST real site (00-lex.c teach-verb guard →
 kb_cue_match, facts in kb/core/intents.p0) via knowledge (`codebase_lookup/2` +
 `lookup_call/2` FN/ARG/KEY template), fragment-honest compile judges. Ratchet:
-tests/cuechains.sh in `make test` — the chain counter MUST ONLY DESCEND
+tests/tools/cuechains.sh in `make test` — the chain counter MUST ONLY DESCEND
 (341 → 340 → 338 → 333 → 317). gen272 closed Track 5.5 as PURE DATA
 (learnable/3 rows; taught verb teaches the next verb). gen273 migrated a whole
 module (85-translate-synth-world.c). gen274 shipped PER-CHAIN APPLICABILITY
@@ -475,7 +475,7 @@ just-learned answer must be marked as just-learned.
   scratchpad leakage isn't a growth edge). 8 logs deleted by genuine engagement +
   staleness; the 5 kept hold real knowledge gaps (sky-blue, what-year, Tuesday-
   colour) that parrot0 must not fake. `chitchat.chat`/`.it`.
-- **simclean + gen124 — autonomous chatsim-log janitor.** `tests/simclean.sh`
+- **simclean + gen124 — autonomous chatsim-log janitor.** `tests/bench/simclean.sh`
   (`make simclean`) replays each `tests/chat/sim/*.log` against the current
   parrot0 and deletes the ones that no longer wall ("I don't understand") or have
   no real turns; keeps the rest and prints their failing inputs. First run pruned

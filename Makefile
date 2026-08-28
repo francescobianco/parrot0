@@ -162,7 +162,7 @@ basic-chat-bench: build
 # probes (sym-bench style) and shows a style profile's temperature biasing the
 # FORM of a reply (argmax vs gen55 rotation). Never gates the build.
 mimic-bench: build
-	@chmod +x ./tests/mimic.sh; ./tests/mimic.sh
+	@chmod +x ./tests/bench/mimic.sh; ./tests/bench/mimic.sh
 
 long-chat-bench: build
 	@./tests/bench/longchatbench.sh
@@ -840,8 +840,8 @@ legacy-test: build
 	@echo "# legacy-test: these suites are being MIGRATED to the new  #"
 	@echo "# test-engine (.p0t files, 'make test'). Do not add to them.#"
 	@echo "############################################################"
-	@./tests/run.sh
-	@./tests/checkfocal.sh
+	@./tests/tools/run.sh
+	@./tests/tools/checkfocal.sh
 	@./tests/buildstamp.sh
 	@./tests/selflimits.sh
 	@./tests/syllogism.sh
@@ -863,7 +863,7 @@ legacy-test: build
 	@./tests/mcp-input-payload.sh
 	@./tests/learnbuild.sh
 	@$(BENCH_PY) ./tests/tools/manifest_audit.py
-	@./tests/cuechains.sh
+	@./tests/tools/cuechains.sh
 	@./tests/archetype.sh
 	@./tests/persist.sh
 	@./tests/restore.sh
@@ -905,14 +905,14 @@ bench-bbh: build
 	@./tests/bench/bench.sh bbh
 
 impersonate: build
-	@./tests/impersonate.sh
+	@./tests/bench/impersonate.sh
 
 # Autonomous chatsim-log janitor: replay each tests/chat/sim/*.log against the
 # CURRENT parrot0 and delete the ones that no longer wall ("I don't understand")
 # — they have graduated and no longer expose a growth edge. Logs that still wall
 # are kept and their failing inputs printed. Pass ARGS=-n for a dry run.
 simclean: build
-	@./tests/simclean.sh $(ARGS)
+	@./tests/bench/simclean.sh $(ARGS)
 
 loop:
 	@cat LOOP.md

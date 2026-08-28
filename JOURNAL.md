@@ -88,7 +88,7 @@ nobody has implemented is a different, larger problem — synthesis of a control
 structure, not recognition of one — and claiming otherwise would overstate this.
 
 **Ratchet:** `tests/learnbuild.sh` 6/6, fresh nonce name per run.
-Evidence: 246/246 `tests/run.sh`, 25/25 code-bench, 9/9 sortlearn, 14/14 piagent.
+Evidence: 246/246 `tests/tools/run.sh`, 25/25 code-bench, 9/9 sortlearn, 14/14 piagent.
 Full `make gate` not run at F.'s instruction.
 
 ## 2026-07-12 - gen326: the UNIVERSAL conclusion (TODO.md P5) — and a duplicate I nearly shipped
@@ -134,7 +134,7 @@ cannot pass it twice), and asserts the anti-impostor case: the identical sentenc
 shape with one link cut must come back **No**. Plus zero pollution — after the
 turn, the live KB knows nothing of the invented world.
 
-Evidence: 246/246 `tests/run.sh`, 25/25 code-bench, 7/7 compose-bench, 9/9
+Evidence: 246/246 `tests/tools/run.sh`, 25/25 code-bench, 7/7 compose-bench, 9/9
 glue-bench. Full `make gate` not run at F.'s instruction.
 
 ## 2026-07-12 - gen325: parrot0 knows where it ENDS (TODO.md P6, forge §18)
@@ -185,7 +185,7 @@ no code change, a faculty REMOVED disappears, and with no ledger at all parrot0
 claims no limits it cannot evidence. A self-description that cannot shrink is a
 brochure.
 
-Evidence: 246/246 `tests/run.sh`, 25/25 code-bench, 7/7 compose-bench. Full
+Evidence: 246/246 `tests/tools/run.sh`, 25/25 code-bench, 7/7 compose-bench. Full
 `make gate` not run at F.'s instruction.
 
 ## 2026-07-12 - gen324: the evaluator computes `s += i` (TODO.md P2, corrected)
@@ -226,7 +226,7 @@ Now computable: `sum(3) = 6`, `fact(5) = 120`, `g(4) = 30` (sum of squares via a
 the loop.
 
 **Ratchet:** `tests/cases/codeloop.chat`, addressable as
-`make check TEST=code.compound-assign.en`. Evidence: 246/246 `tests/run.sh`,
+`make check TEST=code.compound-assign.en`. Evidence: 246/246 `tests/tools/run.sh`,
 25/25 code-bench, 7/7 compose-bench. Full `make gate` not run at F.'s instruction.
 
 ## 2026-07-12 - gen323: the code faculty becomes reachable through language (TODO.md P1)
@@ -283,7 +283,7 @@ silently dropped the most salient thing in the snippet.
 
 **Ratchets:** `codeintent.chat` / `codeintent.it.chat` — held-out phrasings that
 were NOT C cues, plus both prose misclaims. Addressable as
-`make check TEST=code` (3 contracts, 3.1 s). Evidence: 245/245 `tests/run.sh`,
+`make check TEST=code` (3 contracts, 3.1 s). Evidence: 245/245 `tests/tools/run.sh`,
 25/25 code-bench, cuechains 248 (descends). Full `make gate` not run at F.'s
 instruction — this is not gate-certified evidence.
 
@@ -349,7 +349,7 @@ bug, and it must not invent a syntactic one to look useful.
 sealed — correct code ⇒ no finding — over held-out shapes (loop, pointer swap,
 multi-statement) plus the one-space pair that localizes the old bug exactly.
 Addressable as `make check TEST=code.no-fabricated-defect.en` (1.5 s).
-Evidence: 243/243 `tests/run.sh`, 25/25 code-bench. Full `make gate` not run at
+Evidence: 243/243 `tests/tools/run.sh`, 25/25 code-bench. Full `make gate` not run at
 F.'s instruction — this is not gate-certified evidence.
 
 ## 2026-07-12 - gen321: the commit stamp is isolated — 11.8 s -> 0.14 s (forge §15 row 7)
@@ -436,7 +436,7 @@ limit is stated rather than hidden: check (2) reads the exit contract
 statically, proving a script CAN fail, not that it fails on every wrong answer;
 mutation-proving each oracle belongs to Nightly (§10.6), not to `make test`.
 
-**Ratchet** (`tests/checkfocal.sh`, 17/17): an audit nobody has seen fail is just
+**Ratchet** (`tests/tools/checkfocal.sh`, 17/17): an audit nobody has seen fail is just
 another unverified claim, so it is fed manifests that lie — the unfailable gate,
 the offline "external", the phantom script, the LLM-judge declared offline — and
 must go red on each.
@@ -476,7 +476,7 @@ contract it asserts), so no env is injected — the catalog says so with
 carries the same honest three-way meaning: 0 pass, 1 functional red, 2 not-run.
 A mistyped id exits 2; a probe that silently ran nothing must never read green.
 
-**Ratchet** (`tests/checkfocal.sh`, 12/12): the script-row contract runs alone
+**Ratchet** (`tests/tools/checkfocal.sh`, 12/12): the script-row contract runs alone
 and green; all 127 probes are addressable with UNIQUE ids (a duplicate slug
 would silently shadow a probe, and a shadowed probe is an unratcheted one); a
 mistyped id is not-run, not green. The full-suite oracle stays ratcheted where
@@ -517,7 +517,7 @@ is worse than none (§10.16 is a later row). The runner does NOT report a
 yet, so it reports the owner the CATALOG declares, the turn that broke, and
 expected against observed. It claims no seam it does not have.
 
-**The ratchet (`tests/checkfocal.sh`, in `make test`).** A runner that can only
+**The ratchet (`tests/tools/checkfocal.sh`, in `make test`).** A runner that can only
 say PASS is worthless, so the ratchet feeds it a fixture catalog holding a
 known-red contract and proves: fail-fast is REAL (the contract queued behind the
 red one never starts), the red names turn/expected/observed/owner, a broken
@@ -856,7 +856,7 @@ recommendation #1 from docs/plans/optimize-the-tests.md: parallelize run.sh (the
 free, zero-new-protocol win), not yet the `--test-engine` endgame.
 
 **Changed.**
-- `tests/run.sh`: cases now run in PARALLEL via `xargs -P` (degree
+- `tests/tools/run.sh`: cases now run in PARALLEL via `xargs -P` (degree
   `$PARROT0_TEST_JOBS`, default `nproc`), each still in its own hermetic parrot0
   process. Per-case output goes to a temp dir and is aggregated in SORTED case
   order, so PASS/FAIL lines + the summary are byte-identical to the serial
@@ -1066,7 +1066,7 @@ compile. The whole-file patch is blocked by ONE site: the next pull is either
 per-chain applicability in patch_chains or a context-aware call template.
 Recorded here as the gap the counter will hit.
 
-**Verified.** tests/run.sh 225/225, `make test` 110/110 suites,
+**Verified.** tests/tools/run.sh 225/225, `make test` 110/110 suites,
 `PASS cuechains: 338`. Live probes: "what else could have answered?" /
 "che altro poteva rispondere?" both fire through the KB path. Version
 `gen273-counterfactual-chains-migrated`.
@@ -1092,7 +1092,7 @@ taught vocabulary in one session. gen271's trailing-space semantics survive the
 full round-trip ("memorizzare" stays deaf); empty span declined.
 
 **Ratchet.** teachverb.chat / teachverb.it.chat pin the deaf->taught->hooks->
-composes arc EN+IT (different verbs, same code path). tests/run.sh 225/225,
+composes arc EN+IT (different verbs, same code path). tests/tools/run.sh 225/225,
 `make test` 110/110 suites. Version `gen272-teachable-teach-verbs`. Next: the
 next real site by category (the cuechains counter keeps descending) or
 RULESCORE Thread B.
@@ -1124,7 +1124,7 @@ emitted facts live in kb/core/intents.p0 — the teach-verb vocabulary itself
 became taught knowledge. Poetic and load-bearing: the guard of the TEACHING
 mechanism is the first vocabulary parrot0 carried from code to data.
 
-**Ratchets.** New tests/cuechains.sh in `make test`: the chain count under
+**Ratchets.** New tests/tools/cuechains.sh in `make test`: the chain count under
 src/brain is measured by parrot0's own scanner and MUST ONLY DESCEND (max 340).
 New fragment fixture (tests/fixtures/orchain/fragment.c, foreign helper
 `vocab_hit(ctx, KEY, ARG)` — the shape mechanism is generic, anti-impostor)
@@ -1132,7 +1132,7 @@ pinned end-to-end in planact.chat; the migrated real file pins "no OR-chains
 left" EN+IT. Trailing-space cue semantics verified live ("user"/"usare" don't
 fire; learn/impara/use/treat do, incl. gen193 conjunction teach).
 
-**Verified.** `tests/run.sh` 223/223, `make test` 110/110 suites green,
+**Verified.** `tests/tools/run.sh` 223/223, `make test` 110/110 suites green,
 `make code-bench` 25/25. Version `gen271-first-real-site-migrated`. Next
 (Track 5.5): the runtime-growth demo — teach a new intent_cue word and a
 previously deaf branch hooks with no rebuild; then the next site (the counter
@@ -1163,11 +1163,11 @@ the informed decline with zero side effects (verified: ../evil.txt and
 /etc/pwned.txt create nothing).
 
 **Ratchet.** reqgen.chat: create → refuse-on-exists → session recall, with
-p0tmp_* names pre-cleaned by tests/run.sh (idempotent reruns, gitignored);
+p0tmp_* names pre-cleaned by tests/tools/run.sh (idempotent reruns, gitignored);
 reqgen.it.chat pins F.'s exact phrasing, typo included. Negative controls
 unchanged.
 
-**Verified.** `tests/run.sh` 223/223, `make test` 110/110, `make code-bench`
+**Verified.** `tests/tools/run.sh` 223/223, `make test` 110/110, `make code-bench`
 25/25. Version `gen270-create-file-artifact`.
 
 ## 2026-07-02 - gen269: multi-line replies with markdown-fenced, indented code (F.'s steer)
@@ -1188,16 +1188,16 @@ utterances. The CLI gains an OPT-IN end-of-turn marker (`PARROT0_EOT`, printed
 after every reply) so line-based interactive drivers keep exact turn framing:
 llmscore/chatsim/symbench/longtalk all switched from single readline to
 read-until-marker (a multi-line reply mid-interview no longer desyncs the
-transcript). Default remains unchanged — plain chat and tests/run.sh see the
+transcript). Default remains unchanged — plain chat and tests/tools/run.sh see the
 same stream as before.
 
-**Harness.** tests/run.sh needed NO code change: matching was always over the
+**Harness.** tests/tools/run.sh needed NO code change: matching was always over the
 whole stdout line sequence, so a multi-line reply is just consecutive '<'
 lines (a bare '<' matches an empty line); the protocol comment now says so.
 reqgen/rulespec ratchets (EN+IT) pin the fenced multi-line replies exactly,
 indentation included.
 
-**Verified.** `tests/run.sh` 223/223, `make test` 110/110, `make code-bench`
+**Verified.** `tests/tools/run.sh` 223/223, `make test` 110/110, `make code-bench`
 25/25, `make llmscore` runs clean over the EOT protocol (4/10, rotating), and
 a live daemon call returns the fenced program byte-intact. Version
 `gen269-multiline-fenced-code`.
@@ -1227,7 +1227,7 @@ program; "write a program that prints good morning" / "scrivi un programma che
 stampa ciao mondo" pin the general form; web scraper / calcolatrice pin the
 informed-decline border.
 
-**Verified.** `tests/run.sh` 223/223, `make test` fully green, `make code-bench`
+**Verified.** `tests/tools/run.sh` 223/223, `make test` fully green, `make code-bench`
 25/25. Version `gen268-print-message-schema`. The universal-comprehension arc
 now demonstrates the full ladder on one prompt: blind wall (gen266-) → informed
 decline (gen267) → verified artifact (gen268); next rungs: more program shapes
@@ -1260,7 +1260,7 @@ arithmetic control untouched). planact.chat's "conquer the moon" fall-through
 UPGRADED from blind wall to informed decline — §2 landing on an existing
 ratchet. Roster tests updated for the new module.
 
-**Verified.** `tests/run.sh` 223/223, `make test` fully green, `make code-bench`
+**Verified.** `tests/tools/run.sh` 223/223, `make test` fully green, `make code-bench`
 25/25. Version `gen267-informed-decline`. Next (§8): `program_shape`
 print_message under the code_run oracle, so the flagship prompt flips from
 informed decline to VERIFIED code.
@@ -1298,7 +1298,7 @@ bench did.
 stampa, "tre" through the same number-word reader) both synthesize and verify;
 held-out Echo Gate (open/five/UNLOCKED) transfers; Coin Duel still declines
 (its "match" semantics are outside the category — the border is honest).
-`tests/run.sh` 221/221, `make test` fully green, `make code-bench` 25/25.
+`tests/tools/run.sh` 221/221, `make test` fully green, `make code-bench` 25/25.
 Version `gen266-counter-game-synthesis`.
 
 ## 2026-07-02 - gen265: rules-spec recognition — the first category RULESCORE named
@@ -1331,7 +1331,7 @@ recognized declines (judge: "honest decline — identified the spec, named the
 gap"), 0 misclaims. Score stays 0/25 honestly — the floor is now clean; points
 must come from real rule-category synthesis next.
 
-**Verified.** `tests/run.sh` 221/221 (rulespec.chat/.it new; self/strategy
+**Verified.** `tests/tools/run.sh` 221/221 (rulespec.chat/.it new; self/strategy
 roster updated for the new module), `make test` fully green, `make code-bench`
 25/25. Version `gen265-rulespec-category`.
 
@@ -1409,7 +1409,7 @@ buffer (32 words) — an honest limit, named here.
 site migrated by taught knowledge — lookup_fn = kb_cue_match, judged by
 `make test` byte-identical — and the cue-chain counter starts descending.
 
-**Verified.** `tests/run.sh` 219/219, `make test` fully green, `make code-bench`
+**Verified.** `tests/tools/run.sh` 219/219, `make test` fully green, `make code-bench`
 25/25 gates, 0 gaps, 73/73 turns. Version `gen263-behavior-judge`.
 
 ## 2026-07-02 - gen262: patch_chains — the derived plan transforms code
@@ -1448,7 +1448,7 @@ stop at `run_test_suite`; new `orchain_patch.code` gate. Next pull: bind
 `run_test_suite` (build+tests as the behavior-preserving judge), then the first
 real src/brain site migrated by taught knowledge.
 
-**Verified.** `tests/run.sh` 219/219, `make test` fully green, `make code-bench`
+**Verified.** `tests/tools/run.sh` 219/219, `make test` fully green, `make code-bench`
 24/24 gates, 0 gaps, 72/72 turns. Version `gen262-patch-chain-sites`.
 
 ## 2026-07-02 - gen261: emit_facts — the derived plan writes loadable knowledge
@@ -1485,7 +1485,7 @@ and stop at `patch_sites`; new `orchain_emit.code` gate. The next pull is exact:
 bind `patch_sites` (replace each chain with a `kb_cue_match`-style lookup in a
 patched copy), then `run_test_suite`.
 
-**Verified.** `tests/run.sh` 219/219, `make test` fully green, `make code-bench`
+**Verified.** `tests/tools/run.sh` 219/219, `make test` fully green, `make code-bench`
 23/23 gates, 0 gaps, 71/71 turns. Version `gen261-emit-intent-facts`.
 
 ## 2026-07-02 - gen260: OR-chain vocabulary extraction, second plan primitive
@@ -1509,7 +1509,7 @@ cues as an observation. No facts are emitted yet and no source file is changed.
 `alpha, beta, gamma, epsilon, zeta`, and the plan stops at
 `emit_intent_facts` because that action still has no `action_impl/2`.
 
-**Verified.** `tests/run.sh` 219/219, `make test` fully green.
+**Verified.** `tests/tools/run.sh` 219/219, `make test` fully green.
 `make code-bench` now has 22/22 gates, 0 gaps, 70/70 turns, including the new
 `orchain_vocab` stimulus. Version `gen260-orchain-vocabulary`.
 
@@ -1544,7 +1544,7 @@ with function `flag`. It reports the real 2 OR-chains / 5 chained calls, then
 stops on missing `action_impl(extract_vocabulary, ...)`. That proves the walk is
 not fitted to `src/brain` and not English-only.
 
-**Verified.** `tests/run.sh` 219/219, `make test` fully green, and
+**Verified.** `tests/tools/run.sh` 219/219, `make test` fully green, and
 `make code-bench` holds 21/21 gates with 0 gaps (69/69 turns). Version
 `gen259-plan-primitive-walk`.
 
@@ -2151,7 +2151,7 @@ parrot0-side mechanism, fully offline (no network/opencode):
 - New style profile `kb/profiles/llm/deepseek-v4-flash.p0`: `style_temperature(0)`
   + `style_trait/2` surface traits, declared style (not knowledge). Loaded via
   `PARROT0_PROFILE=…`.
-- New discovery harness `make mimic-bench` (`tests/mimic.sh`): (A) catalogs the
+- New discovery harness `make mimic-bench` (`tests/bench/mimic.sh`): (A) catalogs the
   reaction to minimal/cryptic probes (a letter, a number, a strange word,
   punctuation) sym-bench style; (B) shows the temperature making form-selection
   deterministic vs rotating. Never gates the build.
@@ -4260,7 +4260,7 @@ agreement morphology (T4) are the honest next pulls. Next iteration: rung 12
 not by silencing the honest wall. Driven straight off `simclean`'s replay.
 
 **Changed:** `brain.c` → `gen125-chitchat`; new `mod_chitchat` (registered LAST,
-the final catcher before the wall); `tests/simclean.sh` gains a garbage filter;
+the final catcher before the wall); `tests/bench/simclean.sh` gains a garbage filter;
 `tests/cases/chitchat.chat` / `.it.chat`; registry enumeration updated; **8 sim
 logs deleted** (16 → 5).
 
@@ -4305,7 +4305,7 @@ autonomous; re-running after a future world-knowledge generation would prune mor
 
 ## 2026-06-18 — simclean: an autonomous chatsim-log janitor (+ gen124)
 
-**Changed:** new `tests/simclean.sh`; `make simclean` target; `kb/social.p0`
+**Changed:** new `tests/bench/simclean.sh`; `make simclean` target; `kb/social.p0`
 gains small-talk patterns; `brain.c` → `gen124-smalltalk`; `tests/cases/smalltalk.chat`;
 deleted 3 graduated logs from `tests/chat/sim/`.
 
@@ -7670,7 +7670,7 @@ grammar expert will need. Keep a concrete grammar north-star in view (D5.1).
   `/save` command writes the session delta.
 - `kb/base.p0` seed added; `session.p0` gitignored. New
   `tests/persist.sh` (round-trip, no-reflective-leak, base+session join, no
-  base duplication); `tests/run.sh` made hermetic.
+  base duplication); `tests/tools/run.sh` made hermetic.
 
 **Why:** DESIGN.md D1-D3. Knowledge becomes a durable, transparent artifact:
 readable, hand-editable, diffable in git, and composable (base + discovered).
@@ -7893,7 +7893,7 @@ This is infrastructure for emergence, not a design of the modules themselves.
 - `src/brain.c` + `brain.h`: the evolving "brain". gen0 (`gen0-parrot`) just
   echoes input verbatim — the most honest zero-agent.
 - `Makefile`: `make`, `make chat`, `make test`, `make loop`, `make clean`.
-- `tests/run.sh` + `tests/cases/parrot.chat`: conversation test harness using
+- `tests/tools/run.sh` + `tests/cases/parrot.chat`: conversation test harness using
   a `>` input / `<` expected-response line protocol.
 - `LOOP.md`: the self-improvement protocol.
 

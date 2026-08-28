@@ -6,7 +6,7 @@
 #
 # C0 (gen50): the felt-intelligence conversation benchmark.
 #
-# Unlike tests/run.sh (exact-match pass/fail unit cases), this MEASURES how
+# Unlike tests/tools/run.sh (exact-match pass/fail unit cases), this MEASURES how
 # conversational parrot0 feels. Each tests/chat/*.dlg is a multi-turn session:
 #   > user input line   (fed to parrot0's stdin, in order, one session per file)
 #   < expected substring (what a *satisfying* answer would contain)

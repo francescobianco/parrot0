@@ -4,7 +4,7 @@
 # Expectations are what a SUCCESSFUL impersonation would produce.
 # gen100 baseline: ~5% (only arithmetic passes within any role).
 set -u
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 [ -x "$BIN" ] || { echo "impersonate: binary not built" >&2; exit 1; }
 

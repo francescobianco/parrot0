@@ -43,7 +43,7 @@
 > [Stato storico:] gen346. `make test` era 1034. `parrot0
 > --test-engine` è un demone su socket Unix che tiene UN brain vivo; i file `.p0t`
 > gli si mandano con `--test`. Il vecchio harness è `make legacy-test` (file
-> `.chat` in `tests/cases/`, girati da `tests/run.sh`).
+> `.chat` in `tests/cases/`, girati da `tests/tools/run.sh`).
 > **~148 casi migrati** in `tests/p0t/<categoria>/`. **106 `.chat` restano**, e si
 > dividono in due gruppi che richiedono una DECISIONE prima di procedere:
 > - **91 `.it`** → dipendono dalla semantica della lingua (matrice
@@ -336,7 +336,7 @@ uccide il demone rimasto e rilancia pulito.
 - `src/kb.c` — `kb_load_clause(kb, "pred(a).")` già pronto per un futuro `!fact`.
 - `Makefile` — target `test` / `test-engine` / `legacy-test` (banner di migrazione).
 - `tests/p0t/*.p0t` — suite migrate. `tests/cases/*.chat` — legacy (globato da
-  `tests/run.sh`, quindi **cancellare il `.chat` lo toglie da legacy-test**).
+  `tests/tools/run.sh`, quindi **cancellare il `.chat` lo toglie da legacy-test**).
 
 ### 9b. Il fatto chiave che sblocca la migrazione di massa
 **Tutti i `.chat` di `run.sh` sono validati ERMETICI** — `run.sh` esporta
@@ -387,7 +387,7 @@ mandare direttamente al demone per categorizzarlo prima di aggiungere il preambo
 2. **Rossi pre-esistenti nel legacy** (NON regressioni): `apology.chat`,
    `compose_social.it.chat`, `self.chat`, e ~73 casi `.it` (canonicalizzazione
    IT→EN da gen334, vedi memoria `abstraction-ceiling`). Verificarli con
-   `PARROT0_TEST_JOBS=1 ./tests/run.sh | grep FAIL`. Non migrarli verdi: o si
+   `PARROT0_TEST_JOBS=1 ./tests/tools/run.sh | grep FAIL`. Non migrarli verdi: o si
    saltano (restano legacy) o si sistema la causa.
 3. **`tests/syllogism.sh`** (script dedicato, non `.chat`): genera classi nonce
    CASUALI a ogni run — serve una primitiva generativa/stub non ancora progettata.
@@ -422,7 +422,7 @@ Non cablato: `language.p0t` (matrice/spec, §9e-1).
 ```
 make test                          # suite p0t (verde atteso)
 make legacy-test                   # vecchio harness (contiene i rossi noti)
-PARROT0_TEST_JOBS=1 ./tests/run.sh # solo i .chat, in serie, con PASS/FAIL per caso
+PARROT0_TEST_JOBS=1 ./tests/tools/run.sh # solo i .chat, in serie, con PASS/FAIL per caso
 PARROT0_TE_DEBUG=1 ./bin/parrot0 --test-engine   # demone con log reload/reset
 # caso legacy alla maniera vecchia (processo fresco, ermetico):
 printf 'PROMPT\n' | PARROT0_BASE= PARROT0_SESSION= PARROT0_WORLD_FACTS=0 PARROT0_LANG=en ./bin/parrot0

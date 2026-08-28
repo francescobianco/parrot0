@@ -219,7 +219,7 @@ articolato con artefatti tra i passi (gen207); `compose-bench` 47/47.
 estraneo: detector generico di catene OR (gen257), dominio di planning in KB con
 piano DERIVATO dal goal (gen258), esecuzione completa del piano su primitive mute
 (gen259–263), primo sito reale migrato da conoscenza detta (gen271, ratchet
-`tests/cuechains.sh`: il contatore delle catene `cue` può solo scendere), crescita
+`tests/tools/cuechains.sh`: il contatore delle catene `cue` può solo scendere), crescita
 a runtime come puri dati (gen272: un verbo insegnato governa l'insegnamento
 stesso).
 
@@ -973,7 +973,7 @@ estraneo attraversa l'intero arco: **anti-impostor** — se funziona solo su
 src/brain, abbiamo barato.
 
 **Prossimi pull:**
-1. Siti cue-chain per categorie; il contatore in `tests/cuechains.sh` può solo
+1. Siti cue-chain per categorie; il contatore in `tests/tools/cuechains.sh` può solo
    scendere (CLASSI di parole in KB; forma booleana, ordine dei moduli e ancoraggi
    strutturali restano C — forma, non vocabolario).
 2. Il dogfood entra in fucina: ogni migrazione è un **capability package** (§10.3)
@@ -1003,7 +1003,7 @@ src/brain, abbiamo barato.
 | `make glue-bench` | continuità conversazionale | 9/9, semantica discovery sotto audit W0a | ratchet reale dopo l'audit di classificazione |
 | `make llmscore` | sonda di breadth (giudice esterno) | 4/10, discovery — non gate | item di coding chiusi per categoria |
 | `make rulescore` | testo→regole→codice | miniera (§9.5) | categorie di regola codificate, non singoli giochi |
-| `tests/cuechains.sh` | contatore catene `cue` in src/brain | 341 → in discesa (Track 5) | solo giù, per categorie |
+| `tests/tools/cuechains.sh` | contatore catene `cue` in src/brain | 341 → in discesa (Track 5) | solo giù, per categorie |
 | `make test` | l'intero ratchet ermetico | verde | resta verde SEMPRE |
 
 Nota di governance: i golden black-box stanno migrando verso la piramide del master

@@ -16,7 +16,7 @@ Measurements on the 22-core development host, warm binary, output suppressed:
 |---|---:|---:|
 | no-op build | 0.02 s | negligible |
 | full release rebuild (`-O2`) | 12.37 s | brain unity TU dominates |
-| `tests/run.sh` | 21.37 s | 351.64 user-s |
+| `tests/tools/run.sh` | 21.37 s | 351.64 user-s |
 | `make test` | 171.11 s | 503.94 user-s |
 | `make code-bench` | 24.29 s | 22.51 user-s |
 | `make compose-bench` | 17.24 s | 7 per-dialog process launches |
@@ -240,7 +240,7 @@ partial one, and guarded by a differential check against the per-process oracle.
 
 ### Implemented — recommendation #1 (gen278)
 
-`tests/run.sh` now runs the cases in parallel via `xargs -P` (degree
+`tests/tools/run.sh` now runs the cases in parallel via `xargs -P` (degree
 `$PARROT0_TEST_JOBS`, default `nproc`), each case still in its own hermetic
 parrot0 process; output is aggregated in sorted case order so PASS/FAIL lines and
 the summary read identically, and `PARROT0_TEST_JOBS=1` restores the old serial

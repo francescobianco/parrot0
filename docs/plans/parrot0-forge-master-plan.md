@@ -301,7 +301,7 @@ Misure su host di sviluppo a 22 core, binario caldo e output soppresso:
 |---|---:|---|
 | `make build`, no-op | 0.02 s | nessuna |
 | rebuild completo `-O2` | 12.37 s | `brain.c` e i 13 frammenti sono una sola TU |
-| `tests/run.sh` | 21.37 s | 243 processi, 1.479 turni, circa 352 CPU-s |
+| `tests/tools/run.sh` | 21.37 s | 243 processi, 1.479 turni, circa 352 CPU-s |
 | `make test` | 171.11 s | 38 harness seriali, circa 504 CPU-s |
 | `make gate` | 233.52 s | sei target seriali, circa 562 CPU-s |
 | `make gate` + `make capability-report` | circa 467 s | gli stessi sei target eseguiti due volte |
@@ -1053,7 +1053,7 @@ Ogni campagna dichiara:
   "base_commit": "...",
   "task": "...",
   "allowed_actions": ["read", "parse", "test"],
-  "oracle": "tests/run.sh:agent_search",
+  "oracle": "tests/tools/run.sh:agent_search",
   "splits": {
     "train": ["..."],
     "variant": ["..."],

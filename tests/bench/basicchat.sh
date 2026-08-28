@@ -35,7 +35,7 @@ PLAN="$ROOT/docs/plans/basic-chat.md"
 # seeded from the launching ENV; on an Italian machine the wall came out in
 # Italian and is_wall did not catch it, silently inflating every category's
 # coverage). Italian PROMPTS still get Italian replies via per-turn detection —
-# this only fixes the ambiguous/wall default, exactly as tests/run.sh does.
+# this only fixes the ambiguous/wall default, exactly as tests/tools/run.sh does.
 : "${PARROT0_LANG:=en}"
 export PARROT0_BASE PARROT0_SESSION PARROT0_LANG
 

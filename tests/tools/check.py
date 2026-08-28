@@ -31,7 +31,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 # $PARROT0_CONTRACTS points the runner at a fixture catalog. The ratchet
-# (tests/checkfocal.sh) uses it to feed the runner a KNOWN-RED contract and
+# (tests/tools/checkfocal.sh) uses it to feed the runner a KNOWN-RED contract and
 # prove the fail-fast is real — a runner that can only say PASS is worthless.
 CATALOG = Path(os.environ.get("PARROT0_CONTRACTS")
                or ROOT / "tests" / "contracts.json")
@@ -206,7 +206,7 @@ def main() -> int:
                   f"{', '.join(c['owner'])}")
         print(f"\n{len(catalog['contracts'])} contracts migrated to the granular "
               f"catalog (tests/contracts.json). Unmigrated cases run in the "
-              f"'core' area via tests/run.sh.")
+              f"'core' area via tests/tools/run.sh.")
         return 0
 
     selected = select(catalog, test)

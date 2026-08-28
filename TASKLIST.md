@@ -403,7 +403,7 @@ Anti-impostor: confidence cannot be a canned adjective; it must follow the actua
 ## I-series — Impersonation & role-playing (from impersonate benchmark, gen100)
 
 The `make impersonate` benchmark exposes that parrot0 cannot hold a character.
-`tests/impersonate.sh` sends 10 role-play scenarios; baseline score is 15%
+`tests/bench/impersonate.sh` sends 10 role-play scenarios; baseline score is 15%
 (only arithmetic passes in-role; identity always returns "parrot0").
 **gen101 (C15): score 15% → 100% (19/19).** I1–I4 done; I5–I6 remain.
 

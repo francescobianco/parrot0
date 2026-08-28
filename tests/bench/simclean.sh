@@ -16,12 +16,12 @@
 # (independent persona, no state leak). One stdout line per input line.
 #
 # Usage:
-#   tests/simclean.sh            # autonomous: delete graduated/empty logs
-#   tests/simclean.sh -n         # dry run: report only, delete nothing
+#   tests/bench/simclean.sh            # autonomous: delete graduated/empty logs
+#   tests/bench/simclean.sh -n         # dry run: report only, delete nothing
 #
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 SIM="$ROOT/tests/chat/sim"
 

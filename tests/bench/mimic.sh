@@ -21,7 +21,7 @@
 # paletto (confine stile/contenuto).
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 PROFILE="$ROOT/kb/profiles/llm/deepseek-v4-flash.p0"
 

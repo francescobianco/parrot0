@@ -196,7 +196,7 @@ Spedito il **lato parrot0**, offline (nessuna rete/opencode), puro stile:
 - **Primo profilo di stile**: `kb/profiles/llm/deepseek-v4-flash.p0` —
   `style_temperature(0)` + `style_trait/2` (tratti di superficie, dichiarati
   stile, non conoscenza). Caricabile con `PARROT0_PROFILE=…`.
-- **Harness `make mimic-bench`** (`tests/mimic.sh`): (A) cataloga la reazione a
+- **Harness `make mimic-bench`** (`tests/bench/mimic.sh`): (A) cataloga la reazione a
   sonde minime/criptiche (lettera, numero, parola strana, punteggiatura) in stile
   sym-bench; (B) mostra la temperatura che rende deterministica la scelta della
   forma. Non fa gate (strumento di scoperta). `make test` resta verde.
