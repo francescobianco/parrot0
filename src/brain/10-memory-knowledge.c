@@ -12566,8 +12566,15 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s(X)",
                                       i ? ", " : "", bodies[i]);
             if (o < sizeof msg) snprintf(msg + o, sizeof msg - o, ".");
-            kb_term_say(b, "learned_rule_text", (const KbResponseSlot[]){
-                            { "rule", msg } }, 1, out, out_size);
+            /* La TESTA della regola era andata persa nel passaggio delle
+             * frasi alla KB (gen443): il prefisso «Learned rule: <testa>(X) :- »
+             * stava in uno snprintf, e' stato tolto dal C e non e' mai arrivato
+             * nel template, che cita solo `{rule}`. Da allora imparare «every
+             * cat is a pet» rispondeva «cat(X).» — la meta' della regola, senza
+             * dire di che cosa fosse la regola. */
+            kb_term_say(b, "learned_rule_head_text", (const KbResponseSlot[]){
+                            { "head", head }, { "body", msg } }, 2,
+                        out, out_size);
             auto_induce(b, out, out_size);
         } else {
             kb_term_say(b, "i_couldn_t_store_that_rule", NULL, 0, out, out_size);

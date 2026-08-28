@@ -163,6 +163,10 @@ response_template(they_are_tied_on_x, "They are tied on {dim}.").
 response_template(i_recognize_a_comparison_on_x_but_i_don_t_ha, "I recognize a comparison on {dim}, but I don't have magnitudes for {da} and {dc}.").
 response_template(learned_rule_x_x_x_x, "Learned rule: {cls}(X) :- {subj}(X).").
 response_template(learned_rule_text, "{rule}").
+% E la regola che si impara da «every X is a Y»: la testa e' un'informazione,
+% non decorazione, e senza di lei la frase diceva meta' di cio' che aveva
+% appreso.
+response_template(learned_rule_head_text, "Learned rule: {head}(X) :- {body}").
 response_template(near_rhymes_for_x, "Near-rhymes for \"{target}\": {list}.").
 response_template(matches_for_x, "Matches for `{pattern}`").
 response_template(suddenly_x, "Suddenly, {text}.").
