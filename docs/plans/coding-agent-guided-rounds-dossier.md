@@ -441,7 +441,7 @@ tests/multigoal.sh                 15/15
 tests/agentkernel.sh               34/34
 tests/code-task-agent.sh            8/8
 tests/patch-artifact.sh              8/8
-tests/exec-dirfd.sh                 14/14
+tests/cdriver/exec_dirfd.sh                 14/14
 tests/agentrepair.sh               ratchet strutturale verde
 tests/repair.sh                      9/9
 tests/toolexec.sh                   25/25

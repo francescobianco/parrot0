@@ -849,7 +849,7 @@ legacy-test: build
 	@./tests/repair.sh
 	@./tests/agentrepair.sh
 	@./tests/cdriver/exec_kernel.sh
-	@./tests/exec-dirfd.sh
+	@./tests/cdriver/exec_dirfd.sh
 	@./tests/agentkernel.sh
 	@./tests/code-task-agent.sh
 	@./tests/patch-artifact.sh

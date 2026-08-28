@@ -2,7 +2,7 @@
 # Focal ratchet for the staged-tree executor capability.
 set -u
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
 TMP=$(mktemp -d "${TMPDIR:-/tmp}/p0-exec-dirfd.XXXXXX") || exit 1
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 
