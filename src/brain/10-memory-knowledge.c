@@ -5499,6 +5499,112 @@ static int answer_projection_resolve(Brain *b, const char *relation,
     return -1;
 }
 
+/* gen457 (M15, punto fisso) — UNA FORMA DI DOMANDA, NON UNA FRASE.
+ *
+ * `answer_frame/2` lega una superficie interrogativa a una relazione, e finora
+ * ogni superficie era una riga: 270 scritte a mano per 136 relazioni. Renderle
+ * INSEGNABILI (il primo taglio del gen457) toglieva il bisogno di aprire un
+ * file, ma lasciava intatto il frasario — e il frasario e' il problema, non il
+ * fatto che sia scritto in C o in KB.
+ *
+ * F.: «potresti evolvere in modo che sia possibile insegnare "which X is used
+ * in…"?» — ed e' il mantra #3, astrai fino al punto fisso, rinforzato dal #4:
+ * «color» in «which color is used in» e' il SOSTANTIVO CAMPIONATO, non la
+ * struttura. La struttura e' «which <sostantivo-che-nomina-una-relazione> is
+ * used in <entita'>», e vale per tutte le relazioni insieme.
+ *
+ * Quindi una `question_shape/1` ha due slot:
+ *   @R  il sostantivo che nomina la relazione   ("color", "capital", "weight")
+ *   @E  l'entita' di cui si chiede              ("chess")
+ *
+ * Il sostantivo si risolve in relazione con la conoscenza che c'e' GIA': le 270
+ * righe esistenti smettono di essere un frasario e diventano un indice
+ * sostantivo -> relazione. Cosi' UNA forma insegnata copre tutte e 136 le
+ * relazioni, invece di una superficie per volta.
+ *
+ * Quando una forma aggancia, il frame concreto viene ASSERITO (KB_INDUCED) e il
+ * percorso normale qui sotto lo trova: il motore resta uno solo (mantra #5), e
+ * la generalizzazione resta un fatto ispezionabile e ritrattabile invece di
+ * nascondersi nel controllo di flusso. */
+static int question_shape_generalize(Brain *b, const char *norm) {
+    if (!b || !b->kb || !norm || !*norm) return 0;
+    char shapes[32][KB_TERM_LEN];
+    const char *sq[1] = { NULL };
+    size_t ns = kb_match(b->kb, "question_shape", sq, 1, shapes, 32);
+    for (size_t i = 0; i < ns; i++) {
+        char sh[KB_TERM_LEN]; snprintf(sh, sizeof sh, "%s", shapes[i]);
+        const char *pat = kb_dequote(sh);
+        const char *r = strstr(pat, "@R");
+        if (!r) continue;
+        /* il prefisso della forma deve aprire il turno */
+        size_t plen = (size_t)(r - pat);
+        if (plen == 0 || strncmp(norm, pat, plen) != 0) continue;
+        /* @R e' UNA parola */
+        const char *cur = norm + plen;
+        while (*cur == ' ') cur++;
+        char noun[KB_TERM_LEN]; size_t nl = 0;
+        while (cur[nl] && cur[nl] != ' ' && nl + 1 < sizeof noun) { noun[nl] = cur[nl]; nl++; }
+        noun[nl] = '\0';
+        if (!nl) continue;
+        /* il resto della forma dopo @R, fino a @E, deve seguire */
+        const char *mid = r + 2;
+        while (*mid == ' ') mid++;
+        const char *e = strstr(mid, "@E");
+        size_t midlen = e ? (size_t)(e - mid) : strlen(mid);
+        while (midlen && mid[midlen - 1] == ' ') midlen--;
+        const char *after = cur + nl;
+        while (*after == ' ') after++;
+        if (midlen) {
+            if (strncmp(after, mid, midlen) != 0) continue;
+            after += midlen;
+        }
+        /* il sostantivo nomina una relazione? lo dicono le forme che esistono */
+        char sing[KB_TERM_LEN];
+        singularize_kb(b, noun, sing, sizeof sing);
+        char (*cues)[KB_TERM_LEN] = NULL; size_t nc = 0;
+        const char *aq[2] = { NULL, NULL };
+        if (!kb_match_all(b->kb, "answer_frame", aq, 2, &cues, &nc) || nc == 0) {
+            free(cues); return 0;
+        }
+        int done = 0;
+        for (size_t c = 0; c < nc && done < 8; c++) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[c]);
+            const char *cd = kb_dequote(cb);
+                if (!strstr(cd, sing)) continue;
+            char rel[1][KB_TERM_LEN];
+            const char *rq[2] = { cues[c], NULL };
+            if (kb_match(b->kb, "answer_frame", rq, 2, rel, 1) != 1) continue;
+            char relname[KB_TERM_LEN]; snprintf(relname, sizeof relname, "%s", kb_dequote(rel[0]));
+            /* la superficie di QUESTO turno, fino all'entita' */
+            size_t surf_len = (size_t)(after - norm);
+            while (surf_len && norm[surf_len - 1] == ' ') surf_len--;
+            if (!surf_len || surf_len >= KB_TERM_LEN - 3) continue;
+            char surf[KB_TERM_LEN];
+            memcpy(surf, norm, surf_len); surf[surf_len] = '\0';
+            char quoted[KB_TERM_LEN]; snprintf(quoted, sizeof quoted, "\"%s\"", surf);
+            const char *already[2] = { quoted, relname };
+            if (!kb_query(b->kb, "answer_frame", already, 2)) {
+                int prev = kb_origin(b->kb);
+                kb_set_origin(b->kb, KB_INDUCED);
+                kb_assert(b->kb, "answer_frame", already, 2);
+                kb_set_origin(b->kb, prev);
+            }
+            /* UN SOSTANTIVO PUO' NOMINARE PIU' RELAZIONI, e non tocca a qui
+             * scegliere. «color» nomina sia `color_of` (di che colore e' una
+             * cosa) sia `side_color` (con che colori si gioca): sono due
+             * letture vere della stessa parola. Il motore ha gia' il contratto
+             * giusto per questo — «one surface cue may name several candidate
+             * relations, let the first candidate that produces evidence win» —
+             * quindi qui si dichiarano TUTTE le candidate e a decidere sono i
+             * fatti, non l'ordine alfabetico dell'indice. */
+            done++;
+        }
+        free(cues);
+        if (done) return 1;
+    }
+    return 0;
+}
+
 static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                             char *out, size_t out_size) {
     (void)raw;
@@ -5512,6 +5618,10 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
             if (kb_cue_match(b, kb_dequote(guards[gi]), norm)) return 0;
         }
     }
+    /* gen457: una FORMA di domanda puo' produrre il frame concreto che manca,
+     * prima che i frame vengano letti. */
+    question_shape_generalize(b, norm);
+
     char (*cues)[KB_TERM_LEN] = NULL;
     const char *fq[2] = { NULL, NULL };
     size_t nf = 0;

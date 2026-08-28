@@ -578,7 +578,8 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
          * domani e' insegnabile lo stesso giorno, senza righe nuove. */
         char family[KB_TERM_LEN] = "";
         int generic = 0;
-        if (!strcmp(mode[0], "cue_for") || !strcmp(mode[0], "reply_for")) {
+        if (!strcmp(mode[0], "cue_for") || !strcmp(mode[0], "reply_for") ||
+            !strcmp(mode[0], "frame_for")) {
             const char *after = strstr(low, ls);
             if (!after) continue;
             after += strlen(ls);
@@ -599,6 +600,78 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
              * rende risposte. Attaccare una cue a una famiglia che nessuno
              * interroga per cue produrrebbe il fatto morto di `greeting(ahoy)`:
              * vero in KB, invisibile al comportamento. */
+            /* gen457 — M15: LE FORME DELLA DOMANDA SI INSEGNANO.
+             *
+             * `answer_frame/2` lega una superficie interrogativa alla relazione
+             * che deve interrogare, ed era l'unica conoscenza dichiarativa che
+             * nessun atto didattico raggiungeva: quattro modi in `learnable/3`
+             * e nessuno ci arrivava. Misurato: 270 formulazioni scritte a mano
+             * per 136 relazioni, quasi tutte inglesi, al punto che
+             *
+             *   «which colors are used in chess»  rispondeva
+             *   «which color  is  used in chess»  no
+             *
+             * e colmare quella differenza voleva dire aprire un file. E' il
+             * limite che rendeva invisibili i risultati di ogni altro giro: si
+             * possono insegnare fatti tutto il giorno, ma se non si insegna
+             * COME SI CHIEDONO quei fatti non rispondono a nessuno.
+             *
+             * La guardia e' la stessa idea del M11 con il criterio giusto per
+             * QUESTA lezione: una cue ha senso dove qualcuno legge cue, una
+             * forma di domanda ha senso dove c'e' una relazione da interrogare.
+             * Quindi la relazione deve gia' avere fatti, altrimenti la lezione
+             * scriverebbe una porta davanti a una stanza vuota. */
+            if (!strcmp(mode[0], "frame_for")) {
+                if (!kb_knows_pred(b->kb, family)) {
+                    char msg[256];
+                    kb_term_say(b, "no_relation_by_that_name", (const KbResponseSlot[]){
+                                    { "family", family } }, 1, msg, sizeof msg);
+                    put(msg, out, outsz);
+                    return 1;
+                }
+                /* la superficie insegnata: la forma canonicalizzata, cosi' che
+                 * combaci con quello che il riconoscitore vedra' nei turni dopo */
+                const char *n1 = strchr(norm, '"'), *n2 = n1 ? strchr(n1 + 1, '"') : NULL;
+                const char *f1 = n2 && n2 > n1 + 1 ? n1 : rq1;
+                const char *f2 = n2 && n2 > n1 + 1 ? n2 : rq2;
+                size_t fpl = (size_t)(f2 - (f1 + 1));
+                if (fpl == 0 || fpl >= KB_TERM_LEN - 2) continue;
+                char fphrase[KB_TERM_LEN];
+                memcpy(fphrase, f1 + 1, fpl); fphrase[fpl] = '\0';
+                char fq2[KB_TERM_LEN];
+                snprintf(fq2, sizeof fq2, "\"%s\"", fphrase);
+                kb_set_origin(b->kb, KB_SESSION);
+                const char *fa[2] = { fq2, family };
+                kb_assert(b->kb, "answer_frame", fa, 2);
+                /* La DIREZIONE si eredita da una formulazione gia' esistente
+                 * della stessa relazione: chi insegna una parafrasi non deve
+                 * sapere quale argomento lega l'entita' della domanda. Se
+                 * nessuna la dichiara, resta il comportamento permissivo
+                 * storico e non si inventa un vincolo. */
+                {
+                    char anyc[8][KB_TERM_LEN];
+                    const char *acq[2] = { NULL, family };
+                    size_t nac = kb_match(b->kb, "answer_frame", acq, 2, anyc, 8);
+                    for (size_t ai = 0; ai < nac; ai++) {
+                        char slot[4][KB_TERM_LEN];
+                        const char *siq[3] = { anyc[ai], family, NULL };
+                        size_t ns = kb_match(b->kb, "answer_frame_input_arg",
+                                             siq, 3, slot, 4);
+                        if (ns == 0) continue;
+                        for (size_t si = 0; si < ns; si++) {
+                            const char *ia[3] = { fq2, family, slot[si] };
+                            kb_assert(b->kb, "answer_frame_input_arg", ia, 3);
+                        }
+                        break;
+                    }
+                }
+                char msg[256];
+                kb_term_say(b, "teach_family_ack", (const KbResponseSlot[]){
+                                { "phrase", fphrase }, { "label", ls },
+                                { "family", family } }, 3, msg, sizeof msg);
+                put(msg, out, outsz);
+                return 1;
+            }
             char row[1][KB_TERM_LEN];
             const char *wanted = !strcmp(mode[0], "cue_for") ? "intent_cue"
                                                              : "response_template";

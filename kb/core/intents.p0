@@ -550,6 +550,14 @@ intent_cue(logic_relationship_marker, keyword(association)).
 intent_cue(logic_between_connector, keyword(between)).
 intent_cue(would_rather, "would you rather").
 intent_cue(would_rather, "preferiresti").
+% gen457 (M15) — LE FORME DELLA DOMANDA. La lezione NOMINA la relazione, come
+% `cue for`/`reply for` nominano la famiglia: «learn "quali colori" as a way to
+% ask side_color». Cosi' le 136 relazioni gia' in KB diventano interrogabili in
+% qualunque lingua senza aprire un file, che era il blocco piu' urgente del
+% piano di apprendimento assistito (§6.2b, M15).
+learnable("a way to ask",         answer_frame, frame_for).
+learnable("another way to ask",   answer_frame, frame_for).
+learnable("un modo per chiedere", answer_frame, frame_for).
 learnable("ask my name",          ask_name,   exact).
 learnable("il mio nome",          ask_name,   exact).
 learnable("ask for short answers", brevity,   substring).

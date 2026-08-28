@@ -317,6 +317,21 @@ np_closer(because). np_closer(although). np_closer(if). np_closer(unless).
 np_closer(che).   np_closer(cui).    np_closer(quando). np_closer(mentre).
 np_closer(perche). np_closer(se).
 
+% ── LE FORME DELLA DOMANDA (gen457, M15) ────────────────────────────────────
+%
+% Uno schema, non una frase. Due slot:
+%   @R  il sostantivo che NOMINA una relazione   ("color", "capital", "weight")
+%   @E  l'entita' di cui si chiede               ("chess")
+%
+% Il sostantivo si risolve in relazione con le forme che esistono gia': le 270
+% righe `answer_frame` smettono di essere un frasario e diventano un indice
+% sostantivo -> relazione. Una forma qui copre tutte e 136 le relazioni insieme,
+% invece di una superficie per volta — mantra #3, astrai fino al punto fisso.
+question_shape("which @R is used in @E").
+question_shape("what @R is used in @E").
+question_shape("which @R does @E use").
+question_shape("what @R does @E have").
+
 % ── CHE COSA UN SUBORDINATORE DICE DELLE SUE DUE PROPOSIZIONI (gen455) ──────
 %
 % `np_closer` sa che «although» apre una proposizione, ma non che cosa quella

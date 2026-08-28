@@ -77,6 +77,8 @@ response_template(role_set_plain, "Alright.").
 response_template(role_set_plain, it, "Va bene.").
 response_template(teach_family_ack, "Got it - I'll take «{phrase}» as {label} {family} now.").
 response_template(teach_family_ack, it, "Ricevuto — d'ora in poi prendo «{phrase}» come {label} {family}.").
+response_template(no_relation_by_that_name, "I don't know a relation called {family}, so a way to ask for it would open onto an empty room.").
+response_template(no_relation_by_that_name, it, "Non conosco nessuna relazione chiamata {family}, quindi un modo per chiederla si aprirebbe su una stanza vuota.").
 response_template(composed_with_caveat, "I composed `{name}` but {note}.").
 response_template(that_s_kind_of_you_thank_you, "That's kind of you — thank you!").
 response_template(the_day_unfolded_quietly_each_moment_c, "The day unfolded quietly, each moment carrying the weight of something unspoken. And in that stillness, a new chapter was beginning.").
