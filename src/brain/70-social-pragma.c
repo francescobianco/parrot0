@@ -51,12 +51,13 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
      * back to a literal only if the KB file is absent, so the agent is engaged
      * but never mute. */
     {
-        static const char *const phatic[] = {
-            "goodnight", "felicitation", "wellwish",
-            "condolence", "blessing", "politeness", NULL };
-        for (size_t i = 0; phatic[i]; i++) {
-            if (has_social_pattern(b, phatic[i], buf)) {
-                if (!kb_response(b, phatic[i], NULL, out, out_size))
+        char phatic[16][KB_TERM_LEN];
+        const char *pq[] = { NULL };
+        size_t nphatic = kb_match(b->kb, "social_act_type", pq, 1, phatic, 16);
+        for (size_t i = 0; i < nphatic; i++) {
+            const char *type = kb_dequote(phatic[i]);
+            if (has_social_pattern(b, type, buf)) {
+                if (!kb_response(b, type, NULL, out, out_size))
                     kb_term_say(b, "that_s_kind_of_you_thank_you", NULL, 0, out, out_size);
                 return 1;
             }

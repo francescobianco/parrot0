@@ -1,0 +1,31 @@
+# Focused KB-first round fourteen: act-loop branch operations are a live
+# ternary relation, including a surface that did not exist at compile time.
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+[test existing and taught branch operations]
+!query agent_branch_step("double", "*", 2)
+!query agent_branch_step("dimezza", "/", 2)
+!assert agent_branch_step("doublefast", "*", 2)
+!query agent_branch_step("doublefast", "*", 2)
+> start at 2. if it is even, doublefast. if it is odd, halve. repeat until it reaches 4.
+< Reached 4 after 1 step: 2 -> 4.
+!forget agent_branch_step("doublefast", "*", 2)
+!query! agent_branch_step("doublefast", "*", 2)
+
+[new KB-backed vocabulary remains teachable]
+!query module_capability(knowledge, "answer questions about facts and logical rules")
+!query social_act_type(goodnight)
+!assert module_capability(calculus, "derive symbolic answers")
+!query module_capability(calculus, "derive symbolic answers")
+!forget module_capability(calculus, "derive symbolic answers")
+!query! module_capability(calculus, "derive symbolic answers")
+
+[test Italian branch operation remains live]
+> parti da 6. se è pari, dimezza. se è dispari, triplica e aggiungi 1. ripeti finché raggiunge 1.
+< Reached 1 after 8 steps: 6 -> 3 -> 10 -> 5 -> 16 -> 8 -> 4 -> 2 -> 1.

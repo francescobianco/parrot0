@@ -1632,27 +1632,20 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
     if (mod_cap) {
         if (kb_cue_match(b, "50_self_research_loop_chain1610", buf))
             return 0;
-        static const struct { const char *mod, *say; } cmap[] = {
-            {"knowledge", "answer questions about facts and logical rules"},
-            {"arith",     "compute arithmetic (plus, minus, times, divisible by)"},
-            {"cause",     "reason about cause and effect relations"},
-            {"compare",   "compare magnitudes (more/less than)"},
-            {"memory",    "remember your name, possessions, and personal facts"},
-            {"reader",    "read a passage and extract known fact patterns"},
-            {"shell",     "explain shell commands and predict their output"},
-            {"gen",       "generate text continuations from learned sequences"},
-            {"self",      "answer questions about my own identity and capabilities"},
-            {"meta",      "handle meta-conversation (attention, understanding)"},
-            {"discourse", "remember what topics we discussed"},
-            {"social",    "handle greetings, thanks, and social conventions"},
-            {"symbolic",  "recognize symbolic patterns (Morse, leet, palindromes)"},
-        };
-        for (size_t i = 0; i < sizeof cmap / sizeof cmap[0]; i++) {
-            if (cue(buf, cmap[i].mod)) {
+        char cmap[24][2][KB_TERM_LEN];
+        const char *cq[] = { NULL, NULL };
+        char ckeys[24][KB_TERM_LEN];
+        size_t ncmap = kb_match(b->kb, "module_capability", cq, 2, ckeys, 24);
+        for (size_t i = 0; i < ncmap; i++) {
+            const char *sq[] = {ckeys[i], NULL};
+            if (kb_match(b->kb, "module_capability", sq, 2, cmap[i], 1) != 1)
+                continue;
+            snprintf(cmap[i][0], KB_TERM_LEN, "%s", ckeys[i]);
+            if (cue(buf, kb_dequote(cmap[i][0]))) {
                 char msg[256];
                 { 
-                  char _v0[48]; snprintf(_v0, sizeof _v0, "%s", cmap[i].mod);
-                  char _v1[48]; snprintf(_v1, sizeof _v1, "%s", cmap[i].say);
+                  char _v0[48]; snprintf(_v0, sizeof _v0, "%s", kb_dequote(cmap[i][0]));
+                  char _v1[48]; snprintf(_v1, sizeof _v1, "%s", kb_dequote(cmap[i][1]));
   const KbResponseSlot _rs[] = { { "mod", _v0 }, { "say", _v1 } };
                   kb_term_say(b, "the_x_module_can_x", _rs, 2, msg, sizeof msg); }
                 put(msg, out, out_size);

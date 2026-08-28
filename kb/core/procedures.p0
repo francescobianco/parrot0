@@ -8,6 +8,29 @@
 % liste in forma cons($H,$T)/nil. Questo file è il HOME dove il save-map instraderà
 % le procedure future accanto alle loro parenti.
 
+% Self-research profiles and capability descriptions are data, not C phrasebooks.
+machinery(module_capability).
+module_capability(knowledge, "answer questions about facts and logical rules").
+module_capability(arith, "compute arithmetic (plus, minus, times, divisible by)").
+module_capability(cause, "reason about cause and effect relations").
+module_capability(compare, "compare magnitudes (more/less than)").
+module_capability(memory, "remember your name, possessions, and personal facts").
+module_capability(reader, "read a passage and extract known fact patterns").
+module_capability(shell, "explain shell commands and predict their output").
+module_capability(gen, "generate text continuations from learned sequences").
+module_capability(self, "answer questions about my own identity and capabilities").
+module_capability(meta, "handle meta-conversation (attention, understanding)").
+module_capability(discourse, "remember what topics we discussed").
+module_capability(social, "handle greetings, thanks, and social conventions").
+module_capability(symbolic, "recognize symbolic patterns (Morse, leet, palindromes)").
+machinery(social_act_type).
+social_act_type(goodnight).
+social_act_type(felicitation).
+social_act_type(wellwish).
+social_act_type(condolence).
+social_act_type(blessing).
+social_act_type(politeness).
+
 % -- parità (l'esempio di F.: "saper ignorare i dispari" è conoscenza) --
 
 % -- relazione lineare ASTRATTA: A*B=C, risolvibile in ogni direzione nota --
@@ -1444,6 +1467,30 @@ infix_operator("/", divide).
 infix_operator("divided", divide).
 infix_operator("diviso", divide).
 infix_operator("over", divide).
+
+% Branching act-loop operation vocabulary (gen467). Surface, primitive symbol
+% and factor are one teachable relation; the parser does not own these words.
+machinery(agent_branch_step).
+agent_branch_step("double", "*", 2).
+agent_branch_step("raddoppia", "*", 2).
+agent_branch_step("triple", "*", 3).
+agent_branch_step("triplica", "*", 3).
+agent_branch_step("halve", "/", 2).
+agent_branch_step("dimezza", "/", 2).
+agent_branch_step("add", "+", 0).
+agent_branch_step("plus", "+", 0).
+agent_branch_step("aggiungi", "+", 0).
+agent_branch_step("somma", "+", 0).
+agent_branch_step("subtract", "-", 0).
+agent_branch_step("minus", "-", 0).
+agent_branch_step("sottrai", "-", 0).
+agent_branch_step("togli", "-", 0).
+agent_branch_step("multiply", "*", 0).
+agent_branch_step("times", "*", 0).
+agent_branch_step("moltiplica", "*", 0).
+agent_branch_step("divide", "/", 0).
+agent_branch_step("dividi", "/", 0).
+agent_branch_step("diviso", "/", 0).
 apply_operator(divide, $A, $B, $R) :- dif($B, 0), is($R, div($A, $B)).
 % NIENTE «x» per la moltiplicazione: in questo sistema `x` e' la variabile
 % dell'algebra, e dichiararla operatore faceva leggere «10 / x = 0» come una

@@ -181,6 +181,15 @@ ricevuto i fatti. Restano da aggiungere i ratchet runtime prima del commit:
 uno per l'aggiunta/ritiro di una clausola `subject_guard/1`, uno per la classe
 locativa e uno per la crescita/ablazione della cue `role_open`.
 
+### Gen467 — operazioni dell’act-loop come relazione ternaria
+
+Il parser delle branche dell’act-loop non enumera più in C `double`, `triple`,
+`halve`, né i verbi di addizione/sottrazione/moltiplicazione/divisione. La KB
+ora espone `agent_branch_step(Surface, Operator, Factor)`; il C interroga la
+relazione e conserva soltanto il binding del token, la gestione dell’operatore
+pendente e l’aritmetica. Il ratchet deve provare una forma italiana aggiunta a
+runtime e la sua ablazione, oltre a una variante inglese già presente.
+
 > Compagno di `KB_TODO.md`, che elenca i residui della conoscenza. Questo
 > elenca i residui del **motore**: tutto ciò che oggi vive in `src/brain/*.c` e
 > che, per i mantra #2 e #16, dovrebbe essere conoscenza.
@@ -1027,3 +1036,13 @@ commessi e corretti durante gen442-443:
 E una regola di metodo che ha retto per tutta la campagna: **convertire a lotti
 piccoli, con `make build` e una prova a mano dopo ognuno, e committare ogni
 lotto.** Un lotto grande che rompe la build costa più di dieci lotti piccoli.
+### Gen467 — vocabolari di procedura e di modulo come dati KB
+
+Il parser dell’act-loop legge `agent_branch_step(Surface, Operator, Factor)`;
+le famiglie operative (raddoppio/triplicazione, divisione, somma/sottrazione e
+moltiplicazione) sono clausole insegnabili, non enum C. Nello stesso lotto le
+descrizioni delle capability e i tipi phatic sono relazioni KB interrogate dal
+consumer. Il test `kb_first_round14.p0t` verifica query, assert e forget del
+vocabolario nuovo e il comportamento EN/IT. Il tentativo di portare anche i
+profili del self-composition in KB è stato scartato perché cambia il contratto
+del golden test: resta una migrazione successiva, non dati inutilizzati.

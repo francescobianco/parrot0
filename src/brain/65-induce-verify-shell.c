@@ -166,7 +166,7 @@ static int mod_search(Brain *b, const char *norm, const char *raw,
     const char *ops_start = uk + 5;
     if (ol >= sizeof opreg) ol = sizeof opreg - 1;
     memcpy(opreg, ops_start, ol); opreg[ol] = '\0';
-    AgentOp acts[6]; size_t nacts = parse_branch_ops(opreg, acts, 6);
+    AgentOp acts[6]; size_t nacts = parse_branch_ops(b, opreg, acts, 6);
     if (nacts == 0) return 0;
 
     /* target: first number after the reach marker. */

@@ -1347,7 +1347,8 @@ static int agent_goal_met(double cur, double t, enum agent_cmp cmp) {
  * of operations the agent applies in order when that branch is taken. */
 typedef struct { char op; double k; } AgentOp;
 
-static size_t parse_branch_ops(const char *clause, AgentOp *ops, size_t max) {
+static size_t parse_branch_ops(Brain *b, const char *clause, AgentOp *ops, size_t max) {
+    if (!b || !b->kb || !clause || !ops || max == 0) return 0;
     char buf[256];
     snprintf(buf, sizeof buf, "%s", clause);
     char *w[64];
@@ -1358,13 +1359,26 @@ static size_t parse_branch_ops(const char *clause, AgentOp *ops, size_t max) {
         char *t = strip_edge_punct(w[i]);
         double v;
         if (pend && parse_value(t, &v)) { ops[n].op = pend; ops[n].k = v; n++; pend = 0; continue; }
-        if (!strcmp(t, "double") || !strcmp(t, "raddoppia"))     { ops[n].op='*'; ops[n].k=2; n++; }
-        else if (!strcmp(t, "triple") || !strcmp(t, "triplica")) { ops[n].op='*'; ops[n].k=3; n++; }
-        else if (!strcmp(t, "halve")  || !strcmp(t, "dimezza"))  { ops[n].op='/'; ops[n].k=2; n++; }
-        else if (!strcmp(t,"add")||!strcmp(t,"plus")||!strcmp(t,"aggiungi")||!strcmp(t,"somma")) pend='+';
-        else if (!strcmp(t,"subtract")||!strcmp(t,"minus")||!strcmp(t,"sottrai")||!strcmp(t,"togli")) pend='-';
-        else if (!strcmp(t,"multiply")||!strcmp(t,"times")||!strcmp(t,"moltiplica")) pend='*';
-        else if (!strcmp(t,"divide")||!strcmp(t,"dividi")||!strcmp(t,"diviso")) pend='/';
+        char quoted[KB_TERM_LEN];
+        snprintf(quoted, sizeof quoted, "\"%s\"", t);
+        const char *q[3] = { quoted, NULL, NULL };
+        char op[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "agent_branch_step", q, 3, op, 1) != 1)
+            continue;
+        char opquoted[KB_TERM_LEN];
+        snprintf(opquoted, sizeof opquoted, "%s", op[0]);
+        const char *fq[3] = { quoted, opquoted, NULL };
+        char factor[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "agent_branch_step", fq, 3, factor, 1) != 1)
+            continue;
+        char opterm[KB_TERM_LEN];
+        snprintf(opterm, sizeof opterm, "%s", kb_dequote(op[0]));
+        double k = 0;
+        parse_value(kb_dequote(factor[0]), &k);
+        if (k == 0 && strlen(opterm) == 1) pend = opterm[0];
+        else if (n < max && strlen(opterm) == 1) {
+            ops[n].op = opterm[0]; ops[n].k = k; n++;
+        }
     }
     return n;
 }
@@ -1415,8 +1429,8 @@ static int mod_agent(Brain *b, const char *norm, const char *raw,
             agent_slice(ce, end_e, ec, sizeof ec);
             agent_slice(co, end_o, oc, sizeof oc);
             AgentOp even_ops[4], odd_ops[4];
-            size_t ne = parse_branch_ops(ec, even_ops, 4);
-            size_t no = parse_branch_ops(oc, odd_ops, 4);
+            size_t ne = parse_branch_ops(b, ec, even_ops, 4);
+            size_t no = parse_branch_ops(b, oc, odd_ops, 4);
 
             /* start value: the first number before the first branch marker. */
             const char *first = (ce < co) ? ce : co;
