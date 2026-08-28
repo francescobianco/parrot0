@@ -1,0 +1,34 @@
+# article.p0t — l'articolo italiano e' una TABELLA, non un ramo del C.
+# Convertito da tests/article.sh (gen444).
+#
+#   article(Definitezza, Genere, IniziaPerVocale, Forma)
+#
+# Due cancelli, e servono entrambi: che la traduzione non cambi (la forma giusta
+# esce ancora) e che la grammatica sia DATO interrogabile. Prima di U5 il primo
+# passava e il secondo no, perche' la forma viveva solo nel motore.
+
+[test article_translation_unchanged]
+!set PARROT0_LANG=en
+!reset
+> translate to italian: the dog runs
+< il cane corre
+> translate to italian: the small house
+< la piccola casa
+> translate to italian: a white door
+< una bianca porta
+> translate to italian: the man reads a book
+< l'uomo legge un libro
+
+[test article_is_queryable_knowledge]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!mcp kb.match {"pred":"article","args":["def","m","no",null]}
+<~ "il"
+# elisione davanti a vocale, femminile determinativo
+!mcp kb.match {"pred":"article","args":["def","f","yes",null]}
+<~ l'
+# e indeterminativo
+!mcp kb.match {"pred":"article","args":["indef","f","yes",null]}
+<~ un'

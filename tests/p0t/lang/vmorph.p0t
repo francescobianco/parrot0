@@ -1,0 +1,30 @@
+# vmorph.p0t — il progressivo si riconosce per MORFOLOGIA, non per elenco.
+# Convertito da tests/vmorph.sh (gen444).
+#
+# `progressive(running)` deve essere vero senza che nessuno abbia scritto
+# «running»: e' la regola sul suffisso a deciderlo. E `progressive(cat)` deve
+# essere falso, altrimenti la regola direbbe di si' a chiunque.
+
+[test vmorph_translation]
+!set PARROT0_LANG=en
+!reset
+# ROSSO da prima: la traduzione francese del progressivo si perde in un
+# template causale generico invece di produrre la frase (difetto M0).
+> translate into French: "The cat is sleeping on the warm rug."
+< Le chat dort sur le tapis chaud.
+
+[test vmorph_is_a_morphology_rule]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!mcp kb.query {"pred":"progressive","args":["sleeping"]}
+<~ true
+# generalizza a una parola mai nominata
+!mcp kb.query {"pred":"progressive","args":["running"]}
+<~ true
+# e non dice di si' a chiunque
+!mcp kb.query {"pred":"progressive","args":["cat"]}
+<~ false
+!mcp kb.query {"pred":"aux_progressive","args":["is"]}
+<~ true

@@ -873,11 +873,8 @@ legacy-test: build
 	@./tests/assertclause.sh
 	@./tests/answerframe.sh
 	@./tests/aggregate.sh
-	@./tests/article.sh
-	@./tests/adjagree.sh
 	@./tests/artfres.sh
 	@./tests/cliticfr.sh
-	@./tests/vmorph.sh
 	@./tests/savemap.sh
 	@./tests/multigoal.sh
 	@./tests/explain.sh

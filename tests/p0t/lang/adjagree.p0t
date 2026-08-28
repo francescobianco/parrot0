@@ -1,0 +1,27 @@
+# adjagree.p0t — l'accordo dell'aggettivo e' una REGOLA, non un elenco.
+# Convertito da tests/adjagree.sh (gen444).
+#
+# Il terzo caso e' quello che conta: una parola che la regola non copre non deve
+# ricevere una forma inventata. Generalizzare non vuol dire indovinare.
+
+[test adjagree_translation]
+!set PARROT0_LANG=en
+!reset
+> translate to italian: the small house
+< la piccola casa
+> translate to italian: a white door
+< una bianca porta
+
+[test adjagree_is_a_rule]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!mcp kb.match {"pred":"agree_f","args":["piccolo",null]}
+<~ piccola
+# la stessa regola generalizza
+!mcp kb.match {"pred":"agree_f","args":["bianco",null]}
+<~ bianca
+# un aggettivo invariabile non riceve una forma inventata: nessun match
+!mcp kb.match {"pred":"agree_f","args":["grande",null]}
+<! grand
