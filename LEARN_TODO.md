@@ -40,6 +40,93 @@ a murare, è un tema da riapprendere e va in P4.
 Le tre regole che non si negoziano, dal protocollo: conoscenza **vera** e
 fontata; nessuna API travestita; `X = 0` prima di `/save`.
 
+## Missione attiva 2026-08-29 — dalla lettura alla supercomprensione
+
+Questa e' la coda operativa delle prossime sessioni. Nasce dal confronto fra
+[`apprendimento-assistito.md`](docs/plans/apprendimento-assistito.md) e il
+fronte K0-K11 di
+[`frontier-kb-natural-dialogue.md`](docs/plans/frontier-kb-natural-dialogue.md):
+parrot0 possiede fatti, scope, proof, situazioni e piani, ma non possiede ancora
+un oggetto comune per **cio' che un documento sta facendo**. Una pagina
+scientifica non e' una sequenza di fatti: propone una domanda, delimita uno
+scope, adotta assunzioni, descrive un metodo, riporta osservazioni, argomenta una
+conclusione, qualifica un limite e lascia problemi aperti.
+
+La missione non autorizza una sessione lunga prima del cancello M0-M14. Ogni
+voce viene consumata con una sonda breve del `LEARN_PROTOCOL`; se la lezione non
+e' indirizzabile parlando, l'esito e' `diagnostic`, si promuove soltanto il
+motore metacognitivo generale che manca e il protocollo riparte in un processo
+nuovo. Le fonti devono essere primarie o istituzionali e il testo insegnato
+viene parafrasato: una fonte non diventa un corpus copiato nella KB.
+
+### Ordine di consumo
+
+| # | Piano complesso | Classe liberata | Interazione didattica minima | Gate duro | Stato |
+|---|---|---|---|---|---|
+| **SC0** | **Baseline stratificata su prosa narrativa, espositiva e scientifica** | distingue muro, fatto estratto, misclaim, perdita di subordinata e perdita di struttura documentale | presentare tre brani veri brevi, poi chiedere tesi, supporto, sequenza e limite senza anticipare le risposte | transcript classificato frase per frase; zero conoscenza consolidata; mappa M0-M20 e SC1-SC16 | **IN CORSO** |
+| **SC1** | **Unita' documentali e relazioni retoriche** | una frase o sezione puo' essere definizione, sfondo, contrasto, causa, metodo, risultato, limite o transizione | «qui la seconda frase contrasta la prima», «questa frase descrive il metodo, non il risultato» | una cue retorica nuova insegnata a voce cambia la segmentazione; transfer su tre domini; retract la rimuove | aperto |
+| **SC2** | **Claim tipati, attribuzione e forza epistemica** | separa osservazione, dato, inferenza, ipotesi, assunzione, definizione, citazione e raccomandazione | «gli autori osservano X ma concludono Y», «Z e' un'ipotesi, non un risultato» | nessun claim perde fonte, scope o status; un fatto riportato non diventa automaticamente commitment di parrot0 | aperto |
+| **SC3** | **Grafo argomentativo e dipendenze della conclusione** | estrae premesse, conclusioni, supporti, obiezioni, qualificatori e rebuttal da prosa articolata | «questa osservazione sostiene la conclusione solo insieme a quest'altra premessa» | domande `perche'`, `da cosa dipende`, `cosa la confuterebbe`; ablation di una premessa ritira solo le conclusioni dipendenti | aperto |
+| **SC4** | **Ricostruzione del disegno scientifico** | riconosce domanda, popolazione/sistema, variabili, intervento, confronto, misura, controllo e confondenti | «il gruppo B e' il confronto; la temperatura e' mantenuta costante» | ricostruzione su esperimento, studio osservazionale e simulazione; non inventa controllo o causalita' | aperto |
+| **SC5** | **Da metodo in prosa a procedura eseguibile e ispezionabile** | compila passi, input, output, precondizioni, invarianti, branch, criterio d'arresto, rischi e provenance | «per eseguire il metodo, prima calibra; ripeti finche'...; scarta se...» | la lezione non viene eseguita; piano su input nuovi; ogni numero ha ruolo e unita'; trace dei passi; retract parlato | aperto |
+| **SC6** | **Modello causale dal testo** | distingue correlazione, meccanismo proposto, causa necessaria/sufficiente, mediatore e confondente | «X e Y covariano; il testo non dice ancora che X causa Y» | controfattuale e intervento coerenti; un'associazione non produce un arco causale senza evidenza dichiarata | aperto |
+| **SC7** | **Modellizzazione nello spazio logico** | costruisce mondi/modelli compatibili, vincoli, invarianti, conseguenze, controesempi e residui | «cerca un caso in cui le premesse valgono e la conclusione no» | entailment tramite assenza di contromodello entro budget; se la ricerca e' incompleta lo dichiara; transfer fra logica, scienza e procedure | aperto |
+| **SC8** | **Scope complesso, quantificazione e modalita'** | comprende `tutti`, `alcuni`, `nessuno`, `solo se`, `a meno che`, possibilita', necessita' e negazione annidata | «qui `solo se` introduce una condizione necessaria, non sufficiente» | coppie minime positive/negative; nessuna inversione per somiglianza superficiale; nuova forma modale assert/retract | aperto |
+| **SC9** | **Coreferenza documentale e identita' attraverso paragrafi** | collega pronomi, ellissi, abbreviazioni, nomi alternativi, campioni e variabili senza fondere entita' diverse | «in questo paragrafo `esso` riprende il campione, mentre `questo risultato` riprende l'osservazione» | catene a 20+ frasi; ambiguita' conservata; correzione locale ri-deriva soltanto i legami dipendenti | aperto |
+| **SC10** | **Equazioni, unita', tabelle e figure come proposizioni** | collega simboli, definizioni, dimensioni, assi, righe e didascalie al testo che li interpreta | «qui k e' una costante di velocita', non una misura osservata» | controllo dimensionale; domanda incrociata testo-tabella-equazione; simbolo nuovo insegnato senza nome interno | aperto |
+| **SC11** | **Sintesi compressiva con copertura semantica** | produce un nucleo minimo da cui le proposizioni importanti restano derivabili | «riassumi conservando domanda, metodo, risultato, limite e nesso fra loro» | claim coverage, nessun claim nuovo, proof verso le unita' fonte, versione breve/lunga dalla stessa struttura | aperto |
+| **SC12** | **Integrazione fra documenti e gestione del dissenso** | allinea concetti e risultati fra fonti senza cancellare scope, metodi e popolazioni diverse | «questi lavori sembrano divergere, ma usano misure e condizioni diverse» | accordo, conflitto reale e apparente distinti; ogni sintesi conserva fonte e contesto; nessuna media di confidence inventata | aperto |
+| **SC13** | **Generazione di ipotesi e falsificatori** | propone spiegazioni candidate da residui, analogie strutturali e modelli concorrenti | «proponi due meccanismi compatibili e l'osservazione che li distinguerebbe» | ipotesi marcate, non promosse a fatti; previsione discriminante; controllo negativo; ablation dell'analogia toglie solo l'ipotesi | aperto |
+| **SC14** | **Lettore metacognitivo attivo** | sceglie se rileggere, definire, risolvere un riferimento, cercare una premessa, chiedere o sospendere | «non ti manca il fatto: non sai a cosa si riferisce `questo`» | gap corretto su batteria eterogenea; domanda di chiarimento cambia davvero la decisione; nessun menu fisso di remediation | aperto |
+| **SC15** | **Induzione metacostruttiva da esempi e controesempi** | induce una costruzione o un operatore senza che il teacher nomini lo schema interno | mostrare tre esempi veri e un contrasto, poi chiedere che cosa hanno in comune | candidato in quarantena; transfer 3/3; contrasto; descrizione naturale dei ruoli; retract; nessun predicato suggerito dal teacher | aperto |
+| **SC16** | **Comprensione ricorsiva e critica di un intero articolo** | compone SC1-SC15: mappa, interroga, esegue procedure, critica limiti e aggiorna il modello | articolo open-access mai usato nel training, sezioni presentate progressivamente | almeno 70% held-out; tesi/metodo/risultati/limiti completi; domande avversariali; nessuna risposta oltre la proof; fresh-process recall 100% sui fatti promossi | aperto |
+
+### Pacchetti di sessione
+
+Le righe sopra non si affrontano in parallelo: ciascun pacchetto produce il
+prerequisito del successivo.
+
+1. **Pacchetto A — sensore (SC0, SC1, SC2).** Tre testi corti, una sola nuova
+   relazione retorica per ciclo, classificazione completa dei misclaim. Uscita:
+   Document IR minimo oppure referto del meta-gap che ne impedisce la nascita.
+2. **Pacchetto B — ragione del testo (SC3, SC4, SC6).** Ricostruire un argomento
+   e un disegno sperimentale; separare evidenza, inferenza e causalita'. Uscita:
+   grafo interrogabile con provenance e ablation causale.
+3. **Pacchetto C — fare e simulare (SC5, SC7, SC8, SC10).** Compilare una
+   procedura, verificarla nello spazio dei modelli e legare simboli/unita'.
+   Uscita: piano eseguibile che sa anche quando non e' giustificato.
+4. **Pacchetto D — mantenere e comprimere (SC9, SC11, SC12).** Attraversare
+   paragrafi e fonti, poi comprimere senza amputare tesi o limiti. Uscita:
+   sintesi proposizionale reversibile verso le fonti.
+5. **Pacchetto E — superare il teacher (SC13, SC14, SC15).** Usare i residui
+   per scegliere la prossima domanda, indurre candidati e proporre
+   falsificatori. Uscita: crescita guidata dall'informazione, non da un menu.
+6. **Pacchetto F — integrazione (SC16).** Articolo held-out e replay ostile.
+   Uscita: report del protocollo, non una dichiarazione impressionistica di
+   comprensione.
+
+### Metriche aggiuntive per questa missione
+
+Le metriche del protocollo restano obbligatorie. Per la prosa complessa si
+aggiungono:
+
+- **Claim coverage:** claim corretti e collegati / claim rilevanti nella fonte;
+- **Relation fidelity:** archi argomentativi corretti / archi estratti;
+- **Source fidelity:** proposizioni con scope e provenance corretti /
+  proposizioni affermate;
+- **Procedure executability:** passi applicabili e tipati / passi estratti;
+- **Countermodel yield:** conclusioni universali respinte da un controesempio
+  valido / conclusioni universali false provate;
+- **Compression with recovery:** claim recuperabili dalla sintesi / claim
+  rilevanti prima della sintesi;
+- **Diagnostic addressability:** gap per cui parrot0 formula la domanda
+  didattica corretta / gap osservati;
+- **Cross-genre transfer:** operatori che passano da prosa scientifica a
+  normativa, tecnica e narrativa senza nuovo C.
+
+Una risposta scorrevole non contribuisce a nessuna di queste metriche se il
+grafo che la sostiene non e' interrogabile.
+
 ---
 
 ## P0 — Le cose che parrot0 non può sbagliare

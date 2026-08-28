@@ -424,8 +424,21 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
     }
     const char *qq[1] = { tok };
     if (kb_query(b->kb, "question_word", qq, 1)) {
+        /* gen491 — LA FRASE COMPOSTA E MAI EMESSA, terza volta (M18).
+         *
+         * `kb_response_slots` riempie `msg`, e quando RIUSCIVA nessuno scriveva
+         * `msg` in `out`: solo il ramo di ricaduta emetteva. Da quando la frase
+         * e' passata in KB (`response_template(lone_question_word, …)`) il ramo
+         * che riesce e' quello NORMALE, quindi `where`, `which`, `ok` e `no`
+         * rispondevano con una stringa VUOTA — un muro che non si vede nemmeno.
+         *
+         * E' esattamente il P4.5 di LEARN_TODO: la lista passa alla conoscenza e
+         * la chiave di lettura resta indietro. La stessa forma era gia' stata
+         * trovata al gen452 (`mod_role`) e al gen456 (`try_teach_form`): vale
+         * come CLASSE di difetto da cercare, non come incidente. */
         if (!kb_response_slots(b, "lone_question_word", NULL, 0, msg, sizeof msg))
-            kb_term_say(b, "that_s_the_start_of_a_question_what_would_yo", NULL, 0, out, out_size);
+            kb_term_say(b, "that_s_the_start_of_a_question_what_would_yo", NULL, 0, msg, sizeof msg);
+        put(msg, out, out_size);
         return 1;
     }
     /* L'ASSENSO E IL DINIEGO sono una mossa, non un topic: «ok» non chiede di
@@ -436,7 +449,8 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
         if (kb_query(b->kb, "assent_word", aq, 1) ||
             kb_query(b->kb, "dissent_word", aq, 1)) {
             if (!kb_response_slots(b, "lone_assent", NULL, 0, msg, sizeof msg))
-                kb_term_say(b, "got_it_what_would_you_like_to_do", NULL, 0, out, out_size);
+                kb_term_say(b, "got_it_what_would_you_like_to_do", NULL, 0, msg, sizeof msg);
+            put(msg, out, out_size);
             return 1;
         }
     }
@@ -465,9 +479,37 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
      * predicato che si chiama cosi'. «What would you like to know about b?» e'
      * una domanda che nessuno puo' raccogliere: e' un token opaco e va detto. */
     char desc[256];
+    /* gen491 — IL TERMINE SOTTO CUI LA KB TIENE I FATTI PUO' NON ESSERE LA
+     * PAROLA DETTA. Misurato sul turno segnalato da F.:
+     *
+     *     you> milano        ->  «Ciao! Di cosa ti va di parlare?»
+     *
+     * e parrot0 su Milano sa tre cose (`capital_of_region(lombardy, milan)`,
+     * `demonym`, `artwork_place`). Non era ignoranza: era che il lookup cercava
+     * `milano` mentre i fatti stanno sotto `milan`, quindi il topic risultava
+     * sconosciuto e cadeva nel saluto per eliminazione qui sotto.
+     *
+     * `canonical_value/2` e' la procedura che il resto del motore gia' usa per
+     * questo (turn-frames.p0 §3). Si cerca sotto il termine canonico e si NOMINA
+     * la parola detta: cercare una parola diversa da quella ricevuta sarebbe un
+     * errore di merito, dirla diversa da come e' stata detta anche. */
+    char canon_tok[KB_TERM_LEN];
+    snprintf(canon_tok, sizeof canon_tok, "%s", tok);
+    {
+        const char *cvq[2] = { tok, NULL };
+        char cv[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "canonical_value", cvq, 2, cv, 1) == 1) {
+            char cb[KB_TERM_LEN];
+            snprintf(cb, sizeof cb, "%s", cv[0]);
+            const char *cd = kb_dequote(cb);
+            if (*cd) snprintf(canon_tok, sizeof canon_tok, "%s", cd);
+        }
+    }
     int known = strlen(tok) >= 2 &&
                 (kb_knows_pred(b->kb, tok) ||
-                 kb_describe_entity(b->kb, tok, desc, sizeof desc));
+                 kb_describe_entity(b->kb, tok, desc, sizeof desc) ||
+                 kb_knows_pred(b->kb, canon_tok) ||
+                 kb_describe_entity(b->kb, canon_tok, desc, sizeof desc));
     const KbResponseSlot sl[] = { { "token", tok } };
     if (known) {
         if (!kb_response_slots(b, "lone_known_topic", sl, 1, msg, sizeof msg))
@@ -497,7 +539,29 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
         /* «a1» ha una vocale e non e' una parola: una cifra in mezzo esclude che
          * lo sia, e il saluto per eliminazione vale solo per le parole. */
         pronounceable = pronounceable && all_alpha;
-        if (pronounceable && strlen(tok) >= 2 && !is_stopword(b, tok)) return 0;
+        /* gen491 — LA MOSSA DAVANTI A UNA PAROLA SCONOSCIUTA E' UNA POLICY,
+         * NON UNA PROPRIETA' DELLE LETTERE.
+         *
+         * Il gen427 decideva per FONOTATTICA che una parola pronunciabile e
+         * sconosciuta fosse un saluto («ahoy»). La sonda `bare_topic_probe`
+         * mostra che quella scommessa perde quasi sempre: `milano`, `mercurio`,
+         * `python`, `rosso`, `zorblat` sono tutte pronunciabili e nessuna e' un
+         * saluto — e il modello di frontiera, davanti a `qzxvb`, non saluta mai:
+         * NOMINA la parola («Could you clarify what you mean by "qzxvb"?»,
+         * tests/sym/measure-len5-full.md).
+         *
+         * Indovinare un atto sociale dalla forma delle lettere e' ridurre cio'
+         * che parrot0 vede per avere ragione per costruzione. Chi merita davvero
+         * il registro sociale e' gia' protetto sopra da conoscenza dichiarata
+         * (`social_marker`, `reaction_word`, `assent_word`), e un saluto nuovo e'
+         * una riga di KB.
+         *
+         * La scommessa non viene cancellata, viene DICHIARATA: resta raggiungibile
+         * asserendo `move_policy(lone_unknown_word, social_contact)` e sparisce
+         * ritraendola, nello stesso turno (keep-secondary-structures). */
+        const char *mpq[2] = { "lone_unknown_word", "social_contact" };
+        if (kb_query(b->kb, "move_policy", mpq, 2) &&
+            pronounceable && strlen(tok) >= 2 && !is_stopword(b, tok)) return 0;
         if (!kb_response_slots(b, "lone_unknown_token", sl, 1, msg, sizeof msg))
             { const KbResponseSlot _rs[] = { { "tok", tok } };
       kb_term_say(b, "i_have_nothing_on_x_could_you_say_what_you_m", _rs, 1, msg, sizeof msg); }

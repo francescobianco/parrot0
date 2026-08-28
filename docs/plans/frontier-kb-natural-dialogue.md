@@ -2728,3 +2728,392 @@ saltare la KB, o produrre prosa lunga senza un piano ispezionabile. Il risultato
 desiderato non e' che parrot0 «sembri furbo»: e' che possa mostrare quale stato
 ha costruito, quale informazione gli manca, perche' un'azione e' applicabile e
 come una nuova evidenza cambia la decisione.
+
+## 18. Ipotesi frontier: supercomprensione documentale e metacostruttiva
+
+Questa sezione estende K0-K11 senza dichiarare implementata una nuova facolta'.
+Lo stimolo e' il confine successivo al ragionamento situazionale: parrot0 puo'
+rappresentare uno stato e pianificare dentro di esso, ma un testo complesso non
+gli consegna lo stato gia' pronto. Lo costruisce progressivamente, mentre
+distingue la voce dell'autore dai dati, il metodo dai risultati, una spiegazione
+da un'osservazione e una conclusione dalle condizioni che la limitano.
+
+Chiamo **supercomprensione** una proprieta' operativa, non uno slogan:
+
+> comprendere un testo significa costruire il piu' piccolo modello
+> interrogabile che ne conserva claim, ruoli, dipendenze, scope, fonti,
+> procedure e alternative; metacomprenderlo significa sapere quali parti del
+> modello sono provate, quali ipotetiche, quali mancanti e quale operazione di
+> lettura ridurrebbe davvero l'incertezza.
+
+La parola *super* non autorizza output piu' lunghi. Al contrario, il segnale e'
+la capacita' di rispondere a molte domande nuove da una rappresentazione piu'
+compatta del testo, di produrre un controesempio, di eseguire una procedura
+estratta e di spiegare quale frase sostiene ogni passo.
+
+### 18.1 Ipotesi D1 — il documento e' un programma epistemico
+
+Un documento non e' soltanto un contenitore di proposizioni. Esegue mosse sullo
+stato epistemico del lettore: introduce un problema, definisce termini,
+stabilisce assunzioni, descrive un metodo, presenta evidenze, licenzia una
+conclusione, la qualifica e apre un residuo. L'ipotesi e' che queste mosse
+possano vivere nello stesso modello K3 delle mosse dialogiche:
+
+```prolog
+document_unit($Document, $Unit, $Order).
+unit_act($Unit, $Act).
+unit_content($Unit, $Proposition).
+unit_source_span($Unit, $Span).
+unit_scope($Unit, $Context).
+unit_addresses($Unit, $Issue).
+unit_opens($Unit, $Issue).
+```
+
+`Act` non deve diventare un elenco chiuso nel C. Definizione, osservazione,
+metodo, risultato, obiezione e limite sono membri insegnabili di una relazione
+aperta. La meccanica puo' ordinare unita' e collegare span; la KB decide che cosa
+una forma discorsiva segnala.
+
+**Predizione falsificabile.** Insegnare a voce un nuovo marcatore di limite deve
+cambiare la lettura di tre testi non correlati e la sua retrazione deve togliere
+soltanto quella lettura, non i claim delle frasi.
+
+### 18.2 Ipotesi D2 — il claim e' distinto dalla frase e dalla sua forza
+
+La stessa proposizione puo' essere osservata, ipotizzata, negata, attribuita,
+assunta per il calcolo o citata come posizione altrui. K4 offre gia' i contesti;
+manca il ponte sistematico fra unita' documentale, proposizione e status:
+
+```prolog
+unit_claim($Unit, $Claim).
+claim_proposition($Claim, $Proposition).
+claim_status($Claim, observed).
+claim_status($Claim, inferred).
+claim_status($Claim, hypothesized).
+claim_attributed_to($Claim, $Agent).
+claim_supported_by($Claim, $Evidence).
+claim_qualified_by($Claim, $Qualifier).
+claim_source($Claim, $Source).
+```
+
+Non si duplica `holds_in/2`: il claim e' l'atto epistemico compiuto su una
+proposizione; il contesto dice dove la proposizione vale. `confidence` non viene
+inventata come percentuale: nasce dalla classe di supporto, dalla provenienza e
+dai conflitti effettivi.
+
+**Predizione falsificabile.** «I dati mostrano X; gli autori ipotizzano Y» deve
+permettere di rispondere sì a «e' stato osservato X?» e no a «e' stato osservato
+Y?», pur conservando Y come ipotesi interrogabile.
+
+### 18.3 Ipotesi D3 — l'argomento e' un grafo, non un riassunto
+
+Il proof engine dimostra conseguenze da clausole gia' normalizzate. La prosa
+scientifica consegna invece relazioni fra claim che devono essere ricostruite:
+supporto congiunto, alternativa, eccezione, qualifica e confutazione.
+
+```prolog
+argument_node($Argument, $Claim).
+argument_edge($From, $To, supports).
+argument_edge($From, $To, attacks).
+argument_edge($From, $To, qualifies).
+support_set($Support, $Conclusion).
+support_member($Support, $Claim).
+argument_residue($Argument, $Gap).
+```
+
+`support_set` e' necessario: due osservazioni possono sostenere una conclusione
+solo insieme, mentre ciascuna isolata e' insufficiente. Convertire ogni arco in
+una regola binaria produrrebbe conclusioni troppo forti.
+
+**Predizione falsificabile.** Ablare un membro di un supporto congiunto deve
+ritirare la conclusione; ablare un dettaglio retorico non portante deve
+lasciarla. La domanda «che cosa la confuterebbe?» deve produrre una condizione
+logica, non una frase pessimista.
+
+### 18.4 Ipotesi D4 — leggere scienza richiede una Experimental IR
+
+Una procedura descrive come agire; un disegno scientifico descrive anche perche'
+un risultato conta come evidenza. Il Situation IR di K11 va riusato ma non basta:
+
+```prolog
+study_question($Study, $Question).
+study_system($Study, $System).
+study_variable($Study, $Variable, $Role).
+study_group($Study, $Group, $Role).
+study_operation($Study, $Step).
+study_measure($Study, $Measure).
+study_control($Study, $Control).
+study_result($Study, $Claim).
+study_limitation($Study, $Limitation).
+```
+
+I ruoli `intervention`, `outcome`, `control`, `confounder`, `parameter` e
+`measurement` sono conoscenza insegnabile. Il motore non deduce causalita' dal
+solo ordine temporale e non inventa un controllo per completare lo schema.
+
+**Predizione falsificabile.** La stessa struttura deve ricostruire un esperimento
+controllato, uno studio osservazionale e una simulazione, conservando la
+differenza fra i tre invece di forzarli nello stesso template.
+
+### 18.5 Ipotesi D5 — una procedura appresa e' una proof obligation
+
+M10 e K11 chiedono piani eseguibili. La prosa tecnica aggiunge dettagli che una
+lista di passi perde: tipi, unita', precondizioni, invarianti, ripetizione,
+branch, criterio di arresto, failure mode e validazione.
+
+```prolog
+procedure_input($Procedure, $Slot, $Type).
+procedure_output($Procedure, $Slot, $Type).
+procedure_step($Procedure, $Index, $Action).
+step_requires($Procedure, $Index, $Condition).
+step_establishes($Procedure, $Index, $Condition).
+step_invariant($Procedure, $Index, $Invariant).
+step_branch($Procedure, $Index, $Condition, $Target).
+procedure_stop($Procedure, $Criterion).
+procedure_validation($Procedure, $Check).
+```
+
+Compilare non significa eseguire durante la lezione. Prima il candidato entra
+in quarantena; poi type, dimensioni e precondizioni vengono verificati; soltanto
+dopo puo' essere applicato a valori held-out.
+
+**Predizione falsificabile.** Una procedura di conversione e una di laboratorio
+devono condividere scheduling, binding e trace pur avendo azioni di dominio
+diverse. Un numero senza ruolo o un'unita' incompatibile deve produrre un
+residuo, mai un risultato.
+
+### 18.6 Ipotesi D6 — la comprensione forte vive nello spazio dei modelli
+
+Una proof sola risponde «questa conclusione segue?». La comprensione profonda
+richiede anche: quali mondi soddisfano il testo, quale vincolo li elimina, quale
+proposizione e' invariante e quale controesempio separa necessario da possibile.
+K4 e i mondi concorrenti di 398d forniscono il substrato.
+
+```prolog
+model_candidate($Problem, $Model).
+model_satisfies($Model, $Constraint).
+model_violates($Model, $Constraint).
+model_entails($ModelSet, $Proposition).
+countermodel($Claim, $Model).
+model_invariant($ModelSet, $Proposition).
+discriminating_observation($Models, $Observation).
+```
+
+La ricerca bounded puo' vivere nel C, ma vincoli, operatori, domini e criteri di
+equivalenza vivono nella KB. Se il budget non basta, l'esito e' `incomplete`,
+non «nessun controesempio».
+
+**Predizione falsificabile.** Lo stesso operatore trova un contromodello per una
+tesi logica, un caso limite per una procedura e un mondo alternativo per
+un'ipotesi scientifica senza condividere lessico di dominio.
+
+### 18.7 Ipotesi D7 — la causalita' e' una disciplina di archi
+
+La prosa usa «causa» in modi eterogenei. Vanno tenuti distinti almeno:
+associazione osservata, ordine temporale, meccanismo proposto, intervento,
+condizione necessaria, condizione sufficiente, mediatore e confondente.
+
+```prolog
+causal_claim($Cause, $Effect, $Kind).
+causal_support($Claim, $Evidence, $Design).
+causal_path($Cause, $Effect, $Path).
+causal_alternative($Claim, $Alternative).
+intervention_prediction($Action, $Outcome).
+```
+
+Le leggi `causal_law/2` di K11 restano effetti del mondo; `causal_claim` e'
+cio' che un documento sostiene su quegli effetti. Confonderli farebbe diventare
+vera una spiegazione soltanto perche' qualcuno l'ha scritta.
+
+**Predizione falsificabile.** Da una correlazione il sistema puo' conservare
+ipotesi causali candidate, ma non deve rispondere a un controfattuale come se
+una fosse provata. Aggiungere un disegno d'intervento verificato puo' cambiare
+lo status senza cambiare la frase originaria.
+
+### 18.8 Ipotesi D8 — la sintesi e' compressione con recupero
+
+Un riassunto e' valido se conserva una base sufficiente a recuperare i claim
+decisivi e le loro qualifiche. Non e' valido per somiglianza lessicale.
+
+```prolog
+summary_unit($Summary, $Proposition).
+summary_covers($Summary, $Claim).
+summary_omits($Summary, $Claim, $Reason).
+summary_source($Summary, $Unit).
+summary_budget($Summary, $Constraint).
+recoverable_from($Claim, $Summary).
+```
+
+La stessa rappresentazione genera una frase, cinque punti o una spiegazione
+estesa variando il budget K5, senza cambiare la teoria del documento. Un limite
+non puo' essere eliminato se qualifica direttamente il claim principale.
+
+**Predizione falsificabile.** Dopo avere ritratto il testo originale dalla
+memoria attiva, le domande decisive restano risolvibili dalla sintesi con link
+alla provenance; le domande sui dettagli dichiaratamente omessi no.
+
+### 18.9 Ipotesi D9 — la metacomprensione e' controllo attivo della lettura
+
+M13 tipizza il gap. Il passo ulteriore e' scegliere una mossa di lettura che
+abbia fan-out e information gain: risolvere un pronome, chiedere una definizione,
+rileggere una tabella, cercare una premessa, confrontare due scope o sospendere
+la conclusione.
+
+```prolog
+reading_goal($Session, $Goal).
+reading_gap($Session, $Gap, $Kind).
+reading_action($Action, $Kind).
+action_expected_resolution($Action, $Gap, $Gain).
+reading_policy($State, $Action).
+reading_checkpoint($Session, $Model).
+```
+
+Non si introduce un menu fisso nel C. Le azioni disponibili, la loro
+applicabilita' e la policy sono KB; il motore ordina candidati e applica budget.
+Una domanda e' utile soltanto se le risposte possibili cambiano una lettura o
+una conclusione.
+
+**Predizione falsificabile.** Su gap lessicale, coreferenziale, causale e
+procedurale il sistema sceglie quattro rimedi diversi; insegnare un nuovo rimedio
+lo rende selezionabile al turno dopo e retract lo elimina.
+
+### 18.10 Ipotesi D10 — l'induzione metacostruttiva crea candidati, non verita'
+
+M3 sa ricevere alcune equivalenze esplicite. La forma piu' forte mostra esempi e
+controesempi naturali e lascia a parrot0 il compito di ipotizzare la costruzione,
+i ruoli e il dominio di validita'.
+
+```prolog
+construction_example($Lesson, $Surface, $Reading, positive).
+construction_example($Lesson, $Surface, $Reading, negative).
+induced_construction($Lesson, $Candidate).
+candidate_scope($Candidate, $Scope).
+candidate_support($Candidate, $Example).
+candidate_counterexample($Candidate, $Example).
+candidate_status($Candidate, quarantine).
+```
+
+La meccanica puo' cercare allineamenti e sostituzioni; non puo' decidere che una
+parola particolare sia un quantificatore, una concessiva o un marcatore di
+metodo. Una singola ipotesi coerente non e' ancora conoscenza: servono transfer,
+contrasto e ablation del protocollo.
+
+**Predizione falsificabile.** Tre esempi veri e un controesempio devono produrre
+una costruzione che trasferisce a un dominio non mostrato; cambiando il
+controesempio deve restringersi lo scope senza cambiare il C.
+
+### 18.11 Ipotesi D11 — piu' documenti formano un dibattito, non un merge
+
+Due articoli possono usare parole diverse per lo stesso concetto, la stessa
+parola per misure diverse o risultati opposti sotto popolazioni diverse. La
+fusione deve quindi passare per forma/senso K0, contesti K4 e grafi D3-D4.
+
+```prolog
+cross_document_alignment($ClaimA, $ClaimB, $Relation).
+comparison_basis($Alignment, $Dimension).
+apparent_conflict($ClaimA, $ClaimB, $Reason).
+substantive_conflict($ClaimA, $ClaimB, $Proposition).
+evidence_scope($Claim, $Population).
+```
+
+`Relation` puo' essere `agrees`, `extends`, `narrows`, `uses_different_measure`,
+`apparent_conflict` o `contradicts`. Non si calcola una confidence globale
+facendo la media di etichette incomparabili.
+
+**Predizione falsificabile.** Il sistema distingue un conflitto reale da uno
+dovuto a misura, popolazione o scope, e puo' indicare quale nuova osservazione
+renderebbe confrontabili i lavori.
+
+### 18.12 Ipotesi D12 — la supercomprensione e' ricorsiva ma finita
+
+Il lettore puo' trattare il proprio modello del documento come un altro oggetto:
+chiedere quali claim non hanno supporto, quali procedure hanno slot non legati,
+quali termini restano ambigui e quali limiti qualificano la tesi. Questa e' la
+chiusura riflessiva di `PRINCIPLES.md`, ma deve rispettare budget e arresto.
+
+```prolog
+model_audit($Model, $Finding).
+unsupported_claim($Model, $Claim).
+unbound_procedure_slot($Model, $Slot).
+unresolved_reference($Model, $Reference).
+unpropagated_qualification($Model, $Claim).
+audit_priority($Finding, $Fanout).
+```
+
+Il controllo non ricomincia indefinitamente. Termina quando non resta un gap che
+cambi il goal di lettura, quando il budget e' esaurito o quando serve autorita'
+esterna. L'arresto conserva il residuo tipizzato.
+
+**Predizione falsificabile.** Inserire intenzionalmente una premessa mancante,
+un pronome ambiguo e un'unita' incoerente deve produrre tre finding distinti e
+ordinati per impatto sulla tesi, non tre muri uguali.
+
+### 18.13 Architettura comune proposta: Document IR
+
+Le dodici ipotesi convergono su una sola estensione della catena universale:
+
+```text
+span e cue K0
+  -> frame/letture K1-K2
+  -> unita' documentali e atti D1
+  -> claim + scope + provenance D2
+  -> grafi argomentativi / sperimentali / procedurali D3-D5
+  -> modelli, causalita' e alternative D6-D7
+  -> goal di lettura e controllo metacognitivo D9-D12
+  -> proof e answer plan K6
+  -> realizzazione per lingua, registro e budget
+```
+
+Il Document IR non e' un nuovo router. E' una vista strutturata dello stesso
+turno e della stessa KB. Un consumer che ri-parsa il testo per riconoscere
+`however`, `therefore`, `methods` o `we found` viola il piano anche se il suo
+output e' perfetto: quelle superfici devono essere membri KB della relazione
+discorsiva pertinente.
+
+### 18.14 Ordine sperimentale
+
+L'ordine e' vincolato dalle dipendenze, non dall'effetto dimostrativo:
+
+1. **D1-D2:** unita', atti, claim, status e provenance; senza questi qualunque
+   estrazione successiva puo' consolidare una frase sotto la voce sbagliata;
+2. **D3:** argomento e supporti congiunti; rende misurabile che cosa una
+   conclusione perde;
+3. **D4-D5:** disegno scientifico e procedure; separa conoscere da saper fare;
+4. **D6-D7:** modelli e causalita'; autorizza controesempi e controfattuali;
+5. **D8:** sintesi soltanto dopo che esiste qualcosa di strutturato da
+   comprimere;
+6. **D9-D10:** controllo attivo e induzione in quarantena;
+7. **D11-D12:** integrazione fra fonti e audit ricorsivo;
+8. **ratchet integrato:** articolo held-out, lingua diversa, domande avversariali
+   e fresh-process recall dei soli fatti promossi.
+
+Ogni incremento segue `LEARN_PROTOCOL.md`: fonte vera, baseline prima della
+lezione, replay, `Transfer@3`, parafrasi, contrasto, composizione, ablation,
+provenance, `/save`, diff semantico e processo nuovo. Se un testo produce anche
+un solo claim falso attivo, non viene salvato.
+
+### 18.15 Gate di supercomprensione
+
+Il fronte e' riuscito soltanto quando, su documenti mai usati per costruirlo:
+
+1. ogni claim importante conserva frase fonte, autore, scope e status;
+2. tesi, metodo, risultato e limite sono distinti e interrogabili;
+3. i supporti congiunti non vengono indeboliti in regole indipendenti;
+4. una procedura estratta trasferisce a input nuovi e rende visibili i propri
+   pre-requisiti;
+5. correlazione, meccanismo e causalita' provata non collassano;
+6. un controesempio valido cambia il modello e le sole conclusioni dipendenti;
+7. il riassunto non introduce claim e conserva i qualificatori portanti;
+8. due fonti discordanti restano due viste attribuite finche' una regola
+   giustifica il confronto;
+9. parrot0 sa nominare il gap di lettura e scegliere una domanda che potrebbe
+   risolverlo;
+10. una costruzione discorsiva, un ruolo scientifico o una policy di lettura
+    nuova entra e si ritrae a runtime;
+11. il C non contiene vocabolario di genere, dominio o lingua;
+12. latenza e ricerca incompleta rispettano il contratto del §10.
+
+Il non-obiettivo e' produrre una recensione che *sembra* competente. Il target
+e' piu' severo: un modello logico del documento dal quale recensione, risposta,
+procedura, controesempio e domanda di chiarimento siano viste diverse della
+stessa comprensione.
