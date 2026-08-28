@@ -1217,3 +1217,11 @@ sono ora rispettivamente `repair_referential_surface/1`,
 `repair_language_target/1`. Il repair mantiene la sola decisione strutturale
 di lasciare il turno ai moduli WSC/traduzione; il ratchet verifica crescita e
 ablazione di un target nuovo.
+
+### Gen488 — marker word-math nella KB
+
+I marker `km/h`, `radius`, `diameter` e `all but` sono ora relazioni KB
+(`wordmath_speed_unit/1`, `wordmath_radius_marker/1`,
+`wordmath_diameter_marker/1`, `wordmath_all_but_marker/1`). I consumer
+mantengono solo il parsing numerico, la scansione e le formule; il ratchet
+verifica crescita e ablazione dell’unità di velocità.

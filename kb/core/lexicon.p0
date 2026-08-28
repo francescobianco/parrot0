@@ -1143,6 +1143,14 @@ repair_translation_question("how do you say").
 machinery(repair_language_target).
 repair_language_target("french"). repair_language_target("spanish").
 repair_language_target("italian"). repair_language_target("english").
+machinery(wordmath_speed_unit).
+wordmath_speed_unit("km/h").
+machinery(wordmath_radius_marker).
+wordmath_radius_marker(radius).
+machinery(wordmath_diameter_marker).
+wordmath_diameter_marker(diameter).
+machinery(wordmath_all_but_marker).
+wordmath_all_but_marker("all but").
 
 % ── QUANTO VALE UNA PAROLA MOLTIPLICATIVA (gen442) ─────────────────────────
 %

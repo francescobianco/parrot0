@@ -48,6 +48,24 @@ static int wp_length_unit(Brain *b, const char *s) {
     return b && b->kb && s && kb_query(b->kb, "length_unit", q, 1);
 }
 
+static int wp_marker_member(Brain *b, const char *pred, const char *token) {
+    const char *q[] = { token };
+    return b && b->kb && token && kb_query(b->kb, pred, q, 1);
+}
+
+static const char *wp_marker_find(Brain *b, const char *pred, const char *text) {
+    if (!b || !b->kb || !text) return NULL;
+    char rows[8][KB_TERM_LEN];
+    const char *q[] = { NULL };
+    size_t n = kb_match(b->kb, pred, q, 1, rows, 8);
+    for (size_t i = 0; i < n; i++) {
+        const char *surface = kb_dequote(rows[i]);
+        const char *hit = surface ? strstr(text, surface) : NULL;
+        if (hit) return hit;
+    }
+    return NULL;
+}
+
 /* gen254: trial-division primality for the constrained-number solver. */
 static int wp_is_prime(long n) {
     if (n < 2) return 0;
@@ -1338,7 +1356,8 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             else if (wp_clock_token(t, &v) && nt < 2) tstart[nt++] = v;
             else if (wp_parse_value_clean(t, &v)) {
                 char *nx = (i + 1 < cn) ? strip_edge_punct(cw[i + 1]) : (char *)"";
-                if ((lex_class_member(b, "25_wordmath_reasoning_lex1335", nx) || !strcmp(nx, "km/h")) && ns < 2)
+                if ((lex_class_member(b, "25_wordmath_reasoning_lex1335", nx) ||
+                     wp_marker_member(b, "wordmath_speed_unit", nx)) && ns < 2)
                     speed[ns++] = v;
                 else if ((lex_class_member(b, "25_wordmath_reasoning_lex1337", nx) || lex_class_member(b, "25_wordmath_reasoning_lex1337_2", nx)) && nt < 2) {
                     if (lex_class_member(b, "25_wordmath_reasoning_lex1338", nx) && v < 12) v += 12;
@@ -1868,7 +1887,8 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         double val = -1.0; char unit[32] = "";
         for (size_t i = 0; i < gn && val < 0; i++) {
             char *t = strip_edge_punct(gw[i]);
-            if (strcmp(t, have_r ? "radius" : "diameter")) continue;
+            if (!(have_r ? wp_marker_member(b, "wordmath_radius_marker", t) :
+                           wp_marker_member(b, "wordmath_diameter_marker", t))) continue;
             for (size_t j = i + 1; j <= i + 3 && j < gn; j++) {
                 double v;
                 if (!parse_value(strip_edge_punct(gw[j]), &v)) continue;
@@ -3003,7 +3023,8 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
          * ("17 sheep, all but 9 die" still ends at 9). Resume the walk right
          * after the all-but number with the running total set to N. */
         double total = nums[1];
-        const char *ab = strstr(q, "all but");
+        const char *ab = wp_marker_find(b, "wordmath_all_but_marker", q);
+        if (!ab) return 0;
         char tb2[256]; snprintf(tb2, sizeof tb2, "%s", ab + 7);
         char *tw2[64]; size_t tn2 = split_words(tb2, tw2, 64);
         int sign2 = 0, seen_first = 0;   /* sign 0 until a verb sets it */
