@@ -1,0 +1,91 @@
+# call.p0t — convertito da tests/call.sh (gen444).
+#
+# gen335+ — call/1 meta-call primitive.
+# call/1 executes a single goal dynamically: call(p($X)) proves p($X).
+# It enables meta-interpreters, strategy dispatch, and constraint propagation
+# without new C.
+
+[test call_0]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert is_a(dog, mammal)
+!assert is_a(cat, mammal)
+!assert is_a(sparrow, bird)
+!clause direct($X) :- call(is_a($X, mammal))
+
+!mcp kb.query {"pred":"direct","args":["dog"]}
+<~ provable":true
+
+!mcp kb.query {"pred":"direct","args":["sparrow"]}
+<~ provable":false
+
+!mcp kb.query {"pred":"direct","args":["rock"]}
+<~ provable":false
+
+!mcp kb.match {"pred":"direct","args":[null]}
+<~ dog
+<~ cat
+
+[test call_1]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert can_fly(sparrow)
+!assert can_fly(eagle)
+
+!mcp kb.assert_clause {"head":{"pred":"flies","args":["$X"]},"body":[{"pred":"call","args":["can_fly($X)"]}]}
+<~ "ok":true
+
+!mcp kb.query {"pred":"flies","args":["sparrow"]}
+<~ provable":true
+
+!mcp kb.query {"pred":"flies","args":["penguin"]}
+<~ provable":false
+
+[test call_2]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert has_feature(dog, fur)
+!assert has_feature(snake, scales)
+!clause indirect($X) :- call(has_feature($X, fur))
+
+!mcp kb.query {"pred":"indirect","args":["dog"]}
+<~ provable":true
+
+!mcp kb.query {"pred":"indirect","args":["snake"]}
+<~ provable":false
+
+[test call_3]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert has_feature(dog, fur)
+!assert has_feature(snake, scales)
+!clause indirect($X) :- call(has_feature($X, fur))
+
+!mcp kb.assert {"pred":"has_feature","args":["snake","fur"]}
+<~ "ok":true
+
+!mcp kb.query {"pred":"indirect","args":["snake"]}
+<~ provable":true
+
+[test call_4]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert has_feature(dog, fur)
+!assert has_feature(snake, scales)
+!clause indirect($X) :- call(has_feature($X, fur))
+
+!mcp kb.retract {"pred":"has_feature","args":["snake","fur"]}
+
+!mcp kb.query {"pred":"indirect","args":["snake"]}
+<~ provable":false
+

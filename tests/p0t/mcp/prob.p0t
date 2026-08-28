@@ -1,0 +1,69 @@
+# prob.p0t — convertito da tests/prob.sh (gen444).
+#
+# gen335+ — prob/2 KB-backed confidence.
+# prob(Goal, $P) reads fact_confidence(Goal, P) from the KB.
+# If no confidence fact exists, defaults to 0.5 (neutral). KB-first: the
+# probabilities live in the KB, not in C.
+
+[test prob_0]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert capital_of_country(france, paris)
+!assert capital_of_country(brazil, brasilia)
+!assert fact_confidence(capital_of_country(france, paris), high)
+!assert fact_confidence(capital_of_country(brazil, brasilia), medium)
+!clause how_confident($Goal, $P) :- prob($Goal, $P)
+
+!mcp kb.match {"pred":"how_confident","args":["capital_of_country(france, paris)",null]}
+<~ high
+
+!mcp kb.match {"pred":"how_confident","args":["capital_of_country(brazil, brasilia)",null]}
+<~ medium
+
+!mcp kb.match {"pred":"how_confident","args":["capital_of_country(italy, rome)",null]}
+<~ 0.5
+
+[test prob_1]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert fact_confidence(has_fur(dog), 0.9)
+!assert fact_confidence(has_fur(cat), 0.9)
+
+!mcp kb.assert_clause {"head":{"pred":"confidence_of","args":["$X","$P"]},"body":[{"pred":"prob","args":["has_fur($X)","$P"]}]}
+<~ "ok":true
+
+!mcp kb.match {"pred":"confidence_of","args":["dog",null]}
+<~ 0.9
+
+!mcp kb.match {"pred":"confidence_of","args":["snake",null]}
+<~ 0.5
+
+[test prob_2]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert color(sky, blue)
+!clause get_prob($X, $Y, $P) :- prob(color($X, $Y), $P)
+
+!mcp kb.match {"pred":"get_prob","args":["sky","blue",null]}
+<~ 0.5
+
+[test prob_3]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert color(sky, blue)
+!clause get_prob($X, $Y, $P) :- prob(color($X, $Y), $P)
+
+!mcp kb.assert {"pred":"fact_confidence","args":["color(sky, blue)","high"]}
+<~ "ok":true
+
+!mcp kb.match {"pred":"get_prob","args":["sky","blue",null]}
+<~ high
+

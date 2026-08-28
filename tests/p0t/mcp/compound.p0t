@@ -1,0 +1,45 @@
+# compound.p0t — convertito da tests/compound.sh (gen444).
+#
+# gen283 (U3, NEXT.md / teach-comprehension-via-mcp.md §6.1) — STRUCTURAL
+# unification over compound terms. Until now an argument was a flat atom, so
+# "s(z)" could not unify with "s($N)" and a recursive COMPUTATION was
+# unteachable (Secchio D.1: memorization, not computation). U3 makes unify SEE
+# structure in the string: f(a…) is a compound; unify recurses; a variable binds
+# to a whole sub-structure. Peano arithmetic and list recursion become teachable
+# knowledge — via .p0 AND via MCP kb.assert_clause.
+#
+# RED before U3: nat(s(z)) false, add(...) empty. GREEN after: they compute.
+
+[test compound_0]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert nat(z)
+!clause nat(s($N)) :- nat($N)
+!assert add(z, $Y, $Y)
+!clause add(s($X), $Y, s($Z)) :- add($X, $Y, $Z)
+!assert len(nil, z)
+!clause len(cons($H, $T), s($N)) :- len($T, $N)
+
+!mcp kb.query {"pred":"nat","args":["s(s(z))"]}
+<~ provable":true
+
+!mcp kb.match {"pred":"add","args":["s(z)","s(z)",null]}
+<~ s(s(z))
+
+!mcp kb.match {"pred":"len","args":["cons(a, cons(b, nil))",null]}
+<~ s(s(z))
+
+[test compound_1]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+
+!mcp kb.assert_clause {"head":{"pred":"add","args":["s($X)","$Y","s($Z)"]},"body":[{"pred":"add","args":["$X","$Y","$Z"]}]}
+<~ "ok":true
+
+!mcp kb.match {"pred":"add","args":["s(s(z))","s(z)",null]}
+<~ s(s(s(z)))
+

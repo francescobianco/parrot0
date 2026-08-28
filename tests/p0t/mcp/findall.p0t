@@ -1,0 +1,63 @@
+# findall.p0t — convertito da tests/findall.sh (gen444).
+#
+# gen335+ — findall/3 solution collection.
+# findall(Template, Goal, List) collects all solutions to Goal into a cons-list.
+# This is the missing piece for full predicate completion and aggregation.
+
+[test findall_0]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert is_a(dog, mammal)
+!assert is_a(cat, mammal)
+!assert is_a(sparrow, bird)
+!clause all_mammals($L) :- findall($X, is_a($X, mammal), $L)
+
+!mcp kb.match {"pred":"all_mammals","args":[null]}
+<~ dog
+<~ cat
+<! sparrow
+
+[test findall_1]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert is_a(dog, mammal)
+!clause no_birds($L) :- findall($X, is_a($X, bird), $L)
+
+!mcp kb.match {"pred":"no_birds","args":[null]}
+<~ nil
+
+[test findall_2]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert parent(ann, bob)
+!assert parent(bob, carl)
+!clause ancestor($X, $Y) :- parent($X, $Y)
+!clause ancestor($X, $Z) :- parent($X, $Y), ancestor($Y, $Z)
+!clause all_ancestors($X, $L) :- findall($Y, ancestor($X, $Y), $L)
+
+!mcp kb.match {"pred":"all_ancestors","args":["ann",null]}
+<~ bob
+<~ carl
+
+[test findall_3]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert color(apple, red)
+!assert color(banana, yellow)
+!assert color(cherry, red)
+
+!mcp kb.assert_clause {"head":{"pred":"red_fruits","args":["$L"]},"body":[{"pred":"findall","args":["$X","color($X, red)","$L"]}]}
+<~ "ok":true
+
+!mcp kb.match {"pred":"red_fruits","args":[null]}
+<~ apple
+<~ cherry
+

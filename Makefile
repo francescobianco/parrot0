@@ -491,6 +491,12 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/engine/anon.p0t
 	@./$(BIN) --test tests/p0t/code/check_sort.p0t
 	@./$(BIN) --test tests/p0t/expert/posix.p0t
+	@./$(BIN) --test tests/p0t/mcp/findall.p0t
+	@./$(BIN) --test tests/p0t/mcp/prob.p0t
+	@./$(BIN) --test tests/p0t/mcp/compound.p0t
+	@./$(BIN) --test tests/p0t/mcp/strknow.p0t
+	@./$(BIN) --test tests/p0t/mcp/assertretract.p0t
+	@./$(BIN) --test tests/p0t/mcp/call.p0t
 	@./$(BIN) --test tests/p0t/conversation/dialogue_moves.p0t
 	@./$(BIN) --test tests/p0t/conversation/context_scope.p0t
 	@./$(BIN) --test tests/p0t/conversation/conversation.p0t
@@ -864,8 +870,6 @@ legacy-test: build
 	@./tests/mcp-teach.sh
 	@./tests/dollarvar.sh
 	@./tests/assertclause.sh
-	@./tests/compound.sh
-	@./tests/strknow.sh
 	@./tests/answerframe.sh
 	@./tests/aggregate.sh
 	@./tests/article.sh
