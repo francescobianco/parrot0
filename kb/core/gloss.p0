@@ -1,3 +1,44 @@
+% ── gen490 (M15/M16) — UNA PAROLA INSEGNATA APRE UNA FAMIGLIA DI DOMANDE ────
+%
+% Misurato prima di questa regola, con `lang.canonical`:
+%
+%   "quale colore si usa in chess"   ->  "which color is usa in chess"
+%   "which color is used in chess"   ->  "which color is used in chess"
+%
+% La domanda italiana muriva, e la reazione istintiva era aggiungere una riga
+% `answer_frame` italiana, o una `question_shape` italiana. Sarebbero state
+% entrambe sbagliate: la canonicalizzazione era gia' arrivata a un token dalla
+% forma inglese. Mancava UNA PAROLA — `usa` -> `used` — e mancava perche' nessun
+% atto didattico raggiungeva `tr/2`.
+%
+% E' il punto fisso del mantra #3, un gradino piu' in basso di dove si guardava:
+% la domanda italiana non e' una superficie nuova ne' una forma nuova, e' la
+% STESSA superficie sotto una traduzione. Chiudere il gloss chiude tutte le
+% famiglie insieme, perche' `tr/2` sta a monte di ogni modulo: la
+% canonicalizzazione lo consulta su ogni token, prima del dispatch.
+%
+% L'atto didattico e' quello che un parlante usa davvero, e non nomina nessuno
+% schema interno:
+%
+%   > usa is the italian of used
+%   Learned: italian(usa, used).
+%   > quale colore si usa in chess
+%   Bianco e nero.
+%
+% Il frame relazionale binario che gia' esiste ("x is the R of y") produce la
+% relazione col NOME DELLA LINGUA; questa regola e' il ponte fra quel nome e il
+% gloss. Nessun motore nuovo: `apply/2` e' il meta-richiamo che c'e' dal gen382n.
+%
+% ⚠ DEBITO DICHIARATO, e va detto perche' e' esattamente un mantra #3 non ancora
+% raggiunto: `tr/2` e' BINARIO, quindi rappresenta UNA sola lingua seconda, e per
+% questo `gloss_language/1` qui sotto ha un membro solo. Il punto fisso vero e'
+% `translation(Lingua, Inglese, Forma)`, e finche' `tr/2` resta binario
+% aggiungere una lingua qui sarebbe un fatto FALSO (un gloss francese letto come
+% italiano), non una crescita. La riga si aggiunge il giorno in cui `tr` prende
+% l'argomento della lingua, non prima.
+gloss_language(italian).
+tr($English, $Form) :- gloss_language($Language), apply($Language, cons($Form, cons($English, nil))).
+
 % gen384 — queste parole le ha indicate il SENSORE, non io: il declino informato
 % ha nominato "risposto", "inventato", "scherzando" come parole fuori dal
 % lessico mentre provavo conversazioni italiane. E' il giro che si chiude —

@@ -319,6 +319,73 @@ static int cue(const char *haystack, const char *needle) {
     return strstr(haystack, needle) != NULL;
 }
 
+static char *kb_dequote(char *s);   /* definito piu' avanti; questo strato lo usa */
+static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
+                            char *out, size_t out_size);
+
+/* gen490 — QUALE DOMANDA CONTIENE UN TESTO. Una volta sola.
+ *
+ * `answer_frame(Superficie, Relazione)` dice che una domanda che contiene
+ * Superficie interroga Relazione. La risoluzione — enumerare le superfici
+ * dichiarate, provare la PIU' SPECIFICA per prima, tenere quelle che il testo
+ * contiene — viveva dentro `mod_answer_frame`, cioe' dentro il consumer che
+ * risponde. Appena e' servita a un secondo lettore (l'atto didattico che ancora
+ * una formulazione nuova a una che gia' funziona) la strada facile era
+ * riscriverla: e' il mantra #5, e il duplicato sarebbe divergiuto al primo
+ * cambiamento di uno dei due.
+ *
+ * Qui invece e' un motore solo, e non conosce nessuna cue, lingua o relazione:
+ * la specificita' e' una proprieta' della SPAN di evidenza, non una precedenza
+ * cablata fra predicati. Nessun tetto sul numero di superfici — la KB le fa
+ * crescere, e un tetto fisso su una lista che cresce e' la bomba a tempo del
+ * gen432.
+ *
+ * Restituisce quante superfici combaciano, dalla piu' specifica alla piu'
+ * generica, nella forma CITATA con cui la KB le tiene (la chiave per rileggere
+ * la relazione). Il chiamante libera `*hits`. */
+static size_t answer_frame_surfaces(Brain *b, const char *text,
+                                    char (**hits)[KB_TERM_LEN]) {
+    *hits = NULL;
+    if (!b || !b->kb || !text) return 0;
+    char (*cues)[KB_TERM_LEN] = NULL;
+    size_t nf = 0;
+    const char *fq[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "answer_frame", fq, 2, &cues, &nf) || nf == 0) {
+        free(cues);
+        return 0;
+    }
+    /* Piu' superfici della KB possono sovrapporsi in un testo: si prova la piu'
+     * specifica per prima. A parita' di lunghezza l'ordine resta quello di
+     * inserimento, cosi' il contratto additivo fra righe con la stessa cue non
+     * cambia. */
+    for (size_t i = 1; i < nf; i++) {
+        char selected[KB_TERM_LEN], probe[KB_TERM_LEN];
+        snprintf(selected, sizeof selected, "%s", cues[i]);
+        snprintf(probe, sizeof probe, "%s", selected);
+        size_t selected_len = strlen(kb_dequote(probe));
+        size_t j = i;
+        while (j > 0) {
+            snprintf(probe, sizeof probe, "%s", cues[j - 1]);
+            if (strlen(kb_dequote(probe)) >= selected_len) break;
+            memcpy(cues[j], cues[j - 1], sizeof cues[j]);
+            j--;
+        }
+        if (j != i) memcpy(cues[j], selected, sizeof cues[j]);
+    }
+    size_t n = 0;
+    for (size_t i = 0; i < nf; i++) {
+        char probe[KB_TERM_LEN];
+        snprintf(probe, sizeof probe, "%s", cues[i]);
+        const char *cd = kb_dequote(probe);
+        if (!*cd || !cue(text, cd)) continue;
+        if (n != i) memcpy(cues[n], cues[i], sizeof cues[n]);
+        n++;
+    }
+    if (n == 0) { free(cues); return 0; }
+    *hits = cues;
+    return n;
+}
+
 /* Return a pointer past leading whitespace in `s`. */
 static const char *skip_ws(const char *s) {
     while (*s && isspace((unsigned char)*s)) s++;
@@ -622,6 +689,100 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
              * Quindi la relazione deve gia' avere fatti, altrimenti la lezione
              * scriverebbe una porta davanti a una stanza vuota. */
             if (!strcmp(mode[0], "frame_for")) {
+                /* gen490 — M15, IL RESIDUO: LA LEZIONE NON DEVE NOMINARE LA
+                 * RELAZIONE.
+                 *
+                 * Il gen457 ha aperto `answer_frame` all'insegnamento, ma solo
+                 * nella forma «learn "…" as a way to ask side_color»: il
+                 * teacher deve conoscere il NOME INTERNO della relazione. E'
+                 * precisamente cio' che il vincolo zero di
+                 * `docs/plans/apprendimento-assistito.md` vieta — «un esperto
+                 * del dominio che ignora lo schema interno saprebbe formulare
+                 * la lezione?». Con il nome del predicato la risposta e' no, e
+                 * l'atto didattico resta fuori dal protocollo anche se
+                 * funziona.
+                 *
+                 * La forma senza schema esiste e la sa dire chiunque: si
+                 * ancora la formulazione nuova a una formulazione che parrot0
+                 * gia' capisce.
+                 *
+                 *   learn "quali colori si usano in" as another way to ask
+                 *         "which colors are used in"
+                 *
+                 * La relazione non viene nominata: viene DEDOTTA dalla domanda
+                 * che il teacher ha usato come modello, insieme al verso. Il
+                 * teacher non deve sapere ne' il predicato ne' quale argomento
+                 * lega l'entita'; deve solo saper fare la stessa domanda in un
+                 * modo che gia' funziona — e per definizione lo sa, perche' e'
+                 * quella la domanda a cui vuole poter rispondere altrimenti.
+                 *
+                 * La guardia e' la stessa del gen457 spostata di un livello:
+                 * il modello deve essere una domanda che parrot0 SA gia'
+                 * rispondere, altrimenti non c'e' niente da cui copiare e la
+                 * lezione aprirebbe una porta davanti a una stanza vuota. */
+                char anchor[KB_TERM_LEN] = "";
+                {
+                    const char *ap = strstr(low, ls);
+                    if (ap) {
+                        ap += strlen(ls);
+                        while (*ap == ' ' || *ap == '\t') ap++;
+                        if (*ap == '"') {
+                            const char *ae = strchr(ap + 1, '"');
+                            size_t al = ae ? (size_t)(ae - (ap + 1)) : 0;
+                            if (al && al < sizeof anchor) {
+                                memcpy(anchor, ap + 1, al);
+                                anchor[al] = '\0';
+                            }
+                        }
+                    }
+                }
+                if (*anchor) {
+                    /* Il modello si legge come si legge un TURNO — e con lo
+                     * STESSO motore: `answer_frame_surfaces` e' la risoluzione
+                     * che `mod_answer_frame` gia' usava per capire quale
+                     * domanda un turno contiene. Riscriverla qui sarebbe stata
+                     * la duplicazione del mantra #5: la superficie piu'
+                     * specifica vince, e chi insegna scrive la domanda intera
+                     * che gia' gli funziona, non la cue con cui la KB la
+                     * indicizza (saperla sarebbe di nuovo il vincolo zero). */
+                    /* La guardia e' CONCLUSIVA, non permissiva, e questa non
+                     * e' una duplicazione: sono due domande diverse. Il
+                     * consumer chiede «quali candidate potrebbero valere» e
+                     * lascia decidere l'evidenza; chi insegna deve sapere se il
+                     * modello e' una domanda a cui parrot0 RISPONDE davvero —
+                     * altrimenti eredita una relazione presa per sbaglio da una
+                     * cue-sottostringa (mantra #8) e scrive un frame falso, che
+                     * e' peggio di un muro. Misurato: senza questa prova,
+                     * «what is the flurb of france» veniva accettato come
+                     * modello. La prova la fa il motore vero, non una seconda
+                     * regola di combaciamento. */
+                    char probe_ans[512];
+                    if (!mod_answer_frame(b, anchor, anchor,
+                                          probe_ans, sizeof probe_ans)) {
+                        char msg[256];
+                        kb_term_say(b, "no_question_by_that_wording",
+                                    (const KbResponseSlot[]){ { "anchor", anchor } },
+                                    1, msg, sizeof msg);
+                        put(msg, out, outsz);
+                        return 1;
+                    }
+                    char (*hits)[KB_TERM_LEN] = NULL;
+                    size_t nh = answer_frame_surfaces(b, anchor, &hits);
+                    char rel[1][KB_TERM_LEN];
+                    const char *arq[2] = { nh ? hits[0] : NULL, NULL };
+                    int found = nh &&
+                        kb_match(b->kb, "answer_frame", arq, 2, rel, 1) == 1;
+                    free(hits);
+                    if (!found) {
+                        char msg[256];
+                        kb_term_say(b, "no_question_by_that_wording",
+                                    (const KbResponseSlot[]){ { "anchor", anchor } },
+                                    1, msg, sizeof msg);
+                        put(msg, out, outsz);
+                        return 1;
+                    }
+                    snprintf(family, sizeof family, "%s", rel[0]);
+                }
                 if (!kb_knows_pred(b->kb, family)) {
                     char msg[256];
                     kb_term_say(b, "no_relation_by_that_name", (const KbResponseSlot[]){
@@ -666,9 +827,18 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                     }
                 }
                 char msg[256];
-                kb_term_say(b, "teach_family_ack", (const KbResponseSlot[]){
-                                { "phrase", fphrase }, { "label", ls },
-                                { "family", family } }, 3, msg, sizeof msg);
+                /* Chi ha insegnato ancorando a una domanda non ha nominato la
+                 * relazione: la conferma non gliela mostra. E' il rovescio del
+                 * vincolo zero — chi insegna senza leggere lo schema deve poter
+                 * leggere anche la verifica senza schema (M20). */
+                if (*anchor)
+                    kb_term_say(b, "teach_frame_like_ack", (const KbResponseSlot[]){
+                                    { "phrase", fphrase }, { "anchor", anchor } },
+                                2, msg, sizeof msg);
+                else
+                    kb_term_say(b, "teach_family_ack", (const KbResponseSlot[]){
+                                    { "phrase", fphrase }, { "label", ls },
+                                    { "family", family } }, 3, msg, sizeof msg);
                 put(msg, out, outsz);
                 return 1;
             }

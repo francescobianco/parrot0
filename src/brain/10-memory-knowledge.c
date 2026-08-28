@@ -5645,14 +5645,14 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
      * prima che i frame vengano letti. */
     question_shape_generalize(b, norm);
 
+    /* gen490: l'enumerazione, l'ordine per specificita' e il filtro «il turno la
+     * contiene» stavano qui dentro. Sono la stessa risoluzione che serve a chi
+     * INSEGNA una formulazione nuova ancorandola a una che gia' funziona, quindi
+     * ora sono un motore solo (`answer_frame_surfaces`, 00-lex.c) e non due
+     * copie destinate a divergere. */
     char (*cues)[KB_TERM_LEN] = NULL;
-    const char *fq[2] = { NULL, NULL };
-    size_t nf = 0;
-    if (!kb_match_all(b->kb, "answer_frame", fq, 2, &cues, &nf) ||
-        nf == 0) {
-        free(cues);
-        return 0;
-    }
+    size_t nf = answer_frame_surfaces(b, norm, &cues);
+    if (nf == 0) { free(cues); return 0; }
 
     char tmp[256];
     if (strlen(norm) >= sizeof tmp) {
@@ -5662,30 +5662,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
     snprintf(tmp, sizeof tmp, "%s", norm);
     char *w[40]; size_t nw = split_words(tmp, w, 40);
 
-    /* Several KB surfaces may overlap in one turn.  Try the most specific
-     * surface first, exactly as format_constraint does below: specificity is
-     * a property of the evidence span, not a hard-coded precedence between
-     * predicates.  Keep a stable order for equal lengths, so the existing
-     * same-cue additive/fallback contract remains unchanged. */
-    for (size_t i = 1; i < nf; i++) {
-        char selected[KB_TERM_LEN], probe[KB_TERM_LEN];
-        snprintf(selected, sizeof selected, "%s", cues[i]);
-        snprintf(probe, sizeof probe, "%s", selected);
-        size_t selected_len = strlen(kb_dequote(probe));
-        size_t j = i;
-        while (j > 0) {
-            snprintf(probe, sizeof probe, "%s", cues[j - 1]);
-            if (strlen(kb_dequote(probe)) >= selected_len) break;
-            memcpy(cues[j], cues[j - 1], sizeof cues[j]);
-            j--;
-        }
-        if (j != i) memcpy(cues[j], selected, sizeof cues[j]);
-    }
-
     for (size_t i = 0; i < nf; i++) {
-        char cue_s[KB_TERM_LEN]; snprintf(cue_s, sizeof cue_s, "%s", cues[i]);
-        const char *cd = kb_dequote(cue_s);
-        if (!*cd || !cue(norm, cd)) continue;
         /* answer_frame/2 is a registry, not a function: one surface cue may
          * name several candidate relations.  Keep their KB insertion order
          * and let the first candidate that produces evidence win.  This is

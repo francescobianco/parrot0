@@ -1,0 +1,62 @@
+# taught_question_form.p0t — INSEGNARE COME SI CHIEDE, SENZA NOMINARE LO SCHEMA
+# (gen490, il residuo di M15).
+#
+# Il gen457 aveva aperto `answer_frame` all'insegnamento, ma solo cosi':
+#
+#     learn "which color is used in" as a way to ask side_color
+#
+# cioe' chi insegna deve conoscere il NOME INTERNO della relazione. E' esattamente
+# cio' che il vincolo zero di docs/plans/apprendimento-assistito.md vieta — «un
+# esperto del dominio che ignora lo schema interno saprebbe formulare la
+# lezione?». Con `side_color` la risposta e' no, e l'atto restava fuori dal
+# protocollo anche funzionando.
+#
+# La forma senza schema la sa dire chiunque: si ancora la formulazione nuova a
+# una domanda che gia' funziona. La relazione non viene nominata, viene DEDOTTA
+# dal modello — insieme al verso, che chi insegna una parafrasi non deve sapere.
+#
+# La guardia e' CONCLUSIVA e la fa il motore vero (`mod_answer_frame`): il
+# modello deve essere una domanda a cui parrot0 risponde davvero. Senza quella
+# prova, «what is the flurb of france» veniva accettato come modello e la lezione
+# scriveva un frame falso ereditato da una cue-sottostringa (mantra #8 + #7).
+
+[test taught_question_form_from_a_model]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+!timeout 40
+
+# BASELINE — la formulazione nuova non e' capita.
+> which shades does chess use
+<~ I don't know about shades
+
+# LEZIONE — nessun predicato, nessuna arita': una domanda che gia' funziona.
+> learn "which shades does" as another way to ask "which colors are used in chess"
+< Got it - «which shades does» now asks the same thing as «which colors are used in chess».
+
+# REPLAY — la stessa identica frase del punto 1.
+> which shades does chess use
+< White and black.
+
+# ABLAZIONE — ritrarre la forma insegnata la richiude.
+!forget answer_frame("which shades does", side_color)
+> which shades does chess use
+<~ I don't know about shades
+
+[test taught_question_form_guards_the_model]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+!timeout 40
+
+# CONTRASTO — un modello che parrot0 NON sa rispondere non e' un modello: la
+# lezione viene declinata invece di ereditare una relazione a caso.
+> learn "the head town of" as another way to ask "what is the flurb of france"
+< «what is the flurb of france» isn't a question I already know how to answer, so I have nothing to copy the new wording from.
+
+# E la forma storica, che nomina la relazione, resta viva accanto alla nuova
+# (keep-secondary-structures): non e' stata sostituita, e' stata affiancata.
+> learn "which tint is used in" as a way to ask side_color
+< Got it - I'll take «which tint is used in» as a way to ask side_color now.
+> which tint is used in chess
+< White and black.

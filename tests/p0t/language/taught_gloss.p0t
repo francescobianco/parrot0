@@ -1,0 +1,91 @@
+# taught_gloss.p0t — UNA PAROLA INSEGNATA APRE UNA FAMIGLIA DI DOMANDE (gen490).
+#
+# La domanda italiana muriva e la mossa istintiva era aggiungere una riga
+# `answer_frame` italiana, o una `question_shape` italiana. Erano entrambe
+# sbagliate. Misurato con `lang.canonical` PRIMA di scrivere qualsiasi cosa:
+#
+#     "quale colore si usa in chess"  ->  "which color is usa in chess"
+#     "which color is used in chess"  ->  "which color is used in chess"
+#
+# Cioe': la canonicalizzazione era gia' arrivata a UN TOKEN dalla forma inglese
+# che risponde. Non mancava una superficie, non mancava una forma: mancava una
+# PAROLA, e mancava perche' nessun atto didattico raggiungeva `tr/2`.
+#
+# E' il punto fisso del mantra #3 un gradino piu' in basso di dove si guardava:
+# la domanda italiana non e' una superficie nuova, e' la STESSA superficie sotto
+# una traduzione. E poiche' `tr/2` sta a monte di ogni modulo — la
+# canonicalizzazione lo consulta su ogni token, prima del dispatch — chiuderlo
+# apre tutte le famiglie insieme invece che una per volta.
+#
+# L'atto didattico e' quello che un parlante usa davvero e non nomina nessuno
+# schema interno (vincolo zero di LEARN_PROTOCOL.md): «X is the italian of Y».
+
+[test taught_gloss_opens_the_question]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+!timeout 40
+
+# BASELINE — la domanda italiana e' un muro. (Il primo turno dopo un cambio di
+# config paga il reload del mondo.)
+> quale colore si usa in chess
+<~ Non capisco
+
+# LEZIONE — lingua naturale, nessun predicato, nessuna arita', nessuna cue.
+> usa is the italian of used
+< Learned: italian(usa, used).
+
+# REPLAY — la stessa identica frase del punto 1, ora risponde. Fra i due turni
+# non cambia il binario e non cambia un file: cambia solo cio' che parrot0 SA.
+> quale colore si usa in chess
+< Bianco e nero.
+
+# ABLAZIONE — ritrarre il gloss richiude la domanda, nello stesso processo.
+!forget italian(usa, used)
+> quale colore si usa in chess
+<~ Non capisco
+
+[test taught_gloss_transfers_to_other_families]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+!timeout 40
+
+# TRANSFER — held-out veri: altre relazioni, altre entita', parole mai
+# pronunciate nella lezione precedente. Ogni famiglia si apre con i suoi gloss,
+# e nessuna ha avuto bisogno di una riga `answer_frame`.
+> quanti lati ha un triangolo
+<~ Non capisco
+> lati is the italian of sides
+< Learned: italian(lati, sides).
+> triangolo is the italian of triangle
+< Learned: italian(triangolo, triangle).
+> quanti lati ha un triangolo
+< A triangle has 3 sides.
+
+> quale organo produce la bile
+<~ Non
+> organo is the italian of organ
+< Learned: italian(organo, organ).
+> produce is the italian of produces
+< Learned: italian(produce, produces).
+> quale organo produce la bile
+< Fegato.
+
+[test taught_gloss_contrast]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+!timeout 40
+
+# CONTRASTO — la stessa forma di frase, ma la relazione NON e' una lingua: non
+# deve diventare un gloss. Il ponte legge `gloss_language/1`, quindi
+# `capital(rome, italy)` resta un fatto sul mondo e non entra in `tr/2`.
+> quale colore si usa in chess
+<~ Non capisco
+> rome is the capital of italy
+<~ Ital
+# la prova che il quasi-esempio non e' stato assorbito: la canonicalizzazione
+# non ha imparato nessuna parola nuova.
+!mcp lang.canonical {"text":"quale colore si usa in chess"}
+!expect mcp which color is usa in chess
