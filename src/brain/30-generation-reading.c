@@ -29,6 +29,18 @@ static void render_couplet_with_format(Brain *b, const char *norm,
     put(line, out, out_size);
 }
 
+static int reply_has_form_marker(Brain *b, const char *reply) {
+    if (!b || !reply) return 0;
+    char buf[KB_TERM_LEN * 2];
+    snprintf(buf, sizeof buf, "%s", reply);
+    char *words[32];
+    size_t nw = split_words(buf, words, 32);
+    for (size_t i = 0; i < nw; i++)
+        if (lex_class_member(b, "generation_form_marker", strip_edge_punct(words[i])))
+            return 1;
+    return 0;
+}
+
 /* gen254: morphological concept binding. An English compound keeps its modifier
  * first (moonlight = moon+light, raindrops = rain+drops), so a turn word also
  * binds a KB concept when the concept is a prefix of it. Guards: the concept
@@ -453,20 +465,24 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     }
     if (nw == 1) {
         char topic[KB_TERM_LEN]; snprintf(topic, sizeof topic, "%s", strip_edge_punct(w[0]));
-        if (topic[0] && strstr(b->last_reply, "couplet")) {
+        if (topic[0] && reply_has_form_marker(b, b->last_reply) &&
+            lex_class_member(b, "generation_form_marker", "couplet")) {
             char line[KB_TERM_LEN];
             if (haiku_line(b, "couplet", topic, line, sizeof line)) {
                 put(line, out, out_size);
                 return 1;
             }
         }
-        if (topic[0] && strstr(b->last_reply, "haiku")) {
+        if (topic[0] && reply_has_form_marker(b, b->last_reply) &&
+            lex_class_member(b, "generation_form_marker", "haiku")) {
             char l1[KB_TERM_LEN], l2[KB_TERM_LEN], l3[KB_TERM_LEN];
             if (haiku_line(b, "haiku_open", topic, l1, sizeof l1) &&
                 haiku_line(b, "haiku_mid", topic, l2, sizeof l2) &&
                 haiku_line(b, "haiku_close", topic, l3, sizeof l3)) {
                 char msg[400];
-                snprintf(msg, sizeof msg, "%s / %s / %s.", l1, l2, l3);
+                const KbResponseSlot slots[] = {
+                    { "line1", l1 }, { "line2", l2 }, { "line3", l3 } };
+                kb_term_say(b, "haiku_three_lines", slots, 3, msg, sizeof msg);
                 put(msg, out, out_size);
                 return 1;
             }
@@ -847,7 +863,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 haiku_line(b, "haiku_mid",   obj,  l2, sizeof l2) &&
                 haiku_line(b, "haiku_close", subj, l3, sizeof l3)) {
                 char msg[400];
-                snprintf(msg, sizeof msg, "%s / %s / %s.", l1, l2, l3);
+                const KbResponseSlot slots[] = {
+                    { "line1", l1 }, { "line2", l2 }, { "line3", l3 } };
+                kb_term_say(b, "haiku_three_lines", slots, 3, msg, sizeof msg);
                 put(msg, out, out_size);
                 return 1;
             }
@@ -855,7 +873,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         /* gen240: a haiku was asked but no theme has images — CLAIM the turn with an
          * honest decline (the "Genera" ceiling) so a downstream module can't answer
          * a creative request with a dismissive deflection. */
-        kb_term_say(b, "i_can_only_write_a_haiku_on_a_theme_i_have_i", NULL, 0, out, out_size);
+         kb_term_say(b, "haiku_theme_unavailable", NULL, 0, out, out_size);
         return 1;
     }
 

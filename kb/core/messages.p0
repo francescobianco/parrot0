@@ -99,7 +99,8 @@ response_template(those_measures_are_inconsistent_half_the_per, "Those measures 
 response_template(those_counts_don_t_work_out_to_whole_animals, "Those counts don't work out to whole animals, so the puzzle as stated has no consistent answer.").
 response_template(those_two_ratios_can_t_both_hold_if_the_rati, "Those two ratios can't both hold: if the ratio never changes, no ages fit. One of the constraints must be different.").
 response_template(that_s_a_constrained_arrangement_puzzle_i_ca, "That's a constrained-arrangement puzzle: I can read the quantities, but I don't have a solver that can verify an optimal arrangement under those sharing constraints, so I won't guess a number.").
-response_template(i_can_only_write_a_haiku_on_a_theme_i_have_i, "I can only write a haiku on a theme I have images for — like the ocean, rain, the moon, snow, a tree, a candle, or a robot. Pick one of those?").
+response_template(haiku_theme_unavailable, "I can only write a haiku on a theme I have images for — like the ocean, rain, the moon, snow, a tree, a candle, or a robot. Pick one of those?").
+response_template(haiku_three_lines, "{line1} / {line2} / {line3}.").
 response_template(i_can_only_do_a_couplet_on_a_theme_i_have_li, "I can only do a couplet on a theme I have lines for -- like the ocean, rain, the moon, or AI. Pick one of those?").
 response_template(i_don_t_have_story_material_for_that_topic_y, "I don't have story material for that topic yet -- I can tell one about a lighthouse, an old house on a quiet street, a stormy night, or a traveler at dusk.").
 response_template(i_m_parrot0_a_small_program_written_in_c_not, "I'm parrot0, a small program written in C, not an LLM.").

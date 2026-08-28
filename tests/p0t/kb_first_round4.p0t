@@ -1,0 +1,30 @@
+# Focused KB-first round four ratchets.
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test humanized_generation_template]
+!assert response_template(haiku_three_lines, "{line1} / {line2} / {line3}.")
+!query response_template(haiku_three_lines, "{line1} / {line2} / {line3}.")
+> write a haiku about ocean
+< Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind.
+
+[test lexical_marker_growth_and_ablation]
+!assert generated_form_marker(zorp)
+!query generated_form_marker(zorp)
+!forget generated_form_marker(zorp)
+!query! generated_form_marker(zorp)
+
+[test domain_adapter_causal_consumer]
+!assert causes(spark, flame)
+!assert domain_relation(causal, causes)
+!query domain_relation(causal, causes)
+!query causes(spark, flame)
+!forget domain_relation(causal, causes)
+!query! domain_relation(causal, causes)
+
+[test semantic_family_rename]
+!query response_template(haiku_theme_unavailable, "I can only write a haiku on a theme I have images for — like the ocean, rain, the moon, snow, a tree, a candle, or a robot. Pick one of those?")

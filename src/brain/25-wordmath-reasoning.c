@@ -3566,7 +3566,7 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
              * nell'altro verso. */
             const char *pat[] = { NULL, w[2] };
             char hits[16][KB_TERM_LEN];
-            size_t nh = kb_match(b->kb, "causes", pat, 2, hits, 16);
+            size_t nh = domain_match(b, "causal", pat, 2, hits, 16);
             if (nh > 0) {
                 char list[400]; size_t o = 0;
                 for (size_t i = 0; i < nh && o < sizeof list; i++)

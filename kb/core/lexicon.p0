@@ -451,6 +451,8 @@ poetic_function_word(i).
 poetic_function_word(you).
 poetic_function_word(my).
 poetic_function_word(your).
+generated_form_marker(couplet).
+generated_form_marker(haiku).
 stopword(about).
 stopword(after).
 stopword(before).

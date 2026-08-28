@@ -57,6 +57,21 @@ Terzo giro completato:
 
 Verifica del round: `make -B build`, test focalizzato `9/9`, nessun warning.
 
+### Round ibrido 4 — 2026-08-28
+
+Quarto giro completato:
+
+- **Voce:** l’output dell’haiku usa ora `response_template` invece di una
+  composizione umanizzata nel C.
+- **Lessico:** i marcatori della forma generativa sono nella classe KB
+  `generation_form_marker/1`, con crescita e ablazione runtime.
+- **Dominio:** la relazione causale passa da `domain_relation(causal, causes)`.
+- **Famiglie:** la famiglia dell’haiku è stata rinominata semanticamente in
+  `haiku_theme_unavailable`.
+
+Verifica del round: build senza warning e `kb_first_round4.p0t` 8/8. `make test`
+resta bloccato soltanto dalle cinque aspettative di `check_sort.p0t` già note.
+
 | | inizio campagna | ora |
 |---|---:|---:|
 | punti della voce con chiave KB | 160 | **656** |
