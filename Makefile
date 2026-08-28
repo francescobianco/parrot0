@@ -498,6 +498,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/mcp/assertretract.p0t
 	@./$(BIN) --test tests/p0t/mcp/call.p0t
 	@./$(BIN) --test tests/p0t/proof/howknow.p0t
+	@./$(BIN) --test tests/p0t/input/universal-input.p0t
 	@./$(BIN) --test tests/p0t/conversation/dialogue_moves.p0t
 	@./$(BIN) --test tests/p0t/conversation/context_scope.p0t
 	@./$(BIN) --test tests/p0t/conversation/conversation.p0t
@@ -855,7 +856,6 @@ legacy-test: build
 	@./tests/patch-check.sh
 	@./tests/agentcommit.sh
 	@./tests/segment.sh
-	@./tests/universal-input.sh
 	@$(BENCH_PY) ./tests/tools/openai-input-limit.py
 	@$(BENCH_PY) ./tests/tools/autolearn_structure.py
 	@./tests/bench/llmscore-kbfirst.sh

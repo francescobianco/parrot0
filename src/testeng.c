@@ -111,6 +111,11 @@
 
 #ifndef TE_LINE
 #define TE_LINE 4096
+/* La risposta di un turno sta in poche righe; il payload di uno strumento MCP
+ * no. `input.segment` puo' restituire 128 span annotati con la loro
+ * provenienza, e troncarlo farebbe fallire un'asserzione per la ragione
+ * sbagliata — non «il contenuto non c'e'» ma «non ci stava». */
+#define TE_REPLY 70000
 #endif
 #define TE_NAME 64
 
@@ -120,7 +125,7 @@ typedef struct {
 
     char section[TE_NAME];   /* current [section] name, for the report */
 
-    char reply[TE_LINE];     /* reply from the most recent `>` turn */
+    char reply[TE_REPLY];    /* reply from the most recent `>` turn, o payload !mcp */
     int  have_reply;
 
     char expect[TE_LINE];    /* accumulated consecutive `<` expected lines */

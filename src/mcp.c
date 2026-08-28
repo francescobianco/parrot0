@@ -718,7 +718,22 @@ int mcp_tool_invoke(Brain *brain, const char *name, const char *args_json,
             return 0;
         }
     }
-    int ok = tool_call(brain, name, args, out, outsz);
+    /* `input.segment` non passa dal buffer a dimensione fissa di tool_call: una
+     * richiesta valida puo' produrre 128 span annotati, e la loro provenienza
+     * puo' legittimamente superarlo. Qui si percorre la stessa strada di
+     * handle_tools_call, altrimenti dal test-engine l'unico strumento che conta
+     * per universal-input risponderebbe «unknown tool». */
+    int ok;
+    if (strcmp(name, "input.segment") == 0) {
+        SB payload; sb_init(&payload);
+        int rc = tool_input_segment(brain, args, &payload);
+        snprintf(out, outsz, "%s", payload.oom ? "{\"error\":\"out of memory\"}"
+                                               : (payload.buf ? payload.buf : ""));
+        sb_free(&payload);
+        ok = (rc == 0);
+    } else {
+        ok = tool_call(brain, name, args, out, outsz);
+    }
     jfree(args);
     return ok;
 }
