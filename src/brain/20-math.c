@@ -80,14 +80,22 @@ static int is_arith_op(Brain *b, const char *s) {
 
 /* Apply an arithmetic operator, returning the result. Sets *ok=0 for unknown ops. */
 static double apply_arith_op(Brain *b, const char *op, double a, double c, int *ok) {
-    *ok = 1;
-    char symbol = arith_op_char(b, op);
-    if (symbol == '+') return a + c;
-    if (symbol == '-') return a - c;
-    if (symbol == '*') return a * c;
-    if (symbol == '/') { if (c == 0) { *ok = 0; return 0; } return a / c; }
     *ok = 0;
-    return 0;
+    if (!b || !b->kb || !op) return 0;
+    char quoted[KB_TERM_LEN];
+    snprintf(quoted, sizeof quoted, "\"%.*s\"", (int)(sizeof quoted - 3), op);
+    const char *oq[] = { quoted, NULL };
+    char opname[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "infix_operator", oq, 2, opname, 1) != 1) return 0;
+    char av[KB_TERM_LEN], cv[KB_TERM_LEN];
+    snprintf(av, sizeof av, "%g", a); snprintf(cv, sizeof cv, "%g", c);
+    const char *aq[] = { opname[0], av, cv, NULL };
+    char result[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "apply_operator", aq, 4, result, 1) != 1) return 0;
+    double value = 0;
+    if (!parse_value(kb_dequote(result[0]), &value)) return 0;
+    *ok = 1;
+    return value;
 }
 
 /* gen190: arithmetic in natural language. The catalogue (basic-chat cat.4) asks

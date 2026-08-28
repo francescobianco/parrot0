@@ -1046,3 +1046,11 @@ consumer. Il test `kb_first_round14.p0t` verifica query, assert e forget del
 vocabolario nuovo e il comportamento EN/IT. Il tentativo di portare anche i
 profili del self-composition in KB è stato scartato perché cambia il contratto
 del golden test: resta una migrazione successiva, non dati inutilizzati.
+
+### Gen468 — valutazione composta delegata alla procedura KB
+
+`apply_arith_op` non contiene più la tabella C di `+ - * /`: risolve la
+superficie con `infix_operator/2` e valuta tramite `apply_operator/4`. Il C
+mantiene soltanto conversione numerica, controllo `ok` e gestione del risultato.
+Le regressioni `algebra2.p0t`, `algebra2.it.p0t` e `arith_flex.p0t` proteggono il
+percorso composto bilingue.
