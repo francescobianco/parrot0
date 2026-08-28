@@ -30,6 +30,8 @@ ricompilare?"** Se no, quella conoscenza è nel posto sbagliato.
 | `PRINCIPLES.md` | il *perché* dell'esperimento, e la regola anti-inganno |
 | `AGENTS.md` | regole operative per chi modifica il codice |
 | `C_TODO.md` | che cosa deve ancora uscire dal C — i residui del motore |
+| `LEARN_TODO.md` | la coda dei temi da far apprendere con `LEARN_PROTOCOL.md` |
+| `LEARN_PROTOCOL.md` | come si addestra parrot0 parlando, e i suoi gate |
 | `docs/plans/` | i piani vivi (uno per direzione di lavoro) |
 | `docs/sessions/` | resoconti di sessione: cosa si è scoperto e perché |
 | `kb/core/*.p0` | la conoscenza — è qui che va la roba nuova |
