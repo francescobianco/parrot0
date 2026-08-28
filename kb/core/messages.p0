@@ -671,6 +671,9 @@ response_template(contradiction_entailment, "Contradiction.").
 response_template(entailed_explanation, "Entailed: {ex}.").
 response_template(learned_quantity, "Learned: {subject} has {amount} {unit}.").
 response_template(learned_causal_relation, "Learned: causes({cause}, {effect}).").
+% E la risposta a «what causes X?», che prima non esisteva: la forma esisteva
+% solo come ASSERZIONE, quindi la domanda diventava un fatto falso.
+response_template(cause_answer, "{causes}.").
 response_template(learned_same_relation, "Learned: same({left}, {right}).").
 response_template(learned_requires, "Learned: requires({goal}, {step}).").
 response_template(because_proof, "Because {proof}.").

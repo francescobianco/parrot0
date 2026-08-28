@@ -3520,8 +3520,38 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
     char *w[8];
     size_t nw = split_words(buf, w, 8);
 
-    /* assert: "<a> causes <b>" -> causes(a, b) */
+    /* "<a> causes <b>": tre parole con il verbo causale in mezzo. Ma «what
+     * causes smoke?» ha esattamente questa forma, e senza guardia diventava
+     * `causes(what, smoke)` — una DOMANDA scritta in KB come fatto falso, con
+     * l'interrogativo promosso a entita'. E' il caso peggiore del mantra #7,
+     * peggiore di un muro perche' persiste oltre il turno; ed era doppiamente
+     * sbagliato quando la risposta c'era gia': «what causes smoke?» imparava
+     * una falsita' invece di rispondere «fire», che era in KB da sempre.
+     *
+     * La guardia e' la stessa gia' usata dall'estrattore di classi: se il turno
+     * APRE con una parola interrogativa sta chiedendo, non affermando. Quali
+     * parole siano interrogative resta conoscenza (`question_word/1`). */
     if (nw == 3 && lex_class_member(b, "25_wordmath_reasoning_lex3477", w[1])) {
+        const char *qw[] = { w[0] };
+        if (kb_query(b->kb, "question_word", qw, 1)) {
+            /* E se sta chiedendo, si risponde: la relazione e' la stessa, letta
+             * nell'altro verso. */
+            const char *pat[] = { NULL, w[2] };
+            char hits[16][KB_TERM_LEN];
+            size_t nh = kb_match(b->kb, "causes", pat, 2, hits, 16);
+            if (nh > 0) {
+                char list[400]; size_t o = 0;
+                for (size_t i = 0; i < nh && o < sizeof list; i++)
+                    o += (size_t)snprintf(list + o, sizeof list - o, "%s%s",
+                                          i ? ", " : "", hits[i]);
+                char msg[420];
+                kb_term_say(b, "cause_answer", (const KbResponseSlot[]){
+                                { "causes", list } }, 1, msg, sizeof msg);
+                put(msg, out, out_size);
+                return 1;
+            }
+            return 0;                    /* non lo so: muro, mai una falsita' */
+        }
         const char *args[] = {w[0], w[2]};
         char msg[160];
         if (domain_assert(b, "causal", args, 2)) {
