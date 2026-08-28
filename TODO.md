@@ -11,6 +11,66 @@ Regola comune: **un decline preciso è verde; un successo non provato o un fatto
 inventato è rosso**. Ogni attività deve produrre un contratto focale indirizzabile,
 una trace strutturata e l'aggiornamento automatico del capability ledger.
 
+## ⏸️ DA RIPRENDERE QUI — `gen491`, il turno ermetico (2026-08-29)
+
+Sessione interrotta a metà su richiesta di F. Il lavoro **non è su `main`**: sta
+sul ramo **`gen491-bare-topic`** (pushato), con il commit che spiega tutto.
+
+**Da dove è nato.** Un turno reale di F.:
+
+```
+you> milano
+Ciao! Di cosa ti va di parlare?      <- riempitivo sociale
+you> milano
+Non capisco ancora.                  <- e lo STESSO turno, altra risposta
+```
+
+**Che cosa è stato fatto.**
+
+- **Sonda nuova**: `tests/probes/bare_topic_probe.py` — che mossa fa un modello
+  forte quando il turno è *un nome e basta*. ⚠️ L'oracolo opencode ha il **limite
+  settimanale esaurito** (429, si resetta ~2026-08-31): la misura viene dal
+  trascritto già registrato `tests/sym/measure-len5-full.md`, che copre la stessa
+  classe. **Quando l'oracolo torna disponibile, la sonda va rilanciata davvero**
+  — è l'unico pezzo di questo giro che non è stato misurato di prima mano.
+- La mossa invariante dell'oracolo: **nomina sempre ciò che ha ricevuto**
+  (`water` → fatto saliente + elicita; `qzxvb` → «Could you clarify what you mean
+  by "qzxvb"?»). Non saluta **mai**.
+- **Tre difetti chiusi** sul ramo: il lookup del token nudo che cercava la parola
+  detta invece del termine canonico (`milano` vs `milan`); il saluto per
+  eliminazione deciso per fonotattica, ora `move_policy/2` dichiarata; e la terza
+  occorrenza di **M18** — `where`, `which`, `ok`, `no` rispondevano con una
+  stringa **vuota** perché solo il ramo di ricaduta scriveva in `out`.
+
+**Il passo successivo, prima di qualunque merge.** La suite non è stata
+completata: 244 file verdi su 383 eseguiti. Fra i rossi ce ne sono di
+**ambientali** (`repair` · `agent_*` · `check_sort` · `codeast` · `agentcommit` ·
+`run_execute` — l'oracolo non compila in questo sandbox, e sono rossi **già su
+albero pulito**, verificato), ma sei sono esattamente in quest'area e vanno
+guardati **uno per uno**:
+
+```
+greet.p0t · smalltalk.p0t · social_opener.p0t
+chitchat.p0t · fallback_word.p0t · reactions_are_knowledge.p0t
+```
+
+Sospetto principale: togliere il saluto per eliminazione, e quelle suite lo
+attendevano. **Non si cambiano le attese**: prima si capisce chi ha torto fra il
+test e il codice (nota di metodo 5 di `LEARN_TODO.md` — delle cinquanta
+asserzioni che chiedevano «Learned rule: …» avevano ragione loro).
+
+**Rosso preesistente da non confondere con questo lavoro:**
+`frontier_chat_audit.it.p0t` («designation»), rosso da prima — verificato su
+albero pulito.
+
+**Contesto dei due commit già su `main` in questa sessione:** `gen489` (la
+locuzione omissibile è conoscenza — chiudeva un *misclaim*, «which of these is
+bigger, 3 or 5» → «Skin.») e `gen490` (il gloss è il punto fisso di M15 — una
+parola insegnata parlando apre una famiglia intera di domande italiane; referto
+in `docs/labs/apprendimento-assistito/2026-08-29-gloss-e-forma-della-domanda.md`).
+
+---
+
 ## P0 — verità operativa, feedback e sicurezza
 
 - [x] **01 — Separare issue, prosa e sorgente prima di diagnosticare codice.** Counterexample reale: `fix this code: int absval(...) ... It should return ...` su C sintatticamente valido risponde falsamente “add a semicolon”. Introdurre segmenti tipizzati con span (`instruction`, `constraint`, `code`, `expected`) e compilare soltanto il sorgente estratto; se l'estrazione è ambigua, restituire `ambiguous_input`, non una diagnosi. **Done:** 20 layout misti EN/IT e input multilinea non producono falsi syntax finding; i corrispondenti snippet realmente rotti restano rilevati dal compilatore. ✅ **Debito di forma chiuso in gen332:** ruoli aperti, registri/evidenze/delimitatori/faculty in `kb/core/input.p0`, scorer condiviso con gli intenti e proof per span; vedi `docs/plans/universal-input.md` e `tests/universal-input.sh` (64/64).
