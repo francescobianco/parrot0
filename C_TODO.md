@@ -1107,3 +1107,15 @@ virgolette, cifre e `;`); non decide più quali parole nominano quei costrutti.
 `kb_first_round16.p0t` verifica anche assert/query/forget di un pattern inventato
 a runtime. Il test `codeintent.p0t` mantiene un mismatch di wording preesistente
 (`wrong with this the sky...`), da sistemare in un lotto dedicato.
+
+### Gen476 — classi lessicali del pianificatore interrogate come KB
+
+`plan_request_fn` non confronta più direttamente le parole di chiamata e i
+connettori (`call/calls/chiamata/chiamate`, `to/a/di`): usa
+`function_call_word/1` e `function_link_word/1`. Nello stesso lotto le guardie
+`goal_filler/1` e `function_name_marker/1` sono passate da un helper di classe a
+query KB dirette. Il C conserva solo la finestra ordinata di tre token e la
+validazione meccanica del nome; `kb_first_round16.p0t` dimostra crescita e
+ablazione runtime di una nuova parola di chiamata.
+La regressione `planact.p0t` continua a mostrare tre differenze storiche di
+wording/slot del piano; il lotto non le nasconde né le corregge incidentalmente.

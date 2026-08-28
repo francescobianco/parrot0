@@ -352,7 +352,8 @@ static int plan_request_path(const char *praw, char *path, size_t path_sz) {
 
 static int plan_fn_candidate(Brain *b, const char *t) {
     if (!t || !*t) return 0;
-    if (lex_class_member(b, "goal_filler", t))
+    const char *q[] = { t };
+    if (b && b->kb && kb_query(b->kb, "goal_filler", q, 1))
         return 0;
     for (const char *p = t; *p; p++)
         if (!(isalnum((unsigned char)*p) || *p == '_')) return 0;
@@ -367,17 +368,20 @@ static int plan_request_fn(Brain *b, const char *praw, char *fn, size_t fn_sz) {
     size_t nw = split_words(buf, w, 64);
     for (size_t i = 0; i < nw; i++) w[i] = strip_edge_punct(w[i]);
     for (size_t i = 0; i + 2 < nw; i++) {
-        int call_word = !strcmp(w[i], "call") || !strcmp(w[i], "calls") ||
-                        !strcmp(w[i], "chiamata") || !strcmp(w[i], "chiamate");
-        int link_word = !strcmp(w[i + 1], "to") || !strcmp(w[i + 1], "a") ||
-                        !strcmp(w[i + 1], "di");
+        const char *call_q[] = { w[i] };
+        const char *link_q[] = { w[i + 1] };
+        int call_word = b && b->kb &&
+                        kb_query(b->kb, "function_call_word", call_q, 1);
+        int link_word = b && b->kb &&
+                        kb_query(b->kb, "function_link_word", link_q, 1);
         if (call_word && link_word && plan_fn_candidate(b, w[i + 2])) {
             snprintf(fn, fn_sz, "%s", w[i + 2]);
             return 1;
         }
     }
     for (size_t i = 0; i + 1 < nw; i++) {
-        if (lex_class_member(b, "function_name_marker", w[i]) &&
+        const char *marker_q[] = { w[i] };
+        if (b && b->kb && kb_query(b->kb, "function_name_marker", marker_q, 1) &&
              plan_fn_candidate(b, w[i + 1])) {
             snprintf(fn, fn_sz, "%s", w[i + 1]);
             return 1;

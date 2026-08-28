@@ -2592,6 +2592,13 @@ function_name_marker(function).
 function_name_marker(funzione).
 function_name_marker(fn).
 function_name_marker(vocab_fn).
+% Parole di collegamento della richiesta di piano: la forma nuova si insegna
+% senza ricompilare il parser, che conserva solo l'ordine dei tre token.
+machinery(function_call_word).
+function_call_word(call). function_call_word(calls).
+function_call_word(chiamata). function_call_word(chiamate).
+machinery(function_link_word).
+function_link_word(to). function_link_word(a). function_link_word(di).
 hedge_word(maybe).
 hedge_word(perhaps).
 hedge_word(guess).
