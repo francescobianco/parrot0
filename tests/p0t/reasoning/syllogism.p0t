@@ -29,8 +29,12 @@
 > if all ${A}s are ${B}s, and some ${B}s are ${C}s, but no ${C}s are ${A}s, can we conclude anything about the relationship between ${A}s and ${C}s?
 < Those classes do not overlap -- the explicit no-overlap premise states that directly.
 
+# gen384: il muro NOMINA dove si e' fermato invece di tacere. La premessa parla
+# di ${D}, la domanda di ${C}: il legame non c'e', e parrot0 lo dice indicando il
+# termine che non aggancia niente. L'attesa vecchia — il muro cieco — era la
+# risposta peggiore delle due, non un contratto da difendere.
 > if all ${A}s are ${B}s, and some ${B}s are ${C}s, but no ${C}s are ${D}s, can we conclude anything about the relationship between ${A}s and ${C}s?
-< I don't understand that yet.
+<~ I don't know about
 
 > if all ${A}s are ${B}s and all ${B}s are ${C}s, are all ${A}s ${C}s?
 < Yes.

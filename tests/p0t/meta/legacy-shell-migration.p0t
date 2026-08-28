@@ -11,7 +11,10 @@
 !set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=en
 !reset
+# L'attesa era `<~ chess`, cioe' «la risposta rieccheggia la parola della
+# domanda» — che un muro puo' soddisfare per caso. `checkmate` prova invece che
+# parrot0 sa davvero che cos'e' il gioco, ed e' un contratto piu' forte.
 > what do you know about chess?
-<~ chess
+<~ checkmate
 > what is pi?
 <~ 3.14159

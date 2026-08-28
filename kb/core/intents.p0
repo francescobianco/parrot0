@@ -683,6 +683,24 @@ learnable("risposta a un attacco informale", casual,  fill).
 
 learnable("a proper name not to translate", proper_name, unary).
 learnable("un nome proprio da non tradurre", proper_name, unary).
+% gen453 — CHIEDERE UN ATTRIBUTO NON E' FARE CONVERSAZIONE.
+%
+% `mod_smalltalk` sviava ogni domanda in seconda persona: seconda persona +
+% forma interrogativa = mossa sociale. Ma «what is your designation» non chiede
+% un'esperienza, chiede un FATTO su parrot0 — e sviarla con «I don't have any of
+% my own» e' una risposta plausibile e non pertinente, cioe' esattamente cio' che
+% PRINCIPLES.md dice essere peggio di un muro onesto.
+%
+% La differenza e' strutturale: «do you like jazz» e' esperienziale, «what is
+% your X» e' copulare e chiede un attributo. Queste cue nominano la seconda
+% forma, e mod_smalltalk le lascia passare al muro invece di rubarle il turno.
+intent_cue(self_attribute_request, "what is your").
+intent_cue(self_attribute_request, "what's your").
+intent_cue(self_attribute_request, "which is your").
+intent_cue(self_attribute_request, "qual e il tuo").
+intent_cue(self_attribute_request, "qual e la tua").
+intent_cue(self_attribute_request, "qual è il tuo").
+intent_cue(self_attribute_request, "qual è la tua").
 intent_cue(smalltalk_continue, "i just").
 intent_cue(smalltalk_continue, "i tried").
 intent_cue(smalltalk_continue, "i love").

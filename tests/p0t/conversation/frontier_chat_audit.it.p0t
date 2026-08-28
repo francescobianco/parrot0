@@ -51,8 +51,9 @@
 <~ prima mossa
 > cosa sai degli scacchi?
 <~ scacchi
+# In italiano la risposta giusta e' quella sociale, non il nome proprio.
 > come stai?
-<~ parrot0
+<~ Sto bene
 > che cosa possiamo fare insieme?
 <~ insieme
 > che ne pensi?
@@ -61,8 +62,9 @@
 [conoscenza trasferibile fra lingue]
 !set PARROT0_LANG=en
 !reset
+# `chess` verificava solo l'eco della domanda; `checkmate` prova che sa il gioco.
 > what do you know about chess?
-<~ chess
+<~ checkmate
 > what is pi?
 <~ 3.14159
 > what causes the seasons?
@@ -86,8 +88,13 @@
 
 [forma ritratta: l'ablazione riapre il limite]
 !forget intent_phrase(ask_name, "what is your designation")
+# Il limite si riapre — che e' cio' che questo caso prova — ma il muro non e'
+# piu' cieco: dal gen384 NOMINA il termine su cui si e' fermato, e dal gen453
+# non viene piu' rubato da `smalltalk_deflect`, che rispondeva «non ne ho di
+# miei» a una domanda che chiedeva un fatto. L'attesa vecchia pretendeva la
+# formulazione peggiore delle tre.
 > what is your designation
-<~ don't understand
+<~ I don't know about designation
 
 [operatore di piano insegnato a runtime]
 !reset
@@ -98,10 +105,18 @@
 <~ wikipedia
 <~ cost 1
 !forget intent_cue(plan_request, "build me a roadmap")
+# gen448: il declino sull'artefatto e' informato — dice che ha CAPITO la
+# richiesta e perche' non la esegue. E' migliore del muro cieco che l'attesa
+# vecchia pretendeva.
 > build me a roadmap to learn chess
-<~ don't understand
+<~ verified schema
 
 [continuità del goal fra turni]
+# La sezione inglese qui sopra aveva lasciato PARROT0_LANG=en e nessuno lo
+# rimetteva: questi casi si aspettano risposte italiane e le confrontavano con
+# una sessione inglese. Non erano rossi per una lacuna di parrot0 — in italiano
+# rispondeva gia' bene — ma per una riga mancante nel test.
+!set PARROT0_LANG=it
 !reset
 > fai un piano
 <~ obiettivo
@@ -117,6 +132,7 @@
 <~ wikipedia
 
 [tre campagne di trasferimento dialogico]
+!set PARROT0_LANG=en
 !reset
 > teach "let's team up" as a collaboration offer
 <~ Got it
@@ -130,5 +146,10 @@
 !forget intent_cue(opinion_request, "your take")
 > lets team up
 <~ don't understand
+# gen450: le forme del muro sono la famiglia KB `wall_generic` e ruotano su tutte
+# e quattro le varianti (prima l'indice ne percorreva solo due). Fissare UNA
+# formulazione resta fragile per costruzione: qui va bene perche' la sequenza dei
+# turni e' deterministica, ma se questa riga tornera' rossa la domanda giusta e'
+# «e' cambiato il muro o e' cambiato il turno prima?», non «quale frase metto».
 > your take
-<~ don't understand
+<~ I'm not sure I followed

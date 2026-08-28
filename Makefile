@@ -446,21 +446,33 @@ SOFT_BUDGET := 15
 # ripianificazione. ENTRA `informative_action` (0,9s), che e' il fronte di
 # adesso: l'azione che riduce l'incertezza invece di cambiare il mondo.
 #
+# gen453: la suite era verde ma a 23s su un budget di 15. La regola vale anche
+# quando i rossi li hai appena sistemati tu: si toglie un caso, non si alza il
+# budget. ESCE `turn_frame_producer` (3,0s) — il produttore NL->frame del gen393
+# e' infrastruttura gia' attraversata per intero da `make test`, e non e' il
+# fronte di adesso. ESCE `syllogism` (2,0s): il sillogismo classico e' provato
+# anche da `rules` e `relations`, che costano un quinto.
+#
+# RESTA `frontier_chat_audit.it` benche' sia il piu' caro (5,0s), perche' e'
+# esattamente la bussola del fronte corrente — l'addestrabilita' via prompt e la
+# copertura italiana — e in questo giro ha fatto emergere tre difetti veri.
+#
+# Non bastava: 17s. ESCONO anche `arith` (1,0s) e `sequential_view` (1,0s), che
+# sono capacita' stabili e per intero dentro `make test` — non hanno segnalato
+# niente da molte generazioni, che e' il criterio giusto per un test di
+# AVANZAMENTO: non «e' importante», ma «mi direbbe qualcosa oggi».
+#
 # La regola resta: si toglie un caso, non si alza il budget.
 SOFT_TESTS := \
   tests/p0t/health.p0t \
   tests/p0t/conversation/frontier_chat_audit.it.p0t \
   tests/p0t/meta/legacy-shell-migration.p0t \
   tests/p0t/conversation/basics.p0t \
-  tests/p0t/math/arith.p0t \
-  tests/p0t/reasoning/syllogism.p0t \
   tests/p0t/reasoning/rules.p0t \
   tests/p0t/reasoning/relations.p0t \
   tests/p0t/knowledge/facts.p0t \
   tests/p0t/knowledge/class_conflict.p0t \
   tests/p0t/meta/kb_layers.p0t \
-  tests/p0t/reasoning/sequential_view.p0t \
-  tests/p0t/meta/turn_frame_producer.p0t \
   tests/p0t/conversation/open_issues.p0t \
   tests/p0t/reasoning/informative_action.p0t
 

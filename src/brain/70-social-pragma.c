@@ -545,7 +545,13 @@ static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
             lex_class_member(b, "70_social_pragma_lex545", o)||                                              /* EN openers */
             lex_class_member(b, "70_social_pragma_lex546", o)||lex_class_member(b, "70_social_pragma_lex546_2", o)||lex_class_member(b, "70_social_pragma_lex546_3", o)||          /* IT openers */
             lex_class_member(b, "70_social_pragma_lex547", o)||lex_class_member(b, "70_social_pragma_lex547_2", o)||lex_class_member(b, "70_social_pragma_lex547_3", o);
-        if (addressed && question)
+        /* gen453: una domanda COPULARE su un attributo di parrot0 non e' una
+         * mossa sociale. Sviarla con «non ne ho di miei» e' una risposta
+         * plausibile e non pertinente — peggio di un muro (PRINCIPLES.md). Quali
+         * frasi chiedano un attributo sta in `self_attribute_request`, quindi la
+         * distinzione si insegna senza ricompilare. */
+        if (addressed && question &&
+            !kb_cue_match(b, "self_attribute_request", norm))
             return kb_response(b, "smalltalk_deflect", NULL, out, out_size);
     }
     return 0;

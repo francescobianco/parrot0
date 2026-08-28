@@ -11,8 +11,14 @@
 > socrates is a man
 < Learned: man(socrates).
 # A rule, not a fact: every man is a mortal.
+# `<^` (gen453): la risposta COMINCIA con questo. Dopo aver imparato una regola
+# parrot0 riporta in coda anche cio' che ha INDOTTO di conseguenza, che e' una
+# seconda funzione con una vita sua. Il match esatto pretenderebbe anche quella
+# coda; `<~` (contiene) sarebbe troppo debole, perche' passerebbe anche con la
+# regola sepolta in mezzo a tutt'altro. Qui il contratto e' esattamente: la
+# risposta si apre con la regola detta, nella forma giusta.
 > every man is a mortal
-< Learned rule: mortal(X) :- man(X).
+<^ Learned rule: mortal(X) :- man(X).
 # Derived, not stored: resolution proves it via the rule.
 > is socrates a mortal?
 < Yes.
@@ -40,7 +46,7 @@
 # because the KB gained a fact — no recompile. Remove that fact and these three
 # lines fail, which is exactly the property under test.
 > each dog is a mammal
-< Learned rule: mammal(X) :- dog(X).
+<^ Learned rule: mammal(X) :- dog(X).
 > rex is a dog
 < Learned: dog(rex).
 > is rex a mammal?

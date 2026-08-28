@@ -187,7 +187,54 @@ che serve un client esterno, esposto da `mcp_tool_invoke`.
 ```
 
 Il risultato prende il posto della risposta del turno, quindi **non serve una
-sintassi di confronto nuova**: valgono `<`, `<~` e `<!` come per un `>`.
+sintassi di confronto nuova**: valgono `<`, `<~`, `<^` e `<!` come per un `>`.
+
+## Gli operatori di confronto, e quando usarli
+
+| operatore | asserisce | maiuscole |
+|---|---|:--:|
+| `<`  | la risposta è **esattamente** questa | sensibile |
+| `<^` | la risposta **comincia** con questo | sensibile |
+| `<~` | la risposta **contiene** questo | insensibile |
+| `<!` | la risposta **non contiene** questo | insensibile |
+
+`<^` è stato aggiunto al gen453 su proposta di F., e il caso che lo ha reso
+necessario è `tests/p0t/reasoning/rules.p0t`:
+
+```
+> every man is a mortal
+Learned rule: mortal(X) :- man(X). Induced: chess_rank(X) :- is_prime(X). …
+```
+
+Il contratto di quel caso è che **la regola detta** sia stata acquisita in quella
+forma. Ma parrot0 aggiunge in coda ciò che ha indotto di conseguenza, che è una
+seconda funzione con una vita sua — e i due operatori che c'erano sbagliavano
+entrambi:
+
+- `<` pretende **anche la coda**, che il caso non sta provando e che cambia ogni
+  volta che la KB cresce: rosso per una ragione che non è un difetto;
+- `<~` passa, ma è **troppo debole**: sarebbe verde anche con la regola sepolta
+  in mezzo a tutt'altro, o dentro una frase di scuse.
+
+`<^` dice quello che si intende davvero: *la risposta si apre così, carattere per
+carattere, e quel che segue non è governato qui.* È la forma giusta ogni volta
+che una risposta ha una **testa determinata e una coda che appartiene a un'altra
+funzione**.
+
+Sulle maiuscole `<^` segue `<`, non `<~`, e la ragione è la stessa che il
+commento in `src/testeng.c` dà per gli altri: `<~` è insensibile perché asserisce
+che una *parola* compare in una frase in lingua naturale, dove la maiuscola è un
+accidente della resa. `<^` non asserisce una parola: fissa la testa di una
+risposta determinata, dove la forma conta esattamente come in `<`.
+
+La prova che l'operatore discrimina davvero — non solo che passa quando deve —
+è che fallisce nei due modi giusti:
+
+```
+> socrates is a man
+<^ man(socrates)     # FALLISCE: il testo c'è, ma non in testa (`<~` passerebbe)
+<^ learned:          # FALLISCE: maiuscole diverse (come `<`)
+```
 
 Il caso per cui è nata è il **contratto di crescita**, che senza MCP non si
 poteva esprimere: si chiede qualcosa che non si sa fare, si asserisce la cue a

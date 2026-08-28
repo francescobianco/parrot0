@@ -14,6 +14,7 @@
  *   > text                    send `text` to parrot0 as one user turn
  *   < text                    assert the reply equals `text`
  *   <~ text                   assert the reply CONTAINS `text`
+ *   <^ text                   assert the reply STARTS WITH `text`, exactly
  *   <! text                   assert the reply does NOT contain `text`
  *   !expect SOURCE text       assert a primitive output contains `text`
  *   !expect! SOURCE text      assert a primitive output lacks `text`
@@ -180,7 +181,8 @@ typedef struct {
      * a growth test asserts is that one phrase APPEARS or DISAPPEARS when a fact is
      * taught or retracted. Pinning the whole paragraph would be brittle and would
      * miss the point. TE_EXPECT_HAS / _LACKS say exactly what is meant. */
-    enum { TE_EXPECT_EXACT = 0, TE_EXPECT_HAS = 1, TE_EXPECT_LACKS = 2 } expect_mode;
+    enum { TE_EXPECT_EXACT = 0, TE_EXPECT_HAS = 1, TE_EXPECT_LACKS = 2,
+           TE_EXPECT_PREFIX = 3 } expect_mode;
 
     /* The brain's state is signed on TWO axes so both !reload and !reset can tell
      * exactly what (if anything) needs redoing:
@@ -239,6 +241,35 @@ static void te_apply_config(TeState *t) {
 }
 
 /* ── assertion ─────────────────────────────────────────────────────────────── */
+
+/* ── `<^` — LA RISPOSTA COMINCIA COSI' (gen453, proposta di F.) ─────────────
+ *
+ * Serviva un terzo modo di guardare una risposta, e il caso che lo ha reso
+ * evidente e' `tests/p0t/reasoning/rules.p0t`:
+ *
+ *     > every man is a mortal
+ *     Learned rule: mortal(X) :- man(X). Induced: chess_rank(X) :- is_prime(X). …
+ *
+ * Il contratto del caso e' che LA REGOLA DETTA sia stata acquisita in quella
+ * forma. Ma parrot0 aggiunge in coda cio' che ha indotto di conseguenza, che e'
+ * una seconda funzione con una vita sua, e i due operatori che c'erano
+ * sbagliavano tutti e due:
+ *
+ *   `<`  esatto     — rosso, perche' pretende anche la coda, che non sta
+ *                     provando e che cambiera' ogni volta che la KB cresce;
+ *   `<~` contiene   — verde, ma troppo debole: passerebbe anche se la regola
+ *                     comparisse in MEZZO a tutt'altro, o dentro una scusa.
+ *
+ * `<^` dice quello che si intende davvero: la risposta COMINCIA con questo,
+ * carattere per carattere, e quel che segue non e' governato qui. E' la forma
+ * giusta ogni volta che una risposta ha una TESTA determinata e una coda che
+ * appartiene a un'altra funzione.
+ *
+ * Sulle maiuscole segue `<`, non `<~`, e la ragione e' la stessa che quel
+ * commento da' qui sotto: `<~` e' insensibile perche' asserisce che una PAROLA
+ * compare in una frase in lingua naturale, dove la maiuscola e' un accidente
+ * della resa. `<^` non asserisce una parola: fissa la testa di una risposta
+ * determinata, dove la forma conta esattamente come in `<`. */
 
 /* `<~` e `<!` confrontano SENZA distinguere maiuscole e minuscole.
  *
@@ -366,6 +397,8 @@ static void te_flush(TeState *t) {
         switch (t->expect_mode) {
             case TE_EXPECT_HAS:   ok = te_casestr(got, t->expect) != NULL; break;
             case TE_EXPECT_LACKS: ok = te_casestr(got, t->expect) == NULL; break;
+            case TE_EXPECT_PREFIX:
+                ok = strncmp(t->expect, got, strlen(t->expect)) == 0;   break;
             default:              ok = strcmp(t->expect, got) == 0;    break;
         }
     }
@@ -385,8 +418,9 @@ static void te_flush(TeState *t) {
             fprintf(t->out, "        expected source: %s, got source: %s\n", wanted, actual);
         }
         fprintf(t->out, "        expected%s: %s\n",
-                t->expect_mode == TE_EXPECT_HAS   ? " (contains)" :
-                t->expect_mode == TE_EXPECT_LACKS ? " (absent)"   : "", t->expect);
+                t->expect_mode == TE_EXPECT_HAS    ? " (contains)"   :
+                t->expect_mode == TE_EXPECT_LACKS  ? " (absent)"     :
+                t->expect_mode == TE_EXPECT_PREFIX ? " (starts with)" : "", t->expect);
         fprintf(t->out, "        got:      %s\n", got);
     }
     if (t->bench_record)
@@ -604,6 +638,10 @@ static int te_process_stream(TeState *t, FILE *in) {
         if (p[0] == '<' && p[1] == '~') {          /* reply CONTAINS this */
             const char *v = p + 2; if (*v == ' ') v++;
             te_expect_mode(t, v, TE_EXPECT_HAS); continue;
+        }
+        if (p[0] == '<' && p[1] == '^') {          /* reply STARTS WITH this */
+            const char *v = p + 2; if (*v == ' ') v++;
+            te_expect_mode(t, v, TE_EXPECT_PREFIX); continue;
         }
         if (p[0] == '<' && p[1] == '!') {          /* reply does NOT contain this */
             const char *v = p + 2; if (*v == ' ') v++;

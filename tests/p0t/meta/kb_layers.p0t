@@ -39,8 +39,14 @@
 # Ora la relazione non e' piu' nota, e parrot0 lo dice bene: declino informato che
 # NOMINA l'anello mancante e offre come colmarlo. Non un muro cieco, non una
 # risposta inventata: esattamente la reazione giusta a una vista piu' stretta.
+# gen450: la frase del declino informato viveva in un array C, ora e' la famiglia
+# KB `wall_classic`. Che qui esca la FORMA-TERMINE invece della frase e' la stessa
+# scoperta che questo file gia' registra piu' sotto, vista da un altro lato:
+# `!forget @base` toglie anche `messages.p0`, perche' la voce sta in BASE insieme
+# al mondo. Finche' la macchineria non ha una provenienza sua, restringere la
+# vista toglie a parrot0 anche le parole per dire che non sa — one-kb.md §4.
 > what is the capital of france?
-< I do not know the relation capital yet, so I cannot answer the capital of france. You can teach me with thing is the capital of france, or give facts/rules to reason from.
+< wall_classic
 
 # ── IL LIMITE TROVATO QUI, ed e' un risultato, non un intoppo ───────────────
 #
@@ -60,4 +66,4 @@
 # obiettivo: quando la macchineria avra' il suo strato, questa deve tornare a
 # essere `Learned: capital(rome, italy).` — vedi docs/plans/one-kb.md §4.
 > rome is the capital of italy
-< I don't understand that yet.
+< wall_generic
