@@ -49,6 +49,7 @@ quanto sia bravo altrove. Hanno la precedenza su tutto.
 
 | # | Tema | Classe che chiude | Stato |
 |---|---|---|---|
+| **P0.0** | **Scegliere fra due alternative date nel turno, in base a un effetto** — con le alternative che sono *codice*, non numeri | «quale di questi due X fa Y, A o B?» — la forma con cui si chiede un confronto, in qualunque dominio | **APERTA, prioritaria** (F., 2026-08-28). Vedi l'analisi qui sotto |
 | P0.1 | **Una risposta è nella lingua della domanda** — sempre, muri e messaggi di errore compresi | il muro inglese in chat italiana | **parziale**: marcatori e pareggio risolti (`012e034`); resta l'output misto — `reflexive_skeleton.it` produce «aldric is coraggioso» dentro una frase inglese |
 | P0.2 | **Hello world e i primi snippet**, in ogni lingua naturale e nei linguaggi principali | «non so scrivere il programma più semplice del mondo» | **fatto**: python, c, shell, javascript, sql (`012e034`, `3ecfceb`) — i tre in più sono costati *zero C*, che è la prova che il meccanismo è KB-first |
 | P0.3 | **Le operazioni aritmetiche e le loro parole** | `what is 2 plus 2?` era rotto da gen443 | **fatto** (`1f9f3d9`) — la classe ora si deriva da `infix_operator` |
@@ -56,6 +57,60 @@ quanto sia bravo altrove. Hanno la precedenza su tutto.
 | P0.5 | **Una domanda non diventa mai un fatto** | `what causes X?`, `what requires X?`, `what is the same as X?`, `what has N X?` finivano in KB come fatti falsi | **fatto**: la regola è ora UNA (`p0_turn_opens_as_question`) applicata ai quattro rami di asserzione (`6c898e5`, questo giro). Da sorvegliare a ogni ramo nuovo |
 | P0.6 | **Le unità di misura e le conversioni** | le conversioni sono la domanda più banale che un assistente riceve | **fatto** per il sistema SI (`d8020b3`): 8 fatti, replay 4/4. Restano le conversioni fra sistemi — piedi, libbre, fahrenheit — che chiedono un *calcolo*, non una tabella |
 | P0.7 | **Date e tempo** | idem | **parziale**: dodici mesi su dodici, decade, secolo e anno bisestile (`d8020b3` + questo giro). Resta l'**aritmetica fra date** — quanti giorni fra due date, che giorno cade il — che chiede un calcolo, non una tabella |
+
+### P0.0 — l'analisi, misurata al `gen459`
+
+Il turno segnalato da F.:
+
+```
+you> quale di questi due codici aumenta la variabile i++ o i--
+Hmm, I don't know about questi yet. Want me to learn about it? …
+```
+
+Non è un tema di dominio: è **una forma di domanda che parrot0 non sa ricevere**,
+e il dominio (il C) è solo il campione. Misurato:
+
+| turno | esito |
+|---|---|
+| `which is bigger 3 or 5` | **5.** — la forma funziona sui numeri |
+| `which of these increases the variable i++ or i--` | muro |
+| `what does i++ do` | muro |
+| `does i++ increase i` | muro, e nomina «increase» |
+
+Quindi la classe si spacca in tre pezzi, e vanno chiusi in quest'ordine perché
+ognuno è prerequisito del successivo:
+
+1. **Il confronto fra alternative date nel turno esiste già, ma solo per i
+   numeri e solo per proprietà che sono relazioni note** (`bigger`). Qui la
+   proprietà è un *effetto* («aumenta») e i termini non sono valori ma
+   **frammenti di codice**. È la stessa forma — «quale fra A e B ha la proprietà
+   P?» — con i tre slot riempiti diversamente.
+2. **La semantica degli operatori manca del tutto.** `what does i++ do` è un
+   muro: non c'è conoscenza di che cosa faccia un operatore, in nessun
+   linguaggio. Va insegnata come conoscenza — `i++` aumenta di uno, `i--`
+   diminuisce di uno — non cablata.
+3. **Il muro italiano nomina la parola sbagliata.** Indica `questi`, che è un
+   dimostrativo: una parola funzione, non l'argomento del turno. È esattamente
+   il fallimento che `99-registry.c` ha già annotato al gen384 — il declino che
+   finiva per nominare «facciamo», «chiamo», «allora» — e che lì fu contenuto
+   spegnendo la nomina dove il vocabolario non è completo. In italiano la
+   guardia non basta: `questi` **è** nel lessico, quindi passa il filtro e viene
+   nominato. Un declino che indica un dimostrativo non aiuta chi insegna, lo
+   svia.
+
+**Perché è P0 e non P2.** Chiedere «quale dei due fa X» è una delle forme più
+comuni che un assistente riceve, in qualunque dominio: due farmaci, due
+algoritmi, due città. Chiuderla su `i++`/`i--` non vale niente; chiuderla come
+*forma* libera tutte le famiglie che hanno quella struttura — ed è il criterio
+del §8 di `apprendimento-assistito.md`, «preferire il gap che, chiuso, libera più
+famiglie di frasi».
+
+**Nota di metodo, obbligatoria per questa voce.** Il punto 2 tenta al fatto
+scritto a mano in `kb/experts/programming/`. Non si fa: il vincolo #3 del
+protocollo vale anche qui, e per giunta questa voce serve proprio a misurare se
+la semantica di un operatore è **insegnabile parlando**. Se non lo è, il
+risultato della sessione è quel gap tipizzato, non un file toccato — e va in
+`docs/plans/apprendimento-assistito.md` §6.2b accanto agli altri.
 
 ## P1 — Il metalinguaggio: ciò che sblocca l'insegnabilità
 
