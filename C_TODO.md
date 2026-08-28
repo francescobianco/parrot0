@@ -1,5 +1,40 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+> ## HANDOFF — 2026-08-28, dopo `gen488`
+>
+> Sessione sospesa su richiesta: il repository è stato verificato pulito e
+> allineato a `origin/main`. L’ultimo commit è `74030a8` (`gen488: move
+> wordmath markers into KB`), con `VERSION` a `gen488-kb-wordmath-markers`.
+>
+> ### Stato consegnato
+>
+> Le ultime migrazioni hanno portato nella KB superfici di codice, planner,
+> entailment, induzione, tool, ricerca agente, operatori e spiegazioni
+> aritmetiche, guardie e traduzione del repair, più i marker word-math. Il
+> ratchet `tests/p0t/kb_first_round16.p0t` è a 76/76; le regressioni wordproblem
+> sono 8/8 in inglese e 3/3 in italiano; `make build` passa.
+>
+> `timeout 120 make soft-test` conserva un solo fallimento noto sul wording di
+> `designation` (55 passati, 1 fallito). Restano inoltre i debiti storici già
+> annotati per `planact`, `robust`, `entail`, `translate`, `arith_flex` e
+> `check_sort`: non sono stati mascherati né corretti incidentalmente.
+>
+> ### Punto esatto di ripartenza
+>
+> Prima di modificare altro, rileggere `MANTRA.md`, `PRINCIPLES.md` e questo
+> file. Il prossimo candidato è `src/brain/25-wordmath-reasoning.c`: alcuni
+> helper di suffissi/unità richiedono ancora `Brain *`, in particolare le
+> superfici `mph` e `km/h`. Va prima verificato il percorso completo e poi
+> migrata ogni classe in fatti KB enumerabili, con query tramite matcher e
+> ratchet runtime assert/query/forget; nessuna nuova lista o confronto di
+> parole naturali nel C.
+>
+> Per ogni lotto successivo mantenere almeno quattro migrazioni distinte,
+> aggiornare `C_TODO.md` e `VERSION`, eseguire build, test focalizzati e
+> `timeout 120 make soft-test`, quindi committare e fare push. Al termine
+> ricontrollare `git status --short`, `git diff --check` e l’allineamento con
+> `origin/main`.
+
 > ## ⛔ HANDOFF — 2026-08-28, `gen459`. Leggere prima di riprendere.
 >
 > ### U1. Il troncamento silenzioso è una CLASSE, non un incidente
