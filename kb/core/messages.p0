@@ -65,7 +65,10 @@ response_template(i_understand_some_patterns_and_i_say_w, "I understand some pat
 response_template(it_stretches_longer_while_you_pull_it_, "It stretches longer while you pull it. When you let go, elasticity pulls it back toward its original shape.").
 response_template(no_i_only_read_text_i_can_t_hear_audio, "No, I only read text. I can't hear audio.").
 response_template(no_the_statement_says_those_classes_do, "No -- the statement says those classes do not overlap.").
-response_template(okay_i_m_myself_again_i_am_parrot0, "Okay, I'm myself again. I am parrot0.").
+response_template(role_cleared, "Okay, I'm myself again. I am parrot0.").
+response_template(role_identity_named_profession, "I am {name}, {profession}.").
+response_template(role_identity_named, "I am {name}.").
+response_template(role_identity_kind, "I am a {kind}.").
 response_template(that_s_kind_of_you_thank_you, "That's kind of you — thank you!").
 response_template(the_day_unfolded_quietly_each_moment_c, "The day unfolded quietly, each moment carrying the weight of something unspoken. And in that stillness, a new chapter was beginning.").
 response_template(there_is_no_such_world_open, "There is no such world open.").

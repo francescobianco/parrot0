@@ -470,6 +470,21 @@ topic_preposition(di).
 topic_preposition(su).
 stopword(about).
 
+% Ruler titles: world knowledge, not engine machinery. A title taught at
+% runtime becomes usable by the role parser without recompiling.
+role_title(queen).
+role_title(king).
+role_title(emperor).
+role_title(empress).
+role_title(pharaoh).
+role_title(prince).
+role_title(princess).
+role_title(regina).
+role_title(re).
+role_title(imperatore).
+role_title(imperatrice).
+role_title(faraone).
+
 % Labels used to enumerate the social-pattern classes; the reader discovers
 % the set through this class instead of carrying a second C list.
 social_pattern_type(opening).

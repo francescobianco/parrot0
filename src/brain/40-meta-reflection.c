@@ -1029,14 +1029,16 @@ static int role_uptake(Brain *b, const char *raw) {
         role_set_attr(b, "code", attr);
     /* title: a ruler word anywhere in the descriptor */
     {
-        /* TODO(kb-first): CONOSCENZA DEL MONDO nel motore. «queen», «faraone»,
-         * «imperatrice» sono titoli, e i titoli sono fatti — `title/1`, o
-         * meglio una classe in world-facts.p0 con le sue traduzioni. Finche'
-         * stanno qui, parrot0 non puo' imparare un titolo che non conosce. */
-        static const char *const titles[] = {"queen","king","emperor","empress",
-            "pharaoh","prince","princess","regina","re","imperatore", NULL};
-        for (const char *const *t = titles; *t; t++)
-            if (strstr(lc, *t)) { role_set_attr(b, "title", *t); break; }
+        /* Titles are world knowledge, not machinery: the class lives in
+         * kb/core/lexicon.p0 as `role_title/1`, so a title taught at runtime
+         * is recognised here without recompiling. */
+        const char *tvar[] = {NULL};
+        char titles[64][KB_TERM_LEN];
+        size_t ntitle = kb_match(b->kb, "role_title", tvar, 1, titles, 64);
+        for (size_t t = 0; t < ntitle; t++) {
+            const char *title = kb_dequote(titles[t]);
+            if (strstr(lc, title)) { role_set_attr(b, "title", title); break; }
+        }
     }
     /* place: "of X" right after a title/identity ("queen of egypt") */
     if (word_after(lc, lc, " of ", attr, sizeof attr))
@@ -1093,7 +1095,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         b->in_role = 0;
         b->role_name[0] = b->role_kind[0] = '\0';
         b->role_attr_count = 0;
-        kb_term_say(b, "okay_i_m_myself_again_i_am_parrot0", NULL, 0, out, out_size);
+        kb_term_say(b, "role_cleared", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -1130,12 +1132,19 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         size_t pk = b->role_kind[0]
                   ? kb_match(b->kb, "profession", kvar, 2, prof, 4) : 0;
         if (b->role_name[0] && pk)
-            snprintf(msg, sizeof msg, "I am %s, %s.", b->role_name, prof[0]);
+            kb_term_say(b, "role_identity_named_profession", (const KbResponseSlot[]){
+                            { "name", b->role_name },
+                            { "profession", kb_dequote(prof[0]) } },
+                        2, msg, sizeof msg);
         else if (b->role_name[0])
-            snprintf(msg, sizeof msg, "I am %s.", b->role_name);
+            kb_term_say(b, "role_identity_named", (const KbResponseSlot[]){
+                            { "name", b->role_name } }, 1, msg, sizeof msg);
         else if (b->role_kind[0])
-            snprintf(msg, sizeof msg, "I am a %s.", b->role_kind);
-        else kb_term_say(b, "i_am_in_character", NULL, 0, out, out_size);
+            kb_term_say(b, "role_identity_kind", (const KbResponseSlot[]){
+                            { "kind", b->role_kind } }, 1, msg, sizeof msg);
+        else
+            kb_term_say(b, "i_am_in_character", NULL, 0, msg, sizeof msg);
+        put(msg, out, out_size);
         return 1;
     }
 

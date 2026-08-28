@@ -12094,7 +12094,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 char *opt = strip_edge_punct(ow[i]);
                 if (!*opt || lex_class_member(b, "10_memory_knowledge_lex11817", opt)) continue;
                 const char *qa[] = { kind, opt };
-                if (kb_query(b->kb, "trait", qa, 2)) {
+                if (domain_query(b, "role_trait", qa, 2)) {
                     char ans[KB_TERM_LEN]; snprintf(ans, sizeof ans, "%s", opt);
                     if (ans[0]) ans[0] = (char)toupper((unsigned char)ans[0]);
                     char msg[160]; snprintf(msg, sizeof msg, "%s.", ans);

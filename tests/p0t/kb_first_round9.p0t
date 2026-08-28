@@ -1,0 +1,35 @@
+# Focused KB-first round nine ratchets.
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+[test voice_role_identity_uses_kb_templates]
+!query response_template(role_identity_named_profession, "I am {name}, {profession}.")
+!query response_template(role_identity_named, "I am {name}.")
+!query response_template(role_identity_kind, "I am a {kind}.")
+
+[test voice_role_identity_actually_answers]
+> you are a pirate
+> who are you?
+< I am a pirate.
+
+[test lexical_role_title_growth_and_ablation]
+!query role_title(pharaoh)
+!assert role_title(zorpking)
+!query role_title(zorpking)
+!forget role_title(zorpking)
+!query! role_title(zorpking)
+
+[test domain_adapter_narrative_completion]
+!query domain_relation(narrative_completion, continuation_template)
+!forget domain_relation(narrative_completion, continuation_template)
+!query! domain_relation(narrative_completion, continuation_template)
+!assert domain_relation(narrative_completion, continuation_template)
+
+[test semantic_family_rename]
+!query response_template(role_cleared, "Okay, I'm myself again. I am parrot0.")
+!query! response_template(okay_i_m_myself_again_i_am_parrot0, "Okay, I'm myself again. I am parrot0.")

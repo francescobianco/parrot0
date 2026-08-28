@@ -384,7 +384,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         if (scene_from_cues(b, cw, cn, picked_scene, sizeof picked_scene)) {
             const char *tq[] = { picked_scene, NULL };
             char cont[4][KB_TERM_LEN];
-            if (kb_match(b->kb, "continuation_template", tq, 2, cont, 4) > 0) {
+            if (domain_match(b, "narrative_completion", tq, 2, cont, 4) > 0) {
                 char msg[240];
                 snprintf(msg, sizeof msg, "%s.", kb_dequote(cont[0]));
                 put(msg, out, out_size);
@@ -1340,7 +1340,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         if (scene_from_cues(b, cw, cn, picked_scene, sizeof picked_scene)) {
                 const char *tq[] = { picked_scene, NULL };
                 char cont[4][KB_TERM_LEN];
-                size_t tn = kb_match(b->kb, "continuation_template", tq, 2, cont, 4);
+                size_t tn = domain_match(b, "narrative_completion", tq, 2, cont, 4);
                 if (tn > 0) {
                     /* gen240: N alternative continuations — three or two. */
                     size_t wantn = 0;
@@ -1407,7 +1407,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
              kb_query(b->kb, "story_scene", ssq, 1))) {
             const char *tq[] = { picked_scene, NULL };
             char cont[4][KB_TERM_LEN];
-            size_t tn = kb_match(b->kb, "continuation_template", tq, 2, cont, 4);
+            size_t tn = domain_match(b, "narrative_completion", tq, 2, cont, 4);
             if (tn >= 2) {
                 static const char *lead[] = { "", " Then", " At last," };
                 char msg[560]; size_t off = 0;

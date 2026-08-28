@@ -138,6 +138,35 @@ Ottavo giro completato:
 Verifica: `make build` senza warning e `kb_first_round8.p0t` 9/9, con i round
 2-7 tutti verdi. Restano i cinque fallimenti MCP gia' noti in `check_sort.p0t`.
 
+### Round ibrido 9 — 2026-08-28
+
+Nono giro completato, e questa volta la migrazione ha **scoperto un bug**:
+
+- **Voce:** le tre risposte d'identita' in ruolo (`mod_role`) usano ora
+  `role_identity_named_profession`, `role_identity_named`, `role_identity_kind`.
+  Componevano `msg` con `snprintf` e **non lo scrivevano mai in `out`**: la
+  risposta a «who are you?» in ruolo restituiva il buffer del turno precedente.
+  La conversione a `kb_term_say` + `put` chiude sia il testo umanizzato sia il
+  difetto. Ratchet: `kb_first_round9.p0t`, caso
+  `voice_role_identity_actually_answers`.
+- **Lessico:** i titoli (`queen`, `pharaoh`, `regina`, `imperatore`, …) erano
+  una lista C con un `TODO(kb-first)` esplicito. Ora sono la classe
+  `role_title/1` in `kb/core/lexicon.p0`, con crescita e ablazione runtime; un
+  titolo insegnato a runtime e' riconosciuto senza ricompilare.
+- **Dominio:** chiusi i quattro siti residui che nominavano ancora un predicato
+  gia' dotato di binding — le tre `kb_match(… "continuation_template" …)` di
+  `30-generation-reading.c` passano da `domain_match(b, "narrative_completion", …)`,
+  e l'ultima `kb_query(… "trait" …)` di `10-memory-knowledge.c` da
+  `domain_query(b, "role_trait", …)`.
+- **Famiglie:** `okay_i_m_myself_again_i_am_parrot0` rinominata in
+  `role_cleared`.
+
+Verifica: `make build` senza warning, `kb_first_round9.p0t` 11/11, round 2-8
+verdi. Le 112 suite di `meta/`, `conversation/` e `generation/` danno esito
+**identico** a quello del commit di round 8 (confronto riga per riga): i rossi
+sono il debito preesistente della sezione 6, non una regressione di questo
+giro.
+
 | | inizio campagna | ora |
 |---|---:|---:|
 | punti della voce con chiave KB | 160 | **656** |
