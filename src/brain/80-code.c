@@ -1082,10 +1082,22 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
  * exactly the contract the judge calls: void <name>(int a[], int n). Anything
  * else is declined — an agent that "repairs" what it cannot verify is guessing,
  * and the whole point of the loop is that every step is disposed by a real run. */
-static int code_sort_candidate(const char *src, char *fn, size_t fnsz) {
-    const char *p = strstr(src, "void ");
+static int code_pattern_present(Brain *b, const char *kind, const char *src) {
+    const char *q[] = { "c", kind, NULL };
+    char row[1][KB_TERM_LEN];
+    if (!b || !b->kb || kb_match(b->kb, "code_pattern", q, 3, row, 1) != 1)
+        return 0;
+    return strstr(src, kb_dequote(row[0])) != NULL;
+}
+
+static int code_sort_candidate(Brain *b, const char *src, char *fn, size_t fnsz) {
+    const char *p = NULL;
+    const char *q[] = { "c", "sort_return_type", NULL };
+    char row[1][KB_TERM_LEN];
+    if (b && b->kb && kb_match(b->kb, "code_pattern", q, 3, row, 1))
+        p = strstr(src, kb_dequote(row[0]));
     if (!p) return 0;
-    p += 5;
+    p += strlen(kb_dequote(row[0]));
     while (*p == ' ') p++;
     const char *s = p;
     while (*p && (isalnum((unsigned char)*p) || *p == '_')) p++;
@@ -1094,7 +1106,8 @@ static int code_sort_candidate(const char *src, char *fn, size_t fnsz) {
     while (*p == ' ') p++;
     if (*p != '(') return 0;
     /* the array+length signature the judge calls with */
-    if (!strstr(p, "[]") || !strstr(p, "int")) return 0;
+    if (!code_pattern_present(b, "sort_array_marker", p) ||
+        !code_pattern_present(b, "sort_integer_marker", p)) return 0;
     memcpy(fn, s, l); fn[l] = '\0';
     return 1;
 }
@@ -1644,7 +1657,7 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
             int truncated = 0;
             char fn[KB_TERM_LEN] = "";
             if (p0_read_in_root(rel, fsrc, sizeof fsrc, &truncated) == P0_OK &&
-                !truncated && code_sort_candidate(fsrc, fn, sizeof fn) &&
+                !truncated && code_sort_candidate(b, fsrc, fn, sizeof fn) &&
                 repair_file_loop(b, rel, fsrc, fn, out, out_size))
                 return 1;
         }
@@ -1731,7 +1744,7 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
      * with a patched-looking source nobody ran. */
     if ((qtype == 1 || qtype == 2) && lang == 1) {
         char fn[KB_TERM_LEN] = "";
-        if (code_sort_candidate(code, fn, sizeof fn)) {
+        if (code_sort_candidate(b, code, fn, sizeof fn)) {
             if (repair_loop(b, code, fn, out, out_size)) return 1;
         }
     }
@@ -1771,7 +1784,10 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
         }
         /* gen323: `for(int i=0;…)` — no space — was not seen as a loop, so the
          * explanation silently dropped the most salient thing in the snippet. */
-        if (kb_cue_match(b, "80_code_lex1742", code) || strstr(code, "for(") ||kb_cue_match(b, "80_code_lex1742_2", code) || strstr(code, "while(")) {
+        if (kb_cue_match(b, "80_code_lex1742", code) ||
+            code_pattern_present(b, "loop_for_call", code) ||
+            kb_cue_match(b, "80_code_lex1742_2", code) ||
+            code_pattern_present(b, "loop_while_call", code)) {
             size_t l = strlen(out);
             snprintf(out + l, out_size - l, " It contains a loop.");
         }
@@ -1900,7 +1916,8 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
                 }
             }
         }
-        if (kb_cue_match(b, "80_code_lex1872", code) && !strstr(code, "print(")) {
+        if (kb_cue_match(b, "80_code_lex1872", code) &&
+            !code_pattern_present(b, "python_print_call", code)) {
             size_t ol = strlen(findings);
             { char _t10[512];
             const KbResponseSlot _r10[] = { { "x", "" } };

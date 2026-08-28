@@ -1140,3 +1140,13 @@ superfici dalla KB, sceglie la corrispondenza più precoce (e, a parità, più
 lunga) e conserva solo il tipo operativo `continue/next/rule`; offset, parsing
 degli esempi e calcolo restano meccanici. Il ratchet verifica anche una nuova
 forma aggiunta e ritirata senza ricompilare.
+
+### Gen479 — pattern strutturali del verificatore codice nella KB
+
+I marker `void `, `[]`, `int`, `for(`, `while(` e `print(` non sono più
+letterali nel riconoscitore C: sono fatti `code_pattern/3`. L’helper interroga
+la KB e il consumer conserva solo scansione, estrazione dell’identificatore e
+controlli di struttura. Le sei superfici sono coperte dal ratchet di
+`kb_first_round16.p0t` e dalle regressioni del modulo code.
+`check_sort.p0t` conserva cinque differenze di sorgente MCP già note, pur
+riportando i verdetti attesi; non sono state mascherate in questo lotto.

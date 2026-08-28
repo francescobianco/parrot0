@@ -1113,6 +1113,12 @@ machinery(code_pattern).
 code_pattern(c, return_statement, "return ").
 code_pattern(c, int_assignment, "int ").
 code_pattern(c, char_pointer_assignment, "char *").
+code_pattern(c, sort_return_type, "void ").
+code_pattern(c, sort_array_marker, "[]").
+code_pattern(c, sort_integer_marker, "int").
+code_pattern(c, loop_for_call, "for(").
+code_pattern(c, loop_while_call, "while(").
+code_pattern(c, python_print_call, "print(").
 
 % ── QUANTO VALE UNA PAROLA MOLTIPLICATIVA (gen442) ─────────────────────────
 %
