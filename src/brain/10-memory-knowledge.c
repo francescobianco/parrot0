@@ -168,7 +168,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                 kb_assert(b->kb, "conjunction", ar, 1);
                 char msg[160];
                 { const KbResponseSlot _rs[] = { { "word", word } };
-      kb_term_say(b, "got_it_i_ll_treat_x_as_a_conjunction_now_lik", _rs, 1, msg, sizeof msg);
+      kb_term_say(b, "conjunction_taught", _rs, 1, msg, sizeof msg);
                   put(msg, out, out_size); }
                 return 1;
             }
@@ -925,7 +925,7 @@ static void polar_class_answer(Brain *b, const char *subj, const char *cls,
  *     <v> is the <rel> of <v2>     -> rel($V, $V2)
  * piu' la congiunzione "and" nell'antecedente, che e' cio' che rende possibile
  * la transitivita' ("se X e' il genitore di Y e Y e' il genitore di Z ..."). */
-static int p0_is_conj(const char *t);   /* fwd */
+static int p0_is_conj(Brain *b, const char *t);   /* fwd */
 
 #define P0_RULE_MAXV 8
 
@@ -1109,7 +1109,7 @@ static int mod_teach_rule(Brain *b, const char *norm, const char *raw,
     size_t nbody = 0, seg = a_at + 1;
     while (seg < c_at && nbody < KB_MAX_BODY) {
         size_t end = seg;
-        while (end < c_at && !p0_is_conj(w[end])) end++;
+        while (end < c_at && !p0_is_conj(b, w[end])) end++;
         if (end > seg &&
             p0_rule_clause(b, &vars, &w[seg], end - seg, bstore[nbody], &body[nbody])) {
             bargs[nbody][0] = bstore[nbody][1];
@@ -3384,9 +3384,10 @@ static int mod_family(Brain *b, const char *norm, const char *raw,
       kb_term_say(b, "sono_parrot0_un_ia_non_ho_una_famiglia_quind", _rs, 1, msg, sizeof msg); }
         else {
             const char *art = strchr("aeiou", first_kin[0]) ? "an" : "a";
-            snprintf(msg, sizeof msg,
-                     "I'm parrot0, an AI, so I don't have %s %s -- no family to name.",
-                     art, first_kin);
+            const KbResponseSlot _rs[] = {
+                { "article", art }, { "kin", first_kin }
+            };
+            kb_term_say(b, "self_family_no_family", _rs, 2, msg, sizeof msg);
         }
         put(msg, out, out_size);
         return 1;
@@ -3414,8 +3415,8 @@ static int p0_is_loc_prep(const char *t) {
  * resta perche' il suo non e' un confine ma un RUOLO: dice che il complemento
  * che segue e' un LUOGO, ed e' cio' che distingue "X is in Y" da "X is of Y".
  * Erano due cose diverse dette dalla stessa lista. */
-static int p0_is_conj(const char *t) {   /* "and" / Italian "e" */
-    return !strcmp(t, "and") || !strcmp(t, "e");
+static int p0_is_conj(Brain *b, const char *t) {
+    return is_conjunction(b, t);
 }
 
 /* Dove FINISCE un sintagma nominale (gen382).
@@ -4831,7 +4832,7 @@ static int extract_class_statement(Brain *b, const char *norm,
                          "Scartato: located_in(%s, %s) non e' fatto di concetti.", subj, obj);
                 return 2;
             }
-            if (kb_assert(b->kb, "located_in", la, 2)) {
+            if (domain_assert(b, "location", la, 2)) {
                 p0_learn_source(b, "located_in", la, 2, norm);
                 char msg[256]; { const KbResponseSlot _rs[] = { { "subj", subj }, { "obj", obj } };
    kb_term_say(b, "learned_located_in_x_x", _rs, 2, msg, sizeof msg);
@@ -4864,7 +4865,7 @@ static int extract_class_statement(Brain *b, const char *norm,
                          "Scartato: located_in(%s, %s) non e' fatto di concetti.", subj, obj);
                 return 2;
             }
-            if (kb_assert(b->kb, "located_in", la, 2)) {
+            if (domain_assert(b, "location", la, 2)) {
                 p0_learn_source(b, "located_in", la, 2, norm);
                 char msg[256]; { const KbResponseSlot _rs[] = { { "subj", subj }, { "obj", obj } };
    kb_term_say(b, "learned_located_in_x_x", _rs, 2, msg, sizeof msg);
@@ -4917,7 +4918,7 @@ static int extract_class_statement(Brain *b, const char *norm,
         while (p < n && !p0_np_closer(b, strip_edge_punct(w[p]))) p++;
         if (p > cstart && ncls < 4 &&
             p0_join(w, cstart, p, classes[ncls], sizeof classes[ncls])) ncls++;
-        if (p < n && p0_is_conj(w[p])) {
+        if (p < n && p0_is_conj(b, w[p])) {
             p++;
             if (p < n && p0_lead_det(b, w[p])) { p++; continue; }  /* "and/e a <Z>" */
         }
@@ -4995,7 +4996,7 @@ static int extract_class_statement(Brain *b, const char *norm,
     }
     if (loc) {
         const char *la[] = { subj, obj };
-        if (kb_assert(b->kb, "located_in", la, 2)) {
+        if (domain_assert(b, "location", la, 2)) {
             p0_learn_source(b, "located_in", la, 2, norm);
             mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%slocated_in(%s, %s)",
                                    any ? ", " : "", subj, obj), any = 1;

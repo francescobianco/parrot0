@@ -90,5 +90,11 @@
 > dove si trova la ruanda
 < Africa.
 
+[test located_in_domain_binding_is_runtime_knowledge]
+!assert domain_relation(qelvoria_role, located_in)
+!query domain_relation(qelvoria_role, located_in)
+!forget domain_relation(qelvoria_role, located_in)
+!query! domain_relation(qelvoria_role, located_in)
+
 # Non lasciare il daemon condiviso in modalita' agent per i file successivi.
 !set PARROT0_TOOLS=0

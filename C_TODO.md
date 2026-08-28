@@ -9,6 +9,24 @@
 
 ## Stato al 2026-08-27
 
+### Round ibrido 1 — 2026-08-28
+
+Chiuso un target per ciascun fronte operativo:
+
+- **Voce:** la risposta inglese sulla famiglia di parrot0 usa ora il template KB
+  `self_family_no_family`, senza `snprintf` umanizzato nel C.
+- **Lessico:** il coordinatore `and`/`e` non è più deciso da una lista C; il
+  parser interroga `conjunction/1`, con crescita e ablazione runtime verificate.
+- **Dominio:** l’assert locativo passa dal binding KB `domain_relation(location,
+  located_in)` attraverso `domain_assert()`; `geographic_location.p0t` verifica il
+  percorso.
+- **Famiglie:** lo slug `got_it_i_ll_treat_x_as_a_conjunction_now_lik` è stato
+  rinominato semanticamente in `conjunction_taught`.
+
+Verifica del round: `make build`, `kb_conjunction.p0t` 7/7,
+`family.p0t` 9/9, `geographic_location.p0t` 26/26. Il residuo misurato è ora
+più basso di una voce, una classe lessicale, una relazione e una famiglia.
+
 | | inizio campagna | ora |
 |---|---:|---:|
 | punti della voce con chiave KB | 160 | **656** |

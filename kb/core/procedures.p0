@@ -1415,6 +1415,7 @@ domain_relation(capital_fallback, capital).
 domain_relation(count, count_of).
 domain_relation(isa, is_a).
 domain_relation(same, same).
+domain_relation(location, located_in).
 
 infix_operator("+", plus).
 infix_operator("-", minus).

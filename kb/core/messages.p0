@@ -237,8 +237,9 @@ response_template(x_i_was_missing_a_piece_and_taught_it_to_mys, "{again}  (I was
 %% non contenuto — ed e' anche la forma che il resto della voce usa gia'.
 
 response_template(got_it_i_ll_take_x_as_a_way_to_x_now, "Got it - I'll take «{phrase}» as a way to {ls} now.").
-response_template(got_it_i_ll_treat_x_as_a_conjunction_now_lik, "Got it - I'll treat «{word}» as a conjunction now, like «and».").
-response_template(i_already_treat_x_as_a_conjunction, "I already treat «{word}» as a conjunction.").
+response_template(conjunction_taught, "Got it - I'll treat \"{word}\" as a conjunction now, like \"and\".").
+response_template(self_family_no_family, "I'm parrot0, an AI, so I don't have {article} {kin} -- no family to name.").
+response_template(i_already_treat_x_as_a_conjunction, "I already treat \"{word}\" as a conjunction.").
 response_template(i_can_translate_most_of_it_but_i_don_t_know, "I can translate most of it, but I don't know the French for «{tok}».").
 response_template(i_can_t_translate_x_yet, "I can't translate «{tok}» yet.").
 

@@ -31,3 +31,8 @@
 > use and as a conjunction
 < I already treat "and" as a conjunction.
 
+# Ablation: the same compiled parser stops splitting once the learned member is
+# retracted. The unknown coordinator is again an ordinary prerequisite.
+!forget conjunction(p)
+> cake2 requires eggs p flour
+< Learned 3 prerequisites for cake2.
