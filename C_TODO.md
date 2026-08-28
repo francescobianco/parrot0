@@ -1,5 +1,100 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+> ## ⛔ HANDOFF — 2026-08-28, `gen459`. Leggere prima di riprendere.
+>
+> ### U1. Il troncamento silenzioso è una CLASSE, non un incidente
+>
+> Al `gen459` un difetto è costato dieci turni di congetture. La causa:
+>
+> ```c
+> char pats[64][KB_TERM_LEN];
+> size_t np = kb_match(b->kb, "extract_frame", anyq, 2, pats, 64);
+> ```
+>
+> `extract_frame/2` non è un elenco: è fatti **più regole** che generano uno
+> schema per ogni verbo di relazione insegnato. Misurati con `/debug
+> extract_frame`: **124 schemi contro un tetto di 64.** Sessanta invisibili, e
+> *quali* dipendeva dall'ordine di enumerazione — per questo, aggiungendo una
+> regola, funzionava una frase **oppure** l'altra ma mai entrambe.
+>
+> **Non è un limite di memoria: è un limite a quanto parrot0 può imparare prima
+> di cominciare a dimenticare senza dirlo.** Ed è la terza volta che il progetto
+> lo incontra (gen376 `declined[64]`, gen382e il tetto di 128 predicati, ora
+> questo). Censimento al `gen459`:
+>
+> | | siti |
+> |---|---:|
+> | `kb_match` con tetto **fisso** | **514** |
+> | di cui tetto 64 / 32 / 128 (liste vere) | 34 / 28 / 7 |
+> | `kb_match_all` (dimensionato sui dati) | **20** |
+>
+> I tetti a `1` (290 siti) sono legittimi — si chiede un binding solo. Gli altri
+> sono tutti candidati allo stesso guasto.
+>
+> ### U2. La guardia proposta da F., ed è la direzione giusta
+>
+> F.: *«non si possono mettere delle guardie su questi valori che mettono subito
+> in allerta durante l'inferenza, pilotando l'inferenza nel riconoscere che essa
+> stessa è in uno stato di risposta corrotta, come per le deduzioni di
+> incoerenza che già abbiamo implementato?»*
+>
+> Sì, ed è più della correzione puntuale che ho fatto. La forma giusta non è
+> alzare i tetti — è **rendere la saturazione un fatto su cui l'inferenza può
+> ragionare**, esattamente come `machinery_gap` rende il muro un fatto e come
+> `kb_is_conflicted` rende l'incoerenza una risposta invece di un silenzio.
+>
+> Disegno da valutare:
+>
+> - quando un `kb_match` rende esattamente `max` binding, asserire
+>   `saturated_read(Pred, Arity, Cap)` in KB_REFLECTIVE;
+> - una risposta prodotta in un turno che ha un `saturated_read` **non è
+>   attendibile**: è la stessa figura di `undetermined_cycle` — non «No.», ma
+>   «non l'ho chiuso»;
+> - la soglia e il comportamento sono fatti, non costanti: chi vuole il taglio
+>   muto lo può avere, ma deve dirlo.
+>
+> Il motore oggi **non può accorgersi** di aver risposto su una vista amputata.
+> Finché è così, ogni risposta che dipende da un elenco è vera *forse*, e nessuna
+> misura lo distingue.
+>
+> ### U3. `/debug` è cresciuto, e la regola di crescita è scritta
+>
+> `/debug <predicato>` ora dice, per arità: fatti ground, regole per quella
+> testa, binding effettivamente resi — ed è così che U1 è diventato visibile in
+> un comando invece che in dieci esperimenti a mano. Dice anche `SATURO` quando
+> è la *sua* ispezione a toccare il tetto, perché un debugger che tronca in
+> silenzio riprodurrebbe il difetto che esiste per trovare.
+>
+> **La regola, da rispettare:** se per capire qualcosa si è dovuto fare un
+> esperimento a mano, quell'esperimento appartiene a `/debug`.
+>
+> ### U4. Dove siamo con l'addestrabilità via prompt
+>
+> Vedi `docs/plans/apprendimento-assistito.md` §6.2b, aggiornato al `gen456` e
+> ancora valido. In breve, chiuso in questa sessione: la forma della domanda
+> (M15, `gen457` — una `question_shape` con slot copre tutte e 136 le relazioni),
+> la concessiva (`gen455`), la relativa (`gen458`), il muro lungo scambiato per
+> racconto (`gen454`), la lezione muta (`gen456`), la copula mangiata dal
+> soggetto (`gen459`).
+>
+> **Resta aperto e va attaccato per primo:** la canonicalizzazione italiana non è
+> stabile — «quali colori si usano negli scacchi» diventa *"which color is usano
+> in the chess"*, un ibrido, e la stessa frase si canonicalizza diversamente a
+> seconda di dove sta. Finché è così le `question_shape` italiane non possono
+> agganciare, e M15 vale solo in inglese.
+>
+> ### U5. Metodo di verifica — correzione di un mio errore
+>
+> Non eseguire i `.p0t` in un ciclo sequenziale contro un solo demone: è lento
+> (5-15 minuti) **e produce fallimenti falsi**, perché lo stato passa da un file
+> all'altro. `tests/tools/run.sh` dà a ogni caso il proprio processo e gira a
+> `nproc` vie. In questa sessione il mio ciclo riportava decine di suite rosse;
+> la suite vera ne ha **una** (`check_sort.p0t`, debito MCP noto).
+>
+> Istruzione operativa di F.: usare `timeout 120 make soft-test` durante il
+> lavoro, non `make test`.
+
+
 > Compagno di `KB_TODO.md`, che elenca i residui della conoscenza. Questo
 > elenca i residui del **motore**: tutto ciò che oggi vive in `src/brain/*.c` e
 > che, per i mantra #2 e #16, dovrebbe essere conoscenza.
