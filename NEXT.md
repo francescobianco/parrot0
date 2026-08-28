@@ -114,7 +114,7 @@
 - **gen293 — basic-chat-bench: misura ONESTA (locale-independent)** il gauge
   contava come "engaged" i muri in ITALIANO ("Non capisco ancora." ecc.) perché
   `is_wall` conosceva solo le forme inglesi e il bench non fissava la lingua: su
-  macchina a locale IT ogni categoria era GONFIATA. Fix: `tests/basicchat.sh`
+  macchina a locale IT ogni categoria era GONFIATA. Fix: `tests/bench/basicchat.sh`
   fissa `PARROT0_LANG=en` (come `run.sh`, i prompt IT restano IT per rilevamento
   per-turno) e `is_wall` riconosce le 4 varianti del muro italiano. Copertura
   reale **56% → 46% (453/974)**; cat.43 corretta da falso 75% a vero 0/4. Nessun

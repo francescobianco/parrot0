@@ -1,0 +1,36 @@
+# anon.p0t — le VARIABILI ANONIME sono indipendenti fra loro.
+# Convertito da tests/anon.sh (gen444).
+#
+#   related($X) :- edge($X, _), edge(_, $X).
+#
+# I due `_` devono valere due cose DIVERSE. Se venissero unificati fra loro, la
+# regola chiederebbe un nodo V con edge(a,V) e edge(V,a) — un ciclo — e
+# `related(a)` sarebbe falso. E' vero solo se ogni `_` sta per se'.
+#
+# Il grafo e' scelto apposta perche' il caso passi solo con l'indipendenza:
+# `a` ha un arco uscente verso `b` e uno entrante da `c`, che sono nodi diversi.
+# E `d`, che ha solo l'arco uscente, dimostra che la regola non e' banalmente
+# vera per chiunque.
+#
+# I predicati sono held-out — `edge`/`related`, nulla a che vedere con la
+# morfologia — cosi' il successo prova una capacita' relazionale e non una
+# scorciatoia su un nome noto.
+
+[test anon_vars_are_independent]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+!assert edge(a, b)
+!assert edge(c, a)
+!assert edge(d, e)
+!clause related($X) :- edge($X, _), edge(_, $X)
+
+# a: uscente verso b, entrante da c — due vicini diversi
+> is a a related?
+< Yes.
+
+# d: solo uscente, nessun entrante
+> is d a related?
+< No.

@@ -322,7 +322,7 @@ locuzioni annidate restano il prossimo incremento del gold.
 - **444 (smoke):** l'audit conversazionale ha corretto il muro sulla domanda
   italiana sugli scacchi; `gen444-chat-smoke.p0t` passa 3 proprietà di risposta,
   crescita e ablazione della testa interrogativa;
-- **audit chat:** `tests/basicchat.sh` sulla KB reale registra 88% sui concetti
+- **audit chat:** `tests/bench/basicchat.sh` sulla KB reale registra 88% sui concetti
   matematici e 75% sulla causalità; sequenze, calendario, geografia e simboli
   restano debiti espliciti da chiudere prima del completamento del piano;
 - **441:** applica il gold alla prosa Wikipedia con provenance di revisione;

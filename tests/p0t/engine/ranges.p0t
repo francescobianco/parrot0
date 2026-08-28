@@ -1,0 +1,29 @@
+# ranges.p0t — `ranges_over/3`, l'intervallo che si valida da solo.
+# Convertito da tests/ranges.sh (gen444).
+#
+# Un intervallo e' valido se l'inizio non supera la fine. Il caso che conta e'
+# il terzo: l'estremo si puo' CALCOLARE nella stessa regola (`is/2` prima di
+# `ranges_over/3`), quindi il vincolo lavora su un valore derivato e non solo su
+# due costanti scritte a mano.
+
+[test ranges_literal]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!clause valid_range($E, $S, $E2) :- ranges_over($E, $S, $E2)
+!query valid_range(ww2, 1939, 1945)
+!query! valid_range(bad, 1945, 1939)
+# un intervallo di ampiezza zero e' valido
+!query valid_range(point, 2000, 2000)
+
+[test ranges_over_a_computed_bound]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!clause check_range($E, $S, $D, $E2) :- is($E2, add($S, $D)), ranges_over($E, $S, $E2)
+# 10 + 5 = 15, e 10 <= 15
+!query check_range(ok, 10, 5, 15)
+# 10 + -20 = -10, e 10 > -10: l'intervallo calcolato non e' valido
+!query! check_range(nope, 10, -20, -10)

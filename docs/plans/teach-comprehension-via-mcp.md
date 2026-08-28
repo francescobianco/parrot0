@@ -468,7 +468,7 @@ ricorsivo vero (Opzione A) — più costo, stessa semantica.
 > **Fatto (gen282).** `naf(G)` nel corpo (o `"neg":true` su un goal di
 > `kb.assert_clause`) è implementato: `Term.neg`, strisciamento del wrapper al
 > parse/assert, NAF in `solve()` e `prove_seq_ex()` con floundering-guard
-> (solo goal ground). Gate `tests/naf.sh` (via `.p0` e via MCP). `kb_save`
+> (solo goal ground). Gate `tests/p0t/engine/naf.p0t` (via `.p0` e via MCP). `kb_save`
 > round-trippa il wrapper. La defeasibilità con priorità/probabilità resta fuori.
 
 **Il "muro" è in realtà una porta ben precisa.** Non serve ASP/defeasible completo

@@ -1,0 +1,40 @@
+# naf.p0t — la NEGAZIONE PER FALLIMENTO e la sua eccezione.
+# Convertito da tests/naf.sh (gen444).
+#
+# Il default classico: gli uccelli volano, il pinguino no. Vale solo se
+# `naf(abnormal($X))` sopprime davvero il caso eccezionale — se `naf` non
+# funzionasse, il pinguino volerebbe.
+#
+# Due strade per la STESSA conoscenza, ed e' il punto del test: la sintassi `.p0`
+# e il layer MCP devono concludere lo stesso. Prima solo lo script poteva
+# provarle entrambe; ora `!clause` copre la prima e `!mcp` la seconda.
+
+[test naf_from_p0_syntax]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert bird(eagle)
+!assert bird(penguin)
+!assert flightless(penguin)
+!clause abnormal($X) :- flightless($X)
+!clause flies($X) :- bird($X), naf(abnormal($X))
+# il default regge
+!query flies(eagle)
+# e l'eccezione scatta
+!query! flies(penguin)
+
+[test naf_over_mcp]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!mcp kb.assert {"pred":"bird","args":["eagle"]}
+!mcp kb.assert {"pred":"bird","args":["penguin"]}
+!mcp kb.assert {"pred":"flightless","args":["penguin"]}
+!mcp kb.assert_clause {"head":{"pred":"abnormal","args":["$X"]},"body":[{"pred":"flightless","args":["$X"]}]}
+!mcp kb.assert_clause {"head":{"pred":"flies","args":["$X"]},"body":[{"pred":"bird","args":["$X"]},{"pred":"abnormal","args":["$X"],"neg":true}]}
+!mcp kb.query {"pred":"flies","args":["eagle"]}
+<~ "provable":true
+!mcp kb.query {"pred":"flies","args":["penguin"]}
+<~ "provable":false

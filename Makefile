@@ -155,7 +155,7 @@ parrotbench: build
 # the catalogue of elementary prompts parrot0 still walls on. Per-category score
 # to watch climb as categories are closed one structural generation at a time.
 basic-chat-bench: build
-	@./tests/basicchat.sh
+	@./tests/bench/basicchat.sh
 
 # gen226 (docs/plans/mimic-llm.md, primo giro): mimic-llm style harness — PURE
 # behavioral styling, offline. Catalogs parrot0's reaction to minimal/cryptic
@@ -485,6 +485,10 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/growth/arith_guard.p0t
 	@./$(BIN) --test tests/p0t/growth/semantic_summary.p0t
 	@./$(BIN) --test tests/p0t/growth/creative_composer.p0t
+	@./$(BIN) --test tests/p0t/engine/naf.p0t
+	@./$(BIN) --test tests/p0t/engine/dif.p0t
+	@./$(BIN) --test tests/p0t/engine/ranges.p0t
+	@./$(BIN) --test tests/p0t/engine/anon.p0t
 	@./$(BIN) --test tests/p0t/conversation/dialogue_moves.p0t
 	@./$(BIN) --test tests/p0t/conversation/context_scope.p0t
 	@./$(BIN) --test tests/p0t/conversation/conversation.p0t
@@ -858,7 +862,6 @@ legacy-test: build
 	@./tests/mcp-teach.sh
 	@./tests/dollarvar.sh
 	@./tests/assertclause.sh
-	@./tests/naf.sh
 	@./tests/compound.sh
 	@./tests/strknow.sh
 	@./tests/answerframe.sh
@@ -871,7 +874,6 @@ legacy-test: build
 	@./tests/savemap.sh
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
-	@./tests/anon.sh
 	@./tests/explain.sh
 	@./tests/howknow.sh
 	@./tests/booklearn.sh

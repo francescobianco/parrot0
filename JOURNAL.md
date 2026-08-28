@@ -2799,7 +2799,7 @@ all caught; real language untouched (`rhythm`, `strengths`, `philosophy`,
 to `blah blah`, since a bare number is now classified); module-list ratchets
 (`self`, `strategy`) grew by one. `make test` all green (180 unit cases + sub-suites).
 
-**Harness.** New `tests/basicchat.sh` + `make basic-chat-bench`: coverage over the
+**Harness.** New `tests/bench/basicchat.sh` + `make basic-chat-bench`: coverage over the
 plan file, per category, never fails the build. Baseline at gen189: **24%
 (239/974)**, **cat.0 100% (6/6)**. This is the ratchet to watch climb.
 

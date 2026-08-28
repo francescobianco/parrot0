@@ -1361,7 +1361,7 @@ italiano e inglese il percorso è ora attivo: il consumer interroga il cue KB
 prima del più ampio router di raccomandazione, mantenendo il lessico fuori dal
 C.
 
-Il secondo passaggio ha eseguito `tests/basicchat.sh` sulla KB reale: la
+Il secondo passaggio ha eseguito `tests/bench/basicchat.sh` sulla KB reale: la
 copertura dei concetti matematici è salita da 65% a 88% e quella causale da 50%
 a 75% dopo l'aggiunta del nucleo semantico. Restano muri osservabili su
 sequenze, calendario, geografia e simboli; sono lacune registrate, non

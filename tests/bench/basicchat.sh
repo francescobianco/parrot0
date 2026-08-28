@@ -22,7 +22,7 @@
 # engaged — knowing you don't know is a real answer; walling is the failure.
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 PLAN="$ROOT/docs/plans/basic-chat.md"
 

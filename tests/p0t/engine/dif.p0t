@@ -1,0 +1,32 @@
+# dif.p0t — il vincolo di DISUGUAGLIANZA, ground e differito.
+# Convertito da tests/dif.sh (gen444).
+#
+# `dif/2` non e' solo «diverso adesso»: dentro una regola con piu' unificazioni
+# deve restare un VINCOLO, e far fallire la soluzione in cui i due termini
+# finiscono uguali. Il caso apple/cherry e' quello che lo dimostra: stesso
+# colore, quindi la regola non deve concludere.
+
+[test dif_ground]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!clause distinct($X, $Y) :- dif($X, $Y)
+!query distinct(a, b)
+!query! distinct(a, a)
+!query distinct(1, 2)
+
+[test dif_deferred_inside_a_rule]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert color(apple, red)
+!assert color(banana, yellow)
+!assert color(cherry, red)
+!clause different_color($X, $Y) :- color($X, $C1), color($Y, $C2), dif($C1, $C2)
+# rosso contro giallo: il vincolo passa
+!query different_color(apple, banana)
+# rosso contro rosso: il vincolo scatta e la regola non conclude
+!query! different_color(apple, cherry)
+!query! different_color(apple, apple)
