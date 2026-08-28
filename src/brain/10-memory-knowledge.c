@@ -12916,8 +12916,36 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     if (interrogative && p0_try_frame_question(b, w, nw, norm, out, out_size)) return 1;
     if (!interrogative && extract_class_statement(b, norm, out, out_size, 0)) return 1;
 
-    if (nw != 4 || !is_article(b, w[2])) return 0;
-    const char *cls = w[3];
+    /* IL PERCORSO RIGIDO A QUATTRO PAROLE VEDEVA SOLO CLASSI DI UNA PAROLA (gen452).
+     *
+     * «socrates is a man» si impara e «is socrates a man?» risponde «Yes».
+     * «white is a light color» si impara altrettanto bene — la via delle
+     * ASSERZIONI fonde gia' le classi multi-parola dal gen299 — ma «is white a
+     * light color?» cadeva al muro: cinque parole invece di quattro, e il gate
+     * qui sotto usciva prima ancora di guardare la frase.
+     *
+     * Il difetto non era di dominio, era di simmetria: parrot0 poteva IMPARARE
+     * una classe che poi non poteva INTERROGARE. Un fatto in quello stato non e'
+     * conoscenza, e' un deposito — e il commento sopra lo diceva gia' senza
+     * trarne la conseguenza («runs only on assertions»).
+     *
+     * La fusione qui e' la STESSA della via delle asserzioni — `p0_join`, non
+     * una seconda copia — cosi' le due non possono divergere su che cosa sia
+     * una classe. L'allargamento vale solo per le DOMANDE: le asserzioni
+     * multi-parola hanno gia' il loro lettore e restano sul percorso provato. */
+    if (nw < 4 || !is_article(b, w[2])) return 0;
+    char cls_buf[KB_TERM_LEN];
+    if (nw > 4) {
+        int is_question = interrogative ||
+                          lex_class_member(b, "10_memory_knowledge_lex12658", w[0]) ||
+                          lex_class_member(b, "10_memory_knowledge_lex12629", w[0]) ||
+                          lex_class_member(b, "10_memory_knowledge_lex12629_2", w[0]);
+        if (!is_question) return 0;
+        if (!p0_join(w, 3, nw, cls_buf, sizeof cls_buf)) return 0;
+    } else {
+        snprintf(cls_buf, sizeof cls_buf, "%s", w[3]);
+    }
+    const char *cls = cls_buf;
 
     /* variable query: "who/what is a <y>?" -> y(X), list the bindings */
     if ((lex_class_member(b, "10_memory_knowledge_lex12629", w[0]) || lex_class_member(b, "10_memory_knowledge_lex12629_2", w[0])) &&
