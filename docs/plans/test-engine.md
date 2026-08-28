@@ -144,6 +144,8 @@ sessione.
 !sandbox / !sandbox off     lavora dentro una directory temporanea privata (0700)
                             e la ripulisce; si chiude da sé al `[test …]` dopo e
                             a fine file
+!symlink BERSAGLIO NOME     crea un collegamento simbolico come fixture; si
+                            rimuove da sé alle stesse due frontiere
 ```
 
 L'uguaglianza esatta è giusta per una risposta breve e determinata. Una risposta

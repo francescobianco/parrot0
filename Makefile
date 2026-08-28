@@ -847,7 +847,7 @@ legacy-test: build
 	@./tests/syllogism.sh
 	@./tests/repair.sh
 	@./tests/agentrepair.sh
-	@./tests/toolexec.sh
+	@./tests/cdriver/exec_kernel.sh
 	@./tests/exec-dirfd.sh
 	@./tests/agentkernel.sh
 	@./tests/code-task-agent.sh

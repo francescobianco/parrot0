@@ -1,0 +1,112 @@
+# toolexec.p0t — il KERNEL DI ESECUZIONE degli strumenti.
+# Convertito da tests/toolexec.sh (gen444).
+#
+# Quattro controesempi, tutti riprodotti sul binario reale prima che si
+# scrivesse una riga. Ognuno e' un modo per parrot0 di AVER TORTO SUL MONDO, che
+# in un agente e' l'unico torto che conta:
+#
+#   04  `run git status; printf P0_CHAINED` -> il secondo comando VENIVA ESEGUITO.
+#       La guardia controllava il PREFISSO e poi passava l'intera stringa a
+#       popen(3). Una stringa di shell non si valida dal suo inizio.
+#   05  `read /etc/os-release` -> parrot0 leggeva fuori dal repository.
+#       Si controllavano i CARATTERI del percorso, che non dicono nulla su dove
+#       punta.
+#   07  `run make bogus-target-xyz` -> un FALLIMENTO veniva raccontato come
+#       RISULTATO. Lo stato di uscita non veniva mai letto.
+#
+# La regola che questi test impongono: un rifiuto preciso e' VERDE, un successo
+# mai verificato e' ROSSO. Ogni asserzione qui dice «il rifiuto e' stato
+# NOMINATO» o «il fallimento e' stato NOMINATO» — mai «e' tornato del testo».
+# Un test che guardasse solo l'output sarebbe passato a gen328, su tutti e
+# quattro i difetti.
+#
+# Il caso 06 — timeout, gruppo di processi, spawn_failed — non e' qui: prova
+# `p0_exec` direttamente, compilando un driver contro src/exec.c, e per
+# esprimerlo servirebbe esporre l'esecutore. Vedi la nota in coda.
+
+[test toolexec_no_shell_no_injection]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!set PARROT0_LANG=en
+!reset
+!timeout 30
+# la canarino puo' comparire SOLO se un secondo processo e' partito
+> run git status; printf P0_CHAINED
+<! P0_CHAINED
+<~ unsafe_command
+> run git status && printf P0_CHAINED
+<~ unsafe_command
+> run git status | tee P0_CHAINED
+<~ unsafe_command
+> run make $(printf P0_CHAINED)
+<~ unsafe_command
+> run git status `printf P0_CHAINED`
+<~ unsafe_command
+
+[test toolexec_authorized_still_works]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!set PARROT0_LANG=en
+!reset
+!timeout 60
+# un cancello che blocca anche il lavoro vero non e' una riparazione
+> run git status
+<~ On branch
+# ROSSO da prima: `make build` dentro la sandbox non arriva a termine e
+# risponde «nothing» invece dello stato di uscita.
+> run make build
+<~ exit 0
+# `git` e' autorizzato come programma, `git push` no: tool_subcmd/2 regge
+> run git push
+<~ unsafe_command
+# un programma senza contratto tool_for/2 non si esegue
+> run curl example.com
+<~ unsafe_command
+
+[test toolexec_containment]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!set PARROT0_LANG=en
+!reset
+!timeout 30
+> read /etc/os-release
+<! PRETTY_NAME
+<~ unsafe_path
+> read ../../../etc/passwd
+<! root:
+<~ unsafe_path
+# un file vero dentro il workspace si legge ancora
+> read kb/core/base.p0
+<~ base.p0
+> list the files in src
+<~ src/kb.c
+> list the files in /etc
+<~ unsafe_path
+
+[test toolexec_symlink_that_escapes]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!set PARROT0_LANG=en
+!reset
+!timeout 30
+# Il caso che conta: il NOME e' dentro il workspace e innocente. Solo la
+# risoluzione dice che punta fuori — O_NOFOLLOW.
+!symlink /etc/os-release p0tmp_escape_link.txt
+> read p0tmp_escape_link.txt
+<! PRETTY_NAME
+
+[test toolexec_a_failure_is_a_failure]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!set PARROT0_LANG=en
+!reset
+!timeout 60
+> run make bogus-target-xyz
+<~ FAILED (exit 2)
+# un fallimento non deve prendere la FORMA di un risultato
+<! `make bogus-target-xyz`:
+
+# e la prova cita l'OSSERVAZIONE — l'esecuzione — non l'affermazione
+> how do you know?
+<~ Observation:
+<~ exit 2

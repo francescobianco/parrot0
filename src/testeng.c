@@ -40,6 +40,12 @@
  *                             [test]). A turn slower than the budget is a FAILURE
  *                             (a perf-regression guard); 0 disables it.
  *   !forget PRED              switch a predicate OFF: retract every fact of it
+ *   !symlink TARGET NAME      create a symlink fixture (removed at the next
+ *                             `[test …]` and at end of file). The interesting
+ *                             containment case is the symlink whose NAME is
+ *                             innocent and inside the workspace: only resolving
+ *                             it shows it points out. Testing that needs to
+ *                             CREATE one, which had no .p0t form.
  *   !sandbox / !sandbox off   run inside a private 0700 temp dir (and clean it up).
  *                             Some tests need a WRITABLE cwd — the code judge
  *                             compiles and runs a candidate, writing a work tree
@@ -127,6 +133,11 @@ typedef struct {
     char sandbox_dir[512];
     char sandbox_prev[512];
     int  in_sandbox;
+    /* !symlink: le fixture di filesystem create da un test. Si tolgono da sole,
+     * come la sandbox: un link lasciato nel workspace e' sporcizia che il test
+     * dopo si ritrova fra i piedi. */
+    char fixture[8][512];
+    size_t n_fixture;
     /* gen377: how `expect` is compared. Exact match is right for a short, fully
      * determined reply, but a generated ANALYTICAL answer is a paragraph, and what
      * a growth test asserts is that one phrase APPEARS or DISAPPEARS when a fact is
@@ -208,6 +219,7 @@ static const char *te_casestr(const char *hay, const char *needle) {
 
 static int te_sandbox_enter(TeState *t);
 static void te_sandbox_leave(TeState *t);
+static void te_fixtures_clear(TeState *t);
 
 static int te_sandbox_enter(TeState *t) {
     if (t->in_sandbox) te_sandbox_leave(t);
@@ -220,6 +232,12 @@ static int te_sandbox_enter(TeState *t) {
     if (chdir(t->sandbox_dir) != 0) return 0;
     t->in_sandbox = 1;
     return 1;
+}
+
+static void te_fixtures_clear(TeState *t) {
+    for (size_t i = 0; i < t->n_fixture; i++)
+        if (t->fixture[i][0]) unlink(t->fixture[i]);
+    t->n_fixture = 0;
 }
 
 static void te_sandbox_leave(TeState *t) {
@@ -410,6 +428,7 @@ static int te_process_stream(TeState *t, FILE *in) {
         if (*p == '[') {
             te_flush(t);
             te_sandbox_leave(t);   /* una sezione non eredita la sandbox di prima */
+            te_fixtures_clear(t);  /* ne' le sue fixture di filesystem */
             char *close = strchr(p, ']');
             if (!close) { syntax_err = 1; continue; }
             *close = '\0';
@@ -599,6 +618,37 @@ static int te_process_stream(TeState *t, FILE *in) {
          * file e a ogni `[test …]`, cosi' un test che dimentica di chiudere non
          * lascia il demone in una directory temporanea — che sarebbe un guasto
          * silenzioso per tutti i test successivi. */
+        /* ── !symlink BERSAGLIO NOME ────────────────────────────────────────
+         *
+         * Il caso interessante del contenimento e' il collegamento simbolico:
+         * il suo NOME e' dentro il workspace e perfettamente innocente, e solo
+         * risolverlo dice che punta fuori. Provarlo richiede di CREARLO, e in
+         * shell era `ln -sf`; in .p0t non era esprimibile, ed e' il motivo per
+         * cui le suite sugli strumenti erano rimaste fuori.
+         *
+         * Si rimuove da se' alla sezione dopo e a fine file: un link lasciato
+         * nel workspace e' sporcizia che il test successivo si ritrova fra i
+         * piedi. */
+        if (strncmp(p, "!symlink", 8) == 0 && (p[8] == ' ' || p[8] == '\t')) {
+            te_flush(t);
+            char *q = p + 8;
+            while (*q == ' ' || *q == '\t') q++;
+            char target[400]; size_t k = 0;
+            while (*q && *q != ' ' && *q != '\t' && k + 1 < sizeof target) target[k++] = *q++;
+            target[k] = '\0';
+            while (*q == ' ' || *q == '\t') q++;
+            if (!k || !*q || t->n_fixture >= 8) { syntax_err = 1; continue; }
+            unlink(q);
+            if (symlink(target, q) != 0) {
+                t->failed++;
+                fprintf(t->out, "  FAIL  [%s] line %d\n",
+                        t->section[0] ? t->section : "-", t->line_no);
+                fprintf(t->out, "        symlink: non sono riuscito a creare %s\n", q);
+            } else {
+                snprintf(t->fixture[t->n_fixture++], 512, "%s", q);
+            }
+            continue;
+        }
         if (strncmp(p, "!sandbox", 8) == 0 &&
             (p[8] == '\0' || p[8] == ' ' || p[8] == '\t')) {
             te_flush(t);
@@ -687,6 +737,7 @@ static int te_process_stream(TeState *t, FILE *in) {
     }
     te_flush(t);
     te_sandbox_leave(t);   /* mai lasciare il demone dentro una temporanea */
+    te_fixtures_clear(t);
     return syntax_err ? 2 : 0;
 }
 
