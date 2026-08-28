@@ -146,15 +146,9 @@ static int algebra_inverse(Brain *b, const char *side, char op, double a,
  * nuovo funziona da solo e non dentro un'espressione, e la differenza si vede
  * dalla firma del ragionamento (gen422): un turno che calcola senza interrogare
  * nessun predicato non e' KB-first, e ora e' un numero che si legge. */
-static double apply_op_char(char op, double a, double c, int *ok) {
-    *ok = 1;
-    switch (op) {
-        case '+': return a + c;
-        case '-': return a - c;
-        case '*': return a * c;
-        case '/': if (c == 0) { *ok = 0; return 0; } return a / c;
-    }
-    *ok = 0; return 0;
+static double apply_op_char(Brain *b, char op, double a, double c, int *ok) {
+    char sym[2] = { op, '\0' };
+    return apply_arith_op(b, sym, a, c, ok);
 }
 
 /* Square root without <math.h> (Newton's method); for our integer operands this
@@ -296,7 +290,7 @@ static int arith_eval_infix(Brain *b, char **ew, size_t enw, double *res) {
         double nx;
         if (!parse_value(ew[i], &nx)) return 0;
         int ok;
-        cur = apply_op_char(op, cur, nx, &ok);
+        cur = apply_op_char(b, op, cur, nx, &ok);
         if (!ok) return 0;
         i++; ops++;
     }

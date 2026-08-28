@@ -1150,3 +1150,13 @@ controlli di struttura. Le sei superfici sono coperte dal ratchet di
 `kb_first_round16.p0t` e dalle regressioni del modulo code.
 `check_sort.p0t` conserva cinque differenze di sorgente MCP già note, pur
 riportando i verdetti attesi; non sono state mascherate in questo lotto.
+
+### Gen480 — le quattro operazioni composte delegate alla KB
+
+Lo switch locale di `apply_op_char` non calcola più `+`, `-`, `*` e `/` nel C:
+ogni operatore passa a `apply_operator/4` attraverso `apply_arith_op`, già
+usato dal percorso semplice. Il C conserva soltanto il simbolo, il binding
+degli operandi e il controllo `ok`; la divisione per zero resta una condizione
+del predicato KB. Le regressioni aritmetiche bilingui proteggono il percorso.
+`arith_flex.p0t` mantiene un solo mismatch storico nel fallback testuale di
+`gold + silver`; i percorsi numerici e algebrici del lotto restano verdi.
