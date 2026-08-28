@@ -9,6 +9,22 @@ apre una sessione, si eseguono i gate, si committa e si pusha l'incremento.
 quello del §8 di [`docs/plans/apprendimento-assistito.md`](docs/plans/apprendimento-assistito.md):
 *preferire il gap che, chiuso, libera più famiglie di frasi.*
 
+## Da dove si pescano i temi
+
+Oltre a questa coda, il serbatoio è [`docs/llmscores/`](docs/llmscores/): **531
+prompt** estratti dalle 48 revisioni storiche di `LLMSCORE.md` e dalle sonde
+tematiche, di cui **315 sono muri** — prompt su cui parrot0 ha preso 0 da un
+giudice esterno — divisi in venti file per tema.
+
+È materiale già filtrato dalla realtà: non prompt inventati da noi, ma
+fallimenti veri davanti a un giudizio esterno. Quando una voce di questa coda è
+chiusa e non si sa da dove ripartire, si apre il file del tema più promettente e
+si prende una **famiglia** di muri, mai un prompt solo — chiudere l'istanza
+senza chiudere la classe non conta come progresso.
+
+I prompt marcati «già vinti» in quei file servono al verso opposto: se uno torna
+a murare, è un tema da riapprendere e va in P4.
+
 ## Come si usa
 
 1. Si prende la voce più alta non ancora fatta nella sezione applicabile.
