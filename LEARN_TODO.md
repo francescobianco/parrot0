@@ -34,12 +34,12 @@ quanto sia bravo altrove. Hanno la precedenza su tutto.
 | # | Tema | Classe che chiude | Stato |
 |---|---|---|---|
 | P0.1 | **Una risposta è nella lingua della domanda** — sempre, muri e messaggi di errore compresi | il muro inglese in chat italiana | **parziale**: marcatori e pareggio risolti (`012e034`); resta l'output misto — `reflexive_skeleton.it` produce «aldric is coraggioso» dentro una frase inglese |
-| P0.2 | **Hello world e i primi snippet**, in ogni lingua naturale e nei linguaggi principali | «non so scrivere il programma più semplice del mondo» | **fatto** per python e c (`012e034`) — estendere a shell, javascript, sql |
+| P0.2 | **Hello world e i primi snippet**, in ogni lingua naturale e nei linguaggi principali | «non so scrivere il programma più semplice del mondo» | **fatto**: python, c, shell, javascript, sql (`012e034`, `3ecfceb`) — i tre in più sono costati *zero C*, che è la prova che il meccanismo è KB-first |
 | P0.3 | **Le operazioni aritmetiche e le loro parole** | `what is 2 plus 2?` era rotto da gen443 | **fatto** (`1f9f3d9`) — la classe ora si deriva da `infix_operator` |
 | P0.4 | **Un muro è un muro, non una battuta sociale** | quattro input reali ricevevano riempitivo smalltalk | **aperto** — è M0, il prerequisito di tutto il resto |
 | P0.5 | **Una domanda non diventa mai un fatto** | `what causes inflation?` → `causes(what, inflation)` | **fatto per il causale** (`6c898e5`) — serve la guardia *generale*, non una per modulo |
-| P0.6 | **Le unità di misura e le conversioni** — metri/piedi, celsius/fahrenheit, kg/libbre | le conversioni sono la domanda più banale che un assistente riceve | **da fare** |
-| P0.7 | **Date e tempo** — che giorno è, quanti giorni fra due date, giorni del mese | idem | **da fare** |
+| P0.6 | **Le unità di misura e le conversioni** | le conversioni sono la domanda più banale che un assistente riceve | **fatto** per il sistema SI (`d8020b3`): 8 fatti, replay 4/4. Restano le conversioni fra sistemi — piedi, libbre, fahrenheit — che chiedono un *calcolo*, non una tabella |
+| P0.7 | **Date e tempo** | idem | **parziale** (`d8020b3`): i giorni dei mesi insegnati, 5 su 12. Restano gli altri sette, l'anno bisestile e l'aritmetica fra date |
 
 ## P1 — Il metalinguaggio: ciò che sblocca l'insegnabilità
 
@@ -48,7 +48,7 @@ una vale più di dieci sessioni di fatti. Riferimento: M0–M14 del piano.
 
 | # | Tema | Classe che chiude | Stato |
 |---|---|---|---|
-| P1.1 | **Dire di che tipo è la propria lacuna** (M13) | oggi il registro delle lacune è *scritto e muto*: `gap_kind`, `gap_opaque`, `gap_anchor` esistono a ogni turno e non c'è modo di chiederli | **aperto — la voce con il miglior rapporto valore/rischio**: i dati ci sono già, manca il consumer |
+| P1.1 | **Dire di che tipo è la propria lacuna** (M13) | il registro era *scritto e muto* | **fatto** (`837a044`): referto con frase, ancore, opachi e specie; filtrato sulla conversazione corrente, citando le parole dell'utente; la cue cresce a runtime. `tests/p0t/meta/gap_report.p0t` 13/13 |
 | P1.2 | **Ricongiungere le rappresentazioni** (M8) | `igneous_rock(basalt)` non soddisfa `igneous(X), rock(X)` — ogni classe composta è oggi un'isola | **aperto**: metà della causa comune con M3 è caduta, il bersaglio congiuntivo no |
 | P1.3 | **Nominare i ruoli** (M4) | «qui il primo nome è chi agisce» — la frase con cui il piano si apre, e che parrot0 non sa ricevere | **aperto** |
 | P1.4 | **La forma flessa e quella base sono lo stesso verbo** (M5) | `filter`/`filters`, `studies`/`study` sono due abilità scollegate **in ingresso** (in uscita il ponte c'è, `lemma_candidate/2`) | **aperto**, misurato nella sessione fisiologia |
