@@ -10,7 +10,7 @@ Stato: **82/113 file sistemati (73%)** alla radice di `tests/`.
 
 ## 0. HANDOFF — da leggere per primo
 
-### 0.1 ⚠️ Il debito da saldare prima di convertire altro
+### 0.1 ⚠️ `!expect` — il debito da saldare PRIMA di convertire altro
 
 `!mcp` ed `!exec` mettono il loro risultato **dove va la risposta di parrot0**, e
 si verificano con `<~` / `<!`. **È sbagliato**, e l'ha detto F.: `<` è
@@ -18,9 +18,38 @@ l'asserzione su *ciò che parrot0 ha risposto in un turno di conversazione*, e
 l'uscita di una primitiva di test non è parrot0 che parla. Confonderle fa passare
 per parola dell'agente quella che è uscita dello strumento.
 
-Serve una **forma di asserzione separata** per l'output delle primitive — per
-esempio `!out~ testo` / `!out! testo`, o un'espressione inline nella primitiva
-stessa. Poi vanno aggiornati i file già convertiti che usano `<~` dopo `!mcp`:
+**La forma decisa (F.): `!expect <sorgente> <testo>`.**
+
+```
+!mcp kb.query {"pred":"dog","args":["rex"]}
+!expect mcp "provable":true
+
+!exec make build
+!expect exec exit 0
+```
+
+Due proprietà la rendono molto più di un `<~` rinominato, e vanno implementate
+entrambe o non serve a niente:
+
+1. **La sorgente è una GUARDIA, non decorazione.** Se l'ultima primitiva è stata
+   `!exec` e il test scrive `!expect mcp`, il caso deve **fallire**. È un errore
+   del test — la stessa classe di errore che questa migrazione ha prodotto più
+   volte: asserire la cosa giusta sull'output sbagliato. Senza questo controllo
+   `!expect` è solo `<~` con una parola in più.
+2. **`<` deve RIFIUTARSI di asserire dopo una primitiva.** Se l'ultimo output non
+   viene da un turno, `<` deve dire «questo non è parrot0 che parla». Altrimenti
+   la forma vecchia continua a funzionare in silenzio e il debito resta soltanto
+   scoraggiato, mai chiuso.
+
+Con entrambe, la coppia diventa una **tipizzazione**: `<` è il canale
+conversazionale, `!expect <sorgente>` quello degli strumenti, e mescolarli è un
+errore *rilevato* invece che una svista.
+
+Servono le tre varianti che `<` ha già: contiene (`!expect`), non contiene
+(`!expect!`), uguale esatto — e la sorgente da riconoscere è almeno `mcp` ed
+`exec`.
+
+Poi vanno aggiornati i file già convertiti che usano `<~` dopo `!mcp`:
 
 `p0t/mcp/*.p0t` (6), `p0t/growth/*.p0t` (4), `p0t/engine/naf.p0t`,
 `p0t/engine/dif.p0t`, `p0t/engine/dollarvar.p0t`, `p0t/lang/*.p0t` (3),

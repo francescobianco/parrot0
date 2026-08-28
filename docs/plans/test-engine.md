@@ -271,11 +271,17 @@ Sono **agnostiche**: guardano il disco e basta.
 **prima** (un giro interrotto non fa fallire il successivo) e **dopo** (il
 repository resta com'era). L'entità di prova è inventata apposta.
 
-> ⚠️ **Debito noto (F., gen444).** `!mcp` ed `!exec` mettono oggi il loro
-> risultato dove va la risposta di parrot0, e si verificano con `<~`/`<!`. È
+> ⚠️ **Debito noto (F., gen444) — `!expect`.** `!mcp` ed `!exec` mettono oggi il
+> loro risultato dove va la risposta di parrot0, e si verificano con `<~`/`<!`. È
 > sbagliato: `<` asserisce su ciò che **parrot0 ha detto**, e l'uscita di una
-> primitiva di test non è parrot0 che parla. Serve una forma di asserzione
-> separata per l'output delle primitive. Vedi `TEST_TODO.md` §1.0.
+> primitiva di test non è parrot0 che parla.
+>
+> La forma decisa è `!expect <sorgente> <testo>` — `!expect mcp …`,
+> `!expect exec …` — con due proprietà che vanno implementate insieme: la
+> **sorgente è una guardia** (scrivere `!expect mcp` dopo un `!exec` deve
+> fallire, non essere ignorato), e **`<` deve rifiutarsi** di asserire quando
+> l'ultimo output non viene da un turno. Così `<` e `!expect` diventano due
+> canali tipizzati e mescolarli è un errore rilevato. Vedi `TEST_TODO.md` §0.1.
 
 **Ancora da progettare (F.):** mock, stub, flag e altre forme di controllo dello
 stato della KB. Per ora l'engine fa solo l'assert atteso + il pilotaggio env.
