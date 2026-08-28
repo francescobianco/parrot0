@@ -984,10 +984,10 @@ int main(int argc, char **argv) {
       size_t facts = kb_size(brain_kb(brain));
       size_t rules = kb_rule_count(brain_kb(brain));
       double rule_fact_ratio = facts ? ((double)rules * 100.0 / (double)facts) : 0.0;
-      fprintf(stderr, "parrot0 [%s] - mode: %s (tools %s, network %s)\n"
-                      "Facts: %zu\n"
-                      "Rules: %zu\n"
-                      "Rules/Facts: %.4f%%\n"
+      /* Una riga sola. Le quattro di prima dicevano le stesse quattro cose e
+       * spingevano fuori schermo l'inizio della conversazione ogni volta. */
+      fprintf(stderr, "parrot0 [%s] - mode: %s (tools %s, network %s) - "
+                      "%zu facts, %zu rules (%.2f%%)\n"
                       "say something ('/quit' to exit, '/save' to persist, "
                       "'/restore' to reload the KB from disk)\n",
               brain_version(), mode,
