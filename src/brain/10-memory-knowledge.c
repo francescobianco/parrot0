@@ -3404,9 +3404,8 @@ static int mod_family(Brain *b, const char *norm, const char *raw,
 /* gen299 (deep-reasoning M0, comprehension frames 3/4/6): join a token span into a
  * single '_'-connected atom, rejecting anything with non-alphabetic edges so only
  * clean word phrases become entities/classes ("blue whale" -> blue_whale). */
-static int p0_is_loc_prep(const char *t) {
-    return !strcmp(t, "in") || !strcmp(t, "from") || !strcmp(t, "near") ||
-           !strcmp(t, "on") || !strcmp(t, "at");
+static int p0_is_loc_prep(Brain *b, const char *t) {
+    return b && t && lex_class_member(b, "location_preposition", t);
 }
 /* gen382: p0_is_prep e' stato RIMOSSO, non sostituito. Faceva un solo lavoro —
  * chiudere il sintagma — e quel lavoro ora e' np_closer/1 in KB. p0_is_loc_prep
@@ -3453,21 +3452,10 @@ static int p0_lead_det(Brain *b, const char *t) {
  * copulas/determiners, and common conversational openers. Keeps the broad extractor
  * from mistaking a question ("what is your sister's name") or a greeting ("how is
  * your day going") or a predicate-adjective clause for a membership statement. */
-static int p0_bad_subject(const char *t) {
-    /* TODO(kb-first): pronomi, ausiliari e parole interrogative — e sono TUTTI
-     * gia' nella KB (`question_word/1` in social.p0, `auxiliary/1` e
-     * `stopword/1` in lexicon.p0). Va sostituita da una domanda alle classi
-     * che gia' esistono, come fa `classes[]` poco sopra in questo stesso file. */
-    static const char *const bad[] = {
-        "what","who","how","where","when","why","which","whose","whom",
-        "it","this","that","these","those","there","here","one",
-        "i","you","we","they","he","she","me","us","them","him","her",
-        "do","does","did","is","are","was","were","be","been","being",
-        "the","a","an","not","and","or","but","if","so","then",
-        "thanks","thank","please","yes","no","ok","okay","hi","hello","hey",
-        "your","my","his","its","our","their", NULL };
-    for (size_t i = 0; bad[i]; i++) if (!strcmp(t, bad[i])) return 1;
-    return 0;
+static int p0_bad_subject(Brain *b, const char *t) {
+    if (!b || !b->kb || !t) return 0;
+    const char *q[] = { t };
+    return kb_query(b->kb, "subject_guard", q, 1);
 }
 static int p0_join(char **w, size_t a, size_t b, char *out, size_t sz) {
     size_t o = 0; out[0] = '\0';
@@ -3613,7 +3601,7 @@ static int p0_generic_plural_rule(Brain *b, char **w, size_t n,
     snprintf(s1, sizeof s1, "%s", strip_edge_punct(w[1]));
     snprintf(s2, sizeof s2, "%s", strip_edge_punct(w[2]));
     if (!lex_class_member(b, "generic_copula", s1)) return 0;
-    if (p0_bad_subject(s0)) return 0;
+    if (p0_bad_subject(b, s0)) return 0;
 
     char subj[KB_TERM_LEN], cls[KB_TERM_LEN];
     singularize_kb(b, s0, subj, sizeof subj);
@@ -3870,7 +3858,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
 
         const char *subj = slot[0];
         const char *obj = slot[nslots - 1];
-        if (p0_bad_subject(subj)) continue;
+        if (p0_bad_subject(b, subj)) continue;
 
         char text_term[KB_TERM_LEN];
         const char *stored_obj = obj;
@@ -4766,7 +4754,7 @@ static int extract_class_statement(Brain *b, const char *norm,
                 size_t ss = agent + 1; if (ss < n && p0_lead_det(b, w[ss])) ss++;
                 char subj2[KB_TERM_LEN];
                 if (ss >= n || !p0_join(w, ss, n, subj2, sizeof subj2)) break;
-                if (p0_bad_subject(subj2)) break;
+                if (p0_bad_subject(b, subj2)) break;
                 kb_set_origin(b->kb, KB_SESSION);
                 const char *ca[] = { subj2, obj2, canon };
                 if (kb_assert(b->kb, "created_by", ca, 3)) {
@@ -4781,7 +4769,7 @@ static int extract_class_statement(Brain *b, const char *norm,
             if (ss >= i) break;
             char subj2[KB_TERM_LEN];
             if (!p0_join(w, ss, i, subj2, sizeof subj2)) break;
-            if (p0_bad_subject(subj2)) break;
+            if (p0_bad_subject(b, subj2)) break;
             size_t os = i + 1; if (os < n && p0_lead_det(b, w[os])) os++;
             char obj2[KB_TERM_LEN];
             if (os >= n || !p0_join(w, os, n, obj2, sizeof obj2)) break;
@@ -4835,7 +4823,7 @@ static int extract_class_statement(Brain *b, const char *norm,
     while (send < cop && !p0_np_closer(b, strip_edge_punct(w[send]))) send++;
     if (send == sstart) return 0;                        /* comincia con un confine */
 
-    if (p0_bad_subject(strip_edge_punct(w[sstart]))) return 0;   /* not a real subject */
+    if (p0_bad_subject(b, strip_edge_punct(w[sstart]))) return 0;   /* not a real subject */
     char subj[KB_TERM_LEN];
     if (!p0_join(w, sstart, send, subj, sizeof subj)) return 0;
     int subj_multi = strchr(subj, '_') != NULL;
@@ -4844,7 +4832,7 @@ static int extract_class_statement(Brain *b, const char *norm,
     char obj[KB_TERM_LEN], cls[KB_TERM_LEN];
 
     /* --- locative frames (6): store located_in/part_of and return --- */
-    if (lex_class_member(b, "10_memory_knowledge_lex4566", w[p]) && p + 1 < n && p0_is_loc_prep(w[p + 1])) {
+    if (lex_class_member(b, "10_memory_knowledge_lex4566", w[p]) && p + 1 < n && p0_is_loc_prep(b, w[p + 1])) {
         size_t os = p + 2; if (os < n && p0_lead_det(b, w[os])) os++;
         if (os < n && p0_join(w, os, n, obj, sizeof obj)) {
             kb_set_origin(b->kb, KB_SESSION);
@@ -4877,7 +4865,7 @@ static int extract_class_statement(Brain *b, const char *norm,
         }
         return 0;
     }
-    if (p0_is_loc_prep(w[p])) {                 /* "X is in Y" */
+    if (p0_is_loc_prep(b, w[p])) {                 /* "X is in Y" */
         size_t os = p + 1; if (os < n && p0_lead_det(b, w[os])) os++;
         if (os < n && p0_join(w, os, n, obj, sizeof obj)) {
             kb_set_origin(b->kb, KB_SESSION);
@@ -4957,7 +4945,7 @@ static int extract_class_statement(Brain *b, const char *norm,
     }
 
     int loc = 0;
-    if (p < n && p0_is_loc_prep(w[p])) {         /* trailing PP -> located_in (4) */
+    if (p < n && p0_is_loc_prep(b, w[p])) {         /* trailing PP -> located_in (4) */
         size_t os = p + 1; if (os < n && p0_lead_det(b, w[os])) os++;
         if (os < n) loc = p0_join(w, os, n, obj, sizeof obj);
     }

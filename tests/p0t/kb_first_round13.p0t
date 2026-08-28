@@ -1,0 +1,32 @@
+# Focused KB-first round thirteen: a contingent guard is a KB relation, not a
+# C-level OR chain. Role openings and locative prepositions are live classes.
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+[test contingent subject guard is assembled by KB clauses]
+!query subject_guard(what)
+!query subject_guard(is)
+!assert subject_guard(zorp_guard)
+!query subject_guard(zorp_guard)
+!forget subject_guard(zorp_guard)
+!query! subject_guard(zorp_guard)
+
+[test locative role is live and retractable]
+!query location_preposition(in)
+!assert location_preposition(inside)
+!query location_preposition(inside)
+!forget location_preposition(inside)
+!query! location_preposition(inside)
+
+[test role opening surfaces are KB facts]
+!query intent_cue(role_open, "pretend you are ")
+!assert intent_cue(role_open, "act as ")
+!query intent_cue(role_open, "act as ")
+!forget intent_cue(role_open, "act as ")
+!query! intent_cue(role_open, "act as ")
+!query intent_cue(role_name_cue, "your name is ")

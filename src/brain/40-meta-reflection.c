@@ -928,19 +928,17 @@ static int role_uptake(Brain *b, const char *raw) {
      * nel C. Sono esattamente `intent_cue(role_open, "…")`: un modo nuovo di
      * chiedere un gioco di ruolo — o una terza lingua — deve essere una riga
      * di conoscenza, non una ricompilazione. */
-    static const char *const intros[] = {
-        "pretend you are ", "pretend you re ", "pretend to be ",
-        "you are now ", "you re now ", "you are ", "you re ",
-        "your name is now ", "your name is ",
-        "sei ", "tu sei ", "fai finta di essere ", "comportati come ",
-        NULL
-    };
+    char intros[32][KB_TERM_LEN];
+    const char *iq[2] = { "role_open", NULL };
     const char *name_marker = NULL; /* if this intro directly names the role */
-    for (const char *const *in = intros; *in; in++) {
-        const char *p = strstr(lc, *in);
+    size_t ni = kb_match(b->kb, "intent_cue", iq, 2, intros, 32);
+    for (size_t i = 0; i < ni; i++) {
+        const char *in = kb_dequote(intros[i]);
+        const char *p = strstr(lc, in);
         if (p) {
-            desc = p + strlen(*in);
-            if (strstr(*in, "name is")) name_marker = *in;
+            desc = p + strlen(in);
+            const char *nq[] = { in };
+            if (kb_query(b->kb, "role_name_cue", nq, 1)) name_marker = in;
             break;
         }
     }

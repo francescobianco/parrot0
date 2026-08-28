@@ -188,6 +188,26 @@ auxiliary(may).
 auxiliary(must).
 auxiliary(do).
 auxiliary(does).
+
+% Contingent subject guard (gen466): the extractor asks one semantic question.
+% The alternatives are KB clauses, so a new blocking evidence class can be
+% taught/retracted without editing the consumer in C.
+machinery(subject_guard).
+subject_guard($T) :- question_word($T).
+subject_guard($T) :- auxiliary($T).
+subject_guard($T) :- stopword($T).
+subject_guard($T) :- open_quantifier($T).
+subject_guard($T) :- social_marker($Kind, $T).
+
+% Locative prepositions are a role class, distinct from the broader
+% preposition/1 inventory. The extractor only needs to ask whether the next
+% complement names a location.
+machinery(location_preposition).
+location_preposition(in).
+location_preposition(from).
+location_preposition(near).
+location_preposition(on).
+location_preposition(at).
 auxiliary(did).
 auxiliary(is).
 auxiliary(are).

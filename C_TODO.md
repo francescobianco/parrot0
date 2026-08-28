@@ -103,6 +103,84 @@ a cap `64` e usa `undetermined_cycle`; i cap piccoli restano sonde legittime.
 Il driver C prova commit e ablazione. Resta da decidere se conservare più
 saturazioni indipendenti nello stesso turno.
 
+### Decisione di architettura — eliminare gli OR semantici dal C
+
+La modifica locale iniziata nella sessione interrotta ha sostituito una lista C
+con questo controllo:
+
+```c
+if (kb_query(b->kb, "question_word", q, 1) ||
+    kb_query(b->kb, "auxiliary", q, 1) ||
+    kb_query(b->kb, "stopword", q, 1) ||
+    kb_query(b->kb, "open_quantifier", q, 1)) return 1;
+```
+
+È un miglioramento lessicale, ma non è ancora il punto fisso KB-first: la
+contingenza «almeno una di queste condizioni vale» è ancora decisa dal C. Non
+va risolta aggiungendo una nuova catena di `kb_query` né introducendo un array
+di predicati nel motore.
+
+La trasformazione da implementare è:
+
+```prolog
+% nome semantico del test, non elenco nascosto nel C
+subject_guard($T) :- question_word($T).
+subject_guard($T) :- auxiliary($T).
+subject_guard($T) :- stopword($T).
+subject_guard($T) :- open_quantifier($T).
+subject_guard($T) :- social_marker($Kind, $T).
+```
+
+`social_marker/2` conserva il proprio tipo ma la proiezione verso il secondo
+argomento avviene nella clausola KB; non serve inventare
+`social_marker_value/1` nel C. Il C deve poi contenere soltanto una domanda al
+predicato stabile:
+
+```c
+return kb_query(b->kb, "subject_guard", q, 1);
+```
+
+L'obiettivo è che il consumer C faccia **una sola query booleana** a una
+relazione, per esempio `subject_guard/1`, mentre l'OR sia la semantica già
+espressa dal motore KB tramite più clausole dello stesso capo.
+
+La generalizzazione da conservare è quindi:
+
+```prolog
+contingent($Test, $Value) :- evidence($Test, $Value).
+contingent($Test, $Value) :- alternative_evidence($Test, $Value).
+```
+
+con un binding KB che istanzi `$Test` a `subject_guard` e con il consumer che
+chiede `contingent(subject_guard, $T)`. Il nome `subject_guard` è solo il
+primo caso d'uso; la capacità da costruire è la valutazione «una qualunque
+delle prove dichiarate per questo test» senza modificare il C quando compare
+una nuova classe di prova.
+
+Gate obbligatori prima di considerarla chiusa:
+
+1. aggiungere a runtime una nuova clausola/prova del test e mostrare che un
+   soggetto nuovo viene bloccato senza ricompilare;
+2. ritirare quella clausola e mostrare che il blocco scompare;
+3. verificare che il consumer non contenga più `||` fra predicati KB distinti;
+4. provare almeno un secondo consumer, perché una soluzione chiamata
+   `subject_guard` ma non riusabile sarebbe soltanto una nuova eccezione.
+
+Questa è una trasformazione progettata. Prima di scrivere altro motore va
+verificato se il supporto attuale a più clausole e ai termini composti è
+sufficiente; in caso contrario si aggiunge una primitiva generale in
+`kb/core/procedures.p0`, non un altro OR in `src/brain`.
+
+### Gen466 — prima realizzazione della contingenza
+
+Il primo passo è stato applicato: `subject_guard/1` ora raccoglie in KB le
+cinque alternative che prima erano una catena di query C, e `p0_bad_subject()`
+fa una sola query. È stata completata anche `location_preposition/1`, che il
+consumer locativo aveva già iniziato a interrogare ma che non aveva ancora
+ricevuto i fatti. Restano da aggiungere i ratchet runtime prima del commit:
+uno per l'aggiunta/ritiro di una clausola `subject_guard/1`, uno per la classe
+locativa e uno per la crescita/ablazione della cue `role_open`.
+
 > Compagno di `KB_TODO.md`, che elenca i residui della conoscenza. Questo
 > elenca i residui del **motore**: tutto ciò che oggi vive in `src/brain/*.c` e
 > che, per i mantra #2 e #16, dovrebbe essere conoscenza.

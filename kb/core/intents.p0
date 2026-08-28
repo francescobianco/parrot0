@@ -35,6 +35,25 @@
 % Italian recall idiom — the read-side mirror of "mi chiamo X"; the fixed form of
 % "what's my name?", so it belongs in the same lexicon, not a new handler.
 
+% Role opening surfaces (gen466). The role parser owns only substring matching;
+% the natural-language forms and the distinction between naming and typing a
+% role are KB facts.
+intent_cue(role_open, "pretend you are ").
+intent_cue(role_open, "pretend you re ").
+intent_cue(role_open, "pretend to be ").
+intent_cue(role_open, "you are now ").
+intent_cue(role_open, "you re now ").
+intent_cue(role_open, "you are ").
+intent_cue(role_open, "you re ").
+intent_cue(role_open, "your name is now ").
+intent_cue(role_open, "your name is ").
+intent_cue(role_open, "sei ").
+intent_cue(role_open, "tu sei ").
+intent_cue(role_open, "fai finta di essere ").
+intent_cue(role_open, "comportati come ").
+intent_cue(role_name_cue, "your name is now ").
+intent_cue(role_name_cue, "your name is ").
+
 % intent_cue(Intent, "fragment") — SUBSTRING cues (matched by kb_cue_match, i.e. the
 % fragment may appear anywhere in the turn), as opposed to intent_phrase/2 which is the
 % WHOLE normalized turn (exact). Same KB-first law: the cue set grows at runtime.
