@@ -327,6 +327,11 @@ negazione insegnata non deve invertire la lettura di una frase che le somiglia
 soltanto in superficie.
 
 **M8 — Ricongiungimento delle rappresentazioni.**  
+*Nota (2026-08-28):* condivide la CAUSA con M3 — la stessa condizione in
+`p0_explicit_pattern`, e la stessa frase quando parrot0 nomina il muro. Metà è
+caduta con l'arità; il bersaglio congiuntivo no. Riprodotto su conoscenza vera:
+«basalt is an igneous rock» memorizza `igneous_rock(basalt)` e «is basalt
+igneous?» va a muro, cioè `occupied_square(d2)` alla lettera.  
 *Manca:* `occupied_square(d2)` non soddisfa `occupied(X), square(X)`. Due
 traduzioni ragionevoli della stessa nozione restano conoscenza viva e isolata, e
 una sessione lunga moltiplica il debito invece di ridurlo.  
