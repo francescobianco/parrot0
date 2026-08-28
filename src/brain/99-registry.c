@@ -3798,6 +3798,52 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         b->relations_derived = 1;
     }
 
+    /* gen455 — UNA CONCESSIVA AFFERMA ENTRAMBE LE PROPOSIZIONI.
+     *
+     * «although mercury is a metal, it is liquid at room temperature» cadeva al
+     * muro su «although», e con essa si perdeva `metal(mercury)`, che stava li'
+     * in chiaro. Il periodo articolato — principale piu' subordinate — e' la
+     * forma in cui una persona insegna davvero qualcosa, e finche' si perde per
+     * intero l'addestramento via prompt resta confinato alle frasi brevi.
+     *
+     * Il motore non sa che cosa sia una concessiva: chiede alla KB che cosa quel
+     * subordinatore dica delle sue due proposizioni (`subordinator_stance/2`).
+     * Con `both` le stacca e le manda al dispatch ordinario, una per una, cosi'
+     * ciascuna incontra i lettori che gia' esistono. Nessuna delle due comincia
+     * col subordinatore, quindi non c'e' ricorsione. */
+    if (b && b->kb && canon[0]) {
+        char cb[512];
+        if (strlen(canon) < sizeof cb) {
+            snprintf(cb, sizeof cb, "%s", canon);
+            char *comma = strchr(cb, ',');
+            char *sp = strchr(cb, ' ');
+            if (comma && sp && sp < comma) {
+                char head[KB_TERM_LEN];
+                size_t hl = (size_t)(sp - cb);
+                if (hl < sizeof head) {
+                    memcpy(head, cb, hl); head[hl] = '\0';
+                    for (char *c = head; *c; c++) *c = (char)tolower((unsigned char)*c);
+                    const char *sq[2] = { head, "both" };
+                    if (kb_query(b->kb, "subordinator_stance", sq, 2)) {
+                        *comma = '\0';
+                        const char *first = sp + 1;
+                        const char *second = comma + 1;
+                        while (*second == ' ') second++;
+                        if (*first && *second) {
+                            char r1[900] = "", r2[900] = "";
+                            brain_respond(b, first, r1, sizeof r1);
+                            brain_respond(b, second, r2, sizeof r2);
+                            char joined[1900];
+                            snprintf(joined, sizeof joined, "%s %s", r1, r2);
+                            put(joined, out, out_size);
+                            return turn_done(b, canon, input, out);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /* gen80: try to decompose compound turns (e.g. "chi sei e ricordati X")
      * before the normal single-turn dispatch. */
     if (b && decompose_and_dispatch(b, canon, input, out, out_size))

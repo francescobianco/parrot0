@@ -317,6 +317,34 @@ np_closer(because). np_closer(although). np_closer(if). np_closer(unless).
 np_closer(che).   np_closer(cui).    np_closer(quando). np_closer(mentre).
 np_closer(perche). np_closer(se).
 
+% ── CHE COSA UN SUBORDINATORE DICE DELLE SUE DUE PROPOSIZIONI (gen455) ──────
+%
+% `np_closer` sa che «although» apre una proposizione, ma non che cosa quella
+% proposizione VALGA. E' la differenza che decide se da un periodo si impara
+% qualcosa:
+%
+%   «benche' il mercurio sia un metallo, e' liquido»  -> ENTRAMBE affermate
+%   «se una sostanza e' un gas nobile, allora ...»    -> NESSUNA affermata
+%
+% Misurato prima di questa classe: «although mercury is a metal, it is liquid at
+% room temperature» cadeva al muro su «although» e parrot0 perdeva anche
+% `metal(mercury)`, che era li' in chiaro. Un periodo articolato e' la forma in
+% cui si insegna davvero qualcosa, e si perdeva per intero.
+%
+% Insegnare una concessiva in una lingua nuova e' una riga qui, zero C.
+subordinator_stance(although, both).
+subordinator_stance(though, both).
+subordinator_stance(whereas, both).
+subordinator_stance(benche, both).
+subordinator_stance(sebbene, both).
+subordinator_stance(nonostante, both).
+subordinator_stance(mentre, both).
+% La condizionale e' l'altro caso, ed e' gia' letta dal costruttore di regole:
+% elencata qui perche' la classe sia leggibile per intero, non perche' serva.
+subordinator_stance(if, neither).
+subordinator_stance(se, neither).
+subordinator_stance(unless, neither).
+
 % Gradazione: "so compact that ...", "such a body that ...". Aprono una
 % subordinata consecutiva, quindi chiudono il nome tanto quanto un relativo.
 np_closer(so).    np_closer(such).   np_closer(cosi).
