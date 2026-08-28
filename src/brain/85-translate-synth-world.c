@@ -808,21 +808,14 @@ static int mod_synth(Brain *b, const char *norm, const char *raw,
     char low[256];
     lowercase_copy(low, sizeof low, raw);
 
-    /* TODO(kb-first): le superfici che chiedono un comando di shell.
-     * `intent_cue(shell_request, …)`: una formulazione nuova deve essere una
-     * riga di conoscenza. */
-    static const char *const triggers[] = {
-        "what command ", "which command ",
-        "write a command to ", "write a command that ",
-        "give me a command to ", "give me a command that ",
-        "synthesize a command to ", "synthesize a command that ",
-        "quale comando ", "che comando ", "scrivi un comando per ",
-        NULL,
-    };
     const char *spec = NULL;
-    for (const char *const *t = triggers; *t; t++) {
-        size_t L = strlen(*t);
-        if (strncmp(low, *t, L) == 0) { spec = low + L; break; }
+    char triggers[32][KB_TERM_LEN];
+    const char *tq[2] = { "shell_request", NULL };
+    size_t nt = kb_match(b->kb, "intent_cue", tq, 2, triggers, 32);
+    for (size_t i = 0; i < nt; i++) {
+        const char *t = kb_dequote(triggers[i]);
+        size_t L = strlen(t);
+        if (strncmp(low, t, L) == 0) { spec = low + L; break; }
     }
     if (!spec) return 0;
     /* strip a leading relative ("that counts" already handled; "counts ..." is

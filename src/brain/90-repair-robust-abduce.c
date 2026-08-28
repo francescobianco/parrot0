@@ -289,15 +289,13 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
      * avanti in questo file quelle dell'abduzione — sei array bilingui in
      * tutto. Sono `intent_cue`, con la stessa forma del registro sociale del
      * gen403. */
-    static const char *const markers[] = {
-        "didn't know that ", "didnt know that ",
-        "did not know that ", "didn't know ", "didnt know ", "did not know ",
-        "non sapessi che ", "non sapessi ",
-        NULL,
-    };
-    for (const char *const *m = markers; *m; m++) {
-        const char *p = strstr(low, *m);
-        if (p) { fact = p + strlen(*m); break; }
+    char markers[24][KB_TERM_LEN];
+    const char *mq[2] = { "surprise", NULL };
+    size_t nm = kb_match(b->kb, "intent_cue", mq, 2, markers, 24);
+    for (size_t i = 0; i < nm; i++) {
+        const char *m = kb_dequote(markers[i]);
+        const char *p = strstr(low, m);
+        if (p) { fact = p + strlen(m); break; }
     }
     /* alternative shape: "if <subject> weren't / were not a <class>" */
     char alt[128] = "";
@@ -658,12 +656,15 @@ static int mod_calibrate(Brain *b, const char *norm, const char *raw,
         /* TODO(kb-first): le superfici della SUPPOSIZIONE, bilingui, nel C.
          * `intent_cue(suppose, …)`: un modo nuovo di dire «mettiamo che» deve
          * essere una riga. */
-        static const char *const sup[] = {
-            "suppose that ", "suppose ", "assume that ", "assume ",
-            "let's say ", "lets say ", "supponi che ", "supponi ",
-            "assumi che ", "assumi ", NULL };
-        for (const char *const *m = sup; *m; m++)
-            if (strncmp(norm, *m, strlen(*m)) == 0) { rest = norm + strlen(*m); break; }
+        char sup[24][KB_TERM_LEN];
+        const char *sq[2] = { "supposition", NULL };
+        size_t ns = kb_match(b->kb, "intent_cue", sq, 2, sup, 24);
+        for (size_t i = 0; i < ns; i++) {
+            const char *m = kb_dequote(sup[i]);
+            if (strncmp(norm, m, strlen(m)) == 0) {
+                rest = norm + strlen(m); break;
+            }
+        }
         if (rest && !strstr(rest, " then ") && !strstr(rest, " allora ")) {
             char pred[KB_TERM_LEN], arg[KB_TERM_LEN];
             if (parse_ground_unary(b, rest, pred, sizeof pred, arg, sizeof arg)) {

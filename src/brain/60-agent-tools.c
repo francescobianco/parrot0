@@ -374,10 +374,19 @@ static int piact_obs(Brain *b, char *const *argv, const char *label,
     switch (obs.verdict) {
     case P0_OK:
         if (flat[0] == '\0') {
-            snprintf(msg, sizeof msg, "%s: %s.", label, it ? "nessun risultato" : "nothing");
+            const KbResponseSlot slots[] = {{ "label", label },
+                                             { "result", it ? "nessun risultato" : "nothing" }};
+            if (!kb_response_slots(b, "tool_result_empty", slots, 2,
+                                   msg, sizeof msg))
+                snprintf(msg, sizeof msg, "%s: %s.", label,
+                         it ? "nessun risultato" : "nothing");
         } else {
-            snprintf(msg, sizeof msg, "%s: %s%s", label, flat,
+            char result[4200];
+            snprintf(result, sizeof result, "%s%s", flat,
                      obs.out_truncated ? " …[truncated]" : "");
+            const KbResponseSlot slots[] = {{ "label", label }, { "result", result }};
+            if (!kb_response_slots(b, "tool_result", slots, 2, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "%s: %s", label, result);
         }
         break;
     case P0_EXIT_NONZERO:

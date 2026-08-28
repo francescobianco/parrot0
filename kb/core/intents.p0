@@ -4103,3 +4103,34 @@ intent_cue(99_registry_lex2189_2, "earlier").
 intent_cue(99_registry_lex2189_3, "previous").
 intent_cue(99_registry_lex2189_4, "prima").
 intent_cue(99_registry_lex2190, "precedente").
+% gen464: additional teachable surface classes migrated from repair and shell
+% adapters. The C owns only prefix/substring mechanics.
+intent_cue(shell_request, "what command ").
+intent_cue(shell_request, "which command ").
+intent_cue(shell_request, "write a command to ").
+intent_cue(shell_request, "write a command that ").
+intent_cue(shell_request, "give me a command to ").
+intent_cue(shell_request, "give me a command that ").
+intent_cue(shell_request, "synthesize a command to ").
+intent_cue(shell_request, "synthesize a command that ").
+intent_cue(shell_request, "quale comando ").
+intent_cue(shell_request, "che comando ").
+intent_cue(shell_request, "scrivi un comando per ").
+intent_cue(surprise, "didn't know that ").
+intent_cue(surprise, "didnt know that ").
+intent_cue(surprise, "did not know that ").
+intent_cue(surprise, "didn't know ").
+intent_cue(surprise, "didnt know ").
+intent_cue(surprise, "did not know ").
+intent_cue(surprise, "non sapessi che ").
+intent_cue(surprise, "non sapessi ").
+intent_cue(supposition, "suppose that ").
+intent_cue(supposition, "suppose ").
+intent_cue(supposition, "assume that ").
+intent_cue(supposition, "assume ").
+intent_cue(supposition, "let's say ").
+intent_cue(supposition, "lets say ").
+intent_cue(supposition, "supponi che ").
+intent_cue(supposition, "supponi ").
+intent_cue(supposition, "assumi che ").
+intent_cue(supposition, "assumi ").

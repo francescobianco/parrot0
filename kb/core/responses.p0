@@ -825,3 +825,7 @@ response_template(nothing_to_forget, it, "Non ho {slot} in memoria, quindi non c
 % lingua, parole e disposizione degli slot restano sostituibili nella KB.
 response_template(reader_summary, en, "Learned {learned} fact(s), skipped {skipped}.").
 response_template(reader_summary, it, "Ho appreso {learned} fatti, ne ho saltati {skipped}.").
+response_template(tool_result, "{label}: {result}").
+response_template(tool_result, it, "{label}: {result}").
+response_template(tool_result_empty, "{label}: {result}.").
+response_template(tool_result_empty, it, "{label}: {result}.").

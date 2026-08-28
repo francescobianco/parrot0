@@ -577,6 +577,12 @@ Il lotto `gen462` ha anche portato `has_arith_cue()` alla classe KB
 `arithmetic_word/1`, lasciando nel C soltanto il riconoscimento meccanico dei
 simboli operatori.
 
+Il lotto `gen464` ha migrato le superfici di richiesta shell e sorpresa/
+supposizione a `intent_cue/2` e le cornici dei risultati dei tool a template KB.
+La saturazione resta registrata come osservazione, ma la guardia non è attiva
+per default finché il motore non distingue una vista consultata per decidere
+da una vista preparatoria.
+
 Il percorso N-ario copre ora anche `magnitude/3` e `planet_superlative/3`:
 quattordici query del modulo memoria risolvono il predicato tramite
 `domain_relation/2`, lasciando nel C solo il ruolo semantico della richiesta.
