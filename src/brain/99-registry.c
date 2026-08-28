@@ -3427,6 +3427,71 @@ static void turn_publish_transcodes(Brain *b, const char *surface) {
     }
 }
 
+/* gen489 — CIO' CHE SI PUO' OMETTERE DENTRO UNA SUPERFICIE E' CONOSCENZA.
+ *
+ * Misurato al gen488, e segnalato da F. come P0.0 di `LEARN_TODO.md`:
+ *
+ *     which is bigger, 3 or 5           ->  5.
+ *     which of these is bigger, 3 or 5  ->  Skin.
+ *     which one is bigger, 3 or 5       ->  Skin.
+ *
+ * La cue e' una stringa CONTIGUA (`cue()` e' `strstr`), quindi due parole
+ * interposte — «of these», «one» — la spezzano; la domanda numerica non viene
+ * riconosciuta, un'altra facolta' prende il turno e risponde una cosa FALSA.
+ * E' il caso peggiore del mantra #7: peggio di un muro, perche' sembra una
+ * risposta.
+ *
+ * La correzione per istanza sarebbe stata una cue in piu' per ogni variante —
+ * un frasario, il mantra #2 al contrario. Qui il motore fa invece UNA cosa
+ * generale e cieca alla lingua: costruisce una SECONDA lettura del turno in cui
+ * le locuzioni omissibili non ci sono, e cerca le cue in entrambe. Quali
+ * locuzioni siano omissibili e' un fatto — `elidable_phrase/1` — quindi una
+ * variante nuova, in qualunque lingua e per qualunque registro di cue, costa una
+ * riga di KB e zero motore, e ritrarla la toglie nello stesso turno.
+ *
+ * Vale per TUTTI i registri, non per quello numerico: e' il produttore
+ * universale, e vede le cue di chiunque. E non toglie niente — la superficie
+ * originale resta cercata per prima — quindi aumenta cio' che parrot0 vede
+ * senza ridurre cio' che vedeva (il criterio di evoluzione di `MANTRA.md`). */
+static int turn_word_boundary(const char *s, size_t at, size_t len) {
+    if (at > 0 && !isspace((unsigned char)s[at - 1])) return 0;
+    char after = s[at + len];
+    return after == '\0' || isspace((unsigned char)after) ||
+           strchr(",.;:!?", after) != NULL;
+}
+
+static void turn_elide_phrase(char *s, const char *phrase) {
+    size_t plen = strlen(phrase);
+    if (plen == 0) return;
+    for (char *hit = strstr(s, phrase); hit; hit = strstr(hit, phrase)) {
+        size_t at = (size_t)(hit - s);
+        if (!turn_word_boundary(s, at, plen)) { hit += 1; continue; }
+        /* Si porta via anche UNO spazio adiacente, altrimenti resta un doppio
+         * spazio e la lettura elisa non combacia con nessuna cue. */
+        size_t cut = plen;
+        if (isspace((unsigned char)s[at + cut])) cut++;
+        else if (at > 0 && isspace((unsigned char)s[at - 1])) { hit--; at--; cut++; }
+        memmove(s + at, s + at + cut, strlen(s + at + cut) + 1);
+    }
+}
+
+static void turn_elide_surface(Brain *b, const char *surface,
+                               char *out, size_t out_size) {
+    snprintf(out, out_size, "%s", surface);
+    if (!b || !b->kb) return;
+    char (*ph)[KB_TERM_LEN] = NULL;
+    size_t np = 0;
+    const char *q[1] = { NULL };
+    if (!kb_match_all(b->kb, "elidable_phrase", q, 1, &ph, &np)) { free(ph); return; }
+    for (size_t k = 0; k < np; k++) {
+        char pat[KB_TERM_LEN];
+        snprintf(pat, sizeof pat, "%s", ph[k]);
+        const char *p = kb_dequote(pat);
+        if (*p) turn_elide_phrase(out, p);
+    }
+    free(ph);
+}
+
 static void turn_publish_cues(Brain *b, const char *surface) {
     /* gen432 — I REGISTRI SI ENUMERANO TUTTI, senza tetto.
      *
@@ -3441,6 +3506,10 @@ static void turn_publish_cues(Brain *b, const char *surface) {
     char (*regs)[KB_TERM_LEN] = NULL;
     size_t nr = 0;
     const char *rq[2] = { NULL, NULL };
+    /* La seconda lettura del turno, senza le locuzioni omissibili: si costruisce
+     * UNA volta per turno e serve tutti i registri. */
+    char elided[512];
+    turn_elide_surface(b, surface, elided, sizeof elided);
     if (!kb_match_all(b->kb, "turn_cue_registry", rq, 2, &regs, &nr)) { free(regs); return; }
     for (size_t i = 0; i < nr; i++) {
         char reg[KB_TERM_LEN];
@@ -3479,7 +3548,7 @@ static void turn_publish_cues(Brain *b, const char *surface) {
                 char probe[KB_TERM_LEN];
                 snprintf(probe, sizeof probe, "%s", rows[k]);
                 const char *needle = kb_dequote(probe);
-                if (!*needle || !cue(surface, needle)) continue;
+                if (!*needle || (!cue(surface, needle) && !cue(elided, needle))) continue;
                 char quoted[KB_TERM_LEN];
                 if (!turn_quote(needle, 0, strlen(needle), quoted, sizeof quoted))
                     continue;
@@ -3497,7 +3566,7 @@ static void turn_publish_cues(Brain *b, const char *surface) {
                 char probe[KB_TERM_LEN];
                 snprintf(probe, sizeof probe, "%s", inner[j]);
                 const char *needle = kb_dequote(probe);
-                if (!*needle || !cue(surface, needle)) continue;
+                if (!*needle || (!cue(surface, needle) && !cue(elided, needle))) continue;
                 char quoted[KB_TERM_LEN];
                 if (!turn_quote(needle, 0, strlen(needle), quoted, sizeof quoted))
                     continue;

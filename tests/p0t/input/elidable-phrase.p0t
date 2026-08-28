@@ -1,0 +1,68 @@
+# elidable-phrase.p0t — LA LOCUZIONE OMISSIBILE E' CONOSCENZA (gen489).
+#
+# Il difetto misurato al gen488, e segnalato da F. come P0.0 di `LEARN_TODO.md`:
+#
+#     which is bigger, 3 or 5           ->  5.
+#     which of these is bigger, 3 or 5  ->  Skin.
+#
+# Una cue e' una stringa CONTIGUA, quindi due parole interposte la spezzano; la
+# domanda numerica non veniva riconosciuta e un'altra facolta' prendeva il turno
+# rispondendo una cosa FALSA. E' il mantra #7 al rovescio: peggio di un muro,
+# perche' sembra una risposta.
+#
+# La cura non e' una cue in piu' per variante. Il produttore universale legge il
+# turno DUE volte — come e' stato detto, e senza le locuzioni omissibili — e
+# QUALI locuzioni lo siano e' un fatto (`elidable_phrase/1`, kb/core/turn-frames.p0).
+# Questo test e' la prova del mantra #2 nella forma esigente: la variante che la
+# KB non dichiara mura, dichiararla a runtime la apre, ritrarla la richiude.
+# Nessun binario cambia fra i tre punti: cambia solo cio' che parrot0 SA.
+
+[test elidable_phrase_declared]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+!timeout 30
+
+# Il primo turno dopo un cambio di config paga il reload del mondo.
+> which is bigger, 3 or 5
+< 5.
+
+# Le locuzioni gia' dichiarate: la stessa domanda, quattro superfici.
+> which of these is bigger, 3 or 5
+< 5.
+> which of the two is bigger, 3 or 5
+< 5.
+> which one is bigger, 3 or 5
+< 5.
+> which one is smaller, 12 or 7
+< 7.
+
+# L'elisione vale per QUALUNQUE registro di cue, non per quello numerico: la
+# stessa lettura serve l'ordinamento e la mediana.
+> sort these numbers 5 3 9
+< 3, 5, 9
+> what is the median of these 1 5 3
+< 3.
+
+[test elidable_phrase_grows_at_runtime]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+!timeout 30
+
+# 1. PRIMA — «of this pair» non e' dichiarata omissibile: la cue non combacia.
+#    (Il turno non risponde 5: e' esattamente il difetto che il file racconta.)
+> which of this pair is bigger, 3 or 5
+<! 5.
+
+# 2. INSEGNAMENTO — un fatto, nessun ramo di motore.
+!assert elidable_phrase("of this pair")
+
+# 3. DOPO — la stessa identica frase, ora riconosciuta.
+> which of this pair is bigger, 3 or 5
+< 5.
+
+# 4. ABLAZIONE — ritrarre il fatto richiude la superficie, nello stesso processo.
+!forget elidable_phrase("of this pair")
+> which of this pair is bigger, 3 or 5
+<! 5.

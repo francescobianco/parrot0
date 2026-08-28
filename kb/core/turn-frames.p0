@@ -57,6 +57,42 @@ answering_surface($Cue, $Relation) :- answer_frame($Cue, $Relation), answer_fram
 % capire. La policy resta enunciata una volta sola, qui sopra.
 turn_cue_registry(answer_frame_input_arg, 1).
 
+% ── 0b. CIO' CHE SI PUO' OMETTERE DENTRO UNA SUPERFICIE ────────────────────
+%
+% Una cue e' una stringa contigua, quindi due parole interposte la spezzano.
+% Misurato al gen488 (P0.0 di `LEARN_TODO.md`, segnalato da F.):
+%
+%     which is bigger, 3 or 5           ->  5.
+%     which of these is bigger, 3 or 5  ->  Skin.
+%
+% Non era un dettaglio di superficie: non riconoscendo la domanda numerica, il
+% turno finiva a un'altra facolta' che rispondeva una cosa FALSA — il mantra #7
+% al rovescio, peggio di un muro perche' sembra una risposta.
+%
+% La cura non e' una cue in piu' per variante (sarebbe un frasario). Il
+% produttore universale legge il turno DUE volte: come e' stato detto, e senza
+% le locuzioni qui sotto. Che cosa sia omissibile e' conoscenza, e vale per ogni
+% registro di cue e per ogni lingua: un membro nuovo domani e' una riga, e
+% ritrarlo lo toglie nello stesso turno.
+%
+% Il criterio per entrare qui: la locuzione non deve cambiare CHE COSA la frase
+% chiede, solo come lo chiede. «of these» indica le alternative che il turno
+% porta gia'; toglierlo non toglie niente alla domanda.
+elidable_phrase("of these").
+elidable_phrase("of those").
+elidable_phrase("of them").
+elidable_phrase("of the two").
+elidable_phrase("of the following").
+elidable_phrase("one").
+elidable_phrase("di questi").
+elidable_phrase("di queste").
+elidable_phrase("fra questi").
+elidable_phrase("fra queste").
+elidable_phrase("tra questi").
+elidable_phrase("tra queste").
+elidable_phrase("dei due").
+elidable_phrase("delle due").
+
 % ── 1. LA RELAZIONE: quale faccetta il turno domanda ────────────────────────
 %
 % Nessuna posizione, nessun ordine di modulo: la relazione e' quella che la cue
