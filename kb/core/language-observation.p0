@@ -52,6 +52,16 @@ turn_language_selected($Turn, $Language) :-
     turn_language_sticky($Turn, $Language),
     naf(turn_has_language_evidence($Turn)).
 
+% E un PAREGGIO lo vince la conversazione. La lingua e' una proprieta' del
+% discorso, non del singolo turno: un termine tecnico preso in prestito —
+% «hello world», «python» — non deve poter ribaltare una chat italiana solo
+% perche' compare. Per spostarla, la lingua sfidante deve BATTERE quella in
+% corso, non pareggiarla.
+turn_language_selected($Turn, $Language) :-
+    turn_language_sticky($Turn, $Language),
+    turn_language_evidence($Turn, $Language, $Score, $Count),
+    naf(turn_language_has_better($Turn, $Score)).
+
 turn_language($Turn, input, $Language) :-
     turn_language_selected($Turn, $Language).
 

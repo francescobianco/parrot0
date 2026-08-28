@@ -1820,6 +1820,27 @@ intent_cue(sentence_completion_request, "continue this sentence").
 intent_cue(python_prime_function_request, "python function that checks if a number is prime").
 intent_cue(python_prime_function_request, "function that checks if a number is prime").
 intent_cue(python_prime_function_request, "number is prime").
+
+% ── GLI SNIPPET CHE PARROT0 NON PUO' SBAGLIARE ───────────────────────────────
+%
+% `snippet_request(Cue, Template)` lega una richiesta al modello che la
+% soddisfa. Il motore non conosce nessuno dei due nomi: enumera le coppie,
+% prova le cue e rende il template. Uno snippet nuovo — altra lingua naturale,
+% altro linguaggio di programmazione — e' due righe qui.
+machinery(snippet_request).
+snippet_request(python_prime_function_request, python_prime_function).
+snippet_request(python_hello_world_request, python_hello_world).
+snippet_request(c_hello_world_request, c_hello_world).
+
+% Hello world e' il primo programma che chiunque chiede, in tutte le lingue in
+% cui si chiede. Un assistente che non lo sa non e' credibile.
+intent_cue(python_hello_world_request, "hello world in python").
+intent_cue(python_hello_world_request, "hello world python").
+intent_cue(python_hello_world_request, "python hello world").
+intent_cue(python_hello_world_request, "ciao mondo in python").
+intent_cue(python_hello_world_request, "hello world in pitone").
+intent_cue(c_hello_world_request, "hello world in c").
+intent_cue(c_hello_world_request, "ciao mondo in c").
 intent_cue(process_request, "recipe").
 intent_cue(process_request, "numbered").
 intent_cue(process_request, "steps").

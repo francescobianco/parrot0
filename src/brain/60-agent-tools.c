@@ -1772,14 +1772,52 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
         kb_cue_match(b, "translation_request", raw))
         return 0;
 
-    if (kb_cue_match(b, "python_prime_function_request", buf) ||
-        kb_cue_match(b, "python_prime_function_request", raw)) {
-        const char *q[] = { "python_prime_function", NULL };
-        char hit[1][KB_TERM_LEN];
-        if (kb_match(b->kb, "code_template", q, 2, hit, 1) > 0) {
-            put(kb_dequote(hit[0]), out, out_size);
-            store_proof(b, "Rendered a code_template selected by KB request cues.");
-            return 1;
+    /* Uno snippet richiesto per nome: la coppia cue -> template e' interamente
+     * conoscenza. `snippet_request(Cue, Template)` dice quale richiesta serve
+     * quale modello, quindi uno snippet nuovo domani — in un'altra lingua o per
+     * un altro linguaggio di programmazione — e' due righe di KB e nessuna
+     * ricompilazione. Il caso del numero primo era il primo membro, cablato per
+     * nome; ora e' un membro come gli altri. */
+    {
+        char pairs[32][KB_TERM_LEN];
+        const char *pq[2] = { NULL, NULL };
+        size_t npair = kb_match(b->kb, "snippet_request", pq, 2, pairs, 32);
+        for (size_t i = 0; i < npair; i++) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", pairs[i]);
+            const char *cue_name = kb_dequote(cb);
+            if (!*cue_name) continue;
+            if (!kb_cue_match(b, cue_name, buf) && !kb_cue_match(b, cue_name, raw))
+                continue;
+            char tpl[1][KB_TERM_LEN];
+            const char *tq[2] = { pairs[i], NULL };
+            if (kb_match(b->kb, "snippet_request", tq, 2, tpl, 1) != 1) continue;
+            char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", tpl[0]);
+            const char *key = kb_dequote(tb);
+            const char *q[] = { key, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "code_template", q, 2, hit, 1) > 0) {
+                /* Il codice ha delle RIGHE. Un template lo scrive «\n» perche'
+                 * una clausola sta su una riga sola; renderlo alla lettera
+                 * stampava «\n» dentro il sorgente e dava uno snippet che non
+                 * compila. L'espansione e' meccanica fissa, non vocabolario. */
+                char raw_tpl[KB_TERM_LEN], shown[KB_TERM_LEN];
+                snprintf(raw_tpl, sizeof raw_tpl, "%s", hit[0]);
+                const char *src = kb_dequote(raw_tpl);
+                size_t o = 0;
+                for (const char *c = src; *c && o + 1 < sizeof shown; c++) {
+                    if (c[0] == '\\' && c[1]) {
+                        char e = c[1];
+                        if (e == 'n')      { shown[o++] = '\n'; c++; continue; }
+                        if (e == 't')      { shown[o++] = '\t'; c++; continue; }
+                        if (e == '\\')    { shown[o++] = '\\'; c++; continue; }
+                    }
+                    shown[o++] = *c;
+                }
+                shown[o] = '\0';
+                put(shown, out, out_size);
+                store_proof(b, "Rendered a code_template selected by KB request cues.");
+                return 1;
+            }
         }
     }
 

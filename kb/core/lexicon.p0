@@ -657,6 +657,25 @@ language_marker(it, finestra).
 language_marker(it, freddo).
 language_marker(it, caldo).
 language_marker(it, passami).
+% gen444: il vocabolario della RICHIESTA di codice. «mi mostri un semplice
+% hello world in python» conteneva un solo marcatore in tutta la frase —
+% `language_marker(en, hello)` — e nessun marcatore italiano: l'inglese vinceva
+% 1 a 0 e la conversazione si ribaltava su un termine tecnico preso in prestito.
+% Il muro arrivava in inglese dentro una chat italiana.
+%
+% Solo parole RARE e non ambigue. Un primo tentativo aveva aggiunto anche le
+% funzionali ad alta frequenza — mi, un, come, cosa — e costava 12 assert in
+% dieci file: quelle parole attraversano la canonicalizzazione, e spostarle
+% sposta molto piu' della lingua. Misurato prima di restringere.
+language_marker(it, mostri).
+language_marker(it, mostrami).
+language_marker(it, dammi).
+language_marker(it, fammi).
+language_marker(it, semplice).
+language_marker(it, esempio).
+language_marker(it, funzione).
+language_marker(it, stampa).
+language_marker(it, codice).
 language_marker(it, grazie).
 language_marker(it, prego).
 language_marker(it, perche).

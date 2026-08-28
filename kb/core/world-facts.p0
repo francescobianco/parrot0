@@ -4000,6 +4000,8 @@ qa_reply(q_runtime_wordplay_joke, "I used to be a baker, but I couldn't make eno
 % gen352: code-answer template. The request forms live in intents.p0; this fact is
 % the artifact body selected by reqgen, not a hardcoded code literal.
 code_template(python_prime_function, "def is_prime(n): return n > 1 and all(n % i for i in range(2, int(n ** 0.5) + 1))").
+code_template(python_hello_world, "print(\"Hello, World!\")").
+code_template(c_hello_world, "#include <stdio.h>\n\nint main(void) {\n    printf(\"Hello, World!\\n\");\n    return 0;\n}").
 
 % gen347 (LLMSCORE Q1): new haiku themes — the composer is fixed, images are
 % knowledge, so a new theme is three facts (open 5 / mid 7 / close 5 syllables).
