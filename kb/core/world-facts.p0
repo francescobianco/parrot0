@@ -3943,6 +3943,8 @@ answer_frame("miles to km", miles_to_km).
 :- include(facts/scientific-discourse.p0).
 % E come si addestra un modello e si tratta il testo: stesso asse, la materia.
 :- include(facts/machine-learning.p0).
+% E quale organo fa che cosa: stesso asse, la materia.
+:- include(facts/physiology.p0).
 :- include(facts/reasoning.p0).
 :- include(facts/operator-worlds.p0).
 :- include(facts/geography-world.p0).

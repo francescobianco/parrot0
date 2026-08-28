@@ -1,0 +1,30 @@
+% physiology.p0 — GLI ORGANI E CIO' CHE FANNO
+%
+% Quarta casa aperta con lo stesso criterio di units.p0, scientific-discourse.p0
+% e machine-learning.p0: l'asse e' la MATERIA. Sette verbi diversi, una sola
+% cosa di cui parlano — quale organo fa che cosa.
+%
+% Le righe vengono da una sessione di insegnamento reale (LEARN_PROTOCOL,
+% dominio fisiologia umana —
+% docs/labs/apprendimento-assistito/2026-08-28-fisiologia.md). Il dominio non e'
+% stato scelto a tavolino: e' uscito interrogando parrot0 in chat e raccogliendo
+% i prompt su cui muriva. Sei domande di fisiologia, sei muri.
+%
+% Fonti: Guyton & Hall, «Textbook of Medical Physiology»; Gray's Anatomy.
+%
+% Nota su `filter` e non `filters`. La frase naturale e' «the kidneys filter
+% blood», al plurale, e la forma flessa e quella base sono oggi due abilita'
+% scollegate in insegnamento (M5): insegnare `filters` non fa leggere «the
+% kidneys filter». Il verbo qui e' percio' quello che la frase vera usa. Il lato
+% RISPOSTA invece il ponte ce l'ha — «the kidneys filters what?» risponde lo
+% stesso, via `lemma_candidate/2` — quindi il divario e' in ingresso, non in
+% uscita, ed e' registrato nel report.
+
+produces(liver, bile).
+secretes(pancreas, insulin).
+secretes(salivary_gland, amylase).
+filter(kidneys, blood).
+pumps(heart, blood).
+carries(hemoglobin, oxygen).
+digests(stomach, protein).
+produces(thyroid, thyroxine).

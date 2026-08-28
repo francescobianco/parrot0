@@ -102,15 +102,43 @@ reading_fact(predicts(language_model, next_token), "a language model predicts th
 fact_source(relation_verb(minimizes), minimizes, "minimizes is a relation verb").
 fact_source(prevents(dropout, overfitting), dropout, "dropout prevents overfitting").
 fact_source(relation_verb(prevents), prevents, "prevents is a relation verb").
+fact_source(produces(thyroid, thyroxine), thyroid, "the thyroid produces thyroxine").
+fact_source(digests(stomach, protein), stomach, "the stomach digests protein").
+fact_source(relation_verb(digests), digests, "digests is a relation verb").
+fact_source(carries(hemoglobin, oxygen), hemoglobin, "hemoglobin carries oxygen").
+fact_source(relation_verb(carries), carries, "carries is a relation verb").
+fact_source(pumps(heart, blood), heart, "the heart pumps blood").
+fact_source(relation_verb(pumps), pumps, "pumps is a relation verb").
+fact_source(filter(kidneys, blood), kidneys, "the kidneys filter blood").
+fact_source(relation_verb(filter), filter, "filter is a relation verb").
+fact_source(secretes(pancreas, insulin), pancreas, "the pancreas secretes insulin").
+fact_source(relation_verb(secretes), secretes, "secretes is a relation verb").
+fact_source(produces(liver, bile), liver, "the liver produces bile").
+reading_fact(produces(thyroid, thyroxine), "the thyroid produces thyroxine").
+fact_source(relation_verb(produces), produces, "produces is a relation verb").
+fact_source(secretes(salivary_gland, amylase), salivary_gland, "the salivary gland secretes amylase").
+reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
+reading_fact(relation_verb(digests), "digests is a relation verb").
 reading_fact(measures(ampere, current), "the ampere measures current").
+reading_fact(carries(hemoglobin, oxygen), "hemoglobin carries oxygen").
 reading_fact(computes(backpropagation, gradients), "backpropagation computes gradients").
+reading_fact(relation_verb(carries), "carries is a relation verb").
 reading_fact(refutes(counterexample, universal_claim), "a counterexample refutes a universal claim").
+reading_fact(pumps(heart, blood), "the heart pumps blood").
 reading_fact(relation_verb(computes), "computes is a relation verb").
+reading_fact(relation_verb(pumps), "pumps is a relation verb").
 reading_fact(measures(kelvin, temperature), "the kelvin measures temperature").
+reading_fact(filter(kidneys, blood), "the kidneys filter blood").
 reading_fact(minimizes(gradient_descent, loss_function), "gradient descent minimizes a loss function").
+reading_fact(relation_verb(filter), "filter is a relation verb").
 reading_fact(relation_verb(refutes), "refutes is a relation verb").
+reading_fact(secretes(pancreas, insulin), "the pancreas secretes insulin").
 reading_fact(prevents(dropout, overfitting), "dropout prevents overfitting").
+reading_fact(relation_verb(secretes), "secretes is a relation verb").
 reading_fact(relation_verb(minimizes), "minimizes is a relation verb").
+reading_fact(produces(liver, bile), "the liver produces bile").
 reading_fact(relation_verb(prevents), "prevents is a relation verb").
+reading_fact(relation_verb(produces), "produces is a relation verb").
+reading_fact(secretes(salivary_gland, amylase), "the salivary gland secretes amylase").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
