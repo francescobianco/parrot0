@@ -86,7 +86,8 @@ static double apply_arith_op(Brain *b, const char *op, double a, double c, int *
     snprintf(quoted, sizeof quoted, "\"%.*s\"", (int)(sizeof quoted - 3), op);
     const char *oq[] = { quoted, NULL };
     char opname[1][KB_TERM_LEN];
-    if (kb_match(b->kb, "infix_operator", oq, 2, opname, 1) != 1) return 0;
+    if (kb_match(b->kb, "infix_operator", oq, 2, opname, 1) != 1)
+        snprintf(opname[0], KB_TERM_LEN, "%s", op);
     char av[KB_TERM_LEN], cv[KB_TERM_LEN];
     snprintf(av, sizeof av, "%g", a); snprintf(cv, sizeof cv, "%g", c);
     const char *aq[] = { opname[0], av, cv, NULL };
@@ -96,6 +97,29 @@ static double apply_arith_op(Brain *b, const char *op, double a, double c, int *
     if (!parse_value(kb_dequote(result[0]), &value)) return 0;
     *ok = 1;
     return value;
+}
+
+static int algebra_inverse(Brain *b, const char *side, char op, double a,
+                           double c, double *result, char *rhs, size_t rhs_n) {
+    char sym[2] = { op, '\0' }, quoted[KB_TERM_LEN];
+    snprintf(quoted, sizeof quoted, "\"%s\"", sym);
+    const char *q[] = { side, quoted, NULL, NULL };
+    char inv[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "algebra_inverse", q, 4, inv, 1) != 1) return 0;
+    const char *sq[] = { side, quoted, inv[0], NULL };
+    char render[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "algebra_inverse", sq, 4, render, 1) != 1) return 0;
+    const char *oq[] = { side, quoted, NULL };
+    char order[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "algebra_inverse_order", oq, 3, order, 1) != 1) return 0;
+    int ok = 0;
+    if (!strcmp(kb_dequote(order[0]), "swap")) {
+        double tmp = a; a = c; c = tmp;
+    }
+    *result = apply_arith_op(b, kb_dequote(inv[0]), a, c, &ok);
+    if (!ok) return 0;
+    snprintf(rhs, rhs_n, "%g %s %g", a, kb_dequote(render[0]), c);
+    return 1;
 }
 
 /* gen190: arithmetic in natural language. The catalogue (basic-chat cat.4) asks
@@ -1736,41 +1760,16 @@ static int mod_algebra(Brain *b, const char *norm, const char *raw,
     const char *x; double r; char rhs[96];   /* rhs = the inverse expression */
     if (!nc) {                                 /* tc unknown: just compute ta op tb */
         x = tc;
-        switch (op) {
-            /* TODO(kb-first): stesso debito di `apply_op_char` — vedi li'. Qui
-             * si piega un'espressione a due operandi, e il calcolo dovrebbe
-             * passare da `apply_operator/4` invece che da questi tre `case`. */
-            case '+': r = av + bv; break;
-            case '-': r = av - bv; break;
-            case '*': r = av * bv; break;
-            case '/': if (bv == 0)
-                          return kb_term_say(b, "arith_division_zero", NULL, 0, out, out_size);
-                      r = av / bv; break;
-            default: return 0;
-        }
+        char surface[2] = { op, '\0' }; int ok = 0;
+        r = apply_arith_op(b, surface, av, bv, &ok);
+        if (!ok) return kb_term_say(b, "arith_division_zero", NULL, 0, out, out_size);
         snprintf(rhs, sizeof rhs, "%g %c %g", av, op, bv);
     } else if (!na) {                          /* ta unknown: invert around ta */
         x = ta;
-        switch (op) {
-            /* TODO(kb-first): l'INVERSA di un operatore e' anch'essa conoscenza
-             * — «l'inverso di + e' -» dovrebbe essere un fatto, non un `case`.
-             * E' il pezzo che permetterebbe di insegnare un operatore E la sua
-             * inversa insieme, che oggi non si puo'. */
-            case '+': r = cv - bv; snprintf(rhs, sizeof rhs, "%g - %g", cv, bv); break;
-            case '-': r = cv + bv; snprintf(rhs, sizeof rhs, "%g + %g", cv, bv); break;
-            case '*': if (bv == 0) return 0; r = cv / bv; snprintf(rhs, sizeof rhs, "%g / %g", cv, bv); break;
-            case '/': r = cv * bv; snprintf(rhs, sizeof rhs, "%g * %g", cv, bv); break;
-            default: return 0;
-        }
+        if (!algebra_inverse(b, "left", op, cv, bv, &r, rhs, sizeof rhs)) return 0;
     } else {                                   /* tb unknown: invert around tb */
         x = tb;
-        switch (op) {
-            case '+': r = cv - av; snprintf(rhs, sizeof rhs, "%g - %g", cv, av); break;
-            case '-': r = av - cv; snprintf(rhs, sizeof rhs, "%g - %g", av, cv); break;
-            case '*': if (av == 0) return 0; r = cv / av; snprintf(rhs, sizeof rhs, "%g / %g", cv, av); break;
-            case '/': if (cv == 0) return 0; r = av / cv; snprintf(rhs, sizeof rhs, "%g / %g", av, cv); break;
-            default: return 0;
-        }
+        if (!algebra_inverse(b, "right", op, cv, av, &r, rhs, sizeof rhs)) return 0;
     }
 
     /* gen113: two-step linear form — the unknown may carry a coefficient written

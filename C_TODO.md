@@ -1054,3 +1054,9 @@ superficie con `infix_operator/2` e valuta tramite `apply_operator/4`. Il C
 mantiene soltanto conversione numerica, controllo `ok` e gestione del risultato.
 Le regressioni `algebra2.p0t`, `algebra2.it.p0t` e `arith_flex.p0t` proteggono il
 percorso composto bilingue.
+
+### Gen469 — inverse algebriche come relazione KB
+
+Le quattro inversioni del solver (`left/right × +,-,*,/`) sono ora dati in
+`algebra_inverse/4` e `algebra_inverse_order/3`; il C interroga la procedura e
+mantiene solo l’ordine degli argomenti, il calcolo e il rendering strutturale.

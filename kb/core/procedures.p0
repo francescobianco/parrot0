@@ -1467,6 +1467,24 @@ infix_operator("/", divide).
 infix_operator("divided", divide).
 infix_operator("diviso", divide).
 infix_operator("over", divide).
+machinery(algebra_inverse).
+algebra_inverse(left, "+", minus, "-").
+algebra_inverse(left, "-", plus, "+").
+algebra_inverse(left, "*", divide, "/").
+algebra_inverse(left, "/", times, "*").
+algebra_inverse(right, "+", minus, "-").
+algebra_inverse(right, "-", minus, "-").
+algebra_inverse(right, "*", divide, "/").
+algebra_inverse(right, "/", divide, "/").
+machinery(algebra_inverse_order).
+algebra_inverse_order(left, "+", normal).
+algebra_inverse_order(left, "-", normal).
+algebra_inverse_order(left, "*", normal).
+algebra_inverse_order(left, "/", normal).
+algebra_inverse_order(right, "+", normal).
+algebra_inverse_order(right, "-", swap).
+algebra_inverse_order(right, "*", normal).
+algebra_inverse_order(right, "/", swap).
 
 % Branching act-loop operation vocabulary (gen467). Surface, primitive symbol
 % and factor are one teachable relation; the parser does not own these words.
