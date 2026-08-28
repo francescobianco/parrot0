@@ -1521,18 +1521,13 @@ static int is_question_opener(Brain *b, const char *w) {
 /* an arithmetic operator cue, so the clarification can ask for a NUMBER rather
  * than a referent when the gap is an operand. */
 static int has_arith_cue(Brain *b, char **w, size_t nw) {
-    /* TODO(kb-first): i nomi delle OPERAZIONI. `operator_word/2` (parola ->
-     * operatore) li renderebbe insegnabili in qualunque lingua, ed e' la
-     * stessa forma che `numeric_cue/2` usa gia' in numeric-questions.p0. */
-    static const char *const ops[] = {
-        "plus", "minus", "times", "divided", "multiplied", "double", "triple",
-        "half", "square", "sum", "product", NULL };
-    (void)b;
+    /* The spelling of an arithmetic word belongs to the KB; symbols remain
+     * punctuation mechanics. */
     for (size_t i = 0; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
         if (strpbrk(t, "+-*/")) return 1;
-        for (const char *const *p = ops; *p; p++)
-            if (strcmp(t, *p) == 0) return 1;
+        const char *q[] = { t };
+        if (b && b->kb && kb_query(b->kb, "arithmetic_word", q, 1)) return 1;
     }
     return 0;
 }
