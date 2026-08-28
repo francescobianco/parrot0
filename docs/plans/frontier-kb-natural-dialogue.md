@@ -3117,3 +3117,62 @@ Il non-obiettivo e' produrre una recensione che *sembra* competente. Il target
 e' piu' severo: un modello logico del documento dal quale recensione, risposta,
 procedura, controesempio e domanda di chiarimento siano viste diverse della
 stessa comprensione.
+
+### 18.16 Evidenza SC0 — prima del Document IR serve un envelope epistemico
+
+Il ciclo SC0 del 2026-08-29 ha falsificato una premessa implicita di D1: non
+basta che esista un lettore. Il documento deve arrivargli come **un solo atto
+epistemico protetto**. Sul medesimo testo Apollo 13, «Leggi questo breve testo:»
+veniva preso dal generatore e trasformato in una storia inventata; insegnare
+soltanto che `leggi` e' un imperativo eliminava la storia ma lasciava un muro.
+La superficie non possedeva ancora un ruolo instradabile.
+
+L'incremento ha introdotto quattro decisioni aperte e separabili:
+
+```prolog
+% la superficie nuova eredita il ruolo da un modello gia' funzionante
+segment_role(prose_source, "leggi questo breve testo:").
+
+% il ruolo possiede il payload, anche se dentro compare lessico di altri registri
+segment_extent(prose_source, whole).
+
+% il consumer dichiarato riceve la prima offerta
+faculty_dispatch(reader, eager).
+
+% il suo conteggio di acquisiti/saltati e' un esito, non un muro da coprire
+module_result_policy(reader, terminal).
+```
+
+Il primo fatto non viene scritto dal teacher: nasce dalla lezione naturale
+«impara “Leggi questo breve testo:” come un altro modo per introdurre
+“leggi:”». Il motore risolve il modello con lo stesso segmentatore universale,
+copia il ruolo soltanto se esiste un consumer, e conserva tutto in sessione.
+Le altre tre relazioni sono politiche generali: un ruolo, una facolta' o un
+modulo nuovi possono diventarne membri senza ricompilare.
+
+Il caso avversario decisivo e' stato *measurement error*. Prima della policy di
+extent, `error` forniva evidenza al registro dei diagnostici di compilazione e
+il testo scientifico perdeva il lettore. Non era un problema della parola
+`error`: era l'assenza di una regola su chi possiede lo span. Dopo la policy, la
+stessa forma insegnata trasferisce attraverso il conflitto di registro.
+
+**Risultato misurato.** Crescita/replay/ablazione/riapprendimento e arbitraggio
+sono coperti da 21 assert nel ratchet dedicato. In chat, la forma nuova ha
+instradato tre testi finali su tre senza narrativa. Ma Apollo, subduzione e un
+contrasto sulla forza causale hanno prodotto insieme `0` fatti e `9` frasi
+saltate. D1-D12 non sono quindi convalidate: SC0 ha costruito il prerequisito
+che permette finalmente di misurarle senza che un altro modulo nasconda il
+fallimento.
+
+Da questa evidenza segue una nuova ipotesi, **D0**:
+
+> ogni documento deve entrare in un envelope epistemico insegnabile che lega
+> superficie, extent, facolta' e politica d'esito; soltanto dentro quell'envelope
+> le unita' D1 possono essere segmentate senza contaminazione da registri o
+> intenti concorrenti.
+
+**Predizione falsificabile.** Una nuova formula introduttiva insegnata da un
+modello deve instradare tre generi diversi, sopravvivere a lessico che altrove
+segnala codice/log e smettere immediatamente dopo l'ablazione. A parita' di D0,
+gli errori residui devono comparire come unita' saltate o gap documentali, mai
+come narrativa o output di un registro concorrente.

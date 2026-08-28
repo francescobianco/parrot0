@@ -3368,6 +3368,53 @@ size_t input_segment(KB *kb, const char *raw, InputSpan *segs, size_t max,
     InputCandidate cand[INPUT_MAX_CANDIDATES];
     char ambproof[KB_EVIDENCE_PROOF_LEN] = ""; size_t ambstart = 0, ambend = n;
 
+    /* A role may declare that its cue owns the remainder of the input.  This
+     * decision must happen before register discovery: prose about a measurement
+     * error is still prose when an explicit source introducer owns it, and a
+     * fenced snippet inside that source is evidence being read rather than an
+     * instruction to the compiler faculty.  `segment_extent/2` is open KB
+     * knowledge; this block only ranks evidence and copies byte ranges. */
+    {
+        size_t first = 0;
+        while (first < n && isspace((unsigned char)raw[first])) first++;
+        KbEvidenceMatch hits[256];
+        size_t nh = kb_evidence_matches(kb, "segment_role", NULL,
+                                        raw, hits, 256);
+        int best = -1, tie = 0; size_t bi = 0; int have = 0;
+        for (size_t i = 0; i < nh; i++) {
+            if (hits[i].start != first) continue;
+            const char *eq[2] = { hits[i].hypothesis, "whole" };
+            if (!kb_query(kb, "segment_extent", eq, 2)) continue;
+            if (!have || hits[i].weight > best) {
+                bi = i; best = hits[i].weight; tie = 0; have = 1;
+            } else if (hits[i].weight == best) {
+                if (strcmp(hits[i].hypothesis, hits[bi].hypothesis) != 0)
+                    tie = 1;
+                else if (hits[i].len > hits[bi].len)
+                    bi = i;       /* same role: the most specific cue owns it */
+            }
+        }
+        if (have && tie) {
+            snprintf(ambproof, sizeof ambproof,
+                     "ambiguous_hypothesis(segment_extent) at byte %zu", first);
+            return input_emit_ambiguous(raw, segs, max, first, n,
+                                        ambproof, ambiguous);
+        }
+        if (have) {
+            char proof[KB_EVIDENCE_PROOF_LEN];
+            snprintf(proof, sizeof proof,
+                     "because segment_role(%s, %s) and segment_extent(%s, whole) "
+                     "[score=%d]",
+                     hits[bi].hypothesis, hits[bi].evidence,
+                     hits[bi].hypothesis, hits[bi].weight);
+            size_t ns = 0;
+            input_push_span(segs, &ns, max, first, n,
+                            hits[bi].hypothesis, "", hits[bi].evidence,
+                            hits[bi].len, hits[bi].weight, proof);
+            return ns;
+        }
+    }
+
     /* 1. Explicit fences: the boundary is mechanical; the tag/body still compete
      * as register evidence. Multiple fenced regions are independent spans. */
     size_t fp = 0;

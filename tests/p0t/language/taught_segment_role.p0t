@@ -12,9 +12,9 @@
 !set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
-!timeout 60
 
 [test a routed introducer is learned from a working model]
+!timeout 60
 # BASELINE: the wording has no typed route yet.
 !mcp input.segment {"text":"study this passage: zibo has 2 gold."}
 !expect! mcp "role":"prose_source"
@@ -26,8 +26,10 @@
 # REPLAY: the exact red surface now reaches the existing reader.
 > study this passage: zibo has 2 gold. nibo has 5 gold.
 < Learned 2 fact(s), skipped 0.
-!query gold(zibo, 2)
-!query gold(nibo, 5)
+> how many gold does zibo have?
+< zibo has 2 gold.
+> how many gold does nibo have?
+< nibo has 5 gold.
 
 # TRANSFER@3: new entities, predicates and rule shapes inherit the route.
 > study this passage: fire causes smoke. rain causes puddles.
@@ -35,6 +37,14 @@
 > study this passage: tariq is a knight. every knight is a noble.
 < Learned 2 fact(s), skipped 0.
 > study this passage: the otter swims downstream. the otter swims often.
+< Learned 0 fact(s), skipped 2.
+# A scientific use of "error" must not be reclassified as compiler output:
+# the explicitly routed role owns the whole payload by live KB policy.
+!query faculty_dispatch(reader, eager)
+!mcp input.segment {"text":"study this passage: an observational study is a design. measurement error causes uncertainty."}
+!expect mcp "role":"prose_source"
+!expect mcp "faculty":"reader"
+> study this passage: an observational study is a design. measurement error causes uncertainty.
 < Learned 2 fact(s), skipped 0.
 !query causes(fire, smoke)
 !query knight(tariq)
@@ -52,17 +62,18 @@
 !expect mcp "faculty":"reader"
 
 [test routed faculty precedence is live knowledge]
+!timeout 60
 # With the precedence fact, even long explicit input is read, never continued
 # as a story merely because `gen` is earlier in the registry.
-> read: zora is a navigator. zora is a person. every navigator is a traveler.
-< Learned 3 fact(s), skipped 0.
+> read: zora is a navigator. zora is a person. zora is calm. every navigator is a traveler.
+< Learned 3 fact(s), skipped 1.
 
 # Removing the arbitration fact exposes the old competing interpretation.
-!forget faculty_precedes_module(reader, gen)
-> read: vega is a navigator. vega is a person. every navigator is a traveler.
-<! Learned 3 fact(s), skipped 0.
+!forget faculty_dispatch(reader, eager)
+> read: vega is a navigator. vega is a person. vega is calm. every navigator is a traveler.
+<! Learned 4 fact(s), skipped 0.
 
 # Restoring one KB fact restores route stability in the same binary.
-!assert faculty_precedes_module(reader, gen)
-> read: mira is a navigator. mira is a person. every navigator is a traveler.
-< Learned 3 fact(s), skipped 0.
+!assert faculty_dispatch(reader, eager)
+> read: mira is a navigator. mira is a person. mira is calm. every navigator is a traveler.
+< Learned 3 fact(s), skipped 1.

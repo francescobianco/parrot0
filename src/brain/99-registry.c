@@ -4190,7 +4190,57 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * modules consulted that declined, then the one that claimed it. */
     char declined[BRAIN_TRACE_MAX][24]; size_t ndecl = 0;
     const char *winner = "fallback";
-    for (size_t i = 0; i < registry_len; i++) {
+    /* M1 assisted learning: routing knowledge may nominate one faculty for an
+     * eager first offer.  The join is completely open: input_segment supplies
+     * typed spans, faculty_for/2 names their consumers, faculty_dispatch/2
+     * supplies policy, and the existing registry proves that a callable module
+     * really exists.  No surface, language, role or privileged faculty is
+     * compiled here.  If two eager faculties compete, ordinary arbitration is
+     * retained rather than guessing between them. */
+    size_t eager_idx = registry_len;
+    if (b && b->kb) {
+        InputSpan spans[64]; int ambiguous = 0, eager_ambiguous = 0;
+        size_t ns = input_segment(b->kb, input, spans, 64, &ambiguous);
+        if (!ambiguous) {
+            for (size_t si = 0; si < ns && !eager_ambiguous; si++) {
+                char type[KB_TERM_LEN];
+                input_span_type(&spans[si], type, sizeof type);
+                char faculties[16][KB_TERM_LEN];
+                const char *fq[2] = { type, NULL };
+                size_t nf = kb_match(b->kb, "faculty_for", fq, 2,
+                                     faculties, 16);
+                for (size_t fi = 0; fi < nf && !eager_ambiguous; fi++) {
+                    const char *dq[2] = { faculties[fi], "eager" };
+                    if (!kb_query(b->kb, "faculty_dispatch", dq, 2)) continue;
+                    const char *faculty = kb_dequote(faculties[fi]);
+                    for (size_t ri = 0; ri < registry_len; ri++) {
+                        if (strcmp(registry[ri].name, faculty) != 0) continue;
+                        if (eager_idx == registry_len || eager_idx == ri)
+                            eager_idx = ri;
+                        else
+                            eager_ambiguous = 1;
+                        break;
+                    }
+                }
+            }
+        }
+        if (eager_ambiguous) eager_idx = registry_len;
+    }
+    if (eager_idx < registry_len &&
+        registry[eager_idx].handle(b, canon, input, out, out_size)) {
+        handled = 1;
+        winner = registry[eager_idx].name;
+        if (strcmp(winner, "discourse") == 0) handled_by_discourse = 1;
+        if (b) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", winner);
+        }
+    } else if (eager_idx < registry_len && ndecl < BRAIN_TRACE_MAX) {
+        snprintf(declined[ndecl++], sizeof declined[0], "%s",
+                 registry[eager_idx].name);
+    }
+    for (size_t i = 0; !handled && i < registry_len; i++) {
+        if (i == eager_idx) continue;       /* already offered exactly once */
         if (registry[i].handle(b, canon, input, out, out_size)) {
             handled = 1;
             winner = registry[i].name;
@@ -4259,6 +4309,16 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                            kb_query(b->kb, "gap_frame", gq, 1);
         int surrendered = declared_gap ||
                           analysis_reply_ignores_subject(b, canon, input, out);
+        /* A faculty may declare its result terminal even when the rendered
+         * report does not repeat the turn's topic.  In particular, an honest
+         * extraction count plus skipped clauses is an outcome, not a disguised
+         * wall for prose_learn to overwrite.  Which modules have that contract
+         * remains live KB policy. */
+        {
+            const char *pq[2] = { winner, "terminal" };
+            if (kb_query(b->kb, "module_result_policy", pq, 2))
+                surrendered = 0;
+        }
         char markers[32][KB_TERM_LEN];
         const char *mq[] = { NULL };
         size_t nm = surrendered ? 0

@@ -238,16 +238,23 @@ faculty_for(mention, reasoner).
 faculty_for(query, reasoner).
 faculty_for(prose_source, reader).
 
-% Claim order is knowledge. A routed source must reach its declared faculty
-% before a broad generator can reinterpret its payload as fiction. Adding or
-% retracting this fact changes arbitration at runtime; neither introducer nor
-% language is named by the engine.
-faculty_precedes_module(reader, gen).
+% Claim order is knowledge. An eager routed faculty receives the first offer;
+% the engine proves that a module of that name exists before calling it. The
+% derived precedence keeps the older local deferral as a secondary guard.
+% Adding or retracting one fact changes arbitration at runtime.
+faculty_dispatch(reader, eager).
+faculty_precedes_module($Faculty, $Module) :-
+    faculty_dispatch($Faculty, eager),
+    module($Module).
+module_result_policy(reader, terminal).
 
-% A source span must stay whole until its faculty consumes the payload. This
-% replaces the decompose dispatcher's old special case for the literal `read:`;
-% every future cue inheriting the role receives the same policy at runtime.
-decompose_span_policy(prose_source, whole).
+% A source span must stay whole until its faculty consumes the payload. This is
+% consulted before register discovery, so words such as a scientific "error"
+% cannot turn an explicitly introduced paper into compiler output. The legacy
+% compound dispatcher consumes a derived view of the same policy: one decision,
+% two mechanical users. Every future cue inheriting the role receives both.
+segment_extent(prose_source, whole).
+decompose_span_policy($Role, whole) :- segment_extent($Role, whole).
 
 % This schema describes parrot0's perception/routing machinery, not world facts.
 machinery(evidence_weight).
@@ -259,8 +266,12 @@ machinery(register_evidence).
 machinery(register_role).
 machinery(register_label).
 machinery(segment_role).
+machinery(segment_extent).
 machinery(segment_default).
 machinery(faculty_for).
+machinery(faculty_dispatch).
+machinery(faculty_precedes_module).
+machinery(module_result_policy).
 machinery(decompose_span_policy).
 machinery(canonicalization_exempt).
 machinery(turn_span).

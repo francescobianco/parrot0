@@ -63,7 +63,7 @@ viene parafrasato: una fonte non diventa un corpus copiato nella KB.
 
 | # | Piano complesso | Classe liberata | Interazione didattica minima | Gate duro | Stato |
 |---|---|---|---|---|---|
-| **SC0** | **Baseline stratificata su prosa narrativa, espositiva e scientifica** | distingue muro, fatto estratto, misclaim, perdita di subordinata e perdita di struttura documentale | presentare tre brani veri brevi, poi chiedere tesi, supporto, sequenza e limite senza anticipare le risposte | transcript classificato frase per frase; zero conoscenza consolidata; mappa M0-M20 e SC1-SC16 | **IN CORSO** |
+| **SC0** | **Baseline stratificata su prosa narrativa, espositiva e scientifica** | distingue muro, fatto estratto, misclaim, perdita di subordinata e perdita di struttura documentale | presentare tre brani veri brevi, poi chiedere tesi, supporto, sequenza e limite senza anticipare le risposte | transcript classificato frase per frase; zero conoscenza consolidata; mappa M0-M20 e SC1-SC16 | **CHIUSA come diagnosi** — 2026-08-29: falso racconto e falsa autodiagnosi isolati; porta di lettura resa insegnabile; route Transfer@3 = 3/3; estrazione complessa = 0/9. Report: [`2026-08-29-supercomprensione-sc0.md`](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc0.md) |
 | **SC1** | **Unita' documentali e relazioni retoriche** | una frase o sezione puo' essere definizione, sfondo, contrasto, causa, metodo, risultato, limite o transizione | «qui la seconda frase contrasta la prima», «questa frase descrive il metodo, non il risultato» | una cue retorica nuova insegnata a voce cambia la segmentazione; transfer su tre domini; retract la rimuove | aperto |
 | **SC2** | **Claim tipati, attribuzione e forza epistemica** | separa osservazione, dato, inferenza, ipotesi, assunzione, definizione, citazione e raccomandazione | «gli autori osservano X ma concludono Y», «Z e' un'ipotesi, non un risultato» | nessun claim perde fonte, scope o status; un fatto riportato non diventa automaticamente commitment di parrot0 | aperto |
 | **SC3** | **Grafo argomentativo e dipendenze della conclusione** | estrae premesse, conclusioni, supporti, obiezioni, qualificatori e rebuttal da prosa articolata | «questa osservazione sostiene la conclusione solo insieme a quest'altra premessa» | domande `perche'`, `da cosa dipende`, `cosa la confuterebbe`; ablation di una premessa ritira solo le conclusioni dipendenti | aperto |
@@ -126,6 +126,238 @@ aggiungono:
 
 Una risposta scorrevole non contribuisce a nessuna di queste metriche se il
 grafo che la sostiene non e' interrogabile.
+
+### Checkpoint lasciato da SC0
+
+SC0 ha separato due problemi che prima apparivano come uno solo:
+
+1. **accesso al lettore:** chiuso per la classe degli introduttori. Una forma
+   nuova si insegna ancorandola a una forma funzionante, senza nomi interni; il
+   ruolo puo' possedere l'intero payload, la KB sceglie la facolta' eager e il
+   suo esito terminale non viene riclassificato come muro;
+2. **comprensione del contenuto:** ancora rossa. Sui tre testi finali Apollo,
+   subduzione e forza epistemica il lettore ha instradato 3/3, ma ha riportato
+   `0` fatti e `9` frasi saltate. Non esistono ancora unita' documentali, claim
+   tipati o archi retorici interrogabili.
+
+Per questo la prossima voce e' **SC1**, non un altro sinonimo di `read:`. Il
+primo gate dovra' insegnare a voce una relazione fra due unita' (almeno
+contrasto o metodo/risultato), conservarne gli span e ritirarla senza perdere
+il contenuto proposizionale.
+
+### Handoff operativo dettagliato: riprendere da SC1
+
+Questa sezione e' il punto di ripresa autoritativo per un agente che non ha
+assistito alla sessione SC0. Non reinterpretare il risultato a partire dalla
+sola risposta finale di parrot0: leggere prima il
+[report SC0](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc0.md),
+poi questa sezione, poi il codice indicato sotto.
+
+#### Confine esatto gia' raggiunto
+
+- Il commit `a722689` contiene il primo checkpoint: la lezione naturale
+  `role_for`, le sue forme KB-backed, i template di risposta e il primo
+  deferral verso la faculty dichiarata. E' gia' su `origin/main`.
+- Il commit immediatamente successivo, quello che contiene questo handoff,
+  chiude SC0 con l'**envelope epistemico insegnabile**: estensione dell'input,
+  dispatch della faculty e politica del risultato sono fatti KB, mentre C fa
+  soltanto binding, ordinamento e arbitraggio.
+- Il test mirato persistente
+  `tests/p0t/language/taught_segment_role.p0t` chiude **21/21** assert nello
+  stesso processo: baseline, lezione, replay, transfer, collisione con
+  `measurement error`, ablation e reteach.
+- Il solo `make soft-test` permesso dal protocollo e' gia' stato consumato in
+  questo ciclo. Il risultato e' **55 passati, 1 fallito**, nel test preesistente
+  `frontier_chat_audit.it.p0t` alla riga 97: atteso
+  `I don't know about designation`, ottenuto
+  `I don't know much about your designation yet. Want me to look it up?`.
+  Non attribuire questo rosso a SC0 e non rieseguire il soft-test per
+  "provare ancora": nel prossimo ciclo, dopo una modifica engine, spetta una
+  sola nuova esecuzione.
+- Il dato che conta e' doppio: **Route Transfer@3 = 3/3**, ma **Claim coverage =
+  0/9**. Apollo, subduzione e il contrasto associazione/causalita' raggiungono
+  il lettore; il lettore non costruisce ancora claim complessi interrogabili.
+
+Non investire il prossimo ciclo in altri sinonimi di `leggi:`. La porta e'
+dimostrata e retraibile. La frontiera e' ora dentro il documento.
+
+#### Mappa minima dell'implementazione da non rompere
+
+1. `src/brain/00-lex.c`, `try_teach_form`, implementa il modo generico
+   `role_for`. Il teacher insegna una forma nuova ancorandola a una forma viva,
+   per esempio `impara "Leggi questo breve testo:" come un altro modo per
+   introdurre "leggi:"`. Il codice non conosce quella frase: risolve il ruolo
+   dell'anchor attraverso l'evidenza `input_segment` e verifica una
+   `faculty_for` realmente disponibile.
+2. `kb/core/intents.p0` contiene le etichette naturali learnable di `role_for`;
+   `kb/core/messages.p0` contiene le conferme. Aggiungere una lingua o una
+   parafrasi significa crescere queste famiglie nella KB e provarne
+   assert/retract a runtime, non aggiungere confronti lessicali in C.
+3. `src/code.c`, all'inizio di `input_segment`, applica la proprieta' aperta
+   `segment_extent(Role, whole)`: se un ruolo insegnato possiede il payload,
+   viene pubblicato un unico span prima che i registri interni competano. E'
+   il fix generale che impedisce alla parola interna `error` di trasformare un
+   brano scientifico in un log del compilatore. In caso di evidenza pari deve
+   emergere ambiguita', non una preferenza nascosta.
+4. `kb/core/input.p0` dichiara attualmente
+   `segment_extent(prose_source, whole)`, `faculty_dispatch(reader, eager)` e
+   `module_result_policy(reader, terminal)`. Da questi fatti deriva il
+   precedence meccanico. Sono policy aperte: una nuova faculty deve poter
+   entrare aggiungendo fatti e test, senza una nuova branch nominativa.
+5. `src/brain/99-registry.c` fa il join generico
+   `input span -> faculty_for/2 -> faculty_dispatch/2 -> registry C`, offre
+   prima l'unica faculty eager e, se ve ne sono piu' di una, lascia
+   l'arbitraggio al percorso ordinario. La policy `module_result_policy`
+   impedisce che il risultato onesto del reader (`0 learned, N skipped`) sia
+   scambiato per resa e sovrascritto da una risposta generativa.
+6. Il reader vero e' in `src/brain/30-generation-reading.c`:
+   `mod_reader -> read_passage -> extract_clause`. `extract_clause` pubblica
+   la struttura sotto `current_prose`, prova `input_assertion_bundle` e
+   `input_frame_commit`, poi i percorsi legacy. `read_passage` conserva una
+   proposizione originale soltanto se qualcosa e' stato estratto.
+7. `current_prose` e' oggi **transiente per clausola**: viene ripulito prima
+   della clausola successiva. Questo e' probabilmente il primo ostacolo reale
+   a SC1, perche' un arco retorico fra due clausole non puo' appoggiarsi a nodi
+   gia' cancellati. Non risolverlo con una lista di connettivi in C. Serve una
+   pubblicazione documentale stabile di sessione, con identita', ordine, span
+   fonte e receipt di commit, prima del clear.
+8. Esiste gia' una scomposizione concessiva in `src/brain/99-registry.c`, prima
+   del registry: separa forme come `although ..., ...` consultando
+   `subordinator_stance/2` in `kb/core/grammar.p0`. E' utile e non va rimossa,
+   ma oggi conserva al massimo lo stance dei due lati: non crea una relazione
+   retorica persistente, non prova la provenance e non sostituisce Document
+   IR.
+9. Esistono gia' `contrastive_connector/1` in `kb/core/lexicon.p0` e
+   `subordinator_stance/2` in `kb/core/grammar.p0`. Prima di implementare un
+   nuovo protocollo, provare se la lezione generica di classe accetta gia'
+   `"albeit" is a contrastive connector` e se retract ne elimina davvero
+   l'effetto. Non assumere che una riga statica equivalga a teachability.
+10. `input_structure_publish` fornisce gia' token, span e phrase node. Riutilizzare
+    quella geometria: duplicare un secondo tokenizer o ricostruire offset da
+    stringhe rendera' impossibile la provenance precisa.
+
+#### Prossimo esperimento minimo: SC1, non ancora SC2
+
+Obiettivo stretto: due unita' di un documento sopravvivono all'analisi della
+singola clausola; una relazione retorica insegnata a voce le collega; ablation
+della sola cue o regola rimuove l'arco senza cancellare le proposizioni.
+
+Usare almeno tre generi veri e separare sempre **baseline**, **lezione**,
+**replay**, **transfer** e **ablation** nello stesso processo:
+
+1. una concessiva fattuale breve, per esempio la struttura «Although X, Y»,
+   con entrambi i lati veri e verificabili;
+2. il caso Apollo 13 gia' documentato dalla NASA: la missione non alluno', ma
+   fu considerata riuscita per il rientro salvo dell'equipaggio;
+3. un passaggio scientifico in cui un'associazione osservata non autorizza una
+   conclusione causale, preso da una fonte istituzionale o open-access mai
+   memorizzata prima.
+
+Prima della lezione chiedere esplicitamente: quali claim afferma ciascuna
+unita', che relazione c'e' fra le due, quale span sostiene ogni risposta e se
+entrambi i claim sono stati committed. La risposta corretta non basta: devono
+esistere nodi interrogabili e proof verso gli span.
+
+La prima lezione da tentare e' una lezione naturale di classe gia' disponibile,
+per esempio `"albeit" is a contrastive connector`. Se la classe viene
+assertita ma non cambia la relazione documentale, il gap non e' lessicale: e'
+il consumer. Solo allora introdurre il piu' piccolo producer/view KB capace di
+trasformare struttura e classe in una relazione. Una correzione come «qui la
+seconda unita' qualifica la prima» deve restare un obiettivo successivo, non un
+pretesto per esporre al teacher nomi di predicati interni.
+
+I nomi `document_unit`, `unit_act`, `unit_source_span` e `rhetorical_edge` sono
+ipotesi di lavoro, non uno schema gia' approvato. Prima di aggiungerli cercare
+relazioni equivalenti con `rg`; poi scegliere la rappresentazione minima che
+permetta queste query:
+
+- quali unita' compongono il documento e in quale ordine;
+- quale atto/ruolo ha ogni unita';
+- quale arco collega source e target;
+- quali byte o token della fonte giustificano nodo e arco;
+- da quale regola/cue deriva l'arco;
+- che cosa resta dopo retract della cue.
+
+#### Sequenza di lavoro consigliata a un agente successivo
+
+1. Rileggere `MANTRA.md`, `PRINCIPLES.md`, `LEARN_PROTOCOL.md`, il report SC0 e
+   il paragrafo 18 di `docs/plans/frontier-kb-natural-dialogue.md`.
+2. Eseguire una sessione diagnostica senza `/save`. Catturare transcript e
+   delta; se una correzione crea un fatto falso, chiudere con `X` e annotarlo.
+3. Provare la teachability gia' esistente di `contrastive_connector` e
+   `subordinator_stance`; non aggiungere C finche' non e' chiaro se manca il
+   sensore, il consumer, la memoria documentale o la query.
+4. Progettare il piu' piccolo strato Document IR. Se serve C, limitarlo a
+   meccanica fissa: numerazione delle unita', copia degli span, ordine,
+   transazione e receipt. Ruoli, nomi di cue, direzione e semantica degli archi
+   devono venire dalla KB.
+5. Scrivere prima il test di crescita nello stesso processo:
+   baseline fallisce onestamente; lezione; replay; tre transfer; contrasto
+   negativo; retract; replay negativo; reteach. Verificare separatamente che
+   retract dell'arco non distrugga i claim contenuto.
+6. Aggiungere query di audit via MCP o linguaggio naturale per ruolo, faculty,
+   unita', span, arco, sorgente della regola e confidence. Senza audit, non
+   dichiarare chiuso il gate.
+7. Misurare claim coverage, relation fidelity e source fidelity, non la
+   scorrevolezza della risposta. Ogni claim deve essere vero rispetto alla
+   fonte scelta; nessun fatto del test va promosso in core/profile per far
+   diventare verde il caso.
+8. Eseguire `make build`, il test mirato persistente, `git diff --check` e una
+   sola volta `make soft-test` dopo la modifica engine. Aggiornare report e
+   questa sezione prima di commit e push.
+
+#### Trappole gia' osservate
+
+- Senza envelope, un brano lungo puo' finire nella generazione narrativa:
+  Apollo e' diventato un racconto inventato. Non e' "quasi comprensione".
+- La parola `error` dentro `measurement error` competeva col registro dei log.
+  Conservare questo caso avversariale in ogni refactor di dispatch.
+- Il sommario del reader con zero fatti veniva interpretato come resa e
+  sovrascritto. La policy terminale e' parte del contratto, non cosmetica.
+- Una correzione naturale mal compresa ha prodotto un falso `created_by(...)`.
+  Se il delta contiene falsita', usare `X`, non `/save`.
+- Diversi buffer canonici sono ancora limitati (in particolare percorsi da
+  circa 256 byte): un testo lungo puo' troncare senza dimostrare un limite
+  concettuale. Testare dapprima brani corti, poi stressare la lunghezza come
+  asse separato.
+- Il conteggio del reader e' oggi per frasi/clausole e nel probe PCR ha
+  riportato `2 skipped` per un passaggio percepito come tre frasi. Non usare il
+  contatore come sostituto di unita' documentali esplicite.
+- Output grammaticalmente fluente o nella lingua giusta non prova estrazione.
+  Chiedere claim, arco, span e proof.
+- L'ordine dei moduli C non e' semantica. Per nuove facolta' usare fatti come
+  `faculty_dispatch`, con tie osservabile, non spostare silenziosamente righe
+  del registry.
+- Sono vietati `cue(...)`, `strstr(...)` o `strcmp(...)` su nuovi letterali di
+  lingua naturale in `src/brain`. Ogni superficie va nella KB e deve avere un
+  test assert/retract senza rebuild.
+- Non trasformare esempi scientifici, nomi propri o risposte attese in world
+  facts del profilo. Le fonti vere restano input/test; la KB deve contenere la
+  competenza trasferibile.
+
+#### Comandi e disciplina di verifica
+
+Per evitare che un test crei un processo nuovo a ogni assert, mantenere un
+engine unico in una PTY con socket non condiviso:
+
+```sh
+make build
+./bin/parrot0 --test-engine --sock /tmp/parrot0-sc1-<id>.sock
+./bin/parrot0 --test tests/p0t/language/<nuovo-test>.p0t \
+  --sock /tmp/parrot0-sc1-<id>.sock
+git diff --check
+make soft-test
+```
+
+Terminare l'engine della propria PTY con `Ctrl-C`. Non uccidere processi di
+test non creati dalla sessione: nel workspace possono operare altri agenti.
+`make soft-test` compare qui come passo del **prossimo ciclo engine**: SC0 lo ha
+gia' eseguito una volta e non va ripetuto durante la sua chiusura.
+
+Il commit SC1 dovra' essere autonomo e descrivere: ipotesi provata, lezione
+naturale, fatto KB cresciuto, consumer che lo usa, test di ablation, metriche,
+fonti, limite residuo e prossimo gate. Se una di queste voci manca, lasciare il
+gate aperto nel TODO.
 
 ---
 
