@@ -3344,15 +3344,23 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
     char *w[8];
     size_t nw = split_words(buf, w, 8);
 
-    /* assert: "<x> has <n> <unit>" -> quantity(x, unit, n) */
-    if (nw == 4 && lex_class_member(b, "25_wordmath_reasoning_lex3306", w[1])) {
+    /* assert: "<x> has <n> <unit>" -> quantity(x, unit, n)
+     *
+     * L'ARTICOLO NON E' UNA PAROLA IN PIU'. La forma chiedeva esattamente
+     * quattro token, e «a meter has 100 centimeters» — cioe' come la frase si
+     * dice davvero — ne ha cinque: andava a muro mentre «meter has 100
+     * centimeters» funzionava. Quali parole aprano un sintagma e' gia'
+     * conoscenza (`is_article`), quindi si scavalca l'apertura invece di
+     * chiedere all'utente di togliere l'articolo. */
+    size_t qs = (nw >= 1 && is_article(b, w[0])) ? 1 : 0;
+    if (nw - qs == 4 && lex_class_member(b, "25_wordmath_reasoning_lex3306", w[qs + 1])) {
         double v;
-        if (!parse_num(w[2], &v)) return 0; /* not a quantity; let others try */
-        const char *args[] = {w[0], w[3], w[2]};
+        if (!parse_num(w[qs + 2], &v)) return 0; /* not a quantity; let others try */
+        const char *args[] = {w[qs], w[qs + 3], w[qs + 2]};
         char msg[160];
         if (domain_assert(b, "quantity", args, 3)) {
             const KbResponseSlot slots[] = {
-                { "subject", w[0] }, { "amount", w[2] }, { "unit", w[3] } };
+                { "subject", w[qs] }, { "amount", w[qs + 2] }, { "unit", w[qs + 3] } };
             kb_term_say(b, "learned_quantity", slots, 3, msg, sizeof msg);
         }
         else
@@ -3425,8 +3433,15 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
                 char msg[200];
                 const KbResponseSlot s[] = {
                     {"entity", ename}, {"count", hits[0]}, {"unit", unit} };
-                const char *key = kb_cue_match(b, "25_wordmath_reasoning_cue3362", buf) ? "quantity_in_frame"
-                                                   : "quantity_has_frame";
+                /* «A september has 30 days» era inglese sbagliato: un nome
+                 * proprio non prende l'articolo. Quali entita' lo rifiutino e'
+                 * conoscenza (`article_free/1`, derivata dalla categoria dei
+                 * mesi), quindi il motore sceglie soltanto la cornice. */
+                const char *afq[] = { ename };
+                int bare = kb_query(b->kb, "article_free", afq, 1);
+                const char *key = kb_cue_match(b, "25_wordmath_reasoning_cue3362", buf)
+                                    ? (bare ? "quantity_in_frame_bare" : "quantity_in_frame")
+                                    : (bare ? "quantity_has_frame_bare" : "quantity_has_frame");
                 if (!kb_response_slots(b, key, s, 3, msg, sizeof msg)) {
                     if (kb_cue_match(b, "25_wordmath_reasoning_chain3408", buf))
                         { const KbResponseSlot _rs[] = { { "hits", hits[0] }, { "unit", unit }, { "ename", ename } };

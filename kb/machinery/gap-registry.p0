@@ -84,13 +84,18 @@ machinery_gap("what does a metaphor do?").
 gap_opaque("what does a metaphor do?", metaphor).
 machinery_gap("what does a counterexample do?").
 machinery_gap("dropout prevents what?").
+machinery_gap("how many days in march?").
 gap_kind("a counterexample refutes a universal claim", reachability).
 gap_kind("what does a metaphor do?", reachability).
 gap_opaque("dropout prevents what?", dropout).
+gap_opaque("how many days in march?", march).
+gap_opaque("how many days in march?", days).
+gap_opaque("how many days in march?", many).
 gap_opaque("what is measured by the farad?", measured).
 gap_anchor("what does a counterexample do?", counterexample).
 gap_kind("what does a counterexample do?", reachability).
 gap_anchor("dropout prevents what?", prevents).
+gap_kind("how many days in march?", reachability).
 gap_kind("dropout prevents what?", reachability).
 gap_source("the metaphor maps what?", "the metaphor maps what?").
 gap_anchor("what is measured by the farad?", farad).
@@ -110,4 +115,5 @@ gap_source("what does a capacitor store?", "what does a capacitor store?").
 gap_source("which unit measures resistance?", "which unit measures resistance?").
 gap_source("what does a counterexample do?", "what does a counterexample do?").
 gap_source("dropout prevents what?", "dropout prevents what?").
+gap_source("how many days in march?", "how many days in march?").
 gap_source("what is the is unit of electrical resistance?", "what is the SI unit of electrical resistance?").

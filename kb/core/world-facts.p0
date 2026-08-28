@@ -1324,6 +1324,11 @@ category_member(month, april).
 category_member(month, august).
 category_member(month, december).
 category_member(month, february).
+% Un nome proprio non prende l'articolo, e i mesi lo sono: si DERIVA dalla
+% categoria invece di elencarli una seconda volta, cosi' un mese aggiunto domani
+% e' gia' trattato bene.
+machinery(article_free).
+article_free($M) :- category_member(month, $M).
 category_member(month, january).
 category_member(month, july).
 category_member(month, june).
@@ -3164,6 +3169,19 @@ quantity(triangle, sides, 3).
 quantity(venus, moons, 0).
 quantity(violin, strings, 4).
 quantity(week, days, 7).
+quantity(december, days, 31).
+quantity(september, days, 30).
+quantity(april, days, 30).
+quantity(february, days, 28).
+quantity(january, days, 31).
+quantity(liter, milliliters, 1000).
+quantity(tonne, kilograms, 1000).
+quantity(gram, milligrams, 1000).
+quantity(kilogram, grams, 1000).
+quantity(centimeter, millimeters, 10).
+quantity(kilometer, meters, 1000).
+quantity(meter, millimeters, 1000).
+quantity(meter, centimeters, 100).
 quantity(week, weekdays, 5).
 quantity(world, continents, 7).
 quantity(year, days, 365).

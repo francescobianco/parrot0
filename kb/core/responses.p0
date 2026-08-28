@@ -616,6 +616,13 @@ response_template(count_readings_register, "{per_side} per side, in {kinds} kind
 response_template(count_readings_register, it, "{per_side} per giocatore, di {kinds} tipi ({parts}).").
 
 response_template(quantity_has_frame, "A {entity} has {count} {unit}.").
+% E la stessa cornice per chi l'articolo non lo prende: «A september has 30
+% days» era inglese sbagliato. Quali entita' siano nomi propri e' conoscenza —
+% `article_free/1` in world-facts.p0 — non un ramo del motore.
+response_template(quantity_has_frame_bare, "{entity} has {count} {unit}.").
+response_template(quantity_has_frame_bare, it, "{entity} ha {count} {unit}.").
+response_template(quantity_in_frame_bare, "There are {count} {unit} in {entity}.").
+response_template(quantity_in_frame_bare, it, "In {entity} ci sono {count} {unit}.").
 response_template(quantity_has_frame, it, "{entity} ha {count} {unit}.").
 response_template(quantity_in_frame, "There are {count} {unit} in a {entity}.").
 response_template(quantity_in_frame, it, "In {entity} ci sono {count} {unit}.").
