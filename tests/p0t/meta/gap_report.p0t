@@ -1,0 +1,56 @@
+# gap_report.p0t — M13: parrot0 dice DI CHE TIPO e' la sua lacuna.
+#
+# La diagnosi la scriveva gia' a ogni turno mancato — gap_kind, gap_anchor,
+# gap_opaque — e non aveva modo di dirla: chiesto «che tipo di lacuna hai?»
+# rispondeva con una battuta sociale. Il registro era scritto e muto.
+#
+# Il piano (docs/plans/apprendimento-assistito.md §6.2, M13) lo chiama la
+# precondizione del teacher automatico: senza, tenterebbe la lezione sbagliata
+# sul gap sbagliato.
+
+[test gap_report_none_before_any_gap]
+!set PARROT0_LANG=en
+!reset
+# Il referto e' di QUESTA conversazione. Il registro delle lacune e' patrimonio
+# e conserva anche quelle delle sessioni passate: un processo appena avviato non
+# deve spacciarne una vecchia per «l'ultima cosa che non sono riuscito a
+# raggiungere» — vera come archivio, falsa come referto.
+> what kind of gap do you have?
+< I have not hit a gap yet in this conversation.
+
+[test gap_report_after_a_real_wall]
+!set PARROT0_LANG=en
+!reset
+> which organ produces melatonin?
+<~ melatonin
+> what kind of gap do you have?
+<~ which organ produces melatonin?
+<~ organ
+<~ melatonin
+<~ reachability
+
+[test gap_report_cue_grows_at_runtime]
+!set PARROT0_LANG=en
+!reset
+# AGENTS.md: un riconoscitore nuovo si prova facendolo CRESCERE a runtime. La
+# superficie si insegna parlando — `learnable/3` la dichiara insegnabile — e vale
+# dal turno dopo, senza ricompilare.
+> learn "dimmi il buco" to ask what kind of gap
+<~ Got it
+> which organ produces melatonin?
+<~ melatonin
+> dimmi il buco
+<~ which organ produces melatonin?
+<~ reachability
+
+[test gap_report_quotes_the_user_own_words]
+!set PARROT0_LANG=it
+!reset
+# Non la forma canonicalizzata: rinfacciare «which organo produce the
+# melatonina?» a chi ha scritto in italiano non e' un referto, e' un'altra
+# lacuna. gap_source/2 conserva le due forme apposta.
+> quale organo produce la melatonina?
+<~ capisco
+> che tipo di lacuna hai?
+<~ quale organo produce la melatonina?
+<~ melatonina

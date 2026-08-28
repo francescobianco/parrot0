@@ -423,6 +423,11 @@ static const Module registry[] = {
     {"chitchat",  mod_chitchat},
     {"reqgen",    mod_reqgen},
     {"learn",     mod_learn},
+    /* Dopo `learn` di proposito: «learn "…" to ask what kind of gap» CONTIENE la
+     * cue del referto, e messo prima il modulo si mangiava la frase che lo stava
+     * insegnando. Resta comunque prima di `smalltalk`, che era chi rubava la
+     * domanda quando il referto non esisteva. */
+    {"gapreport", mod_gapreport},
     /* gen331: after every faculty that could genuinely serve the turn, and before
      * the conversational fallback — so a tool request in a tools-off mode hears
      * "I understood, I am not permitted" instead of "I don't understand". */

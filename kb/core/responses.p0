@@ -619,6 +619,15 @@ response_template(quantity_has_frame, "A {entity} has {count} {unit}.").
 % E la stessa cornice per chi l'articolo non lo prende: «A september has 30
 % days» era inglese sbagliato. Quali entita' siano nomi propri e' conoscenza —
 % `article_free/1` in world-facts.p0 — non un ramo del motore.
+% M13 — il referto della lacuna. Non «non lo so», ma: che cosa non ho raggiunto,
+% che cosa di quella frase riconosco, che cosa mi resta opaco, e di che specie e'
+% la lacuna. E' cio' che permette a un teacher di scegliere la lezione giusta
+% invece di indovinarla.
+response_template(gap_report, "The last thing I could not reach was «{gap}». In it I recognise: {anchor}. What stays opaque to me is: {opaque}. The kind of gap is {kind}.").
+response_template(gap_report, it, "L'ultima cosa che non sono riuscito a raggiungere e' «{gap}». Di quella frase riconosco: {anchor}. Mi resta opaco: {opaque}. La specie della lacuna e' {kind}.").
+response_template(gap_report_none, "I have not hit a gap yet in this conversation.").
+response_template(gap_report_none, it, "In questa conversazione non ho ancora incontrato una lacuna.").
+
 response_template(quantity_has_frame_bare, "{entity} has {count} {unit}.").
 response_template(quantity_has_frame_bare, it, "{entity} ha {count} {unit}.").
 response_template(quantity_in_frame_bare, "There are {count} {unit} in {entity}.").

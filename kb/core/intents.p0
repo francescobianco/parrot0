@@ -559,6 +559,11 @@ learnable("una richiesta di piano", plan_request, substring).
 learnable("a collaboration offer", collaboration_offer, substring).
 learnable("un'offerta di collaborazione", collaboration_offer, substring).
 learnable("an opinion request", opinion_request, substring).
+% E il referto della lacuna si puo' insegnare a chiedere con parole proprie:
+% un riconoscitore nuovo deve poter CRESCERE a runtime (AGENTS.md), non solo
+% funzionare sulle superfici che gli abbiamo scritto noi.
+learnable("ask what kind of gap", gap_report_request, substring).
+learnable("chiedere che tipo di lacuna", gap_report_request, substring).
 learnable("una richiesta di opinione", opinion_request, substring).
 learnable("greet a new name",     greet_name, fill).
 learnable("salutare",             greet_name, fill).
@@ -3375,6 +3380,18 @@ intent_cue(40_meta_reflection_chain2003, "why did you answer that way").
 intent_cue(40_meta_reflection_chain2004, "why did you respond that way").
 intent_cue(40_meta_reflection_chain2005, "why that way").
 intent_cue(40_meta_reflection_chain2008, "perché hai risposto così").
+% M13 — le superfici con cui si chiede a parrot0 CHE TIPO di lacuna ha. La
+% diagnosi la scriveva gia' a ogni turno mancato; da qui in poi la sa anche dire.
+intent_cue(gap_report_request, "what kind of gap").
+intent_cue(gap_report_request, "what sort of gap").
+intent_cue(gap_report_request, "what is missing for you").
+intent_cue(gap_report_request, "what do you need to answer").
+intent_cue(gap_report_request, "what stopped you").
+intent_cue(gap_report_request, "why could you not answer").
+intent_cue(gap_report_request, "che tipo di lacuna").
+intent_cue(gap_report_request, "cosa ti manca per rispondere").
+intent_cue(gap_report_request, "cosa ti ha fermato").
+intent_cue(gap_report_request, "perché non hai saputo rispondere").
 intent_cue(50_self_research_loop_chain1610, "what does the word").
 intent_cue(50_self_research_loop_chain1610, "what does word").
 intent_cue(70_social_pragma_chain756, " is a ").

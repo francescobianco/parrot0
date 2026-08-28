@@ -1986,6 +1986,97 @@ static int mod_fewshot(Brain *b, const char *norm, const char *raw,
  * It declines anything that is not this meta-question, so normal turns are not
  * hijacked — and crucially its own turn does NOT overwrite the trace it reports
  * (the dispatcher commits the trace only on non-strategy turns). */
+/* M13 — DIRE DI CHE TIPO E' LA PROPRIA LACUNA.
+ *
+ * parrot0 la sua diagnosi la scriveva gia', a ogni turno mancato: `gap_kind`,
+ * `gap_anchor` (cio' che riconosce), `gap_opaque` (cio' che gli resta opaco).
+ * Non aveva pero' modo di DIRLA: chiesto «che tipo di lacuna hai?» rispondeva
+ * con una battuta sociale, e il registro restava scritto e muto.
+ *
+ * docs/plans/apprendimento-assistito.md §6.2 M13: «qui e' parrot0 che deve
+ * parlare per primo», ed e' la precondizione del teacher automatico del §8 —
+ * senza, tenterebbe la lezione sbagliata sul gap sbagliato.
+ *
+ * Il motore non nomina ne' le domande ne' le specie: legge l'ultima lacuna
+ * registrata e la rende. Le superfici che aprono la domanda sono `intent_cue`,
+ * le frasi sono `response_template`. */
+static int mod_gapreport(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    /* La cue si prova sul turno CANONICALIZZATO e su quello CRUDO. La
+     * canonicalizzazione riscrive l'italiano parola per parola — «che tipo di
+     * lacuna hai?» diventa «what tipo of lacuna hai?» — quindi una superficie
+     * italiana scritta come si dice non combacia mai con il solo `norm`. */
+    if (!kb_cue_match(b, "gap_report_request", norm) &&
+        !(raw && kb_cue_match(b, "gap_report_request", raw))) return 0;
+
+    char gaps[64][KB_TERM_LEN];
+    const char *gq[1] = { NULL };
+    size_t ng = kb_match(b->kb, "machinery_gap", gq, 1, gaps, 64);
+    if (ng == 0) {
+        kb_term_say(b, "gap_report_none", NULL, 0, out, out_size);
+        return 1;
+    }
+    /* L'ultima registrata IN QUESTA CONVERSAZIONE. Il registro delle lacune e'
+     * patrimonio: `kb/machinery/gap-registry.p0` conserva anche quelle delle
+     * sessioni passate, e senza questo filtro un processo appena avviato
+     * rispondeva «l'ultima cosa che non sono riuscito a raggiungere» citando il
+     * muro di un'altra conversazione — vero come archivio, falso come referto. */
+    const char *last = NULL;
+    for (size_t i = ng; i > 0; i--) {
+        const char *a[1] = { gaps[i - 1] };
+        if (kb_query_origin(b->kb, KB_SESSION, "machinery_gap", a, 1)) {
+            last = gaps[i - 1];
+            break;
+        }
+    }
+    if (!last) {
+        kb_term_say(b, "gap_report_none", NULL, 0, out, out_size);
+        return 1;
+    }
+
+    char kb_[8][KB_TERM_LEN], opq[16][KB_TERM_LEN], anc[16][KB_TERM_LEN];
+    const char *kq[2] = { last, NULL };
+    size_t nk = kb_match(b->kb, "gap_kind", kq, 2, kb_, 8);
+    size_t nopq = kb_match(b->kb, "gap_opaque", kq, 2, opq, 16);
+    size_t nanc = kb_match(b->kb, "gap_anchor", kq, 2, anc, 16);
+
+    char opaque_list[256] = "", anchor_list[256] = "";
+    size_t o = 0;
+    for (size_t i = 0; i < nopq && o + 1 < sizeof opaque_list; i++) {
+        char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", opq[i]);
+        o += (size_t)snprintf(opaque_list + o, sizeof opaque_list - o,
+                              "%s%s", i ? ", " : "", kb_dequote(t));
+    }
+    o = 0;
+    for (size_t i = 0; i < nanc && o + 1 < sizeof anchor_list; i++) {
+        char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", anc[i]);
+        o += (size_t)snprintf(anchor_list + o, sizeof anchor_list - o,
+                              "%s%s", i ? ", " : "", kb_dequote(t));
+    }
+    /* Si cita la frase COME L'HA DETTA l'interlocutore, non la sua forma
+     * canonicalizzata: «which organo produce the melatonina?» e' un artefatto
+     * interno, e rinfacciarlo a chi ha scritto in italiano non e' un referto,
+     * e' un'altra lacuna. `gap_source/2` conserva le due forme apposta. */
+    char gb[KB_TERM_LEN]; snprintf(gb, sizeof gb, "%s", last);
+    {
+        char src[1][KB_TERM_LEN];
+        const char *sq[2] = { last, NULL };
+        if (kb_match(b->kb, "gap_source", sq, 2, src, 1) == 1 && src[0][0])
+            snprintf(gb, sizeof gb, "%s", src[0]);
+    }
+    char kbuf[KB_TERM_LEN] = "";
+    if (nk > 0) { snprintf(kbuf, sizeof kbuf, "%s", kb_[0]); }
+
+    const KbResponseSlot slots[] = {
+        { "gap", kb_dequote(gb) },
+        { "kind", nk ? kb_dequote(kbuf) : "?" },
+        { "opaque", opaque_list[0] ? opaque_list : "-" },
+        { "anchor", anchor_list[0] ? anchor_list : "-" } };
+    kb_term_say(b, "gap_report", slots, 4, out, out_size);
+    return 1;
+}
+
 static int mod_strategy(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     (void)raw;
