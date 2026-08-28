@@ -806,6 +806,24 @@ static int is_relation_prep(Brain *b, const char *w) {
  *
  * Declared BELOW lex_class_member because that is the single reader all closed
  * classes go through. */
+/* UNA DOMANDA NON DIVENTA MAI UN FATTO.
+ *
+ * Se il turno APRE con una parola interrogativa sta chiedendo, non affermando.
+ * La regola esisteva gia' — l'estrattore di classi la applicava — ma solo li':
+ * gli altri rami di asserzione la ignoravano, e «what causes inflation?»,
+ * «what requires oxygen?», «what is the same as gold?», «what has 5 wheels?»
+ * finivano in KB come fatti falsi con l'interrogativo promosso a entita'. E' il
+ * caso peggiore del mantra #7, e peggiore di un muro perche' persiste.
+ *
+ * Quali parole siano interrogative resta conoscenza (`question_word/1`): una
+ * lingua nuova non costa motore. */
+int p0_turn_opens_as_question(Brain *b, const char *first_word) {
+    if (!b || !b->kb || !first_word || !*first_word) return 0;
+    char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", first_word);
+    const char *q[] = { strip_edge_punct(fb) };
+    return kb_query(b->kb, "question_word", q, 1);
+}
+
 static int is_article(Brain *b, const char *w) {
     return lex_class_member(b, "indefinite_article", w);
 }

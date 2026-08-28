@@ -930,7 +930,8 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(buf, w, 32);
 
     /* intake: "X requires/needs <list>" — conjunction + optional quantities. */
-    if (nw >= 3 && (lex_class_member(b, "25_wordmath_reasoning_lex924", w[1]) || lex_class_member(b, "25_wordmath_reasoning_lex924_2", w[1]) ||
+    if (nw >= 3 && !p0_turn_opens_as_question(b, w[0]) &&
+        (lex_class_member(b, "25_wordmath_reasoning_lex924", w[1]) || lex_class_member(b, "25_wordmath_reasoning_lex924_2", w[1]) ||
                     lex_class_member(b, "25_wordmath_reasoning_lex925", w[1]))) {
         if (plan_learn_list(b, w[0], w, 2, nw, out, out_size)) return 1;
     }
@@ -3353,7 +3354,8 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
      * conoscenza (`is_article`), quindi si scavalca l'apertura invece di
      * chiedere all'utente di togliere l'articolo. */
     size_t qs = (nw >= 1 && is_article(b, w[0])) ? 1 : 0;
-    if (nw - qs == 4 && lex_class_member(b, "25_wordmath_reasoning_lex3306", w[qs + 1])) {
+    if (nw - qs == 4 && lex_class_member(b, "25_wordmath_reasoning_lex3306", w[qs + 1]) &&
+        !(nw >= 1 && p0_turn_opens_as_question(b, w[0]))) {
         double v;
         if (!parse_num(w[qs + 2], &v)) return 0; /* not a quantity; let others try */
         const char *args[] = {w[qs], w[qs + 3], w[qs + 2]};
@@ -3654,7 +3656,8 @@ static int mod_same(Brain *b, const char *norm, const char *raw,
 
     /* assert: "<x> is the same as <y>" -> same(x, y) (stored both ways) */
     if (nw == 6 && lex_class_member(b, "25_wordmath_reasoning_lex3562", w[1]) && lex_class_member(b, "25_wordmath_reasoning_lex3562_2", w[2]) &&
-        lex_class_member(b, "25_wordmath_reasoning_lex3563", w[3]) && lex_class_member(b, "25_wordmath_reasoning_lex3563_2", w[4])) {
+        lex_class_member(b, "25_wordmath_reasoning_lex3563", w[3]) && lex_class_member(b, "25_wordmath_reasoning_lex3563_2", w[4]) &&
+        !p0_turn_opens_as_question(b, w[0])) {
         const char *fwd[] = {w[0], w[5]}, *bwd[] = {w[5], w[0]};
         int ok = domain_assert(b, "same", fwd, 2) &&
                  domain_assert(b, "same", bwd, 2);

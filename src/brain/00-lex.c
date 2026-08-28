@@ -434,6 +434,7 @@ typedef struct {
  * baseline helpers. */
 static size_t split_words(char *s, char **argv, size_t max);
 static int is_article(Brain *b, const char *w);
+int p0_turn_opens_as_question(Brain *b, const char *first_word);  /* definito in 10 */
 static int is_stopword(Brain *b, const char *w);
 static int is_conjunction(Brain *b, const char *w);
 static char *strip_edge_punct(char *t);

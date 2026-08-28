@@ -37,7 +37,7 @@ quanto sia bravo altrove. Hanno la precedenza su tutto.
 | P0.2 | **Hello world e i primi snippet**, in ogni lingua naturale e nei linguaggi principali | «non so scrivere il programma più semplice del mondo» | **fatto**: python, c, shell, javascript, sql (`012e034`, `3ecfceb`) — i tre in più sono costati *zero C*, che è la prova che il meccanismo è KB-first |
 | P0.3 | **Le operazioni aritmetiche e le loro parole** | `what is 2 plus 2?` era rotto da gen443 | **fatto** (`1f9f3d9`) — la classe ora si deriva da `infix_operator` |
 | P0.4 | **Un muro è un muro, non una battuta sociale** | quattro input reali ricevevano riempitivo smalltalk | **aperto** — è M0, il prerequisito di tutto il resto |
-| P0.5 | **Una domanda non diventa mai un fatto** | `what causes inflation?` → `causes(what, inflation)` | **fatto per il causale** (`6c898e5`) — serve la guardia *generale*, non una per modulo |
+| P0.5 | **Una domanda non diventa mai un fatto** | `what causes X?`, `what requires X?`, `what is the same as X?`, `what has N X?` finivano in KB come fatti falsi | **fatto**: la regola è ora UNA (`p0_turn_opens_as_question`) applicata ai quattro rami di asserzione (`6c898e5`, questo giro). Da sorvegliare a ogni ramo nuovo |
 | P0.6 | **Le unità di misura e le conversioni** | le conversioni sono la domanda più banale che un assistente riceve | **fatto** per il sistema SI (`d8020b3`): 8 fatti, replay 4/4. Restano le conversioni fra sistemi — piedi, libbre, fahrenheit — che chiedono un *calcolo*, non una tabella |
 | P0.7 | **Date e tempo** | idem | **parziale** (`d8020b3`): i giorni dei mesi insegnati, 5 su 12. Restano gli altri sette, l'anno bisestile e l'aritmetica fra date |
 
@@ -84,7 +84,7 @@ Non conoscenza del mondo ma cose che parrot0 deve *saper fare*.
 
 | # | Tema | Stato |
 |---|---|---|
-| P3.1 | Snippet per linguaggio: shell, javascript, sql, oltre python e c di P0.2 | da fare |
+| P3.1 | Snippet per linguaggio: shell, javascript, sql, oltre python e c di P0.2 | **fatto** (`3ecfceb`) |
 | P3.2 | Spiegare un frammento di codice riga per riga | parziale |
 | P3.3 | Leggere un errore di compilazione e dire cosa manca | da fare |
 | P3.4 | Formati richiesti — elenco, tabella, una frase, tre modi (mantra #11) | parziale |
