@@ -268,7 +268,7 @@ prose-bench: build
 	@$(BENCH_PY) ./tests/prosebench.py
 
 llmscore-probe: build
-	@$(BENCH_PY) ./tests/llmscore_probe.py
+	@$(BENCH_PY) ./tests/probes/llmscore_probe.py
 
 # Deterministic structural measure + proof probes for the living KB model.
 # Unlike LLMSCORE this is a local ratchet: it measures edges and derivations,
@@ -344,7 +344,7 @@ gate: build
 
 # gen317 (forge W0.3): the capability ledger, GENERATED from gate results —
 # verifies each faculty maturity claim against its evidence benchmarks and
-# writes capabilities/manifest.json. Exits red if a claim regressed.
+# writes docs/capabilities/manifest.json. Exits red if a claim regressed.
 capability-report: build
 	@$(BENCH_PY) ./tests/capability_report.py
 

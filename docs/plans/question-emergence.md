@@ -148,7 +148,7 @@ ancora nel codice:
    gliela diceva una persona. Una è stata chiusa a gen405; la asimmetria di
    fondo — un percorso «profondo» per la lettura e uno «normale» per la frase
    detta — è ancora lì;
-2. **una lettura senza intenzione.** `tests/dream_intent_probe.py` misura che
+2. **una lettura senza intenzione.** `tests/probes/dream_intent_probe.py` misura che
    davanti alla stessa prosa, senza intenzione dichiarata, un ragionatore NON
    impara: chiede quale atto compiere. `--dream` chiede sempre «read the page on
    X», a qualunque pagina e per qualunque motivo — è quella cornice nuda, senza
@@ -1732,7 +1732,7 @@ tre gli assi**, e va fatto per primo.
 ## 13. La sonda all'oracolo: copiare la MOSSA, mai il contenuto
 
 *gen382r. Stimolo reale: `come si scrive correttamente pamino` -> `Non capisco
-ancora.` Sonda riusabile in `tests/repair_probe.py`, trascritti in `tests/sym/`.*
+ancora.` Sonda riusabile in `tests/probes/repair_probe.py`, trascritti in `tests/sym/`.*
 
 ### 13.1 Il conteggio, e poi la riga che conta
 
@@ -1853,7 +1853,7 @@ e' un lessema.)
 ## 14. Il registro e' una dimensione della conoscenza (gen389-390)
 
 *Stimolo di F.: «quanti pezzi ci sono negli scacchi» -> muro. Sonda in
-`tests/ambiguity_probe.py`, trascritti in `tests/sym/ambiguity-*.md`.*
+`tests/probes/ambiguity_probe.py`, trascritti in `tests/sym/ambiguity-*.md`.*
 
 ### 14.1 Perche' questa domanda vale come sonda
 

@@ -31,7 +31,7 @@ la apprende. La enuncia, la commenta, la confronta. Se la stessa prosa arriva
 dentro «acquisisci queste informazioni», la tratta come conoscenza da
 trattenere.
 
-`tests/dream_intent_probe.py` la mette alla prova: stessa prosa — la pagina vera
+`tests/probes/dream_intent_probe.py` la mette alla prova: stessa prosa — la pagina vera
 di `photosynthesis` dal corpus — tre cornici, e si guarda la **reazione
 immediata**, prima di chiedere qualunque cosa.
 

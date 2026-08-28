@@ -22,8 +22,8 @@ Provider/auth come symbench (opencode-GO, $OPENCODE_API_KEY). Trascritti in
 tests/sym/repair-*.md.
 
 Uso:
-  .venv/bin/python tests/repair_probe.py --model kimi-k2.6
-  .venv/bin/python tests/repair_probe.py --no-llm     # solo parrot0 (gratis)
+  .venv/bin/python tests/probes/repair_probe.py --model kimi-k2.6
+  .venv/bin/python tests/probes/repair_probe.py --no-llm     # solo parrot0 (gratis)
 """
 from __future__ import annotations
 import argparse, json, os, re, subprocess, sys, time

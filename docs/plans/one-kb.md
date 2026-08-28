@@ -180,7 +180,7 @@ modifica di questa ampiezza non è verificabile, e va rimandata.
 L'obiezione di F.: un LLM non ha alcun sandbox, eppure su quell'item non sbaglia.
 Tiene **entrambi i livelli** — cosa implicano le premesse e cosa è vero nel mondo
 — e **decide** quale gli stia venendo chiesto. Non è isolamento: è una decisione
-adottata dalla conoscenza. Verificato, non supposto: `tests/premise_frame_probe.py`
+adottata dalla conoscenza. Verificato, non supposto: `tests/probes/premise_frame_probe.py`
 (stesso endpoint di `llmscore`, `minimax-m2.5`, temperature 0).
 
 Senza alcuna cornice, sull'item identico, il modello sceglie da sé la lettura

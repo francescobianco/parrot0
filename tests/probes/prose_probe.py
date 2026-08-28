@@ -25,7 +25,7 @@ Le tre famiglie di sonda:
   3. CAPITOLATO  gli si chiede quali regole dichiarative servirebbero. E' la sonda
                  che produce righe di KB, non prosa da ammirare.
 
-    python3 tests/prose_probe.py [--model minimax-m2.5] [--only NOME]
+    python3 tests/probes/prose_probe.py [--model minimax-m2.5] [--only NOME]
 """
 import argparse, json, os, sys, urllib.request
 

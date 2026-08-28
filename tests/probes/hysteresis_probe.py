@@ -33,7 +33,7 @@ sonde del progetto (llmscore, conditional_frame_probe): l'LLM e' un ORACLE di
 comportamento in fase di studio, mai una dipendenza del motore.
 
 Stesso endpoint di tests/llmscore.py (OPENCODE_API_KEY).
-    python3 tests/hysteresis_probe.py [--model minimax-m2.5]
+    python3 tests/probes/hysteresis_probe.py [--model minimax-m2.5]
 """
 import argparse, json, os, sys, urllib.request
 

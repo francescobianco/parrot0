@@ -1030,7 +1030,7 @@ tests/forge/campaigns/<id>/oracle/
 .forge/runs/<run-id>/decision.json
 kb/forge/quarantine/<candidate-id>.p0
 docs/forge/ledger.jsonl
-capabilities/manifest.json
+docs/capabilities/manifest.json
 ```
 
 `.forge/` e effimera e dovra diventare gitignored. Campaign, policy e schema del

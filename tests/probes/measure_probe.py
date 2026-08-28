@@ -14,8 +14,8 @@ e' la mossa, non la frase.
 Provider/auth come le altre sonde (opencode-GO, $OPENCODE_API_KEY).
 
 Uso:
-  .venv/bin/python tests/measure_probe.py --length 1
-  .venv/bin/python tests/measure_probe.py --length 1 --no-llm
+  .venv/bin/python tests/probes/measure_probe.py --length 1
+  .venv/bin/python tests/probes/measure_probe.py --length 1 --no-llm
 """
 from __future__ import annotations
 

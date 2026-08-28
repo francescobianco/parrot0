@@ -35,7 +35,7 @@ TRATTENUTO cambia fra le tre. Se 3 trattiene cose diverse da 2, allora la lacuna
 non e' solo un'agenda di COSA leggere — e' parte di COME si legge, e va passata
 all'estrattore.
 
-    python3 tests/dream_intent_probe.py [--model gpt-5.6-luna] [--only NOME]
+    python3 tests/probes/dream_intent_probe.py [--model gpt-5.6-luna] [--only NOME]
 """
 from __future__ import annotations
 

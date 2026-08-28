@@ -22,8 +22,8 @@ ogni affermazione fisica o di sicurezza va verificata separatamente prima di
 entrare nella KB.
 
 Uso:
-  .venv/bin/python tests/situational_reasoning_probe.py --model gpt-5.6-luna
-  .venv/bin/python tests/situational_reasoning_probe.py --no-llm
+  .venv/bin/python tests/probes/situational_reasoning_probe.py --model gpt-5.6-luna
+  .venv/bin/python tests/probes/situational_reasoning_probe.py --no-llm
 """
 from __future__ import annotations
 

@@ -2193,7 +2193,7 @@ assert/retract della KB, senza ricompilare il C.
 
 ### 17.2 Sonda OpenCode-GO e lezioni, non risposte da copiare
 
-La batteria di design e' in `tests/situational_reasoning_probe.py`; il trascritto
+La batteria di design e' in `tests/probes/situational_reasoning_probe.py`; il trascritto
 del giro guida e' `tests/sym/situational-reasoning-20260817-013348.md`, modello
 `gpt-5.6-luna` via endpoint OpenCode-GO. Come le sonde ambiguity/repair, confronta
 la **mossa** e non promuove il modello esterno a fonte di verita'.

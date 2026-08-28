@@ -26,8 +26,8 @@ Provider/auth come symbench (opencode-GO, $OPENCODE_API_KEY).
 Trascritti in tests/sym/ambiguity-*.md.
 
 Uso:
-  python3 tests/ambiguity_probe.py --model gpt-5.6-luna
-  python3 tests/ambiguity_probe.py --no-llm      # solo parrot0 (gratis)
+  python3 tests/probes/ambiguity_probe.py --model gpt-5.6-luna
+  python3 tests/probes/ambiguity_probe.py --no-llm      # solo parrot0 (gratis)
 """
 from __future__ import annotations
 import argparse, json, os, re, subprocess, sys, time

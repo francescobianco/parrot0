@@ -221,7 +221,7 @@ righe.** Le attese non le decide chi scrive il file: le decide una **sonda** che
 mostra che cosa fa un modello di frontiera davanti allo stesso stimolo.
 
 ```
-.venv/bin/python tests/measure_probe.py --length 1
+.venv/bin/python tests/probes/measure_probe.py --length 1
 ```
 
 Come tutte le sonde del progetto, **non usa l'LLM come fonte di verità**: osserva

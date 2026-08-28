@@ -5,7 +5,7 @@ QUESTA SONDA NON E' UN PEZZO DI PARROT0. Come hysteresis_probe, prose_probe e
 premise_frame_probe: serve a tavolino per progettare contro l'evidenza. parrot0
 non la chiama, ne' a runtime ne' nei test.
 
-COSA SI SA GIA' (gen371, tests/premise_frame_probe.py). L'LLM **non isola:
+COSA SI SA GIA' (gen371, tests/probes/premise_frame_probe.py). L'LLM **non isola:
 DECIDE**. Tiene insieme cio' che le premesse implicano e cio' che e' vero, e
 sceglie il livello che la domanda chiede; sui pinguini solleva l'ambiguita' da
 solo. Quella sonda ha gia' risposto alla domanda "isola o no?".
@@ -30,7 +30,7 @@ superficie: accetta "un cane e' un pesce" E NOMINA la tensione. Le due strade
 convivono nel sistema senza essersi mai incontrate, ed e' questo che la sonda
 deve illuminare.
 
-    python3 tests/coexistence_probe.py [--model minimax-m2.5] [--only NOME]
+    python3 tests/probes/coexistence_probe.py [--model minimax-m2.5] [--only NOME]
 """
 import argparse, json, os, sys, urllib.request
 

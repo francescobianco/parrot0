@@ -8,7 +8,7 @@ faculty maturity claim against its evidence:
   - REGRESSED   an evidence gate is red — the claimed maturity is not supported
   - claimed     evidence exists only as discovery/degrade/external (not offline-
                 gated), or the claim is ABSENT (nothing to verify)
-Writes capabilities/manifest.json (versioned, §10.9) and prints the table.
+Writes docs/capabilities/manifest.json (versioned, §10.9) and prints the table.
 """
 import json
 import subprocess
@@ -70,7 +70,7 @@ def main() -> int:
                         "status": status[b["id"]]} for b in manifest["benchmarks"]],
         "capabilities": rows,
     }
-    out = ROOT / "capabilities" / "manifest.json"
+    out = ROOT / "docs" / "capabilities" / "manifest.json"
     out.parent.mkdir(exist_ok=True)
     out.write_text(json.dumps(report, indent=2) + "\n")
 

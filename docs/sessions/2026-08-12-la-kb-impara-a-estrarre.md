@@ -88,7 +88,7 @@ un mondo mai chiuso: dichiara falso ciò che è solo indeterminato, e butta via 
 cosa più informativa scoperta nel turno.
 
 Per progettare contro l'evidenza invece che contro l'intuizione, una sonda su un
-ragionatore vero (`tests/hysteresis_probe.py`, che **non gira a runtime**). Tre
+ragionatore vero (`tests/probes/hysteresis_probe.py`, che **non gira a runtime**). Tre
 risultati:
 
 1. non dice mai "No": dice *«con le sole informazioni fornite non possiamo

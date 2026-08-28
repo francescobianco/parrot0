@@ -8,7 +8,7 @@ understand that yet", "Want me to learn about it", ...). No judge API needed —
 the wall is an objective, disqualifying tell, so its rate is our primary
 development metric. A fresh parrot0 process per class avoids cross-turn bleed.
 
-Usage: .venv/bin/python tests/llmscore_probe.py [--dir tests/llmscore-probes]
+Usage: .venv/bin/python tests/probes/llmscore_probe.py [--dir tests/llmscore-probes]
 """
 import os, sys, subprocess, glob, re
 

@@ -86,7 +86,7 @@ livelli — cosa implicano le premesse e cosa è vero — e **decide** quale gli
 chiesto. *«Non è una questione di isolamento ma di decisione adoperata dalla
 conoscenza, questo vuol dire KB-first.»*
 
-Misurato, non supposto (`tests/premise_frame_probe.py`, stesso endpoint di
+Misurato, non supposto (`tests/probes/premise_frame_probe.py`, stesso endpoint di
 `llmscore`). Senza alcuna cornice il modello sceglie da sé la lettura per
 entailment e nomina l'anello mancante; chiesta l'altra dà quella del mondo;
 chieste entrambe le separa **dichiarandone la relazione**. E sul caso decisivo —

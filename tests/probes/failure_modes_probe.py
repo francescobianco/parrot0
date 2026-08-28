@@ -22,9 +22,9 @@ un caso. Le trascrizioni vanno in tests/sym/failure-modes-*.md.
 Provider/auth come le altre sonde (opencode-GO, $OPENCODE_API_KEY).
 
 Uso:
-  .venv/bin/python tests/failure_modes_probe.py --model gpt-5.6-luna
-  .venv/bin/python tests/failure_modes_probe.py --only stipulazione_aritmetica
-  .venv/bin/python tests/failure_modes_probe.py --no-llm
+  .venv/bin/python tests/probes/failure_modes_probe.py --model gpt-5.6-luna
+  .venv/bin/python tests/probes/failure_modes_probe.py --only stipulazione_aritmetica
+  .venv/bin/python tests/probes/failure_modes_probe.py --no-llm
 """
 from __future__ import annotations
 

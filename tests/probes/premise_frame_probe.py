@@ -14,7 +14,7 @@ This probe asks a real model the same items and prints the raw answers, so the
 claim is settled by evidence rather than intuition. Reads OPENCODE_API_KEY and
 talks to the same opencode-GO endpoint tests/llmscore.py uses.
 
-    python3 tests/premise_frame_probe.py [--model minimax-m2.5]
+    python3 tests/probes/premise_frame_probe.py [--model minimax-m2.5]
 """
 import argparse, json, os, sys, urllib.request, urllib.error
 
