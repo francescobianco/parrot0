@@ -1,0 +1,461 @@
+% Le relazioni fra PAROLE: sinonimi, contrari, alias, anagrammi, composti,
+% participi, unita' di misura, gradi di parentela.
+% Sono tavole di lingua. Che `hot` sia il contrario di `cold` e' un fatto
+% sulla lingua, non sul mondo — il mondo non ha contrari.
+%
+% Estratto da kb/core/world-facts.p0 al gen451. La direttiva qui sotto vale
+% per ogni predicato che questo file introduce: e' il lavoro che nel C era
+% un nome per riga dentro un array di 247.
+:- file_attribute(machinery).
+
+anagram_of(act, "cat").
+anagram_of(angel, "glean").
+anagram_of(below, "elbow").
+anagram_of(brag, "grab").
+anagram_of(care, "race").
+anagram_of(cat, "act").
+anagram_of(dear, "read").
+anagram_of(dog, "god").
+anagram_of(earth, "heart").
+anagram_of(elbow, "below").
+anagram_of(grab, "brag").
+anagram_of(heart, "earth").
+anagram_of(listen, "silent").
+anagram_of(fluster, "restful").
+anagram_of(master, "stream").
+anagram_of(night, "thing").
+anagram_of(race, "care").
+anagram_of(read, "dear").
+anagram_of(save, "vase").
+anagram_of(silent, "listen").
+anagram_of(state, "taste").
+anagram_of(stream, "master").
+anagram_of(restful, "fluster").
+anagram_of(stressed, "desserts").
+anagram_of(taste, "state").
+anagram_of(vase, "save").
+color_word($W, $W) :- category_member(color, $W).
+color_word($Surface, $Color) :- tr($Color, $Surface), category_member(color, $Color).
+attribute_word(color, $Surface, $Color) :- color_word($Surface, $Color).
+attribute_word(material, leather, leather).
+attribute_word(material, skin, leather).
+attribute_word(material, pelle, leather).
+attribute_word(material, cuoio, leather).
+attribute_word(material, cotton, cotton).
+attribute_word(material, cotone, cotton).
+attribute_word(material, wool, wool).
+attribute_word(material, lana, wool).
+attribute_word(material, wood, wood).
+attribute_word(material, legno, wood).
+attribute_word(material, metal, metal).
+attribute_word(material, metallo, metal).
+attribute_word(material, gold, gold).
+attribute_word(material, oro, gold).
+attribute_word(material, silver, silver).
+attribute_word(material, argento, silver).
+attribute_word(material, plastic, plastic).
+attribute_word(material, plastica, plastic).
+ratio_word(double, 2).
+ratio_word(twice, 2).
+ratio_word(triple, 3).
+ratio_word(thrice, 3).
+compound_word(bed, room, bedroom).
+compound_word(book, case, bookcase).
+compound_word(fire, fly, firefly).
+compound_word(fire, place, fireplace).
+compound_word(fire, wood, firewood).
+compound_word(fire, work, firework).
+compound_word(foot, ball, football).
+compound_word(moon, light, moonlight).
+compound_word(news, paper, newspaper).
+compound_word(rain, bow, rainbow).
+compound_word(rain, coat, raincoat).
+compound_word(snow, flake, snowflake).
+compound_word(sun, flower, sunflower).
+compound_word(sun, light, sunlight).
+compound_word(sun, shine, sunshine).
+compound_word(water, fall, waterfall).
+day_order(friday, 5).
+day_order(monday, 1).
+day_order(saturday, 6).
+day_order(sunday, 7).
+day_order(thursday, 4).
+day_order(tuesday, 2).
+day_order(wednesday, 3).
+entity_alias("airbus a320", airbus_a320).
+entity_alias("boeing 747", boeing_747).
+entity_alias("garry kasparov", garry_kasparov).
+entity_alias("magnus carlsen", magnus_carlsen).
+idiom_meaning("a blessing in disguise", "a good thing that seemed bad at first").
+idiom_meaning("add insult to injury", "to make a bad situation worse").
+idiom_meaning("barking up the wrong tree", "pursuing a mistaken or misguided line of thought").
+idiom_meaning("barking up the wrong tree", "to pursue a mistaken or misguided course of action").
+idiom_meaning("beat around the bush", "to avoid getting to the point").
+idiom_meaning("beat around the bush", "to avoid talking about what is important").
+idiom_meaning("beat around the bush", "to avoid talking about what is important; to delay discussing something").
+idiom_meaning("bend over backwards", "to make a great effort or go out of one's way").
+idiom_meaning("bite the bullet", "to endure a painful or difficult situation with courage").
+idiom_meaning("bite the bullet", "to endure a painful situation").
+idiom_meaning("bite the bullet", "to face something difficult or unpleasant with courage").
+idiom_meaning("break a leg", "good luck -- it's a way to wish someone a great performance, especially on stage").
+idiom_meaning("break a leg", "good luck").
+idiom_meaning("break the bank", "to exceed one's budget, to be too expensive").
+idiom_meaning("break the ice", "to initiate conversation or relieve tension in a social setting").
+idiom_meaning("break the ice", "to initiate social interaction or conversation especially in a situation that feels awkward or tense").
+idiom_meaning("burn the midnight oil", "to work late into the night").
+idiom_meaning("burn the midnight oil", "to work or study late into the night").
+idiom_meaning("call it a day", "to stop working on something for now").
+idiom_meaning("call it a day", "to stop working on something for the day; to finish").
+idiom_meaning("call it a day", "to stop working on something").
+idiom_meaning("cost an arm and a leg", "to be very expensive").
+idiom_meaning("costs an arm and a leg", "very expensive").
+idiom_meaning("cut to the chase", "to get to the point quickly").
+idiom_meaning("cut to the chase", "to get to the point quickly, skipping unnecessary details").
+idiom_meaning("cut to the chase", "to get to the point").
+idiom_meaning("cómo estás", "how are you?").
+idiom_meaning("do the math", "to calculate or consider the facts").
+idiom_meaning("easier said than done", "something that is harder to do than to talk about").
+idiom_meaning("fall on deaf ears", "when advice, request, or complaint is ignored").
+idiom_meaning("fingers crossed", "hoping for good luck").
+idiom_meaning("give a hand", "to applaud; to help someone").
+idiom_meaning("go the extra mile", "to make more effort than expected").
+idiom_meaning("go the extra mile", "to make more effort than is expected").
+idiom_meaning("hang in there", "to stay patient and determined in a difficult situation").
+idiom_meaning("hit the books", "to start studying hard").
+idiom_meaning("hit the books", "to study").
+idiom_meaning("hit the nail on the head", "to be exactly right").
+idiom_meaning("hit the nail on the head", "to describe exactly the cause of a situation").
+idiom_meaning("hit the nail on the head", "to describe exactly what is causing a situation or problem").
+idiom_meaning("hit the sack", "to go to bed or go to sleep").
+idiom_meaning("hit the sack", "to go to sleep").
+idiom_meaning("jump on the bandwagon", "to join a popular activity or trend").
+idiom_meaning("keep an eye on", "to watch someone or something carefully").
+idiom_meaning("kick the bucket", "to die").
+idiom_meaning("kill two birds with one stone", "to achieve two aims with a single action").
+idiom_meaning("kill two birds with one stone", "to achieve two things with a single action").
+idiom_meaning("kill two birds with one stone", "to achieve two things with one action").
+idiom_meaning("let the cat out of the bag", "to reveal a secret by accident").
+idiom_meaning("let the cat out of the bag", "to reveal a secret").
+idiom_meaning("miss the boat", "to miss an opportunity").
+idiom_meaning("on thin ice", "in a risky situation").
+idiom_meaning("once in a blue moon", "very rarely").
+idiom_meaning("piece of cake", "something that is very easy to do").
+idiom_meaning("piece of cake", "something very easy to do").
+idiom_meaning("piece of cake", "something very easy").
+idiom_meaning("speak of the devil", "said when a person you were just talking about appears").
+idiom_meaning("spill the beans", "to reveal a secret").
+idiom_meaning("spill the beans", "to reveal a secret, often by accident").
+idiom_meaning("spill the beans", "to reveal secret information").
+idiom_meaning("the ball is in your court", "it is up to you to make the next decision or take action").
+idiom_meaning("the ball is in your court", "it is your decision now").
+idiom_meaning("the ball is in your court", "it's your turn to act or decide").
+idiom_meaning("the last straw", "the final small problem that makes a situation unbearable").
+idiom_meaning("under the weather", "feeling ill or sick").
+idiom_meaning("under the weather", "feeling ill").
+idiom_meaning("under the weather", "feeling slightly ill or unwell").
+idiom_meaning("when pigs fly", "something that will never happen").
+is_like(lightning, flash).
+is_like(rain, crying).
+kinship_gender("great-grandfather", m).
+kinship_gender("great-grandmother", f).
+kinship_gender(father, m).
+kinship_gender(grandfather, m).
+kinship_gender(grandmother, f).
+kinship_gender(mother, f).
+kinship_level("great-grandfather", 3).
+kinship_level("great-grandmother", 3).
+kinship_level(father, 1).
+kinship_level(grandfather, 2).
+kinship_level(grandmother, 2).
+kinship_level(mother, 1).
+kinship_name(1, f, mother).
+kinship_name(1, m, father).
+kinship_name(2, f, grandmother).
+kinship_name(2, m, grandfather).
+kinship_name(3, f, "great-grandmother").
+kinship_name(3, m, "great-grandfather").
+kinship_name(4, f, "great-great-grandmother").
+kinship_name(4, m, "great-great-grandfather").
+means(eloquent, "fluent and persuasive in speaking or writing").
+means(ephemeral, "lasting for a very short time").
+means(ubiquitous, "present or found everywhere").
+measure(games_won, garry_kasparov, 100, games).
+measure(games_won, magnus_carlsen, 120, games).
+measure(speed, cheetah, 80, mph).
+measure(speed, lion, 50, mph).
+measure(weight, airbus_a320, 42600, kg).
+measure(weight, boeing_747, 183500, kg).
+opposite(abundant, scarce).
+opposite(accept, reject).
+opposite(alive, dead).
+opposite(ancient, modern).
+opposite(answer, question).
+opposite(arrive, leave).
+opposite(arrogant, humble).
+opposite(artificial, natural).
+opposite(bad, good).
+opposite(beautiful, ugly).
+opposite(begin, end).
+opposite(big, small).
+opposite(boring, interesting).
+opposite(brave, coward).
+opposite(brave, cowardly).
+opposite(brave, scared).
+opposite(buy, sell).
+opposite(cautious, reckless).
+opposite(cheap, expensive).
+opposite(clean, dirty).
+opposite(closed, open).
+opposite(cold, hot).
+opposite(complex, simple).
+opposite(contract, expand).
+opposite(courage, cowardice).
+opposite(coward, brave).
+opposite(cowardice, courage).
+opposite(cowardly, brave).
+opposite(dangerous, safe).
+opposite(dark, bright).
+opposite(dark, light).
+opposite(day, night).
+opposite(dead, alive).
+opposite(decrease, increase).
+opposite(deep, shallow).
+opposite(defeat, victory).
+opposite(difficult, easy).
+opposite(diligent, lazy).
+opposite(dirty, clean).
+opposite(dishonest, honest).
+opposite(down, up).
+opposite(dry, wet).
+opposite(dull, sharp).
+opposite(early, late).
+opposite(east, west).
+opposite(easy, difficult).
+opposite(easy, hard).
+opposite(empty, full).
+opposite(end, begin).
+opposite(ephemeral, permanent).
+opposite(expand, contract).
+opposite(expensive, cheap).
+opposite(failure, success).
+opposite(false, true).
+opposite(famous, unknown).
+opposite(far, near).
+opposite(fast, slow).
+opposite(finish, start).
+opposite(first, last).
+opposite(flexible, rigid).
+opposite(forget, remember).
+opposite(front, back).
+opposite(full, empty).
+opposite(future, past).
+opposite(generous, selfish).
+opposite(give, take).
+opposite(good, bad).
+opposite(guilty, innocent).
+opposite(happy, sad).
+opposite(hard, soft).
+opposite(hate, love).
+opposite(healthy, sick).
+opposite(heavy, light).
+opposite(high, low).
+opposite(honest, dishonest).
+opposite(hot, cold).
+opposite(humble, arrogant).
+opposite(illegal, legal).
+opposite(impatient, patient).
+opposite(impolite, polite).
+opposite(impossible, possible).
+opposite(increase, decrease).
+opposite(innocent, guilty).
+opposite(inside, outside).
+opposite(interesting, boring).
+opposite(invisible, visible).
+opposite(large, small).
+opposite(last, first).
+opposite(late, early).
+opposite(lazy, diligent).
+opposite(leave, arrive).
+opposite(left, right).
+opposite(legal, illegal).
+opposite(less, more).
+opposite(light, dark).
+opposite(lose, win).
+opposite(loud, quiet).
+opposite(love, hate).
+opposite(low, high).
+opposite(male, female).
+opposite(modern, ancient).
+opposite(more, less).
+opposite(narrow, wide).
+opposite(near, far).
+opposite(new, old).
+opposite(night, day).
+opposite(no, yes).
+opposite(noisy, quiet).
+opposite(north, south).
+opposite(old, new).
+opposite(old, young).
+opposite(opaque, transparent).
+opposite(open, closed).
+opposite(optimistic, pessimistic).
+opposite(past, future).
+opposite(patient, impatient).
+opposite(peace, war).
+opposite(permanent, ephemeral).
+opposite(pessimistic, optimistic).
+opposite(polite, impolite).
+opposite(polite, rude).
+opposite(poor, rich).
+opposite(possible, impossible).
+opposite(pull, push).
+opposite(push, pull).
+opposite(question, answer).
+opposite(quiet, noisy).
+opposite(reckless, cautious).
+opposite(reject, accept).
+opposite(remember, forget).
+opposite(rich, poor).
+opposite(right, left).
+opposite(rigid, flexible).
+opposite(rough, smooth).
+opposite(rude, polite).
+opposite(sad, happy).
+opposite(safe, dangerous).
+opposite(scarce, abundant).
+opposite(scared, brave).
+opposite(selfish, generous).
+opposite(sell, buy).
+opposite(shallow, deep).
+opposite(sharp, dull).
+opposite(short, tall).
+opposite(sick, healthy).
+opposite(simple, complex).
+opposite(slow, fast).
+opposite(small, big).
+opposite(smooth, rough).
+opposite(soft, hard).
+opposite(sour, sweet).
+opposite(south, north).
+opposite(start, finish).
+opposite(strong, weak).
+opposite(success, failure).
+opposite(sweet, sour).
+opposite(take, give).
+opposite(tall, short).
+opposite(tame, wild).
+opposite(temporary, permanent).
+opposite(thick, thin).
+opposite(thin, thick).
+opposite(transparent, opaque).
+opposite(true, false).
+opposite(ugly, beautiful).
+opposite(unknown, famous).
+opposite(up, down).
+opposite(verbose, brief).
+opposite(verbose, concise).
+opposite(verbose, succinct).
+opposite(victory, defeat).
+opposite(visible, invisible).
+opposite(war, peace).
+opposite(weak, strong).
+opposite(west, east).
+opposite(wet, dry).
+opposite(wide, narrow).
+opposite(wild, tame).
+opposite(win, lose).
+opposite(yes, no).
+opposite(young, old).
+also_known_as(constantinople, istanbul).
+also_known_as(mumbai, bombay).
+synonym(angry, mad).
+synonym(big, large).
+synonym(brave, courageous).
+synonym(courageous, brave).
+synonym(enormous, huge).
+synonym(fast, quick).
+synonym(glad, happy).
+synonym(happy, glad).
+synonym(huge, enormous).
+synonym(intelligent, smart).
+synonym(mad, angry).
+synonym(quick, fast).
+synonym(sad, unhappy).
+synonym(small, little).
+synonym(smart, intelligent).
+synonym(tiny, small).
+word_for("always arrives on time", punctual).
+word_for("always on time", punctual).
+word_for("always tells the truth", honest).
+word_for("can read and write", literate).
+word_for("cannot read or write", illiterate).
+word_for("cannot sleep", insomniac).
+word_for("collects stamps", philatelist).
+word_for("cuts hair", barber).
+word_for("delivers mail", "mail carrier").
+word_for("eats both plants and meat", omnivore).
+word_for("eats no meat", vegetarian).
+word_for("eats only meat", carnivore).
+word_for("eats only plants", herbivore).
+word_for("fear of enclosed spaces", claustrophobia).
+word_for("fear of heights", acrophobia).
+word_for("fear of spiders", arachnophobia).
+word_for("fears nothing", fearless).
+word_for("fights fires", firefighter).
+word_for("fixes teeth", dentist).
+word_for("flies planes", pilot).
+word_for("gives freely to others", generous).
+word_for("is afraid of nothing", fearless).
+word_for("keeps a secret", discreet).
+word_for("loves books", "an avid reader").
+word_for("never gives up", persistent).
+word_for("never tells the truth", dishonest).
+word_for("speaks many languages", multilingual).
+word_for("speaks many languages", polyglot).
+word_for("speaks two languages", bilingual).
+word_for("studies animals", zoologist).
+word_for("studies history", historian).
+word_for("studies insects", entomologist).
+word_for("studies living things", biologist).
+word_for("studies plants", botanist).
+word_for("studies rocks", geologist).
+word_for("studies stars", astronomer).
+word_for("studies the past", historian).
+word_for("studies the stars", astronomer).
+word_for("studies the weather", meteorologist).
+word_for("studies weather", meteorologist).
+word_for("talks a lot", talkative).
+word_for("thinks only of themselves", selfish).
+word_for("treats animals", veterinarian).
+word_for("uses the left hand", "left-handed").
+word_for("works without pay", volunteer).
+word_for("writes books", author).
+verb_syn(appears, form).
+verb_syn(appears, forms).
+verb_syn(appears, appear).
+verb_syn(appears, happen).
+verb_syn(appears, happens).
+verb_syn(appears, occur).
+verb_syn(appears, occurs).
+verb_syn(appears, made).
+verb_syn(glows, shine).
+verb_syn(glows, shines).
+verb_syn(glows, glow).
+verb_syn(change, changes).
+verb_syn(change, turn).
+verb_syn(change, turns).
+verb_syn(rises, rise).
+verb_syn(rises, grows).
+verb_syn(floats, float).
+verb_syn(rusts, rust).
+verb_syn(rusts, corrode).
+verb_syn(salty, salt).
+time_unit(second).
+time_unit(minute).
+time_unit(hour).
+time_unit(day).
+time_unit(week).
+time_unit(month).
+time_unit(year).
+concept_label(united_states, en, common, "the United States").
+concept_label(united_kingdom, en, common, "the United Kingdom").

@@ -438,58 +438,10 @@ analogy_relation(used_for).
 % ── COMPLETE WORLD GEOGRAPHY (gen335 round-3) ──
 able_to($X, $A) :- has_own_ability($X, $A).
 able_to($X, $A) :- kind_of($X, $Y), able_to($Y, $A).
-activity_step(rainy_sunday, 1, "Choose one indoor activity that fits the weather, such as reading, cooking, or a quiet film").
-activity_step(rainy_sunday, 2, "Make the room comfortable with warm light, a drink, and a clear place to sit").
-activity_step(rainy_sunday, 3, "Do one small useful task first so the rest of the afternoon feels unhurried").
-activity_step(rainy_sunday, 4, "Leave time for rest rather than packing the day with errands").
-activity_summary(rainy_sunday, "I don't have real favorites, but on a rainy day I'd read quietly with a warm drink.").
-activity_topic(rainy_sunday, afternoon).
-activity_topic(rainy_sunday, rain).
-activity_topic(rainy_sunday, rainy).
-activity_topic(rainy_sunday, sunday).
-activity_step(new_job, 1, "Learn the team's expectations before trying to prove yourself").
-activity_step(new_job, 2, "Ask clear questions and write down the answers").
-activity_step(new_job, 3, "Build trust by doing small commitments reliably").
-activity_topic(new_job, job).
-activity_topic(new_job, new).
-activity_topic(new_job, starting).
-activity_step(productivity_habit, 1, "Choose the one important task for the next focused block before checking messages").
-activity_step(productivity_habit, 2, "Work on it for a short timer with notifications muted").
-activity_step(productivity_habit, 3, "When the timer ends, write the next tiny action so restarting is easy").
-activity_topic(productivity_habit, productive).
-activity_topic(productivity_habit, productivity).
-activity_topic(productivity_habit, habit).
-activity_topic(productivity_habit, focus).
-activity_step(time_historian_day, 1, "Begin by checking the date twice, because one wrong century changes every source").
-activity_step(time_historian_day, 2, "Visit one event quietly, taking notes without disturbing the people there").
-activity_step(time_historian_day, 3, "Return home to compare the eyewitness record with the old archive").
-activity_topic(time_historian_day, day).
-activity_topic(time_historian_day, historian).
-activity_topic(time_historian_day, time).
-activity_topic(time_historian_day, traveling).
 
 % Piano di sicurezza, non folklore: mantenere la calma e uscire senza spruzzi,
 % avvisare i responsabili e non avvicinare/inseguire/toccare/nutrire lo squalo.
 % Fonti: NSW SharkSmart, Florida Museum International Shark Attack File.
-activity_topic(shark_encounter, shark).
-activity_step(shark_encounter, en, 1, "If you are in the water, stay calm, keep the shark in sight, and move smoothly toward shore or a boat without splashing").
-activity_step(shark_encounter, en, 2, "Stay with other people if possible and leave the water as soon as it is safe").
-activity_step(shark_encounter, en, 3, "Alert the lifeguard or beach authority and follow any alarm or closure").
-activity_step(shark_encounter, en, 4, "Do not approach, chase, touch, or feed the shark").
-activity_step(shark_encounter, it, 1, "Se sei in acqua, mantieni la calma, tieni lo squalo in vista e dirigiti senza spruzzi verso riva o una barca").
-activity_step(shark_encounter, it, 2, "Resta con le altre persone, se possibile, ed esci dall'acqua appena puoi farlo in sicurezza").
-activity_step(shark_encounter, it, 3, "Avvisa il bagnino o l'autorità della spiaggia e segui eventuali allarmi o divieti").
-activity_step(shark_encounter, it, 4, "Non avvicinarti allo squalo e non inseguirlo, toccarlo o nutrirlo").
-intent_cue(activity_request, "day in the life").
-intent_cue(activity_request, "describe a day").
-intent_cue(activity_request, "advice").
-intent_cue(activity_request, "guidance").
-intent_cue(activity_request, "recommendation").
-intent_cue(activity_request, "what should").
-intent_cue(quality_request, "important quality").
-intent_cue(quality_request, "best quality").
-intent_cue(quality_request, "most valuable trait").
-intent_cue(quality_request, "what trait").
 important_quality(leader, trustworthiness, "people follow hard decisions only when they believe the leader is honest and consistent").
 important_quality(manager, clarity, "clear expectations let people coordinate without guessing what success means").
 important_quality(teacher, patience, "students learn at different speeds, and patience keeps correction useful instead of discouraging").
@@ -498,19 +450,6 @@ important_quality(engineer, rigor, "small unchecked assumptions can become large
 important_quality(parent, steadiness, "children need care they can rely on, especially when things are difficult").
 important_quality(friend, loyalty, "friendship depends on showing up when support actually costs something").
 important_quality(reviewer, honesty, "a review helps only when it names the real risk instead of flattering the work").
-quality_topic(leader, leader).
-quality_topic(leader, leadership).
-quality_topic(manager, manager).
-quality_topic(manager, management).
-quality_topic(teacher, teacher).
-quality_topic(teacher, teaching).
-quality_topic(doctor, doctor).
-quality_topic(doctor, physician).
-quality_topic(engineer, engineer).
-quality_topic(engineer, engineering).
-quality_topic(parent, parent).
-quality_topic(friend, friend).
-quality_topic(reviewer, reviewer).
 after_in_time($X, $Z) :- after_in_time($X, $Y), after_in_time($Y, $Z).
 after_in_time(baroque, renaissance).
 after_in_time(classical, baroque).
@@ -527,40 +466,6 @@ age_of(earth, 4500000000).
 age_of(pyramids, 4500).
 age_of(roman_empire, 2000).
 age_of(universe, 13800000000).
-aggregate_frame("most capital", capital_on_river, second, max).
-anagram_of(act, "cat").
-anagram_of(angel, "glean").
-anagram_of(below, "elbow").
-anagram_of(brag, "grab").
-anagram_of(care, "race").
-anagram_of(cat, "act").
-anagram_of(dear, "read").
-anagram_of(dog, "god").
-anagram_of(earth, "heart").
-anagram_of(elbow, "below").
-anagram_of(grab, "brag").
-anagram_of(heart, "earth").
-anagram_of(listen, "silent").
-anagram_of(fluster, "restful").
-anagram_of(master, "stream").
-anagram_of(night, "thing").
-anagram_of(race, "care").
-anagram_of(read, "dear").
-anagram_of(save, "vase").
-anagram_of(silent, "listen").
-anagram_of(state, "taste").
-anagram_of(stream, "master").
-anagram_of(restful, "fluster").
-anagram_of(stressed, "desserts").
-anagram_of(taste, "state").
-anagram_of(vase, "save").
-answer_frame("continent", continent_of).
-answer_frame("hardest", hardest_natural_substance).
-answer_frame("river", capital_on_river).
-answer_frame("short for", chemical_symbol).
-answer_frame("symbol", chemical_symbol).
-answer_frame("true flight", mammal_true_flight).
-answer_frame("wrote", wrote).   answer_frame("author of", wrote).
 appearance(black, "the absence of light -- the darkness of a moonless night").
 appearance(blue, "a cool, calm colour -- the shade of a clear daytime sky and of deep, still water").
 appearance(forest, "tall trees crowded together, green light filtering through the leaves onto a floor of moss and fallen branches").
@@ -724,115 +629,6 @@ body_temp($X, cold) :- is_a($X, reptile).
 body_temp($X, warm) :- is_a($X, bird).
 body_temp($X, warm) :- is_a($X, mammal).
 boils_at(water, "100 degrees Celsius (212 degrees Fahrenheit) at sea level -- it turns into steam (water vapour)").
-border_dir(france, east, germany).
-border_dir(france, east, italy).
-border_dir(france, east, switzerland).
-border_dir(france, north, belgium).
-border_dir(france, south, spain).
-border_dir(germany, east, czechia).
-border_dir(germany, east, poland).
-border_dir(germany, north, denmark).
-border_dir(germany, south, austria).
-border_dir(germany, south, switzerland).
-border_dir(germany, west, belgium).
-border_dir(germany, west, france).
-border_dir(germany, west, luxembourg).
-border_dir(germany, west, netherlands).
-border_dir(italy, east, slovenia).
-border_dir(italy, north, austria).
-border_dir(italy, north, switzerland).
-border_dir(italy, west, france).
-borders(andorra, france).
-borders(andorra, spain).
-borders(austria, czechia).
-borders(austria, germany).
-borders(austria, italy).
-borders(austria, slovenia).
-borders(austria, switzerland).
-borders(belgium, france).
-borders(belgium, germany).
-borders(bulgaria, greece).
-borders(bulgaria, turkey).
-borders(czechia, austria).
-borders(czechia, germany).
-borders(denmark, germany).
-borders(france, andorra).
-borders(france, belgium).
-borders(france, germany).
-borders(france, italy).
-borders(france, luxembourg).
-borders(france, spain).
-borders(france, switzerland).
-borders(germany, austria).
-borders(germany, belgium).
-borders(germany, czechia).
-borders(germany, denmark).
-borders(germany, france).
-borders(germany, luxembourg).
-borders(germany, netherlands).
-borders(germany, poland).
-borders(germany, switzerland).
-borders(greece, bulgaria).
-borders(belarus, poland).
-borders(belarus, ukraine).
-borders(argentina, brazil).
-borders(bolivia, brazil).
-borders(brazil, argentina).
-borders(brazil, bolivia).
-borders(brazil, colombia).
-borders(brazil, guyana).
-borders(brazil, paraguay).
-borders(brazil, peru).
-borders(brazil, suriname).
-borders(brazil, uruguay).
-borders(brazil, venezuela).
-borders(colombia, brazil).
-borders(guyana, brazil).
-borders(paraguay, brazil).
-borders(peru, brazil).
-borders(suriname, brazil).
-borders(uruguay, brazil).
-borders(venezuela, brazil).
-borders(italy, austria).
-borders(italy, france).
-borders(italy, slovenia).
-borders(italy, switzerland).
-borders(luxembourg, france).
-borders(luxembourg, germany).
-borders(netherlands, germany).
-borders(poland, belarus).
-borders(poland, germany).
-borders(portugal, spain).
-borders(slovakia, poland).
-borders(slovakia, ukraine).
-borders(slovenia, austria).
-borders(slovenia, italy).
-borders(spain, andorra).
-borders(spain, france).
-borders(spain, portugal).
-borders(switzerland, austria).
-borders(switzerland, france).
-borders(switzerland, germany).
-borders(switzerland, italy).
-borders(turkey, bulgaria).
-borders(ukraine, belarus).
-borders(ukraine, slovakia).
-border_count(bulgaria, 2).
-borders_country(china, india).
-borders_country(china, russia).
-borders_country(france, belgium).
-borders_country(france, germany).
-borders_country(france, italy).
-borders_country(france, spain).
-borders_country(germany, france).
-borders_country(germany, poland).
-borders_country(italy, austria).
-borders_country(italy, france).
-borders_country(italy, switzerland).
-borders_country(spain, france).
-borders_country(spain, portugal).
-borders_country(united_states, canada).
-borders_country(united_states, mexico).
 born_in(einstein, ulm).
 born_in(marie_curie, warsaw).
 born_in(napoleon, ajaccio).
@@ -840,122 +636,6 @@ born_in(galileo_galilei, pisa).
 born_in(christopher_columbus, genoa).
 can_do(person, clap).
 can_fly($X) :- is_a($X, bird), naf(flightless($X)).
-capital_of_country(amsterdam, netherlands).
-capital_of_country(ankara, turkey).
-capital_of_country(argentina, buenos_aires).
-capital_of_country(athens, greece).
-capital_of_country(australia, canberra).
-capital_of_country(austria, vienna).
-capital_of_country(bangkok, thailand).
-capital_of_country(beijing, china).
-capital_of_country(belgium, brussels).
-capital_of_country(berlin, germany).
-capital_of_country(bern, switzerland).
-capital_of_country(brasilia, brazil).
-capital_of_country(bratislava, slovakia).
-capital_of_country(brazil, brasilia).
-capital_of_country(brussels, belgium).
-capital_of_country(bucharest, romania).
-capital_of_country(budapest, hungary).
-capital_of_country(buenos_aires, argentina).
-capital_of_country(cairo, egypt).
-capital_of_country(canada, ottawa).
-capital_of_country(canberra, australia).
-capital_of_country(chile, santiago).
-capital_of_country(china, beijing).
-capital_of_country(colombia, bogota).
-capital_of_country(copenhagen, denmark).
-capital_of_country(czechia, prague).
-capital_of_country(denmark, copenhagen).
-capital_of_country(dublin, ireland).
-capital_of_country(egypt, cairo).
-capital_of_country(finland, helsinki).
-capital_of_country(france, paris).
-capital_of_country(germany, berlin).
-capital_of_country(greece, athens).
-capital_of_country(hanoi, vietnam).
-capital_of_country(helsinki, finland).
-capital_of_country(india, new_delhi).
-capital_of_country(indonesia, jakarta).
-capital_of_country(iran, tehran).
-capital_of_country(iraq, baghdad).
-capital_of_country(ireland, dublin).
-capital_of_country(israel, jerusalem).
-capital_of_country(italy, rome).
-capital_of_country(jakarta, indonesia).
-capital_of_country(japan, tokyo).
-capital_of_country(kenya, nairobi).
-capital_of_country(kiev, ukraine).
-capital_of_country(lima, peru).
-capital_of_country(lisbon, portugal).
-capital_of_country(london, united_kingdom).
-capital_of_country(madrid, spain).
-capital_of_country(mexico, mexico_city).
-capital_of_country(mexico_city, mexico).
-capital_of_country(minsk, belarus).
-capital_of_country(morocco, rabat).
-capital_of_country(moscow, russia).
-capital_of_country(nairobi, kenya).
-capital_of_country(netherlands, amsterdam).
-capital_of_country(new_delhi, india).
-capital_of_country(new_zealand, wellington).
-capital_of_country(nigeria, abuja).
-capital_of_country(norway, oslo).
-capital_of_country(oslo, norway).
-capital_of_country(ottawa, canada).
-capital_of_country(pakistan, islamabad).
-capital_of_country(paris, france).
-capital_of_country(peru, lima).
-capital_of_country(poland, warsaw).
-capital_of_country(portugal, lisbon).
-capital_of_country(prague, czechia).
-capital_of_country(pretoria, south_africa).
-capital_of_country(rejkjavik, iceland).
-capital_of_country(rome, italy).
-capital_of_country(russia, moscow).
-capital_of_country(santiago, chile).
-capital_of_country(saudi_arabia, riyadh).
-capital_of_country(seoul, south_korea).
-capital_of_country(south_africa, pretoria).
-capital_of_country(south_korea, seoul).
-capital_of_country(spain, madrid).
-capital_of_country(slovakia, bratislava).
-capital_of_country(stockholm, sweden).
-capital_of_country(sweden, stockholm).
-capital_of_country(switzerland, bern).
-capital_of_country(tehran, iran).
-capital_of_country(thailand, bangkok).
-capital_of_country(tokyo, japan).
-capital_of_country(turkey, ankara).
-capital_of_country(ukraine, kiev).
-capital_of_country(united_kingdom, london).
-capital_of_country(united_states, washington_dc).
-capital_of_country(venezuela, caracas).
-capital_of_country(vienna, austria).
-capital_of_country(vietnam, hanoi).
-capital_of_country(warsaw, poland).
-capital_of_country(washington_dc, united_states).
-capital_of_country(wellington, new_zealand).
-capital_on_river(belgrade, danube).
-capital_on_river(berlin, spree).
-capital_on_river(bratislava, danube).
-capital_on_river(budapest, danube).
-capital_on_river(cairo, nile).
-capital_on_river(khartoum, nile).
-capital_on_river(london, thames).
-capital_on_river(paris, seine).
-capital_on_river(rome, tiber).
-capital_on_river(vienna, danube).
-capital_predecessor(australia, "Melbourne, which served as the seat of government until 1927").
-capital_predecessor(brazil, "Rio de Janeiro, which was the capital until 1960").
-capital_predecessor(kazakhstan, "Almaty, which was the capital until 1997").
-capital_predecessor(myanmar, "Yangon, replaced by Naypyidaw in 2006").
-capital_predecessor(nigeria, "Lagos, which was the capital until 1991").
-capital_predecessor(pakistan, "Karachi, which was the capital until the 1960s").
-capital_since(australia, "1927, when parliament moved from Melbourne to Canberra").
-capital_since(brazil, "1960, when Brasília was inaugurated").
-capital_since(kazakhstan, "1997, when the capital moved from Almaty").
-capital_since(nigeria, "1991, when the government moved to Abuja").
 category_member(africa, nile).
 category_member(animal, ant).
 category_member(animal, bear).
@@ -1009,36 +689,9 @@ category_member(color, yellow).
 % questions where the answer is already present as an adjective in the input:
 % "what color is the white horse?" / "di che colore è il cavallo bianco?".
 % C only asks color_word(Token, Color); the vocabulary and translation live here.
-color_word($W, $W) :- category_member(color, $W).
-color_word($Surface, $Color) :- tr($Color, $Surface), category_member(color, $Color).
 % gen342: generic attribute-contained-in-input schema. A dimension declares the
 % question cue that asks for it and the words that can fill it. This generalizes
 % the white-horse case to material and other dimensions without more C.
-attribute_question_cue(color, "what color").
-attribute_question_cue(color, "what colour").
-attribute_question_cue(color, "di che colore").
-attribute_question_cue(material, "what material").
-attribute_question_cue(material, "made of what").
-attribute_question_cue(material, "di che materiale").
-attribute_word(color, $Surface, $Color) :- color_word($Surface, $Color).
-attribute_word(material, leather, leather).
-attribute_word(material, skin, leather).
-attribute_word(material, pelle, leather).
-attribute_word(material, cuoio, leather).
-attribute_word(material, cotton, cotton).
-attribute_word(material, cotone, cotton).
-attribute_word(material, wool, wool).
-attribute_word(material, lana, wool).
-attribute_word(material, wood, wood).
-attribute_word(material, legno, wood).
-attribute_word(material, metal, metal).
-attribute_word(material, metallo, metal).
-attribute_word(material, gold, gold).
-attribute_word(material, oro, gold).
-attribute_word(material, silver, silver).
-attribute_word(material, argento, silver).
-attribute_word(material, plastic, plastic).
-attribute_word(material, plastica, plastic).
 category_member(continent, "north america").
 category_member(continent, "south america").
 category_member(continent, africa).
@@ -1327,8 +980,6 @@ category_member(month, february).
 % Un nome proprio non prende l'articolo, e i mesi lo sono: si DERIVA dalla
 % categoria invece di elencarli una seconda volta, cosi' un mese aggiunto domani
 % e' gia' trattato bene.
-machinery(article_free).
-article_free($M) :- category_member(month, $M).
 category_member(month, january).
 category_member(month, july).
 category_member(month, june).
@@ -1435,15 +1086,6 @@ category_member(shape, octagon).
 category_member(shape, oval).
 category_member(shape, pentagon).
 category_member(shape, rectangle).
-ratio_word(double, 2).
-ratio_word(twice, 2).
-ratio_word(triple, 3).
-ratio_word(thrice, 3).
-event_frame(canberra).
-event_attr(canberra, compromise_reason, "Sydney and Melbourne both wanted the national capital, so Australia chose a planned inland city between them as a compromise").
-event_frame(world_war_ii).
-event_attr(world_war_ii, end_year, 1945).
-event_attr(world_war_ii, atomic_bomb_cities, "Hiroshima and Nagasaki").
 category_member(shape, square).
 category_member(shape, triangle).
 category_member(south_america, amazon).
@@ -1635,10 +1277,6 @@ chemical_symbol(yttrium, Y).
 chemical_symbol(zinc, Zn).
 chemical_symbol(zirconium, Zr).
 chemical_symbol(zn, zinc).
-clue_verb(cries, cries).
-clue_verb(cry, cries).
-clue_verb(flash, flashes).
-clue_verb(flashes, flashes).
 color_of(apple, red).
 color_of(banana, yellow).
 color_of(blood, red).
@@ -1685,329 +1323,16 @@ color_of(sunflower, yellow).
 color_of(tiger, orange).
 color_of(tomato, red).
 color_of(wood, brown).
-compare_cue(bigger, size, max).
-compare_cue(faster, speed, max).
-compare_cue(heavier, weight, max).
-compare_cue(larger, size, max).
-compare_cue(lighter, weight, min).
-compare_cue(more, games_won, max).
-compare_cue(slower, speed, min).
-compare_cue(smaller, size, min).
-compare_cue(wins, games_won, max).
-compare_cue(won, games_won, max).
-completion_chain(born_in, demonym).
-completion_chain(studied, profession).
-completion_exact(aspiration, 5, "visit a place I love").
-completion_exact(melody, 5, "be far greyer and quieter").
-completion_exact(mystery, 5, "no one dared go inside").
-completion_exact(suspense, 5, "a cold wind rushed in").
-completion_exact(vigil, 5, "a distant light blinked twice").
-compound_word(bed, room, bedroom).
-compound_word(book, case, bookcase).
-compound_word(fire, fly, firefly).
-compound_word(fire, place, fireplace).
-compound_word(fire, wood, firewood).
-compound_word(fire, work, firework).
-compound_word(foot, ball, football).
-compound_word(moon, light, moonlight).
-compound_word(news, paper, newspaper).
-compound_word(rain, bow, rainbow).
-compound_word(rain, coat, raincoat).
-compound_word(snow, flake, snowflake).
-compound_word(sun, flower, sunflower).
-compound_word(sun, light, sunlight).
-compound_word(sun, shine, sunshine).
-compound_word(water, fall, waterfall).
-concise_explain(sky_blue, 3, "air scatters blue").
-concise_topic(sky_blue, blue).
-concise_topic(sky_blue, day).
-concise_topic(sky_blue, daytime).
-concise_topic(sky_blue, sky).
-concise_explain(sky_day_night, 3, "scattering needs sunlight").
-concise_topic(sky_day_night, blue).
-concise_topic(sky_day_night, dark).
-concise_topic(sky_day_night, day).
-concise_topic(sky_day_night, night).
-concise_topic(sky_day_night, sky).
-concise_explain(happiness, 3, "meaningful shared joy").
-concise_topic(happiness, happiness).
-intent_cue(creative_metaphor_request, "metaphor").
-metaphor_line(time, "Time is a river carrying yesterday out of reach.").
-metaphor_topic(time, time).
-metaphor_topic(time, passing).
-intent_cue(handshake_problem, "shakes hands").
-intent_cue(handshake_problem, "handshakes").
-intent_cue(handshake_problem, "shake hands").
-intent_cue(handshake_problem, "each guest").
-intent_cue(handshake_problem, "each person").
-intent_cue(handshake_problem, "everyone meets every other").
-intent_cue(handshake_problem, "each team plays every other").
-intent_cue(handshake_problem, "round robin").
-intent_cue(handshake_problem, "pairwise").
-intent_cue(probability_draw, "probability").
-intent_cue(probability_draw, "chance").
-intent_cue(probability_draw, "odds").
-intent_cue(probability_draw, "at random").
-intent_cue(probability_draw, "randomly").
-intent_cue(probability_draw, "without looking").
-intent_cue(probability_draw, "blindfolded").
-intent_cue(probability_draw, "draw").
-intent_cue(probability_draw, "grab").
-intent_cue(probability_draw, "reach in").
-intent_cue(probability_draw, "pick").
-intent_cue(probability_at_least, "at least").
-intent_cue(probability_at_least, "at minimum").
-intent_cue(probability_at_least, "or more").
-intent_cue(probability_at_least, "no fewer than").
-intent_cue(probability_inverse_draw, "two red").
-intent_cue(probability_inverse_draw, "drawing two").
-intent_cue(probability_inverse_draw, "in succession").
-intent_cue(probability_inverse_draw, "two consecutive draws").
-intent_cue(probability_inverse_draw, "what can you infer").
-conj_es("are from (permanent)", you, eres).
-conj_es("are from (temporary)", you, estás).
-conj_es(are, you, eres).
-conj_es(need, i, necesito).
-conj_es(speak, i, hablo).
-conj_es(speak, you, hablas).
-conj_es(understand, i, entiendo).
-conj_fr(learning, i, apprends).
-conj_fr(speak, you, parlez).
 contains(country, fish).
 contains(country, houses).
 contains(country, trees).
-continent_of(argentina, south_america).
-continent_of(australia, oceania).
-continent_of(austria, europe).
-continent_of(belgium, europe).
-continent_of(brazil, south_america).
-continent_of(canada, north_america).
-continent_of(canada, north_america). continent_of(australia, oceania).
-continent_of(chile, south_america).
-continent_of(china, asia).
-continent_of(colombia, south_america).
-continent_of(czechia, europe).
-continent_of(denmark, europe).
-continent_of(egypt, africa).
-continent_of(egypt, africa).      continent_of(brazil, south_america).
-continent_of(finland, europe).
-continent_of(france, europe).
-continent_of(germany, europe).
-continent_of(greece, europe).
-continent_of(india, asia).
-continent_of(indonesia, asia).
-continent_of(iran, asia).
-continent_of(iraq, asia).
-continent_of(ireland, europe).
-continent_of(israel, asia).
-continent_of(italy, europe).
-continent_of(japan, asia).
-continent_of(japan, asia).        continent_of(france, europe).
-continent_of(kenya, africa).
-continent_of(mexico, north_america).
-continent_of(morocco, africa).
-continent_of(netherlands, europe).
-continent_of(new_zealand, oceania).
-continent_of(nigeria, africa).
-continent_of(norway, europe).
-continent_of(pakistan, asia).
-continent_of(peru, south_america).
-continent_of(poland, europe).
-continent_of(portugal, europe).
-continent_of(russia, europe).
-continent_of(saudi_arabia, asia).
-continent_of(south_africa, africa).
-continent_of(south_korea, asia).
-continent_of(spain, europe).
-continent_of(sweden, europe).
-continent_of(switzerland, europe).
-continent_of(thailand, asia).
-continent_of(turkey, asia).
-continent_of(united_kingdom, europe).
-continent_of(united_states, north_america).
-continent_of(venezuela, south_america).
-continent_of(vietnam, asia).
-continuation_template(aspiration, "finally start the project I keep putting off").
-continuation_template(aspiration, "learn something I have never tried before").
-continuation_template(aspiration, "spend the whole day outdoors with friends").
-continuation_template(bottle, "e one golden afternoon, I would keep it for a grey day").
-continuation_template(darkness, "the shadows seemed to lean closer").
-continuation_template(enchanted, "a low hum filled the room as the dust lifted into the air").
-continuation_template(enchanted, "its pages began to glow with a soft golden light").
-continuation_template(enchanted, "words rose off the page and hung shimmering in the dark").
-continuation_template(horizon, "that he no longer knew which way led home").
-continuation_template(horizon, "that the distant lights were not stars but windows").
-continuation_template(horizon, "that the road behind him had vanished into the dark").
-continuation_template(magical, "fill with flowers that had never bloomed before").
-continuation_template(magical, "hum with a quiet music no one could place").
-continuation_template(magical, "shimmer with a soft silver light").
-continuation_template(melody, "be missing one of its oldest comforts").
-continuation_template(melody, "feel a great deal quieter and greyer").
-continuation_template(melody, "lose much of its colour and its joy").
-continuation_template(mystery, "a single light flickered in an upstairs window").
-continuation_template(mystery, "no one had set foot inside for as long as anyone could remember").
-continuation_template(mystery, "the neighbours always crossed to the other side before passing it").
-continuation_template(mystery_box, "a tiny clockwork bird with emerald eyes").
-continuation_template(key_mystery, "a narrow iron door hidden behind the library panel").
-continuation_template(key_pursuit, "at the end of the corridor, the key began to warm as if it recognized the door").
-continuation_template(clock_attic, "someone whispered her name from inside the walls").
-continuation_template(cat_threshold, "slipped through the gap and vanished into the dark hallway").
-continuation_template(moon_poem, "and stars lean close to listen to its light").
-continuation_template(rainfall, "rings widen where each drop lands").
-continuation_template(rainfall, "somewhere under the reeds a frog answers").
-continuation_template(rainfall, "the water wears a coat of silver circles").
-continuation_template(reveal, "a dusty hallway bathed in pale candlelight").
-continuation_template(reveal_next, "At the far end, a small brass key glinted on the floor").
-continuation_template(silence, "every small sound in the house became enormous").
-continuation_template(silence, "the stopped clock seemed to be waiting for an answer").
-continuation_template(silence, "the whole room held its breath").
-continuation_template(suspense, "a cold wind rushed in carrying the smell of rain").
-continuation_template(suspense, "a narrow stairway curved down into the dark").
-continuation_template(suspense, "someone knocked once from the other side").
-continuation_template(vigil, "a faint light blinked far out on the dark water").
-continuation_template(vigil, "a wave struck the rocks below with a sound like thunder").
-continuation_template(vigil, "the beam swept once more across the empty, churning sea").
-continuation_template(voyage, "felt the first pale light touch the rail").
-continuation_template(voyage, "listened for the tide beneath the boards").
-continuation_template(voyage, "watched the harbour lights fade behind him").
-continuation_template(wonder, "every face turned upward, caught in the same quiet awe").
-continuation_template(wonder, "for a moment the whole valley seemed to hold its breath").
-continuation_template(wonder, "the colours spilled down until they touched the grass").
-couplet(afternoon, "Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace.").
-couplet(ai, "Silicon minds trace patterns in the night; human questions teach their borrowed light.").
-couplet(autumn, "Autumn leaves fall over letters left unread; forgotten words sleep softly in their bed.").
-couplet(cat, "The cat curls small against the failing light; it keeps one slow green eye upon the night.").
-couplet(coder, "A weary coder sips the dark roast deep; the bugs retreat, the passing tests they keep.").
-couplet(coffee, "Dark in the cup and bitter to the brim; one quiet sip and dawn no longer dim.").
-couplet(library, "The quiet library keeps the dust of light; its pages bloom like lanterns in the night.").
-couplet(lighthouse, "Alone it stands where wind and grey waves roam; a single faithful light to guide ships home.").
-couplet(lighthouse_cloud_friendship, "The lighthouse feared the sea until a cloud drew near; together they watched dawn make the waters clear.").
-couplet_cue(lighthouse_cloud_friendship, lighthouse).
-couplet_cue(lighthouse_cloud_friendship, cloud).
-couplet_cue(lighthouse_cloud_friendship, friendship).
-couplet_cue(lighthouse_cloud_friendship, friend).
-couplet_cue(lighthouse_cloud_friendship, unexpected).
-couplet(moon, "The pale moon climbs and spills its quiet light; it lays a silver road across the night.").
-couplet(moonlight, "Moonlight trembles where the dark waves gleam; water holds the sky as if in dream.").
-couplet(ocean, "The ocean rolls in silver and in foam; it sings the oldest song of going home.").
-couplet(programmer, "A weary coder sips the dark roast deep; the bugs retreat, the passing tests they keep.").
-couplet(rain, "Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace.").
-couplet(rainy, "Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace.").
-couplet(robot, "A robot meets the rain for the very first time; each cold bright drop a small uncharted rhyme.").
-couplet(sea, "The sea rolls in with silver and with foam; it sings the oldest song of going home.").
-couplet(snow, "The snow comes down and hushes all the street; it lays a quiet blanket, cold and sweet.").
-couplet(spring, "The first green shoot pushes through cold black ground; in silence all the waking world is found.").
-couplet(season, "Spring wakes the fields while autumn dims the flame; each turning sky returns, yet none the same.").
-couplet(seasons, "Spring wakes the fields while autumn dims the flame; each turning sky returns, yet none the same.").
-couplet(changing, "Spring wakes the fields while autumn dims the flame; each turning sky returns, yet none the same.").
-couplet(star, "A single star pricks through the dusk's last glow; old light still travelling from long ago.").
-couplet(storm, "The storm may roar and fling the grey waves wide; the steady beam keeps watch through wind and tide.").
-couplet(water, "Moonlight trembles where the dark waves gleam; water holds the sky as if in dream.").
 cries($X) :- emits($X, $W), is_like($W, crying).
-currency_of_country(argentina, argentine_peso).
-currency_of_country(australia, australian_dollar).
-currency_of_country(belgium, euro).
-currency_of_country(brazil, brazilian_real).
-currency_of_country(canada, canadian_dollar).
-currency_of_country(china, yuan).
-currency_of_country(denmark, danish_krone).
-currency_of_country(egypt, egyptian_pound).
-currency_of_country(france, euro).
-currency_of_country(germany, euro).
-currency_of_country(india, indian_rupee).
-currency_of_country(italy, euro).
-currency_of_country(japan, yen).
-currency_of_country(mexico, mexican_peso).
-currency_of_country(netherlands, euro).
-currency_of_country(norway, norwegian_krone).
-currency_of_country(poland, polish_zloty).
-currency_of_country(portugal, euro).
-currency_of_country(russia, russian_ruble).
-currency_of_country(south_africa, south_african_rand).
-currency_of_country(south_korea, won).
-currency_of_country(spain, euro).
-currency_of_country(sweden, swedish_krona).
-currency_of_country(switzerland, swiss_franc).
-currency_of_country(turkey, turkish_lira).
-currency_of_country(united_kingdom, pound_sterling).
-currency_of_country(united_states, us_dollar).
-day_order(friday, 5).
-day_order(monday, 1).
-day_order(saturday, 6).
-day_order(sunday, 7).
-day_order(thursday, 4).
-day_order(tuesday, 2).
-day_order(wednesday, 3).
-deepest_ocean(point, mariana_trench).
-deepest_ocean(world, pacific).
-default_color(blue).
-default_pick(animal, "the octopus").
-default_pick(book, "a good mystery").
-default_pick(city, "Kyoto, for its quiet old streets").
-default_pick(color, "deep blue").
-default_pick(country, "Japan, for its mix of old temples and modern cities").
-default_pick(day, "a rainy Sunday").
-default_pick(drink, "a cup of tea").
-default_pick(era, "the Renaissance, to watch art and science wake up together").
-default_pick(flower, "the sunflower").
-default_pick(food, "fresh warm bread").
-default_pick(fruit, "a ripe peach").
-default_pick(hobby, "reading quietly").
-default_pick(instrument, "the piano").
-default_pick(invention, "the printing press -- it multiplied every other idea").
-default_pick(job, "lighthouse keeper -- quiet, useful, and a good view").
-default_pick(language, "Latin, for how much of other languages it explains").
-default_pick(movie, "an old black-and-white film").
-default_pick(music, "quiet piano").
-default_pick(number, "seven").
-default_pick(place, "a quiet library").
-default_pick(season, "autumn").
-default_pick_reason(season, "the crisp air, changing leaves, and quieter evenings").
-default_pick(skill, "speaking every language fluently -- it would open every other door").
-default_pick(sport, "long-distance running").
-default_pick(subject, "astronomy").
-default_pick(superpower, "the ability to read any language").
-default_pick(talent, "perfect memory for everything I read").
-default_pick(weather, "a light, steady rain").
-demonym(amsterdam, amsterdammer).
-demonym(athens, athenian).
-demonym(barcelona, barcelonian).
-demonym(bari, barese).
-demonym(berlin, berliner).
-demonym(bologna, bolognese).
-demonym(campania, campanian).
-demonym(catania, catanese).
-demonym(florence, florentine).
-demonym(genoa, genovese).
-demonym(lazio, laziale).
-demonym(lombardy, lombard).
-demonym(london, londoner).
-demonym(madrid, madrilenian).
-demonym(milan, milanese).
-demonym(naples, neapolitan).
-demonym(new_york, new_yorker).
-demonym(palermo, palermitan).
-demonym(paris, parisian).
-demonym(puglia, apulian).
-demonym(rome, roman).
-demonym(sardinia, sardinian).
-demonym(sicily, sicilian).
-demonym(tokyo, tokyoite).
-demonym(turin, turinese).
-demonym(tuscany, tuscan).
-demonym(venice, venetian).
 depicts(country, cities).
 depicts(country, mountains).
 depicts(country, water).
 depicts(map, cities).
 depicts(map, mountains).
 depicts(map, water).
-describe_cue("define").
-describe_cue("definition").
-describe_cue("mean").
-describe_cue("means").
-describe_cue(explain).
-describe_cue(mean).
 died_in(einstein, princeton).
 died_in(napoleon, saint_helena).
 difference_between(affect, effect, "Affect is usually a verb meaning influence; effect is usually a noun meaning result").
@@ -2086,34 +1411,12 @@ enables(education, better_jobs).
 enables(electricity, modern_life).
 enables(internet, global_communication).
 enables(language, culture).
-entity_alias("airbus a320", airbus_a320).
-entity_alias("boeing 747", boeing_747).
-entity_alias("garry kasparov", garry_kasparov).
-entity_alias("magnus carlsen", magnus_carlsen).
-fact_confidence(author_of, medium).
-fact_confidence(can_fly, low).
-fact_confidence(capital_of_country, high).
-fact_confidence(chemical_symbol, high).
-fact_confidence(continent_of, high).
-fact_confidence(discovered_by, medium).
-fact_confidence(founded_by, medium).
-fact_confidence(habitat, low).
-fact_confidence(invented_by, medium).
 faster_than(car, bicycle).
 faster_than(cheetah, horse).
 faster_than(horse, human).
 faster_than(human, turtle).
 faster_than(light, sound).
 faster_than(sound, car).
-figure_domain(cleopatra, leadership).
-figure_domain(einstein, science).
-figure_domain(socrates, philosophy).
-figure_reason(cleopatra, "to hear how power, diplomacy, and survival looked from her side").
-figure_reason(einstein, "to ask how he learned to think about space and time").
-figure_reason(socrates, "to press every easy answer with better questions").
-fill_three("learning something new").
-fill_three("moving steadily forward").
-fill_three("staying kind always").
 flashes($X) :- emits($X, $L), is_like($L, flash).
 flightless(kiwi).
 flightless(ostrich).
@@ -2122,18 +1425,6 @@ founded_by(amazon, jeff_bezos).
 founded_by(apple, steve_jobs).
 founded_by(microsoft, bill_gates).
 freezes_at(water, "0 degrees Celsius (32 degrees Fahrenheit) -- it turns into ice").
-gender_es(agua, f).
-gender_es(alféizar, m).
-gender_es(casa, f).
-gender_es(gato, m).
-gender_es(libro, m).
-gender_es(luna, f).
-gender_es(mesa, f).
-gender_es(noche, f).
-gender_es(perro, m).
-gender_es(puerta, f).
-gender_es(sol, m).
-gender_es(ventana, f).
 gives_birth($X) :- is_a($X, mammal), naf(egg_laying($X)).
 grows_with(area, circle).
 grows_with(branches, tree).
@@ -2157,96 +1448,6 @@ habitat(penguin, ice).
 habitat(polar_bear, arctic).
 habitat(reptile, land).
 habitat(whale, ocean).
-haiku_close(autumn, "bare branches stay still").
-haiku_close(bird, "then it lifts and goes").
-haiku_close(book, "waiting to be read").
-haiku_close(candle, "it gives all it has").
-haiku_close(cat, "one eye half open").
-haiku_close(dream, "dawn erases them").
-haiku_close(fire, "ash by the morning").
-haiku_close(friendship, "neither leaves alone").
-haiku_close(home, "the door knows your name").
-haiku_close(hope, "sure of the warm sun").
-haiku_close(lamp, "a small warm island").
-haiku_close(library, "Dust glows in moonlight").
-haiku_close(love, "no need left to speak").
-haiku_close(moon, "shadows softly bloom").
-haiku_close(mountain, "older than the sea").
-haiku_close(ocean, "gulls write on the wind").
-haiku_close(rain, "the dry world drinks deep").
-haiku_close(river, "never the same twice").
-haiku_close(robot, "steel learns how to feel").
-haiku_close(silence, "even time slows down").
-haiku_close(snow, "footprints fill again").
-haiku_close(spring, "everything begins").
-haiku_close(star, "older than our eyes").
-haiku_close(technology, "the machine dreams on").
-haiku_close(artificial, "the machine dreams on").
-haiku_close(time, "none of them return").
-haiku_close(tree, "holding up the sky").
-haiku_close(winter, "waiting for the thaw").
-haiku_mid(autumn, "cool winds carry them away").
-haiku_mid(bird, "the whole sky waiting for it").
-haiku_mid(book, "worlds asleep between the lines").
-haiku_mid(candle, "a small gold tent in the dark").
-haiku_mid(cat, "into a circle of sleep").
-haiku_mid(dream, "strange rivers run through the dark").
-haiku_mid(fire, "it eats the night and gives warmth").
-haiku_mid(friendship, "slowly the silence grows warm").
-haiku_mid(home, "the long road finally ends").
-haiku_mid(hope, "under the last of the snow").
-haiku_mid(lamp, "holds back the dark of the night").
-haiku_mid(library, "Quiet shelves hold hidden worlds").
-haiku_mid(love, "the whole noisy world goes quiet").
-haiku_mid(moon, "drifting over silent fields").
-haiku_mid(mountain, "clouds rest upon its grey peak").
-haiku_mid(ocean, "silver waves carry the sun").
-haiku_mid(rain, "cold silver falling from grey").
-haiku_mid(river, "carrying the sky downstream").
-haiku_mid(robot, "circuits hum with new questions").
-haiku_mid(silence, "the room settles into hush").
-haiku_mid(snow, "the world grows quiet and white").
-haiku_mid(spring, "the cold earth remembers warmth").
-haiku_mid(star, "old light crossing endless dark").
-haiku_mid(technology, "small lights think in the still house").
-haiku_mid(artificial, "small lights learn from our words").
-haiku_mid(time, "carries each moment downstream").
-haiku_mid(tree, "roots deep, branches in the wind").
-haiku_mid(winter, "bare trees against a grey sky").
-haiku_open(autumn, "Red leaves let go now").
-haiku_open(bird, "A bird tilts its head").
-haiku_open(book, "Pages hold their breath").
-haiku_open(candle, "One candle burning").
-haiku_open(cat, "The cat folds itself").
-haiku_open(dream, "Sleep opens a door").
-haiku_open(fire, "Small flame in the dark").
-haiku_open(friendship, "Two strangers, one bench").
-haiku_open(home, "A light in the window").
-haiku_open(hope, "A small green shoot waits").
-haiku_open(lamp, "A lamp's quiet glow").
-haiku_open(library, "Pages breathe softly").
-haiku_open(love, "Two hands find each other").
-haiku_open(moon, "Pale lantern of night").
-haiku_open(mountain, "The mountain is still").
-haiku_open(ocean, "Ocean breathes at dawn").
-haiku_open(rain, "First drops on the roof").
-haiku_open(river, "The river moves on").
-haiku_open(robot, "A small metal hand").
-haiku_open(silence, "After the last word").
-haiku_open(snow, "Snow falls without sound").
-haiku_open(spring, "Green pushes through mud").
-haiku_open(star, "One star pricks the dusk").
-haiku_open(technology, "A screen glows at dusk").
-haiku_open(artificial, "Silicon thoughts wake").
-haiku_open(time, "The river of hours").
-haiku_open(tree, "The old tree stands still").
-haiku_open(winter, "The world holds its breath").
-haiku_open(black, "Dark star bends the light").
-haiku_mid(black, "Time falls past the silent rim").
-haiku_close(black, "No dawn can return").
-haiku_open(hole, "Dark star bends the light").
-haiku_mid(hole, "Time falls past the silent rim").
-haiku_close(hole, "No dawn can return").
 happened_in(fall_of_rome, 5th_century_bc).
 happened_in(titanic_sinking, 1912).
 happened_in(world_war_one_end, 1918).
@@ -2256,13 +1457,6 @@ happened_in(ww1_start, 1914).
 happened_in(ww2_end, 1945).
 happened_in(ww2_start, 1939).
 hardest_natural_substance(diamond, earth).
-has_own_ability(animal, move). has_own_ability(whale, swim).
-has_own_ability(bird, fly).  has_own_ability(fish, swim).
-has_own_prop(animal, eats).             has_own_prop(mammal, warm_blooded).
-has_own_prop(fish, has_scales).         has_own_prop(plant, photosynthesizes).
-has_own_prop(living_thing, breathes).   has_own_prop(living_thing, grows).
-has_own_prop(living_thing, needs_water). has_own_prop(animal, moves).
-has_own_prop(mammal, has_hair).         has_own_prop(bird, has_feathers).
 has_part(clock, hands).
 has_part(needle, eye).
 has_part(person, hands).
@@ -2283,74 +1477,6 @@ historical_fact(wwii_end, "World War II ended in 1945; Japan's surrender was sig
 historical_figure(cleopatra).
 historical_figure(einstein).
 historical_figure(socrates).
-idiom_meaning("a blessing in disguise", "a good thing that seemed bad at first").
-idiom_meaning("add insult to injury", "to make a bad situation worse").
-idiom_meaning("barking up the wrong tree", "pursuing a mistaken or misguided line of thought").
-idiom_meaning("barking up the wrong tree", "to pursue a mistaken or misguided course of action").
-idiom_meaning("beat around the bush", "to avoid getting to the point").
-idiom_meaning("beat around the bush", "to avoid talking about what is important").
-idiom_meaning("beat around the bush", "to avoid talking about what is important; to delay discussing something").
-idiom_meaning("bend over backwards", "to make a great effort or go out of one's way").
-idiom_meaning("bite the bullet", "to endure a painful or difficult situation with courage").
-idiom_meaning("bite the bullet", "to endure a painful situation").
-idiom_meaning("bite the bullet", "to face something difficult or unpleasant with courage").
-idiom_meaning("break a leg", "good luck -- it's a way to wish someone a great performance, especially on stage").
-idiom_meaning("break a leg", "good luck").
-idiom_meaning("break the bank", "to exceed one's budget, to be too expensive").
-idiom_meaning("break the ice", "to initiate conversation or relieve tension in a social setting").
-idiom_meaning("break the ice", "to initiate social interaction or conversation especially in a situation that feels awkward or tense").
-idiom_meaning("burn the midnight oil", "to work late into the night").
-idiom_meaning("burn the midnight oil", "to work or study late into the night").
-idiom_meaning("call it a day", "to stop working on something for now").
-idiom_meaning("call it a day", "to stop working on something for the day; to finish").
-idiom_meaning("call it a day", "to stop working on something").
-idiom_meaning("cost an arm and a leg", "to be very expensive").
-idiom_meaning("costs an arm and a leg", "very expensive").
-idiom_meaning("cut to the chase", "to get to the point quickly").
-idiom_meaning("cut to the chase", "to get to the point quickly, skipping unnecessary details").
-idiom_meaning("cut to the chase", "to get to the point").
-idiom_meaning("cómo estás", "how are you?").
-idiom_meaning("do the math", "to calculate or consider the facts").
-idiom_meaning("easier said than done", "something that is harder to do than to talk about").
-idiom_meaning("fall on deaf ears", "when advice, request, or complaint is ignored").
-idiom_meaning("fingers crossed", "hoping for good luck").
-idiom_meaning("give a hand", "to applaud; to help someone").
-idiom_meaning("go the extra mile", "to make more effort than expected").
-idiom_meaning("go the extra mile", "to make more effort than is expected").
-idiom_meaning("hang in there", "to stay patient and determined in a difficult situation").
-idiom_meaning("hit the books", "to start studying hard").
-idiom_meaning("hit the books", "to study").
-idiom_meaning("hit the nail on the head", "to be exactly right").
-idiom_meaning("hit the nail on the head", "to describe exactly the cause of a situation").
-idiom_meaning("hit the nail on the head", "to describe exactly what is causing a situation or problem").
-idiom_meaning("hit the sack", "to go to bed or go to sleep").
-idiom_meaning("hit the sack", "to go to sleep").
-idiom_meaning("jump on the bandwagon", "to join a popular activity or trend").
-idiom_meaning("keep an eye on", "to watch someone or something carefully").
-idiom_meaning("kick the bucket", "to die").
-idiom_meaning("kill two birds with one stone", "to achieve two aims with a single action").
-idiom_meaning("kill two birds with one stone", "to achieve two things with a single action").
-idiom_meaning("kill two birds with one stone", "to achieve two things with one action").
-idiom_meaning("let the cat out of the bag", "to reveal a secret by accident").
-idiom_meaning("let the cat out of the bag", "to reveal a secret").
-idiom_meaning("miss the boat", "to miss an opportunity").
-idiom_meaning("on thin ice", "in a risky situation").
-idiom_meaning("once in a blue moon", "very rarely").
-idiom_meaning("piece of cake", "something that is very easy to do").
-idiom_meaning("piece of cake", "something very easy to do").
-idiom_meaning("piece of cake", "something very easy").
-idiom_meaning("speak of the devil", "said when a person you were just talking about appears").
-idiom_meaning("spill the beans", "to reveal a secret").
-idiom_meaning("spill the beans", "to reveal a secret, often by accident").
-idiom_meaning("spill the beans", "to reveal secret information").
-idiom_meaning("the ball is in your court", "it is up to you to make the next decision or take action").
-idiom_meaning("the ball is in your court", "it is your decision now").
-idiom_meaning("the ball is in your court", "it's your turn to act or decide").
-idiom_meaning("the last straw", "the final small problem that makes a situation unbearable").
-idiom_meaning("under the weather", "feeling ill or sick").
-idiom_meaning("under the weather", "feeling ill").
-idiom_meaning("under the weather", "feeling slightly ill or unwell").
-idiom_meaning("when pigs fly", "something that will never happen").
 inanimate(storm).
 increases(age, tree).
 increases(exercise, strength).
@@ -2383,8 +1509,6 @@ is_a(socrates, man).
 is_a(sparrow, bird).
 is_a(tree, plant).
 is_a(vertebrate, animal).
-is_like(lightning, flash).
-is_like(rain, crying).
 kind_is(cat, mammal).
 kind_is(dog, mammal).
 kind_is(eagle, bird).
@@ -2414,77 +1538,6 @@ kind_of(spider, invertebrate).
 kind_of(vertebrate, animal).
 kind_of(whale, mammal).
 kind_of(whale, mammal).    kind_of(mammal, animal).  kind_of(sparrow, bird).
-kind_of_t($X, $Y) :- kind_of($X, $Y).
-kind_of_t($X, $Z) :- kind_of($X, $Y), kind_of_t($Y, $Z).
-kinship_gender("great-grandfather", m).
-kinship_gender("great-grandmother", f).
-kinship_gender(father, m).
-kinship_gender(grandfather, m).
-kinship_gender(grandmother, f).
-kinship_gender(mother, f).
-kinship_level("great-grandfather", 3).
-kinship_level("great-grandmother", 3).
-kinship_level(father, 1).
-kinship_level(grandfather, 2).
-kinship_level(grandmother, 2).
-kinship_level(mother, 1).
-kinship_name(1, f, mother).
-kinship_name(1, m, father).
-kinship_name(2, f, grandmother).
-kinship_name(2, m, grandfather).
-kinship_name(3, f, "great-grandmother").
-kinship_name(3, m, "great-grandfather").
-kinship_name(4, f, "great-great-grandmother").
-kinship_name(4, m, "great-great-grandfather").
-landmark_city("big ben", "London").
-landmark_city(acropolis, "Athens").
-landmark_city(brandenburg, "Berlin").
-landmark_city(coliseum, "Rome").
-landmark_city(colosseum, "Rome").
-landmark_city(eiffel, "Paris").
-landmark_city(kremlin, "Moscow").
-landmark_city(liberty, "New York City").
-landmark_city(opera, "Sydney").
-landmark_city(pyramids, "Giza").
-landmark_city(sagrada, "Barcelona").
-landmark_city(taj, "Agra").
-landmark_of(australia, "the Sydney Opera House").
-landmark_of(canberra, "Parliament House").
-landmark_of(brazil, "Christ the Redeemer").
-landmark_of(canada, "the CN Tower").
-landmark_of(china, "the Great Wall").
-landmark_of(egypt, "the Great Pyramids of Giza").
-landmark_of(france, "the Eiffel Tower").
-landmark_of(germany, "the Brandenburg Gate").
-landmark_of(greece, "the Parthenon").
-landmark_of(india, "the Taj Mahal").
-landmark_of(italy, "the Colosseum").
-landmark_of(japan, "Mount Fuji").
-landmark_of(peru, "Machu Picchu").
-landmark_of(russia, "Saint Basil's Cathedral").
-landmark_of(spain, "the Sagrada Familia").
-landmark_of(turkey, "the Hagia Sophia").
-landmark_of(united_kingdom, "Big Ben").
-landmark_of(united_states, "the Statue of Liberty").
-language_of_country(brazil, portuguese).
-language_of_country(china, mandarin).
-language_of_country(egypt, arabic).
-language_of_country(france, french).
-language_of_country(germany, german).
-language_of_country(greece, greek).
-language_of_country(israel, hebrew).
-language_of_country(italy, italian).
-language_of_country(japan, japanese).
-language_of_country(netherlands, dutch).
-language_of_country(poland, polish).
-language_of_country(portugal, portuguese).
-language_of_country(russia, russian).
-language_of_country(saudi_arabia, arabic).
-language_of_country(south_korea, korean).
-language_of_country(spain, spanish).
-language_of_country(sweden, swedish).
-language_of_country(turkey, turkish).
-language_of_country(united_kingdom, english).
 larger_step(cat, mouse).       larger_step(mouse, ant).
 larger_step(elephant, horse).  larger_step(horse, dog).  larger_step(dog, cat).
 larger_than($X, $Y) :- larger_step($X, $Y).
@@ -2509,21 +1562,6 @@ light_mix(green, blue, cyan).
 light_mix(green, red, yellow).
 light_mix(red, blue, magenta).
 light_mix(red, green, yellow).
-limerick_l1(cat, "There once was a cat by the door,").
-limerick_l1(coffee, "There once was a coder named Lee,").
-limerick_l1(programmer, "There once was a coder named Lee,").
-limerick_l2(cat, "Who slept through the day and the more;").
-limerick_l2(coffee, "Who ran on strong coffee and glee;").
-limerick_l2(programmer, "Who ran on strong coffee and glee;").
-limerick_l3(cat, "    At the sound of a tin,").
-limerick_l3(coffee, "    Each bug that he'd find,").
-limerick_l3(programmer, "    Each bug that he'd find,").
-limerick_l4(cat, "    She'd stretch and begin,").
-limerick_l4(coffee, "    He'd fix with his mind,").
-limerick_l4(programmer, "    He'd fix with his mind,").
-limerick_l5(cat, "To wind round your feet on the floor.").
-limerick_l5(coffee, "Then brew one more cup for the spree.").
-limerick_l5(programmer, "Then brew one more cup for the spree.").
 located_in(australia, oceania).
 located_in(colosseum, rome).
 located_in(eiffel_tower, paris).
@@ -2537,8 +1575,6 @@ located_in(rome, italy).
 located_in(sahara_desert, africa).
 located_in(statue_of_liberty, new_york).
 located_in(united_states, north_america).
-longest_river(south_america, amazon).
-longest_river(world, nile).
 magnitude(distance_from_sun, earth, 3).
 magnitude(distance_from_sun, jupiter, 5).
 magnitude(distance_from_sun, mars, 4).
@@ -2600,47 +1636,13 @@ magnitude(weight, hippopotamus, 1500).
 magnitude(weight, ice, 2).
 magnitude(weight, silver, 5).
 magnitude(weight, stone, 4).
-magnitude_cue(bigger, size, max).
-magnitude_cue(biggest, size, max).
-magnitude_cue(closer, distance_from_sun, min).
-magnitude_cue(closest, distance_from_sun, min).
-magnitude_cue(farther, distance_from_sun, max).
-magnitude_cue(farthest, distance_from_sun, max).
-magnitude_cue(faster, speed, max).
-magnitude_cue(further, distance_from_sun, max).
-magnitude_cue(heavier, weight, max).
-magnitude_cue(larger, size, max).
-magnitude_cue(largest, size, max).
-magnitude_cue(lighter, weight, min).
-magnitude_cue(longest, length, max).
-magnitude_cue(nearer, distance_from_sun, min).
-magnitude_cue(shortest, length, min).
-magnitude_cue(slower, speed, min).
-magnitude_cue(smaller, size, min).
-magnitude_cue(smallest, size, min).
-magnitude_cue(tinier, size, min).
 % gen382: il reticolo aveva dei buchi, e i buchi si vedono solo elencandolo.
 % Ogni dimensione dovrebbe avere COMPARATIVO e SUPERLATIVO nei due versi; length
 % aveva solo i superlativi (quindi "quale fiume e' piu' LUNGO" cadeva prima
 % ancora di essere analizzato, mentre "il piu' lungo" funzionava), speed e weight
 % solo i comparativi. Sei fatti, zero C: e' il caso limpido in cui la capacita'
 % mancante non era un motore da scrivere ma conoscenza da completare.
-magnitude_cue(longer, length, max).
-magnitude_cue(shorter, length, min).
-magnitude_cue(fastest, speed, max).
-magnitude_cue(slowest, speed, min).
-magnitude_cue(heaviest, weight, max).
-magnitude_cue(lightest, weight, min).
 mammal_true_flight(bat, mammal).
-means(eloquent, "fluent and persuasive in speaking or writing").
-means(ephemeral, "lasting for a very short time").
-means(ubiquitous, "present or found everywhere").
-measure(games_won, garry_kasparov, 100, games).
-measure(games_won, magnus_carlsen, 120, games).
-measure(speed, cheetah, 80, mph).
-measure(speed, lion, 50, mph).
-measure(weight, airbus_a320, 42600, kg).
-measure(weight, boeing_747, 183500, kg).
 medium_of(carpenter, wood).
 medium_of(composer, score).
 medium_of(painter, canvas).
@@ -2653,204 +1655,12 @@ moon_of(jupiter, "Io", "the most volcanically active body in the solar system, d
 moon_of(mars, "Phobos", "a small, lumpy moon that orbits Mars faster than the planet itself rotates").
 moon_of(neptune, "Triton", "an icy moon that orbits backwards and erupts geysers of nitrogen").
 moon_of(saturn, "Titan", "the only moon with a thick atmosphere, with rivers and lakes of liquid methane").
-negation_es(don't, no).
-no_land_border(australia).
-no_land_border(japan).
-no_land_border(united_kingdom).
 num_sides(hexagon, 6).
 num_sides(octagon, 8).
 num_sides(pentagon, 5).
 num_sides(rectangle, 4).
 num_sides(square, 4).
 num_sides(triangle, 3).
-ocean_borders(australia, "Indian Ocean").
-ocean_borders(australia, "Pacific Ocean").
-sea_borders(turkey, mediterranean_sea).
-sea_borders(turkey, black_sea).
-ocean_west_of(australia, "the Indian Ocean").
-ocean_west_of(portugal, "the Atlantic Ocean").
-ocean_west_of(united_states, "the Pacific Ocean").
-opposite(abundant, scarce).
-opposite(accept, reject).
-opposite(alive, dead).
-opposite(ancient, modern).
-opposite(answer, question).
-opposite(arrive, leave).
-opposite(arrogant, humble).
-opposite(artificial, natural).
-opposite(bad, good).
-opposite(beautiful, ugly).
-opposite(begin, end).
-opposite(big, small).
-opposite(boring, interesting).
-opposite(brave, coward).
-opposite(brave, cowardly).
-opposite(brave, scared).
-opposite(buy, sell).
-opposite(cautious, reckless).
-opposite(cheap, expensive).
-opposite(clean, dirty).
-opposite(closed, open).
-opposite(cold, hot).
-opposite(complex, simple).
-opposite(contract, expand).
-opposite(courage, cowardice).
-opposite(coward, brave).
-opposite(cowardice, courage).
-opposite(cowardly, brave).
-opposite(dangerous, safe).
-opposite(dark, bright).
-opposite(dark, light).
-opposite(day, night).
-opposite(dead, alive).
-opposite(decrease, increase).
-opposite(deep, shallow).
-opposite(defeat, victory).
-opposite(difficult, easy).
-opposite(diligent, lazy).
-opposite(dirty, clean).
-opposite(dishonest, honest).
-opposite(down, up).
-opposite(dry, wet).
-opposite(dull, sharp).
-opposite(early, late).
-opposite(east, west).
-opposite(easy, difficult).
-opposite(easy, hard).
-opposite(empty, full).
-opposite(end, begin).
-opposite(ephemeral, permanent).
-opposite(expand, contract).
-opposite(expensive, cheap).
-opposite(failure, success).
-opposite(false, true).
-opposite(famous, unknown).
-opposite(far, near).
-opposite(fast, slow).
-opposite(finish, start).
-opposite(first, last).
-opposite(flexible, rigid).
-opposite(forget, remember).
-opposite(front, back).
-opposite(full, empty).
-opposite(future, past).
-opposite(generous, selfish).
-opposite(give, take).
-opposite(good, bad).
-opposite(guilty, innocent).
-opposite(happy, sad).
-opposite(hard, soft).
-opposite(hate, love).
-opposite(healthy, sick).
-opposite(heavy, light).
-opposite(high, low).
-opposite(honest, dishonest).
-opposite(hot, cold).
-opposite(humble, arrogant).
-opposite(illegal, legal).
-opposite(impatient, patient).
-opposite(impolite, polite).
-opposite(impossible, possible).
-opposite(increase, decrease).
-opposite(innocent, guilty).
-opposite(inside, outside).
-opposite(interesting, boring).
-opposite(invisible, visible).
-opposite(large, small).
-opposite(last, first).
-opposite(late, early).
-opposite(lazy, diligent).
-opposite(leave, arrive).
-opposite(left, right).
-opposite(legal, illegal).
-opposite(less, more).
-opposite(light, dark).
-opposite(lose, win).
-opposite(loud, quiet).
-opposite(love, hate).
-opposite(low, high).
-opposite(male, female).
-opposite(modern, ancient).
-opposite(more, less).
-opposite(narrow, wide).
-opposite(near, far).
-opposite(new, old).
-opposite(night, day).
-opposite(no, yes).
-opposite(noisy, quiet).
-opposite(north, south).
-opposite(old, new).
-opposite(old, young).
-opposite(opaque, transparent).
-opposite(open, closed).
-opposite(optimistic, pessimistic).
-opposite(past, future).
-opposite(patient, impatient).
-opposite(peace, war).
-opposite(permanent, ephemeral).
-opposite(pessimistic, optimistic).
-opposite(polite, impolite).
-opposite(polite, rude).
-opposite(poor, rich).
-opposite(possible, impossible).
-opposite(pull, push).
-opposite(push, pull).
-opposite(question, answer).
-opposite(quiet, noisy).
-opposite(reckless, cautious).
-opposite(reject, accept).
-opposite(remember, forget).
-opposite(rich, poor).
-opposite(right, left).
-opposite(rigid, flexible).
-opposite(rough, smooth).
-opposite(rude, polite).
-opposite(sad, happy).
-opposite(safe, dangerous).
-opposite(scarce, abundant).
-opposite(scared, brave).
-opposite(selfish, generous).
-opposite(sell, buy).
-opposite(shallow, deep).
-opposite(sharp, dull).
-opposite(short, tall).
-opposite(sick, healthy).
-opposite(simple, complex).
-opposite(slow, fast).
-opposite(small, big).
-opposite(smooth, rough).
-opposite(soft, hard).
-opposite(sour, sweet).
-opposite(south, north).
-opposite(start, finish).
-opposite(strong, weak).
-opposite(success, failure).
-opposite(sweet, sour).
-opposite(take, give).
-opposite(tall, short).
-opposite(tame, wild).
-opposite(temporary, permanent).
-opposite(thick, thin).
-opposite(thin, thick).
-opposite(transparent, opaque).
-opposite(true, false).
-opposite(ugly, beautiful).
-opposite(unknown, famous).
-opposite(up, down).
-opposite(verbose, brief).
-opposite(verbose, concise).
-opposite(verbose, succinct).
-opposite(victory, defeat).
-opposite(visible, invisible).
-opposite(war, peace).
-opposite(weak, strong).
-opposite(west, east).
-opposite(wet, dry).
-opposite(wide, narrow).
-opposite(wild, tame).
-opposite(win, lose).
-opposite(yes, no).
-opposite(young, old).
 paint_mix(black, white, grey).
 paint_mix(blue, red, purple).
 paint_mix(blue, yellow, green).
@@ -2868,8 +1678,6 @@ pair_magnitude(border, kazakhstan, russia, 7644).
 % Imparati parlando nella sessione 02, attraverso costruzioni insegnate a voce
 % («x goes by the name of y», «x is mostly made of y»): non avevano una casa e
 % cadevano nella ricaduta.
-also_known_as(constantinople, istanbul).
-also_known_as(mumbai, bombay).
 constituent_of(water, blood).
 precedes(monday, tuesday).
 precedes(preprint, peer_review).
@@ -2924,140 +1732,13 @@ planet_superlative(most_moons, saturn, "the planet with the most known moons").
 planet_superlative(red_planet, mars, "the Red Planet").
 planet_superlative(ringed_planet, saturn, "the Ringed Planet").
 planet_superlative(smallest, mercury, "the smallest planet in our solar system").
-planet_superlative_cue("prominent ring", ringed_planet).
-planet_superlative_cue("ring system", ringed_planet).
-planet_superlative_cue(larger, largest).
-planet_superlative_cue(rings, ringed_planet).
-poem4(lighthouse, "Alone on the rock where the grey waves roam,").
-poem4(lighthouse, "Through wind and the dark and the breaking spray,").
-poem4(lighthouse, "its steady beam keeps the night at bay.").
-poem4(lighthouse, "the lighthouse stands as the storm comes home.").
-poem4(ocean, "The ocean breathes in blue and grey,").
-poem4(ocean, "and carries the moon on a silver way.").
-poem4(ocean, "Its deep tides murmur, vast and wide,").
-poem4(ocean, "with secret songs beneath the tide.").
-poem4(rain, "It washes the dust from the tired street,").
-poem4(rain, "The first drops tap on the windowpane,").
-poem4(rain, "and hums a tune that is cool and sweet.").
-poem4(rain, "soft and grey comes the falling rain.").
-poem4(robot, "A small steel hand reached into the rain,").
-poem4(robot, "It had no word for the wonder it found,").
-poem4(robot, "and felt the cold drops fall again and again.").
-poem4(robot, "only the soft, bright, falling sound.").
-poem4(sea, "It keeps the oldest song of them all --").
-poem4(sea, "The sea breathes slow in silver and grey,").
-poem4(sea, "rolling its waves to the edge of day.").
-poem4(sea, "the long, low sound of the tide's rise and fall.").
-poem4(storm, "But high on the cliff through the wind and rain,").
-poem4(storm, "The sky goes black and the cold winds rise,").
-poem4(storm, "a single light holds watch again.").
-poem4(storm, "the sea throws spray at the angry skies.").
-population_of(china, 1400000000).
-population_of(india, 1400000000).
-population_of(united_states, 331000000).
-predicate_domain(after_in_time, temporal).
-predicate_domain(author_of, literature).
-predicate_domain(borders_country, geography).
-predicate_domain(born_in, history).
-predicate_domain(can_fly, biology).
-predicate_domain(capital_of_country, geography).
-predicate_domain(category_member, categories).
-predicate_domain(causes, causality).
-predicate_domain(chemical_symbol, chemistry).
-predicate_domain(color_of, properties).
-predicate_domain(continent_of, geography).
-predicate_domain(currency_of_country, geography).
-predicate_domain(died_in, history).
-predicate_domain(discovered_by, history).
-predicate_domain(east_of, geography).
-predicate_domain(faster_than, physics).
-predicate_domain(founded_by, history).
-predicate_domain(habitat, ecology).
-predicate_domain(has_prop, biology).
-predicate_domain(heavier_than, physics).
-predicate_domain(inherits, biology).
-predicate_domain(invented_by, history).
-predicate_domain(is_a, taxonomy).
-predicate_domain(kind_of, taxonomy).
-predicate_domain(larger_than, physics).
-predicate_domain(largest_in_category, superlatives).
-predicate_domain(located_in, geography).
-predicate_domain(means, definitions).
-predicate_domain(north_of, geography).
-predicate_domain(parent_of, kinship).
-predicate_domain(part_of, mereology).
-predicate_domain(population_of, geography).
-predicate_domain(prevents, causality).
-predicate_domain(sibling_of, kinship).
-predicate_domain(sound_of, properties).
-predicate_source(author_of, taught_session).
-predicate_source(can_fly, derived_by_rule).
-predicate_source(capital_of_country, curated_base).
-predicate_source(category_member, curated_base).
-predicate_source(continent_of, curated_base).
-predicate_source(currency_of_country, curated_base).
-predicate_source(discovered_by, taught_session).
-predicate_source(founded_by, taught_session).
-predicate_source(gives_birth, derived_by_rule).
-predicate_source(habitat, taught_session).
-predicate_source(has_prop, taught_session).
-predicate_source(inherits, derived_by_rule).
-predicate_source(invented_by, taught_session).
-predicate_source(is_a, curated_base).
-predicate_source(kind_of, curated_base).
 prevents(seatbelt, injury).
 prevents(sunscreen, sunburn).
 prevents(umbrella, getting_wet).
 state_consequence(umbrella, upside_down, "rain would collect inside the canopy instead of running off").
-positional_sentence(5, 3, cat, "The small cat slept peacefully.").
 physical_contrast(helium_breath_balloon, "A helium balloon rises because helium is much less dense than the surrounding air, so buoyant force exceeds its weight; breath contains mostly nitrogen, oxygen, carbon dioxide and water vapor, so that balloon is too close to air density to lift itself").
-formatted_explanation_cue(ice_floats, "ice floats").
-formatted_explanation(ice_floats, two_sentence, "Ice floats because freezing water expands into a more open crystal structure, making ice less dense than liquid water. Since it is less dense, buoyant force can hold the ice on the surface instead of letting it sink").
-response_format_variant(expl_icefloats, two_sentence, "Ice floats because freezing water expands into a more open crystal structure, making ice less dense than liquid water. Since it is less dense, buoyant force can hold the ice on the surface instead of letting it sink.").
-exchange_initial_cue(user, "you have").
-exchange_initial_cue(assistant, "i have").
-exchange_transfer_cue(user, assistant, "you give me").
-exchange_transfer_cue(assistant, user, "i give you").
 prevents(vaccine, disease).
 prevents(dropout, overfitting).
-pro_drop(es).
-process_step(bread_rise, 1, "Yeast consumes sugars in the dough and releases carbon dioxide gas").
-process_step(bread_rise, 2, "Gluten strands trap that gas in small bubbles, stretching the dough").
-process_step(bread_rise, 3, "Warmth and time let fermentation continue, so the bubbles expand").
-process_step(bread_rise, 4, "During baking, the gas expands further and the crumb sets into a risen loaf").
-process_step(flat_tire_change, 1, "Park safely on level ground, turn on the hazard lights, and set the parking brake").
-process_step(flat_tire_change, 2, "Place the jack at the vehicle's recommended lift point and loosen the lug nuts before lifting").
-process_step(flat_tire_change, 3, "Raise the car, remove the lug nuts and flat tire, then mount the spare tire").
-process_step(flat_tire_change, 4, "Hand-tighten the lug nuts, lower the car, tighten them in a star pattern, and check the tire pressure").
-process_step(toast_recipe, 1, "Put a slice of bread in the toaster").
-process_step(toast_recipe, 2, "Toast it until it is golden").
-process_step(toast_recipe, 3, "Remove it carefully").
-process_step(toast_recipe, 4, "Add butter or another topping if you like").
-process_step(coffee, 1, "Boil fresh water and let it cool for about thirty seconds").
-process_step(coffee, 2, "Add ground coffee to a filter, press, or cafetiere").
-process_step(coffee, 3, "Pour the hot water over the grounds and let it brew").
-process_step(coffee, 4, "Pour into a cup, add milk or sugar to taste, and serve").
-process_step(tea, 1, "Fill a kettle with fresh water and bring it to the boil").
-process_step(tea, 2, "Put a tea bag (or loose tea in an infuser) into a cup or teapot").
-process_step(tea, 3, "Pour the boiling water over the tea and let it steep for 3 to 5 minutes").
-process_step(tea, 4, "Remove the tea bag or infuser").
-process_step(tea, 5, "Add milk, sugar, or lemon to taste, stir, and serve").
-process_topic(bread_rise, bread).
-process_topic(bread_rise, dough).
-process_topic(bread_rise, rise).
-process_topic(bread_rise, rises).
-process_topic(bread_rise, rising).
-process_topic(bread_rise, yeast).
-process_topic(flat_tire_change, flat).
-process_topic(flat_tire_change, tire).
-process_topic(flat_tire_change, car).
-process_topic(flat_tire_change, wheel).
-process_topic(flat_tire_change, spare).
-process_topic(flat_tire_change, jack).
-process_topic(toast_recipe, toast).
-process_topic(toast_recipe, bread).
-process_topic(coffee, coffee).
-process_topic(tea, tea).
 profession(architecture, architect).
 profession(art, painter).
 profession(cooking, chef).
@@ -3069,8 +1750,6 @@ profession(literature, writer).
 profession(medicine, doctor).
 profession(music, musician).
 profession(nursing, nurse).
-prop_of($X, $P) :- has_own_prop($X, $P).
-prop_of($X, $P) :- kind_of($X, $Y), prop_of($Y, $P).
 quantity("chess board", squares, 64).
 quantity("human body", bones, 206).
 quantity("human body", teeth, 32).
@@ -3198,60 +1877,6 @@ quantity(may, days, 31).
 quantity(march, days, 31).
 quantity(leap_year, days, 366).
 quantity(fortnight, days, 14).
-question_form("how many", cardinality_query).
-question_form("is a", boolean_subsumption).
-question_form("what are the", category_enumeration).
-question_form("what color", property_lookup).
-question_form("what continent", continent_lookup).
-question_form("what does", definition_lookup).
-question_form("what is a", definition_lookup).
-question_form("what is an", definition_lookup).
-question_form("what is the capital", capital_lookup).
-question_form("what is the currency", currency_lookup).
-question_form("what is the difference between", comparative_query).
-question_form("what is the largest", superlative_query).
-question_form("what is the opposite", antonym_lookup).
-question_form("what is the population", population_lookup).
-question_form("what is the smallest", superlative_query).
-question_form("what is the", definition_lookup).
-question_form("what language", property_lookup).
-question_form("what sound", property_lookup).
-question_form("where is", location_lookup).
-question_form("where was", location_lookup).
-question_form("who discovered", discoverer_lookup).
-question_form("who founded", founder_lookup).
-question_form("who invented", inventor_lookup).
-question_form("who wrote", author_lookup).
-question_form("who", identity_lookup).
-question_form("why", causal_explanation).
-relation_type(after_in_time, temporal).
-relation_type(after_in_time, transitive).
-relation_type(causes, causal).
-relation_type(causes, transitive).
-relation_type(contains, mereological).
-relation_type(contains, transitive).
-relation_type(east_of, directional).
-relation_type(east_of, transitive).
-relation_type(faster_than, comparative).
-relation_type(faster_than, transitive).
-relation_type(heavier_than, comparative).
-relation_type(heavier_than, transitive).
-relation_type(is_a, hierarchical).
-relation_type(is_a, transitive).
-relation_type(kind_of, hierarchical).
-relation_type(kind_of, transitive).
-relation_type(larger_than, comparative).
-relation_type(larger_than, transitive).
-relation_type(located_in, spatial).
-relation_type(located_in, transitive).
-relation_type(north_of, directional).
-relation_type(north_of, transitive).
-relation_type(parent_of, asymmetric).
-relation_type(parent_of, kinship).
-relation_type(part_of, mereological).
-relation_type(part_of, transitive).
-relation_type(sibling_of, kinship).
-relation_type(sibling_of, symmetric).
 % gen382q — UNA GRANDEZZA DELL'ATTREZZO E' UNA GRANDEZZA DELL'ATTIVITA'.
 %
 % `quantity(deck, cards, 52)` c'era, con un consumer che funziona: "how many
@@ -3303,14 +1928,6 @@ invented_before(light_bulb, airplane_wright_brothers).
 invented_before(airplane_wright_brothers, transistor).
 invented_before(transistor, internet_arpanet).
 invented_before(internet_arpanet, world_wide_web).
-answer_frame("cannot live", cannot_live_in).
-answer_frame("can't live", cannot_live_in).
-answer_frame("can live", can_live_in).
-answer_frame("live in", can_live_in).
-answer_frame("lacks", lacks).
-answer_frame("worn on", worn_on).
-answer_frame("wear", worn_on).
-answer_frame("invented before", invented_before).
 response_template(joke_bear_teeth, "A gummy bear.").
 response_template(joke_chicken, "To get to the other side.").
 response_template(joke_short, "Why did the function return early? It had a break.").
@@ -3322,163 +1939,6 @@ response_template(riddle_newspaper, "A newspaper.").
 response_template(riddle_onion, "An onion.").
 response_template(shadow_day_sleep, "You are a shadow.").
 response_template(sphinx_riddle, "A human crawls on four legs as a baby walks on two legs as an adult and uses a cane in old age").
-riddle_sig(expl_sky_daynight, "sky").
-riddle_sig(expl_sky_daynight, "blue").
-riddle_sig(expl_sky_daynight, "day").
-riddle_sig(expl_sky_daynight, "night").
-riddle_sig(expl_daynight, "day").
-riddle_sig(expl_daynight, "night").
-riddle_sig(expl_grassgreen, "grass").
-riddle_sig(expl_grassgreen, "green").
-riddle_sig(expl_icefloats, "float").
-riddle_sig(expl_icefloats, "ice").
-riddle_sig(expl_leaves, "change color").
-riddle_sig(expl_leaves, "leaves").
-riddle_sig(expl_moonphases, "moon").
-riddle_sig(expl_moonphases, "phases").
-riddle_sig(expl_oceansalt, "ocean").
-riddle_sig(expl_oceansalt, "salty").
-riddle_sig(expl_rain, "rain").
-riddle_sig(expl_rain, "why").
-riddle_sig(expl_seasons, "seasons").
-riddle_sig(expl_seasons, "why").
-riddle_sig(expl_sky, "blue").
-riddle_sig(expl_sky, "sky").
-riddle_sig(expl_yawn, "why").
-riddle_sig(expl_yawn, "yawn").
-riddle_sig(left_hand_riddle, "right hand").
-riddle_sig(left_hand_riddle, "your left").
-riddle_sig(map_riddle, "no houses live").
-riddle_sig(map_riddle, "no trees grow").
-riddle_sig(map_riddle, "what am i").
-riddle_sig(name_riddle, "belongs to you").
-riddle_sig(name_riddle, "use it more").
-riddle_sig(riddle_breath, "hold it").
-riddle_sig(riddle_breath, "light as a feather").
-riddle_sig(riddle_candle, "short when").
-riddle_sig(riddle_candle, "tall when").
-riddle_sig(riddle_candle, "young").
-riddle_sig(riddle_chimney, "go down a chimney").
-riddle_sig(riddle_chimney, "go up a chimney").
-riddle_sig(riddle_echo, "hear without ears").
-riddle_sig(riddle_echo, "speak without a mouth").
-riddle_sig(riddle_elevator_short, "10th floor").
-riddle_sig(riddle_elevator_short, "7th floor").
-riddle_sig(riddle_elevator_short, elevator).
-riddle_sig(riddle_elevator_short, walks).
-riddle_sig(riddle_egg, "broken before").
-riddle_sig(riddle_egg, "use it").
-riddle_sig(riddle_fire, "need air").
-riddle_sig(riddle_fire, "not alive").
-riddle_sig(riddle_fire, "water kills me").
-riddle_sig(riddle_footsteps, "the more you leave behind").
-riddle_sig(riddle_footsteps, "the more you take").
-riddle_sig(riddle_head_tail, "and a tail").
-riddle_sig(riddle_head_tail, "but no body").
-riddle_sig(riddle_head_tail, "has a head").
-riddle_sig(riddle_legs, "2 legs").
-riddle_sig(riddle_legs, "3 legs").
-riddle_sig(riddle_legs, "4 legs").
-riddle_sig(riddle_map, "have borders").
-riddle_sig(riddle_map, "have capitals").
-riddle_sig(riddle_map, "have cities").
-riddle_sig(riddle_map, "have continents").
-riddle_sig(riddle_map, "have deserts").
-riddle_sig(riddle_map, "have forests").
-riddle_sig(riddle_map, "have highways").
-riddle_sig(riddle_map, "have islands").
-riddle_sig(riddle_map, "have lakes").
-riddle_sig(riddle_map, "have mountains").
-riddle_sig(riddle_map, "have oceans").
-riddle_sig(riddle_map, "have parks").
-riddle_sig(riddle_map, "have plateaus").
-riddle_sig(riddle_map, "have rivers").
-riddle_sig(riddle_map, "have time zones").
-riddle_sig(riddle_map, "have valleys").
-riddle_sig(riddle_map, "have volcanoes").
-riddle_sig(riddle_map, "have water").
-riddle_sig(riddle_match, "dark room").
-riddle_sig(riddle_match, fireplace).
-riddle_sig(riddle_match, match).
-riddle_sig(riddle_needle, "cannot see").
-riddle_sig(riddle_needle, "one eye").
-riddle_sig(riddle_newspaper, "black and white").
-riddle_sig(riddle_newspaper, "red all over").
-riddle_sig(riddle_onion, "take off my skin").
-riddle_sig(riddle_onion, "you might").
-riddle_sig(riddle_polar_bear, "bear").
-riddle_sig(riddle_polar_bear, "walls facing south").
-riddle_sig(riddle_river_crossing, "boat").
-riddle_sig(riddle_river_crossing, "corn").
-riddle_sig(riddle_river_crossing, "fox").
-riddle_sig(riddle_river_crossing, "goose").
-riddle_sig(riddle_river_crossing_chicken_grain, "boat").
-riddle_sig(riddle_river_crossing_chicken_grain, "fox").
-riddle_sig(riddle_river_crossing_chicken_grain, "chicken").
-riddle_sig(riddle_river_crossing_chicken_grain, "grain").
-riddle_sig(riddle_river_crossing_chicken_corn, "boat").
-riddle_sig(riddle_river_crossing_chicken_corn, "fox").
-riddle_sig(riddle_river_crossing_chicken_corn, "chicken").
-riddle_sig(riddle_river_crossing_chicken_corn, "corn").
-riddle_sig(riddle_river_crossing_goose_grain, "boat").
-riddle_sig(riddle_river_crossing_goose_grain, "fox").
-riddle_sig(riddle_river_crossing_goose_grain, "goose").
-riddle_sig(riddle_river_crossing_goose_grain, "grain").
-riddle_sig(riddle_silence, "break it").
-riddle_sig(riddle_silence, "say its name").
-riddle_sig(riddle_stamp, "around the world").
-riddle_sig(riddle_stamp, "in a corner").
-riddle_sig(riddle_towel, "dries").
-riddle_sig(riddle_towel, "gets wetter").
-riddle_sig(riddle_vine, "i climb").
-riddle_sig(riddle_vine, "i cling").
-riddle_sig(riddle_vine, "no hands").
-riddle_sig(riddle_word_lengths, "four letters").
-riddle_sig(riddle_word_lengths, "never").
-riddle_sig(riddle_word_lengths, "nine letters").
-riddle_sig(say_actions, "actions speak").
-riddle_sig(say_actions, "louder").
-riddle_sig(say_apple, "apple a day").
-riddle_sig(say_apple, "keeps").
-riddle_sig(say_birds, "birds of a").
-riddle_sig(say_birds, "feather").
-riddle_sig(say_chickens, "chickens").
-riddle_sig(say_chickens, "count your").
-riddle_sig(say_cloud, "cloud").
-riddle_sig(say_cloud, "every cloud").
-riddle_sig(say_curiosity, "curiosity").
-riddle_sig(say_curiosity, "killed").
-riddle_sig(say_earlybird, "catches").
-riddle_sig(say_earlybird, "early bird").
-riddle_sig(say_honesty, "honesty").
-riddle_sig(say_honesty, "is the").
-riddle_sig(say_late, "better").
-riddle_sig(say_late, "late").
-riddle_sig(say_leap, "before").
-riddle_sig(say_leap, "look").
-riddle_sig(say_pen, "mightier").
-riddle_sig(say_pen, "pen is").
-riddle_sig(say_picture, "picture is").
-riddle_sig(say_picture, "worth").
-riddle_sig(say_practice, "makes").
-riddle_sig(say_practice, "practice").
-riddle_sig(say_rome, "rome").
-riddle_sig(say_rome, "when in").
-riddle_sig(say_stitch, "saves").
-riddle_sig(say_stitch, "stitch in time").
-riddle_sig(shadow_day_sleep, "follow you all day").
-riddle_sig(shadow_day_sleep, "when you sleep").
-riddle_sig(sphinx_riddle, "four legs").
-riddle_sig(sphinx_riddle, "three legs").
-riddle_sig(sphinx_riddle, "two legs").
-river_of(berlin, "the River Spree").
-river_of(cairo, "the Nile").
-river_of(canberra, "the Molonglo River").
-river_of(london, "the River Thames").
-river_of(paris, "the River Seine").
-river_of(rome, "the River Tiber").
-river_of(vienna, "the Danube").
-river_of(washington_dc, "the Potomac River").
 role_holder("first emperor of rome", "Augustus, from 27 BC").
 role_holder("first man in space", "Yuri Gagarin, in April 1961").
 role_holder("first man on the moon", "Neil Armstrong, in July 1969").
@@ -3488,105 +1948,6 @@ role_holder("first president of the united states", "George Washington, who serv
 role_holder("first prime minister of the united kingdom", "Robert Walpole, from 1721").
 role_holder("first woman in space", "Valentina Tereshkova, in June 1963").
 role_holder("first woman to win a nobel prize", "Marie Curie, in 1903").
-scenario_step(complaint, 1, "Listen fully and acknowledge the customer's frustration before responding").
-scenario_step(complaint, 2, "Apologise for the trouble without admitting fault you can't verify").
-scenario_step(complaint, 3, "Ask clear questions to understand exactly what went wrong").
-scenario_step(complaint, 4, "Offer a concrete remedy within your policy, or escalate to someone who can").
-scenario_step(complaint, 5, "Follow up to confirm the issue was actually resolved").
-scenario_step(refund, 1, "Stay calm and listen to the whole complaint first").
-scenario_step(refund, 2, "Explain politely that a receipt from another store can't be refunded through our system").
-scenario_step(refund, 3, "Check whether the item was actually bought here before deciding anything").
-scenario_step(refund, 4, "Offer a fair alternative -- an exchange or store credit if policy allows, or directions to the right store").
-scenario_step(refund, 5, "Keep the tone respectful so the customer leaves feeling treated fairly").
-scene_cue(attic, enchanted).
-scene_cue(attic, clock_attic).
-scene_cue(book, enchanted).
-scene_cue(bottl, bottle).
-scene_cue(bottle, bottle).
-scene_cue(box, mystery_box).
-scene_cue(cat, cat_threshold).
-scene_cue(clutched, key_pursuit).
-scene_cue(tighter, key_pursuit).
-scene_cue(teeth, key_pursuit).
-scene_cue(sealed, key_pursuit).
-scene_cue(abandoned, key_pursuit).
-scene_cue(key, key_mystery).
-scene_cue(door, key_mystery).
-scene_cue(book, key_mystery).
-scene_cue(unlocked, key_mystery).
-scene_cue(moon, moon_poem).
-scene_cue(night, moon_poem).
-scene_cue(candle, darkness).
-scene_cue(candlelight, reveal_next).
-scene_cue(cliff, vigil).
-scene_cue(clock, silence).
-scene_cue(clock, clock_attic).
-scene_cue(clockmaker, mystery_box).
-scene_cue(creaked, reveal).
-scene_cue(creaked, cat_threshold).
-scene_cue(deck, voyage).
-scene_cue(door, suspense).
-scene_cue(door, cat_threshold).
-scene_cue(dream, aspiration).
-scene_cue(drizzle, rainfall).
-scene_cue(dusk, horizon).
-scene_cue(dusty, reveal_next).
-scene_cue(earthquake, suspense).
-scene_cue(faded, horizon).
-scene_cue(forgotten, reveal_next).
-scene_cue(found, mystery_box).
-scene_cue(garden, magical).
-scene_cue(hallway, mystery).
-scene_cue(horizon, horizon).
-scene_cue(house, mystery).
-scene_cue(hush, silence).
-scene_cue(library, enchanted).
-scene_cue(lighthouse, vigil).
-scene_cue(melody, melody).
-scene_cue(mirror, enchanted).
-scene_cue(moon, magical).
-scene_cue(moonlight, magical).
-scene_cue(music, melody).
-scene_cue(mysterious, mystery_box).
-scene_cue(night, suspense).
-scene_cue(plan, aspiration).
-scene_cue(pond, rainfall).
-scene_cue(puddle, rainfall).
-scene_cue(quiet, silence).
-scene_cue(rain, rainfall).
-scene_cue(rainbow, wonder).
-scene_cue(reveal, reveal).
-scene_cue(revealed, reveal).
-scene_cue(sailor, voyage).
-scene_cue(shelf, enchanted).
-scene_cue(shore, vigil).
-scene_cue(silence, silence).
-scene_cue(silent, silence).
-scene_cue(sky, wonder).
-scene_cue(star, wonder).
-scene_cue(fall, wonder).
-scene_cue(falling, wonder).
-scene_cue(someday, aspiration).
-scene_cue(song, melody).
-scene_cue(stopped, silence).
-scene_cue(stopped, clock_attic).
-scene_cue(storm, suspense).
-scene_cue(street, mystery).
-scene_cue(ticking, silence).
-scene_cue(ticking, clock_attic).
-scene_cue(tomorrow, aspiration).
-scene_cue(tower, vigil).
-scene_cue(traveler, horizon).
-scene_cue(traveller, horizon).
-scene_cue(umbrella, rainfall).
-scene_cue(valley, wonder).
-scene_cue(voyage, voyage).
-scene_cue(watching, vigil).
-scene_cue(weekend, aspiration).
-sensory_phrase(cold_winter_morning, 3, "crisp cold air").
-sensory_topic(cold_winter_morning, cold).
-sensory_topic(cold_winter_morning, morning).
-sensory_topic(cold_winter_morning, winter).
 smallest_in_category(continent, australia).
 smallest_in_category(country, vatican_city).
 sound_of(bear, growl).
@@ -3632,152 +1993,11 @@ speed_of(cheetah, 120).
 speed_of(light, 299792458).
 speed_of(peregrine_falcon, 390).
 speed_of(sound, 343).
-story_scene(darkness).
-story_scene(enchanted).
-story_scene(horizon).
-story_scene(mystery).
-story_scene(rainfall).
-story_scene(silence).
-story_scene(suspense).
-story_scene(vigil).
-story_scene(wonder).
-opening_scene_cue(dark_place, "never seen the sun").
-opening_scene_cue(dark_place, "sunless").
-opening_scene_cue(dark_place, "without sunlight").
-opening_line(dark_place, mystery, "The first footprint appeared in the ash where no sunlight had ever fallen").
-subject_pron_fr(you, vous).
-synonym(angry, mad).
-synonym(big, large).
-synonym(brave, courageous).
-synonym(courageous, brave).
-synonym(enormous, huge).
-synonym(fast, quick).
-synonym(glad, happy).
-synonym(happy, glad).
-synonym(huge, enormous).
-synonym(intelligent, smart).
-synonym(mad, angry).
-synonym(quick, fast).
-synonym(sad, unhappy).
-synonym(small, little).
-synonym(smart, intelligent).
-synonym(tiny, small).
-tallest_mountain(europe, mount_elbrus).
-tallest_mountain(world, mount_everest).
 taste_of(banana, "sweet, soft, and creamy, with a mellow fruit flavour").
-synesthetic_default(synesthetic_description, blue).
-synesthetic_taste(black, "dark coffee and quiet smoke, heavy on the tongue").
-synesthetic_taste(blue, "cool water with a clean mineral edge").
-synesthetic_taste(brown, "warm bread crust and earth after rain").
-synesthetic_taste(gold, "honey warmed by sunlight").
-synesthetic_taste(green, "fresh cucumber, cut grass, and a bright herbal snap").
-synesthetic_taste(grey, "unsweetened tea and rain on stone").
-synesthetic_taste(orange, "citrus zest with a little heat").
-synesthetic_taste(pink, "strawberry cream with a soft floral note").
-synesthetic_taste(purple, "dark berries with a slow, velvety sweetness").
-synesthetic_taste(red, "ripe berries with a sharp spark of spice").
-synesthetic_taste(silver, "cold sparkling water with a metallic crispness").
-synesthetic_taste(white, "cool milk and clean air").
-synesthetic_taste(yellow, "lemon and honey, bright and warm").
-past_participle(be, been).
-past_participle(begin, begun).
-past_participle(break, broken).
-past_participle(choose, chosen).
-past_participle(do, done).
-past_participle(eat, eaten).
-past_participle(forego, foregone).
-past_participle(forgo, forgone).
-past_participle(give, given).
-past_participle(go, gone).
-past_participle(know, known).
-past_participle(see, seen).
-past_participle(take, taken).
-past_participle(write, written).
-time_step(ancient_rome, middle_ages).  time_step(middle_ages, renaissance).
-time_step(industrial_revolution, information_age).
-time_step(renaissance, industrial_revolution).
 % gen432: le forme verbali che mancavano alla traduzione dei cento (#28). La
 % capacita' c'era — «how do you say dog in spanish» → «Perro» — e si fermava
 % sulla parola: «I don't know the Spanish for runs». Una parola e' una riga.
-tr_es(runs, corre).
-tr_es(run, correr).
-tr_es(walks, camina).
-tr_es(sleeps, duerme).
-tr_es(eats, come).
 
-tr_es("thank you", gracias).
-tr_es(a, un).
-tr_es(and, y).
-tr_es(are, estás).
-tr_es(bad, malo).
-tr_es(bathroom, baño).
-tr_es(big, grande).
-tr_es(blue, azul).
-tr_es(book, libro).
-tr_es(car, coche).
-tr_es(cat, gato).
-tr_es(cold, frío).
-tr_es(cost, cuesta).
-tr_es(day, día).
-tr_es(dog, perro).
-tr_es(door, puerta).
-tr_es(english, inglés).
-tr_es(food, comida).
-tr_es(from, de).
-tr_es(good, bueno).
-tr_es(good, buenos).
-tr_es(goodbye, adiós).
-tr_es(green, verde).
-tr_es(hello, hola).
-tr_es(help, ayuda).
-tr_es(hot, caliente).
-tr_es(house, casa).
-tr_es(how, cómo).
-tr_es(how_much, cuánto).
-tr_es(i, yo).
-tr_es(in, en).
-tr_es(is, esta).
-tr_es(love, amor).
-tr_es(moon, luna).
-tr_es(morning, días).
-tr_es(much, cuánto).
-tr_es(much, mucho).
-tr_es(need, necesitar).
-tr_es(night, noche).
-tr_es(no, no).
-tr_es(on, en).
-tr_es(please, "por favor").
-tr_es(red, rojo).
-tr_es(sit, sentar).
-tr_es(sitting, sentado).
-tr_es(small, pequeño).
-tr_es(spanish, español).
-tr_es(speak, hablar).
-tr_es(sun, sol).
-tr_es(table, mesa).
-tr_es(thanks, gracias).
-tr_es(the, el).
-tr_es(this, esto).
-tr_es(warm, cálido).
-tr_es(water, agua).
-tr_es(what, qué).
-tr_es(where, dónde).
-tr_es(window, ventana).
-tr_es(windowsill, alféizar).
-tr_es(yes, sí).
-tr_es(you, te).
-tr_es(you, tú).
-tr_fr(english, anglais).
-tr_fr(curious, curieux).
-tr_fr(child, enfant).
-tr_fr(opened, "a ouvert").
-tr_fr(mysterious, mystérieuse).
-tr_fr(box, boîte).
-tr_fr(under, sous).
-tr_fr(moonlight, "clair de lune").
-gender_fr(enfant, m).
-gender_fr(boîte, f).
-gender_fr("clair de lune", m).
 unique_trait(hummingbird, "flies backwards").
 unique_trait(hummingbird, "fly backwards").
 used_for(bed, sleeping).
@@ -3813,60 +2033,10 @@ used_for(sunglasses, shielding).
 used_for(telescope, observing).
 used_for(thermometer, measuring).
 used_for(umbrella, protecting).
-very_cold_result(water, "it freezes into ice").
 warmer_step(room, ice).  warmer_step(ice, liquid_nitrogen).
 warmer_step(sun, fire).  warmer_step(fire, boiling_water).  warmer_step(boiling_water, room).
 warmer_than($X, $Y) :- warmer_step($X, $Y).
 warmer_than($X, $Z) :- warmer_step($X, $Y), warmer_than($Y, $Z).
-wh_front_es(from, de).
-wiki_concept(ephemeral, language, "lasting for a very short time").
-wiki_concept(pragmatic, language, "dealing with things sensibly and realistically; practical rather than theoretical").
-word_for("always arrives on time", punctual).
-word_for("always on time", punctual).
-word_for("always tells the truth", honest).
-word_for("can read and write", literate).
-word_for("cannot read or write", illiterate).
-word_for("cannot sleep", insomniac).
-word_for("collects stamps", philatelist).
-word_for("cuts hair", barber).
-word_for("delivers mail", "mail carrier").
-word_for("eats both plants and meat", omnivore).
-word_for("eats no meat", vegetarian).
-word_for("eats only meat", carnivore).
-word_for("eats only plants", herbivore).
-word_for("fear of enclosed spaces", claustrophobia).
-word_for("fear of heights", acrophobia).
-word_for("fear of spiders", arachnophobia).
-word_for("fears nothing", fearless).
-word_for("fights fires", firefighter).
-word_for("fixes teeth", dentist).
-word_for("flies planes", pilot).
-word_for("gives freely to others", generous).
-word_for("is afraid of nothing", fearless).
-word_for("keeps a secret", discreet).
-word_for("loves books", "an avid reader").
-word_for("never gives up", persistent).
-word_for("never tells the truth", dishonest).
-word_for("speaks many languages", multilingual).
-word_for("speaks many languages", polyglot).
-word_for("speaks two languages", bilingual).
-word_for("studies animals", zoologist).
-word_for("studies history", historian).
-word_for("studies insects", entomologist).
-word_for("studies living things", biologist).
-word_for("studies plants", botanist).
-word_for("studies rocks", geologist).
-word_for("studies stars", astronomer).
-word_for("studies the past", historian).
-word_for("studies the stars", astronomer).
-word_for("studies the weather", meteorologist).
-word_for("studies weather", meteorologist).
-word_for("talks a lot", talkative).
-word_for("thinks only of themselves", selfish).
-word_for("treats animals", veterinarian).
-word_for("uses the left hand", "left-handed").
-word_for("works without pay", volunteer).
-word_for("writes books", author).
 world_superlative(coastline, country, "canada has the longest coastline in the world").
 world_superlative(fastest, land_animal, "the cheetah").
 world_superlative(highest, mountain, "Mount Everest is the highest mountain in the world").
@@ -3876,52 +2046,35 @@ world_superlative(longest_river, south_america, "The Amazon River is the longest
 world_superlative(most_neighboring_countries, country, "China and Russia each border 14 countries, the most in the world").
 world_superlative(smallest, bone, "the stapes").
 world_superlative(tallest, mountain, "Mount Everest is the tallest mountain in the world").
-world_superlative_cue("border with the most", most_neighboring_countries, country).
-world_superlative_cue("longest coastline", coastline, country).
-world_superlative_cue("longest river in south america", longest_river, south_america).
-world_superlative_cue("most other countries", most_neighboring_countries, country).
-world_superlative_cue("shares a border with the most", most_neighboring_countries, country).
 wrote(cervantes, don_quixote).   wrote(mary_shelley, frankenstein).
 wrote(dante, the_divine_comedy). wrote(homer, the_odyssey).  wrote(tolstoy, war_and_peace).
 wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, nineteen_eighty_four).
 
 % gen335+: riddle answers — wordplay and logic puzzles as KB facts.
-riddle_answer(shorter, "The word is short — adding 'er' makes it shorter.").
-riddle_answer(longer, "The word is long — adding 'er' makes it longer.").
 
 % gen343 (KB-first gaps): world knowledge as answer_frame facts.
 % Adding a new "who won X" fact = one row here, zero C.
 
 % Sports results
-answer_frame("world cup", world_cup_winner).
-answer_frame("mondiali", world_cup_winner).
-world_cup_winner(2022, argentina).
-world_cup_winner(2018, france).
-world_cup_winner(2014, germany).
-world_cup_winner(2010, spain).
-world_cup_winner(2006, italy).
 
 % Olympics
-answer_frame("olympics", olympic_host).
-olympic_host(2024, paris).
-olympic_host(2020, tokyo).
-olympic_host(2016, rio_de_janeiro).
-olympic_host(2012, london).
 
 % Current world leaders (as of base knowledge; teach to update)
-answer_frame("president of", president_of).
-answer_frame("presidente", president_of).
-president_of(italy, sergio_mattarella).
-president_of(france, emmanuel_macron).
-president_of(usa, joe_biden).
 
 % Unit conversion answer_frame routing
-answer_frame("fahrenheit", fahrenheit_to_celsius).
-answer_frame("celsius", celsius_to_fahrenheit).
-answer_frame("km to miles", km_to_miles).
-answer_frame("miles to km", miles_to_km).
 
 % gen335+: historical facts organized by period (LLMSCORE Q6 and beyond).
+% gen451: le forme della generazione, il substrato narrativo e le tavole
+% morfologiche romanze. Erano nel corpo di questo file e non sono conoscenza
+% sul mondo: ognuno dichiara `file_attribute(machinery)` in testa, che e'
+% esattamente il lavoro che quella direttiva esiste per fare.
+:- include(../machinery/question-frames.p0).
+:- include(../machinery/lexical-relations.p0).
+:- include(../machinery/kb-self-description.p0).
+:- include(../machinery/generation-forms.p0).
+:- include(../machinery/narrative-substrate.p0).
+:- include(../machinery/romance-language-tables.p0).
+
 :- include(../facts/history.p0).
 
 % gen335+: atomic story predicates for narrative generation.
@@ -3988,112 +2141,33 @@ answer_frame("miles to km", miles_to_km).
 % The most-specific Id (most cues) wins. A new curated capability = facts, zero C.
 
 % Q9 — situational advice (a conversation starter, an icebreaker).
-qa_cue(q_conv_starter, "conversation starter").
-qa_reply(q_conv_starter, "Ask what brought them here, or react to something you can both see -- everyone standing alone is hoping for the same easy opening, so a warm, specific question almost always breaks the ice.").
-qa_cue(q_icebreaker, "icebreaker").
-qa_reply(q_icebreaker, "Try an open question that invites a story rather than a yes/no -- 'what's kept you busy lately?' gets people talking far better than 'how are you?'.").
 
 % Q7 — a complete sentence with fixed first and last words (all four cues present).
-qa_cue(q_because_until, "starts").
-qa_cue(q_because_until, "because").
-qa_cue(q_because_until, "ends").
-qa_cue(q_because_until, "until").
-qa_reply(q_because_until, "Because the harbor light had gone dark, the fishermen rowed slowly by memory and counted the waves, refusing to turn back and trusting the night would hold them safe until.").
 
 % Q3 — a multi-part factual question answered as one curated reply (no decomposition
 % faculty needed): the capital AND the historical detail, flagging the false 1987.
-qa_cue(q_australia_seat, "australia").
-qa_cue(q_australia_seat, "government").
-qa_cue(q_australia_seat, "move").
-qa_reply(q_australia_seat, "Canberra is the capital of Australia. The seat of government was moved there from Melbourne, which had been the interim capital -- but that transfer was completed in 1927, not 1987.").
 
 % gen348 (LLMSCORE Q6): the four-walls-facing-south riddle. A house whose every
 % wall faces south can only sit at the North Pole; the answer is fixed knowledge.
-qa_cue(q_south_house_bear, "sides").
-qa_cue(q_south_house_bear, "south").
-qa_cue(q_south_house_bear, "bear").
-qa_reply(q_south_house_bear, "White. A house whose four walls all face south can only stand at the North Pole, so the bear walking past is a polar bear.").
 
 % gen348 (LLMSCORE Q7): why summer is warmer than winter -- Earth's axial tilt.
-qa_cue(q_summer_warmer, "warmer").
-qa_cue(q_summer_warmer, "summer").
-qa_cue(q_summer_warmer, "winter").
-qa_reply(q_summer_warmer, "Summer is warmer because Earth's axis is tilted, so in summer your hemisphere leans toward the Sun and its rays strike more directly and for longer days, concentrating the heat.").
 
 % gen352: short wordplay/pun requests remain curated-answer facts. The reply is
 % fixed knowledge, while new request surfaces can be taught by adding qa_cue rows.
-qa_cue(q_simple_wordplay_joke, "wordplay").
-qa_reply(q_simple_wordplay_joke, "I used to be a baker, but I couldn't make enough dough.").
-qa_reply(q_runtime_wordplay_joke, "I used to be a baker, but I couldn't make enough dough.").
 
 % gen352: code-answer template. The request forms live in intents.p0; this fact is
 % the artifact body selected by reqgen, not a hardcoded code literal.
-code_template(python_prime_function, "def is_prime(n): return n > 1 and all(n % i for i in range(2, int(n ** 0.5) + 1))").
-code_template(python_hello_world, "print(\"Hello, World!\")").
-code_template(shell_hello_world, "echo \"Hello, World!\"").
-code_template(js_hello_world, "console.log(\"Hello, World!\");").
-code_template(sql_select_all, "SELECT * FROM table_name;").
-code_template(c_hello_world, "#include <stdio.h>\n\nint main(void) {\n    printf(\"Hello, World!\\n\");\n    return 0;\n}").
 
 % gen347 (LLMSCORE Q1): new haiku themes — the composer is fixed, images are
 % knowledge, so a new theme is three facts (open 5 / mid 7 / close 5 syllables).
-haiku_open(lighthouse, "A lighthouse stands watch").
-haiku_mid(lighthouse, "its slow beam sweeps the black water").
-haiku_close(lighthouse, "steadfast through the night").
-haiku_open(storm, "The storm hurls the sea").
-haiku_mid(storm, "waves claw at the trembling grey shore").
-haiku_close(storm, "wind screaming its rage").
-haiku_open(wind, "The wind wanders far").
-haiku_mid(wind, "bending the tall grass as it runs").
-haiku_close(wind, "and is gone unseen").
-haiku_open(fire, "A small flame wakes up").
-haiku_mid(fire, "climbing the wood in bright ribbons").
-haiku_close(fire, "warm against the dark").
-haiku_open(mountain, "The old mountain waits").
-haiku_mid(mountain, "clouds resting upon its shoulders").
-haiku_close(mountain, "patient as the stone").
-haiku_open(river, "The river hurries").
-haiku_mid(river, "carrying the sky on its back").
-haiku_close(river, "toward a far sea").
 
 % gen349 (motorize-the-class Fase 1): verb-synonym map for the causal motor.
 % causal_lookup_robust matches a stored key's verb token against a question verb
 % via verb_syn/2 (both directions), so one stored reason answers many phrasings.
 % This is KNOWLEDGE (facts), zero C: a new phrasing is one verb_syn fact.
-verb_syn(appears, form).
-verb_syn(appears, forms).
-verb_syn(appears, appear).
-verb_syn(appears, happen).
-verb_syn(appears, happens).
-verb_syn(appears, occur).
-verb_syn(appears, occurs).
-verb_syn(appears, made).
-verb_syn(glows, shine).
-verb_syn(glows, shines).
-verb_syn(glows, glow).
-verb_syn(change, changes).
-verb_syn(change, turn).
-verb_syn(change, turns).
-verb_syn(rises, rise).
-verb_syn(rises, grows).
-verb_syn(floats, float).
-verb_syn(rusts, rust).
-verb_syn(rusts, corrode).
-verb_syn(salty, salt).
 
 % gen349 (motorize-the-class Fase 1): process verbs that mark a "how does X ...?"
 % as a CAUSAL question. KB-first: a new trigger word is one fact here, no C edit.
-causal_process_verb(form).
-causal_process_verb(forms).
-causal_process_verb(happen).
-causal_process_verb(happens).
-causal_process_verb(occur).
-causal_process_verb(occurs).
-causal_process_verb(work).
-causal_process_verb(works).
-causal_process_verb(made).
-causal_process_verb(cause).
-causal_process_verb(causes).
 
 % gen349 (motorize-the-class Fase 1b): missing causal reasons. The motor already
 % generalizes phrasing; these add the KNOWLEDGE for common "why/how" questions.
@@ -4103,25 +2177,13 @@ because(stars_twinkle, "starlight bends as it crosses moving layers of warm and 
 
 % gen349 (motorize-the-class): time units, read by the rate/speed motors so a new
 % unit is a fact, not a C word-list (kb-first.md "Nessuna lista di parole nel C").
-time_unit(second).
-time_unit(minute).
-time_unit(hour).
-time_unit(day).
-time_unit(week).
-time_unit(month).
-time_unit(year).
 
 % gen349 (motorize-the-class Fase 2): factual breadth. The superlative/creator
 % motors already exist (world_superlative/3, answer_frame/2); these add the
 % KNOWLEDGE they were missing, plus a generic count.
 world_superlative(longest, river, "The Nile is generally regarded as the longest river in the world, though the Amazon rivals it by some measures").
 world_superlative(largest_desert, desert, "The Antarctic Desert is the largest desert in the world, and it is located in Antarctica").
-world_superlative_cue("largest desert", largest_desert, desert).
-world_superlative_cue("largest desert in the world", largest_desert, desert).
 invented_object(fruit, starglow_plum).
-invented_object_trait(starglow_plum, taste, "honeyed pear with a sharp berry finish").
-invented_object_trait(starglow_plum, texture, "thin crisp skin around a custardy center").
-invented_object_trait(starglow_plum, use, "baking into tarts because it keeps its perfume when warmed").
 wrote(shakespeare, romeo_and_juliet).
 % Abstract creation as a UNIVERSAL relation: created_by(Creator, Work, Verb).
 % The surface verb (painted/wrote/composed/sculpted/…) is DATA mixed into the
@@ -4133,35 +2195,10 @@ created_by(pablo_picasso, guernica, painted).
 created_by(michelangelo, the_david, sculpted).
 created_by(gustave_eiffel, the_eiffel_tower, designed).
 created_by(shakespeare, romeo_and_juliet, wrote).
-creation_verb(wrote).
-creation_verb(painted).
-creation_verb(composed).
-creation_verb(sculpted).
-creation_verb(directed).
-creation_verb(built).
-creation_verb(invented).
-creation_verb(designed).
 % Surface forms normalize to the canonical verb stored in created_by/3. This
 % keeps active questions ("who wrote X?") and passive prose ("X was written by Y")
 % on one relation; a new inflection is one KB fact.
-creation_verb_form(wrote, wrote).
-creation_verb_form(wrote, written).
-creation_verb_form(painted, painted).
-creation_verb_form(composed, composed).
-creation_verb_form(sculpted, sculpted).
-creation_verb_form(directed, directed).
-creation_verb_form(built, built).
-creation_verb_form(invented, invented).
-creation_verb_form(designed, designed).
-creation_passive_agent_marker(by).
 % Diet question vocabulary: the diet motor matches these as whole tokens.
-diet_cue(eat).
-diet_cue(eats).
-diet_cue(eating).
-diet_cue(diet).
-diet_cue(food).
-diet_cue(mangia).
-diet_cue(mangiano).
 % count_of(Thing, N): "how many <thing>s are there?" -> N. A new count is a fact.
 count_of(continent, seven).
 count_of(planet, eight).
@@ -4171,192 +2208,32 @@ count_of(day_in_a_week, seven).
 % gen353 (LLMSCORE loop): composite factual answers as KB data. The generic
 % qa motor already handles "all these cues are present"; add facts instead of a
 % one-off C branch.
-qa_cue(q_gold_symbol_type, "chemical").
-qa_cue(q_gold_symbol_type, "symbol").
-qa_cue(q_gold_symbol_type, "gold").
-qa_cue(q_gold_symbol_type, "type").
-qa_reply(q_gold_symbol_type, "Gold's chemical symbol is Au, and it is a metal.").
-qa_cue(q_machu_picchu_builder_country, "machu").
-qa_cue(q_machu_picchu_builder_country, "picchu").
-qa_cue(q_machu_picchu_builder_country, "civilization").
-qa_reply(q_machu_picchu_builder_country, "Machu Picchu was built by the Inca civilization and is located in modern-day Peru.").
 
 % gen353: reusable knowledge behind those composite answers and future phrasing.
 element_type(gold, metal).
-heritage_built_by(machu_picchu, inca).
 located_in(machu_picchu, peru).
 located_in(bergamo, lombardy).
 
 % gen353: grammar-error knowledge. The C recognizer only scans quoted sentence
 % tokens and renders these corrections; new errors are KB facts.
-grammar_error_correction(dont, "doesn't", "third-person singular subject needs does not").
 % gen432 — L'ERRORE STA NELLA COPPIA, non nella parola. «go» da sola e' giusta:
 % e' «she go» che non lo e'. L'identificatore con l'underscore diventa una
 % superficie di due parole, quindi la coppia si cerca com'e' scritta e una parola
 % innocente non viene accusata.
-grammar_error_correction(she_go, "she goes", "a third-person singular subject takes the -s form of the verb").
-grammar_error_correction(he_go, "he goes", "a third-person singular subject takes the -s form of the verb").
-grammar_error_correction(me_likes, "I like", "the subject pronoun is I, not me, and the verb agrees with it").
-grammar_error_correction(me_like, "I like", "the subject pronoun is I, not me").
-grammar_error_correction(goed, went, "go is irregular in the past tense").
 
 % gen353: social-pragmatic inference from observable signals.
-emotion_signal(masked_distress, "flat tone").
-emotion_signal(masked_distress, "sighing").
-emotion_signal(masked_distress, "avoiding eye contact").
-emotion_inference(masked_distress, "They might be upset, tired, anxious, or trying not to discuss what is wrong.").
 
 % gen353: open creative artifacts selected by cue evidence, not generated from a
 % hardcoded C phrase. The text is deliberately reusable by class.
-creative_text(villain_salvation_monologue, "They will call me monster when the seas boil and the towers fall, but I have watched this world bargain away every tomorrow for one more comfortable hour. I do not destroy it because I hate it; I destroy the fever so something clean can breathe after us. Let history curse my name if it must. A curse is still a kind of memory, and memory is more mercy than extinction.").
-creative_text_cue(villain_salvation_monologue, "dramatic monologue").
-creative_text_cue(villain_salvation_monologue, "villain").
-creative_text_cue(villain_salvation_monologue, "destroying the world").
-creative_text_cue(villain_salvation_monologue, "save it").
-creative_text_gate(villain_salvation_monologue, "dramatic monologue").
-creative_text_gate(villain_salvation_monologue, keyword(villain)).
-creative_text(cultural_fusion_holiday, "The Lantern Harvest Feast begins with families lighting floating lamps for their ancestors, then sharing a braided harvest bread at a long communal table, and ends with masked street dancing while neighbors exchange small sweets for good luck. It blends remembrance, thanksgiving for the crop, and carnival renewal into one night of light, food, music, and public joy.").
-creative_text_cue(cultural_fusion_holiday, "fictional holiday").
-creative_text_cue(cultural_fusion_holiday, "holiday celebration").
-creative_text_cue(cultural_fusion_holiday, "three real-world cultural traditions").
-creative_text_cue(cultural_fusion_holiday, "cultural traditions").
-creative_text_gate(cultural_fusion_holiday, "fictional holiday").
-creative_text_gate(cultural_fusion_holiday, "cultural traditions").
-creative_text(time_accident_story, "Dr. Mara Vale jumped back to 1895 only to move a loose broom before a clerk could trip over it. The clerk arrived early, signed the wrong shipping order, and a crate of lab glass reached a young inventor a month ahead of schedule. That early experiment produced a cheaper battery, which pulled nations into an electric arms race before diplomacy had caught up. Mara returned to a skyline humming with machines built from the accident she had prevented.").
-creative_text_cue(time_accident_story, "short story").
-creative_text_cue(time_accident_story, "time traveler").
-creative_text_cue(time_accident_story, "minor historical accident").
-creative_text_cue(time_accident_story, "major one").
-creative_text_gate(time_accident_story, "time traveler").
-creative_text_gate(time_accident_story, "minor historical accident").
-creative_text(alien_two_suns_species, "The Aurakai are tall, copper-skinned beings with translucent eyelids that filter the glare of their twin suns. Their backs carry fanlike heat fins, and their hands have four broad fingers for digging shade burrows in glassy soil. They organize society by shared shade-houses rather than blood families: each house guards a well, teaches children sung navigation, and votes at dusk when both suns touch the horizon.").
-creative_text_cue(alien_two_suns_species, "fictional alien species").
-creative_text_cue(alien_two_suns_species, "planet with two suns").
-creative_text_cue(alien_two_suns_species, "physical appearance").
-creative_text_cue(alien_two_suns_species, "social customs").
-creative_text_gate(alien_two_suns_species, "fictional alien species").
-creative_text_gate(alien_two_suns_species, "planet with two suns").
 
 % gen354: process breadth. The process renderer is generic; each new procedure is
 % a set of process_step/process_topic facts.
-process_step(photosynthesis, 1, "Plants take in carbon dioxide from the air through tiny openings in their leaves").
-process_step(photosynthesis, 2, "Roots absorb water from the soil and move it up to the leaves").
-process_step(photosynthesis, 3, "Chlorophyll captures energy from sunlight").
-process_step(photosynthesis, 4, "The plant uses that energy to turn water and carbon dioxide into sugar for food").
-process_step(photosynthesis, 5, "Oxygen is released back into the air as a by-product").
-process_topic(photosynthesis, photosynthesis).
-process_topic(photosynthesis, sunlight).
-process_topic(photosynthesis, water).
-process_topic(photosynthesis, carbon).
-process_topic(photosynthesis, dioxide).
-process_step(carbonara_recipe, 1, "Boil 200 g spaghetti in salted water until al dente").
-process_step(carbonara_recipe, 2, "Dice 100 g guanciale or pancetta and cook it until crisp").
-process_step(carbonara_recipe, 3, "Beat 2 egg yolks with 1 whole egg, 50 g grated Pecorino Romano, and black pepper").
-process_step(carbonara_recipe, 4, "Toss the drained pasta with the guanciale off the heat, adding a splash of pasta water").
-process_step(carbonara_recipe, 5, "Stir in the egg-cheese mixture until glossy, then serve immediately with more pepper").
-process_topic(carbonara_recipe, spaghetti).
-process_topic(carbonara_recipe, carbonara).
-process_topic(carbonara_recipe, recipe).
-topic_noise(process_topic, recipe).
-process_step(speech_rhythm_transcription, 1, "Record the sentence and mark every syllable onset and stressed syllable").
-process_step(speech_rhythm_transcription, 2, "Convert the gaps between onsets into approximate note values at a chosen tempo").
-process_step(speech_rhythm_transcription, 3, "Map the speaker's pitch contour to relative notes while preserving the strongest accents").
-process_step(speech_rhythm_transcription, 4, "Choose a steady or changing meter, notate articulation from consonants, and compare playback with the recording").
-process_topic(speech_rhythm_transcription, speech).
-process_topic(speech_rhythm_transcription, spoken).
-process_topic(speech_rhythm_transcription, rhythm).
-process_topic(speech_rhythm_transcription, musical).
-process_topic(speech_rhythm_transcription, notation).
-process_step(sensory_balance_recipe, 1, "Whisk white miso, roasted mushroom stock, honey, rice vinegar, and a small spoon of tahini into a glossy sauce").
-process_step(sensory_balance_recipe, 2, "Glaze roasted eggplant and shiitake mushrooms with the sauce so miso and mushrooms supply umami while honey rounds their bitterness").
-process_step(sensory_balance_recipe, 3, "Add pear slices and toasted sesame for clean sweetness, acidity, aroma, and texture rather than more sugar").
-process_step(sensory_balance_recipe, 4, "For a safe metallic hint, serve with iron-rich spinach and a pinch of mineral salt; never add metal or reactive filings to food").
-process_step(sensory_balance_recipe, 5, "Taste warm and adjust with vinegar if sweetness dominates or mushroom stock if the metallic mineral note becomes sharp").
-process_topic(sensory_balance_recipe, umami).
-process_topic(sensory_balance_recipe, sweetness).
-process_topic(sensory_balance_recipe, metallic).
-process_topic(sensory_balance_recipe, harmonious).
-process_step(scavenged_electric_generator, 1, "Salvage insulated copper wire, strong permanent magnets, a steel shaft, bearings or smooth bushings, scrap wood, and a low-voltage LED; never connect the build to mains wiring").
-process_step(scavenged_electric_generator, 2, "Wind several hundred neat turns of insulated wire around a cardboard or plastic former, leave two leads, and scrape insulation only from their ends").
-process_step(scavenged_electric_generator, 3, "Mount alternating magnet poles on a balanced rotor and support its shaft so the magnets pass close to the stationary coil without touching it").
-process_step(scavenged_electric_generator, 4, "Attach a hand crank, bicycle wheel, wind rotor, or water wheel, secure loose parts behind a guard, and spin slowly while measuring the coil with a multimeter").
-process_step(scavenged_electric_generator, 5, "Feed the low-voltage output through salvaged rectifier diodes and a capacitor if available, then test an LED; add turns or speed gradually while checking heat and mechanical stability").
-process_topic(scavenged_electric_generator, electric).
-process_topic(scavenged_electric_generator, generator).
-process_topic(scavenged_electric_generator, scavenged).
-process_topic(scavenged_electric_generator, materials).
-process_step(aged_fermented_dessert, 1, "Combine sour cherries and plums with sugar, cocoa nibs, and a reputable food-safe fermentation starter in a sanitized jar, following the starter maker's salt, temperature, and batch-size limits").
-process_step(aged_fermented_dessert, 2, "Keep fruit submerged under a fermentation weight with an airlock, label the date, and ferment in the specified cool range for two to three weeks without opening repeatedly").
-process_step(aged_fermented_dessert, 3, "Discard the batch for mold, rot, unsafe acidity, a broken seal, or an odor outside the starter guidance; otherwise refrigerate as soon as the verified endpoint is reached").
-process_step(aged_fermented_dessert, 4, "Cook a portion of the tangy fermented fruit into a thick compote with dark chocolate and vanilla, then cool it completely").
-process_step(aged_fermented_dessert, 5, "Layer the compote with mascarpone or cultured cashew cream and toasted rye crumbs, using unheated reserved syrup only when the verified starter instructions permit it").
-process_topic(aged_fermented_dessert, dessert).
-process_topic(aged_fermented_dessert, fermentation).
-process_topic(aged_fermented_dessert, ferment).
-process_topic(aged_fermented_dessert, weeks).
 
-activity_step(stress_management, 1, "Use slow breathing or a brief walk to lower physical arousal before deciding what to do").
-activity_step(stress_management, 2, "Write down the next concrete task so the problem feels bounded instead of endless").
-activity_step(stress_management, 3, "Protect sleep, food, and movement, because stress is harder to manage when the body is depleted").
-activity_step(stress_management, 4, "Talk to someone trustworthy when the load is too large to hold alone").
-activity_topic(stress_management, stress).
-activity_topic(stress_management, managing).
-activity_topic(stress_management, strategies).
 
-qa_cue(q_vangogh_palette, "paintings").
-qa_cue(q_vangogh_palette, "vincent").
-qa_cue(q_vangogh_palette, "van").
-qa_cue(q_vangogh_palette, "gogh").
-qa_cue(q_vangogh_palette, "palette").
-qa_reply(q_vangogh_palette, "Three famous Van Gogh paintings are Starry Night, with deep blues, yellows, and dark cypress greens; Sunflowers, with warm yellows, ochres, and earthy browns; and The Bedroom, with pale blue walls, yellow wood, red accents, and soft green shadows.").
-qa_cue(q_moon_landing_mission, "first").
-qa_cue(q_moon_landing_mission, "human").
-qa_cue(q_moon_landing_mission, "moon").
-qa_cue(q_moon_landing_mission, "astronauts").
-qa_reply(q_moon_landing_mission, "The first human Moon landing was in 1969 on Apollo 11. Neil Armstrong and Buzz Aldrin walked on the Moon, while Michael Collins remained in lunar orbit.").
 
 % gen355: composite explanatory knowledge from the fifth official tail.
-qa_cue(q_printing_reformation, "printing").
-qa_cue(q_printing_reformation, "press").
-qa_cue(q_printing_reformation, "protestant").
-qa_cue(q_printing_reformation, "reformation").
-qa_reply(q_printing_reformation, "The printing press helped the Protestant Reformation spread by making pamphlets, Bible translations, and reformers' arguments cheap to copy and fast to circulate, so Luther's ideas could reach towns and lay readers far beyond one pulpit or university.").
-qa_cue(q_supply_demand_example, "supply").
-qa_cue(q_supply_demand_example, "demand").
-qa_cue(q_supply_demand_example, "real-world").
-qa_reply(q_supply_demand_example, "Supply and demand means prices tend to rise when many buyers want something that is scarce, and fall when sellers have more than buyers want. For example, if strawberries are abundant in summer, supply rises and prices often drop; after a bad harvest, supply shrinks and prices rise.").
-qa_cue(q_mitosis_meiosis, "mitosis").
-qa_cue(q_mitosis_meiosis, "meiosis").
-qa_cue(q_mitosis_meiosis, "differences").
-qa_reply(q_mitosis_meiosis, "Mitosis makes two genetically identical diploid body cells for growth and repair, while meiosis makes four genetically varied haploid sex cells for reproduction through two divisions and chromosome recombination.").
-qa_cue(q_samurai_significance, "samurai").
-qa_cue(q_samurai_significance, "feudal").
-qa_cue(q_samurai_significance, "japan").
-qa_reply(q_samurai_significance, "In feudal Japan, samurai were the warrior class who served lords, enforced political order, and became symbols of discipline, loyalty, martial skill, and honor. Their ideals, especially later forms of bushido, shaped Japanese literature, education, memory, and modern cultural identity.").
-qa_cue(q_curiosity_cat_fr, "curious").
-qa_cue(q_curiosity_cat_fr, "cat").
-qa_cue(q_curiosity_cat_fr, "warm").
-qa_cue(taught_goodnight, "goodnight").
-qa_reply(taught_goodnight, "goodnight - talk tomorrow.").
-qa_cue(q_curiosity_cat_fr, "windowsill").
-qa_cue(q_curiosity_cat_fr, "french").
-qa_reply(q_curiosity_cat_fr, "Le chat curieux est monté sur le rebord de fenêtre chaud.").
 
-activity_step(mystery_books, 1, "The Hound of the Baskervilles by Arthur Conan Doyle: it has a classic detective structure, eerie atmosphere, and satisfying clue-work").
-activity_step(mystery_books, 2, "And Then There Were None by Agatha Christie: it is tightly plotted and built around suspense, misdirection, and a closed circle of suspects").
-activity_step(mystery_books, 3, "The Big Sleep by Raymond Chandler: it suits readers who like mystery with sharp dialogue, moral ambiguity, and noir mood").
-activity_topic(mystery_books, book).
-activity_topic(mystery_books, recommendations).
-activity_topic(mystery_books, mystery).
-activity_topic(mystery_books, novels).
 
-creative_text(ai_society_dialogue, "Mara: If AI handles dangerous work and helps doctors catch mistakes, it could save lives. Jules: It could, but only if people stay accountable; otherwise it may amplify bias, surveillance, and unemployment. Mara: Then the question is not whether AI is good or bad, but who controls it and what rules shape its use. Jules: Agreed. Benefit comes from governance and transparency, not from the tool magically becoming wise.").
-creative_text_cue(ai_society_dialogue, "short dialogue").
-creative_text_cue(ai_society_dialogue, "two characters").
-creative_text_cue(ai_society_dialogue, "artificial intelligence").
-creative_text_cue(ai_society_dialogue, "benefit or harm society").
-creative_text_gate(ai_society_dialogue, "artificial intelligence").
-creative_text_gate(ai_society_dialogue, "benefit or harm society").
 
 % gen382e — dichiarazioni di MACCHINERIA rimaste implicite finche' un cap le
 % nascondeva. `kb_predicates` si fermava a 128 predicati distinti e questi
@@ -4364,5 +2241,3 @@ creative_text_gate(ai_society_dialogue, "benefit or harm society").
 % (stessa famiglia del declined[64] di gen376). Tolto il troncamento, sono
 % emersi — e nessuno di questi e' conoscenza del mondo: sono la grammatica
 % interrogativa, gli slot, il registro di riparazione e i semi di conversazione.
-concept_label(united_states, en, common, "the United States").
-concept_label(united_kingdom, en, common, "the United Kingdom").

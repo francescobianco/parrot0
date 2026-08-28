@@ -1,0 +1,113 @@
+% Cio' che la KB dice DI SE STESSA: a quale dominio appartiene un predicato,
+% da dove viene un fatto, quanto ci si fida, che tipo di relazione e'.
+% E' il modello che la conoscenza ha della propria forma, non conoscenza.
+%
+% Estratto da kb/core/world-facts.p0 al gen451. La direttiva qui sotto vale
+% per ogni predicato che questo file introduce: e' il lavoro che nel C era
+% un nome per riga dentro un array di 247.
+:- file_attribute(machinery).
+
+machinery(article_free).
+fact_confidence(author_of, medium).
+fact_confidence(can_fly, low).
+fact_confidence(capital_of_country, high).
+fact_confidence(chemical_symbol, high).
+fact_confidence(continent_of, high).
+fact_confidence(discovered_by, medium).
+fact_confidence(founded_by, medium).
+fact_confidence(habitat, low).
+fact_confidence(invented_by, medium).
+has_own_ability(animal, move). has_own_ability(whale, swim).
+has_own_ability(bird, fly).  has_own_ability(fish, swim).
+has_own_prop(animal, eats).             has_own_prop(mammal, warm_blooded).
+has_own_prop(fish, has_scales).         has_own_prop(plant, photosynthesizes).
+has_own_prop(living_thing, breathes).   has_own_prop(living_thing, grows).
+has_own_prop(living_thing, needs_water). has_own_prop(animal, moves).
+has_own_prop(mammal, has_hair).         has_own_prop(bird, has_feathers).
+kind_of_t($X, $Y) :- kind_of($X, $Y).
+kind_of_t($X, $Z) :- kind_of($X, $Y), kind_of_t($Y, $Z).
+predicate_domain(after_in_time, temporal).
+predicate_domain(author_of, literature).
+predicate_domain(borders_country, geography).
+predicate_domain(born_in, history).
+predicate_domain(can_fly, biology).
+predicate_domain(capital_of_country, geography).
+predicate_domain(category_member, categories).
+predicate_domain(causes, causality).
+predicate_domain(chemical_symbol, chemistry).
+predicate_domain(color_of, properties).
+predicate_domain(continent_of, geography).
+predicate_domain(currency_of_country, geography).
+predicate_domain(died_in, history).
+predicate_domain(discovered_by, history).
+predicate_domain(east_of, geography).
+predicate_domain(faster_than, physics).
+predicate_domain(founded_by, history).
+predicate_domain(habitat, ecology).
+predicate_domain(has_prop, biology).
+predicate_domain(heavier_than, physics).
+predicate_domain(inherits, biology).
+predicate_domain(invented_by, history).
+predicate_domain(is_a, taxonomy).
+predicate_domain(kind_of, taxonomy).
+predicate_domain(larger_than, physics).
+predicate_domain(largest_in_category, superlatives).
+predicate_domain(located_in, geography).
+predicate_domain(means, definitions).
+predicate_domain(north_of, geography).
+predicate_domain(parent_of, kinship).
+predicate_domain(part_of, mereology).
+predicate_domain(population_of, geography).
+predicate_domain(prevents, causality).
+predicate_domain(sibling_of, kinship).
+predicate_domain(sound_of, properties).
+predicate_source(author_of, taught_session).
+predicate_source(can_fly, derived_by_rule).
+predicate_source(capital_of_country, curated_base).
+predicate_source(category_member, curated_base).
+predicate_source(continent_of, curated_base).
+predicate_source(currency_of_country, curated_base).
+predicate_source(discovered_by, taught_session).
+predicate_source(founded_by, taught_session).
+predicate_source(gives_birth, derived_by_rule).
+predicate_source(habitat, taught_session).
+predicate_source(has_prop, taught_session).
+predicate_source(inherits, derived_by_rule).
+predicate_source(invented_by, taught_session).
+predicate_source(is_a, curated_base).
+predicate_source(kind_of, curated_base).
+prop_of($X, $P) :- has_own_prop($X, $P).
+prop_of($X, $P) :- kind_of($X, $Y), prop_of($Y, $P).
+relation_type(after_in_time, temporal).
+relation_type(after_in_time, transitive).
+relation_type(causes, causal).
+relation_type(causes, transitive).
+relation_type(contains, mereological).
+relation_type(contains, transitive).
+relation_type(east_of, directional).
+relation_type(east_of, transitive).
+relation_type(faster_than, comparative).
+relation_type(faster_than, transitive).
+relation_type(heavier_than, comparative).
+relation_type(heavier_than, transitive).
+relation_type(is_a, hierarchical).
+relation_type(is_a, transitive).
+relation_type(kind_of, hierarchical).
+relation_type(kind_of, transitive).
+relation_type(larger_than, comparative).
+relation_type(larger_than, transitive).
+relation_type(located_in, spatial).
+relation_type(located_in, transitive).
+relation_type(north_of, directional).
+relation_type(north_of, transitive).
+relation_type(parent_of, asymmetric).
+relation_type(parent_of, kinship).
+relation_type(part_of, mereological).
+relation_type(part_of, transitive).
+relation_type(sibling_of, kinship).
+relation_type(sibling_of, symmetric).
+wiki_concept(ephemeral, language, "lasting for a very short time").
+wiki_concept(pragmatic, language, "dealing with things sensibly and realistically; practical rather than theoretical").
+invented_object_trait(starglow_plum, taste, "honeyed pear with a sharp berry finish").
+invented_object_trait(starglow_plum, texture, "thin crisp skin around a custardy center").
+invented_object_trait(starglow_plum, use, "baking into tarts because it keeps its perfume when warmed").

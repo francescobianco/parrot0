@@ -1,0 +1,236 @@
+% Le FORME della generazione: haiku, distici, quartine, limerick.
+% Non sono fatti sul mondo — sono l'impalcatura con cui una forma poetica
+% viene composta. Stanno insieme perche' condividono l'asse: la forma.
+%
+% Estratto da kb/core/world-facts.p0 al gen451: quel file e' la zona di
+% transito, non la casa definitiva. Qui la direttiva sotto dichiara in una
+% riga cio' che nel C era un nome per predicato in un array di 247.
+:- file_attribute(machinery).
+
+completion_chain(born_in, demonym).
+completion_chain(studied, profession).
+completion_exact(aspiration, 5, "visit a place I love").
+completion_exact(melody, 5, "be far greyer and quieter").
+completion_exact(mystery, 5, "no one dared go inside").
+completion_exact(suspense, 5, "a cold wind rushed in").
+completion_exact(vigil, 5, "a distant light blinked twice").
+metaphor_line(time, "Time is a river carrying yesterday out of reach.").
+metaphor_topic(time, time).
+metaphor_topic(time, passing).
+couplet(afternoon, "Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace.").
+couplet(ai, "Silicon minds trace patterns in the night; human questions teach their borrowed light.").
+couplet(autumn, "Autumn leaves fall over letters left unread; forgotten words sleep softly in their bed.").
+couplet(cat, "The cat curls small against the failing light; it keeps one slow green eye upon the night.").
+couplet(coder, "A weary coder sips the dark roast deep; the bugs retreat, the passing tests they keep.").
+couplet(coffee, "Dark in the cup and bitter to the brim; one quiet sip and dawn no longer dim.").
+couplet(library, "The quiet library keeps the dust of light; its pages bloom like lanterns in the night.").
+couplet(lighthouse, "Alone it stands where wind and grey waves roam; a single faithful light to guide ships home.").
+couplet(lighthouse_cloud_friendship, "The lighthouse feared the sea until a cloud drew near; together they watched dawn make the waters clear.").
+couplet_cue(lighthouse_cloud_friendship, lighthouse).
+couplet_cue(lighthouse_cloud_friendship, cloud).
+couplet_cue(lighthouse_cloud_friendship, friendship).
+couplet_cue(lighthouse_cloud_friendship, friend).
+couplet_cue(lighthouse_cloud_friendship, unexpected).
+couplet(moon, "The pale moon climbs and spills its quiet light; it lays a silver road across the night.").
+couplet(moonlight, "Moonlight trembles where the dark waves gleam; water holds the sky as if in dream.").
+couplet(ocean, "The ocean rolls in silver and in foam; it sings the oldest song of going home.").
+couplet(programmer, "A weary coder sips the dark roast deep; the bugs retreat, the passing tests they keep.").
+couplet(rain, "Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace.").
+couplet(rainy, "Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace.").
+couplet(robot, "A robot meets the rain for the very first time; each cold bright drop a small uncharted rhyme.").
+couplet(sea, "The sea rolls in with silver and with foam; it sings the oldest song of going home.").
+couplet(snow, "The snow comes down and hushes all the street; it lays a quiet blanket, cold and sweet.").
+couplet(spring, "The first green shoot pushes through cold black ground; in silence all the waking world is found.").
+couplet(season, "Spring wakes the fields while autumn dims the flame; each turning sky returns, yet none the same.").
+couplet(seasons, "Spring wakes the fields while autumn dims the flame; each turning sky returns, yet none the same.").
+couplet(changing, "Spring wakes the fields while autumn dims the flame; each turning sky returns, yet none the same.").
+couplet(star, "A single star pricks through the dusk's last glow; old light still travelling from long ago.").
+couplet(storm, "The storm may roar and fling the grey waves wide; the steady beam keeps watch through wind and tide.").
+couplet(water, "Moonlight trembles where the dark waves gleam; water holds the sky as if in dream.").
+fill_three("learning something new").
+fill_three("moving steadily forward").
+fill_three("staying kind always").
+haiku_close(autumn, "bare branches stay still").
+haiku_close(bird, "then it lifts and goes").
+haiku_close(book, "waiting to be read").
+haiku_close(candle, "it gives all it has").
+haiku_close(cat, "one eye half open").
+haiku_close(dream, "dawn erases them").
+haiku_close(fire, "ash by the morning").
+haiku_close(friendship, "neither leaves alone").
+haiku_close(home, "the door knows your name").
+haiku_close(hope, "sure of the warm sun").
+haiku_close(lamp, "a small warm island").
+haiku_close(library, "Dust glows in moonlight").
+haiku_close(love, "no need left to speak").
+haiku_close(moon, "shadows softly bloom").
+haiku_close(mountain, "older than the sea").
+haiku_close(ocean, "gulls write on the wind").
+haiku_close(rain, "the dry world drinks deep").
+haiku_close(river, "never the same twice").
+haiku_close(robot, "steel learns how to feel").
+haiku_close(silence, "even time slows down").
+haiku_close(snow, "footprints fill again").
+haiku_close(spring, "everything begins").
+haiku_close(star, "older than our eyes").
+haiku_close(technology, "the machine dreams on").
+haiku_close(artificial, "the machine dreams on").
+haiku_close(time, "none of them return").
+haiku_close(tree, "holding up the sky").
+haiku_close(winter, "waiting for the thaw").
+haiku_mid(autumn, "cool winds carry them away").
+haiku_mid(bird, "the whole sky waiting for it").
+haiku_mid(book, "worlds asleep between the lines").
+haiku_mid(candle, "a small gold tent in the dark").
+haiku_mid(cat, "into a circle of sleep").
+haiku_mid(dream, "strange rivers run through the dark").
+haiku_mid(fire, "it eats the night and gives warmth").
+haiku_mid(friendship, "slowly the silence grows warm").
+haiku_mid(home, "the long road finally ends").
+haiku_mid(hope, "under the last of the snow").
+haiku_mid(lamp, "holds back the dark of the night").
+haiku_mid(library, "Quiet shelves hold hidden worlds").
+haiku_mid(love, "the whole noisy world goes quiet").
+haiku_mid(moon, "drifting over silent fields").
+haiku_mid(mountain, "clouds rest upon its grey peak").
+haiku_mid(ocean, "silver waves carry the sun").
+haiku_mid(rain, "cold silver falling from grey").
+haiku_mid(river, "carrying the sky downstream").
+haiku_mid(robot, "circuits hum with new questions").
+haiku_mid(silence, "the room settles into hush").
+haiku_mid(snow, "the world grows quiet and white").
+haiku_mid(spring, "the cold earth remembers warmth").
+haiku_mid(star, "old light crossing endless dark").
+haiku_mid(technology, "small lights think in the still house").
+haiku_mid(artificial, "small lights learn from our words").
+haiku_mid(time, "carries each moment downstream").
+haiku_mid(tree, "roots deep, branches in the wind").
+haiku_mid(winter, "bare trees against a grey sky").
+haiku_open(autumn, "Red leaves let go now").
+haiku_open(bird, "A bird tilts its head").
+haiku_open(book, "Pages hold their breath").
+haiku_open(candle, "One candle burning").
+haiku_open(cat, "The cat folds itself").
+haiku_open(dream, "Sleep opens a door").
+haiku_open(fire, "Small flame in the dark").
+haiku_open(friendship, "Two strangers, one bench").
+haiku_open(home, "A light in the window").
+haiku_open(hope, "A small green shoot waits").
+haiku_open(lamp, "A lamp's quiet glow").
+haiku_open(library, "Pages breathe softly").
+haiku_open(love, "Two hands find each other").
+haiku_open(moon, "Pale lantern of night").
+haiku_open(mountain, "The mountain is still").
+haiku_open(ocean, "Ocean breathes at dawn").
+haiku_open(rain, "First drops on the roof").
+haiku_open(river, "The river moves on").
+haiku_open(robot, "A small metal hand").
+haiku_open(silence, "After the last word").
+haiku_open(snow, "Snow falls without sound").
+haiku_open(spring, "Green pushes through mud").
+haiku_open(star, "One star pricks the dusk").
+haiku_open(technology, "A screen glows at dusk").
+haiku_open(artificial, "Silicon thoughts wake").
+haiku_open(time, "The river of hours").
+haiku_open(tree, "The old tree stands still").
+haiku_open(winter, "The world holds its breath").
+haiku_open(black, "Dark star bends the light").
+haiku_mid(black, "Time falls past the silent rim").
+haiku_close(black, "No dawn can return").
+haiku_open(hole, "Dark star bends the light").
+haiku_mid(hole, "Time falls past the silent rim").
+haiku_close(hole, "No dawn can return").
+limerick_l1(cat, "There once was a cat by the door,").
+limerick_l1(coffee, "There once was a coder named Lee,").
+limerick_l1(programmer, "There once was a coder named Lee,").
+limerick_l2(cat, "Who slept through the day and the more;").
+limerick_l2(coffee, "Who ran on strong coffee and glee;").
+limerick_l2(programmer, "Who ran on strong coffee and glee;").
+limerick_l3(cat, "    At the sound of a tin,").
+limerick_l3(coffee, "    Each bug that he'd find,").
+limerick_l3(programmer, "    Each bug that he'd find,").
+limerick_l4(cat, "    She'd stretch and begin,").
+limerick_l4(coffee, "    He'd fix with his mind,").
+limerick_l4(programmer, "    He'd fix with his mind,").
+limerick_l5(cat, "To wind round your feet on the floor.").
+limerick_l5(coffee, "Then brew one more cup for the spree.").
+limerick_l5(programmer, "Then brew one more cup for the spree.").
+poem4(lighthouse, "Alone on the rock where the grey waves roam,").
+poem4(lighthouse, "Through wind and the dark and the breaking spray,").
+poem4(lighthouse, "its steady beam keeps the night at bay.").
+poem4(lighthouse, "the lighthouse stands as the storm comes home.").
+poem4(ocean, "The ocean breathes in blue and grey,").
+poem4(ocean, "and carries the moon on a silver way.").
+poem4(ocean, "Its deep tides murmur, vast and wide,").
+poem4(ocean, "with secret songs beneath the tide.").
+poem4(rain, "It washes the dust from the tired street,").
+poem4(rain, "The first drops tap on the windowpane,").
+poem4(rain, "and hums a tune that is cool and sweet.").
+poem4(rain, "soft and grey comes the falling rain.").
+poem4(robot, "A small steel hand reached into the rain,").
+poem4(robot, "It had no word for the wonder it found,").
+poem4(robot, "and felt the cold drops fall again and again.").
+poem4(robot, "only the soft, bright, falling sound.").
+poem4(sea, "It keeps the oldest song of them all --").
+poem4(sea, "The sea breathes slow in silver and grey,").
+poem4(sea, "rolling its waves to the edge of day.").
+poem4(sea, "the long, low sound of the tide's rise and fall.").
+poem4(storm, "But high on the cliff through the wind and rain,").
+poem4(storm, "The sky goes black and the cold winds rise,").
+poem4(storm, "a single light holds watch again.").
+poem4(storm, "the sea throws spray at the angry skies.").
+positional_sentence(5, 3, cat, "The small cat slept peacefully.").
+opening_line(dark_place, mystery, "The first footprint appeared in the ash where no sunlight had ever fallen").
+haiku_open(lighthouse, "A lighthouse stands watch").
+haiku_mid(lighthouse, "its slow beam sweeps the black water").
+haiku_close(lighthouse, "steadfast through the night").
+haiku_open(storm, "The storm hurls the sea").
+haiku_mid(storm, "waves claw at the trembling grey shore").
+haiku_close(storm, "wind screaming its rage").
+haiku_open(wind, "The wind wanders far").
+haiku_mid(wind, "bending the tall grass as it runs").
+haiku_close(wind, "and is gone unseen").
+haiku_open(fire, "A small flame wakes up").
+haiku_mid(fire, "climbing the wood in bright ribbons").
+haiku_close(fire, "warm against the dark").
+haiku_open(mountain, "The old mountain waits").
+haiku_mid(mountain, "clouds resting upon its shoulders").
+haiku_close(mountain, "patient as the stone").
+haiku_open(river, "The river hurries").
+haiku_mid(river, "carrying the sky on its back").
+haiku_close(river, "toward a far sea").
+creative_text(villain_salvation_monologue, "They will call me monster when the seas boil and the towers fall, but I have watched this world bargain away every tomorrow for one more comfortable hour. I do not destroy it because I hate it; I destroy the fever so something clean can breathe after us. Let history curse my name if it must. A curse is still a kind of memory, and memory is more mercy than extinction.").
+creative_text_cue(villain_salvation_monologue, "dramatic monologue").
+creative_text_cue(villain_salvation_monologue, "villain").
+creative_text_cue(villain_salvation_monologue, "destroying the world").
+creative_text_cue(villain_salvation_monologue, "save it").
+creative_text_gate(villain_salvation_monologue, "dramatic monologue").
+creative_text_gate(villain_salvation_monologue, keyword(villain)).
+creative_text(cultural_fusion_holiday, "The Lantern Harvest Feast begins with families lighting floating lamps for their ancestors, then sharing a braided harvest bread at a long communal table, and ends with masked street dancing while neighbors exchange small sweets for good luck. It blends remembrance, thanksgiving for the crop, and carnival renewal into one night of light, food, music, and public joy.").
+creative_text_cue(cultural_fusion_holiday, "fictional holiday").
+creative_text_cue(cultural_fusion_holiday, "holiday celebration").
+creative_text_cue(cultural_fusion_holiday, "three real-world cultural traditions").
+creative_text_cue(cultural_fusion_holiday, "cultural traditions").
+creative_text_gate(cultural_fusion_holiday, "fictional holiday").
+creative_text_gate(cultural_fusion_holiday, "cultural traditions").
+creative_text(time_accident_story, "Dr. Mara Vale jumped back to 1895 only to move a loose broom before a clerk could trip over it. The clerk arrived early, signed the wrong shipping order, and a crate of lab glass reached a young inventor a month ahead of schedule. That early experiment produced a cheaper battery, which pulled nations into an electric arms race before diplomacy had caught up. Mara returned to a skyline humming with machines built from the accident she had prevented.").
+creative_text_cue(time_accident_story, "short story").
+creative_text_cue(time_accident_story, "time traveler").
+creative_text_cue(time_accident_story, "minor historical accident").
+creative_text_cue(time_accident_story, "major one").
+creative_text_gate(time_accident_story, "time traveler").
+creative_text_gate(time_accident_story, "minor historical accident").
+creative_text(alien_two_suns_species, "The Aurakai are tall, copper-skinned beings with translucent eyelids that filter the glare of their twin suns. Their backs carry fanlike heat fins, and their hands have four broad fingers for digging shade burrows in glassy soil. They organize society by shared shade-houses rather than blood families: each house guards a well, teaches children sung navigation, and votes at dusk when both suns touch the horizon.").
+creative_text_cue(alien_two_suns_species, "fictional alien species").
+creative_text_cue(alien_two_suns_species, "planet with two suns").
+creative_text_cue(alien_two_suns_species, "physical appearance").
+creative_text_cue(alien_two_suns_species, "social customs").
+creative_text_gate(alien_two_suns_species, "fictional alien species").
+creative_text_gate(alien_two_suns_species, "planet with two suns").
+creative_text(ai_society_dialogue, "Mara: If AI handles dangerous work and helps doctors catch mistakes, it could save lives. Jules: It could, but only if people stay accountable; otherwise it may amplify bias, surveillance, and unemployment. Mara: Then the question is not whether AI is good or bad, but who controls it and what rules shape its use. Jules: Agreed. Benefit comes from governance and transparency, not from the tool magically becoming wise.").
+creative_text_cue(ai_society_dialogue, "short dialogue").
+creative_text_cue(ai_society_dialogue, "two characters").
+creative_text_cue(ai_society_dialogue, "artificial intelligence").
+creative_text_cue(ai_society_dialogue, "benefit or harm society").
+creative_text_gate(ai_society_dialogue, "artificial intelligence").
+creative_text_gate(ai_society_dialogue, "benefit or harm society").

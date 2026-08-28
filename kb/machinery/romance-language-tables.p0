@@ -1,0 +1,128 @@
+% Le tavole morfologiche di spagnolo e francese: coniugazione, genere,
+% negazione, pronomi soggetto, fronting interrogativo.
+% Sono tabelle di lingua — la stessa natura di `tr/2` in gloss.p0 — non
+% affermazioni sul mondo.
+%
+% Estratto da kb/core/world-facts.p0 al gen451: quel file e' la zona di
+% transito, non la casa definitiva. Qui la direttiva sotto dichiara in una
+% riga cio' che nel C era un nome per predicato in un array di 247.
+:- file_attribute(machinery).
+
+article_free($M) :- category_member(month, $M).
+conj_es("are from (permanent)", you, eres).
+conj_es("are from (temporary)", you, estás).
+conj_es(are, you, eres).
+conj_es(need, i, necesito).
+conj_es(speak, i, hablo).
+conj_es(speak, you, hablas).
+conj_es(understand, i, entiendo).
+conj_fr(learning, i, apprends).
+conj_fr(speak, you, parlez).
+gender_es(agua, f).
+gender_es(alféizar, m).
+gender_es(casa, f).
+gender_es(gato, m).
+gender_es(libro, m).
+gender_es(luna, f).
+gender_es(mesa, f).
+gender_es(noche, f).
+gender_es(perro, m).
+gender_es(puerta, f).
+gender_es(sol, m).
+gender_es(ventana, f).
+negation_es(don't, no).
+pro_drop(es).
+subject_pron_fr(you, vous).
+past_participle(be, been).
+past_participle(begin, begun).
+past_participle(break, broken).
+past_participle(choose, chosen).
+past_participle(do, done).
+past_participle(eat, eaten).
+past_participle(forego, foregone).
+past_participle(forgo, forgone).
+past_participle(give, given).
+past_participle(go, gone).
+past_participle(know, known).
+past_participle(see, seen).
+past_participle(take, taken).
+past_participle(write, written).
+tr_es(runs, corre).
+tr_es(run, correr).
+tr_es(walks, camina).
+tr_es(sleeps, duerme).
+tr_es(eats, come).
+tr_es("thank you", gracias).
+tr_es(a, un).
+tr_es(and, y).
+tr_es(are, estás).
+tr_es(bad, malo).
+tr_es(bathroom, baño).
+tr_es(big, grande).
+tr_es(blue, azul).
+tr_es(book, libro).
+tr_es(car, coche).
+tr_es(cat, gato).
+tr_es(cold, frío).
+tr_es(cost, cuesta).
+tr_es(day, día).
+tr_es(dog, perro).
+tr_es(door, puerta).
+tr_es(english, inglés).
+tr_es(food, comida).
+tr_es(from, de).
+tr_es(good, bueno).
+tr_es(good, buenos).
+tr_es(goodbye, adiós).
+tr_es(green, verde).
+tr_es(hello, hola).
+tr_es(help, ayuda).
+tr_es(hot, caliente).
+tr_es(house, casa).
+tr_es(how, cómo).
+tr_es(how_much, cuánto).
+tr_es(i, yo).
+tr_es(in, en).
+tr_es(is, esta).
+tr_es(love, amor).
+tr_es(moon, luna).
+tr_es(morning, días).
+tr_es(much, cuánto).
+tr_es(much, mucho).
+tr_es(need, necesitar).
+tr_es(night, noche).
+tr_es(no, no).
+tr_es(on, en).
+tr_es(please, "por favor").
+tr_es(red, rojo).
+tr_es(sit, sentar).
+tr_es(sitting, sentado).
+tr_es(small, pequeño).
+tr_es(spanish, español).
+tr_es(speak, hablar).
+tr_es(sun, sol).
+tr_es(table, mesa).
+tr_es(thanks, gracias).
+tr_es(the, el).
+tr_es(this, esto).
+tr_es(warm, cálido).
+tr_es(water, agua).
+tr_es(what, qué).
+tr_es(where, dónde).
+tr_es(window, ventana).
+tr_es(windowsill, alféizar).
+tr_es(yes, sí).
+tr_es(you, te).
+tr_es(you, tú).
+tr_fr(english, anglais).
+tr_fr(curious, curieux).
+tr_fr(child, enfant).
+tr_fr(opened, "a ouvert").
+tr_fr(mysterious, mystérieuse).
+tr_fr(box, boîte).
+tr_fr(under, sous).
+tr_fr(moonlight, "clair de lune").
+gender_fr(enfant, m).
+gender_fr(boîte, f).
+gender_fr("clair de lune", m).
+wh_front_es(from, de).

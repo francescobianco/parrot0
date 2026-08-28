@@ -550,3 +550,426 @@ landmark_in_continent($Landmark, $Continent) :-
     landmark_of($Country, $Landmark), continent_of($Country, $Continent).
 river_in_continent($River, $Continent) :-
     river_of($Country, $River), continent_of($Country, $Continent).
+
+% ── Geografia mondiale, rientrata dalla zona di transito (gen451) ──────
+% Stava nel corpo di kb/core/world-facts.p0, che e' il posto di cio' che non
+% ha ancora una casa. Questa una casa ce l'aveva gia': e' questo file.
+border_dir(france, east, germany).
+border_dir(france, east, italy).
+border_dir(france, east, switzerland).
+border_dir(france, north, belgium).
+border_dir(france, south, spain).
+border_dir(germany, east, czechia).
+border_dir(germany, east, poland).
+border_dir(germany, north, denmark).
+border_dir(germany, south, austria).
+border_dir(germany, south, switzerland).
+border_dir(germany, west, belgium).
+border_dir(germany, west, france).
+border_dir(germany, west, luxembourg).
+border_dir(germany, west, netherlands).
+border_dir(italy, east, slovenia).
+border_dir(italy, north, austria).
+border_dir(italy, north, switzerland).
+border_dir(italy, west, france).
+borders(andorra, france).
+borders(andorra, spain).
+borders(austria, czechia).
+borders(austria, germany).
+borders(austria, italy).
+borders(austria, slovenia).
+borders(austria, switzerland).
+borders(belgium, france).
+borders(belgium, germany).
+borders(bulgaria, greece).
+borders(bulgaria, turkey).
+borders(czechia, austria).
+borders(czechia, germany).
+borders(denmark, germany).
+borders(france, andorra).
+borders(france, belgium).
+borders(france, germany).
+borders(france, italy).
+borders(france, luxembourg).
+borders(france, spain).
+borders(france, switzerland).
+borders(germany, austria).
+borders(germany, belgium).
+borders(germany, czechia).
+borders(germany, denmark).
+borders(germany, france).
+borders(germany, luxembourg).
+borders(germany, netherlands).
+borders(germany, poland).
+borders(germany, switzerland).
+borders(greece, bulgaria).
+borders(belarus, poland).
+borders(belarus, ukraine).
+borders(argentina, brazil).
+borders(bolivia, brazil).
+borders(brazil, argentina).
+borders(brazil, bolivia).
+borders(brazil, colombia).
+borders(brazil, guyana).
+borders(brazil, paraguay).
+borders(brazil, peru).
+borders(brazil, suriname).
+borders(brazil, uruguay).
+borders(brazil, venezuela).
+borders(colombia, brazil).
+borders(guyana, brazil).
+borders(paraguay, brazil).
+borders(peru, brazil).
+borders(suriname, brazil).
+borders(uruguay, brazil).
+borders(venezuela, brazil).
+borders(italy, austria).
+borders(italy, france).
+borders(italy, slovenia).
+borders(italy, switzerland).
+borders(luxembourg, france).
+borders(luxembourg, germany).
+borders(netherlands, germany).
+borders(poland, belarus).
+borders(poland, germany).
+borders(portugal, spain).
+borders(slovakia, poland).
+borders(slovakia, ukraine).
+borders(slovenia, austria).
+borders(slovenia, italy).
+borders(spain, andorra).
+borders(spain, france).
+borders(spain, portugal).
+borders(switzerland, austria).
+borders(switzerland, france).
+borders(switzerland, germany).
+borders(switzerland, italy).
+borders(turkey, bulgaria).
+borders(ukraine, belarus).
+borders(ukraine, slovakia).
+border_count(bulgaria, 2).
+borders_country(china, india).
+borders_country(china, russia).
+borders_country(france, belgium).
+borders_country(france, germany).
+borders_country(france, italy).
+borders_country(france, spain).
+borders_country(germany, france).
+borders_country(germany, poland).
+borders_country(italy, austria).
+borders_country(italy, france).
+borders_country(italy, switzerland).
+borders_country(spain, france).
+borders_country(spain, portugal).
+borders_country(united_states, canada).
+borders_country(united_states, mexico).
+capital_of_country(amsterdam, netherlands).
+capital_of_country(ankara, turkey).
+capital_of_country(argentina, buenos_aires).
+capital_of_country(athens, greece).
+capital_of_country(australia, canberra).
+capital_of_country(austria, vienna).
+capital_of_country(bangkok, thailand).
+capital_of_country(beijing, china).
+capital_of_country(belgium, brussels).
+capital_of_country(berlin, germany).
+capital_of_country(bern, switzerland).
+capital_of_country(brasilia, brazil).
+capital_of_country(bratislava, slovakia).
+capital_of_country(brazil, brasilia).
+capital_of_country(brussels, belgium).
+capital_of_country(bucharest, romania).
+capital_of_country(budapest, hungary).
+capital_of_country(buenos_aires, argentina).
+capital_of_country(cairo, egypt).
+capital_of_country(canada, ottawa).
+capital_of_country(canberra, australia).
+capital_of_country(chile, santiago).
+capital_of_country(china, beijing).
+capital_of_country(colombia, bogota).
+capital_of_country(copenhagen, denmark).
+capital_of_country(czechia, prague).
+capital_of_country(denmark, copenhagen).
+capital_of_country(dublin, ireland).
+capital_of_country(egypt, cairo).
+capital_of_country(finland, helsinki).
+capital_of_country(france, paris).
+capital_of_country(germany, berlin).
+capital_of_country(greece, athens).
+capital_of_country(hanoi, vietnam).
+capital_of_country(helsinki, finland).
+capital_of_country(india, new_delhi).
+capital_of_country(indonesia, jakarta).
+capital_of_country(iran, tehran).
+capital_of_country(iraq, baghdad).
+capital_of_country(ireland, dublin).
+capital_of_country(israel, jerusalem).
+capital_of_country(italy, rome).
+capital_of_country(jakarta, indonesia).
+capital_of_country(japan, tokyo).
+capital_of_country(kenya, nairobi).
+capital_of_country(kiev, ukraine).
+capital_of_country(lima, peru).
+capital_of_country(lisbon, portugal).
+capital_of_country(london, united_kingdom).
+capital_of_country(madrid, spain).
+capital_of_country(mexico, mexico_city).
+capital_of_country(mexico_city, mexico).
+capital_of_country(minsk, belarus).
+capital_of_country(morocco, rabat).
+capital_of_country(moscow, russia).
+capital_of_country(nairobi, kenya).
+capital_of_country(netherlands, amsterdam).
+capital_of_country(new_delhi, india).
+capital_of_country(new_zealand, wellington).
+capital_of_country(nigeria, abuja).
+capital_of_country(norway, oslo).
+capital_of_country(oslo, norway).
+capital_of_country(ottawa, canada).
+capital_of_country(pakistan, islamabad).
+capital_of_country(paris, france).
+capital_of_country(peru, lima).
+capital_of_country(poland, warsaw).
+capital_of_country(portugal, lisbon).
+capital_of_country(prague, czechia).
+capital_of_country(pretoria, south_africa).
+capital_of_country(rejkjavik, iceland).
+capital_of_country(rome, italy).
+capital_of_country(russia, moscow).
+capital_of_country(santiago, chile).
+capital_of_country(saudi_arabia, riyadh).
+capital_of_country(seoul, south_korea).
+capital_of_country(south_africa, pretoria).
+capital_of_country(south_korea, seoul).
+capital_of_country(spain, madrid).
+capital_of_country(slovakia, bratislava).
+capital_of_country(stockholm, sweden).
+capital_of_country(sweden, stockholm).
+capital_of_country(switzerland, bern).
+capital_of_country(tehran, iran).
+capital_of_country(thailand, bangkok).
+capital_of_country(tokyo, japan).
+capital_of_country(turkey, ankara).
+capital_of_country(ukraine, kiev).
+capital_of_country(united_kingdom, london).
+capital_of_country(united_states, washington_dc).
+capital_of_country(venezuela, caracas).
+capital_of_country(vienna, austria).
+capital_of_country(vietnam, hanoi).
+capital_of_country(warsaw, poland).
+capital_of_country(washington_dc, united_states).
+capital_of_country(wellington, new_zealand).
+capital_on_river(belgrade, danube).
+capital_on_river(berlin, spree).
+capital_on_river(bratislava, danube).
+capital_on_river(budapest, danube).
+capital_on_river(cairo, nile).
+capital_on_river(khartoum, nile).
+capital_on_river(london, thames).
+capital_on_river(paris, seine).
+capital_on_river(rome, tiber).
+capital_on_river(vienna, danube).
+capital_predecessor(australia, "Melbourne, which served as the seat of government until 1927").
+capital_predecessor(brazil, "Rio de Janeiro, which was the capital until 1960").
+capital_predecessor(kazakhstan, "Almaty, which was the capital until 1997").
+capital_predecessor(myanmar, "Yangon, replaced by Naypyidaw in 2006").
+capital_predecessor(nigeria, "Lagos, which was the capital until 1991").
+capital_predecessor(pakistan, "Karachi, which was the capital until the 1960s").
+capital_since(australia, "1927, when parliament moved from Melbourne to Canberra").
+capital_since(brazil, "1960, when Brasília was inaugurated").
+capital_since(kazakhstan, "1997, when the capital moved from Almaty").
+capital_since(nigeria, "1991, when the government moved to Abuja").
+continent_of(argentina, south_america).
+continent_of(australia, oceania).
+continent_of(austria, europe).
+continent_of(belgium, europe).
+continent_of(brazil, south_america).
+continent_of(canada, north_america).
+continent_of(canada, north_america). continent_of(australia, oceania).
+continent_of(chile, south_america).
+continent_of(china, asia).
+continent_of(colombia, south_america).
+continent_of(czechia, europe).
+continent_of(denmark, europe).
+continent_of(egypt, africa).
+continent_of(egypt, africa).      continent_of(brazil, south_america).
+continent_of(finland, europe).
+continent_of(france, europe).
+continent_of(germany, europe).
+continent_of(greece, europe).
+continent_of(india, asia).
+continent_of(indonesia, asia).
+continent_of(iran, asia).
+continent_of(iraq, asia).
+continent_of(ireland, europe).
+continent_of(israel, asia).
+continent_of(italy, europe).
+continent_of(japan, asia).
+continent_of(japan, asia).        continent_of(france, europe).
+continent_of(kenya, africa).
+continent_of(mexico, north_america).
+continent_of(morocco, africa).
+continent_of(netherlands, europe).
+continent_of(new_zealand, oceania).
+continent_of(nigeria, africa).
+continent_of(norway, europe).
+continent_of(pakistan, asia).
+continent_of(peru, south_america).
+continent_of(poland, europe).
+continent_of(portugal, europe).
+continent_of(russia, europe).
+continent_of(saudi_arabia, asia).
+continent_of(south_africa, africa).
+continent_of(south_korea, asia).
+continent_of(spain, europe).
+continent_of(sweden, europe).
+continent_of(switzerland, europe).
+continent_of(thailand, asia).
+continent_of(turkey, asia).
+continent_of(united_kingdom, europe).
+continent_of(united_states, north_america).
+continent_of(venezuela, south_america).
+continent_of(vietnam, asia).
+currency_of_country(argentina, argentine_peso).
+currency_of_country(australia, australian_dollar).
+currency_of_country(belgium, euro).
+currency_of_country(brazil, brazilian_real).
+currency_of_country(canada, canadian_dollar).
+currency_of_country(china, yuan).
+currency_of_country(denmark, danish_krone).
+currency_of_country(egypt, egyptian_pound).
+currency_of_country(france, euro).
+currency_of_country(germany, euro).
+currency_of_country(india, indian_rupee).
+currency_of_country(italy, euro).
+currency_of_country(japan, yen).
+currency_of_country(mexico, mexican_peso).
+currency_of_country(netherlands, euro).
+currency_of_country(norway, norwegian_krone).
+currency_of_country(poland, polish_zloty).
+currency_of_country(portugal, euro).
+currency_of_country(russia, russian_ruble).
+currency_of_country(south_africa, south_african_rand).
+currency_of_country(south_korea, won).
+currency_of_country(spain, euro).
+currency_of_country(sweden, swedish_krona).
+currency_of_country(switzerland, swiss_franc).
+currency_of_country(turkey, turkish_lira).
+currency_of_country(united_kingdom, pound_sterling).
+currency_of_country(united_states, us_dollar).
+deepest_ocean(point, mariana_trench).
+deepest_ocean(world, pacific).
+demonym(amsterdam, amsterdammer).
+demonym(athens, athenian).
+demonym(barcelona, barcelonian).
+demonym(bari, barese).
+demonym(berlin, berliner).
+demonym(bologna, bolognese).
+demonym(campania, campanian).
+demonym(catania, catanese).
+demonym(florence, florentine).
+demonym(genoa, genovese).
+demonym(lazio, laziale).
+demonym(lombardy, lombard).
+demonym(london, londoner).
+demonym(madrid, madrilenian).
+demonym(milan, milanese).
+demonym(naples, neapolitan).
+demonym(new_york, new_yorker).
+demonym(palermo, palermitan).
+demonym(paris, parisian).
+demonym(puglia, apulian).
+demonym(rome, roman).
+demonym(sardinia, sardinian).
+demonym(sicily, sicilian).
+demonym(tokyo, tokyoite).
+demonym(turin, turinese).
+demonym(tuscany, tuscan).
+demonym(venice, venetian).
+landmark_city("big ben", "London").
+landmark_city(acropolis, "Athens").
+landmark_city(brandenburg, "Berlin").
+landmark_city(coliseum, "Rome").
+landmark_city(colosseum, "Rome").
+landmark_city(eiffel, "Paris").
+landmark_city(kremlin, "Moscow").
+landmark_city(liberty, "New York City").
+landmark_city(opera, "Sydney").
+landmark_city(pyramids, "Giza").
+landmark_city(sagrada, "Barcelona").
+landmark_city(taj, "Agra").
+landmark_of(australia, "the Sydney Opera House").
+landmark_of(canberra, "Parliament House").
+landmark_of(brazil, "Christ the Redeemer").
+landmark_of(canada, "the CN Tower").
+landmark_of(china, "the Great Wall").
+landmark_of(egypt, "the Great Pyramids of Giza").
+landmark_of(france, "the Eiffel Tower").
+landmark_of(germany, "the Brandenburg Gate").
+landmark_of(greece, "the Parthenon").
+landmark_of(india, "the Taj Mahal").
+landmark_of(italy, "the Colosseum").
+landmark_of(japan, "Mount Fuji").
+landmark_of(peru, "Machu Picchu").
+landmark_of(russia, "Saint Basil's Cathedral").
+landmark_of(spain, "the Sagrada Familia").
+landmark_of(turkey, "the Hagia Sophia").
+landmark_of(united_kingdom, "Big Ben").
+landmark_of(united_states, "the Statue of Liberty").
+language_of_country(brazil, portuguese).
+language_of_country(china, mandarin).
+language_of_country(egypt, arabic).
+language_of_country(france, french).
+language_of_country(germany, german).
+language_of_country(greece, greek).
+language_of_country(israel, hebrew).
+language_of_country(italy, italian).
+language_of_country(japan, japanese).
+language_of_country(netherlands, dutch).
+language_of_country(poland, polish).
+language_of_country(portugal, portuguese).
+language_of_country(russia, russian).
+language_of_country(saudi_arabia, arabic).
+language_of_country(south_korea, korean).
+language_of_country(spain, spanish).
+language_of_country(sweden, swedish).
+language_of_country(turkey, turkish).
+language_of_country(united_kingdom, english).
+longest_river(south_america, amazon).
+longest_river(world, nile).
+no_land_border(australia).
+no_land_border(japan).
+no_land_border(united_kingdom).
+ocean_borders(australia, "Indian Ocean").
+ocean_borders(australia, "Pacific Ocean").
+sea_borders(turkey, mediterranean_sea).
+sea_borders(turkey, black_sea).
+ocean_west_of(australia, "the Indian Ocean").
+ocean_west_of(portugal, "the Atlantic Ocean").
+ocean_west_of(united_states, "the Pacific Ocean").
+population_of(china, 1400000000).
+population_of(india, 1400000000).
+population_of(united_states, 331000000).
+river_of(berlin, "the River Spree").
+river_of(cairo, "the Nile").
+river_of(canberra, "the Molonglo River").
+river_of(london, "the River Thames").
+river_of(paris, "the River Seine").
+river_of(rome, "the River Tiber").
+river_of(vienna, "the Danube").
+river_of(washington_dc, "the Potomac River").
+tallest_mountain(europe, mount_elbrus).
+tallest_mountain(world, mount_everest).
+world_cup_winner(2022, argentina).
+world_cup_winner(2018, france).
+world_cup_winner(2014, germany).
+world_cup_winner(2010, spain).
+world_cup_winner(2006, italy).
+olympic_host(2024, paris).
+olympic_host(2020, tokyo).
+olympic_host(2016, rio_de_janeiro).
+olympic_host(2012, london).
+president_of(italy, sergio_mattarella).
+president_of(france, emmanuel_macron).
+president_of(usa, joe_biden).
+heritage_built_by(machu_picchu, inca).

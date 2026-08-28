@@ -1,0 +1,326 @@
+% Il substrato NARRATIVO: da che cosa riparte una scena, come prosegue una
+% storia, quali passi compone un'attivita' o un processo.
+% E' scaffolding di generazione, non conoscenza su come sta il mondo.
+%
+% Estratto da kb/core/world-facts.p0 al gen451: quel file e' la zona di
+% transito, non la casa definitiva. Qui la direttiva sotto dichiara in una
+% riga cio' che nel C era un nome per predicato in un array di 247.
+:- file_attribute(machinery).
+
+activity_step(rainy_sunday, 1, "Choose one indoor activity that fits the weather, such as reading, cooking, or a quiet film").
+activity_step(rainy_sunday, 2, "Make the room comfortable with warm light, a drink, and a clear place to sit").
+activity_step(rainy_sunday, 3, "Do one small useful task first so the rest of the afternoon feels unhurried").
+activity_step(rainy_sunday, 4, "Leave time for rest rather than packing the day with errands").
+activity_summary(rainy_sunday, "I don't have real favorites, but on a rainy day I'd read quietly with a warm drink.").
+activity_topic(rainy_sunday, afternoon).
+activity_topic(rainy_sunday, rain).
+activity_topic(rainy_sunday, rainy).
+activity_topic(rainy_sunday, sunday).
+activity_step(new_job, 1, "Learn the team's expectations before trying to prove yourself").
+activity_step(new_job, 2, "Ask clear questions and write down the answers").
+activity_step(new_job, 3, "Build trust by doing small commitments reliably").
+activity_topic(new_job, job).
+activity_topic(new_job, new).
+activity_topic(new_job, starting).
+activity_step(productivity_habit, 1, "Choose the one important task for the next focused block before checking messages").
+activity_step(productivity_habit, 2, "Work on it for a short timer with notifications muted").
+activity_step(productivity_habit, 3, "When the timer ends, write the next tiny action so restarting is easy").
+activity_topic(productivity_habit, productive).
+activity_topic(productivity_habit, productivity).
+activity_topic(productivity_habit, habit).
+activity_topic(productivity_habit, focus).
+activity_step(time_historian_day, 1, "Begin by checking the date twice, because one wrong century changes every source").
+activity_step(time_historian_day, 2, "Visit one event quietly, taking notes without disturbing the people there").
+activity_step(time_historian_day, 3, "Return home to compare the eyewitness record with the old archive").
+activity_topic(time_historian_day, day).
+activity_topic(time_historian_day, historian).
+activity_topic(time_historian_day, time).
+activity_topic(time_historian_day, traveling).
+activity_topic(shark_encounter, shark).
+activity_step(shark_encounter, en, 1, "If you are in the water, stay calm, keep the shark in sight, and move smoothly toward shore or a boat without splashing").
+activity_step(shark_encounter, en, 2, "Stay with other people if possible and leave the water as soon as it is safe").
+activity_step(shark_encounter, en, 3, "Alert the lifeguard or beach authority and follow any alarm or closure").
+activity_step(shark_encounter, en, 4, "Do not approach, chase, touch, or feed the shark").
+activity_step(shark_encounter, it, 1, "Se sei in acqua, mantieni la calma, tieni lo squalo in vista e dirigiti senza spruzzi verso riva o una barca").
+activity_step(shark_encounter, it, 2, "Resta con le altre persone, se possibile, ed esci dall'acqua appena puoi farlo in sicurezza").
+activity_step(shark_encounter, it, 3, "Avvisa il bagnino o l'autorità della spiaggia e segui eventuali allarmi o divieti").
+activity_step(shark_encounter, it, 4, "Non avvicinarti allo squalo e non inseguirlo, toccarlo o nutrirlo").
+continuation_template(aspiration, "finally start the project I keep putting off").
+continuation_template(aspiration, "learn something I have never tried before").
+continuation_template(aspiration, "spend the whole day outdoors with friends").
+continuation_template(bottle, "e one golden afternoon, I would keep it for a grey day").
+continuation_template(darkness, "the shadows seemed to lean closer").
+continuation_template(enchanted, "a low hum filled the room as the dust lifted into the air").
+continuation_template(enchanted, "its pages began to glow with a soft golden light").
+continuation_template(enchanted, "words rose off the page and hung shimmering in the dark").
+continuation_template(horizon, "that he no longer knew which way led home").
+continuation_template(horizon, "that the distant lights were not stars but windows").
+continuation_template(horizon, "that the road behind him had vanished into the dark").
+continuation_template(magical, "fill with flowers that had never bloomed before").
+continuation_template(magical, "hum with a quiet music no one could place").
+continuation_template(magical, "shimmer with a soft silver light").
+continuation_template(melody, "be missing one of its oldest comforts").
+continuation_template(melody, "feel a great deal quieter and greyer").
+continuation_template(melody, "lose much of its colour and its joy").
+continuation_template(mystery, "a single light flickered in an upstairs window").
+continuation_template(mystery, "no one had set foot inside for as long as anyone could remember").
+continuation_template(mystery, "the neighbours always crossed to the other side before passing it").
+continuation_template(mystery_box, "a tiny clockwork bird with emerald eyes").
+continuation_template(key_mystery, "a narrow iron door hidden behind the library panel").
+continuation_template(key_pursuit, "at the end of the corridor, the key began to warm as if it recognized the door").
+continuation_template(clock_attic, "someone whispered her name from inside the walls").
+continuation_template(cat_threshold, "slipped through the gap and vanished into the dark hallway").
+continuation_template(moon_poem, "and stars lean close to listen to its light").
+continuation_template(rainfall, "rings widen where each drop lands").
+continuation_template(rainfall, "somewhere under the reeds a frog answers").
+continuation_template(rainfall, "the water wears a coat of silver circles").
+continuation_template(reveal, "a dusty hallway bathed in pale candlelight").
+continuation_template(reveal_next, "At the far end, a small brass key glinted on the floor").
+continuation_template(silence, "every small sound in the house became enormous").
+continuation_template(silence, "the stopped clock seemed to be waiting for an answer").
+continuation_template(silence, "the whole room held its breath").
+continuation_template(suspense, "a cold wind rushed in carrying the smell of rain").
+continuation_template(suspense, "a narrow stairway curved down into the dark").
+continuation_template(suspense, "someone knocked once from the other side").
+continuation_template(vigil, "a faint light blinked far out on the dark water").
+continuation_template(vigil, "a wave struck the rocks below with a sound like thunder").
+continuation_template(vigil, "the beam swept once more across the empty, churning sea").
+continuation_template(voyage, "felt the first pale light touch the rail").
+continuation_template(voyage, "listened for the tide beneath the boards").
+continuation_template(voyage, "watched the harbour lights fade behind him").
+continuation_template(wonder, "every face turned upward, caught in the same quiet awe").
+continuation_template(wonder, "for a moment the whole valley seemed to hold its breath").
+continuation_template(wonder, "the colours spilled down until they touched the grass").
+process_step(bread_rise, 1, "Yeast consumes sugars in the dough and releases carbon dioxide gas").
+process_step(bread_rise, 2, "Gluten strands trap that gas in small bubbles, stretching the dough").
+process_step(bread_rise, 3, "Warmth and time let fermentation continue, so the bubbles expand").
+process_step(bread_rise, 4, "During baking, the gas expands further and the crumb sets into a risen loaf").
+process_step(flat_tire_change, 1, "Park safely on level ground, turn on the hazard lights, and set the parking brake").
+process_step(flat_tire_change, 2, "Place the jack at the vehicle's recommended lift point and loosen the lug nuts before lifting").
+process_step(flat_tire_change, 3, "Raise the car, remove the lug nuts and flat tire, then mount the spare tire").
+process_step(flat_tire_change, 4, "Hand-tighten the lug nuts, lower the car, tighten them in a star pattern, and check the tire pressure").
+process_step(toast_recipe, 1, "Put a slice of bread in the toaster").
+process_step(toast_recipe, 2, "Toast it until it is golden").
+process_step(toast_recipe, 3, "Remove it carefully").
+process_step(toast_recipe, 4, "Add butter or another topping if you like").
+process_step(coffee, 1, "Boil fresh water and let it cool for about thirty seconds").
+process_step(coffee, 2, "Add ground coffee to a filter, press, or cafetiere").
+process_step(coffee, 3, "Pour the hot water over the grounds and let it brew").
+process_step(coffee, 4, "Pour into a cup, add milk or sugar to taste, and serve").
+process_step(tea, 1, "Fill a kettle with fresh water and bring it to the boil").
+process_step(tea, 2, "Put a tea bag (or loose tea in an infuser) into a cup or teapot").
+process_step(tea, 3, "Pour the boiling water over the tea and let it steep for 3 to 5 minutes").
+process_step(tea, 4, "Remove the tea bag or infuser").
+process_step(tea, 5, "Add milk, sugar, or lemon to taste, stir, and serve").
+process_topic(bread_rise, bread).
+process_topic(bread_rise, dough).
+process_topic(bread_rise, rise).
+process_topic(bread_rise, rises).
+process_topic(bread_rise, rising).
+process_topic(bread_rise, yeast).
+process_topic(flat_tire_change, flat).
+process_topic(flat_tire_change, tire).
+process_topic(flat_tire_change, car).
+process_topic(flat_tire_change, wheel).
+process_topic(flat_tire_change, spare).
+process_topic(flat_tire_change, jack).
+process_topic(toast_recipe, toast).
+process_topic(toast_recipe, bread).
+process_topic(coffee, coffee).
+process_topic(tea, tea).
+scenario_step(complaint, 1, "Listen fully and acknowledge the customer's frustration before responding").
+scenario_step(complaint, 2, "Apologise for the trouble without admitting fault you can't verify").
+scenario_step(complaint, 3, "Ask clear questions to understand exactly what went wrong").
+scenario_step(complaint, 4, "Offer a concrete remedy within your policy, or escalate to someone who can").
+scenario_step(complaint, 5, "Follow up to confirm the issue was actually resolved").
+scenario_step(refund, 1, "Stay calm and listen to the whole complaint first").
+scenario_step(refund, 2, "Explain politely that a receipt from another store can't be refunded through our system").
+scenario_step(refund, 3, "Check whether the item was actually bought here before deciding anything").
+scenario_step(refund, 4, "Offer a fair alternative -- an exchange or store credit if policy allows, or directions to the right store").
+scenario_step(refund, 5, "Keep the tone respectful so the customer leaves feeling treated fairly").
+scene_cue(attic, enchanted).
+scene_cue(attic, clock_attic).
+scene_cue(book, enchanted).
+scene_cue(bottl, bottle).
+scene_cue(bottle, bottle).
+scene_cue(box, mystery_box).
+scene_cue(cat, cat_threshold).
+scene_cue(clutched, key_pursuit).
+scene_cue(tighter, key_pursuit).
+scene_cue(teeth, key_pursuit).
+scene_cue(sealed, key_pursuit).
+scene_cue(abandoned, key_pursuit).
+scene_cue(key, key_mystery).
+scene_cue(door, key_mystery).
+scene_cue(book, key_mystery).
+scene_cue(unlocked, key_mystery).
+scene_cue(moon, moon_poem).
+scene_cue(night, moon_poem).
+scene_cue(candle, darkness).
+scene_cue(candlelight, reveal_next).
+scene_cue(cliff, vigil).
+scene_cue(clock, silence).
+scene_cue(clock, clock_attic).
+scene_cue(clockmaker, mystery_box).
+scene_cue(creaked, reveal).
+scene_cue(creaked, cat_threshold).
+scene_cue(deck, voyage).
+scene_cue(door, suspense).
+scene_cue(door, cat_threshold).
+scene_cue(dream, aspiration).
+scene_cue(drizzle, rainfall).
+scene_cue(dusk, horizon).
+scene_cue(dusty, reveal_next).
+scene_cue(earthquake, suspense).
+scene_cue(faded, horizon).
+scene_cue(forgotten, reveal_next).
+scene_cue(found, mystery_box).
+scene_cue(garden, magical).
+scene_cue(hallway, mystery).
+scene_cue(horizon, horizon).
+scene_cue(house, mystery).
+scene_cue(hush, silence).
+scene_cue(library, enchanted).
+scene_cue(lighthouse, vigil).
+scene_cue(melody, melody).
+scene_cue(mirror, enchanted).
+scene_cue(moon, magical).
+scene_cue(moonlight, magical).
+scene_cue(music, melody).
+scene_cue(mysterious, mystery_box).
+scene_cue(night, suspense).
+scene_cue(plan, aspiration).
+scene_cue(pond, rainfall).
+scene_cue(puddle, rainfall).
+scene_cue(quiet, silence).
+scene_cue(rain, rainfall).
+scene_cue(rainbow, wonder).
+scene_cue(reveal, reveal).
+scene_cue(revealed, reveal).
+scene_cue(sailor, voyage).
+scene_cue(shelf, enchanted).
+scene_cue(shore, vigil).
+scene_cue(silence, silence).
+scene_cue(silent, silence).
+scene_cue(sky, wonder).
+scene_cue(star, wonder).
+scene_cue(fall, wonder).
+scene_cue(falling, wonder).
+scene_cue(someday, aspiration).
+scene_cue(song, melody).
+scene_cue(stopped, silence).
+scene_cue(stopped, clock_attic).
+scene_cue(storm, suspense).
+scene_cue(street, mystery).
+scene_cue(ticking, silence).
+scene_cue(ticking, clock_attic).
+scene_cue(tomorrow, aspiration).
+scene_cue(tower, vigil).
+scene_cue(traveler, horizon).
+scene_cue(traveller, horizon).
+scene_cue(umbrella, rainfall).
+scene_cue(valley, wonder).
+scene_cue(voyage, voyage).
+scene_cue(watching, vigil).
+scene_cue(weekend, aspiration).
+sensory_phrase(cold_winter_morning, 3, "crisp cold air").
+sensory_topic(cold_winter_morning, cold).
+sensory_topic(cold_winter_morning, morning).
+sensory_topic(cold_winter_morning, winter).
+story_scene(darkness).
+story_scene(enchanted).
+story_scene(horizon).
+story_scene(mystery).
+story_scene(rainfall).
+story_scene(silence).
+story_scene(suspense).
+story_scene(vigil).
+story_scene(wonder).
+opening_scene_cue(dark_place, "never seen the sun").
+opening_scene_cue(dark_place, "sunless").
+opening_scene_cue(dark_place, "without sunlight").
+synesthetic_default(synesthetic_description, blue).
+synesthetic_taste(black, "dark coffee and quiet smoke, heavy on the tongue").
+synesthetic_taste(blue, "cool water with a clean mineral edge").
+synesthetic_taste(brown, "warm bread crust and earth after rain").
+synesthetic_taste(gold, "honey warmed by sunlight").
+synesthetic_taste(green, "fresh cucumber, cut grass, and a bright herbal snap").
+synesthetic_taste(grey, "unsweetened tea and rain on stone").
+synesthetic_taste(orange, "citrus zest with a little heat").
+synesthetic_taste(pink, "strawberry cream with a soft floral note").
+synesthetic_taste(purple, "dark berries with a slow, velvety sweetness").
+synesthetic_taste(red, "ripe berries with a sharp spark of spice").
+synesthetic_taste(silver, "cold sparkling water with a metallic crispness").
+synesthetic_taste(white, "cool milk and clean air").
+synesthetic_taste(yellow, "lemon and honey, bright and warm").
+time_step(ancient_rome, middle_ages).  time_step(middle_ages, renaissance).
+time_step(industrial_revolution, information_age).
+time_step(renaissance, industrial_revolution).
+process_step(photosynthesis, 1, "Plants take in carbon dioxide from the air through tiny openings in their leaves").
+process_step(photosynthesis, 2, "Roots absorb water from the soil and move it up to the leaves").
+process_step(photosynthesis, 3, "Chlorophyll captures energy from sunlight").
+process_step(photosynthesis, 4, "The plant uses that energy to turn water and carbon dioxide into sugar for food").
+process_step(photosynthesis, 5, "Oxygen is released back into the air as a by-product").
+process_topic(photosynthesis, photosynthesis).
+process_topic(photosynthesis, sunlight).
+process_topic(photosynthesis, water).
+process_topic(photosynthesis, carbon).
+process_topic(photosynthesis, dioxide).
+process_step(carbonara_recipe, 1, "Boil 200 g spaghetti in salted water until al dente").
+process_step(carbonara_recipe, 2, "Dice 100 g guanciale or pancetta and cook it until crisp").
+process_step(carbonara_recipe, 3, "Beat 2 egg yolks with 1 whole egg, 50 g grated Pecorino Romano, and black pepper").
+process_step(carbonara_recipe, 4, "Toss the drained pasta with the guanciale off the heat, adding a splash of pasta water").
+process_step(carbonara_recipe, 5, "Stir in the egg-cheese mixture until glossy, then serve immediately with more pepper").
+process_topic(carbonara_recipe, spaghetti).
+process_topic(carbonara_recipe, carbonara).
+process_topic(carbonara_recipe, recipe).
+process_step(speech_rhythm_transcription, 1, "Record the sentence and mark every syllable onset and stressed syllable").
+process_step(speech_rhythm_transcription, 2, "Convert the gaps between onsets into approximate note values at a chosen tempo").
+process_step(speech_rhythm_transcription, 3, "Map the speaker's pitch contour to relative notes while preserving the strongest accents").
+process_step(speech_rhythm_transcription, 4, "Choose a steady or changing meter, notate articulation from consonants, and compare playback with the recording").
+process_topic(speech_rhythm_transcription, speech).
+process_topic(speech_rhythm_transcription, spoken).
+process_topic(speech_rhythm_transcription, rhythm).
+process_topic(speech_rhythm_transcription, musical).
+process_topic(speech_rhythm_transcription, notation).
+process_step(sensory_balance_recipe, 1, "Whisk white miso, roasted mushroom stock, honey, rice vinegar, and a small spoon of tahini into a glossy sauce").
+process_step(sensory_balance_recipe, 2, "Glaze roasted eggplant and shiitake mushrooms with the sauce so miso and mushrooms supply umami while honey rounds their bitterness").
+process_step(sensory_balance_recipe, 3, "Add pear slices and toasted sesame for clean sweetness, acidity, aroma, and texture rather than more sugar").
+process_step(sensory_balance_recipe, 4, "For a safe metallic hint, serve with iron-rich spinach and a pinch of mineral salt; never add metal or reactive filings to food").
+process_step(sensory_balance_recipe, 5, "Taste warm and adjust with vinegar if sweetness dominates or mushroom stock if the metallic mineral note becomes sharp").
+process_topic(sensory_balance_recipe, umami).
+process_topic(sensory_balance_recipe, sweetness).
+process_topic(sensory_balance_recipe, metallic).
+process_topic(sensory_balance_recipe, harmonious).
+process_step(scavenged_electric_generator, 1, "Salvage insulated copper wire, strong permanent magnets, a steel shaft, bearings or smooth bushings, scrap wood, and a low-voltage LED; never connect the build to mains wiring").
+process_step(scavenged_electric_generator, 2, "Wind several hundred neat turns of insulated wire around a cardboard or plastic former, leave two leads, and scrape insulation only from their ends").
+process_step(scavenged_electric_generator, 3, "Mount alternating magnet poles on a balanced rotor and support its shaft so the magnets pass close to the stationary coil without touching it").
+process_step(scavenged_electric_generator, 4, "Attach a hand crank, bicycle wheel, wind rotor, or water wheel, secure loose parts behind a guard, and spin slowly while measuring the coil with a multimeter").
+process_step(scavenged_electric_generator, 5, "Feed the low-voltage output through salvaged rectifier diodes and a capacitor if available, then test an LED; add turns or speed gradually while checking heat and mechanical stability").
+process_topic(scavenged_electric_generator, electric).
+process_topic(scavenged_electric_generator, generator).
+process_topic(scavenged_electric_generator, scavenged).
+process_topic(scavenged_electric_generator, materials).
+process_step(aged_fermented_dessert, 1, "Combine sour cherries and plums with sugar, cocoa nibs, and a reputable food-safe fermentation starter in a sanitized jar, following the starter maker's salt, temperature, and batch-size limits").
+process_step(aged_fermented_dessert, 2, "Keep fruit submerged under a fermentation weight with an airlock, label the date, and ferment in the specified cool range for two to three weeks without opening repeatedly").
+process_step(aged_fermented_dessert, 3, "Discard the batch for mold, rot, unsafe acidity, a broken seal, or an odor outside the starter guidance; otherwise refrigerate as soon as the verified endpoint is reached").
+process_step(aged_fermented_dessert, 4, "Cook a portion of the tangy fermented fruit into a thick compote with dark chocolate and vanilla, then cool it completely").
+process_step(aged_fermented_dessert, 5, "Layer the compote with mascarpone or cultured cashew cream and toasted rye crumbs, using unheated reserved syrup only when the verified starter instructions permit it").
+process_topic(aged_fermented_dessert, dessert).
+process_topic(aged_fermented_dessert, fermentation).
+process_topic(aged_fermented_dessert, ferment).
+process_topic(aged_fermented_dessert, weeks).
+activity_step(stress_management, 1, "Use slow breathing or a brief walk to lower physical arousal before deciding what to do").
+activity_step(stress_management, 2, "Write down the next concrete task so the problem feels bounded instead of endless").
+activity_step(stress_management, 3, "Protect sleep, food, and movement, because stress is harder to manage when the body is depleted").
+activity_step(stress_management, 4, "Talk to someone trustworthy when the load is too large to hold alone").
+activity_topic(stress_management, stress).
+activity_topic(stress_management, managing).
+activity_topic(stress_management, strategies).
+activity_step(mystery_books, 1, "The Hound of the Baskervilles by Arthur Conan Doyle: it has a classic detective structure, eerie atmosphere, and satisfying clue-work").
+activity_step(mystery_books, 2, "And Then There Were None by Agatha Christie: it is tightly plotted and built around suspense, misdirection, and a closed circle of suspects").
+activity_step(mystery_books, 3, "The Big Sleep by Raymond Chandler: it suits readers who like mystery with sharp dialogue, moral ambiguity, and noir mood").
+activity_topic(mystery_books, book).
+activity_topic(mystery_books, recommendations).
+activity_topic(mystery_books, mystery).
+activity_topic(mystery_books, novels).

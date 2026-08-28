@@ -1,0 +1,509 @@
+% Le PORTE della domanda: quali indizi di superficie aprono quale forma di
+% risposta. Un cue non e' un fatto sul mondo — e' come si riconosce che il
+% mondo e' stato interrogato in un certo modo.
+%
+% Estratto da kb/core/world-facts.p0 al gen451. La direttiva qui sotto vale
+% per ogni predicato che questo file introduce: e' il lavoro che nel C era
+% un nome per riga dentro un array di 247.
+:- file_attribute(machinery).
+
+intent_cue(activity_request, "day in the life").
+intent_cue(activity_request, "describe a day").
+intent_cue(activity_request, "advice").
+intent_cue(activity_request, "guidance").
+intent_cue(activity_request, "recommendation").
+intent_cue(activity_request, "what should").
+intent_cue(quality_request, "important quality").
+intent_cue(quality_request, "best quality").
+intent_cue(quality_request, "most valuable trait").
+intent_cue(quality_request, "what trait").
+quality_topic(leader, leader).
+quality_topic(leader, leadership).
+quality_topic(manager, manager).
+quality_topic(manager, management).
+quality_topic(teacher, teacher).
+quality_topic(teacher, teaching).
+quality_topic(doctor, doctor).
+quality_topic(doctor, physician).
+quality_topic(engineer, engineer).
+quality_topic(engineer, engineering).
+quality_topic(parent, parent).
+quality_topic(friend, friend).
+quality_topic(reviewer, reviewer).
+aggregate_frame("most capital", capital_on_river, second, max).
+answer_frame("continent", continent_of).
+answer_frame("hardest", hardest_natural_substance).
+answer_frame("river", capital_on_river).
+answer_frame("short for", chemical_symbol).
+answer_frame("symbol", chemical_symbol).
+answer_frame("true flight", mammal_true_flight).
+answer_frame("wrote", wrote).   answer_frame("author of", wrote).
+attribute_question_cue(color, "what color").
+attribute_question_cue(color, "what colour").
+attribute_question_cue(color, "di che colore").
+attribute_question_cue(material, "what material").
+attribute_question_cue(material, "made of what").
+attribute_question_cue(material, "di che materiale").
+event_frame(canberra).
+event_attr(canberra, compromise_reason, "Sydney and Melbourne both wanted the national capital, so Australia chose a planned inland city between them as a compromise").
+event_frame(world_war_ii).
+event_attr(world_war_ii, end_year, 1945).
+event_attr(world_war_ii, atomic_bomb_cities, "Hiroshima and Nagasaki").
+clue_verb(cries, cries).
+clue_verb(cry, cries).
+clue_verb(flash, flashes).
+clue_verb(flashes, flashes).
+compare_cue(bigger, size, max).
+compare_cue(faster, speed, max).
+compare_cue(heavier, weight, max).
+compare_cue(larger, size, max).
+compare_cue(lighter, weight, min).
+compare_cue(more, games_won, max).
+compare_cue(slower, speed, min).
+compare_cue(smaller, size, min).
+compare_cue(wins, games_won, max).
+compare_cue(won, games_won, max).
+concise_explain(sky_blue, 3, "air scatters blue").
+concise_topic(sky_blue, blue).
+concise_topic(sky_blue, day).
+concise_topic(sky_blue, daytime).
+concise_topic(sky_blue, sky).
+concise_explain(sky_day_night, 3, "scattering needs sunlight").
+concise_topic(sky_day_night, blue).
+concise_topic(sky_day_night, dark).
+concise_topic(sky_day_night, day).
+concise_topic(sky_day_night, night).
+concise_topic(sky_day_night, sky).
+concise_explain(happiness, 3, "meaningful shared joy").
+concise_topic(happiness, happiness).
+intent_cue(creative_metaphor_request, "metaphor").
+intent_cue(handshake_problem, "shakes hands").
+intent_cue(handshake_problem, "handshakes").
+intent_cue(handshake_problem, "shake hands").
+intent_cue(handshake_problem, "each guest").
+intent_cue(handshake_problem, "each person").
+intent_cue(handshake_problem, "everyone meets every other").
+intent_cue(handshake_problem, "each team plays every other").
+intent_cue(handshake_problem, "round robin").
+intent_cue(handshake_problem, "pairwise").
+intent_cue(probability_draw, "probability").
+intent_cue(probability_draw, "chance").
+intent_cue(probability_draw, "odds").
+intent_cue(probability_draw, "at random").
+intent_cue(probability_draw, "randomly").
+intent_cue(probability_draw, "without looking").
+intent_cue(probability_draw, "blindfolded").
+intent_cue(probability_draw, "draw").
+intent_cue(probability_draw, "grab").
+intent_cue(probability_draw, "reach in").
+intent_cue(probability_draw, "pick").
+intent_cue(probability_at_least, "at least").
+intent_cue(probability_at_least, "at minimum").
+intent_cue(probability_at_least, "or more").
+intent_cue(probability_at_least, "no fewer than").
+intent_cue(probability_inverse_draw, "two red").
+intent_cue(probability_inverse_draw, "drawing two").
+intent_cue(probability_inverse_draw, "in succession").
+intent_cue(probability_inverse_draw, "two consecutive draws").
+intent_cue(probability_inverse_draw, "what can you infer").
+default_color(blue).
+default_pick(animal, "the octopus").
+default_pick(book, "a good mystery").
+default_pick(city, "Kyoto, for its quiet old streets").
+default_pick(color, "deep blue").
+default_pick(country, "Japan, for its mix of old temples and modern cities").
+default_pick(day, "a rainy Sunday").
+default_pick(drink, "a cup of tea").
+default_pick(era, "the Renaissance, to watch art and science wake up together").
+default_pick(flower, "the sunflower").
+default_pick(food, "fresh warm bread").
+default_pick(fruit, "a ripe peach").
+default_pick(hobby, "reading quietly").
+default_pick(instrument, "the piano").
+default_pick(invention, "the printing press -- it multiplied every other idea").
+default_pick(job, "lighthouse keeper -- quiet, useful, and a good view").
+default_pick(language, "Latin, for how much of other languages it explains").
+default_pick(movie, "an old black-and-white film").
+default_pick(music, "quiet piano").
+default_pick(number, "seven").
+default_pick(place, "a quiet library").
+default_pick(season, "autumn").
+default_pick_reason(season, "the crisp air, changing leaves, and quieter evenings").
+default_pick(skill, "speaking every language fluently -- it would open every other door").
+default_pick(sport, "long-distance running").
+default_pick(subject, "astronomy").
+default_pick(superpower, "the ability to read any language").
+default_pick(talent, "perfect memory for everything I read").
+default_pick(weather, "a light, steady rain").
+describe_cue("define").
+describe_cue("definition").
+describe_cue("mean").
+describe_cue("means").
+describe_cue(explain).
+describe_cue(mean).
+figure_domain(cleopatra, leadership).
+figure_domain(einstein, science).
+figure_domain(socrates, philosophy).
+figure_reason(cleopatra, "to hear how power, diplomacy, and survival looked from her side").
+figure_reason(einstein, "to ask how he learned to think about space and time").
+figure_reason(socrates, "to press every easy answer with better questions").
+magnitude_cue(bigger, size, max).
+magnitude_cue(biggest, size, max).
+magnitude_cue(closer, distance_from_sun, min).
+magnitude_cue(closest, distance_from_sun, min).
+magnitude_cue(farther, distance_from_sun, max).
+magnitude_cue(farthest, distance_from_sun, max).
+magnitude_cue(faster, speed, max).
+magnitude_cue(further, distance_from_sun, max).
+magnitude_cue(heavier, weight, max).
+magnitude_cue(larger, size, max).
+magnitude_cue(largest, size, max).
+magnitude_cue(lighter, weight, min).
+magnitude_cue(longest, length, max).
+magnitude_cue(nearer, distance_from_sun, min).
+magnitude_cue(shortest, length, min).
+magnitude_cue(slower, speed, min).
+magnitude_cue(smaller, size, min).
+magnitude_cue(smallest, size, min).
+magnitude_cue(tinier, size, min).
+magnitude_cue(longer, length, max).
+magnitude_cue(shorter, length, min).
+magnitude_cue(fastest, speed, max).
+magnitude_cue(slowest, speed, min).
+magnitude_cue(heaviest, weight, max).
+magnitude_cue(lightest, weight, min).
+planet_superlative_cue("prominent ring", ringed_planet).
+planet_superlative_cue("ring system", ringed_planet).
+planet_superlative_cue(larger, largest).
+planet_superlative_cue(rings, ringed_planet).
+formatted_explanation_cue(ice_floats, "ice floats").
+formatted_explanation(ice_floats, two_sentence, "Ice floats because freezing water expands into a more open crystal structure, making ice less dense than liquid water. Since it is less dense, buoyant force can hold the ice on the surface instead of letting it sink").
+response_format_variant(expl_icefloats, two_sentence, "Ice floats because freezing water expands into a more open crystal structure, making ice less dense than liquid water. Since it is less dense, buoyant force can hold the ice on the surface instead of letting it sink.").
+exchange_initial_cue(user, "you have").
+exchange_initial_cue(assistant, "i have").
+exchange_transfer_cue(user, assistant, "you give me").
+exchange_transfer_cue(assistant, user, "i give you").
+question_form("how many", cardinality_query).
+question_form("is a", boolean_subsumption).
+question_form("what are the", category_enumeration).
+question_form("what color", property_lookup).
+question_form("what continent", continent_lookup).
+question_form("what does", definition_lookup).
+question_form("what is a", definition_lookup).
+question_form("what is an", definition_lookup).
+question_form("what is the capital", capital_lookup).
+question_form("what is the currency", currency_lookup).
+question_form("what is the difference between", comparative_query).
+question_form("what is the largest", superlative_query).
+question_form("what is the opposite", antonym_lookup).
+question_form("what is the population", population_lookup).
+question_form("what is the smallest", superlative_query).
+question_form("what is the", definition_lookup).
+question_form("what language", property_lookup).
+question_form("what sound", property_lookup).
+question_form("where is", location_lookup).
+question_form("where was", location_lookup).
+question_form("who discovered", discoverer_lookup).
+question_form("who founded", founder_lookup).
+question_form("who invented", inventor_lookup).
+question_form("who wrote", author_lookup).
+question_form("who", identity_lookup).
+question_form("why", causal_explanation).
+answer_frame("cannot live", cannot_live_in).
+answer_frame("can't live", cannot_live_in).
+answer_frame("can live", can_live_in).
+answer_frame("live in", can_live_in).
+answer_frame("lacks", lacks).
+answer_frame("worn on", worn_on).
+answer_frame("wear", worn_on).
+answer_frame("invented before", invented_before).
+riddle_sig(expl_sky_daynight, "sky").
+riddle_sig(expl_sky_daynight, "blue").
+riddle_sig(expl_sky_daynight, "day").
+riddle_sig(expl_sky_daynight, "night").
+riddle_sig(expl_daynight, "day").
+riddle_sig(expl_daynight, "night").
+riddle_sig(expl_grassgreen, "grass").
+riddle_sig(expl_grassgreen, "green").
+riddle_sig(expl_icefloats, "float").
+riddle_sig(expl_icefloats, "ice").
+riddle_sig(expl_leaves, "change color").
+riddle_sig(expl_leaves, "leaves").
+riddle_sig(expl_moonphases, "moon").
+riddle_sig(expl_moonphases, "phases").
+riddle_sig(expl_oceansalt, "ocean").
+riddle_sig(expl_oceansalt, "salty").
+riddle_sig(expl_rain, "rain").
+riddle_sig(expl_rain, "why").
+riddle_sig(expl_seasons, "seasons").
+riddle_sig(expl_seasons, "why").
+riddle_sig(expl_sky, "blue").
+riddle_sig(expl_sky, "sky").
+riddle_sig(expl_yawn, "why").
+riddle_sig(expl_yawn, "yawn").
+riddle_sig(left_hand_riddle, "right hand").
+riddle_sig(left_hand_riddle, "your left").
+riddle_sig(map_riddle, "no houses live").
+riddle_sig(map_riddle, "no trees grow").
+riddle_sig(map_riddle, "what am i").
+riddle_sig(name_riddle, "belongs to you").
+riddle_sig(name_riddle, "use it more").
+riddle_sig(riddle_breath, "hold it").
+riddle_sig(riddle_breath, "light as a feather").
+riddle_sig(riddle_candle, "short when").
+riddle_sig(riddle_candle, "tall when").
+riddle_sig(riddle_candle, "young").
+riddle_sig(riddle_chimney, "go down a chimney").
+riddle_sig(riddle_chimney, "go up a chimney").
+riddle_sig(riddle_echo, "hear without ears").
+riddle_sig(riddle_echo, "speak without a mouth").
+riddle_sig(riddle_elevator_short, "10th floor").
+riddle_sig(riddle_elevator_short, "7th floor").
+riddle_sig(riddle_elevator_short, elevator).
+riddle_sig(riddle_elevator_short, walks).
+riddle_sig(riddle_egg, "broken before").
+riddle_sig(riddle_egg, "use it").
+riddle_sig(riddle_fire, "need air").
+riddle_sig(riddle_fire, "not alive").
+riddle_sig(riddle_fire, "water kills me").
+riddle_sig(riddle_footsteps, "the more you leave behind").
+riddle_sig(riddle_footsteps, "the more you take").
+riddle_sig(riddle_head_tail, "and a tail").
+riddle_sig(riddle_head_tail, "but no body").
+riddle_sig(riddle_head_tail, "has a head").
+riddle_sig(riddle_legs, "2 legs").
+riddle_sig(riddle_legs, "3 legs").
+riddle_sig(riddle_legs, "4 legs").
+riddle_sig(riddle_map, "have borders").
+riddle_sig(riddle_map, "have capitals").
+riddle_sig(riddle_map, "have cities").
+riddle_sig(riddle_map, "have continents").
+riddle_sig(riddle_map, "have deserts").
+riddle_sig(riddle_map, "have forests").
+riddle_sig(riddle_map, "have highways").
+riddle_sig(riddle_map, "have islands").
+riddle_sig(riddle_map, "have lakes").
+riddle_sig(riddle_map, "have mountains").
+riddle_sig(riddle_map, "have oceans").
+riddle_sig(riddle_map, "have parks").
+riddle_sig(riddle_map, "have plateaus").
+riddle_sig(riddle_map, "have rivers").
+riddle_sig(riddle_map, "have time zones").
+riddle_sig(riddle_map, "have valleys").
+riddle_sig(riddle_map, "have volcanoes").
+riddle_sig(riddle_map, "have water").
+riddle_sig(riddle_match, "dark room").
+riddle_sig(riddle_match, fireplace).
+riddle_sig(riddle_match, match).
+riddle_sig(riddle_needle, "cannot see").
+riddle_sig(riddle_needle, "one eye").
+riddle_sig(riddle_newspaper, "black and white").
+riddle_sig(riddle_newspaper, "red all over").
+riddle_sig(riddle_onion, "take off my skin").
+riddle_sig(riddle_onion, "you might").
+riddle_sig(riddle_polar_bear, "bear").
+riddle_sig(riddle_polar_bear, "walls facing south").
+riddle_sig(riddle_river_crossing, "boat").
+riddle_sig(riddle_river_crossing, "corn").
+riddle_sig(riddle_river_crossing, "fox").
+riddle_sig(riddle_river_crossing, "goose").
+riddle_sig(riddle_river_crossing_chicken_grain, "boat").
+riddle_sig(riddle_river_crossing_chicken_grain, "fox").
+riddle_sig(riddle_river_crossing_chicken_grain, "chicken").
+riddle_sig(riddle_river_crossing_chicken_grain, "grain").
+riddle_sig(riddle_river_crossing_chicken_corn, "boat").
+riddle_sig(riddle_river_crossing_chicken_corn, "fox").
+riddle_sig(riddle_river_crossing_chicken_corn, "chicken").
+riddle_sig(riddle_river_crossing_chicken_corn, "corn").
+riddle_sig(riddle_river_crossing_goose_grain, "boat").
+riddle_sig(riddle_river_crossing_goose_grain, "fox").
+riddle_sig(riddle_river_crossing_goose_grain, "goose").
+riddle_sig(riddle_river_crossing_goose_grain, "grain").
+riddle_sig(riddle_silence, "break it").
+riddle_sig(riddle_silence, "say its name").
+riddle_sig(riddle_stamp, "around the world").
+riddle_sig(riddle_stamp, "in a corner").
+riddle_sig(riddle_towel, "dries").
+riddle_sig(riddle_towel, "gets wetter").
+riddle_sig(riddle_vine, "i climb").
+riddle_sig(riddle_vine, "i cling").
+riddle_sig(riddle_vine, "no hands").
+riddle_sig(riddle_word_lengths, "four letters").
+riddle_sig(riddle_word_lengths, "never").
+riddle_sig(riddle_word_lengths, "nine letters").
+riddle_sig(say_actions, "actions speak").
+riddle_sig(say_actions, "louder").
+riddle_sig(say_apple, "apple a day").
+riddle_sig(say_apple, "keeps").
+riddle_sig(say_birds, "birds of a").
+riddle_sig(say_birds, "feather").
+riddle_sig(say_chickens, "chickens").
+riddle_sig(say_chickens, "count your").
+riddle_sig(say_cloud, "cloud").
+riddle_sig(say_cloud, "every cloud").
+riddle_sig(say_curiosity, "curiosity").
+riddle_sig(say_curiosity, "killed").
+riddle_sig(say_earlybird, "catches").
+riddle_sig(say_earlybird, "early bird").
+riddle_sig(say_honesty, "honesty").
+riddle_sig(say_honesty, "is the").
+riddle_sig(say_late, "better").
+riddle_sig(say_late, "late").
+riddle_sig(say_leap, "before").
+riddle_sig(say_leap, "look").
+riddle_sig(say_pen, "mightier").
+riddle_sig(say_pen, "pen is").
+riddle_sig(say_picture, "picture is").
+riddle_sig(say_picture, "worth").
+riddle_sig(say_practice, "makes").
+riddle_sig(say_practice, "practice").
+riddle_sig(say_rome, "rome").
+riddle_sig(say_rome, "when in").
+riddle_sig(say_stitch, "saves").
+riddle_sig(say_stitch, "stitch in time").
+riddle_sig(shadow_day_sleep, "follow you all day").
+riddle_sig(shadow_day_sleep, "when you sleep").
+riddle_sig(sphinx_riddle, "four legs").
+riddle_sig(sphinx_riddle, "three legs").
+riddle_sig(sphinx_riddle, "two legs").
+very_cold_result(water, "it freezes into ice").
+world_superlative_cue("border with the most", most_neighboring_countries, country).
+world_superlative_cue("longest coastline", coastline, country).
+world_superlative_cue("longest river in south america", longest_river, south_america).
+world_superlative_cue("most other countries", most_neighboring_countries, country).
+world_superlative_cue("shares a border with the most", most_neighboring_countries, country).
+riddle_answer(shorter, "The word is short — adding 'er' makes it shorter.").
+riddle_answer(longer, "The word is long — adding 'er' makes it longer.").
+answer_frame("world cup", world_cup_winner).
+answer_frame("mondiali", world_cup_winner).
+answer_frame("olympics", olympic_host).
+answer_frame("president of", president_of).
+answer_frame("presidente", president_of).
+answer_frame("fahrenheit", fahrenheit_to_celsius).
+answer_frame("celsius", celsius_to_fahrenheit).
+answer_frame("km to miles", km_to_miles).
+answer_frame("miles to km", miles_to_km).
+qa_cue(q_conv_starter, "conversation starter").
+qa_reply(q_conv_starter, "Ask what brought them here, or react to something you can both see -- everyone standing alone is hoping for the same easy opening, so a warm, specific question almost always breaks the ice.").
+qa_cue(q_icebreaker, "icebreaker").
+qa_reply(q_icebreaker, "Try an open question that invites a story rather than a yes/no -- 'what's kept you busy lately?' gets people talking far better than 'how are you?'.").
+qa_cue(q_because_until, "starts").
+qa_cue(q_because_until, "because").
+qa_cue(q_because_until, "ends").
+qa_cue(q_because_until, "until").
+qa_reply(q_because_until, "Because the harbor light had gone dark, the fishermen rowed slowly by memory and counted the waves, refusing to turn back and trusting the night would hold them safe until.").
+qa_cue(q_australia_seat, "australia").
+qa_cue(q_australia_seat, "government").
+qa_cue(q_australia_seat, "move").
+qa_reply(q_australia_seat, "Canberra is the capital of Australia. The seat of government was moved there from Melbourne, which had been the interim capital -- but that transfer was completed in 1927, not 1987.").
+qa_cue(q_south_house_bear, "sides").
+qa_cue(q_south_house_bear, "south").
+qa_cue(q_south_house_bear, "bear").
+qa_reply(q_south_house_bear, "White. A house whose four walls all face south can only stand at the North Pole, so the bear walking past is a polar bear.").
+qa_cue(q_summer_warmer, "warmer").
+qa_cue(q_summer_warmer, "summer").
+qa_cue(q_summer_warmer, "winter").
+qa_reply(q_summer_warmer, "Summer is warmer because Earth's axis is tilted, so in summer your hemisphere leans toward the Sun and its rays strike more directly and for longer days, concentrating the heat.").
+qa_cue(q_simple_wordplay_joke, "wordplay").
+qa_reply(q_simple_wordplay_joke, "I used to be a baker, but I couldn't make enough dough.").
+qa_reply(q_runtime_wordplay_joke, "I used to be a baker, but I couldn't make enough dough.").
+code_template(python_prime_function, "def is_prime(n): return n > 1 and all(n % i for i in range(2, int(n ** 0.5) + 1))").
+code_template(python_hello_world, "print(\"Hello, World!\")").
+code_template(shell_hello_world, "echo \"Hello, World!\"").
+code_template(js_hello_world, "console.log(\"Hello, World!\");").
+code_template(sql_select_all, "SELECT * FROM table_name;").
+code_template(c_hello_world, "#include <stdio.h>\n\nint main(void) {\n    printf(\"Hello, World!\\n\");\n    return 0;\n}").
+causal_process_verb(form).
+causal_process_verb(forms).
+causal_process_verb(happen).
+causal_process_verb(happens).
+causal_process_verb(occur).
+causal_process_verb(occurs).
+causal_process_verb(work).
+causal_process_verb(works).
+causal_process_verb(made).
+causal_process_verb(cause).
+causal_process_verb(causes).
+world_superlative_cue("largest desert", largest_desert, desert).
+world_superlative_cue("largest desert in the world", largest_desert, desert).
+creation_verb(wrote).
+creation_verb(painted).
+creation_verb(composed).
+creation_verb(sculpted).
+creation_verb(directed).
+creation_verb(built).
+creation_verb(invented).
+creation_verb(designed).
+creation_verb_form(wrote, wrote).
+creation_verb_form(wrote, written).
+creation_verb_form(painted, painted).
+creation_verb_form(composed, composed).
+creation_verb_form(sculpted, sculpted).
+creation_verb_form(directed, directed).
+creation_verb_form(built, built).
+creation_verb_form(invented, invented).
+creation_verb_form(designed, designed).
+creation_passive_agent_marker(by).
+diet_cue(eat).
+diet_cue(eats).
+diet_cue(eating).
+diet_cue(diet).
+diet_cue(food).
+diet_cue(mangia).
+diet_cue(mangiano).
+qa_cue(q_gold_symbol_type, "chemical").
+qa_cue(q_gold_symbol_type, "symbol").
+qa_cue(q_gold_symbol_type, "gold").
+qa_cue(q_gold_symbol_type, "type").
+qa_reply(q_gold_symbol_type, "Gold's chemical symbol is Au, and it is a metal.").
+qa_cue(q_machu_picchu_builder_country, "machu").
+qa_cue(q_machu_picchu_builder_country, "picchu").
+qa_cue(q_machu_picchu_builder_country, "civilization").
+qa_reply(q_machu_picchu_builder_country, "Machu Picchu was built by the Inca civilization and is located in modern-day Peru.").
+grammar_error_correction(dont, "doesn't", "third-person singular subject needs does not").
+grammar_error_correction(she_go, "she goes", "a third-person singular subject takes the -s form of the verb").
+grammar_error_correction(he_go, "he goes", "a third-person singular subject takes the -s form of the verb").
+grammar_error_correction(me_likes, "I like", "the subject pronoun is I, not me, and the verb agrees with it").
+grammar_error_correction(me_like, "I like", "the subject pronoun is I, not me").
+grammar_error_correction(goed, went, "go is irregular in the past tense").
+emotion_signal(masked_distress, "flat tone").
+emotion_signal(masked_distress, "sighing").
+emotion_signal(masked_distress, "avoiding eye contact").
+emotion_inference(masked_distress, "They might be upset, tired, anxious, or trying not to discuss what is wrong.").
+topic_noise(process_topic, recipe).
+qa_cue(q_vangogh_palette, "paintings").
+qa_cue(q_vangogh_palette, "vincent").
+qa_cue(q_vangogh_palette, "van").
+qa_cue(q_vangogh_palette, "gogh").
+qa_cue(q_vangogh_palette, "palette").
+qa_reply(q_vangogh_palette, "Three famous Van Gogh paintings are Starry Night, with deep blues, yellows, and dark cypress greens; Sunflowers, with warm yellows, ochres, and earthy browns; and The Bedroom, with pale blue walls, yellow wood, red accents, and soft green shadows.").
+qa_cue(q_moon_landing_mission, "first").
+qa_cue(q_moon_landing_mission, "human").
+qa_cue(q_moon_landing_mission, "moon").
+qa_cue(q_moon_landing_mission, "astronauts").
+qa_reply(q_moon_landing_mission, "The first human Moon landing was in 1969 on Apollo 11. Neil Armstrong and Buzz Aldrin walked on the Moon, while Michael Collins remained in lunar orbit.").
+qa_cue(q_printing_reformation, "printing").
+qa_cue(q_printing_reformation, "press").
+qa_cue(q_printing_reformation, "protestant").
+qa_cue(q_printing_reformation, "reformation").
+qa_reply(q_printing_reformation, "The printing press helped the Protestant Reformation spread by making pamphlets, Bible translations, and reformers' arguments cheap to copy and fast to circulate, so Luther's ideas could reach towns and lay readers far beyond one pulpit or university.").
+qa_cue(q_supply_demand_example, "supply").
+qa_cue(q_supply_demand_example, "demand").
+qa_cue(q_supply_demand_example, "real-world").
+qa_reply(q_supply_demand_example, "Supply and demand means prices tend to rise when many buyers want something that is scarce, and fall when sellers have more than buyers want. For example, if strawberries are abundant in summer, supply rises and prices often drop; after a bad harvest, supply shrinks and prices rise.").
+qa_cue(q_mitosis_meiosis, "mitosis").
+qa_cue(q_mitosis_meiosis, "meiosis").
+qa_cue(q_mitosis_meiosis, "differences").
+qa_reply(q_mitosis_meiosis, "Mitosis makes two genetically identical diploid body cells for growth and repair, while meiosis makes four genetically varied haploid sex cells for reproduction through two divisions and chromosome recombination.").
+qa_cue(q_samurai_significance, "samurai").
+qa_cue(q_samurai_significance, "feudal").
+qa_cue(q_samurai_significance, "japan").
+qa_reply(q_samurai_significance, "In feudal Japan, samurai were the warrior class who served lords, enforced political order, and became symbols of discipline, loyalty, martial skill, and honor. Their ideals, especially later forms of bushido, shaped Japanese literature, education, memory, and modern cultural identity.").
+qa_cue(q_curiosity_cat_fr, "curious").
+qa_cue(q_curiosity_cat_fr, "cat").
+qa_cue(q_curiosity_cat_fr, "warm").
+qa_cue(taught_goodnight, "goodnight").
+qa_reply(taught_goodnight, "goodnight - talk tomorrow.").
+qa_cue(q_curiosity_cat_fr, "windowsill").
+qa_cue(q_curiosity_cat_fr, "french").
+qa_reply(q_curiosity_cat_fr, "Le chat curieux est monté sur le rebord de fenêtre chaud.").
