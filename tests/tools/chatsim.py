@@ -13,7 +13,7 @@ Provider: opencode-GO (OpenAI-compatible), base https://opencode.ai/zen/go/v1,
 auth via $OPENCODE_API_KEY. Non-deterministic by design: it produces transcripts +
 a naturalness summary, NOT a pass/fail gate.
 
-Usage: .venv/bin/python tests/chatsim.py --convos 5 --turns 6 --model minimax-m2.5
+Usage: .venv/bin/python tests/tools/chatsim.py --convos 5 --turns 6 --model minimax-m2.5
 """
 from __future__ import annotations
 import argparse, json, os, random, re, subprocess, sys, time, urllib.request, urllib.error

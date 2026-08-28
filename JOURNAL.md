@@ -158,7 +158,7 @@ how FAR it reaches.
 maturity (ABSENT/SEED/TRANSFER/FIELD/HARDENED) and the WALL blocking the next
 level, and `make capability-report` verifies those claims against real gate
 results. Nothing loaded it. Forge plan §18 asks for exactly this, so
-`tests/capability_facts.py` projects it into knowledge:
+`tests/tools/capability_facts.py` projects it into knowledge:
 
     capability(multi_file_editing, absent).
     capability_wall(multi_file_editing, "patch transaction + rollback").
@@ -420,7 +420,7 @@ fixture instruments; the teacher-comparison and the real datasets they were name
 for do not exist yet, and pretending otherwise is how a suite starts believing
 its own labels.
 
-**The audit (`tests/manifest_audit.py`, in `make test`).** Three checks, each one
+**The audit (`tests/tools/manifest_audit.py`, in `make test`).** Three checks, each one
 a lie the manifest actually told: (1) the script a row names must exist; (2)
 `gate` requires a load-bearing exit — a script ending in unconditional success
 CANNOT go red, so it is an instrument, not a ratchet; (3) `external` must name
@@ -468,7 +468,7 @@ quietly exempt. `slug()` is pure bash on purpose: a `tr|sed` pipe forked 254
 processes to answer one question, which is the very cost this row exists to
 remove (1.39 s → 0.94 s for a single probe).
 
-**The runner learned a second oracle kind.** `tests/check.py` grows
+**The runner learned a second oracle kind.** `tests/tools/check.py` grows
 `oracle_kind: script-row`: a contract whose oracle is one ROW of a shell
 harness, addressed with `--id`. The harness owns its own boot (that IS the
 contract it asserts), so no env is injected — the catalog says so with
@@ -532,7 +532,7 @@ direction before the hypothesis cools.
 
 **F.'s design**: "una target make autolearn che si mette lì ad automigliorarsi con
 MCP e loop di reasoning, alimentata dal provider opencode (OPENCODE_API_KEY)".
-Built as `tests/autolearn.py` (same provider idiom as llmscore.py) — no C change:
+Built as `tests/tools/autolearn.py` (same provider idiom as llmscore.py) — no C change:
 the training interface is the U-series MCP engine, used as intended.
 
 **The loop.** One opencode-GO model (default minimax-m2.5) plays three roles around
@@ -5349,7 +5349,7 @@ contraction parsing for "whats", "dont", "cant" etc. in the canonicalization lay
 
 ## 2026-06-16 — gen71: C7 step 1 — Italian apology markers + canonicalization
 
-**Changed:** `brain.c` → `gen71-apology-social`; `kb/lexicon.p0`; `tests/chatsim.py`.
+**Changed:** `brain.c` → `gen71-apology-social`; `kb/lexicon.p0`; `tests/tools/chatsim.py`.
 
 - Added apology marker set in `mod_social`: "sorry", "scusa", "scusate", "scusi",
   "dispiace" + cue("mi dispiace"). Pure apologies get "No problem."; mixed turns
@@ -5386,7 +5386,7 @@ the fallback word-reflecting path from cataloguing them.
 
 ## 2026-06-16 — gen70: C6 step 3 — chat-sim validation + fallback word threshold + fixed wall proxy
 
-**Changed:** `brain.c` → `gen70-fallback-word-threshold`; `tests/chatsim.py`.
+**Changed:** `brain.c` → `gen70-fallback-word-threshold`; `tests/tools/chatsim.py`.
 
 - Raised the fallback word-reflecting threshold from `strlen(t) >= 4` to `>= 6`
   in `not_understood()`. The word-reflecting path ("Hmm, I don't know about X
@@ -5395,7 +5395,7 @@ the fallback word-reflecting path from cataloguing them.
   ignorance. Shorter common words now get the generic non-understanding variants
   instead; only longer, unusual-looking tokens (proper nouns, technical terms,
   foreign words) trigger the word-reflecting path.
-- Fixed `tests/chatsim.py` wall rate proxy: it previously only counted the
+- Fixed `tests/tools/chatsim.py` wall rate proxy: it previously only counted the
   classic "I don't understand that yet." string, missing all the varied fallback
   responses gen55 introduced. Now it catches all 5 fallback patterns (classic +
   3 generic variants + word-reflecting "Hmm, I don't know about…").
@@ -5838,7 +5838,7 @@ Rex" → "what is my dog called?" → "Rex").
 > top. These are explicitly provisional — not commitments.
 
 ### D-2026-06-15x — an LLM-simulated user is the adversarial conversation benchmark
-gen54 adds `tests/chatsim.py` (`make chat-sim`): a cheap opencode-GO model
+gen54 adds `tests/tools/chatsim.py` (`make chat-sim`): a cheap opencode-GO model
 (minimax-m2.5, base https://opencode.ai/zen/go/v1) role-plays a HIGHLY VARIABLE
 human (randomized persona: identity/mood/verbosity/language/quirk + high temp) and
 drives multi-turn chats with parrot0; every exchange is logged, with wall-rate and
@@ -6247,7 +6247,7 @@ time.
 
 ## 2026-06-15 — gen54: chatsim — LLM-simulated-user conversation benchmark + analysis
 
-**Changed:** new `tests/chatsim.py`, `make chat-sim`, transcripts under
+**Changed:** new `tests/tools/chatsim.py`, `make chat-sim`, transcripts under
 `tests/chat/sim/`. No `brain.c` change — this builds an instrument and analyzes,
 like gen50 (C0).
 

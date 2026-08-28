@@ -32,7 +32,7 @@ the oracle untouched (131 pass / 0 fail). The two open-coded
 "external" while running offline; `basic-chat` named a script that does not
 exist. glue's exit code is now load-bearing on its 9 mechanical continuity checks
 (the qualitative rows stay discovery); the other three are reclassified honestly;
-`tests/manifest_audit.py` (in `make test`) goes red on a false classification and
+`tests/tools/manifest_audit.py` (in `make test`) goes red on a false classification and
 is itself ratcheted against manifests that lie.
 
 **Done — gen321 (§15 row 7): the commit stamp is isolated.** A semantically

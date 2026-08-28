@@ -20,7 +20,7 @@ vote plus the total score. Every point must be won by genuine, honest
 capability — never by pretending to be an LLM (the no-deception rule). The score climbs
 only as parrot0 grows real competence, KB-first.
 
-Framework: same provider/auth/idiom as tests/chatsim.py and tests/bench/symbench.py
+Framework: same provider/auth/idiom as tests/tools/chatsim.py and tests/bench/symbench.py
 (opencode-GO, OpenAI-compatible, $OPENCODE_API_KEY, base https://opencode.ai/zen/go/v1).
 Non-deterministic, external, costs a little — NOT part of `make test`.
 

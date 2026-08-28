@@ -97,12 +97,12 @@
     {
       "id": "basic-chat",
       "target": "basic-chat-bench",
-      "script": "tests/basicchat.sh",
+      "script": "tests/bench/basicchat.sh",
       "area": "conversation",
       "semantics": "discovery",
       "exit_contract": "always-zero",
       "requires": [],
-      "oracle": "tests/basicchat.sh over docs/plans/basic-chat.md",
+      "oracle": "tests/bench/basicchat.sh over docs/plans/basic-chat.md",
       "gate": "none — corpus of probes; closed prompts ratchet via tests/cases"
     },
     {
@@ -174,7 +174,7 @@
     {
       "id": "chat-sim",
       "target": "chat-sim",
-      "script": "tests/chatsim.py",
+      "script": "tests/tools/chatsim.py",
       "area": "conversation",
       "semantics": "external",
       "exit_contract": "always-zero",

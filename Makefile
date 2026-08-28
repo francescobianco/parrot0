@@ -229,7 +229,7 @@ game-bench: build
 # costs a little). Logs transcripts to tests/chat/sim/ and prints naturalness
 # proxies. Not part of `make test` (non-deterministic, external).
 chat-sim: build
-	@$(BENCH_PY) ./tests/chatsim.py
+	@$(BENCH_PY) ./tests/tools/chatsim.py
 
 # selfchat-baseline (gen335): an LLM talks to ITSELF, saved as the GOLD reference for
 # the long-conversation mission (docs/plans/long-conversation.md) — what a naturally
@@ -297,7 +297,7 @@ reasoning-operators: build
 # Vars: ROUNDS=n WORKERS=n MULTIPLY=n RETRIES=n MODEL=slug KB=file LEDGER=file
 #       PROBES=file (controlled mode).
 autolearn: build
-	@$(BENCH_PY) ./tests/autolearn.py --rounds $(or $(ROUNDS),5) \
+	@$(BENCH_PY) ./tests/tools/autolearn.py --rounds $(or $(ROUNDS),5) \
 		--workers $(or $(WORKERS),5) --multiply $(or $(MULTIPLY),20) \
 		--retries $(or $(RETRIES),2) --model $(or $(MODEL),minimax-m2.5) \
 		--kb $(or $(KB),kb/learning/autolearn-unrouted.p0) \
@@ -329,24 +329,24 @@ longtalk-bench: build
 # `make check TEST=routing.agent-search.en` runs that contract; a prefix runs the
 # family. This is the Tick's instrument: the whole suite is not a probe.
 check: build
-	@$(BENCH_PY) ./tests/check.py
+	@$(BENCH_PY) ./tests/tools/check.py
 
 # gen325 (forge §18): project the capability ledger into KB facts, so parrot0's
 # answer about its own LIMITS is derived from gate evidence, not hand-written.
 # kb/core/capabilities.p0 is GENERATED — never hand-edit it.
 capability-facts:
-	@$(BENCH_PY) ./tests/capability_facts.py
+	@$(BENCH_PY) ./tests/tools/capability_facts.py
 
 # gen316 (forge W0): run every benchmark the manifest (tests/benchmarks.json)
 # declares as a 'gate' ratchet; red gate = baseline-broken, nothing promotes.
 gate: build
-	@$(BENCH_PY) ./tests/gate.py
+	@$(BENCH_PY) ./tests/tools/gate.py
 
 # gen317 (forge W0.3): the capability ledger, GENERATED from gate results —
 # verifies each faculty maturity claim against its evidence benchmarks and
 # writes docs/capabilities/manifest.json. Exits red if a claim regressed.
 capability-report: build
-	@$(BENCH_PY) ./tests/capability_report.py
+	@$(BENCH_PY) ./tests/tools/capability_report.py
 
 # gen345 — the NEW test system. `test-engine` OWNS the background daemon's
 # lifecycle: it kills a stale instance (via the pidfile) and starts a fresh one,
@@ -849,13 +849,13 @@ legacy-test: build
 	@./tests/agentcommit.sh
 	@./tests/segment.sh
 	@./tests/universal-input.sh
-	@$(BENCH_PY) ./tests/openai-input-limit.py
-	@$(BENCH_PY) ./tests/autolearn_structure.py
+	@$(BENCH_PY) ./tests/tools/openai-input-limit.py
+	@$(BENCH_PY) ./tests/tools/autolearn_structure.py
 	@./tests/bench/llmscore-kbfirst.sh
 	@./tests/kb-evidence-scale.sh
 	@./tests/mcp-input-payload.sh
 	@./tests/learnbuild.sh
-	@$(BENCH_PY) ./tests/manifest_audit.py
+	@$(BENCH_PY) ./tests/tools/manifest_audit.py
 	@./tests/cuechains.sh
 	@./tests/archetype.sh
 	@./tests/persist.sh

@@ -33,7 +33,7 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 # $PARROT0_MANIFEST points the audit at a fixture manifest. The ratchet
 # (tests/checkfocal.sh) feeds it manifests that lie, and asserts it goes RED —
 # an audit nobody has seen fail is just another unverified claim.

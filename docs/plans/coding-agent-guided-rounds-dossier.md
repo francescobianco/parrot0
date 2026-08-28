@@ -445,7 +445,7 @@ tests/exec-dirfd.sh                 14/14
 tests/agentrepair.sh               ratchet strutturale verde
 tests/repair.sh                      9/9
 tests/toolexec.sh                   25/25
-tests/openai-input-limit.py          7/7
+tests/tools/openai-input-limit.py          7/7
 ```
 
 Il baseline conversazionale sigillato resta **180 pass / 73 fail**. Il gate

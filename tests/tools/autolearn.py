@@ -30,7 +30,7 @@ $OPENCODE_API_KEY, base https://opencode.ai/zen/go/v1). Non-deterministic,
 external, costs a little — NOT part of `make test`. Report appended to
 AUTOLEARN.md at the repo root.
 
-Usage: .venv/bin/python tests/autolearn.py [--rounds 5] [--probes FILE]
+Usage: .venv/bin/python tests/tools/autolearn.py [--rounds 5] [--probes FILE]
          [--model minimax-m2.5] [--kb kb/learning/autolearn-unrouted.p0]
          [--retries 2] [--skip-list kb/learning/autolearn-skip.txt]
 """

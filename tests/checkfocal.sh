@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # gen318 (forge-master-plan W0b, M-1a §19) — the ratchet for the FOCAL runner
-# (`make check TEST=<id>`, tests/check.py).
+# (`make check TEST=<id>`, tests/tools/check.py).
 #
 # A runner that can only say PASS is worthless, so this proves the three
 # properties M-1a actually claims, against a FIXTURE catalog ($PARROT0_CONTRACTS)
@@ -32,7 +32,7 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
 # ---- 1. the REAL contract, addressed by id, is green -------------------------
-out="$(cd "$ROOT" && TEST=routing.agent-search.en "$PY" tests/check.py 2>&1)"; rc=$?
+out="$(cd "$ROOT" && TEST=routing.agent-search.en "$PY" tests/tools/check.py 2>&1)"; rc=$?
 if [ "$rc" -eq 0 ] && printf '%s\n' "$out" | grep -q '^\[S1 1/1 PASS'; then
     ok "routing.agent-search.en addressable by id and green"
 else
@@ -77,7 +77,7 @@ cat > "$WORK/catalog.json" <<JSON
 JSON
 
 out="$(cd "$ROOT" && PARROT0_CONTRACTS="$WORK/catalog.json" TEST=fixture \
-        "$PY" tests/check.py 2>&1)"; rc=$?
+        "$PY" tests/tools/check.py 2>&1)"; rc=$?
 if [ "$rc" -eq 1 ]; then
     ok "a red contract exits 1 (functional red)"
 else
@@ -121,7 +121,7 @@ cat > "$WORK/broken.json" <<JSON
 JSON
 
 out="$(cd "$ROOT" && PARROT0_CONTRACTS="$WORK/broken.json" TEST=fixture \
-        "$PY" tests/check.py 2>&1)"; rc=$?
+        "$PY" tests/tools/check.py 2>&1)"; rc=$?
 if [ "$rc" -eq 2 ]; then
     ok "a broken harness exits 2 (not-run), not 1 (functional red)"
 else
@@ -135,7 +135,7 @@ else
 fi
 
 # ---- 4. an unknown id is refused, not silently green -------------------------
-out="$(cd "$ROOT" && TEST=no.such.contract "$PY" tests/check.py 2>&1)"; rc=$?
+out="$(cd "$ROOT" && TEST=no.such.contract "$PY" tests/tools/check.py 2>&1)"; rc=$?
 if [ "$rc" -eq 2 ] && printf '%s\n' "$out" | grep -q 'no contract matches'; then
     ok "an unknown contract id is refused (exit 2), not reported green"
 else
@@ -146,7 +146,7 @@ fi
 # llmscore_world is 131 fresh boots; a single probe must be addressable
 # without paying for the 130 nobody asked about. The full-suite oracle itself is
 # ratcheted where it always was — `make test` runs the whole script.
-out="$(cd "$ROOT" && TEST=world.tallest-mountain.en "$PY" tests/check.py 2>&1)"; rc=$?
+out="$(cd "$ROOT" && TEST=world.tallest-mountain.en "$PY" tests/tools/check.py 2>&1)"; rc=$?
 if [ "$rc" -eq 0 ] && printf '%s\n' "$out" | grep -q '^\[S1 1/1 PASS'; then
     ok "a script-row probe is addressable alone and green"
 else
@@ -179,11 +179,11 @@ fi
 audit() { # fixture-json -> prints output, sets rc
     printf '%s' "$1" > "$WORK/manifest.json"
     (cd "$ROOT" && PARROT0_MANIFEST="$WORK/manifest.json" \
-        "$PY" tests/manifest_audit.py 2>&1)
+        "$PY" tests/tools/manifest_audit.py 2>&1)
 }
 
 # (a) the truthful manifest passes.
-out="$(cd "$ROOT" && "$PY" tests/manifest_audit.py 2>&1)"; rc=$?
+out="$(cd "$ROOT" && "$PY" tests/tools/manifest_audit.py 2>&1)"; rc=$?
 if [ "$rc" -eq 0 ]; then
     ok "the real manifest matches its scripts"
 else

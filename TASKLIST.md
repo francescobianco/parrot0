@@ -90,7 +90,7 @@ the wall response is itself a metric to drive down.
 
 ### C0b - chatsim: the LLM-simulated-user benchmark (DONE, gen54)
 A cheap opencode-GO model role-plays a mutable human chatting with parrot0
-(`tests/chatsim.py`, `make chat-sim`); transcripts in `tests/chat/sim/`; reports
+(`tests/tools/chatsim.py`, `make chat-sim`); transcripts in `tests/chat/sim/`; reports
 wall-rate / repetition-rate. The adversarial, generative complement to C0.
 Baseline measured: wall ~88%, repetition ~77%. Non-deterministic, not in
 `make test`.

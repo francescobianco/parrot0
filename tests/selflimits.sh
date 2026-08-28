@@ -15,7 +15,7 @@
 # reaches.
 #
 # The answer is now DERIVED from capability/2 + capability_wall/2, projected by
-# tests/capability_facts.py from the ledger the gates verify. This test proves it
+# tests/tools/capability_facts.py from the ledger the gates verify. This test proves it
 # is derived and not written, which is the whole point:
 #
 #   1. an ADDED faculty appears in the answer with no code change;

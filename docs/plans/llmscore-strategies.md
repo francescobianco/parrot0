@@ -125,7 +125,7 @@ non "quale handler scrivo?".
    aritmetico per formule, walker di stato): generazioni C classiche, gate-first,
    ognuna tirata da una lezione fallita documentata — mai speculativa.
 5. **T0.e — il trainer automatizzato — FATTO (gen305, `make autolearn`).**
-   `tests/autolearn.py`: un modello opencode-GO (`$OPENCODE_API_KEY`, default
+   `tests/tools/autolearn.py`: un modello opencode-GO (`$OPENCODE_API_KEY`, default
    minimax-m2.5) gioca interviewer/judge/teacher attorno a `--mcp-engine`.
    Probe → giudizio → su 0 il teacher legge il declino che nomina il gap e
    formula la LEZIONE (soli predicati whitelisted con consumer verificato) →

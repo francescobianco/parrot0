@@ -29,7 +29,7 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 # $PARROT0_CONTRACTS points the runner at a fixture catalog. The ratchet
 # (tests/checkfocal.sh) uses it to feed the runner a KNOWN-RED contract and
 # prove the fail-fast is real — a runner that can only say PASS is worthless.
