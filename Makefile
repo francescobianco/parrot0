@@ -497,6 +497,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/mcp/strknow.p0t
 	@./$(BIN) --test tests/p0t/mcp/assertretract.p0t
 	@./$(BIN) --test tests/p0t/mcp/call.p0t
+	@./$(BIN) --test tests/p0t/proof/howknow.p0t
 	@./$(BIN) --test tests/p0t/conversation/dialogue_moves.p0t
 	@./$(BIN) --test tests/p0t/conversation/context_scope.p0t
 	@./$(BIN) --test tests/p0t/conversation/conversation.p0t
@@ -880,7 +881,6 @@ legacy-test: build
 	@./tests/savemap.sh
 	@./tests/multigoal.sh
 	@./tests/explain.sh
-	@./tests/howknow.sh
 	@./tests/booklearn.sh
 	@./tests/wiki_learning.sh
 	@./tests/research_learn.sh

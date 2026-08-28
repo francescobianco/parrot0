@@ -1,0 +1,32 @@
+# howknow.p0t — convertito da tests/howknow.sh (gen444).
+#
+# gen26: proof depth — a BBH-like probe distinguishing direct facts from
+# multi-step (composed) inference. "how do you know <x> is a/an <y>?" reads the
+# proof trace and reports whether the belief is held DIRECTLY (a stored fact)
+# or reached BY N STEPS of reasoning (rule applications along the chain), and
+# refuses what it cannot prove. Held-out nonsense predicates ensure the answer
+# comes from the proof structure, not from recognised English.
+
+[test howknow]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+!assert quux(zibo)
+!clause flob($X) :- quux($X)
+!clause warg($X) :- flob($X)
+
+# direct fact is direct
+> how do you know zibo is a quux?
+< Directly: quux(zibo) is a known fact.
+
+# one rule is one step
+> how do you know zibo is a flob?
+< By 1 step of reasoning: flob(zibo) because quux(zibo).
+
+# two-rule chain is multi-step
+> how do you know zibo is a warg?
+< By 2 steps of reasoning: warg(zibo) because flob(zibo) because quux(zibo).
+
+# no proof, no invented chain
+> how do you know plouf is a warg?
+< I can't show that.
