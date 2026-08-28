@@ -164,13 +164,29 @@ static int mod_search(Brain *b, const char *norm, const char *raw,
     if (rl >= sizeof low) return 0;
     for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
 
-    /* Gate: an explicit action set ("using …") and a reach-target marker. */
-    const char *uk = strstr(low, "using"); if (!uk) uk = strstr(low, "usando");
+    /* Gate: action and target markers are KB facts; this module only compares
+     * positions in normalized text. */
+    const char *uk = NULL;
+    const char *uq[] = { NULL };
+    char using_rows[8][KB_TERM_LEN];
+    size_t nu = kb_match(b->kb, "search_using_marker", uq, 1, using_rows, 8);
+    for (size_t i = 0; i < nu; i++) {
+        const char *hit = strstr(low, kb_dequote(using_rows[i]));
+        if (hit && (!uk || hit < uk)) uk = hit;
+    }
     if (!uk) return 0;
-    const char *rk = NULL; const char *cues[] =
-        { "reach", "make", "get to", "raggiungere", "arrivare a", "ottenere", NULL };
-    for (size_t i = 0; cues[i]; i++) { const char *p = strstr(low, cues[i]);
-        if (p && p > uk && (!rk || p < rk)) rk = p; }
+    const char *rk = NULL;
+    const char *kinds[] = { "search_reach_marker", "search_make_marker",
+                            "search_get_to_marker" };
+    for (size_t k = 0; k < 3; k++) {
+        const char *q[] = { NULL };
+        char rows[8][KB_TERM_LEN];
+        size_t n = kb_match(b->kb, kinds[k], q, 1, rows, 8);
+        for (size_t i = 0; i < n; i++) {
+            const char *p = strstr(low, kb_dequote(rows[i]));
+            if (p && p > uk && (!rk || p < rk)) rk = p;
+        }
+    }
     if (!rk) return 0;
 
     /* start: first number before "using". */

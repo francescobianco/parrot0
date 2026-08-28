@@ -1183,3 +1183,11 @@ Le superfici `run `, `compile`, `learn `, `impara ` e i delimitatori sorgente
 seleziona la superficie più precoce/più lunga, poi conserva solo gli offset e
 il parsing del comando o dei passi. L’aggiunta di una forma nuova non richiede
 ricompilazione.
+
+### Gen484 — marker della ricerca agente separati in quattro relazioni KB
+
+Le famiglie `using/usando`, `reach/raggiungere`, `make/arrivare a` e
+`get to/ottenere` sono ora rispettivamente `search_using_marker/1`,
+`search_reach_marker/1`, `search_make_marker/1` e `search_get_to_marker/1`.
+Il consumer mantiene solo la precedenza spaziale dei marker e il parsing
+strutturale della richiesta; il ratchet verifica anche crescita e ablazione.

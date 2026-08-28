@@ -1535,6 +1535,14 @@ agent_branch_step("divide", "/", 0).
 machinery(agent_parity_marker).
 agent_parity_marker(even, "even"). agent_parity_marker(even, "pari").
 agent_parity_marker(odd, "odd"). agent_parity_marker(odd, "dispari").
+machinery(search_using_marker).
+search_using_marker("using"). search_using_marker("usando").
+machinery(search_reach_marker).
+search_reach_marker("reach"). search_reach_marker("raggiungere").
+machinery(search_make_marker).
+search_make_marker("make"). search_make_marker("arrivare a").
+machinery(search_get_to_marker).
+search_get_to_marker("get to"). search_get_to_marker("ottenere").
 agent_branch_step("dividi", "/", 0).
 agent_branch_step("diviso", "/", 0).
 apply_operator(divide, $A, $B, $R) :- dif($B, 0), is($R, div($A, $B)).
