@@ -12,16 +12,38 @@ static int mod_induce(Brain *b, const char *norm, const char *raw,
      * "probe -> ?" line. */
     enum { Q_NONE, Q_CONT, Q_NEXT, Q_RULE } q = Q_NONE;
     const char *np = NULL;             /* where the query's argument starts */
-    const char *m;
-    if ((m = strstr(low, "continue from")))      { q = Q_CONT; np = m + 13; }
-    else if ((m = strstr(low, "continua da")))   { q = Q_CONT; np = m + 11; }
-    else if ((m = strstr(low, "what comes after"))){ q = Q_NEXT; np = m + 16; }
-    else if ((m = strstr(low, "cosa viene dopo"))){ q = Q_NEXT; np = m + 15; }
-    else if ((m = strstr(low, "apply it to")))   { q = Q_NEXT; np = m + 11; }
-    else if ((m = strstr(low, "applicala a")))   { q = Q_NEXT; np = m + 11; }
-    else if (strstr(low,"what is the rule") || strstr(low,"what's the rule") ||
-             strstr(low,"qual è la regola") || strstr(low,"quale regola") ||
-             strstr(low,"che regola")) q = Q_RULE;
+    const char *m = NULL;
+    char selected_surface[KB_TERM_LEN] = "";
+    char (**phrases)[KB_TERM_LEN] = NULL;
+    size_t nphrases = 0;
+    const char *pq[] = { NULL, NULL };
+    if (kb_match_all(b->kb, "induce_query_phrase", pq, 2,
+                     phrases, &nphrases)) {
+        size_t best_len = 0;
+        for (size_t i = 0; i < nphrases; i++) {
+            const char *surface = kb_dequote((*phrases)[i]);
+            const char *hit = surface ? strstr(low, surface) : NULL;
+            if (!hit) continue;
+            const char *sq[] = { (*phrases)[i], NULL };
+            char kind[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "induce_query_phrase", sq, 2, kind, 1) != 1)
+                continue;
+            size_t span = strlen(surface);
+            if (!m || hit < m || (hit == m && span > best_len)) {
+                m = hit; best_len = span;
+                snprintf(selected_surface, sizeof selected_surface, "%s", surface);
+                const char *k = kb_dequote(kind[0]);
+                if (k && strcmp(k, "continue") == 0) q = Q_CONT;
+                else if (k && strcmp(k, "next") == 0) q = Q_NEXT;
+                else if (k && strcmp(k, "rule") == 0) q = Q_RULE;
+                else q = Q_NONE;
+            }
+        }
+        free(*phrases);
+    }
+    if (q != Q_NONE && m) {
+        np = m + strlen(selected_surface);
+    }
     if (q == Q_NONE) return 0;
 
     /* Parse the transition pairs. Examples live before the query phrase. */

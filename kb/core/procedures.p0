@@ -1554,3 +1554,17 @@ apply_operator(gcd_op, $A, $B, $R) :- gt($B, 0), is($M, mod($A, $B)), apply_oper
 % E la media, che e' una composizione: somma e poi divide.
 infix_operator("avg", avg_op).
 apply_operator(avg_op, $A, $B, $R) :- is($R, div(add($A, $B), 2)).
+% Surface forms that open an induction request. The consumer only keeps the
+% operational kind and the matched span; new language forms are KB data.
+machinery(induce_query_phrase).
+induce_query_phrase("continue from", continue).
+induce_query_phrase("continua da", continue).
+induce_query_phrase("what comes after", next).
+induce_query_phrase("cosa viene dopo", next).
+induce_query_phrase("apply it to", next).
+induce_query_phrase("applicala a", next).
+induce_query_phrase("what is the rule", rule).
+induce_query_phrase("what's the rule", rule).
+induce_query_phrase("qual è la regola", rule).
+induce_query_phrase("quale regola", rule).
+induce_query_phrase("che regola", rule).

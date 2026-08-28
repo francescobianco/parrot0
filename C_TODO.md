@@ -1131,3 +1131,12 @@ ratchet mostra anche assert/query/forget di una copula nuova.
 Le regressioni `entail.p0t` e `syllogism_universal.p0t` mantengono il loro
 contratto storico; il primo riconosce le forme ma conserva nove differenze di
 template già presenti, mentre il secondo passa 1/1.
+
+### Gen478 — frasi di apertura dell’induzione come dati KB
+
+Le undici forme inglesi e italiane che aprono una richiesta di induzione sono
+state raccolte in `induce_query_phrase(Surface, Kind)`. Il consumer enumera le
+superfici dalla KB, sceglie la corrispondenza più precoce (e, a parità, più
+lunga) e conserva solo il tipo operativo `continue/next/rule`; offset, parsing
+degli esempi e calcolo restano meccanici. Il ratchet verifica anche una nuova
+forma aggiunta e ritirata senza ricompilare.
