@@ -569,6 +569,14 @@ La stessa astrazione ora copre le query di capitale: `capital_of_country` è
 risolta dal binding `domain_relation(capital, capital_of_country)` invece che
 da sette chiamate dirette nel modulo memoria.
 
+Il lotto `gen462` ha inoltre spostato in KB le estensioni e i nomi dei linguaggi
+usati dal comando di elenco file (`file_extension/1`, `file_kind_word/2`); il
+parser conserva solo la meccanica del glob esplicito.
+
+Il lotto `gen462` ha anche portato `has_arith_cue()` alla classe KB
+`arithmetic_word/1`, lasciando nel C soltanto il riconoscimento meccanico dei
+simboli operatori.
+
 Il percorso N-ario copre ora anche `magnitude/3` e `planet_superlative/3`:
 quattordici query del modulo memoria risolvono il predicato tramite
 `domain_relation/2`, lasciando nel C solo il ruolo semantico della richiesta.
