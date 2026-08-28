@@ -1,0 +1,56 @@
+# semantic_summary.p0t — contratto di crescita degli alias insegnabili di un
+# topic semantico, e del suo CANCELLO. Convertito da
+# tests/semantic_summary_growth.sh (gen444).
+#
+# Due meccanismi distinti, non uno:
+#   `semantic_topic_cue`  apre una superficie nuova verso un topic esistente;
+#   `semantic_topic_gate` decide se quel topic ha diritto di parlare.
+# Un alias senza cancello non basta, e un cancello che non combacia deve far
+# TACERE il topic invece di lasciarlo passare — che e' il punto del test.
+
+[test semantic_summary_alias_growth]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!set PARROT0_WORLD_FACTS=1
+!reset
+
+# l'alias non esiste ancora
+!mcp gen.respond {"input":"Explain gravitas-alpha."}
+<! draws objects toward its center
+
+# lo si insegna a runtime: la stessa domanda ora raggiunge il topic
+!mcp kb.assert {"pred":"semantic_topic_cue","args":["gravity","keyword(gravitas-alpha)"]}
+!mcp gen.respond {"input":"Explain gravitas-alpha."}
+<~ draws objects toward its center
+
+# e ritraendolo la superficie si richiude
+!mcp kb.retract {"pred":"semantic_topic_cue","args":["gravity","keyword(gravitas-alpha)"]}
+!mcp gen.respond {"input":"Explain gravitas-alpha."}
+<! draws objects toward its center
+
+[test semantic_summary_gate_growth]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!set PARROT0_WORLD_FACTS=1
+!reset
+# un secondo alias, per provare il cancello su una superficie pulita
+!mcp kb.assert {"pred":"semantic_topic_cue","args":["gravity","keyword(gateprobe-alpha)"]}
+!mcp gen.respond {"input":"Explain gateprobe-alpha."}
+<~ draws objects toward its center
+
+# un cancello che NON combacia deve far tacere il topic
+!mcp kb.assert {"pred":"semantic_topic_gate","args":["gravity","sealedgravity"]}
+!mcp gen.respond {"input":"Explain gateprobe-alpha."}
+<! draws objects toward its center
+
+# un cancello che combacia lo riapre
+!mcp kb.assert {"pred":"semantic_topic_gate","args":["gravity","keyword(gateprobe-alpha)"]}
+!mcp gen.respond {"input":"Explain gateprobe-alpha."}
+<~ draws objects toward its center
+
+# e toglierlo lo richiude
+!mcp kb.retract {"pred":"semantic_topic_gate","args":["gravity","keyword(gateprobe-alpha)"]}
+!mcp gen.respond {"input":"Explain gateprobe-alpha."}
+<! draws objects toward its center

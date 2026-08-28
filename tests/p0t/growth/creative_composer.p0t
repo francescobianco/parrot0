@@ -1,0 +1,86 @@
+# creative_composer.p0t — contratti di crescita del vocabolario creativo:
+# la RICHIESTA, il marcatore di TOPIC, la classe di ARTEFATTO e i loro cancelli.
+# Convertito da tests/creative_composer_growth.sh (gen444).
+#
+# Quattro meccanismi distinti, tenuti in sezioni separate perche' falliscono per
+# ragioni diverse:
+#   intent_cue(creative_text_request|generic_dialogue_request)  apre la richiesta
+#   intent_cue(creative_topic_marker)                           apre il topic
+#   creative_response + creative_response_gate                  la classe e il suo cancello
+#   creative_text_gate                                          il cancello del testo
+#
+# Il cancello e' la meta' che conta: uno che NON combacia deve far tacere il
+# candidato, non lasciarlo passare.
+
+[test creative_request_cue_growth]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!set PARROT0_WORLD_FACTS=1
+!reset
+
+!mcp gen.respond {"input":"Dialog-alpha about orbital gardens."}
+<! Mara:
+
+!mcp kb.assert {"pred":"intent_cue","args":["creative_text_request","dialog-alpha"]}
+!mcp kb.assert {"pred":"intent_cue","args":["generic_dialogue_request","dialog-alpha"]}
+!mcp gen.respond {"input":"Dialog-alpha about orbital gardens."}
+<~ Mara:
+
+!mcp kb.retract {"pred":"intent_cue","args":["generic_dialogue_request","dialog-alpha"]}
+!mcp kb.retract {"pred":"intent_cue","args":["creative_text_request","dialog-alpha"]}
+!mcp gen.respond {"input":"Dialog-alpha about orbital gardens."}
+<! Mara:
+
+[test creative_topic_marker_growth]
+!mcp gen.respond {"input":"Write a dialogue concerning-alpha orbital gardens."}
+<! Mara:
+
+!mcp kb.assert {"pred":"intent_cue","args":["creative_topic_marker","concerning-alpha"]}
+!mcp gen.respond {"input":"Write a dialogue concerning-alpha orbital gardens."}
+<~ Mara:
+
+!mcp kb.retract {"pred":"intent_cue","args":["creative_topic_marker","concerning-alpha"]}
+!mcp gen.respond {"input":"Write a dialogue concerning-alpha orbital gardens."}
+<! Mara:
+
+[test creative_artifact_class_and_gate_growth]
+!mcp gen.respond {"input":"Artifact-alpha please."}
+<! footprints where no rain
+
+!mcp kb.assert {"pred":"intent_cue","args":["runtime_artifact","artifact-alpha"]}
+!mcp kb.assert {"pred":"creative_response","args":["runtime_artifact","historical_riddle_answer"]}
+!mcp gen.respond {"input":"Artifact-alpha please."}
+<~ footprints where no rain
+
+# un cancello che non combacia fa tacere l'artefatto
+!mcp kb.assert {"pred":"creative_response_gate","args":["runtime_artifact","sealed-alpha"]}
+!mcp gen.respond {"input":"Artifact-alpha please."}
+<! footprints where no rain
+
+# uno che combacia lo riapre
+!mcp kb.assert {"pred":"creative_response_gate","args":["runtime_artifact","keyword(artifact-alpha)"]}
+!mcp gen.respond {"input":"Artifact-alpha please."}
+<~ footprints where no rain
+
+!mcp kb.retract {"pred":"creative_response_gate","args":["runtime_artifact","keyword(artifact-alpha)"]}
+!mcp gen.respond {"input":"Artifact-alpha please."}
+<! footprints where no rain
+
+!mcp kb.retract {"pred":"creative_response_gate","args":["runtime_artifact","sealed-alpha"]}
+!mcp kb.retract {"pred":"creative_response","args":["runtime_artifact","historical_riddle_answer"]}
+!mcp kb.retract {"pred":"intent_cue","args":["runtime_artifact","artifact-alpha"]}
+!mcp gen.respond {"input":"Artifact-alpha please."}
+<! footprints where no rain
+
+[test creative_text_gate_growth]
+!mcp gen.respond {"input":"Write a short story futureprobe-alpha."}
+<! Dr. Mara Vale
+
+!mcp kb.assert {"pred":"creative_text_gate","args":["time_accident_story","keyword(futureprobe-alpha)"]}
+!mcp gen.respond {"input":"Write a short story futureprobe-alpha."}
+<~ Dr. Mara Vale
+
+!mcp kb.retract {"pred":"creative_text_gate","args":["time_accident_story","keyword(futureprobe-alpha)"]}
+!mcp gen.respond {"input":"Write a short story futureprobe-alpha."}
+<! Dr. Mara Vale
