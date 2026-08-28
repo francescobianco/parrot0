@@ -238,6 +238,12 @@ faculty_for(mention, reasoner).
 faculty_for(query, reasoner).
 faculty_for(prose_source, reader).
 
+% Claim order is knowledge. A routed source must reach its declared faculty
+% before a broad generator can reinterpret its payload as fiction. Adding or
+% retracting this fact changes arbitration at runtime; neither introducer nor
+% language is named by the engine.
+faculty_precedes_module(reader, gen).
+
 % A source span must stay whole until its faculty consumes the payload. This
 % replaces the decompose dispatcher's old special case for the literal `read:`;
 % every future cue inheriting the role receives the same policy at runtime.

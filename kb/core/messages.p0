@@ -87,6 +87,10 @@ response_template(teach_frame_like_ack, "Got it - «{phrase}» now asks the same
 response_template(teach_frame_like_ack, it, "Ricevuto — «{phrase}» d'ora in poi chiede la stessa cosa di «{anchor}».").
 response_template(no_question_by_that_wording, "«{anchor}» isn't a question I already know how to answer, so I have nothing to copy the new wording from.").
 response_template(no_question_by_that_wording, it, "«{anchor}» non è una domanda che so già rispondere, quindi non ho nulla da cui copiare la formulazione nuova.").
+response_template(teach_segment_like_ack, "Got it - «{phrase}» now introduces the same kind of input as «{anchor}».").
+response_template(teach_segment_like_ack, it, "Ricevuto — «{phrase}» d'ora in poi introduce lo stesso tipo di contenuto di «{anchor}».").
+response_template(no_segment_by_that_wording, "«{anchor}» doesn't introduce an input I already know how to route, so I have nothing to copy the new wording from.").
+response_template(no_segment_by_that_wording, it, "«{anchor}» non introduce un contenuto che so già instradare, quindi non ho nulla da cui copiare la formulazione nuova.").
 response_template(composed_with_caveat, "I composed `{name}` but {note}.").
 response_template(that_s_kind_of_you_thank_you, "That's kind of you — thank you!").
 response_template(the_day_unfolded_quietly_each_moment_c, "The day unfolded quietly, each moment carrying the weight of something unspoken. And in that stillness, a new chapter was beginning.").

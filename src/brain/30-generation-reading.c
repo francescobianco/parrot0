@@ -899,6 +899,35 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* M1 assisted learning: a typed span may have a faculty that the KB says
+     * must be offered the turn before this module.  The engine only performs
+     * segmentation and routing joins: neither the surface (read:/leggi:/a form
+     * taught tomorrow) nor the winning faculty is encoded here.  This closes
+     * the old failure where an explicit prose_source was turned into a story
+     * merely because `gen` happened to precede `reader` in the registry. */
+    {
+        InputSpan spans[64]; int ambiguous = 0, defer = 0;
+        size_t ns = input_segment(b->kb, raw, spans, 64, &ambiguous);
+        if (!ambiguous) {
+            for (size_t i = 0; i < ns && !defer; i++) {
+                char type[KB_TERM_LEN];
+                input_span_type(&spans[i], type, sizeof type);
+                char faculties[16][KB_TERM_LEN];
+                const char *fq[2] = { type, NULL };
+                size_t nf = kb_match(b->kb, "faculty_for", fq, 2,
+                                     faculties, 16);
+                for (size_t j = 0; j < nf; j++) {
+                    const char *pq[2] = { faculties[j], "gen" };
+                    if (kb_query(b->kb, "faculty_precedes_module", pq, 2)) {
+                        defer = 1;
+                        break;
+                    }
+                }
+            }
+        }
+        if (defer) return 0;
+    }
+
     /* gen335+: story generation from KB story_atoms.
      * Pattern A: "tell me a story about X that Y" — explicit request.
      * Pattern B: long narrative input (no '?', >100 chars) — continuation.

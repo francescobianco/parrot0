@@ -577,6 +577,13 @@ intent_cue(would_rather, "preferiresti").
 learnable("a way to ask",         answer_frame, frame_for).
 learnable("another way to ask",   answer_frame, frame_for).
 learnable("un modo per chiedere", answer_frame, frame_for).
+% M1 assisted learning: the teacher names a new introducer and points at an
+% introducer that already routes correctly. The role and faculty remain hidden:
+%   learn "study this passage:" as another way to introduce "read:"
+%   impara "leggi questo testo:" come un altro modo per introdurre "leggi:"
+learnable("another way to introduce",     segment_role, role_for).
+learnable("un altro modo per introdurre", segment_role, role_for).
+learnable("un altro modo di introdurre",  segment_role, role_for).
 learnable("ask my name",          ask_name,   exact).
 learnable("il mio nome",          ask_name,   exact).
 learnable("ask for short answers", brevity,   substring).

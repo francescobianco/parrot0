@@ -646,7 +646,7 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
         char family[KB_TERM_LEN] = "";
         int generic = 0;
         if (!strcmp(mode[0], "cue_for") || !strcmp(mode[0], "reply_for") ||
-            !strcmp(mode[0], "frame_for")) {
+            !strcmp(mode[0], "frame_for") || !strcmp(mode[0], "role_for")) {
             const char *after = strstr(low, ls);
             if (!after) continue;
             after += strlen(ls);
@@ -658,7 +658,7 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                 family[fl] = after[fl]; fl++;
             }
             family[fl] = '\0';
-            if (!family[0]) continue;
+            if (!family[0] && strcmp(mode[0], "role_for")) continue;
             /* Una famiglia si insegna, non si inventa: deve gia' esistere,
              * altrimenti la lezione scriverebbe in un cassetto che nessuno
              * apre — il caso `greeting(ahoy)` di conoscenza morta. */
@@ -688,6 +688,82 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
              * forma di domanda ha senso dove c'e' una relazione da interrogare.
              * Quindi la relazione deve gia' avere fatti, altrimenti la lezione
              * scriverebbe una porta davanti a una stanza vuota. */
+            if (!strcmp(mode[0], "role_for")) {
+                /* M1 assisted learning: teach a new input introducer by
+                 * pointing at one that already works, without asking the
+                 * teacher to know `segment_role`, its role atom, or a faculty
+                 * name.  The model surface is interpreted by the SAME universal
+                 * segmenter used at runtime; a live faculty_for/2 consumer is
+                 * the proof that copying the role will not create dead KB. */
+                char anchor[KB_TERM_LEN] = "";
+                const char *ap = strstr(low, ls);
+                if (ap) {
+                    ap += strlen(ls);
+                    while (*ap == ' ' || *ap == '\t') ap++;
+                    if (*ap == '"') {
+                        const char *ae = strchr(ap + 1, '"');
+                        size_t al = ae ? (size_t)(ae - (ap + 1)) : 0;
+                        if (al && al < sizeof anchor) {
+                            memcpy(anchor, ap + 1, al);
+                            anchor[al] = '\0';
+                        }
+                    }
+                }
+
+                char role[KB_TERM_LEN] = "";
+                int model_ok = 0, model_ambiguous = 0;
+                if (*anchor) {
+                    InputSpan spans[16]; int ambiguous = 0;
+                    size_t ns = input_segment(b->kb, anchor, spans, 16,
+                                              &ambiguous);
+                    if (!ambiguous) {
+                        for (size_t si = 0; si < ns; si++) {
+                            if (spans[si].cue_len == 0) continue;
+                            char type[KB_TERM_LEN];
+                            input_span_type(&spans[si], type, sizeof type);
+                            char consumer[1][KB_TERM_LEN];
+                            const char *cq[2] = { type, NULL };
+                            if (kb_match(b->kb, "faculty_for", cq, 2,
+                                         consumer, 1) != 1)
+                                continue;
+                            if (!role[0])
+                                snprintf(role, sizeof role, "%s", spans[si].role);
+                            else if (strcmp(role, spans[si].role) != 0)
+                                model_ambiguous = 1;
+                            model_ok = 1;
+                        }
+                    }
+                }
+                if (!model_ok || model_ambiguous) {
+                    char msg[320];
+                    kb_term_say(b, "no_segment_by_that_wording",
+                                (const KbResponseSlot[]){ { "anchor", anchor } },
+                                1, msg, sizeof msg);
+                    put(msg, out, outsz);
+                    return 1;
+                }
+
+                const char *n1 = strchr(norm, '"');
+                const char *n2 = n1 ? strchr(n1 + 1, '"') : NULL;
+                const char *f1 = n2 && n2 > n1 + 1 ? n1 : rq1;
+                const char *f2 = n2 && n2 > n1 + 1 ? n2 : rq2;
+                size_t fpl = (size_t)(f2 - (f1 + 1));
+                if (fpl == 0 || fpl >= KB_TERM_LEN - 2) continue;
+                char fphrase[KB_TERM_LEN], fq2[KB_TERM_LEN];
+                memcpy(fphrase, f1 + 1, fpl); fphrase[fpl] = '\0';
+                snprintf(fq2, sizeof fq2, "\"%s\"", fphrase);
+                kb_set_origin(b->kb, KB_SESSION);
+                const char *ra[2] = { role, fq2 };
+                kb_assert(b->kb, "segment_role", ra, 2);
+
+                char msg[320];
+                kb_term_say(b, "teach_segment_like_ack",
+                            (const KbResponseSlot[]){
+                                { "phrase", fphrase }, { "anchor", anchor }
+                            }, 2, msg, sizeof msg);
+                put(msg, out, outsz);
+                return 1;
+            }
             if (!strcmp(mode[0], "frame_for")) {
                 /* gen490 — M15, IL RESIDUO: LA LEZIONE NON DEVE NOMINARE LA
                  * RELAZIONE.

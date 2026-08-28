@@ -1,0 +1,68 @@
+# taught_segment_role.p0t — INSEGNARE COME SI INTRODUCE UN INPUT, SENZA SCHEMA.
+#
+# M1 di apprendimento-assistito: una forma nuova viene ancorata a una forma che
+# il teacher sa gia' usare. `segment_role/2`, il ruolo `prose_source` e la
+# facolta' `reader` non compaiono nella lezione. Replay, transfer e ablazione
+# avvengono nello stesso processo: e' crescita runtime, non una golden del binario.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+!timeout 60
+
+[test a routed introducer is learned from a working model]
+# BASELINE: the wording has no typed route yet.
+!mcp input.segment {"text":"study this passage: zibo has 2 gold."}
+!expect! mcp "role":"prose_source"
+
+# LESSON: no predicate, role, arity or faculty name.
+> learn "study this passage:" as another way to introduce "read:"
+< Got it - «study this passage:» now introduces the same kind of input as «read:».
+
+# REPLAY: the exact red surface now reaches the existing reader.
+> study this passage: zibo has 2 gold. nibo has 5 gold.
+< Learned 2 fact(s), skipped 0.
+!query gold(zibo, 2)
+!query gold(nibo, 5)
+
+# TRANSFER@3: new entities, predicates and rule shapes inherit the route.
+> study this passage: fire causes smoke. rain causes puddles.
+< Learned 2 fact(s), skipped 0.
+> study this passage: tariq is a knight. every knight is a noble.
+< Learned 2 fact(s), skipped 0.
+> study this passage: the otter swims downstream. the otter swims often.
+< Learned 2 fact(s), skipped 0.
+!query causes(fire, smoke)
+!query knight(tariq)
+
+# ABLATION: removing only the taught evidence removes recognition immediately.
+!forget segment_role(prose_source, "study this passage:")
+!mcp input.segment {"text":"study this passage: vela has 7 silver."}
+!expect! mcp "role":"prose_source"
+
+# RETEACH in the same process restores it without rebuilding.
+> learn "study this passage:" as another way to introduce "read:"
+< Got it - «study this passage:» now introduces the same kind of input as «read:».
+!mcp input.segment {"text":"study this passage: vela has 7 silver."}
+!expect mcp "role":"prose_source"
+!expect mcp "faculty":"reader"
+
+[test routed faculty precedence is live knowledge]
+# With the precedence fact, even long explicit input is read, never continued
+# as a story merely because `gen` is earlier in the registry.
+> read: zora is a navigator. zora is a person. every navigator is a traveler.
+< Learned 3 fact(s), skipped 0.
+
+# Removing the arbitration fact exposes the old competing interpretation.
+!forget faculty_precedes_module(reader, gen)
+> read: vega is a navigator. vega is a person. every navigator is a traveler.
+<! Learned 3 fact(s), skipped 0.
+
+# Restoring one KB fact restores route stability in the same binary.
+!assert faculty_precedes_module(reader, gen)
+> read: mira is a navigator. mira is a person. every navigator is a traveler.
+< Learned 3 fact(s), skipped 0.
