@@ -170,6 +170,20 @@ precondizione di qualunque sessione lunga.
 
 ## 6. Il cancello duro: nessuna sessione lunga prima del metalinguaggio
 
+> ⛔ **PRIORITÀ, indicata da F. il 2026-08-28.** Fra tutti gli strati di questo
+> capitolo, **M15 — le forme della domanda — va sbloccato per primo e il prima
+> possibile** (§6.2b). Non è una preferenza di ordine: è che M15 è l'unico che
+> rende *invisibili* i risultati di tutti gli altri. Si possono insegnare fatti
+> nuovi tutto il giorno, ma se non si può insegnare **come si chiedono**, quei
+> fatti non rispondono a nessuno — e il giro di addestramento sembra fallito
+> quando invece era riuscito.
+>
+> La misura che lo dice: `270` formulazioni interrogative scritte a mano coprono
+> `136` relazioni, quasi tutte in inglese. `which colors are used in chess`
+> risponde; `which color is used in chess` no. Oggi la differenza si colma
+> **editando un file**, e questo contraddice direttamente il criterio del
+> progetto: *l'addestramento via prompt è lo standard e non va mai bypassato.*
+
 **Regola.** Le dieci ore del §7 — e a maggior ragione qualunque teacher che giri
 come processo continuo — non si avviano finché gli strati di meta-comprensione
 elencati in questo capitolo non sono chiusi. Non è un ordine dei lavori
@@ -397,6 +411,151 @@ sparire e non tocca il resto.
 `utterance/3`, i registri di gap — sono esattamente quelli che oggi finiscono
 nella ricaduta di `/save` e che verrebbe facile scambiare per rumore. M14 non si
 costruisce sopra a un filtro che li butta.
+
+### 6.2b Ciò che oggi NON si può insegnare parlando — misurato al gen456
+
+Le voci sopra sono strati progettati. Questa sezione è diversa: è ciò che è
+**emerso provando**, in una sessione di giri `LEARN_PROTOCOL` fatta apposta per
+far fallire l'addestramento via prompt su frasi articolate. Ogni riga ha una
+misura, non un'impressione.
+
+Va letta con il criterio di F.: *l'addestramento via prompt è lo standard e non
+andrà mai bypassato.* Quindi ogni voce qui è un punto in cui, oggi, per insegnare
+qualcosa **bisogna aprire un file** — e finché è così quella capacità è fuori dal
+protocollo.
+
+#### M15 — Le forme della DOMANDA non sono insegnabili. **È il blocco più urgente.**
+
+*Manca:* `answer_frame/2` — la relazione fra una superficie interrogativa e la
+relazione che deve interrogare — non è raggiungibile da nessun atto didattico.
+`learnable/3` ha quattro modi (`exact`, `substring`, `fill`, e la maniglia
+generica `cue_for`/`reply_for` del M11) e **nessuno arriva a `answer_frame`**.
+
+*Misura:* `270` righe `answer_frame` per `136` relazioni distinte — due
+formulazioni a testa in media, quasi tutte inglesi. La conseguenza si tocca con
+mano:
+
+```
+which colors are used in chess   ->  White and black.      (c'è la riga)
+which color  is  used in chess   ->  I don't understand.   (manca la riga)
+quale colore ha legami con gli scacchi -> Non capisco ancora.
+```
+
+La conoscenza c'è — `side_color(chess, white)` è nella KB — ma è raggiungibile
+solo da quattro frasi inglesi al plurale. **Una variante singolare/plurale
+richiede di editare un file.** Il tentativo di insegnarla parlando fallisce:
+
+```
+teach "quali colori" as which colors   ->  Hmm, I don't know about colors yet.
+```
+
+*Perché è il più urgente:* è il collo di bottiglia di ogni altro giro. Si possono
+insegnare fatti nuovi tutto il giorno, ma se non si può insegnare **come si
+chiedono**, restano invisibili — ed è esattamente la forma di conoscenza morta
+che il M11 nomina («un fatto vero in KB, invisibile al comportamento»). Colpisce
+per intero le lingue diverse dall'inglese.
+
+*Atto didattico che deve funzionare:* nominare la relazione, come già si fa per
+le famiglie al M11 — «*learn "quali colori" as a way to ask side_color*» — con la
+stessa guardia: la relazione deve già esistere, altrimenti la lezione scrive in
+un cassetto che nessuno apre. La forma è già disegnata: un modo `frame_for`
+accanto a `cue_for`/`reply_for`, che eredita `answer_frame_input_arg` da una
+formulazione già esistente della stessa relazione.
+
+*Gate:* una relazione qualunque fra le 136 diventa interrogabile in una lingua
+nuova senza toccare un file, e la prova si fa su una relazione che chi implementa
+non ha usato per implementare.
+
+#### M16 — La voce di parrot0 è insegnabile solo al 16,5%
+
+*Manca:* le forme italiane. `kb_response_slots` preferisce già
+`response_template/3` per la lingua del turno e ricade sulla `/2` inglese — il
+meccanismo è a posto. È la copertura a non esserci.
+
+*Misura:* `141` famiglie su `854` hanno una forma italiana. In una sessione
+italiana **più di quattro famiglie su cinque rispondono in inglese**, ed è ciò
+che F. ha visto:
+
+```
+you> come stai
+Sto bene, grazie. Come posso aiutarti?
+you> genera un template html
+I understood the request — produce «template html» — but I don't have …
+```
+
+*Nota di metodo, perché è il modo sbagliato più tentante:* la correzione **non**
+è un ramo `it ? "…" : "…"` nel C. Al gen450 ne è stato tolto uno; riaggiungerlo
+per andare più veloce farebbe regredire l'esperimento anche a test verdi.
+
+#### M17 — Un periodo articolato perde le sue subordinate
+
+*Misura:* baseline su quattro frasi vere, quattro modi diversi di fallire.
+
+| frase | esito | stato |
+|---|---|---|
+| `water boils …, but it boils lower … because …` | **racconto inventato** | chiuso al gen454 |
+| `although mercury is a metal, it is liquid …` | muro, perdeva `metal(mercury)` | chiuso al gen455 |
+| `copper is a metal that conducts electricity` | muro, perde `metal(copper)` | **aperto** |
+| `if a substance is a noble gas then …` | `holds(it_does_not_react_easily) :- …` | **aperto** |
+
+*Resta aperto:* la **relativa** (`… that conducts …`) non viene scomposta, e con
+essa si perde anche la classe che stava in chiaro nella principale. E la
+condizionale su classi produce atomi opachi congelati: la regola è vera come
+stringa e inapplicabile a `helium`, cioè non è una regola.
+
+*Nota:* la concessiva italiana si scompone (il meccanismo del gen455 è neutro
+rispetto alla lingua) ma nessuna delle due metà viene poi capita, perché il
+congiuntivo «sia» non ha lettore.
+
+#### M18 — Una lezione può andare a segno e non vedersi
+
+*Era:* il ramo generico di `try_teach_form` componeva la conferma e non la
+scriveva mai in `out`. Chi insegnava riceveva la risposta del turno *precedente*:
+
+```
+you> ciao
+Ciao!
+you> learn "sono a pezzi" as a cue for mood_tired
+Ciao!                                    <- la lezione era andata a segno
+```
+
+*Perché va tenuto scritto anche se è chiuso (gen456):* è il difetto peggiore per
+questo piano in particolare. Un protocollo che verifica l'apprendimento
+**leggendo le risposte** non può funzionare se l'atto didattico è muto: ogni
+lezione sembra fallita, e chi insegna corregge una cosa che non era rotta. La
+stessa forma — un messaggio composto e mai emesso — è stata trovata due volte in
+due punti diversi (`mod_role` al gen452, qui al gen456), quindi vale come classe
+di difetto da cercare, non come incidente.
+
+#### M19 — Moduli che rubano il turno a una lezione
+
+*Misura:* tre casi trovati provando, tutti della stessa forma — un modulo
+risponde plausibilmente a un turno che non ha capito, e la lezione è persa.
+
+- `spanish is a romance language` → «*I can translate most of it, but I don't
+  know the Spanish for «romance»*». La parola *spanish* fa vincere il traduttore
+  su un'asserzione di classe. **Aperto.**
+- `what is your designation` → «*I don't have any of my own — I'm parrot0, an
+  AI*». Chiuso al gen453 con `self_attribute_request`.
+- qualunque frase `X, but it … because …` → un racconto. Chiuso al gen454.
+
+*Gate:* un turno che asserisce un fatto non può essere vinto da un modulo che non
+lo asserisce. Finché non c'è, ogni giro di addestramento paga un pedaggio
+casuale che dipende dalle parole scelte.
+
+#### M20 — parrot0 mostra la propria forma interna
+
+`what is white` risponde:
+
+```
+side_color(chess, white); chess_pawn_direction(white, north); white is a light_color.
+```
+
+Non è sbagliato ed è persino informativo, ma è la KB nuda con il punto e virgola.
+Per questo piano conta perché **chi insegna non deve dover leggere predicati**:
+il vincolo n.1 del `LEARN_PROTOCOL` dice che un esperto del dominio che ignora lo
+schema della KB deve poter formulare la lezione — e deve poterne leggere la
+verifica. **Aperto.**
 
 ### 6.3 Quando uno strato si può dichiarare chiuso
 

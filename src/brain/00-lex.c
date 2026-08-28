@@ -707,14 +707,21 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
             const char *ar[2] = { intent[0], quoted };
             kb_assert(b->kb, pred, ar, 2);
         }
+        /* gen456: il ramo generico componeva `msg` e NON lo scriveva mai in
+         * `out` — chi insegnava si vedeva restituire la risposta del turno
+         * precedente. La lezione andava a segno, ma era invisibile: il modo
+         * peggiore di fallire, perche' sembra che non abbia funzionato niente.
+         * Ed era anche l'ultima frase umanizzata rimasta in questa funzione. */
         char msg[256];
         if (generic)
-            snprintf(msg, sizeof msg, "Got it - I'll take \"%s\" as %s %s now.",
-                     phrase, ls, family);
+            kb_term_say(b, "teach_family_ack", (const KbResponseSlot[]){
+                            { "phrase", phrase }, { "label", ls },
+                            { "family", family } }, 3, msg, sizeof msg);
         else
-            { const KbResponseSlot _rs[] = { { "phrase", phrase }, { "ls", ls } };
-              kb_term_say(b, "teach_form_ack", _rs, 2, msg, sizeof msg);
-              put(msg, out, outsz); }
+            kb_term_say(b, "teach_form_ack", (const KbResponseSlot[]){
+                            { "phrase", phrase }, { "ls", ls } },
+                        2, msg, sizeof msg);
+        put(msg, out, outsz);
         return 1;
     }
     return 0;
