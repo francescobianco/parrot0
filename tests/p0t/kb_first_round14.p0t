@@ -26,6 +26,12 @@
 !forget module_capability(calculus, "derive symbolic answers")
 !query! module_capability(calculus, "derive symbolic answers")
 
+[number words are teachable KB data]
+!assert number_word(septendecim, 17)
+!query number_word(septendecim, 17)
+!forget number_word(septendecim, 17)
+!query! number_word(septendecim, 17)
+
 [test Italian branch operation remains live]
 > parti da 6. se è pari, dimezza. se è dispari, triplica e aggiungi 1. ripeti finché raggiunge 1.
 < Reached 1 after 8 steps: 6 -> 3 -> 10 -> 5 -> 16 -> 8 -> 4 -> 2 -> 1.

@@ -1889,26 +1889,21 @@ static size_t plan_learn_list(Brain *b, const char *goal, char **w,
  * number-word and GENERATE the sequence "1, 2, 3, 4, 5.". Honest and bounded
  * (the engine computes it; nothing is recited). EN+IT cues. This is the same
  * kind of honest competence as mod_arith's "2 plus 2", not an identity claim. */
-static int word_to_int(const char *s, long *out) {
+static int word_to_int(Brain *b, const char *s, long *out) {
     if (*s && (isdigit((unsigned char)*s) ||
                ((*s == '-' || *s == '+') && isdigit((unsigned char)s[1])))) {
         char *end; long v = strtol(s, &end, 10);
         if (*end == '\0') { *out = v; return 1; }
         return 0;
     }
-    static const struct { const char *w; long n; } NW[] = {
-        {"zero",0},{"one",1},{"two",2},{"three",3},{"four",4},{"five",5},
-        {"six",6},{"seven",7},{"eight",8},{"nine",9},{"ten",10},{"eleven",11},
-        {"twelve",12},{"thirteen",13},{"fourteen",14},{"fifteen",15},
-        {"sixteen",16},{"seventeen",17},{"eighteen",18},{"nineteen",19},
-        {"twenty",20},{"thirty",30},{"forty",40},{"fifty",50},{"sixty",60},
-        {"seventy",70},{"eighty",80},{"ninety",90},{"hundred",100},
-        {"uno",1},{"due",2},{"tre",3},{"quattro",4},{"cinque",5},{"sei",6},
-        {"sette",7},{"otto",8},{"nove",9},{"dieci",10},{"venti",20},{"cento",100},
-        {NULL,0}
-    };
-    for (size_t i = 0; NW[i].w; i++)
-        if (!strcmp(s, NW[i].w)) { *out = NW[i].n; return 1; }
+    if (b && b->kb) {
+        const char *q[] = { s, NULL };
+        char hit[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "number_word", q, 2, hit, 1) == 1) {
+            char *end; long v = strtol(kb_dequote(hit[0]), &end, 10);
+            if (*end == '\0') { *out = v; return 1; }
+        }
+    }
     return 0;
 }
 
@@ -1950,13 +1945,13 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
                 char nx[64]; snprintf(nx, sizeof nx, "%s", strip_edge_punct(sw[i + 1]));
                 size_t nl = strlen(nx);            /* "3s" -> "3" */
                 if (nl > 1 && nx[nl - 1] == 's') nx[nl - 1] = '\0';
-                long v; if (word_to_int(nx, &v) && v > 0) { stepmag = v; break; }
+                long v; if (word_to_int(b, nx, &v) && v > 0) { stepmag = v; break; }
             }
         }
     }
     for (char *t = strtok_r(tmp, " \t,.;:!?", &save);
          t && nn < 8; t = strtok_r(NULL, " \t,.;:!?", &save)) {
-        long v; if (word_to_int(t, &v)) {
+        long v; if (word_to_int(b, t, &v)) {
             /* drop the step value itself when it appears as a standalone number */
             if (stepmag && v == stepmag && nn >= 1) continue;
             nums[nn++] = v;
@@ -1989,12 +1984,12 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
             char *t = strip_edge_punct(fw[i]);
             if ((lex_class_member(b, "20_math_lex1967", t) || lex_class_member(b, "20_math_lex1967_2", t) || lex_class_member(b, "20_math_lex1967_3", t)) &&
                 (kb_cue_match(b, "20_math_chain1972", buf))) {
-                long d; if (word_to_int(strip_edge_punct(fw[i + 1]), &d) && d >= 0 && d <= 9)
+                long d; if (word_to_int(b, strip_edge_punct(fw[i + 1]), &d) && d >= 0 && d <= 9)
                     skip_ends = (int)d;
             }
             if ((lex_class_member(b, "20_math_lex1972", t) || lex_class_member(b, "20_math_lex1972_2", t) || lex_class_member(b, "20_math_lex1972_3", t)) &&
                 (kb_cue_match(b, "20_math_chain1978", buf))) {
-                long m; if (word_to_int(strip_edge_punct(fw[i + 1]), &m) && m > 0)
+                long m; if (word_to_int(b, strip_edge_punct(fw[i + 1]), &m) && m > 0)
                     skip_mult = (int)m;
             }
         }
@@ -2017,13 +2012,13 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
             if (lex_class_member(b, "20_math_lex1994", t) && i + 2 < rnw &&
                 lex_class_member(b, "20_math_lex1995", strip_edge_punct(rw[i + 1]))) {
                 long m;
-                if (word_to_int(strip_edge_punct(rw[i + 2]), &m) && m > 0)
+                if (word_to_int(b, strip_edge_punct(rw[i + 2]), &m) && m > 0)
                     repl_mult = (int)m;
             }
             if ((lex_class_member(b, "20_math_lex2000", t) || lex_class_member(b, "20_math_lex2000_2", t)) &&
                 i + 2 < rnw && lex_class_member(b, "20_math_lex2001", strip_edge_punct(rw[i + 1]))) {
                 long m;
-                if (word_to_int(strip_edge_punct(rw[i + 2]), &m) && m > 0)
+                if (word_to_int(b, strip_edge_punct(rw[i + 2]), &m) && m > 0)
                     repl_mult = (int)m;
             }
         }
@@ -2138,19 +2133,16 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
         kb_cue_match(b, "20_math_cue2115", buf) || kb_cue_match(b, "20_math_cue2115_2", buf)) {
         if (kb_cue_match(b, "20_math_chain2121", buf))
             return 0;
-        static const struct { const char *w; int n; } nums[] = {
-            {"two", 2}, {"three", 3}, {"four", 4}, {"five", 5}, {"six", 6},
-            {"seven", 7}, {"eight", 8}, {"nine", 9}, {"ten", 10},
-            {"2", 2}, {"3", 3}, {"4", 4}, {"5", 5}, {"6", 6},
-            {"7", 7}, {"8", 8}, {"9", 9}, {"10", 10}, {NULL, 0} };
         int want = 0;
         char nb[256]; snprintf(nb, sizeof nb, "%s", buf);
         char *nw0[64]; size_t nn0 = split_words(nb, nw0, 64);
         size_t numpos = nn0;
         for (size_t i = 0; i < nn0 && !want; i++) {
             char *t = strip_edge_punct(nw0[i]);
-            for (size_t k = 0; nums[k].w; k++)
-                if (!strcmp(t, nums[k].w)) { want = nums[k].n; numpos = i; break; }
+            long value = 0;
+            if (word_to_int(b, t, &value) && value >= 2 && value <= 10) {
+                want = (int)value; numpos = i;
+            }
         }
         if (want >= 2 && numpos + 1 < nn0) {
             /* category: the (possibly multi-word) noun right after the count; try the
@@ -2257,11 +2249,9 @@ static int rime_of(const char *t, char *suf, size_t sz) {
     return 1;
 }
 
-static int wq_num(const char *w) {
-    static const struct { const char *s; int n; } nums[] = {
-        {"one",1},{"two",2},{"three",3},{"four",4},{"five",5},{"six",6},
-        {"seven",7},{"eight",8},{"nine",9},{"ten",10},{NULL,0} };
-    for (int i = 0; nums[i].s; i++) if (strcmp(w, nums[i].s) == 0) return nums[i].n;
+static int wq_num(Brain *b, const char *w) {
+    long value = 0;
+    if (word_to_int(b, w, &value) && value > 0 && value <= INT_MAX) return (int)value;
     if (w[0] >= '1' && w[0] <= '9') return atoi(w);
     return 0;
 }
@@ -2324,8 +2314,8 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
     int list_n = 0, len_filter = 0;
     for (size_t i = 0; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
-        if (strstr(t, "-letter")) { int v = wq_num(t); if (v > 0) len_filter = v; continue; }
-        int v = wq_num(t);
+        if (strstr(t, "-letter")) { int v = wq_num(b, t); if (v > 0) len_filter = v; continue; }
+        int v = wq_num(b, t);
         if (v <= 0) continue;
         int is_len = (i + 1 < nw &&lex_prefix_member(b, "20_math_lex2306", strip_edge_punct(w[i + 1])));
         if (is_len) len_filter = v; else if (!list_n) list_n = v;
@@ -2389,7 +2379,7 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
     if (is_double) {
         int need_runs = 0;
         for (size_t i = 0; i < nw; i++) {
-            int v = wq_num(strip_edge_punct(w[i]));
+            int v = wq_num(b, strip_edge_punct(w[i]));
             if (v > 0) { need_runs = v; break; }
         }
         if (need_runs <= 0) need_runs = 2;

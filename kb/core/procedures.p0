@@ -1485,6 +1485,28 @@ algebra_inverse_order(right, "+", normal).
 algebra_inverse_order(right, "-", swap).
 algebra_inverse_order(right, "*", normal).
 algebra_inverse_order(right, "/", swap).
+machinery(number_word).
+number_word(zero, 0). number_word(one, 1). number_word(two, 2).
+number_word(three, 3). number_word(four, 4). number_word(five, 5).
+number_word(six, 6). number_word(seven, 7). number_word(eight, 8).
+number_word(nine, 9). number_word(ten, 10). number_word(eleven, 11).
+number_word(twelve, 12). number_word(thirteen, 13). number_word(fourteen, 14).
+number_word(fifteen, 15). number_word(sixteen, 16). number_word(seventeen, 17).
+number_word(eighteen, 18). number_word(nineteen, 19). number_word(twenty, 20).
+number_word(thirty, 30). number_word(forty, 40). number_word(fifty, 50).
+number_word(sixty, 60). number_word(seventy, 70). number_word(eighty, 80).
+number_word(ninety, 90). number_word(hundred, 100). number_word(thousand, 1000).
+number_word(dozen, 12). number_word(dozzina, 12).
+number_word(uno, 1). number_word(due, 2). number_word(tre, 3).
+number_word(quattro, 4). number_word(cinque, 5). number_word(sei, 6).
+number_word(sette, 7). number_word(otto, 8). number_word(nove, 9).
+number_word(dieci, 10). number_word(undici, 11). number_word(dodici, 12).
+number_word(tredici, 13). number_word(quattordici, 14). number_word(quindici, 15).
+number_word(sedici, 16). number_word(diciassette, 17). number_word(diciotto, 18).
+number_word(diciannove, 19). number_word(venti, 20). number_word(trenta, 30).
+number_word(quaranta, 40). number_word(cinquanta, 50). number_word(sessanta, 60).
+number_word(settanta, 70). number_word(ottanta, 80). number_word(novanta, 90).
+number_word(cento, 100). number_word(mille, 1000).
 
 % Branching act-loop operation vocabulary (gen467). Surface, primitive symbol
 % and factor are one teachable relation; the parser does not own these words.

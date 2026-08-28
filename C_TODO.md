@@ -1055,6 +1055,13 @@ mantiene soltanto conversione numerica, controllo `ok` e gestione del risultato.
 Le regressioni `algebra2.p0t`, `algebra2.it.p0t` e `arith_flex.p0t` proteggono il
 percorso composto bilingue.
 
+### Gen472 — lessico numerico condiviso nella KB
+
+`number_word/2` sostituisce le liste duplicate in `word_to_int`, nel conteggio
+categoriale e nel word-query. C conserva parsing delle cifre e composizione
+aritmetica; le parole numeriche sono dati insegnabili e il ratchet verifica
+assert/query/forget con `septendecim`.
+
 ### Gen469 — inverse algebriche come relazione KB
 
 Le quattro inversioni del solver (`left/right × +,-,*,/`) sono ora dati in
