@@ -1208,3 +1208,12 @@ e `repair_mean_marker/1`. La forma della domanda e la verifica di calendario
 restano meccaniche; il ratchet copre crescita e ablazione di una parola.
 La regressione `robust.p0t` conserva tre differenze storiche di wording e
 provenienza; i casi di guardia del lotto sono riconosciuti correttamente.
+
+### Gen487 — superfici di traduzione escluse dal repair nella KB
+
+Le famiglie `refer to`, `translate`, `how do you say` e i target linguistici
+sono ora rispettivamente `repair_referential_surface/1`,
+`repair_translate_surface/1`, `repair_translation_question/1` e
+`repair_language_target/1`. Il repair mantiene la sola decisione strutturale
+di lasciare il turno ai moduli WSC/traduzione; il ratchet verifica crescita e
+ablazione di un target nuovo.

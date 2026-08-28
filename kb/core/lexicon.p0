@@ -1134,6 +1134,15 @@ machinery(repair_calendar_pronoun).
 repair_calendar_pronoun(it).
 machinery(repair_mean_marker).
 repair_mean_marker("mean").
+machinery(repair_referential_surface).
+repair_referential_surface("refer to").
+machinery(repair_translate_surface).
+repair_translate_surface("translate").
+machinery(repair_translation_question).
+repair_translation_question("how do you say").
+machinery(repair_language_target).
+repair_language_target("french"). repair_language_target("spanish").
+repair_language_target("italian"). repair_language_target("english").
 
 % ── QUANTO VALE UNA PAROLA MOLTIPLICATIVA (gen442) ─────────────────────────
 %

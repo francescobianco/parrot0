@@ -31,7 +31,7 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
          * normal dispatch handle this turn fresh (acceptance: repair state
          * expires when the topic clearly changes). */
         if (is_question_opener(b, tw[0]) || is_intent_starter(b, tw[0]) ||
-            strstr(norm, "refer to"))
+            repair_surface_present(b, "repair_referential_surface", norm))
             return 0;
 
         /* Let a teachable answer act first: "rex is a dog" asserts the fact and
@@ -99,13 +99,13 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
         }
     }
     if (!is_question_opener(b, w[0])) return 0;     /* only questions/commands */
-    if (strstr(norm, "refer to")) return 0;      /* WSC coref judgement (mod_same) */
+    if (repair_surface_present(b, "repair_referential_surface", norm)) return 0;
     /* Translation requests quote or mention the source expression. A pronoun in
      * that payload ("how much does it cost") is linguistic material, not a
      * discourse entity that needs repair, so let mod_translate consume it. */
-    if ((strstr(norm, "translate") || strstr(norm, "how do you say")) &&
-        (strstr(norm, "french") || strstr(norm, "spanish") ||
-         strstr(norm, "italian") || strstr(norm, "english")))
+    if ((repair_surface_present(b, "repair_translate_surface", norm) ||
+         repair_surface_present(b, "repair_translation_question", norm)) &&
+        repair_surface_present(b, "repair_language_target", norm))
         return 0;
     if (b->has_last_entity) return 0;            /* a referent is available */
     /* gen250: in contrast questions, canonicalized "it's" becomes the grammatical
