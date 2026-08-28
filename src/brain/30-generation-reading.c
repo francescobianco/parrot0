@@ -940,6 +940,37 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 if (kb_query(b->kb, "imperative_opener", ioq, 1))
                     is_narrative_cont = 0;
             }
+            /* gen454 — LUNGO NON VUOL DIRE NARRATIVO.
+             *
+             * Il gate e' `strlen(norm) > 80` piu' una lista di esclusioni. Ma un
+             * PERIODO ARTICOLATO — principale piu' subordinate — supera 80
+             * caratteri per costruzione, quindi ogni fatto detto per bene
+             * finiva letto come una storia da continuare:
+             *
+             *   «water boils at 100 degrees at sea level, but it boils lower on
+             *    a mountain because the pressure is lower»
+             *   -> «It was a mysterious it. Then one day, it discovered what it
+             *       meant to be seen…»
+             *
+             * Misurato: la forma «X, but it … because …» produceva una storia su
+             * «it» per QUALUNQUE contenuto, incluso il rame e l'acqua. E' il
+             * limite che rende inaddestrabile via prompt proprio la frase
+             * articolata, cioe' la forma in cui si insegna davvero qualcosa.
+             *
+             * Un turno che ARGOMENTA non narra: mette due proposizioni in
+             * contrasto. La classe e' gia' conoscenza (`contrastive_connector/1`
+             * in lexicon.p0), quindi la distinzione si insegna come le altre e
+             * una lingua nuova la eredita senza toccare il C. */
+            if (is_narrative_cont) {
+                char cb[512]; snprintf(cb, sizeof cb, "%s", norm);
+                char *cw[96]; size_t cn = split_words(cb, cw, 96);
+                for (size_t ci = 0; ci < cn; ci++) {
+                    const char *ccq[] = { strip_edge_punct(cw[ci]) };
+                    if (kb_query(b->kb, "contrastive_connector", ccq, 1)) {
+                        is_narrative_cont = 0; break;
+                    }
+                }
+            }
         }
 
         if (is_story_req || is_narrative_cont || (is_continuation && has_weekday)) {
