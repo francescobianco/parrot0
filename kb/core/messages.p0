@@ -123,7 +123,8 @@ response_template(i_don_t_know_any_predicates_yet, "I don't know any predicates 
 response_template(i_don_t_have_a_module_by_that_name_ask_what, "I don't have a module by that name. Ask 'what can you do?' for a list.").
 response_template(it_contains_every_letter_of_the_alphabet_it, "It contains every letter of the alphabet -- it's a pangram.").
 response_template(i_can_only_count_plain_words_for_now_letters, "I can only count plain words for now (letters and digits, no punctuation).").
-response_template(those_examples_don_t_all_follow_one_rule_i_c, "Those examples don't all follow one rule I can express yet.").
+response_template(induction_rule_unavailable, "Those examples don't all follow one rule I can express yet.").
+response_template(induced_rule_statement, "The rule is {rule}.").
 response_template(i_m_a_simple_bot_but_i_m_here_for_it_go_on, "I'm a simple bot, but I'm here for it. Go on?").
 response_template(fair_enough_tell_me_where_i_went_wrong_and_w, "Fair enough — tell me where I went wrong, and we can take it from there.").
 response_template(no_pressure_we_can_take_it_slowly_what_s_on, "No pressure — we can take it slowly. What's on your mind?").

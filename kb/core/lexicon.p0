@@ -469,6 +469,18 @@ topic_preposition(of).
 topic_preposition(di).
 topic_preposition(su).
 stopword(about).
+
+% Labels used to enumerate the social-pattern classes; the reader discovers
+% the set through this class instead of carrying a second C list.
+social_pattern_type(opening).
+social_pattern_type(closing).
+social_pattern_type(wellbeing).
+social_pattern_type(goodnight).
+social_pattern_type(felicitation).
+social_pattern_type(wellwish).
+social_pattern_type(condolence).
+social_pattern_type(blessing).
+social_pattern_type(politeness).
 stopword(after).
 stopword(before).
 stopword(between).

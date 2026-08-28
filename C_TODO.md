@@ -119,6 +119,25 @@ Verifica: `make build`, `kb_first_round7.p0t` 8/8, `family.p0t` 9/9 e
 `social_opener.p0t` verde. Restano i cinque fallimenti MCP già noti in
 `check_sort.p0t`.
 
+### Round ibrido 8 — 2026-08-28
+
+Ottavo giro completato:
+
+- **Voce:** l'enunciato della regola indotta usa ora il template KB
+  `induced_rule_statement` con lo slot `rule`, al posto dello `snprintf`
+  umanizzato in `65-induce-verify-shell.c`.
+- **Lessico:** i TIPI di pattern sociale non sono piu' una lista C in
+  `is_exact_social_pattern()`: sono enumerati dalla KB via
+  `social_pattern_type/1`, quindi un tipo nuovo insegnato a runtime diventa
+  visibile senza ricompilare. Chiude il `TODO(kb-first)` lasciato nel file.
+- **Dominio:** il tratto di ruolo passa dal binding
+  `domain_relation(role_trait, trait)` e dagli adapter generici.
+- **Famiglie:** lo slug `those_examples_don_t_all_follow_one_rule_i_c` e' stato
+  rinominato in `induction_rule_unavailable`.
+
+Verifica: `make build` senza warning e `kb_first_round8.p0t` 9/9, con i round
+2-7 tutti verdi. Restano i cinque fallimenti MCP gia' noti in `check_sort.p0t`.
+
 | | inizio campagna | ora |
 |---|---:|---:|
 | punti della voce con chiave KB | 160 | **656** |

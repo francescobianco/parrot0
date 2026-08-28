@@ -1167,13 +1167,13 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
             const char *ta[] = { b->role_kind, verb };
             const char *kv[] = { b->role_kind, NULL };
             char any[4][KB_TERM_LEN];
-            if (kb_query(b->kb, "trait", ta, 2)) {
+            if (domain_query(b, "role_trait", ta, 2)) {
                 char msg[96];
                 kb_term_say(b, "self_trait_direct", (const KbResponseSlot[]){
                                 { "verb", verb } }, 1, msg, sizeof msg);
                 put(msg, out, out_size); return 1;
             }
-            if (kb_match(b->kb, "trait", kv, 2, any, 4)) {
+            if (domain_match(b, "role_trait", kv, 2, any, 4)) {
                 char msg[96];
                 kb_term_say(b, "self_trait_general", (const KbResponseSlot[]){
                                 { "verb", any[0] } }, 1, msg, sizeof msg);

@@ -56,14 +56,16 @@ static int mod_induce(Brain *b, const char *norm, const char *raw,
      * examples are unmistakably ours) but decline honestly. */
     InducedRule r; char rule[160];
     if (!induce_rule(in, out_, npair, &r, rule, sizeof rule)) {
-        kb_term_say(b, "those_examples_don_t_all_follow_one_rule_i_c",
+        kb_term_say(b, "induction_rule_unavailable",
                     NULL, 0, out, out_size);
         return 1;
     }
 
     char msg[640];
     if (q == Q_RULE) {
-        snprintf(msg, sizeof msg, "The rule is %s.", rule);
+        kb_term_say(b, "induced_rule_statement",
+                    (const KbResponseSlot[]){{ "rule", rule }},
+                    1, msg, sizeof msg);
         put(msg, out, out_size);
         store_proof(b, rule);
         return 1;
@@ -299,7 +301,7 @@ static int mod_verify(Brain *b, const char *norm, const char *raw,
 
     InducedRule r; char rule[160];
     if (!induce_rule(in, out_, nex, &r, rule, sizeof rule)) {
-        kb_term_say(b, "those_examples_don_t_all_follow_one_rule_i_c", NULL, 0, out, out_size);
+        kb_term_say(b, "induction_rule_unavailable", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -718,14 +720,10 @@ static int has_social_pattern(Brain *b, const char *type, const char *text) {
  * structural machinery; the phrases themselves stay KB knowledge. */
 static int is_exact_social_pattern(Brain *b, const char *buf) {
     if (!b || !b->kb) return 0;
-    /* TODO(kb-first): l'elenco dei TIPI di pattern sociale duplica cio' che
-     * `social_pattern/…` gia' dichiara nella KB. Va enumerato dalla KB
-     * (kb_match sui tipi distinti), non riscritto qui: oggi un tipo nuovo
-     * aggiunto alla KB resta invisibile a questa funzione. */
-    static const char *const types[] = {
-        "opening", "closing", "wellbeing", "goodnight", "felicitation",
-        "wellwish", "condolence", "blessing", "politeness", NULL };
-    for (size_t t = 0; types[t]; t++) {
+    const char *type_pat[] = {NULL};
+    char types[32][KB_TERM_LEN];
+    size_t nt = kb_match(b->kb, "social_pattern_type", type_pat, 1, types, 32);
+    for (size_t t = 0; t < nt; t++) {
         const char *pat[] = {types[t], NULL};
         char pp[64][KB_TERM_LEN];
         size_t n = kb_match(b->kb, "social_pattern", pat, 2, pp, 64);
