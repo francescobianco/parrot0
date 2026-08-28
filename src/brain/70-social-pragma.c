@@ -849,8 +849,7 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
         int invite = switch_verb || (modal_open && frame);
         char topic[40];
         if (invite && topic_object(b, w, nw, topic, sizeof topic)) {
-            snprintf(b->current_topic, sizeof b->current_topic, "%s", topic);
-            b->has_current_topic = 1;
+            user_value_write(b, "current_topic", topic);
             char msg[160];
             { const KbResponseSlot _rs[] = { { "topic", topic }, { "topic2", topic } };
       kb_term_say(b, "sure_let_s_talk_about_x_what_about_x_is_on_y", _rs, 2, msg, sizeof msg);

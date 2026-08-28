@@ -541,14 +541,12 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         kb_set_origin(b->kb, KB_SESSION);
         const char *ac[] = { "brevity" };
         kb_assert(b->kb, "active_constraint", ac, 1);
-        snprintf(b->user_constraint, sizeof b->user_constraint, "%s", "keep it short");
-        b->has_user_constraint = 1;
+        user_value_write(b, "user_constraint", "keep it short");
         kb_term_say(b, "got_it_i_will_keep_it_short", NULL, 0, out, out_size);
         return 1;
     }
     if (kb_cue_match(b, "10_memory_knowledge_chain516", norm)) {
-        snprintf(b->user_constraint, sizeof b->user_constraint, "%s", "avoid technical detail");
-        b->has_user_constraint = 1;
+        user_value_write(b, "user_constraint", "avoid technical detail");
         kb_term_say(b, "got_it_i_will_avoid_technical_detail", NULL, 0, out, out_size);
         return 1;
     }
@@ -579,10 +577,11 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
     }
 
     if (kb_cue_match(b, "10_memory_knowledge_chain552", norm)) {
-        if (b->has_current_topic) {
+        char current_topic[KB_TERM_LEN];
+        if (user_value_read(b, "current_topic", current_topic, sizeof current_topic)) {
             char msg[160];
             { 
-              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->current_topic);
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", current_topic);
   const KbResponseSlot _rs[] = { { "current_topic", _v0 } };
               kb_term_say(b, "the_current_topic_is_x", _rs, 1, msg, sizeof msg); }
             put(msg, out, out_size);
@@ -593,10 +592,11 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
     }
 
     if (kb_cue_match(b, "10_memory_knowledge_chain565", norm)) {
-        if (b->has_user_constraint) {
+        char user_constraint[KB_TERM_LEN];
+        if (user_value_read(b, "user_constraint", user_constraint, sizeof user_constraint)) {
             char msg[192];
             { 
-              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", b->user_constraint);
+              char _v0[48]; snprintf(_v0, sizeof _v0, "%s", user_constraint);
   const KbResponseSlot _rs[] = { { "user_constraint", _v0 } };
               kb_term_say(b, "your_current_constraint_is_x", _rs, 1, msg, sizeof msg); }
             put(msg, out, out_size);
@@ -660,7 +660,10 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
          * e allora questo blocco diventa un ciclo sui session_slot dichiarati. */
         char mood[64];
         int has_mood = user_value_read(b, "mood", mood, sizeof mood);
-        int session = has_mood || b->has_current_topic || b->has_user_constraint;
+        char current_topic[KB_TERM_LEN], user_constraint[KB_TERM_LEN];
+        int has_topic = user_value_read(b, "current_topic", current_topic, sizeof current_topic);
+        int has_constraint = user_value_read(b, "user_constraint", user_constraint, sizeof user_constraint);
+        int session = has_mood || has_topic || has_constraint;
         if (session && off < sizeof msg) {
             int s = 0;
             { char _t2[512];
@@ -676,19 +679,19 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                                         "%s%s", s ? ";" : "", piece);
                 s = 1;
             }
-            if (b->has_current_topic && off < sizeof msg) {
+            if (has_topic && off < sizeof msg) {
                 char piece[160];
                 kb_term_say(b, "memory_topic_fragment", (const KbResponseSlot[]){
-                                { "topic", b->current_topic } }, 1,
+                                { "topic", current_topic } }, 1,
                             piece, sizeof piece);
                 off += (size_t)snprintf(msg + off, sizeof msg - off,
                                         "%s%s", s ? ";" : "", piece);
                 s = 1;
             }
-            if (b->has_user_constraint && off < sizeof msg) {
+            if (has_constraint && off < sizeof msg) {
                 char piece[160];
                 kb_term_say(b, "memory_constraint_fragment", (const KbResponseSlot[]){
-                                { "constraint", b->user_constraint } }, 1,
+                                { "constraint", user_constraint } }, 1,
                             piece, sizeof piece);
                 off += (size_t)snprintf(msg + off, sizeof msg - off,
                                         "%s%s", s ? ";" : "", piece);

@@ -1067,3 +1067,10 @@ mantiene solo l’ordine degli argomenti, il calcolo e il rendering strutturale.
 inglesi/italiane nel C. Il tokenizer resta meccanico (separatori e binding),
 mentre il significato dell’operatore è KB-teachable; le regressioni algebriche
 EN/IT e `arith_flex` restano verdi.
+
+### Gen471 — topic e constraint come user_value di sessione
+
+`current_topic` e `user_constraint` non vengono più scritti o letti dai campi
+C: il consumer usa `user_value_write/read`, con la stessa semantica di slot
+sovrascrivibile e supersedibile. La selezione del topic resta meccanica; nome,
+valore e stato della sessione sono conoscenza interrogabile dalla KB.
