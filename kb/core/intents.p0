@@ -1422,6 +1422,51 @@ knowledge_head("cosa sai degli ", strong).
 knowledge_head("cosa sai dei ", strong).
 knowledge_head("cosa sai della ", strong).
 knowledge_head("cosa sai delle ", strong).
+knowledge_head("what is a ", strong).
+knowledge_head("what is an ", strong).
+knowledge_head("tell me about ", strong).
+knowledge_head("what do you know about ", strong).
+knowledge_head("who is ", strong).
+knowledge_head("who was ", strong).
+knowledge_head("learn about ", strong).
+knowledge_head("research ", strong).
+knowledge_head("look up ", strong).
+knowledge_head("study ", strong).
+knowledge_head("read up on ", strong).
+knowledge_head("find out about ", strong).
+knowledge_head("go learn about ", strong).
+knowledge_head("read the page on ", strong).
+knowledge_head("read the page about ", strong).
+knowledge_head("extract facts from ", strong).
+knowledge_head("read everything about ", strong).
+knowledge_head("leggi la pagina su ", strong).
+knowledge_head("estrai i fatti da ", strong).
+knowledge_head("cos'è un ", strong).
+knowledge_head("cos'è una ", strong).
+knowledge_head("cos'è uno ", strong).
+knowledge_head("che cos'è ", strong).
+knowledge_head("cos'è ", strong).
+knowledge_head("che cosa is ", strong).
+knowledge_head("cosa is ", strong).
+knowledge_head("parlami di ", strong).
+knowledge_head("cosa sai di ", strong).
+knowledge_head("chi è ", strong).
+knowledge_head("impara ", strong).
+knowledge_head("studia ", strong).
+knowledge_head("informati su ", strong).
+knowledge_head("documentati su ", strong).
+knowledge_head("parlami del ", strong).
+knowledge_head("parlami della ", strong).
+knowledge_head("parlami dei ", strong).
+knowledge_head("parlami degli ", strong).
+knowledge_head("parlami delle ", strong).
+knowledge_head("dimmi del ", strong).
+knowledge_head("dimmi della ", strong).
+knowledge_head("raccontami del ", strong).
+knowledge_head("raccontami della ", strong).
+knowledge_head("what is ", weak).
+knowledge_head("what are ", weak).
+knowledge_head("what was ", weak).
 answer_frame("cosa sai del", semantic_summary).
 answer_frame("cosa sai della", semantic_summary).
 answer_frame("cosa sai del", semantic_summary).

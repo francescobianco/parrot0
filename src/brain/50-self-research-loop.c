@@ -870,52 +870,39 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
      * distinzione forte/debole scritta come due array. E' `intent_cue` piu'
      * una priorita' dichiarata — la stessa forma di `chitchat_reaction/2`
      * (gen403), che questa distinzione la esprime come dato. */
-    static const char *const strong_heads[] = {
-        "what is a ", "what is an ", "tell me about ",
-        "what do you know about ", "who is ", "who was ",
-        /* gen240: explicit IMPERATIVE to acquire — a first-class command (or
-         * planner step) to run the discovery plan, not just a question. */
-        "learn about ", "research ", "look up ", "study ", "read up on ",
-        "find out about ", "go learn about ",
-        /* deep-reasoning M2: the DEEP read — extract every fact from the page's
-         * prose, not just the lead concept. Anchored heads so it is unambiguous. */
-        "read the page on ", "read the page about ", "extract facts from ",
-        "read everything about ", "leggi la pagina su ", "estrai i fatti da ",
-        "cos'è un ", "cos'è una ", "cos'è uno ", "che cos'è ", "cos'è ",
-        /* gen242: "cosa è X" / "che cosa è X" — the spelled-out variant of cos'è.
-         * canonicalize_lang maps "è" -> "is" (but leaves "cosa"), so the head we
-         * must match is the post-canonical "cosa is " / "che cosa is ". */
-        "che cosa is ", "cosa is ",
-        "parlami di ", "cosa sai di ", "chi è ", "impara ", "studia ",
-        "informati su ", "documentati su ",
-        /* gen335f: Italian articulated prepositions after tell-me verbs */
-        "parlami del ", "parlami della ", "parlami dei ", "parlami degli ",
-        "parlami delle ",  /* gen335l: feminine plural (di+le → delle) */
-        "dimmi del ", "dimmi della ",
-        "raccontami del ", "raccontami della ",
-        NULL,
-    };
-    static const char *const weak_heads[] = {
-        "what is ", "what are ", "what was ", NULL,
-    };
+    char heads[128][KB_TERM_LEN], kinds[128][KB_TERM_LEN];
+    size_t nheads = 0;
+    const char *hq[2] = { NULL, NULL };
+    char rawheads[128][KB_TERM_LEN];
+    size_t nr = kb_match(b->kb, "knowledge_head", hq, 2, rawheads, 128);
+    for (size_t i = 0; i < nr && nheads < 128; i++) {
+        const char *kq[2] = { rawheads[i], NULL };
+        char kind[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "knowledge_head", kq, 2, kind, 1) != 1) continue;
+        snprintf(heads[nheads], KB_TERM_LEN, "%s", kb_dequote(rawheads[i]));
+        snprintf(kinds[nheads], KB_TERM_LEN, "%s", kb_dequote(kind[0]));
+        nheads++;
+    }
     /* gen243: answer in the language of the QUESTION (which head matched), not the
      * flaky session-language detector — an English "tell me about foo" must reply in
      * English even if marker counting guessed Italian. The Italian heads are the
      * ones carrying an Italian-only token; flag the match. */
     const char *matched = NULL;
     char learned_head[KB_TERM_LEN] = "";
-    for (const char *const *h = strong_heads; *h; h++) {
-        size_t hl = strlen(*h);
-        if (strncmp(work, *h, hl) == 0) { x = work + hl; matched = *h; break; }
+    for (size_t hi = 0; hi < nheads; hi++) {
+        if (strcmp(kinds[hi], "strong") != 0) continue;
+        size_t hl = strlen(heads[hi]);
+        if (strncmp(work, heads[hi], hl) == 0) { x = work + hl; matched = heads[hi]; break; }
     }
     /* gen335e: if canonical form didn't match, try raw normalized form.
      * Italian heads like "parlami di " are broken by "di"→"of" canonicalization.
      * The raw form preserves "di" and matches the original head. */
     if (!x && rawbuf[0]) {
-        for (const char *const *h = strong_heads; *h; h++) {
-            size_t hl = strlen(*h);
-            if (strncmp(rawbuf, *h, hl) == 0) {
-                x = rawbuf + hl; matched = *h; use_raw = 1; break;
+        for (size_t hi = 0; hi < nheads; hi++) {
+            if (strcmp(kinds[hi], "strong") != 0) continue;
+            size_t hl = strlen(heads[hi]);
+            if (strncmp(rawbuf, heads[hi], hl) == 0) {
+                x = rawbuf + hl; matched = heads[hi]; use_raw = 1; break;
             }
         }
     }
@@ -943,9 +930,10 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
         }
         free(heads);
     }
-    if (!x) for (const char *const *h = weak_heads; *h; h++) {
-        size_t hl = strlen(*h);
-        if (strncmp(work, *h, hl) == 0) { x = work + hl; weak = 1; matched = *h; break; }
+    if (!x) for (size_t hi = 0; hi < nheads; hi++) {
+        if (strcmp(kinds[hi], "weak") != 0) continue;
+        size_t hl = strlen(heads[hi]);
+        if (strncmp(work, heads[hi], hl) == 0) { x = work + hl; weak = 1; matched = heads[hi]; break; }
     }
     if (!x || !*x) return 0;
     int it = matched && (kb_cue_match(b, "50_self_research_loop_lex943", matched) ||kb_cue_match(b, "50_self_research_loop_lex943_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex943_3", matched) ||kb_cue_match(b, "50_self_research_loop_lex944", matched) ||kb_cue_match(b, "50_self_research_loop_lex944_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex945", matched) ||kb_cue_match(b, "50_self_research_loop_lex945_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex946", matched) ||kb_cue_match(b, "50_self_research_loop_lex946_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex947", matched));

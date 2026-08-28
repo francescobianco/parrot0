@@ -1,0 +1,15 @@
+# Focused KB-first round fifteen: knowledge-question heads are runtime data.
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+!query knowledge_head("what is a ", strong)
+!query knowledge_head("what is ", weak)
+!assert knowledge_head("define ", strong)
+!query knowledge_head("define ", strong)
+!forget knowledge_head("define ", strong)
+!query! knowledge_head("define ", strong)

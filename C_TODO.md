@@ -1075,6 +1075,15 @@ inglesi/italiane nel C. Il tokenizer resta meccanico (separatori e binding),
 mentre il significato dell’operatore è KB-teachable; le regressioni algebriche
 EN/IT e `arith_flex` restano verdi.
 
+### Gen473 — knowledge heads come dati runtime
+
+Le superfici `strong` e `weak` del percorso research sono state spostate da
+`strong_heads[]`/`weak_heads[]` alla relazione `knowledge_head/2`. Il C conserva
+solo precedenza, estrazione del topic e binding; il ratchet `kb_first_round15`
+verifica assert/query/forget di una nuova superficie. Il golden research
+storico ha un mismatch di risposta indipendente dal rollback, registrato
+separatamente e non mascherato.
+
 ### Gen471 — topic e constraint come user_value di sessione
 
 `current_topic` e `user_constraint` non vengono più scritti o letti dai campi
