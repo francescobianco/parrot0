@@ -52,11 +52,11 @@ response_template(i_do_not_know_your_preference_yet, "I do not know your prefere
 response_template(i_don_t_have_a_previous_turn_to_recons, "I don't have a previous turn to reconsider yet.").
 response_template(i_don_t_know_a_command_for_that_yet, "I don't know a command for that yet.").
 response_template(i_don_t_know_your_name_yet, "I don't know your name yet.").
-response_template(i_don_t_understand_that_entailment_yet, "I don't understand that entailment yet.").
+response_template(entailment_not_understood, "I don't understand that entailment yet.").
 response_template(i_don_t_understand_that_question_yet, "I don't understand that question yet.").
 response_template(i_don_t_watch_movies_or_have_recent_vi, "I don't watch movies or have recent viewing experiences, but for the prompt I'd pick an old mystery for its careful clues.").
 response_template(i_found_the_rule_but_not_the_number_to, "I found the rule but not the number to apply it to.").
-response_template(i_have_conflicting_evidence_for_that, "I have conflicting evidence for that.").
+response_template(evidence_conflicting, "I have conflicting evidence for that.").
 response_template(i_haven_t_answered_anything_yet, "I haven't answered anything yet.").
 response_template(i_haven_t_created_any_files_this_sessi, "I haven't created any files this session.").
 response_template(i_ll_play_along_what_are_my_two_option, "I'll play along — what are my two options?").
@@ -144,12 +144,30 @@ response_template(i_read_that_as_code_but_i_am_not_sure_which, "I read that as c
 response_template(translate_what, "Translate what?").
 response_template(specify_what_the_command_should_do, "Specify what the command should do.").
 response_template(nothing_claimed_the_last_turn_there_was_no_w, "Nothing claimed the last turn — there was no winner to set aside.").
-response_template(i_can_t_open_another_world_right_now, "I can't open another world right now.").
+response_template(world_slot_busy, "I can't open another world right now.").
 response_template(ask_me_whether_something_holds_first_then_i, "Ask me whether something holds first — then I can tell you what that conclusion rests on.").
 response_template(ask_me_whether_something_holds_first_then_i_know, "Ask me whether something holds first — then I can tell you how I know it and what would change my mind.").
 response_template(that_isn_t_something_i_currently_conclude_so, "That isn't something I currently conclude, so there's nothing to stress-test.").
 response_template(tell_me_what_you_d_like_me_to_account_for_as, "Tell me what you'd like me to account for, as 'X is a Y'.").
 response_template(punctuation_only, "That's just punctuation, not words — what would you like to ask?").
+
+% ── LE FRASI DEL MURO ────────────────────────────────────────────────────────
+% Cio' che parrot0 dice piu' spesso, e fino al gen450 l'unica cosa che non si
+% poteva insegnare: stava in due array C, uno per lingua. `wall_generic` porta
+% le forme intercambiabili — kb_response_slots ruota da solo fra le righe di
+% una stessa famiglia, quindi aggiungerne una qui allarga il repertorio senza
+% toccare il motore. `wall_classic` e' la forma canonica dell'occorrenza
+% isolata, quella con cui il muro si confronta per non ripetersi.
+response_template(wall_classic, "I don't understand that yet.").
+response_template(wall_classic, it, "Non capisco ancora.").
+response_template(wall_generic, "I'm not sure I followed. Can you say it another way?").
+response_template(wall_generic, "I didn't quite catch that. What would you like to know?").
+response_template(wall_generic, "Hmm, that's a bit beyond me right now.").
+response_template(wall_generic, "I don't understand that yet.").
+response_template(wall_generic, it, "Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?").
+response_template(wall_generic, it, "Non ho afferrato bene. Cosa vorresti sapere?").
+response_template(wall_generic, it, "Mmh, questo per ora va un po' oltre le mie capacita'.").
+response_template(wall_generic, it, "Non capisco ancora.").
 response_template(that_doesn_t_look_like_words_to_me_did_a_key, "That doesn't look like words to me — did a key get stuck? I'm here when you'd like to ask something.").
 
 %% Seconda tranche: la stessa frase, scritta prima in un buffer e poi emessa.
@@ -514,7 +532,7 @@ response_template(verify_behavior_ran_x_on_x_probes_and_the_pa, "verify_behavior
 response_template(verify_behavior_ran_x_on_x_probes_in_both_ve, "verify_behavior ran `{pfn}` on {nprobes} probes in both versions; outputs are byte-identical — the patch preserves behavior").
 response_template(orchain_scan_found_x_or_chains_of_calls_to_x, "orchain_scan found {n} OR-chains of calls to `{fn}` under {target} in {files} files ({calls} calls in chains); densest is {top} ({topn} chains)").
 response_template(orchain_scan_found_x_or_chains_of_calls_to_x_2, "orchain_scan found {n} OR-chains of calls to `{fn}` in {target} ({calls} calls in chains)").
-response_template(my_action_knowledge_for_x_is_incomplete_noth, "My action knowledge for {goal_h} is incomplete: nothing yields {miss_h} and it is not given — teach me the missing action facts.").
+response_template(action_knowledge_incomplete, "My action knowledge for {goal_h} is incomplete: nothing yields {miss_h} and it is not given — teach me the missing action facts.").
 response_template(x_reaches_the_midpoint_first_each_must_cover, "{who} reaches the midpoint first (each must cover {mid} miles; it gets there sooner).").
 response_template(no_number_fits_nothing_from_x_to_x_satisfies, "No number fits: nothing from {lo} to {hi} satisfies all those constraints together.").
 response_template(it_must_be_x_the_only_number_from_x_to_x_tha, "It must be {picks} -- the only number from {lo} to {hi} that fits.").

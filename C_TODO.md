@@ -218,6 +218,66 @@ verdi, e le suite `agent/`, `code/`, `planning/` — quelle che passano da
 `compose_plan`, il codice riscritto — con esito **identico** al commit di round
 dieci.
 
+### Round ibrido 12 — 2026-08-28 — `gen450-the-wall-is-knowledge`
+
+Dodicesimo giro. Bersaglio: **la voce numero uno della sezione 7.2** — le frasi
+del muro, cio' che parrot0 dice piu' spesso e l'unica cosa che non si poteva
+insegnare.
+
+- **Voce e lessico insieme:** `not_understood()` teneva due array C, uno per
+  lingua, con la rotazione anti-ripetizione scritta a mano accanto. Ma la
+  rotazione fra forme intercambiabili `kb_response_slots` **la fa gia' da
+  sola** — sceglie fra le righe della stessa famiglia con un contatore per
+  chiave — e la scelta della lingua pure. Il C ne teneva una seconda copia
+  divergente. Ora sono `wall_classic` (forma canonica) e `wall_generic` (forme
+  intercambiabili), ciascuna con `/2` e `/3`; nel C resta solo la meccanica
+  «non ripetere l'ultima risposta».
+- **Dominio:** tre binding nuovi — `mereology -> part_of`, `idiom ->
+  idiom_meaning`, `pair_scale -> pair_magnitude`; nove query dirette in meno.
+- **Famiglie:** quattro rinomine — `entailment_not_understood`,
+  `action_knowledge_incomplete`, `evidence_conflicting`, `world_slot_busy`.
+
+**La migrazione ha allargato il repertorio, non solo spostato il testo.** Il
+vecchio indice era `v[b->fallbacks % 4]`; misurato su otto muri di fila,
+percorreva **solo due delle quattro varianti** — «Mmh, questo per ora va un po'
+oltre le mie capacita'» non usciva mai. La rotazione di `kb_response_slots` le
+visita tutte e quattro. E' l'unica aspettativa cambiata (`apology.p0t`), ed e'
+aggiornata con la ragione scritta accanto, non allineata in silenzio.
+
+Verifica: `make build` senza warning, `kb_first_round12.p0t` 14/14, round 2-11
+e `reply_language.p0t` verdi, e le 112 suite di `conversation/`, `meta/`,
+`knowledge/` identiche a `gen449` a parte quell'unica riga.
+
+### Dove siamo — misura al `gen450`
+
+| sonda | apertura | ora | migrato |
+|---|---:|---:|---:|
+| letterali-parola in array C | 435 | 243 | 44% |
+| parole confrontate inline in `str*()` | 351 | 211 | 40% |
+| `snprintf` che compone una frase | 94 | 70 | 26% |
+| `put("…")` letterali | 25 | 10 | 60% |
+| `TODO(kb-first)` aperti nel C | 32 | 18 | 44% |
+| **predicati di dominio senza binding** | **250** | **209** | **16%** |
+
+Totale: `1155` siti all'apertura, `743` ora — **35,7% migrato, 64,3% residuo.**
+
+Fra il round 11 e il round 12 il totale si e' mosso di mezzo punto, e vale la
+pena dire perche' invece di far finta che sia lento per caso: **il denominatore
+e' dominato dal dominio.** I 209 predicati senza binding sono il 28%
+dell'inventario di partenza e il 75% di cio' che resta da fare in ogni altra
+categoria messa insieme.
+
+Al ritmo di questi giri — tre o quattro binding di dominio per round — i 209
+predicati sono **una cinquantina di round**. Non e' una stima pessimista: e' il
+costo reale del fatto che ogni predicato richiede di trovare la relazione piu'
+generale che lo comprende (mantra #3), e che quella e' l'unica categoria che
+per costruzione non si chiude a macchina.
+
+Le altre quattro categorie, sommate, sono `534` siti di cui `380` gia' fatti:
+**71% completo**. Se si guarda solo a «togliere il vocabolario e la voce dal
+C», il lavoro e' in dirittura. Se si guarda alla tesi del progetto — che il
+motore non sia un'enciclopedia con un parser davanti — siamo al 16%.
+
 ### Processo: ogni giro cambia la generazione
 
 > Nota di F., 2026-08-28. I round 8-10 sono stati committati **senza cambiare
@@ -651,7 +711,7 @@ isolato:
 | | |
 |---|---:|
 | famiglie con forma `/2` (default inglese) | 829 |
-| famiglie con forma `/3` italiana | 137 |
+| famiglie con forma `/3` italiana | 141 |
 | **copertura italiana** | **16,5%** |
 
 Cioe': in una sessione italiana, **piu' di quattro famiglie su cinque

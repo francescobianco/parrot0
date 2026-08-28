@@ -1540,27 +1540,23 @@ static void machinery_gap_close(Brain *b, const char *canon) {
 static void not_understood(Brain *b, const char *canon, const char *raw,
                            char *out, size_t out_size) {
     /* gen240 (universal-comprehension): the honest fallback in the CURRENT language. */
-    /* TODO(kb-first): LE FRASI DEL MURO, in due lingue, dentro il C. Sono la
-     * cosa che parrot0 dice piu' spesso, e l'unica che non si puo' insegnare:
-     * `response_template(fallback, …)` con la rotazione che kb_response fa
-     * gia' da sola. Il default in C resta come rete, non come sorgente. */
-    static const char *const v_en[] = {
-        "I'm not sure I followed. Can you say it another way?",
-        "I didn't quite catch that. What would you like to know?",
-        "Hmm, that's a bit beyond me right now.",
-        "I don't understand that yet.",
-    };
-    static const char *const v_it[] = {
-        "Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?",
-        "Non ho afferrato bene. Cosa vorresti sapere?",
-        "Mmh, questo per ora va un po' oltre le mie capacità.",
-        "Non capisco ancora.",
-    };
-    char lang[8]; current_lang(b, lang, sizeof lang);
-    int it = lex_class_member(b, "99_registry_lex1559", lang);
-    const char *const *v = it ? v_it : v_en;
-    const size_t NV = it ? sizeof v_it / sizeof v_it[0] : sizeof v_en / sizeof v_en[0];
-    const char *classic = it ? "Non capisco ancora." : "I don't understand that yet.";
+    /* LE FRASI DEL MURO SONO CONOSCENZA (gen450).
+     *
+     * Erano due array C, uno per lingua, con la rotazione anti-ripetizione
+     * scritta a mano accanto. Ma la rotazione fra forme intercambiabili
+     * `kb_response_slots` la fa GIA' da sola — sceglie fra le righe della
+     * stessa famiglia con un contatore per chiave — e la scelta della lingua
+     * pure, preferendo `response_template/3`. Il C ne teneva una seconda copia
+     * divergente proprio per la frase che parrot0 dice piu' spesso, e che era
+     * quindi l'unica non insegnabile.
+     *
+     * Ora: `wall_generic` porta le forme intercambiabili, `wall_classic` la
+     * forma canonica per l'occorrenza isolata. Qui resta solo la MECCANICA —
+     * non ripetere l'ultima risposta. */
+    enum { WALL_TRIES = 8 };
+    char classicbuf[512];
+    kb_term_say(b, "wall_classic", NULL, 0, classicbuf, sizeof classicbuf);
+    const char *classic = classicbuf;
 
     /* ── gen384: IL MURO DEVE DIRE DOVE SI E' FERMATO ───────────────────────
      *
@@ -1713,7 +1709,6 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
      * troncavano a meta' dell'offerta, cioe' proprio sulla parte utile. */
     char cand[768];
     snprintf(cand, sizeof cand, "%s", classic);
-    unsigned long k = b ? b->fallbacks : 0;
     if (!b) { put(classic, out, out_size); return; }
     if (sw) {
         /* gen335d (linguistic glue, KB-first): store the knowledge gap as a KB
@@ -1898,10 +1893,12 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
     else {
         machinery_gap_record(b, canon, raw);
         gap_record_as(b, canon, raw, "blind_wall");
-        snprintf(cand, sizeof cand, "%s", v[k % NV]);
+        kb_term_say(b, "wall_generic", NULL, 0, cand, sizeof cand);
     }
-    for (size_t t = 0; t < NV && strcmp(cand, b->last_reply) == 0; t++)
-        snprintf(cand, sizeof cand, "%s", v[(k + t) % NV]);
+    /* Anti-ripetizione: ogni chiamata avanza il contatore della famiglia, quindi
+     * richiedere la frase E' gia' il modo di chiederne un'altra. */
+    for (size_t t = 0; t < WALL_TRIES && strcmp(cand, b->last_reply) == 0; t++)
+        kb_term_say(b, "wall_generic", NULL, 0, cand, sizeof cand);
     put(cand, out, out_size);
     b->fallbacks++;
 }

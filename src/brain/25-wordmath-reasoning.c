@@ -745,7 +745,7 @@ static int plan_execute_goal(Brain *b, const char *goal, const char *praw,
         char miss_h[KB_TERM_LEN];
         plan_humanize(missing, miss_h, sizeof miss_h);
         {   const KbResponseSlot _rs[] = { { "goal_h", goal_h }, { "miss_h", miss_h } };
-          kb_term_say(b, "my_action_knowledge_for_x_is_incomplete_noth", _rs, 2, out, out_size); }
+          kb_term_say(b, "action_knowledge_incomplete", _rs, 2, out, out_size); }
         return 1;
     }
 
@@ -848,7 +848,7 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
                     char miss_h[KB_TERM_LEN];
                     plan_humanize(missing, miss_h, sizeof miss_h);
                     {   const KbResponseSlot _rs[] = { { "goal_h", goal_h }, { "miss_h", miss_h } };
-                      kb_term_say(b, "my_action_knowledge_for_x_is_incomplete_noth", _rs, 2, out, out_size); }
+                      kb_term_say(b, "action_knowledge_incomplete", _rs, 2, out, out_size); }
                     return 1;
                 }
                 if (gr == 0) return 0;

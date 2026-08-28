@@ -1,0 +1,48 @@
+# Focused KB-first round twelve ratchets.
+#
+# Il bersaglio del giro e' la sezione 7.2 di C_TODO.md: le frasi del muro erano
+# due array C, uno per lingua — cio' che parrot0 dice piu' spesso, e l'unica
+# cosa che non si poteva insegnare.
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!set PARROT0_TOOLS=1
+!reset
+
+[test il muro parla italiano prendendolo dalla KB]
+> blorf zibble quux
+< Non capisco ancora.
+
+[test le forme del muro si insegnano parlando alla KB]
+!forget response_template(wall_generic, it, "Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?")
+!forget response_template(wall_generic, it, "Non ho afferrato bene. Cosa vorresti sapere?")
+!forget response_template(wall_generic, it, "Mmh, questo per ora va un po' oltre le mie capacita'.")
+!forget response_template(wall_generic, it, "Non capisco ancora.")
+!assert response_template(wall_generic, it, "Quello mi sfugge del tutto.")
+# Il muro alterna forma canonica e forma di rotazione per non ripetersi: il
+# caso precedente ha gia' consumato la canonica, quindi questo turno e' la
+# rotazione — cioe' proprio la famiglia appena reinsegnata.
+> blorf zibble quux
+< Quello mi sfugge del tutto.
+
+[test la famiglia canonica del muro e' conoscenza, in due lingue]
+!query response_template(wall_classic, "I don't understand that yet.")
+!query response_template(wall_classic, it, "Non capisco ancora.")
+
+[test domain_adapter_mereology_idiom_pair_scale]
+!query domain_relation(mereology, part_of)
+!query domain_relation(idiom, idiom_meaning)
+!query domain_relation(pair_scale, pair_magnitude)
+!forget domain_relation(mereology, part_of)
+!query! domain_relation(mereology, part_of)
+!assert domain_relation(mereology, part_of)
+
+[test semantic_family_renames]
+!query response_template(entailment_not_understood, _)
+!query! response_template(i_don_t_understand_that_entailment_yet, _)
+!query response_template(evidence_conflicting, _)
+!query! response_template(i_have_conflicting_evidence_for_that, _)
+!query response_template(world_slot_busy, _)
+!query response_template(action_knowledge_incomplete, _)

@@ -116,7 +116,7 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
     if (b->kb && strstr(norm, "mean")) {
         char ph[64][KB_TERM_LEN];
         const char *anyq[] = { NULL, NULL };
-        size_t pn = kb_match(b->kb, "idiom_meaning", anyq, 2, ph, 64);
+        size_t pn = domain_match(b, "idiom", anyq, 2, ph, 64);
         for (size_t i = 0; i < pn; i++) {
             char *key = ph[i]; size_t kl = strlen(key);
             if (kl >= 2 && key[0] == '"' && key[kl - 1] == '"') { key[kl - 1] = '\0'; key++; }

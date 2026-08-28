@@ -21,5 +21,12 @@
 < No problem.
 > scusa, puoi aiutarmi?
 < Non capisco ancora.
+# gen450: la frase attesa qui e' cambiata, e la ragione va scritta perche' non
+# sembri un test allineato al codice per farlo passare. Le forme del muro erano
+# due array C indicizzati da `b->fallbacks`; misurato su otto muri di fila,
+# quell'indice percorreva solo DUE delle quattro varianti — «Mmh, questo per ora
+# va un po' oltre le mie capacita'» non usciva mai. Ora le forme sono la
+# famiglia KB `wall_generic` e la rotazione e' quella di kb_response_slots, che
+# le visita tutte e quattro. Il repertorio si e' allargato, non spostato.
 > mi dispiace, ho sbagliato
-< Non ho afferrato bene. Cosa vorresti sapere?
+< Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?

@@ -1422,7 +1422,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
         }
         if (*wname) {
             int id = world_enter(b, wname);
-            if (id < 0) { kb_term_say(b, "i_can_t_open_another_world_right_now", NULL, 0, out, out_size);
+            if (id < 0) { kb_term_say(b, "world_slot_busy", NULL, 0, out, out_size);
                           return 1; }
             /* an inline clause after the noun (skip a leading colon / "where") */
             const char *clause = rest ? rest : "";
@@ -1462,7 +1462,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                 if (name && *name) {
                     int id = world_enter(b, name);
                     if (id < 0) {
-                        kb_term_say(b, "i_can_t_open_another_world_right_now",
+                        kb_term_say(b, "world_slot_busy",
                                     NULL, 0, out, out_size);
                         return 1;
                     }

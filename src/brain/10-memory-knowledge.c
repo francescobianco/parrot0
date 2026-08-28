@@ -1915,7 +1915,7 @@ static void idk(Brain *b, const char *pred, char *out, size_t out_size) {
 static void explain_reply(Brain *b, const char *pred, const char *const *args,
                           size_t argc, char *out, size_t out_size) {
     if (kb_is_conflicted(b->kb, pred, args, argc)) {
-        kb_term_say(b, "i_have_conflicting_evidence_for_that", NULL, 0, out, out_size);
+        kb_term_say(b, "evidence_conflicting", NULL, 0, out, out_size);
         return;
     }
 
@@ -1942,7 +1942,7 @@ static void explain_reply(Brain *b, const char *pred, const char *const *args,
 static void howknow_reply(Brain *b, const char *pred, const char *const *args,
                           size_t argc, char *out, size_t out_size) {
     if (kb_is_conflicted(b->kb, pred, args, argc)) {
-        kb_term_say(b, "i_have_conflicting_evidence_for_that", NULL, 0, out, out_size);
+        kb_term_say(b, "evidence_conflicting", NULL, 0, out, out_size);
         return;
     }
 
@@ -2093,7 +2093,7 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
     char hbuf[256];
     size_t len = strlen(hyp);
     if (len >= sizeof hbuf) {
-        kb_term_say(tmp, "i_don_t_understand_that_entailment_yet",
+        kb_term_say(tmp, "entailment_not_understood",
                     NULL, 0, out, out_size);
         return;
     }
@@ -2120,7 +2120,7 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
         args[1] = w[5];
         argc = 2;
     } else {
-        kb_say(tmp, "i_don_t_understand_that_entailment_yet", "I don't understand that entailment yet.", out, out_size);
+        kb_say(tmp, "entailment_not_understood", "I don't understand that entailment yet.", out, out_size);
         return;
     }
 
@@ -2167,14 +2167,14 @@ static int entailment_reply(Brain *b, const char *premises, const char *hypothes
     size_t plen = strlen(premises);
     if (plen >= sizeof pbuf) {
         kb_destroy(tmp.kb);
-        kb_term_say(b, "i_don_t_understand_that_entailment_yet", NULL, 0, out, out_size);
+        kb_term_say(b, "entailment_not_understood", NULL, 0, out, out_size);
         return 1;
     }
     memcpy(pbuf, premises, plen + 1);
 
     if (!apply_premises(&tmp, pbuf)) {
         kb_destroy(tmp.kb);
-        kb_term_say(b, "i_don_t_understand_that_entailment_yet", NULL, 0, out, out_size);
+        kb_term_say(b, "entailment_not_understood", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -4844,7 +4844,7 @@ static int extract_class_statement(Brain *b, const char *norm,
         if (os < n && p0_join(w, os, n, obj, sizeof obj)) {
             kb_set_origin(b->kb, KB_SESSION);
             const char *la[] = { subj, obj };
-            if (kb_assert(b->kb, "part_of", la, 2)) {
+            if (domain_assert(b, "mereology", la, 2)) {
                 p0_learn_source(b, "part_of", la, 2, norm);
                 char msg[256]; { const KbResponseSlot _rs[] = { { "subj", subj }, { "obj", obj } };
    kb_term_say(b, "learned_part_of_x_x", _rs, 2, msg, sizeof msg);
@@ -9091,7 +9091,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     if (domain_query(b, "membership", cq, 2))
                         { keep[k] = 1; nf++; continue; }
                     const char *pq[2] = { items[k], cat };
-                    if (kb_query(b->kb, "part_of", pq, 2))
+                    if (domain_query(b, "mereology", pq, 2))
                         { keep[k] = 1; nf++; continue; }
                 }
                 if (region[0] && nf > 0) {
@@ -9147,18 +9147,18 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (strlen(dw) < 3) continue;
                 const char *aq[] = { dw, NULL, NULL, NULL };
                 char as[64][KB_TERM_LEN];
-                size_t na = kb_match(b->kb, "pair_magnitude", aq, 4, as, 64);
+                size_t na = domain_match(b, "pair_scale", aq, 4, as, 64);
                 if (na == 0) continue;
                 char bestA[KB_TERM_LEN] = "", bestB[KB_TERM_LEN] = "";
                 double bestV = 0; int first = 1;
                 for (size_t a = 0; a < na; a++) {
                     const char *bq[] = { dw, as[a], NULL, NULL };
                     char bs[16][KB_TERM_LEN];
-                    size_t nb = kb_match(b->kb, "pair_magnitude", bq, 4, bs, 16);
+                    size_t nb = domain_match(b, "pair_scale", bq, 4, bs, 16);
                     for (size_t bi = 0; bi < nb; bi++) {
                         const char *vq[] = { dw, as[a], bs[bi], NULL };
                         char vs[1][KB_TERM_LEN];
-                        if (kb_match(b->kb, "pair_magnitude", vq, 4, vs, 1) == 1) {
+                        if (domain_match(b, "pair_scale", vq, 4, vs, 1) == 1) {
                             double v = 0; parse_value(vs[0], &v);
                             if (first || (cmax ? v > bestV : v < bestV)) {
                                 first = 0; bestV = v;
@@ -10953,7 +10953,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     if (premise_start) {
         char *hyp = strstr(buf, "; hypothesis:");
         if (!hyp) {
-            kb_term_say(b, "i_don_t_understand_that_entailment_yet", NULL, 0, out, out_size);
+            kb_term_say(b, "entailment_not_understood", NULL, 0, out, out_size);
             return 1;
         }
         *hyp = '\0';
@@ -11636,7 +11636,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     if (kb_cue_match(b, "10_memory_knowledge_chain11393", buf)) {
         char ph[64][KB_TERM_LEN];
         const char *anyq[] = { NULL, NULL };
-        size_t pn = kb_match(b->kb, "idiom_meaning", anyq, 2, ph, 64);
+        size_t pn = domain_match(b, "idiom", anyq, 2, ph, 64);
         for (size_t i = 0; i < pn; i++) {
             char *key = ph[i]; size_t kl = strlen(key);
             if (kl >= 2 && key[0] == '"' && key[kl - 1] == '"') { key[kl - 1] = '\0'; key++; }
@@ -11647,7 +11647,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 const char *gq2[] = { qkey, NULL };
                 char gh[1][KB_TERM_LEN];
                 (void)gq;
-                if (kb_match(b->kb, "idiom_meaning", gq2, 2, gh, 1) > 0) {
+                if (domain_match(b, "idiom", gq2, 2, gh, 1) > 0) {
                     char *g = gh[0]; size_t gl = strlen(g);
                     if (gl >= 2 && g[0] == '"' && g[gl - 1] == '"') { g[gl - 1] = '\0'; g++; }
                     char msg[320];
@@ -12274,7 +12274,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 const char *xx = keys[0], *yy = keys[nk - 1];
                 const char *args[2] = { xx, yy };
                 char msg[200];
-                if (kb_query(b->kb, "part_of", args, 2))
+                if (domain_query(b, "mereology", args, 2))
                     kb_term_say(b, "part_of_answer", (const KbResponseSlot[]){
                                     { "part", xx }, { "whole", yy } }, 2,
                                 msg, sizeof msg);
@@ -12294,7 +12294,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 const char *yy = keys[nk - 1];
                 char members[16][KB_TERM_LEN];
                 const char *args[2] = { NULL, yy };
-                size_t m = kb_match(b->kb, "part_of", args, 2, members, 16);
+                size_t m = domain_match(b, "mereology", args, 2, members, 16);
                 if (m > 0) {
                     char msg[512];
                     int off = snprintf(msg, sizeof msg, "%s contains: ", yy);
