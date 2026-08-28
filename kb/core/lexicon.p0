@@ -2379,6 +2379,19 @@ arithmetic_word(half).
 arithmetic_word(third).
 arithmetic_word(quarter).
 arithmetic_word(fourth).
+
+% ── E GLI OPERATORI NON SI RIELENCANO ────────────────────────────────────────
+%
+% Le parole degli operatori — plus, minus, times, divided, by, e le loro gemelle
+% italiane — erano in questo elenco quando viveva nel C. Passandolo alla KB
+% (gen443) sono rimaste indietro, e «what is 2 plus 2?» ha smesso di essere
+% aritmetica: `expr_vocab_ok` rifiutava la frase prima ancora che qualcuno
+% guardasse l'operatore. Una lista copiata a mano da un'altra lista e' destinata
+% a divergere una seconda volta, quindi non si copia: si deriva.
+%
+% Conseguenza voluta: un operatore insegnato domani e' ammesso dentro
+% un'espressione lo stesso giorno, senza toccare ne' il C ne' questo elenco.
+arithmetic_word($W) :- infix_operator($W, $Op).
 fraction_connector(of).
 percentage_marker(percent).
 percentage_marker("%").

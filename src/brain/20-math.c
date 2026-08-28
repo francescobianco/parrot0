@@ -54,13 +54,23 @@ static void format_num(double v, char *buf, size_t sz) {
 
 static char arith_op_char(Brain *b, const char *s) {
     if (!b || !b->kb || !s) return 0;
-    const char *q[] = { s, NULL };
+    /* Le superfici degli operatori stanno in KB CITATE — `infix_operator("plus",
+     * plus)` — perche' fra loro ci sono simboli come "+" e "*". Interrogare con
+     * il token nudo non trovava mai niente, e da gen443 «what is 2 plus 2?»
+     * rispondeva «I don't understand that yet.»: la lista era passata alla
+     * conoscenza, la chiave di lettura era rimasta indietro. */
+    char quoted[KB_TERM_LEN];
+    snprintf(quoted, sizeof quoted, "\"%.*s\"",
+             (int)(sizeof(quoted) - 3), s);
+    const char *q[] = { quoted, NULL };
     char hit[1][KB_TERM_LEN];
     if (kb_match(b->kb, "infix_operator", q, 2, hit, 1) != 1) return 0;
-    if (!strcmp(hit[0], "plus")) return '+';
-    if (!strcmp(hit[0], "minus")) return '-';
-    if (!strcmp(hit[0], "times")) return '*';
-    if (!strcmp(hit[0], "divide")) return '/';
+    char hb[KB_TERM_LEN]; snprintf(hb, sizeof hb, "%s", hit[0]);
+    const char *op = kb_dequote(hb);
+    if (!strcmp(op, "plus")) return '+';
+    if (!strcmp(op, "minus")) return '-';
+    if (!strcmp(op, "times")) return '*';
+    if (!strcmp(op, "divide")) return '/';
     return 0;
 }
 
@@ -362,8 +372,18 @@ static int expr_vocab_ok(Brain *b, char **w, size_t nw) {
     for (size_t i = 0; i < nw; i++) {
         double v;
         if (!w[i][0] || parse_value(w[i], &v)) continue;
+        if (!b || !b->kb) return 0;
         const char *q[] = { w[i] };
-        if (!b || !b->kb || !kb_query(b->kb, "arithmetic_word", q, 1)) return 0;
+        if (kb_query(b->kb, "arithmetic_word", q, 1)) continue;
+        /* Un membro puo' stare in KB CITATO — «%» lo e' da sempre, e da quando
+         * la classe si deriva da `infix_operator/2` lo sono anche le parole
+         * degli operatori. Chi chiede con il token nudo deve provare entrambe
+         * le forme, altrimenti la conoscenza c'e' e non si vede. */
+        char quoted[KB_TERM_LEN];
+        snprintf(quoted, sizeof quoted, "\"%.*s\"",
+                 (int)(sizeof(quoted) - 3), w[i]);
+        const char *qq[] = { quoted };
+        if (!kb_query(b->kb, "arithmetic_word", qq, 1)) return 0;
     }
     return 1;
 }
