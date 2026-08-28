@@ -1198,3 +1198,13 @@ Le quattro coppie generate dal ramo `explain` (`adding/sum`,
 `subtracting/difference`, `multiplying/product`, `dividing/quotient`) sono ora
 fatti `operator_explanation/3`. Il consumer risolve prima il simbolo e poi
 compone la frase con gli slot; non contiene più la tabella di wording.
+
+### Gen486 — guardie lessicali del repair nella KB
+
+Le quattro superfici di guardia `what`, `is`, `it` e `mean` non sono più
+confrontate direttamente dal modulo repair: usano rispettivamente
+`repair_calendar_wh/1`, `repair_calendar_copula/1`, `repair_calendar_pronoun/1`
+e `repair_mean_marker/1`. La forma della domanda e la verifica di calendario
+restano meccaniche; il ratchet copre crescita e ablazione di una parola.
+La regressione `robust.p0t` conserva tre differenze storiche di wording e
+provenienza; i casi di guardia del lotto sono riconosciuti correttamente.

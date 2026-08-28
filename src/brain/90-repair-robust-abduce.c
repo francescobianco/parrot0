@@ -1,3 +1,17 @@
+static int repair_word_is(Brain *b, const char *pred, const char *word) {
+    const char *q[] = { word };
+    return b && b->kb && kb_query(b->kb, pred, q, 1);
+}
+
+static int repair_surface_present(Brain *b, const char *pred, const char *text) {
+    char rows[8][KB_TERM_LEN];
+    const char *q[] = { NULL };
+    size_t n = b && b->kb ? kb_match(b->kb, pred, q, 1, rows, 8) : 0;
+    for (size_t i = 0; i < n; i++)
+        if (strstr(text, kb_dequote(rows[i]))) return 1;
+    return 0;
+}
+
 static int mod_repair(Brain *b, const char *norm, const char *raw,
                       char *out, size_t out_size) {
     if (!b) return 0;
@@ -103,8 +117,9 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
      * gap. There is no hidden entity for "it"; the honest gap is that parrot0
      * has no clock/calendar fact or tool, so let the knowledge humility path
      * name that instead of opening a repair loop. */
-    if (nw == 4 && strcmp(w[0], "what") == 0 && strcmp(w[2], "is") == 0 &&
-        strcmp(strip_edge_punct(w[3]), "it") == 0 &&
+    if (nw == 4 && repair_word_is(b, "repair_calendar_wh", w[0]) &&
+        repair_word_is(b, "repair_calendar_copula", w[2]) &&
+        repair_word_is(b, "repair_calendar_pronoun", strip_edge_punct(w[3])) &&
         (lex_class_member(b, "calendar_question_kind", w[1])))
         return 0;
 
@@ -113,7 +128,7 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
      * dummy, not an anaphor. Route it to mod_knowledge's idiom_meaning consumer:
      * if a stored idiom_meaning phrase occurs verbatim in a "mean" turn, pass so
      * first-match-wins reaches the consumer that answers it. */
-    if (b->kb && strstr(norm, "mean")) {
+    if (b->kb && repair_surface_present(b, "repair_mean_marker", norm)) {
         char ph[64][KB_TERM_LEN];
         const char *anyq[] = { NULL, NULL };
         size_t pn = domain_match(b, "idiom", anyq, 2, ph, 64);

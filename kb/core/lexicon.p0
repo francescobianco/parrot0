@@ -1126,6 +1126,14 @@ tool_surface(teach_prefix, "learn ").
 tool_surface(teach_prefix, "impara ").
 tool_surface(teach_source_delimiter, " from").
 tool_surface(teach_source_delimiter, " da ").
+machinery(repair_calendar_wh).
+repair_calendar_wh(what).
+machinery(repair_calendar_copula).
+repair_calendar_copula(is).
+machinery(repair_calendar_pronoun).
+repair_calendar_pronoun(it).
+machinery(repair_mean_marker).
+repair_mean_marker("mean").
 
 % ── QUANTO VALE UNA PAROLA MOLTIPLICATIVA (gen442) ─────────────────────────
 %
