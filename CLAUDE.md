@@ -31,6 +31,7 @@ ricompilare?"** Se no, quella conoscenza è nel posto sbagliato.
 | `AGENTS.md` | regole operative per chi modifica il codice |
 | `C_TODO.md` | che cosa deve ancora uscire dal C — i residui del motore |
 | `LEARN_TODO.md` | la coda dei temi da far apprendere con `LEARN_PROTOCOL.md` |
+| `TEST_TODO.md` | le decisioni aperte della migrazione delle suite a `.p0t` |
 | `LEARN_PROTOCOL.md` | come si addestra parrot0 parlando, e i suoi gate |
 | `docs/plans/` | i piani vivi (uno per direzione di lavoro) |
 | `docs/sessions/` | resoconti di sessione: cosa si è scoperto e perché |
