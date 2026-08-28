@@ -1097,3 +1097,13 @@ verifica crescita e ablazione runtime.
 C: il consumer usa `user_value_write/read`, con la stessa semantica di slot
 sovrascrivibile e supersedibile. La selezione del topic resta meccanica; nome,
 valore e stato della sessione sono conoscenza interrogabile dalla KB.
+
+### Gen475 — pattern di sintassi C come conoscenza KB
+
+I prefissi `return `, `int ` e `char *`, usati dal verificatore dei frammenti C,
+sono ora fatti `code_pattern/3` nella KB. Il C conserva soltanto la scansione
+del testo, l'avanzamento sul prefisso trovato e i controlli strutturali (`=` ,
+virgolette, cifre e `;`); non decide più quali parole nominano quei costrutti.
+`kb_first_round16.p0t` verifica anche assert/query/forget di un pattern inventato
+a runtime. Il test `codeintent.p0t` mantiene un mismatch di wording preesistente
+(`wrong with this the sky...`), da sistemare in un lotto dedicato.

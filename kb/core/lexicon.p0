@@ -1107,6 +1107,12 @@ code_keyword(python, elif). code_keyword(python, try). code_keyword(python, with
 code_keyword(c, int). code_keyword(c, char). code_keyword(c, float).
 code_keyword(c, double). code_keyword(c, void). code_keyword(c, long).
 code_keyword(c, return).
+% I prefissi riconoscibili dal verificatore sono dati di sintassi, non decisioni
+% del C: una superficie nuova si insegna qui e il consumer continua a scansionare.
+machinery(code_pattern).
+code_pattern(c, return_statement, "return ").
+code_pattern(c, int_assignment, "int ").
+code_pattern(c, char_pointer_assignment, "char *").
 
 % ── QUANTO VALE UNA PAROLA MOLTIPLICATIVA (gen442) ─────────────────────────
 %

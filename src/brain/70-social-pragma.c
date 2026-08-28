@@ -1119,8 +1119,19 @@ static int check_missing_semicolons(Brain *b, const char *code, char *findings,
          * test the last REAL character of the statement. */
         if (l[len-1] == '}' && strchr(l, '{')) {
             const char *p = l;
-            while ((p = strstr(p, "return ")) != NULL) {
-                const char *q = p + 7; while (*q && isspace((unsigned char)*q)) q++;
+            char return_pattern[KB_TERM_LEN];
+            const char *rpq[] = { "c", "return_statement", NULL };
+            char rprow[1][KB_TERM_LEN];
+            size_t rpn = b && b->kb ? kb_match(b->kb, "code_pattern", rpq, 3,
+                                                rprow, 1) : 0;
+            if (rpn == 1) snprintf(return_pattern, sizeof return_pattern, "%s",
+                                   kb_dequote(rprow[0]));
+            else return_pattern[0] = '\0';
+            size_t return_pattern_len = strlen(return_pattern);
+            while (return_pattern_len > 0 &&
+                   (p = strstr(p, return_pattern)) != NULL) {
+                const char *q = p + return_pattern_len;
+                while (*q && isspace((unsigned char)*q)) q++;
                 const char *end = strchr(q, '}');      /* next } or end of line */
                 if (!end) end = q + strlen(q);
                 while (end > q && isspace((unsigned char)end[-1])) end--;
@@ -1144,14 +1155,28 @@ static int check_type_mismatch(Brain *b, const char *code, char *findings,
                                 size_t findings_size) {
     /* Simple patterns: "int x = \"...\"" (string assigned to int)
      *                 "char y = 42" (number assigned to char pointer) */
-    if (strstr(code, "int ") && strstr(code, "= \"") && strstr(code, "\"")) {
+    char int_pattern[KB_TERM_LEN], char_pointer_pattern[KB_TERM_LEN];
+    const char *ipq[] = { "c", "int_assignment", NULL };
+    const char *cpq[] = { "c", "char_pointer_assignment", NULL };
+    char iprow[1][KB_TERM_LEN], cprow[1][KB_TERM_LEN];
+    size_t nip = b && b->kb ? kb_match(b->kb, "code_pattern", ipq, 3,
+                                        iprow, 1) : 0;
+    size_t ncp = b && b->kb ? kb_match(b->kb, "code_pattern", cpq, 3,
+                                        cprow, 1) : 0;
+    if (nip == 1) snprintf(int_pattern, sizeof int_pattern, "%s", kb_dequote(iprow[0]));
+    else int_pattern[0] = '\0';
+    if (ncp == 1) snprintf(char_pointer_pattern, sizeof char_pointer_pattern, "%s",
+                           kb_dequote(cprow[0]));
+    else char_pointer_pattern[0] = '\0';
+    if (int_pattern[0] && strstr(code, int_pattern) && strstr(code, "= \"") && strstr(code, "\"")) {
         {   const KbResponseSlot _rs[] = { { "x", "" } };
           kb_term_say(b, "type_mismatch_a_string_is_assigned_to_an_int", _rs, 0, findings, findings_size); }
         return 1;
     }
     /* char *x = number (without quotes) */
     { const char *cp = code;
-      while ((cp = strstr(cp, "char *")) != NULL) {
+      while (char_pointer_pattern[0] &&
+             (cp = strstr(cp, char_pointer_pattern)) != NULL) {
           const char *eq = strstr(cp, "=");
           if (eq) {
               const char *v = eq + 1;
