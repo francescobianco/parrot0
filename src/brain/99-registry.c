@@ -3844,6 +3844,59 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         }
     }
 
+    /* gen458 — LA RELATIVA E' UNA SECONDA AFFERMAZIONE SUL SOGGETTO.
+     *
+     * «copper is a metal that conducts electricity» ne dice due, e parrot0 non
+     * ne prendeva nessuna: cadeva su «conducts» e perdeva anche `metal(copper)`.
+     * E' la stessa figura della concessiva del gen455 con un altro
+     * subordinatore, quindi usa lo stesso meccanismo — si stacca e si manda al
+     * dispatch ordinario — e la stessa disciplina: che cosa la subordinata
+     * valga e' conoscenza (`relative_pronoun/1`), non un ramo qui.
+     *
+     * Solo sulle ASSERZIONI: in una domanda la relativa restringe il
+     * riferimento invece di aggiungere un fatto, ed e' un'altra lettura. */
+    if (b && b->kb && canon[0] && !strchr(canon, '?')) {
+        char rb[512];
+        if (strlen(canon) < sizeof rb) {
+            snprintf(rb, sizeof rb, "%s", canon);
+            char *words[64];
+            char scan[512]; snprintf(scan, sizeof scan, "%s", canon);
+            size_t nwr = split_words(scan, words, 64);
+            size_t rel = nwr, cop = nwr;
+            for (size_t i = 0; i < nwr; i++) {
+                const char *cq[1] = { words[i] };
+                if (cop == nwr && kb_query(b->kb, "generic_copula", cq, 1)) cop = i;
+                if (rel == nwr && cop != nwr && i > cop &&
+                    kb_query(b->kb, "relative_pronoun", cq, 1)) { rel = i; break; }
+            }
+            /* serve un soggetto prima della copula e almeno una parola dopo il
+             * pronome, altrimenti non ci sono due proposizioni da staccare */
+            if (rel != nwr && cop > 0 && rel + 1 < nwr) {
+                char head[512] = "", tail[512] = "";
+                size_t ho = 0, to = 0;
+                for (size_t i = 0; i < rel; i++)
+                    ho += (size_t)snprintf(head + ho, sizeof head - ho,
+                                           "%s%s", i ? " " : "", words[i]);
+                /* la relativa parla del soggetto: lo si rimette davanti */
+                for (size_t i = 0; i < cop; i++)
+                    to += (size_t)snprintf(tail + to, sizeof tail - to,
+                                           "%s%s", i ? " " : "", words[i]);
+                for (size_t i = rel + 1; i < nwr; i++)
+                    to += (size_t)snprintf(tail + to, sizeof tail - to,
+                                           " %s", words[i]);
+                if (head[0] && tail[0]) {
+                    char r1[900] = "", r2[900] = "";
+                    brain_respond(b, head, r1, sizeof r1);
+                    brain_respond(b, tail, r2, sizeof r2);
+                    char joined[1900];
+                    snprintf(joined, sizeof joined, "%s %s", r1, r2);
+                    put(joined, out, out_size);
+                    return turn_done(b, canon, input, out);
+                }
+            }
+        }
+    }
+
     /* gen80: try to decompose compound turns (e.g. "chi sei e ricordati X")
      * before the normal single-turn dispatch. */
     if (b && decompose_and_dispatch(b, canon, input, out, out_size))

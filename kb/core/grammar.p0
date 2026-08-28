@@ -317,6 +317,22 @@ np_closer(because). np_closer(although). np_closer(if). np_closer(unless).
 np_closer(che).   np_closer(cui).    np_closer(quando). np_closer(mentre).
 np_closer(perche). np_closer(se).
 
+% ── LA RELATIVA NON CAMBIA LA PRINCIPALE (gen458) ───────────────────────────
+%
+% «copper is a metal that conducts electricity» dice DUE cose vere: che il rame
+% e' un metallo, e che conduce elettricita'. Misurato prima di questa classe, il
+% turno cadeva al muro su «conducts» e si perdeva anche `metal(copper)`, che
+% stava in chiaro nella principale — lo stesso guasto della concessiva al
+% gen455, con un altro subordinatore.
+%
+% `np_closer` sa gia' che questi pronomi chiudono il sintagma. Qui si dichiara
+% la cosa in piu' che serve per IMPARARE: la relativa parla del soggetto della
+% principale, quindi le due proposizioni si staccano e si affermano entrambe.
+relative_pronoun(that).
+relative_pronoun(which).
+relative_pronoun(who).
+relative_pronoun(che).
+
 % ── LE FORME DELLA DOMANDA (gen457, M15) ────────────────────────────────────
 %
 % Uno schema, non una frase. Due slot:
