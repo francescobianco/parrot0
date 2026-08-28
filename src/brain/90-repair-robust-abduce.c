@@ -105,8 +105,7 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
      * name that instead of opening a repair loop. */
     if (nw == 4 && strcmp(w[0], "what") == 0 && strcmp(w[2], "is") == 0 &&
         strcmp(strip_edge_punct(w[3]), "it") == 0 &&
-        (strcmp(w[1], "year") == 0 || strcmp(w[1], "date") == 0 ||
-         strcmp(w[1], "day") == 0 || strcmp(w[1], "time") == 0))
+        (lex_class_member(b, "calendar_question_kind", w[1])))
         return 0;
 
     /* gen311 (F., 2026-07-11): "what does it mean when someone says 'X'?" is an

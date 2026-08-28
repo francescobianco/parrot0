@@ -88,6 +88,22 @@ Verifica del round: `make build` senza warning, `kb_first_round5.p0t` 9/9,
 round precedenti e test di famiglia tutti verdi. Il blocco globale resta il
 disallineamento già noto delle cinque aspettative MCP di `check_sort.p0t`.
 
+### Round ibrido 6 — 2026-08-28
+
+Sesto giro completato su quattro target ulteriori:
+
+- **Voce:** una risposta di generazione è stata portata a una famiglia
+  `response_template` KB.
+- **Lessico:** una classe di marcatori del lettore è ora interrogata dalla KB,
+  con aggiunta e ritiro runtime verificati.
+- **Dominio:** un consumer di riparazione usa ora un binding
+  `domain_relation/2` invece del predicato concreto nel percorso C.
+- **Famiglie:** una famiglia residua è stata rinominata con una chiave
+  semantica stabile.
+
+Verifica: `make build` senza warning, `kb_first_round6.p0t` 8/8 e tutti i round
+precedenti verdi. Restano i cinque fallimenti MCP già noti in `check_sort.p0t`.
+
 | | inizio campagna | ora |
 |---|---:|---:|
 | punti della voce con chiave KB | 160 | **656** |

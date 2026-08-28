@@ -453,6 +453,10 @@ poetic_function_word(my).
 poetic_function_word(your).
 generated_form_marker(couplet).
 generated_form_marker(haiku).
+calendar_question_kind(year).
+calendar_question_kind(date).
+calendar_question_kind(day).
+calendar_question_kind(time).
 stopword(about).
 stopword(after).
 stopword(before).

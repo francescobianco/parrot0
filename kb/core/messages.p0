@@ -171,7 +171,8 @@ response_template(learned_rule_head_text, "Learned rule: {head}(X) :- {body}").
 response_template(near_rhymes_for_x, "Near-rhymes for \"{target}\": {list}.").
 response_template(matches_for_x, "Matches for `{pattern}`").
 response_template(suddenly_x, "Suddenly, {text}.").
-response_template(continuation_x, "{text}.").
+response_template(sentence_continuation, "{text}.").
+response_template(concise_explanation, "{text}.").
 response_template(weight_updated, "Ok, {kind} weight is now {value}.").
 response_template(plan_stopped_missing_action, "{prefix} stopped at step {step} {step_h} because no action_impl fact names its primitive.").
 response_template(plan_stopped_via_action, "{prefix} stopped at step {step} {step_h} via {impl}: {obs}.").

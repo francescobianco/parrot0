@@ -507,7 +507,10 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             char hit[1][KB_TERM_LEN];
             if (kb_match(b->kb, "concise_explain", eq, 3, hit, 1) > 0) {
                 char *p = kb_dequote(hit[0]);
-                char msg[160]; snprintf(msg, sizeof msg, "%s.", p);
+                char msg[160];
+                kb_term_say(b, "concise_explanation",
+                            (const KbResponseSlot[]){{ "text", p }},
+                            1, msg, sizeof msg);
                 msg[0] = (char)toupper((unsigned char)msg[0]);
                 put(msg, out, out_size);
                 return 1;
@@ -1376,7 +1379,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                     /* gen241: only a STORY continuation gets the dramatic lead; a plain
                      * "finish this sentence" reads better as the bare clause. */
                     const char *key = kb_cue_match(b, "30_generation_reading_chain1378", norm)
-                                    ? "suddenly_x" : "continuation_x";
+                                    ? "suddenly_x" : "sentence_continuation";
                     const KbResponseSlot slots[] = { { "text", p } };
                     kb_term_say(b, key, slots, 1, msg, sizeof msg);
                     put(msg, out, out_size);
@@ -1440,7 +1443,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         if (scene_from_cues(b, nw2, nn2, picked_scene, sizeof picked_scene)) {
             const char *tq[] = { picked_scene, NULL };
             char cont[4][KB_TERM_LEN];
-            if (kb_match(b->kb, "continuation_template", tq, 2, cont, 4) > 0) {
+            if (domain_match(b, "narrative_completion", tq, 2, cont, 4) > 0) {
                 char *p = kb_dequote(cont[0]);
                 char msg[240]; snprintf(msg, sizeof msg, "%s.", p);
                 msg[0] = (char)toupper((unsigned char)msg[0]);
