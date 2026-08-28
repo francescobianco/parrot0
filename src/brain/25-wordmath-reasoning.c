@@ -377,8 +377,7 @@ static int plan_request_fn(Brain *b, const char *praw, char *fn, size_t fn_sz) {
         }
     }
     for (size_t i = 0; i + 1 < nw; i++) {
-        if ((!strcmp(w[i], "function") || !strcmp(w[i], "funzione") ||
-             !strcmp(w[i], "fn") || !strcmp(w[i], "vocab_fn")) &&
+        if (lex_class_member(b, "function_name_marker", w[i]) &&
              plan_fn_candidate(b, w[i + 1])) {
             snprintf(fn, fn_sz, "%s", w[i + 1]);
             return 1;

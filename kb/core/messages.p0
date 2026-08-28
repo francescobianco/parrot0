@@ -86,7 +86,7 @@ response_template(you_haven_t_taught_me_any_facts_yet, "You haven't taught me an
 %% INSEGNARE — «learn "…" as a reply for <famiglia>» vale dal turno dopo.
 
 response_template(i_couldn_t_evaluate_that_entailment, "I couldn't evaluate that entailment.").
-response_template(got_it_i_ll_remember_that, "Got it, I'll remember that.").
+response_template(personal_acknowledged, "Got it, I'll remember that.").
 response_template(none_of_them, "None of them.").
 response_template(i_can_only_do_a_limerick_on_a_theme_i_have_l, "I can only do a limerick on a theme I have lines for -- like a programmer, coffee, or a cat. Pick one of those?").
 response_template(both_as_far_as_i_know, "Both, as far as I know.").
@@ -702,6 +702,7 @@ response_template(forgotten_fact, "Forgotten: {pred}({arg}).").
 response_template(learned_negative_fact, "Learned: not {pred}({arg}).").
 response_template(learned_unary_fact, "Learned: {pred}({arg}).").
 response_template(learned_binary_fact, "Learned: {pred}({arg1}, {arg2}).").
+response_template(learned_facts, "Learned: {facts}.").
 % E quando i ruoli sono tre. Senza questa riga il motore annunciava due
 % argomenti su tre: il fatto ternario entrava corretto e la frase ne mostrava
 % una versione mutila — un misclaim su cio' che aveva appena imparato.

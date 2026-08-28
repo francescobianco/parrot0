@@ -2473,6 +2473,11 @@ goal_filler(the).
 goal_filler(would).
 goal_filler(still).
 goal_filler(not).
+
+function_name_marker(function).
+function_name_marker(funzione).
+function_name_marker(fn).
+function_name_marker(vocab_fn).
 hedge_word(maybe).
 hedge_word(perhaps).
 hedge_word(guess).

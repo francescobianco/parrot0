@@ -72,6 +72,22 @@ Quarto giro completato:
 Verifica del round: build senza warning e `kb_first_round4.p0t` 8/8. `make test`
 resta bloccato soltanto dalle cinque aspettative di `check_sort.p0t` già note.
 
+### Round ibrido 5 — 2026-08-28
+
+Quinto giro completato:
+
+- **Voce:** l’acknowledgment dell’apprendimento di una classe usa la famiglia
+  KB `learned_facts`.
+- **Lessico:** i marcatori dei nomi di funzione usano `function_name_marker/1`,
+  con prova runtime di crescita e ablazione.
+- **Dominio:** la parentela usa `domain_relation(kinship, family_relation)`.
+- **Famiglie:** `got_it_i_ll_remember_that` è stata rinominata in
+  `personal_acknowledged`.
+
+Verifica del round: `make build` senza warning, `kb_first_round5.p0t` 9/9,
+round precedenti e test di famiglia tutti verdi. Il blocco globale resta il
+disallineamento già noto delle cinque aspettative MCP di `check_sort.p0t`.
+
 | | inizio campagna | ora |
 |---|---:|---:|
 | punti della voce con chiave KB | 160 | **656** |

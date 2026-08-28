@@ -1,0 +1,30 @@
+# Focused KB-first round five ratchets.
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test output_phrase_for_class_learning]
+!query response_template(learned_facts, "Learned: {facts}.")
+> zibo is a quux
+< Learned: quux(zibo).
+
+[test lexical_function_marker_growth_and_ablation]
+!assert function_name_marker(zorp)
+!query function_name_marker(zorp)
+!forget function_name_marker(zorp)
+!query! function_name_marker(zorp)
+
+[test domain_kinship_adapter]
+!assert family_relation(aunt)
+!assert domain_relation(kinship, family_relation)
+!query domain_relation(kinship, family_relation)
+!query family_relation(aunt)
+!forget domain_relation(kinship, family_relation)
+!query! domain_relation(kinship, family_relation)
+
+[test semantic_family_rename]
+!query response_template(personal_acknowledged, "Got it, I'll remember that.")
+!query! response_template(got_it_i_ll_remember_that, "Got it, I'll remember that.")

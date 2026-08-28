@@ -1418,6 +1418,7 @@ domain_relation(isa, is_a).
 domain_relation(same, same).
 domain_relation(location, located_in).
 domain_relation(authored_work, wrote).
+domain_relation(kinship, family_relation).
 
 infix_operator("+", plus).
 infix_operator("-", minus).

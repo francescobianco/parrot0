@@ -3312,11 +3312,11 @@ static int kin_canon(Brain *b, const char *tok, char *out, size_t sz) {
     size_t l = strlen(t);
     if (l >= 2 && t[l - 1] == 's' && t[l - 2] == '\'') t[l - 2] = '\0';
     const char *a2[] = { t };
-    if (kb_query(b->kb, "family_relation", a2, 1)) { snprintf(out, sz, "%s", t); return 1; }
+    if (domain_query(b, "kinship", a2, 1)) { snprintf(out, sz, "%s", t); return 1; }
     char sg[KB_TERM_LEN];
     singularize_kb(b, t, sg, sizeof sg);
     const char *a[] = { sg };
-    if (kb_query(b->kb, "family_relation", a, 1)) { snprintf(out, sz, "%s", sg); return 1; }
+    if (domain_query(b, "kinship", a, 1)) { snprintf(out, sz, "%s", sg); return 1; }
     return 0;
 }
 
@@ -4952,8 +4952,8 @@ static int extract_class_statement(Brain *b, const char *norm,
         return 2;
     }
     const char *ca[] = { subj };
-    char msg[256]; size_t mo = 0;
-    mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "Learned: ");
+    char msg[256];
+    char learned[224]; size_t lo = 0; learned[0] = '\0';
     int any = 0, rejected = 0;
     size_t arity_ar = 0; char arity_cls[KB_TERM_LEN] = "";
     for (size_t i = 0; i < ncls; i++) {
@@ -4989,7 +4989,7 @@ static int extract_class_statement(Brain *b, const char *norm,
         }
         if (kb_assert(b->kb, classes[i], ca, 1)) {
             p0_learn_source(b, classes[i], ca, 1, norm);
-            mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%s%s(%s)",
+            lo += (size_t)snprintf(learned + lo, sizeof learned - lo, "%s%s(%s)",
                                    any ? ", " : "", classes[i], subj);
             any = 1;
         }
@@ -4998,7 +4998,7 @@ static int extract_class_statement(Brain *b, const char *norm,
         const char *la[] = { subj, obj };
         if (domain_assert(b, "location", la, 2)) {
             p0_learn_source(b, "located_in", la, 2, norm);
-            mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%slocated_in(%s, %s)",
+            lo += (size_t)snprintf(learned + lo, sizeof learned - lo, "%slocated_in(%s, %s)",
                                    any ? ", " : "", subj, obj), any = 1;
         }
     }
@@ -5028,7 +5028,8 @@ static int extract_class_statement(Brain *b, const char *norm,
         }
         return 0;
     }
-    snprintf(msg + mo, sizeof msg - mo, ".");
+    { const KbResponseSlot _rs[] = { { "facts", learned } };
+      kb_term_say(b, "learned_facts", _rs, 1, msg, sizeof msg); }
     remember_entity(b, subj, subj);
     put(msg, out, out_size);
     return 1;
@@ -8252,7 +8253,7 @@ static int personal_slot_turn(Brain *b, const char *norm, const char *raw,
     }
     char tmpl[220];
     if (lang_template(b, "personal_ack", tmpl, sizeof tmpl)) put(tmpl, out, out_size);
-    else kb_term_say(b, "got_it_i_ll_remember_that", NULL, 0, out, out_size);
+    else kb_term_say(b, "personal_acknowledged", NULL, 0, out, out_size);
     return 1;
 }
 
