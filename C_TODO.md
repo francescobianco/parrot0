@@ -1119,3 +1119,15 @@ validazione meccanica del nome; `kb_first_round16.p0t` dimostra crescita e
 ablazione runtime di una nuova parola di chiamata.
 La regressione `planact.p0t` continua a mostrare tre differenze storiche di
 wording/slot del piano; il lotto non le nasconde né le corregge incidentalmente.
+
+### Gen477 — guardie grammaticali dell’entailment nella KB
+
+Le parole `is`, `the`, `of` e la coppia di copule dell’universale non sono più
+confrontate direttamente nei due lettori di `10-memory-knowledge.c`: il C
+interroga rispettivamente `entailment_copula/1`, `entailment_article/1`,
+`entailment_relation_preposition/1` e `universal_copula/1`. Restano meccanici la
+forma della frase, l’estrazione degli argomenti e il binding del predicato. Il
+ratchet mostra anche assert/query/forget di una copula nuova.
+Le regressioni `entail.p0t` e `syllogism_universal.p0t` mantengono il loro
+contratto storico; il primo riconosce le forme ma conserva nove differenze di
+template già presenti, mentre il secondo passa 1/1.

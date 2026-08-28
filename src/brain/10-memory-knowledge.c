@@ -2091,7 +2091,7 @@ static int apply_premises(Brain *tmp, char *premises) {
  * D-2026-06-15b. */
 enum { ENT_PLAIN = 0, ENT_EXPLAIN = 1, ENT_LABEL = 2 };
 
-static void entailment_status(Brain *tmp, const char *hyp, int mode,
+static void entailment_status(Brain *tmp, Brain *lex, const char *hyp, int mode,
                               char *out, size_t out_size) {
     char hbuf[256];
     size_t len = strlen(hyp);
@@ -2112,12 +2112,19 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
     /* gen382: `tmp` is the premise sandbox. It carries no world facts, but since
      * gen371 it reaches parrot0's own machinery through its substrate, so the
      * lexical class is available here exactly as in a real brain. */
-    if (nw == 4 && strcmp(w[0], "is") == 0 && is_article(tmp, w[2])) {
+    const char *eq0[] = { w[0] }, *eq2[] = { w[2] }, *eq4[] = { w[4] };
+    KB *lex_kb = lex ? lex->kb : NULL;
+    int entailment_is = lex_kb &&
+                        kb_query(lex_kb, "entailment_copula", eq0, 1);
+    int entailment_the = nw >= 4 && lex_kb &&
+                         kb_query(lex_kb, "entailment_article", eq2, 1);
+    int entailment_of = nw >= 6 && lex_kb &&
+                       kb_query(lex_kb, "entailment_relation_preposition", eq4, 1);
+    if (nw == 4 && entailment_is && is_article(lex, w[2])) {
         pred = w[3];
         args[0] = w[1];
         argc = 1;
-    } else if (nw == 6 && strcmp(w[0], "is") == 0 &&
-               strcmp(w[2], "the") == 0 && strcmp(w[4], "of") == 0) {
+    } else if (nw == 6 && entailment_is && entailment_the && entailment_of) {
         pred = w[3];
         args[0] = w[1];
         args[1] = w[5];
@@ -2181,7 +2188,7 @@ static int entailment_reply(Brain *b, const char *premises, const char *hypothes
         return 1;
     }
 
-    entailment_status(&tmp, trim_mut((char *)hypothesis), mode, out, out_size);
+    entailment_status(&tmp, b, trim_mut((char *)hypothesis), mode, out, out_size);
     kb_destroy(tmp.kb);
     return 1;
 }
@@ -2280,7 +2287,8 @@ static int universal_to_witness(Brain *lex, Brain *tmp, char *q, size_t qsz) {
     size_t n = split_words(buf, w, 16);
     for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
     if (n < 4) return 0;
-    if (strcmp(w[0], "are") != 0 && strcmp(w[0], "is") != 0) return 0;
+    const char *cq[] = { w[0] };
+    if (!lex || !lex->kb || !kb_query(lex->kb, "universal_copula", cq, 1)) return 0;
     /* WHICH words open a universal is a closed lexical class, i.e. knowledge:
      * universal_quantifier/1 in kb/core/grammar.p0. It used to be a chain of
      * strcmp here — English deciding a LOGICAL category from inside the engine.

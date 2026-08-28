@@ -420,6 +420,14 @@ machinery(generic_copula).
 generic_copula(is).
 generic_copula(are).
 generic_copula(sono).
+machinery(entailment_copula).
+entailment_copula(is).
+machinery(entailment_article).
+entailment_article(the).
+machinery(entailment_relation_preposition).
+entailment_relation_preposition(of).
+machinery(universal_copula).
+universal_copula(is). universal_copula(are).
 
 % Predicate adjectives are linguistic class members, not a C phrasebook. These
 % four members are the vocabulary exposed by the water page; new members remain
