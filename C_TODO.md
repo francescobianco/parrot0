@@ -626,6 +626,130 @@ quindi la modalita' raw si aggancia li' senza inventare una condizione nuova.
 
 ---
 
+### 7.2 La risposta esce in inglese in una sessione italiana
+
+**Segnalato da F. il 2026-08-28**, da questa sessione:
+
+```
+you> come stai
+Sto bene, grazie. Come posso aiutarti?
+you> genera un template html
+I understood the request — produce «template html» — but I don't have a
+verified schema for that artifact yet; …
+```
+
+**Diagnosi: non e' un bug del motore, e' una lacuna di conoscenza** — che e'
+esattamente la forma che questo progetto vuole. `kb_response_slots` preferisce
+gia' `response_template/3` per la lingua del turno e ricade sulla `/2`; e a quel
+turno `current_language(it)` **e' vero** (verificato con una sonda `.p0t`). La
+risposta e' uscita in inglese solo perche' quella famiglia non aveva la riga
+italiana.
+
+Chiuso per questa famiglia (`gen448`), ma la misura dice che il caso non e'
+isolato:
+
+| | |
+|---|---:|
+| famiglie con forma `/2` (default inglese) | 829 |
+| famiglie con forma `/3` italiana | 137 |
+| **copertura italiana** | **16,5%** |
+
+Cioe': in una sessione italiana, **piu' di quattro famiglie su cinque
+rispondono in inglese.** Non e' un difetto di codice da nessuna parte — e' 692
+righe di KB che non sono state scritte.
+
+**La correzione da NON fare:** un ramo `it ? "…" : "…"` nel C. Il round 10 ne
+ha appena tolto uno; riaggiungerlo per andare piu' veloce farebbe regredire
+l'esperimento anche a test verdi.
+
+Ordine di lavoro suggerito, per valore:
+
+1. **Le frasi del muro.** `not_understood()` in `99-registry.c:1547` tiene
+   ancora **entrambe le lingue dentro il C**, con un `TODO(kb-first)` gia'
+   scritto. E' la cosa che parrot0 dice piu' spesso ed e' l'unica che non si
+   puo' insegnare: va per prima, come famiglie con `/2` e `/3`.
+2. **I declini.** Sono cio' che un utente italiano incontra di piu', perche' si
+   incontrano proprio quando la KB non sa rispondere.
+3. **Il resto**, con una sonda di copertura come ratchet, cosi' che la
+   percentuale non possa scendere.
+
+### 7.3 L'errore di battitura non viene riparato
+
+Dalla stessa sessione, ed e' il punto piu' interessante dei tre:
+
+```
+you> genere un template html      ->  Non capisco ancora.
+you> genera un template html      ->  (capito)
+```
+
+Un carattere. `intent_cue(make_verb, "genera")` e' un confronto di superficie
+esatto, quindi `genere` non aggancia niente e il turno cade al muro.
+
+**Il confine giusto.** La distanza di edit e' *meccanica*: e' una metrica fra
+stringhe e non puo' essere un fatto, quindi puo' stare nel C senza violare il
+mantra #2 — allo stesso titolo della punteggiatura. Ma **tutto cio' che decide
+che farsene deve essere conoscenza**:
+
+- quali classi sono candidate alla riparazione (`intent_cue`, `code_action`, …)
+  — un fatto, non un elenco nel C;
+- quante correzioni sono ammesse — un fatto (`repair_max_edits(1)`), non una
+  costante;
+- quali token sono **protetti** — un `lexeme/1` noto, un `proper_name/1`, un
+  numero non si "correggono" mai.
+
+**La guardia che rende il caso difficile:** `genere` *e' una parola italiana
+vera* (il genere letterario, il genere grammaticale). Oggi non e' in
+`lexeme/1`, quindi una riparazione che scatta su «token sconosciuto» prima o
+poi correggera' una parola vera che la KB non conosce ancora — e lo fara' in
+silenzio.
+
+Da cui la regola di disegno, che e' la regola generale del progetto applicata
+qui: **parrot0 deve dire che cosa ha assunto, non sostituire di nascosto.**
+
+```
+you> genere un template html
+parrot0> Non conosco «genere». Intendevi «genera»? (a un carattere da un
+         verbo che so eseguire)
+```
+
+Una sostituzione silenziosa *riduce* cio' che l'interlocutore vede per avere
+ragione per costruzione: e' il lato sbagliato della regola che riassume tutte
+le altre. Una domanda di conferma *aumenta* cio' che entrambi vedono — e in
+piu' la risposta e' insegnabile, perche' un «si'» diventa un fatto.
+
+Casa naturale: `mod_repair` in `90-repair-robust-abduce.c`, che e' gia' nella
+catena di dispatch **prima** dei moduli che rispondono, non dopo il muro.
+
+### 7.4 «genera un template html» — che cosa manca davvero
+
+Il declino del terzo turno **e' corretto e va difeso**: parrot0 sintetizza solo
+cio' che un oracolo puo' controllare, e lo dice elencando cosa sa fare. E' la
+regola anti-inganno di `PRINCIPLES.md`, non un limite da aggirare.
+
+Quindi la domanda giusta non e' «aggiungiamo la generazione di HTML», e':
+**qual e' l'oracolo di un template HTML?** E ce n'e' uno ovvio — la buona
+formazione strutturale: `<!doctype>` presente, tag bilanciati, annidamento
+corretto. E' controllabile a macchina esattamente come
+`code_check_print_program()` controlla che un programma stampi davvero la sua
+stringa.
+
+Il seam esiste gia' ed e' KB-first: `60-agent-tools.c:1975` interroga
+`program_shape/2` — uno schema **dichiarato dalla KB** — sintetizza il
+candidato e lo **dispone eseguendolo**. Un template HTML e' la stessa figura
+con un oracolo diverso:
+
+- `document_shape(html_page, …)` in `kb/experts/`, con gli slot del documento;
+- un oracolo strutturale accanto a `code_check_print_program()`;
+- nessuna stringa HTML nel C, e nemmeno **una** stringa HTML unica nella KB:
+  sarebbe un phrasebook di documenti. Lo schema deve avere slot, altrimenti
+  parrot0 non ha imparato a generare, ha imparato a citare.
+
+Il test operativo del progetto, applicato qui: *parrot0 puo' imparare un
+formato di documento nuovo domani, senza ricompilare?* Se per l'HTML si scrive
+un ramo dedicato nel C, la risposta e' no, e il punto era proprio quello.
+
+---
+
 ---
 
 ## Le guardie imparate sbagliando

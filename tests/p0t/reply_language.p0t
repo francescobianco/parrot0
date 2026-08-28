@@ -1,0 +1,32 @@
+# LA LINGUA DELLA RISPOSTA E' CONOSCENZA.
+#
+# Segnalato da F. (2026-08-28): una sessione palesemente italiana riceveva il
+# declino sull'artefatto in inglese. Il motore era a posto — kb_response_slots
+# preferisce gia' response_template/3 per la lingua del turno — a mancare era
+# la riga italiana. Questo ratchet fissa il caso e, con esso, la forma della
+# correzione: si aggiunge KB, non un ramo `it ? ... : ...` nel C.
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!reset
+
+[test la sessione italiana e' riconosciuta come tale]
+> come stai
+!query current_language(it)
+
+[test il declino sull'artefatto parla italiano]
+> come stai
+> genera un template html
+<~ Ho capito la richiesta
+<~ non ho ancora uno schema verificato
+
+[test la forma italiana e' conoscenza, non codice]
+!query response_template(i_understood_the_request_produce_x, it, "Ho capito la richiesta — produrre «{obj}»")
+!forget response_template(i_understood_the_request_produce_x, it, "Ho capito la richiesta — produrre «{obj}»")
+!query! response_template(i_understood_the_request_produce_x, it, "Ho capito la richiesta — produrre «{obj}»")
+!assert response_template(i_understood_the_request_produce_x, it, "Ho capito la richiesta — produrre «{obj}»")
+
+[test anche la giuntura della lingua bersaglio e' una famiglia]
+!query response_template(artifact_target_language, " in {lang}")
+!query response_template(artifact_target_language, it, " in {lang}")

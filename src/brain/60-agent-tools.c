@@ -2020,8 +2020,14 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
     const KbResponseSlot _r1[] = { { "obj", obj } };
     kb_term_say(b, "i_understood_the_request_produce_x", _r1, 1, _t1, sizeof _t1);
     size_t oo = (size_t)snprintf(out, out_size, "%s", _t1);
-    if (lang[0])
-        oo += (size_t)snprintf(out + oo, out_size - oo, " in %s", lang);
+    if (lang[0]) {
+        /* Even the two-word glue is a family: an Italian turn must not get an
+         * English " in " welded on by the engine. */
+        char _tg[64];
+        kb_term_say(b, "artifact_target_language", (const KbResponseSlot[]){
+                        { "lang", lang } }, 1, _tg, sizeof _tg);
+        oo += (size_t)snprintf(out + oo, out_size - oo, "%s", _tg);
+    }
     { char _t2[512];
     const KbResponseSlot _r2[] = { { "x", "" } };
     kb_term_say(b, "but_i_don_t_have_a_verified_schema_for_that", _r2, 0, _t2, sizeof _t2);
