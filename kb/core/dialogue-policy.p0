@@ -20,6 +20,17 @@ move_policy(blocking_incompatible_readings, clarify).
 move_policy(valid_surface, leave_unchanged).
 move_policy(proven_answer_with_components, show_decomposition).
 
+% gen491 — LA PAROLA SOLA CHE NON CONOSCO. La sonda `bare_topic_probe` ha
+% misurato la mossa di un modello di frontiera davanti a un token nudo e ignoto
+% (`qzxvb`): NOMINA la parola e chiede che cosa si intende. Non saluta mai.
+%
+% Fino al gen490 parrot0 la indovinava per fonotattica — pronunciabile =
+% probabile saluto — e ci finivano dentro `milano`, `mercurio`, `python`,
+% `rosso`. Qui la scommessa e' dichiarata invece che cablata: la riga sotto
+% sceglie la mossa onesta, e asserire `move_policy(lone_unknown_word,
+% social_contact)` a runtime rimette il saluto per eliminazione.
+move_policy(lone_unknown_word, name_the_word).
+
 move_priority(answer_with_interpretation_key, clarify, preferred_when_nonblocking).
 move_priority(propose_hypothesis, silent_repair, always).
 move_priority(decline, unsupported_answer, always).
