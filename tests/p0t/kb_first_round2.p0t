@@ -1,0 +1,33 @@
+# Focused KB-first round two ratchets.
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+[test output_template_and_family]
+> find a file named Makefile
+< Found `Makefile`: ./Makefile
+!assert response_template(teach_form_ack, "Recorded {phrase} as {ls}.")
+!query response_template(teach_form_ack, "Recorded {phrase} as {ls}.")
+
+[test lexical_growth_and_ablation]
+!assert goal_filler(zorp)
+!query goal_filler(zorp)
+!forget goal_filler(zorp)
+!query! goal_filler(zorp)
+
+[test domain_binding]
+!assert wrote(writer, work)
+!query wrote(writer, work)
+!assert domain_relation(authored_work, wrote)
+!query domain_relation(authored_work, wrote)
+!forget domain_relation(authored_work, wrote)
+!query! domain_relation(authored_work, wrote)
+
+[test family_base_is_restored]
+!assert response_template(teach_form_ack, "Got it - I'll take «{phrase}» as a way to {ls} now.")
+!forget response_template(teach_form_ack, "Recorded {phrase} as {ls}.")
+!query response_template(teach_form_ack, "Got it - I'll take «{phrase}» as a way to {ls} now.")

@@ -1186,7 +1186,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
     if (kb_cue_match(b, "40_meta_reflection_chain1176", buf)) {
         const char *fv[] = { b->role_kind, NULL };
         char work[4][KB_TERM_LEN];
-        if (b->role_kind[0] && kb_match(b->kb, "wrote", fv, 2, work, 4)) {
+        if (b->role_kind[0] && domain_match(b, "authored_work", fv, 2, work, 4)) {
             char disp[64]; snprintf(disp, sizeof disp, "%s", work[0]);
             for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
             char msg[128]; snprintf(msg, sizeof msg, "I wrote %s.", disp);

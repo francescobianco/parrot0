@@ -582,7 +582,9 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         char dirbuf[256]; int claimed;
         if (!piact_dir(b, dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
         char *fargv[] = {(char*)"find", dirbuf, (char*)"-name", (char*)name, NULL};
-        char label[200]; snprintf(label, sizeof label, "Found `%s`", name);
+        char label[200];
+        kb_term_say(b, "found_file", (const KbResponseSlot[]){
+                        { "name", name } }, 1, label, sizeof label);
         return piact_obs(b, fargv, label, out, out_size);
     }
 

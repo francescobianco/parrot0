@@ -27,6 +27,21 @@ Verifica del round: `make build`, `kb_conjunction.p0t` 7/7,
 `family.p0t` 9/9, `geographic_location.p0t` 26/26. Il residuo misurato è ora
 più basso di una voce, una classe lessicale, una relazione e una famiglia.
 
+### Round ibrido 2 — 2026-08-28
+
+Secondo avanzamento trasversale:
+
+- **Voce:** la risposta `Found {name}` usa ora il template KB `found_file`.
+- **Lessico:** il parser dei goal interroga `goal_filler/1` invece di una lista
+  locale in C; il `Brain *` è stato propagato ai chiamanti.
+- **Dominio:** `wrote/2` è risolto dal ruolo KB `authored_work` tramite
+  `domain_match()`.
+- **Famiglie:** la famiglia generata per l’acknowledgment di insegnamento è ora
+  `teach_form_ack`.
+
+Verifica del round: `make build`, `kb_first_round2.p0t` 8/8 e `family.p0t` 9/9.
+Restano separati i tre fallimenti preesistenti di `planact.p0t`.
+
 | | inizio campagna | ora |
 |---|---:|---:|
 | punti della voce con chiave KB | 160 | **656** |

@@ -712,7 +712,7 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                      phrase, ls, family);
         else
             { const KbResponseSlot _rs[] = { { "phrase", phrase }, { "ls", ls } };
-              kb_term_say(b, "got_it_i_ll_take_x_as_a_way_to_x_now", _rs, 2, msg, sizeof msg);
+              kb_term_say(b, "teach_form_ack", _rs, 2, msg, sizeof msg);
               put(msg, out, outsz); }
         return 1;
     }

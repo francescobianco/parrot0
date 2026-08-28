@@ -350,17 +350,16 @@ static int plan_request_path(const char *praw, char *path, size_t path_sz) {
     return 0;
 }
 
-static int plan_fn_candidate(const char *t) {
+static int plan_fn_candidate(Brain *b, const char *t) {
     if (!t || !*t) return 0;
-    if (!strcmp(t, "in") || !strcmp(t, "under") || !strcmp(t, "inside") ||
-        !strcmp(t, "a") || !strcmp(t, "di"))
+    if (lex_class_member(b, "goal_filler", t))
         return 0;
     for (const char *p = t; *p; p++)
         if (!(isalnum((unsigned char)*p) || *p == '_')) return 0;
     return 1;
 }
 
-static int plan_request_fn(const char *praw, char *fn, size_t fn_sz) {
+static int plan_request_fn(Brain *b, const char *praw, char *fn, size_t fn_sz) {
     if (!praw || !fn || fn_sz == 0) return 0;
     char buf[512];
     snprintf(buf, sizeof buf, "%s", praw);
@@ -372,7 +371,7 @@ static int plan_request_fn(const char *praw, char *fn, size_t fn_sz) {
                         !strcmp(w[i], "chiamata") || !strcmp(w[i], "chiamate");
         int link_word = !strcmp(w[i + 1], "to") || !strcmp(w[i + 1], "a") ||
                         !strcmp(w[i + 1], "di");
-        if (call_word && link_word && plan_fn_candidate(w[i + 2])) {
+        if (call_word && link_word && plan_fn_candidate(b, w[i + 2])) {
             snprintf(fn, fn_sz, "%s", w[i + 2]);
             return 1;
         }
@@ -380,7 +379,7 @@ static int plan_request_fn(const char *praw, char *fn, size_t fn_sz) {
     for (size_t i = 0; i + 1 < nw; i++) {
         if ((!strcmp(w[i], "function") || !strcmp(w[i], "funzione") ||
              !strcmp(w[i], "fn") || !strcmp(w[i], "vocab_fn")) &&
-            plan_fn_candidate(w[i + 1])) {
+             plan_fn_candidate(b, w[i + 1])) {
             snprintf(fn, fn_sz, "%s", w[i + 1]);
             return 1;
         }
@@ -754,7 +753,7 @@ static int plan_execute_goal(Brain *b, const char *goal, const char *praw,
     char target[256] = "";
     char fn[64] = "";
     (void)plan_request_path(praw, target, sizeof target);
-    (void)plan_request_fn(praw, fn, sizeof fn);
+    (void)plan_request_fn(b, praw, fn, sizeof fn);
 
     char _t1[512];
     const KbResponseSlot _r1[] = { { "goal_h", goal_h } };

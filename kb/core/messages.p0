@@ -236,7 +236,8 @@ response_template(x_i_was_missing_a_piece_and_taught_it_to_mys, "{again}  (I was
 %% stanno in un atomo, e la KB usa gia' « » ovunque: la citazione cambia segno,
 %% non contenuto — ed e' anche la forma che il resto della voce usa gia'.
 
-response_template(got_it_i_ll_take_x_as_a_way_to_x_now, "Got it - I'll take «{phrase}» as a way to {ls} now.").
+response_template(teach_form_ack, "Got it - I'll take «{phrase}» as a way to {ls} now.").
+response_template(found_file, "Found `{name}`").
 response_template(conjunction_taught, "Got it - I'll treat \"{word}\" as a conjunction now, like \"and\".").
 response_template(self_family_no_family, "I'm parrot0, an AI, so I don't have {article} {kin} -- no family to name.").
 response_template(i_already_treat_x_as_a_conjunction, "I already treat \"{word}\" as a conjunction.").
