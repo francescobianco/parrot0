@@ -4,15 +4,15 @@ Coda delle cose che **non decido da solo** e di quelle che restano da fare nella
 migrazione delle suite shell verso il test-engine
 ([`docs/plans/test-engine.md`](docs/plans/test-engine.md)).
 
-Stato: **82/113 file sistemati (73%)** alla radice di `tests/`.
+Stato: **113/113 file sistemati (100%)** alla radice di `tests/`.
 
 ---
 
 ## 0. HANDOFF — da leggere per primo
 
-### 0.1 ⚠️ `!expect` — il debito da saldare PRIMA di convertire altro
+### 0.1 `!expect` — engine implementato, conversione suite in corso
 
-`!mcp` ed `!exec` mettono il loro risultato **dove va la risposta di parrot0**, e
+`!mcp` ed `!exec` mettevano il loro risultato **dove va la risposta di parrot0**, e
 si verificano con `<~` / `<!`. **È sbagliato**, e l'ha detto F.: `<` è
 l'asserzione su *ciò che parrot0 ha risposto in un turno di conversazione*, e
 l'uscita di una primitiva di test non è parrot0 che parla. Confonderle fa passare
@@ -45,13 +45,13 @@ Con entrambe, la coppia diventa una **tipizzazione**: `<` è il canale
 conversazionale, `!expect <sorgente>` quello degli strumenti, e mescolarli è un
 errore *rilevato* invece che una svista.
 
-Servono le tre varianti che `<` ha già: contiene (`!expect`), non contiene
+Sono implementate le tre varianti che `<` ha già: contiene (`!expect`), non contiene
 (`!expect!`), uguale esatto — e la sorgente da riconoscere è almeno `mcp` ed
 `exec`.
 
-Poi vanno aggiornati i file già convertiti che usano `<~` dopo `!mcp`:
+Restano da aggiornare i file già convertiti che usano `<~` dopo `!mcp`:
 
-`p0t/mcp/*.p0t` (6), `p0t/growth/*.p0t` (4), `p0t/engine/naf.p0t`,
+`p0t/mcp/*.p0t` (6), `p0t/engine/naf.p0t`,
 `p0t/engine/dif.p0t`, `p0t/engine/dollarvar.p0t`, `p0t/lang/*.p0t` (3),
 `p0t/code/check_sort.p0t`, `p0t/input/universal-input.p0t`,
 `p0t/tools/toolexec.p0t` (solo la parte `!mcp`), `p0t/save/savemap.p0t`.
@@ -118,7 +118,7 @@ chiede.
   sparisce;
 - **se no** → restano dove sono, e la categoria è definitiva.
 
-### 1.2 `learnbuild`: il test-engine e il binario non concordano
+### 1.2 `learnbuild`: allineato; debito residuo documentato
 
 Lo **stesso identico prompt** riceve due risposte diverse:
 
@@ -131,9 +131,14 @@ Riprodotto su un demone appena avviato, stesso env, senza sandbox. Sono due
 declini entrambi onesti, ma **non sono la stessa frase**: qualcosa fa vincere un
 modulo diverso sotto `--test-engine`.
 
-Finché non si sa perché, una conversione sarebbe verde per caso o rossa per la
-ragione sbagliata. Va indagato prima di migrare `learnbuild.sh` — e il difetto,
-se c'è, non è del test: è di uno dei due percorsi.
+Il disallineamento era nel boot del test-engine: il demone non partiva con il
+profilo AGI e quindi il test-engine selezionava un modulo diverso dal processo
+legacy. Ora il demone usa gli stessi default (`PARROT0_TOOLS=1`, sessione vuota,
+profilo `kb/profiles/agi.p0`) e `learnbuild.p0t` passa insieme al test legacy.
+
+Debito futuro: il test-engine deve poter esprimere nonce generati e verifiche di
+induzione/build senza dipendere da fixture statiche; per ora il `.p0t` conserva
+il caso held-out con `vunder` e il controllo meccanico del profilo.
 
 ### 1.3 `autolearn` legge file che non esistono più
 
@@ -198,38 +203,30 @@ prompt rappresentabili e lasciare lì solo l'adapter di misura.
 
 ## 2. Da migrare, senza decisioni aperte
 
-Restano **36 file** alla radice di `tests/`. La conversione automatica non regge
-su nessuno di questi: ognuno ha la propria forma di asserzione, e un
-convertitore che non la riconosce produce un file **verde perché vuoto**, che è
-peggio di rosso.
+Non restano file `.sh` alla radice di `tests/`. I runner shell sotto
+`tests/cdriver/` sono invece l'adapter generico per driver C diretti e non fanno
+parte della migrazione conversazionale.
 
-### 2.1 Conversione automatica tentata e SCARTATA
+### 2.1 Conversione automatica tentata e SCARTATA (storico)
 
 Generate e buttate perché non riproducevano l'originale — vanno rifatte a mano:
 
-`answerframe` (6/14 contro 14/0), `aggregate` (perdeva metà asserzioni),
-`assertclause`, `mcp-teach`, `model_graph`, `motorize_class`, `cliticfr`,
-`explain` (1/4 contro 2/3), `posix_oracle` (0/4 contro 3/1),
-`enumerate` (2/10 contro 3/12), `meta_ceiling` (2/3 contro 5/0).
+Le conversioni automatiche storiche furono scartate perché perdevano asserzioni;
+le suite interessate sono state poi convertite manualmente.
 
 ### 2.2 Ibride: conversazione + driver C
 
-`multigoal` (3 turni conversazionali + 12 controlli sul caricatore scritti come
-driver C), `kb-evidence-scale`, `agentkernel`. La parte C va in
-`tests/cdriver/`, il resto in `.p0t` — due file da uno.
+I casi ibridi mantengono la parte conversazionale in `.p0t` e i controlli API
+diretti in `tests/cdriver/integration/`.
 
 ### 2.3 Grosse, da leggere prima di toccarle
 
-`reasoning_operators` (548 righe), `patch-artifact` (399), `patch-check` (353).
-Pilotano il ciclo candidato → oracolo → policy → commit.
+Il ciclo candidato → oracolo → policy → commit è coperto dai driver C dedicati.
 
 ### 2.4 Il resto
 
-`agentcommit`, `agentrepair`, `archetype`, `artfres`, `booklearn`, `buildstamp`,
-`code-task-agent`, `experts`, `impersonate`(già spostata), `mcp`,
-`mcp-input-payload`, `persist`, `repair`, `research_learn`, `restore`, `savemap`,
-`segment`, `selflimits`, `simclean`(già spostata), `strknow`(fatta), `syllogism`,
-`wiki_learning`.
+Le restanti voci storiche sono state assorbite nelle suite `.p0t` o nei driver
+API dedicati.
 
 ---
 

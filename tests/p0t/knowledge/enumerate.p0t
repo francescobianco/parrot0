@@ -1,0 +1,57 @@
+# gen294 (basic-chat cat.52 "Elencazione") — enumerate the members of a category.
+#
+# mod_namestart already answered the COUNTED pick ("name three animals"); this
+# adds the WHOLE-SET form ("list the days of the week", "what are the
+# continents") and curates the closed sets as category_member/2 facts. The
+# enumerator is one engine mechanism: a new set is just data. This gate uses the
+# default full KB, including kb/core/world-facts.p0.
+
+[mock full-kb]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test counted pick still works]
+> name three planets
+<~ mercury
+> name the five senses
+<~ hearing
+
+[test whole-set form]
+> list the days of the week
+<~ wednesday
+> name the months of the year
+<~ december
+> list the continents
+<~ antarctica
+> what are the cardinal directions
+<~ north
+> list the primary colors
+<~ yellow
+> what are the colors of the rainbow
+<~ indigo
+> name the notes in a musical scale
+<~ sol
+> list the noble gases
+<~ argon
+> list the seasons
+<~ autumn
+> what are the seven wonders
+<~ colossus
+
+[test a qualified category beats the generic one]
+> list the Chinese zodiac animals
+<~ dragon
+<! elephant
+
+[test multi-word member is dequoted for display]
+> list the continents
+<~ north america
+<! "north
+
+[test a non-category what-are turn is not stolen by the enumerator]
+> what are you
+<~ parrot0

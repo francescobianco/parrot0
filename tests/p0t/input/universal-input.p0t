@@ -19,75 +19,75 @@
 
 !mcp input.segment {"text":"fix: int f(void) { return 1; } a condizione che sia veloce"}
 # unknown role cue uses the declared after-default
-<~ "role":"expected"
+!expect mcp "role":"expected"
 
 !mcp kb.assert {"pred":"segment_role","args":["constraint","a condizione che"]}
 
 !mcp input.segment {"text":"fix: int f(void) { return 1; } a condizione che sia veloce"}
 # a runtime fact changes segmentation without rebuild
-<~ "role":"constraint"
+!expect mcp "role":"constraint"
 # constraint span cites its exact supporting fact
-<~ segment_role(constraint
+!expect mcp segment_role(constraint
 
 !mcp kb.assert {"pred":"segment_role","args":["repro","per ricreare"]}
 
 !mcp input.segment {"text":"fix: int f(void) { return 1; } per ricreare usa -1"}
 # an open runtime role crosses the C API unchanged
-<~ "role":"repro"
+!expect mcp "role":"repro"
 # open role carries provenance
-<~ segment_role(repro
+!expect mcp segment_role(repro
 
 !mcp kb.retract {"pred":"segment_role","args":["repro","per ricreare"]}
 
 !mcp input.segment {"text":"fix: int f(void) { return 1; } per ricreare usa -1"}
 # retraction changes the next segmentation
-<~ "role":"expected"
+!expect mcp "role":"expected"
 # retracted role is not cached
-<! "role":"repro"
+!expect! mcp "role":"repro"
 
 !mcp input.segment {"text":"inspect: {\"answer\": 42} expected 42"}
 # JSON is isolated by KB delimiter/evidence facts
-<~ "register":"json"
+!expect mcp "register":"json"
 # faculty_for routes the typed JSON span
-<~ "faculty":"structured_reader"
+!expect mcp "faculty":"structured_reader"
 
 !mcp input.segment {"text":"fix this:\ndef f(x):\n    return x\nIt should return x"}
 # indentation closes Python before dedented prose
-<~ "register":"python"
+!expect mcp "register":"python"
 # dedented prose remains a separate role span
-<~ "role":"expected"
+!expect mcp "role":"expected"
 
 !mcp input.segment {"text":"pytest output:\nE   assert 1 == 2\nFAILED test_x.py::test_x"}
 # pytest output is a non-source typed register
-<~ "register":"pytest"
+!expect mcp "register":"pytest"
 # pytest span is consumable without a parser branch
-<~ "faculty":"verdict_builder"
+!expect mcp "faculty":"verdict_builder"
 
 !mcp input.segment {"text":"inspect: {}"}
 # equal C/JSON evidence produces ambiguous_input
-<~ "ambiguous":true
+!expect mcp "ambiguous":true
 # ambiguity proof names the tied support
-<~ c=4 because register_evidence
+!expect mcp c=4 because register_evidence
 
 !mcp input.segment {"text":"the sky is blue"}
 # ordinary prose stays prose
-<~ "role":"prose"
+!expect mcp "role":"prose"
 # common prose words do not imply Python
-<! "register":"python"
+!expect! mcp "register":"python"
 
 !mcp input.segment {"text":"settings.conf"}
 # .conf is not classified as .c
-<~ "role":"prose"
+!expect mcp "role":"prose"
 # extension matching is exact
-<! "register":"c"
+!expect! mcp "register":"c"
 
 !mcp kb.assert {"pred":"register_evidence","args":["notice","line_prefix(NOTICE:)"]}
 
 !mcp input.segment {"text":"NOTICE: hello"}
 # a new line register works from one runtime fact
-<~ "register":"notice"
+!expect mcp "register":"notice"
 # new register cites its runtime evidence
-<~ register_evidence(notice
+!expect mcp register_evidence(notice
 
 !mcp kb.assert {"pred":"delim_pair","args":["angle","<",">"]}
 
@@ -99,9 +99,9 @@
 
 !mcp input.segment {"text":"inspect: <outer <inner>> after"}
 # an arbitrary nested delimiter pair needs zero C
-<~ "register":"anglelang"
+!expect mcp "register":"anglelang"
 # runtime faculty routing is honored
-<~ "faculty":"custom_reader"
+!expect mcp "faculty":"custom_reader"
 
 !mcp kb.assert {"pred":"intent_cue","args":["alpha_intent","same cue"]}
 
@@ -109,99 +109,99 @@
 
 !mcp input.classify {"relation":"intent_cue","text":"please use same cue now","candidates":["alpha_intent","beta_intent"]}
 # intent hypotheses use the no-tiebreak scorer
-<~ "status":"ambiguous"
+!expect mcp "status":"ambiguous"
 # intent ambiguity has the same proof shape
-<~ ambiguous_hypothesis(intent_cue)
+!expect mcp ambiguous_hypothesis(intent_cue)
 
 !mcp kb.retract {"pred":"intent_cue","args":["beta_intent","same cue"]}
 
 !mcp input.classify {"relation":"intent_cue","text":"please use same cue now","candidates":["alpha_intent","beta_intent"]}
 # ablating one intent support leaves the survivor
-<~ "status":"winner"
+!expect mcp "status":"winner"
 # winner is derived, not fact-order selected
-<~ "hypothesis":"alpha_intent"
+!expect mcp "hypothesis":"alpha_intent"
 
 !mcp kb.retract {"pred":"intent_cue","args":["alpha_intent","same cue"]}
 
 !mcp input.classify {"relation":"intent_cue","text":"please use same cue now","candidates":["alpha_intent","beta_intent"]}
 # ablating all intent evidence produces a typed Gap
-<~ "status":"gap"
+!expect mcp "status":"gap"
 # intent Gap mirrors register-evidence Gap
-<~ gap(intent_cue)
+!expect mcp gap(intent_cue)
 
 !mcp input.segment {"text":"patch:\ndiff --git a/a.c b/a.c\n@@ -1 +1 @@\n-old\n+new"}
 # diff is isolated by line evidence
-<~ "register":"diff"
+!expect mcp "register":"diff"
 # diff routes to its declarative consumer
-<~ "faculty":"patch_reader"
+!expect mcp "faculty":"patch_reader"
 
 !mcp input.segment {"text":"compiler:\nmain.c:3:5: error: expected ; before }"}
 # compiler diagnostics use the same line engine
-<~ "register":"cc"
+!expect mcp "register":"cc"
 
 !mcp input.segment {"text":"failure:\nTraceback (most recent call last):\n  File \"x.py\", line 1\nValueError: bad"}
 # tracebacks use the same line engine
-<~ "register":"traceback"
+!expect mcp "register":"traceback"
 
 !mcp gen.respond {"input":"fix this code: int f(void) { return 1; } without recursion"}
 
 !mcp gen.respond {"input":"how do you know?"}
 # a conversational why cites the role fact
-<~ segment_role(constraint
+!expect mcp segment_role(constraint
 
 !mcp input.segment {"text":"explain:\n```c\nint f(void) { return 1; }\n```\nIt should return 1"}
 # explicit fences use the same register scorer
-<~ "register":"c"
+!expect mcp "register":"c"
 # prose after a fence remains a separate span
-<~ "role":"expected"
+!expect mcp "role":"expected"
 
 !mcp kb.retract {"pred":"register_evidence","args":["notice","line_prefix(NOTICE:)"]}
 
 !mcp input.classify {"relation":"register_evidence","text":"NOTICE: hello","candidates":["notice"]}
 # ablating register evidence produces the same Gap status
-<~ "status":"gap"
+!expect mcp "status":"gap"
 # register Gap mirrors intent-cue Gap
-<~ gap(register_evidence)
+!expect mcp gap(register_evidence)
 
 !mcp input.segment {"text":"fix this code\nint f(void) { return 1; } It should return 1"}
 # a structured head does not absorb prose from the previous line
-<~ "start":14
+!expect mcp "start":14
 # the no-colon multiline source remains a C span
-<~ "register":"c"
+!expect mcp "register":"c"
 
 !mcp gen.respond {"input":"fix this code\nint f(void) { return 1; } It should return 1"}
 # the compiler receives only the no-colon source span
-<~ I compiled it
+!expect mcp I compiled it
 # preceding prose is never compiled as a C type
-<! unknown type name
+!expect! mcp unknown type name
 
 !mcp input.segment {"text":"```\n```"}
 # an untyped empty fence remains explicitly ambiguous
-<~ "ambiguous":true
+!expect mcp "ambiguous":true
 # an empty ambiguous span stays within the raw byte stream
-<~ "start":4,"len":0
+!expect mcp "start":4,"len":0
 
 !mcp input.segment {"text":"```c\nconst char *s = \"```\";\n```"}
 # backticks inside a fenced literal do not close the fence
-<~ "ambiguous":false
+!expect mcp "ambiguous":false
 # the real line fence still closes the C span
-<~ "register":"c"
+!expect mcp "register":"c"
 
 !mcp input.segment {"text":"fix this:\n{\"expected\":1}\nint f(void){return 1;}"}
 # adjacent JSON is classified independently
-<~ "register":"json"
+!expect mcp "register":"json"
 # adjacent C is not merged into the JSON span
-<~ "register":"c"
+!expect mcp "register":"c"
 
 !mcp input.segment {"text":"inspect: {\"answer\":42"}
 # an unclosed object is ambiguous even before balanced evidence can fire
-<~ "ambiguous":true
+!expect mcp "ambiguous":true
 # unclosed-object proof cites the delimiter fact
-<~ delim_pair(brace, {, })
+!expect mcp delim_pair(brace, {, })
 
 !mcp input.segment {"text":"inspect: [1,2"}
 # an unclosed array is ambiguous
-<~ "ambiguous":true
+!expect mcp "ambiguous":true
 
 !mcp kb.assert {"pred":"segment_role","args":["alpha","foo bar"]}
 
@@ -209,21 +209,21 @@
 
 !mcp input.segment {"text":"foo bar baz tail"}
 # equal overlapping role cues compete instead of truncating provenance
-<~ "ambiguous":true
+!expect mcp "ambiguous":true
 # overlap ambiguity cites the first role fact
-<~ segment_role(alpha
+!expect mcp segment_role(alpha
 # overlap ambiguity cites the second role fact
-<~ segment_role(beta
+!expect mcp segment_role(beta
 
 !mcp gen.respond {"input":"what functions does this define: int f(void) {"}
 # structural code questions preserve segmentation ambiguity
-<~ ambiguous_input
+!expect mcp ambiguous_input
 # codeast does not replace an unclosed span with a generic guess
-<! looks like a snippet
+!expect! mcp looks like a snippet
 
 !mcp input.segment {"text":"don\u0027t touch:\nint f(void) { return 1; }"}
 # an apostrophe in preceding prose does not hide a structured span
-<~ "register":"c"
+!expect mcp "register":"c"
 
 !mcp kb.assert {"pred":"delim_pair","args":["pipe","|","|"]}
 
@@ -235,19 +235,19 @@
 
 !mcp input.segment {"text":"inspect: | \"a|b\" | after"}
 # a symmetric delimiter pair is facts-only
-<~ "register":"pipelang"
+!expect mcp "register":"pipelang"
 # a symmetric runtime register reaches its declared consumer
-<~ "faculty":"pipe_reader"
+!expect mcp "faculty":"pipe_reader"
 
 !mcp kb.assert {"pred":"quoted_default_test","args":["q","\"default\""]}
 
 !mcp input.classify {"relation":"quoted_default_test","text":"unrelated","candidates":["q"]}
 # quoted default is not the fallback sentinel
-<~ "status":"gap"
+!expect mcp "status":"gap"
 
 !mcp input.classify {"relation":"quoted_default_test","text":"the default value","candidates":["q"]}
 # quoted default remains ordinary surface evidence
-<~ "status":"winner"
+!expect mcp "status":"winner"
 
 !mcp kb.assert {"pred":"default_test","args":["a","default"]}
 
@@ -257,14 +257,14 @@
 
 !mcp input.classify {"relation":"default_test","text":"hit","candidates":["a","b"]}
 # bare default does not inflate a specifically supported hypothesis
-<~ "status":"ambiguous"
+!expect mcp "status":"ambiguous"
 
 !mcp input.classify {"relation":"register_evidence","text":"{} then {\"x\":1}","candidates":["json"]}
 # paired evidence scans beyond the first balanced block
-<~ paired_contains(brace
+!expect mcp paired_contains(brace
 
 !mcp kb.assert {"pred":"malformed_evidence_test","args":["m","keyword(x)junk"]}
 
 !mcp input.classify {"relation":"malformed_evidence_test","text":"x","candidates":["m"]}
 # malformed compound evidence is opaque, not executable structure
-<~ "status":"gap"
+!expect mcp "status":"gap"

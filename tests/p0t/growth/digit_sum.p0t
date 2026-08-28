@@ -17,14 +17,14 @@
 
 # prima: la cue non e' dichiarata, la domanda non trova la classe
 !mcp gen.respond {"input":"A 4-slot vault-alpha uses digits 0-9. The sum of the digits is 10. How many combinations are possible?"}
-<! 282
+!expect! mcp 282
 
 # la si insegna a runtime
 !mcp kb.assert {"pred":"intent_cue","args":["digit_sequence_container","vault-alpha"]}
 !mcp gen.respond {"input":"A 4-slot vault-alpha uses digits 0-9. The sum of the digits is 10. How many combinations are possible?"}
-<~ 282
+!expect mcp 282
 
 # e la si ritratta: la capacita' se ne va con lei
 !mcp kb.retract {"pred":"intent_cue","args":["digit_sequence_container","vault-alpha"]}
 !mcp gen.respond {"input":"A 4-slot vault-alpha uses digits 0-9. The sum of the digits is 10. How many combinations are possible?"}
-<! 282
+!expect! mcp 282

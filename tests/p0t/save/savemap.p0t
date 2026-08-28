@@ -28,7 +28,7 @@
 # `secretes/2` ha gia' una casa: physiology.p0
 !mcp kb.assert {"pred":"secretes","args":["zubrak","zubrakin"]}
 !mcp kb.save {"path":"kb/learning/learned.p0"}
-<~ "ok":true
+!expect mcp "ok":true
 
 # il fatto e' andato dai suoi simili, non nella ricaduta
 !filehas kb/facts/physiology.p0 secretes(zubrak, zubrakin)

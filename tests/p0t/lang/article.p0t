@@ -25,10 +25,10 @@
 !set PARROT0_WORLD_FACTS=0
 !reset
 !mcp kb.match {"pred":"article","args":["def","m","no",null]}
-<~ "il"
+!expect mcp "il"
 # elisione davanti a vocale, femminile determinativo
 !mcp kb.match {"pred":"article","args":["def","f","yes",null]}
-<~ l'
+!expect mcp l'
 # e indeterminativo
 !mcp kb.match {"pred":"article","args":["indef","f","yes",null]}
-<~ un'
+!expect mcp un'

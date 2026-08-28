@@ -1,0 +1,11 @@
+# !expect keeps primitive output separate from conversational replies.
+
+[test primitive_expectations]
+!exec printf 'hello world'
+!expect exec hello
+!expect! exec goodbye
+!expect= exec hello world
+
+!mcp kb.query {"pred":"dog","args":["rex"]}
+!expect mcp provable
+!expect! mcp error

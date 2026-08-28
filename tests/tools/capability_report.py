@@ -2,7 +2,7 @@
 """gen317 (forge-master-plan W0.3): `make capability-report` — the capability
 ledger is GENERATED from real benchmark results, never hand-written.
 
-Runs every 'gate' benchmark from tests/benchmarks.json, then verifies each
+Runs every 'gate' benchmark from tests/bench/benchmarks.json, then verifies each
 faculty maturity claim against its evidence:
   - verified    every evidence benchmark is a green gate
   - REGRESSED   an evidence gate is red — the claimed maturity is not supported
@@ -36,7 +36,7 @@ def brain_version() -> str:
 
 
 def main() -> int:
-    manifest = json.loads((ROOT / "tests" / "benchmarks.json").read_text())
+    manifest = json.loads((ROOT / "tests" / "bench" / "benchmarks.json").read_text())
     bench_by_id = {b["id"]: b for b in manifest["benchmarks"]}
 
     status: dict[str, str] = {}

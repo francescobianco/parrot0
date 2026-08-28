@@ -14,14 +14,14 @@
 
 # prima: nessuno schema dichiarato, l'aritmetica scalare risponde
 !mcp gen.respond {"input":"What is 8 plus 4 guard-alpha?"}
-<~ 12
+!expect mcp 12
 
 # dichiarare lo schema mette la guardia: la somma da sola non e' piu' la risposta
 !mcp kb.assert {"pred":"intent_cue","args":["discount_chain_schema","guard-alpha"]}
 !mcp gen.respond {"input":"What is 8 plus 4 guard-alpha?"}
-<! 12
+!expect! mcp 12
 
 # ritratta la dichiarazione, torna l'aritmetica
 !mcp kb.retract {"pred":"intent_cue","args":["discount_chain_schema","guard-alpha"]}
 !mcp gen.respond {"input":"What is 8 plus 4 guard-alpha?"}
-<~ 12
+!expect mcp 12

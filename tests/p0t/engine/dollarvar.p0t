@@ -25,15 +25,15 @@
 
 # una regola unaria con $-variabile risolve
 !mcp kb.query {"pred":"mortal","args":["socrates"]}
-<~ "provable":true
+!expect mcp "provable":true
 # e una a piu' variabili con giunzione
 !mcp kb.query {"pred":"grandparent","args":["tom","ann"]}
-<~ "provable":true
+!expect mcp "provable":true
 # la giunzione discrimina: tom e' padre di bob, non nonno
 !mcp kb.query {"pred":"grandparent","args":["tom","bob"]}
-<~ "provable":false
+!expect mcp "provable":false
 !mcp kb.query {"pred":"uses_dollar","args":["a"]}
-<~ "provable":true
+!expect mcp "provable":true
 # la maiuscola nuda e' una COSTANTE: la regola non generalizza
 !mcp kb.query {"pred":"uses_upper","args":["a"]}
-<~ "provable":false
+!expect mcp "provable":false

@@ -1,0 +1,25 @@
+# migrated from tests/multigoal.sh
+# The rule and its evidence are taught through conversation; the direct loader
+# probe remains in tests/cdriver/multigoal.sh.
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test multigoal]
+# A relational rule with a shared intermediate variable is learned in natural
+# language, then resolved by backward chaining.
+> if x is the parent of y and y is the parent of z then x is the grandparent of z
+< Learned rule: grandparent($V1, $V3) :- parent($V1, $V2), parent($V2, $V3).
+> tom is the parent of bob
+< Learned: parent(tom, bob).
+> bob is the parent of ann
+< Learned: parent(bob, ann).
+> is tom the grandparent of ann?
+< Yes.
+> is tom the grandparent of bob?
+< No.
+> who is the grandparent of ann?
+< tom.

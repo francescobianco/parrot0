@@ -1,0 +1,17 @@
+# Migrated from tests/buildstamp.sh.
+# The shell commands are kept as test mechanics; each !exec is an assertion on
+# the build contract, not a conversational response.
+
+[test binary_version_is_derived]
+!exec test -x bin/parrot0
+!exec sh -c 'want_gen=$(cat VERSION); want_commit=$(git rev-parse --short HEAD 2>/dev/null || printf nogit); got=$(printf "/quit\n" | ./bin/parrot0 2>&1 | sed -n "s/^parrot0 \[\([^]]*\)\].*/\1/p" | head -1); test "$got" = "$want_gen@$want_commit"'
+
+[test stamp_isolated]
+!timeout 10
+!exec sh -c 'stamp=obj/version_stamp.h; old=$(cat "$stamp"); trap '\''printf "%s\n" "$old" > "$stamp"'\'' EXIT; printf '\''#define PARROT0_GEN "%s"\n#define PARROT0_COMMIT "deadbee"\n'\'' "$(cat VERSION)" > "$stamp"; plan=$(make -n build 2>/dev/null); n=$(printf "%s\n" "$plan" | grep -E "^[[:space:]]*cc .* -c -o " | grep -c .); test "$n" -eq 1 && printf "%s\n" "$plan" | grep -q "src/version\\.c" && ! printf "%s\n" "$plan" | grep -q "src/brain\\.c"'
+
+[test stamp_location]
+!exec test ! -e src/version_stamp.h
+!exec test -e obj/version_stamp.h
+!exec grep -q parrot0_version src/version.h
+!exec sh -c '! grep -q "define PARROT0_COMMIT" src/version.h'

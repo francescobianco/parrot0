@@ -1,0 +1,50 @@
+# migrated from tests/learnbuild.sh (gen328).
+#
+# The page induces the schema from what its steps do.  The invented name is
+# deliberately held out of the KB; "vunder" is a fixed nonsense stand-in for
+# the shell harness's fresh per-run nonce.
+#
+# Match the shell harness: its base/world configuration is inherited, while the
+# agent profile and tool capability are selected explicitly.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reload
+!reset
+!timeout 60
+
+[test learnbuild]
+# 1. ABLATION: without the page, the algorithm cannot be built.
+> write a vunder function
+<~ I will not emit code I cannot check
+
+# 2. INDUCTION: the page yields the schema.
+!reset
+> learn vunder from these steps: repeat passes over the list; compare each adjacent pair; swap them if they are out of order
+<~ nested_loop_compare_swap
+<~ schema for vunder
+
+# 3. BUILD: the induced schema is synthesized and verified by execution.
+!reset
+> learn vunder from these steps: repeat passes over the list; compare each adjacent pair; swap them if they are out of order
+> write a vunder function
+<~ void vunder(int a[], int n)
+<~ verified by execution
+
+# 4. THE NAME IS NOT READ: it appears nowhere in the knowledge tree.
+!exec sh -c '! grep -R -q -- "vunder" kb/'
+
+# 5. HONESTY: a genuinely different structure is declined, not force-fitted.
+!reset
+> learn vundertwo from these steps: take each element in turn; shift the larger elements one place to the right; insert the element into the gap
+<~ do not describe a structure I can build
+<~ repeat_passes
+<~ will not invent a schema
+
+!reset
+> learn vundertwo from these steps: take each element in turn; shift the larger elements one place to the right; insert the element into the gap
+> write a vundertwo function
+<~ I will not emit code I cannot check

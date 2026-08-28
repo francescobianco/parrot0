@@ -1,0 +1,47 @@
+# migrated from tests/artfres.sh
+#
+# gen288 (U5 rule 3): French and Spanish definite articles are KB data queried
+# by the translator and by MCP, rather than a C ternary.
+
+[mock fr-translation]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test artfres_french_translation]
+> translate into French: "The cat is sleeping on the warm rug."
+< Le chat dort sur le tapis chaud.
+
+[mock es-translation]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test artfres_spanish_translation]
+> translate to spanish: the cat
+< El gato.
+> translate to spanish: the house
+< La casa.
+
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=
+!reset
+
+[test artfres_mcp]
+!mcp kb.match {"pred":"article_fr","args":["m",null]}
+!expect mcp le
+!mcp kb.match {"pred":"article_fr","args":["f",null]}
+!expect mcp la
+!mcp kb.match {"pred":"article_es","args":["m",null]}
+!expect mcp el
+!mcp kb.match {"pred":"article_es","args":["f",null]}
+!expect mcp la

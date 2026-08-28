@@ -1,0 +1,75 @@
+# answerframe.p0t — converted from tests/answerframe.sh (gen306).
+#
+# The test keeps the MCP batches separate where the shell test used separate
+# processes, and checks every MCP operation as well as every behavioral result.
+
+[test answerframe_red]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!reset
+!mcp kb.assert {"pred":"alloy_of","args":["bronze","copper"]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"what is bronze an alloy of?"}
+!expect! mcp copper
+
+[test answerframe_green]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!reset
+!mcp kb.assert {"pred":"alloy_of","args":["bronze","copper"]}
+!expect mcp "ok":true
+!mcp kb.assert {"pred":"answer_frame","args":["alloy of","alloy_of"]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"what is bronze an alloy of?"}
+!expect mcp copper
+!mcp gen.respond {"input":"what is the capital of france?"}
+!expect mcp paris
+
+[test answerframe_multi]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!mcp kb.assert {"pred":"relation_type","args":["mirror_link","involutive"]}
+!expect mcp "ok":true
+!mcp kb.assert {"pred":"answer_frame","args":["involutive","transitive"]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"which relations are involutive?"}
+!expect! mcp Mirror link.
+!mcp kb.assert {"pred":"answer_frame","args":["involutive","relation_type"]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"which relations are involutive?"}
+!expect mcp Mirror link.
+!mcp kb.retract {"pred":"answer_frame","args":["involutive","relation_type"]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"which relations are involutive?"}
+!expect! mcp Mirror link.
+!mcp gen.respond {"input":"what is the arity of ternary_bridge?"}
+!expect! mcp "output":"3."
+!mcp kb.assert {"pred":"relation_arity","args":["ternary_bridge",3]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"what is the arity of ternary_bridge?"}
+!expect mcp "output":"3."
+!mcp kb.retract {"pred":"relation_arity","args":["ternary_bridge",3]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"what is the arity of ternary_bridge?"}
+!expect! mcp "output":"3."
+!mcp gen.respond {"input":"which relations are transitive?"}
+!expect mcp is a
+!expect mcp part of
+
+[test answerframe_weight_growth]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=1
+!reset
+!mcp gen.respond {"input":"what is the bulk of african_elephant?"}
+!expect! mcp 6000
+!mcp kb.assert {"pred":"answer_frame","args":["bulk of","weight_of"]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"what is the bulk of african_elephant?"}
+!expect mcp 6000
+!mcp kb.retract {"pred":"answer_frame","args":["bulk of","weight_of"]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"what is the bulk of african_elephant?"}
+!expect! mcp 6000

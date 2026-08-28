@@ -1,0 +1,39 @@
+# teach.p0t - convertito da tests/mcp-teach.sh (gen279, U1).
+#
+# FIDELITY test: a literal asserted through the MCP surface must round-trip
+# faithfully through match/query, including uppercase, spaces, punctuation, and
+# a '$'-leading value. All calls share one brain, as they did in the shell batch.
+
+[test mcp_teach]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+
+# lowercase literal round-trips (regression control)
+!mcp kb.assert {"pred":"capital","args":["spain","madrid"]}
+!mcp kb.match {"pred":"capital","args":["spain",null]}
+!expect mcp madrid
+
+# uppercase proper noun round-trips through match
+!mcp kb.assert {"pred":"capital","args":["france","Paris"]}
+!mcp kb.match {"pred":"capital","args":["france",null]}
+!expect mcp Paris
+
+# exact-value query is provable
+!mcp kb.query {"pred":"capital","args":["france","Paris"]}
+!expect mcp "provable":true
+
+# a different value must not be provable
+!mcp kb.query {"pred":"capital","args":["france","Berlin"]}
+!expect mcp "provable":false
+
+# display template round-trips verbatim: spaces, comma, slot, uppercase
+!mcp kb.assert {"pred":"response_template","args":["greet","Welcome, {name}!"]}
+!mcp kb.match {"pred":"response_template","args":["greet",null]}
+!expect mcp Welcome, {name}!
+
+# '$'-leading literal round-trips as a constant
+!mcp kb.assert {"pred":"env","args":["home","$HOME"]}
+!mcp kb.match {"pred":"env","args":["home",null]}
+!expect mcp $HOME

@@ -35,6 +35,6 @@
 !mcp kb.assert_clause {"head":{"pred":"abnormal","args":["$X"]},"body":[{"pred":"flightless","args":["$X"]}]}
 !mcp kb.assert_clause {"head":{"pred":"flies","args":["$X"]},"body":[{"pred":"bird","args":["$X"]},{"pred":"abnormal","args":["$X"],"neg":true}]}
 !mcp kb.query {"pred":"flies","args":["eagle"]}
-<~ "provable":true
+!expect mcp "provable":true
 !mcp kb.query {"pred":"flies","args":["penguin"]}
-<~ "provable":false
+!expect mcp "provable":false

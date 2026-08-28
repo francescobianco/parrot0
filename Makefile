@@ -337,7 +337,7 @@ check: build
 capability-facts:
 	@$(BENCH_PY) ./tests/tools/capability_facts.py
 
-# gen316 (forge W0): run every benchmark the manifest (tests/benchmarks.json)
+# gen316 (forge W0): run every benchmark in the manifest (tests/bench/benchmarks.json)
 # declares as a 'gate' ratchet; red gate = baseline-broken, nothing promotes.
 gate: build
 	@$(BENCH_PY) ./tests/tools/gate.py
@@ -373,7 +373,7 @@ TEST_LOG  := obj/test-engine.log
 test-engine: build
 	@-test -f $(TEST_PID) && kill `cat $(TEST_PID)` 2>/dev/null || true
 	@rm -f $(TEST_SOCK) $(TEST_PID)
-	@./$(BIN) --test-engine > $(TEST_LOG) 2>&1 & echo $$! > $(TEST_PID)
+	@PARROT0_TOOLS=1 PARROT0_SESSION= PARROT0_PROFILE=kb/profiles/agi.p0 ./$(BIN) --test-engine > $(TEST_LOG) 2>&1 & echo $$! > $(TEST_PID)
 	@i=0; while [ ! -S $(TEST_SOCK) ] && [ $$i -lt 150 ]; do sleep 0.1; i=$$((i+1)); done; \
 	 if [ ! -S $(TEST_SOCK) ]; then \
 	   echo "test-engine: FAILED — no socket at $(TEST_SOCK) after 15s."; \
@@ -490,6 +490,14 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/engine/ranges.p0t
 	@./$(BIN) --test tests/p0t/engine/anon.p0t
 	@./$(BIN) --test tests/p0t/engine/dollarvar.p0t
+	@./$(BIN) --test tests/p0t/engine/expect.p0t
+	@./$(BIN) --test tests/p0t/knowledge/booklearn.p0t
+	@./$(BIN) --test tests/p0t/knowledge/explain.p0t
+	@./$(BIN) --test tests/p0t/language/artfres.p0t
+	@./$(BIN) --test tests/p0t/language/cliticfr.p0t
+	@./$(BIN) --test tests/p0t/mcp/teach.p0t
+	@./$(BIN) --test tests/p0t/meta/motorize_class.p0t
+	@./$(BIN) --test tests/p0t/tools/buildstamp.p0t
 	@./$(BIN) --test tests/p0t/mcp/assertclause.p0t
 	@./$(BIN) --test tests/p0t/mcp/aggregate.p0t
 	@./$(BIN) --test tests/p0t/repair/repair.p0t
@@ -834,6 +842,9 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/knowledge/world_stress.p0t
 	@./$(BIN) --test tests/p0t/reasoning/analysis_planner_growth.p0t
 	@./$(BIN) --test tests/p0t/reasoning/probability_inverse_growth.p0t
+	@./$(BIN) --test tests/p0t/code/patch-artifact.p0t
+	@./$(BIN) --test tests/p0t/code/learnbuild.p0t
+	@./$(BIN) --test tests/p0t/reasoning/syllogism.p0t
 	@./$(BIN) --test-report
 
 # legacy-test — the pre-gen345 conversation suite. These states are being
@@ -847,38 +858,24 @@ legacy-test: build
 	@echo "############################################################"
 	@./tests/tools/run.sh
 	@./tests/tools/checkfocal.sh
-	@./tests/buildstamp.sh
 	@./tests/selflimits.sh
-	@./tests/syllogism.sh
 	@./tests/agentrepair.sh
 	@./tests/cdriver/exec_kernel.sh
 	@./tests/cdriver/exec_dirfd.sh
-	@./tests/agentkernel.sh
-	@./tests/code-task-agent.sh
-	@./tests/patch-artifact.sh
-	@./tests/patch-check.sh
-	@./tests/agentcommit.sh
+	@./tests/cdriver/run.sh tests/cdriver/integration/agentkernel.c src/agent.c src/json.c
+	@./tests/cdriver/run.sh tests/cdriver/integration/patch-check.c src/patch.c src/exec.c
 	@./tests/segment.sh
 	@$(BENCH_PY) ./tests/tools/openai-input-limit.py
 	@$(BENCH_PY) ./tests/tools/autolearn_structure.py
 	@./tests/bench/llmscore-kbfirst.sh
-	@./tests/kb-evidence-scale.sh
-	@./tests/mcp-input-payload.sh
-	@./tests/learnbuild.sh
+	@./tests/cdriver/run.sh tests/cdriver/integration/kb-evidence-scale.c src/kb.c
 	@$(BENCH_PY) ./tests/tools/manifest_audit.py
 	@./tests/tools/cuechains.sh
 	@./tests/archetype.sh
 	@./tests/persist.sh
 	@./tests/restore.sh
-	@./tests/mcp.sh
-	@./tests/mcp-teach.sh
 	@./tests/answerframe.sh
-	@./tests/artfres.sh
-	@./tests/cliticfr.sh
 	@./tests/savemap.sh
-	@./tests/multigoal.sh
-	@./tests/explain.sh
-	@./tests/booklearn.sh
 	@./tests/wiki_learning.sh
 	@./tests/research_learn.sh
 	@PARROT0_ORACLE=1 ./tests/posix_oracle.sh

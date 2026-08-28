@@ -15,9 +15,9 @@
 !clause all_mammals($L) :- findall($X, is_a($X, mammal), $L)
 
 !mcp kb.match {"pred":"all_mammals","args":[null]}
-<~ dog
-<~ cat
-<! sparrow
+!expect mcp dog
+!expect mcp cat
+!expect! mcp sparrow
 
 [test findall_1]
 !set PARROT0_SESSION=
@@ -28,7 +28,7 @@
 !clause no_birds($L) :- findall($X, is_a($X, bird), $L)
 
 !mcp kb.match {"pred":"no_birds","args":[null]}
-<~ nil
+!expect mcp nil
 
 [test findall_2]
 !set PARROT0_SESSION=
@@ -42,8 +42,8 @@
 !clause all_ancestors($X, $L) :- findall($Y, ancestor($X, $Y), $L)
 
 !mcp kb.match {"pred":"all_ancestors","args":["ann",null]}
-<~ bob
-<~ carl
+!expect mcp bob
+!expect mcp carl
 
 [test findall_3]
 !set PARROT0_SESSION=
@@ -55,9 +55,8 @@
 !assert color(cherry, red)
 
 !mcp kb.assert_clause {"head":{"pred":"red_fruits","args":["$L"]},"body":[{"pred":"findall","args":["$X","color($X, red)","$L"]}]}
-<~ "ok":true
+!expect mcp "ok":true
 
 !mcp kb.match {"pred":"red_fruits","args":[null]}
-<~ apple
-<~ cherry
-
+!expect mcp apple
+!expect mcp cherry

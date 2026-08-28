@@ -137,17 +137,19 @@ sessione.
 !forget PRED | PRED(a, b)   toglie un predicato intero o un fatto singolo
 !forget @LAYER              butta via uno strato: @base, @session, @induced,
                             @reflective, @hypothetical
-!mcp STRUMENTO {json}       invoca UNO strumento MCP sullo stesso brain e mette il
-                            suo payload JSON dove va la risposta, così le righe
-                            `<` / `<~` / `<!` che seguono lo verificano come una
-                            replica qualunque
+!mcp STRUMENTO {json}       invoca UNO strumento MCP sullo stesso brain
+!expect SOURCE testo        verifica che l'output di `mcp` o `exec` contenga testo
+!expect! SOURCE testo       verifica che non lo contenga
+!expect= SOURCE testo       verifica l'uguaglianza esatta
+!random NAME LENGTH         genera una stringa lowercase casuale e la lega a NAME;
+                            `${NAME}` viene espanso nelle righe successive
 !sandbox / !sandbox off     lavora dentro una directory temporanea privata (0700)
                             e la ripulisce; si chiude da sé al `[test …]` dopo e
                             a fine file
 !symlink BERSAGLIO NOME     crea un collegamento simbolico come fixture; si
                             rimuove da sé alle stesse due frontiere
 !exec / !exec! COMANDO      esegue un comando e asserisce l'esito (zero / diverso
-                            da zero); l'output prende il posto della risposta
+                            da zero); il suo output richiede `!expect`
 !fileexists / !filemissing  il file c'è / non c'è
 !direxists  / !dirmissing   la directory c'è / non c'è
 !filehas / !filelacks P txt il file contiene / non contiene `txt`
@@ -271,17 +273,14 @@ Sono **agnostiche**: guardano il disco e basta.
 **prima** (un giro interrotto non fa fallire il successivo) e **dopo** (il
 repository resta com'era). L'entità di prova è inventata apposta.
 
-> ⚠️ **Debito noto (F., gen444) — `!expect`.** `!mcp` ed `!exec` mettono oggi il
-> loro risultato dove va la risposta di parrot0, e si verificano con `<~`/`<!`. È
-> sbagliato: `<` asserisce su ciò che **parrot0 ha detto**, e l'uscita di una
-> primitiva di test non è parrot0 che parla.
+> **`!expect` implementato.** `!mcp` ed `!exec` producono un output tipizzato,
+> distinto da ciò che **parrot0 ha detto**. `<` rifiuta quindi l'asserzione quando
+> l'ultimo output viene da una primitiva di test.
 >
-> La forma decisa è `!expect <sorgente> <testo>` — `!expect mcp …`,
-> `!expect exec …` — con due proprietà che vanno implementate insieme: la
-> **sorgente è una guardia** (scrivere `!expect mcp` dopo un `!exec` deve
-> fallire, non essere ignorato), e **`<` deve rifiutarsi** di asserire quando
-> l'ultimo output non viene da un turno. Così `<` e `!expect` diventano due
-> canali tipizzati e mescolarli è un errore rilevato. Vedi `TEST_TODO.md` §0.1.
+> Le forme sono `!expect SOURCE …` (contiene), `!expect! SOURCE …` (non contiene)
+> e `!expect= SOURCE …` (uguale esatto), con `SOURCE` obbligatoriamente `mcp` o
+> `exec`. La conversione dei casi esistenti che usano ancora `<~` dopo `!mcp`
+> resta nella coda di `TEST_TODO.md` §0.1.
 
 **Ancora da progettare (F.):** mock, stub, flag e altre forme di controllo dello
 stato della KB. Per ora l'engine fa solo l'assert atteso + il pilotaggio env.

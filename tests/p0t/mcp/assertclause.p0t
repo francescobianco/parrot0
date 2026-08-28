@@ -16,10 +16,10 @@
 
 # la giunzione funziona
 !mcp kb.query {"pred":"grandparent","args":["tom","ann"]}
-<~ "provable":true
+!expect mcp "provable":true
 # e discrimina: tom e' padre di bob, non nonno
 !mcp kb.query {"pred":"grandparent","args":["tom","bob"]}
-<~ "provable":false
+!expect mcp "provable":false
 # riasserire la stessa clausola non e' un errore
 !mcp kb.assert_clause {"head":{"pred":"grandparent","args":["$X","$Z"]},"body":[{"pred":"parent","args":["$X","$Y"]},{"pred":"parent","args":["$Y","$Z"]}]}
-<~ "ok":true
+!expect mcp "ok":true

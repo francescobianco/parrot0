@@ -154,7 +154,7 @@ notion of its own envelope, because the self-model derived only from
 `module(name)` — a module either exists or it does not, which says nothing about
 how FAR it reaches.
 
-**The ledger already knew.** `tests/benchmarks.json` declares each faculty's
+**The ledger already knew.** `tests/bench/benchmarks.json` declares each faculty's
 maturity (ABSENT/SEED/TRANSFER/FIELD/HARDENED) and the WALL blocking the next
 level, and `make capability-report` verifies those claims against real gate
 results. Nothing loaded it. Forge plan §18 asks for exactly this, so
@@ -394,7 +394,7 @@ debt.
 
 ## 2026-07-12 - gen320: the manifest is audited, because it was lying (forge §15 row 3)
 
-**The debt (§3.4).** `tests/benchmarks.json` is supposed to be the
+**The debt (§3.4).** `tests/bench/benchmarks.json` is supposed to be the
 machine-readable truth about what each benchmark measures. It was not:
 
 - `glue` was declared a **gate**, but `tests/bench/gluebench.sh` ended on an
@@ -491,8 +491,8 @@ the level that owned it. The master plan calls this the decision-latency
 invariant (§1.8): the time from edit to first counterexample is a property of
 the product, not a developer comfort. This is the first row of its §15 table.
 
-**The catalog (§10.12).** `tests/benchmarks.json` catalogs whole AREAS — `make
-test` is ONE row. `tests/contracts.json` is the new GRANULAR catalog: a contract
+**The catalog (§10.12).** `tests/bench/benchmarks.json` catalogs whole AREAS — `make
+test` is ONE row. `tests/contracts/contracts.json` is the new GRANULAR catalog: a contract
 declares id, capability, owner, depends_on, boot_profile, tier, isolation,
 oracle and hard timeout. M-1a asks for one real contract, not a big-bang
 migration, so the rows are the C1 campaign corpus (§16): the two agent-search

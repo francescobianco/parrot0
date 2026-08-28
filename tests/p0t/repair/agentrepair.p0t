@@ -1,0 +1,66 @@
+# agentrepair.p0t — runtime repair rules, min-blast replanning, budget,
+# retraction and typed gaps in one persistent Brain/MCP process.
+# Converted faithfully from tests/agentrepair.sh.
+
+[test agentrepair]
+!set PARROT0_SESSION=
+!set PARROT0_BASE=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=
+!reset
+
+# Teach both live repair rules, then diagnose the bound defect.
+!mcp kb.assert {"pred":"repair_rule","args":["not_permutation","flip_comparator"]}
+!mcp kb.assert {"pred":"repair_rule","args":["not_ordered","tighten_inner_bound"]}
+!mcp gen.respond {"input":"fix this code: void mysort(int a[], int n) { for (int i = 0; i < n; i++) { for (int j = 0; j < n - i; j++) { if (a[j] > a[j+1]) { int t = a[j]; a[j] = a[j+1]; a[j+1] = t; } } } }"}
+
+!mcp kb.match {"pred":"repair_decision","args":[null,null,"flip_comparator","1"]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_candidate","args":[null,null,"flip_comparator","1"]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_candidate","args":[null,null,"tighten_inner_bound","4"]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_attempt","args":[null,"1","not_permutation","not_ordered"]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_attempt","args":[null,"2","not_ordered","not_ordered"]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_attempt","args":[null,"3","not_ordered","verified"]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_terminal","args":[null,"verified","3","0"]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"rec","args":[null,"task","0","done"]}
+!expect mcp bindings":["1"]
+!mcp kb.match {"pred":"rec_name","args":[null,"\"repair_task\""]}
+!expect mcp bindings":["1"]
+!mcp kb.query {"pred":"rec_source","args":[1,0]}
+!expect mcp provable":true
+
+# A runtime budget forces the second response to terminate exhausted.
+!mcp kb.assert {"pred":"repair_budget","args":["sort_contract",2]}
+!mcp gen.respond {"input":"fix this code: void mysort(int a[], int n) { for (int i = 0; i < n; i++) { for (int j = 0; j < n - i; j++) { if (a[j] > a[j+1]) { int t = a[j]; a[j] = a[j+1]; a[j+1] = t; } } } }"}
+!mcp kb.match {"pred":"repair_terminal","args":[null,"budget_exhausted","2",null]}
+!expect mcp bindings":["
+
+# Retract the live rules and budget: the same input no longer verifies.
+!mcp kb.retract {"pred":"repair_rule","args":["not_permutation","flip_comparator"]}
+!mcp kb.retract {"pred":"repair_rule","args":["not_ordered","tighten_inner_bound"]}
+!mcp kb.retract {"pred":"repair_budget","args":["sort_contract",2]}
+!mcp gen.respond {"input":"fix this code: void mysort(int a[], int n) { for (int i = 0; i < n; i++) { for (int j = 0; j < n - i; j++) { if (a[j] > a[j+1]) { int t = a[j]; a[j] = a[j+1]; a[j+1] = t; } } } }"}
+!mcp kb.match {"pred":"repair_terminal","args":[null,"verified","1","0"]}
+!expect mcp bindings":["
+
+# A zero-rule terminal is recorded after removing the remaining rule.
+!mcp kb.retract {"pred":"repair_rule","args":["not_permutation","tighten_inner_bound"]}
+!mcp gen.respond {"input":"fix this code: void mysort(int a[], int n) { for (int i = 0; i < n; i++) { for (int j = 0; j < n - i; j++) { if (a[j] > a[j+1]) { int t = a[j]; a[j] = a[j+1]; a[j+1] = t; } } } }"}
+!mcp kb.match {"pred":"repair_terminal","args":[null,"zero_rule","0",null]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"rec_name","args":[null,"\"repair_zero_rule\""]}
+!expect mcp bindings":["
+
+# Add a mismatched rule: the no-op remains explicitly no-applicable.
+!mcp kb.assert {"pred":"repair_rule","args":["not_permutation","tighten_inner_bound"]}
+!mcp gen.respond {"input":"fix this code: void mysort(int a[], int n) { for (int i = 0; i < n; i++) { a[i] = a[i]; } }"}
+!mcp kb.match {"pred":"repair_terminal","args":[null,"no_applicable","0",null]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"rec_name","args":[null,"\"repair_no_applicable\""]}
+!expect mcp bindings":["

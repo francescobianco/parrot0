@@ -12,7 +12,7 @@ real counterexample, or it does not earn a generation.
 
 **Done — gen318 (§15 row 1): the focal runner.** `make check TEST=<id>`
 addresses one contract by id, streams START/PASS/FAIL as it happens and stops at
-the first counterexample. `tests/contracts.json` is the granular catalog (§10.12:
+the first counterexample. `tests/contracts/contracts.json` is the granular catalog (§10.12:
 owner, depends_on, boot_profile, tier, isolation, oracle, timeout); the first
 rows are the C1 campaign corpus (§16) — agent-search EN/IT plus the arithmetic
 collision negative. Measured: focal contract 0.38 s, C1 family 1.21 s, first

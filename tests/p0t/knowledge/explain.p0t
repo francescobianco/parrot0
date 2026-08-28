@@ -1,0 +1,30 @@
+# explain.p0t — migrated from tests/explain.sh (gen14).
+# Proof traces must be rendered from held-out facts and rules, including
+# multi-goal bindings; an unprovable question must not be invented.
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test explain]
+!assert man(socrates)
+!clause mortal($X) :- man($X)
+!clause being($X) :- mortal($X)
+!assert parent(tom, bob)
+!assert parent(bob, ann)
+!clause grandparent($X, $Z) :- parent($X, $Y), parent($Y, $Z)
+
+!mcp kb.explain {"pred":"mortal","args":["socrates"]}
+!expect mcp mortal(socrates) because man(socrates)
+!mcp kb.explain {"pred":"being","args":["socrates"]}
+!expect mcp being(socrates) because mortal(socrates) because man(socrates)
+!mcp kb.explain {"pred":"man","args":["socrates"]}
+!expect mcp man(socrates)
+!mcp kb.explain {"pred":"grandparent","args":["tom","ann"]}
+!expect mcp grandparent(tom, ann) because progenitor(tom, bob) and progenitor(bob, ann)
+!mcp kb.explain {"pred":"mortal","args":["plato"]}
+!expect! mcp "provable":true
+!mcp kb.explain {"pred":"mortal","args":["plato"]}
+!expect mcp "provable":false

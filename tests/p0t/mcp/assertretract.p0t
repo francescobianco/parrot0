@@ -13,13 +13,13 @@
 !clause derive_warm_blooded($X) :- has_hair($X), assert(warm_blooded, $X)
 
 !mcp kb.query {"pred":"warm_blooded","args":["dog"]}
-<~ provable":false
+!expect mcp provable":false
 
 !mcp kb.query {"pred":"derive_warm_blooded","args":["dog"]}
-<~ provable":true
+!expect mcp provable":true
 
 !mcp kb.query {"pred":"warm_blooded","args":["dog"]}
-<~ provable":true
+!expect mcp provable":true
 
 [test assertretract_1]
 !set PARROT0_SESSION=
@@ -30,13 +30,13 @@
 !clause cleanup($X) :- is_active($X), retract(is_active, $X)
 
 !mcp kb.query {"pred":"is_active","args":["alice"]}
-<~ provable":true
+!expect mcp provable":true
 
 !mcp kb.query {"pred":"cleanup","args":["alice"]}
-<~ provable":true
+!expect mcp provable":true
 
 !mcp kb.query {"pred":"is_active","args":["alice"]}
-<~ provable":false
+!expect mcp provable":false
 
 [test assertretract_2]
 !set PARROT0_SESSION=
@@ -47,13 +47,13 @@
 !clause materialize($X, $Y) :- edge($X, $Y), assert(reaches, $X, $Y)
 
 !mcp kb.query {"pred":"reaches","args":["a","b"]}
-<~ provable":false
+!expect mcp provable":false
 
 !mcp kb.query {"pred":"materialize","args":["a","b"]}
-<~ provable":true
+!expect mcp provable":true
 
 !mcp kb.query {"pred":"reaches","args":["a","b"]}
-<~ provable":true
+!expect mcp provable":true
 
 [test assertretract_3]
 !set PARROT0_SESSION=
@@ -63,11 +63,10 @@
 !assert color(sky, blue)
 
 !mcp kb.assert_clause {"head":{"pred":"cache_color","args":["$X","$Y"]},"body":[{"pred":"color","args":["$X","$Y"]},{"pred":"assert","args":["known_color","$X","$Y"]}]}
-<~ "ok":true
+!expect mcp "ok":true
 
 !mcp kb.query {"pred":"cache_color","args":["sky","blue"]}
-<~ provable":true
+!expect mcp provable":true
 
 !mcp kb.query {"pred":"known_color","args":["sky","blue"]}
-<~ provable":true
-
+!expect mcp provable":true

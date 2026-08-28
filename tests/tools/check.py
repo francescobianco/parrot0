@@ -34,7 +34,7 @@ ROOT = Path(__file__).resolve().parents[2]
 # (tests/tools/checkfocal.sh) uses it to feed the runner a KNOWN-RED contract and
 # prove the fail-fast is real — a runner that can only say PASS is worthless.
 CATALOG = Path(os.environ.get("PARROT0_CONTRACTS")
-               or ROOT / "tests" / "contracts.json")
+               or ROOT / "tests" / "contracts" / "contracts.json")
 BIN = ROOT / "bin" / "parrot0"
 EOT = "<<<P0_EOT>>>"
 
@@ -205,7 +205,7 @@ def main() -> int:
             print(f"{c['id']:32} {c['tier']:8} {c['capability']:16} "
                   f"{', '.join(c['owner'])}")
         print(f"\n{len(catalog['contracts'])} contracts migrated to the granular "
-              f"catalog (tests/contracts.json). Unmigrated cases run in the "
+               f"catalog (tests/contracts/contracts.json). Unmigrated cases run in the "
               f"'core' area via tests/tools/run.sh.")
         return 0
 

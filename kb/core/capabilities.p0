@@ -2,7 +2,7 @@
 %
 % gen325 (forge plan §18): parrot0's self-model must know where its envelope
 % ENDS, not only which modules exist. These facts are projected from the
-% capability ledger (tests/benchmarks.json, verified by `make capability-report`
+% capability ledger (tests/bench/benchmarks.json, verified by `make capability-report`
 % against real gate results), so "what can't you do?" is answered from evidence
 % rather than from a paragraph someone wrote about themselves.
 %

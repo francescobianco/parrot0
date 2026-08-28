@@ -15,6 +15,11 @@
  *   < text                    assert the reply equals `text`
  *   <~ text                   assert the reply CONTAINS `text`
  *   <! text                   assert the reply does NOT contain `text`
+ *   !expect SOURCE text       assert a primitive output contains `text`
+ *   !expect! SOURCE text      assert a primitive output lacks `text`
+ *   !expect= SOURCE text      assert a primitive output equals `text`
+ *   !random NAME LENGTH       bind a fresh lowercase string; `${NAME}` is
+ *                             expanded in later test lines
  *
  * Exact match is right for a short, fully determined reply. A generated analytical
  * answer is a paragraph, and a growth contract asserts that one phrase appears or
@@ -137,6 +142,10 @@
 #define TE_REPLY 70000
 #endif
 #define TE_NAME 64
+#define TE_RANDOM_MAX 128
+#define TE_VARS 32
+
+enum { TE_OUTPUT_NONE = 0, TE_OUTPUT_TURN, TE_OUTPUT_MCP, TE_OUTPUT_EXEC };
 
 typedef struct {
     Brain *b;
@@ -146,11 +155,15 @@ typedef struct {
 
     char reply[TE_REPLY];    /* reply from the most recent `>` turn, o payload !mcp */
     int  have_reply;
+    int output_source;       /* TE_OUTPUT_*: where the latest result came from */
 
     char expect[TE_LINE];    /* accumulated consecutive `<` expected lines */
     size_t expect_len;
     int  have_expect;
     int  expect_startline;
+    int  expect_source;
+    struct { char name[TE_NAME]; char value[TE_RANDOM_MAX]; } vars[TE_VARS];
+    size_t n_vars;
     /* !sandbox: la directory privata in cui il test lavora, e quella da cui
      * veniva. Il demone e' uno solo e condiviso, quindi una sandbox non chiusa
      * sarebbe un guasto silenzioso per ogni test successivo: si chiude da se'. */
@@ -219,6 +232,7 @@ static void te_apply_config(TeState *t) {
     brain_reload(t->b);
     if (hopped && t->sandbox_dir[0]) { if (chdir(t->sandbox_dir) != 0) { /* nulla */ } }
     t->have_reply = 0;
+    t->output_source = TE_OUTPUT_NONE;
     te_mark_clean(t);
     if (getenv("PARROT0_TE_DEBUG"))
         fprintf(stderr, "test-engine: brain reloaded (config changed)\n");
@@ -247,6 +261,58 @@ static const char *te_casestr(const char *hay, const char *needle) {
         if (!*b) return h;
     }
     return NULL;
+}
+
+static const char *te_var(const TeState *t, const char *name) {
+    for (size_t i = 0; i < t->n_vars; i++)
+        if (strcmp(t->vars[i].name, name) == 0) return t->vars[i].value;
+    return NULL;
+}
+
+static int te_expand(const TeState *t, const char *in, char *out, size_t cap) {
+    size_t o = 0;
+    for (size_t i = 0; in[i]; i++) {
+        if (in[i] == '$' && in[i + 1] == '{') {
+            const char *end = strchr(in + i + 2, '}');
+            if (end) {
+                size_t nl = (size_t)(end - (in + i + 2));
+                char name[TE_NAME];
+                if (nl > 0 && nl < sizeof name) {
+                    memcpy(name, in + i + 2, nl); name[nl] = '\0';
+                    const char *value = te_var(t, name);
+                    if (value) {
+                        size_t vl = strlen(value);
+                        if (o + vl + 1 > cap) return 0;
+                        memcpy(out + o, value, vl); o += vl;
+                        i = (size_t)(end - in);
+                        continue;
+                    }
+                }
+            }
+        }
+        if (o + 2 > cap) return 0;
+        out[o++] = in[i];
+    }
+    out[o] = '\0';
+    return 1;
+}
+
+static int te_random_string(char *out, size_t len) {
+    static const char alphabet[] = "abcdefghijklmnopqrstuvwxyz";
+    unsigned char bytes[TE_RANDOM_MAX];
+    FILE *f = fopen("/dev/urandom", "rb");
+    size_t got = f ? fread(bytes, 1, len, f) : 0;
+    if (f) fclose(f);
+    if (got != len) {
+        unsigned long seed = (unsigned long)time(NULL) ^ (unsigned long)getpid();
+        for (size_t i = 0; i < len; i++) {
+            seed = seed * 1103515245UL + 12345UL;
+            bytes[i] = (unsigned char)(seed >> 16);
+        }
+    }
+    for (size_t i = 0; i < len; i++) out[i] = alphabet[bytes[i] % 26];
+    out[len] = '\0';
+    return 1;
 }
 
 static int te_sandbox_enter(TeState *t);
@@ -295,11 +361,13 @@ static void te_flush(TeState *t) {
     }
     if (!t->have_expect) return;
     const char *got = t->have_reply ? t->reply : "";
-    int ok;
-    switch (t->expect_mode) {
-        case TE_EXPECT_HAS:   ok = te_casestr(got, t->expect) != NULL; break;
-        case TE_EXPECT_LACKS: ok = te_casestr(got, t->expect) == NULL; break;
-        default:              ok = strcmp(t->expect, got) == 0;    break;
+    int ok = t->output_source == t->expect_source;
+    if (ok) {
+        switch (t->expect_mode) {
+            case TE_EXPECT_HAS:   ok = te_casestr(got, t->expect) != NULL; break;
+            case TE_EXPECT_LACKS: ok = te_casestr(got, t->expect) == NULL; break;
+            default:              ok = strcmp(t->expect, got) == 0;    break;
+        }
     }
     if (ok) {
         t->passed++;                         /* silent — the one-line file report counts it */
@@ -307,6 +375,15 @@ static void te_flush(TeState *t) {
         t->failed++;                         /* only failures print, with useful detail */
         fprintf(t->out, "  FAIL  [%s] line %d\n",
                 t->section[0] ? t->section : "-", t->expect_startline);
+        if (t->output_source != t->expect_source) {
+            const char *actual = t->output_source == TE_OUTPUT_MCP ? "mcp" :
+                                 t->output_source == TE_OUTPUT_EXEC ? "exec" :
+                                 t->output_source == TE_OUTPUT_TURN ? "turn" : "none";
+            const char *wanted = t->expect_source == TE_OUTPUT_MCP ? "mcp" :
+                                 t->expect_source == TE_OUTPUT_EXEC ? "exec" :
+                                 t->expect_source == TE_OUTPUT_TURN ? "turn" : "none";
+            fprintf(t->out, "        expected source: %s, got source: %s\n", wanted, actual);
+        }
         fprintf(t->out, "        expected%s: %s\n",
                 t->expect_mode == TE_EXPECT_HAS   ? " (contains)" :
                 t->expect_mode == TE_EXPECT_LACKS ? " (absent)"   : "", t->expect);
@@ -318,6 +395,7 @@ static void te_flush(TeState *t) {
     t->expect[0] = '\0';
     t->have_expect = 0;
     t->expect_mode = TE_EXPECT_EXACT;
+    t->expect_source = TE_OUTPUT_NONE;
 }
 
 static void te_turn(TeState *t, const char *text) {
@@ -332,6 +410,7 @@ static void te_turn(TeState *t, const char *text) {
     while (n > 0 && (t->reply[n - 1] == '\n' || t->reply[n - 1] == '\r'))
         t->reply[--n] = '\0';
     t->have_reply = 1;
+    t->output_source = TE_OUTPUT_TURN;
     {
         /* gen382 — the SLOW-TURN LEDGER, independent of the per-test budget.
          *
@@ -372,6 +451,7 @@ static void te_expect_mode(TeState *t, const char *raw, int mode) {
     if (t->have_expect && (mode != TE_EXPECT_EXACT || t->expect_mode != TE_EXPECT_EXACT))
         te_flush(t);                     /* a substring assertion stands alone */
     t->expect_mode = mode;
+    t->expect_source = TE_OUTPUT_TURN;
     if (!t->have_expect) { t->have_expect = 1; t->expect_startline = t->line_no; }
     else if (t->expect_len + 1 < sizeof t->expect) {
         t->expect[t->expect_len++] = '\n';        /* consecutive `<` = one reply */
@@ -382,6 +462,14 @@ static void te_expect_mode(TeState *t, const char *raw, int mode) {
         memcpy(t->expect + t->expect_len, raw, rl + 1);
         t->expect_len += rl;
     }
+}
+
+static void te_expect_primitive(TeState *t, const char *source, const char *raw, int mode) {
+    int output = TE_OUTPUT_NONE;
+    if (strcmp(source, "mcp") == 0) output = TE_OUTPUT_MCP;
+    else if (strcmp(source, "exec") == 0) output = TE_OUTPUT_EXEC;
+    te_expect_mode(t, raw, mode);
+    t->expect_source = output;
 }
 
 static void te_expect(TeState *t, const char *raw) {
@@ -470,6 +558,48 @@ static int te_process_stream(TeState *t, FILE *in) {
             t->timeout_sec = TE_DEFAULT_TIMEOUT;  /* each test starts at the 1s default */
             continue;                             /* section name surfaces only in a FAIL */
         }
+        if (strncmp(p, "!random", 7) == 0 && (p[7] == ' ' || p[7] == '\t')) {
+            te_flush(t);
+            char *q = p + 7;
+            while (*q == ' ' || *q == '\t') q++;
+            char name[TE_NAME]; size_t nl = 0;
+            while (*q && *q != ' ' && *q != '\t' && nl + 1 < sizeof name)
+                name[nl++] = *q++;
+            name[nl] = '\0';
+            while (*q == ' ' || *q == '\t') q++;
+            char *end = NULL; long length = strtol(q, &end, 10);
+            while (end && (*end == ' ' || *end == '\t')) end++;
+            if (!nl || !*q || (end && *end) || length < 1 || length >= TE_RANDOM_MAX ||
+                t->n_vars >= TE_VARS) { syntax_err = 1; continue; }
+            size_t slot = t->n_vars++;
+            snprintf(t->vars[slot].name, sizeof t->vars[slot].name, "%s", name);
+            te_random_string(t->vars[slot].value, (size_t)length);
+            continue;
+        }
+        char expanded[TE_LINE];
+        if (!te_expand(t, p, expanded, sizeof expanded)) { syntax_err = 1; continue; }
+        p = expanded;
+        if (strncmp(p, "!expect", 7) == 0 &&
+            (p[7] == ' ' || p[7] == '\t' || p[7] == '!' || p[7] == '=')) {
+            te_flush(t);
+            int mode = TE_EXPECT_HAS;
+            size_t prefix = 7;
+            if (p[7] == '!') { mode = TE_EXPECT_LACKS; prefix++; }
+            else if (p[7] == '=') { mode = TE_EXPECT_EXACT; prefix++; }
+            char *q = p + prefix;
+            while (*q == ' ' || *q == '\t') q++;
+            char source[TE_NAME]; size_t k = 0;
+            while (*q && *q != ' ' && *q != '\t' && k + 1 < sizeof source)
+                source[k++] = *q++;
+            source[k] = '\0';
+            while (*q == ' ' || *q == '\t') q++;
+            if (!k || !*q || (strcmp(source, "mcp") != 0 && strcmp(source, "exec") != 0)) {
+                syntax_err = 1;
+                continue;
+            }
+            te_expect_primitive(t, source, q, mode);
+            continue;
+        }
         if (p[0] == '>') { te_turn(t, p[1] == ' ' ? p + 2 : p + 1); continue; }
         if (p[0] == '<' && p[1] == '~') {          /* reply CONTAINS this */
             const char *v = p + 2; if (*v == ' ') v++;
@@ -505,6 +635,7 @@ static int te_process_stream(TeState *t, FILE *in) {
             }
             brain_reload(t->b);
             t->have_reply = 0;
+            t->output_source = TE_OUTPUT_NONE;
             te_mark_clean(t);
             if (getenv("PARROT0_TE_DEBUG"))
                 fprintf(stderr, "test-engine: brain reset (virgin)\n");
@@ -699,6 +830,7 @@ static int te_process_stream(TeState *t, FILE *in) {
             int rc = pclose(ph);
             int ok = (rc == 0);
             t->have_reply = 1;
+            t->output_source = TE_OUTPUT_EXEC;
             if (ok == want_ok) t->passed++;
             else {
                 t->failed++;
@@ -863,6 +995,7 @@ static int te_process_stream(TeState *t, FILE *in) {
             while (rn > 0 && (t->reply[rn - 1] == '\n' || t->reply[rn - 1] == '\r'))
                 t->reply[--rn] = '\0';
             t->have_reply = 1;
+            t->output_source = TE_OUTPUT_MCP;
             continue;
         }
         if (strncmp(p, "!forget", 7) == 0 && (p[7] == ' ' || p[7] == '\t')) {

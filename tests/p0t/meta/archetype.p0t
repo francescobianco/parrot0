@@ -1,0 +1,120 @@
+# archetype.p0t — converted from tests/archetype.sh.
+#
+# Symbol-agnostic relational inference: arbitrary symbols and operators are
+# abstracted from a worked example and re-instantiated on a held-out probe.
+# Each case is isolated because the shell source starts a fresh process per
+# ask(). Negative expectations preserve its refusal and anti-hijacking checks.
+
+[test archetype_substitution]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"a>b / x:a / x:b / g>f / n:g / ?"}
+!expect mcp n:f
+
+[test archetype_glyph]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"\u03b1\u25c7\u03b2 / x:\u03b1 / x:\u03b2 / m\u25c7n / y:m / ?"}
+!expect mcp y:n
+
+[test archetype_currency]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"\u00b5\u00a4\u03bd / \u03ba:\u00b5 / \u03ba:\u03bd / p\u00a4q / r:p / ?"}
+!expect mcp r:q
+
+[test archetype_transitivity]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"a>b / b>c / a>c / g>h / h>i / ?"}
+!expect mcp g>i
+
+[test archetype_transitivity_three_premise]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"a>b / b>c / c>d / a>d / p>q / q>r / r>s / ?"}
+!expect mcp p>s
+
+[test archetype_symmetry]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"a~b / b~a / m~n / ?"}
+!expect mcp n~m
+
+[test archetype_colon_swap]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"a:b / b:a / pp:qq / ?"}
+!expect mcp qq:pp
+
+[test archetype_multichar_atoms]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"cat>dog / x:cat / x:dog / mouse>rat / y:mouse / ?"}
+!expect mcp y:rat
+
+[test archetype_utf8_letters]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"\u03b1>\u03b2 / x:\u03b1 / x:\u03b2 / \u00b5>\u03bd / y:\u00b5 / ?"}
+!expect mcp y:ν
+
+[test archetype_numeric_atoms]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"1>2 / x:1 / x:2 / 7>8 / k:7 / ?"}
+!expect mcp k:8
+
+[test archetype_invented_operator]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"a@b / x:a / x:b / s@t / w:s / ?"}
+!expect mcp w:t
+
+[test archetype_semicolon_separator]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"a>b; x:a; x:b; g>f; n:g; ?"}
+!expect mcp n:f
+
+[test archetype_declines_broken_middle]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"a>b / x:a / x:b / g>f / n:h / ?"}
+!expect mcp won't guess
+
+[test archetype_declines_unwitnessed]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"a-b / b-c / a=c / x-y / y-z / ?"}
+!expect mcp won't guess
+
+[test archetype_prose_not_hijacked]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"what is the capital of france?"}
+!expect! mcp relational pattern
+!expect! mcp won't guess
+
+[test archetype_arithmetic_not_hijacked]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+!mcp gen.respond {"input":"what is 2 plus 2?"}
+!expect! mcp relational pattern
+!expect! mcp won't guess

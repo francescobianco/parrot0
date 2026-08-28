@@ -1,0 +1,31 @@
+# gen307 (U5 rule 5, docs/plans/teach-comprehension-via-mcp.md) -- FRENCH
+# Object-clitic placement and elision. The grammar is knowledge:
+# clitic_obj_fr/1, elide_fr/2, and clitic_join/3 are queried by the fixed
+# translator and composition engine.
+
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test cliticfr_translation]
+# A sentence-final object clitic moves before its verb and elides before a vowel.
+> translate into French: "I love you."
+< Je t'aime.
+
+# A definite article in an ordinary noun phrase is not treated as a clitic.
+> translate into French: "The cat is sleeping on the warm rug."
+< Le chat dort sur le tapis chaud.
+
+[test cliticfr_composition]
+# clitic_join/3 is a queryable rule: te + aime -> t'aime.
+!mcp kb.match {"pred":"clitic_join","args":["te","aime",null]}
+!expect mcp t'aime
+
+# A newly taught clitic and elision form compose without a C change.
+!mcp kb.assert {"pred":"clitic_obj_fr","args":["nous"]}
+!mcp kb.assert {"pred":"elide_fr","args":["nous","nous"]}
+!mcp kb.match {"pred":"clitic_join","args":["nous","adore",null]}
+!expect mcp nousadore

@@ -29,7 +29,7 @@
 
 # la cornice insegnata compone: due vittorie contro una
 !mcp gen.respond {"input":"Which team won the most matches?"}
-<~ spain
+!expect mcp spain
 # e il MODO e' dato quanto la relazione
 !mcp gen.respond {"input":"Which team won the fewest matches?"}
-<~ italy
+!expect mcp italy

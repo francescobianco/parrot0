@@ -1,0 +1,68 @@
+# PatchArtifact is durable data plus a recoverable multi-file transaction.
+# The driver contains only direct patch.h mechanics; this file owns the fixture,
+# process-boundary orchestration, and the behavioral assertions.
+
+[test patch_artifact]
+!set PARROT0_SESSION=
+!set PARROT0_BASE=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+!exec sh -c 'printf "%s\n" /tmp/parrot0-patch-artifact-driver-* | grep -vF "*" | xargs -r rm -f'
+!exec sh -c 'cc -std=c11 -Wall -Wextra -Wpedantic -O2 -I"$(pwd)/src" -o /tmp/parrot0-patch-artifact-driver-$$ tests/cdriver/patch-artifact.c src/patch.c src/exec.c'
+!sandbox
+!timeout 30
+
+# Classic four-operation file fixture and an untouched support file.
+!exec mkdir -p persist/support && printf 'old edit\n' > persist/edit.txt && printf 'move me\n' > persist/rename.txt && printf 'delete me\n' > persist/delete.txt && printf 'context\n' > persist/support/context.h && chmod 0640 persist/edit.txt && chmod 0604 persist/rename.txt && chmod 0660 persist/delete.txt && chmod 0644 persist/support/context.h
+!exec sh -c 'cd persist && /tmp/parrot0-patch-artifact-driver-* prepare ../artifact.p0pa'
+!filehas persist/edit.txt old edit
+!filehas persist/rename.txt move me
+!filemissing persist/moved.txt
+!filemissing persist/created.txt
+!filehas persist/delete.txt delete me
+!fileexists artifact.p0pa
+
+# Loading and committing happens in a distinct process and applies every op.
+!exec sh -c 'cd persist && /tmp/parrot0-patch-artifact-driver-* commit ../artifact.p0pa'
+!filehas persist/edit.txt new edit
+!filemissing persist/rename.txt
+!filehas persist/moved.txt move me
+!filehas persist/created.txt created
+!filemissing persist/delete.txt
+!filehas persist/support/context.h context
+
+!exec sh -c 'cd persist && /tmp/parrot0-patch-artifact-driver-* tamper ../artifact.p0pa'
+
+# A stale preimage causes zero writes, including an earlier create operation.
+!exec mkdir -p conflict && printf 'one\n' > conflict/victim.txt && chmod 0610 conflict/victim.txt
+!exec sh -c 'cd conflict && /tmp/parrot0-patch-artifact-driver-* conflict'
+!filemissing conflict/side.txt
+!filehas conflict/victim.txt external
+
+# No policy callback means no canonical mutation.
+!exec mkdir -p policy && printf 'policy\n' > policy/policy.txt && chmod 0644 policy/policy.txt
+!exec sh -c 'cd policy && /tmp/parrot0-patch-artifact-driver-* policy'
+!filehas policy/policy.txt policy
+
+# A red post-check restores every path and mode.
+!exec mkdir -p rollback/support && printf 'old edit\n' > rollback/edit.txt && printf 'move me\n' > rollback/rename.txt && printf 'delete me\n' > rollback/delete.txt && printf 'context\n' > rollback/support/context.h && chmod 0640 rollback/edit.txt && chmod 0604 rollback/rename.txt && chmod 0660 rollback/delete.txt && chmod 0644 rollback/support/context.h
+!exec sh -c 'cd rollback && /tmp/parrot0-patch-artifact-driver-* rollback'
+!filehas rollback/edit.txt old edit
+!filehas rollback/rename.txt move me
+!filemissing rollback/moved.txt
+!filemissing rollback/created.txt
+!filehas rollback/delete.txt delete me
+
+# A stage checker cannot mutate a touched postimage and still certify it.
+!exec mkdir -p stage-mutation && printf 'pre\n' > stage-mutation/mutate.txt && chmod 0644 stage-mutation/mutate.txt
+!exec sh -c 'cd stage-mutation && /tmp/parrot0-patch-artifact-driver-* stage-mutation'
+!filehas stage-mutation/mutate.txt pre
+
+# Detached source images carry identity/context but remain non-committable.
+!exec mkdir -p image && printf 'dependency\n' > image/support.h && chmod 0644 image/support.h
+!exec sh -c 'cd image && /tmp/parrot0-patch-artifact-driver-* image'
+!filehas image/support.h dependency
+!sandbox off
+!exec sh -c 'rm -f /tmp/parrot0-patch-artifact-driver-*'

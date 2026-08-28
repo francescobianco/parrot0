@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-MANIFEST = ROOT / "tests" / "benchmarks.json"
+MANIFEST = ROOT / "tests" / "bench" / "benchmarks.json"
 
 
 def git_commit() -> str:

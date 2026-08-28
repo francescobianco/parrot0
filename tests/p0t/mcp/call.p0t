@@ -16,17 +16,17 @@
 !clause direct($X) :- call(is_a($X, mammal))
 
 !mcp kb.query {"pred":"direct","args":["dog"]}
-<~ provable":true
+!expect mcp provable":true
 
 !mcp kb.query {"pred":"direct","args":["sparrow"]}
-<~ provable":false
+!expect mcp provable":false
 
 !mcp kb.query {"pred":"direct","args":["rock"]}
-<~ provable":false
+!expect mcp provable":false
 
 !mcp kb.match {"pred":"direct","args":[null]}
-<~ dog
-<~ cat
+!expect mcp dog
+!expect mcp cat
 
 [test call_1]
 !set PARROT0_SESSION=
@@ -37,13 +37,13 @@
 !assert can_fly(eagle)
 
 !mcp kb.assert_clause {"head":{"pred":"flies","args":["$X"]},"body":[{"pred":"call","args":["can_fly($X)"]}]}
-<~ "ok":true
+!expect mcp "ok":true
 
 !mcp kb.query {"pred":"flies","args":["sparrow"]}
-<~ provable":true
+!expect mcp provable":true
 
 !mcp kb.query {"pred":"flies","args":["penguin"]}
-<~ provable":false
+!expect mcp provable":false
 
 [test call_2]
 !set PARROT0_SESSION=
@@ -55,10 +55,10 @@
 !clause indirect($X) :- call(has_feature($X, fur))
 
 !mcp kb.query {"pred":"indirect","args":["dog"]}
-<~ provable":true
+!expect mcp provable":true
 
 !mcp kb.query {"pred":"indirect","args":["snake"]}
-<~ provable":false
+!expect mcp provable":false
 
 [test call_3]
 !set PARROT0_SESSION=
@@ -70,10 +70,10 @@
 !clause indirect($X) :- call(has_feature($X, fur))
 
 !mcp kb.assert {"pred":"has_feature","args":["snake","fur"]}
-<~ "ok":true
+!expect mcp "ok":true
 
 !mcp kb.query {"pred":"indirect","args":["snake"]}
-<~ provable":true
+!expect mcp provable":true
 
 [test call_4]
 !set PARROT0_SESSION=
@@ -87,5 +87,4 @@
 !mcp kb.retract {"pred":"has_feature","args":["snake","fur"]}
 
 !mcp kb.query {"pred":"indirect","args":["snake"]}
-<~ provable":false
-
+!expect mcp provable":false

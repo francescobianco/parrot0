@@ -19,12 +19,12 @@
 !set PARROT0_WORLD_FACTS=0
 !reset
 !mcp kb.query {"pred":"progressive","args":["sleeping"]}
-<~ true
+!expect mcp true
 # generalizza a una parola mai nominata
 !mcp kb.query {"pred":"progressive","args":["running"]}
-<~ true
+!expect mcp true
 # e non dice di si' a chiunque
 !mcp kb.query {"pred":"progressive","args":["cat"]}
-<~ false
+!expect mcp false
 !mcp kb.query {"pred":"aux_progressive","args":["is"]}
-<~ true
+!expect mcp true

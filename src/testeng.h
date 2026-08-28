@@ -12,7 +12,10 @@
  * brain state carries across files. `parrot0 --test-report` asks for the
  * aggregate summary and shuts the daemon down, exiting non-zero if anything
  * failed. Fail-fast: a --test-send exits 1 the moment its own file fails. See
- * testeng.c for the `.p0t` grammar (assert-only, multi-turn, multi-line).
+ * testeng.c for the `.p0t` grammar (assert-only, multi-turn, multi-line). Tool
+ * output is checked with the typed `!expect`, `!expect!`, and `!expect=` forms;
+ * conversational `<` assertions never consume primitive output. `!random NAME N`
+ * binds a fresh lowercase string and `${NAME}` expands in later lines.
  *
  * The default socket path when --sock is omitted. */
 #define TEST_ENGINE_SOCK_DEFAULT "obj/test-engine.sock"

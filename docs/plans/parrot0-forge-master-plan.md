@@ -322,7 +322,7 @@ Inoltre:
 - il commit hash generato in `version.h`, unito alla dipendenza di ogni object da
   tutti gli header, forza rebuild ampi dopo un commit e invalida cache che non
   dipendono dal comportamento; la versione va isolata in una piccola TU;
-- `tests/benchmarks.json` cataloga target interi, non singoli contratti, owner,
+- `tests/bench/benchmarks.json` cataloga target interi, non singoli contratti, owner,
   dipendenze, costo o requisito di isolamento;
 - quasi tutti i test attraversano testo, dispatch, KB, rendering e processo
   insieme: il fallimento arriva tardi e non nomina automaticamente il livello
@@ -1097,7 +1097,7 @@ riattivato senza perdere la storia che lo ha prodotto.
 
 ### 10.12 Catalogo granulare dei contratti
 
-`tests/benchmarks.json` resta il catalogo delle aree, ma ogni test eseguibile
+`tests/bench/benchmarks.json` resta il catalogo delle aree, ma ogni test eseguibile
 deve avere un record granulare:
 
 ```json

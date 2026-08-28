@@ -1,0 +1,106 @@
+# model_graph.p0t — converted from tests/model_graph.sh (gen365).
+#
+# Living-model queries, proof-carrying joins, and runtime comprehension-frame
+# growth. Every MCP request from the original batch has an expectation here.
+
+[test model_graph]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!reset
+
+!mcp kb.query {"pred":"happened_in","args":["first_moon_landing","1969"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"historical_before","args":["battle_of_waterloo","first_moon_landing"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"lives_overlap","args":["charles_darwin","abraham_lincoln"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"country_profile","args":["france","paris","europe","french"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"shared_official_language","args":["australia","united_kingdom","english"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"element_identity","args":["hydrogen","1","H"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"element_before","args":["hydrogen","helium"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"orbits_t","args":["moon","sun"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"same_quantity","args":["rectangle","square","sides","4"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"more_of","args":["jupiter","mars","moons"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"greater_magnitude","args":["size","elephant","cat"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"shared_sound","args":["dog","seal","bark"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"word_relation","args":["quick","fast","synonymy"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"shared_color","args":["banana","lemon","yellow"]}
+!expect mcp "provable":true
+
+# Direction and join discriminators must remain false.
+!mcp kb.query {"pred":"historical_before","args":["first_moon_landing","battle_of_waterloo"]}
+!expect mcp "provable":false
+!mcp kb.query {"pred":"country_profile","args":["france","paris","asia","french"]}
+!expect mcp "provable":false
+!mcp kb.query {"pred":"element_before","args":["helium","hydrogen"]}
+!expect mcp "provable":false
+!mcp kb.query {"pred":"more_of","args":["mars","jupiter","moons"]}
+!expect mcp "provable":false
+
+# Conclusions must carry an explanation, not merely be stored answers.
+!mcp kb.explain {"pred":"historical_lifespan","args":["albert_einstein","1879","1955"]}
+!expect mcp "provable":true
+!expect mcp explanation
+!mcp kb.explain {"pred":"country_profile","args":["france","paris","europe","french"]}
+!expect mcp "provable":true
+!expect mcp explanation
+!mcp kb.explain {"pred":"element_identity","args":["hydrogen","1","H"]}
+!expect mcp "provable":true
+!expect mcp explanation
+!mcp kb.explain {"pred":"orbits_t","args":["moon","sun"]}
+!expect mcp "provable":true
+!expect mcp explanation
+!mcp kb.explain {"pred":"same_quantity","args":["rectangle","square","sides","4"]}
+!expect mcp "provable":true
+!expect mcp explanation
+!mcp kb.explain {"pred":"word_relation","args":["quick","fast","synonymy"]}
+!expect mcp "provable":true
+!expect mcp explanation
+!mcp kb.explain {"pred":"shared_color","args":["banana","lemon","yellow"]}
+!expect mcp "provable":true
+!expect mcp explanation
+
+# A comprehension frame acquires and loses the derived answer at runtime.
+!mcp gen.respond {"input":"what continent is paris in?"}
+!expect! mcp Europe.
+!mcp kb.assert {"pred":"answer_frame","args":["continent","capital_in_continent"]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"what continent is paris in?"}
+!expect mcp Europe.
+!mcp kb.retract {"pred":"answer_frame","args":["continent","capital_in_continent"]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"what continent is paris in?"}
+!expect! mcp Europe.
+
+!mcp gen.respond {"input":"what language is associated with paris?"}
+!expect! mcp French.
+!mcp kb.assert {"pred":"answer_frame","args":["language","capital_language"]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"what language is associated with paris?"}
+!expect mcp French.
+!mcp kb.retract {"pred":"answer_frame","args":["language","capital_language"]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"what language is associated with paris?"}
+!expect! mcp French.
+
+# A newly taught cue remains reachable beyond the old frame cap.
+!mcp gen.respond {"input":"moon orbit"}
+!expect! mcp Earth and sun.
+!mcp kb.assert {"pred":"answer_frame","args":["orbit","orbits_t"]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"moon orbit"}
+!expect mcp Earth and sun.
+!mcp kb.retract {"pred":"answer_frame","args":["orbit","orbits_t"]}
+!expect mcp "ok":true
+!mcp gen.respond {"input":"moon orbit"}
+!expect! mcp Earth and sun.

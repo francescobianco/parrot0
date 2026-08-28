@@ -1,0 +1,41 @@
+# Migrated from tests/restore.sh.
+# /restore must discard unsaved session state and reload facts and rules written
+# to disk while keeping the same parrot0 process alive.
+
+[test restore_in_place]
+!timeout 30
+!exec rm -rf p0tmp_restore
+!exec mkdir -p p0tmp_restore
+!set PARROT0_BASE=p0tmp_restore/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=
+!reset
+
+# A. An unsaved session fact is dropped by /restore.
+> zorp is a gizmo
+> is zorp a gizmo?
+< Yes.
+!mcp kb.restore {}
+!expect mcp "ok":true
+> is zorp a gizmo?
+<! Yes.
+
+# B. A fact written to disk mid-session goes live after /restore.
+!exec printf '%s\n' 'widget(zorp).' > p0tmp_restore/base.p0
+> is zorp a widget?
+<! Yes.
+!mcp kb.restore {}
+!expect mcp "ok":true
+> is zorp a widget?
+< Yes.
+
+# C. A rule written to disk makes a new conclusion derivable after /restore.
+!exec printf '%s\n' 'man(diogenes).' 'philosopher($X) :- man($X).' > p0tmp_restore/base.p0
+> is diogenes a philosopher?
+<! Yes.
+!mcp kb.restore {}
+!expect mcp "ok":true
+> is diogenes a philosopher?
+< Yes.
+!exec rm -rf p0tmp_restore

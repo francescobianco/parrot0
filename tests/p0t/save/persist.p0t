@@ -1,0 +1,108 @@
+# Migrated from tests/persist.sh.
+# Persistence uses a private repository-local fixture tree because the MCP path
+# contract deliberately rejects paths outside the workspace.
+
+[test persistence_round_trip]
+!timeout 30
+!exec rm -rf p0tmp_persist
+!exec mkdir -p p0tmp_persist
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_KB_ROOT=p0tmp_persist
+!reset
+
+# 1. A taught fact is saved in readable form.
+> socrates is a man
+!mcp kb.save {"path":"p0tmp_persist/session.p0"}
+!expect mcp "ok":true
+!filehas p0tmp_persist/session.p0 man(socrates).
+
+# 2. The reflective self-model is not persisted.
+!filelacks p0tmp_persist/session.p0 i_am
+!filelacks p0tmp_persist/session.p0 module(
+
+# 3. A new run remembers the saved fact.
+!set PARROT0_BASE=p0tmp_persist/session.p0
+!reset
+> is socrates a man?
+< Yes.
+
+# 4. Base and session knowledge join.
+!exec printf '%s\n' '%% base knowledge' ':- include(p0tmp_persist/session.p0).' 'man(plato).' > p0tmp_persist/base.p0
+!set PARROT0_BASE=p0tmp_persist/base.p0
+!reset
+!mcp kb.assert {"pred":"man","args":["socrates"]}
+!expect mcp "ok":true
+> who is a man?
+< plato, socrates.
+
+# 5. Saving again does not duplicate the base clause.
+!mcp kb.save {"path":"p0tmp_persist/session.p0"}
+!expect mcp "ok":true
+!filelacks p0tmp_persist/session.p0 man(plato).
+
+# 6. Explicit negative knowledge is readable and survives reload.
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+> zara is not a quoll
+!mcp kb.save {"path":"p0tmp_persist/negative.p0"}
+!expect mcp "ok":true
+!filehas p0tmp_persist/negative.p0 not(quoll(zara)).
+> is zara a quoll?
+< No.
+
+# 7. A later positive assertion clears the persisted negative fact.
+> zara is a quoll
+!forget quoll(zara)
+!mcp kb.assert {"pred":"quoll","args":["zara"]}
+!expect mcp "ok":true
+!mcp kb.save {"path":"p0tmp_persist/negative.p0"}
+!expect mcp "ok":true
+!filehas p0tmp_persist/negative.p0 quoll(zara).
+!filelacks p0tmp_persist/negative.p0 not(quoll(zara)).
+
+# 8. A session correction exposes conflict with a base fact.
+!exec printf '%s\n' 'man(socrates).' > p0tmp_persist/correction-base.p0
+!set PARROT0_BASE=p0tmp_persist/correction-base.p0
+!set PARROT0_SESSION=
+!reset
+> socrates is not a man
+!mcp kb.save {"path":"p0tmp_persist/correction-session.p0"}
+!expect mcp "ok":true
+!set PARROT0_BASE=p0tmp_persist/correction-base.p0
+!set PARROT0_SESSION=
+!exec printf '%s\n' 'man(socrates).' 'not(man(socrates)).' > p0tmp_persist/correction-base.p0
+!mcp kb.restore {}
+!expect mcp "ok":true
+!mcp kb.assert {"pred":"man","args":["socrates"]}
+!expect mcp "ok":true
+> socrates is not a man
+> is socrates a man?
+< Conflicted.
+> what do you know about socrates?
+< socrates is conflicted about being a man.
+> why is socrates a man?
+< I have conflicting evidence for that.
+!filehas p0tmp_persist/correction-session.p0 not(man(socrates)).
+!filehas p0tmp_persist/correction-base.p0 man(socrates).
+
+# 9. Binary ground conflicts are query-visible and explainable.
+!exec printf '%s\n' 'parent(ada, bob).' > p0tmp_persist/binary-conflict-base.p0
+!exec printf '%s\n' 'not(parent(ada, bob)).' > p0tmp_persist/binary-conflict-session.p0
+!set PARROT0_BASE=p0tmp_persist/binary-conflict-base.p0
+!set PARROT0_SESSION=
+!reset
+!exec printf '%s\n' 'parent(ada, bob).' 'not(parent(ada, bob)).' > p0tmp_persist/binary-conflict-base.p0
+!mcp kb.restore {}
+!expect mcp "ok":true
+!mcp kb.assert {"pred":"parent","args":["ada","bob"]}
+!expect mcp "ok":true
+> ada is not the parent of bob
+> is ada the parent of bob?
+< Conflicted.
+> why is ada the parent of bob?
+< I have conflicting evidence for that.
+!exec rm -rf p0tmp_persist

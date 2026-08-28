@@ -18,10 +18,10 @@
 !set PARROT0_WORLD_FACTS=0
 !reset
 !mcp kb.match {"pred":"agree_f","args":["piccolo",null]}
-<~ piccola
+!expect mcp piccola
 # la stessa regola generalizza
 !mcp kb.match {"pred":"agree_f","args":["bianco",null]}
-<~ bianca
+!expect mcp bianca
 # un aggettivo invariabile non riceve una forma inventata: nessun match
 !mcp kb.match {"pred":"agree_f","args":["grande",null]}
-<! grand
+!expect! mcp grand

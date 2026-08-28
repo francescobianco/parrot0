@@ -23,13 +23,13 @@
 !clause len(cons($H, $T), s($N)) :- len($T, $N)
 
 !mcp kb.query {"pred":"nat","args":["s(s(z))"]}
-<~ provable":true
+!expect mcp provable":true
 
 !mcp kb.match {"pred":"add","args":["s(z)","s(z)",null]}
-<~ s(s(z))
+!expect mcp s(s(z))
 
 !mcp kb.match {"pred":"len","args":["cons(a, cons(b, nil))",null]}
-<~ s(s(z))
+!expect mcp s(s(z))
 
 [test compound_1]
 !set PARROT0_SESSION=
@@ -38,8 +38,7 @@
 !reset
 
 !mcp kb.assert_clause {"head":{"pred":"add","args":["s($X)","$Y","s($Z)"]},"body":[{"pred":"add","args":["$X","$Y","$Z"]}]}
-<~ "ok":true
+!expect mcp "ok":true
 
 !mcp kb.match {"pred":"add","args":["s(s(z))","s(z)",null]}
-<~ s(s(s(z)))
-
+!expect mcp s(s(s(z)))

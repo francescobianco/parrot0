@@ -17,13 +17,13 @@
 !clause how_confident($Goal, $P) :- prob($Goal, $P)
 
 !mcp kb.match {"pred":"how_confident","args":["capital_of_country(france, paris)",null]}
-<~ high
+!expect mcp high
 
 !mcp kb.match {"pred":"how_confident","args":["capital_of_country(brazil, brasilia)",null]}
-<~ medium
+!expect mcp medium
 
 !mcp kb.match {"pred":"how_confident","args":["capital_of_country(italy, rome)",null]}
-<~ 0.5
+!expect mcp 0.5
 
 [test prob_1]
 !set PARROT0_SESSION=
@@ -34,13 +34,13 @@
 !assert fact_confidence(has_fur(cat), 0.9)
 
 !mcp kb.assert_clause {"head":{"pred":"confidence_of","args":["$X","$P"]},"body":[{"pred":"prob","args":["has_fur($X)","$P"]}]}
-<~ "ok":true
+!expect mcp "ok":true
 
 !mcp kb.match {"pred":"confidence_of","args":["dog",null]}
-<~ 0.9
+!expect mcp 0.9
 
 !mcp kb.match {"pred":"confidence_of","args":["snake",null]}
-<~ 0.5
+!expect mcp 0.5
 
 [test prob_2]
 !set PARROT0_SESSION=
@@ -51,7 +51,7 @@
 !clause get_prob($X, $Y, $P) :- prob(color($X, $Y), $P)
 
 !mcp kb.match {"pred":"get_prob","args":["sky","blue",null]}
-<~ 0.5
+!expect mcp 0.5
 
 [test prob_3]
 !set PARROT0_SESSION=
@@ -62,8 +62,7 @@
 !clause get_prob($X, $Y, $P) :- prob(color($X, $Y), $P)
 
 !mcp kb.assert {"pred":"fact_confidence","args":["color(sky, blue)","high"]}
-<~ "ok":true
+!expect mcp "ok":true
 
 !mcp kb.match {"pred":"get_prob","args":["sky","blue",null]}
-<~ high
-
+!expect mcp high

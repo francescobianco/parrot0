@@ -1,0 +1,68 @@
+# Focused KB-first regressions for docs/plans/motorize-the-class.md.
+# Migrated from tests/motorize_class.sh; MCP results stay on the primitive
+# output channel and are checked with !expect.
+
+[test motorize_class]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+# The diet recognizer is a fixed engine over diet_cue/1, matched as whole tokens.
+!mcp kb.retract {"pred":"diet_cue","args":["eat"]}
+!expect mcp true
+!mcp gen.respond {"input":"what does a lion eat?"}
+!expect! mcp A lion eats zebra.
+!mcp kb.assert {"pred":"diet_cue","args":["eat"]}
+!expect mcp true
+!mcp gen.respond {"input":"what does a lion eat?"}
+!expect mcp A lion eats zebra.
+!mcp kb.retract {"pred":"diet_cue","args":["eat"]}
+!expect mcp true
+!mcp gen.respond {"input":"what does a lion eat?"}
+!expect! mcp A lion eats zebra.
+
+# Passive creation extraction is also KB-first: written -> wrote and by-marker
+# are facts. Removing the form removes recognition in the same process.
+!mcp kb.assert {"pred":"creation_verb","args":["wrote"]}
+!expect mcp true
+!mcp kb.assert {"pred":"creation_verb_form","args":["wrote","written"]}
+!expect mcp true
+!mcp kb.assert {"pred":"creation_passive_agent_marker","args":["by"]}
+!expect mcp true
+!mcp gen.respond {"input":"The Odyssey was written by Homer."}
+!expect mcp Learned: created_by(homer, odyssey, wrote).
+!mcp gen.respond {"input":"Who wrote the Odyssey?"}
+!expect mcp Homer.
+!mcp kb.retract {"pred":"creation_verb_form","args":["wrote","written"]}
+!expect mcp true
+!mcp gen.respond {"input":"The Iliad was written by Homer."}
+!expect! mcp Learned: created_by(homer, iliad, wrote).
+!mcp gen.respond {"input":"Who wrote the Iliad?"}
+!expect! mcp Homer.
+
+# Request forms stay KB-side too: removing the cue removes routing, while
+# topic/content facts remain available.
+!mcp gen.respond {"input":"Give me a poetic comparison for time passing."}
+!expect! mcp Time is a river
+!mcp kb.assert {"pred":"intent_cue","args":["creative_metaphor_request","poetic comparison"]}
+!expect mcp true
+!mcp gen.respond {"input":"Give me a poetic comparison for time passing."}
+!expect mcp Time is a river carrying yesterday out of reach.
+!mcp kb.retract {"pred":"intent_cue","args":["creative_metaphor_request","poetic comparison"]}
+!expect mcp true
+!mcp gen.respond {"input":"Give me a poetic comparison for time passing."}
+!expect! mcp Time is a river
+
+!mcp gen.respond {"input":"Can you offer career counsel for someone starting a new job?"}
+!expect! mcp Learn the team
+!mcp kb.assert {"pred":"intent_cue","args":["activity_request","career counsel"]}
+!expect mcp true
+!mcp gen.respond {"input":"Can you offer career counsel for someone starting a new job?"}
+!expect mcp Learn the team
+!mcp kb.retract {"pred":"intent_cue","args":["activity_request","career counsel"]}
+!expect mcp true
+!mcp gen.respond {"input":"Can you offer career counsel for someone starting a new job?"}
+!expect! mcp Learn the team

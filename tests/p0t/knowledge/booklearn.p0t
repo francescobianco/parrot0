@@ -1,0 +1,18 @@
+# migrated from tests/booklearn.sh (gen67)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test booklearn]
+# Reading a new held-out passage shifts the induced language model.
+> read: the otter swims downstream. the otter swims often.
+< Learned 0 fact(s), skipped 2.
+> say the
+< the otter swims downstream
+> read: the robot walks slowly. the robot walks daily.
+< Learned 0 fact(s), skipped 2.
+> say the
+< the robot walks slowly

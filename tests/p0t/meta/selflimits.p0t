@@ -1,0 +1,24 @@
+# Migrated from tests/selflimits.sh (gen325).
+# The ledger mutation remains an external-file assertion: the answer must grow
+# and shrink with the real KB, rather than matching a compiled brochure.
+
+[test polarity]
+> what are you unable to do?
+<~ I cannot do multi file editing
+> what can't you do?
+<~ I cannot do multi file editing
+> cosa non sai fare?
+<~ I cannot do multi file editing
+> what can you do?
+<~ I can answer questions about facts and rules
+<! cannot do
+> cosa sai fare?
+<! cannot do
+
+[test derived_ledger]
+!exec sh -c 'root=$(pwd); work=/tmp/parrot0-selflimits-p0t; rm -rf "$work"; mkdir -p "$work"; cp -r "$root/kb" "$work/kb"; { grep -v "^capability(multi_file_editing" "$root/kb/core/capabilities.p0" | grep -v "^capability_wall(multi_file_editing"; printf "%s\n" "capability(time_travel, absent)." "capability_wall(time_travel, \"a time machine\")."; } > "$work/kb/core/capabilities.p0"; got=$(cd "$work" && printf "%s\n" "what are you unable to do?" | PARROT0_SESSION= "$root/bin/parrot0" 2>/dev/null); test -n "$got"; printf "%s" "$got"'
+!expect exec time travel
+!expect exec a time machine
+!expect! exec multi file editing
+!exec sh -c 'root=$(pwd); work=/tmp/parrot0-selflimits-p0t; : > "$work/kb/core/capabilities.p0"; got=$(cd "$work" && printf "%s\n" "what are you unable to do?" | PARROT0_SESSION= "$root/bin/parrot0" 2>/dev/null); test -n "$got"; printf "%s" "$got"; rm -rf "$work"'
+!expect! exec capability ledger

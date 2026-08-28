@@ -25,10 +25,10 @@
 !clause cap_first($S, $R) :- chars($S, cons($H, $T)), upper($H, $U), chars($R, cons($U, $T))
 
 !mcp kb.match {"pred":"cap_first","args":["madrid",null]}
-<~ Madrid
+!expect mcp Madrid
 
 !mcp kb.match {"pred":"cap_first","args":["apple",null]}
-<~ Apple
+!expect mcp Apple
 
 [test strknow_1]
 !set PARROT0_SESSION=
@@ -41,5 +41,4 @@
 !mcp kb.assert_clause {"head":{"pred":"cap_first","args":["$S","$R"]},"body":[{"pred":"chars","args":["$S","cons($H, $T)"]},{"pred":"upper","args":["$H","$U"]},{"pred":"chars","args":["$R","cons($U, $T)"]}]}
 
 !mcp kb.match {"pred":"cap_first","args":["hi",null]}
-<~ Hi
-
+!expect mcp Hi

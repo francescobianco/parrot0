@@ -1,0 +1,74 @@
+# agentcommit.p0t — repository-bound repair bridge, converted from
+# tests/agentcommit.sh.  The three phases share one workspace fixture but reset
+# the Brain between live MCP sessions, matching the shell test's isolation.
+
+[test agentcommit]
+!set PARROT0_SESSION=
+!set PARROT0_BASE=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+!exec test -x bin/parrot0
+!exec rm -rf .p0-bridge-agentcommit
+!exec mkdir -p .p0-bridge-agentcommit && printf '%s\n' 'void mysort(int a[], int n) { for (int i = 0; i < n; i++) { for (int j = 0; j < n - i; j++) { if (a[j] > a[j+1]) { int t = a[j]; a[j] = a[j+1]; a[j+1] = t; } } } }' > .p0-bridge-agentcommit/sort_broken.c && chmod 0644 .p0-bridge-agentcommit/sort_broken.c
+
+# Phase A: live policy and green oracle commit the verified candidate, then
+# record the canonical oracle observations separately.
+!mcp kb.assert {"pred":"commit_policy","args":["edit",".p0-bridge-agentcommit/sort_broken.c"]}
+!mcp gen.respond {"input":"fix the code in .p0-bridge-agentcommit/sort_broken.c"}
+!mcp kb.match {"pred":"repair_terminal","args":[null,"committed",null,null]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_commit","args":[null,null,"committed"]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_verdict","args":[null,null,null,"canonical_oracle"]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_observation","args":[null,null,"build",null]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_observation","args":[null,null,"run",null]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_observation","args":[null,null,"canonical_build",null]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_observation","args":[null,null,"canonical_run",null]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"rec","args":[null,"task","0","done"]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"rec_name","args":[null,"\"commit_candidate\""]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_decision","args":[null,null,"tighten_inner_bound",null]}
+!expect mcp bindings":["
+!filehas .p0-bridge-agentcommit/sort_broken.c n - i - 1
+!exec sh -c 'test -z "$(printf "%s\n" .p0-sort-* | grep -vF ".p0-sort-*")"'
+
+# Phase B: without the policy, the verified candidate remains uncommitted and
+# the canonical workspace stays byte-identical.
+!reset
+!exec printf '%s\n' 'void mysort(int a[], int n) { for (int i = 0; i < n; i++) { for (int j = 0; j < n - i; j++) { if (a[j] > a[j+1]) { int t = a[j]; a[j] = a[j+1]; a[j+1] = t; } } } }' > .p0-bridge-agentcommit/sort_broken.c && cp .p0-bridge-agentcommit/sort_broken.c .p0-bridge-agentcommit/reference.c && chmod 0644 .p0-bridge-agentcommit/sort_broken.c
+!mcp gen.respond {"input":"fix the code in .p0-bridge-agentcommit/sort_broken.c"}
+!mcp kb.match {"pred":"repair_terminal","args":[null,"policy_gap",null,null]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"rec_name","args":[null,"\"commit_policy\""]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"repair_commit","args":[null,null,"policy_denied"]}
+!expect mcp bindings":["
+!mcp kb.match {"pred":"rec","args":[null,"artifact",null,"verified_candidate"]}
+!expect mcp bindings":["
+!exec cmp -s .p0-bridge-agentcommit/reference.c .p0-bridge-agentcommit/sort_broken.c
+
+# Phase C: retracting the build tool stops before staging; a newly taught cue
+# routes the same compiled engine to a real commit.
+!reset
+!exec printf '%s\n' 'void mysort(int a[], int n) { for (int i = 0; i < n; i++) { for (int j = 0; j < n - i; j++) { if (a[j] > a[j+1]) { int t = a[j]; a[j] = a[j+1]; a[j+1] = t; } } } }' > .p0-bridge-agentcommit/sort_broken.c && chmod 0644 .p0-bridge-agentcommit/sort_broken.c
+!mcp kb.retract {"pred":"tool_for","args":["build","cc"]}
+!mcp gen.respond {"input":"fix the code in .p0-bridge-agentcommit/sort_broken.c"}
+!mcp kb.match {"pred":"repair_terminal","args":[null,"missing_tool_contract",null,null]}
+!expect mcp bindings":["
+!mcp kb.assert {"pred":"tool_for","args":["build","cc"]}
+!mcp kb.assert {"pred":"commit_policy","args":["edit",".p0-bridge-agentcommit/sort_broken.c"]}
+!mcp kb.assert {"pred":"intent_cue","args":["code_fix","ripara il sorgente in"]}
+!mcp gen.respond {"input":"ripara il sorgente in .p0-bridge-agentcommit/sort_broken.c"}
+!mcp kb.match {"pred":"repair_terminal","args":[null,"committed",null,null]}
+!expect mcp bindings":["
+!filehas .p0-bridge-agentcommit/sort_broken.c n - i - 1
+!exec rm -rf .p0-bridge-agentcommit
+!dirmissing .p0-bridge-agentcommit

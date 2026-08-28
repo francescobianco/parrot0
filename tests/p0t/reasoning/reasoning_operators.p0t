@@ -1,0 +1,315 @@
+# reasoning_operators.p0t — converted faithfully from tests/reasoning_operators.sh.
+# Focused ratchet for gen366 Task IR + proof-carrying reasoning operators.
+# Known negative assertions are intentional and use !expect!.
+
+[test reasoning_operators]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!reset
+
+# The direct conversational probes are MCP assertions in the standalone runner.
+!mcp gen.respond {"input":"Compare a bicycle and a car for a low-emission urban trip. Which should I choose and why?"}
+!expect mcp a bicycle is the better fit
+!mcp gen.respond {"input":"Compare an array and a linked list for a random access workload. Which is better and why?"}
+!expect mcp an array is the better fit
+!mcp gen.respond {"input":"Compare glass and polycarbonate for an impact-resistant guard. Which should I choose and why?"}
+!expect mcp polycarbonate is the better fit
+!mcp gen.respond {"input":"Compare a ceramic cup and an insulated thermos for thermal carrying. Which should I choose and why?"}
+!expect mcp insulated thermos is the better fit
+!mcp gen.respond {"input":"Compare a linen shirt and a wool coat for winter warmth. Which is better and why?"}
+!expect mcp wool coat is the better fit
+!mcp gen.respond {"input":"Compare a paper carton and a plastic crate for rain protection. Which should I choose and why?"}
+!expect mcp plastic crate is the better fit
+!mcp gen.respond {"input":"Why is a spam filter susceptible to adversarial spelling? Explain with an example."}
+!expect mcp inserted punctuation
+!mcp gen.respond {"input":"Why is an autopilot vulnerable to sensor spoofing? Explain with an example."}
+!expect mcp mutually consistent false measurements
+!mcp gen.respond {"input":"Why is the immune system susceptible to autoimmune disease? Explain with an example."}
+!expect mcp type 1 diabetes
+!mcp gen.respond {"input":"Explain why the human brain is susceptible to optical illusions and provide an example that illustrates this susceptibility."}
+!expect mcp Müller-Lyer illusion
+!mcp gen.respond {"input":"Why is a GPS receiver susceptible to multipath interference? Explain with an example."}
+!expect mcp time-of-arrival ranging
+!mcp gen.respond {"input":"Give step-by-step instructions for making pour-over coffee."}
+!expect mcp wait about 30 seconds
+!mcp gen.respond {"input":"Give step-by-step instructions for a software release."}
+!expect mcp Promote the verified artifact gradually
+!mcp gen.respond {"input":"Give step-by-step instructions for building an emergency kit."}
+!expect mcp utility-shutoff details
+!mcp gen.respond {"input":"Provide a step-by-step recipe for a three-course meal that can be prepared in under an hour using only a microwave and a toaster."}
+!expect mcp about 50 minutes
+!mcp gen.respond {"input":"Write a concise instruction manual for assembling a piece of flat-pack furniture without using the included diagrams."}
+!expect mcp corner-to-corner diagonals
+!mcp gen.respond {"input":"Describe the process of brewing beer at home, emphasizing the steps that most affect flavor."}
+!expect mcp yeast-derived ester and phenol profile
+!mcp gen.respond {"input":"Design a quiet library notification system with no audible alarms."}
+!expect mcp distinct vibration patterns
+!mcp gen.respond {"input":"Design a low-power remote sensor network with intermittent connectivity."}
+!expect mcp replay them in order
+!mcp gen.respond {"input":"Design an underwater navigation aid for low visibility."}
+!expect mcp directional vibration
+!mcp gen.respond {"input":"Design a signaling system for creatures that perceive magnetic fields, with no visual symbols."}
+!expect mcp magnetic syntax
+
+# Task IR projection.
+!mcp gen.respond {"input":"Compare a bicycle and a car for a low-emission urban trip. Which should I choose and why?"}
+!mcp kb.query {"pred":"task_ir","args":["operation","goal_comparison"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"task_ir","args":["argument_1","bicycle"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"task_ir","args":["argument_2","car"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"task_ir","args":["goal","low_emission_urban_trip"]}
+!expect mcp "provable":true
+
+# Open-world spans and proof traces.
+!mcp gen.respond {"input":"Compare a zorbium cup and a flaxen flask for thermal endurance. Which should I choose and why?"}
+!mcp kb.query {"pred":"task_ir","args":["argument_1","zorbium_cup"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"task_ir","args":["argument_2","flaxen_flask"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"task_ir","args":["goal","thermal_endurance"]}
+!expect mcp "provable":true
+!mcp gen.respond {"input":"Compare a paper carton and a plastic crate for rain protection. Which should I choose and why?"}
+!mcp kb.query {"pred":"task_term_concept","args":["paper_carton","paper"]}
+!expect mcp "provable":true
+!mcp kb.explain {"pred":"task_difference","args":["paper_carton","plastic_crate","water_resistance","pair(low,high)"]}
+!expect mcp "provable":true
+!expect mcp task_term_concept
+!mcp gen.respond {"input":"Why is a GPS receiver susceptible to multipath interference? Explain with an example."}
+!mcp kb.query {"pred":"task_ir","args":["argument_1","gps_receiver"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"task_ir","args":["argument_2","multipath_interference"]}
+!expect mcp "provable":true
+!mcp kb.explain {"pred":"failure_mechanism","args":["gps_receiver","multipath_interference","time_of_arrival_ranging","delayed_reflected_signal"]}
+!expect mcp "provable":true
+!expect mcp task_term_concept
+!mcp gen.respond {"input":"Give step-by-step instructions for repotting an orchid."}
+!mcp kb.query {"pred":"task_ir","args":["argument_1","repotting_an_orchid"]}
+!expect mcp "provable":true
+!exec sh -c '! rg -q "task_entity_cue\\([^)]*(zorbium|flaxen|gps_receiver|multipath_interference|repotting_an_orchid)" kb/core'
+
+# Variable-bearing clause proofs and fact shape.
+!mcp kb.explain {"pred":"task_difference","args":["bicycle","car","emissions","pair(low,high)"]}
+!expect mcp "provable":true
+!expect mcp property(bicycle, emissions, low)
+!mcp kb.explain {"pred":"task_goal_match","args":["bicycle","low_emission_urban_trip","emissions","low"]}
+!expect mcp "provable":true
+!expect mcp goal_prefers
+!mcp kb.explain {"pred":"failure_mechanism","args":["spam_filter","adversarial_spelling","lexical_pattern_matching","surface_form_shift"]}
+!expect mcp "provable":true
+!expect mcp system_relies_on
+!expect mcp phenomenon_exploits
+!exec sh -c '! rg -q "^example_observation\\(" kb/facts/operator-worlds.p0'
+!exec sh -c 'grep -q example_event kb/facts/operator-worlds.p0'
+!mcp kb.explain {"pred":"process_reaches","args":["pour_over_coffee","coffee_ready"]}
+!expect mcp "provable":true
+!expect mcp action_requires
+!expect mcp action_produces
+
+# R4 feature proof and R3 action calculus.
+!mcp gen.respond {"input":"Design a low-power remote sensor network with intermittent connectivity."}
+!mcp kb.explain {"pred":"task_feature_match","args":["low_power_remote_sensor_network_with_intermittent_connectivity","local_buffering","disconnection_tolerance","high"]}
+!expect mcp "provable":true
+!expect mcp task_term_concept
+!expect mcp candidate_for
+!mcp kb.explain {"pred":"task_requirement","args":["low_power_remote_sensor_network_with_intermittent_connectivity","disconnection_tolerance","high"]}
+!expect mcp "provable":true
+!expect mcp goal_prefers
+!mcp kb.query {"pred":"property","args":["local_buffering","disconnection_tolerance","high"]}
+!expect mcp "provable":true
+!mcp kb.query {"pred":"action_semantics","args":["mash_grain","steep","crushed_malted_grain"]}
+!expect mcp "provable":true
+!mcp kb.explain {"pred":"process_input_covered","args":["home_beer_brewing","home_brewed_beer","hops","boil_wort_with_hops"]}
+!expect mcp "provable":true
+!expect mcp product_input
+!expect mcp action_consumes
+!exec sh -c '! rg -q "^action_instruction\\(" kb/facts/operator-worlds.p0'
+
+# Rule-family and local-fact ablation.
+!mcp gen.respond {"input":"Compare a bicycle and a car for a low-emission urban trip. Which should I choose and why?"}
+!expect mcp a bicycle is the better fit
+!mcp kb.retract {"pred":"reasoning_operator_active","args":["goal_comparison"]}
+!mcp gen.respond {"input":"Compare a bicycle and a car for a low-emission urban trip. Which should I choose and why?"}
+!expect! mcp a bicycle is the better fit
+!mcp kb.assert {"pred":"reasoning_operator_active","args":["goal_comparison"]}
+!mcp gen.respond {"input":"Compare a bicycle and a car for a low-emission urban trip. Which should I choose and why?"}
+!expect mcp a bicycle is the better fit
+!mcp gen.respond {"input":"Compare glass and polycarbonate for an impact-resistant guard. Which should I choose and why?"}
+!expect mcp polycarbonate is the better fit
+!mcp kb.retract {"pred":"property","args":["polycarbonate","impact_resistance","high"]}
+!mcp gen.respond {"input":"Compare a bicycle and a car for a low-emission urban trip. Which should I choose and why?"}
+!expect mcp a bicycle is the better fit
+!mcp gen.respond {"input":"Compare glass and polycarbonate for an impact-resistant guard. Which should I choose and why?"}
+!expect! mcp polycarbonate is the better fit
+!mcp kb.assert {"pred":"property","args":["polycarbonate","impact_resistance","high"]}
+
+# R2, R3, and R4 operator ablations.
+!mcp gen.respond {"input":"Why is a spam filter susceptible to adversarial spelling? Explain with an example."}
+!expect mcp inserted punctuation
+!mcp kb.retract {"pred":"reasoning_operator_active","args":["failure_explanation"]}
+!mcp gen.respond {"input":"Why is a spam filter susceptible to adversarial spelling? Explain with an example."}
+!expect! mcp inserted punctuation
+!mcp kb.assert {"pred":"reasoning_operator_active","args":["failure_explanation"]}
+!mcp gen.respond {"input":"Why is a spam filter susceptible to adversarial spelling? Explain with an example."}
+!expect mcp inserted punctuation
+!mcp gen.respond {"input":"Give step-by-step instructions for making pour-over coffee."}
+!expect mcp wait about 30 seconds
+!mcp kb.retract {"pred":"reasoning_operator_active","args":["ordered_procedure"]}
+!mcp gen.respond {"input":"Give step-by-step instructions for making pour-over coffee."}
+!expect! mcp wait about 30 seconds
+!mcp kb.assert {"pred":"reasoning_operator_active","args":["ordered_procedure"]}
+!mcp gen.respond {"input":"Give step-by-step instructions for making pour-over coffee."}
+!expect mcp wait about 30 seconds
+!mcp gen.respond {"input":"Design a quiet library notification system with no audible alarms."}
+!expect mcp distinct vibration patterns
+!mcp gen.respond {"input":"Design an underwater navigation aid for low visibility."}
+!expect mcp directional vibration
+!mcp kb.retract {"pred":"reasoning_operator_active","args":["constraint_synthesis"]}
+!mcp gen.respond {"input":"Design a quiet library notification system with no audible alarms."}
+!expect! mcp distinct vibration patterns
+!mcp gen.respond {"input":"Design an underwater navigation aid for low visibility."}
+!expect! mcp directional vibration
+!mcp kb.assert {"pred":"reasoning_operator_active","args":["constraint_synthesis"]}
+
+# Product-input ablation leaves coffee live but breaks beer's hops edge.
+!mcp gen.respond {"input":"Give step-by-step instructions for making pour-over coffee."}
+!expect mcp wait about 30 seconds
+!mcp gen.respond {"input":"Describe the process of brewing beer at home, emphasizing the steps that most affect flavor."}
+!expect mcp early hops for bitterness
+!mcp kb.retract {"pred":"action_consumes","args":["boil_wort_with_hops","hops"]}
+!mcp gen.respond {"input":"Give step-by-step instructions for making pour-over coffee."}
+!expect mcp wait about 30 seconds
+!mcp gen.respond {"input":"Describe the process of brewing beer at home, emphasizing the steps that most affect flavor."}
+!expect! mcp early hops for bitterness
+!mcp kb.assert {"pred":"action_consumes","args":["boil_wort_with_hops","hops"]}
+
+# Runtime growth and ablation for operation, boundary, goal, entity, focus,
+# deadline, resource, and constraint registries.
+!mcp gen.respond {"input":"Please weigh-up a bicycle and a car for a low-emission urban trip. Recommend one and explain why."}
+!expect! mcp a bicycle is the better fit
+!mcp kb.assert {"pred":"task_operation_cue","args":["goal_comparison","weigh-up"]}
+!mcp gen.respond {"input":"Please weigh-up a bicycle and a car for a low-emission urban trip. Recommend one and explain why."}
+!expect mcp a bicycle is the better fit
+!mcp kb.retract {"pred":"task_operation_cue","args":["goal_comparison","weigh-up"]}
+!mcp gen.respond {"input":"Please weigh-up a bicycle and a car for a low-emission urban trip. Recommend one and explain why."}
+!expect! mcp a bicycle is the better fit
+!mcp gen.respond {"input":"Architect a low-power remote sensor network with intermittent connectivity."}
+!expect! mcp loss-tolerant data delivery
+!mcp kb.assert {"pred":"task_operation_cue","args":["constraint_synthesis","architect"]}
+!mcp gen.respond {"input":"Architect a low-power remote sensor network with intermittent connectivity."}
+!expect mcp loss-tolerant data delivery
+!mcp kb.retract {"pred":"task_operation_cue","args":["constraint_synthesis","architect"]}
+!mcp gen.respond {"input":"Architect a low-power remote sensor network with intermittent connectivity."}
+!expect! mcp loss-tolerant data delivery
+
+!reset
+[test boundary_cue_growth]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!reset
+!mcp gen.respond {"input":"Compare a zorbium cup and a flaxen flask for thermal endurance."}
+!mcp kb.query {"pred":"task_ir","args":["argument_1","zorbium_cup"]}
+!expect mcp "provable":false
+!mcp kb.assert {"pred":"task_boundary_cue","args":["pair_separator","versus"]}
+!mcp gen.respond {"input":"Compare a zorbium cup versus a flaxen flask for thermal endurance."}
+!mcp kb.query {"pred":"task_ir","args":["argument_1","zorbium_cup"]}
+!expect mcp "provable":true
+!mcp kb.retract {"pred":"task_boundary_cue","args":["pair_separator","versus"]}
+!mcp gen.respond {"input":"Compare a zorbium cup versus a flaxen flask for thermal endurance."}
+!mcp kb.query {"pred":"task_ir","args":["argument_1","zorbium_cup"]}
+!expect mcp "provable":false
+
+[test goal_cue_growth]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!reset
+!mcp gen.respond {"input":"Compare a bicycle and a car for clean-city-use. Which should I choose and why?"}
+!expect! mcp a bicycle is the better fit
+!mcp kb.assert {"pred":"task_goal_cue","args":["low_emission_urban_trip","clean-city-use"]}
+!mcp gen.respond {"input":"Compare a bicycle and a car for clean-city-use. Which should I choose and why?"}
+!expect mcp a bicycle is the better fit
+!mcp kb.retract {"pred":"task_goal_cue","args":["low_emission_urban_trip","clean-city-use"]}
+!mcp gen.respond {"input":"Compare a bicycle and a car for clean-city-use. Which should I choose and why?"}
+!expect! mcp a bicycle is the better fit
+
+[test entity_cue_growth]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!reset
+!mcp gen.respond {"input":"Compare cycle-alpha and auto-beta for a low-emission urban trip. Which should I choose and why?"}
+!expect! mcp "a bicycle is the better fit"
+!mcp kb.assert {"pred":"task_entity_cue","args":["bicycle","cycle-alpha"]}
+!mcp kb.assert {"pred":"task_entity_cue","args":["car","auto-beta"]}
+!mcp gen.respond {"input":"Compare cycle-alpha and auto-beta for a low-emission urban trip. Which should I choose and why?"}
+!expect mcp "a bicycle is the better fit"
+!mcp kb.retract {"pred":"task_entity_cue","args":["bicycle","cycle-alpha"]}
+!mcp kb.retract {"pred":"task_entity_cue","args":["car","auto-beta"]}
+!mcp gen.respond {"input":"Compare cycle-alpha and auto-beta for a low-emission urban trip. Which should I choose and why?"}
+!expect! mcp "a bicycle is the better fit"
+
+[test focus_cue_growth]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!reset
+!mcp gen.respond {"input":"Describe the process of brewing beer at home, emphasizing taste-impact-alpha."}
+!expect! mcp strongly affects
+!mcp kb.assert {"pred":"task_focus_cue","args":["flavor","taste-impact-alpha"]}
+!mcp gen.respond {"input":"Describe the process of brewing beer at home, emphasizing taste-impact-alpha."}
+!expect mcp strongly affects
+!mcp kb.retract {"pred":"task_focus_cue","args":["flavor","taste-impact-alpha"]}
+!mcp gen.respond {"input":"Describe the process of brewing beer at home, emphasizing taste-impact-alpha."}
+!expect! mcp strongly affects
+
+[test deadline_cue_growth]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!reset
+!mcp gen.respond {"input":"Provide a step-by-step recipe for a three-course meal within cap-alpha using only a microwave and a toaster."}
+!expect! mcp about 50 minutes
+!mcp kb.assert {"pred":"task_deadline_cue","args":["minutes_60","cap-alpha"]}
+!mcp gen.respond {"input":"Provide a step-by-step recipe for a three-course meal within cap-alpha using only a microwave and a toaster."}
+!expect mcp about 50 minutes
+!mcp kb.retract {"pred":"task_deadline_cue","args":["minutes_60","cap-alpha"]}
+!mcp gen.respond {"input":"Provide a step-by-step recipe for a three-course meal within cap-alpha using only a microwave and a toaster."}
+!expect! mcp about 50 minutes
+
+[test resource_cue_growth]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!reset
+!mcp gen.respond {"input":"Provide a step-by-step recipe for a three-course meal under an hour using wave-box and bread-slot."}
+!expect! mcp three finished courses
+!mcp kb.assert {"pred":"task_resource_cue","args":["microwave","wave-box"]}
+!mcp kb.assert {"pred":"task_resource_cue","args":["toaster","bread-slot"]}
+!mcp gen.respond {"input":"Provide a step-by-step recipe for a three-course meal under an hour using wave-box and bread-slot."}
+!expect mcp three finished courses
+!mcp kb.retract {"pred":"task_resource_cue","args":["microwave","wave-box"]}
+!mcp kb.retract {"pred":"task_resource_cue","args":["toaster","bread-slot"]}
+!mcp gen.respond {"input":"Provide a step-by-step recipe for a three-course meal under an hour using wave-box and bread-slot."}
+!expect! mcp three finished courses
+
+[test constraint_cue_growth]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!reset
+!mcp gen.respond {"input":"Write an instruction manual for assembling flat-pack furniture, constraint-alpha."}
+!mcp kb.query {"pred":"task_ir","args":["constraint","no_diagrams"]}
+!expect mcp "provable":false
+!mcp kb.assert {"pred":"task_constraint_cue","args":["no_diagrams","constraint-alpha"]}
+!mcp gen.respond {"input":"Write an instruction manual for assembling flat-pack furniture, constraint-alpha."}
+!mcp kb.query {"pred":"task_ir","args":["constraint","no_diagrams"]}
+!expect mcp "provable":true
+!mcp kb.retract {"pred":"task_constraint_cue","args":["no_diagrams","constraint-alpha"]}
+!mcp gen.respond {"input":"Write an instruction manual for assembling flat-pack furniture, constraint-alpha."}
+!mcp kb.query {"pred":"task_ir","args":["constraint","no_diagrams"]}
+!expect mcp "provable":false

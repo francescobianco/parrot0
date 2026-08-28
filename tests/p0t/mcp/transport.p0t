@@ -1,0 +1,17 @@
+# transport.p0t - faithful conversion of tests/mcp.sh.
+#
+# This is deliberately a transport smoke test: MCP JSON-RPC is spoken on stdio,
+# notifications do not produce a response, and requests remain one JSON value
+# per line.
+
+[test mcp_transport]
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=
+!reset
+!timeout 30
+!exec bash -c 'set -eu; set -o pipefail; out=$(printf "%s\n" "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2024-11-05\"}}" "{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}" "{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\"}" "{\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"ping\"}" | PARROT0_SESSION= PARROT0_WORLD_FACTS=0 PARROT0_PROFILE= ./bin/parrot0 --mcp-engine 2>/dev/null); test "$(printf "%s\n" "$out" | awk "END { print NR }")" -eq 3; init=$(printf "%s\n" "$out" | sed -n "1p"); tools=$(printf "%s\n" "$out" | sed -n "2p"); ping=$(printf "%s\n" "$out" | sed -n "3p"); case "$init" in *\"id\":1*) ;; *) exit 1 ;; esac; case "$init" in *\"serverInfo\":{\"name\":\"parrot0\"*) ;; *) exit 1 ;; esac; case "$init" in *\"protocolVersion\":\"2024-11-05\"*) ;; *) exit 1 ;; esac; case "$tools" in *\"id\":2*\"name\":\"kb.assert\"*\"name\":\"kb.query\"*\"name\":\"kb.restore\"*\"name\":\"gen.respond\"*) ;; *) exit 1 ;; esac; case "$ping" in *\"id\":3*\"result\":{}*) ;; *) exit 1 ;; esac; printf "%s" "transport batch ok"'
+!expect= exec transport batch ok
+
+!exec bash -c 'set -eu; set -o pipefail; err=$(printf "%s\n" "{\"jsonrpc\":\"2.0\",\"id\":9,\"method\":\"no.such.method\"}" | PARROT0_SESSION= PARROT0_WORLD_FACTS=0 PARROT0_PROFILE= ./bin/parrot0 --mcp-engine 2>/dev/null); test "$(printf "%s\n" "$err" | awk "END { print NR }")" -eq 1; case "$err" in *\"id\":9*\"code\":-32601*\"message\":\"method\ not\ found\"*) ;; *) exit 1 ;; esac; printf "%s" "unknown method ok"'
+!expect= exec unknown method ok

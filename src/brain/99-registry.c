@@ -726,7 +726,7 @@ Brain *brain_create(void) {
 
     /* gen325 (TODO.md P6, forge plan §18): the capability LEDGER as knowledge —
      * capability(Id, Maturity) and capability_wall(Id, "…"), projected by
-     * tests/capability_facts.py from tests/benchmarks.json (whose claims
+     * tests/capability_facts.py from tests/bench/benchmarks.json (whose claims
      * `make capability-report` verifies against real gate results). This is what
      * lets mod_self answer where the envelope ENDS instead of listing modules.
      * GENERATED: never hand-edit kb/core/capabilities.p0.

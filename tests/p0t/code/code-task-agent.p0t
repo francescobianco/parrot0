@@ -1,0 +1,45 @@
+# code-task-agent.p0t — MCP-visible coding-agent T03.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test code_task_plan]
+!mcp gen.respond {"input":"make a plan for a code task"}
+!expect mcp My derived plan for code task
+!expect mcp candidate patch
+!expect mcp relevant oracle
+!mcp kb.match {"pred":"rec","args":[null,"task",null,"active"]}
+!expect mcp bindings":["1"]
+!mcp kb.match {"pred":"rec","args":[null,"action",null,"candidate"]}
+!expect mcp bindings":["3","4","5","6"]
+!mcp kb.query {"pred":"rec_source","args":[3,2]}
+!expect mcp provable":true
+
+!mcp kb.retract {"pred":"action_yields","args":["localize_change","target_region"]}
+!expect mcp removed":true
+!mcp gen.respond {"input":"make a plan for a code task"}
+!expect mcp nothing yields target region
+!mcp kb.match {"pred":"rec","args":[null,"gap",null,"open"]}
+!expect mcp bindings":["9"]
+!mcp kb.match {"pred":"rec_name","args":[null,"\"target_region\""]}
+!expect mcp bindings":["9"]
+!mcp kb.match {"pred":"rec","args":[null,"goal",null,"blocked"]}
+!expect mcp bindings":["8"]
+
+!mcp kb.assert {"pred":"action_yields","args":["localize_change","target_region"]}
+!expect mcp stored":true
+!mcp gen.respond {"input":"make a plan for a code task"}
+!expect mcp My derived plan for code task
+!mcp kb.match {"pred":"rec","args":[null,"action",null,"candidate"]}
+!expect mcp bindings":["3","4","5","6","12","13","14","15"]
+!mcp kb.query {"pred":"action_risk","args":["edit_candidate","workspace_write"]}
+!expect mcp provable":true
+!mcp kb.query {"pred":"action_cost","args":["edit_candidate",3]}
+!expect mcp provable":true
+!mcp kb.query {"pred":"action_tool","args":["verify_candidate","test"]}
+!expect mcp provable":true
