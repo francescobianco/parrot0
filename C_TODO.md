@@ -1060,3 +1060,10 @@ percorso composto bilingue.
 Le quattro inversioni del solver (`left/right × +,-,*,/`) sono ora dati in
 `algebra_inverse/4` e `algebra_inverse_order/3`; il C interroga la procedura e
 mantiene solo l’ordine degli argomenti, il calcolo e il rendering strutturale.
+
+### Gen470 — tokenizzazione algebrica senza enum C
+
+`algebra_op` delega ora a `infix_operator/2` invece di enumerare superfici
+inglesi/italiane nel C. Il tokenizer resta meccanico (separatori e binding),
+mentre il significato dell’operatore è KB-teachable; le regressioni algebriche
+EN/IT e `arith_flex` restano verdi.

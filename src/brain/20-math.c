@@ -1632,12 +1632,8 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
  * almost free (only leading filler words differ). Operators: + - * / (symbols)
  * and the plus/minus/times words, EN+IT. '-' is always a binary operator here
  * (no negative-literal operands), which keeps one-step school algebra simple. */
-static char algebra_op(const char *s) {
-    if (!strcmp(s, "+") || !strcmp(s, "plus")  || !strcmp(s, "più"))  return '+';
-    if (!strcmp(s, "-") || !strcmp(s, "minus") || !strcmp(s, "meno")) return '-';
-    if (!strcmp(s, "*") || !strcmp(s, "times") || !strcmp(s, "per"))  return '*';
-    if (!strcmp(s, "/")) return '/';
-    return 0;
+static char algebra_op(Brain *b, const char *s) {
+    return arith_op_char(b, s);
 }
 
 /* Split on whitespace and on the operator/equals chars (+ - * / =), each of the
@@ -1742,9 +1738,9 @@ static int mod_algebra(Brain *b, const char *norm, const char *raw,
      * operand (1 token). Canonicalize to: a <op> b = c. */
     char *ta, *tb, *tc; char op;
     if (ln == 3 && rn == 1) {
-        ta = tk[0]; op = algebra_op(tk[1]); tb = tk[2]; tc = tk[eq + 1];
+        ta = tk[0]; op = algebra_op(b, tk[1]); tb = tk[2]; tc = tk[eq + 1];
     } else if (ln == 1 && rn == 3) {
-        ta = tk[eq + 1]; op = algebra_op(tk[eq + 2]); tb = tk[eq + 3]; tc = tk[0];
+        ta = tk[eq + 1]; op = algebra_op(b, tk[eq + 2]); tb = tk[eq + 3]; tc = tk[0];
     } else {
         return 0;
     }
