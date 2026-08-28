@@ -3187,6 +3187,16 @@ quantity(world, continents, 7).
 quantity(year, days, 365).
 quantity(year, months, 12).
 quantity(year, seasons, 4).
+quantity(century, years, 100).
+quantity(decade, years, 10).
+quantity(november, days, 30).
+quantity(october, days, 31).
+quantity(august, days, 31).
+quantity(july, days, 31).
+quantity(june, days, 30).
+quantity(may, days, 31).
+quantity(march, days, 31).
+quantity(leap_year, days, 366).
 question_form("how many", cardinality_query).
 question_form("is a", boolean_subsumption).
 question_form("what are the", category_enumeration).

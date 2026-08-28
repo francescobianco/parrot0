@@ -32,6 +32,7 @@ utterance(5, user, "overfitting harms what?").
 utterance(5, user, "secretes is a relation verb").
 utterance(5, user, "the pancreas secretes what?").
 utterance(5, user, "a kilometer has 1000 meters").
+utterance(5, user, "june has 30 days").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -47,6 +48,7 @@ utterance(6, self, "Generalization.").
 utterance(6, self, "Learned: relation_verb(secretes).").
 utterance(6, self, "Insulin.").
 utterance(6, self, "Learned: kilometer has 1000 meters.").
+utterance(6, self, "Learned: june has 30 days.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -259,6 +261,32 @@ utterance(47, user, "how many days in february?").
 utterance(48, self, "A february has 28 days.").
 utterance(49, user, "how many days in march?").
 utterance(50, self, "I don't understand that yet.").
+utterance(7, user, "july has 31 days").
+utterance(8, self, "Learned: july has 31 days.").
+utterance(9, user, "august has 31 days").
+utterance(10, self, "Learned: august has 31 days.").
+utterance(11, user, "october has 31 days").
+utterance(12, self, "Learned: october has 31 days.").
+utterance(13, user, "november has 30 days").
+utterance(14, self, "Learned: november has 30 days.").
+utterance(15, user, "a leap year has 366 days").
+utterance(16, self, "I don't understand that yet.").
+utterance(17, user, "a decade has 10 years").
+utterance(18, self, "Learned: decade has 10 years.").
+utterance(19, user, "a century has 100 years").
+utterance(20, self, "Learned: century has 100 years.").
+utterance(21, user, "how many days in march?").
+utterance(22, self, "march has 31 days.").
+utterance(23, user, "how many days in june?").
+utterance(24, self, "june has 30 days.").
+utterance(25, user, "how many days in november?").
+utterance(26, self, "november has 30 days.").
+utterance(27, user, "how many years in a century?").
+utterance(28, self, "A century has 100 years.").
+utterance(29, user, "how many days in a leap year?").
+utterance(30, self, "A year has 365 days.").
+utterance(31, user, "how many days in a leap month?").
+utterance(32, self, "I don't understand that yet.").
 utterance(76, self, "Claim.").
 utterance(7, user, "what does a capacitor store?").
 utterance(8, self, "I don't understand that yet.").
@@ -343,6 +371,8 @@ utterance(2, self, "Loss function.").
 utterance(2, self, "Learned: relation_verb(produces).").
 utterance(2, self, "Liver.").
 utterance(2, self, "Learned: meter has 100 centimeters.").
+utterance(2, self, "Learned: march has 31 days.").
+utterance(2, self, "Learned: leap_year has 366 days.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -351,6 +381,8 @@ utterance(1, user, "gradient_descent minimizes what?").
 utterance(1, user, "produces is a relation verb").
 utterance(1, user, "which organ produces bile?").
 utterance(1, user, "a meter has 100 centimeters").
+utterance(1, user, "march has 31 days").
+utterance(1, user, "a leap year has 366 days").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -358,6 +390,7 @@ utterance(4, self, "Self attention.").
 utterance(4, self, "Learned: produces(liver, bile).").
 utterance(4, self, "Bile.").
 utterance(4, self, "Learned: meter has 1000 millimeters.").
+utterance(4, self, "Learned: may has 31 days.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -366,6 +399,7 @@ utterance(3, user, "transformer applies what?").
 utterance(3, user, "the liver produces bile").
 utterance(3, user, "the liver produces what?").
 utterance(3, user, "a meter has 1000 millimeters").
+utterance(3, user, "may has 31 days").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

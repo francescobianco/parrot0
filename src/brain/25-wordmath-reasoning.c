@@ -3354,15 +3354,27 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
      * conoscenza (`is_article`), quindi si scavalca l'apertura invece di
      * chiedere all'utente di togliere l'articolo. */
     size_t qs = (nw >= 1 && is_article(b, w[0])) ? 1 : 0;
-    if (nw - qs == 4 && lex_class_member(b, "25_wordmath_reasoning_lex3306", w[qs + 1]) &&
-        !(nw >= 1 && p0_turn_opens_as_question(b, w[0]))) {
+    /* Il SOGGETTO PUO' AVERE PIU' DI UNA PAROLA. La forma contava i token, e
+     * «a leap year has 366 days» ne ha uno di troppo: andava a muro, mentre
+     * «a year has 365 days» entrava — cioe' si poteva insegnare il caso
+     * generale e non l'eccezione. Il verbo fa da cerniera: quello che sta prima
+     * e' il soggetto, quello che sta dopo sono numero e unita'. */
+    size_t hv = 0;
+    for (size_t i = qs + 1; i + 2 < nw; i++)
+        if (lex_class_member(b, "25_wordmath_reasoning_lex3306", w[i])) { hv = i; break; }
+    if (hv && nw - hv == 3 && !(nw >= 1 && p0_turn_opens_as_question(b, w[0]))) {
         double v;
-        if (!parse_num(w[qs + 2], &v)) return 0; /* not a quantity; let others try */
-        const char *args[] = {w[qs], w[qs + 3], w[qs + 2]};
+        if (!parse_num(w[hv + 1], &v)) return 0; /* not a quantity; let others try */
+        char subj[KB_TERM_LEN]; size_t so = 0; subj[0] = '\0';
+        for (size_t i = qs; i < hv && so + 1 < sizeof subj; i++)
+            so += (size_t)snprintf(subj + so, sizeof subj - so, "%s%s",
+                                   i > qs ? "_" : "", strip_edge_punct(w[i]));
+        if (!subj[0]) return 0;
+        const char *args[] = {subj, w[hv + 2], w[hv + 1]};
         char msg[160];
         if (domain_assert(b, "quantity", args, 3)) {
             const KbResponseSlot slots[] = {
-                { "subject", w[qs] }, { "amount", w[qs + 2] }, { "unit", w[qs + 3] } };
+                { "subject", subj }, { "amount", w[hv + 1] }, { "unit", w[hv + 2] } };
             kb_term_say(b, "learned_quantity", slots, 3, msg, sizeof msg);
         }
         else
