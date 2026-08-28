@@ -1,0 +1,39 @@
+# dollarvar.p0t — `$` e' il MARCATORE ESPLICITO di variabile.
+# Convertito da tests/dollarvar.sh (gen444).
+#
+# Prima: `is_var("$X")` era falso, quindi «$X» era una costante, la regola
+# parlava dell'atomo «$X» e la query falliva. Dopo: `$X` e' una variabile.
+#
+# L'ultimo caso e' la fine del doppio-accetta: una MAIUSCOLA NUDA e' ormai una
+# costante, quindi `uses_upper(X) :- q(X)` non generalizza e non prova
+# `uses_upper(a)`. E' il gate che distingue «accettiamo entrambe le forme» da
+# «la forma e' una sola».
+
+[test dollarvar]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!assert man(socrates)
+!clause mortal($X) :- man($X)
+!assert parent(tom, bob)
+!assert parent(bob, ann)
+!clause grandparent($X, $Z) :- parent($X, $Y), parent($Y, $Z)
+!assert q(a)
+!clause uses_dollar($X) :- q($X)
+!clause uses_upper(X) :- q(X)
+
+# una regola unaria con $-variabile risolve
+!mcp kb.query {"pred":"mortal","args":["socrates"]}
+<~ "provable":true
+# e una a piu' variabili con giunzione
+!mcp kb.query {"pred":"grandparent","args":["tom","ann"]}
+<~ "provable":true
+# la giunzione discrimina: tom e' padre di bob, non nonno
+!mcp kb.query {"pred":"grandparent","args":["tom","bob"]}
+<~ "provable":false
+!mcp kb.query {"pred":"uses_dollar","args":["a"]}
+<~ "provable":true
+# la maiuscola nuda e' una COSTANTE: la regola non generalizza
+!mcp kb.query {"pred":"uses_upper","args":["a"]}
+<~ "provable":false

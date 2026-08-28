@@ -489,6 +489,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/engine/dif.p0t
 	@./$(BIN) --test tests/p0t/engine/ranges.p0t
 	@./$(BIN) --test tests/p0t/engine/anon.p0t
+	@./$(BIN) --test tests/p0t/engine/dollarvar.p0t
 	@./$(BIN) --test tests/p0t/code/check_sort.p0t
 	@./$(BIN) --test tests/p0t/expert/posix.p0t
 	@./$(BIN) --test tests/p0t/mcp/findall.p0t
@@ -869,7 +870,6 @@ legacy-test: build
 	@./tests/restore.sh
 	@./tests/mcp.sh
 	@./tests/mcp-teach.sh
-	@./tests/dollarvar.sh
 	@./tests/assertclause.sh
 	@./tests/answerframe.sh
 	@./tests/aggregate.sh

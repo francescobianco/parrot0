@@ -190,7 +190,15 @@ static void te_apply_config(TeState *t) {
     char cur[2048];
     p0env_mem_signature(cur, sizeof cur);
     if (strcmp(cur, t->loaded_sig) == 0) return;    /* nothing effective changed */
+    /* La KB si carica da percorsi RELATIVI alla radice del repository. Dentro
+     * una sandbox la directory corrente e' un'altra, quindi un reload li' non
+     * troverebbe ne' il profilo ne' la base: il brain ripartirebbe monco e il
+     * test misurerebbe una creatura diversa da quella che voleva. La sandbox
+     * serve a dove gli STRUMENTI scrivono, non a dove la conoscenza vive. */
+    int hopped = 0;
+    if (t->in_sandbox && t->sandbox_prev[0] && chdir(t->sandbox_prev) == 0) hopped = 1;
     brain_reload(t->b);
+    if (hopped && t->sandbox_dir[0]) { if (chdir(t->sandbox_dir) != 0) { /* nulla */ } }
     t->have_reply = 0;
     te_mark_clean(t);
     if (getenv("PARROT0_TE_DEBUG"))
