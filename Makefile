@@ -481,6 +481,7 @@ soft-test: test-engine
 test: test-engine
 	@./$(BIN) --help >/dev/null
 	@./$(BIN) --test tests/p0t/conversation/basics.p0t
+	@./$(BIN) --test tests/p0t/growth/digit_sum.p0t
 	@./$(BIN) --test tests/p0t/conversation/dialogue_moves.p0t
 	@./$(BIN) --test tests/p0t/conversation/context_scope.p0t
 	@./$(BIN) --test tests/p0t/conversation/conversation.p0t

@@ -40,6 +40,17 @@
  *                             [test]). A turn slower than the budget is a FAILURE
  *                             (a perf-regression guard); 0 disables it.
  *   !forget PRED              switch a predicate OFF: retract every fact of it
+ *   !mcp TOOL {json}          invoke ONE MCP tool on the SAME brain and put its
+ *                             JSON payload where the reply goes, so the `<`/`<~`/`<!`
+ *                             lines below check it like any other answer. The MCP
+ *                             layer used to be reachable only from outside, over
+ *                             JSON-RPC to a separate process — which is why a dozen
+ *                             suites still lived in shell. This walks the same road
+ *                             as `tools/call`, so it proves the real MCP surface.
+ *
+ *                               !mcp kb.assert {"pred":"dog","args":["rex"]}
+ *                               !mcp kb.query  {"pred":"dog","args":["rex"]}
+ *                               <~ true
  *   !forget PRED(a, b)        drop one specific ground fact
  *   !forget @LAYER            drop a whole provenance layer: @base, @session,
  *                             @induced, @reflective, @hypothetical
@@ -81,6 +92,7 @@
 #include "testeng.h"
 #include "env.h"
 #include "kb.h"
+#include "mcp.h"
 
 #ifndef TE_LINE
 #define TE_LINE 4096
@@ -509,6 +521,39 @@ static int te_process_stream(TeState *t, FILE *in) {
                         want ? "atteso dimostrabile" : "atteso NON dimostrabile",
                         pred, argc);
             }
+            continue;
+        }
+        /* ── !mcp <strumento> <json-argomenti> ──────────────────────────────
+         *
+         * Il layer MCP si poteva provare solo da fuori, a colpi di JSON-RPC su
+         * un processo separato: e' il motivo per cui una dozzina di suite vive
+         * ancora in shell invece che qui. Questa direttiva percorre la STESSA
+         * strada di `tools/call` sul brain del test-engine, quindi prova il MCP
+         * vero e non una sua imitazione.
+         *
+         * Il risultato prende il posto della risposta del turno, cosi' le righe
+         * `<` e `<~` che seguono lo verificano come verificherebbero una replica
+         * qualunque — una primitiva sola, nessuna sintassi di confronto nuova.
+         *
+         *     !mcp kb.assert {"pred":"dog","args":["rex"]}
+         *     !mcp kb.query  {"pred":"dog","args":["rex"]}
+         *     <~ true
+         */
+        if (strncmp(p, "!mcp", 4) == 0 && (p[4] == ' ' || p[4] == '\t')) {
+            te_flush(t);
+            te_apply_config(t);
+            char *q = p + 4;
+            while (*q == ' ' || *q == '\t') q++;
+            char tool[TE_NAME]; size_t k = 0;
+            while (*q && *q != ' ' && *q != '\t' && k + 1 < sizeof tool) tool[k++] = *q++;
+            tool[k] = '\0';
+            while (*q == ' ' || *q == '\t') q++;
+            if (k == 0) { syntax_err = 1; continue; }
+            mcp_tool_invoke(t->b, tool, *q ? q : NULL, t->reply, sizeof t->reply);
+            size_t rn = strlen(t->reply);
+            while (rn > 0 && (t->reply[rn - 1] == '\n' || t->reply[rn - 1] == '\r'))
+                t->reply[--rn] = '\0';
+            t->have_reply = 1;
             continue;
         }
         if (strncmp(p, "!forget", 7) == 0 && (p[7] == ' ' || p[7] == '\t')) {

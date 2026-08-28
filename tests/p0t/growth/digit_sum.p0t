@@ -1,0 +1,30 @@
+# digit_sum.p0t — il contratto di CRESCITA del vocabolario delle richieste su
+# sequenze di cifre. Convertito da tests/digit_sum_growth.sh (gen444).
+#
+# La forma e' quella che il progetto chiede a ogni riconoscitore nuovo
+# (AGENTS.md): la cue non c'e' e la domanda non si risolve; la si asserisce a
+# RUNTIME e la stessa domanda si risolve; la si ritratta e torna a non
+# risolversi. Nessuna ricompilazione in mezzo.
+#
+# Prima viveva in shell perche' passa dal layer MCP, che il test-engine non
+# sapeva percorrere. Ora `!mcp` percorre la stessa strada di `tools/call`.
+
+[test digit_sum_growth]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=1
+!reset
+
+# prima: la cue non e' dichiarata, la domanda non trova la classe
+!mcp gen.respond {"input":"A 4-slot vault-alpha uses digits 0-9. The sum of the digits is 10. How many combinations are possible?"}
+<! 282
+
+# la si insegna a runtime
+!mcp kb.assert {"pred":"intent_cue","args":["digit_sequence_container","vault-alpha"]}
+!mcp gen.respond {"input":"A 4-slot vault-alpha uses digits 0-9. The sum of the digits is 10. How many combinations are possible?"}
+<~ 282
+
+# e la si ritratta: la capacita' se ne va con lei
+!mcp kb.retract {"pred":"intent_cue","args":["digit_sequence_container","vault-alpha"]}
+!mcp gen.respond {"input":"A 4-slot vault-alpha uses digits 0-9. The sum of the digits is 10. How many combinations are possible?"}
+<! 282

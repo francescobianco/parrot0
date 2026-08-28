@@ -679,6 +679,23 @@ static int tool_call(Brain *b, const char *name, const JVal *a,
 /* ------------------------------------------------------------------------- */
 /* method dispatch                                                            */
 /* ------------------------------------------------------------------------- */
+int mcp_tool_invoke(Brain *brain, const char *name, const char *args_json,
+                    char *out, size_t outsz) {
+    if (!brain || !name || !out || outsz == 0) return 0;
+    out[0] = '\0';
+    JVal *args = NULL;
+    if (args_json && *args_json) {
+        args = json_parse(args_json, strlen(args_json));
+        if (!args) {
+            snprintf(out, outsz, "{\"error\":\"bad JSON arguments\"}");
+            return 0;
+        }
+    }
+    int ok = tool_call(brain, name, args, out, outsz);
+    jfree(args);
+    return ok;
+}
+
 static void handle_initialize(const JVal *id, const JVal *params) {
     const char *proto = MCP_PROTO;
     JVal *pv = jobj_get(params, "protocolVersion");

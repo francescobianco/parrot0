@@ -137,6 +137,10 @@ sessione.
 !forget PRED | PRED(a, b)   toglie un predicato intero o un fatto singolo
 !forget @LAYER              butta via uno strato: @base, @session, @induced,
                             @reflective, @hypothetical
+!mcp STRUMENTO {json}       invoca UNO strumento MCP sullo stesso brain e mette il
+                            suo payload JSON dove va la risposta, così le righe
+                            `<` / `<~` / `<!` che seguono lo verificano come una
+                            replica qualunque
 ```
 
 L'uguaglianza esatta è giusta per una risposta breve e determinata. Una risposta
@@ -152,6 +156,35 @@ migrazione non si chiudeva.
   l'intera risposta multi-riga.
 - `!shutdown` è l'unica riga di controllo interna (la manda `--test-report`), non
   una primitiva di test.
+
+### 2a-bis. `!mcp` — il layer MCP dentro il test-engine (gen444)
+
+Il MCP si poteva provare **solo da fuori**, mandando JSON-RPC a un processo
+separato: è la ragione per cui una dozzina di suite viveva ancora in shell invece
+che qui. Non erano rimaste indietro per pigrizia — mancava la primitiva.
+
+`!mcp` percorre la **stessa strada di `tools/call`**, su un brain che il
+test-engine ha già in mano. Non è un'imitazione del MCP: è `tool_call`, lo stesso
+che serve un client esterno, esposto da `mcp_tool_invoke`.
+
+```
+!mcp kb.assert {"pred":"dog","args":["rex"]}
+!mcp kb.query  {"pred":"dog","args":["rex"]}
+<~ true
+```
+
+Il risultato prende il posto della risposta del turno, quindi **non serve una
+sintassi di confronto nuova**: valgono `<`, `<~` e `<!` come per un `>`.
+
+Il caso per cui è nata è il **contratto di crescita**, che senza MCP non si
+poteva esprimere: si chiede qualcosa che non si sa fare, si asserisce la cue a
+runtime, la si richiede, la si ritratta, e si controlla che la capacità sia
+comparsa e poi sparita. Vedi `tests/p0t/growth/digit_sum.p0t`, primo convertito.
+
+Gli argomenti sono l'oggetto JSON che andrebbe in `arguments`; ometterli è
+lecito per gli strumenti che non ne vogliono. Gli strumenti sono quelli di
+`docs/plans/mcp-engine.md` — `kb.assert`, `kb.query`, `kb.match`, `kb.retract`,
+`gen.respond`, `kb.explain`, …
 
 **Ancora da progettare (F.):** mock, stub, flag e altre forme di controllo dello
 stato della KB. Per ora l'engine fa solo l'assert atteso + il pilotaggio env.
