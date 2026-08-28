@@ -1151,6 +1151,13 @@ controlli di struttura. Le sei superfici sono coperte dal ratchet di
 `check_sort.p0t` conserva cinque differenze di sorgente MCP già note, pur
 riportando i verdetti attesi; non sono state mascherate in questo lotto.
 
+### Gen482 — marker di parità del ciclo agente nella KB
+
+Le superfici `even`, `odd`, `pari`, `dispari` sono ora fatti
+`agent_parity_marker/2`. Il ramo agente interroga la relazione e conserva solo
+la delimitazione delle clausole; la parità del numero resta calcolo meccanico.
+Il ratchet verifica crescita e ablazione di una superficie nuova.
+
 ### Gen480 — le quattro operazioni composte delegate alla KB
 
 Lo switch locale di `apply_op_char` non calcola più `+`, `-`, `*` e `/` nel C:

@@ -1418,6 +1418,21 @@ static void agent_slice(const char *from, const char *end, char *out, size_t out
     memcpy(out, from, len); out[len] = '\0';
 }
 
+static const char *agent_parity_surface(Brain *b, const char *text,
+                                         const char *kind) {
+    if (!b || !b->kb || !text || !kind) return NULL;
+    const char *q[] = { kind, NULL };
+    char surfaces[8][KB_TERM_LEN];
+    size_t n = kb_match(b->kb, "agent_parity_marker", q, 2, surfaces, 8);
+    const char *best = NULL;
+    for (size_t i = 0; i < n; i++) {
+        const char *surface = kb_dequote(surfaces[i]);
+        const char *hit = surface ? strstr(text, surface) : NULL;
+        if (hit && (!best || hit < best)) best = hit;
+    }
+    return best;
+}
+
 static int mod_agent(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)norm;
@@ -1443,8 +1458,8 @@ static int mod_agent(Brain *b, const char *norm, const char *raw,
      * Collatz process — halve when even, triple-and-add-one when odd, until it
      * reaches 1 — whose step count is famously unpredictable, so the answer can
      * only come from actually running the loop, never a formula. */
-    const char *ce = strstr(low, "even"); if (!ce) ce = strstr(low, "pari");
-    const char *co = strstr(low, "odd");  if (!co) co = strstr(low, "dispari");
+    const char *ce = agent_parity_surface(b, low, "even");
+    const char *co = agent_parity_surface(b, low, "odd");
     if (ce && co) {
         {
             /* Each branch clause runs from its parity marker to the next marker

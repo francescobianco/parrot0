@@ -1529,6 +1529,9 @@ agent_branch_step("multiply", "*", 0).
 agent_branch_step("times", "*", 0).
 agent_branch_step("moltiplica", "*", 0).
 agent_branch_step("divide", "/", 0).
+machinery(agent_parity_marker).
+agent_parity_marker(even, "even"). agent_parity_marker(even, "pari").
+agent_parity_marker(odd, "odd"). agent_parity_marker(odd, "dispari").
 agent_branch_step("dividi", "/", 0).
 agent_branch_step("diviso", "/", 0).
 apply_operator(divide, $A, $B, $R) :- dif($B, 0), is($R, div($A, $B)).
