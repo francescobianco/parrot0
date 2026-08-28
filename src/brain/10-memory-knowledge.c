@@ -3662,6 +3662,10 @@ static int p0_fact_is_clean(Brain *b, const char *pred, const char *const *args,
  * asseriscono DUE fatti insieme (classe + luogo) e vanno sciolte una alla volta
  * con la loro prova. Questo motore corre PRIMA, quindi un frame dichiarato in KB
  * vince gia' oggi su quello cablato. */
+/* Quanti ruoli puo' avere una costruzione. Non e' un limite di conoscenza: e'
+ * la dimensione dell'appoggio con cui il C allinea gli slot di UN pattern. */
+#define P0_MAX_SLOTS 8
+
 static int p0_slot_end(Brain *b, char **w, size_t n, size_t from,
                        const char *next_literal) {
     for (size_t i = from; i < n; i++) {
@@ -3680,8 +3684,16 @@ static int p0_frame_is_taught(Brain *b, const char *raw_pattern) {
 
 static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                                       const char *norm, char *out,
-                                      size_t out_size, int taught_only) {
+                                      size_t out_size, int taught_only,
+                                      int query_only) {
     if (!b || !b->kb || n < 3) return 0;
+    /* La punteggiatura finale non e' una parola, e qui decideva se una frase
+     * fosse comprensibile: «… into what» combaciava e «… into what?» no, perche'
+     * il «?» restava incollato all'ultimo slot e ne faceva un termine illegale.
+     * Si toglie una volta, come il resto della funzione fa gia' token per
+     * token. */
+    while (n > 0 && w[n - 1] && !*strip_edge_punct(w[n - 1])) n--;
+    if (n < 3) return 0;
 
     char pats[64][KB_TERM_LEN];
     const char *anyq[] = { NULL, NULL };
@@ -3710,25 +3722,54 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
         char *pt[16]; size_t pn = split_words(pbuf, pt, 16);
         if (pn < 2) continue;
 
-        char subj[KB_TERM_LEN] = "", obj[KB_TERM_LEN] = "";
+        /* ── QUANTI SLOT LI DICE IL PATTERN ──────────────────────────────
+         *
+         * Il legame era fermo a due: `subj` e `obj`, scelti da `@S` contro
+         * tutto il resto. Percio' «a metaphor maps a source domain onto a
+         * target domain» non aveva lettura, e parrot0 lo diceva da se' — «I
+         * cannot align exactly two shared variables on both sides». Lo stesso
+         * muro fermava il ricongiungimento di M8.
+         *
+         * Ora gli slot si contano leggendo il pattern, e l'ordine e' quello in
+         * cui compaiono. La lettera dopo `@` non e' piu' un interruttore fra
+         * due variabili: e' il NOME dello slot, e `@S` resta il primo soltanto
+         * perche' i pattern binari lo scrivono per primo. Un pattern con tre
+         * slot produce un fatto a tre argomenti senza che il C sappia quale
+         * relazione sia. */
+        char slot[P0_MAX_SLOTS][KB_TERM_LEN];
+        size_t nslots = 0;
         size_t wi = 0; int ok = 1;
         for (size_t ti = 0; ti < pn && ok; ti++) {
             if (pt[ti][0] == '@') {
+                if (nslots >= P0_MAX_SLOTS) { ok = 0; break; }
                 const char *next = (ti + 1 < pn && pt[ti + 1][0] != '@')
                                    ? pt[ti + 1] : NULL;
-                int final_text_slot = text_value && pt[ti][1] == 'O' &&
-                                      ti + 1 == pn;
+                /* L'ultimo slot di una relazione a valore testuale prende tutta
+                 * la coda: vale per l'ultimo slot qualunque sia il suo nome. */
+                int final_text_slot = text_value && ti + 1 == pn;
                 int end = final_text_slot ? (int)n :
                           p0_slot_end(b, w, n, wi, next);
+                /* Un interrogativo CHIUDE un sintagma, quindi lo slot che
+                 * dovrebbe contenerlo nasceva vuoto e la domanda non combaciava
+                 * con il pattern che sa leggere la sua affermazione. Qui vale
+                 * come riempimento di se stesso: e' la parola che segna lo slot
+                 * lasciato libero, non un confine. */
+                if ((end < 0 || (size_t)end <= wi) && wi < n) {
+                    const char *qw[1] = { strip_edge_punct(w[wi]) };
+                    if (kb_query(b->kb, "question_word", qw, 1)) end = (int)wi + 1;
+                }
                 if (end < 0 || (size_t)end <= wi) { ok = 0; break; }
-                char *dst = (pt[ti][1] == 'S') ? subj : obj;
+                char *dst = slot[nslots];
                 size_t ss = wi;
                 if (ss < (size_t)end && p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
                 if (ss >= (size_t)end || !p0_join(w, ss, (size_t)end, dst, KB_TERM_LEN))
                     { ok = 0; break; }
-                if (pt[ti][1] == 'S' && is_entity_pronoun(b, dst) &&
+                /* Il pronome si risolve solo nel primo slot: e' li' che «it»
+                 * riprende l'entita' del turno prima. */
+                if (nslots == 0 && is_entity_pronoun(b, dst) &&
                     b->has_last_entity)
                     snprintf(dst, KB_TERM_LEN, "%s", b->last_entity);
+                nslots++;
                 wi = (size_t)end;
             } else {
                 if (wi >= n || strcmp(strip_edge_punct(w[wi]), pt[ti]) != 0)
@@ -3736,7 +3777,61 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                 wi++;
             }
         }
-        if (!ok || !subj[0] || !obj[0]) continue;
+        if (!ok || nslots < 2) continue;
+        int empty = 0;
+        for (size_t si = 0; si < nslots; si++) if (!slot[si][0]) empty = 1;
+        if (empty) continue;
+
+        /* ── UNA PAROLA INTERROGATIVA IN UNO SLOT E' UNA DOMANDA ─────────────
+         *
+         * Lo stesso pattern che legge «an enzyme converts a substrate into a
+         * product» legge anche «an enzyme converts a substrate into what?»: la
+         * differenza sta tutta in QUALE parola occupa uno slot. Chiedere e dire
+         * tornano cosi' un solo atto, come per il verbo relazionale binario —
+         * e vale a qualunque arita', perche' lo slot libero e' quello che
+         * contiene l'interrogativo, non una posizione decisa qui.
+         *
+         * Senza questo, un fatto a tre ruoli si poteva imparare e non
+         * interrogare: il buco del consumatore (gen306) riaperto un'arita' piu'
+         * in la'. Quali parole siano interrogative resta conoscenza. */
+        {
+            size_t qslot = nslots; size_t nq = 0;
+            for (size_t si = 0; si < nslots; si++) {
+                /* Il punto interrogativo resta attaccato all'ultima parola, ed
+                 * e' proprio l'ultimo slot quello che di solito porta la
+                 * domanda: senza toglierlo «… into what?» non e' una domanda e
+                 * «… into what» si'. */
+                char sb[KB_TERM_LEN];
+                snprintf(sb, sizeof sb, "%s", slot[si]);
+                const char *wq[1] = { strip_edge_punct(sb) };
+                if (kb_query(b->kb, "question_word", wq, 1)) { qslot = si; nq++; }
+            }
+            if (nq == 1) {
+                const char *bind[P0_MAX_SLOTS];
+                for (size_t si = 0; si < nslots; si++)
+                    bind[si] = (si == qslot) ? NULL : slot[si];
+                char hits[16][KB_TERM_LEN];
+                size_t nh = kb_match(b->kb, pred, bind, nslots, hits, 16);
+                if (nh > 0) {
+                    char hb[KB_TERM_LEN];
+                    snprintf(hb, sizeof hb, "%s", hits[0]);
+                    char pretty[KB_TERM_LEN];
+                    snprintf(pretty, sizeof pretty, "%s", kb_dequote(hb));
+                    for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
+                    kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
+                                    { "value", pretty } }, 1, out, out_size);
+                    return 1;
+                }
+                continue;      /* e' una domanda: non diventa mai un fatto */
+            }
+        }
+        /* Un turno interrogativo puo' solo CHIEDERE. Se nessuno slot porta un
+         * interrogativo, qui non c'e' niente da rispondere e soprattutto niente
+         * da imparare: una domanda non e' un'asserzione. */
+        if (query_only) continue;
+
+        const char *subj = slot[0];
+        const char *obj = slot[nslots - 1];
         if (p0_bad_subject(subj)) continue;
 
         char text_term[KB_TERM_LEN];
@@ -3751,26 +3846,37 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
         }
 
         kb_set_origin(b->kb, KB_SESSION);
-        const char *fa[] = { subj, stored_obj };
+        const char *fa[P0_MAX_SLOTS];
+        for (size_t si = 0; si < nslots; si++) fa[si] = slot[si];
+        fa[nslots - 1] = stored_obj;        /* l'ultimo puo' essere testuale */
         /* Un valore concettuale attraversa il cancello completo. Un valore
          * testuale e' autorizzato dallo schema KB della relazione: il soggetto
          * resta un concetto, mentre lo span descrittivo viene conservato. */
         const char *subject_only[] = { subj };
         int clean = text_value ? p0_fact_is_clean(b, pred, subject_only, 1) :
-                                 p0_fact_is_clean(b, pred, fa, 2);
+                                 p0_fact_is_clean(b, pred, fa, nslots);
         if (!clean) {
             kb_term_say(b, "rejected_binary_fact", (const KbResponseSlot[]){
                             { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
                         3, out, out_size);
             return 2;                       /* 2 = respinto, ma non silenzioso */
         }
-        if (kb_assert(b->kb, pred, fa, 2)) {
-            p0_learn_source(b, pred, fa, 2, norm);
+        if (kb_assert(b->kb, pred, fa, nslots)) {
+            p0_learn_source(b, pred, fa, nslots, norm);
             remember_entity(b, subj, subj);
             char msg[256];
-            kb_term_say(b, "learned_binary_fact", (const KbResponseSlot[]){
-                            { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
-                        3, msg, sizeof msg);
+            /* La frase la sceglie il numero di ruoli, e le frasi stanno in KB:
+             * annunciare due argomenti su tre sarebbe un misclaim su cio' che
+             * si e' appena imparato. */
+            if (nslots >= 3)
+                kb_term_say(b, "learned_ternary_fact", (const KbResponseSlot[]){
+                                { "pred", pred }, { "arg1", slot[0] },
+                                { "arg2", slot[1] }, { "arg3", slot[2] } },
+                            4, msg, sizeof msg);
+            else
+                kb_term_say(b, "learned_binary_fact", (const KbResponseSlot[]){
+                                { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
+                            3, msg, sizeof msg);
             put(msg, out, out_size);
             return 1;
         }
@@ -3780,7 +3886,15 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
 
 static int p0_try_extract_frames(Brain *b, char **w, size_t n,
                                  const char *norm, char *out, size_t out_size) {
-    return p0_try_extract_frames_only(b, w, n, norm, out, out_size, 0);
+    return p0_try_extract_frames_only(b, w, n, norm, out, out_size, 0, 0);
+}
+
+/* Lo stesso pattern che legge l'affermazione risponde alla domanda: cambia solo
+ * quale parola sta in uno slot. Serve una porta separata perche' la lettura
+ * delle asserzioni e' giustamente chiusa ai turni interrogativi. */
+static int p0_try_frame_question(Brain *b, char **w, size_t n,
+                                 const char *norm, char *out, size_t out_size) {
+    return p0_try_extract_frames_only(b, w, n, norm, out, out_size, 0, 1);
 }
 
 /* M1 — UN SOLO ATTO DI LETTURA, E LA LEZIONE HA LA PRECEDENZA.
@@ -3818,7 +3932,7 @@ static int mod_taught_frame(Brain *b, const char *norm, const char *raw,
     char s[400]; memcpy(s, norm, L + 1);
     char *w[32]; size_t n = split_words(s, w, 32);
     if (n < 3) return 0;
-    return p0_try_extract_frames_only(b, w, n, norm, out, out_size, 1);
+    return p0_try_extract_frames_only(b, w, n, norm, out, out_size, 1, 0);
 }
 
 /* APPRENDIMENTO ASSISTITO A1 — "QUESTA COSTRUZIONE SIGNIFICA QUESTA".
@@ -12774,6 +12888,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             return 1;
         }
     }
+    if (interrogative && p0_try_frame_question(b, w, nw, norm, out, out_size)) return 1;
     if (!interrogative && extract_class_statement(b, norm, out, out_size, 0)) return 1;
 
     if (nw != 4 || !is_article(b, w[2])) return 0;

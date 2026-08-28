@@ -690,6 +690,14 @@ response_template(forgotten_fact, "Forgotten: {pred}({arg}).").
 response_template(learned_negative_fact, "Learned: not {pred}({arg}).").
 response_template(learned_unary_fact, "Learned: {pred}({arg}).").
 response_template(learned_binary_fact, "Learned: {pred}({arg1}, {arg2}).").
+% E quando i ruoli sono tre. Senza questa riga il motore annunciava due
+% argomenti su tre: il fatto ternario entrava corretto e la frase ne mostrava
+% una versione mutila — un misclaim su cio' che aveva appena imparato.
+response_template(learned_ternary_fact, "Learned: {pred}({arg1}, {arg2}, {arg3}).").
+% La risposta a uno slot lasciato libero da una parola interrogativa. E' la
+% meta' che di solito manca: un fatto imparato e non interrogabile e' un fatto
+% morto, e a tre ruoli il buco si riapriva identico.
+response_template(slot_answer, "{value}.").
 response_template(known_unary_fact, "{pred}({arg}) is a known fact.").
 response_template(rejected_binary_fact, "Scartato: {pred}({arg1}, {arg2}) non e' fatto di concetti.").
 response_template(count_of_answer, "There are {count} {noun}s.").

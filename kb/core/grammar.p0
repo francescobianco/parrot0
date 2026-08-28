@@ -472,6 +472,33 @@ extract_frame($Pat, $Pred) :-
 
 answer_frame($Verb, $Verb) :- relation_verb($Verb).
 
+% ── E QUANDO I RUOLI SONO TRE (M3) ───────────────────────────────────────────
+%
+% «a metaphor maps a source domain onto a target domain» non aveva lettura, e
+% parrot0 lo diceva da se': «I cannot align exactly two shared variables on both
+% sides». Lo stesso muro fermava il ricongiungimento di M8. Il limite non era
+% nella conoscenza — era che il legame degli slot sapeva contare fino a due.
+%
+% Ora il pattern dichiara quanti slot ha, e il motore ne lega quanti ne trova.
+% Percio' una relazione a tre ruoli e' di nuovo soltanto CONOSCENZA: la parola
+% che collega il terzo ruolo — «onto», «into», «to», «from» — e' un fatto, e una
+% relazione ternaria nuova domani costa due frasi dette in chat.
+%
+%     > maps is a ternary relation verb
+%     > onto is a link word
+%     > a metaphor maps a source domain onto a target domain
+%     →  Learned: maps(metaphor, source_domain, target_domain).
+machinery(ternary_relation_verb).
+machinery(link_word).
+
+extract_frame($Pat, $Pred) :-
+    ternary_relation_verb($Pred),
+    link_word($Link),
+    concat_atoms("@S ", $Pred, $A),
+    concat_atoms($A, " @O ", $B),
+    concat_atoms($B, $Link, $C),
+    concat_atoms($C, " @T", $Pat).
+
 % ── COSTRUZIONI INSEGNATE PER EQUIVALENZA (apprendimento assistito A1) ────
 %
 % Una lezione come
