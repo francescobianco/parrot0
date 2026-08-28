@@ -1,0 +1,39 @@
+# savemap.p0t — un fatto appreso finisce ACCANTO AI SUOI SIMILI.
+# Convertito da tests/savemap.sh (gen444).
+#
+# E' il contratto centrale del save-map, e si puo' verificare solo guardando
+# DOVE il fatto e' atterrato: la promessa e' un file, non una risposta.
+#
+# Si lavora sulla KB VERA. Lo script si costruiva un albero finto in /tmp e
+# misurava percio' una creatura che non spediamo; qui il fatto entra
+# nell'albero di produzione, si controlla che sia andato nella casa giusta, e
+# lo si toglie.
+#
+# `!fileclean` gira PRIMA — cosi' un giro interrotto non fa fallire il
+# successivo — e di nuovo alla fine, per non lasciare il repository sporco.
+# L'entita' e' inventata apposta (`zubrak`) per non toccare conoscenza vera.
+
+[test savemap_routes_next_to_its_kin]
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+!timeout 30
+# pulizia di un eventuale giro precedente
+!fileclean kb/facts/physiology.p0 zubrak
+!fileclean kb/learning/learned.p0 zubrak
+# le case devono esistere prima di chiedersi che cosa contengano
+!fileexists kb/facts/physiology.p0
+!fileexists kb/learning/learned.p0
+
+# `secretes/2` ha gia' una casa: physiology.p0
+!mcp kb.assert {"pred":"secretes","args":["zubrak","zubrakin"]}
+!mcp kb.save {"path":"kb/learning/learned.p0"}
+<~ "ok":true
+
+# il fatto e' andato dai suoi simili, non nella ricaduta
+!filehas kb/facts/physiology.p0 secretes(zubrak, zubrakin)
+!filelacks kb/learning/learned.p0 secretes(zubrak, zubrakin)
+
+# e si rimette com'era
+!fileclean kb/facts/physiology.p0 zubrak
+!filelacks kb/facts/physiology.p0 zubrak

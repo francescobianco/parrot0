@@ -1,44 +1,66 @@
-# migrated from tests/cases/repair.chat (gen346, hermetic + isolated)
-[mock hermetic]
-!set PARROT0_BASE=
+# repair.p0t — il ciclo osserva -> diagnostica -> agisce -> verifica.
+# Convertito da tests/repair.sh (gen444).
+#
+# I due difetti si distinguono per come si COMPORTANO, non per come sono
+# scritti: il comparatore invertito produce una permutazione non ordinata
+# (`not_ordered`), il limite interno sbagliato produce qualcosa di ordinato a
+# cui manca un elemento (`not_permutation`). A dirlo e' l'esecuzione.
+#
+# Gli ultimi due casi sono il nucleo anti-impostore: codice corretto non riceve
+# una riparazione inventata, e un difetto che nessuna regola sa aggiustare viene
+# DICHIARATO tale — mai rattoppato. Una patch che nessuno ha eseguito e' una
+# fabbricazione, e un muro e' meglio.
+#
+# Serve la sandbox: la verifica compila ed esegue il candidato.
+
+[test repair_diagnoses_by_running]
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
 !reset
+!sandbox
+!timeout 60
+# comparatore invertito: permutazione, ma non ordinata
+> fix this code: void mysort(int a[], int n) { for (int i = 0; i < n; i++) { for (int j = 0; j < n - i - 1; j++) { if (a[j] < a[j+1]) { int t = a[j]; a[j] = a[j+1]; a[j+1] = t; } } } }
+<~ reported not_ordered
+# e la riparazione viene RIESEGUITA dall'oracolo, non solo proposta
+<~ Repaired, and verified by running it
+<~ The fix: flip_comparator
+# la sorgente emessa e' davvero quella corretta
+<~ if (a[j] > a[j+1])
+# e la traccia dell'intero tentativo resta
+<~ Trace: the oracle ran it and reported not_ordered; tried flip_comparator -> the oracle now passes it
 
-[test repair]
-# gen141 (E2): the conversational repair loop. A turn with a referential gap a
-# resolver cannot fill does NOT hit the wall — the agent asks a narrow
-# clarification, STORES the unfinished intent, and RESUMES it on the next turn.
-# Single-turn window: the very next turn answers it or the topic clearly changed
-# and it expires. Registered FIRST so it pre-empts the wall and catches the answer.
+[test repair_bound_defect]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+!sandbox
+!timeout 60
+# limite interno di uno troppo: ordinato, ma un elemento e' perso
+> fix this code: void mysort(int a[], int n) { for (int i = 0; i < n; i++) { for (int j = 0; j < n - i; j++) { if (a[j] > a[j+1]) { int t = a[j]; a[j] = a[j+1]; a[j+1] = t; } } } }
+<~ Repaired, and verified by running it
+<~ The fix: tighten_inner_bound
 
-# 1. An arithmetic operand named by a pronoun: ask for a NUMBER, then resume the
-#    real computation. (Numbers set no discourse entity, so this stays "cold".)
-> what is it plus 10
-< What number should I use for "it"?
-> 21
-< 31.
+[test repair_invents_nothing]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+!sandbox
+!timeout 60
+# codice corretto: si esegue, passa, e non si inventa niente da aggiustare
+> what is wrong with this code: void mysort(int a[], int n) { for (int i = 0; i < n; i++) { for (int j = 0; j < n - i - 1; j++) { if (a[j] > a[j+1]) { int t = a[j]; a[j] = a[j+1]; a[j+1] = t; } } } }
+<~ I found nothing to repair
 
-# 2. A cold pronoun query opens a clarification; a fresh question instead of an
-#    answer EXPIRES the pending repair and is handled on its own terms.
-> is it a mammal?
-< Who or what does "it" refer to?
-> what is 2 plus 2
-< 4.
-
-# 3. A teaching answer ("rex is a dog") runs first — it asserts the fact AND sets
-#    the discourse entity — so the stored pronoun now resolves by coreference and
-#    the ORIGINAL question is answered for real.
-> every dog is a mammal
-< Learned rule: mammal(X) :- dog(X).
-> is it a mammal?
-< Who or what does "it" refer to?
-> rex is a dog
-< Yes.
-
-# 4. With a referent now available, a pronoun resolves directly — repair stays out
-#    of the way and the normal path answers honestly (no clarification loop).
-> is it an animal?
-< I don't know about animal.
-
+[test repair_declines_what_it_cannot_fix]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+!sandbox
+!timeout 60
+# non fa niente: nessuna regola lo aggiusta
+> fix this code: void mysort(int a[], int n) { for (int i = 0; i < n; i++) { a[i] = a[i]; } }
+<~ I can't repair that yet
+<~ not_ordered
+<~ I could not verify
+# e soprattutto: nessuna patch non verificata viene emessa
+<! ```

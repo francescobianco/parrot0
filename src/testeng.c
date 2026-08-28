@@ -40,6 +40,25 @@
  *                             [test]). A turn slower than the budget is a FAILURE
  *                             (a perf-regression guard); 0 disables it.
  *   !forget PRED              switch a predicate OFF: retract every fact of it
+ *   !exec CMD                 run CMD; `!exec` wants exit 0, `!exec!` wants it to
+ *   !exec! CMD                fail. The output takes the reply's place, so the
+ *                             `<~`/`<!` lines below check it like any other. It is
+ *                             the wildcard — prefer a punctual primitive when one
+ *                             fits: it says what it looks at, a command does not.
+ *   !direxists PATH           assert a directory is there / is not.
+ *   !dirmissing PATH
+ *   !fileexists PATH          assert the file is there / is not. Agnostic: they
+ *   !filemissing PATH         look at the DISK and nothing else.
+ *   !fileclean PATH text      drop every line containing `text` — run it BEFORE
+ *                             a test so an interrupted run cannot fail the next
+ *                             one, and again AFTER so the repository is left as
+ *                             it was found.
+ *   !filehas PATH text        assert a file does / does not contain `text`.
+ *   !filelacks PATH text      Some promises are a FILE, not a reply: the save-map
+ *                             says a learned fact lands next to its kin, and only
+ *                             looking at where it went can check that. These work
+ *                             on the REAL KB — a test that builds itself a fake
+ *                             tree measures a creature we do not ship.
  *   !symlink TARGET NAME      create a symlink fixture (removed at the next
  *                             `[test …]` and at end of file). The interesting
  *                             containment case is the symlink whose NAME is
@@ -642,6 +661,159 @@ static int te_process_stream(TeState *t, FILE *in) {
          * Si rimuove da se' alla sezione dopo e a fine file: un link lasciato
          * nel workspace e' sporcizia che il test successivo si ritrova fra i
          * piedi. */
+        /* ── !exec / !exec! COMANDO ─────────────────────────────────────────
+         *
+         * Il jolly: esegue un comando e asserisce il suo ESITO — `!exec` vuole
+         * uscita zero, `!exec!` vuole che fallisca. L'output prende il posto
+         * della risposta, quindi le righe `<~` / `<!` che seguono lo verificano
+         * come qualunque replica.
+         *
+         * Serve per le promesse che non sono ne' una risposta ne' un file: «il
+         * binario si costruisce», «questo comando rifiuta», «l'albero e' pulito
+         * dopo». Le primitive puntuali qui sotto restano preferibili quando
+         * bastano: dicono da sole che cosa stanno guardando, e un comando no. */
+        if (strncmp(p, "!exec", 5) == 0 &&
+            (p[5] == ' ' || p[5] == '\t' || (p[5] == '!' && (p[6] == ' ' || p[6] == '\t')))) {
+            te_flush(t);
+            int want_ok = (p[5] != '!');
+            char *q = p + (want_ok ? 5 : 6);
+            while (*q == ' ' || *q == '\t') q++;
+            if (!*q) { syntax_err = 1; continue; }
+            FILE *ph = popen(q, "r");
+            if (!ph) {
+                t->failed++;
+                fprintf(t->out, "  FAIL  [%s] line %d\n",
+                        t->section[0] ? t->section : "-", t->line_no);
+                fprintf(t->out, "        exec: non sono riuscito ad avviare «%s»\n", q);
+                continue;
+            }
+            size_t o = 0;
+            while (o + 1 < sizeof t->reply) {
+                size_t r = fread(t->reply + o, 1, sizeof t->reply - o - 1, ph);
+                if (r == 0) break;
+                o += r;
+            }
+            t->reply[o] = '\0';
+            while (o > 0 && (t->reply[o - 1] == '\n' || t->reply[o - 1] == '\r'))
+                t->reply[--o] = '\0';
+            int rc = pclose(ph);
+            int ok = (rc == 0);
+            t->have_reply = 1;
+            if (ok == want_ok) t->passed++;
+            else {
+                t->failed++;
+                fprintf(t->out, "  FAIL  [%s] line %d\n",
+                        t->section[0] ? t->section : "-", t->line_no);
+                fprintf(t->out, "        exec: «%s» %s (uscita %d)\n", q,
+                        want_ok ? "doveva riuscire" : "doveva fallire", rc);
+            }
+            continue;
+        }
+
+        /* ── !direxists / !dirmissing PERCORSO ──────────────────────────────── */
+        if ((strncmp(p, "!direxists", 10) == 0 && (p[10] == ' ' || p[10] == '\t')) ||
+            (strncmp(p, "!dirmissing", 11) == 0 && (p[11] == ' ' || p[11] == '\t'))) {
+            te_flush(t);
+            int want = (p[4] == 'e');
+            char *q = strchr(p, ' ');
+            while (q && (*q == ' ' || *q == '\t')) q++;
+            if (!q || !*q) { syntax_err = 1; continue; }
+            struct stat st;
+            int there = (stat(q, &st) == 0 && S_ISDIR(st.st_mode));
+            if (there == want) t->passed++;
+            else {
+                t->failed++;
+                fprintf(t->out, "  FAIL  [%s] line %d\n",
+                        t->section[0] ? t->section : "-", t->line_no);
+                fprintf(t->out, "        %s: %s\n",
+                        want ? "attesa DIRECTORY esistente" : "attesa directory ASSENTE", q);
+            }
+            continue;
+        }
+        /* ── !fileexists / !filemissing PERCORSO ────────────────────────────
+         *
+         * Agnostiche: guardano il DISCO e basta, senza sapere che cosa il file
+         * contenga o a quale sottosistema appartenga. Servono ovunque una
+         * promessa sia «questo file c'e'» o «questo file non deve esserci» —
+         * il save-map e' solo il primo che le chiede. */
+        if ((strncmp(p, "!fileexists", 11) == 0 && (p[11] == ' ' || p[11] == '\t')) ||
+            (strncmp(p, "!filemissing", 12) == 0 && (p[12] == ' ' || p[12] == '\t'))) {
+            te_flush(t);
+            int want = (p[5] == 'e');
+            char *q = strchr(p, ' ');
+            while (q && (*q == ' ' || *q == '\t')) q++;
+            if (!q || !*q) { syntax_err = 1; continue; }
+            struct stat st;
+            int there = (stat(q, &st) == 0);
+            if (there == want) t->passed++;
+            else {
+                t->failed++;
+                fprintf(t->out, "  FAIL  [%s] line %d\n",
+                        t->section[0] ? t->section : "-", t->line_no);
+                fprintf(t->out, "        %s: %s\n",
+                        want ? "atteso ESISTENTE" : "atteso ASSENTE", q);
+            }
+            continue;
+        }
+        /* ── !fileclean / !filehas / !filelacks PERCORSO testo ──────────────
+         *
+         * Alcune cose si possono verificare solo guardando DOVE sono finite: il
+         * save-map promette che un fatto appreso vada accanto ai suoi simili, e
+         * quella promessa e' un file, non una risposta.
+         *
+         * La regola che le governa: si lavora sulla KB VERA, mai su un albero
+         * di comodo. Un test che si costruisce una KB finta misura una creatura
+         * che non spediamo. Percio' `!fileclean` toglie le righe lasciate da un
+         * giro precedente PRIMA di cominciare — cosi' il test e' ripetibile — e
+         * si richiama alla fine per non lasciare il repository sporco. */
+        if ((strncmp(p, "!fileclean", 10) == 0 && (p[10] == ' ' || p[10] == '\t')) ||
+            (strncmp(p, "!filehas", 8) == 0   && (p[8]  == ' ' || p[8]  == '\t')) ||
+            (strncmp(p, "!filelacks", 10) == 0 && (p[10] == ' ' || p[10] == '\t'))) {
+            te_flush(t);
+            int mode = p[5] == 'c' ? 0 : (p[5] == 'h' ? 1 : 2);   /* clean/has/lacks */
+            char *q = strchr(p, ' ');
+            while (q && (*q == ' ' || *q == '\t')) q++;
+            char path[512]; size_t k = 0;
+            while (q && *q && *q != ' ' && *q != '\t' && k + 1 < sizeof path) path[k++] = *q++;
+            path[k] = '\0';
+            while (q && (*q == ' ' || *q == '\t')) q++;
+            if (!k || !q || !*q) { syntax_err = 1; continue; }
+            const char *needle = q;
+            FILE *f = fopen(path, "r");
+            int found = 0;
+            char keep[262144]; size_t ko = 0;
+            if (f) {
+                char lb[4096];
+                while (fgets(lb, sizeof lb, f)) {
+                    if (strstr(lb, needle)) {
+                        found = 1;
+                        if (mode == 0) continue;      /* clean: la riga sparisce */
+                    }
+                    if (mode == 0 && ko + strlen(lb) + 1 < sizeof keep) {
+                        memcpy(keep + ko, lb, strlen(lb)); ko += strlen(lb);
+                    }
+                }
+                fclose(f);
+            }
+            if (mode == 0) {
+                if (f && found) {
+                    FILE *o = fopen(path, "w");
+                    if (o) { fwrite(keep, 1, ko, o); fclose(o); }
+                }
+                continue;                              /* clean non asserisce mai */
+            }
+            int want = (mode == 1);
+            if (found == want) t->passed++;
+            else {
+                t->failed++;
+                fprintf(t->out, "  FAIL  [%s] line %d\n",
+                        t->section[0] ? t->section : "-", t->line_no);
+                fprintf(t->out, "        %s: %s %s «%s»\n",
+                        want ? "atteso nel file" : "atteso ASSENTE dal file",
+                        path, want ? "non contiene" : "contiene", needle);
+            }
+            continue;
+        }
         if (strncmp(p, "!symlink", 8) == 0 && (p[8] == ' ' || p[8] == '\t')) {
             te_flush(t);
             char *q = p + 8;

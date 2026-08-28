@@ -490,6 +490,9 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/engine/ranges.p0t
 	@./$(BIN) --test tests/p0t/engine/anon.p0t
 	@./$(BIN) --test tests/p0t/engine/dollarvar.p0t
+	@./$(BIN) --test tests/p0t/mcp/assertclause.p0t
+	@./$(BIN) --test tests/p0t/mcp/aggregate.p0t
+	@./$(BIN) --test tests/p0t/repair/repair.p0t
 	@./$(BIN) --test tests/p0t/code/check_sort.p0t
 	@./$(BIN) --test tests/p0t/expert/posix.p0t
 	@./$(BIN) --test tests/p0t/mcp/findall.p0t
@@ -847,7 +850,6 @@ legacy-test: build
 	@./tests/buildstamp.sh
 	@./tests/selflimits.sh
 	@./tests/syllogism.sh
-	@./tests/repair.sh
 	@./tests/agentrepair.sh
 	@./tests/cdriver/exec_kernel.sh
 	@./tests/cdriver/exec_dirfd.sh
@@ -870,9 +872,7 @@ legacy-test: build
 	@./tests/restore.sh
 	@./tests/mcp.sh
 	@./tests/mcp-teach.sh
-	@./tests/assertclause.sh
 	@./tests/answerframe.sh
-	@./tests/aggregate.sh
 	@./tests/artfres.sh
 	@./tests/cliticfr.sh
 	@./tests/savemap.sh

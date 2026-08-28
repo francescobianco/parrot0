@@ -146,6 +146,12 @@ sessione.
                             a fine file
 !symlink BERSAGLIO NOME     crea un collegamento simbolico come fixture; si
                             rimuove da sé alle stesse due frontiere
+!exec / !exec! COMANDO      esegue un comando e asserisce l'esito (zero / diverso
+                            da zero); l'output prende il posto della risposta
+!fileexists / !filemissing  il file c'è / non c'è
+!direxists  / !dirmissing   la directory c'è / non c'è
+!filehas / !filelacks P txt il file contiene / non contiene `txt`
+!fileclean PERCORSO txt     toglie dal file ogni riga che contiene `txt`
 ```
 
 L'uguaglianza esatta è giusta per una risposta breve e determinata. Una risposta
@@ -215,6 +221,61 @@ accumula spazzatura.
 
 Il primo caso che sblocca è `tests/p0t/code/check_sort.p0t`: il giudice ancorato
 all'esecuzione, che prima esisteva solo come driver C compilato a mano.
+
+### 2a-quater. Le primitive di disco, e la regola che le governa (gen444)
+
+Alcune promesse **non sono una risposta**: il save-map dice che un fatto appreso
+finisce accanto ai suoi simili, e quella promessa è un *file*. Solo guardando
+dove il fatto è atterrato si può verificarla.
+
+```
+!fileclean kb/facts/physiology.p0 zubrak     # pulizia di un giro precedente
+!mcp kb.assert {"pred":"secretes","args":["zubrak","zubrakin"]}
+!mcp kb.save   {"path":"kb/learning/learned.p0"}
+!filehas   kb/facts/physiology.p0 secretes(zubrak, zubrakin)
+!filelacks kb/learning/learned.p0 secretes(zubrak, zubrakin)
+!fileclean kb/facts/physiology.p0 zubrak     # e si rimette com'era
+```
+
+Sono **agnostiche**: guardano il disco e basta, senza sapere a quale
+sottosistema il percorso appartenga.
+
+**La regola che le governa: si lavora sulla KB VERA.** Mai un albero di comodo.
+Un test che si costruisce una KB finta misura una creatura che non spediamo — è
+lo stesso principio del §2b, applicato al filesystem invece che al boot. Per
+renderlo ripetibile, `!fileclean` gira **prima** (così un giro interrotto non fa
+fallire il successivo) e **dopo** (così il repository resta com'era). L'entità di
+prova è inventata apposta, per non toccare conoscenza vera.
+
+`!exec` è il jolly, per ciò che non è né una risposta né un file. Va usato quando
+serve: una primitiva puntuale dice da sola che cosa sta guardando, un comando no.
+
+### 2a-quater. Le primitive di disco, e la regola che le governa (gen444)
+
+Alcune promesse **non sono una risposta**: il save-map dice che un fatto appreso
+finisce accanto ai suoi simili, e quella promessa è un *file*.
+
+```
+!fileclean kb/facts/physiology.p0 zubrak     # pulizia di un giro precedente
+!mcp kb.assert {"pred":"secretes","args":["zubrak","zubrakin"]}
+!mcp kb.save   {"path":"kb/learning/learned.p0"}
+!filehas   kb/facts/physiology.p0 secretes(zubrak, zubrakin)
+!filelacks kb/learning/learned.p0 secretes(zubrak, zubrakin)
+!fileclean kb/facts/physiology.p0 zubrak     # e si rimette com'era
+```
+
+Sono **agnostiche**: guardano il disco e basta.
+
+**La regola che le governa: si lavora sulla KB VERA.** Mai un albero di comodo —
+è il §2b applicato al filesystem. Per renderlo ripetibile `!fileclean` gira
+**prima** (un giro interrotto non fa fallire il successivo) e **dopo** (il
+repository resta com'era). L'entità di prova è inventata apposta.
+
+> ⚠️ **Debito noto (F., gen444).** `!mcp` ed `!exec` mettono oggi il loro
+> risultato dove va la risposta di parrot0, e si verificano con `<~`/`<!`. È
+> sbagliato: `<` asserisce su ciò che **parrot0 ha detto**, e l'uscita di una
+> primitiva di test non è parrot0 che parla. Serve una forma di asserzione
+> separata per l'output delle primitive. Vedi `TEST_TODO.md` §1.0.
 
 **Ancora da progettare (F.):** mock, stub, flag e altre forme di controllo dello
 stato della KB. Per ora l'engine fa solo l'assert atteso + il pilotaggio env.

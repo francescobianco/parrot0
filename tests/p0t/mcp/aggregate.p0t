@@ -1,0 +1,35 @@
+# aggregate.p0t — l'AGGREGAZIONE SUPERLATIVA e' insegnabile.
+# Convertito da tests/aggregate.sh (gen444).
+#
+# `aggregate_frame(Cue, Relazione, Colonna, Modo)` dice quale domanda aggrega
+# che cosa e in che verso. Il modo — max o min — e' un DATO: insegnare «fewest»
+# non costa una riga di motore, ed e' il punto del secondo caso.
+
+[test aggregate_builtin_superlative]
+!set PARROT0_LANG=en
+!reset
+# la piega superlativa gia' curata
+> Which river runs through the most capital cities in the world?
+< Danube.
+# e nessun falso positivo: «capitale di» resta una ricerca, non un'aggregazione
+> What is the capital of France?
+< Paris.
+
+[test aggregate_taught_over_mcp]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+!mcp kb.assert {"pred":"won_by","args":["m1","spain"]}
+!mcp kb.assert {"pred":"won_by","args":["m2","spain"]}
+!mcp kb.assert {"pred":"won_by","args":["m3","italy"]}
+!mcp kb.assert {"pred":"aggregate_frame","args":["most matches","won_by","second","max"]}
+!mcp kb.assert {"pred":"aggregate_frame","args":["fewest matches","won_by","second","min"]}
+
+# la cornice insegnata compone: due vittorie contro una
+!mcp gen.respond {"input":"Which team won the most matches?"}
+<~ spain
+# e il MODO e' dato quanto la relazione
+!mcp gen.respond {"input":"Which team won the fewest matches?"}
+<~ italy

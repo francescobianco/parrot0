@@ -359,7 +359,11 @@ static int mod_shell(Brain *b, const char *norm, const char *raw,
 
     /* gen62: oracle-grounded output prediction for pure commands.
      * Only runs when PARROT0_ORACLE=1. */
-    const char *oracle_env = getenv("PARROT0_ORACLE");
+    /* `p0env`, non `getenv`: la configurazione di runtime ha uno strato suo, e il
+     * test-engine pilota QUELLO con `!set`. Leggendo l'ambiente del processo
+     * questa porta restava chiusa a chi la prova — env.c elenca gia'
+     * PARROT0_ORACLE fra le letture per-turno che devono funzionare. */
+    const char *oracle_env = p0env("PARROT0_ORACLE");
     int oracle_on = oracle_env && strcmp(oracle_env, "1") == 0;
     const char *pred_cmd = NULL;
     if (oracle_on &&!lex_prefix_member(b, "65_induce_verify_shell_lex361", low) == 0) {

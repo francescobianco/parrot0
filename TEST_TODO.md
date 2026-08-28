@@ -4,7 +4,67 @@ Coda delle cose che **non decido da solo** e di quelle che restano da fare nella
 migrazione delle suite shell verso il test-engine
 ([`docs/plans/test-engine.md`](docs/plans/test-engine.md)).
 
-Stato: **77/113 file sistemati (68%)** alla radice di `tests/`.
+Stato: **82/113 file sistemati (73%)** alla radice di `tests/`.
+
+---
+
+## 0. HANDOFF — da leggere per primo
+
+### 0.1 ⚠️ Il debito da saldare prima di convertire altro
+
+`!mcp` ed `!exec` mettono il loro risultato **dove va la risposta di parrot0**, e
+si verificano con `<~` / `<!`. **È sbagliato**, e l'ha detto F.: `<` è
+l'asserzione su *ciò che parrot0 ha risposto in un turno di conversazione*, e
+l'uscita di una primitiva di test non è parrot0 che parla. Confonderle fa passare
+per parola dell'agente quella che è uscita dello strumento.
+
+Serve una **forma di asserzione separata** per l'output delle primitive — per
+esempio `!out~ testo` / `!out! testo`, o un'espressione inline nella primitiva
+stessa. Poi vanno aggiornati i file già convertiti che usano `<~` dopo `!mcp`:
+
+`p0t/mcp/*.p0t` (6), `p0t/growth/*.p0t` (4), `p0t/engine/naf.p0t`,
+`p0t/engine/dif.p0t`, `p0t/engine/dollarvar.p0t`, `p0t/lang/*.p0t` (3),
+`p0t/code/check_sort.p0t`, `p0t/input/universal-input.p0t`,
+`p0t/tools/toolexec.p0t` (solo la parte `!mcp`), `p0t/save/savemap.p0t`.
+
+Va fatto **prima** di convertire altro, o il debito cresce con ogni file nuovo.
+
+### 0.2 Come si riprende
+
+1. `bash <(echo 'ls -1 tests/*.sh tests/*.py 2>/dev/null | wc -l')` dice quanti
+   file restano alla radice (erano 113 all'inizio).
+2. Si sceglie un file dalla §2, si legge la sua forma di asserzione, si converte
+   **a mano**, e si verifica con il criterio del §3: *stesso risultato dello
+   script, verde o rosso che sia*.
+3. Si cancella lo script, si toglie la sua riga dal `Makefile`, si aggiunge il
+   `.p0t` a `make test` **solo se è verde**.
+
+### 0.3 Che cosa è già stato fatto
+
+- **`tests/probes/`** (12), **`tests/bench/`** (22), **`tests/tools/`** (12),
+  **`tests/cdriver/`** (2) — spostamenti, non conversioni.
+- **31 suite convertite** in `tests/p0t/{engine,mcp,expert,growth,lang,code,input,tools,proof,repair,save,oracle}/`.
+- **Primitive nuove nel test-engine**: `!mcp`, `!sandbox`, `!symlink`, `!exec`,
+  `!fileexists`/`!filemissing`, `!direxists`/`!dirmissing`,
+  `!filehas`/`!filelacks`, `!fileclean`.
+- **Riparazioni al motore trovate convertendo**: `mcp_tool_invoke` non
+  raggiungeva `input.segment`; la risposta del test-engine era di 4 KB e
+  troncava i payload; `!sandbox` rompeva il caricamento della KB (percorsi
+  relativi); `PARROT0_ORACLE` era letto con `getenv` invece che con `p0env`,
+  quindi il test-engine non poteva accenderlo.
+
+### 0.4 La regola che F. ha posto, e che vale su tutto
+
+**Mai più test con una KB vuota o vergine.** La KB è parte di ciò che si testa;
+le variabili che la ri-basano per farla apparire vuota perdono di significato.
+Nei test nuovi si usano **entità inventate** sulla KB reale, non l'amputazione.
+
+Le conversioni fatte prima di questa regola ricopiano l'amputazione dagli script
+(`!set PARROT0_BASE=`, `PARROT0_PROFILE=`, `PARROT0_WORLD_FACTS=0`) e **vanno
+ripassate**. `p0t/oracle/posix.p0t` è il primo fatto con il criterio giusto — e
+convertendolo è saltato fuori che `kb/experts/programming/bash.p0` è un
+**duplicato orfano** di `shell.p0`, incluso da nessuno: il test passava solo
+perché lo montava a mano.
 
 ---
 
@@ -77,7 +137,27 @@ Serve una casa: un target `make test-red` che li esegue senza fermare la build,
 oppure la scelta di chiuderne il debito prima di cablarli. Molti di questi
 fallimenti sono **M0** — vedi `LEARN_TODO.md` P0.4.
 
-### 1.5 I prompt di `basic-chat` restano in un file di piano
+### 1.5 `savemap` chiede due primitive nuove per un solo test
+
+`tests/savemap.sh` prova il contratto centrale del save-map — *un fatto appreso
+finisce accanto ai suoi simili* — e per farlo costruisce un albero `.p0` finto,
+lo carica come `PARROT0_BASE`/`PARROT0_KB_ROOT`, salva, e poi **verifica in quale
+file** ogni fatto è atterrato.
+
+In `.p0t` mancano due cose, entrambe di filesystem:
+
+- **scrivere un file di fixture** (l'albero finto, con i suoi `include`);
+- **asserire il contenuto di un file** — qualcosa come `!filehas PATH pattern`.
+
+Non le aggiungo da solo: sono due primitive di DSL per una suite sola, e la
+seconda apre la porta a test che guardano il disco invece del comportamento.
+L'alternativa — far scrivere il `/save` nell'albero VERO durante i test — è
+peggio.
+
+Il contratto però è importante, ed è quello che ho esercitato a mano tutta la
+sessione con lo sparpagliamento della ricaduta.
+
+### 1.6 I prompt di `basic-chat` restano in un file di piano
 
 `tests/bench/basicchat.sh` misura la copertura leggendo i prompt da
 `docs/plans/basic-chat.md`. Il TODO nella sua testa dice di portare in `.p0t` i

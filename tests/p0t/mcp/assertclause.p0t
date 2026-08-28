@@ -1,0 +1,25 @@
+# assertclause.p0t — `kb.assert_clause`: una clausola definita INTERA da MCP.
+# Convertito da tests/assertclause.sh (gen444).
+#
+# Tre cancelli, e il secondo e' quello che conta: se la giunzione fosse vacua,
+# `grandparent(tom, bob)` risulterebbe vero e la regola non starebbe provando
+# niente. Il terzo dice che riasserire la stessa clausola non e' un errore.
+
+[test assertclause]
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!reset
+!mcp kb.assert {"pred":"parent","args":["tom","bob"]}
+!mcp kb.assert {"pred":"parent","args":["bob","ann"]}
+!mcp kb.assert_clause {"head":{"pred":"grandparent","args":["$X","$Z"]},"body":[{"pred":"parent","args":["$X","$Y"]},{"pred":"parent","args":["$Y","$Z"]}]}
+
+# la giunzione funziona
+!mcp kb.query {"pred":"grandparent","args":["tom","ann"]}
+<~ "provable":true
+# e discrimina: tom e' padre di bob, non nonno
+!mcp kb.query {"pred":"grandparent","args":["tom","bob"]}
+<~ "provable":false
+# riasserire la stessa clausola non e' un errore
+!mcp kb.assert_clause {"head":{"pred":"grandparent","args":["$X","$Z"]},"body":[{"pred":"parent","args":["$X","$Y"]},{"pred":"parent","args":["$Y","$Z"]}]}
+<~ "ok":true
