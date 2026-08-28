@@ -3,9 +3,14 @@
 # comportamento riproducibile vive qui, nel test-engine .p0t.
 
 [mock live]
-!set PARROT0_BASE=kb/core/base.p0
+# gen444: NIENTE AMPUTAZIONE DELLA KB.
+# Il setup montava base.p0 con profilo vuoto, e misurava una creatura che non
+# spediamo: 31 casi su 56 fallivano perche' la conoscenza che le attese
+# chiedevano — scacchi, dama, poker — vive fuori da base.p0. Con la KB intera
+# passano 48 su 56, e gli 8 che restano sono comportamento vero da correggere.
+# Vedi docs/session-and-provenance.md §3: la KB e' parte di parrot0.
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=it
 !reset
