@@ -104,6 +104,21 @@ Sesto giro completato su quattro target ulteriori:
 Verifica: `make build` senza warning, `kb_first_round6.p0t` 8/8 e tutti i round
 precedenti verdi. Restano i cinque fallimenti MCP già noti in `check_sort.p0t`.
 
+### Round ibrido 7 — 2026-08-28
+
+Settimo giro completato:
+
+- **Voce:** una conferma familiare usa la famiglia KB `family_acknowledged`.
+- **Lessico:** la preposizione di topic usa `topic_preposition/1`, con crescita
+  e ablazione runtime.
+- **Dominio:** il contenuto passa dal binding `content -> content_kind` e
+  dall’adapter generico.
+- **Famiglie:** `suddenly_x` è stata rinominata in `sudden_continuation`.
+
+Verifica: `make build`, `kb_first_round7.p0t` 8/8, `family.p0t` 9/9 e
+`social_opener.p0t` verde. Restano i cinque fallimenti MCP già noti in
+`check_sort.p0t`.
+
 | | inizio campagna | ora |
 |---|---:|---:|
 | punti della voce con chiave KB | 160 | **656** |

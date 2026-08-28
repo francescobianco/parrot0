@@ -1420,6 +1420,7 @@ domain_relation(location, located_in).
 domain_relation(authored_work, wrote).
 domain_relation(kinship, family_relation).
 domain_relation(narrative_completion, continuation_template).
+domain_relation(content, content_kind).
 
 infix_operator("+", plus).
 infix_operator("-", minus).

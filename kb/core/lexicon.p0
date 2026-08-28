@@ -318,6 +318,10 @@ determiner_word(lo).
 determiner_word(la).
 determiner_word(un).
 determiner_word(una).
+determiner_word(uno).
+determiner_word(i).
+determiner_word(gli).
+determiner_word(le).
 
 % English function words and high-frequency conversational operators.
 stopword(the).
@@ -457,6 +461,13 @@ calendar_question_kind(year).
 calendar_question_kind(date).
 calendar_question_kind(day).
 calendar_question_kind(time).
+machinery(topic_preposition).
+topic_preposition(about).
+topic_preposition(discuss).
+topic_preposition(to).
+topic_preposition(of).
+topic_preposition(di).
+topic_preposition(su).
 stopword(about).
 stopword(after).
 stopword(before).

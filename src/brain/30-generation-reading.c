@@ -1379,7 +1379,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                     /* gen241: only a STORY continuation gets the dramatic lead; a plain
                      * "finish this sentence" reads better as the bare clause. */
                     const char *key = kb_cue_match(b, "30_generation_reading_chain1378", norm)
-                                    ? "suddenly_x" : "sentence_continuation";
+                                    ? "sudden_continuation" : "sentence_continuation";
                     const KbResponseSlot slots[] = { { "text", p } };
                     kb_term_say(b, key, slots, 1, msg, sizeof msg);
                     put(msg, out, out_size);

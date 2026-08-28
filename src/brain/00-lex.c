@@ -439,6 +439,7 @@ static int is_stopword(Brain *b, const char *w);
 static int is_conjunction(Brain *b, const char *w);
 static char *strip_edge_punct(char *t);
 static int is_internal_pred(const KB *kb, const char *pred);
+static int domain_query(Brain *b, const char *role, const char *const *args, size_t argc);
 int brain_policy_on(Brain *b, const char *key);       /* gen331: the effective policy */
 /* gen371: the reasoning-sandbox seam and its substrate lookups (99-registry.c). */
 int brain_scratch_init(Brain *scratch, Brain *parent);
@@ -814,7 +815,7 @@ static int p0_unattached_kind(Brain *b, const char *norm, const char *raw,
             char kbuf[64]; snprintf(kbuf, sizeof kbuf, "%s", w[k]);
             char *h = strip_edge_punct(kbuf);
             const char *kq[1] = { h };
-            if (kb_query(b->kb, "content_kind", kq, 1)) {
+            if (domain_query(b, "content", kq, 1)) {
                 if (p0_clause_follows(b, w, nw, k)) return 0;
                 snprintf(kind, ksz, "%s", h);
                 return 1;
@@ -828,7 +829,7 @@ static int p0_unattached_kind(Brain *b, const char *norm, const char *raw,
                 char sing[KB_TERM_LEN];
                 singularize_kb(b, h, sing, sizeof sing);
                 const char *sq[1] = { sing };
-                if (*sing && kb_query(b->kb, "content_kind", sq, 1)) {
+                if (*sing && domain_query(b, "content", sq, 1)) {
                     if (p0_clause_follows(b, w, nw, k)) return 0;
                     snprintf(kind, ksz, "%s", h);
                     return 1;

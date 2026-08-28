@@ -3395,9 +3395,7 @@ static int mod_family(Brain *b, const char *norm, const char *raw,
 
     /* (A) a first-person family statement -> warm, honest acknowledgment. */
     if ((has_my || has_ihave) && !has_your && !has_youhave) {
-        put(it ? "Grazie per avermi parlato della tua famiglia -- lo terrò a mente."
-               : "Thanks for telling me about your family -- I'll keep that in mind.",
-            out, out_size);
+        kb_term_say(b, "family_acknowledged", NULL, 0, out, out_size);
         return 1;
     }
     return 0;

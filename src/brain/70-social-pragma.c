@@ -735,21 +735,12 @@ static int has_content_predicate(Brain *b, const char *canon, char **w, size_t n
 /* Pull the TOPIC object out of a topic-intro frame: the head noun after
  * "about/discuss/discutere/switch to/change to/parlare di/parliamo di". Returns
  * 1 and writes the object (first substantive token after the cue) into dst. */
-static int topic_object(char **w, size_t nw, char *dst, size_t dstn) {
-    /* TODO(kb-first): le preposizioni che introducono un TOPIC. La stessa
-     * conoscenza serve a chiunque debba trovare «di che cosa» parla un turno,
-     * e oggi ognuno se la riscrive. */
-    static const char *const after[] = {
-        "about", "discuss", "to", "of", "di", "su", NULL
-    };
+static int topic_object(Brain *b, char **w, size_t nw, char *dst, size_t dstn) {
     for (size_t i = 0; i + 1 < nw; i++) {
         char tmp[64];
         snprintf(tmp, sizeof tmp, "%s", w[i]);
         const char *t = strip_edge_punct(tmp);
-        int is_after = 0;
-        for (const char *const *p = after; *p; p++)
-            if (strcmp(t, *p) == 0) { is_after = 1; break; }
-        if (!is_after) continue;
+        if (!lex_class_member(b, "topic_preposition", t)) continue;
         for (size_t j = i + 1; j < nw; j++) {
             char o[64];
             snprintf(o, sizeof o, "%s", w[j]);
@@ -764,12 +755,7 @@ static int topic_object(char **w, size_t nw, char *dst, size_t dstn) {
              * in 10-memory-knowledge.c). Questa copia nel C e' il caso
              * peggiore dell'audit: non una conoscenza che manca alla KB, ma
              * una che c'e' e che il codice ignora. */
-            static const char *const arts[] = {
-                "the","a","an","il","lo","la","i","gli","le","un","una","uno",NULL
-            };
-            int art = 0;
-            for (const char *const *p = arts; *p; p++)
-                if (strcmp(ot, *p) == 0) { art = 1; break; }
+            int art = lex_class_member(b, "determiner_word", ot);
             if (ot && isalpha((unsigned char)ot[0]) && strlen(ot) >= 3 && !art) {
                 snprintf(dst, dstn, "%s", ot);
                 return 1;
@@ -855,7 +841,7 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
                     kb_cue_match(b, "70_social_pragma_cue892", buf) || kb_cue_match(b, "70_social_pragma_cue892_2", buf);
         int invite = switch_verb || (modal_open && frame);
         char topic[40];
-        if (invite && topic_object(w, nw, topic, sizeof topic)) {
+        if (invite && topic_object(b, w, nw, topic, sizeof topic)) {
             snprintf(b->current_topic, sizeof b->current_topic, "%s", topic);
             b->has_current_topic = 1;
             char msg[160];
