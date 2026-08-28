@@ -184,9 +184,9 @@ if [[ "$failure_proof" == *'"provable":true'* ]] &&
    [[ "$failure_proof" == *"system_relies_on"* ]] &&
    [[ "$failure_proof" == *"phenomenon_exploits"* ]] &&
    ! rg -q '^example_observation\(' \
-       "$ROOT/kb/core/facts/operator-worlds.p0" &&
+       "$ROOT/kb/facts/operator-worlds.p0" &&
    rg -q '^example_event\(' \
-       "$ROOT/kb/core/facts/operator-worlds.p0"; then
+       "$ROOT/kb/facts/operator-worlds.p0"; then
     echo "PASS reasoning-operators R2 clause proof"
     pass=$((pass + 1))
 else
@@ -237,7 +237,7 @@ if [[ "$action_semantics" == *'"provable":true'* ]] &&
    [[ "$input_proof" == *'"provable":true'* ]] &&
    [[ "$input_proof" == *"product_input"* ]] &&
    [[ "$input_proof" == *"action_consumes"* ]] &&
-   ! rg -q '^action_instruction\(' "$ROOT/kb/core/facts/operator-worlds.p0"; then
+   ! rg -q '^action_instruction\(' "$ROOT/kb/facts/operator-worlds.p0"; then
     echo "PASS reasoning-operators R3 fixed-point action calculus"
     pass=$((pass + 1))
 else

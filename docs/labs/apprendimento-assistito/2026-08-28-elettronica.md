@@ -295,8 +295,8 @@ dalla stessa fonte (BIPM, *SI Brochure* 9ª ed., unità di base):
 
 | fatto | verifica |
 |---|---|
-| `measures(ampere, current)` | instradato in `kb/core/facts/units.p0` |
-| `measures(kelvin, temperature)` | instradato in `kb/core/facts/units.p0` |
+| `measures(ampere, current)` | instradato in `kb/facts/units.p0` |
+| `measures(kelvin, temperature)` | instradato in `kb/facts/units.p0` |
 
 `W` complessivo del dominio sale così a **7**. Entrambi sono stati assorbiti
 senza rispiegare la forma, in processi nuovi, e instradati accanto ai loro

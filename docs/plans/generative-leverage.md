@@ -36,7 +36,7 @@ Questo modello garantisce per costruzione:
 
 ### Caso studio: il compositore haiku
 
-> **File:** `kb/core/templates/case_study_haiku.p0`
+> **File:** `kb/templates/case_study_haiku.p0`
 
 "Write a haiku about the ocean." → 3×3×3 = 27 haiku validi. L'engine C
 (meccanica fissa) estrae il concetto, interroga `haiku_open/2`,
@@ -82,7 +82,7 @@ L'engine C risolve `story_arc($Genre, $ArcName, $Slots)`, itera la lista con
 riempie gli slot con i valori estratti dal prompt, ed emette le frasi
 concatenate.
 
-**File:** `kb/core/templates/story_atoms.p0`
+**File:** `kb/templates/story_atoms.p0`
 
 Questo modello è potente perché:
 - Ogni atomo ha **senso compiuto indipendente** — può vivere da solo
@@ -126,7 +126,7 @@ sola frase in linguaggio naturale.
 |------|------|------|---------|
 | 0 | Fix Q3: guardia `mod_sequence` per giorni in input lunghi | `src/brain/20-math.c` | Q3 |
 | 1 | Nuovo modulo `mod_story` con pattern A e B | `src/brain/` nuovo file | Q1, Q2, Q4 |
-| 2 | Template KB per storie e continuazioni | `kb/core/templates/story.p0` | superficie |
+| 2 | Template KB per storie e continuazioni | `kb/templates/story.p0` | superficie |
 | 3 | Intenti KB: `story_request`, `story_continuation` | `kb/core/intents.p0` | riconoscimento |
 | 4 | Registra `mod_story` prima di `mod_answer_frame` | `src/brain/99-registry.c` | dispatch |
 

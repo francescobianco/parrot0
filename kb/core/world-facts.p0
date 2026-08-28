@@ -3197,6 +3197,7 @@ quantity(june, days, 30).
 quantity(may, days, 31).
 quantity(march, days, 31).
 quantity(leap_year, days, 366).
+quantity(fortnight, days, 14).
 question_form("how many", cardinality_query).
 question_form("is a", boolean_subsumption).
 question_form("what are the", category_enumeration).
@@ -3921,18 +3922,18 @@ answer_frame("km to miles", km_to_miles).
 answer_frame("miles to km", miles_to_km).
 
 % gen335+: historical facts organized by period (LLMSCORE Q6 and beyond).
-:- include(facts/history.p0).
+:- include(../facts/history.p0).
 
 % gen335+: atomic story predicates for narrative generation.
-:- include(templates/story_atoms.p0).
+:- include(../templates/story_atoms.p0).
 
 % gen344: massive KB growth — encyclopedia definitions, structured reasoning,
 % expanded world geography/science/history/vocabulary and contrast facts.
-:- include(facts/encyclopedia.p0).
-:- include(facts/foundations.p0).
+:- include(../facts/encyclopedia.p0).
+:- include(../facts/foundations.p0).
 % gen360: reusable semantic atoms for complete open-ended answer plans.
-:- include(facts/analysis.p0).
-:- include(facts/llmscore-arcs.p0).
+:- include(../facts/analysis.p0).
+:- include(../facts/llmscore-arcs.p0).
 % gen356: the deterministic Wikipedia summaries produced by scripts/learn.py were
 % previously dormant in ordinary chat. They are certified static data, not an
 % external reasoner; load them into the same world layer as curated definitions.
@@ -3965,21 +3966,21 @@ answer_frame("miles to km", miles_to_km).
 :- include(../machinery/transcripts.p0).
 % Le unita' di misura e la grandezza che misurano: una relazione sola, comune a
 % piu' domini, imparata parlando e non scritta a mano.
-:- include(facts/units.p0).
+:- include(../facts/units.p0).
 % E le forme della letteratura scientifica con gli strumenti della sua prosa:
 % stessa scelta d'asse, la materia e non il predicato.
-:- include(facts/scientific-discourse.p0).
+:- include(../facts/scientific-discourse.p0).
 % E come si addestra un modello e si tratta il testo: stesso asse, la materia.
-:- include(facts/machine-learning.p0).
+:- include(../facts/machine-learning.p0).
 % E quale organo fa che cosa: stesso asse, la materia.
-:- include(facts/physiology.p0).
-:- include(facts/reasoning.p0).
-:- include(facts/operator-worlds.p0).
-:- include(facts/geography-world.p0).
-:- include(facts/science-nature.p0).
-:- include(facts/history-people.p0).
-:- include(facts/contrasts.p0).
-:- include(facts/vocabulary-extra.p0).
+:- include(../facts/physiology.p0).
+:- include(../facts/reasoning.p0).
+:- include(../facts/operator-worlds.p0).
+:- include(../facts/geography-world.p0).
+:- include(../facts/science-nature.p0).
+:- include(../facts/history-people.p0).
+:- include(../facts/contrasts.p0).
+:- include(../facts/vocabulary-extra.p0).
 
 % gen347 — ONE generic curated-answer motor (mod_qa) reads these: a request whose
 % answer is fixed KNOWLEDGE is a pair of facts, NOT a C module. qa_cue(Id, "word")

@@ -89,7 +89,7 @@ pronunciato dal sistema, che è la condizione che M13 chiede al gap perché il
 teacher automatico sia avviabile.
 
 Il fatto ternario **non è stato scritto a mano** per aggirare il muro. La sua
-assenza da `kb/core/facts/scientific-discourse.p0` è documentata nel file.
+assenza da `kb/facts/scientific-discourse.p0` è documentata nel file.
 
 ## 5. Altri gap tipati
 
@@ -151,7 +151,7 @@ la sua famiglia è lì. Gli altri cinque sono una specie nuova, e hanno avuto la
 casa che mancava:
 
 ```
-kb/core/facts/scientific-discourse.p0
+kb/facts/scientific-discourse.p0
 ```
 
 Gli altri quattro flussi sono andati da soli nelle case aperte dal commit

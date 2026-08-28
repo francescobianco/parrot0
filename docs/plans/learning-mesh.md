@@ -79,7 +79,7 @@ File da leggere prima di toccare il comportamento:
 - `src/brain/10-memory-knowledge.c`;
 - `kb/core/procedures.p0`, `kb/core/intents.p0`,
   `kb/core/presentation.p0`;
-- `kb/core/facts/operator-worlds.p0`;
+- `kb/facts/operator-worlds.p0`;
 - `tests/reasoning_operators.sh`.
 
 ### Invarianti: «Astrai fino al punto fisso»
@@ -113,8 +113,8 @@ Vincoli non negoziabili:
 Smell check rapido:
 
 ```sh
-rg 'action_instruction\(|example_observation\(' kb/core/facts/operator-worlds.p0
-rg 'task_entity_cue' kb/core/facts/operator-worlds.p0
+rg 'action_instruction\(|example_observation\(' kb/facts/operator-worlds.p0
+rg 'task_entity_cue' kb/facts/operator-worlds.p0
 ```
 
 Il primo comando deve restare vuoto. Il secondo richiede una giustificazione
@@ -996,10 +996,10 @@ sonda rossa prima e verde dopo. Solo i candidati che hanno retto query,
 controesempio e — dove il proof engine lo consente — `kb.explain` sono stati
 promossi nei file dei parenti:
 
-- storia → `kb/core/facts/history.p0`;
-- geografia → `kb/core/facts/geography-world.p0`;
-- scienza → `kb/core/facts/science-nature.p0`;
-- relazioni lessicali → `kb/core/facts/vocabulary-extra.p0`.
+- storia → `kb/facts/history.p0`;
+- geografia → `kb/facts/geography-world.p0`;
+- scienza → `kb/facts/science-nature.p0`;
+- relazioni lessicali → `kb/facts/vocabulary-extra.p0`.
 
 Risultato misurato da `scripts/kb_graph.py`: clausole mondiali effettive
 **50→85 (+70%)**, machinery **192→192**, righe C **invariate**; i predicati
@@ -1394,7 +1394,7 @@ puntuale; la suite completa appartiene al gate di integrazione successivo.
 - Lessico e surface evidence: `kb/core/intents.p0` oppure il file tematico che
   possiede la strategy.
 - Procedure e shape riusabili: `kb/core/procedures.p0`.
-- Fatti di dominio: file del dominio sotto `kb/core/facts/`; non creare un file
+- Fatti di dominio: file del dominio sotto `kb/facts/`; non creare un file
   per la domanda o per la sua risposta.
 - Operatori e clausole cross-domain: `kb/core/procedures.p0` o un file di
   reasoning comune, mai il file del benchmark.

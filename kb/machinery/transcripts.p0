@@ -373,6 +373,7 @@ utterance(2, self, "Liver.").
 utterance(2, self, "Learned: meter has 100 centimeters.").
 utterance(2, self, "Learned: march has 31 days.").
 utterance(2, self, "Learned: leap_year has 366 days.").
+utterance(2, self, "Learned: fortnight has 14 days.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -383,6 +384,7 @@ utterance(1, user, "which organ produces bile?").
 utterance(1, user, "a meter has 100 centimeters").
 utterance(1, user, "march has 31 days").
 utterance(1, user, "a leap year has 366 days").
+utterance(1, user, "a fortnight has 14 days").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").

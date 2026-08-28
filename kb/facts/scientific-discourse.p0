@@ -2,7 +2,7 @@
 %
 % Le forme in cui la letteratura scientifica si scrive, e gli strumenti — logici
 % e retorici — con cui quella prosa argomenta. L'asse e' la materia, come per
-% kb/core/facts/units.p0: predicati diversi, una sola cosa di cui parlano.
+% kb/facts/units.p0: predicati diversi, una sola cosa di cui parlano.
 %
 % Le righe qui sotto non sono scritte a mano: vengono da una sessione di
 % insegnamento reale (LEARN_PROTOCOL, dominio letteratura scientifica —

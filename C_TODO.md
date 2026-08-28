@@ -113,7 +113,7 @@ Le due etichette dei paesi sono state migrate a `concept_label/4` in
 `concept_label_lookup()`.
 
 La superficie di scena `quiet street` è ora `story_default(place, ...)` in
-`kb/core/templates/story_atoms.p0`; il lettore la interroga invece di
+`kb/templates/story_atoms.p0`; il lettore la interroga invece di
 hardcodarla.
 
 La classe `world`, `story`, `scenario`, `puzzle` è stata estratta dai cinque

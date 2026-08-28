@@ -74,7 +74,7 @@ fatto, sto sempre misurando il motore.** Il fatto è la sonda.
 
 ### M5 — Il file-giocattolo, e il motivo vero per cui l'ho scritto
 
-Per dimostrare di aver capito ho creato `kb/core/facts/ablation.p0`: cinque
+Per dimostrare di aver capito ho creato `kb/facts/ablation.p0`: cinque
 assunzioni, sette dipendenze, un motore che ne fa la differenza insiemistica, e
 una demo che gira. Tre cose sbagliate:
 
@@ -445,7 +445,7 @@ le risposte senza rebuild.
 Il primo tentativo è stato scartato durante la sessione: metteva risposte quasi
 complete in `claim_text/2`. Anche se collegate da una clausola, erano paragrafi
 precomposti, non conoscenza deduttiva. La versione promossa in
-`kb/core/facts/llmscore-arcs.p0` non contiene `claim_text` e non memorizza
+`kb/facts/llmscore-arcs.p0` non contiene `claim_text` e non memorizza
 nessuna risposta finale.
 
 ### 11.1 Grafo promosso

@@ -1,6 +1,6 @@
 % machine-learning.p0 — L'APPRENDIMENTO AUTOMATICO E IL TRATTAMENTO DELLA LINGUA
 %
-% Terza casa aperta con lo stesso criterio di kb/core/facts/units.p0 e
+% Terza casa aperta con lo stesso criterio di kb/facts/units.p0 e
 % scientific-discourse.p0: l'asse e' la MATERIA, non il predicato. Dieci verbi
 % diversi, una sola cosa di cui parlano — come si addestra un modello e come si
 % tratta il testo.

@@ -18,7 +18,7 @@
 % elettronica) ha depositato qui 164 clausole di cinque specie diverse, nessuna
 % delle quali aveva parenti nell'albero. Le cinque case che mancavano:
 %
-%   kb/core/facts/units.p0             le unita' di misura e la loro grandezza
+%   kb/facts/units.p0             le unita' di misura e la loro grandezza
 %   kb/learning/taught-lexicon.p0      le classi di parola imparate parlando
 %   kb/machinery/fact-provenance.p0    da quale frase viene un fatto
 %   kb/machinery/gap-registry.p0       le lacune incontrate, una per una

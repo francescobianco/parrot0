@@ -139,7 +139,7 @@ parrot0: routed 19 clause(s)      (processo nuovo, amilasi)
 `X = 0`. Nessuno scratch di turno nell'albero curato.
 
 Sette predicati erano una specie nuova senza parenti e sono finiti nella
-ricaduta; hanno avuto la casa che mancava — `kb/core/facts/physiology.p0`, la
+ricaduta; hanno avuto la casa che mancava — `kb/facts/physiology.p0`, la
 quarta aperta con lo stesso criterio di `units.p0`,
 `scientific-discourse.p0` e `machine-learning.p0`. L'amilasi, insegnata dopo,
 è stata instradata **direttamente lì** senza intervento.
