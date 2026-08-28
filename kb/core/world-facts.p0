@@ -4019,6 +4019,9 @@ qa_reply(q_runtime_wordplay_joke, "I used to be a baker, but I couldn't make eno
 % the artifact body selected by reqgen, not a hardcoded code literal.
 code_template(python_prime_function, "def is_prime(n): return n > 1 and all(n % i for i in range(2, int(n ** 0.5) + 1))").
 code_template(python_hello_world, "print(\"Hello, World!\")").
+code_template(shell_hello_world, "echo \"Hello, World!\"").
+code_template(js_hello_world, "console.log(\"Hello, World!\");").
+code_template(sql_select_all, "SELECT * FROM table_name;").
 code_template(c_hello_world, "#include <stdio.h>\n\nint main(void) {\n    printf(\"Hello, World!\\n\");\n    return 0;\n}").
 
 % gen347 (LLMSCORE Q1): new haiku themes — the composer is fixed, images are

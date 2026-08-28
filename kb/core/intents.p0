@@ -1831,6 +1831,9 @@ machinery(snippet_request).
 snippet_request(python_prime_function_request, python_prime_function).
 snippet_request(python_hello_world_request, python_hello_world).
 snippet_request(c_hello_world_request, c_hello_world).
+snippet_request(shell_hello_world_request, shell_hello_world).
+snippet_request(js_hello_world_request, js_hello_world).
+snippet_request(sql_select_all_request, sql_select_all).
 
 % Hello world e' il primo programma che chiunque chiede, in tutte le lingue in
 % cui si chiede. Un assistente che non lo sa non e' credibile.
@@ -1841,6 +1844,15 @@ intent_cue(python_hello_world_request, "ciao mondo in python").
 intent_cue(python_hello_world_request, "hello world in pitone").
 intent_cue(c_hello_world_request, "hello world in c").
 intent_cue(c_hello_world_request, "ciao mondo in c").
+intent_cue(shell_hello_world_request, "hello world in bash").
+intent_cue(shell_hello_world_request, "hello world in shell").
+intent_cue(shell_hello_world_request, "ciao mondo in bash").
+intent_cue(js_hello_world_request, "hello world in javascript").
+intent_cue(js_hello_world_request, "hello world in js").
+intent_cue(js_hello_world_request, "ciao mondo in javascript").
+intent_cue(sql_select_all_request, "select all rows in sql").
+intent_cue(sql_select_all_request, "select everything from a table").
+intent_cue(sql_select_all_request, "seleziona tutte le righe in sql").
 intent_cue(process_request, "recipe").
 intent_cue(process_request, "numbered").
 intent_cue(process_request, "steps").
