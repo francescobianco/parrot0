@@ -52,7 +52,6 @@ machinery(saturation_guard).
 % ignores deliberate one-binding probes and guards reads that can hide a second
 % answer; both the threshold and the reply family remain teachable facts.
 saturation_response(saturated_read_unavailable).
-saturation_guard(extract_frame, 64).
 
 % ── LE SPECIE, dichiarate ──────────────────────────────────────────────────
 gap_class(knowledge, "so la forma della domanda, non ho il valore").
