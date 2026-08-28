@@ -2520,7 +2520,41 @@ static void conv_log(Brain *b, const char *input, const char *reply) {
  * risponde. Senza di essa il registro sarebbe monotono crescente — un elenco di
  * rimpianti invece di una misura. */
 static size_t turn_done(Brain *b, const char *canon, const char *input,
-                        const char *out) {
+                        char *out, size_t out_size) {
+    if (b && b->kb) kb_saturation_commit(b->kb);
+    /* A result produced after a bounded enumeration may have been based on an
+     * amputated view.  The KB decides which caps are consequential and which
+     * response family says so; C only applies the general guard. */
+    if (b && b->kb && out && *out) {
+        char response[1][KB_TERM_LEN];
+        const char *rq[1] = { NULL };
+        int saturated = 0;
+        char rows[32][KB_TERM_LEN];
+        const char *sq[3] = { NULL, NULL, NULL };
+        size_t ns = kb_match(b->kb, "saturated_read", sq, 3, rows, 32);
+        for (size_t i = 0; i < ns; i++) {
+            char arity[1][KB_TERM_LEN], cap[1][KB_TERM_LEN];
+            const char *aq[3] = { rows[i], NULL, NULL };
+            if (kb_match(b->kb, "saturated_read", aq, 3, arity, 1) != 1)
+                continue;
+            const char *cq[3] = { rows[i], arity[0], NULL };
+            if (kb_match(b->kb, "saturated_read", cq, 3, cap, 1) != 1)
+                continue;
+            const char *gq[2] = { rows[i], cap[0] };
+            if (kb_query(b->kb, "saturation_guard", gq, 2)) {
+                saturated = 1; break;
+            }
+        }
+        if (saturated && kb_match(b->kb, "saturation_response", rq, 1,
+                                  response, 1) == 1) {
+            char family[KB_TERM_LEN];
+            snprintf(family, sizeof family, "%s", response[0]);
+            if (kb_response_slots(b, kb_dequote(family), NULL, 0,
+                                  out, out_size))
+                snprintf(b->last_module, sizeof b->last_module,
+                         "%s", "saturation_guard");
+        }
+    }
     note_arith_result(b, out);
     /* gen434: CHI ha risposto, e — se nessuno ha registrato un esito — che il
      * turno e' stato considerato RISPOSTO. E' la terza gamba della derivazione,
@@ -3680,6 +3714,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             kb_retract_pred(b->kb, "turn_topic");
             kb_retract_pred(b->kb, "turn_module");
             kb_retract_pred(b->kb, "turn_register");
+            kb_retract_pred(b->kb, "saturated_read");
         }
     }
 
@@ -3710,7 +3745,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
          * aperta anche dopo essere stata colmata. E' un limite reale e va
          * chiuso spostando la canonicalizzazione prima del contratto di turno,
          * non nascosto qui. */
-        return turn_done(b, norm, input, out);
+        return turn_done(b, norm, input, out, out_size);
     }
 
     /* gen43: canonicalize the parsing surface (function words -> English tokens)
@@ -3741,7 +3776,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                 put(msg_, out, out_size);
                 snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
                 snprintf(b->last_module, sizeof b->last_module, "%s", "missing_referent");
-                return turn_done(b, canon, input, out);
+                return turn_done(b, canon, input, out, out_size);
             }
         }
     }
@@ -3752,7 +3787,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     if (b && reasoning_task_lead(b, canon, input, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "reasoning_task");
-        return turn_done(b, canon, input, out);
+        return turn_done(b, canon, input, out, out_size);
     }
 
     /* gen360 (LLMSCORE-max): open analytical requests are planned before any
@@ -3764,7 +3799,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         structured_analysis_lead(b, canon, input, 0, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "analysis_plan");
-        return turn_done(b, canon, input, out);
+        return turn_done(b, canon, input, out, out_size);
     }
 
     /* gen359 (LLMSCORE-max, motorize-the-class): a well-formed definitional or
@@ -3773,7 +3808,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     if (b && semantic_lead(b, canon, input, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "semantic_lead");
-        return turn_done(b, canon, input, out);
+        return turn_done(b, canon, input, out, out_size);
     }
 
     /* A reusable field family is broader than an indexed concept summary. Try
@@ -3784,7 +3819,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         structured_analysis_lead(b, canon, input, 1, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "analysis_family");
-        return turn_done(b, canon, input, out);
+        return turn_done(b, canon, input, out, out_size);
     }
 
     /* gen360: part_of materialization is an expensive reflective inference over
@@ -3836,7 +3871,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                             char joined[1900];
                             snprintf(joined, sizeof joined, "%s %s", r1, r2);
                             put(joined, out, out_size);
-                            return turn_done(b, canon, input, out);
+                            return turn_done(b, canon, input, out, out_size);
                         }
                     }
                 }
@@ -3891,7 +3926,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                     char joined[1900];
                     snprintf(joined, sizeof joined, "%s %s", r1, r2);
                     put(joined, out, out_size);
-                    return turn_done(b, canon, input, out);
+                    return turn_done(b, canon, input, out, out_size);
                 }
             }
         }
@@ -3900,7 +3935,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     /* gen80: try to decompose compound turns (e.g. "chi sei e ricordati X")
      * before the normal single-turn dispatch. */
     if (b && decompose_and_dispatch(b, canon, input, out, out_size))
-        { return turn_done(b, canon, input, out); }
+        { return turn_done(b, canon, input, out, out_size); }
 
     /* gen142 (E3): peel a leading discourse-marker opener and re-dispatch the
      * residue, so a content task wrapped in a channel-management opener survives
@@ -3908,20 +3943,20 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * actually owned by a module; otherwise the original turn dispatches normally
      * and its pragmatic shape is read by mod_pragma. */
     if (b && pragma_peel(b, canon, input, out, out_size))
-        { return turn_done(b, canon, input, out); }
+        { return turn_done(b, canon, input, out, out_size); }
 
     /* gen218: an explicit correction ("no, X is not a Y") peels its marker and
      * re-dispatches the negative claim with the correction flag set, so the
      * standing belief is overridden and the conclusion re-derives. */
     if (b && correction_peel(b, canon, input, out, out_size))
-        { return turn_done(b, canon, input, out); }
+        { return turn_done(b, canon, input, out, out_size); }
 
     /* gen221 (glue, symptom #5): a numeric personal fact remembered earlier feeds a
      * later computation — resolve "my <key>" to its KB value and re-dispatch so the
      * arithmetic core computes it ("what is my favorite number plus 3" -> "10.").
      * Pre-dispatch so mod_memory cannot mis-claim the unresolved reference first. */
     if (b && memref_resolve(b, canon, out, out_size))
-        { return turn_done(b, canon, input, out); }
+        { return turn_done(b, canon, input, out, out_size); }
 
     /* gen222 (glue, symptom #3): a precisation that continues the previous computation
      * ("and times 3" after "what is 2 plus 2") — prepend the last result, inferred from
@@ -3932,7 +3967,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         return strlen(out);
     }
     if (b && continue_resolve(b, canon, out, out_size))
-        { return turn_done(b, canon, input, out); }
+        { return turn_done(b, canon, input, out, out_size); }
 
     /* gen335d (linguistic glue, KB-first): knowledge-gap bridge. The gap
      * state lives as KB facts (pending_gap/1, pending_gap_question/1) in the
@@ -4293,5 +4328,5 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * Senza questa riga il registro sarebbe monotono crescente, cioe' un elenco
      * di rimpianti invece di una misura: il numero delle lacune aperte deve
      * SCENDERE quando la conoscenza cresce, altrimenti non misura niente. */
-    return turn_done(b, canon, input, out);
+    return turn_done(b, canon, input, out, out_size);
 }

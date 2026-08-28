@@ -45,6 +45,14 @@ machinery(pending_gap).
 machinery(pending_gap_question).
 machinery(pending_gap_failed).
 machinery(machinery_gap).
+machinery(saturated_read).
+machinery(saturation_guard).
+
+% A bounded binding read is a possible loss of evidence.  The default policy
+% ignores deliberate one-binding probes and guards reads that can hide a second
+% answer; both the threshold and the reply family remain teachable facts.
+saturation_response(saturated_read_unavailable).
+saturation_guard(extract_frame, 64).
 
 % ── LE SPECIE, dichiarate ──────────────────────────────────────────────────
 gap_class(knowledge, "so la forma della domanda, non ho il valore").

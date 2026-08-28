@@ -94,6 +94,14 @@
 > Istruzione operativa di F.: usare `timeout 120 make soft-test` durante il
 > lavoro, non `make test`.
 
+### U2 avanzamento — osservazione a costo minimo
+
+`kb_match` ora registra una saturazione soltanto come metadata nel `KB`; la
+scrittura riflessiva di `saturated_read/3` avviene una sola volta al confine del
+turno (`kb_saturation_commit`). La politica KB attuale guarda `extract_frame/2`
+a cap `64` e usa `undetermined_cycle`; i cap piccoli restano sonde legittime.
+Il driver C prova commit e ablazione. Resta da decidere se conservare più
+saturazioni indipendenti nello stesso turno.
 
 > Compagno di `KB_TODO.md`, che elenca i residui della conoscenza. Questo
 > elenca i residui del **motore**: tutto ciò che oggi vive in `src/brain/*.c` e

@@ -97,6 +97,26 @@ int main(void) {
                            &score, proof, sizeof proof);
     check(r == 1 && score == INT_MAX && strcmp(winner, "maxed") == 0,
           "large evidence sums saturate the public score without signed overflow");
+
+    /* Earlier scale probes deliberately use larger presentation caps; end
+     * that observation before testing the next independent read. */
+    kb_saturation_commit(kb);
+    for (int i = 0; i < 4; i++) {
+        char value[32]; snprintf(value, sizeof value, "v%d", i);
+        const char *a[] = { value };
+        if (!kb_assert(kb, "scale_saturated", a, 1)) return 2;
+    }
+    const char *sat_pattern[] = { NULL };
+    char sat_values[4][KB_TERM_LEN];
+    check(kb_match(kb, "scale_saturated", sat_pattern, 1, sat_values, 4) == 4,
+          "a bounded enumeration records that its view filled the cap");
+    kb_saturation_commit(kb);
+    const char *sat_query[] = { "scale_saturated", "1", "4" };
+    check(kb_query(kb, "saturated_read", sat_query, 3) == 1,
+          "saturation is queryable as reflective knowledge");
+    kb_retract_pred(kb, "saturated_read");
+    check(kb_query(kb, "saturated_read", sat_query, 3) == 0,
+          "the caller can expire the saturation observation");
     kb_destroy(kb);
     printf("kb-evidence-scale: %d passed, %d failed\n", pass, fail);
     return fail != 0;

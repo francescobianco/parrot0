@@ -724,6 +724,8 @@ response_template(class_conflict, it, "Questo stride con quello che gia' so: {su
 % turno, e va detta.
 response_template(undetermined_cycle, "I cannot settle that: {subject} is not tied to {klass} by any fact I hold, and the rules around {klass} lead back into each other, so the search closes on itself instead of reaching an answer. Not proved is not the same as false.").
 response_template(undetermined_cycle, it, "Non posso stabilirlo: nessun fatto che ho lega {subject} a {klass}, e le regole intorno a {klass} si rimandano a vicenda, quindi la ricerca si chiude su se stessa invece di arrivare a una risposta. Non dimostrato non vuol dire falso.").
+response_template(saturated_read_unavailable, "I cannot settle that from the current view: the knowledge list reached its limit before I could verify the result.").
+response_template(saturated_read_unavailable, it, "Non posso stabilirlo dalla vista corrente: l'elenco della conoscenza ha raggiunto il limite prima che potessi verificare il risultato.").
 
 % gen382: una pagina di disambiguazione riconosciuta. Il declino e' INFORMATO —
 % dice che la pagina c'era e perche' e' stata rifiutata — invece di far credere

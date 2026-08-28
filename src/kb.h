@@ -145,6 +145,9 @@ int    kb_query(KB *kb, const char *pred, const char *const *args, size_t argc);
 size_t kb_match(const KB *kb, const char *pred, const char *const *args,
                 size_t argc, char out[][KB_TERM_LEN], size_t max);
 
+/* Commit the largest bounded read observed since the previous commit. */
+void kb_saturation_commit(KB *kb);
+
 /* Dynamically enumerate every distinct binding that `kb_match` would return,
  * without a caller-selected cap. On success the caller owns `*out` and must
  * free it; an empty result is successful with `*nout == 0`. */

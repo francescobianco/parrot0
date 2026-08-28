@@ -218,6 +218,11 @@ struct KB {
     KbProfileRow  prof_top[64];
     size_t        prof_ntop;
 
+    /* Turn-local metadata; the fact-table mutation happens once at commit. */
+    size_t saturation_cap;
+    size_t saturation_argc;
+    char saturation_pred[KB_TERM_LEN];
+
     SaveMap smap;              /* dove abita ogni fatto: vedi SaveMap sopra */
 
     /* gen422 — LA FIRMA DEL FLUSSO DI INFERENZA (F.).
@@ -309,6 +314,37 @@ int kb_origin(const KB *kb) { return kb ? kb->origin : 0; }
 
 void kb_set_origin(KB *kb, int origin) {
     if (kb) kb->origin = origin;
+}
+
+/* A bounded read is an observation about the view, not a claim about the
+ * world.  Keep it in the reflective layer so the brain can reason about a
+ * result that may have been cut off, and so the fact disappears with the next
+ * turn's reflective scope. */
+static void kb_note_saturated_read(KB *kb, const char *pred,
+                                   size_t argc, size_t cap) {
+    /* One- and two-binding probes are ordinary existence/selection reads in
+     * the engine, not list views.  Recording them would make the reflective
+     * scope as large as the hot path and turn the guard into noise. */
+    if (!kb || !pred || cap < 4) return;
+    if (cap <= kb->saturation_cap) return;
+    kb->saturation_cap = cap;
+    kb->saturation_argc = argc;
+    snprintf(kb->saturation_pred, sizeof kb->saturation_pred, "%s", pred);
+}
+
+void kb_saturation_commit(KB *kb) {
+    if (!kb || kb->saturation_cap == 0 || !kb->saturation_pred[0]) return;
+    char arity[32], limit[32];
+    snprintf(arity, sizeof arity, "%zu", kb->saturation_argc);
+    snprintf(limit, sizeof limit, "%zu", kb->saturation_cap);
+    const char *args[] = { kb->saturation_pred, arity, limit };
+    int saved = kb->origin;
+    kb->origin = KB_REFLECTIVE;
+    kb_assert(kb, "saturated_read", args, 3);
+    kb->origin = saved;
+    kb->saturation_cap = 0;
+    kb->saturation_argc = 0;
+    kb->saturation_pred[0] = '\0';
 }
 
 void kb_destroy(KB *kb) {
@@ -2540,6 +2576,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
             if (count >= max) break;
         }
         free(work);
+        if (count == max) kb_note_saturated_read((KB *)kb, pred, argc, max);
         return count;
     }
 
@@ -2575,6 +2612,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     solve(&S, &g, 1, 0, s, 0);
     kb_note_inference((KB *)kb, &S, pred);
     free(s);
+    if (S.count == max) kb_note_saturated_read((KB *)kb, pred, argc, max);
     return S.count;
 }
 
