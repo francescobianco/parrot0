@@ -1,0 +1,37 @@
+# Focused KB-first round ten ratchets.
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+[test voice_role_set_uses_kb_templates]
+!query response_template(role_set_named, "Alright — I am {name} now.")
+!query response_template(role_set_kind, "Alright — I am a {kind} now.")
+> you are a pirate
+< Alright — I am a pirate now.
+
+[test voice_role_set_language_lives_in_kb_not_c]
+!query response_template(role_set_kind, it, "Va bene — ora sono un {kind}.")
+!forget response_template(role_set_kind, it, "Va bene — ora sono un {kind}.")
+!query! response_template(role_set_kind, it, "Va bene — ora sono un {kind}.")
+!assert response_template(role_set_kind, it, "Va bene — ora sono un {kind}.")
+
+[test lexical_sequencer_is_the_single_source]
+!query sequencer(poi)
+!assert sequencer(zorpthen)
+!query sequencer(zorpthen)
+!forget sequencer(zorpthen)
+!query! sequencer(zorpthen)
+
+[test domain_adapter_world_extreme]
+!assert domain_relation(world_extreme, world_superlative)
+!query domain_relation(world_extreme, world_superlative)
+!forget domain_relation(world_extreme, world_superlative)
+!query! domain_relation(world_extreme, world_superlative)
+
+[test semantic_family_rename]
+!query response_template(punctuation_only, "That's just punctuation, not words — what would you like to ask?")
+!query! response_template(that_s_just_punctuation_not_words_what_would, "That's just punctuation, not words — what would you like to ask?")

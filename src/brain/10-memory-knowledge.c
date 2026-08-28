@@ -11024,7 +11024,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 for (size_t di = 0; di < nd0; di++) {
                     const char *aq0[] = { props[pi], doms0[di], NULL };
                     char ans0[1][KB_TERM_LEN];
-                    if (kb_match(b->kb, "world_superlative", aq0, 3, ans0, 1) > 0) {
+                    if (domain_match(b, "world_extreme", aq0, 3, ans0, 1) > 0) {
                         char *p = kb_dequote(ans0[0]);
                         char msg[220];
                         size_t l = strlen(p);
@@ -11045,7 +11045,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (!*qw[i]) continue;
             const char *sq[] = { qw[i], NULL, NULL };
             char doms[8][KB_TERM_LEN];
-            size_t dn = kb_match(b->kb, "world_superlative", sq, 3, doms, 8);
+            size_t dn = domain_match(b, "world_extreme", sq, 3, doms, 8);
             for (size_t d = 0; d < dn; d++) {
                 int domain_seen = 0;
                 char dom_phrase[KB_TERM_LEN];
@@ -11060,7 +11060,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (!domain_seen) continue;
                 const char *aq[] = { qw[i], doms[d], NULL };
                 char ans[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "world_superlative", aq, 3, ans, 1) > 0) {
+                if (domain_match(b, "world_extreme", aq, 3, ans, 1) > 0) {
                     char *p = kb_dequote(ans[0]);
                     char msg[220];
                     size_t l = strlen(p);

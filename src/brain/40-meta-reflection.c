@@ -1078,16 +1078,18 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
               kb_cue_match(b, "40_meta_reflection_cue1068", buf) || kb_cue_match(b, "40_meta_reflection_cue1068_2", buf) || kb_cue_match(b, "40_meta_reflection_cue1068_3", buf);
 
     if (set && role_uptake(b, raw)) {
-        char lang[8]; current_lang(b, lang, sizeof lang);
-        int it = lex_class_member(b, "40_meta_reflection_lex1072", lang);
+        /* The Italian/English choice is not a branch in the engine: kb_term_say
+         * picks response_template/3 for the turn language and falls back to /2.
+         * Teaching a third language is a KB edit, not a recompile. */
         char msg[160];
         if (b->role_name[0])
-            snprintf(msg, sizeof msg, it ? "Va bene — ora sono %s." :
-                     "Alright — I am %s now.", b->role_name);
+            kb_term_say(b, "role_set_named", (const KbResponseSlot[]){
+                            { "name", b->role_name } }, 1, msg, sizeof msg);
         else if (b->role_kind[0])
-            snprintf(msg, sizeof msg, it ? "Va bene — ora sono un %s." :
-                     "Alright — I am a %s now.", b->role_kind);
-        else snprintf(msg, sizeof msg, it ? "Va bene." : "Alright.");
+            kb_term_say(b, "role_set_kind", (const KbResponseSlot[]){
+                            { "kind", b->role_kind } }, 1, msg, sizeof msg);
+        else
+            kb_term_say(b, "role_set_plain", NULL, 0, msg, sizeof msg);
         put(msg, out, out_size);
         return 1;
     }

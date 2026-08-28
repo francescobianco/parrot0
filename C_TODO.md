@@ -167,6 +167,32 @@ verdi. Le 112 suite di `meta/`, `conversation/` e `generation/` danno esito
 sono il debito preesistente della sezione 6, non una regressione di questo
 giro.
 
+### Round ibrido 10 — 2026-08-28
+
+Decimo giro completato. Il tema del giro e' **togliere dal C anche la scelta
+della lingua**, non solo il testo:
+
+- **Voce:** le tre conferme di presa di ruolo (`role_set_named`,
+  `role_set_kind`, `role_set_plain`) erano `snprintf(msg, …, it ? "Va bene …" :
+  "Alright …")`. Ora sono template KB con la forma inglese in
+  `response_template/2` e quella italiana in `response_template/3`: il ramo
+  `int it = lex_class_member(…)` sparisce dal C e insegnare una terza lingua e'
+  una riga di KB, non una ricompilazione.
+- **Lessico:** chiusa la **terza copia** dei sequenziatori
+  (`99-registry.c`): il peeling del sequenziatore iniziale interroga
+  `sequencer/1` in `kb/core/lexicon.p0` — la stessa classe che legge il resto
+  del motore — invece della lista duplicata. Restano le due copie di
+  `60-agent-tools.c`, gia' annotate con `TODO(kb-first)`.
+- **Dominio:** `world_superlative/3` passa dal binding
+  `domain_relation(world_extreme, world_superlative)`; le tre query dirette del
+  modulo memoria non nominano piu' il predicato concreto.
+- **Famiglie:** `that_s_just_punctuation_not_words_what_would` rinominata in
+  `punctuation_only` — una delle tre rinomine indicate per nome nella sezione 5.
+
+Verifica: `make build` senza warning, `kb_first_round10.p0t` 12/12, round 2-9
+verdi, e la suite `knowledge/` (34 file) con esito identico al commit di round
+nove.
+
 | | inizio campagna | ora |
 |---|---:|---:|
 | punti della voce con chiave KB | 160 | **656** |

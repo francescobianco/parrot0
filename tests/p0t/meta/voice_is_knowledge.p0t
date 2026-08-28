@@ -19,10 +19,10 @@
 [test una frase del motore si reinsegna parlando]
 > ???
 <~ punctuation
-> learn "Those are just marks - what did you want to say?" as a reply for that_s_just_punctuation_not_words_what_would
-<~ as a reply for that_s_just_punctuation_not_words_what_would
+> learn "Those are just marks - what did you want to say?" as a reply for punctuation_only
+<~ as a reply for punctuation_only
 > ???
 < Those are just marks - what did you want to say?
 
 [test la famiglia esiste come conoscenza interrogabile]
-!query response_template(that_s_just_punctuation_not_words_what_would, "Those are just marks - what did you want to say?")
+!query response_template(punctuation_only, "Those are just marks - what did you want to say?")

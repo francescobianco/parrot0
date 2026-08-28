@@ -85,7 +85,7 @@ static int mod_input(Brain *b, const char *norm, const char *raw,
         long ndistinct = seen_dot + seen_dash + seen_slash;
         if (morse_only && (long)len >= morse_min && ndistinct >= morse_distinct)
             return 0;                                    /* lo nomina il simbolico */
-        kb_term_say(b, "that_s_just_punctuation_not_words_what_would", NULL, 0, out, out_size);
+        kb_term_say(b, "punctuation_only", NULL, 0, out, out_size);
         return 1;
     }
 
@@ -2000,16 +2000,19 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
      * sub-turn so "<acquire X> and THEN <use X>" dispatches the clean clause to its
      * module (e.g. "look up X and then tell me about X" -> acquire, then recall). */
     {
-        /* TODO(kb-first): terza copia dei sequenziatori (vedi 60-agent-tools.c).
-         * `sequencer/1` in lexicon.p0 e' la sorgente. */
-        static const char *const seqw[] = {"then", "also", "next", "finally",
-            "afterwards", "poi", "dopo", "infine", "inoltre", NULL};
+        /* The sequencers come from `sequencer/1` in lexicon.p0 — the same class
+         * the rest of the engine reads — so one taught at runtime is peeled
+         * here too. This was the third C copy of that list. */
+        const char *seqvar[] = {NULL};
+        char seqw[64][KB_TERM_LEN];
+        size_t nseq = kb_match(b->kb, "sequencer", seqvar, 1, seqw, 64);
         for (;;) {
             char *s = sub2; while (*s == ' ' || *s == ',' || *s == '.') s++;
             size_t adv = 0;
-            for (int k = 0; seqw[k]; k++) {
-                size_t wl = strlen(seqw[k]);
-                if (strncmp(s, seqw[k], wl) == 0 && (s[wl] == ' ' || s[wl] == '\0'))
+            for (size_t k = 0; k < nseq; k++) {
+                const char *w = kb_dequote(seqw[k]);
+                size_t wl = strlen(w);
+                if (strncmp(s, w, wl) == 0 && (s[wl] == ' ' || s[wl] == '\0'))
                     { adv = (size_t)(s - sub2) + wl; break; }
             }
             if (!adv) break;
