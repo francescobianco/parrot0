@@ -1158,6 +1158,14 @@ Le superfici `even`, `odd`, `pari`, `dispari` sono ora fatti
 la delimitazione delle clausole; la parità del numero resta calcolo meccanico.
 Il ratchet verifica crescita e ablazione di una superficie nuova.
 
+### Gen483 — simboli degli operatori aritmetici nella KB
+
+La ricodifica C dei quattro operatori canonici (`plus`, `minus`, `times`,
+`divide`) è stata sostituita da `operator_symbol/2`. `arith_op_char` ora
+risolve la superficie con `infix_operator/2`, poi interroga il simbolo; il C
+mantiene solo il controllo meccanico di un simbolo singolo. Il ratchet copre
+query e ablazione di un quinto simbolo insegnato a runtime.
+
 ### Gen480 — le quattro operazioni composte delegate alla KB
 
 Lo switch locale di `apply_op_char` non calcola più `+`, `-`, `*` e `/` nel C:

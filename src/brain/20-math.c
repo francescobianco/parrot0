@@ -67,10 +67,11 @@ static char arith_op_char(Brain *b, const char *s) {
     if (kb_match(b->kb, "infix_operator", q, 2, hit, 1) != 1) return 0;
     char hb[KB_TERM_LEN]; snprintf(hb, sizeof hb, "%s", hit[0]);
     const char *op = kb_dequote(hb);
-    if (!strcmp(op, "plus")) return '+';
-    if (!strcmp(op, "minus")) return '-';
-    if (!strcmp(op, "times")) return '*';
-    if (!strcmp(op, "divide")) return '/';
+    const char *sq[] = { op, NULL };
+    char symbol[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "operator_symbol", sq, 2, symbol, 1) != 1) return 0;
+    const char *sym_text = kb_dequote(symbol[0]);
+    if (sym_text && strlen(sym_text) == 1) return sym_text[0];
     return 0;
 }
 

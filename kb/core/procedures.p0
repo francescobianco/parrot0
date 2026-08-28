@@ -1407,6 +1407,9 @@ c_div($Z, $W, c($R, $I)) :-
 % DUE RIGHE qui e nessuna riga di C.
 machinery(infix_operator).
 machinery(apply_operator).
+machinery(operator_symbol).
+operator_symbol(plus, "+"). operator_symbol(minus, "-").
+operator_symbol(times, "*"). operator_symbol(divide, "/").
 machinery(domain_relation).
 
 domain_relation(neighbor, borders).
