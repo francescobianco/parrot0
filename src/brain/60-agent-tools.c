@@ -1034,6 +1034,27 @@ static int parse_int_call(const char *s, char *name, size_t nsz,
  * claimed. Forward-declared here, defined after the registry table (which is below). */
 static int dispatch_one(Brain *b, const char *clause, char *out, size_t out_size);
 
+/* The strong sequencers are KB knowledge (`strong_sequencer/1` in
+ * kb/core/lexicon.p0), read once and shared by every consumer in this file.
+ * The engine keeps only the MECHANICS: a strong sequencer separates sub-goals
+ * when it stands between spaces, and the ";" separator is punctuation, not
+ * vocabulary, so it stays here. This replaced two divergent C copies. */
+#define SEQ_MAX 64
+
+static size_t load_strong_sequencers(Brain *b, char out[][KB_TERM_LEN + 4]) {
+    char raw[SEQ_MAX][KB_TERM_LEN];
+    const char *var[] = {NULL};
+    size_t n = b && b->kb ? kb_match(b->kb, "strong_sequencer", var, 1, raw, SEQ_MAX) : 0;
+    size_t k = 0;
+    for (size_t i = 0; i < n && k < SEQ_MAX - 1; i++) {
+        const char *w = kb_dequote(raw[i]);
+        if (!w || !*w) continue;
+        snprintf(out[k++], KB_TERM_LEN + 4, " %s ", w);
+    }
+    snprintf(out[k++], KB_TERM_LEN + 4, "; ");   /* punctuation: mechanics */
+    return k;
+}
+
 /* gen207: execute an ARTICULATED, multi-step coding request. Splits `raw` into
  * ordered clauses on STRONG sequencers (",and then", "after that", "also", "then",
  * "e poi", ...) — never the weak " and " that lives inside "a and b" — then runs each
@@ -1041,16 +1062,11 @@ static int dispatch_one(Brain *b, const char *clause, char *out, size_t out_size
  * a later "use it to compute NAME(x,y)" evaluates the real artifact. Every step is
  * oracle-checked; the reply is a numbered, grounded transcript. */
 static int compose_plan(Brain *b, const char *raw, char *out, size_t out_size) {
-    /* TODO(kb-first): SEQUENZIATORI, e `sequencer/1` esiste gia' in
-     * lexicon.p0 con dieci righe. Questa lista e' scritta tre volte nel C
-     * (qui, piu' avanti in questo file, e in 99-registry.c) con contenuti
-     * leggermente diversi: tre verita' divergenti sulla stessa nozione, che e'
-     * il sintomo tipico della conoscenza duplicata nel codice. */
-    static const char *const seq[] = {
-        " and then ", " and also ", " after that ", " afterwards ",
-        " e poi ", " e infine ", " e inoltre ",
-        " then ", " also ", " next ", " finally ", " plus ",
-        " poi ", " dopo ", " infine ", " inoltre ", "; ", NULL };
+    char seq[SEQ_MAX][KB_TERM_LEN + 4];
+    size_t nseq = load_strong_sequencers(b, seq);
+    char fill[SEQ_MAX][KB_TERM_LEN];
+    const char *fillvar[] = {NULL};
+    size_t nfill = b->kb ? kb_match(b->kb, "clause_filler", fillvar, 1, fill, SEQ_MAX) : 0;
     size_t n = strlen(raw);
     static char lowall[2048];
     size_t lim = n < sizeof lowall - 1 ? n : sizeof lowall - 1;
@@ -1060,7 +1076,7 @@ static int compose_plan(Brain *b, const char *raw, char *out, size_t out_size) {
     struct { size_t a, b; } cr[10]; size_t ncl = 0, from = 0;
     for (size_t i = 0; i < lim && ncl < 9; ) {
         size_t mlen = 0;
-        for (int s = 0; seq[s]; s++) {
+        for (size_t s = 0; s < nseq; s++) {
             size_t sl = strlen(seq[s]);
             if (i + sl <= lim && strncmp(lowall + i, seq[s], sl) == 0) { mlen = sl; break; }
         }
@@ -1081,15 +1097,14 @@ static int compose_plan(Brain *b, const char *raw, char *out, size_t out_size) {
         char *clause = cl;
         for (;;) {
             while (*clause==' ' || *clause==',' || *clause=='.') clause++;
-            /* TODO(kb-first): parole di riempimento — `stopword/1` e
-             * `function_word/1` coprono gia' quasi tutta questa lista. */
-            static const char *const fill[] = {"and","also","then","next","finally",
-                "first","please","use","it","to","poi","dopo","e","inoltre","infine",
-                "la","lo","then,", NULL};
+            /* Filler words are `clause_filler/1` in lexicon.p0; the trailing
+             * comma variant is punctuation and stays mechanics here. */
             int cut = 0;
-            for (int f = 0; fill[f]; f++) {
-                size_t fl = strlen(fill[f]);
-                if (ci_prefix(clause, fill[f]) && (clause[fl]==' ' || clause[fl]=='\0'))
+            for (size_t f = 0; f < nfill; f++) {
+                const char *fw = kb_dequote(fill[f]);
+                size_t fl = strlen(fw);
+                if (ci_prefix(clause, fw) &&
+                    (clause[fl]==' ' || clause[fl]==',' || clause[fl]=='\0'))
                     { clause += fl; cut = 1; break; }
             }
             if (!cut) break;
@@ -1249,17 +1264,15 @@ static int mod_compose(Brain *b, const char *norm, const char *raw,
         const char *fp[2] = { key, "taught_from_steps" };
         kb_assert(b->kb, "algo_source", fp, 2);
         {   const KbResponseSlot _rs[] = { { "shape", shape }, { "key", key } };
-          kb_term_say(b, "learned_those_steps_describe_the_x_structure", _rs, 2, out, out_size); }
+          kb_term_say(b, "steps_shape_learned", _rs, 2, out, out_size); }
         return 1;
     }
 
     /* gen207: if the request is ARTICULATED (a strong sequencer chains several
      * sub-goals), run the multi-step planner; otherwise compose the single function. */
-    static const char *const seq[] = {
-        " and then ", " and also ", " after that ", " afterwards ", " then ",
-        " also ", " next ", " finally ", " e poi ", " poi ", " dopo ",
-        " infine ", " inoltre ", "; ", NULL };
-    for (int s = 0; seq[s]; s++)
+    char seq[SEQ_MAX][KB_TERM_LEN + 4];
+    size_t nseq = load_strong_sequencers(b, seq);
+    for (size_t s = 0; s < nseq; s++)
         if (strstr(low, seq[s])) return compose_plan(b, raw, out, out_size);
 
     /* single compose: Knowledge (KB) -> Synthesis (structure) -> Oracle (code_eval). */
@@ -1267,7 +1280,9 @@ static int mod_compose(Brain *b, const char *norm, const char *raw,
     int r = compose_one(b, raw, low, name, sizeof name, src, sizeof src, note, sizeof note);
     char msg[700];
     if (r == 1)        snprintf(msg, sizeof msg, "%s  /* %s */", src, note);
-    else if (r == -1)  snprintf(msg, sizeof msg, "I composed `%s` but %s.", src, note);
+    else if (r == -1)
+        kb_term_say(b, "composed_with_caveat", (const KbResponseSlot[]){
+                        { "name", src }, { "note", note } }, 2, msg, sizeof msg);
     else               snprintf(msg, sizeof msg, "%s", note);
     put(msg, out, out_size);
     char proof[320];

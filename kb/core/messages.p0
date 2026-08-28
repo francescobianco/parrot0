@@ -75,6 +75,7 @@ response_template(role_set_kind, "Alright — I am a {kind} now.").
 response_template(role_set_kind, it, "Va bene — ora sono un {kind}.").
 response_template(role_set_plain, "Alright.").
 response_template(role_set_plain, it, "Va bene.").
+response_template(composed_with_caveat, "I composed `{name}` but {note}.").
 response_template(that_s_kind_of_you_thank_you, "That's kind of you — thank you!").
 response_template(the_day_unfolded_quietly_each_moment_c, "The day unfolded quietly, each moment carrying the weight of something unspoken. And in that stillness, a new chapter was beginning.").
 response_template(there_is_no_such_world_open, "There is no such world open.").
@@ -553,7 +554,7 @@ response_template(i_can_only_synthesize_and_verify_the_sum_pro, "I can only synt
 %% si puo' reinsegnare senza toccare il conteggio.
 
 response_template(i_read_those_steps_but_they_do_not_describe, "I read those steps but they do not describe a structure I can build yet{means}{missing}. I will not invent a schema I cannot instantiate and verify.").
-response_template(learned_those_steps_describe_the_x_structure, "Learned: those steps describe the {shape} structure, so I now have a schema for {key}. Ask me to write it and I will synthesize it and run it against the sort oracle.").
+response_template(steps_shape_learned, "Learned: those steps describe the {shape} structure, so I now have a schema for {key}. Ask me to write it and I will synthesize it and run it against the sort oracle.").
 response_template(starting_from_x_that_step_never_reaches_x_th, "Starting from {sb}, that step never reaches {tb} — the goal can't be met this way.").
 response_template(created_the_empty_file_x_in_the_working_dire, "Created the empty file {name} in the working directory — verified: it exists and is empty.").
 response_template(i_understood_create_the_file_x_but_a_file_wi, "I understood — create the file {name} — but a file with that name already exists here, and I won't overwrite it.").

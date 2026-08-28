@@ -653,22 +653,22 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             char *t = strip_edge_punct(iw[i]);
             const char *dq[] = { t, NULL, NULL, NULL, NULL };
             char hit[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "invented_object", dq, 5, hit, 1) > 0)
+            if (domain_match(b, "invention", dq, 5, hit, 1) > 0)
                 snprintf(domain, sizeof domain, "%s", t);
         }
         if (domain[0]) {
             const char *q[] = { domain, NULL, NULL, NULL, NULL };
             char name[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "invented_object", q, 5, name, 1) > 0) {
+            if (domain_match(b, "invention", q, 5, name, 1) > 0) {
                 const char *q2[] = { domain, name[0], NULL, NULL, NULL };
                 char taste[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "invented_object", q2, 5, taste, 1) > 0) {
+                if (domain_match(b, "invention", q2, 5, taste, 1) > 0) {
                     const char *q3[] = { domain, name[0], taste[0], NULL, NULL };
                     char texture[1][KB_TERM_LEN];
-                    if (kb_match(b->kb, "invented_object", q3, 5, texture, 1) > 0) {
+                    if (domain_match(b, "invention", q3, 5, texture, 1) > 0) {
                         const char *q4[] = { domain, name[0], taste[0], texture[0], NULL };
                         char use[1][KB_TERM_LEN];
-                        if (kb_match(b->kb, "invented_object", q4, 5, use, 1) > 0) {
+                        if (domain_match(b, "invention", q4, 5, use, 1) > 0) {
                             char nm[KB_TERM_LEN]; snprintf(nm, sizeof nm, "%s", name[0]);
                             for (char *p = nm; *p; p++) if (*p == '_') *p = ' ';
                             if (nm[0]) nm[0] = (char)toupper((unsigned char)nm[0]);

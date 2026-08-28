@@ -193,15 +193,66 @@ Verifica: `make build` senza warning, `kb_first_round10.p0t` 12/12, round 2-9
 verdi, e la suite `knowledge/` (34 file) con esito identico al commit di round
 nove.
 
+### Round ibrido 11 — 2026-08-28 — `gen447-kb-first-lexical-unification`
+
+Undicesimo giro. Il bersaglio e' la nota che il C stesso si era scritto addosso:
+*«tre verita' divergenti sulla stessa nozione»*.
+
+- **Lessico (il grosso del giro):** i sequenziatori forti erano scritti **tre
+  volte** nel C con contenuti diversi. Il round 10 ha chiuso la copia di
+  `99-registry.c`; questo chiude le altre due in `60-agent-tools.c`. La classe
+  KB e' `strong_sequencer/1` (frasi anche multi-parola, in
+  `kb/core/lexicon.p0`), letta da un unico helper `load_strong_sequencers()`.
+  Nel C restano solo le **meccaniche**: gli spazi di confine e il separatore
+  `";"`, che e' punteggiatura, non vocabolario. Migrata nello stesso giro la
+  lista dei riempitivi di clausola, ora `clause_filler/1`.
+- **Voce:** `"I composed \`%s\` but %s."` diventa `composed_with_caveat`.
+- **Dominio:** `invented_object/5` passa da
+  `domain_relation(invention, invented_object)` — prima volta che l'adapter
+  N-ario viene usato su un predicato di arita' 5.
+- **Famiglie:** `learned_those_steps_describe_the_x_structure` rinominata in
+  `steps_shape_learned`.
+
+Verifica: `make build` senza warning, `kb_first_round11.p0t` 11/11, round 2-10
+verdi, e le suite `agent/`, `code/`, `planning/` — quelle che passano da
+`compose_plan`, il codice riscritto — con esito **identico** al commit di round
+dieci.
+
+### Processo: ogni giro cambia la generazione
+
+> Nota di F., 2026-08-28. I round 8-10 sono stati committati **senza cambiare
+> `VERSION`**, quindi `make chat` continuava ad annunciarsi
+> `gen396-universal-answer-plan` mentre il motore era gia' molto diverso.
+> Sbagliato: la generazione e' l'etichetta con cui si legge un comportamento in
+> chat, e se non si muove non si sa piu' che cosa si sta parlando.
+
+**Da qui in avanti, il ciclo di ogni giro e':**
+
+1. la modifica, con `make build` a ogni lotto piccolo;
+2. il ratchet `.p0t` del giro, verde, piu' i round precedenti;
+3. il confronto con il commit precedente sulle suite toccate (non «i rossi
+   c'erano gia'», ma il `diff` riga per riga);
+4. **`VERSION` aggiornato a `genNNN-nome-parlante`** — il nome dice che cosa e'
+   cambiato, non «round N»;
+5. `git commit` e `git push`.
+
+Il numero di generazione riparte dal massimo citato nei documenti (`gen446` al
+2026-08-28), non dal valore fermo che c'era in `VERSION`.
+
 | | inizio campagna | ora |
 |---|---:|---:|
-| punti della voce con chiave KB | 160 | **656** |
-| `snprintf` di frase senza chiave | 297 | **11** |
-| `put("…")` letterali | 77 | **7** |
-| `cue(x, "letterale")` | 1393 | **1** |
-| parole in `strcmp`/`strstr` | 1629 | **292** |
-| predicati di dominio nominati nel C | 250 | **250** |
-| template in `kb/core/messages.p0` | 49 | **524** |
+| punti della voce con chiave KB (`kb_term_say`) | 561 | **658** |
+| `put("…")` letterali | 25 | **10** |
+| parole confrontate inline in `str*()` | 351 | **211** |
+| letterali-parola in array C | 435 | **243** |
+| `TODO(kb-first)` aperti | 32 | **19** |
+| predicati di dominio con binding | 0 | **38** |
+| chiamate che passano dall'adapter di dominio | 0 | **138** |
+| template in `kb/core/messages.p0` | 49 | **601** |
+
+I valori «inizio campagna» sono rimisurati sul commit `42082576` con le sonde
+di oggi, non ripresi dalle stime originali: la tabella precedente mescolava
+regex diverse e non era confrontabile con se stessa.
 
 La regola che governa tutto, ed è più netta del mantra #16
 (vedi `docs/plans/messages-are-knowledge.md`):
@@ -260,23 +311,46 @@ sessione.
 Questo chiude anche il residuo `10-memory-knowledge.c:579,628` della lista
 iniziale di composizioni.
 
-### Percentuale operativa
+### Percentuale operativa — quanto manca davvero
 
-Sul perimetro iniziale della **migrazione dei messaggi** (`11` `snprintf` senza
-chiave + `7` `put` letterali, `18` siti complessivi), i lotti fin qui chiusi
-hanno migrato `16/18` siti: **circa 89% completato, 11% residuo**. Questa è
-solo la misura locale dei messaggi già censiti.
+Le cifre della campagna erano prodotte da sonde diverse fra loro e non
+riproducibili. Questa sezione usa **una sola batteria di sonde**, applicata sia
+al commit di apertura di questo file (`42082576`) sia allo stato corrente, in
+modo che i due numeri siano confrontabili. Comandi in
+`docs/plans/messages-are-knowledge.md`.
 
-La misura onesta del lavoro complessivo censito è molto più bassa: oltre ai
-`18` siti di messaggistica restano `4` superfici lessicali, `292` confronti di
-parole, `250` predicati di dominio e le rinomine delle famiglie generate. Senza
-pretendere che categorie diverse abbiano lo stesso peso, il rapporto grezzo è
-circa `25/564`, quindi **circa 4% dell'inventario C-first censito** completato.
-Le classi lessicali migrate nei lotti successivi coprono inoltre un gruppo
-significativo dei confronti parola-per-parola, ma non sono ancora state
-ricontate con una sonda completa. Il valore operativo prudente da ora è dunque
-**circa 6% globale**, mentre
-`89%` resta soltanto l'indicatore del sotto-percorso messaggi.
+| sonda (stessa regex ai due estremi) | apertura | ora | migrato |
+|---|---:|---:|---:|
+| letterali-parola dentro array C (`static const char *const`) | 435 | 243 | 44% |
+| parole confrontate inline in `strcmp`/`strstr`/… | 351 | 211 | 40% |
+| `snprintf` che compone una frase | 94 | 70 | 26% |
+| `put("…")` letterali | 25 | 10 | 60% |
+| `TODO(kb-first)` aperti nel C | 32 | 19 | 41% |
+| predicati di dominio con binding `domain_relation/2` | 0 / 250 | 38 / 250 | 15% |
+
+Sommando i siti censiti — `435 + 351 + 94 + 25 + 250 = 1155` all'apertura,
+`243 + 211 + 70 + 10 + 212 = 746` ora — il rapporto grezzo e':
+
+> **circa 35% migrato, quindi ~65% dei siti censiti manca ancora.**
+
+Il conto e' *grezzo* nel senso preciso del termine: tratta un letterale di
+lista e un predicato di dominio come un sito ciascuno, e non lo sono. Se si
+guarda per categoria il quadro e' molto piu' netto:
+
+- **la voce e' quasi finita** — `put` letterali al 60%, e i due terzi degli
+  `snprintf` rimasti sono composizione di dati (`"%s is called by "`), non
+  frasi;
+- **il lessico e' oltre meta'** — 44%, e ogni giro ne chiude una classe con
+  prova di crescita e ablazione a runtime;
+- **il dominio e' il collo di bottiglia, al 15%** — ed e' anche la voce che la
+  sezione 4 definisce «la piu' grave rispetto alla tesi del progetto». Finche'
+  resta li', il numero complessivo non salira' molto: 212 predicati di dominio
+  sono da soli il 28% dell'inventario residuo, e sono l'unica categoria che
+  **non si chiude a macchina**, perche' ogni caso vuole che si trovi la
+  relazione piu' generale che lo comprende.
+
+La stima onesta, quindi: **~65% da fare**, ma il 65% non e' omogeneo — e' per
+lo piu' il dominio, e il dominio si paga a mano.
 
 ### 1b. Dati travestiti da testo (4)
 
@@ -513,6 +587,44 @@ tocca due punti: la riga in `kb/core/messages.p0` e la chiave nel sito C.
   sonde di dialogo italiano/inglese. Il fallimento non è stato attribuito a
   questo lotto e va trattato come debito separato, non mascherato aggiornando
   i template appena migrati.
+
+## 7. TODO aperti che non sono migrazione
+
+Voci chieste esplicitamente e non ancora fatte. Non sono debito della campagna
+KB-first: sono lavoro del motore, e vanno tenute separate per non confonderle
+con i contatori della sezione «Percentuale operativa».
+
+### 7.1 History dei messaggi nella chat interattiva (frecce su/giu')
+
+**Chiesto da F. il 2026-08-28.** Oggi `make chat` legge la riga con una lettura
+di linea nuda: premere freccia-su non richiama il messaggio precedente, scrive
+la sequenza di escape. Serve il comportamento standard di un terminale Unix —
+freccia su/giu' per navigare la history dei messaggi inviati nella sessione.
+
+Cosa va deciso prima di scrivere il codice:
+
+- **Dove sta la history.** In sessione e basta, o persistita fra sessioni (e in
+  quel caso vicino a `PARROT0_SESSION`, non in un file nuovo scelto a caso).
+- **Se e' conoscenza.** Probabilmente no: e' meccanica del terminale, come la
+  punteggiatura della sezione 6 — la history *dei turni* invece esiste gia' nel
+  Brain, e vale la pena guardare se la si puo' riusare come sorgente invece di
+  tenerne una seconda copia nel loop di lettura. Questa e' la domanda zero del
+  progetto applicata qui: due liste della stessa nozione sono il sintomo che
+  abbiamo gia' pagato tre volte con i sequenziatori.
+- **Se dipendere da `readline`.** Aggiunge una dipendenza esterna e con essa
+  history, editing e completamento gratis; l'alternativa e' la modalita' raw a
+  mano (~150 righe: `termios`, il parsing di `ESC [ A` / `ESC [ B`, il
+  ridisegno della riga). La build non linka `readline` oggi, e va verificato
+  che non rompa i target headless (`--test-engine`, `--bench-engine`) dove
+  l'input non e' un TTY: la modalita' history va attiva **solo** se
+  `isatty(STDIN_FILENO)`.
+
+Punto d'ingresso gia' individuato: `src/main.c:1022`, la `fgets(line, sizeof
+line, stdin)` del ciclo interattivo. La guardia `int interactive =
+isatty(STDIN_FILENO)` **esiste gia'** dodici righe sopra (`src/main.c:1010`),
+quindi la modalita' raw si aggancia li' senza inventare una condizione nuova.
+
+---
 
 ---
 

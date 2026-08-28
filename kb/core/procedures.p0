@@ -1423,6 +1423,7 @@ domain_relation(narrative_completion, continuation_template).
 domain_relation(content, content_kind).
 domain_relation(role_trait, trait).
 domain_relation(world_extreme, world_superlative).
+domain_relation(invention, invented_object).
 
 infix_operator("+", plus).
 infix_operator("-", minus).

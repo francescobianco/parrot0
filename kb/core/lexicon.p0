@@ -470,6 +470,46 @@ topic_preposition(di).
 topic_preposition(su).
 stopword(about).
 
+% Strong sequencers: the phrases that chain SUB-GOALS in an articulated
+% request ("compose f and then use it"). Distinct from `sequencer/1`, which is
+% the single-word class: here a phrase may be multi-word, and the surrounding
+% spaces are mechanics the engine adds, not vocabulary.
+strong_sequencer("and then").
+strong_sequencer("and also").
+strong_sequencer("after that").
+strong_sequencer("afterwards").
+strong_sequencer("e poi").
+strong_sequencer("e infine").
+strong_sequencer("e inoltre").
+strong_sequencer("then").
+strong_sequencer("also").
+strong_sequencer("next").
+strong_sequencer("finally").
+strong_sequencer("plus").
+strong_sequencer("poi").
+strong_sequencer("dopo").
+strong_sequencer("infine").
+strong_sequencer("inoltre").
+
+% Filler words dropped from the head of a clause before it is dispatched.
+clause_filler(and).
+clause_filler(also).
+clause_filler(then).
+clause_filler(next).
+clause_filler(finally).
+clause_filler(first).
+clause_filler(please).
+clause_filler(use).
+clause_filler(it).
+clause_filler(to).
+clause_filler(poi).
+clause_filler(dopo).
+clause_filler(e).
+clause_filler(inoltre).
+clause_filler(infine).
+clause_filler(la).
+clause_filler(lo).
+
 % Ruler titles: world knowledge, not engine machinery. A title taught at
 % runtime becomes usable by the role parser without recompiling.
 role_title(queen).
