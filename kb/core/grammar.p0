@@ -524,10 +524,29 @@ concept_atom_max_words(3).
 % e chiesto restano la stessa cosa — un solo atto di apprendimento.
 machinery(relation_verb).
 
+% gen459 — UN VERBO DI RELAZIONE PUO' ESSERE PRECEDUTO DA UNA COPULA.
+%
+% Misurato: insegnato «worth is a relation verb», la frase «a pawn is worth 1»
+% produceva `worth(pawn_is, 1)` — la copula finiva DENTRO il soggetto, perche'
+% l'unico schema generato era «@S worth @O» e quindi tutto cio' che sta prima
+% del verbo diventa il soggetto. Il fatto era vero e inutilizzabile: per
+% interrogarlo si sarebbe dovuto chiedere di `pawn_is`, che non esiste.
+%
+% E' la meta' mancante dello stesso ragionamento che ha fatto nascere la regola
+% qui sopra: un verbo di relazione apre per costruzione la sua porta, ma la
+% porta deve stare dove le persone bussano. «vale», «is worth», «is made of»
+% sono forme normali, non eccezioni.
+extract_frame($Pat, $Pred) :-
+    relation_verb($Pred),
+    concat_atoms("@S is ", $Pred, $A),
+    concat_atoms($A, " @O", $Pat).
+
 extract_frame($Pat, $Pred) :-
     relation_verb($Pred),
     concat_atoms("@S ", $Pred, $A),
     concat_atoms($A, " @O", $Pat).
+
+
 
 answer_frame($Verb, $Verb) :- relation_verb($Verb).
 

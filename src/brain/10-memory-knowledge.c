@@ -3712,9 +3712,29 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
     while (n > 0 && w[n - 1] && !*strip_edge_punct(w[n - 1])) n--;
     if (n < 3) return 0;
 
-    char pats[64][KB_TERM_LEN];
+    /* gen459 — IL TETTO A 64 NASCONDEVA META' DEGLI SCHEMI.
+     *
+     * `extract_frame/2` non e' un elenco: e' fatti PIU' regole che li generano —
+     * una per ogni verbo di relazione insegnato. Misurato con `/debug
+     * extract_frame`: 124 schemi derivati contro un tetto di 64. Sessanta erano
+     * invisibili, e QUALI dipendeva dall'ordine di enumerazione — per questo,
+     * aggiungendo la regola «un verbo di relazione puo' essere preceduto da una
+     * copula», funzionava «a pawn is worth 1» oppure «zorak governs nivora» ma
+     * mai tutte e due: non era una precedenza, era un taglio.
+     *
+     * Stessa famiglia del gen382e, e stessa cura: il tetto si dimensiona sui
+     * dati, non su un numero scelto a mano. `kb_match_all` alloca quanto serve,
+     * ed e' gia' quello che usano gli altri consumatori di questa stessa
+     * conoscenza. Un tetto fisso qui non e' un limite di memoria: e' un limite
+     * a quanti verbi di relazione parrot0 puo' imparare prima di cominciare a
+     * dimenticarne senza dirlo. */
+    char (*pats)[KB_TERM_LEN] = NULL;
     const char *anyq[] = { NULL, NULL };
-    size_t np = kb_match(b->kb, "extract_frame", anyq, 2, pats, 64);
+    size_t np = 0;
+    if (!kb_match_all(b->kb, "extract_frame", anyq, 2, &pats, &np)) {
+        free(pats);
+        return 0;
+    }
 
     for (size_t pi = 0; pi < np; pi++) {
         /* kb_dequote toglie le virgolette SUL POSTO: la forma originale va
@@ -3837,6 +3857,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                     for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
                     kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
                                     { "value", pretty } }, 1, out, out_size);
+                    free(pats);
                     return 1;
                 }
                 continue;      /* e' una domanda: non diventa mai un fatto */
@@ -3876,6 +3897,7 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
             kb_term_say(b, "rejected_binary_fact", (const KbResponseSlot[]){
                             { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
                         3, out, out_size);
+            free(pats);
             return 2;                       /* 2 = respinto, ma non silenzioso */
         }
         if (kb_assert(b->kb, pred, fa, nslots)) {
@@ -3895,9 +3917,11 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                                 { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
                             3, msg, sizeof msg);
             put(msg, out, out_size);
+            free(pats);
             return 1;
         }
     }
+    free(pats);
     return 0;
 }
 

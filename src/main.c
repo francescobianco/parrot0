@@ -608,6 +608,66 @@ static void debug_lines(KB *kb, const char *pred, size_t argc, const char *tag) 
     }
 }
 
+/* gen459 — `/debug <predicato>`: QUANTE CLAUSOLE LO DEFINISCONO, E QUANTE
+ * PRODUCONO DAVVERO QUALCOSA.
+ *
+ * Nasce da un difetto che mi e' costato dieci turni di congetture, e la lezione
+ * non e' il difetto: e' che lo strumento non lo mostrava. `extract_frame/2` e'
+ * definito da fatti E da regole; aggiungendone una seconda — «un verbo di
+ * relazione puo' essere preceduto da una copula» — il comportamento non
+ * cambiava, e non c'era modo di vedere perche'. Provando a mano si scopriva
+ * che, invertendo l'ordine delle due regole, funzionava l'una O l'altra ma mai
+ * entrambe: di un predicato con piu' regole ne rende solo la prima.
+ *
+ * Quel confronto — «clausole che lo definiscono» contro «binding che ne
+ * escono» — e' l'informazione che mancava, e ora si legge in un comando. Se le
+ * regole sono due e i binding raccontano una regola sola, il difetto e' li' e
+ * si vede senza inventarsi esperimenti.
+ *
+ * Regola di crescita di questo strumento (F.): va migliorato ogni volta che un
+ * problema e' stato scoperto in un altro modo. Se per capire qualcosa ho dovuto
+ * fare un esperimento a mano, quell'esperimento appartiene a `/debug`. */
+static void debug_predicate(KB *kb, const char *pred) {
+    long amax = 4;
+    {
+        const char *cq[1] = { NULL };
+        char cv[1][KB_TERM_LEN];
+        if (kb_match(kb, "debug_pred_arity_max", cq, 1, cv, 1) > 0) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cv[0]);
+            long v = strtol(kb_dequote_pub(cb), NULL, 10);
+            if (v > 0 && v <= 8) amax = v;
+        }
+    }
+    fprintf(stderr, "\n  PREDICATO  %s\n", pred);
+    if (!kb_knows_pred(kb, pred)) {
+        fprintf(stderr, "  (nessuna clausola: ne' fatti ne' regole)\n\n");
+        return;
+    }
+    fprintf(stderr, "  fatti ground            %zu\n", kb_pred_fact_count(kb, pred));
+    for (long a = 1; a <= amax; a++) {
+        size_t nr = kb_rules_for_head(kb, pred, (size_t)a);
+        const char *q[8] = {0};
+        enum { DBG_ROWS = 512 };
+        static char rows[DBG_ROWS][KB_TERM_LEN];
+        size_t nb = kb_match(kb, pred, q, (size_t)a, rows, DBG_ROWS);
+        if (!nr && !nb) continue;
+        fprintf(stderr, "  arita' %ld: regole %zu, binding resi %zu", a, nr, nb);
+        if (nb == DBG_ROWS)
+            fprintf(stderr, "   <-- SATURO: il tetto di questa ispezione e' %d,"
+                            " il vero numero puo' essere piu' alto", DBG_ROWS);
+        if (nr > 1 && nb <= 1)
+            fprintf(stderr, "   <-- %zu regole, %zu binding: le clausole oltre la"
+                            " prima non stanno rendendo niente", nr, nb);
+        fprintf(stderr, "\n");
+        for (size_t i = 0; i < nb && i < 6; i++) {
+            char bb[KB_TERM_LEN]; snprintf(bb, sizeof bb, "%s", rows[i]);
+            fprintf(stderr, "      %s\n", kb_dequote_pub(bb));
+        }
+        if (nb > 6) fprintf(stderr, "      … e altri %zu\n", nb - 6);
+    }
+    fprintf(stderr, "\n");
+}
+
 static void debug_inspect(Brain *brain, const char *last_line) {
     KB *kb = brain_kb(brain);
     fprintf(stderr, "\n");
@@ -1074,6 +1134,11 @@ int main(int argc, char **argv) {
          * Deliberatamente piccolo. Cresce quando una domanda di ottimizzazione
          * lo chiede — un profiler scritto tutto in anticipo misura cio' che
          * l'autore immaginava, non cio' che poi rallenta. */
+        if (strncmp(line, "/debug ", 7) == 0 &&
+            strcmp(line, "/debug off") != 0) {
+            debug_predicate(brain_kb(brain), line + 7);
+            continue;
+        }
         if (strcmp(line, "/debug") == 0 || strcmp(line, "/debug off") == 0) {
             KB *kb = brain_kb(brain);
             if (strcmp(line, "/debug off") == 0) {

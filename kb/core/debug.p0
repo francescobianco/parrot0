@@ -83,3 +83,7 @@ debug_note_silent(4, "l'autocorrezione non sa nemmeno che esiste: il seme qui no
 debug_note_silent(5, "e' una GUARDIA DI PERTINENZA — dire a parrot0 quando quella facolta' NON").
 debug_note_silent(6, "deve prendere il turno. Vedi docs/autocorrezione.md §4b e la forma G di").
 debug_note_silent(7, "docs/plans/fix-patterns.md.").
+
+% gen459 — fino a quale arita' `/debug <predicato>` guarda. E' un fatto perche'
+% il numero giusto dipende da che cosa si sta cercando, non dal motore.
+debug_pred_arity_max(4).
