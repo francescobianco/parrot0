@@ -9,6 +9,26 @@
  * the oracle, not stored. The tool call is also recorded as the proof trace.
  * This is the structural precondition for agency (rung 19): a brain that can
  * reach outside its own deduction to a tool and bring the answer back. */
+static const char *tool_surface_find(Brain *b, const char *text,
+                                      const char *kind, size_t *span) {
+    if (span) *span = 0;
+    if (!b || !b->kb || !text || !kind) return NULL;
+    const char *q[] = { kind, NULL };
+    char surfaces[32][KB_TERM_LEN];
+    size_t n = kb_match(b->kb, "tool_surface", q, 2, surfaces, 32);
+    const char *best = NULL; size_t best_len = 0;
+    for (size_t i = 0; i < n; i++) {
+        const char *surface = kb_dequote(surfaces[i]);
+        const char *hit = surface ? strstr(text, surface) : NULL;
+        size_t len = surface ? strlen(surface) : 0;
+        if (hit && (!best || hit < best || (hit == best && len > best_len))) {
+            best = hit; best_len = len;
+        }
+    }
+    if (span) *span = best_len;
+    return best;
+}
+
 static int mod_tool(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
     (void)norm;
@@ -751,8 +771,14 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
          * means the user thinks they are talking to a shell, and the honest answer
          * is to say that they are not. */
         const char *after = NULL;
-        if (ci_prefix(low, "run ")) after = raw + 4;
-        else { const char *p = strstr(raw, "compile"); if (p) after = p; }
+        size_t run_len = 0;
+        const char *run = tool_surface_find(b, low, "run_prefix", &run_len);
+        if (run == low) after = raw + run_len;
+        else {
+            size_t compile_len = 0;
+            const char *p = tool_surface_find(b, low, "compile_marker", &compile_len);
+            if (p) after = raw + (p - low);
+        }
         if (!after) after = raw;
         while (*after == ' ') after++;
 
@@ -1253,12 +1279,14 @@ static int mod_compose(Brain *b, const char *norm, const char *raw,
 
     if (teach) {
         /* the name sits between "learn" and "from"; the steps after the colon */
-        const char *ln = strstr(low, "learn ");
-        if (!ln) ln = strstr(low, "impara ");
-        const char *nstart = ln + 6;
+        size_t teach_len = 0;
+        const char *ln = tool_surface_find(b, low, "teach_prefix", &teach_len);
+        if (!ln) return 0;
+        const char *nstart = ln + teach_len;
         while (*nstart == ' ') nstart++;
-        const char *nend = strstr(nstart, " from");
-        if (!nend) nend = strstr(nstart, " da ");
+        size_t delimiter_len = 0;
+        const char *nend = tool_surface_find(b, nstart, "teach_source_delimiter",
+                                              &delimiter_len);
         const char *colon = strchr(raw, ':');
         if (!nend || !colon || nend <= nstart) return 0;
 

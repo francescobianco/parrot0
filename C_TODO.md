@@ -1160,3 +1160,11 @@ degli operandi e il controllo `ok`; la divisione per zero resta una condizione
 del predicato KB. Le regressioni aritmetiche bilingui proteggono il percorso.
 `arith_flex.p0t` mantiene un solo mismatch storico nel fallback testuale di
 `gold + silver`; i percorsi numerici e algebrici del lotto restano verdi.
+
+### Gen481 — superfici delle azioni tool nella KB
+
+Le superfici `run `, `compile`, `learn `, `impara ` e i delimitatori sorgente
+` from`/` da ` sono ora fatti `tool_surface(Kind, Surface)`. Il C enumera e
+seleziona la superficie più precoce/più lunga, poi conserva solo gli offset e
+il parsing del comando o dei passi. L’aggiunta di una forma nuova non richiede
+ricompilazione.

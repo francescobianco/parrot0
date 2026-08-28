@@ -1119,6 +1119,13 @@ code_pattern(c, sort_integer_marker, "int").
 code_pattern(c, loop_for_call, "for(").
 code_pattern(c, loop_while_call, "while(").
 code_pattern(c, python_print_call, "print(").
+machinery(tool_surface).
+tool_surface(run_prefix, "run ").
+tool_surface(compile_marker, "compile").
+tool_surface(teach_prefix, "learn ").
+tool_surface(teach_prefix, "impara ").
+tool_surface(teach_source_delimiter, " from").
+tool_surface(teach_source_delimiter, " da ").
 
 % ── QUANTO VALE UNA PAROLA MOLTIPLICATIVA (gen442) ─────────────────────────
 %
