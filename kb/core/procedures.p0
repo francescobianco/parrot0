@@ -1410,6 +1410,11 @@ machinery(apply_operator).
 machinery(operator_symbol).
 operator_symbol(plus, "+"). operator_symbol(minus, "-").
 operator_symbol(times, "*"). operator_symbol(divide, "/").
+machinery(operator_explanation).
+operator_explanation("+", "adding", "sum").
+operator_explanation("-", "subtracting", "difference").
+operator_explanation("*", "multiplying", "product").
+operator_explanation("/", "dividing", "quotient").
 machinery(domain_relation).
 
 domain_relation(neighbor, borders).

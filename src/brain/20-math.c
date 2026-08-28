@@ -1332,9 +1332,20 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
             if (!ok) continue;
             const char *op = ew[i + 1];
             const char *verb = "combining", *noun = "result";
-            if (lex_class_member(b, "20_math_lex1292", op) || strcmp(op, "+") == 0) { verb = "adding"; noun = "sum"; }
-            else if (lex_class_member(b, "20_math_lex1293", op) || strcmp(op, "-") == 0) { verb = "subtracting"; noun = "difference"; }
-            else if (lex_class_member(b, "20_math_lex1294", op) || strcmp(op, "*") == 0) { verb = "multiplying"; noun = "product"; }
+            char quoted_op[KB_TERM_LEN], verb_buf[KB_TERM_LEN], noun_buf[KB_TERM_LEN];
+            snprintf(quoted_op, sizeof quoted_op, "\"%.*s\"",
+                     (int)(sizeof quoted_op - 3), op);
+            const char *vq[] = { quoted_op, NULL, NULL };
+            char verb_row[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "operator_explanation", vq, 3, verb_row, 1) == 1) {
+                snprintf(verb_buf, sizeof verb_buf, "%s", kb_dequote(verb_row[0]));
+                const char *nq[] = { quoted_op, verb_row[0], NULL };
+                char noun_row[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "operator_explanation", nq, 3, noun_row, 1) == 1) {
+                    snprintf(noun_buf, sizeof noun_buf, "%s", kb_dequote(noun_row[0]));
+                    verb = verb_buf; noun = noun_buf;
+                }
+            }
             char na[64], nb[64], nr[64], msg[320];
             format_num(a, na, sizeof na);
             format_num(c, nb, sizeof nb);

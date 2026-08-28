@@ -1191,3 +1191,10 @@ Le famiglie `using/usando`, `reach/raggiungere`, `make/arrivare a` e
 `search_reach_marker/1`, `search_make_marker/1` e `search_get_to_marker/1`.
 Il consumer mantiene solo la precedenza spaziale dei marker e il parsing
 strutturale della richiesta; il ratchet verifica anche crescita e ablazione.
+
+### Gen485 — lessico delle spiegazioni aritmetiche nella KB
+
+Le quattro coppie generate dal ramo `explain` (`adding/sum`,
+`subtracting/difference`, `multiplying/product`, `dividing/quotient`) sono ora
+fatti `operator_explanation/3`. Il consumer risolve prima il simbolo e poi
+compone la frase con gli slot; non contiene più la tabella di wording.
