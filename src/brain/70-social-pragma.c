@@ -942,16 +942,14 @@ static int looks_morse(const char *s) {
 /* Solfège iff >= 3 space-separated tokens and every one is a note name. The
  * >= 3 floor keeps lone "do"/"la"/"mi" (English/Italian words) out. Copies its
  * argument because split_words mutates the buffer. */
-static int looks_solfege(const char *s) {
-    static const char *notes[] = {"do","re","mi","fa","sol","la","si","ti",NULL};
+static int looks_solfege(Brain *b, const char *s) {
     char buf[256]; copy_trim(buf, sizeof buf, s);
     char *w[64];
     size_t nw = split_words(buf, w, 64);
     if (nw < 3) return 0;
     for (size_t i = 0; i < nw; i++) {
-        int ok = 0;
-        for (size_t k = 0; notes[k]; k++) if (strcmp(w[i], notes[k]) == 0) { ok = 1; break; }
-        if (!ok) return 0;
+        const char *q[] = { w[i] };
+        if (!b || !b->kb || !kb_query(b->kb, "solfege_note", q, 1)) return 0;
     }
     return 1;
 }
@@ -990,10 +988,8 @@ static int looks_code(Brain *b, const char *s, char **w, size_t nw) {
     /* keyword + trailing ':' (e.g. "while true:", "for x in y:") */
     size_t len = strlen(s);
     if (nw >= 1 && len > 0 && s[len - 1] == ':') {
-        static const char *kw[] = {"while","for","if","def","class","else",
-                                   "elif","try","with",NULL};
-        for (size_t k = 0; kw[k]; k++)
-            if (strcmp(w[0], kw[k]) == 0) return 1;
+        const char *q[] = { "python", w[0] };
+        if (b && b->kb && kb_query(b->kb, "code_keyword", q, 2)) return 1;
     }
     return 0;
 }
@@ -1091,7 +1087,6 @@ static int check_missing_semicolons(Brain *b, const char *code, char *findings,
         char cpy[1024]; snprintf(cpy, sizeof cpy, "%s", code);
         lines[0] = cpy; nl = 1;
     }
-    static const char *const kw[] = {"int","char","float","double","void","long","return",NULL};
     for (int i = 0; i < nl; i++) {
         char *l = lines[i]; while (*l && isspace((unsigned char)*l)) l++;
         if (!*l || l[0] == '#') continue;
@@ -1106,9 +1101,8 @@ static int check_missing_semicolons(Brain *b, const char *code, char *findings,
           while (*p && !isspace((unsigned char)*p) && *p != '(' && fwl < 63)
               fw[fwl++] = (char)tolower((unsigned char)*p++);
           fw[fwl] = '\0'; }
-        int is_kw = 0;
-        for (const char *const *k = kw; *k; k++)
-            if (strcmp(fw, *k) == 0) { is_kw = 1; break; }
+        const char *qkw[] = { "c", fw };
+        int is_kw = b && b->kb && kb_query(b->kb, "code_keyword", qkw, 2);
         if (is_kw && l[len-1] != '}') issues++;
         /* Check for statement before closing brace: scan for "keyword ... }"
          * e.g. "int main() { return 0 }" — "return 0 }" has no semicolon.

@@ -1,0 +1,16 @@
+# Focused KB-first round sixteen: symbolic and code vocabularies are teachable.
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+!query solfege_note(do)
+!query code_keyword(python, while)
+!query code_keyword(c, int)
+!assert solfege_note(ut)
+!query solfege_note(ut)
+!forget solfege_note(ut)
+!query! solfege_note(ut)

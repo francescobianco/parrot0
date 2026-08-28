@@ -1097,6 +1097,16 @@ enumeration_cue("per esempio").
 enumeration_cue("like").
 enumeration_cue("come").
 machinery(enumeration_cue).
+machinery(solfege_note).
+solfege_note(do). solfege_note(re). solfege_note(mi). solfege_note(fa).
+solfege_note(sol). solfege_note(la). solfege_note(si). solfege_note(ti).
+machinery(code_keyword).
+code_keyword(python, while). code_keyword(python, for). code_keyword(python, if).
+code_keyword(python, def). code_keyword(python, class). code_keyword(python, else).
+code_keyword(python, elif). code_keyword(python, try). code_keyword(python, with).
+code_keyword(c, int). code_keyword(c, char). code_keyword(c, float).
+code_keyword(c, double). code_keyword(c, void). code_keyword(c, long).
+code_keyword(c, return).
 
 % ── QUANTO VALE UNA PAROLA MOLTIPLICATIVA (gen442) ─────────────────────────
 %

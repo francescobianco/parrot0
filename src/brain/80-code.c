@@ -1985,7 +1985,7 @@ static int mod_symbolic(Brain *b, const char *norm, const char *raw,
     char tok[256]; copy_trim(tok, sizeof tok, lc);
     char *w[64]; size_t nw = split_words(tok, w, 64);
 
-    if (looks_solfege(lc))
+    if (looks_solfege(b, lc))
         return name_register(b, "Those are musical notes (solfège).",
                              "Sounds like solfège — do re mi.", out, out_size);
 

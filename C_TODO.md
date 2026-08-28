@@ -1084,6 +1084,13 @@ verifica assert/query/forget di una nuova superficie. Il golden research
 storico ha un mismatch di risposta indipendente dal rollback, registrato
 separatamente e non mascherato.
 
+### Gen474 — vocabolari symbolic e code in KB
+
+`solfege_note/1` e `code_keyword(Language, Word)` sostituiscono le tre liste C
+di note, keyword Python e keyword C. Il riconoscimento resta scansione e
+struttura; le parole che nominano il registro sono teachable. `kb_first_round16`
+verifica crescita e ablazione runtime.
+
 ### Gen471 — topic e constraint come user_value di sessione
 
 `current_topic` e `user_constraint` non vengono più scritti o letti dai campi
