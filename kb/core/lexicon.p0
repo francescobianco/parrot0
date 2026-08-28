@@ -1112,6 +1112,22 @@ word_multiplier("thrice", 3).      word_multiplier("triplo", 3).
 word_multiplier("quadruple", 4).   word_multiplier("four times", 4).
 word_multiplier("quadruplo", 4).
 
+% File suffixes and human names used by the local listing tool are vocabulary,
+% not a closed list in its C adapter.
+machinery(file_extension).
+file_extension(".c"). file_extension(".h"). file_extension(".py").
+file_extension(".js"). file_extension(".ts"). file_extension(".md").
+file_extension(".txt"). file_extension(".json"). file_extension(".sh").
+file_extension(".cpp"). file_extension(".cc"). file_extension(".go").
+file_extension(".rs"). file_extension(".java"). file_extension(".rb").
+file_extension(".html"). file_extension(".css").
+machinery(file_kind_word).
+file_kind_word(python, "*.py"). file_kind_word(header, "*.h").
+file_kind_word(javascript, "*.js"). file_kind_word(typescript, "*.ts").
+file_kind_word(markdown, "*.md"). file_kind_word(shell, "*.sh").
+file_kind_word(rust, "*.rs"). file_kind_word(golang, "*.go").
+file_kind_word(java, "*.java").
+
 %% ── LE PAROLE CONFRONTATE DENTRO IL MOTORE (gen442) ────────────────────────
 %%
 %% Erano `strcmp(t, "parola")` e `strstr(s, "frase")` nei moduli: vocabolario

@@ -193,14 +193,11 @@ static void rstrip_punct(char *t) {
 /* Map an English file-kind cue in `low` to a shell glob written into `glob`.
  * Returns 1 if a glob was found. Recognizes an explicit "*.ext" and ".ext" as
  * well as a handful of language words. */
-static int detect_glob(const char *low, char *glob, size_t cap) {
+static int detect_glob(Brain *b, const char *low, char *glob, size_t cap) {
     /* TODO(kb-first): le estensioni di file sono conoscenza sul mondo del
      * codice, non struttura del motore. Un linguaggio nuovo deve entrare come
      * fatto — `file_extension(rust, ".rs")` — insieme al resto di cio' che
      * parrot0 sa di quel linguaggio. */
-    static const char *const exts[] = {
-        ".c",".h",".py",".js",".ts",".md",".txt",".json",".sh",
-        ".cpp",".cc",".go",".rs",".java",".rb",".html",".css", NULL };
     const char *star = strstr(low, "*.");
     if (star) {
         size_t i = 0; glob[i++] = '*'; const char *p = star + 1;   /* keep ".ext" */
@@ -208,15 +205,32 @@ static int detect_glob(const char *low, char *glob, size_t cap) {
         glob[i] = '\0';
         return 1;
     }
-    for (int e = 0; exts[e]; e++) {
-        if (strstr(low, exts[e])) { snprintf(glob, cap, "*%s", exts[e]); return 1; }
+    if (b && b->kb) {
+        char exts[64][KB_TERM_LEN];
+        const char *eq[1] = { NULL };
+        size_t ne = kb_match(b->kb, "file_extension", eq, 1, exts, 64);
+        for (size_t e = 0; e < ne; e++) {
+            const char *needle = kb_dequote(exts[e]);
+            if (needle && strstr(low, needle)) {
+                snprintf(glob, cap, "*%s", needle);
+                return 1;
+            }
+        }
+        char words[64][KB_TERM_LEN];
+        const char *wq[2] = { NULL, NULL };
+        size_t nw = kb_match(b->kb, "file_kind_word", wq, 2, words, 64);
+        for (size_t i = 0; i < nw; i++) {
+            char word[KB_TERM_LEN];
+            snprintf(word, sizeof word, "%s", kb_dequote(words[i]));
+            char pattern[1][KB_TERM_LEN];
+            const char *pq[2] = { words[i], NULL };
+            if (kb_match(b->kb, "file_kind_word", pq, 2, pattern, 1) == 1 &&
+                strstr(low, word)) {
+                snprintf(glob, cap, "%s", kb_dequote(pattern[0]));
+                return 1;
+            }
+        }
     }
-    static const struct { const char *word, *glob; } words[] = {
-        {"python","*.py"}, {"header","*.h"}, {"javascript","*.js"},
-        {"typescript","*.ts"}, {"markdown","*.md"}, {"shell","*.sh"},
-        {"rust","*.rs"}, {"golang","*.go"}, {"java","*.java"}, {NULL,NULL} };
-    for (int w = 0; words[w].word; w++)
-        if (strstr(low, words[w].word)) { snprintf(glob, cap, "%s", words[w].glob); return 1; }
     return 0;
 }
 
@@ -593,7 +607,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         const char *dir = find_dir(w, nw);
         char dirbuf[256]; int claimed;
         if (!piact_dir(b, dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
-        char glob[64]; int has_glob = detect_glob(low, glob, sizeof glob);
+        char glob[64]; int has_glob = detect_glob(b, low, glob, sizeof glob);
         char label[200];
         char *largv_glob[] = {(char*)"find", dirbuf, (char*)"-maxdepth", (char*)"1",
                               (char*)"-name", glob, (char*)"-type", (char*)"f", NULL};
