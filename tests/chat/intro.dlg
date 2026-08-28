@@ -1,7 +1,7 @@
 # C0 felt-intelligence dialogue: the first-impression session a new user has.
 # This is NOT a pass/fail unit test (those live in tests/cases/*.chat). It is the
 # conversation benchmark: expected lines are what a *satisfying* answer would
-# contain (soft, substring match after normalization), and tests/chatbench.sh
+# contain (soft, substring match after normalization), and tests/bench/chatbench.sh
 # reports the fraction of turns that land. Most fail today on purpose -- the
 # number is the honest baseline of felt intelligence, meant to climb as the
 # C-series (TASKLIST) lands. Held-out: vary names/order in sibling .dlg files.

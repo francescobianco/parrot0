@@ -2,7 +2,7 @@
 #
 # `docs/plans/the-linguistic-glue.md` dice che la colla «diventa visibile
 # soprattutto quando manca», ed elenca cinque sintomi della sua assenza. Questo
-# file li tiene fermi. E' la conversione di `tests/gluebench.sh`, che restava
+# file li tiene fermi. E' la conversione di `tests/bench/gluebench.sh`, che restava
 # fuori da `make test` perche' era una banca a processi separati: girava in ~13s,
 # nessuno lo lanciava, e a gen383 e' stato trovato ROSSO da chissa' quando.
 #

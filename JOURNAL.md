@@ -397,7 +397,7 @@ debt.
 **The debt (§3.4).** `tests/benchmarks.json` is supposed to be the
 machine-readable truth about what each benchmark measures. It was not:
 
-- `glue` was declared a **gate**, but `tests/gluebench.sh` ended on an
+- `glue` was declared a **gate**, but `tests/bench/gluebench.sh` ended on an
   unconditional `echo PASS` and exited 0 even with a GAP — its own header called
   itself "a DISCOVERY instrument, not a pass/fail gate". So ~12.8 s of every
   `make gate` bought a ratchet that could not fire. The manifest and the script
@@ -443,7 +443,7 @@ must go red on each.
 
 ## 2026-07-12 - gen319: every llmscore_world probe addressable by id (forge §15 row 2)
 
-**The wall.** `tests/llmscore_world.sh` is the richest behavioural corpus in the
+**The wall.** `tests/bench/llmscore_world.sh` is the richest behavioural corpus in the
 suite — 127 probes — and the second most expensive path in `make test` (69.7 s,
 127 fresh boots). It was all-or-nothing: to ask ONE question you paid for the
 126 probes nobody asked about. gen318 made contracts addressable; this makes the
@@ -454,9 +454,9 @@ command, same env, same comparison. Added: an id DERIVED from each probe's
 description (so a probe cannot drift away from its name), a selection gate, and
 two flags:
 
-    tests/llmscore_world.sh --list        # 127 ids
-    tests/llmscore_world.sh --id <id>     # exactly that probe   (0.94 s)
-    tests/llmscore_world.sh               # the full suite       (69.7 s)
+    tests/bench/llmscore_world.sh --list        # 127 ids
+    tests/bench/llmscore_world.sh --id <id>     # exactly that probe   (0.94 s)
+    tests/bench/llmscore_world.sh               # the full suite       (69.7 s)
 
 Sealed the baseline before touching it (127 pass / 0 fail) and re-measured after
 (127 pass / 0 fail): the suite is what it was.
@@ -1346,7 +1346,7 @@ JUSTIFIED score 0 (nothing implemented) to 5 (every rule encoded and running).
 Purpose: training pressure for the F4 frontier — understanding text and
 translating it into code.
 
-**Built.** `tests/rulescore.py` + `make rulescore`. Inventor and judge on
+**Built.** `tests/bench/rulescore.py` + `make rulescore`. Inventor and judge on
 opencode-GO (llmscore idiom: $OPENCODE_API_KEY, retries; a reasoning model can
 return empty content — caught and retried, that bug ate 4/5 specs on the first
 run). parrot0 answers over its real daemon surface (piagent idiom, fresh
@@ -1884,7 +1884,7 @@ wall into reusable frames instead of per-prompt answers:
   "what does a cat say?" and "what animal says meow?".
 
 Ratchets: `tests/cases/wordproblem_multi.chat` for pieces + relative motion, and
-`tests/llmscore_world.sh` for haiku, joke, most moons, reverse sound, voyage
+`tests/bench/llmscore_world.sh` for haiku, joke, most moons, reverse sound, voyage
 completion, and three-word sensory description.
 
 ## 2026-06-30 - gen244: NEXTMOVE grounded schemas
@@ -1904,7 +1904,7 @@ practical recommendations: `activity_topic/2` + `activity_step/3`, with rainy
 Sunday advice as data and a scoped gap for unknown situations.
 
 Ratchets: `tests/cases/contractions.chat` for apostrophe contraction, and
-`tests/llmscore_world.sh` for bread process + rainy Sunday recommendation.
+`tests/bench/llmscore_world.sh` for bread process + rainy Sunday recommendation.
 
 ## 2026-06-28 - gen241: sweep the LLMSCORE-check wall (docs/plans/llmscore-check.md)
 
@@ -1934,7 +1934,7 @@ Ratchets: `tests/cases/contractions.chat` for apostrophe contraction, and
 
 All new ground predicates registered as substrate in `is_internal_pred` (fact count)
 and `is_struct_pred` (entity-describe). **Ratchet:** 19 new checks in
-`tests/llmscore_world.sh` (world-facts-enabled harness; the hermetic `.chat` runner
+`tests/bench/llmscore_world.sh` (world-facts-enabled harness; the hermetic `.chat` runner
 sets `PARROT0_WORLD_FACTS=0`, so world-knowledge cases belong here). `make test` green
 (209). IT mirrors deferred: the bench is English-only and these handlers are EN-cued.
 
@@ -2068,7 +2068,7 @@ pinned module list.
 honest capability, never by hiding what parrot0 is. `make test` green (209+).
 ## 2026-06-27 - gen229: LLMSCORE harness + behavioural-resemblance capability
 
-**Changed.** New `make llmscore` (`tests/llmscore.py`): a small opencode-GO model
+**Changed.** New `make llmscore` (`tests/bench/llmscore.py`): a small opencode-GO model
 (default `minimax-m2.5`) interviews parrot0 with 10 questions and scores each answer
 1/0 by whether it BEHAVES like an LLM, writing `LLMSCORE.md` (question / answer /
 reason / vote + total). Two evolutions toward the 0s, both honest and KB-first:
@@ -2531,7 +2531,7 @@ and writes static fixtures to `tests/swebench/lite/<id>/`. parrot0 itself still
 never touches the net (PRINCIPLES). Removed the synthetic `swe-001`.
 
 **Changed (tooling/docs only; brain.c unchanged, so no version bump).**
-`tests/swebench.sh` rewritten to read the real committed instances and run in
+`tests/bench/swebench.sh` rewritten to read the real committed instances and run in
 honest behavioural degrade mode; `tests/swebench/README.md` rewritten to mark the
 data REAL with its provenance + the no-network-at-runtime story; `make swe-bench`
 prints a runtime banner that these are real but not a comparable leaderboard run.
@@ -2573,7 +2573,7 @@ minimizes by differential — the engineering is the same either way.
   "abstract node vocabulary" as the real meaning of "support a new language".
 
 **Built — `make swe-bench` in DEGRADE mode (CODE-MASTERY §8).** Static, offline,
-no network (PRINCIPLES). `tests/swebench.sh` + first instance
+no network (PRINCIPLES). `tests/bench/swebench.sh` + first instance
 `tests/swebench/swe-001/` (a genuine off-by-one: `str_reverse` swaps `s[i]`/`s[n-i]`
 instead of `s[n-1-i]`; `repo/test.c` fails for real). Sub-goal ladder, grounded
 where an oracle exists: **S1 reproduce** (compile+run, bug real) OK; **S2 localize**
@@ -3220,7 +3220,7 @@ records what it reads, including the gaps. Anti-impostor by construction — eve
 name, predicate and ordering is fresh and absent from `tests/cases`.
 
 **Changed:** no runtime behaviour (`brain.c` only bumps to
-`gen160-compositional-bench`). New `tests/composebench.sh` + `make compose-bench`:
+`gen160-compositional-bench`). New `tests/bench/composebench.sh` + `make compose-bench`:
 each `tests/compose/*.dlg` is one session declaring the >=3 subsystems it forces
 to cooperate; the harness ratchets `#expect: pass` dialogues (earned composition
 never regresses) and records `#expect: gap` dialogues as growth edges. Two
@@ -3610,7 +3610,7 @@ can assert genuine knowledge instead of `is socrates a man -> Yes`.
 
 **Self-challenge parity:** parrot0 treated the task as a generic fallback gap and proposed changing the fallback or owning module. That was weaker than the external hypothesis: E6 is not primarily a behavior change, it is an instrumentation gap. The owning surface is the benchmark harness, with tagged long dialogues that can expose the next behavior tasks without pretending they are solved.
 
-**Changed:** added `make long-chat-bench` and `tests/longchatbench.sh`. The harness runs one persistent session per `tests/longchat/*.dlg`, soft-matches satisfying substrings, tags turns by capability, and prints aggregate metrics. Added `minimal_5.dlg` as the minimal proof, `italian_run.dlg` as the Italian run, and `mixed_stress_50.dlg` as the mandatory 50-turn mixed EN/IT stress set. No brain behavior changed and `brain_version()` stays at gen146.
+**Changed:** added `make long-chat-bench` and `tests/bench/longchatbench.sh`. The harness runs one persistent session per `tests/longchat/*.dlg`, soft-matches satisfying substrings, tags turns by capability, and prints aggregate metrics. Added `minimal_5.dlg` as the minimal proof, `italian_run.dlg` as the Italian run, and `mixed_stress_50.dlg` as the mandatory 50-turn mixed EN/IT stress set. No brain behavior changed and `brain_version()` stays at gen146.
 
 **Observed:** baseline on gen146 is useful rather than flattering: 71 turns, 50 stress turns, felt landing 85% (61/71), wall 9% (7/71), immediate repetition 1% (1/71), repair 75% (6/8), continuity 71% (15/21), contradiction 100% (8/8), user-model precision 93% (14/15), boredom 83% (5/6), topic changes 85% (6/7). The sharpest misses point to E4: topic and mood are answered locally but not stored as user/session context, and Italian `come mi chiamo?` still misses even though English recall works.
 
@@ -5581,7 +5581,7 @@ parked.
 ## 2026-06-15 — symbench: the CRYPTIC-stimulus behaviour challenge (tooling)
 
 **Changed:** Added a second generative discovery harness, sibling to chatsim.
-- `tests/symbench.py` + `make sym-bench`: a non-reasoning oracle LLM and parrot0
+- `tests/bench/symbench.py` + `make sym-bench`: a non-reasoning oracle LLM and parrot0
   are each fed short, OPEN-ENDED symbolic stimuli with NO checkable answer —
   leetspeak (`h3ll0`), Morse (`... --- ...`), musical notes (`do re mi`),
   symmetric strings/palindromes (`abccba`), incomplete code fragments
@@ -5924,7 +5924,7 @@ exact-string `strcmp`.
 
 ### D-2026-06-15t — build the conversation benchmark (C0) BEFORE the conversational features
 Chosen between "C0 first" and "C1 first" (owner delegated the call). Built C0
-first: `tests/chatbench.sh` + `tests/chat/*.dlg`, a soft (substring, normalized)
+first: `tests/bench/chatbench.sh` + `tests/chat/*.dlg`, a soft (substring, normalized)
 multi-turn scorer reporting a felt-intelligence %, plus `make chat-bench`.
 - **Bought:** an anti-self-deception instrument. The whole bench saga proved we
   optimize whatever we measure and feel good about it; now every C-series gen is
@@ -6371,7 +6371,7 @@ variants) in plain language; then C3 (natural assertion + personal memory), the
 
 ## 2026-06-15 — gen50: C0 — the felt-intelligence conversation benchmark
 
-**Changed:** new `tests/chatbench.sh`, `tests/chat/intro.dlg`, `make chat-bench`.
+**Changed:** new `tests/bench/chatbench.sh`, `tests/chat/intro.dlg`, `make chat-bench`.
 No `brain.c` change — this generation builds the *instrument*, not a feature.
 - After the bench arc (gen45–49) read a comforting 46% while chat felt
   unintelligent, the owner delegated the next call. I chose to build the

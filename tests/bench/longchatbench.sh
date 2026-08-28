@@ -16,7 +16,7 @@
 # already passes every turn.
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 DLG_DIR="$ROOT/tests/longchat"
 

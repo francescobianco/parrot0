@@ -13,7 +13,7 @@
 # capabilities those benchmark families pressure.
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 CASES_DIR="$ROOT/tests/cases"
 

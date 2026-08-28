@@ -16,7 +16,7 @@ Il caso discriminante è quindi l'antecedente FALSO ("se 2+2 fa 5"): se il model
 risponde 6 tratta la premessa come ininfluente, se risponde 7 la tratta come
 ridefinizione del sistema, se dichiara l'ambiguità li vede entrambi.
 
-Stesso endpoint di tests/llmscore.py (OPENCODE_API_KEY).
+Stesso endpoint di tests/bench/llmscore.py (OPENCODE_API_KEY).
     python3 tests/probes/conditional_frame_probe.py [--model minimax-m2.5]
 """
 import argparse, json, os, sys, urllib.request, urllib.error

@@ -22,8 +22,8 @@ the comparison is fair (parrot0 IS a chatbot). Provider/auth as chatsim
 model (a thinking model leaks its working into the reply). Transcripts -> tests/sym/.
 
 Usage:
-  .venv/bin/python tests/symbench.py --per-cat 4 --model kimi-k2.6
-  .venv/bin/python tests/symbench.py --no-llm     # parrot0-only dry run (free)
+  .venv/bin/python tests/bench/symbench.py --per-cat 4 --model kimi-k2.6
+  .venv/bin/python tests/bench/symbench.py --no-llm     # parrot0-only dry run (free)
 """
 from __future__ import annotations
 import argparse, json, os, random, re, subprocess, sys, time

@@ -152,7 +152,7 @@ un meccanismo reale colma un sintomo reale: guadagnato, non simulato. Il numero 
   counterfactual); `brain_create` reifica `glue_faculty(Module, Role)` SOLO per i moduli
   che esistono davvero nel registry (drift-safe, come `module/1`). Escluso dai conteggi
   fatti. La famiglia-colla è ora ispezionabile nella KB, derivata dalla struttura reale.
-- **G1 ✅** `make glue-bench` (`tests/gluebench.sh`): dialoghi multi-turno held-out EN+IT,
+- **G1 ✅** `make glue-bench` (`tests/bench/gluebench.sh`): dialoghi multi-turno held-out EN+IT,
   i 5 sintomi come metriche, degrade mode (non fa fallire la build, non è in `make test`).
 - **Mappa-dei-fallimenti (verità di base, misurata — non assunta):**
   ```

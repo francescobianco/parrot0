@@ -4,7 +4,7 @@
 # engine contains mechanics, not the tested surface vocabulary.
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 [ -x "$BIN" ] || { echo "llmscore-kbfirst: binary not built ($BIN)" >&2; exit 1; }
 cd "$ROOT" || exit 1

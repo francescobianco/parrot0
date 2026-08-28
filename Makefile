@@ -126,7 +126,7 @@ pi: build
 	@./scripts/pi.sh $(ARGS)
 
 chat-bench: build
-	@./tests/chatbench.sh
+	@./tests/bench/chatbench.sh
 
 # PARROTBENCH IS NOT A TEST. It is a deliberately large, manual-only discovery
 # measurement requested by the release intent. Never add its .p0t corpus to
@@ -165,27 +165,27 @@ mimic-bench: build
 	@chmod +x ./tests/mimic.sh; ./tests/mimic.sh
 
 long-chat-bench: build
-	@./tests/longchatbench.sh
+	@./tests/bench/longchatbench.sh
 
 # gen160 (E1): compositional emergence benchmark — held-out dialogues where
 # success requires >=3 independently-evolved subsystems to cooperate, scored as
 # composes-unchanged / generic-parser / special-case. Ratchets the composing
 # dialogues and records the open gaps.
 compose-bench: build
-	@./tests/composebench.sh
+	@./tests/bench/composebench.sh
 
 # gen173 (CODE-MASTERY.md): code-mastery discovery harness — submit code snippets
 # and observe how far the AST-as-KB engine reaches. Ratchets the holding gates
 # and records the open gaps (the next faculty to pull). See docs/CODE-MASTERY.md.
 code-bench: build
-	@./tests/codebench.sh
+	@./tests/bench/codebench.sh
 
 # gen194: the SWE-bench north star (docs/CODE-MASTERY.md §8) in DEGRADE mode —
 # static, offline instances (no network), scoring sub-goals we can check and
 # printing the first unsolved instance as the next concrete task. Never fails the
 # build; it is a discovery instrument, not a gate.
 swe-bench: build
-	@./tests/swebench.sh
+	@./tests/bench/swebench.sh
 
 # gen215: the LINGUISTIC-GLUE discovery harness (docs/plans/the-linguistic-glue.md, G1).
 # Multi-turn held-out dialogues where the essay's five absence-symptoms become metrics:
@@ -193,7 +193,7 @@ swe-bench: build
 # the next connective mechanism (G2). Degrade mode: never fails the build, not in `make
 # test`. EN+IT.
 glue-bench: build
-	@./tests/gluebench.sh
+	@./tests/bench/gluebench.sh
 
 # gen200: end-to-end real solve — parrot0 derives a patch from STRUCTURE and the
 # OFFICIAL SWE-bench Docker image judges it (FAIL_TO_PASS + PASS_TO_PASS). Needs
@@ -246,18 +246,18 @@ selfchat-baseline:
 # Same provider/auth as chat-sim ($OPENCODE_API_KEY). Logs to tests/sym/ and
 # prints an engagement report. Pass --no-llm for a free parrot0-only run.
 sym-bench: build
-	@$(BENCH_PY) ./tests/symbench.py
+	@$(BENCH_PY) ./tests/bench/symbench.py
 
 # LLMSCORE — 20 free hidden-tail questions, one-second isolated local deadlines,
 # and concurrent remote judge shards. The score report is written only when every
 # timely answer has a real verdict. External + non-deterministic, NOT part of
 # `make test`.
 llmscore: build
-	@$(BENCH_PY) ./tests/llmscore.py
+	@$(BENCH_PY) ./tests/bench/llmscore.py
 
 # Prepare the next unrestricted 20-question tail outside the 30-second score path.
 llmscore-tail:
-	@$(BENCH_PY) ./tests/llmscore.py --prepare-tail-only
+	@$(BENCH_PY) ./tests/bench/llmscore.py --prepare-tail-only
 
 # LLMSCORE-PROBE (Fase 0, docs/plans/motorize-the-class.md) — wall-rate per
 # class over a held-out battery. No API, deterministic; the development metric.
@@ -265,7 +265,7 @@ llmscore-tail:
 # Metro: malformed rate (da minimizzare) e usable per page (da massimizzare).
 # Non e' in `make test`: e' una misura, non un'asserzione.
 prose-bench: build
-	@$(BENCH_PY) ./tests/prosebench.py
+	@$(BENCH_PY) ./tests/bench/prosebench.py
 
 llmscore-probe: build
 	@$(BENCH_PY) ./tests/probes/llmscore_probe.py
@@ -280,7 +280,7 @@ model-graph: build
 # Focused local ratchet for the 19 zero-vote prompts in the 2026-07-27 report.
 # Exact isolated prompts + runtime growth proofs; no remote judge, no full suite.
 llmscore-arcs: build
-	@./tests/llmscore_arcs.sh
+	@./tests/bench/llmscore_arcs.sh
 
 # Focused cross-domain ratchet for Task IR and transferable reasoning operators.
 reasoning-operators: build
@@ -314,7 +314,7 @@ autolearn: build
 # are named as honest, fabrication is flagged as worse. Same provider/auth as
 # llmscore ($OPENCODE_API_KEY); external + non-deterministic, NOT in `make test`.
 rulescore: build
-	@$(BENCH_PY) ./tests/rulescore.py
+	@$(BENCH_PY) ./tests/bench/rulescore.py
 
 # longtalk-bench: how long can parrot0 hold a conversation with an LLM (default a
 # kimi slug on opencode-GO) before it DROPS the thread on a blind wall? Progressive
@@ -322,7 +322,7 @@ rulescore: build
 # The north-star metric for docs/plans/universal-comprehension.md. Needs
 # $OPENCODE_API_KEY + network; NOT part of `make test`.
 longtalk-bench: build
-	@$(BENCH_PY) ./tests/longtalk_bench.py $(LONGTALK_ARGS)
+	@$(BENCH_PY) ./tests/bench/longtalk_bench.py $(LONGTALK_ARGS)
 
 # gen318 (forge W0b, M-1a): the FOCAL runner — address ONE contract by id, see
 # it stream, stop at the first counterexample. `make check` lists the catalog;
@@ -845,7 +845,7 @@ legacy-test: build
 	@./tests/universal-input.sh
 	@$(BENCH_PY) ./tests/openai-input-limit.py
 	@$(BENCH_PY) ./tests/autolearn_structure.py
-	@./tests/llmscore-kbfirst.sh
+	@./tests/bench/llmscore-kbfirst.sh
 	@./tests/kb-evidence-scale.sh
 	@./tests/mcp-input-payload.sh
 	@./tests/learnbuild.sh
@@ -885,23 +885,23 @@ legacy-test: build
 	@./tests/profiles.sh
 	@./tests/skills.sh
 	@./tests/knowledge.sh
-	@./tests/llmscore_world.sh
+	@./tests/bench/llmscore_world.sh
 	@./tests/enumerate.sh
 
 bench: build
-	@./tests/bench.sh all
+	@./tests/bench/bench.sh all
 
 bench-superglue: build
-	@$(BENCH_PY) ./tests/bench_superglue.py --binary ./$(BIN) --cache-dir $(BENCH_CACHE)
+	@$(BENCH_PY) ./tests/bench/bench_superglue.py --binary ./$(BIN) --cache-dir $(BENCH_CACHE)
 
 bench-superglue-local: build
-	@./tests/bench.sh superglue
+	@./tests/bench/bench.sh superglue
 
 bench-mmlu: build
-	@./tests/bench.sh mmlu
+	@./tests/bench/bench.sh mmlu
 
 bench-bbh: build
-	@./tests/bench.sh bbh
+	@./tests/bench/bench.sh bbh
 
 impersonate: build
 	@./tests/impersonate.sh

@@ -2,7 +2,7 @@
 # Focused regressions for the missing rows recorded in LLMSCORE.md.
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 [ -x "$BIN" ] || { echo "llmscore_missing: binary not built ($BIN)" >&2; exit 1; }
 

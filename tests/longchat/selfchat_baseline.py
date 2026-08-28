@@ -9,7 +9,7 @@ cross-turn coreference, continuation ("and of Italy?"), callbacks to earlier tur
 topic drift, corrections. These transcripts are the baseline to evolve parrot0's
 glue against — not a pass/fail gate.
 
-Same framework/provider/auth as tests/llmscore.py (opencode-GO, OpenAI-compatible,
+Same framework/provider/auth as tests/bench/llmscore.py (opencode-GO, OpenAI-compatible,
 $OPENCODE_API_KEY, base https://opencode.ai/zen/go/v1). Non-deterministic, external,
 costs a little — NOT part of `make test`.
 

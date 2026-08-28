@@ -155,10 +155,10 @@ fi
 
 # Every probe must be addressable, and no two may share a slug — a duplicate id
 # would silently shadow a probe, and a shadowed probe is an unratcheted one.
-ids="$(cd "$ROOT" && ./tests/llmscore_world.sh --list)"
+ids="$(cd "$ROOT" && ./tests/bench/llmscore_world.sh --list)"
 n_ids="$(printf '%s\n' "$ids" | wc -l)"
 n_uniq="$(printf '%s\n' "$ids" | sort -u | wc -l)"
-n_rows="$(cd "$ROOT" && grep -cE '^expect(_full|_turns)? "' tests/llmscore_world.sh)"
+n_rows="$(cd "$ROOT" && grep -cE '^expect(_full|_turns)? "' tests/bench/llmscore_world.sh)"
 if [ "$n_ids" -eq "$n_rows" ] && [ "$n_uniq" -eq "$n_ids" ]; then
     ok "all $n_ids llmscore_world probes are addressable, ids unique"
 else
@@ -166,7 +166,7 @@ else
 fi
 
 # A mistyped probe id is NOT-RUN, never green.
-(cd "$ROOT" && ./tests/llmscore_world.sh --id no-such-probe >/dev/null 2>&1); rc=$?
+(cd "$ROOT" && ./tests/bench/llmscore_world.sh --id no-such-probe >/dev/null 2>&1); rc=$?
 if [ "$rc" -eq 2 ]; then
     ok "a mistyped probe id exits 2 (not-run), never 0"
 else
@@ -223,7 +223,7 @@ fi
 
 # (e) an offline row reaching for an LLM key is caught.
 out="$(audit '{"capabilities":[],"benchmarks":[{"id":"llmscore","target":"llmscore",
-  "script":"tests/llmscore.py","area":"behaviour","semantics":"discovery",
+  "script":"tests/bench/llmscore.py","area":"behaviour","semantics":"discovery",
   "exit_contract":"always-zero","requires":[],"oracle":"x","gate":"x"}]}')"; rc=$?
 if [ "$rc" -eq 1 ] && printf '%s\n' "$out" | grep -q 'external dependency'; then
     ok "an LLM-judge benchmark declared offline is caught"

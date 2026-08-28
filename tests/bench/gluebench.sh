@@ -24,7 +24,7 @@
 # Every symptom is probed in English AND Italian (the bilingual ratchet).
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 # A knowledgeable agent (anatomy etc.) so content turns have something to cohere around.
 export PARROT0_PROFILE="${PARROT0_PROFILE:-$ROOT/kb/profiles/agi.p0}"

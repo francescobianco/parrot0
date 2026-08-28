@@ -31,7 +31,7 @@ Nota importante sul senso: alzare il solo "usable per page" estraendo di piu' no
 e' un progresso se il malformed rate sale con lui. Il bersaglio e' estrarre MENO
 spazzatura, non piu' roba.
 
-    python3 tests/prosebench.py [--pages N] [--verbose] [--json FILE]
+    python3 tests/bench/prosebench.py [--pages N] [--verbose] [--json FILE]
 """
 import argparse, json, os, re, subprocess, sys
 

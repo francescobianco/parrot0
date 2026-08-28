@@ -339,7 +339,7 @@ just-learned answer must be marked as just-learned.
   `#expect: pass`; `compose.it.chat`/`compose_social.it.chat` grew the new reads.
 
 - **gen160 - compositional emergence benchmark (E1).** New `make compose-bench`
-  (`tests/composebench.sh`) runs held-out, fresh-vocab dialogues that force >=3
+  (`tests/bench/composebench.sh`) runs held-out, fresh-vocab dialogues that force >=3
   independently-evolved subsystems to cooperate, scoring each as
   composes-unchanged / generic-parser / special-case. 4 of 6 compose UNCHANGED
   with no new module: an analytical chain of EIGHT subsystems (rule+fact intake,

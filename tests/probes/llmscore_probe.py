@@ -2,7 +2,7 @@
 """llmscore_probe — Fase 0 di "Motorize the Class" (docs/plans/motorize-the-class.md).
 
 Misura la CLASSE, non il campione. Feeds a held-out battery of questions per
-class through parrot0 (same invocation as tests/llmscore.py) and reports the
+class through parrot0 (same invocation as tests/bench/llmscore.py) and reports the
 WALL-RATE per class: the fraction of answers that are a deflection ("I don't
 understand that yet", "Want me to learn about it", ...). No judge API needed —
 the wall is an objective, disqualifying tell, so its rate is our primary

@@ -47,7 +47,7 @@ discipline: robustness must come from role/keyword recognition and the existing
 KB, not from enumerating fixed strings.
 
 ### C0 - A held-out conversation benchmark (DONE, gen50)
-The anti-self-deception tool. Built: `tests/chatbench.sh` + `tests/chat/*.dlg`
+The anti-self-deception tool. Built: `tests/bench/chatbench.sh` + `tests/chat/*.dlg`
 (soft substring, normalized, multi-turn scorer) and `make chat-bench`, reporting
 a felt-intelligence %. Baseline at gen50: **36% (4/11 turns)**. Without this we
 would keep mistaking bench points for progress. Still TODO: more held-out
@@ -255,7 +255,7 @@ pet (gen163). `make compose-bench` now reads 6/6 composing unchanged, 0 gaps,
 100% landing (41/41). Open next (reflexive): parrot0 cannot yet reason about
 composing its OWN subsystems — the gen160 self-challenge walled.
 
-gen160: `make compose-bench` (`tests/composebench.sh`) runs fresh-vocab dialogues
+gen160: `make compose-bench` (`tests/bench/composebench.sh`) runs fresh-vocab dialogues
 that force >=3 independently-evolved subsystems to cooperate, scoring each
 composes-unchanged / generic-parser / special-case. 4/6 compose UNCHANGED with no
 new module — an 8-subsystem analytical chain (rule+fact intake, deduction,
@@ -671,7 +671,7 @@ mutate state), so it cannot re-run the registry safely yet. Cross-ref T9, D6.
 ## S-series — Symbolic register & cryptic stimuli (PARKED, resume later)
 
 A third discovery channel besides prose (chatsim) and benchmarks (SuperGLUE):
-`make sym-bench` (`tests/symbench.py`) feeds short, OPEN-ENDED *cryptic symbolic*
+`make sym-bench` (`tests/bench/symbench.py`) feeds short, OPEN-ENDED *cryptic symbolic*
 stimuli — leetspeak, Morse, musical notes, palindromes/symmetry, incomplete
 code, ASCII faces, 2-D ASCII art, cryptic tokens — to a non-reasoning oracle LLM
 and to parrot0, side by side. It is NOT graded for correctness: the oracle is a

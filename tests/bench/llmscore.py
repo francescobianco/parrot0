@@ -20,7 +20,7 @@ vote plus the total score. Every point must be won by genuine, honest
 capability — never by pretending to be an LLM (the no-deception rule). The score climbs
 only as parrot0 grows real competence, KB-first.
 
-Framework: same provider/auth/idiom as tests/chatsim.py and tests/symbench.py
+Framework: same provider/auth/idiom as tests/chatsim.py and tests/bench/symbench.py
 (opencode-GO, OpenAI-compatible, $OPENCODE_API_KEY, base https://opencode.ai/zen/go/v1).
 Non-deterministic, external, costs a little — NOT part of `make test`.
 
@@ -28,9 +28,9 @@ The default Kimi model is an instruct model already used by the repository for
 short structured output. This avoids spending the 30-second budget on hidden
 reasoning before verdict JSON is emitted.
 
-Usage: .venv/bin/python tests/llmscore.py [--model minimax-m2.5]
+Usage: .venv/bin/python tests/bench/llmscore.py [--model minimax-m2.5]
        [--judge-model kimi-k2.6] [--out LLMSCORE.md]
-       .venv/bin/python tests/llmscore.py --prepare-tail-only
+       .venv/bin/python tests/bench/llmscore.py --prepare-tail-only
 """
 from __future__ import annotations
 import argparse, concurrent.futures, json, os, re, subprocess, sys, time

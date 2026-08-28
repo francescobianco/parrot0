@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """chatsim — an LLM impersonates a (mutable, human) user chatting with parrot0.
 
-This is the GENERATIVE conversation benchmark, complementing C0 (tests/chatbench.sh,
+This is the GENERATIVE conversation benchmark, complementing C0 (tests/bench/chatbench.sh,
 which is hand-scripted and deterministic). A small/cheap opencode-GO model role-plays
 a human with a HIGHLY VARIABLE persona (identity, mood, verbosity, language, quirks,
 per-turn behaviour), drives a multi-turn chat with parrot0, and every exchange is

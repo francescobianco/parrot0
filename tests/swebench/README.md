@@ -11,7 +11,7 @@ maintainer), exactly like the Wikipedia corpus under `kb/learning/`. It caches t
 raw datasets-server response under the gitignored `.cache/huggingface/datasets/swebench/`
 (re-runs reuse the cache — `--force` to refetch) and writes the committed static
 fixtures here. **parrot0 itself never touches the network** (PRINCIPLES.md); the
-offline harness `tests/swebench.sh` reads only these committed files.
+offline harness `tests/bench/swebench.sh` reads only these committed files.
 
 ```
 tests/swebench/fetch_lite.sh [N]     # default 5; curation step (network once, cached)

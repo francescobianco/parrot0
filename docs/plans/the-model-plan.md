@@ -514,7 +514,7 @@ fix i prompt specifici terminano tipicamente in **90–120 ms**.
 
 ### 11.3 Ratchet puntuale
 
-`make llmscore-arcs` / `tests/llmscore_arcs.sh` esegue:
+`make llmscore-arcs` / `tests/bench/llmscore_arcs.sh` esegue:
 
 - le **19 domande esatte** che avevano voto zero;
 - un controllo runtime su una nuova strategy cue:

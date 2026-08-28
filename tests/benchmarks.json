@@ -31,34 +31,34 @@
     {
       "id": "code",
       "target": "code-bench",
-      "script": "tests/codebench.sh",
+      "script": "tests/bench/codebench.sh",
       "area": "coding",
       "semantics": "gate",
       "exit_contract": "red-on-failure",
       "requires": [],
-      "oracle": "tests/codebench.sh",
+      "oracle": "tests/bench/codebench.sh",
       "gate": "all ratcheted gates hold (25/25 at gen313), 0 open gaps counted as failures"
     },
     {
       "id": "compose",
       "target": "compose-bench",
-      "script": "tests/composebench.sh",
+      "script": "tests/bench/composebench.sh",
       "area": "conversation",
       "semantics": "gate",
       "exit_contract": "red-on-failure",
       "requires": [],
-      "oracle": "tests/composebench.sh",
+      "oracle": "tests/bench/composebench.sh",
       "gate": "all compositional dialogues hold (7 dialogues / 47 turns at gen312)"
     },
     {
       "id": "glue",
       "target": "glue-bench",
-      "script": "tests/gluebench.sh",
+      "script": "tests/bench/gluebench.sh",
       "area": "conversation",
       "semantics": "gate",
       "exit_contract": "red-on-failure",
       "requires": [],
-      "oracle": "tests/gluebench.sh",
+      "oracle": "tests/bench/gluebench.sh",
       "gate": "gen320: the exit code is now load-bearing. The 9 mechanical has:/no: continuity checks must all hold (0 gaps); the 2 qualitative 'show' rows are embedded discovery and never gate. Before gen320 this row claimed a ratchet the script could not fire."
     },
     {
@@ -108,18 +108,18 @@
     {
       "id": "superglue-local",
       "target": "bench-superglue-local",
-      "script": "tests/bench.sh",
+      "script": "tests/bench/bench.sh",
       "area": "language",
       "semantics": "discovery",
       "exit_contract": "always-zero",
       "requires": [],
-      "oracle": "tests/bench.sh superglue (local fixtures)",
+      "oracle": "tests/bench/bench.sh superglue (local fixtures)",
       "gate": "none — accuracy tracked, not gated"
     },
     {
       "id": "swe",
       "target": "swe-bench",
-      "script": "tests/swebench.sh",
+      "script": "tests/bench/swebench.sh",
       "area": "coding",
       "semantics": "degrade",
       "exit_contract": "always-zero",
@@ -141,7 +141,7 @@
     {
       "id": "llmscore",
       "target": "llmscore",
-      "script": "tests/llmscore.py",
+      "script": "tests/bench/llmscore.py",
       "area": "behaviour",
       "semantics": "external",
       "exit_contract": "always-zero",
@@ -152,7 +152,7 @@
     {
       "id": "rulescore",
       "target": "rulescore",
-      "script": "tests/rulescore.py",
+      "script": "tests/bench/rulescore.py",
       "area": "coding",
       "semantics": "external",
       "exit_contract": "always-zero",
@@ -163,7 +163,7 @@
     {
       "id": "sym",
       "target": "sym-bench",
-      "script": "tests/symbench.py",
+      "script": "tests/bench/symbench.py",
       "area": "behaviour",
       "semantics": "external",
       "exit_contract": "always-zero",
@@ -185,7 +185,7 @@
     {
       "id": "longtalk",
       "target": "longtalk-bench",
-      "script": "tests/longtalk_bench.py",
+      "script": "tests/bench/longtalk_bench.py",
       "area": "conversation",
       "semantics": "external",
       "exit_contract": "always-zero",
@@ -207,7 +207,7 @@
     {
       "id": "superglue",
       "target": "bench-superglue",
-      "script": "tests/bench_superglue.py",
+      "script": "tests/bench/bench_superglue.py",
       "area": "language",
       "semantics": "external",
       "exit_contract": "always-zero",
@@ -218,23 +218,23 @@
     {
       "id": "mmlu",
       "target": "bench-mmlu",
-      "script": "tests/bench.sh",
+      "script": "tests/bench/bench.sh",
       "area": "language",
       "semantics": "discovery",
       "exit_contract": "always-zero",
       "requires": [],
-      "oracle": "tests/bench.sh mmlu (LOCAL fixture slices, not the MMLU dataset)",
+      "oracle": "tests/bench/bench.sh mmlu (LOCAL fixture slices, not the MMLU dataset)",
       "gate": "none — gen320: was marked 'external'; it reads local fixtures offline and downloads nothing (§3.4). The real dataset run is 'superglue'-style and does not exist for MMLU yet."
     },
     {
       "id": "bbh",
       "target": "bench-bbh",
-      "script": "tests/bench.sh",
+      "script": "tests/bench/bench.sh",
       "area": "language",
       "semantics": "discovery",
       "exit_contract": "always-zero",
       "requires": [],
-      "oracle": "tests/bench.sh bbh (LOCAL fixture slices, not the BIG-Bench Hard dataset)",
+      "oracle": "tests/bench/bench.sh bbh (LOCAL fixture slices, not the BIG-Bench Hard dataset)",
       "gate": "none — gen320: was marked 'external'; it reads local fixtures offline and downloads nothing (§3.4)."
     },
     {

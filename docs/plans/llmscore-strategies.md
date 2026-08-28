@@ -103,7 +103,7 @@ per-domanda.
 
 ## 5. La misura (ex-S6, ridimensionata al suo posto)
 
-Il ratchet esiste già (`tests/llmscore_world.sh`: ogni domanda-giudice risolta è
+Il ratchet esiste già (`tests/bench/llmscore_world.sh`: ogni domanda-giudice risolta è
 inchiodata, gira in `make test`). Manca la **mappa rossa**: le domande ancora
 aperte, per asse di abilità, con coverage % (il gemello di `basic-chat.md`).
 Nel quadro T0 la mappa rossa è la coda di training: ogni riga rossa è un probe

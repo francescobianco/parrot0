@@ -25,7 +25,7 @@ are kept out of the ledger and only added to the skip list. The KB is the weight
 the lesson is the gradient step; the honest gap-naming decline is the loss; MCP is
 the training interface.
 
-Framework: same provider/auth/idiom as tests/llmscore.py (opencode-GO,
+Framework: same provider/auth/idiom as tests/bench/llmscore.py (opencode-GO,
 $OPENCODE_API_KEY, base https://opencode.ai/zen/go/v1). Non-deterministic,
 external, costs a little — NOT part of `make test`. Report appended to
 AUTOLEARN.md at the repo root.

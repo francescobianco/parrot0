@@ -4,7 +4,7 @@
 # process and a hard one-second deadline, matching the local interview contract.
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 pass=0 fail=0
 

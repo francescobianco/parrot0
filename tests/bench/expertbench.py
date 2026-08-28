@@ -22,7 +22,7 @@ mantenuta, ed e' esattamente cio' che rende deludente una conversazione.
     wall rate per dominio   = risposte a vuoto / domande poste
     domini muti             = quelli in cui NESSUNA forma passa
 
-    python3 tests/expertbench.py [--domains N] [--verbose]
+    python3 tests/bench/expertbench.py [--domains N] [--verbose]
 """
 import argparse, glob, re, subprocess, sys
 

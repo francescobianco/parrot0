@@ -23,7 +23,7 @@
 # names the next pulls. The score is NOT comparable to published SWE-bench numbers.
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 LITE="$ROOT/tests/swebench/lite"
 export PARROT0_BASE= PARROT0_SESSION=

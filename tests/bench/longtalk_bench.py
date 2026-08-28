@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """longtalk-bench — how long can parrot0 hold a conversation with an LLM?
 
-Same framework as tests/llmscore.py (opencode-GO, OpenAI-compatible,
+Same framework as tests/bench/llmscore.py (opencode-GO, OpenAI-compatible,
 $OPENCODE_API_KEY, base https://opencode.ai/zen/go/v1). A partner LLM (default a
 kimi slug) chats with parrot0 in a natural, flowing dialogue — reacting to each
 reply, asking follow-ups, drifting across everyday topics — ONE message per turn.
@@ -23,7 +23,7 @@ longer — and the score climbs honestly, without faking.
 
 Non-deterministic, external, costs a little — NOT part of `make test`.
 
-Usage: .venv/bin/python tests/longtalk_bench.py [--model kimi-k2] [--max 10]
+Usage: .venv/bin/python tests/bench/longtalk_bench.py [--model kimi-k2] [--max 10]
 """
 from __future__ import annotations
 import argparse, json, os, re, subprocess, sys, time, urllib.request, urllib.error

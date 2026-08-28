@@ -527,7 +527,7 @@ elementari su quel dominio vanno a muro.
 
 ## 2. Perché la strada ovvia non trova questi buchi
 
-La reazione naturale è misurare: `tests/expertbench.py` (scritto in questa
+La reazione naturale è misurare: `tests/bench/expertbench.py` (scritto in questa
 sessione) legge dalla KB che cosa parrot0 **dichiara** di sapere — `expert/1`,
 `category_surface/2`, `game_play/2`, `means/2` … — e per ogni dominio pone le
 forme di domanda corrispondenti. È un buon strumento e ha già trovato difetti di

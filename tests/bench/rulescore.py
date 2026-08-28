@@ -25,12 +25,12 @@ genuine capability, closed by CATEGORY (input loops, state, termination, win
 conditions — categories-not-prompts, gen254), never by gaming the judge.
 
 Framework: inventor/judge on opencode-GO (same provider/auth/idiom as
-tests/llmscore.py: $OPENCODE_API_KEY, base https://opencode.ai/zen/go/v1);
+tests/bench/llmscore.py: $OPENCODE_API_KEY, base https://opencode.ai/zen/go/v1);
 parrot0 answers over its real daemon surface (same as tests/piagent/*: the
 `pi` coding-agent channel, PARROT0_TOOLS=1). Non-deterministic, external,
 costs a little — NOT part of `make test`. Exit 0 unless the harness breaks.
 
-Usage: .venv/bin/python tests/rulescore.py [--model minimax-m2.5]
+Usage: .venv/bin/python tests/bench/rulescore.py [--model minimax-m2.5]
                                            [--games 5] [--out RULESCORE.md]
 """
 from __future__ import annotations
@@ -48,7 +48,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 BASE = "https://opencode.ai/zen/go/v1/chat/completions"
 PORT = int(os.environ.get("RULESCORE_PORT", "9917"))
 P0BASE = f"http://127.0.0.1:{PORT}"

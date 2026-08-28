@@ -24,7 +24,7 @@
 # the first one — that is the next pull, not a failure.
 set -u
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 CODE_DIR="$ROOT/tests/code"
 

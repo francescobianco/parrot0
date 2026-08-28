@@ -8,14 +8,14 @@
 # UNCHANGED — the same command, the same env, the same comparison; the only
 # addition is a selection filter and an id derived from the description:
 #
-#   tests/llmscore_world.sh --list          # every probe id
-#   tests/llmscore_world.sh --id <id>       # run exactly that probe
-#   tests/llmscore_world.sh                 # the full suite, byte-identical
+#   tests/bench/llmscore_world.sh --list          # every probe id
+#   tests/bench/llmscore_world.sh --id <id>       # run exactly that probe
+#   tests/bench/llmscore_world.sh                 # the full suite, byte-identical
 #
 # A filter that matches nothing exits 2 (not-run), never 0 — a probe that
 # silently ran nothing must not read as green.
 set -u
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 [ -x "$BIN" ] || { echo "llmscore-world: binary not built" >&2; exit 1; }
 

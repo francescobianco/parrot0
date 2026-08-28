@@ -12,7 +12,7 @@ decision taken from knowledge, which is what KB-first should mean here.
 
 This probe asks a real model the same items and prints the raw answers, so the
 claim is settled by evidence rather than intuition. Reads OPENCODE_API_KEY and
-talks to the same opencode-GO endpoint tests/llmscore.py uses.
+talks to the same opencode-GO endpoint tests/bench/llmscore.py uses.
 
     python3 tests/probes/premise_frame_probe.py [--model minimax-m2.5]
 """
