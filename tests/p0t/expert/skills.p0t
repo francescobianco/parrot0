@@ -1,0 +1,59 @@
+# skills.p0t — convertito da tests/skills.sh (gen444).
+#
+# gen150b: verify skill files provide correct procedural knowledge.
+# Covers programming, reasoning, and communication domains.
+
+[test skills]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/skills/programming/explain.p0
+!reset
+
+# explain: debug works
+> what is wrong with this code: int x = "hello";
+< Issue found: Type mismatch: a string is assigned to an int variable. Use char * or char[] for strings.
+[test skills_1]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/skills/programming/fix.p0
+!reset
+
+# fix: semicolon fix
+> fix this code: int x = 5
+< Fix: add a semicolon at the end of each statement.
+[test skills_2]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/skills/programming/generate.p0
+!reset
+
+# generate: debug works
+> what is wrong with this code: int x = "hello";
+< Issue found: Type mismatch: a string is assigned to an int variable. Use char * or char[] for strings.
+[test skills_3]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/skills/reasoning/deduce.p0
+!reset
+
+# deduce: knows modus ponens
+> what is modus_ponens
+< modus_ponens is if A is true and A implies B, then B is true.
+[test skills_4]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/skills/reasoning/compare.p0
+!reset
+
+# compare: knows the complexity dimension
+> what is complexity
+< complexity is number of parts or steps — simpler, more complex.
+[test skills_5]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/skills/communication/explain.p0
+!reset
+
+# explain_comm: knows the definition method
+> what is definition
+< definition is state what the concept is in one clear sentence.

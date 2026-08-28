@@ -1,0 +1,67 @@
+# grammar.p0t — convertito da tests/grammar.sh (gen444).
+#
+#
+# Grammar expert v0 (DESIGN.md D5): the first forged domain. Loads
+# kb/experts/linguistics/grammar.p0 and proves competence — parts of speech, the derived
+# word/1 category (via disjunctive rules), negatives, and a variable query.
+
+[test grammar]
+!set PARROT0_BASE=kb/experts/linguistics/grammar.p0
+!set PARROT0_SESSION=
+!reset
+
+# noun membership
+> is dog a noun?
+< Yes.
+
+# verb membership
+> is run a verb?
+< Yes.
+
+# POS is exclusive
+> is dog a verb?
+< No.
+
+# derived word (noun)
+> is dog a word?
+< Yes.
+
+# derived word (verb)
+> is run a word?
+< Yes.
+
+# unknown category
+> is dog a banana?
+< I don't know about banana.
+
+# all words (disjunction)
+> who is a word?
+< dog, cat, language, run, speak, red, quick.
+
+# plural form (object query)
+> what is the plural of dog?
+< dogs.
+
+# irregular plural
+> what is the plural of child?
+< children.
+
+# countable via plural rule
+> is dog a countable?
+< Yes.
+
+# non-countable
+> is language a countable?
+< No.
+
+# singular form (object query)
+> what is the singular of dogs?
+< dog.
+
+# has_plural via anon rule
+> is dogs a has_plural?
+< Yes.
+
+# not a plural form
+> is dog a has_plural?
+< No.

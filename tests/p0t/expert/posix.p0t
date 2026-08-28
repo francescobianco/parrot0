@@ -1,0 +1,56 @@
+# posix.p0t — convertito da tests/posix.sh (gen444).
+#
+#
+# Mission M1, step 1 (gen53): POSIX/shell knowledge. Loads kb/experts/programming/bash.p0 and
+# proves COMPOSITIONAL understanding of a command line — base effect + each flag,
+# composed even for combinations not stored — plus case-sensitivity (-r vs -R),
+# honest unknown flags/commands, and that it does not hijack non-shell questions.
+
+[test posix]
+!set PARROT0_BASE=kb/experts/programming/bash.p0
+!set PARROT0_SESSION=
+!reset
+
+# single command
+> what does ls do?
+< ls lists directory contents.
+
+# composed flags (held-out)
+> what does ls -la do?
+< ls lists directory contents, in long format, including hidden entries.
+
+# lowercase flag -r
+> what does ls -r do?
+< ls lists directory contents, in reverse order.
+
+# uppercase flag -R
+> what does ls -R do?
+< ls lists directory contents, descending into subdirectories.
+
+# grep with flag
+> what does grep -i do?
+< grep prints lines matching a pattern, ignoring case.
+
+# explain form, two flags
+> explain rm -rf
+< rm removes files, recursively, without prompting.
+
+# unknown flag is admitted
+> what does ls -lq do?
+< ls lists directory contents, in long format. I don't know the option -q.
+
+# unknown command (shell syntax)
+> what does foobar -x do?
+< I don't know the command foobar.
+
+# does not hijack natural question
+> what does a bird do?
+< I don't understand that yet.
+
+# pipeline composition
+> what does cat file | grep x do?
+< cat prints file contents, then grep prints lines matching a pattern.
+
+# explain pipeline with flags
+> explain ls -l | sort
+< ls lists directory contents, in long format, then sort sorts lines of text.

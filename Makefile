@@ -490,6 +490,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/engine/ranges.p0t
 	@./$(BIN) --test tests/p0t/engine/anon.p0t
 	@./$(BIN) --test tests/p0t/code/check_sort.p0t
+	@./$(BIN) --test tests/p0t/expert/posix.p0t
 	@./$(BIN) --test tests/p0t/conversation/dialogue_moves.p0t
 	@./$(BIN) --test tests/p0t/conversation/context_scope.p0t
 	@./$(BIN) --test tests/p0t/conversation/conversation.p0t
@@ -874,19 +875,13 @@ legacy-test: build
 	@./tests/vmorph.sh
 	@./tests/savemap.sh
 	@./tests/multigoal.sh
-	@./tests/grammar.sh
 	@./tests/explain.sh
 	@./tests/howknow.sh
 	@./tests/booklearn.sh
 	@./tests/wiki_learning.sh
 	@./tests/research_learn.sh
-	@./tests/posix.sh
-	@./tests/synth.sh
 	@PARROT0_ORACLE=1 ./tests/posix_oracle.sh
 	@./tests/experts.sh
-	@./tests/profiles.sh
-	@./tests/skills.sh
-	@./tests/knowledge.sh
 	@./tests/bench/llmscore_world.sh
 	@./tests/enumerate.sh
 

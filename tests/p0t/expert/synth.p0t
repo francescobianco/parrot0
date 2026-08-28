@@ -1,0 +1,40 @@
+# synth.p0t — convertito da tests/synth.sh (gen444).
+#
+#
+# gen127 (L12): program synthesis — the INVERSE of mod_shell. Loads the SAME
+# kb/experts/programming/bash.p0 the interpreter reads and proves we can go from a natural
+# spec to a one-line command: the action picks the command, the object noun
+# picks the flag. Held-out specs over known commands; honest decline otherwise.
+
+[test synth]
+!set PARROT0_BASE=kb/experts/programming/bash.p0
+!set PARROT0_SESSION=
+!reset
+
+# count lines
+> what command counts the lines in a file?
+< wc -l <file>
+
+# count words
+> write a command to count the words in a file
+< wc -w <file>
+
+# remove recursively
+> what command removes files recursively
+< rm -r <file>
+
+# sort numerically
+> which command sorts lines numerically
+< sort -n
+
+# grep recursively
+> give me a command to search for a pattern recursively
+< grep -r <pattern>
+
+# print working dir
+> what command prints the working directory
+< pwd
+
+# unknown spec
+> write a command to fly to the moon
+< I don't know a command for that yet.

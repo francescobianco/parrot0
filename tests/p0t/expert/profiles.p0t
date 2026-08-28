@@ -1,0 +1,92 @@
+# profiles.p0t — convertito da tests/profiles.sh (gen444).
+#
+# gen150b: verify profile files load and chain experts/skills via :- include.
+# Tests profiles across programming, science, and agi (all domains).
+
+[test profiles]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/programming/coder.p0
+!reset
+
+# coder: C code recognized
+> what language is this code: int x;
+< This looks like C code.
+
+# coder: Python code recognized
+> what language is this code: def foo(): pass
+< This looks like Python code.
+
+# coder: shell command via include
+> what does ls do?
+< ls lists directory contents.
+
+# coder: debug query
+> what is wrong with this code: int x = "hello";
+< Issue found: Type mismatch: a string is assigned to an int variable. Use char * or char[] for strings.
+[test profiles_1]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/programming/mentor.p0
+!reset
+
+# mentor: C code
+> what language is this code: int x;
+< This looks like C code.
+[test profiles_2]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/programming/debugger.p0
+!reset
+
+# debugger: debug query
+> what is wrong with this code: int x = "hello";
+< Issue found: Type mismatch: a string is assigned to an int variable. Use char * or char[] for strings.
+[test profiles_3]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/programming/reviewer.p0
+!reset
+
+# reviewer: C code
+> what language is this code: int x;
+< This looks like C code.
+[test profiles_4]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/science/mathematician.p0
+!reset
+
+# mathematician: defines addition (via included expert)
+> what is addition
+< addition is combining two numbers to get their sum.
+[test profiles_5]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/science/doctor.p0
+!reset
+
+# doctor: defines the heart (via included expert)
+> what is the heart
+< heart is muscular pump circulating blood through the body.
+[test profiles_6]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!reset
+
+# agi: C code recognized
+> what language is this code: int x;
+< This looks like C code.
+
+# agi: Python code recognized
+> what language is this code: def foo(): pass
+< This looks like Python code.
+
+# agi: shell command
+> what does ls do?
+< ls lists directory contents.
+
+# agi: debug query
+> what is wrong with this code: int x = "hello";
+< Issue found: Type mismatch: a string is assigned to an int variable. Use char * or char[] for strings.

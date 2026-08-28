@@ -1,0 +1,136 @@
+# knowledge.p0t — convertito da tests/knowledge.sh (gen444).
+#
+# gen151: the gen150 expert/skill knowledge must be SPOKEN, not dumped as raw
+# Prolog. These tests query the domain knowledge conversationally and assert a
+# natural sentence — proving the description facts verbalize through one general
+# path (no per-concept phrasebook) and that no clause leaks as "pred(arg, ...)".
+# EN + IT exercise the SAME render path, the bilingual ratchet (LOOP.md step 6).
+
+[test knowledge]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/experts/mathematics/arithmetic.p0
+!reset
+
+# arithmetic: what is addition
+> what is addition
+< addition is combining two numbers to get their sum.
+
+# arithmetic: bare concept (no article)
+> what is prime
+< prime is a number greater than 1 divisible only by 1 and itself.
+[test knowledge_1]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/experts/medicine/anatomy.p0
+!reset
+
+# anatomy: what is the heart
+> what is the heart
+< heart is muscular pump circulating blood through the body.
+
+# anatomy: what is the femur
+> what is the femur
+< femur is thigh bone -- longest and strongest bone in the body.
+
+# anatomy: tell me about the brain
+> tell me about the brain
+< brain is control center processing sensory information and directing responses.
+[test knowledge_2]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!reset
+
+# long+comma description (was mangled): kiss
+> what is kiss
+< kiss is keep it simple, stupid — prefer simple, obvious solutions over clever ones.
+
+# long description (was dropped): api
+> what is api
+< api is Application Programming Interface — a set of functions for building software.
+[test knowledge_3]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/experts/mathematics/arithmetic.p0
+!reset
+
+# IT: cos'e addition
+> cos'è addition
+< addition is combining two numbers to get their sum.
+
+# IT: cos'e multiplication
+> cos'è multiplication
+< multiplication is repeated addition of a number.
+[test knowledge_4]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/experts/medicine/anatomy.p0
+!reset
+
+# recall by property (held-out): longest bone -> femur
+> what is the longest bone in the body
+< You might mean femur: thigh bone -- longest and strongest bone in the body.
+[test knowledge_5]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/experts/mathematics/arithmetic.p0
+!reset
+
+# recall by paraphrase (held-out): combines two numbers -> addition
+> what is the operation that combines two numbers
+< You might mean addition: combining two numbers to get their sum.
+
+# IT cross-lingual cognate recall: -> pi
+> qual è il rapporto tra circonferenza e diametro
+< You might mean pi: 3.14159... -- the ratio of a circle's circumference to its diameter.
+[test knowledge_6]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!reset
+
+# idf breaks agi-scale tie: pumps blood -> heart
+> what is the organ that pumps blood
+< You might mean heart: muscular pump circulating blood through the body.
+[test knowledge_7]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/experts/medicine/anatomy.p0
+!reset
+
+# emergent containment: heart -> circulatory
+> what is the heart part of
+< heart is part of circulatory: heart and blood vessels -- transports blood, oxygen and nutrients.
+
+# emergent containment: liver -> digestive
+> what system is the liver part of
+< liver is part of digestive: stomach, intestines and liver -- breaks down and absorbs food.
+
+# IT emergent containment: di cosa fa parte heart
+> di cosa fa parte heart
+< heart is part of circulatory: heart and blood vessels -- transports blood, oxygen and nutrients.
+
+# no fabricated relation: femur is unplaced
+> what is the femur part of
+< I don't understand that yet.
+
+# prove derived relation: heart in circulatory
+> is the heart part of the circulatory system
+< Yes, heart is part of circulatory.
+
+# disprove (honest): heart not in digestive
+> is the heart part of the digestive system
+< No, I have no evidence that heart is part of digestive.
+
+# inverse query: members of the digestive system
+> what is part of the digestive system
+< digestive contains: stomach, intestines, liver.
+
+# type gate: a system is not part of a sibling system
+> is skeletal part of muscular
+< No, I have no evidence that skeletal is part of muscular.
+
+# honest miss: unknown topic does not fuzzy-fire
+> what is the weather like today
+< I don't understand that yet.
