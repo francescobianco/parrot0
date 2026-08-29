@@ -149,6 +149,20 @@ suite intera è `make test`.
 
 ## ⛔ TODO aperti, se stai cercando da dove ripartire
 
+> ⛔⛔ **PRIMA DI TUTTO, dal 2026-08-30: le letture di parrot0 sono CONGELATE.**
+> Rileggere un testo dopo aver imparato una parola nuova **accumula** una seconda
+> lettura invece di rivedere la prima, e le due restano vive insieme. Il limite
+> vero non e' il test che ne soffre: e' che **parrot0 non puo' rileggere cio' che
+> ha gia' letto alla luce di cio' che ha appena imparato**. E' il punto in cui
+> migliorare lo renderebbe piu' *intelligente*, non solo piu' capace. Vedi
+> `docs/plans/frontier-kb-natural-dialogue.md` §0 dei TODO aperti e §18.37 (D33),
+> voce `LEARN_TODO.md` **SC40**.
+>
+> **Regola che ne discende:** quando un test ha bisogno di un dato fresco per
+> passare, chiediti **prima** se il sistema abbia bisogno di dimenticare o di
+> **rivedere**. Aggirare un limite e descriverlo sono compatibili; aggirarlo e
+> chiamarlo intenzionale no.
+
 `KB_TODO.md` in testa porta l'elenco dei residui del piano
 `docs/plans/frontier-kb-natural-dialogue.md` — copertura funzionale completa, ma
 il §9 (confronto empirico), la latenza del §10 e il censimento di

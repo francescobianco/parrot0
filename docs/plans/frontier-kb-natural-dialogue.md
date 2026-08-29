@@ -1923,6 +1923,77 @@ completa: tutte e sette le generazioni del §15 e tutte e sette le
 sotto-generazioni del §17 hanno tagli verticali ratchettati. Quello che manca non
 e' piu' capacita' mancante, ed e' scritto qui perche' non diventi invisibile.
 
+> ## 0. ⛔⛔ LA COSA PIU' URGENTE: LE LETTURE SONO CONGELATE
+>
+> **Aggiunto il 2026-08-30 su richiesta esplicita di F., e messo per primo
+> perche' e' la piu' importante delle voci di questa lista.**
+>
+> ```text
+> > read: We then warm the tube.        ->  gap(no_reading)
+> > warm is a relation verb
+> > read: We then warm the tube.        ->  normalized(reported)
+> > !query claim_normalization_gap(…, no_reading)   ANCORA VERO
+> ```
+>
+> **Rileggere non rivede: accumula.** parrot0 tiene due letture incompatibili
+> dello stesso span e niente dice quale sia corrente.
+>
+> Sotto l'inconveniente c'e' il limite che conta, e va scritto senza attenuarlo:
+>
+> > **parrot0 non puo' rileggere cio' che ha gia' letto alla luce di cio' che ha
+> > appena imparato.** Le sue letture passate restano congelate al livello di
+> > comprensione che aveva quel giorno.
+>
+> Un lettore umano fa il contrario di continuo. Questa e' una differenza di
+> intelligenza, non un dettaglio di implementazione — ed e' il singolo punto in
+> cui migliorare renderebbe parrot0 *piu' intelligente nella comprensione*
+> invece che piu' capace su una classe in piu'.
+>
+> **Non e' la natura del dialogo e non e' stupidita'.** La separazione
+> osservazione/interpretazione di SC2-A e' corretta e va difesa. Il difetto e'
+> che `claim_proposition` sta fra le OSSERVAZIONI pur essendo il risultato di
+> un'interpretazione che usa conoscenza ritrattabile, e ci e' finito per un
+> vincolo **meccanico** travestito da scelta di modello: la lettura vive nel C e
+> la KB non puo' richiamarla, quindi invece di ri-derivarla e' stata congelata.
+>
+> **Perche' e' urgente adesso e non fra dieci fronti.** Ogni strato costruito da
+> SC2-A in poi — claim, modalita', argomento, metodo — deposita interpretazioni
+> accanto alle osservazioni. Piu' si va avanti, piu' letture congelate si
+> accumulano, e piu' costa separarle. E ogni ratchet che «per passare» ha
+> bisogno di un passaggio mai letto sta pagando questo debito senza dirlo: e'
+> gia' successo tre volte (SC2-C, SC5, §18.37).
+>
+> **La strada**, tutta con pezzi che esistono gia': `reading_depends_on/2` +
+> `reading_stale/2` + una revisione che e' un ATTO dichiarato (D21) e non un
+> automatismo. Niente si cancella — la lettura superata diventa stale e
+> `revision_effect/3` conserva prima e dopo.
+>
+> Dettaglio completo in **§18.37 (D33)**; voce di coda **SC40**, prioritaria.
+>
+> **Regola di metodo che ne discende, gia' vincolante:** quando un test ha
+> bisogno di un dato fresco per passare, chiedersi **prima** se il sistema abbia
+> bisogno di dimenticare o di **rivedere**. Aggirare un limite e descriverlo
+> sono compatibili; aggirarlo e chiamarlo intenzionale no.
+
+> ## 0b. ⛔ E LE DUE FAMIGLIE DI DIFETTO CHE LO ACCOMPAGNANO
+>
+> Sono emerse dalla stessa serie e vanno migliorate insieme, perche' hanno la
+> stessa radice — il motore decide qualcosa che nessuno puo' vedere:
+>
+> - **D29, §18.33 — l'affermazione che copre meno di quanto legge.** Tre
+>   occorrenze misurate in due giorni (modale inghiottito nel soggetto, premessa
+>   sparita dall'argomento, complemento pendente perso). Nessuna somigliava a un
+>   errore: sono risposte **ben formate costruite su meno di quanto il sistema
+>   aveva davanti**. Il mantra #7 copre la risposta falsa; questa e' la classe
+>   accanto, e sopravvive a ogni controllo che chieda soltanto se sia vera.
+>   Voce **SC35**.
+> - **D30, §18.34 — un default implicito e' una decisione che nessuno puo'
+>   vedere.** Cinque chiusi il 2026-08-30 con la stessa ricetta (`cue_scope`,
+>   `move_policy`, `support_mode`, `specific_participle`,
+>   `normalization_extent_policy`): in tutti e cinque il motore stava gia'
+>   decidendo, non lo diceva, e la decisione non era ne' insegnabile ne'
+>   ritrattabile. Voce **SC36**, che chiede il censimento.
+
 1. **§9 — il confronto empirico non e' stato fatto.** Le batterie del §9.2
    (parafrasi, ambiguita', ponte fra entita', uso/menzione, registro,
    pragmatica, correzione, piano situazionale, sopravvivenza, triangolazione,
