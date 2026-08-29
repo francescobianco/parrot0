@@ -1,0 +1,70 @@
+# document_method.p0t — SC5: il metodo descritto in prosa, e quando NON e' eseguibile.
+#
+# Un passo di metodo non e' un oggetto nuovo: e' una claim riportata come
+# qualunque altra. Cambia lo status — `described` invece di `observed` — e il
+# contesto: `reported_method`. Percio' non c'e' un secondo estrattore, e il
+# metodo e' una VISTA sulle claim ordinata dall'ordine delle unita'.
+#
+# La proprieta' misurata e' D29 applicata al saper fare: una procedura non e'
+# eseguibile finche' un suo passo non e' legato, e un ciclo senza criterio
+# d'arresto non e' una procedura.
+#
+# Fonte vera: NCBI Bookshelf, Molecular Biology of the Cell (PCR).
+# Le locuzioni sono held-out rispetto alla KB persistita.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test sc5 passi, precondizione, criterio d'arresto]
+!timeout 120
+> heat is a relation verb
+< Learned: relation_verb(heat).
+> cool is a relation verb
+< Learned: relation_verb(cool).
+> require is a relation verb
+< Learned: relation_verb(require).
+> reach is a relation verb
+< Learned: relation_verb(reach).
+> read: https://www.ncbi.nlm.nih.gov/books/NBK21154/ Before this the reaction requires a polymerase. We then heat the mixture. We then cool the sample. This repeats until the cycles reach thirty.
+<~ document unit(s)
+!query method_step(document_a89aaeaeb2e06370_a4193019ccc98cf0, 1, document_a89aaeaeb2e06370_a4193019ccc98cf0_unit_1_claim_0)
+!query method_step(document_a89aaeaeb2e06370_a4193019ccc98cf0, 2, document_a89aaeaeb2e06370_a4193019ccc98cf0_unit_2_claim_0)
+!query method_precondition(document_a89aaeaeb2e06370_a4193019ccc98cf0, document_a89aaeaeb2e06370_a4193019ccc98cf0_unit_0_claim_0)
+!query method_stop_criterion(document_a89aaeaeb2e06370_a4193019ccc98cf0, document_a89aaeaeb2e06370_a4193019ccc98cf0_unit_3_claim_0)
+# IL SOGGETTO ELISO viene dall'agente attribuito, non da un'invenzione.
+!query claim_frame(document_a89aaeaeb2e06370_a4193019ccc98cf0_unit_1_claim_0, heat, authors, mixture)
+# Un metodo e' DESCRITTO, non affermato: nessun passo entra nel mondo.
+!query claim_status(document_a89aaeaeb2e06370_a4193019ccc98cf0_unit_1_claim_0, described)
+!query claim_commitment(document_a89aaeaeb2e06370_a4193019ccc98cf0_unit_1_claim_0, attributed_only)
+!query! heat(authors, mixture)
+!query! holds_in(world, proposition(frame(heat, roles(subject(authors), object(mixture)))))
+# Un ciclo con il proprio arresto e' eseguibile.
+!query method_repeats(document_a89aaeaeb2e06370_a4193019ccc98cf0)
+!query method_executable(document_a89aaeaeb2e06370_a4193019ccc98cf0, ready)
+
+[test sc5 un passo non legato blocca la procedura]
+!timeout 90
+# Passaggio MAI letto prima: `claim_proposition` e' un'osservazione
+# materializzata di proposito — il retract di una cue non deve distruggerla —
+# quindi rileggere un documento gia' osservato non misurerebbe niente.
+# `warm` non e' un verbo di relazione noto: il passo si vede e non si lega.
+> read: https://www.ncbi.nlm.nih.gov/books/NBK21154/ Before this the reaction requires a buffer. We then warm the tube. This repeats until the cycles reach forty.
+<~ document unit(s)
+!query method_step(document_a89aaeaeb2e06370_8b32e8d21149aa6b, 1, document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0)
+!query method_executable(document_a89aaeaeb2e06370_8b32e8d21149aa6b, blocked(unbound_step))
+!query! method_executable(document_a89aaeaeb2e06370_8b32e8d21149aa6b, ready)
+# IL PASSO RESTA VISIBILE: cade l'eseguibilita', non la lettura.
+!query claim_surface(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, "warm the tube")
+!query claim_status(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, described)
+# E insegnare il verbo mancante sblocca la procedura, senza rileggere il resto.
+> warm is a relation verb
+< Learned: relation_verb(warm).
+> read: https://www.ncbi.nlm.nih.gov/books/NBK21154/ Before this the reaction requires a buffer. We then warm the tube. This repeats until the cycles reach forty.
+<~ document unit(s)
+!query claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
+!query method_executable(document_a89aaeaeb2e06370_8b32e8d21149aa6b, ready)

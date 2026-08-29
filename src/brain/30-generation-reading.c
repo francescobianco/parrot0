@@ -1946,6 +1946,50 @@ static int document_claim_from_clause(Brain *b, const char *clause,
     char frame[KB_TERM_LEN], modal[KB_TERM_LEN];
     int reading_kind = claim_reading_of(b, content, frame, sizeof frame,
                                         modal, sizeof modal);
+    /* ── SC5: UN PASSO DI METODO HA IL SOGGETTO ELISO ────────────────────
+     *
+     * «We then heat the mixture» lascia per remainder «heat the mixture»:
+     * comincia dal verbo, e nessuno schema soggetto-verbo-oggetto lo lega. Non
+     * e' un difetto della lettura — e' la forma normale di un metodo, dove
+     * l'agente non si ripete perche' e' gia' noto. E parrot0 lo ha gia': e'
+     * l'attribuzione della classe.
+     *
+     * Il C non sa chi sia l'agente ne' come si dica: chiede alla KB se la
+     * classe dichiari il soggetto eliso, chiede la superficie dell'agente, la
+     * antepone e rilegge con la STESSA fase pura. Nessuna decisione qui. */
+    if (reading_kind == 0) {
+        const char *eq[] = { cls, "attributed" };
+        if (kb_query(b->kb, "elided_subject", eq, 2)) {
+            char agent[1][KB_TERM_LEN], surface[1][KB_TERM_LEN];
+            const char *aq[] = { cls, NULL, NULL, NULL };
+            char row[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "claim_marker_class", aq, 4, row, 1) == 1) {
+                /* l'attribuzione sta nella politica di classe, terza colonna */
+                const char *paq[] = { cls, row[0], NULL, NULL };
+                if (kb_match(b->kb, "claim_marker_class", paq, 4, agent, 1) == 1) {
+                    char bare[KB_TERM_LEN];
+                    snprintf(bare, sizeof bare, "%s", agent[0]);
+                    char *inner = strchr(bare, '(');
+                    if (inner) {
+                        char *close = strrchr(inner, ')');
+                        if (close) *close = '\0';
+                        const char *sq2[] = { inner + 1, NULL };
+                        if (kb_match(b->kb, "agent_surface", sq2, 2,
+                                     surface, 1) == 1) {
+                            char joined[512];
+                            char sb[KB_TERM_LEN];
+                            snprintf(sb, sizeof sb, "%s", surface[0]);
+                            snprintf(joined, sizeof joined, "%s %s",
+                                     kb_dequote(sb), content);
+                            reading_kind = claim_reading_of(
+                                b, joined, frame, sizeof frame,
+                                modal, sizeof modal);
+                        }
+                    }
+                }
+            }
+        }
+    }
     if (reading_kind == 2) {
         const char *partial[] = { ref, "gap(partial_reading)" };
         kb_query(b->kb, "document_claim_gap_observe", partial, 2);

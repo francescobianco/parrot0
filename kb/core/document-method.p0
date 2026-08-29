@@ -1,0 +1,155 @@
+% document-method.p0 — il metodo descritto in prosa (SC5).
+%
+% Un passo di metodo NON e' un oggetto nuovo: e' una claim riportata come
+% qualunque altra. «We then heat the mixture» dice che gli autori descrivono
+% di aver scaldato, esattamente come «the data show that …» dice che i dati
+% mostrano. Cambia lo status — `described` invece di `observed` — e cambia il
+% contesto: `reported_method` invece di `reported_belief`.
+%
+% Percio' questo file NON introduce un secondo estrattore. Dichiara tre classi
+% dentro `claim_marker_class/4` e riceve gratis tutta la catena SC2: scorer
+% universale, span, remainder, normalizzazione in quarantena con la disciplina
+% di copertura, provenienza, prova pronunciata, retract e reteach. Il metodo e'
+% una VISTA su quelle claim, ordinata dall'ordine delle unita'.
+%
+% La proprieta' che questo file esiste per garantire e' l'applicazione di D29 al
+% saper fare: **una procedura non e' eseguibile finche' un suo passo non e'
+% legato.** Un metodo con un passo non normalizzato che si dichiarasse pronto
+% sarebbe la stessa specie del misclaim modale — una capacita' affermata su meno
+% di quanto e' stato letto.
+
+:- file_attribute(machinery).
+
+machinery(method_role).
+machinery(method_element).
+machinery(method_step).
+machinery(method_precondition).
+machinery(method_stop_criterion).
+machinery(method_unbound_step).
+machinery(method_has_unbound_step).
+machinery(method_has_step).
+machinery(method_has_stop_criterion).
+machinery(method_executable).
+machinery(current_method_element).
+machinery(current_method_state).
+
+% Il metodo e' descritto, non affermato: chi lo riporta si impegna a dire che lo
+% ha fatto, non che il mondo sia in quello stato.
+commitment_policy(reported_method, attributed_only).
+
+claim_marker_class(
+    procedure_step_marker,
+    reading(described, reported_method),
+    attribution(document_authors),
+    extent(remainder)).
+claim_marker_class(
+    precondition_marker,
+    reading(required, reported_method),
+    attribution(document_authors),
+    extent(remainder)).
+claim_marker_class(
+    stop_criterion_marker,
+    reading(bounded, reported_method),
+    attribution(document_authors),
+    extent(remainder)).
+
+% Membri iniziali e casa di persistenza delle tre classi. Il ratchet usa
+% superfici held-out, insegnate a runtime.
+procedure_step_marker("we then").
+precondition_marker("before this").
+stop_criterion_marker("this repeats until").
+
+% ── IL SOGGETTO DI UN PASSO E' ELISO, E SI SA GIA' CHI E' ─────────────────
+%
+% «We then heat the mixture» ha per remainder «heat the mixture»: comincia dal
+% verbo, e nessuno schema soggetto-verbo-oggetto puo' legarlo. Non e' un difetto
+% del lettore — e' la forma normale di un metodo, dove l'agente non si ripete
+% perche' e' gia' noto. E infatti parrot0 lo ha gia': e' l'attribuzione della
+% classe, `attribution(document_authors)`.
+%
+% Quindi la policy: una classe puo' dichiarare che il proprio soggetto e' eliso
+% e va preso dall'agente attribuito. La superficie dell'agente e' un fatto, non
+% una stringa nel C, e una lingua nuova costa una riga.
+machinery(elided_subject).
+machinery(agent_surface).
+elided_subject(procedure_step_marker, attributed).
+elided_subject(precondition_marker, attributed).
+agent_surface(document_authors, "the authors").
+agent_surface(document_data, "the data").
+agent_surface(document_simulation, "the simulation").
+
+method_role(procedure_step_marker, step).
+method_role(precondition_marker, precondition).
+method_role(stop_criterion_marker, stop_criterion).
+
+% L'ordine dei passi e' l'ordine delle unita': il documento lo porta gia'.
+method_element($Document, $Order, $Role, $Claim) :-
+    claim_marker_live($Claim, $Class),
+    method_role($Class, $Role),
+    claim_source_record($Claim, source($Document, $Unit), $Provenance),
+    document_unit($Document, $Unit, $Order).
+
+method_step($Document, $Order, $Claim) :-
+    method_element($Document, $Order, step, $Claim).
+method_precondition($Document, $Claim) :-
+    method_element($Document, $Order, precondition, $Claim).
+method_stop_criterion($Document, $Claim) :-
+    method_element($Document, $Order, stop_criterion, $Claim).
+
+% ── D29 APPLICATO AL SAPER FARE ───────────────────────────────────────────
+%
+% Un passo la cui proposizione non e' stata normalizzata e' un passo che parrot0
+% ha VISTO e non ha LEGATO. Una procedura che si dichiarasse pronta con un passo
+% cosi' affermerebbe una capacita' costruita su meno di quanto ha letto — la
+% stessa specie del modale inghiottito e della premessa sparita.
+method_unbound_step($Document, $Claim) :-
+    method_step($Document, $Order, $Claim),
+    naf(claim_normalized($Claim, reported)).
+method_has_unbound_step($Document) :-
+    method_unbound_step($Document, $Claim).
+method_has_step($Document) :- method_step($Document, $Order, $Claim).
+method_has_stop_criterion($Document) :-
+    method_stop_criterion($Document, $Claim).
+
+method_executable($Document, blocked(unbound_step)) :-
+    method_has_unbound_step($Document).
+% Un ciclo senza criterio d'arresto non e' una procedura: e' un'istruzione a non
+% fermarsi mai. Dichiararlo pronto sarebbe promettere qualcosa di ineseguibile.
+% DICHIARATA E NON ANCORA MISURATA: la ripetizione e' oggi segnalata dalla
+% stessa cue che porta l'arresto, quindi ritrarre quella classe toglie insieme
+% il ciclo e il suo confine e il documento torna `ready` invece che bloccato.
+% Per misurare questa porta serve una cue di ripetizione indipendente da quella
+% di arresto — e' SC37, e finche' non esiste questa clausola e' un seme, non una
+% capacita' provata.
+method_executable($Document, blocked(no_stop_criterion)) :-
+    method_has_step($Document),
+    naf(method_has_unbound_step($Document)),
+    method_repeats($Document),
+    naf(method_has_stop_criterion($Document)).
+method_executable($Document, ready) :-
+    method_has_step($Document),
+    naf(method_has_unbound_step($Document)),
+    naf(method_repeats($Document)).
+method_executable($Document, ready) :-
+    method_has_step($Document),
+    naf(method_has_unbound_step($Document)),
+    method_repeats($Document),
+    method_has_stop_criterion($Document).
+
+% Se il metodo dichiari un ciclo e' a sua volta una lettura: oggi lo dice la
+% presenza di una cue di arresto o di ripetizione, ed e' una classe aperta.
+machinery(method_repeats).
+machinery(repetition_marker).
+repetition_marker("this repeats until").
+method_repeats($Document) :-
+    claim_marker_live($Claim, $Class),
+    method_role($Class, $Role),
+    claim_source_record($Claim, source($Document, $Unit), $Provenance),
+    claim_marker_observation($Claim, $Class, marker($Cue, $Range)),
+    repetition_marker($Cue).
+
+current_method_element($Order, $Role, $Claim) :-
+    current_document($Document),
+    method_element($Document, $Order, $Role, $Claim).
+current_method_state($State) :-
+    current_document($Document), method_executable($Document, $State).
