@@ -163,6 +163,39 @@ normalization_gap_kind(no_reading).
 normalization_gap_kind(ambiguous_reading).
 normalization_gap_kind(unsupported_operator).
 normalization_gap_kind(partial_reading).
+normalization_gap_kind(modal_operator).
+normalization_gap_kind(negated_reading).
+normalization_gap_kind(coordinated_reading).
+normalization_gap_kind(comparative_reading).
+
+% ── PERCHE' UNA FRASE NON E' STATA LETTA SI LEGGE DALLA FRASE ──────────────
+%
+% `no_reading` e' vero e inutile: dice che il lettore si e' fermato, non contro
+% che cosa. Un residuo tipato invece si conta, si raggruppa e si ordina — e la
+% somma dei residui di un corpus e' l'elenco di cio' che parrot0 non sa ancora
+% leggere, cioe' il curriculum che oggi scriviamo noi a mano.
+%
+% Le superfici stanno qui, non nel C, e passano dallo stesso scorer universale
+% delle cue epistemiche. Una classe nuova di residuo — apposizione, riferimento,
+% condizionale — costa dei fatti; il lettore non cambia. Il match e' a PAROLA
+% INTERA (`keyword`) perche' «can» non deve accendersi dentro «scan».
+machinery(normalization_gap_evidence).
+normalization_gap_evidence(modal_operator, keyword(can)).
+normalization_gap_evidence(modal_operator, keyword(may)).
+normalization_gap_evidence(modal_operator, keyword(might)).
+normalization_gap_evidence(modal_operator, keyword(could)).
+normalization_gap_evidence(modal_operator, keyword(should)).
+normalization_gap_evidence(modal_operator, keyword(would)).
+normalization_gap_evidence(modal_operator, keyword(must)).
+normalization_gap_evidence(negated_reading, keyword(not)).
+normalization_gap_evidence(negated_reading, keyword(never)).
+normalization_gap_evidence(negated_reading, keyword(neither)).
+normalization_gap_evidence(coordinated_reading, keyword(and)).
+normalization_gap_evidence(coordinated_reading, keyword(or)).
+normalization_gap_evidence(coordinated_reading, keyword(both)).
+normalization_gap_evidence(comparative_reading, keyword(than)).
+normalization_gap_evidence(comparative_reading, keyword(more)).
+normalization_gap_evidence(comparative_reading, keyword(less)).
 
 % ── UNA LETTURA CHE NON COPRE LA PROPOSIZIONE NON E' UNA NORMALIZZAZIONE ──
 %
@@ -244,6 +277,25 @@ machinery(current_document_normalized_claim).
 current_document_normalized_claim($Claim) :-
     current_document_claim($Claim, $Proposition),
     claim_normalized($Claim, $Origin).
+
+% ── LA PROVA DEVE POTERSI PRONUNCIARE ─────────────────────────────────────
+%
+% `claim_proof/2` si interrogava e non si diceva: «come lo sai?» dopo una
+% risposta su una claim rispondeva che non c'era nessuna prova da condividere.
+% Una risposta giustificata la cui giustificazione non e' dicibile e' meta'
+% risposta. Queste tre viste danno al registro della prova le coordinate
+% separate che la frase deve nominare; la FRASE resta in `response_template`.
+machinery(claim_unit).
+machinery(claim_span).
+machinery(claim_live_cue).
+
+claim_unit($Claim, $Unit) :-
+    claim_source_record($Claim, source($Document, $Unit), provenance($Range)).
+claim_span($Claim, $Range) :-
+    claim_source_record($Claim, source($Document, $Unit), provenance($Range)).
+claim_live_cue($Claim, $Cue) :-
+    claim_marker_observation($Claim, $Class, marker($Cue, $CueRange)),
+    apply($Class, cons($Cue, nil)).
 
 current_claim_of_class($Class, $Claim) :-
     claim_marker_live($Claim, $Class),

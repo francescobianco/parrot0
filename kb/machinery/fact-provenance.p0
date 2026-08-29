@@ -129,6 +129,11 @@ fact_source(relation_verb(detected), detected, "detected is a relation verb").
 fact_source(relation_verb(improved), improved, "improved is a relation verb").
 fact_source(relation_verb(shortened), shortened, "shortened is a relation verb").
 fact_source(relation_verb(shortens), shortens, "shortens is a relation verb").
+fact_source(irregular_participle(written), written, "written is an irregular participle").
+fact_source(irregular_participle(seen), seen, "seen is an irregular participle").
+fact_source(irregular_participle(given), given, "given is an irregular participle").
+fact_source(irregular_participle(found), found, "found is an irregular participle").
+fact_source(irregular_participle(shown), shown, "shown is an irregular participle").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -159,8 +164,13 @@ reading_fact(secretes(salivary_gland, amylase), "the salivary gland secretes amy
 reading_fact(relation_verb(detected), "detected is a relation verb").
 reading_fact(hypothesis_report_marker("the researchers hypothesize that"), ""the researchers hypothesize that" is a hypothesis report marker.").
 reading_fact(relation_verb(improved), "improved is a relation verb").
+reading_fact(irregular_participle(written), "written is an irregular participle").
 reading_fact(contrastive_connector(nevertheless), ""nevertheless" is a contrastive connector.").
+reading_fact(irregular_participle(seen), "seen is an irregular participle").
 reading_fact(relation_verb(shortened), "shortened is a relation verb").
+reading_fact(irregular_participle(given), "given is an irregular participle").
 reading_fact(hypothesis_report_marker("the authors hypothesize that"), ""the authors hypothesize that" is a hypothesis report marker.").
+reading_fact(irregular_participle(found), "found is an irregular participle").
 reading_fact(relation_verb(shortens), "shortens is a relation verb").
+reading_fact(irregular_participle(shown), "shown is an irregular participle").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").

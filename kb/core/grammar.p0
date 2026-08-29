@@ -593,6 +593,58 @@ frame_role_order(s, 1).
 frame_role_order(o, 2).
 frame_role_order(t, 3).
 
+% ── IL PASSIVO NON E' UNA SECONDA LEZIONE ─────────────────────────────────
+%
+% «the orbital period was shortened by DART» e «DART shortened the orbital
+% period» dicono la stessa cosa. Finche' la prima non aveva una lettura, due
+% superfici della stessa proposizione producevano un frame e un buco — e su una
+% claim riportata questo significa che una verifica di status poteva mancare il
+% proprio bersaglio per un fatto di stile.
+%
+% Non si insegna una costruzione per verbo: si dichiara che una relazione HA una
+% forma passiva, e lo schema lo costruisce questa regola. E' la stessa mossa del
+% gen429 sul verbo di relazione, un gradino piu' su.
+%
+% Il passivo si forma sul PARTICIPIO, non su una forma qualunque: «was produces
+% by» non e' inglese e generarlo sporcherebbe lo spazio degli schemi senza mai
+% combaciare. Quali forme siano participi e' morfologia, e la morfologia e'
+% conoscenza — la regola generale e' il suffisso, le eccezioni sono membri.
+machinery(passive_auxiliary).
+machinery(passive_agent_marker).
+machinery(past_participle).
+machinery(irregular_participle).
+
+passive_auxiliary(was).
+passive_auxiliary(were).
+passive_auxiliary(is).
+passive_auxiliary(are).
+passive_agent_marker(by).
+
+ends_ed(cons(e, cons(d, nil))).
+ends_ed(cons($H, $T)) :- ends_ed($T).
+past_participle($V) :- relation_verb($V), chars($V, $L), ends_ed($L).
+past_participle($V) :- irregular_participle($V).
+
+% Il tetto di otto goal per clausola e' una meccanica del caricatore, non un
+% limite di conoscenza: le parti invarianti dello schema si compongono una volta.
+machinery(passive_prefix).
+machinery(passive_suffix).
+passive_prefix($Prefix) :-
+    passive_auxiliary($Aux),
+    concat_atoms("@O ", $Aux, $A),
+    concat_atoms($A, " ", $Prefix).
+passive_suffix($Suffix) :-
+    passive_agent_marker($By),
+    concat_atoms(" ", $By, $A),
+    concat_atoms($A, " @S", $Suffix).
+
+extract_frame($Pat, $Pred) :-
+    past_participle($Pred),
+    passive_prefix($Prefix),
+    passive_suffix($Suffix),
+    concat_atoms($Prefix, $Pred, $Mid),
+    concat_atoms($Mid, $Suffix, $Pat).
+
 answer_frame($Verb, $Verb) :- relation_verb($Verb).
 
 % ── E QUANDO I RUOLI SONO TRE (M3) ───────────────────────────────────────────

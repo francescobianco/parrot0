@@ -57,3 +57,16 @@ relation_verb(detected).
 relation_verb(improved).
 relation_verb(shortened).
 relation_verb(shortens).
+
+% Sessione SC2-C, 2026-08-29: i participi irregolari. Il passivo di una
+% relazione si costruisce sul participio, e la regola generale in inglese e' il
+% suffisso `-ed` (kb/core/grammar.p0, `past_participle/1`). Le eccezioni non
+% sono una lista nel motore: sono membri di una classe, e si insegnano dicendo
+% «shown is an irregular participle». Da quel turno «X was shown by Y» ha una
+% lettura, senza ricompilare.
+% Report: docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2c.md
+irregular_participle(shown).
+irregular_participle(found).
+irregular_participle(given).
+irregular_participle(seen).
+irregular_participle(written).

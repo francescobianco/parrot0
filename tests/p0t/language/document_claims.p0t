@@ -299,3 +299,99 @@
 <! reports it as
 > was it observed that DART slowed the orbital period?
 < Yes - that claim is reported as observed (from https://ntrs.nasa.gov/citations/20230015804).
+
+# ── SC2-C — EQUIVALENZA, RESIDUO TIPATO E PROVA PRONUNCIATA ──────────────────
+#
+# Tre confini di SC2-B, presi uno alla volta:
+#   1. due superfici della stessa proposizione devono convergere su UN frame,
+#      altrimenti una verifica di status manca il bersaglio per una scelta di
+#      stile dell'autore;
+#   2. `no_reading` e' vero e inutile: dice che il lettore si e' fermato, non
+#      contro che cosa. Un residuo tipato si conta, si raggruppa e si ordina;
+#   3. una risposta giustificata la cui giustificazione non e' dicibile e'
+#      meta' risposta.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test sc2c attivo e passivo convergono su un solo frame]
+!timeout 90
+> slowed is a relation verb
+< Learned: relation_verb(slowed).
+> "the measurements indicate that" is an observation report marker.
+< Learned: observation_report_marker("the measurements indicate that").
+# Solo la forma ATTIVA viene letta.
+> read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that DART slowed the orbital period.
+<~ 1 proposition(s) normalized in quarantine
+!query claim_frame(document_0246e706600fd069_5d809f6f7baf11bd_unit_0_claim_0, slowed, dart, orbital_period)
+# La domanda in forma PASSIVA trova la stessa proposizione.
+> was it observed that the orbital period was slowed by DART?
+< Yes - that claim is reported as observed (from https://ntrs.nasa.gov/citations/20230015804).
+> was it hypothesized that the orbital period was slowed by DART?
+< No - that claim is reported as observed, not hypothesized.
+# E la forma PASSIVA nel testo produce lo stesso frame della forma attiva.
+> read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that the orbital period was slowed by DART.
+<~ 1 proposition(s) normalized in quarantine
+!query claim_frame(document_0246e706600fd069_67f8bf2d6e2cffe5_unit_0_claim_0, slowed, dart, orbital_period)
+# CONTRASTO: il passivo non rovescia i ruoli.
+!query! claim_frame(document_0246e706600fd069_67f8bf2d6e2cffe5_unit_0_claim_0, slowed, orbital_period, dart)
+> was it observed that DART slowed the orbital period?
+< Yes - that claim is reported as observed (from https://ntrs.nasa.gov/citations/20230015804).
+# E nessuna delle due forme entra nel mondo.
+!query! slowed(dart, orbital_period)
+!query! slowed(orbital_period, dart)
+
+[test sc2c la prova si pronuncia]
+!timeout 60
+> what did the measurements indicate?
+<~ The source reports it as observed
+> how do you know?
+<~ «the measurements indicate that» marks it as observed
+> was it observed that DART slowed the orbital period?
+< Yes - that claim is reported as observed (from https://ntrs.nasa.gov/citations/20230015804).
+> how do you know?
+<~ https://ntrs.nasa.gov/citations/20230015804
+!query claim_live_cue(document_0246e706600fd069_67f8bf2d6e2cffe5_unit_0_claim_0, "the measurements indicate that")
+
+[test sc2c il residuo non letto dice contro che cosa si e' fermato]
+!timeout 90
+> "the investigators predict that" is a hypothesis report marker.
+< Learned: hypothesis_report_marker("the investigators predict that").
+# MODALITA': «can» non e' un verbo mancante, e' un operatore che il lettore non
+# sa ancora comporre. Dirlo e' diverso da tacere.
+> read: https://ntrs.nasa.gov/citations/20230015804 The investigators predict that a kinetic impactor can shorten an asteroid orbit.
+<~ Mapped 1 document unit(s), 1 reported claim(s), and 1 live epistemic status(es)
+!query claim_normalization_gap(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, modal_operator)
+!query! claim_normalized(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, reported)
+!query claim_surface(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, "a kinetic impactor can shorten an asteroid orbit")
+# NEGAZIONE.
+> read: https://pmc.ncbi.nlm.nih.gov/articles/PMC5118066/ The investigators predict that randomization does not remove all bias.
+<~ Mapped 1 document unit(s), 1 reported claim(s), and 1 live epistemic status(es)
+!query claim_normalization_gap(document_5c0b5aed1874ec5b_ec99437615b124b3_unit_0_claim_0, negated_reading)
+# COMPARAZIONE.
+> read: https://gmd.copernicus.org/articles/13/1959/2020/ The investigators predict that resolution matters more than parameterization.
+<~ Mapped 1 document unit(s), 1 reported claim(s), and 1 live epistemic status(es)
+!query claim_normalization_gap(document_60abb92fbf13d97b_9d9f21d78ef47831_unit_0_claim_0, comparative_reading)
+
+[test sc2c ablation: attivo e passivo muoiono insieme]
+!timeout 60
+# Il passivo non e' una seconda lezione: ritrarre il verbo di relazione spegne
+# entrambe le forme, perche' entrambe sono derivate dalla stessa riga.
+# La prova usa una frase MAI letta prima: `claim_proposition` e'
+# un'osservazione materializzata di proposito — il retract della cue non deve
+# distruggerla — quindi rileggere un documento gia' osservato non misura niente.
+> forget that slowed is a relation verb
+<~ slowed
+> read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that the orbital period was slowed by the impactor.
+<! normalized in quarantine
+!query claim_normalization_gap(document_0246e706600fd069_58ad604f8c187c9c_unit_0_claim_0, no_reading)
+> slowed is a relation verb
+< Learned: relation_verb(slowed).
+> read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that the orbital period was slowed by the impactor.
+<~ 1 proposition(s) normalized in quarantine
+!query claim_frame(document_0246e706600fd069_58ad604f8c187c9c_unit_0_claim_0, slowed, impactor, orbital_period)

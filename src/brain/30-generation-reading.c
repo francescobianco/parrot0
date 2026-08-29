@@ -1892,8 +1892,24 @@ static int document_claim_from_clause(Brain *b, const char *clause,
         if (kb_query(b->kb, "document_claim_normalize", normalize_args, 4))
             return 1;
     }
-    const char *gap_args[] = { ref, "gap(no_reading)" };
-    kb_query(b->kb, "document_claim_gap_observe", gap_args, 2);
+    /* Perche' la lettura si e' fermata non lo indovina il C: lo dice la KB,
+     * attraverso lo stesso scorer universale delle cue epistemiche. Se le
+     * evidenze pareggiano, il residuo resta `no_reading` — un'ambiguita' non
+     * si risolve scegliendo. */
+    char gap_kind[KB_TERM_LEN], gap_proof[KB_EVIDENCE_PROOF_LEN];
+    int gap_score = 0;
+    char gap_term[KB_TERM_LEN];
+    if (kb_hypothesis_best(b->kb, "normalization_gap_evidence", content,
+                           NULL, 0, gap_kind, sizeof gap_kind, &gap_score,
+                           gap_proof, sizeof gap_proof) == 1)
+        snprintf(gap_term, sizeof gap_term, "gap(%s)", gap_kind);
+    else
+        snprintf(gap_term, sizeof gap_term, "gap(no_reading)");
+    const char *gap_args[] = { ref, gap_term };
+    if (!kb_query(b->kb, "document_claim_gap_observe", gap_args, 2)) {
+        const char *fallback[] = { ref, "gap(no_reading)" };
+        kb_query(b->kb, "document_claim_gap_observe", fallback, 2);
+    }
     return 1;
 }
 
@@ -1926,6 +1942,28 @@ static int claim_answer_source(Brain *b, const char *claim,
     return 1;
 }
 
+/* SC2-C — la prova entra nel registro che «come lo sai?» consuma gia'.
+ * Le coordinate vengono dalla KB una per una; la frase che le mette insieme e'
+ * un `response_template`, quindi si puo' insegnare a dirla diversamente. */
+static void claim_store_proof(Brain *b, const char *claim) {
+    const char *q[] = { claim, NULL };
+    char unit[1][KB_TERM_LEN], span[1][KB_TERM_LEN];
+    char cue[1][KB_TERM_LEN], status[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "claim_unit", q, 2, unit, 1) != 1) return;
+    if (kb_match(b->kb, "claim_span", q, 2, span, 1) != 1) return;
+    if (kb_match(b->kb, "claim_live_cue", q, 2, cue, 1) != 1) return;
+    if (kb_match(b->kb, "claim_status", q, 2, status, 1) != 1) return;
+    char source[KB_TERM_LEN];
+    if (!claim_answer_source(b, claim, source, sizeof source))
+        snprintf(source, sizeof source, "%s", unit[0]);
+    char trace[512];
+    kb_term_say(b, "claim_proof_trace", (const KbResponseSlot[]){
+                    { "unit", unit[0] }, { "source", source },
+                    { "span", span[0] }, { "cue", kb_dequote(cue[0]) },
+                    { "status", status[0] } }, 5, trace, sizeof trace);
+    store_proof(b, trace);
+}
+
 static int claim_content_reply(Brain *b, const char *claim,
                                char *out, size_t out_size) {
     const char *sq[] = { claim, NULL };
@@ -1945,6 +1983,7 @@ static int claim_content_reply(Brain *b, const char *claim,
                         { "status", status[0] }, { "surface", text } },
                     2, out, out_size);
     }
+    claim_store_proof(b, claim);
     return 1;
 }
 
@@ -2024,6 +2063,7 @@ static int mod_claim_question(Brain *b, const char *norm, const char *raw,
                                         { "status", status },
                                         { "source", claims[i] } }, 2,
                                     out, out_size);
+                    claim_store_proof(b, claims[i]);
                     return 1;
                 }
                 /* La proposizione esiste ma con un altro status: dirlo e' la
@@ -2039,6 +2079,7 @@ static int mod_claim_question(Brain *b, const char *norm, const char *raw,
                                     { "actual", actual[0] },
                                     { "status", status } }, 2,
                                 out, out_size);
+                    claim_store_proof(b, claims[i]);
                     return 1;
                 }
             }
