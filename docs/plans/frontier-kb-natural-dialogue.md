@@ -4362,3 +4362,30 @@ moduli sono **esecutori**, non il luogo dove la comprensione cresce. La
 comprensione cresce dove crescono le classi e i loro consumatori generici —
 cioe' lungo la catena di questo documento: span, ruolo, frame, evidenza,
 registro, claim, argomento.
+
+#### Esito del primo test di D28 (2026-08-30)
+
+Il gradino 1 falliva su due contatori: una cue insegnata non era **ritrattabile**
+(SC32, non conformita' rispetto ad `AGENTS.md`) e una cue di un token solo non
+otteneva **titolo**. Il primo e' chiuso, e la chiusura e' la prova che
+l'ipotesi chiedeva:
+
+- **niente guardia in un modulo, niente riordino del registry.** Sono bastate una
+  politica di scope (`cue_scope/2` + `mention_delimiter/2`: una cue non guarda
+  dentro una menzione) e il **consumatore mancante** dell'altro verso
+  (`try_forget_form`, che legge lo stesso `learnable/3` di `try_teach_form`);
+- il livello e' additivo: una relazione senza `cue_scope` si comporta come prima;
+- transfer su una seconda classe (`mood_tired`) mai usata per progettare la
+  correzione;
+- e il retract funziona **anche** per la cue che non ottiene titolo — togliere
+  una lezione non dipende dal fatto che qualcuno l'abbia ascoltata.
+
+Un dettaglio vale come conferma indipendente del mantra #8: prima che
+`try_forget_form` corresse **davanti** a `try_teach_form`, la frase
+`unlearn "X" as a casual opener` **re-insegnava** la cue, perche' «unlearn»
+contiene «learn». L'ordine fra due handler generici non e' la stessa cosa che
+l'ordine fra moduli: e' il verso di lettura di un unico registro.
+
+Resta aperto il secondo contatore — il **titolo** — ed e' il caso di prova di
+D26/D27: la cue e' viva, la lezione e' entrata, e chi risponde non passa da
+nessuna classe. Finche' quello non e' chiuso, il gradino 1 e' conforme a meta'.
