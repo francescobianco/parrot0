@@ -3829,18 +3829,28 @@ decisione ispezionabile e correggibile come tutte le altre.
 
 ### 18.24 Ipotesi D22 — una collisione di dispatch e' un fatto osservabile
 
-Tre lezioni di questa serie sono state intercettate da moduli precedenti, e in
-tutti e tre i casi parrot0 non ha potuto dirlo:
+> ⚠️ **Premessa corretta il 2026-08-29, vedi §18.27.** La prima stesura diceva
+> che tre lezioni erano state intercettate da moduli precedenti. Era falso, e lo
+> era perche' il furto era stato **dedotto dall'esito** invece che chiesto:
+> `who answered?` funziona da sempre, e risponde. Dei cinque casi raccolti, uno
+> solo era un furto vero (`claim` -> `missing_referent`); tre erano gap
+> uso/menzione con il rimedio gia' proposto da parrot0 e funzionante, e uno era
+> una perdita dentro la citazione. L'ipotesi resta valida ma cambia oggetto: il
+> **vincitore** e' gia' nominabile, cio' che manca e' **perche'** ha vinto e chi
+> e' stato scavalcato.
+
+Il caso reale:
 
 ```text
 was it hypothesized that a causal CLAIM must survive confounding?
-  -> «I don't have the claim you mean» — un modulo agganciato alla parola «claim»
-SHALL is a necessity marker      -> muro
-KNOWN is an irregular participle -> muro
+  -> «I don't have the claim you mean»
+who answered?
+  -> «The 'missing_referent' module answered your last question.»
 ```
 
-Dall'esterno sono indistinguibili da «non lo so». Dall'interno sono un'altra
-cosa: **qualcuno ha risposto al posto di chi doveva**. Il dispatch a primo-match
+Dall'esterno la prima riga e' indistinguibile da «non lo so». Dall'interno e'
+un'altra cosa: **qualcuno ha risposto al posto di chi doveva** — e la seconda
+riga lo dice gia', ma solo se qualcuno pensa a chiederlo. Il dispatch a primo-match
 e' deliberato e va conservato (`PRINCIPLES.md`, corollario sulle strutture
 secondarie), ma oggi e' l'unico strato del sistema che non lascia traccia.
 
@@ -3946,3 +3956,249 @@ serve perche' oggi la perdita e' **silenziosa**. Il turno dice `Learned:` e
 mostra la forma mutila, e chi insegna deve accorgersene leggendo. Una lezione che
 non e' entrata come e' stata detta deve essere un errore dichiarato, non una
 riga da confrontare a occhio.
+
+### 18.27 Il primo frutto dell'autocorrezione, e la correzione di un'ipotesi
+
+> **Nota di F., 2026-08-29.** I turni rubati che continuano a emergere durante
+> l'addestramento dicono che il motore di comprensione deve crescere in **due
+> direzioni**: la **puntualita'** e il **contesto**. E il punto di partenza non
+> e' vuoto: bisogna guardare dove la KB gia' distingue contesti, registri e
+> terminologia — il registro scacchistico FSI contro quello informale e' il caso
+> di scuola.
+
+Questa sezione fa quell'analisi. Ma prima deve correggere un errore, perche' la
+correzione **e' il risultato**.
+
+#### La scoperta: il muro non era un muro
+
+Nella serie SC2-C/SC2-D/SC3 tre lezioni lessicali sono state riportate come
+«muro, gap conservato»:
+
+```text
+shall is a necessity marker        -> muro
+known is an irregular participle   -> muro
+because is a ground connector      -> muro
+```
+
+Non erano muri. Riproposte **menzionando** la parola invece di usarla, passano
+tutte e tre al primo colpo:
+
+```text
+the word shall is a necessity marker   -> Learned: necessity_marker(shall).
+"known" is an irregular participle     -> Learned: irregular_participle(known).
+the word because is a ground connector -> Learned: ground_connector(because).
+```
+
+E il punto che conta: **la forma che funziona e' esattamente quella che parrot0
+proponeva dentro il muro**.
+
+```text
+> shall is a necessity marker
+parrot0> Hmm, I don't know about necessity yet. Want me to learn about it? Or
+         teach me: if it is a kind of thing, say «something is a necessity»;
+         if necessity is a word you want to talk ABOUT, say «the word
+         necessity is a …».
+```
+
+Parrot0 aveva **tipizzato correttamente il proprio arresto** (una parola di cui
+si sta parlando, non una che si sta usando), aveva **proposto il rimedio
+giusto**, e il rimedio **funziona**. Il fallimento e' stato del teacher, che ha
+letto quella frase come un rifiuto invece che come una proposta e ha archiviato
+il caso come gap.
+
+Questo e' il primo frutto misurabile del lavoro su **autocorrezione e
+tipizzazione degli arresti** (`kb/core/arrests.p0`, `kb/core/gap-kinds.p0`, e la
+mossa che `kb/learning/taught-lexicon.p0` documenta dal gen429): il sistema non
+si e' limitato a fallire, ha nominato la specie del proprio arresto e ha detto
+come ripararlo. Vale la pena scriverlo per esteso perche' e' il comportamento
+che il §6 del piano di apprendimento assistito chiede come condizione di
+missione — *«davanti a un fallimento nuovo, parrot0 sa indicare il tipo di
+lacuna, ricevere una spiegazione, trasformarla in una capacita' generale»* — e
+qui e' successo senza che nessuno lo stesse cercando.
+
+Corollario di metodo, sgradevole e necessario: **un rimedio proposto e non
+provato e' un gap che non esiste**. La checklist del `LEARN_PROTOCOL` §6.3
+chiede di classificare il gap; da qui in avanti deve chiedere anche di
+**eseguire il rimedio che parrot0 propone** prima di dichiararlo tale.
+
+#### La tabella corretta dei «turni rubati»
+
+Chiedendo a parrot0 `who answered?` dopo ciascun caso — cosa che sa fare da
+sempre (`intent_cue(…, "who answered")`, `turn_module/2`) e che nessuno aveva
+chiesto:
+
+| turno | chi ha risposto | che cosa era davvero |
+|---|---|---|
+| «…a causal **claim** must survive confounding?» | `missing_referent` | **furto vero**: un modulo aggancia una parola che nel registro scientifico e' terminologia |
+| «"what is that based on" is a …» | `mention` — quello **giusto** | perdita **dentro** la citazione: la canonicalizzazione consuma parole fra virgolette |
+| «**shall** is a necessity marker» | nessuno, fallback | uso/menzione, con rimedio proposto e funzionante |
+| «**known** is an irregular participle» | nessuno, fallback | idem |
+| «**because** is a ground connector» | nessuno, fallback | idem |
+
+Quindi **D22 va corretto**: la sua premessa («tre lezioni sono state
+intercettate da moduli precedenti») era sbagliata, e lo era perche' avevo
+dedotto il furto dall'esito invece di chiederlo. Il vincitore del dispatch e'
+gia' nominabile. Cio' che manca a D22 non e' *chi* ha risposto: e' **perche'** —
+quale superficie gli ha dato titolo — e se qualcuno di piu' adatto sia stato
+scavalcato. L'ipotesi resta, con la premessa riscritta e il campione ridotto a
+**un** caso reale su cinque.
+
+I tre falsi allarmi non sono pero' rumore: sono tutti la stessa cosa, ed e' la
+cosa che segue.
+
+#### Un solo principio sotto tre meccanismi
+
+```text
+claim        -> un MODULO usa la parola come termine del proprio registro
+shall/known  -> il PARSER usa la parola per il suo ruolo grammaticale
+"what is …"  -> la CANONICALIZZAZIONE usa le parole dentro le virgolette
+```
+
+Tre strati diversi, un solo principio violato:
+
+> cio' che e' **menzionato** non partecipa alla lingua che lo menziona.
+
+Il sistema conosce gia' questo principio — `canonicalization_exempt(mention)` e'
+in `kb/core/input.p0`, `segment_role(mention, …)` esiste, `mod_mention` corre
+prima del lettore universale proprio per questo — ma lo applica **localmente**,
+una guardia per percorso. Ogni percorso nuovo dovra' riscoprirlo. Vedi D25.
+
+#### Che cosa la KB gia' distingue (l'inventario chiesto da F.)
+
+L'analisi mostra un'asimmetria netta: **il registro governa cio' che parrot0
+DICE, non cio' che CAPISCE.**
+
+*Lato uscita — maturo:*
+
+| meccanismo | dove | che cosa distingue |
+|---|---|---|
+| `concept_label(Concept, Lang, Register, Form)` | `kb/core/language-forms.p0` | lo stesso concetto ha nomi diversi per registro |
+| `register_value(R, Dimension, Value)` | `kb/core/register.p0` | il registro e' un **punto in uno spazio di dimensioni** (`technicality`, `formality`), non un'etichetta |
+| `register_cue/3`, `register_request/3`, `register_commit/2` | `kb/core/register.p0` | l'interlocutore puo' **chiedere** un registro, e la richiesta si ritratta |
+| `denotation_register/4`, `form_denotes/4` | `kb/core/denotation.p0` | una forma denota un concetto **solo dentro un dominio** |
+| `concept_in_domain/2`, `domain_category/2` | `kb/core/denotation.p0` | la terminologia appartiene a domini |
+
+Il caso di scuola di F. e' letteralmente nella KB:
+
+```prolog
+register_value(fsi, technicality, high).   register_value(common, technicality, low).
+concept_label(queen, it, fsi, donna).      % kb/experts/games/chess.p0
+concept_label(queen, it, common, regina).
+```
+
+parrot0 **sa** che «donna» e «regina» sono la stessa cosa in due registri, e sa
+che `fsi` e' il registro tecnico. Questa e' esattamente la struttura che
+servirebbe per non farsi rubare `claim`.
+
+*Lato ingresso — presente ma di un'altra specie:*
+
+| meccanismo | dove | che cosa distingue |
+|---|---|---|
+| `register_evidence/2` + scorer universale | `kb/core/input.p0` | il registro di **formato**: C, Python, JSON, diff, log, prosa, quoted |
+| `segment_role/2` + `faculty_for/2` | `kb/core/input.p0` | il **ruolo** di uno span sceglie la facolta' che lo consuma |
+| `canonicalization_exempt/1` | `kb/core/input.p0` | un ruolo puo' essere **esente** da una trasformazione |
+| `turn_register/2`, `turn_module/2` | asseriti per turno | quale registro e quale facolta' hanno vinto |
+| `turn_arrest(…, wrong_suspect, arrest(guard($Module), …))` | `kb/core/arrests.p0` | esiste gia' la specie «ha risposto il modulo sbagliato» |
+
+**Il buco, detto in una riga.** `register_evidence` decide se un input e' *codice
+o prosa*; `concept_label` decide se dire *donna o regina*. Nessuno decide **in
+quale registro terminologico stia la prosa in arrivo** — e quindi nessuno puo'
+dire che in un articolo di metodologia scientifica `claim` e' un sostantivo
+tecnico e non l'invito ad aprire una verifica aritmetica. Le due meta' non si
+incontrano mai, e i due assi che F. nomina sono esattamente i due modi di farle
+incontrare: il **contesto** (D26) e la **puntualita'** (D27).
+
+### 18.28 Ipotesi D25 — uso e menzione sono un invariante, non una guardia locale
+
+Il principio e' gia' scritto in tre punti del sistema e applicato in nessuno
+come invariante. L'ipotesi e' che debba diventare una proprieta' dell'**atto**,
+non del percorso: uno span dichiarato menzione e' esente da **ogni**
+trasformazione che riscriva le sue parole, e la fedelta' e' verificabile.
+
+```prolog
+mention_span($Turn, range($Start, $Length)).
+exempt_from($Transform, $Role).
+transform_applied($Turn, $Transform, range($Start, $Length)).
+mention_fidelity($Taught, $Spoken, exact | lossy($Missing)).
+lesson_repair_offered($Gap, $Form).      % il rimedio che il muro propone
+lesson_repair_confirmed($Gap, $Form).    % il rimedio che ha funzionato
+```
+
+Le ultime due righe sono il pezzo che questa sezione ha reso obbligatorio: se
+parrot0 propone un rimedio, il sistema deve poter registrare **se qualcuno lo ha
+provato e com'e' andato**. Un rimedio proposto, funzionante e mai eseguito e'
+conoscenza che il progetto sta buttando via a ogni sessione.
+
+**Predizione falsificabile.** Dieci locuzioni quotate contenenti copule,
+ausiliari, articoli e dimostrativi entrano nella KB **byte per byte** e si
+ritrattano con la stessa superficie; e ogni lezione lessicale che fallisce nella
+forma d'uso riesce nella forma di menzione proposta dal muro. Se anche una sola
+perde una parola in silenzio, l'esenzione e' una guardia e non un invariante.
+
+**Corollario misurabile.** `mention_fidelity/3` non serve a passare un test:
+serve perche' oggi la perdita e' **muta**. Il turno dice `Learned:` e mostra la
+forma mutila, e chi insegna se ne accorge solo rileggendo. Una lezione che non e'
+entrata come e' stata detta deve essere un errore dichiarato.
+
+### 18.29 Ipotesi D26 — il registro terminologico decide chi ha titolo (asse: contesto)
+
+`register_evidence/2` sceglie gia' un registro di formato con lo scorer
+universale, e `faculty_for/2` lega gia' un ruolo a una facolta'. L'ipotesi e'
+che la stessa coppia di meccanismi, con vocabolario diverso, risolva la classe
+dei furti: un turno o uno span ha un **registro terminologico**, e una facolta'
+dichiara quali registri serve.
+
+```prolog
+terminology_register($Register, $Domain).
+register_term($Register, $Surface, $Concept).      % «claim» in metodologia
+turn_terminology($Turn, $Register, $Evidence).
+faculty_serves($Faculty, $Register).
+faculty_declines($Faculty, $Turn, foreign_register($Register)).
+```
+
+Il vocabolario non va inventato: `concept_in_domain/2` e `denotation_register/4`
+lo producono gia' dai domini caricati, e `concept_label/4` porta il registro. Un
+esperto che carica il proprio profilo carica **con esso** la propria terminologia,
+esattamente come gli scacchi caricano `fsi`.
+
+**Predizione falsificabile.** Dichiarando che un modulo serve il registro
+`arithmetic_verification` e che la prosa scientifica e' nel registro
+`research_methodology`, la frase «a causal claim must survive confounding» deve
+smettere di essere presa da quel modulo **senza toccarne il codice e senza
+toccare l'ordine del registry**. Se serve spostare il modulo nella lista, il
+registro non sta decidendo e l'ipotesi e' falsa.
+
+**Guardia.** Un registro non e' un permesso di rispondere: e' un titolo a
+provarci. La precedenza a primo-match resta, e una facolta' senza registro
+dichiarato continua a vedere tutto — altrimenti il livello diventa un filtro
+distruttivo invece che additivo (`PRINCIPLES.md`, corollario sulle strutture
+secondarie).
+
+### 18.30 Ipotesi D27 — la puntualita' e' la cue dentro il ruolo (asse: precisione)
+
+Il mantra #8 avverte da tempo che `cue()` e' substring e che «eat» sta dentro
+«f-EAT-hers». La serie SC2/SC3 mostra la stessa specie un piano piu' su: una cue
+combacia con una **parola vera**, ma con una parola che sta in un altro ruolo
+del turno. «claim» dentro il soggetto di una proposizione riportata non e' una
+richiesta di verificare una claim; «that» dentro le virgolette non e' il
+complementatore della frase che le contiene.
+
+L'input universale ha gia' i ruoli (`input_node_role/3`, `segment_role/2`,
+`turn_span/4`). Cio' che manca e' che il **matching delle cue li rispetti**.
+
+```prolog
+cue_scope($Relation, whole_turn | role($Role) | outside_role($Role)).
+cue_match_in($Turn, $Relation, $Cue, $Role, range($Start, $Length)).
+cue_blocked($Turn, $Relation, $Cue, $Role).
+```
+
+**Predizione falsificabile.** Dichiarando `cue_scope($R, outside_role(mention))`
+per le relazioni di intento, nessuna cue deve piu' accendersi dentro una
+citazione, e il numero di lezioni quotate che falliscono deve andare a zero
+senza che nessuna cue venga riscritta. Se per farlo bisogna modificare le cue,
+il problema non era lo scope.
+
+**Rapporto con D26.** Le due ipotesi sono ortogonali e si compongono: D26 dice
+*quali* facolta' hanno titolo su questo turno, D27 dice *dove* dentro il turno
+una cue puo' guardare. Una sola delle due lascia meta' della classe aperta —
+ed e' esattamente la ragione per cui F. le ha nominate insieme.

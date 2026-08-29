@@ -72,6 +72,7 @@ irregular_participle(found).
 irregular_participle(given).
 irregular_participle(seen).
 irregular_participle(written).
+irregular_participle(known).
 
 % Sessione SC2-D, 2026-08-29: il vocabolario della FORZA, dalla prosa normativa.
 % Fonte: RFC 2119 (https://www.rfc-editor.org/rfc/rfc2119) — MUST/SHALL/REQUIRED
@@ -82,6 +83,7 @@ irregular_participle(written).
 % «shall» ha fatto muro nella stessa sessione: il gap e' conservato.
 % Report: docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2d.md
 necessity_marker(required).
+necessity_marker(shall).
 expectation_marker(recommended).
 possibility_marker(optional).
 
@@ -94,5 +96,6 @@ possibility_marker(optional).
 % conservato: e' un caso di D22.
 % Report: docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc3.md
 consequence_connector(thus).
+ground_connector(because).
 consequence_connector(accordingly).
 ground_connector(since).

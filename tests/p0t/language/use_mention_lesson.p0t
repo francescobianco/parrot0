@@ -1,0 +1,71 @@
+# use_mention_lesson.p0t — una parola che sta essendo MENZIONATA non e' una
+# parola che sta essendo USATA.
+#
+# Scoperto misurando i «turni rubati» della serie SC2/SC3. Tre lezioni lessicali
+# sembravano muri:
+#
+#   shall is a necessity marker        -> muro
+#   known is an irregular participle   -> muro
+#   because is a ground connector      -> muro
+#
+# Non erano muri, e non erano turni rubati: quelle parole portano un RUOLO
+# GRAMMATICALE nella frase che le contiene — ausiliare, participio,
+# subordinante — quindi il parser le legge come usate invece che come il termine
+# che si sta definendo. Parrot0 diagnosticava gia' correttamente il caso e
+# suggeriva il rimedio nel muro stesso («if X is a word you want to talk ABOUT,
+# say "the word X is a …"»), e il rimedio funziona.
+#
+# Questo cricchetto tiene ferma la simmetria: la forma d'uso puo' fallire, la
+# forma di menzione no. Le parole sono HELD-OUT rispetto alla KB persistita.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test una parola con ruolo grammaticale si insegna menzionandola]
+!timeout 90
+# USO: la parola porta il proprio ruolo nella frase e la lezione non passa.
+> will is a possibility marker
+<! Learned: possibility_marker
+!query! possibility_marker(will)
+# MENZIONE quotata: la stessa lezione passa.
+> "will" is a possibility marker
+< Learned: possibility_marker(will).
+!query possibility_marker(will)
+# MENZIONE dichiarata: e' la forma che parrot0 stesso propone dal proprio muro.
+> the word been is an irregular participle
+< Learned: irregular_participle(been).
+!query irregular_participle(been)
+# E la simmetria vale anche per il retract.
+> forget that "will" is a possibility marker
+<~ no longer treat
+!query! possibility_marker(will)
+> "will" is a possibility marker
+< Learned: possibility_marker(will).
+!query possibility_marker(will)
+
+[test la menzione apre subito il consumatore, senza rebuild]
+!timeout 90
+> "the investigators predict that" is a hypothesis report marker.
+< Learned: hypothesis_report_marker("the investigators predict that").
+> shorten is a relation verb
+< Learned: relation_verb(shorten).
+# La parola insegnata per menzione viene consumata dal lettore al turno dopo,
+# senza rebuild: il modale si stacca e non finisce dentro il soggetto.
+> read: https://ntrs.nasa.gov/citations/20230015804 The investigators predict that a kinetic impactor will shorten an asteroid orbit.
+<~ 1 proposition(s) normalized in quarantine
+!query claim_frame($C, shorten, kinetic_impactor, asteroid_orbit)
+!query! claim_frame($C, shorten, kinetic_impactor_will, asteroid_orbit)
+> was it hypothesized that a kinetic impactor will shorten an asteroid orbit?
+<~ that claim is reported as hypothesized, as
+# LIMITE OSSERVATO, non aggirato: `will` porta gia' `modal_force(will,
+# predicted)` come seme, e la lezione ne ha aggiunto una seconda. Due forze per
+# lo stesso modale dovrebbero essere un'ambiguita' conservata; oggi la prima
+# vista vince in silenzio. Entrambe restano interrogabili.
+!query claim_modality($C, predicted)
+!query modal_force(will, possible)
+!query modal_force(will, predicted)
