@@ -856,6 +856,14 @@ response_template(claim_status_modal, "Not as a result - that claim is reported 
 response_template(claim_status_modal, it, "Non come risultato - quella claim e' riportata come {status}, e soltanto come {force}.").
 response_template(claim_status_confirmed_modal, "Yes - that claim is reported as {status}, as {force} (from {source}).").
 response_template(claim_status_confirmed_modal, it, "Si' - quella claim e' riportata come {status}, come {force} (da {source}).").
+% SC3 — su che cosa poggia una conclusione, e che cosa resta quando la premessa
+% non e' piu' viva. La seconda frase non e' un errore: e' l'unica risposta onesta
+% per una conclusione rimasta senza appoggio, e dirla e' diverso sia dal tacere
+% sia dal continuare ad affermarla.
+response_template(claim_support_answer, "It rests on: {premise} - reported as {status} (from {source}).").
+response_template(claim_support_answer, it, "Poggia su: {premise} - riportato come {status} (da {source}).").
+response_template(claim_support_lost, "Nothing supports it any more - I no longer have a status for: {premise}.").
+response_template(claim_support_lost, it, "Non lo sostiene piu' niente - non ho piu' uno status per: {premise}.").
 response_template(mentioned_class_forgotten, "I no longer treat «{word}» as a {class}.").
 response_template(mentioned_class_forgotten, it, "Non considero piu' «{word}» un membro della classe {class}.").
 response_template(tool_result, "{label}: {result}").

@@ -109,6 +109,13 @@ document_unit_follows($Document, $Left, $Right) :-
 % aperte. `apply/2` invoca la classe dichiarata: insegnare un nuovo membro di
 % `contrastive_connector` lo rende consumabile al turno dopo senza rebuild.
 rhetorical_marker_class(contrastive_connector, contrast, previous_to_current).
+% SC3 — le due direzioni dell'inferenza in prosa. «Therefore B» mette la
+% conclusione nell'unita' corrente; «because B» mette nell'unita' corrente il
+% MOTIVO di quella precedente. La direzione e' una coordinata della classe, non
+% dell'arco: l'arco resta l'ordine del testo, e chi legge decide quale lato sia
+% la conclusione (kb/core/document-argument.p0).
+rhetorical_marker_class(consequence_connector, consequence, previous_to_current).
+rhetorical_marker_class(ground_connector, ground, current_to_previous).
 
 document_unit_rhetorical_cue($Unit, $Relation, $Direction, $Cue) :-
     document_unit_initial_token($Unit, $Id),
@@ -120,6 +127,10 @@ rhetorical_edge($Document, $Left, $Right, $Relation) :-
     document_unit_follows($Document, $Left, $Right),
     document_unit_rhetorical_cue(
         $Right, $Relation, previous_to_current, $Cue).
+rhetorical_edge($Document, $Left, $Right, $Relation) :-
+    document_unit_follows($Document, $Left, $Right),
+    document_unit_rhetorical_cue(
+        $Right, $Relation, current_to_previous, $Cue).
 
 current_document_relation($Relation) :-
     current_document($Document),

@@ -1212,6 +1212,7 @@ machinery(sides).
 :- include(input-structure.p0).
 :- include(document-structure.p0).
 :- include(document-claims.p0).
+:- include(document-argument.p0).
 :- include(assisted-learning.p0).
 :- include(arrests.p0).
 :- include(debug.p0).

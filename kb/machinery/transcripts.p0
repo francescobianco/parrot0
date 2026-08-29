@@ -37,6 +37,7 @@ utterance(5, user, "'the data show that' is an observation report marker.").
 utterance(5, user, "improved is a relation verb").
 utterance(5, user, "given is an irregular participle").
 utterance(5, user, "recommended is an expectation marker").
+utterance(5, user, "because is a ground connector").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -57,6 +58,7 @@ utterance(6, self, "Learned: observation_report_marker('the data show that').").
 utterance(6, self, "Learned: relation_verb(improved).").
 utterance(6, self, "Learned: irregular_participle(given).").
 utterance(6, self, "Learned: expectation_marker(recommended).").
+utterance(6, self, "Hmm, I don't know about ground yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a ground»; if ground is a word you want to talk ABOUT, say «the word ground is a …».").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -313,6 +315,10 @@ utterance(9, user, "detect is a relation verb").
 utterance(10, self, "Learned: relation_verb(detect).").
 utterance(11, user, "eradicate is a relation verb").
 utterance(12, self, "Learned: relation_verb(eradicate).").
+utterance(7, user, "since is a ground connector").
+utterance(8, self, "Learned: ground_connector(since).").
+utterance(9, user, "'on which evidence' is a claim support question").
+utterance(10, self, "Learned: claim_support_question('on which evidence').").
 utterance(76, self, "Claim.").
 utterance(7, user, "what does a capacitor store?").
 utterance(8, self, "I don't understand that yet.").
@@ -405,6 +411,7 @@ utterance(2, self, "Learned: hypothesis_report_marker('the authors hypothesize t
 utterance(2, self, "Learned: relation_verb(shortens).").
 utterance(2, self, "Learned: irregular_participle(shown).").
 utterance(2, self, "Hmm, I don't know about necessity yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a necessity»; if necessity is a word you want to talk ABOUT, say «the word necessity is a …».").
+utterance(2, self, "Learned: consequence_connector(thus).").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -421,6 +428,7 @@ utterance(1, user, "'the authors hypothesize that' is a hypothesis report marker
 utterance(1, user, "shortens is a relation verb").
 utterance(1, user, "shown is an irregular participle").
 utterance(1, user, "shall is a necessity marker").
+utterance(1, user, "thus is a consequence connector").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -433,6 +441,7 @@ utterance(4, self, "Learned: hypothesis_report_marker('the researchers hypothesi
 utterance(4, self, "Learned: relation_verb(shortened).").
 utterance(4, self, "Learned: irregular_participle(found).").
 utterance(4, self, "Learned: necessity_marker(required).").
+utterance(4, self, "Learned: consequence_connector(accordingly).").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -446,6 +455,7 @@ utterance(3, user, "'the researchers hypothesize that' is a hypothesis report ma
 utterance(3, user, "shortened is a relation verb").
 utterance(3, user, "found is an irregular participle").
 utterance(3, user, "required is a necessity marker").
+utterance(3, user, "accordingly is a consequence connector").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

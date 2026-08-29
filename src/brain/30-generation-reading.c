@@ -2194,6 +2194,61 @@ static int mod_claim_question(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* SC3 — su che cosa poggia una conclusione. Il cancello e' stretto: serve
+     * un arco argomentativo nel documento corrente, quindi un turno ordinario
+     * che contenga «why» passa oltre. */
+    char support_kind[KB_TERM_LEN];
+    if (kb_hypothesis_best(b->kb, "claim_support_question_evidence", norm,
+                           NULL, 0, support_kind, sizeof support_kind, &score,
+                           proof, sizeof proof) == 1) {
+        char conclusions[8][KB_TERM_LEN];
+        const char *aq[] = { NULL, NULL };
+        size_t na = kb_match(b->kb, "current_argument_edge", aq, 2,
+                             conclusions, 8);
+        for (size_t i = 0; i < na; i++) {
+            const char *sq[] = { conclusions[i], NULL };
+            char support[1][KB_TERM_LEN];
+            /* Una conclusione rimasta senza premessa viva non e' falsa: e'
+             * rimasta senza appoggio, e va detto. */
+            if (kb_query(b->kb, "current_unsupported_conclusion",
+                         (const char *[]){ conclusions[i] }, 1)) {
+                char premises[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "claim_supported_by", sq, 2, premises, 1)
+                    != 1) continue;
+                const char *pq[] = { premises[0], NULL };
+                char surface[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "claim_surface", pq, 2, surface, 1) != 1)
+                    continue;
+                kb_term_say(b, "claim_support_lost",
+                            (const KbResponseSlot[]){
+                                { "premise", kb_dequote(surface[0]) } }, 1,
+                            out, out_size);
+                return 1;
+            }
+            if (kb_match(b->kb, "current_conclusion_support", sq, 2, support, 1)
+                != 1) continue;
+            char premises[1][KB_TERM_LEN], status[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "claim_supported_by", sq, 2, premises, 1) != 1)
+                continue;
+            const char *pq[] = { premises[0], NULL };
+            char surface[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "claim_surface", pq, 2, surface, 1) != 1)
+                continue;
+            if (kb_match(b->kb, "claim_status", pq, 2, status, 1) != 1)
+                continue;
+            char source[KB_TERM_LEN];
+            if (!claim_answer_source(b, premises[0], source, sizeof source))
+                snprintf(source, sizeof source, "%s", premises[0]);
+            kb_term_say(b, "claim_support_answer",
+                        (const KbResponseSlot[]){
+                            { "premise", kb_dequote(surface[0]) },
+                            { "status", status[0] },
+                            { "source", source } }, 3, out, out_size);
+            claim_store_proof(b, premises[0]);
+            return 1;
+        }
+    }
+
     /* Recupero per classe: «what did the investigators predict?». */
     char cls[KB_TERM_LEN];
     if (kb_hypothesis_best(b->kb, "claim_question_evidence", norm,

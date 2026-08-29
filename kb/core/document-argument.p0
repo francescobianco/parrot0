@@ -1,0 +1,95 @@
+% document-argument.p0 — il grafo argomentativo (SC3).
+%
+% SC1 ha dato al documento le sue unita' e un arco retorico fra unita'
+% consecutive; SC2 ha dato a ogni unita' una claim con status, attribuzione,
+% fonte e proposizione normalizzata. Il grafo argomentativo e' esattamente il
+% ponte fra i due, e non richiede un terzo estrattore: una conclusione e' una
+% claim, una premessa e' una claim, e cio' che le lega e' l'arco retorico che il
+% lettore ha gia' osservato.
+%
+% La proprieta' che questo file esiste per garantire non e' «so estrarre un
+% argomento». E' piu' stretta e piu' utile:
+%
+%   ritrarre la premessa deve ritirare SOLTANTO le conclusioni che ne
+%   dipendevano, e non deve toccare ne' la loro superficie ne' la loro fonte.
+%
+% Percio' il supporto e' una vista VIVA, non un fatto materializzato: dipende
+% dallo status della premessa, che a sua volta dipende dalla cue viva (SC2-A).
+% Un argomento materializzato sopravviverebbe alla propria giustificazione, che
+% e' il modo esatto in cui un lettore comincia a credere cose che non ha piu'
+% ragione di credere.
+
+:- file_attribute(machinery).
+
+machinery(argument_relation).
+machinery(argument_edge).
+machinery(claim_supported_by).
+machinery(claim_support_live).
+machinery(claim_has_live_support).
+machinery(unsupported_conclusion).
+machinery(current_argument_edge).
+machinery(current_conclusion_support).
+
+% Quale lato porti la conclusione dipende dalla relazione, non dall'ordine delle
+% frasi: «A. Therefore B.» conclude a destra, «A. This is because B.» conclude a
+% sinistra. Una relazione nuova costa una riga.
+argument_relation(consequence, conclusion_is(right)).
+argument_relation(ground, conclusion_is(left)).
+
+argument_edge($Document, $Conclusion, $Premise, $Relation) :-
+    rhetorical_edge($Document, $Left, $Right, $Relation),
+    argument_relation($Relation, conclusion_is(right)),
+    unit_claim($Left, $Premise),
+    unit_claim($Right, $Conclusion).
+argument_edge($Document, $Conclusion, $Premise, $Relation) :-
+    rhetorical_edge($Document, $Left, $Right, $Relation),
+    argument_relation($Relation, conclusion_is(left)),
+    unit_claim($Right, $Premise),
+    unit_claim($Left, $Conclusion).
+
+claim_supported_by($Conclusion, $Premise) :-
+    argument_edge($Document, $Conclusion, $Premise, $Relation).
+
+% Un supporto e' vivo soltanto se la premessa ha ancora uno status. Ritrarre la
+% cue della premessa non cancella la frase — la superficie, la fonte, lo span e
+% l'attribuzione restano — ma toglie alla conclusione cio' su cui poggiava.
+claim_support_live($Conclusion, $Premise, $Status) :-
+    claim_supported_by($Conclusion, $Premise),
+    claim_status($Premise, $Status).
+
+claim_has_live_support($Conclusion) :-
+    claim_support_live($Conclusion, $Premise, $Status).
+
+% Una conclusione che ha un arco ma nessuna premessa viva non e' una conclusione
+% falsa: e' una conclusione rimasta senza appoggio, e dirlo e' diverso sia dal
+% tacere sia dal continuare ad affermarla.
+unsupported_conclusion($Conclusion) :-
+    claim_supported_by($Conclusion, $Premise),
+    naf(claim_has_live_support($Conclusion)).
+
+current_argument_edge($Conclusion, $Premise) :-
+    current_document($Document),
+    argument_edge($Document, $Conclusion, $Premise, $Relation).
+
+current_conclusion_support($Conclusion, support($Premise, $Status)) :-
+    current_argument_edge($Conclusion, $Premise),
+    claim_status($Premise, $Status).
+
+% ── CHIEDERE SU CHE COSA POGGIA UNA CONCLUSIONE ───────────────────────────
+%
+% Un grafo argomentativo che non si puo' interrogare e' un grafo morto: e' il
+% buco del consumatore (gen306) un piano piu' su. La classe e' aperta e il primo
+% membro e' qui soltanto come casa di persistenza — i membri veri si insegnano
+% parlando, e il ratchet ne usa di held-out per misurarlo.
+machinery(claim_support_question).
+machinery(claim_support_question_evidence).
+machinery(current_unsupported_conclusion).
+
+claim_support_question("what supports that").
+claim_support_question("on which evidence").
+
+claim_support_question_evidence(support, $Cue) :- claim_support_question($Cue).
+
+current_unsupported_conclusion($Conclusion) :-
+    current_argument_edge($Conclusion, $Premise),
+    unsupported_conclusion($Conclusion).

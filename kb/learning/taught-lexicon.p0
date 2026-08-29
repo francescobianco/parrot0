@@ -84,3 +84,15 @@ irregular_participle(written).
 necessity_marker(required).
 expectation_marker(recommended).
 possibility_marker(optional).
+
+% Sessione SC3, 2026-08-29: i connettivi inferenziali. Un argomento in prosa e'
+% due claim e cio' che le lega; cio' che le lega e' una parola, e la parola e'
+% conoscenza. `consequence_connector` mette la conclusione nell'unita' corrente,
+% `ground_connector` ci mette il motivo di quella precedente
+% (kb/core/document-argument.p0). «because» ha fatto muro nella stessa sessione
+% — la parola «ground» viene intercettata da un altro consumatore — e il gap e'
+% conservato: e' un caso di D22.
+% Report: docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc3.md
+consequence_connector(thus).
+consequence_connector(accordingly).
+ground_connector(since).

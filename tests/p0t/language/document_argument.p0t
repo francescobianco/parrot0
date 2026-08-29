@@ -1,0 +1,142 @@
+# document_argument.p0t — SC3: il grafo argomentativo, e cosa cade con una premessa.
+#
+# SC1 ha dato al documento le unita' e un arco retorico; SC2 ha dato a ogni
+# unita' una claim con status, fonte e proposizione normalizzata. L'argomento e'
+# il ponte fra i due, e non richiede un terzo estrattore.
+#
+# La proprieta' che questo file misura non e' «so estrarre un argomento». E':
+#
+#   ritrarre la premessa ritira SOLTANTO le conclusioni che ne dipendevano, e
+#   non tocca ne' la loro superficie ne' la loro fonte.
+#
+# Fonti vere:
+#   NASA DART   https://ntrs.nasa.gov/citations/20230015804
+#   WHO vaiolo  https://www.who.int/news-room/fact-sheets/detail/smallpox
+#   PRL LIGO    https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.116.061102
+#
+# Connettivi e forma interrogativa sono HELD-OUT rispetto alla KB persistita:
+# entrano parlando dentro il test.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test sc3 baseline: senza connettivo non c'e' argomento]
+!timeout 90
+> "the measurements indicate that" is an observation report marker.
+< Learned: observation_report_marker("the measurements indicate that").
+> "the authors conclude that" is a hypothesis report marker.
+< Learned: hypothesis_report_marker("the authors conclude that").
+> deflect is a relation verb
+< Learned: relation_verb(deflect).
+> slowed is a relation verb
+< Learned: relation_verb(slowed).
+> read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that DART slowed the orbital period. Therefore the authors conclude that kinetic impact can deflect an asteroid.
+<~ 2 proposition(s) normalized in quarantine
+# Le due claim ci sono; cio' che le lega no.
+!query claim_status(document_0246e706600fd069_78a45ca71ed18824_unit_0_claim_0, observed)
+!query claim_status(document_0246e706600fd069_78a45ca71ed18824_unit_1_claim_0, hypothesized)
+!query! argument_edge($D, $C, $P, consequence)
+> what supports that?
+<! It rests on
+
+[test sc3 la lezione lega le due claim]
+!timeout 90
+> therefore is a consequence connector
+< Learned: consequence_connector(therefore).
+# REPLAY del turno che prima non produceva alcun arco.
+> read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that DART slowed the orbital period. Therefore the authors conclude that kinetic impact can deflect an asteroid.
+<~ 2 proposition(s) normalized in quarantine
+!query argument_edge(document_0246e706600fd069_78a45ca71ed18824, document_0246e706600fd069_78a45ca71ed18824_unit_1_claim_0, document_0246e706600fd069_78a45ca71ed18824_unit_0_claim_0, consequence)
+!query claim_support_live(document_0246e706600fd069_78a45ca71ed18824_unit_1_claim_0, document_0246e706600fd069_78a45ca71ed18824_unit_0_claim_0, observed)
+!query! unsupported_conclusion(document_0246e706600fd069_78a45ca71ed18824_unit_1_claim_0)
+> what supports that?
+< It rests on: DART slowed the orbital period - reported as observed (from https://ntrs.nasa.gov/citations/20230015804).
+> how do you know?
+<~ «the measurements indicate that» marks it as observed
+# La conclusione resta una claim riportata: l'argomento non la promuove.
+!query! holds_in(world, proposition(frame(deflect, roles(subject(kinetic_impact), object(asteroid)))))
+!query claim_modality(document_0246e706600fd069_78a45ca71ed18824_unit_1_claim_0, possible)
+
+[test sc3 contrasto: un connettivo avversativo non e' un argomento]
+!timeout 60
+> read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that DART slowed the orbital period. Nevertheless the authors conclude that kinetic impact can deflect an asteroid.
+<~ 2 proposition(s) normalized in quarantine
+!query rhetorical_edge(document_0246e706600fd069_98b693d7cb66e396, document_0246e706600fd069_98b693d7cb66e396_unit_0, document_0246e706600fd069_98b693d7cb66e396_unit_1, contrast)
+!query! argument_edge(document_0246e706600fd069_98b693d7cb66e396, $C, $P, consequence)
+!query! claim_supported_by(document_0246e706600fd069_98b693d7cb66e396_unit_1_claim_0, document_0246e706600fd069_98b693d7cb66e396_unit_0_claim_0)
+
+[test sc3 transfer: due connettivi e due fonti mai usati per la lezione]
+!timeout 120
+> hence is a consequence connector
+< Learned: consequence_connector(hence).
+> consequently is a consequence connector
+< Learned: consequence_connector(consequently).
+> read: https://www.who.int/news-room/fact-sheets/detail/smallpox The evidence shows that vaccination eradicated smallpox. Hence the authors conclude that vaccination eradicated a disease.
+<~ 2 proposition(s) normalized in quarantine
+!query claim_support_live(document_4a9f706b71276975_382dbcc89088adc1_unit_1_claim_0, document_4a9f706b71276975_382dbcc89088adc1_unit_0_claim_0, observed)
+> what supports that?
+< It rests on: vaccination eradicated smallpox - reported as observed (from https://www.who.int/news-room/fact-sheets/detail/smallpox).
+> read: https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.116.061102 The data show that LIGO detected gravitational waves. Consequently the authors conclude that a merger can produce a detectable signal.
+<~ 2 proposition(s) normalized in quarantine
+!query claim_support_live(document_239269d8cea96d32_69be0014f91ef93c_unit_1_claim_0, document_239269d8cea96d32_69be0014f91ef93c_unit_0_claim_0, observed)
+!query claim_frame(document_239269d8cea96d32_69be0014f91ef93c_unit_1_claim_0, produce, merger, detectable_signal)
+> what supports that?
+< It rests on: LIGO detected gravitational waves - reported as observed (from https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.116.061102).
+
+[test sc3 ablation della premessa: cade il supporto, non la frase]
+!timeout 90
+> forget that "the data show that" is an observation report marker
+<~ no longer treat
+!query unsupported_conclusion(document_239269d8cea96d32_69be0014f91ef93c_unit_1_claim_0)
+!query! claim_support_live(document_239269d8cea96d32_69be0014f91ef93c_unit_1_claim_0, document_239269d8cea96d32_69be0014f91ef93c_unit_0_claim_0, observed)
+# L'arco, la superficie, il frame e la fonte della premessa non dipendono dal
+# suo status: cade cio' che poggiava, non cio' su cui si poggiava.
+!query claim_supported_by(document_239269d8cea96d32_69be0014f91ef93c_unit_1_claim_0, document_239269d8cea96d32_69be0014f91ef93c_unit_0_claim_0)
+!query claim_surface(document_239269d8cea96d32_69be0014f91ef93c_unit_0_claim_0, "LIGO detected gravitational waves")
+!query claim_frame(document_239269d8cea96d32_69be0014f91ef93c_unit_0_claim_0, detected, ligo, gravitational_waves)
+!query claim_status(document_239269d8cea96d32_69be0014f91ef93c_unit_1_claim_0, hypothesized)
+# E LA CONCLUSIONE DIPENDENTE E' L'UNICA A CADERE: l'argomento WHO resta intero.
+!query claim_support_live(document_4a9f706b71276975_382dbcc89088adc1_unit_1_claim_0, document_4a9f706b71276975_382dbcc89088adc1_unit_0_claim_0, observed)
+!query! unsupported_conclusion(document_4a9f706b71276975_382dbcc89088adc1_unit_1_claim_0)
+> what supports that?
+< Nothing supports it any more - I no longer have a status for: LIGO detected gravitational waves.
+# RIPRISTINO
+> "the data show that" is an observation report marker.
+< Learned: observation_report_marker("the data show that").
+!query! unsupported_conclusion(document_239269d8cea96d32_69be0014f91ef93c_unit_1_claim_0)
+> what supports that?
+< It rests on: LIGO detected gravitational waves - reported as observed (from https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.116.061102).
+
+[test sc3 ablation del connettivo: cade l'arco, restano le claim]
+!timeout 60
+> forget that consequently is a consequence connector
+<~ consequently
+!query! claim_supported_by(document_239269d8cea96d32_69be0014f91ef93c_unit_1_claim_0, document_239269d8cea96d32_69be0014f91ef93c_unit_0_claim_0)
+!query claim_status(document_239269d8cea96d32_69be0014f91ef93c_unit_0_claim_0, observed)
+!query claim_status(document_239269d8cea96d32_69be0014f91ef93c_unit_1_claim_0, hypothesized)
+> consequently is a consequence connector
+< Learned: consequence_connector(consequently).
+!query claim_support_live(document_239269d8cea96d32_69be0014f91ef93c_unit_1_claim_0, document_239269d8cea96d32_69be0014f91ef93c_unit_0_claim_0, observed)
+
+[test sc3 la forma interrogativa cresce parlando]
+!timeout 60
+# La forma held-out non contiene copula ne' dimostrativo: una menzione quotata
+# che li contiene viene ancora canonicalizzata e li perde
+# («"what is that based on"» -> `claim_support_question("what based on")`).
+# `canonicalization_exempt(mention)` esiste in kb/core/input.p0 ma non raggiunge
+# questo percorso: e' un muro reale, misurato e aperto, non aggirato in silenzio.
+> which evidence backs it?
+<! It rests on
+> "which evidence backs it" is a claim support question
+< Learned: claim_support_question("which evidence backs it").
+> which evidence backs it?
+< It rests on: LIGO detected gravitational waves - reported as observed (from https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.116.061102).
+> forget that "which evidence backs it" is a claim support question
+<~ no longer treat
+> which evidence backs it?
+<! It rests on

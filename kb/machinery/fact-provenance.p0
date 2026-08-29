@@ -139,6 +139,10 @@ fact_source(relation_verb(detect), detect, "detect is a relation verb").
 fact_source(possibility_marker(optional), optional, "optional is a possibility marker").
 fact_source(expectation_marker(recommended), recommended, "recommended is an expectation marker").
 fact_source(necessity_marker(required), required, "required is a necessity marker").
+fact_source(claim_support_question("on which evidence"), "on which evidence", ""on which evidence" is a claim support question").
+fact_source(ground_connector(since), since, "since is a ground connector").
+fact_source(consequence_connector(accordingly), accordingly, "accordingly is a consequence connector").
+fact_source(consequence_connector(thus), thus, "thus is a consequence connector").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -180,7 +184,11 @@ reading_fact(relation_verb(detect), "detect is a relation verb").
 reading_fact(irregular_participle(found), "found is an irregular participle").
 reading_fact(possibility_marker(optional), "optional is a possibility marker").
 reading_fact(relation_verb(shortens), "shortens is a relation verb").
+reading_fact(claim_support_question("on which evidence"), ""on which evidence" is a claim support question").
 reading_fact(expectation_marker(recommended), "recommended is an expectation marker").
+reading_fact(ground_connector(since), "since is a ground connector").
 reading_fact(irregular_participle(shown), "shown is an irregular participle").
+reading_fact(consequence_connector(accordingly), "accordingly is a consequence connector").
 reading_fact(necessity_marker(required), "required is a necessity marker").
+reading_fact(consequence_connector(thus), "thus is a consequence connector").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
