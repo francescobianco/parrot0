@@ -852,6 +852,10 @@ response_template(claim_status_other, "No - that claim is reported as {actual}, 
 response_template(claim_status_other, it, "No - quella claim e' riportata come {actual}, non come {status}.").
 response_template(claim_proof_trace, "I read it in {unit} of {source}, at {span}, and «{cue}» marks it as {status}.").
 response_template(claim_proof_trace, it, "L'ho letto in {unit} di {source}, a {span}, e «{cue}» lo marca come {status}.").
+response_template(claim_status_modal, "Not as a result - that claim is reported as {status}, and only as {force}.").
+response_template(claim_status_modal, it, "Non come risultato - quella claim e' riportata come {status}, e soltanto come {force}.").
+response_template(claim_status_confirmed_modal, "Yes - that claim is reported as {status}, as {force} (from {source}).").
+response_template(claim_status_confirmed_modal, it, "Si' - quella claim e' riportata come {status}, come {force} (da {source}).").
 response_template(mentioned_class_forgotten, "I no longer treat «{word}» as a {class}.").
 response_template(mentioned_class_forgotten, it, "Non considero piu' «{word}» un membro della classe {class}.").
 response_template(tool_result, "{label}: {result}").

@@ -593,6 +593,42 @@ frame_role_order(s, 1).
 frame_role_order(o, 2).
 frame_role_order(t, 3).
 
+% ── UN MODALE PRENDE LA FORMA BASE, E LA FORMA BASE E' MORFOLOGIA ──────────
+%
+% «may improve» non e' coperto da `relation_verb(improved)`: dopo un modale
+% l'inglese vuole la forma nuda. Chiedere al teacher di insegnare due forme per
+% ogni verbo sarebbe un frasario travestito da lezione — la relazione e' una
+% sola, cambia la sua morfologia.
+%
+% I suffissi sono fatti. **Sono uno solo, e la ragione e' misurata**: con `-ed`
+% e `-d` la derivazione fa ricorsione su lista di caratteri per ogni verbo e per
+% ogni suffisso, dentro l'enumerazione degli schemi che gira a ogni turno, e il
+% budget di un turno di inferenza passava da meno di un secondo a 1,85 s
+% (`taught_lexicon.p0t`, sandbox_inherits_machinery). Non e' il numero di schemi:
+% e' il costo di ricostruirli.
+%
+% Quindi oggi la forma nuda di un verbo al passato — «improve» da «improved» —
+% e' una LEZIONE, non una derivazione, e parrot0 la chiede da se' quando gli
+% serve. Il giorno in cui le radici verranno materializzate al momento
+% dell'insegnamento invece che ricalcolate a ogni lettura, questa riga puo'
+% tornare a crescere. Vedi `docs/plans/frontier-kb-natural-dialogue.md` §10.
+machinery(verb_suffix).
+machinery(verb_stem).
+verb_suffix("s").
+
+verb_stem($Verb, $Stem) :-
+    relation_verb($Verb),
+    verb_suffix($Suffix),
+    chars($Suffix, $SuffixChars),
+    chars($Verb, $VerbChars),
+    app($StemChars, $SuffixChars, $VerbChars),
+    chars($Stem, $StemChars).
+
+extract_frame($Pat, $Stem) :-
+    verb_stem($Verb, $Stem),
+    concat_atoms("@S ", $Stem, $A),
+    concat_atoms($A, " @O", $Pat).
+
 % ── IL PASSIVO NON E' UNA SECONDA LEZIONE ─────────────────────────────────
 %
 % «the orbital period was shortened by DART» e «DART shortened the orbital

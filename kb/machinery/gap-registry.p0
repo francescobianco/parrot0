@@ -88,6 +88,7 @@ machinery_gap("how many days in march?").
 machinery_gap("how many days in a leap month?").
 machinery_gap("a leap year has 366 days").
 machinery_gap("known is an irregular participle").
+machinery_gap("shall is a necessity marker").
 gap_kind("a counterexample refutes a universal claim", reachability).
 gap_kind("what does a metaphor do?", reachability).
 gap_opaque("dropout prevents what?", dropout).
@@ -105,6 +106,8 @@ gap_kind("how many days in a leap month?", reachability).
 gap_opaque("known is an irregular participle", participle).
 gap_opaque("known is an irregular participle", irregular).
 gap_opaque("known is an irregular participle", known).
+gap_opaque("shall is a necessity marker", marker).
+gap_opaque("shall is a necessity marker", necessity).
 gap_opaque("what is measured by the farad?", measured).
 gap_anchor("what does a counterexample do?", counterexample).
 gap_kind("what does a counterexample do?", reachability).
@@ -113,6 +116,7 @@ gap_kind("how many days in march?", reachability).
 gap_kind("a leap year has 366 days", reachability).
 gap_kind("known is an irregular participle", reachability).
 gap_kind("dropout prevents what?", reachability).
+gap_kind("shall is a necessity marker", reachability).
 gap_source("the metaphor maps what?", "the metaphor maps what?").
 gap_anchor("what is measured by the farad?", farad).
 gap_kind("what is measured by the farad?", reachability).
@@ -135,4 +139,5 @@ gap_source("dropout prevents what?", "dropout prevents what?").
 gap_source("how many days in march?", "how many days in march?").
 gap_source("a leap year has 366 days", "a leap year has 366 days").
 gap_source("known is an irregular participle", "known is an irregular participle").
+gap_source("shall is a necessity marker", "shall is a necessity marker").
 gap_source("what is the is unit of electrical resistance?", "what is the SI unit of electrical resistance?").

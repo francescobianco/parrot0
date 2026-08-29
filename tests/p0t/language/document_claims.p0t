@@ -362,12 +362,12 @@
 !timeout 90
 > "the investigators predict that" is a hypothesis report marker.
 < Learned: hypothesis_report_marker("the investigators predict that").
-# MODALITA': «can» non e' un verbo mancante, e' un operatore che il lettore non
-# sa ancora comporre. Dirlo e' diverso da tacere.
+# MODALITA': era un residuo tipizzato in SC2-C ed e' diventata un operatore
+# letto in SC2-D — vedi il blocco piu' sotto. Qui resta la coordinata che non
+# cambia: la superficie della claim e' conservata per intero comunque vada la
+# normalizzazione.
 > read: https://ntrs.nasa.gov/citations/20230015804 The investigators predict that a kinetic impactor can shorten an asteroid orbit.
 <~ Mapped 1 document unit(s), 1 reported claim(s), and 1 live epistemic status(es)
-!query claim_normalization_gap(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, modal_operator)
-!query! claim_normalized(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, reported)
 !query claim_surface(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, "a kinetic impactor can shorten an asteroid orbit")
 # NEGAZIONE.
 > read: https://pmc.ncbi.nlm.nih.gov/articles/PMC5118066/ The investigators predict that randomization does not remove all bias.
@@ -395,3 +395,83 @@
 > read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that the orbital period was slowed by the impactor.
 <~ 1 proposition(s) normalized in quarantine
 !query claim_frame(document_0246e706600fd069_58ad604f8c187c9c_unit_0_claim_0, slowed, impactor, orbital_period)
+
+# ── SC2-D — LA MODALITA' E' UN OPERATORE, NON UNA PAROLA DI TROPPO ───────────
+#
+# Misurato prima di questo blocco: «a kinetic impactor CAN shorten an asteroid
+# orbit» produceva `shorten(kinetic_impactor_can, asteroid_orbit)`. Il modale
+# non faceva fallire la lettura — veniva inghiottito nel sintagma del soggetto,
+# e la claim usciva come se il testo dicesse che la cosa succede. E' il misclaim
+# peggiore della catena, perche' non somiglia a un errore.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test sc2d il modale si stacca e resta detto]
+!timeout 90
+> "the investigators predict that" is a hypothesis report marker.
+< Learned: hypothesis_report_marker("the investigators predict that").
+> shorten is a relation verb
+< Learned: relation_verb(shorten).
+> read: https://ntrs.nasa.gov/citations/20230015804 The investigators predict that a kinetic impactor can shorten an asteroid orbit.
+<~ 1 proposition(s) normalized in quarantine
+# IL MODALE NON E' PIU' DENTRO IL SOGGETTO.
+!query claim_frame(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, shorten, kinetic_impactor, asteroid_orbit)
+!query! claim_frame(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, shorten, kinetic_impactor_can, asteroid_orbit)
+!query claim_modality(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, possible)
+# CHI RIPORTA resta separato da QUANTO afferma: lo status c'e', ma la claim non
+# asserisce il proprio contenuto.
+!query claim_status(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, hypothesized)
+!query! claim_asserted_status(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, hypothesized)
+!query! holds_in(world, proposition(frame(shorten, roles(subject(kinetic_impactor), object(asteroid_orbit)))))
+# Una domanda che nomina la stessa forza ha diritto a un si'.
+> was it hypothesized that a kinetic impactor can shorten an asteroid orbit?
+< Yes - that claim is reported as hypothesized, as possible (from https://ntrs.nasa.gov/citations/20230015804).
+# Una domanda che chiede se e' ACCADUTO non puo' essere soddisfatta da una
+# claim che dice soltanto che potrebbe.
+> was it observed that a kinetic impactor can shorten an asteroid orbit?
+< Not as a result - that claim is reported as hypothesized, and only as possible.
+> how do you know?
+<~ marks it as hypothesized
+
+[test sc2d transfer: modali mai usati per la lezione, verbi mai reinsegnati]
+!timeout 90
+# «may» + la forma nuda. Per un verbo al presente la radice si deriva
+# (`produces` -> `produce`); per uno al passato e' una lezione, e il motivo e'
+# misurato: derivarla a ogni lettura sfondava il budget di latenza del turno.
+> improve is a relation verb
+< Learned: relation_verb(improve).
+> read: https://gmd.copernicus.org/articles/13/1959/2020/ The investigators predict that higher resolution may improve forecast skill.
+<~ 1 proposition(s) normalized in quarantine
+!query claim_frame(document_60abb92fbf13d97b_be992d7183462b0c_unit_0_claim_0, improve, higher_resolution, forecast_skill)
+!query claim_modality(document_60abb92fbf13d97b_be992d7183462b0c_unit_0_claim_0, possible)
+!query! improve(higher_resolution, forecast_skill)
+> was it observed that higher resolution may improve forecast skill?
+< Not as a result - that claim is reported as hypothesized, and only as possible.
+# «must» porta una forza diversa: necessita', non possibilita'.
+> survive is a relation verb
+< Learned: relation_verb(survive).
+> read: https://pmc.ncbi.nlm.nih.gov/articles/PMC5118066/ The investigators predict that a causal estimate must survive confounding.
+<~ 1 proposition(s) normalized in quarantine
+!query claim_modality(document_5c0b5aed1874ec5b_4c65721e5ef10891_unit_0_claim_0, necessary)
+!query! claim_modality(document_5c0b5aed1874ec5b_4c65721e5ef10891_unit_0_claim_0, possible)
+> was it hypothesized that a causal estimate must survive confounding?
+< Yes - that claim is reported as hypothesized, as necessary (from https://pmc.ncbi.nlm.nih.gov/articles/PMC5118066/).
+
+[test sc2d ablation: cade la forza, resta la proposizione]
+!timeout 60
+!forget modal_force(can, possible)
+!query! claim_modality(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, possible)
+# Senza la forza viva la claim torna ad asserire il proprio contenuto sotto lo
+# status della classe: e' la vista che dipende dalla conoscenza ritratta.
+!query claim_asserted_status(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, hypothesized)
+# La proposizione, la superficie e la fonte non dipendono dal modale.
+!query claim_frame(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, shorten, kinetic_impactor, asteroid_orbit)
+!query claim_surface(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, "a kinetic impactor can shorten an asteroid orbit")
+!assert modal_force(can, possible)
+!query claim_modality(document_0246e706600fd069_d3b49d23827748fa_unit_0_claim_0, possible)

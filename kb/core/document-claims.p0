@@ -278,6 +278,71 @@ current_document_normalized_claim($Claim) :-
     current_document_claim($Claim, $Proposition),
     claim_normalized($Claim, $Origin).
 
+% ── UN MODALE E' UN OPERATORE, NON UNA PAROLA DI TROPPO ───────────────────
+%
+% Misurato prima di questa riga: «a kinetic impactor CAN shorten an asteroid
+% orbit» produceva `shorten(kinetic_impactor_can, asteroid_orbit)`. Il modale
+% non faceva fallire la lettura — veniva inghiottito dentro il sintagma del
+% soggetto, e la claim usciva come se il testo avesse detto che la cosa
+% succede. E' il misclaim peggiore di tutta la catena: non un muro, non un gap,
+% ma una proposizione che afferma piu' della sua fonte.
+%
+% Un modale porta una FORZA, e la forza e' conoscenza. La classe e' aperta:
+% un modale nuovo, o una lingua nuova, costa un fatto.
+machinery(modal_force).
+machinery(modal_force_evidence).
+machinery(claim_modal_observation).
+machinery(claim_modality).
+machinery(claim_asserted_status).
+machinery(document_claim_modality_observe).
+
+modal_force(can, possible).
+modal_force(could, possible).
+modal_force(may, possible).
+modal_force(might, possible).
+modal_force(must, necessary).
+modal_force(should, expected).
+modal_force(will, predicted).
+modal_force(would, conditional).
+
+% E la classe si apre PARLANDO. Le tre righe seguenti sono il ponte fra la
+% forza — che e' una coordinata del motore epistemico — e il modo naturale in
+% cui un esperto la nomina: «ought is a necessity marker». Da quel turno il
+% lettore stacca `ought` e registra `necessary`, senza ricompilare e senza che
+% il teacher sappia che esiste `modal_force/2`.
+machinery(possibility_marker).
+machinery(necessity_marker).
+machinery(expectation_marker).
+modal_force($Modal, possible) :- possibility_marker($Modal).
+modal_force($Modal, necessary) :- necessity_marker($Modal).
+modal_force($Modal, expected) :- expectation_marker($Modal).
+
+% Il match e' a PAROLA INTERA: «can» non deve accendersi dentro «scan», e
+% «will» non deve accendersi dentro «Williams».
+modal_force_evidence($Modal, keyword($Modal)) :- modal_force($Modal, $Force).
+
+% L'osservazione e' irreversibile (quel testo conteneva quel modale); la FORZA
+% e' una vista viva, quindi ritrattare la classe toglie la modalita' e lascia in
+% piedi la proposizione, la superficie, la fonte e lo span.
+document_claim_modality_observe(ref($Document, $Unit, $Claim), modal($Modal)) :-
+    modal_force($Modal, $Force),
+    assert(claim_modal_observation, $Claim, $Modal).
+
+claim_modality($Claim, $Force) :-
+    claim_modal_observation($Claim, $Modal), modal_force($Modal, $Force).
+
+% Una claim modale non afferma il proprio contenuto: ne afferma la possibilita',
+% la necessita' o l'attesa. Lo status della classe dice CHI lo riporta e con
+% quale evidenza; la forza dice QUANTO. Le due coordinate non si sommano, e una
+% domanda che chiede se una cosa e' accaduta non puo' essere soddisfatta da una
+% claim che dice soltanto che potrebbe.
+% `naf` va interrogata su un goal senza variabili libere, altrimenti la
+% negazione non nega quello che sembra: da qui il predicato ausiliario.
+machinery(claim_has_modality).
+claim_has_modality($Claim) :- claim_modality($Claim, $Force).
+claim_asserted_status($Claim, $Status) :-
+    claim_status($Claim, $Status), naf(claim_has_modality($Claim)).
+
 % ── LA PROVA DEVE POTERSI PRONUNCIARE ─────────────────────────────────────
 %
 % `claim_proof/2` si interrogava e non si diceva: «come lo sai?» dopo una

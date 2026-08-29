@@ -134,6 +134,11 @@ fact_source(irregular_participle(seen), seen, "seen is an irregular participle")
 fact_source(irregular_participle(given), given, "given is an irregular participle").
 fact_source(irregular_participle(found), found, "found is an irregular participle").
 fact_source(irregular_participle(shown), shown, "shown is an irregular participle").
+fact_source(relation_verb(eradicate), eradicate, "eradicate is a relation verb").
+fact_source(relation_verb(detect), detect, "detect is a relation verb").
+fact_source(possibility_marker(optional), optional, "optional is a possibility marker").
+fact_source(expectation_marker(recommended), recommended, "recommended is an expectation marker").
+fact_source(necessity_marker(required), required, "required is a necessity marker").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -169,8 +174,13 @@ reading_fact(contrastive_connector(nevertheless), ""nevertheless" is a contrasti
 reading_fact(irregular_participle(seen), "seen is an irregular participle").
 reading_fact(relation_verb(shortened), "shortened is a relation verb").
 reading_fact(irregular_participle(given), "given is an irregular participle").
+reading_fact(relation_verb(eradicate), "eradicate is a relation verb").
 reading_fact(hypothesis_report_marker("the authors hypothesize that"), ""the authors hypothesize that" is a hypothesis report marker.").
+reading_fact(relation_verb(detect), "detect is a relation verb").
 reading_fact(irregular_participle(found), "found is an irregular participle").
+reading_fact(possibility_marker(optional), "optional is a possibility marker").
 reading_fact(relation_verb(shortens), "shortens is a relation verb").
+reading_fact(expectation_marker(recommended), "recommended is an expectation marker").
 reading_fact(irregular_participle(shown), "shown is an irregular participle").
+reading_fact(necessity_marker(required), "required is a necessity marker").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").

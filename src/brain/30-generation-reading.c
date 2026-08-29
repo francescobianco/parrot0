@@ -1793,6 +1793,76 @@ static int reader_take_source_uri(char *text, char *out, size_t out_size) {
     return 1;
 }
 
+/* ── SC2-D: UN OPERATORE SI STACCA PRIMA DI LEGGERE, E RESTA DETTO ────────
+ *
+ * Il modale non faceva fallire la lettura: veniva inghiottito nel sintagma del
+ * soggetto, e «a kinetic impactor CAN shorten an asteroid orbit» usciva come
+ * `shorten(kinetic_impactor_can, asteroid_orbit)` — una proposizione che
+ * afferma piu' della sua fonte. E' il misclaim peggiore della catena, perche'
+ * non somiglia a un errore.
+ *
+ * Qui l'operatore dichiarato viene staccato PRIMA della fase pura, e conservato.
+ * Se dopo lo stacco non resta una lettura piena, il testo non ha una lettura: il
+ * fallback alla versione non staccata rimetterebbe dentro esattamente la parola
+ * che cambia il significato.
+ *
+ * Il C non conosce nessun modale: chiede allo scorer universale quale
+ * `modal_force_evidence` il testo contenga, e la classe vive in KB. */
+static int claim_reading_of(Brain *b, const char *text,
+                            char *frame, size_t frame_size,
+                            char *modal, size_t modal_size) {
+    if (!b || !b->kb || !text || !frame || !modal) return 0;
+    modal[0] = '\0';
+
+    char stripped[512];
+    const char *source = text;
+    char best_modal[KB_TERM_LEN], modal_proof[KB_EVIDENCE_PROOF_LEN];
+    int modal_score = 0;
+    if (kb_hypothesis_best(b->kb, "modal_force_evidence", text, NULL, 0,
+                           best_modal, sizeof best_modal, &modal_score,
+                           modal_proof, sizeof modal_proof) == 1) {
+        KbEvidenceMatch hits[16];
+        size_t nh = kb_evidence_matches(b->kb, "modal_force_evidence",
+                                        best_modal, text, hits, 16);
+        if (nh > 0) {
+            size_t at = hits[0].start, len = hits[0].len;
+            for (size_t i = 1; i < nh; i++)
+                if (hits[i].start < at) { at = hits[i].start; len = hits[i].len; }
+            size_t n = strlen(text);
+            if (at + len <= n && at + len < sizeof stripped) {
+                size_t o = 0;
+                for (size_t i = 0; i < at && o + 1 < sizeof stripped; i++)
+                    stripped[o++] = text[i];
+                for (size_t i = at + len; i < n && o + 1 < sizeof stripped; i++)
+                    stripped[o++] = text[i];
+                stripped[o] = '\0';
+                source = stripped;
+                snprintf(modal, modal_size, "%s", best_modal);
+            }
+        }
+    }
+
+    char nbuf[512];
+    normalize(source, nbuf, sizeof nbuf);
+    char *nw[64];
+    size_t nn = split_words(nbuf, nw, 64);
+    P0FrameReading reading;
+    if (nn < 3 || !p0_frame_reading(b, nw, nn, &reading) || reading.nslots != 2)
+        return 0;
+    snprintf(frame, frame_size, "frame(%s, roles(subject(%s), object(%s)))",
+             reading.pred, reading.slot[0], reading.slot[1]);
+    /* Una lettura c'e'; se copra la frase lo decide la policy. Distinguere i
+     * due esiti e' cio' che permette al residuo di dire `partial_reading`
+     * invece del generico `no_reading`: uno schema che combacia a meta' non e'
+     * la stessa cosa di uno schema che non combacia affatto. */
+    char covered[32], of[32];
+    snprintf(covered, sizeof covered, "covered(%zu)", reading.consumed);
+    snprintf(of, sizeof of, "of(%zu)", reading.total);
+    const char *policy[] = { "reported", covered, of, "normalized" };
+    if (!kb_query(b->kb, "normalization_extent_policy", policy, 4)) return 2;
+    return 1;
+}
+
 /* A status marker opens a reported claim over the remainder of its unit. The
  * shared evidence scorer finds the class and exact span; the KB validates the
  * class policy and derives status/context/commitment. C only copies offsets
@@ -1873,24 +1943,29 @@ static int document_claim_from_clause(Brain *b, const char *clause,
      * Quando l'analisi non arriva a una lettura, la claim di superficie resta
      * intera e il fallimento diventa un gap tipato: un remainder non
      * normalizzabile non puo' rendere meno osservabile la frase che lo porta. */
-    char nbuf[512];
-    normalize(content, nbuf, sizeof nbuf);
-    char *nw[64];
-    size_t nn = split_words(nbuf, nw, 64);
-    P0FrameReading reading;
-    if (nn >= 3 && p0_frame_reading(b, nw, nn, &reading) &&
-        reading.nslots == 2) {
-        char frame[KB_TERM_LEN], extent[64];
-        snprintf(frame, sizeof frame,
-                 "frame(%s, roles(subject(%s), object(%s)))",
-                 reading.pred, reading.slot[0], reading.slot[1]);
-        snprintf(extent, sizeof extent, "extent(covered(%zu), of(%zu))",
-                 reading.consumed, reading.total);
+    char frame[KB_TERM_LEN], modal[KB_TERM_LEN];
+    int reading_kind = claim_reading_of(b, content, frame, sizeof frame,
+                                        modal, sizeof modal);
+    if (reading_kind == 2) {
+        const char *partial[] = { ref, "gap(partial_reading)" };
+        kb_query(b->kb, "document_claim_gap_observe", partial, 2);
+        return 1;
+    }
+    if (reading_kind == 1) {
+        /* La copertura e' gia' stata provata dentro la fase pura condivisa: qui
+         * resta soltanto la consegna, con l'origine che vieta il mondo. */
         const char *normalize_args[] = {
-            ref, "origin(reported)", frame, extent
+            ref, "origin(reported)", frame, "extent(covered(1), of(1))"
         };
-        if (kb_query(b->kb, "document_claim_normalize", normalize_args, 4))
+        if (kb_query(b->kb, "document_claim_normalize", normalize_args, 4)) {
+            if (modal[0]) {
+                char modal_term[KB_TERM_LEN];
+                snprintf(modal_term, sizeof modal_term, "modal(%s)", modal);
+                const char *modality[] = { ref, modal_term };
+                kb_query(b->kb, "document_claim_modality_observe", modality, 2);
+            }
             return 1;
+        }
     }
     /* Perche' la lettura si e' fermata non lo indovina il C: lo dice la KB,
      * attraverso lo stesso scorer universale delle cue epistemiche. Se le
@@ -1991,28 +2066,15 @@ static int claim_content_reply(Brain *b, const char *claim,
  * remainder di una claim: se le due letture coincidono, la domanda parla della
  * stessa proposizione. Nessuna delle due entra nel mondo. */
 static int claim_question_frame(Brain *b, const char *tail,
-                                char *frame, size_t frame_size) {
-    char nbuf[512];
-    normalize(tail, nbuf, sizeof nbuf);
-    char *nw[64];
-    size_t nn = split_words(nbuf, nw, 64);
-    P0FrameReading reading;
-    if (nn < 3 || !p0_frame_reading(b, nw, nn, &reading) ||
-        reading.nslots != 2)
-        return 0;
-    /* La stessa disciplina di copertura del lettore, e per lo stesso motivo:
-     * se la domanda perde meta' della proposizione, il frame che ne esce puo'
-     * combaciare con una claim che parla d'altro. La soglia non e' scritta qui:
-     * e' la policy KB che decide se una lettura parziale valga. */
-    char covered[32], of[32];
-    snprintf(covered, sizeof covered, "covered(%zu)", reading.consumed);
-    snprintf(of, sizeof of, "of(%zu)", reading.total);
-    const char *policy[] = { "reported", covered, of, "normalized" };
-    if (!kb_query(b->kb, "normalization_extent_policy", policy, 4)) return 0;
-    snprintf(frame, frame_size,
-             "frame(%s, roles(subject(%s), object(%s)))",
-             reading.pred, reading.slot[0], reading.slot[1]);
-    return 1;
+                                char *frame, size_t frame_size,
+                                char *modal, size_t modal_size) {
+    /* La domanda passa dalla STESSA lettura del documento — stacco
+     * dell'operatore compreso — altrimenti «can shorten» nel testo e
+     * «can shorten» nella domanda produrrebbero due frame diversi e la
+     * verifica mancherebbe il proprio bersaglio. Il modale della DOMANDA non
+     * si butta via: chi chiede «e' stato ipotizzato che X POSSA Y?» sta
+     * chiedendo proprio della claim modale, e ha diritto a un si'. */
+    return claim_reading_of(b, tail, frame, frame_size, modal, modal_size) == 1;
 }
 
 static int mod_claim_question(Brain *b, const char *norm, const char *raw,
@@ -2041,15 +2103,42 @@ static int mod_claim_question(Brain *b, const char *norm, const char *raw,
             for (size_t i = 1; i < nh; i++)
                 if (hits[i].start < hits[best].start) best = i;
             const char *tail = norm + hits[best].start + hits[best].len;
-            char frame[KB_TERM_LEN];
-            if (claim_question_frame(b, tail, frame, sizeof frame)) {
+            char frame[KB_TERM_LEN], qmodal[KB_TERM_LEN];
+            if (claim_question_frame(b, tail, frame, sizeof frame,
+                                     qmodal, sizeof qmodal)) {
+                /* La forza che la domanda stessa nomina, se ne nomina una. */
+                char qforce[KB_TERM_LEN] = "";
+                if (qmodal[0]) {
+                    const char *fq[] = { qmodal, NULL };
+                    char row[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "modal_force", fq, 2, row, 1) == 1)
+                        snprintf(qforce, sizeof qforce, "%s", row[0]);
+                }
                 const char *fq[] = { NULL, frame };
                 char claims[8][KB_TERM_LEN];
                 size_t nc = kb_match(b->kb, "claim_with_frame", fq, 2,
                                      claims, 8);
+                /* Domanda modale contro claim modale: se la forza combacia,
+                 * il si' e' dovuto e nomina la forza. */
+                for (size_t i = 0; qforce[0] && i < nc; i++) {
+                    const char *cs[] = { claims[i], status };
+                    const char *cm[] = { claims[i], qforce };
+                    if (!kb_query(b->kb, "claim_status", cs, 2)) continue;
+                    if (!kb_query(b->kb, "claim_modality", cm, 2)) continue;
+                    char source[KB_TERM_LEN];
+                    if (!claim_answer_source(b, claims[i], source, sizeof source))
+                        snprintf(source, sizeof source, "%s", claims[i]);
+                    kb_term_say(b, "claim_status_confirmed_modal",
+                                (const KbResponseSlot[]){
+                                    { "status", status }, { "force", qforce },
+                                    { "source", source } }, 3, out, out_size);
+                    claim_store_proof(b, claims[i]);
+                    return 1;
+                }
                 for (size_t i = 0; i < nc; i++) {
                     const char *cs[] = { claims[i], status };
-                    if (!kb_query(b->kb, "claim_status", cs, 2)) continue;
+                    if (!kb_query(b->kb, "claim_asserted_status", cs, 2))
+                        continue;
                     char source[KB_TERM_LEN];
                     if (claim_answer_source(b, claims[i], source, sizeof source))
                         kb_term_say(b, "claim_status_confirmed",
@@ -2063,6 +2152,25 @@ static int mod_claim_question(Brain *b, const char *norm, const char *raw,
                                         { "status", status },
                                         { "source", claims[i] } }, 2,
                                     out, out_size);
+                    claim_store_proof(b, claims[i]);
+                    return 1;
+                }
+                /* La proposizione c'e', ma il testo la dava soltanto come
+                 * possibile, necessaria o attesa. Rispondere `Yes` sarebbe
+                 * affermare piu' della fonte; rispondere `No` senza dire la
+                 * forza sarebbe negare cio' che il testo dice davvero. */
+                for (size_t i = 0; i < nc; i++) {
+                    const char *mq[] = { claims[i], NULL };
+                    char force[1][KB_TERM_LEN], mstatus[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "claim_modality", mq, 2, force, 1) != 1)
+                        continue;
+                    if (kb_match(b->kb, "claim_status", mq, 2, mstatus, 1) != 1)
+                        continue;
+                    kb_term_say(b, "claim_status_modal",
+                                (const KbResponseSlot[]){
+                                    { "status", mstatus[0] },
+                                    { "force", force[0] } }, 2,
+                                out, out_size);
                     claim_store_proof(b, claims[i]);
                     return 1;
                 }
