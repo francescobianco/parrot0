@@ -3807,6 +3807,13 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * module — a user teaching a new phrasing must not be intercepted by the
      * intent they're trying to retrain (e.g. "insegnami a rispondere il tuo nome"
      * must reach the teach handler, not mod_self). */
+    /* SC32: ritrattare corre PRIMA di insegnare — «unlearn» contiene «learn»,
+     * e una lezione che non si puo' togliere non e' una lezione. */
+    if (b && try_forget_form(b, norm, input, out, out_size)) {
+        note_arith_result(b, out); conv_log(b, input, out);
+        return strlen(out);
+    }
+
     if (b && try_teach_form(b, norm, input, out, out_size)) {
         note_arith_result(b, out); conv_log(b, input, out);
         return strlen(out);   /* insegnare non e' rispondere: nessuna lacuna si chiude */

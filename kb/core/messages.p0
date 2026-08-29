@@ -751,6 +751,10 @@ response_template(animal_eats_answer, "A {animal} eats {food}").
 response_template(entity_kind_answer, "A {kind} is a {class}.").
 response_template(part_of_answer, "Yes, {part} is part of {whole}.").
 response_template(forgotten_fact, "Forgotten: {pred}({arg}).").
+% SC32 — la meta' mancante dell'atto didattico. Una lezione che non si puo'
+% togliere non e' una lezione, e il contratto di AGENTS.md la vuole simmetrica.
+response_template(taught_form_forgotten, "Forgotten - «{phrase}» is no longer {label}.").
+response_template(taught_form_not_held, "I wasn't holding «{phrase}» as {label}.").
 response_template(learned_negative_fact, "Learned: not {pred}({arg}).").
 response_template(learned_unary_fact, "Learned: {pred}({arg}).").
 response_template(learned_binary_fact, "Learned: {pred}({arg1}, {arg2}).").

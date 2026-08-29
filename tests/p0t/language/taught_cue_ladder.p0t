@@ -37,23 +37,23 @@
 # DOPO: il turno cambia comportamento, senza ricompilare.
 > helyla friend
 <~ I'm here
-# E QUI IL CONTRATTO SI ROMPE. `AGENTS.md` chiede che ritrattare una cue tolga
-# il riconoscimento; per questa classe non esiste una frase che lo faccia,
-# perche' ogni frase che NOMINA la locuzione la CONTIENE, e una cue `substring`
-# si accende dentro la frase che prova a ritrattarla.
+# E SI RITRATTA. Il contratto di `AGENTS.md` chiede che ritrattare una cue tolga
+# il riconoscimento, e per questa classe non era esprimibile: ogni frase che
+# NOMINA la locuzione la CONTIENE, e una cue `substring` si accendeva dentro la
+# frase che provava a toglierla. Ora la cue non guarda dentro una menzione
+# (`cue_scope/2` + `mention_delimiter/2`) e il retract passa dallo STESSO
+# registro `learnable/3` dell'insegnamento.
 > forget "helyla friend" as a casual opener
-<~ I'm here
-> stop treating "helyla friend" as a casual opener
-<~ I'm here
-# E il tentativo che sfugge alla cue produce un fatto FALSO sul verbo stesso —
-# la specie che SC2-A aveva gia' dovuto guardare su un altro percorso
-# (`hypothesis_report_marker(forget)`), qui riaperta perche' la guardia e'
-# locale a quel percorso invece di essere un invariante.
-> forget that the phrase "helyla friend" is a casual opener
-< Learned: casual_opener(forget).
-!query casual_opener(forget)
-# La cue e' ancora viva: nessuna delle tre frasi l'ha tolta.
-!query intent_cue(casual, "helyla friend")
+< Forgotten - «helyla friend» is no longer a casual opener.
+!query! intent_cue(casual, "helyla friend")
+> helyla friend
+<! I'm here
+# E non si inventa un fatto sul verbo di retract — la specie
+# `hypothesis_report_marker(forget)` che SC2-A aveva guardato a mano.
+!query! casual_opener(forget)
+# Ritrattare due volte e' onesto, non silenzioso.
+> forget "helyla friend" as a casual opener
+< I wasn't holding «helyla friend» as a casual opener.
 
 [test il limite: un modulo registrato prima rivendica il turno per struttura]
 !timeout 60
@@ -73,3 +73,20 @@
 # spostare `lone` — sarebbe rimandare il problema alla parola dopo — ma far si'
 # che il ruolo del turno decida chi ha titolo (universal-input, D26/D27).
 !query intent_cue(casual, "helyla")
+# Il retract resta simmetrico anche per la cue che non ottiene titolo: togliere
+# una lezione non dipende dal fatto che qualcuno l'abbia ascoltata.
+> forget "helyla" as a casual opener
+< Forgotten - «helyla» is no longer a casual opener.
+!query! intent_cue(casual, "helyla")
+
+[test la simmetria vale per una seconda classe, mai usata per progettarla]
+!timeout 60
+> learn "zorvax now" as a sign of tiredness
+<~ I'll take «zorvax now» as a way to a sign of tiredness
+> zorvax now
+<~ low-energy
+> forget "zorvax now" as a sign of tiredness
+< Forgotten - «zorvax now» is no longer a sign of tiredness.
+> zorvax now
+<! low-energy
+!query! intent_cue(mood_tired, "zorvax now")

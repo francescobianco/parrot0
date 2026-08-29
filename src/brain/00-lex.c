@@ -39,8 +39,65 @@ static int matches_any(const char *s, const char *const *words) {
  * fires with no code change (the KB-migration law of gen193, lifted from closed-class
  * words to multi-word idioms). The stored atom keeps its surrounding quotes (kb.c
  * parse_term), so we strip them before comparing. */
+static char *kb_dequote(char *s);   /* definito piu' avanti */
+
+/* ── SC32/D27 — UNA CUE NON GUARDA DENTRO UNA MENZIONE ────────────────────
+ *
+ * Una cue `substring` si accendeva dentro la frase che provava a RITRATTARLA:
+ * «forget "helyla friend" as a casual opener» contiene la locuzione, quindi il
+ * modulo sociale prendeva il turno e il retract non arrivava mai a destinazione.
+ * Il contratto di `AGENTS.md` — ritrattare una cue deve togliere il
+ * riconoscimento — era inesprimibile per un'intera classe.
+ *
+ * La cura non e' una guardia in un modulo: e' il principio uso/menzione
+ * applicato al matching. Qui c'e' solo il mascheramento dei byte; quali
+ * superfici aprano una menzione (`mention_delimiter/2`) e quali relazioni
+ * debbano ignorarne il contenuto (`cue_scope/2`) sono fatti.
+ *
+ * Il costo per un turno senza citazioni e' una `strpbrk`: senza delimitatore
+ * presente si restituisce l'originale e non si legge la KB. */
+static const char *cue_visible_text(Brain *b, const char *relation,
+                                    const char *norm, char *buf, size_t bufsz) {
+    if (!b || !b->kb || !norm || !buf || bufsz == 0) return norm;
+    char opens[8][KB_TERM_LEN];
+    const char *dq[2] = { NULL, NULL };
+    size_t nd = kb_match(b->kb, "mention_delimiter", dq, 2, opens, 8);
+    if (nd == 0) return norm;
+    char marks[16]; size_t nm = 0;
+    for (size_t i = 0; i < nd && nm + 1 < sizeof marks; i++) {
+        char o[KB_TERM_LEN]; snprintf(o, sizeof o, "%s", opens[i]);
+        const char *d = kb_dequote(o);
+        /* gen432: la sequenza di fuga si scioglie quando il testo ESCE dalla
+         * KB, non dentro `kb_dequote`. Una virgoletta e' scritta `\"` nel
+         * fatto, quindi qui si legge il byte vero. */
+        if (d[0] == '\\' && d[1]) marks[nm++] = d[1];
+        else if (d[0]) marks[nm++] = d[0];
+    }
+    marks[nm] = '\0';
+    if (nm == 0 || !strpbrk(norm, marks)) return norm;
+
+    const char *sq[2] = { relation, "outside_role(mention)" };
+    if (!kb_query(b->kb, "cue_scope", sq, 2)) return norm;
+
+    size_t n = strlen(norm);
+    if (n + 1 > bufsz) return norm;
+    char quote = 0;
+    for (size_t i = 0; i < n; i++) {
+        char c = norm[i];
+        if (!quote && strchr(marks, c)) { quote = c; buf[i] = ' '; continue; }
+        if (quote && c == quote) { quote = 0; buf[i] = ' '; continue; }
+        buf[i] = quote ? ' ' : c;
+    }
+    buf[n] = '\0';
+    /* Una citazione aperta e mai chiusa non e' una menzione: e' testo. */
+    if (quote) return norm;
+    return buf;
+}
+
 static int kb_intent_match(Brain *b, const char *intent, const char *norm) {
     if (!b || !b->kb || !intent || !norm) return 0;
+    char masked[512];
+    norm = cue_visible_text(b, "intent_phrase", norm, masked, sizeof masked);
     char forms[64][KB_TERM_LEN];
     const char *q[2] = { intent, NULL };
     size_t n = kb_match(b->kb, "intent_phrase", q, 2, forms, 64);
@@ -65,6 +122,8 @@ static int lex_prefix_member(Brain *b, const char *cls, const char *word);
 
 static int kb_cue_match(Brain *b, const char *intent, const char *norm) {
     if (!b || !b->kb || !intent || !norm) return 0;
+    char masked[512];
+    norm = cue_visible_text(b, "intent_cue", norm, masked, sizeof masked);
     const char *candidate[] = { intent };
     char winner[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN]; int score = 0;
     return kb_hypothesis_best(b->kb, "intent_cue", norm,
@@ -319,7 +378,6 @@ static int cue(const char *haystack, const char *needle) {
     return strstr(haystack, needle) != NULL;
 }
 
-static char *kb_dequote(char *s);   /* definito piu' avanti; questo strato lo usa */
 static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                             char *out, size_t out_size);
 
@@ -595,6 +653,100 @@ static const char *find_possession_name(Brain *b, const char *thing) {
  * So a new learnable intent is DATA (a learnable/3 row), never new C. KB_SESSION, so it
  * persists on /save. Returns 1 if it claimed the turn. Defined here, after cue()/put(),
  * since it uses them. */
+/* ── SC32/D28 — LA META' MANCANTE DELL'ATTO DIDATTICO ─────────────────────
+ *
+ * `try_teach_form` insegna un membro di una classe leggendo `learnable/3`.
+ * Ritrattarlo non aveva un gemello, e per un'intera classe di lezioni il
+ * contratto di `AGENTS.md` — «retracting the cue must remove that
+ * recognition» — era inesprimibile: ogni frase che nomina la locuzione la
+ * contiene, e l'unica che sfuggiva alla cue insegnava un fatto sul verbo di
+ * retract (`casual_opener(forget)`, la specie che SC2-A aveva gia' guardato a
+ * mano su un altro percorso).
+ *
+ * Questa non e' una guardia in un modulo: e' lo STESSO registro letto nell'altro
+ * verso. Una classe nuova in `learnable/3` diventa insegnabile e ritrattabile
+ * insieme, e nessun modulo cambia. Il verbo che apre la mossa e' un fatto
+ * (`state_move_cue(_, retract)`), come per `mod_forget`.
+ *
+ * Corre PRIMA di `try_teach_form` di proposito: «unlearn» contiene «learn», e
+ * il mantra #8 vale anche qui. */
+int try_forget_form(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t outsz) {
+    if (!b || !b->kb || !raw || !norm) return 0;
+    char low[512];
+    size_t ln = 0;
+    for (const char *c = raw; *c && ln + 1 < sizeof low; c++)
+        low[ln++] = (char)tolower((unsigned char)*c);
+    low[ln] = '\0';
+
+    char mv[8][KB_TERM_LEN];
+    const char *mq[2] = { NULL, "retract" };
+    size_t nm = kb_match(b->kb, "state_move_cue", mq, 2, mv, 8);
+    int is_retract = 0;
+    for (size_t i = 0; i < nm && !is_retract; i++) {
+        char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", mv[i]);
+        if (cue(low, kb_dequote(cb))) is_retract = 1;
+    }
+    if (!is_retract) return 0;
+
+    const char *rq1 = strchr(raw, '"'), *rq2 = rq1 ? strchr(rq1 + 1, '"') : NULL;
+    if (!rq2 || rq2 <= rq1 + 1) return 0;
+
+    char labels[96][KB_TERM_LEN];
+    const char *qa[3] = { NULL, NULL, NULL };
+    size_t nl = kb_match(b->kb, "learnable", qa, 3, labels, 96);
+    for (size_t i = 0; i < nl; i++) {
+        char lab[KB_TERM_LEN]; snprintf(lab, sizeof lab, "%s", labels[i]);
+        char *ls = lab; size_t ll = strlen(ls);
+        if (ll >= 2 && ls[0] == '"' && ls[ll - 1] == '"') { ls[ll - 1] = '\0'; ls++; }
+        if (!*ls || !strstr(low, ls)) continue;
+
+        char intent[1][KB_TERM_LEN], mode[1][KB_TERM_LEN];
+        const char *qi[3] = { labels[i], NULL, NULL };
+        if (kb_match(b->kb, "learnable", qi, 3, intent, 1) != 1) continue;
+        const char *qm[3] = { labels[i], intent[0], NULL };
+        if (kb_match(b->kb, "learnable", qm, 3, mode, 1) != 1) continue;
+
+        /* Soltanto le modalita' che scrivono una SUPERFICIE riconosciuta hanno
+         * un retract simmetrico ovvio. Le altre (fill, define, le maniglie
+         * generiche) restano fuori e falliscono onestamente invece di
+         * indovinare quale fatto togliere. */
+        const char *pred = NULL;
+        if      (lex_class_member(b, "00_lex_lex587", mode[0])) pred = "intent_phrase";
+        else if (lex_class_member(b, "00_lex_lex588", mode[0])) pred = "intent_cue";
+        else if (lex_class_member(b, "00_lex_lex590", mode[0])) pred = intent[0];
+        else continue;
+
+        /* La superficie memorizzata viene dalla forma canonicalizzata, come
+         * all'atto dell'insegnamento: se le due letture divergessero, il
+         * retract cercherebbe un fatto che non e' mai stato scritto. */
+        const char *s1 = rq1, *s2 = rq2;
+        const char *n1 = strchr(norm, '"'), *n2 = n1 ? strchr(n1 + 1, '"') : NULL;
+        if (n2 && n2 > n1 + 1) { s1 = n1; s2 = n2; }
+        size_t pl = (size_t)(s2 - (s1 + 1));
+        if (pl == 0 || pl >= KB_TERM_LEN - 2) return 0;
+        char phrase[KB_TERM_LEN]; memcpy(phrase, s1 + 1, pl); phrase[pl] = '\0';
+        char quoted[KB_TERM_LEN]; snprintf(quoted, sizeof quoted, "\"%s\"", phrase);
+
+        int gone;
+        if (pred == intent[0]) {
+            const char *ar1[1] = { phrase };
+            gone = kb_retract(b->kb, pred, ar1, 1);
+        } else {
+            const char *ar2[2] = { intent[0], quoted };
+            gone = kb_retract(b->kb, pred, ar2, 2);
+        }
+        char msg[256];
+        kb_term_say(b, gone ? "taught_form_forgotten" : "taught_form_not_held",
+                    (const KbResponseSlot[]){ { "phrase", phrase },
+                                              { "label", ls } }, 2,
+                    msg, sizeof msg);
+        put(msg, out, outsz);
+        return 1;
+    }
+    return 0;
+}
+
 int try_teach_form(Brain *b, const char *norm, const char *raw,
                           char *out, size_t outsz) {
     if (!b || !b->kb || !raw) return 0;

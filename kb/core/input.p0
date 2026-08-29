@@ -189,6 +189,29 @@ segment_role(non_goal, "out of scope").
 segment_role(non_goal, "non-goal").
 segment_role(non_goal, "fuori ambito").
 
+% ── SC32/D27: UNA CUE NON GUARDA DENTRO UNA MENZIONE ──────────────────────
+%
+% Misurato: insegnata la locuzione «helyla friend» come attacco informale, NON
+% ESISTE una frase che la ritratti. «forget "helyla friend" as a casual opener»
+% CONTIENE la locuzione, e una cue substring si accende dentro il proprio
+% retract; l'unico tentativo che sfuggiva alla cue insegnava
+% `casual_opener(forget)`. Il contratto di `AGENTS.md` — ritrattare una cue deve
+% togliere il riconoscimento — era quindi inesprimibile per questa classe.
+%
+% La cura non e' una guardia in un modulo: e' il principio del §18.27 applicato
+% al matching. Cio' che e' MENZIONATO non partecipa alla lingua che lo menziona,
+% quindi le superfici che aprono e chiudono una menzione sono fatti, e quali
+% relazioni di cue debbano ignorarne il contenuto e' una politica.
+%
+% `whole_turn` resta il default implicito: una relazione senza riga qui si
+% comporta esattamente come prima, e il livello e' additivo.
+machinery(mention_delimiter).
+machinery(cue_scope).
+mention_delimiter("\"", "\"").
+mention_delimiter("'", "'").
+cue_scope(intent_cue, outside_role(mention)).
+cue_scope(intent_phrase, outside_role(mention)).
+
 % Uso e menzione non possono attraversare la stessa canonicalizzazione. Le
 % parole introdotte da queste cue sono oggetti del discorso: vanno conservate,
 % non tradotte come se fossero gia' il concetto che nominano.
