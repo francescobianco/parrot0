@@ -3176,3 +3176,123 @@ modello deve instradare tre generi diversi, sopravvivere a lessico che altrove
 segnala codice/log e smettere immediatamente dopo l'ablazione. A parita' di D0,
 gli errori residui devono comparire come unita' saltate o gap documentali, mai
 come narrativa o output di un registro concorrente.
+
+### 18.17 Evidenza SC1 — il documento deve sopravvivere al proprio parser
+
+Il ciclo SC1 del 2026-08-29 ha provato la parte minima di D1 e ha ristretto
+altre cinque ipotesi. La baseline su Apollo 13 attraversava correttamente il
+reader costruito da D0, ma terminava con `0` fatti, `2` frasi saltate e nessun
+oggetto interrogabile. La lezione naturale
+`"albeit" is a contrastive connector` entrava nella classe linguistica; il
+replay restava identico. La forma era quindi insegnabile, ma nessun consumer
+poteva applicarla dopo che `current_prose` era stato cancellato.
+
+L'incremento introduce una proiezione documentale di sessione:
+
+```prolog
+document_unit($Document, $Unit, $Order).
+document_unit_source($Document, $Unit, $Surface).
+document_unit_token($Unit, $Token, token($Surface, range($Begin, $End))).
+
+rhetorical_marker_class(contrastive_connector, contrast,
+                         previous_to_current).
+rhetorical_edge($Document, $Left, $Right, contrast).
+```
+
+Il C assegna soltanto handle monotone, ordine e invoca
+`document_unit_observe/4` prima del clear. La KB copia token e range dalla
+struttura universale e deriva l'arco applicando la classe aperta con `apply/2`.
+Nessuna superficie contrastiva compare nel consumer. Insegnare
+`nevertheless` ha cambiato immediatamente il replay e tre documenti trasferiti;
+ritrarlo ha eliminato gli archi gia' derivati senza eliminare unita', span o il
+fatto indipendente `metal(mercury)`. Reteach e fresh-process recall hanno
+ricostruito la stessa vista.
+
+Da questa evidenza emergono sei affinamenti falsificabili.
+
+**D1a — copy-on-observe precede qualunque interpretazione distruttiva.** Una
+vista transiente e' sufficiente per riconoscere una frase, non per comprendere
+un documento. Il producer deve pubblicare unita', ordine e geometria prima che
+un parser specializzato ripulisca il proprio workspace. La copia non decide
+ancora se l'unita' sia metodo, risultato o limite: conserva evidenza riusabile.
+
+**Predizione.** Due consumer diversi devono poter derivare viste indipendenti
+dalle stesse unita' senza ri-tokenizzare la superficie e senza dipendere
+dall'ordine in cui vengono eseguiti.
+
+**D1b — la retorica si fattorizza in classe, relazione e direzione.** Un marker
+non e' l'arco. `contrastive_connector` e' una classe insegnabile;
+`rhetorical_marker_class/3` ne dichiara lettura e orientamento;
+`rhetorical_edge/4` applica quella politica a un contesto strutturale. Questa
+fattorizzazione permette a nuove superfici di trasferire senza nuovo C e a una
+stessa classe di ricevere in futuro politiche diverse per scope o genere.
+
+**Predizione.** Insegnare una nuova superficie alla classe esistente deve
+creare gli stessi archi; cambiare a runtime soltanto la mappa di direzione deve
+invertire source/target senza cambiare token o unita'.
+
+**D1c — le relazioni documentali iniziali devono essere viste derivate.** Se
+l'arco fosse materializzato al momento della lettura, l'ablation della cue
+lascerebbe conoscenza fossile. Poiche' e' derivato, retract cambia la risposta
+sui documenti gia' osservati e conserva lo strato evidenziale piu' debole.
+Questa e' la forma documentale dell'invalidazione causale del mantra 15.
+
+**Predizione.** Ritrarre una cue, uno status o una regola deve eliminare
+esattamente le viste che ne dipendono; reinserirla deve farle riapparire senza
+rileggere il testo, finche' le unita' fonte restano in sessione.
+
+**D1d — apprendimento e correzione devono condividere la lettura.** Due sonde
+abortite hanno trasformato «forget that X is a contrastive connector» in
+`contrastive_connector(forget)`: la lezione e il retract attraversavano parser
+asimmetrici. La correzione non e' una utility successiva all'apprendimento; e'
+il suo inverso semantico e deve usare la stessa analisi pura di membership.
+
+**Predizione.** Per ogni forma naturale che asserisce una relazione learnable,
+la stessa proposizione sotto un atto di retract deve risolvere predicato e
+argomenti identici. Le forme che entrano ma non possono uscire bloccano la
+promozione anche quando replay e transfer sono verdi.
+
+**D1e — identita' di sessione e identita' epistemica non coincidono.**
+`document_N` risolve l'ordine locale ma colliderebbe dopo un riavvio. Per questo
+le sessioni documentali non sono state salvate: persisterle avrebbe simulato
+provenance. D2 deve ancorare un documento a fonte/versione/fingerprint e un
+claim ai suoi span; il contatore resta al massimo una handle effimera.
+
+**Predizione.** Lo stesso documento riletto puo' essere riconciliato con la
+stessa identita' epistemica, mentre due versioni o due fonti con testo simile
+restano distinte. Un processo nuovo non puo' fondere documenti soltanto perche'
+entrambi ricominciano dal numero uno.
+
+**D2a — claim, attribuzione e commitment sono assi ortogonali.** SC1 ottiene
+`Relation fidelity=4/4` su replay e transfer ma soltanto `Claim coverage=1/8`.
+L'arco corretto non implica che il contenuto sia stato capito. SC2 deve quindi
+modellare separatamente proposizione, chi la presenta, con quale status e se
+parrot0 la assume:
+
+```prolog
+document_claim($Document, $Claim, $Proposition).
+claim_source_span($Claim, $Unit, $Range).
+claim_attributed_to($Claim, $Agent).
+claim_status($Claim, hypothesis).
+claim_status($Claim, observation).
+claim_commitment($Claim, reported).
+```
+
+Un testo «gli autori ipotizzano X; i dati mostrano Y» deve conservare X come
+ipotesi attribuita e Y come osservazione riportata. Nessuna delle due diventa
+automaticamente una credenza non qualificata di parrot0. Le cue di status sono
+classi KB insegnabili e retraibili; il C non riconosce `hypothesize`, `show`,
+`authors` o `data`.
+
+**Predizione.** Alla domanda se X sia stato osservato la risposta e' negativa,
+ma X resta recuperabile come ipotesi degli autori. Ritrarre la cue di ipotesi
+rimuove lo status derivato, non la frase, la proposition o l'attribuzione. La
+stessa distinzione deve trasferire a esperimento, studio osservazionale e
+simulazione.
+
+**Risultato misurato.** `Transfer@3=3/3`, contrasto negativo `1/1`, ablation e
+reteach verdi, `FreshProcessRecall=2/2`; il ratchet persistente contiene 33
+assert. Il save pulito promuove soltanto la lezione linguistica e le sue tracce:
+`W=0, L=1, C=0, P=1, O=3, X=0, S=5`. Questi numeri chiudono **SC1-A**, non D1
+intera: cue multi-parola, archi intra-periodo/a distanza, `unit_act`, identita'
+persistibile e claim tipati restano gate espliciti di SC1-B/SC2.

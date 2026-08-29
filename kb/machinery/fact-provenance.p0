@@ -119,6 +119,7 @@ fact_source(produces(liver, bile), liver, "the liver produces bile").
 reading_fact(produces(thyroid, thyroxine), "the thyroid produces thyroxine").
 fact_source(relation_verb(produces), produces, "produces is a relation verb").
 fact_source(secretes(salivary_gland, amylase), salivary_gland, "the salivary gland secretes amylase").
+fact_source(contrastive_connector(nevertheless), nevertheless, ""nevertheless" is a contrastive connector.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -143,4 +144,5 @@ reading_fact(produces(liver, bile), "the liver produces bile").
 reading_fact(relation_verb(prevents), "prevents is a relation verb").
 reading_fact(relation_verb(produces), "produces is a relation verb").
 reading_fact(secretes(salivary_gland, amylase), "the salivary gland secretes amylase").
+reading_fact(contrastive_connector(nevertheless), ""nevertheless" is a contrastive connector.").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").

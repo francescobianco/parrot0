@@ -1750,7 +1750,8 @@ static void learn_clause_transitions(Brain *b, const char *clause) {
     learn_word_stream(b, tw, m);
 }
 
-static int extract_clause(Brain *b, char *clause, const char *source_base) {
+static int extract_clause(Brain *b, char *clause, const char *source_base,
+                          const char *document, size_t unit_order) {
     char *c = trim_mut(clause);
     if (!*c) return 0;
     char norm[256];
@@ -1777,6 +1778,21 @@ static int extract_clause(Brain *b, char *clause, const char *source_base) {
     snprintf(prose_span.role, sizeof prose_span.role, "prose");
     input_structure_publish(b->kb, source_base ? source_base : c,
                             &prose_span, "current_prose");
+
+    /* SC1 — la gerarchia `current_prose` e' intenzionalmente transiente, ma il
+     * documento non puo' perdere una clausola prima di osservare la successiva.
+     * Il C assegna soltanto un'identita' e l'ordine meccanico; la regola KB
+     * `document_unit_observe/4` decide quali viste copiare e come interrogarle.
+     * Ruoli, cue e relazioni retoriche non compaiono in questo producer. */
+    if (document && *document) {
+        char unit[KB_TERM_LEN], order[24];
+        snprintf(unit, sizeof unit, "%s_unit_%zu", document, unit_order);
+        snprintf(order, sizeof order, "%zu", unit_order);
+        const char *observe_unit[] = {
+            document, unit, order, "current_prose"
+        };
+        kb_query(b->kb, "document_unit_observe", observe_unit, 4);
+    }
 
     /* The KB decides whether one unambiguous assertion bundle is commit-ready
      * and performs the reified assertions plus provenance writes. C only asks
@@ -1835,6 +1851,13 @@ static void store_proposition(Brain *b, char *clause) {
  * reader and the bench bridge (gen45). Counts assertions and skips. */
 static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) {
     input_structure_clear(b->kb, "current_prose");
+    char document[KB_TERM_LEN];
+    snprintf(document, sizeof document, "document_%lu", ++b->document_seq);
+    {
+        const char *begin[] = { document };
+        if (!kb_query(b->kb, "document_begin", begin, 1)) document[0] = '\0';
+    }
+    size_t unit_order = 0;
     char *p = buf;
     while (*p) {
         char *q = p;
@@ -1856,7 +1879,11 @@ static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) 
         char original[192];
         snprintf(original, sizeof original, "%s", p);
         learn_clause_transitions(b, p);   /* gen41: feed the generative model */
-        int extracted = extract_clause(b, p, buf);
+        int has_content = 0;
+        for (const char *scan = p; *scan; scan++)
+            if (!isspace((unsigned char)*scan)) { has_content = 1; break; }
+        int extracted = extract_clause(b, p, buf, document, unit_order);
+        if (has_content) unit_order++;
         if (extracted > 0) {
             (*learned) += (size_t)extracted;
             store_proposition(b, original);
@@ -1875,10 +1902,35 @@ static int reader_summary(Brain *b, size_t learned, size_t skipped,
                           char *out, size_t out_size) {
     if (!b || !out || out_size == 0) return 0;
     char frame[KB_TERM_LEN];
-    if (!lang_template(b, "reader_summary", frame, sizeof frame)) return 0;
     char learned_value[32], skipped_value[32];
     snprintf(learned_value, sizeof learned_value, "%zu", learned);
     snprintf(skipped_value, sizeof skipped_value, "%zu", skipped);
+
+    /* Una relazione documentale e' un esito positivo anche quando i claim
+     * interni non sono ancora estraibili. Contiamo soltanto la vista KB del
+     * documento corrente; il testo della risposta resta un template KB. */
+    char current[1][KB_TERM_LEN];
+    const char *cq[] = { NULL };
+    if (kb_match(b->kb, "current_document", cq, 1, current, 1) == 1) {
+        char units[128][KB_TERM_LEN], edges[128][KB_TERM_LEN];
+        const char *uq[] = { current[0], NULL, NULL };
+        const char *eq[] = { current[0], NULL, NULL, NULL };
+        size_t nu = kb_match(b->kb, "document_unit", uq, 3, units, 128);
+        size_t ne = kb_match(b->kb, "rhetorical_edge", eq, 4, edges, 128);
+        if (ne > 0 &&
+            lang_template(b, "reader_document_summary", frame, sizeof frame)) {
+            char unit_value[32], relation_value[32];
+            snprintf(unit_value, sizeof unit_value, "%zu", nu);
+            snprintf(relation_value, sizeof relation_value, "%zu", ne);
+            const KbResponseSlot slots[] = {
+                { "units", unit_value }, { "relations", relation_value },
+                { "learned", learned_value }, { "skipped", skipped_value }
+            };
+            return kb_fill_slots(frame, slots, 4, 1, out, out_size);
+        }
+    }
+
+    if (!lang_template(b, "reader_summary", frame, sizeof frame)) return 0;
     const KbResponseSlot slots[] = {
         { "learned", learned_value }, { "skipped", skipped_value }
     };

@@ -1,0 +1,102 @@
+% document-structure.p0 — Document IR minima e aperta (SC1).
+%
+% Il producer C assegna soltanto identita', ordine e byte span alle unita' che
+% il lettore gia' separa meccanicamente. Copia qui la gerarchia transiente di
+% `current_prose` prima che venga ripulita per la clausola successiva. La KB
+% decide se un token sia una cue retorica, quale relazione segnali e in quale
+% direzione colleghi le unita'.
+
+:- file_attribute(machinery).
+
+machinery(current_document).
+machinery(document_begin).
+machinery(document_unit).
+machinery(document_unit_source).
+machinery(document_unit_token).
+machinery(document_unit_token_key).
+machinery(document_unit_token_set).
+machinery(document_unit_token_store).
+machinery(document_unit_observe).
+machinery(document_unit_token_range).
+machinery(document_unit_token_surface).
+machinery(document_unit_token_before).
+machinery(document_unit_token_precedes).
+machinery(document_unit_initial_token).
+machinery(document_unit_follows).
+machinery(rhetorical_marker_class).
+machinery(document_unit_rhetorical_cue).
+machinery(rhetorical_edge).
+machinery(current_document_relation).
+
+% Una sola vista e' corrente, ma le osservazioni precedenti restano fatti di
+% sessione con la propria identita'. Il cambio di focus non cancella il passato.
+current_document(none).
+document_begin($Document) :-
+    current_document($Old),
+    retract(current_document, $Old),
+    assert(current_document, $Document).
+
+% La lista consente al rule engine di materializzare tutti i token senza che C
+% debba conoscere una categoria linguistica. Il record reificato mantiene il
+% limite di tre argomenti dell'assert da regola.
+document_unit_token_key($Scope, token($Id, $Quoted, $Range)) :-
+    input_node($Scope, $Id, node(token, token, $Parent), $Range),
+    input_node_surface($Scope, $Id, $Quoted).
+
+document_unit_token_set($Scope, $Tokens) :-
+    findall($Token, document_unit_token_key($Scope, $Token), $Tokens).
+
+document_unit_token_store($Unit, nil).
+document_unit_token_store($Unit, cons(token($Id, $Quoted, $Range), $Tail)) :-
+    assert(document_unit_token, $Unit, $Id, token($Quoted, $Range)),
+    document_unit_token_store($Unit, $Tail).
+
+% Questa e' la frontiera transazionale: prima del clear di `current_prose`, una
+% clausola diventa un'unita' stabile con superficie, span e token allineati.
+document_unit_observe($Document, $Unit, $Order, $Scope) :-
+    input_node($Scope, 0, node(clause, clause, root), $Range),
+    input_node_surface($Scope, 0, $Quoted),
+    document_unit_token_set($Scope, $Tokens),
+    assert(document_unit, $Document, $Unit, $Order),
+    assert(document_unit_source, $Unit, $Quoted, $Range),
+    document_unit_token_store($Unit, $Tokens).
+
+document_unit_token_surface($Unit, $Id, $Surface) :-
+    document_unit_token($Unit, $Id, token($Quoted, $Range)),
+    span_atom($Quoted, $Surface).
+document_unit_token_range($Unit, $Id, $Start, $Length) :-
+    document_unit_token($Unit, $Id, token($Quoted, range($Start, $Length))).
+document_unit_token_before($Unit, $Left, $Right) :-
+    document_unit_token_range($Unit, $Left, $LeftStart, $LeftLength),
+    document_unit_token_range($Unit, $Right, $RightStart, $RightLength),
+    lt($LeftStart, $RightStart).
+document_unit_token_precedes($Unit, $Id) :-
+    document_unit_token_before($Unit, $Other, $Id).
+document_unit_initial_token($Unit, $Id) :-
+    document_unit_token($Unit, $Id, $Token),
+    naf(document_unit_token_precedes($Unit, $Id)).
+
+document_unit_follows($Document, $Left, $Right) :-
+    document_unit($Document, $Left, $LeftOrder),
+    document_unit($Document, $Right, $RightOrder),
+    is($RightOrder, add($LeftOrder, 1)).
+
+% La classe della superficie e la semantica dell'arco sono due coordinate
+% aperte. `apply/2` invoca la classe dichiarata: insegnare un nuovo membro di
+% `contrastive_connector` lo rende consumabile al turno dopo senza rebuild.
+rhetorical_marker_class(contrastive_connector, contrast, previous_to_current).
+
+document_unit_rhetorical_cue($Unit, $Relation, $Direction, $Cue) :-
+    document_unit_initial_token($Unit, $Id),
+    document_unit_token_surface($Unit, $Id, $Cue),
+    rhetorical_marker_class($Class, $Relation, $Direction),
+    apply($Class, cons($Cue, nil)).
+
+rhetorical_edge($Document, $Left, $Right, $Relation) :-
+    document_unit_follows($Document, $Left, $Right),
+    document_unit_rhetorical_cue(
+        $Right, $Relation, previous_to_current, $Cue).
+
+current_document_relation($Relation) :-
+    current_document($Document),
+    rhetorical_edge($Document, $Left, $Right, $Relation).

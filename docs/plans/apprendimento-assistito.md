@@ -358,6 +358,11 @@ quella scomposta e viceversa; l'ablation toglie il ponte e non i fatti.
 *Manca:* entrano enumerazioni di membri; restano fuori causalità, finalità,
 processo e condizione. E l'estrazione produce atomi falsi — `organism(metabolism)`
 da «fuel their metabolism».  
+*Evidenza 2026-08-29, SC1-A:* il testo possiede ora unita' ordinate con span e
+un primo arco di contrasto derivato da una classe insegnabile a voce;
+`Transfer@3=3/3`, retract e reteach sono causali. Il gate M9 resta aperto:
+`Claim coverage=1/8`, nessun atto di metodo/risultato/limite e nessuna causalita'
+sono ancora rappresentati.
 *Atto didattico:* «in un testo, "X perché Y" dice che Y causa X» — la lezione
 riguarda la forma del discorso, non il tema.  
 *Gate:* precisione dell'estrazione misurata, non solo la quantità: «Learned N
@@ -770,6 +775,11 @@ Qualunque input dichiarativo multi-frase deve essere offerto allo stesso lettore
 prima dei generatori di racconto o analisi. Se non estrae nulla, deve riportare
 le frasi saltate e i gap, non produrre narrativa. `read:` non può essere rubato
 da un altro intento nel profilo integrato.
+
+*Stato 2026-08-29:* il routing e' chiuso da D0/SC0; SC1-A conserva inoltre le
+unita' oltre il workspace transiente e deriva un primo arco retorico retraibile.
+A3 non equivale ancora a comprensione proposizionale: identita' persistibile,
+claim tipati e commitment sono il prossimo confine.
 
 ### A4 — Procedure insegnabili senza misclaim
 

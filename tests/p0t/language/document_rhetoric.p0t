@@ -1,0 +1,86 @@
+# document_rhetoric.p0t — SC1: da clausole transienti a un Document IR.
+#
+# Tutti i contenuti sono fatti reali, non fixture da persistere:
+# - Apollo 13: NASA, https://www.nasa.gov/missions/apollo/the-hard-won-triumph-of-the-apollo-13-mission-45-years-later/
+# - subduzione: USGS, https://www.usgs.gov/special-topics/subduction-zone-science/science/introduction-subduction-zones-amazing-events
+# - studi osservazionali: PubMed Central, https://pmc.ncbi.nlm.nih.gov/articles/PMC10589119/
+# - mercurio: Los Alamos National Laboratory, https://periodic.lanl.gov/80.shtml
+#
+# La lezione non nomina Document IR, archi, predicati o arita'. Una normale
+# classe linguistica appresa parlando cambia la lettura dello stesso documento.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test a taught rhetorical cue links stable document units]
+!timeout 60
+# BASELINE: le unita' e gli span sopravvivono, ma la cue non appartiene ancora
+# a una classe retorica e quindi nessun arco viene inventato.
+> read: Apollo 13 did not achieve its scientific goals. Nevertheless, NASA's rescue mission was an agency triumph.
+< Learned 0 fact(s), skipped 2.
+!query document_unit(document_1, document_1_unit_0, 0)
+!query document_unit(document_1, document_1_unit_1, 1)
+!query document_unit_source(document_1_unit_0, "Apollo 13 did not achieve its scientific goals", range(0, 46))
+!query document_unit_token_surface(document_1_unit_1, 1, nevertheless)
+!query! rhetorical_edge(document_1, document_1_unit_0, document_1_unit_1, contrast)
+
+# LEZIONE NATURALE e REPLAY: la classe aperta e' gia' insegnabile; il nuovo
+# consumer documentale la usa immediatamente senza ricompilare.
+> "nevertheless" is a contrastive connector.
+< Learned: contrastive_connector(nevertheless).
+> Is nevertheless a contrastive connector?
+< Yes.
+> read: Apollo 13 did not achieve its scientific goals. Nevertheless, NASA's rescue mission was an agency triumph.
+<~ Mapped 2 document unit(s) and 1 rhetorical relation(s)
+!query rhetorical_edge(document_2, document_2_unit_0, document_2_unit_1, contrast)
+!query current_document_relation(contrast)
+
+[test transfer contrast composition and natural ablation]
+!timeout 60
+# TRANSFER@3: geologia, metodologia scientifica e chimica; l'ultimo caso
+# compone l'arco con un fatto contenuto realmente estratto.
+> read: Subduction zones occupy a small fraction of Earth's surface. Nevertheless, they produce the world's largest earthquakes.
+<~ Mapped 2 document unit(s) and 1 rhetorical relation(s)
+!query current_document_relation(contrast)
+> read: Observational studies can identify associations. Nevertheless they cannot by themselves establish causality.
+<~ Mapped 2 document unit(s) and 1 rhetorical relation(s)
+!query current_document_relation(contrast)
+> read: Mercury is a metal. Nevertheless, mercury is liquid at ordinary temperatures.
+<~ Mapped 2 document unit(s) and 1 rhetorical relation(s)
+!query metal(mercury)
+!query rhetorical_edge(document_5, document_5_unit_0, document_5_unit_1, contrast)
+
+# CONTRAST PRECISION: una conseguenza non e' un contrasto; le unita' restano,
+# ma la classe non autorizza l'arco sbagliato.
+> read: Mercury has atomic number 80. Therefore, mercury is an element.
+!query document_unit(document_6, document_6_unit_0, 0)
+!query document_unit(document_6, document_6_unit_1, 1)
+!query! current_document_relation(contrast)
+
+# ABLATION PARLATA: rimuove la sola causa dell'arco anche dai documenti gia'
+# osservati; unita', span e fatto sul mercurio restano vivi. In particolare non
+# deve mai nascere il vecchio misclaim `contrastive_connector(forget)`.
+> forget that nevertheless is a contrastive connector
+< I no longer treat «nevertheless» as a contrastive connector.
+!query! contrastive_connector(nevertheless)
+!query! contrastive_connector(forget)
+!query! rhetorical_edge(document_5, document_5_unit_0, document_5_unit_1, contrast)
+!query document_unit(document_5, document_5_unit_0, 0)
+!query document_unit(document_5, document_5_unit_1, 1)
+!query metal(mercury)
+> read: Mercury is a metal. Nevertheless, mercury is liquid at ordinary temperatures.
+<! Mapped
+!query! current_document_relation(contrast)
+
+# RETEACH: lo stesso binario riacquista la capacita' e la usa su un nuovo
+# documento vero.
+> "nevertheless" is a contrastive connector.
+< Learned: contrastive_connector(nevertheless).
+> read: The platypus is a mammal. Nevertheless, the platypus lays eggs.
+<~ Mapped 2 document unit(s) and 1 rhetorical relation(s)
+!query current_document_relation(contrast)

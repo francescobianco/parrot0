@@ -43,6 +43,11 @@
 
 struct Brain {
     unsigned long turns;   /* how many exchanges we've had this session */
+    /* Identita' monotona dei documenti osservati. Il numero non interpreta il
+     * testo: e' la stessa meccanica fissa del contatore dei turni e permette
+     * alla KB di conservare unita' provenienti da letture successive senza
+     * fonderle. Che cosa quelle unita' e i loro archi significhino resta KB. */
+    unsigned long document_seq;
     /* gen403: il nome dell'utente NON sta qui. Sta in `user_value(name, X)`
      * nella KB, con la residenza e il mestiere — vedi la nota in testa a
      * 10-memory-knowledge.c. Un campo C e' una conoscenza che nessuno puo'

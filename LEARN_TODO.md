@@ -64,7 +64,7 @@ viene parafrasato: una fonte non diventa un corpus copiato nella KB.
 | # | Piano complesso | Classe liberata | Interazione didattica minima | Gate duro | Stato |
 |---|---|---|---|---|---|
 | **SC0** | **Baseline stratificata su prosa narrativa, espositiva e scientifica** | distingue muro, fatto estratto, misclaim, perdita di subordinata e perdita di struttura documentale | presentare tre brani veri brevi, poi chiedere tesi, supporto, sequenza e limite senza anticipare le risposte | transcript classificato frase per frase; zero conoscenza consolidata; mappa M0-M20 e SC1-SC16 | **CHIUSA come diagnosi** — 2026-08-29: falso racconto e falsa autodiagnosi isolati; porta di lettura resa insegnabile; route Transfer@3 = 3/3; estrazione complessa = 0/9. Report: [`2026-08-29-supercomprensione-sc0.md`](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc0.md) |
-| **SC1** | **Unita' documentali e relazioni retoriche** | una frase o sezione puo' essere definizione, sfondo, contrasto, causa, metodo, risultato, limite o transizione | «qui la seconda frase contrasta la prima», «questa frase descrive il metodo, non il risultato» | una cue retorica nuova insegnata a voce cambia la segmentazione; transfer su tre domini; retract la rimuove | aperto |
+| **SC1** | **Unita' documentali e relazioni retoriche** | una frase o sezione puo' essere definizione, sfondo, contrasto, causa, metodo, risultato, limite o transizione | «qui la seconda frase contrasta la prima», «questa frase descrive il metodo, non il risultato» | una cue retorica nuova insegnata a voce cambia la segmentazione; transfer su tre domini; retract la rimuove | **SC1-A CHIUSA; SC1-B aperta** — 2026-08-29: unita' ordinate e span stabili di sessione; cue naturale persistita; `Transfer@3=3/3`; ablation/reteach causali; restano ID fonte, atti, cue multi-parola e archi intra-periodo. [Report SC1](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc1.md) |
 | **SC2** | **Claim tipati, attribuzione e forza epistemica** | separa osservazione, dato, inferenza, ipotesi, assunzione, definizione, citazione e raccomandazione | «gli autori osservano X ma concludono Y», «Z e' un'ipotesi, non un risultato» | nessun claim perde fonte, scope o status; un fatto riportato non diventa automaticamente commitment di parrot0 | aperto |
 | **SC3** | **Grafo argomentativo e dipendenze della conclusione** | estrae premesse, conclusioni, supporti, obiezioni, qualificatori e rebuttal da prosa articolata | «questa osservazione sostiene la conclusione solo insieme a quest'altra premessa» | domande `perche'`, `da cosa dipende`, `cosa la confuterebbe`; ablation di una premessa ritira solo le conclusioni dipendenti | aperto |
 | **SC4** | **Ricostruzione del disegno scientifico** | riconosce domanda, popolazione/sistema, variabili, intervento, confronto, misura, controllo e confondenti | «il gruppo B e' il confronto; la temperatura e' mantenuta costante» | ricostruzione su esperimento, studio osservazionale e simulazione; non inventa controllo o causalita' | aperto |
@@ -358,6 +358,152 @@ Il commit SC1 dovra' essere autonomo e descrivere: ipotesi provata, lezione
 naturale, fatto KB cresciuto, consumer che lo usa, test di ablation, metriche,
 fonti, limite residuo e prossimo gate. Se una di queste voci manca, lasciare il
 gate aperto nel TODO.
+
+### Checkpoint lasciato da SC1 — punto di ripresa autoritativo
+
+SC1-A e' chiusa. Leggere il
+[report completo](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc1.md)
+prima di modificare il lettore. Il risultato non e' «comprensione dei claim»:
+e' il primo strato causale di Document IR sul quale SC2 puo' finalmente
+costruire status epistemici senza ricominciare dal testo grezzo.
+
+#### Che cosa e' stato dimostrato
+
+- `document_unit_observe/4` copia superficie, token, range e ordine dalla
+  gerarchia transiente `current_prose` **prima** che venga ripulita. Due frasi
+  successive restano quindi due oggetti interrogabili nella stessa sessione.
+- Il C genera soltanto l'identita' monotona `document_N`, l'ordine delle unita'
+  e attiva il producer KB. La semantica vive in
+  `kb/core/document-structure.p0`: classe del marker, relazione e direzione
+  sono aperte e `rhetorical_edge/4` e' una vista derivata.
+- La lezione naturale `"nevertheless" is a contrastive connector.` crea
+  `contrastive_connector(nevertheless)`. Il consumer la usa subito senza
+  rebuild: Apollo replay e tre transfer indipendenti producono due unita' e un
+  arco di contrasto (`Transfer@3=3/3`). `therefore` non produce quell'arco.
+- Il retract naturale elimina il membro della classe e rende non dimostrabile
+  l'arco anche sui documenti gia' osservati, ma conserva unita', span e il fatto
+  estratto `metal(mercury)`. Reteach e retention sono verdi.
+- La stessa grammatica pura di menzione e' ora condivisa da learn/query/retract.
+  Questo chiude il bug diagnostico che trasformava «forget that X is a
+  contrastive connector» nel fatto falso `contrastive_connector(forget)`.
+- La sola lezione linguistica e' stata promossa in una sessione pulita:
+  `W=0, L=1, C=0, P=1, O=3, X=0, S=5`. Un processo nuovo parte da
+  `36312 facts, 2418 rules`, ricorda la classe e ricostruisce l'arco senza
+  ripetere la lezione (`FreshProcessRecall=2/2`).
+
+Il ratchet permanente e' `tests/p0t/language/document_rhetoric.p0t`: 33 assert
+nello stesso processo coprono baseline, crescita, replay, tre domini,
+punteggiatura, composizione, contrasto, ablation, conservazione del contenuto,
+reteach e retention. Sono verdi anche `mention.p0t` (24),
+`taught_segment_role.p0t` (21) e `retract.p0t` (17 su engine ermetico).
+`make build` e' verde. Il solo `make soft-test` del ciclo e' gia' stato
+consumato: 55 verdi e il rosso preesistente di `frontier_chat_audit.it.p0t`
+riga 97 sulla formulazione di `designation`. Non rilanciarlo per SC1.
+
+#### Confini da non mascherare
+
+1. `document_N` e `document_N_unit_M` sono locali al processo. Le sessioni che
+   contenevano documenti non sono state salvate: fra due processi gli ID
+   colliderebbero e falsificherebbero la genealogia. Non promuovere queste
+   clausole finche' l'identita' non e' ancorata a fonte, versione e span.
+2. L'arco attuale collega soltanto unita' adiacenti quando il primo token della
+   seconda e' membro della classe dichiarata. Non copre cue multi-parola,
+   marker interni al periodo, strutture annidate o archi a distanza.
+3. Il sistema mappa la retorica ma non identifica ancora l'atto dell'unita':
+   definizione, metodo, risultato, limite e raccomandazione restano indistinti.
+4. `Claim coverage=1/8` sul nucleo replay+transfer. Un sommario con «Mapped»
+   misura soltanto unita' e archi: non autorizza a dire che gli otto claim sono
+   stati compresi.
+5. Due sessioni di sviluppo abortite produssero ciascuna
+   `contrastive_connector(forget)`. Sono `X=1` diagnostici, mai salvati. Il run
+   promosso ha `X=0`; conservare entrambi i dati evita di nascondere il percorso
+   causale che ha imposto il parser condiviso.
+6. `reading_fact(...)` e' stato classificato come `O` e promosso dal normale
+   `/save`. Questo comportamento e' un residuo M14 da riesaminare, non una
+   clausola da filtrare retroattivamente durante SC2.
+
+#### Mappa dei file e invarianti
+
+- `src/brain/30-generation-reading.c`: apre il documento, numera le unita',
+  chiama `document_unit_observe/4` prima del clear e rende un sommario
+  KB-templated quando esiste almeno un arco. Non aggiungere qui parole come
+  `however`, `method`, `result` o `hypothesize`.
+- `kb/core/document-structure.p0`: producer e viste del Document IR. La classe
+  e' invocata con `apply/2`; la regola per il token iniziale passa attraverso
+  `document_unit_token_precedes/2` perche' la NAF con variabile libera non e'
+  affidabile nel solver corrente.
+- `src/brain/10-memory-knowledge.c`: parser puro per membership esplicita e
+  parser della forma unaria multi-parola usato dal retract anticipato. Copule,
+  determinanti e classi vengono interrogati nella KB. Ogni futura forma di
+  correzione deve restare simmetrica alla sua forma di apprendimento.
+- `kb/core/responses.p0`: il sommario documentale e la conferma di retract sono
+  template KB. Per la lingua di default serve la forma `response_template/2`;
+  soltanto `response_template(..., en, ...)` non viene scelta dal renderer
+  default.
+- `src/brain.c`: `document_seq` e' meccanica di sessione, non identita'
+  persistente. Sostituirla, non attribuirle significato.
+
+#### Prossimo esperimento minimo: SC2
+
+SC2 deve separare tre cose che oggi coincidono accidentalmente: **frase
+osservata**, **claim attribuito** e **commitment di parrot0**. Prima di
+implementare, cercare con `rg` strutture riusabili (`holds_in`, provenance,
+claim reificati, source/version, stance) e verificare i vincoli di K4: non creare
+un secondo sistema di contesti se quello esistente puo' ospitare il documento.
+
+L'esperimento didattico minimo usa un brano vero con due proposizioni della
+forma parafrasata «gli autori ipotizzano X; i dati mostrano Y». Baseline e
+lezione devono rendere verificabili separatamente:
+
+- la frase fonte e il suo span;
+- il contenuto proposizionale X o Y;
+- l'attribuzione agli autori/documento;
+- lo status `hypothesis` contro `observation`;
+- l'assenza di commitment autonomo di parrot0 a X.
+
+Poi servono `Transfer@3` su esperimento, studio osservazionale e simulazione,
+un contrasto in cui «suggerisce» non equivale a «dimostra», composizione con
+una relazione gia' nota, ablation della sola cue/status e replay negativo. Il
+retract deve togliere la classificazione epistemica derivata, **non** la frase
+fonte e non la proposizione attribuita. Una domanda equivalente a «il documento
+ha osservato X?» deve rispondere no quando X e' soltanto ipotizzata, mentre
+l'ipotesi deve restare interrogabile come ipotesi.
+
+Prima viene l'identita' persistibile: source URI canonica o altro riferimento
+fontato, versione/fingerprint e span devono determinare il documento e i claim.
+Il contatore puo' restare una handle effimera, ma non deve entrare nel save come
+identita' globale. Se il protocollo naturale non offre ancora un envelope per
+insegnare fonte/versione, registrare quel gap e chiudere il ciclo come
+diagnostico invece di inventare un URI in C.
+
+Il test KB-first e' obbligatorio: una nuova cue di status o attribuzione deve
+entrare parlando, cambiare l'analisi nello stesso processo e smettere dopo
+retract, senza rebuild. Il C puo' costruire identita', copiare span, fare
+binding/ordine e applicare transazioni; non puo' riconoscere letteralmente
+`shows`, `hypothesize`, `authors`, `data` o le loro traduzioni. Status,
+direzione, ruoli e template appartengono alla KB.
+
+#### Strategia di crescita oltre SC2
+
+Per aiutare agenti meno esperti, mantenere questa disciplina ad ogni SC:
+
+1. aggiungere una sola nuova distinzione semantica per ciclo e provarne la
+   causalita' con ablation;
+2. conservare sempre la rappresentazione piu' debole (span/frase) quando quella
+   piu' forte (claim/status/arco) viene ritirata;
+3. derivare viste e risposte, non duplicare verita' materializzate difficili da
+   invalidare;
+4. promuovere in KB soltanto competenza linguistica/meta appresa e fatti veri
+   fontati, mai i documenti diagnostici con handle locali;
+5. misurare coverage e precision separatamente: aumentare gli archi con claim
+   coverage rosso non e' supercomprensione;
+6. portare ogni nuovo predicato attraverso proof/provenance e fresh process
+   prima di comporlo con SC3-SC16;
+7. dopo ogni modifica engine eseguire un solo `make soft-test`, annotare il
+   primo rosso e non cambiare l'attesa per farlo sparire;
+8. chiudere ogni checkpoint con report, aggiornamento di questo handoff, diff
+   semantico, commit e push. Se un ID, uno status o un arco non ha una
+   spiegazione di retract, non e' ancora pronto per essere salvato.
 
 ---
 

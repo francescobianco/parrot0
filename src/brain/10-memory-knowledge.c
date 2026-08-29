@@ -4562,11 +4562,42 @@ static int p0_any_determiner(Brain *b, const char *t) {
     return kb_match(b->kb, "article", q, 4, row, 1) > 0;
 }
 
-static int mod_mention(Brain *b, const char *norm, const char *raw,
-                       char *out, size_t out_size) {
+static int p0_words_label(char **w, size_t begin, size_t end,
+                          char *out, size_t out_size) {
+    if (!w || !out || out_size == 0 || begin >= end) return 0;
+    out[0] = '\0';
+    size_t used = 0;
+    for (size_t k = begin; k < end && used + 1 < out_size; k++) {
+        char lb[KB_TERM_LEN];
+        snprintf(lb, sizeof lb, "%s", w[k]);
+        const char *part = strip_edge_punct(lb);
+        if (!*part) continue;
+        int wrote = snprintf(out + used, out_size - used, "%s%s",
+                             used ? " " : "", part);
+        if (wrote < 0 || (size_t)wrote >= out_size - used) return 0;
+        used += (size_t)wrote;
+    }
+    return out[0] != '\0';
+}
+
+/* Analizza una dichiarazione/domanda DI menzione senza produrre effetti. La
+ * stessa lettura serve sia a insegnare sia a ritirare: se i due atti usassero
+ * parser diversi, una classe multi-parola potrebbe entrare parlando e non
+ * uscire piu' con la stessa lingua naturale. `label` conserva la forma umana
+ * della classe, mentre `cls` e' l'atomo che la KB interroga. */
+static int p0_parse_mention_membership(Brain *b, const char *norm,
+                                       char *mentioned, size_t mentioned_size,
+                                       char *cls, size_t cls_size,
+                                       char *label, size_t label_size,
+                                       int *asking) {
     if (!b || !b->kb || !norm) return 0;
     size_t L = strlen(norm);
     if (L < 5 || L >= 400) return 0;
+
+    if (mentioned && mentioned_size) mentioned[0] = '\0';
+    if (cls && cls_size) cls[0] = '\0';
+    if (label && label_size) label[0] = '\0';
+    if (asking) *asking = 0;
 
     char s[400]; memcpy(s, norm, L + 1);
     char *w[32]; size_t n = split_words(s, w, 32);
@@ -4586,10 +4617,9 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
     /* Due modi di chiedere, e nessuno dei due e' inglese: la copula in testa,
      * oppure lo stesso ordine dell'asserzione con il punto interrogativo — che
      * e' come l'italiano chiede. */
-    int asking = fronted || norm[L - 1] == '?';
+    int is_asking = fronted || norm[L - 1] == '?';
 
-    char mentioned[KB_TERM_LEN] = "";
-    if (p0_quoted_token(w[i], mentioned, sizeof mentioned)) {
+    if (p0_quoted_token(w[i], mentioned, mentioned_size)) {
         i++;
     } else {
         /* Il determinante davanti al marcatore e' facoltativo e vive in tre
@@ -4598,9 +4628,9 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
         if (i >= n || !p0_mention_marker(b, w[i])) return 0;
         i++;
         if (i >= n) return 0;
-        if (!p0_quoted_token(w[i], mentioned, sizeof mentioned)) {
+        if (!p0_quoted_token(w[i], mentioned, mentioned_size)) {
             char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", w[i]);
-            snprintf(mentioned, sizeof mentioned, "%s", strip_edge_punct(tb));
+            snprintf(mentioned, mentioned_size, "%s", strip_edge_punct(tb));
         }
         i++;
     }
@@ -4630,9 +4660,57 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
     if (i < n && p0_any_determiner(b, w[i])) i++;
     if (i >= n) return 0;
 
-    char cls[KB_TERM_LEN];
-    if (!p0_join(w, i, n, cls, sizeof cls)) return 0;
+    size_t class_begin = i;
+    if (!p0_join(w, i, n, cls, cls_size)) return 0;
     if (!p0_atom_within_cap(b, cls)) return 0;
+
+    if (label && !p0_words_label(w, class_begin, n, label, label_size)) return 0;
+    if (asking) *asking = is_asking;
+    return mentioned[0] && cls[0] && (!label || label[0]);
+}
+
+/* La forma non marcata «X is a multi word class» e' la gemella della menzione
+ * esplicita quando X e' gia' una normale entita'. Serve al retract anticipato:
+ * il vecchio percorso copriva soltanto classi di una parola e lasciava che una
+ * classe articolata rileggesse `forget` come soggetto. Copula, determinante e
+ * confini della classe vengono tutti dalla KB; il requisito multi-parola lascia
+ * invariato il percorso storico e le sue risposte per «forget that X is a Y». */
+static int p0_parse_multiword_unary_membership(
+        Brain *b, const char *norm,
+        char *subject, size_t subject_size,
+        char *cls, size_t cls_size,
+        char *label, size_t label_size) {
+    if (!b || !b->kb || !norm || !subject || !cls || !label) return 0;
+    size_t L = strlen(norm);
+    if (L < 5 || L >= 400 || norm[L - 1] == '?') return 0;
+    char s[400]; memcpy(s, norm, L + 1);
+    char *w[32]; size_t n = split_words(s, w, 32);
+    if (n < 5) return 0; /* subject + copula + article + >=2 class tokens */
+
+    char sb[KB_TERM_LEN], cb[KB_TERM_LEN];
+    snprintf(sb, sizeof sb, "%s", w[0]);
+    snprintf(cb, sizeof cb, "%s", w[1]);
+    const char *subject_atom = strip_edge_punct(sb);
+    if (!*subject_atom || strchr(subject_atom, ' ') ||
+        p0_bad_subject(b, subject_atom)) return 0;
+    const char *copula_q[] = { strip_edge_punct(cb) };
+    if (!copula_q[0][0] || !kb_query(b->kb, "clause_copula", copula_q, 1))
+        return 0;
+    if (!p0_any_determiner(b, w[2])) return 0;
+    if (!p0_join(w, 3, n, cls, cls_size) || !p0_atom_within_cap(b, cls))
+        return 0;
+    if (!p0_words_label(w, 3, n, label, label_size)) return 0;
+    snprintf(subject, subject_size, "%s", subject_atom);
+    return subject[0] != '\0';
+}
+
+static int mod_mention(Brain *b, const char *norm, const char *raw,
+                       char *out, size_t out_size) {
+    char mentioned[KB_TERM_LEN], cls[KB_TERM_LEN], label[KB_TERM_LEN];
+    int asking = 0;
+    if (!p0_parse_mention_membership(
+            b, norm, mentioned, sizeof mentioned, cls, sizeof cls,
+            label, sizeof label, &asking)) return 0;
 
     /* La domanda non asserisce: interroga la stessa classe che l'asserzione
      * avrebbe scritto, e non registra nulla. */
@@ -8605,6 +8683,51 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
                 return p0_construction_say(
                     b, removed ? "construction_forgotten" : "construction_not_known",
                     &lesson, out, out_size);
+            }
+
+            /* Una lezione di uso/menzione deve essere invertibile con la stessa
+             * forma naturale con cui e' entrata. Prima di SC1, una membership
+             * multi-parola sotto retract poteva cadere nel lettore di classi e
+             * trasformare l'atto nel soggetto del fatto. Riutilizziamo lo stesso
+             * parser puro di `mod_mention`: nessun nome di classe e nessuna
+             * frase di retract sono cablati qui. */
+            {
+                char mentioned[KB_TERM_LEN], cls[KB_TERM_LEN], label[KB_TERM_LEN];
+                int asking = 0;
+                if (p0_parse_mention_membership(
+                        b, content, mentioned, sizeof mentioned,
+                        cls, sizeof cls, label, sizeof label, &asking) &&
+                    !asking) {
+                    const char *args[] = { mentioned };
+                    if (kb_retract(b->kb, cls, args, 1)) {
+                        const KbResponseSlot slots[] = {
+                            { "word", mentioned }, { "class", label }
+                        };
+                        if (kb_response_slots(b, "mentioned_class_forgotten",
+                                              slots, 2, out, out_size)) return 1;
+                    }
+                    kb_term_say(b, "i_didn_t_know_that_anyway", NULL, 0,
+                                out, out_size);
+                    return 1;
+                }
+            }
+            {
+                char subject[KB_TERM_LEN], cls[KB_TERM_LEN], label[KB_TERM_LEN];
+                if (p0_parse_multiword_unary_membership(
+                        b, content, subject, sizeof subject,
+                        cls, sizeof cls, label, sizeof label)) {
+                    const char *args[] = { subject };
+                    if (kb_retract(b->kb, cls, args, 1)) {
+                        const KbResponseSlot slots[] = {
+                            { "word", subject }, { "class", label }
+                        };
+                        if (kb_response_slots(b, "mentioned_class_forgotten",
+                                              slots, 2, out, out_size)) return 1;
+                    }
+                    kb_term_say(b, "i_didn_t_know_that_anyway", NULL, 0,
+                                out, out_size);
+                    return 1;
+                }
             }
             char sl[8][KB_TERM_LEN];
             const char *sq2[2] = { NULL, NULL };

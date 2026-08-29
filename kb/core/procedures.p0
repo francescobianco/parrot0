@@ -1210,6 +1210,7 @@ machinery(sides).
 :- include(language-forms.p0).
 :- include(language-observation.p0).
 :- include(input-structure.p0).
+:- include(document-structure.p0).
 :- include(assisted-learning.p0).
 :- include(arrests.p0).
 :- include(debug.p0).

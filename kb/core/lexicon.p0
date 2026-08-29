@@ -2538,6 +2538,7 @@ contrastive_connector(pero).
 contrastive_connector(per`o).
 contrastive_connector(tuttavia).
 contrastive_connector(invece).
+contrastive_connector(nevertheless).
 negation_marker(no).
 negation_marker(never).
 negation_marker(nor).
