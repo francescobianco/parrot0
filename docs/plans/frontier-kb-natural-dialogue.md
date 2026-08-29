@@ -3868,3 +3868,81 @@ invece di «non lo so», che e' l'unica risposta che oggi sa dare.
 **Guardia.** Osservare il dispatch non autorizza a riordinarlo automaticamente.
 Il riordino resta una decisione umana o una guardia insegnata; la traccia serve a
 renderla informata, non a sostituirla.
+
+### 18.25 Ipotesi D23 — un supporto congiunto non e' due supporti
+
+SC3 ha chiuso l'arco di supporto singolo e ha lasciato in piedi, misurato, il
+limite che il §18.15 gate 3 chiama per nome: *«i supporti congiunti non vengono
+indeboliti in regole indipendenti»*. Oggi due premesse per una conclusione
+producono due archi indipendenti, e questo **rafforza** la conclusione invece di
+condizionarla: togliendone una, l'altra continua a sostenerla da sola.
+
+E' il duale esatto della disciplina che SC3 ha guadagnato. SC3 garantisce che
+togliere una premessa spenga cio' che ne dipendeva; D23 chiede che togliere
+**una parte** di una premessa congiunta spenga la conclusione **intera**.
+
+```prolog
+support_set($Conclusion, $SetId).
+support_member($SetId, $Premise).
+support_mode($SetId, joint | independent).
+joint_support_live($SetId) :- naf(support_member_dead($SetId)).
+support_member_dead($SetId) :- support_member($SetId, $P), naf(claim_status($P, $S)).
+conclusion_support_state($Conclusion, live | weakened($Missing) | lost).
+```
+
+La distinzione fra `joint` e `independent` non e' deducibile dalla superficie in
+generale — «A. B. Therefore C.» puo' essere entrambe — ed e' quindi
+un'ambiguita' da conservare, non da risolvere scegliendo. La lettura giusta:
+finche' il modo non e' determinato, la conclusione ha **due stati candidati**, e
+il sistema deve saper dire quale osservazione o quale lezione lo deciderebbe.
+
+**Predizione falsificabile.** Su un argomento a due premesse dichiarato
+congiunto, ritrarre una qualunque delle due deve portare la conclusione a
+`lost`; sullo stesso argomento dichiarato indipendente, deve portarla a
+`weakened` nominando la premessa caduta. Se i due modi producono lo stesso
+comportamento, la distinzione non sta facendo lavoro e l'ipotesi e' falsa.
+
+**Perche' e' urgente.** Un lettore che rafforza per errore e' peggio di uno che
+non collega: la conclusione sopravvive a meta' delle sue ragioni e nessuno se ne
+accorge. E' la stessa famiglia del misclaim modale di SC2-D — non un muro, non
+un gap, ma un'affermazione piu' forte della sua fonte.
+
+### 18.26 Ipotesi D24 — la citazione e' esente dalla lingua che la contiene
+
+Quattro volte in questa serie una lezione e' fallita perche' una **parola
+comune** dentro il turno apparteneva a qualcun altro: `claim`, `shall`, `known`,
+`ground`. E una quinta volta per un motivo diverso e piu' profondo: la menzione
+quotata `"what is that based on"` e' entrata nella KB come
+`claim_support_question("what based on")` — la canonicalizzazione della domanda
+ha tolto parole **dentro le virgolette**.
+
+Le due famiglie sembrano una sola («qualcosa mangia il turno») e non lo sono. La
+prima e' dispatch (D22). La seconda e' un principio linguistico che il sistema
+dichiara e non applica fino in fondo:
+
+> cio' che e' **menzionato** non partecipa alla lingua che lo menziona.
+
+`canonicalization_exempt(mention)` esiste gia' in `kb/core/input.p0` dal lavoro
+sull'input universale. Non raggiunge il percorso della lezione quotata, e il
+risultato e' un muro sull'addestrabilita': **non si puo' insegnare una forma
+interrogativa che contenga una copula**, perche' la copula viene consumata dal
+riconoscitore di domande prima che la lezione la veda.
+
+```prolog
+mention_span($Turn, range($Start, $Length)).
+exempt_from($Transform, $Span).
+transform_applied($Turn, $Transform, $Span).
+mention_fidelity($Taught, $Original, exact | lossy($Missing)).
+```
+
+**Predizione falsificabile.** Insegnando dieci locuzioni quotate che contengono
+copule, articoli, dimostrativi e ausiliari, tutte e dieci devono entrare nella
+KB **byte per byte** come pronunciate, e il retract deve trovarle con la stessa
+superficie. Se anche una sola perde una parola, l'esenzione non e' un principio
+del sistema ma una guardia locale, e ogni percorso nuovo dovra' riscoprirla.
+
+**Corollario di metodo.** `mention_fidelity/3` non serve solo a passare il test:
+serve perche' oggi la perdita e' **silenziosa**. Il turno dice `Learned:` e
+mostra la forma mutila, e chi insegna deve accorgersene leggendo. Una lezione che
+non e' entrata come e' stata detta deve essere un errore dichiarato, non una
+riga da confrontare a occhio.
