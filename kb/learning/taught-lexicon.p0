@@ -52,3 +52,8 @@ relation_verb(pumps).
 relation_verb(filter).
 relation_verb(secretes).
 relation_verb(produces).
+relation_verb(eradicated).
+relation_verb(detected).
+relation_verb(improved).
+relation_verb(shortened).
+relation_verb(shortens).

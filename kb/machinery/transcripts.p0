@@ -34,6 +34,7 @@ utterance(5, user, "the pancreas secretes what?").
 utterance(5, user, "a kilometer has 1000 meters").
 utterance(5, user, "june has 30 days").
 utterance(5, user, "'the data show that' is an observation report marker.").
+utterance(5, user, "improved is a relation verb").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -51,6 +52,7 @@ utterance(6, self, "Insulin.").
 utterance(6, self, "Learned: kilometer has 1000 meters.").
 utterance(6, self, "Learned: june has 30 days.").
 utterance(6, self, "Learned: observation_report_marker('the data show that').").
+utterance(6, self, "Learned: relation_verb(improved).").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -291,6 +293,10 @@ utterance(31, user, "how many days in a leap month?").
 utterance(32, self, "I don't understand that yet.").
 utterance(7, user, "'the simulations show that' is a simulation result marker.").
 utterance(8, self, "Learned: simulation_result_marker('the simulations show that').").
+utterance(7, user, "detected is a relation verb").
+utterance(8, self, "Learned: relation_verb(detected).").
+utterance(9, user, "eradicated is a relation verb").
+utterance(10, self, "Learned: relation_verb(eradicated).").
 utterance(76, self, "Claim.").
 utterance(7, user, "what does a capacitor store?").
 utterance(8, self, "I don't understand that yet.").
@@ -380,6 +386,7 @@ utterance(2, self, "Learned: leap_year has 366 days.").
 utterance(2, self, "Learned: fortnight has 14 days.").
 utterance(2, self, "Learned: contrastive_connector(nevertheless).").
 utterance(2, self, "Learned: hypothesis_report_marker('the authors hypothesize that').").
+utterance(2, self, "Learned: relation_verb(shortens).").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -393,6 +400,7 @@ utterance(1, user, "a leap year has 366 days").
 utterance(1, user, "a fortnight has 14 days").
 utterance(1, user, "'nevertheless' is a contrastive connector.").
 utterance(1, user, "'the authors hypothesize that' is a hypothesis report marker.").
+utterance(1, user, "shortens is a relation verb").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -402,6 +410,7 @@ utterance(4, self, "Bile.").
 utterance(4, self, "Learned: meter has 1000 millimeters.").
 utterance(4, self, "Learned: may has 31 days.").
 utterance(4, self, "Learned: hypothesis_report_marker('the researchers hypothesize that').").
+utterance(4, self, "Learned: relation_verb(shortened).").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -412,6 +421,7 @@ utterance(3, user, "the liver produces what?").
 utterance(3, user, "a meter has 1000 millimeters").
 utterance(3, user, "may has 31 days").
 utterance(3, user, "'the researchers hypothesize that' is a hypothesis report marker.").
+utterance(3, user, "shortened is a relation verb").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

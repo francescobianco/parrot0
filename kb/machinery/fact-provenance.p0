@@ -124,6 +124,11 @@ fact_source(simulation_result_marker("the simulations show that"), "the simulati
 fact_source(observation_report_marker("the data show that"), "the data show that", ""the data show that" is an observation report marker.").
 fact_source(hypothesis_report_marker("the researchers hypothesize that"), "the researchers hypothesize that", ""the researchers hypothesize that" is a hypothesis report marker.").
 fact_source(hypothesis_report_marker("the authors hypothesize that"), "the authors hypothesize that", ""the authors hypothesize that" is a hypothesis report marker.").
+fact_source(relation_verb(eradicated), eradicated, "eradicated is a relation verb").
+fact_source(relation_verb(detected), detected, "detected is a relation verb").
+fact_source(relation_verb(improved), improved, "improved is a relation verb").
+fact_source(relation_verb(shortened), shortened, "shortened is a relation verb").
+fact_source(relation_verb(shortens), shortens, "shortens is a relation verb").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -149,8 +154,13 @@ reading_fact(relation_verb(prevents), "prevents is a relation verb").
 reading_fact(simulation_result_marker("the simulations show that"), ""the simulations show that" is a simulation result marker.").
 reading_fact(relation_verb(produces), "produces is a relation verb").
 reading_fact(observation_report_marker("the data show that"), ""the data show that" is an observation report marker.").
+reading_fact(relation_verb(eradicated), "eradicated is a relation verb").
 reading_fact(secretes(salivary_gland, amylase), "the salivary gland secretes amylase").
+reading_fact(relation_verb(detected), "detected is a relation verb").
 reading_fact(hypothesis_report_marker("the researchers hypothesize that"), ""the researchers hypothesize that" is a hypothesis report marker.").
+reading_fact(relation_verb(improved), "improved is a relation verb").
 reading_fact(contrastive_connector(nevertheless), ""nevertheless" is a contrastive connector.").
+reading_fact(relation_verb(shortened), "shortened is a relation verb").
 reading_fact(hypothesis_report_marker("the authors hypothesize that"), ""the authors hypothesize that" is a hypothesis report marker.").
+reading_fact(relation_verb(shortens), "shortens is a relation verb").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").

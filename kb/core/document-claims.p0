@@ -110,3 +110,176 @@ current_document_claim($Claim, $Proposition) :-
     current_document($Document), document_claim($Document, $Claim, $Proposition).
 current_document_typed_claim($Claim, $Status) :-
     current_document_claim($Claim, $Proposition), claim_status($Claim, $Status).
+
+% ── SC2-B: LA NORMALIZZAZIONE E' UNA FASE PURA E CONTESTUALE ───────────────
+%
+% SC2-A ha chiuso l'envelope: chi ha riportato che cosa, con quale status, dove
+% e sotto quale fonte. Il «che cosa» pero' restava `proposition(surface("..."))`,
+% cioe' una quarantena di byte. SC2-B lo normalizza SENZA cambiare chi ci crede.
+%
+% La separazione e' fra due cose che il motore teneva incollate:
+%
+%   ANALIZZARE una clausola dichiarativa  ->  candidato semantico  (fase pura)
+%   COMMETTERE quel candidato nel mondo   ->  conoscenza di parrot0 (fase impura)
+%
+% Il reader esegue soltanto la prima, sul remainder della claim, con la stessa
+% pipeline che legge una frase normale — non un secondo parser documentale. Che
+% cosa possa succedere al candidato non lo decide il parser: lo decide
+% `normalization_origin/2`, che e' conoscenza correggibile. Un'origine
+% `reported` mette il frame in quarantena dentro il contesto della claim; una
+% `asserted` e' la strada del learner normale, che asserisce. Se domani una
+% politica editoriale vuole promuovere le osservazioni di una fonte fidata,
+% cambia una riga qui, non il lettore.
+
+machinery(normalization_origin).
+machinery(normalization_gap_kind).
+machinery(normalization_extent_policy).
+machinery(claim_reading_extent).
+machinery(claim_proposition).
+machinery(claim_frame).
+machinery(claim_normalization).
+machinery(claim_normalized).
+machinery(claim_normalization_gap).
+machinery(document_claim_normalize).
+machinery(document_claim_gap_observe).
+machinery(claim_surface).
+machinery(claim_document).
+machinery(claim_document_source).
+machinery(claim_proof).
+machinery(current_claim_of_class).
+machinery(claim_with_frame).
+machinery(claim_frame_status).
+machinery(marker_question_form).
+machinery(claim_question_evidence).
+machinery(claim_status_question_evidence).
+machinery(complement_suffix).
+
+normalization_origin(reported, quarantine).
+normalization_origin(asserted, world).
+
+% Perche' una normalizzazione non e' avvenuta e' un dato, non un silenzio. Il
+% fallimento non cancella mai la claim di superficie gia' osservata.
+normalization_gap_kind(no_reading).
+normalization_gap_kind(ambiguous_reading).
+normalization_gap_kind(unsupported_operator).
+normalization_gap_kind(partial_reading).
+
+% ── UNA LETTURA CHE NON COPRE LA PROPOSIZIONE NON E' UNA NORMALIZZAZIONE ──
+%
+% «DART slowed the orbital period of Dimorphos» si lega a
+% `slowed(dart, orbital_period)`: lo schema combacia, e perde di CHI sia il
+% periodo. Nella chat quella perdita era gia' li' e nessuno la vedeva; su una
+% claim riportata sarebbe peggio, perche' una domanda di verifica confronta
+% FRAME con FRAME e due proposizioni diverse su due oggetti diversi
+% collasserebbero nella stessa. Un si' cosi' e' peggio di un muro.
+%
+% Quindi la copertura e' una coordinata esplicita e la decisione e' una POLICY.
+% Oggi una claim riportata pretende copertura piena; domani una fonte fidata o
+% un dominio tollerante puo' avere una riga diversa, senza toccare il lettore.
+normalization_extent_policy($Origin, covered($N), of($M), normalized) :-
+    normalization_origin($Origin, quarantine), eq($N, $M).
+normalization_extent_policy($Origin, covered($N), of($M), partial) :-
+    normalization_origin($Origin, quarantine), lt($N, $M).
+
+document_claim_normalize(ref($Document, $Unit, $Claim), origin($Origin),
+                         frame($Predicate, $Roles),
+                         extent(covered($N), of($M))) :-
+    normalization_extent_policy($Origin, covered($N), of($M), normalized),
+    assert(claim_proposition, $Claim,
+           proposition(frame($Predicate, $Roles))),
+    assert(claim_normalization, $Claim, normalized($Origin)),
+    assert(claim_reading_extent, $Claim, extent($N, $M)).
+
+document_claim_normalize(ref($Document, $Unit, $Claim), origin($Origin),
+                         frame($Predicate, $Roles),
+                         extent(covered($N), of($M))) :-
+    normalization_extent_policy($Origin, covered($N), of($M), partial),
+    assert(claim_normalization, $Claim, gap(partial_reading)),
+    assert(claim_reading_extent, $Claim, extent($N, $M)).
+
+document_claim_gap_observe(ref($Document, $Unit, $Claim), gap($Kind)) :-
+    normalization_gap_kind($Kind),
+    assert(claim_normalization, $Claim, gap($Kind)).
+
+claim_normalized($Claim, $Origin) :-
+    claim_normalization($Claim, normalized($Origin)).
+claim_normalization_gap($Claim, $Kind) :-
+    claim_normalization($Claim, gap($Kind)).
+
+claim_frame($Claim, $Predicate, $Subject, $Object) :-
+    claim_proposition($Claim,
+                      proposition(frame($Predicate,
+                                        roles(subject($Subject),
+                                              object($Object))))).
+claim_with_frame($Claim, $Frame) :-
+    claim_proposition($Claim, proposition($Frame)).
+
+% Il frame normalizzato vive nel contesto della claim, mai nel mondo. E'
+% esattamente la stessa vista che SC2-A dava alla superficie: dipende dalla cue
+% viva, quindi il retract toglie il contesto e lascia in piedi la proposizione
+% attribuita.
+holds_in(context($Claim), proposition(frame($Predicate, $Roles))) :-
+    claim_proposition($Claim, proposition(frame($Predicate, $Roles))),
+    claim_marker_live($Claim, $Class).
+
+claim_surface($Claim, $Surface) :-
+    document_claim($Document, $Claim, proposition(surface($Surface))).
+claim_document($Claim, $Document) :-
+    document_claim($Document, $Claim, $Proposition).
+claim_document_source($Claim, $Source) :-
+    claim_document($Claim, $Document), document_source($Document, $Source).
+
+% La prova di una risposta non e' il suo testo: e' la catena documento -> unita'
+% -> span -> cue viva -> fonte. Se una di queste non c'e', la risposta non e'
+% giustificata e questa vista non ha soluzioni.
+claim_proof($Claim,
+            proof(document($Document, $Source), unit($Unit), span($Range),
+                  cue($Class, $Cue))) :-
+    claim_source_record($Claim, source($Document, $Unit), provenance($Range)),
+    document_source($Document, $Source),
+    claim_marker_observation($Claim, $Class, marker($Cue, $CueRange)),
+    apply($Class, cons($Cue, nil)).
+
+machinery(current_document_normalized_claim).
+current_document_normalized_claim($Claim) :-
+    current_document_claim($Claim, $Proposition),
+    claim_normalized($Claim, $Origin).
+
+current_claim_of_class($Class, $Claim) :-
+    claim_marker_live($Claim, $Class),
+    current_document_claim($Claim, $Proposition).
+
+claim_frame_status($Frame, $Status) :-
+    claim_with_frame($Claim, $Frame), claim_status($Claim, $Status).
+
+% ── LA DOMANDA E' LA LEZIONE GIA' DATA, SENZA IL COMPLEMENTATORE ───────────
+%
+% «the investigators predict that» e' la locuzione insegnata; «what did the
+% investigators predict?» e' la stessa locuzione senza il complementatore che la
+% apre sulla proposizione. Non e' un secondo frasario da insegnare: e' una
+% derivazione dalla lezione gia' data, come `answer_frame/2` deriva la porta di
+% risposta dal verbo di relazione (kb/core/grammar.p0). Chi insegna un marker
+% nuovo domani apre insieme la sua domanda, senza dire una seconda frase.
+complement_suffix(" that").
+
+marker_question_form($Cue, $Stem) :-
+    complement_suffix($Suffix),
+    chars($Suffix, $SuffixChars),
+    chars($Cue, $CueChars),
+    app($StemChars, $SuffixChars, $CueChars),
+    chars($Stem, $StemChars).
+
+claim_question_evidence($Class, $Stem) :-
+    claim_status_evidence($Class, $Cue),
+    marker_question_form($Cue, $Stem).
+claim_question_evidence($Class, $Cue) :-
+    claim_status_evidence($Class, $Cue).
+
+% E la verifica di status nomina lo status stesso: «was it observed that X?».
+% Lo status non e' una parola scritta qui — e' il primo campo della politica di
+% classe, quindi una classe nuova porta con se' la propria domanda di verifica.
+claim_status_question_evidence($Status, $Cue) :-
+    claim_marker_class($Class, reading($Status, $ContextKind),
+                       $Attribution, $Extent),
+    complement_suffix($Suffix),
+    concat_atoms($Status, $Suffix, $Cue).

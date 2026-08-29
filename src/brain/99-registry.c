@@ -327,6 +327,13 @@ static const Module registry[] = {
     {"taughtframe", mod_taught_frame},
     {"teachrule",  mod_teach_rule},
     {"teachreply", mod_teach_reply},
+    /* SC2-B: una domanda su cio' che un DOCUMENTO riporta corre prima dei
+     * motori generici, che la leggevano come una domanda sul mondo e finivano
+     * a muro sul primo sostantivo. Il cancello e' stretto — servono claim
+     * osservate e una evidenza derivata da una cue viva — quindi un turno
+     * ordinario passa oltre. Dopo gli atti didattici, perche' insegnare o
+     * ritrattare una locuzione contiene la locuzione stessa. */
+    {"claimq",    mod_claim_question},
     {"qa",        mod_qa},
     {"gen",       mod_gen},
     /* deep-reasoning M3: the budgeted multi-hop inference loop. Fires only on the

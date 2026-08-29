@@ -108,3 +108,194 @@
 < Learned: hypothesis_report_marker("the investigators predict that").
 !query claim_status(document_0246e706600fd069_ed942df7bdb84575_unit_0_claim_0, hypothesized)
 !query claim_commitment(document_0246e706600fd069_ed942df7bdb84575_unit_0_claim_0, attributed_only)
+
+# ── SC2-B — LA NORMALIZZAZIONE E' UNA FASE PURA E CONTESTUALE ────────────────
+#
+# SC2-A conservava chi ha riportato che cosa, con quale status, dove e sotto
+# quale fonte; il «che cosa» restava una stringa. Qui il remainder attraversa la
+# STESSA analisi con cui parrot0 legge una frase detta in chat — nessun parser
+# documentale parallelo — ma il candidato che ne esce non entra nel mondo.
+#
+# Le locuzioni e i verbi di questo blocco sono HELD-OUT rispetto alla KB
+# persistita: entrano parlando dentro il test. Se una baseline comincia a
+# passare senza la sua lezione, la crescita della KB ha reso verde il proprio
+# cricchetto: si sostituiscono i membri, non si abbassa l'attesa.
+#
+# Fonti vere:
+#   NASA DART            https://ntrs.nasa.gov/citations/20230015804
+#   GMD WRF ad alta ris. https://gmd.copernicus.org/articles/13/1959/2020/
+#   PMC ricerca osserv.  https://pmc.ncbi.nlm.nih.gov/articles/PMC5118066/
+#   PMC Salmonella ABM   https://pmc.ncbi.nlm.nih.gov/articles/PMC4996536/
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test sc2b baseline: senza marker non esiste ne' la claim ne' la domanda]
+!timeout 60
+> read: https://ntrs.nasa.gov/citations/20230015804 The investigators predict that a kinetic impactor deflected an asteroid. The measurements indicate that DART slowed the orbital period.
+< Learned 0 fact(s), skipped 2.
+!query! document_claim($D, $C, $P)
+> what did the measurements indicate?
+<! reports it as
+
+[test sc2b il marker apre la claim, il contenuto resta superficie]
+!timeout 90
+> "the investigators predict that" is a hypothesis report marker.
+< Learned: hypothesis_report_marker("the investigators predict that").
+> "the measurements indicate that" is an observation report marker.
+< Learned: observation_report_marker("the measurements indicate that").
+> read: https://ntrs.nasa.gov/citations/20230015804 The investigators predict that a kinetic impactor deflected an asteroid. The measurements indicate that DART slowed the orbital period.
+<~ Mapped 2 document unit(s), 2 reported claim(s), and 2 live epistemic status(es)
+# Nessun verbo di relazione noto: la claim resta intera e il fallimento e'
+# tipato, non silenzioso.
+!query claim_normalization_gap(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0, no_reading)
+!query! claim_normalized(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0, reported)
+# La domanda di contenuto risponde gia' dalla superficie, con status e fonte.
+# La forma interrogativa non e' stata insegnata: e' la locuzione del marker
+# senza il complementatore.
+> what did the measurements indicate?
+< The source reports it as observed: DART slowed the orbital period (from https://ntrs.nasa.gov/citations/20230015804).
+> what did the investigators predict?
+< The source reports it as hypothesized: a kinetic impactor deflected an asteroid (from https://ntrs.nasa.gov/citations/20230015804).
+
+[test sc2b la lezione normalizza il remainder e non lo committa mai]
+!timeout 90
+> slowed is a relation verb
+< Learned: relation_verb(slowed).
+> deflected is a relation verb
+< Learned: relation_verb(deflected).
+# REPLAY del turno che prima lasciava un gap.
+> read: https://ntrs.nasa.gov/citations/20230015804 The investigators predict that a kinetic impactor deflected an asteroid. The measurements indicate that DART slowed the orbital period.
+<~ 2 proposition(s) normalized in quarantine
+!query claim_frame(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0, slowed, dart, orbital_period)
+!query claim_frame(document_0246e706600fd069_017fecedd77de3ab_unit_0_claim_0, deflected, kinetic_impactor, asteroid)
+!query claim_normalized(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0, reported)
+# LA PROVA CHE CONTA: normalizzare non e' credere.
+!query! slowed(dart, orbital_period)
+!query! deflected(kinetic_impactor, asteroid)
+!query! holds_in(world, proposition(frame(slowed, roles(subject(dart), object(orbital_period)))))
+!query holds_in(context(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0), proposition(frame(slowed, roles(subject(dart), object(orbital_period)))))
+!query claim_commitment(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0, attributed_only)
+# E la risposta ha una prova che risale a documento, fonte, unita', span e cue viva.
+!query claim_proof(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0, proof(document(document_0246e706600fd069_017fecedd77de3ab, "https://ntrs.nasa.gov/citations/20230015804"), unit(document_0246e706600fd069_017fecedd77de3ab_unit_1), span($R), cue(observation_report_marker, $Cue)))
+
+[test sc2b la verifica di status passa dalla stessa fase pura]
+!timeout 60
+> was it observed that DART slowed the orbital period?
+< Yes - that claim is reported as observed (from https://ntrs.nasa.gov/citations/20230015804).
+# CONTRASTO: la stessa proposizione sotto lo status sbagliato non diventa un si'.
+> was it hypothesized that DART slowed the orbital period?
+< No - that claim is reported as observed, not hypothesized.
+> was it simulated that a kinetic impactor deflected an asteroid?
+< No - that claim is reported as hypothesized, not simulated.
+# PARAFRASI: stessa locuzione, altro ordine interrogativo.
+> the investigators predict what?
+< The source reports it as hypothesized: a kinetic impactor deflected an asteroid (from https://ntrs.nasa.gov/citations/20230015804).
+
+[test sc2b transfer su tre fonti reali mai usate per progettare la lezione]
+!timeout 120
+> "the model outputs show that" is a simulation result marker.
+< Learned: simulation_result_marker("the model outputs show that").
+> raised is a relation verb
+< Learned: relation_verb(raised).
+> weakened is a relation verb
+< Learned: relation_verb(weakened).
+> increased is a relation verb
+< Learned: relation_verb(increased).
+
+> read: https://gmd.copernicus.org/articles/13/1959/2020/ The investigators predict that higher resolution raised forecast skill. The model outputs show that higher resolution raised precipitation skill.
+<~ 2 proposition(s) normalized in quarantine
+!query claim_frame(document_60abb92fbf13d97b_aafd7a95b852090a_unit_1_claim_0, raised, higher_resolution, precipitation_skill)
+!query! raised(higher_resolution, precipitation_skill)
+> what did the model outputs show?
+< The source reports it as simulated: higher resolution raised precipitation skill (from https://gmd.copernicus.org/articles/13/1959/2020/).
+> was it simulated that higher resolution raised precipitation skill?
+< Yes - that claim is reported as simulated (from https://gmd.copernicus.org/articles/13/1959/2020/).
+> was it observed that higher resolution raised precipitation skill?
+< No - that claim is reported as simulated, not observed.
+
+> read: https://pmc.ncbi.nlm.nih.gov/articles/PMC5118066/ The investigators predict that confounding weakened observational evidence. The measurements indicate that randomization weakened confounding.
+<~ 2 proposition(s) normalized in quarantine
+!query claim_frame(document_5c0b5aed1874ec5b_4812de2cea9b84f5_unit_0_claim_0, weakened, confounding, observational_evidence)
+!query! weakened(confounding, observational_evidence)
+> was it observed that randomization weakened confounding?
+< Yes - that claim is reported as observed (from https://pmc.ncbi.nlm.nih.gov/articles/PMC5118066/).
+
+> read: https://pmc.ncbi.nlm.nih.gov/articles/PMC4996536/ The investigators predict that a higher initial load increased mortality. The model outputs show that a higher initial load increased septic shock.
+<~ 2 proposition(s) normalized in quarantine
+!query claim_frame(document_0c04338180aa7436_cb1980b6655fa30b_unit_0_claim_0, increased, higher_initial_load, mortality)
+!query! increased(higher_initial_load, mortality)
+> what did the investigators predict?
+< The source reports it as hypothesized: a higher initial load increased mortality (from https://pmc.ncbi.nlm.nih.gov/articles/PMC4996536/).
+
+[test sc2b una lettura parziale e' un gap, non una normalizzazione]
+!timeout 90
+# «the orbital period OF DIMORPHOS» si legherebbe a slowed(dart, orbital_period)
+# e perderebbe di CHI sia il periodo. Una verifica costruita su meta'
+# proposizione confonderebbe due claim diverse: la policy di copertura la
+# rifiuta, e la claim di superficie resta intera.
+> read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that DART slowed the orbital period of Dimorphos.
+<~ Mapped 1 document unit(s), 1 reported claim(s), and 1 live epistemic status(es)
+!query claim_normalization_gap(document_0246e706600fd069_c3be613435057657_unit_0_claim_0, partial_reading)
+!query! claim_normalized(document_0246e706600fd069_c3be613435057657_unit_0_claim_0, reported)
+!query document_claim(document_0246e706600fd069_c3be613435057657, document_0246e706600fd069_c3be613435057657_unit_0_claim_0, proposition(surface("DART slowed the orbital period of Dimorphos")))
+!query claim_status(document_0246e706600fd069_c3be613435057657_unit_0_claim_0, observed)
+> what did the measurements indicate?
+< The source reports it as observed: DART slowed the orbital period of Dimorphos (from https://ntrs.nasa.gov/citations/20230015804).
+# E la verifica non inventa un si' su una proposizione che non sa normalizzare.
+> was it observed that DART slowed the orbital period of Dimorphos?
+<! Yes -
+# Una coordinazione lascia fuori il secondo predicato: stesso gap, stessa onesta'.
+> read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that DART slowed the period and raised the plume.
+<~ Mapped 1 document unit(s), 1 reported claim(s), and 1 live epistemic status(es)
+!query claim_normalization_gap(document_0246e706600fd069_828cb8ddc2347273_unit_0_claim_0, partial_reading)
+!query! claim_normalized(document_0246e706600fd069_828cb8ddc2347273_unit_0_claim_0, reported)
+
+[test sc2b ablation: cade lo strato epistemico, resta la proposizione]
+!timeout 90
+> forget that "the measurements indicate that" is an observation report marker
+< I no longer treat «"the measurements indicate that"» as a observation report marker.
+!query! claim_status(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0, observed)
+!query! claim_commitment(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0, attributed_only)
+!query! holds_in(context(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0), proposition(frame(slowed, roles(subject(dart), object(orbital_period)))))
+# La proposizione normalizzata e la superficie sopravvivono al retract: il
+# livello debole non muore quando cade quello forte.
+!query claim_frame(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0, slowed, dart, orbital_period)
+!query claim_surface(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0, "DART slowed the orbital period")
+!query claim_attributed_to(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0, document_data)
+# E la domanda torna onestamente a non essere capita, invece di rispondere da
+# una memoria che non ha piu' giustificazione.
+> what did the measurements indicate?
+<! reports it as
+> was it observed that DART slowed the orbital period?
+<! Yes -
+# La classe non ritratta resta viva su ogni documento gia' letto. La domanda di
+# contenuto e' invece limitata al documento CORRENTE, che qui e' l'ultimo letto:
+# e' un limite dichiarato, non un difetto nascosto.
+!query claim_status(document_0c04338180aa7436_cb1980b6655fa30b_unit_0_claim_0, hypothesized)
+!query claim_marker_live(document_0c04338180aa7436_cb1980b6655fa30b_unit_0_claim_0, hypothesis_report_marker)
+
+[test sc2b reteach e retention]
+!timeout 90
+> "the measurements indicate that" is an observation report marker.
+< Learned: observation_report_marker("the measurements indicate that").
+!query claim_status(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0, observed)
+!query holds_in(context(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0), proposition(frame(slowed, roles(subject(dart), object(orbital_period)))))
+# Cinque turni pertinenti ma diversi, poi la stessa conoscenza.
+> what is the capital of France?
+<! reports it as
+> 17 + 25
+<! reports it as
+> who wrote Hamlet?
+<! reports it as
+> is a whale a mammal?
+<! reports it as
+> translate "good morning" to italian
+<! reports it as
+> was it observed that DART slowed the orbital period?
+< Yes - that claim is reported as observed (from https://ntrs.nasa.gov/citations/20230015804).

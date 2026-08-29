@@ -1858,7 +1858,205 @@ static int document_claim_from_clause(Brain *b, const char *clause,
     snprintf(provenance, sizeof provenance, "provenance(range(%zu, %zu))",
              base + content_start, content_len);
     const char *observe[] = { ref, marker, proposition, provenance };
-    return kb_query(b->kb, "document_claim_observe", observe, 4);
+    if (!kb_query(b->kb, "document_claim_observe", observe, 4)) return 0;
+
+    /* ── SC2-B: NORMALIZZARE NON E' CREDERE ──────────────────────────────
+     *
+     * Il remainder attraversa la STESSA analisi con cui parrot0 legge una frase
+     * detta in chat — nessun parser documentale parallelo, nessun verbo
+     * scientifico riconosciuto qui. La differenza sta tutta a valle: quella
+     * analisi e' ora una fase pura (`p0_frame_reading`), quindi produce un
+     * candidato e non un fatto. Che cosa possa diventare lo decide la KB
+     * attraverso `normalization_origin/2`, e per una claim riportata l'origine
+     * e' `reported`: quarantena dentro il contesto della claim, mai il mondo.
+     *
+     * Quando l'analisi non arriva a una lettura, la claim di superficie resta
+     * intera e il fallimento diventa un gap tipato: un remainder non
+     * normalizzabile non puo' rendere meno osservabile la frase che lo porta. */
+    char nbuf[512];
+    normalize(content, nbuf, sizeof nbuf);
+    char *nw[64];
+    size_t nn = split_words(nbuf, nw, 64);
+    P0FrameReading reading;
+    if (nn >= 3 && p0_frame_reading(b, nw, nn, &reading) &&
+        reading.nslots == 2) {
+        char frame[KB_TERM_LEN], extent[64];
+        snprintf(frame, sizeof frame,
+                 "frame(%s, roles(subject(%s), object(%s)))",
+                 reading.pred, reading.slot[0], reading.slot[1]);
+        snprintf(extent, sizeof extent, "extent(covered(%zu), of(%zu))",
+                 reading.consumed, reading.total);
+        const char *normalize_args[] = {
+            ref, "origin(reported)", frame, extent
+        };
+        if (kb_query(b->kb, "document_claim_normalize", normalize_args, 4))
+            return 1;
+    }
+    const char *gap_args[] = { ref, "gap(no_reading)" };
+    kb_query(b->kb, "document_claim_gap_observe", gap_args, 2);
+    return 1;
+}
+
+/* ── SC2-B: INTERROGARE CIO' CHE UN DOCUMENTO RIPORTA ──────────────────────
+ *
+ * SC2-A sapeva conservare chi ha riportato che cosa, con quale status e sotto
+ * quale fonte, ma nessuna domanda naturale raggiungeva quel deposito: «what did
+ * the investigators predict?» finiva a muro. Il buco del consumatore (gen306)
+ * riaperto un piano piu' su — una claim imparata e non interrogabile e' una
+ * claim morta.
+ *
+ * La forma interrogativa NON e' una seconda lezione. `claim_question_evidence/2`
+ * la deriva dalla locuzione gia' insegnata togliendone il complementatore, e
+ * `claim_status_question_evidence/2` deriva «observed that» dallo status
+ * dichiarato nella politica di classe. Chi insegna un marker nuovo domani apre
+ * insieme la sua domanda, senza dire una seconda frase e senza ricompilare.
+ *
+ * Il C qui non nomina nessuna superficie: usa lo scorer universale sulle due
+ * relazioni di evidenza, riusa la fase pura per normalizzare la proposizione
+ * nominata dalla domanda, e prende ogni parola che pronuncia da
+ * `response_template`. La ritrattazione della cue spegne l'evidenza, quindi la
+ * domanda torna onestamente a non essere capita invece di rispondere da una
+ * memoria che non ha piu' giustificazione. */
+static int claim_answer_source(Brain *b, const char *claim,
+                               char *out, size_t out_size) {
+    const char *q[] = { claim, NULL };
+    char rows[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "claim_document_source", q, 2, rows, 1) != 1) return 0;
+    snprintf(out, out_size, "%s", kb_dequote(rows[0]));
+    return 1;
+}
+
+static int claim_content_reply(Brain *b, const char *claim,
+                               char *out, size_t out_size) {
+    const char *sq[] = { claim, NULL };
+    char status[1][KB_TERM_LEN], surface[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "claim_status", sq, 2, status, 1) != 1) return 0;
+    if (kb_match(b->kb, "claim_surface", sq, 2, surface, 1) != 1) return 0;
+    char text[KB_TERM_LEN];
+    snprintf(text, sizeof text, "%s", kb_dequote(surface[0]));
+    char source[KB_TERM_LEN];
+    if (claim_answer_source(b, claim, source, sizeof source)) {
+        kb_term_say(b, "claim_content_answer", (const KbResponseSlot[]){
+                        { "status", status[0] }, { "surface", text },
+                        { "source", source } }, 3, out, out_size);
+    } else {
+        kb_term_say(b, "claim_content_answer_unsourced",
+                    (const KbResponseSlot[]){
+                        { "status", status[0] }, { "surface", text } },
+                    2, out, out_size);
+    }
+    return 1;
+}
+
+/* Il remainder di una domanda di status attraversa la stessa fase pura del
+ * remainder di una claim: se le due letture coincidono, la domanda parla della
+ * stessa proposizione. Nessuna delle due entra nel mondo. */
+static int claim_question_frame(Brain *b, const char *tail,
+                                char *frame, size_t frame_size) {
+    char nbuf[512];
+    normalize(tail, nbuf, sizeof nbuf);
+    char *nw[64];
+    size_t nn = split_words(nbuf, nw, 64);
+    P0FrameReading reading;
+    if (nn < 3 || !p0_frame_reading(b, nw, nn, &reading) ||
+        reading.nslots != 2)
+        return 0;
+    /* La stessa disciplina di copertura del lettore, e per lo stesso motivo:
+     * se la domanda perde meta' della proposizione, il frame che ne esce puo'
+     * combaciare con una claim che parla d'altro. La soglia non e' scritta qui:
+     * e' la policy KB che decide se una lettura parziale valga. */
+    char covered[32], of[32];
+    snprintf(covered, sizeof covered, "covered(%zu)", reading.consumed);
+    snprintf(of, sizeof of, "of(%zu)", reading.total);
+    const char *policy[] = { "reported", covered, of, "normalized" };
+    if (!kb_query(b->kb, "normalization_extent_policy", policy, 4)) return 0;
+    snprintf(frame, frame_size,
+             "frame(%s, roles(subject(%s), object(%s)))",
+             reading.pred, reading.slot[0], reading.slot[1]);
+    return 1;
+}
+
+static int mod_claim_question(Brain *b, const char *norm, const char *raw,
+                              char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb || !norm || !*norm) return 0;
+    /* Senza claim osservate non c'e' niente da interrogare, e il modulo deve
+     * lasciare passare il turno intatto. */
+    char any[1][KB_TERM_LEN];
+    const char *anyq[] = { NULL, NULL, NULL };
+    if (kb_match(b->kb, "document_claim", anyq, 3, any, 1) == 0) return 0;
+
+    char proof[KB_EVIDENCE_PROOF_LEN];
+    int score = 0;
+
+    /* Verifica di status: «was it observed that X?». */
+    char status[KB_TERM_LEN];
+    if (kb_hypothesis_best(b->kb, "claim_status_question_evidence", norm,
+                           NULL, 0, status, sizeof status, &score,
+                           proof, sizeof proof) == 1) {
+        KbEvidenceMatch hits[32];
+        size_t nh = kb_evidence_matches(b->kb, "claim_status_question_evidence",
+                                        status, norm, hits, 32);
+        if (nh > 0) {
+            size_t best = 0;
+            for (size_t i = 1; i < nh; i++)
+                if (hits[i].start < hits[best].start) best = i;
+            const char *tail = norm + hits[best].start + hits[best].len;
+            char frame[KB_TERM_LEN];
+            if (claim_question_frame(b, tail, frame, sizeof frame)) {
+                const char *fq[] = { NULL, frame };
+                char claims[8][KB_TERM_LEN];
+                size_t nc = kb_match(b->kb, "claim_with_frame", fq, 2,
+                                     claims, 8);
+                for (size_t i = 0; i < nc; i++) {
+                    const char *cs[] = { claims[i], status };
+                    if (!kb_query(b->kb, "claim_status", cs, 2)) continue;
+                    char source[KB_TERM_LEN];
+                    if (claim_answer_source(b, claims[i], source, sizeof source))
+                        kb_term_say(b, "claim_status_confirmed",
+                                    (const KbResponseSlot[]){
+                                        { "status", status },
+                                        { "source", source } }, 2,
+                                    out, out_size);
+                    else
+                        kb_term_say(b, "claim_status_confirmed",
+                                    (const KbResponseSlot[]){
+                                        { "status", status },
+                                        { "source", claims[i] } }, 2,
+                                    out, out_size);
+                    return 1;
+                }
+                /* La proposizione esiste ma con un altro status: dirlo e' la
+                 * risposta, non un muro. Un «no» senza il perche' sarebbe
+                 * meno informativo del vero. */
+                for (size_t i = 0; i < nc; i++) {
+                    const char *sq[] = { claims[i], NULL };
+                    char actual[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "claim_status", sq, 2, actual, 1) != 1)
+                        continue;
+                    kb_term_say(b, "claim_status_other",
+                                (const KbResponseSlot[]){
+                                    { "actual", actual[0] },
+                                    { "status", status } }, 2,
+                                out, out_size);
+                    return 1;
+                }
+            }
+        }
+    }
+
+    /* Recupero per classe: «what did the investigators predict?». */
+    char cls[KB_TERM_LEN];
+    if (kb_hypothesis_best(b->kb, "claim_question_evidence", norm,
+                           NULL, 0, cls, sizeof cls, &score,
+                           proof, sizeof proof) == 1) {
+        const char *cq[] = { cls, NULL };
+        char claims[8][KB_TERM_LEN];
+        size_t nc = kb_match(b->kb, "current_claim_of_class", cq, 2, claims, 8);
+        for (size_t i = 0; i < nc; i++)
+            if (claim_content_reply(b, claims[i], out, out_size)) return 1;
+    }
+    return 0;
 }
 
 static int extract_clause(Brain *b, char *clause, const char *source_base,
@@ -2066,12 +2264,31 @@ static int reader_summary(Brain *b, size_t learned, size_t skipped,
         size_t nc = kb_match(b->kb, "document_claim", dq, 3, claims, 128);
         size_t nt = kb_match(b->kb, "current_document_typed_claim", tq, 2,
                              typed, 128);
+        /* SC2-B: quante proposizioni sono state normalizzate SENZA essere
+         * credute. E' una coordinata separata da `typed` di proposito — un
+         * frame in quarantena non e' uno status, e confonderli sarebbe il
+         * misclaim che questo strato esiste per impedire. */
+        char normalized[128][KB_TERM_LEN];
+        const char *nq[] = { NULL };
+        size_t nn = kb_match(b->kb, "current_document_normalized_claim", nq, 1,
+                             normalized, 128);
+        char unit_value[32], claim_value[32], typed_value[32], norm_value[32];
+        snprintf(unit_value, sizeof unit_value, "%zu", nu);
+        snprintf(claim_value, sizeof claim_value, "%zu", nc);
+        snprintf(typed_value, sizeof typed_value, "%zu", nt);
+        snprintf(norm_value, sizeof norm_value, "%zu", nn);
+        if (nc > 0 && nn > 0 &&
+            lang_template(b, "reader_claim_summary_normalized", frame,
+                          sizeof frame)) {
+            const KbResponseSlot slots[] = {
+                { "units", unit_value }, { "claims", claim_value },
+                { "typed", typed_value }, { "normalized", norm_value },
+                { "learned", learned_value }, { "skipped", skipped_value }
+            };
+            return kb_fill_slots(frame, slots, 6, 1, out, out_size);
+        }
         if (nc > 0 &&
             lang_template(b, "reader_claim_summary", frame, sizeof frame)) {
-            char unit_value[32], claim_value[32], typed_value[32];
-            snprintf(unit_value, sizeof unit_value, "%zu", nu);
-            snprintf(claim_value, sizeof claim_value, "%zu", nc);
-            snprintf(typed_value, sizeof typed_value, "%zu", nt);
             const KbResponseSlot slots[] = {
                 { "units", unit_value }, { "claims", claim_value },
                 { "typed", typed_value }, { "learned", learned_value },

@@ -3698,6 +3698,167 @@ static int p0_frame_is_taught(Brain *b, const char *raw_pattern) {
     return kb_match(b->kb, "construction_frame", q, 3, row, 1) > 0;
 }
 
+/* ── SC2-B: LA FASE PURA DELLA LETTURA ────────────────────────────────────
+ *
+ * Fino a qui «analizzare una clausola» e «commettere il fatto che ne esce»
+ * erano lo stesso corpo di funzione: chi voleva sapere COME parrot0 legge una
+ * frase non poteva chiederlo senza che la frase diventasse conoscenza. E'
+ * l'accoppiamento che teneva ferma SC2-A: il remainder di una claim riportata
+ * si poteva conservare come byte, mai normalizzare, perche' normalizzarlo
+ * avrebbe voluto dire crederci.
+ *
+ * `P0FrameReading` e' quel risultato senza l'atto: predicato, slot legati,
+ * quale slot porta un interrogativo. Nessun assert, nessuna risposta, nessuna
+ * traccia. Chi la chiama decide dopo — e nel caso del lettore la decisione non
+ * e' nemmeno sua: e' la policy `normalization_origin/2` in KB.
+ *
+ * Il C resta cieco al dominio esattamente come prima: gli schemi vengono da
+ * `extract_frame/2`, i confini di sintagma da `np_closer/1`, gli interrogativi
+ * da `question_word/1`. */
+typedef struct {
+    char   pred[KB_TERM_LEN];
+    char   slot[P0_MAX_SLOTS][KB_TERM_LEN];
+    size_t nslots;
+    int    text_value;      /* l'ultimo ruolo e' uno span testuale */
+    size_t qslot;           /* indice dello slot interrogativo, se nq == 1 */
+    size_t nquestion;       /* quanti slot portano un interrogativo */
+    /* Quanto della frase la lettura ha effettivamente consumato. Uno schema
+     * puo' combaciare e lasciare fuori una coordinazione, una negazione o un
+     * complemento — «DART slowed the orbital period OF DIMORPHOS» si lega a
+     * `slowed(dart, orbital_period)` e perde di CHI sia il periodo. Finche'
+     * questo numero non usciva dalla funzione, quella perdita era invisibile e
+     * indistinguibile da una lettura completa. Chi la riceve puo' decidere; chi
+     * non la vede decide per forza male. */
+    size_t consumed;
+    size_t total;
+} P0FrameReading;
+
+/* Lega UNO schema dichiarato al flusso di token. Pura: legge la KB, non la
+ * scrive. Ritorna 1 se ogni ruolo dello schema ha trovato un riempimento. */
+static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
+                         P0FrameReading *r) {
+    if (!b || !b->kb || !raw_pattern || !r) return 0;
+    memset(r, 0, sizeof *r);
+
+    char pats[KB_TERM_LEN];
+    snprintf(pats, sizeof pats, "%s", raw_pattern);
+    char pat[KB_TERM_LEN];
+    snprintf(pat, sizeof pat, "%s", kb_dequote(pats));
+
+    const char *predq[] = { raw_pattern, NULL };
+    char preds[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "extract_frame", predq, 2, preds, 1) == 0) return 0;
+    snprintf(r->pred, sizeof r->pred, "%s", kb_dequote(preds[0]));
+    const char *vk[] = { r->pred, "text" };
+    r->text_value = kb_query(b->kb, "relation_value_kind", vk, 2);
+
+    char pbuf[KB_TERM_LEN];
+    snprintf(pbuf, sizeof pbuf, "%s", pat);
+    char *pt[16]; size_t pn = split_words(pbuf, pt, 16);
+    if (pn < 2) return 0;
+
+    /* ── QUANTI SLOT LI DICE LO SCHEMA ──────────────────────────────────
+     *
+     * La lettera dopo `@` e' il NOME dello slot, non un interruttore fra due
+     * variabili: uno schema a tre slot produce un fatto a tre argomenti senza
+     * che il C sappia quale relazione sia. */
+    size_t wi = 0;
+    for (size_t ti = 0; ti < pn; ti++) {
+        if (pt[ti][0] == '@') {
+            if (r->nslots >= P0_MAX_SLOTS) return 0;
+            const char *next = (ti + 1 < pn && pt[ti + 1][0] != '@')
+                               ? pt[ti + 1] : NULL;
+            /* L'ultimo slot di una relazione a valore testuale prende tutta la
+             * coda: vale per l'ultimo slot qualunque sia il suo nome. */
+            int final_text_slot = r->text_value && ti + 1 == pn;
+            int end = final_text_slot ? (int)n : p0_slot_end(b, w, n, wi, next);
+            /* Un interrogativo CHIUDE un sintagma, quindi lo slot che dovrebbe
+             * contenerlo nasceva vuoto e la domanda non combaciava con lo
+             * schema che sa leggere la sua affermazione. Qui vale come
+             * riempimento di se stesso. */
+            if ((end < 0 || (size_t)end <= wi) && wi < n) {
+                const char *qw[1] = { strip_edge_punct(w[wi]) };
+                if (kb_query(b->kb, "question_word", qw, 1)) end = (int)wi + 1;
+            }
+            if (end < 0 || (size_t)end <= wi) return 0;
+            char *dst = r->slot[r->nslots];
+            size_t ss = wi;
+            if (ss < (size_t)end && p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
+            if (ss >= (size_t)end || !p0_join(w, ss, (size_t)end, dst, KB_TERM_LEN))
+                return 0;
+            /* Il pronome si risolve solo nel primo slot: e' li' che «it»
+             * riprende l'entita' del turno prima. */
+            if (r->nslots == 0 && is_entity_pronoun(b, dst) && b->has_last_entity)
+                snprintf(dst, KB_TERM_LEN, "%s", b->last_entity);
+            r->nslots++;
+            wi = (size_t)end;
+        } else {
+            if (wi >= n || strcmp(strip_edge_punct(w[wi]), pt[ti]) != 0)
+                return 0;
+            wi++;
+        }
+    }
+    if (r->nslots < 2) return 0;
+    for (size_t si = 0; si < r->nslots; si++)
+        if (!r->slot[si][0]) return 0;
+    r->consumed = wi;
+    r->total = n;
+
+    /* ── UNA PAROLA INTERROGATIVA IN UNO SLOT E' UNA DOMANDA ─────────────
+     *
+     * Lo stesso schema che legge «an enzyme converts a substrate into a
+     * product» legge anche «... into what?»: la differenza sta tutta in QUALE
+     * parola occupa uno slot. Chiedere e dire restano un solo atto, a
+     * qualunque arita'. Quali parole siano interrogative resta conoscenza. */
+    r->qslot = r->nslots;
+    for (size_t si = 0; si < r->nslots; si++) {
+        char sb[KB_TERM_LEN];
+        snprintf(sb, sizeof sb, "%s", r->slot[si]);
+        const char *wq[1] = { strip_edge_punct(sb) };
+        if (kb_query(b->kb, "question_word", wq, 1)) {
+            r->qslot = si; r->nquestion++;
+        }
+    }
+    return 1;
+}
+
+/* Toglie la punteggiatura finale che non e' una parola: senza, «... into what?»
+ * non combacia con lo schema che legge «... into what». Condivisa dalla fase
+ * pura e dal suo consumatore storico, cosi' i due non possono divergere. */
+static size_t p0_frame_trim_tail(char **w, size_t n) {
+    while (n > 0 && w[n - 1] && !*strip_edge_punct(w[n - 1])) n--;
+    return n;
+}
+
+/* La fase pura su TUTTO lo spazio degli schemi dichiarati: la prima lettura
+ * dichiarativa (nessuno slot interrogativo) con un soggetto ammissibile.
+ * Nessun effetto. E' il punto di ingresso di chi deve NORMALIZZARE senza
+ * commettere — il lettore di prosa riportata, oggi; domani chiunque debba
+ * proporre una lettura prima di sapere se possa crederci. */
+static int p0_frame_reading(Brain *b, char **w, size_t n, P0FrameReading *r) {
+    if (!b || !b->kb || !r) return 0;
+    n = p0_frame_trim_tail(w, n);
+    if (n < 3) return 0;
+    char (*pats)[KB_TERM_LEN] = NULL;
+    const char *anyq[] = { NULL, NULL };
+    size_t np = 0;
+    if (!kb_match_all(b->kb, "extract_frame", anyq, 2, &pats, &np)) {
+        free(pats);
+        return 0;
+    }
+    int found = 0;
+    for (size_t pi = 0; pi < np && !found; pi++) {
+        P0FrameReading cand;
+        if (!p0_frame_bind(b, w, n, pats[pi], &cand)) continue;
+        if (cand.nquestion > 0) continue;
+        if (p0_bad_subject(b, cand.slot[0])) continue;
+        *r = cand;
+        found = 1;
+    }
+    free(pats);
+    return found;
+}
+
 static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                                       const char *norm, char *out,
                                       size_t out_size, int taught_only,
@@ -3707,8 +3868,8 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
      * fosse comprensibile: «… into what» combaciava e «… into what?» no, perche'
      * il «?» restava incollato all'ultimo slot e ne faceva un termine illegale.
      * Si toglie una volta, come il resto della funzione fa gia' token per
-     * token. */
-    while (n > 0 && w[n - 1] && !*strip_edge_punct(w[n - 1])) n--;
+     * token — e la stessa potatura serve alla fase pura, quindi e' condivisa. */
+    n = p0_frame_trim_tail(w, n);
     if (n < 3) return 0;
 
     /* gen459 — IL TETTO A 64 NASCONDEVA META' DEGLI SCHEMI.
@@ -3742,125 +3903,36 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
         char raw[KB_TERM_LEN];
         snprintf(raw, sizeof raw, "%s", pats[pi]);
         if (taught_only && !p0_frame_is_taught(b, raw)) continue;
-        char pat[KB_TERM_LEN];
-        snprintf(pat, sizeof pat, "%s", kb_dequote(pats[pi]));
 
-        const char *predq[] = { raw, NULL };
-        char preds[1][KB_TERM_LEN];
-        if (kb_match(b->kb, "extract_frame", predq, 2, preds, 1) == 0) continue;
-        char pred[KB_TERM_LEN];
-        snprintf(pred, sizeof pred, "%s", kb_dequote(preds[0]));
-        const char *vk[] = { pred, "text" };
-        int text_value = kb_query(b->kb, "relation_value_kind", vk, 2);
+        /* SC2-B: legare lo schema e' la FASE PURA, e vive fuori di qui. Questa
+         * funzione conserva soltanto cio' che la fase pura non deve fare —
+         * rispondere, asserire, annunciare. */
+        P0FrameReading r;
+        if (!p0_frame_bind(b, w, n, raw, &r)) continue;
+        const char *pred = r.pred;
+        int text_value = r.text_value;
+        size_t nslots = r.nslots;
+        char (*slot)[KB_TERM_LEN] = r.slot;
 
-        char pbuf[KB_TERM_LEN];
-        snprintf(pbuf, sizeof pbuf, "%s", pat);
-        char *pt[16]; size_t pn = split_words(pbuf, pt, 16);
-        if (pn < 2) continue;
-
-        /* ── QUANTI SLOT LI DICE IL PATTERN ──────────────────────────────
-         *
-         * Il legame era fermo a due: `subj` e `obj`, scelti da `@S` contro
-         * tutto il resto. Percio' «a metaphor maps a source domain onto a
-         * target domain» non aveva lettura, e parrot0 lo diceva da se' — «I
-         * cannot align exactly two shared variables on both sides». Lo stesso
-         * muro fermava il ricongiungimento di M8.
-         *
-         * Ora gli slot si contano leggendo il pattern, e l'ordine e' quello in
-         * cui compaiono. La lettera dopo `@` non e' piu' un interruttore fra
-         * due variabili: e' il NOME dello slot, e `@S` resta il primo soltanto
-         * perche' i pattern binari lo scrivono per primo. Un pattern con tre
-         * slot produce un fatto a tre argomenti senza che il C sappia quale
-         * relazione sia. */
-        char slot[P0_MAX_SLOTS][KB_TERM_LEN];
-        size_t nslots = 0;
-        size_t wi = 0; int ok = 1;
-        for (size_t ti = 0; ti < pn && ok; ti++) {
-            if (pt[ti][0] == '@') {
-                if (nslots >= P0_MAX_SLOTS) { ok = 0; break; }
-                const char *next = (ti + 1 < pn && pt[ti + 1][0] != '@')
-                                   ? pt[ti + 1] : NULL;
-                /* L'ultimo slot di una relazione a valore testuale prende tutta
-                 * la coda: vale per l'ultimo slot qualunque sia il suo nome. */
-                int final_text_slot = text_value && ti + 1 == pn;
-                int end = final_text_slot ? (int)n :
-                          p0_slot_end(b, w, n, wi, next);
-                /* Un interrogativo CHIUDE un sintagma, quindi lo slot che
-                 * dovrebbe contenerlo nasceva vuoto e la domanda non combaciava
-                 * con il pattern che sa leggere la sua affermazione. Qui vale
-                 * come riempimento di se stesso: e' la parola che segna lo slot
-                 * lasciato libero, non un confine. */
-                if ((end < 0 || (size_t)end <= wi) && wi < n) {
-                    const char *qw[1] = { strip_edge_punct(w[wi]) };
-                    if (kb_query(b->kb, "question_word", qw, 1)) end = (int)wi + 1;
-                }
-                if (end < 0 || (size_t)end <= wi) { ok = 0; break; }
-                char *dst = slot[nslots];
-                size_t ss = wi;
-                if (ss < (size_t)end && p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
-                if (ss >= (size_t)end || !p0_join(w, ss, (size_t)end, dst, KB_TERM_LEN))
-                    { ok = 0; break; }
-                /* Il pronome si risolve solo nel primo slot: e' li' che «it»
-                 * riprende l'entita' del turno prima. */
-                if (nslots == 0 && is_entity_pronoun(b, dst) &&
-                    b->has_last_entity)
-                    snprintf(dst, KB_TERM_LEN, "%s", b->last_entity);
-                nslots++;
-                wi = (size_t)end;
-            } else {
-                if (wi >= n || strcmp(strip_edge_punct(w[wi]), pt[ti]) != 0)
-                    { ok = 0; break; }
-                wi++;
+        if (r.nquestion == 1) {
+            size_t qslot = r.qslot;
+            const char *bind[P0_MAX_SLOTS];
+            for (size_t si = 0; si < nslots; si++)
+                bind[si] = (si == qslot) ? NULL : slot[si];
+            char hits[16][KB_TERM_LEN];
+            size_t nh = kb_match(b->kb, pred, bind, nslots, hits, 16);
+            if (nh > 0) {
+                char hb[KB_TERM_LEN];
+                snprintf(hb, sizeof hb, "%s", hits[0]);
+                char pretty[KB_TERM_LEN];
+                snprintf(pretty, sizeof pretty, "%s", kb_dequote(hb));
+                for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
+                kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
+                                { "value", pretty } }, 1, out, out_size);
+                free(pats);
+                return 1;
             }
-        }
-        if (!ok || nslots < 2) continue;
-        int empty = 0;
-        for (size_t si = 0; si < nslots; si++) if (!slot[si][0]) empty = 1;
-        if (empty) continue;
-
-        /* ── UNA PAROLA INTERROGATIVA IN UNO SLOT E' UNA DOMANDA ─────────────
-         *
-         * Lo stesso pattern che legge «an enzyme converts a substrate into a
-         * product» legge anche «an enzyme converts a substrate into what?»: la
-         * differenza sta tutta in QUALE parola occupa uno slot. Chiedere e dire
-         * tornano cosi' un solo atto, come per il verbo relazionale binario —
-         * e vale a qualunque arita', perche' lo slot libero e' quello che
-         * contiene l'interrogativo, non una posizione decisa qui.
-         *
-         * Senza questo, un fatto a tre ruoli si poteva imparare e non
-         * interrogare: il buco del consumatore (gen306) riaperto un'arita' piu'
-         * in la'. Quali parole siano interrogative resta conoscenza. */
-        {
-            size_t qslot = nslots; size_t nq = 0;
-            for (size_t si = 0; si < nslots; si++) {
-                /* Il punto interrogativo resta attaccato all'ultima parola, ed
-                 * e' proprio l'ultimo slot quello che di solito porta la
-                 * domanda: senza toglierlo «… into what?» non e' una domanda e
-                 * «… into what» si'. */
-                char sb[KB_TERM_LEN];
-                snprintf(sb, sizeof sb, "%s", slot[si]);
-                const char *wq[1] = { strip_edge_punct(sb) };
-                if (kb_query(b->kb, "question_word", wq, 1)) { qslot = si; nq++; }
-            }
-            if (nq == 1) {
-                const char *bind[P0_MAX_SLOTS];
-                for (size_t si = 0; si < nslots; si++)
-                    bind[si] = (si == qslot) ? NULL : slot[si];
-                char hits[16][KB_TERM_LEN];
-                size_t nh = kb_match(b->kb, pred, bind, nslots, hits, 16);
-                if (nh > 0) {
-                    char hb[KB_TERM_LEN];
-                    snprintf(hb, sizeof hb, "%s", hits[0]);
-                    char pretty[KB_TERM_LEN];
-                    snprintf(pretty, sizeof pretty, "%s", kb_dequote(hb));
-                    for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
-                    kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
-                                    { "value", pretty } }, 1, out, out_size);
-                    free(pats);
-                    return 1;
-                }
-                continue;      /* e' una domanda: non diventa mai un fatto */
-            }
+            continue;          /* e' una domanda: non diventa mai un fatto */
         }
         /* Un turno interrogativo puo' solo CHIEDERE. Se nessuno slot porta un
          * interrogativo, qui non c'e' niente da rispondere e soprattutto niente
