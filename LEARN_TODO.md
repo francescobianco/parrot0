@@ -885,6 +885,79 @@ Si aggiungono a quelle gia' obbligatorie:
 
 ---
 
+## ⛔ HANDOFF 2026-08-30 — punto di ripresa autoritativo
+
+Chi riprende legge **questa sezione per prima**, poi
+`docs/plans/frontier-kb-natural-dialogue.md` §0 dei TODO aperti.
+
+### Da dove ripartire, in ordine
+
+1. **SC40 — le letture sono congelate.** È la voce prioritaria e non è una
+   voce come le altre: è l'unica in coda che, chiusa, renderebbe parrot0 *più
+   intelligente* invece che più capace su una classe in più. Misura riproducibile
+   in §18.37; il difetto in una riga: **rileggere accumula invece di rivedere**,
+   e la stessa claim resta insieme `gap(no_reading)` e `normalized(reported)`.
+2. **SC35/SC36** — le due famiglie con la stessa radice (D29 l'affermazione che
+   copre meno di quanto legge; D30 il default implicito).
+3. **SC38** — la riduzione della coda: se D31 regge, molte voci sono la stessa
+   voce sotto politiche diverse. Provarlo su SC4 e SC6 **prima** di aprirle.
+
+### Che cosa è stato chiuso in questa sessione
+
+| voce | esito |
+|---|---|
+| SC2-B | normalizzazione come fase **pura e contestuale**; `WorldCommitLeak=0` |
+| SC2-C | attivo/passivo su un frame, residuo tipato, prova pronunciata |
+| SC2-D | la modalità è un operatore, non una parola inghiottita |
+| SC3-A | grafo argomentativo; ritrarre una premessa ritira solo i dipendenti |
+| SC27 | due premesse non sono due argomenti (una **spariva in silenzio**) |
+| SC32 | una cue insegnata si ritratta parlando — era una **non conformità** |
+| SC30/SC34 | un token insegnato ottiene titolo; `mod_lone` cede per policy |
+| SC5-A | il metodo in prosa è una **vista sulle claim**, non un secondo estrattore |
+
+Ipotesi nuove nel piano: **D21–D33**. Ratchet nuovi:
+`document_argument.p0t` (75), `document_method.p0t` (26),
+`use_mention_lesson.p0t` (19), `taught_cue_ladder.p0t` (23);
+`document_claims.p0t` è passato da 50 a 182 assert.
+
+### Regole di metodo nate qui, e sono vincolanti
+
+1. **Un rimedio proposto e non provato è un gap che non esiste.** Il muro di
+   parrot0 spesso *nomina la specie del proprio arresto e propone la
+   riparazione*; tre «muri» di questa serie erano riparabili al primo colpo con
+   la forma che lui stesso suggeriva. Prima di classificare un gap, **eseguire
+   il rimedio proposto**. (§18.27 — è il primo frutto dell'autocorrezione.)
+2. **Chiedere `who answered?` invece di dedurre il colpevole.** `turn_module/2`
+   c'è da sempre; dedurre il furto dall'esito ha prodotto un'ipotesi falsa.
+3. **Quando un test ha bisogno di un dato fresco per passare**, chiedersi prima
+   se il sistema debba *dimenticare* o **rivedere**. Aggirare un limite e
+   descriverlo sono compatibili; aggirarlo e chiamarlo intenzionale no.
+4. **Quando una correzione chiede di *spostare* qualcosa** (un modulo nel
+   registry, una clausola prima di un'altra), quasi sempre esiste la stessa
+   correzione scritta come **politica dichiarata** — e non rimanda il problema
+   alla parola successiva.
+
+### Rossi noti, tutti verificati preesistenti
+
+`repair.p0t` (l'oracolo non compila in questo ambiente), `check_sort`,
+`forget_move`, `greet` 7/1, `games`, `faceted_enumeration`,
+`foundational_concepts`, `gap_dialogue`, `name_is_knowledge`,
+`reactions_are_knowledge`, `gap_is_a_fact`, `gap_anchor`,
+`frontier_chat_audit.it` riga 97, `assisted_construction` 65/1 (attesa stantia
+sulle virgolette di `teach_form_ack` — il resto del file è stato **riportato in
+verde** chiudendo il bug dell'ordine dei ruoli).
+
+### Debiti aperti che non vanno persi
+
+- `blocked(no_stop_criterion)` in `document-method.p0` è un **seme dichiarato e
+  non provato**: serve una cue di ripetizione indipendente dall'arresto (SC37).
+- Le modalità `fill` e `define` di `learnable/3` non hanno retract simmetrico.
+- `mod_lone` cede per policy; il rientro pieno passa da SC30/SC31 (il **ruolo**
+  del turno decide chi ha titolo, non l'ordine di arrivo).
+- Il confronto fra frame è **strutturale**: due parafrasi restano due frame.
+
+---
+
 ## P0 — Le cose che parrot0 non può sbagliare
 
 Sono i temi che rendono parrot0 *non credibile* se falliscono, a prescindere da
