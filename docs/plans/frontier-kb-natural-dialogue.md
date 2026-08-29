@@ -4565,3 +4565,115 @@ l'agente di un passivo senza `by`. Ognuna e' una riga di `elided_role/3` **se** 
 coordinata da cui recuperare esiste gia'. Dove non esiste, il residuo tipato
 resta la risposta giusta — ed e' il modo di distinguere le due cose senza
 scivolare nell'invenzione.
+
+### 18.37 Ipotesi D33 — parrot0 non sa rileggere alla luce di ciò che ha appena imparato
+
+> **Domanda di F., 2026-08-30.** «Quando dici *le due porte negative falliscono
+> perché la claim è un'osservazione materializzata, uso passaggi nuovi*, di fatto
+> trovi un limite e lo aggiri. Ma quel limite è nella natura di un motore
+> conversazionale universale, o è una stupidità di parrot0? Vorrei che diventasse
+> intelligente: aggirare va bene, ma è interessante capire come superarlo.»
+
+La domanda merita una risposta misurata, non un'opinione. E la misura dice che
+il limite è **reale**, non è nella natura del dialogo, e non è nemmeno una
+stupidità: è una **coordinata messa nello strato sbagliato**, con una
+conseguenza cognitiva molto più grande dell'inconveniente che l'ha rivelata.
+
+#### Che cosa è giusto, e va difeso
+
+SC2-A ha diviso due cose e la divisione è corretta:
+
+- **osservazione**, irreversibile: *quel testo conteneva quella cue in
+  quello span*. È successo, e nessuna lezione futura può farlo non succedere.
+- **interpretazione**, viva: *quella cue significa `hypothesized`*. Dipende da
+  conoscenza correggibile, quindi è una vista, e ritrattare la cue la spegne.
+
+Questa è la ragione per cui l'ablation di SC2/SC3 funziona. Non si tocca.
+
+#### Che cosa è nel posto sbagliato
+
+`claim_proposition` — il **frame normalizzato** — sta dalla parte delle
+osservazioni. Ma non è un'osservazione: è il *risultato di un'interpretazione*
+che usa conoscenza ritrattabile (`relation_verb(heat)`). Sta con le cose
+irreversibili una cosa che dipende da ciò che parrot0 sa oggi.
+
+Perché ci è finito? Non per una scelta semantica: perché **la lettura vive nel C
+e la KB non può richiamarla**. Una vista si ri-deriva a ogni interrogazione; un
+frame no, perché ri-derivarlo vorrebbe dire rieseguire la fase pura dentro il
+solver. Quindi è stato congelato. È un vincolo **meccanico**, travestito da
+scelta di modello.
+
+#### La conseguenza, misurata, ed è peggio dell'aggiramento
+
+```text
+> read: … We then warm the tube.          (warm sconosciuto)
+!query claim_normalization_gap(…, no_reading)      ✓
+> warm is a relation verb
+> read: … We then warm the tube.          (stesso testo, stessa claim)
+!query claim_normalized(…, reported)               ✓
+!query claim_normalization_gap(…, no_reading)      ✓   ← ANCORA VERO
+```
+
+Rileggere **non rivede: accumula**. Dopo la seconda lettura parrot0 tiene
+contemporaneamente due letture incompatibili dello stesso span, e niente dice
+quale sia quella corrente. Il ratchet SC5-A passa **anche grazie a questo**, ed è
+il motivo per cui la domanda di F. vale più della risposta che stavo per dare.
+
+#### Il limite interessante, detto per quello che è
+
+L'inconveniente di test è la buccia. Sotto c'è questo:
+
+> **parrot0 non può rileggere ciò che ha già letto alla luce di ciò che ha
+> appena imparato.** Le sue letture passate restano congelate al livello di
+> comprensione che aveva quel giorno.
+
+Un lettore umano fa il contrario di continuo: impara un termine e un articolo
+letto la settimana prima **cambia significato**. Non lo rilegge con gli occhi di
+prima. Questa è, senza retorica, una differenza di intelligenza — e non richiede
+niente di magico per essere colmata, perché tutti i pezzi ci sono già.
+
+#### La strada: la lettura dichiara da che cosa dipende
+
+```prolog
+reading_depends_on($Claim, $Knowledge).      % relation_verb(heat), cue viva, policy
+knowledge_retracted($Knowledge, $When).
+reading_stale($Claim, $Reason).
+reading_current($Claim, $Frame) :- claim_proposition($Claim, $Frame),
+                                   naf(reading_stale($Claim, $R)).
+revision_pass($Document, $Rereadable).       % che cosa vale la pena rileggere
+revision_effect($Claim, before($Old), after($New)).
+```
+
+Tre proprietà, e nessuna è un'invenzione:
+
+1. **niente si cancella.** Una lettura superata diventa `stale`, non sparisce:
+   `revision_effect/3` conserva prima e dopo, che è la genealogia che il
+   progetto già pretende (`PRINCIPLES.md`, strutture secondarie).
+2. **la dipendenza è già scritta.** `fact_source/3` e la provenienza registrano
+   da dove viene un fatto; qui serve la stessa cosa per una *lettura*, ed è la
+   coordinata che oggi manca.
+3. **la revisione è un atto, non un effetto collaterale.** Rileggere costa: la
+   politica di *quando* farlo è conoscenza (D21 — dove una conoscenza viene
+   calcolata è conoscenza), non un automatismo nascosto.
+
+**Predizione falsificabile.** Insegnato un verbo dopo aver letto un testo che lo
+conteneva, una domanda sul contenuto di quel testo deve poter essere risposta
+**senza che nessuno rilegga a mano**, e la lettura vecchia deve risultare
+`stale` invece che coesistere con la nuova. Ritrattando di nuovo il verbo, la
+lettura deve tornare al gap, non a un terzo stato. Se per ottenerlo serve
+cancellare l'osservazione, la separazione osservazione/interpretazione era
+sbagliata e va rifatta — non aggirata.
+
+**Che cosa questo NON è.** Non è memoria a lungo termine, non è un secondo
+lettore, e non è ri-addestramento. È la chiusura riflessiva di ciò che il
+progetto fa già: se un'interpretazione è viva, deve esserlo **anche quando è
+costosa da ri-derivare**, e il costo si dichiara invece di essere pagato con il
+congelamento.
+
+**Nota di metodo, sgradevole.** Il limite era davanti a me tre volte — SC2-C,
+SC5, e qui — e le prime due l'ho aggirato usando passaggi nuovi, annotando
+l'aggiramento come se fosse una proprietà del sistema. Aggirare un limite e
+descriverlo sono compatibili; aggirarlo e **chiamarlo intenzionale** no. La
+riga corretta, da qui in avanti: quando un test ha bisogno di un dato fresco per
+passare, chiedersi prima se il sistema abbia bisogno di dimenticare o di
+**rivedere**.
