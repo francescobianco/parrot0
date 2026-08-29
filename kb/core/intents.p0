@@ -574,6 +574,22 @@ intent_cue(would_rather, "preferiresti").
 % ask side_color». Cosi' le 136 relazioni gia' in KB diventano interrogabili in
 % qualunque lingua senza aprire un file, che era il blocco piu' urgente del
 % piano di apprendimento assistito (§6.2b, M15).
+% ── SC30/D26 — UN TOKEN INSEGNATO NON E' UN TOKEN OPACO ───────────────────
+%
+% Misurato: insegnata «helyla» come attacco informale, la cue entra ed e' viva,
+% e il turno «helyla» non cambia mai comportamento — `mod_lone` classifica un
+% token solo come contatto fatico prima che il sociale possa leggerla. La
+% lezione era corretta e senza TITOLO.
+%
+% Il titolo non e' una posizione nel registry: e' una proprieta' del turno. Un
+% token che qualcuno ha dichiarato come superficie di una classe non e' un
+% frammento opaco, e chi risponde «non ho niente su X» sta dicendo una cosa
+% falsa. La stessa forma con cui `mod_lone` cede gia' a `social_marker` e a
+% `reaction_word`, estesa a cio' che si e' imparato parlando.
+machinery(declared_surface).
+declared_surface($Surface) :- intent_cue($Intent, $Quoted), span_atom($Quoted, $Surface).
+declared_surface($Surface) :- intent_phrase($Intent, $Quoted), span_atom($Quoted, $Surface).
+
 learnable("a way to ask",         answer_frame, frame_for).
 learnable("another way to ask",   answer_frame, frame_for).
 learnable("un modo per chiedere", answer_frame, frame_for).

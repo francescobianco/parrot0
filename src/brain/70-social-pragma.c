@@ -464,6 +464,18 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
         if (kb_match(b->kb, "social_marker", smq, 2, hit, 1) > 0) return 0;
         const char *rq[1] = { tok };
         if (kb_query(b->kb, "reaction_word", rq, 1)) return 0;
+        /* SC30 — E CEDE ANCHE A CIO' CHE E' STATO INSEGNATO PARLANDO.
+         *
+         * Misurato: insegnata «helyla» come attacco informale, la cue entrava,
+         * era viva, e il turno non cambiava mai comportamento — questo modulo
+         * classificava il token prima che il sociale potesse leggerla. La
+         * lezione era corretta e senza TITOLO, che e' peggio di un muro:
+         * rispondere «non ho niente su helyla» dopo averlo imparato e' falso.
+         *
+         * Il titolo non e' una posizione nel registry — spostare questo modulo
+         * rimanderebbe il problema alla parola dopo. E' una proprieta' del
+         * turno, e qui e' la stessa cessione delle due righe sopra. */
+        if (kb_query(b->kb, "declared_surface", rq, 1)) return 0;
     }
 
     /* gen427 — LA GUARDIA SULLE STOPWORD E' STATA TOLTA, e le classi misurate
@@ -474,6 +486,42 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
      * e' dirlo. Chi merita davvero il sociale e' gia' protetto sopra
      * (`social_marker`, `reaction_word`), e le interrogative sono prese prima
      * di ogni guardia: quello che restava qui era solo il caso da separare. */
+
+    /* ── LA RIVENDICAZIONE GENERICA E' SOSPESA, E LA SOSPENSIONE E' UN FATTO ──
+     *
+     * F., 2026-08-30: «mod_lone dovrebbe rivendicare alcuni casi speciali, non
+     * tutti i turni con una sola parola».
+     *
+     * Ha ragione, e la misura lo mostra: insegnata «helyla» come attacco
+     * informale, la cue entrava, era viva, e il turno non cambiava mai
+     * comportamento perche' questo modulo classificava il token prima che il
+     * sociale potesse leggerla. Una lezione corretta e senza TITOLO e' peggio di
+     * un muro — «non ho niente su helyla» dopo averlo imparato e' falso.
+     *
+     * Da qui in giu' ci sono le due rivendicazioni GENERICHE: «che cosa vuoi
+     * sapere su X» per un token noto, «non ho niente su X» per uno ignoto.
+     * Nessuna delle due poggia su conoscenza dichiarata su QUEL token — a
+     * differenza di tutto cio' che sta sopra (`lone_word_say`, `question_word`,
+     * `assent_word`, e le cessioni a `social_marker`/`reaction_word`/
+     * `declared_surface`), che resta intatto ed e' il vero valore del modulo.
+     *
+     * Non si cancella: si DICHIARA, come il gen491 ha gia' fatto qui sotto per
+     * la scommessa fonotattica. Senza `move_policy(lone_bare_token, claim)` il
+     * modulo cede e il turno prosegue lungo il registry — dove trova un muro che
+     * PROPONE il rimedio invece di limitarsi a dire che non sa (§18.27). Con
+     * quel fatto asserito, il comportamento storico torna nello stesso turno.
+     *
+     * TODO(universal-comprehension): la sospensione e' temporanea e serve a non
+     * far pagare alla comprensione universale il prezzo di una rivendicazione
+     * per eliminazione. Il rientro passa da SC30/SC31 — quando il RUOLO del
+     * turno decidera' chi ha titolo, questo modulo potra' rivendicare i propri
+     * casi speciali senza dover arrivare per primo. Vedi LEARN_TODO.md SC34.
+     *
+     * MISURATO mentre si sospendeva: sospendere anche il ramo NOTO fa regredire
+     * il gen491 — «milano» tornava a «non capisco» benche' parrot0 sappia tre
+     * cose su Milano. Quel ramo non e' una rivendicazione cieca: poggia su stato
+     * KB reale su QUEL token, ed e' quindi uno dei casi speciali che F. chiede
+     * di conservare. La sospensione riguarda solo il token IGNOTO. */
 
     /* UNA LETTERA SOLA NON E' UN TOPIC, anche quando la KB ha per caso un
      * predicato che si chiama cosi'. «What would you like to know about b?» e'
@@ -516,6 +564,15 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
             { const KbResponseSlot _rs[] = { { "tok", tok } };
       kb_term_say(b, "what_would_you_like_to_know_about_x", _rs, 1, msg, sizeof msg); }
     } else {
+        /* La rivendicazione su un token IGNOTO e' quella senza base: parrot0 non
+         * sa niente su questo token e nessuna conoscenza dichiarata lo nomina.
+         * Senza `move_policy(lone_bare_token, claim)` il modulo cede qui, e il
+         * turno prosegue fino a un muro che PROPONE il rimedio invece di
+         * limitarsi a dire che non sa (§18.27). Il fatto riporta il
+         * comportamento storico nello stesso turno. */
+        const char *bare[2] = { "lone_bare_token", "claim" };
+        if (!kb_query(b->kb, "move_policy", bare, 2)) return 0;
+
         /* gen427 — UNA PAROLA PLAUSIBILE CHE NON CONOSCO PUO' ESSERE UN SALUTO.
          *
          * La mossa per eliminazione del gen52 — una parola sola e senza

@@ -55,29 +55,31 @@
 > forget "helyla friend" as a casual opener
 < I wasn't holding «helyla friend» as a casual opener.
 
-[test il limite: un modulo registrato prima rivendica il turno per struttura]
+[test un token insegnato ottiene titolo, e lo perde quando si ritratta]
 !timeout 60
 # Stessa lezione, stessa classe, un solo token. L'atto didattico riesce
 # identico: il fatto entra nella KB.
 > learn "helyla" as a casual opener
 <~ I'll take «helyla» as a way to a casual opener
 !query intent_cue(casual, "helyla")
-# Ma il turno NON cambia: `mod_lone` classifica un token solo prima del sociale,
-# per una ragione strutturale documentata nel registry (gen426), non per un
-# difetto della lezione.
+# E ORA IL TURNO CAMBIA. Prima no: `mod_lone` classificava un token solo prima
+# del sociale, e la lezione restava viva e senza TITOLO — peggio di un muro,
+# perche' «non ho niente su helyla» dopo averlo imparato e' falso. Il rimedio
+# non e' spostare `lone` nel registry (rimanderebbe il problema alla parola
+# dopo): e' `declared_surface/1`, la stessa cessione con cui quel modulo lascia
+# gia' passare `social_marker` e `reaction_word`.
 > helyla
-<! I'm here
+<~ I'm here
 > who answered?
-<~ 'lone' module
-# LA MISURA CHE CONTA: la cue e' viva e non ha titolo. Il rimedio giusto non e'
-# spostare `lone` — sarebbe rimandare il problema alla parola dopo — ma far si'
-# che il ruolo del turno decida chi ha titolo (universal-input, D26/D27).
-!query intent_cue(casual, "helyla")
-# Il retract resta simmetrico anche per la cue che non ottiene titolo: togliere
-# una lezione non dipende dal fatto che qualcuno l'abbia ascoltata.
+<~ 'chitchat' module
+!query declared_surface(helyla)
+# E il titolo si perde insieme alla lezione: il token torna opaco.
 > forget "helyla" as a casual opener
 < Forgotten - «helyla» is no longer a casual opener.
 !query! intent_cue(casual, "helyla")
+!query! declared_surface(helyla)
+> helyla
+<! I'm here
 
 [test la simmetria vale per una seconda classe, mai usata per progettarla]
 !timeout 60

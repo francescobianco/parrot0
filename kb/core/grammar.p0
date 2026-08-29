@@ -658,8 +658,21 @@ passive_agent_marker(by).
 
 ends_ed(cons(e, cons(d, nil))).
 ends_ed(cons($H, $T)) :- ends_ed($T).
-past_participle($V) :- relation_verb($V), chars($V, $L), ends_ed($L).
-past_participle($V) :- irregular_participle($V).
+% Una lettura DICHIARATA piu' specifica sopprime quella generica. Misurato:
+% con `creation_verb_form(wrote, written)` viva, «The Odyssey was written by
+% Homer» produceva `written(homer, odyssey)` invece di
+% `created_by(homer, odyssey, wrote)` — due letture dichiarate della stessa
+% superficie che si risolvevano per ordine di enumerazione invece che per
+% specificita'. La riga di soppressione e' conoscenza: una famiglia nuova che
+% rivendica i propri participi si dichiara qui, e il passivo generico si fa da
+% parte senza che nessun consumatore cambi.
+machinery(specific_participle).
+specific_participle($V) :- creation_verb_form($Base, $V).
+
+past_participle($V) :-
+    relation_verb($V), chars($V, $L), ends_ed($L), naf(specific_participle($V)).
+past_participle($V) :-
+    irregular_participle($V), naf(specific_participle($V)).
 
 % Il tetto di otto goal per clausola e' una meccanica del caricatore, non un
 % limite di conoscenza: le parti invarianti dello schema si compongono una volta.
