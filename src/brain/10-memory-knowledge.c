@@ -4548,6 +4548,38 @@ static int p0_quoted_token(const char *t, char *out, size_t outsz) {
     return out[0] != '\0';
 }
 
+/* `split_words` resta intenzionalmente un tokenizer meccanico per whitespace.
+ * Una menzione, pero', puo' quotare una locuzione: raccogliamo i token fino alla
+ * virgoletta gemella e restituiamo la superficie interna senza interpretarla. */
+static int p0_quoted_words(char **w, size_t n, size_t *at,
+                           char *out, size_t outsz) {
+    if (!w || !at || *at >= n || !out || outsz == 0) return 0;
+    const char *first = w[*at];
+    if (p0_quoted_token(first, out, outsz)) {
+        (*at)++;
+        return 1;
+    }
+    char quote = first[0];
+    if (quote != '"' && quote != '\'') return 0;
+    size_t used = 0;
+    for (size_t i = *at; i < n; i++) {
+        const char *part = w[i] + (i == *at ? 1 : 0);
+        size_t len = strlen(part);
+        int closes = len > 0 && part[len - 1] == quote;
+        if (closes) len--;
+        if (used && used + 1 < outsz) out[used++] = ' ';
+        if (used + len >= outsz) return 0;
+        memcpy(out + used, part, len);
+        used += len;
+        out[used] = '\0';
+        if (closes) {
+            *at = i + 1;
+            return used > 0;
+        }
+    }
+    return 0;
+}
+
 /* Un determinante, in qualunque lingua la KB descriva. Oltre alle tre classi
  * inglesi c'e' `article/4` — genere, elisione e definitezza degli articoli
  * italiani — che qui interessa solo per la sua ultima colonna: la superficie.
@@ -4619,8 +4651,9 @@ static int p0_parse_mention_membership(Brain *b, const char *norm,
      * e' come l'italiano chiede. */
     int is_asking = fronted || norm[L - 1] == '?';
 
-    if (p0_quoted_token(w[i], mentioned, mentioned_size)) {
-        i++;
+    size_t quoted_end = i;
+    if (p0_quoted_words(w, n, &quoted_end, mentioned, mentioned_size)) {
+        i = quoted_end;
     } else {
         /* Il determinante davanti al marcatore e' facoltativo e vive in tre
          * classi KB gia' esistenti; nessuna delle tre e' nominata qui. */
@@ -4628,13 +4661,25 @@ static int p0_parse_mention_membership(Brain *b, const char *norm,
         if (i >= n || !p0_mention_marker(b, w[i])) return 0;
         i++;
         if (i >= n) return 0;
-        if (!p0_quoted_token(w[i], mentioned, mentioned_size)) {
+        quoted_end = i;
+        if (p0_quoted_words(w, n, &quoted_end, mentioned, mentioned_size)) {
+            i = quoted_end;
+        } else {
             char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", w[i]);
             snprintf(mentioned, mentioned_size, "%s", strip_edge_punct(tb));
+            i++;
         }
-        i++;
     }
-    if (!mentioned[0] || strchr(mentioned, ' ')) return 0;
+    if (!mentioned[0]) return 0;
+    /* Una menzione quotata puo' essere una locuzione. La KB deve conservarne
+     * la superficie esatta (evidence scorer), non ridurla a un concetto con
+     * underscore perdendo determinanti e confini. Il termine quotato attraversa
+     * learn/query/retract identico; una menzione non quotata resta un token. */
+    if (strchr(mentioned, ' ')) {
+        char quoted[KB_TERM_LEN];
+        p0_quote_pattern(mentioned, quoted, sizeof quoted);
+        snprintf(mentioned, mentioned_size, "%s", quoted);
+    }
 
     /* Quale parola sia una copula e' conoscenza (`clause_copula/1`), e vale gia'
      * per l'italiano: il motore non nomina nessun verbo essere, e una lingua
@@ -8645,6 +8690,10 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
                 /* Complementatori e articoli di apertura sono conoscenza
                  * `stopword/1`; si scavalcano senza nominarli nel motore. */
                 for (;;) {
+                    /* Dentro una menzione quotata anche un determinante e'
+                     * contenuto. Saltarlo romperebbe la simmetria con la
+                     * lezione e trasformerebbe di nuovo l'atto nel soggetto. */
+                    if (*content == '"' || *content == '\'') break;
                     char first[KB_TERM_LEN]; size_t fl = 0;
                     while (content[fl] && !isspace((unsigned char)content[fl]) &&
                            fl + 1 < sizeof first) {

@@ -1,0 +1,110 @@
+# document_claims.p0t — SC2-A: frase, claim e commitment restano separati.
+#
+# Fonti vere e parafrasi corte:
+# - Salmonella simulation study:
+#   https://pmc.ncbi.nlm.nih.gov/articles/PMC4996536/
+# - NASA DART technical report:
+#   https://ntrs.nasa.gov/citations/20230015804
+#
+# Le tre formule epistemiche entrano parlando come membri di classi naturali.
+# Il C non contiene quelle formule e il retract deve cambiare anche claim gia'
+# osservate senza cancellare superficie, fonte o attribuzione.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test long units survive and multiword markers are teachable]
+!timeout 60
+# Il primo periodo supera la profondita' che SC1 materializzava: deve restare
+# intero anche se non possiede ancora uno status.
+> read: The investigators predict that higher initial Salmonella counts increase the likelihood of septic shock and death. The model outputs show that outcomes were highly correlated with initial Salmonella counts.
+< Learned 0 fact(s), skipped 2.
+!query document_unit(document_1, document_1_unit_0, 0)
+!query document_unit_token_surface(document_1_unit_0, 16, death)
+!query document_unit(document_1, document_1_unit_1, 1)
+!query! current_document_typed_claim(document_1_unit_0_claim_0, hypothesized)
+
+# La menzione quotata conserva la locuzione esatta attraverso learn/query/retract.
+> "the investigators predict that" is a hypothesis report marker.
+< Learned: hypothesis_report_marker("the investigators predict that").
+> Is "the investigators predict that" a hypothesis report marker?
+< Yes.
+> forget that "the investigators predict that" is a hypothesis report marker
+< I no longer treat «"the investigators predict that"» as a hypothesis report marker.
+> Is "the investigators predict that" a hypothesis report marker?
+< No.
+!query! hypothesis_report_marker(forget)
+
+[test source addressed claims status and ablation]
+!timeout 60
+> "the investigators predict that" is a hypothesis report marker.
+< Learned: hypothesis_report_marker("the investigators predict that").
+> "the measurements indicate that" is an observation report marker.
+< Learned: observation_report_marker("the measurements indicate that").
+> "the model outputs show that" is a simulation result marker.
+< Learned: simulation_result_marker("the model outputs show that").
+
+# REPLAY: una ipotesi attribuita e un risultato simulato non diventano fatti
+# del mondo. URI + fingerprint generano lo stesso document id fra processi.
+> read: https://pmc.ncbi.nlm.nih.gov/articles/PMC4996536/ The investigators predict that high infection increases mortality. The model outputs show that outcomes correlate with initial infection.
+<~ Mapped 2 document unit(s), 2 reported claim(s), and 2 live epistemic status(es)
+!query current_document_source("https://pmc.ncbi.nlm.nih.gov/articles/PMC4996536/")
+!query current_document_fingerprint(fnv1a64_53e12a4bf22efa6c)
+!query claim_status(document_0c04338180aa7436_53e12a4bf22efa6c_unit_0_claim_0, hypothesized)
+!query! claim_status(document_0c04338180aa7436_53e12a4bf22efa6c_unit_0_claim_0, observed)
+!query claim_status(document_0c04338180aa7436_53e12a4bf22efa6c_unit_1_claim_0, simulated)
+!query claim_attributed_to(document_0c04338180aa7436_53e12a4bf22efa6c_unit_0_claim_0, document_authors)
+!query claim_commitment(document_0c04338180aa7436_53e12a4bf22efa6c_unit_0_claim_0, attributed_only)
+!query holds_in(context(document_0c04338180aa7436_53e12a4bf22efa6c_unit_0_claim_0), proposition(surface("high infection increases mortality")))
+
+# TRANSFER sperimentale: status opposti nello stesso documento e nessuna
+# promozione della frase ipotizzata a commitment del mondo.
+> read: https://ntrs.nasa.gov/citations/20230015804 The investigators predict that kinetic impact can alter an asteroid orbit. The measurements indicate that DART shortened the orbital period of Dimorphos.
+<~ Mapped 2 document unit(s), 2 reported claim(s), and 2 live epistemic status(es)
+!query current_document_source("https://ntrs.nasa.gov/citations/20230015804")
+!query current_document_fingerprint(fnv1a64_ed942df7bdb84575)
+!query claim_status(document_0246e706600fd069_ed942df7bdb84575_unit_0_claim_0, hypothesized)
+!query claim_status(document_0246e706600fd069_ed942df7bdb84575_unit_1_claim_0, observed)
+!query! holds_in(world, proposition(surface("kinetic impact can alter an asteroid orbit")))
+
+# TRANSFER osservazionale: il risultato riportato resta distinto dalla
+# conclusione causale ipotizzata, sotto una fonte open-access diversa.
+> read: https://pmc.ncbi.nlm.nih.gov/articles/PMC5118066/ The investigators predict that observational associations can misrepresent causal effects. The measurements indicate that some observational associations differed from randomized effects.
+<~ Mapped 2 document unit(s), 2 reported claim(s), and 2 live epistemic status(es)
+!query current_document_source("https://pmc.ncbi.nlm.nih.gov/articles/PMC5118066/")
+!query current_document_fingerprint(fnv1a64_be8b48c1dd3343bc)
+!query claim_status(document_5c0b5aed1874ec5b_be8b48c1dd3343bc_unit_0_claim_0, hypothesized)
+!query claim_status(document_5c0b5aed1874ec5b_be8b48c1dd3343bc_unit_1_claim_0, observed)
+!query! claim_status(document_5c0b5aed1874ec5b_be8b48c1dd3343bc_unit_0_claim_0, observed)
+
+# TRANSFER di simulazione climatica: `simulated` non collassa in `observed`.
+> read: https://gmd.copernicus.org/articles/13/1959/2020/ The investigators predict that high resolution improves predictive skill. The model outputs show that high resolution improved precipitation forecasts.
+<~ Mapped 2 document unit(s), 2 reported claim(s), and 2 live epistemic status(es)
+!query current_document_source("https://gmd.copernicus.org/articles/13/1959/2020/")
+!query current_document_fingerprint(fnv1a64_cb48b8510480033c)
+!query claim_status(document_60abb92fbf13d97b_cb48b8510480033c_unit_0_claim_0, hypothesized)
+!query claim_status(document_60abb92fbf13d97b_cb48b8510480033c_unit_1_claim_0, simulated)
+!query! claim_status(document_60abb92fbf13d97b_cb48b8510480033c_unit_1_claim_0, observed)
+
+# ABLATION: lo status e il context dipendente spariscono dal documento vecchio;
+# proposition, fonte e attribuzione restano. Il risultato osservato non dipende
+# dalla classe ritratta e rimane vivo.
+> forget that "the investigators predict that" is a hypothesis report marker
+< I no longer treat «"the investigators predict that"» as a hypothesis report marker.
+!query! claim_status(document_0246e706600fd069_ed942df7bdb84575_unit_0_claim_0, hypothesized)
+!query document_claim(document_0246e706600fd069_ed942df7bdb84575, document_0246e706600fd069_ed942df7bdb84575_unit_0_claim_0, proposition(surface("kinetic impact can alter an asteroid orbit")))
+!query claim_attributed_to(document_0246e706600fd069_ed942df7bdb84575_unit_0_claim_0, document_authors)
+!query claim_source_span(document_0246e706600fd069_ed942df7bdb84575_unit_0_claim_0, document_0246e706600fd069_ed942df7bdb84575_unit_0, range(32, 42))
+!query! claim_commitment(document_0246e706600fd069_ed942df7bdb84575_unit_0_claim_0, attributed_only)
+!query claim_status(document_0246e706600fd069_ed942df7bdb84575_unit_1_claim_0, observed)
+
+# RETEACH riattiva la vista sul documento gia' osservato, senza rileggerlo.
+> "the investigators predict that" is a hypothesis report marker.
+< Learned: hypothesis_report_marker("the investigators predict that").
+!query claim_status(document_0246e706600fd069_ed942df7bdb84575_unit_0_claim_0, hypothesized)
+!query claim_commitment(document_0246e706600fd069_ed942df7bdb84575_unit_0_claim_0, attributed_only)

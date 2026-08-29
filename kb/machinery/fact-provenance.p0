@@ -120,6 +120,10 @@ reading_fact(produces(thyroid, thyroxine), "the thyroid produces thyroxine").
 fact_source(relation_verb(produces), produces, "produces is a relation verb").
 fact_source(secretes(salivary_gland, amylase), salivary_gland, "the salivary gland secretes amylase").
 fact_source(contrastive_connector(nevertheless), nevertheless, ""nevertheless" is a contrastive connector.").
+fact_source(simulation_result_marker("the simulations show that"), "the simulations show that", ""the simulations show that" is a simulation result marker.").
+fact_source(observation_report_marker("the data show that"), "the data show that", ""the data show that" is an observation report marker.").
+fact_source(hypothesis_report_marker("the researchers hypothesize that"), "the researchers hypothesize that", ""the researchers hypothesize that" is a hypothesis report marker.").
+fact_source(hypothesis_report_marker("the authors hypothesize that"), "the authors hypothesize that", ""the authors hypothesize that" is a hypothesis report marker.").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -142,7 +146,11 @@ reading_fact(relation_verb(secretes), "secretes is a relation verb").
 reading_fact(relation_verb(minimizes), "minimizes is a relation verb").
 reading_fact(produces(liver, bile), "the liver produces bile").
 reading_fact(relation_verb(prevents), "prevents is a relation verb").
+reading_fact(simulation_result_marker("the simulations show that"), ""the simulations show that" is a simulation result marker.").
 reading_fact(relation_verb(produces), "produces is a relation verb").
+reading_fact(observation_report_marker("the data show that"), ""the data show that" is an observation report marker.").
 reading_fact(secretes(salivary_gland, amylase), "the salivary gland secretes amylase").
+reading_fact(hypothesis_report_marker("the researchers hypothesize that"), ""the researchers hypothesize that" is a hypothesis report marker.").
 reading_fact(contrastive_connector(nevertheless), ""nevertheless" is a contrastive connector.").
+reading_fact(hypothesis_report_marker("the authors hypothesize that"), ""the authors hypothesize that" is a hypothesis report marker.").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").

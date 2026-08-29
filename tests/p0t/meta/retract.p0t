@@ -42,7 +42,9 @@
 > plato is a man
 < Learned: man(plato).
 > every man is a mortal
-< Learned rule: mortal(X) :- man(X).
+# La testa e' il contratto di questo test. Una KB piu' ricca puo' aggiungere
+# una coda `Induced: ...`, verificata dai test specifici dell'induzione.
+<^ Learned rule: mortal(X) :- man(X).
 > is plato a mortal?
 < Yes.
 > forget that plato is a man

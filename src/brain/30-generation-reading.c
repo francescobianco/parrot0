@@ -1750,6 +1750,117 @@ static void learn_clause_transitions(Brain *b, const char *clause) {
     learn_word_stream(b, tw, m);
 }
 
+/* Stable, non-cryptographic content identity. This is the same FNV-1a
+ * mechanics already used for execution observations and oversized prompts:
+ * it names bytes, it does not decide what their source or claim means. */
+static void reader_fingerprint(const char *data, size_t n, char out[17]) {
+    unsigned long long h = 1469598103934665603ULL;
+    for (size_t i = 0; i < n; i++) {
+        h ^= (unsigned char)data[i];
+        h *= 1099511628211ULL;
+    }
+    snprintf(out, 17, "%016llx", h);
+}
+
+/* Extract one URI by its mechanical `scheme://payload` shape and remove it
+ * from the prose passed to sentence splitting. No introductory word or source
+ * type is recognized here; the reader role has already been selected through
+ * KB evidence. The URI remains available as a provenance coordinate. */
+static int reader_take_source_uri(char *text, char *out, size_t out_size) {
+    if (!text || !out || out_size == 0) return 0;
+    out[0] = '\0';
+    char *sep = strstr(text, "://");
+    if (!sep) return 0;
+    char *begin = sep;
+    while (begin > text) {
+        unsigned char c = (unsigned char)begin[-1];
+        if (!(isalnum(c) || c == '+' || c == '-' || c == '.')) break;
+        begin--;
+    }
+    if (begin == sep || !isalpha((unsigned char)*begin)) return 0;
+    char *end = sep + 3;
+    while (*end && !isspace((unsigned char)*end) &&
+           *end != '"' && *end != '\'' && *end != '<' && *end != '>')
+        end++;
+    while (end > sep + 3 &&
+           (end[-1] == ',' || end[-1] == ';' || end[-1] == ':'))
+        end--;
+    size_t len = (size_t)(end - begin);
+    if (len == 0 || len >= out_size) return 0;
+    memcpy(out, begin, len);
+    out[len] = '\0';
+    memmove(begin, end, strlen(end) + 1);
+    return 1;
+}
+
+/* A status marker opens a reported claim over the remainder of its unit. The
+ * shared evidence scorer finds the class and exact span; the KB validates the
+ * class policy and derives status/context/commitment. C only copies offsets
+ * and constructs stable local handles. */
+static int document_claim_from_clause(Brain *b, const char *clause,
+                                      const char *source_base,
+                                      const char *document, const char *unit) {
+    if (!b || !b->kb || !clause || !source_base || !document || !unit)
+        return 0;
+    char cls[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN];
+    int score = 0;
+    if (kb_hypothesis_best(b->kb, "claim_status_evidence", clause,
+                           NULL, 0, cls, sizeof cls, &score,
+                           proof, sizeof proof) != 1)
+        return 0;
+
+    const char *extent_q[4] = { cls, NULL, NULL, "extent(remainder)" };
+    char extent_row[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "claim_marker_class", extent_q, 4,
+                 extent_row, 1) != 1)
+        return 0;
+
+    KbEvidenceMatch hits[64];
+    size_t nh = kb_evidence_matches(b->kb, "claim_status_evidence", cls,
+                                    clause, hits, 64);
+    if (nh == 0) return 0;
+    size_t best = 0;
+    for (size_t i = 1; i < nh; i++) {
+        if (hits[i].start < hits[best].start ||
+            (hits[i].start == hits[best].start &&
+             (hits[i].weight > hits[best].weight ||
+              (hits[i].weight == hits[best].weight &&
+               hits[i].len > hits[best].len))))
+            best = i;
+    }
+
+    size_t content_start = hits[best].start + hits[best].len;
+    size_t content_end = strlen(clause);
+    while (content_start < content_end &&
+           isspace((unsigned char)clause[content_start]))
+        content_start++;
+    while (content_end > content_start &&
+           isspace((unsigned char)clause[content_end - 1]))
+        content_end--;
+    if (content_start >= content_end) return 0;
+
+    char content[KB_TERM_LEN], qcontent[KB_TERM_LEN];
+    size_t content_len = content_end - content_start;
+    if (content_len >= sizeof content) return 0;
+    memcpy(content, clause + content_start, content_len);
+    content[content_len] = '\0';
+    p0_quote_pattern(content, qcontent, sizeof qcontent);
+
+    size_t base = (size_t)(clause - source_base);
+    char claim[KB_TERM_LEN], ref[KB_TERM_LEN], marker[KB_TERM_LEN];
+    char proposition[KB_TERM_LEN], provenance[KB_TERM_LEN];
+    snprintf(claim, sizeof claim, "%s_claim_0", unit);
+    snprintf(ref, sizeof ref, "ref(%s, %s, %s)", document, unit, claim);
+    snprintf(marker, sizeof marker, "marker(%s, %s, range(%zu, %zu))",
+             cls, hits[best].evidence, base + hits[best].start, hits[best].len);
+    snprintf(proposition, sizeof proposition, "proposition(surface(%s))",
+             qcontent);
+    snprintf(provenance, sizeof provenance, "provenance(range(%zu, %zu))",
+             base + content_start, content_len);
+    const char *observe[] = { ref, marker, proposition, provenance };
+    return kb_query(b->kb, "document_claim_observe", observe, 4);
+}
+
 static int extract_clause(Brain *b, char *clause, const char *source_base,
                           const char *document, size_t unit_order) {
     char *c = trim_mut(clause);
@@ -1776,8 +1887,8 @@ static int extract_clause(Brain *b, char *clause, const char *source_base,
                      ? (size_t)(c - source_base) : 0;
     prose_span.len = strlen(c);
     snprintf(prose_span.role, sizeof prose_span.role, "prose");
-    input_structure_publish(b->kb, source_base ? source_base : c,
-                            &prose_span, "current_prose");
+    size_t published = input_structure_publish(
+        b->kb, source_base ? source_base : c, &prose_span, "current_prose");
 
     /* SC1 — la gerarchia `current_prose` e' intenzionalmente transiente, ma il
      * documento non puo' perdere una clausola prima di osservare la successiva.
@@ -1791,7 +1902,16 @@ static int extract_clause(Brain *b, char *clause, const char *source_base,
         const char *observe_unit[] = {
             document, unit, order, "current_prose"
         };
-        kb_query(b->kb, "document_unit_observe", observe_unit, 4);
+        if (kb_query(b->kb, "document_unit_observe", observe_unit, 4)) {
+            for (size_t node = 1; node < published; node++) {
+                char id[24];
+                snprintf(id, sizeof id, "%zu", node);
+                const char *observe_node[] = { unit, "current_prose", id };
+                kb_query(b->kb, "document_unit_node_observe", observe_node, 3);
+            }
+            document_claim_from_clause(
+                b, c, source_base ? source_base : c, document, unit);
+        }
     }
 
     /* The KB decides whether one unambiguous assertion bundle is commit-ready
@@ -1851,12 +1971,35 @@ static void store_proposition(Brain *b, char *clause) {
  * reader and the bench bridge (gen45). Counts assertions and skips. */
 static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) {
     input_structure_clear(b->kb, "current_prose");
+    char source_uri[KB_TERM_LEN];
+    int has_source = reader_take_source_uri(buf, source_uri, sizeof source_uri);
     char document[KB_TERM_LEN];
-    snprintf(document, sizeof document, "document_%lu", ++b->document_seq);
+    char fingerprint[32] = "";
+    if (has_source) {
+        char source_fp[17], content_fp[17];
+        reader_fingerprint(source_uri, strlen(source_uri), source_fp);
+        reader_fingerprint(buf, strlen(buf), content_fp);
+        snprintf(document, sizeof document, "document_%s_%s",
+                 source_fp, content_fp);
+        snprintf(fingerprint, sizeof fingerprint, "fnv1a64_%s", content_fp);
+    } else {
+        snprintf(document, sizeof document, "document_%lu", ++b->document_seq);
+    }
+    int document_origin = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_SESSION);
     {
         const char *begin[] = { document };
         if (!kb_query(b->kb, "document_begin", begin, 1)) document[0] = '\0';
     }
+    if (document[0] && has_source) {
+        char quoted_source[KB_TERM_LEN];
+        p0_quote_pattern(source_uri, quoted_source, sizeof quoted_source);
+        const char *observe_source[] = {
+            document, quoted_source, fingerprint
+        };
+        kb_query(b->kb, "document_source_observe", observe_source, 3);
+    }
+    kb_set_origin(b->kb, document_origin);
     size_t unit_order = 0;
     char *p = buf;
     while (*p) {
@@ -1913,10 +2056,29 @@ static int reader_summary(Brain *b, size_t learned, size_t skipped,
     const char *cq[] = { NULL };
     if (kb_match(b->kb, "current_document", cq, 1, current, 1) == 1) {
         char units[128][KB_TERM_LEN], edges[128][KB_TERM_LEN];
+        char claims[128][KB_TERM_LEN], typed[128][KB_TERM_LEN];
         const char *uq[] = { current[0], NULL, NULL };
         const char *eq[] = { current[0], NULL, NULL, NULL };
+        const char *dq[] = { current[0], NULL, NULL };
+        const char *tq[] = { NULL, NULL };
         size_t nu = kb_match(b->kb, "document_unit", uq, 3, units, 128);
         size_t ne = kb_match(b->kb, "rhetorical_edge", eq, 4, edges, 128);
+        size_t nc = kb_match(b->kb, "document_claim", dq, 3, claims, 128);
+        size_t nt = kb_match(b->kb, "current_document_typed_claim", tq, 2,
+                             typed, 128);
+        if (nc > 0 &&
+            lang_template(b, "reader_claim_summary", frame, sizeof frame)) {
+            char unit_value[32], claim_value[32], typed_value[32];
+            snprintf(unit_value, sizeof unit_value, "%zu", nu);
+            snprintf(claim_value, sizeof claim_value, "%zu", nc);
+            snprintf(typed_value, sizeof typed_value, "%zu", nt);
+            const KbResponseSlot slots[] = {
+                { "units", unit_value }, { "claims", claim_value },
+                { "typed", typed_value }, { "learned", learned_value },
+                { "skipped", skipped_value }
+            };
+            return kb_fill_slots(frame, slots, 5, 1, out, out_size);
+        }
         if (ne > 0 &&
             lang_template(b, "reader_document_summary", frame, sizeof frame)) {
             char unit_value[32], relation_value[32];

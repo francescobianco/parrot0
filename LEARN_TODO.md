@@ -65,7 +65,7 @@ viene parafrasato: una fonte non diventa un corpus copiato nella KB.
 |---|---|---|---|---|---|
 | **SC0** | **Baseline stratificata su prosa narrativa, espositiva e scientifica** | distingue muro, fatto estratto, misclaim, perdita di subordinata e perdita di struttura documentale | presentare tre brani veri brevi, poi chiedere tesi, supporto, sequenza e limite senza anticipare le risposte | transcript classificato frase per frase; zero conoscenza consolidata; mappa M0-M20 e SC1-SC16 | **CHIUSA come diagnosi** — 2026-08-29: falso racconto e falsa autodiagnosi isolati; porta di lettura resa insegnabile; route Transfer@3 = 3/3; estrazione complessa = 0/9. Report: [`2026-08-29-supercomprensione-sc0.md`](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc0.md) |
 | **SC1** | **Unita' documentali e relazioni retoriche** | una frase o sezione puo' essere definizione, sfondo, contrasto, causa, metodo, risultato, limite o transizione | «qui la seconda frase contrasta la prima», «questa frase descrive il metodo, non il risultato» | una cue retorica nuova insegnata a voce cambia la segmentazione; transfer su tre domini; retract la rimuove | **SC1-A CHIUSA; SC1-B aperta** — 2026-08-29: unita' ordinate e span stabili di sessione; cue naturale persistita; `Transfer@3=3/3`; ablation/reteach causali; restano ID fonte, atti, cue multi-parola e archi intra-periodo. [Report SC1](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc1.md) |
-| **SC2** | **Claim tipati, attribuzione e forza epistemica** | separa osservazione, dato, inferenza, ipotesi, assunzione, definizione, citazione e raccomandazione | «gli autori osservano X ma concludono Y», «Z e' un'ipotesi, non un risultato» | nessun claim perde fonte, scope o status; un fatto riportato non diventa automaticamente commitment di parrot0 | aperto |
+| **SC2** | **Claim tipati, attribuzione e forza epistemica** | separa osservazione, dato, inferenza, ipotesi, assunzione, definizione, citazione e raccomandazione | «gli autori osservano X ma concludono Y», «Z e' un'ipotesi, non un risultato» | nessun claim perde fonte, scope o status; un fatto riportato non diventa automaticamente commitment di parrot0 | **SC2-A CHIUSA; SC2-B aperta** — 2026-08-29: documenti source-addressed, claim di superficie con span, attribuzione, status/context/commitment derivati; cue multi-parola learn/query/retract; `Transfer@3=3/3`, ablation e fresh process verdi. Restano normalizzazione proposizionale (`0/8`) e domande naturali (`0/3`). [Report SC2](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2.md) |
 | **SC3** | **Grafo argomentativo e dipendenze della conclusione** | estrae premesse, conclusioni, supporti, obiezioni, qualificatori e rebuttal da prosa articolata | «questa osservazione sostiene la conclusione solo insieme a quest'altra premessa» | domande `perche'`, `da cosa dipende`, `cosa la confuterebbe`; ablation di una premessa ritira solo le conclusioni dipendenti | aperto |
 | **SC4** | **Ricostruzione del disegno scientifico** | riconosce domanda, popolazione/sistema, variabili, intervento, confronto, misura, controllo e confondenti | «il gruppo B e' il confronto; la temperatura e' mantenuta costante» | ricostruzione su esperimento, studio osservazionale e simulazione; non inventa controllo o causalita' | aperto |
 | **SC5** | **Da metodo in prosa a procedura eseguibile e ispezionabile** | compila passi, input, output, precondizioni, invarianti, branch, criterio d'arresto, rischi e provenance | «per eseguire il metodo, prima calibra; ripeti finche'...; scarta se...» | la lezione non viene eseguita; piano su input nuovi; ogni numero ha ruolo e unita'; trace dei passi; retract parlato | aperto |
@@ -504,6 +504,189 @@ Per aiutare agenti meno esperti, mantenere questa disciplina ad ogni SC:
 8. chiudere ogni checkpoint con report, aggiornamento di questo handoff, diff
    semantico, commit e push. Se un ID, uno status o un arco non ha una
    spiegazione di retract, non e' ancora pronto per essere salvato.
+
+### Checkpoint lasciato da SC2 — punto di ripresa autoritativo
+
+SC2-A e' chiusa nel
+[report completo](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2.md).
+Il prossimo agente deve trattare questo checkpoint come una piattaforma, non
+come una promessa di comprensione semantica: parrot0 sa conservare **chi ha
+riportato che cosa, con quale status, dove e sotto quale fonte**, ma il «che
+cosa» e' ancora `proposition(surface("..."))`.
+
+#### Risultato acquisito e misurato
+
+- Il reader riconosce una coordinata meccanica `scheme://...`, la separa dalla
+  prosa e costruisce `document_<hash-source>_<hash-content>`. `document_source`
+  e `document_fingerprint` rendono lo stesso input riconciliabile fra processi.
+  Il contatore `document_N` resta solo il fallback per testo senza fonte.
+- Le frasi lunghe non attraversano piu' la lista ricorsiva SC1. Il C enumera i
+  node ID gia' pubblicati; `document_unit_node_observe/3` decide in KB quali
+  siano token. La baseline Salmonella conserva il token 16 (`death`) e la
+  seconda unita'. Non reintrodurre una ricorsione bounded per comodita'.
+- Le menzioni quotate multi-parola sono conservate letteralmente e attraversano
+  learn/query/retract con la stessa analisi. Il determinante dentro le
+  virgolette e' contenuto, non una stopword. Questo e' il motivo della guardia
+  in `mod_forget`; rimuoverla ricrea `hypothesis_report_marker(forget)`.
+- `claim_marker_class/4` fattorizza classe aperta, status, context kind,
+  attribuzione ed extent. `claim_status_evidence/2` passa attraverso `apply/2`:
+  membri nuovi insegnati a voce vengono usati subito senza rebuild.
+- Il C usa `kb_hypothesis_best` e `kb_evidence_matches` per ottenere classe e
+  span. Copia marker e remainder e chiama `document_claim_observe/4`; non
+  contiene superfici come `shows`, `hypothesize`, `authors` o `data` e non
+  decide `observed`, `simulated` o `hypothesized`.
+- La KB materializza `document_claim`, `unit_claim`, osservazione della cue,
+  attribuzione e source record. Status, context, `holds_in(context(...), ...)`
+  e commitment sono **derivati dalla cue viva**. Il retract elimina queste
+  viste anche da documenti vecchi e conserva superficie, fonte, span e
+  attribuzione; il reteach le fa riapparire senza rilettura.
+- Le claim sono `attributed_only` dentro `reported_belief`. Nessuna viene
+  promossa automaticamente a `holds_in(world, ...)`.
+- Il sommario del reader conta unita', claim e status vivi, ma la sua
+  verbalizzazione e' in `response_template(reader_claim_summary, ...)`, non in
+  una stringa naturale C.
+- Le lezioni promosse sono quattro membri linguistici; il save e' esattamente
+  `W=0, L=4, C=0, P=4, O=12, X=0, S=20`. `B0=36345/2433`,
+  `B1=36365/2433`, dunque `B1-B0=S=20`. `kb/learning/learned.p0` e' vuoto
+  rispetto a questo ciclo: le classi hanno una casa semantica.
+- Processo fresco: quattro membership `Yes` e rilettura DART con lo stesso
+  document ID, due claim e due status. `FreshProcessRecall=5/5`.
+- Metriche: LessonYield `4/4`, Replay pass, `Transfer@3=3/3`, parafrasi `1/1`,
+  contrasto `1/1`, ablation `1/1`, reteach `1/1`, status fidelity `8/8` e
+  source/span fidelity `8/8`. La normalizzazione semantica resta **`0/8`** e
+  le tre domande naturali restano **`0/3`**.
+
+Il ratchet e' `tests/p0t/language/document_claims.p0t`: 50 assert con tre cue
+held-out (`the investigators predict that`, `the measurements indicate that`,
+`the model outputs show that`). Non sostituirle con le forme gia' persistite:
+la baseline diventerebbe verde per memoria e non misurerebbe piu' crescita
+runtime. Restano verdi `document_rhetoric.p0t` 33/33, `mention.p0t` 24/24,
+`retract.p0t` 17/17 e `taught_segment_role.p0t` 21/21. `retract.p0t` usa `<^`
+sulla testa della regola perche' l'induzione puo' aggiungere una coda lecita e
+variabile quando la KB cresce.
+
+Il solo `make soft-test` di SC2 e' gia' consumato: 55 verdi, un rosso
+preesistente in `frontier_chat_audit.it.p0t` riga 97 (`designation`). Non
+rilanciarlo come parte di SC2 e non cambiare quell'attesa dentro questo
+checkpoint.
+
+#### Mappa dei file per chi riprende
+
+- `kb/core/document-structure.p0`: unita', token non ricorsivi, source e
+  fingerprint. Fonte e fingerprint sono coordinate osservate; non attribuire
+  loro autenticita', canonicalita' o autorevolezza.
+- `kb/core/document-claims.p0`: unica casa di classi/status/attribution e viste
+  epistemiche. Le quattro righe apprese sono mischiate ai seed dal router di
+  persistenza: non duplicarle altrove e non spostarle in `learned.p0`.
+- `src/brain/30-generation-reading.c`: meccanica URI/hash/span, invocazione
+  dello scorer universale e pubblicazione. `document_claim_from_clause` crea al
+  massimo una claim per unita' e assume `extent(remainder)`: sono limiti da
+  generalizzare attraverso policy KB, non condizioni linguistiche da cablare.
+- `src/brain/10-memory-knowledge.c`: `p0_quoted_words` e la simmetria della
+  menzione. Il quoting non gestisce ancora virgolette annidate/escape complessi;
+  non far dipendere SC2-B da quel caso senza un ratchet dedicato.
+- `kb/core/responses.p0`: sommario claim in inglese/italiano.
+- `tests/p0t/language/document_claims.p0t`: identita', fingerprint, status
+  positivo/negativo, commitment, context, source span, ablation e reteach.
+- `kb/machinery/fact-provenance.p0` e `kb/machinery/transcripts.p0`: diff
+  naturale di `/save`. Non riordinarlo o «ripulirlo» manualmente.
+
+#### Limiti precisi da non coprire con una risposta elegante
+
+1. La proposition e' una stringa di superficie. Parrot0 non sa ancora che
+   `kinetic impact can alter an asteroid orbit` e' una relazione modale fra
+   entita' e evento, ne' che una parafrasi esprime lo stesso contenuto.
+2. `What did the authors hypothesize?`, `Was X observed?` e `What did the
+   simulations show?` non consumano ancora Document IR: finiscono a muro o in
+   diagnostici nominali opachi.
+3. Esiste una sola claim per unita'; il marker migliore/anteriore vince e il
+   contenuto e' tutto il remainder. Coordinazione, negazione, citazioni
+   annidate, apposizioni e piu' status nella stessa frase restano aperti.
+4. L'attribuzione e' materializzata dalla classe osservata; lo status e' vivo.
+   Se in futuro la stessa cue puo' avere attribuzioni diverse per sintassi, va
+   resa anch'essa una vista causale, non duplicata in un secondo sistema.
+5. L'estrattore URI conserva una coordinata per forma meccanica. Non fa
+   canonicalizzazione, non legge DOI, data/versione, frammenti o redirect e non
+   prova autenticita'. Un punto finale attaccato all'URI non e' oggi rimosso.
+6. I documenti source-addressed non sono stati salvati. Prima di farlo serve
+   una policy esplicita di versione, deduplicazione, volume e invalidazione.
+7. FNV-1a e' un fingerprint deterministico, non una garanzia crittografica.
+8. Le risposte del sommario dicono quanti status sono vivi, non dimostrano che
+   il contenuto sia semanticamente compreso.
+
+#### Prossimo esperimento minimo: SC2-B
+
+Obiettivo: sostituire `proposition(surface(Text))` con una coppia evidenziale
+che conservi la superficie e, quando giustificato, punti a un frame semantico
+normalizzato prodotto dalla **pipeline di input comune**.
+
+Ordine consigliato:
+
+1. cercare con `rg` gli oggetti gia' esistenti (`holds_in`, `semantic_entity`,
+   `semantic_class`, frame dichiarativi, provenance, belief/attribution) e
+   scegliere un solo asse canonico. Non creare `document_semantic_*` se lo
+   stesso frame e' gia' usato dalle asserzioni normali;
+2. estrarre la trasformazione «clausola dichiarativa -> candidato semantico» in
+   una funzione pura riusabile dal reader e dal normale learner. Il reader deve
+   invocarla sul remainder con un origin/context che vieta il commit nel mondo;
+3. conservare sempre `proposition(surface(...))`; aggiungere una relazione
+   separata verso il frame normalizzato soltanto quando l'analisi e'
+   unambigua. Il fallimento della normalizzazione non deve cancellare la claim;
+4. costruire query naturali come intenti/frame KB-first. Insegnare una nuova
+   forma interrogativa ancorandola a un modello che gia' funziona; non chiedere
+   al teacher il nome di `claim_status` o `document_claim`;
+5. prima chiudere tre domande: recupero per attribuzione («che cosa
+   ipotizzano?»), verifica di status («X e' osservato?»), recupero per tipo di
+   evidenza («che cosa mostra la simulazione?»). Ogni risposta deve avere proof
+   a claim, unita', range, document source e cue viva;
+6. ratchet baseline -> lezione -> replay -> tre domini -> parafrasi -> contrasto
+   -> composizione con `rhetorical_edge` -> ablation -> reteach -> retention ->
+   fresh process. Usare predicati e lessico held-out rispetto alle lezioni;
+7. aggiungere casi negativi in cui una ipotesi non soddisfa una domanda
+   osservativa, una simulazione non soddisfa `observed`, e la rimozione di una
+   cue non cancella il frame proposizionale attribuito;
+8. misurare separatamente `SurfaceClaimCoverage`, `NormalizedClaimCoverage`,
+   `StatusPrecision`, `QuestionAnswerCoverage`, `ProofCompleteness` e
+   `FalseUnderstandingRate`. Non chiudere SC2-B con il solo conteggio `Mapped`;
+9. non salvare documenti durante le sonde. Se il run finale e' pulito, salvare
+   soltanto le nuove competenze linguistiche/meta e poi fare diff semantico e
+   fresh process secondo `LEARN_PROTOCOL.md`;
+10. dopo la prima modifica engine eseguire una sola volta `make soft-test` per
+    il nuovo ciclo, annotare il primo rosso e continuare con test mirati.
+
+#### Strategia per manipolare la crescita futura della KB
+
+- Far crescere **classi aperte** prima delle superfici: un nuovo status, extent,
+  tipo di fonte o atto documentale deve avere una relazione di policy; le
+  parole diventano membri insegnabili di quella relazione.
+- Mantenere un lattice di evidenza monotono: byte/range -> unita' -> claim di
+  superficie -> frame candidato -> status/contesto -> eventuale commitment.
+  Retrarre un livello forte non deve distruggere i livelli piu' deboli.
+- Rendere derivate tutte le viste che dipendono da conoscenza correggibile.
+  Materializzare soltanto osservazioni irreversibili della sessione (che testo,
+  quale span, quale cue fu vista), non la loro interpretazione corrente.
+- Usare `apply/2` e lo scorer universale come punti di estensione. Se una nuova
+  forma richiede `strcmp`, `strstr` o una cue letterale in `src/brain`, fermarsi:
+  manca una relazione KB o un consumer meccanico abbastanza generale.
+- Separare sempre persistenza di competenza e persistenza del corpus. Lezioni e
+  policy possono essere promosse; documenti, claim e trace richiedono una
+  decisione esplicita su versione, licenza, volume, invalidazione e provenienza.
+- Tenere test held-out rispetto alla KB corrente. Dopo ogni `/save`, cercare le
+  cue dei ratchet: se una baseline le conosce gia', sostituirle con membri nuovi
+  e verificare learn/retract nello stesso processo.
+- Non aumentare la metrica per inferenza nominale. Una stringa sotto
+  `proposition(surface(...))` vale come copertura evidenziale, non come
+  comprensione semantica; un frame senza proof vale come candidato, non come
+  conoscenza.
+- Ogni nuovo status deve avere almeno un near-miss: `suggests` contro
+  `demonstrates`, `estimated` contro `measured`, `simulated` contro `observed`.
+  La precisione negativa viene prima della copertura aggressiva.
+- Quando si introducono scope e coreference, farli puntare agli stessi node/range
+  di Document IR. Non ritokenizzare il testo in un modulo parallelo: due mappe
+  di span divergono e rendono impossibile la genealogia.
+- Conservare nei report anche gli `X` delle sessioni abortite. Il run promosso
+  puo' avere `X=0`, ma cancellare la diagnosi impedisce agli agenti successivi
+  di capire quali simmetrie e guardie siano causali.
 
 ---
 

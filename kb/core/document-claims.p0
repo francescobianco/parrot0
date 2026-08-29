@@ -1,0 +1,112 @@
+% document-claims.p0 — claim riportate e forza epistemica (SC2-A).
+%
+% Una frase osservata, la proposition che porta e il commitment di parrot0 sono
+% coordinate diverse. Il producer C trova una cue con lo scorer universale,
+% copia range e remainder e consegna un record opaco; questa KB decide status,
+% attribuzione, contesto e viste. Il contenuto resta deliberatamente una
+% proposition di superficie finche' un parser semantico unico non lo normalizza.
+
+:- file_attribute(machinery).
+
+machinery(claim_marker_class).
+machinery(claim_status_evidence).
+machinery(document_claim_observe).
+machinery(document_claim).
+machinery(unit_claim).
+machinery(claim_marker_observation).
+machinery(claim_marker_live).
+machinery(claim_status).
+machinery(claim_attributed_to).
+machinery(claim_source_record).
+machinery(claim_source_span).
+machinery(claim_context).
+machinery(claim_commitment).
+machinery(current_document_claim).
+machinery(current_document_typed_claim).
+
+% Membri iniziali e case di persistenza delle tre classi. Non sono condizioni
+% cablate: il ratchet usa superfici diverse, aggiunte e ritratte a runtime.
+hypothesis_report_marker("we hypothesize that").
+hypothesis_report_marker("the researchers hypothesize that").
+observation_report_marker("the data show that").
+simulation_result_marker("the simulations show that").
+hypothesis_report_marker("the authors hypothesize that").
+observation_report_marker("the evidence shows that").
+simulation_result_marker("the model results show that").
+
+% La classe della cue e' aperta. Una superficie nuova entra come membro unario
+% parlando; status, contesto, attribuzione ed extent non vengono dedotti da C.
+claim_marker_class(
+    hypothesis_report_marker,
+    reading(hypothesized, reported_belief),
+    attribution(document_authors),
+    extent(remainder)).
+claim_marker_class(
+    observation_report_marker,
+    reading(observed, reported_belief),
+    attribution(document_data),
+    extent(remainder)).
+claim_marker_class(
+    simulation_result_marker,
+    reading(simulated, reported_belief),
+    attribution(document_simulation),
+    extent(remainder)).
+
+claim_status_evidence($Class, $Cue) :-
+    claim_marker_class($Class, $Reading, $Attribution, $Extent),
+    apply($Class, cons($Cue, nil)).
+
+% Record:
+%   ref(Document, Unit, Claim)
+%   marker(Class, Cue, range(Start, Length))
+%   proposition(surface("..."))
+%   provenance(range(Start, Length))
+%
+% `claim_status/2` non viene materializzato: dipende ancora dalla membership
+% viva della cue. Il retract elimina quindi lo status anche sul testo gia'
+% osservato senza cancellare frase, proposition, fonte o attribuzione.
+document_claim_observe(
+    ref($Document, $Unit, $Claim),
+    marker($Class, $Cue, $CueRange),
+    proposition(surface($Surface)),
+    provenance($ContentRange)) :-
+    claim_marker_class(
+        $Class, reading($Status, $ContextKind), attribution($Agent),
+        extent(remainder)),
+    assert(document_claim, $Document, $Claim, proposition(surface($Surface))),
+    assert(unit_claim, $Unit, $Claim),
+    assert(claim_marker_observation, $Claim, $Class,
+           marker($Cue, $CueRange)),
+    assert(claim_attributed_to, $Claim, $Agent),
+    assert(claim_source_record, $Claim, source($Document, $Unit),
+           provenance($ContentRange)).
+
+claim_marker_live($Claim, $Class) :-
+    claim_marker_observation($Claim, $Class, marker($Cue, $CueRange)),
+    apply($Class, cons($Cue, nil)).
+
+claim_status($Claim, $Status) :-
+    claim_marker_live($Claim, $Class),
+    claim_marker_class(
+        $Class, reading($Status, $ContextKind), attribution($Agent), $Extent).
+
+claim_context($Claim, context($Claim)) :-
+    claim_marker_live($Claim, $Class).
+context(context($Claim), $ContextKind) :-
+    claim_marker_live($Claim, $Class),
+    claim_marker_class(
+        $Class, reading($Status, $ContextKind), attribution($Agent), $Extent).
+holds_in(context($Claim), $Proposition) :-
+    document_claim($Document, $Claim, $Proposition),
+    claim_marker_live($Claim, $Class).
+
+claim_commitment($Claim, $Commitment) :-
+    claim_context($Claim, $Context), context_commitment($Context, $Commitment).
+
+claim_source_span($Claim, $Unit, $Range) :-
+    claim_source_record($Claim, source($Document, $Unit), provenance($Range)).
+
+current_document_claim($Claim, $Proposition) :-
+    current_document($Document), document_claim($Document, $Claim, $Proposition).
+current_document_typed_claim($Claim, $Status) :-
+    current_document_claim($Claim, $Proposition), claim_status($Claim, $Status).

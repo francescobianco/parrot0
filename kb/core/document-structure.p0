@@ -16,7 +16,13 @@ machinery(document_unit_token).
 machinery(document_unit_token_key).
 machinery(document_unit_token_set).
 machinery(document_unit_token_store).
+machinery(document_unit_node_observe).
 machinery(document_unit_observe).
+machinery(document_source_observe).
+machinery(document_source).
+machinery(document_fingerprint).
+machinery(current_document_source).
+machinery(current_document_fingerprint).
 machinery(document_unit_token_range).
 machinery(document_unit_token_surface).
 machinery(document_unit_token_before).
@@ -56,10 +62,28 @@ document_unit_token_store($Unit, cons(token($Id, $Quoted, $Range), $Tail)) :-
 document_unit_observe($Document, $Unit, $Order, $Scope) :-
     input_node($Scope, 0, node(clause, clause, root), $Range),
     input_node_surface($Scope, 0, $Quoted),
-    document_unit_token_set($Scope, $Tokens),
     assert(document_unit, $Document, $Unit, $Order),
-    assert(document_unit_source, $Unit, $Quoted, $Range),
-    document_unit_token_store($Unit, $Tokens).
+    assert(document_unit_source, $Unit, $Quoted, $Range).
+
+% Il producer invoca questa regola una volta per node id. Evita che una frase
+% scientifica lunga debba attraversare una lista ricorsiva profonda per
+% diventare osservabile: la selezione dei soli token resta qui, mentre il C
+% incrementa soltanto un indice entro il numero di nodi gia' pubblicato.
+document_unit_node_observe($Unit, $Scope, $Id) :-
+    input_node($Scope, $Id, node(token, token, $Parent), $Range),
+    input_node_surface($Scope, $Id, $Quoted),
+    assert(document_unit_token, $Unit, $Id, token($Quoted, $Range)).
+
+% Fonte e fingerprint sono coordinate osservate, non interpretazioni. Il loro
+% accoppiamento rende l'identita' riproducibile fra processi e impedisce che il
+% contatore locale `document_N` venga promosso come identita' epistemica.
+document_source_observe($Document, $Source, $Fingerprint) :-
+    assert(document_source, $Document, $Source),
+    assert(document_fingerprint, $Document, $Fingerprint).
+current_document_source($Source) :-
+    current_document($Document), document_source($Document, $Source).
+current_document_fingerprint($Fingerprint) :-
+    current_document($Document), document_fingerprint($Document, $Fingerprint).
 
 document_unit_token_surface($Unit, $Id, $Surface) :-
     document_unit_token($Unit, $Id, token($Quoted, $Range)),

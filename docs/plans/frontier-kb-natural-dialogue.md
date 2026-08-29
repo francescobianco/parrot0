@@ -3296,3 +3296,125 @@ assert. Il save pulito promuove soltanto la lezione linguistica e le sue tracce:
 `W=0, L=1, C=0, P=1, O=3, X=0, S=5`. Questi numeri chiudono **SC1-A**, non D1
 intera: cue multi-parola, archi intra-periodo/a distanza, `unit_act`, identita'
 persistibile e claim tipati restano gate espliciti di SC1-B/SC2.
+
+### 18.18 Evidenza SC2 — un claim compreso comincia da cio' che non si deve credere
+
+Il ciclo SC2-A del 2026-08-29 ha chiuso il primo strato operativo di D2a e ha
+falsificato una seconda scorciatoia: riconoscere correttamente lo status di una
+frase non significa ancora averne normalizzato la proposizione.
+
+La baseline su prosa scientifica breve mostrava due perdite indipendenti. Una
+frase Salmonella di sedici token spariva dal Document IR perche' la copia SC1
+attraversava una lista ricorsiva oltre il limite pratico del solver. Le domande
+«che cosa ipotizzano gli autori?», «e' stato osservato?» e «che cosa mostra la
+simulazione?» non raggiungevano alcun claim. Inoltre la lezione quotata
+multi-parola veniva compressa o il suo retract produceva
+`hypothesis_report_marker(forget)`.
+
+L'incremento conserva oggi questo envelope:
+
+```prolog
+document_source($Document, $URI).
+document_fingerprint($Document, $Fingerprint).
+document_claim($Document, $Claim, proposition(surface($Text))).
+claim_source_span($Claim, $Unit, $Range).
+claim_attributed_to($Claim, $Agent).
+claim_status($Claim, $Status).              % vista viva
+claim_context($Claim, context($Claim)).     % vista viva
+claim_commitment($Claim, attributed_only).  % vista viva
+```
+
+Il documento source-addressed usa hash separati della coordinata e del
+contenuto. Il C produce hash, handle, ordine e range; il riconoscimento del
+marker attraversa lo scorer universale. La KB dichiara la semantica della
+classe:
+
+```prolog
+claim_marker_class(
+    hypothesis_report_marker,
+    reading(hypothesized, reported_belief),
+    attribution(document_authors),
+    extent(remainder)).
+```
+
+Un nuovo membro multi-parola entra parlando ed e' consumato con `apply/2`.
+Status, contesto e commitment dipendono dalla membership viva della cue; fonte,
+span, superficie e attribuzione restano osservazioni piu' deboli. Ritrarre una
+cue elimina quindi la lettura epistemica anche da una claim gia' osservata, ma
+non cancella l'evidenza da cui una lettura futura potra' essere ricostruita.
+
+Da questa evidenza seguono sei ipotesi piu' strette.
+
+**D1f — un limite di ricorsione non puo' diventare un limite linguistico.** Una
+lista ricorsiva e' una rappresentazione possibile dei token, non il contratto
+del documento. Il producer enumera ora i node ID e lascia alla KB la selezione
+dei token: la lunghezza della frase non cambia la sua osservabilita' fino ai
+limiti espliciti del buffer.
+
+**Predizione.** A parita' di buffer, aggiungere token a una frase deve aumentare
+linearmente le osservazioni e non far sparire l'intera unita'. Una futura
+struttura annidata deve poter essere copiata per node senza introdurre un nuovo
+predicato C per ciascun tipo linguistico.
+
+**D2b — la proposition di superficie e' quarantena, non comprensione.** Il
+remainder sotto `proposition(surface(Text))` permette provenance, retrieval e
+correzione senza inventare semantica. Non permette equivalenza di parafrasi,
+composizione logica o risposta su argomenti e relazioni.
+
+**Predizione.** Una metrica onesta puo' avere `SurfaceClaimCoverage=100%` e
+`NormalizedClaimCoverage=0%`. SC2-B e' chiusa soltanto quando la stessa pipeline
+semantica usata dalle asserzioni normali produce frame interrogabili con proof
+verso la superficie, e fallisce apertamente sui remainder ambigui.
+
+**D2c — lo status deve essere una vista viva sopra evidenza durevole.** Una cue
+e' conoscenza correggibile. Materializzare `hypothesized` durante la lettura
+creerebbe un fossile dopo retract; materializzare che quella cue apparve in
+quello span conserva invece il dato necessario a reinterpretare.
+
+**Predizione.** Ablation di una cue elimina status/context/commitment e lascia
+claim/source/span; reteach li riattiva senza rilettura. Ablation di una sola
+parafrasi non deve spegnere claim osservate con un altro membro della classe.
+
+**D2d — identita' epistemica = coordinata di fonte + versione del contenuto.**
+SC2 usa URI e fingerprint dei byte come primo identificatore riproducibile. E'
+piu' forte di `document_N`, ma non e' ancora canonicalizzazione: redirect, DOI,
+frammenti, copie equivalenti e revisioni editoriali possono richiedere
+coordinate diverse o un arco di equivalenza provato.
+
+**Predizione.** Stessa coordinata e stessi byte danno lo stesso documento fra
+processi; una modifica del contenuto cambia ID; due URI equivalenti non vengono
+fusi senza una relazione KB/provenance esplicita. Un hash non conferisce
+autenticita' o autorevolezza.
+
+**D2e — la metalingua multi-parola richiede reversibilita' esatta.** Una
+locuzione quotata e' una superficie atomica per l'atto didattico anche quando il
+tokenizer la divide. Articoli e complementatori dentro le virgolette non sono
+plumbing da eliminare: sono parte dell'evidenza che lo scorer deve ritrovare.
+
+**Predizione.** Learn, query e retract devono risolvere lo stesso termine
+quotato byte per byte; una nuova locuzione con determinante deve entrare e
+uscire senza generare un fatto sul verbo `forget`. Escape e virgolette annidate
+restano un gate separato.
+
+**D2f — «riportato» non e' una probabilita' ne' un fatto del mondo.** Ipotesi,
+osservazione descritta e risultato simulato sono oggi tre status sotto il
+contesto `reported_belief`. Il sistema conserva la differenza, ma non assegna
+confidence numerica e non promuove automaticamente nessuno dei tre in `world`.
+
+**Predizione.** Una domanda osservativa non deve essere soddisfatta da una
+ipotesi o da una simulazione. L'eventuale adozione di un claim nel mondo deve
+richiedere una policy separata, fontata e retraibile; non puo' emergere dal solo
+verbo riportativo.
+
+**Risultato misurato.** Quattro locuzioni sono state insegnate e salvate;
+`Transfer@3=3/3`, parafrasi `1/1`, contrasto `1/1`, ablation/reteach verdi,
+status fidelity `8/8`, source/span fidelity `8/8` e
+`FreshProcessRecall=5/5`. Il save e' `W=0, L=4, C=0, P=4, O=12, X=0, S=20`.
+Contemporaneamente `NormalizedClaimCoverage=0/8` e
+`NaturalClaimQuestionCoverage=0/3`: questi due zeri sono il gate autoritativo
+di **SC2-B**, non debito cosmetico.
+
+SC2-B deve riusare la pipeline semantica dichiarativa comune sul remainder,
+conservare in parallelo la superficie e costruire domande naturali KB-first su
+attribuzione e status. Solo allora SC3 potra' collegare premise e conclusioni
+senza ragionare direttamente su stringhe.

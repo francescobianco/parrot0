@@ -21,21 +21,21 @@
 !timeout 60
 # BASELINE: le unita' e gli span sopravvivono, ma la cue non appartiene ancora
 # a una classe retorica e quindi nessun arco viene inventato.
-> read: Apollo 13 did not achieve its scientific goals. Nevertheless, NASA's rescue mission was an agency triumph.
+> read: Apollo 13 did not achieve its scientific goals. Notwithstanding, NASA's rescue mission was an agency triumph.
 < Learned 0 fact(s), skipped 2.
 !query document_unit(document_1, document_1_unit_0, 0)
 !query document_unit(document_1, document_1_unit_1, 1)
 !query document_unit_source(document_1_unit_0, "Apollo 13 did not achieve its scientific goals", range(0, 46))
-!query document_unit_token_surface(document_1_unit_1, 1, nevertheless)
+!query document_unit_token_surface(document_1_unit_1, 1, notwithstanding)
 !query! rhetorical_edge(document_1, document_1_unit_0, document_1_unit_1, contrast)
 
 # LEZIONE NATURALE e REPLAY: la classe aperta e' gia' insegnabile; il nuovo
 # consumer documentale la usa immediatamente senza ricompilare.
-> "nevertheless" is a contrastive connector.
-< Learned: contrastive_connector(nevertheless).
-> Is nevertheless a contrastive connector?
+> "notwithstanding" is a contrastive connector.
+< Learned: contrastive_connector(notwithstanding).
+> Is notwithstanding a contrastive connector?
 < Yes.
-> read: Apollo 13 did not achieve its scientific goals. Nevertheless, NASA's rescue mission was an agency triumph.
+> read: Apollo 13 did not achieve its scientific goals. Notwithstanding, NASA's rescue mission was an agency triumph.
 <~ Mapped 2 document unit(s) and 1 rhetorical relation(s)
 !query rhetorical_edge(document_2, document_2_unit_0, document_2_unit_1, contrast)
 !query current_document_relation(contrast)
@@ -44,13 +44,13 @@
 !timeout 60
 # TRANSFER@3: geologia, metodologia scientifica e chimica; l'ultimo caso
 # compone l'arco con un fatto contenuto realmente estratto.
-> read: Subduction zones occupy a small fraction of Earth's surface. Nevertheless, they produce the world's largest earthquakes.
+> read: Subduction zones occupy a small fraction of Earth's surface. Notwithstanding, they produce the world's largest earthquakes.
 <~ Mapped 2 document unit(s) and 1 rhetorical relation(s)
 !query current_document_relation(contrast)
-> read: Observational studies can identify associations. Nevertheless they cannot by themselves establish causality.
+> read: Observational studies can identify associations. Notwithstanding they cannot by themselves establish causality.
 <~ Mapped 2 document unit(s) and 1 rhetorical relation(s)
 !query current_document_relation(contrast)
-> read: Mercury is a metal. Nevertheless, mercury is liquid at ordinary temperatures.
+> read: Mercury is a metal. Notwithstanding, mercury is liquid at ordinary temperatures.
 <~ Mapped 2 document unit(s) and 1 rhetorical relation(s)
 !query metal(mercury)
 !query rhetorical_edge(document_5, document_5_unit_0, document_5_unit_1, contrast)
@@ -65,22 +65,22 @@
 # ABLATION PARLATA: rimuove la sola causa dell'arco anche dai documenti gia'
 # osservati; unita', span e fatto sul mercurio restano vivi. In particolare non
 # deve mai nascere il vecchio misclaim `contrastive_connector(forget)`.
-> forget that nevertheless is a contrastive connector
-< I no longer treat «nevertheless» as a contrastive connector.
-!query! contrastive_connector(nevertheless)
+> forget that notwithstanding is a contrastive connector
+< I no longer treat «notwithstanding» as a contrastive connector.
+!query! contrastive_connector(notwithstanding)
 !query! contrastive_connector(forget)
 !query! rhetorical_edge(document_5, document_5_unit_0, document_5_unit_1, contrast)
 !query document_unit(document_5, document_5_unit_0, 0)
 !query document_unit(document_5, document_5_unit_1, 1)
 !query metal(mercury)
-> read: Mercury is a metal. Nevertheless, mercury is liquid at ordinary temperatures.
+> read: Mercury is a metal. Notwithstanding, mercury is liquid at ordinary temperatures.
 <! Mapped
 !query! current_document_relation(contrast)
 
 # RETEACH: lo stesso binario riacquista la capacita' e la usa su un nuovo
 # documento vero.
-> "nevertheless" is a contrastive connector.
-< Learned: contrastive_connector(nevertheless).
-> read: The platypus is a mammal. Nevertheless, the platypus lays eggs.
+> "notwithstanding" is a contrastive connector.
+< Learned: contrastive_connector(notwithstanding).
+> read: The platypus is a mammal. Notwithstanding, the platypus lays eggs.
 <~ Mapped 2 document unit(s) and 1 rhetorical relation(s)
 !query current_document_relation(contrast)

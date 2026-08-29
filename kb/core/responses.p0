@@ -827,6 +827,8 @@ response_template(reader_summary, en, "Learned {learned} fact(s), skipped {skipp
 response_template(reader_summary, it, "Ho appreso {learned} fatti, ne ho saltati {skipped}.").
 response_template(reader_document_summary, en, "Mapped {units} document unit(s) and {relations} rhetorical relation(s); learned {learned} fact(s), skipped {skipped}.").
 response_template(reader_document_summary, it, "Ho mappato {units} unita' documentali e {relations} relazioni retoriche; ho appreso {learned} fatti e ne ho saltati {skipped}.").
+response_template(reader_claim_summary, en, "Mapped {units} document unit(s), {claims} reported claim(s), and {typed} live epistemic status(es); learned {learned} world fact(s), skipped {skipped}.").
+response_template(reader_claim_summary, it, "Ho mappato {units} unita' documentali, {claims} claim riportate e {typed} status epistemici vivi; ho appreso {learned} fatti del mondo e ne ho saltati {skipped}.").
 response_template(mentioned_class_forgotten, "I no longer treat «{word}» as a {class}.").
 response_template(mentioned_class_forgotten, it, "Non considero piu' «{word}» un membro della classe {class}.").
 response_template(tool_result, "{label}: {result}").
