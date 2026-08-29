@@ -3731,6 +3731,12 @@ typedef struct {
      * non la vede decide per forza male. */
     size_t consumed;
     size_t total;
+    /* SC2-C: il NOME dello slot, cioe' la lettera dopo `@`. Il legatore la
+     * leggeva e la buttava via, e i ruoli finivano nell'ordine in cui le parole
+     * compaiono. Per «@S wanes @O» le due cose coincidono; per «@O wanes @S» —
+     * la forma in cui si insegna una costruzione che rovescia i ruoli, e la
+     * forma di ogni passivo — no, e il fatto usciva rovesciato. */
+    char   role[P0_MAX_SLOTS];
 } P0FrameReading;
 
 /* Lega UNO schema dichiarato al flusso di token. Pura: legge la KB, non la
@@ -3790,6 +3796,7 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
              * riprende l'entita' del turno prima. */
             if (r->nslots == 0 && is_entity_pronoun(b, dst) && b->has_last_entity)
                 snprintf(dst, KB_TERM_LEN, "%s", b->last_entity);
+            r->role[r->nslots] = (char)tolower((unsigned char)pt[ti][1]);
             r->nslots++;
             wi = (size_t)end;
         } else {
@@ -3803,6 +3810,59 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
         if (!r->slot[si][0]) return 0;
     r->consumed = wi;
     r->total = n;
+
+    /* ── I RUOLI ESCONO NELL'ORDINE CANONICO DELLA RELAZIONE ────────────
+     *
+     * L'ordine degli argomenti di una relazione non e' l'ordine delle parole:
+     * e' conoscenza, e sta in `frame_role_order/2`. Senza questa riordinata
+     * «@O wanes @S» produceva `glorphs(oberon, quintal)` invece di
+     * `glorphs(quintal, oberon)` — cioe' una costruzione insegnata per
+     * rovesciare i ruoli li lasciava dritti, e il teacher non aveva modo di
+     * dire «qui il primo nome e' l'oggetto».
+     *
+     * Un ruolo senza rango dichiarato conserva la posizione: uno schema che non
+     * nomina i propri ruoli si comporta esattamente come prima. */
+    if (r->nslots <= P0_MAX_SLOTS) {
+        size_t order[P0_MAX_SLOTS];
+        long rank[P0_MAX_SLOTS];
+        int declared = 1;
+        for (size_t si = 0; si < r->nslots; si++) {
+            char letter[2] = { r->role[si], '\0' };
+            const char *rq[] = { letter, NULL };
+            char row[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "frame_role_order", rq, 2, row, 1) != 1) {
+                declared = 0; break;
+            }
+            rank[si] = strtol(kb_dequote(row[0]), NULL, 10);
+            order[si] = si;
+        }
+        /* Due ruoli con lo stesso rango non sono un ordine: nel dubbio si
+         * conserva la posizione invece di sceglierne uno. */
+        for (size_t a = 0; a < r->nslots && declared; a++)
+            for (size_t c = a + 1; c < r->nslots && declared; c++)
+                if (rank[a] == rank[c]) declared = 0;
+        if (declared) {
+            for (size_t a = 1; a < r->nslots; a++) {
+                size_t key = order[a];
+                long k = rank[key];
+                size_t c = a;
+                while (c > 0 && rank[order[c - 1]] > k) {
+                    order[c] = order[c - 1]; c--;
+                }
+                order[c] = key;
+            }
+            char sorted[P0_MAX_SLOTS][KB_TERM_LEN];
+            char sorted_role[P0_MAX_SLOTS];
+            for (size_t a = 0; a < r->nslots; a++) {
+                snprintf(sorted[a], KB_TERM_LEN, "%s", r->slot[order[a]]);
+                sorted_role[a] = r->role[order[a]];
+            }
+            for (size_t a = 0; a < r->nslots; a++) {
+                snprintf(r->slot[a], KB_TERM_LEN, "%s", sorted[a]);
+                r->role[a] = sorted_role[a];
+            }
+        }
+    }
 
     /* ── UNA PAROLA INTERROGATIVA IN UNO SLOT E' UNA DOMANDA ─────────────
      *

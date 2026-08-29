@@ -576,6 +576,23 @@ extract_frame($Pat, $Pred) :-
 
 
 
+% ── L'ORDINE DEGLI ARGOMENTI E' CONOSCENZA, NON L'ORDINE DELLE PAROLE ──────
+%
+% Il legatore di schemi leggeva la lettera dopo `@` e la buttava via: i ruoli
+% finivano nel fatto nell'ordine in cui le parole compaiono nella frase. Per
+% «@S governs @O» le due cose coincidono e nessuno se ne accorgeva; per
+% «@O wanes @S» — la forma con cui si insegna una costruzione che ROVESCIA i
+% ruoli, e la forma di ogni passivo — no, e il fatto usciva rovesciato. Una
+% lezione che dice «qui il primo nome e' l'oggetto» non poteva essere obbedita.
+%
+% Il rango di un ruolo e' una riga. Una relazione con un ordine canonico diverso,
+% o una lingua che ne usa un altro, costa un fatto e zero C; uno schema che non
+% dichiara i propri ruoli conserva la posizione, quindi la regola e' additiva.
+machinery(frame_role_order).
+frame_role_order(s, 1).
+frame_role_order(o, 2).
+frame_role_order(t, 3).
+
 answer_frame($Verb, $Verb) :- relation_verb($Verb).
 
 % ── E QUANDO I RUOLI SONO TRE (M3) ───────────────────────────────────────────
