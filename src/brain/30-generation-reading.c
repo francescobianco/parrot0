@@ -2227,24 +2227,40 @@ static int mod_claim_question(Brain *b, const char *norm, const char *raw,
             }
             if (kb_match(b->kb, "current_conclusion_support", sq, 2, support, 1)
                 != 1) continue;
-            char premises[1][KB_TERM_LEN], status[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "claim_supported_by", sq, 2, premises, 1) != 1)
-                continue;
-            const char *pq[] = { premises[0], NULL };
-            char surface[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "claim_surface", pq, 2, surface, 1) != 1)
-                continue;
-            if (kb_match(b->kb, "claim_status", pq, 2, status, 1) != 1)
-                continue;
-            char source[KB_TERM_LEN];
-            if (!claim_answer_source(b, premises[0], source, sizeof source))
-                snprintf(source, sizeof source, "%s", premises[0]);
-            kb_term_say(b, "claim_support_answer",
-                        (const KbResponseSlot[]){
-                            { "premise", kb_dequote(surface[0]) },
-                            { "status", status[0] },
-                            { "source", source } }, 3, out, out_size);
-            claim_store_proof(b, premises[0]);
+            /* SC27 — TUTTE le premesse, non la prima. Rispondere con una sola
+             * quando ce ne sono due e' affermare che l'argomento poggia su meta'
+             * di cio' su cui poggia: il mantra #10, sul supporto invece che
+             * sulla domanda. */
+            char premises[8][KB_TERM_LEN];
+            size_t np = kb_match(b->kb, "claim_supported_by", sq, 2, premises, 8);
+            if (np == 0) continue;
+            char answer[768]; size_t off = 0; int said = 0;
+            for (size_t p = 0; p < np; p++) {
+                const char *pq[] = { premises[p], NULL };
+                char surface[1][KB_TERM_LEN], status[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "claim_surface", pq, 2, surface, 1) != 1)
+                    continue;
+                if (kb_match(b->kb, "claim_status", pq, 2, status, 1) != 1)
+                    continue;
+                char source[KB_TERM_LEN];
+                if (!claim_answer_source(b, premises[p], source, sizeof source))
+                    snprintf(source, sizeof source, "%s", premises[p]);
+                char one[512];
+                kb_term_say(b, said ? "claim_support_also"
+                                    : "claim_support_answer",
+                            (const KbResponseSlot[]){
+                                { "premise", kb_dequote(surface[0]) },
+                                { "status", status[0] },
+                                { "source", source } }, 3, one, sizeof one);
+                if (off + strlen(one) + 2 >= sizeof answer) break;
+                if (said) answer[off++] = ' ';
+                off += (size_t)snprintf(answer + off, sizeof answer - off,
+                                        "%s", one);
+                if (!said) claim_store_proof(b, premises[p]);
+                said = 1;
+            }
+            if (!said) continue;
+            put(answer, out, out_size);
             return 1;
         }
     }

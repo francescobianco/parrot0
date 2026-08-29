@@ -36,11 +36,35 @@ machinery(current_conclusion_support).
 argument_relation(consequence, conclusion_is(right)).
 argument_relation(ground, conclusion_is(left)).
 
+% ── SC27: UNA CONCLUSIONE NON POGGIA SOLO SULL'UNITA' CHE LA PRECEDE ──────
+%
+% Misurato: «A. B. Therefore C.» produceva UN solo arco, C<-B, perche' l'arco
+% retorico e' fra unita' adiacenti. La prima premessa spariva in silenzio, e
+% parrot0 rispondeva «poggia su B» con la stessa sicurezza — un argomento letto
+% a meta' del proprio supporto, affermato come intero. Non e' un muro e non e'
+% un gap: e' la specie del misclaim modale di SC2-D, un piano piu' su.
+%
+% Una premessa e' quindi ogni unita' precedente del documento che porta una
+% claim e non e' essa stessa una conclusione. Il limite dichiarato: su un
+% documento lungo questa lettura sovra-raccoglie, perche' non conosce ancora il
+% confine del blocco argomentativo. Sovra-raccogliere e' pero' l'errore giusto
+% da fare qui — rende visibile una premessa in piu', non ne nasconde una.
+argument_conclusion_unit($Unit) :-
+    document_unit_rhetorical_cue($Unit, $Relation, $Direction, $Cue),
+    argument_relation($Relation, $Side).
+
+argument_premise_unit($Document, $ConclusionUnit, $PremiseUnit) :-
+    document_unit($Document, $ConclusionUnit, $ConclusionOrder),
+    document_unit($Document, $PremiseUnit, $PremiseOrder),
+    lt($PremiseOrder, $ConclusionOrder),
+    naf(argument_conclusion_unit($PremiseUnit)).
+
 argument_edge($Document, $Conclusion, $Premise, $Relation) :-
     rhetorical_edge($Document, $Left, $Right, $Relation),
     argument_relation($Relation, conclusion_is(right)),
-    unit_claim($Left, $Premise),
-    unit_claim($Right, $Conclusion).
+    unit_claim($Right, $Conclusion),
+    argument_premise_unit($Document, $Right, $PremiseUnit),
+    unit_claim($PremiseUnit, $Premise).
 argument_edge($Document, $Conclusion, $Premise, $Relation) :-
     rhetorical_edge($Document, $Left, $Right, $Relation),
     argument_relation($Relation, conclusion_is(left)),
@@ -93,3 +117,54 @@ claim_support_question_evidence(support, $Cue) :- claim_support_question($Cue).
 current_unsupported_conclusion($Conclusion) :-
     current_argument_edge($Conclusion, $Premise),
     unsupported_conclusion($Conclusion).
+
+% ── SC27: UN SUPPORTO CONGIUNTO NON E' DUE SUPPORTI ───────────────────────
+%
+% Due premesse per una conclusione, trattate come due archi indipendenti, la
+% RAFFORZANO: togliendone una, l'altra continua a sostenerla da sola. E' il
+% duale esatto della disciplina che SC3 ha guadagnato, ed e' cio' che il gate 3
+% del §18.15 vieta.
+%
+% Se il modo sia congiunto o indipendente NON e' deducibile dalla superficie in
+% generale — «A. B. Therefore C.» puo' essere entrambe le cose — quindi non si
+% sceglie: si conserva l'ambiguita' e si dichiara che manca la lettura. Il modo
+% si insegna, e la classe e' aperta.
+machinery(joint_support_marker).
+machinery(support_mode).
+machinery(support_premise_dead).
+machinery(conclusion_support_state).
+machinery(current_conclusion_state).
+
+support_mode($Conclusion, joint) :-
+    claim_supported_by($Conclusion, $Premise),
+    document_unit_rhetorical_cue($Unit, $Relation, $Direction, $Cue),
+    unit_claim($Unit, $Conclusion),
+    joint_support_marker($Cue).
+
+support_premise_dead($Conclusion) :-
+    claim_supported_by($Conclusion, $Premise),
+    naf(claim_has_status($Premise)).
+claim_has_status($Claim) :- claim_status($Claim, $Status).
+machinery(claim_has_status).
+
+% Vivo: nessuna premessa e' caduta, qualunque sia il modo.
+conclusion_support_state($Conclusion, live) :-
+    claim_supported_by($Conclusion, $Premise),
+    naf(support_premise_dead($Conclusion)).
+% Congiunto e incompleto: la conclusione cade INTERA.
+conclusion_support_state($Conclusion, lost) :-
+    support_premise_dead($Conclusion),
+    support_mode($Conclusion, joint).
+% Indipendente non e' dichiarato: il modo manca, e dirlo e' la risposta.
+conclusion_support_state($Conclusion, undetermined_mode) :-
+    support_premise_dead($Conclusion),
+    naf(support_mode($Conclusion, joint)),
+    claim_has_live_support($Conclusion).
+% Nessuna premessa viva: la conclusione e' senza appoggio comunque.
+conclusion_support_state($Conclusion, lost) :-
+    support_premise_dead($Conclusion),
+    naf(claim_has_live_support($Conclusion)).
+
+current_conclusion_state($Conclusion, $State) :-
+    current_argument_edge($Conclusion, $Premise),
+    conclusion_support_state($Conclusion, $State).

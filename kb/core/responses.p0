@@ -864,6 +864,8 @@ response_template(claim_support_answer, "It rests on: {premise} - reported as {s
 response_template(claim_support_answer, it, "Poggia su: {premise} - riportato come {status} (da {source}).").
 response_template(claim_support_lost, "Nothing supports it any more - I no longer have a status for: {premise}.").
 response_template(claim_support_lost, it, "Non lo sostiene piu' niente - non ho piu' uno status per: {premise}.").
+response_template(claim_support_also, "And on: {premise} - reported as {status}.").
+response_template(claim_support_also, it, "E su: {premise} - riportato come {status}.").
 response_template(mentioned_class_forgotten, "I no longer treat «{word}» as a {class}.").
 response_template(mentioned_class_forgotten, it, "Non considero piu' «{word}» un membro della classe {class}.").
 response_template(tool_result, "{label}: {result}").

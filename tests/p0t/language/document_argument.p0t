@@ -140,3 +140,55 @@
 <~ no longer treat
 > which evidence backs it?
 <! It rests on
+
+# ── SC27 — DUE PREMESSE NON SONO DUE ARGOMENTI ──────────────────────────────
+#
+# Misurato prima di questo blocco: «A. B. Therefore C.» produceva UN solo arco,
+# C<-B, perche' l'arco retorico e' fra unita' adiacenti. La prima premessa
+# spariva in silenzio e parrot0 rispondeva «poggia su B» con la stessa
+# sicurezza — un argomento letto a meta' del proprio supporto e affermato come
+# intero. E' la specie del misclaim modale di SC2-D, un piano piu' su.
+#
+# E se il modo — congiunto o indipendente — non e' dichiarato, NON si sceglie:
+# l'ambiguita' si conserva e si dice.
+
+[test sc27 tutte le premesse, e il modo non si indovina]
+!timeout 120
+> therefore is a consequence connector
+< Learned: consequence_connector(therefore).
+> "the measurements indicate that" is an observation report marker.
+< Learned: observation_report_marker("the measurements indicate that").
+> "the authors conclude that" is a hypothesis report marker.
+< Learned: hypothesis_report_marker("the authors conclude that").
+> deflect is a relation verb
+< Learned: relation_verb(deflect).
+> slowed is a relation verb
+< Learned: relation_verb(slowed).
+> ejected is a relation verb
+< Learned: relation_verb(ejected).
+> read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that DART slowed the orbital period. The data show that the impact ejected debris. Therefore the authors conclude that kinetic impact can deflect an asteroid.
+<~ 3 proposition(s) normalized in quarantine
+# ENTRAMBE le premesse sono visibili.
+!query claim_supported_by(document_0246e706600fd069_cd70d7443ccc6e99_unit_2_claim_0, document_0246e706600fd069_cd70d7443ccc6e99_unit_0_claim_0)
+!query claim_supported_by(document_0246e706600fd069_cd70d7443ccc6e99_unit_2_claim_0, document_0246e706600fd069_cd70d7443ccc6e99_unit_1_claim_0)
+!query conclusion_support_state(document_0246e706600fd069_cd70d7443ccc6e99_unit_2_claim_0, live)
+# E la risposta le nomina tutte e due: rispondere con una sola sarebbe dire che
+# l'argomento poggia su meta' di cio' su cui poggia.
+> what supports that?
+<~ And on:
+# ABLATION DI UNA SOLA PREMESSA, senza modo dichiarato: l'ambiguita' resta, e
+# parrot0 la dichiara invece di scegliere.
+> forget that "the measurements indicate that" is an observation report marker
+<~ no longer treat
+!query conclusion_support_state(document_0246e706600fd069_cd70d7443ccc6e99_unit_2_claim_0, undetermined_mode)
+!query! conclusion_support_state(document_0246e706600fd069_cd70d7443ccc6e99_unit_2_claim_0, live)
+!query! conclusion_support_state(document_0246e706600fd069_cd70d7443ccc6e99_unit_2_claim_0, lost)
+# MODO CONGIUNTO insegnato parlando: la conclusione cade INTERA.
+> therefore is a joint support marker
+< Learned: joint_support_marker(therefore).
+!query conclusion_support_state(document_0246e706600fd069_cd70d7443ccc6e99_unit_2_claim_0, lost)
+!query! conclusion_support_state(document_0246e706600fd069_cd70d7443ccc6e99_unit_2_claim_0, undetermined_mode)
+# E si ritratta: il modo torna indeterminato, non indipendente per default.
+> forget that therefore is a joint support marker
+<~ therefore
+!query conclusion_support_state(document_0246e706600fd069_cd70d7443ccc6e99_unit_2_claim_0, undetermined_mode)
