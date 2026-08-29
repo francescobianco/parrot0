@@ -1,7 +1,9 @@
 # SC0 — rendere misurabile la supercomprensione
 
-Data: 2026-08-29  
-Protocollo: [`LEARN_PROTOCOL.md`](../../../LEARN_PROTOCOL.md)  
+Data: 2026-08-29
+
+Protocollo: [`LEARN_PROTOCOL.md`](../../../LEARN_PROTOCOL.md)
+
 Piani: [`apprendimento-assistito.md`](../../plans/apprendimento-assistito.md),
 [`frontier-kb-natural-dialogue.md`](../../plans/frontier-kb-natural-dialogue.md)
 
