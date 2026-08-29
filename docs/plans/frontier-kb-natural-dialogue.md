@@ -4389,3 +4389,87 @@ l'ordine fra moduli: e' il verso di lettura di un unico registro.
 Resta aperto il secondo contatore — il **titolo** — ed e' il caso di prova di
 D26/D27: la cue e' viva, la lezione e' entrata, e chi risponde non passa da
 nessuna classe. Finche' quello non e' chiuso, il gradino 1 e' conforme a meta'.
+
+### 18.33 Ipotesi D29 — il difetto pericoloso è l'affermazione che copre meno di quanto legge
+
+Tre volte in due giorni, su tre strati diversi, lo stesso difetto — e nessuna
+delle tre volte somigliava a un errore:
+
+| dove | che cosa usciva | che cosa c'era davvero |
+|---|---|---|
+| SC2-D, modalita' | `shorten(kinetic_impactor_can, asteroid_orbit)` | «a kinetic impactor **can** shorten…» — un'affermazione, da una possibilita' |
+| SC27, argomento | «poggia su B» | «A. B. Therefore C.» — meta' del supporto, dichiarata intera |
+| SC2-B, copertura | `slowed(dart, orbital_period)` | «…the orbital period **of Dimorphos**» — di chi fosse il periodo, perso |
+
+Nessuno di questi e' un muro e nessuno e' un gap. Sono **risposte ben formate
+costruite su meno di quanto il sistema aveva davanti**, ed e' esattamente la
+forma che nessun controllo di superficie puo' vedere: l'uscita e' corretta nella
+grammatica, plausibile nel contenuto, e piu' forte della propria fonte.
+
+L'ipotesi generalizza D14 da una dimensione a tutte:
+
+> ogni lettura deve portare con se' **che cosa ha consumato e che cosa c'era**,
+> e la copertura non riguarda solo i token: riguarda operatori, ruoli, premesse,
+> unita' e qualunque struttura che il livello sopra assuma completa.
+
+```prolog
+reading_covers($Reading, $Kind, consumed($N), available($M)).
+%   $Kind ∈ token | operator | role | premise | unit | qualifier
+coverage_complete($Reading, $Kind).
+coverage_shortfall($Reading, $Kind, $Missing).
+answer_strength($Answer, supported_by($Reading)).
+overclaim($Answer, $Kind) :-
+    answer_strength($Answer, supported_by($R)), coverage_shortfall($R, $Kind, $M).
+```
+
+Il punto operativo non e' impedire le letture parziali — SC27 mostra che a volte
+la lettura parziale e' la migliore disponibile. E' che **una risposta non possa
+essere piu' forte della copertura che la sostiene**: `overclaim/2` deve essere
+interrogabile prima che la frase esca, non scoperto da un teacher che rilegge.
+
+**Predizione falsificabile.** Iniettando in un corpus reale tre difetti costruiti
+— un operatore inghiottito, una premessa fuori dal blocco adiacente, un
+complemento pendente — il sistema deve produrre tre `coverage_shortfall`
+distinti e **nessuna** risposta che li ignori. Se una delle tre esce come
+affermazione piena, la copertura non sta proteggendo, sta solo contando.
+
+**Rapporto con il mantra #7.** «Uccidi il muro, mai con una risposta sbagliata»
+copre il caso in cui la risposta e' falsa. Questa e' la classe accanto: la
+risposta e' *vera su meno*, e sopravvive a ogni controllo che chieda soltanto se
+sia vera.
+
+### 18.34 Ipotesi D30 — un default implicito è una decisione che nessuno può vedere
+
+Le correzioni del 2026-08-30 hanno tutte la stessa forma, e vale la pena
+nominarla perche' e' diventata una ricetta:
+
+| difetto | default implicito che lo causava | politica dichiarata che lo ha chiuso |
+|---|---|---|
+| la cue si accende nel proprio retract | «una cue guarda tutto il turno» | `cue_scope/2` |
+| un token solo e' contatto fatico | «chi arriva prima rivendica» | `move_policy(lone_bare_token, claim)` |
+| due premesse rafforzano | «se il modo non e' noto, e' indipendente» | `support_mode` + `undetermined_mode` |
+| il passivo generico batte una costruzione | «vince chi viene enumerato prima» | `specific_participle/1` |
+| una lettura parziale vale | «se combacia, basta» | `normalization_extent_policy/4` |
+
+In tutti e cinque i casi il motore stava gia' **decidendo**. Non lo diceva, e la
+decisione non era ne' insegnabile ne' ritrattabile — cioe' era conoscenza di
+dominio nel C, sotto un nome che non sembrava conoscenza: un default.
+
+```prolog
+engine_default($Site, $Decision, declared | implicit).
+default_policy($Site, $Decision).
+default_overridden($Site, $By).
+```
+
+**Predizione falsificabile.** Un censimento dei punti in cui il motore sceglie
+senza consultare la KB deve produrre una lista **finita e corta** — decine, non
+migliaia — e ognuno deve poter diventare una riga di politica senza cambiare il
+comportamento di partenza. Se la lista e' lunga quanto il codice, i default non
+sono una classe ma la struttura stessa del programma, e l'ipotesi e' falsa.
+
+**Corollario operativo, gia' valido.** Quando una correzione richiede di
+*spostare* qualcosa — un modulo nel registry, una clausola prima di un'altra —
+quasi sempre esiste la stessa correzione scritta come politica, ed e' migliore
+per tre ragioni misurate oggi: non cancella la strada vecchia
+(`PRINCIPLES.md`), la rende ritrattabile nello stesso turno, e non rimanda il
+problema alla parola successiva.
