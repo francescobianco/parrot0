@@ -65,7 +65,7 @@ viene parafrasato: una fonte non diventa un corpus copiato nella KB.
 |---|---|---|---|---|---|
 | **SC0** | **Baseline stratificata su prosa narrativa, espositiva e scientifica** | distingue muro, fatto estratto, misclaim, perdita di subordinata e perdita di struttura documentale | presentare tre brani veri brevi, poi chiedere tesi, supporto, sequenza e limite senza anticipare le risposte | transcript classificato frase per frase; zero conoscenza consolidata; mappa M0-M20 e SC1-SC16 | **CHIUSA come diagnosi** — 2026-08-29: falso racconto e falsa autodiagnosi isolati; porta di lettura resa insegnabile; route Transfer@3 = 3/3; estrazione complessa = 0/9. Report: [`2026-08-29-supercomprensione-sc0.md`](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc0.md) |
 | **SC1** | **Unita' documentali e relazioni retoriche** | una frase o sezione puo' essere definizione, sfondo, contrasto, causa, metodo, risultato, limite o transizione | «qui la seconda frase contrasta la prima», «questa frase descrive il metodo, non il risultato» | una cue retorica nuova insegnata a voce cambia la segmentazione; transfer su tre domini; retract la rimuove | **SC1-A CHIUSA; SC1-B aperta** — 2026-08-29: unita' ordinate e span stabili di sessione; cue naturale persistita; `Transfer@3=3/3`; ablation/reteach causali; restano ID fonte, atti, cue multi-parola e archi intra-periodo. [Report SC1](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc1.md) |
-| **SC2** | **Claim tipati, attribuzione e forza epistemica** | separa osservazione, dato, inferenza, ipotesi, assunzione, definizione, citazione e raccomandazione | «gli autori osservano X ma concludono Y», «Z e' un'ipotesi, non un risultato» | nessun claim perde fonte, scope o status; un fatto riportato non diventa automaticamente commitment di parrot0 | **SC2-A CHIUSA; SC2-B aperta** — 2026-08-29: documenti source-addressed, claim di superficie con span, attribuzione, status/context/commitment derivati; cue multi-parola learn/query/retract; `Transfer@3=3/3`, ablation e fresh process verdi. Restano normalizzazione proposizionale (`0/8`) e domande naturali (`0/3`). [Report SC2](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2.md) |
+| **SC2** | **Claim tipati, attribuzione e forza epistemica** | separa osservazione, dato, inferenza, ipotesi, assunzione, definizione, citazione e raccomandazione | «gli autori osservano X ma concludono Y», «Z e' un'ipotesi, non un risultato» | nessun claim perde fonte, scope o status; un fatto riportato non diventa automaticamente commitment di parrot0 | **SC2-A e SC2-B CHIUSE; SC2-C aperta** — 2026-08-29. SC2-A: documenti source-addressed, claim di superficie con span, attribuzione, status/context/commitment derivati ([report](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2.md)). SC2-B: normalizzazione come **fase pura e contestuale**, `NormalizedClaimCoverage 0/8 -> 9/9`, `QuestionAnswerCoverage 0/3 -> 3/3`, `WorldCommitLeak=0`, letture parziali rifiutate per policy ([report](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2b.md)). Resta l'equivalenza fra frame, la modalita' e la prova pronunciata |
 | **SC3** | **Grafo argomentativo e dipendenze della conclusione** | estrae premesse, conclusioni, supporti, obiezioni, qualificatori e rebuttal da prosa articolata | «questa osservazione sostiene la conclusione solo insieme a quest'altra premessa» | domande `perche'`, `da cosa dipende`, `cosa la confuterebbe`; ablation di una premessa ritira solo le conclusioni dipendenti | aperto |
 | **SC4** | **Ricostruzione del disegno scientifico** | riconosce domanda, popolazione/sistema, variabili, intervento, confronto, misura, controllo e confondenti | «il gruppo B e' il confronto; la temperatura e' mantenuta costante» | ricostruzione su esperimento, studio osservazionale e simulazione; non inventa controllo o causalita' | aperto |
 | **SC5** | **Da metodo in prosa a procedura eseguibile e ispezionabile** | compila passi, input, output, precondizioni, invarianti, branch, criterio d'arresto, rischi e provenance | «per eseguire il metodo, prima calibra; ripeti finche'...; scarta se...» | la lezione non viene eseguita; piano su input nuovi; ogni numero ha ruolo e unita'; trace dei passi; retract parlato | aperto |
@@ -505,7 +505,7 @@ Per aiutare agenti meno esperti, mantenere questa disciplina ad ogni SC:
    semantico, commit e push. Se un ID, uno status o un arco non ha una
    spiegazione di retract, non e' ancora pronto per essere salvato.
 
-### Checkpoint lasciato da SC2 — punto di ripresa autoritativo
+### Checkpoint lasciato da SC2-A — storico, superato da SC2-B
 
 SC2-A e' chiusa nel
 [report completo](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2.md).
@@ -687,6 +687,184 @@ Ordine consigliato:
 - Conservare nei report anche gli `X` delle sessioni abortite. Il run promosso
   puo' avere `X=0`, ma cancellare la diagnosi impedisce agli agenti successivi
   di capire quali simmetrie e guardie siano causali.
+
+
+### Checkpoint lasciato da SC2-B — punto di ripresa autoritativo
+
+SC2-B e' chiusa nel
+[report completo](docs/labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2b.md)
+e nell'evidenza §18.19 di
+[`frontier-kb-natural-dialogue.md`](docs/plans/frontier-kb-natural-dialogue.md).
+Chi riprende deve trattare questo checkpoint come una **piattaforma sul motore**,
+non come una vittoria sul contenuto: parrot0 sa normalizzare il contenuto di una
+claim riportata senza crederci, e sa dire quando non ci riesce; non sa ancora
+riconoscere che due frasi diverse dicono la stessa cosa.
+
+#### Risultato acquisito e misurato
+
+- La **fase pura** esiste ed e' una sola. `P0FrameReading` / `p0_frame_bind` /
+  `p0_frame_reading` in `src/brain/10-memory-knowledge.c` legano uno schema
+  dichiarato al flusso di token e restituiscono predicato, slot, slot
+  interrogativo e **copertura**, senza assert, senza risposta, senza traccia. Il
+  consumer storico `p0_try_extract_frames_only` usa la stessa funzione: non
+  esistono due legatori di schemi. Non reintrodurne uno «per comodita' del
+  lettore».
+- Il lettore invoca la fase pura sul remainder e consegna alla KB un candidato
+  con **origine** e **copertura**. Il C non nomina verbi, status o fonti.
+- `normalization_origin/2` decide il commitment: `reported -> quarantine`,
+  `asserted -> world`. Il frame di una claim riportata vive in
+  `holds_in(context($Claim), ...)` e **mai** in `holds_in(world, ...)`.
+  Misurato: `/debug shortened` -> nessuna clausola dopo quattro letture reali.
+- `normalization_extent_policy/4` rifiuta una lettura che non copre la frase.
+  Coordinazione e complemento pendente diventano `gap(partial_reading)` con la
+  superficie intera. **Questa non e' una limitazione da rimuovere**: e' la
+  ragione per cui i frame accettati possono essere confrontati.
+- La forma interrogativa e' **derivata**, non insegnata:
+  `claim_question_evidence/2` toglie il complementatore dalla locuzione appresa,
+  `claim_status_question_evidence/2` costruisce `«observed that»` dallo status
+  dichiarato in `claim_marker_class/4`. Insegnare un marker apre la sua domanda.
+- `mod_claim_question` (registrato come `claimq`, dopo gli atti didattici e
+  prima di `qa`) risponde a due forme: recupero per classe e verifica di status.
+  Il cancello richiede claim osservate **e** una evidenza da cue viva.
+- Ogni parola pronunciata viene da `response_template`:
+  `claim_content_answer`, `claim_content_answer_unsourced`,
+  `claim_status_confirmed`, `claim_status_other`,
+  `reader_claim_summary_normalized`.
+- Save: `W=0, L=5, C=0, P=5, O=15, X=0, S=25`; `B0=36406/2454`,
+  `B1=36431/2454`, `B1-B0=S`. Le cinque lezioni sono verbi di relazione veri
+  (`shortens`, `shortened`, `improved`, `detected`, `eradicated`) instradati in
+  `kb/learning/taught-lexicon.p0`.
+- Metriche: `Transfer@3=3/3` (NASA, GMD, WHO, PRL), `ContrastPrecision=3/3`,
+  `Paraphrase=1/1`, `Composition=1/1`, `AblationFidelity=1/1`, reteach `1/1`,
+  `Retention=pass`, `FreshProcessRecall=7/7`, `WorldCommitLeak=0`,
+  `FalseUnderstandingRate=0`.
+
+Il ratchet e' `tests/p0t/language/document_claims.p0t`: **124 assert** (50 di
+SC2-A + 74 di SC2-B), con locuzioni e verbi **held-out** rispetto alla KB
+persistita (`the investigators predict that`, `the measurements indicate that`,
+`the model outputs show that`; `slowed`, `deflected`, `raised`, `weakened`,
+`increased`). Non sostituirli con i membri salvati: la baseline diventerebbe
+verde per memoria e smetterebbe di misurare crescita a runtime.
+
+Rossi noti e **non** introdotti da SC2-B, verificati identici su `HEAD`
+precedente: `assisted_construction.p0t` 60/6 (inversione dei ruoli di una
+costruzione insegnata) e il rosso di `frontier_chat_audit.it.p0t` riga 97
+(`designation`) nell'unico `make soft-test` del ciclo (55 verdi, 1 rosso).
+
+#### Mappa dei file per chi riprende
+
+- `src/brain/10-memory-knowledge.c`: `P0FrameReading` e la fase pura. Il campo
+  `consumed`/`total` e' il cuore di D14: chi lo ignora reintroduce la perdita
+  silenziosa.
+- `src/brain/30-generation-reading.c`: invocazione della fase pura sul
+  remainder, `mod_claim_question`, sommario del lettore.
+- `src/brain/99-registry.c`: posizione di `claimq`. Spostarlo prima degli atti
+  didattici fa si' che una lezione o un retract che *contengono* la locuzione
+  vengano interpretati come domande.
+- `kb/core/document-claims.p0`: origine, policy di copertura, gap tipati, viste
+  (`claim_frame`, `claim_proof`, `claim_surface`, `claim_document_source`) ed
+  evidenza interrogativa derivata.
+- `kb/core/responses.p0`: le quattro frasi di risposta e il sommario normalizzato.
+- `tests/p0t/language/document_claims.p0t`: il ratchet.
+
+#### Limiti precisi da non coprire con una risposta elegante
+
+1. Il confronto fra frame e' **strutturale**. `DART shortened the period` e
+   `the period was shortened by DART` restano due frame diversi.
+2. Solo `binary(Relation)` a due ruoli. Misura, classe, relazione ternaria,
+   negazione e modalita' (`can`, `may`) producono un gap, non un frame.
+3. La domanda di contenuto e' limitata al **documento corrente**: con piu'
+   documenti letti non disambigua la fonte e sceglie l'ultimo.
+4. La verifica di status pretende il complementatore esplicito
+   (`observed that`); `«did anyone observe X?»` non e' ancora una parafrasi.
+5. `claim_proof/2` si interroga ma non si **pronuncia**: «come lo sai?» non ha
+   ancora una porta naturale.
+6. Restano aperti i limiti SC2-A: una claim per unita', `extent(remainder)`,
+   nessun salvataggio dei documenti, nessuna canonicalizzazione degli URI.
+
+---
+
+## Seconda coda 2026-08-29 — dalla supercomprensione alla metacomprensione
+
+Le voci SC0-SC16 restano valide e descrivono che cosa un documento *contiene*.
+Questa seconda coda nasce da tre osservazioni misurate in SC2-B che non
+riguardano i documenti ma **il motore che li legge**, ed e' l'operazionalizzazione
+delle ipotesi **D13-D20** di
+[`frontier-kb-natural-dialogue.md` §18.20](docs/plans/frontier-kb-natural-dialogue.md).
+
+Le tre osservazioni:
+
+1. l'accoppiamento fra *leggere* e *credere* non era un difetto del lettore
+   documentale: era ovunque, e SC2-B lo ha sciolto in un solo punto;
+2. il residuo non letto e' l'informazione piu' preziosa che il sistema buttava
+   via, perche' una lettura parziale e' indistinguibile da una completa;
+3. la porta interrogativa di una conoscenza e' **derivabile** dalla conoscenza
+   stessa, e dove non lo e' quel «dove» e' misurabile.
+
+Ordine obbligato dalle dipendenze, non dall'effetto: **SC2-C, SC17, SC18** sono
+precondizioni di tutto il resto.
+
+| # | Piano complesso | Ipotesi | Classe liberata | Interazione didattica minima | Gate duro | Stato |
+|---|---|---|---|---|---|---|
+| **SC2-C** | **Equivalenza fra frame, modalita' e prova pronunciata** | D2, D19 | due superfici diverse che dicono la stessa cosa convergono o dichiarano perche' no; `can`/`may` diventano operatori di status invece di far fallire la lettura; «come lo sai?» risponde in lingua naturale | «"X was shortened by Y" dice la stessa cosa di "Y shortened X"»; «"può" indica una possibilità, non un risultato» | parafrasi attiva e passiva sullo stesso frame; una claim modale non soddisfa una domanda osservativa; la prova nomina documento, unita', span e cue | **aperto — prossimo** |
+| **SC17** | **L'origine come parametro di ogni inferenza** | D13 | discorso citato, ipotesi controfattuale, simulazione di piano e lettura non fidata condividono la quarantena della claim riportata | «supponiamo per un momento che...», «lui sostiene che...», e poi chiedere che cosa parrot0 crede davvero | la stessa fase pura serve almeno tre origini senza un nuovo parser; ritrarre un'origine spegne **esattamente** cio' che ne dipendeva | aperto |
+| **SC18** | **Il residuo non letto diventa un oggetto tipato** | D14 | ogni frase non compresa lascia span, superficie e classe del residuo, invece di un silenzio | «in questa frase la parte che non hai letto e' la coordinazione»; poi chiedere a parrot0 di elencare i propri residui | su un corpus reale i residui si raggruppano in poche classi; insegnare una classe abbassa la frequenza dell'**intera** classe | aperto |
+| **SC19** | **Livelli di comprensione nominabili e monotoni** | D19 | `observed < surface < normalized < grounded < modelled`; ogni consumer dichiara il minimo che gli serve e declina nominando cio' che manca | «non chiederti se sai la frase: chiediti a che livello l'hai capita» | un consumer nuovo rifiuta input insufficienti dichiarando **solo** il proprio livello minimo; ritrarre conoscenza abbassa il livello e spegne i consumer giusti | aperto |
+| **SC20** | **Chiusura interrogativa per derivazione** | D15 | la domanda si costruisce dall'asserzione con trasformazioni di lingua (caduta del complementatore, spostamento del gap, inversione dell'ausiliare) | «se sai dire "A precede B", devi saper rispondere a "che cosa precede B?"» | `InterrogativeClosure` sale aggiungendo **trasformazioni**, non consumer; una relazione insegnata oggi e' interrogabile domani senza nuovo C | aperto |
+| **SC21** | **La regione, e il guadagno di una domanda** | D16, D6 | un testo denota la regione dei modelli compatibili; la precisione e' l'ampiezza della regione; la contraddizione e' la regione vuota | mostrare un paragrafo ambiguo e chiedere quale chiarimento restringerebbe di piu' | fra due chiarimenti sceglie quello a `question_gain` maggiore e sa dire perche'; ricerca incompleta -> `incomplete`, mai «nessun modello» | aperto |
+| **SC22** | **Il mittente del testo e' modellabile** | D17 | obiettivo dell'autore, concessioni, funzione delle attenuazioni, obiezioni anticipate | «qui l'autore concede un punto per difendere la tesi principale» | risponde a «che cosa vuole farmi credere, e che cosa concede?» senza riassumere; ritrarre **una** locuzione concessiva cambia la risposta | aperto |
+| **SC23** | **Una procedura e' un riferimento risolvibile** | D18, D5 | un metodo che delega a un'altra fonte si dichiara bloccato e nomina il passo, invece di fingersi completo | «segui il protocollo di quell'altro lavoro, con questa sola modifica» | dice **quale** passo delega e a quale fonte; fornendo la fonte diventa eseguibile senza reinsegnare i passi noti | aperto |
+| **SC24** | **Il gap ricorrente diventa una richiesta di lezione** | D20, D9, D10 | parrot0 formula in lingua naturale la lezione che gli manca, con un esempio preso dal proprio residuo, ordinata per guadagno di copertura | leggere un corpus, poi chiedere «che cosa dovrei insegnarti per primo?» | la prima richiesta e' quella che, insegnata, produce il guadagno di copertura maggiore fra le candidate; il guadagno viene **misurato dopo**; `lesson_request` non auto-promuove niente | aperto |
+
+### Pacchetti della seconda coda
+
+1. **Pacchetto G — onesta' strutturale (SC2-C, SC17, SC18).** Sciogliere
+   l'accoppiamento lettura/credenza ovunque e reificare il residuo. Uscita: un
+   motore che sa dire dove finisce cio' che ha capito.
+2. **Pacchetto H — tipi della comprensione (SC19, SC20).** Livelli nominabili e
+   porta interrogativa derivata. Uscita: nessuna risposta costruita a un livello
+   piu' alto di quello raggiunto.
+3. **Pacchetto I — spazio logico (SC21).** Regione, raffinamento, guadagno di
+   una domanda, regione vuota. Uscita: una definizione operativa di «buona
+   domanda» che non dipende dal giudizio di chi guarda.
+4. **Pacchetto J — testo come atto di un agente (SC22, SC23).** Mittente e
+   procedure per riferimento. Uscita: lettura di letteratura scientifica che
+   distingue cio' che l'articolo *fa* da cio' che *dice*.
+5. **Pacchetto K — curriculum autogenerato (SC24).** Uscita: la coda di questo
+   stesso file smette di essere scritta soltanto da noi.
+
+### Metriche della seconda coda
+
+Si aggiungono a quelle gia' obbligatorie:
+
+- **WorldCommitLeak:** fatti entrati nel mondo da un'origine che non lo
+  autorizzava. Deve restare `0`; qualunque valore diverso invalida il ciclo.
+- **Coverage:** token consumati da una lettura / token della frase, per classe
+  di residuo.
+- **ResidueClassConcentration:** frazione dei residui coperta dalle prime cinque
+  classi. Se resta bassa, la lettura non e' compositiva (falsifica D14).
+- **InterrogativeClosure:** relazioni insegnabili interrogabili per derivazione
+  / relazioni insegnabili totali.
+- **LevelDiscipline:** risposte costruite a un livello non superiore a quello
+  raggiunto / risposte costruite. Deve essere `1`.
+- **QuestionGainAccuracy:** chiarimenti scelti che coincidono con quelli di un
+  lettore esperto / chiarimenti proposti.
+- **LessonRequestOrdering:** correlazione fra l'ordine delle richieste di
+  lezione e il guadagno di copertura misurato dopo l'insegnamento.
+
+### Regole di consumo di questa coda
+
+1. Una voce per sessione, sonda breve, `LEARN_PROTOCOL.md` per intero.
+2. Nessun documento viene salvato finche' la policy di versione, licenza,
+   volume e invalidazione non e' esplicita. Si salvano competenze, non corpora.
+3. Ogni ratchet nuovo usa membri **held-out** rispetto alla KB persistita, e
+   dopo ogni `/save` si verifica che lo siano ancora.
+4. Un rosso preesistente si annota e non si tocca dentro il ciclo che lo trova.
+5. Se una voce richiede C, il rimedio deve trasferire ad almeno un secondo
+   dominio reale non usato per progettarlo (`LEARN_PROTOCOL.md` §7.2.7).
+6. Un `X > 0` ferma il salvataggio. Le sessioni abortite si riportano lo stesso:
+   cancellare la diagnosi impedisce al prossimo agente di capire quali guardie
+   siano causali.
 
 ---
 

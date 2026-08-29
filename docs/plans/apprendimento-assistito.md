@@ -821,3 +821,87 @@ Il segnale che stiamo davvero convergendo non sarà “conosce più risposte”,
 
 Finché questo ciclo non vale per costruzioni e procedure, la comprensione
 universale è la missione aperta, non un risultato già dichiarabile.
+
+## 14. La scala ha una dimensione che mancava: leggere senza credere
+
+> Aggiunto il 2026-08-29, dal ciclo SC2-B
+> ([report](../labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2b.md),
+> evidenza in [`frontier-kb-natural-dialogue.md` §18.19](frontier-kb-natural-dialogue.md)).
+
+I dieci gradini del §5 misurano **quanta struttura** parrot0 può ricevere
+parlando. SC2-B ha mostrato che quella scala ha un asse implicito, e che l'asse
+era rimasto attaccato al gradino sbagliato:
+
+> per ogni gradino della scala, esiste la domanda separata **«sotto quale
+> origine vale ciò che hai appena capito?»**
+
+Fino a SC2-B ogni facoltà che *leggeva* anche *credeva*, perché analizzare una
+clausola e commettere il fatto che ne esce erano lo stesso corpo di funzione.
+Non era un difetto del lettore documentale: era la forma di tutta la pipeline.
+La conseguenza per l'apprendimento assistito è diretta e sgradevole — un teacher
+non poteva chiedere a parrot0 *come leggeresti questa frase?* senza che la frase
+diventasse conoscenza. Cioè: **non si poteva insegnare a leggere senza insegnare
+a credere**, e quindi non si poteva correggere una lettura sbagliata prima che
+avesse già inquinato la KB.
+
+Con la fase pura questo diventa possibile, ed è il vero sblocco didattico del
+ciclo. Tre atti d'insegnamento che prima non esistevano:
+
+1. **Provare una lettura senza conseguenze.** Il teacher può far analizzare una
+   frase, vedere il candidato, correggerlo e solo dopo decidere se vale.
+2. **Insegnare la differenza fra dire e sostenere.** «Lui sostiene che X»,
+   «supponiamo che X», «l'articolo riporta X» sono origini diverse dello stesso
+   contenuto. Oggi ne esiste una sola implementata (`reported`); le altre sono
+   SC17.
+3. **Insegnare dove finisce una lettura.** La copertura è ora una coordinata:
+   una frase compresa a metà non è più indistinguibile da una compresa. Il
+   teacher può indicare *quale parte* non è stata letta, e quella parte ha uno
+   span.
+
+### 14.1 Il gradino 0 della scala
+
+Il §5 comincia dai membri. In realtà sotto ai membri c'è un gradino che nessuna
+lezione poteva raggiungere:
+
+> **0. origine e copertura:** sotto quale impegno vale questa lettura, e quanta
+> parte della frase ha davvero consumato.
+
+È il gradino che rende *falsificabili* tutti quelli sopra. Un membro insegnato
+male, una costruzione parziale o una procedura con uno slot non legato oggi
+producono un candidato tipato invece di un fatto silenzioso — quindi il teacher
+può vederli e correggerli, e il protocollo può contarli.
+
+### 14.2 Due corollari per il metodo
+
+**Il residuo è il curriculum.** Se ogni frase non compresa lascia un oggetto con
+span, superficie e classe, allora la somma dei residui su un corpus reale *è*
+l'elenco di ciò che va insegnato, ordinato per frequenza. La coda di
+`LEARN_TODO.md` smette di essere solo un'ipotesi nostra e diventa una misura.
+Questo è SC18/SC24 nella seconda coda.
+
+**Ciò che si insegna deve aprire la propria domanda.** SC2-B ha derivato
+«what did the investigators predict?» dalla locuzione insegnata togliendone il
+complementatore, e «observed that» dallo status dichiarato nella politica di
+classe. È la terza volta che il buco del consumatore (gen306) viene chiuso a un
+livello nuovo con la stessa forma. La regola generale, da qui in avanti: **una
+lezione non è completa finché la sua domanda non è derivabile**. Se serve un
+modulo per interrogare ciò che si è appena insegnato, la lezione ha creato un
+fatto morto. Questo è SC20.
+
+### 14.3 Milestone A7 — insegnare una lettura prima di consentirla
+
+Gate minimo, sopra A1-A5:
+
+1. il teacher fa analizzare una frase reale e ottiene un candidato **senza**
+   che la KB cambi;
+2. la lettura sbagliata viene corretta parlando, e la correzione cambia il
+   candidato successivo;
+3. il teacher indica quale parte della frase non è stata letta, e quella parte è
+   localizzabile;
+4. soltanto un atto esplicito promuove il candidato, e ritrarre l'origine
+   spegne esattamente ciò che ne dipendeva;
+5. la stessa sequenza funziona su una seconda origine reale (discorso citato o
+   ipotesi controfattuale) senza un nuovo parser.
+
+A7 non è una milestone di conoscenza: è la milestone che rende *sicuro*
+insegnare tutto il resto.

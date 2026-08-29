@@ -3418,3 +3418,340 @@ SC2-B deve riusare la pipeline semantica dichiarativa comune sul remainder,
 conservare in parallelo la superficie e costruire domande naturali KB-first su
 attribuzione e status. Solo allora SC3 potra' collegare premise e conclusioni
 senza ragionare direttamente su stringhe.
+
+### 18.19 Evidenza SC2-B — la fase pura, e i due zeri che sono diventati numeri
+
+Il ciclo SC2-B del 2026-08-29
+([report](../labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2b.md))
+ha chiuso i due zeri autoritativi lasciati da SC2-A e ha falsificato una terza
+scorciatoia, piu' profonda delle prime due.
+
+**Che cosa era davvero bloccato.** Non mancava un parser. La pipeline semantica
+dichiarativa esisteva gia' — `extract_frame/2`, gli slot, i confini di sintagma
+— ma *analizzare* una clausola e *commettere* il fatto che ne esce erano lo
+stesso corpo di funzione. Nessuno poteva chiedere al motore «come leggeresti
+questa frase?» senza che la frase diventasse conoscenza. Percio' il remainder di
+una claim riportata si poteva conservare come byte e mai normalizzare: l'unico
+modo di normalizzarlo era crederci.
+
+**L'incremento.** La fase pura ha ora un'identita':
+
+```text
+ANALIZZARE una clausola dichiarativa  ->  candidato semantico   (fase pura)
+COMMETTERE quel candidato nel mondo   ->  conoscenza di parrot0 (fase impura)
+```
+
+Il consumer storico usa la stessa funzione, quindi non esistono due legatori di
+schemi. Il lettore la invoca sul remainder e consegna alla KB un candidato con
+**origine** e **copertura**; la decisione non e' del parser:
+
+```prolog
+normalization_origin(reported, quarantine).
+normalization_origin(asserted, world).
+claim_proposition($Claim, proposition(frame($Predicate, $Roles))).
+holds_in(context($Claim), proposition(frame($Predicate, $Roles))).  % vista viva
+```
+
+Misurato: nove proposizioni normalizzate su quattro fonti reali, e
+`/debug shortened` mostra **nessuna clausola**. Il frame vive dentro il contesto
+della claim ed e' invisibile al mondo; «what did DART shorten?» resta un muro,
+che e' la risposta corretta.
+
+**La terza scorciatoia falsificata: una lettura parziale non e' una lettura.**
+`«DART slowed the orbital period of Dimorphos»` si legava a
+`slowed(dart, orbital_period)`. Lo schema combacia, e perde **di chi** sia il
+periodo. Nella chat quella perdita esisteva da sempre senza che nessuno la
+vedesse; su una claim riportata e' peggio, perche' la verifica di status
+confronta *frame con frame* e due proposizioni su due oggetti diversi
+collasserebbero nella stessa. Un `Yes` cosi' e' peggio di un muro.
+
+La correzione non e' una condizione cablata. La fase pura riporta quanto della
+frase ha consumato, e la soglia e' una policy:
+
+```prolog
+normalization_extent_policy($Origin, covered($N), of($M), normalized) :-
+    normalization_origin($Origin, quarantine), eq($N, $M).
+normalization_extent_policy($Origin, covered($N), of($M), partial) :-
+    normalization_origin($Origin, quarantine), lt($N, $M).
+```
+
+Coordinazione e complemento pendente diventano quindi `gap(partial_reading)`
+tipati, con la superficie intera e nessuna risposta inventata.
+
+**La domanda non e' una seconda lezione.** `claim_question_evidence/2` deriva
+`«what did the investigators predict?»` dalla locuzione insegnata togliendone il
+complementatore; `claim_status_question_evidence/2` deriva `«observed that»`
+dallo status dichiarato nella politica di classe. Chi insegna un marker nuovo
+apre insieme la sua porta interrogativa, senza dire una seconda frase.
+
+**Risultato misurato.** `Transfer@3=3/3` su NASA/GMD/WHO/PRL,
+`ContrastPrecision=3/3`, ablation e reteach `1/1`, `Retention=pass`,
+`FreshProcessRecall=7/7`, `QuestionAnswerCoverage` da `0/3` a `3/3`,
+`NormalizedClaimCoverage=9/9` a copertura piena e `0/2` a copertura parziale —
+**rifiutate per politica** — con `WorldCommitLeak=0`. Save:
+`W=0, L=5, C=0, P=5, O=15, X=0, S=25`, `B1-B0=25`, `R1=R0`.
+
+**Che cosa questo ciclo insegna al piano.** Le tre osservazioni che seguono non
+riguardano i documenti: riguardano il motore, e sono la sorgente delle ipotesi
+D13-D20.
+
+1. L'accoppiamento fra lettura e credenza non era un difetto del lettore
+   documentale: era ovunque. Ogni facolta' che legge ha sempre creduto per il
+   fatto stesso di aver capito.
+2. Una lettura che combacia parzialmente e' indistinguibile, dall'esterno, da
+   una lettura completa — a meno che la copertura non esca dalla funzione. Il
+   residuo non letto e' l'informazione piu' preziosa che il sistema buttava via.
+3. La porta interrogativa di una conoscenza e' derivabile dalla conoscenza
+   stessa. Dove non lo e', quel «dove» e' misurabile e nominabile.
+
+### 18.20 Ipotesi D13-D20: purezza, copertura, spazio logico e curriculum
+
+D1-D12 descrivono che cosa un documento *contiene*. Le otto ipotesi seguenti
+descrivono come un lettore puo' contenerlo **senza mentire a se' stesso**, e
+nascono da fallimenti misurati in SC0-SC2B, non da un'analogia con gli LLM.
+
+#### 18.20.1 Ipotesi D13 — l'origine e' un parametro di ogni inferenza
+
+SC2-B ha reso pura *una* lettura. L'ipotesi e' che la separazione sia una legge
+generale: ogni inferenza di parrot0 dovrebbe poter girare sotto un'origine
+dichiarata, e l'origine — non l'inferenza — decide il commitment.
+
+```prolog
+inference_origin($Origin, $Commitment).      % world | quarantine | simulated
+inference_under($Origin, $Goal, $Result).
+origin_visible_from($Inner, $Outer).
+origin_collapse($Inner, $Outer, $Policy).    % quando un risultato risale
+```
+
+Le origini candidate sono gia' tutte presenti nel sistema come casi speciali
+sparsi: la claim riportata (SC2-B), il discorso citato, l'ipotesi controfattuale
+(«supponiamo che…»), la simulazione di un piano, il sogno, la sonda di
+autocorrezione e la lettura di codice non fidato. Oggi ognuna ha o non ha la
+propria quarantena; nessuna la condivide.
+
+**Predizione falsificabile.** Lo stesso operatore puro deve servire almeno tre
+di queste origini senza aggiungere un parser, e ritrarre un'origine deve
+eliminare esattamente i risultati che dipendevano da essa, non di piu' e non di
+meno. Se una sola origine richiede un ramo di C dedicato, l'ipotesi e' falsa.
+
+**Non-obiettivo.** Non e' un sistema di livelli di confidenza. Un'origine non
+dice quanto un fatto sia probabile: dice **chi lo sostiene e dove vale**.
+
+#### 18.20.2 Ipotesi D14 — la comprensione si misura in copertura, e il residuo e' un oggetto
+
+Una lettura che consuma metà della frase e ne restituisce un frame pulito e' la
+forma piu' pericolosa di incomprensione, perche' e' indistinguibile dal
+successo. L'ipotesi e' che ogni lettura debba dichiarare la propria copertura e
+**reificare il residuo non letto**, invece di lasciarlo cadere.
+
+```prolog
+reading_extent($Reading, covered($N), of($M)).
+reading_residue($Reading, span($Start, $Length), $Surface).
+residue_kind($Residue, $Kind).       % coordination | negation | modality | apposition | reference
+residue_blocks($Residue, $Consumer).
+coverage_policy($Origin, $Threshold, $Verdict).
+```
+
+La conseguenza forte non e' l'onesta': e' che **il residuo diventa un'agenda**.
+Se ogni frase non compresa lascia un oggetto tipato invece di un silenzio, la
+somma dei residui e' un censimento di che cosa parrot0 non sa ancora leggere,
+ordinabile per frequenza e per quanti consumer sblocca.
+
+**Predizione falsificabile.** Su un corpus reale, i residui devono raggrupparsi
+in poche classi ricorrenti (coordinazione, modalita', negazione, riferimento) e
+insegnare **una** di quelle classi deve abbassare la frequenza dell'intera
+classe, non del solo esempio. Se i residui restano una polvere di casi unici,
+l'ipotesi e' falsa e la lettura non e' compositiva.
+
+#### 18.20.3 Ipotesi D15 — ogni conoscenza apre per costruzione la propria porta interrogativa
+
+Il «buco del consumatore» (gen306) e' stato chiuso tre volte a tre livelli
+diversi: il verbo di relazione, il frame ternario, e ora la claim riportata.
+Tre volte la stessa forma: cio' che si puo' dire deve poter essere chiesto, e la
+forma della domanda si **deriva** dalla forma dell'asserzione.
+
+```prolog
+assertion_form($Relation, $Pattern).
+interrogative_transform($Language, $Pattern, $QuestionPattern).
+interrogative_closure($Relation, open | missing($Reason)).
+```
+
+L'ipotesi e' che la derivazione sia un'operazione di lingua — spostamento del
+gap, caduta del complementatore, inversione dell'ausiliare — e quindi conoscenza
+KB, non un consumer per classe.
+
+**Predizione falsificabile.** Una metrica `InterrogativeClosure` sul totale
+delle relazioni insegnabili deve poter salire aggiungendo **trasformazioni**, non
+consumer. Se chiudere una nuova classe richiede sempre un modulo, la derivazione
+non esiste e la chiusura e' un aneddoto ripetuto.
+
+#### 18.20.4 Ipotesi D16 — comprendere e' collocare in una regione, non tradurre in un punto
+
+D6 introduce modelli e contromodelli. L'ipotesi D16 e' piu' forte e piu'
+scomoda: un testo non denota **un** modello, denota la **regione** dei modelli
+compatibili con esso, e la precisione della comprensione e' l'ampiezza di quella
+regione. Un testo vago non e' un testo mal letto: e' un testo che vincola poco.
+
+```prolog
+reading_region($Text, $ConstraintSet).
+region_refines($RegionA, $RegionB).
+region_incomparable($RegionA, $RegionB).
+constraint_narrows($Constraint, $Region, $Narrower).
+question_gain($Question, $Region, $ExpectedNarrowing).
+region_empty($Region, $Contradiction).
+```
+
+Da qui discende una definizione **operativa** di buona domanda, che oggi manca:
+la domanda migliore non e' quella che nomina il gap piu' grande, e' quella che
+restringe di piu' la regione. E una definizione operativa di contraddizione: la
+regione vuota, cioe' nessun modello soddisfa insieme i vincoli del testo.
+
+**Predizione falsificabile.** Dati due chiarimenti possibili su uno stesso
+paragrafo ambiguo, il sistema deve scegliere quello con `question_gain`
+maggiore e la scelta deve coincidere con quella di un lettore esperto in una
+maggioranza di casi misurati. Se la scelta e' indistinguibile dal caso, la
+nozione di regione non sta facendo lavoro.
+
+**Rapporto con la latenza.** La regione non va enumerata. Si rappresenta per
+vincoli e si confronta per raffinamento; l'enumerazione resta bounded e il suo
+esito insufficiente e' `incomplete`, mai «nessun modello».
+
+#### 18.20.5 Ipotesi D17 — il testo ha un mittente, e il mittente e' modellabile
+
+D1-D12 modellano il documento. Ma la prosa complessa e' scritta da un agente con
+un obiettivo: convincere, cautelarsi, anticipare un'obiezione, concedere il
+minimo necessario. Molte strutture che sembrano rumore retorico sono **mosse**.
+
+```prolog
+author_goal($Document, $Goal).
+concession($Document, $Claim, $ConcededTo).
+hedge_purpose($Span, $Purpose).          % scope limitato | incertezza | cortesia | difesa
+anticipated_objection($Document, $Objection, $Response).
+emphasis_asymmetry($Document, $Claim, $Support).
+```
+
+**Predizione falsificabile.** Su un articolo held-out il sistema deve poter
+rispondere a «che cosa vuole farmi credere questo testo, e che cosa concede?»
+senza produrre un riassunto, e la sua risposta deve cambiare se si ritrae la
+classe di una singola locuzione concessiva. Se cambia solo la lunghezza
+dell'output, il modello del mittente non esiste.
+
+**Guardia anti-inganno.** Modellare l'intenzione dell'autore non autorizza a
+dichiararla provata. `author_goal` e' una lettura attribuita come qualunque
+altra claim, sotto la disciplina D2 e D13.
+
+#### 18.20.6 Ipotesi D18 — una procedura e' un riferimento risolvibile, non un blocco chiuso
+
+D5 tratta la procedura come proof obligation. In letteratura scientifica reale
+un metodo e' quasi sempre **composizione per riferimento**: «seguendo il
+protocollo di [12], con la modifica seguente». Una procedura che finge di essere
+completa e' un misclaim sull'eseguibilita'.
+
+```prolog
+procedure_step($Procedure, $Index, $Step).
+procedure_reference($Step, $Source).
+reference_resolution($Source, resolved($Procedure) | unavailable($Reason)).
+step_modification($Step, $Base, $Delta).
+procedure_executable($Procedure, yes | blocked($Step)).
+```
+
+**Predizione falsificabile.** Su un metodo che delega, il sistema deve dire
+**quale passo** delega e a quale fonte, e deve dichiararsi `blocked` invece di
+eseguire. Fornendo la fonte mancante, lo stesso metodo deve diventare
+eseguibile senza reinsegnare i passi gia' noti.
+
+#### 18.20.7 Ipotesi D19 — la comprensione e' un reticolo monotono con livelli nominabili
+
+SC2-B ha dovuto tenere separate quattro metriche (superficie, normalizzata,
+parziale rifiutata, precisione di status) perche' confonderle avrebbe scambiato
+un buon envelope per comprensione. L'ipotesi e' che quella separazione sia
+strutturale e vada resa un **tipo**: ogni livello e' nominabile, i livelli sono
+ordinati, e ogni consumer dichiara il livello minimo che gli serve.
+
+```prolog
+comprehension_level($Level, $Rank).      % observed < surface < normalized < grounded < modelled
+reading_level($Reading, $Level).
+consumer_requires($Consumer, $Level).
+level_sufficient($Reading, $Consumer).
+level_downgrade($Reading, $Level, $Reason).
+```
+
+Un consumer che pretende `normalized` deve declinare su `surface`, e la
+declinazione deve nominare il livello mancante. La monotonia e' il vincolo che
+rende il reticolo utile: ritrarre conoscenza puo' abbassare un livello, mai
+alzarlo, e abbassare un livello deve spegnere esattamente i consumer che lo
+pretendevano.
+
+**Predizione falsificabile.** Introducendo un consumer nuovo, deve bastare
+dichiarare il suo livello minimo perche' rifiuti automaticamente gli input
+insufficienti. Se serve una guardia scritta a mano per ogni consumer, il
+reticolo e' decorativo.
+
+#### 18.20.8 Ipotesi D20 — un gap ricorrente e' una richiesta di lezione
+
+Chiusura del cerchio con D9, D10, D14 e con il protocollo `needhelp`. Se i
+residui sono oggetti tipati (D14) e i livelli sono nominabili (D19), allora
+parrot0 puo' fare l'unica cosa che oggi fa soltanto il teacher: **accorgersi di
+che cosa gli manca e chiedere la lezione giusta, in lingua naturale**.
+
+```prolog
+gap_frequency($Kind, $Count, $Window).
+gap_fanout($Kind, $BlockedConsumers).
+lesson_request($Kind, $NaturalFormulation, $ExampleSpan).
+lesson_accepted($Request, $TaughtForm).
+lesson_effect($Request, $BeforeCoverage, $AfterCoverage).
+```
+
+Il punto non e' che parrot0 chieda aiuto: e' che formuli **la lezione**, con un
+esempio reale preso dal proprio residuo, cosi' che il teacher debba solo
+confermarla o correggerla. E che l'effetto della lezione sia misurato sulla
+copertura, non sul singolo prompt.
+
+**Predizione falsificabile.** Dopo la lettura di un corpus reale, la lezione che
+parrot0 chiede per prima deve essere quella che, insegnata, produce
+l'incremento di copertura maggiore fra quelle candidate. Se l'ordine delle sue
+richieste e' scorrelato dal guadagno misurato, non sta metacomprendendo: sta
+elencando errori.
+
+**Guardia.** Una lezione richiesta non e' una lezione ricevuta. `lesson_request`
+non autorizza nessuna auto-promozione: resta una domanda finche' un teacher non
+risponde parlando, sotto `LEARN_PROTOCOL.md`.
+
+### 18.21 Ordine sperimentale esteso e gate
+
+Le otto ipotesi non hanno pari dipendenza. L'ordine e' obbligato:
+
+1. **D13 e D14 per primi.** Sono gia' meta' costruiti da SC2-B e sono
+   precondizione di tutto il resto: senza origine esplicita non si puo' leggere
+   senza credere, e senza residuo tipato non c'e' niente da contare.
+2. **D19 subito dopo.** Nominare i livelli e' cio' che impedisce a D16-D18 di
+   dichiarare comprensione quando hanno soltanto superficie.
+3. **D15.** La chiusura interrogativa e' l'unico modo di *misurare* se un
+   livello nuovo e' davvero utilizzabile e non soltanto memorizzato.
+4. **D16.** La regione e il guadagno di una domanda; poggia su D6 e su D19.
+5. **D17 e D18** in parallelo: mittente e procedure per riferimento sono
+   indipendenti fra loro e dipendono da D2/D5 gia' esistenti.
+6. **D20 per ultimo**, perche' e' l'unica che chiude su se stessa: richiede
+   residui (D14), livelli (D19) e regione (D16) per poter ordinare le proprie
+   richieste per guadagno.
+
+Gate aggiuntivi rispetto al §18.15, tutti su documenti mai usati per costruirli:
+
+13. nessuna lettura produce conoscenza del mondo se la sua origine non lo
+    autorizza, e ritrarre l'origine spegne esattamente cio' che ne dipendeva;
+14. ogni frase non compresa lascia un residuo tipato e localizzabile, e i
+    residui si raggruppano in classi che una lezione sola riduce;
+15. una relazione insegnabile e' interrogabile per derivazione, non per modulo;
+16. fra due chiarimenti il sistema sceglie quello che restringe di piu', e sa
+    dire perche';
+17. tesi e concessioni dell'autore sono distinte dalle proposizioni del testo;
+18. una procedura che delega si dichiara bloccata e nomina il passo;
+19. nessuna risposta e' costruita a un livello di comprensione piu' alto di
+    quello effettivamente raggiunto;
+20. la prima lezione richiesta da parrot0 e' quella con il guadagno di copertura
+    maggiore, e il guadagno viene misurato dopo.
+
+Il non-obiettivo resta quello del §18.15, rafforzato: non si cerca un lettore
+che *sembri* capire di piu'. Si cerca un lettore che sappia **dove finisce** cio'
+che ha capito, e che sappia chiedere la frase esatta che lo farebbe finire piu'
+in la'.
