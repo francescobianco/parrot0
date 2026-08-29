@@ -3755,3 +3755,116 @@ Il non-obiettivo resta quello del §18.15, rafforzato: non si cerca un lettore
 che *sembri* capire di piu'. Si cerca un lettore che sappia **dove finisce** cio'
 che ha capito, e che sappia chiedere la frase esatta che lo farebbe finire piu'
 in la'.
+
+### 18.22 Evidenza SC2-C/SC2-D — due muri caduti, due nuovi confini nominati
+
+I cicli SC2-C e SC2-D del 2026-08-29
+([SC2-C](../labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2c.md),
+[SC2-D](../labs/apprendimento-assistito/2026-08-29-supercomprensione-sc2d.md))
+hanno chiuso l'equivalenza attivo/passivo, il residuo tipato, la prova
+pronunciata e la modalita'. Tre risultati meritano di stare nel piano perche'
+cambiano il modello, non soltanto il punteggio.
+
+**Il misclaim che non somiglia a un errore.** Prima di SC2-D, «a kinetic
+impactor CAN shorten an asteroid orbit» produceva
+`shorten(kinetic_impactor_can, asteroid_orbit)`. Il modale non faceva fallire la
+lettura: veniva inghiottito nel sintagma del soggetto, e la claim usciva come se
+il testo affermasse che la cosa succede, attribuita a un ente inesistente.
+Questo e' peggio di un muro e peggio di un gap, e SC2-C lo aveva classificato
+come residuo soltanto perche' nessun verbo di quella famiglia era insegnato.
+**Un residuo tipato puo' nascondere un misclaim latente**: appena la KB cresce,
+la stessa frase smette di fermarsi e comincia a mentire. Corollario operativo:
+ogni classe di residuo va riesaminata quando la KB che la circonda cresce.
+
+**Il passivo non era un problema di superficie.** Non si e' potuto leggere
+finche' il legatore di schemi buttava via la lettera dopo `@`, cioe' finche'
+l'ordine degli argomenti era l'ordine delle parole. Lo stesso bug faceva
+produrre silenziosamente fatti scambiati alla costruzione spedita
+`construction_frame("@O is home to @S", …)`. Una capacita' che sembrava
+linguistica era una coordinata mancante nella rappresentazione.
+
+**La derivazione ha un costo, e il costo ha cambiato il confine.** Derivare la
+radice verbale (`improved` -> `improve`) e' la mossa KB-first giusta e ha portato
+un turno di inferenza da meno di un secondo a 1,85 s, sopra il budget. Non per il
+numero di schemi: per il costo di **ricostruirli** a ogni turno. La forma nuda di
+un verbo al passato e' quindi tornata a essere una lezione. E' la prima volta in
+questa serie che un limite di performance decide dove passa il confine fra
+derivare e insegnare, e non e' un dettaglio di implementazione: e' l'ipotesi D21.
+
+### 18.23 Ipotesi D21 — dove una conoscenza viene calcolata e' conoscenza
+
+Il piano ha sempre trattato «derivare» come strettamente migliore di
+«memorizzare»: una regola che genera cento schemi vale piu' di cento fatti,
+perche' il centounesimo arriva gratis. SC2-D ha misurato il rovescio. Una regola
+che ricostruisce le proprie conclusioni **dentro un'enumerazione calda** paga il
+costo a ogni turno, e oltre una soglia la capacita' esiste ma non e'
+utilizzabile — che, per un sistema conversazionale, e' indistinguibile dal non
+averla.
+
+L'ipotesi e' che il punto di calcolo debba diventare una coordinata dichiarata,
+non una conseguenza accidentale di come una regola e' stata scritta:
+
+```prolog
+derivation_policy($Relation, recomputed | materialized_on_learn | materialized_on_boot).
+derivation_cost($Relation, $Observed).
+derivation_trigger($Relation, $Event).      % quale atto rimaterializza
+materialized_from($Fact, $Rule, $Source).   % genealogia, per poter ritrattare
+stale_derivation($Relation, $Reason).
+```
+
+Il vincolo che rende l'ipotesi non banale: **materializzare non deve rompere la
+ritrattabilita'**. Un fatto materializzato porta la genealogia della regola che
+lo ha prodotto, quindi ritrarre la regola o la sua premessa lo elimina — se no si
+e' comprata latenza vendendo la proprieta' piu' importante del sistema.
+
+**Predizione falsificabile.** Spostare una relazione da `recomputed` a
+`materialized_on_learn` deve (a) riportare il turno dentro il budget, (b) non
+cambiare nessuna risposta, (c) conservare l'ablation: ritrarre la premessa deve
+spegnere esattamente le stesse conclusioni di prima. Se una delle tre non vale,
+la materializzazione non e' una politica ma un'ottimizzazione, e va rifiutata.
+
+**Non-obiettivo.** Non e' una cache. Una cache e' invisibile alla conoscenza e si
+invalida da sola; qui il punto e' che *dove* una conclusione vive sia una
+decisione ispezionabile e correggibile come tutte le altre.
+
+### 18.24 Ipotesi D22 — una collisione di dispatch e' un fatto osservabile
+
+Tre lezioni di questa serie sono state intercettate da moduli precedenti, e in
+tutti e tre i casi parrot0 non ha potuto dirlo:
+
+```text
+was it hypothesized that a causal CLAIM must survive confounding?
+  -> «I don't have the claim you mean» — un modulo agganciato alla parola «claim»
+SHALL is a necessity marker      -> muro
+KNOWN is an irregular participle -> muro
+```
+
+Dall'esterno sono indistinguibili da «non lo so». Dall'interno sono un'altra
+cosa: **qualcuno ha risposto al posto di chi doveva**. Il dispatch a primo-match
+e' deliberato e va conservato (`PRINCIPLES.md`, corollario sulle strutture
+secondarie), ma oggi e' l'unico strato del sistema che non lascia traccia.
+
+```prolog
+turn_claimed_by($Turn, $Module, $Evidence).
+turn_declined_by($Turn, $Module, $Reason).
+dispatch_collision($Turn, $Winner, $Contender, $Overlap).
+collision_frequency($Winner, $Contender, $Count).
+collision_remedy($Collision, $Guard).
+```
+
+L'ipotesi e' che la collisione sia **tipizzabile come un residuo** (D14): non un
+bug da inseguire uno alla volta, ma una classe da contare e ordinare. Il mantra
+#14 chiede gia' che ogni collisione diventi una guardia insegnabile; qui si
+aggiunge il gradino che manca — per scrivere la guardia bisogna prima poter
+**vedere** la collisione, e oggi la si scopre solo per caso, isolandola a mano.
+
+**Predizione falsificabile.** Registrando chi ha preso ogni turno, le collisioni
+osservate su un corpus reale devono concentrarsi su poche coppie di moduli e su
+poche parole comuni. Se sono distribuite uniformemente, non c'e' una classe da
+motorizzare e l'ipotesi e' falsa. E il segnale forte: parrot0 deve poter
+rispondere «quel turno l'ha preso un altro modulo per via di questa parola»
+invece di «non lo so», che e' l'unica risposta che oggi sa dare.
+
+**Guardia.** Osservare il dispatch non autorizza a riordinarlo automaticamente.
+Il riordino resta una decisione umana o una guardia insegnata; la traccia serve a
+renderla informata, non a sostituirla.
