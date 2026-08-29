@@ -1,0 +1,75 @@
+# taught_cue_ladder.p0t — insegnare una cue parlando, e dove la strada dei
+# moduli finisce.
+#
+# F.: «tramite interlocuzione dovrebbe essere possibile alterare i cue dei vari
+# moduli in modo naturale — "quando ti dico helyla, ti sto salutando" — e questo
+# dovrebbe agire sul modulo sociale. Al tempo stesso lavorare sui moduli non
+# deve essere il come parrot0 migliora la sua comprensione: la strada principale
+# e' universal-input e universal-comprehension.»
+#
+# Questo cricchetto tiene ferme le due meta' della stessa misura:
+#
+#   1. l'ATTO didattico funziona gia', e l'effetto e' immediato;
+#   2. l'effetto si perde quando un modulo registrato prima rivendica il turno
+#      per una ragione strutturale — e li' la cura NON e' riordinare il
+#      registry, perche' la parola successiva incontrerebbe il modulo
+#      successivo.
+#
+# Vedi docs/plans/frontier-kb-natural-dialogue.md §18.31 e ipotesi D28.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test una cue sociale insegnata parlando vale dal turno dopo]
+!timeout 60
+# PRIMA: la locuzione non significa niente.
+> helyla friend
+<! I'm here
+# LA LEZIONE, nella forma che il registro `learnable/3` dichiara.
+> learn "helyla friend" as a casual opener
+<~ I'll take «helyla friend» as a way to a casual opener
+!query intent_cue(casual, "helyla friend")
+# DOPO: il turno cambia comportamento, senza ricompilare.
+> helyla friend
+<~ I'm here
+# E QUI IL CONTRATTO SI ROMPE. `AGENTS.md` chiede che ritrattare una cue tolga
+# il riconoscimento; per questa classe non esiste una frase che lo faccia,
+# perche' ogni frase che NOMINA la locuzione la CONTIENE, e una cue `substring`
+# si accende dentro la frase che prova a ritrattarla.
+> forget "helyla friend" as a casual opener
+<~ I'm here
+> stop treating "helyla friend" as a casual opener
+<~ I'm here
+# E il tentativo che sfugge alla cue produce un fatto FALSO sul verbo stesso —
+# la specie che SC2-A aveva gia' dovuto guardare su un altro percorso
+# (`hypothesis_report_marker(forget)`), qui riaperta perche' la guardia e'
+# locale a quel percorso invece di essere un invariante.
+> forget that the phrase "helyla friend" is a casual opener
+< Learned: casual_opener(forget).
+!query casual_opener(forget)
+# La cue e' ancora viva: nessuna delle tre frasi l'ha tolta.
+!query intent_cue(casual, "helyla friend")
+
+[test il limite: un modulo registrato prima rivendica il turno per struttura]
+!timeout 60
+# Stessa lezione, stessa classe, un solo token. L'atto didattico riesce
+# identico: il fatto entra nella KB.
+> learn "helyla" as a casual opener
+<~ I'll take «helyla» as a way to a casual opener
+!query intent_cue(casual, "helyla")
+# Ma il turno NON cambia: `mod_lone` classifica un token solo prima del sociale,
+# per una ragione strutturale documentata nel registry (gen426), non per un
+# difetto della lezione.
+> helyla
+<! I'm here
+> who answered?
+<~ 'lone' module
+# LA MISURA CHE CONTA: la cue e' viva e non ha titolo. Il rimedio giusto non e'
+# spostare `lone` — sarebbe rimandare il problema alla parola dopo — ma far si'
+# che il ruolo del turno decida chi ha titolo (universal-input, D26/D27).
+!query intent_cue(casual, "helyla")

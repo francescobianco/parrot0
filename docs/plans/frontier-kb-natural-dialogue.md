@@ -4202,3 +4202,163 @@ il problema non era lo scope.
 *quali* facolta' hanno titolo su questo turno, D27 dice *dove* dentro il turno
 una cue puo' guardare. Una sola delle due lascia meta' della classe aperta —
 ed e' esattamente la ragione per cui F. le ha nominate insieme.
+
+### 18.31 Insegnare una cue parlando: dove funziona, e dove la strada dei moduli finisce
+
+> **Nota di F., 2026-08-29.** «Tramite interlocuzione dovrebbe essere possibile
+> alterare i cue dei vari moduli in modo naturale — *"quando ti dico helyla, ti
+> sto salutando"* — e questo dovrebbe agire sul modulo sociale. Al tempo stesso:
+> **lavorare sui moduli non deve essere il come parrot0 migliora la sua
+> comprensione.** La strada principale e' quella di universal-input e universal
+> comprehension, cioe' questo documento.»
+
+Le due meta' della nota non sono in tensione: sono la stessa misura vista da due
+lati, e misurarla ha prodotto tre risultati, uno buono e due gravi.
+
+#### 1. L'atto didattico esiste gia' e funziona
+
+```text
+> helyla friend
+< I have nothing on helyla …
+> learn "helyla friend" as a casual opener
+< Got it - I'll take «helyla friend» as a way to a casual opener now.
+> helyla friend
+< Hey! I'm here. Ask me something, or tell me about your day?
+> who answered?
+< The 'chitchat' module answered your last question.
+```
+
+Nessuna ricompilazione, effetto dal turno successivo. Il registro `learnable/3`
+(`kb/core/intents.p0`) dichiara **oltre cento** etichette naturali di questo
+tipo, e il teacher deve conoscere l'etichetta, non il predicato: «a casual
+opener», «a sign of tiredness», «another way to ask», «un altro modo per
+introdurre». Questo pezzo del desiderio di F. e' gia' vero.
+
+#### 2. Ma un token solo non ottiene mai titolo
+
+```text
+> learn "helyla" as a casual opener
+< Got it - I'll take «helyla» as a way to a casual opener now.
+!query intent_cue(casual, "helyla")        -> VERO, la cue e' viva
+> helyla
+< I have nothing on helyla — could you say what you mean by it?
+> who answered?
+< The 'lone' module answered your last question.
+```
+
+La lezione e' entrata, la cue e' viva, e non conta niente: `mod_lone` classifica
+un turno di un token solo **prima** del sociale, per una ragione strutturale
+documentata nel registry al gen426. Nessuno ha sbagliato — e proprio per questo
+il caso e' istruttivo.
+
+La tentazione, qui, e' spostare `lone` piu' in basso. E' la strada dei moduli, e
+non e' una strada: la parola successiva incontrerebbe il modulo successivo, e si
+pagherebbe la stessa tassa un'altra volta. La cura giusta e' che il **ruolo del
+turno** decida chi ha titolo (D26) e che una cue guardi **dentro il proprio
+ruolo** (D27) — cioe' esattamente universal-input.
+
+#### 3. E la cue insegnata non e' ritrattabile: si mangia la frase che la ritratta
+
+Questo e' il risultato che rende la nota di F. non un'opinione di stile ma un
+vincolo di rilascio. `AGENTS.md` chiede, come condizione di conformita' KB-first:
+
+> asserting a new cue must change recognition without rebuilding, and
+> **retracting/ablating the cue must remove that recognition**.
+
+Per questa classe la seconda meta' **non e' esprimibile**:
+
+```text
+> forget "helyla friend" as a casual opener
+< Hey! I'm here. …            ← la cue si e' accesa dentro il proprio retract
+> stop treating "helyla friend" as a casual opener
+< Hey! I'm here. …            ← idem
+> forget that the phrase "helyla friend" is a casual opener
+< Learned: casual_opener(forget).   ← un fatto FALSO sul verbo stesso
+```
+
+Ogni frase che **nomina** la locuzione la **contiene**, e una cue `substring` non
+distingue le due cose. L'unica frase che sfugge alla cue finisce per insegnare
+che «forget» e' un attacco informale — la stessa specie di
+`hypothesis_report_marker(forget)` che SC2-A aveva gia' dovuto guardare a mano su
+un altro percorso, riaperta qui perche' quella guardia e' **locale a quel
+percorso** invece di essere un invariante.
+
+Tre percorsi, tre volte lo stesso principio violato, ed e' quello del §18.27:
+**cio' che e' menzionato non partecipa alla lingua che lo menziona.** La retract
+non e' un caso d'angolo del vocabolario: e' il posto dove la sua assenza rende
+il sistema non conforme al proprio contratto.
+
+#### La scala della cue, per moduli sempre piu' complessi
+
+F. chiede di allargare l'esempio ai moduli complessi. Allargandolo si vede che
+«cue» significa cose diverse man mano che si sale, e che il progetto le ha gia'
+rese insegnabili quasi tutte:
+
+| gradino | che cos'e' la «cue» | relazione | insegnabile oggi |
+|---|---|---|---|
+| 1 | superficie -> **intento** | `intent_cue/2`, `intent_phrase/2` | si' (gen211/213) |
+| 2 | superficie -> **relazione** | `answer_frame/2`, `relation_verb/1` | si' (gen429) |
+| 3 | superficie -> **ruolo di span** | `segment_role/2` | si' |
+| 4 | superficie -> **costruzione con ruoli** | `construction_frame/3` | si' (A1) |
+| 5 | superficie -> **classe con politica** (status, attribuzione, extent) | `hypothesis_report_marker/1` + `claim_marker_class/4` | si' (SC2-A) |
+| 6 | superficie -> **operatore con forza** | `necessity_marker/1` + `modal_force/2` | si' (SC2-D) |
+| 7 | superficie -> **relazione fra unita' con direzione** | `consequence_connector/1` + `argument_relation/2` | si' (SC3) |
+| 8 | superficie -> **passo, precondizione, criterio d'arresto** | — | **no** (SC5) |
+| 9 | superficie -> **contratto** (quale oracolo, quale permesso) | `faculty_for/2` esiste, i membri non si insegnano | **no** |
+
+La riga che conta non e' quali gradini mancano: e' **perche' i sette che
+funzionano funzionano**. In tutti e sette, cio' che si insegna non e' «un
+comportamento a un modulo»: e' **un membro di una classe dichiarata che un
+motore generico gia' consuma**. La classe porta la propria politica in KB
+(`claim_marker_class/4`, `modal_force/2`, `argument_relation/2`) e il consumatore
+non nomina nessuna superficie.
+
+Dove questo e' vero, insegnare parlando funziona e l'ordine dei moduli non
+serve. Dove non e' vero — gradini 8 e 9 — si e' tentati di far imparare al
+modulo le proprie cue, e li' comincia il frasario.
+
+#### Il test che separa le due strade
+
+Prima di aprire un'attivita' su un modulo, una domanda sola:
+
+> **la classe esiste, e un motore generico la legge?**
+>
+> Se si', la lezione entra parlando e non c'e' niente da fare al modulo.
+> Se no, il lavoro non e' insegnare al modulo: e' **creare la classe** e dare al
+> lettore universale un consumatore che la legga.
+
+Il caso `helyla` a un token e' la controprova: la classe esiste, la lezione e'
+entrata, e il modulo non e' il problema — il problema e' che il **titolo** a
+rispondere non passa da nessuna classe.
+
+### 18.32 Ipotesi D28 — insegnare una cue e' insegnare un membro, mai un comportamento
+
+Le due meta' della nota di F. si compongono in un'ipotesi verificabile:
+
+> ogni atto didattico su una superficie deve poter essere espresso come
+> **`classe(membro)`**, con la politica della classe in KB e un consumatore
+> generico che la legge. Un atto che richiede di toccare un modulo — il suo
+> codice, o la sua posizione nel registry — e' la prova che manca una classe.
+
+```prolog
+teachable_class($Class, $Policy, $Consumer).
+class_consumer_generic($Class).                  % nessuna superficie nel C
+taught_member_effective($Class, $Member, $Turn).  % ha davvero cambiato il turno
+taught_member_retractable($Class, $Member).       % e si e' potuto togliere
+module_order_independent($Class).                 % senza toccare il registry
+```
+
+**Predizione falsificabile.** Per ognuno dei sette gradini gia' aperti, un
+membro nuovo insegnato a voce deve (a) cambiare il turno successivo, (b) essere
+ritrattabile a voce, (c) senza spostare nulla nel registry. Oggi il gradino 1
+fallisce (b) — e (a) per i turni di un token solo. Se chiudere quei due casi
+richiede una guardia in `mod_lone` o in `mod_forget`, l'ipotesi e' falsa e la
+strada dei moduli e' inevitabile; se si chiudono con ruolo e scope
+(D26/D27), e' confermata.
+
+**Non-obiettivo.** L'ipotesi non dice che i moduli siano un male: la precedenza
+a primo-match e la ridondanza restano un valore (`PRINCIPLES.md`). Dice che i
+moduli sono **esecutori**, non il luogo dove la comprensione cresce. La
+comprensione cresce dove crescono le classi e i loro consumatori generici —
+cioe' lungo la catena di questo documento: span, ruolo, frame, evidenza,
+registro, claim, argomento.
