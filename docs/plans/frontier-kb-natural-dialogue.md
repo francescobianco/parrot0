@@ -4473,3 +4473,95 @@ quasi sempre esiste la stessa correzione scritta come politica, ed e' migliore
 per tre ragioni misurate oggi: non cancella la strada vecchia
 (`PRINCIPLES.md`), la rende ritrattabile nello stesso turno, e non rimanda il
 problema alla parola successiva.
+
+### 18.35 Ipotesi D31 — una facoltà nuova è quasi sempre una classe nuova
+
+SC5 sembrava una facolta': *leggere un metodo* — passi, precondizioni, criteri
+d'arresto, eseguibilita'. La coda del piano la teneva accanto a SC3 e SC4 come
+un fronte suo, e il gradino 8 della scala della cue (§18.31) la dava per
+**chiusa a nessuno**.
+
+E' costata **tre righe di `claim_marker_class/4`** e una vista.
+
+Il motivo e' che un passo di metodo non e' un oggetto nuovo: «We then heat the
+mixture» dice che gli autori **descrivono** di aver scaldato, esattamente come
+«the data show that …» dice che i dati mostrano. Cambia lo status — `described`
+invece di `observed` — e cambia il contesto, `reported_method` invece di
+`reported_belief`. Tutto il resto era gia' li': scorer universale, span,
+remainder, normalizzazione in quarantena con la disciplina di copertura,
+provenienza, prova pronunciata, retract, reteach.
+
+L'ipotesi generalizza:
+
+> quando un fronte sembra richiedere una facolta' nuova, la domanda prima e':
+> **di quale classe gia' consumata e' un membro?** Una facolta' vera e' quella
+> che sopravvive a questa domanda.
+
+```prolog
+faculty_reduces_to($Faculty, $Class, $Policy).
+faculty_irreducible($Faculty, $Reason).
+class_policy_axis($Class, $Axis, $Value).   % status, contesto, attribuzione, extent
+```
+
+I fronti gia' ridotti in questa serie, tutti su un solo asse della politica:
+
+| fronte | classe consumata | asse che cambia |
+|---|---|---|
+| claim riportata (SC2-A) | — | fondazione |
+| modalita' (SC2-D) | la stessa | operatore staccato prima |
+| argomento (SC3) | la stessa + arco retorico | vista, non estrattore |
+| metodo (SC5) | la stessa | status e contesto |
+
+**Predizione falsificabile.** Preso il prossimo fronte della coda — disegno
+sperimentale (SC4), causalita' (SC6) — deve essere possibile aprirlo con righe di
+politica su una classe esistente e una vista, **senza** un nuovo produttore in C.
+Se anche uno solo richiede un estrattore proprio, l'ipotesi ha un confine e va
+scritto **dove** sta: quale asse della politica non basta piu'.
+
+**Corollario di coda.** `LEARN_TODO.md` elenca fronti come se fossero
+indipendenti. Se D31 regge, molte voci sono la stessa voce sotto politiche
+diverse, e la coda va riletta chiedendosi per ciascuna di quale classe sia un
+membro — un lavoro di riduzione, non di costruzione.
+
+### 18.36 Ipotesi D32 — il testo omette ciò che il contesto già porta
+
+«We then heat the mixture» ha per remainder «heat the mixture»: comincia dal
+verbo, e nessuno schema soggetto-verbo-oggetto puo' legarlo. Per due giorni
+questa sarebbe stata la risposta giusta — un residuo tipato, onesto e inutile.
+
+Ma il soggetto non e' **assente**: e' **eliso**, e parrot0 lo aveva gia'. Sta
+nell'attribuzione della classe, `attribution(document_authors)`, scritta al
+momento in cui la claim e' stata osservata. La lettura si e' potuta completare
+non indovinando, ma **leggendo la propria struttura**.
+
+E' una mossa diversa da tutto cio' che precede in questa serie, e merita un nome:
+
+> una lettura incompleta puo' essere completata **da coordinate che il sistema
+> ha gia' costruito**, e questo non e' inferenza sul mondo: e' ricostruzione di
+> cio' che il testo ha omesso perche' era ridondante.
+
+```prolog
+elided_role($Class, $Role, $Source).      % da dove si recupera
+recovered_role($Reading, $Role, $Value, from($Coordinate)).
+recovery_licensed($Class, $Role, $Source).
+unlicensed_recovery($Reading, $Role).      % deve restare vuoto
+```
+
+Il confine e' tutto: **recuperare non e' inventare.** Il ruolo si puo' riempire
+solo da una coordinata gia' osservata e ancora viva, e il riempimento deve
+portare la propria provenienza — altrimenti si e' costruito il misclaim di D29
+al contrario, aggiungendo invece che togliendo.
+
+**Predizione falsificabile.** Ritrattare la coordinata da cui un ruolo e' stato
+recuperato deve far **sparire il recupero**, non lasciarlo materializzato: se
+l'attribuzione cade, il passo torna non legato. E `unlicensed_recovery/2` deve
+restare vuoto su un corpus reale: nessun ruolo riempito da una coordinata che la
+politica non autorizza.
+
+**Estensioni prevedibili, tutte nella stessa forma.** L'ellissi non e' rara nella
+prosa complessa: l'oggetto sottinteso di un passo successivo («then cool it»), il
+soggetto di una relativa, l'unita' di misura ereditata dalla frase precedente,
+l'agente di un passivo senza `by`. Ognuna e' una riga di `elided_role/3` **se** la
+coordinata da cui recuperare esiste gia'. Dove non esiste, il residuo tipato
+resta la risposta giusta — ed e' il modo di distinguere le due cose senza
+scivolare nell'invenzione.
