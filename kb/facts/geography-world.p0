@@ -530,6 +530,86 @@ answer_frame(state, capital_of_state).
 answer_frame(region, capital_of_region).
 answer_frame(regione, capital_of_region).
 answer_frame(capoluogo, capital_of_region).
+answer_frame("su che cosa vale", predicate_domain).
+answer_frame("a che cosa si applica", predicate_domain).
+answer_frame("di che tipo è la relazione", relation_type).
+answer_frame("che tipo di relazione", relation_type).
+answer_frame("si trasmette", transitive).
+answer_frame("è transitiva", transitive).
+answer_frame("è reciproca", symmetric).
+answer_frame("è simmetrica", symmetric).
+answer_frame("quali esistono", category_enumeration).
+answer_frame("dammi la lista di", category_enumeration).
+answer_frame("fammi un elenco di", category_enumeration).
+answer_frame("elencami", category_enumeration).
+answer_frame("quali sono", category_enumeration).
+answer_frame("parlami di", told_about).
+answer_frame("dimmi qualcosa su", told_about).
+answer_frame("che cosa conosci di", told_about).
+answer_frame("sai qualcosa di", told_about).
+answer_frame("cosa sai su", told_about).
+answer_frame("che cosa sai di", told_about).
+answer_frame("come lo chiamano", preferred_label).
+answer_frame("che nome ha", preferred_label).
+answer_frame("qual è il nome", preferred_label).
+answer_frame("come si chiama", preferred_label).
+answer_frame("come lo chiamano anche", alternative_label).
+answer_frame("in che altro modo si chiama", alternative_label).
+answer_frame("altro nome di", alternative_label).
+answer_frame("come si chiama anche", alternative_label).
+answer_frame("che cosa è l'opposto", inverse_of).
+answer_frame("l'inverso di", inverse_of).
+answer_frame("qual è l'inverso", inverse_of).
+answer_frame("che cosa chiarisce", explains).
+answer_frame("spiega che cosa", explains).
+answer_frame("cosa spiega", explains).
+answer_frame("che cosa spiega", explains).
+answer_frame("qual è il peso", weight_of).
+answer_frame("che peso ha", weight_of).
+answer_frame("qual e il simbolo di", chemical_symbol).
+answer_frame("simbolo chimico di", chemical_symbol).
+answer_frame("che simbolo ha", chemical_symbol).
+answer_frame("qual è il simbolo", chemical_symbol).
+answer_frame("si parla che lingua", language_of_country).
+answer_frame("che lingua parlano", language_of_country).
+answer_frame("lingua di", language_of_country).
+answer_frame("quale lingua si parla", language_of_country).
+answer_frame("che lingua si parla", language_of_country).
+answer_frame("con che moneta si paga", currency_of_country).
+answer_frame("moneta di", currency_of_country).
+answer_frame("che valuta si usa", currency_of_country).
+answer_frame("qual è la valuta", currency_of_country).
+answer_frame("che moneta", currency_of_country).
+answer_frame("di che continente", continent_of).
+answer_frame("continente di", continent_of).
+answer_frame("in quale continente", continent_of).
+answer_frame("in che continente", continent_of).
+answer_frame("con quali stati confina", borders_country).
+answer_frame("chi confina con", borders_country).
+answer_frame("quali paesi confinano", borders_country).
+answer_frame("con chi confina", borders_country).
+answer_frame("confina con", borders_country).
+answer_frame("qual e la capitale", capital_of_country).
+answer_frame("che capitale ha", capital_of_country).
+answer_frame("capitale di", capital_of_country).
+answer_frame("la capitale di", capital_of_country).
+answer_frame("qual è la capitale", capital_of_country).
+answer_frame("in che cosa rientra", part_of).
+answer_frame("è parte di", part_of).
+answer_frame("appartiene a", part_of).
+answer_frame("di che cosa fa parte", part_of).
+answer_frame("di cosa fa parte", part_of).
+answer_frame("fa parte di", part_of).
+answer_frame("dove ha sede", located_in).
+answer_frame("dove è situato", located_in).
+answer_frame("in che posto sta", located_in).
+answer_frame("dove si trovano", located_in).
+answer_frame("dove la trovo", located_in).
+answer_frame("dove lo trovo", located_in).
+answer_frame("in quale luogo", located_in).
+answer_frame("in che posto", located_in).
+answer_frame("dove sta", located_in).
+answer_frame("dov", located_in).
 
 % gen365 — geographic joins over independently curated tables.
 % These are model edges: adding a country row to any parent table immediately

@@ -1,0 +1,84 @@
+form	label	language
+dove si trova	another way to ask located_in	it
+dov	another way to ask located_in	it
+dove sta	another way to ask located_in	it
+in che posto	another way to ask located_in	it
+in quale luogo	another way to ask located_in	it
+dove lo trovo	another way to ask located_in	it
+dove la trovo	another way to ask located_in	it
+dove si trovano	another way to ask located_in	it
+in che posto sta	another way to ask located_in	it
+dove è situato	another way to ask located_in	it
+dove ha sede	another way to ask located_in	it
+fa parte di	another way to ask part_of	it
+di cosa fa parte	another way to ask part_of	it
+di che cosa fa parte	another way to ask part_of	it
+appartiene a	another way to ask part_of	it
+è parte di	another way to ask part_of	it
+in che cosa rientra	another way to ask part_of	it
+qual è la capitale	another way to ask capital_of_country	it
+la capitale di	another way to ask capital_of_country	it
+capitale di	another way to ask capital_of_country	it
+che capitale ha	another way to ask capital_of_country	it
+qual e la capitale	another way to ask capital_of_country	it
+confina con	another way to ask borders_country	it
+con chi confina	another way to ask borders_country	it
+quali paesi confinano	another way to ask borders_country	it
+chi confina con	another way to ask borders_country	it
+con quali stati confina	another way to ask borders_country	it
+in che continente	another way to ask continent_of	it
+in quale continente	another way to ask continent_of	it
+continente di	another way to ask continent_of	it
+di che continente	another way to ask continent_of	it
+che moneta	another way to ask currency_of_country	it
+qual è la valuta	another way to ask currency_of_country	it
+che valuta si usa	another way to ask currency_of_country	it
+moneta di	another way to ask currency_of_country	it
+con che moneta si paga	another way to ask currency_of_country	it
+che lingua si parla	another way to ask language_of_country	it
+quale lingua si parla	another way to ask language_of_country	it
+lingua di	another way to ask language_of_country	it
+che lingua parlano	another way to ask language_of_country	it
+si parla che lingua	another way to ask language_of_country	it
+qual è il simbolo	another way to ask chemical_symbol	it
+che simbolo ha	another way to ask chemical_symbol	it
+simbolo chimico di	another way to ask chemical_symbol	it
+qual e il simbolo di	another way to ask chemical_symbol	it
+quanto pesa	another way to ask weight_of	it
+che peso ha	another way to ask weight_of	it
+qual è il peso	another way to ask weight_of	it
+quanto pesano	another way to ask weight_of	it
+che cosa spiega	another way to ask explains	it
+cosa spiega	another way to ask explains	it
+spiega che cosa	another way to ask explains	it
+che cosa chiarisce	another way to ask explains	it
+qual è l'inverso	another way to ask inverse_of	it
+l'inverso di	another way to ask inverse_of	it
+che cosa è l'opposto	another way to ask inverse_of	it
+come si chiama anche	another way to ask alternative_label	it
+altro nome di	another way to ask alternative_label	it
+in che altro modo si chiama	another way to ask alternative_label	it
+come lo chiamano anche	another way to ask alternative_label	it
+come si chiama	another way to ask preferred_label	it
+qual è il nome	another way to ask preferred_label	it
+che nome ha	another way to ask preferred_label	it
+come lo chiamano	another way to ask preferred_label	it
+che cosa sai di	another way to ask told_about	it
+cosa sai su	another way to ask told_about	it
+sai qualcosa di	another way to ask told_about	it
+che cosa conosci di	another way to ask told_about	it
+dimmi qualcosa su	another way to ask told_about	it
+parlami di	another way to ask told_about	it
+quali sono	another way to ask category_enumeration	it
+elencami	another way to ask category_enumeration	it
+fammi un elenco di	another way to ask category_enumeration	it
+dammi la lista di	another way to ask category_enumeration	it
+quali esistono	another way to ask category_enumeration	it
+è simmetrica	another way to ask symmetric	it
+è reciproca	another way to ask symmetric	it
+è transitiva	another way to ask transitive	it
+si trasmette	another way to ask transitive	it
+che tipo di relazione	another way to ask relation_type	it
+di che tipo è la relazione	another way to ask relation_type	it
+a che cosa si applica	another way to ask predicate_domain	it
+su che cosa vale	another way to ask predicate_domain	it
