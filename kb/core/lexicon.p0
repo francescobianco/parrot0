@@ -104,6 +104,15 @@ surface_variation(wrong_letter, "substitute_one").
 surface_variation(missing_letter, "insert_one").
 surface_variation(swapped_letters, "swap_adjacent").
 
+% AC1 — una deformazione non e' sempre ortografica. In `2 +3` il token `+3`
+% e' lessicalmente un numero con segno, ma nel contesto di un operando gia'
+% chiuso e' anche una possibile coppia operatore/operando. Il motore possiede
+% soltanto la meccanica cieca `split_operator_prefix`; la KB decide se quella
+% riparazione e' una variazione ammessa. Togliere questo fatto deve quindi
+% spegnere la comprensione di tutta la famiglia senza ricompilare.
+machinery(turn_surface_repair).
+token_variation(joined_infix_rhs, "split_operator_prefix").
+
 % --- appartenenza e parti ---
 % gen431 — «equals» e' il simbolo «=» scritto in lettere, e senza questa riga
 % «solve the equation 3x plus 5 equals 20» (#42 dei cento) cadeva sul muro

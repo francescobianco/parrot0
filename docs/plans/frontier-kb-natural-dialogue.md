@@ -5066,3 +5066,70 @@ modale ed ellissi deve far scendere soltanto le celle mancanti; aggiungere la
 genealogia modale deve alzare `DC(modality)` senza alterare `DC(frame/passive)`.
 Una metrica scalare che resta 1 mentre un'ablation non viene propagata e'
 falsificata per costruzione.
+
+### 18.48 Ipotesi D46 — capire un input rumoroso richiede causalita' controfattuale
+
+Il caso `quanot fa 2 +3` contiene due anomalie visibili, ma soltanto una e'
+causale. Correggere `quanot` non chiude `quanto fa 2 +3`; separare `+3` chiude
+anche `quanot fa 2 + 3`. La distanza ortografica avrebbe quindi ordinato prima
+la riparazione sbagliata, perche' misura somiglianza della superficie e non
+necessita' rispetto al goal.
+
+**Ipotesi D46.** Una metacomprensione robusta rappresenta la riparazione come
+un insieme causale minimo di trasformazioni rispetto agli obblighi del turno.
+Ogni trasformazione candidata viene ablatata mantenendo fissi goal, contesto e
+resto della superficie. Si promuove soltanto cio' la cui sottrazione riapre
+l'arresto.
+
+**Predizioni falsificabili D46.** (1) su input con due errori, uno non causale
+non compare nella proof finale; (2) correggere il solo errore non causale non
+cambia il primo arresto; (3) l'insieme promosso e' invariante all'ordine in cui
+si provano i candidati; (4) aggiungere trasformazioni non necessarie peggiora
+precisione senza aumentare chiusure. Se la distanza superficiale predice sempre
+lo stesso insieme del replay controfattuale su un corpus stratificato, la
+procedura causale puo' essere semplificata; il primo testimone la distingue gia'.
+
+### 18.49 Ipotesi D47 — la robustezza e' un intorno semantico stratificato
+
+Cambiare una cifra, un operatore, una cue o la lingua non sono variazioni della
+stessa natura. Una lista piatta di parafrasi puo' produrre cento verdi quasi
+identici e crollare al primo cambio di coordinata. Il verticale della
+segmentazione usa invece una matrice: quattro operatori, valori nuovi, cue
+EN/IT, segni unari, negativi e una superficie operatore appresa a runtime.
+
+**Ipotesi D47.** Il raggio di supercomprensione di una lettura e' un vettore per
+coordinate di variazione, non il conteggio dei prompt verdi. La capacita' e'
+chiusa soltanto entro il prodotto cartesiano preregistrato delle coordinate su
+cui trasferisce e resta selettiva.
+
+```text
+RobustnessVector = (surface, tokenization, intent, language,
+                    value, operator, discourse_context, negative_scope)
+```
+
+**Predizioni falsificabili D47.** (1) una micro-media alta puo' coesistere con
+una coordinata interamente rossa; (2) insegnare un membro KB nuovo alza la
+coordinata `operator` senza patch C; (3) l'ablazione della licenza abbassa le
+sole celle che la usano; (4) una nuova firma logica non viene nascosta nella
+media della famiglia precedente. Se una metrica scalare preserva tutte queste
+distinzioni e predice le ablazioni, il vettore e' ridondante.
+
+### 18.50 Ipotesi D48 — la normalizzazione deve essere proof-carrying e bifocale
+
+Una riscrittura silenziosa perde due oggetti: che cosa l'utente ha davvero
+detto e perche' il sistema ha consumato un'altra forma. Il primo serve per
+correggere una diagnosi; il secondo per replay, ablation e spiegazione. Nel
+verticale AC1 l'utterance resta originale e `turn_surface_repair/4` conserva
+classe, operazione, token osservato e sequenza consumata.
+
+**Ipotesi D48.** Ogni comprensione indiretta mantiene simultaneamente il piano
+fenomenico (byte/span originali) e il piano operativo (struttura normalizzata),
+uniti da una proof revocabile. Non si sostituisce il primo con il secondo.
+
+**Predizioni falsificabili D48.** (1) ritrarre la licenza rende non valida la
+normalizzazione senza alterare lo storico dell'utterance; (2) due
+normalizzazioni concorrenti restano confrontabili; (3) una domanda «che cosa
+hai corretto?» puo' indicare span e base KB; (4) il replay pulito e quello
+riparato producono semantica canonica identica ma genealogy diversa. Se una
+riscrittura muta permette le stesse quattro operazioni senza stato nascosto,
+D48 e' falsa.

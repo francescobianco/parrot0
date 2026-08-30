@@ -613,6 +613,44 @@ con vocabolario naturale hardcoded. Le parole, le classi e i frame restano nella
 KB; il C coordina tokenizzazione, fetch, limiti, snapshot, confronto e primitive
 generali.
 
+### 10.1 CADRE: diagnosi controfattuale e trasferimento della riparazione
+
+Ogni episodio di superficie applica anche il protocollo **CADRE** (*Causal
+Ablation, Declarative Repair, Exogenous transfer*). Nasce dalla diagnosi di
+`quanot fa 2 +3`: la correzione ortografica intuitiva non e' causale, perche'
+`quanto fa 2 +3` continua a fallire; rendendo esplicita la separazione
+dell'operatore, `quanot fa 2 + 3` calcola gia'. La crescita utile e' dunque una
+classe dichiarativa di segmentazione contestuale, non un alias del campione.
+
+Per ogni candidato A o C la campagna deve ora produrre:
+
+- una firma di fallimento con tutte le anomalie osservate separate;
+- un reticolo di replay che varia una sola coordinata per volta;
+- il sottoinsieme minimo di riparazioni necessario a chiudere l'obbligo;
+- una traccia interrogabile con originale, forma consumata, licenza e
+  operazione;
+- una matrice di trasferimento su cue, valori, lingue e membri della classe;
+- almeno un membro nuovo aggiunto e ritratto a runtime;
+- negativi adiacenti che non devono essere normalizzati.
+
+L'esempio verticale deve scalare almeno su `+`, `-`, `*`, `/`, su piu' valori e
+richieste EN/IT, distinguere segno unario e operatore infisso e accettare una
+nuova superficie di operatore insegnata dalla KB. Togliere la licenza della
+variazione deve spegnere l'intera famiglia; riasserirla deve ripristinarla senza
+rebuild. Un prompt verde senza queste celle resta un campione, non una crescita.
+
+Al registro della campagna si aggiungono:
+
+```text
+causal_precision, transfer_cells_passed, transfer_cells_total,
+negative_collisions, runtime_member_grow, runtime_member_retract
+```
+
+Il gate locale richiede precisione causale e copertura della matrice pari a 1,
+collisioni zero e entrambe le prove runtime verdi. La conclusione ammessa resta
+relativa alla famiglia provata: CADRE impedisce sia il phrasebook sia il salto
+retorico da un caso robusto alla “comprensione universale”.
+
 ## 11. Deliverable e criterio di chiusura
 
 Ogni fase deve lasciare artefatti versionati:

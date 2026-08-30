@@ -1796,6 +1796,48 @@ linguaggio naturale può variare; entità, ruoli, scope, prove e dipendenze no.
 Un secondo confronto sulla provenance verifica però che la canonicalizzazione
 non abbia cancellato `Lin`, `Lsrc`, `Lout` o la forma osservata.
 
+### 8.1 CADRE: il gate di robustezza per ogni compensazione di superficie
+
+La v3 incorpora come regola d'ingresso il protocollo **CADRE** (*Causal
+Ablation, Declarative Repair, Exogenous transfer*). Il testimone iniziale e'
+`quanot fa 2 +3`, ma l'oggetto del protocollo non e' quella frase. Due replay
+controfattuali separano le anomalie: `quanot fa 2 + 3` e' calcolabile, mentre
+`quanto fa 2 +3` resta arrestato. La normalizzazione necessaria e' la lettura
+contestuale del token `+3` come operatore piu' operando; un alias ortografico
+sarebbe una promozione non causale.
+
+Ogni compensazione L0 deve portare un certificato composto da:
+
+1. coordinate indipendenti della perturbazione e loro reticolo di replay;
+2. sottoinsieme minimo che cambia l'esito mantenendo identico l'obbligo;
+3. fatto KB che licenzia la classe e primitiva C cieca al vocabolario;
+4. record di turno con superficie originale, normalizzazione, classe e
+   operazione consumata;
+5. matrice esogena su almeno due lingue, piu' cue e valori, tutti i membri gia'
+   noti della classe e un membro aggiunto soltanto a runtime;
+6. ablazione della licenza e del nuovo membro, reinsegnamento senza rebuild;
+7. negativi di confine che provano scope e non-collisione.
+
+Per il primo verticale la matrice comprende quattro operatori, segni unari,
+richieste EN/IT, valori diversi, forma telefonica negativa e un simbolo di
+moltiplicazione insegnato a runtime. Questa e' la soglia minima, non un elenco
+chiuso: l'inventario degli operatori e delle cue continua a provenire dalla KB.
+
+Le metriche entrano in L0/L5/L8:
+
+```text
+CausalPrecision = riparazioni necessarie / riparazioni promosse
+FamilyTransfer  = celle esogene chiuse / celle esogene ammesse
+CollisionRate   = negativi catturati / negativi eseguiti
+```
+
+Il dossier passa solo con `CausalPrecision=1`, `FamilyTransfer=1` sulla matrice
+preregistrata, `CollisionRate=0`, grow/retract verdi e identita' semantica del
+turno fra forma pulita e forma riparata. Se cambia una parola, un valore, una
+lingua o un membro della classe e il percorso ricade nel muro, la famiglia non
+e' chiusa. Se cambia la firma logica, nasce invece una nuova ipotesi: il piano
+non nasconde una classe non provata dietro il successo di quella precedente.
+
 ## 9. Ordine di colmatura della KB
 
 La KB non va colmata aggiungendo ora valori sugli esempi noti. Va resa fertile

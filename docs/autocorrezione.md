@@ -775,6 +775,75 @@ di proposito (`teaching_offer_max`, oggi due).
 
 ---
 
+## 14. Correzione 2026-08-31 — prima di riparare, provare che la riparazione serve
+
+Il prompt reale `quanot fa 2 +3` sembrava un caso ortografico. Le controprove
+hanno mostrato il contrario:
+
+```text
+quanto fa 2 +3    -> arresto
+quanot fa 2 + 3   -> 5
+```
+
+Il refuso piu' visibile non era la causa del muro. La radice era il token `+3`:
+il parser numerico lo accettava come numero positivo con segno e quindi non
+pubblicava l'operatore infisso. Una tabella `quanot -> quanto` avrebbe aggiunto
+una correzione vera ma inutile al turno, lasciando rosso il caso con la parola
+corretta. Questo e' un nuovo tipo di misdiagnosis: **riparazione plausibile ma
+controfattualmente non necessaria**.
+
+La disciplina adottata e' CADRE (*Causal Ablation, Declarative Repair,
+Exogenous transfer*):
+
+1. separare tutte le perturbazioni osservabili;
+2. fare replay cambiandone una sola;
+3. trovare il sottoinsieme minimo che chiude lo stesso obbligo;
+4. licenziare la classe in KB, mantenendo in C soltanto la trasformazione
+   meccanica;
+5. conservare originale e forma consumata in una proof interrogabile;
+6. trasferire a membri non usati nella diagnosi;
+7. ablare licenza e membro, poi reinsegnare senza rebuild.
+
+Il primo verticale usa `token_variation(joined_infix_rhs,
+"split_operator_prefix")`. Non nomina `quanot`, `quanto`, un numero o un
+simbolo. Gli operatori vengono enumerati da `infix_operator/2`; una superficie
+`x` insegnata a runtime come moltiplicazione abilita subito `6 x7`, e la sua
+retrazione la spegne. La stessa licenza copre `+`, `-`, `*`, `/`, valori e cue
+EN/IT. `turn_surface_repair/4` conserva classe, operazione, token originale e
+sequenza normalizzata.
+
+I negativi sono parte della definizione: un segno unario dopo un operatore resta
+un numero; `+39` dopo una parola non numerica non viene catturato. La licenza
+ritratta spegne tutte le forme operatore+operando ma non le espressioni gia'
+segmentate. Cosi' l'ablation nomina esattamente il potere aggiunto.
+
+### 14.1 Ipotesi: la riparazione e' un insieme causale minimo
+
+Sia `E={e1,...,en}` l'insieme delle anomalie candidate e `Goal` l'obbligo del
+turno. Una riparazione promuovibile non e' qualunque `R subset E` che rende la
+risposta diversa; e' un insieme minimo tale che:
+
+```text
+close(Goal, apply(R, input))
+e per ogni r in R: not close(Goal, apply(R - {r}, input))
+```
+
+In piu' deve preservare i token critici e passare i negativi. La minimalita'
+riduce il rischio di riscrivere entita', negazioni o numeri non causali e rende
+la spiegazione precisa: non «ho corretto la frase», ma «ho separato questo token
+perche' quella trasformazione era necessaria a soddisfare questo goal».
+
+### 14.2 Limite dichiarato
+
+Questo risultato non e' ancora un correttore generale. Dimostra una famiglia di
+segmentazione contestuale nell'aritmetica e, soprattutto, un metodo di diagnosi.
+Typos lessicali ambigui, slang, omissioni sintattiche e rumore nelle procedure
+richiedono ciascuno candidate generation, preservazione dell'intento e policy di
+chiarimento. Il successo locale non puo' essere usato per dichiarare robustezza
+fuori dalla firma logica provata.
+
+---
+
 ## Riferimenti
 
 - `docs/plans/question-emergence.md` — il piano che ha costruito il ciclo (gen406-411)

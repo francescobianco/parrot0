@@ -1,0 +1,80 @@
+# AC1 — una riparazione di superficie deve essere causale, osservabile e
+# revocabile. Il refuso `quanot` e' intenzionalmente lasciato intatto: la prova
+# controfattuale mostra che non e' lui a bloccare il turno. Il difetto reale e'
+# il token `+3`, ambiguo fra numero con segno e operatore unito all'operando.
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=it
+!reset
+
+[test ac1 il prompt malformato usa una riparazione causale]
+> quanto fa 2 + 3
+< 5.
+> quanot fa 2 +3
+< 5.
+!query turn_surface_repair(joined_infix_rhs, split_operator_prefix, "+3", "+ 3")
+
+[test ac1 il refuso non causale non viene memorizzato come correzione]
+!reset
+# Con la segmentazione gia' esplicita, lo stesso refuso non impedisce il calcolo:
+# aggiungere un alias quanot->quanto non sarebbe necessario e non va promosso.
+> quanot fa 8 + 4
+< 12.
+!query! turn_surface_repair(joined_infix_rhs, split_operator_prefix, $Original, $Normalized)
+
+[test ac1 grow retract reteach senza rebuild]
+!reset
+!forget token_variation(joined_infix_rhs, "split_operator_prefix")
+> quanot fa 2 +3
+<! 5.
+!query! turn_surface_repair(joined_infix_rhs, split_operator_prefix, $Original, $Normalized)
+> calculate 20 /5
+<! 4.
+!query! turn_surface_repair(joined_infix_rhs, split_operator_prefix, $Original, $Normalized)
+!assert token_variation(joined_infix_rhs, "split_operator_prefix")
+> quanot fa 2 +3
+< 5.
+!query turn_surface_repair(joined_infix_rhs, split_operator_prefix, "+3", "+ 3")
+
+[test ac1 il contesto distingue infisso e segno unario]
+!reset
+> quanto fa -2 + 3
+< 1.
+> quanto fa 2 + -3
+< -1.
+> quanto fa 2 -3
+< -1.
+!query turn_surface_repair(joined_infix_rhs, split_operator_prefix, "-3", "- 3")
+> quanto fa -2 * -3
+< 6.
+
+[test ac1 trasferisce fra cue numeri e quattro operatori]
+!reset
+> calcola 11 +7
+< 18.
+> compute 18 -5
+< 13.
+> calculate 6 *7
+< 42.
+> quanto fa 21 /3
+< 7.
+!query turn_surface_repair(joined_infix_rhs, split_operator_prefix, "/3", "/ 3")
+
+[test ac1 una superficie operatore nuova cresce soltanto dalla kb]
+!reset
+!assert infix_operator("x", times)
+> calcola 6 x7
+< 42.
+!query turn_surface_repair(joined_infix_rhs, split_operator_prefix, "x7", "x 7")
+!forget infix_operator("x", times)
+> calcola 6 x7
+<! 42.
+!query! turn_surface_repair(joined_infix_rhs, split_operator_prefix, $Original, $Normalized)
+
+[test ac1 una forma telefonica non viene catturata]
+!reset
+> chiama +39
+< Non capisco ancora.
+!query! turn_surface_repair(joined_infix_rhs, split_operator_prefix, $Original, $Normalized)

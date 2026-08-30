@@ -3796,6 +3796,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             kb_retract_pred(b->kb, "turn_topic");
             kb_retract_pred(b->kb, "turn_module");
             kb_retract_pred(b->kb, "turn_register");
+            kb_retract_pred(b->kb, "turn_surface_repair");
             kb_retract_pred(b->kb, "saturated_read");
         }
     }

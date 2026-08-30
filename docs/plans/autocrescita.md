@@ -1118,6 +1118,56 @@ E il debito da cui si riparte, scritto perché non si perda: **433, 434 e 435 so
 state costruzione, non ricerca.** Hanno lasciato strumenti utili e nessun numero.
 Da gen436 ogni generazione consegna un `S`.
 
+## 12. Strategia ratificata: riparazione causale per famiglie, non per prompt
+
+Il caso reale `quanot fa 2 +3` fissa un metodo che questo piano adotta come
+vincolo permanente. La superficie contiene almeno due anomalie candidate: il
+refuso `quanot` e la fusione `+3`. Provare una sola correzione e vedere una
+risposta migliore non basta. Le due controprove decisive sono:
+
+```text
+quanot fa 2 + 3   -> il calcolo e' raggiungibile: il refuso non e' necessario
+quanto fa 2 +3    -> il muro resta: correggere il refuso non chiude il turno
+```
+
+La causa minima e' quindi la segmentazione contestuale del token, non una voce
+`quanot -> quanto`. Promuovere anche il refuso avrebbe aumentato `S` senza
+aumentarne il potere e avrebbe violato la minimalita' di gen439.
+
+Da questo testimone segue il protocollo generale **CADRE** (*Causal Ablation,
+Declarative Repair, Exogenous transfer*):
+
+1. costruire il reticolo delle perturbazioni indipendenti osservate nel turno;
+2. ripetere lo stesso obbligo cambiando una sola coordinata per volta;
+3. conservare soltanto le trasformazioni controfattualmente necessarie;
+4. rappresentare la licenza della trasformazione nella KB e lasciare al C solo
+   la meccanica cieca;
+5. registrare superficie originale, normalizzazione consumata, classe e
+   operazione, affinche' la riparazione non sia invisibile;
+6. trasferire la classe su valori, operatori, cue, lingue e membri aggiunti a
+   runtime; poi eseguire retrazione e reinsegnamento;
+7. usare negativi vicini (segno unario, telefono, codice, unita', simboli non
+   aritmetici) per misurare le collisioni.
+
+Il gate non e' “il prompt iniziale ora passa”. Una famiglia e' accettabile solo
+se una matrice preregistrata copre almeno due lingue, piu' cue, valori mai usati
+nel caso docente, tutti gli operatori della classe e un nuovo membro insegnato
+interamente a runtime. L'ablazione di una sola licenza deve spegnere tutte e
+sole le celle dipendenti; il ripristino deve riaccenderle senza rebuild.
+
+Le misure aggiunte sono:
+
+```text
+causal_precision = riparazioni necessarie / riparazioni proposte
+family_transfer  = celle esogene chiuse / celle esogene ammesse
+collision_rate   = negativi catturati / negativi eseguiti
+```
+
+Il gate richiede `causal_precision=1`, `family_transfer=1` sulla matrice
+preregistrata e `collision_rate=0`. Queste uguaglianze dimostrano la famiglia
+sperimentata, non autorizzano a dichiarare robustezza universale a ogni rumore.
+Ogni nuova classe di malformazione deve attraversare lo stesso protocollo.
+
 ## Riferimenti
 
 - [`../autocorrezione.md`](../autocorrezione.md) — la teoria; §0 preliminare vs

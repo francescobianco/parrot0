@@ -1458,8 +1458,8 @@ verificate, significati regionali senza scope e qualunque risposta inventata.
 | ordine | checkpoint | output irreversibile soltanto dopo i gate |
 |---:|---|---|
 | 1 | finire SC41-A | compatibilita', unico soft-test, report finale, commit e push |
-| 2 | AC0 studio + baseline | mappa dei file/autocorrezione, trace di `quanot`, ipotesi falsificabili |
-| 3 | AC1 meccanismo KB-first | runtime grow/retract, ambiguita' onesta, ratchet del gate reale |
+| 2 | **AC0 studio + baseline — CHIUSO** | causa isolata: `+3` e' il gap; `quanot` non e' causale |
+| 3 | **AC1 meccanismo KB-first — CHIUSO sul verticale** | 27 proprieta', quattro operatori, EN/IT, runtime grow/retract e negativo telefonico |
 | 4 | AC2 corpus 240 | dataset stratificato, macro-metriche, report; niente bulk-save |
 | 5 | GD1 corpus 360 | baseline dialogica e clustering dei gap, mini-dialoghi multi-turno |
 | 6 | GD2 LEARN_PROTOCOL | lezioni per classi, transfer/contrast/ablation/retention |
@@ -1478,6 +1478,205 @@ Fermarsi e refertare se:
 - lo slang viene promosso senza lingua, registro, scope o provenienza;
 - la crescita della KB migliora micro-accuracy e peggiora una famiglia intera;
 - `/save` precede quarantine audit, ablation o fresh-process validation.
+
+## ⛔ HANDOFF 2026-08-31 POST-AC1 — punto di ripresa autoritativo
+
+Questo handoff sostituisce la parte AC0/AC1 dell'handoff post-SC41-A. Non
+sostituisce i contratti di lettura SC41: li lascia intatti e sposta il lavoro
+immediato su AC2/GD1, come richiesto dal teacher.
+
+### Risultato che non va reinterpretato
+
+Il prompt:
+
+```text
+quanot fa 2 +3
+```
+
+ora risponde `5.`. Non e' stato aggiunto alcun alias per `quanot`. Le baseline
+controfattuali hanno mostrato:
+
+```text
+quanto fa 2 +3   -> falliva
+quanot fa 2 + 3  -> riusciva
+```
+
+La causa era `parse_num("+3")`: trattandolo come numero positivo impediva
+all'espansore aritmetico di pubblicare la tripletta operando/operatore/operando.
+Questo reperto e' importante per agenti futuri: **non riaprire AC1 aggiungendo
+un correttore ortografico al prompt motivante.** Sarebbe una riparazione non
+necessaria e lascerebbe rosso il caso con `quanto` corretto.
+
+### Contratto implementato
+
+In `kb/core/lexicon.p0`:
+
+```prolog
+token_variation(joined_infix_rhs, "split_operator_prefix").
+machinery(turn_surface_repair).
+```
+
+In `src/brain/20-math.c`:
+
+- `token_variation_class` enumera dalla KB quale classe licenzia la meccanica;
+- nessun simbolo nuovo e' elencato nel nuovo scanner: ogni carattere candidato
+  passa da `infix_operator/2`/`operator_symbol/2`;
+- si divide un prefisso operatore solo se esistono un operando sinistro gia'
+  leggibile e un operando destro valido;
+- `note_turn_surface_repair` pubblica classe, operazione, originale e forma
+  consumata in origine sessione;
+- il record scade all'inizio del turno successivo in `99-registry.c`.
+
+Il C possiede la sola operazione `split_operator_prefix`. Quali famiglie la
+autorizzano e quali superfici sono operatori restano KB. Il test piu' forte e':
+
+```text
+assert runtime infix_operator("x", times)
+calcola 6 x7 -> 42
+retract runtime infix_operator("x", times)
+calcola 6 x7 -> non 42
+```
+
+Nessun rebuild fra i tre passi.
+
+### Evidenza esatta
+
+`tests/p0t/math/arith_surface_repair.it.p0t` passa **27 proprieta'**:
+
+- controllo pulito e prompt motivante;
+- prova che il refuso non causale non viene registrato come repair;
+- forget/reteach della policy;
+- `+`, `-`, `*`, `/` con operando destro unito;
+- cue `fa`, `calcola`, `calculate`, `compute` e valori diversi;
+- segni unari `-2 + 3`, `2 + -3`, `-2 * -3`;
+- `2 -3` come vero infisso unito;
+- negativo `chiama +39`;
+- membro operatore `x` aggiunto e ritratto a runtime.
+
+Focused ratchet:
+
+```text
+arith_surface_repair.it.p0t  27/27
+arith_nl.it.p0t              16/16
+arith_flex.it.p0t             5/5
+arith.p0t                     8/8
+spell_repair.p0t              8/8
+```
+
+`make soft-test` e' stato consumato una sola volta nel ciclo AC1: **55 passed,
+1 failure storico** su `frontier_chat_audit.it.p0t` linea 97, la stessa
+divergenza renderer `designation` documentata da SC41-A. Non cambiare
+l'aspettativa per far sembrare verde AC1. Anche `arith_flex.p0t` inglese ha un
+golden storico sul wording del gap `silver`; le 11 proprieta' precedenti sono
+verdi e AC1 non tocca quel renderer.
+
+### Metodo CADRE — obbligatorio per le prossime classi
+
+I tre piani `autocrescita*.md`, `docs/autocorrezione.md` e il frontier ora
+ratificano **CADRE** (*Causal Ablation, Declarative Repair, Exogenous
+transfer*):
+
+1. separare le coordinate del rumore;
+2. fare replay variandone una per volta;
+3. promuovere il sottoinsieme causalmente minimo;
+4. licenza KB + meccanica C cieca;
+5. originale e normalizzazione entrambi conservati;
+6. matrice esogena, non copie della frase docente;
+7. grow/retract/reteach e negativi di confine.
+
+Metriche da portare in ogni report:
+
+```text
+CausalPrecision
+FamilyTransfer
+CollisionRate
+CriticalTokenPreservation
+RuntimeGrowth / RuntimeRetract
+FalseRewriteRate
+```
+
+Non chiamare “generale” una classe con meno di `CausalPrecision=1`, transfer
+completo sulla matrice preregistrata e collisioni zero. Non chiamare
+“universale” una famiglia locale anche quando passa tutti questi gate.
+
+### Prossimo lavoro: AC2 non deve diventare un generatore di copie
+
+Costruire almeno **240 prompt**, 12 strati x 20, nella coda gia' specificata.
+Per aiutare agenti meno esperti, seguire questo ordine:
+
+1. creare un manifest tabellare con `id, lingua, strato, trasformazione,
+   lessema, intent, token_critici, esito_atteso, ambiguity, split`;
+2. preregistrare famiglie e split prima di eseguire parrot0;
+3. separare per coppia lessicale **e** trasformazione: nessun `quanot/quanto`
+   sia in train e held-out;
+4. per ogni positivo creare un negativo vicino e un ambiguo dove esiste;
+5. non usare una risposta stringa come unico oracle: registrare intent,
+   preservazione dei token critici e necessita' di chiarimento;
+6. eseguire baseline senza `/save`; conservare risposta, `turn_outcome`, modulo,
+   gap e `turn_surface_repair`;
+7. clusterizzare per causa (`candidate generation`, `ranking`, `tokenization`,
+   `intent preservation`, `dispatch`, `context`) e non per parola;
+8. scegliere una sola classe ad alto guadagno, applicare CADRE, poi rieseguire
+   held-out e macro-metriche;
+9. se una classe richiede slang, conservare lingua, registro, regione/epoca e
+   polisemia; mai promuoverla come sinonimo assoluto;
+10. nessun `/save` finche' il diff candidato non ha `X=0` e una casa di routing
+    per proof e provenance.
+
+### Subito dopo: GD1/GD2, apprendimento dialogico ad alta varieta'
+
+GD1 e' minimo 360 turni, 12 famiglie x30, con mini-dialoghi 3–8 turni. Non
+salvare trascrizioni. L'artefatto utile e' un corpus annotato e un report di
+gap per classe. GD2 sceglie classi linguistiche reali e le insegna parlando
+secondo `LEARN_PROTOCOL.md`; ogni lezione deve usare fonti identificate quando
+porta fatti sul mondo e deve passare replay, Transfer@3, parafrasi, contrasto,
+composizione, ablation e retention.
+
+Per massimizzare la profondita' senza costruire un phrasebook, distribuire il
+corpus lungo assi ortogonali:
+
+- atto dialogico e continuita' multi-turno;
+- registro, slang, cortesia e code-switching;
+- ellissi, coreferenza vicina/lontana e correzione retroattiva;
+- numero di premesse consumate (0, 1, 2, 3+);
+- scope di negazione, concessione, condizione e citazione;
+- risposta diretta, chiarimento, rifiuto calibrato o piano;
+- prosa scientifica: claim, metodo, evidenza, limite e causalita';
+- procedure: prerequisiti, passi, failure mode, compensazione e rollback.
+
+Almeno un terzo dei turni di reasoning richiede due o piu' premesse; almeno un
+quarto richiede un chiarimento/rifiuto corretto. Il dataset deve contenere slang
+autentico ma non rapidamente variabile o non fontato se destinato alla
+persistenza. Slang presente soltanto come sonda puo' restare nel lab e non deve
+entrare in KB.
+
+### File da conoscere prima di toccare AC2/GD1
+
+1. `MANTRA.md`, `PRINCIPLES.md`, `LEARN_PROTOCOL.md` completi;
+2. `docs/autocorrezione.md`, soprattutto §§0, 6, 13 e 14;
+3. `docs/plans/autocrescita.md`, la nuova §12;
+4. `docs/plans/autocrescita-v2.md`, §10.1;
+5. `docs/plans/autocrescita-v3.md`, §8.1;
+6. `docs/labs/apprendimento-assistito/2026-08-31-autocorrezione-causale-ac1.md`;
+7. `tests/p0t/math/arith_surface_repair.it.p0t` come esempio di matrice causale,
+   non come template da copiare per lo slang.
+
+### Conteggi e stato del checkpoint
+
+```text
+W = 0   nessun fatto vero del mondo salvato
+L = 0   nessuna forma linguistica appresa parlando
+C = 1   famiglia generale di normalizzazione licenziata dalla KB
+P = 1   forma di receipt runtime turn_surface_repair/4
+X = 0
+/save = non eseguito
+stato = meta-capability-only
+```
+
+Il report permanente e'
+[`2026-08-31-autocorrezione-causale-ac1.md`](docs/labs/apprendimento-assistito/2026-08-31-autocorrezione-causale-ac1.md).
+Il prossimo checkpoint non deve modificare di nuovo l'aritmetica, salvo che
+AC2 trovi una falsificazione della famiglia qui documentata.
 
 ---
 

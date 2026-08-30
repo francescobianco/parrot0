@@ -79,6 +79,42 @@ static int is_arith_op(Brain *b, const char *s) {
     return arith_op_char(b, s) != 0;
 }
 
+/* A token repair is licensed by knowledge, while the named operation remains
+ * fixed mechanics.  Querying the class with the operation bound means a new
+ * variation can select this mechanic tomorrow without adding a C branch. */
+static int token_variation_class(Brain *b, const char *operation,
+                                 char *variation, size_t variation_size) {
+    if (!b || !b->kb || !operation || !variation || variation_size == 0)
+        return 0;
+    char quoted[KB_TERM_LEN];
+    snprintf(quoted, sizeof quoted, "\"%.*s\"",
+             (int)(sizeof quoted - 3), operation);
+    const char *q[] = { NULL, quoted };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "token_variation", q, 2, hit, 1) != 1) return 0;
+    snprintf(variation, variation_size, "%s", hit[0]);
+    return 1;
+}
+
+/* Keep the repair observable as evidence of this turn.  The original bytes
+ * stay in utterance/3; this record says which reversible normalization the
+ * arithmetic reader actually consumed and which KB class licensed it. */
+static void note_turn_surface_repair(Brain *b, const char *variation,
+                                     const char *operation,
+                                     const char *original,
+                                     const char *normalized) {
+    if (!b || !b->kb || !variation || !operation || !original || !normalized)
+        return;
+    char oq[KB_TERM_LEN], nq[KB_TERM_LEN];
+    snprintf(oq, sizeof oq, "\"%.*s\"", (int)(sizeof oq - 3), original);
+    snprintf(nq, sizeof nq, "\"%.*s\"", (int)(sizeof nq - 3), normalized);
+    const char *a[] = { variation, operation, oq, nq };
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_SESSION);
+    kb_assert(b->kb, "turn_surface_repair", a, 4);
+    kb_set_origin(b->kb, prev);
+}
+
 /* Apply an arithmetic operator, returning the result. Sets *ok=0 for unknown ops. */
 static double apply_arith_op(Brain *b, const char *op, double a, double c, int *ok) {
     *ok = 0;
@@ -1185,7 +1221,11 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
     }
 
     /* Expand tokens containing embedded operators (e.g. "2+2" -> "2","+","2").
-     * Pure numbers (which may start with '-') are left intact so parse_num works.
+     * Pure signed numbers stay intact unless the KB licenses their contextual
+     * reading as an operator joined to a right-hand operand: after a complete
+     * operand, "+3" can become "+", "3".  This is deliberately not a typo
+     * dictionary: the original surface and the causal normalization are both
+     * retained, and ablating token_variation/2 disables the family.
      * The expansion is done in a secondary buffer; `ew` points into it. */
     char exbuf[256];
     size_t exoff = 0;
@@ -1196,16 +1236,48 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         size_t sl = strlen(s);
         int has_embedded_op = 0;
         for (size_t j = 0; j < sl; j++) {
-            if (s[j] == '+' || s[j] == '*' || s[j] == '/') has_embedded_op = 1;
-            else if (s[j] == '-' && j > 0) has_embedded_op = 1;
+            char candidate[2] = { s[j], '\0' };
+            /* A leading operator belongs to the KB-licensed joined-RHS family
+             * below.  Operators inside a compact token (2+3) remain the older
+             * mechanical compact-expression path.  Both inventories are read
+             * through infix_operator/2, never through a symbol list in C. */
+            if (j > 0 && is_arith_op(b, candidate)) has_embedded_op = 1;
         }
         double v;
         int is_num = parse_num(s, &v);
-        if (!is_num && has_embedded_op) {
+        char variation[KB_TERM_LEN];
+        int split_prefix = 0;
+        if (sl > 1 && enw > 0 &&
+            token_variation_class(b, "split_operator_prefix",
+                                  variation, sizeof variation)) {
+            char prefix[2] = { s[0], '\0' };
+            double left = 0, right = 0;
+            if (is_arith_op(b, prefix) && parse_value(ew[enw - 1], &left) &&
+                parse_value(s + 1, &right) &&
+                exoff + 2 + strlen(s + 1) + 1 <= sizeof exbuf && enw + 2 <= 24) {
+                exbuf[exoff] = prefix[0];
+                exbuf[exoff + 1] = '\0';
+                ew[enw++] = exbuf + exoff;
+                exoff += 2;
+                size_t rl = strlen(s + 1);
+                memcpy(exbuf + exoff, s + 1, rl + 1);
+                ew[enw++] = exbuf + exoff;
+                exoff += rl + 1;
+                char repaired[KB_TERM_LEN];
+                snprintf(repaired, sizeof repaired, "%s %s", prefix, s + 1);
+                note_turn_surface_repair(b, variation,
+                                         "split_operator_prefix", s, repaired);
+                split_prefix = 1;
+            }
+        }
+        if (split_prefix) {
+            continue;
+        } else if (!is_num && has_embedded_op) {
             size_t start = 0;
             for (size_t j = 0; j <= sl && enw < 24; j++) {
-                int boundary = (j == sl || s[j] == '+' || s[j] == '*' ||
-                    s[j] == '/' || (s[j] == '-' && j > 0));
+                char candidate[2] = { j < sl ? s[j] : '\0', '\0' };
+                int boundary = (j == sl ||
+                    (j > 0 && is_arith_op(b, candidate)));
                 if (boundary) {
                     if (j > start && exoff + (j - start) + 1 <= sizeof exbuf) {
                         memcpy(exbuf + exoff, s + start, j - start);
