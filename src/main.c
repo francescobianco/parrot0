@@ -141,6 +141,213 @@ static const char *prompt_str(void) {
 
 static void tty_write(const char *s) { ssize_t n = write(STDERR_FILENO, s, strlen(s)); (void)n; }
 
+/* ── LA STORIA DEI TURNI, CON LE FRECCE ───────────────────────────────────
+ *
+ * Il lettore canonico (`fgets`) lascia l'editing al terminale, che senza
+ * readline non offre ne' storia ne' movimento del cursore: freccia su usciva
+ * come `^[[A` dentro il testo del turno. Qui c'e' un editor minimo in raw mode,
+ * attivo SOLTANTO quando stdin e' un tty interattivo — le pipe, i bench e le
+ * suite restano sul percorso `fgets` byte per byte.
+ *
+ * Sceglie deliberatamente di NON accendere i protocolli kitty/bracketed-paste
+ * che il lettore multilinea usa: sono la ragione per cui quel lettore e' rimasto
+ * opt-in (un `CSI < u` non capito sporca il prompt su quasi tutti i terminali).
+ * Qui si usa solo termios, che funziona ovunque.
+ *
+ * Il movimento e' consapevole di UTF-8: una lettera accentata e' piu' byte e
+ * cancellarne uno solo lascerebbe mezzo carattere sullo schermo. */
+#define HIST_MAX 200
+static char *hist_buf[HIST_MAX];
+static size_t hist_n = 0;
+
+static void hist_push(const char *s) {
+    if (!s || !*s) return;
+    if (hist_n && strcmp(hist_buf[hist_n - 1], s) == 0) return;   /* no duplicati adiacenti */
+    char *copy = strdup(s);
+    if (!copy) return;
+    if (hist_n == HIST_MAX) {
+        free(hist_buf[0]);
+        memmove(hist_buf, hist_buf + 1, (HIST_MAX - 1) * sizeof *hist_buf);
+        hist_n--;
+    }
+    hist_buf[hist_n++] = copy;
+}
+
+/* Confine di carattere UTF-8: i byte di continuazione stanno in 0x80..0xBF. */
+static size_t utf8_prev(const char *b, size_t i) {
+    if (i == 0) return 0;
+    do { i--; } while (i > 0 && ((unsigned char)b[i] & 0xC0) == 0x80);
+    return i;
+}
+static size_t utf8_next(const char *b, size_t i, size_t len) {
+    if (i >= len) return len;
+    do { i++; } while (i < len && ((unsigned char)b[i] & 0xC0) == 0x80);
+    return i;
+}
+static size_t utf8_count(const char *b, size_t len) {
+    size_t n = 0;
+    for (size_t i = 0; i < len; i++)
+        if (((unsigned char)b[i] & 0xC0) != 0x80) n++;
+    return n;
+}
+
+/* Ridisegna la riga: prompt, testo, cancella la coda, riporta il cursore.
+ * Le sequenze del prompt sono a larghezza zero, quindi la colonna si conta
+ * sui caratteri del buffer, non sui byte. */
+static void line_redraw(const char *buf, size_t len, size_t cur) {
+    tty_write("\r");
+    tty_write(prompt_str());
+    ssize_t w = write(STDERR_FILENO, buf, len); (void)w;
+    tty_write("\x1b[K");
+    size_t back = utf8_count(buf + cur, len - cur);
+    if (back) {
+        char mv[32];
+        snprintf(mv, sizeof mv, "\x1b[%zuD", back);
+        tty_write(mv);
+    }
+}
+
+static int read_line_history(char *buf, size_t cap) {
+    struct termios old, raw;
+    if (tcgetattr(STDIN_FILENO, &old) != 0) return -1;   /* nessun tty: ricadi */
+    raw = old;
+    raw.c_lflag &= ~(unsigned)(ICANON | ECHO);
+    raw.c_cc[VMIN] = 1; raw.c_cc[VTIME] = 0;
+    tcsetattr(STDIN_FILENO, TCSANOW, &raw);
+
+    size_t len = 0, cur = 0;
+    /* `hist_at == hist_n` significa «sto scrivendo un turno nuovo»; la bozza in
+     * corso viene messa da parte quando si sale, e riappare tornando in fondo. */
+    size_t hist_at = hist_n;
+    char draft[LINE_MAX_LEN]; size_t draft_len = 0;
+    int eof = 0, done = 0;
+    buf[0] = '\0';
+    line_redraw(buf, len, cur);
+
+    while (!done) {
+        unsigned char c;
+        if (read(STDIN_FILENO, &c, 1) != 1) { eof = (len == 0); done = 1; break; }
+
+        if (c == '\r' || c == '\n') { done = 1; continue; }
+        if (c == 3) {                                   /* Ctrl-C: azzera */
+            len = cur = 0; buf[0] = '\0';
+            tty_write("^C\r\n");
+            line_redraw(buf, len, cur);
+            continue;
+        }
+        if (c == 4) {                                   /* Ctrl-D */
+            if (len == 0) { eof = 1; done = 1; continue; }
+            if (cur < len) {                            /* cancella avanti */
+                size_t nx = utf8_next(buf, cur, len);
+                memmove(buf + cur, buf + nx, len - nx);
+                len -= (nx - cur); buf[len] = '\0';
+                line_redraw(buf, len, cur);
+            }
+            continue;
+        }
+        if (c == 127 || c == 8) {                       /* backspace */
+            if (cur > 0) {
+                int at_end = (cur == len);
+                size_t pv = utf8_prev(buf, cur);
+                memmove(buf + pv, buf + cur, len - cur);
+                len -= (cur - pv); cur = pv; buf[len] = '\0';
+                /* Una colonna sola, anche se il carattere cancellato occupava
+                 * piu' byte: e' la larghezza sullo schermo che conta. */
+                if (at_end) tty_write("\b \b");
+                else line_redraw(buf, len, cur);
+            }
+            continue;
+        }
+        if (c == 1)  { cur = 0; line_redraw(buf, len, cur); continue; }        /* Ctrl-A */
+        if (c == 5)  { cur = len; line_redraw(buf, len, cur); continue; }      /* Ctrl-E */
+        if (c == 21) { memmove(buf, buf + cur, len - cur); len -= cur; cur = 0; /* Ctrl-U */
+                       buf[len] = '\0'; line_redraw(buf, len, cur); continue; }
+        if (c == 11) { len = cur; buf[len] = '\0';                              /* Ctrl-K */
+                       line_redraw(buf, len, cur); continue; }
+        if (c == 23) {                                                          /* Ctrl-W */
+            size_t e = cur;
+            while (e > 0 && buf[e - 1] == ' ') e--;
+            while (e > 0 && buf[e - 1] != ' ') e--;
+            memmove(buf + e, buf + cur, len - cur);
+            len -= (cur - e); cur = e; buf[len] = '\0';
+            line_redraw(buf, len, cur);
+            continue;
+        }
+
+        if (c == 27) {                                  /* sequenza di escape */
+            unsigned char a, b2;
+            if (read(STDIN_FILENO, &a, 1) != 1) continue;
+            if (a != '[' && a != 'O') continue;
+            if (read(STDIN_FILENO, &b2, 1) != 1) continue;
+            if (b2 >= '0' && b2 <= '9') {               /* forma CSI n ~ */
+                unsigned char t;
+                if (read(STDIN_FILENO, &t, 1) != 1) continue;
+                if (t == '~' && b2 == '3' && cur < len) {           /* Canc */
+                    size_t nx = utf8_next(buf, cur, len);
+                    memmove(buf + cur, buf + nx, len - nx);
+                    len -= (nx - cur); buf[len] = '\0';
+                    line_redraw(buf, len, cur);
+                } else if (t == '~' && (b2 == '1' || b2 == '7')) {
+                    cur = 0; line_redraw(buf, len, cur);
+                } else if (t == '~' && (b2 == '4' || b2 == '8')) {
+                    cur = len; line_redraw(buf, len, cur);
+                }
+                continue;
+            }
+            if (b2 == 'D') { if (cur > 0) { cur = utf8_prev(buf, cur);
+                                            line_redraw(buf, len, cur); } continue; }
+            if (b2 == 'C') { if (cur < len) { cur = utf8_next(buf, cur, len);
+                                              line_redraw(buf, len, cur); } continue; }
+            if (b2 == 'H') { cur = 0; line_redraw(buf, len, cur); continue; }
+            if (b2 == 'F') { cur = len; line_redraw(buf, len, cur); continue; }
+            if (b2 == 'A') {                            /* freccia su */
+                if (hist_at == 0) continue;
+                if (hist_at == hist_n) {                /* metti da parte la bozza */
+                    memcpy(draft, buf, len); draft_len = len;
+                }
+                hist_at--;
+                snprintf(buf, cap, "%s", hist_buf[hist_at]);
+                len = strlen(buf); cur = len;
+                line_redraw(buf, len, cur);
+                continue;
+            }
+            if (b2 == 'B') {                            /* freccia giu' */
+                if (hist_at >= hist_n) continue;
+                hist_at++;
+                if (hist_at == hist_n) {                /* torna alla bozza */
+                    memcpy(buf, draft, draft_len); len = draft_len;
+                } else {
+                    snprintf(buf, cap, "%s", hist_buf[hist_at]);
+                    len = strlen(buf);
+                }
+                buf[len] = '\0'; cur = len;
+                line_redraw(buf, len, cur);
+                continue;
+            }
+            continue;
+        }
+
+        if (c >= 32) {                                  /* inserisci al cursore */
+            if (len + 1 >= cap) continue;
+            int at_end = (cur == len);
+            memmove(buf + cur + 1, buf + cur, len - cur);
+            buf[cur] = (char)c;
+            len++; cur++; buf[len] = '\0';
+            /* Scrivere in coda — il caso normale — costa un byte invece del
+             * ridisegno dell'intera riga: su una riga lunga o su una
+             * connessione lenta la differenza si vede. */
+            if (at_end) { char e[2] = { (char)c, 0 }; tty_write(e); }
+            else line_redraw(buf, len, cur);
+        }
+    }
+
+    buf[len < cap ? len : cap - 1] = '\0';
+    tcsetattr(STDIN_FILENO, TCSANOW, &old);
+    tty_write("\r\n");
+    if (!eof) hist_push(buf);
+    return eof ? 0 : 1;
+}
+
 static int read_turn_tty(char *buf, size_t cap) {
     struct termios old, raw;
     tcgetattr(STDIN_FILENO, &old);
@@ -1116,12 +1323,26 @@ int main(int argc, char **argv) {
     int multiline = interactive && ml && ml[0] && ml[0] != '0';
 
     for (;;) {
-        fprintf(stderr, "%s", prompt_str());
-        fflush(stderr);
+        /* L'editor con storia ridisegna il prompt da se' a ogni tasto: se lo
+         * stampasse anche il ciclo, ne resterebbe uno di troppo sulla riga. */
+        if (!(interactive && !multiline)) {
+            fprintf(stderr, "%s", prompt_str());
+            fflush(stderr);
+        }
 
         if (multiline) {
             /* gen197: multi-line capable reader (Shift+Enter / paste / '\'). */
             if (!read_turn_tty(line, sizeof line)) break;   /* EOF */
+        } else if (interactive) {
+            /* Editor di riga con storia (frecce su/giu'). Se il terminale non
+             * si lascia mettere in raw mode ritorna -1 e si ricade sul lettore
+             * canonico, che e' sempre stato il comportamento di base. */
+            int r = read_line_history(line, sizeof line);
+            if (r == 0) break;                             /* EOF / Ctrl-D */
+            if (r < 0) {
+                if (!fgets(line, sizeof line, stdin)) break;
+                chomp(line);
+            }
         } else {
             if (!fgets(line, sizeof line, stdin)) break;    /* EOF / Ctrl-D */
             chomp(line);
