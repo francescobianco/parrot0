@@ -959,6 +959,22 @@ verde** chiudendo il bug dell'ordine dei ruoli).
 
 ---
 
+## Coda GD — apertura generica al dialogo (2026-08-31)
+
+Nasce dalla richiesta di F.: «i giri fatti hanno lavorato sulla profondita' di
+ragionamento; servono giri di apertura generica al dialogo — varieta', slang, in
+maniera massiccia». La misura GD1 dice che aveva ragione: **236 muri su 360
+turni** di conversazione ordinaria.
+
+| # | Piano | Classe liberata | Gate duro | Stato |
+|---|---|---|---|---|
+| **GD1** | **Misura del dialogo generico** | 360 turni, 60 dialoghi persistenti, 12 famiglie, it+en, processi reali | il probe localizza i muri per famiglia invece di dare un numero solo | **CHIUSA** — baseline 236 muri / 117 move_match. `scripts/dialogue_corpus_probe.py` |
+| **GD2** | **Lessico colloquiale massiccio** | attacchi informali, stanchezza, noia, buonumore, frustrazione, accordo, incoraggiamento, battuta | ogni forma entra parlando; il cue sopravvive dentro una frase lunga; processo nuovo | **CHIUSA** — 200 forme insegnate, 193 persistite, F01 da 14 a 18 match (+29% relativo). [Report](docs/labs/apprendimento-assistito/2026-08-31-gd1-gd2-apertura-dialogo.md) |
+| **GD3** | **Una forma ha una famiglia di varianti** | apostrofo, accento, abbreviazione di chat, elisione, spaziatura, maiuscole | insegnata UNA forma canonica, tutte le varianti dichiarate funzionano senza seconda lezione; ritrattarla le spegne tutte; una variante ambigua (`e`/`è`) non si risolve in silenzio | **aperto — PROSSIMO, ed e' il moltiplicatore.** Misurato: «you're a legend» funziona, «you are a legend» risponde «I am a legend now» — un misclaim, non un muro. Vedi D34 §18.38 |
+| **GD4** | **Il riferimento che attraversa i turni** | «quello», «l'altro», «quello di prima»: cio' che rende un dialogo un dialogo invece che una sequenza di domande | su turni multipli il riferimento si risolve o si dichiara ambiguo, mai si sceglie in silenzio | **aperto.** F03 e' la voce singola piu' alta del corpus — **24 muri su 30** — e non aveva un fronte |
+| **GD5** | **Corpus raccolto, non redatto** | il corpus GD1 e' scritto da chi lo misura, quindi misura anche le proprie assunzioni | i turni vengono da conversazioni reali; il delta si conferma su di essi | aperto |
+
+
 ## ⛔ HANDOFF 2026-08-30 POST-SC40-B — punto di ripresa autoritativo
 
 Questa e' la sezione da cui deve ripartire il prossimo coding agent. Anche se

@@ -5133,3 +5133,98 @@ hai corretto?» puo' indicare span e base KB; (4) il replay pulito e quello
 riparato producono semantica canonica identica ma genealogy diversa. Se una
 riscrittura muta permette le stesse quattro operazioni senza stato nascosto,
 D48 e' falsa.
+
+### 18.38 Ipotesi D34 — una forma ha una famiglia di varianti, e la variante non è una lezione
+
+Il giro GD2 ha insegnato **200 forme colloquiali reali** parlando, tutte
+accettate, 193 persistite, verificate in processo nuovo. Poi ha misurato il
+muro che nessuna quantità di forme supera:
+
+```text
+you're a legend   (insegnata)   ->  battuta riconosciuta
+you are a legend                ->  «Alright — I am a legend now.»
+perché non funziona             ->  «Annotato: lo tengo come stato attuale.»
+cmq ciao                        ->  muro
+comunque ciao                   ->  «Arrivederci!»
+```
+
+Tre fatti, in ordine di gravità crescente:
+
+1. **Una variante ortografica azzera la lezione.** Apostrofo (`you're`/`you
+   are`), accento (`perche`/`perché`), abbreviazione di chat
+   (`cmq`/`comunque`, `xké`/`perché`, `nn`/`non`, `qnd`/`quando`), elisione,
+   maiuscole. Ogni variante costa una lezione propria: un lessico di 200 forme
+   ne vorrebbe 600 e ne mancherebbe comunque. **È un frasario travestito da
+   corpus**, e il mantra #2 lo vieta esattamente come vieta la lista nel C.
+2. **Il fallback non è un muro: è un misclaim.** A un complimento parrot0 ha
+   risposto affermando qualcosa **su di sé** — «I am a legend now». È D29 in un
+   posto nuovo: la risposta più forte della propria fonte, prodotta non da una
+   lettura parziale ma da una lettura *sbagliata* che nessuna guardia intercetta
+   perché la frase è ben formata.
+3. **La classe non esiste.** `grep` su `kb/core` trova solo `lexeme(abbrev)`,
+   che è un'altra cosa. Non c'è nessun posto dove dire che due superfici sono la
+   stessa forma.
+
+L'ipotesi:
+
+> una forma linguistica non è una stringa: è una **famiglia di superfici** che
+> denotano la stessa cosa. Insegnare la forma deve insegnare la famiglia, e il
+> riconoscimento deve avvenire sulla forma canonica — mai su ciascuna variante
+> ripetuta a mano.
+
+```prolog
+form_variant($Canonical, $Variant, $Kind).
+%   $Kind ∈ apostrophe | accent | chat_abbrev | elision | spacing | case
+variant_rule($Language, $Kind, $Pattern, $Replacement).
+canonical_surface($Surface, $Canonical).
+variant_licensed($Language, $Kind).      % una lingua ammette certe famiglie
+ambiguous_variant($Surface, $A, $B).     % «e» -> «è»? si conserva, non si sceglie
+```
+
+Due confini che rendono l'ipotesi non banale:
+
+- **la canonicalizzazione della variante non è traduzione.** Deve avvenire
+  *prima* del matching delle cue e *dopo* la protezione della menzione (D25):
+  una parola dentro le virgolette è citata, e la sua ortografia è il contenuto.
+  Le due politiche si compongono, e sbagliare l'ordine rompe l'insegnabilità
+  che SC32 ha appena guadagnato.
+- **una variante può essere ambigua.** In italiano `e`/`è`, `da`/`dà`, `si`/`sì`
+  sono coppie vere: risolverle per default introdurrebbe l'errore che la
+  classe esiste per togliere. L'ambiguità si conserva e si dichiara, come
+  `undetermined_mode` in SC27.
+
+**Predizione falsificabile.** Insegnata **una** forma canonica, tutte le sue
+varianti dichiarate devono funzionare **senza una seconda lezione**; ritrattare
+la forma deve spegnerle tutte insieme; e una variante ambigua non deve mai
+essere risolta in silenzio. Se per coprire le varianti bisogna insegnarle una
+per una, la famiglia non esiste e l'ipotesi è falsa.
+
+**Perché è il moltiplicatore.** GD2 ha misurato che un lessico fa esattamente
+ciò che un lessico può fare: `+29%` relativo sulla famiglia che indirizza, e
+niente altrove. Le varianti non aggiungono una famiglia: **moltiplicano tutte
+quelle che già esistono**, comprese le classi di SC2-SC5 — un marker epistemico
+scritto con un accento diverso oggi non è lo stesso marker.
+
+### 18.39 Che cosa GD1 ha localizzato, e perché conta più del delta
+
+La misura di GD1 vale al di là del giro che l'ha prodotta: dice **dove sono i
+muri**, e non sono sparsi.
+
+| famiglia | muri (su 30) | dove si chiude |
+|---|---:|---|
+| F03 context/coref | 24 | riferimento cross-turn — la colla del dialogo lungo |
+| F10 complex prose | 21 | SC2-SC5, già in corso |
+| F05 clarification | 20 | la mossa di chiarimento, K3 |
+| F09 procedure/rollback | 20 | SC5-B, input/output tipati e annullamento |
+| F11 scientific literature | 20 | SC2/SC4 |
+| F12 mixed code/math | 20 | composizione fra registri |
+
+**F03 è la voce singola più alta di tutto il corpus** e non ha un fronte aperto
+nella coda: il riferimento che attraversa i turni — «quello», «l'altro»,
+«quello di prima» — è ciò che rende un dialogo un dialogo invece che una
+sequenza di domande. Vale una voce propria, ed è **GD4**.
+
+Nota di metodo: il delta di GD2 (+3% sul totale) sarebbe stato leggibile come
+fallimento da chi guardasse solo il totale. Guardando per famiglia, il lessico
+ha fatto il suo lavoro dove poteva e zero dove non doveva — e *zero dove non
+doveva* è il risultato che conferma che non ha barato.
