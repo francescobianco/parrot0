@@ -162,7 +162,17 @@ sia l'interpretazione sia l'estrazione, e la sua ablation deve farle sparire.
 - **Esiste:** classi chiuse in KB (`conjunction`, `stopword`), `intent_phrase`/
   `intent_cue`, dispatch first-match, coref/pragma/repair (la colla), il declino
   onesto. La materia prima c'è.
-- **Manca:** (a) la proiezione gerarchica dell'`InputSpan` in token e sintagmi;
+> ⛔ **Aggiornato il 2026-08-31.** Il punto (a) **non manca piu'**: la proiezione
+> gerarchica esiste dal gen438 ed e' misurabile — per «Il libro rosso e' sul
+> tavolo» parrot0 costruisce clausola radice, nodi sintagma e token con gli
+> offset (`input_node/4`, `input_node_atom/3`). Quello che manca e' la
+> **giunzione**: `extract_frame/2` non legge quella gerarchia, ricostruisce una
+> stringa piatta con `p0_join` e produce `book_red` — testa e modificatore fusi,
+> determinante perso, ordine invertito. Due percorsi paralleli, e vive quello
+> che butta la struttura. Vedi `frontier-kb-natural-dialogue.md` §18.42 (D37).
+
+- **Manca:** (a) ~~la proiezione gerarchica dell'`InputSpan` in token e sintagmi~~
+  **fatta**; ma la giunzione fra quella gerarchia e il produttore di fatti no;
   (b) un vero `pos/2` lessicale in KB e un assegnatore di ruoli generico; (c)
   `intent_schema/2` applicato alla struttura, non solo a cue/frasi; (d) il
   **declino informato** come output di default al posto del muro cieco; (e)

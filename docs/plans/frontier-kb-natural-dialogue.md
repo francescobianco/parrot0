@@ -5319,3 +5319,135 @@ quattro (la chiave dell'entità) compare in tutti i turni che nominano una cosa.
 4. **Il gate è una famiglia che chiude**, non un punto percentuale sul totale:
    un dialogo che passa da capo a fondo prova che la catena regge, dieci punti
    sparsi non provano niente.
+
+### 18.42 Ipotesi D37 — un'entità è un referente con proprietà, non un atomo fuso
+
+> **Domanda di F., 2026-08-31.** «Questo cassetto senza maniglia è legato a
+> predicati senza costruzione logica e metadati: il famoso `book_red` non
+> significa nulla. Sarebbe interessante pensare a `book` **con le sue
+> proprietà** in uno spazio dialogo. E per slittare le frasi in pezzi annidati
+> caratterizzanti si dovrebbe costruire un IR per la frase
+> ([[universal-input]]), e tutto questo dovrebbe concorrere alla comprensione
+> universale ([[universal-comprehension]]). Ha senso o mi illudo?»
+
+Ha senso, e la parte scomoda della risposta è un'altra: **è già scritto nei
+piani, e la struttura è già costruita a metà.** Il difetto non è che manchi la
+IR — è che chi produce i fatti non la usa.
+
+#### Che cosa i piani già dicono
+
+`universal-input.md` §4bis descrive la catena esatta che F. nomina:
+
+```text
+flusso -> segmento/register span -> token span
+       -> sintagmi (NP, VP, PP, clause)
+       -> relazioni fra sintagmi (subject, predicate, object, modifier)
+       -> frame o intent schema della KB
+```
+
+e aggiunge, testualmente, che **«`extract_frame/2` consuma la stessa
+struttura»**. `universal-comprehension.md` §4bis porta l'esempio che è la
+risposta alla domanda:
+
+```text
+"The okapi, a giraffid mammal, lives in Congo"
+  -> NP(subject) + apposition(NP) + VP + PP
+  -> is_a(okapi, giraffid_mammal)
+     located_in(okapi, congo)
+```
+
+Testa e proprietà **separate**, due fatti invece di un atomo fuso
+`okapi_giraffid_mammal`. È esattamente «book con le sue proprietà».
+
+#### Che cosa esiste davvero, misurato oggi
+
+Per «Il libro rosso è sul tavolo.» parrot0 costruisce **già** la gerarchia:
+
+```text
+input_node(current_turn, 0, node(clause, clause, root), range(...))   ✓
+input_node(current_turn, _, node(phrase, _, _), range(...))           ✓
+input_node_atom(current_turn, 1..5) = il · libro · rosso · sul · tavolo ✓
+```
+
+Clausola, sintagmi, token, con gli offset. Il punto (a) di
+`universal-comprehension` §5 — «manca la proiezione gerarchica dell'InputSpan in
+token e sintagmi» — **non manca più**: è arrivato col gen438 e quel paragrafo non
+lo sa.
+
+#### Che cosa succede invece, nello stesso turno
+
+```text
+Learned: located_in(book_red, tavolo).
+```
+
+`extract_frame/2` **non guarda la gerarchia**. Prende i token, li canonicalizza,
+li unisce con `p0_join` e produce una stringa. Da «il libro rosso» esce
+`book_red`: testa e modificatore fusi, determinante buttato, ordine invertito,
+lingua cambiata a metà.
+
+Due percorsi paralleli, e vive quello sbagliato:
+
+| percorso | stato | esito |
+|---|---|---|
+| gerarchia `input_node` → `input_semantic_frame` | **costruito, dormiente** | ruoli, span, nesting conservati |
+| `extract_frame` → `p0_join` | **vivo** | `book_red`, un atomo senza struttura |
+
+#### Perché `book_red` è peggio di un nome brutto
+
+Non è un nome scomodo: è un nome **che ha perso informazione**, e ogni perdita
+chiude una porta diversa.
+
+| ciò che è andato perso | ciò che non si può più fare |
+|---|---|
+| testa (`libro`) distinta dal modificatore (`rosso`) | chiedere «quale libro?»; far combaciare «il libro» con «il libro rosso» |
+| il determinante | distinguere «un libro» da «il libro» — cioè introdurre vs riprendere |
+| la posizione nel discorso | risolvere «il primo», «quello», «l'altro» |
+| la lingua della superficie | ripronunciarlo come è stato detto |
+
+Ed è la stessa perdita che rende F03 la famiglia peggiore del corpus (24 muri su
+30): la coreferenza non ha niente a cui attaccarsi, perché **non esiste un
+referente** — esiste solo un atomo fuso.
+
+#### L'ipotesi
+
+> Leggere una frase deve creare **referenti di discorso**, non chiavi. Un
+> referente ha una testa, delle proprietà, un determinante, una menzione con
+> span, e vive nello spazio del dialogo finché il dialogo dura. Il fatto lega
+> referenti, non stringhe.
+
+```prolog
+referent($Scope, $Id, head($Concept)).
+referent_property($Id, $Property, $Span).
+referent_determiner($Id, definite | indefinite).
+referent_mention($Id, $Turn, range($Start, $Length)).
+referent_same($IdA, $IdB, $Evidence).      % coreferenza: una RELAZIONE, non una fusione
+fact_binds($Fact, $Role, $Id).             % located_in lega referenti
+referent_surface($Id, $Language, $Surface). % e sa ridirsi come è stato detto
+```
+
+Il correttivo che aggiungerei alla formulazione di F.: il problema non sono i
+**metadati mancanti sul predicato**. Aggiungere metadati a `book_red` non
+servirebbe, perché il danno è già fatto a monte. Serve che `book_red` **non
+venga mai creato**: al suo posto un referente con testa `libro` e proprietà
+`rosso`, e un fatto che lega quel referente al referente `tavolo`.
+
+**Predizione falsificabile.** Dopo «Il libro rosso è sul tavolo»:
+«dove si trova il libro rosso» e «dove si trova il libro» devono **entrambe**
+rispondere; «di che colore è il libro» deve rispondere dalla proprietà; «Il
+libro è grande» deve attaccarsi allo stesso referente invece di crearne un
+secondo; e «dov'è il primo», dopo un secondo oggetto, deve risolversi o
+dichiararsi ambiguo. Se per ottenerlo bisogna enumerare le frasi, il referente
+non c'è.
+
+**Rapporto con D35.** D35 chiedeva la simmetria fra imparare e chiedere. Il
+referente è **il modo giusto** di ottenerla: due percorsi si accordano non
+perché condividono una funzione di normalizzazione, ma perché parlano dello
+stesso oggetto. La simmetria diventa una conseguenza, non una toppa.
+
+**Perché non è un rifacimento.** La gerarchia c'è, gli span ci sono, la KB ha
+già `semantic_entity`, `phrase_form`, `denotation` e `input_semantic_frame`. Ciò
+che manca è **una giunzione**: far sì che il produttore di fatti legga la
+struttura invece di ricostruirla piatta. È lo stesso movimento di SC2-B — una
+fase pura condivisa al posto di due percorsi che si ricostruiscono a vicenda — e
+lo stesso di D33 e D35. Tre volte la stessa forma: **due percorsi che devono
+accordarsi e non condividono l'oggetto su cui accordarsi.**
