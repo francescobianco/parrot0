@@ -1285,15 +1285,20 @@ int main(int argc, char **argv) {
        * spingevano fuori schermo l'inizio della conversazione ogni volta. */
       int tools_on = brain_policy_on(brain, "tools");
       int net_on   = brain_policy_on(brain, "network");
+      /* Tre righe piu' una vuota: l'identita', lo stato, il suggerimento, e poi
+       * il respiro prima del primo prompt. Il testo non cambia — cambia dove
+       * va a capo, e sparisce il trattino che separava identita' e stato
+       * perche' adesso li separa la riga. */
       fprintf(stderr,
-              "%s%sparrot0%s %s[%s]%s %s-%s mode: %s%s%s "
+              "%s%sparrot0%s %s[%s]%s\n"
+              "mode: %s%s%s "
               "%s(%stools %s%s%s%s,%s network %s%s%s%s)%s %s-%s "
               "%s%zu%s facts, %s%zu%s rules %s(%.2f%%)%s\n"
               "%ssay something ('/quit' to exit, '/save' to persist, "
-              "'/restore' to reload the KB from disk)%s\n",
+              "'/restore' to reload the KB from disk)%s\n"
+              "\n",
               C("1"), C("38;5;79"), C_OFF,
               C("38;5;245"), brain_version(), C_OFF,
-              C("38;5;240"), C_OFF,
               C("38;5;215"), mode, C_OFF,
               C("38;5;240"), C_OFF,
               tools_on ? C("38;5;114") : C("38;5;244"),
