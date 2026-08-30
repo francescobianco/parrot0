@@ -5228,3 +5228,94 @@ Nota di metodo: il delta di GD2 (+3% sul totale) sarebbe stato leggibile come
 fallimento da chi guardasse solo il totale. Guardando per famiglia, il lessico
 ha fatto il suo lavoro dove poteva e zero dove non doveva — e *zero dove non
 doveva* è il risultato che conferma che non ha barato.
+
+### 18.40 Ipotesi D35 — ciò che si impara da una frase deve essere interrogabile con la stessa frase
+
+Misurato il 2026-08-31, e spiega due giri di insegnamento che non crescevano:
+
+```text
+> Il libro rosso è sul tavolo.   ->  Learned: located_in(book_red, tavolo).
+> dove si trova il libro rosso   ->  muro
+> dove si trova book_red         ->  Tavolo.     ← solo col nome INTERNO
+> Il gatto è sul tetto.
+> dove si trova il gatto         ->  Tetto.      ← una parola sola: funziona
+```
+
+Un'entità di **una** parola fa il giro completo. Una di **più** parole no: la
+lettura canonicalizza «il libro rosso» in `book_red` — tradotto *e* riordinato —
+e il percorso della domanda non applica la stessa trasformazione. L'unico modo
+di recuperare quel fatto è pronunciare un nome che nessun essere umano
+digiterebbe.
+
+> **parrot0 impara sotto un nome che non sa più pronunciare.**
+
+L'invariante che manca non è una capacità nuova: è una **simmetria**.
+
+```prolog
+entity_key($Surface, $Language, $Key).      % la stessa funzione per i due versi
+entity_surface($Key, $Language, $Surface).  % e il ritorno, per poterlo dire
+key_roundtrip($Surface, $Language).         % deve valere per costruzione
+unnameable_fact($Fact, $Reason).            % il censimento di ciò che è murato
+```
+
+**Perché è la stessa forma di D33.** Là un'interpretazione era congelata fra le
+osservazioni perché la KB non poteva richiamare la lettura; qui una chiave è
+costruita da un percorso e non dall'altro. In entrambi i casi il difetto non è
+in ciò che parrot0 *sa*, ma nel fatto che **due percorsi che devono accordarsi
+non condividono la funzione che li accorda** — la stessa cura della fase pura di
+SC2-B, applicata alla chiave invece che al frame.
+
+**Predizione falsificabile.** Per ogni frase dichiarativa che produce un fatto,
+la domanda formata con **le stesse parole** deve raggiungerlo — in entrambe le
+lingue, e a qualunque numero di parole del sintagma. Se serve conoscere il nome
+interno, la simmetria non c'è. E `unnameable_fact/2` su un corpus reale deve
+tendere a zero: un fatto che nessuna frase può nominare è conoscenza murata, e
+contarla è il modo per sapere quanta ne stiamo producendo.
+
+**Portata, misurata.** Il corpus GD1 è pieno di referenti multi-parola — «il
+libro rosso», «il quaderno blu», «il treno notturno»: sono la norma del parlato,
+non un caso limite. Finché la simmetria manca, ogni fatto appreso da prosa
+italiana su un nome composto è scritto in un cassetto senza maniglia, e nessuna
+quantità di lessico o di forme interrogative lo apre.
+
+### 18.41 Ipotesi D36 — un aggregato nasconde una congiunzione
+
+Due giri di insegnamento, 276 forme reali entrate parlando e verificate in
+processo nuovo, hanno mosso **+11 turni su 360**. La spiegazione non è che il
+metodo sia debole: è che il corpus misura **congiunzioni** e i giri riparavano
+**congiunti**.
+
+Un turno del corpus riesce solo se tengono insieme, tutte insieme: la superficie
+riconosciuta, la forma della domanda nella lingua giusta, il nome dell'entità
+che fa il giro, il riferimento risolto, il fatto presente e la realizzazione
+disponibile. Riparare uno solo di questi muove ~zero, perché il turno continua a
+fallire su un altro — e il tasso di muro aggregato **non lo dice**: `66% di muri`
+suggerisce «serve più conoscenza», mentre la traccia di un dialogo solo ha detto
+«servono quattro cose diverse, e una è un bug di simmetria».
+
+```prolog
+turn_requires($Turn, $Link).             % superficie, chiave, riferimento, fatto…
+link_holds($Turn, $Link).
+turn_blocked_by($Turn, $Link).           % il PRIMO anello che cede
+chain_closed($Family, $Turn).
+shortest_chain_to_close($Family, $Links).
+```
+
+**Predizione falsificabile.** Registrando per ogni turno quale anello cede per
+primo, la distribuzione su un corpus reale deve essere **concentrata** su pochi
+anelli, non uniforme. Se è uniforme non esiste una catena corta da chiudere, e
+la strategia giusta torna a essere quantitativa. La misura del 2026-08-31 dice
+che è concentrata: quattro anelli su un dialogo di cinque turni, e uno dei
+quattro (la chiave dell'entità) compare in tutti i turni che nominano una cosa.
+
+**Corollario di metodo, ora vincolante.**
+
+1. **Traccia una catena intera prima di insegnare.** Un aggregato non dice mai
+   dove si rompe; un dialogo eseguito turno per turno lo dice in trenta secondi.
+2. **Ripara la catena più corta che chiude una famiglia**, non il difetto più
+   evidente. Il criterio non è «quanti muri tocca» ma «quanti anelli restano».
+3. **Insegnare viene per ultimo.** Il lessico moltiplica una catena che chiude;
+   su una catena rotta è rumore misurabile a +3%.
+4. **Il gate è una famiglia che chiude**, non un punto percentuale sul totale:
+   un dialogo che passa da capo a fondo prova che la catena regge, dieci punti
+   sparsi non provano niente.
