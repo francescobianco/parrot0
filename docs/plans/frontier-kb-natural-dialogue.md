@@ -1923,63 +1923,45 @@ completa: tutte e sette le generazioni del §15 e tutte e sette le
 sotto-generazioni del §17 hanno tagli verticali ratchettati. Quello che manca non
 e' piu' capacita' mancante, ed e' scritto qui perche' non diventi invisibile.
 
-> ## 0. ✅ SC40-A CHIUSA; ⛔ SC40-B: RIVEDERE SOLO CIO' CHE DIPENDE
+> ## 0. ✅ SC40-A/B CHIUSE; ⛔ SC41: DIRE TUTTO CIO' DA CUI DIPENDE UNA LETTURA
 >
 > **Aggiunto il 2026-08-30 su richiesta esplicita di F., e messo per primo
 > perche' e' la piu' importante delle voci di questa lista.**
 >
-> **Stato al checkpoint SC40-A.** Il difetto descritto sotto e' chiuso per le
-> claim documentali: la lettura e' versionata, dichiara una dipendenza, la
-> versione vecchia diventa stale e la domanda cambia senza replay del testo.
-> Ablation e reteach percorrono lo stesso arco al contrario; `StaleLeak=0` e
-> `Transfer@3=3/3`. La priorita' si sposta ora su **SC40-B**: l'attuale pass
-> rilegge tutte le claim dopo un modulo didattico dichiarato; deve ricevere un
-> evento con la conoscenza cambiata e visitare soltanto la frontiera dipendente,
-> senza perdere recall. Risultato e ipotesi nuove in §§18.38–18.42.
+> **Stato al checkpoint SC40-B.** Il difetto descritto sotto e' chiuso per le
+> claim documentali e per la prima famiglia di dipendenza: la lettura e'
+> versionata; add/retract/reteach producono un delta semantico; un indice KB
+> trova sia letture riuscite sia gap candidati. Su 100 claim una lezione ne ha
+> visitata e cambiata una sola; un verbo non presente produce `0/0` e un turno
+> `knowledge` senza delta non produce alcun pass. `StaleLeak=0`,
+> `Transfer@3=3/3`, fan-out controllato `1/100`. Report e ipotesi in
+> §§18.38–18.43.
 >
-> ```text
-> > read: We then warm the tube.        ->  gap(no_reading)
-> > warm is a relation verb
-> > read: We then warm the tube.        ->  normalized(reported)
-> > !query claim_normalization_gap(…, no_reading)   ANCORA VERO
+> Il nuovo confine e' piu' preciso: **una lettura dice oggi soltanto una parte
+> di cio' che l'ha resa possibile**. `relation_verb(P)` e' esatta, ma uno schema
+> curato resta `frame_predicate(P)`; morfologia, marker, modalita', ellissi,
+> ordine dei ruoli e policy di copertura non sono tutti archi di dipendenza.
+> L'indice puo' essere perfetto rispetto a un grafo incompleto e perdere
+> comunque revisioni semanticamente necessarie.
+>
+> **SC41 e' quindi prioritaria:** materializzare l'identita' completa delle
+> coordinate consultate da una lettura e provarle con ablation una alla volta.
+> Non aggiungere controlli C per `passive`, `modal` o parole specifiche: ogni
+> nuova famiglia deve comparire nella vista aperta
+> `revision_dependency_member/2`, mentre il motore continua a confrontare
+> termini opachi.
+>
+> ```prolog
+> last_revision_pass(relation_verb(solvates), scope(selective),
+>                    outcome(visited(1), changed(1))).
 > ```
 >
-> **Rileggere non rivede: accumula.** parrot0 tiene due letture incompatibili
-> dello stesso span e niente dice quale sia corrente.
+> Il receipt sopra chiude SC40-B, ma non dimostra `DependencyCompleteness`.
+> Lo stress da 100 claim e' permanente in
+> `tests/p0t/language/document_revision_scale.p0t`; il report causale e'
+> `docs/labs/apprendimento-assistito/2026-08-30-supercomprensione-sc40b.md`.
 >
-> Sotto l'inconveniente c'e' il limite che conta, e va scritto senza attenuarlo:
->
-> > **parrot0 non puo' rileggere cio' che ha gia' letto alla luce di cio' che ha
-> > appena imparato.** Le sue letture passate restano congelate al livello di
-> > comprensione che aveva quel giorno.
->
-> Un lettore umano fa il contrario di continuo. Questa e' una differenza di
-> intelligenza, non un dettaglio di implementazione — ed e' il singolo punto in
-> cui migliorare renderebbe parrot0 *piu' intelligente nella comprensione*
-> invece che piu' capace su una classe in piu'.
->
-> **Non e' la natura del dialogo e non e' stupidita'.** La separazione
-> osservazione/interpretazione di SC2-A e' corretta e va difesa. Il difetto e'
-> che `claim_proposition` sta fra le OSSERVAZIONI pur essendo il risultato di
-> un'interpretazione che usa conoscenza ritrattabile, e ci e' finito per un
-> vincolo **meccanico** travestito da scelta di modello: la lettura vive nel C e
-> la KB non puo' richiamarla, quindi invece di ri-derivarla e' stata congelata.
->
-> **Perche' e' urgente adesso e non fra dieci fronti.** Ogni strato costruito da
-> SC2-A in poi — claim, modalita', argomento, metodo — deposita interpretazioni
-> accanto alle osservazioni. Piu' si va avanti, piu' letture congelate si
-> accumulano, e piu' costa separarle. E ogni ratchet che «per passare» ha
-> bisogno di un passaggio mai letto sta pagando questo debito senza dirlo: e'
-> gia' successo tre volte (SC2-C, SC5, §18.37).
->
-> **La strada**, tutta con pezzi che esistono gia': `reading_depends_on/2` +
-> `reading_stale/2` + una revisione che e' un ATTO dichiarato (D21) e non un
-> automatismo. Niente si cancella — la lettura superata diventa stale e
-> `revision_effect/3` conserva prima e dopo.
->
-> Dettaglio completo in **§18.37 (D33)**; voce di coda **SC40**, prioritaria.
->
-> **Regola di metodo che ne discende, gia' vincolante:** quando un test ha
+> **Regola di metodo che resta vincolante:** quando un test ha
 > bisogno di un dato fresco per passare, chiedersi **prima** se il sistema abbia
 > bisogno di dimenticare o di **rivedere**. Aggirare un limite e descriverlo
 > sono compatibili; aggirarlo e chiamarlo intenzionale no.
@@ -4902,3 +4884,76 @@ marcata `stale_summary` e non pronunciata come corrente.
 Queste ipotesi definiscono «supercomprensione» senza invocare una facolta'
 magica: più livelli della stessa struttura diventano osservabili, correggibili,
 controfattuali e componibili nello spazio dei modelli.
+
+### 18.43 Risultato D35 e ipotesi D40/D41 — evento estensionale e grafo delle opportunita'
+
+SC40-B ha chiuso il primo taglio selettivo senza aggiungere un mutation hook
+linguistico. Il motore fotografa prima/dopo una vista dichiarata dalla KB:
+
+```prolog
+revision_dependency_member(document_claim, relation_verb($Predicate)) :-
+    relation_verb($Predicate).
+```
+
+La differenza fra i due insiemi e' l'evento. Il modulo vincitore resta soltanto
+un gate: una domanda servita da `knowledge` che non cambia la vista non rilegge
+niente. Aggiunta e rimozione di `relation_verb(solvates)` producono invece lo
+stesso termine mutato e percorrono lo stesso indice in versi opposti.
+
+Il ratchet piccolo misura `visited(1), changed(1)` su tre claim, `0/0` per un
+verbo assente e nessun nuovo receipt per un fatto tassonomico ordinario. Lo
+stress naturale permanente porta il denominatore a 100: una sola claim contiene
+il membro insegnato, una sola viene visitata, la domanda risponde con fonte e il
+retract riapre soltanto quel gap. D35 e' quindi confermata per la famiglia
+esatta `relation_verb/1`; non ancora per tutte le coordinate della lettura.
+
+**Ipotesi D40 — un evento semantico e' una differenza estensionale di una vista,
+non il nome di un'operazione.** `assert`, lezione naturale, induzione o restore
+possono cambiare lo stesso significato attraverso percorsi diversi; se il
+consumer ascolta l'API chiamata, quattro percorsi producono quattro semantiche.
+Se ascolta la vista prima/dopo, tutti producono lo stesso termine cambiato. Il
+contrario vale per operazioni rumorose ma estensionalmente idempotenti: non sono
+eventi per quel consumer.
+
+**Predizioni falsificabili D40.** (1) insegnare lo stesso membro attraverso due
+facolta' diverse produce lo stesso fronte; (2) reinsegnare un membro gia' vivo
+non crea una revisione; (3) un restore che cambia dieci membri produce lo stesso
+insieme di receipt di dieci cambi naturali, eventualmente in una sola
+transazione; (4) aggiungere una nuova famiglia alla vista e alle regole candidate
+non richiede modificare il diff C. Se serve riconoscere il nome della facolta'
+per distinguere due significati uguali, D40 e' falsa o la vista e' incompleta.
+
+Il secondo risultato e' piu' profondo. Una lettura riuscita puo' dichiarare
+`reading_depends_on(Reading, relation_verb(solvates))`; un gap precedente alla
+lezione non puo' dipendere da un fatto che non conosce ancora. Un indice basato
+soltanto sulle giustificazioni attuali non avrebbe mai trovato la claim da
+sbloccare. SC40-B ha dovuto aggiungere una seconda relazione, derivata dai token
+osservati, per modellare **che cosa potrebbe diventare leggibile**.
+
+**Ipotesi D41 — la supercomprensione richiede due grafi duali:** il grafo di
+supporto dice da che cosa dipendono le interpretazioni correnti; il grafo delle
+opportunita' dice quali interpretazioni mancanti potrebbero diventare possibili
+se una conoscenza candidata fosse aggiunta. Il primo governa retract, proof e
+staleness; il secondo governa apprendimento attivo, revisione dei gap e
+`retroactive_gain`. Confonderli rende invisibile o il passato riuscito o il
+futuro apprendibile.
+
+```text
+support graph:      knowledge -> reading corrente -> consumer autorizzati
+opportunity graph:  candidate knowledge -> gap/residui -> letture possibili
+```
+
+**Predizioni falsificabili D41.** (1) un candidato presente in cento residui ma
+in nessuna lettura riuscita ha guadagno retroattivo non nullo; (2) ritrarre una
+licenza percorre il grafo di supporto senza inventare opportunita' estranee;
+(3) una lettura parziale compare nell'opportunity graph ma resta bloccata dalla
+policy di copertura; (4) la previsione SC37 di una lezione coincide con gli
+effetti reali soltanto se unisce i due grafi. Se un unico `depends_on` copre i
+quattro casi senza perdere la distinzione fra prova e possibilita', D41 puo'
+essere semplificata; fino a quella dimostrazione la dualita' e' il modello piu'
+falsificabile.
+
+Il prossimo confine SC41 segue direttamente: enumerare **tutte** le coordinate
+consultate da una lettura e stabilire quali siano supporto, quali scelta fra
+candidate e quali opportunita'. Solo dopo ha senso propagare il taglio verso
+argomenti, procedure, regioni di modelli e sintesi (SC42).

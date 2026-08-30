@@ -931,8 +931,12 @@ impersonale: dichiara «riconosco la verifica, non normalizzo la proposition».
 Questo e' un esempio concreto di M13 e M14 che si compongono.
 
 A8 non chiude ancora M14: la dipendenza e' esatta per un verbo relazionale
-appreso ma grossolana per schemi curati, e il pass e' globale. Chiude il diritto
-semantico a rivedere; SC40-B deve chiudere la selezione e il budget.
+appreso ma grossolana per schemi curati. SC40-B ha pero' chiuso la prima parte
+operativa: il pass non e' piu' globale. Una vista semantica fotografata
+prima/dopo produce il termine cambiato e un indice KB sceglie soltanto letture
+dipendenti o gap candidati. Su 100 claim una lezione ne visita una. Restano
+dipendenza completa, propagazione transitiva e budget: rispettivamente
+SC41–SC43.
 
 ### 14.5 Metriche della comprensione revisionabile
 
@@ -953,7 +957,57 @@ Alle metriche del §11 si aggiungono:
   correttamente / effetti misurati dopo promozione o rollback.
 - **RetroactiveGain:** aumento pesato del livello di comprensione sul corpus
   gia' letto, al netto di costo e overclaim.
+- **DependencyCompleteness:** coordinate di lettura registrate come dipendenze /
+  coordinate effettivamente consultate dalla fase pura. Un indice perfetto su
+  un grafo incompleto non conta come recall.
+- **OpportunityRecall:** gap che una lezione candidata potrebbe sbloccare e che
+  l'indice delle opportunita' raggiunge / gap che il full audit sbloccherebbe.
+- **EventIdempotence:** atti che non cambiano la vista e non producono revisioni
+  / atti estensionalmente idempotenti provati.
+- **IngestionCost vs RevisionCost:** tempo e nodi visitati per osservare il
+  documento vanno separati dal costo del pass retroattivo. SC40-B ha mostrato
+  un fan-out `1/100` ma un'ingestione di 100 unita' ancora costosa; sommare i
+  due numeri nasconderebbe quale facolta' va migliorata.
 
 Queste metriche impediscono due successi apparenti: chiamare «intelligente» un
 full scan illimitato, e chiamare «efficiente» un indice che perde le letture che
 avrebbe dovuto rivedere.
+
+### 14.6 Milestone A9 — addestrare il passato e il futuro con due grafi
+
+L'apprendimento assistito classico osserva soltanto il futuro: dopo una lezione
+presenta tre esempi nuovi. La letteratura scientifica e la prosa complessa
+rendono questo criterio insufficiente. Una definizione appresa a pagina 20 puo'
+cambiare una premessa a pagina 3, la readiness di un metodo, l'interpretazione
+di una figura e la validita' di una sintesi gia' prodotta.
+
+SC40-B suggerisce una transazione didattica a due grafi:
+
+1. il **grafo di supporto** conserva per ogni lettura corrente le conoscenze che
+   la autorizzano; serve a proof, retract e propagazione dello stale;
+2. il **grafo delle opportunita'** collega una conoscenza candidata ai residui
+   che potrebbe sbloccare; serve a scegliere lezioni, prevederne l'effetto e
+   rileggere senza replay.
+
+Il gate A9 deve usare un mini-corpus scientifico gia' osservato, non esempi
+scritti dopo la lezione:
+
+1. accumulare almeno cento claim con residui tipati, provenienza e importanza
+   distinta (premessa, passo critico, dettaglio laterale);
+2. proporre tre lezioni candidate: una frequente ma laterale, una rara che
+   sblocca un metodo, una che produrrebbe soltanto letture parziali;
+3. prima di promuoverle, prevedere candidate raggiunte, versioni cambiate,
+   consumer riaperti e costo;
+4. promuovere e poi ritrarre ogni candidata, confrontando previsione ed effetto
+   reale senza ripresentare il corpus;
+5. scegliere la lezione successiva per guadagno retroattivo pesato, non per
+   frequenza nuda;
+6. conservare `pending_revision` quando il budget termina e impedire ai
+   consumer stale di parlare come correnti.
+
+A9 e' chiusa soltanto se la lezione rara ma strutturalmente decisiva batte
+quella frequente quando riabilita piu' ragionamento, e se la candidata parziale
+resta un gap nonostante compaia nel grafo delle opportunita'. Questo e' il ponte
+fra comprensione, metacomprensione e curriculum autonomo: parrot0 non sa
+soltanto *che cosa non capisce*, ma *quale insegnamento cambierebbe quali parti
+del proprio modello* e puo' verificarlo contro la propria genealogia.

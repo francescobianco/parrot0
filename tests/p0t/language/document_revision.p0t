@@ -27,6 +27,7 @@
 # ricalcolata dalla stessa fase pura e il metodo diventa eseguibile da solo.
 > warm is a relation verb
 < Learned: relation_verb(warm).
+!query last_revision_pass(relation_verb(warm), scope(selective), outcome(visited(1), changed(1)))
 !query claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
 !query! claim_normalization_gap(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, no_reading)
 !query method_executable(document_a89aaeaeb2e06370_8b32e8d21149aa6b, ready)
@@ -49,6 +50,7 @@
 # produce un nuovo gap. Superficie, fonte e status non vengono cancellati.
 > forget that warm is a relation verb
 <~ warm
+!query last_revision_pass(relation_verb(warm), scope(selective), outcome(visited(1), changed(1)))
 !query! relation_verb(warm)
 !query! claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
 !query claim_normalization_gap(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, no_reading)
@@ -63,10 +65,14 @@
 # l'idempotenza del pass: la comprensione non dipende dall'ultimo turno.
 > warm is a relation verb
 < Learned: relation_verb(warm).
+!query last_revision_pass(relation_verb(warm), scope(selective), outcome(visited(1), changed(1)))
 !query claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
 !query method_executable(document_a89aaeaeb2e06370_8b32e8d21149aa6b, ready)
 > a robin is a bird
 <~ Learned
+# `knowledge` ha servito il turno ma non ha cambiato un membro dichiarato: il
+# record resta quello di warm, prova che non e' partito un pass per il modulo.
+!query last_revision_pass(relation_verb(warm), scope(selective), outcome(visited(1), changed(1)))
 > Is a robin a bird?
 < Yes.
 !query claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
@@ -82,6 +88,7 @@
 !query claim_normalization_gap($Claim, no_reading)
 > altered is a relation verb
 < Learned: relation_verb(altered).
+!query last_revision_pass(relation_verb(altered), scope(selective), outcome(visited(1), changed(1)))
 !query claim_frame($Claim, altered, impact, orbit)
 !query reading_depends_on($Reading, relation_verb(altered))
 !query! altered(impact, orbit)
@@ -91,6 +98,7 @@
 !query claim_normalization_gap($Claim, no_reading)
 > perturbs is a relation verb
 < Learned: relation_verb(perturbs).
+!query last_revision_pass(relation_verb(perturbs), scope(selective), outcome(visited(1), changed(1)))
 !query claim_frame($Claim, perturbs, scheme, radiation_field)
 !query reading_depends_on($Reading, relation_verb(perturbs))
 !query! perturbs(scheme, radiation_field)
@@ -100,6 +108,7 @@
 !query claim_normalization_gap($Claim, no_reading)
 > distorts is a relation verb
 < Learned: relation_verb(distorts).
+!query last_revision_pass(relation_verb(distorts), scope(selective), outcome(visited(1), changed(1)))
 !query claim_frame($Claim, distorts, confounding, association)
 !query reading_depends_on($Reading, relation_verb(distorts))
 !query! distorts(confounding, association)
@@ -108,4 +117,5 @@
 # per testi che non lo contengono.
 > catalyzes is a relation verb
 < Learned: relation_verb(catalyzes).
+!query last_revision_pass(relation_verb(catalyzes), scope(selective), outcome(visited(0), changed(0)))
 !query! claim_frame($Claim, catalyzes, $Subject, $Object)

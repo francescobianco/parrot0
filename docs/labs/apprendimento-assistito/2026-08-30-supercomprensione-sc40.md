@@ -182,10 +182,12 @@ RetroactiveTransfer     = 3/3
 
 ## Limiti e prossime falsificazioni
 
-SC40-A e' chiusa, non l'intero problema della revisione:
+SC40-A e' chiusa, non l'intero problema della revisione. Il primo limite sotto
+e' stato chiuso poche ore dopo da
+[SC40-B](2026-08-30-supercomprensione-sc40b.md); gli altri restano:
 
-1. il pass corrente riesamina tutte le claim dopo un modulo dichiarato; manca
-   l'indice selettivo per dipendenza/evento;
+1. **chiuso da SC40-B:** il pass usa ora il delta estensionale di una vista KB e
+   un indice candidato/dipendenza; stress 100 claim, `visited(1)`;
 2. la dipendenza e' esatta per `relation_verb(P)`, ma per schemi curati resta
    `frame_predicate(P)`: manca l'identita' completa dello schema/morfologia;
 3. modalita', marker, coreferenza, argomenti, metodi e sintesi devono dichiarare
@@ -199,5 +201,5 @@ File KB modificati dal save: `kb/learning/taught-lexicon.p0`,
 `kb/learning/learned.p0`. I file core, C, test e documentazione elencati nel
 commit costituiscono la meta-capacita' SC40-A.
 
-**Commit:** il checkpoint che contiene questo report (hash nel handoff e nella
-consegna finale). **Push:** obbligatorio su `origin/main`.
+**Commit:** `353400f` (`learn(meta): revise document readings after lessons`).
+**Push:** pubblicato su `origin/main` prima dell'apertura di SC40-B.

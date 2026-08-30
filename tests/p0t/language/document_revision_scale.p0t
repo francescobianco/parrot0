@@ -1,0 +1,33 @@
+# document_revision_scale.p0t — SC40-B: il fronte resta selettivo su 100 claim.
+#
+# Stress separato dal target rapido: il reader osserva cento unita' in un solo
+# documento; soltanto una contiene il membro semantico insegnato dopo la lettura.
+# La prova e' il receipt interno del pass, non una stima del tempo.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test sc40b cento claim un solo candidato]
+!timeout 360
+> read: https://example.org/sc40b-scale The data show that ligand solvates ion. The data show that x1 q y1. The data show that x2 q y2. The data show that x3 q y3. The data show that x4 q y4. The data show that x5 q y5. The data show that x6 q y6. The data show that x7 q y7. The data show that x8 q y8. The data show that x9 q y9. The data show that x10 q y10. The data show that x11 q y11. The data show that x12 q y12. The data show that x13 q y13. The data show that x14 q y14. The data show that x15 q y15. The data show that x16 q y16. The data show that x17 q y17. The data show that x18 q y18. The data show that x19 q y19. The data show that x20 q y20. The data show that x21 q y21. The data show that x22 q y22. The data show that x23 q y23. The data show that x24 q y24. The data show that x25 q y25. The data show that x26 q y26. The data show that x27 q y27. The data show that x28 q y28. The data show that x29 q y29. The data show that x30 q y30. The data show that x31 q y31. The data show that x32 q y32. The data show that x33 q y33. The data show that x34 q y34. The data show that x35 q y35. The data show that x36 q y36. The data show that x37 q y37. The data show that x38 q y38. The data show that x39 q y39. The data show that x40 q y40. The data show that x41 q y41. The data show that x42 q y42. The data show that x43 q y43. The data show that x44 q y44. The data show that x45 q y45. The data show that x46 q y46. The data show that x47 q y47. The data show that x48 q y48. The data show that x49 q y49. The data show that x50 q y50. The data show that x51 q y51. The data show that x52 q y52. The data show that x53 q y53. The data show that x54 q y54. The data show that x55 q y55. The data show that x56 q y56. The data show that x57 q y57. The data show that x58 q y58. The data show that x59 q y59. The data show that x60 q y60. The data show that x61 q y61. The data show that x62 q y62. The data show that x63 q y63. The data show that x64 q y64. The data show that x65 q y65. The data show that x66 q y66. The data show that x67 q y67. The data show that x68 q y68. The data show that x69 q y69. The data show that x70 q y70. The data show that x71 q y71. The data show that x72 q y72. The data show that x73 q y73. The data show that x74 q y74. The data show that x75 q y75. The data show that x76 q y76. The data show that x77 q y77. The data show that x78 q y78. The data show that x79 q y79. The data show that x80 q y80. The data show that x81 q y81. The data show that x82 q y82. The data show that x83 q y83. The data show that x84 q y84. The data show that x85 q y85. The data show that x86 q y86. The data show that x87 q y87. The data show that x88 q y88. The data show that x89 q y89. The data show that x90 q y90. The data show that x91 q y91. The data show that x92 q y92. The data show that x93 q y93. The data show that x94 q y94. The data show that x95 q y95. The data show that x96 q y96. The data show that x97 q y97. The data show that x98 q y98. The data show that x99 q y99.
+<~ Mapped 100 document unit(s), 100 reported claim(s)
+!query claim_normalization_gap($Claim, no_reading)
+
+> solvates is a relation verb
+< Learned: relation_verb(solvates).
+!query last_revision_pass(relation_verb(solvates), scope(selective), outcome(visited(1), changed(1)))
+!query claim_frame($Claim, solvates, ligand, ion)
+> was it observed that the ligand solvates the ion?
+<~ Yes
+<~ https://example.org/sc40b-scale
+
+> forget that solvates is a relation verb
+<~ no longer
+!query last_revision_pass(relation_verb(solvates), scope(selective), outcome(visited(1), changed(1)))
+!query! claim_frame($Claim, solvates, ligand, ion)
+!query claim_normalization_gap($Claim, no_reading)

@@ -3683,13 +3683,14 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     /* gen422: la firma si azzera A OGNI TURNO. E' l'impronta di QUESTO
      * ragionamento, non della vita del processo — sommarli darebbe un numero che
      * cambia sempre e non dice niente. */
+    DocumentRevisionSnapshot document_before = document_revision_snapshot(b);
     if (b && b->kb) kb_footprint_reset(b->kb);
     size_t n = brain_respond_dispatch(b, input, out, out_size);
-    /* SC40: una facolta' dichiarata dalla KB puo' rendere stale le letture
-     * documentali. La revisione avviene DOPO l'atto didattico e prima del turno
-     * successivo; non cambia la risposta della lezione e non richiede che il
-     * teacher ripresenti il documento. */
-    document_revision_after_declared_module(b);
+    /* SC40-B: la fotografia precedente e quella corrente rendono osservabile il
+     * delta reale. Un modulo autorizzato che non ha mutato membri semantici non
+     * causa lavoro; una mutazione rivede soltanto il taglio scelto dalla KB. */
+    document_revision_after_declared_module(b, &document_before);
+    document_revision_snapshot_free(&document_before);
     /* gen422d: e CHI ha risposto fa parte della strada. Va piegato qui, una
      * volta, invece che nei dieci punti in cui `last_module` viene scritto. */
     if (b && b->kb) kb_footprint_mark(b->kb, b->last_module);

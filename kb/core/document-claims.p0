@@ -170,6 +170,13 @@ machinery(reading_current).
 machinery(revision_effect).
 machinery(revision_schedule).
 machinery(revision_trigger_module).
+machinery(document_claim_token_observe).
+machinery(claim_token_observation).
+machinery(revision_dependency_member).
+machinery(revision_candidate_claim).
+machinery(revision_pass_observe).
+machinery(last_revision_pass).
+machinery(last_revision_pass_exists).
 
 normalization_origin(reported, quarantine).
 normalization_origin(asserted, world).
@@ -249,10 +256,49 @@ reading_current($Claim, $Reading) :-
     claim_current_reading($Claim, $Reading),
     naf(reading_is_stale($Reading)).
 
-% Il costo non e' un automatismo nascosto: la KB dichiara quando una facolta'
-% puo' chiedere un pass di revisione. Il C enumera record e riesegue la stessa
-% fase pura; non conosce verbi, marker o generi documentali.
-revision_schedule(document_claim, after_semantic_lesson).
+% ── SC40-B: IL DELTA SEMANTICO SCEGLIE IL FRONTE DI REVISIONE ────────────
+%
+% L'autorizzazione del modulo non basta a dire CHE COSA sia cambiato: una
+% domanda servita da `knowledge`, per esempio, non deve rileggere un corpus.
+% La KB espone quindi i membri semantici che vanno fotografati prima/dopo il
+% turno. Il motore confronta termini opachi; non conosce `relation_verb`, ne'
+% dovra' conoscere la prossima famiglia aggiunta qui.
+revision_schedule(document_claim, after_semantic_change).
+revision_dependency_member(document_claim, relation_verb($Predicate)) :-
+    relation_verb($Predicate).
+
+% L'indice e' su osservazioni meccaniche della superficie, non su una nuova
+% interpretazione. Serve a trovare un gap ancora `unresolved` quando nasce il
+% primo schema capace di leggerlo. La seconda regola segue invece le dipendenze
+% delle letture gia' riuscite: e' la strada esatta per retract e sostituzioni.
+document_claim_token_observe(ref($Document, $Unit, $Claim), token($Token)) :-
+    document_claim($Document, $Claim, $Proposition),
+    assert(claim_token_observation, $Claim, $Token).
+
+revision_candidate_claim(document_claim, $Claim, relation_verb($Predicate)) :-
+    claim_token_observation($Claim, $Predicate).
+revision_candidate_claim(document_claim, $Claim, $Dependency) :-
+    claim_current_reading($Claim, $Reading),
+    reading_depends_on($Reading, $Dependency).
+
+% Un pass lascia una misura interrogabile. E' volutamente UNA vista dell'ultimo
+% evento: outcome(visited(1), changed(1)) su tre claim prova che l'indice, non un
+% full scan nascosto, ha scelto il lavoro. La prima clausola sostituisce il
+% record precedente; la seconda inizializza il registro. L'esito e' impacchettato
+% per restare entro l'arita' universale del linguaggio P0.
+last_revision_pass_exists :-
+    last_revision_pass($Dependency, $Scope, $Outcome).
+revision_pass_observe($Dependency, $Scope, $Outcome) :-
+    last_revision_pass($OldDependency, $OldScope, $OldOutcome),
+    retract(last_revision_pass, $OldDependency, $OldScope, $OldOutcome),
+    assert(last_revision_pass, $Dependency, $Scope, $Outcome).
+revision_pass_observe($Dependency, $Scope, $Outcome) :-
+    naf(last_revision_pass_exists),
+    assert(last_revision_pass, $Dependency, $Scope, $Outcome).
+
+% La facolta' resta un gate di sicurezza: soltanto atti che possono mutare
+% semantica meritano il confronto. Se non cambia alcun membro dichiarato, non
+% viene prodotto neppure un pass vuoto.
 revision_trigger_module(document_claim, knowledge).
 revision_trigger_module(document_claim, mention).
 revision_trigger_module(document_claim, forget).

@@ -1968,6 +1968,38 @@ static int document_claim_interpret(Brain *b, const char *ref,
     return 1;
 }
 
+/* L'indice inverso SC40-B conserva token, non significati. La normalizzazione
+ * e lo split sono meccanica condivisa; quali token diventino dipendenze e quali
+ * claim essi candidino resta interamente nelle regole KB. I termini composti o
+ * con punteggiatura interna vengono lasciati al successivo strato lessicale:
+ * inventare qui una loro equivalenza sarebbe una decisione linguistica. */
+static void document_claim_index_tokens(Brain *b, const char *ref,
+                                        const char *content) {
+    if (!b || !b->kb || !ref || !content) return;
+    char nbuf[KB_TERM_LEN];
+    normalize(content, nbuf, sizeof nbuf);
+    char *words[96];
+    size_t nw = split_words(nbuf, words, 96);
+    for (size_t i = 0; i < nw; i++) {
+        char *token = strip_edge_punct(words[i]);
+        if (!*token || !(isalpha((unsigned char)token[0]) || token[0] == '_'))
+            continue;
+        int term_safe = 1;
+        for (const char *p = token; *p; p++)
+            if (!(isalnum((unsigned char)*p) || *p == '_')) {
+                term_safe = 0;
+                break;
+            }
+        if (!term_safe) continue;
+        char observed[KB_TERM_LEN];
+        if (snprintf(observed, sizeof observed, "token(%s)", token) >=
+            (int)sizeof observed)
+            continue;
+        const char *args[] = { ref, observed };
+        (void)kb_query(b->kb, "document_claim_token_observe", args, 2);
+    }
+}
+
 /* A status marker opens a reported claim over the remainder of its unit. The
  * shared evidence scorer finds the class and exact span; the KB validates the
  * class policy and derives status/context/commitment. C only copies offsets
@@ -2035,31 +2067,82 @@ static int document_claim_from_clause(Brain *b, const char *clause,
     const char *observe[] = { ref, marker, proposition, provenance };
     if (!kb_query(b->kb, "document_claim_observe", observe, 4)) return 0;
 
+    document_claim_index_tokens(b, ref, content);
+
     return document_claim_interpret(b, ref, cls, content);
 }
 
-/* ── SC40-A: RIVEDERE SENZA FAR RILEGGERE IL TEACHER ─────────────────────
+/* ── SC40-B: RIVEDERE IL TAGLIO MINIMO TOCCATO DAL DELTA KB ──────────────
  *
- * La KB sceglie QUANDO il costo e' autorizzato (`revision_schedule/2` e
- * `revision_trigger_module/2`). Questa funzione esegue soltanto la meccanica:
- * enumera le claim osservate, recupera superficie/classe/fonte e richiama la
- * stessa `document_claim_interpret` della prima lettura. Se la firma non cambia
- * la KB non crea una versione; se cambia conserva prima, dopo e dipendenza. */
-static size_t document_revision_pass(Brain *b) {
-    if (!b || !b->kb) return 0;
-    const char *policy[] = { "document_claim", "after_semantic_lesson" };
-    if (!kb_query(b->kb, "revision_schedule", policy, 2)) return 0;
+ * `revision_dependency_member/2` e' la fotografia dichiarativa della semantica
+ * rilevante. Il C confronta prima/dopo e consegna ciascun termine cambiato a
+ * `revision_candidate_claim/3`; non conosce la famiglia del termine, il verbo
+ * appreso o il genere di documento. Un full scan resta soltanto il fallback
+ * conservativo se una fotografia dinamica non puo' essere costruita. */
+typedef struct {
+    char (*members)[KB_TERM_LEN];
+    size_t count;
+    int available;
+} DocumentRevisionSnapshot;
 
-    char (*claims)[KB_TERM_LEN] = NULL;
-    const char *all[] = { NULL, NULL };
-    size_t nc = 0;
-    if (!kb_match_all(b->kb, "claim_attributed_to", all, 2,
-                      &claims, &nc)) {
-        free(claims);
-        return 0;
+static DocumentRevisionSnapshot document_revision_snapshot(Brain *b) {
+    DocumentRevisionSnapshot snapshot = { 0 };
+    if (!b || !b->kb) return snapshot;
+    const char *policy[] = { "document_claim", "after_semantic_change" };
+    if (!kb_query(b->kb, "revision_schedule", policy, 2)) return snapshot;
+    /* Senza osservazioni non esiste un fronte da mantenere. Marcare comunque
+     * la fotografia come disponibile fa risultare uguali due insiemi vuoti e
+     * evita che una normale lezione paghi l'enumerazione dell'intero lessico. */
+    const char *claim_q[] = { NULL, NULL };
+    char one_claim[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "claim_attributed_to", claim_q, 2,
+                 one_claim, 1) == 0) {
+        snapshot.available = 1;
+        return snapshot;
     }
+    const char *all[] = { "document_claim", NULL };
+    if (kb_match_all(b->kb, "revision_dependency_member", all, 2,
+                     &snapshot.members, &snapshot.count))
+        snapshot.available = 1;
+    return snapshot;
+}
 
-    size_t reviewed = 0;
+static void document_revision_snapshot_free(DocumentRevisionSnapshot *snapshot) {
+    if (!snapshot) return;
+    free(snapshot->members);
+    snapshot->members = NULL;
+    snapshot->count = 0;
+    snapshot->available = 0;
+}
+
+static int document_revision_snapshot_has(const DocumentRevisionSnapshot *snapshot,
+                                          const char *member) {
+    if (!snapshot || !snapshot->available || !member) return 0;
+    for (size_t i = 0; i < snapshot->count; i++)
+        if (strcmp(snapshot->members[i], member) == 0) return 1;
+    return 0;
+}
+
+static int document_current_reading(Brain *b, const char *claim,
+                                    char *out, size_t out_size) {
+    const char *q[] = { claim, NULL };
+    char reading[1][KB_TERM_LEN];
+    if (!b || !b->kb || !claim || !out || out_size == 0 ||
+        kb_match(b->kb, "claim_current_reading", q, 2, reading, 1) != 1)
+        return 0;
+    snprintf(out, out_size, "%s", reading[0]);
+    return 1;
+}
+
+/* Rilegge un insieme di identificatori gia' scelto dalla KB. `visited` conta
+ * soltanto record completi realmente consegnati alla fase pura; `changed`
+ * confronta il puntatore versione, quindi non confonde un pass idempotente con
+ * crescita di comprensione. */
+static void document_revision_claims(Brain *b,
+                                     char (*claims)[KB_TERM_LEN], size_t nc,
+                                     size_t *visited, size_t *changed) {
+    if (visited) *visited = 0;
+    if (changed) *changed = 0;
     for (size_t i = 0; i < nc; i++) {
         int duplicate = 0;
         for (size_t j = 0; j < i; j++)
@@ -2086,18 +2169,93 @@ static size_t document_revision_pass(Brain *b) {
         snprintf(ref, sizeof ref, "ref(%s, %s, %s)",
                  document[0], unit[0], claims[i]);
         snprintf(sb, sizeof sb, "%s", surface[0]);
-        if (document_claim_interpret(b, ref, cls[0], kb_dequote(sb)))
-            reviewed++;
+        char before[KB_TERM_LEN] = "", after[KB_TERM_LEN] = "";
+        int had_before = document_current_reading(
+            b, claims[i], before, sizeof before);
+        if (!document_claim_interpret(b, ref, cls[0], kb_dequote(sb)))
+            continue;
+        if (visited) (*visited)++;
+        int has_after = document_current_reading(
+            b, claims[i], after, sizeof after);
+        if (changed && (had_before != has_after ||
+                        (had_before && strcmp(before, after) != 0)))
+            (*changed)++;
     }
-    free(claims);
-    return reviewed;
 }
 
-static void document_revision_after_declared_module(Brain *b) {
+static void document_revision_report(Brain *b, const char *dependency,
+                                     const char *scope,
+                                     size_t visited, size_t changed) {
+    if (!b || !b->kb || !dependency || !scope) return;
+    char outcome[128];
+    snprintf(outcome, sizeof outcome,
+             "outcome(visited(%zu), changed(%zu))", visited, changed);
+    const char *args[] = { dependency, scope, outcome };
+    (void)kb_query(b->kb, "revision_pass_observe", args, 3);
+}
+
+static int document_revision_selective_pass(Brain *b,
+                                            const char *dependency) {
+    char (*claims)[KB_TERM_LEN] = NULL;
+    size_t nc = 0, visited = 0, changed = 0;
+    const char *q[] = { "document_claim", NULL, dependency };
+    if (!kb_match_all(b->kb, "revision_candidate_claim", q, 3,
+                      &claims, &nc)) {
+        free(claims);
+        return 0;
+    }
+    document_revision_claims(b, claims, nc, &visited, &changed);
+    free(claims);
+    document_revision_report(b, dependency, "scope(selective)",
+                             visited, changed);
+    return 1;
+}
+
+static void document_revision_full_pass(Brain *b) {
+    char (*claims)[KB_TERM_LEN] = NULL;
+    size_t nc = 0, visited = 0, changed = 0;
+    const char *all[] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "claim_attributed_to", all, 2,
+                      &claims, &nc)) {
+        free(claims);
+        return;
+    }
+    document_revision_claims(b, claims, nc, &visited, &changed);
+    free(claims);
+    document_revision_report(b, "snapshot(unavailable)", "scope(full)",
+                             visited, changed);
+}
+
+static void document_revision_after_declared_module(
+        Brain *b, const DocumentRevisionSnapshot *before) {
     if (!b || !b->kb || !b->last_module[0]) return;
     const char *trigger[] = { "document_claim", b->last_module };
-    if (kb_query(b->kb, "revision_trigger_module", trigger, 2))
-        (void)document_revision_pass(b);
+    if (!kb_query(b->kb, "revision_trigger_module", trigger, 2)) return;
+
+    DocumentRevisionSnapshot after = document_revision_snapshot(b);
+    if (!before || !before->available || !after.available) {
+        document_revision_snapshot_free(&after);
+        document_revision_full_pass(b);
+        return;
+    }
+
+    /* Aggiunte e rimozioni sono entrambe eventi: una apre un gap gia' letto,
+     * l'altra rende stale la base esatta di un frame. */
+    for (size_t i = 0; i < after.count; i++)
+        if (!document_revision_snapshot_has(before, after.members[i]) &&
+            !document_revision_selective_pass(b, after.members[i])) {
+            document_revision_snapshot_free(&after);
+            document_revision_full_pass(b);
+            return;
+        }
+    for (size_t i = 0; i < before->count; i++)
+        if (!document_revision_snapshot_has(&after, before->members[i]) &&
+            !document_revision_selective_pass(b, before->members[i])) {
+            document_revision_snapshot_free(&after);
+            document_revision_full_pass(b);
+            return;
+        }
+    document_revision_snapshot_free(&after);
 }
 
 /* ── SC2-B: INTERROGARE CIO' CHE UN DOCUMENTO RIPORTA ──────────────────────
