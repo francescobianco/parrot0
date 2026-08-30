@@ -189,6 +189,21 @@ segment_role(non_goal, "out of scope").
 segment_role(non_goal, "non-goal").
 segment_role(non_goal, "fuori ambito").
 
+% ── G2/D37: UN SINTAGMA HA UNA TESTA E DELLE PROPRIETA' ───────────────────
+%
+% «il libro rosso» diventava la chiave `book_red`: testa e modificatore fusi in
+% un atomo. Da li' non si puo' piu' chiedere «quale libro?», far combaciare «il
+% libro», ne' risolvere «quello rosso» — e la coreferenza non ha niente a cui
+% attaccarsi. La chiave resta (niente si cancella), ma accanto si conserva ORA
+% cio' che la fusione buttava via.
+%
+% Dove stia la testa e' conoscenza, non una regola nel C: l'italiano la mette
+% davanti («libro rosso»), l'inglese dietro («red book»). Una lingua nuova costa
+% una riga.
+machinery(noun_phrase_head_position).
+noun_phrase_head_position(it, first).
+noun_phrase_head_position(en, last).
+
 % ── SC32/D27: UNA CUE NON GUARDA DENTRO UNA MENZIONE ──────────────────────
 %
 % Misurato: insegnata la locuzione «helyla friend» come attacco informale, NON

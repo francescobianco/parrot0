@@ -5890,6 +5890,90 @@ static int question_shape_generalize(Brain *b, const char *norm) {
     return 0;
 }
 
+/* Spezza una chiave composta nei suoi pezzi: `book_red` -> book, red. La chiave
+ * conserva gia' cio' che la fusione sembrava aver perso — bastava rileggerla. */
+static size_t p0_key_parts(char *buf, size_t cap, const char *key,
+                           char *part[], size_t max) {
+    snprintf(buf, cap, "%s", key);
+    size_t n = 0;
+    for (char *p = buf; *p && n < max; ) {
+        part[n++] = p;
+        char *u = strchr(p, '_');
+        if (!u) break;
+        *u = '\0'; p = u + 1;
+    }
+    return n;
+}
+
+/* Quale pezzo sia la testa lo dice la KB, per lingua. */
+static size_t p0_head_index(Brain *b, size_t nparts) {
+    if (nparts == 0) return 0;
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    char pos[1][KB_TERM_LEN];
+    const char *pq[] = { lang, NULL };
+    if (kb_match(b->kb, "noun_phrase_head_position", pq, 2, pos, 1) == 1) {
+        char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", pos[0]);
+        if (strcmp(kb_dequote(pb), "last") == 0) return nparts - 1;
+    }
+    return 0;
+}
+
+/* Risolve una DESCRIZIONE — testa piu' proprieta' — contro le chiavi che la
+ * relazione gia' conosce. Restituisce le risposte solo se la descrizione
+ * individua UNA sola entita': due entita' compatibili sono un'ambiguita', e
+ * sceglierne una sarebbe inventare che cosa intendesse chi parla. */
+static size_t p0_answer_by_description(Brain *b, const char *pred,
+                                       const char *phrase, int allow_arg1,
+                                       int allow_arg2,
+                                       char ans[][KB_TERM_LEN], size_t max,
+                                       char amb[][KB_TERM_LEN], size_t *namb) {
+    if (namb) *namb = 0;
+    char pbuf[KB_TERM_LEN]; char *pp[8];
+    size_t np = p0_key_parts(pbuf, sizeof pbuf, phrase, pp, 8);
+    if (np == 0) return 0;
+    size_t phead = p0_head_index(b, np);
+
+    char (*keys)[KB_TERM_LEN] = NULL; size_t nk = 0;
+    const char *anyq[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, pred, anyq, 2, &keys, &nk) || nk == 0) {
+        free(keys); return 0;
+    }
+    char winner[KB_TERM_LEN] = ""; size_t nwin = 0;
+    for (size_t i = 0; i < nk; i++) {
+        char kbuf[KB_TERM_LEN]; char *kp[8];
+        size_t nkp = p0_key_parts(kbuf, sizeof kbuf, keys[i], kp, 8);
+        if (nkp == 0) continue;
+        if (strcmp(kp[p0_head_index(b, nkp)], pp[phead]) != 0) continue;
+        int lacks = 0;
+        for (size_t a = 0; a < np && !lacks; a++) {
+            if (a == phead) continue;
+            int found = 0;
+            for (size_t c = 0; c < nkp && !found; c++)
+                if (strcmp(kp[c], pp[a]) == 0) found = 1;
+            if (!found) lacks = 1;
+        }
+        if (lacks) continue;
+        if (nwin == 0) snprintf(winner, sizeof winner, "%s", keys[i]);
+        if (amb && namb && *namb < 4)
+            snprintf(amb[(*namb)++], KB_TERM_LEN, "%s", keys[i]);
+        nwin++;
+    }
+    free(keys);
+    /* Zero candidati e' un muro; due sono un'AMBIGUITA', e sono due cose
+     * diverse. Sceglierne uno sarebbe inventare quale libro intendesse chi
+     * parla; tacere sarebbe buttare via cio' che abbiamo capito. Il chiamante
+     * ha entrambe le liste e puo' dire quale delle due situazioni e'. */
+    if (nwin != 1) { if (namb && nwin < 2) *namb = 0; return 0; }
+    if (namb) *namb = 0;
+    const char *fw[2] = { winner, NULL };
+    size_t na = allow_arg1 ? kb_match(b->kb, pred, fw, 2, ans, max) : 0;
+    if (na == 0 && allow_arg2) {
+        const char *bw[2] = { NULL, winner };
+        na = kb_match(b->kb, pred, bw, 2, ans, max);
+    }
+    return na;
+}
+
 static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                             char *out, size_t out_size) {
     (void)raw;
@@ -6004,13 +6088,21 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
          * E' additivo: i passaggi per token restano intatti sotto, quindi
          * niente di cio' che funzionava smette. Le frasi si provano PRIMA
          * perche' sono piu' specifiche. */
-        if (pass == 0) {
+        /* ULTIMA RISORSA, non prima scelta. Messo davanti ai passaggi per
+         * token faceva rivendicare a questo modulo dei turni DICHIARATIVI —
+         * «homer wrote the odyssey» riceveva una risposta invece di diventare
+         * un fatto. Un sintagma si prova solo quando il token non ha trovato
+         * niente: piu' specifico non vuol dire piu' urgente. */
+        if (pass == 1) {
             for (size_t t = 0; t < nw; t++) {
                 int end = p0_slot_end(b, w, nw, t, NULL);
                 if (end < 0 || (size_t)end <= t + 1) continue;
                 size_t ss = t;
                 if (p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
-                if (ss + 1 >= (size_t)end) continue;   /* un token: gia' coperto */
+                /* Anche un token solo passa di qui: la chiave esatta e' gia'
+                 * coperta sotto, ma la risoluzione per DESCRIZIONE no — «il
+                 * libro» e' una parola sola e descrive `book_red`. */
+                if (ss >= (size_t)end) continue;
                 char key[KB_TERM_LEN];
                 if (!p0_join(w, ss, (size_t)end, key, KB_TERM_LEN)) continue;
                 char ans[16][KB_TERM_LEN]; size_t na;
@@ -6019,6 +6111,48 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                 if (na == 0 && allow_arg2) {
                     const char *pb[2] = { NULL, key };
                     na = kb_match(b->kb, pred, pb, 2, ans, 16);
+                }
+                if (na == 0) {
+                    /* ── G2: LA FRASE COME DESCRIZIONE, NON COME CHIAVE ──────
+                     *
+                     * «il libro» non e' la chiave `book_red`, ma la descrive: ne
+                     * nomina la testa e nessuna proprieta' che le manchi. Testa
+                     * e proprieta' non vanno osservate al momento della lezione
+                     * — sono gia' DENTRO la chiave, e ricavarle qui le rende
+                     * disponibili anche per i fatti imparati prima di questa
+                     * riga.
+                     *
+                     * Dove stia la testa e' conoscenza
+                     * (`noun_phrase_head_position/2`): l'italiano la mette
+                     * davanti, l'inglese dietro. Il C non lo decide.
+                     *
+                     * E se la descrizione combacia con DUE entita' diverse, non
+                     * si sceglie: l'ambiguita' e' un'informazione, e sceglierne
+                     * una sarebbe inventare quale libro intendesse chi parla. */
+                    char amb[4][KB_TERM_LEN]; size_t namb = 0;
+                    na = p0_answer_by_description(b, pred, key, allow_arg1,
+                                                  allow_arg2, ans, 16,
+                                                  amb, &namb);
+                    if (na == 0 && namb >= 2) {
+                        /* L'ambiguita' si DICE. Un muro qui butterebbe via il
+                         * fatto che abbiamo capito la descrizione e trovato piu'
+                         * di un candidato: chiedere quale e' la risposta giusta,
+                         * non un ripiego. */
+                        char opts[256]; size_t o = 0;
+                        for (size_t z = 0; z < namb && o + 2 < sizeof opts; z++) {
+                            char pz[KB_TERM_LEN];
+                            snprintf(pz, sizeof pz, "%s", kb_dequote(amb[z]));
+                            for (char *c = pz; *c; c++) if (*c == '_') *c = ' ';
+                            o += (size_t)snprintf(opts + o, sizeof opts - o,
+                                                  "%s%s", z ? ", " : "", pz);
+                        }
+                        kb_term_say(b, "ambiguous_description",
+                                    (const KbResponseSlot[]){
+                                        { "options", opts } }, 1,
+                                    out, out_size);
+                        free(preds); free(cues);
+                        return 1;
+                    }
                 }
                 if (na > 0) {
                     char pretty[KB_TERM_LEN];

@@ -767,6 +767,10 @@ response_template(learned_ternary_fact, "Learned: {pred}({arg1}, {arg2}, {arg3})
 % meta' che di solito manca: un fatto imparato e non interrogabile e' un fatto
 % morto, e a tre ruoli il buco si riapriva identico.
 response_template(slot_answer, "{value}.").
+% G2 — la descrizione combacia con piu' di un'entita'. Sceglierne una sarebbe
+% inventare che cosa intendesse chi parla; tacere butterebbe via il fatto che la
+% descrizione l'abbiamo capita. Chiedere quale e' la risposta giusta.
+response_template(ambiguous_description, "Which one? {options}").
 response_template(known_unary_fact, "{pred}({arg}) is a known fact.").
 response_template(rejected_binary_fact, "Scartato: {pred}({arg1}, {arg2}) non e' fatto di concetti.").
 response_template(count_of_answer, "There are {count} {noun}s.").
