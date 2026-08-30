@@ -4957,3 +4957,112 @@ Il prossimo confine SC41 segue direttamente: enumerare **tutte** le coordinate
 consultate da una lettura e stabilire quali siano supporto, quali scelta fra
 candidate e quali opportunita'. Solo dopo ha senso propagare il taglio verso
 argomenti, procedure, regioni di modelli e sintesi (SC42).
+
+### 18.44 Risultato SC41-A — la prova fa parte dell'identita' della comprensione
+
+SC41-A chiude il primo denominatore locale: una lettura passiva conserva ora
+predicato, schema selezionato, morfologia, ausiliare, marker d'agente, ordine
+dei ruoli e policy di copertura. Il C conserva il pattern opaco prodotto da
+`extract_frame/2`; e' la KB a convertirlo nelle coordinate
+`frame_reading_dependency/2`. Nessuna parola del passivo entra nel motore.
+
+Una sola lezione naturale, `bound is an irregular participle`, ha revisionato
+tre claim scientifiche gia' osservate con `visited(3), changed(3)`. Il retract
+ha ripristinato tre gap e il reteach ha ricostruito tre versioni normalizzate,
+sempre senza replay. `DependencyCompleteness(passive_core)=7/7` e' enumerabile
+da `reading_dependency_requirement/2` e `reading_dependency_coverage/2`; non e'
+un commento che conta soltanto cio' che l'implementazione ricorda.
+
+Il caso piu' informativo conserva invece la stessa proposizione. Una
+costruzione insegnata continua a produrre `glorphs(mira,kora)` quando la licenza
+`relation_verb(glorphs)` viene ritratta; la nuova licenza e'
+`frame_predicate(glorphs)`. La firma semantica e' identica, ma nasce comunque
+una versione successiva e la vecchia resta stale.
+
+**Ipotesi D42 — una comprensione corrente ha identita' almeno
+`(interpretazione, giustificazione)`.** Due letture con lo stesso frame e prove
+diverse non sono la stessa lettura. Collassarle impedisce di rispondere a «perche'
+lo leggi cosi'?», rende l'ablation non locale e nasconde sostituzioni fragili
+con supporti piu' forti.
+
+**Predizioni falsificabili D42.** (1) sostituire una prova mantenendo il frame
+produce un successore genealogico; (2) ritrarre la prova vecchia non spegne il
+frame sostenuto dalla nuova; (3) una risposta «come hai interpretato questo
+passaggio?» deve poter nominare la prova corrente, non una prova storica; (4)
+due proof set equivalenti per derivazione possono collassare soltanto se la loro
+equivalenza e' dimostrata in KB.
+
+### 18.45 Ipotesi D43 — licenza, selezione e opportunita' sono tre archi diversi
+
+SC40 distingueva supporto riuscito e opportunita' futura. SC41 mostra che il
+supporto stesso ha almeno due specie:
+
+```text
+license(K)    senza K la lettura non esiste
+selection(K)  K fa vincere/ordina una lettura fra alternative
+opportunity(K, Gap)  aggiungere K potrebbe aprire un residuo
+```
+
+Ritrarre una licenza tende ad aprire un gap; ritrarre una selezione tende a
+riaprire una regione di alternative o a cambiare l'ordine dei ruoli; aggiungere
+un'opportunita' non prova ancora alcuna lettura. Rappresentare tutti e tre come
+un `depends_on` non tipato conserva forse la reachability, ma perde la politica
+di revisione e la spiegazione del cambiamento.
+
+**Ipotesi D43.** La metacomprensione minima e' un ipergrafo tipato: non domanda
+soltanto «da che cosa dipendo?», ma «questa conoscenza mi autorizza, mi sceglie
+o mi renderebbe possibile?». Il tipo dell'arco predice l'esito del retract prima
+di eseguirlo.
+
+**Predizioni falsificabili D43.** Su una matrice di ablation, una licenza
+ritratta produce un gap, una selezione ritratta produce ambiguita' o un frame
+alternativo, un'opportunita' ritratta cambia il curriculum ma non una lettura
+corrente. Se i tre esiti non correlano con il tipo, la tassonomia non aggiunge
+potere predittivo e va semplificata.
+
+### 18.46 Ipotesi D44 — gli eventi devono stare alla radice causale minima
+
+`past_participle(slowed)` e' una vista derivata da `relation_verb(slowed)` e dal
+suffisso; fotografare entrambe produrrebbe due eventi e due revisioni per una
+sola lezione. `past_participle(bound)`, invece, nasce dalla radice autonoma e
+insegnabile `irregular_participle(bound)`. SC41-A fotografa quest'ultima e
+conserva entrambe nella proof della lettura.
+
+**Ipotesi D44.** Il membro di evento ottimale e' la radice causale minima che il
+teacher puo' aggiungere o ritrarre; le viste derivate appartengono alla proof,
+non necessariamente al journal degli eventi. Questo e' analogo a un database:
+il delta si registra sulla base relation, mentre la materialized view viene
+invalidata per dipendenza.
+
+**Predizioni falsificabili D44.** (1) una lezione regolare produce un solo
+evento pur aggiornando piu' viste; (2) una lezione irregolare produce un evento
+distinto; (3) replay idempotente non produce eventi; (4) il set di letture
+finali coincide con uno snapshot che fotografi tutte le viste, ma con meno pass.
+Se manca anche una sola revisione, la radice scelta era troppo stretta.
+
+### 18.47 Ipotesi D45 — la completezza e' locale, stratificata e avversariale
+
+Il valore `7/7` di SC41-A e' vero soltanto per `passive_core`. Marker
+epistemico, modalita', ellissi, coreferenza, confini di sintagma e precedenza
+fra schemi restano consultazioni del lettore non ancora incluse nello stesso
+denominatore. Chiamare il lettore «completo» sommando soltanto le coordinate
+implementate sarebbe Goodhart sul grafo delle dipendenze.
+
+**Ipotesi D45.** `DependencyCompleteness` deve essere un vettore per strato e
+costruzione, con un denominatore derivato dal trace delle consultazioni:
+
+```text
+DC(frame/passive), DC(modality), DC(epistemic_marker),
+DC(ellipsis), DC(coref), DC(coverage), DC(consumer_propagation)
+```
+
+La metacomprensione nasce quando parrot0 sa dire quali celle sono incomplete e
+quale esperimento le falsificherebbe. La supercomprensione non e' quindi un
+numero grande, ma la capacita' di mantenere interpretazioni proof-carrying,
+alternative logiche e confini espliciti della propria prova.
+
+**Predizioni falsificabili D45.** Un corpus avversariale che incrocia passivo,
+modale ed ellissi deve far scendere soltanto le celle mancanti; aggiungere la
+genealogia modale deve alzare `DC(modality)` senza alterare `DC(frame/passive)`.
+Una metrica scalare che resta 1 mentre un'ablation non viene propagata e'
+falsificata per costruzione.

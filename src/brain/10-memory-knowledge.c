@@ -3716,6 +3716,12 @@ static int p0_frame_is_taught(Brain *b, const char *raw_pattern) {
  * `extract_frame/2`, i confini di sintagma da `np_closer/1`, gli interrogativi
  * da `question_word/1`. */
 typedef struct {
+    /* Identita' dello schema realmente scelto. `extract_frame/2` puo'
+     * produrre lo stesso predicato da morfologia, costruzioni insegnate o
+     * schemi curati: conservare soltanto `pred` perdeva quindi la genealogia
+     * della lettura. Il termine resta opaco al C e viene riconsegnato alla KB
+     * per ottenere le dipendenze di licenza/selezione. */
+    char   pattern[KB_TERM_LEN];
     char   pred[KB_TERM_LEN];
     char   slot[P0_MAX_SLOTS][KB_TERM_LEN];
     size_t nslots;
@@ -3754,6 +3760,7 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
     const char *predq[] = { raw_pattern, NULL };
     char preds[1][KB_TERM_LEN];
     if (kb_match(b->kb, "extract_frame", predq, 2, preds, 1) == 0) return 0;
+    snprintf(r->pattern, sizeof r->pattern, "%s", raw_pattern);
     snprintf(r->pred, sizeof r->pred, "%s", kb_dequote(preds[0]));
     const char *vk[] = { r->pred, "text" };
     r->text_value = kb_query(b->kb, "relation_value_kind", vk, 2);

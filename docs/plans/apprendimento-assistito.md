@@ -1011,3 +1011,40 @@ resta un gap nonostante compaia nel grafo delle opportunita'. Questo e' il ponte
 fra comprensione, metacomprensione e curriculum autonomo: parrot0 non sa
 soltanto *che cosa non capisce*, ma *quale insegnamento cambierebbe quali parti
 del proprio modello* e puo' verificarlo contro la propria genealogia.
+
+### 14.7 Risultato A9.1 — la lettura porta la propria prova
+
+SC41-A aggiunge un vincolo al protocollo: non basta misurare se una claim passa
+da gap a frame. La versione deve conservare **perche'** quel frame e' stato
+possibile. Sul taglio `passive_core` il denominatore e' ora esplicito:
+
+```text
+predicate_license, selected_schema, morphology, auxiliary,
+agent_marker, role_order, extent_policy
+```
+
+Una lezione naturale sul participio irregolare `bound` ha riletto tre claim
+scientifiche pregresse (`visited(3), changed(3)`); retract e reteach hanno
+percorso lo stesso fronte. La sessione non ha committato fatti del mondo. Il
+report completo e' in
+[`2026-08-31-supercomprensione-sc41a.md`](../labs/apprendimento-assistito/2026-08-31-supercomprensione-sc41a.md).
+
+Da questo risultato segue una modifica dei gate futuri:
+
+1. **SameMeaning/DifferentProof:** sostituire il supporto mantenendo il frame
+   deve produrre una nuova versione, non essere scambiato per idempotenza;
+2. **RootEventMinimality:** una lezione produce un solo evento sulla radice
+   causale, anche quando cambiano piu' viste derivate;
+3. **TypedDependencyAblation:** licenza, selezione e opportunita' devono avere
+   esiti diversi e predicibili;
+4. **LocalCompleteness:** ogni rapporto di completezza nomina costruzione e
+   strato; `7/7 passive_core` non autorizza a dire `reader complete`;
+5. **Trace-to-denominator:** il denominatore deve convergere verso le
+   consultazioni realmente eseguite, non restare una lista scritta dopo il
+   codice.
+
+Il prossimo incremento A9.2 applica lo stesso contratto a marker epistemico,
+modalita' ed ellissi. Prima, per richiesta del teacher, viene aperto un ciclo
+ortogonale su autocorrezione KB-first e varieta' dialogica massiva: anche li'
+ogni normalizzazione proposta deve portare prova, contrasto e retract, perche'
+correggere un typo senza genealogia e' soltanto un altro default invisibile.

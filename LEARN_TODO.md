@@ -815,7 +815,8 @@ precondizioni di tutto il resto.
 | **SC26** | **Una collisione di dispatch e' un fatto osservabile** | D22, mantra #14 | non *chi* ha preso il turno — quello parrot0 lo dice gia' — ma **perche'**: quale superficie gli ha dato titolo, e chi di piu' adatto e' stato scavalcato | «quel turno l'ha preso un altro modulo per via di questa parola» | le collisioni su corpus reale si concentrano su poche coppie di moduli e poche parole comuni | **aperto, campione corretto.** `who answered?` funziona da sempre: dei cinque casi raccolti uno solo era un furto (`claim` -> `missing_referent`). Vedi §18.27 |
 | **SC29** | **Uso e menzione sono un invariante, non una guardia locale** | D25 | cio' che e' menzionato non partecipa alla lingua che lo menziona, in **ogni** percorso: dispatch, parser, canonicalizzazione | «"shall" e' un marcatore di necessita'» deve valere quanto «shall e' un marcatore di necessita'» quando la parola non ha ruolo | dieci locuzioni quotate con copule, ausiliari, articoli e dimostrativi entrano byte per byte e si ritrattano uguali; ogni lezione che fallisce nella forma d'uso riesce in quella di menzione; una perdita e' un errore **dichiarato**, non muta | **aperto — prossimo.** Tre gap della serie SC2/SC3 erano questo, e il rimedio parrot0 lo proponeva gia' da se' |
 | **SC34** | **`mod_lone` rivendica casi speciali, non ogni turno di una parola** | D26, D28 | la rivendicazione GENERICA su un token ignoto e' sospesa e dichiarata (`move_policy(lone_bare_token, claim)`); i casi fondati restano | nessuna: e' uno strato di motore, ma non deve togliere niente a cio' che si insegna | un token insegnato ottiene titolo; un token noto alla KB resta di `mod_lone` (gen491, «milano»); un token ignoto raggiunge un muro che PROPONE il rimedio; asserire il fatto riporta il comportamento storico nello stesso turno | **CHIUSA — 2026-08-30** (F.: «dovrebbe rivendicare alcuni casi speciali, non tutti i turni con una sola parola»). Niente e' stato cancellato: la scommessa e' dichiarata, come il gen491 aveva gia' fatto per quella fonotattica. Il rientro pieno passa da SC30/SC31 |
-| **SC40** | **Rileggere alla luce di cio' che si e' appena imparato** | D33, D34, D35 | una lettura dichiara da che cosa dipende; quando quella conoscenza cambia la lettura diventa `stale` e si ri-deriva, invece di restare congelata accanto alla nuova | «adesso che sai cosa vuol dire, rileggi quel passaggio» | insegnato un verbo dopo la lettura, una domanda sul contenuto risponde **senza rileggere a mano**; la lettura vecchia e' `stale`, non coesistente; ritrattando il verbo si torna al gap; su 100 claim il receipt visita soltanto il candidato dipendente | **SC40-A + SC40-B CHIUSE; SC41 prioritaria.** 2026-08-30: versioni, dipendenza viva, genealogia e revisione selettiva sul delta reale della KB; gap -> frame -> gap -> frame sullo stesso span senza replay; `Transfer@3=3/3`, `StaleLeak=0`; add/retract/reteach `visited(1), changed(1)`; stress 100 claim con fan-out 1; un fatto ordinario non produce pass e un verbo assente produce `0/0`. Restano identita' completa delle dipendenze, propagazione transitiva e budget. [SC40-A](docs/labs/apprendimento-assistito/2026-08-30-supercomprensione-sc40.md), [SC40-B](docs/labs/apprendimento-assistito/2026-08-30-supercomprensione-sc40b.md), §§18.38–18.43 |
+| **SC40** | **Rileggere alla luce di cio' che si e' appena imparato** | D33, D34, D35 | una lettura dichiara da che cosa dipende; quando quella conoscenza cambia la lettura diventa `stale` e si ri-deriva, invece di restare congelata accanto alla nuova | «adesso che sai cosa vuol dire, rileggi quel passaggio» | insegnato un verbo dopo la lettura, una domanda sul contenuto risponde **senza rileggere a mano**; la lettura vecchia e' `stale`, non coesistente; ritrattando il verbo si torna al gap; su 100 claim il receipt visita soltanto il candidato dipendente | **SC40-A + SC40-B CHIUSE.** 2026-08-30: versioni, dipendenza viva, genealogia e revisione selettiva sul delta reale della KB; gap -> frame -> gap -> frame sullo stesso span senza replay; `Transfer@3=3/3`, `StaleLeak=0`; add/retract/reteach `visited(1), changed(1)`; stress 100 claim con fan-out 1. SC41-A ha poi esteso l'identita' al supporto passivo. [SC40-A](docs/labs/apprendimento-assistito/2026-08-30-supercomprensione-sc40.md), [SC40-B](docs/labs/apprendimento-assistito/2026-08-30-supercomprensione-sc40b.md), §§18.38–18.43 |
+| **SC41** | **La lettura ricorda perche' e' stata possibile** | D42–D45 | separare dipendenze di licenza, selezione e opportunita'; versionare anche quando il frame resta uguale ma cambia la prova | «bound e' un participio irregolare», dopo aver gia' letto tre passivi scientifici | una lezione apre 3 claim senza replay; retract/reteach simmetrici; schema, morfologia, ausiliare, marker, ruoli e copertura sono genealogia interrogabile | **SC41-A `passive_core` CHIUSA 7/7; SC41-B aperta.** `visited(3), changed(3)` su tre fonti NCBI, ablation/reteach 3/3, same-frame/different-proof versionato, `StaleLeak=0`, `WorldCommitLeak=0`. Restano marker epistemico, modalita', ellissi, coreferenza, precedenza e DAG downstream. [Report](docs/labs/apprendimento-assistito/2026-08-31-supercomprensione-sc41a.md), §§18.44–18.47 |
 | **SC38** | **Riduzione della coda: di quale classe e' membro ogni fronte?** | D31 | molte voci della coda sono la stessa voce sotto politiche diverse; aprirle costa righe di politica e una vista, non un produttore in C | nessuna | i due fronti successivi (SC4 disegno sperimentale, SC6 causalita') si aprono senza un nuovo estrattore; se anche uno lo richiede, si scrive **quale asse della politica** non basta piu' | **aperto — prossimo.** SC5 sembrava una facolta' ed e' costata tre righe di `claim_marker_class/4` piu' una vista |
 | **SC39** | **L'ellissi si recupera dalla struttura, non si inventa** | D32 | oggetto sottinteso, soggetto di relativa, unita' ereditata, agente di un passivo senza `by`: ognuno e' una riga di `elided_role/3` **se** la coordinata da cui recuperare esiste gia' | «in questo passo l'oggetto e' quello del passo prima» | ritrattare la coordinata fa sparire il recupero, non lo lascia materializzato; `unlicensed_recovery/2` resta vuoto su corpus reale; dove la coordinata non esiste, il residuo tipato resta la risposta | **aperto.** Primo caso chiuso in SC5-A: il soggetto eliso di un passo viene dall'attribuzione della classe |
 | **SC35** | **Nessuna risposta piu' forte della copertura che la sostiene** | D29 | operatore, ruolo, premessa, unita' e qualificatore hanno una copertura come i token; `overclaim/2` e' interrogabile **prima** che la frase esca | nessuna: e' uno strato di motore, ma il teacher deve poter chiedere «che cosa hai lasciato fuori?» | tre difetti iniettati in un corpus reale — operatore inghiottito, premessa fuori blocco, complemento pendente — producono tre `coverage_shortfall` distinti e nessuna risposta che li ignori | **aperto — prossimo.** Tre occorrenze gia' misurate in due giorni (SC2-B, SC2-D, SC27), nessuna delle quali somigliava a un errore |
@@ -1172,6 +1173,311 @@ Fermarsi e scrivere un referto, senza `/save`, se accade una di queste cose:
 - si chiama «selettivo» un pass che non misura candidate e falsi negativi;
 - una collisione viene risolta spostando un modulo senza una policy dichiarata;
 - `learned.p0` viene ripulito a mano invece di dare una casa alla specie.
+
+## ⛔ HANDOFF 2026-08-31 POST-SC41-A — punto di ripresa autoritativo
+
+Questo handoff sostituisce quello POST-SC40-B come punto operativo. La storia
+SC40 resta corretta e non va cancellata; il nuovo agente deve leggere, in
+quest'ordine:
+
+1. `MANTRA.md`, `PRINCIPLES.md`, `LEARN_PROTOCOL.md`;
+2. questo handoff;
+3. [report SC41-A](docs/labs/apprendimento-assistito/2026-08-31-supercomprensione-sc41a.md);
+4. `docs/plans/frontier-kb-natural-dialogue.md` §§18.44–18.47;
+5. i cinque file di implementazione elencati sotto.
+
+### Risultato acquisito — non ridurre una lettura al proprio frame
+
+Il contratto corrente e':
+
+```text
+identita' di una lettura = firma semantica + genealogia del supporto
+```
+
+Sul taglio `passive_core`, una versione normalizzata conserva:
+
+```prolog
+relation_verb(bound)                                  % licenza predicato
+license(frame_pattern("@O was bound by @S", bound))  % schema scelto
+license(past_participle(bound))                       % vista morfologica
+license(irregular_participle(bound))                  % radice insegnabile
+license(passive_auxiliary(was))
+license(passive_agent_marker(by))
+selection(frame_role_order(s, 1))
+selection(frame_role_order(o, 2))
+selection(normalization_policy(reported, normalized))
+```
+
+Una sola lezione `bound is an irregular participle`, impartita **dopo** tre
+documenti NCBI, produce `visited(3), changed(3)` e tre frame corretti. Retract e
+reteach percorrono lo stesso taglio 3/3 senza un secondo `read:`. Il dump
+finale e' `/tmp/parrot0-session-2.p0` nella macchina del ciclo; non assumerne la
+presenza in una sessione futura, il report ne conserva le righe rilevanti.
+
+La seconda proprieta' chiusa e' same-frame/different-proof. Una costruzione
+`glints -> glorphs` continua a produrre lo stesso frame quando
+`relation_verb(glorphs)` viene ritratto; la nuova versione usa
+`frame_predicate(glorphs)`. `document_claim_revision/3` non dichiara piu'
+idempotente una firma uguale quando la versione e' stale o la base primaria e'
+cambiata.
+
+### File modificati e responsabilita'
+
+1. `src/brain/10-memory-knowledge.c`
+   - `P0FrameReading.pattern` conserva il termine esatto selezionato da
+     `extract_frame/2`;
+   - non interpretare il pattern in C e non aggiungere un enum `passive`.
+2. `src/brain/30-generation-reading.c`
+   - `claim_reading_of` restituisce pattern e copertura meccanica;
+   - `document_claim_attach_frame_dependencies` enumera termini opachi da
+     `frame_reading_dependency/2`;
+   - `document_claim_attach_extent_dependency` chiede alla KB quale policy ha
+     deciso l'esito;
+   - domanda, prima lettura e revisione continuano a usare la stessa
+     `claim_reading_of`.
+3. `kb/core/grammar.p0`
+   - `passive_frame_coordinate/4` rende interrogabili pattern, predicato,
+     ausiliare e marker;
+   - richiede `relation_verb(Pred)` oltre a `past_participle(Pred)`: un
+     participio da solo non inventa una relazione;
+   - i helper prefix/suffix tengono ogni clausola sotto il limite di otto goal.
+4. `kb/core/document-claims.p0`
+   - `license/1` e `selection/1` sono termini KB, non branche C;
+   - la snapshot fotografa le radici insegnabili. Per i participi irregolari e'
+     `license(irregular_participle(P))`, non la vista derivata
+     `past_participle(P)`; questo evita due eventi sui verbi regolari;
+   - `construction_frame` e policy di normalizzazione hanno per ora candidate
+     conservative su tutte le letture correnti. E' recall dichiarato, non un
+     indice preciso;
+   - `reading_dependency_requirement/2` e
+     `reading_dependency_coverage/2` danno il denominatore 7/7 locale;
+   - il fallback full SC40-B e' ancora intatto.
+5. `tests/p0t/language/document_revision.p0t`
+   - ora **118/118** nel ratchet focalizzato;
+   - contiene transfer 3/3, grow/retract/reteach, denominatore 7/7 e
+     same-frame/different-proof;
+   - il runner `!query` non ha reso stabili le asserzioni dirette sui termini
+     composti di `reading_depends_on`; non sono state mascherate con attese
+     false. La loro materializzazione e' stata ispezionata nel dump naturale,
+     mentre il ratchet prova causalita' e viste piatte. Se si corregge il runner
+     o la serializzazione, aggiungere il controllo strutturale diretto.
+
+### Stato di verifica al momento dell'handoff
+
+- `make build`: verde, nessun warning;
+- `document_revision.p0t`: **118/118**;
+- `document_claims.p0t`: **182/182**;
+- `document_method.p0t`: **25/25**;
+- sessione naturale finale: grow 3/3, retract 3/3, reteach 3/3, due risposte
+  pronunciate con la fonte corretta;
+- `S=0`; dump 204 clausole: `W=0, L=2, C=0, P=3, O=199, X=0`;
+- B0/R0 `36757/2536`, B1/R1 `36783/2582`;
+- unico `make soft-test` consumato: **55 passati, 1 fallito** nel rosso storico
+  `frontier_chat_audit.it.p0t` riga 97 (`designation`: risposta corrente piu'
+  ricca dell'attesa corta). Nessuna attesa e nessun codice cambiati; il daemon
+  avviato dal target non e' rimasto vivo.
+
+### SC41-B resta aperta, ma non e' il prossimo ordine del teacher
+
+Il taglio globale non e' 7/7. Restano marker epistemico, modalita', ellissi,
+coreferenza, determinanti/confini, question words, precedenza fra schemi e
+propagazione downstream. Quando si tornera' a SC41-B, usare una claim che
+incroci **modale + ellissi + marker nuovo** e pretendere:
+
+1. firma epistemica versionata, non sola vista viva su `claim_modal_observation`;
+2. dipendenza dalla superficie modale insegnabile e dalla forza selezionata;
+3. dipendenza dalla classe/marker che attribuisce la claim;
+4. recupero dell'agente come arco derivato da `elided_subject` e
+   `agent_surface`, non come stringa ricostruita in C;
+5. ablation una coordinata per volta e contrasto su tre claim non dipendenti;
+6. `DependencyCompleteness` separata per frame, modality, epistemic marker,
+   ellipsis e coreference.
+
+### NUOVO ORDINE ESPLICITO — autocorrezione e autocrescita
+
+Il teacher ha chiesto di affrontare, appena pubblicato SC41-A, il prompt reale:
+
+```text
+quanot fa 2 +3
+```
+
+Non correggere soltanto `quanot -> quanto`. Quello e' il campione di entrata,
+non la soluzione. Il ciclo deve iniziare con uno **studio completo** dei file
+dedicati ad autocorrezione, repair, gap e crescita. Usare prima:
+
+```text
+rg --files | rg -i 'auto|correc|repair|recover|growth|cresc|gap|typo|fuzzy'
+rg -n -i 'autocor|self.?repair|typo|edit distance|did you mean|malformed' docs src kb tests
+```
+
+Poi leggere per intero soltanto i documenti realmente centrali trovati, senza
+saltare `MANTRA.md`/`PRINCIPLES.md`. Cercare in particolare piani e report di
+SC18, SC24, self-repair, gap dialogue, correction e assisted construction.
+
+#### Gate AC0 — baseline e trace
+
+In un processo fresco:
+
+1. chiedere `quanot fa 2 +3` e conservare risposta, modulo vincitore, gap,
+   footprint e qualunque ipotesi di repair;
+2. controlli vicini: `quanto fa 2 + 3`, `qanto fa 2+3`, `quanto fà 2 +3`,
+   `quanto fa due + 3`, `2 +3 quanto fa`, `quanot fa 2 + trenta`;
+3. contrasti: nomi propri o parole vere vicine per distanza non devono essere
+   riscritti; due correzioni equiprobabili devono produrre chiarimento, non una
+   scelta invisibile;
+4. individuare se il difetto e' candidate generation, ranking, intent recovery,
+   tokenizer o dispatch. Non iniziare dal ramo aritmetico se il turno non lo
+   raggiunge.
+
+#### Architettura attesa, da falsificare prima di implementare
+
+La distanza ortografica puo' essere meccanica C; **quali forme sono parole,
+quali intent autorizzano la correzione e quale rischio e' accettabile sono KB**.
+Il modello preferito e':
+
+```text
+superficie osservata
+  -> correction_candidate(surface, candidate, evidence(edit(...)))
+  -> intent-preservation / context support / ambiguity policy
+  -> proposed_normalization con proof
+  -> dispatch sul candidato, mantenendo la superficie originale
+```
+
+Non aggiungere `strstr("quanot")`, una mappa C di typo o un rewrite silenzioso.
+Il sistema deve poter imparare a runtime un nuovo membro/una nuova classe di
+confusione e perderla al retract senza rebuild. Se la correzione non e' unica,
+deve chiedere. Se il candidato cambia numeri, negazione, operatore o entita',
+deve essere penalizzato/bloccato da policy KB.
+
+#### Matrice AC1 — non campioni sparsi, ma corpus stratificato
+
+Costruire un corpus versionato e leggibile di almeno **240 prompt**, almeno 20
+per ciascuno di 12 strati. Non generare 240 copie della stessa mutazione:
+
+1. trasposizioni, omissioni, duplicazioni e sostituzioni italiane;
+2. spaziatura/punteggiatura/operatori (`2+ 3`, apostrofi, accenti);
+3. omissione di articoli/ausiliari e ordine colloquiale;
+4. abbreviazioni chat italiane (`xke`, `cmq`, `nn`) con contesti contrastivi;
+5. slang italiano contemporaneo e registri informali, senza fingere
+   universalita' di forme regionali;
+6. typo e contrazioni inglesi;
+7. slang inglese con polisemia e contrasto;
+8. code-switching italiano/inglese e termini tecnici;
+9. richieste aritmetiche malformate;
+10. domande fattuali/relazionali malformate;
+11. continuazioni, correzioni del turno precedente e riferimenti vaghi;
+12. prompt di ragionamento/procedura con rumore locale ma struttura profonda.
+
+Dividere train/dev/held-out per **famiglia di trasformazione e lessema**: se la
+stessa coppia `quanot/quanto` appare in train e test, non e' transfer. Ogni
+strato deve includere positivi, quasi-positivi, negativi e ambigui.
+
+Metriche minime:
+
+```text
+CorrectionRecall@unambiguous
+CorrectionPrecision
+IntentPreservation
+CriticalTokenPreservation(numbers, negation, operators, entities)
+ClarificationAccuracy@ambiguous
+RuntimeGrowth / RuntimeRetract
+TransferByTransformation
+MacroCoverageByStratum
+FalseRewriteRate
+```
+
+Il gate `quanot fa 2 +3 -> 5` e' necessario ma chiude soltanto AC0. AC1 richiede
+macro-media, contrasto e un membro nuovo appreso senza rebuild.
+
+### CICLO SUCCESSIVO — LEARN_PROTOCOL massivo per apertura dialogica
+
+Il teacher non vuole un'altra manciata di esempi vari: vuole **corpus ad alta
+varieta'** e piu' profondita' di ragionamento. Non usare `/save` durante la
+raccolta. Il ciclo corretto e':
+
+1. baseline su corpus, conservando tutti i gap e le collisioni;
+2. clustering per causa strutturale, non per frase;
+3. scegliere una lezione che copra una classe e prevederne il guadagno;
+4. insegnarla parlando, provare transfer held-out, contrasto e ablation;
+5. promuovere soltanto fatti linguistici veri/generali con provenance;
+6. fresh boot e macro-eval sul corpus intero.
+
+#### Corpus GD1 consigliato (minimo 360 turni)
+
+Almeno 30 turni per 12 famiglie, bilanciati italiano/inglese dove ha senso:
+
+- saluti, phatic, reazioni, umorismo leggero e chiusure;
+- slang, abbreviazioni, registro, cortesia diretta/indiretta;
+- follow-up ellittici e riferimenti a turni lontani;
+- correzioni dell'utente, disaccordo, negoziazione della premessa;
+- domande vaghe che richiedono un chiarimento utile;
+- fact Q&A, definizioni, confronti e alternative;
+- spiegazioni graduate: breve, intuitiva, tecnica, con esempio;
+- ragionamento multi-step, vincoli e casi limite;
+- procedure, prerequisiti, failure mode e rollback;
+- prosa complessa, concessioni, scope, argomento e obiezione;
+- letteratura scientifica: claim, metodo, evidenza, limite, causalita';
+- code, matematica e dialogo misto con linguaggio naturale rumoroso.
+
+Ogni famiglia deve contenere mini-dialoghi di 3–8 turni, non soltanto prompt
+indipendenti: apertura generica significa mantenere scopo, atto, registro e
+correzioni lungo una sequenza. Almeno un terzo dei turni di ragionamento deve
+richiedere composizione di due o piu' premesse; almeno un quarto deve avere una
+risposta corretta di rifiuto/chiarimento, per non addestrare l'overclaim.
+
+Metriche GD1:
+
+```text
+DialogueMoveCoverage (macro per famiglia)
+ContextRetention@3/@8
+RepairSuccess e RepairOverreach
+SlangParaphraseTransfer
+ReasoningDepth (premesse correttamente consumate)
+ProcedureCompleteness
+ScientificClaimCalibration
+FalseUnderstandingRate
+FreshProcessRecall
+```
+
+#### Regola di promozione KB
+
+Non salvare il corpus come trascrizioni indiscriminate e non salvare slang
+ambiguo come sinonimia assoluta. Promuovere soltanto:
+
+- cue/locuzioni con scope e registro dichiarati;
+- relazioni di parafrasi con condizioni d'uso;
+- pattern di repair/correzione con prova e soglia;
+- template di risposta nelle due lingue;
+- classi strutturali che trasferiscono ad almeno tre lessemi held-out.
+
+Quarantena obbligatoria per source text, document handles, fixture, ipotesi non
+verificate, significati regionali senza scope e qualunque risposta inventata.
+
+### Ordine delle prossime ore, aggiornato
+
+| ordine | checkpoint | output irreversibile soltanto dopo i gate |
+|---:|---|---|
+| 1 | finire SC41-A | compatibilita', unico soft-test, report finale, commit e push |
+| 2 | AC0 studio + baseline | mappa dei file/autocorrezione, trace di `quanot`, ipotesi falsificabili |
+| 3 | AC1 meccanismo KB-first | runtime grow/retract, ambiguita' onesta, ratchet del gate reale |
+| 4 | AC2 corpus 240 | dataset stratificato, macro-metriche, report; niente bulk-save |
+| 5 | GD1 corpus 360 | baseline dialogica e clustering dei gap, mini-dialoghi multi-turno |
+| 6 | GD2 LEARN_PROTOCOL | lezioni per classi, transfer/contrast/ablation/retention |
+| 7 | GD3 persistenza | quarantine audit, `/save` selettivo, fresh boot, commit/push |
+| 8 | ritorno SC41-B | modalita' + marker + ellissi proof-carrying |
+
+### Stop condition aggiuntive per AC/GD
+
+Fermarsi e refertare se:
+
+- il gate passa con una mappa C `typo -> parola`;
+- un edit-distance candidate viene trattato come verita' senza policy/contesto;
+- una correzione cambia numero, negazione, operatore o entita' senza chiedere;
+- train e held-out condividono la stessa coppia lessicale;
+- si chiama «massivo» un elenco di parafrasi quasi duplicate;
+- lo slang viene promosso senza lingua, registro, scope o provenienza;
+- la crescita della KB migliora micro-accuracy e peggiora una famiglia intera;
+- `/save` precede quarantine audit, ablation o fresh-process validation.
 
 ---
 

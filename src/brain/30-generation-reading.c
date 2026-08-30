@@ -1811,9 +1811,13 @@ static int reader_take_source_uri(char *text, char *out, size_t out_size) {
 static int claim_reading_of(Brain *b, const char *text,
                             char *frame, size_t frame_size,
                             char *modal, size_t modal_size,
-                            char *basis, size_t basis_size) {
-    if (!b || !b->kb || !text || !frame || !modal || !basis) return 0;
+                            char *basis, size_t basis_size,
+                            char *pattern, size_t pattern_size,
+                            size_t *covered_out, size_t *total_out) {
+    if (!b || !b->kb || !text || !frame || !modal || !basis || !pattern)
+        return 0;
     modal[0] = '\0';
+    pattern[0] = '\0';
     snprintf(basis, basis_size, "%s", "unresolved");
 
     char stripped[512];
@@ -1853,6 +1857,9 @@ static int claim_reading_of(Brain *b, const char *text,
         return 0;
     snprintf(frame, frame_size, "frame(%s, roles(subject(%s), object(%s)))",
              reading.pred, reading.slot[0], reading.slot[1]);
+    snprintf(pattern, pattern_size, "%s", reading.pattern);
+    if (covered_out) *covered_out = reading.consumed;
+    if (total_out) *total_out = reading.total;
     const char *relation_q[] = { reading.pred };
     if (kb_query(b->kb, "relation_verb", relation_q, 1))
         snprintf(basis, basis_size, "relation_verb(%s)", reading.pred);
@@ -1870,6 +1877,49 @@ static int claim_reading_of(Brain *b, const char *text,
     return 1;
 }
 
+/* SC41-A: una lettura non dipende soltanto dal nome del predicato. La KB
+ * ricostruisce dallo schema scelto le coordinate di licenza e selezione che
+ * l'hanno resa possibile; il C le enumera come termini opachi e le collega
+ * alla versione corrente. Domani una nuova famiglia entra aggiungendo regole
+ * a `frame_reading_dependency/2`, senza uno switch nel motore. */
+static void document_claim_attach_frame_dependencies(Brain *b,
+                                                     const char *ref,
+                                                     const char *pattern) {
+    if (!b || !b->kb || !ref || !pattern || !*pattern) return;
+    const char *q[] = { pattern, NULL };
+    char (*deps)[KB_TERM_LEN] = NULL;
+    size_t ndeps = 0;
+    if (!kb_match_all(b->kb, "frame_reading_dependency", q, 2,
+                      &deps, &ndeps)) {
+        free(deps);
+        return;
+    }
+    for (size_t i = 0; i < ndeps; i++) {
+        const char *observe[] = { ref, deps[i] };
+        kb_query(b->kb, "document_claim_dependency_observe", observe, 2);
+    }
+    free(deps);
+}
+
+/* Anche la decisione full/partial e' conoscenza. La coordinata effettivamente
+ * usata viene chiesta alla KB dopo il commit della versione; il motore passa
+ * solo conteggi meccanici e non conosce il nome della policy restituita. */
+static void document_claim_attach_extent_dependency(Brain *b,
+                                                    const char *ref,
+                                                    size_t covered,
+                                                    size_t total) {
+    if (!b || !b->kb || !ref) return;
+    char covered_term[32], total_term[32];
+    snprintf(covered_term, sizeof covered_term, "covered(%zu)", covered);
+    snprintf(total_term, sizeof total_term, "of(%zu)", total);
+    const char *q[] = { "reported", covered_term, total_term, NULL };
+    char dep[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "reading_extent_dependency", q, 4, dep, 1) != 1)
+        return;
+    const char *observe[] = { ref, dep[0] };
+    kb_query(b->kb, "document_claim_dependency_observe", observe, 2);
+}
+
 /* Interpreta UNA claim gia' osservata. Questa e' la sola porta condivisa fra
  * prima lettura e revisione SC40: entrambe usano lo stesso frame binder, la
  * stessa policy di copertura, lo stesso recupero dell'ellissi e gli stessi gap.
@@ -1879,9 +1929,13 @@ static int document_claim_interpret(Brain *b, const char *ref,
                                     const char *cls, const char *content) {
     if (!b || !b->kb || !ref || !cls || !content) return 0;
     char frame[KB_TERM_LEN], modal[KB_TERM_LEN], basis[KB_TERM_LEN];
+    char pattern[KB_TERM_LEN];
+    size_t covered = 0, total = 0;
     int reading_kind = claim_reading_of(b, content, frame, sizeof frame,
                                         modal, sizeof modal,
-                                        basis, sizeof basis);
+                                        basis, sizeof basis,
+                                        pattern, sizeof pattern,
+                                        &covered, &total);
 
     /* SC5: il soggetto eliso viene dalla coordinata che la classe dichiara,
      * mai da una parola o da un agente cablato qui. */
@@ -1910,7 +1964,9 @@ static int document_claim_interpret(Brain *b, const char *ref,
                                      kb_dequote(sb), content);
                             reading_kind = claim_reading_of(
                                 b, joined, frame, sizeof frame,
-                                modal, sizeof modal, basis, sizeof basis);
+                                modal, sizeof modal, basis, sizeof basis,
+                                pattern, sizeof pattern,
+                                &covered, &total);
                         }
                     }
                 }
@@ -1924,7 +1980,13 @@ static int document_claim_interpret(Brain *b, const char *ref,
         const char *partial[] = {
             ref, "gap(partial_reading)", basis_term
         };
-        return kb_query(b->kb, "document_claim_gap_observe", partial, 3);
+        int observed = kb_query(b->kb, "document_claim_gap_observe",
+                                partial, 3);
+        if (observed) {
+            document_claim_attach_frame_dependencies(b, ref, pattern);
+            document_claim_attach_extent_dependency(b, ref, covered, total);
+        }
+        return observed;
     }
     if (reading_kind == 1) {
         char reading[KB_TERM_LEN];
@@ -1934,6 +1996,8 @@ static int document_claim_interpret(Brain *b, const char *ref,
             ref, "origin(reported)", reading, "extent(covered(1), of(1))"
         };
         if (kb_query(b->kb, "document_claim_normalize", normalize_args, 4)) {
+            document_claim_attach_frame_dependencies(b, ref, pattern);
+            document_claim_attach_extent_dependency(b, ref, covered, total);
             if (modal[0]) {
                 char modal_term[KB_TERM_LEN];
                 snprintf(modal_term, sizeof modal_term, "modal(%s)", modal);
@@ -2345,8 +2409,10 @@ static int claim_question_frame(Brain *b, const char *tail,
      * si butta via: chi chiede «e' stato ipotizzato che X POSSA Y?» sta
      * chiedendo proprio della claim modale, e ha diritto a un si'. */
     char basis[KB_TERM_LEN];
+    char pattern[KB_TERM_LEN];
     return claim_reading_of(b, tail, frame, frame_size, modal, modal_size,
-                            basis, sizeof basis) == 1;
+                            basis, sizeof basis,
+                            pattern, sizeof pattern, NULL, NULL) == 1;
 }
 
 /* Una verifica di status contiene spesso il pronome impersonale «it». Prima

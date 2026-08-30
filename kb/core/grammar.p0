@@ -678,21 +678,37 @@ past_participle($V) :-
 % limite di conoscenza: le parti invarianti dello schema si compongono una volta.
 machinery(passive_prefix).
 machinery(passive_suffix).
+machinery(passive_prefix_coordinate).
+machinery(passive_suffix_coordinate).
+machinery(passive_frame_coordinate).
 passive_prefix($Prefix) :-
+    passive_prefix_coordinate($Prefix, $Aux).
+passive_prefix_coordinate($Prefix, $Aux) :-
     passive_auxiliary($Aux),
     concat_atoms("@O ", $Aux, $A),
     concat_atoms($A, " ", $Prefix).
 passive_suffix($Suffix) :-
+    passive_suffix_coordinate($Suffix, $By).
+passive_suffix_coordinate($Suffix, $By) :-
     passive_agent_marker($By),
     concat_atoms(" ", $By, $A),
     concat_atoms($A, " @S", $Suffix).
 
-extract_frame($Pat, $Pred) :-
+% Lo schema passivo espone anche le coordinate che lo hanno generato. Prima
+% `extract_frame/2` ne restituiva soltanto pattern e predicato: il reader poteva
+% quindi ricordare `bound`, ma non che quella lettura esisteva grazie a `was`,
+% `by` e al participio. La relazione e' KB-first: il C riceve il pattern opaco
+% e non deve sapere che cosa sia un passivo.
+passive_frame_coordinate($Pat, $Pred, $Aux, $By) :-
+    relation_verb($Pred),
     past_participle($Pred),
-    passive_prefix($Prefix),
-    passive_suffix($Suffix),
+    passive_prefix_coordinate($Prefix, $Aux),
+    passive_suffix_coordinate($Suffix, $By),
     concat_atoms($Prefix, $Pred, $Mid),
     concat_atoms($Mid, $Suffix, $Pat).
+
+extract_frame($Pat, $Pred) :-
+    passive_frame_coordinate($Pat, $Pred, $Aux, $By).
 
 answer_frame($Verb, $Verb) :- relation_verb($Verb).
 

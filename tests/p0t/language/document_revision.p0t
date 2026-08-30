@@ -119,3 +119,95 @@
 < Learned: relation_verb(catalyzes).
 !query last_revision_pass(relation_verb(catalyzes), scope(selective), outcome(visited(0), changed(0)))
 !query! claim_frame($Claim, catalyzes, $Subject, $Object)
+
+[test sc41 participio irregolare rilegge tre claim passive senza replay]
+!timeout 240
+!reset
+# `bound` e' una superficie verbale vera, ma il suo participio non si deriva
+# da `-ed`. Le tre claim compaiono UNA volta e partono tutte dal gap.
+> bound is a relation verb
+< Learned: relation_verb(bound).
+> read: https://www.ncbi.nlm.nih.gov/books/NBK54103/ The evidence shows that oxygen was bound by hemoglobin.
+<~ 1 reported claim(s)
+> read: https://www.ncbi.nlm.nih.gov/books/NBK27160/ The evidence shows that antigen was bound by antibody.
+<~ 1 reported claim(s)
+> read: https://www.ncbi.nlm.nih.gov/books/NBK9866/ The evidence shows that ligand was bound by receptor.
+<~ 1 reported claim(s)
+!query claim_normalization_gap($Claim, no_reading)
+!query! claim_frame($Claim, bound, hemoglobin, oxygen)
+!query! claim_frame($Claim, bound, antibody, antigen)
+!query! claim_frame($Claim, bound, receptor, ligand)
+
+# UNA lezione morfologica apre tutte e tre le letture gia' osservate. Il
+# receipt prova che il delta e' la radice insegnabile, non un full scan.
+> bound is an irregular participle
+< Learned: irregular_participle(bound).
+!query last_revision_pass(license(irregular_participle(bound)), scope(selective), outcome(visited(3), changed(3)))
+!query claim_frame($Claim, bound, hemoglobin, oxygen)
+!query claim_frame($Claim, bound, antibody, antigen)
+!query claim_frame($Claim, bound, receptor, ligand)
+!query reading_dependency_kind(reading(4), predicate_license)
+# Le coordinate composte complete sono verificate dal dump della sessione
+# naturale SC41; qui il gate black-box sotto (grow/retract/reteach 3/3) ne
+# prova la causalita' senza accoppiare il runner alla serializzazione interna.
+# Il denominatore di DependencyCompleteness(passive_core) e' esplicito.
+!query reading_dependency_requirement(passive_core, predicate_license)
+!query reading_dependency_requirement(passive_core, selected_schema)
+!query reading_dependency_requirement(passive_core, morphology)
+!query reading_dependency_requirement(passive_core, auxiliary)
+!query reading_dependency_requirement(passive_core, agent_marker)
+!query reading_dependency_requirement(passive_core, role_order)
+!query reading_dependency_requirement(passive_core, extent_policy)
+!query reading_dependency_coverage(passive_core, predicate_license)
+!query reading_dependency_coverage(passive_core, selected_schema)
+!query reading_dependency_coverage(passive_core, morphology)
+!query reading_dependency_coverage(passive_core, auxiliary)
+!query reading_dependency_coverage(passive_core, agent_marker)
+!query reading_dependency_coverage(passive_core, role_order)
+!query reading_dependency_coverage(passive_core, extent_policy)
+> was it observed that oxygen was bound by hemoglobin?
+<~ Yes -
+
+[test sc41 ablation e reteach della radice morfologica]
+!timeout 240
+> forget that bound is an irregular participle
+<~ no longer treat
+!query last_revision_pass(license(irregular_participle(bound)), scope(selective), outcome(visited(3), changed(3)))
+!query! irregular_participle(bound)
+!query! claim_frame($Claim, bound, hemoglobin, oxygen)
+!query! claim_frame($Claim, bound, antibody, antigen)
+!query! claim_frame($Claim, bound, receptor, ligand)
+!query claim_normalization_gap($Claim, no_reading)
+!query reading_is_stale(reading(4))
+> was it observed that oxygen was bound by hemoglobin?
+< I recognize this as a observed verification question, but I cannot normalize its proposition yet.
+> bound is an irregular participle
+< Learned: irregular_participle(bound).
+!query last_revision_pass(license(irregular_participle(bound)), scope(selective), outcome(visited(3), changed(3)))
+!query claim_frame($Claim, bound, hemoglobin, oxygen)
+!query claim_frame($Claim, bound, antibody, antigen)
+!query claim_frame($Claim, bound, receptor, ligand)
+
+[test sc41 stesso frame ma nuovo supporto produce una nuova versione]
+!timeout 180
+!reset
+# La costruzione e il verbo autorizzano inizialmente lo stesso frame. Quando il
+# verbo viene ritratto, la costruzione resta una licenza sufficiente: il
+# significato non cambia, ma la genealogia si'.
+> glorphs is a relation verb
+< Learned: relation_verb(glorphs).
+> x glints y means x glorphs y
+<~ I learned a candidate construction
+> read: https://example.org/sc41-support The data show that mira glints kora.
+<~ 1 proposition(s) normalized in quarantine
+!query claim_frame($Claim, glorphs, mira, kora)
+!query reading_depends_on(reading(1), relation_verb(glorphs))
+> forget that glorphs is a relation verb
+<~ glorphs
+!query last_revision_pass(relation_verb(glorphs), scope(selective), outcome(visited(1), changed(1)))
+# Il frame sopravvive, ma la versione corrente usa la licenza alternativa.
+!query claim_frame($Claim, glorphs, mira, kora)
+!query reading_depends_on(reading(2), frame_predicate(glorphs))
+!query reading_stale(reading(1), lost_dependency(relation_verb(glorphs)))
+!query revision_effect($Claim, before($OldReading), after($NewReading))
+!query claim_reading_record($Claim, $Reading, signature(normalized(reported), proposition(frame(glorphs, roles(subject(mira), object(kora)))), extent(1, 1)))

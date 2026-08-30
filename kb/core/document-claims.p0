@@ -174,6 +174,12 @@ machinery(document_claim_token_observe).
 machinery(claim_token_observation).
 machinery(revision_dependency_member).
 machinery(revision_candidate_claim).
+machinery(frame_reading_dependency).
+machinery(reading_extent_dependency).
+machinery(document_claim_dependency_observe).
+machinery(reading_dependency_requirement).
+machinery(reading_dependency_coverage).
+machinery(reading_dependency_kind).
 machinery(revision_pass_observe).
 machinery(last_revision_pass).
 machinery(last_revision_pass_exists).
@@ -205,11 +211,34 @@ claim_current_signature($Claim, $Reading, $Signature) :-
     claim_current_reading($Claim, $Reading),
     claim_reading_record($Claim, $Reading, $Signature).
 
-% Rivedere con la stessa firma e' idempotente: una domanda o un'altra lezione
-% non moltiplica versioni uguali.
+% Rivedere con la stessa firma e lo stesso supporto VIVO e' idempotente: una
+% domanda o un'altra lezione non moltiplica versioni uguali. La guardia sulla
+% vitalita' e' essenziale: una firma semantica uguale non rende equivalenti due
+% genealogie, e il supporto perso non puo' restare il record corrente.
 document_claim_revision($Claim, $Signature, $Basis) :-
     claim_current_signature($Claim, $Reading, $Signature),
+    naf(reading_is_stale($Reading)),
     reading_depends_on($Reading, $Basis).
+
+% Stessa semantica, ma una dipendenza granulare e' caduta: nasce una versione
+% nuova anche quando il frame non cambia. E' il caso di una costruzione
+% alternativa che continua a produrre lo stesso predicato dopo l'ablation
+% della vecchia licenza.
+document_claim_revision($Claim, $Signature, $Basis) :-
+    claim_current_signature($Claim, $OldReading, $Signature),
+    reading_is_stale($OldReading),
+    document_reading_next($NewReading),
+    document_claim_revision_replace(
+        $Claim, transition($OldReading, $NewReading), $Signature, $Basis).
+
+% Anche un nuovo supporto primario per la stessa firma e' una revisione, non un
+% fallimento silenzioso del normalizzatore.
+document_claim_revision($Claim, $Signature, $Basis) :-
+    claim_current_signature($Claim, $OldReading, $Signature),
+    naf(reading_depends_on($OldReading, $Basis)),
+    document_reading_next($NewReading),
+    document_claim_revision_replace(
+        $Claim, transition($OldReading, $NewReading), $Signature, $Basis).
 
 % Firma diversa: il vecchio record non viene cancellato. Cade soltanto il
 % puntatore corrente, e l'arco di revisione rende interrogabile il passaggio.
@@ -246,6 +275,32 @@ reading_basis_live(frame_predicate($Predicate)) :-
     extract_frame($Pattern, $Predicate).
 reading_basis_live(unresolved).
 
+% SC41-A separa le condizioni che AUTORIZZANO una lettura da quelle che
+% SCELGONO fra letture/ordinamenti possibili. Sono termini intenzionali, non
+% etichette interpretate dal motore: la vitalita' resta interamente in KB.
+reading_basis_live(license(frame_pattern($Pattern, $Predicate))) :-
+    extract_frame($Pattern, $Predicate).
+reading_basis_live(
+        license(construction_frame($Source, $Target, $Predicate))) :-
+    construction_frame($Source, $Target, $Predicate).
+reading_basis_live(license(past_participle($Predicate))) :-
+    past_participle($Predicate).
+reading_basis_live(license(irregular_participle($Predicate))) :-
+    irregular_participle($Predicate).
+reading_basis_live(license(passive_auxiliary($Auxiliary))) :-
+    passive_auxiliary($Auxiliary).
+reading_basis_live(license(passive_agent_marker($Marker))) :-
+    passive_agent_marker($Marker).
+reading_basis_live(selection(frame_role_order($Role, $Rank))) :-
+    frame_role_order($Role, $Rank).
+reading_basis_live(selection(normalization_policy($Origin, $Outcome))) :-
+    normalization_origin($Origin, quarantine),
+    normalization_policy_outcome($Outcome).
+
+machinery(normalization_policy_outcome).
+normalization_policy_outcome(normalized).
+normalization_policy_outcome(partial).
+
 reading_has_live_basis($Reading) :-
     reading_depends_on($Reading, $Basis), reading_basis_live($Basis).
 reading_stale($Reading, lost_dependency($Basis)) :-
@@ -266,6 +321,30 @@ reading_current($Claim, $Reading) :-
 revision_schedule(document_claim, after_semantic_change).
 revision_dependency_member(document_claim, relation_verb($Predicate)) :-
     relation_verb($Predicate).
+% Si fotografa la RADICE morfologica insegnabile, non ogni participio derivato:
+% un verbo regolare in `-ed` cambia gia' `relation_verb/1`; fotografare anche la
+% vista derivata produrrebbe due eventi per una sola lezione. Un irregolare,
+% invece, e' una coordinata autonoma e deve aprire i gap gia' osservati.
+revision_dependency_member(
+        document_claim, license(irregular_participle($Predicate))) :-
+    irregular_participle($Predicate).
+revision_dependency_member(
+        document_claim, license(passive_auxiliary($Auxiliary))) :-
+    passive_auxiliary($Auxiliary).
+revision_dependency_member(
+        document_claim, license(passive_agent_marker($Marker))) :-
+    passive_agent_marker($Marker).
+revision_dependency_member(
+        document_claim, selection(frame_role_order($Role, $Rank))) :-
+    frame_role_order($Role, $Rank).
+revision_dependency_member(
+        document_claim,
+        license(construction_frame($Source, $Target, $Predicate))) :-
+    construction_frame($Source, $Target, $Predicate).
+revision_dependency_member(
+        document_claim, selection(normalization_policy($Origin, $Outcome))) :-
+    normalization_origin($Origin, quarantine),
+    normalization_policy_outcome($Outcome).
 
 % L'indice e' su osservazioni meccaniche della superficie, non su una nuova
 % interpretazione. Serve a trovare un gap ancora `unresolved` quando nasce il
@@ -277,9 +356,135 @@ document_claim_token_observe(ref($Document, $Unit, $Claim), token($Token)) :-
 
 revision_candidate_claim(document_claim, $Claim, relation_verb($Predicate)) :-
     claim_token_observation($Claim, $Predicate).
+revision_candidate_claim(
+        document_claim, $Claim,
+        license(irregular_participle($Predicate))) :-
+    claim_token_observation($Claim, $Predicate).
+revision_candidate_claim(
+        document_claim, $Claim, license(passive_auxiliary($Auxiliary))) :-
+    claim_token_observation($Claim, $Auxiliary).
+revision_candidate_claim(
+        document_claim, $Claim, license(passive_agent_marker($Marker))) :-
+    claim_token_observation($Claim, $Marker).
+% Cambiare l'ordine canonico puo' cambiare una lettura riuscita anche se il
+% ruolo non compare come parola nel testo. La selezione conservativa di tutte
+% le letture correnti e' dichiarata qui, non nascosta in un full scan C.
+revision_candidate_claim(
+        document_claim, $Claim, selection(frame_role_order($Role, $Rank))) :-
+    claim_current_reading($Claim, $Reading).
+% Una costruzione e' rara ma puo' contenere piu' parole: finche' l'indice dei
+% literal di pattern non e' materializzato con provenance, si preferisce recall
+% completo dichiarando esplicitamente il fronte conservativo.
+revision_candidate_claim(
+        document_claim, $Claim,
+        license(construction_frame($Source, $Target, $Predicate))) :-
+    claim_current_reading($Claim, $Reading).
+revision_candidate_claim(
+        document_claim, $Claim,
+        selection(normalization_policy($Origin, $Outcome))) :-
+    claim_current_reading($Claim, $Reading).
 revision_candidate_claim(document_claim, $Claim, $Dependency) :-
     claim_current_reading($Claim, $Reading),
     reading_depends_on($Reading, $Dependency).
+
+% ── SC41-A: GENEALOGIA DEL FRAME SCELTO ──────────────────────────────────
+%
+% Ogni frame registra sempre lo schema esatto. Un passivo aggiunge le radici
+% morfologiche e i due elementi di superficie che lo autorizzano; i ranghi dei
+% ruoli sono dipendenze di selezione. Se il participio e' irregolare, conserva
+% anche il fatto insegnabile che lo rende tale. Nessuna di queste famiglie e'
+% nominata dal consumatore C.
+frame_reading_dependency(
+        $Pattern, license(frame_pattern($Pattern, $Predicate))) :-
+    extract_frame($Pattern, $Predicate).
+frame_reading_dependency(
+        $Pattern,
+        license(construction_frame($Pattern, $Target, $Predicate))) :-
+    construction_frame($Pattern, $Target, $Predicate).
+frame_reading_dependency(
+        $Pattern, license(past_participle($Predicate))) :-
+    passive_frame_coordinate($Pattern, $Predicate, $Auxiliary, $Marker).
+frame_reading_dependency(
+        $Pattern, license(irregular_participle($Predicate))) :-
+    passive_frame_coordinate($Pattern, $Predicate, $Auxiliary, $Marker),
+    irregular_participle($Predicate).
+frame_reading_dependency(
+        $Pattern, license(passive_auxiliary($Auxiliary))) :-
+    passive_frame_coordinate($Pattern, $Predicate, $Auxiliary, $Marker).
+frame_reading_dependency(
+        $Pattern, license(passive_agent_marker($Marker))) :-
+    passive_frame_coordinate($Pattern, $Predicate, $Auxiliary, $Marker).
+frame_reading_dependency(
+        $Pattern, selection(frame_role_order(s, $Rank))) :-
+    passive_frame_coordinate($Pattern, $Predicate, $Auxiliary, $Marker),
+    frame_role_order(s, $Rank).
+frame_reading_dependency(
+        $Pattern, selection(frame_role_order(o, $Rank))) :-
+    passive_frame_coordinate($Pattern, $Predicate, $Auxiliary, $Marker),
+    frame_role_order(o, $Rank).
+
+% Il C passa soltanto origine e conteggi meccanici. La KB restituisce il termine
+% opaco della policy che ha accettato o rifiutato la copertura.
+reading_extent_dependency(
+        $Origin, covered($N), of($M),
+        selection(normalization_policy($Origin, normalized))) :-
+    normalization_extent_policy($Origin, covered($N), of($M), normalized).
+reading_extent_dependency(
+        $Origin, covered($N), of($M),
+        selection(normalization_policy($Origin, partial))) :-
+    normalization_extent_policy($Origin, covered($N), of($M), partial).
+
+% Collega una coordinata alla SOLA versione corrente. Il primo ramo rende
+% l'operazione idempotente; il secondo materializza una dipendenza nuova.
+document_claim_dependency_observe(ref($Document, $Unit, $Claim), $Dependency) :-
+    claim_current_reading($Claim, $Reading),
+    reading_depends_on($Reading, $Dependency).
+document_claim_dependency_observe(ref($Document, $Unit, $Claim), $Dependency) :-
+    claim_current_reading($Claim, $Reading),
+    naf(reading_depends_on($Reading, $Dependency)),
+    assert(reading_depends_on, $Reading, $Dependency).
+
+% Registro di audit: il denominatore impedisce che "completezza" significhi
+% soltanto contare le coordinate che ci siamo ricordati di implementare.
+reading_dependency_requirement(passive_core, predicate_license).
+reading_dependency_requirement(passive_core, selected_schema).
+reading_dependency_requirement(passive_core, morphology).
+reading_dependency_requirement(passive_core, auxiliary).
+reading_dependency_requirement(passive_core, agent_marker).
+reading_dependency_requirement(passive_core, role_order).
+reading_dependency_requirement(passive_core, extent_policy).
+reading_dependency_coverage(passive_core, predicate_license).
+reading_dependency_coverage(passive_core, selected_schema).
+reading_dependency_coverage(passive_core, morphology).
+reading_dependency_coverage(passive_core, auxiliary).
+reading_dependency_coverage(passive_core, agent_marker).
+reading_dependency_coverage(passive_core, role_order).
+reading_dependency_coverage(passive_core, extent_policy).
+
+% Vista piatta per audit/test: il termine completo resta disponibile in
+% `reading_depends_on/2`, mentre questa proiezione evita che un consumatore
+% debba conoscere la forma interna di ogni coordinata.
+reading_dependency_kind($Reading, predicate_license) :-
+    reading_depends_on($Reading, relation_verb($Predicate)).
+reading_dependency_kind($Reading, selected_schema) :-
+    reading_depends_on(
+        $Reading, license(frame_pattern($Pattern, $Predicate))).
+reading_dependency_kind($Reading, morphology) :-
+    reading_depends_on($Reading, license(past_participle($Predicate))).
+reading_dependency_kind($Reading, morphology_root) :-
+    reading_depends_on(
+        $Reading, license(irregular_participle($Predicate))).
+reading_dependency_kind($Reading, auxiliary) :-
+    reading_depends_on($Reading, license(passive_auxiliary($Auxiliary))).
+reading_dependency_kind($Reading, agent_marker) :-
+    reading_depends_on($Reading, license(passive_agent_marker($Marker))).
+reading_dependency_kind($Reading, subject_role_order) :-
+    reading_depends_on($Reading, selection(frame_role_order(s, $Rank))).
+reading_dependency_kind($Reading, object_role_order) :-
+    reading_depends_on($Reading, selection(frame_role_order(o, $Rank))).
+reading_dependency_kind($Reading, extent_policy) :-
+    reading_depends_on(
+        $Reading, selection(normalization_policy($Origin, $Outcome))).
 
 % Un pass lascia una misura interrogabile. E' volutamente UNA vista dell'ultimo
 % evento: outcome(visited(1), changed(1)) su tre claim prova che l'indice, non un
