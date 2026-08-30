@@ -1966,6 +1966,94 @@ e' piu' capacita' mancante, ed e' scritto qui perche' non diventi invisibile.
 > bisogno di dimenticare o di **rivedere**. Aggirare un limite e descriverlo
 > sono compatibili; aggirarlo e chiamarlo intenzionale no.
 
+> ## ⛔⛔ IL CASSETTO SENZA MANIGLIA — il problema che teneva ferma la comprensione universale
+>
+> **Scoperto e misurato il 2026-08-31. Scritto in tutti i piani perché è la
+> giunzione da cui dipendono `universal-input`, `universal-comprehension` e il
+> fronte SC/GD insieme.**
+>
+> ### Il problema, in cinque righe di transcript
+>
+> ```text
+> > Il libro rosso è sul tavolo.   ->  Learned: located_in(book_red, tavolo).
+> > dove si trova il libro rosso   ->  muro
+> > dove si trova book_red         ->  Tavolo.      ← solo col nome INTERNO
+> > Il gatto è sul tetto.
+> > dove si trova il gatto         ->  Tetto.       ← una parola sola: funziona
+> ```
+>
+> Il **lettore** lega un *sintagma*: unisce i token fino al confine di sintagma e
+> produce una chiave sola (`book_red`). La **domanda** provava un token alla
+> volta — `located_in(il,?)`, `located_in(libro,?)`, `located_in(rosso,?)` — e
+> non provava **mai** la frase intera. Il fatto c'era e non era raggiungibile.
+>
+> > **parrot0 imparava sotto un nome che non sapeva più pronunciare**, e ogni
+> > entità di più di una parola finiva in un cassetto senza maniglia.
+>
+> ### Perché era il collo di tutto
+>
+> Due giri di insegnamento massiccio — 276 forme reali entrate parlando,
+> verificate in processo nuovo — avevano mosso **+11 turni su 360**. Non perché
+> il metodo fosse debole: perché un turno riesce solo se tengono **insieme**
+> superficie, forma della domanda, nome dell'entità, riferimento, fatto e
+> realizzazione, e il nome dell'entità cedeva sempre. I referenti multi-parola
+> («il libro rosso», «il quaderno blu», «il treno notturno») sono la norma del
+> parlato, non un caso limite — ed è anche il motivo per cui la coreferenza era
+> la famiglia peggiore del corpus: non aveva **niente a cui attaccarsi**.
+>
+> `book_red` non è un nome scomodo: è un nome che ha **perso informazione**.
+> Testa fusa col modificatore, determinante buttato, ordine invertito, lingua
+> cambiata a metà — e ogni perdita chiude una porta diversa (chiedere «quale
+> libro?», distinguere «un libro» da «il libro», risolvere «il primo»,
+> ripronunciarlo come è stato detto).
+>
+> ### Il piano di soluzione — la giunzione in cinque gradini
+>
+> L'invariante che li governa tutti:
+>
+> > **ciò che si impara da una frase dev'essere interrogabile con la stessa
+> > frase, e ridicibile come è stato detto.**
+>
+> | # | gradino | stato |
+> |---|---|---|
+> | **G1** | **La domanda prova i sintagmi che il lettore ha costruito.** Non un secondo indice: le *stesse tre cose* del lettore — confine di sintagma (`np_closer/1`, conoscenza), caduta del determinante, la stessa `p0_join`. Additivo: i passaggi per token restano. | ✅ **FATTO** 2026-08-31 |
+> | **G2** | **Testa e proprietà.** «il libro rosso» → testa `libro` + proprietà `rosso`, così «il libro» combacia e «di che colore è il libro» risponde. Dov'è la testa è **conoscenza** (`noun_phrase_head_position(Language, first \| last)`), non una regola nel C. | aperto |
+> | **G3** | **Il referente.** Un'entità introdotta è un referente con id, testa, proprietà, determinante e menzione con span. Due libri diversi **non collassano**; l'ambiguità si dichiara invece di essere risolta. | aperto |
+> | **G4** | **La coreferenza si attacca al referente.** «il primo», «quello», «l'altro» diventano `referent_same/3` — una **relazione**, non una fusione. | aperto |
+> | **G5** | **Il referente sa ridirsi.** `referent_surface/3`: rispondere «il tavolo» come è stato detto, non `tavolo`. | aperto |
+>
+> ### Come si misura che funziona
+>
+> **Non con una percentuale sul totale: con una famiglia che chiude.** Il gate è
+> che il dialogo `gd1_011` — cinque turni, due oggetti, un riferimento — passi
+> **da capo a fondo**. Una catena che regge vale più di dieci punti sparsi,
+> perché dieci punti sparsi non provano che nessuna catena regga.
+>
+> ### La forma ricorrente, che è la lezione vera
+>
+> È la **terza volta** che compare lo stesso difetto sotto un vestito diverso:
+> D33 (un'interpretazione congelata perché la KB non può richiamare la lettura),
+> D35 (una chiave costruita da un percorso e non dall'altro), D37 (una struttura
+> costruita da un percorso e ignorata dall'altro).
+>
+> > **Due percorsi che devono accordarsi, e non condividono l'oggetto su cui
+> > accordarsi.**
+>
+> Prima di aggiungere una capacità, la domanda da farsi è: *chi altro deve
+> accordarsi con questa, e su che cosa?*
+>
+> E la stessa mossa, un piano più su, è **l'unificazione fra zone della KB**
+> (D38, §18.43): far parlare aritmetica e sociale, prosa e geografia, non è
+> ingegneria di dettaglio — è la condizione perché emergano abilità che nessuno
+> ha progettato. Differenziarsi non basta: le parti differenziate devono potersi
+> parlare.
+>
+> Dettaglio completo: `docs/plans/frontier-kb-natural-dialogue.md` §18.40 (D35),
+> §18.42 (D37) · referto
+> `docs/labs/apprendimento-assistito/2026-08-31-perche-non-cresceva.md` · coda
+> `LEARN_TODO.md` GD9.
+
+
 > ## 0b. ⛔ E LE DUE FAMIGLIE DI DIFETTO CHE LO ACCOMPAGNANO
 >
 > Sono emerse dalla stessa serie e vanno migliorate insieme, perche' hanno la
@@ -5451,3 +5539,114 @@ struttura invece di ricostruirla piatta. È lo stesso movimento di SC2-B — una
 fase pura condivisa al posto di due percorsi che si ricostruiscono a vicenda — e
 lo stesso di D33 e D35. Tre volte la stessa forma: **due percorsi che devono
 accordarsi e non condividono l'oggetto su cui accordarsi.**
+
+### 18.43 Ipotesi D38 — connettere zone della KB è unificazione, e l'unificazione è la condizione dell'emergenza
+
+> **Considerazione di F., 2026-08-31.** «La pratica di connettere zone della KB
+> attraverso **archi di ordine superiore** è una sorta di **unificazione
+> dell'intelligenza**. Può sembrare banale, ma quando — solo a titolo di esempio
+> — le abilità aritmetiche si combineranno e si connetteranno con le abilità
+> sociali, questo potrebbe portare all'emersione di abilità che **non abbiamo
+> progettato per design nella KB**, ma che emergono dalla complessità.»
+
+Non è banale, e la ragione per cui non lo è si è vista oggi tre volte di fila.
+
+#### Perché non è banale: la stessa forma, a due scale
+
+Le tre diagnosi del 2026-08-30/31 hanno tutte lo stesso scheletro:
+
+| | difetto | cura |
+|---|---|---|
+| D33 | un'interpretazione congelata perché la KB non può richiamare la lettura | far condividere ai due percorsi **la lettura** |
+| D35 | una chiave costruita da un percorso e non dall'altro | far condividere ai due percorsi **la chiave** |
+| D37 | una struttura costruita da un percorso e ignorata dall'altro | far condividere ai due percorsi **il sintagma** |
+
+Ogni volta il difetto era *due percorsi che devono accordarsi e non condividono
+l'oggetto su cui accordarsi*, e ogni volta la cura è stata **creare l'oggetto
+condiviso**. F. sta descrivendo la stessa mossa un piano più su: non fra due
+percorsi dello stesso meccanismo, ma fra due **zone di competenza**.
+
+E se la mossa funziona alla scala del meccanismo — misurato tre volte in due
+giorni — l'ipotesi che funzioni alla scala del dominio non è un'analogia
+gratuita: è la stessa legge, applicata dove non l'abbiamo ancora applicata.
+
+#### Che cosa dice davvero `PRINCIPLES.md`
+
+> «Il substrato è quasi uniforme, eppure si formano **circuiti funzionalmente
+> specializzati**. Uniforme il substrato, articolata la funzione. […] La
+> struttura è la condizione dell'emergenza, non il suo nemico.»
+
+Quel corollario è sempre stato letto come *permesso a differenziarsi* — lascia
+che il cervello si articoli. F. ne nomina la metà mancante: **differenziarsi non
+basta, le parti differenziate devono potersi parlare.** Un organismo fatto di
+organi che non comunicano non è un organismo, è una collezione. Oggi la KB di
+parrot0 è ricca di zone — aritmetica, sociale, geografia, scacchi, chimica,
+prosa scientifica — e povera di **archi fra zone**.
+
+#### L'ipotesi, in forma verificabile
+
+> Le capacità di parrot0 non stanno soltanto nei suoi predicati: stanno anche
+> negli **archi fra zone** che nessuno ha progettato come capacità. Aggiungere un
+> arco fra due zone deve produrre comportamenti che **nessuna delle due zone
+> possiede da sola**, e quei comportamenti devono essere **dimostrabili su un
+> compito**, mai dichiarati.
+
+```prolog
+kb_zone($Zone, $Predicates).                    % il censimento delle zone
+zone_bridge($ZoneA, $ZoneB, $Relation, $Why).   % l'arco, con la sua ragione
+composed_capability($Capability, from($A, $B), $Proof).
+unplanned_capability($Capability).              % nessuno l'ha scritta come tale
+bridge_yield($Bridge, $TasksUnlocked).          % quanto ha reso
+false_composition($Capability, $Counterexample). % e quanto ha rotto
+```
+
+#### La prova che F. propone, presa alla lettera
+
+Aritmetica × sociale è un ottimo primo arco perché nessuna delle due zone
+risolve da sola compiti che un umano trova ovvi:
+
+```text
+«siamo in quattro e il conto è 86 euro, quanto ciascuno?»
+   -> serve il numero di partecipanti dalla zona SOCIALE (chi è «noi»)
+      e la divisione dalla zona ARITMETICA
+
+«ho salutato tre persone stamattina, e poi altre due»
+   -> serve l'atto sociale come EVENTO CONTABILE
+```
+
+Nessuno ha progettato «dividere un conto» come capacità. Se emerge dall'arco fra
+due zone che esistevano già, l'ipotesi ha una prova; se per farla funzionare
+bisogna scrivere una regola che nomina i conti, l'arco non stava facendo lavoro
+e l'ipotesi è falsa in quel punto.
+
+#### Le due guardie, che non sono negoziabili
+
+1. **Comporre può produrre il falso.** Due zone corrette possono generare
+   un'inferenza sbagliata proprio perché nessuna delle due la controlla. Un arco
+   deve quindi portare la propria **provenienza** e ogni composizione dev'essere
+   **refutabile**: `false_composition/2` non è un campo decorativo, è il prezzo
+   d'ingresso. Vale qui il mantra #7 — una risposta composta e sbagliata è
+   peggio di due zone che tacciono.
+2. **L'emergenza si misura, non si annuncia.** `PRINCIPLES.md` rifiuta il
+   sistema che recita «sono cosciente» da un `printf`; rifiuta allo stesso modo
+   il piano che dichiara «sono emerse capacità nuove». Una capacità non
+   progettata esiste quando **risolve un compito che nessuno le ha insegnato**,
+   con proof, e sopravvive all'ablazione dell'arco: togliere l'arco deve
+   toglierla.
+
+#### Predizione falsificabile
+
+Censite le zone della KB e aggiunti **N archi** fra coppie che oggi non si
+parlano, il numero di compiti risolti deve crescere **più che linearmente** in N
+— perché ogni arco nuovo compone anche con quelli esistenti. Se cresce
+linearmente, gli archi sono scorciatoie una per compito e non c'è unificazione;
+se non cresce, le zone erano già connesse o l'arco è decorativo.
+
+#### E la conseguenza sul metodo, che vale da subito
+
+Prima di aggiungere una capacità, la domanda non è soltanto *«è generalizzabile
+KB-first?»* (mantra #1). È anche:
+
+> **chi altro deve accordarsi con questa, e su che cosa?**
+
+Tre difetti su tre, in questa serie, sarebbero stati evitati facendosela prima.

@@ -149,6 +149,22 @@ suite intera è `make test`.
 
 ## ⛔ TODO aperti, se stai cercando da dove ripartire
 
+> ⛔⛔ **IL CASSETTO SENZA MANIGLIA (2026-08-31).** «Il libro rosso è sul tavolo»
+> produceva `located_in(book_red, tavolo)`, e «dove si trova il libro rosso» era
+> un muro: il lettore lega un SINTAGMA, la domanda provava un token alla volta.
+> parrot0 imparava sotto un nome che non sapeva più pronunciare, e ogni entità di
+> più di una parola finiva in un cassetto senza maniglia — ed è il motivo per cui
+> due giri di insegnamento massiccio avevano mosso +11 turni su 360. Il gradino
+> G1 è chiuso (la domanda prova i sintagmi del lettore); restano G2-G5 —
+> testa/proprietà, referente, coreferenza, ridirsi. Il piano completo è in testa
+> a `docs/plans/universal-comprehension.md`, `universal-input.md`,
+> `apprendimento-assistito.md` e `LEARN_TODO.md`.
+>
+> **La forma ricorrente, ed è la lezione:** tre volte lo stesso difetto sotto
+> vestiti diversi (D33, D35, D37) — *due percorsi che devono accordarsi e non
+> condividono l'oggetto su cui accordarsi.* Prima di aggiungere una capacità:
+> **chi altro deve accordarsi con questa, e su che cosa?**
+
 > ⛔⛔ **PRIMA DI TUTTO, dal 2026-08-30: le letture di parrot0 sono CONGELATE.**
 > Rileggere un testo dopo aver imparato una parola nuova **accumula** una seconda
 > lettura invece di rivedere la prima, e le due restano vive insieme. Il limite

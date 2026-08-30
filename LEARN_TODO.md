@@ -959,6 +959,94 @@ verde** chiudendo il bug dell'ordine dei ruoli).
 
 ---
 
+> ## ⛔⛔ IL CASSETTO SENZA MANIGLIA — il problema che teneva ferma la comprensione universale
+>
+> **Scoperto e misurato il 2026-08-31. Scritto in tutti i piani perché è la
+> giunzione da cui dipendono `universal-input`, `universal-comprehension` e il
+> fronte SC/GD insieme.**
+>
+> ### Il problema, in cinque righe di transcript
+>
+> ```text
+> > Il libro rosso è sul tavolo.   ->  Learned: located_in(book_red, tavolo).
+> > dove si trova il libro rosso   ->  muro
+> > dove si trova book_red         ->  Tavolo.      ← solo col nome INTERNO
+> > Il gatto è sul tetto.
+> > dove si trova il gatto         ->  Tetto.       ← una parola sola: funziona
+> ```
+>
+> Il **lettore** lega un *sintagma*: unisce i token fino al confine di sintagma e
+> produce una chiave sola (`book_red`). La **domanda** provava un token alla
+> volta — `located_in(il,?)`, `located_in(libro,?)`, `located_in(rosso,?)` — e
+> non provava **mai** la frase intera. Il fatto c'era e non era raggiungibile.
+>
+> > **parrot0 imparava sotto un nome che non sapeva più pronunciare**, e ogni
+> > entità di più di una parola finiva in un cassetto senza maniglia.
+>
+> ### Perché era il collo di tutto
+>
+> Due giri di insegnamento massiccio — 276 forme reali entrate parlando,
+> verificate in processo nuovo — avevano mosso **+11 turni su 360**. Non perché
+> il metodo fosse debole: perché un turno riesce solo se tengono **insieme**
+> superficie, forma della domanda, nome dell'entità, riferimento, fatto e
+> realizzazione, e il nome dell'entità cedeva sempre. I referenti multi-parola
+> («il libro rosso», «il quaderno blu», «il treno notturno») sono la norma del
+> parlato, non un caso limite — ed è anche il motivo per cui la coreferenza era
+> la famiglia peggiore del corpus: non aveva **niente a cui attaccarsi**.
+>
+> `book_red` non è un nome scomodo: è un nome che ha **perso informazione**.
+> Testa fusa col modificatore, determinante buttato, ordine invertito, lingua
+> cambiata a metà — e ogni perdita chiude una porta diversa (chiedere «quale
+> libro?», distinguere «un libro» da «il libro», risolvere «il primo»,
+> ripronunciarlo come è stato detto).
+>
+> ### Il piano di soluzione — la giunzione in cinque gradini
+>
+> L'invariante che li governa tutti:
+>
+> > **ciò che si impara da una frase dev'essere interrogabile con la stessa
+> > frase, e ridicibile come è stato detto.**
+>
+> | # | gradino | stato |
+> |---|---|---|
+> | **G1** | **La domanda prova i sintagmi che il lettore ha costruito.** Non un secondo indice: le *stesse tre cose* del lettore — confine di sintagma (`np_closer/1`, conoscenza), caduta del determinante, la stessa `p0_join`. Additivo: i passaggi per token restano. | ✅ **FATTO** 2026-08-31 |
+> | **G2** | **Testa e proprietà.** «il libro rosso» → testa `libro` + proprietà `rosso`, così «il libro» combacia e «di che colore è il libro» risponde. Dov'è la testa è **conoscenza** (`noun_phrase_head_position(Language, first \| last)`), non una regola nel C. | aperto |
+> | **G3** | **Il referente.** Un'entità introdotta è un referente con id, testa, proprietà, determinante e menzione con span. Due libri diversi **non collassano**; l'ambiguità si dichiara invece di essere risolta. | aperto |
+> | **G4** | **La coreferenza si attacca al referente.** «il primo», «quello», «l'altro» diventano `referent_same/3` — una **relazione**, non una fusione. | aperto |
+> | **G5** | **Il referente sa ridirsi.** `referent_surface/3`: rispondere «il tavolo» come è stato detto, non `tavolo`. | aperto |
+>
+> ### Come si misura che funziona
+>
+> **Non con una percentuale sul totale: con una famiglia che chiude.** Il gate è
+> che il dialogo `gd1_011` — cinque turni, due oggetti, un riferimento — passi
+> **da capo a fondo**. Una catena che regge vale più di dieci punti sparsi,
+> perché dieci punti sparsi non provano che nessuna catena regga.
+>
+> ### La forma ricorrente, che è la lezione vera
+>
+> È la **terza volta** che compare lo stesso difetto sotto un vestito diverso:
+> D33 (un'interpretazione congelata perché la KB non può richiamare la lettura),
+> D35 (una chiave costruita da un percorso e non dall'altro), D37 (una struttura
+> costruita da un percorso e ignorata dall'altro).
+>
+> > **Due percorsi che devono accordarsi, e non condividono l'oggetto su cui
+> > accordarsi.**
+>
+> Prima di aggiungere una capacità, la domanda da farsi è: *chi altro deve
+> accordarsi con questa, e su che cosa?*
+>
+> E la stessa mossa, un piano più su, è **l'unificazione fra zone della KB**
+> (D38, §18.43): far parlare aritmetica e sociale, prosa e geografia, non è
+> ingegneria di dettaglio — è la condizione perché emergano abilità che nessuno
+> ha progettato. Differenziarsi non basta: le parti differenziate devono potersi
+> parlare.
+>
+> Dettaglio completo: `docs/plans/frontier-kb-natural-dialogue.md` §18.40 (D35),
+> §18.42 (D37) · referto
+> `docs/labs/apprendimento-assistito/2026-08-31-perche-non-cresceva.md` · coda
+> `LEARN_TODO.md` GD9.
+
+
 ## Coda GD — apertura generica al dialogo (2026-08-31)
 
 Nasce dalla richiesta di F.: «i giri fatti hanno lavorato sulla profondita' di
@@ -970,6 +1058,7 @@ turni** di conversazione ordinaria.
 |---|---|---|---|---|
 | **GD1** | **Misura del dialogo generico** | 360 turni, 60 dialoghi persistenti, 12 famiglie, it+en, processi reali | il probe localizza i muri per famiglia invece di dare un numero solo | **CHIUSA** — baseline 236 muri / 117 move_match. `scripts/dialogue_corpus_probe.py` |
 | **GD2** | **Lessico colloquiale massiccio** | attacchi informali, stanchezza, noia, buonumore, frustrazione, accordo, incoraggiamento, battuta | ogni forma entra parlando; il cue sopravvive dentro una frase lunga; processo nuovo | **CHIUSA** — 200 forme insegnate, 193 persistite, F01 da 14 a 18 match (+29% relativo). [Report](docs/labs/apprendimento-assistito/2026-08-31-gd1-gd2-apertura-dialogo.md) |
+| **GD10** | **Archi di ordine superiore fra zone della KB** | D38 | aritmetica x sociale, prosa x geografia: comporre due zone che oggi non si parlano | «siamo in quattro e il conto e' 86 euro, quanto ciascuno?» — nessuno ha progettato «dividere un conto» | aggiunti N archi, i compiti risolti crescono **piu' che linearmente** in N; ogni capacita' composta e' dimostrata su un compito e sparisce se si ritratta l'arco; `false_composition/2` non resta vuoto per finta | **aperto.** F.: «connettere zone attraverso archi di ordine superiore e' una sorta di unificazione dell'intelligenza». E' la stessa cura di D33/D35/D37 un piano piu' su. Vedi §18.43 |
 | **GD9** | **Un'entita' e' un referente con proprieta', non un atomo fuso** | testa, proprieta', determinante, menzione con span; il fatto lega referenti | «il libro rosso» e «il libro» sono lo stesso oggetto detto con precisione diversa | dopo «Il libro rosso e' sul tavolo»: rispondono sia «dove si trova il libro rosso» sia «dove si trova il libro»; «di che colore e' il libro» risponde dalla proprieta'; «Il libro e' grande» si attacca allo stesso referente; «dov'e' il primo» si risolve o si dichiara ambiguo | **aperto — e' la forma GIUSTA di GD7.** La gerarchia esiste gia' (clausola, sintagmi, token, span): manca la giunzione, `extract_frame` la ignora e fonde. Vedi D37 §18.42 |
 | **GD7** | **Round-trip del nome dell'entita'** (conseguenza di GD9, non lavoro separato) | cio' che si impara da una frase e' interrogabile **con la stessa frase**, a qualunque numero di parole e in entrambe le lingue | nessuna: e' una simmetria di motore | «Il libro rosso e' sul tavolo» + «dove si trova il libro rosso» deve rispondere; `unnameable_fact/2` tende a zero su corpus reale; se serve il nome interno la simmetria non c'e' | **aperto — IL COLLO.** Misurato: la lettura scrive `book_red`, la domanda cerca «il libro rosso», e solo il nome interno funziona. Un'entita' di una parola fa il giro, una di piu' parole no. Vedi D35 §18.40 |
 | **GD8** | **La frase ordinaria a tre ruoli e le preposizioni articolate** | «ho messo il libro sul tavolo», «e' nello zaino», «invece» | «in questa frase il terzo ruolo e' il posto» | i turni dichiarativi ordinari del corpus producono un fatto invece di un muro | **aperto.** Due dei quattro guasti del dialogo tracciato |

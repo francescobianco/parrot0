@@ -131,3 +131,32 @@ E un risultato di metodo: parrot0 ha **rifiutato** cinque lezioni su
 `source_of` — «non conosco nessuna relazione chiamata source_of, quindi un modo
 per chiederla si aprirebbe su una stanza vuota». Ha detto no a una porta senza
 stanza, che è esattamente la guardia giusta.
+
+## 8. Aggiornamento 2026-08-31 — G1 chiuso, e che cosa ha (non) mosso
+
+Trovata la giunzione esatta: il **lettore** lega un sintagma e produce una
+chiave sola; la **domanda** provava un token alla volta e non provava mai la
+frase. Corretto in modo additivo — la domanda ora prova le stesse frasi che il
+lettore avrebbe costruito, con le stesse tre cose: confine di sintagma
+(`np_closer/1`, conoscenza), caduta del determinante, la stessa `p0_join`.
+
+```text
+> Il libro rosso è sul tavolo.   ->  Learned: located_in(book_red, tavolo).
+> dove si trova il libro rosso   ->  tavolo        (prima: muro)
+> Dov'è il libro rosso?          ->  tavolo        (prima: muro)
+> dove si trova il libro         ->  muro          ← corretto: e' G2, non si indovina
+```
+
+**Sul corpus GD1: 226 muri, 128 match — invariato.**
+
+E questo è il risultato che conferma la strategia invece di smentirla. G1 chiude
+*un* anello; il corpus chiede «Dov'è il primo?», che ne vuole altri tre (testa e
+proprietà, referente, coreferenza). Un congiunto riparato muove zero — è
+esattamente ciò che D36 predice, e vederlo accadere sul proprio incremento è la
+conferma più onesta che si potesse avere.
+
+**Quindi il gate resta quello dichiarato: non la percentuale, ma il dialogo
+`gd1_011` che passa da capo a fondo.** G1 si verifica con il round-trip in
+isolamento, non con il totale — e il totale non va toccato finché la catena non
+chiude.
+

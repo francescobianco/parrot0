@@ -5979,6 +5979,58 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
             return 1;
         }
         if (projected < 0) continue;
+        /* ── LA DOMANDA DEVE PROVARE LE FRASI CHE IL LETTORE HA COSTRUITO ──
+         *
+         * Misurato il 2026-08-31, ed e' il difetto che teneva ferma la
+         * comprensione universale:
+         *
+         *   > Il libro rosso e' sul tavolo. -> Learned: located_in(book_red, tavolo).
+         *   > dove si trova il libro rosso  -> muro
+         *   > dove si trova book_red        -> Tavolo.
+         *
+         * Il LETTORE lega un SINTAGMA: unisce i token fino al confine di
+         * sintagma e produce una chiave sola. La DOMANDA provava un token alla
+         * volta — `located_in(il,?)`, `located_in(libro,?)`, `located_in(rosso,?)`
+         * — e non provava mai la frase intera. Il fatto c'era e non era
+         * raggiungibile: parrot0 imparava sotto un nome che non sapeva piu'
+         * pronunciare, e ogni entita' di piu' di una parola finiva in un
+         * cassetto senza maniglia.
+         *
+         * La cura non e' un secondo indice: e' usare LE STESSE TRE COSE del
+         * lettore — il confine di sintagma (`np_closer/1`, conoscenza), la
+         * caduta del determinante e la stessa `p0_join`. Due percorsi che
+         * devono accordarsi ora condividono l'oggetto su cui accordarsi.
+         *
+         * E' additivo: i passaggi per token restano intatti sotto, quindi
+         * niente di cio' che funzionava smette. Le frasi si provano PRIMA
+         * perche' sono piu' specifiche. */
+        if (pass == 0) {
+            for (size_t t = 0; t < nw; t++) {
+                int end = p0_slot_end(b, w, nw, t, NULL);
+                if (end < 0 || (size_t)end <= t + 1) continue;
+                size_t ss = t;
+                if (p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
+                if (ss + 1 >= (size_t)end) continue;   /* un token: gia' coperto */
+                char key[KB_TERM_LEN];
+                if (!p0_join(w, ss, (size_t)end, key, KB_TERM_LEN)) continue;
+                char ans[16][KB_TERM_LEN]; size_t na;
+                const char *pf[2] = { key, NULL };
+                na = allow_arg1 ? kb_match(b->kb, pred, pf, 2, ans, 16) : 0;
+                if (na == 0 && allow_arg2) {
+                    const char *pb[2] = { NULL, key };
+                    na = kb_match(b->kb, pred, pb, 2, ans, 16);
+                }
+                if (na > 0) {
+                    char pretty[KB_TERM_LEN];
+                    snprintf(pretty, sizeof pretty, "%s", kb_dequote(ans[0]));
+                    for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
+                    kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
+                                    { "value", pretty } }, 1, out, out_size);
+                    free(preds); free(cues);
+                    return 1;
+                }
+            }
+        }
         for (size_t t = 0; t < nw; t++) {
             char *v = strip_edge_punct(w[t]);
             /* gen311: allow SINGLE-letter tokens — chemical symbols are 1 char

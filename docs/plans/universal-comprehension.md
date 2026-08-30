@@ -31,6 +31,94 @@ nella KB.*
 
 ---
 
+> ## ⛔⛔ IL CASSETTO SENZA MANIGLIA — il problema che teneva ferma la comprensione universale
+>
+> **Scoperto e misurato il 2026-08-31. Scritto in tutti i piani perché è la
+> giunzione da cui dipendono `universal-input`, `universal-comprehension` e il
+> fronte SC/GD insieme.**
+>
+> ### Il problema, in cinque righe di transcript
+>
+> ```text
+> > Il libro rosso è sul tavolo.   ->  Learned: located_in(book_red, tavolo).
+> > dove si trova il libro rosso   ->  muro
+> > dove si trova book_red         ->  Tavolo.      ← solo col nome INTERNO
+> > Il gatto è sul tetto.
+> > dove si trova il gatto         ->  Tetto.       ← una parola sola: funziona
+> ```
+>
+> Il **lettore** lega un *sintagma*: unisce i token fino al confine di sintagma e
+> produce una chiave sola (`book_red`). La **domanda** provava un token alla
+> volta — `located_in(il,?)`, `located_in(libro,?)`, `located_in(rosso,?)` — e
+> non provava **mai** la frase intera. Il fatto c'era e non era raggiungibile.
+>
+> > **parrot0 imparava sotto un nome che non sapeva più pronunciare**, e ogni
+> > entità di più di una parola finiva in un cassetto senza maniglia.
+>
+> ### Perché era il collo di tutto
+>
+> Due giri di insegnamento massiccio — 276 forme reali entrate parlando,
+> verificate in processo nuovo — avevano mosso **+11 turni su 360**. Non perché
+> il metodo fosse debole: perché un turno riesce solo se tengono **insieme**
+> superficie, forma della domanda, nome dell'entità, riferimento, fatto e
+> realizzazione, e il nome dell'entità cedeva sempre. I referenti multi-parola
+> («il libro rosso», «il quaderno blu», «il treno notturno») sono la norma del
+> parlato, non un caso limite — ed è anche il motivo per cui la coreferenza era
+> la famiglia peggiore del corpus: non aveva **niente a cui attaccarsi**.
+>
+> `book_red` non è un nome scomodo: è un nome che ha **perso informazione**.
+> Testa fusa col modificatore, determinante buttato, ordine invertito, lingua
+> cambiata a metà — e ogni perdita chiude una porta diversa (chiedere «quale
+> libro?», distinguere «un libro» da «il libro», risolvere «il primo»,
+> ripronunciarlo come è stato detto).
+>
+> ### Il piano di soluzione — la giunzione in cinque gradini
+>
+> L'invariante che li governa tutti:
+>
+> > **ciò che si impara da una frase dev'essere interrogabile con la stessa
+> > frase, e ridicibile come è stato detto.**
+>
+> | # | gradino | stato |
+> |---|---|---|
+> | **G1** | **La domanda prova i sintagmi che il lettore ha costruito.** Non un secondo indice: le *stesse tre cose* del lettore — confine di sintagma (`np_closer/1`, conoscenza), caduta del determinante, la stessa `p0_join`. Additivo: i passaggi per token restano. | ✅ **FATTO** 2026-08-31 |
+> | **G2** | **Testa e proprietà.** «il libro rosso» → testa `libro` + proprietà `rosso`, così «il libro» combacia e «di che colore è il libro» risponde. Dov'è la testa è **conoscenza** (`noun_phrase_head_position(Language, first \| last)`), non una regola nel C. | aperto |
+> | **G3** | **Il referente.** Un'entità introdotta è un referente con id, testa, proprietà, determinante e menzione con span. Due libri diversi **non collassano**; l'ambiguità si dichiara invece di essere risolta. | aperto |
+> | **G4** | **La coreferenza si attacca al referente.** «il primo», «quello», «l'altro» diventano `referent_same/3` — una **relazione**, non una fusione. | aperto |
+> | **G5** | **Il referente sa ridirsi.** `referent_surface/3`: rispondere «il tavolo» come è stato detto, non `tavolo`. | aperto |
+>
+> ### Come si misura che funziona
+>
+> **Non con una percentuale sul totale: con una famiglia che chiude.** Il gate è
+> che il dialogo `gd1_011` — cinque turni, due oggetti, un riferimento — passi
+> **da capo a fondo**. Una catena che regge vale più di dieci punti sparsi,
+> perché dieci punti sparsi non provano che nessuna catena regga.
+>
+> ### La forma ricorrente, che è la lezione vera
+>
+> È la **terza volta** che compare lo stesso difetto sotto un vestito diverso:
+> D33 (un'interpretazione congelata perché la KB non può richiamare la lettura),
+> D35 (una chiave costruita da un percorso e non dall'altro), D37 (una struttura
+> costruita da un percorso e ignorata dall'altro).
+>
+> > **Due percorsi che devono accordarsi, e non condividono l'oggetto su cui
+> > accordarsi.**
+>
+> Prima di aggiungere una capacità, la domanda da farsi è: *chi altro deve
+> accordarsi con questa, e su che cosa?*
+>
+> E la stessa mossa, un piano più su, è **l'unificazione fra zone della KB**
+> (D38, §18.43): far parlare aritmetica e sociale, prosa e geografia, non è
+> ingegneria di dettaglio — è la condizione perché emergano abilità che nessuno
+> ha progettato. Differenziarsi non basta: le parti differenziate devono potersi
+> parlare.
+>
+> Dettaglio completo: `docs/plans/frontier-kb-natural-dialogue.md` §18.40 (D35),
+> §18.42 (D37) · referto
+> `docs/labs/apprendimento-assistito/2026-08-31-perche-non-cresceva.md` · coda
+> `LEARN_TODO.md` GD9.
+
+
 ## 0. I due rami della comprensione universale
 
 Una frase compresa non sempre richiede un *fatto*. Due rami, stessa radice ("capisci
