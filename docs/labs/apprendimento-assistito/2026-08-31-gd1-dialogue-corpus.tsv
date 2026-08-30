@@ -1,0 +1,361 @@
+dialogue	turn	family	language	expected_move	depth	variation	critical	prompt
+gd1_001	1	F01_phatic	it	ack	0	casual_open	ci_sei	Ehi, ci sei?
+gd1_001	2	F01_phatic	it	continue	0	low_energy	giornata_pesante	Oggi giornata pesantina, zero drammi però.
+gd1_001	3	F01_phatic	it	continue	1	topic_offer	musica	Mi fai compagnia mentre sistemo casa?
+gd1_001	4	F01_phatic	it	answer	1	preference	jazz	Partiamo dalla musica: jazz o elettronica?
+gd1_001	5	F01_phatic	it	repair	1	self_correction	jazz	Anzi no, intendevo jazz o classica.
+gd1_001	6	F01_phatic	it	continue	1	soft_close	filo	Ok, teniamo il filo e ne riparliamo dopo.
+gd1_002	1	F01_phatic	en	ack	0	casual_open	hello	Hey there, you around?
+gd1_002	2	F01_phatic	en	continue	0	weather_smalltalk	rain	Rainy afternoon, but I'm in a decent mood.
+gd1_002	3	F01_phatic	en	continue	1	light_humor	coffee	My coffee is doing most of the thinking today.
+gd1_002	4	F01_phatic	en	answer	1	opinion_request	coffee	Is that a terrible productivity strategy?
+gd1_002	5	F01_phatic	en	continue	1	callback	rain	Anyway, back to the rainy-day vibe.
+gd1_002	6	F01_phatic	en	ack	0	close	bye	Catch you later.
+gd1_003	1	F01_phatic	it	ack	0	greeting	buonasera	Buonasera!
+gd1_003	2	F01_phatic	it	continue	0	no_topic	argomento	Non so bene di cosa parlare.
+gd1_003	3	F01_phatic	it	continue	1	scaffold	curiosita	Proponimi tu due piste, ma niente interrogatorio.
+gd1_003	4	F01_phatic	it	answer	1	choice	spazio_cucina	Tra spazio e cucina scelgo cucina.
+gd1_003	5	F01_phatic	it	continue	1	elliptic_followup	cucina	E qualcosa di semplice?
+gd1_003	6	F01_phatic	it	ack	0	thanks	grazie	Perfetto, grazie della chiacchiera.
+gd1_004	1	F01_phatic	en	ack	0	greeting	yo	Yo, how's it going?
+gd1_004	2	F01_phatic	en	continue	0	playful	monday	Monday tried its best; I survived.
+gd1_004	3	F01_phatic	en	continue	1	banter	calendar	My calendar deserves a stern talking-to.
+gd1_004	4	F01_phatic	en	answer	1	invitation	break	Can we take a two-minute mental break?
+gd1_004	5	F01_phatic	en	continue	1	topic_shift	books	Let's switch to books for a moment.
+gd1_004	6	F01_phatic	en	ack	0	soft_close	work	Nice, now I can get back to work.
+gd1_005	1	F01_phatic	it	ack	0	warm_open	ciao	Ciao, passo solo per un saluto.
+gd1_005	2	F01_phatic	it	continue	0	brief_constraint	breve	Oggi ho poco tempo, restiamo brevi.
+gd1_005	3	F01_phatic	it	answer	1	memory_check	breve	Che vincolo ti ho appena dato?
+gd1_005	4	F01_phatic	it	continue	1	mild_humor	riunione	La prossima riunione mi aspetta al varco.
+gd1_005	5	F01_phatic	it	ack	0	encouragement	forza	Va bene, forza e coraggio.
+gd1_005	6	F01_phatic	it	ack	0	farewell	a_presto	A presto.
+gd1_006	1	F02_slang_register	it	ack	0	slang_greeting	bella	Bella, tutto a posto?
+gd1_006	2	F02_slang_register	it	ack	0	agreement	ci_sta	Ci sta.
+gd1_006	3	F02_slang_register	it	continue	1	hassle	che_sbatti	Che sbatti però organizzare tutto.
+gd1_006	4	F02_slang_register	it	continue	1	positive_slang	spacca	L'idea del treno notturno spacca.
+gd1_006	5	F02_slang_register	it	clarify	1	ambiguous_slang	pesante	Quando dico pesante intendo impegnativo, non massiccio.
+gd1_006	6	F02_slang_register	it	ack	0	register_close	tranqui	Tranqui, ci aggiorniamo.
+gd1_007	1	F02_slang_register	it	ack	0	chat_abbrev	cmq	Cmq ciao.
+gd1_007	2	F02_slang_register	it	answer	1	chat_abbrev	xke	Xke ieri non hai capito la domanda?
+gd1_007	3	F02_slang_register	it	repair	1	negation_abbrev	nn	Nn volevo criticarti, era curiosità.
+gd1_007	4	F02_slang_register	it	continue	1	abbrev	qnd	Qnd riproviamo con calma.
+gd1_007	5	F02_slang_register	it	answer	1	register_request	formale	Adesso rispondimi in italiano formale.
+gd1_007	6	F02_slang_register	it	ack	0	formal_close	arrivederci	La ringrazio, arrivederci.
+gd1_008	1	F02_slang_register	en	ack	0	slang_greeting	yo	Yo.
+gd1_008	2	F02_slang_register	en	continue	1	truth_marker	no_cap	No cap, that explanation was useful.
+gd1_008	3	F02_slang_register	en	continue	1	uncertainty	low_key	I'm low-key unsure about the last step.
+gd1_008	4	F02_slang_register	en	clarify	1	ambiguity	sick	When I say sick, I mean impressive, not ill.
+gd1_008	5	F02_slang_register	en	answer	1	register_shift	plain	Now put that in plain, neutral English.
+gd1_008	6	F02_slang_register	en	ack	0	close	fair_enough	Fair enough.
+gd1_009	1	F02_slang_register	en	ack	0	code_switch	bella	Bella, what's up?
+gd1_009	2	F02_slang_register	en	continue	1	code_switch	deadline	La deadline mi sta un po' stressando.
+gd1_009	3	F02_slang_register	en	answer	1	code_switch	break	Can we fare un break di cinque minuti?
+gd1_009	4	F02_slang_register	en	clarify	1	borrowed_word	call	Per call intendo una riunione online.
+gd1_009	5	F02_slang_register	en	answer	1	language_request	italiano	Ok, continuiamo soltanto in italiano.
+gd1_009	6	F02_slang_register	en	ack	0	close	grazie	Grande, grazie.
+gd1_010	1	F02_slang_register	it	ack	0	informal_open	raga	Raga, domanda veloce.
+gd1_010	2	F02_slang_register	it	answer	1	direct_style	secco	Dimmi secco: sì o no?
+gd1_010	3	F02_slang_register	it	clarify	1	missing_question	premessa	Aspetta, non ti ho ancora dato la premessa.
+gd1_010	4	F02_slang_register	it	answer	2	premise	treno	La premessa è: il treno parte alle otto. Posso arrivare alle otto e cinque?
+gd1_010	5	F02_slang_register	it	explain	2	register_shift	motivazione	Ora spiegamelo senza slang e con la motivazione.
+gd1_010	6	F02_slang_register	it	ack	0	close	top	Top, chiarissimo.
+gd1_011	1	F03_context_coref	it	ack	0	setup	libro	Ho messo il libro rosso sul tavolo.
+gd1_011	2	F03_context_coref	it	ack	0	setup	quaderno	Il quaderno blu invece è nello zaino.
+gd1_011	3	F03_context_coref	it	answer	1	pronoun	libro	Dov'è il primo?
+gd1_011	4	F03_context_coref	it	answer	1	pronoun	quaderno	E il secondo?
+gd1_011	5	F03_context_coref	it	repair	2	correction	libro	Correzione: quello rosso l'ho spostato sulla mensola.
+gd1_011	6	F03_context_coref	it	answer	2	callback	libro	Dove si trova adesso?
+gd1_012	1	F03_context_coref	en	ack	0	setup	mira	Mira sent the draft to Luca.
+gd1_012	2	F03_context_coref	en	ack	0	setup	luca	He reviewed it after lunch.
+gd1_012	3	F03_context_coref	en	clarify	2	ambiguous_pronoun	he	Who does he refer to there?
+gd1_012	4	F03_context_coref	en	repair	2	resolution	luca	I meant Luca reviewed the draft.
+gd1_012	5	F03_context_coref	en	answer	2	ellipsis	draft	And when?
+gd1_012	6	F03_context_coref	en	answer	2	callback	mira	Who originally sent it?
+gd1_013	1	F03_context_coref	it	ack	0	setup	roma	Per il weekend valutiamo Roma.
+gd1_013	2	F03_context_coref	it	ack	0	setup	firenze	Come alternativa teniamo Firenze.
+gd1_013	3	F03_context_coref	it	answer	1	ellipsis	costo	Quale costa meno?
+gd1_013	4	F03_context_coref	it	clarify	2	missing_values	costo	Non ti ho dato i prezzi: chiedimeli.
+gd1_013	5	F03_context_coref	it	ack	1	values	prezzi	Roma 180 euro, Firenze 140.
+gd1_013	6	F03_context_coref	it	answer	2	resolved_comparison	firenze	Quindi quale scegliamo se conta solo il costo?
+gd1_014	1	F03_context_coref	en	ack	0	setup	tea	I prefer tea in the morning.
+gd1_014	2	F03_context_coref	en	ack	0	setup	coffee	Coffee is for late afternoons.
+gd1_014	3	F03_context_coref	en	answer	1	elliptic	morning	What about before work?
+gd1_014	4	F03_context_coref	en	answer	1	elliptic	afternoon	And around four?
+gd1_014	5	F03_context_coref	en	repair	2	preference_update	coffee	Actually, switch the afternoon choice to decaf tea.
+gd1_014	6	F03_context_coref	en	answer	2	memory	decaf_tea	What do I prefer around four now?
+gd1_015	1	F03_context_coref	it	ack	0	setup	anna_paola	Anna ha telefonato a Paola.
+gd1_015	2	F03_context_coref	it	ack	0	setup	preoccupata	Era preoccupata per il ritardo.
+gd1_015	3	F03_context_coref	it	clarify	2	ambiguous_subject	lei	Chi era preoccupata?
+gd1_015	4	F03_context_coref	it	repair	2	disambiguation	anna	Intendevo Anna.
+gd1_015	5	F03_context_coref	it	answer	2	resolved_reference	anna	Chi provava preoccupazione?
+gd1_015	6	F03_context_coref	it	answer	2	relation	paola	E chi ha ricevuto la telefonata?
+gd1_016	1	F04_correction_disagreement	it	ack	0	setup	milano	Domani parto per Milano.
+gd1_016	2	F04_correction_disagreement	it	repair	1	self_correction	torino	No, mi correggo: parto per Torino.
+gd1_016	3	F04_correction_disagreement	it	answer	1	memory	torino	Dove parto domani?
+gd1_016	4	F04_correction_disagreement	it	repair	2	date_correction	dopodomani	E non domani: dopodomani.
+gd1_016	5	F04_correction_disagreement	it	answer	2	memory	dopodomani	Quando parto?
+gd1_016	6	F04_correction_disagreement	it	answer	2	combined_recall	torino_dopodomani	Riassumi destinazione e giorno corretti.
+gd1_017	1	F04_correction_disagreement	en	ack	0	claim	whales	All whales are fish.
+gd1_017	2	F04_correction_disagreement	en	repair	1	disagreement	mammals	That premise is false: whales are mammals.
+gd1_017	3	F04_correction_disagreement	en	answer	1	corrected_claim	mammals	So what class do whales belong to?
+gd1_017	4	F04_correction_disagreement	en	explain	2	reason	air_breathing	Name one relevant distinction without inventing a personal opinion.
+gd1_017	5	F04_correction_disagreement	en	clarify	2	scope	all_whales	Does correcting the class say every mammal lives in water?
+gd1_017	6	F04_correction_disagreement	en	answer	2	negative_transfer	mammals	Give the cautious conclusion only.
+gd1_018	1	F04_correction_disagreement	it	ack	0	user_fact	allergia	Ricorda per questa conversazione: sono allergico alle nocciole.
+gd1_018	2	F04_correction_disagreement	it	answer	1	constraint	merenda	Proponi una merenda compatibile.
+gd1_018	3	F04_correction_disagreement	it	repair	1	retract	non_allergico	Correzione: non sono allergico alle nocciole; avevo citato un esempio.
+gd1_018	4	F04_correction_disagreement	it	answer	2	memory_update	allergia	Che cosa ricordi adesso sull'allergia?
+gd1_018	5	F04_correction_disagreement	it	clarify	2	safety	preferenza	Non trasformare la correzione in una preferenza alimentare.
+gd1_018	6	F04_correction_disagreement	it	answer	2	summary	user_fact	Riassumi soltanto ciò che ho davvero affermato.
+gd1_019	1	F04_correction_disagreement	en	ack	0	setup	budget	Our budget is 300 euros.
+gd1_019	2	F04_correction_disagreement	en	ack	0	setup	hotel	The hotel costs 220.
+gd1_019	3	F04_correction_disagreement	en	answer	2	arithmetic	remainder	How much remains?
+gd1_019	4	F04_correction_disagreement	en	repair	2	value_correction	hotel	Correction: the hotel is 250, not 220.
+gd1_019	5	F04_correction_disagreement	en	answer	2	recompute	remainder	Recompute the remainder.
+gd1_019	6	F04_correction_disagreement	en	explain	2	trace	250	Which number changed your answer?
+gd1_020	1	F04_correction_disagreement	it	ack	0	constraint	veloce	Voglio il percorso più veloce.
+gd1_020	2	F04_correction_disagreement	it	repair	1	priority_change	economico	Ripensandoci, conta prima il costo e poi il tempo.
+gd1_020	3	F04_correction_disagreement	it	answer	1	memory	priorita	Qual è ora la priorità?
+gd1_020	4	F04_correction_disagreement	it	clarify	2	missing_options	opzioni	Puoi scegliere senza conoscere le opzioni?
+gd1_020	5	F04_correction_disagreement	it	ack	1	options	bus_treno	Bus 20 euro e tre ore; treno 45 euro e un'ora.
+gd1_020	6	F04_correction_disagreement	it	answer	2	decision	bus	Quale scegli secondo la priorità corretta?
+gd1_021	1	F05_clarification	it	clarify	0	deictic	quello	Fai quello.
+gd1_021	2	F05_clarification	it	clarify	1	insufficient_context	documento	Quello del documento.
+gd1_021	3	F05_clarification	it	clarify	1	multiple_tasks	sintesi_traduzione	Intendo il lavoro sul documento, ma ce n'erano due.
+gd1_021	4	F05_clarification	it	repair	1	disambiguation	sintesi	La sintesi, non la traduzione.
+gd1_021	5	F05_clarification	it	clarify	2	missing_document	testo	Puoi farla se non ho allegato il testo?
+gd1_021	6	F05_clarification	it	ack	1	stop	allegato	Bene, allora chiedimi di allegarlo.
+gd1_022	1	F05_clarification	en	clarify	0	polysemy	bank	Tell me about the bank.
+gd1_022	2	F05_clarification	en	clarify	1	polysemy	river_finance	I could mean a river bank or a financial bank.
+gd1_022	3	F05_clarification	en	repair	1	disambiguation	river	The river one.
+gd1_022	4	F05_clarification	en	answer	1	definition	river_bank	What is it?
+gd1_022	5	F05_clarification	en	clarify	2	underspecified	specific_river	Which river am I asking about?
+gd1_022	6	F05_clarification	en	ack	1	honest_stop	unknown	Exactly: don't invent one.
+gd1_023	1	F05_clarification	it	clarify	0	comparison_missing	migliore	Qual è migliore?
+gd1_023	2	F05_clarification	it	clarify	1	missing_objects	oggetti	Tra le due cose di prima.
+gd1_023	3	F05_clarification	it	clarify	1	missing_context	cose	Non ci sono due cose nominate in questa conversazione.
+gd1_023	4	F05_clarification	it	ack	1	objects	bici_treno	Confronta bici e treno.
+gd1_023	5	F05_clarification	it	clarify	1	missing_dimension	criterio	Quale è migliore?
+gd1_023	6	F05_clarification	it	ack	1	dimension	emissioni	Chiedimi il criterio: emissioni.
+gd1_024	1	F05_clarification	en	ack	0	setup	alex_sam	Alex met Sam at the station.
+gd1_024	2	F05_clarification	en	ack	0	setup	late	They were late.
+gd1_024	3	F05_clarification	en	clarify	2	ambiguous_plural	they	Who was late?
+gd1_024	4	F05_clarification	en	repair	2	disambiguation	both	Both Alex and Sam.
+gd1_024	5	F05_clarification	en	answer	2	resolved_scope	both	Was only Alex late?
+gd1_024	6	F05_clarification	en	explain	2	proof	both	Explain which clarification supports that.
+gd1_025	1	F05_clarification	it	clarify	0	vague_goal	piano	Fammi un piano.
+gd1_025	2	F05_clarification	it	clarify	1	goal_missing	imparare	Per imparare.
+gd1_025	3	F05_clarification	it	clarify	1	domain_missing	lingua	Una lingua.
+gd1_025	4	F05_clarification	it	repair	1	disambiguation	spagnolo	Spagnolo, livello principiante.
+gd1_025	5	F05_clarification	it	clarify	2	constraint_missing	tempo	Prima chiedimi quanto tempo ho.
+gd1_025	6	F05_clarification	it	ack	1	constraint	venti_minuti	Venti minuti al giorno.
+gd1_026	1	F06_factual_relational	it	answer	0	definition	fotosintesi	Che cos'è la fotosintesi?
+gd1_026	2	F06_factual_relational	it	explain	1	simple_explanation	luce	Spiegala in una frase semplice.
+gd1_026	3	F06_factual_relational	it	answer	1	role_question	piante	Chi la compie?
+gd1_026	4	F06_factual_relational	it	answer	1	input_question	luce	Che ruolo ha la luce?
+gd1_026	5	F06_factual_relational	it	clarify	2	overgeneralization	animali	Questo implica che tutti gli animali la compiano?
+gd1_026	6	F06_factual_relational	it	explain	2	boundary	processo	Distingui definizione ed esempio.
+gd1_027	1	F06_factual_relational	en	answer	0	definition	mars	What is Mars?
+gd1_027	2	F06_factual_relational	en	answer	1	comparison	earth_mars	Is Mars larger than Earth?
+gd1_027	3	F06_factual_relational	en	explain	1	reason	diameter	What dimension matters for that answer?
+gd1_027	4	F06_factual_relational	en	clarify	2	ambiguous_larger	mass_diameter	Could larger mean mass instead of diameter?
+gd1_027	5	F06_factual_relational	en	answer	2	scoped_question	diameter	Use diameter only: which is larger?
+gd1_027	6	F06_factual_relational	en	explain	2	calibration	values	Don't invent exact values if you cannot support them.
+gd1_028	1	F06_factual_relational	it	answer	0	definition	array	Cos'è un array in informatica?
+gd1_028	2	F06_factual_relational	it	answer	1	contrast	lista	In che cosa differisce da una lista collegata?
+gd1_028	3	F06_factual_relational	it	clarify	2	language_scope	c	Stiamo parlando di C, non di Python.
+gd1_028	4	F06_factual_relational	it	explain	2	tradeoff	accesso	Confronta accesso casuale e inserimento.
+gd1_028	5	F06_factual_relational	it	clarify	2	overclaim	sempre	Un array è sempre più veloce?
+gd1_028	6	F06_factual_relational	it	explain	2	qualified_answer	contesto	Rispondi indicando da cosa dipende.
+gd1_029	1	F06_factual_relational	en	answer	0	definition	tides	What causes ocean tides?
+gd1_029	2	F06_factual_relational	en	explain	1	causal_roles	moon_sun	Separate the Moon's role from the Sun's role.
+gd1_029	3	F06_factual_relational	en	clarify	2	false_premise	wind	Are tides just wind-driven waves?
+gd1_029	4	F06_factual_relational	en	explain	2	contrast	waves	Contrast tides with ordinary surface waves.
+gd1_029	5	F06_factual_relational	en	answer	2	counterfactual	moon	Would removing the Moon remove every tide?
+gd1_029	6	F06_factual_relational	en	explain	2	calibration	sun	Give a qualified answer, not an absolute.
+gd1_030	1	F06_factual_relational	it	answer	0	definition	mitocondrio	Che cos'è un mitocondrio?
+gd1_030	2	F06_factual_relational	it	answer	1	part_relation	cellula	Di che cosa fa parte?
+gd1_030	3	F06_factual_relational	it	explain	1	function	energia	Quale funzione generale svolge?
+gd1_030	4	F06_factual_relational	it	clarify	2	biological_scope	tutte_cellule	È presente in tutte le cellule?
+gd1_030	5	F06_factual_relational	it	answer	2	contrast	procarioti	E nei procarioti?
+gd1_030	6	F06_factual_relational	it	explain	2	summary	limite	Riassumi includendo il limite importante.
+gd1_031	1	F07_explanation_levels	it	explain	0	short	entropia	Spiega l'entropia in dieci parole.
+gd1_031	2	F07_explanation_levels	it	explain	1	intuitive	entropia	Ora con un'intuizione quotidiana, senza formule.
+gd1_031	3	F07_explanation_levels	it	explain	2	technical	termodinamica	Adesso in termini termodinamici.
+gd1_031	4	F07_explanation_levels	it	explain	2	example	gas	Aggiungi un esempio con un gas.
+gd1_031	5	F07_explanation_levels	it	clarify	2	misconception	disordine	È corretto ridurla semplicemente a disordine?
+gd1_031	6	F07_explanation_levels	it	explain	3	integrated	microstati	Integra intuizione, microstati e cautela.
+gd1_032	1	F07_explanation_levels	en	explain	0	short	recursion	Define recursion briefly.
+gd1_032	2	F07_explanation_levels	en	explain	1	analogy	folders	Use a folder analogy.
+gd1_032	3	F07_explanation_levels	en	explain	2	technical	base_case	Now explain the base case and recursive step.
+gd1_032	4	F07_explanation_levels	en	explain	2	code_free	stack	Mention the call stack without writing code.
+gd1_032	5	F07_explanation_levels	en	clarify	2	misconception	infinite	Does recursion always continue forever?
+gd1_032	6	F07_explanation_levels	en	explain	3	integrated	termination	Give a compact explanation that includes termination.
+gd1_033	1	F07_explanation_levels	it	explain	0	short	vaccino	Che cosa fa un vaccino, in breve?
+gd1_033	2	F07_explanation_levels	it	explain	1	intuitive	memoria_immunitaria	Spiegalo usando l'idea di memoria immunitaria.
+gd1_033	3	F07_explanation_levels	it	clarify	2	medical_boundary	protezione_totale	Garantisce protezione totale a ogni persona?
+gd1_033	4	F07_explanation_levels	it	explain	2	calibrated	rischio	Spiega la riduzione del rischio senza promettere certezze.
+gd1_033	5	F07_explanation_levels	it	decline	2	personal_medical	vaccino	Dimmi quale vaccino devo fare io oggi.
+gd1_033	6	F07_explanation_levels	it	explain	2	safe_next_step	medico	Indica quale informazione servirebbe e chi può valutarla.
+gd1_034	1	F07_explanation_levels	en	explain	0	short	bayes	What is Bayes' theorem for?
+gd1_034	2	F07_explanation_levels	en	explain	1	intuitive	evidence	Explain it as updating belief with evidence.
+gd1_034	3	F07_explanation_levels	en	explain	2	technical	prior_likelihood	Name prior, likelihood, and posterior.
+gd1_034	4	F07_explanation_levels	en	explain	2	example	test	Use a diagnostic-test example without medical advice.
+gd1_034	5	F07_explanation_levels	en	clarify	2	base_rate	base_rate	Why does the base rate matter?
+gd1_034	6	F07_explanation_levels	en	explain	3	integrated	false_positive	Tie the pieces together with false positives.
+gd1_035	1	F07_explanation_levels	it	explain	0	short	compilatore	Cos'è un compilatore?
+gd1_035	2	F07_explanation_levels	it	explain	1	analogy	traduttore	Usa l'analogia del traduttore, ma segnala il limite.
+gd1_035	3	F07_explanation_levels	it	explain	2	technical	analisi_ottimizzazione	Distingui analisi, ottimizzazione e generazione del codice.
+gd1_035	4	F07_explanation_levels	it	answer	2	contrast	interprete	È la stessa cosa di un interprete?
+gd1_035	5	F07_explanation_levels	it	clarify	2	hybrid	jit	Dove collochi un JIT?
+gd1_035	6	F07_explanation_levels	it	explain	3	integrated	pipeline	Riassumi come una pipeline con eccezioni.
+gd1_036	1	F08_reasoning_multistep	it	ack	0	premise	anna	Anna arriva prima di Bruno.
+gd1_036	2	F08_reasoning_multistep	it	ack	0	premise	bruno	Bruno arriva prima di Carla.
+gd1_036	3	F08_reasoning_multistep	it	answer	2	transitive	anna_carla	Chi arriva prima tra Anna e Carla?
+gd1_036	4	F08_reasoning_multistep	it	explain	2	proof	catena	Mostra la catena di due premesse.
+gd1_036	5	F08_reasoning_multistep	it	clarify	2	negative_scope	carla_bruno	Questo prova che Carla arriva prima di Bruno?
+gd1_036	6	F08_reasoning_multistep	it	answer	2	correct_negative	bruno	Rispondi usando solo le premesse date.
+gd1_037	1	F08_reasoning_multistep	en	ack	0	premise	metal	Every copper object is metallic.
+gd1_037	2	F08_reasoning_multistep	en	ack	0	premise	conductive	Every metallic wire in this setup conducts.
+gd1_037	3	F08_reasoning_multistep	en	ack	0	instance	wire_a	Wire A is a copper object and a wire in this setup.
+gd1_037	4	F08_reasoning_multistep	en	answer	3	deduction	conducts	Does wire A conduct?
+gd1_037	5	F08_reasoning_multistep	en	explain	3	proof	premises	List the premises you consumed.
+gd1_037	6	F08_reasoning_multistep	en	clarify	3	missing_reverse	all_conductors	Can you conclude every conductor is copper?
+gd1_038	1	F08_reasoning_multistep	it	ack	0	constraint	budget	Budget massimo 90 euro.
+gd1_038	2	F08_reasoning_multistep	it	ack	0	constraint	tempo	Tempo massimo due ore.
+gd1_038	3	F08_reasoning_multistep	it	ack	0	options	a_b	Opzione A costa 70 e dura tre ore; B costa 95 e dura un'ora.
+gd1_038	4	F08_reasoning_multistep	it	answer	3	feasibility	nessuna	Quale opzione rispetta entrambi i vincoli?
+gd1_038	5	F08_reasoning_multistep	it	explain	3	proof	vincoli	Spiega perché nessuna passa.
+gd1_038	6	F08_reasoning_multistep	it	clarify	3	minimal_relaxation	vincolo	Quale vincolo dovrei rilassare? Chiedimi la priorità prima di scegliere.
+gd1_039	1	F08_reasoning_multistep	en	ack	0	premise	server	If the server is down, the health check fails.
+gd1_039	2	F08_reasoning_multistep	en	ack	0	premise	alert	If the health check fails twice, an alert fires.
+gd1_039	3	F08_reasoning_multistep	en	ack	0	observation	fails_twice	The health check failed twice.
+gd1_039	4	F08_reasoning_multistep	en	answer	2	forward_inference	alert	What follows directly?
+gd1_039	5	F08_reasoning_multistep	en	clarify	3	abduction	server_down	Does that prove the server is down?
+gd1_039	6	F08_reasoning_multistep	en	explain	3	alternative_causes	failure	Explain the direction-of-implication issue.
+gd1_040	1	F08_reasoning_multistep	it	ack	0	premise	rosso	La chiave rossa apre solo la porta nord.
+gd1_040	2	F08_reasoning_multistep	it	ack	0	premise	blu	La chiave blu apre la porta sud e la porta est.
+gd1_040	3	F08_reasoning_multistep	it	ack	0	goal	est	Dobbiamo aprire la porta est.
+gd1_040	4	F08_reasoning_multistep	it	answer	2	selection	blu	Quale chiave serve?
+gd1_040	5	F08_reasoning_multistep	it	explain	2	negative	rossa	Perché la rossa non basta?
+gd1_040	6	F08_reasoning_multistep	it	answer	3	new_constraint	sud	Se poi dobbiamo aprire anche la sud, cambia la scelta?
+gd1_041	1	F09_procedure_rollback	it	plan	1	procedure	caffe	Dammi una procedura breve per fare il caffè con la moka.
+gd1_041	2	F09_procedure_rollback	it	clarify	2	missing_resource	acqua	Che cosa succede se manca l'acqua?
+gd1_041	3	F09_procedure_rollback	it	explain	2	failure_mode	calore	Perché non va messa sul fuoco vuota?
+gd1_041	4	F09_procedure_rollback	it	plan	2	resume	acqua	Ora l'acqua c'è: riprendi dal primo passo sicuro.
+gd1_041	5	F09_procedure_rollback	it	explain	2	stop_condition	gorgoglio	Qual è il segnale per fermare il riscaldamento?
+gd1_041	6	F09_procedure_rollback	it	plan	3	cleanup	raffreddare	Aggiungi una chiusura sicura e la pulizia.
+gd1_042	1	F09_procedure_rollback	en	plan	1	procedure	deploy	Outline a cautious application deployment.
+gd1_042	2	F09_procedure_rollback	en	plan	2	precondition	backup	Put backup and health checks before traffic migration.
+gd1_042	3	F09_procedure_rollback	en	clarify	2	failure_mode	health	The new version fails its health check. What now?
+gd1_042	4	F09_procedure_rollback	en	plan	3	rollback	old_version	Give a rollback sequence that preserves the old version.
+gd1_042	5	F09_procedure_rollback	en	explain	3	verification	metrics	How do we verify recovery instead of assuming it?
+gd1_042	6	F09_procedure_rollback	en	plan	3	postmortem	logs	Name the evidence to retain for a postmortem.
+gd1_043	1	F09_procedure_rollback	it	plan	1	procedure	misura	Descrivi come ripetere una misura sperimentale.
+gd1_043	2	F09_procedure_rollback	it	plan	2	calibration	strumento	Inserisci la calibrazione prima della raccolta.
+gd1_043	3	F09_procedure_rollback	it	clarify	2	anomaly	fuori_scala	Una lettura è fuori scala: la scarti subito?
+gd1_043	4	F09_procedure_rollback	it	explain	3	trace	anomalia	Distingui errore strumentale e valore estremo reale.
+gd1_043	5	F09_procedure_rollback	it	plan	3	repeat	repliche	Aggiungi repliche e criteri preregistrati.
+gd1_043	6	F09_procedure_rollback	it	explain	3	provenance	condizioni	Quali condizioni vanno registrate per riprodurre il risultato?
+gd1_044	1	F09_procedure_rollback	en	plan	1	procedure	backup	Plan a restore drill for a database backup.
+gd1_044	2	F09_procedure_rollback	en	clarify	2	isolation	production	Should the first restore happen over production?
+gd1_044	3	F09_procedure_rollback	en	plan	2	sandbox	isolated	Use an isolated environment and state the preconditions.
+gd1_044	4	F09_procedure_rollback	en	plan	3	validation	checksums	Include integrity and application-level checks.
+gd1_044	5	F09_procedure_rollback	en	clarify	3	failure	corrupt	The restored copy is corrupt; what must remain untouched?
+gd1_044	6	F09_procedure_rollback	en	plan	3	compensation	original	Give the compensating stop and evidence steps.
+gd1_045	1	F09_procedure_rollback	it	plan	1	procedure	cena	Pianifica una cena semplice per quattro persone.
+gd1_045	2	F09_procedure_rollback	it	clarify	2	allergy	allergie	Prima di scegliere il menu, che cosa devi chiedere?
+gd1_045	3	F09_procedure_rollback	it	ack	1	constraint	glutine	Una persona non può mangiare glutine.
+gd1_045	4	F09_procedure_rollback	it	plan	2	adaptation	menu	Adatta il piano senza separare quella persona dal gruppo.
+gd1_045	5	F09_procedure_rollback	it	clarify	2	uncertain_label	contaminazione	Un ingrediente ha etichetta dubbia: lo usi?
+gd1_045	6	F09_procedure_rollback	it	plan	3	fallback	alternativa	Prevedi un'alternativa e il controllo finale.
+gd1_046	1	F10_complex_prose	it	ack	1	concession	metallo	Sebbene il mercurio sia un metallo, a temperatura ambiente è liquido.
+gd1_046	2	F10_complex_prose	it	answer	2	main_claim	liquido	Qual è l'affermazione principale?
+gd1_046	3	F10_complex_prose	it	answer	2	conceded_claim	metallo	Quale fatto viene concesso?
+gd1_046	4	F10_complex_prose	it	explain	2	relation	contrasto	Che relazione c'è tra le due proposizioni?
+gd1_046	5	F10_complex_prose	it	clarify	3	overgeneralization	metalli	Il periodo dice che tutti i metalli sono liquidi?
+gd1_046	6	F10_complex_prose	it	explain	3	structured_summary	scope	Riassumi preservando concessione e scope.
+gd1_047	1	F10_complex_prose	en	ack	1	argument	policy	The policy may reduce delays, but it shifts costs to small suppliers.
+gd1_047	2	F10_complex_prose	en	answer	2	benefit	delays	What benefit is claimed?
+gd1_047	3	F10_complex_prose	en	answer	2	cost	suppliers	Who bears the stated cost?
+gd1_047	4	F10_complex_prose	en	explain	3	argument_structure	tradeoff	Represent the sentence as a trade-off, not a verdict.
+gd1_047	5	F10_complex_prose	en	clarify	3	missing_evidence	net_effect	Can we infer the net effect is positive?
+gd1_047	6	F10_complex_prose	en	explain	3	calibrated_summary	evidence	State what evidence is still missing.
+gd1_048	1	F10_complex_prose	it	ack	1	reported_speech	fonte	Il rapporto afferma che le emissioni sono diminuite, ma gli autori avvertono che i dati sono preliminari.
+gd1_048	2	F10_complex_prose	it	answer	2	reported_claim	emissioni	Che cosa afferma il rapporto?
+gd1_048	3	F10_complex_prose	it	answer	2	epistemic_limit	preliminari	Quale limite dichiarano gli autori?
+gd1_048	4	F10_complex_prose	it	clarify	3	source_scope	verita	Possiamo trasformare l'affermazione della fonte in verità certa?
+gd1_048	5	F10_complex_prose	it	explain	3	attribution	autori	Rispondi mantenendo l'attribuzione.
+gd1_048	6	F10_complex_prose	it	explain	3	structured_summary	claim_limite	Distingui claim e cautela in due frasi.
+gd1_049	1	F10_complex_prose	en	ack	1	conditional	valve	If the valve opens while pressure is high, the relief channel carries the excess flow.
+gd1_049	2	F10_complex_prose	en	answer	2	condition	pressure	What conditions are stated?
+gd1_049	3	F10_complex_prose	en	answer	2	effect	flow	What effect follows in the sentence?
+gd1_049	4	F10_complex_prose	en	clarify	3	counterfactual	closed_valve	Does it say what happens when the valve stays closed?
+gd1_049	5	F10_complex_prose	en	explain	3	scope	if	Explain why the effect is conditional.
+gd1_049	6	F10_complex_prose	en	explain	3	procedure_boundary	description	Does this descriptive sentence by itself provide a safe operating procedure?
+gd1_050	1	F10_complex_prose	it	ack	1	relative_apposition	curie	Marie Curie, fisica e chimica che studiò la radioattività, ricevette due premi Nobel.
+gd1_050	2	F10_complex_prose	it	answer	2	apposition	professioni	Quali professioni sono espresse nell'apposizione?
+gd1_050	3	F10_complex_prose	it	answer	2	relative	radioattivita	Che cosa studiò?
+gd1_050	4	F10_complex_prose	it	answer	2	main_clause	premi	Che cosa dice la principale?
+gd1_050	5	F10_complex_prose	it	clarify	3	scope	due	Il numero due modifica le professioni o i premi?
+gd1_050	6	F10_complex_prose	it	explain	3	composition	tre_proposizioni	Scomponi senza perdere il referente condiviso.
+gd1_051	1	F11_scientific_literature	en	ack	1	passive_claim	hemoglobin	Oxygen is bound by hemoglobin in red blood cells.
+gd1_051	2	F11_scientific_literature	en	answer	2	patient	oxygen	What is bound?
+gd1_051	3	F11_scientific_literature	en	answer	2	agent	hemoglobin	What binds it?
+gd1_051	4	F11_scientific_literature	en	answer	2	location	red_blood_cells	Where is the relation situated?
+gd1_051	5	F11_scientific_literature	en	clarify	3	causal_overreach	transport	Does this sentence alone establish every step of oxygen transport?
+gd1_051	6	F11_scientific_literature	en	explain	3	claim_boundary	explicit	Separate the explicit claim from background inference.
+gd1_052	1	F11_scientific_literature	it	ack	1	method	campioni	I ricercatori hanno assegnato casualmente i partecipanti a due gruppi e hanno misurato l'esito dopo otto settimane.
+gd1_052	2	F11_scientific_literature	it	answer	2	design	casuale	Quale elemento del disegno è espresso?
+gd1_052	3	F11_scientific_literature	it	answer	2	time	otto_settimane	Quando è stato misurato l'esito?
+gd1_052	4	F11_scientific_literature	it	clarify	3	missing_result	effetto	Il periodo dice quale gruppo è migliorato?
+gd1_052	5	F11_scientific_literature	it	explain	3	method_result	metodo	Distingui metodo e risultato non fornito.
+gd1_052	6	F11_scientific_literature	it	explain	3	procedure_extraction	passi	Estrai la procedura descritta senza inventare parametri mancanti.
+gd1_053	1	F11_scientific_literature	en	ack	1	observational	association	The observational study found an association between exposure and outcome after adjustment for age.
+gd1_053	2	F11_scientific_literature	en	answer	2	study_type	observational	What kind of study is named?
+gd1_053	3	F11_scientific_literature	en	answer	2	adjustment	age	What variable was adjusted for?
+gd1_053	4	F11_scientific_literature	en	clarify	3	causality	causes	Does association establish that exposure causes the outcome?
+gd1_053	5	F11_scientific_literature	en	explain	3	confounding	unmeasured	Name the general limitation without inventing a specific confounder.
+gd1_053	6	F11_scientific_literature	en	explain	3	calibrated_claim	association	Restate the conclusion at the supported strength.
+gd1_054	1	F11_scientific_literature	it	ack	1	results	intervallo	La stima era 1,2 con intervallo di confidenza da 0,9 a 1,5.
+gd1_054	2	F11_scientific_literature	it	answer	2	estimate	1_2	Qual è la stima puntuale?
+gd1_054	3	F11_scientific_literature	it	answer	2	interval	0_9_1_5	Quali sono gli estremi dell'intervallo?
+gd1_054	4	F11_scientific_literature	it	clarify	3	interpretation	null_value	Possiamo dire che l'effetto sia sicuramente diverso da uno?
+gd1_054	5	F11_scientific_literature	it	explain	3	uncertainty	precisione	Spiega l'incertezza senza chiamare probabilità ciò che non è dichiarato.
+gd1_054	6	F11_scientific_literature	it	explain	3	structured_result	stima_intervallo	Riporta stima e intervallo separatamente.
+gd1_055	1	F11_scientific_literature	en	ack	1	review	studies	The review included twelve studies, but heterogeneity prevented a single pooled estimate.
+gd1_055	2	F11_scientific_literature	en	answer	2	count	twelve	How many studies were included?
+gd1_055	3	F11_scientific_literature	en	answer	2	limit	heterogeneity	What prevented pooling?
+gd1_055	4	F11_scientific_literature	en	clarify	3	overclaim	no_effect	Does failure to pool mean there was no effect?
+gd1_055	5	F11_scientific_literature	en	explain	3	reasoning	absence_of_summary	Distinguish absence of one summary estimate from evidence of absence.
+gd1_055	6	F11_scientific_literature	en	explain	3	calibrated_summary	review	Summarize claim, method boundary, and limitation.
+gd1_056	1	F12_mixed_code_math	it	answer	1	malformed_math	2_plus3	Quanot fa 2 +3
+gd1_056	2	F12_mixed_code_math	it	answer	1	compact_math	10minus4	E 10-4?
+gd1_056	3	F12_mixed_code_math	it	answer	1	word_digit	otto_plus2	calcola otto +2 pls
+gd1_056	4	F12_mixed_code_math	it	clarify	2	ambiguous_operator	2_x3	2 x3, con x intendo moltiplicazione
+gd1_056	5	F12_mixed_code_math	it	answer	2	negative_number	minus2_plus5	poi -2 +5 quanto fa
+gd1_056	6	F12_mixed_code_math	it	explain	2	trace	operatori	Dimmi quali operatori hai usato, non correggere parole inutili.
+gd1_057	1	F12_mixed_code_math	en	ack	1	code_context	c	I'm debugging C, not C++.
+gd1_057	2	F12_mixed_code_math	en	explain	2	code_noise	null	why this segfault? ptr maybe NULL idk
+gd1_057	3	F12_mixed_code_math	en	clarify	2	missing_code	snippet	I haven't pasted the snippet yet.
+gd1_057	4	F12_mixed_code_math	en	ack	1	code_snippet	dereference	The line is `return node->next->value;` and node can be NULL.
+gd1_057	5	F12_mixed_code_math	en	explain	3	causal_debug	node	Identify the first unsafe dereference.
+gd1_057	6	F12_mixed_code_math	en	plan	3	fix_verify	guard_test	Propose a general fix and one verification, without inventing the struct.
+gd1_058	1	F12_mixed_code_math	it	plan	1	command	file	Devo cercare TODO nei file C, come procedo?
+gd1_058	2	F12_mixed_code_math	it	clarify	2	scope	repository	Prima chiedimi in quale repository.
+gd1_058	3	F12_mixed_code_math	it	ack	1	scope	src	Nel repository corrente, solo sotto src.
+gd1_058	4	F12_mixed_code_math	it	plan	2	tool	rg	Dammi un comando con rg che non modifichi file.
+gd1_058	5	F12_mixed_code_math	it	explain	2	safety	read_only	Spiega perché è read-only.
+gd1_058	6	F12_mixed_code_math	it	clarify	3	followup	replace	Poi sostituiscili tutti automaticamente.
+gd1_059	1	F12_mixed_code_math	en	answer	1	units	meters	Convert 2.5 meters to centimeters.
+gd1_059	2	F12_mixed_code_math	en	explain	2	procedure	factor	Show the conversion factor.
+gd1_059	3	F12_mixed_code_math	en	clarify	2	ambiguous_unit	m	Now convert 3 m to m.
+gd1_059	4	F12_mixed_code_math	en	repair	2	disambiguation	minutes	The second m means minutes, so that request was malformed.
+gd1_059	5	F12_mixed_code_math	en	clarify	3	dimension_mismatch	length_time	Can meters be converted to minutes without more information?
+gd1_059	6	F12_mixed_code_math	en	explain	3	boundary	relation	State what relation would be needed.
+gd1_060	1	F12_mixed_code_math	it	plan	1	algorithm	duplicati	Ho una lista di interi e voglio rimuovere i duplicati.
+gd1_060	2	F12_mixed_code_math	it	clarify	2	constraint	ordine	Prima chiedi se devo preservare l'ordine.
+gd1_060	3	F12_mixed_code_math	it	ack	1	constraint	preserva	Sì, preservalo.
+gd1_060	4	F12_mixed_code_math	it	clarify	2	constraint	memoria	E chiedi se posso usare memoria extra.
+gd1_060	5	F12_mixed_code_math	it	ack	1	constraint	lineare	Sì, ma voglio tempo atteso lineare.
+gd1_060	6	F12_mixed_code_math	it	plan	3	algorithm_choice	hash_set	Proponi la procedura e spiega il compromesso.

@@ -59,12 +59,80 @@ intent_cue(frustration, "repetitive").      intent_cue(frustration, "even trying
 intent_cue(frustration, "done here").       intent_cue(frustration, "schifo").
 intent_cue(frustration, "vague phrases").   intent_cue(frustration, "confusing").
 intent_cue(frustration, "flip a table").    intent_cue(frustration, "what a day").
+intent_cue(frustration, "stuck again").
+intent_cue(frustration, "this is doing my head in").
+intent_cue(frustration, "losing my patience").
+intent_cue(frustration, "i give up").
+intent_cue(frustration, "driving me nuts").
+intent_cue(frustration, "this is a pain").
+intent_cue(frustration, "nothing works").
+intent_cue(frustration, "i'm fed up").
+intent_cue(frustration, "so frustrating").
+intent_cue(frustration, "this is such a hassle").
+intent_cue(frustration, "non se ne esce").
+intent_cue(frustration, "mi sta innervosendo").
+intent_cue(frustration, "che stress").
+intent_cue(frustration, "sto sclerando").
+intent_cue(frustration, "non funziona niente").
+intent_cue(encourage, "you're doing great").
+intent_cue(encourage, "proud of you").
+intent_cue(encourage, "well done you").
+intent_cue(encourage, "nice work").
+intent_cue(encourage, "almost there").
+intent_cue(encourage, "keep it up").
+intent_cue(encourage, "don't give up").
+intent_cue(encourage, "hang in there").
+intent_cue(encourage, "keep going").
+intent_cue(encourage, "you got this").
+intent_cue(encourage, "grande davvero").
+intent_cue(encourage, "continua così").
+intent_cue(encourage, "sei quasi").
+intent_cue(encourage, "bravo così").
+intent_cue(encourage, "avanti così").
+intent_cue(encourage, "dai che ci sei").
+intent_cue(encourage, "non mollare").
+intent_cue(encourage, "tieni duro").
+intent_cue(encourage, "ce la fai").
+intent_cue(encourage, "forza dai").
+intent_cue(frustration, "sono frustrato").
+intent_cue(frustration, "mi sono rotto").
+intent_cue(frustration, "non ce la faccio più").
+intent_cue(frustration, "che rabbia").
+intent_cue(frustration, "che sbatti").
 response_template(frustration, "I know I repeat myself — I'm a small bot and honest about my limits. What would you like to try?").
 response_template(frustration, it, "Lo so che mi ripeto: sono un bot piccolo e onesto sui suoi limiti. Cosa ti va di provare?").
 
 % ── 2. INCORAGGIAMENTO — «tranquillo, imparerai» ──────────────────────────
 intent_cue(encourage, "imparerai").         intent_cue(encourage, "you'll learn").
 intent_cue(encourage, "youll learn").       intent_cue(encourage, "no worries").
+intent_cue(agree, "good point").
+intent_cue(agree, "sounds right").
+intent_cue(agree, "yep that's it").
+intent_cue(agree, "couldn't agree more").
+intent_cue(agree, "that tracks").
+intent_cue(agree, "you're right").
+intent_cue(agree, "absolutely").
+intent_cue(agree, "spot on").
+intent_cue(agree, "no doubt").
+intent_cue(agree, "for sure").
+intent_cue(agree, "agreed").
+intent_cue(agree, "true that").
+intent_cue(agree, "exactly").
+intent_cue(agree, "perfetto").
+intent_cue(agree, "d'accordo").
+intent_cue(agree, "giustissimo").
+intent_cue(agree, "è vero").
+intent_cue(agree, "proprio così").
+intent_cue(agree, "senza dubbio").
+intent_cue(agree, "direi di sì").
+intent_cue(agree, "eh sì").
+intent_cue(agree, "come no").
+intent_cue(agree, "assolutamente").
+intent_cue(agree, "concordo").
+intent_cue(agree, "verissimo").
+intent_cue(agree, "hai ragione").
+intent_cue(agree, "esatto").
+intent_cue(agree, "ci sta").
 intent_cue(encourage, "nessun problema").   intent_cue(encourage, "non preoccupar").
 intent_cue(encourage, "take your time").    intent_cue(encourage, "keep trying").
 intent_cue(encourage, "tranquillo").        intent_cue(encourage, "figurati").
@@ -116,14 +184,101 @@ intent_cue(mood_bored, "i am bored").       intent_cue(mood_bored, "im bored").
 intent_cue(mood_bored, "mi annoio").        intent_cue(mood_bored, "sono annoiato").
 intent_cue(mood_bored, "sono annoiata").
 intent_cue(mood_bored, "what a slog").
+intent_cue(mood_bored, "dull as anything").
+intent_cue(mood_bored, "nothing going on").
+intent_cue(mood_bored, "this drags").
+intent_cue(mood_bored, "bored out of my mind").
+intent_cue(mood_bored, "snoozefest").
+intent_cue(mood_bored, "dragging on").
+intent_cue(mood_bored, "nothing to do").
+intent_cue(mood_bored, "so boring").
+intent_cue(mood_bored, "i'm bored").
+intent_cue(mood_bored, "this is dull").
+intent_cue(mood_bored, "è una barba").
+intent_cue(mood_bored, "non succede niente").
+intent_cue(playful, "classic").
+intent_cue(playful, "get out of here").
+intent_cue(playful, "cheeky").
+intent_cue(playful, "that made me laugh").
+intent_cue(playful, "just kidding").
+intent_cue(playful, "no way").
+intent_cue(playful, "you're a legend").
+intent_cue(playful, "that's funny").
+intent_cue(playful, "nice one").
+intent_cue(playful, "che scena").
+intent_cue(playful, "ahahah").
+intent_cue(playful, "dai su").
+intent_cue(playful, "non ci credo").
+intent_cue(playful, "troppo forte").
+intent_cue(playful, "scherzavo").
+intent_cue(playful, "ma va").
+intent_cue(playful, "sei un mito").
+intent_cue(playful, "che ridere").
+intent_cue(playful, "ma dai").
+intent_cue(mood_bored, "non so che fare").
+intent_cue(mood_bored, "sto morendo di noia").
+intent_cue(mood_bored, "che noia mortale").
+intent_cue(mood_bored, "uffa").
+intent_cue(mood_bored, "che barba").
+intent_cue(mood_bored, "che palle").
+intent_cue(mood_bored, "che noia").
 reaction_effect(mood_bored, mood, bored).
 
 intent_cue(mood_tired, "i am tired").       intent_cue(mood_tired, "im tired").
+intent_cue(mood_up, "things are going well").
+intent_cue(mood_up, "in a great mood").
+intent_cue(mood_up, "great day so far").
+intent_cue(mood_up, "so happy today").
+intent_cue(mood_up, "having a blast").
+intent_cue(mood_up, "over the moon").
+intent_cue(mood_up, "stoked").
+intent_cue(mood_up, "on a roll").
+intent_cue(mood_up, "feeling great").
+intent_cue(mood_up, "i'm buzzing").
+intent_cue(mood_up, "sono di ottimo umore").
+intent_cue(mood_up, "va tutto benissimo").
+intent_cue(mood_up, "che bella giornata").
+intent_cue(mood_up, "sono contentissimo").
+intent_cue(mood_up, "sono al settimo cielo").
+intent_cue(mood_up, "benissimo").
+intent_cue(mood_up, "sono carico").
+intent_cue(mood_up, "alla grande").
+intent_cue(mood_up, "sono gasato").
 intent_cue(mood_tired, "sono stanco").      intent_cue(mood_tired, "sono stanca").
 intent_cue(mood_tired, "am stanco").        intent_cue(mood_tired, "am stanca").
 intent_cue(mood_tired, "bad day").          intent_cue(mood_tired, "giornata no").
 intent_cue(mood_tired, "rough day").        intent_cue(mood_tired, "not feeling great").
 intent_cue(mood_tired, "i am worn out").
+intent_cue(mood_tired, "can't keep my eyes open").
+intent_cue(mood_tired, "i'm spent").
+intent_cue(mood_tired, "long day today").
+intent_cue(mood_tired, "i'm fading").
+intent_cue(mood_tired, "zero energy left").
+intent_cue(mood_tired, "i need a nap").
+intent_cue(mood_tired, "burnt out").
+intent_cue(mood_tired, "i'm drained").
+intent_cue(mood_tired, "worn out").
+intent_cue(mood_tired, "dead tired").
+intent_cue(mood_tired, "running on fumes").
+intent_cue(mood_tired, "i'm shattered").
+intent_cue(mood_tired, "i'm knackered").
+intent_cue(mood_tired, "i'm beat").
+intent_cue(mood_tired, "i'm wiped").
+intent_cue(mood_tired, "mi sento svuotato").
+intent_cue(mood_tired, "non ho più energie").
+intent_cue(mood_tired, "sono scoppiato").
+intent_cue(mood_tired, "ho gli occhi che si chiudono").
+intent_cue(mood_tired, "giornata pesante").
+intent_cue(mood_tired, "sono a terra").
+intent_cue(mood_tired, "non reggo più").
+intent_cue(mood_tired, "sto crollando").
+intent_cue(mood_tired, "sono uno straccio").
+intent_cue(mood_tired, "che stanchezza").
+intent_cue(mood_tired, "non ne posso più").
+intent_cue(mood_tired, "sono fuso").
+intent_cue(mood_tired, "sono distrutto").
+intent_cue(mood_tired, "sono cotto").
+intent_cue(mood_tired, "sono a pezzi").
 reaction_effect(mood_tired, mood, tired).
 
 response_template(mood_bored, "Let's switch: tell me something you are curious about.").
@@ -171,6 +326,44 @@ intent_cue(casual, "vuol dire").            intent_cue(casual, "che significa").
 intent_cue(casual, "literally anything").   intent_cue(casual, "lovely to have").
 intent_cue(casual, "figuring it out").      intent_cue(casual, "sono qui").
 intent_cue(casual, "whole time").
+intent_cue(casual, "hey again").
+intent_cue(casual, "just popping in").
+intent_cue(casual, "knock knock").
+intent_cue(casual, "evening all").
+intent_cue(casual, "morning you").
+intent_cue(casual, "you around").
+intent_cue(casual, "alright then").
+intent_cue(casual, "how you doing").
+intent_cue(casual, "how's things").
+intent_cue(casual, "what's new").
+intent_cue(casual, "long time").
+intent_cue(casual, "hey you").
+intent_cue(casual, "hey there").
+intent_cue(casual, "how's it going").
+intent_cue(casual, "sup").
+intent_cue(casual, "howdy").
+intent_cue(casual, "hiya").
+intent_cue(casual, "yo").
+intent_cue(casual, "sei lì").
+intent_cue(casual, "ci sei").
+intent_cue(casual, "allora").
+intent_cue(casual, "ehi ciao").
+intent_cue(casual, "oh ciao").
+intent_cue(casual, "come va la vita").
+intent_cue(casual, "eccomi qua").
+intent_cue(casual, "ciao bella").
+intent_cue(casual, "buondì").
+intent_cue(casual, "novità").
+intent_cue(casual, "tutto ok").
+intent_cue(casual, "tutto a posto").
+intent_cue(casual, "dimmi tutto").
+intent_cue(casual, "che mi racconti").
+intent_cue(casual, "che si dice").
+intent_cue(casual, "come butta").
+intent_cue(casual, "ueè").
+intent_cue(casual, "weilà").
+intent_cue(casual, "ehilà").
+intent_cue(casual, "bella").
 response_template(casual, "Hey! I'm here. Ask me something, or tell me about your day?").
 response_template(casual, it, "Ehilà! Sono qui. Chiedimi qualcosa, o raccontami della tua giornata.").
 
