@@ -25,3 +25,5 @@
 %   kb/machinery/transcripts.p0        i turni detti e quelli risposti
 %
 % Il file torna vuoto, che e' il suo stato giusto.
+exchange(paris, located_in, france).
+exchange_turn(9, paris).

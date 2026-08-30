@@ -153,9 +153,110 @@ machinery(marker_question_form).
 machinery(claim_question_evidence).
 machinery(claim_status_question_evidence).
 machinery(complement_suffix).
+machinery(document_reading_counter).
+machinery(document_reading_next).
+machinery(document_claim_revision).
+machinery(document_claim_revision_replace).
+machinery(claim_current_reading).
+machinery(claim_has_current_reading).
+machinery(claim_reading_record).
+machinery(claim_current_signature).
+machinery(reading_depends_on).
+machinery(reading_basis_live).
+machinery(reading_has_live_basis).
+machinery(reading_is_stale).
+machinery(reading_stale).
+machinery(reading_current).
+machinery(revision_effect).
+machinery(revision_schedule).
+machinery(revision_trigger_module).
 
 normalization_origin(reported, quarantine).
 normalization_origin(asserted, world).
+
+% ── SC40-A: UNA LETTURA E' UNA VISTA VERSIONATA, NON UN'OSSERVAZIONE ─────
+%
+% La superficie e lo span sono osservazioni: quel documento conteneva davvero
+% quei byte. Il frame e il gap sono invece interpretazioni prodotte con cio'
+% che parrot0 sa in quel momento. Congelarle accanto alle osservazioni faceva
+% coesistere `gap(no_reading)` e `normalized(reported)` dopo una rilettura.
+%
+% Ogni interpretazione riceve quindi un'identita' meccanica, conserva la propria
+% firma e dichiara lo schema da cui dipende. Il puntatore corrente e' l'unica
+% cosa sostituita; il record vecchio resta e diventa `reading_stale`, mentre
+% `revision_effect/3` conserva la genealogia prima/dopo.
+document_reading_counter(0).
+
+document_reading_next(reading($M)) :-
+    document_reading_counter($N),
+    is($M, add($N, 1)),
+    retract(document_reading_counter, $N),
+    assert(document_reading_counter, $M).
+
+claim_has_current_reading($Claim) :- claim_current_reading($Claim, $Reading).
+claim_current_signature($Claim, $Reading, $Signature) :-
+    claim_current_reading($Claim, $Reading),
+    claim_reading_record($Claim, $Reading, $Signature).
+
+% Rivedere con la stessa firma e' idempotente: una domanda o un'altra lezione
+% non moltiplica versioni uguali.
+document_claim_revision($Claim, $Signature, $Basis) :-
+    claim_current_signature($Claim, $Reading, $Signature),
+    reading_depends_on($Reading, $Basis).
+
+% Firma diversa: il vecchio record non viene cancellato. Cade soltanto il
+% puntatore corrente, e l'arco di revisione rende interrogabile il passaggio.
+document_claim_revision($Claim, $Signature, $Basis) :-
+    claim_current_signature($Claim, $OldReading, $OldSignature),
+    dif($OldSignature, $Signature),
+    document_reading_next($NewReading),
+    document_claim_revision_replace(
+        $Claim, transition($OldReading, $NewReading), $Signature, $Basis).
+
+document_claim_revision_replace(
+        $Claim, transition($OldReading, $NewReading), $Signature, $Basis) :-
+    retract(claim_current_reading, $Claim, $OldReading),
+    assert(reading_stale, $OldReading, superseded_by($NewReading)),
+    assert(revision_effect, $Claim, before($OldReading), after($NewReading)),
+    assert(claim_reading_record, $Claim, $NewReading, $Signature),
+    assert(reading_depends_on, $NewReading, $Basis),
+    assert(claim_current_reading, $Claim, $NewReading).
+
+% Prima lettura della claim.
+document_claim_revision($Claim, $Signature, $Basis) :-
+    naf(claim_has_current_reading($Claim)),
+    document_reading_next($Reading),
+    assert(claim_reading_record, $Claim, $Reading, $Signature),
+    assert(reading_depends_on, $Reading, $Basis),
+    assert(claim_current_reading, $Claim, $Reading).
+
+% La dipendenza nomina la conoscenza viva che autorizza il frame. Per un verbo
+% insegnato e' il fatto esatto `relation_verb/1`; per gli schemi curati resta la
+% famiglia di frame del predicato. Ritrarre il membro insegnato rende quindi la
+% lettura obsoleta prima ancora che il pass produca il successore.
+reading_basis_live(relation_verb($Predicate)) :- relation_verb($Predicate).
+reading_basis_live(frame_predicate($Predicate)) :-
+    extract_frame($Pattern, $Predicate).
+reading_basis_live(unresolved).
+
+reading_has_live_basis($Reading) :-
+    reading_depends_on($Reading, $Basis), reading_basis_live($Basis).
+reading_stale($Reading, lost_dependency($Basis)) :-
+    reading_depends_on($Reading, $Basis),
+    naf(reading_basis_live($Basis)).
+reading_is_stale($Reading) :- reading_stale($Reading, $Reason).
+reading_current($Claim, $Reading) :-
+    claim_current_reading($Claim, $Reading),
+    naf(reading_is_stale($Reading)).
+
+% Il costo non e' un automatismo nascosto: la KB dichiara quando una facolta'
+% puo' chiedere un pass di revisione. Il C enumera record e riesegue la stessa
+% fase pura; non conosce verbi, marker o generi documentali.
+revision_schedule(document_claim, after_semantic_lesson).
+revision_trigger_module(document_claim, knowledge).
+revision_trigger_module(document_claim, mention).
+revision_trigger_module(document_claim, forget).
+revision_trigger_module(document_claim, teachconstruction).
 
 % Perche' una normalizzazione non e' avvenuta e' un dato, non un silenzio. Il
 % fallimento non cancella mai la claim di superficie gia' osservata.
@@ -215,24 +316,56 @@ normalization_extent_policy($Origin, covered($N), of($M), partial) :-
     normalization_origin($Origin, quarantine), lt($N, $M).
 
 document_claim_normalize(ref($Document, $Unit, $Claim), origin($Origin),
-                         frame($Predicate, $Roles),
+                         reading(frame($Predicate, $Roles), basis($Basis)),
                          extent(covered($N), of($M))) :-
     normalization_extent_policy($Origin, covered($N), of($M), normalized),
-    assert(claim_proposition, $Claim,
-           proposition(frame($Predicate, $Roles))),
-    assert(claim_normalization, $Claim, normalized($Origin)),
-    assert(claim_reading_extent, $Claim, extent($N, $M)).
+    document_claim_revision(
+        $Claim,
+        signature(normalized($Origin),
+                  proposition(frame($Predicate, $Roles)),
+                  extent($N, $M)),
+        $Basis).
 
 document_claim_normalize(ref($Document, $Unit, $Claim), origin($Origin),
-                         frame($Predicate, $Roles),
+                         reading(frame($Predicate, $Roles), basis($Basis)),
                          extent(covered($N), of($M))) :-
     normalization_extent_policy($Origin, covered($N), of($M), partial),
-    assert(claim_normalization, $Claim, gap(partial_reading)),
-    assert(claim_reading_extent, $Claim, extent($N, $M)).
+    document_claim_revision(
+        $Claim,
+        signature(gap(partial_reading), proposition(none), extent($N, $M)),
+        $Basis).
 
-document_claim_gap_observe(ref($Document, $Unit, $Claim), gap($Kind)) :-
+document_claim_gap_observe(ref($Document, $Unit, $Claim), gap($Kind),
+                           basis($Basis)) :-
     normalization_gap_kind($Kind),
-    assert(claim_normalization, $Claim, gap($Kind)).
+    document_claim_revision(
+        $Claim,
+        signature(gap($Kind), proposition(none), extent(unknown)),
+        $Basis).
+
+% Le interfacce SC2 restano le stesse, ma ora sono viste sulla SOLA versione
+% corrente. I record superati rimangono interrogabili via
+% `claim_reading_record/3`; non possono piu' soddisfare una domanda corrente.
+claim_proposition($Claim, $Proposition) :-
+    reading_current($Claim, $Reading),
+    claim_reading_record(
+        $Claim, $Reading,
+        signature(normalized($Origin), $Proposition, $Extent)).
+claim_normalization($Claim, normalized($Origin)) :-
+    reading_current($Claim, $Reading),
+    claim_reading_record(
+        $Claim, $Reading,
+        signature(normalized($Origin), $Proposition, $Extent)).
+claim_normalization($Claim, gap($Kind)) :-
+    reading_current($Claim, $Reading),
+    claim_reading_record(
+        $Claim, $Reading,
+        signature(gap($Kind), $Proposition, $Extent)).
+claim_reading_extent($Claim, extent($N, $M)) :-
+    reading_current($Claim, $Reading),
+    claim_reading_record(
+        $Claim, $Reading,
+        signature($Normalization, $Proposition, extent($N, $M))).
 
 claim_normalized($Claim, $Origin) :-
     claim_normalization($Claim, normalized($Origin)).

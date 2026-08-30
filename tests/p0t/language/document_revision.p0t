@@ -1,0 +1,111 @@
+# document_revision.p0t — SC40-A: imparare cambia cio' che il testo gia' letto significa.
+#
+# La proprieta' sotto prova non e' il replay. Il documento compare UNA volta;
+# dopo, soltanto lezioni naturali. Superficie e span restano osservazioni
+# immutabili, mentre gap/frame sono versioni dipendenti dalla KB corrente.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test sc40 baseline lezione revisione senza rilettura]
+!timeout 120
+# BASELINE: la procedura e' mappata ma `warm` non autorizza ancora un frame.
+> read: https://www.ncbi.nlm.nih.gov/books/NBK21154/ Before this the reaction requires a buffer. We then warm the tube. This repeats until the cycles reach forty.
+<~ document unit(s)
+!query claim_normalization_gap(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, no_reading)
+!query method_executable(document_a89aaeaeb2e06370_8b32e8d21149aa6b, blocked(unbound_step))
+!query! claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
+> was it described that the authors warm the tube?
+< I recognize this as a described verification question, but I cannot normalize its proposition yet.
+
+# LEZIONE NATURALE. Non c'e' un secondo `read:`: la lettura osservata viene
+# ricalcolata dalla stessa fase pura e il metodo diventa eseguibile da solo.
+> warm is a relation verb
+< Learned: relation_verb(warm).
+!query claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
+!query! claim_normalization_gap(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, no_reading)
+!query method_executable(document_a89aaeaeb2e06370_8b32e8d21149aa6b, ready)
+!query reading_depends_on($Reading, relation_verb(warm))
+!query revision_effect(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, before($Old), after($New))
+!query reading_stale($Old, superseded_by($New))
+!query claim_reading_record(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, $Old, signature(gap(no_reading), proposition(none), extent(unknown)))
+!query claim_reading_record(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, $New, signature(normalized(reported), proposition(frame(warm, roles(subject(authors), object(tube)))), extent(1, 1)))
+# La nuova comprensione resta attribuita al documento: non diventa credenza.
+!query claim_status(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, described)
+!query claim_commitment(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, attributed_only)
+!query! warm(authors, tube)
+!query! holds_in(world, proposition(frame(warm, roles(subject(authors), object(tube)))))
+> was it described that the authors warm the tube?
+< Yes - that claim is reported as described (from https://www.ncbi.nlm.nih.gov/books/NBK21154/).
+
+[test sc40 ablation e riapprendimento rivedono lo stesso testo]
+!timeout 120
+# ABLATION PARLATA: il frame corrente perde la propria base e lo stesso pass
+# produce un nuovo gap. Superficie, fonte e status non vengono cancellati.
+> forget that warm is a relation verb
+<~ warm
+!query! relation_verb(warm)
+!query! claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
+!query claim_normalization_gap(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, no_reading)
+!query method_executable(document_a89aaeaeb2e06370_8b32e8d21149aa6b, blocked(unbound_step))
+!query claim_surface(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, "warm the tube")
+!query claim_status(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, described)
+!query reading_stale($Reading, lost_dependency(relation_verb(warm)))
+> was it described that the authors warm the tube?
+< I recognize this as a described verification question, but I cannot normalize its proposition yet.
+
+# RETEACH, ancora senza rilettura. Due turni estranei misurano ritenzione e
+# l'idempotenza del pass: la comprensione non dipende dall'ultimo turno.
+> warm is a relation verb
+< Learned: relation_verb(warm).
+!query claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
+!query method_executable(document_a89aaeaeb2e06370_8b32e8d21149aa6b, ready)
+> a robin is a bird
+<~ Learned
+> Is a robin a bird?
+< Yes.
+!query claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
+!query method_executable(document_a89aaeaeb2e06370_8b32e8d21149aa6b, ready)
+
+[test sc40 transfer at 3 su letteratura scientifica]
+!timeout 180
+!reset
+# Tre predicati, generi e fonti distinti partono da un residuo e cambiano con
+# una lezione lessicale one-shot, senza replay del documento.
+> read: https://ntrs.nasa.gov/citations/20230015804 The data show that the impact altered the orbit.
+<~ reported claim(s)
+!query claim_normalization_gap($Claim, no_reading)
+> altered is a relation verb
+< Learned: relation_verb(altered).
+!query claim_frame($Claim, altered, impact, orbit)
+!query reading_depends_on($Reading, relation_verb(altered))
+!query! altered(impact, orbit)
+
+> read: https://gmd.copernicus.org/articles/13/1959/2020/ The simulations show that the scheme perturbs the radiation field.
+<~ reported claim(s)
+!query claim_normalization_gap($Claim, no_reading)
+> perturbs is a relation verb
+< Learned: relation_verb(perturbs).
+!query claim_frame($Claim, perturbs, scheme, radiation_field)
+!query reading_depends_on($Reading, relation_verb(perturbs))
+!query! perturbs(scheme, radiation_field)
+
+> read: https://pmc.ncbi.nlm.nih.gov/articles/PMC10589119/ The evidence shows that confounding distorts the association.
+<~ reported claim(s)
+!query claim_normalization_gap($Claim, no_reading)
+> distorts is a relation verb
+< Learned: relation_verb(distorts).
+!query claim_frame($Claim, distorts, confounding, association)
+!query reading_depends_on($Reading, relation_verb(distorts))
+!query! distorts(confounding, association)
+
+# CONTRASTO: imparare un quarto verbo non inventa letture con quel predicato
+# per testi che non lo contengono.
+> catalyzes is a relation verb
+< Learned: relation_verb(catalyzes).
+!query! claim_frame($Claim, catalyzes, $Subject, $Object)

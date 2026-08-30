@@ -59,6 +59,9 @@ relation_verb(shortened).
 relation_verb(shortens).
 relation_verb(eradicate).
 relation_verb(detect).
+relation_verb(biases).
+relation_verb(modulates).
+relation_verb(modified).
 
 % Sessione SC2-C, 2026-08-29: i participi irregolari. Il passivo di una
 % relazione si costruisce sul participio, e la regola generale in inglese e' il

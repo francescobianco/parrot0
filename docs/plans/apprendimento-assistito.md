@@ -905,3 +905,55 @@ Gate minimo, sopra A1-A5:
 
 A7 non è una milestone di conoscenza: è la milestone che rende *sicuro*
 insegnare tutto il resto.
+
+### 14.4 Milestone A8 — una lezione rivede il passato senza riscriverlo
+
+SC40-A aggiunge la coordinata che mancava alla transazione didattica del §4.
+Prima, il punto 6 «Rilettura» significava in pratica ripresentare l'input e
+accumulare un altro risultato. Ora una claim conserva:
+
+- l'osservazione immutabile (superficie, fonte, span);
+- versioni interpretative con firma;
+- la conoscenza da cui ogni versione dipende;
+- una sola versione corrente;
+- la genealogia delle revisioni.
+
+Il gate operativo e' stato chiuso sullo stesso testo:
+
+```text
+gap -> lezione naturale -> frame -> retract parlato -> gap -> reteach -> frame
+```
+
+Nessun passo richiede un secondo `read:`. Il metodo che consuma la claim passa
+da bloccato a eseguibile e ritorno; il frame riportato non entra mai nel mondo.
+Una domanda prima della lezione non chiede piu' un numero per il pronome
+impersonale: dichiara «riconosco la verifica, non normalizzo la proposition».
+Questo e' un esempio concreto di M13 e M14 che si compongono.
+
+A8 non chiude ancora M14: la dipendenza e' esatta per un verbo relazionale
+appreso ma grossolana per schemi curati, e il pass e' globale. Chiude il diritto
+semantico a rivedere; SC40-B deve chiudere la selezione e il budget.
+
+### 14.5 Metriche della comprensione revisionabile
+
+Alle metriche del §11 si aggiungono:
+
+- **StaleLeak:** versioni stale che soddisfano una vista o risposta corrente.
+  Deve essere `0`.
+- **RetroactiveTransfer:** testi held-out gia' osservati che diventano
+  correttamente leggibili dopo una lezione / testi osservati provati.
+- **RevisionRecall:** nodi cambiati dal full scan che il pass selettivo ha
+  raggiunto / nodi che il full scan avrebbe cambiato. Deve essere `1` prima di
+  promuovere la selezione.
+- **RevisionPrecision:** nodi effettivamente cambiati / nodi visitati. Si
+  ottimizza soltanto mantenendo recall 1.
+- **RevisionFanout:** nodi downstream ricalcolati per lettura cambiata; va
+  separato per claim, argomento, metodo, modello e sintesi.
+- **PredictedRevisionAccuracy:** effetti di un candidato in quarantena previsti
+  correttamente / effetti misurati dopo promozione o rollback.
+- **RetroactiveGain:** aumento pesato del livello di comprensione sul corpus
+  gia' letto, al netto di costo e overclaim.
+
+Queste metriche impediscono due successi apparenti: chiamare «intelligente» un
+full scan illimitato, e chiamare «efficiente» un indice che perde le letture che
+avrebbe dovuto rivedere.

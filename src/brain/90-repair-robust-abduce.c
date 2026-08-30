@@ -100,6 +100,10 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
     }
     if (!is_question_opener(b, w[0])) return 0;     /* only questions/commands */
     if (repair_surface_present(b, "repair_referential_surface", norm)) return 0;
+    /* Una domanda di verifica documentale usa spesso «it» in modo impersonale.
+     * La forma e' derivata dai marker vivi della KB: se esiste, repair non deve
+     * aprire una finestra di coreferenza e rubare la lezione successiva. */
+    if (document_claim_status_question_turn(b, norm)) return 0;
     /* Translation requests quote or mention the source expression. A pronoun in
      * that payload ("how much does it cost") is linguistic material, not a
      * discourse entity that needs repair, so let mod_translate consume it. */

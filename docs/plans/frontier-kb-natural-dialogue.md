@@ -1923,10 +1923,19 @@ completa: tutte e sette le generazioni del §15 e tutte e sette le
 sotto-generazioni del §17 hanno tagli verticali ratchettati. Quello che manca non
 e' piu' capacita' mancante, ed e' scritto qui perche' non diventi invisibile.
 
-> ## 0. ⛔⛔ LA COSA PIU' URGENTE: LE LETTURE SONO CONGELATE
+> ## 0. ✅ SC40-A CHIUSA; ⛔ SC40-B: RIVEDERE SOLO CIO' CHE DIPENDE
 >
 > **Aggiunto il 2026-08-30 su richiesta esplicita di F., e messo per primo
 > perche' e' la piu' importante delle voci di questa lista.**
+>
+> **Stato al checkpoint SC40-A.** Il difetto descritto sotto e' chiuso per le
+> claim documentali: la lettura e' versionata, dichiara una dipendenza, la
+> versione vecchia diventa stale e la domanda cambia senza replay del testo.
+> Ablation e reteach percorrono lo stesso arco al contrario; `StaleLeak=0` e
+> `Transfer@3=3/3`. La priorita' si sposta ora su **SC40-B**: l'attuale pass
+> rilegge tutte le claim dopo un modulo didattico dichiarato; deve ricevere un
+> evento con la conoscenza cambiata e visitare soltanto la frontiera dipendente,
+> senza perdere recall. Risultato e ipotesi nuove in §§18.38–18.42.
 >
 > ```text
 > > read: We then warm the tube.        ->  gap(no_reading)
@@ -4748,3 +4757,148 @@ descriverlo sono compatibili; aggirarlo e **chiamarlo intenzionale** no. La
 riga corretta, da qui in avanti: quando un test ha bisogno di un dato fresco per
 passare, chiedersi prima se il sistema abbia bisogno di dimenticare o di
 **rivedere**.
+
+### 18.38 Risultato D34 — comprendere e' mantenere una vista versionata
+
+SC40-A falsifica la parte debole di D33 e conferma quella forte. Non serviva un
+secondo lettore e non serviva cancellare il passato. Servivano tre identita'
+che prima erano fuse:
+
+```prolog
+claim_reading_record(Claim, Reading, Signature).   % storia
+claim_current_reading(Claim, Reading).             % vista corrente
+reading_depends_on(Reading, Knowledge).            % licenza
+```
+
+La superficie e lo span non cambiano. La firma passa invece da
+`gap(no_reading)` a `normalized(frame(...))`; il record precedente resta
+`stale` e `revision_effect/3` conserva l'arco. Ritrarre la lezione produce un
+nuovo gap corrente, non riattiva in silenzio il primo record; il reteach produce
+una nuova versione normalizzata. La genealogia e' quindi una sequenza di atti,
+non un insieme di risultati incompatibili.
+
+**Ipotesi D34.** Una rappresentazione e' comprensione soltanto se distingue
+almeno osservazione, versione interpretativa, dipendenze e puntatore corrente.
+Senza una delle quattro, o il passato viene cancellato o il presente resta
+ambiguo.
+
+**Predizione falsificabile.** Applicata a modalita', coreferenza, argomenti,
+procedure e sintesi, la stessa decomposizione deve consentire retract locale e
+ri-derivazione senza un nuovo parser. Se una di queste famiglie richiede una
+semantica di versione diversa, D34 non e' un principio generale ma soltanto il
+modello delle claim.
+
+La risposta naturale pre-lezione aggiunge un corollario: il sistema riconosce
+l'atto `described verification` ma dichiara che la proposition non e' ancora
+normalizzabile. La metacomprensione non e' un altro riassunto del testo: e'
+sapere **quale coordinata** della lettura manca.
+
+### 18.39 Ipotesi D35 — la frontiera di revisione e' un taglio minimo nel grafo
+
+SC40-A paga un full scan dichiarato dopo i moduli `knowledge`, `mention`,
+`forget` e `teachconstruction`. E' semanticamente corretto e computazionalmente
+grossolano: una domanda ordinaria servita da `knowledge` puo' visitare claim che
+non dipendono da nulla di cambiato.
+
+**Ipotesi D35.** La revisione necessaria dopo un atto didattico e' il taglio
+minimo dei nodi raggiungibili dall'insieme di conoscenze mutate. Non e' «tutto
+il documento» e non e' «l'ultimo modulo»: e' la chiusura transitiva inversa di
+`depends_on`.
+
+```text
+knowledge_event(retract, relation_verb(warm))
+        -> readings indexed by relation_verb(warm)
+        -> method nodes depending on those readings
+        -> answers/summaries depending on those method nodes
+```
+
+Un gap `unresolved` pone il problema interessante: non dipende ancora dalla
+lezione che lo risolvera'. Serve una dipendenza candidata, ricavata dai token e
+dalle famiglie di schema provate, oppure un fallback più largo dichiarato. Un
+indice che vede soltanto le letture gia' riuscite ha precisione alta e recall
+basso — ed e' quindi cognitivamente sbagliato anche se veloce.
+
+**Predizione falsificabile.** Su 100 claim con dieci predicati ignoti,
+insegnarne uno deve produrre lo stesso snapshot corrente del full scan visitando
+soltanto le candidate che contengono quel predicato e i loro dipendenti. Le due
+misure obbligatorie sono `RevisionRecall=1` contro il full scan e
+`RevisionPrecision=changed/visited`; ottimizzare la seconda sacrificando la
+prima falsifica il taglio.
+
+### 18.40 Ipotesi D36 — il guadagno didattico e' soprattutto retroattivo
+
+Il protocollo misura il transfer in avanti: insegno oggi, provo tre frasi
+nuove. SC40 apre una dimensione più potente: quante letture **gia' possedute**
+diventano migliori grazie alla lezione?
+
+**Ipotesi D36.** A parita' di correttezza e costo, la prossima lezione migliore
+massimizza il guadagno retroattivo pesato:
+
+```text
+retroactive_gain(Lesson) =
+    sum(importanza(Reading) * livello_dopo-prima)
+    - costo_revisione
+    - rischio_overclaim
+```
+
+Questo non e' popularity. Una forma rara che sblocca la premessa critica di
+dieci procedure puo' valere piu' di una forma frequente che cambia soltanto la
+superficie. Provenienza e consumer dipendenti forniscono i pesi senza inventare
+una confidence numerica.
+
+**Predizione falsificabile.** Fra due lezioni candidate tratte dai residui,
+quella con `retroactive_gain` maggiore deve produrre dopo il pass un aumento
+maggiore di claim normalizzate o consumer riabilitati su un corpus held-out.
+Se la correlazione resta nulla, D36 non ordina il curriculum meglio della sola
+frequenza e va scartata.
+
+### 18.41 Ipotesi D37 — metacomprendere e' prevedere l'effetto di una lezione
+
+Sapere che cosa manca e' M13. Un livello ulteriore e' sapere **che cosa
+cambierebbe** se quella lacuna venisse colmata, senza promuovere ancora la
+lezione.
+
+**Ipotesi D37.** La metacomprensione operativa e' un controfattuale sul grafo
+delle dipendenze: dato un candidato in quarantena, parrot0 deve enumerare le
+letture che diventerebbero correnti, quelle che resterebbero bloccate e i
+consumer che si riaprirebbero. La previsione precede la mutazione ed e'
+confrontata con `revision_effect` dopo la lezione.
+
+**Predizione falsificabile.** Su tre candidati — uno utile, uno irrilevante e
+uno che produrrebbe una lettura parziale — `predicted_revision_effect` deve
+coincidere con l'effetto reale dopo promozione/rollback. Una previsione che
+elenca tutto non conta: servono precisione e recall, e il candidato parziale
+deve restare gap per la policy di copertura.
+
+Questo e' il ponte naturale SC24 -> teacher attivo: parrot0 non chiede soltanto
+«insegnami che cos'e' warm», ma «se mi insegni il ruolo di warm, rivedro' questi
+passi; questo altro metodo restera' bloccato per il criterio d'arresto».
+
+### 18.42 Ipotesi D38/D39 — spazio logico e propagazione della comprensione
+
+Una singola lettura corrente non esaurisce il significato di prosa complessa.
+Ambiguita', scope e assunzioni denotano una regione di modelli compatibili.
+Versionare il frame suggerisce come versionare quella regione.
+
+**Ipotesi D38.** Una lezione corretta restringe o ristruttura la regione dei
+modelli compatibili; un retract la riallarga. `normalized` e' quindi un punto
+nel reticolo dei livelli, mentre `modelled` conserva più alternative e i
+vincoli che le escludono. La regione vuota e' contraddizione; una ricerca senza
+controesempio entro budget e' `incomplete`, non entailment certo.
+
+**Ipotesi D39.** Claim, argomento, metodo, modello e sintesi formano un unico
+DAG di prodotti interpretativi. Una revisione locale deve propagarsi soltanto
+ai discendenti: cambiare il verbo di un passo aggiorna la readiness del metodo
+e le risposte che la consumano, ma non rilegge una premessa indipendente né
+cancella la sua fonte.
+
+**Predizioni falsificabili.** (1) una correzione di scope elimina alcuni
+modelli ma conserva quelli ancora compatibili; (2) il retract ripristina la
+regione precedente come versione, non ricostruendola da zero; (3) una lezione
+su una claim cambia esattamente i nodi downstream elencati dalla dependency
+closure; (4) una sintesi non revisionata mentre una sua claim e' stale viene
+marcata `stale_summary` e non pronunciata come corrente.
+
+Queste ipotesi definiscono «supercomprensione» senza invocare una facolta'
+magica: più livelli della stessa struttura diventano osservabili, correggibili,
+controfattuali e componibili nello spazio dei modelli.

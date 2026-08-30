@@ -815,7 +815,7 @@ precondizioni di tutto il resto.
 | **SC26** | **Una collisione di dispatch e' un fatto osservabile** | D22, mantra #14 | non *chi* ha preso il turno — quello parrot0 lo dice gia' — ma **perche'**: quale superficie gli ha dato titolo, e chi di piu' adatto e' stato scavalcato | «quel turno l'ha preso un altro modulo per via di questa parola» | le collisioni su corpus reale si concentrano su poche coppie di moduli e poche parole comuni | **aperto, campione corretto.** `who answered?` funziona da sempre: dei cinque casi raccolti uno solo era un furto (`claim` -> `missing_referent`). Vedi §18.27 |
 | **SC29** | **Uso e menzione sono un invariante, non una guardia locale** | D25 | cio' che e' menzionato non partecipa alla lingua che lo menziona, in **ogni** percorso: dispatch, parser, canonicalizzazione | «"shall" e' un marcatore di necessita'» deve valere quanto «shall e' un marcatore di necessita'» quando la parola non ha ruolo | dieci locuzioni quotate con copule, ausiliari, articoli e dimostrativi entrano byte per byte e si ritrattano uguali; ogni lezione che fallisce nella forma d'uso riesce in quella di menzione; una perdita e' un errore **dichiarato**, non muta | **aperto — prossimo.** Tre gap della serie SC2/SC3 erano questo, e il rimedio parrot0 lo proponeva gia' da se' |
 | **SC34** | **`mod_lone` rivendica casi speciali, non ogni turno di una parola** | D26, D28 | la rivendicazione GENERICA su un token ignoto e' sospesa e dichiarata (`move_policy(lone_bare_token, claim)`); i casi fondati restano | nessuna: e' uno strato di motore, ma non deve togliere niente a cio' che si insegna | un token insegnato ottiene titolo; un token noto alla KB resta di `mod_lone` (gen491, «milano»); un token ignoto raggiunge un muro che PROPONE il rimedio; asserire il fatto riporta il comportamento storico nello stesso turno | **CHIUSA — 2026-08-30** (F.: «dovrebbe rivendicare alcuni casi speciali, non tutti i turni con una sola parola»). Niente e' stato cancellato: la scommessa e' dichiarata, come il gen491 aveva gia' fatto per quella fonotattica. Il rientro pieno passa da SC30/SC31 |
-| **SC40** | **Rileggere alla luce di cio' che si e' appena imparato** | D33 | una lettura dichiara da che cosa dipende; quando quella conoscenza cambia la lettura diventa `stale` e si ri-deriva, invece di restare congelata accanto alla nuova | «adesso che sai cosa vuol dire, rileggi quel passaggio» | insegnato un verbo dopo la lettura, una domanda sul contenuto risponde **senza rileggere a mano**; la lettura vecchia e' `stale`, non coesistente; ritrattando il verbo si torna al gap, non a un terzo stato | **aperto — PRIORITARIO.** Misurato: rileggere **accumula** invece di rivedere, e la claim resta contemporaneamente `gap(no_reading)` e `normalized(reported)`. Domanda di F.: e' un limite reale, non la natura del dialogo — `claim_proposition` e' un'interpretazione messa fra le osservazioni perche' la KB non puo' richiamare la lettura. Vedi §18.37 |
+| **SC40** | **Rileggere alla luce di cio' che si e' appena imparato** | D33, D34 | una lettura dichiara da che cosa dipende; quando quella conoscenza cambia la lettura diventa `stale` e si ri-deriva, invece di restare congelata accanto alla nuova | «adesso che sai cosa vuol dire, rileggi quel passaggio» | insegnato un verbo dopo la lettura, una domanda sul contenuto risponde **senza rileggere a mano**; la lettura vecchia e' `stale`, non coesistente; ritrattando il verbo si torna al gap, non a un terzo stato | **SC40-A CHIUSA; SC40-B prioritaria.** 2026-08-30: interpretazioni versionate, dipendenza viva, genealogia, revisione automatica dichiarata; gap -> frame -> gap -> frame sullo stesso span senza replay; `Transfer@3=3/3`, ablation/reteach/retention verdi, `StaleLeak=0`, metodo bloccato -> ready. Anche la domanda pre-lezione dichiara il livello invece di aprire una coreferenza aritmetica. Resta il fronte selettivo per evento/dipendenza e la propagazione transitive. [Report SC40-A](docs/labs/apprendimento-assistito/2026-08-30-supercomprensione-sc40.md), §18.38 |
 | **SC38** | **Riduzione della coda: di quale classe e' membro ogni fronte?** | D31 | molte voci della coda sono la stessa voce sotto politiche diverse; aprirle costa righe di politica e una vista, non un produttore in C | nessuna | i due fronti successivi (SC4 disegno sperimentale, SC6 causalita') si aprono senza un nuovo estrattore; se anche uno lo richiede, si scrive **quale asse della politica** non basta piu' | **aperto — prossimo.** SC5 sembrava una facolta' ed e' costata tre righe di `claim_marker_class/4` piu' una vista |
 | **SC39** | **L'ellissi si recupera dalla struttura, non si inventa** | D32 | oggetto sottinteso, soggetto di relativa, unita' ereditata, agente di un passivo senza `by`: ognuno e' una riga di `elided_role/3` **se** la coordinata da cui recuperare esiste gia' | «in questo passo l'oggetto e' quello del passo prima» | ritrattare la coordinata fa sparire il recupero, non lo lascia materializzato; `unlicensed_recovery/2` resta vuoto su corpus reale; dove la coordinata non esiste, il residuo tipato resta la risposta | **aperto.** Primo caso chiuso in SC5-A: il soggetto eliso di un passo viene dall'attribuzione della classe |
 | **SC35** | **Nessuna risposta piu' forte della copertura che la sostiene** | D29 | operatore, ruolo, premessa, unita' e qualificatore hanno una copertura come i token; `overclaim/2` e' interrogabile **prima** che la frase esca | nessuna: e' uno strato di motore, ma il teacher deve poter chiedere «che cosa hai lasciato fuori?» | tre difetti iniettati in un corpus reale — operatore inghiottito, premessa fuori blocco, complemento pendente — producono tre `coverage_shortfall` distinti e nessuna risposta che li ignori | **aperto — prossimo.** Tre occorrenze gia' misurate in due giorni (SC2-B, SC2-D, SC27), nessuna delle quali somigliava a un errore |
@@ -885,7 +885,7 @@ Si aggiungono a quelle gia' obbligatorie:
 
 ---
 
-## ⛔ HANDOFF 2026-08-30 — punto di ripresa autoritativo
+## HANDOFF STORICO 2026-08-30 — stato precedente a SC40
 
 Chi riprende legge **questa sezione per prima**, poi
 `docs/plans/frontier-kb-natural-dialogue.md` §0 dei TODO aperti.
@@ -955,6 +955,171 @@ verde** chiudendo il bug dell'ordine dei ruoli).
 - `mod_lone` cede per policy; il rientro pieno passa da SC30/SC31 (il **ruolo**
   del turno decide chi ha titolo, non l'ordine di arrivo).
 - Il confronto fra frame è **strutturale**: due parafrasi restano due frame.
+
+---
+
+## ⛔ HANDOFF 2026-08-30 POST-SC40 — punto di ripresa autoritativo
+
+Questa e' la sezione da cui deve ripartire il prossimo coding agent. Anche se
+l'agente ha poco contesto, non deve ricostruire la storia dai nomi dei file:
+leggere nell'ordine questo handoff, il
+[report SC40-A](docs/labs/apprendimento-assistito/2026-08-30-supercomprensione-sc40.md),
+`docs/plans/frontier-kb-natural-dialogue.md` §§18.37–18.42, quindi i quattro
+file di implementazione elencati sotto.
+
+### Risultato acquisito — non riaprire il problema sbagliato
+
+Il difetto D33 non e' piu' «la claim conserva insieme gap e frame». La
+separazione ora e' reale:
+
+- `document_claim`, `claim_surface`, fonte e span sono **osservazioni**;
+- `claim_reading_record(Claim, Reading, Signature)` e' una versione storica;
+- `claim_current_reading(Claim, Reading)` e' il puntatore sostituibile;
+- `reading_depends_on(Reading, Knowledge)` nomina la licenza corrente;
+- `reading_stale/2` e `revision_effect/3` conservano perdita della dipendenza e
+  genealogia prima/dopo;
+- `claim_proposition`, `claim_normalization` e `claim_reading_extent` sono viste
+  sulla sola versione corrente non stale.
+
+La sequenza provata sullo **stesso span**, senza un secondo `read:`, e':
+
+```text
+gap(no_reading)
+  -- "warm is a relation verb" --> normalized(frame(warm, authors, tube))
+  -- "forget that warm ..."   --> gap(no_reading)
+  -- reteach                    --> normalized(frame(warm, authors, tube))
+```
+
+Ogni transizione conserva i record precedenti. La superficie e lo status
+`described` non vengono mai cancellati; `warm(authors,tube)` e
+`holds_in(world,...)` restano falsi. La procedura composta cambia invece da
+`blocked(unbound_step)` a `ready`, torna bloccata all'ablation e si riapre al
+re-teach.
+
+### File e contratti da non rompere
+
+1. `kb/core/document-claims.p0`
+   - SC40-A parte da `document_reading_counter/1`.
+   - `document_claim_revision/3` deve restare idempotente sulla stessa firma.
+   - `document_claim_revision_replace/4` esiste per stare sotto il limite di
+     otto goal del dialetto; non rifondere il corpo in una regola troppo lunga.
+   - `reading_basis_live(relation_verb(P))` da' l'ablation esatta ai membri
+     appresi. `frame_predicate(P)` e' deliberatamente piu' grossolano: e' il
+     primo bersaglio di SC41, non una precisione da fingere gia' chiusa.
+   - `revision_schedule/2` e `revision_trigger_module/2` sono la policy: le
+     superfici naturali non devono entrare nel C.
+2. `src/brain/30-generation-reading.c`
+   - `document_claim_interpret` e' la **sola** porta per prima lettura e
+     revisione. Duplicarla ricrea due parser che divergeranno.
+   - `document_revision_pass` oggi enumera tutte le claim; e' corretto per
+     SC40-A e non scalabile. SC40-B deve selezionare, non cambiare semantica.
+   - `document_claim_status_question_turn` fa cedere `repair` usando evidenza
+     derivata dalla KB; nessuna parola (`was`, `it`, `described`) e' cablata.
+3. `src/brain/90-repair-robust-abduce.c`
+   - la sola nuova guardia lascia passare una domanda documentale riconosciuta.
+     Non allargarla a «tutti i pronomi»: romperebbe il ciclo di chiarimento.
+4. `src/brain/99-registry.c`
+   - il pass avviene dopo l'atto didattico e prima del turno successivo. Oggi il
+     trigger e' il modulo vincitore; SC40-B deve sostituirlo con un evento di
+     mutazione semantica, non con nuove eccezioni di modulo.
+5. `kb/core/responses.p0`
+   - `claim_status_unreadable` e' una risposta di **livello**, non un muro
+     cosmetico: atto/status compresi, proposition non normalizzata.
+
+### Ratchet, numeri e limiti di test
+
+- `tests/p0t/language/document_revision.p0t`: **55/55**. E' il ratchet SC40:
+  baseline naturale, revisione senza replay, record storico, world isolation,
+  domanda pronunciata, ablation, reteach, retention, Transfer@3 e contrasto.
+- `tests/p0t/language/document_method.p0t`: **25/25**. Il blocco `warm` non
+  rilegge piu' il documento.
+- `tests/p0t/language/document_claims.p0t`: **182/182** dopo la migrazione a
+  viste versionate.
+- Questi due ultimi file e `document_revision.p0t` sono ora nel target `test`.
+- L'unico `make soft-test` del ciclo e' gia' consumato: **55 passati, 1
+  fallito**, il rosso storico `frontier_chat_audit.it.p0t` riga 97 su
+  `designation`. Non rieseguirlo in questo checkpoint e non cambiare l'attesa.
+- Il test-engine va avviato dal binario corrente. Un demone precedente alla
+  ricompilazione produce falsi rossi: controllare PID/socket e riavviare. Nel
+  sandbox attuale il socket Unix puo' richiedere il permesso gia' approvato per
+  `./bin/parrot0 --test-engine`.
+- `repair_stress.p0t` resta rosso 7/8 su attese di virgolette/configurazione e
+  induzioni preesistenti; non e' stato usato per cambiare attese.
+
+### Persistenza e conteggio del checkpoint
+
+`/save` ha dichiarato **S=35**. Classificazione: `W=0`, `L=3`, `C=0`, `P=6`,
+`O=26`, `X=0`. Lezioni persistite: `relation_verb(modified)`,
+`relation_verb(modulates)`, `relation_verb(biases)`; fonti e reading facts sono
+in `fact-provenance.p0`; 24 turni in `transcripts.p0`.
+
+`kb/learning/learned.p0` contiene ora:
+
+```prolog
+exchange(paris, located_in, france).
+exchange_turn(9, paris).
+```
+
+Sono record episodici veri, non fixture; sono finiti nella ricaduta perche' il
+save-map non ha una casa per predicati prodotti soltanto dentro un `assert` di
+regola. **Non cancellarli per far tornare vuoto il file.** La correzione giusta
+e' una policy/casa dichiarata per la specie `exchange`, provata con save e
+fresh boot; fino ad allora il fallback visibile e' piu' onesto.
+
+B0/R0 `36715/2529`; B1/R1 `36750/2529`; differenza 35. Fresh recall lessicale
+3/3; composizione GMD e proof 1/1. Una composizione NASA con la parola `impact`
+e' stata rubata dal modulo di impact analysis: e' il campione concreto da
+portare in SC26/SC30, non una regressione di persistenza.
+
+### Coda complessa delle prossime ore — consumare in quest'ordine
+
+| ordine | voce | ipotesi | incremento piccolo ma causale | prova che chiude il taglio |
+|---:|---|---|---|---|
+| 1 | **SC40-B — evento e indice di revisione** | D35 | introdurre un evento meccanico di mutazione con il termine cambiato; indicizzare `Knowledge -> Reading`; rivedere solo la frontiera | con 100 claim, insegnare un verbo rivede soltanto le claim dipendenti/candidate; stesso esito di SC40-A; conteggio visitate interrogabile |
+| 2 | **SC41 — dipendenza completa della lettura** | D34/D35 | materializzare identita' di schema, morfologia, marker, modalita', ellissi e policy di copertura usati dal frame | ablation di ciascuna coordinata rende stale esattamente le letture che la usano; nessuna stale spuriosa su tre documenti controllo |
+| 3 | **SC42 — propagazione transitive** | D39 | fare di argomento, metodo, sintesi e risposta nodi che dipendono da letture, non snapshot indipendenti | una lezione sul verbo aggiorna claim -> method readiness -> answer; retract percorre lo stesso DAG al contrario senza cancellare osservazioni |
+| 4 | **SC43 — budget e utilita' della revisione** | D36/D37 | dichiarare costo, priorita' e `retroactive_gain`; quando il budget non basta, produrre una coda stale ispezionabile | fra due lezioni candidate si sceglie quella che riabilita piu' claim; ricerca incompleta dice `pending_revision`, mai «nessun effetto» |
+| 5 | **SC35 — coverage prima della risposta** | D29 | unificare copertura di token, ruoli, premesse e operatori sotto `coverage_shortfall` | tre overclaim iniettati producono tre shortfall e nessuna risposta piu' forte della propria coverage |
+| 6 | **SC38 su SC4/SC6** | D31 | aprire disegno sperimentale e causalita' come nuove policy/viste sulle claim, senza terzo estrattore | esperimento, osservazionale e simulazione; associazione non diventa causa; ritrarre una policy spegne solo la vista |
+| 7 | **SC19 — reticolo dei livelli** | D34/D38 | `observed < surface < normalized < grounded < modelled`, con requisiti dei consumer | retract abbassa il livello e spegne soltanto consumer troppo esigenti; ogni declino nomina la coordinata mancante |
+| 8 | **SC21 — regione nello spazio logico** | D38 | rappresentare vincoli e insieme dei modelli compatibili; una lezione restringe, un retract riallarga | entailment = assenza di contromodello entro budget; ricerca incompleta resta `incomplete`; transfer logica/scienza/metodo |
+| 9 | **SC24 — curriculum dal guadagno retroattivo** | D36/D37 | aggregare residui e stimare quante letture una lezione candidata rivedrebbe | la prima richiesta didattica massimizza il guadagno misurato dopo; nessuna auto-promozione |
+| 10 | **SC16 — articolo held-out ricorsivo** | tutte | comporre mappa, claim, argomento, metodo, modelli, limiti, revisioni e sintesi con proof | >=70% held-out, domande avversariali, nessun claim oltre proof, revisioni locali e recuperabili |
+
+### Strategia concreta per SC40-B
+
+Non partire ottimizzando il loop. Prima rendere osservabile il costo corrente:
+
+1. aggiungere in KB un record `revision_visit(Event, Reading)` o equivalente e
+   un contatore di candidate/changed/unchanged;
+2. produrre l'evento dalla meccanica di assert/retract senza interpretare
+   parole; l'evento deve contenere il termine semantico cambiato, per esempio
+   `relation_verb(warm)`, non soltanto il nome del modulo `knowledge`;
+3. derivare in KB la frontiera da `reading_depends_on`; per un vecchio gap
+   `unresolved` serve un indice inverso sui token/predicati candidati, altrimenti
+   non si sapra' che `warm` puo' sbloccarlo;
+4. mantenere un fallback dichiarato `revision_scope(document_claim, all)` fino
+   a quando l'indice non ha recall 1: perdere una revisione e' peggio di
+   rivederne una in piu';
+5. confrontare full scan e selective scan sullo **stesso snapshot** e pretendere
+   firme correnti identiche; soltanto dopo rendere selettivo il default;
+6. ablation naturale e reteach devono attraversare la stessa selezione in verso
+   opposto; un indice che sa soltanto aggiungere non chiude il gate;
+7. conservare il principio: l'evento dice *che cosa e' cambiato*, la KB decide
+   *quali letture dipendono*, il C esegue *come ricalcolarle*.
+
+### Stop condition per agenti futuri
+
+Fermarsi e scrivere un referto, senza `/save`, se accade una di queste cose:
+
+- per selezionare una revisione si aggiunge in C un verbo, marker o genere;
+- una lettura vecchia viene cancellata invece di diventare stale;
+- prima lettura e revisione prendono due funzioni semantiche diverse;
+- il test ripresenta il documento dopo la lezione;
+- una risposta attribuita entra nel mondo;
+- si chiama «selettivo» un pass che non misura candidate e falsi negativi;
+- una collisione viene risolta spostando un modulo senza una policy dichiarata;
+- `learned.p0` viene ripulito a mano invece di dare una casa alla specie.
 
 ---
 

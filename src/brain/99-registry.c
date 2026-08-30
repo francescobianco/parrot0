@@ -3685,6 +3685,11 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * cambia sempre e non dice niente. */
     if (b && b->kb) kb_footprint_reset(b->kb);
     size_t n = brain_respond_dispatch(b, input, out, out_size);
+    /* SC40: una facolta' dichiarata dalla KB puo' rendere stale le letture
+     * documentali. La revisione avviene DOPO l'atto didattico e prima del turno
+     * successivo; non cambia la risposta della lezione e non richiede che il
+     * teacher ripresenti il documento. */
+    document_revision_after_declared_module(b);
     /* gen422d: e CHI ha risposto fa parte della strada. Va piegato qui, una
      * volta, invece che nei dieci punti in cui `last_module` viene scritto. */
     if (b && b->kb) kb_footprint_mark(b->kb, b->last_module);

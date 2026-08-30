@@ -146,6 +146,9 @@ fact_source(consequence_connector(thus), thus, "thus is a consequence connector"
 fact_source(ground_connector(because), because, "the word because is a ground connector").
 fact_source(irregular_participle(known), known, "the word known is an irregular participle").
 fact_source(necessity_marker(shall), shall, "the word shall is a necessity marker").
+fact_source(relation_verb(biases), biases, "biases is a relation verb").
+fact_source(relation_verb(modulates), modulates, "modulates is a relation verb").
+fact_source(relation_verb(modified), modified, "modified is a relation verb").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -195,6 +198,9 @@ reading_fact(consequence_connector(accordingly), "accordingly is a consequence c
 reading_fact(ground_connector(because), "the word because is a ground connector").
 reading_fact(necessity_marker(required), "required is a necessity marker").
 reading_fact(irregular_participle(known), "the word known is an irregular participle").
+reading_fact(relation_verb(biases), "biases is a relation verb").
 reading_fact(consequence_connector(thus), "thus is a consequence connector").
+reading_fact(relation_verb(modulates), "modulates is a relation verb").
 reading_fact(necessity_marker(shall), "the word shall is a necessity marker").
+reading_fact(relation_verb(modified), "modified is a relation verb").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").

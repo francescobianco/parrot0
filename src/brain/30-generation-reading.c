@@ -1810,9 +1810,11 @@ static int reader_take_source_uri(char *text, char *out, size_t out_size) {
  * `modal_force_evidence` il testo contenga, e la classe vive in KB. */
 static int claim_reading_of(Brain *b, const char *text,
                             char *frame, size_t frame_size,
-                            char *modal, size_t modal_size) {
-    if (!b || !b->kb || !text || !frame || !modal) return 0;
+                            char *modal, size_t modal_size,
+                            char *basis, size_t basis_size) {
+    if (!b || !b->kb || !text || !frame || !modal || !basis) return 0;
     modal[0] = '\0';
+    snprintf(basis, basis_size, "%s", "unresolved");
 
     char stripped[512];
     const char *source = text;
@@ -1851,6 +1853,11 @@ static int claim_reading_of(Brain *b, const char *text,
         return 0;
     snprintf(frame, frame_size, "frame(%s, roles(subject(%s), object(%s)))",
              reading.pred, reading.slot[0], reading.slot[1]);
+    const char *relation_q[] = { reading.pred };
+    if (kb_query(b->kb, "relation_verb", relation_q, 1))
+        snprintf(basis, basis_size, "relation_verb(%s)", reading.pred);
+    else
+        snprintf(basis, basis_size, "frame_predicate(%s)", reading.pred);
     /* Una lettura c'e'; se copra la frase lo decide la policy. Distinguere i
      * due esiti e' cio' che permette al residuo di dire `partial_reading`
      * invece del generico `no_reading`: uno schema che combacia a meta' non e'
@@ -1860,6 +1867,104 @@ static int claim_reading_of(Brain *b, const char *text,
     snprintf(of, sizeof of, "of(%zu)", reading.total);
     const char *policy[] = { "reported", covered, of, "normalized" };
     if (!kb_query(b->kb, "normalization_extent_policy", policy, 4)) return 2;
+    return 1;
+}
+
+/* Interpreta UNA claim gia' osservata. Questa e' la sola porta condivisa fra
+ * prima lettura e revisione SC40: entrambe usano lo stesso frame binder, la
+ * stessa policy di copertura, lo stesso recupero dell'ellissi e gli stessi gap.
+ * `basis` e' la conoscenza viva che autorizza la famiglia di frame scelta, non
+ * una spiegazione ricostruita dopo. */
+static int document_claim_interpret(Brain *b, const char *ref,
+                                    const char *cls, const char *content) {
+    if (!b || !b->kb || !ref || !cls || !content) return 0;
+    char frame[KB_TERM_LEN], modal[KB_TERM_LEN], basis[KB_TERM_LEN];
+    int reading_kind = claim_reading_of(b, content, frame, sizeof frame,
+                                        modal, sizeof modal,
+                                        basis, sizeof basis);
+
+    /* SC5: il soggetto eliso viene dalla coordinata che la classe dichiara,
+     * mai da una parola o da un agente cablato qui. */
+    if (reading_kind == 0) {
+        const char *eq[] = { cls, "attributed" };
+        if (kb_query(b->kb, "elided_subject", eq, 2)) {
+            char agent[1][KB_TERM_LEN], surface[1][KB_TERM_LEN];
+            const char *aq[] = { cls, NULL, NULL, NULL };
+            char row[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "claim_marker_class", aq, 4, row, 1) == 1) {
+                const char *paq[] = { cls, row[0], NULL, NULL };
+                if (kb_match(b->kb, "claim_marker_class", paq, 4,
+                             agent, 1) == 1) {
+                    char bare[KB_TERM_LEN];
+                    snprintf(bare, sizeof bare, "%s", agent[0]);
+                    char *inner = strchr(bare, '(');
+                    if (inner) {
+                        char *close = strrchr(inner, ')');
+                        if (close) *close = '\0';
+                        const char *sq[] = { inner + 1, NULL };
+                        if (kb_match(b->kb, "agent_surface", sq, 2,
+                                     surface, 1) == 1) {
+                            char joined[512], sb[KB_TERM_LEN];
+                            snprintf(sb, sizeof sb, "%s", surface[0]);
+                            snprintf(joined, sizeof joined, "%s %s",
+                                     kb_dequote(sb), content);
+                            reading_kind = claim_reading_of(
+                                b, joined, frame, sizeof frame,
+                                modal, sizeof modal, basis, sizeof basis);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (reading_kind == 2) {
+        char basis_term[KB_TERM_LEN];
+        snprintf(basis_term, sizeof basis_term, "basis(%s)", basis);
+        const char *partial[] = {
+            ref, "gap(partial_reading)", basis_term
+        };
+        return kb_query(b->kb, "document_claim_gap_observe", partial, 3);
+    }
+    if (reading_kind == 1) {
+        char reading[KB_TERM_LEN];
+        snprintf(reading, sizeof reading, "reading(%s, basis(%s))",
+                 frame, basis);
+        const char *normalize_args[] = {
+            ref, "origin(reported)", reading, "extent(covered(1), of(1))"
+        };
+        if (kb_query(b->kb, "document_claim_normalize", normalize_args, 4)) {
+            if (modal[0]) {
+                char modal_term[KB_TERM_LEN];
+                snprintf(modal_term, sizeof modal_term, "modal(%s)", modal);
+                const char *modality[] = { ref, modal_term };
+                kb_query(b->kb, "document_claim_modality_observe", modality, 2);
+            }
+            return 1;
+        }
+    }
+
+    /* Perche' la lettura si e' fermata lo decide la KB attraverso le evidenze
+     * sul residuo. La base `unresolved` conserva che nessuno schema e' stato
+     * scelto; una lezione futura autorizza un nuovo pass, non riscrive questo
+     * record storico. */
+    char gap_kind[KB_TERM_LEN], gap_proof[KB_EVIDENCE_PROOF_LEN];
+    int gap_score = 0;
+    char gap_term[KB_TERM_LEN], basis_term[KB_TERM_LEN];
+    if (kb_hypothesis_best(b->kb, "normalization_gap_evidence", content,
+                           NULL, 0, gap_kind, sizeof gap_kind, &gap_score,
+                           gap_proof, sizeof gap_proof) == 1)
+        snprintf(gap_term, sizeof gap_term, "gap(%s)", gap_kind);
+    else
+        snprintf(gap_term, sizeof gap_term, "gap(no_reading)");
+    snprintf(basis_term, sizeof basis_term, "basis(%s)", basis);
+    const char *gap_args[] = { ref, gap_term, basis_term };
+    if (!kb_query(b->kb, "document_claim_gap_observe", gap_args, 3)) {
+        const char *fallback[] = {
+            ref, "gap(no_reading)", "basis(unresolved)"
+        };
+        return kb_query(b->kb, "document_claim_gap_observe", fallback, 3);
+    }
     return 1;
 }
 
@@ -1930,106 +2035,69 @@ static int document_claim_from_clause(Brain *b, const char *clause,
     const char *observe[] = { ref, marker, proposition, provenance };
     if (!kb_query(b->kb, "document_claim_observe", observe, 4)) return 0;
 
-    /* ── SC2-B: NORMALIZZARE NON E' CREDERE ──────────────────────────────
-     *
-     * Il remainder attraversa la STESSA analisi con cui parrot0 legge una frase
-     * detta in chat — nessun parser documentale parallelo, nessun verbo
-     * scientifico riconosciuto qui. La differenza sta tutta a valle: quella
-     * analisi e' ora una fase pura (`p0_frame_reading`), quindi produce un
-     * candidato e non un fatto. Che cosa possa diventare lo decide la KB
-     * attraverso `normalization_origin/2`, e per una claim riportata l'origine
-     * e' `reported`: quarantena dentro il contesto della claim, mai il mondo.
-     *
-     * Quando l'analisi non arriva a una lettura, la claim di superficie resta
-     * intera e il fallimento diventa un gap tipato: un remainder non
-     * normalizzabile non puo' rendere meno osservabile la frase che lo porta. */
-    char frame[KB_TERM_LEN], modal[KB_TERM_LEN];
-    int reading_kind = claim_reading_of(b, content, frame, sizeof frame,
-                                        modal, sizeof modal);
-    /* ── SC5: UN PASSO DI METODO HA IL SOGGETTO ELISO ────────────────────
-     *
-     * «We then heat the mixture» lascia per remainder «heat the mixture»:
-     * comincia dal verbo, e nessuno schema soggetto-verbo-oggetto lo lega. Non
-     * e' un difetto della lettura — e' la forma normale di un metodo, dove
-     * l'agente non si ripete perche' e' gia' noto. E parrot0 lo ha gia': e'
-     * l'attribuzione della classe.
-     *
-     * Il C non sa chi sia l'agente ne' come si dica: chiede alla KB se la
-     * classe dichiari il soggetto eliso, chiede la superficie dell'agente, la
-     * antepone e rilegge con la STESSA fase pura. Nessuna decisione qui. */
-    if (reading_kind == 0) {
-        const char *eq[] = { cls, "attributed" };
-        if (kb_query(b->kb, "elided_subject", eq, 2)) {
-            char agent[1][KB_TERM_LEN], surface[1][KB_TERM_LEN];
-            const char *aq[] = { cls, NULL, NULL, NULL };
-            char row[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "claim_marker_class", aq, 4, row, 1) == 1) {
-                /* l'attribuzione sta nella politica di classe, terza colonna */
-                const char *paq[] = { cls, row[0], NULL, NULL };
-                if (kb_match(b->kb, "claim_marker_class", paq, 4, agent, 1) == 1) {
-                    char bare[KB_TERM_LEN];
-                    snprintf(bare, sizeof bare, "%s", agent[0]);
-                    char *inner = strchr(bare, '(');
-                    if (inner) {
-                        char *close = strrchr(inner, ')');
-                        if (close) *close = '\0';
-                        const char *sq2[] = { inner + 1, NULL };
-                        if (kb_match(b->kb, "agent_surface", sq2, 2,
-                                     surface, 1) == 1) {
-                            char joined[512];
-                            char sb[KB_TERM_LEN];
-                            snprintf(sb, sizeof sb, "%s", surface[0]);
-                            snprintf(joined, sizeof joined, "%s %s",
-                                     kb_dequote(sb), content);
-                            reading_kind = claim_reading_of(
-                                b, joined, frame, sizeof frame,
-                                modal, sizeof modal);
-                        }
-                    }
-                }
-            }
-        }
+    return document_claim_interpret(b, ref, cls, content);
+}
+
+/* ── SC40-A: RIVEDERE SENZA FAR RILEGGERE IL TEACHER ─────────────────────
+ *
+ * La KB sceglie QUANDO il costo e' autorizzato (`revision_schedule/2` e
+ * `revision_trigger_module/2`). Questa funzione esegue soltanto la meccanica:
+ * enumera le claim osservate, recupera superficie/classe/fonte e richiama la
+ * stessa `document_claim_interpret` della prima lettura. Se la firma non cambia
+ * la KB non crea una versione; se cambia conserva prima, dopo e dipendenza. */
+static size_t document_revision_pass(Brain *b) {
+    if (!b || !b->kb) return 0;
+    const char *policy[] = { "document_claim", "after_semantic_lesson" };
+    if (!kb_query(b->kb, "revision_schedule", policy, 2)) return 0;
+
+    char (*claims)[KB_TERM_LEN] = NULL;
+    const char *all[] = { NULL, NULL };
+    size_t nc = 0;
+    if (!kb_match_all(b->kb, "claim_attributed_to", all, 2,
+                      &claims, &nc)) {
+        free(claims);
+        return 0;
     }
-    if (reading_kind == 2) {
-        const char *partial[] = { ref, "gap(partial_reading)" };
-        kb_query(b->kb, "document_claim_gap_observe", partial, 2);
-        return 1;
+
+    size_t reviewed = 0;
+    for (size_t i = 0; i < nc; i++) {
+        int duplicate = 0;
+        for (size_t j = 0; j < i; j++)
+            if (strcmp(claims[i], claims[j]) == 0) { duplicate = 1; break; }
+        if (duplicate) continue;
+
+        const char *sq[] = { claims[i], NULL };
+        char surface[1][KB_TERM_LEN], document[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "claim_surface", sq, 2, surface, 1) != 1)
+            continue;
+        if (kb_match(b->kb, "claim_document", sq, 2, document, 1) != 1)
+            continue;
+
+        const char *uq[] = { NULL, claims[i] };
+        char unit[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "unit_claim", uq, 2, unit, 1) != 1) continue;
+
+        const char *cq[] = { claims[i], NULL, NULL };
+        char cls[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "claim_marker_observation", cq, 3,
+                     cls, 1) != 1) continue;
+
+        char ref[KB_TERM_LEN], sb[KB_TERM_LEN];
+        snprintf(ref, sizeof ref, "ref(%s, %s, %s)",
+                 document[0], unit[0], claims[i]);
+        snprintf(sb, sizeof sb, "%s", surface[0]);
+        if (document_claim_interpret(b, ref, cls[0], kb_dequote(sb)))
+            reviewed++;
     }
-    if (reading_kind == 1) {
-        /* La copertura e' gia' stata provata dentro la fase pura condivisa: qui
-         * resta soltanto la consegna, con l'origine che vieta il mondo. */
-        const char *normalize_args[] = {
-            ref, "origin(reported)", frame, "extent(covered(1), of(1))"
-        };
-        if (kb_query(b->kb, "document_claim_normalize", normalize_args, 4)) {
-            if (modal[0]) {
-                char modal_term[KB_TERM_LEN];
-                snprintf(modal_term, sizeof modal_term, "modal(%s)", modal);
-                const char *modality[] = { ref, modal_term };
-                kb_query(b->kb, "document_claim_modality_observe", modality, 2);
-            }
-            return 1;
-        }
-    }
-    /* Perche' la lettura si e' fermata non lo indovina il C: lo dice la KB,
-     * attraverso lo stesso scorer universale delle cue epistemiche. Se le
-     * evidenze pareggiano, il residuo resta `no_reading` — un'ambiguita' non
-     * si risolve scegliendo. */
-    char gap_kind[KB_TERM_LEN], gap_proof[KB_EVIDENCE_PROOF_LEN];
-    int gap_score = 0;
-    char gap_term[KB_TERM_LEN];
-    if (kb_hypothesis_best(b->kb, "normalization_gap_evidence", content,
-                           NULL, 0, gap_kind, sizeof gap_kind, &gap_score,
-                           gap_proof, sizeof gap_proof) == 1)
-        snprintf(gap_term, sizeof gap_term, "gap(%s)", gap_kind);
-    else
-        snprintf(gap_term, sizeof gap_term, "gap(no_reading)");
-    const char *gap_args[] = { ref, gap_term };
-    if (!kb_query(b->kb, "document_claim_gap_observe", gap_args, 2)) {
-        const char *fallback[] = { ref, "gap(no_reading)" };
-        kb_query(b->kb, "document_claim_gap_observe", fallback, 2);
-    }
-    return 1;
+    free(claims);
+    return reviewed;
+}
+
+static void document_revision_after_declared_module(Brain *b) {
+    if (!b || !b->kb || !b->last_module[0]) return;
+    const char *trigger[] = { "document_claim", b->last_module };
+    if (kb_query(b->kb, "revision_trigger_module", trigger, 2))
+        (void)document_revision_pass(b);
 }
 
 /* ── SC2-B: INTERROGARE CIO' CHE UN DOCUMENTO RIPORTA ──────────────────────
@@ -2118,7 +2186,27 @@ static int claim_question_frame(Brain *b, const char *tail,
      * verifica mancherebbe il proprio bersaglio. Il modale della DOMANDA non
      * si butta via: chi chiede «e' stato ipotizzato che X POSSA Y?» sta
      * chiedendo proprio della claim modale, e ha diritto a un si'. */
-    return claim_reading_of(b, tail, frame, frame_size, modal, modal_size) == 1;
+    char basis[KB_TERM_LEN];
+    return claim_reading_of(b, tail, frame, frame_size, modal, modal_size,
+                            basis, sizeof basis) == 1;
+}
+
+/* Una verifica di status contiene spesso il pronome impersonale «it». Prima
+ * di SC40 il modulo repair, che corre prima delle claim, lo scambiava per un
+ * referente mancante e apriva una finestra aritmetica. La FORMA non e'
+ * riconosciuta qui con parole cablate: e' la stessa evidenza derivata in KB dal
+ * marker epistemico insegnato. Il helper serve a repair per lasciare passare
+ * l'atto intero anche quando la proposition non e' ancora normalizzabile. */
+static int document_claim_status_question_turn(Brain *b, const char *norm) {
+    if (!b || !b->kb || !norm || !*norm) return 0;
+    const char *anyq[] = { NULL, NULL, NULL };
+    char any[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "document_claim", anyq, 3, any, 1) == 0) return 0;
+    char status[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN];
+    int score = 0;
+    return kb_hypothesis_best(b->kb, "claim_status_question_evidence", norm,
+                              NULL, 0, status, sizeof status, &score,
+                              proof, sizeof proof) == 1;
 }
 
 static int mod_claim_question(Brain *b, const char *norm, const char *raw,
@@ -2234,6 +2322,14 @@ static int mod_claim_question(Brain *b, const char *norm, const char *raw,
                     claim_store_proof(b, claims[i]);
                     return 1;
                 }
+            } else {
+                /* La domanda e il suo status sono stati capiti, ma il
+                 * contenuto no. E' meta-comprensione utile: impedisce sia un
+                 * falso «No» sia la falsa richiesta di un referente. */
+                kb_term_say(b, "claim_status_unreadable",
+                            (const KbResponseSlot[]){ { "status", status } },
+                            1, out, out_size);
+                return 1;
             }
         }
     }

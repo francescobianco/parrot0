@@ -39,6 +39,7 @@ utterance(5, user, "given is an irregular participle").
 utterance(5, user, "recommended is an expectation marker").
 utterance(5, user, "because is a ground connector").
 utterance(5, user, "the word because is a ground connector").
+utterance(5, user, "biases is a relation verb").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -61,6 +62,7 @@ utterance(6, self, "Learned: irregular_participle(given).").
 utterance(6, self, "Learned: expectation_marker(recommended).").
 utterance(6, self, "Hmm, I don't know about ground yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a ground»; if ground is a word you want to talk ABOUT, say «the word ground is a …».").
 utterance(6, self, "Learned: ground_connector(because).").
+utterance(6, self, "Learned: relation_verb(biases).").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -321,6 +323,24 @@ utterance(7, user, "since is a ground connector").
 utterance(8, self, "Learned: ground_connector(since).").
 utterance(9, user, "'on which evidence' is a claim support question").
 utterance(10, self, "Learned: claim_support_question('on which evidence').").
+utterance(7, user, "is modified a relation verb?").
+utterance(8, self, "Yes.").
+utterance(9, user, "is modulates a relation verb?").
+utterance(10, self, "Yes.").
+utterance(11, user, "is biases a relation verb?").
+utterance(12, self, "Yes.").
+utterance(13, user, "what is 2 plus 2?").
+utterance(14, self, "4.").
+utterance(15, user, "is a robin a bird?").
+utterance(16, self, "I don't know about bird.").
+utterance(17, user, "where is Paris?").
+utterance(18, self, "France.").
+utterance(19, user, "what is water made of?").
+utterance(20, self, "A transparent, tasteless liquid made of hydrogen and oxygen (H2O), essential to all known forms of life.").
+utterance(21, user, "what is the capital of Italy?").
+utterance(22, self, "Rome.").
+utterance(23, user, "is biases a relation verb?").
+utterance(24, self, "Yes.").
 utterance(76, self, "Claim.").
 utterance(7, user, "what does a capacitor store?").
 utterance(8, self, "I don't understand that yet.").
@@ -415,6 +435,7 @@ utterance(2, self, "Learned: irregular_participle(shown).").
 utterance(2, self, "Hmm, I don't know about necessity yet. Want me to learn about it? Or teach me: if it is a kind of thing, say «something is a necessity»; if necessity is a word you want to talk ABOUT, say «the word necessity is a …».").
 utterance(2, self, "Learned: consequence_connector(thus).").
 utterance(2, self, "Learned: necessity_marker(shall).").
+utterance(2, self, "Learned: relation_verb(modified).").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -433,6 +454,7 @@ utterance(1, user, "shown is an irregular participle").
 utterance(1, user, "shall is a necessity marker").
 utterance(1, user, "thus is a consequence connector").
 utterance(1, user, "the word shall is a necessity marker").
+utterance(1, user, "modified is a relation verb").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -447,6 +469,7 @@ utterance(4, self, "Learned: irregular_participle(found).").
 utterance(4, self, "Learned: necessity_marker(required).").
 utterance(4, self, "Learned: consequence_connector(accordingly).").
 utterance(4, self, "Learned: irregular_participle(known).").
+utterance(4, self, "Learned: relation_verb(modulates).").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -462,6 +485,7 @@ utterance(3, user, "found is an irregular participle").
 utterance(3, user, "required is a necessity marker").
 utterance(3, user, "accordingly is a consequence connector").
 utterance(3, user, "the word known is an irregular participle").
+utterance(3, user, "modulates is a relation verb").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

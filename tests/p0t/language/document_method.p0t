@@ -49,9 +49,6 @@
 
 [test sc5 un passo non legato blocca la procedura]
 !timeout 90
-# Passaggio MAI letto prima: `claim_proposition` e' un'osservazione
-# materializzata di proposito — il retract di una cue non deve distruggerla —
-# quindi rileggere un documento gia' osservato non misurerebbe niente.
 # `warm` non e' un verbo di relazione noto: il passo si vede e non si lega.
 > read: https://www.ncbi.nlm.nih.gov/books/NBK21154/ Before this the reaction requires a buffer. We then warm the tube. This repeats until the cycles reach forty.
 <~ document unit(s)
@@ -61,10 +58,9 @@
 # IL PASSO RESTA VISIBILE: cade l'eseguibilita', non la lettura.
 !query claim_surface(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, "warm the tube")
 !query claim_status(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, described)
-# E insegnare il verbo mancante sblocca la procedura, senza rileggere il resto.
+# E insegnare il verbo mancante rivede la lettura e sblocca la procedura SENZA
+# ripresentare il documento: il testo e' un'osservazione, il frame una vista.
 > warm is a relation verb
 < Learned: relation_verb(warm).
-> read: https://www.ncbi.nlm.nih.gov/books/NBK21154/ Before this the reaction requires a buffer. We then warm the tube. This repeats until the cycles reach forty.
-<~ document unit(s)
 !query claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
 !query method_executable(document_a89aaeaeb2e06370_8b32e8d21149aa6b, ready)

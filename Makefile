@@ -732,6 +732,8 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/language/taught_segment_role.p0t
 	@./$(BIN) --test tests/p0t/language/document_rhetoric.p0t
 	@./$(BIN) --test tests/p0t/language/document_claims.p0t
+	@./$(BIN) --test tests/p0t/language/document_method.p0t
+	@./$(BIN) --test tests/p0t/language/document_revision.p0t
 	@./$(BIN) --test tests/p0t/language/teaching_arity.p0t
 	@./$(BIN) --test tests/p0t/language/translate.p0t
 	@./$(BIN) --test tests/p0t/agent/agent_branch.it.p0t
