@@ -109,6 +109,36 @@ static void trace_input(const char *line) {
  * Returns 1 with a NUL-terminated turn in `buf` (newlines preserved, no trailing
  * newline), or 0 on EOF. Only used when stdin is a TTY; piped input keeps the
  * plain line-based path so the test harness is byte-for-byte unchanged. */
+/* ── COLORE: MECCANICA DI TERMINALE, NON TESTO ────────────────────────────
+ *
+ * Il mantra #16 vincola cio' che parrot0 DICE — le frasi — a stare in KB. Una
+ * sequenza ANSI non e' una frase: e' la stessa famiglia di `\x1b[?2004h` che
+ * questo file gia' scrive per il bracketed paste. Il testo del banner e del
+ * prompt qui sotto non cambia di un carattere; cambia solo come viene dipinto.
+ *
+ * E degrada in silenzio: senza tty, con `NO_COLOR` o su `TERM=dumb` l'uscita
+ * torna byte per byte quella storica, cosi' le pipe, i bench che leggono il
+ * prompt e le suite non vedono nulla di diverso. */
+static int use_color(void) {
+    static int cached = -1;
+    if (cached >= 0) return cached;
+    const char *no = getenv("NO_COLOR");
+    const char *term = getenv("TERM");
+    cached = isatty(STDERR_FILENO) && !(no && *no) &&
+             !(term && strcmp(term, "dumb") == 0);
+    return cached;
+}
+#define C(code) (use_color() ? "\x1b[" code "m" : "")
+#define C_OFF   (use_color() ? "\x1b[0m" : "")
+
+/* Il prompt: tre chevron in gradiente, dal piu' scuro al piu' chiaro. Senza
+ * colore resta la forma storica, che i bench sanno gia' leggere. */
+static const char *prompt_str(void) {
+    return use_color()
+        ? "\x1b[38;5;25m>\x1b[38;5;39m>\x1b[38;5;81m>\x1b[0m "
+        : "you> ";
+}
+
 static void tty_write(const char *s) { ssize_t n = write(STDERR_FILENO, s, strlen(s)); (void)n; }
 
 static int read_turn_tty(char *buf, size_t cap) {
@@ -165,7 +195,7 @@ static int read_turn_tty(char *buf, size_t cap) {
             done = 1; continue;
         }
         if (c == 4) { if (len == 0) { eof = 1; done = 1; } continue; }   /* Ctrl-D */
-        if (c == 3) { len = 0; tty_write("^C\r\nyou> "); continue; }     /* Ctrl-C: clear */
+        if (c == 3) { len = 0; tty_write("^C\r\n"); tty_write(prompt_str()); continue; }     /* Ctrl-C: clear */
         if (c == 127 || c == 8) { if (len > 0) { len--; tty_write("\b \b"); } continue; }
         if (c >= 32) { if (len + 1 < cap) buf[len++] = (char)c; char e[2] = {(char)c, 0}; tty_write(e); }
     }
@@ -1046,14 +1076,28 @@ int main(int argc, char **argv) {
       double rule_fact_ratio = facts ? ((double)rules * 100.0 / (double)facts) : 0.0;
       /* Una riga sola. Le quattro di prima dicevano le stesse quattro cose e
        * spingevano fuori schermo l'inizio della conversazione ogni volta. */
-      fprintf(stderr, "parrot0 [%s] - mode: %s (tools %s, network %s) - "
-                      "%zu facts, %zu rules (%.2f%%)\n"
-                      "say something ('/quit' to exit, '/save' to persist, "
-                      "'/restore' to reload the KB from disk)\n",
-              brain_version(), mode,
-              brain_policy_on(brain, "tools")   ? "on" : "off",
-              brain_policy_on(brain, "network") ? "on" : "off",
-              facts, rules, rule_fact_ratio); }
+      int tools_on = brain_policy_on(brain, "tools");
+      int net_on   = brain_policy_on(brain, "network");
+      fprintf(stderr,
+              "%s%sparrot0%s %s[%s]%s %s-%s mode: %s%s%s "
+              "%s(%stools %s%s%s%s,%s network %s%s%s%s)%s %s-%s "
+              "%s%zu%s facts, %s%zu%s rules %s(%.2f%%)%s\n"
+              "%ssay something ('/quit' to exit, '/save' to persist, "
+              "'/restore' to reload the KB from disk)%s\n",
+              C("1"), C("38;5;79"), C_OFF,
+              C("38;5;245"), brain_version(), C_OFF,
+              C("38;5;240"), C_OFF,
+              C("38;5;215"), mode, C_OFF,
+              C("38;5;240"), C_OFF,
+              tools_on ? C("38;5;114") : C("38;5;244"),
+              tools_on ? "on" : "off", C_OFF, C("38;5;240"), C_OFF,
+              net_on ? C("38;5;114") : C("38;5;244"),
+              net_on ? "on" : "off", C_OFF, C("38;5;240"), C_OFF,
+              C("38;5;240"), C_OFF,
+              C("38;5;111"), facts, C_OFF,
+              C("38;5;111"), rules, C_OFF,
+              C("38;5;244"), rule_fact_ratio, C_OFF,
+              C("38;5;244"), C_OFF); }
 
     char line[LINE_MAX_LEN];
     char resp[RESP_MAX_LEN];
@@ -1072,7 +1116,7 @@ int main(int argc, char **argv) {
     int multiline = interactive && ml && ml[0] && ml[0] != '0';
 
     for (;;) {
-        fprintf(stderr, "you> ");
+        fprintf(stderr, "%s", prompt_str());
         fflush(stderr);
 
         if (multiline) {
