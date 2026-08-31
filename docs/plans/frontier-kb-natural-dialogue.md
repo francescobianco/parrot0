@@ -1966,6 +1966,79 @@ e' piu' capacita' mancante, ed e' scritto qui perche' non diventi invisibile.
 > bisogno di dimenticare o di **rivedere**. Aggirare un limite e descriverlo
 > sono compatibili; aggirarlo e chiamarlo intenzionale no.
 
+> ## ✅ TRAGUARDO — LO SPAZIO DEL DISCORSO (2026-08-31)
+>
+> **Da conservare: è la prima volta che parrot0 ricorda *che cosa* è stato
+> nominato e *in che ordine*, e che un'espressione può riferirsi a quella
+> memoria invece che a una parola.**
+>
+> ```text
+> > Il libro rosso è sul tavolo.      ->  located_in(book_red, tavolo)
+> > Il quaderno blu è sulla mensola.  ->  located_in(quaderno_blue, mensola)
+> > Dov'è il primo?                   ->  tavolo        (prima: muro)
+> > Dov'è il secondo?                 ->  mensola       (prima: muro)
+> ```
+>
+> ### Che cos'è, esattamente
+>
+> Poco, di proposito: `discourse_referent(Ordine, Chiave)`. Una cosa nominata e
+> la sua posizione nel discorso. Testa e proprietà si ricavano dalla chiave (G2);
+> determinante, span e superficie originale non ci sono ancora (G5).
+>
+> Ma è la prima **memoria del dialogo che non è una lista di frasi**: è una lista
+> di *cose*. Fino a ieri parrot0 conservava turni; ora conserva referenti.
+>
+> ### A che cosa serve, e che cosa abilita
+>
+> Non è una funzione in più: è il posto a cui si attaccano cose che prima non
+> avevano appiglio.
+>
+> | abilita | perché prima non si poteva |
+> |---|---|
+> | **coreferenza** — «quello», «l'altro», «quello di prima» | non esisteva l'oggetto a cui riferirsi: F03 era la famiglia peggiore del corpus, 24 muri su 30 |
+> | **ellissi** — «E il secondo?» senza ripetere il verbo | il turno ellittico non ha entità da nominare: deve prenderla dal discorso |
+> | **correzione** — «no, quello rosso l'ho spostato» | correggere richiede di individuare *che cosa* si corregge, non solo che si corregge |
+> | **ambiguità dicibile** — «Quale? …» invece di un muro | serve saper elencare i candidati, cioè averli |
+> | **il soggetto eliso** (SC5) e **l'apposizione** | entrambi recuperano un ruolo da qualcosa già introdotto |
+> | **la domanda di seguito** — «e dove si trova adesso?» | «adesso» presuppone una cosa di cui si stava parlando |
+>
+> Ed è la precondizione dichiarata di **GD4** (riferimento cross-turn) e di
+> **D37/G4-G5**: il referente con proprietà, e il referente che sa ridirsi.
+>
+> ### Come è stato costruito — le tre cose che hanno deciso l'esito
+>
+> Vale più del risultato, perché sono riusabili:
+>
+> 1. **Il punto di strozzatura condiviso.** Le vie che imparano un fatto sono
+>    più d'una — lo schema dichiarato, la copula binaria, il locativo — e la
+>    prima versione agganciava i referenti a *una*. Misurato: il locativo
+>    italiano non registrava niente, e metà del dialogo restava senza memoria.
+>    L'osservazione sta ora in `p0_learn_source`, che **tutte** attraversano
+>    perché registrare la provenienza è ciò che ogni via fa comunque. *Un
+>    referente è esattamente questo: una cosa nominata, e quando.* Cercare il
+>    punto che tutti attraversano invece di enumerare i chiamanti è la stessa
+>    mossa della fase pura di SC2-B.
+> 2. **Quale posizione introduca un referente è una politica, non una scelta del
+>    C.** Registrando *ogni* argomento, «il secondo» diventava il **tavolo**
+>    invece del quaderno: in «Il libro rosso è sul tavolo» sono nominati due
+>    oggetti, ma quello di cui si parla è il primo. `referent_arg_position/1` lo
+>    dichiara, e una relazione con un'altra geometria costa una riga.
+> 3. **La superficie da dichiarare è quella che sopravvive al percorso.** «primo»
+>    arriva al matcher come «prime» — la canonicalizzazione lo traduce — e la
+>    forma col determinante non combacia più. È la **terza volta** che questa
+>    lezione si presenta (dopo le cue di SC2-B e le locuzioni di SC2-D): finché
+>    la canonicalizzazione non conserva anche l'originale (G5), una classe di
+>    superfici deve tenere *entrambe* le forme.
+>
+> ### Il limite onesto
+>
+> È la **prima forma**, non la forma finale. Non c'è ancora il determinante (che
+> distingue introdurre da riprendere), non c'è lo span, non c'è la superficie
+> originale — quindi parrot0 sa che il libro rosso è stato nominato per primo e
+> non sa ancora ridirlo «il libro rosso». E due referenti con la stessa testa si
+> distinguono per proprietà (G2) ma non hanno ancora identità propria.
+
+
 > ## ⛔⛔ IL CASSETTO SENZA MANIGLIA — il problema che teneva ferma la comprensione universale
 >
 > **Scoperto e misurato il 2026-08-31. Scritto in tutti i piani perché è la

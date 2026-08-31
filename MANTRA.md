@@ -149,6 +149,17 @@ suite intera è `make test`.
 
 ## ⛔ TODO aperti, se stai cercando da dove ripartire
 
+> ✅ **TRAGUARDO — LO SPAZIO DEL DISCORSO (2026-08-31).** parrot0 ricorda ora
+> *che cosa* è stato nominato e *in che ordine*, e «il primo»/«il secondo» ci si
+> attaccano. È il posto a cui si agganciano coreferenza, ellissi, correzione,
+> ambiguità dicibile e soggetto eliso — tutte cose che prima non avevano
+> appiglio. **Le tre lezioni riusabili di come è stato costruito:** cerca il
+> punto di strozzatura che tutte le vie attraversano invece di enumerare i
+> chiamanti; quale posizione introduca un referente è una *politica*, non una
+> scelta del C; e la superficie da dichiarare è **quella che sopravvive al
+> percorso** (terza volta che si ripresenta). Dettaglio in testa a
+> `docs/plans/universal-comprehension.md`.
+
 > ⛔⛔ **IL CASSETTO SENZA MANIGLIA (2026-08-31).** «Il libro rosso è sul tavolo»
 > produceva `located_in(book_red, tavolo)`, e «dove si trova il libro rosso» era
 > un muro: il lettore lega un SINTAGMA, la domanda provava un token alla volta.
