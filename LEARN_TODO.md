@@ -1,5 +1,188 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# ⛔ RIPARTI DA QUI — handoff 2026-08-31
+
+> **Come si riprende:** «continua da questo file». Leggi questa sezione fino in
+> fondo, poi vai al §6 «Il prossimo lavoro». Tutto il resto del file è la coda
+> storica e serve dopo.
+
+## 1. Dove siamo, in tre righe
+
+Stiamo costruendo le **fondamenta prototipali della comprensione universale**.
+Non stiamo più insegnando fatti in massa: abbiamo misurato che non basta, e
+stiamo riparando la **catena** che rende un turno comprensibile. Tre gradini su
+cinque sono chiusi, e parrot0 ha per la prima volta uno **spazio del discorso**.
+
+## 2. La diagnosi che governa tutto — non ripartire senza averla capita
+
+Due giri di insegnamento massiccio (276 forme reali, entrate parlando,
+verificate in processo nuovo) hanno mosso **+11 turni su 360**. Non perché il
+metodo sia debole:
+
+> **Il corpus misura CONGIUNZIONI, e i giri riparavano CONGIUNTI.**
+
+Un turno riesce solo se tengono **insieme**: superficie riconosciuta · forma
+della domanda nella lingua giusta · nome dell'entità che fa il giro ·
+riferimento risolto · fatto presente · realizzazione disponibile. Riparare uno
+solo muove ~zero, e **il tasso di muro aggregato non lo dice**: `66% di muri`
+suggerisce «serve più conoscenza», mentre tracciare *un* dialogo turno per turno
+ha detto «servono quattro cose diverse, e una è un bug di simmetria».
+
+**Regole di metodo, vincolanti (D36):**
+
+1. **Traccia una catena intera prima di insegnare.** Un aggregato non dice mai
+   dove si rompe; un dialogo eseguito turno per turno lo dice in trenta secondi.
+2. **Ripara la catena più corta che chiude una famiglia**, non il difetto più
+   evidente. Il criterio non è «quanti muri tocca» ma «quanti anelli restano».
+3. **Insegnare viene per ultimo.** Il lessico moltiplica una catena che chiude;
+   su una catena rotta è rumore misurabile a +3%.
+4. **Il gate è una famiglia che chiude**, non un punto percentuale: il dialogo
+   `gd1_011` che passa da capo a fondo vale più di dieci punti sparsi.
+5. **Un rimedio proposto e non provato è un gap che non esiste.** Il muro di
+   parrot0 spesso nomina la specie del proprio arresto e propone la riparazione:
+   eseguila prima di classificare.
+6. **Quando un test ha bisogno di un dato fresco per passare**, chiediti prima se
+   il sistema debba *dimenticare* o **rivedere**.
+
+## 3. Che cosa è stato costruito (G1–G3), e come
+
+Il problema originario — «il cassetto senza maniglia» — è descritto per esteso
+poco più sotto in questo stesso file. In breve: il **lettore** legava un
+sintagma e produceva una chiave sola (`book_red`); la **domanda** provava un
+token alla volta e non provava mai la frase. parrot0 imparava sotto un nome che
+non sapeva più pronunciare.
+
+| gradino | che cosa fa | stato |
+|---|---|---|
+| **G1** | la domanda prova i **sintagmi** che il lettore ha costruito, con le stesse tre cose: confine di sintagma (`np_closer/1`), caduta del determinante, la stessa `p0_join` | ✅ |
+| **G2** | la frase come **descrizione**: «il libro» descrive `book_red` — ne nomina la testa e nessuna proprietà che le manchi. Testa e proprietà sono **già dentro la chiave**, si ricavano al momento della domanda e valgono retroattivamente. Dove stia la testa è conoscenza (`noun_phrase_head_position/2`) | ✅ |
+| **G3** | lo **spazio del discorso**: `discourse_referent(Ordine, Chiave)` — che cosa è stato nominato e in che ordine. «Il primo»/«il secondo» ci si attaccano | ✅ |
+| **G4** | la **coreferenza**: ellissi, dimostrativo+proprietà, correzione che sostituisce | ⬜ **prossimo** |
+| **G5** | il referente **sa ridirsi**: rispondere «il libro rosso» invece di `book red` | ⬜ |
+
+**Le tre lezioni riusabili di come sono stati costruiti** (valgono più del
+risultato):
+
+1. **Cerca il punto di strozzatura che tutte le vie attraversano** invece di
+   enumerare i chiamanti. Le vie che imparano un fatto sono tre — schema
+   dichiarato, copula binaria, locativo — e agganciare i referenti a una sola
+   lasciava metà del dialogo senza memoria. L'osservazione sta in
+   `p0_learn_source`, che tutte attraversano perché registrare la provenienza è
+   ciò che ognuna fa comunque.
+2. **Quale posizione introduca un referente è una politica**
+   (`referent_arg_position/1`), non una scelta del C. Registrando *ogni*
+   argomento, «il secondo» diventava il **tavolo** invece del quaderno.
+3. **La superficie da dichiarare è quella che sopravvive al percorso.** «primo»
+   arriva al matcher come «prime». Terza volta che questa lezione si presenta.
+
+## 4. Il corpus: dove siamo con la digestione
+
+`docs/labs/apprendimento-assistito/2026-08-31-gd1-dialogue-corpus.tsv` — 360
+turni, 60 dialoghi persistenti, 12 famiglie, it+en.
+
+```sh
+python3 scripts/dialogue_corpus_probe.py \
+    docs/labs/apprendimento-assistito/2026-08-31-gd1-dialogue-corpus.tsv
+```
+
+| misura | muri | move_match |
+|---|---:|---:|
+| baseline | 236 | 117 |
+| dopo GD2 (193 forme colloquiali) | 226 | 128 |
+| dopo GD6 (83 domande italiane) | 226 | 128 |
+| dopo G1 | 226 | 128 |
+
+**I 226 muri rimasti sono localizzati**, non sparsi: F03 coref (24), F10 prosa
+(21), F05/F09/F11/F12 (20 ciascuna). Sono i fronti della catena SC/G, non del
+lessico.
+
+Che G1 non abbia mosso il totale **conferma** D36 invece di smentirlo: chiude
+*un* anello, e il corpus chiede «Dov'è il primo?», che ne vuole altri tre. Non
+toccare il totale finché una catena non chiude.
+
+**Già insegnato e persistito** (non reinsegnare): 193 forme colloquiali in
+`kb/core/reactions.p0`, 83 superfici interrogative italiane, 5 verbi di
+relazione, 5 participi irregolari, 3 marker di forza RFC 2119, 4 connettivi.
+
+## 5. Le ambiguità: seguire l'oracolo, non l'intuito
+
+`tests/probes/reference_probe.py` · trascritto
+`tests/sym/reference-2026-08-31-minimax-m2.5.md` · referto
+`docs/labs/apprendimento-assistito/2026-08-31-reference-probe.md`
+
+```sh
+python3 tests/probes/reference_probe.py                 # default minimax-m2.5
+python3 tests/probes/reference_probe.py --no-llm        # solo parrot0
+```
+
+**Usa un modello NON-reasoning** (`minimax-m2.5`): i modelli che pensano
+(`kimi-k2.6`, `kimi-k2.5`) spendono il budget nel `reasoning` e lasciano
+`content` nullo — una risposta vuota si scambia per un rifiuto. E i `403`
+dell'endpoint sono **intermittenti**: la sonda ritenta, e prova l'oracolo con un
+turno di controllo prima di cominciare.
+
+### Le sei mosse osservate, e che cosa farne
+
+| # | mossa dell'oracolo | stato |
+|---|---|---|
+| 1 | «il primo» conta l'ordine di **introduzione**, non delle parole | ✅ già la nostra scelta, ora verificata |
+| 3 | davanti all'ambiguità **non trattiene**: dà tutte le risposte *e poi* chiede | ✅ adottata — «Ce n'è più di uno — book red: table; book blue: mensola. Quale intendi?» |
+| 5 | il riferimento a vuoto **si nomina**: cita l'espressione irrisolta invece di un muro generico | ⬜ **piccola, farla per prima** |
+| 2 | l'ellissi eredita la **relazione** del turno prima («E il secondo?» → `located_in`) | ⬜ G4 |
+| 4 | **dimostrativo + proprietà** risolvono («E quello rosso?») | ⬜ G4 |
+| 6 | la correzione **sostituisce**, non accumula (`supersedes_in/3` esiste già) | ⬜ G4 |
+
+**Il principio da portarsi dietro:** chiedere e basta è *corretto e avaro*.
+Un'ambiguità si dichiara **senza trattenere ciò che si è capito**.
+
+## 6. Il prossimo lavoro, in ordine
+
+1. **Mossa #5** — il riferimento irrisolto nomina l'espressione. Piccola, e
+   trasforma un vicolo cieco in una richiesta di chiarimento.
+2. **G4 / GD4** — coreferenza: mosse #2, #4, #6 insieme. È l'anello che il
+   corpus chiede più di ogni altro (F03: 24 muri su 30).
+3. **GD8** — la frase ordinaria a tre ruoli («ho messo il libro sul tavolo») e
+   le preposizioni articolate («nello zaino»): oggi non hanno lettura, ed è la
+   forma normale del parlato.
+4. **G5** — il referente che sa ridirsi. Chiude anche la resa `book red` →
+   «il libro rosso».
+5. **Gate finale del giro:** `gd1_011` da capo a fondo (6 turni: due setup, due
+   ordinali, una correzione, una callback).
+
+## 7. Debiti aperti, dichiarati
+
+- **`motorize_class.p0t` 23/1** — regressione di G1/G2: «Who wrote the Iliad?»
+  risponde «homer» con il solo fatto sull'Odissea. F. ha chiesto di costruire le
+  fondamenta e riparare i side effect più avanti; **non è dimenticata**.
+- **Rossi preesistenti**, verificati identici prima delle modifiche: `repair`
+  (l'oracolo non compila in questo ambiente), `check_sort`, `forget_move`,
+  `greet` 7/1, `games`, `faceted_enumeration`, `foundational_concepts`,
+  `gap_dialogue`, `name_is_knowledge`, `reactions_are_knowledge`,
+  `gap_is_a_fact`, `gap_anchor`, `frontier_chat_audit.it` riga 97,
+  `assisted_construction` 65/1.
+- **SC40 — le letture sono congelate** (rileggere accumula invece di rivedere):
+  resta il TODO numero zero del piano frontier.
+- **GD3 — le varianti ortografiche** azzerano una lezione. Trovata due volte,
+  la seconda addosso a me: scrivendo la sonda avevo digitato `e'` invece di `è`
+  e parrot0 non riconosceva la copula.
+
+## 8. Comandi utili
+
+```sh
+make build && make test-engine
+./bin/parrot0 --test tests/p0t/language/document_claims.p0t     # 182 assert
+python3 scripts/dialogue_corpus_probe.py <corpus.tsv>           # la misura
+python3 scripts/teach_lexicon.py <lexicon.tsv> [--save] [--lang it]
+python3 scripts/teach_ladder_audit.py <ladder.tsv>              # dove arriva l'insegnamento
+python3 tests/probes/reference_probe.py                         # la mossa dell'oracolo
+```
+
+Dentro la chat: `who answered?` nomina il modulo che ha risposto — **chiedilo
+invece di dedurre il colpevole dall'esito**; `/debug <predicato>` ispeziona la KB.
+
+---
+
+
 Coda dei temi da far apprendere a parrot0 con il protocollo di
 [`LEARN_PROTOCOL.md`](LEARN_PROTOCOL.md). Ogni voce è un'unità di lavoro: si
 apre una sessione, si eseguono i gate, si committa e si pusha l'incremento.
