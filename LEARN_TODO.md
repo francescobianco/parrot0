@@ -135,18 +135,93 @@ turno di controllo prima di cominciare.
 **Il principio da portarsi dietro:** chiedere e basta è *corretto e avaro*.
 Un'ambiguità si dichiara **senza trattenere ciò che si è capito**.
 
+## 5bis. ⛔ Una chat di quattro turni, tre difetti di tre specie diverse
+
+Segnalata da F. il 2026-08-31 su una sessione reale, riprodotta identica:
+
+```text
+>>> ciao
+Ciao!
+>>> il mio libro è sul tavolo
+Got it: your libro is tavolo.                      ← (a)
+>>> dove si trova il mio libro
+Non capisco ancora.                                ← (b)
+>>> di che colore è il mio libro
+Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?   ← (c)
+```
+
+Vale come caso di prova perché è **minimo** — quattro turni che chiunque
+direbbe — e perché i tre difetti sono di specie diverse e vanno separati. Per
+ciascuno, accanto, la mossa dell'oracolo misurata sugli **stessi turni**
+(`tests/probes/reference_probe.py`, casi `possessivo_lingua`,
+`possessivo_recupero`, `dato_mancante`).
+
+### (a) La risposta non segue la lingua del turno — **GD11**
+
+```text
+parrot0 < Got it: your libro is tavolo.
+oracolo < Ah, ottimo! È un buon posto per un libro.
+```
+
+È sbagliata **due volte**: la cornice della frase è inglese su un turno
+italiano, e le parole di contenuto sono gli originali italiani non tradotti. Il
+risultato non appartiene a nessuna delle due lingue. La lingua del turno è già
+un fatto (`current_language/1`, `turn_language/3`): qui non arriva alla resa.
+
+### (b) Il possessivo impara un fatto che non è più raggiungibile — **GD12**
+
+```text
+parrot0 < (dopo «il mio libro è sul tavolo») dove si trova il mio libro -> muro
+oracolo < È sul tavolo, come hai appena detto!
+```
+
+È **il cassetto senza maniglia su un altro frame**: «il mio libro è sul tavolo»
+finisce in uno slot di possesso invece che nel locativo, quindi il fatto c'è e la
+domanda formata con le stesse parole non lo trova. G1/G2 hanno chiuso il giro per
+`located_in`; il possessivo ha una porta sua e non l'ha ancora.
+
+### (c) Il dato che manca si dichiara e si CHIEDE — **GD13**
+
+```text
+parrot0 < Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?
+oracolo < Non lo so! Tu sai che colore ha?
+```
+
+La mossa più istruttiva delle tre. Parrot0 tratta la domanda come **non capita**;
+l'oracolo la capisce benissimo e dichiara che **il dato non c'è**, poi lo chiede
+a chi lo sa. Sono due situazioni diverse e oggi collassano nella stessa frase:
+
+| situazione | risposta giusta |
+|---|---|
+| non ho capito la domanda | «puoi dirlo in un altro modo?» |
+| ho capito, e **non ho il dato** | «non lo so — di che colore è?» |
+
+E la seconda non è solo più onesta: è **l'occasione più economica di imparare**,
+perché invita esattamente il fatto che manca. È la stessa forma del muro che
+propone il proprio rimedio (§2, regola 5), applicata al dato invece che alla
+forma.
+
+
 ## 6. Il prossimo lavoro, in ordine
 
-1. **Mossa #5** — il riferimento irrisolto nomina l'espressione. Piccola, e
-   trasforma un vicolo cieco in una richiesta di chiarimento.
-2. **G4 / GD4** — coreferenza: mosse #2, #4, #6 insieme. È l'anello che il
+1. **Mossa #5 + GD13 insieme** — distinguere «non ho capito» da «ho capito e non
+   ho il dato», e in entrambi i casi **nominare** ciò che manca: l'espressione
+   irrisolta o il dato assente. Sono la stessa mossa su due oggetti, sono
+   piccole, e trasformano due vicoli ciechi in due richieste — una di
+   chiarimento, una di conoscenza.
+2. **GD11** — la risposta segue la lingua del turno. Piccola e molto visibile:
+   oggi una frase italiana riceve una cornice inglese con dentro parole
+   italiane.
+3. **GD12** — il possessivo introduce un referente recuperabile: è il cassetto
+   senza maniglia su un frame che G1/G2 non hanno toccato.
+4. **G4 / GD4** — coreferenza: mosse #2, #4, #6 insieme. È l'anello che il
    corpus chiede più di ogni altro (F03: 24 muri su 30).
-3. **GD8** — la frase ordinaria a tre ruoli («ho messo il libro sul tavolo») e
+5. **GD8** — la frase ordinaria a tre ruoli («ho messo il libro sul tavolo») e
    le preposizioni articolate («nello zaino»): oggi non hanno lettura, ed è la
    forma normale del parlato.
-4. **G5** — il referente che sa ridirsi. Chiude anche la resa `book red` →
+6. **G5** — il referente che sa ridirsi. Chiude anche la resa `book red` →
    «il libro rosso».
-5. **Gate finale del giro:** `gd1_011` da capo a fondo (6 turni: due setup, due
+7. **Gate finale del giro:** `gd1_011` da capo a fondo (6 turni: due setup, due
    ordinali, una correzione, una callback).
 
 ## 7. Debiti aperti, dichiarati
@@ -1314,6 +1389,9 @@ turni** di conversazione ordinaria.
 |---|---|---|---|---|
 | **GD1** | **Misura del dialogo generico** | 360 turni, 60 dialoghi persistenti, 12 famiglie, it+en, processi reali | il probe localizza i muri per famiglia invece di dare un numero solo | **CHIUSA** — baseline 236 muri / 117 move_match. `scripts/dialogue_corpus_probe.py` |
 | **GD2** | **Lessico colloquiale massiccio** | attacchi informali, stanchezza, noia, buonumore, frustrazione, accordo, incoraggiamento, battuta | ogni forma entra parlando; il cue sopravvive dentro una frase lunga; processo nuovo | **CHIUSA** — 200 forme insegnate, 193 persistite, F01 da 14 a 18 match (+29% relativo). [Report](docs/labs/apprendimento-assistito/2026-08-31-gd1-gd2-apertura-dialogo.md) |
+| **GD11** | **La risposta segue la lingua del turno** | — | una frase italiana non riceve una cornice inglese con dentro parole italiane | nessuna: la lingua del turno e' gia' un fatto (`current_language/1`) | «il mio libro e' sul tavolo» riceve una risposta interamente italiana; nessuna resa mista | **aperto — piccola e molto visibile.** Misurato: «Got it: your libro is tavolo.» Oracolo: «Ah, ottimo! E' un buon posto per un libro.» |
+| **GD12** | **Il possessivo introduce un referente recuperabile** | D35, G1/G2 | «il mio libro e' sul tavolo» deve essere raggiungibile da «dove si trova il mio libro» | nessuna | la domanda formata con le STESSE parole trova il fatto appena appreso | **aperto.** E' il cassetto senza maniglia su un frame che G1/G2 non hanno toccato: il fatto finisce in uno slot di possesso, non nel locativo. Oracolo: «E' sul tavolo, come hai appena detto!» |
+| **GD13** | **«Non ho capito» e «non ho il dato» sono due cose diverse** | D29, autocorrezione | una domanda compresa a cui manca il dato riceve una richiesta del dato, non un muro di incomprensione | «di che colore e' il mio libro» -> «non lo so, di che colore e'?» | le due situazioni producono due frasi diverse; la seconda invita esattamente il fatto che manca | **aperto — prioritaria con la mossa #5.** Oracolo: «Non lo so! Tu sai che colore ha?». E' la forma del muro che propone il proprio rimedio, applicata al DATO invece che alla forma — e l'occasione piu' economica di imparare |
 | **GD10** | **Archi di ordine superiore fra zone della KB** | D38 | aritmetica x sociale, prosa x geografia: comporre due zone che oggi non si parlano | «siamo in quattro e il conto e' 86 euro, quanto ciascuno?» — nessuno ha progettato «dividere un conto» | aggiunti N archi, i compiti risolti crescono **piu' che linearmente** in N; ogni capacita' composta e' dimostrata su un compito e sparisce se si ritratta l'arco; `false_composition/2` non resta vuoto per finta | **aperto.** F.: «connettere zone attraverso archi di ordine superiore e' una sorta di unificazione dell'intelligenza». E' la stessa cura di D33/D35/D37 un piano piu' su. Vedi §18.43 |
 | **GD9** | **Un'entita' e' un referente con proprieta', non un atomo fuso** | testa, proprieta', determinante, menzione con span; il fatto lega referenti | «il libro rosso» e «il libro» sono lo stesso oggetto detto con precisione diversa | dopo «Il libro rosso e' sul tavolo»: rispondono sia «dove si trova il libro rosso» sia «dove si trova il libro»; «di che colore e' il libro» risponde dalla proprieta'; «Il libro e' grande» si attacca allo stesso referente; «dov'e' il primo» si risolve o si dichiara ambiguo | **aperto — e' la forma GIUSTA di GD7.** La gerarchia esiste gia' (clausola, sintagmi, token, span): manca la giunzione, `extract_frame` la ignora e fonde. Vedi D37 §18.42 |
 | **GD7** | **Round-trip del nome dell'entita'** (conseguenza di GD9, non lavoro separato) | cio' che si impara da una frase e' interrogabile **con la stessa frase**, a qualunque numero di parole e in entrambe le lingue | nessuna: e' una simmetria di motore | «Il libro rosso e' sul tavolo» + «dove si trova il libro rosso» deve rispondere; `unnameable_fact/2` tende a zero su corpus reale; se serve il nome interno la simmetria non c'e' | **aperto — IL COLLO.** Misurato: la lettura scrive `book_red`, la domanda cerca «il libro rosso», e solo il nome interno funziona. Un'entita' di una parola fa il giro, una di piu' parole no. Vedi D35 §18.40 |

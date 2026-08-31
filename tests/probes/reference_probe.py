@@ -60,6 +60,20 @@ DIALOGUES = [
         "Correzione: quello rosso l'ho spostato sulla mensola.",
         "Dove si trova adesso?",
     ], "La correzione SOSTITUISCE il fatto o ne aggiunge un secondo?"),
+    # --- IL POSSESSIVO, segnalato da F. su una chat reale (2026-08-31) ---
+    # Tre difetti in quattro turni, e sono di tre specie diverse: la lingua della
+    # risposta, il fatto appreso e non raggiungibile, e il dato che manca.
+    ("possessivo_lingua", [
+        "il mio libro è sul tavolo",
+    ], "LA LINGUA: il turno e' italiano — in che lingua risponde?"),
+    ("possessivo_recupero", [
+        "il mio libro è sul tavolo",
+        "dove si trova il mio libro",
+    ], "Il possessivo introduce un referente recuperabile con la STESSA frase?"),
+    ("dato_mancante", [
+        "il mio libro è sul tavolo",
+        "di che colore è il mio libro",
+    ], "IL DATO CHE MANCA: dice che non gliel'ho detto, o fa un muro generico?"),
     ("riferimento_vuoto", [
         "Dov'è il primo?",
     ], "CONTROLLO NEGATIVO: nessun referente introdotto. Dichiara il vuoto?"),
