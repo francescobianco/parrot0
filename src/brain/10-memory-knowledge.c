@@ -3564,8 +3564,43 @@ static int p0_creation_canonical(Brain *b, const char *surface,
  * compound-term string ("located_in(france, europe)"), Concept is its subject
  * (the queryable handle), and the raw fragment is quoted (capped to KB_TERM_LEN).
  * Reflective/substrate: filtered from "how many facts do you know?". */
+/* G3 — chi e' stato nominato, e in che ordine. Il C conta soltanto; che cosa
+ * significhi essere «il primo» lo dice `ordinal_reference/3` in KB. */
+static void p0_observe_referents(Brain *b, const char *const *keys, size_t n) {
+    if (!b || !b->kb) return;
+    for (size_t i = 0; i < n; i++) {
+        if (!keys[i] || !*keys[i]) continue;
+        /* Quale posizione introduca un referente lo dice la KB. */
+        char posn[24]; snprintf(posn, sizeof posn, "%zu", i + 1);
+        const char *pq[] = { posn };
+        if (!kb_query(b->kb, "referent_arg_position", pq, 1)) continue;
+        /* Il conteggio cresce col dialogo: si alloca sull'heap, non sullo
+         * stack — un tetto fisso qui sarebbe il limite a quante cose si possono
+         * nominare in una conversazione. */
+        char (*seen)[KB_TERM_LEN] = NULL; size_t nseen = 0;
+        const char *cq[] = { NULL, NULL };
+        if (!kb_match_all(b->kb, "discourse_referent", cq, 2, &seen, &nseen))
+            nseen = 0;
+        free(seen);
+        char ord[24];
+        snprintf(ord, sizeof ord, "%zu", nseen + 1);
+        const char *ra[] = { keys[i], ord };
+        kb_query(b->kb, "discourse_referent_observe", ra, 2);
+    }
+}
+
 static void p0_learn_source(Brain *b, const char *pred, const char *const *args,
                             size_t argc, const char *raw) {
+    /* G3 — IL PUNTO DI STROZZATURA CONDIVISO.
+     *
+     * Le vie che imparano un fatto sono piu' d'una — lo schema dichiarato, la
+     * copula binaria, il locativo — e agganciare i referenti a una sola
+     * lascerebbe meta' del dialogo senza memoria di che cosa e' stato nominato.
+     * Questa funzione le attraversa tutte, perche' registrare la PROVENIENZA e'
+     * cio' che ogni via fa comunque. Un referente e' esattamente questo: una
+     * cosa che e' stata nominata, e quando. */
+    p0_observe_referents(b, args, argc);
+
     if (!b || !b->kb || !raw || !*raw || argc == 0) return;
     char fr[KB_TERM_LEN]; size_t o = 0;
     o += (size_t)snprintf(fr + o, sizeof fr - o, "%s(", pred);
@@ -4040,6 +4075,12 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
         }
         if (kb_assert(b->kb, pred, fa, nslots)) {
             p0_learn_source(b, pred, fa, nslots, norm);
+            /* G3 — CHI E' STATO NOMINATO, E IN CHE ORDINE.
+             *
+             * Un'entita' introdotta occupa una posizione nel discorso. Senza
+             * quella posizione «il primo», «il secondo», «quello» non hanno
+             * niente a cui attaccarsi. Il C conta soltanto: che cosa significhi
+             * essere primo lo dice la KB (`ordinal_reference/3`). */
             remember_entity(b, subj, subj);
             char msg[256];
             /* La frase la sceglie il numero di ruoli, e le frasi stanno in KB:
@@ -6088,6 +6129,61 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
          * E' additivo: i passaggi per token restano intatti sotto, quindi
          * niente di cio' che funzionava smette. Le frasi si provano PRIMA
          * perche' sono piu' specifiche. */
+        /* G3 — «IL PRIMO» E' UN RIFERIMENTO, NON UN NOME.
+         *
+         * Chi chiede «dov'e' il primo?» non nomina una cosa: nomina una
+         * POSIZIONE nel discorso. Il C non sa che cosa voglia dire essere
+         * primo — legge `ordinal_reference/3` e cerca il referente a quella
+         * posizione. Una lingua nuova, o una forma nuova, costa una riga. */
+        if (pass == 1) {
+            /* Le forme si cercano in TUTTE le lingue dichiarate, non solo in
+             * quella del turno: la canonicalizzazione puo' aver gia' tradotto
+             * «il primo» in «the first», e filtrare per lingua corrente
+             * cercherebbe la forma che il turno non ha piu'. */
+            char (*langs)[KB_TERM_LEN] = NULL; size_t nlang = 0;
+            const char *lq[3] = { NULL, NULL, NULL };
+            kb_match_all(b->kb, "ordinal_reference", lq, 3, &langs, &nlang);
+            for (size_t li = 0; li < nlang; li++) {
+                char (*ords)[KB_TERM_LEN] = NULL; size_t nord = 0;
+                const char *oq[3] = { langs[li], NULL, NULL };
+                if (!kb_match_all(b->kb, "ordinal_reference", oq, 3, &ords, &nord)) {
+                    free(ords); continue;
+                }
+                for (size_t oi = 0; oi < nord; oi++) {
+                    char sb[KB_TERM_LEN];
+                    snprintf(sb, sizeof sb, "%s", ords[oi]);
+                    const char *surface = kb_dequote(sb);
+                    if (!*surface || !cue(norm, surface)) continue;
+                    char pos[1][KB_TERM_LEN];
+                    const char *pq2[3] = { langs[li], ords[oi], NULL };
+                    if (kb_match(b->kb, "ordinal_reference", pq2, 3, pos, 1) != 1)
+                        continue;
+                    char keyrow[1][KB_TERM_LEN];
+                    const char *rq[2] = { pos[0], NULL };
+                    if (kb_match(b->kb, "referent_at", rq, 2, keyrow, 1) != 1)
+                        continue;
+                    char ans[16][KB_TERM_LEN]; size_t na;
+                    const char *fw[2] = { keyrow[0], NULL };
+                    na = allow_arg1 ? kb_match(b->kb, pred, fw, 2, ans, 16) : 0;
+                    if (na == 0 && allow_arg2) {
+                        const char *bw[2] = { NULL, keyrow[0] };
+                        na = kb_match(b->kb, pred, bw, 2, ans, 16);
+                    }
+                    if (na > 0) {
+                        char pretty[KB_TERM_LEN];
+                        snprintf(pretty, sizeof pretty, "%s", kb_dequote(ans[0]));
+                        for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
+                        kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
+                                        { "value", pretty } }, 1, out, out_size);
+                        free(ords); free(langs); free(preds); free(cues);
+                        return 1;
+                    }
+                }
+                free(ords);
+            }
+            free(langs);
+        }
+
         /* ULTIMA RISORSA, non prima scelta. Messo davanti ai passaggi per
          * token faceva rivendicare a questo modulo dei turni DICHIARATIVI —
          * «homer wrote the odyssey» riceveva una risposta invece di diventare
@@ -13337,10 +13433,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             const char *subj = w[0];
             const char *args[] = {subj, obj};
             char msg[160];
-            if (kb_assert(b->kb, rel, args, 2))
+            if (kb_assert(b->kb, rel, args, 2)) {
                 kb_term_say(b, "learned_binary_fact", (const KbResponseSlot[]){
                                 { "pred", rel }, { "arg1", subj }, { "arg2", obj } },
                             3, msg, sizeof msg);
+            }
             else
                 kb_term_say(b, "i_couldn_t_store_that", NULL, 0, msg, sizeof msg);
             put(msg, out, out_size);

@@ -201,6 +201,60 @@ segment_role(non_goal, "fuori ambito").
 % davanti («libro rosso»), l'inglese dietro («red book»). Una lingua nuova costa
 % una riga.
 machinery(noun_phrase_head_position).
+% ── G3: LO SPAZIO DEI REFERENTI ───────────────────────────────────────────
+%
+% Un'entita' introdotta in un dialogo non e' solo una chiave: e' un REFERENTE,
+% e occupa una posizione nel discorso. Senza quella posizione «il primo», «il
+% secondo», «quello» non hanno niente a cui attaccarsi — ed e' il motivo per cui
+% la coreferenza e' la famiglia peggiore del corpus.
+%
+% Il referente e' deliberatamente povero: ordine di introduzione e chiave. Testa
+% e proprieta' si ricavano dalla chiave (G2), la superficie originale e' ancora
+% persa (G5). Poco, ma e' il primo posto in cui il dialogo ha una MEMORIA di
+% quali cose sono state nominate e in che ordine.
+machinery(discourse_referent).
+machinery(discourse_referent_observe).
+machinery(discourse_referent_count).
+machinery(ordinal_reference).
+machinery(referent_at).
+machinery(referent_known).
+
+% Quali parole nominino una posizione e' conoscenza, e la classe e' aperta: una
+% lingua nuova, o una forma nuova, costa una riga.
+% La forma e' NUDA, senza determinante: il determinante viene canonicalizzato
+% («il» -> «the») e una forma che lo contenesse non combacerebbe piu' con il
+% turno che l'ha prodotta. E' lo stesso principio della cue di SC2-B — la
+% superficie che si dichiara dev'essere quella che sopravvive al percorso.
+% E la classe contiene anche la forma che la CANONICALIZZAZIONE produce: «primo»
+% arriva al matcher come «prime», «secondo» resta «second», «terzo» resta
+% «terzo». Non e' una duplicazione: e' la stessa disciplina di SC2-B — la
+% superficie che si dichiara dev'essere quella che sopravvive al percorso, e qui
+% il percorso ne produce due. Finche' la canonicalizzazione non conserva anche
+% l'originale (G5), questa classe le tiene entrambe.
+ordinal_reference(en, "prime", 1).
+ordinal_reference(it, "primo", 1).
+ordinal_reference(it, "prima", 1).
+ordinal_reference(it, "secondo", 2).
+ordinal_reference(it, "seconda", 2).
+ordinal_reference(it, "terzo", 3).
+ordinal_reference(en, "first", 1).
+ordinal_reference(en, "second", 2).
+ordinal_reference(en, "third", 3).
+
+% Quale posizione di un fatto INTRODUCA un referente e' una politica, non una
+% scelta del C. In «Il libro rosso e' sul tavolo» sono nominati due oggetti, ma
+% quello di cui si sta parlando e' il primo: chi chiede «dov'e' il primo?»
+% intende la prima cosa di cui si e' parlato, non la prima parola pronunciata.
+% Una relazione con un'altra geometria dichiara una riga diversa.
+machinery(referent_arg_position).
+referent_arg_position(1).
+
+referent_known($Key) :- discourse_referent($Order, $Key).
+discourse_referent_observe($Key, $Order) :-
+    naf(referent_known($Key)),
+    assert(discourse_referent, $Order, $Key).
+referent_at($Order, $Key) :- discourse_referent($Order, $Key).
+
 noun_phrase_head_position(it, first).
 noun_phrase_head_position(en, last).
 
