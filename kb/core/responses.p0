@@ -874,4 +874,4 @@ response_template(tool_result, "{label}: {result}").
 response_template(tool_result, it, "{label}: {result}").
 response_template(tool_result_empty, "{label}: {result}.").
 response_template(tool_result_empty, it, "{label}: {result}.").
-response_template(ambiguous_description, it, "Quale? {options}").
+response_template(ambiguous_description, it, "Ce n'e' piu' di uno — {options}. Quale intendi?").

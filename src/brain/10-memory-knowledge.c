@@ -6234,13 +6234,32 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                          * fatto che abbiamo capito la descrizione e trovato piu'
                          * di un candidato: chiedere quale e' la risposta giusta,
                          * non un ripiego. */
-                        char opts[256]; size_t o = 0;
-                        for (size_t z = 0; z < namb && o + 2 < sizeof opts; z++) {
+                        /* MISURATO SULL'ORACOLO (tests/sym/reference-2026-08-31):
+                         * davanti a due candidati un LLM non TRATTIENE cio' che
+                         * sa mentre chiede. Dice «il rosso e' sul tavolo, il blu
+                         * sulla mensola — quale intendi?»: prima risponde per
+                         * ciascuno, poi chiede. Chiedere e basta e' corretto e
+                         * avaro; questo e' corretto e utile. */
+                        char opts[512]; size_t o = 0;
+                        for (size_t z = 0; z < namb && o + 4 < sizeof opts; z++) {
                             char pz[KB_TERM_LEN];
                             snprintf(pz, sizeof pz, "%s", kb_dequote(amb[z]));
                             for (char *c = pz; *c; c++) if (*c == '_') *c = ' ';
+                            char va[8][KB_TERM_LEN]; size_t nv = 0;
+                            const char *vf[2] = { amb[z], NULL };
+                            if (allow_arg1) nv = kb_match(b->kb, pred, vf, 2, va, 8);
+                            if (nv == 0 && allow_arg2) {
+                                const char *vb[2] = { NULL, amb[z] };
+                                nv = kb_match(b->kb, pred, vb, 2, va, 8);
+                            }
+                            char vz[KB_TERM_LEN] = "";
+                            if (nv > 0) {
+                                snprintf(vz, sizeof vz, "%s", kb_dequote(va[0]));
+                                for (char *c = vz; *c; c++) if (*c == '_') *c = ' ';
+                            }
                             o += (size_t)snprintf(opts + o, sizeof opts - o,
-                                                  "%s%s", z ? ", " : "", pz);
+                                                  "%s%s%s%s", z ? "; " : "", pz,
+                                                  vz[0] ? ": " : "", vz);
                         }
                         kb_term_say(b, "ambiguous_description",
                                     (const KbResponseSlot[]){

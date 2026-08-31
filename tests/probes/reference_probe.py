@@ -23,7 +23,7 @@ Uso:
   python3 tests/probes/reference_probe.py --no-llm      # solo parrot0
 """
 from __future__ import annotations
-import argparse, json, os, re, subprocess, sys
+import argparse, json, os, re, subprocess, sys, time
 import urllib.request, urllib.error
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -66,26 +66,50 @@ DIALOGUES = [
 ]
 
 
-def call_oracle(key: str, model: str, turns: list[str]) -> list[str]:
-    msgs = [{"role": "system", "content": SYS}]
-    out = []
-    for t in turns:
-        msgs.append({"role": "user", "content": t})
-        body = json.dumps({"model": model, "max_tokens": 400,
-                           "temperature": 0.2, "messages": msgs}).encode()
+def _post(key: str, model: str, msgs: list[dict], budget: int) -> str:
+    """Un turno all'oracolo, con due accortezze imparate misurando.
+
+    1. Su questo endpoint i modelli REASONING (kimi-k2.6, kimi-k2.5) spendono
+       token in `reasoning` e lasciano `content` nullo se il budget finisce
+       prima: un `max_tokens` stretto non produce una risposta breve, produce
+       NESSUNA risposta, e la si scambierebbe per un rifiuto. Per questa sonda
+       serve il contrario — l'LLM «puro», che risponde e basta — quindi il
+       default e' `minimax-m2.5`, che restituisce `content` direttamente.
+    2. L'endpoint risponde 403 in modo intermittente. Un tentativo solo
+       registrerebbe un errore di trasporto come se fosse una mossa del
+       modello, che e' il modo piu' facile di sbagliare una sonda.
+    """
+    body = json.dumps({"model": model, "max_tokens": budget,
+                       "temperature": 0.2, "messages": msgs}).encode()
+    last = ""
+    for attempt in range(4):
         req = urllib.request.Request(BASE, data=body, method="POST", headers={
             "Authorization": f"Bearer {key}", "Content-Type": "application/json",
             "User-Agent": "parrot0-reference-probe/1.0"})
         try:
-            with urllib.request.urlopen(req, timeout=180) as r:
+            with urllib.request.urlopen(req, timeout=240) as r:
                 d = json.loads(r.read())
-            c = d["choices"][0]["message"]["content"] or ""
+            m = d["choices"][0]["message"]
+            c = m.get("content") or ""
+            if not c and m.get("reasoning"):
+                # Ha pensato e non ha concluso: e' un budget corto, non una
+                # risposta. Lo si dice invece di spacciare il pensiero per mossa.
+                c = "[solo reasoning, budget esaurito]"
+            return " ".join(re.sub(r"<think>.*?</think>", "", c, flags=re.S).split())[:600]
         except urllib.error.HTTPError as e:
-            c = f"[model error {e.code}]"
+            last = f"[model error {e.code}]"
         except Exception as e:
-            c = f"[model error {e}]"
-        c = re.sub(r"<think>.*?</think>", "", c, flags=re.S)
-        c = " ".join(c.split())[:400]
+            last = f"[model error {e}]"
+        time.sleep(2 + attempt * 2)
+    return last
+
+
+def call_oracle(key: str, model: str, turns: list[str], budget: int) -> list[str]:
+    msgs = [{"role": "system", "content": SYS}]
+    out = []
+    for t in turns:
+        msgs.append({"role": "user", "content": t})
+        c = _post(key, model, msgs, budget)
         msgs.append({"role": "assistant", "content": c})
         out.append(c)
     return out
@@ -110,7 +134,12 @@ def ask_parrot0(turns: list[str]) -> list[str]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", default="gpt-5.6-luna")
+    ap.add_argument("--model", default="minimax-m2.5",
+                    help="preferire un instruct NON-reasoning: un modello che "
+                         "pensa spende il budget prima di rispondere, e la "
+                         "risposta vuota si scambia per un rifiuto")
+    ap.add_argument("--budget", type=int, default=2500,
+                    help="max_tokens: un modello reasoning ne spende molti prima di rispondere")
     ap.add_argument("--no-llm", action="store_true")
     args = ap.parse_args()
     key = os.environ.get("OPENCODE_API_KEY", "")
@@ -121,7 +150,7 @@ def main() -> int:
         # Meglio scoprirlo subito che a meta' sonda: una chiave presente non e'
         # una chiave autorizzata, e un referto pieno di «[model error]» non e'
         # un confronto, e' rumore.
-        probe = call_oracle(key, args.model, ["ok"])
+        probe = call_oracle(key, args.model, ["di' solo: ok"], args.budget)
         if probe and probe[0].startswith("[model error"):
             print(f"oracolo non raggiungibile ({probe[0]}): proseguo con --no-llm",
                   file=sys.stderr)
@@ -132,7 +161,7 @@ def main() -> int:
         print(f"### {name}\n  osservo: {watching}")
         pr = ask_parrot0(turns)
         pr += [""] * (len(turns) - len(pr))
-        lr = [""] * len(turns) if args.no_llm else call_oracle(key, args.model, turns)
+        lr = [""] * len(turns) if args.no_llm else call_oracle(key, args.model, turns, args.budget)
         for i, t in enumerate(turns):
             print(f"  > {t}")
             print(f"    parrot0 < {pr[i] or '(vuoto)'}")
