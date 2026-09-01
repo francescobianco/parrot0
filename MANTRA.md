@@ -134,6 +134,33 @@ KB piena di righe manuali ma incapace di questo ciclo è grande, non fertile.
     (l'ingresso) e il #11 (il formato richiesto) c'era un buco, ed è lì che sono
     passati. L'audit e la direzione stanno in
     `docs/plans/messages-are-knowledge.md`, i residui aperti in `C_TODO.md`.
+17. **⛔ parrot0 deve poter imparare e cambiare comportamento in TUTTO ciò che
+    fa — e questo include la decisione di CHI prende il turno.** È il corollario
+    diretto di «tutto è KB»: se una condotta non è conoscenza, non è
+    correggibile parlando, e allora non è conoscenza. Non ci sono eccezioni
+    privilegiate — né il dispatch, né le guardie, né le priorità fra moduli.
+
+    **Il test, nella forma che F. ha dato il 2026-09-01:** un dirottamento si
+    deve poter riparare *dicendolo*, con una frase del tipo «il generatore di
+    poesie non deve rispondere se non c'è anche X». Non è la forma a contare —
+    è che la condotta sia **oggetto di discorso**. Se per correggere un modulo
+    che ruba il turno bisogna ricompilare, quella condotta sta nel posto
+    sbagliato esattamente come ci stava una lista di parole.
+
+    **Attenzione — questo mantra è nato perché i sedici precedenti non lo
+    coprivano, e per la stessa ragione strutturale del #16.** Il #2 nomina
+    l'INGRESSO (trigger, cue, sinonimi); il #16 nomina l'USCITA (le frasi). In
+    mezzo c'è la CONDOTTA — quando un modulo rivendica, con quale priorità, sotto
+    quali guardie — e nessuno dei due la vede: una guardia non ha «membri» da
+    imparare domani e non è «testo rivolto all'interlocutore», quindi passa in
+    silenzio attraverso entrambi i test invece di fallirli. È lo stesso buco del
+    #16, un piano più su.
+
+    **Il criterio operativo:** ogni `if` nel C che decide *se* un modulo prende
+    il turno deve poggiare su un fatto interrogabile (`move_policy/2`,
+    `claim_guard/…`), mai su una condizione cablata. E la prova non è che il
+    fatto esista: è che **parlando** si possa cambiarlo e che valga dal turno
+    dopo. Un turno rubato è un bug di conoscenza, non di codice.
 
 ## Evoluzione KB richiesta per LLMSCORE-max
 

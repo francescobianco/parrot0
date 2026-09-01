@@ -156,6 +156,57 @@ assert/retract (or equivalent ablation) showing that the same compiled engine
 acquires and loses a surface form when its KB fact is added and removed. A
 fixed input/output golden by itself proves behaviour, not KB-first architecture.
 
+## Cardinal corollary, second half: conduct is knowledge too
+
+*Added 2026-09-01, on F.'s framing.*
+
+The corollary above says the **lexicon** learns while the engine stays fixed. That
+is the half this project has been good at. The other half was never written down,
+and its absence has been costing us silently:
+
+> parrot0 must be able to **learn and change its behaviour in everything it
+> does** — including *which* faculty takes the turn.
+
+This is not an extra ambition bolted onto "everything is KB". It is an
+**implication** of it. If a conduct is not knowledge, it cannot be corrected by
+talking; and a conduct that cannot be corrected by talking is not knowledge. The
+two statements are the same statement.
+
+### Why this is the hardest half, and why it hid
+
+A *word list* announces itself: someone reads `if (!strcmp(w, "and"))` and knows
+it is wrong. A *conduct* does not. `if (has_marker && nw > 3) return claim();`
+looks like mechanism — like slot binding, like the ordering algorithm the
+corollary above explicitly permits to live in C. It is not. Deciding **when a
+faculty is entitled to answer** is a judgement about language, and it is exactly
+the judgement a user is best placed to correct, because they are the one being
+answered wrongly.
+
+The symptom has a name in this project: the **stolen turn**. A declarative
+sentence gets a poem; a question gets a fiction fragment. Today the repair is a
+recompile. It should be a sentence.
+
+### The test
+
+Not "is there a fact for it?" but:
+
+> Can the user **say** that this faculty overreached, in their own words, and
+> does it hold from the next turn?
+
+The shape of the sentence does not matter — F.'s example was *«il generatore di
+poesie non deve rispondere se non c'è anche X»* and was offered explicitly as a
+concept, not a form. What matters is that the conduct is an **object of
+discourse**: nameable, questionable, correctable.
+
+### What it forbids
+
+Any `if` in C that decides *whether* a module claims the turn must rest on a
+queryable fact. Not because facts are tidier, but because a hardcoded guard is a
+conduct parrot0 can never be argued out of — and an interlocutor who cannot argue
+with you about how you behave is not talking to a learner. It is the impostor
+shape again, one level up from the phrasebook: not a fixed vocabulary, a **fixed
+character**.
+
 ## Identity & self-reflection — "I know that I am"
 
 The architecture must include **structures for representing and reasoning about
