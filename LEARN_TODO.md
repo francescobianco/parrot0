@@ -330,10 +330,25 @@ dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
 1. **✅ Mossa #5 + GD13** — chiuse il 2026-09-01 come
    `information_need`: una richiesta di chiarimento e una di conoscenza, con
    superfici/strategie/rese KB e gate runtime.
-2. **▶ GD11 — PROSSIMA** — la risposta segue la lingua del turno. Piccola e molto visibile:
+2. **✅ GD11 — chiusa 2026-09-01.** L'ack di un fatto appreso segue la lingua del
+   turno. Misurato al momento della correzione: **715 famiglie di
+   `response_template` su 881 non avevano una resa italiana** — l'81%. Il motore
+   era a posto (`kb_response_slots` preferisce gia' `/3` per la lingua del
+   turno), mancavano le righe, ed e' **la seconda volta** che questa classe si
+   presenta: `tests/p0t/reply_language.p0t` la fissava gia' dal 2026-08-28 su
+   un'altra famiglia. Ratchet esteso li', 19 assert.
+   **Regola trovata e da dire:** la lingua di una resa insegnata e' quella della
+   FRASE CHE LA INSEGNA — chi insegna in inglese una resa italiana non se ne
+   accorge, perche' la riga atterra in inglese e resta correttamente in ombra.
+   **Debito misurato aperto:** un turno che impara un fatto costa ~1,0-1,5 s
+   contro un budget di 1,0 s, ed e' **pre-esistente** (verificato sul binario
+   precedente: 1,04 s). I nuovi blocchi dichiarano `!timeout 4` con la misura
+   accanto; il debito e' D21 / §10 del piano frontier.
+3. **▶ GD12 — PROSSIMA** — il possessivo introduce un referente recuperabile.
+   ~~la risposta segue la lingua del turno~~ Piccola e molto visibile:
    oggi una frase italiana riceve una cornice inglese con dentro parole
    italiane.
-3. **GD12** — il possessivo introduce un referente recuperabile: è il cassetto
+4. **GD12** — il possessivo introduce un referente recuperabile: è il cassetto
    senza maniglia su un frame che G1/G2 non hanno toccato.
 4. **G4 / GD4** — coreferenza: mosse #2, #4, #6 insieme. È l'anello che il
    corpus chiede più di ogni altro (F03: 24 muri su 30).

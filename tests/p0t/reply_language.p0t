@@ -30,3 +30,72 @@
 [test anche la giuntura della lingua bersaglio e' una famiglia]
 !query response_template(artifact_target_language, " in {lang}")
 !query response_template(artifact_target_language, it, " in {lang}")
+
+# ── GD11 (2026-09-01) — LA SECONDA VOLTA, SULLA STESSA CLASSE ───────────────
+#
+# F. segnala una chat reale: «il mio libro è sul tavolo» -> «Got it: your libro
+# is tavolo.» Cornice inglese su turno italiano, con dentro le parole di
+# contenuto italiane: il risultato non appartiene a nessuna delle due lingue.
+#
+# E' la stessa specie del caso qui sopra, un anno di lavoro piu' tardi, su
+# un'altra famiglia: cio' che parrot0 dice quando ha appena IMPARATO qualcosa.
+# Misurato al momento della correzione: 715 famiglie di `response_template` su
+# 881 non avevano una resa italiana. Il motore era di nuovo a posto; mancavano
+# di nuovo le righe.
+
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=it
+!reset
+
+# ⚠ IL BUDGET DI QUESTI BLOCCHI E' UNA MISURA, NON UNA COMODITA'.
+# Un turno che IMPARA un fatto costa oggi ~1,0-1,5 s, e il budget di default e'
+# 1,0 s. Verificato che e' PRE-ESISTENTE: sul binario prima di questa modifica
+# «il cane e' nel giardino» costava gia' 1,04 s, quindi non lo causano le rese
+# aggiunte qui. Alzare un timeout per far passare una regressione e'
+# l'anti-pattern; alzarlo dichiarando la misura e il debito e' un'altra cosa —
+# il debito e' registrato in LEARN_TODO (§10 del piano frontier, D21).
+[test l'ack di un fatto appreso parla la lingua del turno]
+!timeout 4
+> ciao
+> il mio libro è sul tavolo
+<~ Ricevuto: il tuo libro
+!query! response_template(got_it_your_x_is_x, it, "Got it: your {thing} is {n}.")
+> il gatto è sul tetto
+<~ Imparato: gatto si trova in tetto
+
+[test l'inglese non e' stato toccato]
+!timeout 4
+!set PARROT0_LANG=en
+!reset
+> my book is on the table
+<~ Got it: your book is table
+> the cat is on the roof
+<~ Learned: located_in(cat, roof)
+
+[test la resa cresce parlando, e la lingua e' quella della LEZIONE]
+!timeout 4
+!set PARROT0_LANG=it
+!reset
+> il gatto è sul tetto
+<~ Imparato: gatto si trova in tetto
+# La lezione detta in ITALIANO deposita una resa italiana, e vale dal turno dopo.
+> impara "Ho annotato: {subj} sta in {obj}." come una risposta per learned_located_in_x_x
+<~ prendo
+!query response_template(learned_located_in_x_x, it, "Ho annotato: {subj} sta in {obj}.")
+> il cane è nel giardino
+<~ Ho annotato: cane sta in giardino
+# LIMITE DICHIARATO, non aggirato: la stessa lezione detta in INGLESE deposita
+# una resa inglese, che su un turno italiano resta correttamente in ombra. Non
+# e' un difetto del meccanismo — e' che la lingua di una resa insegnata e' quella
+# della frase che la insegna, ed e' una regola che va DETTA: chi insegna in
+# inglese una resa italiana non se ne accorge.
+!set PARROT0_LANG=en
+!reset
+> learn "Noted down: {subj} sits in {obj}." as a reply for learned_located_in_x_x
+<~ take
+!query response_template(learned_located_in_x_x, "Noted down: {subj} sits in {obj}.")
+!query! response_template(learned_located_in_x_x, it, "Noted down: {subj} sits in {obj}.")

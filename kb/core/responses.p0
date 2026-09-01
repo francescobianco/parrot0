@@ -890,3 +890,35 @@ response_template(tool_result, it, "{label}: {result}").
 response_template(tool_result_empty, "{label}: {result}.").
 response_template(tool_result_empty, it, "{label}: {result}.").
 response_template(ambiguous_description, it, "Ce n'e' piu' di uno — {options}. Quale intendi?").
+
+% ── GD11: L'ACK DI UN FATTO APPRESO SEGUE LA LINGUA DEL TURNO ─────────────
+%
+% Misurato su una chat reale segnalata da F.: «il mio libro è sul tavolo»
+% riceveva «Got it: your libro is tavolo.» — cornice inglese su turno italiano,
+% con dentro le parole di contenuto italiane. Il risultato non appartiene a
+% nessuna delle due lingue, ed è la specie peggiore perché non somiglia a un
+% errore di conoscenza: sembra che parrot0 non parli.
+%
+% Il meccanismo per dirlo in italiano esisteva già (`response_template/3`); a
+% mancare erano le righe. Al 2026-09-01, 715 famiglie su 881 non avevano una
+% resa italiana: questa è la classe che si attraversa in una conversazione
+% ordinaria — cio' che parrot0 dice quando ha appena imparato qualcosa.
+response_template(got_it_your_x_is_x, it, "Ricevuto: il tuo {thing} e' {n}.").
+response_template(got_it_your_x_is_x_2, it, "Ricevuto: il tuo {disp} e' {val}.").
+response_template(got_it_you_x_x, it, "Ricevuto: {x} {y}.").
+response_template(learned_binary_fact, it, "Imparato: {pred}({arg1}, {arg2}).").
+response_template(learned_ternary_fact, it, "Imparato: {pred}({arg1}, {arg2}, {arg3}).").
+response_template(learned_unary_fact, it, "Imparato: {pred}({arg}).").
+response_template(learned_negative_fact, it, "Imparato: non {pred}({arg}).").
+response_template(learned_facts, it, "Imparato: {facts}.").
+response_template(learned_properties, it, "Imparato: {facts}.").
+response_template(learned_located_in_x_x, it, "Imparato: {subj} si trova in {obj}.").
+response_template(learned_part_of_x_x, it, "Imparato: {subj} fa parte di {obj}.").
+response_template(learned_holds_x, it, "Imparato: vale {x}.").
+response_template(learned_causal_relation, it, "Imparato: {cause} causa {effect}.").
+response_template(learned_created_by_x_x_x, it, "Imparato: {arg2} e' opera di {arg1} ({verb}).").
+response_template(goal_noted, it, "Annotato l'obiettivo.").
+response_template(got_it_what_would_you_like_to_do, it, "Ricevuto — cosa ti va di fare?").
+response_template(forgotten_fact, it, "Dimenticato: {pred}({arg}).").
+response_template(known_unary_fact, it, "{pred}({arg}) e' un fatto che conosco.").
+
