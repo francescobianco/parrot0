@@ -1,3 +1,21 @@
+# ── gen491 (2026-09-01) — PERCHE' LE ATTESE «Learned: pred(arg)» SONO CAMBIATE ─
+#
+# Questo file asseriva la NOTAZIONE come risposta attesa: «Learned: man(socrates).»
+# Un ratchet che congela un difetto lo difende con l'autorita' di un verde, ed
+# era il caso: la risposta principale di parrot0 non era LINGUA, e l'audit
+# dell'eco (scripts/self_echo_audit.py) ha mostrato che rileggendosi parrot0
+# chiamava la propria notazione «a snippet of code» — non la riconosceva come
+# propria.
+#
+# Le attese sono state ritirate, non allineate a un comportamento qualunque: la
+# sostituzione e' avvenuta SOLO dove il vecchio atteso era un termine e il nuovo
+# e' la frase corrispondente. L'invariante che regge il cambio sta in
+# tests/p0t/conversation/self_echo.p0t — tutto cio' che parrot0 dice deve
+# essergli comprensibile — e adesso la conferma e' un punto fisso:
+#
+#     > a whale is a mammal      →  Learned: whale is a mammal.
+#     > whale is a mammal        →  Learned: whale is a mammal.
+#
 # LA FORMA DI UN LETTERALE E' CONOSCENZA (gen427).
 #
 # Questo file esiste per una richiesta esatta di F.: «il riconoscitore di forme
@@ -101,7 +119,7 @@
 > 50perc
 <! percentage
 > the notation of percent is perc
-<~ Learned: notation_of(percent, perc)
+<~ Learned: the notation of percent is perc.
 > 50perc
 <~ 50perc is a percentage
 > 7perc
@@ -115,7 +133,7 @@
 > 14h30
 <! time of day
 > the notation of time is h
-<~ Learned: notation_of(time, h)
+<~ Learned: the notation of time is h.
 > 14h30
 <~ 14h30 is a time of day
 > 14:30
@@ -127,7 +145,7 @@
 [test il nome comune del genere e il prefisso di stipulazione]
 !reset
 > from now on the notation of percentage is pc
-<~ Learned: notation_of(percentage, pc)
+<~ Learned: the notation of percentage is pc.
 > 50pc
 <~ 50pc is a percentage
 
@@ -137,18 +155,18 @@
 [test la stessa forma insegna una relazione qualunque]
 !reset
 > the capital of nivora is bezra
-<~ Learned: capital_of(nivora, bezra)
+<~ Learned: nivora is the capital of bezra.
 > the currency of nivora is thaler
-<~ Learned: currency_of(nivora, thaler)
+<~ Learned: the currency of nivora is thaler.
 
 # gen428: due frame dichiarati in KB erano CONOSCENZA MORTA — la
 # normalizzazione della copula riscriveva «was» in «is» prima che li vedessero.
 [test i frame al passato combaciano davvero]
 !reset
 > zorak was born in nivora
-<~ Learned: born_in(zorak, nivora)
+<~ Learned: zorak was born in nivora.
 > zorak was founded in oceania
-<~ Learned: founded_in(zorak, oceania)
+<~ Learned: zorak was founded in oceania.
 
 # ── GLI ESTRATTORI DI PROSA E LE PORTE DI RISPOSTA (F., gen429) ─────────────
 #
@@ -163,9 +181,9 @@
 > zorak governs nivora
 <! Learned: governs
 > governs is a relation verb
-<~ Learned: relation_verb(governs)
+<~ Learned: governs is a relation verb.
 > zorak governs nivora
-<~ Learned: governs(zorak, nivora)
+<~ Learned: zorak governs nivora.
 
 # E la meta' che di solito manca: un fatto imparato e non interrogabile e' un
 # fatto morto. Un verbo di relazione apre PER COSTRUZIONE anche la sua porta di
@@ -183,7 +201,7 @@
 [test un marcatore di segmento si insegna parlando]
 !reset
 > howbeit is a condition marker
-<~ Learned: condition_marker(howbeit)
+<~ Learned: howbeit is a condition marker.
 !query taught_marker(condition, howbeit)
 !query segment_role(condition, keyword(howbeit))
 
@@ -193,9 +211,9 @@
 [test un numero e' un valore]
 !reset
 > the population of nivora is 40000
-<~ Learned: population_of(nivora, 40000)
+<~ Learned: the population of nivora is 40000.
 > zorak was founded in 1820
-<~ Learned: founded_in(zorak, 1820)
+<~ Learned: zorak was founded in 1820.
 
 # ── L'AUTOCORREZIONE FATTA IN DUE (F., gen430) ──────────────────────────────
 #
@@ -210,8 +228,8 @@
 > zorak governs nivora
 <~ say «governs is a relation verb»
 > governs is a relation verb
-<~ Learned: relation_verb(governs)
+<~ Learned: governs is a relation verb.
 > zorak governs nivora
-<~ Learned: governs(zorak, nivora)
+<~ Learned: zorak governs nivora.
 > who governs nivora
 <~ Zorak

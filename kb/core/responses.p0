@@ -922,3 +922,8 @@ response_template(got_it_what_would_you_like_to_do, it, "Ricevuto — cosa ti va
 response_template(forgotten_fact, it, "Dimenticato: {pred}({arg}).").
 response_template(known_unary_fact, it, "{pred}({arg}) e' un fatto che conosco.").
 
+
+% gen491 — vedi il blocco `learned_class_fact` in messages.p0 e il debito
+% dichiarato sull'articolo italiano in grammar.p0.
+response_template(learned_class_fact, it, "Imparato: {arg} è {art} {cls}.").
+response_template(class_fact_phrase, it, "{arg} è {art} {cls}").

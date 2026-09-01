@@ -223,9 +223,23 @@ response_template(family_acknowledged, it, "Grazie per avermi parlato della tua 
 response_template(weight_updated, "Ok, {kind} weight is now {value}.").
 response_template(plan_stopped_missing_action, "{prefix} stopped at step {step} {step_h} because no action_impl fact names its primitive.").
 response_template(plan_stopped_via_action, "{prefix} stopped at step {step} {step_h} via {impl}: {obs}.").
-response_template(learned_created_by_x_x_x, "Learned: created_by({subj2}, {obj2}, {canon}).").
-response_template(learned_located_in_x_x, "Learned: located_in({subj}, {obj}).").
-response_template(learned_part_of_x_x, "Learned: part_of({subj}, {obj}).").
+% ── gen491: LA CONFERMA E' UNA FRASE, NON UN TERMINE ─────────────────────────
+%
+% Queste tre righe dicevano «Learned: located_in(book, table).» — e l'audit
+% dell'eco (scripts/self_echo_audit.py) ha mostrato che rimandandogliela parrot0
+% rispondeva «That looks like a snippet of code»: non riconosceva la propria
+% notazione come propria. Due difetti in una riga sola — la risposta principale
+% non era LINGUA, e non rientrava.
+%
+% ⚠ IL TESTO QUI DEVE COMBACIARE COL PATTERN DI LETTURA della stessa relazione
+% (`extract_frame("@S is located in @O", located_in)` in grammar.p0). E' un
+% accordo fra due righe, quindi e' fragile per natura: le relazioni SENZA una
+% riga qui passano invece da `say_frame/2`, che costruisce la frase dal pattern
+% stesso e non puo' divergere. Queste tre sono la struttura secondaria piu'
+% vecchia; quando daranno fastidio si tolgono e restano solo i frame.
+response_template(learned_created_by_x_x_x, "Learned: {subj2} was created by {obj2} ({canon}).").
+response_template(learned_located_in_x_x, "Learned: {subj} is located in {obj}.").
+response_template(learned_part_of_x_x, "Learned: {subj} is part of {obj}.").
 response_template(you_haven_t_told_me_your_x_yet, "You haven't told me your {disp} yet.").
 response_template(done_i_ve_let_go_of_your_x, "Done — I've let go of your {slotname}.").
 response_template(learned_holds_x, "Learned: holds({slug}).").
@@ -757,6 +771,10 @@ response_template(taught_form_forgotten, "Forgotten - «{phrase}» is no longer 
 response_template(taught_form_not_held, "I wasn't holding «{phrase}» as {label}.").
 response_template(learned_negative_fact, "Learned: not {pred}({arg}).").
 response_template(learned_unary_fact, "Learned: {pred}({arg}).").
+% La CLASSE si dice in lingua: il sito che la usa sa gia' che il predicato unario
+% e' una classe (la sua variabile si chiama `cls`), quindi «{arg} is a {cls}» non
+% e' un'ipotesi. Il termine resta per i predicati unari che classi non sono.
+response_template(learned_class_fact, "Learned: {arg} is {art} {cls}.").
 response_template(learned_binary_fact, "Learned: {pred}({arg1}, {arg2}).").
 response_template(learned_facts, "Learned: {facts}.").
 % E quando i ruoli sono tre. Senza questa riga il motore annunciava due
@@ -783,3 +801,8 @@ response_template(the_judge_ran_it_but_it_did_not_sort_every_ve, "The judge ran 
 response_template(no_contract_authorizing_x, "I have no contract authorizing «{tool}».").
 response_template(x_needs_one_of_its_authorized_subcommands, "«{tool}» needs one of its authorized subcommands.").
 response_template(read_x_inside_the_workspace, "read {file} inside the workspace ({bytes} bytes{trunc})").
+
+% gen491 — il PEZZO di frase per un fatto di classe, senza il portante
+% «Learned: …», perche' entra in un elenco («whale is a mammal, whale is an
+% animal»). Il portante resta `learned_facts`.
+response_template(class_fact_phrase, "{arg} is {art} {cls}").

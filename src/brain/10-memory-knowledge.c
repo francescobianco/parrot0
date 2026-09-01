@@ -144,6 +144,11 @@ static int personal_slot_turn(Brain *b, const char *norm, const char *raw,
 static int parse_value(const char *s, double *out);
 
 static int p0_is_loc_prep(Brain *b, const char *t);   /* definito piu' avanti */
+static int p0_say_fact(Brain *b, const char *pred, const char *a1,
+                       const char *a2, char *out, size_t out_size);  /* piu' avanti */
+static void p0_indef_article(Brain *b, const char *word, char *out, size_t n);
+static void p0_say_class(Brain *b, const char *cls, const char *subj,
+                         char *out, size_t outsz);
 
 static int mod_memory(Brain *b, const char *norm, const char *raw,
                       char *out, size_t out_size) {
@@ -4147,10 +4152,16 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                                 { "pred", pred }, { "arg1", slot[0] },
                                 { "arg2", slot[1] }, { "arg3", slot[2] } },
                             4, msg, sizeof msg);
-            else
-                kb_term_say(b, "learned_binary_fact", (const KbResponseSlot[]){
-                                { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
-                            3, msg, sizeof msg);
+            else {
+                char said[256];
+                if (p0_say_fact(b, pred, subj, stored_obj, said, sizeof said))
+                    kb_term_say(b, "learned_facts", (const KbResponseSlot[]){
+                                    { "facts", said } }, 1, msg, sizeof msg);
+                else
+                    kb_term_say(b, "learned_binary_fact", (const KbResponseSlot[]){
+                                    { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
+                                3, msg, sizeof msg);
+            }
             put(msg, out, out_size);
             free(pats);
             return 1;
@@ -5021,6 +5032,16 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
     kb_set_origin(b->kb, prev);
 
     char msg[256];
+    char art[16];
+    p0_indef_article(b, cls, art, sizeof art);
+    if (fresh && *art) {
+        /* Qui il predicato unario E' una classe — la variabile si chiama `cls`
+         * e ci arriva dalla scansione delle classi — quindi dirla in lingua non
+         * e' un'ipotesi sul significato. */
+        kb_term_say(b, "learned_class_fact", (const KbResponseSlot[]){
+                        { "arg", mentioned }, { "art", art }, { "cls", cls } }, 3,
+                    msg, sizeof msg);
+    } else
     kb_term_say(b, fresh ? "learned_unary_fact" : "known_unary_fact",
                 (const KbResponseSlot[]){
                     { "pred", cls }, { "arg", mentioned } }, 2,
@@ -5369,8 +5390,32 @@ static int extract_class_statement(Brain *b, const char *norm,
         }
         if (kb_assert(b->kb, classes[i], ca, 1)) {
             p0_learn_source(b, classes[i], ca, 1, norm);
-            lo += (size_t)snprintf(learned + lo, sizeof learned - lo, "%s%s(%s)",
-                                   any ? ", " : "", classes[i], subj);
+            /* gen491 — LA CONFERMA E' UNA FRASE, NON UN TERMINE.
+             *
+             * `mammal(whale)` non e' lingua, e l'audit dell'eco
+             * (scripts/self_echo_audit.py) mostrava che parrot0 rileggendolo lo
+             * chiamava «a snippet of code»: non riconosceva la propria notazione
+             * come propria. Qui il predicato unario E' una classe — arriva dalla
+             * scansione delle classi — quindi dirlo in lingua non e' un'ipotesi
+             * sul significato. Quale articolo lo dice la KB. */
+            char art[16];
+            p0_indef_article(b, classes[i], art, sizeof art);
+            char pretty_s[KB_TERM_LEN], pretty_c[KB_TERM_LEN];
+            snprintf(pretty_s, sizeof pretty_s, "%s", subj);
+            snprintf(pretty_c, sizeof pretty_c, "%s", classes[i]);
+            for (char *c = pretty_s; *c; c++) if (*c == '_') *c = ' ';
+            for (char *c = pretty_c; *c; c++) if (*c == '_') *c = ' ';
+            char one[192];
+            if (*art && kb_response_slots(b, "class_fact_phrase",
+                                          (const KbResponseSlot[]){
+                                              { "arg", pretty_s }, { "art", art },
+                                              { "cls", pretty_c } }, 3,
+                                          one, sizeof one) && *one)
+                lo += (size_t)snprintf(learned + lo, sizeof learned - lo, "%s%s",
+                                       any ? ", " : "", one);
+            else
+                lo += (size_t)snprintf(learned + lo, sizeof learned - lo, "%s%s(%s)",
+                                       any ? ", " : "", classes[i], subj);
             any = 1;
         }
     }
@@ -6019,6 +6064,128 @@ static size_t p0_head_index(Brain *b, size_t nparts) {
  * relazione gia' conosce. Restituisce le risposte solo se la descrizione
  * individua UNA sola entita': due entita' compatibili sono un'ambiguita', e
  * sceglierne una sarebbe inventare che cosa intendesse chi parla. */
+/* gen491 — l'articolo indeterminativo lo sceglie la KB, non il C. */
+static void p0_indef_article(Brain *b, const char *word, char *out, size_t n) {
+    if (n == 0) return;
+    out[0] = '\0';
+    if (!b || !b->kb || !word || !*word) return;
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    char letter[2] = { (char)tolower((unsigned char)word[0]), '\0' };
+    char row[1][KB_TERM_LEN];
+    const char *bq[3] = { lang, letter, NULL };
+    if (kb_match(b->kb, "indefinite_article_before", bq, 3, row, 1) == 1) {
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", row[0]);
+        snprintf(out, n, "%s", kb_dequote(rb));
+        return;
+    }
+    const char *dq[2] = { lang, NULL };
+    if (kb_match(b->kb, "indefinite_article_default", dq, 2, row, 1) == 1) {
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", row[0]);
+        snprintf(out, n, "%s", kb_dequote(rb));
+    }
+}
+
+/* gen491 — LA CONFERMA DI UNA CLASSE, IN LINGUA E DALLA KB.
+ *
+ * I due siti che annunciavano una classe non passavano affatto dallo strato
+ * delle rese: `snprintf(msg, "Learned: %s(%s).", cls, subj)`, inglese cablato
+ * dentro il C. Due violazioni in una riga — il vocabolario nel motore (mantra
+ * #2) e una risposta che NON E' LINGUA. L'audit dell'eco l'ha isolata: parrot0
+ * rileggendosi diceva «That looks like a snippet of code».
+ *
+ * Qui il predicato unario e' certamente una classe: i chiamanti lo ricavano
+ * dalla scansione delle classi e la loro variabile si chiama `cls`. Quale
+ * articolo la preceda lo dice la KB, e la frase intera e' un `response_template`
+ * — quindi una lingua nuova non tocca questo codice. */
+static void p0_say_class(Brain *b, const char *cls, const char *subj,
+                         char *out, size_t outsz) {
+    char art[16];
+    p0_indef_article(b, cls, art, sizeof art);
+    char ps[KB_TERM_LEN], pc[KB_TERM_LEN];
+    snprintf(ps, sizeof ps, "%s", subj);
+    snprintf(pc, sizeof pc, "%s", cls);
+    for (char *c = ps; *c; c++) if (*c == '_') *c = ' ';
+    for (char *c = pc; *c; c++) if (*c == '_') *c = ' ';
+    char phrase[192];
+    if (*art && kb_response_slots(b, "class_fact_phrase",
+                                  (const KbResponseSlot[]){
+                                      { "arg", ps }, { "art", art },
+                                      { "cls", pc } }, 3,
+                                  phrase, sizeof phrase) && *phrase) {
+        kb_term_say(b, "learned_facts", (const KbResponseSlot[]){
+                        { "facts", phrase } }, 1, out, outsz);
+        return;
+    }
+    /* Senza articolo o senza resa non si inventa una frase: resta la forma a
+     * termine, che e' onesta e ispezionabile. */
+    kb_term_say(b, "learned_unary_fact", (const KbResponseSlot[]){
+                    { "pred", cls }, { "arg", subj } }, 2, out, outsz);
+}
+
+/* gen491 — DIRE UN FATTO IMPARATO IN LINGUA, NON IN NOTAZIONE.
+ *
+ * Vedi il blocco `say_frame` in kb/core/grammar.p0. Costruisce la frase con lo
+ * STESSO pattern con cui parrot0 legge quella relazione, quindi non puo'
+ * pronunciare una forma che non saprebbe rileggere.
+ *
+ * Fra piu' pattern per la stessa relazione sceglie il PIU' CORTO: i pattern
+ * lunghi sono contestuali («@S is also the fluid of all known @O in which…»),
+ * quello corto e' la forma canonica. Scegliere per lunghezza e' meccanismo, non
+ * vocabolario — il C continua a non sapere che cosa dicano.
+ *
+ * Ritorna 0 se la relazione non ha pattern: allora il chiamante resta sulla
+ * forma a termine, che e' onesta e ispezionabile, invece di inventare una frase. */
+static int p0_say_fact(Brain *b, const char *pred, const char *a1,
+                       const char *a2, char *out, size_t out_size) {
+    if (!b || !b->kb || !pred || !a1 || !a2 || !out || out_size == 0) return 0;
+    char (*pats)[KB_TERM_LEN] = NULL; size_t np = 0;
+    const char *pq[2] = { pred, NULL };
+    if (!kb_match_all(b->kb, "say_frame", pq, 2, &pats, &np) || np == 0) {
+        free(pats); return 0;
+    }
+    /* Il nome della relazione E' gia' la sua forma canonica letta a parole:
+     * `located_in` → «located in». Un pattern che la contiene e' la forma
+     * canonica; gli altri sono parafrasi («@S lies in @O») o contestuali. Senza
+     * questa preferenza l'eco non era idempotente: parrot0 confermava «is
+     * located in» e rileggendosi diceva «lies in». */
+    char canon[KB_TERM_LEN];
+    snprintf(canon, sizeof canon, "%s", pred);
+    for (char *c = canon; *c; c++) if (*c == '_') *c = ' ';
+
+    char best[KB_TERM_LEN] = ""; size_t blen = 0; int best_canon = 0;
+    for (size_t i = 0; i < np; i++) {
+        char pb[KB_TERM_LEN];
+        snprintf(pb, sizeof pb, "%s", pats[i]);
+        const char *t = kb_dequote(pb);
+        if (!*t || !strstr(t, "@S") || !strstr(t, "@O")) continue;
+        int is_canon = strstr(t, canon) != NULL;
+        size_t l = strlen(t);
+        if (!*best || (is_canon && !best_canon) ||
+            (is_canon == best_canon && l < blen)) {
+            snprintf(best, sizeof best, "%s", t); blen = l; best_canon = is_canon;
+        }
+    }
+    free(pats);
+    if (!*best) return 0;
+
+    char s1[KB_TERM_LEN], s2[KB_TERM_LEN];
+    snprintf(s1, sizeof s1, "%s", a1); snprintf(s2, sizeof s2, "%s", a2);
+    for (char *c = s1; *c; c++) if (*c == '_') *c = ' ';
+    for (char *c = s2; *c; c++) if (*c == '_') *c = ' ';
+
+    size_t o = 0; out[0] = '\0';
+    for (const char *p = best; *p && o + 1 < out_size; ) {
+        if (p[0] == '@' && (p[1] == 'S' || p[1] == 'O')) {
+            const char *v = (p[1] == 'S') ? s1 : s2;
+            o += (size_t)snprintf(out + o, out_size - o, "%s", v);
+            p += 2;
+        } else {
+            out[o++] = *p++; out[o] = '\0';
+        }
+    }
+    return out[0] != '\0';
+}
+
 /* G5 — UNA RISPOSTA SUPERATA NON SI LEGGE PIU', E NON E' STATA CANCELLATA.
  *
  * Simmetrico allo slot superato del gen420. Il fatto resta nella KB con la sua
@@ -13698,9 +13865,14 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             const char *args[] = {subj, obj};
             char msg[160];
             if (kb_assert(b->kb, rel, args, 2)) {
-                kb_term_say(b, "learned_binary_fact", (const KbResponseSlot[]){
-                                { "pred", rel }, { "arg1", subj }, { "arg2", obj } },
-                            3, msg, sizeof msg);
+                char said[256];
+                if (p0_say_fact(b, rel, subj, obj, said, sizeof said))
+                    kb_term_say(b, "learned_facts", (const KbResponseSlot[]){
+                                    { "facts", said } }, 1, msg, sizeof msg);
+                else
+                    kb_term_say(b, "learned_binary_fact", (const KbResponseSlot[]){
+                                    { "pred", rel }, { "arg1", subj }, { "arg2", obj } },
+                                3, msg, sizeof msg);
             }
             else
                 kb_term_say(b, "i_couldn_t_store_that", NULL, 0, msg, sizeof msg);
@@ -13741,7 +13913,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char msg[128];
             int before = b->has_last_goal ? goal_truth(b) : -1;
             if (kb_assert(b->kb, cl2, args, 1))
-                snprintf(msg, sizeof msg, "Learned: %s(%s).", cl2, subj);
+                p0_say_class(b, cl2, subj, msg, sizeof msg);
             else
                 kb_term_say(b, "i_couldn_t_store_that", NULL, 0, msg, sizeof msg);
             put(msg, out, out_size);
@@ -14023,8 +14195,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         note_contradiction(b, cls, subj, 1); /* gen142 (E8): self-contradiction? */
         if (kb_assert(b->kb, cls, args, 1)) {
             p0_learn_source(b, cls, args, 1, norm);   /* M1: provenance */
-            char msg[128];
-            snprintf(msg, sizeof msg, "Learned: %s(%s).", cls, subj);
+            char msg[192];
+            p0_say_class(b, cls, subj, msg, sizeof msg);
             put(msg, out, out_size);
             note_class_conflict(b, cls, subj, out, out_size);  /* gen375 */
             note_consequence(b, cls, before, out, out_size); /* gen103 (L16) */

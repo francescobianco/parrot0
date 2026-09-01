@@ -1,3 +1,21 @@
+# ── gen491 (2026-09-01) — PERCHE' LE ATTESE «Learned: pred(arg)» SONO CAMBIATE ─
+#
+# Questo file asseriva la NOTAZIONE come risposta attesa: «Learned: man(socrates).»
+# Un ratchet che congela un difetto lo difende con l'autorita' di un verde, ed
+# era il caso: la risposta principale di parrot0 non era LINGUA, e l'audit
+# dell'eco (scripts/self_echo_audit.py) ha mostrato che rileggendosi parrot0
+# chiamava la propria notazione «a snippet of code» — non la riconosceva come
+# propria.
+#
+# Le attese sono state ritirate, non allineate a un comportamento qualunque: la
+# sostituzione e' avvenuta SOLO dove il vecchio atteso era un termine e il nuovo
+# e' la frase corrispondente. L'invariante che regge il cambio sta in
+# tests/p0t/conversation/self_echo.p0t — tutto cio' che parrot0 dice deve
+# essergli comprensibile — e adesso la conferma e' un punto fisso:
+#
+#     > a whale is a mammal      →  Learned: whale is a mammal.
+#     > whale is a mammal        →  Learned: whale is a mammal.
+#
 # migrated from tests/cases/factsource.chat (gen346, hermetic + isolated)
 [mock hermetic]
 !set PARROT0_BASE=
@@ -15,14 +33,14 @@
 
 # Extract a locative fact -> it is stored WITH its source fragment.
 > France is located in Western Europe
-< Learned: located_in(france, western_europe).
+< Learned: france is located in western europe.
 # ...and the source is queryable by concept.
 > where did you learn about France?
 < I learned located_in(france, western_europe) from: "france is located in western europe".
 
 # A membership fact carries provenance too.
 > A whale is a mammal
-< Learned: mammal(whale).
+< Learned: whale is a mammal.
 > what is your source for whale?
 < I learned mammal(whale) from: "a whale is a mammal".
 

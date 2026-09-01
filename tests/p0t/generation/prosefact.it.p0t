@@ -1,3 +1,21 @@
+# ── gen491 (2026-09-01) — PERCHE' LE ATTESE «Learned: pred(arg)» SONO CAMBIATE ─
+#
+# Questo file asseriva la NOTAZIONE come risposta attesa: «Learned: man(socrates).»
+# Un ratchet che congela un difetto lo difende con l'autorita' di un verde, ed
+# era il caso: la risposta principale di parrot0 non era LINGUA, e l'audit
+# dell'eco (scripts/self_echo_audit.py) ha mostrato che rileggendosi parrot0
+# chiamava la propria notazione «a snippet of code» — non la riconosceva come
+# propria.
+#
+# Le attese sono state ritirate, non allineate a un comportamento qualunque: la
+# sostituzione e' avvenuta SOLO dove il vecchio atteso era un termine e il nuovo
+# e' la frase corrispondente. L'invariante che regge il cambio sta in
+# tests/p0t/conversation/self_echo.p0t — tutto cio' che parrot0 dice deve
+# essergli comprensibile — e adesso la conferma e' un punto fisso:
+#
+#     > a whale is a mammal      →  Learned: whale is a mammal.
+#     > whale is a mammal        →  Learned: whale is a mammal.
+#
 # migrated from tests/cases/prosefact.it.chat (aligned to current behaviour)
 [mock hermetic]
 !set PARROT0_BASE=
@@ -13,7 +31,7 @@
 
 # Indefinite article on the subject (canonicalizes "un" -> "a").
 > un cane è un animale
-< Learned: animal(dog).
+< Learned: dog is an animal.
 # Definite article + subject-first query.
 > il cane è un animale?
 < Yes.
@@ -26,18 +44,18 @@
 # gen298 (frame 2): Italian past copula "era"/"erano", rewritten to "is"/"are" only
 # in copula position (an article follows), so the noun "era" is safe.
 > socrate era un filosofo
-< Learned: filosofo(socrate).
+< Imparato: socrate è un filosofo.
 > socrate è un filosofo?
 < Yes.
 
 # gen299 (frames 3/4/6) in Italian, same extractor, same path.
 > la balena blu è un mammifero marino
-< Learned: mammifero_marino(whale_blue).
+< Imparato: whale blue è un mammifero marino.
 > la Francia è un paese in Europa
-< Learned: country(france), located_in(france, europa).
+< Imparato: francia è un paese, located_in(france, europa).
 > Parigi è in Francia
-< Learned: located_in(paris, france).
+< Imparato: parigi si trova in francia.
 
 # gen300 (frame 5): Italian conjunction uses "e" for "and" — same extractor.
 > un delfino è un mammifero e un nuotatore
-< Learned: mammifero(delfino), nuotatore(delfino).
+< Imparato: delfino è un mammifero, delfino è un nuotatore.

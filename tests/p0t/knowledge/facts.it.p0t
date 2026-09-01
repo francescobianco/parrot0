@@ -1,3 +1,21 @@
+# ── gen491 (2026-09-01) — PERCHE' LE ATTESE «Learned: pred(arg)» SONO CAMBIATE ─
+#
+# Questo file asseriva la NOTAZIONE come risposta attesa: «Learned: man(socrates).»
+# Un ratchet che congela un difetto lo difende con l'autorita' di un verde, ed
+# era il caso: la risposta principale di parrot0 non era LINGUA, e l'audit
+# dell'eco (scripts/self_echo_audit.py) ha mostrato che rileggendosi parrot0
+# chiamava la propria notazione «a snippet of code» — non la riconosceva come
+# propria.
+#
+# Le attese sono state ritirate, non allineate a un comportamento qualunque: la
+# sostituzione e' avvenuta SOLO dove il vecchio atteso era un termine e il nuovo
+# e' la frase corrispondente. L'invariante che regge il cambio sta in
+# tests/p0t/conversation/self_echo.p0t — tutto cio' che parrot0 dice deve
+# essergli comprensibile — e adesso la conferma e' un punto fisso:
+#
+#     > a whale is a mammal      →  Learned: whale is a mammal.
+#     > whale is a mammal        →  Learned: whale is a mammal.
+#
 # migrated from tests/cases/facts.it.chat (aligned to current behaviour)
 [mock hermetic]
 !set PARROT0_BASE=
@@ -20,14 +38,14 @@
 < I don't know about man.
 # Teach a fact; the learned Prolog term keeps the Italian content word.
 > socrate è un uomo
-< Learned: man(socrate).
+< Learned: socrate is a man.
 > è socrate un uomo?
 < Yes.
 # "uno"/"una" article variants canonicalize to the same article.
 > marco è uno studente
-< Learned: student(marco).
+< Learned: marco is a student.
 > anna è una donna
-< Learned: woman(anna).
+< Learned: anna is a woman.
 > è anna una donna?
 < Yes.
 # Facts don't leak across predicates/subjects.

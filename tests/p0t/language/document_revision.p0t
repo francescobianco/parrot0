@@ -1,3 +1,21 @@
+# ── gen491 (2026-09-01) — PERCHE' LE ATTESE «Learned: pred(arg)» SONO CAMBIATE ─
+#
+# Questo file asseriva la NOTAZIONE come risposta attesa: «Learned: man(socrates).»
+# Un ratchet che congela un difetto lo difende con l'autorita' di un verde, ed
+# era il caso: la risposta principale di parrot0 non era LINGUA, e l'audit
+# dell'eco (scripts/self_echo_audit.py) ha mostrato che rileggendosi parrot0
+# chiamava la propria notazione «a snippet of code» — non la riconosceva come
+# propria.
+#
+# Le attese sono state ritirate, non allineate a un comportamento qualunque: la
+# sostituzione e' avvenuta SOLO dove il vecchio atteso era un termine e il nuovo
+# e' la frase corrispondente. L'invariante che regge il cambio sta in
+# tests/p0t/conversation/self_echo.p0t — tutto cio' che parrot0 dice deve
+# essergli comprensibile — e adesso la conferma e' un punto fisso:
+#
+#     > a whale is a mammal      →  Learned: whale is a mammal.
+#     > whale is a mammal        →  Learned: whale is a mammal.
+#
 # document_revision.p0t — SC40-A: imparare cambia cio' che il testo gia' letto significa.
 #
 # La proprieta' sotto prova non e' il replay. Il documento compare UNA volta;
@@ -26,7 +44,7 @@
 # LEZIONE NATURALE. Non c'e' un secondo `read:`: la lettura osservata viene
 # ricalcolata dalla stessa fase pura e il metodo diventa eseguibile da solo.
 > warm is a relation verb
-< Learned: relation_verb(warm).
+< Learned: warm is a relation verb.
 !query last_revision_pass(relation_verb(warm), scope(selective), outcome(visited(1), changed(1)))
 !query claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
 !query! claim_normalization_gap(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, no_reading)
@@ -64,7 +82,7 @@
 # RETEACH, ancora senza rilettura. Due turni estranei misurano ritenzione e
 # l'idempotenza del pass: la comprensione non dipende dall'ultimo turno.
 > warm is a relation verb
-< Learned: relation_verb(warm).
+< Learned: warm is a relation verb.
 !query last_revision_pass(relation_verb(warm), scope(selective), outcome(visited(1), changed(1)))
 !query claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
 !query method_executable(document_a89aaeaeb2e06370_8b32e8d21149aa6b, ready)
@@ -87,7 +105,7 @@
 <~ reported claim(s)
 !query claim_normalization_gap($Claim, no_reading)
 > altered is a relation verb
-< Learned: relation_verb(altered).
+< Learned: altered is a relation verb.
 !query last_revision_pass(relation_verb(altered), scope(selective), outcome(visited(1), changed(1)))
 !query claim_frame($Claim, altered, impact, orbit)
 !query reading_depends_on($Reading, relation_verb(altered))
@@ -97,7 +115,7 @@
 <~ reported claim(s)
 !query claim_normalization_gap($Claim, no_reading)
 > perturbs is a relation verb
-< Learned: relation_verb(perturbs).
+< Learned: perturbs is a relation verb.
 !query last_revision_pass(relation_verb(perturbs), scope(selective), outcome(visited(1), changed(1)))
 !query claim_frame($Claim, perturbs, scheme, radiation_field)
 !query reading_depends_on($Reading, relation_verb(perturbs))
@@ -107,7 +125,7 @@
 <~ reported claim(s)
 !query claim_normalization_gap($Claim, no_reading)
 > distorts is a relation verb
-< Learned: relation_verb(distorts).
+< Learned: distorts is a relation verb.
 !query last_revision_pass(relation_verb(distorts), scope(selective), outcome(visited(1), changed(1)))
 !query claim_frame($Claim, distorts, confounding, association)
 !query reading_depends_on($Reading, relation_verb(distorts))
@@ -116,7 +134,7 @@
 # CONTRASTO: imparare un quarto verbo non inventa letture con quel predicato
 # per testi che non lo contengono.
 > catalyzes is a relation verb
-< Learned: relation_verb(catalyzes).
+< Learned: catalyzes is a relation verb.
 !query last_revision_pass(relation_verb(catalyzes), scope(selective), outcome(visited(0), changed(0)))
 !query! claim_frame($Claim, catalyzes, $Subject, $Object)
 
@@ -126,7 +144,7 @@
 # `bound` e' una superficie verbale vera, ma il suo participio non si deriva
 # da `-ed`. Le tre claim compaiono UNA volta e partono tutte dal gap.
 > bound is a relation verb
-< Learned: relation_verb(bound).
+< Learned: bound is a relation verb.
 > read: https://www.ncbi.nlm.nih.gov/books/NBK54103/ The evidence shows that oxygen was bound by hemoglobin.
 <~ 1 reported claim(s)
 > read: https://www.ncbi.nlm.nih.gov/books/NBK27160/ The evidence shows that antigen was bound by antibody.
@@ -141,7 +159,7 @@
 # UNA lezione morfologica apre tutte e tre le letture gia' osservate. Il
 # receipt prova che il delta e' la radice insegnabile, non un full scan.
 > bound is an irregular participle
-< Learned: irregular_participle(bound).
+< Learned: bound is an irregular participle.
 !query last_revision_pass(license(irregular_participle(bound)), scope(selective), outcome(visited(3), changed(3)))
 !query claim_frame($Claim, bound, hemoglobin, oxygen)
 !query claim_frame($Claim, bound, antibody, antigen)
@@ -182,7 +200,7 @@
 > was it observed that oxygen was bound by hemoglobin?
 < I recognize this as a observed verification question, but I cannot normalize its proposition yet.
 > bound is an irregular participle
-< Learned: irregular_participle(bound).
+< Learned: bound is an irregular participle.
 !query last_revision_pass(license(irregular_participle(bound)), scope(selective), outcome(visited(3), changed(3)))
 !query claim_frame($Claim, bound, hemoglobin, oxygen)
 !query claim_frame($Claim, bound, antibody, antigen)
@@ -195,7 +213,7 @@
 # verbo viene ritratto, la costruzione resta una licenza sufficiente: il
 # significato non cambia, ma la genealogia si'.
 > glorphs is a relation verb
-< Learned: relation_verb(glorphs).
+< Learned: glorphs is a relation verb.
 > x glints y means x glorphs y
 <~ I learned a candidate construction
 > read: https://example.org/sc41-support The data show that mira glints kora.

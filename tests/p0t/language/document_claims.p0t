@@ -1,3 +1,21 @@
+# ── gen491 (2026-09-01) — PERCHE' LE ATTESE «Learned: pred(arg)» SONO CAMBIATE ─
+#
+# Questo file asseriva la NOTAZIONE come risposta attesa: «Learned: man(socrates).»
+# Un ratchet che congela un difetto lo difende con l'autorita' di un verde, ed
+# era il caso: la risposta principale di parrot0 non era LINGUA, e l'audit
+# dell'eco (scripts/self_echo_audit.py) ha mostrato che rileggendosi parrot0
+# chiamava la propria notazione «a snippet of code» — non la riconosceva come
+# propria.
+#
+# Le attese sono state ritirate, non allineate a un comportamento qualunque: la
+# sostituzione e' avvenuta SOLO dove il vecchio atteso era un termine e il nuovo
+# e' la frase corrispondente. L'invariante che regge il cambio sta in
+# tests/p0t/conversation/self_echo.p0t — tutto cio' che parrot0 dice deve
+# essergli comprensibile — e adesso la conferma e' un punto fisso:
+#
+#     > a whale is a mammal      →  Learned: whale is a mammal.
+#     > whale is a mammal        →  Learned: whale is a mammal.
+#
 # document_claims.p0t — SC2-A: frase, claim e commitment restano separati.
 #
 # Fonti vere e parafrasi corte:
@@ -31,7 +49,7 @@
 
 # La menzione quotata conserva la locuzione esatta attraverso learn/query/retract.
 > "the investigators predict that" is a hypothesis report marker.
-< Learned: hypothesis_report_marker("the investigators predict that").
+< Learned: "the investigators predict that" is a hypothesis_report_marker.
 > Is "the investigators predict that" a hypothesis report marker?
 < Yes.
 > forget that "the investigators predict that" is a hypothesis report marker
@@ -43,11 +61,11 @@
 [test source addressed claims status and ablation]
 !timeout 60
 > "the investigators predict that" is a hypothesis report marker.
-< Learned: hypothesis_report_marker("the investigators predict that").
+< Learned: "the investigators predict that" is a hypothesis_report_marker.
 > "the measurements indicate that" is an observation report marker.
-< Learned: observation_report_marker("the measurements indicate that").
+< Learned: "the measurements indicate that" is an observation_report_marker.
 > "the model outputs show that" is a simulation result marker.
-< Learned: simulation_result_marker("the model outputs show that").
+< Learned: "the model outputs show that" is a simulation_result_marker.
 
 # REPLAY: una ipotesi attribuita e un risultato simulato non diventano fatti
 # del mondo. URI + fingerprint generano lo stesso document id fra processi.
@@ -105,7 +123,7 @@
 
 # RETEACH riattiva la vista sul documento gia' osservato, senza rileggerlo.
 > "the investigators predict that" is a hypothesis report marker.
-< Learned: hypothesis_report_marker("the investigators predict that").
+< Learned: "the investigators predict that" is a hypothesis_report_marker.
 !query claim_status(document_0246e706600fd069_ed942df7bdb84575_unit_0_claim_0, hypothesized)
 !query claim_commitment(document_0246e706600fd069_ed942df7bdb84575_unit_0_claim_0, attributed_only)
 
@@ -146,9 +164,9 @@
 [test sc2b il marker apre la claim, il contenuto resta superficie]
 !timeout 90
 > "the investigators predict that" is a hypothesis report marker.
-< Learned: hypothesis_report_marker("the investigators predict that").
+< Learned: "the investigators predict that" is a hypothesis_report_marker.
 > "the measurements indicate that" is an observation report marker.
-< Learned: observation_report_marker("the measurements indicate that").
+< Learned: "the measurements indicate that" is an observation_report_marker.
 > read: https://ntrs.nasa.gov/citations/20230015804 The investigators predict that a kinetic impactor deflected an asteroid. The measurements indicate that DART slowed the orbital period.
 <~ Mapped 2 document unit(s), 2 reported claim(s), and 2 live epistemic status(es)
 # Nessun verbo di relazione noto: la claim resta intera e il fallimento e'
@@ -166,9 +184,9 @@
 [test sc2b la lezione normalizza il remainder e non lo committa mai]
 !timeout 90
 > slowed is a relation verb
-< Learned: relation_verb(slowed).
+< Learned: slowed is a relation verb.
 > deflected is a relation verb
-< Learned: relation_verb(deflected).
+< Learned: deflected is a relation verb.
 # REPLAY del turno che prima lasciava un gap.
 > read: https://ntrs.nasa.gov/citations/20230015804 The investigators predict that a kinetic impactor deflected an asteroid. The measurements indicate that DART slowed the orbital period.
 <~ 2 proposition(s) normalized in quarantine
@@ -200,13 +218,13 @@
 [test sc2b transfer su tre fonti reali mai usate per progettare la lezione]
 !timeout 120
 > "the model outputs show that" is a simulation result marker.
-< Learned: simulation_result_marker("the model outputs show that").
+< Learned: "the model outputs show that" is a simulation_result_marker.
 > raised is a relation verb
-< Learned: relation_verb(raised).
+< Learned: raised is a relation verb.
 > weakened is a relation verb
-< Learned: relation_verb(weakened).
+< Learned: weakened is a relation verb.
 > increased is a relation verb
-< Learned: relation_verb(increased).
+< Learned: increased is a relation verb.
 
 > read: https://gmd.copernicus.org/articles/13/1959/2020/ The investigators predict that higher resolution raised forecast skill. The model outputs show that higher resolution raised precipitation skill.
 <~ 2 proposition(s) normalized in quarantine
@@ -283,7 +301,7 @@
 [test sc2b reteach e retention]
 !timeout 90
 > "the measurements indicate that" is an observation report marker.
-< Learned: observation_report_marker("the measurements indicate that").
+< Learned: "the measurements indicate that" is an observation_report_marker.
 !query claim_status(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0, observed)
 !query holds_in(context(document_0246e706600fd069_017fecedd77de3ab_unit_1_claim_0), proposition(frame(slowed, roles(subject(dart), object(orbital_period)))))
 # Cinque turni pertinenti ma diversi, poi la stessa conoscenza.
@@ -322,9 +340,9 @@
 [test sc2c attivo e passivo convergono su un solo frame]
 !timeout 90
 > slowed is a relation verb
-< Learned: relation_verb(slowed).
+< Learned: slowed is a relation verb.
 > "the measurements indicate that" is an observation report marker.
-< Learned: observation_report_marker("the measurements indicate that").
+< Learned: "the measurements indicate that" is an observation_report_marker.
 # Solo la forma ATTIVA viene letta.
 > read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that DART slowed the orbital period.
 <~ 1 proposition(s) normalized in quarantine
@@ -361,7 +379,7 @@
 [test sc2c il residuo non letto dice contro che cosa si e' fermato]
 !timeout 90
 > "the investigators predict that" is a hypothesis report marker.
-< Learned: hypothesis_report_marker("the investigators predict that").
+< Learned: "the investigators predict that" is a hypothesis_report_marker.
 # MODALITA': era un residuo tipizzato in SC2-C ed e' diventata un operatore
 # letto in SC2-D — vedi il blocco piu' sotto. Qui resta la coordinata che non
 # cambia: la superficie della claim e' conservata per intero comunque vada la
@@ -391,7 +409,7 @@
 <! normalized in quarantine
 !query claim_normalization_gap(document_0246e706600fd069_58ad604f8c187c9c_unit_0_claim_0, no_reading)
 > slowed is a relation verb
-< Learned: relation_verb(slowed).
+< Learned: slowed is a relation verb.
 > read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that the orbital period was slowed by the impactor.
 <~ 1 proposition(s) normalized in quarantine
 !query claim_frame(document_0246e706600fd069_58ad604f8c187c9c_unit_0_claim_0, slowed, impactor, orbital_period)
@@ -415,9 +433,9 @@
 [test sc2d il modale si stacca e resta detto]
 !timeout 90
 > "the investigators predict that" is a hypothesis report marker.
-< Learned: hypothesis_report_marker("the investigators predict that").
+< Learned: "the investigators predict that" is a hypothesis_report_marker.
 > shorten is a relation verb
-< Learned: relation_verb(shorten).
+< Learned: shorten is a relation verb.
 > read: https://ntrs.nasa.gov/citations/20230015804 The investigators predict that a kinetic impactor can shorten an asteroid orbit.
 <~ 1 proposition(s) normalized in quarantine
 # IL MODALE NON E' PIU' DENTRO IL SOGGETTO.
@@ -445,7 +463,7 @@
 # (`produces` -> `produce`); per uno al passato e' una lezione, e il motivo e'
 # misurato: derivarla a ogni lettura sfondava il budget di latenza del turno.
 > improve is a relation verb
-< Learned: relation_verb(improve).
+< Learned: improve is a relation verb.
 > read: https://gmd.copernicus.org/articles/13/1959/2020/ The investigators predict that higher resolution may improve forecast skill.
 <~ 1 proposition(s) normalized in quarantine
 !query claim_frame(document_60abb92fbf13d97b_be992d7183462b0c_unit_0_claim_0, improve, higher_resolution, forecast_skill)
@@ -455,7 +473,7 @@
 < Not as a result - that claim is reported as hypothesized, and only as possible.
 # «must» porta una forza diversa: necessita', non possibilita'.
 > survive is a relation verb
-< Learned: relation_verb(survive).
+< Learned: survive is a relation verb.
 > read: https://pmc.ncbi.nlm.nih.gov/articles/PMC5118066/ The investigators predict that a causal estimate must survive confounding.
 <~ 1 proposition(s) normalized in quarantine
 !query claim_modality(document_5c0b5aed1874ec5b_4c65721e5ef10891_unit_0_claim_0, necessary)

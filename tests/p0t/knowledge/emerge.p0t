@@ -1,3 +1,21 @@
+# ── gen491 (2026-09-01) — PERCHE' LE ATTESE «Learned: pred(arg)» SONO CAMBIATE ─
+#
+# Questo file asseriva la NOTAZIONE come risposta attesa: «Learned: man(socrates).»
+# Un ratchet che congela un difetto lo difende con l'autorita' di un verde, ed
+# era il caso: la risposta principale di parrot0 non era LINGUA, e l'audit
+# dell'eco (scripts/self_echo_audit.py) ha mostrato che rileggendosi parrot0
+# chiamava la propria notazione «a snippet of code» — non la riconosceva come
+# propria.
+#
+# Le attese sono state ritirate, non allineate a un comportamento qualunque: la
+# sostituzione e' avvenuta SOLO dove il vecchio atteso era un termine e il nuovo
+# e' la frase corrispondente. L'invariante che regge il cambio sta in
+# tests/p0t/conversation/self_echo.p0t — tutto cio' che parrot0 dice deve
+# essergli comprensibile — e adesso la conferma e' un punto fisso:
+#
+#     > a whale is a mammal      →  Learned: whale is a mammal.
+#     > whale is a mammal        →  Learned: whale is a mammal.
+#
 # migrated from tests/cases/emerge.chat (gen346, hermetic + isolated)
 [mock hermetic]
 !set PARROT0_BASE=
@@ -13,24 +31,24 @@
 # of one class are also in another (minimum 2 support).
 # Setup: 3 dogs, 2 pets. Lassie is a dog but not a pet.
 > rex is a dog
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > fido is a dog
-< Learned: dog(fido).
+< Learned: fido is a dog.
 > lassie is a dog
-< Learned: dog(lassie).
+< Learned: lassie is a dog.
 > rex is a pet
-< Learned: pet(rex).
+< Learned: rex is a pet.
 > fido is a pet
-< Learned: pet(fido).
+< Learned: fido is a pet.
 # Rule: every pet is a dog (true). No new inductions because
 # the reverse (dog→pet) is false (lassie is a dog but not a pet).
 > every pet is a dog
 < Learned rule: dog(X) :- pet(X).
 # Add a third category shared by rex and fido but NOT lassie.
 > rex is a happy
-< Learned: happy(rex).
+< Learned: rex is a happy.
 > fido is a happy
-< Learned: happy(fido).
+< Learned: fido is a happy.
 # Rule: every pet is happy. Since all pets = rex, fido = all happy,
 # induction finds bidirectional implications with happy.
 > every pet is a happy

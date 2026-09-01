@@ -1,3 +1,21 @@
+# ── gen491 (2026-09-01) — PERCHE' LE ATTESE «Learned: pred(arg)» SONO CAMBIATE ─
+#
+# Questo file asseriva la NOTAZIONE come risposta attesa: «Learned: man(socrates).»
+# Un ratchet che congela un difetto lo difende con l'autorita' di un verde, ed
+# era il caso: la risposta principale di parrot0 non era LINGUA, e l'audit
+# dell'eco (scripts/self_echo_audit.py) ha mostrato che rileggendosi parrot0
+# chiamava la propria notazione «a snippet of code» — non la riconosceva come
+# propria.
+#
+# Le attese sono state ritirate, non allineate a un comportamento qualunque: la
+# sostituzione e' avvenuta SOLO dove il vecchio atteso era un termine e il nuovo
+# e' la frase corrispondente. L'invariante che regge il cambio sta in
+# tests/p0t/conversation/self_echo.p0t — tutto cio' che parrot0 dice deve
+# essergli comprensibile — e adesso la conferma e' un punto fisso:
+#
+#     > a whale is a mammal      →  Learned: whale is a mammal.
+#     > whale is a mammal        →  Learned: whale is a mammal.
+#
 # migrated from tests/cases/prosefact.chat (gen346, hermetic + isolated)
 [mock hermetic]
 !set PARROT0_BASE=
@@ -16,13 +34,13 @@
 
 # Leading article on the subject, as an assertion.
 > A whale is a mammal
-< Learned: mammal(whale).
+< Learned: whale is a mammal.
 # ...and queried back with the article too (verb-first).
 > is a whale a mammal?
 < Yes.
 # "The" + "an" variants.
 > The dog is an animal
-< Learned: animal(dog).
+< Learned: dog is an animal.
 > is the dog an animal?
 < Yes.
 # The payoff for deep reasoning: an extracted membership feeds a MULTI-HOP category
@@ -33,16 +51,16 @@
 < Yes.
 # Regression: a bare subject (no article) still stores the membership as before.
 > zorb is a blit
-< Learned: blit(zorb).
+< Learned: zorb is a blit.
 
 # gen298 (frame 2): PAST-TENSE copula "was/were", as Wikipedia phrases historical
 # subjects. Tenseless membership fact; combines with the leading article of frame 1.
 > Socrates was a philosopher
-< Learned: philosopher(socrates).
+< Learned: socrates is a philosopher.
 > is socrates a philosopher?
 < Yes.
 > A dinosaur was an animal
-< Learned: animal(dinosaur).
+< Learned: dinosaur is an animal.
 > is a dinosaur an animal?
 < Yes.
 # The NOUN "era" is not mistaken for a copula (no article follows), so this stays
@@ -52,16 +70,16 @@
 
 # gen299 (frame 3): MULTI-WORD subject and class join into one atom.
 > The blue whale is a marine mammal
-< Learned: marine_mammal(blue_whale).
+< Learned: blue whale is a marine mammal.
 # gen299 (frame 4): a trailing PREPOSITIONAL PHRASE yields TWO facts from one
 # sentence — the class AND a located_in edge (the seed of geographic multi-hop).
 > France is a country in Europe
-< Learned: country(france), located_in(france, europe).
+< Learned: france is a country, located_in(france, europe).
 # gen299 (frame 6): locative frames — "is located in", bare "is in", "is part of".
 > France is located in Europe
-< Learned: located_in(france, europe).
+< Learned: france is located in europe.
 > Sicily is part of Italy
-< Learned: part_of(sicily, italy).
+< Learned: sicily is part of italy.
 # A predicate adjective (no article) is NOT a membership: honest wall, not long(x).
 > the sky is blue
 < I don't understand that yet.
@@ -69,9 +87,9 @@
 # gen300 (frame 5): a CONJUNCTION of article-bearing classes -> one fact each; with
 # a trailing PP, all in one sentence.
 > A dolphin is a mammal and a swimmer
-< Learned: mammal(dolphin), swimmer(dolphin).
+< Learned: dolphin is a mammal, dolphin is a swimmer.
 > France is a country and a republic in Europe
-< Learned: country(france), republic(france), located_in(france, europe).
+< Learned: france is a country, france is a republic, located_in(france, europe).
 # The relational conjunction ("the capital and largest city of France") has no
 # article on the second conjunct, so it is left alone rather than mis-extracted.
 > Paris is the capital and largest city of France

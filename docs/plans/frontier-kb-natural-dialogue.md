@@ -5877,3 +5877,105 @@ dichiarabile in un fallimento muto.
 entità. Non è prudenza: è il significato della parola — «quello» vuol dire
 *quello di cui stiamo parlando*. E per costruzione evita lo scan globale che era
 già stato scartato altrove perché rendeva ogni turno lineare nella KB.
+
+---
+
+## §18.46 — D41: parrot0 non sapeva rileggere ciò che scrive
+
+*Registrato il 2026-09-01. È il reperto più grosso della giornata, e non lo
+stavo cercando.*
+
+```text
+> the book is on the table   →  Learned: located_in(book, table).
+> located_in(book, table)    →  That looks like a snippet of code.
+```
+
+Due difetti in una riga sola. Il primo: **la risposta principale di parrot0 non
+era lingua**, era notazione — e chi legge `located_in(book, table)` non sta
+leggendo una frase. Il secondo, peggiore: **parrot0 non riconosceva la propria
+notazione come propria**, e la classificava come codice altrui.
+
+In italiano succedeva la stessa cosa in forma più insidiosa, perché la resa *era*
+prosa: parrot0 diceva «Imparato: libro **si trova** in tavolo» e poi murava su
+«il libro si trova sul tavolo». La sua **uscita** non era nella sua **lingua
+d'ingresso**.
+
+### Perché questo difetto era invisibile alle misure
+
+I turni rubati che ne nascono sono **inattribuibili** su qualunque misura del
+corpus: il turno sembra una frase dell'utente come tutte le altre, e nessun
+conteggio di muri per famiglia può isolarlo. Solo l'eco lo separa — ed è per
+questo che serviva uno strumento, non un'ispezione.
+
+`scripts/self_echo_audit.py` insegna un fatto, prende la frase con cui parrot0
+conferma di averlo imparato, e **le rimanda indietro quella stessa frase**. Non
+misura la correttezza: misura una **chiusura**. Ha trovato quattro difetti al
+primo colpo, tre dei quali nessuno stava cercando.
+
+### L'invariante
+
+> **Tutto ciò che parrot0 dice deve essergli comprensibile.**
+
+È verificabile, non è un'impressione, e ogni resa nuova che nomina una relazione
+dovrebbe passare di lì prima di dirsi finita. La forma forte è il **punto fisso**:
+
+```text
+> a whale is a mammal   →  Learned: whale is a mammal.
+> whale is a mammal     →  Learned: whale is a mammal.
+```
+
+### La cura: dire è l'inversa di leggere
+
+La tentazione era un `relation_phrase/2` per relazione — un frasario, cioè un
+secondo elenco destinato a divergere dai pattern di lettura. Si potrebbe
+insegnare a parrot0 a **leggere** «@S is part of @O» e a **dire** tutt'altro, e
+nessuno se ne accorgerebbe.
+
+I pattern di lettura ci sono già (`extract_frame/2`), e la forma per dire una
+relazione è **esattamente la loro inversa**:
+
+```prolog
+say_frame($Predicate, $Pattern) :- extract_frame($Pattern, $Predicate).
+```
+
+Un oggetto solo invece di due copie da tenere d'accordo — la cura della forma
+ricorrente D33/D35/D37/D40 — e l'invariante dell'eco vale **per costruzione**:
+ciò che parrot0 dice è stato costruito con un pattern che parrot0 sa leggere.
+Insegnare un `extract_frame` nuovo rende la relazione dicibile senza altro.
+
+Fra più pattern vince quello che **contiene il nome della relazione letto a
+parole** (`located_in` → «located in»): senza questa preferenza l'eco non era
+idempotente — parrot0 confermava «is located in» e rileggendosi diceva «lies in».
+
+### Il vocabolario che si nascondeva nel C
+
+I due siti che annunciavano una classe non passavano affatto dallo strato delle
+rese:
+
+```c
+snprintf(msg, sizeof msg, "Learned: %s(%s).", cls, subj);
+```
+
+Inglese cablato dentro il motore, invisibile a chiunque cercasse una resa nella
+KB — il mantra #2 violato nel punto in cui ogni fatto imparato passa. Ora la
+frase è un `response_template` e l'articolo lo sceglie la KB
+(`indefinite_article_before/3`), quindi «an animal» viene giusto e una lingua
+nuova non tocca il codice.
+
+### I ratchet che difendevano il difetto
+
+Quattordici asserzioni su tre file — poi altre su tutto l'albero — attendevano
+la **notazione** come risposta corretta. Un test che congela un difetto lo
+difende con l'autorità di un verde. Sono state **ritirate**, non allineate a un
+comportamento qualunque: la sostituzione è avvenuta solo dove il vecchio atteso
+era un termine e il nuovo è la frase corrispondente, e ogni file toccato porta
+scritto in testa perché.
+
+### I due debiti che l'audit ha lasciato scoperti
+
+- **L'articolo italiano**: «sole è **un** stella». Un/uno/una dipendono da genere
+  e fonotassi, e il genere dei nomi è conoscenza che parrot0 non ha. Dichiarato
+  sul posto in `grammar.p0`: meglio una frase con l'articolo sbagliato che un
+  termine Prolog, ma è un debito, non una svista.
+- **«Moby Dick» → «Dick»**: il nome multi-parola viene troncato all'ultima parola
+  nella via del possesso. Stessa famiglia di GD12 (D39), ramo diverso.

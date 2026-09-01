@@ -1,3 +1,21 @@
+# ── gen491 (2026-09-01) — PERCHE' LE ATTESE «Learned: pred(arg)» SONO CAMBIATE ─
+#
+# Questo file asseriva la NOTAZIONE come risposta attesa: «Learned: man(socrates).»
+# Un ratchet che congela un difetto lo difende con l'autorita' di un verde, ed
+# era il caso: la risposta principale di parrot0 non era LINGUA, e l'audit
+# dell'eco (scripts/self_echo_audit.py) ha mostrato che rileggendosi parrot0
+# chiamava la propria notazione «a snippet of code» — non la riconosceva come
+# propria.
+#
+# Le attese sono state ritirate, non allineate a un comportamento qualunque: la
+# sostituzione e' avvenuta SOLO dove il vecchio atteso era un termine e il nuovo
+# e' la frase corrispondente. L'invariante che regge il cambio sta in
+# tests/p0t/conversation/self_echo.p0t — tutto cio' che parrot0 dice deve
+# essergli comprensibile — e adesso la conferma e' un punto fisso:
+#
+#     > a whale is a mammal      →  Learned: whale is a mammal.
+#     > whale is a mammal        →  Learned: whale is a mammal.
+#
 # document_argument.p0t — SC3: il grafo argomentativo, e cosa cade con una premessa.
 #
 # SC1 ha dato al documento le unita' e un arco retorico; SC2 ha dato a ogni
@@ -28,13 +46,13 @@
 [test sc3 baseline: senza connettivo non c'e' argomento]
 !timeout 90
 > "the measurements indicate that" is an observation report marker.
-< Learned: observation_report_marker("the measurements indicate that").
+< Learned: "the measurements indicate that" is an observation_report_marker.
 > "the authors conclude that" is a hypothesis report marker.
-< Learned: hypothesis_report_marker("the authors conclude that").
+< Learned: "the authors conclude that" is a hypothesis_report_marker.
 > deflect is a relation verb
-< Learned: relation_verb(deflect).
+< Learned: deflect is a relation verb.
 > slowed is a relation verb
-< Learned: relation_verb(slowed).
+< Learned: slowed is a relation verb.
 > read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that DART slowed the orbital period. Therefore the authors conclude that kinetic impact can deflect an asteroid.
 <~ 2 proposition(s) normalized in quarantine
 # Le due claim ci sono; cio' che le lega no.
@@ -47,7 +65,7 @@
 [test sc3 la lezione lega le due claim]
 !timeout 90
 > therefore is a consequence connector
-< Learned: consequence_connector(therefore).
+< Learned: therefore is a consequence connector.
 # REPLAY del turno che prima non produceva alcun arco.
 > read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that DART slowed the orbital period. Therefore the authors conclude that kinetic impact can deflect an asteroid.
 <~ 2 proposition(s) normalized in quarantine
@@ -73,9 +91,9 @@
 [test sc3 transfer: due connettivi e due fonti mai usati per la lezione]
 !timeout 120
 > hence is a consequence connector
-< Learned: consequence_connector(hence).
+< Learned: hence is a consequence connector.
 > consequently is a consequence connector
-< Learned: consequence_connector(consequently).
+< Learned: consequently is a consequence connector.
 > read: https://www.who.int/news-room/fact-sheets/detail/smallpox The evidence shows that vaccination eradicated smallpox. Hence the authors conclude that vaccination eradicated a disease.
 <~ 2 proposition(s) normalized in quarantine
 !query claim_support_live(document_4a9f706b71276975_382dbcc89088adc1_unit_1_claim_0, document_4a9f706b71276975_382dbcc89088adc1_unit_0_claim_0, observed)
@@ -107,7 +125,7 @@
 < Nothing supports it any more - I no longer have a status for: LIGO detected gravitational waves.
 # RIPRISTINO
 > "the data show that" is an observation report marker.
-< Learned: observation_report_marker("the data show that").
+< Learned: "the data show that" is an observation_report_marker.
 !query! unsupported_conclusion(document_239269d8cea96d32_69be0014f91ef93c_unit_1_claim_0)
 > what supports that?
 < It rests on: LIGO detected gravitational waves - reported as observed (from https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.116.061102).
@@ -120,7 +138,7 @@
 !query claim_status(document_239269d8cea96d32_69be0014f91ef93c_unit_0_claim_0, observed)
 !query claim_status(document_239269d8cea96d32_69be0014f91ef93c_unit_1_claim_0, hypothesized)
 > consequently is a consequence connector
-< Learned: consequence_connector(consequently).
+< Learned: consequently is a consequence connector.
 !query claim_support_live(document_239269d8cea96d32_69be0014f91ef93c_unit_1_claim_0, document_239269d8cea96d32_69be0014f91ef93c_unit_0_claim_0, observed)
 
 [test sc3 la forma interrogativa cresce parlando]
@@ -133,7 +151,7 @@
 > which evidence backs it?
 <! It rests on
 > "which evidence backs it" is a claim support question
-< Learned: claim_support_question("which evidence backs it").
+< Learned: "which evidence backs it" is a claim_support_question.
 > which evidence backs it?
 < It rests on: LIGO detected gravitational waves - reported as observed (from https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.116.061102).
 > forget that "which evidence backs it" is a claim support question
@@ -155,17 +173,17 @@
 [test sc27 tutte le premesse, e il modo non si indovina]
 !timeout 120
 > therefore is a consequence connector
-< Learned: consequence_connector(therefore).
+< Learned: therefore is a consequence connector.
 > "the measurements indicate that" is an observation report marker.
-< Learned: observation_report_marker("the measurements indicate that").
+< Learned: "the measurements indicate that" is an observation_report_marker.
 > "the authors conclude that" is a hypothesis report marker.
-< Learned: hypothesis_report_marker("the authors conclude that").
+< Learned: "the authors conclude that" is a hypothesis_report_marker.
 > deflect is a relation verb
-< Learned: relation_verb(deflect).
+< Learned: deflect is a relation verb.
 > slowed is a relation verb
-< Learned: relation_verb(slowed).
+< Learned: slowed is a relation verb.
 > ejected is a relation verb
-< Learned: relation_verb(ejected).
+< Learned: ejected is a relation verb.
 > read: https://ntrs.nasa.gov/citations/20230015804 The measurements indicate that DART slowed the orbital period. The data show that the impact ejected debris. Therefore the authors conclude that kinetic impact can deflect an asteroid.
 <~ 3 proposition(s) normalized in quarantine
 # ENTRAMBE le premesse sono visibili.
@@ -185,7 +203,7 @@
 !query! conclusion_support_state(document_0246e706600fd069_cd70d7443ccc6e99_unit_2_claim_0, lost)
 # MODO CONGIUNTO insegnato parlando: la conclusione cade INTERA.
 > therefore is a joint support marker
-< Learned: joint_support_marker(therefore).
+< Learned: therefore is a joint support marker.
 !query conclusion_support_state(document_0246e706600fd069_cd70d7443ccc6e99_unit_2_claim_0, lost)
 !query! conclusion_support_state(document_0246e706600fd069_cd70d7443ccc6e99_unit_2_claim_0, undetermined_mode)
 # E si ritratta: il modo torna indeterminato, non indipendente per default.

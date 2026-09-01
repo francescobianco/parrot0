@@ -32,7 +32,7 @@
 # LEZIONE NATURALE e REPLAY: la classe aperta e' gia' insegnabile; il nuovo
 # consumer documentale la usa immediatamente senza ricompilare.
 > "notwithstanding" is a contrastive connector.
-< Learned: contrastive_connector(notwithstanding).
+< Learned: notwithstanding is a contrastive_connector.
 > Is notwithstanding a contrastive connector?
 < Yes.
 > read: Apollo 13 did not achieve its scientific goals. Notwithstanding, NASA's rescue mission was an agency triumph.
@@ -80,7 +80,7 @@
 # RETEACH: lo stesso binario riacquista la capacita' e la usa su un nuovo
 # documento vero.
 > "notwithstanding" is a contrastive connector.
-< Learned: contrastive_connector(notwithstanding).
+< Learned: notwithstanding is a contrastive_connector.
 > read: The platypus is a mammal. Notwithstanding, the platypus lays eggs.
 <~ Mapped 2 document unit(s) and 1 rhetorical relation(s)
 !query current_document_relation(contrast)

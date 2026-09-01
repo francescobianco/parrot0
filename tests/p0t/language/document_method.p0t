@@ -1,3 +1,21 @@
+# ── gen491 (2026-09-01) — PERCHE' LE ATTESE «Learned: pred(arg)» SONO CAMBIATE ─
+#
+# Questo file asseriva la NOTAZIONE come risposta attesa: «Learned: man(socrates).»
+# Un ratchet che congela un difetto lo difende con l'autorita' di un verde, ed
+# era il caso: la risposta principale di parrot0 non era LINGUA, e l'audit
+# dell'eco (scripts/self_echo_audit.py) ha mostrato che rileggendosi parrot0
+# chiamava la propria notazione «a snippet of code» — non la riconosceva come
+# propria.
+#
+# Le attese sono state ritirate, non allineate a un comportamento qualunque: la
+# sostituzione e' avvenuta SOLO dove il vecchio atteso era un termine e il nuovo
+# e' la frase corrispondente. L'invariante che regge il cambio sta in
+# tests/p0t/conversation/self_echo.p0t — tutto cio' che parrot0 dice deve
+# essergli comprensibile — e adesso la conferma e' un punto fisso:
+#
+#     > a whale is a mammal      →  Learned: whale is a mammal.
+#     > whale is a mammal        →  Learned: whale is a mammal.
+#
 # document_method.p0t — SC5: il metodo descritto in prosa, e quando NON e' eseguibile.
 #
 # Un passo di metodo non e' un oggetto nuovo: e' una claim riportata come
@@ -23,13 +41,13 @@
 [test sc5 passi, precondizione, criterio d'arresto]
 !timeout 120
 > heat is a relation verb
-< Learned: relation_verb(heat).
+< Learned: heat is a relation verb.
 > cool is a relation verb
-< Learned: relation_verb(cool).
+< Learned: cool is a relation verb.
 > require is a relation verb
-< Learned: relation_verb(require).
+< Learned: require is a relation verb.
 > reach is a relation verb
-< Learned: relation_verb(reach).
+< Learned: reach is a relation verb.
 > read: https://www.ncbi.nlm.nih.gov/books/NBK21154/ Before this the reaction requires a polymerase. We then heat the mixture. We then cool the sample. This repeats until the cycles reach thirty.
 <~ document unit(s)
 !query method_step(document_a89aaeaeb2e06370_a4193019ccc98cf0, 1, document_a89aaeaeb2e06370_a4193019ccc98cf0_unit_1_claim_0)
@@ -61,6 +79,6 @@
 # E insegnare il verbo mancante rivede la lettura e sblocca la procedura SENZA
 # ripresentare il documento: il testo e' un'osservazione, il frame una vista.
 > warm is a relation verb
-< Learned: relation_verb(warm).
+< Learned: warm is a relation verb.
 !query claim_frame(document_a89aaeaeb2e06370_8b32e8d21149aa6b_unit_1_claim_0, warm, authors, tube)
 !query method_executable(document_a89aaeaeb2e06370_8b32e8d21149aa6b, ready)

@@ -1212,3 +1212,53 @@ clause_copula(erano).
 machinery(indefinite_opener).
 indefinite_opener(a).
 indefinite_opener(an).
+
+% ── gen491: DIRE UNA RELAZIONE E' L'INVERSA DI LEGGERLA ──────────────────────
+%
+% Misurato il 2026-09-01 con `scripts/self_echo_audit.py`, che rimanda a parrot0
+% le sue stesse frasi. In inglese la conferma di OGNI fatto imparato era un
+% termine Prolog, e rileggendolo parrot0 lo classificava come codice altrui:
+%
+%   > the book is on the table   →  Learned: located_in(book, table).
+%   > located_in(book, table)    →  That looks like a snippet of code.     ⛔
+%
+% Due difetti in una riga. Il primo: la risposta principale di parrot0 non e'
+% LINGUA, e' notazione — e chi legge «located_in(book, table)» non sta leggendo
+% una frase. Il secondo: parrot0 non riconosce la propria notazione come propria.
+%
+% LA CURA NON E' UN SECONDO ELENCO DI RESE. Un `relation_phrase/2` per relazione
+% sarebbe un frasario destinato a divergere dai pattern di lettura: si potrebbe
+% insegnare a parrot0 a LEGGERE «@S is part of @O» e a DIRE tutt'altro, e nessuno
+% se ne accorgerebbe.
+%
+% La forma per dire una relazione e' esattamente l'inversa della forma per
+% leggerla, e i pattern di lettura ci sono gia'. Cosi' i due lati condividono UN
+% oggetto invece di accordarsi su due copie — la cura della forma ricorrente
+% D33/D35/D37/D40 — e l'invariante dell'eco vale PER COSTRUZIONE: cio' che
+% parrot0 dice e' stato costruito con un pattern che parrot0 sa leggere.
+%
+% Insegnare un `extract_frame` nuovo rende la relazione dicibile senza altro.
+machinery(say_frame).
+say_frame($Predicate, $Pattern) :- extract_frame($Pattern, $Predicate).
+
+% ── gen491: QUALE ARTICOLO INDETERMINATIVO, E PERCHE' STA IN KB ──────────────
+%
+% Serve per dire in lingua un fatto di classe («whale is a mammal») invece di
+% pronunciarne il termine («mammal(whale)»). La scelta dipende dall'iniziale, ed
+% e' conoscenza della lingua: il motore chiede, non decide. Cosi' un'eccezione
+% («an hour») e una lingua nuova sono righe, non codice.
+%
+% ⚠ L'ITALIANO NON E' COMPLETO QUI e la riga sotto lo dichiara: un/uno/una
+% dipendono da genere e fonotassi, non dalla sola iniziale, e il genere dei nomi
+% e' conoscenza che parrot0 non ha ancora. Il default «un» sbaglia sui femminili.
+% Meglio una frase con l'articolo sbagliato che un termine Prolog — ma e' un
+% debito dichiarato, non una svista.
+machinery(indefinite_article_default).
+machinery(indefinite_article_before).
+indefinite_article_default(en, "a").
+indefinite_article_default(it, "un").
+indefinite_article_before(en, a, "an").
+indefinite_article_before(en, e, "an").
+indefinite_article_before(en, i, "an").
+indefinite_article_before(en, o, "an").
+indefinite_article_before(en, u, "an").

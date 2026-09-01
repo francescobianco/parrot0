@@ -483,6 +483,36 @@ dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
    **Resta aperto:** «ho messo il libro sul tavolo» (tre ruoli, agente
    implicito) e «metto il libro sul tavolo», che oggi viene **dirottato da un
    generatore di finzione** — registrato in §7bis.
+
+7. **✅ D41 — chiusa 2026-09-01. PARROT0 NON SAPEVA RILEGGERE CIO' CHE SCRIVE.**
+   Il reperto più grosso della giornata, e non lo stavo cercando:
+
+   ```text
+   > the book is on the table   →  Learned: located_in(book, table).
+   > located_in(book, table)    →  That looks like a snippet of code.
+   ```
+
+   Due difetti in una riga: la risposta principale **non era lingua**, ed era
+   notazione che parrot0 **non riconosceva come propria**. I turni rubati che ne
+   nascono sono **inattribuibili** su qualunque misura del corpus — il turno
+   sembra una frase dell'utente. Solo l'eco li separa, ed è per questo che
+   serviva uno **strumento**: `scripts/self_echo_audit.py` rimanda a parrot0 le
+   sue stesse frasi e ha trovato quattro difetti al primo colpo.
+
+   **Invariante:** *tutto ciò che parrot0 dice deve essergli comprensibile.*
+   Forma forte, il punto fisso: `whale is a mammal` → `Learned: whale is a
+   mammal.` Gate: `tests/p0t/conversation/self_echo.p0t`.
+
+   **La cura è che dire è l'inversa di leggere:** `say_frame(P, Pat) :-
+   extract_frame(Pat, P)`. Un oggetto solo invece di un frasario destinato a
+   divergere dai pattern di lettura — e l'invariante vale **per costruzione**.
+
+   **Vocabolario trovato nel C:** `snprintf(msg, "Learned: %s(%s).", cls, subj)`
+   — inglese cablato nel motore, invisibile a chi cercasse una resa in KB, nel
+   punto in cui ogni fatto imparato passa.
+
+   Ratchet aggiornati: 32 file asserivano la notazione. Ritirati, non allineati
+   a un comportamento qualunque, e ognuno porta scritto in testa perché.
 6. **G5** — il referente che sa ridirsi. Chiude anche la resa `book red` →
    «il libro rosso».
 7. **Gate finale del giro:** `gd1_011` da capo a fondo (6 turni: due setup, due
@@ -505,6 +535,9 @@ dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
 | `conversation/chitchat.p0t` | 21/1 | «rough day» → risponde con la chiusura invece della resa low-energy | **no** — identico a HEAD (stash/build/unstash) | due rese smalltalk competono; classe, non istanza |
 | `language/motorize_class.p0t` | 23/1 | «Who wrote the Iliad?» → «homer» col solo fatto sull'Odissea | **sì**, G1/G2 | la descrizione risolve troppo: manca il vincolo che la chiave sia dell'entita' giusta |
 | suite lente in coda ai file | vari | qualunque turno dopo N nella stessa sessione | **no** | non e' logica: e' il debito di latenza, §7 sotto |
+| ratchet `.p0t` non ancora passati in rassegna | — | attese `Learned: pred(arg)` residue nei file dopo `language/*` in ordine alfabetico | **sì** (D41) | la passata e' stata fermata a meta' su richiesta di F. per non perdere tempo in test lunghi; 32 file allineati, il resto quando si fa il giro di test giusto |
+| «Moby Dick» → «Dick» | — | «il mio libro si chiama Moby Dick» | **no** | il nome multi-parola viene troncato all'ultima parola: stessa famiglia di D39, ramo diverso |
+| articolo italiano `un stella` | — | «il sole è una stella» → «Imparato: sole è un stella» | **sì** (D41) | un/uno/una dipendono dal GENERE, che parrot0 non ha; dichiarato sul posto in grammar.p0 |
 | `metto il libro sul tavolo` dirottato | — | risponde «A low hum filled the room as the dust lifted into the air.» | **no** | un generatore di finzione rivendica una frase dichiarativa ordinaria: manca la guardia, non la lettura |
 | **la via locativa CANCELLA il fatto corretto** | — | «il libro rosso è sul tavolo» poi «…sulla mensola»: `located_in(book_red, tavolo)` non e' piu' dimostrabile | **no** — identico a HEAD | ⛔ viola `own_method(contradiction)` (*«I do not overwrite one claim with the other»*). G5 ha chiuso la meta' che si vede (la risposta ora e' quella in forza); la storia sopravvive in `supersedes_in`, il FATTO no. Finche' e' aperto, parrot0 dichiara un metodo che esegue a meta' |
 

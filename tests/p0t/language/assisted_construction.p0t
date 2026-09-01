@@ -1,3 +1,21 @@
+# ── gen491 (2026-09-01) — PERCHE' LE ATTESE «Learned: pred(arg)» SONO CAMBIATE ─
+#
+# Questo file asseriva la NOTAZIONE come risposta attesa: «Learned: man(socrates).»
+# Un ratchet che congela un difetto lo difende con l'autorita' di un verde, ed
+# era il caso: la risposta principale di parrot0 non era LINGUA, e l'audit
+# dell'eco (scripts/self_echo_audit.py) ha mostrato che rileggendosi parrot0
+# chiamava la propria notazione «a snippet of code» — non la riconosceva come
+# propria.
+#
+# Le attese sono state ritirate, non allineate a un comportamento qualunque: la
+# sostituzione e' avvenuta SOLO dove il vecchio atteso era un termine e il nuovo
+# e' la frase corrispondente. L'invariante che regge il cambio sta in
+# tests/p0t/conversation/self_echo.p0t — tutto cio' che parrot0 dice deve
+# essergli comprensibile — e adesso la conferma e' un punto fisso:
+#
+#     > a whale is a mammal      →  Learned: whale is a mammal.
+#     > whale is a mammal        →  Learned: whale is a mammal.
+#
 # APPRENDIMENTO ASSISTITO A1 — "QUESTO SIGNIFICA QUESTO".
 #
 # La prova non monta un profilo che contiene glints/glorphs e non usa !assert
@@ -15,7 +33,7 @@
 
 [test una costruzione con slot si insegna parlando]
 > glorphs is a relation verb
-< Learned: relation_verb(glorphs).
+< Learned: glorphs is a relation verb.
 
 # PRIMA: la sorgente non ha alcun frame.
 > mira glints kora
@@ -27,15 +45,15 @@
 
 # REPLAY e tre transfer indipendenti.
 > mira glints kora
-< Learned: glorphs(mira, kora).
+< Learned: mira glorphs kora.
 > who glints kora?
 < Mira.
 > arun glints selene
-< Learned: glorphs(arun, selene).
+< Learned: arun glorphs selene.
 > who glorphs selene?
 < Arun.
 > tavi glints luma
-< Learned: glorphs(tavi, luma).
+< Learned: tavi glorphs luma.
 !query glorphs(mira, kora)
 !query glorphs(arun, selene)
 !query glorphs(tavi, luma)
@@ -44,7 +62,7 @@
 > gleams means glorphs
 <~ I learned a candidate construction: @S gleams @O maps to @S glorphs @O
 > nora gleams vega
-< Learned: glorphs(nora, vega).
+< Learned: nora glorphs vega.
 > who gleams vega?
 < Nora.
 
@@ -54,9 +72,9 @@
 > x shimmers brightly at y means x orbits y
 <~ I learned a candidate construction: @S shimmers brightly at @O maps to @S orbits @O
 > nira shimmers brightly at sola
-< Learned: orbits(nira, sola).
+< Learned: nira orbits sola.
 > vega shimmers brightly at arkon
-< Learned: orbits(vega, arkon).
+< Learned: vega orbits arkon.
 > who shimmers brightly at arkon?
 < Vega.
 
@@ -96,7 +114,7 @@
 > x gleams2 y denotes x glorphs y
 <~ I learned a candidate construction: @S gleams2 @O maps to @S glorphs @O
 > mara gleams2 nilo
-< Learned: glorphs(mara, nilo).
+< Learned: mara glorphs nilo.
 
 # Ablazione del solo vocabolario didattico: le costruzioni gia' apprese restano,
 # ma una nuova lezione con quella superficie non puo' piu' entrare.
@@ -105,7 +123,7 @@
 <! candidate construction
 !query! construction_frame("@S flares @O", "@S glorphs @O", glorphs)
 > mara2 gleams2 nilo2
-< Learned: glorphs(mara2, nilo2).
+< Learned: mara2 glorphs nilo2.
 
 [test target ignoto mapping incompatibile e conflitto declinano]
 > x blinks y means x unknowableverb y
@@ -125,7 +143,7 @@
 > x sfiora y significa x glorphs y
 <~ candidate construction: @S sfiora @O
 > ava sfiora teo
-< Learned: glorphs(ava, teo).
+< Learned: ava glorphs teo.
 > dimentica che x sfiora y significa x glorphs y
 <~ @S sfiora @O -> @S glorphs @O
 > bia sfiora rio
@@ -146,21 +164,21 @@
 > x wanes y means y glorphs x
 <~ @O wanes @S
 > oberon wanes quintal
-< Learned: glorphs(quintal, oberon).
+< Imparato: quintal glorphs oberon.
 # L'INVERSIONE E' LA PROVA: il fatto diretto non deve esistere.
 !query glorphs(quintal, oberon)
 !query! glorphs(oberon, quintal)
 
 # TRANSFER su nomi mai pronunciati.
 > riven wanes sylas
-< Learned: glorphs(sylas, riven).
+< Imparato: sylas glorphs riven.
 > who glorphs sylas?
 < Riven.
 !query! glorphs(riven, sylas)
 
 # CONTRASTO: la costruzione diretta appresa prima non e' stata toccata.
 > thalo gleams umbra
-< Learned: glorphs(thalo, umbra).
+< Learned: thalo glorphs umbra.
 
 # Il retract di una costruzione inversa usa la stessa forma con cui e' nata.
 > forget that x wanes y means y glorphs x
@@ -177,11 +195,11 @@
 > a folds2 b means a glorphs b
 <! costruzione candidata
 > a is a rule_variable
-< Learned: rule_variable(a).
+< Learned: a is a rule variable.
 > b is a rule_variable
-< Learned: rule_variable(b).
+< Learned: b is a rule variable.
 > a folds2 b means a glorphs b
 <~ @S folds2 @O
 > kaleo folds2 ivor
-< Learned: glorphs(kaleo, ivor).
+< Learned: kaleo glorphs ivor.
 !query glorphs(kaleo, ivor)
