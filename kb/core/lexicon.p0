@@ -63,6 +63,78 @@ function_word(it, nella, "in the").
 function_word(it, nei, "in the").
 function_word(it, sul, "on the").
 function_word(it, sulla, "on the").
+
+% ── gen491: LA PREPOSIZIONE ARTICOLATA E' UN PARADIGMA, NON UN ELENCO ────────
+%
+% Le righe qui sopra sono state aggiunte tre volte, ogni volta misurando e ogni
+% volta tappando il buco n-esimo: il commento del gen389 dice «le articolate
+% mancanti trovate misurando». Il 2026-09-01 e' successo di nuovo — «il libro e'
+% NELLO zaino» murava mentre «nella scatola» e «sul tavolo» funzionavano.
+%
+% Un buco che si ripresenta tre volte non e' un buco: e' una CLASSE enumerata a
+% mano. E l'enumerazione a mano di un paradigma chiuso ha un difetto proprio,
+% oltre all'incompletezza — niente impedisce di scrivere «sullo» con la glossa
+% «in the», perche' ogni riga porta la propria glossa e nessuna sa da dove
+% viene.
+%
+% In italiano la preposizione articolata e' il prodotto di due assi:
+%
+%     preposizione (di, a, da, in, su, con)  ×  articolo (il, lo, la, i, gli, le)
+%
+% e la GLOSSA DIPENDE SOLO DAL PRIMO ASSE: «nello» e «nella» sono entrambe
+% «in the», perche' l'inglese non flette l'articolo. Dichiararlo cosi' rende
+% impossibile per costruzione la glossa sbagliata, e una forma nuova costa un
+% fatto che NOMINA la sua preposizione invece di ripetere una traduzione.
+%
+% ADDITIVO di proposito: le righe enumerate sopra restano. Producono gli stessi
+% binding (kb_match deduplica) e sono la struttura secondaria da cui questa e'
+% nata — si ritirano quando danno fastidio, non in campagna.
+machinery(articulated_preposition).
+machinery(articulated_gloss).
+
+articulated_gloss(it, di, "of the").
+articulated_gloss(it, a, "to the").
+articulated_gloss(it, da, "from the").
+articulated_gloss(it, in, "in the").
+articulated_gloss(it, su, "on the").
+articulated_gloss(it, con, "with the").
+
+articulated_preposition(it, del, di).
+articulated_preposition(it, dello, di).
+articulated_preposition(it, della, di).
+articulated_preposition(it, dei, di).
+articulated_preposition(it, degli, di).
+articulated_preposition(it, delle, di).
+articulated_preposition(it, al, a).
+articulated_preposition(it, allo, a).
+articulated_preposition(it, alla, a).
+articulated_preposition(it, ai, a).
+articulated_preposition(it, agli, a).
+articulated_preposition(it, alle, a).
+articulated_preposition(it, dal, da).
+articulated_preposition(it, dallo, da).
+articulated_preposition(it, dalla, da).
+articulated_preposition(it, dai, da).
+articulated_preposition(it, dagli, da).
+articulated_preposition(it, dalle, da).
+articulated_preposition(it, nel, in).
+articulated_preposition(it, nello, in).
+articulated_preposition(it, nella, in).
+articulated_preposition(it, nei, in).
+articulated_preposition(it, negli, in).
+articulated_preposition(it, nelle, in).
+articulated_preposition(it, sul, su).
+articulated_preposition(it, sullo, su).
+articulated_preposition(it, sulla, su).
+articulated_preposition(it, sui, su).
+articulated_preposition(it, sugli, su).
+articulated_preposition(it, sulle, su).
+articulated_preposition(it, col, con).
+articulated_preposition(it, coi, con).
+
+function_word($Language, $Surface, $Gloss) :-
+    articulated_preposition($Language, $Surface, $Preposition),
+    articulated_gloss($Language, $Preposition, $Gloss).
 % `sono` NON si mappa qui: e' ambiguo ("io sono stanco" = I am / "quante sono" =
 % how many are), e la lettura piu' comune resta la prima persona che tr/2 gia'
 % da'. Sono le LOCUZIONI a scavalcarla dove il contesto lo impone
@@ -117,6 +189,39 @@ token_variation(joined_infix_rhs, "split_operator_prefix").
 % gen431 — «equals» e' il simbolo «=» scritto in lettere, e senza questa riga
 % «solve the equation 3x plus 5 equals 20» (#42 dei cento) cadeva sul muro
 % mentre «3x + 5 = 20» rispondeva. «plus» era gia' coperto; mancava il verbo.
+% ── gen491: PARROT0 DEVE SAPER RILEGGERE CIO' CHE SCRIVE ────────────────────
+%
+% Misurato il 2026-09-01, ed e' un difetto di specie piu' che una lacuna:
+%
+%   > il libro e' sul tavolo        → Imparato: libro SI TROVA in tavolo.
+%   > il libro si trova sul tavolo  → Non capisco ancora.        ⛔
+%
+% parrot0 pronuncia «si trova» ogni volta che impara un luogo, e non sa
+% rileggerlo. La sua USCITA non e' nella sua lingua d'INGRESSO — e chi ripete a
+% parrot0 le parole che parrot0 gli ha appena detto sbatte contro un muro, che
+% e' il modo piu' rapido di insegnare a un interlocutore che non lo si sta
+% capendo.
+%
+% E' un invariante verificabile, non un'impressione: TUTTO CIO' CHE PARROT0 DICE
+% DEVE ESSERGLI COMPRENSIBILE. Vale come gate generale — si prende una resa e la
+% si rimanda indietro — ed e' il ratchet in tests/p0t/conversation/self_echo.p0t.
+%
+% La cura non e' un frame nuovo: «si trova» E' la copula locativa, e portarla
+% alla copula fa arrivare la frase alla lettura che gia' esisteva e gia'
+% funzionava per «il libro e' sul tavolo». Un frame separato avrebbe creato un
+% secondo percorso per lo stesso significato — la forma del difetto ricorrente.
+% ⚠ L'ORDINE CONTA, E QUESTE DUE RIGHE SONO LA PROVA. «dove si trova» e' una
+% DOMANDA e ha gia' la sua porta (`answer_frame("dove si trova", located_in)`).
+% Senza queste due righe la locuzione piu' corta la smontava prima che la porta
+% potesse agganciarla, e una capacita' che funzionava spariva — misurato subito
+% dopo averle omesse. La forma piu' lunga si dichiara per prima.
+phrase_canon("dove si trova", "where is").
+phrase_canon("dove si trovano", "where are").
+phrase_canon("si trova in", "is in").
+phrase_canon("si trovano in", "are in").
+phrase_canon("si trova", "is").
+phrase_canon("si trovano", "are").
+
 phrase_canon("equals", "=").
 
 % gen432 — «translate X into Y» e' «how do you say X in Y» (docs/issues/03).

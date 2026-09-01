@@ -448,9 +448,41 @@ dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
    **Debito lasciato aperto e registrato in §7bis:** la via locativa cancella il
    fatto vecchio a monte, e lo faceva già prima. G5 chiude la metà che si vede.
 
-6. **▶ GD8 — PROSSIMA** — la frase ordinaria a tre ruoli («ho messo il libro sul tavolo») e
-   le preposizioni articolate («nello zaino»): oggi non hanno lettura, ed è la
-   forma normale del parlato.
+6. **◐ GD8 — metà chiusa 2026-09-01.** Le preposizioni articolate sì, la frase
+   a tre ruoli no.
+
+   **PARROT0 NON SAPEVA RILEGGERE CIO' CHE SCRIVE.** È il reperto più grosso del
+   giro, e non l'avevo cercato:
+
+   ```text
+   > il libro è sul tavolo        → Imparato: libro SI TROVA in tavolo.
+   > il libro si trova sul tavolo → Non capisco ancora.        ⛔
+   ```
+
+   parrot0 pronuncia «si trova» ogni volta che impara un luogo, e non sa
+   rileggerlo: la sua **uscita** non era nella sua **lingua d'ingresso**. Chi
+   ripete a parrot0 le parole che parrot0 ha appena detto sbatteva contro un
+   muro — e questi turni rubati erano **inattribuibili** su qualsiasi misura del
+   corpus, perché il turno sembra una frase dell'utente come tutte le altre.
+
+   **L'invariante, che vale oltre questo caso:** *tutto ciò che parrot0 dice deve
+   essergli comprensibile.* È verificabile — si prende una resa e la si rimanda
+   indietro — ed è il gate `tests/p0t/conversation/self_echo.p0t`. **Ogni resa
+   nuova che nomina una relazione dovrebbe passare di qui prima di dirsi finita.**
+   La cura non è stata un frame nuovo: «si trova» *è* la copula locativa, e
+   portarla alla copula la fa arrivare alla lettura che già esisteva.
+
+   **Le articolate erano una classe enumerata a mano.** Aggiunte tre volte,
+   ogni volta tappando il buco n-esimo (il commento del gen389 dice già «le
+   articolate mancanti trovate misurando»); il 2026-09-01 è toccato a «nello».
+   Un buco che si ripresenta tre volte non è un buco. Ora è un paradigma su due
+   assi — preposizione × articolo — e **la glossa dipende solo dalla
+   preposizione**, quindi «sullo» con glossa «in the» è impossibile per
+   costruzione. Additivo: le righe enumerate restano.
+
+   **Resta aperto:** «ho messo il libro sul tavolo» (tre ruoli, agente
+   implicito) e «metto il libro sul tavolo», che oggi viene **dirottato da un
+   generatore di finzione** — registrato in §7bis.
 6. **G5** — il referente che sa ridirsi. Chiude anche la resa `book red` →
    «il libro rosso».
 7. **Gate finale del giro:** `gd1_011` da capo a fondo (6 turni: due setup, due
@@ -473,6 +505,7 @@ dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
 | `conversation/chitchat.p0t` | 21/1 | «rough day» → risponde con la chiusura invece della resa low-energy | **no** — identico a HEAD (stash/build/unstash) | due rese smalltalk competono; classe, non istanza |
 | `language/motorize_class.p0t` | 23/1 | «Who wrote the Iliad?» → «homer» col solo fatto sull'Odissea | **sì**, G1/G2 | la descrizione risolve troppo: manca il vincolo che la chiave sia dell'entita' giusta |
 | suite lente in coda ai file | vari | qualunque turno dopo N nella stessa sessione | **no** | non e' logica: e' il debito di latenza, §7 sotto |
+| `metto il libro sul tavolo` dirottato | — | risponde «A low hum filled the room as the dust lifted into the air.» | **no** | un generatore di finzione rivendica una frase dichiarativa ordinaria: manca la guardia, non la lettura |
 | **la via locativa CANCELLA il fatto corretto** | — | «il libro rosso è sul tavolo» poi «…sulla mensola»: `located_in(book_red, tavolo)` non e' piu' dimostrabile | **no** — identico a HEAD | ⛔ viola `own_method(contradiction)` (*«I do not overwrite one claim with the other»*). G5 ha chiuso la meta' che si vede (la risposta ora e' quella in forza); la storia sopravvive in `supersedes_in`, il FATTO no. Finche' e' aperto, parrot0 dichiara un metodo che esegue a meta' |
 
 

@@ -1,0 +1,74 @@
+# ── GD8/E — CIO' CHE PARROT0 DICE, PARROT0 DEVE SAPERLO RILEGGERE ───────────
+#
+# Misurato il 2026-09-01, ed e' un difetto di SPECIE piu' che una lacuna:
+#
+#   > il libro è sul tavolo        → Imparato: libro SI TROVA in tavolo.
+#   > il libro si trova sul tavolo → Non capisco ancora.        ⛔
+#
+# parrot0 pronunciava «si trova» ogni volta che imparava un luogo, e non sapeva
+# rileggerlo. La sua USCITA non era nella sua lingua d'INGRESSO. Chi ripete a
+# parrot0 le parole che parrot0 gli ha appena detto sbatteva contro un muro —
+# il modo piu' rapido di insegnare a un interlocutore che non lo si sta capendo,
+# e una fonte di «turni rubati» che nessuna misura sul corpus poteva attribuire,
+# perche' il turno sembrava una frase dell'utente come tutte le altre.
+#
+# L'INVARIANTE, che vale oltre questo caso: **tutto cio' che parrot0 dice deve
+# essergli comprensibile.** E' verificabile e non e' un'impressione — si prende
+# una resa e la si rimanda indietro. Ogni resa nuova che nomina una relazione
+# dovrebbe passare di qui prima di considerarsi finita.
+#
+# La cura non e' stata un frame nuovo: «si trova» E' la copula locativa, e
+# portarla alla copula fa arrivare la frase alla lettura che gia' esisteva. Un
+# frame separato avrebbe creato un secondo percorso per lo stesso significato —
+# la forma del difetto ricorrente (D33/D35/D37/D40).
+
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=it
+!reset
+
+[test la resa del locativo rientra come input]
+!timeout 4
+> il libro è sul tavolo
+<~ libro si trova in tavolo
+# ⛔ L'ECO: gli si rimanda la SUA frase, parola per parola.
+> libro si trova in tavolo
+<~ si trova in tavolo
+<! Non capisco
+# E nella forma piena che un umano userebbe.
+> il quaderno si trova sulla mensola
+<~ si trova in mensola
+
+!reset
+
+[test la domanda non viene smontata dalla locuzione]
+!timeout 4
+# ⚠ REGRESSIONE TROVATA E CHIUSA NELLO STESSO GIRO: dichiarare «si trova»→«is»
+# smontava «dove si trova», che e' una DOMANDA e ha gia' la sua porta. Una
+# capacita' che funzionava spariva in silenzio. La forma piu' lunga si dichiara
+# per prima, e questo blocco e' la sua guardia.
+> il libro è sul tavolo
+<~ si trova in tavolo
+> dove si trova il libro
+<~ avolo
+
+!reset
+
+[test il paradigma delle preposizioni articolate, non i buchi trovati a caso]
+!timeout 4
+# Le articolate erano state aggiunte TRE volte, ogni volta tappando il buco
+# n-esimo («nello» murava mentre «nella» e «sul» funzionavano). Un buco che si
+# ripresenta tre volte e' una CLASSE enumerata a mano. Ora la glossa dipende
+# dalla preposizione e non dall'articolo, quindi la forma sbagliata e'
+# impossibile per costruzione.
+> il libro è nello zaino
+<~ si trova in zaino
+> il quaderno è sullo scaffale
+<~ si trova in scaffale
+> la penna è sugli scaffali
+<~ si trova in scaffali
+> la matita è nei cassetti
+<~ si trova in cassetti
