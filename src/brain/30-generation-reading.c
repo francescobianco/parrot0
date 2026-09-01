@@ -363,6 +363,93 @@ static int kb_story_default(Brain *b, const char *slot, char *out, size_t outsz)
     return 1;
 }
 
+/* ── UN ARTEFATTO A MISURA, LETTO UNA VOLTA SOLA ───────────────────────────
+ *
+ * Qui c'erano DUE copie della stessa macchina — la spiegazione concisa
+ * (gen247) e la frase sensoriale (gen245) — e la duplicazione si era propagata
+ * nella KB: `chain487/488/489` e `chain799/800/801` sono le stesse sei cue di
+ * misura scritte due volte, sotto due nomi opachi, perche' il C le leggeva due
+ * volte. Il caso peggiore della revisione KB-first: non una conoscenza nel
+ * posto sbagliato, ma la STESSA conoscenza in due posti che possono divergere.
+ *
+ * La macchina e' una: «le cue d'ingresso ci sono TUTTE» + «il turno dice quante
+ * parole» → cerca `Relazione(Tema, N)` → rendi con la resa dichiarata. Quale
+ * relazione, quali cue e quale resa sono `sized_artifact/3` e
+ * `sized_artifact_gate/2`; quante parole e' `word_count_cue/2`, che ora e' una
+ * lettura sola per tutti — «in cinque parole» e' una riga di KB e vale per ogni
+ * artefatto a misura insieme.
+ *
+ * I candidati COMPETONO invece di essere ordinati: vince chi porta piu' cue
+ * soddisfatte, cosi' la precedenza e' evidenza e non la posizione del blocco. */
+static int gen_sized_artifact(Brain *b, const char *norm,
+                              char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+
+    /* quante parole chiede il turno */
+    int wantw = 0;
+    {
+        char (*counts)[KB_TERM_LEN] = NULL; size_t ncounts = 0;
+        const char *wq[2] = { NULL, NULL };
+        if (kb_match_all(b->kb, "word_count_cue", wq, 2, &counts, &ncounts)) {
+            for (size_t i = 0; i < ncounts && !wantw; i++) {
+                const char *cq[2] = { counts[i], NULL };
+                char surfaces[16][KB_TERM_LEN];
+                size_t ns = kb_match(b->kb, "word_count_cue", cq, 2, surfaces, 16);
+                for (size_t j = 0; j < ns && !wantw; j++) {
+                    char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", surfaces[j]);
+                    if (cue(norm, kb_dequote(sb))) wantw = atoi(counts[i]);
+                }
+            }
+        }
+        free(counts);
+    }
+    if (wantw <= 0) return 0;
+
+    char (*ids)[KB_TERM_LEN] = NULL; size_t ni = 0;
+    const char *aq[3] = { NULL, NULL, NULL };
+    if (!kb_match_all(b->kb, "sized_artifact", aq, 3, &ids, &ni)) return 0;
+
+    char best[KB_TERM_LEN] = "";
+    size_t best_gates = 0;
+    for (size_t i = 0; i < ni; i++) {
+        char gates[16][KB_TERM_LEN];
+        const char *gq[2] = { ids[i], NULL };
+        size_t ng = kb_match(b->kb, "sized_artifact_gate", gq, 2, gates, 16);
+        if (ng == 0) continue;
+        size_t hit = 0;
+        for (size_t g = 0; g < ng; g++) {
+            char gb[KB_TERM_LEN]; snprintf(gb, sizeof gb, "%s", gates[g]);
+            if (kb_cue_match(b, kb_dequote(gb), norm)) hit++;
+        }
+        if (hit == ng && ng > best_gates) {
+            best_gates = ng;
+            snprintf(best, sizeof best, "%s", ids[i]);
+        }
+    }
+    free(ids);
+    if (!best[0]) return 0;
+
+    char topic_rel[1][KB_TERM_LEN];
+    const char *tq[3] = { best, NULL, NULL };
+    if (kb_match(b->kb, "sized_artifact", tq, 3, topic_rel, 1) != 1) return 0;
+    char frame[1][KB_TERM_LEN];
+    const char *fq[3] = { best, topic_rel[0], NULL };
+    if (kb_match(b->kb, "sized_artifact", fq, 3, frame, 1) != 1) return 0;
+
+    char wb[256]; snprintf(wb, sizeof wb, "%s", norm);
+    char *ww[64]; size_t nw = split_words(wb, ww, 64);
+    char topic[KB_TERM_LEN];
+    if (!kb_topic_task(b, best, topic_rel[0], ww, nw, topic, sizeof topic))
+        return 0;
+
+    char wn[8]; snprintf(wn, sizeof wn, "%d", wantw);
+    const char *rq[3] = { topic, wn, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, best, rq, 3, hit, 1) <= 0) return 0;
+    const KbResponseSlot slots[] = { { "Text", kb_dequote(hit[0]) } };
+    return kb_response_slots(b, frame[0], slots, 1, out, out_size);
+}
+
 static int mod_gen(Brain *b, const char *norm, const char *raw,
                    char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
@@ -379,8 +466,10 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             return 0;
     }
 
-    if (kb_cue_match(b, "probability_draw", norm) &&
-        kb_cue_match(b, "probability_at_least", norm)) return 0;
+    /* mantra #17: a chi cede il turno questa facolta' e' CONOSCENZA, non
+     * l'ordine di sei `if`. Le classi vivono in `faculty_yield(gen, …)` e
+     * `faculty_yield_both(gen, …, …)` in kb/core/intents.p0. */
+    if (p0_faculty_yields(b, "gen", "open", norm, raw)) return 0;
 
     if (gen_has_complete_riddle_sig(b, norm)) return 0;
 
@@ -429,19 +518,13 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    if (kb_cue_match(b, "relational_country_constraint", norm) ||
-        kb_cue_match(b, "physical_affordance_prediction", norm) ||
-        kb_cue_match(b, "translation_request", norm) ||
-        kb_cue_match(b, "two_party_exchange", norm) ||
-        kb_cue_match(b, "constrained_permutation_count", norm) ||
-        kb_cue_match(b, "python_prime_function_request", norm))
-        return 0;
-
-    /* A planning request may contain ordinary prose words that also resemble
-     * a continuation prompt after language canonicalization. Let the generic
-     * KB planner own it before the poetic fallback claims the turn. */
-    if (kb_cue_match(b, "plan_request", norm) ||
-        (raw && kb_cue_match(b, "plan_request", raw))) return 0;
+    /* Cessione TARDIVA: queste letture appartengono ad altri, ma solo dopo che
+     * gli artefatti dichiarati di questa facolta' hanno avuto la loro gara —
+     * un dialogo fra due parti E' un artefatto di `gen`, e cederlo prima della
+     * competizione lo perderebbe. Lo STADIO e' dichiarato in KB accanto alla
+     * classe, cosi' la precedenza ha un nome invece di essere la posizione di
+     * un blocco nel file. */
+    if (p0_faculty_yields(b, "gen", "late", norm, raw)) return 0;
 
     if (kb_cue_match(b, "sentence_completion_request", norm)) {
         char cb[512]; snprintf(cb, sizeof cb, "%s", norm);
@@ -569,34 +652,8 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    /* gen247: exact-word concise explanation. The explanation content is KB data
-     * (`concise_explain/3`); C only maps topic cues and enforces the requested N. */
-    if ((kb_cue_match(b, "30_generation_reading_chain482", norm))) {
-        int wantw = 0;
-        if (kb_cue_match(b, "30_generation_reading_chain487", norm)) wantw = 2;
-        else if (kb_cue_match(b, "30_generation_reading_chain488", norm)) wantw = 3;
-        else if (kb_cue_match(b, "30_generation_reading_chain489", norm)) wantw = 4;
-        char eb[256]; snprintf(eb, sizeof eb, "%s", norm);
-        char *ew[64]; size_t en = split_words(eb, ew, 64);
-        char topic[KB_TERM_LEN];
-        if (wantw > 0 &&
-            kb_topic_task(b, "concise_explain", "concise_topic", ew, en,
-                          topic, sizeof topic)) {
-            char wn[8]; snprintf(wn, sizeof wn, "%d", wantw);
-            const char *eq[] = { topic, wn, NULL };
-            char hit[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "concise_explain", eq, 3, hit, 1) > 0) {
-                char *p = kb_dequote(hit[0]);
-                char msg[160];
-                kb_term_say(b, "concise_explanation",
-                            (const KbResponseSlot[]){{ "text", p }},
-                            1, msg, sizeof msg);
-                msg[0] = (char)toupper((unsigned char)msg[0]);
-                put(msg, out, out_size);
-                return 1;
-            }
-        }
-    }
+    /* Gli artefatti A MISURA competono: vedi `gen_sized_artifact`. */
+    if (gen_sized_artifact(b, norm, out, out_size)) return 1;
 
     /* gen350 (motorize-the-class Fase 4/5): KB-backed metaphor request. The C
      * only detects that a creative form was requested and selects a topic by
@@ -686,9 +743,15 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             const char *q[] = { best, NULL };
             char hit[1][KB_TERM_LEN];
             if (kb_match(b->kb, "creative_text", q, 2, hit, 1) > 0) {
-                const KbResponseSlot slots[] = { { "text", kb_dequote(hit[0]) } };
+                /* §B-bis: la cornice e' FACOLTATIVA e la sua assenza non e'
+                 * un segnaposto in KB. L'artefatto e' gia' conoscenza: se
+                 * nessuna resa lo incornicia, si consegna com'e'. */
+                const char *text = kb_dequote(hit[0]);
+                const KbResponseSlot slots[] = { { "text", text } };
                 if (kb_response_slots(b, "creative_text_answer", slots, 1,
                                       out, out_size)) return 1;
+                put(text, out, out_size);
+                return 1;
             }
         }
         if (kb_cue_match(b, "generic_dialogue_request", norm)) {
@@ -878,33 +941,6 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                     { "description", kb_dequote(desc[0]) }
                 };
                 if (kb_response_slots(b, "synesthetic_description", slots, 2,
-                                      out, out_size)) return 1;
-            }
-        }
-    }
-
-    /* gen245: constrained sensory-description frame. Topic detection is KB-backed
-     * (sensory_topic/2) and the exact word-count surface lives in sensory_phrase/3. */
-    if ((kb_cue_match(b, "30_generation_reading_chain793", norm)) &&
-        (kb_cue_match(b, "30_generation_reading_chain795", norm))) {
-        int wantw = 0;
-        if (kb_cue_match(b, "30_generation_reading_chain799", norm)) wantw = 2;
-        else if (kb_cue_match(b, "30_generation_reading_chain800", norm)) wantw = 3;
-        else if (kb_cue_match(b, "30_generation_reading_chain801", norm)) wantw = 4;
-        char db[256]; snprintf(db, sizeof db, "%s", norm);
-        char *dw[64]; size_t dn = split_words(db, dw, 64);
-        char topic[KB_TERM_LEN];
-        if (wantw > 0 &&
-            kb_topic_task(b, "sensory_phrase", "sensory_topic", dw, dn,
-                          topic, sizeof topic)) {
-            char wn[8]; snprintf(wn, sizeof wn, "%d", wantw);
-            const char *sq[] = { topic, wn, NULL };
-            char hit[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "sensory_phrase", sq, 3, hit, 1) > 0) {
-                const KbResponseSlot slots[] = {
-                    { "Text", kb_dequote(hit[0]) }
-                };
-                if (kb_response_slots(b, "sensory_phrase_answer", slots, 1,
                                       out, out_size)) return 1;
             }
         }

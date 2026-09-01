@@ -699,9 +699,15 @@ static int try_forget_faculty_force(Brain *b, const char *norm,
             size_t ns = kb_match(b->kb, "faculty_surface", sq, 3, surfaces, 8);
             for (size_t si = 0; si < ns; si++) {
                 char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", surfaces[si]);
-                if (cue(norm, kb_dequote(sb))) {
+                /* `kb_dequote` NON e' idempotente: toglie la virgoletta finale
+                 * in place e restituisce s+1. Chiamarlo due volte sullo stesso
+                 * buffer restituisce la stringa con la virgoletta APERTA ancora
+                 * attaccata — ed e' cosi' che «"the narrator» finiva dentro una
+                 * resa. Si dequota UNA volta e si usa quel puntatore. */
+                const char *surface = kb_dequote(sb);
+                if (cue(norm, surface)) {
                     snprintf(faculty, sizeof faculty, "%s", faculties[fi]);
-                    snprintf(faculty_name, sizeof faculty_name, "%s", kb_dequote(sb));
+                    snprintf(faculty_name, sizeof faculty_name, "%s", surface);
                     break;
                 }
             }
@@ -872,6 +878,74 @@ static int p0_move_allowed(Brain *b, const char *faculty, const char *turn) {
     }
     free(forces);
     return ok;
+}
+
+/* ── QUANDO UNA FACOLTA' CEDE IL TURNO ─────────────────────────────────────
+ *
+ * `p0_move_allowed` sopra dice quando una facolta' PUO' parlare, leggendo la
+ * forza del turno. Questo e' il verso opposto e mancava: quando una facolta'
+ * DEVE tacere perche' il turno appartiene a un'altra lettura.
+ *
+ * Era scritto come catena di `if (kb_cue_match(...)) return 0;` dentro quattro
+ * moduli diversi. Il difetto e' quello del §1 di generation-kb-first.md, ed e'
+ * di condotta, non di lessico: la politica NON HA NOME (esiste solo il fatto
+ * che una riga viene prima di un'altra), non e' interrogabile (`who answered?`
+ * dice chi ha risposto, mai perche' un altro non aveva diritto) e non e'
+ * correggibile parlando — cioe' viola il mantra #17.
+ *
+ * `faculty_yield(Facolta', Stadio, Classe)` la nomina. Lo STADIO dice a che
+ * punto del turno la cessione vale: cedere all'apertura e cedere dopo che la
+ * facolta' ha gia' fatto competere i propri candidati sono due condotte
+ * diverse, e confonderle perde artefatti legittimi. Da qui:
+ *   - si interroga: `/debug faculty_yield` mostra l'intera condotta di cessione;
+ *   - si estende senza ricompilare: una facolta' nuova che deve cedere a una
+ *     lettura nuova e' UNA riga di KB;
+ *   - si corregge parlando, perche' la facolta' ha gia' un nome pubblico in
+ *     `faculty_surface/3`.
+ *
+ * `faculty_yield_both/4` e' la cessione CONGIUNTA: si cede solo se il turno
+ * porta entrambe le prove. Serve dove una prova sola sarebbe troppo avida.
+ *
+ * Il turno si legge normalizzato E grezzo: cedere e' l'atto prudente, e una
+ * facolta' che cede deve VEDERE DI PIU', non di meno. */
+static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
+                             const char *norm, const char *raw) {
+    if (!b || !b->kb || !faculty || !stage) return 0;
+    int yield = 0;
+
+    char (*classes)[KB_TERM_LEN] = NULL;
+    size_t n = 0;
+    const char *q[3] = { faculty, stage, NULL };
+    if (kb_match_all(b->kb, "faculty_yield", q, 3, &classes, &n)) {
+        for (size_t i = 0; i < n && !yield; i++) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", classes[i]);
+            const char *cls = kb_dequote(cb);
+            if ((norm && kb_cue_match(b, cls, norm)) ||
+                (raw  && kb_cue_match(b, cls, raw))) yield = 1;
+        }
+    }
+    free(classes);
+    if (yield) return 1;
+
+    char (*firsts)[KB_TERM_LEN] = NULL;
+    size_t nf = 0;
+    const char *bq[4] = { faculty, stage, NULL, NULL };
+    if (kb_match_all(b->kb, "faculty_yield_both", bq, 4, &firsts, &nf)) {
+        for (size_t i = 0; i < nf && !yield; i++) {
+            char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", firsts[i]);
+            const char *first = kb_dequote(ab);
+            if (!norm || !kb_cue_match(b, first, norm)) continue;
+            const char *sq[4] = { faculty, stage, firsts[i], NULL };
+            char seconds[8][KB_TERM_LEN];
+            size_t ns = kb_match(b->kb, "faculty_yield_both", sq, 4, seconds, 8);
+            for (size_t j = 0; j < ns && !yield; j++) {
+                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", seconds[j]);
+                if (kb_cue_match(b, kb_dequote(sb), norm)) yield = 1;
+            }
+        }
+    }
+    free(firsts);
+    return yield;
 }
 
 /* Return the remainder after a KB-declared turn prefix. The comparison is

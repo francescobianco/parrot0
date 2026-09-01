@@ -3344,6 +3344,44 @@ intent_cue(30_generation_reading_chain454, "say hello").
 intent_cue(30_generation_reading_chain454, "say hi").
 intent_cue(30_generation_reading_chain454, "say hey").
 intent_cue(30_generation_reading_chain454, "greet me").
+% ── QUANTE PAROLE CHIEDE IL TURNO — UNA LETTURA SOLA ────────────────────────
+%
+% Questa lettura esisteva DUE VOLTE, sotto due nomi opachi: chain487/488/489 e
+% chain799/800/801 sono le stesse sei cue scritte due volte, perche' la macchina
+% in C che le leggeva esisteva due volte (spiegazione concisa e frase
+% sensoriale). Due copie che possono divergere sono peggio di una conoscenza nel
+% posto sbagliato: nessuno se ne accorge finche' non divergono.
+%
+% Ora e' una. «in cinque parole» e' UNA riga qui sotto e vale per ogni artefatto
+% a misura insieme — che e' il test del mantra: ne impara un nuovo membro domani
+% senza ricompilare, e per tutti i consumatori in una volta.
+word_count_cue(2, "two words").
+word_count_cue(2, "2 words").
+word_count_cue(3, "three words").
+word_count_cue(3, "3 words").
+word_count_cue(4, "four words").
+word_count_cue(4, "4 words").
+word_count_cue(2, "due parole").
+word_count_cue(3, "tre parole").
+word_count_cue(4, "quattro parole").
+
+% ── GLI ARTEFATTI A MISURA ──────────────────────────────────────────────────
+%
+% `sized_artifact(Relazione, RelazioneTema, Resa)`: dove sta il testo, come si
+% trova il tema, con quale resa si dice. `sized_artifact_gate/2` sono le cue che
+% devono esserci TUTTE. I candidati competono su quante cue soddisfano, quindi
+% la precedenza fra due artefatti e' evidenza, non la posizione di un blocco.
+%
+% Un terzo artefatto a misura — «riassumilo in tre parole» — sono quattro righe
+% qui e nessuna riga di C.
+machinery(sized_artifact).
+machinery(word_count_cue).
+sized_artifact(concise_explain, concise_topic, concise_explanation).
+sized_artifact_gate(concise_explain, 30_generation_reading_chain482).
+sized_artifact(sensory_phrase, sensory_topic, sensory_phrase_answer).
+sized_artifact_gate(sensory_phrase, 30_generation_reading_chain793).
+sized_artifact_gate(sensory_phrase, 30_generation_reading_chain795).
+
 intent_cue(30_generation_reading_chain482, "two words").
 intent_cue(30_generation_reading_chain482, "2 words").
 intent_cue(30_generation_reading_chain482, "three words").
@@ -4319,6 +4357,63 @@ illocution_cue(directive, $Opener) :- request_opener($Opener).
 % aveva esaminato, ed e' il criterio di evoluzione sbagliato (ridurre cio' che un
 % pezzo vede per avere ragione per costruzione).
 faculty_force(narrative_continuation, directive).
+
+% ── QUANDO UNA FACOLTA' CEDE IL TURNO ───────────────────────────────────────
+%
+% `faculty_force/2` dice quando una facolta' PUO' parlare. Questo e' il verso
+% opposto, e mancava: quando DEVE tacere perche' il turno appartiene a un'altra
+% lettura. Era scritto come catena di `if (kb_cue_match(...)) return 0;` dentro
+% quattro moduli — una politica senza nome, non interrogabile e non correggibile
+% parlando, cioe' il difetto che il mantra #17 vieta.
+%
+% `faculty_yield(Facolta', Stadio, Classe)`. Lo STADIO e' parte della condotta,
+% non un dettaglio d'implementazione: cedere all'APERTURA del turno e cedere
+% TARDI — dopo che la facolta' ha fatto competere i propri artefatti dichiarati
+% — sono due condotte diverse. Un dialogo fra due parti E' un artefatto di
+% `gen`: cederlo prima della gara lo perderebbe.
+machinery(faculty_yield).
+machinery(faculty_yield_both).
+
+% All'APERTURA `gen` cede solo dove non ha nulla in gara. La cessione e'
+% CONGIUNTA: una prova sola sarebbe troppo avida — «estrazione» da sola non e'
+% un problema di probabilita'.
+faculty_yield_both(gen, open, probability_draw, probability_at_least).
+
+% TARDI: queste letture appartengono ad altri, ma solo dopo che gli artefatti
+% dichiarati di `gen` hanno avuto la loro gara — un dialogo fra due parti E' un
+% artefatto di `gen`, e cederlo prima della competizione lo perderebbe.
+faculty_yield(gen, late, relational_country_constraint).
+faculty_yield(gen, late, physical_affordance_prediction).
+faculty_yield(gen, late, translation_request).
+faculty_yield(gen, late, two_party_exchange).
+faculty_yield(gen, late, constrained_permutation_count).
+faculty_yield(gen, late, python_prime_function_request).
+% Una richiesta di piano porta parole di prosa ordinaria che dopo la
+% canonicalizzazione somigliano a un invito a continuare: il pianificatore
+% generico possiede il turno prima del ripiego poetico.
+faculty_yield(gen, late, plan_request).
+
+% Le altre facolta' che cedevano con un `if` in testa al proprio modulo. Sono
+% la stessa condotta, e ora si leggono e si correggono nello stesso posto.
+faculty_yield(role, open, physical_affordance_prediction).
+faculty_yield(wordquery, open, positional_rhyme_sentence).
+faculty_yield(answer_frame, open, border_intersection).
+% `arith` cede TARDI: lo schema del rettangolo e' suo finche' i propri lettori
+% non hanno provato: cedere prima perderebbe la lettura che gli appartiene.
+faculty_yield(arith, late, rectangle_dimension_schema).
+
+% Le superfici con cui chiamarle parlando: senza queste la condotta si potrebbe
+% leggere ma non correggere, e sarebbe meta' mantra #17.
+faculty_surface(gen, it, "il generatore").
+faculty_surface(gen, en, "the generator").
+faculty_surface(role, it, "il lettore di ruoli").
+faculty_surface(role, en, "the role reader").
+faculty_surface(wordquery, it, "il gioco di parole").
+faculty_surface(wordquery, en, "the word game").
+faculty_surface(answer_frame, it, "la cornice di risposta").
+faculty_surface(answer_frame, en, "the answer frame").
+faculty_surface(arith, it, "il calcolo").
+faculty_surface(arith, en, "the calculator").
 
 % ── COME SI NOMINA UNA FACOLTA' PARLANDO ────────────────────────────────────
 %

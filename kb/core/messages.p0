@@ -223,7 +223,9 @@ response_template(near_rhymes_for_x, "Near-rhymes for \"{target}\": {list}.").
 response_template(matches_for_x, "Matches for `{pattern}`").
 response_template(sudden_continuation, "Suddenly, {text}.").
 response_template(sentence_continuation, "{text}.").
-response_template(concise_explanation, "{text}.").
+% La maiuscola iniziale e' knowledge come il resto: `{Text}` la chiede alla
+% convenzione dello slot, invece di un toupper nel C dopo la resa.
+response_template(concise_explanation, "{Text}.").
 response_template(family_acknowledged, "Thanks for telling me about your family -- I'll keep that in mind.").
 response_template(family_acknowledged, it, "Grazie per avermi parlato della tua famiglia -- lo terrò a mente.").
 response_template(weight_updated, "Ok, {kind} weight is now {value}.").

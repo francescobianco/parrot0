@@ -1,18 +1,27 @@
-# GD8: a transitive locative surface has an implicit agent, but projects to the
-# same public located_in/2 fact used by the existing where-question reader.
+# GD8 — IL LOCATIVO TRANSITIVO. «mary ha messo il libro sul tavolo» ha tre ruoli
+# in superficie e DUE nel fatto: l'agente e' contesto grammaticale, non parte
+# della pretesa. Quali due slot compongono la relazione pubblica lo dichiara
+# `frame_projection/4` in kb/core/grammar.p0; il C applica gli indici.
+#
+# ⚠ Questo gate NON amputa la KB (niente `PARROT0_BASE=`): la KB e' parte di
+# parrot0, non un volume montato, e un gate che la stacca prova solo che la
+# capacita' non esiste senza la sua conoscenza. Le entita' sono nuove, che e' il
+# modo giusto di isolare — vedi la versione precedente di questo file, che
+# falliva per amputazione mentre la capacita' funzionava.
 [mock hermetic]
-!set PARROT0_BASE=
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
-!set PARROT0_LANG=it
 !reset
 
 [test locative_transfer_frame]
-> ho messo il libro sul tavolo
-<~ Imparato
-!query located_in(libro, tavolo)
-> dove si trova il libro
-<~ tavolo
-> metto il libro sulla mensola
-<~ Imparato
-!query located_in(libro, mensola)
+> zorak put the vial on the plinth
+<~ located in plinth
+!query located_in(vial, plinth)
+# l'agente NON diventa un fatto: proiettare vuol dire buttarlo via, non inventarlo
+!query! located_in(zorak, plinth)
+# la domanda formata con le stesse parole trova cio' che il turno ha messo
+> where is the vial
+<~ plinth
+# la forma senza agente esplicito e' la stessa relazione, non un secondo caso
+> put the vial on the ledge
+<~ located in ledge
+!query located_in(vial, ledge)

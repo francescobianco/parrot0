@@ -1758,6 +1758,78 @@ static int observe_language(Brain *b, const char *scope, const char *norm,
         free(languages);
     }
 
+    /* ── UNA SUPERFICIE DICHIARATA IN UNA LINGUA E' EVIDENZA DI QUELLA LINGUA.
+     *
+     * Il conteggio sopra e' unigrammo: vede solo `language_marker(L, parola)`.
+     * Percio' un turno interamente italiano fatto di parole che il lessico non
+     * ha ancora — «il narratore non deve rispondere se non glielo chiedo» — non
+     * porta NESSUNA evidenza, e la risposta esce nella lingua precedente. La
+     * cura sbagliata sarebbe stata aggiungere sette `language_marker(it, …)`:
+     * l'elenco degli incidenti, e per giunta di parole ad alta frequenza che il
+     * blocco in lexicon.p0 ha gia' misurato come costose (12 assert in 10 file).
+     *
+     * La lettura che mancava e' un'altra: quella frase e' GIA' dichiarata in
+     * italiano nella KB — `faculty_surface(_, it, "il narratore")` — e nessuno
+     * la leggeva come evidenza di lingua. `language_phrase(L, "…")` e' quella
+     * lettura, ed e' una CLASSE: una regola per predicato che porta superfici
+     * scoped per lingua, non un membro per incidente. Il peso e' il numero di
+     * parole della superficie, perche' una locuzione di due parole non deve
+     * valere quanto un articolo preso in prestito.
+     *
+     * Il C qui non conosce ne' lingue ne' parole: enumera una relazione. */
+    {
+        char (*plangs)[KB_TERM_LEN] = NULL;
+        size_t nplangs = 0;
+        const char *lq[] = { NULL, NULL };
+        if (kb_match_all(b->kb, "language_phrase", lq, 2, &plangs, &nplangs)) {
+            for (size_t li = 0; li < nplangs; li++) {
+                char (*phrases)[KB_TERM_LEN] = NULL;
+                size_t nph = 0;
+                const char *pq[] = { plangs[li], NULL };
+                if (!kb_match_all(b->kb, "language_phrase", pq, 2,
+                                  &phrases, &nph)) { free(phrases); continue; }
+                for (size_t pi = 0; pi < nph; pi++) {
+                    char pbuf[KB_TERM_LEN];
+                    snprintf(pbuf, sizeof pbuf, "%s", phrases[pi]);
+                    const char *phrase = kb_dequote(pbuf);
+                    if (!*phrase || !strchr(phrase, ' ')) continue;  /* le unigrammi restano a language_marker */
+                    if (!strstr(norm, phrase)) continue;
+                    size_t weight = 1;
+                    for (const char *c = phrase; *c; c++) if (*c == ' ') weight++;
+                    size_t k = 0;
+                    while (k < ncounts &&
+                           strcmp(counts[k].language, plangs[li]) != 0) k++;
+                    if (k == ncounts) {
+                        if (ncounts == capcounts) {
+                            size_t next = capcounts ? capcounts * 2 : 4;
+                            TurnLanguageCount *grown =
+                                realloc(counts, next * sizeof *grown);
+                            if (!grown) continue;
+                            counts = grown;
+                            capcounts = next;
+                        }
+                        memset(&counts[ncounts], 0, sizeof counts[ncounts]);
+                        snprintf(counts[ncounts].language,
+                                 sizeof counts[ncounts].language, "%s",
+                                 plangs[li]);
+                        k = ncounts++;
+                    }
+                    counts[k].count += weight;
+                    char position[24], quoted[KB_TERM_LEN];
+                    snprintf(position, sizeof position, "%zu", weight);
+                    snprintf(quoted, sizeof quoted, "\"%.*s\"",
+                             (int)(KB_TERM_LEN - 3), phrase);
+                    const char *support[] = {
+                        scope, counts[k].language, position, quoted
+                    };
+                    kb_assert(b->kb, "turn_language_support", support, 4);
+                }
+                free(phrases);
+            }
+        }
+        free(plangs);
+    }
+
     for (size_t i = 0; i < ncounts; i++) {
         char score[24], count[24];
         snprintf(score, sizeof score, "%zu", counts[i].count);
@@ -3993,6 +4065,42 @@ static size_t p0_frame_trim_tail(char **w, size_t n) {
     return n;
 }
 
+/* ── QUALE SLOT PORTA LA PRETESA ───────────────────────────────────────────
+ *
+ * Di norma il primo. Ma una costruzione puo' esporre un ruolo GRAMMATICALE che
+ * non entra nel fatto — l'agente di «ho messo il libro sul tavolo» — e allora
+ * quali due slot compongono la relazione pubblica lo dichiara la KB, in
+ * `frame_projection(Pred, Arieta, Primo, Secondo)`.
+ *
+ * Questa lettura viveva in DUE copie identiche dentro
+ * `p0_try_extract_frames_only`, e in un terzo posto non veniva fatta affatto:
+ * la guardia sul soggetto interrogava `slot[0]` come se fosse sempre il
+ * soggetto della pretesa. Percio' «i put the book on the table» veniva scartato
+ * — «i» e' uno stopword, quindi un soggetto inammissibile — mentre «mary put
+ * the book on the table» passava, e la proiezione che avrebbe buttato via
+ * quello slot era gia' dichiarata due righe piu' in la'. Un pezzo che decide
+ * guardando meno di quanto la KB gli offre: e' il difetto che il mantra vieta,
+ * non un caso mancante.
+ *
+ * Restituisce 1 se una proiezione e' dichiarata e sensata. Una dichiarazione
+ * incompleta vale come nessuna proiezione — la lettura prosegue non proiettata,
+ * invece di sparire senza dirlo. */
+static int p0_frame_projection(Brain *b, const char *pred, size_t nslots,
+                               size_t *first, size_t *second) {
+    if (!b || !b->kb || !pred || !first || !second) return 0;
+    char arity[16]; snprintf(arity, sizeof arity, "%zu", nslots);
+    const char *pq[4] = { pred, arity, NULL, NULL };
+    char first_row[1][KB_TERM_LEN], second_row[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "frame_projection", pq, 4, first_row, 1) != 1) return 0;
+    const char *sq[4] = { pred, arity, first_row[0], NULL };
+    if (kb_match(b->kb, "frame_projection", sq, 4, second_row, 1) != 1) return 0;
+    size_t f = (size_t)atoi(first_row[0]);
+    size_t sec = (size_t)atoi(second_row[0]);
+    if (f >= nslots || sec >= nslots || f == sec) return 0;
+    *first = f; *second = sec;
+    return 1;
+}
+
 /* La fase pura su TUTTO lo spazio degli schemi dichiarati: la prima lettura
  * dichiarativa (nessuno slot interrogativo) con un soggetto ammissibile.
  * Nessun effetto. E' il punto di ingresso di chi deve NORMALIZZARE senza
@@ -4014,7 +4122,10 @@ static int p0_frame_reading(Brain *b, char **w, size_t n, P0FrameReading *r) {
         P0FrameReading cand;
         if (!p0_frame_bind(b, w, n, pats[pi], &cand)) continue;
         if (cand.nquestion > 0) continue;
-        if (p0_bad_subject(b, cand.slot[0])) continue;
+        size_t sidx = 0, oidx = 0;
+        if (!p0_frame_projection(b, cand.pred, cand.nslots, &sidx, &oidx))
+            sidx = 0;
+        if (p0_bad_subject(b, cand.slot[sidx])) continue;
         *r = cand;
         found = 1;
     }
@@ -4083,24 +4194,15 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
             size_t query_nslots = nslots;
             size_t query_index[P0_MAX_SLOTS];
             for (size_t si = 0; si < nslots; si++) query_index[si] = si;
-            {
-                char arity[16]; snprintf(arity, sizeof arity, "%zu", nslots);
-                const char *pq[4] = { pred, arity, NULL, NULL };
-                char first_row[1][KB_TERM_LEN], second_row[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "frame_projection", pq, 4,
-                             first_row, 1) == 1) {
-                    const char *sq[4] = { pred, arity, first_row[0], NULL };
-                    if (kb_match(b->kb, "frame_projection", sq, 4,
-                                 second_row, 1) != 1) continue;
-                    size_t first = (size_t)atoi(first_row[0]);
-                    size_t second = (size_t)atoi(second_row[0]);
-                    if (first >= nslots || second >= nslots || first == second)
-                        continue;
-                    if (qslot != first && qslot != second) continue;
-                    query_nslots = 2;
-                    query_index[0] = first;
-                    query_index[1] = second;
-                }
+            size_t pfirst = 0, psecond = 0;
+            if (p0_frame_projection(b, pred, nslots, &pfirst, &psecond)) {
+                /* la domanda deve cadere su uno dei due ruoli proiettati:
+                 * chiedere dell'agente di un frame che non lo memorizza non e'
+                 * una domanda a cui questa relazione possa rispondere. */
+                if (qslot != pfirst && qslot != psecond) continue;
+                query_nslots = 2;
+                query_index[0] = pfirst;
+                query_index[1] = psecond;
             }
             for (size_t si = 0; si < query_nslots; si++) {
                 size_t original = query_index[si];
@@ -4131,27 +4233,14 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
         size_t fact_nslots = nslots;
         size_t fact_index[P0_MAX_SLOTS];
         for (size_t si = 0; si < nslots; si++) fact_index[si] = si;
-        /* A construction may expose an implicit agent as a frame role while
-         * projecting its semantic result to an existing relation. The mapping
-         * is KB knowledge; this code only applies the declared slot indices. */
         {
-            char arity[16]; snprintf(arity, sizeof arity, "%zu", nslots);
-            const char *pq[4] = { pred, arity, NULL, NULL };
-            char first_row[1][KB_TERM_LEN], second_row[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "frame_projection", pq, 4,
-                         first_row, 1) == 1) {
-                const char *sq[4] = { pred, arity, first_row[0], NULL };
-                if (kb_match(b->kb, "frame_projection", sq, 4,
-                             second_row, 1) != 1) continue;
-                size_t first = (size_t)atoi(first_row[0]);
-                size_t second = (size_t)atoi(second_row[0]);
-                if (first < nslots && second < nslots && first != second) {
-                    fact_nslots = 2;
-                    fact_index[0] = first;
-                    fact_index[1] = second;
-                    subj = slot[first];
-                    obj = slot[second];
-                }
+            size_t ffirst = 0, fsecond = 0;
+            if (p0_frame_projection(b, pred, nslots, &ffirst, &fsecond)) {
+                fact_nslots = 2;
+                fact_index[0] = ffirst;
+                fact_index[1] = fsecond;
+                subj = slot[ffirst];
+                obj = slot[fsecond];
             }
         }
         if (p0_bad_subject(b, subj)) continue;
@@ -6438,7 +6527,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                             char *out, size_t out_size) {
     (void)raw;
     if (!b || !b->kb) return 0;
-    if (kb_cue_match(b, "border_intersection", norm)) return 0;
+    if (p0_faculty_yields(b, "answer_frame", "open", norm, NULL)) return 0;
     {
         char guards[32][KB_TERM_LEN];
         const char *gq[] = { "answerframe", NULL };

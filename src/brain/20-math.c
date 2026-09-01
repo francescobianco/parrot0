@@ -1172,7 +1172,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
     if (arith_paired_dimensions_from_doubled_sum(b, norm,
                                                 "rectangle_dimension_schema",
                                                 out, out_size)) return 1;
-    if (b && b->kb && kb_cue_match(b, "rectangle_dimension_schema", norm)) return 0;
+    if (p0_faculty_yields(b, "arith", "late", norm, NULL)) return 0;
 
     /* gen312: compound arithmetic expression (self-guards: fires only when a
      * top-level operator joins clean operand phrases, else falls through). */
@@ -2374,7 +2374,7 @@ static int wq_same_letters(const char *a, const char *b) {
 static int mod_wordquery(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb || !norm) return 0;
-    if (kb_cue_match(b, "positional_rhyme_sentence", norm)) return 0;
+    if (p0_faculty_yields(b, "wordquery", "open", norm, NULL)) return 0;
     int is_rhyme   = kb_cue_match(b, "word_rhyme", norm);
     int is_letters = kb_cue_match(b, "word_from_letters", norm);
     int is_starts  = kb_cue_match(b, "word_starts_with", norm);

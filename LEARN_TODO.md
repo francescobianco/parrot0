@@ -1,6 +1,195 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-# ⛔ RIPARTI DA QUI — handoff 2026-09-01 (sera)
+# ⛔ RIPARTI DA QUI — handoff 2026-09-02
+
+> **Come si riprende:** «continua da questo file». Leggi §0 e §1, poi §4 «Il
+> prossimo lavoro». Sotto c'è l'handoff del 2026-09-01, che resta valido come
+> dottrina (mantra #17, #18, l'errore da non rifare) ma non più come punto di
+> ripresa.
+
+## §0. Che cosa è successo in questo ciclo
+
+F. ha dato due direzioni operative: **«non perdere tempo in lunghe sessioni di
+testing, andiamo a implementare, la sessione di test lunga la dirò io»** e
+**«traguardiamo i macro obiettivi»**. Il ciclo le ha seguite: solo gate puntuali
+e un differenziale sulla suite più esposta, il resto implementazione.
+
+**I due gate lasciati aperti dal ciclo precedente sono ora verdi**, ed entrambi
+fallivano per una ragione che vale la pena non perdere:
+
+| gate | prima | ora | perché falliva |
+|---|---|---|---|
+| `faculty_conduct_teach.p0t` | 5/3 | **8 passed** | tre difetti veri (sotto) |
+| `locative_transfer_frame.p0t` | 1/4 | **6 passed** | ⚠ **il test era sbagliato, non il codice** |
+
+### ⚠ Il gate locativo amputava la KB, e la capacità funzionava già
+
+`locative_transfer_frame.p0t` apriva con `!set PARROT0_BASE=` e
+`PARROT0_WORLD_FACTS=0`, cioè **staccava la conoscenza che la capacità usa**, e
+poi asseriva la capacità. Con la KB attaccata, «mary put the book on the desk»
+funzionava dal primo minuto.
+
+> **La regola, già detta da F. e qui violata da un test:** la KB non è un volume
+> montato, è parte di parrot0. Un gate che la stacca non isola la capacità: prova
+> che non esiste senza la sua conoscenza, che è vero e inutile. **Si isola con
+> entità nuove**, ed è come il gate è riscritto ora (`zorak`, `vial`, `plinth`).
+
+Il gate riscritto verifica anche la cosa che conta davvero: **l'agente non
+diventa un fatto** (`!query! located_in(zorak, plinth)`). Proiettare vuol dire
+buttare via un ruolo, non inventarne uno.
+
+## §1. Le tre cose implementate, in ordine di leva
+
+### (a) La correzione parlata è viva — mantra #17 chiuso nella sua metà mancante
+
+«il narratore non deve rispondere se non glielo chiedo» ora **asserisce
+`faculty_force/2` e vale dal turno dopo**, in entrambe le lingue, e
+`forget "…"` lo **ritira davvero**. Tre difetti veri trovati:
+
+1. **`kb_dequote` non è idempotente** — toglie la virgoletta finale *in place* e
+   restituisce `s+1`. Chiamandolo due volte sullo stesso buffer si riottiene la
+   stringa con la virgoletta **aperta** ancora attaccata: ecco perché usciva
+   `Understood: "the narrator may answer again…`. Dequotare **una volta** e usare
+   quel puntatore. ⚠ Vale ovunque: è un errore facile da rifare.
+2. **La resa italiana c'era e non veniva scelta**, perché il turno non veniva
+   riconosciuto come italiano — vedi (b).
+3. **Il gate asseriva la cosa sbagliata**: dopo il `forget` chiedeva
+   `!query faculty_force(...)`, cioè che la condotta fosse *ancora* dimostrabile.
+   Ora è `!query!`. Se restasse dimostrabile, la correzione parlata sarebbe solo
+   un messaggio.
+
+### (b) Una superficie dichiarata in una lingua è evidenza di quella lingua
+
+«il narratore non deve rispondere se non glielo chiedo» non portava **nessuna**
+evidenza di italiano: nessuna delle sue parole è in `language_marker/2`, e il
+blocco in `lexicon.p0` ha già misurato che allargare quella lista alle funzionali
+ad alta frequenza costa **12 assert in dieci file**. La cura sbagliata era
+pronta: sette `language_marker(it, …)`, l'elenco degli incidenti.
+
+Ma quella frase la KB **la conosce già**: `faculty_surface(_, it, "il
+narratore")`. Mancava la lettura, non il vocabolario.
+
+`language_phrase(Lingua, Superficie)` è quella lettura, ed è una **classe
+aperta**: far contare un'altra famiglia di superfici è UNA riga di KB. Il motore
+pesa ogni superficie per le sue parole e ignora le unigrammi (quelle restano a
+`language_marker/2` con le sue guardie già misurate).
+
+### (c) La cessione del turno ha un nome — `faculty_yield/3`
+
+`faculty_force/2` diceva quando una facoltà **può** parlare. Mancava il verso
+opposto: quando **deve tacere** perché il turno appartiene a un'altra lettura.
+Era una catena di `if (kb_cue_match(...)) return 0;` dentro **quattro moduli**
+(`gen`, `role`, `wordquery`, `answer_frame`, `arith`) — senza nome, non
+interrogabile, non correggibile parlando.
+
+Ora sono **12 fatti KB** più un lettore generico. Lo **stadio** (`open` / `late`)
+è parte della condotta dichiarata, non un dettaglio: cedere all'apertura e cedere
+dopo che la facoltà ha fatto competere i propri artefatti sono due condotte
+diverse — un dialogo fra due parti **è** un artefatto di `gen`, e cederlo prima
+della gara lo perderebbe. Tutte e cinque le facoltà hanno ora una
+`faculty_surface/3`, quindi la condotta è anche **nominabile parlando**.
+
+### (d) Due copie della stessa macchina, unificate
+
+`concise_explain` (gen247) e `sensory_phrase` (gen245) erano **la stessa
+macchina scritta due volte**, e la duplicazione si era propagata nella KB:
+`chain487/488/489` e `chain799/800/801` sono **le stesse sei cue di misura sotto
+due nomi opachi**, perché il C che le leggeva esisteva due volte.
+
+Ora: `word_count_cue(N, "…")` è una lettura sola — «in cinque parole» è una riga
+e vale per **ogni** artefatto a misura insieme — e `sized_artifact/3` +
+`sized_artifact_gate/2` dichiarano gli artefatti, che **competono su quante cue
+soddisfano** invece di essere ordinati. Un terzo artefatto a misura è quattro
+righe di KB e zero righe di C.
+
+### (e) §B-bis: le due rese vuote
+
+- `riddle_answer_reply` **riempita** con lingua vera + forma italiana: la
+  risposta di un indovinello è una parola, e consegnarla nuda era un `printf`.
+- `creative_text_answer` **tolta**: un artefatto memorizzato è già conoscenza, si
+  consegna com'è. Il sito di chiamata usa una cornice **solo se la KB ne dichiara
+  una davvero** — quindi aggiungerne una ora *cambia ciò che si dice*, che è la
+  sola ragione per cui una resa deve esistere.
+- `concise_explanation` passa da `{text}` + `toupper` nel C a `{Text}`: anche la
+  maiuscola iniziale è conoscenza.
+
+## §2. ⚠ IL BILANCIO — da giudicare, non da nascondere (mantra #18)
+
+Il mantra #18 dice: *un rifacimento KB-first che fa crescere il C non è un
+rifacimento KB-first*. **Questo ciclo fa crescere il C**, e va detto:
+
+| | |
+|---|---|
+| C, righe totali | +315 / −116 = **netto +199** |
+| C, **solo codice** (senza commenti/vuote) | +195 / −104 = **netto +91** |
+| KB | +134 / −3 = netto +131 |
+
+**La difesa, che è una tesi e non un fatto:** le righe aggiunte sono **tre
+lettori generici** (`p0_faculty_yields`, `gen_sized_artifact`,
+`p0_frame_projection` + l'evidenza di lingua per frasi) che **si ammortizzano**:
+il tredicesimo `faculty_yield` costa 0 righe di C, il terzo `sized_artifact` costa
+0 righe di C. Il commit `c12e5c0` cresceva invece con logica **per caso**, che non
+si ammortizza mai.
+
+**Ma la tesi non è verificata**, e F. deve giudicarla. Il modo per verificarla è
+uno solo e va fatto: **continuare a migrare rivendicazioni sugli stessi tre
+lettori finché il bilancio non gira**. Se dopo altre due tornate il C non
+scende, la tesi è falsa e i lettori vanno ridotti.
+
+## §3. ⛔ IL ROSSO NUOVO, DIAGNOSTICATO E NON CHIUSO — «i put …»
+
+**«i put the book on the table» non si impara. «we put …», «he put …», «mary
+put …», «x put …» sì.** Diagnosi arrivata fino a un passo dalla cura:
+
+- non è il soggetto stopword: `we`, `he`, `she`, `they`, `you`, `it` **sono tutti
+  stopword** e funzionano;
+- non è la posizione: «yesterday i put the pen on the crate» **funziona**;
+- non è `current_language`: verificato `current_language(en)` prima e dopo il
+  turno;
+- **è la canonicalizzazione**: `function_word(it, i, "the")` — `i` è l'articolo
+  plurale italiano — trasforma «i put …» in «the put …», e nessuno schema lo lega.
+
+Il livello KB **ha già la guardia di lingua** (`function_word/3`, e il commento in
+`canonical_token_kb` cita *esattamente* questo caso). Il livello sotto no: la
+**tabella `lex[]` scritta a mano in C** dentro `canonical_token()` è un frasario
+bilingue **senza colonna lingua**, tenuto come «rete» (keep-secondary-structures).
+Va verificato se sia lei a rifare la sostituzione — è l'ipotesi rimasta aperta al
+momento dello stacco.
+
+> **Perché conta più del caso:** la prima persona inglese è una delle parole più
+> frequenti della lingua, e ogni frase che la apre perde la lettura. E la forma
+> del difetto è quella del mantra: **una guardia esiste al piano di sopra e non
+> al piano di sotto**, quindi la conoscenza corregge il motore solo a metà.
+
+**Prossima mossa esatta:** dare la colonna lingua alla rete C — o, meglio,
+**togliere la rete** e portare le sue voci in `function_word/3`, che è dove le
+altre già vivono. È misurabile: la tabella è finita e visibile.
+
+## §4. Il prossimo lavoro, in ordine
+
+1. **⛔ Chiudere «i put …»** (§3). È il rosso più caro e la diagnosi è fatta.
+2. **Continuare la migrazione sui tre lettori** finché il bilancio del §2 gira.
+   Le rivendicazioni di `mod_gen` restano ~35: il modello è
+   `creative_response` + i due nuovi lettori.
+3. **La forza oltre l'imperativo** (§D.3 dell'handoff sotto): le domande e le
+   richieste indirette, che sono la forma normale del parlato.
+4. **La sessione di test lunga e completa**, quando F. la chiede: qui si è fatto
+   solo il differenziale su `tests/p0t/generation/` (**identico a HEAD, riga per
+   riga**) più i due gate. `make test` intero **non** è stato eseguito.
+
+## §5. Metodo che vale la pena non perdere
+
+- **Il differenziale prima di attribuire un rosso.** `reader.p0t` sembrava una
+  regressione mia (4/2 contro 5/1 a HEAD): era il **timeout** del debito di
+  latenza già noto, e alla ripetizione tornava identico. Un rosso di budget e un
+  rosso di logica si distinguono solo misurando.
+- **Un gate che fallisce non è una capacità mancante.** Due volte in questo
+  ciclo il codice aveva ragione e il test aveva torto: l'amputazione della KB e
+  il `!query` al posto di `!query!`.
+
+---
+
+# handoff 2026-09-01 (sera) — dottrina, non più punto di ripresa
 
 > **Come si riprende:** «continua da questo file». Leggi §A e §B, poi vai al
 > §6 «Il prossimo lavoro». Il resto è la coda storica e serve dopo.
@@ -144,9 +333,9 @@ memorizza la prova. Non c'è niente da inventare, c'è da estendere.
     ⛔ Non scrivere un ramo per la narrativa: se non funziona per una facoltà
     qualsiasi con superfici dichiarate, è di nuovo il caso particolare.
 
-    **Implementazione avviata:** `faculty_force_lesson/2` e il motore unico in
-    `src/brain/00-lex.c` collegano superficie e forza; il gate runtime è pronto,
-    ma viene eseguito soltanto nella sessione finale di test.
+    **✅ CHIUSA il 2026-09-02.** `faculty_conduct_teach.p0t` — 8 passed: la
+    lezione vale dal turno dopo, in entrambe le lingue, e `forget "…"` ritira
+    davvero la condotta. Vedi §1(a) dell'handoff in testa al file.
 
 2. **Le altre 38 rivendicazioni di `mod_gen`** → farle competere come
     `creative_response`. Vedi §5 del piano generation-kb-first.
@@ -156,7 +345,9 @@ memorizza la prova. Non c'è niente da inventare, c'è da estendere.
     additivi; la metafora usa il protocollo parametrico
     `creative_response_topic/3`. Anche i prefissi della lezione di sequenze e i
     default/archi narrativi sono stati spostati in KB.
-    I gate restano da eseguire nella sessione finale.
+    **Incremento 2026-09-02:** `faculty_yield/3` (la cessione del turno, 12
+    fatti su 5 facoltà) e `sized_artifact/3` + `word_count_cue/2` (due copie
+    della stessa macchina unificate). Vedi §1(c) e §1(d) in testa al file.
 3. **La forza oltre l'imperativo**: la domanda (superfici sparse in
    `answer_frame`) e la copertura completa delle richieste indirette
    («potresti…», «mi servirebbe…»), che sono la forma normale del parlato. Un
@@ -732,6 +923,7 @@ dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
 | «Moby Dick» → «Dick» | — | «il mio libro si chiama Moby Dick» | **no** | il nome multi-parola viene troncato all'ultima parola: stessa famiglia di D39, ramo diverso |
 | articolo italiano `un stella` | — | «il sole è una stella» → «Imparato: sole è un stella» | **sì** (D41) | un/uno/una dipendono dal GENERE, che parrot0 non ha; dichiarato sul posto in grammar.p0 |
 | `metto il libro sul tavolo` dirottato | — | risponde «A low hum filled the room as the dust lifted into the air.» | **no** | un generatore di finzione rivendica una frase dichiarativa ordinaria: manca la guardia, non la lettura |
+| **«i put …» non si impara** | — | «i put the book on the table» → muro; «we put …» / «he put …» / «mary put …» funzionano | **no** — pre-esistente | `function_word(it, i, "the")`: l'articolo plurale italiano riscrive il pronome inglese. La guardia di lingua esiste in `function_word/3` ma **non** nella tabella `lex[]` in C. Diagnosi completa nel §3 dell'handoff 2026-09-02 |
 | **la via locativa CANCELLA il fatto corretto** | — | «il libro rosso è sul tavolo» poi «…sulla mensola»: `located_in(book_red, tavolo)` non e' piu' dimostrabile | **no** — identico a HEAD | ⛔ viola `own_method(contradiction)` (*«I do not overwrite one claim with the other»*). G5 ha chiuso la meta' che si vede (la risposta ora e' quella in forza); la storia sopravvive in `supersedes_in`, il FATTO no. Finche' e' aperto, parrot0 dichiara un metodo che esegue a meta' |
 
 

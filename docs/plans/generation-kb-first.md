@@ -128,6 +128,31 @@ chiede se descrivono la classe o la storia dei bug.
    la forma con clitico enclitico non arriva alla classe. È la stessa famiglia
    di GD8.
 
+## 5bis. Fatto il 2026-09-02
+
+1. **✅ La correzione parlata.** `faculty_conduct_teach.p0t` — 8 passed. Tre
+   difetti veri: `kb_dequote` non idempotente, la resa italiana non scelta
+   (mancava l'evidenza di lingua, ora `language_phrase/2`), e il gate stesso che
+   dopo il `forget` asseriva `!query` invece di `!query!`.
+2. **La cessione del turno ha un nome.** `faculty_yield(Facolta', Stadio,
+   Classe)` + `faculty_yield_both/4`: 12 fatti KB al posto delle catene di `if`
+   in `gen`, `role`, `wordquery`, `answer_frame`, `arith`. Lo **stadio** è parte
+   della condotta — cedere all'apertura e cedere dopo la gara dei propri
+   artefatti sono due condotte diverse.
+3. **Due copie della stessa macchina unificate.** `concise_explain` e
+   `sensory_phrase` erano lo stesso lettore scritto due volte, e le loro sei cue
+   di misura esistevano due volte in KB sotto nomi opachi. Ora `word_count_cue/2`
+   è una lettura sola e `sized_artifact/3` fa **competere** gli artefatti su
+   quante cue soddisfano, invece di ordinarli.
+4. **Le due rese vuote di §B-bis.** `riddle_answer_reply` riempita (+ forma
+   italiana), `creative_text_answer` tolta con la cornice resa facoltativa al
+   sito di chiamata.
+
+**Il bilancio (mantra #18):** C +195/−104 di solo codice = **netto +91**. Le
+righe sono tre lettori generici che si ammortizzano (il tredicesimo
+`faculty_yield` costa 0 C), ma **la tesi non è verificata**: va verificata
+continuando a migrare sugli stessi lettori finché il bilancio non gira.
+
 ## 6. La regola che questo lavoro lascia
 
 > Quando una facoltà sbaglia a prendere il turno, la domanda giusta non è

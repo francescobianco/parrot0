@@ -1056,7 +1056,7 @@ static int is_truth_probe(Brain *b, const char *q) {
 static int mod_role(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
-    if (norm && kb_cue_match(b, "physical_affordance_prediction", norm)) return 0;
+    if (p0_faculty_yields(b, "role", "open", norm, raw)) return 0;
 
     char buf[256];
     size_t len = strlen(norm);

@@ -930,6 +930,25 @@ language_name(it, "Italian").
 default_language(en).
 locale_language_prefix(en, en).
 locale_language_prefix(it, it).
+% ── UNA SUPERFICIE DICHIARATA IN UNA LINGUA E' EVIDENZA DI QUELLA LINGUA ──
+%
+% `language_marker/2` e' unigrammo, e sotto c'e' scritto perche' non puo'
+% crescere a piacere: le funzionali ad alta frequenza attraversano la
+% canonicalizzazione e spostano molto piu' della lingua (misurato: 12 assert in
+% dieci file). Percio' un turno tutto italiano fatto di parole che il lessico
+% non ha — «il narratore non deve rispondere se non glielo chiedo» — restava
+% senza evidenza, e la risposta usciva nella lingua del turno precedente.
+%
+% Ma quella frase la KB la conosce gia': «il narratore» e' dichiarata italiana
+% in `faculty_surface/3`. Mancava la LETTURA, non il vocabolario.
+%
+% `language_phrase(Lingua, Superficie)` e' quella lettura. E' una CLASSE aperta:
+% far contare un'altra famiglia di superfici e' UNA riga qui sotto, non un
+% membro per incidente. Il motore pesa ogni superficie per le sue parole, e
+% ignora le unigrammi (quelle restano affare di `language_marker/2`, con le sue
+% guardie gia' misurate).
+language_phrase($Lang, $Surface) :- faculty_surface($Faculty, $Lang, $Surface).
+
 % Italian-only markers (ASCII; do not occur as English words).
 % gen338: everyday-request vocabulary (the L13 pragmatics probes showed
 % «puoi aprire la finestra?» not flipping the language in hermetic runs).

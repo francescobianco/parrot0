@@ -17,7 +17,9 @@
 !query faculty_force(narrative_continuation, directive)
 > forget "the narrator should answer only when asked"
 <~ Understood: the narrator may answer again when the turn permits it.
-!query faculty_force(narrative_continuation, directive)
+# ritrattare la lezione RITIRA la condotta: se restasse dimostrabile, la
+# correzione parlata sarebbe solo un messaggio.
+!query! faculty_force(narrative_continuation, directive)
 > the story generator should answer only when asked
 <~ Understood: the story generator will answer only when you ask it.
 !query faculty_force(narrative_continuation, directive)

@@ -136,10 +136,25 @@ creative_response(ai_society_dialogue, ai_society_dialogue_answer).
 response_template(ai_society_dialogue_answer, "Mara: If AI handles dangerous work and helps doctors catch mistakes, it could save lives. Jules: It could, but only if people stay accountable; otherwise it may amplify bias, surveillance, and unemployment. Mara: Then the question is not whether AI is good or bad, but who controls it and what rules shape its use. Jules: Agreed. Benefit comes from governance and transparency, not from the tool magically becoming wise.").
 creative_response(metaphor_request, metaphor_answer).
 response_template(metaphor_answer, "{line}").
-response_template(creative_text_answer, "{text}").
+% §B-bis / mantra #18: qui c'era `response_template(creative_text_answer,
+% "{text}")` — il C costruiva la frase intera, la passava e la riceveva
+% indietro identica. La prova che la smaschera: «se cancello la riga, cambia
+% cio' che parrot0 DICE o solo SE lo dice?». Cambiava solo il «se».
+%
+% Un artefatto creativo memorizzato E' gia' conoscenza: si consegna com'e',
+% e non ha bisogno di un frasario per essere detto. La riga e' tolta; il
+% sito di chiamata consegna il testo e usa una cornice SOLO se la KB ne
+% dichiara una davvero (portante, registro), come le due qui sotto. Aggiungere
+% `response_template(creative_text_answer, "Ecco: {text}")` ora CAMBIA cio'
+% che si dice, che e' la sola ragione per cui una resa deve esistere.
 response_template(metaphor_line_answer, "{line}").
 creative_response(greeting_request, greeting_reply).
-response_template(riddle_answer_reply, "{text}").
+% La risposta di un indovinello e' UNA PAROLA: consegnarla nuda non e' una
+% resa, e' un printf. Qui la cornice porta lingua vera — portante, registro,
+% punteggiatura — e ha la forma italiana, quindi togliere una delle due righe
+% cambia cio' che parrot0 dice.
+response_template(riddle_answer_reply, "The answer is {text}.").
+response_template(riddle_answer_reply, it, "La risposta e' {text}.").
 response_template(sensory_phrase_answer, "{Text}.").
 response_template(fill_three_answer, "{Text}.").
 response_template(completion_exact_answer, "{Text}.").
