@@ -381,7 +381,15 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         char cb[512]; snprintf(cb, sizeof cb, "%s", norm);
         char *cw[96]; size_t cn = split_words(cb, cw, 96);
         char picked_scene[KB_TERM_LEN];
-        if (scene_from_cues(b, cw, cn, picked_scene, sizeof picked_scene)) {
+        /* gen491 (mantra #17) — LA SCENA DA SOLA NON BASTA.
+         *
+         * «metto il libro sul tavolo» riceveva un frammento di narrativa: questa
+         * facolta' rivendicava avendo UNA prova (parole che nominano una scena)
+         * e nessuna che qualcuno avesse chiesto una storia. Ora la seconda prova
+         * e' richiesta, e QUALE sia la richiesta lo dice la KB — quindi il turno
+         * rubato si ripara parlando, non ricompilando. */
+        if (p0_move_allowed(b, "narrative_continuation", norm) &&
+            scene_from_cues(b, cw, cn, picked_scene, sizeof picked_scene)) {
             const char *tq[] = { picked_scene, NULL };
             char cont[4][KB_TERM_LEN];
             if (domain_match(b, "narrative_completion", tq, 2, cont, 4) > 0) {
@@ -1397,7 +1405,15 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
 
         char picked_scene[KB_TERM_LEN];
-        if (scene_from_cues(b, cw, cn, picked_scene, sizeof picked_scene)) {
+        /* gen491 (mantra #17) — LA SCENA DA SOLA NON BASTA.
+         *
+         * «metto il libro sul tavolo» riceveva un frammento di narrativa: questa
+         * facolta' rivendicava avendo UNA prova (parole che nominano una scena)
+         * e nessuna che qualcuno avesse chiesto una storia. Ora la seconda prova
+         * e' richiesta, e QUALE sia la richiesta lo dice la KB — quindi il turno
+         * rubato si ripara parlando, non ricompilando. */
+        if (p0_move_allowed(b, "narrative_continuation", norm) &&
+            scene_from_cues(b, cw, cn, picked_scene, sizeof picked_scene)) {
                 const char *tq[] = { picked_scene, NULL };
                 char cont[4][KB_TERM_LEN];
                 size_t tn = domain_match(b, "narrative_completion", tq, 2, cont, 4);
@@ -1462,7 +1478,8 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
          * clauses; verb-phrase scenes (built to follow "the garden began
          * to...") cannot open a story, so they fall to the honest decline. */
         const char *ssq[2];
-        if (scene_from_cues(b, sw, sn, picked_scene, sizeof picked_scene) &&
+        if (p0_move_allowed(b, "narrative_continuation", norm) &&
+            scene_from_cues(b, sw, sn, picked_scene, sizeof picked_scene) &&
             (ssq[0] = picked_scene, ssq[1] = NULL,
              kb_query(b->kb, "story_scene", ssq, 1))) {
             const char *tq[] = { picked_scene, NULL };
@@ -1500,7 +1517,8 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         char nb[256]; snprintf(nb, sizeof nb, "%s", norm);
         char *nw2[64]; size_t nn2 = split_words(nb, nw2, 64);
         char picked_scene[KB_TERM_LEN];
-        if (scene_from_cues(b, nw2, nn2, picked_scene, sizeof picked_scene)) {
+        if (p0_move_allowed(b, "narrative_continuation", norm) &&
+            scene_from_cues(b, nw2, nn2, picked_scene, sizeof picked_scene)) {
             const char *tq[] = { picked_scene, NULL };
             char cont[4][KB_TERM_LEN];
             if (domain_match(b, "narrative_completion", tq, 2, cont, 4) > 0) {

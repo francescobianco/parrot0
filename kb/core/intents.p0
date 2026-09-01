@@ -4221,3 +4221,69 @@ intent_cue(supposition, "supponi che ").
 intent_cue(supposition, "supponi ").
 intent_cue(supposition, "assumi che ").
 intent_cue(supposition, "assumi ").
+
+
+% ── gen491: LA CONDOTTA E' CONOSCENZA, E SI CORREGGE PARLANDO ────────────────
+%
+% Mantra #17 e il secondo corollario cardinale di PRINCIPLES.md, aggiunti il
+% 2026-09-01 su indicazione di F.: *parrot0 deve poter imparare e cambiare
+% comportamento in tutto quello che fa*, e un turno rubato si deve poter
+% riparare DICENDOLO.
+%
+% ⛔ LA PRIMA VERSIONE DI QUESTO BLOCCO ERA SBAGLIATA, e vale la pena dirlo
+% perche' l'errore e' istruttivo: dichiarava diciotto cue («storia», «scrivi»,
+% «continua»…) come requisito della facolta' narrativa. Cioe' prendeva un
+% principio generale e lo degradava nel caso particolare, aggiungendo una LISTA
+% DI PAROLE — il mantra #2 violato nel gesto stesso con cui si aggiungeva il #17.
+% F. l'ha fermata: *«il mio era solo un esempio generico, non volevo che lo
+% usassi come caso»*.
+%
+% E non sarebbe stata nemmeno la prima: al gen337 lo stesso difetto fu curato
+% con `imperative_opener/1` (execute, run, migrate, scan…) perche' un COMANDO
+% lungo veniva scambiato per una storia da continuare. Una lista per sintomo, e
+% nessuna delle due poteva coprire «metto il libro sul tavolo» — che non e' un
+% comando: e' un'ASSERZIONE.
+%
+% IL PEZZO MANCANTE NON E' UNA GUARDIA IN PIU': e' che nessuno legge CHE COSA
+% CHI PARLA STA FACENDO col turno. Una facolta' che produce contenuto su
+% richiesta non deve rivendicare un turno con cui non le si sta chiedendo nulla,
+% e questo si dice UNA volta per tutte le facolta', non una lista per ciascuna.
+machinery(illocution_cue).
+machinery(faculty_force).
+
+% ── LA FORZA DEL TURNO ──────────────────────────────────────────────────────
+%
+% Una lettura sola, condivisa. `imperative_opener/1` smette di essere una lista
+% d'esclusione al servizio di un cancello e diventa EVIDENZA di una lettura
+% generale — lo stesso oggetto usato da tutti invece di una copia per sintomo.
+illocution_cue(directive, $Opener) :- imperative_opener($Opener).
+
+% L'asserzione non ha cue proprie: e' cio' che resta quando nessuna forza e'
+% marcata. E' deliberato — marcare l'asserzione richiederebbe di enumerare la
+% lingua intera, mentre marcare le richieste e le domande e' finito.
+
+% ── LA CONDOTTA DI UNA FACOLTA', IN UN FATTO SOLO ───────────────────────────
+%
+% `faculty_force(F, Forza)`: F rivendica solo un turno che ha quella forza.
+% Un fatto per facolta', non una lista di cue per facolta' — e la lettura della
+% forza e' condivisa, quindi migliorarla migliora ogni facolta' insieme.
+%
+% ⚠ PERMISSIVO PER DEFAULT: una facolta' senza riga qui si comporta come prima.
+% Un cancello implicito su tutto avrebbe spento in silenzio condotte che nessuno
+% aveva esaminato, ed e' il criterio di evoluzione sbagliato (ridurre cio' che un
+% pezzo vede per avere ragione per costruzione).
+faculty_force(narrative_continuation, directive).
+
+% ── COME SI NOMINA UNA FACOLTA' PARLANDO ────────────────────────────────────
+%
+% Perche' la condotta sia OGGETTO DI DISCORSO, chi parla deve poterla chiamare
+% con parole sue e non col nome interno: senza questo strato la correzione
+% richiederebbe di conoscere la rappresentazione, cioe' non sarebbe insegnamento
+% (anti-barare del mantra #2). E' lo strato che rende dicibile «il narratore sta
+% rispondendo quando non dovrebbe».
+machinery(faculty_surface).
+faculty_surface(narrative_continuation, it, "il narratore").
+faculty_surface(narrative_continuation, it, "il generatore di storie").
+faculty_surface(narrative_continuation, it, "il racconto").
+faculty_surface(narrative_continuation, en, "the narrator").
+faculty_surface(narrative_continuation, en, "the story generator").

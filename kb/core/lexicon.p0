@@ -402,6 +402,37 @@ imperative_opener(devise).
 imperative_opener(recommend).
 imperative_opener(suggest).
 imperative_opener(imagine).
+% gen491: la classe conteneva SOLO i verbi che causavano il sintomo del gen337
+% (comandi lunghi sull'infrastruttura). Mancavano gli imperativi ordinari —
+% cioe' proprio quelli con cui si chiede davvero di generare qualcosa. Una
+% classe popolata dai sintomi non e' una classe: e' l'elenco degli incidenti.
+imperative_opener(continue).
+imperative_opener(continua).
+imperative_opener(write).
+imperative_opener(scrivi).
+imperative_opener(finish).
+imperative_opener(finisci).
+imperative_opener(complete).
+imperative_opener(completa).
+imperative_opener(tell).
+imperative_opener(racconta).
+imperative_opener(dimmi).
+imperative_opener(describe).
+imperative_opener(descrivi).
+imperative_opener(explain).
+imperative_opener(spiega).
+imperative_opener(list).
+imperative_opener(elenca).
+imperative_opener(give).
+imperative_opener(dammi).
+imperative_opener(show).
+imperative_opener(mostra).
+imperative_opener(make).
+imperative_opener(fai).
+imperative_opener(generate).
+imperative_opener(genera).
+imperative_opener(invent).
+imperative_opener(inventa).
 
 % LE VOCALI (gen427). Servono a distinguere una parola PRONUNCIABILE da una
 % martellata sulla tastiera: «ahoy» e' un saluto che nessuna lista contiene,

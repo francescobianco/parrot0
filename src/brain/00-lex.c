@@ -747,6 +747,54 @@ int try_forget_form(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* ── gen491: PUO' QUESTA FACOLTA' PRENDERE IL TURNO? ────────────────────────
+ *
+ * Mantra #17: la condotta e' conoscenza quanto il lessico, e un turno rubato e'
+ * un bug di CONOSCENZA, non di codice. Il motore non decide: legge la FORZA del
+ * turno e chiede alla KB se questa facolta' la accetta.
+ *
+ * ⚠ Una facolta' senza `faculty_force/2` si comporta esattamente come prima.
+ * Additivo per costruzione: nessun cancello implicito su condotte che nessuno
+ * ha esaminato.
+ *
+ * La forza e' UNA lettura condivisa — non una lista di cue per facolta', che
+ * sarebbe il mantra #2 al contrario (ed e' l'errore che questa funzione ha fatto
+ * nella sua prima versione, vedi il blocco in kb/core/intents.p0). Migliorare la
+ * lettura migliora ogni facolta' insieme. */
+static int p0_turn_is(Brain *b, const char *force, const char *turn) {
+    char (*cues)[KB_TERM_LEN] = NULL; size_t nc = 0;
+    const char *cq[2] = { force, NULL };
+    if (!kb_match_all(b->kb, "illocution_cue", cq, 2, &cues, &nc)) return 0;
+    int hit = 0;
+    for (size_t i = 0; i < nc && !hit; i++) {
+        char cb[KB_TERM_LEN];
+        snprintf(cb, sizeof cb, "%s", cues[i]);
+        const char *t = kb_dequote(cb);
+        if (*t && cue(turn, t)) hit = 1;
+    }
+    free(cues);
+    return hit;
+}
+
+static int p0_move_allowed(Brain *b, const char *faculty, const char *turn) {
+    if (!b || !b->kb || !faculty || !turn) return 1;
+    char (*forces)[KB_TERM_LEN] = NULL; size_t nf = 0;
+    const char *fq[2] = { faculty, NULL };
+    if (!kb_match_all(b->kb, "faculty_force", fq, 2, &forces, &nf) || nf == 0) {
+        free(forces);
+        return 1;                    /* nessuna condotta dichiarata: come prima */
+    }
+    int ok = 0;
+    for (size_t i = 0; i < nf && !ok; i++) {
+        char fb[KB_TERM_LEN];
+        snprintf(fb, sizeof fb, "%s", forces[i]);
+        const char *f = kb_dequote(fb);
+        if (*f && p0_turn_is(b, f, turn)) ok = 1;
+    }
+    free(forces);
+    return ok;
+}
+
 int try_teach_form(Brain *b, const char *norm, const char *raw,
                           char *out, size_t outsz) {
     if (!b || !b->kb || !raw) return 0;
