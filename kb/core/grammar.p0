@@ -730,6 +730,9 @@ answer_frame($Verb, $Verb) :- relation_verb($Verb).
 %     →  Learned: maps(metaphor, source_domain, target_domain).
 machinery(ternary_relation_verb).
 machinery(link_word).
+machinery(frame_projection).
+machinery(locative_transfer_verb).
+machinery(locative_transfer_preposition).
 
 extract_frame($Pat, $Pred) :-
     ternary_relation_verb($Pred),
@@ -738,6 +741,37 @@ extract_frame($Pat, $Pred) :-
     concat_atoms($A, " @O ", $B),
     concat_atoms($B, $Link, $C),
     concat_atoms($C, " @T", $Pat).
+
+% A three-role surface can project to a binary semantic relation when one role
+% is grammatical context rather than part of the stored claim. Slot numbers are
+% zero-based and refer to the generated frame order: S=0, O=1, T=2.
+frame_projection(located_in, 3, 1, 2).
+
+locative_transfer_verb(put).
+locative_transfer_verb(place).
+locative_transfer_preposition(put, in).
+locative_transfer_preposition(put, on).
+locative_transfer_preposition(put, at).
+locative_transfer_preposition(place, in).
+locative_transfer_preposition(place, on).
+locative_transfer_preposition(place, at).
+extract_frame($Pat, located_in) :-
+    locative_transfer_verb($Verb),
+    locative_transfer_preposition($Verb, $Prep),
+    concat_atoms("@S ", $Verb, $A),
+    concat_atoms($A, " @O ", $B),
+    concat_atoms($B, $Prep, $C),
+    concat_atoms($C, " @T", $Pat).
+
+% The agent may be implicit in an imperative or first-person present form. In
+% that construction the public relation already has exactly the two semantic
+% roles it needs, so no projection or invented agent fact is required.
+extract_frame($Pat, located_in) :-
+    locative_transfer_verb($Verb),
+    locative_transfer_preposition($Verb, $Prep),
+    concat_atoms($Verb, " @O ", $A),
+    concat_atoms($A, $Prep, $B),
+    concat_atoms($B, " @T", $Pat).
 
 % ── COSTRUZIONI INSEGNATE PER EQUIVALENZA (apprendimento assistito A1) ────
 %

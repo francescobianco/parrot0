@@ -670,9 +670,83 @@ static const char *find_possession_name(Brain *b, const char *thing) {
  *
  * Corre PRIMA di `try_teach_form` di proposito: «unlearn» contiene «learn», e
  * il mantra #8 vale anche qui. */
+static int try_forget_faculty_force(Brain *b, const char *norm,
+                                    char *out, size_t outsz) {
+    if (!b || !b->kb || !norm) return 0;
+    char moves[16][KB_TERM_LEN];
+    const char *mq[2] = { NULL, "retract" };
+    size_t nm = kb_match(b->kb, "state_move_cue", mq, 2, moves, 16);
+    int retract = 0;
+    for (size_t i = 0; i < nm && !retract; i++) {
+        char move[KB_TERM_LEN]; snprintf(move, sizeof move, "%s", moves[i]);
+        if (cue(norm, kb_dequote(move))) retract = 1;
+    }
+    if (!retract) return 0;
+    char (*faculties)[KB_TERM_LEN] = NULL;
+    size_t nf = 0;
+    const char *fq0[3] = { NULL, NULL, NULL };
+    if (!kb_match_all(b->kb, "faculty_surface", fq0, 3,
+                      &faculties, &nf)) return 0;
+    char faculty[KB_TERM_LEN] = "";
+    char faculty_name[KB_TERM_LEN] = "";
+    for (size_t fi = 0; fi < nf && !faculty[0]; fi++) {
+        const char *fq[3] = { faculties[fi], NULL, NULL };
+        char langs[8][KB_TERM_LEN];
+        size_t nl = kb_match(b->kb, "faculty_surface", fq, 3, langs, 8);
+        for (size_t li = 0; li < nl && !faculty[0]; li++) {
+            const char *sq[3] = { faculties[fi], langs[li], NULL };
+            char surfaces[8][KB_TERM_LEN];
+            size_t ns = kb_match(b->kb, "faculty_surface", sq, 3, surfaces, 8);
+            for (size_t si = 0; si < ns; si++) {
+                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", surfaces[si]);
+                if (cue(norm, kb_dequote(sb))) {
+                    snprintf(faculty, sizeof faculty, "%s", faculties[fi]);
+                    snprintf(faculty_name, sizeof faculty_name, "%s", kb_dequote(sb));
+                    break;
+                }
+            }
+        }
+    }
+    free(faculties);
+    if (!faculty[0]) return 0;
+
+    char (*forces)[KB_TERM_LEN] = NULL;
+    size_t nforces = 0;
+    const char *lq[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "faculty_force_lesson", lq, 2,
+                      &forces, &nforces)) return 0;
+    char force[KB_TERM_LEN] = "";
+    for (size_t fi = 0; fi < nforces && !force[0]; fi++) {
+        const char *cq[2] = { forces[fi], NULL };
+        char forms[32][KB_TERM_LEN];
+        size_t nforms = kb_match(b->kb, "faculty_force_lesson", cq, 2,
+                                 forms, 32);
+        for (size_t i = 0; i < nforms; i++) {
+            char form[KB_TERM_LEN]; snprintf(form, sizeof form, "%s", forms[i]);
+            if (cue(norm, kb_dequote(form))) {
+                snprintf(force, sizeof force, "%s", forces[fi]);
+                break;
+            }
+        }
+    }
+    free(forces);
+    if (!force[0]) return 0;
+
+    const char *args[2] = { faculty, force };
+    int gone = kb_retract(b->kb, "faculty_force", args, 2);
+    char msg[320];
+    const KbResponseSlot slots[] = { { "faculty", faculty_name } };
+    if (!kb_term_say(b, gone ? "faculty_force_forgotten"
+                             : "faculty_force_not_held",
+                     slots, 1, msg, sizeof msg)) return 0;
+    put(msg, out, outsz);
+    return 1;
+}
+
 int try_forget_form(Brain *b, const char *norm, const char *raw,
-                    char *out, size_t outsz) {
+                     char *out, size_t outsz) {
     if (!b || !b->kb || !raw || !norm) return 0;
+    if (try_forget_faculty_force(b, norm, out, outsz)) return 1;
     char low[512];
     size_t ln = 0;
     for (const char *c = raw; *c && ln + 1 < sizeof low; c++)
@@ -762,6 +836,11 @@ int try_forget_form(Brain *b, const char *norm, const char *raw,
  * nella sua prima versione, vedi il blocco in kb/core/intents.p0). Migliorare la
  * lettura migliora ogni facolta' insieme. */
 static int p0_turn_is(Brain *b, const char *force, const char *turn) {
+    if (b && b->kb) {
+        const char *q[2] = { "current_turn", force };
+        char hit[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "turn_illocution", q, 2, hit, 1) > 0) return 1;
+    }
     char (*cues)[KB_TERM_LEN] = NULL; size_t nc = 0;
     const char *cq[2] = { force, NULL };
     if (!kb_match_all(b->kb, "illocution_cue", cq, 2, &cues, &nc)) return 0;
@@ -795,9 +874,108 @@ static int p0_move_allowed(Brain *b, const char *faculty, const char *turn) {
     return ok;
 }
 
+/* Return the remainder after a KB-declared turn prefix. The comparison is
+ * mechanical; the surface itself is learned data. */
+static const char *kb_prefix_remainder(Brain *b, const char *class_name,
+                                       const char *text) {
+    if (!b || !b->kb || !class_name || !text) return NULL;
+    char prefixes[32][KB_TERM_LEN];
+    const char *q[1] = { NULL };
+    size_t n = kb_match(b->kb, class_name, q, 1, prefixes, 32);
+    for (size_t i = 0; i < n; i++) {
+        char pbuf[KB_TERM_LEN]; snprintf(pbuf, sizeof pbuf, "%s", prefixes[i]);
+        const char *prefix = kb_dequote(pbuf);
+        size_t len = strlen(prefix);
+        if (len && strncmp(text, prefix, len) == 0) return text + len;
+    }
+    return NULL;
+}
+
+/* #17: a faculty's conduct is teachable knowledge, not a guard hidden in C.
+ * The faculty and the rule are both surfaces declared in the KB; this adapter
+ * only joins the two readings and records the resulting policy. */
+static int try_teach_faculty_force(Brain *b, const char *norm,
+                                   char *out, size_t outsz) {
+    if (!b || !b->kb || !norm) return 0;
+
+    char (*lessons)[KB_TERM_LEN] = NULL;
+    size_t nl = 0;
+    const char *lq[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "faculty_force_lesson", lq, 2,
+                      &lessons, &nl) || nl == 0) {
+        free(lessons);
+        return 0;
+    }
+
+    char faculty[KB_TERM_LEN] = "";
+    char faculty_name[KB_TERM_LEN] = "";
+    char (*faculties)[KB_TERM_LEN] = NULL;
+    size_t nf = 0;
+    const char *sq[3] = { NULL, NULL, NULL };
+    if (kb_match_all(b->kb, "faculty_surface", sq, 3, &faculties, &nf)) {
+        for (size_t fi = 0; fi < nf && !faculty[0]; fi++) {
+            const char *fq[3] = { faculties[fi], NULL, NULL };
+            char languages[8][KB_TERM_LEN];
+            size_t nlanguages = kb_match(b->kb, "faculty_surface", fq, 3,
+                                         languages, 8);
+            for (size_t li = 0; li < nlanguages && !faculty[0]; li++) {
+                const char *pq[3] = { faculties[fi], languages[li], NULL };
+                char surfaces[8][KB_TERM_LEN];
+                size_t ns = kb_match(b->kb, "faculty_surface", pq, 3,
+                                     surfaces, 8);
+                for (size_t si = 0; si < ns; si++) {
+                    char s[KB_TERM_LEN]; snprintf(s, sizeof s, "%s", surfaces[si]);
+                    char *surface = kb_dequote(s);
+                    if (*surface && cue(norm, surface)) {
+                        snprintf(faculty, sizeof faculty, "%s", faculties[fi]);
+                        snprintf(faculty_name, sizeof faculty_name, "%s", surface);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    free(faculties);
+    if (!faculty[0]) { free(lessons); return 0; }
+
+    char force[KB_TERM_LEN] = "";
+    char lesson[KB_TERM_LEN] = "";
+    for (size_t i = 0; i < nl && !force[0]; i++) {
+        char force_text[KB_TERM_LEN]; snprintf(force_text, sizeof force_text, "%s", lessons[i]);
+        char (*forms)[KB_TERM_LEN] = NULL;
+        size_t nforms = 0;
+        const char *fq[2] = { lessons[i], NULL };
+        if (!kb_match_all(b->kb, "faculty_force_lesson", fq, 2,
+                          &forms, &nforms)) continue;
+        for (size_t j = 0; j < nforms && !force[0]; j++) {
+            char *form = kb_dequote(forms[j]);
+            if (!*form || !cue(norm, form)) continue;
+            snprintf(lesson, sizeof lesson, "%s", form);
+            snprintf(force, sizeof force, "%s", force_text);
+        }
+        free(forms);
+    }
+    free(lessons);
+    if (!force[0]) return 0;
+
+    kb_set_origin(b->kb, KB_SESSION);
+    const char *args[2] = { faculty, force };
+    kb_assert(b->kb, "faculty_force", args, 2);
+
+    char msg[320];
+    const KbResponseSlot slots[] = {
+        { "faculty", faculty_name }, { "lesson", lesson }
+    };
+    if (!kb_term_say(b, "faculty_force_taught", slots, 2,
+                     msg, sizeof msg)) return 0;
+    put(msg, out, outsz);
+    return 1;
+}
+
 int try_teach_form(Brain *b, const char *norm, const char *raw,
-                          char *out, size_t outsz) {
+                           char *out, size_t outsz) {
     if (!b || !b->kb || !raw) return 0;
+    if (try_teach_faculty_force(b, norm, out, outsz)) return 1;
     char low[512];                                  /* raw, lowercased, NOT canonicalized */
     size_t ln = 0;
     for (const char *c = raw; *c && ln + 1 < sizeof low; c++)

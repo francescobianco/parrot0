@@ -67,11 +67,25 @@ turn_cue_registry(answer_frame_input_arg, 1).
 % nel predicato e' dichiarata, quindi una dimensione o una lingua nuova resta un
 % fatto runtime.
 turn_cue_registry(attribute_question_cue, 2).
+% The illocution reader is another universal cue registry. Its first argument
+% is the force and its second argument is the surface, so the publisher keeps
+% the surface visible in the current-turn frame for every consuming faculty.
+turn_cue_registry(illocution_cue, 2).
 % `ordinal_reference/3` porta anche lingua e posizione. Il publisher legge
 % registri unari o superfici in seconda posizione di relazioni binarie; la vista
 % unaria conserva la stessa conoscenza senza far conoscere al C l'arita'.
 ordinal_surface($Surface) :- ordinal_reference($Language, $Surface, $Order).
 turn_cue_registry(ordinal_surface, 1).
+
+% A turn's force is a derived view, not a second recognizer. A new directive
+% surface reaches every faculty through the same published cue.
+turn_illocution($Turn, $Force) :-
+    turn_cue($Turn, illocution_cue, $Cue),
+    illocution_cue($Force, $Cue).
+turn_illocution($Turn, question) :-
+    turn_cue($Turn, answer_frame_input_arg, $Cue).
+turn_illocution($Turn, question) :-
+    turn_cue($Turn, attribute_question_cue, $Cue).
 
 % ── 0b. CIO' CHE SI PUO' OMETTERE DENTRO UNA SUPERFICIE ────────────────────
 %

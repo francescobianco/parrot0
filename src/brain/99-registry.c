@@ -1964,7 +1964,7 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
     if (strncmp(canon, "premise:", 8) == 0 ||
         strncmp(canon, "label premise:", 14) == 0 ||
         strncmp(canon, "explain premise:", 16) == 0 ||!lex_prefix_member(b, "99_registry_lex1963", canon) == 0 ||!lex_prefix_member(b, "99_registry_lex1964", canon) == 0 ||!lex_prefix_member(b, "99_registry_lex1965", canon) == 0 ||
-        strncmp(canon, "learn sequence:", 15) == 0)
+        kb_prefix_remainder(b, "sequence_learning_prefix", canon) != NULL)
         return 0;
 
     const char *connectors[] = {" e ", " and ", " ed ", " ma ", " but ", NULL};

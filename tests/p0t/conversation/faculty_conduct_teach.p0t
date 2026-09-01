@@ -1,0 +1,23 @@
+# #17: conduct is KB knowledge and can be corrected by speaking. The lesson
+# joins a faculty surface with a force lesson; neither name is an internal API.
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test faculty_conduct_teach]
+!forget faculty_force(narrative_continuation, directive)
+> the narrator should answer only when asked
+<~ Understood: the narrator will answer only when you ask it.
+!query faculty_force(narrative_continuation, directive)
+> il narratore non deve rispondere se non glielo chiedo
+<~ Capito: il narratore risponderà solo quando glielo chiedi.
+!query faculty_force(narrative_continuation, directive)
+> forget "the narrator should answer only when asked"
+<~ Understood: the narrator may answer again when the turn permits it.
+!query faculty_force(narrative_continuation, directive)
+> the story generator should answer only when asked
+<~ Understood: the story generator will answer only when you ask it.
+!query faculty_force(narrative_continuation, directive)

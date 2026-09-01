@@ -105,17 +105,25 @@ chiede se descrivono la classe o la storia dei bug.
 
 ## 5. Il lavoro che resta, in ordine di leva
 
-1. **La correzione parlata.** `faculty_surface/3` esiste ma non c'è ancora la
-   lezione che la consuma: dire «il narratore risponde quando non dovrebbe» deve
-   asserire `faculty_force/2` e valere dal turno dopo. Finché manca, la condotta
-   è **conoscenza ma non ancora insegnabile**, cioè metà del mantra #17.
-2. **Le altre trentotto rivendicazioni.** Ognuna va portata a competere come già
+1. **La correzione parlata.** `faculty_surface/3` e
+   `faculty_force_lesson/2` sono ora consumate da un unico motore in
+   `00-lex.c`; la lezione asserisce `faculty_force/2` senza nominare la facoltà
+   nel C. Il gate runtime è preparato in
+   `tests/p0t/conversation/faculty_conduct_teach.p0t` e resta da eseguire.
+2. **Le altre trentotto rivendicazioni.** Cinque artefatti `creative_text` sono
+   ora candidati additivi del dispatcher comune; la metafora parametrica usa
+   `creative_response_topic/3`. Le restanti vanno portate a competere come già
    fa `creative_response`: candidati dichiarati, `kb_hypothesis_best`, prova
-   memorizzata. Il ramo che già lo fa è il modello — non c'è niente da inventare.
-3. **La forza oltre l'imperativo.** Oggi `directive` si legge da un verbo in
-   apertura. Restano la domanda (che ha già superfici sparse in `answer_frame`)
-   e le richieste cortesi/indirette («potresti…», «mi servirebbe…»), che sono la
-   forma normale del parlato.
+   memorizzata. Le rese dei percorsi legacy toccati in questo giro passano
+   inoltre da template KB (`creative_text_answer`, `riddle_answer_reply`,
+   `poem4_answer` e simili), così il contenuto letto non torna a essere una
+   frase compilata. Il ramo che già lo fa è il modello — non c'è niente da inventare.
+3. **La forza oltre l'imperativo.** `directive` legge ora anche gli opener
+   indiretti dichiarati in `request_opener/1`; restano da portare nella stessa
+   vista le domande (che hanno già superfici sparse in `answer_frame`) e la
+   copertura completa delle richieste cortesi/indirette.
+   La forza direttiva è inoltre pubblicata dal frame universale come
+   `turn_illocution/2`, così i consumer possono condividere la lettura del turno.
 4. **`raccontami una storia` mura** (pre-esistente, non causato dal cancello):
    la forma con clitico enclitico non arriva alla classe. È la stessa famiglia
    di GD8.

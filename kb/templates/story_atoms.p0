@@ -63,3 +63,14 @@ story_arc(short_story, full, cons(intro, cons(setting, cons(routine, cons(event,
 % Romantic arc: intro → event → feeling → waiting → ending → moral
 story_arc(love_story, romantic, cons(intro, cons(event, cons(feeling, cons(waiting, cons(ending, cons(moral, nil))))))).
 story_default(place, "quiet street").
+story_default(adjective, "mysterious").
+story_default(action, "be seen").
+story_default(subject, "it").
+story_default(element, "rain").
+story_default(other, "someone").
+story_default(pronoun, "it").
+story_default(pronoun_capitalized, "It").
+story_arc(0, intro).
+story_arc(1, event).
+story_arc(2, feeling).
+story_arc(3, ending).

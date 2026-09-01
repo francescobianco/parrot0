@@ -220,6 +220,10 @@ phrase_canon("dove si trovano", "where are").
 phrase_canon("si trova in", "is in").
 phrase_canon("si trovano in", "are in").
 phrase_canon("si trova", "is").
+phrase_canon("ho messo", "i put").
+phrase_canon("ha messo", "put").
+phrase_canon("metto", "put").
+phrase_canon("mettere", "put").
 phrase_canon("si trovano", "are").
 
 phrase_canon("equals", "=").
@@ -433,6 +437,16 @@ imperative_opener(generate).
 imperative_opener(genera).
 imperative_opener(invent).
 imperative_opener(inventa).
+
+% #17 / generation: polite and indirect directives share the directive force
+% with ordinary imperatives. New languages or registers add facts here.
+request_opener("could you").
+request_opener("can you").
+request_opener("would you").
+request_opener(potresti).
+request_opener(puoi).
+request_opener("mi servirebbe").
+request_opener("mi aiuti a").
 
 % LE VOCALI (gen427). Servono a distinguere una parola PRONUNCIABILE da una
 % martellata sulla tastiera: «ahoy» e' un saluto che nessuna lista contiene,

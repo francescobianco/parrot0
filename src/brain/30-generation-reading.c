@@ -301,6 +301,68 @@ static int turn_pair_extract(Brain *b, const char *norm,
     return 0;
 }
 
+/* Generic topic-backed creative response. A creative_response/2 candidate may
+ * declare a topic relation and a payload relation instead of hardcoding a
+ * response frame. The relations own the vocabulary and the payload; C only
+ * scores declared topic evidence and fills the declared response template. */
+static int creative_topic_response(Brain *b, const char *intent,
+                                   const char *norm, char *out, size_t outsz) {
+    const char *rq[2] = { intent, NULL };
+    char frame[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "creative_response", rq, 2, frame, 1) != 1) return 0;
+    const char *mq[3] = { intent, NULL, NULL };
+    char topic_rel[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "creative_response_topic", mq, 3,
+                 topic_rel, 1) != 1) return 0;
+    const char *aq[3] = { intent, topic_rel[0], NULL };
+    char answer_rel[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "creative_response_topic", aq, 3,
+                 answer_rel, 1) != 1) return 0;
+
+    char topics[64][KB_TERM_LEN];
+    const char *tq[2] = { NULL, NULL };
+    size_t nt = kb_match(b->kb, topic_rel[0], tq, 2, topics, 64);
+    char best[KB_TERM_LEN] = "";
+    int best_score = 0;
+    for (size_t i = 0; i < nt; i++) {
+        const char *cq[2] = { topics[i], NULL };
+        char cues[32][KB_TERM_LEN];
+        size_t nc = kb_match(b->kb, topic_rel[0], cq, 2, cues, 32);
+        int score = 0;
+        for (size_t j = 0; j < nc; j++)
+            if (cue(norm, kb_dequote(cues[j]))) score++;
+        if (score > best_score) {
+            best_score = score;
+            snprintf(best, sizeof best, "%s", topics[i]);
+        }
+    }
+    if (!best[0]) return 0;
+
+    const char *pq[2] = { best, NULL };
+    char payload[1][KB_TERM_LEN];
+    if (kb_match(b->kb, answer_rel[0], pq, 2, payload, 1) != 1) return 0;
+    const KbResponseSlot slots[] = { { "line", kb_dequote(payload[0]) } };
+    return kb_response_slots(b, kb_dequote(frame[0]), slots, 1, out, outsz);
+}
+
+static int kb_narrative_lead(Brain *b, const char *style, size_t index,
+                              char *out, size_t outsz) {
+    char key[16]; snprintf(key, sizeof key, "%zu", index);
+    const char *q[3] = { style, key, NULL };
+    char row[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "narrative_lead", q, 3, row, 1) != 1) return 0;
+    snprintf(out, outsz, "%s", kb_dequote(row[0]));
+    return 1;
+}
+
+static int kb_story_default(Brain *b, const char *slot, char *out, size_t outsz) {
+    const char *q[2] = { slot, NULL };
+    char row[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "story_default", q, 2, row, 1) != 1) return 0;
+    snprintf(out, outsz, "%s", kb_dequote(row[0]));
+    return 1;
+}
+
 static int mod_gen(Brain *b, const char *norm, const char *raw,
                    char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
@@ -355,6 +417,10 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         if (best == 1) {
             char frames[1][KB_TERM_LEN];
             const char *fq[] = { winner, NULL };
+            if (creative_topic_response(b, winner, norm, out, out_size)) {
+                store_proof(b, proof);
+                return 1;
+            }
             if (kb_match(b->kb, "creative_response", fq, 2, frames, 1) == 1 &&
                 kb_response(b, kb_dequote(frames[0]), NULL, out, out_size)) {
                 store_proof(b, proof);
@@ -394,9 +460,14 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             char cont[4][KB_TERM_LEN];
             if (domain_match(b, "narrative_completion", tq, 2, cont, 4) > 0) {
                 char msg[240];
-                snprintf(msg, sizeof msg, "%s.", kb_dequote(cont[0]));
-                put(msg, out, out_size);
-                return 1;
+                const KbResponseSlot slots[] = {
+                    { "text", kb_dequote(cont[0]) }
+                };
+                if (kb_response_slots(b, "sentence_continuation", slots, 1,
+                                      msg, sizeof msg)) {
+                    put(msg, out, out_size);
+                    return 1;
+                }
             }
         }
         return 0;
@@ -441,10 +512,11 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         return 0;
     }
 
-    /* learn the continuation relation from an example: "learn sequence: a b c" */
-    if (strncmp(norm, "learn sequence:", 15) == 0) {
+    /* Learn the continuation relation from a KB-declared sequence prefix. */
+    const char *sequence_tail = kb_prefix_remainder(b, "sequence_learning_prefix", norm);
+    if (sequence_tail) {
         char rem[512];
-        snprintf(rem, sizeof rem, "%s", norm + 15);
+        snprintf(rem, sizeof rem, "%s", sequence_tail);
         char *w[64];
         size_t nw = split_words(rem, w, 64);
         size_t pairs = learn_word_stream(b, w, nw);
@@ -554,9 +626,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             const char *mq[] = { best, NULL };
             char hit[1][KB_TERM_LEN];
             if (kb_match(b->kb, "metaphor_line", mq, 2, hit, 1) > 0) {
-                char *p = kb_dequote(hit[0]);
-                put(p, out, out_size);
-                return 1;
+                const KbResponseSlot slots[] = { { "line", kb_dequote(hit[0]) } };
+                if (kb_response_slots(b, "metaphor_line_answer", slots, 1,
+                                      out, out_size)) return 1;
             }
         }
     }
@@ -614,8 +686,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             const char *q[] = { best, NULL };
             char hit[1][KB_TERM_LEN];
             if (kb_match(b->kb, "creative_text", q, 2, hit, 1) > 0) {
-                put(kb_dequote(hit[0]), out, out_size);
-                return 1;
+                const KbResponseSlot slots[] = { { "text", kb_dequote(hit[0]) } };
+                if (kb_response_slots(b, "creative_text_answer", slots, 1,
+                                      out, out_size)) return 1;
             }
         }
         if (kb_cue_match(b, "generic_dialogue_request", norm)) {
@@ -828,11 +901,11 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             const char *sq[] = { topic, wn, NULL };
             char hit[1][KB_TERM_LEN];
             if (kb_match(b->kb, "sensory_phrase", sq, 3, hit, 1) > 0) {
-                char *p = kb_dequote(hit[0]);
-                char msg[160]; snprintf(msg, sizeof msg, "%s.", p);
-                msg[0] = (char)toupper((unsigned char)msg[0]);
-                put(msg, out, out_size);
-                return 1;
+                const KbResponseSlot slots[] = {
+                    { "Text", kb_dequote(hit[0]) }
+                };
+                if (kb_response_slots(b, "sensory_phrase_answer", slots, 1,
+                                      out, out_size)) return 1;
             }
         }
     }
@@ -901,8 +974,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 char *p = ans[0];
                 size_t l = strlen(p);
                 if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
-                put(p, out, out_size);
-                return 1;
+                const KbResponseSlot slots[] = { { "text", p } };
+                if (kb_response_slots(b, "riddle_answer_reply", slots, 1,
+                                      out, out_size)) return 1;
             }
         }
     }
@@ -1087,13 +1161,13 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 }
                 /* Use the subject as object and adjective too */
                 if (subj[0] && !obj[0]) snprintf(obj, sizeof obj, "%s", subj);
-                if (!adj[0]) snprintf(adj, sizeof adj, "mysterious");
-                if (!act[0]) snprintf(act, sizeof act, "be seen");
+                if (!adj[0]) kb_story_default(b, "adjective", adj, sizeof adj);
+                if (!act[0]) kb_story_default(b, "action", act, sizeof act);
             }
 
             /* If we still have no subject, use the object */
             if (!subj[0] && obj[0]) snprintf(subj, sizeof subj, "%s", obj);
-            if (!subj[0]) snprintf(subj, sizeof subj, "it");
+            if (!subj[0]) kb_story_default(b, "subject", subj, sizeof subj);
             if (!obj[0]) snprintf(obj, sizeof obj, "%s", subj);
 
             /* Lowercase version for mid-sentence use */
@@ -1108,18 +1182,24 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 if (kb_match(b->kb, "story_default", dq, 2, dh, 1) > 0)
                     snprintf(place, sizeof place, "%s", kb_dequote(dh[0]));
             }
-            if (!elem[0]) snprintf(elem, sizeof elem, "rain");
-            if (!other_n[0]) snprintf(other_n, sizeof other_n, "someone");
+            if (!elem[0]) kb_story_default(b, "element", elem, sizeof elem);
+            if (!other_n[0]) kb_story_default(b, "other", other_n, sizeof other_n);
 
             /* Pronoun: "it" for objects, "he"/"she" for people — simplified */
-            const char *pron = "it";
-            const char *Pron = "It";
+            char pron_buf[KB_TERM_LEN] = "", Pron_buf[KB_TERM_LEN] = "";
+            kb_story_default(b, "pronoun", pron_buf, sizeof pron_buf);
+            kb_story_default(b, "pronoun_capitalized", Pron_buf, sizeof Pron_buf);
+            const char *pron = pron_buf;
+            const char *Pron = Pron_buf;
 
             /* Build the story from atoms: intro → event → feeling → ending */
             char msg[1024]; size_t mo = 0;
-            static const char *arc[] = {"intro", "event", "feeling", "ending"};
             for (int ai = 0; ai < 4; ai++) {
-                const char *aq[] = { arc[ai], NULL };
+                char arc[1][KB_TERM_LEN];
+                char ai_key[16]; snprintf(ai_key, sizeof ai_key, "%d", ai);
+                const char *ak[] = { ai_key, NULL };
+                if (kb_match(b->kb, "story_arc", ak, 2, arc, 1) != 1) continue;
+                const char *aq[] = { kb_dequote(arc[0]), NULL };
                 char hit[1][KB_TERM_LEN];
                 if (kb_match(b->kb, "story_atom", aq, 2, hit, 1) == 0) continue;
                 char *tpl = kb_dequote(hit[0]);
@@ -1211,15 +1291,14 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             char lines[4][KB_TERM_LEN];
             size_t ln = kb_match(b->kb, "poem4", pq, 2, lines, 4);
             if (ln < 4) continue;
-            char msg[600]; size_t off = 0;
-            for (size_t j = 0; j < 4; j++) {
-                char *p = lines[j]; size_t l = strlen(p);
-                if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
-                off += (size_t)snprintf(msg + off, sizeof msg - off, "%s%s",
-                                        j ? "\n" : "", p);
-            }
-            put(msg, out, out_size);
-            return 1;
+            const KbResponseSlot slots[] = {
+                { "line1", kb_dequote(lines[0]) },
+                { "line2", kb_dequote(lines[1]) },
+                { "line3", kb_dequote(lines[2]) },
+                { "line4", kb_dequote(lines[3]) }
+            };
+            if (kb_response_slots(b, "poem4_answer", slots, 4,
+                                  out, out_size)) return 1;
         }
         if (kb_cue_match(b, "generic_poem_request", norm)) {
             char topic[192];
@@ -1338,12 +1417,13 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                     }
                 }
                 if (!noun) { noun = rest[0]; adj = rest[1]; }
-                char msg[180];
-                snprintf(msg, sizeof msg, "%s%s%s is %s.",
-                         art ? "The" : "", art ? " " : "", noun, adj);
-                if (!art && msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
-                put(msg, out, out_size);
-                return 1;
+                const KbResponseSlot slots[] = {
+                    { "Noun", noun }, { "adj", adj }
+                };
+                const char *key = art ? "surface_color_definite"
+                                      : "surface_color_bare";
+                if (kb_response_slots(b, key, slots, 2, out, out_size))
+                    return 1;
             }
         }
     }
@@ -1367,10 +1447,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                     char *p = fh[b->response_pick % fn]; b->response_pick++;
                     size_t l = strlen(p);
                     if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
-                    char msg[160]; snprintf(msg, sizeof msg, "%s.", p);
-                    msg[0] = (char)toupper((unsigned char)msg[0]);
-                    put(msg, out, out_size);
-                    return 1;
+                    const KbResponseSlot slots[] = { { "Text", p } };
+                    if (kb_response_slots(b, "fill_three_answer", slots, 1,
+                                          out, out_size)) return 1;
                 }
             }
         }
@@ -1396,10 +1475,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 if (kb_match(b->kb, "completion_exact", eq, 3, eh, 1) > 0) {
                     char *p = eh[0]; size_t l = strlen(p);
                     if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
-                    char msg[160]; snprintf(msg, sizeof msg, "%s.", p);
-                    msg[0] = (char)toupper((unsigned char)msg[0]);
-                    put(msg, out, out_size);
-                    return 1;
+                    const KbResponseSlot slots[] = { { "Text", p } };
+                    if (kb_response_slots(b, "completion_exact_answer", slots, 1,
+                                          out, out_size)) return 1;
                 }
             }
         }
@@ -1429,7 +1507,6 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                          * sentences" style requests. Single line either way (the
                          * interviewer channel is line-based, gen252). */
                         int ways = kb_cue_match(b, "30_generation_reading_cue1333", norm) || kb_cue_match(b, "30_generation_reading_cue1333_2", norm);
-                        static const char *lead[] = { "Then", "Soon", "At last," };
                         char msg[520]; size_t off = 0;
                         size_t lim = tn < wantn ? tn : wantn;
                         for (size_t k = 0; k < lim; k++) {
@@ -1438,15 +1515,24 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                             if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
                             if (ways)
                                 off += (size_t)snprintf(msg + off, sizeof msg - off,
-                                                        "%s%zu) ...%s.", k ? " " : "",
-                                                        k + 1, p);
-                            else
+                                                         "%s%zu) ...%s.", k ? " " : "",
+                                                         k + 1, p);
+                            else {
+                                char lead[KB_TERM_LEN];
+                                if (!kb_narrative_lead(b, "alternatives", k,
+                                                        lead, sizeof lead)) {
+                                    off = 0;
+                                    break;
+                                }
                                 off += (size_t)snprintf(msg + off, sizeof msg - off,
-                                                        "%s%s %s.", k ? " " : "",
-                                                        lead[k], p);
+                                                         "%s%s %s.", k ? " " : "",
+                                                         lead, p);
+                            }
                         }
-                        put(msg, out, out_size);
-                        return 1;
+                        if (off > 0) {
+                            put(msg, out, out_size);
+                            return 1;
+                        }
                     }
                     char *p = cont[0];
                     size_t l = strlen(p);
@@ -1486,18 +1572,25 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             char cont[4][KB_TERM_LEN];
             size_t tn = domain_match(b, "narrative_completion", tq, 2, cont, 4);
             if (tn >= 2) {
-                static const char *lead[] = { "", " Then", " At last," };
                 char msg[560]; size_t off = 0;
                 size_t lim = tn < 3 ? tn : 3;
                 for (size_t k = 0; k < lim; k++) {
                     char *p = kb_dequote(cont[k]);
                     if (k == 0 && *p)
                         p[0] = (char)toupper((unsigned char)p[0]);
+                    char lead[KB_TERM_LEN];
+                    if (!kb_narrative_lead(b, "story", k, lead, sizeof lead)) {
+                        off = 0;
+                        break;
+                    }
                     off += (size_t)snprintf(msg + off, sizeof msg - off,
-                                            "%s %s.", lead[k], p);
+                                            "%s%s%s%s.", k ? " " : "",
+                                            lead, *lead ? " " : "", p);
                 }
-                put(msg + 1, out, out_size);   /* skip the leading space */
-                return 1;
+                if (off > 0) {
+                    put(msg, out, out_size);
+                    return 1;
+                }
             }
         }
         kb_term_say(b, "i_don_t_have_story_material_for_that_topic_y", NULL, 0, out, out_size);

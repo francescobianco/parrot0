@@ -121,6 +121,31 @@ creative_response(historical_riddle_request, historical_riddle_answer).
 response_template(historical_riddle_answer, "I crossed a sea with neither sail nor wing, left footprints where no rain can wash them, and made a silent world speak to millions below. What event am I?").
 creative_response(body_technology_choice, body_technology_answer).
 response_template(body_technology_answer, "I would choose a removable continuous health sensor that tracks rhythm, temperature, oxygen and key blood markers, because a year of early warnings and longitudinal data could prevent emergencies without permanently altering the body. Its data would need local encryption, explicit consent controls and an easy physical off-switch.").
+
+% gen492: legacy creative_text artifacts exposed to the evidence-based
+% creative_response dispatcher. The wording remains KB knowledge.
+creative_response(villain_salvation_monologue, villain_salvation_monologue_answer).
+response_template(villain_salvation_monologue_answer, "They will call me monster when the seas boil and the towers fall, but I have watched this world bargain away every tomorrow for one more comfortable hour. I do not destroy it because I hate it; I destroy the fever so something clean can breathe after us. Let history curse my name if it must. A curse is still a kind of memory, and memory is more mercy than extinction.").
+creative_response(cultural_fusion_holiday, cultural_fusion_holiday_answer).
+response_template(cultural_fusion_holiday_answer, "The Lantern Harvest Feast begins with families lighting floating lamps for their ancestors, then sharing a braided harvest bread at a long communal table, and ends with masked street dancing while neighbors exchange small sweets for good luck. It blends remembrance, thanksgiving for the crop, and carnival renewal into one night of light, food, music, and public joy.").
+creative_response(time_accident_story, time_accident_story_answer).
+response_template(time_accident_story_answer, "Dr. Mara Vale jumped back to 1895 only to move a loose broom before a clerk could trip over it. The clerk arrived early, signed the wrong shipping order, and a crate of lab glass reached a young inventor a month ahead of schedule. That early experiment produced a cheaper battery, which pulled nations into an electric arms race before diplomacy had caught up. Mara returned to a skyline humming with machines built from the accident she had prevented.").
+creative_response(alien_two_suns_species, alien_two_suns_species_answer).
+response_template(alien_two_suns_species_answer, "The Aurakai are tall, copper-skinned beings with translucent eyelids that filter the glare of their twin suns. Their backs carry fanlike heat fins, and their hands have four broad fingers for digging shade burrows in glassy soil. They organize society by shared shade-houses rather than blood families: each house guards a well, teaches children sung navigation, and votes at dusk when both suns touch the horizon.").
+creative_response(ai_society_dialogue, ai_society_dialogue_answer).
+response_template(ai_society_dialogue_answer, "Mara: If AI handles dangerous work and helps doctors catch mistakes, it could save lives. Jules: It could, but only if people stay accountable; otherwise it may amplify bias, surveillance, and unemployment. Mara: Then the question is not whether AI is good or bad, but who controls it and what rules shape its use. Jules: Agreed. Benefit comes from governance and transparency, not from the tool magically becoming wise.").
+creative_response(metaphor_request, metaphor_answer).
+response_template(metaphor_answer, "{line}").
+response_template(creative_text_answer, "{text}").
+response_template(metaphor_line_answer, "{line}").
+creative_response(greeting_request, greeting_reply).
+response_template(riddle_answer_reply, "{text}").
+response_template(sensory_phrase_answer, "{Text}.").
+response_template(fill_three_answer, "{Text}.").
+response_template(completion_exact_answer, "{Text}.").
+response_template(surface_color_definite, "The {Noun} is {adj}.").
+response_template(surface_color_bare, "{Noun} is {adj}.").
+response_template(poem4_answer, "{line1}\n{line2}\n{line3}\n{line4}").
 response_template(past_participle_answer, "The past participle of {verb} is {participle}.").
 response_template(definite_conclusion_limited, "We can conclude that {subject} are {class}, but not that {subject} are {other}. The 'some {class} are {other}' premise may refer to different {class}.").
 response_template(digit_count_between_answer, "The digit {digit} appears {count} times between {low} and {high}.").

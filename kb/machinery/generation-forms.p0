@@ -199,6 +199,12 @@ haiku_close(mountain, "patient as the stone").
 haiku_open(river, "The river hurries").
 haiku_mid(river, "carrying the sky on its back").
 haiku_close(river, "toward a far sea").
+narrative_lead(alternatives, 0, "Then").
+narrative_lead(alternatives, 1, "Soon").
+narrative_lead(alternatives, 2, "At last,").
+narrative_lead(story, 0, "").
+narrative_lead(story, 1, "Then").
+narrative_lead(story, 2, "At last,").
 creative_text(villain_salvation_monologue, "They will call me monster when the seas boil and the towers fall, but I have watched this world bargain away every tomorrow for one more comfortable hour. I do not destroy it because I hate it; I destroy the fever so something clean can breathe after us. Let history curse my name if it must. A curse is still a kind of memory, and memory is more mercy than extinction.").
 creative_text_cue(villain_salvation_monologue, "dramatic monologue").
 creative_text_cue(villain_salvation_monologue, "villain").

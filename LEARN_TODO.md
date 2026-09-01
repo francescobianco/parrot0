@@ -74,14 +74,27 @@ memorizza la prova. Non c'è niente da inventare, c'è da estendere.
    forme di lezione; un motore solo li aggancia entrambi e asserisce la condotta.
    Il punto d'innesto naturale è accanto a `try_teach_form` (`src/brain/00-lex.c`,
    chiamato da `10-memory-knowledge.c:196` e `99-registry.c:3855`).
-   ⛔ Non scrivere un ramo per la narrativa: se non funziona per una facoltà
-   qualsiasi con superfici dichiarate, è di nuovo il caso particolare.
+    ⛔ Non scrivere un ramo per la narrativa: se non funziona per una facoltà
+    qualsiasi con superfici dichiarate, è di nuovo il caso particolare.
+
+    **Implementazione avviata:** `faculty_force_lesson/2` e il motore unico in
+    `src/brain/00-lex.c` collegano superficie e forza; il gate runtime è pronto,
+    ma viene eseguito soltanto nella sessione finale di test.
 
 2. **Le altre 38 rivendicazioni di `mod_gen`** → farle competere come
-   `creative_response`. Vedi §5 del piano generation-kb-first.
+    `creative_response`. Vedi §5 del piano generation-kb-first.
+
+    **Incremento 2026-09-01 sera:** le cinque classi statiche `creative_text`,
+    il saluto imperativo e la metafora sono stati aggiunti come candidati
+    additivi; la metafora usa il protocollo parametrico
+    `creative_response_topic/3`. Anche i prefissi della lezione di sequenze e i
+    default/archi narrativi sono stati spostati in KB.
+    I gate restano da eseguire nella sessione finale.
 3. **La forza oltre l'imperativo**: la domanda (superfici sparse in
-   `answer_frame`) e le richieste indirette («potresti…», «mi servirebbe…»), che
-   sono la forma normale del parlato.
+   `answer_frame`) e la copertura completa delle richieste indirette
+   («potresti…», «mi servirebbe…»), che sono la forma normale del parlato. Un
+   primo registro `request_opener/1` è ora consumato dalla lettura condivisa;
+   resta da ampliare e verificare nel gate finale.
 4. **G4 resta aperto** per «ho messo il libro sul tavolo» (tre ruoli, agente
    implicito) — vedi GD8 al §6.
 
@@ -586,9 +599,16 @@ dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
    preposizione**, quindi «sullo» con glossa «in the» è impossibile per
    costruzione. Additivo: le righe enumerate restano.
 
-   **Resta aperto:** «ho messo il libro sul tavolo» (tre ruoli, agente
-   implicito) e «metto il libro sul tavolo», che oggi viene **dirottato da un
-   generatore di finzione** — registrato in §7bis.
+    **Resta aperto:** «ho messo il libro sul tavolo» (tre ruoli, agente
+    implicito) e «metto il libro sul tavolo», che oggi viene **dirottato da un
+    generatore di finzione** — registrato in §7bis.
+
+    **Implementazione avviata nel ciclo 2026-09-01 sera:** `extract_frame/2`
+    genera ora frame di trasferimento locativo da verbi e preposizioni dichiarati
+    in KB; `frame_projection/4` proietta i ruoli agente-oggetto-destinazione sul
+    fatto pubblico `located_in/2`. La canonicalizzazione KB porta già le
+    preposizioni articolate alla forma dichiarata; il gate resta da eseguire
+    nella sessione finale.
 
 7. **✅ D41 — chiusa 2026-09-01. PARROT0 NON SAPEVA RILEGGERE CIO' CHE SCRIVE.**
    Il reperto più grosso della giornata, e non lo stavo cercando:

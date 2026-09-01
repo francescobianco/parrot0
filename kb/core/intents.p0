@@ -1656,6 +1656,48 @@ creative_response_gate(acoustic_storm_request, "summer thunderstorm").
 creative_response_gate(acoustic_storm_request, "only acoustic instruments").
 creative_response_gate(renewable_water_proposal, "sustainable water supply").
 creative_response_gate(historical_riddle_request, "short riddle").
+
+% gen492: legacy creative_text artifacts also participate in the generic
+% evidence competition. Their old rows remain live as additive fallbacks; this
+% path gives each artifact a named hypothesis and inspectable proof.
+intent_cue(villain_salvation_monologue, "dramatic monologue").
+intent_cue(villain_salvation_monologue, "villain").
+intent_cue(villain_salvation_monologue, "destroying the world").
+intent_cue(villain_salvation_monologue, "save it").
+creative_response_gate(villain_salvation_monologue, "dramatic monologue").
+creative_response_gate(villain_salvation_monologue, keyword(villain)).
+intent_cue(cultural_fusion_holiday, "fictional holiday").
+intent_cue(cultural_fusion_holiday, "holiday celebration").
+intent_cue(cultural_fusion_holiday, "three real-world cultural traditions").
+intent_cue(cultural_fusion_holiday, "cultural traditions").
+creative_response_gate(cultural_fusion_holiday, "fictional holiday").
+creative_response_gate(cultural_fusion_holiday, "cultural traditions").
+intent_cue(time_accident_story, "short story").
+intent_cue(time_accident_story, "time traveler").
+intent_cue(time_accident_story, "minor historical accident").
+intent_cue(time_accident_story, "major one").
+creative_response_gate(time_accident_story, "time traveler").
+creative_response_gate(time_accident_story, "minor historical accident").
+intent_cue(alien_two_suns_species, "fictional alien species").
+intent_cue(alien_two_suns_species, "planet with two suns").
+intent_cue(alien_two_suns_species, "physical appearance").
+intent_cue(alien_two_suns_species, "social customs").
+creative_response_gate(alien_two_suns_species, "fictional alien species").
+creative_response_gate(alien_two_suns_species, "planet with two suns").
+intent_cue(ai_society_dialogue, "short dialogue").
+intent_cue(ai_society_dialogue, "two characters").
+intent_cue(ai_society_dialogue, "artificial intelligence").
+intent_cue(ai_society_dialogue, "benefit or harm society").
+creative_response_gate(ai_society_dialogue, "artificial intelligence").
+creative_response_gate(ai_society_dialogue, "benefit or harm society").
+intent_cue(metaphor_request, "metaphor").
+creative_response_gate(metaphor_request, "metaphor").
+creative_response_topic(metaphor_request, metaphor_topic, metaphor_line).
+intent_cue(greeting_request, $Cue) :- intent_cue(30_generation_reading_chain454, $Cue).
+creative_response_gate(greeting_request, $Cue) :- intent_cue(30_generation_reading_chain454, $Cue).
+sequence_learning_prefix("learn sequence:").
+learnable("a sequence learning prefix", sequence_learning_prefix, unary).
+learnable("un prefisso per imparare sequenze", sequence_learning_prefix, unary).
 intent_cue(historical_riddle_request, "historical event").
 intent_cue(historical_riddle_request, "without naming it").
 intent_cue(body_technology_choice, "embed a single piece of technology").
@@ -4250,6 +4292,7 @@ intent_cue(supposition, "assumi ").
 % e questo si dice UNA volta per tutte le facolta', non una lista per ciascuna.
 machinery(illocution_cue).
 machinery(faculty_force).
+machinery(faculty_force_lesson).
 
 % ── LA FORZA DEL TURNO ──────────────────────────────────────────────────────
 %
@@ -4257,6 +4300,9 @@ machinery(faculty_force).
 % d'esclusione al servizio di un cancello e diventa EVIDENZA di una lettura
 % generale — lo stesso oggetto usato da tutti invece di una copia per sintomo.
 illocution_cue(directive, $Opener) :- imperative_opener($Opener).
+% Indirect requests are the same directive force expressed as a question or
+% a polite preface. The wording is lexicon knowledge, not a C-side exception.
+illocution_cue(directive, $Opener) :- request_opener($Opener).
 
 % L'asserzione non ha cue proprie: e' cio' che resta quando nessuna forza e'
 % marcata. E' deliberato — marcare l'asserzione richiederebbe di enumerare la
@@ -4287,3 +4333,15 @@ faculty_surface(narrative_continuation, it, "il generatore di storie").
 faculty_surface(narrative_continuation, it, "il racconto").
 faculty_surface(narrative_continuation, en, "the narrator").
 faculty_surface(narrative_continuation, en, "the story generator").
+
+% #17: the conduct lesson is a reusable relation, separate from the faculty
+% it happens to correct. A future faculty can declare the same force without a
+% new C recognizer; a future wording is another KB row.
+faculty_force_lesson(directive, "deve rispondere solo se glielo chiedo").
+faculty_force_lesson(directive, "risponde solo quando glielo chiedo").
+faculty_force_lesson(directive, "non deve rispondere se non glielo chiedo").
+faculty_force_lesson(directive, "non dovrebbe rispondere senza che glielo chieda").
+faculty_force_lesson(directive, "should answer only when asked").
+faculty_force_lesson(directive, "only answers when I ask").
+faculty_force_lesson(directive, "should not answer unless I ask").
+faculty_force_lesson(directive, "must not answer unless asked").

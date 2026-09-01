@@ -77,6 +77,12 @@ response_template(role_set_plain, "Alright.").
 response_template(role_set_plain, it, "Va bene.").
 response_template(teach_family_ack, "Got it - I'll take «{phrase}» as {label} {family} now.").
 response_template(teach_family_ack, it, "Ricevuto — d'ora in poi prendo «{phrase}» come {label} {family}.").
+response_template(faculty_force_taught, "Understood: {faculty} will answer only when you ask it.").
+response_template(faculty_force_taught, it, "Capito: {faculty} risponderà solo quando glielo chiedi.").
+response_template(faculty_force_forgotten, "Understood: {faculty} may answer again when the turn permits it.").
+response_template(faculty_force_forgotten, it, "Capito: {faculty} può rispondere di nuovo quando il turno lo consente.").
+response_template(faculty_force_not_held, "I was not holding that conduct rule for {faculty}.").
+response_template(faculty_force_not_held, it, "Non avevo questa regola di condotta per {faculty}.").
 response_template(no_relation_by_that_name, "I don't know a relation called {family}, so a way to ask for it would open onto an empty room.").
 response_template(no_relation_by_that_name, it, "Non conosco nessuna relazione chiamata {family}, quindi un modo per chiederla si aprirebbe su una stanza vuota.").
 % gen490 (M15, il residuo) — la lezione che ANCORA una formulazione nuova a una

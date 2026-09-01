@@ -4080,10 +4080,34 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
         if (r.nquestion == 1) {
             size_t qslot = r.qslot;
             const char *bind[P0_MAX_SLOTS];
-            for (size_t si = 0; si < nslots; si++)
-                bind[si] = (si == qslot) ? NULL : slot[si];
+            size_t query_nslots = nslots;
+            size_t query_index[P0_MAX_SLOTS];
+            for (size_t si = 0; si < nslots; si++) query_index[si] = si;
+            {
+                char arity[16]; snprintf(arity, sizeof arity, "%zu", nslots);
+                const char *pq[4] = { pred, arity, NULL, NULL };
+                char first_row[1][KB_TERM_LEN], second_row[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "frame_projection", pq, 4,
+                             first_row, 1) == 1) {
+                    const char *sq[4] = { pred, arity, first_row[0], NULL };
+                    if (kb_match(b->kb, "frame_projection", sq, 4,
+                                 second_row, 1) != 1) continue;
+                    size_t first = (size_t)atoi(first_row[0]);
+                    size_t second = (size_t)atoi(second_row[0]);
+                    if (first >= nslots || second >= nslots || first == second)
+                        continue;
+                    if (qslot != first && qslot != second) continue;
+                    query_nslots = 2;
+                    query_index[0] = first;
+                    query_index[1] = second;
+                }
+            }
+            for (size_t si = 0; si < query_nslots; si++) {
+                size_t original = query_index[si];
+                bind[si] = (original == qslot) ? NULL : slot[original];
+            }
             char hits[16][KB_TERM_LEN];
-            size_t nh = kb_match(b->kb, pred, bind, nslots, hits, 16);
+            size_t nh = kb_match(b->kb, pred, bind, query_nslots, hits, 16);
             if (nh > 0) {
                 char hb[KB_TERM_LEN];
                 snprintf(hb, sizeof hb, "%s", hits[0]);
@@ -4104,6 +4128,32 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
 
         const char *subj = slot[0];
         const char *obj = slot[nslots - 1];
+        size_t fact_nslots = nslots;
+        size_t fact_index[P0_MAX_SLOTS];
+        for (size_t si = 0; si < nslots; si++) fact_index[si] = si;
+        /* A construction may expose an implicit agent as a frame role while
+         * projecting its semantic result to an existing relation. The mapping
+         * is KB knowledge; this code only applies the declared slot indices. */
+        {
+            char arity[16]; snprintf(arity, sizeof arity, "%zu", nslots);
+            const char *pq[4] = { pred, arity, NULL, NULL };
+            char first_row[1][KB_TERM_LEN], second_row[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "frame_projection", pq, 4,
+                         first_row, 1) == 1) {
+                const char *sq[4] = { pred, arity, first_row[0], NULL };
+                if (kb_match(b->kb, "frame_projection", sq, 4,
+                             second_row, 1) != 1) continue;
+                size_t first = (size_t)atoi(first_row[0]);
+                size_t second = (size_t)atoi(second_row[0]);
+                if (first < nslots && second < nslots && first != second) {
+                    fact_nslots = 2;
+                    fact_index[0] = first;
+                    fact_index[1] = second;
+                    subj = slot[first];
+                    obj = slot[second];
+                }
+            }
+        }
         if (p0_bad_subject(b, subj)) continue;
 
         char text_term[KB_TERM_LEN];
@@ -4119,14 +4169,16 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
 
         kb_set_origin(b->kb, KB_SESSION);
         const char *fa[P0_MAX_SLOTS];
-        for (size_t si = 0; si < nslots; si++) fa[si] = slot[si];
-        fa[nslots - 1] = stored_obj;        /* l'ultimo puo' essere testuale */
+        for (size_t si = 0; si < fact_nslots; si++)
+            fa[si] = slot[fact_index[si]];
+        if (fact_index[fact_nslots - 1] == nslots - 1)
+            fa[fact_nslots - 1] = stored_obj; /* l'ultimo puo' essere testuale */
         /* Un valore concettuale attraversa il cancello completo. Un valore
          * testuale e' autorizzato dallo schema KB della relazione: il soggetto
          * resta un concetto, mentre lo span descrittivo viene conservato. */
         const char *subject_only[] = { subj };
         int clean = text_value ? p0_fact_is_clean(b, pred, subject_only, 1) :
-                                 p0_fact_is_clean(b, pred, fa, nslots);
+                                  p0_fact_is_clean(b, pred, fa, fact_nslots);
         if (!clean) {
             kb_term_say(b, "rejected_binary_fact", (const KbResponseSlot[]){
                             { "pred", pred }, { "arg1", subj }, { "arg2", stored_obj } },
@@ -4134,8 +4186,8 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
             free(pats);
             return 2;                       /* 2 = respinto, ma non silenzioso */
         }
-        if (kb_assert(b->kb, pred, fa, nslots)) {
-            p0_learn_source(b, pred, fa, nslots, norm);
+        if (kb_assert(b->kb, pred, fa, fact_nslots)) {
+            p0_learn_source(b, pred, fa, fact_nslots, norm);
             /* G3 — CHI E' STATO NOMINATO, E IN CHE ORDINE.
              *
              * Un'entita' introdotta occupa una posizione nel discorso. Senza
@@ -4147,14 +4199,14 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
             /* La frase la sceglie il numero di ruoli, e le frasi stanno in KB:
              * annunciare due argomenti su tre sarebbe un misclaim su cio' che
              * si e' appena imparato. */
-            if (nslots >= 3)
+            if (fact_nslots >= 3)
                 kb_term_say(b, "learned_ternary_fact", (const KbResponseSlot[]){
                                 { "pred", pred }, { "arg1", slot[0] },
                                 { "arg2", slot[1] }, { "arg3", slot[2] } },
                             4, msg, sizeof msg);
             else {
                 char said[256];
-                if (p0_say_fact(b, pred, subj, stored_obj, said, sizeof said))
+                if (p0_say_fact(b, pred, subj, fa[1], said, sizeof said))
                     kb_term_say(b, "learned_facts", (const KbResponseSlot[]){
                                     { "facts", said } }, 1, msg, sizeof msg);
                 else

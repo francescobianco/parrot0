@@ -1,0 +1,18 @@
+# GD8: a transitive locative surface has an implicit agent, but projects to the
+# same public located_in/2 fact used by the existing where-question reader.
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=it
+!reset
+
+[test locative_transfer_frame]
+> ho messo il libro sul tavolo
+<~ Imparato
+!query located_in(libro, tavolo)
+> dove si trova il libro
+<~ tavolo
+> metto il libro sulla mensola
+<~ Imparato
+!query located_in(libro, mensola)
