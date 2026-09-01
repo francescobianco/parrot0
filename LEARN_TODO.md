@@ -1,6 +1,112 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-# ⛔ RIPARTI DA QUI — handoff 2026-09-01
+# ⛔ RIPARTI DA QUI — handoff 2026-09-01 (sera)
+
+> **Come si riprende:** «continua da questo file». Leggi §A e §B, poi vai al
+> §6 «Il prossimo lavoro». Il resto è la coda storica e serve dopo.
+
+## §A. La cosa più importante di oggi: DUE PRINCIPI NUOVI
+
+F. ha dato una direzione che cambia il criterio di ogni lavoro futuro:
+
+> *«parrot0 deve poter imparare e poter cambiare comportamento in tutto quello
+> che fa; questa è un'implicazione che ha come requisito il "tutto è KB"»* — e i
+> turni rubati **si devono poter riparare parlando**.
+
+Scritti in **`MANTRA.md` #17** e in **`PRINCIPLES.md`** («Cardinal corollary,
+second half: conduct is knowledge too»). La sostanza:
+
+- Il #2 copre l'**ingresso** (cue, trigger, sinonimi). Il #16 copre l'**uscita**
+  (le frasi). In mezzo resta la **CONDOTTA** — quando un modulo rivendica, con
+  quale priorità, sotto quali guardie — e **nessuno dei due la vede**: una
+  guardia non ha «membri» da imparare domani e non è «testo rivolto
+  all'interlocutore», quindi passa in silenzio attraverso entrambi i test.
+- Una lista di parole si annuncia da sola; una condotta no. `if (has_marker &&
+  nw > 3) return claim();` **sembra** meccanismo. Non lo è.
+- Il test: **«l'utente può DIRE che quella facoltà ha esagerato, con parole sue,
+  e vale dal turno dopo?»**
+
+## §B. ⚠ L'ERRORE CHE HO FATTO OGGI — non rifarlo
+
+Ho preso l'esempio con cui F. spiegava il principio («il generatore di poesie va
+agganciato se con X c'è anche Y») e **l'ho implementato come caso**: diciotto
+`move_requires(narrative_continuation, "storia"/"scrivi"/…)`. Cioè **una lista di
+parole** — il mantra #2 violato nel gesto stesso con cui aggiungevo il #17.
+
+F. mi ha fermato: *«ti avevo detto che il mio era solo un esempio generico, non
+volevo che lo usassi come caso»*. Ritirata lo stesso giorno.
+
+**E non sarebbe stata la prima:** al gen337 lo stesso difetto fu curato con
+`imperative_opener/1` (execute, run, migrate, scan…). Una lista per sintomo. E
+nessuna delle due poteva coprire «metto il libro sul tavolo» — che non è un
+comando: è un'**asserzione**.
+
+> **La regola che ne esce:** quando una facoltà sbaglia a prendere il turno, la
+> domanda giusta non è *«quale cue le manca?»* ma **«quale lettura del turno non
+> è stata fatta?»**. La prima produce una lista; la seconda una capacità.
+
+E il test riutilizzabile su qualunque classe KB: **una classe popolata dai
+sintomi non è una classe, è l'elenco degli incidenti.** `imperative_opener`
+aveva quindici membri, tutti verbi di comando sull'infrastruttura, e nessuno
+degli imperativi ordinari con cui si chiede davvero di generare qualcosa.
+
+## §C. L'analisi che F. ha chiesto: `docs/plans/generation-kb-first.md`
+
+Misurato prima di opinare. `mod_gen`: **39 punti in cui rivendica il turno, 77
+test di cue diretti, 1 sola decisione che passa da un punteggio di evidenza.**
+Negli altri 38 la politica *è l'ordine degli `if` nel C* — non ha nome, non è
+interrogabile, non è correggibile parlando.
+
+Il modello da seguire esiste già **dentro `mod_gen` stesso**: il ramo
+`creative_response` fa competere candidati dichiarati con `kb_hypothesis_best` e
+memorizza la prova. Non c'è niente da inventare, c'è da estendere.
+
+## §D. Da dove riprendere, esattamente
+
+1. **▶ LA CORREZIONE PARLATA — è la metà mancante del #17 ed è la prossima mossa.**
+   `faculty_surface/3` esiste già (chi parla può chiamare una facoltà con parole
+   sue: «il narratore», «il generatore di storie»), ma **manca la lezione che la
+   consuma**. Serve che «il narratore deve rispondere solo se glielo chiedo»
+   asserisca `faculty_force/2` e valga dal turno dopo.
+
+   **La forma generale da costruire** (non una per facoltà): il turno nomina una
+   facoltà via `faculty_surface/3` **e** porta un limite via un registro di
+   forme di lezione; un motore solo li aggancia entrambi e asserisce la condotta.
+   Il punto d'innesto naturale è accanto a `try_teach_form` (`src/brain/00-lex.c`,
+   chiamato da `10-memory-knowledge.c:196` e `99-registry.c:3855`).
+   ⛔ Non scrivere un ramo per la narrativa: se non funziona per una facoltà
+   qualsiasi con superfici dichiarate, è di nuovo il caso particolare.
+
+2. **Le altre 38 rivendicazioni di `mod_gen`** → farle competere come
+   `creative_response`. Vedi §5 del piano generation-kb-first.
+3. **La forza oltre l'imperativo**: la domanda (superfici sparse in
+   `answer_frame`) e le richieste indirette («potresti…», «mi servirebbe…»), che
+   sono la forma normale del parlato.
+4. **G4 resta aperto** per «ho messo il libro sul tavolo» (tre ruoli, agente
+   implicito) — vedi GD8 al §6.
+
+## §E. Che cosa è stato chiuso oggi (dettagli al §6)
+
+| | cosa |
+|---|---|
+| **G4/GD4** | le due ellissi sono **duali** e si pestavano i piedi; `referring_surface/1` è l'oggetto condiviso |
+| **G5** | ridire è correggere — e `supersession_exempt/3` per i valori **annidati** (Roma è in Italia *e* nel Lazio) |
+| **GD8 (metà)** | le articolate come **paradigma** su due assi, non come buchi tappati tre volte |
+| **D41** | **parrot0 non sapeva rileggere ciò che scrive**; `say_frame/2` rende l'invariante vero *per costruzione* |
+| **#17** | la condotta è conoscenza; il primo cancello è dichiarato e additivo |
+
+**Lo strumento nuovo da riusare:** `scripts/self_echo_audit.py` — rimanda a
+parrot0 le sue stesse frasi. Ha trovato quattro difetti al primo colpo, tre dei
+quali nessuno cercava, perché i turni rubati che ne nascono sono
+**inattribuibili** su qualunque misura del corpus.
+
+**I rossi aperti sono in §7bis**, ognuno con la misura differenziale. F. ha
+chiesto esplicitamente di **non fermare la marcia per i test**: si annota e si
+prosegue sui macro-obiettivi.
+
+---
+
+# handoff precedente — 2026-09-01 (giorno)
 
 > **Come si riprende:** «continua da questo file». Leggi questa sezione fino in
 > fondo, poi vai al §6 «Il prossimo lavoro». Tutto il resto del file è la coda
