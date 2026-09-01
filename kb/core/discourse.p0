@@ -166,6 +166,76 @@ recall_cue("what have you answered", covered).
 recall_cue("su cosa mi hai risposto", covered).
 recall_kind_word(covered, $Entity) :- covered_entity($Entity).
 
+% ── G4: L'ELLISSI — QUANDO IL TURNO NON PORTA LA PROPRIA RELAZIONE ─────────
+%
+% «E il secondo?» non e' una domanda incompleta da riparare: e' una domanda
+% NORMALE, che si appoggia al discorso invece di ripetersi. Chi risponde
+% «e' sulla mensola» non ha indovinato — ha applicato la relazione che era gia'
+% in gioco a un referente nuovo. Un dialogo in cui ogni turno deve riportare
+% per intero la propria relazione non e' un dialogo: e' una sequenza di
+% interrogazioni indipendenti, ed e' esattamente cio' che parrot0 faceva.
+%
+% LA STRUTTURA C'ERA GIA', ED ERA A DIGIUNO. `exchange/3` e' documentato qui
+% sopra come cio' che parrot0 ha DETTO (distinto da cio' che SA), ed e' gia'
+% consumato da `told_about/2`, `covered_entity/1` e «su cosa mi hai risposto».
+% Ma nessuno lo riempiva quando una DOMANDA riceveva risposta: era popolato
+% solo dalle letture dichiarative. Il risultato e' che tre capacita' gia'
+% scritte erano morte per fame, e la quarta — l'ellissi — sembrava mancare di
+% un'infrastruttura che invece esisteva.
+%
+% Percio' qui non si aggiunge una memoria nuova accanto a quella vecchia: si
+% NUTRE quella vecchia. Un secondo registro parallelo sarebbe stato piu' rapido
+% da scrivere e avrebbe creato due memorie del discorso destinate a divergere —
+% la forma del difetto ricorrente (D33/D35/D37): due percorsi che devono
+% accordarsi senza condividere l'oggetto su cui accordarsi.
+machinery(discourse_answer_observe).
+machinery(current_relation).
+machinery(referring_surface).
+machinery(elliptical_reference_policy).
+
+discourse_answer_observe($Entity, $Relation, $Value) :-
+    turn_counter($N),
+    assert(exchange, $Entity, $Relation, $Value),
+    assert(exchange_turn, $N, $Entity).
+
+% La relazione in gioco e' una VISTA, non un campo tenuto da qualcuno — la
+% stessa forma di `current_topic/1` qui sopra, e per la stessa ragione: una
+% digressione che non risponde a niente non lascia uno scambio, quindi non
+% sposta la relazione. Non c'e' nessun «ultima domanda» da mantenere aggiornato.
+current_relation($Relation) :- current_topic($Entity), exchange($Entity, $Relation, $Value).
+
+% Che cosa conti come espressione che RIFERISCE e' conoscenza, non un elenco nel
+% C. Il motore chiede soltanto «questo turno contiene un riferimento?»; quali
+% forme lo siano si dichiara qui, e una forma nuova domani costa una riga.
+referring_surface($Surface) :- ordinal_surface($Surface).
+referring_surface($Surface) :- demonstrative_surface($Surface).
+
+% La vista per superficie sola, gemella di `ordinal_surface/1`: chi deve
+% chiedere «questa parola e' un dimostrativo?» non deve prima sapere in quale
+% lingua cercarla — la canonicalizzazione puo' gia' aver mescolato le lingue
+% dentro un turno solo («and quello blue»).
+machinery(demonstrative_surface).
+demonstrative_surface($Surface) :- demonstrative_reference($Language, $Surface).
+
+% ⚠ IL DIMOSTRATIVO NON E' UN NOME: e' un segnaposto che dice «un referente gia'
+% introdotto», e da solo NON individua. «quello rosso» individua per la
+% proprieta' che lo segue, non per «quello». Percio' un dimostrativo nudo deve
+% restare ambiguo e chiedere, mai scegliere in silenzio (vincolo GD4).
+machinery(demonstrative_reference).
+demonstrative_reference(it, "quello").
+demonstrative_reference(it, "quella").
+demonstrative_reference(it, "quelli").
+demonstrative_reference(it, "quelle").
+demonstrative_reference(en, "that one").
+demonstrative_reference(en, "the other one").
+demonstrative_reference(it, "l'altro").
+demonstrative_reference(it, "l'altra").
+
+% L'eredita' e' una POLITICA dichiarata, non un comportamento cablato: si puo'
+% spegnere, e un registro che non la vuole puo' dichiararne un'altra. Segue
+% l'idioma gia' usato da `branch_action_ellipsis/3` in conditional-plans.p0.
+elliptical_reference_policy(inherit_previous).
+
 % ── 5. LA MOSSA ────────────────────────────────────────────────────────────
 %
 % Due esiti disgiunti, ed entrambi sono una risposta: dire che cosa manca, o

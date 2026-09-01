@@ -2392,6 +2392,26 @@ static int topic_continue_resolve(Brain *b, const char *canon,
     const char *cq[] = { strip_edge_punct(w[0]) };
     if (!kb_query(b->kb, "conjunction", cq, 1)) return 0;   /* serve un connettore */
 
+    /* G4 — NE' DEVE GIA' RIFERIRLA.
+     *
+     * Questa guardia diceva gia' la cosa giusta — «il residuo non deve gia'
+     * nominare un'entita'» — ma la verificava solo per le entita' NOMINATE
+     * (`kb_describe_entity`). «E il secondo?» non nomina: RIFERISCE. Il residuo
+     * passava la guardia, il topic saliente veniva appeso in coda, e nasceva
+     * «the second mensola» — un turno che poi qualcuno rivendicava all'indietro
+     * rispondendo «quaderno blue» a una domanda su un LUOGO.
+     *
+     * Le due ellissi sono duali e vanno lasciate lavorare ciascuna sulla sua:
+     *
+     *   soggetto eliso, relazione presente  →  «e quanti giocatori»  → qui
+     *   referente presente, relazione elisa →  «e il secondo?»       → G4
+     *
+     * Riferire e' un modo di nominare, quindi la cura non e' una guardia nuova
+     * accanto a questa: e' questa guardia con l'estensione che le mancava. Che
+     * cosa conti come espressione che riferisce lo dice `referring_surface/1`,
+     * ed e' la STESSA nozione che usa l'ereditarieta' della relazione. */
+    if (p0_turn_refers(b, canon)) return 0;
+
     /* Il residuo non deve gia' nominare un'entita': «e parlami del bridge» e'
      * una domanda su un ALTRO argomento, non la continuazione di questo. */
     for (size_t k = 1; k < nw; k++) {

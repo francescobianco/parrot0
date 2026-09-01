@@ -5980,6 +5980,23 @@ static size_t p0_head_index(Brain *b, size_t nparts) {
  * relazione gia' conosce. Restituisce le risposte solo se la descrizione
  * individua UNA sola entita': due entita' compatibili sono un'ambiguita', e
  * sceglierne una sarebbe inventare che cosa intendesse chi parla. */
+/* G4 — un pro-forma e' una descrizione anche da solo. */
+static int p0_is_demonstrative(Brain *b, const char *tok) {
+    if (!b || !b->kb || !tok || !*tok) return 0;
+    char (*dem)[KB_TERM_LEN] = NULL; size_t nd = 0;
+    const char *dq[1] = { NULL };
+    if (!kb_match_all(b->kb, "demonstrative_surface", dq, 1, &dem, &nd)) return 0;
+    int hit = 0;
+    for (size_t i = 0; i < nd && !hit; i++) {
+        char db[KB_TERM_LEN];
+        snprintf(db, sizeof db, "%s", dem[i]);
+        const char *t = kb_dequote(db);
+        if (*t && strcmp(t, tok) == 0) hit = 1;
+    }
+    free(dem);
+    return hit;
+}
+
 static size_t p0_answer_by_description(Brain *b, const char *pred,
                                        const char *phrase, int allow_arg1,
                                        int allow_arg2,
@@ -5991,6 +6008,22 @@ static size_t p0_answer_by_description(Brain *b, const char *pred,
     if (np == 0) return 0;
     size_t phead = p0_head_index(b, np);
 
+    /* G4 — IL DIMOSTRATIVO E' UN PRO-FORMA: NON PORTA TESTA.
+     *
+     * «quello blu» non dice di che cosa si parla, dice QUALE fra le cose di cui
+     * si sta gia' parlando. Confrontare «quello» con la testa di una chiave
+     * («book») non fallisce per caso: fallisce perche' li' non c'e' niente da
+     * confrontare. Chi riferisce con un dimostrativo si appoggia al discorso —
+     * e allora il discorso e' anche il LIMITE dei candidati.
+     *
+     * Restringere ai referenti gia' introdotti non e' una prudenza: e' il
+     * significato della parola. Ed evita per costruzione lo scan globale sulle
+     * entita' che era gia' stato scartato altrove (§0.2 dell'handoff) perche'
+     * rendeva ogni turno lineare nella KB.
+     *
+     * Che cosa sia un dimostrativo lo dice `demonstrative_reference/2`. */
+    int pro_form = p0_is_demonstrative(b, pp[phead]);
+
     char (*keys)[KB_TERM_LEN] = NULL; size_t nk = 0;
     const char *anyq[2] = { NULL, NULL };
     if (!kb_match_all(b->kb, pred, anyq, 2, &keys, &nk) || nk == 0) {
@@ -6001,10 +6034,18 @@ static size_t p0_answer_by_description(Brain *b, const char *pred,
         char kbuf[KB_TERM_LEN]; char *kp[8];
         size_t nkp = p0_key_parts(kbuf, sizeof kbuf, keys[i], kp, 8);
         if (nkp == 0) continue;
-        if (strcmp(kp[p0_head_index(b, nkp)], pp[phead]) != 0) continue;
+        if (pro_form) {
+            /* Il pro-forma non vincola la testa, ma vincola il DISCORSO: puo'
+             * riferire soltanto qualcosa che e' gia' stato introdotto. */
+            const char *rq[1] = { keys[i] };
+            if (!kb_query(b->kb, "referent_known", rq, 1)) continue;
+        } else if (strcmp(kp[p0_head_index(b, nkp)], pp[phead]) != 0) {
+            continue;
+        }
         int lacks = 0;
         for (size_t a = 0; a < np && !lacks; a++) {
-            if (a == phead) continue;
+            if (a == phead && !pro_form) continue;
+            if (a == phead) continue;   /* «quello» stesso non e' una proprieta' */
             int found = 0;
             for (size_t c = 0; c < nkp && !found; c++)
                 if (strcmp(kp[c], pp[a]) == 0) found = 1;
@@ -6032,6 +6073,81 @@ static size_t p0_answer_by_description(Brain *b, const char *pred,
     return na;
 }
 
+/* G4 — «QUESTO TURNO RIFERISCE QUALCOSA?»
+ *
+ * Domanda sola, risposta della KB. Serve a due chiamanti che senza di essa si
+ * pestano i piedi (vedi il commento in `topic_continue_resolve`): l'ellissi del
+ * SOGGETTO e l'ellissi della RELAZIONE sono duali, e distinguerle richiede che
+ * entrambe guardino la stessa nozione di «espressione che riferisce». Metterne
+ * due copie sarebbe la forma del difetto ricorrente — due percorsi che devono
+ * accordarsi senza condividere l'oggetto su cui accordarsi. */
+static int p0_turn_refers(Brain *b, const char *text) {
+    if (!b || !b->kb || !text || !*text) return 0;
+    char (*surf)[KB_TERM_LEN] = NULL; size_t ns = 0;
+    const char *sq[1] = { NULL };
+    if (!kb_match_all(b->kb, "referring_surface", sq, 1, &surf, &ns)) return 0;
+    int refers = 0;
+    for (size_t i = 0; i < ns && !refers; i++) {
+        char sb[KB_TERM_LEN];
+        snprintf(sb, sizeof sb, "%s", surf[i]);
+        const char *t = kb_dequote(sb);
+        if (*t && cue(text, t)) refers = 1;
+    }
+    free(surf);
+    return refers;
+}
+
+/* G4 — CIO' CHE E' STATO RISPOSTO ENTRA NEL DISCORSO.
+ *
+ * `exchange/3` esisteva dal gen58 ed era documentato come cio' che parrot0 ha
+ * DETTO, ma lo popolavano soltanto le letture dichiarative: una DOMANDA a cui
+ * si era risposto non lasciava traccia. Tre consumatori gia' scritti
+ * (`told_about/2`, `covered_entity/1`, «su cosa mi hai risposto») erano quindi
+ * a digiuno, e l'ellissi sembrava mancare di un'infrastruttura che esisteva.
+ *
+ * Il C non decide che cosa farne: passa il fatto alla KB e la KB lo colloca. */
+static void p0_observe_answer(Brain *b, const char *entity, const char *rel,
+                              const char *value) {
+    if (!b || !b->kb || !entity || !*entity || !rel || !*rel || !value) return;
+    char e[KB_TERM_LEN], v[KB_TERM_LEN];
+    snprintf(e, sizeof e, "%s", entity);
+    snprintf(v, sizeof v, "%s", value);
+    const char *a[] = { kb_dequote(e), rel, kb_dequote(v) };
+    kb_query(b->kb, "discourse_answer_observe", a, 3);
+}
+
+/* G4 — L'ELLISSI EREDITA LA RELAZIONE.
+ *
+ * «E il secondo?» arriva senza relazione propria e moriva prima di qualunque
+ * risoluzione: `answer_frame_surfaces` non trovava cue, e il modulo usciva.
+ * Il referente c'era, la relazione c'era, e non si incontravano.
+ *
+ * Il C qui non sa che cosa sia un'ellissi e non contiene nessuna forma: chiede
+ * alla KB (a) se la politica del discorso consente di ereditare, (b) se il
+ * turno contiene un'espressione che RIFERISCE, (c) qual e' la relazione in
+ * gioco. Tutte e tre sono conoscenza; una lingua nuova o una forma nuova non
+ * ricompilano niente.
+ *
+ * Le tre condizioni servono INSIEME, ed e' la guardia contro il dirottamento:
+ * senza (b) questo modulo rivendicherebbe ogni turno che non ha capito, che e'
+ * il modo piu' rapido di trasformare un aiuto in un danno. */
+static int p0_inherit_relation(Brain *b, const char *norm,
+                               char *out, size_t out_size) {
+    if (!b || !b->kb || !out || out_size == 0) return 0;
+    const char *pol[] = { "inherit_previous" };
+    if (!kb_query(b->kb, "elliptical_reference_policy", pol, 1)) return 0;
+
+    /* (b) il turno contiene un riferimento? Le forme le elenca la KB. */
+    if (!p0_turn_refers(b, norm)) return 0;
+
+    /* (c) la relazione in gioco — una vista sugli scambi, non un campo. */
+    char rel[1][KB_TERM_LEN];
+    const char *rq[1] = { NULL };
+    if (kb_match(b->kb, "current_relation", rq, 1, rel, 1) != 1) return 0;
+    snprintf(out, out_size, "%s", kb_dequote(rel[0]));
+    return *out != 0;
+}
+
 static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                             char *out, size_t out_size) {
     (void)raw;
@@ -6056,7 +6172,21 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
      * copie destinate a divergere. */
     char (*cues)[KB_TERM_LEN] = NULL;
     size_t nf = answer_frame_surfaces(b, norm, &cues);
-    if (nf == 0) { free(cues); return 0; }
+    /* G4 — nessuna cue nel turno non vuol dire nessuna domanda: puo' essere un
+     * turno ellittico, che porta il referente e lascia la relazione al
+     * discorso. La cue sintetica e' VUOTA di proposito — segnala piu' sotto che
+     * la relazione non viene da una superficie di questo turno, e quindi che i
+     * raffinamenti chiavati sulla cue non si applicano. */
+    char inherited[KB_TERM_LEN] = "";
+    if (nf == 0) {
+        if (!p0_inherit_relation(b, norm, inherited, sizeof inherited)) {
+            free(cues); return 0;
+        }
+        free(cues);
+        cues = calloc(1, sizeof *cues);
+        if (!cues) return 0;
+        nf = 1;
+    }
 
     char tmp[256];
     if (strlen(norm) >= sizeof tmp) {
@@ -6074,12 +6204,22 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
          * must not make a later taught mapping unreachable.  kb_match already
          * deduplicates bindings, so repeated identical rows do no extra work. */
         char (*preds)[KB_TERM_LEN] = NULL;
-        const char *pq[2] = { cues[i], NULL };
         size_t np = 0;
+        if (!*cues[i]) {
+            /* Turno ellittico: la relazione e' quella ereditata, e non si
+             * passa da `answer_frame/2` perche' nessuna superficie l'ha
+             * nominata in questo turno. */
+            preds = calloc(1, sizeof *preds);
+            if (!preds) continue;
+            snprintf(preds[0], KB_TERM_LEN, "%s", inherited);
+            np = 1;
+        } else {
+        const char *pq[2] = { cues[i], NULL };
         if (!kb_match_all(b->kb, "answer_frame", pq, 2, &preds, &np) ||
             np == 0) {
             free(preds);
             continue;
+        }
         }
 
         /* gen339 (L14): two passes. Pass 0 skips stopwords as before; pass 1
@@ -6102,8 +6242,12 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
         {
             char input_args[4][KB_TERM_LEN];
             const char *iq[] = { cues[i], preds[p], NULL };
-            size_t ni = kb_match(b->kb, "answer_frame_input_arg", iq, 3,
-                                 input_args, 4);
+            /* Una cue vuota non e' un jolly: senza superficie non c'e' nessun
+             * raffinamento da applicare, e interrogare con NULL prenderebbe le
+             * direzioni dichiarate per TUTTE le superfici. Si resta sul
+             * comportamento storico (entrambe le direzioni). */
+            size_t ni = *cues[i] ? kb_match(b->kb, "answer_frame_input_arg", iq, 3,
+                                            input_args, 4) : 0;
             if (ni > 0) {
                 allow_arg1 = allow_arg2 = 0;
                 for (size_t ai = 0; ai < ni; ai++) {
@@ -6192,6 +6336,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                         for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
                         kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
                                         { "value", pretty } }, 1, out, out_size);
+                        p0_observe_answer(b, keyrow[0], pred, ans[0]);
                         free(ords); free(langs); free(preds); free(cues);
                         return 1;
                     }
@@ -6209,7 +6354,15 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
         if (pass == 1) {
             for (size_t t = 0; t < nw; t++) {
                 int end = p0_slot_end(b, w, nw, t, NULL);
-                if (end < 0 || (size_t)end <= t + 1) continue;
+                if (end < 0) continue;
+                /* Un sintagma di un token solo di norma non aggiunge nulla —
+                 * la chiave esatta e' gia' coperta sotto. Il dimostrativo NUDO
+                 * e' l'eccezione: «e quello?» non ha proprieta' che lo
+                 * restringano, e proprio per questo deve arrivare al
+                 * risolutore, che ha il compito di DICHIARARE l'ambiguita'
+                 * invece di lasciar cadere il turno in un muro. */
+                if ((size_t)end <= t + 1 &&
+                    !p0_is_demonstrative(b, strip_edge_punct(w[t]))) continue;
                 size_t ss = t;
                 if (p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
                 /* Anche un token solo passa di qui: la chiave esatta e' gia'
@@ -6292,6 +6445,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                     for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
                     kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
                                     { "value", pretty } }, 1, out, out_size);
+                    p0_observe_answer(b, key, pred, ans[0]);
                     free(preds); free(cues);
                     return 1;
                 }

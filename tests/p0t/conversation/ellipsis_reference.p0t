@@ -1,0 +1,97 @@
+# ── G4 — L'ELLISSI E IL RIFERIMENTO ATTRAVERSO I TURNI ──────────────────────
+#
+# «E il secondo?» non e' una domanda incompleta da riparare: e' una domanda
+# NORMALE che si appoggia al discorso invece di ripetersi. Un dialogo in cui
+# ogni turno deve riportare per intero la propria relazione non e' un dialogo,
+# e' una sequenza di interrogazioni indipendenti — ed e' cio' che parrot0 era.
+#
+# LE DUE ELLISSI SONO DUALI, e prima si pestavano i piedi:
+#
+#   soggetto eliso, relazione presente  →  «e quanti giocatori»  → gen387
+#   referente presente, relazione elisa →  «e il secondo?»       → G4
+#
+# gen387 appendeva il topic saliente in coda anche quando il residuo RIFERIVA
+# gia' («e il secondo?» diventava «the second mensola»), e il turno riscritto
+# veniva poi rivendicato all'indietro. La cura non e' una guardia nuova accanto
+# a quella di gen387: e' quella guardia con l'estensione che le mancava —
+# riferire e' un modo di nominare. Il ratchet di gen387 (count_readings.p0t)
+# deve restare verde insieme a questo: e' la meta' di questa prova.
+#
+# La struttura non e' nuova. `exchange/3` c'era dal gen58 come «cio' che parrot0
+# ha DETTO», ma nessuno lo riempiva quando una DOMANDA riceveva risposta: tre
+# consumatori gia' scritti erano a digiuno e l'ellissi sembrava mancare di
+# un'infrastruttura che invece esisteva.
+
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=it
+!reset
+
+[test l'ordinale ellittico eredita la relazione del discorso]
+!timeout 4
+> il libro rosso è sul tavolo
+<~ si trova in tavolo
+> il quaderno blu è sulla mensola
+<~ si trova in mensola
+# La domanda piena stabilisce la relazione in gioco.
+> dov'è il primo?
+<~ avolo
+# ELLISSI: nessuna relazione nel turno, solo il referente.
+> E il secondo?
+<~ ensola
+# E non e' un effetto d'ordine: si torna indietro e la relazione regge.
+> E il primo?
+<~ avolo
+
+!reset
+
+[test il dimostrativo individua per proprieta, non per testa]
+!timeout 4
+> il libro rosso è sul tavolo
+<~ si trova in tavolo
+> il libro blu è sulla mensola
+<~ si trova in mensola
+> dove si trova il libro rosso?
+<~ avolo
+# «quello» non porta testa da confrontare: individua la proprieta' che segue,
+# fra le cose gia' introdotte nel discorso.
+> E quello blu?
+<~ ensola
+
+!reset
+
+[test il dimostrativo nudo dichiara l'ambiguita, non sceglie]
+!timeout 4
+> il libro rosso è sul tavolo
+<~ si trova in tavolo
+> il libro blu è sulla mensola
+<~ si trova in mensola
+> dove si trova il libro rosso?
+<~ avolo
+# ⛔ IL VINCOLO GD4: su turni multipli il riferimento si risolve o si dichiara
+# ambiguo — MAI si sceglie in silenzio. Un dimostrativo senza proprieta' non
+# restringe niente, e rispondere «tavolo» sarebbe inventare che cosa si
+# intendeva. Deve chiedere, e deve dire fra che cosa.
+> E quello?
+<~ Quale intendi
+> E quello?
+<~ book red
+
+!reset
+
+[test senza un riferimento non si eredita nulla]
+!timeout 4
+> il libro rosso è sul tavolo
+<~ si trova in tavolo
+> dove si trova il libro rosso?
+<~ avolo
+# CONTRASTO — la guardia contro il dirottamento. Un connettore da solo non
+# basta: senza un'espressione che RIFERISCE, questo turno non e' un'ellissi e
+# nessuna relazione va ereditata. Se questa riga cade, l'ereditarieta' sta
+# rivendicando ogni turno che non ha capito, che e' il modo piu' rapido di
+# trasformare un aiuto in un danno.
+> e ciao
+<! tavolo

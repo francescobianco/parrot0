@@ -383,8 +383,39 @@ dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
    ordinali italiani ambigui. La riga di KB porta ora l'avviso: *alcune forme
    ordinali sono ambigue, e l'ambiguita' non si risolve qui.*
 
-4. **▶ G4 / GD4 — PROSSIMA** — coreferenza: mosse #2, #4, #6 insieme. È l'anello che il
-   corpus chiede più di ogni altro (F03: 24 muri su 30).
+4. **✅ G4 / GD4 — chiusa 2026-09-01. LE DUE ELLISSI SONO DUALI.**
+   Tre mosse insieme: l'ordinale ellittico eredita la relazione, il
+   dimostrativo individua per proprietà, il dimostrativo nudo dichiara.
+
+   ```text
+   > dov'è il primo?  → Tavolo.        > E quello blu? → Mensola.
+   > E il secondo?    → Mensola.       > E quello?     → Quale intendi?
+   ```
+
+   **La struttura c'era ed era a digiuno (D40).** `exchange/3` esiste dal gen58
+   come «ciò che parrot0 ha DETTO», con tre consumatori già scritti — ma lo
+   popolavano solo le letture dichiarative: una DOMANDA a cui si era risposto
+   non lasciava traccia. Tre capacità erano morte per fame senza che un test se
+   ne accorgesse (ciascuna falliva restituendo il vuoto, indistinguibile da
+   «non c'era niente da dire»). Non ho aggiunto una memoria: ho nutrito quella
+   che c'era. `current_relation/1` è una **vista**, gemella di `current_topic/1`.
+
+   **Quarta comparsa del difetto ricorrente.** `topic_continue_resolve`
+   (gen387) risolve l'ellissi del SOGGETTO appendendo il topic; G4 risolve
+   quella della RELAZIONE. Duali, e si pestavano i piedi: «E il secondo?»
+   diventava `the second mensola`. La guardia di gen387 diceva già la cosa
+   giusta («il residuo non deve già nominare un'entità») ma la verificava solo
+   per le entità NOMINATE — e «il secondo» **riferisce**. Curata estendendo
+   quella guardia, non affiancandone una nuova: l'oggetto condiviso è
+   `referring_surface/1`. Il ratchet di gen387 (`count_readings.p0t`) resta
+   verde ed è metà della prova.
+
+   Ratchet: `tests/p0t/conversation/ellipsis_reference.p0t`, 17 assert, con il
+   contrasto anti-dirottamento («e ciao» non deve ereditare niente).
+
+   **Resta aperto di G4:** la correzione che SOSTITUISCE («quello rosso l'ho
+   spostato sulla mensola») — la terza mossa della sonda, non ancora fatta.
+
 5. **GD8** — la frase ordinaria a tre ruoli («ho messo il libro sul tavolo») e
    le preposizioni articolate («nello zaino»): oggi non hanno lettura, ed è la
    forma normale del parlato.

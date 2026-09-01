@@ -5799,3 +5799,81 @@ l'avviso sul posto: *alcune forme ordinali sono ambigue, e l'ambiguità non si
 risolve qui.* È la lezione della sonda all'oracolo (§18.38) applicata a noi
 stessi: **il posto dove si dichiara una forma non è il posto dove si sceglie fra
 le sue letture.**
+
+---
+
+## §18.45 — D40: la struttura che esiste, ed è a digiuno
+
+*Registrato il 2026-09-01, chiudendo G4/GD4 (l'ellissi e il riferimento).*
+
+Fin qui il cassetto senza maniglia aveva due forme: il **fatto mancante**, che
+fa muro, e il **fatto sbagliato** (D39), che risponde sicuro e falso. G4 ne ha
+mostrata una terza, ed è la più difficile da vedere perché **non ha sintomi
+propri**: la struttura giusta esiste, è documentata, è già consumata — e
+nessuno la riempie.
+
+`exchange/3` è in `kb/core/discourse.p0` dal gen58, con un commento che dice
+esattamente che cos'è: *ciò che parrot0 ha DETTO*, distinto da ciò che sa. Tre
+consumatori la leggono già — `told_about/2`, `covered_entity/1`, e la superficie
+«su cosa mi hai risposto». Ma la popolavano soltanto le **letture dichiarative**:
+una DOMANDA a cui si era risposto non lasciava alcuna traccia.
+
+Il risultato è un inganno di secondo ordine. Tre capacità scritte e verdi in
+lettura erano **morte per fame**, e nessun test le coglieva perché ciascuna
+falliva restituendo il vuoto — che è indistinguibile da «non c'era niente da
+dire». E l'ellissi sembrava richiedere un'infrastruttura da costruire, mentre
+mancava solo il pasto.
+
+**La regola:** prima di aggiungere una memoria del discorso, chiedersi se ce n'è
+già una che nessuno nutre. Un secondo registro parallelo sarebbe stato più
+rapido da scrivere e avrebbe creato due memorie destinate a divergere — cioè
+avrebbe riprodotto il difetto ricorrente invece di curarlo.
+
+### La quarta comparsa della stessa forma (D33, D35, D37 → D40)
+
+*Due percorsi che devono accordarsi non condividono l'oggetto su cui accordarsi.*
+
+Le due ellissi sono **duali**, e nessuna delle due lo sapeva:
+
+| | soggetto | relazione |
+|---|---|---|
+| forma | «e quanti giocatori» | «e il secondo?» |
+| che cosa manca | il soggetto | la relazione |
+| che cosa c'è | la relazione | il referente |
+| meccanismo | `topic_continue_resolve` (gen387) | eredità (G4) |
+
+gen387 aveva già la guardia giusta — *«il residuo non deve già nominare
+un'entità»* — ma la verificava solo per le entità **nominate**. «Il secondo» non
+nomina: **riferisce**. Il residuo passava la guardia, il topic saliente veniva
+appeso in coda, e nasceva `the second mensola`: un turno che poi qualcuno
+rivendicava all'indietro, rispondendo con un OGGETTO a una domanda su un LUOGO.
+
+La cura non è una guardia nuova accanto a quella esistente: è quella guardia con
+l'estensione che le mancava, perché **riferire è un modo di nominare**. E
+l'oggetto condiviso è `referring_surface/1` — una nozione sola, consultata da
+entrambi i duali, dove prima ce n'erano zero e stavano per diventare due.
+
+### Il vincolo GD4, tenuto
+
+*Su turni multipli il riferimento si risolve o si dichiara ambiguo, mai si
+sceglie in silenzio.* Un dimostrativo **nudo** non restringe nulla, e rispondere
+comunque sarebbe inventare che cosa si intendeva:
+
+```text
+> E quello blu?   → Mensola.                                   (individua)
+> E quello?       → Ce n'è più di uno — book red: table;
+                    book blue: mensola. Quale intendi?         (dichiara)
+```
+
+Perché la seconda riga funzioni, un sintagma di **un token solo** deve poter
+arrivare al risolutore: di norma non aggiunge nulla, ma il pro-forma nudo è
+esattamente il caso in cui l'assenza di proprietà è l'informazione. Scartarlo
+per economia lo faceva cadere in un muro, cioè trasformava un'ambiguità
+dichiarabile in un fallimento muto.
+
+### Il dimostrativo è vincolato dal discorso, non dalla KB
+
+«quello blu» si cerca **fra i referenti già introdotti**, non fra tutte le
+entità. Non è prudenza: è il significato della parola — «quello» vuol dire
+*quello di cui stiamo parlando*. E per costruzione evita lo scan globale che era
+già stato scartato altrove perché rendeva ogni turno lineare nella KB.
