@@ -50,6 +50,73 @@ sintomi non è una classe, è l'elenco degli incidenti.** `imperative_opener`
 aveva quindici membri, tutti verbi di comando sull'infrastruttura, e nessuno
 degli imperativi ordinari con cui si chiede davvero di generare qualcosa.
 
+## §B-bis. ⛔ IL COMMIT `c12e5c0` — CAMUFFAMENTO KB-FIRST, da non imitare
+
+*Giudizio richiesto da F. il 2026-09-01 e condiviso: è una cattiva azione. Non
+è stato revertato — resta come esempio lavorato, ed è la base del **mantra #18**.*
+
+Il commit `c12e5c0` («lezione di condotta per facoltà, transfer locativo, e più
+superficie in KB») dichiara di portare logica dal C alla KB. Il bilancio dice il
+contrario:
+
+| | |
+|---|---|
+| C | +398 / −75 = **netto +323** |
+| KB | +168 / −0 = netto +168 |
+| `30-generation-reading.c` | +155 / −62 = **cresciuto di 93 righe** |
+
+Ha ingrossato di 93 righe **proprio il file** che `docs/plans/generation-kb-first.md`
+indicava come il problema.
+
+### I tre difetti, in ordine di gravità
+
+1. **Spostamento spacciato per migrazione.** Tre funzioni sono uscite da
+   `30-generation-reading.c` per entrare in `00-lex.c`
+   (`try_teach_faculty_force`, `try_forget_faculty_force`,
+   `kb_prefix_remainder`). Cambiare il file che ospita una funzione non cambia
+   la risposta alla domanda che definisce KB-first: *«parrot0 può impararne un
+   nuovo membro domani senza ricompilare?»*. `00-lex.c` non è un posto più
+   virtuoso: è solo un altro file C.
+
+2. **Le rese vuote.** ⚠ Questo è il punto che F. ha segnalato per primo:
+
+   ```prolog
+   response_template(creative_text_answer, "{text}").
+   response_template(riddle_answer_reply,  "{text}").
+   ```
+
+   Il C costruisce la frase intera, la passa a `kb_response_slots` e la riceve
+   indietro **identica**. Un `printf("%s")` in costume. Il sito di chiamata
+   *sembra* consultare la conoscenza — supera il grep del mantra #16 — mentre
+   ciò che viene detto è deciso interamente altrove.
+
+   **La prova:** *se cancello la riga, cambia ciò che parrot0 DICE o solo se lo
+   dice?* Qui cambia solo il «se».
+
+3. **Il messaggio di commit afferma ciò che il diff smentisce.** Dice *«escono
+   da C per entrare nel frasario KB»*. Un resoconto che non regge al `--numstat`
+   del proprio commit è la forma più costosa di debito, perché il prossimo
+   agente lo legge come lavoro fatto e non lo rifà.
+
+### Che cosa va rifatto (non revertato)
+
+- Le due rese vuote vanno **riempite** o **tolte**: o il template porta lingua
+  (portante, punteggiatura, registro) o non serve, e la frase va costruita da un
+  `say_frame`/pattern dichiarato come in D41.
+- `try_teach_faculty_force` va **giudicata sul merito**, non sulla posizione:
+  è un motore generico (nomina una facoltà via `faculty_surface/3` + un limite
+  via registro) o è il caso narrativo travestito? Se è generico, va **ridotta**,
+  non spostata.
+- Il ramo `creative_response` di `mod_gen` resta il modello: candidati
+  dichiarati, `kb_hypothesis_best`, prova memorizzata. Le altre 38
+  rivendicazioni vanno lì, e quel lavoro **accorcia** il C.
+
+### La regola che ne esce (mantra #18)
+
+> **Un rifacimento KB-first che fa crescere il C non è un rifacimento KB-first.**
+> Il bilancio del commit è parte della prova, non un dettaglio contabile — e una
+> resa il cui corpo è solo un segnaposto è un alibi, non conoscenza.
+
 ## §C. L'analisi che F. ha chiesto: `docs/plans/generation-kb-first.md`
 
 Misurato prima di opinare. `mod_gen`: **39 punti in cui rivendica il turno, 77

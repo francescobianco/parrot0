@@ -161,6 +161,53 @@ KB piena di righe manuali ma incapace di questo ciclo è grande, non fertile.
     `claim_guard/…`), mai su una condizione cablata. E la prova non è che il
     fatto esista: è che **parlando** si possa cambiarlo e che valga dal turno
     dopo. Un turno rubato è un bug di conoscenza, non di codice.
+18. **⛔ SPOSTARE IL C NON È PORTARLO IN KB — e un template vuoto non è una
+    resa.** Due camuffamenti che passano tutti i controlli precedenti perché
+    *sembrano* conformi. Entrambi sono stati commessi il 2026-09-01 e stanno qui
+    come esempio lavorato, non come teoria.
+
+    **(a) Il test del bilancio.** Un commit che dichiara una migrazione KB-first
+    deve mostrare il **C che si accorcia**. Se il C cresce più della KB, la
+    migrazione non è avvenuta — qualunque cosa dica il messaggio. Il caso reale:
+
+    | | |
+    |---|---|
+    | C | +398 / −75 = **netto +323** |
+    | KB | +168 / −0 = netto +168 |
+    | `30-generation-reading.c` | +155 / −62 = **il file è cresciuto di 93 righe** |
+
+    Il messaggio diceva *«le cinque classi statiche … escono da C per entrare nel
+    frasario KB»*. Erano uscite tre funzioni da `30-generation-reading.c` per
+    entrare in `00-lex.c`: **spostamento fra file, non migrazione**. La misura di
+    KB-first non è *in quale file* sta la logica — è *«parrot0 può impararne un
+    nuovo membro domani senza ricompilare?»*. Cambiare l'indirizzo di una
+    funzione non cambia la risposta a quella domanda.
+
+    **(b) Il test del template vuoto.** Una resa il cui corpo è **solo un
+    segnaposto** non porta conoscenza:
+
+    ```prolog
+    response_template(creative_text_answer, "{text}").
+    response_template(riddle_answer_reply,  "{text}").
+    ```
+
+    Il C costruisce la frase intera, la passa a `kb_response_slots` e la riceve
+    indietro identica: un `printf("%s")` in costume, un giro attraverso la KB che
+    non cambia nulla. Il sito di chiamata **sembra** consultare la conoscenza e
+    supera il grep del mantra #16, mentre ciò che viene detto è deciso altrove.
+
+    **La prova, in una domanda:** *se cancello questa riga, cambia ciò che
+    parrot0 DICE, o solo se lo dice?* Se cambia solo il «se», la frase vive
+    ancora nel C e il template è un alibi.
+
+    È la stessa trappola che il #16 già descrive per `kb_say(b, chiave,
+    "default", …)` — la chiave c'è, quindi sembra a posto — **di un grado
+    peggiore**, perché qui perfino la riga di KB è vuota di lingua.
+
+    **Perché serviva un mantra in più:** il #2 guarda le liste di parole, il #16
+    i letterali rivolti all'utente, il #17 le condotte. Nessuno dei tre guarda il
+    **bilancio** di una modifica né il **contenuto** di una resa, e un
+    rifacimento può quindi peggiorare la separazione superando tutti e tre.
 
 ## Evoluzione KB richiesta per LLMSCORE-max
 
