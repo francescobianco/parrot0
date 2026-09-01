@@ -17,6 +17,7 @@ move_policy(near_compatible_readings, add_nearby_reading).
 move_policy(multiple_lexical_candidates, enumerate_alternatives).
 move_policy(unverified_repair, propose_hypothesis).
 move_policy(blocking_incompatible_readings, clarify).
+move_policy(unresolved_reference, clarify).
 move_policy(valid_surface, leave_unchanged).
 move_policy(proven_answer_with_components, show_decomposition).
 
@@ -34,6 +35,13 @@ move_policy(lone_unknown_word, name_the_word).
 move_priority(answer_with_interpretation_key, clarify, preferred_when_nonblocking).
 move_priority(propose_hypothesis, silent_repair, always).
 move_priority(decline, unsupported_answer, always).
+
+% Una rinuncia puo' essere un vicolo cieco oppure una richiesta che porta il
+% dato mancante nella conversazione. La mossa resta `decline` (non si inventa
+% una risposta); la strategia di realizzazione e' conoscenza separata e
+% ritrattabile. Lo stesso vale per un riferimento senza antecedente.
+missing_fact_dialogue_strategy(name_and_ask).
+reference_gap_dialogue_strategy(name_and_ask).
 
 frame_move($Frame, $Move) :- dialogue_state($Frame, $Evidence), move_policy($Evidence, $Move).
 

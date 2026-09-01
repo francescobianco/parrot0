@@ -210,6 +210,24 @@ turn_arrest($Turn, language($Input, $Output), knowledge,
     frame_slot($Turn, relation, $Relation),
     frame_slot($Turn, entity, $Entity).
 
+% Le due priorita' del giro sono la stessa forma logica: il turno e' capito, ma
+% per soddisfarlo manca un oggetto. Nel primo caso manca un valore del mondo;
+% nel secondo manca un antecedente nel discorso. `information_need/4` le rende
+% interrogabili senza confonderne il rimedio.
+information_need($Turn, knowledge, value($Relation, $Entity),
+                 answer($Output, $Relation, $Entity)) :-
+    turn_language($Turn, output, $Output),
+    turn_missing_value($Turn, $Cue, $Relation, $Entity).
+information_need($Turn, reference, antecedent($Surface, $Order),
+                 clarify($Output, $Surface)) :-
+    turn_language($Turn, output, $Output),
+    turn_reference_missing($Turn, $Surface, $Order).
+
+turn_arrest($Turn, language($Input, $Output), reference,
+            arrest(antecedent($Surface, $Order), clarify($Output, $Surface))) :-
+    turn_language_context($Turn, language($Input, $Output)),
+    turn_reference_missing($Turn, $Surface, $Order).
+
 % Un piano arrestato nomina il primo elemento causale che non possiede. Anche
 % il suo goal porta la lingua di realizzazione, senza tradurre la logica interna.
 turn_arrest($Turn, language($Input, $Output), plan,
@@ -250,6 +268,7 @@ arrest_intermediate(entity($Language, $Turn), interpret($Language, $Turn), bind_
 arrest_intermediate(precondition($Action, $Proposition), plan($Language, $Situation, $Property, $Direction), establish($Situation, $Proposition)).
 arrest_intermediate(resource($Action, $Resource), plan($Language, $Situation, $Property, $Direction), acquire($Situation, $Resource)).
 arrest_intermediate(action($Situation, $Property, $Direction), plan($Language, $Situation, $Property, $Direction), select_action($Situation, $Property, $Direction)).
+arrest_intermediate(antecedent($Surface, $Order), clarify($Language, $Surface), resolve_reference($Language, $Surface, $Order)).
 
 arrest_depends_on(arrest($Turn, $Goal), arrest($Turn, $Intermediate)) :-
     turn_arrest($Turn, $Languages, $Kind, arrest($Missing, $Goal)),

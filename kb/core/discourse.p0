@@ -86,6 +86,13 @@ turn_counter(1).
 machinery(turn_scratch).
 turn_scratch(turn_counter).
 turn_scratch(turn_span_token).
+% `exchange/3` e `exchange_turn/2` sono la salienza della conversazione VIVA.
+% Salvarli e ricaricarli trasforma un archivio in stato corrente: una chat nuova
+% nasceva gia' «su Paris». Gli utterance restano nell'archivio transcript; una
+% fotografia semantica che si vuole conservare usa un predicato d'archivio
+% distinto, mai quello consumato da current_topic/1.
+turn_scratch(exchange).
+turn_scratch(exchange_turn).
 bookkeeper(clock).
 turn_bookkeeping($Turn, clock) :- turn_counter($N), is($M, add($N, 1)), retract(turn_counter, $N), assert(turn_counter, $M).
 

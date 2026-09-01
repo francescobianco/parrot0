@@ -17,11 +17,15 @@
 % che manca e' la casa, non l'utilita' della riga.
 %
 % Che cosa invece qui NON deve arrivare: lo scratch del turno corrente —
-% `turn_counter/1`, `turn_span_token/4`. Non e' archivio, e' lo stato di mezzo
+% `turn_counter/1`, `turn_span_token/4`, `exchange/3`, `exchange_turn/2`. Non e'
+% archivio, e' lo stato di mezzo
 % turno; `turn_counter(42)` caricato al boot accanto a `turn_counter(0)` e
 % `turn_counter(1)` corrompe `turn_bookkeeping`, che fa retract/assert su
-% `turn_counter($N)`. Il save-map oggi lo instrada lo stesso ed e' un gap
-% aperto (G3 in docs/labs/apprendimento-assistito/2026-08-28-elettronica.md).
+% `turn_counter($N)`. Lo stesso vale per uno scambio: caricarlo rende saliente
+% in una chat nuova il topic di una chat chiusa. `turn_scratch/1` li esclude dal
+% save; l'archivio conserva qui sotto la fotografia che era gia' stata salvata.
+
+archived_exchange(9, paris, located_in, france).
 
 utterance(5, user, "what is a resistor?").
 utterance(5, user, "the henry measures what?").

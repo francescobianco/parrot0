@@ -12,6 +12,16 @@ presente in parrot0.
 > domande, usare soltanto Wikipedia per colmarle, verificare le conseguenze e
 > scegliere da solo quali aggiunte conservare, senza regressioni?**
 
+> **Aggiornamento 2026-09-01 — dalla lacuna alla domanda esatta.** Il turno
+> espone ora un `information_need` che conserva insieme specie, oggetto mancante
+> e goal bloccato. `knowledge/value(Relazione, Entita)` porta a chiedere il dato;
+> `reference/antecedent(Superficie, Ordine)` porta a chiedere contesto. Cue,
+> lingua, strategia e resa sono KB runtime: aggiungere o ritrarre un membro
+> cambia il comportamento senza rebuild. Questo è il sensore generalizzabile da
+> mettere fra gli step 3 e 4 del ciclo: non «cerca qualcosa su Wikipedia», ma
+> «acquisisci esattamente l'oggetto che riapre questo goal», poi replay e
+> ablazione decidono se conservarlo.
+
 Questa edizione separa due problemi che nella prima erano mescolati:
 
 1. **Meccanismo:** mettere in funzione il ciclo di autocrescita: lacuna,

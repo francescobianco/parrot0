@@ -647,6 +647,21 @@ response_template(fallback_gap_offer, it, "Mmh, non conosco ancora {topic}. Vuoi
 response_template(fallback_still_gap, "Hmm, I don't know about {topic} yet.").
 response_template(fallback_still_gap, it, "Mmh, non conosco ancora {topic}.").
 
+% GD13 + mossa #5 — un arresto nomina il proprio oggetto e chiede esattamente
+% cio' che lo farebbe proseguire. Sono pezzi di resa, non controllo: una lingua
+% nuova aggiunge cinque fatti e usa lo stesso `answer_text/2`.
+missing_value_opener(en, "I don't know: I understood «").
+missing_value_middle(en, "», but I am missing the value for ").
+missing_value_closer(en, ". Do you know it?").
+missing_value_opener(it, "Non lo so: ho capito «").
+missing_value_middle(it, "», ma mi manca il valore per ").
+missing_value_closer(it, ". Tu lo sai?").
+
+unresolved_reference_opener(en, "I am not sure what you mean by «").
+unresolved_reference_closer(en, "». Could you give me more context?").
+unresolved_reference_opener(it, "Non sono sicuro a cosa ti riferisci con «").
+unresolved_reference_closer(it, "». Puoi darmi più contesto?").
+
 % T06: machine-control failures are rendered from knowledge, never confused
 % with a red candidate observation and never coined inside the C controller.
 response_template(repair_missing_tool, "I cannot verify a repair because the required build-tool contract is missing.").

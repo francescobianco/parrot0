@@ -20,6 +20,17 @@
 > già spostato la riparazione dal monologo al dialogo, e `fix-patterns.md` ha
 > contato che forma hanno le riparazioni vere. Qui si mettono in fila.
 
+> **Aggiornamento 2026-09-01 — l'assenza utile è un bisogno nominato.** La
+> distinzione fra «non ho capito» e «ho capito ma mi manca un oggetto» è ora
+> operativa come `information_need(Turno, Specie, Mancante, Goal)`. Un valore del
+> mondo assente e un antecedente discorsivo assente condividono la stessa forma,
+> ma non lo stesso rimedio: il primo chiede conoscenza, il secondo contesto. La
+> strategia scala perché non enumera prompt o domini; qualunque relazione
+> interrogabile e qualunque superficie ordinale aggiunta alla KB entra nello
+> stesso ciclo. È il ponte minimo fra arresto in-linea e domanda fertile: il
+> sistema non cerca tutte le assenze possibili, nomina solo quella che ha
+> bloccato il turno reale e rende il replay l'oracolo della riparazione.
+
 ---
 
 ## 0a. Il punto del piano: da KB statica a KB FERTILE (F., gen433)

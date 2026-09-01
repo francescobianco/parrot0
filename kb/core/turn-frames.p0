@@ -49,6 +49,10 @@
 % `answer_frame_input_arg/3` fa entrare una relazione nel produttore universale a
 % runtime, ritrarlo la restituisce al percorso storico.
 answering_surface($Cue, $Relation) :- answer_frame($Cue, $Relation), answer_frame_input_arg($Cue, $Relation, $Arg), naf(machinery($Relation)).
+answering_surface($Cue, $Relation) :-
+    attribute_question_cue($Dimension, $Cue),
+    domain_relation($Dimension, $Relation),
+    naf(machinery($Relation)).
 % Il registro nomina i FATTI che aprono l'ammissione — i versi dichiarati —
 % invece della vista derivata: il motore li enumera a ogni turno, e enumerare
 % fatti nudi costa una frazione di enumerare una regola. Il C pubblica quindi un
@@ -56,6 +60,18 @@ answering_surface($Cue, $Relation) :- answer_frame($Cue, $Relation), answer_fram
 % dichiarato) e `answering_surface/2` filtra: pubblicare e' vedere, filtrare e'
 % capire. La policy resta enunciata una volta sola, qui sopra.
 turn_cue_registry(answer_frame_input_arg, 1).
+% Le domande attributive e gli ordinali erano gia' lessici KB, ma soltanto un
+% consumer C li leggeva. Pubblicarli nel frame universale fa si' che anche il
+% FALLIMENTO abbia struttura: «di che colore» puo' arrivare a missing_fact e
+% «il primo» puo' arrivare a unresolved_reference. La posizione della superficie
+% nel predicato e' dichiarata, quindi una dimensione o una lingua nuova resta un
+% fatto runtime.
+turn_cue_registry(attribute_question_cue, 2).
+% `ordinal_reference/3` porta anche lingua e posizione. Il publisher legge
+% registri unari o superfici in seconda posizione di relazioni binarie; la vista
+% unaria conserva la stessa conoscenza senza far conoscere al C l'arita'.
+ordinal_surface($Surface) :- ordinal_reference($Language, $Surface, $Order).
+turn_cue_registry(ordinal_surface, 1).
 
 % ── 0b. CIO' CHE SI PUO' OMETTERE DENTRO UNA SUPERFICIE ────────────────────
 %
@@ -115,6 +131,11 @@ turn_cue_form($Turn, $Registry, $Cue) :- turn_cue($Turn, $Registry, $Cue).
 turn_cue_form($Turn, $Registry, $Atom) :- turn_cue($Turn, $Registry, $Quoted), span_atom($Quoted, $Atom).
 
 turn_relation($Turn, $Relation, $Cue) :- turn_cue_form($Turn, answer_frame_input_arg, $Cue), answering_surface($Cue, $Relation).
+turn_relation($Turn, $Relation, $Cue) :-
+    turn_cue_form($Turn, attribute_question_cue, $Cue),
+    attribute_question_cue($Dimension, $Cue),
+    domain_relation($Dimension, $Relation),
+    naf(machinery($Relation)).
 turn_has_relation($Turn) :- turn_relation($Turn, $Relation, $Cue).
 
 % ── 2. IL VERSO: una relazione binaria non e' automaticamente reversibile ───
@@ -124,6 +145,11 @@ turn_has_relation($Turn) :- turn_relation($Turn, $Relation, $Cue).
 % percorso storico conserva la propria regola di compatibilita' — verso assente,
 % entrambe le direzioni — perche' serve le superfici che questo frame non ammette.
 relation_input_arg($Cue, $Relation, $Arg) :- answer_frame_input_arg($Cue, $Relation, $Arg).
+% Una proprietà appartiene all'entità nominata nella domanda; il suo valore e'
+% l'uscita. La classe delle proprietà resta aperta tramite domain_relation/2.
+relation_input_arg($Cue, $Relation, 1) :-
+    attribute_question_cue($Dimension, $Cue),
+    domain_relation($Dimension, $Relation).
 
 % ── 3. L'ENTITA': la parola del turno di cui la relazione sa parlare ────────
 %
@@ -153,6 +179,55 @@ turn_word($Turn, $Value) :- turn_span_token($Turn, $Index, $Position, $Token), s
 relation_mentions($Relation, $Entity) :- apply($Relation, cons($Entity, cons($Value, nil))).
 relation_mentions($Relation, $Entity) :- apply($Relation, cons($Value, cons($Entity, nil))).
 turn_entity($Turn, $Relation, $Entity) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Entity), relation_mentions($Relation, $Entity).
+
+% GD13 — «non ho capito» e «non possiedo il dato» sono stati epistemici
+% diversi. `relation_mentions/2` era un buon cancello per una RISPOSTA, ma un
+% pessimo cancello per riconoscere una domanda priva di risposta: se color_of/2
+% non ha ancora una riga sul libro, proprio il fatto mancante impediva al frame
+% di riconoscere `book` come entita'.
+%
+% Il secondo percorso non indovina entita' nuove e non scansiona la KB per
+% cercare «qualche fatto» sul token (quella strada rendeva ogni turno lineare
+% nella KB). Lo apre soltanto un REFERENTE gia' introdotto nel discorso, e
+% soltanto quando nessun termine e' gia' menzionato dalla relazione chiesta.
+% Due referenti compatibili restano due candidati e `turn_entity_unique/3`
+% rifiuta di sceglierne uno. Questo e' il punto di composizione con G3/G4: una
+% via nuova che introduce referenti rende subito interrogabili anche dati non
+% ancora posseduti, senza un secondo indice delle entita'.
+turn_relation_mentions_entity($Turn, $Relation) :-
+    turn_word($Turn, $Entity), relation_mentions($Relation, $Entity).
+turn_known_entity($Turn, $Entity) :-
+    turn_word($Turn, $Entity), referent_known($Entity).
+turn_known_entity($Turn, $Entity) :-
+    turn_span_token($Turn, $Span, $Position, $Quoted),
+    span_atom($Quoted, $Surface),
+    referent_known($Surface),
+    canonical_value($Surface, $Entity).
+turn_entity($Turn, $Relation, $Entity) :-
+    turn_relation($Turn, $Relation, $Cue),
+    naf(turn_relation_mentions_entity($Turn, $Relation)),
+    turn_known_entity($Turn, $Entity).
+
+turn_entity_key($Turn, entity($Relation, $Entity)) :-
+    turn_entity($Turn, $Relation, $Entity).
+turn_entity_set($Turn, $Entities) :-
+    findall($Entity, turn_entity_key($Turn, $Entity), $Entities).
+turn_entity_unique($Turn, $Relation, $Entity) :-
+    turn_entity_set($Turn, cons(entity($Relation, $Entity), nil)).
+
+% Mossa #5 — un ordinale riconosciuto senza il referente che dovrebbe occupare
+% quella posizione non e' un muro cieco. E' una reference gap nominabile. La
+% forma citata arriva dal registro ordinal_reference/3; il C non sa che cosa
+% significhino «primo», «first» o un membro insegnato domani.
+turn_ordinal_reference($Turn, $Surface, $Order) :-
+    turn_cue_form($Turn, ordinal_surface, $Surface),
+    ordinal_reference($Language, $Surface, $Order).
+turn_reference_resolved($Turn, $Surface, $Order) :-
+    turn_ordinal_reference($Turn, $Surface, $Order),
+    referent_at($Order, $Entity).
+turn_reference_missing($Turn, $Surface, $Order) :-
+    turn_ordinal_reference($Turn, $Surface, $Order),
+    naf(turn_reference_resolved($Turn, $Surface, $Order)).
 
 % ── 4. IL FRAME: le viste che il kernel gen393 gia' sa leggere ──────────────
 %
@@ -189,6 +264,19 @@ turn_has_reading($Turn) :- turn_reading_set($Turn, cons($First, $Tail)).
 dialogue_state($Turn, proven_answer) :- turn_reading_unique($Turn, $Relation, $Entity, $Value).
 dialogue_state($Turn, blocking_incompatible_readings) :- turn_reading_ambiguous($Turn).
 dialogue_state($Turn, missing_fact) :- frame_complete($Turn), turn_has_relation($Turn), naf(turn_has_reading($Turn)).
+dialogue_state($Turn, unresolved_reference) :-
+    turn_reference_missing($Turn, $Surface, $Order).
+
+turn_missing_value($Turn, $Cue, $Relation, $Entity) :-
+    dialogue_state($Turn, missing_fact),
+    turn_relation($Turn, $Relation, $Cue),
+    turn_entity_unique($Turn, $Relation, $Entity).
+
+missing_value_text($Turn, $Text) :-
+    turn_missing_value($Turn, $Cue, $Relation, $Entity),
+    current_language($Language),
+    value_in_language($Language, $Entity, $Local),
+    answer_text(missing_value($Cue, $Local, $Language), $Text).
 
 % ── 7. LA RISPOSTA: solo quando la POLICY la autorizza ──────────────────────
 %
@@ -214,7 +302,44 @@ turn_answers($Turn) :- turn_move($Turn, answer).
 % se poi nessuna lettura regge, `turn_response/2` non produce nulla e il turno
 % prosegue verso il percorso storico, esattamente come prima.
 turn_plan_candidate($Turn) :- turn_entity($Turn, $Relation, $Entity).
+turn_plan_candidate($Turn) :- turn_reference_missing($Turn, $Surface, $Order).
 turn_response($Turn, $Text) :- turn_reading_unique($Turn, $Relation, $Entity, $Value), turn_answers($Turn), naf(turn_has_scope_reading($Turn)), current_language($Language), value_in_language($Language, $Value, $Local), value_statement($Language, $Local, $Text).
+
+% Le mosse metacomunicative hanno un canale prioritario APERTO. Non e' una
+% precedenza fra parole o domini: quando il turno sa gia' nominare il proprio
+% arresto, tentare prima le oltre cinquanta famiglie di `turn_response/2` puo'
+% consumare il budget del solver proprio sul ramo che deve dichiarare il limite.
+% Il kernel interroga questo protocollo e poi ricade nel protocollo storico;
+% quali stati vi entrano, la policy e tutto il testo restano fatti/regole KB.
+%
+% La policy decide se un declino informato diventa una domanda di conoscenza;
+% la realizzazione nomina sia la superficie capita sia l'entita' di cui manca il
+% valore. Ritrarre la strategia restituisce il turno al fallback senza toccare
+% recognizer, fatti o binario.
+turn_priority_response($Turn, $Text) :-
+    missing_fact_dialogue_strategy(name_and_ask),
+    move_policy(missing_fact, decline),
+    turn_missing_value($Turn, $Cue, $Relation, $Entity),
+    current_language($Language),
+    value_in_language($Language, $Entity, $Local),
+    answer_text(missing_value($Cue, $Local, $Language), $Text).
+
+turn_priority_response($Turn, $Text) :-
+    turn_reference_missing($Turn, $Surface, $Order),
+    turn_move($Turn, clarify),
+    reference_gap_dialogue_strategy(name_and_ask),
+    current_language($Language),
+    answer_text(unresolved_reference($Surface, $Language), $Text).
+
+answer_content(missing_value($Cue, $Entity, $Language), 0, opener, $Piece) :- missing_value_opener($Language, $Piece).
+answer_content(missing_value($Cue, $Entity, $Language), 1, cue, $Cue).
+answer_content(missing_value($Cue, $Entity, $Language), 2, middle, $Piece) :- missing_value_middle($Language, $Piece).
+answer_content(missing_value($Cue, $Entity, $Language), 3, entity, $Entity).
+answer_content(missing_value($Cue, $Entity, $Language), 4, closer, $Piece) :- missing_value_closer($Language, $Piece).
+
+answer_content(unresolved_reference($Surface, $Language), 0, opener, $Piece) :- unresolved_reference_opener($Language, $Piece).
+answer_content(unresolved_reference($Surface, $Language), 1, surface, $Surface).
+answer_content(unresolved_reference($Surface, $Language), 2, closer, $Piece) :- unresolved_reference_closer($Language, $Piece).
 
 % ── 8. DUE SCOPE NELLA STESSA RISPOSTA (gen395) ─────────────────────────────
 %

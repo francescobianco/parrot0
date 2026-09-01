@@ -10,6 +10,20 @@
 > **Domanda zero:** una nuova forma, un nuovo registro, una nuova mossa dialogica
 > o un nuovo dominio possono entrare domani come conoscenza, senza ricompilare?
 
+> **Aggiornamento 2026-09-01 — ipotesi di metacomprensione differenziale.** La
+> comprensione non è binaria. Un turno può avere relazione, entità, lingua e
+> goal corretti e tuttavia non poter concludere perché manca un solo oggetto.
+> Questo residuo è ora reificato come
+> `information_need(Turno, Specie, Mancante, Goal)`: valore del mondo e
+> antecedente discorsivo sono due membri della stessa classe, con rimedi tipati.
+> La risposta prioritaria non è un elenco C: policy, superfici, lingua e resa
+> restano KB e sono ritrattabili. **Ipotesi frontier:** uno strato di
+> supercomprensione emerge quando il sistema sa proiettare ogni lettura nello
+> spazio logico dei goal, calcolare la differenza minima che ne impedisce la
+> soddisfazione, nominare quella differenza e scegliere una trasformazione che
+> la chiuda. Il replay verifica la trasformazione; l'ablazione ne misura la
+> causalità. Non è introspezione verbale: è un oggetto di prova.
+
 ## 1. Tesi del piano
 
 La naturalezza di un LLM non deriva soltanto dalla quantita' di fatti che

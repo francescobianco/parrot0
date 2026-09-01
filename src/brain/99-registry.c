@@ -3669,7 +3669,18 @@ static int universal_turn_lead(Brain *b, const char *surface,
 
     char replies[1][KB_TERM_LEN];
     const char *q[] = { "current_turn", NULL };
-    size_t nr = kb_match(b->kb, "turn_response", q, 2, replies, 1);
+    /* A turn that can name its own arrest gets the first chance to speak.
+     * This is an open KB protocol, not a C list of states: the engine knows no
+     * gap kind, policy, language or wording.  Without the separate query, a
+     * relation-shaped missing-value turn must traverse every ordinary
+     * turn_response/2 family and can spend the bounded solver budget before
+     * reaching the rule that honestly names what is missing. */
+    size_t nr = kb_match(b->kb, "turn_priority_response", q, 2, replies, 1);
+    if (nr == 1) {
+        put(kb_dequote(replies[0]), out, out_size);
+        return 1;
+    }
+    nr = kb_match(b->kb, "turn_response", q, 2, replies, 1);
     if (nr != 1) return 0;
     put(kb_dequote(replies[0]), out, out_size);
     return 1;

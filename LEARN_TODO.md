@@ -1,17 +1,139 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-# ⛔ RIPARTI DA QUI — handoff 2026-08-31
+# ⛔ RIPARTI DA QUI — handoff 2026-09-01
 
 > **Come si riprende:** «continua da questo file». Leggi questa sezione fino in
 > fondo, poi vai al §6 «Il prossimo lavoro». Tutto il resto del file è la coda
 > storica e serve dopo.
+
+## 0. Ultimo checkpoint chiuso — Mossa #5 + GD13
+
+**Esito:** chiuso come **meta-capacità generalizzabile KB-first**. Nessun fatto
+del mondo è stato aggiunto e nessun `!assert` viene contato come training. Il
+gate software dimostra invece che parrot0 distingue e nomina due arresti che
+prima cadevano nello stesso muro:
+
+```text
+> dove si trova il primo?
+< Non sono sicuro a cosa ti riferisci con «primo». Puoi darmi più contesto?
+
+> di che colore è il libro?
+< Non lo so: ho capito «di che colore», ma mi manca il valore per libro. Tu lo sai?
+```
+
+La forma logica comune è:
+
+```text
+information_need(Turno, knowledge,
+                 value(Relazione, Entita),
+                 answer(Lingua, Relazione, Entita))
+
+information_need(Turno, reference,
+                 antecedent(Superficie, Ordine),
+                 clarify(Lingua, Superficie))
+```
+
+Non confondere l'unificazione con l'omologazione: entrambi sono bisogni
+d'informazione, ma il valore assente chiede conoscenza e l'antecedente assente
+chiede contesto. Questa distinzione deve sopravvivere nei futuri piani di
+compensazione.
+
+### Architettura lasciata al prossimo agente
+
+1. `kb/core/turn-frames.p0` pubblica nel frame universale due classi già
+   esistenti (`attribute_question_cue/2`, `ordinal_reference/3`) attraverso
+   registri KB. Il C non contiene «colore», «primo», `between` o altri esempi.
+2. Una domanda su un attributo senza valore può riconoscere come entità soltanto
+   un referente già introdotto nel discorso. È deliberato: cercare “qualche
+   fatto sul token” in tutta la KB rendeva ogni turno lineare nella KB ed è
+   stato scartato. Il punto di composizione è `referent_known/1`, non uno scan
+   globale delle entità.
+3. `dialogue_state(missing_fact)` e
+   `dialogue_state(unresolved_reference)` producono mosse diverse tramite
+   `move_policy/2`; `missing_fact_dialogue_strategy/1` e
+   `reference_gap_dialogue_strategy/1` decidono se realizzarle come domanda.
+4. La frase è composta da `answer_content/4` e pezzi multilingue in
+   `kb/core/responses.p0`. Non spostare la resa in `printf`/`snprintf`.
+5. `turn_priority_response/2` è un protocollo aperto per mosse
+   metacomunicative. Il kernel lo interroga prima del vecchio
+   `turn_response/2`, poi ricade nel percorso storico. Serve perché
+   `turn_response/2` ha oltre cinquanta famiglie: sul caso relazione-presente /
+   valore-assente i rami precedenti consumavano il budget prima della risposta
+   onesta. Il C conosce solo il nome del protocollo, non stati, parole, lingue o
+   risposte. Nuove mosse prioritarie devono entrare come regole KB e avere gate
+   di retract; non aggiungere `if` per specie nel C.
+6. `kb/core/arrests.p0` rende i due bisogni interrogabili e collega
+   l'antecedente a `resolve_reference`. Questo è il gancio da consumare nei
+   prossimi piani di autocrescita: bisogno → azione minima → replay → ablazione.
+
+### Gate causali già presenti — non indebolirli
+
+`tests/p0t/conversation/named_information_need.it.p0t` contiene 23 assert:
+
+- vuoto referenziale italiano e inglese;
+- nuova superficie ordinale aggiunta, ritratta e riaggiunta a runtime;
+- contrasto con un referente realmente esistente;
+- domanda attributiva capita ma priva del dato;
+- aggiunta e retrazione del fatto senza rebuild;
+- contrasto con risposta nota e con entità davvero sconosciuta;
+- nuova forma interrogativa aggiunta e ritratta a runtime;
+- entrambe le strategie dialogiche ritratte e riattivate a runtime;
+- i due `information_need` come termini strutturati, non dedotti dal testo.
+
+Test confinanti passati nel checkpoint: `turn_frame_producer` 16,
+`dialogue_moves` 8, `three_axis_gap` 21, `discourse.it` 2, `discourse` 3,
+`discourse_recall` 49 e `savemap` 10.
+
+### Debito di persistenza chiuso durante il gate
+
+`kb/learning/learned.p0` dichiarava di dover essere vuoto ma conteneva
+`exchange(paris, located_in, france)` e `exchange_turn(9, paris)`: una chat
+nuova nasceva già “su Paris”. L'informazione non è stata persa: è conservata
+come `archived_exchange/4` nei transcript. `exchange/3` e `exchange_turn/2`
+sono ora `turn_scratch`, quindi la salienza viva non può più essere ricaricata
+come presente di una conversazione futura. `savemap.p0t` prova che restano vive
+nella sessione ma non vengono persistite.
+
+### Prossima mossa esatta: GD11, poi GD12
+
+Riparti dalla chat identica, senza saltare direttamente a G4:
+
+```text
+ciao
+il mio libro è sul tavolo
+dove si trova il mio libro
+di che colore è il mio libro
+```
+
+1. **GD11:** traccia chi produce `Got it: your libro is tavolo.`. La lingua del
+   turno esiste già; cerca dove si perde fra proposizione e realizzazione.
+   Motorizza la classe “acknowledgement di fatto appreso nella lingua di output”,
+   con template KB e prova runtime su almeno IT/EN. Non tradurre parole in C.
+2. **GD12:** solo dopo, fai sì che «il mio libro è sul tavolo» produca/agganci
+   lo stesso referente e lo stesso locativo che «dove si trova il mio libro»
+   interroga. Prima ispeziona il fatto realmente appreso: non aggiungere un
+   secondo fatto per far passare il test se il primo è stato rappresentato male.
+   Il gate minimo è teach → query con le stesse parole → retract/contrast.
+3. **G4:** eredita la relazione nell'ellissi («E il secondo?»), risolvi
+   dimostrativo+proprietà e applica la correzione come sostituzione. Usa lo
+   spazio dei referenti esistente; non creare campi `last_*` privati.
+
+### Disciplina `LEARN_PROTOCOL`
+
+Questo checkpoint è `meta-capability-only`: `W=0`, nessun `/save`, nessuna
+lezione naturale persistita. I nonce dei `.p0t` sono fixture software e non
+devono entrare nella KB. Dopo GD11/GD12, aprire un processo nuovo e fare un
+piccolo giro reale con fatti veri e fontati, parlando soltanto in lingua
+naturale; contare replay/transfer/persistenza separatamente dai test del motore.
+Eseguire **un solo `make soft-test` per ciclo di sviluppo**.
 
 ## 1. Dove siamo, in tre righe
 
 Stiamo costruendo le **fondamenta prototipali della comprensione universale**.
 Non stiamo più insegnando fatti in massa: abbiamo misurato che non basta, e
 stiamo riparando la **catena** che rende un turno comprensibile. Tre gradini su
-cinque sono chiusi, e parrot0 ha per la prima volta uno **spazio del discorso**.
+cinque sono chiusi, parrot0 ha uno **spazio del discorso** e sa ora trasformare
+due arresti in bisogni d'informazione nominati. **GD11 è la prossima priorità.**
 
 ## 2. La diagnosi che governa tutto — non ripartire senza averla capita
 
@@ -127,7 +249,7 @@ turno di controllo prima di cominciare.
 |---|---|---|
 | 1 | «il primo» conta l'ordine di **introduzione**, non delle parole | ✅ già la nostra scelta, ora verificata |
 | 3 | davanti all'ambiguità **non trattiene**: dà tutte le risposte *e poi* chiede | ✅ adottata — «Ce n'è più di uno — book red: table; book blue: mensola. Quale intendi?» |
-| 5 | il riferimento a vuoto **si nomina**: cita l'espressione irrisolta invece di un muro generico | ⬜ **piccola, farla per prima** |
+| 5 | il riferimento a vuoto **si nomina**: cita l'espressione irrisolta invece di un muro generico | ✅ **chiusa 2026-09-01**, stessa astrazione di GD13 |
 | 2 | l'ellissi eredita la **relazione** del turno prima («E il secondo?» → `located_in`) | ⬜ G4 |
 | 4 | **dimostrativo + proprietà** risolvono («E quello rosso?») | ⬜ G4 |
 | 6 | la correzione **sostituisce**, non accumula (`supersedes_in/3` esiste già) | ⬜ G4 |
@@ -180,36 +302,35 @@ finisce in uno slot di possesso invece che nel locativo, quindi il fatto c'è e 
 domanda formata con le stesse parole non lo trova. G1/G2 hanno chiuso il giro per
 `located_in`; il possessivo ha una porta sua e non l'ha ancora.
 
-### (c) Il dato che manca si dichiara e si CHIEDE — **GD13**
+### (c) Il dato che manca si dichiara e si CHIEDE — **GD13 ✅**
 
 ```text
 parrot0 < Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?
 oracolo < Non lo so! Tu sai che colore ha?
 ```
 
-La mossa più istruttiva delle tre. Parrot0 tratta la domanda come **non capita**;
-l'oracolo la capisce benissimo e dichiara che **il dato non c'è**, poi lo chiede
-a chi lo sa. Sono due situazioni diverse e oggi collassano nella stessa frase:
+La mossa più istruttiva delle tre. Prima parrot0 trattava la domanda come **non
+capita**; ora relazione, entità, bisogno e goal sono distinti, e il dato assente
+viene nominato e chiesto. Restano due situazioni diverse:
 
 | situazione | risposta giusta |
 |---|---|
 | non ho capito la domanda | «puoi dirlo in un altro modo?» |
 | ho capito, e **non ho il dato** | «non lo so — di che colore è?» |
 
-E la seconda non è solo più onesta: è **l'occasione più economica di imparare**,
+La seconda non è solo più onesta: è **l'occasione più economica di imparare**,
 perché invita esattamente il fatto che manca. È la stessa forma del muro che
 propone il proprio rimedio (§2, regola 5), applicata al dato invece che alla
-forma.
+forma. **Chiuso il motore; il seguito naturale del dialogo resta da provare
+dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
 
 
 ## 6. Il prossimo lavoro, in ordine
 
-1. **Mossa #5 + GD13 insieme** — distinguere «non ho capito» da «ho capito e non
-   ho il dato», e in entrambi i casi **nominare** ciò che manca: l'espressione
-   irrisolta o il dato assente. Sono la stessa mossa su due oggetti, sono
-   piccole, e trasformano due vicoli ciechi in due richieste — una di
-   chiarimento, una di conoscenza.
-2. **GD11** — la risposta segue la lingua del turno. Piccola e molto visibile:
+1. **✅ Mossa #5 + GD13** — chiuse il 2026-09-01 come
+   `information_need`: una richiesta di chiarimento e una di conoscenza, con
+   superfici/strategie/rese KB e gate runtime.
+2. **▶ GD11 — PROSSIMA** — la risposta segue la lingua del turno. Piccola e molto visibile:
    oggi una frase italiana riceve una cornice inglese con dentro parole
    italiane.
 3. **GD12** — il possessivo introduce un referente recuperabile: è il cassetto
@@ -1391,12 +1512,12 @@ turni** di conversazione ordinaria.
 | **GD2** | **Lessico colloquiale massiccio** | attacchi informali, stanchezza, noia, buonumore, frustrazione, accordo, incoraggiamento, battuta | ogni forma entra parlando; il cue sopravvive dentro una frase lunga; processo nuovo | **CHIUSA** — 200 forme insegnate, 193 persistite, F01 da 14 a 18 match (+29% relativo). [Report](docs/labs/apprendimento-assistito/2026-08-31-gd1-gd2-apertura-dialogo.md) |
 | **GD11** | **La risposta segue la lingua del turno** | — | una frase italiana non riceve una cornice inglese con dentro parole italiane | nessuna: la lingua del turno e' gia' un fatto (`current_language/1`) | «il mio libro e' sul tavolo» riceve una risposta interamente italiana; nessuna resa mista | **aperto — piccola e molto visibile.** Misurato: «Got it: your libro is tavolo.» Oracolo: «Ah, ottimo! E' un buon posto per un libro.» |
 | **GD12** | **Il possessivo introduce un referente recuperabile** | D35, G1/G2 | «il mio libro e' sul tavolo» deve essere raggiungibile da «dove si trova il mio libro» | nessuna | la domanda formata con le STESSE parole trova il fatto appena appreso | **aperto.** E' il cassetto senza maniglia su un frame che G1/G2 non hanno toccato: il fatto finisce in uno slot di possesso, non nel locativo. Oracolo: «E' sul tavolo, come hai appena detto!» |
-| **GD13** | **«Non ho capito» e «non ho il dato» sono due cose diverse** | D29, autocorrezione | una domanda compresa a cui manca il dato riceve una richiesta del dato, non un muro di incomprensione | «di che colore e' il mio libro» -> «non lo so, di che colore e'?» | le due situazioni producono due frasi diverse; la seconda invita esattamente il fatto che manca | **aperto — prioritaria con la mossa #5.** Oracolo: «Non lo so! Tu sai che colore ha?». E' la forma del muro che propone il proprio rimedio, applicata al DATO invece che alla forma — e l'occasione piu' economica di imparare |
+| **GD13** | **«Non ho capito» e «non ho il dato» sono due cose diverse** | D29, autocorrezione | una domanda compresa a cui manca il dato riceve una richiesta del dato, non un muro di incomprensione | «di che colore e' il mio libro» -> «non lo so, di che colore e'?» | le due situazioni producono due frasi diverse; la seconda invita esattamente il fatto che manca | **✅ chiuso 2026-09-01 con la mossa #5.** `information_need/4` distingue valore e antecedente mancanti; cue, strategie e resa crescono/si ritraggono a runtime. Il seguito naturale del caso possessivo attende GD12 |
 | **GD10** | **Archi di ordine superiore fra zone della KB** | D38 | aritmetica x sociale, prosa x geografia: comporre due zone che oggi non si parlano | «siamo in quattro e il conto e' 86 euro, quanto ciascuno?» — nessuno ha progettato «dividere un conto» | aggiunti N archi, i compiti risolti crescono **piu' che linearmente** in N; ogni capacita' composta e' dimostrata su un compito e sparisce se si ritratta l'arco; `false_composition/2` non resta vuoto per finta | **aperto.** F.: «connettere zone attraverso archi di ordine superiore e' una sorta di unificazione dell'intelligenza». E' la stessa cura di D33/D35/D37 un piano piu' su. Vedi §18.43 |
 | **GD9** | **Un'entita' e' un referente con proprieta', non un atomo fuso** | testa, proprieta', determinante, menzione con span; il fatto lega referenti | «il libro rosso» e «il libro» sono lo stesso oggetto detto con precisione diversa | dopo «Il libro rosso e' sul tavolo»: rispondono sia «dove si trova il libro rosso» sia «dove si trova il libro»; «di che colore e' il libro» risponde dalla proprieta'; «Il libro e' grande» si attacca allo stesso referente; «dov'e' il primo» si risolve o si dichiara ambiguo | **aperto — e' la forma GIUSTA di GD7.** La gerarchia esiste gia' (clausola, sintagmi, token, span): manca la giunzione, `extract_frame` la ignora e fonde. Vedi D37 §18.42 |
 | **GD7** | **Round-trip del nome dell'entita'** (conseguenza di GD9, non lavoro separato) | cio' che si impara da una frase e' interrogabile **con la stessa frase**, a qualunque numero di parole e in entrambe le lingue | nessuna: e' una simmetria di motore | «Il libro rosso e' sul tavolo» + «dove si trova il libro rosso» deve rispondere; `unnameable_fact/2` tende a zero su corpus reale; se serve il nome interno la simmetria non c'e' | **aperto — IL COLLO.** Misurato: la lettura scrive `book_red`, la domanda cerca «il libro rosso», e solo il nome interno funziona. Un'entita' di una parola fa il giro, una di piu' parole no. Vedi D35 §18.40 |
 | **GD8** | **La frase ordinaria a tre ruoli e le preposizioni articolate** | «ho messo il libro sul tavolo», «e' nello zaino», «invece» | «in questa frase il terzo ruolo e' il posto» | i turni dichiarativi ordinari del corpus producono un fatto invece di un muro | **aperto.** Due dei quattro guasti del dialogo tracciato |
-| **GD3** | **Una forma ha una famiglia di varianti** | apostrofo, accento, abbreviazione di chat, elisione, spaziatura, maiuscole | insegnata UNA forma canonica, tutte le varianti dichiarate funzionano senza seconda lezione; ritrattarla le spegne tutte; una variante ambigua (`e`/`è`) non si risolve in silenzio | **aperto — PROSSIMO, ed e' il moltiplicatore.** Misurato: «you're a legend» funziona, «you are a legend» risponde «I am a legend now» — un misclaim, non un muro. Vedi D34 §18.38 |
+| **GD3** | **Una forma ha una famiglia di varianti** | apostrofo, accento, abbreviazione di chat, elisione, spaziatura, maiuscole | insegnata UNA forma canonica, tutte le varianti dichiarate funzionano senza seconda lezione; ritrattarla le spegne tutte; una variante ambigua (`e`/`è`) non si risolve in silenzio | **aperto — moltiplicatore, ma dopo GD11/GD12 nella coda corrente.** Misurato: «you're a legend» funziona, «you are a legend» risponde «I am a legend now» — un misclaim, non un muro. Vedi D34 §18.38 |
 | **GD4** | **Il riferimento che attraversa i turni** (richiede GD7: serve qualcosa da nominare) | «quello», «l'altro», «quello di prima»: cio' che rende un dialogo un dialogo invece che una sequenza di domande | su turni multipli il riferimento si risolve o si dichiara ambiguo, mai si sceglie in silenzio | **aperto.** F03 e' la voce singola piu' alta del corpus — **24 muri su 30** — e non aveva un fronte |
 | **GD5** | **Corpus raccolto, non redatto** | il corpus GD1 e' scritto da chi lo misura, quindi misura anche le proprie assunzioni | i turni vengono da conversazioni reali; il delta si conferma su di essi | aperto |
 
@@ -1542,9 +1663,11 @@ exchange_turn(9, paris).
 
 Sono record episodici veri, non fixture; sono finiti nella ricaduta perche' il
 save-map non ha una casa per predicati prodotti soltanto dentro un `assert` di
-regola. **Non cancellarli per far tornare vuoto il file.** La correzione giusta
-e' una policy/casa dichiarata per la specie `exchange`, provata con save e
-fresh boot; fino ad allora il fallback visibile e' piu' onesto.
+regola. **Istruzione storica, ora superata:** non andavano cancellati senza una
+casa. Il checkpoint 2026-09-01 ha chiuso il debito conservandoli come
+`archived_exchange/4` nei transcript e dichiarando `exchange/3` e
+`exchange_turn/2` scratch di conversazione; `savemap.p0t` prova save e fresh
+boot. Non reintrodurre i predicati vivi in un file caricato al boot.
 
 B0/R0 `36715/2529`; B1/R1 `36750/2529`; differenza 35. Fresh recall lessicale
 3/3; composizione GMD e proof 1/1. Una composizione NASA con la parola `impact`

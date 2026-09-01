@@ -6,6 +6,18 @@ gen440–gen446 sono prototipi verticali e non chiusure sequenziali
 **Orizzonte:** gen437–gen446
 **Vincolo:** runtime KB-first; Wikipedia è l'unica sorgente esterna ammessa
 
+> **Aggiornamento 2026-09-01 — `information_need` è il bordo eseguibile
+> dell'arresto.** Due fallimenti prima indistinguibili sono ora oggetti diversi:
+> `value(Relazione, Entita)` blocca un goal di risposta e
+> `antecedent(Superficie, Ordine)` blocca un goal di chiarimento. Entrambi
+> possono essere nominati all'interlocutore attraverso una risposta prioritaria
+> KB-driven, senza inventare contenuto. La mossa è fertile e scalabile: una nuova
+> relazione, forma interrogativa, lingua, ordinale o strategia entra per fatti e
+> regole KB; il kernel conosce soltanto il protocollo astratto. Il prossimo piano
+> di compensazione deve consumare questi oggetti direttamente, scegliere
+> `ask_user`, `read_source` o `resolve_reference`, ripetere lo stesso turno e
+> promuovere soltanto il rimedio causalmente necessario.
+
 ## 0. Tesi
 
 Una KB non diventa viva quando contiene molti fatti. Diventa viva quando sa

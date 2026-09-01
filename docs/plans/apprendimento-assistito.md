@@ -30,6 +30,25 @@ meta-comprensione M0–M14 siano chiusi.
 **Ritmo:** §11 — ogni cosa appresa è un piccolo incremento, e si committa e
 pusha anche se parziale.
 
+> ## ✅ TRAGUARDO — IL BISOGNO D'INFORMAZIONE È NOMINABILE (2026-09-01)
+>
+> «Non ho capito» e «ho capito, ma non possiedo il dato» non collassano più
+> nello stesso muro. Il turno produce ora un `information_need` tipato:
+> `knowledge/value(Relazione, Entita)` oppure
+> `reference/antecedent(Superficie, Ordine)`. La risposta cita ciò che è stato
+> riconosciuto e chiede esattamente ciò che manca. Superfici interrogative,
+> ordinali, strategie e pezzi di resa sono KB e superano prove di
+> addizione/retrazione a runtime. Il risultato è **meta-capability-only**: i
+> `!assert` dei test provano l'architettura KB-first, non sono lezioni valide del
+> `LEARN_PROTOCOL`; il prossimo training reale dovrà fornire fatti veri in
+> lingua naturale e verificare replay, transfer e persistenza.
+>
+> Ipotesi nuova: la supercomprensione non richiede di scegliere subito una
+> lettura completa; richiede di modellare nello spazio logico la **differenza
+> minima fra stato corrente e goal**. Quando quella differenza è un oggetto,
+> comprensione, metacomprensione e autocrescita diventano lo stesso ciclo:
+> prova → arresto → bisogno → domanda/acquisizione → replay.
+
 > ## ✅ TRAGUARDO — LO SPAZIO DEL DISCORSO (2026-08-31)
 >
 > **Da conservare: è la prima volta che parrot0 ricorda *che cosa* è stato

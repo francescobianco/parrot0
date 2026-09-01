@@ -1,0 +1,95 @@
+# GD13 + mossa #5 — IL PEZZO MANCANTE VIENE NOMINATO E CHIESTO.
+#
+# Non sono due risposte speciali. Sono due `information_need`: una domanda
+# capita senza valore, e un riferimento riconosciuto senza antecedente. Le
+# superfici e le strategie vivono in KB; i gate runtime provano crescita,
+# retract e contrasto senza rebuild.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+!timeout 40
+
+[test an empty ordinal reference names the unresolved expression]
+> dove si trova il primo?
+< Non sono sicuro a cosa ti riferisci con «primo». Puoi darmi più contesto?
+
+[test the same reference move is localized in English]
+> where is the first?
+< I am not sure what you mean by «first». Could you give me more context?
+
+[test a new ordinal surface grows and retracts at runtime]
+!assert ordinal_reference(it, "zordinale", 1)
+> dove si trova lo zordinale?
+< Non sono sicuro a cosa ti riferisci con «zordinale». Puoi darmi più contesto?
+!forget ordinal_reference(it, "zordinale", 1)
+> dove si trova lo zordinale?
+<! riferisci con «zordinale»
+!assert ordinal_reference(it, "zordinale", 1)
+> dove si trova lo zordinale?
+<~ riferisci con «zordinale»
+
+[test an existing referent is answered and is not called missing]
+> il libro rosso è sul tavolo
+< Learned: located_in(book_red, tavolo).
+> dove si trova il primo?
+< tavolo.
+<! più contesto
+
+[test a understood attribute question asks for the absent value]
+!assert discourse_referent(1, book)
+> di che colore è il libro?
+< Non lo so: ho capito «di che colore», ma mi manca il valore per libro. Tu lo sai?
+
+[test adding the fact closes the need and retracting it reopens it]
+!assert color_of(book, green)
+> di che colore è il libro?
+< Verde.
+!forget color_of(book, green)
+> di che colore è il libro?
+<~ mi manca il valore per libro
+
+[test a known answer is still an answer]
+> di che colore è la mela?
+< Rosso.
+<! mi manca il valore
+
+[test an unknown entity is not misreported as a missing property value]
+> di che colore è lo zorbquux?
+<! mi manca il valore per zorbquux
+
+[test question recognition grows and retracts from the KB]
+!assert answer_frame("che tono ha", tone_of)
+!assert answer_frame_input_arg("che tono ha", tone_of, 1)
+> che tono ha il libro?
+< Non lo so: ho capito «che tono ha», ma mi manca il valore per libro. Tu lo sai?
+!forget answer_frame_input_arg("che tono ha", tone_of, 1)
+> che tono ha il libro?
+<! ho capito «che tono ha»
+!assert answer_frame_input_arg("che tono ha", tone_of, 1)
+> che tono ha il libro?
+<~ ho capito «che tono ha»
+
+[test both dialogue strategies are runtime policy]
+!forget missing_fact_dialogue_strategy(name_and_ask)
+> di che colore è il libro?
+<! mi manca il valore per libro
+!assert missing_fact_dialogue_strategy(name_and_ask)
+> di che colore è il libro?
+<~ mi manca il valore per libro
+!forget reference_gap_dialogue_strategy(name_and_ask)
+> dove si trova il terzo?
+<! riferisci con «terzo»
+!assert reference_gap_dialogue_strategy(name_and_ask)
+> dove si trova il terzo?
+<~ riferisci con «terzo»
+
+[test the two needs are explicit logical objects]
+> di che colore è il libro?
+!query information_need(current_turn, knowledge, value(color_of, book), answer(it, color_of, book))
+> dove si trova il terzo?
+!query information_need(current_turn, reference, antecedent("terzo", 3), clarify(it, "terzo"))
