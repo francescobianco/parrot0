@@ -64,3 +64,60 @@ context_commitment($Context, $Commitment) :-
     context($Context, $Kind), commitment_policy($Kind, $Commitment).
 
 context_kind($Context, $Kind) :- context($Context, $Kind).
+
+% ── G5: DIRE DI NUOVO DOVE STA UNA COSA E' CORREGGERE, NON AGGIUNGERE ────────
+%
+% parrot0 dichiara gia' due metodi propri che riguardano questo, e fino al
+% 2026-09-01 il suo comportamento li contraddiceva entrambi:
+%
+%   own_method(contradiction)  «I do not overwrite one claim with the other.
+%                               The conflict is recorded and the two views are
+%                               kept in separate contexts…»
+%   own_method(time_validity)  «…a later fact supersedes the earlier one
+%                               without erasing it.»
+%
+% Il comportamento reale era il peggiore dei due mondi: il secondo fatto veniva
+% imparato E la domanda rispondeva col PRIMO.
+%
+%   > il libro rosso e' sul tavolo    → Imparato: located_in(book_red, tavolo).
+%   > il libro rosso e' sulla mensola → Imparato: located_in(book_red, mensola).
+%   > dove si trova il libro rosso?   → tavolo.        ⛔
+%
+% Dire a parrot0 una cosa nuova non la cambiava: la seppelliva. Ed e' una
+% violazione della regola anti-inganno di PRINCIPLES.md piu' che una lacuna —
+% la dottrina dichiarata e il comportamento devono coincidere.
+%
+% QUALI RELAZIONI SIANO FUNZIONALI E' CONOSCENZA. Una relazione funzionale
+% ammette un valore solo per entita': un oggetto sta in un posto alla volta.
+% Non tutte lo sono — «parla» o «contiene» ammettono piu' valori insieme, e
+% superarli sarebbe cancellare informazione vera. Una relazione nuova domani e'
+% una riga qui, non una ricompilazione.
+machinery(functional_relation).
+functional_relation(located_in).
+
+% ⚠ MA FUNZIONALE NON VUOL DIRE MONO-VALORE IN OGNI SENSO, E LA KB LO DIMOSTRA:
+%
+%   > where is rome  →  Italy and lazio.
+%
+% Sono vere entrambe, e nessuna corregge l'altra: il Lazio sta DENTRO l'Italia,
+% quindi il secondo valore RAFFINA il primo invece di sostituirlo. Superarlo
+% cancellerebbe informazione vera — la forma peggiore di questo meccanismo,
+% perche' silenziosa.
+%
+% Il criterio non e' un elenco di eccezioni: due valori si escludono a vicenda
+% solo se NON stanno l'uno nell'altro. Un tavolo e una mensola non si
+% contengono, il Lazio e l'Italia si'. La relazione porta gia' in se' la propria
+% nozione di annidamento, e la si interroga invece di dichiararla due volte.
+machinery(supersession_exempt).
+supersession_exempt(located_in, $New, $Old) :- located_in($New, $Old).
+supersession_exempt(located_in, $New, $Old) :- located_in($Old, $New).
+
+% La correzione passa dalla macchina che c'era gia' (`supersedes_in/3` +
+% `holds_in/2` + `context_superseded/2`, l'astrazione K4): il fatto vecchio NON
+% viene ritrattato. Resta nella KB con la sua provenienza, e chi guarda vede sia
+% che era stato detto sia che e' stato superato — l'unica forma di correzione
+% compatibile con «non si toglie niente».
+machinery(fact_supersede).
+fact_supersede($New, $Old) :-
+    assert(holds_in, conversation, $New),
+    assert(supersedes_in, conversation, $New, $Old).

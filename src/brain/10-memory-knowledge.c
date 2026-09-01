@@ -3624,6 +3624,45 @@ static void p0_learn_source(Brain *b, const char *pred, const char *const *args,
     for (size_t i = 0; i < argc && o + 2 < sizeof fr; i++)
         o += (size_t)snprintf(fr + o, sizeof fr - o, "%s%s", i ? ", " : "", args[i]);
     if (o + 2 < sizeof fr) snprintf(fr + o, sizeof fr - o, ")");
+
+    /* G5 — RIDIRE E' CORREGGERE. Vedi il blocco in kb/core/context-scope.p0.
+     *
+     * Sta qui, e non nella via locativa, per la stessa ragione per cui ci stanno
+     * i referenti: le vie che imparano un fatto sono piu' d'una, e agganciare la
+     * correzione a una sola lascerebbe le altre ad accumulare contraddizioni in
+     * silenzio. Il punto di strozzatura costruisce gia' `fr` — la forma canonica
+     * `pred(a, b)` — quindi i due lati della supersessione non devono
+     * ricostruire lo stesso termine carattere per carattere, che e' esattamente
+     * cio' che il gen420 aveva trovato fragile.
+     *
+     * Il fatto vecchio non si ritratta: si dichiara superato. */
+    if (argc == 2) {
+        const char *fq[1] = { pred };
+        if (kb_query(b->kb, "functional_relation", fq, 1)) {
+            char old[16][KB_TERM_LEN];
+            const char *oq[2] = { args[0], NULL };
+            size_t no = kb_match(b->kb, pred, oq, 2, old, 16);
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            for (size_t i = 0; i < no; i++) {
+                char ov[KB_TERM_LEN];
+                snprintf(ov, sizeof ov, "%s", old[i]);
+                const char *val = kb_dequote(ov);
+                if (!*val || strcmp(val, args[1]) == 0) continue;
+                /* Due valori si escludono a vicenda solo se non stanno l'uno
+                 * nell'altro: «Roma e' in Italia» e «Roma e' nel Lazio» sono
+                 * vere insieme. Il criterio e' conoscenza. */
+                const char *xq[3] = { pred, args[1], val };
+                if (kb_query(b->kb, "supersession_exempt", xq, 3)) continue;
+                char of[KB_TERM_LEN];
+                snprintf(of, sizeof of, "%s(%s, %s)", pred, args[0], val);
+                const char *sa[2] = { fr, of };
+                kb_query(b->kb, "fact_supersede", sa, 2);
+            }
+            kb_set_origin(b->kb, prev);
+        }
+    }
+
     char rq[KB_TERM_LEN];
     snprintf(rq, sizeof rq, "\"%.*s\"", (int)(KB_TERM_LEN - 4), raw);
     kb_set_origin(b->kb, KB_SESSION);
@@ -5980,6 +6019,34 @@ static size_t p0_head_index(Brain *b, size_t nparts) {
  * relazione gia' conosce. Restituisce le risposte solo se la descrizione
  * individua UNA sola entita': due entita' compatibili sono un'ambiguita', e
  * sceglierne una sarebbe inventare che cosa intendesse chi parla. */
+/* G5 — UNA RISPOSTA SUPERATA NON SI LEGGE PIU', E NON E' STATA CANCELLATA.
+ *
+ * Simmetrico allo slot superato del gen420. Il fatto resta nella KB con la sua
+ * provenienza — chi la ispeziona vede sia che era stato detto sia che e' stato
+ * corretto — ma non e' piu' cio' che risponde. Restituisce l'indice della prima
+ * risposta ancora in forza, o `na` se sono tutte superate.
+ *
+ * Non filtra a monte: se TUTTE sono superate si torna alla prima, perche' un
+ * muro sarebbe peggio di un valore vecchio dichiarato. In pratica non capita —
+ * si supera solo verso un valore nuovo, che e' li' insieme agli altri. */
+static size_t p0_pick_in_force(Brain *b, const char *pred, const char *key,
+                               int forward, char ans[][KB_TERM_LEN], size_t na) {
+    if (!b || !b->kb || na == 0) return 0;
+    const char *fq[1] = { pred };
+    if (!kb_query(b->kb, "functional_relation", fq, 1)) return 0;
+    for (size_t i = 0; i < na; i++) {
+        char v[KB_TERM_LEN];
+        snprintf(v, sizeof v, "%s", ans[i]);
+        const char *val = kb_dequote(v);
+        char fact[KB_TERM_LEN];
+        snprintf(fact, sizeof fact, "%s(%s, %s)", pred,
+                 forward ? key : val, forward ? val : key);
+        const char *sq[2] = { "conversation", fact };
+        if (!kb_query(b->kb, "context_superseded", sq, 2)) return i;
+    }
+    return 0;
+}
+
 /* G4 — un pro-forma e' una descrizione anche da solo. */
 static int p0_is_demonstrative(Brain *b, const char *tok) {
     if (!b || !b->kb || !tok || !*tok) return 0;
@@ -6326,17 +6393,20 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                     char ans[16][KB_TERM_LEN]; size_t na;
                     const char *fw[2] = { keyrow[0], NULL };
                     na = allow_arg1 ? kb_match(b->kb, pred, fw, 2, ans, 16) : 0;
+                    int ofwd = na > 0;
                     if (na == 0 && allow_arg2) {
                         const char *bw[2] = { NULL, keyrow[0] };
                         na = kb_match(b->kb, pred, bw, 2, ans, 16);
                     }
                     if (na > 0) {
+                        size_t pick = p0_pick_in_force(b, pred, keyrow[0],
+                                                       ofwd, ans, na);
                         char pretty[KB_TERM_LEN];
-                        snprintf(pretty, sizeof pretty, "%s", kb_dequote(ans[0]));
+                        snprintf(pretty, sizeof pretty, "%s", kb_dequote(ans[pick]));
                         for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
                         kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
                                         { "value", pretty } }, 1, out, out_size);
-                        p0_observe_answer(b, keyrow[0], pred, ans[0]);
+                        p0_observe_answer(b, keyrow[0], pred, ans[pick]);
                         free(ords); free(langs); free(preds); free(cues);
                         return 1;
                     }
@@ -6374,6 +6444,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                 char ans[16][KB_TERM_LEN]; size_t na;
                 const char *pf[2] = { key, NULL };
                 na = allow_arg1 ? kb_match(b->kb, pred, pf, 2, ans, 16) : 0;
+                int pfwd = na > 0;
                 if (na == 0 && allow_arg2) {
                     const char *pb[2] = { NULL, key };
                     na = kb_match(b->kb, pred, pb, 2, ans, 16);
@@ -6440,12 +6511,13 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                     }
                 }
                 if (na > 0) {
+                    size_t pick = p0_pick_in_force(b, pred, key, pfwd, ans, na);
                     char pretty[KB_TERM_LEN];
-                    snprintf(pretty, sizeof pretty, "%s", kb_dequote(ans[0]));
+                    snprintf(pretty, sizeof pretty, "%s", kb_dequote(ans[pick]));
                     for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
                     kb_term_say(b, "slot_answer", (const KbResponseSlot[]){
                                     { "value", pretty } }, 1, out, out_size);
-                    p0_observe_answer(b, key, pred, ans[0]);
+                    p0_observe_answer(b, key, pred, ans[pick]);
                     free(preds); free(cues);
                     return 1;
                 }

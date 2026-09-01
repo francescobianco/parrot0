@@ -413,10 +413,42 @@ dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
    Ratchet: `tests/p0t/conversation/ellipsis_reference.p0t`, 17 assert, con il
    contrasto anti-dirottamento («e ciao» non deve ereditare niente).
 
-   **Resta aperto di G4:** la correzione che SOSTITUISCE («quello rosso l'ho
-   spostato sulla mensola») — la terza mossa della sonda, non ancora fatta.
+   **Resta aperto di G4:** la forma «l'ho spostato sulla mensola» (predicato di
+   movimento con clitico) non ha ancora lettura — vedi GD8.
 
-5. **GD8** — la frase ordinaria a tre ruoli («ho messo il libro sul tavolo») e
+5. **✅ G5 — chiusa 2026-09-01. RIDIRE E' CORREGGERE.**
+   parrot0 dichiarava due metodi propri — `own_method(contradiction)` e
+   `own_method(time_validity)` — e il comportamento li contraddiceva entrambi
+   nel modo peggiore: il secondo fatto veniva imparato **e** la domanda
+   rispondeva col primo. Dire una cosa nuova non la cambiava: la seppelliva.
+
+   ```text
+   > il libro rosso è sul tavolo    → Imparato: located_in(book_red, tavolo).
+   > il libro rosso è sulla mensola → Imparato: located_in(book_red, mensola).
+   > dove si trova il libro rosso?  → mensola.        (prima: tavolo ⛔)
+   ```
+
+   **La macchina c'era già** (D40 di nuovo): `supersedes_in/3` + `holds_in/2` +
+   `context_superseded/2` esistono in `context-scope.p0`, usate dal gen420 per
+   «dimentica il mio nome». Mancava che i fatti del mondo le attraversassero.
+   L'innesto è nel **punto di strozzatura condiviso** (`p0_learn_source`), che
+   già costruisce la forma canonica `pred(a, b)` — così i due lati della
+   supersessione non ricostruiscono lo stesso termine carattere per carattere,
+   che è precisamente ciò che il gen420 aveva trovato fragile.
+
+   **Il limite trovato sulla KB curata, e la cura.** `functional_relation(located_in)`
+   è troppo forte da sola: «where is rome» → *«Italy and lazio»*, vere insieme,
+   perché il Lazio sta **dentro** l'Italia. Il secondo valore raffina, non
+   corregge, e superarlo cancellerebbe informazione vera in silenzio. Il
+   criterio non è un elenco di eccezioni: `supersession_exempt/3` chiede alla
+   relazione stessa se i due valori si contengono.
+
+   Ratchet: `tests/p0t/conversation/correction_supersedes.p0t`, 12 assert, col
+   raffinamento e col contrasto (correggere il libro non sposta il quaderno).
+   **Debito lasciato aperto e registrato in §7bis:** la via locativa cancella il
+   fatto vecchio a monte, e lo faceva già prima. G5 chiude la metà che si vede.
+
+6. **▶ GD8 — PROSSIMA** — la frase ordinaria a tre ruoli («ho messo il libro sul tavolo») e
    le preposizioni articolate («nello zaino»): oggi non hanno lettura, ed è la
    forma normale del parlato.
 6. **G5** — il referente che sa ridirsi. Chiude anche la resa `book red` →
@@ -441,6 +473,7 @@ dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
 | `conversation/chitchat.p0t` | 21/1 | «rough day» → risponde con la chiusura invece della resa low-energy | **no** — identico a HEAD (stash/build/unstash) | due rese smalltalk competono; classe, non istanza |
 | `language/motorize_class.p0t` | 23/1 | «Who wrote the Iliad?» → «homer» col solo fatto sull'Odissea | **sì**, G1/G2 | la descrizione risolve troppo: manca il vincolo che la chiave sia dell'entita' giusta |
 | suite lente in coda ai file | vari | qualunque turno dopo N nella stessa sessione | **no** | non e' logica: e' il debito di latenza, §7 sotto |
+| **la via locativa CANCELLA il fatto corretto** | — | «il libro rosso è sul tavolo» poi «…sulla mensola»: `located_in(book_red, tavolo)` non e' piu' dimostrabile | **no** — identico a HEAD | ⛔ viola `own_method(contradiction)` (*«I do not overwrite one claim with the other»*). G5 ha chiuso la meta' che si vede (la risposta ora e' quella in forza); la storia sopravvive in `supersedes_in`, il FATTO no. Finche' e' aperto, parrot0 dichiara un metodo che esegue a meta' |
 
 
 - **⚠ LATENZA — il debito che ora si vede nei test, misurato il 2026-09-01.**

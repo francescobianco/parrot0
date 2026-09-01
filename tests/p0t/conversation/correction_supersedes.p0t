@@ -1,0 +1,86 @@
+# ── G5 — RIDIRE E' CORREGGERE, E CORREGGERE NON E' CANCELLARE ───────────────
+#
+# parrot0 dichiara due metodi propri che riguardano questo:
+#
+#   own_method(contradiction)  «I do not overwrite one claim with the other…»
+#   own_method(time_validity)  «…a later fact supersedes the earlier one
+#                               without erasing it.»
+#
+# Fino al 2026-09-01 il comportamento li contraddiceva ENTRAMBI, nel modo
+# peggiore possibile: il secondo fatto veniva imparato E la domanda rispondeva
+# col PRIMO. Dire a parrot0 una cosa nuova non la cambiava: la seppelliva.
+#
+# Non e' una lacuna, e' la regola anti-inganno di PRINCIPLES.md: la dottrina
+# dichiarata e il comportamento devono coincidere. Un test che verifica solo
+# «risponde mensola» non basta — deve verificare anche che il fatto vecchio sia
+# ancora li', altrimenti staremmo scambiando una violazione con l'altra.
+
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=it
+!reset
+
+[test ridire dove sta una cosa la corregge]
+!timeout 4
+> il libro rosso è sul tavolo
+<~ si trova in tavolo
+> il libro rosso è sulla mensola
+<~ si trova in mensola
+> dove si trova il libro rosso?
+<~ ensola
+<! avolo
+
+[test la correzione lascia una traccia ispezionabile]
+!timeout 4
+# La correzione e' registrata come SUPERSESSIONE: `supersedes_in/3` porta il
+# termine del fatto superato, quindi chi guarda la KB vede sia che «tavolo» era
+# stato detto sia che e' stato corretto.
+!query supersedes_in(conversation, $New, $Old)
+#
+# ⛔ DEBITO DICHIARATO, e volutamente NON asserito qui come se fosse a posto.
+# `located_in(book_red, tavolo)` NON e' piu' dimostrabile dopo la correzione:
+# la via locativa SOSTITUISCE il fatto a monte, e lo faceva gia' prima di
+# questo lavoro (verificato con stash/build: identico a HEAD). Cioe' la
+# violazione di own_method(contradiction) era DOPPIA — cancellava il fatto
+# vecchio E rispondeva col suo valore.
+#
+# Questo giro chiude la meta' che si vede (la risposta ora e' quella in forza) e
+# lascia la meta' che non si vede. La storia sopravvive in `supersedes_in`, il
+# fatto no. Registrato in LEARN_TODO §7bis: finche' non e' chiuso, parrot0
+# dichiara un metodo che esegue solo a meta'.
+
+!reset
+
+[test un valore ANNIDATO raffina, non corregge]
+!timeout 4
+# ⚠ IL LIMITE DELLA DICHIARAZIONE «located_in e' funzionale», trovato sulla KB
+# curata: «where is rome» risponde «Italy and lazio» e sono vere INSIEME. Il
+# Lazio sta dentro l'Italia, quindi il secondo valore raffina il primo. Superarlo
+# cancellerebbe informazione vera, in silenzio — la forma peggiore.
+#
+# Il criterio non e' un elenco di eccezioni: due valori si escludono solo se NON
+# stanno l'uno nell'altro. La relazione porta gia' in se' il proprio annidamento.
+> rome is in italy
+> rome is in lazio
+> where is rome
+<~ taly
+<~ azio
+
+!reset
+
+[test la correzione non tocca cio' che non e' stato corretto]
+!timeout 4
+> il libro rosso è sul tavolo
+<~ si trova in tavolo
+> il quaderno blu è sulla mensola
+<~ si trova in mensola
+> il libro rosso è sulla sedia
+<~ si trova in sedia
+# CONTRASTO: correggere il libro non deve spostare il quaderno.
+> dove si trova il quaderno blu?
+<~ ensola
+> dove si trova il libro rosso?
+<~ edia
