@@ -231,15 +231,23 @@ machinery(referent_known).
 % superficie che si dichiara dev'essere quella che sopravvive al percorso, e qui
 % il percorso ne produce due. Finche' la canonicalizzazione non conserva anche
 % l'originale (G5), questa classe le tiene entrambe.
+% ⚠ ALCUNE FORME ORDINALI SONO AMBIGUE, E L'AMBIGUITA' NON SI RISOLVE QUI.
+% In italiano «secondo» e' anche una preposizione («secondo Marco…») e «prima»
+% e' anche un avverbio («prima di…»). Dichiararle nude faceva rivendicare come
+% riferimento irrisolto un turno che non conteneva nessun riferimento —
+% misurato: «secondo Marco la terra e' piatta» riceveva «non sono sicuro a cosa
+% ti riferisci con "secondo"». E' la specie di D22, e la parola comune catturata
+% da una classe nuova.
+% Per quelle forme si dichiara la variante che porta il DETERMINANTE, che l'uso
+% preposizionale non ha mai. Le forme non ambigue restano nude.
 ordinal_reference(en, "prime", 1).
 ordinal_reference(it, "primo", 1).
-ordinal_reference(it, "prima", 1).
-ordinal_reference(it, "secondo", 2).
-ordinal_reference(it, "seconda", 2).
 ordinal_reference(it, "terzo", 3).
 ordinal_reference(en, "first", 1).
-ordinal_reference(en, "second", 2).
 ordinal_reference(en, "third", 3).
+ordinal_reference(it, "the second", 2).
+ordinal_reference(en, "the second", 2).
+ordinal_reference(it, "the first", 1).
 
 % Quale posizione di un fatto INTRODUCA un referente e' una politica, non una
 % scelta del C. In «Il libro rosso e' sul tavolo» sono nominati due oggetti, ma

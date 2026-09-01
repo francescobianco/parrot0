@@ -61,8 +61,12 @@
 [test l'ack di un fatto appreso parla la lingua del turno]
 !timeout 4
 > ciao
-> il mio libro è sul tavolo
-<~ Ricevuto: il tuo libro
+# GD12 ha poi cambiato QUESTO turno di proposito: «il mio libro e' SUL tavolo»
+# non dice come si chiama il libro, dice dove sta — e ora produce un locativo.
+# La classe che GD11 fissa e' l'ack del possesso, e si prova sulla forma che
+# resta un possesso.
+> il mio libro si chiama Moby Dick
+<~ Ricevuto: il tuo libro si chiama
 !query! response_template(got_it_your_x_is_x, it, "Got it: your {thing} is {n}.")
 > il gatto è sul tetto
 <~ Imparato: gatto si trova in tetto
@@ -71,8 +75,8 @@
 !timeout 4
 !set PARROT0_LANG=en
 !reset
-> my book is on the table
-<~ Got it: your book is table
+> my book is called Moby Dick
+<~ Got it: your book is called
 > the cat is on the roof
 <~ Learned: located_in(cat, roof)
 
@@ -99,3 +103,33 @@
 <~ take
 !query response_template(learned_located_in_x_x, "Noted down: {subj} sits in {obj}.")
 !query! response_template(learned_located_in_x_x, it, "Noted down: {subj} sits in {obj}.")
+
+# ── GD12 (2026-09-01) — UN LUOGO NON E' UN NOME ─────────────────────────────
+#
+# «il mio libro e' sul tavolo» finiva in `remember_possession(libro, tavolo)`:
+# il ramo prendeva l'ULTIMA PAROLA della frase e la registrava come nome del
+# possesso, buttando via la preposizione. Il fatto usciva sbagliato, e la domanda
+# formata con le stesse parole non lo trovava — il cassetto senza maniglia su un
+# frame che G1/G2 non avevano toccato.
+#
+# La cura non aggiunge un secondo fatto per far passare il test: toglie la
+# rivendicazione sbagliata. Quali parole aprano un luogo e' gia' conoscenza, e il
+# ramo del possesso si limita a non prendere il turno.
+
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=it
+!reset
+
+[test il possessivo con luogo produce un locativo interrogabile]
+!timeout 4
+> il mio libro è sul tavolo
+<~ si trova in tavolo
+> dove si trova il mio libro
+<~ avolo
+# CONTRASTO: il possesso con NOME resta un possesso, non e' stato travolto.
+> il mio quaderno si chiama Diario
+<~ Ricevuto: il tuo quaderno si chiama

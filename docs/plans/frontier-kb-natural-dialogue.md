@@ -5737,3 +5737,65 @@ KB-first?»* (mantra #1). È anche:
 > **chi altro deve accordarsi con questa, e su che cosa?**
 
 Tre difetti su tre, in questa serie, sarebbero stati evitati facendosela prima.
+
+---
+
+## §18.44 — D39: un fatto sbagliato non si ripara aggiungendone uno giusto
+
+*Registrato il 2026-09-01, chiudendo GD12.*
+
+Il cassetto senza maniglia (§18.30) aveva finora una sola forma nota: parrot0
+impara sotto un nome che poi non sa più pronunciare. GD12 ne ha mostrata una
+**seconda, peggiore**, perché non lascia traccia di sé.
+
+«il mio libro è sul tavolo» produceva `possession_name(libro, tavolo)`: il ramo
+del possesso prendeva l'**ultima parola** della frase e la registrava come
+*nome*, buttando via la preposizione. Cioè parrot0 imparava, con piena
+convinzione e senza alcun segnale d'incertezza, che **il libro si chiama
+«tavolo»**.
+
+La differenza con tutti i casi precedenti è cruciale:
+
+| | fatto **mancante** | fatto **sbagliato** |
+|---|---|---|
+| sintomo | muro, «non capisco ancora» | risposta sicura e falsa |
+| tentazione | insegnare la forma mancante | insegnare *anche* la forma giusta |
+| esito della tentazione | funziona | **due fatti in competizione**, e quello falso resta |
+| cura vera | aggiungere | **togliere la rivendicazione** |
+
+Un turno che risponde *bene* dopo la cura non dimostra che la cura è giusta: se
+il fatto falso è ancora nella KB, si è solo costruito un secondo percorso che
+per ora vince. La domanda da farsi non è «adesso risponde?» ma **«che cosa ha
+davvero imparato?»** — e si guarda il fatto, non la risposta.
+
+**La regola operativa, generalizzata oltre GD12.** Quando un ramo del C
+costruisce un argomento con un'euristica posizionale (*l'ultima parola*, *la
+prima parola*, *la parola dopo il verbo*), quel ramo **deve poter declinare**.
+L'euristica è una scommessa; una scommessa senza possibilità di passare è una
+rivendicazione. E la condizione per declinare è **conoscenza**, non una lista
+nel C: qui è bastato chiedere alla KB se una preposizione di luogo apre il resto
+della frase, e il ramo si è tolto di mezzo da solo lasciando lavorare la lettura
+locativa che già esisteva.
+
+### Il corollario sui ratchet
+
+Il ratchet che GD11 aveva scritto **asseriva la resa sbagliata**: fissava
+«Ricevuto: il tuo libro è tavolo» come comportamento atteso. Un test che
+congela un difetto lo **difende** — e lo difende con l'autorità di un verde.
+
+Quando la cura è giusta, il ratchet si aggiorna e si scrive **perché**; non si
+annacqua la cura per non toccare il test. Il ratchet aggiornato prova ora la
+classe che GD11 voleva davvero fissare (l'ack del possesso segue la lingua del
+turno) **sulla forma che resta un possesso**, e aggiunge il contrasto: la cura
+non ha travolto il caso legittimo.
+
+### L'ambiguità trovata di rimbalzo
+
+`ordinal_reference(it, "secondo", 2)`, introdotto in G3, catturava la
+**preposizione** in «secondo Marco la terra è piatta». Due letture legittime
+della stessa stringa, e la KB ne dichiarava una sola come se fosse l'unica.
+Curata richiedendo il determinante per gli ordinali italiani ambigui, con
+l'avviso sul posto: *alcune forme ordinali sono ambigue, e l'ambiguità non si
+risolve qui.* È la lezione della sonda all'oracolo (§18.38) applicata a noi
+stessi: **il posto dove si dichiara una forma non è il posto dove si sceglie fra
+le sue letture.**

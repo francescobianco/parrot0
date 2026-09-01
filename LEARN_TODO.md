@@ -344,13 +344,46 @@ dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
    contro un budget di 1,0 s, ed e' **pre-esistente** (verificato sul binario
    precedente: 1,04 s). I nuovi blocchi dichiarano `!timeout 4` con la misura
    accanto; il debito e' D21 / §10 del piano frontier.
-3. **▶ GD12 — PROSSIMA** — il possessivo introduce un referente recuperabile.
-   ~~la risposta segue la lingua del turno~~ Piccola e molto visibile:
-   oggi una frase italiana riceve una cornice inglese con dentro parole
-   italiane.
-4. **GD12** — il possessivo introduce un referente recuperabile: è il cassetto
-   senza maniglia su un frame che G1/G2 non hanno toccato.
-4. **G4 / GD4** — coreferenza: mosse #2, #4, #6 insieme. È l'anello che il
+3. **✅ GD12 — chiusa 2026-09-01. UN LUOGO NON E' UN NOME.**
+   L'handoff diceva: *«prima ispeziona il fatto realmente appreso: non aggiungere
+   un secondo fatto per far passare il test se il primo e' stato rappresentato
+   male»*. Era esattamente il caso. Il ramo «il mio X e' Y» in
+   `src/brain/10-memory-knowledge.c` chiamava `remember_possession(thing, n)` con
+   `n = copy_last_word(raw)`: **prendeva l'ultima parola della frase e la
+   registrava come NOME del possesso, buttando via la preposizione.** «il mio
+   libro e' sul tavolo» diventava «il libro si chiama tavolo».
+
+   Il cassetto senza maniglia in forma pura: il fatto usciva sbagliato, e la
+   domanda formata con le stesse parole non lo trovava. Nessun secondo fatto
+   l'avrebbe riparato — c'era una rivendicazione sbagliata da **togliere**.
+
+   La cura non aggiunge vocabolario al C: quali parole aprano un luogo e' gia'
+   conoscenza (`p0_is_loc_prep`), e il ramo del possesso si limita a **non
+   prendere il turno**, lasciando che la lettura locativa faccia il suo lavoro.
+
+   ```text
+   > il mio libro e' sul tavolo        → Imparato: libro si trova in tavolo.
+   > dove si trova il mio libro        → Tavolo.
+   > il mio libro si chiama Moby Dick  → Ricevuto: il tuo libro si chiama Dick.
+   ```
+
+   Il terzo turno e' il **contrasto**, ed e' la parte che conta: il possesso con
+   nome non e' stato travolto dalla cura. Ratchet in `tests/p0t/reply_language.p0t`
+   (blocco GD12, 22 assert nel file).
+
+   **Nota di metodo, da non perdere:** il mio stesso ratchet GD11 asseriva la resa
+   VECCHIA di quel turno. Un ratchet che fissa un comportamento sbagliato lo
+   difende: quando la cura e' giusta si aggiorna il ratchet e si dice perche',
+   non si annacqua la cura. Il commento nel test lo spiega sul posto.
+
+   **Regressione vera trovata e chiusa nello stesso giro:** `ordinal_reference(it,
+   "secondo", 2)` — introdotto da me in G3 — catturava la **preposizione**
+   italiana in «secondo Marco la terra e' piatta», che diventava un riferimento
+   ordinale. Curata dichiarando la forma con determinante («il secondo») per gli
+   ordinali italiani ambigui. La riga di KB porta ora l'avviso: *alcune forme
+   ordinali sono ambigue, e l'ambiguita' non si risolve qui.*
+
+4. **▶ G4 / GD4 — PROSSIMA** — coreferenza: mosse #2, #4, #6 insieme. È l'anello che il
    corpus chiede più di ogni altro (F03: 24 muri su 30).
 5. **GD8** — la frase ordinaria a tre ruoli («ho messo il libro sul tavolo») e
    le preposizioni articolate («nello zaino»): oggi non hanno lettura, ed è la
@@ -361,6 +394,29 @@ dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
    ordinali, una correzione, una callback).
 
 ## 7. Debiti aperti, dichiarati
+
+- **⚠ LATENZA — il debito che ora si vede nei test, misurato il 2026-09-01.**
+  F. ha detto esplicitamente: *«non ti preoccupare di questa lentezza poi la
+  gestiamo»*. Non e' rimossa, e' **rimandata con i numeri in mano**, perche' la
+  prossima persona non la ridiagnostichi da zero:
+  - Il turno lento **non e' lento in isolamento**: «dove si trova milano» in un
+    file fresco passa sotto 1,0 s. Diventa lento **dopo N turni nella stessa
+    sessione**. La latenza e' **funzione dei fatti accumulati nel turno**, non
+    della frase.
+  - Percio' i rossi si concentrano **in fondo ai file di test**, e sembrano
+    rotture logiche mentre sono scadenze di budget. `attributed_belief.p0t`
+    fallisce 5 volte **sullo stesso turno**: e' un solo fenomeno, non cinque.
+  - **Misura differenziale, il modo giusto di attribuirla** (stash / build /
+    stesso file / unstash): `attributed_belief.p0t` → **6 passed a HEAD, 7
+    passed con le modifiche di questo giro**. Le modifiche di GD12+G3
+    **chiudono** una rottura e non ne aprono nessuna; il resto e' il debito.
+  - E' la stessa cosa gia' nota come *lookup O(n) e boot quadratico*: la KB che
+    cresce degrada il motore. Vedi D21 e §10 del piano frontier.
+  - **Quando la si affrontera', la regola e': non alzare i budget.** Un budget
+    alzato nasconde il fenomeno invece di misurarlo. I blocchi nuovi dichiarano
+    `!timeout 4` **con la misura scritta accanto**, che e' una cosa diversa da
+    un budget gonfiato in silenzio.
+
 
 - **`motorize_class.p0t` 23/1** — regressione di G1/G2: «Who wrote the Iliad?»
   risponde «homer» con il solo fatto sull'Odissea. F. ha chiesto di costruire le
@@ -1526,7 +1582,7 @@ turni** di conversazione ordinaria.
 | **GD1** | **Misura del dialogo generico** | 360 turni, 60 dialoghi persistenti, 12 famiglie, it+en, processi reali | il probe localizza i muri per famiglia invece di dare un numero solo | **CHIUSA** — baseline 236 muri / 117 move_match. `scripts/dialogue_corpus_probe.py` |
 | **GD2** | **Lessico colloquiale massiccio** | attacchi informali, stanchezza, noia, buonumore, frustrazione, accordo, incoraggiamento, battuta | ogni forma entra parlando; il cue sopravvive dentro una frase lunga; processo nuovo | **CHIUSA** — 200 forme insegnate, 193 persistite, F01 da 14 a 18 match (+29% relativo). [Report](docs/labs/apprendimento-assistito/2026-08-31-gd1-gd2-apertura-dialogo.md) |
 | **GD11** | **La risposta segue la lingua del turno** | — | una frase italiana non riceve una cornice inglese con dentro parole italiane | nessuna: la lingua del turno e' gia' un fatto (`current_language/1`) | «il mio libro e' sul tavolo» riceve una risposta interamente italiana; nessuna resa mista | **aperto — piccola e molto visibile.** Misurato: «Got it: your libro is tavolo.» Oracolo: «Ah, ottimo! E' un buon posto per un libro.» |
-| **GD12** | **Il possessivo introduce un referente recuperabile** | D35, G1/G2 | «il mio libro e' sul tavolo» deve essere raggiungibile da «dove si trova il mio libro» | nessuna | la domanda formata con le STESSE parole trova il fatto appena appreso | **aperto.** E' il cassetto senza maniglia su un frame che G1/G2 non hanno toccato: il fatto finisce in uno slot di possesso, non nel locativo. Oracolo: «E' sul tavolo, come hai appena detto!» |
+| **GD12** | **Il possessivo introduce un referente recuperabile** | D35, G1/G2 | «il mio libro e' sul tavolo» deve essere raggiungibile da «dove si trova il mio libro» | nessuna | la domanda formata con le STESSE parole trova il fatto appena appreso | **✅ chiusa 2026-09-01.** Non era un fatto mancante: era un fatto SBAGLIATO. Il ramo del possesso prendeva l'ultima parola come nome, cioe' registrava «il libro si chiama tavolo». Curata togliendo la rivendicazione (guardia KB `p0_is_loc_prep`), non aggiungendone una seconda. Contrasto verificato: il possesso con nome regge. Vedi §6.3 |
 | **GD13** | **«Non ho capito» e «non ho il dato» sono due cose diverse** | D29, autocorrezione | una domanda compresa a cui manca il dato riceve una richiesta del dato, non un muro di incomprensione | «di che colore e' il mio libro» -> «non lo so, di che colore e'?» | le due situazioni producono due frasi diverse; la seconda invita esattamente il fatto che manca | **✅ chiuso 2026-09-01 con la mossa #5.** `information_need/4` distingue valore e antecedente mancanti; cue, strategie e resa crescono/si ritraggono a runtime. Il seguito naturale del caso possessivo attende GD12 |
 | **GD10** | **Archi di ordine superiore fra zone della KB** | D38 | aritmetica x sociale, prosa x geografia: comporre due zone che oggi non si parlano | «siamo in quattro e il conto e' 86 euro, quanto ciascuno?» — nessuno ha progettato «dividere un conto» | aggiunti N archi, i compiti risolti crescono **piu' che linearmente** in N; ogni capacita' composta e' dimostrata su un compito e sparisce se si ritratta l'arco; `false_composition/2` non resta vuoto per finta | **aperto.** F.: «connettere zone attraverso archi di ordine superiore e' una sorta di unificazione dell'intelligenza». E' la stessa cura di D33/D35/D37 un piano piu' su. Vedi §18.43 |
 | **GD9** | **Un'entita' e' un referente con proprieta', non un atomo fuso** | testa, proprieta', determinante, menzione con span; il fatto lega referenti | «il libro rosso» e «il libro» sono lo stesso oggetto detto con precisione diversa | dopo «Il libro rosso e' sul tavolo»: rispondono sia «dove si trova il libro rosso» sia «dove si trova il libro»; «di che colore e' il libro» risponde dalla proprieta'; «Il libro e' grande» si attacca allo stesso referente; «dov'e' il primo» si risolve o si dichiara ambiguo | **aperto — e' la forma GIUSTA di GD7.** La gerarchia esiste gia' (clausola, sintagmi, token, span): manca la giunzione, `extract_frame` la ignora e fonde. Vedi D37 §18.42 |

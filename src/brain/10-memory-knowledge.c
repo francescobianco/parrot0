@@ -143,6 +143,8 @@ static int personal_slot_turn(Brain *b, const char *norm, const char *raw,
  * frames above can gate a "my <thing> is <N>" fact on the value being numeric. */
 static int parse_value(const char *s, double *out);
 
+static int p0_is_loc_prep(Brain *b, const char *t);   /* definito piu' avanti */
+
 static int mod_memory(Brain *b, const char *norm, const char *raw,
                       char *out, size_t out_size) {
     if (!b) return 0;
@@ -300,6 +302,20 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             /* "my <thing> is <name>" and "my <thing> is called <name>" */
             {
                 size_t i = find_token(w, nw, "my");
+                /* GD12 — «il mio libro e' SUL tavolo» non dice come si chiama il
+                 * libro: dice DOVE STA. Questo ramo prendeva l'ultima parola
+                 * della frase e la registrava come nome del possesso, buttando
+                 * via la preposizione: un luogo scritto al posto di un nome.
+                 * Il fatto usciva sbagliato e la domanda formata con le stesse
+                 * parole non lo trovava piu' — il cassetto senza maniglia, su un
+                 * frame che G1/G2 non avevano toccato.
+                 *
+                 * Quali parole aprano un luogo e' gia' conoscenza
+                 * (`p0_is_loc_prep` legge la KB): qui il ramo si limita a NON
+                 * rivendicare il turno, e lo lascia al percorso locativo che sa
+                 * leggerlo. Nessuna parola e' nominata nel C. */
+                if (i + 3 < nw && p0_is_loc_prep(b, strip_edge_punct(w[i + 3])))
+                    goto not_possession_name;
                 if (i + 3 < nw && lex_class_member(b, "10_memory_knowledge_lex264", w[i + 2])) {
                     const char *thing = w[i + 1];
                     char n[64];
@@ -322,6 +338,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                     }
                 }
             }
+            not_possession_name: ;
 
             /* gen221 (the-linguistic-glue.md, G2 — symptom #5 setup, KB-first per
              * F.'s steer): a NUMERIC personal fact whose name spans more than one
@@ -8931,6 +8948,8 @@ static int personal_slot_turn(Brain *b, const char *norm, const char *raw,
 /* Il modulo registrato: la passata ORDINARIA, che gira dopo mod_family e serve
  * ogni slot, eager compreso — se la passata anticipata ha declinato per una
  * ragione che qui non vale piu', il turno ha ancora la sua occasione. */
+static int p0_is_loc_prep(Brain *b, const char *w);   /* definito piu' avanti */
+
 static int mod_personal(Brain *b, const char *norm, const char *raw, char *out,
                         size_t out_size) {
     return personal_slot_turn(b, norm, raw, out, out_size, 0);
