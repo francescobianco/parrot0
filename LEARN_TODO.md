@@ -426,6 +426,23 @@ dopo GD12**, perché il possessivo ancora non introduce il referente giusto.
 
 ## 7. Debiti aperti, dichiarati
 
+### 7bis. ⛔ REGISTRO DEI ROSSI DA RIPARARE — non si ferma la marcia per questi
+
+> F., 2026-09-01: *«quando trovi test che non passano annotali come da fixare ed
+> andiamo avanti… per adesso espandiamo le sue capacità poi chiudiamo i piccoli
+> sideeffect derivati, andiamo sui macro obiettivi.»*
+>
+> Regola d'uso: un rosso entra qui **con la misura differenziale** (mio o
+> pre-esistente) e con il turno esatto. Un rosso senza differenziale non e' una
+> voce di questo registro: e' un lavoro non fatto.
+
+| test | stato | turno | mio? | nota |
+|---|---|---|---|---|
+| `conversation/chitchat.p0t` | 21/1 | «rough day» → risponde con la chiusura invece della resa low-energy | **no** — identico a HEAD (stash/build/unstash) | due rese smalltalk competono; classe, non istanza |
+| `language/motorize_class.p0t` | 23/1 | «Who wrote the Iliad?» → «homer» col solo fatto sull'Odissea | **sì**, G1/G2 | la descrizione risolve troppo: manca il vincolo che la chiave sia dell'entita' giusta |
+| suite lente in coda ai file | vari | qualunque turno dopo N nella stessa sessione | **no** | non e' logica: e' il debito di latenza, §7 sotto |
+
+
 - **⚠ LATENZA — il debito che ora si vede nei test, misurato il 2026-09-01.**
   F. ha detto esplicitamente: *«non ti preoccupare di questa lentezza poi la
   gestiamo»*. Non e' rimossa, e' **rimandata con i numeri in mano**, perche' la
