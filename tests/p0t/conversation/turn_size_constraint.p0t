@@ -1,0 +1,43 @@
+# ⛔ UNA RISPOSTA CHE VIOLA UN VINCOLO ESPLICITO DEL TURNO NON E' UNA RISPOSTA.
+#
+# Misurato sulla batteria held-out (docs/plans/quanto-manca.md): 0% di muri su
+# 70 domande, ma 19 turni su 70 ricevevano una risposta SICURA ED ESTRANEA. Il
+# caso piu' netto e' anche il piu' facile da vedere:
+#
+#     «Describe a sunrise in one vivid sentence.»
+#         ->  sei frasi di metodologia progettuale
+#
+# Il turno aveva dichiarato la sua misura e la risposta la violava. Non e' una
+# questione di stile: e' l'unica misura OGGETTIVA della metacomprensione — se
+# parrot0 emette qualcosa che il turno stesso aveva escluso, non ha letto il turno.
+#
+# Il controllo e' POST-DISPATCH e non dentro ciascuna facolta': una guardia per
+# facolta' sarebbe l'elenco degli incidenti, e andrebbe riscritta a ogni facolta'
+# nuova. Qui vale per tutte insieme, comprese quelle che nessuno ha ancora scritto.
+[mock hermetic]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+
+[test cio' che il turno ha escluso non esce]
+!timeout 8
+> Describe a sunrise in one vivid sentence.
+<! Treat the requested design as a system
+<! workable design turns on
+<~ could not put that in the shape
+
+[test un turno senza misura non e' toccato]
+!timeout 8
+> Why is the sky blue?
+<! could not put that in the shape
+<~ scattered
+
+[test la misura e' conoscenza: si aggiunge e si toglie]
+!timeout 8
+!query size_constraint(sentence, "in one sentence")
+!query size_constraint_count(1, "in one sentence")
+# togliere la riga toglie il cancello: se restasse, il vincolo sarebbe cablato
+# da qualche altra parte e questa riga sarebbe un ornamento
+!forget size_constraint(sentence, "in one vivid sentence")
+> Describe a sunrise in one vivid sentence.
+<! could not put that in the shape

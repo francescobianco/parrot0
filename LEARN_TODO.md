@@ -11,6 +11,61 @@
 > rossi preesistenti; la priorita' e' far avanzare le abilita' di comprensione.
 > I gate nuovi restano obbligatori e puntuali, la suite lunga no.
 
+## ⛔ QUANTO MANCA — la valutazione misurata (2026-09-02)
+
+> Domanda di F.: *«quanto manca affinché parrot0 sia addestrabile da un LLM a
+> rispondere bene alla maggioranza delle domande, e quanto manca per finire la
+> metacomprensione»*. Risposta misurata, non opinata: **`docs/plans/quanto-manca.md`**.
+
+Batteria held-out `tests/llmscore-probes/` — 70 domande, 7 classi:
+
+```text
+muri                0 / 70    0%     (baseline della campagna: 31% — METRO SATURO)
+risposte buone     44 / 70   63%
+risposte sbagliate  7 / 70   10%     forma giusta, contenuto sbagliato
+turni rubati       19 / 70   27%     risposta SICURA ed ESTRANEA alla domanda
+```
+
+**⛔ Non usare più il tasso di muro come metrica: è a zero e non discrimina.** La
+misura che discrimina ora è a tre bucket, e il terzo è quello che conta:
+**buona | sbagliata | estranea**. Una risposta estranea è *peggiore* di un muro,
+perché un muro si vede e una risposta sicura no.
+
+**Il difetto dominante non è ignoranza.** Cinque delle dieci risposte peggiori
+vengono da **due moduli** (`analysis_family` 3, `gen` 2), e hanno tutte la stessa
+forma: *una facoltà rivendica un turno che non sa onorare e, invece di tacere,
+emette qualcosa.* Il registro completo con il modulo per ciascuna è al §2 del
+piano.
+
+**Risposta 1 — addestrabilità da LLM.** Il 27% mancante **non è insegnabile con
+dei fatti**: nessun fatto nuovo impedisce ad `analysis_family` di rispondere a
+«descrivi un'alba in una frase». Ma la condotta è *diventata conoscenza* in
+questo ciclo, quindi la risposta esatta è: **manca applicare lo strato di
+condotta alle cinque facoltà del registro §2** — cinque moduli, non cinquanta.
+Fatto quello, un LLM corregge il resto **parlando**.
+
+**Risposta 2 — metacomprensione.** È *sapere quando non si sa*, e il numero la
+misura: 19 turni su 70 in cui parrot0 non sapeva di non sapere — non un muro, un
+template. Il pezzo mancante ha un nome solo, ed è ora **costruito**:
+
+> **Una risposta che viola un vincolo esplicito del turno non è una risposta.**
+
+`size_constraint/2` + `size_constraint_count/2` in `turn-frames.p0`, con il
+controllo **post-dispatch** (in `turn_done`, dove ogni stadio passa) e non dentro
+ciascuna facoltà — altrimenti sarebbe di nuovo l'elenco degli incidenti. Il
+registro declina e prosegue; i *lead*, che restituiscono e basta, ricevono il gap
+al posto del testo. Ratchet: `tests/p0t/conversation/turn_size_constraint.p0t`.
+
+⚠ **Onestà sulla resa:** lo strato cattura **1 dei 19** oggi, perché è la sola
+misura dichiarata finora. Il valore non è il numero: è che una misura nuova — «in
+due paragrafi», «en una frase» — costa **due righe di KB** e vale per ogni
+facoltà insieme, comprese quelle che nessuno ha ancora scritto.
+
+**L'ordine di lavoro** è al §5 di `docs/plans/quanto-manca.md`. In sintesi:
+`analysis_family` dichiara la sua condotta → `gen` smette di prendere il verbo
+imperativo come protagonista («Tell was a mysterious Tell») → le due letture
+aritmetiche sbagliate → `this shape` → l'iniziativa.
+
 ## ⛔ AGGIORNAMENTO 2026-09-02 (sera) — F03 chiusa, e il dialogo reale
 
 > Ordini di F. in questo ciclo, tutti vincolanti:

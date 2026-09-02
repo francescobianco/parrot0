@@ -401,3 +401,46 @@ answer_content(two_views($World, $Hypothesis, $Language), 3, hypothesis_value, $
 answer_content(two_views($World, $Hypothesis, $Language), 4, terminator, $Piece) :- sentence_terminator($Language, $Piece).
 
 turn_response($Turn, $Text) :- turn_reading_unique($Turn, $Relation, $Entity, $W), turn_scope_reading($Turn, $Context, $H), current_language($Language), value_in_language($Language, $W, $World), value_in_language($Language, $H, $Hypothesis), answer_text(two_views($World, $Hypothesis, $Language), $Text).
+
+% ── LA MISURA CHE UN TURNO DICHIARA ────────────────────────────────────────
+%
+% ⛔ «Una risposta che viola un vincolo esplicito del turno non e' una risposta.»
+%
+% Misurato sulla batteria held-out (docs/plans/quanto-manca.md): 19 turni su 70
+% ricevevano una risposta SICURA ED ESTRANEA, e il caso piu' netto e' anche il
+% piu' facile da vedere — «Describe a sunrise in one vivid sentence» riceveva sei
+% frasi di metodologia progettuale. Il turno aveva dichiarato la sua misura e la
+% risposta la violava.
+%
+% Non e' stile: e' l'unica misura OGGETTIVA della metacomprensione. Se parrot0
+% emette qualcosa che il turno stesso aveva escluso, non ha letto il turno.
+%
+% `size_constraint(Unita', Cue)`   — questa cue annuncia una misura
+% `size_constraint_count(N, Cue)`  — e la misura e' N
+% `size_unit_separator(Unita', C)` — come si contano le unita'
+%
+% Una misura nuova — «in due paragrafi», «en una frase» — e' due righe, e vale
+% per OGNI facolta' insieme, comprese quelle che nessuno ha ancora scritto: il
+% controllo e' post-dispatch, non dentro ciascuna.
+machinery(size_constraint).
+machinery(size_constraint_count).
+machinery(size_unit_separator).
+
+size_unit_separator(sentence, ".!?").
+size_unit_separator(word, " \t\n").
+
+size_constraint(sentence, "in one sentence").
+size_constraint(sentence, "in a single sentence").
+size_constraint(sentence, "in one vivid sentence").
+size_constraint(sentence, "in una frase").
+size_constraint(sentence, "in una sola frase").
+size_constraint(sentence, "in two sentences").
+size_constraint(sentence, "in due frasi").
+
+size_constraint_count(1, "in one sentence").
+size_constraint_count(1, "in a single sentence").
+size_constraint_count(1, "in one vivid sentence").
+size_constraint_count(1, "in una frase").
+size_constraint_count(1, "in una sola frase").
+size_constraint_count(2, "in two sentences").
+size_constraint_count(2, "in due frasi").

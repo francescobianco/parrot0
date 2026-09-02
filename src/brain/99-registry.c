@@ -2565,9 +2565,26 @@ static void conv_log(Brain *b, const char *input, const char *reply) {
  * decidibile proprio perche' la prova del rimedio e' che il turno che murava ora
  * risponde. Senza di essa il registro sarebbe monotono crescente — un elenco di
  * rimpianti invece di una misura. */
+static int turn_size_violated(Brain *b, const char *norm, const char *reply);
+
 static size_t turn_done(Brain *b, const char *canon, const char *input,
                         char *out, size_t out_size) {
     if (b && b->kb) kb_saturation_commit(b->kb);
+    /* ⛔ L'ULTIMO CANCELLO: cio' che il turno aveva escluso non esce.
+     *
+     * Il registro puo' declinare e passare al modulo dopo; gli stadi che
+     * rivendicano prima del registro (i «lead») no — restituiscono e basta.
+     * Qui passano TUTTI, quindi qui la promessa vale per tutti: se la risposta
+     * viola la misura dichiarata dal turno, al suo posto va il gap.
+     *
+     * Un gap e' peggio di una risposta giusta e MOLTO meglio di una estranea:
+     * un muro si vede, una risposta sicura no. */
+    if (b && b->kb && out && *out && canon &&
+        turn_size_violated(b, canon, out)) {
+        char msg[320];
+        kb_term_say(b, "size_constraint_unmet", NULL, 0, msg, sizeof msg);
+        put(msg, out, out_size);
+    }
     /* A result produced after a bounded enumeration may have been based on an
      * amputated view.  The KB decides which caps are consequential and which
      * response family says so; C only applies the general guard. */
@@ -3729,6 +3746,67 @@ const char *brain_last_module(Brain *b) {
     return (b && b->last_module[0]) ? b->last_module : "(nessuno)";
 }
 
+/* ── LA MISURA CHE IL TURNO DICHIARA ────────────────────────────────────────
+ *
+ * `size_constraint(Unita', Cue)` dice che una cue annuncia una misura, e
+ * `size_unit_counts(Unita')` come si conta. Nessuna parola nel C: il numero lo
+ * legge `word_count_cue/2` o un numerale, l'unita' la dice la KB.
+ *
+ * Ritorna 1 se il turno dichiara una misura e la risposta la sfora. Sforare per
+ * DIFETTO non e' violare: «in one sentence» risposto con mezza frase e' una
+ * risposta corta, non una risposta sbagliata. */
+static size_t p0_count_units(Brain *b, const char *unit, const char *text) {
+    if (!b || !b->kb || !unit || !text) return 0;
+    char seps[8][KB_TERM_LEN];
+    const char *sq[2] = { unit, NULL };
+    size_t nsep = kb_match(b->kb, "size_unit_separator", sq, 2, seps, 8);
+    size_t n = 0;
+    if (nsep == 0) return 0;
+    int in_unit = 0;
+    for (const char *c = text; *c; c++) {
+        int is_sep = 0;
+        for (size_t i = 0; i < nsep && !is_sep; i++) {
+            char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", seps[i]);
+            const char *sep = kb_dequote(sb);
+            if (*sep && strchr(sep, *c)) is_sep = 1;
+        }
+        if (is_sep) { if (in_unit) { n++; in_unit = 0; } }
+        else in_unit = 1;
+    }
+    if (in_unit) n++;
+    return n;
+}
+
+static int turn_size_violated(Brain *b, const char *norm, const char *reply) {
+    if (!b || !b->kb || !norm || !reply || !*reply) return 0;
+    char (*units)[KB_TERM_LEN] = NULL;
+    size_t nu = 0;
+    const char *uq[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "size_constraint", uq, 2, &units, &nu)) return 0;
+    int violated = 0;
+    for (size_t i = 0; i < nu && !violated; i++) {
+        char cues[32][KB_TERM_LEN];
+        const char *cq[2] = { units[i], NULL };
+        size_t nc = kb_match(b->kb, "size_constraint", cq, 2, cues, 32);
+        for (size_t j = 0; j < nc && !violated; j++) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[j]);
+            const char *cue_s = kb_dequote(cb);
+            if (!*cue_s || !strstr(norm, cue_s)) continue;
+            /* quante: il numero e' quello che la cue stessa dichiara */
+            const char *nq[2] = { NULL, cues[j] };
+            char nums[4][KB_TERM_LEN];
+            if (kb_match(b->kb, "size_constraint_count", nq, 2, nums, 4) == 0)
+                continue;
+            long want = strtol(nums[0], NULL, 10);
+            if (want <= 0) continue;
+            size_t got = p0_count_units(b, units[i], reply);
+            if (got > (size_t)want) violated = 1;
+        }
+    }
+    free(units);
+    return violated;
+}
+
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     /* gen422: la firma si azzera A OGNI TURNO. E' l'impronta di QUESTO
      * ragionamento, non della vita del processo — sommarli darebbe un numero che
@@ -4363,6 +4441,35 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     for (size_t i = 0; !handled && i < registry_len; i++) {
         if (i == eager_idx) continue;       /* already offered exactly once */
         if (registry[i].handle(b, canon, input, out, out_size)) {
+            /* ⛔ UNA RISPOSTA CHE VIOLA UN VINCOLO ESPLICITO DEL TURNO NON E'
+             * UNA RISPOSTA — lo strato post-dispatch che mancava.
+             *
+             * Misurato sulla batteria held-out (docs/plans/quanto-manca.md):
+             * 19 turni su 70 ricevevano una risposta SICURA ED ESTRANEA, e il
+             * caso piu' netto e' anche il piu' facile da vedere:
+             *
+             *     «Describe a sunrise in one vivid sentence.»
+             *         -> sei frasi di metodologia progettuale
+             *
+             * Il turno aveva dichiarato la sua misura e la risposta la violava.
+             * Non e' una questione di stile: e' l'unica misura OGGETTIVA della
+             * metacomprensione — parrot0 emette qualcosa che il turno stesso
+             * aveva escluso, quindi non ha letto il turno.
+             *
+             * ⚠ Sta QUI, dopo il dispatch, e non dentro ciascuna facolta': una
+             * guardia per facolta' sarebbe di nuovo l'elenco degli incidenti, e
+             * dovrebbe essere riscritta a ogni facolta' nuova. Qui vale per
+             * tutte insieme, comprese quelle che nessuno ha ancora scritto.
+             *
+             * La facolta' che viola DECLINA, e il turno prosegue: se nessuno
+             * rispetta la misura, si arriva al muro, che e' l'esito onesto. */
+            if (b && turn_size_violated(b, canon, out)) {
+                if (ndecl < BRAIN_TRACE_MAX)
+                    snprintf(declined[ndecl++], sizeof declined[0], "%s!size",
+                             registry[i].name);
+                out[0] = '\0';
+                continue;
+            }
             handled = 1;
             winner = registry[i].name;
             if (strcmp(registry[i].name, "discourse") == 0) handled_by_discourse = 1;
