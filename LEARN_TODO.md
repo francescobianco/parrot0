@@ -1,6 +1,249 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-# ⛔ RIPARTI DA QUI — handoff 2026-09-02
+# ⛔ RIPARTI DA QUI — handoff 2026-09-02 (notte)
+
+> **Come si riprende:** «continua da questo file». Leggi §0, §1 e §2, poi vai al
+> §3 «Il prossimo lavoro». Tutto il resto sotto è la storia e serve dopo.
+
+## §0. L'obiettivo, con le parole di F.
+
+> *«Il nostro obiettivo è l'espansione della comprensione. L'ostacolo che abbiamo
+> scoperto sono i moduli obsoleti che rubano turni, e non possiamo addestrarli a
+> lavorare meglio perché non sono KB-first.»*
+
+E, prima:
+
+> *«Dove la capacità c'è e manca la forma, si deve garantire l'insegnabilità.»*
+> *«Tutto quello che trovi cablato in C va portato KB-first.»*
+> *«Le latenze vanno studiate e ottimizzate con strategie opportune: cache,
+> indici, kv hashing, exit condition.»*
+> *«Non ti perdere con i test»* — i gate puntuali sì, la suite lunga la indice F.
+
+## §1. Il numero che governa tutto — misurato, non stimato
+
+Batteria held-out `tests/llmscore-probes/`, 70 domande, 7 classi. Il registro
+completo è in **`docs/plans/quanto-manca.md`**, che è il documento da leggere
+subito dopo questo.
+
+```text
+muri                0 / 70    0%     ⛔ METRO SATURO — non usarlo più
+risposte buone     44 / 70   63%
+risposte sbagliate  7 / 70   10%     forma giusta, contenuto sbagliato
+turni rubati       19 / 70   27%     risposta SICURA ed ESTRANEA
+```
+
+> **La misura che discrimina ora è a tre bucket: buona | sbagliata | ESTRANEA.**
+> Una risposta estranea è **peggiore di un muro**, perché un muro si vede e una
+> risposta sicura no. Contarla a parte è il primo dovere del prossimo che misura.
+
+**Il difetto dominante non è ignoranza.** Cinque delle dieci risposte peggiori
+venivano da **due moduli**, e tutte avevano la stessa forma: *una facoltà
+rivendica un turno che non sa onorare e, invece di tacere, emette qualcosa.*
+
+## §2. Che cosa è stato costruito, in ordine di leva
+
+### (a) ⭐ Il registro legge la condotta — 44 moduli inaddestrabili → 0
+
+**È la mossa che sblocca tutto il resto.** La condotta *era già* conoscenza
+(`faculty_yield/3`, `faculty_yield_force/3`, `faculty_force/2`), ma la leggevano
+**sei** facoltà che se l'erano cablata dentro, su cinquanta. Per le altre
+quarantaquattro la condotta **non esisteva**: nessun fatto poteva impedire a
+`spell` di scandire una parola della domanda, perché `spell` non chiedeva niente
+a nessuno.
+
+Ora la lettura è del **registro**: il nome con cui un modulo è registrato è il
+suo nome pubblico. Un modulo **nuovo nasce governabile senza scrivere niente**, e
+anche gli stadi che rivendicano *prima* del registro (i «lead») leggono la
+condotta — uno stadio che non la legge è uno stadio inaddestrabile.
+
+Dimostrato su un modulo con zero condotta, in `registry_is_trainable.p0t`:
+
+```text
+> What would you do if you won the lottery?   ->  «Hey! I'm here…»        ⛔
+!assert intent_cue(hypothetical_self_probe, "if you won")
+!assert faculty_yield(chitchat, open, hypothetical_self_probe)
+> What would you do if you won the lottery?   ->  «I don't have any of my own
+                                                   — I'm parrot0, an AI…»  ✅
+!forget …                                     ->  torna il difetto
+```
+
+Né la classe di cue né la condotta esistevano quando il binario è stato compilato.
+**Permissivo per default**, e a costo nullo per chi non è governato.
+
+⚠ **Lezione misurata, vale più delle righe:** governare **una** facoltà *sposta*
+il turno rubato invece di chiuderlo. Tolto `analysis_family` da «Explain what you
+are…», il turno è finito a `role`: *«Alright — I am Without now»*. **Un turno
+conteso non ha un ladro: ne ha una fila**, e la condotta va dichiarata lungo
+tutta la fila.
+
+### (b) L'arco connettivo dinamico — la conoscenza detta in una forma, letta in un'altra
+
+Il difetto: `teflon is a molecule` memorizza il fatto **unario**, chi enumera
+legge la relazione **binaria**. Tre turni a buon fine, nessuno utile.
+
+La prima cura fu *una regola scritta a mano per quella coppia*. F. l'ha fermata —
+è il mantra #2 un livello più su. Ora l'arco è un **fatto**, con i predicati come
+**argomenti**: `knowledge_arc(category_member, 0, category)`,
+`knowledge_alias/2`. Il motore legge una *posizione* e una *guardia*.
+
+⚠ **Vincolo verificato del motore:** la testa di clausola **non ammette un
+predicato variabile** (`strcmp(R->head.pred, g->pred)` in `kb.c`). Perciò l'arco
+*dichiarato* sta in KB e il *percorso* in C. Se un giorno la testa sarà
+variabile, i fatti sono già scritti nella forma giusta.
+
+**Effetto composto, non previsto:** «tell me an animal that lives in water» ora
+risponde *Amphibian*, ed è vero. Metà dei membri di `animal` era invisibile
+all'enumerazione. **Un arco non aggiunge una capacità: moltiplica quelle che ci sono.**
+
+### (c) L'insegnamento di ordine superiore — una relazione FRA relazioni
+
+```text
+> if x contains y then y is part of x
+    Learned rule: part_of($V2, $V1) :- contains($V1, $V2).
+> the vault contains the crown
+!query part_of(crown, vault)     ->  dimostrabile
+> what is the ring part of       ->  Box.
+```
+
+Prima produceva `part($V2) :- holds(x_contains_y)` **e la annunciava come
+appresa**. Tre difetti: la lezione aveva un lettore di clausole *tutto suo*; la
+lettura di appartenenza *ingoiava metà clausola*; la regola risultante aveva una
+variabile di testa che il corpo non nomina. Aggiunto `kb_retract_clause` — una
+lezione che non si può togliere non è una lezione.
+
+### (d) La metacomprensione ha un cancello
+
+> **Una risposta che viola un vincolo esplicito del turno non è una risposta.**
+
+`size_constraint/2` + `size_constraint_count/2`, controllo **post-dispatch**: nel
+registro la facoltà declina e il turno prosegue; in `turn_done`, dove ogni stadio
+passa, il gap prende il posto del testo. **Non dentro ciascuna facoltà**, che
+sarebbe di nuovo l'elenco degli incidenti.
+
+### (e) L'insegnabilità come requisito, non come effetto
+
+```text
+> sbloccami x + 1 = 6              (muro)
+> sbloccami is an equation filler  Learned.
+> sbloccami x + 1 = 6              x = 5.
+> !forget equation_filler(…)       (muro di nuovo)
+```
+
+La lista dei 22 riempitivi è andata **intera** in KB — un trasloco, non una
+copia. Effetto collaterale che vale più della patch: **`matches_any` è stata
+tolta**, la funzione la cui unica firma era *(stringa, elenco di letterali in C)*.
+Chi vorrà rifare una lista cablata dovrà riscriverla.
+
+### (f) Il residuo di un turno è un vincolo
+
+`tell me a country in asia` → **andorra**; `in europe` → **argentina**. Tre
+risposte false dette come fatti, mentre la KB sapeva verificarle. Ora
+`member_satisfies/2` verifica via `kb_fact/2` — nessun nome di relazione nel C.
+
+### (g) F03 — un riferimento si lega a un ruolo, e un pronome non è mai un'entità
+
+`reviewed(luca, it)` era **dimostrabile**: un pronome scritto in KB come entità.
+Chiuso con `reference_binding/1` (`most_recent`, `distinct_in_frame`,
+`role_parallel`) e con la lettura strutturale dell'**asserzione**
+(`turn_reading/3` → `turn_illocution($T, assertion)` → `faculty_yield_force/3`).
+
+## §3. Il prossimo lavoro, in ordine
+
+1. **⭐ Continuare a dichiarare la condotta lungo le FILE di contesa.** È il
+   lavoro con il rapporto più alto e ora è **pura conoscenza**: si legge il
+   registro al §2 di `quanto-manca.md`, si prende un turno rubato, si chiede
+   `who answered?`, si dichiara `faculty_yield`, si rimisura. Nessuna riga di C.
+2. **Il generatore di storie va RIFATTO, non rattoppato.** Giudizio di F.
+   accolto: *«sceglie il protagonista per forma, senza applicare la comprensione
+   universale»*. Il rifacimento ha reso il difetto **visibile** invece che
+   risolverlo — ora il tema si legge davvero e lo schema, fatto per un nome di
+   una parola, lo ripete in ogni casella. Riempire uno schema con token raccolti
+   dal turno non è raccontare. Posto giusto: `docs/plans/generative.md` +
+   `generative-prolog.md`.
+3. **⛔ Le latenze — chiesto da F. e NON fatto.** Vedi §L più sotto. Sappiamo la
+   causa (`kb_fact/2` con predicato libero è O(fatti) per costruzione) e la cura
+   strutturale (**indice per termine / kv hashing**: il censimento in `kb.c`
+   indicizza per *predicato*, non per *argomento*).
+4. **Il DOMINIO del contesto** nell'ordine superiore — *«in certi contesti che
+   una cosa la contiene vuol dire che ne è una parte»*. Contenere significa
+   essere parte per una scatola, non per un fiume e i pesci. **Una regola che
+   vale ovunque è una regola che nessuno può correggere parlando.**
+5. Le due letture aritmetiche sbagliate («metà di un numero è 14» → 7;
+   «4 confezioni da 6» → 10); `this shape` nel sillogismo; **l'iniziativa**
+   («fammi una domanda»), unica capacità davvero *assente* del lotto.
+6. L'ambiguità referenziale: due antecedenti compatibili → **deve chiedere**,
+   oggi sceglie in silenzio. Dichiarata dentro `reference_binding.p0t`.
+
+## §4. ⛔ Esperimenti fatti e RITIRATI — non rifarli
+
+Scritti anche nel codice, sul posto:
+
+- **Togliere il lead di `analysis_family`.** Una famiglia metodologica non è più
+  specifica di nessun modulo, quindi la precedenza posizionale sembrava
+  sbagliata. Misurato: **due turni peggiorati** — la famiglia stava
+  **proteggendo** quei turni da rivendicazioni peggiori. *Togliere un guardiano
+  non è togliere un difetto.*
+- **`subject_guard/1` sulla testa del soggetto d'analisi.** Non toccava il turno
+  da curare e ne rompeva un altro: «advice for someone starting a new job» →
+  *«From what I know, a good plan is:»* **e nient'altro**. «someone» è cattivo
+  soggetto per un *frame* e tema legittimo per un'*analisi*. *Un boilerplate si
+  legge, una promessa vuota no.*
+- **Un'exit condition che costa quanto ciò che evita.** Il pre-controllo «il
+  valore compare da qualche parte?» era anch'esso una scansione a predicato
+  libero: *aggiungeva* lavoro. La cura era **invertire il join** (7,9 s → <1 s).
+
+## §L. ⛔ LE LATENZE — chiesto da F. e NON fatto
+
+> F.: *«le latenze vanno studiate e ottimizzate con strategie opportune: cache,
+> indici, kv hashing, exit condition»*.
+
+Fatto in parte, e la parte mancante è quella strutturale. Che cosa si sa:
+
+- **La causa profonda ha un nome:** `kb_fact/2` con il **predicato non legato** è
+  O(fatti) *per costruzione*. Il censimento in `src/kb.c` indicizza per
+  **predicato**, non per **argomento**, quindi «esiste una relazione fra M e V?»
+  non può che scandire.
+- **Che cosa ha funzionato:** *invertire il join*. «Questo membro è legato al
+  valore?» posta N volte diventa «**chi** è legato a questo valore?» posta una
+  volta (`related_to/2`) più un'intersezione: **7,9 s → sotto 1 s**. Toglie il
+  fattore N, **non** l'O(n).
+- **Che cosa NON ha funzionato, e perché è istruttivo:** un pre-controllo «il
+  valore compare da qualche parte?» era anch'esso una scansione a predicato
+  libero. *Un'exit condition che costa quanto ciò che evita non è
+  un'ottimizzazione.*
+- **Exit condition non lossy che ha funzionato:** provare il legatore condiviso
+  solo se il segmento contiene almeno due termini di regola — è la *stessa*
+  condizione che la funzione applica dopo, anticipata. Non riduce ciò che vede.
+- **Cache degli schemi di lettura:** `extract_frame/2` è fatti *più* regole che
+  li generano, ri-derivati da ogni consumatore. Ora si derivano una volta per
+  **revisione della KB** (`kb_revision`), non su un timer: una relazione
+  insegnata adesso è visibile al turno stesso.
+- ⚠ **Questo ciclo ha AGGIUNTO latenza:** `turn_reading/3` esegue la fase pura
+  del lettore a ogni turno. È resa **opt-in su un consumatore dichiarato** (senza
+  `faculty_yield_force/3` il costo sparisce), ma il consumatore c'è.
+
+**La cura strutturale resta da fare: un indice per TERMINE (kv hashing) in
+`src/kb.c`.** È il lavoro che chiude la classe invece di spostarla.
+
+⛔ **Regola di F. che resta:** *non alzare i budget.* Un budget alzato nasconde il
+fenomeno invece di misurarlo. I blocchi nuovi dichiarano `!timeout N` **con la
+misura scritta accanto**, che è una cosa diversa da un budget gonfiato in
+silenzio.
+
+## §5. Metodo, vincolante
+
+- **Il differenziale prima di attribuire un rosso.** Più volte in questi cicli un
+  rosso sembrava mio ed era un **timeout** del debito di latenza, o un test che
+  asseriva un mondo peggiore.
+- **Un gate che fallisce non è una capacità mancante.** Tre volte il codice aveva
+  ragione e il test torto: l'amputazione della KB, `!query` invece di `!query!`,
+  e un'asserzione che pretendeva il gap dove ora c'è una risposta giusta.
+- **Un gate non si aggira: si corregge** quando descrive un mondo peggiore — e si
+  scrive nel commit che è stato corretto e perché.
+
+---
+
+# handoff 2026-09-02 (giorno) — superato dall'handoff in testa
 
 > **Come si riprende:** «continua da questo file». Leggi §0 e §1, poi §4 «Il
 > prossimo lavoro». Sotto c'è l'handoff del 2026-09-01, che resta valido come
@@ -10,6 +253,7 @@
 > **Direzione successiva di F. (2026-09-02):** non fermare la marcia sui test
 > rossi preesistenti; la priorita' e' far avanzare le abilita' di comprensione.
 > I gate nuovi restano obbligatori e puntuali, la suite lunga no.
+
 
 ## ⛔ QUANTO MANCA — la valutazione misurata (2026-09-02)
 
