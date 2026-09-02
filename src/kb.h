@@ -129,6 +129,11 @@ typedef struct {
  * rule can express, unlike kb_assert_rule_n (unary). Idempotent (an identical
  * clause is not duplicated). nbody must be 1..KB_MAX_BODY, each argc ≤
  * KB_MAX_ARGS. Returns 1 on success (or if already present), 0 on error. */
+/* Il gemello di kb_assert_clause: una lezione che non si puo' togliere non e'
+ * una lezione. Stesso confronto, altrimenti si asserisce cio' che non si sa piu'
+ * riconoscere. */
+int    kb_retract_clause(KB *kb, const KbGoal *head,
+                         const KbGoal *body, size_t nbody);
 int    kb_assert_clause(KB *kb, const KbGoal *head,
                         const KbGoal *body, size_t nbody);
 
@@ -333,6 +338,11 @@ size_t kb_dead_rules(const KB *kb, char heads[][KB_TERM_LEN],
  * verbalization (gen39) to enumerate the classes an entity might belong to,
  * including ones reachable only through rules. Returns the count (capped). */
 size_t kb_unary_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max);
+
+/* La REVISIONE della conoscenza: cambia a ogni assert/retract di fatto o regola.
+ * Serve a invalidare una cache derivata senza inventare un timer — una relazione
+ * insegnata adesso deve essere visibile al turno stesso. */
+size_t kb_revision(const KB *kb);
 
 /* The unary classes that can hold FOR ONE entity: the predicates it already
  * appears under, plus every unary rule head (the only ones that can derive

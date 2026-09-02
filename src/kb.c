@@ -2264,6 +2264,45 @@ int kb_assert_clause(KB *kb, const KbGoal *head,
     return kb_add_rule(kb, &r);
 }
 
+/* ── IL GEMELLO DI `kb_assert_clause` ───────────────────────────────────────
+ *
+ * Una lezione che non si puo' togliere non e' una lezione (SC32). La regola
+ * insegnata parlando — «if x contains y then y is part of x» — si asseriva e
+ * basta: il percorso di add esisteva e quello di retract no, e l'ablazione
+ * parlata era rotta per COSTRUZIONE, non per un caso mancante.
+ *
+ * Il confronto e' lo STESSO di `kb_assert_clause` — deve esserlo, altrimenti si
+ * puo' asserire una clausola che poi non si riconosce piu'. Togliere una regola
+ * sposta le posizioni memorizzate nel censimento, quindi lo si invalida e si
+ * ricostruisce alla prossima lettura, come gia' fanno i fatti. */
+size_t kb_revision(const KB *kb) { return kb ? kb->n + kb->nr : 0; }
+
+int kb_retract_clause(KB *kb, const KbGoal *head,
+                      const KbGoal *body, size_t nbody) {
+    if (!kb || !head || nbody == 0 || nbody > KB_MAX_BODY) return 0;
+    for (size_t ri = 0; ri < kb->nr; ri++) {
+        const Rule *R = &kb->rules[ri];
+        if (R->nbody != nbody || R->head.argc != head->argc) continue;
+        if (strcmp(R->head.pred, head->pred) != 0) continue;
+        int same = 1;
+        for (size_t a = 0; a < head->argc && same; a++)
+            if (strcmp(R->head.args[a], head->args[a]) != 0) same = 0;
+        for (size_t bi = 0; bi < nbody && same; bi++) {
+            if (R->body[bi].argc != body[bi].argc ||
+                R->body[bi].neg != body[bi].neg ||
+                strcmp(R->body[bi].pred, body[bi].pred) != 0) { same = 0; break; }
+            for (size_t a = 0; a < body[bi].argc && same; a++)
+                if (strcmp(R->body[bi].args[a], body[bi].args[a]) != 0) same = 0;
+        }
+        if (!same) continue;
+        for (size_t k = ri + 1; k < kb->nr; k++) kb->rules[k - 1] = kb->rules[k];
+        kb->nr--;
+        pred_stats_invalidate(kb);
+        return 1;
+    }
+    return 0;
+}
+
 /* Record what a finished search cost. `kb` may be the const-cast query target;
  * this writes only the report, never the knowledge. */
 /* djb2: basta e costa poco. Non deve resistere a un avversario — deve

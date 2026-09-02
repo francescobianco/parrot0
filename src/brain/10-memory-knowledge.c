@@ -17,11 +17,101 @@ static int domain_query(Brain *b, const char *role, const char *const *args, siz
            kb_query(b->kb, pred, args, argc);
 }
 
+/* ── L'ARCO CONNETTIVO FRA FORME DELLA CONOSCENZA ───────────────────────────
+ *
+ * F., 2026-09-02: «la soluzione e' un arco connettivo dinamico che possa
+ * connettere parti della conoscenza espresse in una forma a parti espresse in
+ * un'altra, attraverso un meccanismo di predicate-join e inferenza con
+ * predicati variabili».
+ *
+ * Il problema che lo motiva, misurato: «teflon is a molecule» memorizza il
+ * fatto UNARIO `molecule(teflon)`, mentre chi enumera legge la relazione
+ * BINARIA `category_member(molecule, teflon)`. Due forme della stessa pretesa;
+ * parrot0 dice di aver imparato, il fatto c'e', e la domanda formata con le
+ * stesse parole non lo trova.
+ *
+ * ⚠ La prima cura era UNA REGOLA scritta a mano per quella coppia di forme.
+ * Funzionava, ed era l'elenco degli incidenti un livello piu' su: domani la
+ * stessa frattura ricompare fra `contains` e `has_part`, fra `located_in` e
+ * `in`, fra un'unaria e una ternaria — un ponte a mano per ciascuna.
+ *
+ * Qui l'arco e' un FATTO, con i predicati come ARGOMENTI:
+ *
+ *     knowledge_arc(category_member, 0, category).
+ *         «in `category_member(A0, A1)` l'argomento in posizione 0 E' il
+ *          predicato di un fatto che porta gli argomenti rimanenti» —
+ *          cioe' `A0(A1)`. `category/1` e' la guardia: dice quali predicati
+ *          possono essere promossi, perche' non ogni unaria e' una categoria.
+ *
+ *     knowledge_alias(contains, has_part).
+ *         «le due relazioni portano la stessa pretesa».
+ *
+ * Il motore non nomina nessuna relazione: legge la posizione e la guardia.
+ * Un arco nuovo e' UNA riga di KB, e vale per ogni consumatore insieme.
+ *
+ * La testa di clausola di questo motore non ammette un predicato variabile
+ * (`strcmp(R->head.pred, g->pred)` in kb.c), quindi il join non poteva essere
+ * scritto come regola generica in KB: vive qui, dove i predicati sono dati. */
+static size_t kb_join_match(Brain *b, const char *pred,
+                            const char *const *args, size_t argc,
+                            char out[][KB_TERM_LEN], size_t max, int depth);
+
+static size_t kb_arc_promote(Brain *b, const char *pred,
+                             const char *const *args, size_t argc,
+                             char out[][KB_TERM_LEN], size_t max, size_t have) {
+    char (*slots)[KB_TERM_LEN] = NULL;
+    size_t ns = 0;
+    const char *aq[3] = { pred, NULL, NULL };
+    if (!kb_match_all(b->kb, "knowledge_arc", aq, 3, &slots, &ns)) return have;
+    for (size_t i = 0; i < ns && have < max; i++) {
+        size_t slot = (size_t)atoi(slots[i]);
+        if (slot >= argc || !args[slot]) continue;      /* il predicato dev'essere legato */
+        const char *gq[3] = { pred, slots[i], NULL };
+        char guards[4][KB_TERM_LEN];
+        size_t ng = kb_match(b->kb, "knowledge_arc", gq, 3, guards, 4);
+        for (size_t g = 0; g < ng && have < max; g++) {
+            const char *guard_args[1] = { args[slot] };
+            if (!kb_query(b->kb, guards[g], guard_args, 1)) continue;
+            /* gli argomenti rimanenti, nell'ordine, diventano quelli del fatto
+             * il cui predicato e' args[slot] */
+            const char *rest[KB_MAX_ARGS];
+            size_t nrest = 0;
+            for (size_t a = 0; a < argc && nrest < KB_MAX_ARGS; a++)
+                if (a != slot) rest[nrest++] = args[a];
+            have += kb_match(b->kb, args[slot], rest, nrest,
+                             out + have, max - have);
+        }
+    }
+    free(slots);
+    return have;
+}
+
+static size_t kb_join_match(Brain *b, const char *pred,
+                            const char *const *args, size_t argc,
+                            char out[][KB_TERM_LEN], size_t max, int depth) {
+    if (!b || !b->kb || !pred || max == 0) return 0;
+    size_t have = kb_match(b->kb, pred, args, argc, out, max);
+    if (depth > 3) return have;                 /* archi ciclici: limite dichiarato */
+    have = kb_arc_promote(b, pred, args, argc, out, max, have);
+    /* Un ALIAS e' la stessa pretesa sotto un altro nome: si segue l'arco e si
+     * unisce. Ricorsivo di proposito — un alias di un alias resta vero. */
+    char (*others)[KB_TERM_LEN] = NULL;
+    size_t no = 0;
+    const char *lq[2] = { pred, NULL };
+    if (kb_match_all(b->kb, "knowledge_alias", lq, 2, &others, &no)) {
+        for (size_t i = 0; i < no && have < max; i++)
+            have += kb_join_match(b, others[i], args, argc,
+                                  out + have, max - have, depth + 1);
+    }
+    free(others);
+    return have;
+}
+
 static size_t domain_match(Brain *b, const char *role, const char *const *args, size_t argc,
                            char out[][KB_TERM_LEN], size_t max) {
     char pred[KB_TERM_LEN];
     if (!domain_predicate(b, role, pred, sizeof pred)) return 0;
-    return kb_match(b->kb, pred, args, argc, out, max);
+    return kb_join_match(b, pred, args, argc, out, max, 0);
 }
 
 static int domain_assert(Brain *b, const char *role, const char *const *args, size_t argc) {
@@ -1013,6 +1103,15 @@ static int p0_rule_clause_typed(Brain *b, P0RuleVars *v, char **w, size_t n,
         size_t ci = 2;
         if (ci < n && (is_article(b, w[ci]) || is_definite_article(b, w[ci]))) ci++;
         if (ci >= n) return 0;
+        /* ⚠ IL RESIDUO DICE CHE NON E' UN'APPARTENENZA.
+         *
+         * «y is part of x» veniva letto come `part($Y)` — appartenenza alla
+         * classe «part» — ingoiando «of x». Una lettura che lascia fuori meta'
+         * della clausola non e' una lettura: e' una lettura piu' corta che
+         * rivendica per prima. Qui la classe dev'essere l'ULTIMO termine; se
+         * resta del testo, la clausola e' di qualcun altro (il legatore dei
+         * frame, che sa leggerla come relazione). */
+        if (ci + 1 != n) return 0;
         snprintf(store[0], KB_TERM_LEN, "%s", w[ci]);
         snprintf(store[1], KB_TERM_LEN, "%s", subj);
         g->pred = store[0];
@@ -1076,9 +1175,20 @@ static int p0_propositional_on(Brain *b) {
     return b && b->kb && kb_query(b->kb, "propositional_conditionals", q, 1);
 }
 
+/* Definita dopo il legatore condiviso; dichiarata qui perche' la lezione la usa
+ * PRIMA di ripiegare sull'atomo opaco. Vedi il commento sulla definizione. */
+static int p0_rule_clause_frame(Brain *b, P0RuleVars *v, char **w, size_t n,
+                                char store[3][KB_TERM_LEN], KbGoal *g);
+
 static int p0_rule_clause(Brain *b, P0RuleVars *v, char **w, size_t n,
                           char store[3][KB_TERM_LEN], KbGoal *g) {
     if (p0_rule_clause_typed(b, v, w, n, store, g)) return 1;
+    /* ⚠ PRIMA di ripiegare sull'atomo opaco: una clausola puo' essere una
+     * RELAZIONE che parrot0 gia' sa leggere. «x contains y» diventava
+     * `holds(x_contains_y)` — un simbolo — mentre `contains` e' una relazione
+     * nota e il legatore dei frame la lega senza aiuto. Ripiegare troppo presto
+     * e' cio' che rendeva impossibile insegnare una regola FRA RELAZIONI. */
+    if (p0_rule_clause_frame(b, v, w, n, store, g)) return 1;
     if (!p0_propositional_on(b)) return 0;
     char slug[KB_TERM_LEN];
     if (!p0_proposition_atom(b, w, n, slug, sizeof slug)) return 0;
@@ -1114,6 +1224,31 @@ static int mod_teach_rule(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(buf, w, 64);
     if (nw < 6) return 0;
     for (size_t i = 0; i < nw; i++) w[i] = strip_edge_punct(w[i]);
+
+    /* ── LA STESSA LEZIONE, LETTA AL CONTRARIO (SC32) ───────────────────────
+     *
+     * Una lezione che non si puo' togliere non e' una lezione. Il percorso di
+     * add esisteva e quello di retract no, quindi l'ablazione parlata era rotta
+     * per COSTRUZIONE. Qui il verbo che apre la mossa e' un fatto
+     * (`state_move_cue(_, retract)`), come per `mod_forget`, e cio' che segue
+     * viene letto dallo STESSO parser: se add e retract non condividono la
+     * lettura, si puo' insegnare una regola che poi non si riconosce piu'. */
+    size_t start = 0;
+    int retracting = 0;
+    {
+        char mv[16][KB_TERM_LEN];
+        const char *mq[2] = { NULL, "retract" };
+        size_t nm = kb_match(b->kb, "state_move_cue", mq, 2, mv, 16);
+        for (size_t i = 0; i < nm && !retracting; i++) {
+            char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mv[i]);
+            if (strcmp(w[0], kb_dequote(mb)) == 0) { retracting = 1; start = 1; }
+        }
+    }
+    if (retracting) {
+        if (nw < 7) return 0;
+        for (size_t i = 0; i + start < nw; i++) w[i] = w[i + start];
+        nw -= start;
+    }
 
     /* i due marcatori: quali parole lo siano e' conoscenza */
     size_t a_at = nw, c_at = nw;
@@ -1154,7 +1289,41 @@ static int mod_teach_rule(Brain *b, const char *norm, const char *raw,
     hargs[0] = hstore[1]; hargs[1] = hstore[2];
     head.args = hargs; head.neg = 0;
 
+    /* ── UNA REGOLA NON SICURA NON E' UNA REGOLA ───────────────────────────
+     *
+     * Misurato: «if x contains y then y is part of x» produceva
+     *
+     *     Learned rule: part($V2) :- holds(x_contains_y).
+     *
+     * cioe' una regola la cui variabile di testa non compare da nessuna parte
+     * nel corpo. Non puo' concludere niente di determinato — e' la condizione di
+     * sicurezza (range restriction) della logica a clausole — eppure veniva
+     * asserita e ANNUNCIATA come appresa. Un misclaim su cio' che si e' appena
+     * imparato e' mantra #7, ed e' peggio di un muro: il turno dopo nessuno lo
+     * cerca piu'.
+     *
+     * Qui la lezione si ferma e dichiara il gap. Non e' un caso particolare:
+     * vale per ogni lezione condizionale, in qualunque lingua. */
+    for (size_t i = 0; i < head.argc; i++) {
+        if (!hargs[i] || hargs[i][0] != '$') continue;
+        int bound = 0;
+        for (size_t j = 0; j < nbody && !bound; j++)
+            for (size_t a = 0; a < body[j].argc && !bound; a++)
+                if (bargs[j][a] && strcmp(bargs[j][a], hargs[i]) == 0) bound = 1;
+        if (bound) continue;
+        kb_term_say(b, "rule_head_variable_unbound", (const KbResponseSlot[]){
+                        { "head", head.pred } }, 1, out, out_size);
+        return 1;
+    }
+
     kb_set_origin(b->kb, KB_SESSION);
+    if (retracting) {
+        int gone = kb_retract_clause(b->kb, &head, body, nbody);
+        kb_term_say(b, gone ? "rule_forgotten" : "rule_not_held",
+                    (const KbResponseSlot[]){ { "head", head.pred } }, 1,
+                    out, out_size);
+        return 1;
+    }
     if (!kb_assert_clause(b->kb, &head, body, nbody)) return 0;
 
     char msg[512]; size_t mo = 0;
@@ -4200,6 +4369,8 @@ static int p0_frame_projection(Brain *b, const char *pred, size_t nslots,
     return 1;
 }
 
+static size_t p0_frame_patterns(Brain *b, char (**pats)[KB_TERM_LEN]);  /* cache, definita sotto */
+
 /* La fase pura su TUTTO lo spazio degli schemi dichiarati: la prima lettura
  * dichiarativa (nessuno slot interrogativo) con un soggetto ammissibile.
  * Nessun effetto. E' il punto di ingresso di chi deve NORMALIZZARE senza
@@ -4210,12 +4381,8 @@ static int p0_frame_reading(Brain *b, char **w, size_t n, P0FrameReading *r) {
     n = p0_frame_trim_tail(w, n);
     if (n < 3) return 0;
     char (*pats)[KB_TERM_LEN] = NULL;
-    const char *anyq[] = { NULL, NULL };
-    size_t np = 0;
-    if (!kb_match_all(b->kb, "extract_frame", anyq, 2, &pats, &np)) {
-        free(pats);
-        return 0;
-    }
+    size_t np = p0_frame_patterns(b, &pats);
+    if (np == 0) return 0;
     int found = 0;
     for (size_t pi = 0; pi < np && !found; pi++) {
         P0FrameReading cand;
@@ -4228,8 +4395,97 @@ static int p0_frame_reading(Brain *b, char **w, size_t n, P0FrameReading *r) {
         *r = cand;
         found = 1;
     }
-    free(pats);
-    return found;
+    return found;                      /* `pats` e' la cache: non si libera qui */
+}
+
+/* Gli schemi di lettura, derivati UNA volta per revisione della KB.
+ *
+ * `extract_frame/2` e' fatti piu' regole che li generano — una per verbo di
+ * relazione insegnato — e ogni consumatore li ri-derivava da capo. La cache
+ * scade sulla revisione della conoscenza, non su un tempo: una relazione
+ * insegnata adesso e' visibile al turno stesso, e nessuno vede meno di prima. */
+static size_t p0_frame_patterns(Brain *b, char (**pats)[KB_TERM_LEN]) {
+    if (!b || !b->kb || !pats) return 0;
+    size_t rev = kb_revision(b->kb);
+    if (b->frame_pats_live && b->frame_pats_rev == rev) {
+        *pats = b->frame_pats;
+        return b->n_frame_pats;
+    }
+    char (*rows)[KB_TERM_LEN] = NULL;
+    size_t n = 0;
+    const char *anyq[] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "extract_frame", anyq, 2, &rows, &n)) {
+        free(rows);
+        return 0;
+    }
+    free(b->frame_pats);
+    b->frame_pats = rows;
+    b->n_frame_pats = n;
+    b->frame_pats_rev = rev;
+    b->frame_pats_live = 1;
+    *pats = rows;
+    return n;
+}
+
+/* ── UNA CLAUSOLA DI REGOLA PUO' ESSERE UNA RELAZIONE NOTA ─────────────────
+ *
+ * F., 2026-09-02: «attraverso insegnamenti di ordine superiore spiegare cose
+ * come […] che una cosa la contiene vuol dire che ne e' una parte, cosi' di alto
+ * livello, sempre sfruttando il processo di inferenza prolog-like».
+ *
+ * La lezione condizionale aveva un lettore di clausole TUTTO SUO, che conosceva
+ * due forme — «X e' un C» e «X e' il R di Y» — e per tutto il resto ripiegava su
+ * un atomo opaco. Percio':
+ *
+ *     if x contains y then y is part of x
+ *         ->  part($V2) :- holds(x_contains_y).
+ *
+ * cioe' l'antecedente diventava un simbolo, il conseguente un'appartenenza, e le
+ * variabili non si toccavano. Ma `contains` E' una relazione nota: il legatore
+ * dei frame la lega da solo. Il difetto non era una forma mancante — erano DUE
+ * letture della stessa cosa, la divergenza D33/D35/D37 applicata alle clausole.
+ *
+ * Qui la lezione usa il legatore CONDIVISO. Ne segue che una relazione
+ * insegnata oggi e' utilizzabile in una regola oggi, senza toccare la lezione:
+ * l'ordine superiore eredita tutto cio' che il lettore sa leggere.
+ *
+ * Le variabili restano quelle della lezione: ogni ruolo del frame deve essere un
+ * `rule_variable`, altrimenti la clausola parla di individui e non e' una regola
+ * — e in quel caso si tace, invece di generalizzare per conto proprio. */
+static int p0_rule_clause_frame(Brain *b, P0RuleVars *v, char **w, size_t n,
+                                char store[3][KB_TERM_LEN], KbGoal *g) {
+    if (!b || !b->kb || !v || !w || n < 3) return 0;
+    /* ── EXIT CONDITION, e non toglie copertura ────────────────────────────
+     *
+     * Legare vuol dire provare ogni schema dichiarato — oltre cento — e questa
+     * funzione RICHIEDE poi che entrambi i ruoli siano termini di regola. Se il
+     * segmento non contiene almeno due termini di regola, nessun legame potra'
+     * mai essere accettato: provarli tutti e' lavoro che finisce sempre in un
+     * rifiuto. Misurato: le lezioni condizionali su nomi propri («nivra glows
+     * beside sola») sforavano il budget di 1 s per questo solo motivo.
+     *
+     * La condizione e' la stessa che la funzione applica dopo — anticiparla non
+     * riduce cio' che vede, toglie solo il lavoro il cui esito e' gia' deciso. */
+    size_t rule_terms = 0;
+    for (size_t i = 0; i < n && rule_terms < 2; i++) {
+        const char *q[1] = { w[i] };
+        if (kb_query(b->kb, "rule_variable", q, 1) ||
+            kb_query(b->kb, "rule_anaphor", q, 1)) rule_terms++;
+    }
+    if (rule_terms < 2) return 0;
+    P0FrameReading r;
+    if (!p0_frame_reading(b, w, n, &r)) return 0;
+    if (r.nslots != 2 || r.nquestion != 0) return 0;
+    const char *a0 = p0_rule_term(b, v, r.slot[0]);
+    if (!a0) return 0;
+    const char *a1 = p0_rule_term(b, v, r.slot[1]);
+    if (!a1) return 0;
+    snprintf(store[0], KB_TERM_LEN, "%s", r.pred);
+    snprintf(store[1], KB_TERM_LEN, "%s", a0);
+    snprintf(store[2], KB_TERM_LEN, "%s", a1);
+    g->pred = store[0];
+    g->argc = 2;
+    return 1;
 }
 
 static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,

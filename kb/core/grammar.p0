@@ -206,6 +206,20 @@ auxiliary(does).
 machinery(member_satisfies).
 member_satisfies($Member, $Value) :- kb_fact($Pred, cons($Member, cons($Value, nil))).
 
+% ── LA DOMANDA INVERSA, che e' la stessa e costa un ordine di grandezza meno ──
+%
+% `member_satisfies/2` risponde per UN membro, e col predicato non legato ogni
+% chiamata e' una scansione dell'intera KB. Ripeterla per ogni membro e ogni coda
+% del residuo la rende quadratica: misurato 7,9 s su un vincolo che nessuno
+% poteva soddisfare.
+%
+% `related_to/2` chiede la stessa cosa dall'altro capo — «CHI e' legato a questo
+% valore?» — e una risoluzione sola sostituisce N scansioni. L'intersezione con
+% i membri e' meccanica. Non e' una soglia e non e' una cache: e' la stessa
+% domanda posta dove l'indice della KB puo' lavorare.
+machinery(related_to).
+related_to($Subject, $Value) :- kb_fact($Pred, cons($Subject, cons($Value, nil))).
+
 machinery(subject_guard).
 subject_guard($T) :- question_word($T).
 subject_guard($T) :- auxiliary($T).

@@ -658,6 +658,40 @@ category_member(animal, snake).
 category_member(animal, tiger).
 category_member(animal, wolf).
 category_member(animal, zebra).
+% ── IL CORPUS DEVE POTER CRESCERE PARLANDO ─────────────────────────────────
+%
+% ⛔ Il cassetto senza maniglia, nella sua forma piu' pura. Misurato:
+%
+%     > teflon is a molecule             ->  Learned: teflon is a molecule.
+%     > teflon contains fluorine         ->  Learned: teflon contains fluorine.
+%     > tell me a molecule with fluorine ->  «non riesco a verificare»
+%
+% Tutto a buon fine e niente servito: il percorso che INSEGNA scrive il fatto
+% unario `molecule(teflon)`, quello che LEGGE interroga `category_member/2`.
+%
+% ⚠ La prima cura fu UNA REGOLA scritta a mano per quella coppia di forme.
+% F. l'ha fermata: «la soluzione e' un arco connettivo dinamico che possa
+% connettere parti della conoscenza espresse in una forma a parti espresse in
+% un'altra, con predicate-join e predicati variabili». Aveva ragione: una regola
+% per coppia e' l'elenco degli incidenti un livello piu' su — domani serve fra
+% `contains` e `has_part`, fra `located_in` e `in`, fra un'unaria e una ternaria.
+%
+% Qui l'arco e' un FATTO e i predicati sono ARGOMENTI. Il motore legge la
+% POSIZIONE e la GUARDIA, e non nomina nessuna relazione.
+machinery(knowledge_arc).
+machinery(knowledge_alias).
+machinery(category).
+
+% «in `category_member(A0, A1)` l'argomento in posizione 0 e' il PREDICATO di un
+% fatto che porta gli argomenti rimanenti»: cioe' `A0(A1)`. La guardia dice quali
+% predicati possono essere promossi — non ogni unaria e' una categoria.
+knowledge_arc(category_member, 0, category).
+
+% Che cosa sia una categoria e' a sua volta conoscenza, e si apre parlando:
+% `category/1` e' scritta cosi' perche' «widget is a category» produca esattamente
+% quel fatto. Una classe che ha gia' membri curati lo e' per derivazione.
+category($Class) :- kb_fact(category_member, cons($Class, cons($Member, nil))).
+
 % ── CHIMICA: MOLECOLE ED ELEMENTI ──────────────────────────────────────────
 %
 % Corpus vero e committabile, aggiunto perche' «dimmi una molecola con

@@ -814,3 +814,16 @@ response_template(read_x_inside_the_workspace, "read {file} inside the workspace
 % «Learned: …», perche' entra in un elenco («whale is a mammal, whale is an
 % animal»). Il portante resta `learned_facts`.
 response_template(class_fact_phrase, "{arg} is {art} {cls}").
+
+% Il gap di una lezione condizionale che non si ancora. Dire «Learned rule» per
+% una regola le cui variabili di testa non compaiono nel corpo e' un misclaim:
+% quella regola non puo' concludere niente di determinato.
+response_template(rule_head_variable_unbound, "I could not anchor that rule: the conclusion about {head} talks about something the condition never mentions, so it could never conclude anything definite.").
+response_template(rule_head_variable_unbound, it, "Non riesco ad ancorare quella regola: la conclusione su {head} parla di qualcosa che la condizione non nomina mai, quindi non potrebbe concludere niente di determinato.").
+
+% Ritrattare una regola insegnata parlando. La capacita' se ne va; cio' che aveva
+% dedotto mentre era viva resta — e' storia, non capacita'.
+response_template(rule_forgotten, "Understood: I will no longer conclude {head} that way.").
+response_template(rule_forgotten, it, "Capito: non concludero' piu' {head} in quel modo.").
+response_template(rule_not_held, "I was not holding that rule about {head}.").
+response_template(rule_not_held, it, "Non avevo quella regola su {head}.").

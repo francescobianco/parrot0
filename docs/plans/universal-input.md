@@ -658,3 +658,258 @@ tokenizzazione, ordering, binding, aritmetica e inferenza; non puo' sapere che
 una parola o un operatore concreto significa uno di questi atti. In particolare
 `register(code(c))` resta un'osservazione, mai una risposta sufficiente: uno span
 `query` mantiene aperta l'obbligazione finche' il piano non ne prova il valore.
+
+---
+
+# ⛔ ARCHI CONNETTIVI DINAMICI — la conoscenza detta in una forma, letta in un'altra
+
+*Aperto il 2026-09-02 su indicazione di F. Questa sezione è condivisa da
+`universal-input.md`, `universal-solver.md`, `frontier-kb-natural-dialogue.md` e
+`apprendimento-assistito.md`: è una sola meccanica, e i quattro piani la usano da
+lati diversi.*
+
+## 1. Il difetto che lo ha reso necessario, misurato
+
+```text
+> teflon is a molecule              ->  Learned: teflon is a molecule.
+> teflon contains fluorine          ->  Learned: teflon contains fluorine.
+> tell me a molecule with fluorine  ->  «non riesco a verificare»
+```
+
+Tre turni andati a buon fine e nessuno servito a niente. La causa non è un muro
+di comprensione né un vocabolario mancante:
+
+- il percorso che **insegna** memorizza il fatto **unario** `molecule(teflon)`;
+- il percorso che **legge** interroga la relazione **binaria**
+  `category_member(molecule, teflon)`.
+
+Due forme della stessa pretesa. parrot0 dichiara di aver imparato, il fatto è
+davvero in KB, e la domanda formata con le stesse parole non lo trova. È **il
+cassetto senza maniglia** nella sua forma più pura, e la sua gravità è che non si
+vede: nessun errore, nessun avviso, solo una capacità che non si raggiunge.
+
+## 2. La cura sbagliata, e perché lo era
+
+La prima cura fu **una regola scritta a mano per quella coppia di forme**:
+
+```prolog
+category_member($C, $M) :- category($C), kb_fact($C, cons($M, nil)).
+```
+
+Funzionava. F. l'ha fermata:
+
+> *«sei sicuro che la soluzione sia una "regola sola"? Secondo me la soluzione è
+> un arco connettivo dinamico che possa connettere parti della conoscenza
+> espresse in una forma a parti della conoscenza espresse in un'altra, attraverso
+> un meccanismo di predicate-join e inferenza con predicati variabili.»*
+
+Aveva ragione, ed è la stessa critica del mantra #2 **un livello più su**: una
+regola per coppia di forme è *l'elenco degli incidenti* fatto di regole invece
+che di parole. Domani la stessa frattura ricompare fra `contains` e `has_part`,
+fra `located_in` e `in`, fra un'unaria e una ternaria — un ponte a mano per
+ciascuna, e nessuno dei ponti si accorge degli altri.
+
+> **Il test:** una cura per *questa* coppia non è una cura per la classe. Se la
+> forma nuova costa una regola nuova, la conoscenza non si sta connettendo: si
+> sta ricucendo a mano.
+
+## 3. La forma giusta — l'arco è un FATTO, i predicati sono ARGOMENTI
+
+```prolog
+knowledge_arc(category_member, 0, category).
+```
+
+Si legge: *«nella relazione `category_member(A0, A1)`, l'argomento in posizione 0
+**è il predicato** di un fatto che porta gli argomenti rimanenti»* — cioè
+`A0(A1)`. Il terzo argomento è la **guardia**: dice quali predicati possono
+essere promossi, perché non ogni unaria è una categoria (`stopword/1` e
+`machinery/1` non lo sono).
+
+```prolog
+knowledge_alias(contains, has_part).
+```
+
+Si legge: *«le due relazioni portano la stessa pretesa»*.
+
+Il motore (`kb_join_match` in `src/brain/10-memory-knowledge.c`) legge **una
+posizione e una guardia**, e non nomina nessuna relazione. Un arco nuovo è **una
+riga di KB** e vale per ogni consumatore insieme.
+
+### Perché il join non può essere una regola KB
+
+Vincolo reale del motore, verificato: la testa di clausola **non ammette un
+predicato variabile** — `solve()` in `src/kb.c` seleziona le regole con
+`strcmp(R->head.pred, g->pred)`. Si può scrivere `apply($P, $Args)` nel **corpo**
+di una clausola, mai `$P($X)` in **testa**.
+
+Perciò l'arco *dichiarato* sta in KB e il *percorso* sta in C — ed è la divisione
+giusta secondo `PRINCIPLES.md`: motore fisso, conoscenza che cresce. Ciò che il C
+sa fare è «promuovi l'argomento in posizione N a predicato»; **quali** relazioni,
+in **quale** posizione, sotto **quale** guardia è interamente KB.
+
+> Se un giorno il motore ammetterà una testa variabile, l'arco potrà migrare in
+> KB senza cambiare una riga di conoscenza: i fatti sono già scritti nella forma
+> giusta. È il criterio per capire se una meccanica è nel posto sbagliato *per
+> ora* o *per sempre*.
+
+## 4. Che cosa ha sbloccato, misurato
+
+Il corpus **cresce parlando**, dal turno alla domanda:
+
+```text
+> tell me a molecule with fluorine   ->  «non riesco a verificare»
+> teflon is a molecule               ->  Learned.
+> teflon contains fluorine           ->  Learned.
+> tell me a molecule with fluorine   ->  Teflon.
+```
+
+E una **categoria del tutto nuova** si apre in una frase che nessuno deve
+imparare a formulare — `category/1` è nominata così apposta:
+
+```text
+> tell me a widget                ->  (muro onesto)
+> widget is a category            ->  Learned.
+> a florn is a widget             ->  Learned.
+> tell me a widget                ->  Florn.
+> florn contains quartz           ->  Learned.
+> tell me a widget with quartz    ->  Florn.
+```
+
+**Effetto composto, non previsto e istruttivo:** `tell me an animal that lives in
+water` prima murava; ora risponde **Amphibian**, ed è vero
+(`habitat(amphibian, water)`). Metà dei membri di `animal` era scritta in una
+forma che l'enumerazione non leggeva. Profondità e ampiezza si compongono: più
+candidati visibili ⇒ più vincoli verificabili. Un arco non aggiunge una
+capacità, **moltiplica quelle che ci sono**.
+
+## 5. Il costo, e l'ottimizzazione che ne è nata
+
+Un arco allarga i candidati, e ciò che era tollerabile diventa quadratico.
+Misurato subito dopo: `tell me an animal that lives in lava` — un vincolo che
+**nessuno** poteva soddisfare — **7,9 s**.
+
+La causa è precisa: `member_satisfies(Membro, Valore)` chiede a `kb_fact/2` se
+*qualche* relazione lega i due, e con il **predicato non legato** ogni chiamata è
+una scansione dell'intera KB. Moltiplicata per ogni membro × ogni coda del
+residuo: ~160 scansioni da 37 000 fatti.
+
+Due uscite tentate, e solo la seconda è quella giusta:
+
+1. ❌ **Pre-controllo «il valore compare da qualche parte?»** — anch'esso una
+   scansione con predicato non legato: *aggiunge* lavoro invece di risparmiarne.
+   Ritirato. È la trappola di questa classe: un'exit condition che costa quanto
+   ciò che evita non è un'ottimizzazione.
+2. ✅ **Invertire il join.** La domanda «questo membro è legato al valore?» posta
+   N volte diventa «**chi** è legato a questo valore?» posta **una** volta, più
+   un'intersezione in memoria:
+
+   ```prolog
+   related_to($Subject, $Value) :- kb_fact($Pred, cons($Subject, cons($Value, nil))).
+   ```
+
+   **7,9 s → sotto 1 s**, stessa risposta.
+
+> **La regola che ne esce:** in un join con predicato variabile, il verso della
+> domanda *è* la complessità. Non è una cache e non è una soglia — è la stessa
+> domanda posta dove l'indice della KB può lavorare.
+
+**Resta aperto (§L di `LEARN_TODO.md`):** `kb_fact/2` con predicato non legato è
+O(fatti) per costruzione. L'inversione toglie il fattore N, non l'O(n). La cura
+strutturale che F. ha chiesto — **indice per termine / kv hashing** — non è
+ancora fatta: il censimento in `src/kb.c` indicizza per *predicato*, non per
+*argomento*.
+
+## 6. Il livello successivo — L'ADDESTRAMENTO DI ORDINE SUPERIORE
+
+> F.: *«attraverso insegnamenti di ordine superiore spiegare cose come quella
+> emersa, e in certi contesti che una cosa la contiene vuol dire che ne è una
+> parte — così, di alto livello, sempre sfruttando il processo di inferenza
+> prolog-like.»*
+
+Gli archi del §3 li dichiara oggi un file `.p0`. Il passo successivo è che li
+dichiari **chi parla**, in una frase. Non si insegna un fatto: si insegna una
+**relazione fra relazioni**, e vale per inferenza dal turno dopo.
+
+### Stato misurato (2026-09-02) — l'ordine superiore NON c'è, e mente
+
+```text
+> every knight is a noble             ->  Learned rule: noble(X) :- knight(X).   ✅
+> if x contains y then y is part of x ->  Learned rule: part($V2) :- holds(x_contains_y).   ⛔
+> contains means has_part             ->  «I cannot anchor that lesson yet»   (muro onesto)
+> a container of something is a part of it  ->  «Subject.»   ⛔
+```
+
+- L'implicazione **unaria** fra classi è insegnabile e funziona.
+- L'implicazione **binaria fra relazioni** non lo è — e il secondo turno è il
+  difetto peggiore dei quattro: dichiara **«Learned rule»** per una regola priva
+  di senso. Un misclaim su ciò che si è appena imparato è mantra #7, ed è peggio
+  di un muro perché il turno dopo nessuno lo cerca.
+
+### La forma da costruire, e perché è quasi tutta già lì
+
+«se X contiene Y allora Y è parte di X» è **due frame** con **variabili
+condivise**. Il legatore che serve esiste già ed è lo stesso del lettore:
+
+```text
+lato sinistro  -> p0_frame_bind -> contains(@S, @O)
+lato destro    -> p0_frame_bind -> part_of(@O, @S)
+variabili condivise -> i ruoli si corrispondono per NOME, non per posizione
+                    -> assert  part_of($Y, $X) :- contains($X, $Y).
+```
+
+Gli invarianti del checkpoint ternario (§3 dell'handoff in `LEARN_TODO.md`)
+valgono qui **immutati**, e non è un caso: è la stessa lezione a un ordine più
+alto.
+
+1. **Nessuna arità linguistica nel C.**
+2. **Nessun ruolo per posizione** — il frame già compreso nomina i ruoli.
+3. **Nessun vocabolo del gate nel C**: `contains`, `part of`, `se`, `allora`
+   compaiono solo nel test.
+4. **Target noto e univoco**: due letture ⇒ resta un gap, non si prende la prima.
+5. **Il retract toglie la capacità, non la storia**: i fatti dedotti mentre la
+   regola era viva restano; la regola sparisce.
+6. **⛔ Nessun «Learned rule» senza una regola.** Se la lezione non si àncora, si
+   dichiara il gap. Questa è la riga da chiudere per prima, perché oggi è attiva
+   e mente.
+
+### Il contesto, che è la parte che F. ha nominata per ultima e pesa di più
+
+*«in certi contesti»* non è una sfumatura: è la differenza fra una regola e una
+**regola con dominio**. «contenere vuol dire essere parte» è vero per una scatola
+e i suoi oggetti, falso per un fiume e i pesci. La forma generale non è
+
+```prolog
+part_of($Y, $X) :- contains($X, $Y).
+```
+
+ma
+
+```prolog
+part_of($Y, $X) :- contains($X, $Y), <il contesto vale qui>.
+```
+
+dove il contesto è **a sua volta conoscenza interrogabile**, non una condizione
+cablata. È il punto di contatto con `context-scope.p0` e con l'anti-isteresi:
+una regola che vale ovunque è una regola che nessuno può correggere parlando.
+
+### Ordine di lavoro proposto
+
+1. **Togliere il misclaim** — «if X … then Y …» che non si àncora deve dichiarare
+   il gap, non annunciare una regola. *Prima* di aggiungere capacità.
+2. **L'implicazione binaria fra relazioni note**, con i ruoli per nome e il
+   retract simmetrico.
+3. **L'arco insegnato**: «contenere vuol dire essere parte» ⇒ asserisce
+   `knowledge_alias/2`, cioè l'ordine superiore che *scrive gli archi del §3*.
+4. **Il dominio del contesto**, come argomento in più e non come eccezione.
+5. **L'indice per termine**, perché ogni arco in più moltiplica il join (§5).
+
+### Il gate minimo, e nessuna scorciatoia
+
+Una lezione di ordine superiore è chiusa solo se:
+
+- vale su relazioni **held-out** (non `contains`/`part_of`, che sono l'esempio);
+- vale in **entrambe le lingue**, perché la canonicalizzazione è l'unica via;
+- si **ritratta** parlando, e ciò che aveva dedotto resta;
+- **non** produce un «Learned rule» quando non ha ancorato niente;
+- il contesto dichiarato **restringe** davvero: fuori dal dominio la regola non
+  deve concludere.

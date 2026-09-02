@@ -40,7 +40,15 @@
 !timeout 6
 # cedere in silenzio mandava questo turno a `personal`, che rispondeva
 # «Got it, I'll remember that.»: la domanda diventava una cosa da ricordare.
+# ⚠ questo turno RISPONDE, e la risposta e' vera: `habitat(amphibian, water)`.
+# Prima dell'arco connettivo murava, perche' meta' dei membri di `animal` era
+# scritta in una forma che l'enumerazione non leggeva. Profondita' e ampiezza si
+# compongono: piu' candidati visibili, piu' vincoli verificabili.
 > tell me an animal that lives in water
+<! Got it
+<! cannot check
+# un vincolo che nessun membro soddisfa resta un gap DICHIARATO, non un membro a caso
+> tell me an animal that lives in lava
 <~ cannot check
 <! Got it
 
@@ -70,4 +78,45 @@
 <! non riesco a verificare
 # ⛔ un vincolo che nessun membro soddisfa NON riceve un membro a caso
 > tell me a molecule with gold
+<~ cannot check
+
+[test IL CORPUS CRESCE PARLANDO — la maniglia del cassetto]
+!timeout 6
+# ⛔ Il cassetto senza maniglia nella forma piu' pura. Prima:
+#     > teflon is a molecule             ->  Learned.
+#     > teflon contains fluorine         ->  Learned.
+#     > tell me a molecule with fluorine ->  «non riesco a verificare»
+# Tutto a buon fine, niente servito: il percorso che INSEGNA scriveva un fatto
+# unario, quello che LEGGE interrogava `category_member/2`. Due rappresentazioni
+# della stessa conoscenza, curate da UNA lettura (non da un fatto duplicato).
+> tell me a molecule with fluorine
+<~ cannot check
+> teflon is a molecule
+<~ Learned
+# la forma MEMORIZZATA e' quella unaria: l'arco unisce in LETTURA, non duplica
+# il fatto in due forme destinate a divergere
+!query molecule(teflon)
+!query knowledge_arc(category_member, 0, category)
+!query category(molecule)
+> teflon contains fluorine
+<~ Learned
+> tell me a molecule with fluorine
+<~ Teflon
+
+[test una CATEGORIA NUOVA si apre parlando]
+!timeout 6
+# `category/1` e' scritta cosi' perche' «widget is a category» produca esattamente
+# quel fatto: aprire una categoria non richiede di conoscere la rappresentazione.
+> tell me a widget
+<! Florn
+> widget is a category
+!query category(widget)
+> a florn is a widget
+> tell me a widget
+<~ Florn
+> florn contains quartz
+> tell me a widget with quartz
+<~ Florn
+# e il vincolo resta vero anche sulle categorie curate: nessun uccello ha quarzo
+> tell me a bird with quartz
 <~ cannot check

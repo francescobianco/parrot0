@@ -308,6 +308,22 @@ struct Brain {
     int  compose_kb_loaded;
     int  actions_kb_loaded;   /* gen258: lazy plan-action domain (KB_REFLECTIVE) */
     int  lexeme_kb_loaded;    /* gen347: lazy common-word pool for word puzzles (Motore 1) */
+    /* ── CACHE DEGLI SCHEMI DI LETTURA ──────────────────────────────────────
+     *
+     * `extract_frame/2` non e' un elenco: e' fatti PIU' regole che li generano,
+     * una per ogni verbo di relazione insegnato. Derivarli costa, e ogni
+     * consumatore li ri-derivava da capo — il lettore, la fase pura, la lezione
+     * condizionale, la pubblicazione della forza del turno. Misurato: le
+     * clausole di una lezione condizionale sforavano il budget di 1 s appena la
+     * lezione ha cominciato a usare il legatore condiviso.
+     *
+     * La cache e' invalidata dalla REVISIONE della KB (fatti + regole), non da un
+     * timer: una relazione insegnata adesso e' visibile al turno stesso. Non
+     * riduce cio' che il motore vede — deriva le stesse righe, una volta sola. */
+    char   (*frame_pats)[KB_TERM_LEN];
+    size_t   n_frame_pats;
+    size_t   frame_pats_rev;
+    int      frame_pats_live;
 
     /* gen212 (KB-first responses): rotation cursor over response_template/2 phrasings,
      * so when more than one form is registered for an intent they alternate (the gen55

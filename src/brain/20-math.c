@@ -2376,16 +2376,52 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
      * `kb_fact/2`, se QUALCHE relazione lega il membro al valore. Una relazione
      * nuova vale subito, e il C non ne conosce nessuna. */
     if (!init && ci + 1 < nw) {
+        /* ── EXIT CONDITION, e non e' un dettaglio ─────────────────────────
+         *
+         * `member_satisfies/2` chiede a `kb_fact/2` se QUALCHE relazione lega
+         * membro e valore: con il predicato NON legato quella e' una scansione
+         * dell'intera KB. Moltiplicata per ogni membro e per ogni coda del
+         * residuo diventa quadratica sui fatti — misurato: 7,7 s su «tell me an
+         * animal that lives in lava», dove NESSUN membro poteva soddisfare.
+         *
+         * Due uscite, in ordine di costo crescente:
+         *
+         * 1. IL VALORE NON COMPARE DA NESSUNA PARTE. Una scansione sola dice
+         *    che nessun membro potra' mai soddisfare quel vincolo: si esce
+         *    prima di moltiplicare. E' il caso peggiore ed e' il piu' comune,
+         *    perche' un vincolo sconosciuto e' esattamente cio' che fa
+         *    perdere tempo.
+         * 2. BASTA UN TESTIMONE. A una richiesta di UN'istanza si risponde con
+         *    un membro: appena uno soddisfa, si smette di cercare. Continuare
+         *    a filtrare l'intera categoria e' lavoro che nessuno legge. */
         size_t kept = 0;
         for (size_t vi = nw; vi > ci + 1 && kept == 0; vi--) {
             /* il valore del vincolo: la coda del residuo, la piu' lunga prima */
             char value[KB_TERM_LEN];
             if (!p0_join_tail(w, vi - 1, nw, value, sizeof value)) continue;
-            for (size_t i = 0; i < k; i++) {
-                const char *sq[2] = { members[i], value };
-                if (!kb_query(b->kb, "member_satisfies", sq, 2)) continue;
-                if (kept != i) snprintf(members[kept], KB_TERM_LEN, "%s", members[i]);
-                kept++;
+            /* IL JOIN SI FA UNA VOLTA, NON UNA PER MEMBRO.
+             *
+             * Chiedere «questo membro e' legato al valore?» costa, con il
+             * predicato non legato, una scansione dell'intera KB — e ripeterla
+             * per ogni membro e ogni coda del residuo la rende quadratica:
+             * misurato 7,9 s su un vincolo che nessuno poteva soddisfare.
+             *
+             * La domanda inversa si fa una volta sola: «CHI e' legato a questo
+             * valore?». Una risoluzione, poi un'intersezione in memoria. Stessa
+             * risposta, un ordine di grandezza in meno di lavoro. */
+            char related[256][KB_TERM_LEN];
+            const char *rq[2] = { NULL, value };
+            size_t nr = kb_match(b->kb, "related_to", rq, 2, related, 256);
+            if (nr == 0) continue;                 /* nessuno: nessun membro puo' */
+            for (size_t i = 0; i < k && kept == 0; i++) {
+                for (size_t j = 0; j < nr; j++) {
+                    if (strcmp(related[j], members[i]) != 0) continue;
+                    /* i == 0 copierebbe un buffer su se stesso: UB, e con glibc
+                     * svuota la stringa. */
+                    if (i != 0) snprintf(members[0], KB_TERM_LEN, "%s", members[i]);
+                    kept = 1;
+                    break;
+                }
             }
         }
         if (kept == 0) {

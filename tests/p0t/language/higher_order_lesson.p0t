@@ -1,0 +1,63 @@
+# ⛔ INSEGNAMENTO DI ORDINE SUPERIORE — una relazione FRA RELAZIONI, detta in una
+# frase, portata dall'inferenza prolog-like.
+#
+# F., 2026-09-02: «attraverso insegnamenti di ordine superiore spiegare cose come
+# quella emersa, e in certi contesti che una cosa la contiene vuol dire che ne e'
+# una parte — cosi', di alto livello, sempre sfruttando il processo di inferenza
+# prolog-like».
+#
+# Stato misurato PRIMA di questo incremento:
+#
+#     if x contains y then y is part of x
+#         ->  Learned rule: part($V2) :- holds(x_contains_y).
+#
+# Tre difetti in una riga: l'antecedente diventava un simbolo opaco benche'
+# `contains` fosse una relazione nota; il conseguente veniva letto come
+# appartenenza alla classe «part» ingoiando «of x»; e la regola risultante aveva
+# una variabile di testa che il corpo non nomina — non poteva concludere niente,
+# e veniva comunque ANNUNCIATA come appresa (mantra #7).
+[mock hermetic]
+!set PARROT0_SESSION=
+!reset
+
+[test una regola fra relazioni si insegna in una frase]
+!timeout 6
+> contains is a relation verb
+> if x contains y then y is part of x
+<~ Learned rule
+# l'antecedente e' una RELAZIONE, non un atomo opaco: la lezione usa lo STESSO
+# legatore del lettore, quindi eredita ogni relazione che parrot0 sa leggere
+<! holds
+# e il conseguente e' binario, non un'appartenenza alla classe «part»
+<~ part_of
+
+[test l_inferenza la porta su entita' mai viste]
+!timeout 6
+> the box contains the ring
+!query contains(box, ring)
+!query part_of(ring, box)
+# la domanda formata in lingua naturale trova il fatto DEDOTTO
+> what is the ring part of
+<~ Box
+# la regola non parla del suo esempio: vale su entita' introdotte dopo
+> the vault contains the crown
+!query part_of(crown, vault)
+
+[test ⛔ nessun «Learned rule» senza una regola]
+!timeout 6
+# Una regola la cui variabile di testa non compare nel corpo non puo' concludere
+# niente di determinato (condizione di sicurezza della logica a clausole). Dire
+# «Learned rule» comunque e' un misclaim su cio' che si e' appena imparato, ed e'
+# peggio di un muro: il turno dopo nessuno lo cerca piu'.
+!forget rule_head_variable_unbound_probe
+> if it rains then y is a scientist
+<! Learned rule
+<~ could not anchor
+
+[test la lezione si ritratta, e cio' che aveva dedotto resta]
+!timeout 6
+> forget if x contains y then y is part of x
+!query contains(box, ring)
+# la capacita' se ne va: un'entita' nuova non produce piu' la deduzione
+> the crate contains the gem
+!query! part_of(gem, crate)
