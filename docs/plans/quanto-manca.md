@@ -296,6 +296,10 @@ diventato lavoro di conoscenza**, che è la differenza che F. ha chiesto.
 
 # ⛔ CHE TIPO DI LACUNA ERA? — la domanda di F., e la risposta misurata
 
+> **Il protocollo che ne è nato vive in `docs/plans/universal-comprehension.md`
+> §10**, con il test diagnostico e la checklist operativa. Qui resta il caso che
+> lo ha generato, con la misura.
+
 *F.: «giudica il tipo di gap che derivava dalla non comprensione di questi
 prompt, e dimmi se era possibile mettere in campo strategie per evitarle, o se
 invece siamo in un regime di varianza così elevato che non possiamo ipotizzare

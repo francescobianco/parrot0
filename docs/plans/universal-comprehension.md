@@ -18,6 +18,14 @@ nella KB.*
 > (§4.2), più program_shape tirati da RULESCORE/game-bench, il declino informato
 > come default per le ALTRE forme (§5c).
 
+> **⛔ PROTOCOLLO OPERATIVO — vedi [§10](#10-protocollo--le-tre-specie-di-lacuna-e-quali-si-chiudono-prima-che-qualcuno-chieda).**
+> Le tre specie di lacuna (variante di superficie / costruzione mancante / forma
+> telegrafica), il test diagnostico che le distingue in tre turni, e le tre
+> strategie corrispondenti. **Due specie su tre si chiudono senza mai vedere una
+> chat**; la terza non si anticipa, si rende insegnabile. Comprensione universale
+> non vuol dire aver previsto tutto: vuol dire che ciò che è generabile dalla
+> struttura è già chiuso, e ciò che non lo è si chiude parlando.
+
 > **Principio evolutivo (F., gen240): tieni le strutture secondarie.** Finché
 > qualcosa non si dimostra *prevalente*, tutto è secondario e **attivabile**: non
 > si rimpiazza né si pota una struttura solo perché *sembra* ridondante o legata a
@@ -574,3 +582,161 @@ Tutto KB-first e **substrato** (`utterance`, `artifact` marcati): è stato di
 sessione, non "cose che sai" del mondo, e non inquina "quante cose sai?". Persiste
 con `/save` come il resto della sessione. La lingua corrente (§0, `current_language/1`)
 è lo stesso principio applicato a un'altra proprietà della sessione.
+
+
+---
+
+# §10. PROTOCOLLO — le tre specie di lacuna, e quali si chiudono *prima* che qualcuno chieda
+
+*Aperto il 2026-09-02 su domanda di F.: «giudica il tipo di gap che derivava
+dalla non comprensione di questi prompt, e dimmi se era possibile mettere in
+campo strategie per evitarle, o se invece siamo in un regime di varianza così
+elevato che non possiamo ipotizzare ciò che manca e colmarlo prima ancora che
+qualcuno lo chieda».*
+
+È la domanda centrale di questo piano, perché «comprensione universale» non
+significa *aver previsto tutto*: significa sapere **che cosa è prevedibile e che
+cosa no**, e usare due strategie diverse per le due metà.
+
+## 10.0 Il campione che ha generato il protocollo
+
+Chat reale, tre frasi elementari, tre muri:
+
+```text
+>>> ho un libro nello zaino      Non capisco ancora.
+>>> il mio libro e nello zaino   Non sono sicuro di aver seguito.
+>>> libro in zaino               Non capisco ancora.
+```
+
+Sembrano lo stesso difetto. **Sono tre specie diverse**, e la distinzione decide
+se erano evitabili.
+
+## 10.1 ⛔ IL TEST DIAGNOSTICO — si esegue PRIMA di diagnosticare
+
+> **Davanti a un muro, prova la frase MINIMAMENTE DIVERSA. La distanza fra la
+> frase che funziona e quella che non funziona *è* il tipo di lacuna.**
+
+| distanza | specie | esempio misurato |
+|---|---|---|
+| **un carattere** | variante di superficie | `libro è nello zaino` ✅ / `libro e nello zaino` ⛔ |
+| **una parola piena** | costruzione mancante | `mary have a book in the backpack` ✅ / `i have …` ⛔ |
+| **strutturale** (nessuna variante vicina funziona) | forma telegrafica | `libro in zaino` ⛔ |
+
+Il test costa tre turni e sostituisce ore di ipotesi. È lo stesso principio del
+differenziale sui rossi: **non attribuire una lacuna prima di aver misurato la
+sua distanza da ciò che funziona.**
+
+## 10.2 Specie 1 — VARIANTE DI SUPERFICIE → prevedibile, e si genera dalla classe
+
+`e` per `è`, apostrofi, elisioni, maiuscole, accenti mancanti.
+
+**Non è varianza: è una collisione fra due parole di una classe chiusa.** Le
+classi chiuse — articoli, copule, preposizioni, clitici, congiunzioni — sono
+finite e già in KB. **Le loro varianti di scrittura reale sono enumerabili a
+priori dalla classe stessa**, senza aspettare che qualcuno le scriva.
+
+⛔ **Ma la cura non è piegare la variante sulla forma piena**: `e` → `è`
+distruggerebbe la congiunzione. La cura è **disambiguare per contesto con una
+regola di grammatica vera**:
+
+```text
+Una congiunzione non può unire un sintagma NOMINALE a un sintagma PREPOSIZIONALE.
+  ⇒ «e» seguita da una preposizione è la copula.
+```
+
+Realizzata come `copula_variant/3` + `copula_variant_context/1`, quest'ultima
+**derivata** dalle 32 preposizioni articolate più le locative: nessun membro da
+mantenere, e una preposizione nuova si porta dietro anche questa lettura.
+
+> **Costo di averla mancata:** questa lacuna era già a registro **due volte**
+> («GD3 — le varianti ortografiche azzerano una lezione»), la seconda trovata da
+> me stesso mentre scrivevo una sonda. È stata *annotata* due volte invece che
+> chiusa, e la terza l'ha incontrata l'utente su una delle frasi più ordinarie
+> dell'italiano scritto.
+
+**⇒ Regola 1: CHIUSURA AL SECONDO AVVISTAMENTO.** Un rosso che compare due volte
+non è un incidente: è una classe. **Il registro dei rossi è una coda di lavoro,
+non un archivio.**
+
+## 10.3 Specie 2 — COSTRUZIONE MANCANTE → prevedibile per SIMMETRIA
+
+```text
+X è in Y            (copula + luogo)          ✅
+ho messo X in Y     (trasferimento + luogo)   ✅
+ho un X in Y        (possesso + luogo)        ⛔
+```
+
+**Non è varianza: è un buco in una tabella già piena per due terzi.** Non serviva
+indovinare che cosa qualcuno avrebbe detto — bastava guardare le altre due
+caselle. Il verbo mancante (`have`) era anche il più frequente dei tre.
+
+È esattamente la forma del difetto già registrato per `imperative_opener/1`, che
+conteneva *execute, run, migrate, scan* — i verbi che avevano causato un bug — e
+non conteneva *tell, write, describe*, cioè quelli con cui si chiede davvero
+qualcosa.
+
+> **Una classe popolata dai sintomi non è una classe: è l'elenco degli
+> incidenti.** Il test è meccanico e non richiede un utente: *i membri descrivono
+> la classe o la storia dei bug?*
+
+**⇒ Regola 2: COMPLETAMENTO DELLA CLASSE, NON DEL CASO.** Ogni volta che una
+costruzione o una classe chiusa entra in KB, si chiede **quali altri membri
+reggono la stessa struttura** e li si aggiunge nello stesso turno di lavoro.
+Generabile a tavolino.
+
+## 10.4 Specie 3 — FORMA TELEGRAFICA → **non** prevedibile, e va bene così
+
+`libro in zaino`. Nessun articolo, nessuna copula, nessun verbo.
+
+**Qui sì siamo nel regime di varianza alta di cui parla F.**, e affrontarlo *a
+priori* sarebbe un errore di metodo: ogni ipotesi su come qualcuno abbrevia è un
+frasario, e un frasario è ciò che questo progetto vieta.
+
+> **La risposta giusta a questa specie non è anticiparla: è renderla
+> INSEGNABILE.** Non «indovinare la forma», ma «garantire che chi la usa possa
+> insegnarla in un turno e che valga dal turno dopo».
+
+È la direttiva di F. del 2026-09-02: *dove la capacità c'è e manca la forma, si
+deve garantire l'insegnabilità* — con il suo gate:
+
+```text
+> sbloccami x + 1 = 6              (muro)
+> sbloccami is an equation filler  Learned.
+> sbloccami x + 1 = 6              x = 5.
+> !forget equation_filler(…)       (muro di nuovo)
+```
+
+**⇒ Regola 3: INSEGNABILITÀ COME RETE PER IL RESTO.** È la sola strategia che
+**scala** con la varianza invece di inseguirla: non copre una forma, copre
+*tutte* le forme che qualcuno si prenderà la briga di insegnare.
+
+## 10.5 Il giudizio, e perché non è una risposta di comodo
+
+**Due delle tre lacune erano prevedibili, con strategie diverse; la terza no, e
+per la terza la strategia giusta non è la previsione ma l'insegnabilità.**
+
+La risposta comoda sarebbe stata «è tutta varianza, non si può prevedere» — ed è
+falsa: due terzi del campione erano chiudibili senza mai vedere la chat. La
+risposta opposta — «si può prevedere tutto» — porta dritta al frasario.
+
+> **Comprensione universale non vuol dire aver previsto tutto. Vuol dire che ciò
+> che è generabile dalla struttura è già chiuso, e ciò che non lo è si chiude
+> parlando.**
+
+## 10.6 La checklist operativa
+
+Da eseguire quando entra una costruzione, una classe chiusa o un rosso:
+
+1. **Misura la distanza.** Prova la frase minimamente diversa (§10.1). Non
+   diagnosticare prima.
+2. **Se la distanza è un carattere** → genera le varianti di scrittura *dalla
+   classe*, e disambigua per **contesto**, mai piegando la variante sulla forma
+   piena.
+3. **Se la distanza è una parola piena** → completa la classe: quali altri membri
+   reggono questa struttura? Applica il test «sintomi o classe?».
+4. **Se nessuna variante vicina funziona** → non anticipare. Verifica invece che
+   la forma sia **insegnabile in un turno**, e che il retract la tolga.
+5. **Se il rosso era già a registro** → chiudilo adesso. Il secondo avvistamento
+   è la scadenza, non il terzo.
+6. **Registra la specie nel commit.** Un rosso senza la sua specie non è
+   annotato: è rimandato.

@@ -232,6 +232,17 @@ silenzio.
 
 ## §5. Metodo, vincolante
 
+> **⛔ Il protocollo delle TRE SPECIE DI LACUNA è in
+> `docs/plans/universal-comprehension.md` §10.** Davanti a un muro si prova la
+> frase **minimamente diversa**: la distanza fra ciò che funziona e ciò che non
+> funziona *è* il tipo di lacuna, e il tipo decide se era prevedibile.
+> **Un carattere** → variante di superficie: si genera dalla classe chiusa e si
+> disambigua per contesto. **Una parola piena** → costruzione mancante: si
+> completa la classe. **Nessuna variante vicina** → varianza vera: non si
+> anticipa, si rende insegnabile. Con la checklist e la regola che è costata di
+> più: **un rosso che compare due volte va chiuso al secondo avvistamento** — il
+> registro dei rossi è una coda di lavoro, non un archivio.
+
 - **Il differenziale prima di attribuire un rosso.** Più volte in questi cicli un
   rosso sembrava mio ed era un **timeout** del debito di latenza, o un test che
   asseriva un mondo peggiore.
