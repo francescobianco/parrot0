@@ -1,0 +1,53 @@
+# ⛔ OGNI MODULO DEL REGISTRO E' ADDESTRABILE — la proprieta', non il caso.
+#
+# F., 2026-09-02: «l'ostacolo che abbiamo scoperto sono i moduli obsoleti che
+# rubano turni, e non possiamo addestrarli a lavorare meglio perche' non sono
+# KB-first».
+#
+# La condotta era gia' conoscenza (`faculty_yield/3`, `faculty_force/2`), ma la
+# leggevano SEI facolta' che se l'erano cablata dentro, su cinquanta. Per le
+# altre quarantaquattro la condotta NON ESISTEVA: nessun fatto poteva impedire a
+# `chitchat` di salutare chi fa una domanda ipotetica, perche' `chitchat` non
+# chiedeva niente a nessuno.
+#
+# Ora la lettura e' del REGISTRO: il nome con cui un modulo e' registrato E' il
+# suo nome pubblico. Un modulo NUOVO nasce governabile senza scrivere niente.
+[mock hermetic]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+
+[test un modulo senza alcuna condotta si corregge PARLANDO]
+!timeout 8
+# `chitchat` non ha mai avuto una riga di condotta. Qui la riceve a runtime,
+# insieme alla classe di cue su cui cedere: nessuna delle due esisteva quando il
+# binario e' stato compilato, e per `chitchat` non e' stata scritta una riga di C.
+# si toglie anche la condotta PERMANENTE, cosi' il difetto storico torna: prova
+# insieme che quella riga di KB e' cio' che oggi lo governa
+!forget faculty_yield(chitchat, open, hypothetical_self_question)
+!forget faculty_yield(chitchat, open, hypothetical_self_probe)
+> What would you do if you won the lottery?
+<~ Hey
+!assert intent_cue(hypothetical_self_probe, "if you won")
+!assert faculty_yield(chitchat, open, hypothetical_self_probe)
+> What would you do if you won the lottery?
+<! Hey
+<~ parrot0
+# e si toglie nello stesso modo: se la condotta restasse, sarebbe cablata
+# altrove e la riga di KB sarebbe un ornamento
+!forget faculty_yield(chitchat, open, hypothetical_self_probe)
+> What would you do if you won the lottery?
+<~ Hey
+
+[test permissivo per default: senza una riga, un modulo si comporta come prima]
+!timeout 8
+!query! faculty_yield(count, open, hypothetical_self_probe)
+> How many letters are in the word "elephant"?
+<~ 8
+
+[test le condotte dichiarate in KB sono lette dal registro]
+!timeout 8
+!query faculty_yield(spell, open, word_from_letters)
+> What can you spell with the letters c, a, t?
+<! l-e-t-t-e-r-s
+<~ act

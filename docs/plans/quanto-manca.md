@@ -215,3 +215,78 @@ personaggio che nessuno ha chiesto — un'invenzione presentata come risposta.
    («without pretending to be human»). Serve una lettura del **complemento**, non
    il riuso di una guardia sul soggetto (vedi esperimento ritirato sopra).
 3. Le due letture aritmetiche sbagliate; `this shape`; l'iniziativa.
+
+
+---
+
+# ⛔ LA MOSSA CHE SBLOCCA TUTTO: il registro legge la condotta (2026-09-02)
+
+*F.: «l'ostacolo che abbiamo scoperto sono i moduli obsoleti che rubano turni, e
+non possiamo addestrarli a lavorare meglio perché non sono KB-first».*
+
+È la diagnosi giusta, e la cura non è modulo per modulo.
+
+La condotta **era già conoscenza** — `faculty_yield/3`, `faculty_yield_force/3`,
+`faculty_force/2` — ma la leggevano **sei** facoltà che se l'erano cablata
+dentro, su **cinquanta**. Per le altre quarantaquattro la condotta *non
+esisteva*: nessun fatto poteva impedire a `spell` di scandire una parola della
+domanda, perché `spell` non chiedeva niente a nessuno.
+
+**Ora la lettura è del REGISTRO, non delle facoltà.** Il nome con cui un modulo è
+registrato è il suo nome pubblico, quindi da questo momento
+
+```prolog
+faculty_yield(spell,    open, word_from_letters).
+faculty_yield(chitchat, open, hypothetical_self_question).
+```
+
+governano moduli **che non sanno di essere governati**, e per nessuno dei due è
+stata scritta una riga di C. Un modulo **nuovo** nasce governabile senza scrivere
+niente.
+
+## La proprietà, dimostrata su un modulo con zero condotta
+
+```text
+> What would you do if you won the lottery?
+    Hey! I'm here. Ask me something, or tell me about your day?     ⛔
+
+!assert intent_cue(hypothetical_self_probe, "if you won")
+!assert faculty_yield(chitchat, open, hypothetical_self_probe)
+
+> What would you do if you won the lottery?
+    I don't have any of my own -- I'm parrot0, an AI -- but I'd love to hear
+    about yours.                                                     ✅
+
+!forget faculty_yield(chitchat, open, hypothetical_self_probe)
+
+> What would you do if you won the lottery?
+    Hey! I'm here. …                                                 (torna)
+```
+
+Né la classe di cue né la condotta esistevano quando il binario è stato
+compilato. Ratchet: `tests/p0t/conversation/registry_is_trainable.p0t`.
+
+**Permissivo per default:** senza una riga, un modulo si comporta esattamente
+come prima. E il costo è nullo per chi non è governato — la lista delle facoltà
+che hanno dichiarato una condotta si costruisce una volta per turno.
+
+## Effetto sulla batteria
+
+Cinque risposte su settanta cambiate in questo giro:
+
+| turno | ora |
+|---|---|
+| *Describe a sunrise in one vivid sentence* | una descrizione dell'alba, in una frase |
+| *What can you spell with the letters c, a, t?* | **You can make: act and cat.** (era `l-e-t-t-e-r-s`) |
+| *What would you do if you won the lottery?* | **I don't have any of my own — I'm parrot0, an AI** (era un saluto) |
+| *Tell me a short story about a lonely robot…* | gap che nomina ciò che ha letto |
+| *Continue: "The letter arrived…"* | meno peggio, ancora sbagliato |
+
+## Che cosa questo cambia per l'addestramento da LLM
+
+Prima: un LLM poteva insegnare **fatti**, e i turni rubati restavano.
+Ora: un LLM può dire **«questo modulo non deve rispondere a questo tipo di
+turno»** e vale dal turno dopo, per qualunque modulo del registro.
+
+Il 27% di turni rubati del §1 non è ancora chiuso — ma **da inaffrontabile è
+diventato lavoro di conoscenza**, che è la differenza che F. ha chiesto.

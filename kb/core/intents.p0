@@ -1869,6 +1869,11 @@ intent_cue(word_rhyme, "words that rhyme").
 intent_cue(word_from_letters, "from the letters").
 intent_cue(word_from_letters, "the letters in").
 intent_cue(word_from_letters, "using the letters").
+% «What can you spell WITH the letters c, a, t?» chiede che parola si puo'
+% FORMARE, non come si scrive una parola della domanda. Mancava la sola
+% preposizione con cui la si chiede davvero.
+intent_cue(word_from_letters, "with the letters").
+intent_cue(word_from_letters, "con le lettere").
 intent_cue(word_from_letters, "arrange the letters").
 intent_cue(word_from_letters, "make from").
 intent_cue(word_from_letters, "unscramble").
@@ -4422,6 +4427,27 @@ faculty_yield(gen, late, plan_request).
 
 % Le altre facolta' che cedevano con un `if` in testa al proprio modulo. Sono
 % la stessa condotta, e ora si leggono e si correggono nello stesso posto.
+% ── LA CONDOTTA DEI MODULI CHE RUBAVANO I TURNI ─────────────────────────────
+%
+% F.: «l'ostacolo sono i moduli obsoleti che rubano turni, e non possiamo
+% addestrarli perche' non sono KB-first». Da questo ciclo la lettura della
+% condotta e' del REGISTRO, quindi queste righe governano moduli che non sanno
+% di essere governati — e non e' stata scritta una riga di C per nessuno di loro.
+%
+% `spell` scandisce una parola. Misurato: «What can you spell with the letters
+% c, a, t?» riceveva «l-e-t-t-e-r-s», cioe' la scansione di una parola DELLA
+% DOMANDA. Chiedere che parola si puo' formare da un insieme di lettere e' un
+% altro atto, e appartiene a chi sa enumerare (`wordquery`).
+faculty_yield(spell, open, word_from_letters).
+
+% `chitchat` salutava chi faceva una domanda ipotetica su parrot0: «What would
+% you do if you won the lottery?» riceveva «Hey! I'm here.». Una domanda su di se'
+% appartiene a chi sa parlare di se'.
+intent_cue(hypothetical_self_question, "if you won").
+intent_cue(hypothetical_self_question, "what would you do if").
+intent_cue(hypothetical_self_question, "cosa faresti se").
+faculty_yield(chitchat, open, hypothetical_self_question).
+
 faculty_yield(role, open, physical_affordance_prediction).
 faculty_yield(wordquery, open, positional_rhyme_sentence).
 faculty_yield(answer_frame, open, border_intersection).

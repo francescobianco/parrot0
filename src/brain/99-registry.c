@@ -4450,8 +4450,54 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         snprintf(declined[ndecl++], sizeof declined[0], "%s",
                  registry[eager_idx].name);
     }
+    /* ── OGNI MODULO DEL REGISTRO E' ADDESTRABILE, SENZA UNA RIGA PER CIASCUNO ─
+     *
+     * F., 2026-09-02: «l'ostacolo che abbiamo scoperto sono i moduli obsoleti
+     * che rubano turni, e non possiamo addestrarli a lavorare meglio perche' non
+     * sono KB-first».
+     *
+     * E' la diagnosi giusta, e la cura non e' modulo per modulo. La condotta era
+     * gia' conoscenza — `faculty_yield/3`, `faculty_yield_force/3`,
+     * `faculty_force/2` — ma la leggevano SEI facolta' che se l'erano cablata
+     * dentro, su cinquanta. Per le altre quarantaquattro la condotta non
+     * esisteva: nessun fatto poteva impedire a `spell` di scandire una parola
+     * della domanda, perche' `spell` non chiedeva niente a nessuno.
+     *
+     * Qui la lettura e' del REGISTRO, non delle facolta': il nome con cui un
+     * modulo e' registrato E' il suo nome pubblico, quindi da questo momento
+     *
+     *     faculty_yield(spell, open, <classe>).
+     *     faculty_yield_force(qa, open, assertion).
+     *     faculty_force(namestart, directive).
+     *
+     * valgono per moduli che non sanno di essere governati, e un modulo NUOVO
+     * nasce governabile senza scrivere niente. E' il mantra #17 portato dal caso
+     * alla regola: la condotta di ogni facolta' e' correggibile parlando.
+     *
+     * ⚠ COSTO: due letture per modulo per turno sarebbero cinquanta letture di
+     * troppo. La lista delle facolta' che hanno DICHIARATO una condotta si
+     * costruisce una volta per turno; chi non e' in lista non paga niente, ed e'
+     * il caso di quasi tutti. Permissivo per default, come ogni condotta di
+     * questo progetto: senza una riga, un modulo si comporta come prima. */
+    char (*governed)[KB_TERM_LEN] = NULL;
+    size_t ngov = 0;
+    if (b && b->kb) {
+        const char *gq[3] = { NULL, NULL, NULL };
+        if (!kb_match_all(b->kb, "faculty_yield", gq, 3, &governed, &ngov))
+            ngov = 0;
+    }
     for (size_t i = 0; !handled && i < registry_len; i++) {
         if (i == eager_idx) continue;       /* already offered exactly once */
+        int is_governed = 0;
+        for (size_t g = 0; g < ngov && !is_governed; g++)
+            if (strcmp(governed[g], registry[i].name) == 0) is_governed = 1;
+        if (is_governed &&
+            p0_faculty_yields(b, registry[i].name, "open", canon, input)) {
+            if (ndecl < BRAIN_TRACE_MAX)
+                snprintf(declined[ndecl++], sizeof declined[0], "%s!yield",
+                         registry[i].name);
+            continue;
+        }
         if (registry[i].handle(b, canon, input, out, out_size)) {
             /* ⛔ UNA RISPOSTA CHE VIOLA UN VINCOLO ESPLICITO DEL TURNO NON E'
              * UNA RISPOSTA — lo strato post-dispatch che mancava.
@@ -4494,6 +4540,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         if (ndecl < BRAIN_TRACE_MAX) snprintf(declined[ndecl++], sizeof declined[0], "%s",
                                  registry[i].name);
     }
+    free(governed);
 
     /* Commit the trace for "why did you answer that way?" and the verbatim input
      * for "what would you have said without X?" — but NOT when this turn was
