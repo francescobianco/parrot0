@@ -132,6 +132,193 @@ compensates(read_source, knowledge).      % ⛔ Wikipedia, l'unica sorgente amme
 compensates(ask_user, reference).         % ⛔ manca un antecedente: si chiede
 ```
 
+## §0-ter. ⛔ SESSIONE ITALIANA 2026-09-03 — problemi rilevati parlando
+
+Sessione di chat reale in italiano (configurazione `make chat`: profilo `agi.p0`,
+`PARROT0_WIKI_FETCH=1`, `PARROT0_TOOLS=1`), ~25 turni. Tutto cio' che segue e'
+stato OSSERVATO dal vivo, non dedotto dalla suite. Per ogni problema vale il
+protocollo delle TRE SPECIE del §10 di `docs/plans/universal-comprehension.md`:
+un carattere → variante di superficie, una parola piena → costruzione mancante,
+nessuna variante vicina → varianza vera (si rende insegnabile).
+
+**La regola per chi riparte da qui:** ogni voce indica il canale di
+riparazione che la chiude — **addestramento verbale** (insegnare la forma
+parlando, zero C), **metacomprensione** (parrot0 deve sapere di non sapere, e
+sapere PERCHE'), **autocorrezione** (il ciclo §0-bis che ora si chiude). Una
+voce che non nomina il canale non e' pronta per la coda.
+
+### IT-1. ⛔ La traduzione IT→EN risponde male invece di murare
+
+```text
+> come si dice gatto in inglese?    Possiamo parlare in entrambe le lingue — faro' del mio meglio.  ⛔
+> traduci il cane corre in inglese   Possiamo parlare in entrambe le lingue — faro' del mio meglio.  ⛔
+```
+
+La capacita' EN→IT esiste e funziona (`translate` / `into italian` in
+`phrase_canon`). Il gap e' il verso inverso: **manca il vocabolario IT→EN**
+(`come si dice` non ha una `phrase_canon` che porti a mod_translate, e
+`traduci` non e' un `imperative_opener` coperto). La risposta data NON e' un
+muro: e' un **turno rubato** — un modulo rivendica una domanda di traduzione e
+emette un generico «parliamo in entrambe le lingue». Peggiore di un muro, perche'
+sembra una risposta.
+
+- **Specie:** costruzione mancante (una parola piena: manca la forma d'ingresso
+  italiana, non la macchina).
+- **Canale: addestramento verbale** — insegnare la forma `come si dice` e
+  `traduci` come porte verso mod_translate (una riga di `phrase_canon`/classe
+  KB, zero C: il test del mantra #2).
+- **Canale: metacomprensione** — il modulo che ha risposto non sapeva di non
+  sapere: la condotta di cessione (`faculty_yield`) per la classe «traduzione
+  con richiesta in italiano» va dichiarata, esattamente come il §2(a).
+- **Ratchet:** riprovare la stessa coppia di frasi dopo l'insegnamento, e
+togliere la forma insegnata → deve tornare il muro (ablazione).
+
+### IT-2. ⛔ L'insegnamento a runtime riconosce l'intento ma non lega le variabili
+
+```text
+> la parola gatto significa cat      Ho trovato il separatore didattico, ma non riesco ad allineare
+                                     le stesse variabili, una volta per lato, a ruoli che conosco.  ⛔
+> gatto significa cat                Non posso ancora ancorare quella lezione: non ho una lettura
+                                     univoca per @S cat @O.  ⛔
+> the word zorbo means a small blue bird   (stesso declino in inglese)  ⛔
+```
+
+Il sistema RICONOSCE l'intento didattico e declina onestamente (bene: niente
+frasi inventate), ma non chiude il ciclo impara→usa. La lezione «X significa Y»
+nomina le variabili ma non riesce ad allinearle ai ruoli — la meta-comprensione
+dell'atto didattico e' ferma al riconoscimento.
+
+- **Specie:** nessuna variante vicina — varianza vera; il sistema si ferma
+  (declino onesto) come MANTRA.md prescrive, ma la soglia di fertilita' per la
+  classe «definizione» non e' raggiunta.
+- **Canale: metacomprensione** — il declino deve dire PERCHE' la lezione non si
+  ancora (quale lato non ha lettura), cosi' il teacher puo' riformulare; e il
+  sistema deve sapere quale costruzione didattica gli manca.
+- **Canale: autocorrezione** — quando il binding fallisce, il §0-bis deve
+  poter provare la forma minimamente diversa della lezione (come per la
+  superficie) invece di lasciare il teacher senza via.
+- **Ratchet:** insegnare «X significa Y» in una forma che il sistema sa
+  leggere, poi interrogare il fatto; retract → il fatto sparisce.
+
+### IT-3. ⛔ La lezione con la copula memorizza fatti ibridi non interrogabili
+
+```text
+> un gatto e' un piccolo animale domestico   Imparato: gatto e' un small animal domestico.  ⛔
+> che animale e' il gatto?                    Non capisco ancora.  ⛔
+```
+
+L'atto didattico con la copula FUNZIONA (memorizza), ma produce un fatto ibrido
+italiano/inglese (`small animal domestico` — vocabolario mancante) e poi non lo
+sa interrogare. E' la forma del difetto ricorrente: **parrot0 impara sotto un
+nome che non sa piu' pronunciare** — viola l'invariante self-echo (tutto cio'
+che dice, compreso cio' che «impara», deve essergli comprensibile).
+
+- **Specie:** costruzione mancante (glosses mancanti: `animal`, `domestico`,
+  `piccolo` non raggiungono i concetti canonici) — ma il difetto vero e' a
+  monte: la resa dell'apprendimento non e' verificata.
+- **Canale: addestramento verbale** — insegnare i glosses mancanti e la lezione
+  in forma interamente italiana.
+- **Canale: metacomprensione + autocorrezione** — prima di annunciare
+  «Imparato», il sistema deve verificare che il fatto sia interrogabile con la
+  stessa domanda (il self-echo come gate dell'apprendimento: `self_echo.p0t`
+  esteso ai fatti appena appresi). Se la verifica fallisce, non annuncia:
+  declina o si corregge.
+
+### IT-4. Il meta-ricordo non interroga il registro del discorso
+
+```text
+> il mio numero preferito e' 42        Ricevuto: il tuo numero preferito e' 42.  ✅
+> che numero ti ho detto?              Non ne ho di miei — sono parrot0…  ⛔  (lettura sbagliata)
+> il mio colore preferito e' il blu     Imparato: color preferito e' un blu.  ⛔
+> cosa ti ho detto?                    Non capisco ancora.  ⛔
+```
+
+La memoria dichiarativa funziona (il fatto si registra), ma la porta META
+dell'handoff («che cosa ti ho detto» → `qual e'`) non raggiunge il registro:
+`che numero ti ho detto?` viene letto come una domanda al MIO numero
+preferito, e `cosa ti ho detto?` mura pur essendo una delle forme dichiarate in
+`phrase_canon`. La famiglia «conversazione» della batteria di rinforzo
+dovrebbe coprire esattamente questo.
+
+- **Specie:** costruzione mancante (le varianti con `che numero`/`dove`/`quando`
+  della cornice meta) piu' sospetto di lettura sbagliata (turno rubato).
+- **Canale: addestramento verbale** — estendere la cornice meta per variante
+  (`che numero ti ho detto` → `qual e'`), insegnabile parlando.
+- **Canale: metacomprensione** — la lettura «qual e' il mio numero» che risponde
+  al posto della domanda sul discorso e' un caso da `faculty_yield`/declino.
+- **Ratchet:** dichiarare il fatto, interrogarlo, ritirare la forma → muro.
+
+### IT-5. Proprieta' e coreferenza dopo l'asserzione: muro
+
+```text
+> il mio libro e' rosso          Ricevuto: il tuo libro e' rosso.  ✅
+> di che colore e' il libro?     Non capisco ancora.  ⛔
+```
+
+Il libro e' stato appena nominato con il suo colore, e la domanda sulla
+proprieta' dello stesso referente mura. Sono i gradini G2-G5 di
+`docs/plans/universal-comprehension.md` (testa/proprieta', referente,
+coreferenza) — G1 (il sintagma multi-parola) e' chiuso: `il libro rosso e' sul
+tavolo` → `dove si trova il libro rosso?` → `tavolo` funziona. Qui manca il
+percorso asserzione→proprieta' interrogabile.
+
+- **Specie:** costruzione mancante (il fatto c'e' nel discorso, manca la lettura
+  di proprieta' che lo agganci).
+- **Canale: addestramento verbale** — la forma `di che colore e' X` e la lettura
+  di proprieta' devono raggiungere il fatto asserito.
+- **Canale: autocorrezione** — il fatto e' gia' nel discorso: la riparazione
+  dovrebbe poter riprovare con la lettura di proprieta' invece di dichiarare il
+  muro.
+
+### IT-6. La generazione creativa italiana e' scoperta
+
+```text
+> raccontami una poesia            Non capisco ancora.  ⛔
+> scrivimi una poesia sul mare      Non sono sicuro di aver seguito…  ⛔
+> raccontami una barzelletta       Non capisco ancora.  ⛔
+```
+
+`raccontami` e' un imperativo enclitico riconosciuto (il gate
+`enclitic_imperative.it.p0t` e' verde), ma la PORTA creativa non risponde in
+italiano. Il generatore e' il modulo che il §3 (2) vuole rifatto — qui si vede
+anche il lato vocabolario.
+
+- **Specie:** costruzione mancante (forme/cue creative italiane) + varianza vera
+  (il generatore e' da rifare, non rattoppare — §3 (2)).
+- **Canale: addestramento verbale** — le forme italiane devono raggiungere le
+  cue creative gia' esistenti, e le classi (poesia, barzelletta) devono avere
+  membri insegnabili.
+- **Canale: metacomprensione** — il declino generico «Non sono sicuro di aver
+  seguito» va sostituito da un gap TIPIZZATO (specie di lacuna) che il teacher
+  possa riparare parlando.
+
+### IT-7. Forma residua: «dove si trova roma» legge part-of, non locativo
+
+```text
+> dove si trova roma?    Italia e lazio.  ⚠  (vero ma lettura sbagliata: risponde a «di cosa fa parte»)
+```
+
+Non e' un muro ma una lettura scambiata: la domanda locativa viene onorata dalla
+relazione di appartenenza. Da tenere nel differenziale quando si tocca la
+famiglia `located_in`/`part_of` (il §(f) del handoff ha gia' mostrato la
+famiglia dei vincoli di categoria).
+
+- **Specie:** costruzione mancante (ambiguita' di lettura fra due relazioni
+  compatibili).
+- **Canale: addestramento verbale** — la forma locativa deve vincere sulla
+  relazione di appartenenza quando la domanda e' «dove si trova».
+- **Canale: metacomprensione** — in caso di pareggio fra due letture, chiedere
+  (come l'ambiguita' referenziale del §3 (6)), mai scegliere in silenzio.
+
+### In sintesi — dove sta l'addestramento
+
+La base dichiarativa italiana e' solida (fatti, aritmetica, memoria, locativo
+con self-echo, G1 multi-parola) e il sistema non ha MAI inventato una risposta.
+Ma il canale di crescita #1 dei mantra — l'insegnamento via prompt — non chiude
+ancora il ciclo impara→usa (IT-2, IT-3), e due porte di vocabolario mancano del
+tutto (IT-1 traduzione, IT-6 creativa). Le voci IT-1…IT-7 sono la coda; ognuna
+dichiara il canale che la chiude.
+
 ## §0. L'obiettivo, con le parole di F.
 
 > *«Il nostro obiettivo è l'espansione della comprensione. L'ostacolo che abbiamo
