@@ -444,3 +444,27 @@ size_constraint_count(1, "in una frase").
 size_constraint_count(1, "in una sola frase").
 size_constraint_count(2, "in two sentences").
 size_constraint_count(2, "in due frasi").
+
+% ── UN VINCOLO SULLA RISPOSTA NON FA PARTE DEL SOGGETTO ────────────────────
+%
+% «Describe a sunrise in one vivid sentence» veniva analizzato con soggetto
+% «a sunrise in one vivid sentence»: l'estrattore prendeva tutto cio' che segue
+% la cue, e dentro c'era la misura della RISPOSTA. Da li' il piano parlava di
+% «progettare una frase vivida», che e' esattamente il boilerplate che nessuno
+% ha chiesto.
+%
+% La distinzione e' netta e non e' una lista: un turno dice DI CHE COSA parla e
+% COME dev'essere la risposta, e le due cose non si mescolano. Ogni misura
+% dichiarata sopra e' automaticamente una forma della risposta — nessun membro
+% da aggiungere, e una misura nuova si porta dietro anche questa lettura.
+machinery(answer_shape_cue).
+answer_shape_cue($Cue) :- size_constraint($Unit, $Cue).
+answer_shape_cue($Cue) :- word_count_cue($N, $Cue).
+
+% ── LA SOGLIA DI UNA FACOLTA' E' CONOSCENZA ────────────────────────────────
+%
+% `analysis_family` rivendicava ogni turno piu' lungo di QUARANTA CARATTERI, e il
+% quaranta era scritto nel C. Una soglia cablata e' una condotta che nessuno puo'
+% correggere parlando: e' il mantra #17 in forma numerica.
+machinery(faculty_min_turn_length).
+faculty_min_turn_length(analysis_family, 40).

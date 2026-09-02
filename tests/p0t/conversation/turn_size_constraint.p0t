@@ -21,9 +21,16 @@
 
 [test cio' che il turno ha escluso non esce]
 !timeout 8
+# ⚠ Questo turno NON riceve piu' il gap, e va bene cosi': da quando il soggetto
+# non inghiotte piu' il vincolo («a sunrise in one vivid sentence» -> «a
+# sunrise»), una facolta' giusta lo onora davvero in UNA frase. Il gate asserisce
+# cio' che non deve accadere — il boilerplate — non quale sia la risposta.
 > Describe a sunrise in one vivid sentence.
 <! Treat the requested design as a system
 <! workable design turns on
+# e quando NESSUNO sa onorare la misura, il gap esce invece del testo lungo
+> Give me a piece of advice for someone starting a new job in one sentence.
+<! defensible recommendation turns on
 <~ could not put that in the shape
 
 [test un turno senza misura non e' toccato]
@@ -38,6 +45,6 @@
 !query size_constraint_count(1, "in one sentence")
 # togliere la riga toglie il cancello: se restasse, il vincolo sarebbe cablato
 # da qualche altra parte e questa riga sarebbe un ornamento
-!forget size_constraint(sentence, "in one vivid sentence")
-> Describe a sunrise in one vivid sentence.
+!forget size_constraint(sentence, "in one sentence")
+> Give me a piece of advice for someone starting a new job in one sentence.
 <! could not put that in the shape

@@ -1173,8 +1173,37 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 }
             }
 
-            /* If no "about X that Y" pattern, extract names from RAW input
-             * (normalized input is lowercase — proper names are lost there) */
+            /* ── IL PROTAGONISTA SI LEGGE, NON SI INDOVINA DALLA MAIUSCOLA ──
+             *
+             * F., 2026-09-02: «se sceglie il protagonista per forma, con
+             * un'espressione, senza applicare la comprensione universale, questo
+             * modulo e' molto indietro rispetto ai mantra». E' esatto, e le
+             * pezze lo dimostravano: tolto «Tell» il protagonista diventava
+             * «It», tolto «It» diventava «The». Si stava curando il sintomo di
+             * una lettura sbagliata alla radice — la maiuscola e' ORTOGRAFIA:
+             * dice dove comincia una frase, non chi e' il personaggio.
+             *
+             * La lettura giusta esisteva gia' in questo stesso file e nessuno
+             * l'aveva applicata qui: `creative_topic_tail` prende cio' che segue
+             * un marcatore di tema DICHIARATO (`creative_topic_marker`) fino a
+             * un fine dichiarato. E' la stessa che serve i dialoghi e le
+             * metafore. «Tell me a short story ABOUT a lonely robot who finds a
+             * friend» ha un tema, e il tema e' il protagonista.
+             *
+             * La struttura viene PRIMA dell'ortografia. Il vaglio per maiuscola
+             * resta sotto come ultima risorsa per un nome proprio vero, dove la
+             * maiuscola porta davvero informazione. */
+            if (!obj[0] && !subj[0]) {
+                char topic[192];
+                if (creative_topic_tail(b, norm, topic, sizeof topic) &&
+                    topic[0]) {
+                    snprintf(subj, sizeof subj, "%s", topic);
+                    snprintf(obj, sizeof obj, "%s", topic);
+                }
+            }
+
+            /* Ultima risorsa: un NOME PROPRIO dal turno grezzo (il normalizzato
+             * e' minuscolo, quindi li' i nomi sono persi). */
             if (!obj[0] && raw) {
                 char rb[512]; snprintf(rb, sizeof rb, "%s", raw);
                 char *rw[96]; size_t rn = split_words(rb, rw, 96);
@@ -1182,6 +1211,58 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                     char *t = strip_edge_punct(rw[i]);
                     size_t tl = strlen(t);
                     if (tl >= 2 && isupper((unsigned char)t[0]) && islower((unsigned char)t[1])) {
+                        /* ⛔ LA PAROLA CON CUI SI CHIEDE NON E' CIO' CHE SI CHIEDE.
+                         *
+                         * Il protagonista si raccoglieva per MAIUSCOLA, e la
+                         * maiuscola di inizio frase e' ortografia, non un nome:
+                         *
+                         *     «Tell me a short story about a lonely robot…»
+                         *         ->  «Tell was a mysterious Tell.»
+                         *
+                         * Il verbo imperativo con cui si chiede la storia
+                         * diventava il suo personaggio. E' la stessa specie del
+                         * difetto di `note_entity_seq` («He» registrato come
+                         * referente): la maiuscola non porta informazione dove
+                         * l'ortografia la impone.
+                         *
+                         * La cura non e' allungare la lista delle parole da
+                         * saltare — quella e' gia' l'elenco degli incidenti, 15
+                         * classi qui sotto. E' che parrot0 SA gia' quali parole
+                         * aprono una richiesta: `imperative_opener/1` e
+                         * `request_opener/1` sono la lettura condivisa della
+                         * forza del turno. Un'apertura di richiesta appartiene
+                         * alla richiesta, mai al richiesto — in qualunque
+                         * posizione, e in qualunque lingua che le dichiari. */
+                        {
+                            char low[KB_TERM_LEN];
+                            size_t lj = 0;
+                            for (size_t c = 0; t[c] && lj + 1 < sizeof low; c++)
+                                low[lj++] = (char)tolower((unsigned char)t[c]);
+                            low[lj] = '\0';
+                            const char *oq[1] = { low };
+                            if (kb_query(b->kb, "imperative_opener", oq, 1) ||
+                                kb_query(b->kb, "request_opener", oq, 1))
+                                continue;
+                            /* E NEMMENO una parola comune scritta in maiuscolo.
+                             *
+                             * Tolto «Tell», il protagonista diventava «It»; e in
+                             * «Continue: "The letter arrived…"» diventava «The».
+                             * La maiuscola non fa un nome: dice solo dove
+                             * comincia una frase o che c'e' una citazione.
+                             *
+                             * `subject_guard/1` e' la lettura che gia' risponde
+                             * a «questa parola puo' essere un soggetto?» —
+                             * interrogativi, ausiliari, stopword, quantificatori.
+                             * Riusarla qui non aggiunge vocabolario e non
+                             * allunga l'elenco di quindici classi qui sotto, che
+                             * e' gia' l'elenco degli incidenti.
+                             *
+                             * Senza candidati validi il soggetto resta vuoto e
+                             * subentra `story_default(subject, …)`: un
+                             * personaggio dichiarato in KB e' preferibile a un
+                             * articolo promosso a protagonista. */
+                            if (p0_bad_subject(b, low)) continue;
+                        }
                         /* Skip weekdays and common words */
                         if (lex_class_member(b, "30_generation_reading_lex990", t) || lex_class_member(b, "30_generation_reading_lex990_2", t) ||
                             lex_class_member(b, "30_generation_reading_lex991", t) || lex_class_member(b, "30_generation_reading_lex991_2", t) ||
@@ -1203,6 +1284,42 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
 
             /* If we still have no subject, use the object */
             if (!subj[0] && obj[0]) snprintf(subj, sizeof subj, "%s", obj);
+
+            /* ── ⛔ QUESTO GENERATORE SA RIEMPIRE UNO SCHEMA, NON RACCONTARE ──
+             *
+             * F.: «se sceglie il protagonista per forma, senza applicare la
+             * comprensione universale, questo modulo e' molto indietro rispetto
+             * ai mantra». Vero, e il rifacimento lo ha reso VISIBILE invece che
+             * risolverlo: ora il tema si legge davvero — «a lonely robot who
+             * finds a friend» — e lo schema, fatto per un nome di UNA parola, lo
+             * ripete in ogni casella:
+             *
+             *     «A lonely robot who finds a friend was a  a lonely robot who
+             *      finds a friend. Then one day, a lonely robot who finds a
+             *      friend discovered…»
+             *
+             * Non e' un difetto di questa riga: e' che riempire uno schema con
+             * token raccolti dal turno non e' raccontare. Il rifacimento vero e'
+             * un generatore che compone dalla conoscenza, e non entra in una
+             * patch.
+             *
+             * Fino ad allora vale la regola che questo ciclo applica ovunque:
+             * una facolta' che non sa onorare il turno NON LO PRENDE. Un tema
+             * multi-parola lo schema non lo sa dire, quindi si declina e il
+             * turno prosegue — e un `story_default` al suo posto sarebbe peggio,
+             * perche' racconterebbe di un personaggio che nessuno ha chiesto
+             * (mantra #7: una storia inventata su un soggetto sostituito e'
+             * un'invenzione presentata come risposta).
+             *
+             * ⚠ Il gap e' DICHIARATO, non silenzioso: vedi il ledger in
+             * docs/plans/quanto-manca.md, voce «gen». */
+            if (subj[0] && strchr(subj, ' ')) {
+                kb_term_say(b, "story_subject_unrenderable",
+                            (const KbResponseSlot[]){ { "topic", subj } }, 1,
+                            out, out_size);
+                return 1;
+            }
+
             if (!subj[0]) kb_story_default(b, "subject", subj, sizeof subj);
             if (!obj[0]) snprintf(obj, sizeof obj, "%s", subj);
 

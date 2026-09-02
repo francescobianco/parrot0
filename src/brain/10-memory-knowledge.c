@@ -9031,6 +9031,42 @@ static int analysis_subject_extract(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* ── UN VINCOLO SULLA RISPOSTA NON FA PARTE DEL SOGGETTO ───────────────
+     *
+     * «Describe a sunrise in one vivid sentence» dava soggetto «a sunrise in one
+     * vivid sentence», e il piano finiva per parlare di «progettare una frase
+     * vivida». L'estrattore prende tutto cio' che segue la cue, e li' dentro
+     * c'era la misura della RISPOSTA.
+     *
+     * Un turno dice DI CHE COSA parla e COME dev'essere la risposta: le due cose
+     * non si mescolano. `answer_shape_cue/1` e' derivata da ogni misura
+     * dichiarata, quindi non ha membri da aggiornare — una misura nuova si porta
+     * dietro anche questa lettura. Qui si TAGLIA invece di rifiutare: il turno
+     * chiedeva qualcosa, e sapere di cosa parla e' meglio che non saperlo. */
+    {
+        char (*shapes)[KB_TERM_LEN] = NULL;
+        size_t nsh = 0;
+        const char *shq[1] = { NULL };
+        if (kb_match_all(b->kb, "answer_shape_cue", shq, 1, &shapes, &nsh)) {
+            for (size_t i = 0; i < nsh; i++) {
+                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", shapes[i]);
+                const char *needle = kb_dequote(sb);
+                if (!*needle) continue;
+                char *at = strstr(rest, needle);
+                if (!at || at == rest) continue;
+                static char trimmed[ANALYSIS_SUBJECT_MAX + 1];
+                size_t keep = (size_t)(at - rest);
+                while (keep > 0 && (isspace((unsigned char)rest[keep - 1]) ||
+                                    ispunct((unsigned char)rest[keep - 1]))) keep--;
+                if (keep == 0 || keep > ANALYSIS_SUBJECT_MAX) continue;
+                memcpy(trimmed, rest, keep);
+                trimmed[keep] = '\0';
+                rest = trimmed;
+            }
+        }
+        free(shapes);
+    }
+
     /* Peel the connective run at the head of the residue using the stopword
      * class the KB already owns — no new vocabulary is introduced here.  A
      * stopword is dropped only while the token AFTER it is also a stopword, so
@@ -9078,6 +9114,24 @@ static int analysis_subject_extract(Brain *b, const char *norm, const char *raw,
     }
 
     size_t len = 0;
+    /* ⚠ PROVATO E RITIRATO: la guardia `subject_guard/1` sulla TESTA del soggetto.
+     *
+     * «Explain what you are without pretending to be human» estrae «without
+     * pretending to be human», che e' un complemento e non un tema — e sembrava
+     * il posto giusto per la stessa guardia che usa il lettore di frame.
+     * Misurato sulla batteria: non toccava quel turno (la sua testa non e' nella
+     * classe) e ne rompeva un altro —
+     *
+     *     «Give me a piece of advice for someone starting a new job»
+     *         ->  «From what I know, a good plan is:»   (e nient'altro)
+     *
+     * perche' «someone» e' un quantificatore aperto, cattivo soggetto per un
+     * FRAME e tema legittimo per un'ANALISI. Le due letture non condividono lo
+     * stesso criterio, e imporglielo scambia un difetto con un altro peggiore:
+     * un boilerplate si legge, una promessa vuota no.
+     *
+     * Scritto qui perche' il prossimo non rifaccia l'esperimento: cio' che serve
+     * e' una lettura del COMPLEMENTO, non il riuso di una guardia sul soggetto. */
     while (rest[len] && rest[len] != '?' && len < ANALYSIS_SUBJECT_MAX) len++;
     if (len == ANALYSIS_SUBJECT_MAX) {
         size_t back = len;
@@ -9701,7 +9755,18 @@ static int analysis_reply_ignores_subject(Brain *b, const char *norm,
 static int structured_analysis_lead(Brain *b, const char *norm, const char *raw,
                                     int broad_families,
                                     char *out, size_t out_size) {
-    if (!b || !b->kb || !norm || strlen(norm) < 40) return 0;
+    if (!b || !b->kb || !norm) return 0;
+    /* La soglia di lunghezza era il numero 40 scritto qui. Una soglia cablata e'
+     * una condotta che nessuno puo' correggere parlando — mantra #17 in forma
+     * numerica. Ora e' `faculty_min_turn_length/2`, e senza la riga la facolta'
+     * si comporta come se non ne avesse: permissiva per default, come ogni
+     * condotta dichiarata di questo progetto. */
+    {
+        char minlen[1][KB_TERM_LEN];
+        const char *mq[2] = { "analysis_family", NULL };
+        if (kb_match(b->kb, "faculty_min_turn_length", mq, 2, minlen, 1) == 1 &&
+            strlen(norm) < (size_t)atoi(minlen[0])) return 0;
+    }
     /* level 2 is the last-resort pass: every specialized consumer has already
      * declined, so the guards that protect them no longer have anything to
      * protect and yielding again would only produce a wall. */

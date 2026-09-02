@@ -834,3 +834,10 @@ response_template(rule_not_held, it, "Non avevo quella regola su {head}.").
 % suo contrario.
 response_template(size_constraint_unmet, "I could not put that in the shape you asked for, so I would rather say I cannot than give you something longer than you wanted.").
 response_template(size_constraint_unmet, it, "Non sono riuscito a darlo nella forma che hai chiesto, e preferisco dirlo invece di darti qualcosa di piu' lungo di quanto volevi.").
+
+% Il generatore di storie sa riempire uno schema, non raccontare. Quando il tema
+% letto e' un sintagma e non un nome, lo schema lo ripeterebbe in ogni casella:
+% dirlo e' l'unica risposta onesta, e raccontare di un personaggio di riserva
+% sarebbe peggio — sarebbe un'invenzione al posto della risposta.
+response_template(story_subject_unrenderable, "I read what you want the story to be about — {topic} — but I can only compose around a single named character yet, so I would be padding a template instead of telling it.").
+response_template(story_subject_unrenderable, it, "Ho letto di che cosa vuoi la storia — {topic} — ma so comporre solo attorno a un personaggio con un nome, quindi riempirei uno schema invece di raccontarla.").

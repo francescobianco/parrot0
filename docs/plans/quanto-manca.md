@@ -128,3 +128,90 @@ buona | sbagliata | ESTRANEA
 Una risposta estranea è **peggiore di un muro** e va contata a parte, perché un
 muro si vede e una risposta sicura no — è la stessa ragione per cui
 `tell me a country in asia -> andorra` era più grave di un «non lo so».
+
+
+---
+
+# Aggiornamento — primo giro sui ladri di turno (2026-09-02)
+
+*F.: «questi turni rubati sono un problema ma anche l'occasione di ripensare chi
+ruba il turno, fondarli sul principio KB-first e poi addestrare via prompt a
+essere più preciso attraverso indicazioni precise».*
+
+## Che cosa è cambiato sulla batteria
+
+Tre risposte su settanta, tutte sui casi peggiori del §2:
+
+| turno | prima | ora |
+|---|---|---|
+| *Describe a sunrise in one vivid sentence* | sei frasi di metodologia | **una descrizione dell'alba, in una frase** |
+| *Tell me a short story about a lonely robot…* | «Tell was a mysterious Tell» | gap che **nomina ciò che ha letto**: «a lonely robot who finds a friend» |
+| *Continue: "The letter arrived…"* | «Continue was a mysterious Continue» | «It was a mysterious it» — meno peggio, ancora sbagliato |
+
+## Le cure, e perché sono di classe e non di caso
+
+1. **Un vincolo sulla risposta non fa parte del soggetto.** L'estrattore di
+   `analysis_family` prendeva tutto ciò che segue la cue, misura della risposta
+   inclusa: «a sunrise **in one vivid sentence**» diventava il tema, e il piano
+   parlava di *progettare una frase vivida*. `answer_shape_cue/1` è **derivata**
+   da ogni misura dichiarata — nessun membro da aggiornare, e una misura nuova si
+   porta dietro anche questa lettura.
+2. **La soglia di una facoltà è conoscenza.** `analysis_family` rivendicava ogni
+   turno più lungo di **40 caratteri**, e il quaranta era nel C. Ora è
+   `faculty_min_turn_length/2`: una soglia cablata è una condotta che nessuno può
+   correggere parlando — il mantra #17 in forma numerica.
+3. **La parola con cui si chiede non è ciò che si chiede.** Il protagonista si
+   raccoglieva per **maiuscola**, e la maiuscola di inizio frase è ortografia.
+   Ora un'apertura di richiesta dichiarata (`imperative_opener/1`,
+   `request_opener/1`) e una parola che `subject_guard/1` esclude non possono
+   diventare personaggi.
+4. **Il tema si legge, non si indovina.** `creative_topic_tail` — la lettura
+   strutturale del tema, già usata per dialoghi e metafore — non era applicata
+   alle storie. Ora la struttura viene **prima** dell'ortografia.
+
+## ⛔ Due esperimenti fatti e RITIRATI — scritti perché nessuno li rifaccia
+
+- **Togliere il lead di `analysis_family`.** Sembrava giusto: una famiglia
+  metodologica non è più specifica di nessun modulo, quindi la sua precedenza non
+  dovrebbe essere posizionale. Misurato: **due turni peggiorati**. Senza il lead,
+  *«Explain what you are…»* → «Alright — I am Without now» (un modulo di ruolo!) e
+  *«How would you design a timekeeping system…»* → l'artefatto sulla specie
+  aliena Aurakai. La famiglia stava **proteggendo** quei turni da rivendicazioni
+  peggiori. **Togliere un guardiano non è togliere un difetto.**
+- **La guardia `subject_guard/1` sulla testa del soggetto d'analisi.** Non
+  toccava il turno che doveva curare e ne rompeva un altro: *«advice for someone
+  starting a new job»* → «From what I know, a good plan is:» **e nient'altro** —
+  perché «someone» è un quantificatore aperto, cattivo soggetto per un *frame* e
+  tema legittimo per un'*analisi*. Un boilerplate si legge, una promessa vuota no.
+
+## ⛔ Il giudizio di F. sul generatore di storie, e perché va accolto
+
+> *«questo modulo per quello che vedo è una monnezza: se sceglie il protagonista
+> per forma con un'espressione senza applicare la comprensione universale, vuol
+> dire che è molto indietro rispetto ai mantra.»*
+
+È esatto, e le mie prime tre patch lo dimostravano: tolto «Tell» il protagonista
+diventava «It», tolto «It» diventava «The». Si curava il sintomo di una lettura
+sbagliata alla radice.
+
+Il rifacimento ha reso il difetto **visibile invece che risolverlo**: ora il tema
+si legge davvero, e lo schema — fatto per un nome di una parola — lo ripete in
+ogni casella. Non è un difetto di una riga: **riempire uno schema con token
+raccolti dal turno non è raccontare.**
+
+Fino a un generatore che compone dalla conoscenza vale la regola del ciclo: una
+facoltà che non sa onorare il turno **non lo prende**, e lo dice nominando ciò che
+ha letto. Un `story_default` al suo posto sarebbe **peggio**: racconterebbe di un
+personaggio che nessuno ha chiesto — un'invenzione presentata come risposta.
+
+**Questo è il prossimo lavoro vero**, e non entra in una patch:
+`docs/plans/generative.md` + `generative-prolog.md` sono il posto dove sta.
+
+## Quello che resta, in ordine
+
+1. **Il generatore di storie, rifatto** — composizione dalla conoscenza, non
+   riempimento di uno schema. È l'unico dei sei punti che richiede un disegno.
+2. *«Explain what you are…»* — il soggetto letto è un complemento
+   («without pretending to be human»). Serve una lettura del **complemento**, non
+   il riuso di una guardia sul soggetto (vedi esperimento ritirato sopra).
+3. Le due letture aritmetiche sbagliate; `this shape`; l'iniziativa.

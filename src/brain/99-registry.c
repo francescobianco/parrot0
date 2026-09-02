@@ -4079,10 +4079,22 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         return turn_done(b, canon, input, out, out_size);
     }
 
-    /* A reusable field family is broader than an indexed concept summary. Try
-     * it only after semantic_lead had the chance to use concrete knowledge, so
-     * words such as "proof", "physical", or "system" cannot replace a known
-     * subject with generic methodology. */
+    /* La famiglia larga rivendica QUI, prima del registro, e non e' un difetto
+     * di posizione: e' stato provato a toglierla, misurando, e due turni sono
+     * peggiorati invece che migliorati —
+     *
+     *     «Explain what you are without pretending to be human»
+     *         senza il lead ->  «Alright — I am Without now.»   (un ruolo!)
+     *     «How would you design a timekeeping system…»
+     *         senza il lead ->  l'artefatto sulla specie aliena Aurakai
+     *
+     * cioe' la famiglia stava PROTEGGENDO quei turni da rivendicazioni peggiori.
+     * Il difetto non e' che rivendichi presto: e' che rivendica anche quando il
+     * soggetto che ha estratto non e' un soggetto. La cura sta li' — vedi
+     * `analysis_subject_extract` — e non nello spostare questo blocco.
+     *
+     * Lasciato scritto perche' il prossimo non rifaccia l'esperimento: togliere
+     * un guardiano non e' la stessa cosa che togliere un difetto. */
     if (b && !teaching_prose(input) &&
         structured_analysis_lead(b, canon, input, 1, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);

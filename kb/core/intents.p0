@@ -4444,6 +4444,11 @@ faculty_yield_force(answer_frame, open, assertion).
 
 % Le superfici con cui chiamarle parlando: senza queste la condotta si potrebbe
 % leggere ma non correggere, e sarebbe meta' mantra #17.
+faculty_surface(analysis_family, it, "l'analisi").
+faculty_surface(analysis_family, it, "il modulo di analisi").
+faculty_surface(analysis_family, it, "lo schema di analisi").
+faculty_surface(analysis_family, en, "the analysis").
+faculty_surface(analysis_family, en, "the analysis module").
 faculty_surface(gen, it, "il generatore").
 faculty_surface(gen, en, "the generator").
 faculty_surface(role, it, "il lettore di ruoli").
