@@ -1,0 +1,54 @@
+# «DIMMI UN X» E' UNA QUERY ESISTENZIALE, NON UN INDOVINO ATTIVATO DA UNA CUE.
+#
+# Misurato in chat, tre risposte FALSE di fila dette come fatti:
+#
+#     tell me a country in asia    ->  andorra.
+#     tell me a country in europe  ->  argentina.
+#     tell me a country in africa  ->  australia.
+#
+# `mod_namestart` sceglieva un membro della categoria e buttava via tutto cio'
+# che veniva dopo. La guardia che c'era elencava tre parole — border, neighbour,
+# neighbor — cioe' i sintomi del bug che l'aveva fatta nascere, e non poteva
+# vedere «in asia» ne' «che vive nell'acqua».
+#
+# La lettura giusta e' strutturale: se dopo la categoria resta del turno, quel
+# residuo E' un vincolo. `member_satisfies/2` lo verifica via `kb_fact/2`, quindi
+# senza nominare nessuna relazione nel C.
+[mock hermetic]
+!set PARROT0_SESSION=
+!reset
+
+[test il vincolo si verifica, non si butta via]
+!timeout 6
+> tell me a country in asia
+<! andorra
+<! argentina
+<! australia
+> tell me a country in europe
+<! argentina
+> tell me a country in africa
+<! australia
+
+[test senza vincolo la scelta resta libera]
+!timeout 6
+> tell me a bird
+<! I cannot check
+> name a mammal
+<! I cannot check
+
+[test un vincolo non verificabile si DICHIARA, non si passa a chi indovinera' peggio]
+!timeout 6
+# cedere in silenzio mandava questo turno a `personal`, che rispondeva
+# «Got it, I'll remember that.»: la domanda diventava una cosa da ricordare.
+> tell me an animal that lives in water
+<~ cannot check
+<! Got it
+
+[test la forma della richiesta e' UNA classe, non sette]
+!timeout 6
+!query intent_cue(name_instance_request, "tell me an")
+!query intent_cue(name_instance_request, "dimmi un")
+# «tell me an» mancava del tutto: entrava solo perche' «tell me a» ne e' un
+# prefisso. Una forma che non condivide un prefisso sarebbe sparita.
+> show me a bird
+<! cannot check

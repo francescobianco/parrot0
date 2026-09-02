@@ -984,6 +984,35 @@ language_name(it, "Italian").
 default_language(en).
 locale_language_prefix(en, en).
 locale_language_prefix(it, it).
+% ── I RIEMPITIVI DI UN'EQUAZIONE ───────────────────────────────────────────
+%
+% F.: «dove la capacita' c'e' e manca la forma, si deve garantire
+% l'insegnabilita'». `solve x + 1 = 6` funzionava; `ricava x + 1 = 6` no — non
+% perche' mancasse l'algebra, ma perche' mancava una parola in una lista
+% cablata nel C. Una capacita' che c'e' e non si raggiunge e' una capacita' che
+% per chi parla non esiste.
+%
+% Qui la classe e' KB, quindi un membro nuovo si aggiunge PARLANDO:
+%
+%     > ricava is an equation filler
+%     > ricava x + 1 = 6            ->  x = 5.
+%
+% e vale dal turno dopo, in qualunque lingua, senza ricompilare.
+machinery(equation_filler).
+equation_filler(solve).      equation_filler(find).
+equation_filler(what).       equation_filler(is).
+equation_filler(the).        equation_filler(value).
+equation_filler(of).         equation_filler(for).
+equation_filler(if).         equation_filler(compute).
+equation_filler(calculate).  equation_filler(please).
+equation_filler(equation).
+equation_filler(risolvi).    equation_filler(trova).
+equation_filler(quanto).     equation_filler(vale).
+equation_filler(il).         equation_filler(valore).
+equation_filler(di).         equation_filler(se).
+equation_filler(calcola).    equation_filler(equazione).
+equation_filler(ricava).     equation_filler(determina).
+
 % ── UNA SUPERFICIE DICHIARATA IN UNA LINGUA E' EVIDENZA DI QUELLA LINGUA ──
 %
 % `language_marker/2` e' unigrammo, e sotto c'e' scritto perche' non puo'

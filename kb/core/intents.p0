@@ -3767,13 +3767,34 @@ intent_cue(20_math_cue2111_3, "give me ").
 intent_cue(20_math_cue2112, "tell me ").
 intent_cue(20_math_cue2115, "what are").
 intent_cue(20_math_cue2115_2, "which are").
-intent_cue(20_math_cue2149, "name a").
-intent_cue(20_math_cue2149_2, "name an").
-intent_cue(20_math_cue2150, "name any").
-intent_cue(20_math_cue2150_2, "name me a").
-intent_cue(20_math_cue2151, "give me a").
-intent_cue(20_math_cue2151_2, "tell me a").
-intent_cue(20_math_cue2152, "can you name").
+% ── CHIEDERE UN'ISTANZA DI UNA CATEGORIA — UNA CLASSE SOLA ──────────────────
+%
+% Erano SETTE classi con un membro ciascuna (`20_math_cue2149`, `_2`, `2150`,
+% `_2`, `2151`, `_2`, `2152`), lette da sette `||` nel C. Sette nomi per una cosa
+% sola, e la prova che erano nate una per incidente: «tell me an» non c'era, e
+% «tell me an animal» entrava soltanto perche' «tell me a» ne e' un prefisso.
+% Bastava una forma che non condividesse un prefisso con le altre per sparire.
+%
+% Una classe sola, con le forme scritte per intero. Aggiungerne una — in
+% qualunque lingua — e' una riga, e vale per la facolta' intera.
+intent_cue(name_instance_request, "name a").
+intent_cue(name_instance_request, "name an").
+intent_cue(name_instance_request, "name any").
+intent_cue(name_instance_request, "name me a").
+intent_cue(name_instance_request, "name me an").
+intent_cue(name_instance_request, "give me a").
+intent_cue(name_instance_request, "give me an").
+intent_cue(name_instance_request, "tell me a").
+intent_cue(name_instance_request, "tell me an").
+intent_cue(name_instance_request, "show me a").
+intent_cue(name_instance_request, "show me an").
+intent_cue(name_instance_request, "can you name").
+intent_cue(name_instance_request, "dimmi un").
+intent_cue(name_instance_request, "dimmi una").
+intent_cue(name_instance_request, "dammi un").
+intent_cue(name_instance_request, "dammi una").
+intent_cue(name_instance_request, "nominami un").
+intent_cue(name_instance_request, "nominami una").
 intent_cue(20_math_cue2299, "how many").
 intent_cue(20_math_cue2299_2, "how much").
 intent_cue(20_math_cue2950, "reverse").

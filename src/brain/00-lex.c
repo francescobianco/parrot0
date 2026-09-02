@@ -24,13 +24,17 @@ static void normalize(const char *in, char *out, size_t out_size) {
     out[n] = '\0';
 }
 
-/* True if `s` equals any of the NULL-terminated list of words. */
-static int matches_any(const char *s, const char *const *words) {
-    for (; *words; words++) {
-        if (strcmp(s, *words) == 0) return 1;
-    }
-    return 0;
-}
+/* ⛔ `matches_any` NON ESISTE PIU', ed e' un risultato, non una pulizia.
+ *
+ * La sua firma era `(stringa, elenco di letterali in C)`: la sua unica ragione
+ * d'essere era confrontare una parola con un frasario compilato. Finche' e'
+ * esistita, aggiungere una lista cablata costava zero attrito — e infatti
+ * l'ultima superstite erano i ventidue riempitivi d'equazione in due lingue.
+ *
+ * Portata quella classe in `equation_filler/1`, la funzione e' rimasta senza
+ * chiamanti. Toglierla chiude la porta al pattern: chi vorra' rifarlo dovra'
+ * riscriverla, e a quel punto la domanda «perche' non e' un fatto?» si pone da
+ * sola. Le classi lessicali si chiedono a `lex_class_member` (KB). */
 
 /* gen211 (cardinal KB-first principle): true if the normalized input `norm` exactly
  * matches any surface form registered for `intent` as intent_phrase(intent, "form")

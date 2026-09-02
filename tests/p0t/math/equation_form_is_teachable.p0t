@@ -1,0 +1,45 @@
+# F., 2026-09-02: «dove la capacita' c'e' e manca la forma, si deve garantire
+# l'insegnabilita'».
+#
+# Misurato in chat: `solve x + 1 = 6` -> «x = 5.», ma la forma con cui la si
+# scrive davvero — il problema, poi la domanda — muro:
+#
+#     x + 1 = 6, x = ?   ->  Non sono sicuro di aver seguito.
+#
+# Non mancava l'algebra: mancava (a) leggere che un segmento col lato destro
+# vuoto NOMINA l'incognita invece di essere una seconda equazione, e (b) una
+# parola in una lista di ventidue riempitivi cablata nel C, in due lingue.
+#
+# Una capacita' che c'e' e non si raggiunge, per chi parla non esiste.
+[mock hermetic]
+!set PARROT0_SESSION=
+!reset
+
+[test la forma nomina l_incognita a parte]
+!timeout 6
+> x + 1 = 6, x = ?
+<~ x = 5
+> 2y = 8, y = ?
+<~ y = 4
+# l'ordine dei segmenti non conta: e' struttura, non posizione
+> x = ?, x - 4 = 1
+<~ x = 5
+
+[test un riempitivo nuovo si insegna PARLANDO]
+!timeout 6
+!forget equation_filler(sbloccami)
+# prima: la capacita' c'e' ma la parola non la raggiunge
+# il gate NON fissa il testo del muro — fissa che la capacita' non si raggiunge
+> sbloccami x + 1 = 6
+<! x = 5
+> sbloccami is an equation filler
+<~ Learned
+!query equation_filler(sbloccami)
+# dal turno dopo, senza ricompilare
+> sbloccami x + 1 = 6
+<~ x = 5
+# ⛔ e si toglie nello stesso modo: se restasse, la riga KB sarebbe un ornamento
+# e da qualche parte ci sarebbe ancora la lista cablata.
+!forget equation_filler(sbloccami)
+> sbloccami x + 1 = 6
+<! x = 5

@@ -192,6 +192,20 @@ auxiliary(does).
 % Contingent subject guard (gen466): the extractor asks one semantic question.
 % The alternatives are KB clauses, so a new blocking evidence class can be
 % taught/retracted without editing the consumer in C.
+% ── UN VINCOLO SI VERIFICA SENZA NOMINARE NESSUNA RELAZIONE ────────────────
+%
+% «tell me a country in asia» rispondeva «andorra», perche' chi sceglie un
+% membro di una categoria buttava via tutto cio' che veniva dopo. La guardia che
+% c'era elencava tre parole — border, neighbour, neighbor — cioe' i sintomi del
+% bug che l'aveva fatta nascere.
+%
+% `member_satisfies(Membro, Valore)` chiede una cosa sola: esiste QUALCHE
+% relazione diretta che lega i due? `kb_fact/2` e' la riflessione sui fatti, per
+% cui questa riga non nomina `located_in` ne' nessun'altra relazione — e una
+% relazione insegnata domani vale come vincolo lo stesso giorno.
+machinery(member_satisfies).
+member_satisfies($Member, $Value) :- kb_fact($Pred, cons($Member, cons($Value, nil))).
+
 machinery(subject_guard).
 subject_guard($T) :- question_word($T).
 subject_guard($T) :- auxiliary($T).

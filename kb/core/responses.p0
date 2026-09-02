@@ -967,3 +967,11 @@ response_template(known_unary_fact, it, "{pred}({arg}) e' un fatto che conosco."
 % dichiarato sull'articolo italiano in grammar.p0.
 response_template(learned_class_fact, it, "Imparato: {arg} è {art} {cls}.").
 response_template(class_fact_phrase, it, "{arg} è {art} {cls}").
+
+% Il gap di un'istanza vincolata. `mod_namestart` legge la categoria e poi non
+% riesce a verificare il resto del turno: dirlo e' l'unica risposta onesta, e
+% tacere non lo e' — cedendo in silenzio la domanda finiva a una facolta' che
+% rispondeva «Got it, I'll remember that.», cioe' la trattava come una cosa da
+% ricordare invece che come una domanda.
+response_template(instance_constraint_unverified, "I know the category {category}, but I cannot check «{constraint}» against anything I know.").
+response_template(instance_constraint_unverified, it, "Conosco la categoria {category}, ma non riesco a verificare «{constraint}» con quello che so.").

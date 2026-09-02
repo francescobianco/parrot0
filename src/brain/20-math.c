@@ -1741,13 +1741,67 @@ static size_t algebra_tokenize(const char *s, char store[][KB_TERM_LEN],
     return n;
 }
 
-static int algebra_is_filler(const char *s) {
-    static const char *const f[] = {
-        "solve","find","what","is","the","value","of","for","if","compute",
-        "calculate","please","equation",
-        "risolvi","trova","quanto","vale","il","valore","di","se","calcola",
-        "equazione", NULL };
-    return matches_any(s, f);
+/* I riempitivi di un'equazione sono CONOSCENZA (mantra #2).
+ *
+ * Erano ventidue parole scritte a mano qui, in due lingue: aggiungere «ricava»,
+ * «determina» o una terza lingua costava una ricompilazione. La lista e' andata
+ * INTERA in `equation_filler/1` — non una copia, un trasloco: una rete di
+ * compatibilita' lasciata qui avrebbe reso la riga KB un ornamento, e togliere
+ * un membro parlando non avrebbe avuto effetto.
+ *
+ * Il test operativo passa in entrambi i versi: si aggiunge un membro parlando
+ * («sbloccami is an equation filler») e si toglie ritrattandolo. */
+static int algebra_is_filler(Brain *b, const char *s) {
+    return b && lex_class_member(b, "equation_filler", s);
+}
+
+/* ── «x + 1 = 6, x = ?» — L'INCOGNITA SI PUO' NOMINARE A PARTE ──────────────
+ *
+ * `solve x + 1 = 6` funzionava gia'. La forma con cui la si scrive davvero — il
+ * problema, poi la domanda — no: il lettore contava due `=` e si ritirava.
+ *
+ * La lettura che mancava non e' un caso: un turno puo' essere fatto di piu'
+ * segmenti, e un segmento il cui lato destro e' VUOTO non e' un'equazione — sta
+ * NOMINANDO l'incognita. Vale per «x + 1 = 6, x = ?», per «x = ?, x + 1 = 6» e
+ * per «2y = 8, y = ?» insieme, perche' guarda la forma e non le parole.
+ *
+ * Toglie dal turno i segmenti che nominano, e restituisce cio' che resta. */
+static void algebra_drop_unknown_naming(char *buf) {
+    char work[256];
+    snprintf(work, sizeof work, "%s", buf);
+    char kept[256];
+    size_t o = 0;
+    kept[0] = '\0';
+    char *save = NULL;
+    for (char *seg = strtok_r(work, ",;", &save); seg;
+         seg = strtok_r(NULL, ",;", &save)) {
+        const char *eqp = strchr(seg, '=');
+        int names_only = 0;
+        if (eqp) {
+            const char *r = eqp + 1;
+            while (*r && isspace((unsigned char)*r)) r++;
+            /* Lato destro vuoto oppure il solo `?`: in entrambi i casi il
+             * segmento non porta un valore, sta chiedendolo. Il `?` finale del
+             * turno viene tolto prima, quindi «x = ?» in coda arriva vuoto e
+             * «x = ?» in mezzo arriva col punto interrogativo: e' lo stesso
+             * segmento scritto in due posizioni, non due casi. */
+            while (*r == '?') r++;
+            while (*r && isspace((unsigned char)*r)) r++;
+            if (!*r) {
+                const char *l = seg;
+                while (*l && isspace((unsigned char)*l)) l++;
+                size_t ll = (size_t)(eqp - l);
+                while (ll > 0 && isspace((unsigned char)l[ll - 1])) ll--;
+                if (ll > 0 && ll <= 3) names_only = 1;
+            }
+        }
+        if (names_only) continue;
+        while (*seg && isspace((unsigned char)*seg)) seg++;
+        if (!*seg) continue;
+        o += (size_t)snprintf(kept + o, sizeof kept - o, "%s%s",
+                              o ? " " : "", seg);
+    }
+    if (kept[0]) snprintf(buf, 256, "%s", kept);
 }
 
 static int mod_algebra(Brain *b, const char *norm, const char *raw,
@@ -1760,13 +1814,14 @@ static int mod_algebra(Brain *b, const char *norm, const char *raw,
     if (len >= sizeof buf) return 0;
     memcpy(buf, norm, len + 1);
     if (len > 0 && buf[len - 1] == '?') buf[--len] = '\0';
+    algebra_drop_unknown_naming(buf);
 
     char store[24][KB_TERM_LEN]; char *t[24];
     size_t nt = algebra_tokenize(buf, store, t, 24);
 
     /* drop a leading run of filler words ("solve", "risolvi", ...). */
     size_t s0 = 0;
-    while (s0 < nt && algebra_is_filler(t[s0])) s0++;
+    while (s0 < nt && algebra_is_filler(b, t[s0])) s0++;
     if (s0 + 1 < nt && strlen(t[s0]) == 1 && isalpha((unsigned char)t[s0][0])) {
         const char *next = t[s0 + 1];
         size_t d = 0;
@@ -2194,6 +2249,22 @@ static void enum_format(char members[][KB_TERM_LEN], size_t lim,
     put(msg, out, out_size);
 }
 
+/* Unisce una coda di token in un atomo KB («south america» -> south_america).
+ * Meccanico: nessuna parola, nessuna lingua. */
+static int p0_join_tail(char **w, size_t from, size_t to,
+                        char *out, size_t outsz) {
+    size_t o = 0;
+    out[0] = '\0';
+    for (size_t i = from; i < to; i++) {
+        const char *t = strip_edge_punct(w[i]);
+        if (!*t) continue;
+        int n = snprintf(out + o, outsz - o, "%s%s", o ? "_" : "", t);
+        if (n < 0 || (size_t)n >= outsz - o) return 0;
+        o += (size_t)n;
+    }
+    return out[0] != '\0';
+}
+
 static int mod_namestart(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
@@ -2239,10 +2310,10 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
 
     }
 
-    int has_name = kb_cue_match(b, "20_math_cue2149", buf) || kb_cue_match(b, "20_math_cue2149_2", buf) ||
-                   kb_cue_match(b, "20_math_cue2150", buf) || kb_cue_match(b, "20_math_cue2150_2", buf) ||
-                   kb_cue_match(b, "20_math_cue2151", buf) || kb_cue_match(b, "20_math_cue2151_2", buf) ||
-                   kb_cue_match(b, "20_math_cue2152", buf);
+    /* Una classe sola, non sette `||`: vedi `name_instance_request` in
+     * kb/core/intents.p0. Una forma nuova e' una riga di KB, non una condizione
+     * in piu' qui. */
+    int has_name = kb_cue_match(b, "name_instance_request", buf);
     if (!has_name) return 0;
     /* gen240: a relational constraint ("name a country that BORDERS X") is beyond
      * a plain category pick — defer to the borders handler downstream rather than
@@ -2265,10 +2336,11 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
 
     /* category: the noun right after the article (a/an/any) following "name". */
     const char *category = NULL;
+    size_t ci = nw;
     size_t ni = find_token(w, nw, "name");
     for (size_t i = (ni == nw ? 0 : ni); i + 1 < nw; i++)
         if (lex_class_member(b, "20_math_lex2177", w[i]) || lex_class_member(b, "20_math_lex2177_2", w[i]) || lex_class_member(b, "20_math_lex2177_3", w[i])) {
-            category = strip_edge_punct(w[i + 1]); break;
+            category = strip_edge_punct(w[i + 1]); ci = i + 1; break;
         }
     if (!category || !*category) return 0;
 
@@ -2276,6 +2348,76 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
     char members[64][KB_TERM_LEN];
     size_t k = domain_match(b, "membership", pat, 2, members, 64);
     if (k == 0) return 0;   /* unknown category: let an honest wall handle it */
+
+    /* ── IL RESIDUO DEL TURNO E' UN VINCOLO: O LO SI VERIFICA, O SI CEDE ────
+     *
+     * Questa facolta' sceglieva un membro della categoria e lo diceva, buttando
+     * via tutto cio' che veniva dopo. Misurato in chat:
+     *
+     *     tell me a country in asia    ->  andorra.
+     *     tell me a country in europe  ->  argentina.
+     *     tell me a country in africa  ->  australia.
+     *
+     * Tre risposte FALSE di fila, dette come fatti — e la KB sapeva verificarle
+     * («where is austria» -> Europe). Peggio di un muro: un muro si vede.
+     *
+     * La guardia che c'era — `20_math_chain2162`: border, neighbour, neighbor —
+     * era una classe popolata dai SINTOMI, cioe' l'elenco degli incidenti del
+     * gen240. Non poteva vedere «che vive nell'acqua» ne' «in asia», e non
+     * avrebbe mai potuto: ogni vincolo nuovo era una parola nuova.
+     *
+     * La lettura giusta e' strutturale e non nomina niente: se dopo la categoria
+     * resta del turno, quel residuo E' un vincolo. Si tiene solo chi lo
+     * soddisfa; se nessuno lo soddisfa, questa facolta' TACE — perche' non sa se
+     * il vincolo sia falso o solo non verificabile, e in nessuno dei due casi ha
+     * diritto di rispondere.
+     *
+     * Verificare non costa vocabolario: `member_satisfies/2` in KB chiede, via
+     * `kb_fact/2`, se QUALCHE relazione lega il membro al valore. Una relazione
+     * nuova vale subito, e il C non ne conosce nessuna. */
+    if (!init && ci + 1 < nw) {
+        size_t kept = 0;
+        for (size_t vi = nw; vi > ci + 1 && kept == 0; vi--) {
+            /* il valore del vincolo: la coda del residuo, la piu' lunga prima */
+            char value[KB_TERM_LEN];
+            if (!p0_join_tail(w, vi - 1, nw, value, sizeof value)) continue;
+            for (size_t i = 0; i < k; i++) {
+                const char *sq[2] = { members[i], value };
+                if (!kb_query(b->kb, "member_satisfies", sq, 2)) continue;
+                if (kept != i) snprintf(members[kept], KB_TERM_LEN, "%s", members[i]);
+                kept++;
+            }
+        }
+        if (kept == 0) {
+            /* ⚠ TACERE QUI NON BASTA, ed e' la seconda meta' della stessa
+             * lezione. Cedendo in silenzio, «tell me an animal that lives in
+             * water» finiva a `personal`, che rispondeva «Got it, I'll remember
+             * that.»: la domanda diventava una cosa da ricordare. Un turno che
+             * questa facolta' ha CAPITO — la categoria esiste — e non sa
+             * onorare non va passato a chi lo capira' peggio.
+             *
+             * Percio' il gap si DICHIARA: si dice quale categoria si e' letta e
+             * quale vincolo non si e' potuto verificare. E' la differenza fra
+             * «non lo so» e «ecco un membro a caso». */
+            char cbuf[KB_TERM_LEN];
+            if (!p0_join_tail(w, ci + 1, nw, cbuf, sizeof cbuf))
+                snprintf(cbuf, sizeof cbuf, "%s", "");
+            for (char *c = cbuf; *c; c++) if (*c == '_') *c = ' ';
+            const KbResponseSlot rs[] = {
+                { "category", category }, { "constraint", cbuf }
+            };
+            char msg[256];
+            kb_term_say(b, "instance_constraint_unverified", rs, 2,
+                        msg, sizeof msg);
+            put(msg, out, out_size);
+            store_proof(b, "The category resolved but no member satisfied the "
+                           "turn's remaining constraint under any known relation.");
+            return 1;
+        }
+        k = kept;
+        store_proof(b, "Kept only the category members that a known relation "
+                       "links to the constraint named by the turn.");
+    }
 
     if (init) {             /* constrained: first member with that initial */
         for (size_t i = 0; i < k; i++)
