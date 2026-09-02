@@ -4448,6 +4448,26 @@ intent_cue(hypothetical_self_question, "what would you do if").
 intent_cue(hypothetical_self_question, "cosa faresti se").
 faculty_yield(chitchat, open, hypothetical_self_question).
 
+% `gen` rispondeva «Scattering needs sunlight» a «Give me three words that rhyme
+% with "night"»: un artefatto di spiegazione concisa su una domanda LESSICALE.
+% Una richiesta di rima appartiene a chi sa enumerare parole.
+faculty_yield(gen, open, word_rhyme).
+
+% `analysis_family` rispondeva a «Explain what you are without pretending to be
+% human» con sei frasi su come si costruisce un resoconto causale. Una domanda su
+% CHE COSA parrot0 e' appartiene a chi sa parlare di se': la famiglia
+% metodologica non ha niente da dire su un soggetto che non e' un dominio.
+intent_cue(self_identity_question, "what you are").
+intent_cue(self_identity_question, "what are you").
+intent_cue(self_identity_question, "che cosa sei").
+intent_cue(self_identity_question, "cosa sei").
+faculty_yield(analysis_family, open, self_identity_question).
+% E nemmeno `role` la prende: «Explain what you are without pretending to be
+% human» non e' l'istruzione «impersona Without». Una domanda su chi si e' non e'
+% l'ordine di essere qualcun altro — ed e' la prova che governare una facolta'
+% sola sposta il turno rubato invece di chiuderlo.
+faculty_yield(role, open, self_identity_question).
+
 faculty_yield(role, open, physical_affordance_prediction).
 faculty_yield(wordquery, open, positional_rhyme_sentence).
 faculty_yield(answer_frame, open, border_intersection).

@@ -4096,6 +4096,10 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * Lasciato scritto perche' il prossimo non rifaccia l'esperimento: togliere
      * un guardiano non e' la stessa cosa che togliere un difetto. */
     if (b && !teaching_prose(input) &&
+        /* Anche gli stadi che rivendicano PRIMA del registro leggono la condotta
+         * dichiarata: uno stadio che non la legge e' uno stadio inaddestrabile,
+         * e la lista dei ladri di turno nasceva proprio da li'. */
+        !p0_faculty_yields(b, "analysis_family", "open", canon, input) &&
         structured_analysis_lead(b, canon, input, 1, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "analysis_family");
