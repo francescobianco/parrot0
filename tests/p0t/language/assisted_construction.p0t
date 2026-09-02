@@ -131,7 +131,7 @@
 !query! construction_frame("@S blinks @O", "@S unknowableverb @O", unknowableverb)
 
 > x folds y means z glorphs y
-<~ I found the teaching pivot, but I cannot align exactly two shared variables
+<~ I found the teaching pivot, but I cannot align the same variables exactly once
 !query! construction_frame("@S folds @O", "@S glorphs @O", glorphs)
 
 # `orbits` ha gia' un frame diverso: una nuova lettura non lo sovrascrive.

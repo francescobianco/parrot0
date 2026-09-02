@@ -800,8 +800,8 @@ response_template(construction_already_known, "That construction is already acti
 response_template(construction_already_known, it, "Quella costruzione è già attiva: {source} corrisponde a {target}.").
 response_template(construction_target_unknown, "I cannot anchor that lesson yet: I do not have one unambiguous reading for {target}.").
 response_template(construction_target_unknown, it, "Non posso ancora ancorare quella lezione: non ho una lettura univoca per {target}.").
-response_template(construction_shape_unsupported, "I found the teaching pivot, but I cannot align exactly two shared variables on both sides. I have not learned the construction.").
-response_template(construction_shape_unsupported, it, "Ho trovato il separatore didattico, ma non riesco ad allineare esattamente due variabili condivise sui due lati. Non ho appreso la costruzione.").
+response_template(construction_shape_unsupported, "I found the teaching pivot, but I cannot align the same variables exactly once on both sides to roles I know. I have not learned the construction.").
+response_template(construction_shape_unsupported, it, "Ho trovato il separatore didattico, ma non riesco ad allineare le stesse variabili, una volta per lato, a ruoli che conosco. Non ho appreso la costruzione.").
 response_template(construction_conflict, "I already read {source} through a different frame, so I have kept both readings visible and have not selected the new one.").
 response_template(construction_conflict, it, "Leggo già {source} attraverso un frame diverso, quindi ho lasciato visibili entrambe le letture e non ho selezionato quella nuova.").
 response_template(construction_forgotten, "The construction {source} -> {target} is no longer active; I kept its lesson trace.").

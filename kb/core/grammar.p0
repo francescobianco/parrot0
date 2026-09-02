@@ -1154,6 +1154,13 @@ turn_opens_question($T) :-
 turn_opens_question($T) :-
     input_node_atom($T, $Id, $W), naf(input_node_precedes($T, $Id)),
     clause_copula($W).
+% L'inversione dell'ausiliare e' la stessa evidenza strutturale anche quando la
+% domanda non ha una wh-word e non usa la copula: «did zorak shimmer?», «can a
+% tern fly?». Quali forme siano ausiliari resta una classe KB aperta; insegnarne
+% una nuova cambia questa lettura senza ricompilare.
+turn_opens_question($T) :-
+    input_node_atom($T, $Id, $W), naf(input_node_precedes($T, $Id)),
+    auxiliary($W).
 
 % E l'ordine in cui offrirle, che e' esso stesso conoscenza: davanti a una forma
 % binaria la costruzione viene prima, perche' e' la lezione che non richiede di

@@ -2141,6 +2141,24 @@ static long next_entity_seq(Brain *b) {
 static void note_entity_seq(Brain *b, const char *raw_name) {
     if (!b || !b->kb || !raw_name) return;
     char low[KB_TERM_LEN]; size_t j = 0;
+    /* ⚠ UN PRONOME NON E' UN REFERENTE.
+     *
+     * I candidati si raccoglievano per MAIUSCOLA, e la maiuscola di inizio frase
+     * non e' un nome: «He reviewed the draft» registrava `he` nella storia del
+     * discorso, e il turno dopo «Luca reviewed it» legava `it` a `he`,
+     * producendo `reviewed(luca, he)`. Un riferimento che riferisce un
+     * riferimento non individua niente: e' la stessa specie del pronome scritto
+     * come entita', un passo piu' in la'.
+     *
+     * Quali superfici riferiscano e' conoscenza (`entity_pronoun/1`), quindi qui
+     * non c'e' nessun elenco: c'e' la domanda. */
+    { char probe[KB_TERM_LEN]; size_t k = 0;
+      for (size_t i = 0; raw_name[i] && k + 1 < sizeof probe; i++) {
+          unsigned char c = (unsigned char)raw_name[i];
+          if (isalnum(c) || c == '_') probe[k++] = (char)tolower(c);
+      }
+      probe[k] = '\0';
+      if (k && is_entity_pronoun(b, probe)) return; }
     for (size_t i = 0; raw_name[i] && j + 1 < sizeof low; i++) {
         unsigned char c = (unsigned char)raw_name[i];
         if (isalnum(c) || c == '_') low[j++] = (char)tolower(c);
@@ -3840,6 +3858,56 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * language is itself queryable — never a C variable. Detected from the raw
      * normalized turn (before canonicalization folds Italian into English). */
     detect_set_language(b, norm);
+
+    /* ── UN TURNO CHE LEGA UN FRAME DICHIARATIVO E' UN'ASSERZIONE ───────────
+     *
+     * La forza del turno aveva gia' `question` e `directive`, e l'asserzione era
+     * dichiarata NON marcabile: «e' cio' che resta quando nessuna forza e'
+     * marcata… marcarla richiederebbe di enumerare la lingua intera».
+     *
+     * Vero per le CUE, falso per la STRUTTURA. La matrice F03 lo ha misurato:
+     *
+     *     He reviewed the draft   ->  Luca.          (risponde invece di imparare)
+     *     Luca reviewed it        ->  Draft.
+     *
+     * Un'asserzione ordinaria riceveva una risposta, perche' `answer_frame`
+     * rivendicava un turno con cui nessuno le stava chiedendo niente — il turno
+     * rubato del §1 di generation-kb-first.md, su un'altra facolta'.
+     *
+     * La lettura che mancava non e' una cue: e' che il turno LEGA un frame
+     * dichiarativo completo, senza nessuno slot interrogativo. `p0_frame_reading`
+     * e' la fase PURA che sa dirlo — esiste apposta per «proporre una lettura
+     * prima di sapere se possa crederci» — e qui viene pubblicata nel frame del
+     * turno. Il C non nomina nessuna forza: asserisce cio' che ha letto, e quale
+     * forza ne segua lo dice `turn-frames.p0`. */
+    if (b && b->kb) {
+        const char *rq[3] = { "current_turn", NULL, NULL };
+        kb_retract_match(b->kb, "turn_reading", rq, 3);
+        /* La fase pura enumera ogni `extract_frame/2` dichiarato, quindi costa
+         * quanto una lettura intera. Si paga solo se qualcuno la CONSUMA, e chi
+         * la consuma e' dichiarato: nessuna facolta' che cede su una forza, e
+         * questa pubblicazione non serve a nessuno. E' una necessita' letta in
+         * KB, non una soglia scelta a mano — togliendo l'ultima riga di
+         * `faculty_yield_force/3` il costo sparisce insieme al consumatore. */
+        const char *cq[3] = { NULL, NULL, NULL };
+        char consumer[1][KB_TERM_LEN];
+        int wanted = kb_match(b->kb, "faculty_yield_force", cq, 3, consumer, 1) > 0;
+        char rbuf[400];
+        size_t rl = strlen(norm);
+        if (wanted && rl > 0 && rl < sizeof rbuf) {
+            memcpy(rbuf, norm, rl + 1);
+            char *rw[64];
+            size_t rn = split_words(rbuf, rw, 64);
+            P0FrameReading reading;
+            if (wanted && rn >= 3 && p0_frame_reading(b, rw, rn, &reading)) {
+                int prev = kb_origin(b->kb);
+                kb_set_origin(b->kb, KB_REFLECTIVE);
+                const char *ra[3] = { "current_turn", "declarative", reading.pred };
+                kb_assert(b->kb, "turn_reading", ra, 3);
+                kb_set_origin(b->kb, prev);
+            }
+        }
+    }
 
     /* gen335 (KB-first teachability): try_teach_form runs BEFORE any content
      * module — a user teaching a new phrasing must not be intercepted by the

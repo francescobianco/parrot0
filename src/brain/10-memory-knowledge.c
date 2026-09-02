@@ -1965,6 +1965,96 @@ static int resolve_entity(Brain *b, const char *word, const char **entity,
     return 0;
 }
 
+static void note_entity_seq(Brain *b, const char *raw_name);  /* definita in 99 */
+
+/* ── UN RIFERIMENTO IN QUALUNQUE RUOLO, E MAI UN RIFERIMENTO NON RISOLTO ────
+ *
+ * Il binder risolveva il pronome SOLO nel primo slot, e negli altri lo lasciava
+ * passare come atomo. Misurato sulla matrice F03 (§6 dell'handoff):
+ *
+ *     He reviewed it   ->  Learned: luca reviewed it.
+ *     !query reviewed(luca, it)   ->  dimostrabile
+ *
+ * cioe' **un pronome scritto in KB come entita'**, annunciato come appreso. E' il
+ * mantra #7 nella sua forma peggiore, perche' persiste oltre il turno e la
+ * domanda formata con le stesse parole non lo ritrova.
+ *
+ * La cura NON e' un secondo `if (nslots == 1)`: sarebbe di nuovo la posizione.
+ * E' la relazione che il §7 chiede — **slot del frame × superficie riferente ×
+ * candidati nel discorso** — con la politica dichiarata in KB:
+ *
+ *   - i candidati sono `entity_mentioned(Nome, Seq)`, la storia ordinata del
+ *     discorso che gia' esiste (non un secondo registro parallelo: sarebbe la
+ *     divergenza D33/D35/D37);
+ *   - `reference_binding(most_recent)` dice che l'ordine e' la recenza;
+ *   - `reference_binding(distinct_in_frame)` dice che due ruoli dello stesso
+ *     frame non prendono lo stesso referente — ed e' cio' che fa risolvere
+ *     «He reviewed it» in due antecedenti diversi senza inventare un sistema di
+ *     tipi. Ritrarre il fatto cambia la condotta senza ricompilare.
+ *
+ * Restituisce 0 se nessun candidato regge: allora la lettura si RITIRA, e il
+ * turno resta un muro visibile invece di un fatto falso. */
+static int p0_resolve_reference(Brain *b, const char *surface,
+                                char (*bound)[KB_TERM_LEN], size_t nbound,
+                                char *out, size_t outsz) {
+    if (!b || !b->kb || !surface || !out || outsz == 0) return 0;
+    const char *pq[1] = { "most_recent" };
+    if (!kb_query(b->kb, "reference_binding", pq, 1)) return 0;
+    const char *dq[1] = { "distinct_in_frame" };
+    int distinct = kb_query(b->kb, "reference_binding", dq, 1);
+    const char *rq[1] = { "role_parallel" };
+    int parallel = kb_query(b->kb, "reference_binding", rq, 1);
+    char slot_index[16];
+    snprintf(slot_index, sizeof slot_index, "%zu", nbound);
+
+    char (*names)[KB_TERM_LEN] = NULL;
+    size_t nn = 0;
+    const char *q0[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "entity_mentioned", q0, 2, &names, &nn) || nn == 0) {
+        free(names);
+        return 0;
+    }
+    /* Due passate: prima solo i candidati che hanno gia' occupato QUESTO ruolo,
+     * poi tutti. Il parallelismo di ruolo e' l'ordinamento; la recenza decide
+     * dentro ciascun gruppo. */
+    char best[KB_TERM_LEN] = "";
+    for (int pass = 0; pass < 2 && !best[0]; pass++) {
+        if (pass == 0 && !parallel) continue;
+        long best_seq = -1;
+        for (size_t i = 0; i < nn; i++) {
+            const char *sq[2] = { names[i], NULL };
+            char seqs[16][KB_TERM_LEN];
+            size_t ns = kb_match(b->kb, "entity_mentioned", sq, 2, seqs, 16);
+            long seq = -1;
+            for (size_t j = 0; j < ns; j++) {
+                long v = strtol(seqs[j], NULL, 10);
+                if (v > seq) seq = v;
+            }
+            if (seq <= best_seq) continue;
+            /* Un riferimento non puo' riferire un altro riferimento: la storia
+             * del discorso non dovrebbe contenerne (vedi `note_entity_seq`), ma
+             * l'invariante si dichiara anche dove viene usata. */
+            if (is_entity_pronoun(b, names[i])) continue;
+            if (pass == 0) {
+                const char *rr[2] = { names[i], slot_index };
+                if (!kb_query(b->kb, "entity_role", rr, 2)) continue;
+            }
+            if (distinct) {
+                int taken = 0;
+                for (size_t k = 0; k < nbound && !taken; k++)
+                    if (strcmp(bound[k], names[i]) == 0) taken = 1;
+                if (taken) continue;
+            }
+            best_seq = seq;
+            snprintf(best, sizeof best, "%s", names[i]);
+        }
+    }
+    free(names);
+    if (!best[0]) return 0;
+    snprintf(out, outsz, "%s", best);
+    return 1;
+}
+
 static void remember_entity(Brain *b, const char *word, const char *entity) {
     if (is_entity_pronoun(b, word) || !entity || strlen(entity) >= KB_TERM_LEN)
         return;
@@ -3967,10 +4057,19 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
             if (ss < (size_t)end && p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
             if (ss >= (size_t)end || !p0_join(w, ss, (size_t)end, dst, KB_TERM_LEN))
                 return 0;
-            /* Il pronome si risolve solo nel primo slot: e' li' che «it»
-             * riprende l'entita' del turno prima. */
-            if (r->nslots == 0 && is_entity_pronoun(b, dst) && b->has_last_entity)
-                snprintf(dst, KB_TERM_LEN, "%s", b->last_entity);
+            /* Un riferimento vale in QUALUNQUE ruolo, e un riferimento che non
+             * si risolve NON e' un'entita': la lettura si ritira invece di
+             * scrivere un pronome in KB. Vedi `p0_resolve_reference`. */
+            if (is_entity_pronoun(b, dst)) {
+                char bound_to[KB_TERM_LEN];
+                if (p0_resolve_reference(b, dst, r->slot, r->nslots,
+                                         bound_to, sizeof bound_to))
+                    snprintf(dst, KB_TERM_LEN, "%s", bound_to);
+                else if (r->nslots == 0 && b->has_last_entity)
+                    snprintf(dst, KB_TERM_LEN, "%s", b->last_entity);
+                else
+                    return 0;
+            }
             r->role[r->nslots] = (char)tolower((unsigned char)pt[ti][1]);
             r->nslots++;
             wi = (size_t)end;
@@ -4284,6 +4383,35 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
              * niente a cui attaccarsi. Il C conta soltanto: che cosa significhi
              * essere primo lo dice la KB (`ordinal_reference/3`). */
             remember_entity(b, subj, subj);
+            /* ── OGNI RUOLO LEGATO INTRODUCE UN REFERENTE ────────────────────
+             *
+             * I candidati del discorso si raccoglievano per MAIUSCOLA, cioe' per
+             * ortografia: «Mira» e «Luca» entravano, «draft» no. Misurato sulla
+             * matrice F03 — «Luca reviewed it» legava `it` a `mira`, perche' il
+             * solo referente disponibile che non fosse gia' legato era un nome
+             * proprio. Il difetto non e' il pronome: e' che meta' del discorso
+             * era invisibile.
+             *
+             * Uno slot legato da un frame E' un referente introdotto, comunque
+             * sia scritto. E si registra anche QUALE ruolo ha occupato: e' cio'
+             * che permette al parallelismo di ruolo di preferire, per il ruolo
+             * dell'agente, chi ha gia' fatto l'agente — senza inventare generi,
+             * animatezza o un sistema di tipi. */
+            {
+                int prev_origin = kb_origin(b->kb);
+                kb_set_origin(b->kb, KB_REFLECTIVE);
+                for (size_t si = 0; si < fact_nslots; si++) {
+                    const char *filler = slot[fact_index[si]];
+                    if (!filler || !*filler || filler[0] == '"') continue;
+                    if (is_entity_pronoun(b, filler)) continue;
+                    char idx[16]; snprintf(idx, sizeof idx, "%zu", si);
+                    const char *ra[2] = { filler, idx };
+                    if (!kb_query(b->kb, "entity_role", ra, 2))
+                        kb_assert(b->kb, "entity_role", ra, 2);
+                    note_entity_seq(b, filler);
+                }
+                kb_set_origin(b->kb, prev_origin);
+            }
             char msg[256];
             /* La frase la sceglie il numero di ruoli, e le frasi stanno in KB:
              * annunciare due argomenti su tre sarebbe un misclaim su cio' che
@@ -4441,13 +4569,15 @@ static int p0_pattern_add(char *out, size_t outsz, size_t *off,
     return 1;
 }
 
-static int p0_explicit_pattern(Brain *b, char *text,
-                               char vars[2][KB_TERM_LEN], size_t *nvars,
-                               int introduce, char *out, size_t outsz) {
+/* Prima si verifica soltanto la geometria della lezione: le stesse variabili,
+ * una volta per lato. I loro RUOLI non vengono assegnati qui — li dara' il
+ * frame bersaglio che parrot0 sa gia' leggere. */
+static int p0_lesson_variables(
+        Brain *b, char *text,
+        char vars[P0_MAX_SLOTS][KB_TERM_LEN], size_t *nvars, int introduce) {
     char *w[32]; size_t nw = split_words(text, w, 32);
     if (nw < 2) return 0;
-    size_t off = 0; int seen[2] = {0, 0}; int literals = 0;
-    out[0] = '\0';
+    int seen[P0_MAX_SLOTS] = {0}; int literals = 0;
     for (size_t i = 0; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
         if (!*t) continue;
@@ -4458,22 +4588,135 @@ static int p0_explicit_pattern(Brain *b, char *text,
         if (is_var) {
             for (size_t k = 0; k < *nvars; k++)
                 if (!strcmp(vars[k], t)) { vi = (int)k; break; }
-            if (vi < 0 && introduce && *nvars < 2) {
+            if (vi < 0 && introduce && *nvars < P0_MAX_SLOTS) {
                 snprintf(vars[*nvars], KB_TERM_LEN, "%s", t);
                 vi = (int)(*nvars); (*nvars)++;
             }
-            if (vi < 0 || vi > 1) return 0;
+            if (vi < 0 || (size_t)vi >= P0_MAX_SLOTS) return 0;
             seen[vi]++;
-            if (!p0_pattern_add(out, outsz, &off, vi == 0 ? "@S" : "@O"))
-                return 0;
         } else {
             literals++;
-            if (!p0_pattern_add(out, outsz, &off, t)) return 0;
         }
     }
-    if (literals == 0 || *nvars != 2 || seen[0] != 1 || seen[1] != 1)
-        return 0;
+    if (literals == 0 || *nvars == 0) return 0;
+    for (size_t i = 0; i < *nvars; i++)
+        if (seen[i] != 1) return 0;
     return 1;
+}
+
+/* Costruisce la sorgente usando la corrispondenza variabile->ruolo osservata
+ * nel frame bersaglio. `@S/@O/@T` restano etichette opache: questo corpo non
+ * sa se T sia un destinatario, un luogo o uno strumento. */
+static int p0_lesson_source_pattern(
+        Brain *b, char *text,
+        char vars[P0_MAX_SLOTS][KB_TERM_LEN], const char roles[P0_MAX_SLOTS],
+        size_t nvars, char *out, size_t outsz) {
+    char *w[32]; size_t nw = split_words(text, w, 32);
+    if (nw < 2) return 0;
+    size_t off = 0; out[0] = '\0';
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (!*t) continue;
+        const char *vq[1] = { t };
+        int is_var = strlen(t) == 1 && isalpha((unsigned char)t[0]) &&
+                     kb_query(b->kb, "rule_variable", vq, 1);
+        if (!is_var) {
+            if (!p0_pattern_add(out, outsz, &off, t)) return 0;
+            continue;
+        }
+        size_t vi = 0;
+        while (vi < nvars && strcmp(vars[vi], t)) vi++;
+        if (vi == nvars || !roles[vi]) return 0;
+        char slot[3] = {
+            '@', (char)toupper((unsigned char)roles[vi]), '\0'
+        };
+        if (!p0_pattern_add(out, outsz, &off, slot)) return 0;
+    }
+    return out[0] != '\0';
+}
+
+/* Allinea il lato gia' compreso passando dagli stessi `extract_frame/2` e
+ * dallo stesso binder usati dal lettore. Questo e' il passaggio che toglie dal
+ * C sia il numero due sia l'assunzione S/O/T == ordine delle parole: un target
+ * passivo o in un'altra lingua puo' esporre i ruoli in qualunque ordine, e la
+ * sorgente eredita quell'ordine semantico. */
+static int p0_align_explicit_lesson(
+        Brain *b, const char *lhs, const char *rhs,
+        char vars[P0_MAX_SLOTS][KB_TERM_LEN], size_t nvars,
+        char *source, size_t source_size, char *target, size_t target_size) {
+    char (*patterns)[KB_TERM_LEN] = NULL; size_t np = 0;
+    const char *any[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "extract_frame", any, 2, &patterns, &np)) {
+        free(patterns); return 0;
+    }
+
+    /* Nel target una variabile e' MENZIONATA, non usata. `a` puo' essere stata
+     * insegnata come `rule_variable` e insieme essere un articolo: passarla
+     * nuda al binder farebbe cadere il determinante e svuoterebbe lo slot.
+     * La sostituiamo solo nella copia effimera con un atomo meccanico univoco;
+     * la superficie originale resta quella salvata nella lezione. */
+    char rhs_copy[KB_TERM_LEN]; snprintf(rhs_copy, sizeof rhs_copy, "%s", rhs);
+    char *rhs_words[32]; size_t rhs_count = split_words(rhs_copy, rhs_words, 32);
+    char synthetic[KB_TERM_LEN] = {0}; size_t synthetic_off = 0;
+    for (size_t wi = 0; wi < rhs_count; wi++) {
+        char *word = strip_edge_punct(rhs_words[wi]);
+        size_t vi = 0;
+        while (vi < nvars && strcmp(vars[vi], word)) vi++;
+        char placeholder[32];
+        const char *piece = word;
+        if (vi < nvars) {
+            snprintf(placeholder, sizeof placeholder, "p0lessonvar%zu", vi);
+            piece = placeholder;
+        }
+        if (!p0_pattern_add(synthetic, sizeof synthetic, &synthetic_off, piece)) {
+            free(patterns); return 0;
+        }
+    }
+
+    int found = 0, ambiguous = 0;
+    for (size_t i = 0; i < np && !ambiguous; i++) {
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", synthetic);
+        char *rw[32]; size_t rn = split_words(rb, rw, 32);
+        P0FrameReading reading;
+        if (!p0_frame_bind(b, rw, rn, patterns[i], &reading) ||
+            reading.consumed != reading.total || reading.nslots != nvars)
+            continue;
+
+        char roles[P0_MAX_SLOTS] = {0}; int valid = 1;
+        for (size_t si = 0; si < reading.nslots && valid; si++) {
+            size_t vi = 0;
+            for (; vi < nvars; vi++) {
+                char placeholder[32];
+                snprintf(placeholder, sizeof placeholder,
+                         "p0lessonvar%zu", vi);
+                if (!strcmp(placeholder, reading.slot[si])) break;
+            }
+            if (vi == nvars || !reading.role[si] || roles[vi]) valid = 0;
+            else roles[vi] = reading.role[si];
+        }
+        for (size_t vi = 0; vi < nvars; vi++)
+            if (!roles[vi]) valid = 0;
+        if (!valid) continue;
+
+        char lb[KB_TERM_LEN]; snprintf(lb, sizeof lb, "%s", lhs);
+        char candidate_source[KB_TERM_LEN];
+        if (!p0_lesson_source_pattern(b, lb, vars, roles, nvars,
+                                      candidate_source,
+                                      sizeof candidate_source)) continue;
+        char tb[KB_TERM_LEN];
+        snprintf(tb, sizeof tb, "%s", reading.pattern);
+        const char *candidate_target = kb_dequote(tb);
+        if (!found) {
+            snprintf(source, source_size, "%s", candidate_source);
+            snprintf(target, target_size, "%s", candidate_target);
+            found = 1;
+        } else if (strcmp(source, candidate_source) ||
+                   strcmp(target, candidate_target)) {
+            ambiguous = 1;
+        }
+    }
+    free(patterns);
+    return found && !ambiguous;
 }
 
 /* Solo per la forma SVO canonica: la parte letterale fra @S e @O puo' aprire
@@ -4581,18 +4824,22 @@ static int p0_parse_construction_lesson(Brain *b, const char *text,
          * «X glints Y means Y glorphs X» — si conserva come
          * `construction_frame("@O glints @S", "@S glorphs @O", glorphs)`.
          *
-         * Non serve altro motore: il matcher dei frame riempie subj/obj
-         * leggendo la lettera dello slot, non la sua posizione, quindi
-         * l'inversione dei ruoli era gia' eseguibile e mancava soltanto l'atto
-         * didattico capace di dirla. */
-        char vars[2][KB_TERM_LEN] = {{0}}; size_t nv = 0;
+         * Non serve altro motore: il binder del lettore restituisce la lettera
+         * di ogni slot scelta dal frame bersaglio. L'allineatore ne consuma
+         * quanti il frame espone, fino allo stesso limite P0_MAX_SLOTS. */
+        char vars[P0_MAX_SLOTS][KB_TERM_LEN] = {{0}}; size_t nv = 0;
         char lp[KB_TERM_LEN], rp[KB_TERM_LEN];
         snprintf(lp, sizeof lp, "%s", lhs); snprintf(rp, sizeof rp, "%s", rhs);
-        if (!p0_explicit_pattern(b, rp, vars, &nv, 1,
-                                 lesson->target, sizeof lesson->target) ||
-            !p0_explicit_pattern(b, lp, vars, &nv, 0,
-                                 lesson->source, sizeof lesson->source))
+        if (!p0_lesson_variables(b, rp, vars, &nv, 1))
             return P0_CONSTRUCTION_BAD_SHAPE;
+        snprintf(lp, sizeof lp, "%s", lhs);
+        if (!p0_lesson_variables(b, lp, vars, &nv, 0))
+            return P0_CONSTRUCTION_BAD_SHAPE;
+        if (!p0_align_explicit_lesson(
+                b, lhs, rhs, vars, nv,
+                lesson->source, sizeof lesson->source,
+                lesson->target, sizeof lesson->target))
+            return P0_CONSTRUCTION_UNKNOWN_TARGET;
     }
 
     if (!p0_construction_target(b, lesson->source, lesson->target,

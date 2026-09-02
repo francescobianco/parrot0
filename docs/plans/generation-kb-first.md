@@ -124,9 +124,16 @@ chiede se descrivono la classe o la storia dei bug.
    copertura completa delle richieste cortesi/indirette.
    La forza direttiva è inoltre pubblicata dal frame universale come
    `turn_illocution/2`, così i consumer possono condividere la lettura del turno.
+   **✅ Chiusa il 2026-09-02:** `turn_illocution/2` riusa la domanda strutturale
+   (`turn_opens_question/1`) e la estende all'inversione di qualunque ausiliare
+   dichiarato; le richieste cortesi si compongono come ausiliare × destinatario.
+   Crescita e ritiro parlati nel gate `illocution_comprehension.p0t` (14 assert).
 4. **`raccontami una storia` mura** (pre-esistente, non causato dal cancello):
    la forma con clitico enclitico non arriva alla classe. È la stessa famiglia
    di GD8.
+   **✅ Chiusa il 2026-09-02:** nessuna cue `raccontami`; la forma nasce da
+   host + gloss del verbo + gloss del clitico e alimenta canonicalizzazione,
+   lingua e forza del turno. Gate `enclitic_imperative.it.p0t` (18 assert).
 
 ## 5bis. Fatto il 2026-09-02
 

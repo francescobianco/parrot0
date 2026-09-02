@@ -448,8 +448,8 @@ che è il problema `greeting(ahoy)` e appartiene a M12.
 *Gate:* insegnare una proprietà di una parola-funzione attiva, usarla nello stesso
 processo, ritrarla e vedere la capacità sparire.
 
-**M3 — Denotazione ed equivalenza operativa.** *(A1: aperto — l'arita' e' caduta
-il 2026-08-28, la catena e l'induzione no)*  
+**M3 — Denotazione ed equivalenza operativa.** *(A1: aperto — arita' e catena
+sono chiuse operativamente; l'induzione no)*
 *Fatto:* `construction_frame/3` con la vista `extract_frame/2`, pivot insegnabile,
 retract parlato.  
 *Fatto anche:* l'**inversione dei ruoli** — i nomi degli slot li dà il lato già
@@ -457,18 +457,20 @@ compreso, quindi «`X glints Y` significa `Y glorphs X`» si conserva come
 `construction_frame("@O glints @S", "@S glorphs @O", glorphs)`. E l'alfabeto
 delle variabili è conoscenza: `a is a rule_variable` abilita nuovi slot nella
 stessa sessione.  
-*Fatto (2026-08-28):* l'**arita' diversa da due** e' caduta, e con lei l'idea che
-il legame degli slot fosse binario per natura. Il pattern dichiara quanti slot
-ha e il fatto nasce con quella arita'; il verbo ternario e la parola che collega
-il terzo ruolo sono conoscenza (`ternary_relation_verb/1`, `link_word/1`), quindi
-una relazione a tre ruoli nuova costa due frasi dette in chat. E la vista
-interrogativa non e' piu' limitata al caso SVO: un interrogativo in uno slot
-trasforma il pattern in una domanda a QUALUNQUE arita', su ciascuno dei ruoli.
-Transfer su tre domini reali, ablation verde, zero regressioni.
+*Fatto, corretto dall'audit del 2026-09-02:* il **lettore** aveva davvero perso
+l'arita' fissa, ma l'**atto didattico** no: `p0_explicit_pattern` conservava
+`vars[2]` e rigettava ogni parafrasi ternaria. Ora anche la lezione usa il
+limite condiviso `P0_MAX_SLOTS` e ricava i ruoli dal frame bersaglio attraverso
+lo stesso binder del lettore, invece di assegnarli per ordine. Il verbo ternario
+e la parola che collega il terzo ruolo restano conoscenza
+(`ternary_relation_verb/1`, `link_word/1`), quindi una relazione a tre ruoli
+nuova costa due frasi dette in chat e una parafrasi costa una terza frase. La
+vista interrogativa usa lo stesso frame su ciascun ruolo. Gate corpus-driven:
+`33/33`, `Transfer@3=3/3`, target non canonico, catena di due costruzioni,
+contrasto e retract parlato.
 Vedi [`2026-08-28-confine-addestrabilita.md`](../labs/apprendimento-assistito/2026-08-28-confine-addestrabilita.md).
 
-*Manca ancora:* catena di costruzioni verificata; induzione dai soli esempi
-concreti.
+*Manca ancora:* induzione dai soli esempi concreti.
 
 *E una scoperta che cambia la mappa:* M3 e M8 erano **lo stesso muro**, e la
 sonda lo ha mostrato facendolo nominare a parrot0 in due domini diversi con la
@@ -477,8 +479,8 @@ sola condizione in `p0_explicit_pattern` (`*nvars != 2 || seen[0] != 1 ||
 seen[1] != 1`) bloccava il conteggio dei ruoli per M3 e l'unicita' per M8. La
 meta' di M3 e' caduta; la meta' di M8 — il bersaglio congiuntivo — no.  
 *Atto didattico:* «`X glints Y con Z` significa …».  
-*Gate:* arità ≠ 2 e catena a due passi, ciascuna con transfer held-out e
-ablation.
+*Gate:* arità ≠ 2 e catena a due passi sono verdi; resta l'induzione held-out da
+esempi che non esplicitano le variabili.
 
 **M4 — Ruoli nominabili.**  
 *Manca:* il teacher può allineare due slot, ma non *nominare* i ruoli, che è

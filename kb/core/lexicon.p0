@@ -166,6 +166,41 @@ function_word(it, quale, "which").
 function_word(it, nomi, "names").
 function_word(it, nome, "name").
 
+% ── IMPERATIVO + CLITICO: una forma, non un caso ───────────────────────────
+%
+% «raccontami» non e' un verbo nuovo: racconta + mi. Elencarlo come una seconda
+% cue perderebbe di nuovo «mostrami», «spiegami» e ogni host insegnato domani.
+% La forma si compone invece da tre pezzi di conoscenza indipendenti: un host
+% che ammette l'enclisi, il gloss del verbo e il gloss del pronome oggetto. Il
+% motore di canonicalizzazione continua a chiedere soltanto function_word/3.
+%
+% Il primo host curato apre il caso reale; gli altri si insegnano parlando con
+% la classe generale («the word mostra is an enclitic host»). Il gloss resta
+% insegnabile con la normale lezione di lingua.
+machinery(enclitic_host).
+machinery(enclitic_object).
+machinery(enclitic_imperative).
+machinery(enclitic_imperative_opener).
+enclitic_host(racconta).
+enclitic_object(me).
+enclitic_imperative($Surface, $Gloss) :-
+    enclitic_host($Host),
+    tr($Verb, $Host),
+    enclitic_object($Object),
+    tr($Object, $Clitic),
+    concat_atoms($Host, $Clitic, $Surface),
+    concat_atoms($Verb, " ", $VerbSpace),
+    concat_atoms($VerbSpace, $Object, $Gloss).
+function_word(it, $Surface, $Gloss) :-
+    enclitic_imperative($Surface, $Gloss).
+% La stessa composizione alimenta anche lingua e forza del turno PRIMA della
+% canonicalizzazione: tre lettori condividono l'oggetto, nessuno ricostruisce
+% «raccontami» per conto proprio.
+language_marker(it, $Surface) :-
+    enclitic_imperative($Surface, $Gloss).
+enclitic_imperative_opener($Surface) :-
+    enclitic_imperative($Surface, $Gloss).
+
 % ── CLASSI DI DEFORMAZIONE (gen385) ────────────────────────────────────────
 % Le operazioni sui caratteri sono meccanica fissa nel motore; QUALI provare e'
 % conoscenza. Una classe nuova — accento caduto, spazio mancante, parole unite —
@@ -439,7 +474,26 @@ imperative_opener(invent).
 imperative_opener(inventa).
 
 % #17 / generation: polite and indirect directives share the directive force
-% with ordinary imperatives. New languages or registers add facts here.
+% with ordinary imperatives. The old whole-phrase facts stay as live secondary
+% structure. The productive reading below factors the English construction into
+% two teachable axes: request auxiliary x addressee. Teaching a new auxiliary
+% (for example «might is a request auxiliary») opens every request that uses it;
+% it does not require another compiled or hand-curated bigram.
+machinery(request_auxiliary).
+machinery(request_addressee).
+request_auxiliary(could).
+request_auxiliary(can).
+request_auxiliary(would).
+request_auxiliary(will).
+request_addressee(you).
+request_opener($Opener) :-
+    request_auxiliary($Auxiliary),
+    request_addressee($Addressee),
+    concat_atoms($Auxiliary, " ", $Prefix),
+    concat_atoms($Prefix, $Addressee, $Opener).
+
+% New languages or registers can still add whole forms where the construction
+% is genuinely not compositional in this order (including Italian pro-drop).
 request_opener("could you").
 request_opener("can you").
 request_opener("would you").

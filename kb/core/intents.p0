@@ -4329,18 +4329,24 @@ intent_cue(supposition, "assumi ").
 % richiesta non deve rivendicare un turno con cui non le si sta chiedendo nulla,
 % e questo si dice UNA volta per tutte le facolta', non una lista per ciascuna.
 machinery(illocution_cue).
+machinery(directive_opener).
+machinery(directive_opener_kind).
 machinery(faculty_force).
 machinery(faculty_force_lesson).
 
 % ── LA FORZA DEL TURNO ──────────────────────────────────────────────────────
 %
-% Una lettura sola, condivisa. `imperative_opener/1` smette di essere una lista
-% d'esclusione al servizio di un cancello e diventa EVIDENZA di una lettura
-% generale — lo stesso oggetto usato da tutti invece di una copia per sintomo.
-illocution_cue(directive, $Opener) :- imperative_opener($Opener).
-% Indirect requests are the same directive force expressed as a question or
-% a polite preface. The wording is lexicon knowledge, not a C-side exception.
-illocution_cue(directive, $Opener) :- request_opener($Opener).
+% Una lettura sola, condivisa. Le famiglie che portano evidenza direttiva sono
+% esse stesse un registro: l'imperativo e la richiesta indiretta sono i primi
+% due membri, non due rami del consumer. `apply/2` interroga la famiglia opaca;
+% aggiungerne una nuova domani e' un fatto e nessun matcher va modificato.
+directive_opener_kind(imperative_opener).
+directive_opener_kind(request_opener).
+directive_opener_kind(enclitic_imperative_opener).
+directive_opener($Opener) :-
+    directive_opener_kind($Kind),
+    apply($Kind, cons($Opener, nil)).
+illocution_cue(directive, $Opener) :- directive_opener($Opener).
 
 % L'asserzione non ha cue proprie: e' cio' che resta quando nessuna forza e'
 % marcata. E' deliberato — marcare l'asserzione richiederebbe di enumerare la
@@ -4401,6 +4407,19 @@ faculty_yield(answer_frame, open, border_intersection).
 % `arith` cede TARDI: lo schema del rettangolo e' suo finche' i propri lettori
 % non hanno provato: cedere prima perderebbe la lettura che gli appartiene.
 faculty_yield(arith, late, rectangle_dimension_schema).
+
+% ── CEDERE PER LA FORZA DEL TURNO, NON PER UNA PAROLA ──────────────────────
+%
+% `faculty_yield/3` cede su una cue. Ma il motivo per tacere puo' essere la
+% LETTURA e non una parola: «He reviewed the draft» non contiene nessuna cue che
+% dica «non sono una domanda». `faculty_yield_force/3` chiude quel verso.
+%
+% `answer_frame` risponde alle domande. Un turno che LEGA un frame dichiarativo
+% completo e' un'asserzione (vedi turn-frames.p0), e a un'asserzione non si
+% risponde: si impara. Misurato sulla matrice F03 — «He reviewed the draft»
+% riceveva «Luca.», cioe' la risposta a una domanda che nessuno aveva fatto.
+machinery(faculty_yield_force).
+faculty_yield_force(answer_frame, open, assertion).
 
 % Le superfici con cui chiamarle parlando: senza queste la condotta si potrebbe
 % leggere ma non correggere, e sarebbe meta' mantra #17.

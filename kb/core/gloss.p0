@@ -485,6 +485,9 @@ tr(tell, racconta).
 tr(tells, racconta).
 tr(show, mostra).
 tr(shows, mostra).
+% Pronome oggetto usato anche dalla morfologia enclitica italiana: la stessa
+% relazione che traduce una parola alimenta la composizione racconta+mi.
+tr(me, mi).
 tr(buy, compra).
 tr(buys, compra).
 tr(sell, vende).

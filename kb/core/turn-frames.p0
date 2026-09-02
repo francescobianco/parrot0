@@ -80,12 +80,32 @@ turn_cue_registry(ordinal_surface, 1).
 % A turn's force is a derived view, not a second recognizer. A new directive
 % surface reaches every faculty through the same published cue.
 turn_illocution($Turn, $Force) :-
-    turn_cue($Turn, illocution_cue, $Cue),
+    turn_cue_form($Turn, illocution_cue, $Cue),
     illocution_cue($Force, $Cue).
+% La domanda ha gia' una lettura strutturale condivisa dall'anti-mislearning:
+% primo nodo interrogativo, copula invertita o ausiliare invertito. Riutilizzarla
+% qui porta nel frame anche domande che non hanno ancora una answer_frame; una
+% superficie nuova cresce nella classe linguistica a monte, non in ogni faculty.
+turn_illocution($Turn, question) :-
+    turn_opens_question($Turn).
 turn_illocution($Turn, question) :-
     turn_cue($Turn, answer_frame_input_arg, $Cue).
 turn_illocution($Turn, question) :-
     turn_cue($Turn, attribute_question_cue, $Cue).
+
+% ── L'ASSERZIONE HA UNA LETTURA, ANCHE SE NON HA CUE ───────────────────────
+%
+% Sopra e' scritto — e resta vero — che l'asserzione non ha cue proprie: marcarla
+% per superficie richiederebbe di enumerare la lingua intera. Ma non ha cue non
+% vuol dire non ha lettura. Un turno che LEGA un frame dichiarativo completo,
+% senza nessuno slot interrogativo, sta affermando: e' struttura, non vocabolario,
+% e la fase pura del lettore (`turn_reading/3`) la pubblica gia'.
+%
+% Serve perche' una facolta' che risponde alle domande possa CEDERE un turno che
+% non e' una domanda. Misurato sulla matrice F03: «He reviewed the draft»
+% riceveva «Luca.» — una risposta a una domanda che nessuno aveva fatto.
+turn_illocution($Turn, assertion) :-
+    turn_reading($Turn, declarative, $Pred).
 
 % ── 0b. CIO' CHE SI PUO' OMETTERE DENTRO UNA SUPERFICIE ────────────────────
 %

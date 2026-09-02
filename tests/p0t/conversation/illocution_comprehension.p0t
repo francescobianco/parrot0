@@ -1,0 +1,49 @@
+# LA FORZA E' UNA LETTURA CONDIVISA DEL TURNO.
+#
+# Il gate interroga il frame prodotto prima del dispatch: non dipende da quale
+# faculty abbia poi risposto. Le due crescite sono parlate e simmetriche: una
+# classe lessicale nuova vale dal turno dopo e il suo ritiro spegne la lettura.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test questions share one structural illocution]
+# Non c'e' bisogno di una answer_frame per riconoscere che sta chiedendo.
+> why do zoraks shimmer
+!query turn_illocution(current_turn, question)
+> did zorak shimmer
+!query turn_illocution(current_turn, question)
+> is zorak luminous
+!query turn_illocution(current_turn, question)
+
+[test a question auxiliary is learned and forgotten by speaking]
+> zorp the lantern shimmer
+!query! turn_illocution(current_turn, question)
+> zorp is an auxiliary
+!query auxiliary(zorp)
+> zorp the lantern shimmer
+!query turn_illocution(current_turn, question)
+> forget that zorp is an auxiliary
+!query! auxiliary(zorp)
+> zorp the lantern shimmer
+!query! turn_illocution(current_turn, question)
+
+[test polite requests compose and grow at runtime]
+> will you weave the tale
+!query turn_illocution(current_turn, directive)
+# «might you» is not curated as a phrase: one spoken class membership grows the
+# whole construction request_auxiliary x request_addressee.
+> might you weave the tale
+!query! turn_illocution(current_turn, directive)
+> the word might is a request auxiliary
+!query request_auxiliary(might)
+> might you weave the tale
+!query turn_illocution(current_turn, directive)
+> forget that the word might is a request auxiliary
+!query! request_auxiliary(might)
+> might you weave the tale
+!query! turn_illocution(current_turn, directive)

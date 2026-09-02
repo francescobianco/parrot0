@@ -1,0 +1,100 @@
+# Una spiegazione parlata puo' allineare tutti i ruoli che il frame dichiara.
+# Il caso viene dal corpus GD1 (`Mira sent the draft to Luca`), ma il gate non
+# insegna quella risposta: insegna una costruzione e la prova su nomi nuovi,
+# domande a tre slot, inversione, contrasto e retract.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+!timeout 120
+
+[test una parafrasi ternaria si insegna e trasferisce]
+# Il frame bersaglio nasce anch'esso parlando: relazione e parola di legame
+# sono membri KB, non conoscenza compilata del C.
+> sent is a ternary relation verb
+< Learned: sent is a ternary relation verb.
+> the word to is a link word
+< Learned: to is a link_word.
+
+# Il turno esatto che ha aperto il cluster F03 del corpus diventa leggibile e
+# interrogabile grazie ai due membri appresi, senza frame scritto per `sent`.
+> Mira sent the draft to Luca.
+< Learned: sent(mira, draft, luca).
+> Who sent the draft to Luca?
+< mira.
+
+# BASELINE: la parafrasi italiana non e' ancora una lettura di `sent`.
+> mira manda bozza a luca
+<! Learned: sent
+
+# LEZIONE naturale a tre variabili. Prima di questo incremento il messaggio
+# dichiarava il limite binario e non aggiungeva alcuna costruzione.
+> x manda y a z significa x sent y to z
+<~ @S manda @O a @T maps to @S sent @O to @T
+!query construction_frame("@S manda @O a @T", "@S sent @O to @T", sent)
+
+# Replay + Transfer@3 con tutti e tre gli slot variati.
+> mira manda bozza a luca
+< Learned: sent(mira, bozza, luca).
+> nora manda rapporto a teo
+< Learned: sent(nora, rapporto, teo).
+> ava manda campione a bio
+< Learned: sent(ava, campione, bio).
+> rui manda mappa a noa
+< Learned: sent(rui, mappa, noa).
+
+# La stessa costruzione apre domande su ciascun ruolo, senza answer-frame
+# scritto per `manda`.
+> chi manda rapporto a teo?
+< nora.
+> nora manda cosa a teo?
+< rapporto.
+> nora manda rapporto a chi?
+< teo.
+
+# CONTRASTO: cambiare la parola di legame non viene assorbito.
+> zeno manda nota da lia
+<! Learned: zeno sent
+!query! sent(zeno, nota, lia)
+
+[test una costruzione ternaria puo invertire i ruoli]
+# Il target gia' compreso assegna i ruoli. Nella sorgente destinatario e agente
+# sono invertiti, ma il fatto conserva l'ordine semantico S/O/T.
+> x receives y from z means z sent y to x
+<~ @T receives @O from @S maps to @S sent @O to @T
+> lia receives memo from nora
+< Learned: sent(nora, memo, lia).
+!query sent(nora, memo, lia)
+!query! sent(lia, memo, nora)
+
+# Anche il TARGET puo' esporre i ruoli in ordine non canonico: non e' il C a
+# riassegnarli per posizione. `receives ... from` e' la costruzione appena
+# appresa, quindi questa prova misura anche una catena di due lezioni.
+> x dispatches y to z means z receives y from x
+<~ @S dispatches @O to @T maps to @T receives @O from @S
+> mira dispatches parcel to luca
+< Learned: sent(mira, parcel, luca).
+!query sent(mira, parcel, luca)
+!query! sent(luca, parcel, mira)
+
+[test il retract parlato abla soltanto la costruzione]
+> forget that x manda y a z significa x sent y to z
+<~ @S manda @O a @T -> @S sent @O to @T is no longer active
+!query! construction_frame("@S manda @O a @T", "@S sent @O to @T", sent)
+> irma manda piano a otto
+<! Learned: irma sent
+!query! sent(irma, piano, otto)
+
+# La costruzione inversa indipendente e i fatti storici restano vivi.
+> teo receives memo from nora
+< Learned: sent(nora, memo, teo).
+!query sent(nora, memo, teo)
+!query sent(mira, bozza, luca)
+
+[test variabile mancante resta un errore e non lascia mezza grammatica]
+> x routes y through z means x sent y to q
+<~ cannot align the same variables exactly once
+!query! construction_frame("@S routes @O through @T", "@S sent @O to @T", sent)

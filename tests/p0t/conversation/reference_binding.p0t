@@ -1,0 +1,54 @@
+# F03 — UN RIFERIMENTO SI LEGA A UN RUOLO, E UN RIFERIMENTO NON RISOLTO NON E'
+# UN'ENTITA'. Ratchet causale della matrice preregistrata al §6 dell'handoff.
+#
+# Il difetto peggiore che questa matrice ha trovato non era un muro:
+#
+#     He reviewed it   ->  Learned: luca reviewed it.
+#     !query reviewed(luca, it)  ->  dimostrabile
+#
+# cioe' un PRONOME scritto in KB come entita' e annunciato come appreso — il
+# mantra #7. Il secondo era un'asserzione ordinaria letta come domanda.
+#
+# Entita' nuove, KB intera (niente amputazione): la capacita' dipende dalla
+# conoscenza reale, e staccarla proverebbe solo che senza conoscenza non c'e'.
+[mock hermetic]
+!set PARROT0_SESSION=
+!reset
+
+[test reference_binding]
+!timeout 4
+> sent is a ternary relation verb
+> the word to is a link word
+> reviewed is a relation verb
+> Vantel sent the dossier to Orsolo.
+<~ sent(vantel, dossier, orsolo)
+> Orsolo reviewed the dossier
+<~ reviewed dossier
+!query reviewed(orsolo, dossier)
+# --- pronome nel PRIMO ruolo: il parallelismo di ruolo preferisce, per il ruolo
+# --- dell'agente, chi ha gia' fatto l'agente — non il dossier, che ha sempre
+# --- occupato il secondo. Nessun genere, nessuna animatezza: solo la struttura.
+> He reviewed the dossier
+<~ reviewed dossier
+# --- pronome nel SECONDO ruolo
+> Orsolo reviewed it
+<~ reviewed dossier
+# --- composizione dei due riferimenti nello stesso turno: la frase del corpus
+> He reviewed it after lunch
+<~ reviewed dossier
+# --- ⛔ NESSUN PRONOME E' MAI DIVENTATO UN'ENTITA'
+!query! reviewed(orsolo, it)
+!query! reviewed(he, dossier)
+!query! reviewed(orsolo, he)
+# --- un'asserzione non riceve una risposta: `answer_frame` cede alla forza
+!query turn_reading(current_turn, declarative, reviewed)
+!query turn_illocution(current_turn, assertion)
+# --- e la domanda formata con le stesse parole trova cio' che il turno ha detto
+> Who reviewed the dossier?
+<~ Orsolo
+# ⛔ COORDINATA ANCORA APERTA (§8.5 dell'handoff): due antecedenti compatibili.
+# Qui il turno agente e' esplicito di proposito, cosi' il caso NON e' ambiguo.
+# «Vantel sent the dossier to Orsolo. He reviewed the dossier.» ha due letture —
+# continuita' del soggetto e destinatario piu' recente — e oggi parrot0 ne sceglie
+# una in silenzio. Deve CHIEDERE. Non aggiungere qui un'asserzione su quale sia
+# la risposta giusta: la cura e' la politica di ambiguita', non un golden.

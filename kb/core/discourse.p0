@@ -231,6 +231,41 @@ demonstrative_reference(en, "the other one").
 demonstrative_reference(it, "l'altro").
 demonstrative_reference(it, "l'altra").
 
+% ── COME UN RIFERIMENTO SI LEGA A UN RUOLO ─────────────────────────────────
+%
+% Il binder risolveva il pronome soltanto nel PRIMO slot, e negli altri lo
+% lasciava passare come atomo: «He reviewed it» diventava `reviewed(luca, it)`,
+% cioe' un pronome scritto in KB come entita' e annunciato come appreso. Il
+% mantra #7 nella forma peggiore, perche' persiste oltre il turno.
+%
+% La politica sta qui, non nel motore, quindi si puo' cambiare parlando:
+%
+%   `most_recent`        — l'ordine dei candidati e' la recenza. I candidati sono
+%                          `entity_mentioned(Nome, Seq)`, la storia del discorso
+%                          che gia' esiste: non un secondo registro parallelo.
+%   `distinct_in_frame`  — due ruoli dello STESSO frame non prendono lo stesso
+%                          referente. E' cio' che fa leggere «He reviewed it»
+%                          con due antecedenti diversi senza inventare un
+%                          sistema di tipi: il vincolo e' strutturale, non
+%                          lessicale, quindi non elenca ne' generi ne' animatezza.
+%
+% Ritrarre una di queste righe cambia la condotta senza ricompilare — che e' il
+% test operativo. Se nessun candidato regge, la lettura si RITIRA: un muro
+% visibile e' preferibile a un fatto falso.
+%   `role_parallel`      — si preferisce, per un ruolo, un referente che ha gia'
+%                          occupato QUELLO stesso ruolo. E' cio' che fa leggere
+%                          «He reviewed the draft» con He=Luca e non He=draft,
+%                          una volta che il discorso contiene anche i nomi comuni:
+%                          il parallelismo di ruolo e' una generalizzazione
+%                          linguistica vera, e non elenca generi ne' animatezza.
+%                          I ruoli occupati sono `entity_role(Nome, Indice)`,
+%                          scritti da ogni frame legato.
+machinery(reference_binding).
+machinery(entity_role).
+reference_binding(most_recent).
+reference_binding(distinct_in_frame).
+reference_binding(role_parallel).
+
 % L'eredita' e' una POLITICA dichiarata, non un comportamento cablato: si puo'
 % spegnere, e un registro che non la vuole puo' dichiararne un'altra. Segue
 % l'idioma gia' usato da `branch_action_ellipsis/3` in conditional-plans.p0.

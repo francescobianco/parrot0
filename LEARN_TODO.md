@@ -7,6 +7,275 @@
 > dottrina (mantra #17, #18, l'errore da non rifare) ma non più come punto di
 > ripresa.
 
+> **Direzione successiva di F. (2026-09-02):** non fermare la marcia sui test
+> rossi preesistenti; la priorita' e' far avanzare le abilita' di comprensione.
+> I gate nuovi restano obbligatori e puntuali, la suite lunga no.
+
+## ⛔ HANDOFF OPERATIVO 2026-09-02 — oltre il binario, poi dentro F03
+
+Questo e' il punto di ripresa per un agente nuovo. Non richiede di ricostruire
+la sessione per intuito: sotto ci sono causa, modello mentale, invarianti,
+prossima matrice e stop condition. Prima di modificare una riga leggere, per
+intero e in quest'ordine:
+
+1. `MANTRA.md` e `PRINCIPLES.md`;
+2. `LEARN_PROTOCOL.md`;
+3. `docs/plans/apprendimento-assistito.md`, in particolare M3, M4, M6, M7;
+4. `docs/labs/apprendimento-assistito/2026-09-02-gd2-costruzioni-ternarie.md`;
+5. il dialogo `gd1_012` nel corpus
+   `docs/labs/apprendimento-assistito/2026-08-31-gd1-dialogue-corpus.tsv`.
+
+### 1. Il risultato appena acquisito — non ridurlo a «supporta tre argomenti»
+
+Il lettore supportava gia' frame fino a `P0_MAX_SLOTS = 8`. Il limite era in
+un altro percorso: **la frase con cui il teacher insegna una costruzione**.
+`p0_explicit_pattern` conteneva `vars[2]`, `seen[2]` e decideva da solo che la
+prima variabile del target fosse `@S` e la seconda `@O`.
+
+Era un difetto doppio:
+
+- il teacher non poteva dire «X manda Y a Z significa X sent Y to Z»;
+- anche togliendo il numero due, un target non canonico avrebbe ricevuto ruoli
+  dall'ordine delle parole invece che dalla lettura gia' nota.
+
+La cura non e' «2 -> 8». La cura e':
+
+```text
+lato target della lezione
+  -> stessi extract_frame/2 del lettore
+  -> stesso p0_frame_bind
+  -> ruoli opachi osservati nel frame bersaglio
+  -> quei ruoli vengono riportati sulle stesse variabili nella sorgente
+```
+
+Percio' ora funzionano entrambe:
+
+```text
+X manda Y a Z significa X sent Y to Z
+X dispatches Y to Z means Z receives Y from X
+```
+
+Nel secondo caso il target `Z receives Y from X` e' una costruzione appresa un
+turno prima e porta i ruoli nell'ordine `T/O/S`. La nuova sorgente viene comunque
+registrata `@S dispatches @O to @T`. Questo e' il gate profondo: se passasse
+soltanto il target canonico, il numero sarebbe cresciuto ma il modello sarebbe
+rimasto posizionale.
+
+### 2. Modello mentale del codice — quattro stadi, quattro responsabilita'
+
+| stadio | dove | responsabilita' | non deve fare |
+|---|---|---|---|
+| geometria | `p0_lesson_variables` | stesse variabili una volta per lato | assegnare ruoli |
+| menzione | copia `p0lessonvarN` | impedire che `a` variabile sia usata come articolo | cambiare la lezione salvata |
+| allineamento | `p0_align_explicit_lesson` | offrire il target ai frame vivi e rifiutare l'ambiguita' | conoscere verbi, lingue o arita' |
+| eredita' | `p0_lesson_source_pattern` | riapplicare alla sorgente il ruolo osservato | decidere che S/O/T significhino agente/oggetto/destinatario |
+
+La copia `p0lessonvarN` e' meccanica interna ed effimera. E' necessaria perche'
+le variabili sono **menzionate** nella lezione: dopo «a is a rule_variable», il
+token `a` e' contemporaneamente una variabile didattica e un articolo inglese.
+Passarlo nudo al lettore svuotava il primo slot. Non togliere questa copia e non
+risolvere il caso cablando l'articolo `a`.
+
+`p0_construction_target` resta il cancello finale: il target deve avere una sola
+lettura. Una lezione non sceglie in silenzio fra due frame. `mod_forget` richiama
+lo stesso parser della lezione: cambiare solo il percorso di add senza cambiare
+quello di retract rompe l'ablazione parlata.
+
+### 3. Invarianti da tenere fermi
+
+1. **Nessuna arita' linguistica nel C.** `P0_MAX_SLOTS` e' soltanto la dimensione
+   meccanica dell'appoggio, condivisa dal lettore e dall'atto didattico.
+2. **Nessun ruolo per posizione.** Il target gia' compreso nomina i ruoli; il C
+   trasporta lettere opache.
+3. **Nessun vocabolo del gate nel C.** `sent`, `to`, `manda`, `receives` e
+   `dispatches` compaiono solo nel test/report.
+4. **Target noto e univoco.** Un target assente o con due letture resta un gap;
+   non si prende il primo risultato di `kb_match`.
+5. **Stesse variabili, esattamente una volta per lato.** Una variabile mancante,
+   duplicata o nuova sul lato sorgente non lascia una costruzione parziale.
+6. **Domanda e asserzione condividono il frame.** Non aggiungere un answer-frame
+   per ogni slot: `p0_frame_bind` riconosce gia' la question word nello slot.
+7. **Il retract toglie la capacita', non la storia.** I fatti prodotti mentre la
+   costruzione era viva restano; il frame operativo sparisce.
+8. **Le rese restano KB.** Il nuovo messaggio di forma non supportata e' in
+   `kb/core/responses.p0`, non in uno `snprintf`.
+
+### 4. Evidenza corrente e comandi esatti
+
+Baseline GD1 appena misurata, nessun `/save`:
+
+```text
+60 dialoghi / 360 turni / 0 errori di allineamento
+230 muri / 124 move_match
+F03: 24 muri su 30, 6 move_match su 30
+```
+
+Gate nuovo:
+
+```sh
+make build
+make test-engine
+./bin/parrot0 --test tests/p0t/language/assisted_construction_ternary.p0t
+```
+
+Esito corrente: `33 passed`. Nell'ambiente Codex il demone aperto da
+`make test-engine` puo' morire alla fine della singola shell: se il client non
+trova `obj/test-engine.sock`, eseguire target e client nello **stesso comando**.
+Questo e' un limite dell'ambiente di esecuzione, non di parrot0.
+
+Compatibilita' mirata:
+
+```sh
+make test-engine
+./bin/parrot0 --test tests/p0t/language/assisted_construction.p0t
+```
+
+Esito corrente: `65 passed, 1 failure`. L'unico rosso e' anteriore a questo
+incremento: il test cerca virgolette ASCII nella resa di `denotes`, mentre la
+voce corrente usa «caporali» e una cornice diversa. Per ordine di F. non
+inseguirlo e non cambiare la risposta soltanto per rendere verde il golden.
+La suite lunga non e' stata eseguita e non va eseguita finche' F. non la chiede.
+
+### 5. Mappa dei file del checkpoint
+
+- `src/brain/10-memory-knowledge.c`, intorno a `p0_lesson_variables`:
+  meccanica generale della lezione, binder condiviso, ambiguita'.
+- `kb/core/grammar.p0`, `frame_role_order/2`, `ternary_relation_verb/1`,
+  `link_word/1`, `extract_frame/2`: conoscenza che genera i frame.
+- `kb/core/responses.p0`, `construction_shape_unsupported`: voce del gap.
+- `tests/p0t/language/assisted_construction_ternary.p0t`: ratchet causale.
+- `tests/p0t/language/assisted_construction.p0t`: compatibilita' binaria,
+  inversione, pivot e variabili insegnate.
+- `docs/labs/apprendimento-assistito/2026-09-02-gd2-costruzioni-ternarie.md`:
+  report, metriche, conteggi e confine.
+
+Il worktree contiene anche il checkpoint precedente su forza del turno ed
+enclitiche (`illocution_comprehension.p0t`, `enclitic_imperative.it.p0t` e KB
+collegata). Non attribuire quelle righe al limite ternario e non cancellarle.
+
+### 6. Prossimo esperimento esatto — scomporre `gd1_012`, non «fare coref»
+
+Il dialogo da riprendere e':
+
+```text
+Mira sent the draft to Luca.
+He reviewed it after lunch.
+Who does he refer to there?
+I meant Luca reviewed the draft.
+And when?
+Who originally sent it?
+```
+
+Dopo due lezioni naturali, il primo turno e la domanda diretta sono verdi:
+
+```text
+sent is a ternary relation verb
+the word to is a link word
+Mira sent the draft to Luca       -> sent(mira, draft, luca)
+Who sent the draft to Luca?       -> mira
+```
+
+**Non saltare da qui a un modulo “coreference”.** Prima preregistrare questa
+matrice in un processo fresco, una coordinata per volta:
+
+| sonda | che cosa isola |
+|---|---|
+| `Luca reviewed the draft` | licenza lessicale/frame binario |
+| `He reviewed the draft` | pronome nel primo ruolo |
+| `Luca reviewed it` | pronome nel secondo ruolo |
+| `He reviewed it` | composizione dei due riferimenti |
+| `Luca reviewed the draft after lunch` | confine del secondo ruolo / tempo |
+| `He reviewed it after lunch` | frase corpus: composizione completa |
+| `Who reviewed the draft?` | domanda sul primo ruolo |
+| `What did Luca review?` | dualita' interrogativa/morfologia |
+| `When did Luca review it?` | ellissi temporale e terzo ruolo |
+| due uomini + `he` | ambiguita': deve chiedere, non scegliere |
+
+Per ogni riga conservare risposta, modulo vincitore, fatto candidato, referenti
+prima/dopo e residuo. Variare prima il pronome, poi il complemento temporale:
+se si cambiano insieme non si sapra' quale coordinata e' causale.
+
+### 7. Ipotesi da falsificare prima di implementare
+
+Nel binder c'e' ancora questo limite dichiarato:
+
+```c
+/* Il pronome si risolve solo nel primo slot. */
+```
+
+E' una **ipotesi**, non ancora la patch da fare. Prima verificare:
+
+1. se il secondo slot arriva davvero al binder come `it` o viene inglobato con
+   `after lunch`;
+2. se il referente necessario esiste nel discourse space e con quale ruolo;
+3. se `last_entity` e' troppo povero per distinguere draft, Mira e Luca;
+4. se la domanda fallisce per coreferenza, morfologia (`reviewed`/`review`) o
+   assenza di chiusura interrogativa;
+5. se una correzione «I meant Luca…» deve rivedere il fatto o soltanto il
+   referente, usando `supersedes_in/3` invece di accumulare.
+
+Solo dopo la matrice scegliere il collo condiviso. Se e' davvero «pronome in
+qualunque ruolo», la forma generalizzabile non e' un secondo `if (nslots == 1)`:
+e' una relazione fra **slot del frame, superficie riferente e candidati nel
+discorso**, con politica di ambiguita' in KB. Deve essere possibile insegnare un
+nuovo membro della classe riferente e ritrarlo senza rebuild.
+
+### 8. Gate minimo del prossimo incremento
+
+Non dichiarare chiuso F03 con il solo `He reviewed it`. Servono:
+
+1. Replay sulla frase corpus;
+2. `Transfer@3=3/3`: tre relazioni e nomi held-out;
+3. pronome nel primo e nel secondo ruolo separatamente;
+4. composizione con un frame ternario e con un'entita' multi-parola;
+5. contrasto ambiguo con almeno due antecedenti compatibili: chiarimento, non
+   scelta silenziosa;
+6. riferimento distante almeno tre turni;
+7. correzione che supersede la lettura precedente senza cancellare il testo;
+8. crescita e retract di una superficie riferente appresa a runtime;
+9. nessuna stale reading che continui a rispondere dopo la correzione;
+10. rimisura prima il mini-dialogo intero; il probe 360 si rilancia solo quando
+    la catena chiude da capo a fondo.
+
+### 9. Trappole gia' pagate — non ripeterle
+
+- **Non aggiungere `sent`, `to` o `reviewed` al C.** I primi due si insegnano
+  gia' parlando; il terzo deve seguire lo stesso canale.
+- **Non scrivere la risposta di `gd1_012`.** Il corpus e' misura, non frasario.
+- **Non usare il totale 230 come feedback stretto.** Una catena puo' guadagnare
+  una coordinata e restare muro al turno successivo; si misura prima il
+  verticale.
+- **Non assumere che una risposta non-vuota sia comprensione.** Il probe
+  `move_match` e' euristico; leggere semanticamente i transcript.
+- **Non montare una KB amputata per “isolare”.** Usare nomi held-out, non
+  `PARROT0_WORLD_FACTS=0`, quando la capacita' dipende dalla KB reale.
+- **Non dequotare due volte lo stesso buffer.** `kb_dequote` modifica in place;
+  il difetto e' gia' costato un ciclo (§1(a)).
+- **Non salvare le fixture del gate.** Questo checkpoint e'
+  `meta-capability-only`: `W=0`, `S=0`, `X=0`.
+- **Non riparare ora la resa `sent(mira, draft, luca)`.** E' il debito M20,
+  reale ma ortogonale. Prima conservare la nuova comprensione; la voce naturale
+  richiedera' un renderer ternario KB-backed, non un `printf`.
+- **Non creare un indice parallelo delle costruzioni.** `extract_frame/2` e il
+  binder sono gia' il punto condiviso; duplicarli ricrea la divergenza appena
+  tolta.
+
+### 10. Stato protocollare del checkpoint
+
+```text
+Stato: meta-capability-only
+W=0  L=0  C_salvate=0  P=0  O=0  X=0
+Meccaniche generali ampliate: 1
+/save: non eseguito
+B0/R0: 37778/2640
+B1/R1: 37778/2640
+FreshProcessRecall: n/a, nessuna conoscenza persistita
+```
+
+Una nuova sessione reale potra' salvare soltanto lezioni linguistiche generali
+che superano audit, ablation e fresh boot. Non chiamare questo checkpoint
+`trained`: ha aperto un canale con cui parrot0 potra' imparare domani.
+
 ## §0. Che cosa è successo in questo ciclo
 
 F. ha dato due direzioni operative: **«non perdere tempo in lunghe sessioni di
@@ -113,6 +382,50 @@ righe di KB e zero righe di C.
 - `concise_explanation` passa da `{text}` + `toupper` nel C a `{Text}`: anche la
   maiuscola iniziale è conoscenza.
 
+### (f) La forza oltre l'imperativo ora e' una lettura davvero condivisa
+
+`turn_illocution/2` riusa `turn_opens_question/1`: wh-word, copula invertita e
+ausiliare invertito fanno riconoscere una domanda anche quando non esiste ancora
+una `answer_frame` per il suo contenuto. L'ausiliare resta una classe KB: «the
+word zorp is an auxiliary» cambia la lettura dal turno dopo e il retract la
+spegne.
+
+Le richieste cortesi inglesi non sono piu' soltanto tre bigrammi: si compongono
+come `request_auxiliary × request_addressee`. Il gate ha anche esposto un difetto
+piu' antico: `turn_illocution` provava a unificare la cue citata del frame con la
+cue nuda del lessico; ora attraversa `turn_cue_form/3`, lo stesso confine gia'
+usato dalle relazioni del turno. `illocution_comprehension.p0t`: **14 passed**.
+
+### (g) `raccontami` e' finalmente una parola composta
+
+`raccontami` non e' entrato come quarta cue narrativa. La KB lo deriva da
+`racconta + mi`, usando host enclitico, gloss del verbo e gloss del pronome, e
+pubblica la stessa lettura a canonicalizzazione, lingua e forza direttiva.
+Insegnare parlando che `mostra` e' un host apre `mostrami`; ritirarlo la richiude.
+`enclitic_imperative.it.p0t`: **18 passed**. Nessuna riga C aggiunta.
+
+### (h) Il metalinguaggio delle costruzioni non conta piu' fino a due
+
+Il corpus ha isolato un'asimmetria precisa: il lettore legava gia' fino a otto
+slot, e una relazione ternaria nuova si poteva insegnare con «sent is a ternary
+relation verb» + «the word to is a link word»; ma l'atto successivo — «X manda
+Y a Z significa X sent Y to Z» — entrava in un array `vars[2]` e rispondeva
+«non riesco ad allineare esattamente due variabili».
+
+Il limite e' stato tolto nel punto condiviso. L'allineatore usa ora
+`P0_MAX_SLOTS`, ma soprattutto **non assegna S/O/T per posizione**: offre il lato
+gia' compreso agli stessi `extract_frame/2` e `p0_frame_bind` del lettore e
+eredita da li' i ruoli opachi. Questo rende insegnabile anche una costruzione il
+cui target espone agente, oggetto e destinatario in ordine non canonico. Le
+variabili didattiche vengono menzionate in una copia effimera: `a`, insegnata a
+runtime come variabile, non viene piu' inghiottita come articolo.
+
+`assisted_construction_ternary.p0t`: **33 passed** — turno letterale GD1,
+Replay, `Transfer@3=3/3`, domanda su tutti e tre i ruoli, inversione della
+sorgente, inversione del target, catena di due lezioni, contrasto e retract
+parlato. Il ratchet binario resta **65 passed / 1 rosso preesistente** sulla
+sola resa quotata di `denotes`; non e' stato inseguito.
+
 ## §2. ⚠ IL BILANCIO — da giudicare, non da nascondere (mantra #18)
 
 Il mantra #18 dice: *un rifacimento KB-first che fa crescere il C non è un
@@ -167,13 +480,24 @@ altre già vivono. È misurabile: la tabella è finita e visibile.
 
 ## §4. Il prossimo lavoro, in ordine
 
-1. **⛔ Chiudere «i put …»** (§3). È il rosso più caro e la diagnosi è fatta.
-2. **Continuare la migrazione sui tre lettori** finché il bilancio del §2 gira.
+1. **✅ Togliere il limite binario dal metalinguaggio delle costruzioni.** Chiuso
+   il 2026-09-02: vedi §1(h). Il prossimo giro GD2 puo' insegnare a voce
+   parafrasi a tre ruoli e concatenarle, invece di aprire un file.
+2. **Tornare al corpus GD1 per una catena completa.** Usare la nuova fertilita'
+   su una classe strutturale reale; il primo turno di `gd1_012` e la sua domanda
+   sono verdi dopo lezione, mentre pronome oggetto, tempo ed ellissi restano il
+   residuo onesto. Scegliere una sola lezione ad alto guadagno, poi misurare
+   Replay/Transfer/contrasto/composizione/ablation prima del totale.
+3. **«i put …» resta diagnosticato** (§3), ma per direzione esplicita di F. non
+   ferma la marcia sulle capacita' di comprensione.
+4. **Continuare la migrazione sui tre lettori** finché il bilancio del §2 gira.
    Le rivendicazioni di `mod_gen` restano ~35: il modello è
    `creative_response` + i due nuovi lettori.
-3. **La forza oltre l'imperativo** (§D.3 dell'handoff sotto): le domande e le
+5. **La forza oltre l'imperativo** (§D.3 dell'handoff sotto): le domande e le
    richieste indirette, che sono la forma normale del parlato.
-4. **La sessione di test lunga e completa**, quando F. la chiede: qui si è fatto
+   **✅ CHIUSA il 2026-09-02:** vedi §1(f); domanda strutturale condivisa,
+   richiesta cortese compositiva, crescita e ablation parlate.
+6. **La sessione di test lunga e completa**, quando F. la chiede: qui si è fatto
    solo il differenziale su `tests/p0t/generation/` (**identico a HEAD, riga per
    riga**) più i due gate. `make test` intero **non** è stato eseguito.
 
@@ -353,6 +677,8 @@ memorizza la prova. Non c'è niente da inventare, c'è da estendere.
    («potresti…», «mi servirebbe…»), che sono la forma normale del parlato. Un
    primo registro `request_opener/1` è ora consumato dalla lettura condivisa;
    resta da ampliare e verificare nel gate finale.
+   **✅ CHIUSA il 2026-09-02:** `turn_opens_question/1` alimenta la forza
+   condivisa e gli opener cortesi si compongono per assi insegnabili. Vedi §1(f).
 4. **G4 resta aperto** per «ho messo il libro sul tavolo» (tre ruoli, agente
    implicito) — vedi GD8 al §6.
 

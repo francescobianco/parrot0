@@ -843,9 +843,12 @@ int try_forget_form(Brain *b, const char *norm, const char *raw,
  * lettura migliora ogni facolta' insieme. */
 static int p0_turn_is(Brain *b, const char *force, const char *turn) {
     if (b && b->kb) {
+        /* Una domanda BOOLEANA si fa con `kb_query`. Con `kb_match` non c'era
+         * nessuno slot variabile da raccogliere, e una forza pubblicata nel
+         * frame del turno risultava assente: la lettura c'era e nessuno la
+         * vedeva. */
         const char *q[2] = { "current_turn", force };
-        char hit[1][KB_TERM_LEN];
-        if (kb_match(b->kb, "turn_illocution", q, 2, hit, 1) > 0) return 1;
+        if (kb_query(b->kb, "turn_illocution", q, 2)) return 1;
     }
     char (*cues)[KB_TERM_LEN] = NULL; size_t nc = 0;
     const char *cq[2] = { force, NULL };
@@ -945,6 +948,24 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
         }
     }
     free(firsts);
+    if (yield) return 1;
+
+    /* La cessione per FORZA del turno, gemella di quella per cue. Serve dove il
+     * motivo per tacere non e' una parola ma la LETTURA: «He reviewed the draft»
+     * non contiene nessuna cue che dica «non sono una domanda» — lo dice il fatto
+     * che lega un frame dichiarativo completo. `p0_turn_is` legge la forza
+     * pubblicata nel frame del turno, quindi qui il C non nomina nessuna forza. */
+    char (*forces)[KB_TERM_LEN] = NULL;
+    size_t nfo = 0;
+    const char *foq[3] = { faculty, stage, NULL };
+    if (kb_match_all(b->kb, "faculty_yield_force", foq, 3, &forces, &nfo)) {
+        for (size_t i = 0; i < nfo && !yield; i++) {
+            char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", forces[i]);
+            const char *force = kb_dequote(fb);
+            if (*force && norm && p0_turn_is(b, force, norm)) yield = 1;
+        }
+    }
+    free(forces);
     return yield;
 }
 

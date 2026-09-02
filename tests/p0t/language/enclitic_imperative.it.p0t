@@ -1,0 +1,51 @@
+# L'IMPERATIVO ENCLITICO E' UNA COMPOSIZIONE, NON UNA CUE PER INCIDENTE.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test raccontami reaches the story request already understood]
+!mcp lang.canonical {"text":"raccontami una storia"}
+!expect mcp tell me a story
+> raccontami una storia
+<! Non capisco
+!query turn_illocution(current_turn, directive)
+!query current_language(it)
+
+[test a new enclitic host is taught and retracted by speaking]
+# `mostra` ha gia' un gloss ma non e' un host curato: la forma composta non
+# esiste prima della lezione.
+!mcp lang.canonical {"text":"mostrami il libro"}
+!expect mcp mostrami the book
+> the word mostra is an enclitic host
+!query enclitic_host(mostra)
+> mostrami il libro
+!query turn_illocution(current_turn, directive)
+!query current_language(it)
+!mcp lang.canonical {"text":"mostrami il libro"}
+!expect mcp show me the book
+> forget that the word mostra is an enclitic host
+!query! enclitic_host(mostra)
+!mcp lang.canonical {"text":"mostrami il libro"}
+!expect mcp mostrami the book
+
+[test the clitic gloss itself grows and ablates at runtime]
+!forget tr(me, mi)
+!query! tr(me, mi)
+!mcp lang.canonical {"text":"raccontami una storia"}
+!expect mcp raccontami a story
+> mi is the italian of me
+!query tr(me, mi)
+# La lezione e' formulata in inglese; il turno italiano successivo ripristina
+# la lingua d'uso prima di chiedere alla canonicalizzazione di applicarla.
+> come stai
+!query current_language(it)
+!mcp lang.canonical {"text":"raccontami una storia"}
+!expect mcp tell me a story
+!forget italian(mi, me)
+!query! tr(me, mi)
+!mcp lang.canonical {"text":"raccontami una storia"}
+!expect mcp raccontami a story
