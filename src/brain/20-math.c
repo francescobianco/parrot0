@@ -2422,7 +2422,13 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
     if (init) {             /* constrained: first member with that initial */
         for (size_t i = 0; i < k; i++)
             if (members[i][0] == init) {
-                char msg[160]; snprintf(msg, sizeof msg, "%s.", members[i]);
+                char pretty[KB_TERM_LEN];
+                snprintf(pretty, sizeof pretty, "%s", members[i]);
+                for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
+                char msg[200];
+                kb_term_say(b, "instance_named", (const KbResponseSlot[]){
+                                { "Member", pretty }, { "category", category } },
+                            2, msg, sizeof msg);
                 put(msg, out, out_size); return 1;
             }
         char msg[200];
@@ -2437,7 +2443,15 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
     /* unconstrained ("name any animal"): return a member, rotating for variety. */
     size_t idx = b->response_pick % k;
     b->response_pick++;
-    char msg[160]; snprintf(msg, sizeof msg, "%s.", members[idx]);
+    /* La resa e' KB (mantra #16), e l'atomo si dice in lingua: `carbon_dioxide`
+     * e' come parrot0 lo memorizza, non come lo si dice. */
+    char pretty[KB_TERM_LEN];
+    snprintf(pretty, sizeof pretty, "%s", members[idx]);
+    for (char *c = pretty; *c; c++) if (*c == '_') *c = ' ';
+    char msg[200];
+    kb_term_say(b, "instance_named", (const KbResponseSlot[]){
+                    { "Member", pretty }, { "category", category } },
+                2, msg, sizeof msg);
     put(msg, out, out_size);
     return 1;
 }

@@ -52,3 +52,22 @@
 # prefisso. Una forma che non condivide un prefisso sarebbe sparita.
 > show me a bird
 <! cannot check
+
+[test il corpus chiude il turno che murava, dalla stessa via generale]
+!timeout 6
+# «dimmi una molecola con l'ossigeno» murava in chat. Non mancava una macchina:
+# mancava la conoscenza. Aggiunta come corpus vero (world-facts.p0), il turno
+# passa dalla stessa via di «tell me a country in asia» — categoria + vincolo
+# verificato — senza nessun ramo per la chimica.
+> tell me a molecule with oxygen
+<! cannot check
+> tell me a molecule with nitrogen
+<! cannot check
+!query contains(water, oxygen)
+!query contains(ammonia, nitrogen)
+# e l'italiano ci arriva per canonicalizzazione, non per un secondo percorso
+> dimmi una molecola con l'ossigeno
+<! non riesco a verificare
+# ⛔ un vincolo che nessun membro soddisfa NON riceve un membro a caso
+> tell me a molecule with gold
+<~ cannot check

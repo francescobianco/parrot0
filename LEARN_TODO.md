@@ -11,6 +11,145 @@
 > rossi preesistenti; la priorita' e' far avanzare le abilita' di comprensione.
 > I gate nuovi restano obbligatori e puntuali, la suite lunga no.
 
+## ⛔ AGGIORNAMENTO 2026-09-02 (sera) — F03 chiusa, e il dialogo reale
+
+> Ordini di F. in questo ciclo, tutti vincolanti:
+> 1. **niente sessioni lunghe di test** — gate puntuali sì, la suite la indice lui;
+> 2. **massimizzare il corpus** e portare parrot0 alla comprensione universale;
+> 3. **dove la capacità c'è e manca la forma, si deve garantire l'insegnabilità**;
+> 4. **tutto quello che è cablato in C va portato KB-first**;
+> 5. **le latenze vanno studiate e ottimizzate** (cache, indici, kv hashing,
+>    exit condition) — vedi §L, ancora da fare.
+
+### F03 — chiusa (commit `a4eba76`)
+
+La matrice preregistrata del §6 è stata eseguita **una coordinata per volta prima
+di scrivere una riga**, ed è servita: ha trovato tre difetti, e il peggiore non
+era un muro.
+
+| sonda | prima | ora |
+|---|---|---|
+| `He reviewed it` | `Learned: luca reviewed it.` ⛔ | `reviewed(orsolo, dossier)` |
+| `He reviewed the draft` | `Luca.` (risponde a una domanda mai fatta) | impara |
+| `Luca reviewed it` | `Learned: luca reviewed mira.` | `reviewed(orsolo, dossier)` |
+| `He reviewed it after lunch` | muro | ✅ **la frase del corpus** |
+
+Le tre cause, tutte diverse:
+
+1. **Il binder risolveva il riferimento solo nel PRIMO slot** e negli altri lo
+   lasciava passare come atomo: `reviewed(luca, it)` era *dimostrabile*. Un
+   pronome scritto in KB come entità e annunciato come appreso — mantra #7.
+2. **`answer_frame` rivendicava un'asserzione.** Mancava la lettura della forza:
+   l'asserzione non ha *cue* (marcarle richiederebbe la lingua intera) ma ha una
+   **struttura** — lega un frame dichiarativo completo. Ora
+   `turn_reading/3` → `turn_illocution($T, assertion)` → `faculty_yield_force/3`.
+3. **I candidati del discorso si raccoglievano per MAIUSCOLA**, cioè per
+   ortografia: «Mira» e «Luca» entravano, «draft» no, e «He» ci finiva dentro.
+   Metà del discorso era invisibile.
+
+La politica di legatura è in KB (`reference_binding/1`): `most_recent`,
+`distinct_in_frame`, `role_parallel`. Il **parallelismo di ruolo** è ciò che fa
+leggere «He reviewed the draft» con He=persona senza inventare generi, animatezza
+o un sistema di tipi: il vincolo è strutturale. Ratchet:
+`tests/p0t/conversation/reference_binding.p0t`, 12 assert.
+
+**Coordinata ancora aperta e dichiarata dentro il gate:** due antecedenti
+compatibili («Vantel sent the dossier to Orsolo. He reviewed it») hanno due
+letture e parrot0 ne sceglie una **in silenzio**. Deve chiedere. La cura è la
+politica di ambiguità, non un golden.
+
+### Il dialogo reale di F. — tre difetti di tre specie (commit `601be52`)
+
+```text
+>>> come stai                          Sto bene, grazie. ✅
+>>> fammi una domanda semplic          Non capisco ancora.
+>>> x + 1 = 6, x = ?                   Non sono sicuro di aver seguito.
+>>> dimmi una molecola con l'ossigeno  Non capisco ancora.
+```
+
+**(a) `x + 1 = 6, x = ?`** — `solve x + 1 = 6` funzionava già. Mancavano: un
+segmento col lato destro vuoto (o il solo `?`) **nomina l'incognita** invece di
+essere una seconda equazione; e ventidue riempitivi cablati nel C in due lingue.
+La lista è andata **intera** in `equation_filler/1` — un trasloco, non una copia.
+Il requisito #3 di F. è ora un gate:
+
+```text
+> sbloccami x + 1 = 6              (muro)
+> sbloccami is an equation filler  Learned.
+> sbloccami x + 1 = 6              x = 5.
+> !forget equation_filler(sbloccami)
+> sbloccami x + 1 = 6              (muro)
+```
+
+**Effetto collaterale che vale più della patch:** `matches_any` — la funzione la
+cui unica firma era *(stringa, elenco di letterali in C)* — è rimasta senza
+chiamanti ed è stata **tolta**. Chi vorrà rifare una lista cablata dovrà
+riscriverla, e a quel punto la domanda «perché non è un fatto?» si pone da sola.
+
+**(b) `mod_namestart` — il difetto peggiore di tutto il ciclo.** Non un muro:
+
+```text
+tell me a country in asia    ->  andorra.
+tell me a country in europe  ->  argentina.
+tell me a country in africa  ->  australia.
+```
+
+Tre risposte **false** dette come fatti, mentre la KB sapeva verificarle. La
+guardia esistente elencava tre parole — border, neighbour, neighbor — cioè i
+sintomi del bug del gen240, e non poteva vedere «in asia» né «che vive
+nell'acqua». La lettura giusta non nomina niente:
+
+> **Se dopo la categoria resta del turno, quel residuo È un vincolo: o lo si
+> verifica, o si tace.**
+
+`member_satisfies/2` lo verifica via `kb_fact/2` — nessun nome di relazione nel
+C, e una relazione insegnata domani vale come vincolo lo stesso giorno.
+E **tacere non bastava**: cedendo in silenzio, «tell me an animal that lives in
+water» finiva a `personal` che rispondeva *«Got it, I'll remember that.»* — la
+domanda diventava una cosa da ricordare. Ora il gap si **dichiara**.
+
+Su segnalazione di F. («namestart è molto opinabile»): le **sette** classi
+`intent_cue` con un membro ciascuna sono diventate una,
+`name_instance_request`. Erano nate una per incidente, e la prova è che
+«tell me an» non c'era: entrava solo perché «tell me a» ne è un prefisso.
+
+**(c) `dimmi una molecola con l'ossigeno`** — non mancava una macchina, mancava
+il **corpus**. Aggiunta chimica vera in `world-facts.p0` (13 molecole, 10
+elementi, `contains/2`, formule) + i glosses italiani. Il turno passa dalla
+**stessa via generale** di «tell me a country in asia», senza nessun ramo per la
+chimica. Ratchet: `tests/p0t/knowledge/instance_under_constraint.p0t`, 18 assert.
+
+### ⛔ §L — LE LATENZE, il lavoro chiesto e non ancora fatto
+
+F.: *«le latenze vanno studiate e ottimizzate con strategie opportune: cache,
+indici, kv hashing, exit condition»*. **Non è stato fatto** e va fatto per primo
+o subito dopo l'iniziativa. Quello che si sa già:
+
+- il turno lento **non è lento in isolamento**: diventa lento **dopo N turni
+  nella stessa sessione**. È funzione dei fatti accumulati, non della frase;
+- perciò i rossi si concentrano **in fondo ai file** e sembrano rotture logiche
+  mentre sono scadenze di budget. Nel differenziale di questo ciclo su
+  `language/`+`knowledge/` **le uniche differenze erano timeout** (linee 49, 152,
+  156 di `taught_lexicon.p0t`): nessuna differenza di logica;
+- ⚠ questo ciclo **ha aggiunto** latenza: `turn_reading/3` esegue la fase pura del
+  lettore a ogni turno. È già resa **opt-in su un consumatore dichiarato** (se
+  nessuna facoltà dichiara `faculty_yield_force/3`, il costo sparisce), ma il
+  consumatore c'è, quindi il costo si paga;
+- **regola di F. che resta:** *non alzare i budget*. Un budget alzato nasconde il
+  fenomeno invece di misurarlo.
+
+### Il prossimo lavoro, in ordine
+
+1. **`fammi una domanda semplice`** — l'ultimo muro del dialogo di F., e non è un
+   difetto: è una **capacità mancante**. parrot0 deve *fare* una domanda. C'è già
+   `docs/plans/initiative.md` e il piano dello spazio negativo della KB
+   (question-emergence). È il pezzo di comprensione universale più grosso rimasto.
+2. **§L, le latenze** — cache, indici, kv hashing, exit condition.
+3. **L'ambiguità referenziale** (due antecedenti compatibili → chiedere).
+4. **Continuare la caccia al cablato in C** (ordine #4 di F.). Il prossimo
+   candidato noto: l'elenco dei file KB caricati a mano in `99-registry.c`.
+5. La sessione lunga di test, **quando F. la chiede**.
+
 ## ⛔ HANDOFF OPERATIVO 2026-09-02 — oltre il binario, poi dentro F03
 
 Questo e' il punto di ripresa per un agente nuovo. Non richiede di ricostruire

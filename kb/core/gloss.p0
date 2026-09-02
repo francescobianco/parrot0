@@ -1019,3 +1019,19 @@ translate_payload_span("translate ", " in ").
 translate_payload_span("say ", " in ").
 translate_payload_span("traduci ", " in ").
 translate_payload_span("come si dice ", " in ").
+
+% Chimica: i nomi italiani degli elementi e delle molecole, cosi' che «dimmi una
+% molecola con l'ossigeno» arrivi alla stessa conoscenza di «tell me a molecule
+% with oxygen». La canonicalizzazione e' la sola via: nessun ramo per lingua.
+tr(molecule, molecola).
+tr(element, elemento).
+tr(oxygen, ossigeno).
+tr(hydrogen, idrogeno).
+tr(carbon, carbonio).
+tr(nitrogen, azoto).
+tr(sulfur, zolfo).
+tr(sodium, sodio).
+tr(chlorine, cloro).
+tr(calcium, calcio).
+tr(iron, ferro).
+tr(water, acqua).

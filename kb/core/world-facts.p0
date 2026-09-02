@@ -658,6 +658,68 @@ category_member(animal, snake).
 category_member(animal, tiger).
 category_member(animal, wolf).
 category_member(animal, zebra).
+% ── CHIMICA: MOLECOLE ED ELEMENTI ──────────────────────────────────────────
+%
+% Corpus vero e committabile, aggiunto perche' «dimmi una molecola con
+% l'ossigeno» murava: non mancava una macchina, mancava la conoscenza. Passa
+% dalla stessa via generale di «tell me a country in asia» — categoria piu'
+% vincolo verificato da `member_satisfies/2` — quindi non serve nessun ramo per
+% la chimica: serve che parrot0 SAPPIA di che cosa e' fatta una molecola.
+category_member(molecule, water).
+category_member(molecule, carbon_dioxide).
+category_member(molecule, carbon_monoxide).
+category_member(molecule, methane).
+category_member(molecule, ammonia).
+category_member(molecule, ozone).
+category_member(molecule, glucose).
+category_member(molecule, ethanol).
+category_member(molecule, hydrogen_peroxide).
+category_member(molecule, sulfuric_acid).
+category_member(molecule, sodium_chloride).
+category_member(molecule, calcium_carbonate).
+category_member(molecule, nitrogen_dioxide).
+
+category_member(element, hydrogen).   category_member(element, helium).
+category_member(element, carbon).     category_member(element, nitrogen).
+category_member(element, oxygen).     category_member(element, sodium).
+category_member(element, sulfur).     category_member(element, chlorine).
+category_member(element, calcium).    category_member(element, iron).
+
+% Di che cosa e' fatta ciascuna. E' `contains/2`, la stessa relazione che serve
+% a qualunque altra composizione: il vincolo «con l'ossigeno» si verifica qui
+% senza che nessuno abbia scritto «ossigeno» nel motore.
+contains(water, hydrogen).             contains(water, oxygen).
+contains(carbon_dioxide, carbon).      contains(carbon_dioxide, oxygen).
+contains(carbon_monoxide, carbon).     contains(carbon_monoxide, oxygen).
+contains(methane, carbon).             contains(methane, hydrogen).
+contains(ammonia, nitrogen).           contains(ammonia, hydrogen).
+contains(ozone, oxygen).
+contains(glucose, carbon).             contains(glucose, hydrogen).
+contains(glucose, oxygen).
+contains(ethanol, carbon).             contains(ethanol, hydrogen).
+contains(ethanol, oxygen).
+contains(hydrogen_peroxide, hydrogen). contains(hydrogen_peroxide, oxygen).
+contains(sulfuric_acid, hydrogen).     contains(sulfuric_acid, sulfur).
+contains(sulfuric_acid, oxygen).
+contains(sodium_chloride, sodium).     contains(sodium_chloride, chlorine).
+contains(calcium_carbonate, calcium).  contains(calcium_carbonate, carbon).
+contains(calcium_carbonate, oxygen).
+contains(nitrogen_dioxide, nitrogen).  contains(nitrogen_dioxide, oxygen).
+
+chemical_formula(water, "H2O").
+chemical_formula(carbon_dioxide, "CO2").
+chemical_formula(carbon_monoxide, "CO").
+chemical_formula(methane, "CH4").
+chemical_formula(ammonia, "NH3").
+chemical_formula(ozone, "O3").
+chemical_formula(glucose, "C6H12O6").
+chemical_formula(ethanol, "C2H6O").
+chemical_formula(hydrogen_peroxide, "H2O2").
+chemical_formula(sulfuric_acid, "H2SO4").
+chemical_formula(sodium_chloride, "NaCl").
+chemical_formula(calcium_carbonate, "CaCO3").
+chemical_formula(nitrogen_dioxide, "NO2").
+
 category_member(bird, chicken).
 category_member(bird, crow).
 category_member(bird, duck).
