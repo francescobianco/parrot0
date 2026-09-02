@@ -255,6 +255,37 @@ phrase_canon("dove si trovano", "where are").
 phrase_canon("si trova in", "is in").
 phrase_canon("si trovano in", "are in").
 phrase_canon("si trova", "is").
+% ── GD3: «e» SENZA ACCENTO E' LA COPULA, NON LA CONGIUNZIONE ───────────────
+%
+% ⛔ Trovato tre volte: due in laboratorio e una in chat vera —
+%
+%     > il mio libro è nello zaino   ->  Imparato: libro si trova in zaino.
+%     > il mio libro e nello zaino   ->  «Non sono sicuro di aver seguito.»
+%
+% Un accento mancante azzera la comprensione, ed e' il modo in cui in italiano si
+% scrive davvero in chat. Non e' un caso limite: e' il caso normale.
+%
+% La cura NON e' una lista di frasi ne' il folding di «e» su «è», che
+% distruggerebbe la congiunzione («il libro e la penna»). E' una lettura
+% strutturale, e una regola di grammatica vera:
+%
+%     ⛔ Una congiunzione non puo' unire un sintagma NOMINALE a un sintagma
+%        PREPOSIZIONALE.
+%
+% «il libro e nello zaino» come coordinazione sarebbe «il libro e in-lo zaino»,
+% che non e' italiano. Quindi «e» seguita da una preposizione — articolata o
+% semplice — e' la copula. La regola genera le coppie dalle classi che gia'
+% esistono (32 preposizioni articolate piu' le locative), quindi non ha membri da
+% mantenere: una preposizione nuova si porta dietro anche questa lettura.
+machinery(copula_variant_context).
+copula_variant_context($Prep) :- articulated_preposition(it, $Prep, $Base).
+copula_variant_context($Prep) :- location_preposition($Prep).
+% `copula_variant(Lingua, SenzaAccento, ConAccento)`: quale forma sciatta sta per
+% quale forma piena. `copula_variant_context/1`: dopo che cosa la lettura vale.
+% Entrambe consumate da un motore che non conosce ne' «e» ne' «nello».
+machinery(copula_variant).
+copula_variant(it, e, "è").
+
 phrase_canon("ho messo", "i put").
 phrase_canon("ha messo", "put").
 phrase_canon("metto", "put").

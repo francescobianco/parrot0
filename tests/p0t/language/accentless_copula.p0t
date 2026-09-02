@@ -1,0 +1,50 @@
+# ⛔ GD3 — UNA VARIANTE ORTOGRAFICA SI DISAMBIGUA PER CONTESTO.
+#
+# Trovato TRE volte: due in laboratorio e la terza in chat vera. Un accento
+# mancante azzerava la comprensione, ed e' il modo in cui in italiano si scrive
+# davvero:
+#
+#     > il mio libro è nello zaino   ->  Imparato: libro si trova in zaino.
+#     > il mio libro e nello zaino   ->  «Non sono sicuro di aver seguito.»
+#
+# La cura non poteva essere piegare «e» su «è» (distruggerebbe la congiunzione)
+# ne' un elenco di frasi. E' una regola di grammatica vera:
+#
+#     Una congiunzione non puo' unire un sintagma NOMINALE a un sintagma
+#     PREPOSIZIONALE.
+#
+# `copula_variant/3` dice quale forma sciatta sta per quale; `copula_variant_context/1`
+# dice dopo che cosa la lettura vale, ed e' DERIVATA dalle 32 preposizioni
+# articolate piu' le locative — nessun membro da mantenere.
+[mock hermetic]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+
+[test l_accento mancante non azzera la lettura]
+!timeout 8
+> il mio libro e nello zaino
+<~ zaino
+> dove si trova il libro
+<~ zaino
+# la forma accentata continua a valere: e' la stessa lettura, non una seconda
+> la penna e sul tavolo
+<~ tavolo
+> la chiave e nel cassetto
+<~ cassetto
+
+[test ⛔ la CONGIUNZIONE non e' stata distrutta]
+!timeout 8
+# «e» seguita da un articolo o da un nome resta congiunzione: la riscrittura vale
+# SOLO davanti a una preposizione, che e' cio' che una coordinazione non puo'
+# unire a un sintagma nominale.
+!query! copula_variant_context(la)
+!query! copula_variant_context(anna)
+!query copula_variant_context(nello)
+!query copula_variant_context(sul)
+
+[test la lettura e' conoscenza: si toglie e il difetto torna]
+!timeout 8
+!forget copula_variant(it, e, "è")
+> la matita e nel cassetto
+<! cassetto

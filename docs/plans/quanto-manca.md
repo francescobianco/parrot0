@@ -290,3 +290,129 @@ turno»** e vale dal turno dopo, per qualunque modulo del registro.
 
 Il 27% di turni rubati del §1 non è ancora chiuso — ma **da inaffrontabile è
 diventato lavoro di conoscenza**, che è la differenza che F. ha chiesto.
+
+
+---
+
+# ⛔ CHE TIPO DI LACUNA ERA? — la domanda di F., e la risposta misurata
+
+*F.: «giudica il tipo di gap che derivava dalla non comprensione di questi
+prompt, e dimmi se era possibile mettere in campo strategie per evitarle, o se
+invece siamo in un regime di varianza così elevato che non possiamo ipotizzare
+ciò che manca e colmarlo prima ancora che qualcuno lo chieda».*
+
+Il campione è la chat reale del 2026-09-02:
+
+```text
+>>> ho un libro nello zaino      Non capisco ancora.
+>>> il mio libro e nello zaino   Non sono sicuro di aver seguito.
+>>> libro in zaino               Non capisco ancora.
+```
+
+Tre muri, e **tre lacune di tre specie diverse**. La distinzione non è
+accademica: decide se erano prevedibili.
+
+## Specie 1 — LA VARIANTE DI SUPERFICIE (`e` senza accento) → **prevedibile, e lo era da mesi**
+
+`il mio libro **è** nello zaino` funzionava. `il mio libro **e** nello zaino` no.
+
+**Non è varianza: è una collisione nota fra due parole.** E la prova che era
+prevedibile è che era già stata **trovata due volte** e **scritta nel registro
+dei rossi** come «GD3 — le varianti ortografiche azzerano una lezione», con
+annotato che la seconda volta era capitata *a me* mentre scrivevo una sonda.
+
+> **Era evitabile, e la strategia esisteva già:** un rosso che compare due volte
+> non è un incidente, è una **classe**, e va chiuso quando lo si nomina la
+> seconda volta — non quando lo incontra l'utente la terza.
+
+Costo reale della cura: **due predicati derivati**, zero membri da mantenere.
+Il costo di *non* averla fatta: tre mesi di chat in cui la frase più ordinaria
+dell'italiano scritto non si capiva.
+
+**Strategia riutilizzabile:** per ogni classe chiusa (articoli, copule,
+preposizioni, clitici) le **varianti di scrittura reale** — accenti, apostrofi,
+maiuscole, elisioni — sono enumerabili *a priori* dalla classe stessa. Non serve
+aspettare che qualcuno le scriva. È generazione dalla struttura, non raccolta
+dagli incidenti.
+
+## Specie 2 — LA COSTRUZIONE MANCANTE (`ho un X nello Y`) → **prevedibile per SIMMETRIA**
+
+parrot0 sapeva già leggere:
+
+```text
+X è in Y            (copula + luogo)          ✅
+ho messo X in Y     (trasferimento + luogo)   ✅
+ho un X in Y        (possesso + luogo)        ⛔
+```
+
+**Non è varianza: è un buco in una tabella che era già per due terzi piena.** La
+terza casella non richiedeva di indovinare che cosa qualcuno avrebbe detto —
+bastava guardare le altre due.
+
+> **Era evitabile, e la strategia ha un nome: il completamento della classe.**
+> Quando una costruzione entra, si guarda quali *altri verbi* reggono la stessa
+> struttura a tre ruoli. Qui erano `put`/`place` e mancava `have` — che è il verbo
+> più frequente dei tre.
+
+È la stessa forma del difetto già registrato per `imperative_opener/1`, che aveva
+*execute, run, migrate, scan* e non aveva *tell, write, describe*: **una classe
+popolata dai sintomi non è una classe, è l'elenco degli incidenti.** Il test è
+meccanico e si può fare senza un utente: *i membri descrivono la classe o la
+storia dei bug?*
+
+## Specie 3 — LA FORMA TELEGRAFICA (`libro in zaino`) → **NON prevedibile, e va bene così**
+
+Nessun articolo, nessuna copula, nessun verbo. È una scrittura da appunti.
+
+**Qui sì siamo in regime di varianza alta**, e affrontarla *a priori* sarebbe
+stato un errore: ogni ipotesi su come qualcuno abbrevia è un frasario, e un
+frasario è esattamente ciò che questo progetto vieta.
+
+> **La risposta giusta a questa specie non è anticiparla, è renderla
+> INSEGNABILE.** Non «indovinare la forma», ma «garantire che chi la usa possa
+> insegnarla in un turno». È la direttiva di F.: *dove la capacità c'è e manca la
+> forma, si deve garantire l'insegnabilità.*
+
+## Il giudizio, in una riga
+
+**Due delle tre lacune erano prevedibili, e con strategie diverse; la terza no, e
+per la terza la strategia giusta non è la previsione ma l'insegnabilità.**
+
+| specie | esempio | prevedibile? | strategia |
+|---|---|---|---|
+| variante di superficie | `e` per `è` | **sì** — era già a registro, due volte | generare le varianti **dalla classe chiusa**, non raccoglierle dagli incidenti |
+| costruzione mancante | `ho un X in Y` | **sì** — per simmetria con due caselle già piene | **completare la classe**: quali altri verbi reggono la stessa struttura? |
+| forma telegrafica | `libro in zaino` | **no** — varianza reale | non anticipare: **rendere insegnabile** |
+
+## Le tre strategie, e quando applicarle
+
+1. **Chiusura al secondo avvistamento.** Un rosso che compare due volte è una
+   classe. `GD3` è costato tre mesi perché è stato *annotato* due volte invece
+   che chiuso. **Il registro dei rossi va letto come una coda di lavoro, non
+   come un archivio.**
+2. **Completamento della classe, non del caso.** Ogni volta che una costruzione
+   o una classe chiusa entra in KB, si chiede: *quali altri membri hanno la
+   stessa struttura?* È generabile a tavolino e non richiede un utente. Il test
+   dei «sintomi vs classe» è meccanico.
+3. **Insegnabilità come rete per il resto.** Ciò che resta è varianza vera, e lì
+   la copertura non si compra con l'anticipazione: si compra con un turno di
+   insegnamento che vale dal turno dopo. **È la sola strategia che scala con la
+   varianza invece di inseguirla.**
+
+## Il metodo di misura che rende tutto questo verificabile
+
+Le tre specie hanno **firme diagnostiche diverse e riconoscibili**, e questa è la
+parte trasferibile:
+
+- **Variante di superficie:** la stessa frase con una lettera diversa funziona.
+  Il differenziale è di *un carattere*.
+- **Costruzione mancante:** una frase con la stessa struttura e un altro verbo
+  funziona. Il differenziale è di *una parola piena*
+  (`mary have …` ✅ / `i have …` ⛔ resta aperto ed è di questa specie).
+- **Forma telegrafica:** nessuna variante vicina funziona. Il differenziale è
+  *strutturale*.
+
+> **Regola operativa:** davanti a un muro, prima di diagnosticare, si prova la
+> frase **minimamente diversa**. La distanza fra la frase che funziona e quella
+> che non funziona *è* il tipo di lacuna, e il tipo di lacuna decide se era
+> prevedibile.

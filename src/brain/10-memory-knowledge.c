@@ -1782,6 +1782,52 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
                 }
             }
         }
+        /* ── GD3: UNA VARIANTE ORTOGRAFICA SI DISAMBIGUA PER CONTESTO ───────
+         *
+         * ⛔ Trovato tre volte, l'ultima in chat vera:
+         *
+         *     > il mio libro è nello zaino  ->  Imparato: libro si trova in zaino.
+         *     > il mio libro e nello zaino  ->  «Non sono sicuro di aver seguito.»
+         *
+         * Un accento mancante azzera la comprensione, ed e' il modo in cui in
+         * italiano si scrive davvero. Non e' un caso limite: e' il caso normale.
+         *
+         * La cura non puo' essere piegare «e» su «è»: distruggerebbe la
+         * congiunzione («il libro e la penna»). E non puo' essere un elenco di
+         * frasi. E' una regola di grammatica vera:
+         *
+         *     ⛔ Una congiunzione non puo' unire un sintagma NOMINALE a un
+         *        sintagma PREPOSIZIONALE.
+         *
+         * «il libro e nello zaino» come coordinazione sarebbe «il libro e in-lo
+         * zaino», che non e' italiano: quindi li' «e» e' la copula.
+         *
+         * Il motore non conosce ne' «e» ne' «nello»: legge `copula_variant/3`
+         * (quale forma senza accento sta per quale) e `copula_variant_context/1`
+         * (dopo che cosa vale), ed entrambe sono DERIVATE dalle classi di
+         * preposizioni che gia' esistono — nessun membro da mantenere, e una
+         * preposizione nuova si porta dietro anche questa lettura. */
+        if (b && b->kb && i + 1 < nw) {
+            char lang[8]; current_lang(b, lang, sizeof lang);
+            const char *vq[3] = { lang, tok, NULL };
+            char accented[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "copula_variant", vq, 3, accented, 1) == 1) {
+                char nb[KB_TERM_LEN];
+                snprintf(nb, sizeof nb, "%s", w[i + 1]);
+                const char *cq[1] = { strip_edge_punct(nb) };
+                if (kb_query(b->kb, "copula_variant_context", cq, 1)) {
+                    char ab[KB_TERM_LEN];
+                    snprintf(ab, sizeof ab, "%s", accented[0]);
+                    char abuf[KB_TERM_LEN];
+                    const char *canon_v =
+                        canonical_token_kb(b, kb_dequote(ab), abuf, sizeof abuf);
+                    off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
+                                            lead, canon_v ? canon_v : kb_dequote(ab),
+                                            tail);
+                    continue;
+                }
+            }
+        }
         char cbuf[KB_TERM_LEN];
         const char *canon = canonical_token_kb(b, tok, cbuf, sizeof cbuf);
         if (canon) {

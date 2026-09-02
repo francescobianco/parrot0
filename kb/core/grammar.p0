@@ -777,12 +777,25 @@ frame_projection(located_in, 3, 1, 2).
 
 locative_transfer_verb(put).
 locative_transfer_verb(place).
+% ⚠ `have` non e' un verbo di trasferimento, e la classe si chiama cosi' per la
+% sua STRUTTURA, non per il suo significato: «ho un libro nello zaino» ha gli
+% stessi tre ruoli — chi, che cosa, dove — e proietta sulla stessa relazione
+% pubblica. Misurato in chat: quel turno non lo rivendicava NESSUN modulo, ed e'
+% una delle frasi piu' ordinarie che si possano dire.
+%
+% Il possesso resta lecito e viene letto altrove: qui si aggiunge la lettura del
+% LUOGO, che prima andava perduta. Due letture dello stesso turno non si
+% escludono — perderne una perche' l'altra e' piu' ovvia e' il difetto.
+locative_transfer_verb(have).
 locative_transfer_preposition(put, in).
 locative_transfer_preposition(put, on).
 locative_transfer_preposition(put, at).
 locative_transfer_preposition(place, in).
 locative_transfer_preposition(place, on).
 locative_transfer_preposition(place, at).
+locative_transfer_preposition(have, in).
+locative_transfer_preposition(have, on).
+locative_transfer_preposition(have, at).
 extract_frame($Pat, located_in) :-
     locative_transfer_verb($Verb),
     locative_transfer_preposition($Verb, $Prep),
