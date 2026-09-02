@@ -1,0 +1,47 @@
+# ⛔ UNA RESA E' UN ARRESTO, E UN ARRESTO HA UN PIANO — il ciclo si chiude.
+#
+# `docs/plans/autocrescita-v3.md` descrive il ciclo per intero:
+#
+#     turno -> arresto TIPIZZATO -> piano di compensazione -> azione mirata
+#           -> REPLAY dello stesso turno -> attribuzione causale -> promozione
+#
+# e pone il vincolo: «l'autocorrezione non deve essere un sottosistema speciale,
+# deve essere un caso riflessivo della pianificazione ordinaria».
+#
+# Lo strato dichiarativo esisteva dal gen442 ed era completo. Sopra
+# `turn_compensation_obligation` c'era scritto, dal giorno in cui e' nato:
+# «primo consumer per gen442: OGGI NON ESEGUE UNA COMPENSAZIONE». Nessuno
+# eseguiva il piano — ed e' per questo che ogni riparazione nasceva come ramo
+# speciale nel motore invece che come passo di un piano.
+[mock hermetic]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!reset
+
+[test parrot0 ripara la propria superficie e RITENTA lo stesso turno]
+!timeout 10
+!forget surface_variant("cosa e rimasto in sospeso", "cosa è rimasto in sospeso")
+# la forma senza accento non raggiunge nessuna superficie dichiarata…
+!query recall_cue("cosa è rimasto in sospeso", pending)
+# …e il turno riceve comunque la risposta VERA, perche' l'arresto ha un piano
+> cosa e rimasto in sospeso
+<! Non capisco
+<~ sospeso
+# ⛔ e la riparazione viene SCRITTA: il turno dopo dev'essere un colpo diretto,
+# non una seconda riparazione. Una capacita' che si riconquista ogni volta non
+# e' stata acquisita.
+!query surface_variant("cosa e rimasto in sospeso", "cosa è rimasto in sospeso")
+
+[test il piano e' CONOSCENZA: senza la riga, l'azione non esiste]
+!timeout 10
+!query compensates(repair_surface, surface_variant)
+!forget compensates(repair_surface, surface_variant)
+!forget surface_variant("cosa e rimasto in sospeso", "cosa è rimasto in sospeso")
+> cosa e rimasto in sospeso
+<! sospeso
+
+[test le lettere equivalenti sono KB, non un alfabeto nel motore]
+!timeout 10
+!query equivalent_letter("è", "e")
+!query equivalent_letter("ñ", "n")
+!query surface_bearing_relation(recall_cue)

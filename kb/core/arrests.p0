@@ -403,3 +403,33 @@ compensation_stop($Turn, missing_dependency($Before, $After)) :-
 compensation_alternative_valid($Turn, $Alternative, $Goal) :-
     compensation_alternative($Turn, $Alternative, $Goal, $Step),
     compensation_step($Alternative, 1, $Step).
+
+% ── QUALE AZIONE COMPENSA QUALE SPECIE DI ARRESTO ──────────────────────────
+%
+% `docs/plans/autocrescita-v3.md` chiede che l'autocorrezione sia «un caso
+% riflessivo della pianificazione ordinaria», non un sottosistema speciale — e
+% sopra `turn_compensation_obligation` sta scritto, dal giorno in cui e' nato,
+% che quello strato «oggi non esegue una compensazione». Era vero: il
+% rappresentare c'era, l'eseguire no, e ogni riparazione finiva per nascere come
+% ramo speciale nel motore.
+%
+% `compensates(Azione, Specie)` chiude quel buco dalla parte della conoscenza:
+% dice quali azioni valgono per quale specie di arresto. L'esecutore le prova
+% nell'ordine dichiarato e si ferma alla prima che fa ripartire il turno.
+%
+% Le specie sono quelle di `docs/plans/universal-comprehension.md` §10:
+%
+%   surface_variant  — distanza di UN CARATTERE dalla frase che funziona.
+%                      Si ripara da soli: si prova la forma minimamente diversa,
+%                      e se il turno riparte la variante viene SCRITTA
+%                      (`surface_variant/2`), cosi' il turno dopo e' un colpo
+%                      diretto e non una seconda riparazione.
+%   knowledge        — manca un fatto: si legge la sorgente (Wikipedia, l'unica
+%                      ammessa). ⛔ AZIONE NON ANCORA ESEGUIBILE.
+%   reference        — manca un antecedente nel discorso: si chiede.
+%                      ⛔ AZIONE NON ANCORA ESEGUIBILE.
+%
+% ⚠ Senza una riga qui l'esecutore non fa niente: permissivo per default, come
+% ogni condotta dichiarata di questo progetto.
+machinery(compensates).
+compensates(repair_surface, surface_variant).

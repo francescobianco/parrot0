@@ -18,6 +18,32 @@ gen440–gen446 sono prototipi verticali e non chiusure sequenziali
 > `ask_user`, `read_source` o `resolve_reference`, ripetere lo stesso turno e
 > promuovere soltanto il rimedio causalmente necessario.
 
+> ## ✅ 2026-09-03 — L'ESECUTORE ESISTE, E IL CICLO SI CHIUDE PER UNA SPECIE
+>
+> Sopra `turn_compensation_obligation` in `kb/core/arrests.p0` c'era scritto, dal
+> giorno in cui è nato: *«primo consumer per gen442: oggi non esegue una
+> compensazione»*. **Lo strato dichiarativo era completo e nessuno lo eseguiva** —
+> ed è la causa misurata del 42% di rilavorazione nei commit (vedi §−1 di
+> `LEARN_TODO.md`): senza esecutore, ogni riparazione nasceva come ramo speciale
+> nel motore, cioè esattamente ciò che il §0 di questo piano vieta.
+>
+> `p0_compensate` (`src/brain/99-registry.c`) è l'esecutore, e **non sceglie**:
+> chiede alla KB quali azioni compensano la specie di arresto (`compensates/2`),
+> le prova nell'ordine dichiarato, si ferma alla prima che fa ripartire il turno.
+> Il motore possiede solo le primitive, come `chars/2`.
+>
+> Prima azione viva: **`repair_surface`**. parrot0 prova la frase minimamente
+> diversa (`universal-comprehension.md` §10), ritenta lo stesso turno e — se
+> riparte — **scrive la riparazione** (`surface_variant/2`), così il turno dopo è
+> un colpo diretto. È il ciclo di §0 percorso per intero: arresto → piano →
+> azione → replay → promozione.
+>
+> ⛔ **Restano dichiarate e non eseguibili** — è il prossimo lavoro, e ora è
+> piccolo: `compensates(read_source, knowledge)` (Wikipedia, l'unica sorgente
+> ammessa) e `compensates(ask_user, reference)`.
+>
+> Ratchet: `tests/p0t/conversation/self_compensation.p0t`.
+
 ## 0. Tesi
 
 Una KB non diventa viva quando contiene molti fatti. Diventa viva quando sa

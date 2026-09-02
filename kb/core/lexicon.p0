@@ -2984,3 +2984,36 @@ removal_verb_stem(perde).
 removal_verb_stem(regal).
 removal_verb_stem(vend).
 removal_verb_stem(spes).
+
+% ── LETTERE EQUIVALENTI, E QUALI RELAZIONI PORTANO SUPERFICI ────────────────
+%
+% Servono alla RIPARAZIONE DI SUPERFICIE che parrot0 esegue su se stesso quando
+% nessun modulo ha capito il turno (vedi `surface_repair` in 99-registry.c e
+% docs/plans/universal-comprehension.md §10).
+%
+% ⚠ Stanno qui e non nel C perche' altrimenti aggiungere lo spagnolo, il
+% portoghese o il tedesco costerebbe una ricompilazione. Il motore non conosce
+% nessun alfabeto: sostituisce le coppie che gli vengono date.
+machinery(equivalent_letter).
+equivalent_letter("à", "a").   equivalent_letter("è", "e").
+equivalent_letter("é", "e").   equivalent_letter("ì", "i").
+equivalent_letter("í", "i").   equivalent_letter("ò", "o").
+equivalent_letter("ó", "o").   equivalent_letter("ù", "u").
+equivalent_letter("ú", "u").
+equivalent_letter("â", "a").   equivalent_letter("ê", "e").
+equivalent_letter("î", "i").   equivalent_letter("ô", "o").
+equivalent_letter("û", "u").   equivalent_letter("ç", "c").
+equivalent_letter("ñ", "n").   equivalent_letter("ä", "a").
+equivalent_letter("ö", "o").   equivalent_letter("ü", "u").
+
+% Da quali relazioni si pescano le superfici da riparare. Una relazione nuova
+% entra con UNA riga, non con un ramo nel motore — e senza nessuna di queste
+% righe la riparazione semplicemente non avviene (permissiva per default).
+machinery(surface_bearing_relation).
+machinery(surface_variant).
+surface_bearing_relation(intent_cue).
+surface_bearing_relation(phrase_canon).
+surface_bearing_relation(answer_frame).
+surface_bearing_relation(tr).
+surface_bearing_relation(recall_cue).
+surface_bearing_relation(answer_frame_input_arg).

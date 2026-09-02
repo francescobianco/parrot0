@@ -2916,6 +2916,230 @@ static void dead_rules_publish(Brain *b) {
 }
 
 /* La richiesta di ripararsi e' una cue come tutte le altre: sta nella KB. */
+/* ── LA RIPARAZIONE DI SUPERFICIE, FATTA DA PARROT0 SU SE STESSO ───────────
+ *
+ * F., 2026-09-03: «voglio che LUI autorilevi la lacuna e la corregga» — non uno
+ * strumento offline che la trova per lui, perche' uno strumento offline lo
+ * esegue qualcun altro e non e' crescita.
+ *
+ * `docs/plans/universal-comprehension.md` §10 dice come si riconosce la specie
+ * di una lacuna: **si prova la frase minimamente diversa, e la distanza fra cio'
+ * che funziona e cio' che non funziona E' il tipo di lacuna**. Un carattere =
+ * variante di superficie. Quel test lo puo' eseguire parrot0 stesso, su un muro,
+ * perche' sa canonicalizzare e sa ri-dispacciare.
+ *
+ * Qui lo esegue: su un turno che nessuno ha capito, cerca una superficie
+ * DICHIARATA di cui il turno contenga la forma spogliata degli accenti, la
+ * ripristina, e riprova. Se un modulo vero risponde, la lacuna era di specie 1 —
+ * e allora la riparazione viene SCRITTA (`surface_variant/2`), cosi' il turno
+ * dopo e' un colpo diretto invece di una seconda riparazione.
+ *
+ * ⚠ Perche' e' dinamico e non un elenco: le superfici da cui parte sono quelle
+ * che la KB ha ADESSO. Una locuzione accentata insegnata oggi e' riparabile
+ * oggi, e nessuno deve enumerare niente.
+ *
+ * ⚠ Perche' non travolge nulla: corre SOLO dopo che ogni modulo ha declinato, e
+ * rivendica solo se la forma riparata ottiene una risposta vera. Un turno che
+ * gia' funziona non la incontra mai — e' la stessa disciplina di `coref_resolve`.
+ *
+ * Quali relazioni portino superfici e' conoscenza (`surface_bearing_relation/1`):
+ * una relazione nuova entra con una riga di KB, non con un ramo qui. */
+/* ⚠ LE LETTERE EQUIVALENTI SONO CONOSCENZA, non una tabella qui.
+ *
+ * La prima versione di questa funzione portava dentro di se' à→a, è→e, ì→i… —
+ * cioe' l'alfabeto di UNA lingua cablato nel motore. F. l'ha chiesto prima che
+ * costasse: «fammi capire come lo vuoi fare, deve essere KB-first». Con la
+ * tabella in C, aggiungere lo spagnolo (ñ), il portoghese (ã, ç) o il tedesco
+ * (ä, ö, ü) costava una ricompilazione — ed e' esattamente il mantra #2.
+ *
+ * `equivalent_letter(Segno, Base)` sta in KB. Il motore qui non conosce nessun
+ * alfabeto: sostituisce coppie che gli vengono date. */
+static void p0_strip_accents(Brain *b, const char *in, char *out, size_t outsz) {
+    if (!b || !b->kb || !in || !out || outsz == 0) { if (out && outsz) out[0] = '\0'; return; }
+    char (*signs)[KB_TERM_LEN] = NULL;
+    size_t nsigns = 0;
+    const char *q[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "equivalent_letter", q, 2, &signs, &nsigns)) {
+        snprintf(out, outsz, "%s", in);
+        free(signs);
+        return;
+    }
+    size_t o = 0;
+    for (const char *p = in; *p && o + 1 < outsz; ) {
+        int hit = 0;
+        for (size_t k = 0; k < nsigns && !hit; k++) {
+            char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", signs[k]);
+            const char *sign = kb_dequote(sb);
+            size_t l = strlen(sign);
+            if (!l || strncmp(p, sign, l) != 0) continue;
+            const char *bq[2] = { signs[k], NULL };
+            char base[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "equivalent_letter", bq, 2, base, 1) != 1) continue;
+            char bb[KB_TERM_LEN]; snprintf(bb, sizeof bb, "%s", base[0]);
+            const char *rep = kb_dequote(bb);
+            size_t rl = strlen(rep);
+            if (o + rl + 1 >= outsz) { hit = 1; break; }
+            memcpy(out + o, rep, rl); o += rl; p += l; hit = 1;
+        }
+        if (!hit) out[o++] = *p++;
+    }
+    out[o] = '\0';
+    free(signs);
+}
+
+/* Una AZIONE di compensazione, non un sottosistema. Vedi `p0_compensate`. */
+static int action_repair_surface(Brain *b, const char *canon, const char *input,
+                                 char *out, size_t out_size) {
+    if (!b || !b->kb || !input || !*input) return 0;
+    /* ⚠ Si cerca nel turno GREZZO, non nella forma canonica: le superfici
+     * dichiarate sono nella lingua di chi parla, mentre la canonicalizzazione ha
+     * gia' tradotto («cosa» -> «what»), quindi nella forma canonica la
+     * superficie italiana non c'e' piu'. Cercarla li' era cercarla dove non
+     * poteva essere. */
+    char lowered[512];
+    { size_t li = 0;
+      for (const char *p = input; *p && li + 1 < sizeof lowered; p++)
+          lowered[li++] = (char)tolower((unsigned char)*p);
+      lowered[li] = '\0'; }
+    canon = lowered;
+    (void)0;
+    char (*rels)[KB_TERM_LEN] = NULL;
+    size_t nr = 0;
+    const char *rq[1] = { NULL };
+    if (!kb_match_all(b->kb, "surface_bearing_relation", rq, 1, &rels, &nr) || nr == 0) {
+        free(rels);
+        return 0;
+    }
+    char repaired[512] = "";
+    char bare_hit[KB_TERM_LEN] = "", full_hit[KB_TERM_LEN] = "";
+    for (size_t i = 0; i < nr && !repaired[0]; i++) {
+        char (*surfaces)[KB_TERM_LEN] = NULL;
+        size_t ns = 0;
+        const char *sq[2] = { NULL, NULL };
+        /* la superficie sta in seconda posizione per le relazioni binarie e in
+         * prima per le unarie: si prova la forma piu' comune e si ripiega. */
+        if (!kb_match_all(b->kb, rels[i], sq, 2, &surfaces, &ns) || ns == 0) {
+            free(surfaces); surfaces = NULL; ns = 0;
+            const char *uq[1] = { NULL };
+            if (!kb_match_all(b->kb, rels[i], uq, 1, &surfaces, &ns)) { free(surfaces); continue; }
+        }
+        for (size_t j = 0; j < ns && !repaired[0]; j++) {
+            char sb[KB_TERM_LEN];
+            snprintf(sb, sizeof sb, "%s", surfaces[j]);
+            const char *full = kb_dequote(sb);
+            if (!*full) continue;
+            char bare[KB_TERM_LEN];
+            p0_strip_accents(b, full, bare, sizeof bare);
+            if (strcmp(bare, full) == 0) continue;      /* nessun accento: niente da riparare */
+            const char *at = strstr(canon, bare);
+            if (!at) continue;
+            size_t pre = (size_t)(at - canon);
+            if (pre + strlen(full) + strlen(at + strlen(bare)) + 1 >= sizeof repaired)
+                continue;
+            memcpy(repaired, canon, pre);
+            repaired[pre] = '\0';
+            snprintf(repaired + pre, sizeof repaired - pre, "%s%s",
+                     full, at + strlen(bare));
+            snprintf(bare_hit, sizeof bare_hit, "%s", bare);
+            snprintf(full_hit, sizeof full_hit, "%s", full);
+        }
+        free(surfaces);
+    }
+    free(rels);
+    if (!repaired[0] || strcmp(repaired, canon) == 0) return 0;
+
+    char probe[900] = "";
+    if (!brain_respond(b, repaired, probe, sizeof probe) || !probe[0]) return 0;
+    {   /* «e' ancora un muro?» lo dice la KB (`wall_marker/1`), che e' gia' il
+         * modo in cui parrot0 riconosce le proprie rese: inventarne un secondo
+         * creerebbe due idee di muro destinate a divergere. */
+        char low[900]; size_t li = 0;
+        for (const char *p = probe; *p && li + 1 < sizeof low; p++)
+            low[li++] = (char)tolower((unsigned char)*p);
+        low[li] = '\0';
+        char marks[32][KB_TERM_LEN];
+        const char *mq[1] = { NULL };
+        size_t nm = kb_match(b->kb, "wall_marker", mq, 1, marks, 32);
+        for (size_t i = 0; i < nm; i++) {
+            char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", marks[i]);
+            const char *m = kb_dequote(mb);
+            if (*m && strstr(low, m)) return 0;    /* riparata e ancora muro */
+        }
+    }
+
+    /* La riparazione si IMPARA: il turno dopo dev'essere un colpo diretto, non
+     * una seconda riparazione. Una capacita' che si riconquista ogni volta non
+     * e' stata acquisita. */
+    {
+        int prev = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_SESSION);
+        char qb[KB_TERM_LEN], qf[KB_TERM_LEN];
+        snprintf(qb, sizeof qb, "\"%s\"", bare_hit);
+        snprintf(qf, sizeof qf, "\"%s\"", full_hit);
+        const char *va[2] = { qb, qf };
+        if (!kb_query(b->kb, "surface_variant", va, 2))
+            kb_assert(b->kb, "surface_variant", va, 2);
+        kb_set_origin(b->kb, prev);
+    }
+    put(probe, out, out_size);
+    (void)input;
+    return 1;
+}
+
+/* ── L'ESECUTORE DEI PIANI DI COMPENSAZIONE ────────────────────────────────
+ *
+ * `docs/plans/autocrescita-v3.md` descrive il ciclo per intero:
+ *
+ *     turno -> arresto TIPIZZATO -> piano di compensazione -> azione mirata
+ *           -> REPLAY dello stesso turno -> attribuzione causale
+ *           -> promozione minima oppure rollback
+ *
+ * e pone il vincolo che conta: «l'autocorrezione non deve essere un sottosistema
+ * speciale, deve essere un caso riflessivo della pianificazione ordinaria».
+ *
+ * ⛔ Lo strato dichiarativo esiste da gen442 ed e' completo — `turn_arrest`,
+ * `compensation_obligation`, `compensation_step`, `compensation_plan`,
+ * `compensation_stop`, tutto in `kb/core/arrests.p0`. Ma sopra
+ * `turn_compensation_obligation` c'e' scritto, dal giorno in cui e' nato:
+ *
+ *     «Primo consumer per gen442: OGGI NON ESEGUE UNA COMPENSAZIONE.»
+ *
+ * Nessuno eseguiva il piano. Ecco perche' ogni riparazione finora e' nata come
+ * ramo speciale in C invece che come passo di un piano: il rappresentare c'era,
+ * l'eseguire no, e il ciclo non si chiudeva mai.
+ *
+ * Questo e' l'esecutore, e resta minimo di proposito. Non sceglie: chiede alla
+ * KB quali azioni compensano la specie di arresto in corso (`compensates/2`), le
+ * prova nell'ordine dichiarato, e si ferma alla prima che fa RIPARTIRE il turno.
+ * Il motore possiede soltanto le PRIMITIVE — come `chars/2` o `apply/2` — mentre
+ * quali esistano, per quale arresto e in quale ordine e' interamente conoscenza.
+ *
+ * Un'azione nuova che riusi una primitiva esistente e' una riga di KB. */
+static int p0_compensate(Brain *b, const char *canon, const char *input,
+                         char *out, size_t out_size) {
+    if (!b || !b->kb || !canon) return 0;
+    char (*actions)[KB_TERM_LEN] = NULL;
+    size_t na = 0;
+    const char *aq[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "compensates", aq, 2, &actions, &na) || na == 0) {
+        free(actions);
+        return 0;
+    }
+    int done = 0;
+    for (size_t i = 0; i < na && !done; i++) {
+        char ab[KB_TERM_LEN];
+        snprintf(ab, sizeof ab, "%s", actions[i]);
+        const char *action = kb_dequote(ab);
+        /* Le PRIMITIVE del motore. Quali azioni esistano lo dice la KB; come si
+         * eseguono lo sa il motore, come per ogni builtin. Una primitiva nuova
+         * si aggiunge qui una volta e poi vive di conoscenza. */
+        if (strcmp(action, "repair_surface") == 0)
+            done = action_repair_surface(b, canon, input, out, out_size);
+    }
+    free(actions);
+    return done;
+}
+
 static int repair_requested(Brain *b, const char *canon, const char *input) {
     if (!b || !b->kb) return 0;
     char cues[12][KB_TERM_LEN];
@@ -4636,6 +4860,24 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
          * imparare. Il turno e' formalmente `handled` — un modulo ha risposto —
          * ma la risposta ignora il soggetto, cioe' e' una resa travestita. Su
          * una prosa che insegna, imparare e' sempre meglio che commentare. */
+        /* ⛔ UNA RESA E' UN ARRESTO, e un arresto ha un piano.
+         *
+         * Il gancio in `!handled` non bastava: il muro quasi sempre lo produce
+         * un modulo che HA rivendicato il turno, quindi `handled` e' vero e la
+         * compensazione non veniva mai raggiunta. Il progetto sa gia' riconoscere
+         * le proprie rese — `wall_marker/1` e i frame di gap — ed e' esattamente
+         * il punto in cui `autocrescita-v3` colloca l'arresto tipizzato.
+         *
+         * Corre PRIMA di imparare dalla prosa e prima del saggio di ultima
+         * istanza, perche' riparare la superficie e ritentare lo stesso turno
+         * costa un tentativo e puo' restituire la risposta VERA — mentre le due
+         * mosse sotto, nel migliore dei casi, restituiscono qualcosa d'altro. */
+        if (surrendered &&
+            p0_compensate(b, canon, input, out, out_size)) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", "compensate");
+            surrendered = 0;
+        }
         if (surrendered && teaching_prose(input) &&
             prose_learn_lead(b, canon, input, out, out_size)) {
             snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
@@ -4665,6 +4907,12 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     }
 
     if (!handled) {
+        /* §10: la specie della lacuna si riconosce provando la frase minimamente
+         * diversa, e parrot0 quel test lo puo' fare da se'. Prima della coref,
+         * perche' un accento mancante e' una distanza di UN CARATTERE. */
+        if (p0_compensate(b, canon, input, out, out_size)) {
+            handled = 1;
+        } else
         /* gen216 (glue G2): before giving up, try resolving an entity pronoun to the
          * recent entity and re-dispatching — carries a reference across turns. */
         if (coref_resolve(b, canon, out, out_size)) {

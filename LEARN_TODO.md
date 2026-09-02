@@ -1,9 +1,136 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-# ⛔ RIPARTI DA QUI — handoff 2026-09-02 (notte)
+# ⛔ RIPARTI DA QUI — handoff 2026-09-03
 
-> **Come si riprende:** «continua da questo file». Leggi §0, §1 e §2, poi vai al
-> §3 «Il prossimo lavoro». Tutto il resto sotto è la storia e serve dopo.
+> **Come si riprende:** «continua da questo file». Leggi **§−1** (perché siamo
+> lenti, con i numeri) e **§0-bis** (il ciclo di autocorrezione che ora si
+> chiude), poi §0/§1/§2 per l'obiettivo e lo stato, poi §3 «Il prossimo lavoro».
+> Il resto è storia e serve dopo.
+>
+> **Se hai poco tempo, leggi una cosa sola:** §−1 moltiplicatore 3 — *un piano
+> scritto e non eseguito non è lavoro fatto, è lavoro che verrà rifatto in forma
+> peggiore*. È la causa misurata del 42% di rilavorazione.
+
+## §−1. ⛔ PERCHÉ SIAMO SEMPRE LENTI — misurato, e la causa vera
+
+> F., 2026-09-03: *«fai delle analisi su come velocizzare la crescita di parrot0
+> sulla base dei processi messi in campo, mi sembra che siamo sempre lenti»*.
+
+**La cadenza non è il problema.** 477 commit in 30 giorni, ~16 al giorno.
+Il problema è la **resa**:
+
+```text
+commit negli ultimi 30 giorni                              477
+commit che nominano una rilavorazione, un errore o un
+  difetto già noto ritrovato                               202   ≈ 42%
+```
+
+**Due commit su cinque rifanno qualcosa.** Non è disattenzione: sono tre
+moltiplicatori strutturali, e ciascuno ha una cura precisa.
+
+### Moltiplicatore 1 — il rosso annotato invece che chiuso
+
+GD3 («`e` per `è`») è stata **trovata tre volte** prima di essere chiusa, e la
+terza l'ha incontrata l'utente. Ogni ritrovamento costa una diagnosi da capo.
+⇒ **Cura: chiusura al secondo avvistamento** (§10 di
+`docs/plans/universal-comprehension.md`). Il registro dei rossi è una coda di
+lavoro, non un archivio.
+
+### Moltiplicatore 2 — la classe popolata dai sintomi
+
+`imperative_opener` aveva *execute, run, migrate* e non aveva *tell, write*.
+`locative_transfer_verb` aveva *put, place* e non aveva *have* — il più frequente
+dei tre. Ogni membro mancante torna come un bug separato, con la sua diagnosi.
+⇒ **Cura: completamento della classe quando entra**, non quando qualcuno inciampa.
+
+### Moltiplicatore 3 — ⛔ IL PIANO SCRITTO CHE NESSUNO ESEGUE (il più caro)
+
+Questa è la scoperta di oggi, e spiega la lentezza meglio delle altre due.
+
+`kb/core/arrests.p0` contiene **l'intero strato dichiarativo** dell'autocorrezione
+— `turn_arrest`, `compensation_obligation`, `compensation_step`,
+`compensation_plan`, `compensation_stop`, `compensation_alternative` — scritto al
+gen442 e completo. Sopra `turn_compensation_obligation` c'era scritto, **dal
+giorno in cui è nato**:
+
+> *«Primo consumer per gen442: **oggi non esegue una compensazione**.»*
+
+**Il rappresentare c'era, l'eseguire no.** Conseguenza: ogni riparazione degli
+ultimi cicli è nata come **ramo speciale in C** — e `autocrescita-v3.md` lo vieta
+esplicitamente (*«l'autocorrezione non deve essere un sottosistema speciale»*).
+Il ciclo non si chiudeva mai, quindi ogni lacuna andava chiusa a mano, una per
+una, al costo pieno.
+
+⇒ **Cura, fatta oggi: l'esecutore.** Vedi §0-bis.
+
+> **La regola che ne esce, e che vale più delle tre cure:**
+> **un piano scritto e non eseguito non è lavoro fatto: è lavoro che verrà rifatto
+> in forma peggiore.** Prima di aprire un piano nuovo, si chiude il ciclo di uno
+> vecchio.
+
+## §0-bis. ✅ IL CICLO DI AUTOCORREZIONE SI CHIUDE (2026-09-03)
+
+`autocrescita-v3.md` §0 lo descrive così:
+
+```text
+turno -> arresto TIPIZZATO -> piano di compensazione -> azione mirata
+      -> REPLAY dello stesso turno -> attribuzione causale -> promozione
+```
+
+Costruito l'**esecutore** (`p0_compensate`, `src/brain/99-registry.c`), e resta
+minimo di proposito: **non sceglie**. Chiede alla KB quali azioni compensano la
+specie di arresto (`compensates/2`), le prova nell'ordine dichiarato, si ferma
+alla prima che fa ripartire il turno. Il motore possiede solo le **primitive**,
+come `chars/2` o `apply/2`; quali azioni esistano è conoscenza.
+
+**Prima azione viva — `repair_surface`.** parrot0 esegue su di sé il test del §10
+(*prova la frase minimamente diversa*), e se il turno riparte **scrive la
+riparazione**:
+
+```text
+> cosa e rimasto in sospeso        (senza accento, nessuna superficie la raggiunge)
+    Non c'e' niente in sospeso: ho risposto a tutto quello che hai chiesto.
+!query surface_variant("cosa e rimasto in sospeso", "cosa è rimasto in sospeso")  ✅
+```
+
+Il turno dopo è un **colpo diretto**, non una seconda riparazione: *una capacità
+che si riconquista ogni volta non è stata acquisita.*
+
+⚠ **Due correzioni di rotta che F. ha imposto durante la costruzione, e vanno
+ricordate:**
+
+1. **Niente strumenti offline.** Avevo scritto un rilevatore di lacune che legge
+   la KB e stampa una coda (274 varianti trovate). F.: *«non voglio uno strumento
+   rilevatore di lacune offline, voglio che LUI autorilevi la lacuna e la
+   corregga»*. Uno strumento offline lo esegue qualcun altro: **non è crescita di
+   parrot0**. Rimosso.
+2. **L'alfabeto stava nel C.** La prima versione portava à→a, è→e dentro il
+   motore. F.: *«fammi capire come lo vuoi fare, deve essere KB-first»* — e la
+   domanda è arrivata prima che costasse. Ora `equivalent_letter/2` è in KB, e
+   spagnolo/portoghese/tedesco sono righe, non ricompilazioni.
+
+**Il test KB-first, per intero:**
+
+| pezzo | dove | nuovo membro domani senza ricompilare? |
+|---|---|---|
+| quali azioni compensano quale arresto | `compensates/2` | ✅ una riga |
+| quali relazioni portano superfici | `surface_bearing_relation/1` | ✅ una riga |
+| quali lettere sono equivalenti | `equivalent_letter/2` | ✅ una riga |
+| che cos'è un muro | `wall_marker/1` (già esistente, **non** duplicato) | ✅ |
+| la riparazione appresa | `surface_variant/2`, scritta da parrot0 | ✅ |
+
+Gancio: la compensazione corre **dove il progetto riconosce già una resa**, non
+solo su `!handled` — perché il muro quasi sempre lo produce un modulo che *ha*
+rivendicato il turno. Ratchet: `tests/p0t/conversation/self_compensation.p0t`
+(9 assert), che verifica anche che togliendo `compensates/2` l'azione sparisca.
+
+**Le due azioni successive sono dichiarate e NON eseguibili** — è il prossimo
+lavoro, ed è piccolo perché l'esecutore ora c'è:
+
+```prolog
+compensates(read_source, knowledge).      % ⛔ Wikipedia, l'unica sorgente ammessa
+compensates(ask_user, reference).         % ⛔ manca un antecedente: si chiede
+```
 
 ## §0. L'obiettivo, con le parole di F.
 
