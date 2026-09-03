@@ -348,13 +348,13 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         char *w[48]; size_t nw = split_words(qbuf, w, 48);
         char fnname[KB_TERM_LEN] = ""; char dir[256] = "";
         for (size_t i = 0; i + 1 < nw; i++) {
-            if (lex_class_member(b, "80_code_lex341", w[i]) || lex_class_member(b, "80_code_lex341_2", w[i]) ||
-                lex_class_member(b, "80_code_lex342", w[i]) || lex_class_member(b, "80_code_lex342_2", w[i]) ||
-                lex_class_member(b, "80_code_lex343", w[i]))
+            if (lex_class_member(b, "definition_verb", w[i]) || lex_class_member(b, "definition_verb", w[i]) ||
+                lex_class_member(b, "definition_verb", w[i]) || lex_class_member(b, "definition_verb", w[i]) ||
+                lex_class_member(b, "definition_verb", w[i]))
                 snprintf(fnname, sizeof fnname, "%s", strip_edge_punct(w[i+1]));
-            if (lex_class_member(b, "80_code_lex345", w[i]) || lex_class_member(b, "80_code_lex345_2", w[i]) || lex_class_member(b, "80_code_lex345_3", w[i]) ||
-                lex_class_member(b, "80_code_lex346", w[i]) || lex_class_member(b, "80_code_lex346_2", w[i]) || lex_class_member(b, "80_code_lex346_3", w[i]) ||
-                lex_class_member(b, "80_code_lex347", w[i]))
+            if (lex_class_member(b, "containment_preposition", w[i]) || lex_class_member(b, "containment_preposition", w[i]) || lex_class_member(b, "containment_preposition", w[i]) ||
+                lex_class_member(b, "containment_preposition", w[i]) || lex_class_member(b, "containment_preposition", w[i]) || lex_class_member(b, "containment_preposition", w[i]) ||
+                lex_class_member(b, "containment_preposition", w[i]))
                 snprintf(dir, sizeof dir, "%s", strip_edge_punct(w[i+1]));
         }
         if (!dir[0]) for (size_t i = 0; i < nw; i++)   /* fallback: a path-like token */
@@ -862,10 +862,10 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         char *w[48]; size_t nw = split_words(qbuf, w, 48);
         char target[KB_TERM_LEN] = ""; char dir[256] = "";
         for (size_t i = 0; i + 1 < nw; i++) {
-            if (lex_class_member(b, "80_code_lex836", w[i]) || lex_class_member(b, "80_code_lex836_2", w[i]))
+            if (lex_class_member(b, "call_verb", w[i]) || lex_class_member(b, "call_verb", w[i]))
                 snprintf(target, sizeof target, "%s", strip_edge_punct(w[i+1]));
-            if (lex_class_member(b, "80_code_lex838", w[i]) || lex_class_member(b, "80_code_lex838_2", w[i]) || lex_class_member(b, "80_code_lex838_3", w[i]) ||
-                lex_class_member(b, "80_code_lex839", w[i]) || lex_class_member(b, "80_code_lex839_2", w[i]) || lex_class_member(b, "80_code_lex839_3", w[i]))
+            if (lex_class_member(b, "containment_preposition", w[i]) || lex_class_member(b, "containment_preposition", w[i]) || lex_class_member(b, "containment_preposition", w[i]) ||
+                lex_class_member(b, "containment_preposition", w[i]) || lex_class_member(b, "containment_preposition", w[i]) || lex_class_member(b, "containment_preposition", w[i]))
                 snprintf(dir, sizeof dir, "%s", strip_edge_punct(w[i+1]));
         }
         if (!dir[0]) for (size_t i = 0; i < nw; i++)
@@ -1703,8 +1703,8 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
         store_proof(b, reg_proof);
         return 1;
     }
-    int lang = lex_class_member(b, "80_code_lex1666", input_reg) ? 1 :
-               lex_class_member(b, "80_code_lex1667", input_reg) ? 2 : 0;
+    int lang = lex_class_member(b, "expert", input_reg) ? 1 :
+               lex_class_member(b, "expert", input_reg) ? 2 : 0;
 
     /* gen323: REGISTER EVIDENCE — widening the question surface is only safe if
      * the module refuses turns that are not actually about code. It did not:
@@ -1901,11 +1901,11 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
                 char *l = lines[i]; while (*l && isspace((unsigned char)*l)) l++;
                 char tmp[256]; snprintf(tmp, sizeof tmp, "%s", l);
                 char *tw[64]; size_t tnw = split_words(tmp, tw, 64);
-                if (tnw > 0 && (lex_class_member(b, "80_code_lex1857", tw[0]) || lex_class_member(b, "80_code_lex1857_2", tw[0]) ||
-                    lex_class_member(b, "preposition", tw[0]) || lex_class_member(b, "80_code_lex1858_2", tw[0]) ||
-                    lex_class_member(b, "80_code_lex1859", tw[0]) || lex_class_member(b, "80_code_lex1859_2", tw[0]) ||
-                    lex_class_member(b, "80_code_lex1860", tw[0]) || lex_class_member(b, "80_code_lex1860_2", tw[0]) ||
-                    lex_class_member(b, "80_code_lex1861", tw[0]))) {
+                if (tnw > 0 && (lex_class_member(b, "python_keyword", tw[0]) || lex_class_member(b, "python_keyword", tw[0]) ||
+                    lex_class_member(b, "preposition", tw[0]) || lex_class_member(b, "python_keyword", tw[0]) ||
+                    lex_class_member(b, "python_keyword", tw[0]) || lex_class_member(b, "python_keyword", tw[0]) ||
+                    lex_class_member(b, "python_keyword", tw[0]) || lex_class_member(b, "python_keyword", tw[0]) ||
+                    lex_class_member(b, "python_keyword", tw[0]))) {
                     size_t len = strlen(l);
                     if (len > 0 && l[len - 1] != ':') {
                         { const KbResponseSlot _rs[] = { { "tw", tw[0] } };

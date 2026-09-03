@@ -2202,8 +2202,8 @@ static int coref_resolve(Brain *b, const char *canon, char *out, size_t out_size
     size_t pidx = nw;
     for (size_t i = 0; i < nw; i++) {
         const char *t = w[i];
-        if (lex_class_member(b, "99_registry_lex2183", t)||lex_class_member(b, "99_registry_lex2183_2", t)||lex_class_member(b, "99_registry_lex2183_3", t)||lex_class_member(b, "99_registry_lex2183_4", t)||
-            lex_class_member(b, "99_registry_lex2184", t)||lex_class_member(b, "99_registry_lex2184_2", t)||lex_class_member(b, "99_registry_lex2184_3", t)) { pidx = i; break; }
+        if (lex_class_member(b, "entity_pronoun", t)||lex_class_member(b, "entity_pronoun", t)||lex_class_member(b, "entity_pronoun", t)||lex_class_member(b, "entity_pronoun", t)||
+            lex_class_member(b, "entity_pronoun", t)||lex_class_member(b, "entity_pronoun", t)||lex_class_member(b, "entity_pronoun", t)) { pidx = i; break; }
     }
     if (pidx == nw) return 0;
 
@@ -2471,10 +2471,10 @@ static int continue_resolve(Brain *b, const char *canon, char *out, size_t out_s
     if (nw == 0) return 0;
 
     size_t i = 0;                                       /* skip a leading connector */
-    while (i < nw && (lex_class_member(b, "99_registry_lex2433", w[i]) || lex_class_member(b, "99_registry_lex2433_2", w[i]) ||
-                      lex_class_member(b, "99_registry_lex2434", w[i]) || lex_class_member(b, "99_registry_lex2434_2", w[i]) ||
-                      lex_class_member(b, "99_registry_lex2435", w[i]) || lex_class_member(b, "99_registry_lex2435_2", w[i]) ||
-                      lex_class_member(b, "99_registry_lex2436", w[i]))) i++;
+    while (i < nw && (lex_class_member(b, "sequencer", w[i]) || lex_class_member(b, "sequencer", w[i]) ||
+                      lex_class_member(b, "sequencer", w[i]) || lex_class_member(b, "sequencer", w[i]) ||
+                      lex_class_member(b, "sequencer", w[i]) || lex_class_member(b, "sequencer", w[i]) ||
+                      lex_class_member(b, "sequencer", w[i]))) i++;
     if (i >= nw || !arith_op_char(b, w[i])) return 0;      /* must lead with an operator */
 
     int saw_num = 0;                                    /* rest must be a pure arith tail */
@@ -4518,9 +4518,9 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                            lex_class_member(b, "99_registry_lex3878", clow) || lex_class_member(b, "99_registry_lex3878_2", clow) ||
                            lex_class_member(b, "stance_predicate", clow) || lex_class_member(b, "99_registry_lex3879_2", clow) ||
                            lex_class_member(b, "99_registry_lex3880", clow) || lex_class_member(b, "99_registry_lex3880_2", clow) ||!lex_prefix_member(b, "99_registry_lex3879_3", clow) == 0 ||!lex_prefix_member(b, "99_registry_lex3880_3", clow) == 0 ||
-                           lex_class_member(b, "99_registry_lex3882", rlow) || strcmp(rlow, "sì") == 0 ||
-                           lex_class_member(b, "99_registry_lex3883", rlow) || lex_class_member(b, "99_registry_lex3883_2", rlow) ||
-                           lex_class_member(b, "99_registry_lex3884", rlow));
+                           lex_class_member(b, "affirmation_word", rlow) || strcmp(rlow, "sì") == 0 ||
+                           lex_class_member(b, "affirmation_word", rlow) || lex_class_member(b, "affirmation_word", rlow) ||
+                           lex_class_member(b, "affirmation_word", rlow));
 
             /* Always retract the gap facts — single-turn window consumed */
             { const char *rga[] = { gtopics[0] }; kb_retract(b->kb, "pending_gap", rga, 1); }

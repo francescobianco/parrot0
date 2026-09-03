@@ -1135,7 +1135,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 char *t = strip_edge_punct(sw[i]);
                 if (lex_class_member(b, "30_generation_reading_lex940", t) && i + 1 < sn) {
                     char *art = strip_edge_punct(sw[i + 1]);
-                    if (lex_class_member(b, "30_generation_reading_lex942", art) || lex_class_member(b, "30_generation_reading_lex942_2", art)) {
+                    if (lex_class_member(b, "english_determiner", art) || lex_class_member(b, "english_determiner", art)) {
                         size_t j = i + 2;
                         char *w1 = strip_edge_punct(sw[j]);
                         char *w2 = (j + 1 < sn) ? strip_edge_punct(sw[j + 1]) : NULL;
@@ -1558,7 +1558,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             int has_is = 0;
             const char *rest[6]; size_t nr = 0;
             for (size_t i = 0; i < rn; i++) {
-                if (lex_class_member(b, "30_generation_reading_lex1239", tok[i]) || lex_class_member(b, "30_generation_reading_lex1239_2", tok[i])) { has_is = 1; continue; }
+                if (lex_class_member(b, "clause_copula", tok[i]) || lex_class_member(b, "clause_copula", tok[i])) { has_is = 1; continue; }
                 if (!art && is_article(b, tok[i])) { art = tok[i]; continue; }
                 rest[nr++] = tok[i];
             }
@@ -1840,7 +1840,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             if (lex_class_member(b, "universal_quantifier", strip_edge_punct(dw[i]))) {
                 size_t j = i + 1;
                 while (j < dn) { char *t = strip_edge_punct(dw[j]);
-                    if (lex_class_member(b, "30_generation_reading_lex1503", t)||lex_class_member(b, "30_generation_reading_lex1503_2", t)||lex_class_member(b, "30_generation_reading_lex1503_3", t)) j++; else break; }
+                    if (lex_class_member(b, "singleton_word", t)||lex_class_member(b, "singleton_word", t)||lex_class_member(b, "singleton_word", t)) j++; else break; }
                 if (j < dn) { snprintf(topic, sizeof topic, "%s", strip_edge_punct(dw[j]));
                     size_t tl = strlen(topic); if (tl>1 && topic[tl-1]=='s') topic[tl-1]='\0'; }
                 break;
@@ -1906,7 +1906,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * steered by editable KB knowledge, not hardcoded coefficients (D-prop1). */
     if (nw == 5 && lex_class_member(b, "30_generation_reading_lex1568", w[0]) && lex_class_member(b, "30_generation_reading_lex1568_2", w[2]) &&
         lex_class_member(b, "30_generation_reading_lex1569", w[3]) &&
-        (lex_class_member(b, "30_generation_reading_lex1570", w[1]) || lex_class_member(b, "30_generation_reading_lex1570_2", w[1]))) {
+        (lex_class_member(b, "ngram_word", w[1]) || lex_class_member(b, "ngram_word", w[1]))) {
         double v;
         if (parse_num(w[4], &v)) {
             const char *kp[] = { w[1], NULL };

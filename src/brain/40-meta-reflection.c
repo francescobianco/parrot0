@@ -1357,10 +1357,10 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
      * blank placeholder ("____", "___", "blank"). gen240 adds the blank forms. */
     int blank = 1;
     for (const char *p = target; *p; p++) if (*p != '_') { blank = 0; break; }
-    if (!(lex_class_member(b, "40_meta_reflection_lex1340", target) || lex_class_member(b, "40_meta_reflection_lex1340_2", target) ||
-          lex_class_member(b, "40_meta_reflection_lex1341", target) || lex_class_member(b, "40_meta_reflection_lex1341_2", target) ||
-          lex_class_member(b, "40_meta_reflection_lex1342", target) || lex_class_member(b, "40_meta_reflection_lex1342_2", target) ||
-          lex_class_member(b, "40_meta_reflection_lex1343", target) || blank || target[0] == '\0'))
+    if (!(lex_class_member(b, "question_word", target) || lex_class_member(b, "question_word", target) ||
+          lex_class_member(b, "question_word", target) || lex_class_member(b, "question_word", target) ||
+          lex_class_member(b, "question_word", target) || lex_class_member(b, "question_word", target) ||
+          lex_class_member(b, "question_word", target) || blank || target[0] == '\0'))
         return 0;
 
     char rels[64][KB_TERM_LEN];

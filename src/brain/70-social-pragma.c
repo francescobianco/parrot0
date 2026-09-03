@@ -650,9 +650,9 @@ static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
         int addressed = 0;
         for (size_t i = 0; i < nw; i++) {
             char *t = strip_edge_punct(w[i]);
-            if (lex_class_member(b, "70_social_pragma_lex531", t)||lex_class_member(b, "70_social_pragma_lex531_2", t)||lex_class_member(b, "70_social_pragma_lex531_3", t)||    /* EN */
-                lex_class_member(b, "70_social_pragma_lex532", t)||lex_class_member(b, "70_social_pragma_lex532_2", t)||lex_class_member(b, "70_social_pragma_lex532_3", t)||        /* IT */
-                lex_class_member(b, "70_social_pragma_lex533", t)||lex_class_member(b, "70_social_pragma_lex533_2", t)||lex_class_member(b, "70_social_pragma_lex533_3", t)) { addressed = 1; break; }
+            if (lex_class_member(b, "second_person_form", t)||lex_class_member(b, "second_person_form", t)||lex_class_member(b, "second_person_form", t)||    /* EN */
+                lex_class_member(b, "second_person_form", t)||lex_class_member(b, "second_person_form", t)||lex_class_member(b, "second_person_form", t)||        /* IT */
+                lex_class_member(b, "second_person_form", t)||lex_class_member(b, "second_person_form", t)||lex_class_member(b, "second_person_form", t)) { addressed = 1; break; }
         }
         /* an experiential marker ("for fun", "hobby", "tempo libero") is itself a
          * smalltalk signal — covers Italian PRO-DROP questions with no explicit "tu". */
@@ -660,13 +660,13 @@ static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
                            kb_cue_match(b, "experiential_move", raw))) addressed = 1;
         const char *o = w[0];
         int question = (strchr(norm, '?') != NULL) ||
-            lex_class_member(b, "70_social_pragma_lex541", o)||lex_class_member(b, "70_social_pragma_lex541_2", o)||lex_class_member(b, "70_social_pragma_lex541_3", o)||lex_class_member(b, "70_social_pragma_lex541_4", o)||
-            lex_class_member(b, "70_social_pragma_lex542", o)||lex_class_member(b, "70_social_pragma_lex542_2", o)||lex_class_member(b, "70_social_pragma_lex542_3", o)||lex_class_member(b, "70_social_pragma_lex542_4", o)||
-            lex_class_member(b, "70_social_pragma_lex543", o)||lex_class_member(b, "70_social_pragma_lex543_2", o)||lex_class_member(b, "70_social_pragma_lex543_3", o)||lex_class_member(b, "70_social_pragma_lex543_4", o)||
-            lex_class_member(b, "70_social_pragma_lex544", o)||lex_class_member(b, "70_social_pragma_lex544_2", o)||lex_class_member(b, "70_social_pragma_lex544_3", o)||lex_class_member(b, "70_social_pragma_lex544_4", o)||
-            lex_class_member(b, "70_social_pragma_lex545", o)||                                              /* EN openers */
-            lex_class_member(b, "70_social_pragma_lex546", o)||lex_class_member(b, "70_social_pragma_lex546_2", o)||lex_class_member(b, "70_social_pragma_lex546_3", o)||          /* IT openers */
-            lex_class_member(b, "70_social_pragma_lex547", o)||lex_class_member(b, "70_social_pragma_lex547_2", o)||lex_class_member(b, "70_social_pragma_lex547_3", o);
+            lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||
+            lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||
+            lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||
+            lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||
+            lex_class_member(b, "question_opener", o)||                                              /* EN openers */
+            lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||          /* IT openers */
+            lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o)||lex_class_member(b, "question_opener", o);
         /* gen453: una domanda COPULARE su un attributo di parrot0 non e' una
          * mossa sociale. Sviarla con «non ne ho di miei» e' una risposta
          * plausibile e non pertinente — peggio di un muro (PRINCIPLES.md). Quali
@@ -958,9 +958,9 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
          * register (chitchat), so we don't override the gen140 decision that a
          * casual "parliamo di formaggio" is just filler — the proposal SHAPE (a
          * modal asking permission to change topic) is the discriminating cue. */
-        int modal_open = lex_class_member(b, "70_social_pragma_lex884", first) || lex_class_member(b, "70_social_pragma_lex884_2", first) ||
-                         lex_class_member(b, "70_social_pragma_lex885", first) || lex_class_member(b, "70_social_pragma_lex885_2", first) ||
-                         lex_class_member(b, "70_social_pragma_lex886", first);
+        int modal_open = lex_class_member(b, "request_auxiliary", first) || lex_class_member(b, "request_auxiliary", first) ||
+                         lex_class_member(b, "request_auxiliary", first) || lex_class_member(b, "request_auxiliary", first) ||
+                         lex_class_member(b, "request_auxiliary", first);
         int switch_verb = kb_cue_match(b, "70_social_pragma_cue887", buf) || kb_cue_match(b, "70_social_pragma_cue887_2", buf) ||
                           kb_cue_match(b, "70_social_pragma_cue888", buf) || kb_cue_match(b, "70_social_pragma_cue888_2", buf);
         int frame = kb_cue_match(b, "70_social_pragma_cue889", buf) || kb_cue_match(b, "70_social_pragma_cue889_2", buf) ||
@@ -982,10 +982,10 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
     /* ---- MOVE 2: soft request. An imperative directed at me ("tell/give/show
      * me", "say") with NO content object — an open request to fill the silence. */
     {
-        int soft = lex_class_member(b, "70_social_pragma_lex910", first) || lex_class_member(b, "70_social_pragma_lex910_2", first) ||
-                   lex_class_member(b, "70_social_pragma_lex911", first) || lex_class_member(b, "70_social_pragma_lex911_2", first) ||
-                   lex_class_member(b, "70_social_pragma_lex912", first) || lex_class_member(b, "70_social_pragma_lex912_2", first) ||
-                   lex_class_member(b, "70_social_pragma_lex913", first) || lex_class_member(b, "70_social_pragma_lex913_2", first);
+        int soft = lex_class_member(b, "imperative_opener", first) || lex_class_member(b, "imperative_opener", first) ||
+                   lex_class_member(b, "imperative_opener", first) || lex_class_member(b, "imperative_opener", first) ||
+                   lex_class_member(b, "imperative_opener", first) || lex_class_member(b, "imperative_opener", first) ||
+                   lex_class_member(b, "imperative_opener", first) || lex_class_member(b, "imperative_opener", first);
         /* OPEN-ended only: the object must be a quantifier placeholder
          * ("something/anything/qualcosa"), which is what distinguishes a
          * fill-the-silence request from a real (often unfulfillable) one — "tell
@@ -1389,9 +1389,9 @@ static int check_unknown_function(const char *code, Brain *b, char *findings,
                 fname[fn++] = (char)tolower((unsigned char)t[j]);
             fname[fn] = '\0';
             /* Skip known keywords */
-            if (lex_class_member(b, "70_social_pragma_lex1292", fname) || lex_class_member(b, "70_social_pragma_lex1292_2", fname) ||
-                lex_class_member(b, "preposition", fname) || lex_class_member(b, "70_social_pragma_lex1293_2", fname) ||
-                lex_class_member(b, "70_social_pragma_lex1294", fname) || lex_class_member(b, "70_social_pragma_lex1294_2", fname))
+            if (lex_class_member(b, "c_keyword", fname) || lex_class_member(b, "c_keyword", fname) ||
+                lex_class_member(b, "preposition", fname) || lex_class_member(b, "c_keyword", fname) ||
+                lex_class_member(b, "c_keyword", fname) || lex_class_member(b, "c_keyword", fname))
                 continue;
             /* Check against KB */
             { const char *fa[] = { fname };

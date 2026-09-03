@@ -739,7 +739,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
              * definiteness, gender and vowel-initial noun (the fixed substrate);
              * it now SELECTS the form from knowledge, so the grammar (including the
              * elided l'/un') is inspectable via kb.match and teachable via MCP. */
-            int indef = (lex_class_member(b, "85_translate_synth_world_lex694", tok) || lex_class_member(b, "85_translate_synth_world_lex694_2", tok));
+            int indef = (lex_class_member(b, "english_determiner", tok) || lex_class_member(b, "english_determiner", tok));
             int vowel_next = 0;
             if (i + 1 < nw) {
                 char *nx = strip_edge_punct(w[i + 1]);
@@ -760,8 +760,8 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                          indef ? (clause_gender == 'f' ? "una" : "un")
                                : (clause_gender == 'f' ? "la" : "il"));
         } else if (!to_it && is_it_det(b, tok)) {
-            int indef = (lex_class_member(b, "85_translate_synth_world_lex715", tok) || lex_class_member(b, "85_translate_synth_world_lex715_2", tok) ||
-                         lex_class_member(b, "85_translate_synth_world_lex716", tok));
+            int indef = (lex_class_member(b, "italian_determiner", tok) || lex_class_member(b, "italian_determiner", tok) ||
+                         lex_class_member(b, "italian_determiner", tok));
             snprintf(piece, sizeof piece, "%s", indef ? "a" : "the");
         } else {
             if (!gloss_lookup(b, tok, to_it, piece, sizeof piece)) {
@@ -1494,7 +1494,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                 /* prefer the token after "called"/"named", else the one after noun */
                 for (size_t i = 0; i + 1 < nn; i++) {
                     char *t = strip_edge_punct(w2[i]);
-                    if (lex_class_member(b, "85_translate_synth_world_lex1450", t) || lex_class_member(b, "85_translate_synth_world_lex1450_2", t))
+                    if (lex_class_member(b, "naming_verb", t) || lex_class_member(b, "naming_verb", t))
                         { name = strip_edge_punct(w2[i+1]); break; }
                 }
                 if (!name && (size_t)wn_idx + 1 < nn)
