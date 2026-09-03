@@ -1,0 +1,85 @@
+# sources.tsv — LE FONTI DEL CORPUS, NON IL CORPUS.
+#
+# gen436 (F.): «di Wikipedia non si conserva niente». Una cache di enciclopedia
+# e' esattamente cio' che questo progetto non deve avere: la conoscenza di
+# parrot0 e' quella che ha IMPARATO, non quella che ha archiviato. Quello che si
+# conserva e' quindi (a) questa lista di FONTI e (b) i `wiki_concept/3` estratti,
+# con revisione e data — cioe' un fatto interrogabile e revocabile, non un
+# ritaglio.
+#
+# Perche' la lista conta, dal gen490: il lettore strutturale deriva le proprie
+# ENTITA' da `wiki_concept/3` (kb/core/grammar.p0). Ogni riga qui non aggiunge
+# solo un fatto: rende leggibile la prosa che nomina quel concetto. La lettura
+# finanzia la lettura.
+#
+# Uso:  python3 scripts/learn.py --title "<titolo>" --domain <dominio>
+#       (una pagina per volta, con una pausa: Wikipedia risponde 429 sopra le
+#        ~17 richieste ravvicinate, e la pausa e' parte del contratto)
+title	domain
+Oxygen	chemistry
+Hydrogen	chemistry
+Carbon	chemistry
+Nitrogen	chemistry
+Water	chemistry
+Acid	chemistry
+Molecule	chemistry
+Atom	chemistry
+Chemical reaction	chemistry
+Periodic table	chemistry
+Chlorophyll	biology
+Cell membrane	biology
+Enzyme	biology
+Protein	biology
+Bacteria	biology
+Virus	biology
+Evolution	biology
+Gene	biology
+Ecosystem	biology
+Mitochondrion	biology
+Respiration (physiology)	biology
+Neuron	biology
+Gravity	physics
+Energy	physics
+Electricity	physics
+Magnetism	physics
+Light	physics
+Sound	physics
+Heat	physics
+Force	physics
+Volcano	geology
+Earthquake	geology
+Plate tectonics	geology
+Mineral	geology
+Rock (geology)	geology
+Erosion	geology
+Democracy	politics
+Government	politics
+Constitution	politics
+Election	politics
+Parliament	politics
+Inflation	economics
+Supply and demand	economics
+Interest	economics
+Tax	economics
+Market (economics)	economics
+Contract	law
+Obligation	law
+Property	law
+Algorithm	computer_science
+Data structure	computer_science
+Compiler	computer_science
+Operating system	computer_science
+Computer network	computer_science
+Encryption	computer_science
+Database	computer_science
+Function (mathematics)	mathematics
+Prime number	mathematics
+Derivative	mathematics
+Probability	mathematics
+Matrix (mathematics)	mathematics
+Geometry	mathematics
+Melody	music
+Harmony	music
+Rhythm	music
+Musical instrument	music
+Photosynthesis	biology

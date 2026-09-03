@@ -1,0 +1,70 @@
+# gen490 — IL LETTORE STRUTTURALE ERA COSTRUITO E SPENTO.
+#
+# `kb/core/input-structure.p0` implementa per intero il matcher compositivo di
+# `docs/plans/universal-input.md` — ruoli, ordini, operatori, coordinazione,
+# provenienza, e perfino il ponte domanda→lettura. Ma i fatti che lo ACCENDONO
+# non erano mai usciti dal laboratorio: al gen489
+#
+#     frame_pattern/4            0 fatti in tutta la KB
+#     frame_operator_concept/2   0
+#     semantic_entity/1          0
+#     semantic_class/1           0
+#     phrase_form/4              0
+#
+# e vivevano solo nei profili finti di `docs/labs/autocrescita-v3/` (`flourion`,
+# `lumion`, `million`), caricati dai loro stessi `.p0t`. In produzione nessun
+# ruolo poteva legarsi, quindi il lettore universale non ha mai letto niente.
+#
+# Misura che ne discendeva: su prosa vera di Wikipedia la lettura rendeva **0,13
+# fatti per frase**, e «Photosynthesis produces oxygen» — la forma piu' comune
+# della prosa enciclopedica — non produceva nulla di interrogabile.
+#
+# Non era un motore da scrivere: era un motore da COLLEGARE, e per derivazione,
+# non per elenco (kb/core/grammar.p0, blocco gen490).
+
+[mock hermetic]
+!set PARROT0_LANG=en
+!reset
+
+[test il lettore strutturale e' acceso in produzione]
+!timeout 20
+
+# 1. L'ordine delle parole di una lingua e' un fatto, non un recognizer.
+!query frame_pattern(en, binary, assertion, sro)
+!query frame_pattern(it, membership, assertion, src)
+
+# 2. Che cosa sia un operatore si DERIVA da classi che crescono parlando:
+#    un verbo di relazione e' l'operatore binario, la copula quello di
+#    appartenenza. Quindi anche la LETTURA cresce parlando.
+!query frame_operator_concept(produces, binary)
+!query frame_operator_concept(is, membership)
+
+# 3. Che cosa sia un'entita' si deriva dal CORPUS: cio' di cui parrot0 sa gia'
+#    qualcosa. Allargare il corpus allarga cio' che e' leggibile — la lettura
+#    finanzia la lettura.
+!query semantic_entity(photosynthesis)
+
+# 4. E il frame lega su un turno vero, con vocabolario vero.
+> photosynthesis produces oxygen
+!query input_semantic_frame(current_turn, assertion, binary(produces), roles(subject(photosynthesis), object(oxygen)))
+
+# 5. La lettura di prosa ora deposita IR INTERROGABILE, non atomi malformati:
+#    la proposizione completa con la sua provenienza, e l'indice per il solver.
+> read: photosynthesis produces oxygen
+!query semantic_proposition(proposition(binary(produces), roles(subject(photosynthesis), object(oxygen))))
+!query semantic_binding(binary(produces), photosynthesis, object(oxygen))
+
+# 6. ABLAZIONE — tolto l'ordine delle parole, il frame non lega piu'. E' quella
+#    riga a fare il lavoro, non il C: la prova che l'accensione e' conoscenza.
+!forget frame_pattern(en, binary, assertion, sro)
+> photosynthesis produces oxygen
+!query! input_semantic_frame(current_turn, assertion, binary(produces), roles(subject(photosynthesis), object(oxygen)))
+!assert frame_pattern(en, binary, assertion, sro)
+> photosynthesis produces oxygen
+!query input_semantic_frame(current_turn, assertion, binary(produces), roles(subject(photosynthesis), object(oxygen)))
+
+# 7. E un verbo INSEGNATO a runtime accende la lettura della sua frase: e' il
+#    canale #1 della Gerarchia di Crescita che arriva fino al lettore.
+!query! frame_operator_concept(governs, binary)
+> governs is a relation verb
+!query frame_operator_concept(governs, binary)

@@ -1,0 +1,36 @@
+% Conoscenza generale dal wiki — dominio: geology.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello). La conoscenza specialistica si raffina altrove, in
+% kb/experts/, con predicati che non sono `wiki_*`.
+
+% geology / Earthquake
+% source: https://en.wikipedia.org/wiki/Earthquake
+% revision: 1372295416; processed: 2026-09-03T10:44:25Z
+wiki_concept(earthquake, geology, "An earthquake, also called a quake, tremor, or temblor, is the shaking of the Earth's surface resulting from a...").
+
+% geology / Erosion
+% source: https://en.wikipedia.org/wiki/Erosion
+% revision: 1369265866; processed: 2026-09-03T10:50:23Z
+wiki_concept(erosion, geology, "action of surface processes that removes soil, rock, or dissolved material from one location on the Earth's crust...").
+
+% geology / Mineral
+% source: https://en.wikipedia.org/wiki/Mineral
+% revision: 1371936486; processed: 2026-09-03T10:44:33Z
+wiki_concept(mineral, geology, "In geology and mineralogy, a mineral or mineral species is, broadly speaking, a solid substance with a fairly...").
+
+% geology / Plate tectonics
+% source: https://en.wikipedia.org/wiki/Plate_tectonics
+% revision: 1371308226; processed: 2026-09-03T10:44:29Z
+wiki_concept(plate_tectonics, geology, "scientific theory that Earth's lithosphere comprises a number of large tectonic plates, which have been slowly...").
+
+% geology / Rock (geology)
+% source: https://en.wikipedia.org/wiki/Rock_(geology)
+% revision: 1359173537; processed: 2026-09-03T10:47:03Z
+wiki_concept(rock_geology, geology, "any naturally occurring solid mass or aggregate of minerals or mineraloid matter").
+
+% geology / Volcano
+% source: https://en.wikipedia.org/wiki/Volcano
+% revision: 1372671594; processed: 2026-09-03T10:46:45Z
+wiki_concept(volcano, geology, "vent or fissure in the crust of a planetary-mass object that allows hot lava, volcanic ash, and gases to escape...").

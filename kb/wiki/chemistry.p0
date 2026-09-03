@@ -25,3 +25,43 @@ wiki_concept(covalent_bond, chemistry, "chemical bond that involves the sharing 
 % source: https://en.wikipedia.org/wiki/Catalysis
 % revision: 1358271976; processed: 2026-06-27T18:44:15Z
 wiki_concept(catalysis, chemistry, "increase in rate of a chemical reaction due to an added substance known as a catalyst").
+
+% chemistry / Atom
+% source: https://en.wikipedia.org/wiki/Atom
+% revision: 1368905891; processed: 2026-09-03T10:42:43Z
+wiki_concept(atom, chemistry, "basic particles of the chemical elements and the fundamental building blocks of matter").
+
+% chemistry / Carbon
+% source: https://en.wikipedia.org/wiki/Carbon
+% revision: 1372091128; processed: 2026-09-03T10:42:39Z
+wiki_concept(carbon, chemistry, "chemical element; it has symbol C and atomic number 6").
+
+% chemistry / Chemical reaction
+% source: https://en.wikipedia.org/wiki/Chemical_reaction
+% revision: 1367113117; processed: 2026-09-03T10:42:45Z
+wiki_concept(chemical_reaction, chemistry, "process that leads to the chemical transformation of one set of chemical substances to another").
+
+% chemistry / Hydrogen
+% source: https://en.wikipedia.org/wiki/Hydrogen
+% revision: 1372683994; processed: 2026-09-03T10:42:38Z
+wiki_concept(hydrogen, chemistry, "chemical element; it has the symbol H and atomic number 1").
+
+% chemistry / Molecule
+% source: https://en.wikipedia.org/wiki/Molecule
+% revision: 1372931720; processed: 2026-09-03T10:42:43Z
+wiki_concept(molecule, chemistry, "group of two or more atoms that are held together by attractive forces known as chemical bonds; depending on...").
+
+% chemistry / Nitrogen
+% source: https://en.wikipedia.org/wiki/Nitrogen
+% revision: 1365513322; processed: 2026-09-03T10:42:40Z
+wiki_concept(nitrogen, chemistry, "chemical element; it has symbol N and atomic number 7").
+
+% chemistry / Oxygen
+% source: https://en.wikipedia.org/wiki/Oxygen
+% revision: 1371861450; processed: 2026-09-03T10:42:37Z
+wiki_concept(oxygen, chemistry, "chemical element; it has the symbol O and its atomic number is 8").
+
+% chemistry / Water
+% source: https://en.wikipedia.org/wiki/Water
+% revision: 1371648527; processed: 2026-09-03T10:42:41Z
+wiki_concept(water, chemistry, "inorganic compound with the chemical formula H2O").

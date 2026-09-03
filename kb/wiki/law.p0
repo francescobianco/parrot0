@@ -1,0 +1,21 @@
+% Conoscenza generale dal wiki — dominio: law.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello). La conoscenza specialistica si raffina altrove, in
+% kb/experts/, con predicati che non sono `wiki_*`.
+
+% law / Contract
+% source: https://en.wikipedia.org/wiki/Contract
+% revision: 1372153721; processed: 2026-09-03T10:47:59Z
+wiki_concept(contract, law, "agreement that specifies certain legally enforceable rights and obligations pertaining to two or more parties").
+
+% law / Obligation
+% source: https://en.wikipedia.org/wiki/Obligation
+% revision: 1365171949; processed: 2026-09-03T10:48:04Z
+wiki_concept(obligation, law, "course of action which someone is required to take, be it a legal obligation or a moral obligation").
+
+% law / Property
+% source: https://en.wikipedia.org/wiki/Property
+% revision: 1369793918; processed: 2026-09-03T10:48:10Z
+wiki_concept(property, law, "system of rights that gives people legal control of valuable things, and also refers to the valuable things themselves").

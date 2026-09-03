@@ -39,3 +39,18 @@ wiki_concept(derivative, mathematics, "fundamental tool that quantifies the sens
 % source: https://en.wikipedia.org/wiki/Logarithm
 % revision: 1354833929; processed: 2026-06-28T17:44:09Z
 wiki_concept(logarithm, mathematics, "In mathematics, the logarithm of a number is the exponent by which another fixed value, the base, must be raised to...").
+
+% mathematics / Geometry
+% source: https://en.wikipedia.org/wiki/Geometry
+% revision: 1372804497; processed: 2026-09-03T10:49:11Z
+wiki_concept(geometry, mathematics, "branch of mathematics concerned with properties of space such as the distance, shape, size, and relative position...").
+
+% mathematics / Matrix (mathematics)
+% source: https://en.wikipedia.org/wiki/Matrix_(mathematics)
+% revision: 1372418903; processed: 2026-09-03T10:49:06Z
+wiki_concept(matrix_mathematics, mathematics, "rectangular array of numbers or other mathematical objects with elements or entries arranged in rows and columns...").
+
+% mathematics / Probability
+% source: https://en.wikipedia.org/wiki/Probability
+% revision: 1367544467; processed: 2026-09-03T10:49:01Z
+wiki_concept(probability, mathematics, "Probability concerns events and numerical descriptions of how likely they are to occur").

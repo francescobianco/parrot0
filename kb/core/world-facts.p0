@@ -2203,6 +2203,15 @@ wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, ninet
 :- include(../wiki/computer_science.p0).
 :- include(../wiki/vocabulary.p0).
 :- include(../wiki/adjective.p0).
+% gen490 — domini nuovi del corpus: geologia, politica, economia, diritto,
+% musica. `LEARN_TODO` §P2 li segnava come muri totali nella sonda; ogni riga
+% qui rende leggibile la prosa che li nomina, perche' il lettore strutturale
+% deriva le proprie entita' da `wiki_concept/3` (kb/core/grammar.p0, gen490).
+:- include(../wiki/geology.p0).
+:- include(../wiki/politics.p0).
+:- include(../wiki/economics.p0).
+:- include(../wiki/law.p0).
+:- include(../wiki/music.p0).
 % E il registro di COME sono stati letti — quando, quale revisione, quale
 % istantanea — che e' macchineria e non conoscenza sul mondo: sta in una cartella
 % dedicata alle meccaniche e si dichiara tale in testa.

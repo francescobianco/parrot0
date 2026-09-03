@@ -1,0 +1,31 @@
+% Conoscenza generale dal wiki — dominio: politics.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello). La conoscenza specialistica si raffina altrove, in
+% kb/experts/, con predicati che non sono `wiki_*`.
+
+% politics / Constitution
+% source: https://en.wikipedia.org/wiki/Constitution
+% revision: 1369721950; processed: 2026-09-03T10:50:44Z
+wiki_concept(constitution, politics, "A constitution, or supreme law, is the aggregate of fundamental principles or established precedents that...").
+
+% politics / Democracy
+% source: https://en.wikipedia.org/wiki/Democracy
+% revision: 1372792416; processed: 2026-09-03T10:50:30Z
+wiki_concept(democracy, politics, "form of government in which political power is vested in the people or the population of a state").
+
+% politics / Election
+% source: https://en.wikipedia.org/wiki/Election
+% revision: 1372351611; processed: 2026-09-03T10:50:51Z
+wiki_concept(election, politics, "group decision-making process whereby a portion or all of a population or group votes to choose an individual or...").
+
+% politics / Government
+% source: https://en.wikipedia.org/wiki/Government
+% revision: 1372629322; processed: 2026-09-03T10:50:37Z
+wiki_concept(government, politics, "system or group of people which lead a state").
+
+% politics / Parliament
+% source: https://en.wikipedia.org/wiki/Parliament
+% revision: 1364628638; processed: 2026-09-03T10:50:57Z
+wiki_concept(parliament, politics, "type of legislature, or law-making body, of a state").

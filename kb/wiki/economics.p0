@@ -1,0 +1,31 @@
+% Conoscenza generale dal wiki — dominio: economics.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello). La conoscenza specialistica si raffina altrove, in
+% kb/experts/, con predicati che non sono `wiki_*`.
+
+% economics / Inflation
+% source: https://en.wikipedia.org/wiki/Inflation
+% revision: 1371115051; processed: 2026-09-03T10:47:37Z
+wiki_concept(inflation, economics, "increase in the average price of goods and services in terms of money, though it originally referred to the...").
+
+% economics / Interest
+% source: https://en.wikipedia.org/wiki/Interest
+% revision: 1372910016; processed: 2026-09-03T10:45:08Z
+wiki_concept(interest, economics, "payment from a debtor or deposit-taking financial institution to a lender or depositor of an amount above repayment...").
+
+% economics / Market (economics)
+% source: https://en.wikipedia.org/wiki/Market_(economics)
+% revision: 1370215811; processed: 2026-09-03T10:45:16Z
+wiki_concept(market_economics, economics, "any structure that allows buyers and sellers to exchange goods, services and information").
+
+% economics / Supply and demand
+% source: https://en.wikipedia.org/wiki/Supply_and_demand
+% revision: 1362821418; processed: 2026-09-03T10:45:04Z
+wiki_concept(supply_and_demand, economics, "economic model of price determination in a market").
+
+% economics / Tax
+% source: https://en.wikipedia.org/wiki/Tax
+% revision: 1368453115; processed: 2026-09-03T10:45:12Z
+wiki_concept(tax, economics, "mandatory financial charge or levy imposed on an individual or legal entity by a governmental organization to...").

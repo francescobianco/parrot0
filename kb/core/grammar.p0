@@ -1344,3 +1344,82 @@ indefinite_article_before(en, e, "an").
 indefinite_article_before(en, i, "an").
 indefinite_article_before(en, o, "an").
 indefinite_article_before(en, u, "an").
+
+% ══ gen490 — IL LETTORE STRUTTURALE ERA COSTRUITO E SPENTO ═══════════════════
+%
+% `input-structure.p0` implementa per intero il matcher compositivo di
+% `universal-input.md`: ruoli, ordini, operatori, coordinazione, provenienza. Ma
+% i fatti che lo ACCENDONO non sono mai usciti dal laboratorio — al gen490
+% `frame_pattern/4`, `frame_operator_concept/2`, `semantic_entity/1`,
+% `semantic_class/1` e `phrase_form/4` avevano **zero fatti in tutta la KB**, e
+% vivevano solo dentro i profili finti di `docs/labs/autocrescita-v3/`
+% (`flourion`, `lumion`, `million`). Conseguenza misurata: su prosa vera di
+% Wikipedia la lettura rendeva **0,13 fatti per frase**, e «Photosynthesis
+% releases oxygen» — la forma piu' comune della prosa enciclopedica — non
+% produceva niente. Non era un motore da scrivere: era un motore da collegare.
+%
+% Qui si collega, e si collega per DERIVAZIONE, non per elenco. La differenza e'
+% il mantra #2 al livello del lettore: se le entita' fossero enumerate, il corpus
+% leggibile sarebbe chiuso una volta per tutte; derivandole da cio' che parrot0
+% gia' sa, ogni concetto imparato domani diventa leggibile domani, e insegnare
+% «governs is a relation verb» accende la lettura di «X governs Y» dal turno
+% dopo, senza ricompilare e senza toccare questo file.
+
+% ── L'ORDINE DELLE PAROLE E' CONOSCENZA DI LINGUA ───────────────────────────
+% Una lingua nuova che condivide un ordine noto e' sei righe, non un recognizer.
+machinery(frame_pattern).
+machinery(frame_operator_concept).
+machinery(frame_gap_form).
+
+frame_pattern(en, binary,     assertion, sro).
+frame_pattern(en, binary,     question,  qsr).
+frame_pattern(en, measure,    assertion, srvu).
+frame_pattern(en, measure,    question,  qusr).
+frame_pattern(en, membership, assertion, src).
+frame_pattern(en, membership, question,  qrs).
+
+frame_pattern(it, binary,     assertion, sro).
+frame_pattern(it, binary,     question,  qrs).
+frame_pattern(it, measure,    assertion, srvu).
+frame_pattern(it, measure,    question,  qurs).
+frame_pattern(it, membership, assertion, src).
+frame_pattern(it, membership, question,  qrs).
+
+% Quale interrogativo lascia scoperto quale ruolo.
+frame_gap_form(en, what,   object).
+frame_gap_form(en, what,   class).
+frame_gap_form(en, which,  class).
+frame_gap_form(en, many,   value).
+frame_gap_form(it, cosa,   object).
+frame_gap_form(it, cosa,   class).
+frame_gap_form(it, quale,  class).
+frame_gap_form(it, quanti, value).
+
+% ── CHE COSA E' UN OPERATORE: DERIVATO, MAI ELENCATO ────────────────────────
+% Un verbo di relazione E' l'operatore binario della sua frase; la copula E'
+% l'operatore di appartenenza. Le due classi crescono gia' parlando
+% (`governs is a relation verb`), quindi anche la LETTURA cresce parlando.
+frame_operator_concept($Verb, binary)     :- relation_verb($Verb).
+frame_operator_concept($Verb, binary)     :- ternary_relation_verb($Verb).
+frame_operator_concept($Cop,  membership) :- clause_copula($Cop).
+
+% ── CHE COSA E' UN'ENTITA': CIO' CHE PARROT0 GIA' CONOSCE ───────────────────
+% Non ogni parola: un'entita' e' un CONCETTO — qualcosa di cui la KB sa gia'
+% qualcosa. Se lo fosse ogni lessema, ogni frase avrebbe letture concorrenti e
+% la commit (che pretende un frame unico) non avverrebbe mai: si leggerebbe di
+% piu' e si imparerebbe di meno.
+% ⚠ §L — LA SORGENTE DELLE ENTITA' E' ANCHE IL SUO COSTO. La prima versione
+% derivava un'entita' anche da `category_member/2`, che ha centinaia di fatti:
+% valutata per ogni token di ogni turno costava 1,5-3,8s e mandava in timeout
+% `taught_lexicon`. `wiki_concept/3` e' l'insieme giusto per due ragioni, e la
+% seconda conta piu' della prima: e' piccolo, e soprattutto E' IL CORPUS. Ogni
+% pagina letta lo allarga, quindi allargarlo rende leggibile altra prosa — la
+% lettura finanzia la lettura, invece di dipendere da un elenco chiuso.
+semantic_entity($E) :- wiki_concept($E, $Domain, $Gloss).
+semantic_class($C)  :- wiki_concept($C, $Domain, $Gloss).
+
+% La superficie di un concetto e' il concetto stesso quando nessun gloss dice
+% altrimenti: `concept_label/4` resta la via per i casi in cui differiscono.
+linguistic_form($W, $W, en, common) :- relation_verb($W).
+linguistic_form($W, $W, en, common) :- clause_copula($W).
+linguistic_form($W, $W, en, common) :- wiki_concept($W, $Domain, $Gloss).

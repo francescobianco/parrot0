@@ -1,0 +1,21 @@
+% Conoscenza generale dal wiki — dominio: music.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello). La conoscenza specialistica si raffina altrove, in
+% kb/experts/, con predicati che non sono `wiki_*`.
+
+% music / Harmony
+% source: https://en.wikipedia.org/wiki/Harmony
+% revision: 1371349969; processed: 2026-09-03T10:49:20Z
+wiki_concept(harmony, music, "concept of combining different sounds in order to create new, distinct musical ideas").
+
+% music / Melody
+% source: https://en.wikipedia.org/wiki/Melody
+% revision: 1367709466; processed: 2026-09-03T10:49:16Z
+wiki_concept(melody, music, "A melody, also tune, voice, or line, is a linear succession of musical tones that the listener perceives as a...").
+
+% music / Rhythm
+% source: https://en.wikipedia.org/wiki/Rhythm
+% revision: 1368032852; processed: 2026-09-03T10:49:25Z
+wiki_concept(rhythm, music, "Rhythm generally means a 'movement marked by the regulated succession of strong and weak elements, or of opposite...").

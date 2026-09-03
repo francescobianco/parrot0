@@ -32,3 +32,18 @@ wiki_concept(photosynthesis, biology, "the process by which plants use light ene
 % source: https://en.wikipedia.org/wiki/Evolution
 % revision: 1357316203; processed: 2026-06-27T22:40:37Z
 wiki_concept(evolution, biology, "change in the heritable characteristics of biological populations over successive generations").
+
+% biology / Ecosystem
+% source: https://en.wikipedia.org/wiki/Ecosystem
+% revision: 1369245800; processed: 2026-09-03T10:51:11Z
+wiki_concept(ecosystem, biology, "system formed by organisms in interaction with their environment, where the biotic and abiotic components are...").
+
+% biology / Gene
+% source: https://en.wikipedia.org/wiki/Gene
+% revision: 1372241427; processed: 2026-09-03T10:51:04Z
+wiki_concept(gene, biology, "In biology, the word gene has two meanings").
+
+% biology / Neuron
+% source: https://en.wikipedia.org/wiki/Neuron
+% revision: 1369814516; processed: 2026-09-03T10:46:02Z
+wiki_concept(neuron, biology, "A neuron, neurone, or nerve cell, is a cell that is excitable, firing electric signals called action potentials").

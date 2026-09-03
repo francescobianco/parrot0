@@ -35,3 +35,43 @@ wiki_concept(special_relativity, physics, "In physics, the special theory of rel
 % source: https://en.wikipedia.org/wiki/Quantum_mechanics
 % revision: 1360718020; processed: 2026-06-27T15:45:59Z
 wiki_concept(quantum_mechanics, physics, "Quantum mechanics, also known as quantum physics, is the fundamental physical theory that describes the behavior of...").
+
+% physics / Electricity
+% source: https://en.wikipedia.org/wiki/Electricity
+% revision: 1368701770; processed: 2026-09-03T10:50:16Z
+wiki_concept(electricity, physics, "set of physical phenomena associated with the presence and motion of matter possessing an electric charge").
+
+% physics / Energy
+% source: https://en.wikipedia.org/wiki/Energy
+% revision: 1369633652; processed: 2026-09-03T10:50:09Z
+wiki_concept(energy, physics, "quantitative property that is transferred to a body or to a physical system, recognizable in the capacity to do...").
+
+% physics / Force
+% source: https://en.wikipedia.org/wiki/Force
+% revision: 1372763209; processed: 2026-09-03T10:46:40Z
+wiki_concept(force, physics, "action that can cause an object to change its velocity or its shape, or to resist other forces, or to cause changes...").
+
+% physics / Gravity
+% source: https://en.wikipedia.org/wiki/Gravity
+% revision: 1371151923; processed: 2026-09-03T10:50:02Z
+wiki_concept(gravity, physics, "In physics, gravity, also known as gravitation or a gravitational interaction, is a fundamental interaction, which...").
+
+% physics / Heat
+% source: https://en.wikipedia.org/wiki/Heat
+% revision: 1371310826; processed: 2026-09-03T10:46:35Z
+wiki_concept(heat, physics, "defined as energy in transfer between a body and its surroundings, other than through thermodynamic work or through...").
+
+% physics / Light
+% source: https://en.wikipedia.org/wiki/Light
+% revision: 1371443361; processed: 2026-09-03T10:46:25Z
+wiki_concept(light, physics, "Light, visible light, or visible radiation is electromagnetic radiation that can be perceived by the human eye").
+
+% physics / Magnetism
+% source: https://en.wikipedia.org/wiki/Magnetism
+% revision: 1368845580; processed: 2026-09-03T10:46:20Z
+wiki_concept(magnetism, physics, "class of physical attributes that occur through a magnetic field, which allows objects to attract or repel each other").
+
+% physics / Sound
+% source: https://en.wikipedia.org/wiki/Sound
+% revision: 1371802017; processed: 2026-09-03T10:46:30Z
+wiki_concept(sound, physics, "phenomenon in which pressure disturbances propagate through an elastic material medium").
