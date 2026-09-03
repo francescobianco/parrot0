@@ -980,3 +980,9 @@ response_template(instance_constraint_unverified, it, "Conosco la categoria {cat
 % convenzione dello slot; l'atomo arriva gia' detto in lingua («carbon dioxide»,
 % non `carbon_dioxide`), perche' come parrot0 memorizza non e' come si dice.
 response_template(instance_named, "{Member}.").
+
+% gen489 (IT-5) — l'annuncio di una PROPRIETA' appresa. Non «si chiama», ma «e'»:
+% la resa deve dire la stessa cosa che il fatto dice, altrimenti l'interlocutore
+% crede di aver insegnato un nome (mantra #16).
+response_template(learned_attribute, "Got it: the {thing} is {value}.").
+response_template(learned_attribute, it, "Ricevuto: {thing} e' {value}.").

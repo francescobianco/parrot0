@@ -1,3 +1,10 @@
+/* gen489 (IT-5) — dichiarate qui perche' servono al ramo possessivo, che sta
+ * molto prima della loro definizione. Vedi il blocco sopra
+ * `p0_attribute_relation`. */
+static int p0_attribute_relation(Brain *b, const char *value, char *rel, size_t rsz);
+static int p0_learn_attribute(Brain *b, const char *thing, const char *value,
+                              char *out, size_t out_size);
+
 static char *kb_dequote(char *s);
 static void concept_label_lookup(Brain *b, const char *atom,
                                  char *out, size_t n);
@@ -460,6 +467,14 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                         put(msg, out, out_size);
                         return 1;
                     } else {
+                        /* gen489 (IT-5) — «il mio libro e' rosso» non dice come
+                         * si chiama il libro: dice com'E'. Se il valore e' un
+                         * valore di PROPRIETA' noto, il fatto giusto e' quello
+                         * della sua relazione, non `called/2` — altrimenti
+                         * parrot0 memorizza sotto un nome che la domanda «di
+                         * che colore e' il libro?» non sa piu' pronunciare. */
+                        if (p0_learn_attribute(b, thing, n, out, out_size))
+                            return 1;
                         remember_possession(b, thing, n);
                         char msg[160];
                         { const KbResponseSlot _rs[] = { { "thing", thing }, { "n", n } };
@@ -10628,6 +10643,96 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* ── gen489 — «IL LIBRO E' ROSSO» E' UNA PROPRIETA', NON UN NOME ─────────────
+ *
+ * IT-5 della sessione italiana del 2026-09-03. «il mio libro e' rosso» finiva in
+ * KB come `called(book, red)` — il libro si CHIAMA rosso — e «di che colore e'
+ * il libro?» non lo trovava piu'. E' il difetto ricorrente del progetto:
+ * parrot0 impara sotto un nome che non sa piu' pronunciare. La forma senza
+ * possessivo, «il libro e' rosso», non veniva letta affatto.
+ *
+ * La conoscenza per chiudere il cerchio c'era gia' tutta, in due fatti che
+ * nessuno metteva insieme: `category_member(color, red)` dice CHE GENERE di
+ * valore e' «rosso», e `domain_relation(color, color_of)` dice con quale
+ * relazione quel genere si attribuisce — la stessa che la domanda «what color
+ * is X» apre da `answer_frame(color_of, color_of)`. Chi dice e chi chiede
+ * nominano cosi' la STESSA relazione, che e' la condizione perche' il turno
+ * dopo trovi cio' che il turno prima ha imparato.
+ *
+ * Nel C non c'e' nessuna parola: due query. Un genere nuovo di proprieta' — il
+ * materiale, il sapore — e' una riga di `domain_relation/2`. */
+static int p0_attribute_relation(Brain *b, const char *value,
+                                 char *rel, size_t rsz) {
+    if (!b || !b->kb || !value || !*value) return 0;
+    /* ⚠ §L — IL JOIN VA NEL VERSO GIUSTO. La domanda naturale e' «di che genere
+     * e' questo valore?», cioe' `category_member(?, valore)`: primo argomento
+     * libero, O(fatti), e il censimento in kb.c indicizza per PREDICATO non per
+     * argomento. Pagata a ogni copula costava 1,5s a turno e mandava in timeout
+     * meta' della suite.
+     * Posta al contrario non costa niente: i generi che dichiarano una relazione
+     * di attribuzione sono poche decine (`domain_relation/2`), e per ciascuno
+     * «questo valore ne e' membro?» ha ENTRAMBI gli argomenti legati, cioe' e'
+     * una lettura indicizzata. Stesso risultato, senza il fattore N — e' la
+     * stessa mossa che ha portato 7,9s a meno di 1s al gen4xx. */
+    char cats[16][KB_TERM_LEN];
+    const char *cq[2] = { NULL, value };
+    size_t nc = kb_match(b->kb, "category_member", cq, 2, cats, 16);
+    for (size_t i = 0; i < nc; i++) {
+        const char *rq[2] = { cats[i], NULL };
+        char rels[4][KB_TERM_LEN];
+        if (kb_match(b->kb, "domain_relation", rq, 2, rels, 4) >= 1) {
+            snprintf(rel, rsz, "%s", rels[0]);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Attribuisce il valore alla cosa con la relazione che il suo GENERE dichiara,
+ * e lo dice. Torna 0 se il valore non e' un valore di proprieta' noto: allora
+ * il chiamante prosegue con la lettura che aveva, senza rubare il turno. */
+static int p0_learn_attribute(Brain *b, const char *thing, const char *value,
+                              char *out, size_t out_size) {
+    char rel[KB_TERM_LEN], tk[KB_TERM_LEN], vk[KB_TERM_LEN];
+    if (!thing || !value) return 0;
+    lowercase_copy(tk, sizeof tk, thing);
+    lowercase_copy(vk, sizeof vk, value);
+    strip_edge_punct(tk); strip_edge_punct(vk);
+    if (!*tk || !*vk) return 0;
+    if (!p0_attribute_relation(b, vk, rel, sizeof rel)) {
+        /* gen489 — COME PARROT0 MEMORIZZA NON E' COME SI DICE. «verde» non e'
+         * membro di nessun genere: il genere lo ha la forma CANONICA, e il
+         * ponte fra le due e' `tr/2`, la stessa relazione che serve al
+         * traduttore. Senza questo passaggio l'italiano imparava sotto un nome
+         * che la propria domanda non sapeva pronunciare — il cassetto senza
+         * maniglia, di nuovo. Il fatto si scrive canonico, e la resa lo ridice
+         * in italiano perche' `tr/2` si legge nei due versi. */
+        /* ⚠ §L — `tr/2` col PRIMO argomento libero e' una scansione O(fatti), e
+         * `tr` e' uno dei predicati piu' popolosi della KB. Pagata a ogni copula
+         * costava 1,5s a turno e ha mandato in timeout meta' della suite. La cura
+         * non e' alzare il budget: e' non pagarla quando non puo' servire. Un
+         * turno INGLESE porta gia' il valore canonico — se il genere non c'e',
+         * non c'e' e basta — quindi la scansione riguarda solo i turni in
+         * un'altra lingua. Exit condition non lossy: e' la stessa condizione che
+         * la funzione applicherebbe dopo, anticipata. */
+        char lang[16]; current_lang(b, lang, sizeof lang);
+        if (!lang[0] || strcmp(lang, "en") == 0) return 0;
+        char canon[1][KB_TERM_LEN];
+        const char *tq[2] = { NULL, vk };
+        if (kb_match(b->kb, "tr", tq, 2, canon, 1) != 1) return 0;
+        char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", canon[0]);
+        snprintf(vk, sizeof vk, "%s", kb_dequote(cb));
+        if (!p0_attribute_relation(b, vk, rel, sizeof rel)) return 0;
+    }
+    const char *args[] = { tk, vk };
+    if (!kb_assert(b->kb, rel, args, 2)) return 0;
+    char msg[200];
+    { const KbResponseSlot _rs[] = { { "thing", tk }, { "value", vk } };
+      kb_term_say(b, "learned_attribute", _rs, 2, msg, sizeof msg); }
+    put(msg, out, out_size);
+    return 1;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
@@ -15733,6 +15838,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         char clsbuf[KB_TERM_LEN];
         snprintf(clsbuf, sizeof clsbuf, "%s", w[2 + a3]);
         char *cl2 = strip_edge_punct(clsbuf);
+        /* gen489 (IT-5) — la copula nuda con un valore di PROPRIETA'. «the book
+         * is red» non e' un'appartenenza di classe e non veniva letta affatto:
+         * questo ramo chiede che il predicato compaia nel corpo di una regola, e
+         * «red» non ci compare. Ma «rosso» ha un genere (`category_member`) e
+         * quel genere ha una relazione (`domain_relation`), quindi il fatto
+         * giusto e' derivabile — e la domanda che gia' funziona lo trova. */
         if (kb_rule_body_mentions(b->kb, cl2)) {
             const char *subj;
             if (!resolve_entity(b, w[a3], &subj, out, out_size)) return 1;
@@ -15747,6 +15858,23 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             remember_entity(b, w[a3], subj);
             note_consequence(b, cl2, before, out, out_size);
             return 1;
+        }
+        /* gen489 (IT-5) — la copula nuda con un valore di PROPRIETA'. «the book
+         * is red» non e' un'appartenenza di classe: il ramo sopra chiede che il
+         * predicato compaia nel corpo di una regola, e «red» non ci compare,
+         * quindi il turno non veniva letto affatto. Ma «rosso» ha un genere
+         * (`category_member`) e quel genere ha una relazione di attribuzione
+         * (`domain_relation`), quindi il fatto giusto e' DERIVABILE — ed e' lo
+         * stesso che «what color is X» apre da `answer_frame/2`.
+         * ⚠ §L — sta DOPO la lettura di classe apposta: cosi' il costo si paga
+         * solo dove altrimenti ci sarebbe un muro, mai sulla strada comune. */
+        {
+            const char *subj0;
+            if (resolve_entity(b, w[a3], &subj0, out, out_size) &&
+                p0_learn_attribute(b, subj0, cl2, out, out_size)) {
+                remember_entity(b, w[a3], subj0);
+                return 1;
+            }
         }
     }
 

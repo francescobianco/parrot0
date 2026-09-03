@@ -1,0 +1,55 @@
+# gen489 — UNA PROPRIETA' ASSERITA SI DEVE POTER RICHIEDERE.
+#
+# IT-5 della sessione italiana del 2026-09-03:
+#
+#     > il mio libro e' rosso      Ricevuto: il tuo libro e' rosso.  ✅
+#     > di che colore e' il libro?  Non capisco ancora.               ⛔
+#
+# Il fatto memorizzato era `called(book, red)` — il libro si CHIAMA rosso — cioe'
+# un fatto FALSO, non un muro (mantra #7). Ed e' il difetto ricorrente del
+# progetto: parrot0 impara sotto un nome che non sa piu' pronunciare, cosi' la
+# domanda formata con le stesse parole non lo trova.
+#
+# La cura non aggiunge vocabolario: mette insieme due fatti che c'erano gia' e
+# che nessuno leggeva insieme —
+#     category_member(color, red)     che GENERE di valore e' «rosso»
+#     domain_relation(color, color_of) con quale relazione quel genere si attribuisce
+# ed e' la STESSA relazione che «what color is X» apre da answer_frame/2. Chi
+# dice e chi chiede nominano finalmente la stessa cosa.
+
+[test proprieta' asserita e poi interrogata]
+!timeout 8
+
+# 1. Con il possessivo — la forma che scriveva il fatto falso.
+> my book is red
+< Got it: the book is red.
+> what color is the book?
+< Red.
+
+# 2. Senza possessivo — la forma che non veniva letta affatto.
+> the table is blue
+< Got it: the table is blue.
+> what color is the table?
+< Blue.
+
+# 3. In italiano, per la stessa via: nessun ramo per lingua.
+> il mio quaderno è verde
+> di che colore è il quaderno?
+< Verde.
+
+# 4. Il NOME resta un nome: «my dog is rex» non e' una proprieta', perche' «rex»
+#    non e' membro di nessun genere che dichiari una relazione di attribuzione.
+#    La lettura vecchia sopravvive, non e' stata sostituita.
+> my dog is rex
+<~ rex
+
+# 5. ABLAZIONE — tolto il ponte fra il genere e la relazione, la proprieta' non
+#    si sa piu' attribuire: e' quel fatto a fare il lavoro, non il C.
+!forget domain_relation(color, color_of)
+> my lamp is yellow
+<! Got it: the lamp is yellow.
+!assert domain_relation(color, color_of)
+> my lamp is yellow
+< Got it: the lamp is yellow.
+> what color is the lamp?
+< Yellow.
