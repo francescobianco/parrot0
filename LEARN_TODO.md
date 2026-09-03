@@ -3,8 +3,9 @@
 # ⛔ RIPARTI DA QUI — handoff 2026-09-03
 
 > **Come si riprende:** «continua da questo file». Leggi **§−1** (perché siamo
-> lenti, con i numeri) e **§0-bis** (il ciclo di autocorrezione che ora si
-> chiude), poi §0/§1/§2 per l'obiettivo e lo stato, poi §3 «Il prossimo lavoro».
+> lenti, con i numeri), **§0-bis** (il ciclo di autocorrezione che ora si chiude)
+> e **§0-quater** (la catena compilata: la voce con la leva più alta, aperta),
+> poi §0/§1/§2 per l'obiettivo e lo stato, poi §3 «Il prossimo lavoro».
 > Il resto è storia e serve dopo.
 >
 > **Se hai poco tempo, leggi una cosa sola:** §−1 moltiplicatore 3 — *un piano
@@ -132,6 +133,44 @@ compensates(read_source, knowledge).      % ⛔ Wikipedia, l'unica sorgente amme
 compensates(ask_user, reference).         % ⛔ manca un antecedente: si chiede
 ```
 
+## §0-quater. ⛔ LA CATENA COMPILATA — il difetto strutturale trovato il 2026-09-03
+
+> F., guardando `10-memory-knowledge.c`: *«questa catena così come è fatta
+> risulta hardcoded, non è possibile aggiungere un membro a quella catena a
+> runtime: non è stato rispettato il principio KB-first»*. E poi, un piano più
+> su: *«è la catena di `&&` che deve diventare essa stessa una regola nella KB»*.
+
+**È la voce con la leva più alta di tutta questa coda**, perché non chiude una
+classe di frasi: apre il canale #1 della Gerarchia di Crescita per tutte.
+Il mantra **#19** porta l'analisi completa; qui sta solo lo stato.
+
+| | al gen488 | al gen489 |
+|---|---|---|
+| classi `*_lex*` da UN membro con nome seriale | 1245 | **598** |
+| la parola `is` in quante classi diverse | 79 | 1 (`clause_copula`) |
+| catene di condizione compilate | 213 | 204, **ognuna con il suo `TODO(kb-first, gen489)`** |
+| motore per valutare una forma dichiarata | **nessuno** | `turn_pattern/3` + `turn_pattern_intent/2` |
+
+**Che cosa è cambiato davvero, in una riga:** prima si poteva insegnare *un
+membro di un ruolo che esisteva già*; ora si può insegnare **una forma nuova**,
+congiunzione compresa — `tests/p0t/language/taught_turn_form.p0t` la insegna in
+due condizioni e poi ne toglie una per far tornare il difetto.
+
+**Come si riprende.** I 204 `TODO(kb-first, gen489)` sono una **coda di lavoro,
+non un archivio** (§−1, moltiplicatore 1): chi tocca un ramo che ne porta uno lo
+chiude lì, dove costerà meno di quanto costerà mai. Le 598 classi-seriale
+rimaste sono i 27 gruppi eterogenei (il sito mette insieme ruoli diversi e il
+nome onesto va trovato leggendo) più i 377 termini che una casa non ce l'hanno
+ancora.
+
+**Le tre trappole già pagate, da non ripagare:**
+1. Mai collassare due seriali che stanno nella **stessa** condizione: se il sito
+   li distingue, distingue i *membri*, non i ruoli.
+2. Allargare una classe è allargare una **rivendicazione** — `entity_pronoun`
+   con dentro «you» faceva chiedere *«What number should I use for «you»?»*.
+3. `a`/`an` non è `the`: fondere l'indeterminativo col determinativo faceva
+   tradurre «the dog runs» in «un cane corre».
+
 ## §0-ter. ⛔ SESSIONE ITALIANA 2026-09-03 — problemi rilevati parlando
 
 Sessione di chat reale in italiano (configurazione `make chat`: profilo `agi.p0`,
@@ -147,7 +186,7 @@ parlando, zero C), **metacomprensione** (parrot0 deve sapere di non sapere, e
 sapere PERCHE'), **autocorrezione** (il ciclo §0-bis che ora si chiude). Una
 voce che non nomina il canale non e' pronta per la coda.
 
-### IT-1. ⛔ La traduzione IT→EN risponde male invece di murare
+### IT-1. ✅ CHIUSA (gen489) — La traduzione IT→EN risponde male invece di murare
 
 ```text
 > come si dice gatto in inglese?    Possiamo parlare in entrambe le lingue — faro' del mio meglio.  ⛔
@@ -248,7 +287,7 @@ dovrebbe coprire esattamente questo.
   al posto della domanda sul discorso e' un caso da `faculty_yield`/declino.
 - **Ratchet:** dichiarare il fatto, interrogarlo, ritirare la forma → muro.
 
-### IT-5. Proprieta' e coreferenza dopo l'asserzione: muro
+### IT-5. ✅ CHIUSA (gen489) — Proprieta' e coreferenza dopo l'asserzione: muro
 
 ```text
 > il mio libro e' rosso          Ricevuto: il tuo libro e' rosso.  ✅
