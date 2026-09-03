@@ -1,0 +1,95 @@
+# gen492 — IL PONTE FRA RAPPRESENTAZIONI: il moltiplicatore di conoscenza.
+#
+# F., 2026-09-04: «vorrei che una query possa attraversare il confine di
+# rappresentazione con predicato variabile, raggiungere un'altra zona della KB e
+# inferire un ragionamento ad arco lungo o cross-disciplinare […] mettere in
+# relazione conoscenza di un dominio acquisita in una forma con la necessità di
+# un codice che stiamo analizzando, e finalmente scovare quel moltiplicatore di
+# conoscenza che rende la KB viva davvero».
+#
+# Il meccanismo (UC1) c'era ed era INERTE: `representation_bridge/4` aveva zero
+# fatti, quindi nessuna query attraversava niente. E il motivo non era il
+# meccanismo — era che il lato codice offriva solo NOMI INTERI, e un nome intero
+# non incontra mai la conoscenza di dominio: nessuna KB conterrà mai
+# `data_structure(hash_table_insert, …)`.
+#
+# Qui il ponte è vivo, e quello che attraversa NON è stato scritto per il codice:
+# `data_structure/2` e `algorithm/3` stanno in kb/experts/programming/algo.p0,
+# imparati come conoscenza di dominio. La stessa conoscenza serve due
+# rappresentazioni senza essere duplicata — è questo il moltiplicatore.
+#
+# ⚠ R1 (TEST_TODO §0.0): KB AL MASSIMO. Un contesto ermetico renderebbe questo
+# file verde per costruzione e insieme privo di senso: con la KB spenta il
+# dominio non esiste, e non c'è nessun confine da attraversare.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+[test un identificatore raggiunge il dominio]
+!timeout 12
+
+# 1. Si legge del codice. Nessuna domanda di dominio, nessun ponte nominato.
+> what functions does this define: int hash_table_insert(void) { quicksort(); return 1; }
+<~ hash_table_insert
+
+# 2. I PEZZI dell'identificatore sono osservazione neutra: il frontend misura,
+#    non interpreta. Le coppie adiacenti ci sono perché il concetto vero è quasi
+#    sempre di due parole — da «hash table insert» il concetto è `hash_table`,
+#    e nessun pezzo singolo lo raggiungerebbe.
+!query code_name_part($S, $N, $I, hash_table)
+!query code_name_part($S, $N2, $I2, hash)
+!query code_name_part($S, $N3, $I3, quicksort)
+
+# 3. Un pezzo DENOTA, esattamente come il nome intero.
+!query ir_denotation(code, $Item, part, hash_table)
+
+# 4. ⭐ E QUI SI ATTRAVERSA. `data_structure/2` non sa niente di questo codice:
+#    è conoscenza di dominio, e il ponte la rende raggiungibile da un
+#    identificatore. `apply/2` porta il predicato variabile oltre il confine.
+!query ir_domain_claim(code, $Item, proposition(data_structure, hash_table, $Note))
+!query ir_domain_claim(code, $Item2, proposition(algorithm_family, quicksort, sorting))
+
+# 5. La pretesa è ATTRIBUIBILE: conserva il ponte che l'ha autorizzata, quindi
+#    si può contestare e ritirare. Una composizione che non sa perché è vera non
+#    è conoscenza, è una coincidenza.
+!query ir_domain_claim_basis(code, $Item, proposition(data_structure, hash_table, $Note), bridge(part, data_structure, binary_arg1))
+
+# 6. E la domanda arriva in lingua naturale, dal consumer universale: nessun
+#    handler nel C, nessun nome di predicato da sapere.
+> domain knowledge about hash_table_insert
+<~ O(1) average lookup
+
+# ── ABLAZIONE — le tre cose che devono cadere separatamente ─────────────────
+
+# 7. Tolto IL PONTE: cade la pretesa, NON l'osservazione né il fatto di dominio.
+#    È la prova che la composizione è opt-in e che non ha inquinato nessuno dei
+#    due lati.
+!forget representation_bridge(code, part, data_structure, binary_arg1)
+!query! ir_domain_claim(code, $Item, proposition(data_structure, hash_table, $Note))
+!query code_name_part($S, $N, $I, hash_table)
+!query data_structure(hash_table, $Note)
+!assert representation_bridge(code, part, data_structure, binary_arg1)
+!query ir_domain_claim(code, $Item, proposition(data_structure, hash_table, $Note))
+
+# 8. Tolto IL SEPARATORE: l'identificatore non si spezza più, quindi il ponte
+#    non ha più niente da attraversare. Quali caratteri separino è conoscenza,
+#    non una legge — una convenzione nuova è una riga, non una ricompilazione.
+# ⚠ l'ablazione vale per le letture NUOVE, non per gli snapshot gia' presi: la
+#   conoscenza tolta adesso non riscrive il passato. Percio' si prova sul nome
+#   appena letto — «probe» puo' esistere solo se qualcuno ha spezzato.
+!forget identifier_separator("_")
+> what functions does this define: int hash_table_probe(void) { return 1; }
+!query code_name_part($S, $N, 0, hash_table_probe)
+!query! code_name_part($S, $N, $I, probe)
+!assert identifier_separator("_")
+> what functions does this define: int queue_probe(void) { return 1; }
+!query code_name_part($S, $N, $I, probe)
+
+# 9. E un ponte NUOVO si dichiara parlando: qui il corpus letto da Wikipedia —
+#    che nessuno aveva scritto pensando al codice — diventa raggiungibile da un
+#    identificatore. È il moltiplicatore visto dal lato della lettura.
+> what functions does this define: int algorithm_runner(void) { return 1; }
+!query ir_domain_claim(code, $Item, proposition(concept_domain, algorithm, computer_science))

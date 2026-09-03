@@ -282,10 +282,78 @@ static int code_quote(const char *s, char out[KB_TERM_LEN]) {
     return 1;
 }
 
+/* ── UC1b — UN IDENTIFICATORE COMPOSTO E' FATTO DI PEZZI CHE POSSONO SIGNIFICARE
+ *
+ * `code_name` porta il nome INTERO — `hash_table_insert`, `kb_view_ensure` — e
+ * un nome intero non incontra mai la conoscenza di dominio: nessuna KB conterra'
+ * mai `data_structure(hash_table_insert, ...)`. I PEZZI si', ed e' li' che il
+ * ponte fra rappresentazioni ha qualcosa da attraversare: `hash_table` e' una
+ * struttura dati che parrot0 conosce gia', imparata LEGGENDO, non guardando
+ * codice. E' il moltiplicatore: la stessa conoscenza serve due rappresentazioni.
+ *
+ * Il taglio e' MECCANICA (spezzare una stringa su un carattere); QUALI caratteri
+ * separino e' CONOSCENZA — `identifier_separator/1` — perche' snake_case,
+ * kebab-case e i punti dei namespace sono convenzioni, non leggi di natura, e
+ * una convenzione nuova dev'essere una riga di KB, non una ricompilazione.
+ *
+ * Si pubblicano tre cose, e la terza e' quella che fa il lavoro:
+ *   - il nome INTERO (indice 0), perche' un identificatore di una parola sola
+ *     deve poter denotare quanto uno composto;
+ *   - i singoli pezzi;
+ *   - le COPPIE ADIACENTI, perche' il concetto vero e' quasi sempre di due
+ *     parole: da «hash table insert» il concetto e' `hash_table`, e nessun
+ *     pezzo singolo lo raggiunge.
+ *
+ * Costo: si paga all'INGEST, una volta per sorgente letta, mai per turno. */
+static int code_publish_name_parts(KB *kb, const char *snapshot,
+                                   const char *node, const char *name) {
+    if (!kb || !name || !*name) return 1;
+    char seps[16][KB_TERM_LEN];
+    const char *sq[1] = { NULL };
+    size_t nsep = kb_match(kb, "identifier_separator", sq, 1, seps, 16);
+
+    size_t idx = 0;
+    char istr[24];
+    snprintf(istr, sizeof istr, "%zu", idx++);
+    const char *whole_args[] = { snapshot, node, istr, name };
+    if (!kb_assert(kb, "code_name_part", whole_args, 4)) return 0;
+    if (!nsep) return 1;
+
+    char work[KB_TERM_LEN];
+    snprintf(work, sizeof work, "%s", name);
+    for (size_t i = 0; i < nsep; i++) {
+        /* la superficie arriva quotata dal .p0: si prende il primo carattere
+         * vero, senza dipendere da un helper che qui non c'e' */
+        const char *sep = seps[i];
+        if (*sep == '"') sep++;
+        if (!*sep || *sep == '"') continue;
+        for (char *p = work; *p; p++)
+            if (*p == sep[0]) *p = ' ';
+    }
+    if (strcmp(work, name) == 0) return 1;      /* niente da spezzare */
+
+    char *tok[32]; size_t ntok = 0;
+    for (char *p = strtok(work, " "); p && ntok < 32; p = strtok(NULL, " "))
+        if (*p) tok[ntok++] = p;
+    for (size_t i = 0; i < ntok; i++) {
+        snprintf(istr, sizeof istr, "%zu", idx++);
+        const char *part_args[] = { snapshot, node, istr, tok[i] };
+        if (!kb_assert(kb, "code_name_part", part_args, 4)) return 0;
+        if (i + 1 < ntok) {
+            char pair[KB_TERM_LEN];
+            snprintf(pair, sizeof pair, "%s_%s", tok[i], tok[i + 1]);
+            snprintf(istr, sizeof istr, "%zu", idx++);
+            const char *pair_args[] = { snapshot, node, istr, pair };
+            if (!kb_assert(kb, "code_name_part", pair_args, 4)) return 0;
+        }
+    }
+    return 1;
+}
+
 static void code_snapshot_retract(KB *kb, const char *snapshot) {
     static const char *const first_arg_preds[] = {
         "code_snapshot", "code_source_unit", "code_node", "code_name",
-        "code_span", "code_edge", "code_provenance", NULL
+        "code_span", "code_edge", "code_provenance", "code_name_part", NULL
     };
     for (size_t i = 0; first_arg_preds[i]; i++) {
         const char *q[] = { snapshot, NULL, NULL, NULL };
@@ -294,7 +362,8 @@ static void code_snapshot_retract(KB *kb, const char *snapshot) {
                        !strcmp(first_arg_preds[i], "code_node") ? 4 :
                        !strcmp(first_arg_preds[i], "code_name") ? 4 :
                        !strcmp(first_arg_preds[i], "code_span") ? 4 :
-                       !strcmp(first_arg_preds[i], "code_edge") ? 4 : 3;
+                       !strcmp(first_arg_preds[i], "code_edge") ? 4 :
+                       !strcmp(first_arg_preds[i], "code_name_part") ? 4 : 3;
         kb_retract_match(kb, first_arg_preds[i], q, arity);
     }
 }
@@ -358,6 +427,7 @@ static int code_observation_publish(KB *kb, const char *src,
                  quoted_source, digest_term, start, len, frontend);
         const char *prov_args[] = { snapshot, n->id, evidence };
         ok = ok && kb_assert(kb, "code_provenance", prov_args, 3);
+        ok = ok && code_publish_name_parts(kb, snapshot, n->id, n->name);
         if (!strcmp(n->kind, "call")) {
             const char *edge_args[] = { snapshot, n->parent, "calls", n->id };
             ok = ok && kb_assert(kb, "code_edge", edge_args, 4);

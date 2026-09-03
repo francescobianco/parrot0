@@ -2355,3 +2355,12 @@ located_in(bergamo, lombardy).
 % (stessa famiglia del declined[64] di gen376). Tolto il troncamento, sono
 % emersi — e nessuno di questi e' conoscenza del mondo: sono la grammatica
 % interrogativa, gli slot, il registro di riparazione e i semi di conversazione.
+
+% ── gen492 — LA VISTA BINARIA DEL CORPUS, per il ponte fra rappresentazioni ──
+% `wiki_concept/3` e' ternario; il ponte parla in unario o binario. Questa
+% proiezione non aggiunge conoscenza: rende il corpus letto da Wikipedia
+% raggiungibile da un identificatore di codice (kb/core/code-ir.p0). E' lo
+% stesso moltiplicatore del gen490 visto dall'altro lato — la lettura finanzia
+% la lettura, e ora finanzia anche l'analisi del codice.
+machinery(concept_domain).
+concept_domain($C, $Domain) :- wiki_concept($C, $Domain, $Gloss).

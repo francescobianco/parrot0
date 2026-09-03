@@ -723,6 +723,62 @@ domain-specific nel C.
 
 ---
 
+## 8-bis. ✅ FATTO al gen492 — il ponte è VIVO, e il moltiplicatore si vede
+
+> Stato aggiornato dopo l'esecuzione dei punti 1-5 e 7 del §9.
+
+Il meccanismo del §3 esisteva ma era **inerte**: `representation_bridge/4` aveva
+**zero fatti**, quindi nessuna query attraversava nessun confine. E la causa non
+era il meccanismo — era che il lato codice offriva soltanto **nomi interi**, e un
+nome intero non incontra mai la conoscenza di dominio: nessuna KB conterrà mai
+`data_structure(hash_table_insert, …)`.
+
+**Il pezzo che mancava: i pezzi.** `code_name_part/4` pubblica all'ingest il
+nome intero, i singoli pezzi e — la parte che fa il lavoro — le **coppie
+adiacenti**, perché il concetto vero è quasi sempre di due parole: da
+«hash table insert» il concetto è `hash_table`, e nessun pezzo singolo lo
+raggiunge. Il taglio è meccanica; **quali caratteri separino è conoscenza**
+(`identifier_separator/1`), quindi kebab-case o un namespace col punto sono una
+riga, non una ricompilazione. Costo pagato all'ingest, mai per turno.
+
+**I quattro ponti vivi**, e nessuno dei quattro è stato scritto pensando al
+codice:
+
+| ponte | che cosa attraversa | dove è stata imparata |
+|---|---|---|
+| `data_structure` | «hash_table è O(1) in lookup» | esperto di algoritmi |
+| `algorithm_family` | «quicksort è ordinamento» | esperto di algoritmi |
+| `complexity_class` | le classi di costo | esperto di algoritmi |
+| `concept_domain` | i 331 `wiki_concept` | **leggendo Wikipedia** (gen490) |
+
+Prova end-to-end, con la KB al massimo:
+
+```text
+> what functions does this define: int hash_table_insert(void) { quicksort(); … }
+> domain knowledge about hash_table_insert
+    Key-value mapping -- O(1) average lookup/insert/delete.
+```
+
+Quella frase non è mai stata scritta per parlare di codice. **È il
+moltiplicatore:** la stessa conoscenza serve due rappresentazioni senza essere
+duplicata, e la lettura di prosa del gen490 ora finanzia anche l'analisi del
+codice.
+
+**Ed è opt-in e attribuibile.** `ir_domain_claim_basis/3` conserva il ponte che
+ha autorizzato la pretesa: ogni claim si può contestare e ritirare. L'ablazione
+nel cricchetto toglie il ponte e mostra che cade **la pretesa e nient'altro** —
+l'osservazione del codice resta, il fatto di dominio resta. Senza ponti la IR non
+fa nessuna pretesa cross-dominio, che è il comportamento giusto e non un difetto.
+
+Ratchet: `tests/p0t/code/representation_bridge.p0t` (17 assert, KB al massimo per
+R1 — un contesto ermetico renderebbe questo file verde per costruzione e insieme
+privo di senso, perché con la KB spenta non c'è nessun confine da attraversare).
+
+**Resta del §9:** il punto 6 (rilettura con arco cambiato) è già coperto dal
+ratchet UC1; il punto 8 (misura con `/debug`) non è stato fatto.
+
+---
+
 ## 9. Primo incremento esatto da eseguire
 
 Il prossimo lavoro non è un altro smell e non è un corpus massivo. È **UC1, in

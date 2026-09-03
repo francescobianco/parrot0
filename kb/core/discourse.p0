@@ -136,7 +136,6 @@ covered_set($Entities) :- findall($E, covered_entity($E), $Entities).
 answer_frame("what did you tell me about", told_about).
 answer_frame_input_arg("what did you tell me about", told_about, 1).
 answer_frame("cosa mi hai detto su", told_about).
-answer_frame("observation how from", code_definition_evidence).
 answer_frame_input_arg("cosa mi hai detto su", told_about, 1).
 answer_frame_input_arg("parlami di", told_about, 1).
 answer_frame_input_arg("dimmi qualcosa su", told_about, 1).
@@ -154,7 +153,6 @@ answer_frame_input_arg("in quale luogo", located_in, 1).
 answer_frame_input_arg("in che posto", located_in, 1).
 answer_frame_input_arg("dove sta", located_in, 1).
 answer_frame_input_arg("dov", located_in, 1).
-answer_frame_input_arg("observation how from", code_definition_evidence, 1).
 
 % Anche l'elenco di cio' che si e' toccato e' una ripresa, e passa dallo stesso
 % fold: la lunghezza dipende da cio' che e' successo, non da uno schema.

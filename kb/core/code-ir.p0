@@ -101,6 +101,58 @@ ir_domain_claim_basis($Representation, $Item,
     representation_bridge($Representation, $Role, $Predicate, binary_arg2),
     apply($Predicate, cons($Value, cons($Entity, nil))).
 
+% ── UC1b — I PEZZI DI UN IDENTIFICATORE, E I PONTI CHE ORA HANNO QUALCOSA DA
+%           ATTRAVERSARE ────────────────────────────────────────────────────
+%
+% Il ponte fra rappresentazioni esisteva ma era INERTE: `representation_bridge/4`
+% aveva zero fatti, quindi nessuna query attraversava nessun confine. Il motivo
+% non era il meccanismo — era che il lato codice offriva solo NOMI INTERI, e un
+% nome intero non incontra mai la conoscenza di dominio: nessuna KB conterra' mai
+% `data_structure(hash_table_insert, ...)`.
+%
+% Quali caratteri spezzino un identificatore e' conoscenza, non una legge: una
+% convenzione nuova (kebab, namespace col punto, `::`) e' una riga.
+machinery(identifier_separator).
+machinery(code_name_part).
+identifier_separator("_").
+identifier_separator("-").
+identifier_separator(".").
+
+% Un pezzo denota quanto il nome intero. Da qui in poi il ponte ha di che vivere.
+ir_denotation(code, item($Snapshot, $Node), part, $Part) :-
+    code_name_part($Snapshot, $Node, $Index, $Part).
+
+% ── ⭐ I PONTI VIVI: la conoscenza imparata LEGGENDO risponde sul CODICE ────
+%
+% Questi quattro fatti sono il moltiplicatore. `data_structure/2` e
+% `algorithm_family/2` non sono stati scritti per il codice: vengono dagli
+% esperti di programmazione, imparati come prosa e come lezioni. Un ponte li
+% rende raggiungibili da un identificatore, e da quel momento la stessa
+% conoscenza serve DUE rappresentazioni senza essere duplicata.
+%
+% Sono opt-in e attribuibili: `ir_domain_claim_basis/3` conserva il ponte che ha
+% autorizzato la pretesa, quindi ogni claim si puo' contestare e ritirare. Senza
+% questi fatti la IR resta muta sul dominio — che e' il comportamento giusto,
+% non un difetto.
+representation_bridge(code, part, data_structure, binary_arg1).
+representation_bridge(code, part, algorithm_family, binary_arg1).
+representation_bridge(code, part, complexity_class, binary_arg1).
+representation_bridge(code, part, concept_domain, binary_arg1).
+
+% Le domande che il consumer universale apre su questo, senza un handler nel C.
+answer_frame("domain knowledge about", ir_code_domain_note).
+answer_frame_input_arg("domain knowledge about", ir_code_domain_note, 1).
+
+machinery(ir_code_domain_note).
+ir_code_domain_note($Name, $Note) :-
+    code_name($Snapshot, $Node, $Role, $Name),
+    code_name_part($Snapshot, $Node, $Index, $Part),
+    data_structure($Part, $Note).
+ir_code_domain_note($Name, $Note) :-
+    code_name($Snapshot, $Node, $Role, $Name),
+    code_name_part($Snapshot, $Node, $Index, $Part),
+    algorithm($Part, $Family, $Note).
+
 % Compatibility views.  They intentionally lose source/node identity and are
 % therefore deprecated as an architectural boundary.  Existing code consumers
 % may cross them while they migrate, but frontends never assert these facts.

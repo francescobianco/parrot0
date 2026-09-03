@@ -33,3 +33,12 @@ faster_than(quicksort, bubblesort).
 faster_than(mergesort, bubblesort).
 faster_than(heapsort, bubblesort).
 faster_than(binary_search, linear_search).
+
+% ── gen492 — LE VISTE BINARIE CHE UN PONTE PUO' ATTRAVERSARE ────────────────
+% `algorithm/3` e `complexity/3` sono ternari, e il ponte fra rappresentazioni
+% parla in unario o binario. Queste proiezioni non aggiungono conoscenza: la
+% rendono raggiungibile da un'altra rappresentazione (kb/core/code-ir.p0).
+machinery(algorithm_family).
+machinery(complexity_class).
+algorithm_family($A, $Family) :- algorithm($A, $Family, $Note).
+complexity_class($C, $Class) :- complexity($C, $Class, $Note).

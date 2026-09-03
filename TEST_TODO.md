@@ -155,6 +155,32 @@ la regola del §5 di `LEARN_TODO.md`: *prima si capisce chi ha torto fra il test
 il codice*. R2 vale solo quando ciò che il test asseriva **è diventato falso
 perché parrot0 ha imparato** — e in quel caso il commit deve dirlo.
 
+### R3. Un cricchetto che INSEGNA deve ritirare ciò che insegna
+
+> Scoperta al gen492, e il costo era già stato pagato senza accorgersene.
+
+`universal_code_ir.p0t` provava il canale #1 della Gerarchia di Crescita:
+*prima* la parafrasi non funziona, si insegna, *dopo* funziona. Ma non ritirava
+la forma insegnata, e il file conteneva anche un `kb.save`. Risultato: il
+save-map ha instradato la frase inventata dal test —
+`answer_frame("observation how from", code_definition_evidence)` — **dentro la
+KB curata** (`kb/core/discourse.p0`), dove è stata committata.
+
+Da quel momento il «prima» del caso era falso **per sempre**, e il file passava
+solo su un albero che non l'aveva mai eseguito. Il rosso sembrava una
+regressione del motore: era il test che aveva sporcato il progetto.
+
+**La regola:** un ratchet che insegna **si chiude ritirando** (`!forget` di
+tutti i fatti che ha creato), e nessun ratchet chiama `kb.save` su una KB in cui
+ha appena insegnato qualcosa. Il residuo trovato è stato rimosso da
+`discourse.p0`; il file ora è **idempotente** — passa 61/61 anche alla seconda
+corsa sullo stesso demone, che è il vero criterio.
+
+**Come si riconosce il sintomo:** un `.p0t` che passa la prima volta e fallisce
+la seconda sullo stesso demone *sta insegnando senza ritirare*. È diverso da un
+timeout, e diverso da una regressione: si controlla eseguendolo due volte prima
+di accusare il motore.
+
 ---
 
 ## 0. HANDOFF — da leggere per primo

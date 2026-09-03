@@ -78,6 +78,14 @@
 !query answer_frame("observation how from", code_definition_evidence)
 > observation come from uc_alpha
 <~ Evidence
+# ⚠ gen492 — UN CRICCHETTO CHE INSEGNA DEVE RITIRARE CIO' CHE INSEGNA.
+# La forma insegnata sopravvive a `!reset`: senza queste due righe il file
+# passava solo su un demone che non l'aveva mai eseguito, e alla seconda corsa
+# il «prima» del caso non era piu' vero (60/1). Non era una regressione del
+# motore — era il test che sporcava se stesso. Vale per ogni ratchet che usa il
+# canale #1 della Gerarchia di Crescita: si insegna, si prova, si ritira.
+!forget answer_frame("observation how from", code_definition_evidence)
+!forget answer_frame_input_arg("observation how from", code_definition_evidence, 1)
 
 [test source identity, reread invalidation, and reflective lifetime]
 !exec mkdir -p .p0-uc1
