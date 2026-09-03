@@ -218,6 +218,23 @@ struct KB {
     KbProfileRow  prof_top[64];
     size_t        prof_ntop;
 
+    /* gen491 — LO STATO DELLE VISTE MATERIALIZZATE. Una riga per predicato
+     * dichiarato `materialized_view/2`: a quale revisione della conoscenza il
+     * congelamento risale, e se e' vivo. `building` e' la guardia contro la
+     * ricorsione — materializzare P richiede di risolvere P. */
+    struct {
+        char   pred[KB_TERM_LEN];
+        size_t argc;
+        uint64_t sig;      /* firma della conoscenza da cui dipende */
+        char   deps[8][KB_TERM_LEN];
+        size_t ndeps;
+        size_t added;      /* fatti congelati da questa vista */
+        int    live;
+        int    building;
+    } views[16];
+    size_t nviews;
+    size_t n_derived;      /* fatti con origine KB_DERIVED, esclusi dalla revisione */
+
     /* Turn-local metadata; the fact-table mutation happens once at commit. */
     size_t saturation_cap;
     size_t saturation_argc;
@@ -406,6 +423,8 @@ static int fact_eq(const Fact *a, const Fact *b) {
     }
     return 1;
 }
+
+static int kb_view_live(const KB *kb, const char *pred);   /* gen491 */
 
 static uint64_t fact_hash(const Fact *f) {
     uint64_t h = UINT64_C(1469598103934665603);
@@ -1276,6 +1295,9 @@ typedef struct {
     unsigned long budget;
     int      budget_hit;
     int      loops_cut;
+    /* gen491: il goal in corso ha una vista materializzata viva? Deciso in cima
+     * a `solve_frame`, letto in fondo per non espandere le regole. */
+    int      view_live;
     uint64_t anc[KB_MAX_DEPTH + 2];
     size_t   nanc;
 } Solver;
@@ -2026,6 +2048,14 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
      * satisfy any ground p(value), and therefore is not represented by the
      * exact ground key.  If the predicate census is unavailable, retain the
      * historical full scan as the correctness fallback. */
+    /* gen491 — QUI SI CONTROLLA SOLTANTO, NON SI COSTRUISCE, e la distinzione e'
+     * costata due crash: `kb_view_ensure` asserisce, quindi rialloca la tabella
+     * dei fatti, e ogni chiamante sopra di noi ha in mano `const Fact *` e
+     * indici di bucket. Dentro una risoluzione la conoscenza non si tocca. La
+     * costruzione sta agli INGRESSI (kb_query / kb_match / kb_match_all), dove
+     * nessuna risoluzione e' ancora in corso. */
+    S->view_live = kb_view_live(S->kb, g->pred);
+
     int ground_fact_mode = 0; /* 0 = scan all, 1 = only non-ground, 2 = skip */
     Term grounded_goal;
     resolve_goal(g, s, &grounded_goal);
@@ -2114,6 +2144,8 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         s2->n = undo_n;            /* annulla il tentativo, riusa la copia */
         s2->ndif = undo_ndif;
     }
+
+    if (S->view_live) return 0;   /* gen491: vista viva -> niente regole */
 
     PredBucket rbk = rule_bucket(S->kb, g->pred);
     int rule_copy_done = 0;
@@ -2275,7 +2307,217 @@ int kb_assert_clause(KB *kb, const KbGoal *head,
  * puo' asserire una clausola che poi non si riconosce piu'. Togliere una regola
  * sposta le posizioni memorizzate nel censimento, quindi lo si invalida e si
  * ricostruisce alla prossima lettura, come gia' fanno i fatti. */
-size_t kb_revision(const KB *kb) { return kb ? kb->n + kb->nr : 0; }
+/* ══ gen491 — LE VISTE MATERIALIZZATE ════════════════════════════════════════
+ *
+ * F., 2026-09-03: «quei limiti di tempo dobbiamo ragionare come gestirli
+ * ottimizzando i processi di inferenza, usare delle cache, usare delle liste
+ * ordinate per favorire un early match, usare delle kv con hash su processi gia'
+ * ricostruiti — la nostra KB deve crescere e crescera', quindi i problemi di
+ * carico li avremo sempre».
+ *
+ * IL NUMERO CHE HA APERTO IL CASO. Profilando due turni ordinari (`/debug`),
+ * `extract_frame` costava **890 ms su 1075**, l'83% del turno: 442 chiamate,
+ * 266.553 passi, 2,4 milioni di fatti visitati. Tutto il resto era rumore.
+ *
+ * E la causa era gia' scritta, in un commento in `kb/core/grammar.p0` del
+ * gen4xx: «Non e' il numero di schemi: e' il costo di RICOSTRUIRLI... il giorno
+ * in cui le radici verranno materializzate al momento dell'insegnamento invece
+ * che ricalcolate a ogni lettura, questa riga puo' tornare a crescere».
+ * `extract_frame/2` non e' un elenco: e' un elenco PIU' le regole che ne
+ * generano uno schema per ogni verbo di relazione, ricorrendo su liste di
+ * caratteri (`verb_stem`). Ogni consumatore lo ri-derivava da capo, decine di
+ * volte per turno. Ed e' anche il motivo misurato per cui aggiungere otto verbi
+ * al lessico mandava in timeout meta' della suite: il costo e' O(regole x
+ * consumatori), e cresce con la conoscenza.
+ *
+ * LA CURA, e sono le tre cose che F. nomina, in una. Un predicato dichiarato
+ * `materialized_view(P, Arita')` viene enumerato per intero UNA volta per
+ * revisione della conoscenza, e le sue soluzioni vengono congelate come fatti
+ * con origine `KB_DERIVED`. Da quel momento:
+ *   - la CACHE e' la tabella dei fatti stessa, non una struttura parallela;
+ *   - la KV CON HASH e' l'indice dei fatti che c'e' gia' (`fact_index`), quindi
+ *     una lettura esatta costa O(1) invece di una derivazione;
+ *   - l'EARLY MATCH e' il bucket per predicato del censimento, che visita solo
+ *     i candidati veri.
+ * Nessuna struttura nuova: si riusa quella che il motore ha gia', e le regole
+ * di quel predicato smettono di essere espanse finche' la vista e' viva.
+ *
+ * PERCHE' NON E' UNA CACHE CHE PUO' MENTIRE. La scadenza non e' un tempo: e' la
+ * REVISIONE della conoscenza (`kb_revision`), che cambia a ogni fatto o regola
+ * detta, letta o ritirata. Una relazione insegnata adesso invalida la vista e la
+ * fa ricostruire nello stesso turno — nessuno vede meno di prima, e
+ * l'insegnamento resta immediato come prima. I fatti derivati non si salvano
+ * (origine esclusa dalla maschera di scrittura) e non contano nella revisione,
+ * altrimenti il congelamento invaliderebbe se stesso.
+ *
+ * QUALI processi valga la pena congelare e' CONOSCENZA, non una lista nel C:
+ * `materialized_view/2` in KB. Un predicato nuovo che diventa caro e' una riga.
+ * Il motore possiede solo il meccanismo. */
+
+/* Quante viste sono dichiarate, e con che arita'. Letto dalla KB, mai cablato. */
+static void kb_views_load(KB *kb) {
+    kb->nviews = 0;
+    for (size_t i = 0; i < kb->n && kb->nviews < 16; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc != 2 || strcmp(f->pred, "materialized_view") != 0) continue;
+        long ar = strtol(f->args[1], NULL, 10);
+        if (ar < 1 || ar > (long)KB_MAX_ARGS) continue;
+        size_t k = kb->nviews++;
+        snprintf(kb->views[k].pred, sizeof kb->views[k].pred, "%s", f->args[0]);
+        kb->views[k].argc = (size_t)ar;
+        kb->views[k].sig = 0;
+        kb->views[k].ndeps = 0;
+        kb->views[k].added = 0;
+        kb->views[k].live = 0;
+        kb->views[k].building = 0;
+    }
+}
+
+/* gen491 — LA CHIAVE DELLA CACHE E' LA CONOSCENZA DA CUI LA VISTA DIPENDE.
+ *
+ * La prima versione usava `kb_revision`, che conta OGNI fatto: ma un turno
+ * asserisce le proprie tracce (span, lingua, contabilita'), quindi la revisione
+ * cambiava piu' volte per turno e la vista si ricostruiva ogni volta —
+ * misurato, il turno passava da 1075 a 1725 ms. Una cache invalidata da cio' che
+ * non la riguarda e' peggio di nessuna cache.
+ *
+ * La firma e' invece un hash dei soli predicati da cui la vista DIPENDE,
+ * dichiarati in KB con `view_depends/2`: quanti fatti non derivati ha ciascuno,
+ * piu' quante regole hanno quella testa. Cambia quando cambia la conoscenza che
+ * genera la vista — insegnare un verbo la invalida nello stesso turno — e non
+ * cambia per il traffico ordinario del dialogo. */
+static uint64_t kb_view_signature(KB *kb, const char *pred, size_t slot) {
+    uint64_t sig = 1469598103934665603ULL;
+    /* Le dipendenze si leggono UNA volta e si tengono: rileggerle a ogni
+     * ingresso passava dal solver, che e' esattamente il costo da evitare. */
+    if (!kb->views[slot].ndeps) {
+        char deps[8][KB_TERM_LEN];
+        const char *dq[2] = { pred, NULL };
+        size_t nd = kb_match(kb, "view_depends", dq, 2, deps, 8);
+        for (size_t i = 0; i < nd; i++)
+            snprintf(kb->views[slot].deps[i], KB_TERM_LEN, "%s", deps[i]);
+        kb->views[slot].ndeps = nd ? nd : (size_t)-1;   /* -1 = nessuna, non ritentare */
+    }
+    size_t nd = kb->views[slot].ndeps == (size_t)-1 ? 0 : kb->views[slot].ndeps;
+    for (size_t i = 0; i < nd; i++) {
+        /* ⚠ il CENSIMENTO risponde in O(1); contare a mano scandiva 37k fatti a
+         * ogni ingresso di kb_match, cioe' 730 ms fuori dal solver — la cache
+         * costava piu' della derivazione che evitava. */
+        int live_census = 0;
+        const PredStat *ps = pred_stats_get(kb, kb->views[slot].deps[i], &live_census);
+        size_t nf = (live_census && ps) ? ps->nfacts : 0;
+        size_t nr = (live_census && ps) ? ps->nrules : 0;
+        /* i fatti che questa vista ha aggiunto da se' non contano: altrimenti
+         * congelare la vista cambierebbe la firma e la farebbe ricostruire. */
+        if (strcmp(kb->views[slot].deps[i], pred) == 0) nf -= kb->views[slot].added;
+        sig = (sig ^ (nf + nr * 1000003u)) * 1099511628211ULL;
+    }
+    return (sig ^ nd) * 1099511628211ULL;
+}
+
+static size_t kb_view_slot(KB *kb, const char *pred) {
+    for (size_t i = 0; i < kb->nviews; i++)
+        if (strcmp(kb->views[i].pred, pred) == 0) return i;
+    return (size_t)-1;
+}
+
+/* Toglie i fatti congelati di UN predicato: la vista scade, non tutta la cache. */
+static void kb_view_clear(KB *kb, const char *pred) {
+    size_t w = 0, removed = 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->origin == KB_DERIVED && strcmp(f->pred, pred) == 0) {
+            removed++; continue;
+        }
+        if (w != i) kb->facts[w] = kb->facts[i];
+        w++;
+    }
+    if (!removed) return;
+    kb->n = w;
+    kb->n_derived -= removed;
+    fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
+                                    kb->facts, kb->n);
+    pred_stats_invalidate(kb);
+}
+
+/* Controllo puro: esiste una vista VIVA e aggiornata per questo predicato? Non
+ * costruisce niente, quindi si puo' chiamare da dentro il solver. */
+static int kb_view_live(const KB *kb, const char *pred) {
+    if (!kb || !pred || !*pred) return 0;
+    for (size_t i = 0; i < kb->nviews; i++)
+        if (kb->views[i].live && strcmp(kb->views[i].pred, pred) == 0)
+            return 1;   /* la freschezza la decide l'INGRESSO, non il solver */
+    return 0;
+}
+
+int kb_view_ensure(KB *kb, const char *pred) {
+    if (!kb || !pred || !*pred) return 0;
+    if (kb->nviews == 0) kb_views_load(kb);
+    size_t k = kb_view_slot(kb, pred);
+    if (k == (size_t)-1) return 0;
+    if (kb->views[k].building) return 0;    /* si sta costruendo: usa le regole */
+    uint64_t sig = kb_view_signature(kb, pred, k);
+    if (kb->views[k].live && kb->views[k].sig == sig) return 1;
+
+    kb_view_clear(kb, pred);
+    kb->views[k].added = 0;
+    kb->views[k].live = 0;
+    kb->views[k].building = 1;
+
+    /* Si enumera l'ULTIMO argomento per primo — e' quello con meno valori
+     * distinti negli schemi reali — e per ciascuno si chiedono i restanti. Due
+     * livelli bastano per le arita' 1 e 2, che sono quelle che costano; per le
+     * arita' maggiori la vista non si dichiara e il motore resta com'era. */
+    size_t argc = kb->views[k].argc;
+    size_t added = 0;
+    if (argc == 1) {
+        char rows[512][KB_TERM_LEN];
+        const char *q[1] = { NULL };
+        size_t n = kb_match(kb, pred, q, 1, rows, 512);
+        for (size_t i = 0; i < n; i++) {
+            const char *a[1] = { rows[i] };
+            int o = kb->origin; kb->origin = KB_DERIVED;
+            if (kb_assert(kb, pred, a, 1)) { added++; }
+            kb->origin = o;
+        }
+    } else if (argc == 2) {
+        char seconds[256][KB_TERM_LEN];
+        const char *q2[2] = { NULL, NULL };
+        /* i valori del PRIMO argomento; poi, per ciascuno, i secondi */
+        size_t n2 = kb_match(kb, pred, q2, 2, seconds, 256);
+        for (size_t i = 0; i < n2 && added < 4096; i++) {
+            char inner[256][KB_TERM_LEN];
+            const char *qi[2] = { seconds[i], NULL };
+            size_t ni = kb_match(kb, pred, qi, 2, inner, 256);
+            for (size_t j = 0; j < ni && added < 4096; j++) {
+                const char *a[2] = { seconds[i], inner[j] };
+                int o = kb->origin; kb->origin = KB_DERIVED;
+                if (kb_assert(kb, pred, a, 2)) added++;
+                kb->origin = o;
+            }
+        }
+    }
+    kb->views[k].building = 0;
+    kb->n_derived += added;
+    kb->views[k].added = added;
+    kb->views[k].sig = kb_view_signature(kb, pred, k);
+    kb->views[k].live = 1;
+    return 1;
+}
+
+void kb_views_warm(KB *kb) {
+    if (!kb) return;
+    kb_views_load(kb);
+    for (size_t i = 0; i < kb->nviews; i++)
+        kb_view_ensure(kb, kb->views[i].pred);
+}
+
+/* gen491 — la revisione misura la CONOSCENZA, non la sua cache. Un fatto
+ * derivato non e' qualcosa che qualcuno ha detto o letto: contarlo qui farebbe
+ * invalidare la vista dall'atto stesso di costruirla. */
+size_t kb_revision(const KB *kb) {
+    return kb ? kb->n + kb->nr - kb->n_derived : 0;
+}
 
 int kb_retract_clause(KB *kb, const KbGoal *head,
                       const KbGoal *body, size_t nbody) {
@@ -2430,6 +2672,10 @@ static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
 }
 
 int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
+    /* gen491 — l'ingresso e' il solo posto dove la vista si puo' costruire:
+     * qui nessuna risoluzione e' in corso, quindi asserire non invalida i
+     * puntatori di nessuno. Costa una volta per revisione della conoscenza. */
+    kb_view_ensure((KB *)kb, pred);
     /* gen422b: la firma si raccoglie QUI e in kb_match, non solo alla fine di
      * una ricerca del solver. La prima stesura annotava solo `kb_note_inference`
      * — cioe' le sole risoluzioni con regole — e la firma veniva identica per
@@ -2549,6 +2795,10 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
 
 size_t kb_match(const KB *kb, const char *pred, const char *const *args,
                 size_t argc, char out[][KB_TERM_LEN], size_t max) {
+    /* gen491 — l'ingresso e' il solo posto dove la vista si puo' costruire:
+     * qui nessuna risoluzione e' in corso, quindi asserire non invalida i
+     * puntatori di nessuno. Costa una volta per revisione della conoscenza. */
+    kb_view_ensure((KB *)kb, pred);
     if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args) ||
         (max && !out)) return 0;
     /* vedi kb_query: la firma e' scritta anche da qui. `kb` e' const per
@@ -3671,6 +3921,10 @@ int kb_load(KB *kb, const char *path) {
 int kb_match_all(const KB *kb, const char *pred,
                  const char *const *args, size_t argc,
                  char (**out)[KB_TERM_LEN], size_t *nout) {
+    /* gen491 — l'ingresso e' il solo posto dove la vista si puo' costruire:
+     * qui nessuna risoluzione e' in corso, quindi asserire non invalida i
+     * puntatori di nessuno. Costa una volta per revisione della conoscenza. */
+    kb_view_ensure((KB *)kb, pred);
     if (!out || !nout) return 0;
     *out = NULL;
     *nout = 0;

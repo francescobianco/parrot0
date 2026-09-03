@@ -1423,3 +1423,38 @@ semantic_class($C)  :- wiki_concept($C, $Domain, $Gloss).
 linguistic_form($W, $W, en, common) :- relation_verb($W).
 linguistic_form($W, $W, en, common) :- clause_copula($W).
 linguistic_form($W, $W, en, common) :- wiki_concept($W, $Domain, $Gloss).
+
+% ── gen491 — QUALI PROCESSI VALE LA PENA CONGELARE ──────────────────────────
+%
+% F.: «usare delle cache, delle liste ordinate per favorire un early match,
+% delle kv con hash su processi gia' ricostruiti — la KB deve crescere e
+% crescera', quindi i problemi di carico li avremo sempre».
+%
+% `materialized_view(Predicato, Arita')` dice al motore che le soluzioni di quel
+% predicato vanno enumerate UNA volta per revisione della conoscenza e tenute
+% come fatti derivati, invece di essere riderivate a ogni domanda. Quali
+% processi lo meritino e' conoscenza: il motore possiede solo il meccanismo, e
+% un predicato che domani diventasse caro e' una riga in piu' qui.
+%
+% `extract_frame/2` e' il caso che ha aperto il tema: misurato col profilo,
+% costava 890 ms su 1075 di turno (442 chiamate, 266.553 passi) perche' e' fatti
+% PIU' le regole che ne generano uno schema per ogni verbo di relazione,
+% ricorrendo su liste di caratteri. Ed e' anche il motivo per cui il corpus non
+% si poteva allargare: ogni verbo nuovo moltiplicava quel costo.
+machinery(materialized_view).
+materialized_view(extract_frame, 2).
+materialized_view(verb_stem, 2).
+
+% Da CHE COSA dipende una vista: i predicati la cui variazione la invalida. E'
+% la chiave della cache, e dev'essere stretta — la prima versione usava la
+% revisione dell'intera KB e la vista si ricostruiva a ogni turno, perche' ogni
+% turno asserisce le proprie tracce. Misurato: 1075 ms -> 1725 ms, cioe' una
+% cache che costava piu' di quello che risparmiava.
+machinery(view_depends).
+view_depends(extract_frame, extract_frame).
+view_depends(extract_frame, relation_verb).
+view_depends(extract_frame, ternary_relation_verb).
+view_depends(extract_frame, verb_suffix).
+view_depends(extract_frame, verb_stem).
+view_depends(verb_stem, relation_verb).
+view_depends(verb_stem, verb_suffix).

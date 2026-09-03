@@ -1136,6 +1136,15 @@ void brain_boot(Brain *b) {
     if (profile && *profile)
         brain_load(b, profile, 1);                        /* gen150: expert/skill profile */
     brain_policy(b);                                      /* gen331: the effective policy */
+    /* gen491 — LE VISTE SI SCALDANO AL BOOT, non dentro un turno.
+     *
+     * Il congelamento costa una volta per cambio di conoscenza, ma «una volta»
+     * deve cadere in un posto che non ha un budget: se cade nel primo turno che
+     * chiede lo schema, quel turno paga due secondi e va in timeout — misurato
+     * su `facts.p0t` appena il lessico dei verbi si e' allargato. Al boot il
+     * costo e' avvio, che e' infrastruttura, esattamente come il caricamento
+     * della KB. Chi non dichiara viste non paga niente. */
+    kb_views_warm(b->kb);
 }
 
 /* gen276: rebuild the brain's knowledge and session state in place from the

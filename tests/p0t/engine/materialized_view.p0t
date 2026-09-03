@@ -1,0 +1,56 @@
+# gen491 — UNA VISTA MATERIALIZZATA E' UNA CACHE CHE NON PUO' MENTIRE.
+#
+# F., 2026-09-03: «quei limiti di tempo dobbiamo ragionare come gestirli
+# ottimizzando i processi di inferenza, usare delle cache, usare delle liste
+# ordinate per favorire un early match, usare delle kv con hash su processi gia'
+# ricostruiti — la KB deve crescere e crescera', quindi i problemi di carico li
+# avremo sempre».
+#
+# Misurato col profilo (`/debug`), `extract_frame` costava 890 ms su 1075 di
+# turno: e' fatti PIU' le regole che ne generano uno schema per ogni verbo di
+# relazione, e ogni consumatore lo riderivava da capo decine di volte per turno.
+#
+# `materialized_view(P, Arita')` dice al motore di enumerare P una volta sola e
+# congelarne le soluzioni come fatti derivati. La cache e' la tabella dei fatti,
+# la kv con hash e' l'indice che c'era gia', l'early match e' il bucket del
+# censimento. Nessuna struttura nuova.
+#
+# LA PARTE CHE CONTA NON E' LA VELOCITA', E' CHE NON MENTE: la chiave non e' un
+# tempo ne' la revisione dell'intera KB, ma una FIRMA dei soli predicati da cui
+# la vista dipende (`view_depends/2`). Insegnare un verbo la invalida nello
+# stesso turno; il traffico ordinario del dialogo no.
+
+[mock hermetic]
+!set PARROT0_LANG=en
+!reset
+
+[test la vista non nasconde niente]
+!timeout 20
+
+# 1. La vista e' dichiarata, con le sue dipendenze: e' conoscenza, non C.
+!query materialized_view(extract_frame, 2)
+!query view_depends(extract_frame, relation_verb)
+
+# 2. Uno schema che viene da un FATTO si legge come prima.
+!query extract_frame("@S is located in @O", located_in)
+
+# 3. Uno schema GENERATO da una regola sopra `relation_verb` si legge come
+#    prima: e' il congelamento a doverlo contenere, non il chiamante a saperlo.
+!query extract_frame($P, produces)
+
+# 4. ⛔ E QUI STA LA PROVA CHE LA CACHE NON MENTE: un verbo insegnato ADESSO
+#    cambia la firma della vista, che si ricostruisce, e il suo schema e'
+#    leggibile nello stesso turno. Una cache scaduta a tempo non lo sarebbe.
+!query! extract_frame($P, zorbles)
+> zorbles is a relation verb
+!query extract_frame($P, zorbles)
+
+# 5. E l'ablazione nell'altro verso: ritirato il verbo, lo schema sparisce.
+#    Niente resta congelato dopo che la conoscenza che lo generava e' caduta.
+!forget relation_verb(zorbles)
+!query! extract_frame($P, zorbles)
+
+# 6. Tolta la dichiarazione, il motore torna a derivare: la vista e' un
+#    acceleratore dichiarato, non una parte del significato.
+!forget materialized_view(extract_frame, 2)
+!query extract_frame($P, produces)

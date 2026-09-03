@@ -29,6 +29,12 @@
  * D3: knowledge is composed from layers, and only some are persisted. */
 #define KB_BASE       1 /* curated, hand-authorable, long-lived             */
 #define KB_SESSION    2 /* asserted this run / loaded from a session file   */
+/* gen491 — un fatto DERIVATO: il risultato congelato di una regola che sarebbe
+ * costato ricalcolarlo. Non e' conoscenza nuova (nessuno lo ha detto ne' letto):
+ * e' conoscenza vecchia in una forma che si legge in O(1). Percio' non si salva,
+ * non conta nella revisione della KB, e sparisce appena la conoscenza da cui
+ * viene cambia. Vedi `kb_view_ensure` e `materialized_view/2`. */
+#define KB_DERIVED    4
 #define KB_INDUCED    4 /* created by kb_induce                             */
 #define KB_REFLECTIVE 8 /* the self-model (i_am/module) — never persisted   */
 /* gen373 — a turn's SUPPOSED premises, true only for the question being asked.
@@ -343,6 +349,18 @@ size_t kb_unary_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max);
  * Serve a invalidare una cache derivata senza inventare un timer — una relazione
  * insegnata adesso deve essere visibile al turno stesso. */
 size_t kb_revision(const KB *kb);
+
+/* gen491 — LE VISTE MATERIALIZZATE. Se la KB dichiara `materialized_view(P, N)`,
+ * la prima domanda su `P` dopo un cambio di conoscenza ne enumera TUTTE le
+ * soluzioni una volta sola e le congela come fatti derivati; le domande
+ * successive le leggono dall'indice hash invece di riderivarle. Torna 1 se per
+ * questo predicato esiste una vista viva (e allora le regole non vanno
+ * espanse), 0 altrimenti. */
+int kb_view_ensure(KB *kb, const char *pred);
+
+/* Costruisce subito ogni vista dichiarata: si chiama a fine boot, cosi' il
+ * costo del congelamento e' avvio e non un turno. */
+void kb_views_warm(KB *kb);
 
 /* The unary classes that can hold FOR ONE entity: the predicates it already
  * appears under, plus every unary rule head (the only ones that can derive

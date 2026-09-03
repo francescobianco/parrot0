@@ -65,6 +65,8 @@
 
 # 7. E un verbo INSEGNATO a runtime accende la lettura della sua frase: e' il
 #    canale #1 della Gerarchia di Crescita che arriva fino al lettore.
-!query! frame_operator_concept(governs, binary)
-> governs is a relation verb
-!query frame_operator_concept(governs, binary)
+# La parola e' inventata apposta: un verbo gia' noto proverebbe soltanto che la
+# KB lo conteneva, non che la lezione arriva fino al lettore.
+!query! frame_operator_concept(zorbles, binary)
+> zorbles is a relation verb
+!query frame_operator_concept(zorbles, binary)

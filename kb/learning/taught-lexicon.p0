@@ -103,32 +103,78 @@ ground_connector(because).
 consequence_connector(accordingly).
 ground_connector(since).
 
-% ── gen490 — I VERBI CHE ACCENDONO LA LETTURA, E PERCHE' QUI NON CE NE SONO ──
+% ── gen490/491 — I VERBI CHE ACCENDONO LA LETTURA ──────────────────────────
 %
 % Dal gen490 `relation_verb/1` non serve piu' solo a rispondere: e' anche cio' da
 % cui il lettore strutturale DERIVA il proprio operatore binario
 % (`frame_operator_concept/2`, kb/core/grammar.p0). Ogni riga qui accende quindi
 % la lettura di una FAMIGLIA di frasi — «X rilascia Y», «X contiene Y» — non di
-% una singola frase. Sembrava il posto con il rapporto piu' alto fra riga scritta
-% e prosa leggibile, e sul metro della lettura lo e':
+% una singola frase, ed e' il posto con il rapporto piu' alto fra riga scritta e
+% prosa leggibile: da 35 a 85 verbi la resa su prosa vera di Wikipedia e' passata
+% da 0,26 a 0,37 fatti per frase.
 %
-%     35 verbi (oggi)   resa su prosa vera   0,26 fatti/frase
-%     +8                                     0,33
-%     +52                                    0,35
+% ⚠ E QUESTE RIGHE SONO STATE SCRITTE DUE VOLTE. Al gen490 aggiungerle mandava in
+% timeout meta' della suite, e vennero tolte con la misura scritta accanto: il
+% costo non era il numero di verbi ma il fatto che `extract_frame` — che da ogni
+% verbo genera due schemi — veniva RIDERIVATO decine di volte per turno, 890 ms
+% su 1075. Al gen491 quel processo si congela una volta per cambio di conoscenza
+% (`materialized_view/2`), il turno scende a 259 ms, e la stessa lista che prima
+% rompeva tutto ora passa senza toccare un gate.
 %
-% ⚠ §L — MA QUESTA CLASSE HA UN COSTO, e nessun'altra classe lessicale ne aveva
-% avuto uno finora. Ogni operatore in piu' allarga la ricerca del frame a OGNI
-% turno, anche nei turni che quel verbo non lo contengono. Misurato a macchina
-% scarica: +8 verbi porta `taught_lexicon` da 17/18 a 15/20 e
-% `frontier_chat_audit.it` da 53/3 a 48/8, tutti timeout; +16 fa cadere anche
-% `facts` e `basics`; +52 non lascia passare quasi nulla.
+% E' la lezione generale del §L in forma pulita: **quando una classe di
+% conoscenza non si puo' allargare, il difetto non e' quasi mai nella classe.**
+% Prima si guarda che cosa la RILEGGE, e quante volte.
 %
-% Percio' qui non ce n'e' nessuno, ed e' una decisione, non una dimenticanza:
-% **il collo di bottiglia del corpus non e' la lista dei verbi, e' il costo
-% O(operatori) per turno del lettore strutturale.** Allungare questa lista prima
-% di aver abbassato quel costo compra resa in lettura e la paga in turni andati
-% in timeout — cioe' peggiora parrot0 mentre sembra migliorarlo. Prima si
-% abbassa il costo (§L: indice per termine in `src/kb.c`), poi la lista si
-% allunga da sola, misurando un verbo per volta con `rules`/`facts`/`basics`
-% accanto.
-
+% Restano verbi, non conoscenza del mondo: dicono che una parola PUO' reggere una
+% relazione fra due cose, non quale relazione valga fra quali cose. E si
+% insegnano parlando — «zorbles is a relation verb» — esattamente come questi.
+relation_verb(releases).
+relation_verb(contains).
+relation_verb(includes).
+relation_verb(causes).
+relation_verb(uses).
+relation_verb(forms).
+relation_verb(creates).
+relation_verb(connects).
+relation_verb(absorbs).
+relation_verb(emits).
+relation_verb(converts).
+relation_verb(stores).
+relation_verb(transports).
+relation_verb(controls).
+relation_verb(regulates).
+relation_verb(protects).
+relation_verb(surrounds).
+relation_verb(supports).
+relation_verb(covers).
+relation_verb(replaces).
+relation_verb(describes).
+relation_verb(defines).
+relation_verb(determines).
+relation_verb(affects).
+relation_verb(influences).
+relation_verb(reduces).
+relation_verb(increases).
+relation_verb(generates).
+relation_verb(provides).
+relation_verb(supplies).
+relation_verb(consumes).
+relation_verb(transmits).
+relation_verb(reflects).
+relation_verb(attracts).
+relation_verb(repels).
+relation_verb(binds).
+relation_verb(breaks).
+relation_verb(combines).
+relation_verb(divides).
+relation_verb(governs).
+relation_verb(serves).
+relation_verb(occupies).
+relation_verb(borders).
+relation_verb(crosses).
+relation_verb(joins).
+relation_verb(follows).
+relation_verb(enables).
+relation_verb(limits).
+relation_verb(expands).
+relation_verb(contracts).
