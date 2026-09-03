@@ -390,7 +390,7 @@ static int piact_obs(Brain *b, char *const *argv, const char *label,
 
     char msg[5200];
     char lang[8]; current_lang(b, lang, sizeof lang);
-    int it = lex_class_member(b, "60_agent_tools_lex360", lang);
+    int it = lex_class_member(b, "entity_pronoun", lang);
     switch (obs.verdict) {
     case P0_OK:
         if (flat[0] == '\0') {
@@ -643,7 +643,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         char *largv_all[]  = {(char*)"find", dirbuf, (char*)"-maxdepth", (char*)"1",
                               (char*)"-type", (char*)"f", NULL};
         char lang[8]; current_lang(b, lang, sizeof lang);
-        int it = lex_class_member(b, "60_agent_tools_lex580", lang);
+        int it = lex_class_member(b, "entity_pronoun", lang);
         if (has_glob)
             snprintf(label, sizeof label, it ? "I file `%s` in %s" : "The `%s` files in %s",
                      glob, dirbuf);

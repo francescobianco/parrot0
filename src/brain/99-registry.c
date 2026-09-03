@@ -591,7 +591,7 @@ static int correction_peel(Brain *b, const char *canon, const char *raw,
     char *w[64]; size_t nw = split_words(buf, w, 64);
     /* split_words keeps a trailing comma on the token ("no,"), so match on the
      * punctuation-stripped marker. */
-    if (nw < 4 || !lex_class_member(b, "99_registry_lex586", strip_edge_punct(w[0]))) return 0;
+    if (nw < 4 || !lex_class_member(b, "negation_marker", strip_edge_punct(w[0]))) return 0;
     int has_neg = 0;
     for (size_t i = 1; i < nw; i++)
         if (is_negation_marker(b, w[i])) { has_neg = 1; break; }
@@ -4516,7 +4516,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                 *cp = (char)tolower((unsigned char)*cp);
             int confirm = (lex_class_member(b, "99_registry_lex3877", clow) || lex_class_member(b, "99_registry_lex3877_2", clow) ||
                            lex_class_member(b, "99_registry_lex3878", clow) || lex_class_member(b, "99_registry_lex3878_2", clow) ||
-                           lex_class_member(b, "99_registry_lex3879", clow) || lex_class_member(b, "99_registry_lex3879_2", clow) ||
+                           lex_class_member(b, "stance_predicate", clow) || lex_class_member(b, "99_registry_lex3879_2", clow) ||
                            lex_class_member(b, "99_registry_lex3880", clow) || lex_class_member(b, "99_registry_lex3880_2", clow) ||!lex_prefix_member(b, "99_registry_lex3879_3", clow) == 0 ||!lex_prefix_member(b, "99_registry_lex3880_3", clow) == 0 ||
                            lex_class_member(b, "99_registry_lex3882", rlow) || strcmp(rlow, "sì") == 0 ||
                            lex_class_member(b, "99_registry_lex3883", rlow) || lex_class_member(b, "99_registry_lex3883_2", rlow) ||

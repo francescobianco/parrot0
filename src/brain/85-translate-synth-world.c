@@ -368,7 +368,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                     if (kb_query(b->kb, "aux_question", qaq, 1)) continue;
                 }
 
-                if (lex_class_member(b, "85_translate_synth_world_lex357", tok)) {
+                if (lex_class_member(b, "english_determiner", tok)) {
                     char gender = 'm';
                     if (i + 1 < fn) {
                         char *n1 = strip_edge_punct(fw[i + 1]);
@@ -413,7 +413,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                     if (fr_gender_for_en(b, tok, &gnoun) && i > 0) {
                         char *prev = strip_edge_punct(fw[i - 1]);
                         char adj[KB_TERM_LEN], gdummy;
-                        if (!lex_class_member(b, "85_translate_synth_world_lex403", prev) &&
+                        if (!lex_class_member(b, "english_determiner", prev) &&
                             !fr_gender_for_en(b, prev, &gdummy) &&
                             fr_lookup(b, prev, adj, sizeof adj)) {
                             size_t pl = strlen(piece), al = strlen(adj);
@@ -578,7 +578,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                         if (kb_match(b->kb, "conj_es", cvq, 3, cf, 1) == 1)
                             snprintf(piece, sizeof piece, "%s", cf[0]);
                     }
-                    if (!piece[0] && lex_class_member(b, "85_translate_synth_world_lex568", tok) && i + 1 < sn) {
+                    if (!piece[0] && lex_class_member(b, "english_determiner", tok) && i + 1 < sn) {
                         char *nx = strip_edge_punct(sw[i + 1]);
                         char esn[1][KB_TERM_LEN];
                         const char *nq[] = { nx, NULL };
@@ -880,7 +880,7 @@ static int mod_synth(Brain *b, const char *norm, const char *raw,
     int wants_file = 0, wants_pattern = 0;
     for (size_t i = 0; i < nsw && nw < 32; i++) {
         char *t = strip_edge_punct(sw[i]);
-        if (lex_class_member(b, "85_translate_synth_world_lex842", t) || lex_class_member(b, "85_translate_synth_world_lex842_2", t)) wants_file = 1;
+        if (lex_class_member(b, "content_kind", t) || lex_class_member(b, "85_translate_synth_world_lex842_2", t)) wants_file = 1;
         if (lex_class_member(b, "85_translate_synth_world_lex843", t) || lex_class_member(b, "85_translate_synth_world_lex843_2", t)) wants_pattern = 1;
         if (strlen(t) >= 3 && isalpha((unsigned char)t[0]) && !is_stopword(b, t))
             snprintf(words[nw++], KB_TERM_LEN, "%s", t);
@@ -1021,7 +1021,7 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
             tok[n] = '\0';
             while (*q && isspace((unsigned char)*q)) q++;
             if (n == 0) continue;
-            if (lex_class_member(b, "85_translate_synth_world_lex983", tok) || lex_class_member(b, "85_translate_synth_world_lex983_2", tok) ||
+            if (lex_class_member(b, "english_determiner", tok) || lex_class_member(b, "italian_determiner", tok) ||
                 lex_class_member(b, "85_translate_synth_world_lex984", tok) || lex_class_member(b, "85_translate_synth_world_lex984_2", tok) ||
                 lex_class_member(b, "85_translate_synth_world_lex985", tok))
                 continue; /* skip filler, take the real module name next */
@@ -1215,10 +1215,10 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
     /* QUERY: subject-first interrogative "X is [a] Y?" (the Italian shape
      * "rex è un drago?" canonicalizes here; same rule serves both languages). */
     if (interrogative && nw >= 3 && lex_class_member(b, "85_translate_synth_world_lex1176", w[1]) &&
-        !lex_class_member(b, "85_translate_synth_world_lex1177", w[0]) && !lex_class_member(b, "85_translate_synth_world_lex1177_2", w[0])) {
+        !lex_class_member(b, "85_translate_synth_world_lex1177", w[0]) && !lex_class_member(b, "question_word", w[0])) {
         const char *subj = w[0];
         size_t pi = 2;
-        if (lex_class_member(b, "85_translate_synth_world_lex1180", w[2]) && nw >= 4) pi = 3;
+        if (lex_class_member(b, "negation_marker", w[2]) && nw >= 4) pi = 3;
         if (pi < nw && is_article(b, w[pi]) && pi + 1 < nw) pi++;
         if (pi != nw - 1) return 0;
         const char *pred = w[pi];
@@ -1237,7 +1237,7 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
     }
 
     /* QUERY: "who is X" / "what is X" -> list X's classes in this world. */
-    if (nw == 3 && (lex_class_member(b, "85_translate_synth_world_lex1197", w[0]) || lex_class_member(b, "85_translate_synth_world_lex1197_2", w[0])) &&
+    if (nw == 3 && (lex_class_member(b, "85_translate_synth_world_lex1197", w[0]) || lex_class_member(b, "question_word", w[0])) &&
         lex_class_member(b, "85_translate_synth_world_lex1198", w[1])) {
         const char *subj = w[2];
         char list[400]; size_t off = 0, hits = 0;
@@ -1273,7 +1273,7 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
     if (!interrogative && nw >= 3 && lex_class_member(b, "85_translate_synth_world_lex1226", w[1])) {
         const char *subj = w[0];
         size_t pi = 2; int neg = 0;
-        if (lex_class_member(b, "85_translate_synth_world_lex1229", w[2]) && nw >= 4) { neg = 1; pi = 3; }
+        if (lex_class_member(b, "negation_marker", w[2]) && nw >= 4) { neg = 1; pi = 3; }
         if (pi < nw && is_article(b, w[pi]) && pi + 1 < nw) pi++;
         if (pi != nw - 1) return 0;            /* one-word class only, for now */
         const char *pred = w[pi];
@@ -1346,7 +1346,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
         /* "forget/end/close/leave [this|the] [<name>] world/story" */
         int teardown = 0, leave_only = 0;
         if (nw >= 2 && (lex_class_member(b, "85_translate_synth_world_lex1297", w[0]) || lex_class_member(b, "85_translate_synth_world_lex1297_2", w[0]) ||
-                        lex_class_member(b, "85_translate_synth_world_lex1298", w[0]) || lex_class_member(b, "85_translate_synth_world_lex1298_2", w[0])))
+                        lex_class_member(b, "85_translate_synth_world_lex1298", w[0]) || lex_class_member(b, "removal_verb", w[0])))
             teardown = 1;
         else if (nw >= 2 && lex_class_member(b, "85_translate_synth_world_lex1300", w[0]))
             { teardown = 1; leave_only = 1; }
@@ -1359,11 +1359,11 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                     has_world_noun = 1;
                     if (i >= 1) {
                         char *prev = strip_edge_punct(w[i-1]);
-                        if (!is_article(b, prev) && !lex_class_member(b, "85_translate_synth_world_lex1311", prev) &&
-                            !lex_class_member(b, "85_translate_synth_world_lex1312", prev) && !lex_class_member(b, "85_translate_synth_world_lex1312_2", prev) &&
+                        if (!is_article(b, prev) && !lex_class_member(b, "demonstrative_word", prev) &&
+                            !lex_class_member(b, "english_determiner", prev) && !lex_class_member(b, "85_translate_synth_world_lex1312_2", prev) &&
                             !is_world_noun(b, prev) && !lex_class_member(b, "85_translate_synth_world_lex1313", prev) &&
                             !lex_class_member(b, "85_translate_synth_world_lex1314", prev) && !lex_class_member(b, "85_translate_synth_world_lex1314_2", prev) &&
-                            !lex_class_member(b, "85_translate_synth_world_lex1315", prev) && !lex_class_member(b, "85_translate_synth_world_lex1315_2", prev))
+                            !lex_class_member(b, "85_translate_synth_world_lex1315", prev) && !lex_class_member(b, "removal_verb", prev))
                             named = prev;
                     }
                     break;
@@ -1427,7 +1427,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                     size_t name_idx = i; /* default: no name -> use the noun word */
                     char *before = (i >= 1) ? strip_edge_punct(nw_[i-1]) : NULL;
                     if (before && !is_article(b, before) &&
-                        !lex_class_member(b, "85_translate_synth_world_lex1381", before) && !lex_class_member(b, "85_translate_synth_world_lex1381_2", before) &&
+                        !lex_class_member(b, "english_determiner", before) && !lex_class_member(b, "demonstrative_word", before) &&
                         !lex_class_member(b, "85_translate_synth_world_lex1382", before)) {
                         snprintf(wname, sizeof wname, "%s", before);
                         name_idx = i; /* clause starts after the noun */

@@ -294,7 +294,7 @@ static int mod_initiative(Brain *b, const char *norm, const char *raw,
             return 0;                    /* not an exact self-play echo */
 
     char lang[8]; current_lang(b, lang, sizeof lang);
-    int it = (lex_class_member(b, "70_social_pragma_lex296", lang));
+    int it = (lex_class_member(b, "entity_pronoun", lang));
     char seeds[64][KB_TERM_LEN]; size_t ns;
     if (it) { const char *q[2] = { "it", NULL }; ns = kb_match(b->kb, "conversation_seed", q, 2, seeds, 64); }
     else    { const char *q[1] = { NULL };       ns = kb_match(b->kb, "conversation_seed", q, 1, seeds, 64); }
@@ -744,7 +744,7 @@ static int is_discourse_opener(Brain *b, char **w, size_t nw, size_t *skip) {
     if (nw >= 3 && lex_class_member(b, "70_social_pragma_lex616", t)) {
         char a[64], c[64];
         snprintf(a, sizeof a, "%s", w[1]); snprintf(c, sizeof c, "%s", w[2]);
-        if (lex_class_member(b, "70_social_pragma_lex619", strip_edge_punct(a)) &&
+        if (lex_class_member(b, "english_determiner", strip_edge_punct(a)) &&
             lex_class_member(b, "70_social_pragma_lex620", strip_edge_punct(c))) { *skip = 3; return 1; }
     }
     /* gen335 round-3: KB-first migration — query discourse_opener/1 from KB
@@ -1390,7 +1390,7 @@ static int check_unknown_function(const char *code, Brain *b, char *findings,
             fname[fn] = '\0';
             /* Skip known keywords */
             if (lex_class_member(b, "70_social_pragma_lex1292", fname) || lex_class_member(b, "70_social_pragma_lex1292_2", fname) ||
-                lex_class_member(b, "70_social_pragma_lex1293", fname) || lex_class_member(b, "70_social_pragma_lex1293_2", fname) ||
+                lex_class_member(b, "preposition", fname) || lex_class_member(b, "70_social_pragma_lex1293_2", fname) ||
                 lex_class_member(b, "70_social_pragma_lex1294", fname) || lex_class_member(b, "70_social_pragma_lex1294_2", fname))
                 continue;
             /* Check against KB */

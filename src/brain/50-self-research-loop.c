@@ -944,7 +944,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     char *tok[16]; size_t nt = split_words(xbuf, tok, 16);
     size_t start = 0;
     if (nt > 0 && (is_article(b, tok[0]) ||
-                   lex_class_member(b, "50_self_research_loop_lex955", tok[0]) || lex_class_member(b, "50_self_research_loop_lex955_2", tok[0]) ||
+                   lex_class_member(b, "english_determiner", tok[0]) || lex_class_member(b, "50_self_research_loop_lex955_2", tok[0]) ||
                    lex_class_member(b, "50_self_research_loop_lex956", tok[0])  || lex_class_member(b, "50_self_research_loop_lex956_2", tok[0]) ||
                    lex_class_member(b, "50_self_research_loop_lex957", tok[0])  || lex_class_member(b, "50_self_research_loop_lex957_2", tok[0]) ||
                    lex_class_member(b, "50_self_research_loop_lex958", tok[0]) || lex_class_member(b, "50_self_research_loop_lex958_2", tok[0]) ||
@@ -958,8 +958,8 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     for (size_t i = start; i < nt; i++) {
         char *t = strip_edge_punct(tok[i]);
         for (char *c = t; *c; c++) if (isdigit((unsigned char)*c)) return 0;
-        if (lex_class_member(b, "50_self_research_loop_lex969", t)||lex_class_member(b, "50_self_research_loop_lex969_2", t)||lex_class_member(b, "50_self_research_loop_lex969_3", t)||
-            lex_class_member(b, "50_self_research_loop_lex970", t)||lex_class_member(b, "50_self_research_loop_lex970_2", t)||lex_class_member(b, "50_self_research_loop_lex970_3", t)||
+        if (lex_class_member(b, "conjunction", t)||lex_class_member(b, "50_self_research_loop_lex969_2", t)||lex_class_member(b, "50_self_research_loop_lex969_3", t)||
+            lex_class_member(b, "50_self_research_loop_lex970", t)||lex_class_member(b, "preposition", t)||lex_class_member(b, "50_self_research_loop_lex970_3", t)||
             !strcmp(t,"più")||lex_class_member(b, "50_self_research_loop_lex971", t)||lex_class_member(b, "50_self_research_loop_lex971_2", t)||
             lex_class_member(b, "50_self_research_loop_lex972", t)||lex_class_member(b, "50_self_research_loop_lex972_2", t))
             return 0;
@@ -1409,7 +1409,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         char list[900];
         size_t off = 0, n = 0;
         char lang[8]; current_lang(b, lang, sizeof lang);
-        int it = lex_class_member(b, "50_self_research_loop_lex1414", lang);
+        int it = lex_class_member(b, "entity_pronoun", lang);
         for (size_t lv = 0; levels[lv]; lv++) {
             char ids[24][KB_TERM_LEN];
             const char *q[2] = { NULL, levels[lv] };

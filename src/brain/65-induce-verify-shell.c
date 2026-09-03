@@ -587,7 +587,7 @@ static int mod_summary(Brain *b, const char *norm, const char *raw,
             focus[k] = '\0';
         }
     }
-    int want_focus = (*focus && !lex_class_member(b, "65_induce_verify_shell_lex544", focus) && !lex_class_member(b, "65_induce_verify_shell_lex544_2", focus) &&
+    int want_focus = (*focus && !lex_class_member(b, "demonstrative_word", focus) && !lex_class_member(b, "entity_pronoun", focus) &&
                       !is_stopword(b, focus));
     if ((!want_sum && !want_gist && !want_focus) || b->prop_count == 0) return 0;
 

@@ -1371,7 +1371,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                         else if (lex_class_member(b, "30_generation_reading_lex1047", slot)) val = obj;
                         else if (lex_class_member(b, "30_generation_reading_lex1048", slot)) val = adj;
                         else if (lex_class_member(b, "30_generation_reading_lex1049", slot)) val = act;
-                        else if (lex_class_member(b, "30_generation_reading_lex1050", slot)) val = place;
+                        else if (lex_class_member(b, "locative_transfer_verb", slot)) val = place;
                         else if (lex_class_member(b, "30_generation_reading_lex1051", slot)) val = elem;
                         else if (lex_class_member(b, "30_generation_reading_lex1052", slot)) val = other_n;
                         else if (!strcmp(slot, "other_object")) val = other_n;
@@ -1837,7 +1837,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         char *dw[64]; size_t dn = split_words(db, dw, 64);
         char topic[64] = "";
         for (size_t i = 0; i + 1 < dn; i++)
-            if (lex_class_member(b, "30_generation_reading_lex1500", strip_edge_punct(dw[i]))) {
+            if (lex_class_member(b, "universal_quantifier", strip_edge_punct(dw[i]))) {
                 size_t j = i + 1;
                 while (j < dn) { char *t = strip_edge_punct(dw[j]);
                     if (lex_class_member(b, "30_generation_reading_lex1503", t)||lex_class_member(b, "30_generation_reading_lex1503_2", t)||lex_class_member(b, "30_generation_reading_lex1503_3", t)) j++; else break; }
@@ -1867,7 +1867,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     }
 
     if (nw == 2 && lex_class_member(b, "30_generation_reading_lex1530", w[0])) {
-        if (lex_class_member(b, "30_generation_reading_lex1531", w[1])) return 0; /* companion cue */
+        if (lex_class_member(b, "open_quantifier", w[1])) return 0; /* companion cue */
         generate_from(b, w[1], out, out_size);
         return 1;
     }
@@ -1887,11 +1887,11 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         const char *target = NULL;
         for (size_t i = 0; i + 1 < nn; i++) {
             if (lex_class_member(b, "30_generation_reading_lex1550", ww[i])  || lex_class_member(b, "30_generation_reading_lex1550_2", ww[i]) ||
-                lex_class_member(b, "30_generation_reading_lex1551", ww[i])  || lex_class_member(b, "30_generation_reading_lex1551_2", ww[i])   ||
+                lex_class_member(b, "preposition", ww[i])  || lex_class_member(b, "30_generation_reading_lex1551_2", ww[i])   ||
                 lex_class_member(b, "30_generation_reading_lex1552", ww[i]) || lex_class_member(b, "30_generation_reading_lex1552_2", ww[i])) {
                 char *t = strip_edge_punct(ww[i + 1]);
                 if (strlen(t) >= 2 && isalpha((unsigned char)t[0]) &&
-                    !lex_class_member(b, "30_generation_reading_lex1555", t) && !lex_class_member(b, "30_generation_reading_lex1555_2", t) && !lex_class_member(b, "30_generation_reading_lex1555_3", t)) {
+                    !lex_class_member(b, "english_determiner", t) && !lex_class_member(b, "30_generation_reading_lex1555_2", t) && !lex_class_member(b, "30_generation_reading_lex1555_3", t)) {
                     target = t; break;
                 }
             }

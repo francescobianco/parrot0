@@ -1347,7 +1347,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
     }
 
     /* Exact-shape arith: "what is <a> OP <b>?" with expanded tokens. */
-    if (enw == 5 && lex_class_member(b, "20_math_lex1235", ew[0]) && lex_class_member(b, "20_math_lex1235_2", ew[1]) &&
+    if (enw == 5 && lex_class_member(b, "question_word", ew[0]) && lex_class_member(b, "20_math_lex1235_2", ew[1]) &&
         is_arith_op(b, ew[3])) {
         double a, c;
         if (parse_value(ew[2], &a) && parse_value(ew[4], &c)) {
@@ -1663,7 +1663,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
             for (size_t i = 0; i < cnw; i++) {
                 /* "no one"/"someone" is a pronoun, not the number 1 */
                 if (i > 0 && lex_class_member(b, "20_math_lex1541", cw[i]) &&
-                    (lex_class_member(b, "20_math_lex1542", cw[i-1]) || lex_class_member(b, "20_math_lex1542_2", cw[i-1]) ||
+                    (lex_class_member(b, "negation_marker", cw[i-1]) || lex_class_member(b, "20_math_lex1542_2", cw[i-1]) ||
                      lex_class_member(b, "20_math_lex1543", cw[i-1]) || lex_class_member(b, "20_math_lex1543_2", cw[i-1])))
                     continue;
                 double v; if (!parse_value(cw[i], &v)) continue;
@@ -1988,7 +1988,7 @@ static size_t plan_learn_list(Brain *b, const char *goal, char **w,
     for (size_t i = start; i < nw; i++) {
         char *tk = strip_edge_punct(w[i]);
         if (!*tk) continue;
-        if (is_conjunction(b, tk) || lex_class_member(b, "20_math_lex1839", tk) || lex_class_member(b, "20_math_lex1839_2", tk)) continue;
+        if (is_conjunction(b, tk) || lex_class_member(b, "20_math_lex1839", tk) || lex_class_member(b, "topic_preposition", tk)) continue;
         double v;
         if (parse_num(tk, &v)) { pend = (long)v; continue; }
         const char *ar[] = { goal, tk };
@@ -2074,7 +2074,7 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
                            lex_class_member(b, "20_math_lex1922", strip_edge_punct(sw[i - 1])));
             int by_step = lex_class_member(b, "20_math_lex1923", t) &&
                           !(i > 0 && lex_class_member(b, "20_math_lex1924", strip_edge_punct(sw[i - 1])));
-            if (by_step || lex_class_member(b, "20_math_lex1925", t) || of_step) {
+            if (by_step || lex_class_member(b, "universal_quantifier", t) || of_step) {
                 char nx[64]; snprintf(nx, sizeof nx, "%s", strip_edge_punct(sw[i + 1]));
                 size_t nl = strlen(nx);            /* "3s" -> "3" */
                 if (nl > 1 && nx[nl - 1] == 's') nx[nl - 1] = '\0';
@@ -2115,7 +2115,7 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
         char *fw[64]; size_t fnw = split_words(fb, fw, 64);
         for (size_t i = 0; i + 1 < fnw; i++) {
             char *t = strip_edge_punct(fw[i]);
-            if ((lex_class_member(b, "20_math_lex1967", t) || lex_class_member(b, "20_math_lex1967_2", t) || lex_class_member(b, "20_math_lex1967_3", t)) &&
+            if ((lex_class_member(b, "20_math_lex1967", t) || lex_class_member(b, "preposition", t) || lex_class_member(b, "20_math_lex1967_3", t)) &&
                 (kb_cue_match(b, "20_math_chain1972", buf))) {
                 long d; if (word_to_int(b, strip_edge_punct(fw[i + 1]), &d) && d >= 0 && d <= 9)
                     skip_ends = (int)d;
@@ -2339,7 +2339,7 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
     size_t ci = nw;
     size_t ni = find_token(w, nw, "name");
     for (size_t i = (ni == nw ? 0 : ni); i + 1 < nw; i++)
-        if (lex_class_member(b, "20_math_lex2177", w[i]) || lex_class_member(b, "20_math_lex2177_2", w[i]) || lex_class_member(b, "20_math_lex2177_3", w[i])) {
+        if (lex_class_member(b, "20_math_lex2177", w[i]) || lex_class_member(b, "20_math_lex2177_2", w[i]) || lex_class_member(b, "universal_quantifier", w[i])) {
             category = strip_edge_punct(w[i + 1]); ci = i + 1; break;
         }
     if (!category || !*category) return 0;
@@ -2617,7 +2617,7 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
                 char *t = strip_edge_punct(w[i]);
                 if (!lex_class_member(b, "20_math_lex2334", t) && !lex_class_member(b, "20_math_lex2334_2", t)) continue;
                 char *src = strip_edge_punct(w[i + 1]);
-                if (lex_class_member(b, "20_math_lex2336", src) && i + 2 < nw) src = strip_edge_punct(w[i + 2]);
+                if (lex_class_member(b, "english_determiner", src) && i + 2 < nw) src = strip_edge_punct(w[i + 2]);
                 if (strlen(src) >= 3) snprintf(srcbuf, sizeof srcbuf, "%s", src);
             }
         }
@@ -2685,7 +2685,7 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
     if (is_rhyme) {
         const char *target = NULL;
         for (size_t i = 0; i < nw; i++)
-            if (lex_class_member(b, "20_math_lex2404", strip_edge_punct(w[i])) && i + 1 < nw) {
+            if (lex_class_member(b, "preposition", strip_edge_punct(w[i])) && i + 1 < nw) {
                 target = strip_edge_punct(w[i + 1]); break;
             }
         char suf[8];
@@ -2729,7 +2729,7 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
         char letter = 0;
         for (size_t i = 0; i + 1 < nw; i++) {
             char *t = strip_edge_punct(w[i]);
-            if (!lex_class_member(b, "20_math_lex2446", t) && !lex_class_member(b, "20_math_lex2446_2", t)) continue;
+            if (!lex_class_member(b, "preposition", t) && !lex_class_member(b, "20_math_lex2446_2", t)) continue;
             char *nx = strip_edge_punct(w[i + 1]);
             if (nx[0] && isalpha((unsigned char)nx[0])) {
                 letter = (char)tolower((unsigned char)nx[0]); break;
@@ -2782,7 +2782,7 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
                 for (size_t j = i + 1; j < nw; j++) {
                     char *s = strip_edge_punct(w[j]);
                     if (lex_class_member(b, "20_math_lex2498", s) || lex_class_member(b, "20_math_lex2498_2", s) || lex_class_member(b, "20_math_lex2498_3", s) ||
-                        lex_class_member(b, "20_math_lex2499", s)) continue;
+                        lex_class_member(b, "english_determiner", s)) continue;
                     /* single letters ARE the payload ("t, s, a, r" — 'a' is a
                      * letter here, not the article); only a multi-char stopword
                      * ends the list. */
@@ -3286,7 +3286,7 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
             if (!lex_class_member(b, "20_math_lex2993", strip_edge_punct(w[i]))) continue;
             for (size_t j = i + 1; j < nw; j++) {
                 char *t = strip_edge_punct(w[j]);
-                if (lex_class_member(b, "20_math_lex2996", t) || lex_class_member(b, "20_math_lex2996_2", t) || lex_class_member(b, "20_math_lex2996_3", t) ||
+                if (lex_class_member(b, "english_determiner", t) || lex_class_member(b, "20_math_lex2996_2", t) || lex_class_member(b, "20_math_lex2996_3", t) ||
                     lex_class_member(b, "20_math_lex2997", t) || lex_class_member(b, "20_math_lex2997_2", t) || lex_class_member(b, "20_math_lex2997_3", t) ||
                     lex_class_member(b, "20_math_lex2998", t)) continue;
                 if (strlen(t) == 1 && isalpha((unsigned char)t[0])) {
@@ -3339,7 +3339,7 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
         for (size_t k = 0; k < tl; k++)
             if (!isalpha((unsigned char)t[k])) { alpha = 0; break; }
         if (!alpha) continue;
-        if (lex_class_member(b, "20_math_lex3049", t) || lex_class_member(b, "20_math_lex3049_2", t) || lex_class_member(b, "20_math_lex3049_3", t) ||
+        if (lex_class_member(b, "20_math_lex3049", t) || lex_class_member(b, "20_math_lex3049_2", t) || lex_class_member(b, "english_determiner", t) ||
             lex_class_member(b, "20_math_lex3050", t) || lex_class_member(b, "20_math_lex3050_2", t) || lex_class_member(b, "20_math_lex3050_3", t) ||
             lex_class_member(b, "20_math_lex3051", t) || lex_class_member(b, "20_math_lex3051_2", t) || lex_class_member(b, "20_math_lex3051_3", t))
             continue;

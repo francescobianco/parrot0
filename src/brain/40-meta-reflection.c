@@ -146,7 +146,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         char v[1][KB_TERM_LEN];
         const char *q[] = { NULL };
         if (b->kb && kb_match(b->kb, "os_language", q, 1, v, 1) > 0) {
-            int it = lex_class_member(b, "40_meta_reflection_lex149", v[0]);
+            int it = lex_class_member(b, "entity_pronoun", v[0]);
             tput(b, it ? "The system locale is Italian." : "The system locale is English.",
                  it ? "La lingua di sistema è l'italiano." : "La lingua di sistema è l'inglese.",
                  out, out_size);
@@ -394,7 +394,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                 while (j < fn) {                       /* skip "kind of"/"type of"/articles */
                     char *t = strip_edge_punct(fw[j]);
                     if (lex_class_member(b, "40_meta_reflection_lex378", t)||lex_class_member(b, "40_meta_reflection_lex378_2", t)||lex_class_member(b, "40_meta_reflection_lex378_3", t)||
-                        lex_class_member(b, "40_meta_reflection_lex379", t)||lex_class_member(b, "40_meta_reflection_lex379_2", t)||lex_class_member(b, "40_meta_reflection_lex379_3", t)) j++;
+                        lex_class_member(b, "40_meta_reflection_lex379", t)||lex_class_member(b, "40_meta_reflection_lex379_2", t)||lex_class_member(b, "english_determiner", t)) j++;
                     else break;
                 }
                 if (j >= fn) break;
@@ -537,7 +537,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         }
         int howknow = ((kb_cue_match(b, "40_meta_reflection_cue518", buf) && wn <= 4)) ||
                       ((kb_cue_match(b, "40_meta_reflection_cue519", buf) && wn <= 5)) ||
-                      (wn == 1 && lex_class_member(b, "40_meta_reflection_lex520", buf)) ||
+                      (wn == 1 && lex_class_member(b, "question_word", buf)) ||
                       ((kb_cue_match(b, "40_meta_reflection_cue521", buf) && wn <= 3)) ||
                       ((kb_cue_match(b, "40_meta_reflection_cue522", buf) && wn <= 3));
         if (howknow) {
@@ -977,7 +977,7 @@ static int role_uptake(Brain *b, const char *raw) {
     char segbuf[128]; snprintf(segbuf, sizeof segbuf, "%s", seg);
     size_t snw = split_words(segbuf, sw, 16);
     int has_article = snw > 0 && (lex_class_member(b, "40_meta_reflection_lex968", sw[0]) || lex_class_member(b, "40_meta_reflection_lex968_2", sw[0]) ||
-                                  lex_class_member(b, "40_meta_reflection_lex969", sw[0]) || lex_class_member(b, "40_meta_reflection_lex969_2", sw[0]) ||
+                                  lex_class_member(b, "english_determiner", sw[0]) || lex_class_member(b, "40_meta_reflection_lex969_2", sw[0]) ||
                                   lex_class_member(b, "40_meta_reflection_lex970", sw[0]) || lex_class_member(b, "40_meta_reflection_lex970_2", sw[0]));
     if (snw > 0) {
         const char *kind_tok;
@@ -1335,7 +1335,7 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
     /* separator: "as" (EN) / "come" (IT) splits the two ratios. */
     size_t sep = nw;
     for (size_t i = 1; i + 1 < nw; i++)
-        if (lex_class_member(b, "40_meta_reflection_lex1318", w[i]) || lex_class_member(b, "40_meta_reflection_lex1318_2", w[i])) { sep = i; break; }
+        if (lex_class_member(b, "40_meta_reflection_lex1318", w[i]) || lex_class_member(b, "question_word", w[i])) { sep = i; break; }
     if (sep == nw) return 0;
 
     /* relation marker within each ratio: "to" (EN "is to") / "a" (IT "sta a"). */

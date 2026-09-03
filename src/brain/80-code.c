@@ -383,7 +383,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         char *w[48]; size_t nw = split_words(qbuf, w, 48);
         char fnname[KB_TERM_LEN] = "", path[256] = "";
         for (size_t i = 0; i < nw; i++) {
-            if ((lex_class_member(b, "80_code_lex374", w[i]) || lex_class_member(b, "80_code_lex374_2", w[i])) && i + 1 < nw)
+            if ((lex_class_member(b, "80_code_lex374", w[i]) || lex_class_member(b, "function_name_marker", w[i])) && i + 1 < nw)
                 snprintf(fnname, sizeof fnname, "%s", strip_edge_punct(w[i+1]));
             if (strchr(w[i], '/') || code_token_extension(w[i], ".c") ||
                 code_token_extension(w[i], ".h"))
@@ -578,7 +578,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                 break;
             }
         for (size_t i = 0; i + 1 < nw && !fn[0]; i++) {
-            if (!lex_class_member(b, "80_code_lex565", w[i]) && !lex_class_member(b, "80_code_lex565_2", w[i]) && !lex_class_member(b, "80_code_lex565_3", w[i])) continue;
+            if (!lex_class_member(b, "80_code_lex565", w[i]) && !lex_class_member(b, "80_code_lex565_2", w[i]) && !lex_class_member(b, "topic_preposition", w[i])) continue;
             char *c = strip_edge_punct(w[i + 1]);
             int ok = (*c != '\0');
             for (const char *t = c; *t; t++)
@@ -1902,7 +1902,7 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
                 char tmp[256]; snprintf(tmp, sizeof tmp, "%s", l);
                 char *tw[64]; size_t tnw = split_words(tmp, tw, 64);
                 if (tnw > 0 && (lex_class_member(b, "80_code_lex1857", tw[0]) || lex_class_member(b, "80_code_lex1857_2", tw[0]) ||
-                    lex_class_member(b, "80_code_lex1858", tw[0]) || lex_class_member(b, "80_code_lex1858_2", tw[0]) ||
+                    lex_class_member(b, "preposition", tw[0]) || lex_class_member(b, "80_code_lex1858_2", tw[0]) ||
                     lex_class_member(b, "80_code_lex1859", tw[0]) || lex_class_member(b, "80_code_lex1859_2", tw[0]) ||
                     lex_class_member(b, "80_code_lex1860", tw[0]) || lex_class_member(b, "80_code_lex1860_2", tw[0]) ||
                     lex_class_member(b, "80_code_lex1861", tw[0]))) {
