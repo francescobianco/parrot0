@@ -4290,11 +4290,6 @@ intent_cue(80_code_lex1909, "the compiler rejects it").
 intent_cue(80_code_lex1968, "what am i").
 intent_cue(85_translate_synth_world_lex298, "french").
 intent_cue(85_translate_synth_world_lex476, "spanish").
-intent_cue(85_translate_synth_world_lex1263, "is assumed").
-intent_cue(85_translate_synth_world_lex1263_2, "what do you assume").
-intent_cue(85_translate_synth_world_lex1263_3, "what is true in this").
-intent_cue(85_translate_synth_world_lex1264, "what is true in the").
-intent_cue(85_translate_synth_world_lex1265, "what holds in this").
 intent_cue(90_repair_robust_abduce_lex336, "what would").
 intent_cue(99_registry_lex2189, "before").
 intent_cue(99_registry_lex2189_2, "earlier").
@@ -4543,3 +4538,29 @@ faculty_force_lesson(directive, "should answer only when asked").
 faculty_force_lesson(directive, "only answers when I ask").
 faculty_force_lesson(directive, "should not answer unless I ask").
 faculty_force_lesson(directive, "must not answer unless asked").
+
+% ── gen489 — LA PRIMA CATENA CHE DIVENTA UNA FORMA (l'esempio di F.) ────────
+% Era: kb_cue_match(cue1550) && kb_cue_match(cue1550_2) && kb_cue_match(chain1554)
+% cioe' «treno» E «arriva primo» E un marcatore di moto reciproco, saldati da due
+% `&&` compilati. Ora la congiunzione E' la conoscenza: il motore chiede quali
+% condizioni ha questa forma, non sa quante siano, e una forma nuova per lo
+% stesso frame si insegna parlando.
+machinery(turn_pattern).
+machinery(turn_pattern_intent).
+turn_pattern(treni_che_si_incontrano, cue, 25_wordmath_reasoning_cue1550).
+turn_pattern(treni_che_si_incontrano, cue, 25_wordmath_reasoning_cue1550_2).
+turn_pattern(treni_che_si_incontrano, cue, 25_wordmath_reasoning_chain1554).
+turn_pattern_intent(treni_che_si_incontrano, meet_time_frame).
+
+% gen489 — CINQUE CLASSI PRIVATE SALDATE DA QUATTRO `||` ERANO UNA CLASSE SOLA.
+% Il sito in 85-translate-synth-world.c chiedeva «e' una richiesta di ispezione
+% del mondo attivo?» in cinque domande invece che in una. Una perifrasi nuova —
+% o la stessa in un'altra lingua — e' ora una riga qui.
+intent_cue(world_inspect_request, "is assumed").
+intent_cue(world_inspect_request, "what do you assume").
+intent_cue(world_inspect_request, "what is true in this").
+intent_cue(world_inspect_request, "what is true in the").
+intent_cue(world_inspect_request, "what holds in this").
+intent_cue(world_inspect_request, "cosa e assunto").
+intent_cue(world_inspect_request, "cosa e vero in questo").
+intent_cue(world_inspect_request, "che cosa vale in questo").

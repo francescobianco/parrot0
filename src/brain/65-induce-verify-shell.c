@@ -308,6 +308,18 @@ static int mod_verify(Brain *b, const char *norm, const char *raw,
     for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
 
     /* Intent to judge a transition against a rule. */
+    /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+     * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+     * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+     * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+     * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+     * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+     * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+     * diventare essa stessa una regola nella KB».
+     * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+     * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+     * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+     * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
     if (!(kb_cue_match(b, "65_induce_verify_shell_lex266", low) ||kb_cue_match(b, "65_induce_verify_shell_lex266_2", low) ||kb_cue_match(b, "65_induce_verify_shell_lex266_3", low) ||kb_cue_match(b, "65_induce_verify_shell_lex266_4", low) ||kb_cue_match(b, "65_induce_verify_shell_lex267", low) ||kb_cue_match(b, "65_induce_verify_shell_lex267_2", low)))
         return 0;
 

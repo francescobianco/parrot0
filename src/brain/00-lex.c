@@ -124,7 +124,7 @@ static int lex_class_member(Brain *b, const char *cls, const char *word);
 static int lex_class_member(Brain *b, const char *cls, const char *word);
 static int lex_prefix_member(Brain *b, const char *cls, const char *word);
 
-static int kb_cue_match(Brain *b, const char *intent, const char *norm) {
+static int kb_cue_match_plain(Brain *b, const char *intent, const char *norm) {
     if (!b || !b->kb || !intent || !norm) return 0;
     char masked[512];
     norm = cue_visible_text(b, "intent_cue", norm, masked, sizeof masked);
@@ -133,6 +133,108 @@ static int kb_cue_match(Brain *b, const char *intent, const char *norm) {
     return kb_hypothesis_best(b->kb, "intent_cue", norm,
                               candidate, 1, winner, sizeof winner,
                               &score, proof, sizeof proof) == 1;
+}
+
+/* ── gen489 (F.) — LA CONGIUNZIONE E' CONOSCENZA, NON UN `if` ────────────────
+ *
+ * F., 2026-09-03, davanti a questa forma:
+ *
+ *     if (kb_cue_match(b, "…_cue1550",   q) &&
+ *         kb_cue_match(b, "…_cue1550_2", q) &&
+ *         kb_cue_match(b, "…_chain1554", q)) { … }
+ *
+ *     «se ha questa catena di && a runtime volessi aggiungere un nuovo elemento
+ *      tramite addestramento tu non puoi farlo, perche' e' la catena di && che
+ *      deve diventare essa stessa una regola nella KB»
+ *
+ * E' un piano piu' su del mantra #2. Con le classi al posto giusto si insegna un
+ * MEMBRO di un ruolo che esiste gia'; non si insegna una FORMA nuova, perche' la
+ * congiunzione — quali condizioni, quante, con quale polarita' — resta compilata.
+ * Finche' e' li', l'insieme delle forme che parrot0 puo' riconoscere e' CHIUSO, e
+ * nessuna lezione lo apre. Misurato al gen489: 213 istruzioni con due o piu'
+ * `kb_cue_match` in `&&`, fino a quindici congiunti in una sola.
+ *
+ * Qui la congiunzione diventa un insieme di fatti:
+ *
+ *     turn_pattern(Forma, cue,     Classe)   il turno porta una cue di Classe
+ *     turn_pattern(Forma, not_cue, Classe)   e non ne porta una di Classe
+ *     turn_pattern(Forma, word,    Classe)   un token del turno e' membro di Classe
+ *     turn_pattern(Forma, text,    "…")      il turno contiene questa superficie
+ *     turn_pattern_intent(Forma, Intento)    che cosa vale il turno se la forma tiene
+ *
+ * La CONGIUNZIONE e' l'insieme dei fatti che condividono il nome della forma:
+ * valgono tutti. Il motore non sa quante siano ne' quali: le chiede. Percio' una
+ * forma nuova — con quante condizioni si vuole — e' un gruppo di `kb.assert` a
+ * runtime, e vale dal turno dopo senza ricompilare. Il test del mantra #2, che
+ * per la catena falliva, ora si supera: `tests/p0t/language/taught_turn_form.p0t`.
+ *
+ * L'aggancio e' dentro `kb_cue_match`, che e' la strozzatura da cui passano tutti
+ * i 1052 siti che chiedono «questo turno e' di questa classe?» — la lezione delle
+ * tre volte in `universal-comprehension.md`: si cerca il punto che tutte le vie
+ * attraversano, non si enumerano i chiamanti. Costo per chi non ha forme
+ * dichiarate: una query su un predicato assente. */
+
+static int p0_turn_has_word(Brain *b, const char *norm, const char *cls) {
+    const char *p = norm;
+    while (*p) {
+        while (*p && !isalnum((unsigned char)*p) && *p != '\'') p++;
+        const char *s = p;
+        while (*p && (isalnum((unsigned char)*p) || *p == '\'')) p++;
+        if (p > s) {
+            char tok[KB_TERM_LEN];
+            size_t n = (size_t)(p - s);
+            if (n >= sizeof tok) n = sizeof tok - 1;
+            memcpy(tok, s, n); tok[n] = '\0';
+            for (char *c = tok; *c; c++) *c = (char)tolower((unsigned char)*c);
+            if (lex_class_member(b, cls, tok)) return 1;
+        }
+    }
+    return 0;
+}
+
+/* Tutte le condizioni di `pat` valgono sul turno? `*seen` riceve quante ne sono
+ * state trovate, cosi' il chiamante distingue «forma soddisfatta» da «forma che
+ * non esiste»: una forma senza condizioni non e' vera, e' vuota. */
+static int p0_turn_pattern_holds(Brain *b, const char *pat, const char *norm,
+                                 size_t *seen) {
+    static const char *KIND[] = { "cue", "not_cue", "word", "text" };
+    size_t total = 0;
+    for (size_t k = 0; k < sizeof KIND / sizeof KIND[0]; k++) {
+        char args[16][KB_TERM_LEN];
+        const char *q[3] = { pat, KIND[k], NULL };
+        size_t n = kb_match(b->kb, "turn_pattern", q, 3, args, 16);
+        total += n;
+        for (size_t i = 0; i < n; i++) {
+            char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", args[i]);
+            const char *a = kb_dequote(ab);
+            int ok;
+            switch (k) {
+                case 0: ok =  kb_cue_match_plain(b, a, norm); break;
+                case 1: ok = !kb_cue_match_plain(b, a, norm); break;
+                case 2: ok =  p0_turn_has_word(b, norm, a);   break;
+                default: ok = (*a && strstr(norm, a) != NULL); break;
+            }
+            if (!ok) { if (seen) *seen = total; return 0; }
+        }
+    }
+    if (seen) *seen = total;
+    return total > 0;
+}
+
+static int kb_cue_match(Brain *b, const char *intent, const char *norm) {
+    if (kb_cue_match_plain(b, intent, norm)) return 1;
+    /* La forma DICHIARATA vale quanto la cue: se qualcuno ha insegnato una
+     * congiunzione per questo intento, il turno la puo' soddisfare. */
+    if (!b || !b->kb || !intent || !norm) return 0;
+    if (!kb_knows_pred(b->kb, "turn_pattern_intent")) return 0;
+    char pats[16][KB_TERM_LEN];
+    const char *q[3] = { NULL, intent, NULL };
+    size_t n = kb_match(b->kb, "turn_pattern_intent", q, 2, pats, 16);
+    for (size_t i = 0; i < n; i++) {
+        size_t seen = 0;
+        if (p0_turn_pattern_holds(b, pats[i], norm, &seen)) return 1;
+    }
+    return 0;
 }
 
 /* gen212 (cardinal KB-first principle, OUTPUT side): build a reply for `intent` from a

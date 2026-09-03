@@ -1,0 +1,55 @@
+# gen489 — UNA FORMA DI TURNO SI INSEGNA PARLANDO, CONGIUNZIONE COMPRESA.
+#
+# F., 2026-09-03, davanti a:
+#
+#     if (kb_cue_match(b, "…_cue1550", q) && kb_cue_match(b, "…_cue1550_2", q)
+#         && kb_cue_match(b, "…_chain1554", q)) { … }
+#
+#     «se ha questa catena di && a runtime volessi aggiungere un nuovo elemento
+#      tramite addestramento tu non puoi farlo, perche' e' la catena di && che
+#      deve diventare essa stessa una regola nella KB»
+#
+# E' un piano sopra il mantra #2. Con le classi al posto giusto si insegna un
+# MEMBRO di un ruolo che esiste; la CONGIUNZIONE — quali condizioni, quante, con
+# quale polarita' — restava compilata, e finche' e' li' l'insieme delle forme che
+# parrot0 riconosce e' CHIUSO: nessuna lezione lo apre.
+#
+# Questo file e' la prova che non lo e' piu'. Nessuna delle due condizioni della
+# forma insegnata qui sotto, ne' la loro congiunzione, esisteva quando il binario
+# e' stato compilato.
+
+[test forma congiuntiva insegnata a runtime]
+!timeout 8
+
+# 1. PRIMA — la perifrasi non e' una richiesta di traduzione per nessuno: il
+#    turno finisce al chitchat, che vede solo «in inglese».
+> potresti buttarmi giu in inglese il cane corre
+< We can chat in either language — I'll do my best.
+
+# 2. LA LEZIONE — non una parola: una FORMA, cioe' due condizioni CONGIUNTE.
+#    `turn_pattern/3` porta le condizioni, `turn_pattern_intent/2` dice che cosa
+#    vale il turno se tengono tutte. Il motore non sa quante siano: le chiede.
+!assert intent_cue(perifrasi_gentile, "potresti")
+!assert turn_pattern(forma_perifrastica, cue, perifrasi_gentile)
+!assert turn_pattern(forma_perifrastica, text, "in inglese")
+!assert turn_pattern_intent(forma_perifrastica, translation_request)
+
+# 3. DOPO — lo stesso turno vale come richiesta di traduzione e il chitchat cede
+#    (la condotta del mantra #17 legge la classe, non la superficie).
+> potresti buttarmi giu in inglese il cane corre
+<! We can chat in either language
+
+# 4. L'ABLAZIONE — tolta UNA delle due condizioni la congiunzione non tiene piu'
+#    e il difetto torna. E' la prova che a decidere e' l'insieme, non una cue.
+!forget turn_pattern(forma_perifrastica, text, "in inglese")
+!assert turn_pattern(forma_perifrastica, text, "in tedesco")
+> potresti buttarmi giu in inglese il cane corre
+< We can chat in either language — I'll do my best.
+
+# 5. E una forma NEGATIVA: `not_cue` chiude il verso che mancava — «vale solo se
+#    il turno NON e' anche un'altra cosa».
+!forget turn_pattern(forma_perifrastica, text, "in tedesco")
+!assert turn_pattern(forma_perifrastica, text, "in inglese")
+!assert turn_pattern(forma_perifrastica, not_cue, perifrasi_gentile)
+> potresti buttarmi giu in inglese il cane corre
+< We can chat in either language — I'll do my best.

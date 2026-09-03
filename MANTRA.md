@@ -209,6 +209,90 @@ KB piena di righe manuali ma incapace di questo ciclo è grande, non fertile.
     **bilancio** di una modifica né il **contenuto** di una resa, e un
     rifacimento può quindi peggiorare la separazione superando tutti e tre.
 
+19. **⛔ UNA CATENA DI `&&` O DI `||` NEL C E' CONOSCENZA COMPILATA — e i
+    diciotto mantra precedenti la lasciavano passare tutti.** È la segnalazione
+    di F. del 2026-09-03, e ha due gradini.
+
+    **(a) Il gruppo di `||` sullo stesso argomento è SEMPRE una classe.**
+
+    ```c
+    lex_class_member(b, "..._lex2975",   t) ||   /* buys     */
+    lex_class_member(b, "..._lex2975_2", t) ||   /* buy      */
+    lex_class_member(b, "..._lex2975_3", t) ||   /* bought   */
+    lex_class_member(b, "..._lex2976",   t) || …  /* gains, gain, gets, … */
+    ```
+
+    Undici classi private da **un membro ciascuna** per dire «verbo di
+    acquisizione». Ognuna passava il grep del mantra #2 — la parola *sta* in KB —
+    mentre la risposta alla domanda vera, *«parrot0 può impararne un nuovo membro
+    domani?»*, restava **no**: il nome è un seriale legato al file C e alla riga,
+    nessuno può pronunciarlo in una lezione, e la stessa parola `is` viveva in
+    **79 classi diverse**, quindi insegnare un sinonimo della copula avrebbe
+    voluto dire trovarne 79. Misura al gen489: **1245 classi `*_lex*`, tutte con
+    esattamente un membro.** Non erano classi: erano `strcmp` con un altro
+    indirizzo — il camuffamento del mantra #18(a), applicato mille volte.
+
+    Il danno non è solo dottrinale. `clause_copula/1` esiste in `grammar.p0` con
+    nove membri, «è» «sono» «era» «erano» compresi; il ramo della correzione
+    negativa ne usava una copia privata che conosce solo `is`, quindi **non
+    leggeva l'italiano pur avendo la KB per farlo**. Mantra #5 e #6 insieme.
+
+    **La regola:** un gruppo di `||` sullo stesso argomento prende il nome del suo
+    **ruolo** (`acquisition_verb`, `comparative_more`, `time_meridiem`), e quel
+    nome deve essere **pronunciabile da chi insegna**. Un nome generato dal
+    compilatore non è un nome.
+
+    **(b) ⛔ Il gradino vero: la CONGIUNZIONE stessa deve essere una regola KB.**
+    Con le classi al posto giusto si insegna un *membro* di un ruolo che esiste;
+    **non si insegna una FORMA nuova**, perché quali condizioni, quante, in che
+    ordine e con quale polarità restano compilate. Parole di F.:
+
+    > *«se ha questa catena di `&&`, a runtime volessi aggiungere un nuovo
+    > elemento tramite addestramento tu non puoi farlo, perché è la catena di
+    > `&&` che deve diventare essa stessa una regola nella KB»*
+
+    Finché la catena è nel C, **l'insieme delle forme che parrot0 può riconoscere
+    è chiuso, e nessuna lezione lo apre.** Misura al gen489: 213 istruzioni con
+    due o più `kb_cue_match` in `&&`, fino a **quindici congiunti in una sola**.
+
+    La forma di arrivo, e il motore generico che la valuta:
+
+    ```prolog
+    turn_pattern(Forma, cue,     Classe).   % il turno porta una cue di Classe
+    turn_pattern(Forma, not_cue, Classe).   % e non ne porta una di Classe
+    turn_pattern(Forma, word,    Classe).   % un token e' membro di Classe
+    turn_pattern(Forma, text,    "…").      % il turno contiene questa superficie
+    turn_pattern_intent(Forma, Intento).    % che cosa vale il turno se tengono tutte
+    ```
+
+    La congiunzione è **l'insieme dei fatti che condividono il nome della forma**:
+    il motore non sa quante siano né quali, le chiede. Perciò una forma nuova —
+    con quante condizioni si vuole — è un gruppo di asserzioni a runtime e vale
+    dal turno dopo. Il valutatore è `p0_turn_pattern_holds` in
+    `src/brain/00-lex.c`, agganciato **dentro `kb_cue_match`**, cioè nella
+    strozzatura da cui passano tutti i 1052 siti che chiedono «questo turno è di
+    questa classe?». La prova è `tests/p0t/language/taught_turn_form.p0t`, con
+    l'ablazione che toglie *una* delle due condizioni e fa tornare il difetto.
+
+    **Come si lavora finché la migrazione non è finita.** Ogni catena ancora
+    compilata porta sopra di sé un `TODO(kb-first, gen489)` che spiega il
+    problema: sono **205** al gen489, e sono una **coda di lavoro**, non un
+    archivio (moltiplicatore 1 di `LEARN_TODO.md` §−1). Quando tocchi un ramo che
+    ne porta uno, lo chiudi lì: è il momento più economico in cui verrà mai a
+    costare.
+
+    **Due lezioni pagate durante la migrazione, e valgono per la prossima:**
+    - **Mai collassare due seriali diversi che stanno nella STESSA condizione.**
+      Se il sito li distingue, distingue i *membri* e non i ruoli: la prima
+      versione produceva `!topic_preposition && topic_preposition` (sempre falso)
+      e riscriveva «era» ed «erano» entrambi in `is`.
+    - **Allargare una classe è allargare una RIVENDICAZIONE.** `entity_pronoun`
+      ha ricevuto «i», «we», «you» e metà della chat italiana ha cominciato a
+      rispondere *«What number should I use for «you»?»*: le due classi
+      rispondono a domande diverse — `entity_pronoun` a *«questo pronome ha
+      bisogno di un antecedente?»*, e un deittico non ne ha mai. **Chi vede di
+      più deve anche distinguere di più**, ed è il corollario del #17.
+
 ## Evoluzione KB richiesta per LLMSCORE-max
 
 La KB di parrot0 deve passare da "grande dizionario di fatti interrogabili" a

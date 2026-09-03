@@ -2779,3 +2779,12 @@ personal_pronoun(we).
 personal_pronoun(they).
 personal_pronoun(you).
 personal_pronoun(one).
+
+% gen489 — L'INDETERMINATIVO ITALIANO E' UNA CLASSE A PARTE, come in inglese.
+% `italian_determiner/1` risponde a «e' un determinante?»; il traduttore deve
+% chiedere «e' INDETERMINATIVO?», che e' un'altra domanda. Fonderle faceva
+% tradurre «the dog runs» in «un cane corre». Mantra #19, seconda lezione.
+machinery(italian_indefinite_article).
+italian_indefinite_article(un).
+italian_indefinite_article(una).
+italian_indefinite_article(uno).

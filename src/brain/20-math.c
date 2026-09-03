@@ -23,6 +23,18 @@ static int mod_compare(Brain *b, const char *norm, const char *raw,
 
     char *w[8];
     size_t nw = split_words(buf, w, 8);
+    /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+     * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+     * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+     * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+     * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+     * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+     * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+     * diventare essa stessa una regola nella KB».
+     * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+     * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+     * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+     * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
     if (nw != 5 || !lex_class_member(b, "20_math_lex26", w[0]) || !lex_class_member(b, "20_math_lex26_2", w[3]))
         return 0;
 
@@ -518,6 +530,18 @@ static unsigned long long p0_gcd_ull(unsigned long long a, unsigned long long b)
 static int p0_probability_inverse_draw(Brain *b, const char *norm,
                                        char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
+    /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+     * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+     * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+     * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+     * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+     * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+     * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+     * diventare essa stessa una regola nella KB».
+     * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+     * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+     * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+     * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
     if (!kb_cue_match(b, "probability_draw", norm) ||
         !kb_cue_match(b, "probability_inverse_draw", norm))
         return 0;
@@ -1162,6 +1186,18 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
 
     /* gen252: classic letter riddles contain numbers but are not arithmetic.
      * Catch this before expression folding turns "twice ... thousand" into math. */
+    /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+     * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+     * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+     * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+     * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+     * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+     * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+     * diventare essa stessa una regola nella KB».
+     * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+     * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+     * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+     * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
     if (b && b->kb && kb_cue_match(b, "20_math_cue1085", norm) &&
         kb_cue_match(b, "20_math_cue1086", norm) && kb_cue_match(b, "20_math_cue1086_2", norm)) {
         if (kb_response(b, "riddle_letter_m", NULL, out, out_size)) return 1;
@@ -1430,6 +1466,18 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
     }
 
     /* "is <a> divisible by <b>?" -> yes/no via integer remainder */
+    /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+     * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+     * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+     * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+     * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+     * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+     * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+     * diventare essa stessa una regola nella KB».
+     * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+     * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+     * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+     * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
     if (enw == 5 && lex_class_member(b, "20_math_lex1308", ew[0]) && lex_class_member(b, "20_math_lex1308_2", ew[2]) &&
         lex_class_member(b, "20_math_lex1309", ew[3])) {
         double a, c;
@@ -1510,6 +1558,18 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
          * whose real square root does not exist — that is cat.5, not cat.4). */
         size_t ri = find_token(cw, cnw, "root");
         if (ri == cnw) ri = find_token(cw, cnw, "radice");
+        /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+         * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+         * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+         * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+         * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+         * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+         * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+         * diventare essa stessa una regola nella KB».
+         * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+         * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+         * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+         * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
         if (ri != cnw && !kb_cue_match(b, "20_math_cue1389", norm) && !kb_cue_match(b, "20_math_cue1389_2", norm)) {
             for (size_t i = ri + 1; i < cnw; i++) {
                 double v; if (parse_value(cw[i], &v)) {
@@ -2115,11 +2175,35 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
         char *fw[64]; size_t fnw = split_words(fb, fw, 64);
         for (size_t i = 0; i + 1 < fnw; i++) {
             char *t = strip_edge_punct(fw[i]);
+            /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+             * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+             * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+             * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+             * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+             * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+             * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+             * diventare essa stessa una regola nella KB».
+             * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+             * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+             * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+             * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
             if ((lex_class_member(b, "20_math_lex1967", t) || lex_class_member(b, "preposition", t) || lex_class_member(b, "20_math_lex1967_3", t)) &&
                 (kb_cue_match(b, "20_math_chain1972", buf))) {
                 long d; if (word_to_int(b, strip_edge_punct(fw[i + 1]), &d) && d >= 0 && d <= 9)
                     skip_ends = (int)d;
             }
+            /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+             * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+             * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+             * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+             * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+             * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+             * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+             * diventare essa stessa una regola nella KB».
+             * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+             * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+             * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+             * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
             if ((lex_class_member(b, "20_math_lex1972", t) || lex_class_member(b, "20_math_lex1972_2", t) || lex_class_member(b, "20_math_lex1972_3", t)) &&
                 (kb_cue_match(b, "20_math_chain1978", buf))) {
                 long m; if (word_to_int(b, strip_edge_punct(fw[i + 1]), &m) && m > 0)
@@ -2133,6 +2217,18 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
      * dropping them (distinct from the skip filter above). */
     char repl[32] = "";
     int repl_mult = 0;
+    /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+     * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+     * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+     * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+     * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+     * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+     * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+     * diventare essa stessa una regola nella KB».
+     * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+     * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+     * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+     * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
     if ((kb_cue_match(b, "20_math_chain1990", buf)) && kb_cue_match(b, "20_math_cue1985", buf)) {
         char rb[512]; snprintf(rb, sizeof rb, "%s", buf);
         char *rw[64]; size_t rnw = split_words(rb, rw, 64);
@@ -2142,6 +2238,18 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
                 char *word = strip_edge_punct(rw[i + 1]);
                 if (*word && strlen(word) < sizeof repl) snprintf(repl, sizeof repl, "%s", word);
             }
+            /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+             * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+             * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+             * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+             * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+             * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+             * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+             * diventare essa stessa una regola nella KB».
+             * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+             * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+             * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+             * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
             if (lex_class_member(b, "20_math_lex1994", t) && i + 2 < rnw &&
                 lex_class_member(b, "20_math_lex1995", strip_edge_punct(rw[i + 1]))) {
                 long m;
@@ -2275,6 +2383,18 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
      * COUNTED pick. The members live in the KB (category_member/2); the C reads the
      * count word and the category noun and returns that many distinct members. KB-first:
      * add a category_member fact and the capability extends for free. */
+    /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+     * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+     * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+     * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+     * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+     * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+     * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+     * diventare essa stessa una regola nella KB».
+     * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+     * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+     * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+     * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
     if (kb_cue_match(b, "20_math_cue2111", buf) || kb_cue_match(b, "20_math_cue2111_2", buf) || kb_cue_match(b, "20_math_cue2111_3", buf) ||
         kb_cue_match(b, "20_math_cue2112", buf) ||
         /* gen254: the interrogative form of the same intent — "WHAT ARE the
@@ -2339,7 +2459,7 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
     size_t ci = nw;
     size_t ni = find_token(w, nw, "name");
     for (size_t i = (ni == nw ? 0 : ni); i + 1 < nw; i++)
-        if (lex_class_member(b, "english_determiner", w[i]) || lex_class_member(b, "english_determiner", w[i]) || lex_class_member(b, "universal_quantifier", w[i])) {
+        if (lex_class_member(b, "indefinite_article", w[i]) || lex_class_member(b, "indefinite_article", w[i]) || lex_class_member(b, "universal_quantifier", w[i])) {
             category = strip_edge_punct(w[i + 1]); ci = i + 1; break;
         }
     if (!category || !*category) return 0;
@@ -2615,6 +2735,18 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
         if (!srcbuf[0]) {
             for (size_t i = 0; i + 1 < nw && !srcbuf[0]; i++) {
                 char *t = strip_edge_punct(w[i]);
+                /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+                 * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+                 * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+                 * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+                 * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+                 * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+                 * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+                 * diventare essa stessa una regola nella KB».
+                 * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+                 * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+                 * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+                 * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
                 if (!lex_class_member(b, "20_math_lex2334", t) && !lex_class_member(b, "20_math_lex2334_2", t)) continue;
                 char *src = strip_edge_punct(w[i + 1]);
                 if (lex_class_member(b, "english_determiner", src) && i + 2 < nw) src = strip_edge_punct(w[i + 2]);
@@ -3239,6 +3371,18 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
     /* gen246: sequential word transformation. The word is data from the prompt;
      * operations are structural ("remove first/last letter", "add letter X to
      * end/start"), so held-out words transfer. */
+    /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+     * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+     * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+     * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+     * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+     * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+     * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+     * diventare essa stessa una regola nella KB».
+     * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+     * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+     * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+     * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
     if ((kb_cue_match(b, "20_math_chain2959", buf)) &&
         kb_cue_match(b, "20_math_cue2950", buf) && kb_cue_match(b, "20_math_cue2950_2", buf)) {
         char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
@@ -3246,6 +3390,18 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
         char word[128] = "";
         for (size_t i = 0; i + 1 < nw && !word[0]; i++) {
             char *t = strip_edge_punct(w[i]);
+            /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+             * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+             * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+             * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+             * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+             * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+             * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+             * diventare essa stessa una regola nella KB».
+             * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+             * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+             * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+             * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
             if (!lex_class_member(b, "20_math_lex2956", t) && !lex_class_member(b, "20_math_lex2956_2", t)) continue;
             char *cand = strip_edge_punct(w[i + 1]);
             int alpha = 1;
@@ -3268,6 +3424,18 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+     * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+     * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+     * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+     * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+     * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+     * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+     * diventare essa stessa una regola nella KB».
+     * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+     * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+     * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+     * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
     if ((kb_cue_match(b, "20_math_cue2978", buf) || kb_cue_match(b, "20_math_cue2978_2", buf) || cue(buf, "word \"")) &&
         (kb_cue_match(b, "20_math_chain2989", buf)) &&
         kb_cue_match(b, "20_math_cue2980", buf) && kb_cue_match(b, "20_math_cue2980_2", buf)) {
@@ -3286,6 +3454,18 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
             if (!lex_class_member(b, "20_math_lex2993", strip_edge_punct(w[i]))) continue;
             for (size_t j = i + 1; j < nw; j++) {
                 char *t = strip_edge_punct(w[j]);
+                /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+                 * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+                 * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+                 * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+                 * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+                 * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+                 * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+                 * diventare essa stessa una regola nella KB».
+                 * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+                 * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+                 * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+                 * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
                 if (lex_class_member(b, "english_determiner", t) || lex_class_member(b, "20_math_lex2996_2", t) || lex_class_member(b, "20_math_lex2996_3", t) ||
                     lex_class_member(b, "20_math_lex2997", t) || lex_class_member(b, "20_math_lex2997_2", t) || lex_class_member(b, "20_math_lex2997_3", t) ||
                     lex_class_member(b, "20_math_lex2998", t)) continue;
@@ -3339,6 +3519,18 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
         for (size_t k = 0; k < tl; k++)
             if (!isalpha((unsigned char)t[k])) { alpha = 0; break; }
         if (!alpha) continue;
+        /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
+         * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
+         * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
+         * che ordine, con quale polarita' — resta compilato: a runtime si puo'
+         * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
+         * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
+         * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
+         * diventare essa stessa una regola nella KB».
+         * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
+         * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
+         * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
+         * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
         if (lex_class_member(b, "20_math_lex3049", t) || lex_class_member(b, "20_math_lex3049_2", t) || lex_class_member(b, "english_determiner", t) ||
             lex_class_member(b, "20_math_lex3050", t) || lex_class_member(b, "20_math_lex3050_2", t) || lex_class_member(b, "20_math_lex3050_3", t) ||
             lex_class_member(b, "20_math_lex3051", t) || lex_class_member(b, "20_math_lex3051_2", t) || lex_class_member(b, "20_math_lex3051_3", t))
