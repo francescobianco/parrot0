@@ -344,6 +344,7 @@ gap_remedy(missing_sibling_attribute, ask_user).
 % scrivere — la relazione la conosce, la superficie gliela ha appena data
 % l'utente sbagliando la domanda. Vedi §10.5.
 gap_source(bridge_gap, entity_facet, surface_reachable).
+gap_source("observation how from uc_alpha", "observation come from uc_alpha").
 gap_remedy(bridge_gap, declare_surface).
 
 % Il consumer generico esiste gia': answer_frame interroga una relazione

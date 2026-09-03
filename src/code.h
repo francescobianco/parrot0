@@ -5,27 +5,43 @@
 #include "kb.h"
 #include "exec.h"
 
-/* gen173: AST-as-KB — the first step of docs/CODE-MASTERY.md. A code snippet is
- * just another corpus: parrot0 parses its structure DETERMINISTICALLY (the C
- * grammar is formal, so primitives-first wins — no statistics) and asserts that
- * structure into the SAME live KB it uses for the world, so the existing engine
- * can reason over code. This first cut recovers function DEFINITIONS, asserting
- * `code_function(name)` per definition (origin KB_BASE, straight into RAM).
+/* A report about one source observation.  The snapshot id is stable for the
+ * tuple (source identity, language, bytes), while the counters describe only
+ * what the selected frontend actually observed. */
+typedef struct {
+    char snapshot[KB_TERM_LEN];
+    size_t functions;
+    size_t calls;
+    size_t nodes;
+    int replaced;
+} CodeIngestReport;
+
+/* UC1: observe one named source into the revisioned code IR.
  *
- * Writes up to `max` function names found in THIS snippet into `names` (each up
- * to KB_TERM_LEN) and returns how many were written — so the caller can answer
- * honestly about the snippet in hand, while the facts persist in the KB for
- * later cross-questions. */
+ * `source` is an identity (normally a workspace-relative path; an interactive
+ * snippet may use a turn-scoped name), not source text. `language` selects only
+ * the concrete syntax frontend. Both frontends publish the same facts:
+ * code_snapshot/source_unit/node/name/span/edge/provenance. All observations
+ * are KB_REFLECTIVE: they are recomputable from bytes and never session facts.
+ * Re-observing the same source expires its previous snapshot as one commit, so
+ * stale call edges cannot survive an edit.
+ *
+ * The KB file kb/core/code-ir.p0 owns semantic views over these observations,
+ * including the deprecated code_function/1 and code_calls/2 compatibility
+ * predicates. C publishes observations; it does not publish those conclusions.
+ */
+size_t code_ingest_source(KB *kb, const char *src, const char *source,
+                          const char *language,
+                          char names[][KB_TERM_LEN], size_t max,
+                          CodeIngestReport *report);
+
+/* Compatibility entry points for callers without source identity.  New code
+ * should call code_ingest_source(): a bare name cannot represent scope or
+ * revision. */
 size_t code_ingest(KB *kb, const char *src,
                    char names[][KB_TERM_LEN], size_t max);
 
-/* gen196 (language-as-delta, CODE-MASTERY.md §7b): the PYTHON front-end. It emits
- * the SAME abstract facts as code_ingest — `code_function(name)` per `def` and
- * `code_calls(caller, callee)` per call inside a body — so EVERY downstream
- * analyzer (defines/locate/call-graph) works on Python unchanged. Only the
- * concrete syntax differs from C (the delta): `def name(...):` instead of a
- * brace head, and body scope tracked by INDENTATION instead of braces; `#` runs
- * to end of line. The reasoning is shared; the surface is derived. */
+/* Deprecated Python compatibility entry point; see code_ingest_source(). */
 size_t code_ingest_py(KB *kb, const char *src,
                       char names[][KB_TERM_LEN], size_t max);
 

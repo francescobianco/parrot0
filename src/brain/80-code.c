@@ -986,8 +986,11 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
      * read is sandboxed to the working directory (see code_read_file). */
     static char code[262144];
     code[0] = '\0';
+    char source_id[KB_TERM_LEN] = "";
     InputSpan source_span;
     int section = find_code_section(b, s, code, sizeof code, &source_span);
+    if (section == 1)
+        snprintf(source_id, sizeof source_id, "turn_%lu", b->turns);
     if (section != 1) {
         if (section < 0) {
             /* A broad live query cue is not evidence of code by itself.  If the
@@ -1015,18 +1018,15 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             }
         }
         if (!path[0] || !code_read_file(path, code, sizeof code)) return 0;
+        snprintf(source_id, sizeof source_id, "%s", path);
     }
-
-    /* gen184: blank comments and string/char literals so the scanners see only
-     * real code (a '(' or '{' inside a comment/string no longer derails parsing).
-     * Applied once here for the snippet questions; code_locate strips per file. */
-    code_strip(code);
 
     /* A top-level statement trace is the same state-transition semantics the
      * function evaluator already executes.  The query surface and its boundary
      * are live KB evidence; this branch binds only the identifier slot and asks
      * the fixed evaluator for the resulting integer. */
     if (wants_state) {
+        code_strip(code);
         long value;
         if (code_eval_state(code, state_target, &value)) {
             snprintf(out, out_size, "%ld.", value);
@@ -1044,6 +1044,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     /* B5: symbolic execution. Parse a concrete call NAME(int, int, ...) from the
      * question and COMPUTE its result from the function body — nothing is run. */
     if (wants_eval) {
+        code_strip(code);
         char fname[KB_TERM_LEN] = ""; long argv[8]; size_t nargs = 0; int have = 0;
         for (const char *p = qpart; *p && !have; ) {
             if (!(isalpha((unsigned char)*p) || *p == '_')) { p++; continue; }
@@ -1092,13 +1093,14 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* gen196 (language-as-delta): pick the front-end by language, but feed the
-     * SAME downstream analyzers — Python emits the same code_function/code_calls
-     * facts as C, so the answer code below is unchanged. */
+    /* UC1: both concrete syntax frontends publish the same source-qualified,
+     * revisioned IR.  The legacy views used below are derived in code-ir.p0;
+     * no bare-name fact is asserted by the scanner. */
     char names[32][KB_TERM_LEN];
     int clang = identify_code_lang(code, b);
-    size_t k = (clang == 2) ? code_ingest_py(b->kb, code, names, 32)
-                            : code_ingest(b->kb, code, names, 32);
+    size_t k = code_ingest_source(b->kb, code, source_id,
+                                  clang == 2 ? "python" : "c",
+                                  names, 32, NULL);
     size_t shown = k < 32 ? k : 32;
 
     if (wants_funcs) {

@@ -724,6 +724,13 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/input.p0");
 
+    /* UC1: source observations are emitted by fixed syntax frontends, while
+     * their semantic views, compatibility projections and teachable question
+     * surfaces live in the KB.  Load this even in a hermetic world: it is
+     * machinery, like input.p0, not domain knowledge. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/code-ir.p0");
+
     /* gen212 (cardinal KB-first principle, OUTPUT side): the agent's own reply
      * phrasings — "Nice to meet you, {name}!" etc. — live in kb/core/responses.p0, not
      * as C literals. kb_response() fills response_template/2; a phrasing taught at

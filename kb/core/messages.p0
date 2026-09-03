@@ -490,7 +490,7 @@ response_template(x_was_killed_by_signal_x_it_did_not_complete, "`{cmd}` was KIL
 response_template(x_never_started_x, "`{cmd}` never started: {detail}.").
 response_template(unsafe_path_that_is_outside_my_workspace_x_i, "unsafe_path: that is outside my workspace ({p0_root}). I only read inside it.").
 response_template(i_did_not_run_x_x, "I did not run `{cmd}`: {verdict}.").
-response_template(read_ingested_x_x_code_function_fact_s_asser, "read+ingested {file}: {k} code_function fact(s) asserted").
+response_template(read_ingested_x_x_code_ir_functions_observed, "read+ingested {file}: {k} code functions observed in the revisioned IR").
 response_template(verified_by_symbolic_execution_x_x_x_x_x_x_x, "verified by symbolic execution: {nameo}({a1},{b1})={g1}, {nameo2}({a2},{b2})={g2}").
 response_template(x_no_concrete_call_to_evaluate_here, "{step}) (no concrete call to evaluate here)").
 response_template(composed_x_via_code_eval_oracle_x, "composed {name} via code_eval oracle ({refused})").

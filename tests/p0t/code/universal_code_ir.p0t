@@ -1,0 +1,108 @@
+# UC1 — one focused vertical gate for revisioned code observations.
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+[test C source becomes a qualified observation]
+> what functions does this define: int uc_alpha(void) { uc_beta(); return 1; } int uc_beta(void) { return 2; }
+< I read it as code: it defines uc_alpha and uc_beta.
+!query code_node($Snapshot, fn_4, function, unit_0)
+!query code_name($Snapshot, fn_4, definition, uc_alpha)
+!query code_span($Snapshot, fn_4, 4, 8)
+!query code_edge($Snapshot, fn_4, calls, call_21)
+!query code_name($Snapshot, call_21, reference, uc_beta)
+!query code_function(uc_alpha)
+!query code_calls(uc_alpha, uc_beta)
+!query code_defined_in(uc_alpha, $Source)
+!query code_definition_evidence(uc_alpha, $Evidence)
+> definition source of uc_alpha
+<~ Turn
+> source evidence for uc_alpha
+<~ Evidence
+<~ span(4, 8)
+> call evidence for uc_alpha
+<~ Evidence
+<~ span(21, 7)
+
+[test frontend vocabulary grows and retracts at runtime]
+!assert code_keyword(c, uc_keyword)
+> what functions does this define: int uc_keyword(void) { return 0; }
+<~ do not see any function
+!query! code_function(uc_keyword)
+!forget code_keyword(c, uc_keyword)
+> what functions does this define: int uc_keyword(void) { return 0; }
+< I read it as code: it defines uc_keyword.
+!query code_function(uc_keyword)
+
+[test Python emits the same IR]
+> read tests/code/py/sample.py
+<~ defines pyadd, pysquare and pymain
+!query code_defined_in(pyadd, tests/code/py/sample.py)
+!query code_calls(pymain, pyadd)
+!query code_calls(pymain, pysquare)
+!mcp kb.match {"pred":"code_snapshot","args":[null,"python",null,null]}
+!expect mcp snapshot_
+
+[test a predicate-variable bridge crosses into another KB region]
+# Development fixture, not LEARN_PROTOCOL training: the bridge shape, not this
+# synthetic API fact, is what this section verifies.
+!assert api_trait(uc_beta, deterministic)
+!assert representation_bridge(code, reference, api_trait, binary_arg1)
+!query ir_domain_claim(code, $Item, proposition(api_trait, uc_beta, deterministic))
+!query ir_domain_claim_basis(code, $Item, proposition(api_trait, uc_beta, deterministic), bridge(reference, api_trait, binary_arg1))
+!assert api_trait(uc_unrelated, deterministic)
+!query! ir_domain_claim(code, $Item, proposition(api_trait, uc_unrelated, deterministic))
+!forget representation_bridge(code, reference, api_trait, binary_arg1)
+!query! ir_domain_claim(code, $Item, proposition(api_trait, uc_beta, deterministic))
+!query api_trait(uc_beta, deterministic)
+!query code_calls(uc_alpha, uc_beta)
+
+[test provenance question wording grows by prompt]
+> observation come from uc_alpha
+<! Evidence
+> learn "observation come from" as another way to ask "source evidence for uc_alpha"
+<~ now asks the same thing
+!query answer_frame("observation how from", code_definition_evidence)
+!query answer_frame_input_arg("observation how from", code_definition_evidence, 1)
+> observation come from uc_alpha
+<~ Evidence
+!forget answer_frame("observation how from", code_definition_evidence)
+> observation come from uc_alpha
+<! Evidence
+> learn "observation come from" as another way to ask "source evidence for uc_alpha"
+<~ now asks the same thing
+!query answer_frame("observation how from", code_definition_evidence)
+> observation come from uc_alpha
+<~ Evidence
+
+[test source identity, reread invalidation, and reflective lifetime]
+!exec mkdir -p .p0-uc1
+!exec printf '%s\n' 'int uc_same(void) { old_target(); return 0; }' > .p0-uc1/a.c
+!exec printf '%s\n' 'int uc_same(void) { other_target(); return 0; }' > .p0-uc1/b.c
+> read .p0-uc1/a.c
+<~ defines uc_same
+> read .p0-uc1/b.c
+<~ defines uc_same
+!query code_defined_in(uc_same, .p0-uc1/a.c)
+!query code_defined_in(uc_same, .p0-uc1/b.c)
+!query code_call_in(uc_same, old_target, .p0-uc1/a.c)
+!query code_call_in(uc_same, other_target, .p0-uc1/b.c)
+!exec printf '%s\n' 'int uc_same(void) { new_target(); return 0; }' > .p0-uc1/a.c
+> read .p0-uc1/a.c
+<~ defines uc_same
+!query! code_call_in(uc_same, old_target, .p0-uc1/a.c)
+!query code_call_in(uc_same, new_target, .p0-uc1/a.c)
+!query code_call_in(uc_same, other_target, .p0-uc1/b.c)
+!query code_defined_in(uc_same, .p0-uc1/a.c)
+!query code_defined_in(uc_same, .p0-uc1/b.c)
+!mcp kb.save {"path":".p0-uc1/session.p0"}
+!expect mcp "ok":true
+!filelacks .p0-uc1/session.p0 code_snapshot(
+!filelacks .p0-uc1/session.p0 code_source_snapshot(
+!filelacks .p0-uc1/session.p0 code_node(
+!filelacks .p0-uc1/session.p0 code_edge(
+!exec rm -rf .p0-uc1

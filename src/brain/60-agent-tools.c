@@ -144,10 +144,10 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
  * shell-out island. It separates two kinds of act:
  *   - PERCEPTION of the filesystem (list / find files) has no KB primitive, so it
  *     genuinely shells out (find), grounded by naming the command it ran.
- *   - UNDERSTANDING CODE goes through the AST-as-KB engine and the SWE-bench
- *     localizers, never a blind grep: "read FILE" parses the file with code_ingest
- *     and asserts `code_function`/`code_calls` facts into the LIVE KB (so a later
- *     "where is X" is a KB query); "where is X" / "what calls X" call code_locate /
+ *   - UNDERSTANDING CODE goes through the code-IR engine and the SWE-bench
+ *     localizers, never a blind grep: "read FILE" publishes source-qualified,
+ *     revisioned observations from which the KB derives `code_function` and
+ *     `code_calls`; "where is X" / "what calls X" call code_locate /
  *     code_find_callers — the exact primitives that drive `make swe-solve`
  *     (CODE-MASTERY §4) — and answer from a real parse, which a comment or a string
  *     literal cannot fake. A text grep is the FALLBACK, only for free-text patterns.
@@ -687,19 +687,17 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         }
 
         /* KB-FIRST read. A remote LLM "reads" a file by pulling its bytes into its
-         * context; parrot0 reads it into STRUCTURE. It parses the file with the
-         * AST-as-KB front-end (the same code_ingest the codebase uses, gen173+),
-         * asserting `code_function`/`code_calls` facts into the LIVE KB — so the
-         * answer is the functions it really defines AND a later "where is X" / "what
-         * calls X" is now a KB query, not another disk scan. Only when the file is
-         * not ingestable source (a header with no defs, plain data) does it fall back
-         * to an honest textual look. */
+         * context; parrot0 reads it into a source-qualified, revisioned IR.  The
+         * compatibility predicates `code_function` and `code_calls` are KB views
+         * over that observation, not facts asserted by this tool.  Only when the
+         * file is not ingestable source (a header with no defs, plain data) does it
+         * fall back to an honest textual look. */
         if (b->kb) {
-            code_strip(code);
             char names[32][KB_TERM_LEN];
             int clang = identify_code_lang(code, b);
-            size_t k = (clang == 2) ? code_ingest_py(b->kb, code, names, 32)
-                                    : code_ingest(b->kb, code, names, 32);
+            size_t k = code_ingest_source(b->kb, code, file,
+                                          clang == 2 ? "python" : "c",
+                                          names, 32, NULL);
             if (k > 0) {
                 size_t shown = k < 32 ? k : 32;
                 char _t3[512];
@@ -722,7 +720,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
                 { 
                   char _v1[48]; snprintf(_v1, sizeof _v1, "%zu", k);
   const KbResponseSlot _rs[] = { { "file", file }, { "k", _v1 } };
-                  kb_term_say(b, "read_ingested_x_x_code_function_fact_s_asser", _rs, 2, proof, sizeof proof); }
+                  kb_term_say(b, "read_ingested_x_x_code_ir_functions_observed", _rs, 2, proof, sizeof proof); }
                 store_proof(b, proof);
                 snprintf(b->last_tool_cmd, sizeof b->last_tool_cmd, "code_ingest(%s)", file);
                 b->has_last_tool_cmd = 1;

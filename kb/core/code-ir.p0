@@ -1,0 +1,127 @@
+% Universal code observation IR — UC1.
+%
+% This file owns the meaning of the neutral records emitted by src/code.c.  The
+% frontend may measure bytes, spans, nesting and syntax; it does not decide what
+% a definition/call means to downstream faculties.  Observed rows are
+% KB_REFLECTIVE and are replaced when the same source is read again.  These
+% rules and question surfaces are curated machinery and remain KB_BASE.
+
+machinery(code_snapshot).
+machinery(code_source_snapshot).
+machinery(code_source_unit).
+machinery(code_node).
+machinery(code_name).
+machinery(code_span).
+machinery(code_edge).
+machinery(code_provenance).
+
+% Source-qualified views.  These are the first stable consumer boundary: future
+% frontends can add node and edge kinds without changing the question engine.
+machinery(code_defined_in).
+machinery(code_call_in).
+machinery(code_definition_evidence).
+machinery(code_call_evidence).
+
+code_defined_in($Name, $Source) :-
+    code_source_snapshot($Source, $Snapshot),
+    code_name($Snapshot, $Node, definition, $Name).
+
+code_call_in($Caller, $Callee, $Source) :-
+    code_source_snapshot($Source, $Snapshot),
+    code_name($Snapshot, $CallerNode, definition, $Caller),
+    code_edge($Snapshot, $CallerNode, calls, $CallNode),
+    code_name($Snapshot, $CallNode, reference, $Callee).
+
+code_definition_evidence($Name, $Evidence) :-
+    code_source_snapshot($Source, $Snapshot),
+    code_name($Snapshot, $Node, definition, $Name),
+    code_provenance($Snapshot, $Node, $Evidence).
+
+code_call_evidence($Caller, $Evidence) :-
+    code_name($Snapshot, $CallerNode, definition, $Caller),
+    code_edge($Snapshot, $CallerNode, calls, $CallNode),
+    code_provenance($Snapshot, $CallNode, $Evidence).
+
+% ── A REPRESENTATION IS A DOOR, NOT A SILO ────────────────────────────────
+%
+% `apply/2` is the predicate-variable boundary of the solver.  These rules make
+% it foundational to the IR: an item can denote an entity, and a declared
+% higher-order bridge can ask a relation from another KB region about that
+% entity.  The resulting claim retains the predicate it crossed and the bridge
+% that licensed it.  There is no enumeration of domains or code questions here.
+%
+% A future frontend joins the system by deriving ir_denotation/4.  A future
+% domain joins by adding representation_bridge/4.  Neither requires a new
+% consumer.  With no bridge the IR makes no cross-domain claim; composition is
+% opt-in, attributable and therefore retractable/refutable.
+machinery(ir_denotation).
+machinery(representation_bridge).
+machinery(ir_domain_claim).
+machinery(ir_domain_claim_basis).
+
+ir_denotation(code, item($Snapshot, $Node), $Role, $Entity) :-
+    code_name($Snapshot, $Node, $Role, $Entity).
+
+ir_domain_claim($Representation, $Item,
+                proposition($Predicate, $Entity)) :-
+    ir_denotation($Representation, $Item, $Role, $Entity),
+    representation_bridge($Representation, $Role, $Predicate, unary),
+    apply($Predicate, cons($Entity, nil)).
+
+ir_domain_claim($Representation, $Item,
+                proposition($Predicate, $Entity, $Value)) :-
+    ir_denotation($Representation, $Item, $Role, $Entity),
+    representation_bridge($Representation, $Role, $Predicate, binary_arg1),
+    apply($Predicate, cons($Entity, cons($Value, nil))).
+
+ir_domain_claim($Representation, $Item,
+                proposition($Predicate, $Value, $Entity)) :-
+    ir_denotation($Representation, $Item, $Role, $Entity),
+    representation_bridge($Representation, $Role, $Predicate, binary_arg2),
+    apply($Predicate, cons($Value, cons($Entity, nil))).
+
+ir_domain_claim_basis($Representation, $Item,
+                      proposition($Predicate, $Entity),
+                      bridge($Role, $Predicate, unary)) :-
+    ir_denotation($Representation, $Item, $Role, $Entity),
+    representation_bridge($Representation, $Role, $Predicate, unary),
+    apply($Predicate, cons($Entity, nil)).
+
+ir_domain_claim_basis($Representation, $Item,
+                      proposition($Predicate, $Entity, $Value),
+                      bridge($Role, $Predicate, binary_arg1)) :-
+    ir_denotation($Representation, $Item, $Role, $Entity),
+    representation_bridge($Representation, $Role, $Predicate, binary_arg1),
+    apply($Predicate, cons($Entity, cons($Value, nil))).
+
+ir_domain_claim_basis($Representation, $Item,
+                      proposition($Predicate, $Value, $Entity),
+                      bridge($Role, $Predicate, binary_arg2)) :-
+    ir_denotation($Representation, $Item, $Role, $Entity),
+    representation_bridge($Representation, $Role, $Predicate, binary_arg2),
+    apply($Predicate, cons($Value, cons($Entity, nil))).
+
+% Compatibility views.  They intentionally lose source/node identity and are
+% therefore deprecated as an architectural boundary.  Existing code consumers
+% may cross them while they migrate, but frontends never assert these facts.
+machinery(code_function).
+machinery(code_calls).
+
+code_function($Name) :-
+    code_source_snapshot($Source, $Snapshot),
+    code_name($Snapshot, $Node, definition, $Name).
+
+code_calls($Caller, $Callee) :-
+    code_name($Snapshot, $CallerNode, definition, $Caller),
+    code_edge($Snapshot, $CallerNode, calls, $CallNode),
+    code_name($Snapshot, $CallNode, reference, $Callee).
+
+% The universal answer-frame consumer supplies question matching, slot binding,
+% rendering and prompt teaching.  A new paraphrase can be taught by anchoring it
+% to either working question; no code handler or predicate name is required.
+answer_frame("definition source of", code_defined_in).
+answer_frame_input_arg("definition source of", code_defined_in, 1).
+answer_frame("source evidence for", code_definition_evidence).
+answer_frame_input_arg("source evidence for", code_definition_evidence, 1).
+answer_frame("call evidence for", code_call_evidence).
+answer_frame_input_arg("call evidence for", code_call_evidence, 1).

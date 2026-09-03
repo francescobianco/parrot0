@@ -543,7 +543,9 @@ extract_frame("@S is located in @O", located_in).
 extract_frame("@S is part of @O", part_of).
 extract_frame("@S is a member of @O", member_of).
 extract_frame("@S borders @O", borders).
+extract_frame(@S borders @O, borders).
 extract_frame("@S contains @O", contains).
+extract_frame(@S contains @O, contains).
 extract_frame("@S was born in @O", born_in).
 extract_frame("@S was founded in @O", founded_in).
 extract_frame("@S is the capital of @O", capital_of).
@@ -551,6 +553,8 @@ extract_frame("@S is the main constituent of @O", constituent_of).
 extract_frame("@S orbits @O", orbits).
 extract_frame("@S eats @O", eats).
 extract_frame("@S produces @O", produces).
+extract_frame(@S causes @O, causes).
+extract_frame(@S produces @O, produces).
 extract_frame("@S causes @O", causes).
 
 % Il tetto di lunghezza di un CONCETTO. Oltre questo, un atomo non e' piu' il
@@ -950,10 +954,336 @@ relation_noun_it(currency_of, "valuta").
 relation_noun_it(notation_of, "notazione").
 
 extract_frame("@S is known as @O", also_known_as).
+extract_frame(da adesso in poi the notation of @S is @O, notation_of).
+extract_frame(da adesso in poi the price of @S is @O, price_of).
+extract_frame(da adesso in poi the colour of @S is @O, colour_of).
+extract_frame(da adesso in poi the author of @S is @O, author_of).
+extract_frame(da adesso in poi the language of @S is @O, language_of).
+extract_frame(da adesso in poi the currency of @S is @O, currency_of).
+extract_frame(da adesso in poi the population of @S is @O, population_of).
+extract_frame(da adesso in poi the capital of @S is @O, capital_of).
+extract_frame(d'ora in poi the notation of @S is @O, notation_of).
+extract_frame(d'ora in poi the price of @S is @O, price_of).
+extract_frame(d'ora in poi the colour of @S is @O, colour_of).
+extract_frame(d'ora in poi the author of @S is @O, author_of).
+extract_frame(d'ora in poi the language of @S is @O, language_of).
+extract_frame(d'ora in poi the currency of @S is @O, currency_of).
+extract_frame(d'ora in poi the population of @S is @O, population_of).
+extract_frame(d'ora in poi the capital of @S is @O, capital_of).
+extract_frame(from now on the notation of @S is @O, notation_of).
+extract_frame(from now on the price of @S is @O, price_of).
+extract_frame(from now on the colour of @S is @O, colour_of).
+extract_frame(from now on the author of @S is @O, author_of).
+extract_frame(from now on the language of @S is @O, language_of).
+extract_frame(from now on the currency of @S is @O, currency_of).
+extract_frame(from now on the population of @S is @O, population_of).
+extract_frame(from now on the capital of @S is @O, capital_of).
+extract_frame(la notazione di @S e' @O, notation_of).
+extract_frame(la valuta di @S e' @O, currency_of).
+extract_frame(la popolazione di @S e' @O, population_of).
+extract_frame(la capitale di @S e' @O, capital_of).
+extract_frame(the notation of @S is @O, notation_of).
+extract_frame(the price of @S is @O, price_of).
+extract_frame(the colour of @S is @O, colour_of).
+extract_frame(the author of @S is @O, author_of).
+extract_frame(the language of @S is @O, language_of).
+extract_frame(the currency of @S is @O, currency_of).
+extract_frame(the population of @S is @O, population_of).
+extract_frame(the capital of @S is @O, capital_of).
+extract_frame("@S forms part of @O", part_of).
+extract_frame("@O is mostly made of @S", constituent_of).
+extract_frame("@S goes by the name of @O", also_known_as).
+extract_frame("@O is another name for @S", also_known_as).
+extract_frame("@O is home to @S", located_in).
+extract_frame("@O is bordered by @S", borders).
+extract_frame("@S revolves around @O", orbits).
+extract_frame("@O is the birthplace of @S", born_in).
+extract_frame("@S lies in @O", located_in).
+extract_frame(have @O at @T, located_in).
+extract_frame(have @O on @T, located_in).
+extract_frame(have @O in @T, located_in).
+extract_frame(place @O at @T, located_in).
+extract_frame(place @O on @T, located_in).
+extract_frame(place @O in @T, located_in).
+extract_frame(put @O at @T, located_in).
+extract_frame(put @O on @T, located_in).
+extract_frame(put @O in @T, located_in).
+extract_frame(@S have @O at @T, located_in).
+extract_frame(@S have @O on @T, located_in).
+extract_frame(@S have @O in @T, located_in).
+extract_frame(@S place @O at @T, located_in).
+extract_frame(@S place @O on @T, located_in).
+extract_frame(@S place @O in @T, located_in).
+extract_frame(@S put @O at @T, located_in).
+extract_frame(@S put @O on @T, located_in).
+extract_frame(@S put @O in @T, located_in).
+extract_frame(@O are modified by @S, modified).
+extract_frame(@O is modified by @S, modified).
+extract_frame(@O were modified by @S, modified).
+extract_frame(@O was modified by @S, modified).
+extract_frame(@O are shortened by @S, shortened).
+extract_frame(@O is shortened by @S, shortened).
+extract_frame(@O were shortened by @S, shortened).
+extract_frame(@O was shortened by @S, shortened).
+extract_frame(@O are improved by @S, improved).
+extract_frame(@O is improved by @S, improved).
+extract_frame(@O were improved by @S, improved).
+extract_frame(@O was improved by @S, improved).
+extract_frame(@O are detected by @S, detected).
+extract_frame(@O is detected by @S, detected).
+extract_frame(@O were detected by @S, detected).
+extract_frame(@O was detected by @S, detected).
+extract_frame(@O are eradicated by @S, eradicated).
+extract_frame(@O is eradicated by @S, eradicated).
+extract_frame(@O were eradicated by @S, eradicated).
+extract_frame(@O was eradicated by @S, eradicated).
+extract_frame(@S contract @O, contract).
+extract_frame(@S expand @O, expand).
+extract_frame(@S limit @O, limit).
+extract_frame(@S enable @O, enable).
+extract_frame(@S follow @O, follow).
+extract_frame(@S join @O, join).
+extract_frame(@S crosse @O, crosse).
+extract_frame(@S border @O, border).
+extract_frame(@S occupie @O, occupie).
+extract_frame(@S serve @O, serve).
+extract_frame(@S govern @O, govern).
+extract_frame(@S divide @O, divide).
+extract_frame(@S combine @O, combine).
+extract_frame(@S break @O, break).
+extract_frame(@S bind @O, bind).
+extract_frame(@S repel @O, repel).
+extract_frame(@S attract @O, attract).
+extract_frame(@S reflect @O, reflect).
+extract_frame(@S transmit @O, transmit).
+extract_frame(@S consume @O, consume).
+extract_frame(@S supplie @O, supplie).
+extract_frame(@S provide @O, provide).
+extract_frame(@S generate @O, generate).
+extract_frame(@S increase @O, increase).
+extract_frame(@S reduce @O, reduce).
+extract_frame(@S influence @O, influence).
+extract_frame(@S affect @O, affect).
+extract_frame(@S determine @O, determine).
+extract_frame(@S define @O, define).
+extract_frame(@S describe @O, describe).
+extract_frame(@S replace @O, replace).
+extract_frame(@S cover @O, cover).
+extract_frame(@S support @O, support).
+extract_frame(@S surround @O, surround).
+extract_frame(@S protect @O, protect).
+extract_frame(@S regulate @O, regulate).
+extract_frame(@S control @O, control).
+extract_frame(@S transport @O, transport).
+extract_frame(@S store @O, store).
+extract_frame(@S convert @O, convert).
+extract_frame(@S emit @O, emit).
+extract_frame(@S absorb @O, absorb).
+extract_frame(@S connect @O, connect).
+extract_frame(@S create @O, create).
+extract_frame(@S form @O, form).
+extract_frame(@S use @O, use).
+extract_frame(@S cause @O, cause).
+extract_frame(@S include @O, include).
+extract_frame(@S contain @O, contain).
+extract_frame(@S release @O, release).
+extract_frame(@S modulate @O, modulate).
+extract_frame(@S biase @O, biase).
+extract_frame(@S shorten @O, shorten).
+extract_frame(@S produce @O, produce).
+extract_frame(@S secrete @O, secrete).
+extract_frame(@S pump @O, pump).
+extract_frame(@S carrie @O, carrie).
+extract_frame(@S digest @O, digest).
+extract_frame(@S prevent @O, prevent).
+extract_frame(@S minimize @O, minimize).
+extract_frame(@S compute @O, compute).
+extract_frame(@S predict @O, predict).
+extract_frame(@S split @O, split).
+extract_frame(@S harm @O, harm).
+extract_frame(@S penalize @O, penalize).
+extract_frame(@S represent @O, represent).
+extract_frame(@S discover @O, discover).
+extract_frame(@S applie @O, applie).
+extract_frame(@S encode @O, encode).
+extract_frame(@S refute @O, refute).
+extract_frame(@S weaken @O, weaken).
+extract_frame(@S survey @O, survey).
+extract_frame(@S map @O, map).
+extract_frame(@S test @O, test).
+extract_frame(@S precede @O, precede).
+extract_frame(@S organize @O, organize).
+extract_frame(@S measure @O, measure).
+extract_frame(@S contracts @O, contracts).
+extract_frame(@S expands @O, expands).
+extract_frame(@S limits @O, limits).
+extract_frame(@S enables @O, enables).
+extract_frame(@S follows @O, follows).
+extract_frame(@S joins @O, joins).
+extract_frame(@S crosses @O, crosses).
 extract_frame("@S also known as @O", also_known_as).
+extract_frame(@S occupies @O, occupies).
+extract_frame(@S serves @O, serves).
+extract_frame(@S governs @O, governs).
+extract_frame(@S divides @O, divides).
+extract_frame(@S combines @O, combines).
+extract_frame(@S breaks @O, breaks).
+extract_frame(@S binds @O, binds).
+extract_frame(@S repels @O, repels).
+extract_frame(@S attracts @O, attracts).
+extract_frame(@S reflects @O, reflects).
+extract_frame(@S transmits @O, transmits).
+extract_frame(@S consumes @O, consumes).
+extract_frame(@S supplies @O, supplies).
+extract_frame(@S provides @O, provides).
+extract_frame(@S generates @O, generates).
+extract_frame(@S increases @O, increases).
+extract_frame(@S reduces @O, reduces).
+extract_frame(@S influences @O, influences).
+extract_frame(@S affects @O, affects).
+extract_frame(@S determines @O, determines).
+extract_frame(@S defines @O, defines).
+extract_frame(@S describes @O, describes).
+extract_frame(@S replaces @O, replaces).
+extract_frame(@S covers @O, covers).
+extract_frame(@S supports @O, supports).
+extract_frame(@S surrounds @O, surrounds).
+extract_frame(@S protects @O, protects).
+extract_frame(@S regulates @O, regulates).
+extract_frame(@S controls @O, controls).
+extract_frame(@S transports @O, transports).
+extract_frame(@S stores @O, stores).
+extract_frame(@S converts @O, converts).
+extract_frame(@S emits @O, emits).
+extract_frame(@S absorbs @O, absorbs).
+extract_frame(@S connects @O, connects).
+extract_frame(@S creates @O, creates).
+extract_frame(@S forms @O, forms).
+extract_frame(@S uses @O, uses).
 extract_frame("@S is called @O", also_known_as).
+extract_frame(@S includes @O, includes).
 extract_frame("@S is also called @O", also_known_as).
+extract_frame(@S releases @O, releases).
+extract_frame(@S modified @O, modified).
+extract_frame(@S modulates @O, modulates).
+extract_frame(@S biases @O, biases).
+extract_frame(@S detect @O, detect).
+extract_frame(@S eradicate @O, eradicate).
+extract_frame(@S shortens @O, shortens).
+extract_frame(@S shortened @O, shortened).
+extract_frame(@S improved @O, improved).
+extract_frame(@S detected @O, detected).
+extract_frame(@S eradicated @O, eradicated).
 extract_frame("@S is referred to as @O", also_known_as).
+extract_frame(@S secretes @O, secretes).
+extract_frame(@S filter @O, filter).
+extract_frame(@S pumps @O, pumps).
+extract_frame(@S carries @O, carries).
+extract_frame(@S digests @O, digests).
+extract_frame(@S prevents @O, prevents).
+extract_frame(@S minimizes @O, minimizes).
+extract_frame(@S computes @O, computes).
+extract_frame(@S predicts @O, predicts).
+extract_frame(@S splits @O, splits).
+extract_frame(@S harms @O, harms).
+extract_frame(@S penalizes @O, penalizes).
+extract_frame(@S represents @O, represents).
+extract_frame(@S discovers @O, discovers).
+extract_frame(@S applies @O, applies).
+extract_frame(@S encodes @O, encodes).
+extract_frame(@S refutes @O, refutes).
+extract_frame(@S weakens @O, weakens).
+extract_frame(@S surveys @O, surveys).
+extract_frame(@S maps @O, maps).
+extract_frame(@S tests @O, tests).
+extract_frame(@S precedes @O, precedes).
+extract_frame(@S organizes @O, organizes).
+extract_frame(@S measures @O, measures).
+extract_frame(@S is contracts @O, contracts).
+extract_frame(@S is expands @O, expands).
+extract_frame(@S is limits @O, limits).
+extract_frame(@S is enables @O, enables).
+extract_frame(@S is follows @O, follows).
+extract_frame(@S is joins @O, joins).
+extract_frame(@S is crosses @O, crosses).
+extract_frame(@S is borders @O, borders).
+extract_frame(@S is occupies @O, occupies).
+extract_frame(@S is serves @O, serves).
+extract_frame(@S is governs @O, governs).
+extract_frame(@S is divides @O, divides).
+extract_frame(@S is combines @O, combines).
+extract_frame(@S is breaks @O, breaks).
+extract_frame(@S is binds @O, binds).
+extract_frame(@S is repels @O, repels).
+extract_frame(@S is attracts @O, attracts).
+extract_frame(@S is reflects @O, reflects).
+extract_frame(@S is transmits @O, transmits).
+extract_frame(@S is consumes @O, consumes).
+extract_frame(@S is supplies @O, supplies).
+extract_frame(@S is provides @O, provides).
+extract_frame(@S is generates @O, generates).
+extract_frame(@S is increases @O, increases).
+extract_frame(@S is reduces @O, reduces).
+extract_frame(@S is influences @O, influences).
+extract_frame(@S is affects @O, affects).
+extract_frame(@S is determines @O, determines).
+extract_frame(@S is defines @O, defines).
+extract_frame(@S is describes @O, describes).
+extract_frame(@S is replaces @O, replaces).
+extract_frame(@S is covers @O, covers).
+extract_frame(@S is supports @O, supports).
+extract_frame(@S is surrounds @O, surrounds).
+extract_frame(@S is protects @O, protects).
+extract_frame(@S is regulates @O, regulates).
+extract_frame(@S is controls @O, controls).
+extract_frame(@S is transports @O, transports).
+extract_frame(@S is stores @O, stores).
+extract_frame(@S is converts @O, converts).
+extract_frame(@S is emits @O, emits).
+extract_frame(@S is absorbs @O, absorbs).
+extract_frame(@S is connects @O, connects).
+extract_frame(@S is creates @O, creates).
+extract_frame(@S is forms @O, forms).
+extract_frame(@S is uses @O, uses).
+extract_frame(@S is causes @O, causes).
+extract_frame(@S is includes @O, includes).
+extract_frame(@S is contains @O, contains).
+extract_frame(@S is releases @O, releases).
+extract_frame(@S is modified @O, modified).
+extract_frame(@S is modulates @O, modulates).
+extract_frame(@S is biases @O, biases).
+extract_frame(@S is detect @O, detect).
+extract_frame(@S is eradicate @O, eradicate).
+extract_frame(@S is shortens @O, shortens).
+extract_frame(@S is shortened @O, shortened).
+extract_frame(@S is improved @O, improved).
+extract_frame(@S is detected @O, detected).
+extract_frame(@S is eradicated @O, eradicated).
+extract_frame(@S is produces @O, produces).
+extract_frame(@S is secretes @O, secretes).
+extract_frame(@S is filter @O, filter).
+extract_frame(@S is pumps @O, pumps).
+extract_frame(@S is carries @O, carries).
+extract_frame(@S is digests @O, digests).
+extract_frame(@S is prevents @O, prevents).
+extract_frame(@S is minimizes @O, minimizes).
+extract_frame(@S is computes @O, computes).
+extract_frame(@S is predicts @O, predicts).
+extract_frame(@S is splits @O, splits).
+extract_frame(@S is harms @O, harms).
+extract_frame(@S is penalizes @O, penalizes).
+extract_frame(@S is represents @O, represents).
+extract_frame(@S is discovers @O, discovers).
+extract_frame(@S is applies @O, applies).
+extract_frame(@S is encodes @O, encodes).
+extract_frame(@S is refutes @O, refutes).
+extract_frame(@S is weakens @O, weakens).
+extract_frame(@S is surveys @O, surveys).
+extract_frame(@S is maps @O, maps).
+extract_frame(@S is tests @O, tests).
+extract_frame(@S is precedes @O, precedes).
+extract_frame(@S is organizes @O, organizes).
+extract_frame(@S is measures @O, measures).
 
 % ── PAGINE CHE DICHIARANO DI NON CONTENERE CONOSCENZA ────────────────────────
 % gen382. "X may refer to ..." e' l'apertura di una pagina di DISAMBIGUAZIONE:

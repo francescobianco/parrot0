@@ -1392,6 +1392,18 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                     }
                 }
                 if (*anchor) {
+                    /* Le virgolette proteggono il testo interno mentre viene
+                     * canonicalizzato l'atto didattico.  Quel testo, pero', al
+                     * replay sara' un turno normale e attraversera' il
+                     * canonizzatore: usare qui la forma protetta puo' quindi
+                     * creare una chiave che il lettore non produrra' mai
+                     * (`come` -> `how` e' il controesempio misurato da UC1).
+                     * Modello e replay devono condividere la stessa funzione. */
+                    char anchor_canon[KB_TERM_LEN];
+                    brain_canonical(b, anchor, anchor_canon,
+                                    sizeof anchor_canon);
+                    const char *anchor_query = *anchor_canon
+                                             ? anchor_canon : anchor;
                     /* Il modello si legge come si legge un TURNO — e con lo
                      * STESSO motore: `answer_frame_surfaces` e' la risoluzione
                      * che `mod_answer_frame` gia' usava per capire quale
@@ -1412,7 +1424,7 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                      * modello. La prova la fa il motore vero, non una seconda
                      * regola di combaciamento. */
                     char probe_ans[512];
-                    if (!mod_answer_frame(b, anchor, anchor,
+                    if (!mod_answer_frame(b, anchor_query, anchor_query,
                                           probe_ans, sizeof probe_ans)) {
                         char msg[256];
                         kb_term_say(b, "no_question_by_that_wording",
@@ -1422,7 +1434,7 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                         return 1;
                     }
                     char (*hits)[KB_TERM_LEN] = NULL;
-                    size_t nh = answer_frame_surfaces(b, anchor, &hits);
+                    size_t nh = answer_frame_surfaces(b, anchor_query, &hits);
                     char rel[1][KB_TERM_LEN];
                     const char *arq[2] = { nh ? hits[0] : NULL, NULL };
                     int found = nh &&
@@ -1445,8 +1457,10 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                     put(msg, out, outsz);
                     return 1;
                 }
-                /* la superficie insegnata: la forma canonicalizzata, cosi' che
-                 * combaci con quello che il riconoscitore vedra' nei turni dopo */
+                /* La superficie insegnata viene estratta dalle virgolette, che
+                 * giustamente l'hanno protetta durante la lettura dell'atto.
+                 * Ora la trasformiamo come un turno autonomo: e' quella la
+                 * rappresentazione che il riconoscitore vedra' al replay. */
                 const char *n1 = strchr(norm, '"'), *n2 = n1 ? strchr(n1 + 1, '"') : NULL;
                 const char *f1 = n2 && n2 > n1 + 1 ? n1 : rq1;
                 const char *f2 = n2 && n2 > n1 + 1 ? n2 : rq2;
@@ -1454,8 +1468,12 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                 if (fpl == 0 || fpl >= KB_TERM_LEN - 2) continue;
                 char fphrase[KB_TERM_LEN];
                 memcpy(fphrase, f1 + 1, fpl); fphrase[fpl] = '\0';
+                char stored_phrase[KB_TERM_LEN];
+                brain_canonical(b, fphrase, stored_phrase,
+                                sizeof stored_phrase);
+                if (!*stored_phrase) continue;
                 char fq2[KB_TERM_LEN];
-                snprintf(fq2, sizeof fq2, "\"%s\"", fphrase);
+                snprintf(fq2, sizeof fq2, "\"%s\"", stored_phrase);
                 kb_set_origin(b->kb, KB_SESSION);
                 const char *fa[2] = { fq2, family };
                 kb_assert(b->kb, "answer_frame", fa, 2);

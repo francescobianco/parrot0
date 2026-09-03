@@ -1,5 +1,76 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# ⛔ RIPARTI DA QUI — handoff 2026-09-04: comprensione universale del codice
+
+> **Nuova direzione esplicita di F.:** portare parrot0 al livello in cui, data
+> una codebase, risponde a domande strutturali, causali e qualitative — per
+> esempio se una parte andrebbe migliorata o dove si concentra la latenza — non
+> con un frasario o una collezione infinita di smell, ma con una IR interna,
+> reasoning KB-first e conoscenza trasferibile via prompt secondo
+> `LEARN_PROTOCOL.md`.
+>
+> **Piano autoritativo:**
+> [`docs/plans/universal-code-comprehension.md`](docs/plans/universal-code-comprehension.md).
+> Integra `CODE-MASTERY.md`, `universal-input.md`, T11/T12 del coding agent e W4
+> della fucina; non sostituisce i piani di patch/repair, perché il primo traguardo
+> è capire e giudicare in read-only.
+
+## UC — il confine trovato dall'analisi
+
+> **Estensione di F., stesso giorno:** la IR non deve diventare una zona isolata.
+> Il fondamento è D38/GD10: `ir_denotation` dà a ogni item un'entità condivisa,
+> `representation_bridge` nomina un arco fra rappresentazioni e `apply/2`
+> attraversa il confine con predicato variabile. Il guadagno cercato è che una
+> conoscenza appresa in un dominio soddisfi un bisogno emerso dal codice senza
+> progettare quella capacità. Ogni claim conserva la basis dell'arco; ablation
+> e `false_composition` impediscono che “comporre” significhi inventare.
+
+- I 25 stimoli di `tests/code/*.code` sono tutti marcati `pass`, ma il banco è
+  saturo su un insieme chiuso di domande da snippet.
+- La IR code realmente condivisa oggi contiene solo `code_function/1` e
+  `code_calls/2`: non porta file, span, scope, identità, source hash o revisione.
+- `mod_codeast` decide ancora le specie di domanda con rami `wants_*`; explain
+  compone pochi tratti riconosciuti; una domanda qualitativa non ha un oggetto
+  interno su cui ragionare.
+- I quattro successi SWE sono quattro scanner C specializzati. Sono sensori
+  secondari utili, non il motore universale da estendere col quinto pattern.
+- Gli organi generali esistono già e vanno collegati: IR dell'input,
+  evidence scorer, Task IR, viste materializzate, compensazione/replay e
+  provenance. `code_keyword/2` è perfino già in KB, ma i frontend usano ancora
+  liste private: piano scritto, consumer mancante.
+
+## UC — ordine di lavoro aggiornato
+
+1. **UC1: sorgente revisionata e attraversabile nella KB.** Snapshot, source
+   unit, hash, span, symbol id e provenance; C/Python pubblicano nella stessa IR
+   le sole definizioni/chiamate che già vedono; `ir_denotation` + `apply/2`
+   aprono gli archi verso altre zone; le viste legacy restano derivate e
+   deprecabili, non vincoli architetturali.
+2. **Rilettura causale.** Re-ingerire un file deve sostituire la closure vecchia,
+   non accumularla. Nessuna ingestione massiva prima di questo gate.
+3. **Domanda → Task IR → obbligo di evidenza.** Eliminare come via primaria i
+   `wants_*` e rendere insegnabili/retrattabili via prompt le forme delle
+   domande sul codice.
+4. **Scope, reference, CFG, def-use ed effetti.** Sono gli archi con fan-out
+   maggiore: aprono explain, impact, qualità e performance insieme.
+5. **Criteri qualitativi in KB.** Finding = criterio + evidenza +
+   controevidenza + policy + tradeoff; mai un verdetto hardcoded.
+6. **Performance grounded.** Senza profilo solo sospetti statici e gap
+   informato; con profilo ranking legato a workload, snapshot e symbol/span.
+7. **Teaching completo.** Semantica di costrutto, mapping di osservazione,
+   criterio e policy si insegnano in lingua naturale con replay, Transfer@3,
+   contrasto, composizione, ablation, reteach e fresh process.
+8. **Autocorrezione e scala.** Gap code → azione read-only → replay; poi indice
+   per termine e viste materializzate guidati da `/debug`, mai timeout alzati.
+
+**Primo incremento esatto:** §9 del piano. Non aggiungere un altro smell, non
+avviare una suite lunga e non popolare una grande AST senza consumer. Il primo
+verticale deve già rispondere da definizioni/chiamate revisionate, mostrare la
+provenance, perdere gli archi stale dopo una rilettura e acquisire/ritrarre via
+prompt almeno una nuova forma di domanda.
+
+---
+
 # ⛔ RIPARTI DA QUI — handoff 2026-09-03
 
 > **Come si riprende:** «continua da questo file». Leggi **§−1** (perché siamo

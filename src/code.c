@@ -162,225 +162,422 @@ size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
     return nn;
 }
 
-/* A C control-flow / type keyword can sit right before '(' (e.g. "if (", "for (",
- * "sizeof (") and look like a definition head; it is not a function name, so it
- * is excluded. The function's own name is never a keyword. */
-static int is_c_keyword(const char *w) {
-    /* TODO(kb-first): le parole chiave di un LINGUAGGIO — qui il C, poco piu'
-     * avanti Python, poi i tipi e i metodi puri. Sono la definizione di quel
-     * linguaggio, e finche' stanno nel motore parrot0 non puo' imparare un
-     * linguaggio nuovo: `language_keyword(rust, "fn")` lo renderebbe una
-     * conoscenza come le altre. */
-    static const char *const kw[] = {
+/* UC1 — the frontend emits observations first and commits them only after the
+ * complete source pass.  This is deliberately smaller than an AST: it is the
+ * common identity/provenance spine on which richer frontends can grow without
+ * changing consumers. */
+typedef struct {
+    char id[48];
+    char parent[48];
+    char kind[24];
+    char role[24];
+    char name[KB_TERM_LEN];
+    size_t start;
+    size_t len;
+} CodeObservedNode;
+
+typedef struct {
+    CodeObservedNode *nodes;
+    size_t n;
+    size_t cap;
+    size_t functions;
+    size_t calls;
+    int failed;
+} CodeObservation;
+
+static CodeObservedNode *code_observation_add(CodeObservation *o,
+                                               const char *kind,
+                                               const char *role,
+                                               const char *name,
+                                               const char *parent,
+                                               size_t start, size_t len) {
+    if (!o || o->failed) return NULL;
+    if (o->n == o->cap) {
+        size_t next = o->cap ? o->cap * 2 : 32;
+        if (next < o->cap || next > (size_t)-1 / sizeof *o->nodes) {
+            o->failed = 1;
+            return NULL;
+        }
+        CodeObservedNode *grown = realloc(o->nodes, next * sizeof *o->nodes);
+        if (!grown) {
+            o->failed = 1;
+            return NULL;
+        }
+        o->nodes = grown;
+        o->cap = next;
+    }
+    CodeObservedNode *n = &o->nodes[o->n++];
+    memset(n, 0, sizeof *n);
+    snprintf(n->id, sizeof n->id, "%s_%zu", !strcmp(kind, "function") ? "fn" : "call", start);
+    snprintf(n->parent, sizeof n->parent, "%s", parent && *parent ? parent : "unit_0");
+    snprintf(n->kind, sizeof n->kind, "%s", kind);
+    snprintf(n->role, sizeof n->role, "%s", role);
+    snprintf(n->name, sizeof n->name, "%s", name);
+    n->start = start;
+    n->len = len;
+    if (!strcmp(kind, "function")) o->functions++;
+    if (!strcmp(kind, "call")) o->calls++;
+    return n;
+}
+
+static int code_keyword(KB *kb, const char *language, const char *word) {
+    if (!kb || !language || !word) return 0;
+    const char *q[] = { language, word };
+    return kb_query(kb, "code_keyword", q, 2);
+}
+
+/* Deprecated bridge for the KB-less evaluator/localizer below.  The UC1
+ * observation path does NOT call this: it queries code_keyword/2 above, so its
+ * language knowledge grows and retracts at runtime.  Removing this bridge
+ * requires threading a KB through those older APIs, a separate migration from
+ * the source-IR transaction implemented here. */
+static int is_c_keyword(const char *word) {
+    static const char *const words[] = {
         "if", "else", "for", "while", "do", "switch", "case", "return",
         "sizeof", "struct", "union", "enum", "typedef", "static", "const",
         "unsigned", "signed", "void", "int", "char", "short", "long", "float",
         "double", "goto", "break", "continue", "default", "extern", "register",
-        "volatile", "inline", NULL,
+        "volatile", "inline", NULL
     };
-    for (const char *const *k = kw; *k; k++)
-        if (strcmp(w, *k) == 0) return 1;
+    for (size_t i = 0; words[i]; i++)
+        if (!strcmp(word, words[i])) return 1;
     return 0;
 }
 
-size_t code_ingest(KB *kb, const char *src,
-                   char names[][KB_TERM_LEN], size_t max) {
-    if (!kb || !src) return 0;
-    size_t found = 0;
+static void code_fnv1a_hex_update(unsigned long long *h,
+                                  const char *data, size_t n) {
+    for (size_t i = 0; i < n; i++) {
+        *h ^= (unsigned char)data[i];
+        *h *= 1099511628211ULL;
+    }
+}
 
-    /* gen174: one structural pass that tracks the enclosing function by brace
-     * depth, so an identifier-call inside a body is attributed to its caller
-     * (code_calls/2) — the F3 call-graph faculty, derived from structure. */
-    char cur_fn[KB_TERM_LEN] = "";
+static void code_digest(const char *data, size_t n, char out[17]) {
+    unsigned long long h = 1469598103934665603ULL;
+    code_fnv1a_hex_update(&h, data, n);
+    snprintf(out, 17, "%016llx", h);
+}
+
+static void code_snapshot_id(const char *source, const char *language,
+                             const char *src, size_t n, char out[32]) {
+    unsigned long long h = 1469598103934665603ULL;
+    code_fnv1a_hex_update(&h, source, strlen(source));
+    code_fnv1a_hex_update(&h, "\0", 1);
+    code_fnv1a_hex_update(&h, language, strlen(language));
+    code_fnv1a_hex_update(&h, "\0", 1);
+    code_fnv1a_hex_update(&h, src, n);
+    snprintf(out, 32, "snapshot_%016llx", h);
+}
+
+static int code_quote(const char *s, char out[KB_TERM_LEN]) {
+    if (!s) return 0;
+    size_t o = 0;
+    out[o++] = '"';
+    for (size_t i = 0; s[i]; i++) {
+        if (o + 2 >= KB_TERM_LEN) return 0;
+        out[o++] = s[i] == '"' ? '\'' : s[i];
+    }
+    out[o++] = '"';
+    out[o] = '\0';
+    return 1;
+}
+
+static void code_snapshot_retract(KB *kb, const char *snapshot) {
+    static const char *const first_arg_preds[] = {
+        "code_snapshot", "code_source_unit", "code_node", "code_name",
+        "code_span", "code_edge", "code_provenance", NULL
+    };
+    for (size_t i = 0; first_arg_preds[i]; i++) {
+        const char *q[] = { snapshot, NULL, NULL, NULL };
+        size_t arity = !strcmp(first_arg_preds[i], "code_snapshot") ? 4 :
+                       !strcmp(first_arg_preds[i], "code_source_unit") ? 4 :
+                       !strcmp(first_arg_preds[i], "code_node") ? 4 :
+                       !strcmp(first_arg_preds[i], "code_name") ? 4 :
+                       !strcmp(first_arg_preds[i], "code_span") ? 4 :
+                       !strcmp(first_arg_preds[i], "code_edge") ? 4 : 3;
+        kb_retract_match(kb, first_arg_preds[i], q, arity);
+    }
+}
+
+static int code_observation_publish(KB *kb, const char *src,
+                                    const char *source, const char *language,
+                                    const char *frontend,
+                                    const CodeObservation *o,
+                                    CodeIngestReport *report) {
+    char quoted_source[KB_TERM_LEN], snapshot[32], digest[17];
+    char digest_term[40], bytes[32], whole[32];
+    size_t src_len = strlen(src);
+    if (!code_quote(source, quoted_source)) return 0;
+    code_digest(src, src_len, digest);
+    code_snapshot_id(source, language, src, src_len, snapshot);
+    snprintf(digest_term, sizeof digest_term, "fnv1a64_%s", digest);
+    snprintf(bytes, sizeof bytes, "%zu", src_len);
+    snprintf(whole, sizeof whole, "%zu", src_len);
+
+    char (*old)[KB_TERM_LEN] = NULL;
+    size_t no = 0;
+    const char *oq[] = { source, NULL };
+    if (!kb_match_all(kb, "code_source_snapshot", oq, 2, &old, &no))
+        return 0;
+
+    int saved_origin = kb_origin(kb);
+    kb_set_origin(kb, KB_REFLECTIVE);
+    int ok = 1;
+    const char *snap_args[] = { snapshot, language, digest_term, bytes };
+    ok = ok && kb_assert(kb, "code_snapshot", snap_args, 4);
+    const char *source_args[] = { source, snapshot };
+    ok = ok && kb_assert(kb, "code_source_snapshot", source_args, 2);
+    const char *unit_args[] = { snapshot, "unit_0", source, "root" };
+    ok = ok && kb_assert(kb, "code_source_unit", unit_args, 4);
+    const char *root_args[] = { snapshot, "unit_0", "source_unit", "root" };
+    ok = ok && kb_assert(kb, "code_node", root_args, 4);
+    const char *root_name[] = { snapshot, "unit_0", "source", source };
+    ok = ok && kb_assert(kb, "code_name", root_name, 4);
+    const char *root_span[] = { snapshot, "unit_0", "0", whole };
+    ok = ok && kb_assert(kb, "code_span", root_span, 4);
+    char root_evidence[KB_TERM_LEN];
+    snprintf(root_evidence, sizeof root_evidence,
+             "evidence(%s, %s, span(0, %s), %s)",
+             quoted_source, digest_term, whole, frontend);
+    const char *root_prov[] = { snapshot, "unit_0", root_evidence };
+    ok = ok && kb_assert(kb, "code_provenance", root_prov, 3);
+
+    for (size_t i = 0; ok && i < o->n; i++) {
+        const CodeObservedNode *n = &o->nodes[i];
+        char start[32], len[32], evidence[KB_TERM_LEN];
+        snprintf(start, sizeof start, "%zu", n->start);
+        snprintf(len, sizeof len, "%zu", n->len);
+        const char *node_args[] = { snapshot, n->id, n->kind, n->parent };
+        ok = ok && kb_assert(kb, "code_node", node_args, 4);
+        const char *name_args[] = { snapshot, n->id, n->role, n->name };
+        ok = ok && kb_assert(kb, "code_name", name_args, 4);
+        const char *span_args[] = { snapshot, n->id, start, len };
+        ok = ok && kb_assert(kb, "code_span", span_args, 4);
+        snprintf(evidence, sizeof evidence,
+                 "evidence(%s, %s, span(%s, %s), %s)",
+                 quoted_source, digest_term, start, len, frontend);
+        const char *prov_args[] = { snapshot, n->id, evidence };
+        ok = ok && kb_assert(kb, "code_provenance", prov_args, 3);
+        if (!strcmp(n->kind, "call")) {
+            const char *edge_args[] = { snapshot, n->parent, "calls", n->id };
+            ok = ok && kb_assert(kb, "code_edge", edge_args, 4);
+        }
+    }
+
+    if (!ok) {
+        code_snapshot_retract(kb, snapshot);
+        const char *rollback_source[] = { source, snapshot };
+        kb_retract_match(kb, "code_source_snapshot", rollback_source, 2);
+        kb_set_origin(kb, saved_origin);
+        free(old);
+        return 0;
+    }
+
+    int replaced = 0;
+    for (size_t i = 0; i < no; i++) {
+        if (!strcmp(old[i], snapshot)) continue;
+        const char *old_source[] = { source, old[i] };
+        kb_retract_match(kb, "code_source_snapshot", old_source, 2);
+        code_snapshot_retract(kb, old[i]);
+        replaced = 1;
+    }
+    kb_set_origin(kb, saved_origin);
+    free(old);
+
+    if (report) {
+        memset(report, 0, sizeof *report);
+        snprintf(report->snapshot, sizeof report->snapshot, "%s", snapshot);
+        report->functions = o->functions;
+        report->calls = o->calls;
+        report->nodes = o->n + 1;
+        report->replaced = replaced;
+    }
+    return 1;
+}
+
+static int code_observe_c(KB *kb, const char *src, CodeObservation *o) {
+    char cur_node[48] = "";
     int brace = 0;
-    int fn_brace = -1;                  /* body depth of cur_fn; -1 = outside */
-
+    int fn_brace = -1;
     const char *p = src;
     while (*p) {
         if (*p == '{') { brace++; p++; continue; }
         if (*p == '}') {
             brace--;
-            if (fn_brace >= 0 && brace < fn_brace) { cur_fn[0] = '\0'; fn_brace = -1; }
-            p++; continue;
+            if (fn_brace >= 0 && brace < fn_brace) {
+                cur_node[0] = '\0';
+                fn_brace = -1;
+            }
+            p++;
+            continue;
         }
-
-        /* Find the start of an identifier. */
         if (!(isalpha((unsigned char)*p) || *p == '_')) { p++; continue; }
         const char *id = p;
         while (isalnum((unsigned char)*p) || *p == '_') p++;
         size_t idlen = (size_t)(p - id);
-
-        /* An identifier followed by '(' is a definition head or a call. */
         const char *q = p;
         while (*q && isspace((unsigned char)*q)) q++;
-        if (*q != '(') continue;                 /* p already advanced; no loop */
-
-        /* Balance the parens (lookahead only — p does not move past them, so a
-         * nested call in the argument list is still seen next iterations). */
+        if (*q != '(') continue;
         int depth = 0;
         const char *r = q;
         for (; *r; r++) {
             if (*r == '(') depth++;
-            else if (*r == ')') { depth--; if (depth == 0) { r++; break; } }
+            else if (*r == ')') {
+                depth--;
+                if (depth == 0) { r++; break; }
+            }
         }
-        if (depth != 0) break;                    /* unbalanced — stop scanning */
-
+        if (depth != 0) return 0;
         const char *after = r;
         while (*after && isspace((unsigned char)*after)) after++;
-
         char name[KB_TERM_LEN];
         if (idlen == 0 || idlen >= sizeof name) continue;
         memcpy(name, id, idlen);
         name[idlen] = '\0';
-        if (is_c_keyword(name)) continue;         /* if/for/while/sizeof... */
-
+        if (code_keyword(kb, "c", name)) continue;
+        size_t start = (size_t)(id - src);
         if (*after == '{') {
-            /* Function definition. Assert into RAM immediately — code joins the
-             * same KB as the world. KB_BASE provenance so the session writer
-             * does not re-save derived structure (re-derivable from source). */
-            kb_set_origin(kb, KB_BASE);
-            const char *args[] = { name };
-            kb_assert(kb, "code_function", args, 1);
-            kb_set_origin(kb, KB_SESSION);
-
-            /* Redefinition replaces: clear this function's prior call edges so a
-             * re-ingest of the same name in one session does not merge stale
-             * callees from an earlier, different body. */
-            char old[32][KB_TERM_LEN];
-            const char *qp[] = { name, NULL };
-            size_t no = kb_match(kb, "code_calls", qp, 2, old, 32);
-            for (size_t i = 0; i < no; i++) {
-                const char *ra[] = { name, old[i] };
-                kb_retract(kb, "code_calls", ra, 2);
-            }
-            if (names && found < max)
-                snprintf(names[found], KB_TERM_LEN, "%s", name);
-            found++;
-            /* Enter the body: let the '{' be counted on the next iteration. */
-            snprintf(cur_fn, sizeof cur_fn, "%s", name);
+            CodeObservedNode *n = code_observation_add(o, "function", "definition",
+                                                       name, "unit_0", start, idlen);
+            if (!n) return 0;
+            snprintf(cur_node, sizeof cur_node, "%s", n->id);
             fn_brace = brace + 1;
             p = after;
-        } else if (cur_fn[0]) {
-            /* A call inside a function body — attribute it to the caller. */
-            kb_set_origin(kb, KB_BASE);
-            const char *args[] = { cur_fn, name };
-            kb_assert(kb, "code_calls", args, 2);
-            kb_set_origin(kb, KB_SESSION);
-            /* p stays just past the ident, so nested calls are still seen. */
+        } else if (cur_node[0]) {
+            if (!code_observation_add(o, "call", "reference", name,
+                                      cur_node, start, idlen)) return 0;
         }
     }
-    return found;
+    return !o->failed;
 }
 
-/* gen196: is `w` a Python keyword (so `name(` after it is not a call)? */
-static int is_py_keyword(const char *w) {
-    static const char *const kw[] = {
-        "def","class","if","elif","else","for","while","return","import","from",
-        "with","try","except","finally","lambda","and","or","not","in","is",
-        "assert","yield","raise","global","nonlocal","pass","break","continue",
-        "del","as","async","await","print","range","len","True","False","None",
-        NULL };
-    for (size_t i = 0; kw[i]; i++) if (strcmp(w, kw[i]) == 0) return 1;
-    return 0;
-}
-
-/* gen196: scan one Python statement line for calls `name(...)` and attribute each
- * to `caller`, mirroring code_ingest's call-edge assertion (KB_BASE provenance). */
-static void py_calls_in_line(KB *kb, const char *caller, const char *line) {
+static int code_py_calls_in_line(KB *kb, CodeObservation *o,
+                                 const char *caller, const char *line,
+                                 size_t base) {
     const char *p = line;
     while (*p) {
-        if (*p == '#') break;                                  /* comment */
+        if (*p == '#') break;
         if (!(isalpha((unsigned char)*p) || *p == '_')) { p++; continue; }
         const char *id = p;
         while (isalnum((unsigned char)*p) || *p == '_') p++;
-        size_t l = (size_t)(p - id);
-        const char *q = p; while (*q == ' ' || *q == '\t') q++;
+        size_t len = (size_t)(p - id);
+        const char *q = p;
+        while (*q == ' ' || *q == '\t') q++;
         if (*q != '(') continue;
         char name[KB_TERM_LEN];
-        if (l == 0 || l >= sizeof name) continue;
-        memcpy(name, id, l); name[l] = '\0';
-        if (is_py_keyword(name)) continue;
-        kb_set_origin(kb, KB_BASE);
-        const char *args[] = { caller, name };
-        kb_assert(kb, "code_calls", args, 2);
-        kb_set_origin(kb, KB_SESSION);
+        if (len == 0 || len >= sizeof name) continue;
+        memcpy(name, id, len);
+        name[len] = '\0';
+        if (code_keyword(kb, "python", name)) continue;
+        if (!code_observation_add(o, "call", "reference", name, caller,
+                                  base + (size_t)(id - line), len)) return 0;
     }
+    return 1;
 }
 
-size_t code_ingest_py(KB *kb, const char *src,
-                      char names[][KB_TERM_LEN], size_t max) {
-    if (!kb || !src) return 0;
-    size_t found = 0;
-
-    /* A stack of enclosing `def`s by indentation: a line at indent I closes every
-     * def whose body-indent is >= I (the Python delta to C's brace depth). */
-    struct { int indent; char name[KB_TERM_LEN]; } stack[64];
+static int code_observe_python(KB *kb, const char *src, CodeObservation *o) {
+    struct { int indent; char node[48]; } stack[64];
     int sp = 0;
-
     const char *p = src;
     while (*p) {
-        /* one physical line: [line, eol) */
         const char *line = p;
         const char *eol = line;
         while (*eol && *eol != '\n') eol++;
-
-        /* indent = leading whitespace columns; skip blank / comment-only lines. */
         const char *c = line;
         int indent = 0;
         while (c < eol && (*c == ' ' || *c == '\t')) { indent++; c++; }
-        if (c == eol || *c == '#') { p = (*eol ? eol + 1 : eol); continue; }
-
-        /* close scopes this line has dedented out of. */
+        if (c == eol || *c == '#') { p = *eol ? eol + 1 : eol; continue; }
         while (sp > 0 && stack[sp - 1].indent >= indent) sp--;
-
         int is_def = 0;
         const char *d = c;
         if (strncmp(d, "async ", 6) == 0) d += 6;
         if (strncmp(d, "def ", 4) == 0) { is_def = 1; d += 4; }
-
         if (is_def) {
             while (d < eol && (*d == ' ' || *d == '\t')) d++;
             const char *id = d;
             while (d < eol && (isalnum((unsigned char)*d) || *d == '_')) d++;
-            size_t l = (size_t)(d - id);
-            if (l > 0 && l < KB_TERM_LEN) {
+            size_t len = (size_t)(d - id);
+            if (len > 0 && len < KB_TERM_LEN) {
                 char name[KB_TERM_LEN];
-                memcpy(name, id, l); name[l] = '\0';
-
-                kb_set_origin(kb, KB_BASE);
-                const char *args[] = { name };
-                kb_assert(kb, "code_function", args, 1);
-                kb_set_origin(kb, KB_SESSION);
-
-                /* redefinition replaces: clear prior call edges (as code_ingest). */
-                char old[32][KB_TERM_LEN];
-                const char *qp[] = { name, NULL };
-                size_t no = kb_match(kb, "code_calls", qp, 2, old, 32);
-                for (size_t i = 0; i < no; i++) {
-                    const char *ra[] = { name, old[i] };
-                    kb_retract(kb, "code_calls", ra, 2);
+                memcpy(name, id, len);
+                name[len] = '\0';
+                const char *parent = sp > 0 ? stack[sp - 1].node : "unit_0";
+                CodeObservedNode *n = code_observation_add(
+                    o, "function", "definition", name, parent,
+                    (size_t)(id - src), len);
+                if (!n) return 0;
+                if (sp < 64) {
+                    stack[sp].indent = indent;
+                    snprintf(stack[sp].node, sizeof stack[sp].node, "%s", n->id);
+                    sp++;
                 }
-                if (names && found < max)
-                    snprintf(names[found], KB_TERM_LEN, "%s", name);
-                found++;
-
-                if (sp < 64) { stack[sp].indent = indent;
-                               snprintf(stack[sp].name, KB_TERM_LEN, "%s", name); sp++; }
             }
         } else if (sp > 0) {
-            /* a statement inside the nearest enclosing def — attribute its calls.
-             * (operate on a NUL-bounded copy of the line for the scanner). */
-            char buf[1024];
-            size_t ll = (size_t)(eol - c);
-            if (ll < sizeof buf) {
-                memcpy(buf, c, ll); buf[ll] = '\0';
-                py_calls_in_line(kb, stack[sp - 1].name, buf);
-            }
+            size_t len = (size_t)(eol - c);
+            char *line_copy = malloc(len + 1);
+            if (!line_copy) return 0;
+            memcpy(line_copy, c, len);
+            line_copy[len] = '\0';
+            int ok = code_py_calls_in_line(kb, o, stack[sp - 1].node,
+                                           line_copy, (size_t)(c - src));
+            free(line_copy);
+            if (!ok) return 0;
         }
-
-        p = (*eol ? eol + 1 : eol);
+        p = *eol ? eol + 1 : eol;
     }
+    return !o->failed;
+}
+
+size_t code_ingest_source(KB *kb, const char *src, const char *source,
+                          const char *language,
+                          char names[][KB_TERM_LEN], size_t max,
+                          CodeIngestReport *report) {
+    if (report) memset(report, 0, sizeof *report);
+    if (!kb || !src || !source || !*source || !language || !*language) return 0;
+    size_t len = strlen(src);
+    char *clean = malloc(len + 1);
+    if (!clean) return 0;
+    memcpy(clean, src, len + 1);
+    code_strip(clean);
+
+    CodeObservation o;
+    memset(&o, 0, sizeof o);
+    int observed = !strcmp(language, "python")
+                 ? code_observe_python(kb, clean, &o)
+                 : code_observe_c(kb, clean, &o);
+    free(clean);
+    if (!observed || o.failed) {
+        free(o.nodes);
+        return 0;
+    }
+    if (!code_observation_publish(kb, src, source, language,
+                                  !strcmp(language, "python")
+                                      ? "builtin_python_scan_v1"
+                                      : "builtin_c_scan_v1",
+                                  &o, report)) {
+        free(o.nodes);
+        return 0;
+    }
+    size_t shown = o.functions < max ? o.functions : max;
+    size_t at = 0;
+    for (size_t i = 0; names && i < o.n && at < shown; i++) {
+        if (strcmp(o.nodes[i].kind, "function") != 0) continue;
+        snprintf(names[at++], KB_TERM_LEN, "%s", o.nodes[i].name);
+    }
+    size_t found = o.functions;
+    free(o.nodes);
     return found;
+}
+
+size_t code_ingest(KB *kb, const char *src,
+                   char names[][KB_TERM_LEN], size_t max) {
+    return code_ingest_source(kb, src, "inline:c", "c", names, max, NULL);
+}
+
+size_t code_ingest_py(KB *kb, const char *src,
+                      char names[][KB_TERM_LEN], size_t max) {
+    return code_ingest_source(kb, src, "inline:python", "python",
+                              names, max, NULL);
 }
 
 /* --- gen175/176: symbolic execution of a function body ------------------ */

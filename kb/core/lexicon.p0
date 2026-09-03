@@ -1393,12 +1393,34 @@ machinery(solfege_note).
 solfege_note(do). solfege_note(re). solfege_note(mi). solfege_note(fa).
 solfege_note(sol). solfege_note(la). solfege_note(si). solfege_note(ti).
 machinery(code_keyword).
-code_keyword(python, while). code_keyword(python, for). code_keyword(python, if).
-code_keyword(python, def). code_keyword(python, class). code_keyword(python, else).
-code_keyword(python, elif). code_keyword(python, try). code_keyword(python, with).
-code_keyword(c, int). code_keyword(c, char). code_keyword(c, float).
-code_keyword(c, double). code_keyword(c, void). code_keyword(c, long).
-code_keyword(c, return).
+% The source frontends query this relation at observation time.  Adding or
+% retracting a keyword therefore changes classification without recompiling the
+% scanner; the former private C arrays no longer shadow this knowledge.
+code_keyword(c, auto). code_keyword(c, break). code_keyword(c, case).
+code_keyword(c, char). code_keyword(c, const). code_keyword(c, continue).
+code_keyword(c, default). code_keyword(c, do). code_keyword(c, double).
+code_keyword(c, else). code_keyword(c, enum). code_keyword(c, extern).
+code_keyword(c, float). code_keyword(c, for). code_keyword(c, goto).
+code_keyword(c, if). code_keyword(c, inline). code_keyword(c, int).
+code_keyword(c, long). code_keyword(c, register). code_keyword(c, restrict).
+code_keyword(c, return). code_keyword(c, short). code_keyword(c, signed).
+code_keyword(c, sizeof). code_keyword(c, static). code_keyword(c, struct).
+code_keyword(c, switch). code_keyword(c, typedef). code_keyword(c, union).
+code_keyword(c, unsigned). code_keyword(c, void). code_keyword(c, volatile).
+code_keyword(c, while).
+
+code_keyword(python, and). code_keyword(python, as). code_keyword(python, assert).
+code_keyword(python, async). code_keyword(python, await). code_keyword(python, break).
+code_keyword(python, class). code_keyword(python, continue). code_keyword(python, def).
+code_keyword(python, del). code_keyword(python, elif). code_keyword(python, else).
+code_keyword(python, except). code_keyword(python, False). code_keyword(python, finally).
+code_keyword(python, for). code_keyword(python, from). code_keyword(python, global).
+code_keyword(python, if). code_keyword(python, import). code_keyword(python, in).
+code_keyword(python, is). code_keyword(python, lambda). code_keyword(python, None).
+code_keyword(python, nonlocal). code_keyword(python, not). code_keyword(python, or).
+code_keyword(python, pass). code_keyword(python, raise). code_keyword(python, return).
+code_keyword(python, True). code_keyword(python, try). code_keyword(python, while).
+code_keyword(python, with). code_keyword(python, yield).
 % I prefissi riconoscibili dal verificatore sono dati di sintassi, non decisioni
 % del C: una superficie nuova si insegna qui e il consumer continua a scansionare.
 machinery(code_pattern).
