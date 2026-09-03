@@ -65,3 +65,23 @@ wiki_concept(oxygen, chemistry, "chemical element; it has the symbol O and its a
 % source: https://en.wikipedia.org/wiki/Water
 % revision: 1371648527; processed: 2026-09-03T10:42:41Z
 wiki_concept(water, chemistry, "inorganic compound with the chemical formula H2O").
+
+% chemistry / Gas
+% source: https://en.wikipedia.org/wiki/Gas
+% revision: 1372377900; processed: 2026-09-03T11:00:34Z
+wiki_concept(gas, chemistry, "state of matter with neither fixed volume nor fixed shape").
+
+% chemistry / Liquid
+% source: https://en.wikipedia.org/wiki/Liquid
+% revision: 1369655335; processed: 2026-09-03T11:00:42Z
+wiki_concept(liquid, chemistry, "state of matter with a definite volume but no fixed shape").
+
+% chemistry / Metal
+% source: https://en.wikipedia.org/wiki/Metal
+% revision: 1371910012; processed: 2026-09-03T11:00:21Z
+wiki_concept(metal, chemistry, "material that, when polished or fractured, shows a lustrous appearance, and conducts electricity and heat...").
+
+% chemistry / Salt
+% source: https://en.wikipedia.org/wiki/Salt
+% revision: 1372909840; processed: 2026-09-03T11:00:27Z
+wiki_concept(salt, chemistry, "mineral composed primarily of sodium chloride (NaCl)").

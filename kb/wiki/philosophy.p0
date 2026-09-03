@@ -1,0 +1,30 @@
+% Conoscenza generale dal wiki — dominio: philosophy.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello).
+
+% philosophy / Argument
+% source: https://en.wikipedia.org/wiki/Argument
+% revision: 1364091030; processed: 2026-09-03T11:03:27Z
+wiki_concept(argument, philosophy, "one or more premises--sentences, statements, or propositions--directed towards arriving at a logical conclusion").
+
+% philosophy / Ethics
+% source: https://en.wikipedia.org/wiki/Ethics
+% revision: 1370105996; processed: 2026-09-03T11:03:06Z
+wiki_concept(ethics, philosophy, "philosophical study of moral phenomena").
+
+% philosophy / Knowledge
+% source: https://en.wikipedia.org/wiki/Knowledge
+% revision: 1370920649; processed: 2026-09-03T11:03:20Z
+wiki_concept(knowledge, philosophy, "awareness of facts, a familiarity with individuals and situations, or a practical skill").
+
+% philosophy / Logic
+% source: https://en.wikipedia.org/wiki/Logic
+% revision: 1369250473; processed: 2026-09-03T11:02:59Z
+wiki_concept(logic, philosophy, "study of correct reasoning").
+
+% philosophy / Truth
+% source: https://en.wikipedia.org/wiki/Truth
+% revision: 1372815036; processed: 2026-09-03T11:03:13Z
+wiki_concept(truth, philosophy, "conformity to reality or fact").

@@ -102,3 +102,33 @@ consequence_connector(thus).
 ground_connector(because).
 consequence_connector(accordingly).
 ground_connector(since).
+
+% ── gen490 — I VERBI CHE ACCENDONO LA LETTURA, E PERCHE' QUI NON CE NE SONO ──
+%
+% Dal gen490 `relation_verb/1` non serve piu' solo a rispondere: e' anche cio' da
+% cui il lettore strutturale DERIVA il proprio operatore binario
+% (`frame_operator_concept/2`, kb/core/grammar.p0). Ogni riga qui accende quindi
+% la lettura di una FAMIGLIA di frasi — «X rilascia Y», «X contiene Y» — non di
+% una singola frase. Sembrava il posto con il rapporto piu' alto fra riga scritta
+% e prosa leggibile, e sul metro della lettura lo e':
+%
+%     35 verbi (oggi)   resa su prosa vera   0,26 fatti/frase
+%     +8                                     0,33
+%     +52                                    0,35
+%
+% ⚠ §L — MA QUESTA CLASSE HA UN COSTO, e nessun'altra classe lessicale ne aveva
+% avuto uno finora. Ogni operatore in piu' allarga la ricerca del frame a OGNI
+% turno, anche nei turni che quel verbo non lo contengono. Misurato a macchina
+% scarica: +8 verbi porta `taught_lexicon` da 17/18 a 15/20 e
+% `frontier_chat_audit.it` da 53/3 a 48/8, tutti timeout; +16 fa cadere anche
+% `facts` e `basics`; +52 non lascia passare quasi nulla.
+%
+% Percio' qui non ce n'e' nessuno, ed e' una decisione, non una dimenticanza:
+% **il collo di bottiglia del corpus non e' la lista dei verbi, e' il costo
+% O(operatori) per turno del lettore strutturale.** Allungare questa lista prima
+% di aver abbassato quel costo compra resa in lettura e la paga in turni andati
+% in timeout — cioe' peggiora parrot0 mentre sembra migliorarlo. Prima si
+% abbassa il costo (§L: indice per termine in `src/kb.c`), poi la lista si
+% allunga da sola, misurando un verbo per volta con `rules`/`facts`/`basics`
+% accanto.
+

@@ -1,0 +1,25 @@
+% Conoscenza generale dal wiki — dominio: linguistics.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello).
+
+% linguistics / Grammar
+% source: https://en.wikipedia.org/wiki/Grammar
+% revision: 1369261743; processed: 2026-09-03T11:01:45Z
+wiki_concept(grammar, linguistics, "system of rules that governs how a natural language is structured and used, as evidenced by its speakers or writers").
+
+% linguistics / Language
+% source: https://en.wikipedia.org/wiki/Language
+% revision: 1372927239; processed: 2026-09-03T11:01:38Z
+wiki_concept(language, linguistics, "structured system of communication that consists of grammar and vocabulary").
+
+% linguistics / Sentence (linguistics)
+% source: https://en.wikipedia.org/wiki/Sentence_(linguistics)
+% revision: 1349619390; processed: 2026-09-03T11:02:05Z
+wiki_concept(sentence_linguistics, linguistics, "linguistic expression, such as the English example 'The quick brown fox jumps over the lazy dog'").
+
+% linguistics / Translation
+% source: https://en.wikipedia.org/wiki/Translation
+% revision: 1370022660; processed: 2026-09-03T11:02:11Z
+wiki_concept(translation, linguistics, "communication of the meaning of a source-language text by means of an equivalent target-language text").

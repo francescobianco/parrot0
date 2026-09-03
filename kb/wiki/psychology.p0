@@ -1,0 +1,20 @@
+% Conoscenza generale dal wiki — dominio: psychology.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello).
+
+% psychology / Emotion
+% source: https://en.wikipedia.org/wiki/Emotion
+% revision: 1371641318; processed: 2026-09-03T11:03:41Z
+wiki_concept(emotion, psychology, "physical and mental states brought on by neurophysiological and neuropsychological changes, variously associated...").
+
+% psychology / Learning
+% source: https://en.wikipedia.org/wiki/Learning
+% revision: 1372119807; processed: 2026-09-03T11:03:48Z
+wiki_concept(learning, psychology, "process of acquiring new understanding, knowledge, behavior, skills, values, attitudes, and preferences").
+
+% psychology / Memory
+% source: https://en.wikipedia.org/wiki/Memory
+% revision: 1372333063; processed: 2026-09-03T11:03:34Z
+wiki_concept(memory, psychology, "faculty of the mind by which data or information is encoded, stored, and retrieved when needed").

@@ -3,8 +3,9 @@
 # ⛔ RIPARTI DA QUI — handoff 2026-09-03
 
 > **Come si riprende:** «continua da questo file». Leggi **§−1** (perché siamo
-> lenti, con i numeri), **§0-bis** (il ciclo di autocorrezione che ora si chiude)
-> e **§0-quater** (la catena compilata: la voce con la leva più alta, aperta),
+> lenti, con i numeri), **§0-bis** (il ciclo di autocorrezione che ora si chiude),
+> **§0-quinquies** (il lettore strutturale acceso al gen490, e il passo che
+> manca) e **§0-quater** (la catena compilata: ancora aperta),
 > poi §0/§1/§2 per l'obiettivo e lo stato, poi §3 «Il prossimo lavoro».
 > Il resto è storia e serve dopo.
 >
@@ -132,6 +133,67 @@ lavoro, ed è piccolo perché l'esecutore ora c'è:
 compensates(read_source, knowledge).      % ⛔ Wikipedia, l'unica sorgente ammessa
 compensates(ask_user, reference).         % ⛔ manca un antecedente: si chiede
 ```
+
+## §0-quinquies. ⭐ IL LETTORE STRUTTURALE ERA COSTRUITO E SPENTO (gen490)
+
+> F.: *«massimizziamo il corpus di addestramento»*. Cercando dove fosse il collo
+> di bottiglia è venuta fuori una cosa più grossa della domanda.
+
+**Il corpus non era il collo di bottiglia: lo era la lettura.** Su prosa vera di
+Wikipedia la resa era **0,13 fatti per frase**, e il soggetto-verbo-oggetto
+semplice — `Photosynthesis releases oxygen`, la forma più comune della prosa
+enciclopedica — non veniva estratto affatto. A quel rendimento nessuna quantità
+di prosa serve a niente.
+
+**La causa.** `kb/core/input-structure.p0` implementa per intero il matcher di
+`universal-input.md`, ponte domanda→lettura compreso. Ma i fatti che lo
+**accendono** non erano mai usciti dal laboratorio: al gen489, in tutta la KB,
+`frame_pattern/4`, `frame_operator_concept/2`, `semantic_entity/1`,
+`semantic_class/1` e `phrase_form/4` avevano **zero fatti**, e vivevano solo nei
+profili finti di `docs/labs/autocrescita-v3/`. È il moltiplicatore 3 del §−1
+nella forma più pura: qui il motore era perfino scritto, mancava la spina.
+
+**L'accensione, e la scelta che porta il peso.** Tutto derivato, mai elencato
+(`kb/core/grammar.p0`, blocco gen490): l'operatore si deriva da `relation_verb` e
+`clause_copula` — classi che crescono *parlando*, quindi insegnare «governs is a
+relation verb» accende la lettura di «X governs Y» dal turno dopo; e l'**entità**
+si deriva da `wiki_concept/3`, cioè dal corpus. Se le entità fossero enumerate il
+corpus leggibile sarebbe chiuso per sempre; così **la lettura finanzia la
+lettura**.
+
+| | prima | dopo |
+|---|---|---|
+| resa su 10 pagine vere, 43 frasi | 0,13 fatti/frase | **0,26** |
+| che cosa resta | atomi malformati (`pigment_found`) | `semantic_proposition` + `semantic_binding`, con provenienza |
+| `wiki_concept` | 232 | **279**, e 5 domini nuovi |
+
+**Domini nuovi:** geology, politics, economics, law, music — che il §P2 qui sotto
+segnava come *«muro totale nella sonda»*. Le **fonti** si conservano
+(`kb/learning/sources.tsv`), le pagine no: il vincolo del gen436 resta intatto.
+
+### ⛔ Il prossimo passo, con precisione
+
+La **domanda non risponde ancora dalla prosa letta**, ed è a due dita.
+`what does photosynthesis produce` lega il frame di domanda —
+`input_semantic_frame(current_turn, question, binary(produces), …)` è
+dimostrabile — ma non passa `input_frame_unique/2`: più di una lettura lega, e il
+design rifiuta *apposta* di scegliere in silenzio. Il ponte esiste già
+(`input_frame_reading/4`): **manca l'unicità**, cioè una guardia che dica quale
+lettura vince. È il mantra #14 applicato al lettore.
+
+Accanto c'è la morfologia (P1.4): `produce` e `produces` devono essere lo
+**stesso** operatore. La riga è verificata funzionante —
+
+```prolog
+linguistic_form($S, $V, en, common) :- relation_verb($V), lemma_candidate($V, $S).
+```
+
+— ma è tenuta **fuori** finché l'unicità non è risolta: allargare le letture
+senza saperle decidere peggiora l'ambiguità invece di ridurla (mantra #19b).
+
+**E la leva che resta aperta:** `relation_verb/1` ha **35 membri**. Ogni verbo
+aggiunto lì accende la lettura di una famiglia di frasi intera, e si insegna
+parlando. È il posto con il rapporto più alto fra riga scritta e prosa leggibile.
 
 ## §0-quater. ⛔ LA CATENA COMPILATA — il difetto strutturale trovato il 2026-09-03
 

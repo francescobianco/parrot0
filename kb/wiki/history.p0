@@ -1,0 +1,30 @@
+% Conoscenza generale dal wiki — dominio: history.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello).
+
+% history / Civilization
+% source: https://en.wikipedia.org/wiki/Civilization
+% revision: 1371893372; processed: 2026-09-03T11:01:31Z
+wiki_concept(civilization, history, "A civilization or civilisation is any complex society characterized by the development of the state, urbanization...").
+
+% history / Empire
+% source: https://en.wikipedia.org/wiki/Empire
+% revision: 1371901387; processed: 2026-09-03T11:01:17Z
+wiki_concept(empire, history, "realm controlled by a monarch or other official and divided between a dominant center and subordinate peripheries").
+
+% history / Revolution
+% source: https://en.wikipedia.org/wiki/Revolution
+% revision: 1370305426; processed: 2026-09-03T11:01:10Z
+wiki_concept(revolution, history, "rapid, fundamental transformation of a society's class, state, ethnic, or religious structures").
+
+% history / Treaty
+% source: https://en.wikipedia.org/wiki/Treaty
+% revision: 1368140043; processed: 2026-09-03T11:01:25Z
+wiki_concept(treaty, history, "international agreement between sovereign states or other subjects of international law that is governed by...").
+
+% history / War
+% source: https://en.wikipedia.org/wiki/War
+% revision: 1372371383; processed: 2026-09-03T11:01:03Z
+wiki_concept(war, history, "armed conflict between the armed forces of states, or between governmental forces and armed groups that are...").

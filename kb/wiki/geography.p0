@@ -1,0 +1,50 @@
+% Conoscenza generale dal wiki — dominio: geography.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello).
+
+% geography / Capital city
+% source: https://en.wikipedia.org/wiki/Capital_city
+% revision: 1371286626; processed: 2026-09-03T10:58:10Z
+wiki_concept(capital_city, geography, "A capital city, or just capital, is the municipality holding primary status in a country, state, province...").
+
+% geography / Climate
+% source: https://en.wikipedia.org/wiki/Climate
+% revision: 1371648705; processed: 2026-09-03T10:58:04Z
+wiki_concept(climate, geography, "long-term weather pattern in a region, typically averaged over 30 years").
+
+% geography / Continent
+% source: https://en.wikipedia.org/wiki/Continent
+% revision: 1372252824; processed: 2026-09-03T10:58:17Z
+wiki_concept(continent, geography, "any of several large terrestrial geographical regions").
+
+% geography / Desert
+% source: https://en.wikipedia.org/wiki/Desert
+% revision: 1371812975; processed: 2026-09-03T10:57:50Z
+wiki_concept(desert, geography, "landscape where little precipitation occurs and, consequently, living conditions create unique biomes and ecosystems").
+
+% geography / Glacier
+% source: https://en.wikipedia.org/wiki/Glacier
+% revision: 1371666943; processed: 2026-09-03T10:58:24Z
+wiki_concept(glacier, geography, "A glacier is a persistent body of natural ice, a form of rock, that is constantly moving under its own weight").
+
+% geography / Island
+% source: https://en.wikipedia.org/wiki/Island
+% revision: 1372784436; processed: 2026-09-03T10:57:57Z
+wiki_concept(island, geography, "An island or isle is a piece of land, distinct from a continent, completely surrounded by water").
+
+% geography / Mountain
+% source: https://en.wikipedia.org/wiki/Mountain
+% revision: 1355628335; processed: 2026-09-03T10:57:30Z
+wiki_concept(mountain, geography, "elevated portion of the surface of a planet, generally with steep sides that show significant exposed bedrock").
+
+% geography / Ocean
+% source: https://en.wikipedia.org/wiki/Ocean
+% revision: 1368886244; processed: 2026-09-03T10:57:43Z
+wiki_concept(ocean, geography, "body of salt water that covers approximately 70.8% of Earth").
+
+% geography / River
+% source: https://en.wikipedia.org/wiki/River
+% revision: 1368675778; processed: 2026-09-03T10:57:37Z
+wiki_concept(river, geography, "natural stream of fresh water that flows on land or inside caves towards another body of water at a lower...").

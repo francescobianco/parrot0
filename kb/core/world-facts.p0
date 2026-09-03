@@ -2212,6 +2212,15 @@ wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, ninet
 :- include(../wiki/economics.p0).
 :- include(../wiki/law.p0).
 :- include(../wiki/music.p0).
+% gen490, secondo lotto: geografia, storia, linguistica, filosofia, psicologia,
+% arte e cucina — i domini che il §P2 di LEARN_TODO elencava come «da fare».
+:- include(../wiki/geography.p0).
+:- include(../wiki/history.p0).
+:- include(../wiki/linguistics.p0).
+:- include(../wiki/philosophy.p0).
+:- include(../wiki/psychology.p0).
+:- include(../wiki/art.p0).
+:- include(../wiki/food.p0).
 % E il registro di COME sono stati letti — quando, quale revisione, quale
 % istantanea — che e' macchineria e non conoscenza sul mondo: sta in una cartella
 % dedicata alle meccaniche e si dichiara tale in testa.

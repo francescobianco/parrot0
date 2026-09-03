@@ -20,3 +20,28 @@ wiki_concept(black_hole, astronomy, "astronomical body so compact that its gravi
 % source: https://en.wikipedia.org/wiki/Galaxy
 % revision: 1360786961; processed: 2026-06-28T12:48:10Z
 wiki_concept(galaxy, astronomy, "system of stars, stellar remnants, interstellar gas, dust, and dark matter bound together by gravity").
+
+% astronomy / Comet
+% source: https://en.wikipedia.org/wiki/Comet
+% revision: 1370832856; processed: 2026-09-03T10:59:19Z
+wiki_concept(comet, astronomy, "icy, small Solar System body or interstellar object that warms and begins to release gases when passing close to...").
+
+% astronomy / Earth
+% source: https://en.wikipedia.org/wiki/Earth
+% revision: 1372042770; processed: 2026-09-03T10:58:31Z
+wiki_concept(earth, astronomy, "third planet from the Sun and the only astronomical object known to harbor life").
+
+% astronomy / Moon
+% source: https://en.wikipedia.org/wiki/Moon
+% revision: 1372767178; processed: 2026-09-03T10:58:38Z
+wiki_concept(moon, astronomy, "only natural satellite of Earth").
+
+% astronomy / Solar System
+% source: https://en.wikipedia.org/wiki/Solar_System
+% revision: 1372787813; processed: 2026-09-03T10:59:12Z
+wiki_concept(solar_system, astronomy, "gravitationally bound system of the Sun and the masses that orbit it, most prominently its eight planets, of which...").
+
+% astronomy / Star
+% source: https://en.wikipedia.org/wiki/Star
+% revision: 1370831113; processed: 2026-09-03T10:58:45Z
+wiki_concept(star, astronomy, "luminous spheroid of plasma held together by self-gravity").

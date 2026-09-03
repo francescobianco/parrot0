@@ -25,3 +25,33 @@ wiki_concept(antibiotic, medicine, "type of antimicrobial substance which is act
 % source: https://en.wikipedia.org/wiki/Neuron
 % revision: 1360647446; processed: 2026-06-28T03:29:59Z
 wiki_concept(neuron, medicine, "A neuron, neurone, or nerve cell, is a cell that is excitable, firing electric signals called action potentials...").
+
+% medicine / Blood
+% source: https://en.wikipedia.org/wiki/Blood
+% revision: 1371854914; processed: 2026-09-03T10:59:46Z
+wiki_concept(blood, medicine, "body fluid in the circulatory system of humans and other vertebrates that delivers necessary substances such as...").
+
+% medicine / Brain
+% source: https://en.wikipedia.org/wiki/Brain
+% revision: 1369814083; processed: 2026-09-03T10:59:40Z
+wiki_concept(brain, medicine, "organ that serves as the center of the nervous system in all vertebrate and most invertebrate animals").
+
+% medicine / Heart
+% source: https://en.wikipedia.org/wiki/Heart
+% revision: 1369261459; processed: 2026-09-03T10:59:26Z
+wiki_concept(heart, medicine, "muscular organ found in humans and other animals").
+
+% medicine / Kidney
+% source: https://en.wikipedia.org/wiki/Kidney
+% revision: 1368873354; processed: 2026-09-03T11:00:14Z
+wiki_concept(kidney, medicine, "In humans, the kidneys are two reddish-brown bean-shaped blood-filtering organs that are a multilobar...").
+
+% medicine / Lung
+% source: https://en.wikipedia.org/wiki/Lung
+% revision: 1372983820; processed: 2026-09-03T10:59:33Z
+wiki_concept(lung, medicine, "primary organs of the respiratory system in many animals, including humans").
+
+% medicine / Vaccine
+% source: https://en.wikipedia.org/wiki/Vaccine
+% revision: 1372850982; processed: 2026-09-03T10:59:53Z
+wiki_concept(vaccine, medicine, "biological preparation that provides active acquired immunity to a particular infectious or malignant disease").

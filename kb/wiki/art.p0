@@ -1,0 +1,35 @@
+% Conoscenza generale dal wiki — dominio: art.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello).
+
+% art / Architecture
+% source: https://en.wikipedia.org/wiki/Architecture
+% revision: 1369557716; processed: 2026-09-03T11:02:32Z
+wiki_concept(architecture, art, "study and practice of designing structures, especially habitable ones").
+
+% art / Novel
+% source: https://en.wikipedia.org/wiki/Novel
+% revision: 1372810918; processed: 2026-09-03T11:02:46Z
+wiki_concept(novel, art, "extended work of narrative fiction usually written in prose and published as a book").
+
+% art / Painting
+% source: https://en.wikipedia.org/wiki/Painting
+% revision: 1372132062; processed: 2026-09-03T11:02:18Z
+wiki_concept(painting, art, "visual art, characterized by the practice of applying paint, pigment, color, or other medium to a solid surface").
+
+% art / Poetry
+% source: https://en.wikipedia.org/wiki/Poetry
+% revision: 1371598195; processed: 2026-09-03T11:02:39Z
+wiki_concept(poetry, art, "form of literary art that uses aesthetic and often rhythmic qualities of language to evoke meanings in addition to...").
+
+% art / Sculpture
+% source: https://en.wikipedia.org/wiki/Sculpture
+% revision: 1366184730; processed: 2026-09-03T11:02:25Z
+wiki_concept(sculpture, art, "branch of the visual arts that operates in three dimensions").
+
+% art / Theatre
+% source: https://en.wikipedia.org/wiki/Theatre
+% revision: 1370773576; processed: 2026-09-03T11:02:53Z
+wiki_concept(theatre, art, "Theatre or theater is a collaborative form of performing art that uses live performers, usually actors, to present...").

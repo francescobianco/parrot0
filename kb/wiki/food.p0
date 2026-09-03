@@ -1,0 +1,30 @@
+% Conoscenza generale dal wiki — dominio: food.
+%
+% Sta qui per SORGENTE, non per specializzazione: ogni `wiki_concept` viene da
+% una pagina, letta con una regola di sintesi deterministica (scripts/learn.py,
+% nessun modello).
+
+% food / Bread
+% source: https://en.wikipedia.org/wiki/Bread
+% revision: 1371478097; processed: 2026-09-03T11:04:01Z
+wiki_concept(bread, food, "baked food product made from water, flour, and often yeast").
+
+% food / Cheese
+% source: https://en.wikipedia.org/wiki/Cheese
+% revision: 1371815820; processed: 2026-09-03T11:04:14Z
+wiki_concept(cheese, food, "type of dairy product produced in a range of flavors, textures, and forms by curdling of milk, usually from cows...").
+
+% food / Coffee
+% source: https://en.wikipedia.org/wiki/Coffee
+% revision: 1371799424; processed: 2026-09-03T11:04:07Z
+wiki_concept(coffee, food, "beverage brewed from roasted, ground coffee beans").
+
+% food / Recipe
+% source: https://en.wikipedia.org/wiki/Recipe
+% revision: 1372904171; processed: 2026-09-03T11:04:28Z
+wiki_concept(recipe, food, "set of instructions that lists the ingredients and steps needed to prepare a specific dish or meal").
+
+% food / Rice
+% source: https://en.wikipedia.org/wiki/Rice
+% revision: 1372564086; processed: 2026-09-03T11:04:21Z
+wiki_concept(rice, food, "cereal grain and, in its domesticated form, is the staple food of over half of the world's population, particularly...").
