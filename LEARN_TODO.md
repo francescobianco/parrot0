@@ -15,6 +15,59 @@
 > della fucina; non sostituisce i piani di patch/repair, perché il primo traguardo
 > è capire e giudicare in read-only.
 
+
+## §0-septies. ⭐ gen492 — LA COMPRENSIONE DEL CODICE, E IL PONTE CHE LA RENDE VIVA
+
+> Piano autoritativo:
+> [`docs/plans/universal-code-comprehension.md`](docs/plans/universal-code-comprehension.md)
+> (§8-bis e §8-ter portano lo stato eseguito; §7-bis le leve **misurate**).
+
+**Che cosa è entrato**
+
+| | |
+|---|---|
+| **UC1** | la IR del codice con identità, span, hash e provenienza; `code_function`/`code_calls` degradati a compatibilità |
+| **UC1b** | il **ponte fra rappresentazioni** è vivo: `code_name_part/4` + `identifier_separator/1` + quattro `representation_bridge/4` |
+| **UC2** | il giudizio qualitativo è un motore: `quality_criterion(Nome, Dim, threshold(Misura, Verso, Soglia))` con la misura come **predicato variabile** |
+
+**La prova che vale più delle righe:**
+
+```text
+> what functions does this define: int hash_table_insert(void) { quicksort(); … }
+> domain knowledge about hash_table_insert
+    Key-value mapping -- O(1) average lookup/insert/delete.
+> improvement note for wide
+    Wide fanout — code definition fanout = 9.
+```
+
+La prima frase **non è mai stata scritta per parlare di codice**: viene
+dall'esperto di algoritmi. La stessa conoscenza serve due rappresentazioni senza
+essere duplicata — è il moltiplicatore che F. chiedeva.
+
+**⛔ Il punto di ripresa, in ordine**
+
+1. **`scripts/dead-organs.py`** — 94 predicati citati dalle regole con zero
+   fatti. Il numero sovrastima (molti sono asseriti a runtime), ma il triage è
+   una domanda sola: *«questo chi lo scrive, e quando?»*. Tre volte in quattro
+   giorni il guadagno più grosso è venuto da qui, non da codice nuovo.
+2. **Severità e ordinamento fra finding** (§5, non fatto): oggi i finding sono
+   un insieme, non una lista ordinata; mancano tradeoff e azione informativa.
+3. **§5.2, la latenza**: senza profilo si possono produrre solo *candidati
+   costosi*. «Questa parte è lenta» senza evidenza dinamica deve restare
+   impossibile — è la regola di onestà più forte del piano.
+4. **La rilettura**: una lezione deve far rileggere tutto lo snapshot (§7 leva
+   7). Oggi la rilettura invalida, ma nessuno la usa per capire *di più* su ciò
+   che era già stato letto.
+5. **Il debito del gen491**: ricostruzione **incrementale** delle viste
+   materializzate — insegnare un verbo costa ancora 1406 ms nel turno dopo.
+
+**⚠ Tre limiti del motore trovati costruendo, da conoscere prima di progettare:**
+l'arità massima è **4**; `naf/1` rifiuta un goal non ground (giusto, ma la
+guardia non può portarsi dietro variabili libere); e le parole di una domanda
+devono essere **parole che parrot0 conosce**, o il turno viene preso dal
+percorso che offre di imparare il termine ignoto.
+
+
 ## UC — il confine trovato dall'analisi
 
 > **Estensione di F., stesso giorno:** la IR non deve diventare una zona isolata.

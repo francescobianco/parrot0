@@ -578,6 +578,50 @@ Metriche operative aggiuntive:
 - C/KB balance: il C nuovo deve essere meccanica riusabile e la crescita
   decisionale deve stare nelle regole.
 
+### 7-bis. ⭐ LE LEVE MISURATE (gen489-492) — e come riordinano la lista qui sopra
+
+L'ordine del §7 è per **rendimento atteso**. Questi quattro giorni ne hanno
+misurate quattro davvero, e il risultato corregge due punti dell'ordine.
+
+| leva | effetto misurato |
+|---|---|
+| **collegare motori già scritti** | il lettore strutturale aveva 5 predicati con **zero fatti**; `representation_bridge` ne aveva **zero**. Collegarli: resa di lettura 0,13 → 0,26 fatti/frase, e il ponte cross-dominio da inesistente a vivo |
+| **congelare le derivazioni costose** | turno 1058 → **259 ms** (4×), `extract_frame` da 803 ms a 1,9 ms |
+| **allargare il corpus** | 232 → 331 `wiki_concept`, 9 → 21 domini; resa 0,26 → **0,37** fatti/frase |
+| **completare le classi** | 647 classi-seriale → 74 reali; «is» da 79 classi a 1 |
+
+**⛔ La prima correzione, ed è la più importante: una leva bloccata dal costo non
+è una leva finché il costo non è pagato.** Il corpus (leva #10) esisteva ed era
+inutilizzabile: aggiungere 50 verbi di relazione alzava la resa di lettura ma
+mandava in timeout metà della suite. Solo dopo le viste materializzate la stessa
+lista è passata **senza toccare un gate**. Quindi **il #9 (indici e viste) non è
+nono: è una precondizione**, e va letto prima di ogni altro punto.
+
+Il corollario operativo, che vale oltre questo piano: *quando una classe di
+conoscenza non si può allargare, il difetto non è quasi mai nella classe — si
+guarda che cosa la RILEGGE, e quante volte.*
+
+**⛔ La seconda correzione: il #4 («collegare i motori già scritti») è il primo,
+non il quarto.** Tre volte in quattro giorni lo stesso pattern — un organo
+costruito, documentato, testato in laboratorio, e **mai collegato in
+produzione**: `frame_pattern`/`semantic_entity` a zero fatti (gen490),
+`representation_bridge` a zero fatti (gen492), il piano dichiarativo
+dell'autocorrezione senza esecutore (gen442→gen491). In tutti e tre i casi il
+guadagno è arrivato da una manciata di fatti, non da codice nuovo.
+
+**Il sintomo da cercare, ed è cheap:** un predicato citato dalle regole e con
+zero fatti in tutta la KB. Nessuna misura di rendimento lo troverebbe, perché
+**un organo spento non compare in nessun profilo**: non è lento, non è rotto,
+non sbaglia — semplicemente non c'è.
+
+La sonda è `scripts/dead-organs.py`, e al gen492 ne trova **94**. ⚠ Il numero
+grezzo sovrastima e va letto sapendolo: molti sono asseriti a runtime (lo stato
+del turno, i referenti del discorso, le osservazioni del codice) e la loro
+assenza a riposo è corretta. La sonda non dà un verdetto, dà **una lista da
+triaggiare**, e il triage è una domanda sola: *«questo chi lo scrive, e
+quando?»*. Se la risposta è «nessuno», l'organo è spento — ed è lì che sta il
+guadagno più economico che questo progetto abbia misurato.
+
 ---
 
 ## 8. Roadmap a incrementi verticali
