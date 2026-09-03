@@ -730,6 +730,10 @@ Brain *brain_create(void) {
      * machinery, like input.p0, not domain knowledge. */
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/code-ir.p0");
+    /* UC2: i criteri di qualita' sono conoscenza allo stesso titolo delle viste
+     * — un criterio nuovo e' una relazione piu' un fatto, mai un ramo qui. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/code-quality.p0");
 
     /* gen212 (cardinal KB-first principle, OUTPUT side): the agent's own reply
      * phrasings — "Nice to meet you, {name}!" etc. — live in kb/core/responses.p0, not

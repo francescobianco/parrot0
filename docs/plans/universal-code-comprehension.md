@@ -779,6 +779,61 @@ ratchet UC1; il punto 8 (misura con `/debug`) non è stato fatto.
 
 ---
 
+## 8-ter. ✅ FATTO al gen492 — UC2: il giudizio qualitativo, senza libreria di smell
+
+Il §5 chiede un finding qualificato e ordinabile, non un catalogo. La forma
+implementata è un fatto solo:
+
+```prolog
+quality_criterion(Nome, Dimensione, threshold(Misura, Verso, Soglia)).
+```
+
+dove **`Misura` è il NOME di una relazione binaria sulla IR**, non una funzione
+cablata: `apply/2` — lo stesso confine a predicato variabile che regge il ponte
+fra rappresentazioni — la attraversa. Ne segue la proprietà che conta:
+**il motore del giudizio è una regola sola e non nomina nessun criterio.**
+
+Le tre proprietà che distinguono un motore da un catalogo, tutte nel ratchet
+`tests/p0t/code/code_quality_criteria.p0t` (16 assert):
+
+1. **La soglia è conoscenza.** Alzata sopra il misurato, il giudizio cade — e
+   non perché il codice sia cambiato, ma perché è cambiata la politica del
+   progetto. Il C può contare e confrontare; non può decidere che 8 sia troppo.
+2. **Un criterio nuovo è una relazione più un fatto.** Il ratchet ne dichiara
+   uno *a runtime* (`short_body` + `tiny_body`) e il motore lo usa senza sapere
+   che esiste. Zero C, zero rami nuovi.
+3. **Un giudizio che non si può smentire non è conoscenza.** `criterion_waiver`
+   dichiara che cosa neutralizza un criterio: l'osservazione resta, il finding
+   non si forma. Un criterio incontestabile è un verdetto, e un verdetto non si
+   discute — quindi non è conoscenza.
+
+Prova end-to-end:
+
+```text
+> what functions does this define: int wide(void) { a(); b(); … i(); return 1; }
+> improvement note for wide
+    Wide fanout — code definition fanout = 9.
+```
+
+⚠ **Due limiti trovati costruendolo, entrambi scritti accanto al codice:**
+l'arità del motore è **4**, quindi la soglia sta in un termine composto
+(`threshold/3`), che è comunque la forma più leggibile; e `naf/1` rifiuta un
+goal non ground — giusto, ma vuol dire che la guardia della controevidenza non
+può portarsi dietro la variabile della ragione, che si chiede a parte.
+
+⚠ **E un limite di superficie che vale come regola generale:** le parole della
+domanda devono essere **parole che parrot0 conosce**, altrimenti il turno viene
+preso dal percorso che offre di imparare il termine ignoto e la domanda non
+arriva mai al consumer. Non è un frasario: è vocabolario, ed è una riga di
+`lexeme/1`.
+
+**Non ancora fatto del §5:** severità e ordinamento fra finding, il tradeoff,
+l'azione informativa che separa due ipotesi, e tutto il §5.2 (la latenza, che
+senza profilo può produrre solo *candidati costosi* — mai «questa parte è
+lenta»).
+
+---
+
 ## 9. Primo incremento esatto da eseguire
 
 Il prossimo lavoro non è un altro smell e non è un corpus massivo. È **UC1, in

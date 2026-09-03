@@ -1,0 +1,83 @@
+# gen492 — UC2: UN GIUDIZIO QUALITATIVO CHE NON E' UNA LIBRERIA DI SMELL.
+#
+# F., 2026-09-04: «non dobbiamo impostare un frasario con un meccanismo a match
+# con infiniti casi […] non un semplice pattern recognition da addestrare ma
+# qualcosa di più potente».
+#
+# Uno smell è una CONCLUSIONE, non un sensore. Qui un criterio è un fatto che
+# nomina quattro cose — dimensione, MISURA, verso, soglia — dove la misura è il
+# NOME di una relazione binaria sulla IR, attraversata con `apply/2`. Il motore
+# del giudizio è una regola sola e non nomina nessun criterio.
+#
+# Questo file prova le tre proprietà che distinguono un motore da un catalogo:
+#   1. la SOGLIA è conoscenza — «troppo» si cambia parlando;
+#   2. un CRITERIO NUOVO è una relazione più un fatto, zero C;
+#   3. il giudizio si può SMENTIRE — un criterio che non si contesta è un
+#      verdetto, e un verdetto non è conoscenza.
+#
+# ⚠ R1: KB al massimo. R3: tutto ciò che questo file insegna, lo ritira.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+[test il giudizio si deriva, con la sua evidenza]
+!timeout 12
+
+> what functions does this define: int wide(void) { a(); b(); c(); d(); e(); f(); g(); h(); i(); return 1; }
+
+# La misura è una relazione sulla IR: nove chiamate, contate, non stimate.
+!query code_definition_fanout(wide, 9)
+
+# Il finding porta la propria evidenza: che cosa, quanto, contro quale soglia.
+# Una conclusione che non sa dire perché è vera non è un giudizio.
+!query criterion_finding(wide, wide_fanout, evidence(code_definition_fanout, 9, above, 8))
+!query criterion_basis(wide, wide_fanout, dimension(coupling, $Gloss))
+
+# E arriva in lingua naturale dal consumer universale, senza handler nel C.
+> improvement note for wide
+<~ code definition fanout = 9
+
+[test la soglia è conoscenza: «troppo» si cambia parlando]
+!timeout 12
+
+# Alzata la soglia sopra il misurato, il giudizio cade — e non perché il codice
+# sia cambiato: perché è cambiata la politica del progetto. È la differenza fra
+# una soglia e una costante.
+!forget quality_criterion(wide_fanout, coupling, threshold(code_definition_fanout, above, 8))
+!assert quality_criterion(wide_fanout, coupling, threshold(code_definition_fanout, above, 20))
+!query! criterion_finding(wide, wide_fanout, $E)
+!query code_definition_fanout(wide, 9)
+!forget quality_criterion(wide_fanout, coupling, threshold(code_definition_fanout, above, 20))
+!assert quality_criterion(wide_fanout, coupling, threshold(code_definition_fanout, above, 8))
+!query criterion_finding(wide, wide_fanout, $E)
+
+[test un criterio NUOVO è una relazione più un fatto]
+!timeout 12
+
+# Nessuna riga di C, nessun ramo nuovo: si dichiara una misura e un criterio, e
+# il motore del giudizio — che non conosce nessun criterio per nome — la usa.
+!query! criterion_finding(wide, tiny_body, $E)
+!clause short_body($Name, $Len) :- code_name($S, $N, definition, $Name), code_span($S, $N, $Start, $Len).
+!assert quality_dimension(brevity, "how little there is to read")
+!assert quality_criterion(tiny_body, brevity, threshold(short_body, below, 10000))
+!query criterion_finding(wide, tiny_body, evidence(short_body, $V, below, 10000))
+!query criterion_basis(wide, tiny_body, dimension(brevity, $G))
+!forget quality_criterion(tiny_body, brevity, threshold(short_body, below, 10000))
+!query! criterion_finding(wide, tiny_body, $E)
+
+[test un giudizio che non si può smentire non è conoscenza]
+!timeout 12
+
+# La controevidenza è dichiarata come tutto il resto: chi propone un criterio
+# dice anche che cosa lo neutralizza. L'osservazione resta, il finding no.
+!query code_finding(wide, wide_fanout, $E)
+!clause dispatcher($Name) :- code_name($S, $N, definition, $Name).
+!assert criterion_waiver(wide_fanout, "a dispatcher is meant to fan out", dispatcher)
+!query criterion_counterevidence(wide, wide_fanout, waived($R))
+!query! code_finding(wide, wide_fanout, $E)
+!query criterion_finding(wide, wide_fanout, $E)
+!forget criterion_waiver(wide_fanout, "a dispatcher is meant to fan out", dispatcher)
+!query code_finding(wide, wide_fanout, $E)

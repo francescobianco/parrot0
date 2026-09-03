@@ -1,0 +1,130 @@
+% ══ UC2 — IL GIUDIZIO QUALITATIVO NON E' UNA LIBRERIA DI SMELL ═══════════════
+%
+% F., 2026-09-04: «non dobbiamo impostare un frasario con un meccanismo a match
+% con infiniti casi […] non un semplice pattern recognition da addestrare ma
+% qualcosa di piu' potente».
+%
+% Uno smell e' una CONCLUSIONE, non un sensore (piano §5). Aggiungere il
+% controllo numero cinque non e' comprensione: e' la libreria infinita. Qui un
+% criterio e' un FATTO che nomina quattro cose e nient'altro:
+%
+%     quality_criterion(Nome, Dimensione, threshold(Misura, Verso, Soglia))
+%
+% (Il vincolo di arita' del motore e' 4, e la soglia sta bene in un termine
+%  composto: `threshold/3` dice da se' che quei tre pezzi sono UNA cosa.)
+%
+% dove **Misura e' il nome di una relazione binaria sulla IR**, non una funzione
+% cablata. `apply/2` — lo stesso confine a predicato variabile che regge il ponte
+% fra rappresentazioni — la attraversa. Ne segue la proprieta' che conta:
+%
+%   ⭐ un criterio nuovo e' UNA RELAZIONE PIU' UN FATTO, mai un ramo nel C,
+%     e il motore del giudizio non nomina nessun criterio.
+%
+% E la SOGLIA e' conoscenza, non una costante: «troppo lungo» dipende dal
+% progetto, e si cambia parlando. Il C puo' contare, ordinare e confrontare; non
+% puo' decidere che 400 sia troppo.
+
+machinery(quality_dimension).
+machinery(quality_criterion).
+machinery(criterion_finding).
+machinery(criterion_basis).
+machinery(criterion_counterevidence).
+
+% ── LE DIMENSIONI, con il loro significato in chiaro ────────────────────────
+quality_dimension(size, "how much has to be read at once to understand a unit").
+quality_dimension(coupling, "how many other units it must know to work").
+
+% ── LE MISURE: relazioni binarie sulla IR, nessuna privilegiata dal motore ──
+machinery(code_definition_length).
+code_definition_length($Name, $Len) :-
+    code_name($Snapshot, $Node, definition, $Name),
+    code_span($Snapshot, $Node, $Start, $Len).
+
+machinery(code_definition_fanout).
+code_definition_fanout($Name, $Count) :-
+    code_name($Snapshot, $Node, definition, $Name),
+    findall($Callee, code_edge($Snapshot, $Node, calls, $Callee), $Calls),
+    list_len($Calls, $Count).
+
+% ── I CRITERI. Sono due perche' due bastano a dimostrare il meccanismo: il
+%    terzo non aggiunge comprensione, aggiunge una riga. E' esattamente la
+%    differenza fra motorizzare la classe e collezionare istanze.
+quality_criterion(long_definition, size,     threshold(code_definition_length, above, 400)).
+quality_criterion(wide_fanout,     coupling, threshold(code_definition_fanout, above, 8)).
+
+% ── IL MOTORE DEL GIUDIZIO: una regola, che non nomina nessun criterio ──────
+%
+% Il finding porta la propria evidenza: che cosa e' stato misurato, quanto e'
+% venuto, contro quale soglia. Una conclusione che non sa dire perche' e' vera
+% non e' un giudizio, e' un'opinione.
+criterion_finding($Subject, $Criterion,
+                  evidence($Measure, $Value, above, $Bound)) :-
+    quality_criterion($Criterion, $Dimension,
+                      threshold($Measure, above, $Bound)),
+    apply($Measure, cons($Subject, cons($Value, nil))),
+    gt($Value, $Bound).
+
+criterion_finding($Subject, $Criterion,
+                  evidence($Measure, $Value, below, $Bound)) :-
+    quality_criterion($Criterion, $Dimension,
+                      threshold($Measure, below, $Bound)),
+    apply($Measure, cons($Subject, cons($Value, nil))),
+    lt($Value, $Bound).
+
+% La BASIS: quale dimensione il finding tocca, e con che significato. Serve a
+% rispondere «perche' lo dici», che e' meta' del giudizio.
+criterion_basis($Subject, $Criterion, dimension($Dimension, $Gloss)) :-
+    criterion_finding($Subject, $Criterion, $Evidence),
+    quality_criterion($Criterion, $Dimension,
+                      threshold($Measure, $Direction, $Bound)),
+    quality_dimension($Dimension, $Gloss).
+
+% ── LA CONTROEVIDENZA E' PARTE DEL GIUDIZIO, NON UN'ECCEZIONE ──────────────
+%
+% Un criterio che non si puo' smentire non e' un criterio. Chi dichiara un
+% criterio puo' dichiarare quale osservazione lo neutralizza: la stessa unita'
+% resta osservata, il finding non si forma. Senza questo, un giudizio e' un
+% verdetto — e un verdetto non si discute, quindi non e' conoscenza.
+machinery(criterion_waiver).
+criterion_counterevidence($Subject, $Criterion, waived($Reason)) :-
+    criterion_waiver($Criterion, $Reason, $Predicate),
+    apply($Predicate, cons($Subject, nil)).
+
+% ⚠ `naf/1` rifiuta un goal NON GROUND — e' la scelta giusta del motore
+% (floundering: declina invece di mentire), ma vuol dire che la guardia non puo'
+% portarsi dietro una variabile libera per la ragione. Percio' la ragione si
+% chiede a parte, e qui si chiede solo SE.
+machinery(criterion_waived).
+criterion_waived($Subject, $Criterion) :-
+    criterion_counterevidence($Subject, $Criterion, $Reason).
+
+machinery(code_finding).
+code_finding($Subject, $Criterion, $Evidence) :-
+    criterion_finding($Subject, $Criterion, $Evidence),
+    naf(criterion_waived($Subject, $Criterion)).
+
+% ── LA RESA, dal consumer universale: nessun handler nel C ──────────────────
+machinery(code_improvement_note).
+% ⚠ la catena di composizione resta CORTA di proposito: la resa e' la parte
+% meno importante del giudizio, e una catena lunga di `concat_atoms` consuma il
+% budget d'inferenza del turno senza aggiungere niente di ricostruibile. Chi
+% vuole il dettaglio lo chiede a `code_finding/3` e a `criterion_basis/3`, che
+% lo portano in forma strutturata invece che in una frase.
+code_improvement_note($Subject, $Note) :-
+    code_finding($Subject, $Criterion, evidence($Measure, $Value, $Dir, $Bound)),
+    concat_atoms($Criterion, " — ", $A),
+    concat_atoms($A, $Measure, $B),
+    concat_atoms($B, " = ", $C),
+    concat_atoms($C, $Value, $Note).
+
+% ⚠ Le parole della domanda devono essere PAROLE CHE PARROT0 CONOSCE, altrimenti
+% il turno viene preso dal percorso che offre di imparare il termine ignoto e la
+% domanda non arriva mai al consumer. Non e' un frasario: e' vocabolario, e come
+% ogni vocabolario e' una riga di KB — vedi `lexeme/1`.
+lexeme(quality).
+lexeme(improvement).
+lexeme(finding).
+lexeme(note).
+
+answer_frame("improvement note for", code_improvement_note).
+answer_frame_input_arg("improvement note for", code_improvement_note, 1).

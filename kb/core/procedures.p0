@@ -1591,3 +1591,12 @@ induce_query_phrase("what's the rule", rule).
 induce_query_phrase("qual è la regola", rule).
 induce_query_phrase("quale regola", rule).
 induce_query_phrase("che regola", rule).
+
+% ── gen492 — QUANTI ELEMENTI HA UNA LISTA ──────────────────────────────────
+% Meccanica generale, non conoscenza di dominio: serve ovunque una misura sia un
+% CONTEGGIO invece che una lunghezza. Il motore ha `findall/3` ma non sapeva
+% contarne il risultato, quindi ogni criterio che voglia dire «quante» doveva
+% farsi contare da un ramo nel C.
+machinery(list_len).
+list_len(nil, 0).
+list_len(cons($H, $T), $N) :- list_len($T, $M), is($N, add($M, 1)).
