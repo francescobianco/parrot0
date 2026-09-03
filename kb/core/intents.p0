@@ -1947,6 +1947,11 @@ intent_cue(translation_request, "how do you say").
 % pre-dispatch leggono la superficie GREZZA — quindi la cue va dichiarata anche
 % qui, altrimenti un modulo che riconosce «dog» risponde «A dog goes woof».
 intent_cue(translation_request, "translate").
+% gen489 — LE PORTE ITALIANE DELLA STESSA CLASSE (LEARN_TODO §0-ter IT-1).
+% Mancavano del tutto: «traduci …» e «come si dice … in …» erano fuori dalla
+% classe, quindi nessuna condotta poteva proteggerle e il chitchat le prendeva.
+intent_cue(translation_request, "traduci").
+intent_cue(translation_request, "come si dice").
 intent_cue(multi_translation_request, "into french, spanish, and japanese").
 intent_cue(multi_translation_request, "french, spanish, and japanese").
 intent_cue(multi_translation_request, "translate the english sentence").
@@ -4447,6 +4452,13 @@ intent_cue(hypothetical_self_question, "if you won").
 intent_cue(hypothetical_self_question, "what would you do if").
 intent_cue(hypothetical_self_question, "cosa faresti se").
 faculty_yield(chitchat, open, hypothetical_self_question).
+
+% `chitchat` rubava ogni richiesta di traduzione che nominasse la lingua:
+% `intent_cue(language_switch, "in inglese")` e' una sottostringa, e «traduci
+% gatto in inglese» la contiene. Rispondeva «Possiamo parlare in entrambe le
+% lingue» — una risposta SICURA ed ESTRANEA, peggiore di un muro. Chiedere una
+% traduzione non e' proporre di cambiare lingua.
+faculty_yield(chitchat, open, translation_request).
 
 % `gen` rispondeva «Scattering needs sunlight» a «Give me three words that rhyme
 % with "night"»: un artefatto di spiegazione concisa su una domanda LESSICALE.

@@ -49,6 +49,20 @@ static int is_progressive_aux(Brain *b, const char *aux, const char *verb) {
  * ripiego, «tutto quello che segue il nome della lingua», che li' e' vuoto.
  * Ora le coppie apri/chiudi stanno in `translate_payload_span/2`, quindi un modo
  * nuovo di chiedere una traduzione — in qualunque lingua — e' una riga di KB. */
+/* Occorrenza a PAROLA INTERA di `w` in `s` — mantra #8: una cue discriminante
+ * non e' una sottostringa. Serve alla lingua di arrivo: «italian» non deve
+ * essere letta dentro «italiano», e vince comunque la superficie piu' lunga. */
+static int tr_word_in(const char *s, const char *w) {
+    size_t wl = strlen(w);
+    if (!wl) return 0;
+    for (const char *p = strstr(s, w); p; p = strstr(p + 1, w)) {
+        int lb = (p == s) || !isalnum((unsigned char)p[-1]);
+        int rb = !isalnum((unsigned char)p[wl]);
+        if (lb && rb) return 1;
+    }
+    return 0;
+}
+
 static int tr_payload_kb(Brain *b, const char *low, char *buf, size_t bufsz) {
     if (!b || !b->kb) return 0;
     char opens[16][KB_TERM_LEN];
@@ -627,23 +641,56 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen489 — LA FORMA DELLA RICHIESTA EN<->IT E' CONOSCENZA, NON UNA TABELLA.
+     *
+     * Qui c'erano sei superfici cablate, tutte con i due punti obbligatori e
+     * tutte in posizione iniziale («translate to italian:», «traduci in
+     * inglese:»). Conseguenza misurata dalla sessione italiana del 2026-09-03
+     * (LEARN_TODO §0-ter IT-1): «traduci gatto in inglese» e «come si dice
+     * gatto in inglese» non raggiungevano il traduttore, e il turno finiva
+     * RUBATO dal chitchat, che rispondeva «Possiamo parlare in entrambe le
+     * lingue» — peggio di un muro, perche' sembra una risposta.
+     *
+     * Ora i tre pezzi della richiesta sono tre fatti, come gia' per francese e
+     * spagnolo: la CLASSE della richiesta e' `intent_cue(translation_request,…)`,
+     * la LINGUA DI ARRIVO e' `translation_target/2`, e il TESTO da tradurre
+     * esce da `translate_payload_span/2`. Un modo nuovo di chiedere — o una
+     * lingua nuova — e' una riga di KB, non una ricompilazione. */
+    if (!kb_cue_match(b, "translation_request", low)) return 0;
+
     int to_it;
-    const char *clause = NULL;
-    static const struct { const char *p; int to_it; } pats[] = {
-        {"translate to italian:", 1}, {"translate into italian:", 1},
-        {"translate to english:", 0}, {"translate into english:", 0},
-        {"traduci in italiano:", 1},  {"traduci in inglese:", 0},
-    };
-    for (size_t i = 0; i < sizeof pats / sizeof pats[0]; i++) {
-        size_t L = strlen(pats[i].p);
-        if (strncmp(low, pats[i].p, L) == 0) {
-            to_it = pats[i].to_it;
-            clause = low + L;
-            goto found;
+    char tgt[KB_TERM_LEN] = "", tgt_surface[KB_TERM_LEN] = "";
+    {
+        char langs[16][KB_TERM_LEN];
+        const char *lq[2] = { NULL, NULL };
+        size_t nl = kb_match(b->kb, "translation_target", lq, 2, langs, 16);
+        size_t best = 0;
+        for (size_t i = 0; i < nl; i++) {
+            const char *sq[2] = { langs[i], NULL };
+            char surfs[8][KB_TERM_LEN];
+            size_t ns = kb_match(b->kb, "translation_target", sq, 2, surfs, 8);
+            for (size_t k = 0; k < ns; k++) {
+                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", surfs[k]);
+                const char *s = kb_dequote(sb);
+                size_t sl = strlen(s);
+                /* la superficie PIU' LUNGA vince: «italiano» prima di «italian» */
+                if (!sl || sl <= best || !tr_word_in(low, s)) continue;
+                best = sl;
+                snprintf(tgt, sizeof tgt, "%s", langs[i]);
+                snprintf(tgt_surface, sizeof tgt_surface, "%s", s);
+            }
         }
     }
-    return 0;
-found:
+    if (!tgt[0]) return 0;
+    to_it = (strcmp(tgt, "it") == 0);
+
+    char clausebuf[256];
+    if (!tr_payload_kb(b, low, clausebuf, sizeof clausebuf) &&
+        !tr_payload(low, tgt_surface, clausebuf, sizeof clausebuf)) {
+        kb_term_say(b, "translate_what", NULL, 0, out, out_size);
+        return 1;
+    }
+    const char *clause = clausebuf;
     while (*clause && isspace((unsigned char)*clause)) clause++;
     if (!*clause) { kb_term_say(b, "translate_what", NULL, 0, out, out_size); return 1; }
 

@@ -1,0 +1,82 @@
+# gen489 — LA FORMA CON CUI SI CHIEDE UNA TRADUZIONE E' CONOSCENZA.
+#
+# Origine: la sessione italiana del 2026-09-03, voce IT-1 di LEARN_TODO §0-ter.
+# Il traduttore EN<->IT riconosceva SEI superfici cablate nel C, tutte con i due
+# punti obbligatori e in posizione iniziale. Le forme che un italiano usa
+# davvero — «traduci gatto in inglese», «come si dice gatto in inglese» — non lo
+# raggiungevano, e il turno finiva RUBATO dal chitchat, che rispondeva
+# «Possiamo parlare in entrambe le lingue»: una risposta sicura ed estranea,
+# peggiore di un muro (§1, il bucket «turni rubati»).
+#
+# Questo file tiene ferme le tre cose che sono diventate conoscenza:
+#   la CLASSE della richiesta   intent_cue(translation_request, …)
+#   la LINGUA DI ARRIVO         translation_target/2
+#   il TESTO da tradurre        translate_payload_span/2   (gia' esistente)
+# piu' la CONDOTTA che impedisce il furto: faculty_yield(chitchat, open, …).
+
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test translate_request_forms.it]
+!timeout 8
+
+# ── le forme italiane che prima finivano al chitchat ────────────────────────
+> come si dice gatto in inglese?
+< cat
+
+> traduci gatto in inglese
+< cat
+
+# la lingua nominata IN CODA, senza due punti, su una frase intera
+> traduci il cane corre in inglese
+< the dog run
+
+# la porta inglese della stessa forma, che pure non esisteva
+> how do you say cat in italian
+< gatto
+
+# ── le forme storiche continuano a valere (nessuna regressione) ─────────────
+> traduci in inglese: gatto
+< cat
+
+> traduci in italiano: the man reads a book
+< l'uomo legge un libro
+
+> translate to italian: the dog runs
+< il cane corre
+
+> translate to english: il gatto dorme
+< the cat sleep
+
+# ── il turno NON e' piu' rubato dal chitchat ────────────────────────────────
+> traduci gatto in inglese
+< cat
+> who answered?
+< The 'translate' module answered your last question.
+
+# ── ma «parliamo in inglese» resta una proposta di cambio lingua ────────────
+# la condotta cede la CLASSE traduzione, non ogni turno che nomina una lingua
+> parliamo in inglese
+< Possiamo parlare in entrambe le lingue — farò del mio meglio.
+
+# ── L'ABLAZIONE: la lingua di arrivo e' un fatto, non un prefisso compilato ──
+# Tolta la superficie, il traduttore non trova piu' la lingua e il turno torna
+# muro. Rimessa parlando, riparte — senza ricompilare (mantra #2).
+[test translate_request_forms.it ablation]
+!timeout 8
+!forget translation_target(en, "inglese")
+!query! translation_target(en, "inglese")
+> traduci gatto in inglese
+<! cat
+!assert translation_target(en, "inglese")
+> traduci gatto in inglese
+< cat
+
+# E una lingua NUOVA al traduttore e' una riga: «anglais» non esisteva.
+!assert translation_target(en, "anglais")
+> traduci gatto in anglais
+< cat

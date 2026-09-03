@@ -568,7 +568,9 @@ static int te_process_stream(TeState *t, FILE *in) {
         char *p = line;
         while (*p == ' ' || *p == '\t') p++;
 
-        if (*p == '\0' || *p == '#') continue;
+        /* riga vuota o commento — `#` e `%`, perche' i .p0t citano conoscenza
+         * e usano il commento del .p0 accanto al proprio */
+        if (*p == '\0' || *p == '#' || *p == '%') continue;
 
         if (strncmp(p, "!bench-category", 15) == 0 &&
             (p[15] == ' ' || p[15] == '\t')) {
@@ -1089,6 +1091,18 @@ static int te_process_stream(TeState *t, FILE *in) {
             continue;
         }
 
+        /* gen489 — UNA DIRETTIVA CHE NON ESISTE E' UN'ASSERZIONE CHE NON ASSERISCE.
+         * Il rc di questa funzione lo legge solo il percorso batch: nel demone
+         * — cioe' in `make test` — veniva scartato, e una riga come `!not cat`
+         * passava in silenzio contando zero. Un cricchetto poteva quindi
+         * SEMBRARE di verificare un'ablazione e non verificare niente: e' la
+         * trappola del mantra #18(b) spostata dentro la misura. Ora la riga
+         * sconosciuta e' un fallimento visibile, con il suo numero. */
+        te_flush(t);
+        fprintf(t->out, "  FAIL  [%s] line %d — unknown directive\n",
+                t->section[0] ? t->section : "?", t->line_no);
+        fprintf(t->out, "        %s\n", p);
+        t->failed++;
         syntax_err = 1;
     }
     te_flush(t);

@@ -1020,6 +1020,18 @@ translate_payload_span("say ", " in ").
 translate_payload_span("traduci ", " in ").
 translate_payload_span("come si dice ", " in ").
 
+% gen489 — LA LINGUA DI ARRIVO E' UN FATTO, non un prefisso cablato nel C.
+% Il traduttore EN<->IT riconosceva sei superfici compilate, tutte con i due
+% punti obbligatori: «traduci gatto in inglese» e «come si dice gatto in
+% inglese» non lo raggiungevano e il turno finiva rubato dal chitchat
+% (LEARN_TODO §0-ter IT-1). Ora la lingua si legge da qui — e insegnare una
+% lingua nuova al traduttore e' una riga, non una ricompilazione.
+machinery(translation_target).
+translation_target(it, "italiano").
+translation_target(it, "italian").
+translation_target(en, "inglese").
+translation_target(en, "english").
+
 % Chimica: i nomi italiani degli elementi e delle molecole, cosi' che «dimmi una
 % molecola con l'ossigeno» arrivi alla stessa conoscenza di «tell me a molecule
 % with oxygen». La canonicalizzazione e' la sola via: nessun ramo per lingua.
