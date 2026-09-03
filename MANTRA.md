@@ -293,6 +293,59 @@ KB piena di righe manuali ma incapace di questo ciclo è grande, non fertile.
       bisogno di un antecedente?»*, e un deittico non ne ha mai. **Chi vede di
       più deve anche distinguere di più**, ed è il corollario del #17.
 
+20. **⛔ LA KB CRESCERÀ SEMPRE: IL CARICO NON È UN INCIDENTE, È UNA CONDIZIONE.**
+    F., 2026-09-03: *«la nostra KB deve crescere e crescerà, quindi i problemi di
+    carico li avremo sempre»*. Ne segue una regola che vale prima di ogni
+    aggiunta di conoscenza, e una diagnosi che vale prima di ogni ottimizzazione.
+
+    **(a) Quando una classe di conoscenza non si può allargare, il difetto non è
+    quasi mai nella classe.** Aggiungere cinquanta verbi a `relation_verb/1`
+    mandava in timeout metà della suite, e la conclusione ovvia — *«sono troppi
+    verbi»* — era sbagliata. Il costo non era la lista: era che
+    `extract_frame/2`, che da ogni verbo genera due schemi, veniva **riderivato
+    442 volte per turno**. Congelato quel processo, la stessa lista passa senza
+    toccare un gate. **Prima si guarda che cosa RILEGGE la classe, e quante
+    volte.**
+
+    **(b) Si profila, non si indovina.** `/debug` accende un profilo per
+    predicato che esisteva da generazioni e non era mai stato puntato lì. Un
+    solo predicato era l'**83%** del turno (890 ms su 1075); tutto il resto stava
+    sotto i 25 ms. Nessuna intuizione ci sarebbe arrivata, e due delle tre
+    ottimizzazioni tentate a intuito hanno *peggiorato* il tempo.
+
+    **(c) Il meccanismo: `materialized_view/2`.** Le soluzioni di un predicato
+    dichiarato si enumerano una volta e si congelano come fatti `KB_DERIVED`.
+    La cache è la tabella dei fatti, la kv-con-hash è l'indice che c'era già,
+    l'early match è il bucket del censimento — **nessuna struttura nuova**. E
+    *quali* processi congelare è conoscenza, non una lista nel C.
+
+    **(d) Tre trappole pagate, e sono la parte riusabile:**
+    - **Dentro una risoluzione la conoscenza non si tocca.** Materializzare
+      asserisce, quindi rialloca la tabella dei fatti mentre i chiamanti sopra
+      hanno in mano `const Fact *`: due core dump prima di separare il
+      *controllo* (dentro il solver) dalla *costruzione* (agli ingressi).
+    - **La chiave della cache dev'essere stretta.** Con `kb_revision` — che
+      conta ogni fatto, comprese le tracce che ogni turno asserisce — la vista
+      si ricostruiva più volte per turno e il tempo **saliva** da 1058 a 1725 ms.
+      *Una cache invalidata da ciò che non la riguarda è peggio di nessuna
+      cache.*
+    - **E la chiave dev'essere O(1).** Calcolarla contando i fatti a mano metteva
+      730 ms *fuori* dal solver: la cache costava più della derivazione che
+      evitava. È lo stesso errore del §L — *«un'exit condition che costa quanto
+      ciò che evita non è un'ottimizzazione»* — un piano più su.
+
+    **(e) «Una volta» deve cadere dove non c'è un budget.** Il costo del
+    congelamento si paga al boot (`kb_views_warm`), non nel primo turno che
+    chiede lo schema — lì sono due secondi e un timeout.
+
+    **(f) E la cache non deve poter mentire.** La scadenza non è un tempo: è la
+    conoscenza da cui la vista dipende (`view_depends/2`). Un verbo insegnato
+    adesso invalida la vista e il suo schema è leggibile **nello stesso turno**.
+    Il cricchetto `tests/p0t/engine/materialized_view.p0t` lo prova nei due
+    versi, e prova anche che togliendo la dichiarazione il motore torna a
+    derivare: **una vista è un acceleratore dichiarato, mai una parte del
+    significato.**
+
 ## Evoluzione KB richiesta per LLMSCORE-max
 
 La KB di parrot0 deve passare da "grande dizionario di fatti interrogabili" a

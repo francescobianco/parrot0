@@ -134,6 +134,38 @@ compensates(read_source, knowledge).      % ⛔ Wikipedia, l'unica sorgente amme
 compensates(ask_user, reference).         % ⛔ manca un antecedente: si chiede
 ```
 
+## §0-sexies. ⭐ IL CARICO: PROFILATO, E RIDOTTO 4× (gen491)
+
+> F.: *«la nostra KB deve crescere e crescerà, quindi i problemi di carico li
+> avremo sempre»*. Il mantra **#20** porta la strategia; qui lo stato.
+
+`/debug` — un profilo per predicato che esisteva da generazioni e non era mai
+stato puntato lì — ha detto tutto in un colpo: **`extract_frame` era l'83% del
+turno** (890 ms su 1075, 442 chiamate). Congelato con `materialized_view/2`:
+
+| | prima | dopo |
+|---|---|---|
+| turno a regime | 1058 ms | **259 ms** |
+| solver | 903 ms | 99 ms |
+| `extract_frame` | 803 ms / 266.553 passi | 1,9 ms / 442 passi |
+| resa di lettura | 0,26 fatti/frase | **0,37** |
+
+**Il pagamento:** i 50 verbi di relazione che al gen490 mandavano in timeout
+metà della suite ora passano senza toccare un gate. *Quando una classe di
+conoscenza non si può allargare, il difetto non è quasi mai nella classe.*
+
+**Che cosa resta da fare sul carico**, in ordine di leva:
+1. **Il prossimo predicato caro non si indovina: si profila.** Dopo il
+   congelamento la classifica è cambiata — `intent_cue` (585 call/turno) e
+   `segment_role` (353) sono ora in testa. Vanno guardati con `/debug` prima di
+   toccarli, non prima.
+2. `input_nearest_entity_before/after` usa `naf(input_entity_between(...))`,
+   che è O(n²) sui nodi del turno: è il costo che frenerà il **lettore
+   strutturale** quando il corpus crescerà, ed è il candidato naturale per una
+   lista ordinata con early match.
+3. L'indice per **argomento** (`kb_fact/2` con predicato libero) resta il §L
+   originale, e ora è il residuo più grosso.
+
 ## §0-quinquies. ⭐ IL LETTORE STRUTTURALE ERA COSTRUITO E SPENTO (gen490)
 
 > F.: *«massimizziamo il corpus di addestramento»*. Cercando dove fosse il collo
