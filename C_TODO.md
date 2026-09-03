@@ -1,5 +1,54 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+> ## ⛔ HANDOFF — 2026-09-03, `gen491`. Migrazione KB-first contingente + rossi.
+>
+> Sessione dedicata a **due attività intrecciate per volontà di F.**: sistemare i
+> test rossi, e chiudere le migrazioni KB-first che si trovano *in prossimità del
+> codice toccato*. Il resoconto dei test sta in
+> [`TEST_TODO.md`](TEST_TODO.md) §H; qui sta il lato C.
+>
+> ### Che cosa è uscito dal C in questo giro
+>
+> | | |
+> |---|---|
+> | 647 classi-seriale `*_lex*` da UN membro | → 74 classi VERE con un nome pronunciabile (gen489, due passi) |
+> | la CONGIUNZIONE di un `if` | → `turn_pattern/3` + `turn_pattern_intent/2`: una FORMA nuova si insegna parlando (gen489) |
+> | l'accensione del lettore strutturale | → derivata da `relation_verb`/`clause_copula`/`wiki_concept`, mai elencata (gen490) |
+> | `definition_interrogative/1` | il ruolo che una guardia allargata aveva perso (gen491) |
+> | `italian_indefinite_article/1`, `personal_pronoun/1` | due distinzioni che una fusione aveva cancellato |
+>
+> ### ⛔ Il residuo, con il numero
+>
+> **548 siti seriali restano** (erano 1210), e **204 catene compilate** portano
+> ciascuna un `TODO(kb-first, gen489)` che spiega il problema e indica la forma
+> di arrivo. Sono una **coda di lavoro, non un archivio**: chi tocca un ramo che
+> ne porta uno lo chiude lì, dove costerà meno di quanto costerà mai. Il criterio
+> completo è il **mantra #19**.
+>
+> ### ⛔ Le tre trappole già pagate — non ripagarle
+>
+> 1. **Mai collassare due seriali che stanno nella STESSA condizione.** Se il
+>    sito li distingue, distingue i *membri*, non i ruoli: la prima versione
+>    produceva `!topic_preposition && topic_preposition` (sempre falso) e
+>    riscriveva «era» ed «erano» entrambi in `is`.
+> 2. **Allargare una classe è allargare una RIVENDICAZIONE** (mantra #19b). Tre
+>    volte in due giorni: `entity_pronoun` con dentro «you» faceva chiedere
+>    *«What number should I use for «you»?»*; `a`/`an` fusi con `the` facevano
+>    tradurre «the dog runs» in «un cane corre»; `what` allargato a
+>    `question_word` faceva perdere il muro di «who is a dog».
+> 3. **Il troncamento silenzioso è una CLASSE** (il §U1 qui sotto, gen459) — e al
+>    gen491 l'ho commesso di nuovo, dentro l'ottimizzazione che doveva far
+>    imparare *di più*: la vista materializzata enumerava in un buffer da 256 e
+>    `extract_frame` ne ha 359. **Nessun tetto fisso in un enumeratore**, e se
+>    l'insieme non ci sta la struttura non si dichiara completa.
+>
+> ### Il debito che questa sessione ha aperto, e va chiuso per primo
+>
+> **La ricostruzione incrementale delle viste materializzate.** Insegnare un
+> verbo di relazione invalida `extract_frame` e la ricostruisce *intera* — 1406
+> ms contro 224 di regime, 715.931 passi — e obbliga all'unico `!timeout`
+> dichiarato della sessione. È la prima voce del §L.
+
 > ## HANDOFF — 2026-08-28, dopo `gen488`
 >
 > Sessione sospesa su richiesta: il repository è stato verificato pulito e

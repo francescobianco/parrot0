@@ -1,0 +1,345 @@
+ok    basics.p0t — 5 passed
+ok    digit_sum.p0t — 3 passed
+ok    arith_guard.p0t — 3 passed
+ok    semantic_summary.p0t — 7 passed
+ok    creative_composer.p0t — 15 passed
+ok    naf.p0t — 4 passed
+ok    dif.p0t — 6 passed
+ok    ranges.p0t — 5 passed
+ok    anon.p0t — 2 passed
+ok    dollarvar.p0t — 5 passed
+ok    expect.p0t — 6 passed
+ok    booklearn.p0t — 4 passed
+ok    explain.p0t — 6 passed
+ok    artfres.p0t — 7 passed
+ok    cliticfr.p0t — 4 passed
+ok    teach.p0t — 6 passed
+FAIL  motorize_class.p0t — 22 passed, 2 failed
+ok    buildstamp.p0t — 7 passed
+ok    assertclause.p0t — 3 passed
+FAIL  aggregate.p0t — 2 passed, 2 failed
+FAIL  repair.p0t — 3 passed, 9 failed
+FAIL  check_sort.p0t — 0 passed, 5 failed
+ok    posix.p0t — 11 passed
+ok    findall.p0t — 9 passed
+ok    prob.p0t — 9 passed
+ok    compound.p0t — 5 passed
+ok    strknow.p0t — 3 passed
+ok    assertretract.p0t — 12 passed
+ok    call.p0t — 13 passed
+ok    howknow.p0t — 4 passed
+ok    dialogue_moves.p0t — 8 passed
+ok    context_scope.p0t — 17 passed
+ok    conversation.p0t — 4 passed
+ok    meta_question.p0t — 3 passed
+FAIL  forget_move.p0t — 3 passed, 3 failed
+FAIL  greet.p0t — 7 passed, 1 failed
+ok    arith.p0t — 8 passed
+ok    time_date_complex.p0t — 28 passed
+ok    world.p0t — 8 passed
+FAIL  literal_forms.p0t — 38 passed, 11 failed
+ok    gap_kinds.p0t — 9 passed
+ok    geographic_location.p0t — 26 passed
+ok    facts.p0t — 9 passed
+FAIL  games.p0t — 19 passed, 1 failed
+FAIL  faceted_enumeration.p0t — 4 passed, 6 failed
+FAIL  foundational_concepts.p0t — 20 passed, 7 failed
+FAIL  gap_dialogue.p0t — 22 passed, 2 failed
+FAIL  class_conflict.p0t — 2 passed, 1 failed
+ok    syllogism.p0t — 9 passed
+ok    sequential_view.p0t — 14 passed
+ok    casefold.p0t — 1 passed
+FAIL  contractions.p0t — 7 passed, 1 failed
+ok    apostrophe.p0t — 4 passed
+FAIL  name_is_knowledge.p0t — 9 passed, 1 failed
+FAIL  reactions_are_knowledge.p0t — 8 passed, 1 failed
+FAIL  gap_is_a_fact.p0t — 12 passed, 7 failed
+FAIL  gap_anchor.p0t — 10 passed, 4 failed
+ok    example_only.p0t — 11 passed
+ok    prose_forms.p0t — 0 passed
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock
+test-send: cannot reach engine at obj/test-engine.sock

@@ -8,6 +8,89 @@ Stato: **113/113 file sistemati (100%)** alla radice di `tests/`.
 
 ---
 
+# ⛔ HANDOFF — 2026-09-03, gen491. LEGGERE PRIMA DI RIPRENDERE.
+
+> Sessione interrotta perché F. doveva andare. Qui c'è dove siamo arrivati, che
+> cosa è già verde, e **l'ordine esatto** in cui continuare.
+
+## H.1 — Il metodo, prima dei numeri (non ripetere i miei due errori)
+
+**(a) Non si misura un rosso girando i file isolati.** `make test` li manda
+**in ordine, su UN SOLO demone**, e alcuni dipendono dallo stato dei precedenti.
+Il mio primo sweep, alfabetico e isolato, dava il 46% di rossi: accusava il
+motore di difetti che non ha. Lo strumento giusto è in
+`scripts/`-style ma vive ancora in scratchpad — **va promosso**: legge l'ordine
+dal target `test:` del Makefile e non si ferma al primo rosso (`make test` è
+fail-fast, quindi mostra un rosso e nasconde gli altri).
+
+**(b) Ogni rosso va confrontato col commit di partenza.** Un worktree
+(`git worktree add <dir> <sha>`) sullo stesso file è l'unico modo onesto per
+separare *«l'ho rotto io»* da *«era già rosso»*. Su 17 rossi: **3 miei, 14
+preesistenti, di cui 5 migliorati** durante la sessione. Le due corse sono in
+`docs/reports/gen491-suite-order-run.txt` e `gen491-red-at-base.txt`.
+
+**(c) ⛔ Non assecondare i tempi lunghi con timeout più grandi.** È la
+correzione che F. ha dato a metà sessione: *«non mi piace che lavori con questi
+timeout che ti chiami da solo; un timeout di 10 secondi è già un sintomo, anche
+il modo come indaghiamo»*. Un turno lento **si profila** (`/debug`), non si
+aspetta. Il `!timeout` è ammesso **solo quando la causa è nota e nominata** e la
+misura è scritta accanto — F. l'ha confermato per il caso della vista
+invalidata.
+
+## H.2 — Che cosa è già chiuso
+
+| | |
+|---|---|
+| `health.p0t` | la suite **non partiva più** (60% di rossi sul primo turno): firma della vista che contava i fatti congelati di un'altra vista. 891 ms → **131 ms** |
+| `literal_forms.p0t` | 49/0 → 38/11 → **49/0**: la vista troncava a 256 schemi su 359, in silenzio |
+| `contractions.p0t` | **8/0**, e primo file convertito da ermetico a KB piena (R1) |
+| `TEST_TODO §0.0` + `docs/plans/test-engine.md` | le due regole R1/R2 di F., scritte dove si vengono a cercare |
+
+## H.3 — ⛔ L'ORDINE IN CUI CONTINUARE
+
+**1. Finire la corsa completa della suite.** La mia si è fermata al file 59
+(`meta/self_repair.p0t`) perché quel file contiene un turno da **135 secondi**
+(`prova a ripararti`: fino a 240 replay completi del turno, ~340 ms l'uno). Non
+è un blocco e **non è una regressione** — è così anche al commit di partenza, e
+i miei `timeout 90` lo troncavano facendolo *sembrare* un blocco, con 281
+«cannot reach engine» a valle. Quindi: **i 17 rossi noti sono su 59 file, non su
+353. I restanti 294 non sono mai stati misurati.** È la prima cosa da fare.
+
+**2. I tre rossi rimasti fra quelli noti**, in ordine di chiarezza:
+   - **`mcp/aggregate.p0t`** (4/0 → 2/2, **regressione mia, non diagnosticata**):
+     «chi ha vinto di più» risponde `M1.` invece di `spain`. Il file usa
+     `PARROT0_PROFILE=` vuota e `WORLD_FACTS=0`: **va prima convertito (R1)**,
+     perché metà della diagnosi potrebbe essere il contesto amputato.
+   - **`conversation/forget_move.p0t`** (3/3, preesistente): il messaggio di
+     `forget` è *formattato e mai emesso* — `answerframe` ruba il turno. È
+     `LEARN_TODO` P4.3, ed è mantra #17 puro: si chiude con un `faculty_yield`,
+     non con una riga di C.
+   - **`conversation/greet.p0t`** (7/1, preesistente ma è **R2 da manuale**):
+     `tell me about C` asseriva ignoranza, e il corpus del gen490 ha insegnato
+     il carbonio. Va spostato il confine, non rimessa l'ignoranza. ⚠ Nella
+     risposta c'è anche un difetto vero da annotare: *«c is a chess_file»*
+     appende trivia di scacchi a una definizione di chimica — collisione di
+     classe che il mantra #14 vuole chiusa con una guardia teachable.
+
+**3. Gli 11 preesistenti già identificati** (dettaglio in
+`docs/reports/gen491-red-at-base.txt`): `motorize_class` (2, forma del messaggio
+migrata in KB — probabile R2), `repair` (9, l'oracolo riporta `build_failed`:
+verificare se è ambiente o difetto), `check_sort` (5, `expected source: turn, got
+source: mcp` — è la migrazione `!expect` del §0.1 di questo file, non un difetto
+del motore), `games`, `faceted_enumeration`, `foundational_concepts`,
+`gap_dialogue`, `class_conflict`, `name_is_knowledge`,
+`reactions_are_knowledge`, `gap_is_a_fact`, `gap_anchor`.
+
+**4. La ricostruzione INCREMENTALE della vista materializzata.** Oggi insegnare
+un verbo di relazione invalida `extract_frame` e la ricostruisce **intera**:
+1406 ms contro 224 di regime, 715.931 passi. È l'unico `!timeout` che ho dovuto
+dichiarare, ed è il candidato numero uno del §L.
+
+**5. La conversione R1, 288 file.** Non si fa in campagna: **si converte ogni
+file che si tocca**. Chi arriva a zero cancella il paragrafo in §0.0.
+
+---
+
 ## ⛔ 0.0 LE DUE REGOLE CHE NON SI DISCUTONO (F., 2026-09-03)
 
 Vengono prima di ogni altra voce di questo file, e prima di scrivere o

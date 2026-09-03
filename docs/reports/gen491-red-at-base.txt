@@ -1,0 +1,18 @@
+tests/p0t/meta/motorize_class.p0t  ->  FAIL  motorize_class.p0t — 22 passed, 2 failed
+tests/p0t/mcp/aggregate.p0t  ->  ok    aggregate.p0t — 4 passed
+tests/p0t/repair/repair.p0t  ->  FAIL  repair.p0t — 3 passed, 9 failed
+tests/p0t/code/check_sort.p0t  ->  FAIL  check_sort.p0t — 0 passed, 5 failed
+tests/p0t/conversation/forget_move.p0t  ->  FAIL  forget_move.p0t — 3 passed, 3 failed
+tests/p0t/conversation/greet.p0t  ->  FAIL  greet.p0t — 7 passed, 1 failed
+tests/p0t/knowledge/literal_forms.p0t  ->  ok    literal_forms.p0t — 49 passed
+tests/p0t/knowledge/games.p0t  ->  FAIL  games.p0t — 19 passed, 1 failed
+tests/p0t/knowledge/faceted_enumeration.p0t  ->  FAIL  faceted_enumeration.p0t — 3 passed, 7 failed
+tests/p0t/knowledge/foundational_concepts.p0t  ->  FAIL  foundational_concepts.p0t — 20 passed, 7 failed
+tests/p0t/knowledge/gap_dialogue.p0t  ->  FAIL  gap_dialogue.p0t — 22 passed, 2 failed
+tests/p0t/knowledge/class_conflict.p0t  ->  FAIL  class_conflict.p0t — 2 passed, 1 failed
+tests/p0t/conversation/contractions.p0t  ->  ok    contractions.p0t — 8 passed
+tests/p0t/knowledge/name_is_knowledge.p0t  ->  FAIL  name_is_knowledge.p0t — 6 passed, 4 failed
+tests/p0t/conversation/reactions_are_knowledge.p0t  ->  FAIL  reactions_are_knowledge.p0t — 7 passed, 2 failed
+tests/p0t/meta/gap_is_a_fact.p0t  ->  FAIL  gap_is_a_fact.p0t — 10 passed, 9 failed
+tests/p0t/meta/gap_anchor.p0t  ->  FAIL  gap_anchor.p0t — 9 passed, 5 failed
+BASEDONE
