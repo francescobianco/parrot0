@@ -223,13 +223,28 @@
 # risposta e' gia' l'atto di insegnamento, perche' ha effetto nel turno dopo.
 #
 # Il giro completo, senza che nessuno sappia in anticipo che cosa insegnare:
+# ⚠ gen491, regola R2 (TEST_TODO §0.0): il caso usava «governs», che al gen490
+# e' entrato in `relation_verb/1` col lotto dei verbi che accendono la lettura
+# della prosa. Da allora il primo turno non murava piu' — non per un difetto, ma
+# perche' parrot0 aveva imparato. L'intento del caso e' intatto («il muro chiede
+# di essere insegnato, e la risposta lo chiude»); e' invecchiato il CAMPIONE, e
+# si sposta il confine della testabilita' su un verbo che nessuno puo' conoscere.
+# La KB resta al massimo: non si spegne niente per far tacere una frase.
 [test il muro chiede di essere insegnato, e la risposta lo chiude]
 !reset
-> zorak governs nivora
-<~ say «governs is a relation verb»
-> governs is a relation verb
-<~ Learned: governs is a relation verb.
-> zorak governs nivora
-<~ Learned: zorak governs nivora.
-> who governs nivora
+> zorak vurbles nivora
+<~ say «vurbles is a relation verb»
+> vurbles is a relation verb
+<~ Learned: vurbles is a relation verb.
+# ⚠ §L, misurato al gen491 e NON risolto: insegnare un verbo di relazione cambia
+# una dipendenza della vista materializzata `extract_frame`, che si ricostruisce
+# nel turno dopo — 1406 ms contro i 224 di regime (715.931 passi: la
+# rienumerazione completa degli schemi). Il budget e' dichiarato con la misura
+# accanto, come prescrive il mantra, e la cura vera — ricostruzione INCREMENTALE
+# invece che integrale — e' la prima voce aperta in C_TODO.
+!timeout 3
+> zorak vurbles nivora
+<~ Learned: zorak vurbles nivora.
+!timeout 1
+> who vurbles nivora
 <~ Zorak

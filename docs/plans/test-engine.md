@@ -1,5 +1,26 @@
 # The test-engine — one live instance validates `.p0t` suites
 
+> ## ⛔ PRIMA DI SCRIVERE UN `.p0t`: LE DUE REGOLE DI F. (2026-09-03)
+>
+> Il testo completo, con la misura del debito e gli esempi, sta in
+> [`TEST_TODO.md`](../../TEST_TODO.md) §0.0. Qui la forma corta, perché è qui
+> che si viene a cercare la sintassi:
+>
+> **R1 — il contesto ermetico non esiste più.** `[mock hermetic]` con
+> `PARROT0_BASE=` vuota e `PARROT0_WORLD_FACTS=0` è **vietato**: la KB non è un
+> volume montato sotto parrot0, *è* parrot0, e spegnerla non misura parrot0 con
+> meno rumore — misura un altro sistema, che non esiste. Si testa **sempre con
+> la KB al massimo**; per forzare una non-conoscenza si spegne *quella cosa lì*
+> con `!forget`, o si usa un'entità che nessuno può conoscere.
+>
+> **R2 — un'ignoranza resa falsa dalla crescita si chiude cambiando il test.**
+> Quando `< I don't understand that yet.` diventa rosso perché parrot0 ha
+> imparato, quello non è una regressione: è crescita. Si sposta il confine della
+> testabilità (entità nuova, oppure oblio mirato), si conserva l'intento del
+> caso, e **il commit lo dice**. Non è un permesso di cambiare un'attesa per far
+> passare un rosso: vale solo quando ciò che il test asseriva è diventato falso
+> perché la KB è cresciuta.
+
 > **Stato:** gen377 — **MIGRAZIONE DAVVERO COMPLETA.** `make test` = **1619
 > passed, 0 failed**, e per la prima volta il target NON contiene più alcuno
 > script shell: `analysis_planner_growth.sh` e `probability_inverse_growth.sh`

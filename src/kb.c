@@ -229,6 +229,7 @@ struct KB {
         char   deps[8][KB_TERM_LEN];
         size_t ndeps;
         size_t added;      /* fatti congelati da questa vista */
+        size_t seen_n, seen_nr;  /* dimensioni della KB all'ultimo controllo */
         int    live;
         int    building;
     } views[16];
@@ -2368,6 +2369,8 @@ static void kb_views_load(KB *kb) {
         kb->views[k].sig = 0;
         kb->views[k].ndeps = 0;
         kb->views[k].added = 0;
+        kb->views[k].seen_n = 0;
+        kb->views[k].seen_nr = 0;
         kb->views[k].live = 0;
         kb->views[k].building = 0;
     }
@@ -2407,9 +2410,20 @@ static uint64_t kb_view_signature(KB *kb, const char *pred, size_t slot) {
         const PredStat *ps = pred_stats_get(kb, kb->views[slot].deps[i], &live_census);
         size_t nf = (live_census && ps) ? ps->nfacts : 0;
         size_t nr = (live_census && ps) ? ps->nrules : 0;
-        /* i fatti che questa vista ha aggiunto da se' non contano: altrimenti
-         * congelare la vista cambierebbe la firma e la farebbe ricostruire. */
-        if (strcmp(kb->views[slot].deps[i], pred) == 0) nf -= kb->views[slot].added;
+        /* ⚠ I FATTI CONGELATI NON CONTANO — DI NESSUNA VISTA, NON SOLO DI QUESTA.
+         * Sottraevo solo `added` della vista corrente, e bastava perche' le
+         * viste fossero una sola. Con due (`extract_frame` dipende da
+         * `verb_stem`, che e' anch'essa materializzata) la firma della prima
+         * cambiava quando la seconda si congelava: al turno dopo il boot la
+         * vista risultava scaduta e si ricostruiva DENTRO il turno — 890 ms, e
+         * `health.p0t` sforava il budget di un secondo sei volte su dieci,
+         * cioe' la suite non partiva nemmeno. Una firma deve dipendere dalla
+         * conoscenza, e un fatto derivato non e' conoscenza: e' la sua cache. */
+        for (size_t v = 0; v < kb->nviews; v++)
+            if (strcmp(kb->views[v].pred, kb->views[slot].deps[i]) == 0) {
+                nf -= kb->views[v].added;
+                break;
+            }
         sig = (sig ^ (nf + nr * 1000003u)) * 1099511628211ULL;
     }
     return (sig ^ nd) * 1099511628211ULL;
@@ -2456,7 +2470,19 @@ int kb_view_ensure(KB *kb, const char *pred) {
     size_t k = kb_view_slot(kb, pred);
     if (k == (size_t)-1) return 0;
     if (kb->views[k].building) return 0;    /* si sta costruendo: usa le regole */
+    /* ⚠ §L — LA GUARDIA PRIMA DELLA GUARDIA. Questo si chiama a OGNI ingresso di
+     * kb_query/kb_match, cioe' ~1800 volte per turno; ricalcolare la firma ogni
+     * volta metteva 78 ms fuori dal solver, che e' lo stesso errore che la firma
+     * doveva evitare, un piano piu' su. Ma la firma non puo' cambiare se non e'
+     * cambiato NIENTE nella KB: il conteggio di fatti e regole e' gia' in mano, e
+     * confrontarlo costa due interi. Solo quando si muove qualcosa si paga il
+     * calcolo vero. */
+    if (kb->views[k].live &&
+        kb->views[k].seen_n == kb->n && kb->views[k].seen_nr == kb->nr)
+        return 1;
     uint64_t sig = kb_view_signature(kb, pred, k);
+    kb->views[k].seen_n = kb->n;
+    kb->views[k].seen_nr = kb->nr;
     if (kb->views[k].live && kb->views[k].sig == sig) return 1;
 
     kb_view_clear(kb, pred);
@@ -2468,36 +2494,62 @@ int kb_view_ensure(KB *kb, const char *pred) {
      * distinti negli schemi reali — e per ciascuno si chiedono i restanti. Due
      * livelli bastano per le arita' 1 e 2, che sono quelle che costano; per le
      * arita' maggiori la vista non si dichiara e il motore resta com'era. */
+    /* ⛔ NIENTE TETTI FISSI QUI, ED E' LA TERZA VOLTA CHE IL PROGETTO LO IMPARA.
+     *
+     * La prima versione enumerava dentro `char rows[256][...]`: `extract_frame`
+     * ne aveva di piu', la vista ne congelava 256 e dichiarava di averli tutti.
+     * Da li' `literal_forms.p0t` (49/0 -> 38/11): gli schemi caduti fuori erano
+     * proprio quelli generati per ultimi, e «the notation of percent is perc»
+     * smetteva di essere una frase comprensibile. E' esattamente la classe che
+     * `C_TODO.md` nomina dal gen459 — «il troncamento silenzioso non e' un
+     * limite di memoria: e' un limite a quanto parrot0 puo' imparare prima di
+     * cominciare a dimenticare senza dirlo» — commessa dentro l'ottimizzazione
+     * che doveva permettergli di imparare di piu'.
+     *
+     * `kb_match_all` cresce da solo, quindi non c'e' un tetto. E se un giorno
+     * la memoria mancasse, la vista NON si dichiara viva: si torna a derivare,
+     * lentamente e per intero. Una cache che non puo' contenere tutto non deve
+     * fingere — meglio lenta che muta. */
     size_t argc = kb->views[k].argc;
     size_t added = 0;
+    int complete = 1;
     if (argc == 1) {
-        char rows[512][KB_TERM_LEN];
-        const char *q[1] = { NULL };
-        size_t n = kb_match(kb, pred, q, 1, rows, 512);
+        char (*rows)[KB_TERM_LEN] = NULL; size_t n = 0;
+        if (!kb_match_all(kb, pred, (const char *[]){ NULL }, 1, &rows, &n))
+            complete = 0;
         for (size_t i = 0; i < n; i++) {
             const char *a[1] = { rows[i] };
             int o = kb->origin; kb->origin = KB_DERIVED;
-            if (kb_assert(kb, pred, a, 1)) { added++; }
+            if (kb_assert(kb, pred, a, 1)) added++;
             kb->origin = o;
         }
+        free(rows);
     } else if (argc == 2) {
-        char seconds[256][KB_TERM_LEN];
-        const char *q2[2] = { NULL, NULL };
-        /* i valori del PRIMO argomento; poi, per ciascuno, i secondi */
-        size_t n2 = kb_match(kb, pred, q2, 2, seconds, 256);
-        for (size_t i = 0; i < n2 && added < 4096; i++) {
-            char inner[256][KB_TERM_LEN];
-            const char *qi[2] = { seconds[i], NULL };
-            size_t ni = kb_match(kb, pred, qi, 2, inner, 256);
-            for (size_t j = 0; j < ni && added < 4096; j++) {
-                const char *a[2] = { seconds[i], inner[j] };
+        char (*firsts)[KB_TERM_LEN] = NULL; size_t n1 = 0;
+        if (!kb_match_all(kb, pred, (const char *[]){ NULL, NULL }, 2, &firsts, &n1))
+            complete = 0;
+        for (size_t i = 0; i < n1; i++) {
+            char (*seconds)[KB_TERM_LEN] = NULL; size_t n2 = 0;
+            const char *qi[2] = { firsts[i], NULL };
+            if (!kb_match_all(kb, pred, qi, 2, &seconds, &n2)) { complete = 0; free(seconds); continue; }
+            for (size_t j = 0; j < n2; j++) {
+                const char *a[2] = { firsts[i], seconds[j] };
                 int o = kb->origin; kb->origin = KB_DERIVED;
                 if (kb_assert(kb, pred, a, 2)) added++;
                 kb->origin = o;
             }
+            free(seconds);
         }
-    }
+        free(firsts);
+    } else complete = 0;      /* arita' non coperta: si deriva come prima */
     kb->views[k].building = 0;
+    if (!complete) {          /* incompleta = inesistente: mai una vista parziale */
+        kb_view_clear(kb, pred);
+        kb->views[k].added = 0;
+        kb->views[k].live = 0;
+        kb->views[k].seen_n = 0; kb->views[k].seen_nr = 0;
+        return 0;
+    }
     kb->n_derived += added;
     kb->views[k].added = added;
     kb->views[k].sig = kb_view_signature(kb, pred, k);

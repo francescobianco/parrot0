@@ -1,8 +1,12 @@
-# migrated from tests/cases/contractions.chat (gen346, hermetic + isolated)
-[mock hermetic]
-!set PARROT0_BASE=
+# migrated from tests/cases/contractions.chat (gen346)
+#
+# ⚠ gen491, regola R1 (TEST_TODO §0.0): questo file girava in contesto ERMETICO
+# — `PARROT0_BASE=` vuota e `WORLD_FACTS=0`, cioe' una KB di sole regole senza
+# conoscenza. Non si fa piu': la KB non e' un volume montato sotto parrot0, e'
+# parrot0, e spegnerla non misura parrot0 con meno rumore — misura un altro
+# sistema. Qui si testa con la KB al massimo, e le attese sono quelle vere.
+[mock live]
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
 !reset
 

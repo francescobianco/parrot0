@@ -8,6 +8,72 @@ Stato: **113/113 file sistemati (100%)** alla radice di `tests/`.
 
 ---
 
+## ⛔ 0.0 LE DUE REGOLE CHE NON SI DISCUTONO (F., 2026-09-03)
+
+Vengono prima di ogni altra voce di questo file, e prima di scrivere o
+correggere qualunque `.p0t`.
+
+### R1. Il contesto ermetico NON ESISTE PIÙ
+
+> F.: *«non esiste più e non accettiamo uso di contesto ermetico: la KB è parte
+> del progetto e non può essere spenta durante i test né frazionata».*
+
+Sono vietati, in ogni file nuovo e in ogni file che si tocca:
+
+```
+[mock hermetic]
+!set PARROT0_BASE=          ← una KB di sole regole, senza conoscenza
+!set PARROT0_WORLD_FACTS=0  ← il mondo spento
+```
+
+**Il perché, e non è una preferenza di stile.** La KB non è un volume montato
+sotto parrot0: *è* parrot0. Un test che la spegne non misura parrot0 con meno
+rumore — misura **un altro sistema**, che non esiste e a cui nessuno parlerà mai.
+E il costo si è già visto due volte: `frontier_chat_audit.it` misurava una KB
+amputata e dava 31 rossi su 56 **per costruzione** (`830bc59`), e il gen459 ha
+perso dieci turni su un difetto che in KB piena non c'era.
+
+**Si testa sempre con la KB al massimo.** Se serve forzare una non-conoscenza,
+si spegne *quella cosa lì* con gli strumenti che il framework già offre —
+`!forget`, e la si rimette dopo — oppure si usa un'entità nuova che nessuno può
+conoscere (`zorbles`, `puppo`, `nivora`). Mai spegnere il mondo per far tacere
+una frase.
+
+**Debito misurato al 2026-09-03: 288 file su 441 usano `[mock hermetic]`** (268
+con `PARROT0_BASE=` vuota, 291 con `WORLD_FACTS=0`), cioè il 65% della suite. È
+troppo per una sessione: la regola è **si converte ogni file che si tocca**, e
+nessun file nuovo lo usa. Chi finisce la coda cancella questo paragrafo.
+
+### R2. Un'ignoranza resa falsa dalla KB si chiude cambiando il TEST
+
+> F.: *«le ignoranze rese false vanno colmate cambiando il test, man mano che la
+> KB cresce, essendo essa stessa parte del progetto. I test perdono di
+> significato e vanno ripensati per individuare un confine nuovo di
+> testabilità».*
+
+Un test che asserisce *«di questo parrot0 non sa niente»* ha una scadenza: il
+giorno in cui glielo si insegna, quel rosso **non è una regressione, è una
+crescita**. Esempio reale di oggi — `greet.p0t`:
+
+```
+> tell me about C
+< I don't understand that yet.        ← vero fino al gen489
+                                      ← falso dal gen490: C è il carbonio
+```
+
+La riparazione **non è** rimettere parrot0 nell'ignoranza: è chiedersi *qual è
+adesso il confine della testabilità*, e spostare il test lì — con un'entità che
+nessuno può conoscere, o forzando l'oblio di quella specifica cosa. L'intento del
+caso («ciò che non è riconosciuto riceve un non-capisco onesto») si conserva; il
+campione con cui lo si prova cambia, perché il campione è invecchiato.
+
+⚠ **Questo NON autorizza a cambiare un'attesa per far passare un rosso.** Resta
+la regola del §5 di `LEARN_TODO.md`: *prima si capisce chi ha torto fra il test e
+il codice*. R2 vale solo quando ciò che il test asseriva **è diventato falso
+perché parrot0 ha imparato** — e in quel caso il commit deve dirlo.
+
+---
+
 ## 0. HANDOFF — da leggere per primo
 
 ### 0.1 `!expect` — engine implementato, conversione suite in corso

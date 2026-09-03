@@ -16062,7 +16062,16 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
              * request -- fall through so mod_learn documents it (or honestly
              * offers to). "who is a <X>?" stays a member query, so it keeps the
              * gen16 idk wall ("Nobody that I know of." is the known-but-empty case). */
-            if (lex_class_member(b, "question_word", w[0])) return 0;
+            /* ⚠ gen491 — QUI NON VA «ogni interrogativo», VA «QUELLO CHE CHIEDE
+             * UNA DEFINIZIONE». Al gen489 questa guardia e' stata allargata da
+             * una classe-seriale che conteneva il solo «what» a `question_word`,
+             * che contiene anche «who»: da allora «who is a dog» cadeva qui
+             * invece di tenere il muro idk che il commento sopra descrive, e la
+             * rivendicava il modulo di ricerca. E' la seconda lezione del mantra
+             * #19 in atto — allargare una classe e' allargare una rivendicazione
+             * — e la cura non e' tornare al letterale: e' dare al ruolo il suo
+             * nome, che cresce parlando come tutti gli altri. */
+            if (lex_class_member(b, "definition_interrogative", w[0])) return 0;
             idk(b, cls, out, out_size); return 1;
         }
         const char *pat[] = {NULL}; /* one variable in arg 0 */

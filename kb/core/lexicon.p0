@@ -2788,3 +2788,13 @@ machinery(italian_indefinite_article).
 italian_indefinite_article(un).
 italian_indefinite_article(una).
 italian_indefinite_article(uno).
+
+% gen491 — L'INTERROGATIVO CHE CHIEDE UNA DEFINIZIONE, non uno qualunque.
+% «what is a dog?» chiede che cosa sia un cane; «who is a dog?» chiede CHI lo
+% sia, ed e' una domanda di appartenenza che deve tenere il proprio muro. Le due
+% non sono la stessa classe, e confonderle ha fatto rubare il turno al modulo di
+% ricerca (`contractions.p0t`). Una lingua nuova e' una riga.
+machinery(definition_interrogative).
+definition_interrogative(what).
+definition_interrogative(cosa).
+definition_interrogative(quale).
