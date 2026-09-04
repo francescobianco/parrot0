@@ -122,7 +122,7 @@ Questo insegnamento dovrebbe poter essere trasformato in una rappresentazione pe
 Concettualmente:
 
 ```text
-reasoning_scheme(technical_review)
+thinking_scheme(technical_review)
 
 step(generate_candidate)
 step(criticize_candidate)
@@ -548,7 +548,7 @@ apply($Predicate, cons($Entity, cons($Value, nil)))
 rappresentazioni (`ir_domain_claim/3`) e il motore dei criteri di qualità
 (`criterion_finding/3`), dove **la misura è il NOME di una relazione, non una
 funzione compilata**. Un nodo di reasoning il cui operatore è una variabile è
-esattamente la stessa mossa: `reasoning_step(Schema, N, op(Predicato, Args))`.
+esattamente la stessa mossa: `thinking_step(Schema, N, op(Predicato, Args))`.
 
 Ne segue che **non serve un dispatcher di operatori**: serve dichiararli.
 
@@ -556,15 +556,15 @@ Ne segue che **non serve un dispatcher di operatori**: serve dichiararli.
 
 ### H1 — Un vocabolario solo, derivato dai tre esistenti
 
-Non `reasoning_scheme` accanto a `compensation_plan` e `answer_plan`, ma **una
+Non `thinking_scheme` accanto a `compensation_plan` e `answer_plan`, ma **una
 firma comune di cui i tre diventino viste**. La firma minima, presa dalla più
 ricca (quella degli arresti) e non inventata:
 
 ```prolog
-reasoning_scheme(Nome, Scopo).
-reasoning_step(Nome, Id, step(Operatore, Pre, Effetto, meta(Costo, Supporto))).
-reasoning_after(Nome, Prima, Dopo).          % l'arco: da qui il DAG
-reasoning_stop(Nome, Condizione).
+thinking_scheme(Nome, Scopo).
+thinking_step(Nome, Id, step(Operatore, Pre, Effetto, meta(Costo, Supporto))).
+thinking_after(Nome, Prima, Dopo).          % l'arco: da qui il DAG
+thinking_stop(Nome, Condizione).
 ```
 
 Il test di questa ipotesi non è che sia elegante: è che
@@ -608,7 +608,7 @@ di nasconderli (`kb_inference_report`). Un grafo di reasoning moltiplica
 l'inferenza per il numero di nodi: al gen491 un singolo predicato riderivato
 442 volte per turno era l'83% del tempo.
 
-Quindi: `reasoning_stop(Schema, budget_exhausted)` non è un ripiego. È
+Quindi: `thinking_stop(Schema, budget_exhausted)` non è un ripiego. È
 **l'unica condizione d'arresto che il sistema può garantire sempre**, e va
 progettata per prima, non aggiunta dopo. Corollario dal §L: prima di attivare il
 reasoning si dichiarano le viste materializzate dei predicati che il grafo
@@ -627,7 +627,7 @@ precedente più un meta-prompt dichiarato in KB, e lo rimette nella stessa porta
 da cui entrano i turni dell'interlocutore.
 
 ```prolog
-reasoning_step(S, 2, step(reenter(critique_prompt), r0, c0, meta(1, local))).
+thinking_step(S, 2, step(reenter(critique_prompt), r0, c0, meta(1, local))).
 meta_prompt(critique_prompt, "trova le assunzioni non dimostrate in: {prev}").
 ```
 
@@ -640,7 +640,7 @@ Ne discendono quattro cose, e nessuna è ovvia:
    parlando e si ritratta. È la parte insegnabile di ciò che oggi, in altri
    sistemi, è un prompt di sistema nascosto.
 3. **La ricorsione è reale e va limitata sul serio.** Un rientro può a sua volta
-   attivare uno schema: senza `reasoning_stop` e senza budget, un grafo si
+   attivare uno schema: senza `thinking_stop` e senza budget, un grafo si
    mangia il turno. Il solver conta già `steps`/`budget_hit`; il grafo deve
    contare i **rientri**, che sono molto più cari di un passo di inferenza.
 4. **Il rischio nuovo è il loop di specchio**: parrot0 che critica la propria
@@ -692,7 +692,7 @@ Uno schema con tre rami paralleli e una sintesi.
 
 - **Misura:** i tre rami hanno lo stesso `arrest_rank`, la sintesi rango
   superiore, e l'esecuzione rispetta il rango.
-- **Falsificazione:** **invertire gli archi `reasoning_after/2` deve invertire
+- **Falsificazione:** **invertire gli archi `thinking_after/2` deve invertire
   l'ordine di esecuzione.** Se l'ordine non cambia, l'esecutore sta usando
   l'indice e il grafo è decorativo.
 
@@ -733,7 +733,7 @@ Stesso input con `reasoning = off | light | deep`, con `/debug`.
 Uno schema in cui un nodo cambia comportamento **cambiando un solo fatto**,
 senza toccare né lo schema né il C.
 
-- **Misura:** `reasoning_step(S, 2, op(P, …))` con `P` diverso → risultato
+- **Misura:** `thinking_step(S, 2, op(P, …))` con `P` diverso → risultato
   diverso.
 - **Falsificazione:** se serve un ramo nel C per il nuovo operatore, `apply/2`
   non sta reggendo il confine e l'ipotesi H1 è sbagliata.
@@ -759,8 +759,8 @@ risposta cambi.
 
 Non «implementare il reasoning». Il passo esatto, in verticale:
 
-1. Dichiarare `reasoning_scheme/2`, `reasoning_step/3`, `reasoning_after/3`,
-   `reasoning_stop/2` **riusando la quadrupla `step(Azione, Pre, Effetto,
+1. Dichiarare `thinking_scheme/2`, `thinking_step/3`, `thinking_after/3`,
+   `thinking_stop/2` **riusando la quadrupla `step(Azione, Pre, Effetto,
    meta(Costo, Supporto))`** già in `arrests.p0` — non una firma nuova.
 2. Derivare `turn_plan`/`plan_step` (gen495) dalla nuova firma: se i due passi
    del piano sugli strumenti non si esprimono con essa, la firma è sbagliata.
@@ -777,7 +777,7 @@ un motore nuovo.**
 
 ## 4-bis. ✅ FATTO — R1 punti 1 e 2, e la firma ha retto il test
 
-`kb/core/reasoning.p0`. La firma **non è inventata**: è la quadrupla più ricca
+`kb/core/thinking.p0`. La firma **non è inventata**: è la quadrupla più ricca
 dei tre dialetti — `step(Operatore, Pre, Effetto, meta(Costo, Supporto))` da
 `arrests.p0` — promossa a vocabolario comune, con il rango topologico costruito
 come `arrest_rank/2` e la guardia sui cicli come `arrest_cycle/1`.
@@ -812,6 +812,75 @@ possono nemmeno provare.
 
 **È il primo lavoro del prossimo giro**, e la forma è già decisa: `p0_compensate`
 (gen442), che legge dalla KB quali azioni esistono e possiede solo le primitive.
+
+---
+
+## 4-ter. ✅ FATTO — l'esecutore, e il pensiero si VEDE
+
+> F., 2026-09-04: *«questi step di thinking si devono vedere in grigio nella ui
+> di parrot0 […] si deve vedere il processo completo, metaprompt più output,
+> così li possiamo debuggare».*
+
+### I requisiti di UI, e perché sono requisiti e non estetica
+
+1. **Si stampano ENTRAMBI: il meta-prompt e la sua risposta.** Un passo di cui si
+   vede solo l'uscita non è ispezionabile — non si può sapere *che cosa gli sia
+   stato chiesto*, e quindi nemmeno se la risposta c'entri. Il meta-prompt è la
+   metà che permette di dare la colpa a chi ce l'ha.
+2. **Grigio**, perché il pensiero non è la risposta e non deve competere con
+   essa. È meccanica di terminale, non testo: senza tty, con `NO_COLOR` o su
+   `TERM=dumb` degrada in silenzio.
+3. **Su `stderr`**, per la stessa ragione: chi mette parrot0 in una pipe deve
+   ricevere **solo** la risposta. Il pensiero è per chi guarda, non per chi
+   integra.
+4. **Mentre accade, non alla fine.** Il callback è chiamato *prima* del passo
+   successivo, così una pipeline lenta si vede procedere invece di sembrare
+   bloccata.
+
+```text
+>>> the heart pumps blood through the body
+  · pensiero 1 ─ read: Got it: the heart pumps blood through the body.
+    ↳ Learned 1 fact(s), skipped 0.
+  · pensiero 2 ─ what do you know about it
+    ↳ pumps(heart, blood); heart is muscular pump circulating blood through the body.
+pumps(heart, blood); heart is muscular pump circulating blood through the body.
+```
+
+**Quello che si vede lì è auto-feedback vero:** la frase detta diventa un fatto
+(passo 1, cambia di *natura*: da testo a conoscenza interrogabile), e il fatto
+viene composto con ciò che parrot0 già sapeva di anatomia (passo 2). Nessuno dei
+due passi chiama niente di esterno: sono due rientri nella stessa pipeline.
+
+### ⚠ Due difetti trovati alla prima esecuzione, e sono istruttivi
+
+**(a) Un meta-prompt deve essere una cosa che parrot0 SA FARE.** I primi due che
+avevo scritto — *«quali assunzioni non dimostrate ci sono in …»*, *«ridillo in
+una frase»* — muravano entrambi, e il muro diventava la risposta finale: **pensare
+di più peggiorava il turno**. Il difetto non era il loop: avevo scritto
+meta-prompt che descrivono un'attività *umana* invece di una capacità di parrot0.
+È la stessa specie di errore del frasario, un piano più su.
+
+**(b) Un pensiero che peggiora la risposta non deve sostituirla.** Guardia
+aggiunta: un passo il cui esito è un muro resta **visibile** (si è fatto, e si
+vede) ma **non propaga** — il passo successivo e la risposta finale continuano da
+ciò che l'ultimo passo utile aveva prodotto. Che cosa sia un muro è già
+conoscenza (`wall_marker/1`), quindi non c'è nessuna frase nuova nel C.
+
+⛔ **E la guardia non è ancora sufficiente**, va detto: prende i muri, non le
+*degradazioni*. Misurato: `what is photosynthesis` → il passo 1 non estrae
+niente e il passo 2 risponde *«What number should I use for «it»?»*, che non è un
+muro dichiarato e quindi diventa la risposta finale. Serve un criterio di
+**non-peggioramento** più forte di «non è un muro», ed è la prima voce di
+`THINKING_TODO.md`.
+
+### Come si accende
+
+```sh
+PARROT0_THINKING=1 make chat
+```
+
+`policy(thinking, on|off)` come le altre. Spento, il turno finisce alla prima
+risposta esattamente come prima: nessun costo, nessuna riga di output in più.
 
 ---
 

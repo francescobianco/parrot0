@@ -1,0 +1,233 @@
+% ══ R1 — IL VOCABOLARIO UNICO DEL THINKING ══════════════════════════════════
+%
+% ⛔ DUE PAROLE DIVERSE PER DUE COSE DIVERSE (F., 2026-09-04):
+%
+%   REASONING  e' l'inferenza che parrot0 fa gia': un turno entra, il solver
+%              risolve, esce una risposta. Resta com'e' e si chiama cosi'.
+%   THINKING   e' la rielaborazione dell'output con meta-prompt fino alla
+%              CHIUSURA DELLA PIPELINE: il risultato del primo giro rientra,
+%              agganciato a un meta-prompt, e il giro si ripete finche' una
+%              condizione dichiarata non lo chiude.
+%
+% Tenerle separate non e' pedanteria: sono due capacita' con costi, garanzie e
+% condizioni d'arresto diverse, e confonderle avrebbe fatto sembrare «pensare
+% di piu'» una proprieta' del solver invece che uno strato sopra di esso.
+%
+% Piano: `docs/plans/thinking.md`, Parte II §1 (H1) e §4.
+%
+% L'audit ha trovato che parrot0 ha gia' TRE dialetti di piano, tutti KB-first:
+%
+%   compensation_plan_step/3   arrests.p0    passi con Pre, Effetto, Costo, Supporto
+%                                            piu' un DAG con rango topologico
+%   answer_plan/4              procedures.p0 75 fatti, gira in produzione
+%   turn_plan/2 + plan_step/3  capabilities.p0  il piano sugli strumenti (gen495)
+%
+% Aggiungerne un quarto sarebbe il difetto che il piano dice di voler evitare,
+% commesso mentre lo si evita. Percio' la firma qui sotto NON e' inventata: e' la
+% quadrupla piu' ricca dei tre — quella degli arresti — promossa a vocabolario
+% comune. `step(Operatore, Pre, Effetto, meta(Costo, Supporto))` e' la stessa
+% forma che `compensation_plan_step/3` usa gia'.
+%
+% ⛔ E IL PRIMO TEST DELLA FIRMA E' QUI SOTTO, non in un documento: il piano
+% VIVO del gen495 — quello che risponde a «analizza tutti i file sorgenti che
+% trovi» — viene ora DERIVATO da questa firma. Se non si fosse potuto esprimere
+% senza perdere niente, la firma sarebbe sbagliata e andava cambiata, non
+% forzata. L'esecutore degli strumenti non e' stato toccato: continua a leggere
+% `turn_plan/2` e `plan_step/3`, che ora sono VISTE.
+
+:- file_attribute(machinery).
+
+machinery(thinking_scheme).
+machinery(thinking_step).
+machinery(thinking_after).
+machinery(thinking_stop).
+machinery(thinking_rank).
+machinery(thinking_depends).
+machinery(thinking_cycle).
+machinery(thinking_ready).
+
+% ── LA FIRMA ────────────────────────────────────────────────────────────────
+%
+%   thinking_scheme(Nome, Scopo)
+%   thinking_step(Nome, Id, step(Operatore, Pre, Effetto, meta(Costo, Supporto)))
+%   thinking_after(Nome, Prima, Dopo)      l'arco: da qui si deriva il grafo
+%   thinking_stop(Nome, Condizione)        perche' ci si ferma, dichiarato
+
+% ── L'ORDINE SI DERIVA DAL GRAFO, NON DALL'INDICE (H2) ─────────────────────
+%
+% Il rango e' la stessa costruzione di `arrest_rank/2`: un nodo senza
+% predecessori ha rango 0, chi dipende da un nodo di rango R ha rango R+1. Ne
+% segue che **un ramo parallelo non e' una feature dell'esecutore**: e' un
+% insieme di nodi con lo stesso rango, cioe' una proprieta' osservabile della
+% conoscenza. Si puo' chiedere «perche' hai fatto queste tre cose insieme?» e la
+% risposta e' un fatto.
+thinking_depends($Scheme, $Node, $Prev) :-
+    thinking_after($Scheme, $Prev, $Node).
+
+thinking_rank($Scheme, $Node, 0) :-
+    thinking_step($Scheme, $Node, $Step),
+    naf(thinking_has_predecessor($Scheme, $Node)).
+thinking_rank($Scheme, $Node, $Rank) :-
+    thinking_depends($Scheme, $Node, $Prev),
+    thinking_rank($Scheme, $Prev, $PrevRank),
+    is($Rank, add($PrevRank, 1)).
+
+machinery(thinking_has_predecessor).
+thinking_has_predecessor($Scheme, $Node) :-
+    thinking_depends($Scheme, $Node, $Prev).
+
+% Un grafo con un ciclo resta OSSERVABILE ma non e' eseguibile: si dichiara
+% malato invece di girare per sempre. Stessa scelta di `arrest_cycle/1`.
+thinking_cycle($Scheme) :-
+    thinking_depends($Scheme, $Node, $Node).
+thinking_cycle($Scheme) :-
+    thinking_depends($Scheme, $A, $B),
+    thinking_depends($Scheme, $B, $A).
+
+thinking_ready($Scheme) :-
+    thinking_scheme($Scheme, $Purpose),
+    naf(thinking_cycle($Scheme)).
+
+% ══ IL PRIMO SCHEMA, ED E' UN PIANO CHE GIA' GIRAVA ═════════════════════════
+%
+% «analizza tutti i file sorgenti che trovi»: trova → leggi ciascuno → riferisci.
+% Era gia' vivo al gen495 come `turn_plan`/`plan_step`; qui viene ridetto con la
+% firma comune, e le due forme vecchie diventano viste. Nessuna riga di C e'
+% cambiata: e' esattamente la prova che si voleva.
+thinking_scheme(analyze_sources, "read every source file and report what it contains").
+
+thinking_step(analyze_sources, 1,
+               step(list_sources, none, sources_found, meta(1, local))).
+thinking_step(analyze_sources, 2,
+               step(read_each, sources_found, structure_ingested, meta(1, local))).
+
+thinking_after(analyze_sources, 1, 2).
+
+% Perche' ci si ferma: dichiarato, non implicito.
+thinking_stop(analyze_sources, structure_ingested).
+thinking_stop(analyze_sources, budget_exhausted).
+
+% ── LE VISTE: i consumatori vecchi non sanno che e' cambiato qualcosa ───────
+%
+% `turn_plan/2` e `plan_step/3` non sono piu' fatti: sono proiezioni. Chi le
+% legge — l'esecutore degli strumenti in `60-agent-tools.c` — non e' stato
+% toccato. E' la condizione che rende questa migrazione onesta: se avesse
+% richiesto di cambiare il consumatore, non sarebbe stata una unificazione ma
+% una riscrittura con un nome nuovo (mantra #18a).
+turn_plan($Scheme, $CueClass) :-
+    thinking_scheme($Scheme, $Purpose),
+    scheme_cue_class($Scheme, $CueClass).
+
+plan_step($Scheme, $Id, $Operator) :-
+    thinking_step($Scheme, $Id, step($Operator, $Pre, $Effect, $Meta)).
+
+% Quale classe di superfici apre uno schema. Resta un fatto separato perche' e'
+% LINGUA, non struttura del ragionamento: lo stesso grafo puo' essere chiamato
+% da parole diverse, e in lingue diverse.
+machinery(scheme_cue_class).
+scheme_cue_class(analyze_sources, plan_analyze_sources).
+
+% ══ H5 — LA PRIMITIVA E' UNA SOLA: IL RIENTRO ═══════════════════════════════
+%
+% F., 2026-09-04: «non c'e' nessun LLM, e' un refuso. Il processo intendo:
+% pipeline di inferenza, l'output del primo giro agganciato a un meta-prompt e
+% reinserito. I flussi sono in KB ma di fatto sono inferenze successive.»
+%
+% Questo semplifica invece di complicare. `process(P)` E' la pipeline di parrot0,
+% rientrata: un passo compone un turno nuovo dal risultato precedente piu' un
+% meta-prompt dichiarato qui, e lo rimette dalla stessa porta da cui entrano i
+% turni dell'interlocutore. Non c'e' nessuna intelligenza esterna a cui chiedere:
+% c'e' lo stesso motore che gira di nuovo, su un input che il grafo ha costruito.
+%
+% Il meta-prompt e' CONOSCENZA come tutto il resto: si insegna parlando, si
+% ritratta, e si puo' chiedere a parrot0 quale abbia usato. E' la parte
+% insegnabile di cio' che altrove e' un prompt di sistema nascosto.
+machinery(meta_prompt).
+machinery(thinking_reentry).
+
+% `{prev}` viene riempito col risultato del nodo precedente. E' l'unico
+% segnaposto: se un giorno ne servisse un secondo sara' un fatto, non un ramo.
+meta_prompt(ingest, "read: {prev}").
+meta_prompt(recall, "what do you know about it").
+
+% Un nodo di RIENTRO dichiara quale meta-prompt usa. La forma resta la
+% quadrupla comune: l'operatore e' `reenter(MetaPrompt)`.
+thinking_reentry($Scheme, $Node, $Prompt) :-
+    thinking_step($Scheme, $Node,
+                   step(reenter($Prompt), $Pre, $Effect, $Meta)).
+
+% ⛔ LA GUARDIA CHE VIENE PRIMA DELL'ESECUTORE (H5.4 — il loop di specchio).
+%
+% parrot0 che critica la propria risposta con la STESSA conoscenza che l'ha
+% prodotta puo' solo confermarla. Un nodo di critica che non porta conoscenza
+% nuova non e' teatro che non cambia niente: e' teatro che si da' ragione, che e'
+% peggio. Percio' un rientro deve DICHIARARE da dove viene cio' che lo rende
+% diverso dal passo che critica — un'altra zona della KB, uno strumento, una
+% query. Senza quella dichiarazione il nodo non e' eseguibile.
+machinery(reentry_brings).
+machinery(reentry_admissible).
+
+reentry_admissible($Scheme, $Node) :-
+    thinking_reentry($Scheme, $Node, $Prompt),
+    reentry_brings($Scheme, $Node, $Source).
+
+machinery(reentry_mirror_risk).
+reentry_mirror_risk($Scheme, $Node) :-
+    thinking_reentry($Scheme, $Node, $Prompt),
+    naf(reentry_admissible($Scheme, $Node)).
+
+% ══ QUANDO SI PENSA, E FINO A QUANDO ════════════════════════════════════════
+%
+% Il thinking non e' sempre acceso: e' uno strato in piu', e ogni strato costa.
+% Quale schema si applica a quale turno e' conoscenza — cosi' come il fatto che
+% uno schema esista non basta perche' venga usato.
+machinery(thinking_for).
+machinery(thinking_default).
+machinery(thinking_prompt_text).
+machinery(thinking_max_steps).
+
+% Quale schema si applica quando il turno non ne nomina nessuno. E' un fatto
+% perche' e' una scelta, non un default del motore: cambiarla e' una riga, e
+% toglierla spegne il thinking senza spegnere la politica.
+thinking_default(second_thought).
+
+% Quanti rientri al massimo. Un rientro costa un TURNO INTERO, non un passo di
+% inferenza: senza tetto un grafo si mangia la conversazione. Due non e' un
+% numero magico — e' il minimo che permette «critica poi sintetizza», ed e' li'
+% finche' non avremo misurato il costo vero (esperimento E5 del piano).
+thinking_max_steps(2).
+
+% Uno schema di esempio, dichiarato e con la sua fonte: la critica non rientra a
+% mani vuote — porta i finding di qualita', che sono conoscenza che la prima
+% risposta non aveva guardato. Senza `thinking_brings` sarebbe uno specchio.
+thinking_scheme(second_thought, "look again at what was just said").
+thinking_step(second_thought, 1,
+              step(reenter(ingest), first_answer, ingested, meta(2, local))).
+thinking_step(second_thought, 2,
+              step(reenter(recall), ingested, final_answer, meta(1, local))).
+thinking_after(second_thought, 1, 2).
+thinking_stop(second_thought, final_answer).
+thinking_stop(second_thought, budget_exhausted).
+% Che cosa porta di NUOVO ciascun rientro: il primo trasforma la risposta in
+% fatti (`reading_fact`), il secondo interroga quei fatti. Senza queste due
+% righe i nodi sarebbero specchi e non verrebbero eseguiti.
+reentry_brings(second_thought, 1, reading_fact).
+reentry_brings(second_thought, 2, reading_fact).
+
+% Il TESTO di un meta-prompt e' una frase rivolta al motore, quindi e' KB come
+% ogni altra frase (mantra #16). `{prev}` e' il solo segnaposto.
+% ⚠ UN META-PROMPT DEVE ESSERE UNA COSA CHE PARROT0 SA FARE.
+%
+% I primi due che avevo scritto — «quali assunzioni non dimostrate ci sono in
+% …» e «ridillo in una frase» — muravano entrambi, e il muro diventava la
+% risposta finale: pensare di piu' PEGGIORAVA il turno. Il difetto non era il
+% loop: era che avevo scritto meta-prompt che descrivono un'attivita' umana
+% invece di una capacita' di parrot0.
+%
+% Questi due sono capacita' che parrot0 ha davvero, ed e' per questo che il giro
+% produce qualcosa: RILEGGERE la propria risposta come prosa (e quindi
+% trasformarla in conoscenza interrogabile), e poi INTERROGARE cio' che ne e'
+% uscito. E' auto-feedback vero: l'output del primo giro diventa input del
+% secondo, e in mezzo cambia di natura — da frase a fatto.
+thinking_prompt_text(ingest, "read: {prev}").
+thinking_prompt_text(recall, "what do you know about it").

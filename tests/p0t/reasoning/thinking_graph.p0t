@@ -25,48 +25,48 @@
 !reset
 [test E2 — il grafo non e' una catena]
 !timeout 15
-!assert reasoning_scheme(triage, "three views then one")
-!clause reasoning_step(triage, a, step(op_a, none, ra, meta(1, local))).
-!clause reasoning_step(triage, b, step(op_b, none, rb, meta(1, local))).
-!clause reasoning_step(triage, c, step(op_c, none, rc, meta(1, local))).
-!clause reasoning_step(triage, s, step(op_s, none, rs, meta(1, local))).
-!assert reasoning_after(triage, a, s)
-!assert reasoning_after(triage, b, s)
-!assert reasoning_after(triage, c, s)
-!query reasoning_rank(triage, a, 0)
-!query reasoning_rank(triage, b, 0)
-!query reasoning_rank(triage, c, 0)
-!query reasoning_rank(triage, s, 1)
-!query reasoning_ready(triage)
+!assert thinking_scheme(triage, "three views then one")
+!clause thinking_step(triage, a, step(op_a, none, ra, meta(1, local))).
+!clause thinking_step(triage, b, step(op_b, none, rb, meta(1, local))).
+!clause thinking_step(triage, c, step(op_c, none, rc, meta(1, local))).
+!clause thinking_step(triage, s, step(op_s, none, rs, meta(1, local))).
+!assert thinking_after(triage, a, s)
+!assert thinking_after(triage, b, s)
+!assert thinking_after(triage, c, s)
+!query thinking_rank(triage, a, 0)
+!query thinking_rank(triage, b, 0)
+!query thinking_rank(triage, c, 0)
+!query thinking_rank(triage, s, 1)
+!query thinking_ready(triage)
 
 [test E2b — invertire gli archi inverte l'ordine]
 !timeout 15
-!assert reasoning_scheme(pair, "two steps")
-!clause reasoning_step(pair, p, step(op_p, none, rp, meta(1, local))).
-!clause reasoning_step(pair, q, step(op_q, none, rq, meta(1, local))).
-!assert reasoning_after(pair, p, q)
-!query reasoning_rank(pair, p, 0)
-!query reasoning_rank(pair, q, 1)
+!assert thinking_scheme(pair, "two steps")
+!clause thinking_step(pair, p, step(op_p, none, rp, meta(1, local))).
+!clause thinking_step(pair, q, step(op_q, none, rq, meta(1, local))).
+!assert thinking_after(pair, p, q)
+!query thinking_rank(pair, p, 0)
+!query thinking_rank(pair, q, 1)
 # FALSIFICAZIONE: invertito l'arco, i ranghi si scambiano
-!forget reasoning_after(pair, p, q)
-!assert reasoning_after(pair, q, p)
-!query reasoning_rank(pair, q, 0)
-!query reasoning_rank(pair, p, 1)
+!forget thinking_after(pair, p, q)
+!assert thinking_after(pair, q, p)
+!query thinking_rank(pair, q, 0)
+!query thinking_rank(pair, p, 1)
 
 [test E2c — un ciclo si dichiara malato, non gira per sempre]
 !timeout 15
-!assert reasoning_after(pair, p, q)
-!query reasoning_cycle(pair)
-!query! reasoning_ready(pair)
+!assert thinking_after(pair, p, q)
+!query thinking_cycle(pair)
+!query! thinking_ready(pair)
 
 [test H5 — il rientro e' la primitiva, e lo specchio e' una guardia]
 !timeout 12
 
 # `process(P)` e' la pipeline di parrot0 rientrata: nessuna intelligenza
 # esterna, solo lo stesso motore su un turno che il grafo ha costruito.
-!query meta_prompt(critique, $P)
-!clause reasoning_step(rev, 1, step(reenter(critique), r0, c0, meta(2, local))).
-!query reasoning_reentry(rev, 1, critique)
+!query meta_prompt(ingest, $P)
+!clause thinking_step(rev, 1, step(reenter(ingest), r0, c0, meta(2, local))).
+!query thinking_reentry(rev, 1, ingest)
 
 # ⛔ IL LOOP DI SPECCHIO. Criticare la propria risposta con la STESSA conoscenza
 # che l'ha prodotta puo' solo confermarla: non e' teatro che non cambia niente,

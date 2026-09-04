@@ -741,7 +741,7 @@ Brain *brain_create(void) {
     /* R1: il vocabolario unico del reasoning. Va caricato PRIMA di chi legge
      * `turn_plan`/`plan_step`, che da qui in poi sono viste derivate. */
     kb_set_origin(b->kb, KB_BASE);
-    kb_load(b->kb, "kb/core/reasoning.p0");
+    kb_load(b->kb, "kb/core/thinking.p0");
 
     /* gen212 (cardinal KB-first principle, OUTPUT side): the agent's own reply
      * phrasings — "Nice to meet you, {name}!" etc. — live in kb/core/responses.p0, not
@@ -1096,6 +1096,13 @@ static void brain_policy(Brain *b) {
     int tools = t && strcmp(t, "1") == 0;
     int net   = n && strcmp(n, "1") == 0;
 
+    /* gen497 — il THINKING e' una politica come le altre: uno strato in piu' che
+     * costa, e che si accende dicendolo. `PARROT0_THINKING=1` (o `/think` nella
+     * chat) lo attiva; spento, il turno finisce alla prima risposta esattamente
+     * come prima. */
+    const char *k = p0env("PARROT0_THINKING");
+    int think = k && strcmp(k, "1") == 0;
+    const char *pk[] = { "thinking", think ? "on" : "off" };
     const char *pt[] = { "tools",   tools ? "on" : "off" };
     const char *pn[] = { "network", net   ? "on" : "off" };
     const char *pm[] = { "mode",    net ? "acquire" : (tools ? "agent" : "conversational") };
@@ -1104,6 +1111,7 @@ static void brain_policy(Brain *b) {
     int prev_origin = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_REFLECTIVE);
     kb_assert(b->kb, "policy", pt, 2);
+    kb_assert(b->kb, "policy", pk, 2);
     kb_assert(b->kb, "policy", pn, 2);
     kb_assert(b->kb, "policy", pm, 2);
     kb_set_origin(b->kb, prev_origin);
@@ -1129,6 +1137,152 @@ void brain_mode(Brain *b, char *out, size_t cap) {
     const char *q[] = { "mode", NULL };
     char v[1][KB_TERM_LEN];
     if (kb_match(b->kb, "policy", q, 2, v, 1) == 1) snprintf(out, cap, "%s", v[0]);
+}
+
+
+/* ══ gen497 — L'ESECUTORE DEL THINKING: una primitiva sola, il RIENTRO ═══════
+ *
+ * F.: «thinking e' la rielaborazione dell'output con i meta-prompt fino alla
+ * chiusura della pipeline». Non c'e' nessun componente esterno: `process(P)` e'
+ * `brain_respond`, cioe' la pipeline di parrot0 rientrata su un turno che il
+ * grafo ha costruito.
+ *
+ * L'esecutore possiede UNA primitiva — comporre un turno e rientrare — e non
+ * sceglie niente: chiede alla KB quale schema si applica, in che ordine stanno i
+ * nodi (per rango, non per indice), quale meta-prompt usa ciascuno, e quando
+ * fermarsi. Un nodo di rientro che non dichiara `reentry_brings/3` NON viene
+ * eseguito: e' la guardia contro il loop di specchio, e viene prima
+ * dell'esecutore invece che dopo.
+ *
+ * ⛔ IL BUDGET E' LA CONDIZIONE D'ARRESTO CHE SI PUO' SEMPRE GARANTIRE. Un
+ * rientro costa un turno intero, non un passo di inferenza: senza un tetto un
+ * grafo si mangia la conversazione. Il tetto e' dichiarato in KB
+ * (`thinking_max_steps/1`), e in sua assenza e' due — non zero, perche' un
+ * thinking che non pensa non serve, e non dieci, perche' non lo abbiamo ancora
+ * misurato. */
+/* Un muro e' gia' una classe dichiarata (`wall_marker/1`): qui si chiede, non
+ * si riconosce. Serve al thinking per non lasciare che un passo fallito diventi
+ * la risposta finale. */
+static int p0_is_wall(Brain *b, const char *text) {
+    if (!b || !b->kb || !text || !*text) return 1;
+    char rows[16][KB_TERM_LEN];
+    const char *q[1] = { NULL };
+    size_t n = kb_match(b->kb, "wall_marker", q, 1, rows, 16);
+    for (size_t i = 0; i < n; i++) {
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[i]);
+        const char *m = kb_dequote(rb);
+        if (m && *m && strstr(text, m)) return 1;
+    }
+    return 0;
+}
+
+static size_t thinking_max_steps(Brain *b) {
+    char rows[1][KB_TERM_LEN];
+    const char *q[1] = { NULL };
+    if (kb_match(b->kb, "thinking_max_steps", q, 1, rows, 1) == 1) {
+        long v = strtol(rows[0], NULL, 10);
+        if (v > 0 && v < 32) return (size_t)v;
+    }
+    return 2;
+}
+
+/* Il turno del nodo: il testo del meta-prompt con `{prev}` sostituito dal
+ * risultato precedente. Il segnaposto e' uno solo di proposito — se un giorno
+ * ne servisse un secondo sara' un fatto, non un ramo qui. */
+static int thinking_compose(Brain *b, const char *prompt_id, const char *prev,
+                            char *out, size_t out_size) {
+    char rows[1][KB_TERM_LEN];
+    const char *q[2] = { prompt_id, NULL };
+    if (kb_match(b->kb, "thinking_prompt_text", q, 2, rows, 1) != 1) return 0;
+    char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", rows[0]);
+    const char *tpl = kb_dequote(tb);
+    size_t o = 0; out[0] = '\0';
+    for (const char *p = tpl; *p && o + 1 < out_size; ) {
+        if (!strncmp(p, "{prev}", 6)) {
+            o += (size_t)snprintf(out + o, out_size - o, "%s", prev ? prev : "");
+            p += 6;
+        } else { out[o++] = *p++; out[o] = '\0'; }
+    }
+    return out[0] != '\0';
+}
+
+size_t brain_think(Brain *b, const char *input, char *out, size_t out_size,
+                   BrainThinkStep on_step, void *ud) {
+    if (!b || !b->kb || !input || !out || out_size == 0) return 0;
+
+    /* il primo giro e' il reasoning di sempre: nessuno lo tocca */
+    brain_respond(b, input, out, out_size);
+    if (!kb_knows_pred(b->kb, "thinking_scheme")) return 0;
+
+    /* quale schema si applica a questo turno: lo dice la KB */
+    char scheme[KB_TERM_LEN] = "";
+    {
+        char rows[8][KB_TERM_LEN];
+        const char *q[2] = { NULL, NULL };
+        size_t n = kb_match(b->kb, "thinking_scheme", q, 2, rows, 8);
+        for (size_t i = 0; i < n && !scheme[0]; i++) {
+            const char *aq[2] = { rows[i], NULL };
+            char cls[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "thinking_for", aq, 2, cls, 1) == 1) {
+                if (kb_cue_match(b, cls[0], input))
+                    snprintf(scheme, sizeof scheme, "%s", rows[i]);
+            }
+        }
+    }
+    if (!scheme[0]) {
+        /* nessuno schema nominato dal turno: quello dichiarato di default, se
+         * c'e'. Toglierlo spegne il thinking senza spegnere la politica. */
+        char d[1][KB_TERM_LEN];
+        const char *dq[1] = { NULL };
+        if (kb_match(b->kb, "thinking_default", dq, 1, d, 1) == 1)
+            snprintf(scheme, sizeof scheme, "%s", d[0]);
+    }
+    if (!scheme[0]) return 0;
+    { const char *rq[1] = { scheme };
+      if (!kb_query(b->kb, "thinking_ready", rq, 1)) return 0; }  /* ciclo: non si esegue */
+
+    size_t cap = thinking_max_steps(b), done = 0;
+    char prev[4096]; snprintf(prev, sizeof prev, "%s", out);
+
+    /* i nodi in ordine di RANGO, non di indice: e' il grafo a dettarlo */
+    for (size_t rank = 0; rank < cap && done < cap; rank++) {
+        char rankstr[24]; snprintf(rankstr, sizeof rankstr, "%zu", rank);
+        char nodes[8][KB_TERM_LEN];
+        const char *nq[3] = { scheme, NULL, rankstr };
+        size_t nn = kb_match(b->kb, "thinking_rank", nq, 3, nodes, 8);
+        for (size_t i = 0; i < nn && done < cap; i++) {
+            /* la guardia dello specchio, PRIMA di eseguire */
+            const char *adq[2] = { scheme, nodes[i] };
+            if (!kb_query(b->kb, "reentry_admissible", adq, 2)) continue;
+            const char *pq[3] = { scheme, nodes[i], NULL };
+            char prompts[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "thinking_reentry", pq, 3, prompts, 1) != 1) continue;
+
+            char turn[4600];
+            if (!thinking_compose(b, prompts[0], prev, turn, sizeof turn)) continue;
+            char answer[4096];
+            brain_respond(b, turn, answer, sizeof answer);
+            done++;
+            if (on_step) on_step(ud, (int)done, turn, answer);
+            /* ⛔ UN PENSIERO CHE PEGGIORA LA RISPOSTA NON LA SOSTITUISCE.
+             *
+             * Misurato alla prima esecuzione: un meta-prompt che parrot0 non sa
+             * eseguire risponde con un muro, e il muro diventava la risposta
+             * finale — cioe' pensare di piu' PEGGIORAVA il turno. E' il caso
+             * peggiore possibile per uno strato di deliberazione, perche' e'
+             * invisibile a chi guarda solo il risultato.
+             *
+             * Il passo resta VISIBILE (si e' fatto, e si vede in grigio), ma non
+             * propaga: il pensiero successivo e la risposta finale continuano da
+             * cio' che l'ultimo passo utile aveva prodotto. Che cosa sia un muro
+             * e' gia' conoscenza — `wall_marker/1` — quindi non c'e' nessuna
+             * frase nuova nel C. */
+            if (!p0_is_wall(b, answer))
+                snprintf(prev, sizeof prev, "%s", answer);
+        }
+    }
+    if (done) snprintf(out, out_size, "%s", prev);
+    return done;
 }
 
 void brain_boot(Brain *b) {

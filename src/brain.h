@@ -48,6 +48,27 @@ void   brain_destroy(Brain *b);
  * `out` plus a NUL terminator. Returns the number of chars written. */
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size);
 
+/* ── THINKING — la rielaborazione dell'output fino alla chiusura (gen497) ────
+ *
+ * F., 2026-09-04: «reasoning e' l'inferenza attuale; thinking e' la
+ * rielaborazione dell'output con i meta-prompt fino alla chiusura della
+ * pipeline, e questi step si devono vedere in grigio nella UI».
+ *
+ * `brain_think` esegue il grafo dichiarato in `kb/core/thinking.p0`: per ogni
+ * nodo, in ordine di rango, compone un turno dal meta-prompt piu' il risultato
+ * precedente e RIENTRA nella stessa pipeline (`brain_respond`). Non c'e' nessun
+ * componente esterno: e' lo stesso motore che gira di nuovo su un input che il
+ * grafo ha costruito.
+ *
+ * Ogni passo viene notificato al chiamante PRIMA di procedere, perche' il
+ * pensiero in corso e' cio' che la UI deve poter mostrare mentre accade. Il
+ * callback riceve il turno composto e la risposta ottenuta; puo' essere NULL.
+ * Torna il numero di passi eseguiti (0 = nessuno schema applicabile). */
+typedef void (*BrainThinkStep)(void *ud, int index, const char *prompt,
+                               const char *answer);
+size_t brain_think(Brain *b, const char *input, char *out, size_t out_size,
+                   BrainThinkStep on_step, void *ud);
+
 /* Feed prose already held in memory through the same sentence reader used by
  * the conversational `read:` path, without routing the prose as a new prompt. */
 size_t brain_read_prose(Brain *b, const char *prose, char *out, size_t out_size);

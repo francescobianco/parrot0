@@ -1073,6 +1073,31 @@ static void debug_inspect(Brain *brain, const char *last_line) {
     fflush(stderr);
 }
 
+/* ── gen497 — IL PENSIERO SI VEDE MENTRE ACCADE ────────────────────────────
+ *
+ * F., 2026-09-04: «questi step di thinking si devono vedere in grigio nella ui
+ * di parrot0 […] si deve vedere il processo completo, metaprompt piu' output,
+ * cosi' li possiamo debuggare».
+ *
+ * Percio' si stampano ENTRAMBI, e non solo il risultato: un passo di cui si
+ * vede solo l'uscita non e' ispezionabile — non si puo' sapere che cosa gli sia
+ * stato chiesto, e quindi nemmeno se la risposta c'entri. Il meta-prompt e' la
+ * meta' che permette di dare la colpa a chi ce l'ha.
+ *
+ * Il grigio e' meccanica di terminale, non testo (stesso ragionamento del
+ * banner): senza tty, con NO_COLOR o su TERM=dumb l'uscita resta leggibile e i
+ * bench non vedono sequenze. Va su STDERR perche' il pensiero non e' la
+ * risposta: chi mette parrot0 in una pipe deve ricevere solo la risposta. */
+static void think_step_print(void *ud, int index, const char *prompt,
+                             const char *answer) {
+    (void)ud;
+    fprintf(stderr, "%s  · pensiero %d ─ %s%s\n", C("38;5;244"), index,
+            prompt ? prompt : "", C_OFF);
+    fprintf(stderr, "%s    ↳ %s%s\n", C("38;5;244"),
+            answer ? answer : "", C_OFF);
+    fflush(stderr);
+}
+
 int main(int argc, char **argv) {
     /* gen221: `parrot0 --daemon [--port N] [--host H]` serves the
      * OpenAI-compatible HTTP API directly (replacing scripts/pi_server.py). */
@@ -1436,7 +1461,13 @@ int main(int argc, char **argv) {
             timespec_get(&t0, TIME_UTC);
         }
         snprintf(last_line, sizeof last_line, "%s", line);
-        brain_respond(brain, line, resp, sizeof resp);
+        /* gen497: con il thinking acceso il turno non finisce alla prima
+         * risposta — rientra nella pipeline finche' lo schema non si chiude, e
+         * ogni passo si vede. Spento, e' esattamente la chiamata di prima. */
+        if (brain_policy_on(brain, "thinking"))
+            brain_think(brain, line, resp, sizeof resp, think_step_print, NULL);
+        else
+            brain_respond(brain, line, resp, sizeof resp);
         if (profiling) {
             timespec_get(&t1, TIME_UTC);
             double ms = (t1.tv_sec - t0.tv_sec) * 1000.0
