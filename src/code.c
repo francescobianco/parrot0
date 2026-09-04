@@ -645,6 +645,8 @@ static void code_strip_comment_edges(char *line) {
                  line[n-1] == '*' || line[n-1] == '/')) line[--n] = '\0';
 }
 
+static const char *shape_deq(char *buf);   /* definita con l'emettitore */
+
 static void code_observe_contract(KB *kb, const char *src,
                                   const CodeObservation *o) {
     if (!kb || !src || !o) return;
@@ -713,6 +715,37 @@ static void code_observe_contract(KB *kb, const char *src,
                 snprintf(qr, sizeof qr, "\"%s\"", res);
                 const char *args[3] = { n->name, qc, qr };
                 kb_assert(kb, "contract_clause", args, 3);
+                /* gen503 M4 — e QUALI PROPRIETA' quella clausola nomina.
+                 * Le frasi sono conoscenza (`contract_property_cue/2`), come
+                 * lo erano per l'uscita di uno strumento; qui resta solo il
+                 * confronto. Senza questo passo il contratto e' leggibile ma
+                 * non CONFRONTABILE, e la scelta della forma resterebbe legata
+                 * al nome dell'algoritmo invece che a cio' che pretende. */
+                {
+                    char whole[1024];
+                    snprintf(whole, sizeof whole, "%s %s", cond, res);
+                    char (*props)[KB_TERM_LEN] = NULL; size_t nprop = 0;
+                    const char *ppq[2] = { NULL, NULL };
+                    if (kb_match_all(kb, "contract_property_cue", ppq, 2,
+                                     &props, &nprop)) {
+                        for (size_t pi = 0; pi < nprop; pi++) {
+                            char cues[8][KB_TERM_LEN];
+                            const char *cq2[2] = { props[pi], NULL };
+                            size_t ncue = kb_match(kb, "contract_property_cue",
+                                                   cq2, 2, cues, 8);
+                            for (size_t ci = 0; ci < ncue; ci++) {
+                                char cb2[KB_TERM_LEN];
+                                snprintf(cb2, sizeof cb2, "%s", cues[ci]);
+                                const char *needle = shape_deq(cb2);
+                                if (!*needle || !strstr(whole, needle)) continue;
+                                const char *pa[2] = { n->name, props[pi] };
+                                kb_assert(kb, "contract_property", pa, 2);
+                                break;
+                            }
+                        }
+                    }
+                    free(props);
+                }
                 break;
             }
             pos = eol + 1;
@@ -4908,7 +4941,7 @@ int code_synth_from_shape_lang(KB *kb, const char *lang, const char *shape,
         const char *lq0[3] = { NULL, NULL, NULL };
         char probe[1][KB_TERM_LEN];
         if (kb_match(kb, "code_shape_signature", lq0, 3, probe, 1) == 0)
-            kb_load(kb, "kb/experts/programming/algo_steps.p0");
+            kb_load(kb, "kb/experts/programming/code_shapes.p0");
     }
 
     /* ── LE GRAFFE SONO CONOSCENZA, e M5 lo ha dimostrato ──────────────────

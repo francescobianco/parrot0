@@ -184,3 +184,64 @@ lang_syntax(python, loop_up,      "for {0} in range({1}, len(a))").
 lang_syntax(python, declare_int,  "{0} = {1}").
 lang_syntax(python, accumulate,   "{0} = {0} + {1}").
 lang_syntax(python, return_value, "return {0}").
+
+% ══ M4 — SCEGLIERE LA FORMA DAL CONTRATTO, NON DAL NOME ═════════════════════
+%
+% Finora la forma si sceglieva perche' il turno NOMINAVA un algoritmo
+% (`sort_shape_from_kb` cerca il nome nella richiesta). E' riconoscimento, non
+% sintesi: funziona solo per cio' che ha gia' un nome noto.
+%
+% Qui la forma si sceglie da cio' che il contratto PRETENDE. Le clausole le
+% legge A2 dalla prosa dell'header (`contract_clause/3`); quali PROPRIETA'
+% nomina una clausola e' conoscenza (`contract_property_cue/2`, la stessa forma
+% di `tool_result_cue/2`); che cosa una forma GARANTISCE e' dichiarato accanto
+% alla forma. La scelta e' poi tutta inferenza, senza una riga di C.
+%
+% ⛔ E il confine di CHALLENGE_TODO §6.5-bis vale qui piu' che altrove: le
+% proprieta' sono generali («non traboccare prima di allocare»), non i cinque
+% casi di un header del banco. Se una forma esistesse solo per far combaciare
+% quell'header, sarebbe barare anche stando in KB.
+
+machinery(contract_property).
+machinery(contract_property_cue).
+machinery(code_shape_guarantees).
+machinery(candidate_shape).
+machinery(shape_lacks).
+machinery(shape_satisfies).
+
+% Quali proprieta' una clausola nomina. La frase e' insegnabile; il motore fa
+% solo il confronto, quando legge l'header.
+contract_property_cue(no_overflow,        "overflow").
+contract_property_cue(no_overflow,        "trabocco").
+contract_property_cue(null_on_bad_input,  "NULL").
+contract_property_cue(caller_frees,       "malloc").
+contract_property_cue(caller_frees,       "freshly").
+contract_property_cue(empty_on_zero,      "empty string").
+contract_property_cue(nul_terminated,     "NUL-terminated").
+
+% Che cosa garantisce una forma. Sono proprieta' dei suoi PASSI: `concat_two`
+% controlla il trabocco prima di allocare, restituisce NULL quando non puo'
+% onorare la richiesta, alloca memoria che chi chiama libera e chiude con NUL.
+code_shape_guarantees(concat_two, no_overflow).
+code_shape_guarantees(concat_two, null_on_bad_input).
+code_shape_guarantees(concat_two, caller_frees).
+code_shape_guarantees(concat_two, nul_terminated).
+
+% ── LA SCELTA, e non c'e' niente nel C ──────────────────────────────────────
+% Una forma e' candidata se sa emettere C. Le MANCA qualcosa se il contratto
+% nomina una proprieta' che lei non garantisce — e qui `naf` vede un goal
+% chiuso, perche' la proprieta' e' gia' legata dalla premessa che la precede.
+% Soddisfa il contratto se non le manca niente.
+candidate_shape($Shape) :- code_shape_signature($Shape, c, $Sig).
+
+shape_lacks($Shape, $Function) :-
+    contract_property($Function, $Property),
+    naf(code_shape_guarantees($Shape, $Property)).
+
+shape_satisfies($Shape, $Function) :-
+    candidate_shape($Shape),
+    contract_property($Function, $Any),
+    naf(shape_lacks($Shape, $Function)).
+
+answer_frame("shape for", shape_satisfies).
+answer_frame_input_arg("shape for", shape_satisfies, 2).

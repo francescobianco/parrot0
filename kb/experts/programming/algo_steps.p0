@@ -81,7 +81,3 @@ step_cue(swap_out_of_order, "switch them").
 shape_signature(nested_loop_compare_swap, repeat_passes).
 shape_signature(nested_loop_compare_swap, compare_adjacent).
 shape_signature(nested_loop_compare_swap, swap_out_of_order).
-
-% gen503: le FORME del codice e la lingua in cui si scrivono. Caricato qui
-% perche' questo file e' il punto di ingresso pigro della sintesi.
-:- include(code_shapes.p0).

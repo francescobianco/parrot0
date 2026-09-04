@@ -1,0 +1,50 @@
+# M4 — la forma si sceglie dal CONTRATTO, non dal nome.
+#
+# Finora una forma si sceglieva perche' il turno NOMINAVA un algoritmo
+# (`sort_shape_from_kb` cerca il nome nella richiesta): e' riconoscimento, e
+# funziona solo per cio' che ha gia' un nome noto. Qui si sceglie da cio' che il
+# contratto PRETENDE, e il contratto e' letto dalla prosa di un header (A2).
+#
+# La catena, per intero:
+#   read concat.h        -> contract_clause/3     (la prosa diventa clausole)
+#                        -> contract_property/2   (le clausole nominano proprieta')
+#   shape_satisfies/2    -> inferenza pura: una forma soddisfa se non le manca
+#                           nessuna proprieta' che il contratto nomina
+#
+# ⛔ L'header e' scritto da questo test e NON e' quello del banco di gara: le
+# proprieta' sono generali («non traboccare prima di allocare»), non i cinque
+# casi di un compito. Il confine e' CHALLENGE_TODO §6.5-bis.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!set PARROT0_LANG=en
+!reset
+!timeout 30
+
+!exec rm -rf /tmp/p0t-m4 && mkdir -p /tmp/p0t-m4
+!exec printf '/* Concatenate two strings into fresh storage.\n *\n * success -> a freshly malloc NUL-terminated string the caller frees\n * total length overflow -> NULL\n * allocation failure -> NULL\n */\nchar *concat(const char *a, const char *b);\n' > /tmp/p0t-m4/concat.h
+!cwd /tmp/p0t-m4
+
+[test without reading the header no shape is selected]
+!query! shape_satisfies(concat_two, concat)
+
+[test the contract read from prose names its properties]
+> read concat.h
+<~ declares concat
+!query contract_property(concat, no_overflow)
+!query contract_property(concat, null_on_bad_input)
+!query contract_property(concat, caller_frees)
+
+[test a shape is selected because it satisfies those properties]
+!query shape_satisfies(concat_two, concat)
+> shape for concat
+<~ Concat two
+
+[test a shape that lacks a property is not selected]
+# `sum_over_array` non alloca niente e non puo' restituire NULL: il contratto
+# nomina proprieta' che lei non garantisce, quindi resta fuori.
+!query! shape_satisfies(sum_over_array, concat)
+
+!cwd off
+!exec rm -rf /tmp/p0t-m4

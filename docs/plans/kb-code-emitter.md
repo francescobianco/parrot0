@@ -135,9 +135,31 @@ M3 ✅ le operazioni che servono a un contratto: allocare, controllare un
       banco — emesso, COMPILATO con `-std=c11 -Wall -Wextra -Werror -O2` ed
       ESEGUITO. Sei operazioni nuove, sei righe di `lang_syntax`.
 
-M4    la scelta della forma dal CONTRATTO letto (A2) invece che dal nome:
-      `contract_clause/3` → quali operazioni servono. È qui che smette di
-      essere un generatore e comincia a essere sintesi.
+M4 ✅ la scelta della forma dal CONTRATTO letto (A2) invece che dal nome.
+      prova: un header scritto dal test (NON quello del banco) viene letto, le
+      sue clausole nominano proprietà, e `shape_satisfies/2` sceglie
+      `concat_two` — mentre `sum_over_array`, che non alloca niente, resta
+      fuori. Senza la lettura non si sceglie niente: l'ablazione è nel test.
+
+      La selezione è **inferenza pura**, zero righe di C:
+
+      ```prolog
+      candidate_shape($S)     :- code_shape_signature($S, c, $Sig).
+      shape_lacks($S, $F)     :- contract_property($F, $P),
+                                 naf(code_shape_guarantees($S, $P)).
+      shape_satisfies($S, $F) :- candidate_shape($S),
+                                 contract_property($F, $Any),
+                                 naf(shape_lacks($S, $F)).
+      ```
+
+      `naf` vede sempre un goal chiuso perché la proprietà è già legata dalla
+      premessa che lo precede — è il modo di dire «per ogni» in un motore che
+      non ha il quantificatore.
+
+      ⚠ E la risposta onesta è anche quella negativa: sul contratto di
+      `strjoin.h` **nessuna forma dichiarata soddisfa**, perché nessuna
+      garantisce `empty_on_zero`. Dichiararne una che combaci sarebbe scrivere
+      la risposta del banco in KB — la colonna destra di §6.5-bis.
 
 M5 ✅ una seconda lingua, per falsificare il taglio.
       prova: la STESSA forma `sum_over_array` — stesso albero, stessi slot, non

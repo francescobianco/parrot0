@@ -48,6 +48,14 @@ machinery(code_declared_in).
 %
 % Quella prosa e' una tabella condizione -> risultato. QUALE segno separa i due
 % lati e' conoscenza: una convenzione nuova e' una riga qui, non una ricompilazione.
+% gen503 — le FORME del codice si caricano AL BOOT, non pigramente.
+%
+% Erano dentro `algo_steps.p0`, che `mod_compose` carica solo in modalita'
+% agente. Ma le stesse righe servono quando si LEGGE un header — cioe' prima e
+% altrove — e un file che c'e' solo su una delle due strade produce il difetto
+% peggiore: funziona quando lo provi e no quando serve.
+:- include(../experts/programming/code_shapes.p0).
+
 machinery(contract_arrow).
 machinery(contract_clause).
 machinery(contract_condition).
