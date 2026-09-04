@@ -115,7 +115,7 @@ def run_slot(path):
         },
         check=False,
     )
-    replies = [line[6:] for line in result.stdout.splitlines() if line.startswith("you> ")]
+    replies = [line[6:] for line in result.stdout.splitlines() if line.startswith(">>> ")]
     passed = 0
     for index, (_, _, expected) in enumerate(cases):
         actual = replies[index] if index < len(replies) else ""

@@ -84,7 +84,7 @@ def ask_all(lines):
     p = subprocess.run([BIN], input=script, capture_output=True, text=True,
                        timeout=120, env={"PARROT0_PROFILE": PROFILE, "PATH": "/usr/bin:/bin",
                                          "HOME": "/tmp"})
-    # Il prompt "you> " va su STDERR e la risposta su STDOUT: filtrare stdout per
+    # Il prompt ">>> " va su STDERR e la risposta su STDOUT: filtrare stdout per
     # il prompt non trova nulla e fa sembrare muto tutto. Le risposte sono le
     # righe non vuote di stdout, nell'ordine delle domande.
     return [l.strip() for l in p.stdout.splitlines() if l.strip()]

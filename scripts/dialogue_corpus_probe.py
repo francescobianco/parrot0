@@ -92,7 +92,7 @@ def extract_replies(stdout: str) -> list[str]:
     for chunk in stdout.split("<<EOT>>")[:-1]:
         lines = [line.strip() for line in chunk.splitlines() if line.strip()]
         lines = [line for line in lines if not line.startswith((
-            "parrot0 [", "mode:", "say something", "you>", "parrot0: bye"
+            "parrot0 [", "mode:", "say something", ">>>", "parrot0: bye"
         ))]
         if lines:
             replies.append(" ".join(lines))

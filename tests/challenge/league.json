@@ -3,35 +3,59 @@
   "title": "parrot0 vs FreeBuff / DeepSeek Flash",
   "agents": {
     "parrot0": {
-      "argv": ["{repo}/bin/parrot0"],
-      "version_argv": ["git", "-C", "{repo}", "describe", "--always", "--dirty"],
+      "argv": [
+        "{repo}/bin/parrot0"
+      ],
+      "version_argv": [
+        "git",
+        "-C",
+        "{repo}",
+        "describe",
+        "--always",
+        "--dirty"
+      ],
       "env": {
         "PARROT0_ROOT": "{repo}",
         "PARROT0_PROFILE": "{repo}/kb/profiles/agi.p0",
         "PARROT0_RUNTIME_DIR": "{runtime}",
         "PARROT0_SESSION": "",
         "PARROT0_TOOLS": "1",
-        "PARROT0_THINKING": "1"
+        "PARROT0_THINKING": "0"
       },
-      "unset_env": ["PARROT0_SESSION_DUMP", "PARROT0_LEARN_KB"],
-      "ready_pattern": "you>",
-      "done_pattern": "you>",
+      "unset_env": [
+        "PARROT0_SESSION_DUMP",
+        "PARROT0_LEARN_KB"
+      ],
+      "ready_pattern": ">>>",
+      "done_pattern": ">>>",
       "boot_wait_seconds": 3,
-      "min_runtime_seconds": 1,
-      "stream_watch_seconds": 3,
+      "min_runtime_seconds": 3,
+      "stream_watch_seconds": 8,
       "startup_timeout_seconds": 30,
-      "quit": "/quit\r"
+      "quit": "/quit\r",
+      "idle_settle_seconds": 2.0,
+      "max_turns": 12,
+      "continue_text": "continue",
+      "_note_thinking": "gen501: spento di proposito. THINKING_TODO A0 e' aperta — un passo che degrada la risposta la sostituisce comunque — e il transcript di gen500-stream-v3 lo mostra dal vivo: il pensiero 2 ha trasformato la risposta in «What number should I use for it?». Misurare parrot0 con una funzione nota-rotta non e' misurare parrot0. Si riaccende quando A0 e' chiusa.",
+      "_note_prompt": "gen501: il prompt di parrot0 in un PTY e' `>>>` (tre chevron colorati), non `you>`. `you>` e' la forma SENZA colore, quella che vedono le pipe e i bench. Il pilota aspettava un prompt che in un terminale non arriva mai: l'agente non partiva proprio, e la gara veniva annullata come «stream fermo all'avvio». E' il difetto piu' banale e il piu' costoso della serie."
     },
     "freebuff": {
-      "argv": ["freebuff", "--cwd", "{code}"],
-      "version_argv": ["freebuff", "--version"],
+      "argv": [
+        "freebuff",
+        "--cwd",
+        "{code}"
+      ],
+      "version_argv": [
+        "freebuff",
+        "--version"
+      ],
       "env": {},
       "unset_env": [],
       "ready_pattern": "Enter a coding task or / for commands",
       "done_pattern": "Enter a coding task or / for commands",
       "boot_wait_seconds": 3,
       "min_runtime_seconds": 3,
-      "stream_watch_seconds": 3,
+      "stream_watch_seconds": 20,
       "startup_timeout_seconds": 60,
       "bracketed_paste": true,
       "submit_delay_seconds": 0.5,
@@ -44,8 +68,13 @@
           "send_key": "ENTER",
           "max_uses": 1
         }
-      ]
+      ],
+      "idle_settle_seconds": 3.0,
+      "max_turns": 1
     }
   },
-  "matches": ["match1", "match2"]
+  "matches": [
+    "match1",
+    "match2"
+  ]
 }

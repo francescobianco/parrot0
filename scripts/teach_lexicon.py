@@ -51,7 +51,7 @@ def main() -> int:
     for chunk in proc.stdout.split("<<EOT>>")[:-1]:
         lines = [l.strip() for l in chunk.splitlines() if l.strip()]
         lines = [l for l in lines if not l.startswith(
-            ("parrot0 [", "mode:", "say something", "you>", "parrot0: bye"))]
+            ("parrot0 [", "mode:", "say something", ">>>", "parrot0: bye"))]
         replies.append(" ".join(lines))
 
     taken = refused = 0

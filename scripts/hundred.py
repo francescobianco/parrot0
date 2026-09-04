@@ -29,7 +29,7 @@ for num, prompt, want in rows:
     run = subprocess.run(["./bin/parrot0"], input=(prompt + "\n/quit\n").encode(),
                          capture_output=True, env=env, timeout=180)
     txt = run.stdout.decode("utf-8", "replace")
-    body = [l.replace("you> ", "").strip() for l in txt.splitlines()
+    body = [l.replace(">>> ", "").strip() for l in txt.splitlines()
             if l.strip() and not l.startswith("parrot0 [")
             and not l.startswith("say something")]
     reply = " ".join(body)

@@ -4,7 +4,10 @@
   "difficulty": 4,
   "artifact": "quicksort.c",
   "timeout_seconds": 600,
-  "order": ["parrot0", "freebuff"],
+  "order": [
+    "parrot0",
+    "freebuff"
+  ],
   "logic_actions": {
     "freebuff": [
       {

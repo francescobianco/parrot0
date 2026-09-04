@@ -1,0 +1,270 @@
+{
+  "league_id": "freebuff-deepseek-flash",
+  "match_id": "match1",
+  "run_id": "gen501-pilot-b",
+  "difficulty": 4,
+  "order": [
+    "parrot0",
+    "freebuff"
+  ],
+  "prompt_sha256": "938eeda792077f8e94f832ab1905f71e9fdc652eca3896dedd60a816db64d338",
+  "valid": false,
+  "status": "cancelled",
+  "agents": {
+    "parrot0": {
+      "version": "f745000-dirty",
+      "session": {
+        "argv": [
+          "/home/francesco/Develop/_/parrot0/bin/parrot0"
+        ],
+        "duration_seconds": 32.44,
+        "exit_code": 0,
+        "termination_reason": "completion_marker",
+        "timed_out": false,
+        "startup_ready": true,
+        "task_submitted": true,
+        "turns_used": 12,
+        "max_turns": 12,
+        "valid": true,
+        "stream_watch_seconds": 8.0,
+        "stream_events": 118
+      },
+      "seed_sha256": "db4a69772a48c664d7a60552bb380092a20bc3e6090b586749d76b524087886b",
+      "result_tree_sha256": "db4a69772a48c664d7a60552bb380092a20bc3e6090b586749d76b524087886b",
+      "artifact_sha256": null,
+      "judge": {
+        "checks": [
+          {
+            "available_points": 5,
+            "detail": "quicksort.c exists",
+            "name": "artifact",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 5,
+            "detail": "supplied quicksort.h is unchanged",
+            "name": "seed_integrity",
+            "passed": true,
+            "points": 5
+          },
+          {
+            "available_points": 15,
+            "detail": "not reached",
+            "name": "compile_clean",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "basic_order",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "generic_records",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 5,
+            "detail": "not reached",
+            "name": "duplicate_permutation",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "comparator_context",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "invalid_arguments",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 5,
+            "detail": "not reached",
+            "name": "overflow_rejected",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "adversarial_growth",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 5,
+            "detail": "not reached",
+            "name": "integrated_build",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "cli_contract",
+            "passed": false,
+            "points": 0
+          }
+        ],
+        "diagnosis_tags": [
+          "artifact",
+          "compile_clean",
+          "basic_order",
+          "generic_records",
+          "duplicate_permutation",
+          "comparator_context",
+          "invalid_arguments",
+          "overflow_rejected",
+          "adversarial_growth",
+          "integrated_build",
+          "cli_contract"
+        ],
+        "score": 5,
+        "status": "partial",
+        "judge_exit_code": 0
+      }
+    },
+    "freebuff": {
+      "version": "0.0.168",
+      "session": {
+        "argv": [
+          "freebuff",
+          "--cwd",
+          "/tmp/coding-match-357sfexh/code"
+        ],
+        "duration_seconds": 49.331,
+        "exit_code": -2,
+        "termination_reason": "timeout",
+        "timed_out": true,
+        "startup_ready": true,
+        "task_submitted": true,
+        "turns_used": 1,
+        "max_turns": 1,
+        "valid": false,
+        "stream_watch_seconds": 20.0,
+        "stream_events": 738
+      },
+      "seed_sha256": "db4a69772a48c664d7a60552bb380092a20bc3e6090b586749d76b524087886b",
+      "result_tree_sha256": "db4a69772a48c664d7a60552bb380092a20bc3e6090b586749d76b524087886b",
+      "artifact_sha256": null,
+      "judge": {
+        "checks": [
+          {
+            "available_points": 5,
+            "detail": "quicksort.c exists",
+            "name": "artifact",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 5,
+            "detail": "supplied quicksort.h is unchanged",
+            "name": "seed_integrity",
+            "passed": true,
+            "points": 5
+          },
+          {
+            "available_points": 15,
+            "detail": "not reached",
+            "name": "compile_clean",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "basic_order",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "generic_records",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 5,
+            "detail": "not reached",
+            "name": "duplicate_permutation",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "comparator_context",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "invalid_arguments",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 5,
+            "detail": "not reached",
+            "name": "overflow_rejected",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "adversarial_growth",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 5,
+            "detail": "not reached",
+            "name": "integrated_build",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "cli_contract",
+            "passed": false,
+            "points": 0
+          }
+        ],
+        "diagnosis_tags": [
+          "artifact",
+          "compile_clean",
+          "basic_order",
+          "generic_records",
+          "duplicate_permutation",
+          "comparator_context",
+          "invalid_arguments",
+          "overflow_rejected",
+          "adversarial_growth",
+          "integrated_build",
+          "cli_contract"
+        ],
+        "score": 5,
+        "status": "partial",
+        "judge_exit_code": 0
+      }
+    }
+  },
+  "cancellation": "freebuff:timeout after 738 stream events"
+}

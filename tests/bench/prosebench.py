@@ -122,7 +122,7 @@ def run(pages, verbose):
     detail = []
     for line in lines:
         line = line.strip()
-        if line.startswith("you> "):
+        if line.startswith(">>> "):
             line = line[5:].strip()
         m = FACT_RE.search(line)
         if not m:

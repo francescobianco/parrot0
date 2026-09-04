@@ -141,7 +141,7 @@ def ask_parrot0(turns: list[str]) -> list[str]:
     for chunk in p.stdout.split("<<EOT>>")[:-1]:
         lines = [l.strip() for l in chunk.splitlines() if l.strip()]
         lines = [l for l in lines if not l.startswith(
-            ("parrot0 [", "mode:", "say something", "you>", "parrot0: bye"))]
+            ("parrot0 [", "mode:", "say something", ">>>", "parrot0: bye"))]
         out.append(" ".join(lines))
     return out
 

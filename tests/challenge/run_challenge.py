@@ -192,6 +192,19 @@ def pty_session(
     boot_wait = float(config.get("boot_wait_seconds", 2.0))
     min_runtime = float(config.get("min_runtime_seconds", 4.0))
     stream_watch = float(config.get("stream_watch_seconds", 3.0))
+    # gen501 — un agente REPL non finisce un compito in un turno.
+    #
+    # `max_turns` e' l'ADATTATORE dell'interfaccia, non un vantaggio: il TESTO
+    # del compito resta identico byte per byte, e la continuazione non aggiunge
+    # nessuna informazione sul task (`continue_text` e' neutro e dichiarato nella
+    # league). Un agente che lavora da solo dopo un submit usa `max_turns: 1` e
+    # non vede nessuna differenza. Il numero di turni usati finisce nel result,
+    # perche' un confronto in cui un lato ha avuto piu' giri deve dirlo.
+    max_turns = int(config.get("max_turns", 1))
+    continue_text = str(config.get("continue_text", ""))
+    # Quanto silenzio serve per dire «e' fermo, non sta pensando».
+    idle_settle = float(config.get("idle_settle_seconds", 1.5))
+    turns_used = 0
     prompt_sent_at: float | None = None
     last_output = started
     reason = "process_exit"
@@ -315,6 +328,7 @@ def pty_session(
             os.write(master_fd, b"\r")
             task_submitted = True
             print("  state: working; task submitted", flush=True)
+            turns_used = 1
             while proc.poll() is None:
                 read_available(0.25)
                 now = time.monotonic()
@@ -324,11 +338,35 @@ def pty_session(
                 if active >= timeout:
                     reason = "timeout"
                     break
-                if done_pattern and active >= min_runtime and done_pattern in visible_after:
+                idle = now - last_output
+                # gen501 — «FERMO AL PROMPT» NON E' «HA STAMPATO IL PROMPT».
+                #
+                # Prima bastava che il marcatore comparisse ovunque dopo il
+                # submit: per parrot0 il marcatore E' il suo prompt, quindi la
+                # sessione finiva dopo la prima risposta — sette secondi, zero
+                # file toccati. Ora servono DUE cose insieme: il marcatore in
+                # CODA a cio' che si vede, e lo stream fermo abbastanza da dire
+                # che non sta piu' lavorando. Un prompt ristampato in mezzo al
+                # lavoro non chiude piu' niente.
+                at_prompt = bool(done_pattern) and visible_after.rstrip().endswith(
+                    done_pattern.rstrip()
+                )
+                if at_prompt and active >= min_runtime and idle >= idle_settle:
+                    if turns_used < max_turns and continue_text:
+                        turns_used += 1
+                        os.write(master_fd, continue_text.encode("utf-8") + b"\r")
+                        last_output = time.monotonic()
+                        print(f"  state: continuing (turn {turns_used})", flush=True)
+                        continue
                     reason = "completion_marker"
                     print("  state: completion", flush=True)
                     break
-                if now - last_output >= stream_watch:
+                if idle >= stream_watch:
+                    # Lo stream fermo mentre il prompt e' in coda non e' un
+                    # blocco: e' un agente che aspetta. Sono due stati diversi e
+                    # confonderli annullava gare valide.
+                    if at_prompt:
+                        continue
                     reason = "stream_stalled"
                     print("  state: interaction_required; byte stream stalled", flush=True)
                     break
@@ -350,6 +388,8 @@ def pty_session(
         "timed_out": reason == "timeout",
         "startup_ready": startup_ready,
         "task_submitted": task_submitted,
+        "turns_used": turns_used,
+        "max_turns": max_turns,
         "valid": task_submitted and reason in ("completion_marker", "process_exit"),
         "stream_watch_seconds": stream_watch,
         "stream_events": len(stream_trace),

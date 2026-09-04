@@ -112,7 +112,7 @@ def ask_parrot0(binary: str, prompt: str) -> str:
     lines = [l for l in run.stdout.splitlines()
              if l.strip() and not l.startswith("parrot0 [")
              and not l.startswith("say something")]
-    body = [l.replace("you> ", "").strip() for l in lines]
+    body = [l.replace(">>> ", "").strip() for l in lines]
     body = [l for l in body if l]
     return body[0] if body else "[empty]"
 

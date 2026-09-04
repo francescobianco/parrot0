@@ -134,12 +134,21 @@ static int use_color(void) {
 #define C(code) (use_color() ? "\x1b[" code "m" : "")
 #define C_OFF   (use_color() ? "\x1b[0m" : "")
 
-/* Il prompt: tre chevron in gradiente, dal piu' scuro al piu' chiaro. Senza
- * colore resta la forma storica, che i bench sanno gia' leggere. */
+/* ── IL PROMPT E' `>>>`, IL COLORE E' DELL'AMBIENTE (F., gen501) ───────────
+ *
+ * Prima erano DUE prompt diversi: `>>>` col colore, `you> ` senza. Non era una
+ * scelta: era una svista che ha fatto sembrare parrot0 rotto per un pomeriggio
+ * intero. Il banco di gara aspettava `you>` in un PTY — dove il colore e'
+ * acceso — quindi il prompt non arrivava MAI e l'agente «non partiva»: gara
+ * annullata come «stream fermo all'avvio», tre volte, prima che qualcuno
+ * guardasse i byte veri.
+ *
+ * La regola: il prompt e' `>>>` sempre. Il colore e' decorazione dipendente
+ * dall'ambiente, e cambia come si vede — mai che cosa si vede. */
 static const char *prompt_str(void) {
     return use_color()
         ? "\x1b[38;5;25m>\x1b[38;5;39m>\x1b[38;5;81m>\x1b[0m "
-        : "you> ";
+        : ">>> ";
 }
 
 static void tty_write(const char *s) { ssize_t n = write(STDERR_FILENO, s, strlen(s)); (void)n; }
