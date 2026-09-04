@@ -237,6 +237,24 @@ static int kb_cue_match(Brain *b, const char *intent, const char *norm) {
     return 0;
 }
 
+/* The ordinary 256-byte normalized view is intentionally small because most
+ * modules parse one utterance-sized clause.  Arbitration has a different
+ * contract: a derived clause must not make the source turn disappear.  Build
+ * that source view without a fixed ceiling; the tenfold bound covers the only
+ * expanding rewrite performed by normalize ("%" -> " percent "). */
+static char *normalize_full_alloc(const char *in) {
+    if (!in) return NULL;
+    size_t n = strlen(in);
+    if (n > ((size_t)-1 - 1) / 10) return NULL;
+    size_t cap = n * 10 + 1;
+    char *out = malloc(cap);
+    if (!out) return NULL;
+    normalize(in, out, cap);
+    return out;
+}
+
+
+
 /* gen212 (cardinal KB-first principle, OUTPUT side): build a reply for `intent` from a
  * response_template(intent, "…{name}…") fact, substituting "{name}" with `slot`. The
  * phrasings are KNOWLEDGE, not C literals: the class grows at runtime (teach a phrasing,
@@ -989,6 +1007,81 @@ static int p0_move_allowed(Brain *b, const char *faculty, const char *turn) {
     return ok;
 }
 
+/* ── LA TRACCIA DELLA CESSIONE, e perche' e' una SONDA e non una fprintf ────
+ *
+ * gen502, su richiesta di F.: «migliora lo strumento di debug per l'occasione
+ * di scovare questo problema». L'occasione e' questa: per capire perche' una
+ * cessione non scattava su un prompt di 1485 byte e' servita una `fprintf`
+ * usa-e-getta, e ha rivelato in un colpo solo che la vista arrivava lunga 93
+ * caratteri invece di 1485. Un difetto che si vede in una riga non deve
+ * richiedere una ricompilazione per essere visto.
+ *
+ * Quindi la traccia diventa FATTI RIFLESSIVI, letti dalle sonde dichiarate in
+ * `kb/core/debug.p0`: il C misura e scrive, che cosa valga la pena guardare e
+ * con che etichetta resta conoscenza, e una domanda nuova costa una riga di KB.
+ * Tre righe per turno, e la prima e' quella che conta:
+ *
+ *     turn_yield_view     quanto e' lunga OGNI vista che la cessione consulta
+ *     turn_yield_probe    per ogni classe: quale vista l'ha vista e quale no
+ *     turn_yield_outcome  l'esito, con la facolta' e lo stadio
+ *
+ * Costa solo a profilo acceso: a `/debug` spento non si asserisce niente. */
+static void p0_yield_note(Brain *b, const char *pred, const char *text) {
+    if (!b || !b->kb || !kb_profile_on(b->kb) || !text) return;
+    char quoted[KB_TERM_LEN];
+    snprintf(quoted, sizeof quoted, "\"%s\"", text);
+    const char *args[] = { "current_turn", quoted };
+    int origin = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_assert(b->kb, pred, args, 2);
+    kb_set_origin(b->kb, origin);
+}
+
+static void p0_yield_note_views(Brain *b, const char *faculty, const char *stage,
+                                const char *norm, const char *raw) {
+    if (!b || !b->kb || !kb_profile_on(b->kb)) return;
+    char line[KB_TERM_LEN];
+    snprintf(line, sizeof line, "%s/%s viste: local %zuB | raw %zuB | source %zuB",
+             faculty, stage, norm ? strlen(norm) : (size_t)0,
+             raw ? strlen(raw) : (size_t)0,
+             b->active_turn_norm ? strlen(b->active_turn_norm) : (size_t)0);
+    p0_yield_note(b, "turn_yield_view", line);
+}
+
+/* ⛔ gen502 — LA DECOMPOSIZIONE NON DEVE PERDERE LA LETTURA GLOBALE.
+ *
+ * La causa vera del debito lasciato aperto, e non era una terza finestra di
+ * buffer. Sul turno INTERO `gen` declina da solo — riconosce gia' una richiesta
+ * di codice — quindi la cessione non c'entra. Poi nessuna facolta' primaria
+ * prende il compito, entra `compose` come ultima risorsa, lo SPEZZA, e
+ * ridispaccia i frammenti tramite `dispatch_one`. La congiunzione che governava
+ * il turno era GLOBALE — «codebase» in una parte, «replace its» in un'altra — e
+ * nessun frammento la porta piu'. `gen` vede solo il frammento e torna
+ * legittimamente narrativo: non sta rubando niente, sta rispondendo a quello
+ * che gli e' stato dato.
+ *
+ * Non serve un'altra cue: serve che il turno SORGENTE resti visibile mentre una
+ * facolta' esamina un frammento derivato. `active_turn_norm` e' quella vista —
+ * dinamica, di proprieta' del frame `brain_respond` attivo, ripristinata al
+ * ritorno di ogni turno annidato — e cedere e' l'atto prudente, quindi chi cede
+ * deve vedere DI PIU', mai di meno. */
+static int p0_yield_cue_holds(Brain *b, const char *cls,
+                              const char *norm, const char *raw) {
+    int hit_norm   = norm && kb_cue_match(b, cls, norm);
+    int hit_raw    = !hit_norm && raw && kb_cue_match(b, cls, raw);
+    int hit_source = !hit_norm && !hit_raw && b && b->active_turn_norm &&
+                     kb_cue_match(b, cls, b->active_turn_norm);
+    if (b && b->kb && kb_profile_on(b->kb)) {
+        char line[KB_TERM_LEN];
+        snprintf(line, sizeof line, "%s local=%s raw=%s source=%s", cls,
+                 hit_norm ? "HIT" : "miss",
+                 hit_norm ? "-" : (hit_raw ? "HIT" : "miss"),
+                 (hit_norm || hit_raw) ? "-" : (hit_source ? "HIT" : "miss"));
+        p0_yield_note(b, "turn_yield_probe", line);
+    }
+    return hit_norm || hit_raw || hit_source;
+}
+
 /* ── QUANDO UNA FACOLTA' CEDE IL TURNO ─────────────────────────────────────
  *
  * `p0_move_allowed` sopra dice quando una facolta' PUO' parlare, leggendo la
@@ -1021,6 +1114,7 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
                              const char *norm, const char *raw) {
     if (!b || !b->kb || !faculty || !stage) return 0;
     int yield = 0;
+    p0_yield_note_views(b, faculty, stage, norm, raw);
 
     char (*classes)[KB_TERM_LEN] = NULL;
     size_t n = 0;
@@ -1029,12 +1123,11 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
         for (size_t i = 0; i < n && !yield; i++) {
             char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", classes[i]);
             const char *cls = kb_dequote(cb);
-            if ((norm && kb_cue_match(b, cls, norm)) ||
-                (raw  && kb_cue_match(b, cls, raw))) yield = 1;
+            if (p0_yield_cue_holds(b, cls, norm, raw)) yield = 1;
         }
     }
     free(classes);
-    if (yield) return 1;
+    if (yield) { p0_yield_note(b, "turn_yield_outcome", faculty); return 1; }
 
     /* ⛔ gen502 — LA CESSIONE CONGIUNTA LEGGEVA MEZZO TURNO.
      *
@@ -1058,21 +1151,19 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
         for (size_t i = 0; i < nf && !yield; i++) {
             char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", firsts[i]);
             const char *first = kb_dequote(ab);
-            if (!((norm && kb_cue_match(b, first, norm)) ||
-                  (raw  && kb_cue_match(b, first, raw)))) continue;
+            if (!p0_yield_cue_holds(b, first, norm, raw)) continue;
             const char *sq[4] = { faculty, stage, firsts[i], NULL };
             char seconds[8][KB_TERM_LEN];
             size_t ns = kb_match(b->kb, "faculty_yield_both", sq, 4, seconds, 8);
             for (size_t j = 0; j < ns && !yield; j++) {
                 char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", seconds[j]);
                 const char *second = kb_dequote(sb);
-                if ((norm && kb_cue_match(b, second, norm)) ||
-                    (raw  && kb_cue_match(b, second, raw))) yield = 1;
+                if (p0_yield_cue_holds(b, second, norm, raw)) yield = 1;
             }
         }
     }
     free(firsts);
-    if (yield) return 1;
+    if (yield) { p0_yield_note(b, "turn_yield_outcome", faculty); return 1; }
 
     /* La cessione per FORZA del turno, gemella di quella per cue. Serve dove il
      * motivo per tacere non e' una parola ma la LETTURA: «He reviewed the draft»
@@ -1086,10 +1177,13 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
         for (size_t i = 0; i < nfo && !yield; i++) {
             char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", forces[i]);
             const char *force = kb_dequote(fb);
-            if (*force && norm && p0_turn_is(b, force, norm)) yield = 1;
+            if (*force && ((norm && p0_turn_is(b, force, norm)) ||
+                       (b->active_turn_norm &&
+                        p0_turn_is(b, force, b->active_turn_norm)))) yield = 1;
         }
     }
     free(forces);
+    if (yield) p0_yield_note(b, "turn_yield_outcome", faculty);
     return yield;
 }
 

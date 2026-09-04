@@ -87,3 +87,18 @@ debug_note_silent(7, "docs/plans/fix-patterns.md.").
 % gen459 — fino a quale arita' `/debug <predicato>` guarda. E' un fatto perche'
 % il numero giusto dipende da che cosa si sta cercando, non dal motore.
 debug_pred_arity_max(4).
+
+% ── gen502: LA CESSIONE DEL TURNO, resa ispezionabile ──────────────────────
+% F.: «migliora lo strumento di debug per l'occasione di scovare questo
+% problema». L'occasione: una cessione non scattava su un prompt di 1485 byte, e
+% per capirlo e' servita una `fprintf` usa-e-getta — che ha rivelato in un colpo
+% che la vista consultata era lunga 93 caratteri invece di 1485, perche' una
+% facolta' stava guardando un FRAMMENTO e non il turno.
+%
+% Un difetto che si vede in una riga non deve costare una ricompilazione per
+% essere visto. Le tre sonde qui sotto lo mostrano da sole, e la prima e' quella
+% che l'avrebbe chiuso in un secondo: se `source` non e' lungo quanto il turno,
+% la decomposizione ha perso la lettura globale.
+debug_probe(11, turn_yield_view, now, "cessione: quanto e' lunga OGNI vista consultata").
+debug_probe(12, turn_yield_probe, now, "cessione: quale vista ha visto la classe").
+debug_probe(13, turn_yield_outcome, now, "cessione: chi ha ceduto il turno").

@@ -216,6 +216,13 @@ struct Brain {
     char trace_winner[24];
     int  has_trace;
 
+    /* The source turn remains visible while a faculty examines a derived
+     * fragment.  This is a dynamic view, owned by the active brain_respond
+     * frame, not conversational memory: nested full turns temporarily replace
+     * it and restore their caller's view on return. */
+    char *active_turn_norm;
+    unsigned long yield_trace_seq;
+
     /* gen128 (L20-deep): the previous substantive turn's inputs, kept verbatim
      * so mod_counterfactual can RE-RUN the dispatch with a module suppressed and
      * report what the agent WOULD have answered — its alternative self, computed

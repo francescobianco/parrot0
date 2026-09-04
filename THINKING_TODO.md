@@ -220,9 +220,61 @@ scritte per lui. E l'ablazione separa i due rimedi: la cessione di `compose`
 `mod_codeast` hanno gli stessi zeri. I numeri falsificano una review, non la
 producono.
 
-⛔ **P0 resta aperta su match1**: `gen` non cede su 1485 byte pur avendo
-entrambe le cue nel testo, e le due finestre già corrette (`canon[256]`,
-`masked[512]`) non lo spiegano. È il prossimo blocco.
+### ⭐ La causa vera di match1 — non era una finestra, era una VISTA persa
+
+**Non era un terzo buffer.** Sul turno *intero* `gen` declina da solo: riconosce
+già una richiesta di codice, quindi la cessione non c'entrava. Poi nessuna
+facoltà primaria prende il compito, entra `compose` come ultima risorsa, lo
+**spezza**, e ridispaccia i frammenti. La congiunzione che governava il turno era
+**globale** — `codebase` in una parte, `replace its` in un'altra — e nessun
+frammento la porta più. `gen` vedeva solo il frammento e tornava
+*legittimamente* narrativo: non stava rubando niente, rispondeva a quello che
+gli era stato dato.
+
+> **La proprietà generale, ed è il ratchet da tenere: una decomposizione non
+> deve perdere la lettura globale — né la politica del turno che l'ha prodotta.**
+
+Chiuso così:
+
+1. `active_turn_norm` — il turno sorgente resta visibile mentre una vista lo
+   scompone. ⚠ È del frame **più esterno**: scriverla a ogni `brain_respond` la
+   faceva sovrascrivere dal frammento stesso, cioè il difetto che doveva
+   chiudere. Misurato: la vista arrivava lunga **93 byte su 1485**.
+2. `dispatch_one` perdeva anche la **politica**: nessun cancello di cessione,
+   nessuna delle due passate del titolo. Dentro un frammento una facoltà
+   governata parlava lo stesso e una retrocessa poteva vincere. Una vista non è
+   un'esenzione dalle regole del turno che l'ha prodotta.
+3. Le tre condotte di cessione consultano ora anche la vista sorgente.
+
+**Esito: `gen` cede su match1** (`turn_yield_outcome` lo mostra). Il turno passa
+a `knowledge`, che è il prossimo anello — e va **recensito**, non zittito per
+riflesso.
+
+### ⛔ P0b è una classe, non un incidente: terza facoltà, stesso difetto
+
+`mod_knowledge` su match1 tenta di estrarre
+`replace(you_record-sort_degrades…, legacy_sorting_backend)` come **fatto** da
+una frase che è un ordine («Replace its legacy sorting backend»). Lo rifiuta
+onestamente — *«Scartato: … non è fatto di concetti»* — ma **ci prova**. È lo
+stesso difetto di F2 (`compose` che imparava «do not merely describe patch»),
+in una terza facoltà: la modalità imperativa non è riconosciuta *prima*
+dell'estrazione dei fatti. Tre occorrenze indipendenti sono una classe.
+
+### ⭐ E lo strumento di debug ora lo trova da solo
+
+Il difetto della vista è costato una `fprintf` usa-e-getta. Su richiesta di F.
+la traccia è diventata **conoscenza**: tre sonde dichiarate in
+`kb/core/debug.p0`, che il C alimenta solo a profilo acceso.
+
+```text
+turn_yield_view    gen/open viste: local 93B | raw 93B | source 1485B
+turn_yield_probe   codebase_referent local=miss raw=miss source=HIT
+turn_yield_outcome gen
+```
+
+La prima riga è quella che avrebbe chiuso il caso in un secondo: **se `source`
+non è lungo quanto il turno, la decomposizione ha perso la lettura globale.**
+Una domanda nuova su come si cede un turno costa ora **una riga di KB**.
 
 ## 0.4 La scala — start small, grow fast
 

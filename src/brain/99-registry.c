@@ -474,22 +474,46 @@ size_t brain_canonical(Brain *b, const char *input, char *out, size_t out_size) 
     return strlen(out);
 }
 
+/* ⛔ gen502 — UN FRAMMENTO PERDEVA LA LETTURA GLOBALE **E** LA POLITICA.
+ *
+ * Questo dispatch non passava dal cancello di cessione ne' dalle due passate del
+ * titolo: dentro un frammento una facolta' governata parlava lo stesso, e una
+ * facolta' retrocessa poteva vincere. Erano due buchi nella stessa apertura —
+ * la decomposizione e' una VISTA, e una vista non e' un'esenzione dalle regole
+ * del turno che l'ha prodotta. La lettura globale la porta `active_turn_norm`
+ * (vedi brain_respond); qui si rimette la condotta. */
 static int dispatch_one(Brain *b, const char *clause, char *out, size_t out_size) {
     if (!b || !clause || !*clause || out_size == 0) return 0;
     char norm[256];
     normalize(clause, norm, sizeof norm);
     char canon[256];
     canonicalize_lang(b, norm, canon, sizeof canon);
+    char (*demoted)[KB_TERM_LEN] = NULL;
+    size_t ndemoted = 0;
+    if (b->kb) {
+        const char *dq[2] = { NULL, "fallback" };
+        if (!kb_match_all(b->kb, "module_claim_right", dq, 2, &demoted, &ndemoted))
+            ndemoted = 0;
+    }
+    int claimed = 0;
+    for (int pass = 0; !claimed && pass < 2; pass++)
     for (size_t i = 0; i < registry_len; i++) {
         if (strcmp(registry[i].name, "compose") == 0) continue; /* no re-entry */
         if (strcmp(registry[i].name, "repair") == 0) continue;  /* no clarification */
+        int is_demoted = 0;
+        for (size_t g = 0; g < ndemoted && !is_demoted; g++)
+            if (strcmp(demoted[g], registry[i].name) == 0) is_demoted = 1;
+        if ((pass == 0) == (is_demoted != 0)) continue;
+        if (p0_faculty_yields(b, registry[i].name, "open", canon, clause)) continue;
         if (registry[i].handle(b, canon, clause, out, out_size)) {
             snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
             snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
-            return 1;
+            claimed = 1;
+            break;
         }
     }
-    return 0;
+    free(demoted);
+    return claimed;
 }
 
 /* gen128: re-run the first-match-wins dispatch over a stored turn with module
@@ -4362,7 +4386,35 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * cambia sempre e non dice niente. */
     DocumentRevisionSnapshot document_before = document_revision_snapshot(b);
     if (b && b->kb) kb_footprint_reset(b->kb);
+    /* ⛔ gen502 — IL TURNO SORGENTE RESTA VISIBILE MENTRE UNA VISTA LO SCOMPONE.
+     *
+     * `dispatch_one` rinormalizza un frammento e lo offre al registro: da li' in
+     * poi una facolta' vede una CLAUSOLA, non il turno. Una congiunzione globale
+     * — «codebase» in una parte, «replace its» in un'altra — non sopravvive a
+     * quel taglio, e la condotta di cessione che la usava diventava cieca.
+     *
+     * Questa e' una vista DINAMICA di proprieta' di QUESTO frame, non memoria
+     * conversazionale: un turno annidato la sostituisce e ripristina quella del
+     * chiamante al ritorno. Senza il ripristino, un turno interno lascerebbe la
+     * propria lettura addosso a quello esterno — che e' un difetto peggiore di
+     * quello che si sta chiudendo. */
+    /* ⚠ E LA VISTA E' DEL TURNO PIU' ESTERNO, non di ogni chiamata.
+     *
+     * Misurato con una sonda: su un prompt di 1485 byte la vista arrivava alla
+     * cessione lunga 93 e 160 caratteri. La decomposizione avviene SOPRA questa
+     * funzione — ogni clausola entra come un `brain_respond` a se' stante — e
+     * scrivere la vista a ogni chiamata la faceva sovrascrivere dal frammento
+     * stesso, cioe' esattamente il difetto che doveva chiudere.
+     *
+     * Chi possiede la vista e' quindi il primo frame che la trova vuota; le
+     * chiamate annidate ereditano e non toccano niente. Il ripristino resta
+     * perche' e' il ritorno del proprietario a doverla liberare. */
+    char *turn_view = (b && !b->active_turn_norm) ? normalize_full_alloc(input) : NULL;
+    char *outer_view = b ? b->active_turn_norm : NULL;
+    if (b && turn_view) b->active_turn_norm = turn_view;
     size_t n = brain_respond_dispatch(b, input, out, out_size);
+    if (b && turn_view) b->active_turn_norm = outer_view;
+    free(turn_view);
     /* SC40-B: la fotografia precedente e quella corrente rendono osservabile il
      * delta reale. Un modulo autorizzato che non ha mutato membri semantici non
      * causa lavoro; una mutazione rivede soltanto il taglio scelto dalla KB. */
