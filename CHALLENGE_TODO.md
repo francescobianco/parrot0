@@ -165,6 +165,103 @@ a metà lo si vede. Senza gradazione non c'è curva di apprendimento fra i match
 
 ---
 
+## §3-bis. ⭐ LEZIONI DA `pilot.go` DI OPENCOLA — e la questione tmux
+
+F.: *«appuntati se è il caso di pilotare i coding agent via TMUX, che forse è
+più potente e già ci sono riuscito in altri progetti; dai un occhio a
+`pilot.go`»*. Letto: `/home/francesco/Develop/_/opencola/cmd/pilot.go`, 426
+righe, e pilota freebuff davvero.
+
+### ⚠ Prima correzione: `pilot.go` NON usa tmux
+
+Usa un **PTY** (`github.com/creack/pty`), esattamente come il nostro pilota.
+`grep -rn tmux` sul repository non trova niente. Quindi «ci sono già riuscito
+via tmux» va letto come «ci sono già riuscito», e il come è lo stesso nostro.
+**Questo è utile**: significa che la strada PTY è praticabile e che i nostri
+problemi non vengono dal trasporto.
+
+### Le tre cose che `pilot.go` fa meglio, e sono adottabili subito
+
+1. **⭐ Il submit è nudo: `write(testo)` poi `write("\r")`. Nessun bracketed
+   paste, nessun ritardo.**
+
+   ```go
+   func (p *pilot) injectPrompt(text string) {
+       p.ptmx.Write([]byte(text)); p.ptmx.Write([]byte{'\r'})
+   }
+   ```
+
+   Il nostro fa `\x1b[200~ … \x1b[201~` più `submit_delay_seconds`. **È la
+   prima ipotesi da falsificare** per C1: se freebuff non gestisce il bracketed
+   paste, il testo può finire in uno stato in cui l'Enter non invia — che è
+   esattamente il sintomo (738 redraw, task mai partito, ritorno al prompt).
+   *Provare `bracketed_paste: false` costa trenta secondi.*
+
+2. **⭐ Modello, login e binario si leggono dai FILE, non si negoziano col TUI.**
+
+   ```text
+   ~/.config/manicode/credentials.json    login fatto?
+   ~/.config/manicode/settings.json       "freebuffModel": "deepseek/deepseek-v4-flash"
+   ~/.config/manicode/freebuff            il binario
+   FREE_BUFF_BIN                          override
+   ```
+
+   Verificato ora: **il modello è già impostato nel settings.json.** Quindi la
+   nostra `logic_action` che manda ENTER sul selettore modello è, nel migliore
+   dei casi, inutile — e nel peggiore manda un invio dove non serve. Da
+   rimuovere e sostituire con una **verifica preventiva**: login presente, modello
+   atteso, binario trovato. Un preflight che fallisce prima di avviare vale più
+   di venti `logic_actions` che indovinano lo stato dallo schermo.
+
+   E il modello va **registrato nel `result.json`**: oggi la league si chiama
+   `freebuff-deepseek-flash` e nessuno verifica che sia davvero quel modello.
+   Un confronto che non sa contro chi ha gareggiato non è un confronto.
+
+3. **Ricerca del binario robusta** (`FREE_BUFF_BIN` → `~/.config/manicode/` →
+   `PATH`), invece del nostro `command_exists("freebuff")`.
+
+### ⭐ E QUI STA IL VERO ARGOMENTO PER TMUX — che non è il pilotaggio
+
+`pilot.go` gestisce `\x1b[?1049h` / `\x1b[?1049l`: freebuff usa lo **schermo
+alternato**. Verificato nei nostri log: la sequenza c'è.
+
+**Ne segue che il nostro modo di leggere lo stato è sbagliato per costruzione.**
+Noi facciamo `clean_transcript(tutti i byte concatenati)` e cerchiamo un pattern
+dentro. Ma in un TUI a schermo pieno **il testo visibile non è la
+concatenazione dei byte**: è il risultato di movimenti di cursore, cancellazioni
+e ridisegni. Cercare «Enter a coding task» nella concatenazione può trovare un
+frame vecchio, e non trovare quello attuale. Con 738 eventi di ridisegno, questa
+non è una possibilità teorica.
+
+Per sapere che cosa c'è *davvero* sullo schermo servono due strade:
+
+| strada | costo | cosa dà |
+|---|---|---|
+| un emulatore di terminale in-process (`pyte`) | una dipendenza Python | lo schermo renderizzato, controllabile |
+| **tmux** + `capture-pane -p` | un binario già installato (3.4) | **lo schermo renderizzato, gratis** |
+
+**Il motivo per passare a tmux non è pilotare meglio: è LEGGERE.** `send-keys`
+non è più potente di `os.write` su un PTY, ma `capture-pane` risolve esattamente
+il problema che abbiamo, e senza scriverci un emulatore. In più regala:
+sessione ispezionabile dal vivo (`tmux attach` mentre la gara corre, che per il
+debug vale molto), sopravvivenza al crash del pilota, e `wait-for` per la
+sincronizzazione.
+
+**Raccomandazione, e va decisa prima di scrivere altro codice:** provare in
+quest'ordine, perché il primo costa quasi nulla e potrebbe chiudere C1 da solo.
+
+1. `bracketed_paste: false` sul PTY attuale (30 secondi, falsifica l'ipotesi 1);
+2. preflight da file per login/modello/binario, e via la `logic_action` del
+   selettore (mezz'ora, toglie una classe intera di fragilità);
+3. **se e solo se il riconoscimento dello stato resta inaffidabile**, spostare la
+   lettura su `tmux capture-pane` — tenendo il resto del pilota com'è.
+
+⛔ **Da non fare:** riscrivere il pilota in tmux «perché è più potente». Il
+trasporto non è il problema — lo dimostra `pilot.go`, che con un PTY nudo
+funziona. Il problema è che leggiamo uno schermo come se fosse un flusso.
+
+---
+
 ## §4. Le regole che questo banco non deve perdere
 
 1. **Nessun nome di agente nel prompt, nel cwd o negli artefatti.** L'artefatto
