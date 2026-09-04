@@ -12,6 +12,7 @@
 #   make pi         build, start the parrot0 daemon, launch `pi` with parrot0 selected
 #   make test       build, then run the conversation test suite
 #   make long-chat-bench  build, then run the 50-turn long-chat metrics
+#   make crossing-test    run the prompt-only crossing cases on the full test-engine
 #   make bench      build, then run all local benchmark-driver suites
 #   make bench-superglue  run official SuperGLUE validation benchmark
 #   make bench-mmlu       run MMLU-like local benchmark slices
@@ -54,7 +55,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: mantra all build chat chat-agent pi test soft-test test-engine legacy-test check gate capability-facts capability-report model-graph llmscore-arcs reasoning-operators piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh parrotbench impersonate simclean loop clean
+.PHONY: mantra all build chat chat-agent pi test soft-test test-engine crossing-test legacy-test check gate capability-facts capability-report model-graph llmscore-arcs reasoning-operators piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh parrotbench impersonate simclean loop clean
 
 mantra:
 	@cat MANTRA.md
@@ -62,6 +63,12 @@ mantra:
 all: build
 
 build: $(BIN)
+
+crossing-test: test-engine
+	@./$(BIN) --test tests/p0t/crossing/facts_split_three.p0t
+	@./$(BIN) --test tests/p0t/crossing/rules_split_three.p0t
+	@./$(BIN) --test tests/p0t/crossing/all_quadrants.p0t
+	@./$(BIN) --test-report
 
 $(BIN): $(OBJ) | bin
 	$(CC) $(CFLAGS) -o $@ $(OBJ) $(CURL_LDLIBS)

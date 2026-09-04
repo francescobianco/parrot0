@@ -178,6 +178,29 @@ planet_order(jupiter, 5).
 planet_order(saturn, 6).
 planet_order(uranus, 7).
 planet_order(neptune, 8).
+
+% A planet row denotes a planet; this projection applies to the whole table,
+% rather than duplicating its eight members as unary facts.  Habitability is
+% grounded conservatively: a world that is a planet and demonstrably supports
+% life is habitable.  Earth is the only such observation asserted here.
+% Together these clauses form a real second-level crossing:
+% relational fact -> one-premise rule + unary fact -> multi-premise rule.
+supports_life(earth).
+planet($Body) :- planet_order($Body, $Order).
+habitable($Body) :- planet($Body), supports_life($Body).
+lexeme(habitable).
+
+% The four terrestrial planets are rocky worlds.  `planet_order/2` supplies
+% planet membership while `rocky_world/1` supplies composition, so the
+% multi-premise rule remains valid for future members instead of encoding four
+% separate `terrestrial/1` conclusions.
+rocky_world(mercury).
+rocky_world(venus).
+rocky_world(earth).
+rocky_world(mars).
+terrestrial($Body) :- planet_order($Body, $Order), rocky_world($Body).
+lexeme(terrestrial).
+
 larger_than(jupiter, earth).
 larger_than(sun, jupiter).
 larger_than(earth, moon).

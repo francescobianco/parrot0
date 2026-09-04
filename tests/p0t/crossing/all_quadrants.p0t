@@ -1,0 +1,23 @@
+# Il secondo livello di FATTI e REGOLE si incontra in una sola conclusione.
+# Tutta la conoscenza interrogata vive gia' nella KB completa:
+#
+#   Fs  supports_life(earth)
+#   Fr  planet_order(earth, 3)
+#   Ru  planet(X) :- planet_order(X, Order)
+#   Rm  habitable(X) :- planet(X), supports_life(X)
+#
+# Il test non insegna, non interroga predicati interni e non certifica il
+# percorso: domanda un fatto naturale e giudica esclusivamente la risposta.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+[test real knowledge crosses all four logical quadrants]
+!timeout 12
+> is earth habitable?
+< Yes.
+> is mercury habitable?
+< No.

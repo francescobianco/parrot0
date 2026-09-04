@@ -17,6 +17,69 @@
 > stabilmente sopra uno, la conoscenza **compone** e l'espansione ha un
 > interesse; se è zero, ogni arco costa quanto vale e va detto.
 
+> **Correzione metodologica, 2026-09-04.** Le regioni sono **insiemi teorici
+> temporanei** costruiti sopra una fotografia della KB. Non sono classi da
+> installare nella KB, non assegnano un ruolo permanente ai predicati e non
+> prescrivono l'anatomia del sistema. La stessa KB può essere frazionata domani
+> con un principio diverso: ciò che deve restare invariato è soltanto la prova
+> che i frammenti sono disgiunti e che la loro riunione restituisce l'intero.
+
+> ## ⛔ LEGGERE PRIMA DI CONTINUARE — correzioni vincolanti di F.
+>
+> Questa sezione registra le inversioni di marcia già richieste durante il
+> lavoro. Non sono idee concorrenti né debito da rivalutare: sono limiti
+> sperimentali nati da errori concreti e hanno precedenza sui passi storici del
+> piano che, più sotto, possono ancora descrivere la formulazione precedente.
+>
+> 1. **Il frazionamento è teorico, non anatomico.** Serve ad abbracciare
+>    logicamente una fotografia della KB e a formulare domande sui confini. Non
+>    assegna predicati a reparti permanenti, non crea una griglia residente e
+>    non impone alla KB il design dell'esperimento.
+> 2. **Niente tracker del crossing.** `--cross-census`, impronte del percorso,
+>    certificazioni dei predicati visitati, `kb_region`, `region_holds` e
+>    `cross_status` sono stati esplicitamente respinti. Il lavoro richiesto è
+>    analitico e conoscitivo, non la costruzione di telemetria che dichiari
+>    riuscita l'inferenza osservandone l'interno.
+> 3. **La KB ermetica non esiste.** La KB è parte costitutiva di parrot0 e nei
+>    test non può essere spenta, amputata, sostituita o caricata a sezioni.
+>    Sono vietati nei casi nuovi `[mock hermetic]`, `PARROT0_BASE=` vuota,
+>    `PARROT0_WORLD_FACTS=0` e profili svuotati. Si esercita il profilo reale al
+>    massimo; `!reset` pulisce la conversazione, non l'essere del soggetto.
+> 4. **La KB non è un mock.** Entità, termini, fatti e regole inventati dentro
+>    il test dimostrano al più una meccanica del resolver; non dimostrano che la
+>    conoscenza viva sia connessa. Una prova di *connecting dots* deve partire
+>    da conoscenze reali già presenti. Se manca l'istanza, prima si aggiungono
+>    alla KB viva fatti veri e fondati e regole generali che rispecchiano la
+>    realtà; solo dopo si interroga il percorso che essi rendono possibile.
+> 5. **Prima si cerca, poi eventualmente si fonda.** Per ogni cross si cerca
+>    una catena reale già esistente. L'assenza è un gap, non un invito a creare
+>    nomi fantastici. La conoscenza aggiunta per colmarlo non può codificare la
+>    risposta del singolo test: deve restare utile a nuovi membri e nuove query
+>    senza ricompilazione.
+> 6. **La prova è ciò che parrot0 dice.** I `.p0t` pongono prompt naturali e
+>    verificano il fatto utile espresso nella risposta. `!query`, MCP interno,
+>    tracing o ablazioni che certificano il cammino non sostituiscono questa
+>    evidenza. Il sorgente può essere analizzato dall'umano per motivare il
+>    taglio, ma il gate osserva il comportamento, non una ricevuta del resolver.
+> 7. **Il moltiplicatore si misura su capacità osservabili.** Le capacità fredde
+>    sono congelate prima del cross e ricontrollate dopo; non si registrano
+>    dentro la KB. L'obiettivo resta almeno due conoscenze o abilità
+>    autoabilitate per ogni cross curato, ma un valore inferiore deve emergere
+>    onestamente invece di essere costruito con fixture favorevoli.
+> 8. **Nessun processo oltre 20 secondi.** Il vincolo riguarda anche censimenti,
+>    test e strumenti ausiliari. Un'operazione che richiede più tempo va
+>    spezzata o ridisegnata, non lasciata correre.
+> 9. **Niente runner laterale per questa prova.** Non creare
+>    `tests/p0t/crossing/run.sh`: il target del `Makefile` dipende da
+>    `test-engine`, elenca esplicitamente ogni `./bin/parrot0 --test FILE` e lo
+>    completa con `--test-report`. I file coinvolti e l'ordine devono essere
+>    leggibili direttamente dalla recipe.
+> 10. **Il secondo livello va incrociato davvero.** Dopo `fatti ↔ regole`, si
+>     dividono entrambi i lati con criteri esaustivi e disgiunti e si cerca una
+>     risposta la cui base reale tocchi tutti e quattro i frammenti. Quattro
+>     micro-test indipendenti non provano l'incrocio; serve almeno una catena
+>     end-to-end comune.
+
 ---
 
 ## 1. L'origine — un caso vero, di oggi
@@ -535,79 +598,263 @@ classe che H-κ4 (§2-bis.4) predice essere la più fruttuosa.
 
 ---
 
-## 7. La prima bipartizione di parrot0
+## 7. Teoria del frazionamento — un taglio non è un design
 
-Il passo 1 chiede due supergruppi che passino **D1-D4** (§3.0-bis). Fra le
-candidate elencate lì — regole/fatti, comprensione/conoscenza data,
-presentazione/sostanza, condotta/contenuto — la proposta, che va discussa prima
-di essere eseguita:
+Il frazionamento non risponde alla domanda *«da quali organi deve essere fatta
+la KB?»*. Risponde a una domanda molto più astratta:
+
+> **«Con quale coppia di proprietà positive posso abbracciare logicamente tutta
+> la conoscenza presente, senza sovrapposizioni, per vedere quali inferenze
+> attraversano quel confine?»**
+
+Una divisione è quindi una **lente di analisi usa-e-getta**. Si prende una
+fotografia `Kₜ`, si definiscono due insiemi `Aₜ` e `Bₜ`, si dimostra
+`Aₜ ∪ Bₜ = Kₜ` e `Aₜ ∩ Bₜ = ∅`, si studiano i cross e poi si può scegliere una
+lente completamente diversa. Nessun fatto viene spostato, etichettato o
+riscritto nella KB viva.
+
+### 7.1 L'unità che si divide
+
+L'unità minima non è il file, il modulo o il predicato: è la **clausola nella
+sua interezza e nel suo contesto logico**. Lo stesso predicato può avere un
+fatto dato e una regola derivata; assegnare il predicato a una casella perderebbe
+questa differenza. Anche l'origine del file è soltanto evidenza per l'analista,
+mai il criterio conclusivo.
+
+Un taglio è valido quando, per la fotografia considerata:
+
+- ogni clausola ha una ragione esplicita per stare in uno dei due insiemi;
+- nessuna ragione usa la risposta del cross che si vuole poi misurare;
+- i due lati sono descrivibili in positivo;
+- ricomponendoli si riottiene byte per byte l'insieme logico di partenza;
+- i casi ambigui invalidano il taglio: non vengono messi in una casella
+  «altro» e non inducono una nuova tassonomia nella KB.
+
+Quest'ultimo punto è importante: **un taglio che non riesce ad abbracciare la
+KB è un'ipotesi teorica falsificata**, non una richiesta di cambiare la KB per
+farla entrare nella teoria.
+
+### 7.2 Quattro piani di frazionamento candidati
+
+Non esiste un albero canonico. Questi sono quattro esperimenti alternativi,
+ordinati dal più logicamente certo al più conoscitivamente ambizioso.
+
+| piano | primo taglio | che cosa rende osservabile | rischio |
+|---|---|---|---|
+| **L — forma logica** | fatti ↔ regole | quanto i contenuti dati acquistano capacità grazie alle derivazioni | rigoroso ma può produrre confini poco interessanti |
+| **E — statuto epistemico** | osservato/appreso ↔ assunto in partenza | se la conoscenza nuova ricombina davvero quella nativa | la provenienza può essere incompleta |
+| **O — oggetto/meta-oggetto** | conoscenza del problema ↔ conoscenza su come conoscere/agire | il passaggio da dominio a thinking, pianificazione e uso degli strumenti | alcuni enunciati parlano di entrambi e possono falsificare il taglio |
+| **R — rappresentazione/referente** | forme con cui qualcosa è espresso ↔ ciò a cui le forme rimandano | i ponti documento↔mondo, codice↔dominio, lingua↔concetto | è il più potente, ma anche il più facile da dichiarare a parole senza copertura reale |
+
+Questi piani **non sono quattro reparti della KB**. Sono quattro modi separati
+di tagliare lo stesso insieme. Non vanno combinati in una griglia cartesiana e
+non va cercata una casella permanente per ogni clausola.
+
+### 7.3 Piano L — il primo esperimento consigliato
+
+Il primo taglio consigliato resta `FATTI ↔ REGOLE`, ma solo come dimostrazione
+teorica, non come struttura da implementare:
 
 ```text
-A — PRESENTAZIONE      come si dice, si riconosce, si dispone una risposta
-                       forme, intenti, morfologia, discorso, registro, messaggi
-B — SOSTANZA           che cosa è vero, e come si deriva
-                       domini, esperti, IR del codice, piani, procedure
+K₀ = F ∪ R
+F  = clausole senza corpo: affermano che una relazione vale
+R  = clausole con corpo: affermano come una conclusione segue da premesse
+F ∩ R = ∅
 ```
 
-⚠ **È un taglio per SPECIE, non per tema** (§2-bis), ed è deliberato: è la
-stessa linea che F. ha già tracciato come direzione (`substance ⟂ presentation`),
-quindi la bipartizione **mette alla prova una tesi che già esiste** invece di
-inventarne una nuova.
+Ha tre vantaggi: la copertura è dimostrabile senza interpretare il vocabolario,
+entrambi i lati hanno una definizione positiva e una clausola nuova è
+classificabile senza aggiornare una lista. Il suo limite è altrettanto chiaro:
+non dice ancora nulla su presentazione, condotta o dominio. Serve a imparare il
+metodo del taglio, non a dichiarare l'anatomia di parrot0.
 
-⛔ **E lascia scoperta una terza specie, che va collocata prima di cominciare: la
-CONDOTTA.** `faculty_yield`, `module_claim_right`, `appropriate_move`,
-`thinking_outcome_policy` non dicono né *come si dice* né *che cosa è vero*:
-dicono **chi parla, quando, e con quale precedenza**. Sono 46 clausole di
-ordinamento più 1 305 di preferenza, e sono la specie più scarsa e più decisiva.
-Delle tre opzioni — dentro A, dentro B, o un terzo supergruppo che rompe la
-bipartizione — la prima iterazione deve **sceglierne una e dichiararla nel
-registro**, perché da quella scelta dipende quali cross saranno possibili al
-passo 2. Se
-la frontiera è quella giusta, il primo cross sarà facile da trovare e difficile
-da ablare; se non lo è, si vedrà subito — ed è informazione.
+Il primo cross interessante di questo piano non è «una regola cita un fatto» —
+quasi ogni prova lo farebbe. Deve essere una **capacità fredda** che prima non
+esiste, resa possibile da una sola nuova regola generale che compone molti
+fatti già presenti. Il costo è quella regola; il ricavo sono le altre capacità
+fredde abilitate senza aggiungere casi.
 
-Verifica delle condizioni, che va fatta e non assunta:
+### 7.4 Come proseguire il frazionamento senza congelarlo
 
-| | |
-|---|---|
-| **D1/D2** | ogni clausola sta in uno e uno solo dei due — da provare sul censimento, non a occhio |
-| **D3** | entrambi hanno intensione propria: *«dice come si dice»* e *«dice che cosa è vero»*. Nessuno dei due è «il resto» ✓ |
-| **D4** | data una clausola isolata si decide: `response_template(...)` è presentazione, `located_in(paris, france)` è sostanza ✓ |
+Dopo `F ↔ R` ci sono almeno due successioni lecite; entrambe vanno studiate su
+carta prima di sceglierne una.
 
-Il primo cross candidato: **una risposta la cui *forma* dipende da un fatto di
-dominio** (per esempio: dire un numero con la sua unità solo quando il dominio
-dichiara che l'unità è obbligatoria). Tocca A e B, e cade se si toglie uno dei
-due.
+**Successione L1 — approfondire la forma logica:**
+
+```text
+passo 1   fatti                         ↔ regole
+passo 2   fatti singolari              ↔ fatti relazionali     | regole
+passo 3   fatti singolari | relazionali ↔ regole unipremessa | multipremessa
+```
+
+È la successione più facile da chiudere formalmente. La sua domanda è se la
+composizione cresce con la ricchezza relazionale, non con i temi. Non va usata
+come ontologia: finito l'esperimento, il taglio può essere scartato.
+
+La definizione del secondo livello è puramente clausolare e quindi decidibile
+senza interpretare il dominio:
+
+```text
+Fs = fatti il cui predicato ha arità zero o uno
+Fr = fatti il cui predicato ha arità almeno due
+Ru = regole il cui corpo contiene esattamente una premessa
+Rm = regole il cui corpo contiene almeno due premesse
+
+F = Fs ∪ Fr,  Fs ∩ Fr = ∅
+R = Ru ∪ Rm,  Ru ∩ Rm = ∅
+```
+
+“Singolare”, “relazionale”, “unipremessa” e “multipremessa” descrivono qui la
+forma della clausola nella fotografia; non pretendono di descriverne per sempre
+il significato. In particolare, `Ru` non significa “ragionamento facile” e `Rm`
+non significa “ragionamento profondo”.
+
+**Le due fotografie ternarie vengono prima della griglia a quattro.** Il lato
+non ancora raffinato resta intero; perciò ogni fotografia espone esattamente tre
+bordi:
+
+```text
+Ternario dei fatti     Fs | Fr | R
+                       Fs <-> R
+                       Fr <-> R
+                       Fs <-> Fr, con R intero come compositore
+
+Ternario delle regole  F | Ru | Rm
+                       F <-> Ru
+                       F <-> Rm
+                       Ru <-> Rm, con F intero come fondamento
+```
+
+`tests/p0t/crossing/facts_split_three.p0t` realizza il primo con Socrate
+mortale, Mercurio pianeta e Terra abitabile. Il secondo vive in
+`tests/p0t/crossing/rules_split_three.p0t`: Mercurio pianeta copre `F↔Ru`,
+Mercurio terrestre copre `F↔Rm`, Terra abitabile copre `Ru↔Rm`. Solo dopo questi
+sei bordi si esegue `all_quadrants.p0t`, dove una singola risposta attraversa
+tutti e quattro i frammenti.
+
+Per fondare il bordo `F↔Rm` senza una fixture, la KB scientifica dichiara i
+quattro mondi rocciosi reali del sistema solare interno e la regola generale:
+
+```prolog
+rocky_world(mercury).  rocky_world(venus).
+rocky_world(earth).    rocky_world(mars).
+terrestrial(X) :- planet_order(X, Order), rocky_world(X).
+```
+
+La conclusione non è conservata per i quattro casi: nasce dall'incrocio fra la
+tabella planetaria e la composizione rocciosa. Un futuro membro vero delle due
+relazioni eredita la stessa capacità senza una nuova regola.
+
+**Primo incrocio reale dei quattro frammenti (2026-09-04).** La tabella
+astronomica conteneva già `planet_order(earth, 3)` in `Fr`, ma non proiettava la
+classe pianeta e non collegava tale classificazione al fatto osservativo che la
+Terra sostiene vita. Sono entrate nella KB viva tre conoscenze fondate:
+
+```prolog
+supports_life(earth).                                      % Fs
+planet(X) :- planet_order(X, Order).                       % Ru su Fr
+habitable(X) :- planet(X), supports_life(X).               % Rm su Ru + Fs
+```
+
+La prima regola vale per tutti gli otto membri reali della tabella, la seconda
+per qualunque nuovo mondo che soddisfi le premesse; nessuna codifica il nome
+della Terra nella conclusione. `tests/p0t/crossing/all_quadrants.p0t` domanda
+soltanto «is earth habitable?» e usa «is mercury habitable?» come discriminatore
+negativo reale. Non contiene fatti, regole, `!query` o termini inventati. È una
+prova end-to-end dell'incrocio `Fr → Ru` con `Fs → Rm`, non quattro prove
+isolate accostate.
+
+**Successione L2 — cambiare lente dopo il primo controllo:**
+
+```text
+esperimento 1   fatti ↔ regole                 (controllo logico)
+esperimento 2   problema ↔ meta-conoscenza     (thinking e condotta)
+esperimento 3   rappresentazione ↔ referente   (trasferimento fra IR)
+esperimento 4   piano ↔ capacità disponibile   (coding agent)
+```
+
+Qui non si pretende che i quattro tagli formino un solo albero. Ognuno deve
+abbracciare di nuovo **tutta** `Kₜ` e viene confrontato con gli altri per il
+moltiplicatore che produce. È la successione preferita per gli obiettivi di
+parrot0, perché cerca quale lente rivela più conoscenza latente senza far
+dipendere la KB da quella lente.
+
+### 7.5 I tre tagli ambiziosi, descritti senza fingere che siano già validi
+
+**Oggetto ↔ meta-oggetto.** Da un lato stanno enunciati che partecipano alla
+soluzione del problema corrente; dall'altro enunciati che governano come una
+soluzione viene cercata, valutata, ordinata o realizzata. Il cross di casa
+`piano ↔ strumenti` vive qui. Prima di usarlo bisogna però risolvere i casi in
+cui una procedura è essa stessa oggetto della domanda: se la decisione dipende
+dalla domanda corrente, D4 fallisce e il taglio va riformulato.
+
+**Rappresentazione ↔ referente.** Da un lato stanno regolarità sulle forme
+(testo, codice, simboli, IR); dall'altro conoscenze sul fenomeno rappresentato.
+Il cross desiderato è che un nome letto nel codice raggiunga una conoscenza di
+algoritmi appresa in prosa. Il problema teorico è il ponte: esso riguarda
+insieme forma e referente. Non va duplicato sui due lati né trasformato in una
+terza casella; bisogna decidere se il ponte è l'operazione di crossing, e quindi
+non appartiene alla fotografia pre-cross, oppure se questo taglio non è binario.
+
+**Piano ↔ capacità.** Da un lato ciò che specifica una sequenza necessaria;
+dall'altro ciò che rende eseguibile un passo. È il taglio più vicino al difetto
+del coding agent. Ma non abbraccia ancora tutta la KB: fatti geografici,
+morfologia e molte preferenze non stanno naturalmente in nessuno dei due lati.
+Perciò oggi è una **domanda testimone**, non una bipartizione valida. Il lavoro
+teorico consiste nel trovare i tagli anteriori che, per raffinamenti successivi,
+lo rendano una coppia di regioni senza creare un «resto».
+
+### 7.6 La nozione corretta di side effect
+
+Un side effect non è una seconda risposta che passa dallo stesso template e non
+è una firma diversa. È una capacità che soddisfa tutte queste condizioni:
+
+1. il task era congelato prima di scegliere il cross curato;
+2. il task falliva prima;
+3. nessun fatto, regola, parola o expected specifico del task è stato aggiunto;
+4. dopo il solo cross curato il task riesce;
+5. togliendo quel cross il task torna a fallire.
+
+Le due quantità richieste restano distinte:
+
+```text
+κ_conoscenza = nuovi confini teorici attraversabili / cross curati
+κ_abilità     = nuovi task freddi riusciti           / cross curati
+```
+
+La speranza operativa è `κ_conoscenza ≥ 2` e `κ_abilità ≥ 2`, ma il primo
+esperimento deve poterle smentire. Nessun caso scritto dopo aver visto il cross
+può concorrere al numeratore.
 
 ---
 
-## 8. Il registro, come conoscenza
+## 8. Il quaderno di frazionamento — fuori dalla KB viva
 
-Il registro non è un allegato del documento: è **conoscenza in KB**, perché
-altrimenti l'indice non è interrogabile e il metodo torna a essere una promessa.
+La prima formulazione proponeva `kb_region`, `region_holds` e `cross_status`
+come fatti residenti. **Era un errore di livello:** avrebbe trasformato una
+lente analitica in anatomia del sistema e spinto la KB a conformarsi alla
+misura. Il registro deve essere un quaderno di esperimento versionato, non
+conoscenza operativa caricata da parrot0.
 
-```prolog
-kb_region(Regione, Genitore).        % l'albero delle suddivisioni
-region_criterion(Regione, tema | specie | livello | misto).  % §2-bis.2
-region_holds(Regione, Predicato).    % quali predicati vivono in una regione
-region_split(Genitore, Figlio1, Figlio2, Iterazione).
-cross(RegioneA, RegioneB).           % dichiarato: questo confine ci interessa
-cross_status(RegioneA, RegioneB, certified | attempted | deferred | refuted).
-cross_witness(RegioneA, RegioneB, "la domanda che lo attraversa").
-cross_ablation(RegioneA, RegioneB, "che cosa cade togliendo A").
+Per ogni esperimento il quaderno conserva soltanto:
 
-% ── e cio' che serve a κ (§5-bis): senza questi il coefficiente non esiste ──
-cross_origin(RegioneA, RegioneB, curated | spontaneous).
-cross_kind(RegioneA, RegioneB, tema | specie | pieno).   % §2-bis.3 — serve a H-κ4
-cross_lineage(RegioneA, RegioneB, ViaRegione).   % transitivo: per dove passa
-cross_certified_at(RegioneA, RegioneB, Censimento).  % QUANDO si e' certificato
-census(Numero, Frammentazione, Certificati).     % il censimento completo
-```
+- l'identità immutabile della fotografia `Kₜ`;
+- la definizione teorica positiva dei due lati;
+- la prova di unione e disgiunzione, compresi gli eventuali controesempi;
+- il pannello freddo, congelato **prima** dell'intervento;
+- l'unico cross curato introdotto;
+- i risultati before/after/ablation e le due κ;
+- lo stato `valido`, `falsificato` o `inconcludente` del taglio.
 
-`cross_status(_, _, deferred)` è **obbligatorio e non è una scusa**: a scala i
-cross non si fanno tutti, e un confine deliberatamente non costruito va
-*dichiarato*, non dimenticato. La differenza fra un piano onesto e un backlog è
-tutta lì.
+Non conserva una classificazione permanente di predicati, non viene caricato
+nel profilo AGI e non aggiunge vocabolario o capacità al soggetto osservato.
+Soltanto la conoscenza che costituisce davvero un cross utile può entrare nella
+KB attraverso i normali canali KB-first; la descrizione dell'esperimento che lo
+ha scoperto resta fuori.
+
+I cross rinviati non spariscono: sono righe del quaderno con motivazione e
+condizione di riapertura. Questo mantiene onesto il denominatore senza imporre
+una matrice alla KB.
 
 ---
 
@@ -640,6 +887,10 @@ tutta lì.
 9. **Il metodo si applica a se stesso.** La regione «piani» e la regione
    «strumenti» sono il primo banco: se `split and cross` non avesse trovato
    `action_impl` mancante, non serve.
+10. **Nessun processo supera 20 secondi.** Un censimento che richiede reboot
+    ripetuti o una lunga sessione monolitica è un disegno operativo respinto,
+    anche se produce il numero giusto. La misura futura deve essere
+    incrementale, interrompibile e composta da passi ciascuno sotto budget.
 
 ---
 
@@ -647,14 +898,14 @@ tutta lì.
 
 | | | gate |
 |---|---|---|
-| **S0** | il registro come KB (`kb_region`, `cross`, `cross_status`) e l'indice calcolato dall'impronta | l'indice si stampa e vale **0** |
-| **S1** | bipartizione presentazione/sostanza + il primo cross certificato | 1 cross su 1 possibile, e l'ablazione lo fa cadere |
-| **S2** | dividere la sostanza; i due cross nuovi | indice su 3 possibili, e **scende** prima di risalire |
-| **S3** | dividere la presentazione; i tre cross nuovi | indice su 6 |
-| **S4** | portare la frammentazione fino a dove una **domanda testimone** (§6) diventa esprimibile come cross fra due regioni vere | la profondità richiesta è **registrata**: è la misura di quanto quella conoscenza era sepolta |
-| **S5** | il caso di casa: `action_impl` per le quattro azioni di `code_task` | il piano si cammina fino in fondo su match0 |
-| ⭐ **S6** | **la misura di κ**: censimento completo prima e dopo ogni cross curato, con la separazione transitivo/emergente dall'impronta | κ ha un valore, e `κ_emergente` è **> 0** almeno una volta — altrimenti la tesi del §5-bis è falsa e va detto |
-| **S7** | H-κ1/H-κ2/H-κ3 sui dati raccolti da S1-S6 | almeno una delle tre cade, oppure una regge con un margine che cambia l'ordine di costruzione |
+| **T0** | definire su carta una fotografia `K₀` e il taglio logico `fatti ↔ regole` | dimostrazione di unione/disgiunzione; nessuna modifica a C o KB |
+| **T1** | cercare controesempi che rendano ambiguo il taglio | ogni controesempio è risolto teoricamente oppure il taglio è dichiarato falsificato |
+| **T2** | confrontare L1 e L2 (§7.4) e scegliere quale domanda scientifica viene prima | motivazione esplicita; nessun albero dichiarato “naturale” |
+| **T3** | formulare `oggetto ↔ meta-oggetto` e `rappresentazione ↔ referente` sull'intera `K₀` | elenco dei casi che non entrano: zero, oppure ipotesi respinta |
+| **E0** | congelare fuori dalla KB un pannello di task falliti, prima di costruire qualunque cross | revisione e digest anteriori all'intervento |
+| **E1** | introdurre un solo cross KB-first e ricontrollare lo stesso pannello | nessuna conoscenza specifica dei task freddi aggiunta |
+| **E2** | misurare `κ_conoscenza` e `κ_abilità` con before/after/ablation | entrambe riportate anche se inferiori a 2; ogni processo < 20 s |
+| **E3** | ripetere su più tagli teorici | capire quale lente moltiplica davvero, senza trasformarla nel design della KB |
 
 ---
 

@@ -1,0 +1,27 @@
+# Prima fotografia ternaria: Fs | Fr | R.
+#
+# Le regole restano intere mentre il lato dei fatti viene diviso. Ogni domanda
+# usa conoscenza reale gia' residente nella KB completa:
+#
+#   Fs <-> R   man(socrates) + mortal(X) :- man(X)
+#   Fr <-> R   planet_order(mercury, 1) + planet(X) :- planet_order(X, Order)
+#   Fs <-> Fr  supports_life(earth) + planet_order(earth, 3), composti da R
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+[test singular facts cross the whole rules side]
+!timeout 12
+> is socrates a mortal?
+< Yes.
+
+[test relational facts cross the whole rules side]
+> is mercury a planet?
+< Yes.
+
+[test singular and relational facts cross internally through rules]
+> is earth habitable?
+< Yes.

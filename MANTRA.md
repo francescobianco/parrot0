@@ -29,6 +29,30 @@ decidere** fra le viste; è nella direzione sbagliata se **riduce ciò che un su
 pezzo vede** per ottenere la risposta giusta per costruzione — anche quando è più
 semplice, anche quando i test diventano verdi. Vedi `docs/plans/one-kb.md` §4c.
 
+**⛔ Nota obbligatoria sui test — la KB ermetica non esiste.** La KB non è una
+dipendenza esterna da spegnere, isolare o sostituire con una fixture: **è parte
+costitutiva di parrot0**. Un test con `PARROT0_BASE=` vuota,
+`PARROT0_WORLD_FACTS=0`, una porzione scelta della KB o un corpus fittizio non
+misura parrot0 in condizioni controllate; misura un altro soggetto, amputato.
+Ogni test nuovo e ogni test di conoscenza che si modifica deve quindi esercitare
+la KB reale al massimo. `!reset` può pulire lo stato conversazionale, ma non può
+essere usato come pretesto per spegnere il mondo. La regola estesa e il debito
+legacy sono documentati in `TEST_TODO.md` §0.0 e
+`docs/plans/test-engine.md` §2b.
+
+**⛔ Un test non può inventare la conoscenza che dichiara di scoprire.** Entità,
+fatti e regole inventati nel test possono dimostrare una meccanica generale o
+la crescita a runtime; **non** dimostrano che la KB viva possieda conoscenze
+connesse, che attraversi rappresentazioni reali o che sappia unire punti già
+appresi. Per verificare *connecting dots*, comprensione o trasferimento fra
+domini, il test deve partire da conoscenze preesistenti nella KB completa, porre
+un prompt naturale e verificare un fatto utile espresso dalla risposta. Non si
+certifica il percorso interno, non si inietta il risultato atteso, non si crea
+un micro-mondo su misura. Se non esistono ancora archi reali capaci di produrre
+la risposta, il test deve restare rosso e rendere visibile il gap: farlo verde
+con nomi fittizi significa trattare la KB come un mock e vale zero come prova di
+comprensione.
+
 ---
 
 Regole imposte a noi stessi per non ricadere nel fix puntuale. Prima di scrivere

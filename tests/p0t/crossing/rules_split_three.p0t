@@ -1,0 +1,27 @@
+# Seconda fotografia ternaria: F | Ru | Rm.
+#
+# I fatti restano interi mentre il lato delle regole viene diviso. Le tre
+# domande coprono i due bordi esterni e il cross interno fra tipi di regola:
+#
+#   F <-> Ru   planet_order(mercury, 1) -> planet(mercury)
+#   F <-> Rm   planet_order + rocky_world -> terrestrial(mercury)
+#   Ru <-> Rm  planet_order -> planet, composto con supports_life -> habitable
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+[test whole facts cross one-premise rules]
+!timeout 12
+> is mercury a planet?
+< Yes.
+
+[test whole facts cross multi-premise rules]
+> is mercury terrestrial?
+< Yes.
+
+[test one-premise and multi-premise rules cross internally through facts]
+> is earth habitable?
+< Yes.
