@@ -113,3 +113,52 @@ plan_step($Scheme, $Id, $Operator) :-
 % da parole diverse, e in lingue diverse.
 machinery(scheme_cue_class).
 scheme_cue_class(analyze_sources, plan_analyze_sources).
+
+% ══ H5 — LA PRIMITIVA E' UNA SOLA: IL RIENTRO ═══════════════════════════════
+%
+% F., 2026-09-04: «non c'e' nessun LLM, e' un refuso. Il processo intendo:
+% pipeline di inferenza, l'output del primo giro agganciato a un meta-prompt e
+% reinserito. I flussi sono in KB ma di fatto sono inferenze successive.»
+%
+% Questo semplifica invece di complicare. `process(P)` E' la pipeline di parrot0,
+% rientrata: un passo compone un turno nuovo dal risultato precedente piu' un
+% meta-prompt dichiarato qui, e lo rimette dalla stessa porta da cui entrano i
+% turni dell'interlocutore. Non c'e' nessuna intelligenza esterna a cui chiedere:
+% c'e' lo stesso motore che gira di nuovo, su un input che il grafo ha costruito.
+%
+% Il meta-prompt e' CONOSCENZA come tutto il resto: si insegna parlando, si
+% ritratta, e si puo' chiedere a parrot0 quale abbia usato. E' la parte
+% insegnabile di cio' che altrove e' un prompt di sistema nascosto.
+machinery(meta_prompt).
+machinery(reasoning_reentry).
+
+% `{prev}` viene riempito col risultato del nodo precedente. E' l'unico
+% segnaposto: se un giorno ne servisse un secondo sara' un fatto, non un ramo.
+meta_prompt(critique, "quali assunzioni non dimostrate ci sono in: {prev}").
+meta_prompt(restate, "ridillo in una frase: {prev}").
+
+% Un nodo di RIENTRO dichiara quale meta-prompt usa. La forma resta la
+% quadrupla comune: l'operatore e' `reenter(MetaPrompt)`.
+reasoning_reentry($Scheme, $Node, $Prompt) :-
+    reasoning_step($Scheme, $Node,
+                   step(reenter($Prompt), $Pre, $Effect, $Meta)).
+
+% ⛔ LA GUARDIA CHE VIENE PRIMA DELL'ESECUTORE (H5.4 — il loop di specchio).
+%
+% parrot0 che critica la propria risposta con la STESSA conoscenza che l'ha
+% prodotta puo' solo confermarla. Un nodo di critica che non porta conoscenza
+% nuova non e' teatro che non cambia niente: e' teatro che si da' ragione, che e'
+% peggio. Percio' un rientro deve DICHIARARE da dove viene cio' che lo rende
+% diverso dal passo che critica — un'altra zona della KB, uno strumento, una
+% query. Senza quella dichiarazione il nodo non e' eseguibile.
+machinery(reentry_brings).
+machinery(reentry_admissible).
+
+reentry_admissible($Scheme, $Node) :-
+    reasoning_reentry($Scheme, $Node, $Prompt),
+    reentry_brings($Scheme, $Node, $Source).
+
+machinery(reentry_mirror_risk).
+reentry_mirror_risk($Scheme, $Node) :-
+    reasoning_reentry($Scheme, $Node, $Prompt),
+    naf(reentry_admissible($Scheme, $Node)).

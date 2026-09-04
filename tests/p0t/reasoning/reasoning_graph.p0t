@@ -58,3 +58,28 @@
 !assert reasoning_after(pair, p, q)
 !query reasoning_cycle(pair)
 !query! reasoning_ready(pair)
+
+[test H5 — il rientro e' la primitiva, e lo specchio e' una guardia]
+!timeout 12
+
+# `process(P)` e' la pipeline di parrot0 rientrata: nessuna intelligenza
+# esterna, solo lo stesso motore su un turno che il grafo ha costruito.
+!query meta_prompt(critique, $P)
+!clause reasoning_step(rev, 1, step(reenter(critique), r0, c0, meta(2, local))).
+!query reasoning_reentry(rev, 1, critique)
+
+# ⛔ IL LOOP DI SPECCHIO. Criticare la propria risposta con la STESSA conoscenza
+# che l'ha prodotta puo' solo confermarla: non e' teatro che non cambia niente,
+# e' teatro che si da' ragione. Senza una fonte dichiarata il nodo NON e'
+# ammissibile — la guardia viene prima dell'esecutore, non dopo.
+!query reentry_mirror_risk(rev, 1)
+!query! reentry_admissible(rev, 1)
+
+# Dichiarata la conoscenza che il rientro porta di nuovo, diventa eseguibile.
+!assert reentry_brings(rev, 1, code_finding)
+!query reentry_admissible(rev, 1)
+!query! reentry_mirror_risk(rev, 1)
+
+# E ritirandola torna inammissibile: la guardia e' conoscenza, non un controllo.
+!forget reentry_brings(rev, 1, code_finding)
+!query reentry_mirror_risk(rev, 1)

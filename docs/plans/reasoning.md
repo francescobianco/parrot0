@@ -1,6 +1,8 @@
 # Reasoning in parrot0
 
-Il reasoning in parrot0 non deve essere inteso come una proprietà interna di un LLM, né come una semplice estensione del tempo di inferenza. Parrot0 è un motore Prolog-like e il reasoning deve quindi essere costruito come una capacità architetturale autonoma, governata dalla Knowledge Base e applicabile anche quando il modello linguistico viene usato soltanto come componente ausiliaria.
+Il reasoning in parrot0 non deve essere inteso come una proprietà interna di un modello, né come una semplice estensione del tempo di inferenza. Parrot0 è un motore Prolog-like e il reasoning deve quindi essere costruito come una capacità architetturale autonoma, governata dalla Knowledge Base.
+
+**Non c'è nessun modello esterno in questo documento.** Ciò che chiamiamo `process(P)` è l'inferenza di parrot0 stesso: un passo di reasoning è un **rientro nella sua pipeline**, con un turno composto a partire dal risultato precedente e da un meta-prompt dichiarato in KB. I flussi stanno nella Knowledge Base, ma ciò che eseguono sono **inferenze successive dello stesso motore**.
 
 Nella modalità più semplice, senza reasoning, il comportamento rimane diretto:
 
@@ -152,11 +154,9 @@ Per esempio:
                       output
 ```
 
-Ogni nodo può corrispondere a un'attività differente: una risoluzione simbolica, una query alla KB, una chiamata a uno strumento, una inferenza LLM, una verifica, una trasformazione oppure un nuovo goal.
+Ogni nodo può corrispondere a un'attività differente: una risoluzione simbolica, una query alla KB, una chiamata a uno strumento, una **nuova inferenza sulla pipeline stessa**, una verifica, una trasformazione oppure un nuovo goal.
 
-Questo permette di separare il concetto di reasoning dall'LLM.
-
-L'LLM diventa eventualmente uno degli operatori disponibili:
+Gli operatori disponibili sono quindi:
 
 ```text
 reasoning step
@@ -177,18 +177,22 @@ reasoning step
 → external tool
 ```
 
-oppure:
+oppure — ed è quello che rende il grafo un ragionamento e non solo un piano:
 
 ```text
 reasoning step
-→ LLM(prompt)
+→ process(meta_prompt, risultati precedenti)
 ```
 
-Il reasoning appartiene quindi a parrot0, non all'LLM.
+dove `process` è **la stessa pipeline di parrot0, rientrata**. Il risultato del
+primo giro non viene consegnato: viene agganciato a un meta-prompt dichiarato in
+KB e reimmesso come nuovo turno. Non c'è nessuna intelligenza esterna a cui
+chiedere: c'è lo stesso motore che gira di nuovo, su un input che il grafo ha
+costruito.
 
-Un LLM può essere utilizzato per svolgere uno specifico passaggio, ma è il motore di reasoning di parrot0 a decidere perché quel passaggio deve essere eseguito, quali informazioni deve ricevere e come il suo risultato deve essere utilizzato successivamente.
-
-Questo consente anche di riprodurre esternamente alcune delle capacità che nei reasoning model vengono ottenute attraverso una maggiore computazione durante l'inferenza.
+Il reasoning appartiene quindi interamente a parrot0. È il suo motore a decidere
+perché un passaggio debba essere eseguito, quali informazioni debba ricevere e
+come il suo risultato debba essere utilizzato successivamente — e a eseguirlo.
 
 Una prima risposta può essere ritratta, criticata e trasformata:
 
@@ -467,31 +471,32 @@ Sarebbe una struttura dinamica deliberativa governata dalla conoscenza.
 
 Il principio fondamentale può essere espresso così:
 
-> In parrot0 il reasoning non è una sequenza predefinita di operazioni e non coincide con la Chain-of-Thought di un modello linguistico. È la capacità di costruire ed eseguire pipeline di elaborazione seriali, parallele o ibride, descritte dalla Knowledge Base, nelle quali risultati intermedi possono essere riesaminati, criticati, verificati, combinati o trasformati attraverso nuovi goal, meta-prompt, strumenti e regole. Gli stessi schemi di reasoning sono conoscenza e devono quindi poter essere insegnati, modificati e riutilizzati.
+> In parrot0 il reasoning non è una sequenza predefinita di operazioni. È la capacità di costruire ed eseguire pipeline di elaborazione seriali, parallele o ibride, descritte dalla Knowledge Base, nelle quali risultati intermedi possono essere riesaminati, criticati, verificati, combinati o trasformati attraverso nuovi goal, meta-prompt, strumenti e regole. Gli stessi schemi di reasoning sono conoscenza e devono quindi poter essere insegnati, modificati e riutilizzati.
 
-La distinzione fondamentale è quindi:
+La distinzione fondamentale non è fra parrot0 e qualcos'altro: è fra due modi di
+ottenere più deliberazione.
 
 ```text
-LLM reasoning
+più deliberazione per accumulo
 =
-più computazione/token all'interno
-del processo generativo del modello
+più computazione dentro un processo opaco,
+che non si può ispezionare né ritrattare
 ```
-
-mentre:
 
 ```text
 parrot0 reasoning
 =
-orchestrazione KB-first
-di processi cognitivi espliciti
+orchestrazione KB-first di inferenze successive,
+ciascuna esplicita, attribuibile e ritrattabile
 ```
 
-Il primo produce una catena di elaborazione interna al modello.
+Il primo produce una catena che si può solo rigenerare. Il secondo produce un
+**grafo di ragionamento esplicito, modificabile e apprendibile**, in cui ogni
+nodo è un rientro dichiarato nella pipeline dello stesso motore.
 
-Il secondo produce un **grafo di ragionamento esplicito, modificabile e apprendibile**.
-
-Ed è proprio questo che permette a parrot0 di trattare il reasoning non come una proprietà speciale di uno specifico modello, ma come una capacità generale del sistema.
+Ed è proprio questo che permette a parrot0 di trattare il reasoning non come una
+proprietà speciale di un componente, ma come una capacità generale del sistema —
+e di farlo senza delegare a nessuno il pensiero.
 
 
 ---
@@ -532,7 +537,7 @@ evitare, commesso mentre lo si evita.
 ### 0.1 Il pezzo più prezioso che già c'è: l'operatore a predicato variabile
 
 La Parte I chiede che un nodo possa essere «una risoluzione simbolica, una query
-alla KB, una chiamata a uno strumento, una inferenza LLM». Il meccanismo per
+alla KB, una chiamata a uno strumento, una nuova inferenza». Il meccanismo per
 farlo **esiste ed è già in uso in due punti**:
 
 ```prolog
@@ -609,20 +614,46 @@ progettata per prima, non aggiunta dopo. Corollario dal §L: prima di attivare i
 reasoning si dichiarano le viste materializzate dei predicati che il grafo
 rileggerà, o il grafo pagherà il costo di riderivarli a ogni nodo.
 
-### H5 — ⚠ L'LLM come operatore: una tensione con `PRINCIPLES.md` da dichiarare
+### H5 — ⭐ L'operatore che rende il grafo un ragionamento: il RIENTRO
 
-La Parte I propone `reasoning step → LLM(prompt)`. Va detto chiaramente: la
-scommessa fondativa di questo progetto è **non delegare l'intelligenza**
-(`PRINCIPLES.md`: l'LLM è l'agente che *costruisce* parrot0, non un organo che
-parrot0 interroga). Un nodo `LLM(prompt)` dentro il grafo rischia di essere
-l'esatto opposto: parrot0 che chiede a un modello di pensare al posto suo.
+> F., 2026-09-04: *«non c'è nessun LLM, è un refuso. Il processo intendo:
+> pipeline di inferenza, l'output del primo giro agganciato a un meta-prompt e
+> reinserito. I flussi sono in KB ma di fatto sono inferenze successive.»*
 
-La forma compatibile esiste e il progetto la usa già altrove (`llmscore`,
-`autolearn`, le sonde): **l'LLM è un ORACOLO DI MISURA o un MAESTRO, mai un
-passo del ragionamento in produzione.** Proposta: la firma ammette
-`op(oracle, …)` ma il profilo di produzione non ne dichiara nessuno, e un
-cricchetto verifica che non ce ne siano. Se un giorno si decide diversamente,
-sarà una decisione presa, non una che è scivolata dentro.
+Questa è la chiave dell'intero piano, e semplifica invece di complicare.
+`process(P)` **è `brain_respond`**: la pipeline di parrot0, rientrata. Un passo
+di reasoning non chiama niente di esterno — compone un nuovo turno dal risultato
+precedente più un meta-prompt dichiarato in KB, e lo rimette nella stessa porta
+da cui entrano i turni dell'interlocutore.
+
+```prolog
+reasoning_step(S, 2, step(reenter(critique_prompt), r0, c0, meta(1, local))).
+meta_prompt(critique_prompt, "trova le assunzioni non dimostrate in: {prev}").
+```
+
+Ne discendono quattro cose, e nessuna è ovvia:
+
+1. **La primitiva dell'esecutore è UNA sola**, non due come avevo scritto:
+   *comporre un turno e rientrare*. `list_sources`/`read_each` del gen495 sono
+   casi particolari di rientro con un turno costruito.
+2. **Il meta-prompt è conoscenza come tutto il resto**, quindi si insegna
+   parlando e si ritratta. È la parte insegnabile di ciò che oggi, in altri
+   sistemi, è un prompt di sistema nascosto.
+3. **La ricorsione è reale e va limitata sul serio.** Un rientro può a sua volta
+   attivare uno schema: senza `reasoning_stop` e senza budget, un grafo si
+   mangia il turno. Il solver conta già `steps`/`budget_hit`; il grafo deve
+   contare i **rientri**, che sono molto più cari di un passo di inferenza.
+4. **Il rischio nuovo è il loop di specchio**: parrot0 che critica la propria
+   risposta con la stessa conoscenza che l'ha prodotta può solo confermarla.
+   Un nodo di critica che non porta conoscenza *nuova* — una query, uno
+   strumento, un'altra zona della KB — è il caso peggiore di E8: non è teatro
+   che non cambia niente, è teatro che si dà ragione. **Un passo di critica
+   deve dichiarare da dove viene ciò che lo rende diverso dal passo criticato.**
+
+E questo chiude anche la questione di principio senza doverla discutere: non c'è
+nessuna intelligenza delegata, perché non c'è nessun altro. `PRINCIPLES.md`
+resta intatto — l'unico modello che tocca questo repository è l'agente che lo
+*costruisce*, non un organo che parrot0 interroga.
 
 ## 2. Vantaggi, e come si distinguono da quelli dichiarati
 
@@ -630,14 +661,14 @@ Il documento dice che il grafo è «esplicito, modificabile e apprendibile». Ve
 ma sono proprietà di progetto. Questi invece sono vantaggi **verificabili**, e
 ciascuno ha già il suo meccanismo:
 
-| vantaggio | perché è verificabile qui e non in una CoT |
+| vantaggio | perché è verificabile qui, e non in una catena opaca |
 |---|---|
 | **Attribuibile** | ogni passo porta la sua basis (`ir_domain_claim_basis`, `store_proof`): si può chiedere *perché* un nodo è stato eseguito, e la risposta è un fatto, non una ricostruzione a posteriori |
-| **Ritrattabile** | togliere un arco con `!forget` cambia il ragionamento nello stesso turno. Una CoT non si può ritrattare: si può solo rigenerare |
+| **Ritrattabile** | togliere un arco con `!forget` cambia il ragionamento nello stesso turno. Una catena interna non si può ritrattare: si può solo rigenerare |
 | **Ablatable** | è il criterio anti-impostore: se togliere un nodo non cambia **niente**, quel nodo era teatro |
 | **Insegnabile** | canale #1 della Gerarchia di Crescita, e già dimostrato altrove: al gen493 una parafrasi insegnata parlando ha **trasferito** a un soggetto mai nominato nella lezione |
 | **Ispezionabile a costo zero** | il grafo è interrogabile prima di eseguirlo: si può chiedere «che cosa faresti» senza farlo |
-| **Riproducibile** | stesso input + stessa KB = stesso grafo. Una CoT no |
+| **Riproducibile** | stesso input + stessa KB = stesso grafo, e lo stesso esito |
 
 ## 3. ⭐ Gli esperimenti che voglio provare per primi
 
@@ -734,9 +765,10 @@ Non «implementare il reasoning». Il passo esatto, in verticale:
 2. Derivare `turn_plan`/`plan_step` (gen495) dalla nuova firma: se i due passi
    del piano sugli strumenti non si esprimono con essa, la firma è sbagliata.
    **È il primo test, e costa un pomeriggio.**
-3. Un esecutore con **due sole primitive**, sulla forma di `p0_compensate`:
-   eseguire un nodo, e ripetere un nodo su ogni risultato del precedente. Non
-   sceglie: chiede alla KB.
+3. Un esecutore con **UNA sola primitiva**, sulla forma di `p0_compensate`:
+   **comporre un turno e rientrare nella pipeline** (H5). Non sceglie: chiede
+   alla KB. `list_sources`/`read_each` del gen495 diventano casi particolari di
+   rientro con un turno costruito, non primitive a sé.
 4. E1 ed E8 come cricchetti, nello stesso commit.
 
 Se il punto 2 fallisce si è imparato qualcosa di vero sulla firma; se riesce, si
@@ -771,7 +803,8 @@ io.
 
 ### Che cosa resta di R1
 
-Il punto 3 — **l'esecutore generico a due primitive** — non è fatto. Oggi il
+Il punto 3 — **l'esecutore generico, una primitiva sola: il rientro** — non è
+fatto. Oggi il
 grafo si può *dichiarare, ordinare e interrogare*, ma a eseguirlo è ancora
 l'esecutore specializzato degli strumenti. Finché quel pezzo manca, il reasoning
 è una **rappresentazione**, non ancora una capacità: E3, E4, E6 e E7 non si
@@ -789,7 +822,8 @@ Il reasoning si dichiara fallito, e si torna indietro, se:
 - un nodo produce testo che nessun nodo successivo consuma (**teatro**);
 - l'ablazione di un nodo non cambia la risposta (E8 > 0);
 - la ragione dell'arresto è sempre la stessa (E3 fallita);
-- il grafo va in produzione con un `op(oracle, …)` dichiarato (H5 violata);
+- un nodo di critica non dichiara da dove viene la conoscenza che lo rende
+  diverso dal nodo che critica (H5.4: il loop di specchio);
 - il costo per turno supera il budget e la contromisura è **alzare il budget**
   invece di abbassare il costo (§L, e F. l'ha già detto una volta: *«un timeout
   di dieci secondi è già un sintomo»*).
