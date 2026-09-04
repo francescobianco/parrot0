@@ -762,6 +762,7 @@ utterance(2, self, "Learned: necessity_marker(shall).").
 utterance(2, self, "Learned: relation_verb(modified).").
 utterance(2, self, "Got it - I'll take «bella» as a way to a casual opener now.").
 utterance(2, self, "Ricevuto — d'ora in poi prendo «dove si trova» come another way to ask located_in.").
+utterance(2, self, "I read main.c into structure: it defines main. (1 function now in the KB.)").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -783,6 +784,7 @@ utterance(1, user, "the word shall is a necessity marker").
 utterance(1, user, "modified is a relation verb").
 utterance(1, user, "learn 'bella' as a casual opener").
 utterance(1, user, "learn 'dove si trova' as another way to ask located_in").
+utterance(1, user, "read main.c").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").

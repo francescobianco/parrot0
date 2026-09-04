@@ -1035,6 +1035,113 @@ La suite lunga resta fuori da questa sessione per direttiva di F.
 
 ---
 
+---
+
+## 9-bis. ⭐ LA DISTANZA MISURATA DA FREEBUFF — 2026-09-04
+
+> F.: *«quanto sarà il turno di questo piano? mi aspettavo che fossimo già
+> pronti a gestire domande e attività su problemi da coding agent; l'obiettivo è
+> rendere parrot0 pari a come oggi si comporta freebuff con deepseek, e per
+> adesso siamo lontani.»*
+>
+> Questa sezione non rilegge il piano: **misura parrot0 di oggi** sulla codebase
+> reale di `tests/challenge/tasks/match0/seed`, la stessa su cui freebuff ha
+> fatto 100/100 in 52 secondi. La risposta è meno scoraggiante di quanto sembri,
+> e soprattutto è **diversa** da quella che il piano lascerebbe supporre.
+
+### 9-bis.1 La fondazione c'è, ed è la parte cara
+
+Dopo `read main.c`, con le frasi che `answer_frame` dichiara:
+
+```text
+> definition source of main
+  Main.c.
+> source evidence for main
+  Evidence("main.c", fnv1a64 cc260a4af8631890, span(323, 4), builtin c scan v1)
+> call evidence for main
+  evidence("main.c", …, span(381, 7), …), evidence("main.c", …)
+```
+
+Span, digest, provenienza dichiarata, archi di chiamata: **la Code IR è viva e
+porta le prove**. Questo è il pezzo costoso di UC0/UC1, e non va rifatto.
+
+### 9-bis.2 Il confronto, passo per passo, con quello che freebuff ha fatto
+
+| # | passo di freebuff su match0 | parrot0 oggi | manca |
+|---|---|---|---|
+| 1 | elenca la cartella | ✅ `run ls` → `Makefile main.c strjoin.h` | — |
+| 2 | legge i `.c` in struttura | ✅ Code IR con span e provenienza | — |
+| 3 | ricava il contratto dall'header | ⚠️ `read strjoin.h` restituisce il **testo grezzo** | un frontend per le dichiarazioni — UC2, «linguaggi come delta» |
+| 4 | legge il Makefile | ❌ *«non conosco makefile»* | idem, ma vedi 5 |
+| 5 | capisce **che cosa manca** | ✅ **gratis**: `run make` → *«No rule to make target 'strjoin.c', needed by 'join'»* | — |
+| 6 | scrive il file **con il contenuto** | ❌ crea il file **vuoto**; il contenuto viene ignorato | ⛔ **un `local_tool` di scrittura** |
+| 7 | compila sotto `-Werror` | ✅ `run make` | — |
+| 8 | rilegge il verdetto e ripara | ❌ | il **ciclo**: D49 (ripresa) + C2 (rientro) |
+
+⭐ **Il punto 5 è una sorpresa che vale un intero incremento.** La scala T1 di
+`THINKING_TODO` §0.4 proponeva di *derivare* `missing_referenced_file` dal
+Makefile. Non serve: **il build lo dice da solo**, con parole migliori delle
+nostre. Un oracolo esterno che già funziona batte una regola da scrivere — ed è
+anche il contratto anti-specchio di C3, gratis.
+
+### 9-bis.3 ⛔ Quindi la distanza vera è DUE capacità, non undici incrementi
+
+```text
+A. uno strumento che SCRIVE contenuto in un file
+   local_tool ha search/find/list/read/run — nessuno che scriva.
+   `create the file X` fa un file VUOTO; e `run` rifiuta le redirezioni di shell
+   per progetto («eseguo un programma con i suoi argomenti»), che è una buona
+   proprietà di sicurezza e non va aggirata.
+   -> gen494: `local_tool/3` + `tool_argv/2`, DICHIARATO, non un ramo nel C.
+
+B. il CICLO   osserva -> decidi -> scrivi -> verifica
+   i quattro pezzi esistono separati; nessuno li tiene insieme fra un turno e
+   l'altro. È esattamente D49 (`continue-as-resumption.md`) più C2 di
+   THINKING_TODO — che sono la stessa struttura vista da due lati.
+
+più, per fare bene il punto 3:
+C. un frontend per le DICHIARAZIONI (header C), che è UC2 con un delta solo.
+```
+
+### 9-bis.4 E ciò che oggi domina non è nessuna di queste
+
+Tutto il quadro qui sopra vale **quando glielo si chiede esplicitamente** —
+`run ls`, `read main.c`, `run make`. Sul prompt vero del compito il turno non
+arriva mai lì: viene rivendicato, o spezzato in frammenti che perdono la lettura
+globale. È la **Parte 0** di `THINKING_TODO.md`, ed è per questo che sta in
+testa a quella coda: *aggiungere capacità a facoltà che non ricevono il turno
+non muove la misura di un punto.*
+
+### 9-bis.5 Che cosa comprano davvero A + B + C
+
+**match0, non la parità.** Un file, un contratto, un ciclo che si chiude: da
+5/100 a un punteggio vero su difficoltà 1. È molto, e non è la parità con
+freebuff.
+
+⚠ **match1 (difficoltà 4) è un altro ordine di grandezza** e va detto: chiede
+quicksort three-way con fallback a profondità limitata, integrazione nel
+Makefile e `-Werror` pulito. Lì non basta il ciclo — serve **sintesi di
+algoritmo**, cioè la facoltà `build` di gen209 (`algo_shape`), che oggi lavora
+su forme curate. Chiamare «parità» qualcosa che chiude match0 sarebbe l'inganno
+che `PRINCIPLES.md` vieta.
+
+### 9-bis.6 L'ordine che ne segue
+
+```text
+0.  P0/P0b — il turno deve arrivare alle facoltà di codice   (in corso)
+A.  local_tool di scrittura, dichiarato                       ← il blocco singolo
+B.  il ciclo osserva→scrivi→verifica, con `run make` come oracolo
+    ⤷ GATE: match0 passa da 5/100 a un punteggio vero, senza toccare match1
+C.  frontend delle dichiarazioni (header), e il contratto derivato
+D.  solo dopo: UC3 (domanda → Task IR), che allarga le forme di domanda oltre
+    le tre `answer_frame` dichiarate oggi
+```
+
+⛔ **UC4-UC11 non sono sulla strada di match0.** Sono la strada della
+comprensione universale, che resta l'obiettivo del piano — ma non è il cammino
+più corto verso un agente che chiude un compito. Tenerli separati evita di
+misurare l'uno con il gate dell'altro.
+
 ## 10. Stop condition e anti-impostor
 
 Fermarsi e correggere l'architettura se accade uno di questi eventi:
