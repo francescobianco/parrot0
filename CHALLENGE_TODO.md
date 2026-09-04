@@ -833,12 +833,51 @@ in un turno, risponde ancora *«I read that as code, but I am not sure which
 function you mean»* — `codeast`, che è maturo e onesto, e non può agire. A6 e A2
 restano il muro, e A5 resta l'ordine di grandezza.
 
-### Il prossimo passo, e perché è A2 e non A6
+### ⛔ A6 — la causa è nominata, e non è la segmentazione
 
-A6 (arbitrato) non è eseguibile finché non esiste una facoltà che possa servire
-quel turno: retrocedere `codeast` sposterebbe il furto, non lo chiuderebbe — è
-il whack-a-mole già misurato. **Il prossimo lavoro è A2**, e il primo ostacolo è
-misurato: il contratto di `strjoin.h` è nel commento, e `code_strip` **cancella
+Aggiornato gen503, dopo aver chiuso A2 e messo in piedi lo schema.
+
+Lo schema `repair_broken_build` porta il turno a chi può agire, **e sul prompt
+vero di match0 funziona**. Ma non su ogni forma, e l'ipotesi con cui questa coda
+spiegava il fenomeno — «il turno viene spezzato in frammenti» — **è sbagliata**.
+Misurato, nella stessa directory, con lo stesso progetto rotto:
+
+```text
+the project does not build: file            → lo schema parte
+the project does not build: missing         → lo schema parte
+the project does not build: file missing    → NON parte
+the project does not build: missing file    → NON parte
+```
+
+Ogni parola, da sola, va bene. **Le due insieme rompono il riconoscimento**, in
+qualunque ordine. Non è lunghezza, non è il carattere `:`, e non è
+segmentazione: è che `kb_cue_match` non è un test di sottostringa — passa da
+`kb_hypothesis_best`, cioè da un **punteggio di evidenza**, e la cue dichiarata
+di un piano può PERDERE dentro un turno che porta altra evidenza.
+
+⚠ **E questa è esattamente la classe di turni del banco.** Un compito di coding
+reale è lungo e pieno di parole che pesano; il riconoscimento del piano è più
+fragile proprio dove serve. Il fatto che il prompt di match0 funzioni è, con
+questa spiegazione, **una fortuna e non una garanzia**.
+
+⛔ Una cosa NON va fatta come rimedio: aggiungere cue finché la frase di turno
+passa. Sarebbe la colonna destra di §6.5-bis — conoscenza che nomina il caso
+invece del dominio. Il lavoro è sul MECCANISMO: una cue dichiarata di piano deve
+essere una condizione, non un concorrente in una gara di punteggio.
+
+⭐ Registrato anche un tentativo **fallito e rimosso**: avevo aggiunto al
+dispatch la regola «un turno che dichiara un piano non si segmenta»
+(`plan_executor/1` + una nomina eager prioritaria). Non serviva — il turno non
+era segmentato, `mod_toolplan` declinava a monte — e codice non provato che
+esprime un principio giusto resta codice non provato. Tolto.
+
+### ⚠ SUPERATA — «il prossimo passo è A2»
+
+*(Scritta prima di eseguirla, e tenuta perché la diagnosi che conteneva era
+giusta: A2 è stata chiusa subito dopo, e il primo ostacolo era esattamente
+quello che diceva.)* A6 (arbitrato) non era eseguibile finché non esisteva una
+facoltà che potesse servire quel turno: retrocedere `codeast` avrebbe spostato
+il furto — il whack-a-mole già misurato. Il primo ostacolo di A2 era: il contratto di `strjoin.h` è nel commento, e `code_strip` **cancella
 i commenti** prima che lo scanner li veda. Provata la stessa prosa nella
 pipeline dei documenti (`read: Join count strings from parts …`) il risultato è
 *«Learned 0 fact(s), skipped 2»*.
