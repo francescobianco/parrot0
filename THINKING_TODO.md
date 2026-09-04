@@ -196,11 +196,33 @@ compilati : letture KB): `codeast` **1:61** ha dato l'unica risposta onesta,
 `compose` **10:83** è stato il primo ladro. Il modulo con meno vocabolario
 compilato è quello che ha risposto bene.
 
-⚠ **Quindi P0 resta aperta**, e la sua forma finale non è la quarta riga di
-cessione: è la legittimità (§1-bis) più l'arbitrato per copertura, con i due
-gate falsificabili in `turn-arbitration.md` §3 — incluso il più severo, che
-**le due righe di `faculty_yield_both` scritte oggi vanno ritirate** e il
-comportamento non deve cambiare.
+### ⭐ Eseguito il 2026-09-04: review e retrocessioni
+
+| | prima | dopo |
+|---|---|---|
+| match0 | `compose` — storia + imperativo appreso | **`codeast`** — *«I read that as code…»* |
+| match2 | `role` — *«Alright — I am Working now»* | **`codeast`** — la stessa risposta onesta |
+| match1 | `gen` | `gen` — ⛔ resta aperto |
+
+Costruito: dispatch a **due passate** (chi ha titolo, poi i retrocessi, e
+permissivo per default), `kb/core/module-review.p0`, le testate di review sui
+quattro moduli osservati, il cricchetto `tests/tools/module_review.py` in
+`make test`.
+
+⭐ **match2 si è spostato con la sola retrocessione di `role`**, zero cessioni
+scritte per lui. E l'ablazione separa i due rimedi: la cessione di `compose`
+(immaturo) è **peso morto** — ritirata dal repository — mentre quella di `gen`
+(maturo) è **portante**, ritirandola match0 torna subito a essere rubato.
+
+⚠ **Due dichiarazioni di onestà.** (a) 4 moduli su 78 sono recensiti: le altre
+74 competono come prima, perché una review si scrive solo dove si è guardato.
+(b) **Nessuna metrica distingue maturo da immaturo** — `mod_compose` e
+`mod_codeast` hanno gli stessi zeri. I numeri falsificano una review, non la
+producono.
+
+⛔ **P0 resta aperta su match1**: `gen` non cede su 1485 byte pur avendo
+entrambe le cue nel testo, e le due finestre già corrette (`canon[256]`,
+`masked[512]`) non lo spiegano. È il prossimo blocco.
 
 ## 0.4 La scala — start small, grow fast
 

@@ -341,6 +341,24 @@ static int code_state_target(Brain *b, const char *raw,
     return target[0] != '\0';
 }
 
+/* ── MODULE REVIEW — codeast ──────────────────── rivista: gen502, 2026-09-04
+ *   maturita'   kb_first              diritto   PRIMARY (ammesso)
+ *
+ *   L1 addestrabile   si': riconoscimento dalla KB, 38 letture
+ *   L2 kb_first       si': 0 parole compilate
+ *   L3 universale     NO: 0 usi diretti del frame (mod_code, accanto, ne fa 1)
+ *
+ *   PERCHE' E' AMMESSO. E' l'unico dei quattro che, ricevuto il turno di
+ *   coding, ha risposto onestamente: «I read that as code, but I am not sure
+ *   which function you mean» — nomina cio' che ha riconosciuto E il proprio
+ *   buco, invece di produrre. E' la condotta che il mantra #17 chiede a una
+ *   facolta' che non puo' onorare la richiesta: tacere o dire che cosa manca,
+ *   mai fabbricare.
+ *
+ *   ⚠ Il diritto e' AMMESSO, non ACQUISITO: L3 e' ancora scoperta, ed e' la
+ *   prossima cosa da chiudere qui — la pretesa deve fondarsi sul frame.
+ *
+ *   Mantra #21; proiezione in kb/core/module-review.p0. */
 static int mod_codeast(Brain *b, const char *norm, const char *raw,
                        char *out, size_t out_size) {
     if (!b || !b->kb || !raw || !norm) return 0;

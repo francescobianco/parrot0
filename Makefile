@@ -895,6 +895,7 @@ legacy-test: build
 	@./tests/bench/llmscore-kbfirst.sh
 	@./tests/cdriver/run.sh tests/cdriver/integration/kb-evidence-scale.c src/kb.c
 	@$(BENCH_PY) ./tests/tools/manifest_audit.py
+	@$(BENCH_PY) ./tests/tools/module_review.py
 	@./tests/tools/cuechains.sh
 	@./tests/archetype.sh
 	@./tests/persist.sh

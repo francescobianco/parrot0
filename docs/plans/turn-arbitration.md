@@ -156,7 +156,65 @@ compilato**, e il primo ladro è quello col rapporto peggiore. Un campione di
 quattro non è una legge — ma è esattamente il verso che la tesi di F. prevede, e
 rende il criterio misurabile invece che programmatico.
 
-### 1-bis.5 Che cosa resta della copertura
+### ⭐ 1-bis.5 ESEGUITO il 2026-09-04 — e l'ablazione conferma le due classi
+
+Costruito: dispatch a **due passate** nel registro (chi ha titolo, poi i
+retrocessi), `kb/core/module-review.p0` con quattro review scritte, le testate
+in cima ai quattro moduli, e il cricchetto `tests/tools/module_review.py`.
+
+| | prima | dopo |
+|---|---|---|
+| match0 | `compose` — storia sul Makefile + imperativo appreso | **`codeast`** — *«I read that as code…»* |
+| match2 | `role` — *«Alright — I am Working now»* | **`codeast`** — la stessa risposta onesta |
+| match1 | `gen` — la storia | `gen` — ⚠ debito aperto |
+
+⭐ **match2 si è spostato con la SOLA retrocessione di `role`, zero righe di
+cessione scritte per lui.** È il rimedio della classe giusta: togliere il
+titolo vale su *tutte* le classi, comprese quelle che nessuno ha incontrato.
+
+**E l'ablazione che separa i due rimedi, misurata:**
+
+| cessione scritta per | classe del modulo | ritirandola |
+|---|---|---|
+| `compose` | **immaturo** → si retrocede | **niente cambia** — era peso morto, la retrocessione la copriva già |
+| `gen` | **maturo** → si insegna | match0 torna subito a essere rubato: è **portante**, e resta |
+
+Non è una conferma comoda: la riga scritta per il modulo immaturo è stata
+**ritirata dal repository**, e quella per il modulo maturo è rimasta. La
+distinzione di F. regge una prova che poteva farla cadere.
+
+### 1-bis.6 Il cricchetto, e perché può solo falsificare
+
+`tests/tools/module_review.py` (in `make test`) rifiuta: una review in KB senza
+testata nel C e viceversa; `kb_first` dichiarato con parole di dominio compilate
+o `TODO(kb-first)` aperti; un `module_evidence` che non combacia con la misura
+di oggi; una facoltà recensita che non è nel registro.
+
+⚠ **Al primo giro ha falsificato una review corretta**, ed è servito: contava
+`strcmp(b->last_module, "gen")` come vocabolario compilato, mentre è una
+facoltà che riconosce se stessa — meccanismo. È stata corretta **la misura**,
+non la review. Una metrica che accusa il codice giusto è peggio di nessuna
+metrica.
+
+⛔ **E il limite, dichiarato:** contando *per modulo* (non per file),
+`mod_compose` — il primo ladro — ha **zero** parole compilate e **zero** TODO,
+esattamente come `mod_codeast` che ha risposto bene. **Nessuna metrica distingue
+un modulo maturo da uno immaturo.** Per questo la maturità resta un giudizio
+scritto e datato, e i numeri possono solo provare che quel giudizio mente. È
+anche il motivo per cui **4 moduli su 78 sono recensiti**: le altre 74 facoltà
+restano senza riga finché qualcuno non le guarda davvero, e competono come
+prima — permissivo per default, come ogni condotta di questo progetto.
+
+### 1-bis.7 Il debito aperto, misurato
+
+`gen` non cede su `match1` (1485 byte) benché entrambe le cue siano nel testo
+(`codebase`@47, `replace its`@174). Due finestre già corrette — `canon[256]` nel
+dispatch e `masked[512]` in `kb_cue_match_plain` — non bastano a spiegarlo.
+Finché resta, `gen` è maturo ma **non ancora governabile su prosa lunga**, ed è
+la prossima cosa da chiudere: è anche l'unico dei tre prompt del banco che il
+lavoro di oggi non ha spostato.
+
+### 1-bis.8 Che cosa resta della copertura
 
 La copertura (S4) **non è più la prova di legittimità** — quello era il mio
 errore. Resta però il criterio giusto per il gradino dopo: **fra pretendenti che

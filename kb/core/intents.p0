@@ -4576,7 +4576,16 @@ intent_cue(source_change_directive, "riscrivi").
 intent_cue(source_change_directive, "correggi il").
 intent_cue(source_change_directive, "integra").
 
-faculty_yield_both(compose, open, codebase_referent, source_change_directive).
+% ⛔ RITIRATA il 2026-09-04, e il ritiro e' una PROVA, non una pulizia.
+% Qui c'era `faculty_yield_both(compose, open, codebase_referent,
+% source_change_directive)`. Era il rimedio SBAGLIATO per la classe di
+% fallimento: `compose` e' immaturo (pretende sulla segmentabilita' del turno,
+% non sulla sua lettura), quindi il rimedio e' la RETROCESSIONE — vedi
+% module_claim_right(compose, fallback) in kb/core/module-review.p0.
+% Ablazione misurata: ritirando questa riga NON cambia niente, perche' la
+% retrocessione copre gia' questa classe e tutte le altre. Ritirando invece
+% quella di `gen` — che e' maturo — match0 torna a essere rubato: quella e'
+% portante e resta. E' la differenza fra insegnare e togliere il titolo.
 % E non basta governarne una. Tolto `compose`, il turno e' passato a `gen`, che
 % ha prodotto la stessa storia senza nemmeno la numerazione — la conferma della
 % riga gia' scritta sopra a proposito di `role`: governare una facolta' sola

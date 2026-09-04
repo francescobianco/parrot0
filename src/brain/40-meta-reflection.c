@@ -1125,6 +1125,26 @@ static int is_truth_probe(Brain *b, const char *q) {
            kb_cue_match(b, "40_meta_reflection_cue1040", q);
 }
 
+/* ── MODULE REVIEW — role ─────────────────────── rivista: gen502, 2026-09-04
+ *   maturita'   transitional          diritto   FALLBACK (retrocesso)
+ *
+ *   L1 addestrabile   parziale: cede gia' via faculty_yield, ma il proprio
+ *                     riconoscimento «you are X» non e' ritirabile parlando
+ *   L2 kb_first       si': 33 letture dalla KB
+ *   L3 universale     NO: 0 usi del frame del turno
+ *
+ *   PERCHE' E' RETROCESSO. Sul prompt di match2 ha risposto «Alright - I am
+ *   Working now»: ha letto «You are working in the existing codebase...» come
+ *   l'ordine di impersonare qualcuno di nome Working. La pretesa e' fondata su
+ *   una forma di superficie — pronome + participio — senza nessuna verifica che
+ *   il turno sia una richiesta di ruolo.
+ *
+ *   Impersonare e' una facolta' legittima; prendere il turno perche' la frase
+ *   comincia con «you are» non lo e'. Misurato: con la sola retrocessione, e
+ *   ZERO righe di cessione scritte per lui, match2 passa a `codeast` e riceve
+ *   una risposta onesta.
+ *
+ *   Mantra #21; proiezione in kb/core/module-review.p0. */
 static int mod_role(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
     if (!b || !b->kb) return 0;

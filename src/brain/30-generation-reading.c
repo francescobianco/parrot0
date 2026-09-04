@@ -450,6 +450,28 @@ static int gen_sized_artifact(Brain *b, const char *norm,
     return kb_response_slots(b, frame[0], slots, 1, out, out_size);
 }
 
+/* ── MODULE REVIEW — gen ──────────────────────── rivista: gen502, 2026-09-04
+ *   maturita'   kb_first              diritto   PRIMARY (ammesso)
+ *
+ *   L1 addestrabile   si': la condotta di cessione e' conoscenza — dieci classi
+ *                     dichiarate in faculty_yield(gen, ...) in kb/core/intents.p0
+ *   L2 kb_first       si': 145 letture dalla KB, 0 parole compilate
+ *   L3 universale     parziale: 2 usi del frame — l'unico dei quattro che ne fa
+ *
+ *   PERCHE' E' AMMESSO NONOSTANTE ABBIA RUBATO DUE TURNI SU TRE. E' il caso del
+ *   modulo MATURO che si comporta male, e i due fallimenti hanno rimedi diversi:
+ *   a chi ha titolo si INSEGNA, chi non ce l'ha si RETROCEDE. La prova che la
+ *   classificazione e' giusta e non comoda e' un'ablazione: la cessione scritta
+ *   per lui il 2026-09-04 e' PORTANTE — ritirandola match0 torna subito a essere
+ *   rubato — mentre quella scritta per `compose`, che e' immaturo, e' peso morto.
+ *
+ *   ⚠ DEBITO APERTO E MISURATO: la cessione non scatta su match1 (1485 byte),
+ *   pur essendo entrambe le cue nel testo (codebase@47, replace its@174). Due
+ *   finestre gia' corrette (canon[256] nel dispatch, masked[512] in
+ *   kb_cue_match_plain) non bastano a spiegarlo. Finche' resta, `gen` e' maturo
+ *   ma non ancora governabile su prosa lunga.
+ *
+ *   Mantra #21; proiezione in kb/core/module-review.p0. */
 static int mod_gen(Brain *b, const char *norm, const char *raw,
                    char *out, size_t out_size) {
     if (!b || !b->kb) return 0;

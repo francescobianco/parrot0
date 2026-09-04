@@ -1623,6 +1623,26 @@ static int compose_plan(Brain *b, const char *raw, char *out, size_t out_size) {
     return 1;
 }
 
+/* ── MODULE REVIEW — compose ──────────────────── rivista: gen502, 2026-09-04
+ *   maturita'   transitional          diritto   FALLBACK (retrocesso)
+ *
+ *   L1 addestrabile   parziale: le sue soglie di segmentazione non si ritirano
+ *                     parlando, quindi una pretesa sbagliata non si corregge
+ *   L2 kb_first       si': 0 parole compilate, 7 letture dalla KB
+ *   L3 universale     NO: 0 usi del frame del turno
+ *
+ *   PERCHE' E' RETROCESSO. Su un prompt di 864 byte che chiedeva di scrivere
+ *   un file C (tests/challenge match0, run gen502-m0b) ha rivendicato il turno,
+ *   l'ha spezzato in segmenti indipendenti e li ha dati a chi li prendeva: una
+ *   storia sul `Makefile` personificato piu' l'imperativo finale del compito
+ *   asserito come fatto. La pretesa non e' fondata sulla LETTURA del turno ma
+ *   sulla sua SEGMENTABILITA' — e ogni prosa lunga e' segmentabile.
+ *
+ *   Comporre risposte altrui e' legittimo quando nessun altro sa rispondere per
+ *   intero: e' esattamente cio' che significa ultima risorsa. Per risalire a
+ *   `primary` serve L3 — pretendere sul frame, non sulla lunghezza.
+ *
+ *   Mantra #21; proiezione in kb/core/module-review.p0. */
 static int mod_compose(Brain *b, const char *norm, const char *raw,
                        char *out, size_t out_size) {
     /* gen431: se la richiesta nomina un testo che non e' stato allegato, non si

@@ -1,0 +1,114 @@
+% module-review.p0 — IL TITOLO A RIVENDICARE UN TURNO (gen502, mantra #21).
+%
+% F., 2026-09-04: «i moduli obsoleti che rubano turni non sono legittimati a
+% farlo. Un modulo puo' continuare a prendere turni se e' addestrabile, se e'
+% KB-first, se e' basato sulla comprensione universale. Non esistono moduli che
+% rubano turni per stato del codice. Soltanto i moduli ben fatti possono
+% prendere turni.» E sul criterio: «e' la review della sua implementazione, che
+% deve stare in testa al modulo in un commento.»
+%
+% ── PERCHE' NON E' UN ALTRO `faculty_yield` ────────────────────────────────
+%
+% I due fallimenti sono CLASSI DIVERSE e hanno RIMEDI DIVERSI:
+%
+%   un modulo IMMATURO che vince   -> errore di ARCHITETTURA -> si RETROCEDE
+%   un modulo MATURO che vince male -> comportamento da CORREGGERE -> si INSEGNA
+%
+% `faculty_yield` insegna a tacere su UNA classe, e va scritta dopo ogni furto.
+% La retrocessione toglie il TITOLO una volta sola, e vale su tutte le classi,
+% comprese quelle che nessuno ha ancora incontrato. Applicare il primo rimedio
+% al secondo problema e' la causa del whack-a-mole misurato il 2026-09-04:
+% governata `compose` il turno e' passato a `gen`, governato `gen` e' arrivato a
+% `codeast` — tre giri per un prompt, e su altri due prompt la catena riparte.
+%
+% ── COME SI LEGGE UNA REVIEW ───────────────────────────────────────────────
+%
+%   module_maturity(Facolta', legacy | transitional | kb_first)
+%   module_claim_right(Facolta', primary | fallback)
+%   module_evidence(Facolta', Campo, Valore)     numeri MISURATI, non giudizi
+%   module_review_note(Facolta', "una riga")     il perche', in chiaro
+%
+% ⚠ PERMISSIVO PER DEFAULT: una facolta' senza riga qui compete come prima. Un
+% cancello implicito su settantotto moduli avrebbe spento in silenzio condotte
+% che nessuno ha esaminato — il criterio di evoluzione sbagliato. Retrocedere e'
+% un ATTO DICHIARATO, e chi lo dichiara deve avere guardato.
+%
+% ⛔ E LA REGOLA CHE TIENE ONESTO QUESTO FILE: i numeri di `module_evidence`
+% NON producono il verdetto, lo FALSIFICANO. Misurato il 2026-09-04: contando
+% per modulo (non per file) `mod_compose` — il primo ladro — ha ZERO parole
+% compilate e ZERO TODO, esattamente come `mod_codeast` che ha risposto bene.
+% Una metrica non distingue un modulo maturo da uno immaturo; puo' solo provare
+% che una review MENTE. Per questo la review e' scritta e datata, e per questo
+% si scrive solo dove si e' guardato.
+
+:- file_attribute(machinery).
+machinery(module_maturity).
+machinery(module_claim_right).
+machinery(module_evidence).
+machinery(module_review_note).
+
+% ── REVIEW SCRITTE, con l'evidenza su cui si fondano ───────────────────────
+%
+% Le quattro che seguono nascono da turni REALI, osservati sul banco di gara
+% (tests/challenge, run gen502-m0b/gen502-m1) e riprodotti a mano sui tre prompt
+% dei match. Non c'e' nessuna review generata a tavolino: le altre 74 facolta'
+% restano senza riga finche' qualcuno non le guarda, e competono come prima.
+
+% ── compose ── RETROCESSO ──────────────────────────────────────────────────
+% Ha rivendicato una specifica tecnica di 864 byte, l'ha spezzata in segmenti
+% indipendenti e li ha dati a chi li prendeva: una storia sul `Makefile`
+% personificato piu' l'imperativo finale del compito asserito come fatto. La
+% pretesa non e' fondata sulla lettura del turno ma sulla sua SEGMENTABILITA' —
+% e ogni prosa lunga e' segmentabile. Una facolta' che compone risposte altrui
+% non ha titolo a parlare finche' qualcun altro puo' rispondere per intero.
+module_maturity(compose, transitional).
+module_claim_right(compose, fallback).
+module_evidence(compose, lines, 130).
+module_evidence(compose, kb_lookups, 7).
+module_evidence(compose, frame_uses, 0).
+module_evidence(compose, compiled_words, 0).
+module_review_note(compose, "pretende sulla segmentabilita' del turno, non sulla sua lettura").
+
+% ── role ── RETROCESSO ─────────────────────────────────────────────────────
+% Sul prompt di match2 ha risposto «Alright - I am Working now»: ha letto «You
+% are working in the existing codebase...» come l'ordine di impersonare
+% qualcuno di nome Working. La pretesa e' fondata su una forma di superficie —
+% un pronome piu' un participio — senza nessuna verifica che il turno sia una
+% richiesta di ruolo. Impersonare e' una facolta' legittima; prenderne il turno
+% perche' la frase comincia con «you are» non lo e'.
+module_maturity(role, transitional).
+module_claim_right(role, fallback).
+module_evidence(role, lines, 243).
+module_evidence(role, kb_lookups, 33).
+module_evidence(role, frame_uses, 0).
+module_review_note(role, "«you are X» non e' l'ordine di essere X").
+
+% ── gen ── AMMESSO, ed e' l'altro rimedio ──────────────────────────────────
+% Ha rubato due turni su tre, quindi la tentazione era retrocederlo. Ma `gen` e'
+% l'unico dei quattro che LEGGE IL FRAME (due usi), ha 145 letture dalla KB, e
+% la sua condotta di cessione e' gia' conoscenza — `faculty_yield(gen, ...)`
+% esiste con dieci classi dichiarate. E' il caso del modulo MATURO che si
+% comporta male: il rimedio e' insegnargli, non toglierli il titolo. La prova
+% che la classificazione e' giusta e non comoda: la cessione scritta per lui il
+% 2026-09-04 ha FUNZIONATO al primo colpo su match0, mentre per `compose` ha
+% solo spostato il furto.
+module_maturity(gen, kb_first).
+module_claim_right(gen, primary).
+module_evidence(gen, lines, 1702).
+module_evidence(gen, kb_lookups, 145).
+module_evidence(gen, frame_uses, 2).
+module_evidence(gen, compiled_words, 0).
+module_review_note(gen, "maturo e ancora troppo avido: si corregge insegnando, non retrocedendo").
+
+% ── codeast ── AMMESSO ─────────────────────────────────────────────────────
+% L'unico che, ricevuto il turno, ha risposto onestamente: «I read that as code,
+% but I am not sure which function you mean» — nomina cio' che ha riconosciuto e
+% il proprio buco, invece di produrre. E' la condotta che il mantra #17 chiede a
+% una facolta' che non puo' onorare la richiesta.
+module_maturity(codeast, kb_first).
+module_claim_right(codeast, primary).
+module_evidence(codeast, lines, 809).
+module_evidence(codeast, kb_lookups, 38).
+module_evidence(codeast, frame_uses, 0).
+module_evidence(codeast, compiled_words, 0).
+module_review_note(codeast, "nomina cio' che riconosce e il proprio buco invece di produrre").

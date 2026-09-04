@@ -720,6 +720,13 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/intents.p0");
 
+    /* gen502 (mantra #21): il TITOLO a rivendicare un turno. La review di ogni
+     * modulo sta in testa al modulo, in un commento, e qui c'e' la sua
+     * proiezione in KB — come `src/brain/00-lex.c.cues.p0` proietta le cue.
+     * Il dispatch la legge per decidere chi compete nella prima passata e chi
+     * resta ultima risorsa. Permissivo per default: senza riga si compete. */
+    kb_load(b->kb, "kb/core/module-review.p0");
+
     /* Universal input perception (docs/plans/universal-input.md): register
      * evidence, delimiter/indent closure, open segment roles, provenance and
      * faculty routing are knowledge.  The fixed C engine measures bytes and
@@ -5059,8 +5066,49 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                           &governed_force, &ngov_force))
             ngov_force = 0;
     }
+
+    /* ⛔ gen502 — MANTRA #21: RIVENDICARE UN TURNO E' UN TITOLO.
+     *
+     * F.: «i moduli obsoleti che rubano turni non sono legittimati a farlo. Un
+     * modulo puo' continuare a prendere turni se e' addestrabile, se e'
+     * KB-first, se e' basato sulla comprensione universale. Non esistono moduli
+     * che rubano turni per stato del codice. Soltanto i moduli ben fatti
+     * possono prendere turni.»
+     *
+     * Il dispatch diventa a DUE PASSATE. Nella prima competono solo le facolta'
+     * che hanno titolo; nella seconda, solo se nessuna ha risposto, quelle
+     * retrocesse. Il titolo e' la REVIEW dell'implementazione, dichiarata in
+     * testa al modulo e proiettata in KB come `module_claim_right/2` — vedi
+     * kb/core/module-review.p0 e docs/plans/turn-arbitration.md §1-bis.
+     *
+     * ⚠ PERMISSIVO PER DEFAULT, come ogni condotta di questo progetto: una
+     * facolta' senza riga di review compete nella prima passata, esattamente
+     * come prima. Retrocedere e' un atto DICHIARATO, non un default implicito —
+     * un cancello su tutto avrebbe spento in silenzio condotte che nessuno ha
+     * esaminato, ed e' il criterio di evoluzione sbagliato.
+     *
+     * E la ragione per cui questo NON e' un altro `faculty_yield`: la cessione
+     * insegna a una facolta' di tacere su UNA CLASSE, e va scritta dopo ogni
+     * furto. La retrocessione toglie il TITOLO, una volta sola, e vale su tutte
+     * le classi — comprese quelle che nessuno ha ancora incontrato. Sono i due
+     * rimedi delle due classi di fallimento: si insegna a chi e' maturo, si
+     * retrocede chi non lo e'. */
+    char (*demoted)[KB_TERM_LEN] = NULL;
+    size_t ndemoted = 0;
+    if (b && b->kb) {
+        const char *dq[2] = { NULL, "fallback" };
+        if (!kb_match_all(b->kb, "module_claim_right", dq, 2, &demoted, &ndemoted))
+            ndemoted = 0;
+    }
+
+    for (int pass = 0; !handled && pass < 2; pass++)
     for (size_t i = 0; !handled && i < registry_len; i++) {
         if (i == eager_idx) continue;       /* already offered exactly once */
+        int is_demoted = 0;
+        for (size_t g = 0; g < ndemoted && !is_demoted; g++)
+            if (strcmp(demoted[g], registry[i].name) == 0) is_demoted = 1;
+        /* passata 0: chi ha titolo. passata 1: solo i retrocessi. */
+        if ((pass == 0) == (is_demoted != 0)) continue;
         int is_governed = 0;
         for (size_t g = 0; g < ngov && !is_governed; g++)
             if (strcmp(governed[g], registry[i].name) == 0) is_governed = 1;
@@ -5107,6 +5155,13 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             }
             handled = 1;
             winner = registry[i].name;
+            /* Una risposta arrivata in seconda passata e' un'ULTIMA RISORSA, e
+             * il fatto che nessuno con titolo abbia risposto e' informazione
+             * diagnostica: dice dove manca una facolta' matura, non solo chi ha
+             * parlato. */
+            if (is_demoted && ndecl < BRAIN_TRACE_MAX)
+                snprintf(declined[ndecl++], sizeof declined[0], "%s?fallback",
+                         registry[i].name);
             if (strcmp(registry[i].name, "discourse") == 0) handled_by_discourse = 1;
             if (b) {
                 snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
@@ -5120,6 +5175,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     free(governed);
     free(governed_both);
     free(governed_force);
+    free(demoted);
 
     /* Commit the trace for "why did you answer that way?" and the verbatim input
      * for "what would you have said without X?" — but NOT when this turn was
