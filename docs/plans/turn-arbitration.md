@@ -52,6 +52,62 @@ qualcuno non misura proprio quel caso.
 
 ---
 
+## 1-bis. ⛔ IL GRADINO CHE VIENE PRIMA DI TUTTA LA SCALA — la legittimità
+
+> F., 2026-09-04, letta la scala qui sotto: *«i moduli obsoleti che rubano turni
+> non sono legittimati a farlo. Un modulo può continuare a prendere turni se è
+> addestrabile, se è KB-first, se è basato sulla comprensione universale. Non
+> esistono moduli che rubano turni per stato del codice. Soltanto i moduli ben
+> fatti possono prendere turni.»*
+
+**Questa osservazione riscrive la sezione §3 e va letta prima della scala.** Le
+strategie S0-S6 rispondono tutte alla domanda *«chi vince fra i pretendenti?»*.
+Danno per scontato che i pretendenti abbiano titolo a pretendere. **Non ce
+l'hanno.**
+
+Una facoltà che rivendica un turno perché è arrivata prima nell'array — perché
+esiste da più tempo, perché nessuno l'ha ancora governata — non sta esercitando
+una **capacità**: sta esercitando una **posizione**. E una posizione non è un
+argomento. È lo stato del codice travestito da condotta: esattamente la cosa che
+il mantra #17 vieta, un piano più su.
+
+### I tre requisiti, e come si provano
+
+| | requisito | il test, che non è una dichiarazione |
+|---|---|---|
+| **L1** | **addestrabile** | si ritira a runtime una delle sue forme di riconoscimento: la pretesa deve sparire. Se non cambia niente, il riconoscimento è nel C |
+| **L2** | **KB-first** | nessun vocabolario di dominio compilato dentro — è il conteggio che `C_TODO.md` già tiene |
+| **L3** | **comprensione universale** | pretende sulla base del **frame del turno** (span tipati, ruoli, Task IR), non di una sottostringa del grezzo |
+
+### ⭐ E i tre non sono tre meccanismi: sono uno
+
+L3 chiede a una facoltà di fondare la pretesa sul frame. Una facoltà che lo fa
+**sa dire di quali span rende conto**. E quella dichiarazione è insieme la sua
+offerta (S4) e la sua prova di titolo. Da cui la forma operativa, che non ha
+bisogno di nessuna lista di moduli benedetti né di nessun audit manuale:
+
+> **L'offerta di copertura È la prova di legittimità.**
+> **Chi non sa dire di che cosa rende conto, non può pretendere.**
+
+Un modulo storico non va cancellato — va **retrocesso a ultima risorsa**:
+risponde solo se nessuno ha offerto. Il default resta permissivo come ogni
+condotta di questo progetto, ma **l'onere si inverte**, ed è tutta la differenza:
+
+| | prima | dopo |
+|---|---|---|
+| che cosa va dimostrato | il **silenzio** di una facoltà | il suo **diritto di parlare** |
+| quante volte | una per ogni coppia (facoltà, classe) | una sola, da chi lo esercita |
+| quando | **dopo** un furto già avvenuto | **prima** di poter rispondere |
+
+⭐ **La verifica sui tre furti misurati al §1: nessuna delle tre facoltà supera
+L3.** `compose` ha spezzato una specifica tecnica in segmenti indipendenti;
+`gen` ha preso un token del testo per farne un personaggio; `role` ha letto
+«You are working…» come l'ordine di impersonare. Tutte e tre hanno pretesa su
+una **sottostringa**, nessuna sul frame — quindi nessuna avrebbe offerto niente,
+e **nessuna delle tre cessioni scritte a mano sarebbe servita.**
+
+---
+
 ## 2. La scala delle discipline, dalla più debole alla più forte
 
 Le prime tre vengono dai **sistemi a produzioni** (OPS5, Soar); la quarta e la
@@ -157,8 +213,14 @@ anche la mossa `clarify` di K3.
 ⛔ **Non aggiungere la quarta riga di `faculty_yield`.** Ne servirebbero una per
 ogni coppia (facoltà, classe) e ognuna arriva *dopo* un furto già avvenuto.
 
-⭐ **Saltare da S1 a S4 (copertura), tenendo S1 come rete di sicurezza.** Le
+⭐ **Saltare da S1 a S4 (copertura), con la legittimità del §1-bis come
+condizione d'ingresso** e S1 come rete di sicurezza sui casi residui. Le
 ragioni, in ordine di forza:
+
+0. **Il primo argomento non è di efficienza, è di titolo** (§1-bis): una
+   facoltà che non sa dire di che cosa rende conto non deve poter pretendere, e
+   la stessa dichiarazione che la legittima è quella che la fa competere. Il
+   meccanismo è uno solo.
 
 1. **È una regola, non una tabella.** N fatti invece di N×M, e la crescita è
    monotona: una facoltà nuova non obbliga a modificare le altre.
@@ -182,6 +244,12 @@ copertura è un'asta senza valuta.
 > facoltà di codice. Poi si toglie l'arbitrato per copertura e devono tornare
 > tutti e tre a rubare. Se serve anche una sola cessione scritta a mano per uno
 > dei tre, S4 non ha sostituito S1 — ci si è appoggiato, ed è un altro sintomo.
+>
+> ⭐ **E il gate di legittimità, che è il più severo:** le due righe di
+> `faculty_yield_both` scritte oggi per `compose` e `gen` **vanno ritirate**.
+> Se il comportamento non cambia, la copertura ha reso superflua l'inibizione ed
+> è la prova che il titolo funziona. Se cambia, quelle righe stavano ancora
+> reggendo il risultato e S4 non è finita.
 
 ⚠ **Anti-impostore:** la copertura non si misura sulle cue che abbiamo scritto
 oggi. Se un modulo «copre» un turno perché contiene le parole che gli abbiamo
@@ -198,6 +266,7 @@ insegnato ieri, abbiamo rifatto S1 con un altro nome.
 | S2 | refrazione | 🟡 esiste come `continue` in un `for`, senza nome |
 | S3 | specificità | ⛔ assente |
 | S4 | **copertura** | ⛔ assente — ma D14 la nomina e il materiale c'è |
+| **L** | **legittimità della pretesa** (§1-bis) | ⛔ assente — **è il gradino zero, e va prima di S4**; mantra #21 |
 | S5 | offerta con evidenza | ⛔ assente (Hearsay-II) |
 | S6 | ambiguità come esito | 🟡 solo su `eager_ambiguous` |
 

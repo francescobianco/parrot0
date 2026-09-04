@@ -409,6 +409,56 @@ quello delle sonde: `tests/*_probe.py` scopre la MOSSA di un modello di
 frontiera, la KB la riproduce come regola, il `.p0t` la tiene ferma. Chiudere un
 prompt senza chiudere la sua classe non conta come progresso.
 
+21. **⛔ RIVENDICARE UN TURNO È UN TITOLO, NON UN DIRITTO ACQUISITO — e lo si
+    dimostra dicendo di che cosa si rende conto.**
+
+    F., 2026-09-04: *«i moduli obsoleti che rubano turni non sono legittimati a
+    farlo. Un modulo può continuare a prendere turni se è addestrabile, se è
+    KB-first, se è basato sulla comprensione universale. Non esistono moduli che
+    rubano turni per stato del codice. Soltanto i moduli ben fatti possono
+    prendere turni.»*
+
+    Il #17 dice che la condotta di dispatch dev'essere **correggibile parlando**.
+    Questo è un piano più su, e diverso: dice **chi ha titolo a parlare**. Una
+    facoltà che pretende un turno perché è arrivata prima nell'array — perché
+    esiste da più tempo, perché nessuno l'ha ancora governata — non sta
+    esercitando una capacità: sta esercitando una **posizione**. La posizione non
+    è un argomento.
+
+    **I tre requisiti, e come si verificano** (non si dichiarano: si provano):
+
+    | | requisito | il test |
+    |---|---|---|
+    | **L1** | **addestrabile** | si ritira a runtime una delle sue forme di riconoscimento e la pretesa deve sparire. Se non cambia niente, il suo riconoscimento è nel C |
+    | **L2** | **KB-first** | nessun vocabolario di dominio compilato dentro. È il conteggio che `C_TODO.md` già tiene |
+    | **L3** | **comprensione universale** | pretende sulla base del **frame del turno** — span tipati, ruoli, Task IR — non di una sottostringa del testo grezzo |
+
+    ⭐ **E i tre non sono tre meccanismi: sono uno.** L3 chiede a una facoltà di
+    fondare la pretesa sul frame; una facoltà che lo fa **sa dire di quali span
+    rende conto**; e quella dichiarazione è insieme la sua offerta e la sua prova
+    di titolo. Da qui la forma operativa, che non ha bisogno di nessuna lista di
+    moduli benedetti:
+
+    > **L'offerta di copertura È la prova di legittimità. Chi non sa dire di che
+    > cosa rende conto, non può pretendere.**
+
+    Un modulo storico non va cancellato: va **retrocesso a ultima risorsa** —
+    risponde solo se nessuno ha offerto. Il default resta permissivo, ma l'onere
+    si inverte: prima il silenzio andava dimostrato caso per caso (una riga di
+    `faculty_yield` per ogni furto già avvenuto), ora è il **diritto di parlare**
+    a dover essere dimostrato, una volta sola, da chi lo esercita.
+
+    **Il difetto che ha generato questo mantra**, misurato il 2026-09-04 sul
+    banco di gara: un prompt di 864 byte che chiedeva di scrivere un file C è
+    stato rivendicato da `compose`, che l'ha spezzato in segmenti e li ha dati
+    a chi li prendeva — una storia sul `Makefile` personificato, e l'imperativo
+    finale del compito asserito come fatto. Governata `compose` è passato a
+    `gen`; governato `gen` è arrivato a `codeast`. Tre giri per un prompt, e su
+    altri due prompt la catena riparte da capo. **Nessuna delle tre facoltà
+    avrebbe superato L3**, e nessuna delle tre cessioni sarebbe servita.
+
+    Ordine delle discipline e piano: `docs/plans/turn-arbitration.md`.
+
 ## Dove sta il resto
 
 - `PRINCIPLES.md` — il *perché* dell'esperimento (la regola anti-inganno).

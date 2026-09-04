@@ -169,9 +169,28 @@ quando c'è B», ma «vince chi rende conto di più turno». È già una nostra 
 oggetto»* — mai messa alla prova, e il materiale per calcolarla
 (`input_segment`, `segment_role`, `faculty_for`) esiste già.
 
+⛔ **E c'è un gradino prima ancora dell'arbitrato — la LEGITTIMITÀ.** F.,
+2026-09-04: *«i moduli obsoleti che rubano turni non sono legittimati a farlo.
+Un modulo può prendere turni se è addestrabile, se è KB-first, se è basato sulla
+comprensione universale. Non esistono moduli che rubano turni per stato del
+codice.»* Diventa il **mantra #21**, ed è un piano sopra il #17: quello dice che
+il dispatch dev'essere correggibile parlando, questo dice **chi ha titolo a
+parlare**. Una facoltà che vince perché è arrivata prima nell'array esercita una
+posizione, non una capacità.
+
+La forma operativa, che non richiede nessuna lista di moduli benedetti:
+**l'offerta di copertura È la prova di legittimità — chi non sa dire di che cosa
+rende conto, non può pretendere.** L'onere si inverte: prima andava dimostrato
+il *silenzio* di una facoltà (una riga per ogni furto già avvenuto), ora il suo
+*diritto di parlare* (una volta sola, da chi lo esercita). Verificato sui tre
+furti misurati: **nessuna delle tre facoltà supera L3** — tutte pretendono su
+una sottostringa, nessuna sul frame del turno.
+
 ⚠ **Quindi P0 resta aperta**, e la sua forma finale non è la quarta riga di
-cessione: è l'arbitrato per copertura, con il gate falsificabile scritto in
-`turn-arbitration.md` §3.
+cessione: è la legittimità (§1-bis) più l'arbitrato per copertura, con i due
+gate falsificabili in `turn-arbitration.md` §3 — incluso il più severo, che
+**le due righe di `faculty_yield_both` scritte oggi vanno ritirate** e il
+comportamento non deve cambiare.
 
 ## 0.4 La scala — start small, grow fast
 
