@@ -590,7 +590,31 @@ python3 tests/challenge/run_challenge.py check        # config + preflight, non 
 tmux -L challenge-<pid>-<ts> attach                   # guardare una gara mentre corre
 ```
 
-⚠ **Nessuna corsa di riferimento valida, oggi.** `gen501-pilot-b` va considerata
+### ✅ Le prime corse valide — `gen502-m0b` e `gen502-m1`
+
+| match | diff. | parrot0 | freebuff / deepseek-v4-flash | note |
+|---|---:|---:|---:|---|
+| match0 | 1 | 5 | **100** | freebuff in 52 s, un turno |
+| match1 | 4 | 5 | **100** | 604 s, budget esaurito — stava ancora migliorando |
+
+parrot0 fa **5 in entrambi**, cioè `seed_integrity`: i punti che si prendono non
+toccando nulla, in 6,6 secondi, con la cartella identica al seed. **La
+difficoltà del match non cambia niente** perché il turno non arriva mai al task:
+diagnosi e curriculum in `THINKING_TODO.md` Parte 0.
+
+Due correzioni al pilota nate da queste due corse:
+
+1. **La `logic_action` del selettore modello torna** (era stata tolta col
+   ragionamento «il modello è già nel settings.json»: non sequitur — il file
+   dice *quale*, non che lo schermo non chieda conferma).
+2. **Un timeout non è un'invalidità, è un `budget_exhausted`.** La regola
+   vecchia buttava via `gen502-m1`, dove freebuff aveva lavorato 600 secondi
+   pieni (`working...` in 1807 frame su 1817) e l'albero archiviato faceva
+   100/100. Nasceva quando un timeout voleva dire «il pilota non sa leggere lo
+   schermo», ed era giusta allora; ora lo schermo si legge. Il nome viene da
+   `universal-code-comprehension.md` §4, che già lo aveva.
+
+⚠ **`gen501-pilot-b` resta non attendibile.** `gen501-pilot-b` va considerata
 **non attendibile**: leggeva lo schermo di freebuff come se fosse un flusso
 (§1.1) e faceva correre un binario di parrot0 di gen459 (§1.2). Il prossimo run
 vero — dopo la decisione C0 sul modello — sarà il primo punto da cui misurare

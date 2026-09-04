@@ -394,7 +394,10 @@ def pty_session(
         "task_submitted": task_submitted,
         "turns_used": turns_used,
         "max_turns": max_turns,
-        "valid": task_submitted and reason in ("completion_marker", "process_exit"),
+        "valid": task_submitted and reason in (
+            "completion_marker", "process_exit", "timeout"
+        ),
+        "budget_exhausted": reason == "timeout",
         "stream_watch_seconds": stream_watch,
         "stream_events": len(stream_trace),
         "stream_trace": stream_trace,
@@ -729,7 +732,22 @@ def tmux_session(
         "task_submitted": task_submitted,
         "turns_used": turns_used,
         "max_turns": max_turns,
-        "valid": task_submitted and reason in ("completion_marker", "process_exit"),
+        # gen502 — un TIMEOUT non e' un'invalidita', e' un BUDGET ESAURITO.
+        #
+        # La regola vecchia buttava via la corsa. Nasceva quando un timeout
+        # significava «il pilota non sa leggere lo schermo», ed era giusta
+        # allora. Ora lo schermo si legge: in `gen502-m1` freebuff ha lavorato
+        # per 600 secondi pieni (`working...` in 1807 frame su 1817) e l'albero
+        # archiviato faceva 100/100 su dodici check. Chiamare «annullata» una
+        # misura del genere non e' prudenza, e' perdere il dato.
+        #
+        # La distinzione onesta e' quella che `universal-code-comprehension.md`
+        # §4 gia' nomina: `budget_exhausted` — «il cammino esiste ma non e'
+        # stato completato». Il punteggio vale, e il budget si dichiara.
+        "valid": task_submitted and reason in (
+            "completion_marker", "process_exit", "timeout"
+        ),
+        "budget_exhausted": reason == "timeout",
         "stream_watch_seconds": stream_watch,
         "stream_events": len(screen_trace),
         "stream_trace": screen_trace,
@@ -1016,6 +1034,10 @@ def write_analysis(path: Path, record: dict[str, Any], agents: list[str]) -> Non
         + ", ".join(f"{agent} {scores[agent]}/100" for agent in agents)
         + ".",
         "",
+        *([f"⚠ Budget esaurito (timeout, non fallimento): "
+           f"{', '.join(a for a in agents if reports[a]['session'].get('budget_exhausted'))}."]
+          if any(reports[a]["session"].get("budget_exhausted") for a in agents) else []),
+        "",
         "Questa diagnosi confronta soltanto esiti osservabili. Il transcript conserva il",
         "ragionamento reso visibile dalla CLI, non pensieri interni non esposti.",
         "",
@@ -1067,6 +1089,10 @@ def render_scoreboard(league: dict[str, Any], output_root: Path) -> None:
         winner = "pareggio" if len(set(scores.values())) == 1 else max(scores, key=scores.get)
         if winner != "pareggio":
             wins[winner] += 1
+        capped = [a for a in agents
+                  if record["agents"][a]["session"].get("budget_exhausted")]
+        if capped:
+            winner += f" (budget esaurito: {', '.join(capped)})"
         parrot_report = record["agents"].get("parrot0", {}).get("judge", {})
         gaps = [c["name"] for c in parrot_report.get("checks", []) if not c.get("passed")]
         rows.append(

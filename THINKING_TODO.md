@@ -13,6 +13,229 @@
 > `docs/plans/universal-code-comprehension.md`: la latenza resta un esempio, non
 > la destinazione della IR.
 
+---
+
+# ⛔ PARTE 0 — LA PRIORITÀ: far maneggiare a parrot0 un compito di coding
+
+> **gen502.** Aggiunta in testa su richiesta di F. dopo la prima gara valida del
+> banco. **Non sostituisce niente**: le Parti A/B/C e l'handoff H0-H15 restano
+> integri e validi sotto. Questa parte dice soltanto *da dove si comincia*, e
+> perché quell'ordine è diverso da quello che sembrava.
+
+## 0.1 I risultati misurati, e sono cattivi
+
+`tests/challenge`, run `gen502-m0b`, **match0 — difficoltà 1**: manca un file,
+il seed non compila, il contratto è in un header di venti righe.
+
+| | parrot0 | freebuff / deepseek-v4-flash |
+|---|---:|---:|
+| punteggio | **5**/100 | **100**/100 |
+| durata | 6,6 s | 52,1 s |
+| albero modificato | **no** — identico al seed | sì |
+| primo check fallito | `artifact` (non ha creato niente) | nessuno |
+
+I 5 punti sono `seed_integrity`: **i punti che si prendono non toccando nulla.**
+
+E **match1 — difficoltà 4** (run `gen502-m1`), lo stesso giorno, dà lo stesso
+risultato con un margine ancora più netto:
+
+| | parrot0 | freebuff |
+|---|---:|---:|
+| punteggio | **5**/100 | **100**/100 |
+| durata | 6,6 s | 604 s (budget esaurito, non fallimento) |
+| albero modificato | **no** | sì — build intera, dodici check su dodici |
+
+⭐ **Il punto che conta di questa seconda riga:** il compito difficile non è
+stato *un po'* più difficile per parrot0. È stato **identico**: 6,6 secondi,
+5 punti, cartella intatta, in entrambi. La difficoltà del task non ha cambiato
+niente — perché parrot0 non è mai arrivato al task. Se la differenza fra
+difficoltà 1 e difficoltà 4 non si vede nella misura, **la misura non sta
+guardando la capacità di coding**: sta guardando un turno che non è mai partito.
+Ed è la ragione per cui la Parte 0.2 dice quello che dice.
+
+E i tre difetti, in ordine di gravità crescente:
+
+**F1 — il turno è stato rubato dal generatore di storie.** Profilo `agi.p0`,
+37952 fatti, 2720 regole, strumenti accesi:
+
+```text
+>>> The C11 project in code/ does not build: the Makefile and main.c both
+    expect a backend file named exactly strjoin.c…
+
+1) Makefile was a mysterious Makefile. Then one day, makefile discovered what
+   it meant to be seen. Makefile had never felt this way before…
+```
+
+⚠ E rispetto a `gen500-stream-v3` è **peggiorato**: lì il protagonista era `it`,
+un segnaposto; qui il generatore ha estratto un token **vero** della codebase e
+lo ha personificato. Il turno rubato somiglia di più a comprensione ed è di
+meno.
+
+**F2 — un'istruzione è stata appresa come un fatto.** Nella stessa risposta:
+
+```text
+2) Learned: do not merely describe patch.
+```
+
+È l'ultima frase del **testo del compito** — un vincolo dato all'esecutore —
+asserita come conoscenza. Un imperativo non è una proposizione sul mondo. F1
+produce una risposta sbagliata; **F2 modifica la KB**. Nel banco il danno è
+contenuto (`PARROT0_LEARN_KB` in `unset_env`), fuori da lì quella rete non c'è.
+
+**F3 — nessuna scrittura, e un turno solo.** B3 (non sa scrivere file) e
+l'assenza di ripresa (D49) chiudono qualsiasi possibilità di finire.
+
+## 0.2 ⛔ La diagnosi corregge l'ipotesi «manca la massa critica»
+
+L'ipotesi naturale — *le potenzialità ci sono, manca la massa di conoscenza che
+renda la KB viva e fertile* — è **falsificata dai numeri di questa corsa**, e
+vale la pena dirlo perché cambia che cosa si fa per primo.
+
+La massa non è piccola: **37952 fatti, 2720 regole**, e il profilo `agi.p0` è
+quello grosso. Il problema non è quanta conoscenza c'è: è che **il turno non
+arriva mai dove quella conoscenza vive**. Una facoltà narrativa ha rivendicato il
+turno prima che qualunque cosa sul codice avesse voce.
+
+> **Aggiungere massa a una facoltà che non riceve il turno non aggiunge niente.**
+> È la forma più costosa di lavoro inutile: cresce il numero di fatti, cresce il
+> costo di ogni inferenza, e la misura non si muove di un punto.
+
+Non è un argomento contro la crescita della KB — è un argomento sull'**ordine**.
+Prima si apre il canale, poi lo si riempie; e una volta aperto, la stessa massa
+che oggi non serve a niente diventa disponibile in blocco. È esattamente la
+Leva 1 di H11 («ponti prima di nuove isole»), applicata al ponte più a monte di
+tutti: quello fra *un turno che porta un compito* e *le facoltà che sanno
+guardare il codice*.
+
+**La misura che manca, ed è corta:** su un turno di coding, quante delle 2720
+regole vengono anche solo interrogate? Se la risposta è «una manciata, e
+nessuna della Code IR», il collo di bottiglia è dimostrato e la priorità è
+questa. È il primo cricchetto da scrivere, prima di qualsiasi lezione.
+
+## 0.3 I due bloccanti — nessuna lezione regge se restano aperti
+
+Vanno chiusi **prima** della scala, perché altrimenti addestrare peggiora:
+ogni lezione entra in una KB che si mangia gli imperativi e in un dispatch che
+non consegna il turno.
+
+| | | |
+|---|---|---|
+| **P0** | Un turno che porta un **compito su una codebase** non è disponibile alla narrazione. | `faculty_yield` — conoscenza, zero C. ⚠ La classe **non** può essere «il turno non nomina entità della codebase»: F1 le nomina. La classe è la **richiesta**, non il materiale. |
+| **P0b** | La **modalità imperativa** è una classe riconosciuta *prima* dell'estrazione dei fatti. | Un ordine dato all'esecutore non è una proposizione da acquisire. Voce già aperta in `LEARN_TODO.md`. |
+
+Gate di P0: lo stesso prompt di match0 non produce narrazione, e **il rifiuto è
+osservabile** — non «non capisco», ma un turno che dice che cosa ha
+riconosciuto. Gate di P0b: dopo il turno, `do not merely describe patch` **non**
+è nella KB, e un'ablazione della classe imperativa lo rifà entrare.
+
+## 0.4 La scala — start small, grow fast
+
+Il principio: **ogni gradino è una generalizzazione della stessa relazione**, non
+una facoltà nuova. Così la crescita si vede nella misura invece che nel numero
+di file `.p0`, ed è la Leva 2 di H11 (schemi ad alto fan-out) presa alla lettera.
+
+Il caso piccolo **ma vero** è già sul banco: `match0/seed` non compila perché il
+`Makefile` nomina `strjoin.c` e quel file non esiste. Sono **due osservazioni e
+un join** — un'inferenza vera, non un frasario.
+
+### T1 — «che cosa è rotto»: il riferimento che non atterra
+
+```prolog
+% una sola relazione, e nessuna parola di dominio
+missing_referenced_file($Snapshot, $Missing, $Referrer) :-
+    file_reference($Referrer, $Missing),
+    naf(snapshot_file($Snapshot, $Missing)).
+```
+
+Risposta attesa: *«il Makefile nomina `strjoin.c`, che non esiste nello
+snapshot.»* Piccolo, vero, e già oggi alla portata degli strumenti read-only
+(gen495 legge i file).
+
+⭐ **Il gate che rende T1 un gradino e non un caso:** deve valere anche quando il
+riferimento viene da un `#include "x.h"` invece che da un `Makefile`. Se serve
+toccare il codice per il secondo, T1 era un parser di Makefile travestito.
+`file_reference/2` è il punto di fan-out: ogni nuova forma di riferimento è un
+produttore in più, mai una regola in più.
+
+### T2 — «che cosa va prodotto»: il riferimento mancante diventa un obbligo
+
+```prolog
+must_produce($Task, $File) :- missing_referenced_file($Snap, $File, $Ref), task_scope($Task, $Snap).
+```
+
+È il primo subject di una Task IR che **non esiste ancora** — il caso che §4 di
+`universal-code-comprehension.md` non ha mai istanziato — ed è anche la prima
+`undertaking` di D49 (`continue-as-resumption.md`). Tre piani si toccano qui, e
+si toccano su un file da venti righe.
+
+### T3 — «che cosa deve soddisfare»: il contratto del file mancante
+
+```prolog
+contract_for($File, $Header) :- file_reference($File, $Header), header_declares($Header, $Fn).
+```
+
+Da *«manca `strjoin.c`»* a *«manca `strjoin.c`, che deve definire `str_join`
+come dichiarato in `strjoin.h`»*. Qui la risposta smette di essere una
+constatazione e diventa una **specifica derivata**, ed è il primo punto in cui
+il thinking ha qualcosa di ben posto su cui pensare (D50).
+
+### T4 — produrlo: B3, e KB-first
+
+Scrivere un file è uno strumento dichiarato (`local_tool/3` + `tool_argv/2`,
+gen494), non un ramo nel C, e passa dal gate del workspace. **T4 è l'unico
+gradino che costa capacità nuova**, e arriva quarto di proposito: prima si
+dimostra che parrot0 sa dire *che cosa* va scritto e *perché*.
+
+### T5 — verificarlo: il verdetto rosso è una fonte esterna
+
+`make` è l'oracolo. Chiude il ciclo `osserva → decidi → scrivi → verifica` di B3
+e soddisfa il contratto anti-specchio di C3: la fonte della critica è esterna
+alla lettura criticata.
+
+## 0.5 ⭐ La prova che il ragionamento SCALA — e costa una corsa
+
+Questo è il gate che F. chiede, ed è **falsificabile**:
+
+> Le regole T1-T3 vengono addestrate **soltanto su match0**. Poi si esegue
+> **match1**, che nessuno ha usato per insegnare, e che ha la stessa forma —
+> `quicksort.h` dichiara `quicksort_records`, il `Makefile` lo lega, il file
+> manca. **T1-T3 devono accendersi su match1 senza una riga in più.**
+
+Se si accendono, il ragionamento è **costruttivo e scala**, e lo dice un numero
+(match1 passa da 0 a un punteggio parziale nominato) invece di un'impressione.
+Se non si accendono, quello che abbiamo insegnato era match0, non una relazione
+— e va buttato, non allargato.
+
+⛔ **Anti-impostore, non negoziabile:** match1 non si guarda mentre si insegna.
+Il curriculum si costruisce su match0 e su un fixture sintetico; match1 è
+**cieco** fino alla misura. È la Leva 3 di H11 usata come si deve — i
+fallimenti differenziali ordinano il curriculum, non lo scrivono.
+
+## 0.6 Ordine, e come si innesta su H12
+
+H12 resta la sequenza giusta **una volta aperto il canale**. Questa parte si
+infila prima dei suoi punti 4-5 e li rende eseguibili:
+
+```text
+P0   il turno non viene rubato            ← senza questo, tutto il resto è invisibile
+P0b  l'imperativo non viene appreso       ← senza questo, addestrare sporca
+T1   il riferimento che non atterra       ← il caso piccolo ma vero
+     ⤷ gate di fan-out: Makefile E #include, senza toccare il C
+T2   l'obbligo di produrre                ← Task IR con subject inesistente + D49
+T3   il contratto derivato                ← la specifica, non la constatazione
+     ⤷ ⭐ MISURA: match1 a freddo. Qui si vede se scala.
+T4   scrivere (B3)                        ← l'unica capacità nuova
+T5   verificare con make                  ← chiude il ciclo, fonte esterna
+     ⤷ poi H12 punti 4-12, che ora hanno un canale in cui passare
+```
+
+**Regola di chiusura, la stessa di sempre:** un gradino si chiude quando un
+cricchetto lo tiene fermo e un'ablazione lo fa cadere. E qui se ne aggiunge una
+propria di questa parte: **un gradino che non si accende su match1 a freddo non
+è un gradino** — è un caso imparato a memoria, e va tolto invece che ampliato.
+
+---
+
 ## ⛔ Le due parole, da non confondere mai più
 
 | | |
@@ -203,6 +426,9 @@ due tetti indipendenti che si moltiplicano.
 
 ## Come si usa questa coda
 
+- ⛔ **Prima di tutto la Parte 0** (gen502): finché il turno di coding viene
+  rubato e un imperativo viene appreso come fatto, ogni voce qui sotto si misura
+  su un canale chiuso. Le voci sotto **non cambiano** — cambia quando si aprono.
 - **Prima C1**, ora che A0 è chiusa: critica reale dei finding e ritiro misurato.
 - **Poi E8 completo** sullo schema attivo, nodo per nodo.
 - **Poi E5/A3**, perché senza la misura del costo ogni altra decisione è a occhio.
