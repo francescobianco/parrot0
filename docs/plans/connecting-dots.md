@@ -56,8 +56,11 @@ Questo documento generalizza quel caso in un metodo.
 
 ## 2. La tesi
 
-Una KB cresce per **isole**: un esperto di algoritmi, uno di chimica, la
-morfologia, il discorso, il dominio dei piani, l'IR del codice. Ogni isola,
+Una KB cresce per **isole** — e «isola» qui non vuol dire *argomento*: vuol dire
+un insieme di clausole di qualunque **specie** (§2-bis). Un esperto di algoritmi,
+uno di chimica, la morfologia, il discorso, il dominio dei piani, l'IR del
+codice, ma anche *l'ordine con cui le facoltà parlano* e *le preferenze con cui
+si sceglie una risposta*. Ogni isola,
 presa da sola, è verificabile e cresce bene. **Il valore però non sta nelle
 isole: sta negli archi fra loro** — perché un'inferenza interessante quasi
 sempre attraversa un confine.
@@ -72,6 +75,97 @@ manca.
 produce **un numero**: a ogni iterazione si sa quanti archi sono possibili,
 quanti sono certificati, e quindi quanto della propria conoscenza parrot0 sta
 davvero *usando insieme*.
+
+---
+
+---
+
+## 2-bis. ⛔ CHE COSA È UN'«ISOLA» — la KB è molto più che fatti
+
+> F.: *«attenzione che quando parliamo di KB parliamo della sua concezione super
+> estesa, in cui come conoscenza ci sono processi, procedure, regole,
+> ordinamenti, preferenze di comportamento — non solo fatti.»*
+
+**Questa precisazione cambia il metodo, non il suo lessico.** Se le isole fossero
+argomenti (scacchi, chimica, grammatica), la partizione taglierebbe per *tema* e
+non separerebbe mai una procedura da un fatto — e il cross più prezioso di questo
+documento, quello del §1, è esattamente un cross **fra specie diverse**: un
+piano da una parte, delle capacità dall'altra, e `action_impl/2` in mezzo.
+
+### 2-bis.1 Le specie che ci sono davvero — contate
+
+Su `kb/core` + `kb/experts`, **64 685 clausole**:
+
+| specie | forma tipica | quante |
+|---|---:|---:|
+| **regole** (inferenza) | `testa :- corpo` | **2 822** |
+| **preferenze di condotta** | `response_template`, `register`, `thinking_outcome_policy`, `appropriate_move` | **1 305** |
+| **macchina dichiarata** | `machinery`, `turn_scratch`, `bookkeeper`, `debug_probe`, `learnable` | **1 090** |
+| **archi fra rappresentazioni** | `representation_bridge`, `answer_frame`, `ir_denotation` | **282** |
+| **processi e piani** | `plan_goal`, `action_yields`, `action_needs`, `action_impl` | **175** |
+| **ordinamenti e precedenze** | `faculty_yield`, `module_claim_right`, `action_cost`, `severity` | **46** |
+| **fatti** | tutto il resto | il grosso |
+
+⭐ **Si legga la colonna dal basso.** Le specie più *scarse* sono quelle che
+governano il comportamento: **46 ordinamenti** per settantotto facoltà, **175
+clausole di processo** per l'intero dominio dei piani. E il difetto misurato in
+questa sessione — `action_impl` = 0 sulle quattro azioni di `code_task` — sta
+proprio in quella colonna sottile. **La scarsità non è casuale: la conoscenza di
+condotta è la meno popolata perché è la meno somigliante a un fatto**, e quindi
+la meno naturale da scrivere.
+
+### 2-bis.2 Una regione è un insieme di CLAUSOLE, non un argomento
+
+Ne segue la definizione operativa, e va tenuta larga di proposito:
+
+> **Una regione è un insieme di clausole**, identificato da un criterio
+> dichiarato. Il criterio può essere un **tema** (chimica), una **specie**
+> (le procedure), un **livello** (la condotta di dispatch) o una **loro
+> combinazione**. Non deve essere una tassonomia del mondo: deve essere una
+> partizione completa e disgiunta di ciò che parrot0 sa.
+
+### 2-bis.3 I due assi, e i tre tipi di cross
+
+Da qui i cross non sono tutti la stessa cosa, e distinguerli è ciò che rende κ
+interpretabile:
+
+```text
+                    ┌── stessa SPECIE ──┬── specie DIVERSA ──┐
+   stesso TEMA      │   (raro, quasi    │  ⭐ CROSS DI SPECIE │
+                    │    sempre già     │   il piano e i suoi │
+                    │    dentro l'isola)│   strumenti (§1)    │
+   tema DIVERSO     │  CROSS DI TEMA    │  CROSS PIENO        │
+                    │  scacchi ✕ info   │  una procedura di   │
+                    │  pronomi ✕ animali│  un dominio applica-│
+                    │                   │  ta a un altro tema │
+                    └───────────────────┴─────────────────────┘
+```
+
+| tipo | esempio | perché conta |
+|---|---|---|
+| **cross di tema** | scacchi ✕ informatica | è quello che si immagina per primo, ed è il più visibile |
+| ⭐ **cross di specie** | `code_task` ✕ gli strumenti | **è quello che è mancato oggi**, ed è invisibile dal basso: due cose che funzionano e non si parlano |
+| **cross pieno** | «bilancia questa reazione» — una *procedura* algebrica su un *tema* chimico | è il più raro e il più potente: trasporta un modo di fare, non un contenuto |
+
+### 2-bis.4 ⭐ La predizione che ne segue — H-κ4
+
+Aggiungo alle ipotesi del §5-bis.4 quella che questa sezione genera, ed è la più
+forte perché rischia di più:
+
+> **H-κ4 — un cross di SPECIE produce più spontanei di un cross di TEMA.**
+>
+> La ragione: un tema si applica al suo tema; **una procedura si applica a molti
+> temi**. Legare `edit_candidate` a uno strumento di scrittura non apre solo
+> `code_task`: apre *ogni piano futuro che debba produrre un artefatto*. Un
+> cross di tema apre una coppia; un cross di specie apre una colonna.
+>
+> **Falsificabile:** κ misurato separatamente per i tre tipi. Se i cross di
+> tema producono altrettanti spontanei, H-κ4 cade — e con essa l'idea che
+> convenga cominciare dalla condotta invece che dai domini.
+
+Se H-κ4 regge, l'ordine di costruzione cambia: **prima le specie sottili**
+(ordinamenti, processi, condotta), che sono anche le meno popolate — cioè si
+lavora dove c'è meno, non dove è più facile.
 
 ---
 
@@ -302,6 +396,7 @@ Tre ipotesi su che cosa lo alzi, da falsificare con i dati e non da assumere:
 | **H-κ1** | un cross fra regioni **lontane** produce più spontanei di uno fra vicine | misurare κ per distanza nell'albero delle suddivisioni |
 | **H-κ2** | un cross che passa da un **arco a predicato variabile** (`representation_bridge/4`) produce più spontanei di uno cablato su due predicati fissi, perché è riusabile da chiunque | confrontare κ delle due forme |
 | **H-κ3** | un cross su una **relazione generale** (contenimento, causa, parte-tutto) produce più spontanei di uno su una relazione di dominio | classificare i curati e confrontare |
+| ⭐ **H-κ4** | un cross di **specie** (§2-bis) produce più spontanei di un cross di **tema**: un tema si applica al suo tema, una procedura si applica a molti temi | κ misurato separatamente per i tre tipi di cross |
 
 Se H-κ2 regge, ne segue una regola forte: **un cross va costruito nella forma più
 generale che lo sostiene**, perché la forma decide il ricavo, non solo il costo.
@@ -385,9 +480,20 @@ B — SOSTANZA           che cosa è vero, e come si deriva
                        domini, esperti, IR del codice, piani, procedure
 ```
 
-⚠ Non è una scelta neutra, ed è deliberata: è la stessa linea che F. ha già
-tracciato come direzione (`substance ⟂ presentation`), quindi la bipartizione
-**mette alla prova una tesi che già esiste** invece di inventarne una nuova. Se
+⚠ **È un taglio per SPECIE, non per tema** (§2-bis), ed è deliberato: è la
+stessa linea che F. ha già tracciato come direzione (`substance ⟂ presentation`),
+quindi la bipartizione **mette alla prova una tesi che già esiste** invece di
+inventarne una nuova.
+
+⛔ **E lascia scoperta una terza specie, che va collocata prima di cominciare: la
+CONDOTTA.** `faculty_yield`, `module_claim_right`, `appropriate_move`,
+`thinking_outcome_policy` non dicono né *come si dice* né *che cosa è vero*:
+dicono **chi parla, quando, e con quale precedenza**. Sono 46 clausole di
+ordinamento più 1 305 di preferenza, e sono la specie più scarsa e più decisiva.
+Delle tre opzioni — dentro A, dentro B, o un terzo supergruppo che rompe la
+bipartizione — la prima iterazione deve **sceglierne una e dichiararla nel
+registro**, perché da quella scelta dipende quali cross saranno possibili al
+passo 2. Se
 la frontiera è quella giusta, il primo cross sarà facile da trovare e difficile
 da ablare; se non lo è, si vedrà subito — ed è informazione.
 
@@ -405,6 +511,7 @@ altrimenti l'indice non è interrogabile e il metodo torna a essere una promessa
 
 ```prolog
 kb_region(Regione, Genitore).        % l'albero delle suddivisioni
+region_criterion(Regione, tema | specie | livello | misto).  % §2-bis.2
 region_holds(Regione, Predicato).    % quali predicati vivono in una regione
 region_split(Genitore, Figlio1, Figlio2, Iterazione).
 cross(RegioneA, RegioneB).           % dichiarato: questo confine ci interessa
@@ -414,6 +521,7 @@ cross_ablation(RegioneA, RegioneB, "che cosa cade togliendo A").
 
 % ── e cio' che serve a κ (§5-bis): senza questi il coefficiente non esiste ──
 cross_origin(RegioneA, RegioneB, curated | spontaneous).
+cross_kind(RegioneA, RegioneB, tema | specie | pieno).   % §2-bis.3 — serve a H-κ4
 cross_lineage(RegioneA, RegioneB, ViaRegione).   % transitivo: per dove passa
 cross_certified_at(RegioneA, RegioneB, Censimento).  % QUANDO si e' certificato
 census(Numero, Frammentazione, Certificati).     % il censimento completo
@@ -485,7 +593,9 @@ prescrive. **È un fondo scala, non una diagnosi** — serve a dire che il margi
 ## 12. Che cosa questo metodo non è
 
 - **Non è un'ontologia.** Non impone una tassonomia del sapere: la partizione è
-  strumentale e si rifà a ogni iterazione.
+  strumentale e si rifà a ogni iterazione. E non è nemmeno una tassonomia dei
+  *temi*: una regione può essere una **specie** — le procedure, gli ordinamenti,
+  la condotta — e i cross più preziosi attraversano proprio quel confine (§2-bis).
 - **Non è un grafo di similarità.** Due regioni possono essere lontanissime e
   avere un cross fortissimo — pronomi e animali.
 - **Non è completo, e lo dichiara.** A scala i cross si scelgono; il metodo
