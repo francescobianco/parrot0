@@ -438,7 +438,10 @@ static void te_turn(TeState *t, const char *text) {
     /* time ONLY the turn itself (a reload above is infrastructure, not the test). */
     struct timespec ta, tb;
     clock_gettime(CLOCK_MONOTONIC, &ta);
-    brain_respond(t->b, text, t->reply, sizeof t->reply);
+    if (brain_policy_on(t->b, "thinking"))
+        brain_think(t->b, text, t->reply, sizeof t->reply, NULL, NULL);
+    else
+        brain_respond(t->b, text, t->reply, sizeof t->reply);
     clock_gettime(CLOCK_MONOTONIC, &tb);
     size_t n = strlen(t->reply);
     while (n > 0 && (t->reply[n - 1] == '\n' || t->reply[n - 1] == '\r'))

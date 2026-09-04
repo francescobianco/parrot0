@@ -172,6 +172,14 @@ machinery(reentry_admissible).
 machinery(thinking_feedback).
 machinery(thinking_feedback_ready).
 machinery(thinking_feedback_action).
+machinery(thinking_node_effect).
+machinery(thinking_outcome_evidence).
+machinery(thinking_outcome_policy).
+machinery(thinking_default_outcome).
+machinery(thinking_stop_reached).
+machinery(thinking_prompt_issue).
+machinery(thinking_scheme_priority).
+machinery(thinking_selected_scheme).
 
 % thinking_feedback(Schema, Nodo, Fonte, Delta)
 %   Fonte  = la conoscenza esterna dichiarata da reentry_brings/3
@@ -201,6 +209,23 @@ reentry_mirror_risk($Scheme, $Node) :-
     thinking_reentry($Scheme, $Node, $Prompt),
     naf(reentry_admissible($Scheme, $Node)).
 
+% A0 — NON PEGGIORAMENTO. Il motore classifica l'esito con lo scorer
+% universale e chiede qui se quella classe puo' sostituire la risposta
+% precedente. Una domanda di chiarimento e un gap restano visibili nel trace,
+% ma non chiudono il thinking prendendo il posto di una risposta utile.
+thinking_outcome_evidence(clarification, line_suffix("?")).
+thinking_outcome_policy(wall, hold).
+thinking_outcome_policy(clarification, hold).
+thinking_outcome_policy(gap, hold).
+thinking_outcome_policy(answer, propagate).
+thinking_default_outcome(answer).
+
+% E3 — l'effetto del nodo e' interrogabile senza far analizzare al C il termine
+% step/4. L'esecutore usa questa vista per verificare thinking_stop/2.
+thinking_node_effect($Scheme, $Node, $Effect) :-
+    thinking_step($Scheme, $Node,
+                  step($Operator, $Pre, $Effect, $Meta)).
+
 % ══ QUANDO SI PENSA, E FINO A QUANDO ════════════════════════════════════════
 %
 % Il thinking non e' sempre acceso: e' uno strato in piu', e ogni strato costa.
@@ -215,6 +240,7 @@ machinery(thinking_max_steps).
 % perche' e' una scelta, non un default del motore: cambiarla e' una riga, e
 % toglierla spegne il thinking senza spegnere la politica.
 thinking_default(second_thought).
+thinking_scheme_priority(second_thought, 0).
 
 % Quanti rientri al massimo. Un rientro costa un TURNO INTERO, non un passo di
 % inferenza: senza tetto un grafo si mangia la conversazione. Due non e' un

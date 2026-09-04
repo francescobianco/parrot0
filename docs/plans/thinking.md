@@ -794,7 +794,7 @@ onesta invece di una riscrittura con un nome nuovo (mantra #18a).
     > analizza tutti i file sorgenti che trovi
         Ho letto 2 sorgenti in struttura — 5 funzioni in tutto: …
 
-Ratchet: `tests/p0t/reasoning/reasoning_graph.p0t` (11 assert), che esegue E1 ed
+Ratchet: `tests/p0t/reasoning/thinking_graph.p0t`, che esegue E1 ed
 E2 con schemi dichiarati **a runtime** — nessuno esiste nella KB curata.
 
 ⚠ **E2b ha trovato un errore mio, non del motore**, ed è la ragione per cui gli
@@ -803,16 +803,16 @@ tre e pretendeva che il rango della sintesi scendesse, mentre gli altri due la
 tenevano su. L'esperimento ha funzionato come doveva — ha detto che avevo torto
 io.
 
-### Che cosa resta di R1
+### Che cosa restava di R1 a questo checkpoint storico
 
-Il punto 3 — **l'esecutore generico, una primitiva sola: il rientro** — non è
-fatto. Oggi il
-grafo si può *dichiarare, ordinare e interrogare*, ma a eseguirlo è ancora
-l'esecutore specializzato degli strumenti. Finché quel pezzo manca, il thinking
-è una **rappresentazione**, non ancora una capacità: E3, E4, E6 e E7 non si
+Il punto 3 — **l'esecutore generico, una primitiva sola: il rientro** — non era
+ancora fatto a questo checkpoint. Il
+grafo si poteva *dichiarare, ordinare e interrogare*, ma a eseguirlo era ancora
+l'esecutore specializzato degli strumenti. Il thinking era quindi una
+**rappresentazione**, non ancora una capacità: E3, E4, E6 e E7 non si
 possono nemmeno provare.
 
-**È il primo lavoro del prossimo giro**, e la forma è già decisa: `p0_compensate`
+La forma scelta per il giro successivo era `p0_compensate`
 (gen442), che legge dalla KB quali azioni esistono e possiede solo le primitive.
 
 ---
@@ -868,12 +868,14 @@ vede) ma **non propaga** — il passo successivo e la risposta finale continuano
 ciò che l'ultimo passo utile aveva prodotto. Che cosa sia un muro è già
 conoscenza (`wall_marker/1`), quindi non c'è nessuna frase nuova nel C.
 
-⛔ **E la guardia non è ancora sufficiente**, va detto: prende i muri, non le
-*degradazioni*. Misurato: `what is photosynthesis` → il passo 1 non estrae
-niente e il passo 2 risponde *«What number should I use for «it»?»*, che non è un
-muro dichiarato e quindi diventa la risposta finale. Serve un criterio di
-**non-peggioramento** più forte di «non è un muro», ed è la prima voce di
-`THINKING_TODO.md`.
+✅ **La guardia è stata completata al gen499.** `thinking_outcome_evidence/2` e
+`thinking_outcome_policy/2` classificano l'esito; `fact_delta` propaga solo se
+il predicato dichiarato cresce. Sul caso `what is photosynthesis` né
+`Learned 0 facts` né la clarification finale sostituiscono più la risposta
+iniziale. Il test abla la policy e fa ricomparire la regressione. Stop e difetti
+dei prompt sono osservabili tramite `thinking_stop_reached/2` e
+`thinking_prompt_issue/3`; la preferenza fra schemi applicabili è KB in
+`thinking_scheme_priority/2`.
 
 ### Come si accende
 

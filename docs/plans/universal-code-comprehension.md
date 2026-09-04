@@ -17,6 +17,37 @@
 
 ---
 
+## 0-bis. Riesame gen499: fondazione valida, roadmap da rendere meno lineare
+
+Il lavoro UC1–UC3 conferma la tesi centrale del piano: snapshot revisionate,
+provenance, `ir_denotation/4`, ponti a predicato variabile, Task IR e criteri
+qualitativi hanno retto senza introdurre un handler per ogni domanda. Il piano
+quindi **va mantenuto** nella sua architettura.
+
+Va però migliorato in tre punti emersi costruendo:
+
+1. **La latenza era troppo visibile nella roadmap.** È soltanto una sorgente di
+   evidenza fra molte. La progressione non sarà “review → performance”, ma
+   “nuova relazione osservabile → nuovi obblighi di domanda → composizione con
+   conoscenza di dominio”. Profiler, test, compiler e documentazione sono
+   provider intercambiabili dello stesso contratto.
+2. **Le fasi non sono una scala chiusa.** Scope, ordine, containment, reference,
+   CFG, data-flow, tipi ed effetti formano un reticolo di rappresentazioni. Una
+   domanda può attraversarne più di una tramite ponti dichiarati e deve
+   conservare la basis di ogni attraversamento.
+3. **Il thinking è un consumer della IR, non una fase finale ornamentale.** Ogni
+   rientro deve cambiare rappresentazione, evidenza, prospettiva od obiettivo;
+   altrimenti è uno specchio. Un esito può sostituire la risposta precedente
+   solo secondo una policy KB e un delta osservato.
+
+Il nuovo criterio di avanzamento non è il numero di domande verdi, ma la
+**diversità di query ottenuta dagli stessi archi**: ogni relazione nuova deve
+sostenere almeno due famiglie di obblighi non equivalenti, oppure dimostrare di
+essere il ponte necessario verso un'altra rappresentazione. Questo riduce il
+rischio che una IR formalmente ricca diventi un altro repertorio.
+
+---
+
 ## 0. Verdetto dell'audit: gli organi esistono, ma non condividono ancora l'oggetto
 
 La direzione giusta è già scritta in più punti del repository:
@@ -1044,4 +1075,4 @@ dichiarare `reentry_brings/3` e un `thinking_feedback/4` con delta
 `fact_delta`, `query_result` oppure `gap_with_action`; quest'ultima forma è
 ammissibile solo se esiste una `thinking_feedback_action/3`. L'ablazione del
 delta o dell'azione rende il nodo non ammissibile nel ratchet
-`tests/p0t/reasoning/thinking_graph.p0t` (25/25).
+`tests/p0t/reasoning/thinking_graph.p0t` (36/36).

@@ -7,6 +7,12 @@
 > è ciò su cui quel pensiero avrà più da pensare. Tenerli in due code separate
 > avrebbe nascosto proprio i punti in cui si toccano.
 
+> **Checkpoint gen499.** A0, E3, la prima forma di E7, il contratto
+> anti-specchio e la diagnostica dei meta-prompt sono ora eseguiti. Questa coda
+> è stata riallineata al codice reale e al riesame di
+> `docs/plans/universal-code-comprehension.md`: la latenza resta un esempio, non
+> la destinazione della IR.
+
 ## ⛔ Le due parole, da non confondere mai più
 
 | | |
@@ -21,7 +27,7 @@ rientro costa un **turno intero**, non un passo di inferenza.
 
 ## Parte A — THINKING
 
-### A0. ⛔ Il criterio di NON-PEGGIORAMENTO (prima voce, e non è negoziabile)
+### A0. ✅ Il criterio di NON-PEGGIORAMENTO
 
 Oggi la guardia impedisce che un **muro** diventi la risposta finale
 (`wall_marker/1`). Non basta, ed è misurato:
@@ -37,18 +43,20 @@ Quella non è un muro dichiarato, quindi **è diventata la risposta finale**:
 pensare di più ha peggiorato il turno. È il difetto peggiore possibile per uno
 strato di deliberazione, perché è invisibile a chi guarda solo il risultato.
 
-**Serve un criterio di non-peggioramento più forte di «non è un muro»**, e deve
-essere conoscenza. Ipotesi da provare, in ordine: un passo che produce una
-*domanda* invece di un'affermazione non chiude una pipeline; un passo che non
-aggiunge nessun fatto (`reading_fact` invariati) non propaga; il risultato finale
-deve dominare il primo su un criterio dichiarato, non essere semplicemente
-l'ultimo.
+Ora `thinking_outcome_evidence/2` classifica l'esito con lo scorer universale e
+`thinking_outcome_policy/2` decide se può propagare. Una clarification resta
+visibile ma non sostituisce la risposta; un passo `fact_delta` propaga soltanto
+se il predicato dichiarato ha realmente acquisito fatti. Sul caso sopra la
+risposta iniziale sopravvive. Ablando a runtime la policy `hold`, la domanda
+errata torna a propagare: il cricchetto prova quindi la causalità della guardia,
+non soltanto una risposta golden.
 
-### A1. L'esecutore c'è, ma esegue un solo schema alla volta
+### A1. ✅ Scelta fra più schemi applicabili; resta la composizione
 
-`brain_think` prende lo schema dal turno (`thinking_for/2`) o quello di default
-(`thinking_default/1`). Manca: più schemi applicabili, la scelta fra loro, e il
-meta-reasoning che la governa (E7 del piano).
+`brain_think` prende gli schemi applicabili da `thinking_for/2`, li ordina con
+`thinking_scheme_priority/2` e pubblica `thinking_selected_scheme/1`. Cambiare
+la priorità a runtime cambia lo schema scelto senza rebuild (E7). Resta aperta
+la composizione di più schemi nello stesso turno: oggi se ne sceglie uno.
 
 ### A2. Gli esperimenti del piano ancora non eseguiti
 
@@ -58,12 +66,12 @@ meta-reasoning che la governa (E7 del piano).
 |---|---|
 | E1 lo schema è conoscenza | ✅ `thinking_graph.p0t` |
 | E2 il grafo non è una catena | ✅ (invertire un arco inverte il rango) |
-| E3 l'arresto ha una ragione dichiarata | ⛔ **non provato**: `thinking_stop/2` esiste, nessuno lo legge |
+| E3 l'arresto ha una ragione dichiarata | ✅ l'esecutore legge l'effetto, interroga `thinking_stop/2` e pubblica `thinking_stop_reached/2` |
 | E4 la critica ritira davvero qualcosa | ⛔ **non provato**, ed è quello che conta di più |
 | E5 quanto costa | ⛔ **non misurato**: un rientro è un turno intero, il costo va profilato con `/debug` |
-| E6 l'operatore è una variabile | ⛔ |
-| E7 meta-reasoning: scegliere lo schema | ⛔ |
-| E8 anti-impostore (togliere un nodo alla volta) | ⛔ **da fare su ogni schema attivo** |
+| E6 l'operatore è una variabile | 🟡 `reenter(Prompt)` varia dalla KB; restano operatori non-rientro |
+| E7 meta-thinking: scegliere lo schema | ✅ priorità KB, scelta osservabile e ablation runtime |
+| E8 anti-impostore (togliere un nodo alla volta) | 🟡 A0/policy e feedback hanno ablation; manca l'ablazione completa di `second_thought` |
 
 **E4 ed E8 sono i due che decidono se questo strato serve.** Se la critica non
 ritira mai niente ed E8 è maggiore di zero, il thinking è teatro cognitivo e va
@@ -76,33 +84,32 @@ turno. Prima di alzare `thinking_max_steps/1` sopra 2 servono: la misura di E5, 
 le viste materializzate sui predicati che il grafo rilegge (§L). **La regola di
 F. vale qui più che altrove: un timeout di dieci secondi è già un sintomo.**
 
-### A4. Il meta-prompt deve essere una capacità, non un'attività umana
+### A4. ✅ Il meta-prompt improduttivo diventa un fatto diagnostico
 
-Difetto già pagato: *«quali assunzioni non dimostrate ci sono in …»* è una frase
-sensata per una persona e un muro per parrot0. Serve un **gate**: un
-`thinking_prompt_text/2` che nel suo primo uso mura va segnalato come mal
-formato, non lasciato lì a degradare i turni.
+`thinking_prompt_issue/3` registra per nodo `wall`, `gap`, `no_delta`,
+`clarification` o `unclassified`. Il passo resta visibile ma non propaga; la
+diagnosi è interrogabile e può guidare la sostituzione del prompt nella KB.
 
-### A5. La UI, oltre al grigio
+### A5. 🟡 La UI, oltre al grigio
 
-Fatto: meta-prompt + output, grigio, su `stderr`, mentre accade. Manca: un modo
-per **ripercorrere** i pensieri di un turno passato (`/thinking` come `/debug`),
-e la resa del pensiero nelle interfacce non-tty (MCP, `--test`), oggi assente.
+Fatto: meta-prompt + output, grigio, su `stderr`, mentre accade; `--test` ora
+esegue lo stesso `brain_think` quando la policy è attiva e stop/issue sono fatti
+interrogabili. Manca ancora `/thinking` come trace completo e la resa MCP.
 
 ---
 
 ## Parte B — CODING AGENT
 
-### B0. Severità, ordinamento e tradeoff fra finding
+### B0. 🟡 Severità e ordinamento chiusi; tradeoff aperto
 
-Oggi `code_finding/3` produce un **insieme**, non una lista ordinata. Il §5 del
-piano chiede severità come funzione di impatto/probabilità/scope/policy, le
-alternative, e l'azione informativa che separa due ipotesi concorrenti. Nulla di
-tutto questo esiste.
+`quality_severity/3`, `finding_priority/3` e `finding_precedes/3` sono policy KB
+con riordinamento e ablation runtime. Task IR e obbligo di evidenza sono vivi.
+Restano tradeoff e l'azione informativa che separa ipotesi concorrenti.
 
-### B1. ⛔ La latenza (§5.2), e la regola di onestà che la governa
+### B1. La latenza è un provider di evidenza, non una corsia privilegiata
 
-`speed of X` senza profilo dichiara che manca ed è giusto. Ma:
+`speed of X` senza profilo dichiara che manca ed è giusto. Ma questo è un caso
+di repertorio utile a falsificare l'onestà della IR, non la roadmap. Oggi
 `perf_evidence/3` ha **zero fatti** e nessun profiler ci si collega. Finché è
 così, parrot0 può solo nominare *candidati costosi*. **«Questa parte è lenta»
 senza evidenza dinamica deve restare impossibile**: è la regola più forte del
@@ -151,13 +158,13 @@ thinking non serve a questo dominio e va detto.
 un piano su strumenti che includa un **rientro** — «leggi i sorgenti, poi pensa
 a quello che hai letto» — che è esattamente ciò che un coding agent fa.
 
-### C3. Il loop di specchio è più pericoloso sul codice
+### C3. ✅ Il loop di specchio è una guardia eseguibile
 
-`reentry_brings/3` impedisce a un rientro di girare a vuoto sulla stessa
-conoscenza. Sul codice il rischio è peggiore che altrove: parrot0 che critica la
-propria lettura di un file **con la stessa lettura** produrrà sempre conferme.
-Un rientro sul codice deve portare qualcosa di *esterno alla lettura*: un
-oracolo, un test, una misura.
+`reentry_brings/3` non basta più da solo: `thinking_feedback/4` deve dichiarare
+`fact_delta`, `query_result` oppure `gap_with_action`; l'ultimo richiede una
+`thinking_feedback_action/3`. Ablando delta o azione il nodo diventa
+inammissibile. Sul codice la fonte deve restare esterna alla lettura criticata:
+un'altra vista IR, un oracolo, un test, una misura o una conoscenza di dominio.
 
 ### C4. Il costo si somma
 
@@ -169,9 +176,8 @@ due tetti indipendenti che si moltiplicano.
 
 ## Come si usa questa coda
 
-- **Prima A0**, perché finché il thinking può peggiorare una risposta non va
-  acceso di default.
-- **Poi C1**, perché decide se il thinking serve davvero e costa poco provarlo.
+- **Prima C1**, ora che A0 è chiusa: critica reale dei finding e ritiro misurato.
+- **Poi E8 completo** sullo schema attivo, nodo per nodo.
 - **Poi E5/A3**, perché senza la misura del costo ogni altra decisione è a occhio.
 - Le voci di B avanzano in parallelo: non dipendono dal thinking.
 

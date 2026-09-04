@@ -102,3 +102,49 @@
 !query thinking_feedback_ready(gap_review, 1)
 !forget thinking_feedback_action(gap_review, 1, inspect_callers)
 !query! thinking_feedback_ready(gap_review, 1)
+
+[test A0 — un rientro senza delta o che produce una domanda non peggiora]
+!set PARROT0_THINKING=1
+!reset
+!timeout 12
+
+> what is photosynthesis
+<~ I don't know much about photosynthesis yet
+<! Learned 0 fact
+<! What number should I use
+!query thinking_stop_reached(second_thought, budget_exhausted)
+!query thinking_prompt_issue(second_thought, 1, no_delta)
+!query thinking_prompt_issue(second_thought, 2, clarification)
+
+# La decisione di propagare è policy KB: ablata la guardia, lo stesso motore
+# lascia passare la domanda. La falsificazione dimostra che A0 non è un if
+# scritto apposta per photosynthesis.
+!forget thinking_outcome_policy(clarification, hold)
+!assert thinking_outcome_policy(clarification, propagate)
+> what is photosynthesis
+<~ What number should I use
+!forget thinking_outcome_policy(clarification, propagate)
+!assert thinking_outcome_policy(clarification, hold)
+
+[test E3 — l'effetto dichiarato chiude davvero la pipeline]
+!timeout 12
+> the heart pumps blood through the body
+<~ pumps(heart, blood)
+!query thinking_stop_reached(second_thought, final_answer)
+
+[test E7 — la preferenza fra schemi applicabili cambia a runtime]
+!timeout 12
+!assert thinking_scheme(choice_a, "choice a")
+!assert thinking_scheme(choice_b, "choice b")
+!assert thinking_for(choice_a, uc_scheme_cue)
+!assert thinking_for(choice_b, uc_scheme_cue)
+!assert intent_cue(uc_scheme_cue, "what is photosynthesis")
+!assert thinking_scheme_priority(choice_a, 1)
+!assert thinking_scheme_priority(choice_b, 2)
+> what is photosynthesis
+!query thinking_selected_scheme(choice_b)
+
+!forget thinking_scheme_priority(choice_a, 1)
+!assert thinking_scheme_priority(choice_a, 3)
+> what is photosynthesis
+!query thinking_selected_scheme(choice_a)

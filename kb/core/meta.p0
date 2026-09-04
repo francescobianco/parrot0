@@ -320,6 +320,7 @@ wall_marker("facts for that topic yet").
 machinery(gap_frame).
 gap_frame(process_step_gap).
 gap_frame(activity_step_gap).
+gap_frame(i_don_t_know_anything_about_x).
 
 % ── gen382n: il registro delle sorgenti di spazio negativo ──────────────────
 % Una sorgente nomina due RELAZIONI, non una funzione C:

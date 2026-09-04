@@ -1176,6 +1176,67 @@ static int p0_is_wall(Brain *b, const char *text) {
     return 0;
 }
 
+/* A0: whether a re-entry may replace the last useful answer is policy, not an
+ * accident of being the last node.  C owns only the mechanics: classify via
+ * the universal evidence scorer, then execute the action declared in KB. */
+static int thinking_outcome_class(Brain *b, const char *text,
+                                  char *outcome, size_t outcome_size) {
+    if (!outcome || outcome_size == 0) return 0;
+    outcome[0] = '\0';
+    if (!b || !b->kb || !text || !*text) return 0;
+    if (p0_is_wall(b, text)) {
+        snprintf(outcome, outcome_size, "%s", "wall");
+        return 1;
+    }
+    if (b->turn_frame[0]) {
+        const char *gq[] = { b->turn_frame };
+        if (kb_query(b->kb, "gap_frame", gq, 1)) {
+            snprintf(outcome, outcome_size, "%s", "gap");
+            return 1;
+        }
+    }
+
+    int score = 0;
+    char proof[KB_EVIDENCE_PROOF_LEN];
+    if (kb_hypothesis_best(b->kb, "thinking_outcome_evidence", text,
+                           NULL, 0, outcome, outcome_size,
+                           &score, proof, sizeof proof) != 1) {
+        char rows[1][KB_TERM_LEN];
+        const char *dq[] = { NULL };
+        if (kb_match(b->kb, "thinking_default_outcome", dq, 1, rows, 1) != 1)
+            return 0;
+        snprintf(outcome, outcome_size, "%s", rows[0]);
+    }
+    return 1;
+}
+
+static int thinking_should_propagate(Brain *b, const char *text,
+                                     char *outcome, size_t outcome_size) {
+    if (!thinking_outcome_class(b, text, outcome, outcome_size)) return 0;
+    const char *pq[] = { outcome, "propagate" };
+    return kb_query(b->kb, "thinking_outcome_policy", pq, 2);
+}
+
+static void thinking_record_stop(Brain *b, const char *scheme,
+                                 const char *reason) {
+    if (!b || !b->kb || !scheme || !reason) return;
+    int saved = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    const char *row[] = { scheme, reason };
+    kb_assert(b->kb, "thinking_stop_reached", row, 2);
+    kb_set_origin(b->kb, saved);
+}
+
+static void thinking_record_issue(Brain *b, const char *scheme,
+                                  const char *node, const char *issue) {
+    if (!b || !b->kb || !scheme || !node || !issue) return;
+    int saved = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    const char *row[] = { scheme, node, issue };
+    kb_assert(b->kb, "thinking_prompt_issue", row, 3);
+    kb_set_origin(b->kb, saved);
+}
+
 static size_t thinking_max_steps(Brain *b) {
     char rows[1][KB_TERM_LEN];
     const char *q[1] = { NULL };
@@ -1210,6 +1271,13 @@ size_t brain_think(Brain *b, const char *input, char *out, size_t out_size,
                    BrainThinkStep on_step, void *ud) {
     if (!b || !b->kb || !input || !out || out_size == 0) return 0;
 
+    const char *clear_stop[] = { NULL, NULL };
+    kb_retract_match(b->kb, "thinking_stop_reached", clear_stop, 2);
+    const char *clear_issue[] = { NULL, NULL, NULL };
+    kb_retract_match(b->kb, "thinking_prompt_issue", clear_issue, 3);
+    const char *clear_selected[] = { NULL };
+    kb_retract_match(b->kb, "thinking_selected_scheme", clear_selected, 1);
+
     /* il primo giro e' il reasoning di sempre: nessuno lo tocca */
     brain_respond(b, input, out, out_size);
     if (!kb_knows_pred(b->kb, "thinking_scheme")) return 0;
@@ -1220,12 +1288,22 @@ size_t brain_think(Brain *b, const char *input, char *out, size_t out_size,
         char rows[8][KB_TERM_LEN];
         const char *q[2] = { NULL, NULL };
         size_t n = kb_match(b->kb, "thinking_scheme", q, 2, rows, 8);
-        for (size_t i = 0; i < n && !scheme[0]; i++) {
+        long best_priority = -2147483647L;
+        for (size_t i = 0; i < n; i++) {
             const char *aq[2] = { rows[i], NULL };
             char cls[1][KB_TERM_LEN];
             if (kb_match(b->kb, "thinking_for", aq, 2, cls, 1) == 1) {
-                if (kb_cue_match(b, cls[0], input))
-                    snprintf(scheme, sizeof scheme, "%s", rows[i]);
+                if (kb_cue_match(b, cls[0], input)) {
+                    long priority = 0;
+                    char pv[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "thinking_scheme_priority", aq, 2,
+                                 pv, 1) == 1)
+                        priority = strtol(pv[0], NULL, 10);
+                    if (!scheme[0] || priority > best_priority) {
+                        best_priority = priority;
+                        snprintf(scheme, sizeof scheme, "%s", rows[i]);
+                    }
+                }
             }
         }
     }
@@ -1240,12 +1318,20 @@ size_t brain_think(Brain *b, const char *input, char *out, size_t out_size,
     if (!scheme[0]) return 0;
     { const char *rq[1] = { scheme };
       if (!kb_query(b->kb, "thinking_ready", rq, 1)) return 0; }  /* ciclo: non si esegue */
+    {
+        int saved = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        const char *selected[] = { scheme };
+        kb_assert(b->kb, "thinking_selected_scheme", selected, 1);
+        kb_set_origin(b->kb, saved);
+    }
 
     size_t cap = thinking_max_steps(b), done = 0;
     char prev[4096]; snprintf(prev, sizeof prev, "%s", out);
 
     /* i nodi in ordine di RANGO, non di indice: e' il grafo a dettarlo */
-    for (size_t rank = 0; rank < cap && done < cap; rank++) {
+    int stopped = 0;
+    for (size_t rank = 0; rank < cap && done < cap && !stopped; rank++) {
         char rankstr[24]; snprintf(rankstr, sizeof rankstr, "%zu", rank);
         char nodes[8][KB_TERM_LEN];
         const char *nq[3] = { scheme, NULL, rankstr };
@@ -1260,6 +1346,17 @@ size_t brain_think(Brain *b, const char *input, char *out, size_t out_size,
 
             char turn[4600];
             if (!thinking_compose(b, prompts[0], prev, turn, sizeof turn)) continue;
+            char delta_source[KB_TERM_LEN] = "";
+            size_t facts_before = 0;
+            {
+                const char *fq[] = { scheme, nodes[i], NULL, "fact_delta" };
+                char sources[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "thinking_feedback", fq, 4,
+                             sources, 1) == 1) {
+                    snprintf(delta_source, sizeof delta_source, "%s", sources[0]);
+                    facts_before = kb_pred_fact_count(b->kb, delta_source);
+                }
+            }
             char answer[4096];
             brain_respond(b, turn, answer, sizeof answer);
             done++;
@@ -1277,9 +1374,36 @@ size_t brain_think(Brain *b, const char *input, char *out, size_t out_size,
              * cio' che l'ultimo passo utile aveva prodotto. Che cosa sia un muro
              * e' gia' conoscenza — `wall_marker/1` — quindi non c'e' nessuna
              * frase nuova nel C. */
-            if (!p0_is_wall(b, answer))
+            int delta_observed = !delta_source[0] ||
+                kb_pred_fact_count(b->kb, delta_source) > facts_before;
+            char outcome[KB_TERM_LEN] = "";
+            int propagate = delta_observed &&
+                thinking_should_propagate(b, answer, outcome, sizeof outcome);
+            if (!delta_observed)
+                thinking_record_issue(b, scheme, nodes[i], "no_delta");
+            else if (!propagate)
+                thinking_record_issue(b, scheme, nodes[i],
+                                      outcome[0] ? outcome : "unclassified");
+            if (propagate) {
                 snprintf(prev, sizeof prev, "%s", answer);
+                const char *eq[] = { scheme, nodes[i], NULL };
+                char effects[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "thinking_node_effect", eq, 3,
+                             effects, 1) == 1) {
+                    const char *sq[] = { scheme, effects[0] };
+                    if (kb_query(b->kb, "thinking_stop", sq, 2)) {
+                        thinking_record_stop(b, scheme, effects[0]);
+                        stopped = 1;
+                        break;
+                    }
+                }
+            }
         }
+    }
+    if (!stopped && done >= cap) {
+        const char *sq[] = { scheme, "budget_exhausted" };
+        if (kb_query(b->kb, "thinking_stop", sq, 2))
+            thinking_record_stop(b, scheme, "budget_exhausted");
     }
     if (done) snprintf(out, out_size, "%s", prev);
     return done;
