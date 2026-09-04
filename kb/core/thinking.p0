@@ -45,6 +45,7 @@ machinery(thinking_rank).
 machinery(thinking_depends).
 machinery(thinking_cycle).
 machinery(thinking_ready).
+machinery(plan_utterance).
 
 % ── LA FIRMA ────────────────────────────────────────────────────────────────
 %
@@ -145,8 +146,15 @@ scheme_cue_class(analyze_sources, plan_analyze_sources).
 thinking_scheme(repair_broken_build,
                 "run the build, name what it says is missing, and say what must be produced").
 
+% ⭐ Il primo passo NON e' un operatore: e' una FRASE che parrot0 dice a se
+% stesso, e rientra dalla stessa porta da cui entrano i turni di chi parla.
+% Cio' che quel turno lascia in KB — il verdetto letto da `tool_result_cue` —
+% e' la connessione col passo dopo. Il segnaposto tiene la generalita' che
+% aveva il ramo compilato: quale comando costruisce un progetto resta
+% `build_command/1`.
 thinking_step(repair_broken_build, 1,
-               step(run_build, none, build_verdict, meta(1, local))).
+               step(say_build, none, build_verdict, meta(1, local))).
+plan_utterance(repair_broken_build, 1, "run {build_command}").
 % I due passi centrali sono quelli che lo schema `analyze_sources` usa gia': non
 % sono operatori nuovi, e' lo stesso lavoro messo in un ordine diverso. Fra le
 % estensioni dichiarate c'e' gia' "*.h", quindi leggere i sorgenti significa
@@ -172,7 +180,8 @@ thinking_step(repair_broken_build, 6,
 thinking_step(repair_broken_build, 7,
                step(read_each, sources_found, structure_ingested, meta(1, local))).
 thinking_step(repair_broken_build, 8,
-               step(run_build, structure_ingested, build_verified, meta(1, local))).
+               step(say_build, structure_ingested, build_verified, meta(1, local))).
+plan_utterance(repair_broken_build, 8, "run {build_command}").
 
 thinking_after(repair_broken_build, 1, 2).
 thinking_after(repair_broken_build, 2, 3).

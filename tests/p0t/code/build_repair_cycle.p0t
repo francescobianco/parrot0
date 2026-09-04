@@ -33,7 +33,10 @@
 > the project does not build
 <~ must produce concat.c
 <~ wrote concat.c from shape concat_two
-<~ `make` ok
+# e dopo aver scritto, il build gira davvero: la riga di compilazione compare
+# nella risposta perche' il passo di verifica e' un turno vero, non un'etichetta
+# che ci siamo messi noi.
+<~ -o app main.c concat.c
 
 [test the artifact is really there, and the build really passes]
 !fileexists concat.c

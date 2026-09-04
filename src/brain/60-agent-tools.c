@@ -534,6 +534,9 @@ static void tool_apply_prefix(const char *flat, const char *prefix,
  * non una decorazione dell'uscita (mantra #11). Chi non lo passa ha l'uscita di
  * prima: la variabile e' letta solo se c'e'. */
 static const char *g_tool_turn = NULL;
+/* gen503: il rientro di un passo-prosa e' a profondita' uno. Un piano che si
+ * richiama non e' un piano, e' un ciclo. */
+static int g_plan_reentry = 0;
 
 /* ── gen503 — IL RISULTATO DI UN'AZIONE DIVENTA CONOSCENZA ──────────────────
  *
@@ -567,6 +570,13 @@ static void tool_result_read(Brain *b, const char *text) {
     int saved = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_REFLECTIVE);
     for (size_t i = 0; i < npred; i++) {
+        /* gen503: cio' che si rilegge si ritratta prima. Un verdetto vecchio
+         * che sopravvive a un'osservazione nuova fa dire «devi produrre X»
+         * dopo che X e' stato prodotto — mentire su se stessi e' il modo piu'
+         * facile, e la regola sta QUI e non nel chiamante perche' vale per
+         * ogni lettura, non per il build. */
+        char pb0[KB_TERM_LEN]; snprintf(pb0, sizeof pb0, "%s", preds[i]);
+        kb_retract_pred(b->kb, kb_dequote(pb0));
         char cues[16][KB_TERM_LEN];
         const char *cq[2] = { preds[i], NULL };
         size_t nc = kb_match(b->kb, "tool_result_cue", cq, 2, cues, 16);
@@ -811,44 +821,77 @@ static int mod_toolplan(Brain *b, const char *norm, const char *raw,
         char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", acts[0]);
         const char *action = kb_dequote(ab);
 
-        if (!strcmp(action, "list_sources")) {
-            nfound = plan_list_sources(b, ".", found, 64);
-        } else if (!strcmp(action, "run_build")) {
-            /* gen503 — ESEGUI IL BUILD E TIENI CIO' CHE DICE.
-             *
-             * QUALE comando costruisce un progetto e' conoscenza
-             * (`build_command/1`), non una costante: un progetto con `ninja` o
-             * `cargo` e' una riga di KB. Il verdetto passa da
-             * `tool_result_read`, quindi cio' che il build NOMINA diventa un
-             * fatto — ed e' l'unico motivo per cui il passo successivo ha
-             * qualcosa da dire. */
-            /* il verdetto vecchio non deve sopravvivere al build nuovo:
-             * altrimenti «devi produrre X» resta vero dopo che X e' stato
-             * prodotto, ed e' il modo piu' semplice di mentire su se stessi. */
-            kb_retract_pred(b->kb, "missing_build_input");
-            char cmds[8][KB_TERM_LEN];
-            const char *bq[1] = { NULL };
-            size_t nb = kb_match(b->kb, "build_command", bq, 1, cmds, 8);
-            for (size_t ci = 0; ci < nb; ci++) {
-                char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cmds[ci]);
-                char *cargv[2]; cargv[0] = kb_dequote(cb); cargv[1] = NULL;
-                char why[128];
-                if (!tool_authorized(b, cargv, 1, why, sizeof why)) continue;
-                P0Obs obs;
-                p0_exec(cargv, ".", 20000, NULL, &obs);
-                char oflat[4000], eflat[2000];
-                collapse_ws(obs.out, oflat, sizeof oflat);
-                collapse_ws(obs.err, eflat, sizeof eflat);
-                tool_result_read(b, oflat);
-                tool_result_read(b, eflat);
+        /* ── gen503 — UN PASSO PUO' ESSERE PROSA, E RIENTRARE ───────────────
+         *
+         * F.: «capire se il processo basato su thinking potrebbe aiutarci nel
+         * costruire dei metaprompt che indirizzano, o addirittura della prosa
+         * operativa derivata da conoscenza ingegneristica, e una volta
+         * autodigerita dall'inferenza si trasformi nella connessione fra i vari
+         * moduli».
+         *
+         * E' il punto fisso dell'astrazione applicato a questo file. Lo schema
+         * era gia' conoscenza, ma OGNI OPERATORE era un ramo qui sotto: il
+         * vocabolario delle azioni restava chiuso, e un passo nuovo costava una
+         * ricompilazione — il mantra #19 un piano piu' su.
+         *
+         * Un passo dichiarato come `plan_utterance/3` non ha nessun ramo: e'
+         * una frase che parrot0 DICE A SE STESSO, rientrando dalla stessa porta
+         * da cui entrano i turni dell'interlocutore. Cio' che il turno lascia
+         * in KB — un verdetto letto, una struttura ingerita — e' la
+         * connessione fra i moduli, e non passa da qui.
+         *
+         * I segnaposto `{predicato}` si riempiono dal primo valore di quel
+         * predicato unario: cosi' «run {build_command}» resta generale come lo
+         * era il ramo che sostituisce.
+         *
+         * ⚠ La prosa si prova PRIMA dei rami: un passo che si puo' dire non ha
+         * bisogno di essere compilato. E il rientro e' a profondita' uno — un
+         * piano che si richiama non e' un piano. */
+        {
+            char utt[512];
+            const char *uq[3] = { plan, steps[si], NULL };
+            char uv[1][KB_TERM_LEN];
+            if (!g_plan_reentry &&
+                kb_match(b->kb, "plan_utterance", uq, 3, uv, 1) == 1) {
+                char ub[KB_TERM_LEN]; snprintf(ub, sizeof ub, "%s", uv[0]);
+                snprintf(utt, sizeof utt, "%s", kb_dequote(ub));
+                /* i segnaposto: {pred} -> primo valore di pred/1 */
+                for (int guard = 0; guard < 8; guard++) {
+                    char *lb = strchr(utt, '{');
+                    if (!lb) break;
+                    char *rb = strchr(lb, '}');
+                    if (!rb) break;
+                    char key[64];
+                    size_t kl = (size_t)(rb - lb - 1);
+                    if (kl == 0 || kl >= sizeof key) break;
+                    memcpy(key, lb + 1, kl); key[kl] = '\0';
+                    char vv[1][KB_TERM_LEN];
+                    const char *vq[1] = { NULL };
+                    const char *val = "";
+                    char vb[KB_TERM_LEN] = "";
+                    if (kb_match(b->kb, key, vq, 1, vv, 1) == 1) {
+                        snprintf(vb, sizeof vb, "%s", vv[0]);
+                        val = kb_dequote(vb);
+                    }
+                    char rebuilt[512];
+                    snprintf(rebuilt, sizeof rebuilt, "%.*s%s%s",
+                             (int)(lb - utt), utt, val, rb + 1);
+                    snprintf(utt, sizeof utt, "%s", rebuilt);
+                }
+                char sub[4096];
+                g_plan_reentry = 1;
+                brain_respond(b, utt, sub, sizeof sub);
+                g_plan_reentry = 0;
                 nacted++;
                 if (dof + 1 < sizeof detail)
                     dof += (size_t)snprintf(detail + dof, sizeof detail - dof,
-                                            "%s`%s` %s", dof ? ", " : "",
-                                            cargv[0],
-                                            obs.verdict == P0_OK ? "ok" : "failed");
-                break;
+                                            "%s%s", dof ? ", " : "", sub);
+                continue;
             }
+        }
+
+        if (!strcmp(action, "list_sources")) {
+            nfound = plan_list_sources(b, ".", found, 64);
         } else if (!strcmp(action, "state_obligation")) {
             /* Che cosa il turno deve PRODURRE: non lo decide questo passo, lo
              * legge. `must_produce/2` e' derivato da cio' che il build ha
