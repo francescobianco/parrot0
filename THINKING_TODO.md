@@ -22,6 +22,91 @@
 > integri e validi sotto. Questa parte dice soltanto *da dove si comincia*, e
 > perché quell'ordine è diverso da quello che sembrava.
 
+## 0.0 ⛔ LA DOMANDA DI F., E LA RISPOSTA MISURATA — leggere questa per prima
+
+> F., 2026-09-04: *«mi aspetto che parrot0 separi le parti di un prompt
+> articolato e agisca creando un piano. Tu mi mostri prompt in cui non capisce
+> "la lista dei file": siamo su due livelli diversi. Per me parrot0 dovrebbe già
+> essere dotato di un motore per piani, un motore di thinking, un motore di
+> interrogazione IR e la comprensione della prosa con intent e azioni, e tutte
+> queste parti dovrebbero coordinarsi. Quando inizi l'analisi ti blocchi sempre
+> in dettagli banali che ti portano fuori strada. Non ti ho mai sentito dire
+> "popoliamo la KB di un framework di conoscenza operativa". Dove sbaglio?»*
+
+**Non sbagli.** I motori ci sono tutti, e uno di essi fa già esattamente quello
+che ti aspetti. Misurato:
+
+```text
+> make a plan to fix the repository
+  My derived plan for code task: 1) inspect the workspace and collect grounded
+  repository evidence [cost 1] [needs …]
+```
+
+E il piano che deriva è **la spina dorsale di un coding agent**, già scritta in
+`kb/experts/codebase/actions.p0`:
+
+```prolog
+plan_goal(code_task, verified_code_change).
+  inspect_workspace → workspace_observation   [read_only,       cost 1]
+  localize_change   → target_region           [read_only,       cost 2]
+  edit_candidate    → patch_candidate         [workspace_write, cost 3]
+  verify_candidate  → verified_code_change    [process_execute, cost 3]
+```
+
+con rischio, costo, precondizioni e ordine derivato dal chainer. **Non manca il
+design.**
+
+### ⛔ Mancano DUE fatti, e sono entrambi conoscenza operativa
+
+| | che cosa manca | conseguenza misurata |
+|---|---|---|
+| **1** | `goal_cue(code_task, …)` ha **4 frasi**: *«code task»*, *«repair the repository»*, *«fix the repository»*, *«compito di codice»* | Un prompt vero non ne dice nessuna, quindi **il piano non parte mai** sul compito reale. Parte solo se glielo si chiede con le sue parole. |
+| **2** | le 4 azioni hanno `action_tool(…, inspect\|edit\|test)` ma **`action_impl` = 0**, e `inspect/edit/test` non esistono nemmeno in `local_tool` (che ha `search/find/list/read/run/write`) | Anche quando il piano si deriva, **non si può camminare**: il walker cerca `action_impl(Passo, Primitiva)` e si ferma onestamente al primo che manca. |
+
+Su 28 azioni dichiarate nel dominio, **9 hanno una primitiva**. Le quattro di
+`code_task` — cioè proprio quelle di un agente di codice — **nessuna**.
+
+### ⭐ Quindi: dove sbagliavo io
+
+Hai ragione anche sulla seconda cosa, ed è più importante della prima.
+
+Ho lavorato **dal basso**: dispatch, finestre di buffer, meccanica di strumenti.
+Ogni difetto che ho trovato era reale — e nessuno era **la** ragione. Il piano
+`code_task` era lì da prima che cominciassi, derivava correttamente, e non l'ho
+guardato per sei ore mentre inseguivo chi rubava un turno.
+
+E non ho mai proposto quello che dici, perché non l'avevo capito: **il collo di
+bottiglia non è un motore mancante, è la conoscenza operativa che li collega.**
+Un motore generico senza il dominio che lo guida non fa niente e non sembra
+rotto — è la forma di guasto più difficile da vedere dal basso, ed è esattamente
+quella che il mio metodo non poteva trovare.
+
+### La forma del lavoro che ne segue — popolare, non costruire
+
+```text
+1. IL GOAL SI RICONOSCE DA CIO' CHE IL TURNO E', non da quattro frasi.
+   `code_task` deve scattare sulla CLASSE che già esiste — un referente di
+   codebase più una direttiva che chiede di cambiare del sorgente — non su un
+   frasario. (È la stessa congiunzione di §0.3-bis, riusata invece di duplicata.)
+
+2. LE QUATTRO AZIONI SI LEGANO AGLI STRUMENTI CHE GIA' CI SONO:
+     inspect_workspace  →  list + read      (esistono, misurati)
+     localize_change    →  l'IR del codice  (esiste, risponde con le prove)
+     edit_candidate     →  write            (esiste da oggi)
+     verify_candidate   →  run make         (esiste, e dà già il verdetto vero)
+   Sono quattro `action_impl` più quattro primitive sottili nel walker.
+
+3. E POI IL DOMINIO SI ALLARGA COME DATI: un'azione nuova (leggi un header,
+   deriva un contratto, ripara dopo un rosso) è un `action_yields` +
+   `action_needs` + `action_impl`, mai un ramo.
+```
+
+⚠ **Questo è il lavoro che chiedevi e che non avevo nominato.** Non aggiunge
+motori: collega quelli che ci sono e li riempie di conoscenza operativa. Ed è
+verificabile in un modo che il mio approccio dal basso non permetteva: *il piano
+di `code_task` si cammina fino in fondo su match0, oppure si ferma nominando il
+passo che manca* — che è già la condotta onesta del walker, e diventa la misura.
+
 ## 0.1 I risultati misurati, e sono cattivi
 
 `tests/challenge`, run `gen502-m0b`, **match0 — difficoltà 1**: manca un file,
