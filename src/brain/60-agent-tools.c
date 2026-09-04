@@ -1646,7 +1646,7 @@ static int compose_one(Brain *b, const char *raw, const char *low,
             compose_name(raw, nameo, nsz);
             if (lex_class_member(b, "60_agent_tools_lex919", nameo)) snprintf(nameo, nsz, "%s", aname);
             char comparator = '>';           /* algo_io says ascending */
-            if (code_synth_from_shape(shape, nameo, comparator, src, srcsz)) {
+            if (code_synth_from_shape(b->kb, shape, nameo, comparator, src, srcsz)) {
                 char err[256];
                 int v = code_check_sort(src, nameo, err, sizeof err);
                 if (v == 1) {

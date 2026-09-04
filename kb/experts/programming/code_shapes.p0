@@ -1,0 +1,95 @@
+% code_shapes.p0 — LE FORME DEL CODICE, E LA LINGUA IN CUI SI SCRIVONO (gen503).
+%
+% Disegno completo: docs/plans/kb-code-emitter.md
+%
+% Prima di questo file `code_synth_from_shape` era una catena di strcmp con IL
+% CORPO DELLA FUNZIONE scritto come stringa C dentro src/code.c: un caso, dopo
+% quattro generazioni, e ogni algoritmo nuovo costava una generazione di C.
+%
+% Il taglio: l'ALGORITMO non e' la LINGUA.
+%
+%   che cosa fa          scorri, confronta, scambia, accumula, restituisci
+%   come si scrive in C  "for (int {0} = {1}; {0} < {2}; {0}++)"
+%
+%   un algoritmo nuovo con operazioni note  -> righe qui, ZERO C
+%   un'operazione nuova                     -> una riga per lingua
+%   una lingua nuova                        -> una riga per operazione,
+%                                              e nessun algoritmo riscritto
+%
+% Regola di composizione, unica: un nodo con figli si emette come
+% `TEMPLATE { figli }`, una foglia come `TEMPLATE`. Graffe e spaziatura non sono
+% conoscenza, sono meccanica. Negli slot `{0}`, `{1}`, … sono gli argomenti
+% dell'operazione; `{name}` e `{cmp}` i legami che il chiamante passa.
+
+:- file_attribute(machinery).
+
+machinery(code_shape_step).
+machinery(code_shape_order).
+machinery(code_shape_slot).
+machinery(code_shape_signature).
+machinery(lang_syntax).
+
+% ── LA LINGUA C ─────────────────────────────────────────────────────────────
+% Ogni riga qui e' un'operazione generale, non un pezzo di un algoritmo: sono
+% le stesse che servono a qualunque funzione su array.
+lang_syntax(c, loop_up,         "for (int {0} = {1}; {0} < {2}; {0}++)").
+lang_syntax(c, loop_up_bounded, "for (int {0} = {1}; {0} + 1 < {2}; {0}++)").
+lang_syntax(c, if_compare,      "if ({0} {1} {2})").
+lang_syntax(c, swap_via_temp,   "int {2} = {0}; {0} = {1}; {1} = {2};").
+lang_syntax(c, declare_int,     "int {0} = {1};").
+lang_syntax(c, accumulate,      "{0} = {0} + {1};").
+lang_syntax(c, return_value,    "return {0};").
+
+% ── FORMA 1: due cicli annidati, confronta e scambia ────────────────────────
+% E' la forma che `algo_shape(bubblesort, nested_loop_compare_swap)` nomina, ed
+% era l'unico caso scritto nel C. Il verso del confronto resta un legame del
+% chiamante (`{cmp}`), perche' la stessa forma serve crescente e decrescente.
+code_shape_signature(nested_loop_compare_swap, c, "void {name}(int a[], int n)").
+
+code_shape_step(nested_loop_compare_swap, nlcs_1, root,   loop_up).
+code_shape_step(nested_loop_compare_swap, nlcs_2, nlcs_1, loop_up_bounded).
+code_shape_step(nested_loop_compare_swap, nlcs_3, nlcs_2, if_compare).
+code_shape_step(nested_loop_compare_swap, nlcs_4, nlcs_3, swap_via_temp).
+
+code_shape_order(nested_loop_compare_swap, nlcs_1, 1).
+code_shape_order(nested_loop_compare_swap, nlcs_2, 1).
+code_shape_order(nested_loop_compare_swap, nlcs_3, 1).
+code_shape_order(nested_loop_compare_swap, nlcs_4, 1).
+
+code_shape_slot(nlcs_1, 0, "i").
+code_shape_slot(nlcs_1, 1, "0").
+code_shape_slot(nlcs_1, 2, "n").
+code_shape_slot(nlcs_2, 0, "j").
+code_shape_slot(nlcs_2, 1, "0").
+code_shape_slot(nlcs_2, 2, "n - i").
+code_shape_slot(nlcs_3, 0, "a[j]").
+code_shape_slot(nlcs_3, 1, "{cmp}").
+code_shape_slot(nlcs_3, 2, "a[j + 1]").
+code_shape_slot(nlcs_4, 0, "a[j]").
+code_shape_slot(nlcs_4, 1, "a[j + 1]").
+code_shape_slot(nlcs_4, 2, "t").
+
+% ── FORMA 2: la somma di un array ───────────────────────────────────────────
+% Dichiarata SOLO qui, senza toccare una riga di C: e' la prova che il taglio
+% regge. Usa `loop_up` che gia' esisteva piu' tre operazioni nuove, che sono
+% una riga di `lang_syntax` ciascuna e valgono per qualunque altra forma.
+code_shape_signature(sum_over_array, c, "int {name}(int a[], int n)").
+
+code_shape_step(sum_over_array, soa_1, root,  declare_int).
+code_shape_step(sum_over_array, soa_2, root,  loop_up).
+code_shape_step(sum_over_array, soa_3, soa_2, accumulate).
+code_shape_step(sum_over_array, soa_4, root,  return_value).
+
+code_shape_order(sum_over_array, soa_1, 1).
+code_shape_order(sum_over_array, soa_2, 2).
+code_shape_order(sum_over_array, soa_3, 1).
+code_shape_order(sum_over_array, soa_4, 3).
+
+code_shape_slot(soa_1, 0, "s").
+code_shape_slot(soa_1, 1, "0").
+code_shape_slot(soa_2, 0, "i").
+code_shape_slot(soa_2, 1, "0").
+code_shape_slot(soa_2, 2, "n").
+code_shape_slot(soa_3, 0, "s").
+code_shape_slot(soa_3, 1, "a[i]").
+code_shape_slot(soa_4, 0, "s").

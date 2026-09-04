@@ -21,21 +21,21 @@
 
 # un bubble sort da manuale: accettato
 !mcp code.check_sort {"source":"void mysort(int a[], int n){ for(int i=0;i<n;i++) for(int j=0;j+1<n-i;j++) if(a[j]>a[j+1]){int t=a[j];a[j]=a[j+1];a[j+1]=t;} }","function":"mysort"}
-<~ "verdict":1
+!expect mcp "verdict":1
 
 # non fa niente: e' una permutazione, ma l'ingresso resta disordinato
 !mcp code.check_sort {"source":"void mysort(int a[], int n){ (void)a; (void)n; }","function":"mysort"}
-<~ "verdict":0
+!expect mcp "verdict":0
 
 # azzera tutto: e' ordinato (tutti uguali) ma NON e' una permutazione
 !mcp code.check_sort {"source":"void mysort(int a[], int n){ for(int i=0;i<n;i++) a[i]=0; }","function":"mysort"}
-<~ "verdict":0
+!expect mcp "verdict":0
 
 # ordina al contrario: permutazione, ma non crescente
 !mcp code.check_sort {"source":"void mysort(int a[], int n){ for(int i=0;i<n;i++) for(int j=0;j+1<n-i;j++) if(a[j]<a[j+1]){int t=a[j];a[j]=a[j+1];a[j+1]=t;} }","function":"mysort"}
-<~ "verdict":0
+!expect mcp "verdict":0
 
 # non compila: deve dare -1, non un falso positivo
 !mcp code.check_sort {"source":"void mysort(int a[], int n){ this is not c }","function":"mysort"}
-<~ "verdict":-1
+!expect mcp "verdict":-1
 !sandbox off

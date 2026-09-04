@@ -1,0 +1,44 @@
+# L'emettitore e' guidato dalla KB: nel C non c'e' piu' nessun corpo di funzione.
+#
+# Prima `code_synth_from_shape` era una catena di strcmp con il corpo scritto
+# come stringa C dentro src/code.c: un solo caso dopo quattro generazioni, e
+# ogni algoritmo nuovo costava una generazione di C.
+#
+# Ora l'ALGORITMO (code_shape_step/code_shape_slot) e la LINGUA (lang_syntax)
+# sono due conoscenze separate, e il C fa solo la meccanica: risolvi i figli,
+# ordinali, sostituisci gli slot, annida le graffe.
+# Disegno: docs/plans/kb-code-emitter.md
+#
+# ⭐ La prova che conta e' la SECONDA forma: `sum_over_array` e' dichiarata solo
+# in kb/experts/programming/code_shapes.p0, e non e' costata una riga di C.
+
+[test emitter_from_kb]
+!sandbox
+!timeout 30
+
+# La forma che PRIMA era il template letterale, ora ri-derivata dalla KB.
+!mcp code.synth_shape {"shape":"nested_loop_compare_swap","name":"mysort"}
+!expect mcp void mysort(int a[], int n) { for (int i = 0; i < n; i++) { for (int j = 0; j + 1 < n - i; j++) { if (a[j] > a[j + 1]) { int t = a[j]; a[j] = a[j + 1]; a[j + 1] = t; } } } }
+
+# …e cio' che ha emesso lo dispone l'ORACOLO, non noi: ordinato E permutazione.
+!mcp code.check_sort {"source":"void mysort(int a[], int n) { for (int i = 0; i < n; i++) { for (int j = 0; j + 1 < n - i; j++) { if (a[j] > a[j + 1]) { int t = a[j]; a[j] = a[j + 1]; a[j + 1] = t; } } } }","function":"mysort"}
+!expect mcp "verdict":1
+
+# Il legame {cmp} arriva davvero fino allo slot: col verso opposto la stessa
+# forma emette il decrescente, e l'oracolo del crescente lo RIFIUTA.
+!mcp code.synth_shape {"shape":"nested_loop_compare_swap","name":"mysort","comparator":"<"}
+!expect mcp if (a[j] < a[j + 1])
+
+!mcp code.check_sort {"source":"void mysort(int a[], int n) { for (int i = 0; i < n; i++) { for (int j = 0; j + 1 < n - i; j++) { if (a[j] < a[j + 1]) { int t = a[j]; a[j] = a[j + 1]; a[j + 1] = t; } } } }","function":"mysort"}
+!expect mcp "verdict":0
+
+# ⭐ Una forma NUOVA, dichiarata solo in KB, con tre operazioni nuove che sono
+# una riga di lang_syntax ciascuna. Zero righe di C.
+!mcp code.synth_shape {"shape":"sum_over_array","name":"total"}
+!expect mcp int total(int a[], int n) { int s = 0; for (int i = 0; i < n; i++) { s = s + a[i]; } return s; }
+
+# Una forma non dichiarata non si inventa.
+!mcp code.synth_shape {"shape":"no_such_shape","name":"x"}
+!expect mcp "error"
+
+!sandbox off

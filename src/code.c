@@ -4734,27 +4734,177 @@ int code_check_sort(const char *func_src, const char *fnname,
  * the larger element bubbles up (ascending); with '<' it descends. The comparator is
  * the SINGLE parameter that distinguishes the variants, so the schema is plainly not
  * "the bubble sort printed back". */
-int code_synth_from_shape(const char *shape, const char *name, char comparator,
-                          char *out, size_t out_sz) {
+/* ══ gen503 — L'EMETTITORE GUIDATO DALLA KB ═════════════════════════════════
+ *
+ * Qui c'era una catena di `strcmp(shape, …)` con IL CORPO DELLA FUNZIONE
+ * scritto come stringa C. Un solo caso, dopo quattro generazioni, e ogni
+ * algoritmo nuovo costava una generazione di C: la crescita lineare che
+ * `LOOP.md` chiama impostora, e che `algo_steps.p0` gia' si rimproverava.
+ *
+ * Il taglio e' fra l'ALGORITMO e la LINGUA (docs/plans/kb-code-emitter.md §2):
+ * che cosa fa una forma sta in `code_shape_step/4` + `code_shape_slot/3`, come
+ * quell'operazione si scrive sta in `lang_syntax/3`. Qui resta solo la
+ * meccanica — risolvi i figli, ordinali, sostituisci gli slot, annida le
+ * graffe — e non c'e' piu' nessun corpo di funzione nel C.
+ *
+ * Una forma nuova con operazioni note non tocca questo file. Se domani ne
+ * toccasse una riga, il taglio sarebbe sbagliato e va rifatto, non aggirato. */
+
+static const char *shape_deq(char *buf) {
+    size_t n = strlen(buf);
+    if (n >= 2 && buf[0] == '"' && buf[n - 1] == '"') {
+        buf[n - 1] = '\0';
+        return buf + 1;
+    }
+    return buf;
+}
+
+/* Sostituisce `{key}` con `val` ovunque compaia. Il template e' testo: nessuna
+ * espressione viene valutata, ed e' voluto — chi vuole un'espressione la scrive
+ * nello slot, e a giudicarla e' il compilatore. */
+static void shape_subst(char *text, size_t sz, const char *key, const char *val) {
+    char needle[32];
+    snprintf(needle, sizeof needle, "{%s}", key);
+    size_t nl = strlen(needle), vl = strlen(val);
+    char *p;
+    while ((p = strstr(text, needle)) != NULL) {
+        size_t tl = strlen(text);
+        if (tl - nl + vl >= sz) return;            /* non ci sta: si lascia com'e' */
+        memmove(p + vl, p + nl, tl - (size_t)(p - text) - nl + 1);
+        memcpy(p, val, vl);
+    }
+}
+
+static int shape_emit(KB *kb, const char *shape, const char *parent,
+                      const char *name, char comparator,
+                      int depth, char *out, size_t sz, size_t *at);
+
+/* Un nodo: il suo template con gli slot risolti, e i figli fra graffe. */
+static int shape_emit_node(KB *kb, const char *shape, const char *id,
+                           const char *parent, const char *name, char comparator,
+                           int depth, char *out, size_t sz, size_t *at) {
+    char opq[1][KB_TERM_LEN];
+    const char *sq[4] = { shape, id, parent, NULL };
+    if (kb_match(kb, "code_shape_step", sq, 4, opq, 1) != 1) return 0;
+    char opb[KB_TERM_LEN]; snprintf(opb, sizeof opb, "%s", opq[0]);
+    const char *op = shape_deq(opb);
+
+    char tplq[1][KB_TERM_LEN];
+    const char *lq[3] = { "c", op, NULL };
+    if (kb_match(kb, "lang_syntax", lq, 3, tplq, 1) != 1) return 0;
+    char tpl[1024]; snprintf(tpl, sizeof tpl, "%s", tplq[0]);
+    char tplb[1024]; snprintf(tplb, sizeof tplb, "%s", shape_deq(tpl));
+
+    for (int k = 0; k < 8; k++) {
+        char key[8]; snprintf(key, sizeof key, "%d", k);
+        char vq[1][KB_TERM_LEN];
+        const char *slq[3] = { id, key, NULL };
+        if (kb_match(kb, "code_shape_slot", slq, 3, vq, 1) != 1) continue;
+        char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", vq[0]);
+        shape_subst(tplb, sizeof tplb, key, shape_deq(vb));
+    }
+    char cmp[2] = { comparator, '\0' };
+    shape_subst(tplb, sizeof tplb, "name", name);
+    shape_subst(tplb, sizeof tplb, "cmp", cmp);
+
+    int n = snprintf(out + *at, sz - *at, "%s%s", *at ? " " : "", tplb);
+    if (n < 0 || (size_t)n >= sz - *at) return 0;
+    *at += (size_t)n;
+
+    /* i figli, se ce ne sono: annidati, sempre fra graffe. */
+    char kids[16][KB_TERM_LEN];
+    const char *kq[4] = { shape, NULL, id, NULL };
+    if (kb_match(kb, "code_shape_step", kq, 4, kids, 16) > 0) {
+        n = snprintf(out + *at, sz - *at, " {");
+        if (n < 0 || (size_t)n >= sz - *at) return 0;
+        *at += (size_t)n;
+        if (!shape_emit(kb, shape, id, name, comparator, depth + 1, out, sz, at))
+            return 0;
+        n = snprintf(out + *at, sz - *at, " }");
+        if (n < 0 || (size_t)n >= sz - *at) return 0;
+        *at += (size_t)n;
+    }
+    return 1;
+}
+
+/* I figli di `parent`, nell'ordine dichiarato. */
+static int shape_emit(KB *kb, const char *shape, const char *parent,
+                      const char *name, char comparator,
+                      int depth, char *out, size_t sz, size_t *at) {
+    if (depth > 8) return 0;                        /* un albero, non un ciclo */
+    char kids[16][KB_TERM_LEN];
+    const char *kq[4] = { shape, NULL, parent, NULL };
+    size_t nk = kb_match(kb, "code_shape_step", kq, 4, kids, 16);
+    if (nk == 0) return 1;
+
+    long ord[16];
+    for (size_t i = 0; i < nk; i++) {
+        ord[i] = 0;
+        char oq[1][KB_TERM_LEN];
+        char idb[KB_TERM_LEN]; snprintf(idb, sizeof idb, "%s", kids[i]);
+        const char *q[3] = { shape, shape_deq(idb), NULL };
+        if (kb_match(kb, "code_shape_order", q, 3, oq, 1) == 1) {
+            char ob[KB_TERM_LEN]; snprintf(ob, sizeof ob, "%s", oq[0]);
+            ord[i] = strtol(shape_deq(ob), NULL, 10);
+        }
+    }
+    /* selection sort su sedici elementi: l'ordine e' conoscenza, la stabilita'
+     * la da' l'indice quando due fratelli dichiarano lo stesso numero. */
+    for (size_t i = 0; i < nk; i++) {
+        size_t best = i;
+        for (size_t j = i + 1; j < nk; j++)
+            if (ord[j] < ord[best]) best = j;
+        if (best != i) {
+            long to = ord[i]; ord[i] = ord[best]; ord[best] = to;
+            char tk[KB_TERM_LEN];
+            snprintf(tk, sizeof tk, "%s", kids[i]);
+            snprintf(kids[i], KB_TERM_LEN, "%s", kids[best]);
+            snprintf(kids[best], KB_TERM_LEN, "%s", tk);
+        }
+    }
+    for (size_t i = 0; i < nk; i++) {
+        char idb[KB_TERM_LEN]; snprintf(idb, sizeof idb, "%s", kids[i]);
+        if (!shape_emit_node(kb, shape, shape_deq(idb), parent, name, comparator,
+                             depth, out, sz, at))
+            return 0;
+    }
+    return 1;
+}
+
+int code_synth_from_shape(KB *kb, const char *shape, const char *name,
+                          char comparator, char *out, size_t out_sz) {
     if (out && out_sz) out[0] = '\0';
-    if (!shape || !*shape || !name || !*name || !out || out_sz == 0) return 0;
+    if (!kb || !shape || !*shape || !name || !*name || !out || out_sz == 0) return 0;
     if (comparator != '>' && comparator != '<') return 0;
     if (!(isalpha((unsigned char)name[0]) || name[0] == '_')) return 0;
     for (const char *c = name; *c; c++)
         if (!(isalnum((unsigned char)*c) || *c == '_')) return 0;
 
-    if (strcmp(shape, "nested_loop_compare_swap") == 0) {
-        int n = snprintf(out, out_sz,
-            "void %s(int a[], int n) {"
-            " for (int i = 0; i < n; i++)"
-            " for (int j = 0; j + 1 < n - i; j++)"
-            " if (a[j] %c a[j + 1]) {"
-            " int t = a[j]; a[j] = a[j + 1]; a[j + 1] = t; } }",
-            name, comparator);
-        if (n < 0 || (size_t)n >= out_sz) { out[0] = '\0'; return 0; }
-        return 1;
+    char sigq[1][KB_TERM_LEN];
+    const char *gq[3] = { shape, "c", NULL };
+    if (kb_match(kb, "code_shape_signature", gq, 3, sigq, 1) != 1) {
+        /* Le forme vivono in un file che si carica PIGRAMENTE — come gia' fa
+         * `mod_compose` con `algo_steps.p0`, e per la stessa ragione: non
+         * devono pesare sulla conversazione ordinaria ne' sui conteggi
+         * dell'introspezione. Il caricamento sta qui e non nei chiamanti,
+         * cosi' non c'e' una via che funziona e una che non funziona. */
+        kb_load(kb, "kb/experts/programming/algo_steps.p0");
+        if (kb_match(kb, "code_shape_signature", gq, 3, sigq, 1) != 1) return 0;
     }
-    return 0;                                  /* unknown schema */
+    char sig[512]; snprintf(sig, sizeof sig, "%s", sigq[0]);
+    char sigb[512]; snprintf(sigb, sizeof sigb, "%s", shape_deq(sig));
+    char cmp[2] = { comparator, '\0' };
+    shape_subst(sigb, sizeof sigb, "name", name);
+    shape_subst(sigb, sizeof sigb, "cmp", cmp);
+
+    char body[8192]; size_t at = 0; body[0] = '\0';
+    if (!shape_emit(kb, shape, "root", name, comparator, 0, body, sizeof body, &at))
+        return 0;
+    if (at == 0) return 0;                         /* una forma senza passi */
+
+    int n = snprintf(out, out_sz, "%s { %s }", sigb, body);
+    if (n < 0 || (size_t)n >= out_sz) { out[0] = '\0'; return 0; }
+    return 1;
 }
 
 int code_read_file(const char *path, char *buf, size_t bufsz) {

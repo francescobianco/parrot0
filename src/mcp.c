@@ -333,6 +333,13 @@ static const McpTool TOOLS[] = {
  "{\"type\":\"object\",\"properties\":{\"source\":{\"type\":\"string\"},"
  "\"function\":{\"type\":\"string\"}},"
  "\"required\":[\"source\"]}"},
+{"code.synth_shape", "Emit source for a declared code shape. The shape is KB "
+ "knowledge (code_shape_step/code_shape_slot) and the target language is KB "
+ "knowledge too (lang_syntax): this tool only renders. Returns the emitted "
+ "source, or an error when the shape is not declared.",
+ "{\"type\":\"object\",\"properties\":{\"shape\":{\"type\":\"string\"},"
+ "\"name\":{\"type\":\"string\"},\"comparator\":{\"type\":\"string\"}},"
+ "\"required\":[\"shape\",\"name\"]}"},
 };
 static const size_t NTOOLS = sizeof TOOLS / sizeof TOOLS[0];
 
@@ -418,6 +425,28 @@ static int tool_call(Brain *b, const char *name, const JVal *a,
         char *e = json_escape(err);
         snprintf(out, outsz, "{\"verdict\":%d,\"diagnostic\":\"%s\"}",
                  verdict, e ? e : "");
+        free(e);
+        return 1;
+    }
+
+    if (strcmp(name, "code.synth_shape") == 0) {
+        /* gen503: l'emettitore guidato dalla KB, esposto come il giudice —
+         * cosi' un cricchetto puo' provarlo con `!mcp` e poi far disporre cio'
+         * che ha emesso da `code.check_sort`. Comporre e giudicare restano due
+         * atti separati, ed e' la meta' che rende onesto il primo. */
+        const char *shape = jstr(a, "shape");
+        const char *fn    = jstr(a, "name");
+        const char *cmp   = jstr(a, "comparator");
+        if (!shape || !*shape) { snprintf(out, outsz, "{\"error\":\"missing 'shape'\"}"); return 0; }
+        if (!fn || !*fn) { snprintf(out, outsz, "{\"error\":\"missing 'name'\"}"); return 0; }
+        char src[8192];
+        if (!code_synth_from_shape(kb, shape, fn,
+                                   (cmp && *cmp) ? cmp[0] : '>', src, sizeof src)) {
+            snprintf(out, outsz, "{\"error\":\"shape not declared or not renderable\"}");
+            return 0;
+        }
+        char *e = json_escape(src);
+        snprintf(out, outsz, "{\"source\":\"%s\"}", e ? e : "");
         free(e);
         return 1;
     }
