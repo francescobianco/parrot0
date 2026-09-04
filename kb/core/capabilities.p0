@@ -73,6 +73,36 @@ local_tool(write,  write_file_request, "write content into a file").
 % Un progetto enorme la abbassa dicendolo.
 machinery(listing_max_depth).
 
+% ── gen503 — COME SI LEGGE L'USCITA DI UNO STRUMENTO ────────────────────────
+%
+% Uno strumento che agisce e non lascia conoscenza e' un'azione sprecata. `run
+% make` diceva gia' «No rule to make target 'strjoin.c'» — nominava il file che
+% il compito chiedeva di scrivere — e un turno dopo parrot0 non lo sapeva piu'.
+%
+% La FRASE che introduce un valore nell'uscita e' conoscenza, come lo era la
+% frase che introduce uno slot nell'ingresso (`tool_slot_cue`, gen494). Il
+% motore prende il token che segue, fra apici o nudo; una frase nuova — un altro
+% build system, un'altra lingua — resta una riga qui.
+%
+% ⛔ E l'oracolo esterno batte la regola da scrivere: derivare il file mancante
+% leggendo il Makefile sarebbe stato un parser da mantenere. Il build lo dice
+% da solo, e con parole migliori delle nostre.
+machinery(tool_result_cue).
+machinery(missing_build_input).
+machinery(must_produce).
+
+tool_result_cue(missing_build_input, "no rule to make target").
+tool_result_cue(missing_build_input, "nessuna regola per generare l'obiettivo").
+tool_result_cue(missing_build_input, "no such file or directory").
+
+% L'OBBLIGO: un soggetto che non esiste ancora. Non e' una constatazione sul
+% mondo («questo file manca»), e' cio' che il turno deve produrre — ed e' il
+% primo pezzo del ciclo osserva -> decidi -> scrivi -> verifica.
+must_produce($Artifact, build) :- missing_build_input($Artifact).
+
+answer_frame("what must be produced for", must_produce).
+answer_frame_input_arg("what must be produced for", must_produce, 2).
+
 % ── gen494 — IL COMANDO DI UNO STRUMENTO E' CONOSCENZA, NON UN argv NEL C ───
 %
 % F.: «tutti questi comandi cablati nel C devono essere tolti: parrot0 deve

@@ -1,0 +1,34 @@
+# Il risultato di un'azione diventa conoscenza — e l'obbligo ne segue.
+#
+# F.: «parrot0 costruisce il comando, lo esegue come tool, E POI TI PROCESSA IL
+# RISULTATO». Prima l'uscita di uno strumento era testo: si stampava e svaniva.
+# Sul banco costava caro — `run make` nominava gia' il file che il compito
+# chiedeva di scrivere, e un turno dopo parrot0 non lo sapeva piu'.
+#
+# COME si legge un'uscita e' conoscenza (`tool_result_cue/2`, insegnabile); il
+# motore prende solo il token che segue la frase. L'obbligo — `must_produce/2` —
+# e' derivato, non constatato.
+#
+# ⛔ L'ABLAZIONE E' NEL TEST: la prima domanda, PRIMA di eseguire il build, non
+# deve sapere niente. Se rispondesse anche senza l'azione, la conoscenza non
+# verrebbe dall'azione e questo cricchetto mentirebbe.
+# Il comando gira sul Makefile VERO di questo repository.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!set PARROT0_LANG=en
+!reset
+
+[test without the action there is no obligation]
+!timeout 25
+> what must be produced for build
+<! p0tabsent.c
+
+[test the build verdict becomes an obligation]
+> run make p0tabsent.c
+<~ No rule to make target
+
+[test the obligation is now reachable by question]
+> what must be produced for build
+<~ p0tabsent.c

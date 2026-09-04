@@ -535,6 +535,72 @@ static void tool_apply_prefix(const char *flat, const char *prefix,
  * prima: la variabile e' letta solo se c'e'. */
 static const char *g_tool_turn = NULL;
 
+/* ── gen503 — IL RISULTATO DI UN'AZIONE DIVENTA CONOSCENZA ──────────────────
+ *
+ * F.: «parrot0 costruisce il comando, lo esegue come tool, E POI TI PROCESSA IL
+ * RISULTATO». Fino a qui il risultato era testo: si stampava e svaniva. Il
+ * banco lo mostrava nel modo piu' costoso possibile — `run make` diceva gia'
+ * «No rule to make target 'strjoin.c'», cioe' nominava esattamente il file che
+ * il compito chiedeva di scrivere, e un turno dopo parrot0 non lo sapeva piu'.
+ *
+ * COME si legge l'uscita di uno strumento e' conoscenza: la FRASE che introduce
+ * un valore sta in `tool_result_cue(Predicato, "frase")` ed e' insegnabile;
+ * qui resta solo l'estrazione — prendi il token che segue, fra apici o nudo.
+ * E' la stessa divisione di `tool_slot_cue` (gen494) applicata all'uscita
+ * invece che all'ingresso.
+ *
+ * I fatti sono KB_REFLECTIVE: un'osservazione del mondo di adesso, che non
+ * finisce nella KB curata e non sopravvive al processo. */
+static void tool_result_read(Brain *b, const char *text) {
+    if (!b || !b->kb || !text || !*text) return;
+    char low[8192];
+    size_t tl = strlen(text);
+    if (tl >= sizeof low) tl = sizeof low - 1;
+    for (size_t i = 0; i < tl; i++) low[i] = (char)tolower((unsigned char)text[i]);
+    low[tl] = '\0';
+
+    char (*preds)[KB_TERM_LEN] = NULL;
+    size_t npred = 0;
+    const char *pq[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "tool_result_cue", pq, 2, &preds, &npred)) return;
+
+    int saved = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    for (size_t i = 0; i < npred; i++) {
+        char cues[16][KB_TERM_LEN];
+        const char *cq[2] = { preds[i], NULL };
+        size_t nc = kb_match(b->kb, "tool_result_cue", cq, 2, cues, 16);
+        for (size_t c = 0; c < nc; c++) {
+            char phrase[KB_TERM_LEN];
+            snprintf(phrase, sizeof phrase, "%s", cues[c]);
+            char *ph = phrase;
+            size_t pl = strlen(ph);
+            if (pl >= 2 && ph[0] == '"' && ph[pl-1] == '"') { ph[pl-1] = '\0'; ph++; }
+            for (char *q = ph; *q; q++) *q = (char)tolower((unsigned char)*q);
+            const char *hit = strstr(low, ph);
+            if (!hit) continue;
+            const char *v = text + (hit - low) + strlen(ph);
+            while (*v && (isspace((unsigned char)*v) || *v == ':')) v++;
+            char open = 0;
+            if (*v == '\'' || *v == '"' || *v == '`') { open = *v; v++; }
+            char val[KB_TERM_LEN];
+            size_t n = 0;
+            while (*v && n + 1 < sizeof val) {
+                if (open ? (*v == open || (open == '`' && *v == '\'')) 
+                         : (isspace((unsigned char)*v) || *v == ',' || *v == ';'))
+                    break;
+                val[n++] = *v++;
+            }
+            val[n] = '\0';
+            if (!n) continue;
+            const char *aa[1] = { val };
+            kb_assert(b->kb, preds[i], aa, 1);
+        }
+    }
+    kb_set_origin(b->kb, saved);
+    free(preds);
+}
+
 static int piact_obs(Brain *b, char *const *argv, const char *label,
                      char *out, size_t out_size) {
     P0Obs obs;
@@ -544,6 +610,8 @@ static int piact_obs(Brain *b, char *const *argv, const char *label,
     collapse_ws(obs.out, flat, sizeof flat);
     char eflat[600];
     collapse_ws(obs.err, eflat, sizeof eflat);
+    tool_result_read(b, flat);
+    tool_result_read(b, eflat);
 
     char msg[5200];
     char lang[8]; current_lang(b, lang, sizeof lang);
