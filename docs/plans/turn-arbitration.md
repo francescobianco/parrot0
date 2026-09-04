@@ -54,57 +54,120 @@ qualcuno non misura proprio quel caso.
 
 ## 1-bis. ⛔ IL GRADINO CHE VIENE PRIMA DI TUTTA LA SCALA — la legittimità
 
-> F., 2026-09-04, letta la scala qui sotto: *«i moduli obsoleti che rubano turni
-> non sono legittimati a farlo. Un modulo può continuare a prendere turni se è
-> addestrabile, se è KB-first, se è basato sulla comprensione universale. Non
-> esistono moduli che rubano turni per stato del codice. Soltanto i moduli ben
-> fatti possono prendere turni.»*
+> F., 2026-09-04: *«i moduli obsoleti che rubano turni non sono legittimati a
+> farlo. Un modulo può continuare a prendere turni se è addestrabile, se è
+> KB-first, se è basato sulla comprensione universale. Non esistono moduli che
+> rubano turni per stato del codice.»*
+>
+> E, alla prima stesura di questa sezione: *«non la copertura. Il criterio è la
+> **review della sua implementazione**, che deve stare in testa al modulo in un
+> commento. Un modulo pieno di TODO KB-first è un modulo che non ha diritto di
+> rubare turni, tranne dove risulta un fallback per gli altri. Dobbiamo premiare
+> la competenza e la maturità dell'implementazione.»*
 
-**Questa osservazione riscrive la sezione §3 e va letta prima della scala.** Le
-strategie S0-S6 rispondono tutte alla domanda *«chi vince fra i pretendenti?»*.
-Danno per scontato che i pretendenti abbiano titolo a pretendere. **Non ce
-l'hanno.**
+**Questa sezione riscrive la §3 e va letta prima della scala.** Le strategie
+S0-S6 rispondono tutte a *«chi vince fra i pretendenti?»*, e danno per scontato
+che i pretendenti abbiano titolo. **Non ce l'hanno.** Una facoltà che rivendica
+un turno perché è arrivata prima nell'array — perché esiste da più tempo, perché
+nessuno l'ha ancora governata — non esercita una **capacità**: esercita una
+**posizione**, cioè lo stato del codice travestito da condotta.
 
-Una facoltà che rivendica un turno perché è arrivata prima nell'array — perché
-esiste da più tempo, perché nessuno l'ha ancora governata — non sta esercitando
-una **capacità**: sta esercitando una **posizione**. E una posizione non è un
-argomento. È lo stato del codice travestito da condotta: esattamente la cosa che
-il mantra #17 vieta, un piano più su.
+### ⭐ 1-bis.1 I due fallimenti sono classi diverse, e hanno rimedi diversi
 
-### I tre requisiti, e come si provano
+Questa è la parte che vale più di tutto il resto del documento.
 
-| | requisito | il test, che non è una dichiarazione |
+| chi vince a torto | che cos'è | il rimedio |
 |---|---|---|
-| **L1** | **addestrabile** | si ritira a runtime una delle sue forme di riconoscimento: la pretesa deve sparire. Se non cambia niente, il riconoscimento è nel C |
-| **L2** | **KB-first** | nessun vocabolario di dominio compilato dentro — è il conteggio che `C_TODO.md` già tiene |
-| **L3** | **comprensione universale** | pretende sulla base del **frame del turno** (span tipati, ruoli, Task IR), non di una sottostringa del grezzo |
+| un modulo **immaturo** (vecchio, pieno di TODO KB-first, vocabolario nel C) | ⛔ **un errore di architettura** | **retrocederlo**: perde il diritto di pretendere, resta come ultima risorsa. **Non si insegna niente** |
+| un modulo **maturo** (addestrabile, KB-first, fondato sul frame) | 🟡 **un comportamento da correggere** | **insegnarglielo**: una cue, una regola, una cessione. È esattamente ciò per cui `faculty_yield` esiste |
 
-### ⭐ E i tre non sono tre meccanismi: sono uno
+⛔ **E qui sta l'errore che ho commesso stamattina, che vale la pena scrivere
+perché è la spiegazione del whack-a-mole:** ho applicato il *rimedio 2* a un
+problema di *classe 1*. Ho scritto `faculty_yield_both` per `compose` e per
+`gen` — cioè ho *insegnato una condotta* a moduli che non avevano titolo a
+pretendere. Insegnare a un modulo immaturo di tacere su una classe non lo rende
+maturo: lo lascia libero su tutte le altre, e il turno successivo lo ruba di
+nuovo altrove. **Ogni riga di cessione scritta per un modulo immaturo è un
+sintomo curato al posto della causa.**
 
-L3 chiede a una facoltà di fondare la pretesa sul frame. Una facoltà che lo fa
-**sa dire di quali span rende conto**. E quella dichiarazione è insieme la sua
-offerta (S4) e la sua prova di titolo. Da cui la forma operativa, che non ha
-bisogno di nessuna lista di moduli benedetti né di nessun audit manuale:
+⚠ Ne segue una regola operativa immediata, prima ancora dell'infrastruttura:
+**prima di scrivere una `faculty_yield`, chiedersi in quale classe cade il
+furto.** Se il modulo è immaturo, la cessione è la risposta sbagliata anche
+quando funziona.
 
-> **L'offerta di copertura È la prova di legittimità.**
-> **Chi non sa dire di che cosa rende conto, non può pretendere.**
+### 1-bis.2 Il criterio: una REVIEW dichiarata in testa al modulo
 
-Un modulo storico non va cancellato — va **retrocesso a ultima risorsa**:
-risponde solo se nessuno ha offerto. Il default resta permissivo come ogni
-condotta di questo progetto, ma **l'onere si inverte**, ed è tutta la differenza:
+Non una metrica dedotta di nascosto: **una review scritta, in un commento in
+testa al modulo**, che dichiara lo stato dell'implementazione e da cui discende
+il diritto di pretendere.
 
-| | prima | dopo |
-|---|---|---|
-| che cosa va dimostrato | il **silenzio** di una facoltà | il suo **diritto di parlare** |
-| quante volte | una per ogni coppia (facoltà, classe) | una sola, da chi lo esercita |
-| quando | **dopo** un furto già avvenuto | **prima** di poter rispondere |
+```c
+/* MODULE REVIEW — mod_gen                                    rivista: gen502
+ *   maturita'      legacy | transitional | kb_first
+ *   diritto        primary | fallback | none
+ *   L1 addestrabile   si ritira una sua forma di riconoscimento -> la pretesa sparisce?
+ *   L2 kb_first       quanti confronti di parole letterali restano nel C
+ *   L3 universale     pretende sul FRAME del turno, o su una sottostringa del grezzo?
+ *   todo_kb_first     quanti TODO(kb-first) aperti
+ *   perche'           una riga: che cosa manca perche' salga di grado
+ */
+```
 
-⭐ **La verifica sui tre furti misurati al §1: nessuna delle tre facoltà supera
-L3.** `compose` ha spezzato una specifica tecnica in segmenti indipendenti;
-`gen` ha preso un token del testo per farne un personaggio; `role` ha letto
-«You are working…» come l'ordine di impersonare. Tutte e tre hanno pretesa su
-una **sottostringa**, nessuna sul frame — quindi nessuna avrebbe offerto niente,
-e **nessuna delle tre cessioni scritte a mano sarebbe servita.**
+⭐ **E la review non può mentire, perché ogni campo ha un controllo meccanico
+accanto** (`todo_kb_first` si conta, i literali si contano, L1 si prova
+ritirando una cue a runtime). Una testata che dichiara `kb_first` con dieci
+literali e due TODO aperti **fallisce un cricchetto**: è una review, non
+un'autocertificazione.
+
+### 1-bis.3 Dove vive, perché il commento non basta da solo
+
+Il commento è per gli umani; l'arbitrato ha bisogno di **fatti**. La convenzione
+esiste già in questo repository — `src/brain/00-lex.c.cues.p0` è la proiezione
+in KB di ciò che sta nel C. Stessa strada:
+
+```text
+src/brain/30-generation-reading.c            la review, in testa, leggibile
+src/brain/30-generation-reading.c.review.p0  la sua proiezione, generata
+   module_review(gen, maturity, transitional).
+   module_review(gen, claim_right, fallback).
+   module_evidence(gen, literals, 5).
+   module_evidence(gen, todo_kb_first, 0).
+```
+
+Così la review sta **in testa al modulo** come chiede F., e resta **conoscenza**
+come chiede il mantra #17: interrogabile (*«perché non hai risposto tu?»* →
+*«non ho titolo: sono `transitional`»*), e correggibile — ma correggibile solo
+**migliorando il modulo**, che è il punto.
+
+### 1-bis.4 L'evidenza misurata oggi, e correla
+
+Conteggio grezzo sui quattro file in causa (confronti di parole letterali nel C
+contro letture dalla KB — è un *proxy*, non ancora la review):
+
+| modulo | file | literali | letture KB | rapporto | ha risposto |
+|---|---|---:|---:|---:|---|
+| `codeast` | `80-code.c` | **1** | 61 | **61:1** | ⭐ *«I read that as code, but I am not sure which function you mean.»* |
+| `gen` | `30-generation-reading.c` | 5 | 218 | 44:1 | la storia sul `Makefile` |
+| `role` | `40-meta-reflection.c` | 16 | 189 | 12:1 | *«Alright — I am Working now.»* |
+| `compose` | `60-agent-tools.c` | 10 | 83 | **8:1** | la composizione che ha spezzato la specifica |
+
+**Il modulo che ha dato l'unica risposta onesta è quello con meno vocabolario
+compilato**, e il primo ladro è quello col rapporto peggiore. Un campione di
+quattro non è una legge — ma è esattamente il verso che la tesi di F. prevede, e
+rende il criterio misurabile invece che programmatico.
+
+### 1-bis.5 Che cosa resta della copertura
+
+La copertura (S4) **non è più la prova di legittimità** — quello era il mio
+errore. Resta però il criterio giusto per il gradino dopo: **fra pretendenti che
+hanno già titolo**, vince chi rende conto di più turno. Le due cose stanno in
+serie e non vanno confuse:
+
+```text
+LEGITTIMITA' (§1-bis)   chi ha DIRITTO di pretendere   ← la review dell'implementazione
+        ↓
+ARBITRATO (S4)          chi VINCE fra chi ha diritto   ← la copertura del turno
+```
 
 ---
 
@@ -217,10 +280,10 @@ ogni coppia (facoltà, classe) e ognuna arriva *dopo* un furto già avvenuto.
 condizione d'ingresso** e S1 come rete di sicurezza sui casi residui. Le
 ragioni, in ordine di forza:
 
-0. **Il primo argomento non è di efficienza, è di titolo** (§1-bis): una
-   facoltà che non sa dire di che cosa rende conto non deve poter pretendere, e
-   la stessa dichiarazione che la legittima è quella che la fa competere. Il
-   meccanismo è uno solo.
+0. **Ma prima viene il titolo, non l'efficienza** (§1-bis): S4 arbitra fra
+   pretendenti *legittimi*. Applicarla prima della review lascerebbe competere
+   moduli immaturi, e un modulo immaturo che vince «per copertura» è ancora un
+   errore di architettura — solo con un punteggio accanto.
 
 1. **È una regola, non una tabella.** N fatti invece di N×M, e la crescita è
    monotona: una facoltà nuova non obbliga a modificare le altre.
@@ -266,7 +329,7 @@ insegnato ieri, abbiamo rifatto S1 con un altro nome.
 | S2 | refrazione | 🟡 esiste come `continue` in un `for`, senza nome |
 | S3 | specificità | ⛔ assente |
 | S4 | **copertura** | ⛔ assente — ma D14 la nomina e il materiale c'è |
-| **L** | **legittimità della pretesa** (§1-bis) | ⛔ assente — **è il gradino zero, e va prima di S4**; mantra #21 |
+| **L** | **legittimità: la review in testa al modulo** (§1-bis) | ⛔ assente — **è il gradino zero, prima di S4**; mantra #21 |
 | S5 | offerta con evidenza | ⛔ assente (Hearsay-II) |
 | S6 | ambiguità come esito | 🟡 solo su `eager_ambiguous` |
 

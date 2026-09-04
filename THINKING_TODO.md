@@ -178,13 +178,23 @@ il dispatch dev'essere correggibile parlando, questo dice **chi ha titolo a
 parlare**. Una facoltà che vince perché è arrivata prima nell'array esercita una
 posizione, non una capacità.
 
-La forma operativa, che non richiede nessuna lista di moduli benedetti:
-**l'offerta di copertura È la prova di legittimità — chi non sa dire di che cosa
-rende conto, non può pretendere.** L'onere si inverte: prima andava dimostrato
-il *silenzio* di una facoltà (una riga per ogni furto già avvenuto), ora il suo
-*diritto di parlare* (una volta sola, da chi lo esercita). Verificato sui tre
-furti misurati: **nessuna delle tre facoltà supera L3** — tutte pretendono su
-una sottostringa, nessuna sul frame del turno.
+Il criterio del titolo è la **maturità dell'implementazione, dichiarata in una
+review in testa al modulo** (F.: *«un modulo pieno di TODO KB-first non ha
+diritto di rubare turni, tranne dove risulta un fallback per gli altri»*), con
+tre prove meccaniche accanto — L1 addestrabile, L2 KB-first, L3 fondato sul
+frame — così la testata è una review e non un'autocertificazione.
+
+⭐ **E la conseguenza che riordina tutto: i due fallimenti sono classi diverse
+con rimedi diversi.** Se a rubare è un modulo **immaturo** è un **errore di
+architettura** e si **retrocede**; se è un modulo **maturo** è un
+**comportamento da correggere** e si **insegna**. ⛔ Le due cessioni scritte
+oggi per `compose` e `gen` sono il rimedio 2 applicato a un problema di classe 1
+— cioè la spiegazione del whack-a-mole, e la ragione per cui vanno ritirate.
+
+L'evidenza che il criterio è misurabile, sui quattro moduli in causa (literali
+compilati : letture KB): `codeast` **1:61** ha dato l'unica risposta onesta,
+`compose` **10:83** è stato il primo ladro. Il modulo con meno vocabolario
+compilato è quello che ha risposto bene.
 
 ⚠ **Quindi P0 resta aperta**, e la sua forma finale non è la quarta riga di
 cessione: è la legittimità (§1-bis) più l'arbitrato per copertura, con i due

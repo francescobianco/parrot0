@@ -409,53 +409,65 @@ quello delle sonde: `tests/*_probe.py` scopre la MOSSA di un modello di
 frontiera, la KB la riproduce come regola, il `.p0t` la tiene ferma. Chiudere un
 prompt senza chiudere la sua classe non conta come progresso.
 
-21. **⛔ RIVENDICARE UN TURNO È UN TITOLO, NON UN DIRITTO ACQUISITO — e lo si
-    dimostra dicendo di che cosa si rende conto.**
+21. **⛔ RIVENDICARE UN TURNO È UN TITOLO, NON UN DIRITTO ACQUISITO — e il
+    titolo è la MATURITÀ DELL'IMPLEMENTAZIONE, dichiarata in testa al modulo.**
 
     F., 2026-09-04: *«i moduli obsoleti che rubano turni non sono legittimati a
     farlo. Un modulo può continuare a prendere turni se è addestrabile, se è
     KB-first, se è basato sulla comprensione universale. Non esistono moduli che
-    rubano turni per stato del codice. Soltanto i moduli ben fatti possono
-    prendere turni.»*
+    rubano turni per stato del codice.»* E, sul criterio: *«è la review della sua
+    implementazione, che deve stare in testa al modulo in un commento. Un modulo
+    pieno di TODO KB-first non ha diritto di rubare turni, tranne dove risulta un
+    fallback per gli altri. Dobbiamo premiare la competenza e la maturità.»*
 
     Il #17 dice che la condotta di dispatch dev'essere **correggibile parlando**.
-    Questo è un piano più su, e diverso: dice **chi ha titolo a parlare**. Una
-    facoltà che pretende un turno perché è arrivata prima nell'array — perché
-    esiste da più tempo, perché nessuno l'ha ancora governata — non sta
-    esercitando una capacità: sta esercitando una **posizione**. La posizione non
-    è un argomento.
+    Questo è un piano più su e diverso: dice **chi ha titolo a parlare**. Una
+    facoltà che vince perché è arrivata prima nell'array — perché esiste da più
+    tempo, perché nessuno l'ha ancora governata — non esercita una **capacità**:
+    esercita una **posizione**, cioè lo stato del codice travestito da condotta.
 
-    **I tre requisiti, e come si verificano** (non si dichiarano: si provano):
+    ### ⭐ I due fallimenti sono classi diverse, e hanno rimedi diversi
 
-    | | requisito | il test |
+    | chi vince a torto | che cos'è | il rimedio |
     |---|---|---|
-    | **L1** | **addestrabile** | si ritira a runtime una delle sue forme di riconoscimento e la pretesa deve sparire. Se non cambia niente, il suo riconoscimento è nel C |
-    | **L2** | **KB-first** | nessun vocabolario di dominio compilato dentro. È il conteggio che `C_TODO.md` già tiene |
-    | **L3** | **comprensione universale** | pretende sulla base del **frame del turno** — span tipati, ruoli, Task IR — non di una sottostringa del testo grezzo |
+    | un modulo **immaturo** — vecchio, pieno di `TODO(kb-first)`, vocabolario compilato | ⛔ **un errore di architettura** | **retrocederlo** a ultima risorsa. **Non gli si insegna niente** |
+    | un modulo **maturo** — addestrabile, KB-first, fondato sul frame | 🟡 **un comportamento da correggere** | **insegnarglielo**: una cue, una regola, una cessione |
 
-    ⭐ **E i tre non sono tre meccanismi: sono uno.** L3 chiede a una facoltà di
-    fondare la pretesa sul frame; una facoltà che lo fa **sa dire di quali span
-    rende conto**; e quella dichiarazione è insieme la sua offerta e la sua prova
-    di titolo. Da qui la forma operativa, che non ha bisogno di nessuna lista di
-    moduli benedetti:
+    ⛔ **Confondere le due classi è la causa del whack-a-mole**, ed è un errore
+    che è stato commesso il giorno stesso in cui questo mantra è nato: scrivere
+    una `faculty_yield` per un modulo immaturo significa *insegnare una condotta
+    a chi non aveva titolo a pretendere*. Non lo rende maturo — lo lascia libero
+    su tutte le altre classi, e il turno dopo lo ruba altrove.
 
-    > **L'offerta di copertura È la prova di legittimità. Chi non sa dire di che
-    > cosa rende conto, non può pretendere.**
+    **Prima di scrivere una cessione, chiedersi in quale classe cade il furto.**
+    Se il modulo è immaturo, la cessione è la risposta sbagliata anche quando
+    funziona.
 
-    Un modulo storico non va cancellato: va **retrocesso a ultima risorsa** —
-    risponde solo se nessuno ha offerto. Il default resta permissivo, ma l'onere
-    si inverte: prima il silenzio andava dimostrato caso per caso (una riga di
-    `faculty_yield` per ogni furto già avvenuto), ora è il **diritto di parlare**
-    a dover essere dimostrato, una volta sola, da chi lo esercita.
+    ### La review, e perché non può mentire
 
-    **Il difetto che ha generato questo mantra**, misurato il 2026-09-04 sul
-    banco di gara: un prompt di 864 byte che chiedeva di scrivere un file C è
-    stato rivendicato da `compose`, che l'ha spezzato in segmenti e li ha dati
-    a chi li prendeva — una storia sul `Makefile` personificato, e l'imperativo
-    finale del compito asserito come fatto. Governata `compose` è passato a
-    `gen`; governato `gen` è arrivato a `codeast`. Tre giri per un prompt, e su
-    altri due prompt la catena riparte da capo. **Nessuna delle tre facoltà
-    avrebbe superato L3**, e nessuna delle tre cessioni sarebbe servita.
+    In testa al modulo, in un commento: maturità (`legacy` / `transitional` /
+    `kb_first`), diritto (`primary` / `fallback` / `none`), e le tre prove —
+    **L1** addestrabile (si ritira una sua forma di riconoscimento e la pretesa
+    deve sparire), **L2** KB-first (quanti confronti di parole letterali restano
+    nel C), **L3** universale (pretende sul *frame* del turno o su una
+    sottostringa del grezzo). Ogni campo ha un controllo meccanico accanto:
+    una testata che dichiara `kb_first` con dieci literali e due TODO aperti
+    **fallisce un cricchetto**. È una review, non un'autocertificazione.
+
+    Il commento è per gli umani; l'arbitrato ha bisogno di fatti, quindi la
+    review si proietta in KB come già fa `src/brain/00-lex.c.cues.p0`. Così sta
+    in testa al modulo **e** resta interrogabile: *«perché non hai risposto
+    tu?»* → *«non ho titolo: sono transitional»*. Correggibile, sì — ma solo
+    **migliorando il modulo**, che è esattamente il punto.
+
+    ### L'evidenza che il criterio è misurabile
+
+    Sui quattro moduli che si sono contesi un prompt di coding il 2026-09-04
+    (literali nel C contro letture dalla KB): `codeast` **1:61** ha dato l'unica
+    risposta onesta — *«I read that as code, but I am not sure which function you
+    mean»* — mentre `compose` **10:83**, il rapporto peggiore, è stato il primo
+    ladro. **Il modulo con meno vocabolario compilato è quello che ha risposto
+    bene.** Quattro casi non sono una legge, ma sono il verso previsto.
 
     Ordine delle discipline e piano: `docs/plans/turn-arbitration.md`.
 
