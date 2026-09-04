@@ -841,3 +841,9 @@ response_template(size_constraint_unmet, it, "Non sono riuscito a darlo nella fo
 % sarebbe peggio — sarebbe un'invenzione al posto della risposta.
 response_template(story_subject_unrenderable, "I read what you want the story to be about — {topic} — but I can only compose around a single named character yet, so I would be padding a template instead of telling it.").
 response_template(story_subject_unrenderable, it, "Ho letto di che cosa vuoi la storia — {topic} — ma so comporre solo attorno a un personaggio con un nome, quindi riempirei uno schema invece di raccontarla.").
+
+% gen502 — lo strumento di scrittura dice SEMPRE quanto ha scritto e se ha
+% sovrascritto: «ho scritto» senza un numero e senza rilettura e' una promessa.
+response_template(wrote_file_x_with_y_bytes_verified, "Wrote {name} — {bytes} bytes, verified by reading it back.").
+response_template(rewrote_file_x_with_y_bytes_verified, "Rewrote {name} (it already existed) — {bytes} bytes, verified by reading it back.").
+response_template(i_could_not_write_x_and_i_do_not_say_i_did, "I could not write {name}, and I will not say that I did.").

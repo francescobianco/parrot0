@@ -276,6 +276,166 @@ La prima riga è quella che avrebbe chiuso il caso in un secondo: **se `source`
 non è lungo quanto il turno, la decomposizione ha perso la lettura globale.**
 Una domanda nuova su come si cede un turno costa ora **una riga di KB**.
 
+## 0.3-ter ⭐ CHE COSA PARROT0 SA GIÀ FARE — misurato, non ricordato
+
+> Misurato il 2026-09-04 su `tests/challenge/tasks/match0/seed`, la stessa
+> codebase su cui freebuff ha fatto 100/100 in 52 secondi. **Questa sezione
+> esiste perché la stima "siamo lontani" era giusta nel verso e sbagliata nella
+> quantità**: le capacità ci sono quasi tutte, e quello che manca è poco e
+> nominabile. Chi riprende deve partire da qui invece di ricostruirlo.
+
+### ✅ Funziona — e non va rifatto
+
+| | comando | risultato reale |
+|---|---|---|
+| elenca la cartella | `run ls` | `Makefile main.c strjoin.h` |
+| **esegue il build e ne legge il verdetto** | `run make` | ``​`make` FAILED (exit 2). No rule to make target 'strjoin.c', needed by 'join'.`` |
+| ingerisce un `.c` nella Code IR | `read main.c` | *«I read main.c into structure: it defines main»* |
+| risponde con **prove** | `definition source of main` | `Main.c.` |
+| | `source evidence for main` | `Evidence("main.c", fnv1a64 cc260a4af8631890, span(323, 4), builtin c scan v1)` |
+| | `call evidence for main` | `evidence("main.c", …, span(381, 7), …)` × 2 |
+| crea un file | `create the file hello.c` | il file esiste — **vuoto** |
+
+Span, digest, provenienza dichiarata, archi di chiamata: **la Code IR è viva e
+porta le prove**. È il pezzo costoso di UC0/UC1 e c'è.
+
+⭐ **La scoperta che vale un incremento: `run make` dice già che cosa manca.** La
+scala T1 qui sotto proponeva di *derivare* `missing_referenced_file` dal
+Makefile. **Non serve**: il build lo dice da solo, con parole migliori delle
+nostre. Un oracolo esterno che già funziona batte una regola da scrivere — ed è
+il contratto anti-specchio di C3 preso gratis.
+
+### ❌ Non funziona — e sono poche cose
+
+| | provato | esito |
+|---|---|---|
+| elencare in linguaggio naturale | `list the files here` | *«I don't understand that yet»* |
+| interrogare l'IR con parole proprie | `which file declares str_join` | *«non conosco declares»* |
+| | `what functions do you know` | *«Hey! I'm here…»* (chitchat) |
+| leggere un **header** | `read strjoin.h` | restituisce il **testo grezzo**, nessuna dichiarazione estratta |
+| leggere un **Makefile** | `read Makefile` | *«non conosco makefile»* |
+| **scrivere contenuto** | `write "ciao" into out.txt` | *«non ho uno strumento verificato»* |
+| | `put the text ciao in out2.txt` | ⛔ **`Learned: text ciao is located in out2.txt`** — di nuovo P0b |
+| redirezione di shell | `run printf ciao > out4.txt` | rifiutato **di proposito**: *«eseguo un programma con i suoi argomenti»* — è una buona proprietà di sicurezza e non va aggirata |
+
+### ⛔ Quindi il blocco singolo è UNO, ed è nominabile
+
+```text
+local_tool(search, …)   local_tool(find, …)   local_tool(list, …)
+local_tool(read, …)     local_tool(run,  …)
+                        ↑ nessuno che SCRIVA CONTENUTO
+```
+
+`create the file X` produce un file vuoto; `run` non può salvarci dentro niente
+perché rifiuta la shell. **Manca uno strumento dichiarato che scriva.** È la
+voce A qui sotto, e finché manca nessun match è vincibile — non per difficoltà
+del compito, per assenza di un verbo.
+
+### La distanza vera: A, B, C
+
+```text
+A. uno strumento che SCRIVE CONTENUTO in un file          ← il blocco singolo
+   gen494: local_tool/3 + tool_argv/2, DICHIARATO, non un ramo nel C,
+   e passa dal gate del workspace come gli altri.
+
+B. il CICLO   osserva → decidi → scrivi → verifica
+   i quattro pezzi esistono separati; nessuno li tiene insieme fra un turno e
+   l'altro. È D49 (`docs/plans/continue-as-resumption.md`) più C2 di questa
+   coda — la stessa struttura vista da due lati.
+
+C. un frontend per le DICHIARAZIONI degli header, che è UC2 con un delta solo.
+   Sblocca «che contratto deve soddisfare il file mancante».
+```
+
+⚠ **E ciò che oggi domina non è nessuna delle tre.** Tutto il quadro sopra vale
+**quando glielo si chiede esplicitamente**. Sul prompt vero del compito il turno
+non arriva mai lì: viene rivendicato, o spezzato in frammenti che perdono la
+lettura globale. È la Parte 0, ed è per questo che sta in testa.
+
+### ⚠ Che cosa comprano A + B + C — e che cosa no
+
+**match0, non la parità con freebuff.** Un file, un contratto, un ciclo che si
+chiude: da 5/100 a un punteggio vero su difficoltà 1.
+
+**match1 è un altro ordine di grandezza**, e va detto prima e non dopo: chiede
+quicksort three-way con fallback a profondità limitata, integrazione nel
+Makefile e `-Werror` pulito. Lì non basta il ciclo — serve **sintesi di
+algoritmo**, cioè la facoltà `build` di gen209 (`algo_shape`), che oggi lavora
+su forme curate. Chiamare «parità» qualcosa che chiude match0 sarebbe l'inganno
+che `PRINCIPLES.md` vieta.
+
+Dettaglio e ordine completo: `docs/plans/universal-code-comprehension.md` §9-bis.
+
+## 0.3-quater ⛔ LO STRUMENTO DI SCRITTURA — e le due obiezioni di F., che sono giuste
+
+Costruito il 2026-09-04: `code_write_file` (apre, scrive, richiude e **rilegge**
+per verificare) più `local_tool(write, piact_write, …)` e la classe
+`write_file_request`. Ma va registrato **come è andata**, non solo che esiste.
+
+### Obiezione 1 — «stai nascondendo qualcosa che non è KB-first?»
+
+Sì. La prima stesura riconosceva il nome del file **per forma compilata** — *«un
+token con un punto e un'estensione, mai un percorso»* — più una politica non
+scritta (*«vince l'ultimo che combacia»*). Sembrava struttura; erano **due
+decisioni nel C che nessuna lezione poteva correggere**.
+
+Il test del bilancio del mantra #18 lo diceva in un numero:
+
+| | prima | dopo la correzione |
+|---|---|---|
+| C | **+131** | +126 |
+| KB | +30 | **+41** |
+
+Corretto usando il meccanismo che **esisteva già** (gen494):
+`tool_slot_cue(name, …)` — la stessa classe che serve `find … named X`. Ora
+«into», «dentro», «nel file» sono righe di KB, e una forma nuova non ricompila
+niente.
+
+⚠ **Il bilancio resta sfavorevole (C +126 / KB +41) e non lo nascondo.** Il
+grosso è la primitiva di IO e il suo gate — che nel C ci deve stare, perché *un
+gate non dev'essere insegnabile* — ma va detto che questa non è una migrazione
+KB-first: è **una capacità nuova con dentro ancora del C**.
+
+### ⭐ Obiezione 2 — «visione troppo ridotta alla meccanica di strumento»
+
+**È l'obiezione che conta, ed è giusta.** Scrivere un file è l'**ultimo** passo
+di un agente, e il meno interessante. Quello che rende freebuff un agente non è
+che sappia scrivere: è che ha **derivato che cosa scrivere** dal contratto
+nell'header. Con lo strumento e basta, parrot0 diventa un **trascrittore** —
+scrive ciò che gli si detta — e un trascrittore non chiude nessun compito.
+
+L'oggetto vero non è il verbo «scrivi». È **l'obbligo di produrre un artefatto
+che soddisfi un contratto**, cioè:
+
+```text
+T2  must_produce(File)          l'obbligo — un subject che non esiste ancora
+T3  contract_for(File, Header)  la specifica DERIVATA, non constatata
+D49 undertaking / resumable     l'impresa che sopravvive al turno
+──────────────────────────────────────────────────────────────────
+A   local_tool(write, …)        l'AZIONE TERMINALE di tutto questo
+```
+
+Costruire A per primo era comodo perché è misurabile; ma A senza T2/T3 non
+produce un agente, produce un'obbedienza. **L'ordine giusto resta T2 → T3 → A**,
+e A ora esiste per quando serviranno.
+
+### ⛔ E la prova strutturale che l'obiezione 2 è giusta
+
+Appena costruito, lo strumento **non riceve il turno**:
+
+```text
+> write this into hello.c ```int hi(void){ return 7; }```
+  [modulo: symbolic]  «That looks like a snippet of code.»   → nessun file
+```
+
+Ho aggiunto una capacità **sotto** uno strato di arbitrato irrisolto, e il turno
+non ci arriva. È esattamente l'argomento di §0.2 — *«aggiungere massa a una
+facoltà che non riceve il turno non muove la misura di un punto»* — **dimostrato
+su una capacità che ho aggiunto io stesso, un'ora dopo averlo scritto**.
+
+⚠ E per il mantra #21 il rimedio **non** è la quarta `faculty_yield`: `symbolic`
+va **recensito** prima, non zittito per riflesso. Voce aperta.
+
 ## 0.4 La scala — start small, grow fast
 
 Il principio: **ogni gradino è una generalizzazione della stessa relazione**, non
@@ -286,7 +446,15 @@ Il caso piccolo **ma vero** è già sul banco: `match0/seed` non compila perché
 `Makefile` nomina `strjoin.c` e quel file non esiste. Sono **due osservazioni e
 un join** — un'inferenza vera, non un frasario.
 
-### T1 — «che cosa è rotto»: il riferimento che non atterra
+### ⚠ T1 — SUPERATA DALLA MISURA (vedi 0.3-ter)
+
+Proponeva di derivare `missing_referenced_file` dal Makefile. **`run make` lo
+dice già**, e meglio. La regola resta interessante come esercizio di
+generalizzazione (il gate del fan-out `Makefile` ∪ `#include` è ancora buono),
+ma **non è sulla strada di match0**: l'oracolo esterno c'è. Tenuta qui per la
+sua forma, non come lavoro da fare per primo.
+
+### T1 (forma originale) — «che cosa è rotto»: il riferimento che non atterra
 
 ```prolog
 % una sola relazione, e nessuna parola di dominio

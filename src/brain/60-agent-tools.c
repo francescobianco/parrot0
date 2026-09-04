@@ -899,6 +899,75 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
     char rawcopy[512]; snprintf(rawcopy, sizeof rawcopy, "%s", raw);
     char *w[96]; size_t nw = split_words(rawcopy, w, 96);
 
+    /* ---- gen502: SCRIVERE CONTENUTO IN UN FILE, e perche' mancava ----------
+     *
+     * Misurato su `tests/challenge/tasks/match0/seed`, la codebase su cui
+     * freebuff ha fatto 100/100: parrot0 elenca (`run ls`), legge in struttura
+     * (`read main.c`), risponde con span e provenienza, ed ESEGUE IL BUILD
+     * leggendone il verdetto (`run make` -> «No rule to make target
+     * 'strjoin.c'»). Sa creare un file — VUOTO. Fra lui e un compito chiuso
+     * c'era un VERBO MANCANTE, non una difficolta' del compito.
+     *
+     * L'inventario `local_tool` aveva search/find/list/read/run e nessuno che
+     * scrivesse, e `run` rifiuta le redirezioni di shell per progetto — una
+     * buona proprieta' di sicurezza, che non va aggirata ma completata.
+     *
+     * KB-first come gli altri: la CLASSE della richiesta e' `write_file_request`
+     * (teachable, EN+IT), il nome del file si riconosce per FORMA (un token con
+     * estensione — struttura, non vocabolario), e il contenuto lo estrae
+     * `code_extract_source`, cioe' la stessa percezione universale degli span
+     * che gia' serve mod_gen. Il C qui non nomina nessun linguaggio e nessuna
+     * parola di dominio.
+     *
+     * ⚠ Il gate del workspace non si sposta: `code_write_file` rifiuta i
+     * percorsi, i dotfile e i nomi non basename, e RILEGGE il file prima di
+     * dire che l'ha scritto — «ho scritto» senza rilettura e' una promessa, non
+     * un fatto. */
+    if (kb_cue_match(b, "write_file_request", low)) {
+        char body[262144];
+        if (code_extract_source(b->kb, raw, body, sizeof body) == 1 && body[0]) {
+            /* ⛔ QUI AVEVO NASCOSTO CONOSCENZA NEL C, e F. lo ha visto.
+             *
+             * La prima stesura riconosceva il nome del file per FORMA — «un
+             * token con un punto e un'estensione, mai un percorso» — piu' una
+             * politica non scritta («vince l'ultimo che combacia»). Sembrava
+             * struttura; erano due decisioni compilate, e nessuna delle due si
+             * poteva correggere parlando. Il test del bilancio del mantra #18 lo
+             * diceva in un numero: C +131 contro KB +30.
+             *
+             * Il meccanismo giusto esisteva gia' ed e' di gen494: QUALE PAROLA
+             * INTRODUCE UNO SLOT e' `tool_slot_cue(name, …)`, la stessa classe
+             * che serve `find … named X`. Aggiungere «into» o «dentro» e' una
+             * riga di KB, non una ricompilazione — ed e' esattamente cio' che
+             * qui prima non si poteva fare. */
+            const char *name = NULL;
+            for (size_t i = 0; i + 1 < nw; i++)
+                if (tool_slot_word(b, "name", w[i])) name = w[i + 1];
+            if (name) {
+                char nb[80]; snprintf(nb, sizeof nb, "%s", name);
+                rstrip_punct(nb);
+                size_t written = 0;
+                int wr = code_write_file(nb, body, &written);
+                if (wr == 1 || wr == 2) {
+                    char nbytes[32];
+                    snprintf(nbytes, sizeof nbytes, "%zu", written);
+                    const KbResponseSlot _rs[] = { { "name", nb }, { "bytes", nbytes } };
+                    kb_term_say(b, wr == 2 ? "rewrote_file_x_with_y_bytes_verified"
+                                           : "wrote_file_x_with_y_bytes_verified",
+                                _rs, 2, out, out_size);
+                    note_artifact(b, "file", nb);
+                    store_proof(b, out);
+                    return 1;
+                }
+                {   const KbResponseSlot _rs[] = { { "name", nb } };
+                    kb_term_say(b, "i_could_not_write_x_and_i_do_not_say_i_did",
+                                _rs, 1, out, out_size); }
+                store_proof(b, out);
+                return 1;
+            }
+        }
+    }
+
     /* ---- locate / search for a symbol ---- */
     if (want_grep) {
         /* the pattern is the token after the cue word; sanitize for single-quotes. */

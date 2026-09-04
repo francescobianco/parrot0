@@ -62,6 +62,11 @@ local_tool(find,   piact_find, "find a file by name").
 local_tool(list,   piact_list, "list the files in a directory").
 local_tool(read,   piact_read, "read a file and take in its structure").
 local_tool(run,    piact_run,  "run a command").
+% gen502: il verbo che mancava. Misurato sul banco: parrot0 sapeva elencare,
+% leggere in struttura, rispondere con le prove ed ESEGUIRE IL BUILD leggendone
+% il verdetto — e creare un file VUOTO. Fra lui e un compito chiuso c'era uno
+% strumento, non una difficolta' del compito.
+local_tool(write,  piact_write, "write content into a file").
 
 % Quanto in fondo guarda un elenco: conoscenza, non una costante nel C. Senza
 % questo fatto si guarda ovunque, perche' «quali file ci sono» significa quello.
@@ -129,6 +134,17 @@ tool_slot_cue(name, "called").
 tool_slot_cue(name, "chiamato").
 tool_slot_cue(name, "chiamata").
 tool_slot_cue(name, "di nome").
+% gen502: le parole che introducono il NOME quando lo slot e' la destinazione di
+% una scrittura. Stessa classe, non una seconda: «find un file named X» e
+% «scrivilo in X» chiedono la stessa cosa al turno, e una forma nuova resta una
+% riga. Prima questa scelta era compilata come «un token con un'estensione».
+tool_slot_cue(name, "into").
+tool_slot_cue(name, "to").
+tool_slot_cue(name, "as").
+tool_slot_cue(name, "in").
+tool_slot_cue(name, "dentro").
+tool_slot_cue(name, "nel file").
+tool_slot_cue(name, "nel").
 
 tool_slot_cue(pattern, "for").
 tool_slot_cue(pattern, "is").
@@ -191,3 +207,22 @@ source_extension("*.h").
 source_extension("*.py").
 source_extension("*.sh").
 source_extension("*.js").
+
+% ── gen502 — LA CLASSE «SCRIVI QUESTO IN QUEL FILE» ─────────────────────────
+% Il nome del file si riconosce per FORMA (un token con estensione) e il
+% contenuto dalla percezione universale degli span: qui vive solo il VERBO, ed
+% e' teachable come ogni altra classe. EN + IT.
+intent_cue(write_file_request, "write it into").
+intent_cue(write_file_request, "write this into").
+intent_cue(write_file_request, "write into").
+intent_cue(write_file_request, "write to the file").
+intent_cue(write_file_request, "save it into").
+intent_cue(write_file_request, "save this into").
+intent_cue(write_file_request, "save into").
+intent_cue(write_file_request, "put this into").
+intent_cue(write_file_request, "put it into").
+intent_cue(write_file_request, "scrivi in").
+intent_cue(write_file_request, "scrivilo in").
+intent_cue(write_file_request, "salva in").
+intent_cue(write_file_request, "salvalo in").
+intent_cue(write_file_request, "mettilo in").

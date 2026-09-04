@@ -4255,6 +4255,60 @@ int code_create_empty_file(const char *name) {
     return 1;
 }
 
+/* ⛔ gen502 — SCRIVERE UN FILE CON DENTRO QUALCOSA.
+ *
+ * Misurato il 2026-09-04 su `tests/challenge/tasks/match0/seed`: parrot0 sa
+ * elencare (`run ls`), leggere in struttura (`read main.c`), rispondere con le
+ * prove (span+digest+provenienza) ed ESEGUIRE IL BUILD leggendone il verdetto
+ * (`run make` -> «No rule to make target 'strjoin.c'»). Sa anche creare un file
+ * — VUOTO. Non sa metterci dentro niente, e `run` rifiuta le redirezioni di
+ * shell per progetto («eseguo un programma con i suoi argomenti»), che e' una
+ * buona proprieta' di sicurezza e non va aggirata.
+ *
+ * Quindi fra parrot0 e un compito chiuso c'era un verbo mancante, non una
+ * difficolta' del compito. Questa e' la primitiva: MECCANISMO — apre, scrive,
+ * richiude e RILEGGE per verificare. Quando si scrive e con che parole lo si
+ * chiede resta conoscenza (`local_tool(write, …)` in kb/core/capabilities.p0).
+ *
+ * Le guardie sono quelle di `code_create_empty_file`, piu' due:
+ *   - il contenuto ha un tetto, perche' un file che nessuno ha letto non deve
+ *     poter diventare grande a piacere;
+ *   - la sovrascrittura e' PERMESSA ma DICHIARATA nel valore di ritorno, perche'
+ *     un agente che ripara deve poter riscrivere e chi legge la risposta deve
+ *     sapere quale delle due cose e' successa.
+ *
+ * Ritorna 1 se ha creato, 2 se ha sovrascritto, -1 se il nome o il contenuto
+ * non passano le guardie, -2 se la riletura non combacia. */
+int code_write_file(const char *name, const char *content, size_t *written) {
+    if (written) *written = 0;
+    if (!name || !*name || !content) return -1;
+    size_t l = strlen(name);
+    if (l > 64) return -1;
+    if (name[0] == '.' || name[0] == '-') return -1;   /* no dotfiles, no flags */
+    for (const char *c = name; *c; c++)                /* plain basename only */
+        if (!(isalnum((unsigned char)*c) || *c == '.' || *c == '_' || *c == '-'))
+            return -1;
+    if (strstr(name, "..")) return -1;
+    size_t n = strlen(content);
+    if (n == 0 || n > 262144) return -1;
+
+    struct stat before;
+    int existed = stat(name, &before) == 0;
+    FILE *f = fopen(name, "wb");
+    if (!f) return -1;
+    size_t put = fwrite(content, 1, n, f);
+    int closed = fclose(f);
+    if (put != n || closed != 0) return -2;
+
+    /* La verifica non e' cortesia: senza rilettura «ho scritto» e' una promessa,
+     * non un fatto, ed e' esattamente il tipo di affermazione che PRINCIPLES.md
+     * vieta di fare senza prova. */
+    struct stat after;
+    if (stat(name, &after) != 0 || (size_t)after.st_size != n) return -2;
+    if (written) *written = n;
+    return existed ? 2 : 1;
+}
+
 static int print_msg_ok(const char *m) {
     if (!m || !*m || strlen(m) > 120) return 0;
     for (const char *c = m; *c; c++)

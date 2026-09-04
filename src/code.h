@@ -463,6 +463,9 @@ int code_check_print_program(const char *src, const char *message,
  * O_EXCL. Returns 1 created, 0 a file with that name already exists, -1
  * invalid name or OS error. */
 int code_create_empty_file(const char *name);
+/* gen502: scrive `content` in `name` e RILEGGE per verificare.
+ * 1 = creato, 2 = sovrascritto, -1 = guardie non passate, -2 = riletura no. */
+int code_write_file(const char *name, const char *content, size_t *written);
 
 /* gen209 (docs/plans/learn-and-build.md Track B/B0): the run-grounded JUDGE a sort
  * needs. Wraps a candidate function `func_src` — a self-contained C definition named
