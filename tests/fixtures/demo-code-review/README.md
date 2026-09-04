@@ -163,3 +163,46 @@ un catalogo; un rifiuto onesto dove manca l'evidenza; e una forma nuova
   separa due ipotesi concorrenti. Sono la prossima tappa del piano.
 
 Il piano completo: [`docs/plans/universal-code-comprehension.md`](../../../docs/plans/universal-code-comprehension.md).
+
+---
+
+## Aggiunta gen494 — parlaci in italiano, e chiedi il formato
+
+I prompt qui sopra sono in inglese perché li avevo scelti io, ed è stato un
+errore: al primo utente vero, che scrive in italiano, la demo è crollata. Questi
+sono i prompt **di F.**, quelli che l'hanno rotta, e adesso funzionano:
+
+```
+quali file ci sono
+listami i file .c
+leggi src/report.c
+cerca hash_table
+```
+
+E il formato è una richiesta come le altre, non un'opzione:
+
+```
+listami i file in formato markdown
+listami i file .c in formato markdown
+listami i file come elenco puntato
+```
+
+> The files in .: - ./src/cache.c
+> - ./src/report.c
+> - ./README.md
+
+**Il formato compone con il filtro**: `.c` più markdown dà l'elenco puntato dei
+soli `.c`. Non c'è nessun ramo che gestisce «filtro + formato»: sono due vincoli
+letti dallo stesso turno, e ciascuno agisce dove gli compete.
+
+E se gli strumenti sono spenti, non dice «non capisco»:
+
+```sh
+PARROT0_TOOLS= parrot0     # oppure: make chat
+```
+
+> tools_disabled: I understood that — it is a list request, and I can do it —
+> but in conversational mode I may not touch the filesystem.
+
+**parrot0 è autorizzato a non potere; non è autorizzato a descrivere male il
+perché.**

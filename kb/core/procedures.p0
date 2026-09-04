@@ -728,6 +728,37 @@ answer_plan(cultural_synthesis, meaning, 5, domain_required).
 
 format_realizer(numbered, numbered_lines).
 
+% ── gen494 — IL FORMATO DI UN RISULTATO E' CONOSCENZA, ANCHE PER I TOOL ─────
+%
+% F.: «e poi ti processa il risultato, e se gli chiedi "dammi la lista dei file
+% in formato markdown" lui lo sa fare per inferenza con la conoscenza».
+%
+% Lo strato dei formati esisteva (`format_constraint/2` + `format_realizer/2`) ma
+% serviva solo i piani di analisi: l'uscita di uno strumento tornava sempre nella
+% stessa forma, una riga sola separata da spazi. Qui la stessa conoscenza governa
+% anche quella — un formato nuovo e' un fatto, non un ramo nel modulo dei tool.
+%
+% `format_line_prefix/2` e' il pezzo che mancava: dice CON CHE COSA si apre ogni
+% elemento. Il motore sa spezzare un elenco e mettere un prefisso; non sa che
+% «-» sia markdown, e non deve saperlo.
+format_constraint(markdown_list, "in markdown").
+format_constraint(markdown_list, "formato markdown").
+format_constraint(markdown_list, "as markdown").
+format_constraint(markdown_list, "markdown format").
+format_constraint(bulleted, "elenco puntato").
+format_constraint(bulleted, "puntato").
+format_constraint(bulleted, "come elenco").
+format_constraint(bulleted, "bullet list").
+format_constraint(bulleted, "as a bulleted list").
+format_constraint(bulleted, "punto elenco").
+
+format_realizer(markdown_list, line_prefix).
+format_realizer(bulleted, line_prefix).
+
+machinery(format_line_prefix).
+format_line_prefix(markdown_list, "- ").
+format_line_prefix(bulleted, "- ").
+
 % gen335+: meta-knowledge layer (L4-L12 saturation).
 :- include(meta.p0).
 

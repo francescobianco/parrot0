@@ -349,7 +349,20 @@ static const char *find_dir_kb(Brain *b, char **w, size_t nw) {
         /* "in this folder" / "in questa cartella" / "here"/"qui" -> current directory. */
         if (dir_here_word(w[j]) || dir_deictic_det(w[j])) return ".";
         if (pathish_token(w[j]) && strchr(w[j], '/')) return w[j];
-        if (pathish_token(w[j]) && !dir_noun(w[j])) return w[j];
+        /* gen494 — UNA CARTELLA DEV'ESSERE UNA CARTELLA.
+         *
+         * «in» introduce davvero una directory, ma compare anche in «in formato
+         * markdown»: il ramo prendeva `formato` come cartella e il turno moriva
+         * su `unsafe_path` — un rifiuto giusto per una domanda che nessuno aveva
+         * fatto. Non e' un problema di vocabolario ma di VERIFICA: un candidato
+         * che non esiste sul disco non e' una cartella, e chiederlo costa una
+         * stat. Se non esiste si continua a cercare; in mancanza d'altro resta la
+         * cartella corrente, che e' cio' che «listami i file» vuol dire. */
+        if (pathish_token(w[j]) && !dir_noun(w[j])) {
+            struct stat dst;
+            if (stat(w[j], &dst) == 0 && S_ISDIR(dst.st_mode)) return w[j];
+            continue;
+        }
     }
     /* a bare token that contains a slash is very likely the directory. */
     for (size_t i = 0; i < nw; i++) {
@@ -472,6 +485,56 @@ static int tool_argv_build(Brain *b, const char *tool,
     return na > 0;
 }
 
+/* ── gen494 — IL RISULTATO DI UNO STRUMENTO PASSA DAL FORMATO CHIESTO ───────
+ *
+ * F.: «poi ti processa il risultato, e se gli chiedi la lista dei file in
+ * formato markdown lui lo sa fare per inferenza con la conoscenza».
+ *
+ * Lo strato dei formati esisteva ma serviva solo i piani di analisi: l'uscita di
+ * uno strumento tornava sempre nella stessa forma. Qui la stessa conoscenza la
+ * governa. Il motore sa spezzare un elenco e mettere un prefisso davanti a ogni
+ * elemento; **non sa che «-» sia markdown**, e non deve: quale vincolo il turno
+ * esprime lo dice `format_constraint/2`, e con che cosa si apre un elemento lo
+ * dice `format_line_prefix/2`. Un formato nuovo e' due fatti, zero C.
+ *
+ * Torna 0 se il turno non chiede nessun formato: allora l'uscita resta quella
+ * di prima, e nessuno paga niente. */
+static int tool_format_prefix(Brain *b, const char *turn,
+                              char *prefix, size_t psz) {
+    if (!b || !b->kb || !turn || !*turn) return 0;
+    char constraint[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN];
+    int score = 0;
+    if (kb_hypothesis_best(b->kb, "format_constraint", turn, NULL, 0,
+                           constraint, sizeof constraint, &score,
+                           proof, sizeof proof) != 1) return 0;
+    char rows[1][KB_TERM_LEN];
+    const char *pq[2] = { constraint, NULL };
+    if (kb_match(b->kb, "format_line_prefix", pq, 2, rows, 1) != 1) return 0;
+    char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[0]);
+    snprintf(prefix, psz, "%s", kb_dequote(rb));
+    return prefix[0] != '\0';
+}
+
+/* Riscrive un elenco piatto — «a b c» — come una riga per elemento, ciascuna
+ * aperta dal prefisso dichiarato. Meccanica pura: non nomina nessun formato. */
+static void tool_apply_prefix(const char *flat, const char *prefix,
+                              char *out, size_t out_size) {
+    char work[4000]; snprintf(work, sizeof work, "%s", flat);
+    size_t o = 0; out[0] = '\0';
+    for (char *tok = strtok(work, " "); tok; tok = strtok(NULL, " ")) {
+        if (!*tok) continue;
+        int w = snprintf(out + o, out_size - o, "%s%s%s",
+                         o ? "\n" : "", prefix, tok);
+        if (w < 0 || (size_t)w >= out_size - o) break;
+        o += (size_t)w;
+    }
+}
+
+/* gen494: il turno arriva fin qui perche' il FORMATO e' parte della richiesta,
+ * non una decorazione dell'uscita (mantra #11). Chi non lo passa ha l'uscita di
+ * prima: la variabile e' letta solo se c'e'. */
+static const char *g_tool_turn = NULL;
+
 static int piact_obs(Brain *b, char *const *argv, const char *label,
                      char *out, size_t out_size) {
     P0Obs obs;
@@ -496,8 +559,19 @@ static int piact_obs(Brain *b, char *const *argv, const char *label,
                          it ? "nessun risultato" : "nothing");
         } else {
             char result[4200];
-            snprintf(result, sizeof result, "%s%s", flat,
-                     obs.out_truncated ? " …[truncated]" : "");
+            /* gen494 — il formato chiesto governa anche l'uscita di uno
+             * strumento: il motore spezza e prefissa, la KB dice con che cosa. */
+            char prefix[32];
+            if (g_tool_turn &&
+                tool_format_prefix(b, g_tool_turn, prefix, sizeof prefix)) {
+                char shaped[4200];
+                tool_apply_prefix(flat, prefix, shaped, sizeof shaped);
+                snprintf(result, sizeof result, "%s%s", shaped,
+                         obs.out_truncated ? " …[truncated]" : "");
+            } else {
+                snprintf(result, sizeof result, "%s%s", flat,
+                         obs.out_truncated ? " …[truncated]" : "");
+            }
             const KbResponseSlot slots[] = {{ "label", label }, { "result", result }};
             if (!kb_response_slots(b, "tool_result", slots, 2, msg, sizeof msg))
                 snprintf(msg, sizeof msg, "%s: %s", label, result);
@@ -657,6 +731,44 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
      * the END of the registry — where it speaks only if nobody else could. */
     if (!brain_policy_on(b, "tools")) return 0;
 
+    /* ── gen494 — IL FORMATO SI CONSUMA PRIMA CHE GLI SLOT LEGGANO ──────────
+     *
+     * «listami i file in formato markdown» chiede DUE cose: un'azione e una
+     * forma. Lasciando la richiesta di forma dentro il turno, gli estrattori di
+     * slot ci inciampavano — `in` prendeva «formato» come cartella, e «markdown»
+     * diventava il filtro `*.md`, cosi' l'elenco tornava con il solo README.
+     * Non erano difetti degli estrattori: era che nessuno aveva tolto dal turno
+     * la parte gia' interpretata.
+     *
+     * Quale porzione sia una richiesta di forma e' conoscenza
+     * (`format_constraint/2`); toglierla e' meccanica. Il turno che arriva agli
+     * slot e' quindi la sola richiesta d'azione, e il formato viaggia a parte. */
+    /* il turno INTERO resta per il formato; agli slot arriva quello ripulito */
+    static char fmt_turn[2048];
+    snprintf(fmt_turn, sizeof fmt_turn, "%s", low);
+    g_tool_turn = fmt_turn;
+    {
+        char (*rows)[KB_TERM_LEN] = NULL; size_t nrows = 0;
+        const char *fq[2] = { NULL, NULL };
+        if (kb_match_all(b->kb, "format_constraint", fq, 2, &rows, &nrows)) {
+            for (size_t i = 0; i < nrows; i++) {
+                const char *cq[2] = { rows[i], NULL };
+                char evs[8][KB_TERM_LEN];
+                size_t ne = kb_match(b->kb, "format_constraint", cq, 2, evs, 8);
+                for (size_t k = 0; k < ne; k++) {
+                    char eb[KB_TERM_LEN]; snprintf(eb, sizeof eb, "%s", evs[k]);
+                    const char *ev = kb_dequote(eb);
+                    if (!ev || !*ev) continue;
+                    char *at = strstr(low, ev);
+                    while (at) {                 /* si cancella, non si accorcia */
+                        for (size_t z = 0; ev[z]; z++) at[z] = ' ';
+                        at = strstr(low, ev);
+                    }
+                }
+            }
+        }
+        free(rows);
+    }
     char rawcopy[512]; snprintf(rawcopy, sizeof rawcopy, "%s", raw);
     char *w[96]; size_t nw = split_words(rawcopy, w, 96);
 
