@@ -89,7 +89,9 @@
           "file": "~/.config/manicode/settings.json",
           "json_key": "freebuffModel",
           "equals": "deepseek/deepseek-v4-flash",
-          "record_as": "model"
+          "record_as": "model",
+          "warn_only": true,
+          "_note": "gen502: pin dichiarato ma NON bloccante. Il settings dice minimax/minimax-m3 mentre la league si chiama -deepseek-flash; finche' non combaciano il modello osservato viene comunque registrato nel result.json, cioe' ogni corsa sa contro chi ha gareggiato anche quando non e' quello atteso. Cio' che non deve succedere e' correre SENZA SAPERLO, non correre contro un altro."
         }
       ],
       "_note_driver": "gen502: freebuff si pilota via tmux perche' va LETTO, non perche' tmux piloti meglio. In `gen501-pilot-b` sembrava non lavorare: 738 eventi di stream, timeout, cartella intatta. Rigiocando `raw.log` in un pane tmux si vede che aveva ricevuto il task intero, letto sette file e stava ragionando sull'introsort al secondo 43 — con il timeout a 45. Un TUI a schermo alternato non aggiunge byte, RIDISEGNA: su 591 KB di raw.log la riga di prompt compare 3 volte, tutte nei primi 92 KB, e il transcript concatenato era 169 KB con UN glifo visibile. `capture-pane` da' lo schermo renderizzato e chiude il problema.",
@@ -98,6 +100,7 @@
     }
   },
   "matches": [
+    "match0",
     "match1",
     "match2"
   ]

@@ -1,0 +1,24 @@
+{
+  "id": "match0",
+  "title": "Calibration: the missing backend file",
+  "difficulty": 1,
+  "artifact": "strjoin.c",
+  "timeout_seconds": 300,
+  "order": [
+    "parrot0",
+    "freebuff"
+  ],
+  "logic_actions": {
+    "freebuff": [
+      {
+        "id": "approve_expected_workspace_operation",
+        "phase": "run",
+        "when_regex": "(?:allow|approve|confirm).{0,240}(?:read|write|edit|create|make|cc|compile|test).{0,160}(?:workspace|code|strjoin|join)",
+        "send_key": "ENTER",
+        "max_uses": 20
+      }
+    ],
+    "parrot0": []
+  },
+  "_note_why": "gen502, CHALLENGE_TODO C4. match1 e' difficolta' 4 e da' 0-0: giusto come bersaglio, inutile come primo segnale. Questo e' il match di calibrazione: UN file, UN contratto, gradazione vera. Il seed NON COMPILA di proposito - manca esattamente il file da scrivere - cosi' il compito e' autoevidente esplorando la cartella e nessun agente puo' fingere di averlo capito dal solo prompt."
+}

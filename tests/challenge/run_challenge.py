@@ -922,7 +922,13 @@ def run_preflight(
         for index, rule in enumerate(rules)
         if rule.get("record_as")
     }
-    failed = [check["id"] for check in checks if not check["passed"]]
+    # gen502 — un pin puo' essere DICHIARATO senza fermare la gara. Il modello
+    # osservato finisce comunque nel result.json: cio' che non deve succedere e'
+    # correre senza sapere contro chi, non correre contro un altro.
+    failed = [
+        check["id"] for index, check in enumerate(checks)
+        if not check["passed"] and not rules[index].get("warn_only", False)
+    ]
     for check in checks:
         mark = "ok  " if check["passed"] else "FAIL"
         print(f"  preflight {mark} {agent_id}/{check['id']}: {check.get('detail', '')}", flush=True)
