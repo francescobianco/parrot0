@@ -1,3 +1,8 @@
+/* gen503: readlink e' POSIX e -std=c11 puro non la dichiara. Senza questa
+ * riga il compilatore ne assumeva un int implicito, e la risalita dalla
+ * posizione del binario — l'ultima rete di kb_root_prefix — era rotta
+ * proprio quando serviva. */
+#define _POSIX_C_SOURCE 200809L
 /*
  * kb.c - parrot0's logic engine (gen4-gen11).
  *
@@ -3793,8 +3798,24 @@ static const char *kb_root_prefix(void) {
         FILE *t = fopen(probe, "r");
         if (t) { fclose(t); snprintf(root, sizeof root, "%s/", env); return root; }
     }
+    /* gen503 — LA CWD VA BENE ADESSO, NON PER SEMPRE.
+     *
+     * Qui si restituiva NULL e lo si teneva in cache: «la cwd va gia' bene».
+     * Vero al boot, falso appena il processo si sposta — e il demone del
+     * test-engine si sposta, da quando esiste `!cwd`. Il sintomo era un
+     * caricamento pigro che falliva SOLO dentro una sandbox, cioe' solo nei
+     * test, cioe' nel posto dove si guarda per capire se una cosa funziona.
+     * Si registra il percorso ASSOLUTO di adesso, che resta valido dopo. */
     { FILE *t = fopen("kb/core/base.p0", "r");
-      if (t) { fclose(t); return NULL; } }        /* la cwd va gia' bene */
+      if (t) {
+          fclose(t);
+          char here[500];
+          if (getcwd(here, sizeof here)) {
+              snprintf(root, sizeof root, "%s/", here);
+              return root;
+          }
+          return NULL;
+      } }
 
     /* risalita dalla posizione del binario: /proc su Linux, poi i genitori */
     char exe[512];

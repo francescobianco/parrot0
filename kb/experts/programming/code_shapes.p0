@@ -28,6 +28,18 @@ machinery(code_shape_order).
 machinery(code_shape_slot).
 machinery(code_shape_signature).
 machinery(lang_syntax).
+machinery(lang_block).
+machinery(lang_layout).
+
+% ── COME UNA LINGUA SEGNA UN BLOCCO ────────────────────────────────────────
+% La prima stesura scriveva le graffe nel C e le chiamava meccanica. Provando ad
+% aggiungere Python e' venuto fuori subito che non lo sono: un blocco si puo'
+% segnare con due parentesi o con un rientro, e quale delle due e' una proprieta'
+% della LINGUA. E' la falsificazione che il piano (§5 M5) chiedeva, ed e' andata
+% come deve andare una falsificazione utile: ha trovato una riga sbagliata.
+lang_block(c, "{", "}").
+lang_block(python, ":", "").
+lang_layout(python, indented).
 
 % ── LA LINGUA C ─────────────────────────────────────────────────────────────
 % Ogni riga qui e' un'operazione generale, non un pezzo di un algoritmo: sono
@@ -39,6 +51,17 @@ lang_syntax(c, swap_via_temp,   "int {2} = {0}; {0} = {1}; {1} = {2};").
 lang_syntax(c, declare_int,     "int {0} = {1};").
 lang_syntax(c, accumulate,      "{0} = {0} + {1};").
 lang_syntax(c, return_value,    "return {0};").
+
+% ── M3: le operazioni che servono a soddisfare un CONTRATTO ─────────────────
+% Allocare, controllare un trabocco PRIMA di allocare, copiare, terminare con
+% NUL. Sono idiomi generali del C, non pezzi di un compito: la stessa riga
+% serve a qualunque funzione che restituisca memoria che chi chiama libera.
+lang_syntax(c, declare_size,    "size_t {0} = {1};").
+lang_syntax(c, if_cond,         "if ({0})").
+lang_syntax(c, return_null,     "return NULL;").
+lang_syntax(c, alloc_bytes,     "char *{0} = malloc({1});").
+lang_syntax(c, copy_bytes,      "memcpy({0}, {1}, {2});").
+lang_syntax(c, set_index,       "{0}[{1}] = {2};").
 
 % ── FORMA 1: due cicli annidati, confronta e scambia ────────────────────────
 % E' la forma che `algo_shape(bubblesort, nested_loop_compare_swap)` nomina, ed
@@ -93,3 +116,71 @@ code_shape_slot(soa_2, 2, "n").
 code_shape_slot(soa_3, 0, "s").
 code_shape_slot(soa_3, 1, "a[i]").
 code_shape_slot(soa_4, 0, "s").
+
+% ── FORMA 3: concatenare due stringhe in memoria fresca ─────────────────────
+% Dichiarata solo in KB, con le sei operazioni di M3. E' l'algoritmo da manuale
+% — la stessa forma che sta dietro `strcat` non distruttivo, `String +` e
+% qualunque `concat` — e non e' il compito di nessun banco: la si scrive per
+% avere le operazioni, non per avere una risposta.
+%
+% Le due meta' che rendono onesta la forma, e che un template letterale non
+% costringeva a nominare:
+%   il trabocco si controlla PRIMA di allocare, non dopo
+%   il puntatore nullo di malloc e' un caso, non una svista
+code_shape_signature(concat_two, c, "char *{name}(const char *a, const char *b)").
+
+code_shape_step(concat_two, ct_1, root,  declare_size).
+code_shape_step(concat_two, ct_2, root,  declare_size).
+code_shape_step(concat_two, ct_3, root,  if_cond).
+code_shape_step(concat_two, ct_4, ct_3,  return_null).
+code_shape_step(concat_two, ct_5, root,  alloc_bytes).
+code_shape_step(concat_two, ct_6, root,  if_cond).
+code_shape_step(concat_two, ct_7, ct_6,  return_null).
+code_shape_step(concat_two, ct_8, root,  copy_bytes).
+code_shape_step(concat_two, ct_9, root,  copy_bytes).
+code_shape_step(concat_two, ct_10, root, set_index).
+code_shape_step(concat_two, ct_11, root, return_value).
+
+code_shape_order(concat_two, ct_1, 1).
+code_shape_order(concat_two, ct_2, 2).
+code_shape_order(concat_two, ct_3, 3).
+code_shape_order(concat_two, ct_4, 1).
+code_shape_order(concat_two, ct_5, 4).
+code_shape_order(concat_two, ct_6, 5).
+code_shape_order(concat_two, ct_7, 1).
+code_shape_order(concat_two, ct_8, 6).
+code_shape_order(concat_two, ct_9, 7).
+code_shape_order(concat_two, ct_10, 8).
+code_shape_order(concat_two, ct_11, 9).
+
+code_shape_slot(ct_1, 0, "la").
+code_shape_slot(ct_1, 1, "strlen(a)").
+code_shape_slot(ct_2, 0, "lb").
+code_shape_slot(ct_2, 1, "strlen(b)").
+% il trabocco: la somma non deve superare quello che size_t puo' tenere, e il
+% controllo sta PRIMA della malloc perche' dopo sarebbe gia' troppo tardi
+code_shape_slot(ct_3, 0, "la > (size_t)-1 - lb - 1").
+code_shape_slot(ct_5, 0, "out").
+code_shape_slot(ct_5, 1, "la + lb + 1").
+code_shape_slot(ct_6, 0, "out == NULL").
+code_shape_slot(ct_8, 0, "out").
+code_shape_slot(ct_8, 1, "a").
+code_shape_slot(ct_8, 2, "la").
+code_shape_slot(ct_9, 0, "out + la").
+code_shape_slot(ct_9, 1, "b").
+code_shape_slot(ct_9, 2, "lb").
+code_shape_slot(ct_10, 0, "out").
+code_shape_slot(ct_10, 1, "la + lb").
+code_shape_slot(ct_10, 2, "0").
+code_shape_slot(ct_11, 0, "out").
+
+% ── M5: LA SECONDA LINGUA ───────────────────────────────────────────────────
+% Il conto che il piano si era impegnato a rispettare: una lingua nuova costa
+% UNA RIGA PER OPERAZIONE, e nessun algoritmo si riscrive. Qui sotto ci sono le
+% operazioni che servono a `sum_over_array`, e la sua forma — l'albero dei passi
+% e gli slot — non e' stata toccata di una virgola.
+code_shape_signature(sum_over_array, python, "def {name}(a)").
+lang_syntax(python, loop_up,      "for {0} in range({1}, len(a))").
+lang_syntax(python, declare_int,  "{0} = {1}").
+lang_syntax(python, accumulate,   "{0} = {0} + {1}").
+lang_syntax(python, return_value, "return {0}").

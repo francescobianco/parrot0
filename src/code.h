@@ -543,6 +543,9 @@ int code_repair_apply(const char *src, const char *fix, char *out, size_t osz,
  * literal in the brain. Returns 1 on success, 0 if the shape is unknown, `name` is not
  * a plain C identifier, the comparator is not one of '<'/'>', or it would not fit. The
  * artifact is a PROPOSAL — it must still be disposed by code_check_sort. */
+int code_synth_from_shape_lang(KB *kb, const char *lang, const char *shape,
+                               const char *name, char comparator,
+                               char *out, size_t out_sz);
 int code_synth_from_shape(KB *kb, const char *shape, const char *name, char comparator,
                           char *out, size_t out_sz);
 

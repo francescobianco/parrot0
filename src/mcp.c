@@ -338,7 +338,8 @@ static const McpTool TOOLS[] = {
  "knowledge too (lang_syntax): this tool only renders. Returns the emitted "
  "source, or an error when the shape is not declared.",
  "{\"type\":\"object\",\"properties\":{\"shape\":{\"type\":\"string\"},"
- "\"name\":{\"type\":\"string\"},\"comparator\":{\"type\":\"string\"}},"
+ "\"name\":{\"type\":\"string\"},\"comparator\":{\"type\":\"string\"},"
+ "\"lang\":{\"type\":\"string\"}},"
  "\"required\":[\"shape\",\"name\"]}"},
 };
 static const size_t NTOOLS = sizeof TOOLS / sizeof TOOLS[0];
@@ -437,11 +438,12 @@ static int tool_call(Brain *b, const char *name, const JVal *a,
         const char *shape = jstr(a, "shape");
         const char *fn    = jstr(a, "name");
         const char *cmp   = jstr(a, "comparator");
+        const char *lang  = jstr(a, "lang");
         if (!shape || !*shape) { snprintf(out, outsz, "{\"error\":\"missing 'shape'\"}"); return 0; }
         if (!fn || !*fn) { snprintf(out, outsz, "{\"error\":\"missing 'name'\"}"); return 0; }
         char src[8192];
-        if (!code_synth_from_shape(kb, shape, fn,
-                                   (cmp && *cmp) ? cmp[0] : '>', src, sizeof src)) {
+        if (!code_synth_from_shape_lang(kb, (lang && *lang) ? lang : "c", shape, fn,
+                                        (cmp && *cmp) ? cmp[0] : '>', src, sizeof src)) {
             snprintf(out, outsz, "{\"error\":\"shape not declared or not renderable\"}");
             return 0;
         }

@@ -63,9 +63,22 @@ lang_syntax(Lang, Op, Template).
 slot dell'operazione; `{name}` e `{cmp}` sono i legami che il chiamante passa
 (il nome della funzione da produrre, il verso del confronto).
 
-**La regola di composizione, e non ce ne sono altre:** un nodo con figli si
-emette come `TEMPLATE { figli }`; un nodo foglia come `TEMPLATE`. Il rientro e
-le graffe non sono conoscenza: sono la meccanica.
+**La regola di composizione, e non ce ne sono altre:** un nodo con figli apre
+un blocco, ci mette dentro i figli e lo chiude; un nodo foglia è solo il suo
+template.
+
+⚠ **Corretto dopo M5.** Qui c'era scritto «le graffe non sono conoscenza: sono
+la meccanica», e la seconda lingua lo ha falsificato in mezz'ora: Python i
+blocchi li segna col rientro. *Come* si apre e chiude un blocco è una proprietà
+della lingua e sta in KB:
+
+```prolog
+lang_block(c, "{", "}").
+lang_block(python, ":", "").
+lang_layout(python, indented).
+```
+
+Meccanica resta solo l'annidamento: quale nodo sta dentro quale.
 
 ### Bubblesort, per intero
 
@@ -116,16 +129,25 @@ M2 ✅ una forma NUOVA dichiarata solo in KB, zero righe di C
       prova: sum_over_array, con due operazioni nuove (una riga di lang_syntax
       ciascuna) e nessuna ricompilazione della logica.
 
-M3    le operazioni che servono a un contratto: allocare, controllare un
-      trabocco PRIMA di allocare, copiare, terminare con NUL.
-      Sono conoscenza tecnica generale (§6.5-bis, colonna sinistra).
+M3 ✅ le operazioni che servono a un contratto: allocare, controllare un
+      trabocco PRIMA di allocare, copiare, terminare.
+      prova: `concat_two` — l'algoritmo da manuale, non il compito di nessun
+      banco — emesso, COMPILATO con `-std=c11 -Wall -Wextra -Werror -O2` ed
+      ESEGUITO. Sei operazioni nuove, sei righe di `lang_syntax`.
 
 M4    la scelta della forma dal CONTRATTO letto (A2) invece che dal nome:
       `contract_clause/3` → quali operazioni servono. È qui che smette di
       essere un generatore e comincia a essere sintesi.
 
-M5    una seconda lingua, per falsificare il taglio: se aggiungere Python
-      costasse più di una riga per operazione, il taglio §2 è sbagliato.
+M5 ✅ una seconda lingua, per falsificare il taglio.
+      prova: la STESSA forma `sum_over_array` — stesso albero, stessi slot, non
+      toccati — resa in Python ed eseguita. Quattro righe di `lang_syntax`.
+
+      ⭐ E la falsificazione ha fatto il suo mestiere: ha trovato una riga
+      sbagliata. Le graffe erano scritte nel C e chiamate «meccanica» (§3). Non
+      lo sono: un blocco si segna con due parentesi o con un rientro, e quale
+      delle due è una proprietà della LINGUA. Ora sono `lang_block/3` e
+      `lang_layout/2`, e il §3 di questo piano è corretto di conseguenza.
 ```
 
 ## 6. Come si riconosce che ha funzionato

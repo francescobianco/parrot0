@@ -4775,14 +4775,22 @@ static void shape_subst(char *text, size_t sz, const char *key, const char *val)
     }
 }
 
-static int shape_emit(KB *kb, const char *shape, const char *parent,
-                      const char *name, char comparator,
+typedef struct {
+    char lang[32];
+    char open[8];     /* cio' che apre un blocco   — C: "{"  Python: ":" */
+    char close[8];    /* cio' che lo chiude        — C: "}"  Python: "" */
+    int  indented;    /* i blocchi si vedono per rientro invece che per token */
+} ShapeLang;
+
+static int shape_emit(KB *kb, const ShapeLang *L, const char *shape,
+                      const char *parent, const char *name, char comparator,
                       int depth, char *out, size_t sz, size_t *at);
 
 /* Un nodo: il suo template con gli slot risolti, e i figli fra graffe. */
-static int shape_emit_node(KB *kb, const char *shape, const char *id,
-                           const char *parent, const char *name, char comparator,
-                           int depth, char *out, size_t sz, size_t *at) {
+static int shape_emit_node(KB *kb, const ShapeLang *L, const char *shape,
+                           const char *id, const char *parent, const char *name,
+                           char comparator, int depth,
+                           char *out, size_t sz, size_t *at) {
     char opq[1][KB_TERM_LEN];
     const char *sq[4] = { shape, id, parent, NULL };
     if (kb_match(kb, "code_shape_step", sq, 4, opq, 1) != 1) return 0;
@@ -4790,7 +4798,7 @@ static int shape_emit_node(KB *kb, const char *shape, const char *id,
     const char *op = shape_deq(opb);
 
     char tplq[1][KB_TERM_LEN];
-    const char *lq[3] = { "c", op, NULL };
+    const char *lq[3] = { L->lang, op, NULL };
     if (kb_match(kb, "lang_syntax", lq, 3, tplq, 1) != 1) return 0;
     char tpl[1024]; snprintf(tpl, sizeof tpl, "%s", tplq[0]);
     char tplb[1024]; snprintf(tplb, sizeof tplb, "%s", shape_deq(tpl));
@@ -4807,7 +4815,12 @@ static int shape_emit_node(KB *kb, const char *shape, const char *id,
     shape_subst(tplb, sizeof tplb, "name", name);
     shape_subst(tplb, sizeof tplb, "cmp", cmp);
 
-    int n = snprintf(out + *at, sz - *at, "%s%s", *at ? " " : "", tplb);
+    int n;
+    if (L->indented) {
+        n = snprintf(out + *at, sz - *at, "\n%*s%s", depth * 4 + 4, "", tplb);
+    } else {
+        n = snprintf(out + *at, sz - *at, "%s%s", *at ? " " : "", tplb);
+    }
     if (n < 0 || (size_t)n >= sz - *at) return 0;
     *at += (size_t)n;
 
@@ -4815,21 +4828,24 @@ static int shape_emit_node(KB *kb, const char *shape, const char *id,
     char kids[16][KB_TERM_LEN];
     const char *kq[4] = { shape, NULL, id, NULL };
     if (kb_match(kb, "code_shape_step", kq, 4, kids, 16) > 0) {
-        n = snprintf(out + *at, sz - *at, " {");
+        n = snprintf(out + *at, sz - *at, "%s%s", L->indented ? "" : " ", L->open);
         if (n < 0 || (size_t)n >= sz - *at) return 0;
         *at += (size_t)n;
-        if (!shape_emit(kb, shape, id, name, comparator, depth + 1, out, sz, at))
+        if (!shape_emit(kb, L, shape, id, name, comparator, depth + 1, out, sz, at))
             return 0;
-        n = snprintf(out + *at, sz - *at, " }");
-        if (n < 0 || (size_t)n >= sz - *at) return 0;
-        *at += (size_t)n;
+        if (L->close[0]) {
+            n = snprintf(out + *at, sz - *at, "%s%s",
+                         L->indented ? "\n" : " ", L->close);
+            if (n < 0 || (size_t)n >= sz - *at) return 0;
+            *at += (size_t)n;
+        }
     }
     return 1;
 }
 
 /* I figli di `parent`, nell'ordine dichiarato. */
-static int shape_emit(KB *kb, const char *shape, const char *parent,
-                      const char *name, char comparator,
+static int shape_emit(KB *kb, const ShapeLang *L, const char *shape,
+                      const char *parent, const char *name, char comparator,
                       int depth, char *out, size_t sz, size_t *at) {
     if (depth > 8) return 0;                        /* un albero, non un ciclo */
     char kids[16][KB_TERM_LEN];
@@ -4864,33 +4880,67 @@ static int shape_emit(KB *kb, const char *shape, const char *parent,
     }
     for (size_t i = 0; i < nk; i++) {
         char idb[KB_TERM_LEN]; snprintf(idb, sizeof idb, "%s", kids[i]);
-        if (!shape_emit_node(kb, shape, shape_deq(idb), parent, name, comparator,
-                             depth, out, sz, at))
+        if (!shape_emit_node(kb, L, shape, shape_deq(idb), parent, name,
+                             comparator, depth, out, sz, at))
             return 0;
     }
     return 1;
 }
 
-int code_synth_from_shape(KB *kb, const char *shape, const char *name,
-                          char comparator, char *out, size_t out_sz) {
+int code_synth_from_shape_lang(KB *kb, const char *lang, const char *shape,
+                               const char *name, char comparator,
+                               char *out, size_t out_sz) {
     if (out && out_sz) out[0] = '\0';
-    if (!kb || !shape || !*shape || !name || !*name || !out || out_sz == 0) return 0;
+    if (!kb || !lang || !*lang || !shape || !*shape || !name || !*name ||
+        !out || out_sz == 0) return 0;
     if (comparator != '>' && comparator != '<') return 0;
     if (!(isalpha((unsigned char)name[0]) || name[0] == '_')) return 0;
     for (const char *c = name; *c; c++)
         if (!(isalnum((unsigned char)*c) || *c == '_')) return 0;
 
-    char sigq[1][KB_TERM_LEN];
-    const char *gq[3] = { shape, "c", NULL };
-    if (kb_match(kb, "code_shape_signature", gq, 3, sigq, 1) != 1) {
-        /* Le forme vivono in un file che si carica PIGRAMENTE — come gia' fa
-         * `mod_compose` con `algo_steps.p0`, e per la stessa ragione: non
-         * devono pesare sulla conversazione ordinaria ne' sui conteggi
-         * dell'introspezione. Il caricamento sta qui e non nei chiamanti,
-         * cosi' non c'e' una via che funziona e una che non funziona. */
-        kb_load(kb, "kb/experts/programming/algo_steps.p0");
-        if (kb_match(kb, "code_shape_signature", gq, 3, sigq, 1) != 1) return 0;
+    /* Le forme vivono in un file che si carica PIGRAMENTE — come gia' fa
+     * `mod_compose` con `algo_steps.p0`, e per la stessa ragione: non devono
+     * pesare sulla conversazione ordinaria ne' sui conteggi dell'introspezione.
+     * ⚠ E si carica PRIMA di leggere la lingua: farlo dopo significava che la
+     * primissima chiamata di una sessione trovava `lang_block` vuoto e
+     * ripiegava sulle graffe — un difetto che si vedeva solo sulla prima. */
+    {
+        const char *lq0[3] = { NULL, NULL, NULL };
+        char probe[1][KB_TERM_LEN];
+        if (kb_match(kb, "code_shape_signature", lq0, 3, probe, 1) == 0)
+            kb_load(kb, "kb/experts/programming/algo_steps.p0");
     }
+
+    /* ── LE GRAFFE SONO CONOSCENZA, e M5 lo ha dimostrato ──────────────────
+     *
+     * La prima stesura scriveva `TEMPLATE { figli }` e chiamava mechanics le
+     * graffe. Provando ad aggiungere una seconda lingua e' venuto fuori subito:
+     * Python i blocchi li segna col rientro, e con due parentesi cablate qui
+     * non ci sarebbe mai entrato. Il taglio §2 del piano reggeva, questa riga
+     * no — ed e' esattamente cio' che una falsificazione serve a trovare. */
+    ShapeLang L;
+    memset(&L, 0, sizeof L);
+    snprintf(L.lang, sizeof L.lang, "%s", lang);
+    {
+        char bq[1][KB_TERM_LEN];
+        const char *q1[3] = { lang, NULL, NULL };
+        if (kb_match(kb, "lang_block", q1, 3, bq, 1) == 1) {
+            char ob[KB_TERM_LEN]; snprintf(ob, sizeof ob, "%s", bq[0]);
+            snprintf(L.open, sizeof L.open, "%s", shape_deq(ob));
+            const char *q2[3] = { lang, bq[0], NULL };
+            char cq[1][KB_TERM_LEN];
+            if (kb_match(kb, "lang_block", q2, 3, cq, 1) == 1) {
+                char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cq[0]);
+                snprintf(L.close, sizeof L.close, "%s", shape_deq(cb));
+            }
+        }
+        const char *lq2[2] = { lang, "indented" };
+        L.indented = kb_query(kb, "lang_layout", lq2, 2);
+    }
+
+    char sigq[1][KB_TERM_LEN];
+    const char *gq[3] = { shape, lang, NULL };
+    if (kb_match(kb, "code_shape_signature", gq, 3, sigq, 1) != 1) return 0;
     char sig[512]; snprintf(sig, sizeof sig, "%s", sigq[0]);
     char sigb[512]; snprintf(sigb, sizeof sigb, "%s", shape_deq(sig));
     char cmp[2] = { comparator, '\0' };
@@ -4898,13 +4948,24 @@ int code_synth_from_shape(KB *kb, const char *shape, const char *name,
     shape_subst(sigb, sizeof sigb, "cmp", cmp);
 
     char body[8192]; size_t at = 0; body[0] = '\0';
-    if (!shape_emit(kb, shape, "root", name, comparator, 0, body, sizeof body, &at))
+    if (!shape_emit(kb, &L, shape, "root", name, comparator, 0, body, sizeof body, &at))
         return 0;
     if (at == 0) return 0;                         /* una forma senza passi */
 
-    int n = snprintf(out, out_sz, "%s { %s }", sigb, body);
+    int n;
+    if (L.indented)
+        n = snprintf(out, out_sz, "%s%s%s", sigb, L.open, body);
+    else
+        n = snprintf(out, out_sz, "%s %s %s %s", sigb, L.open, body, L.close);
     if (n < 0 || (size_t)n >= out_sz) { out[0] = '\0'; return 0; }
     return 1;
+}
+
+/* Il chiamante storico chiede il C: resta una riga, e la lingua e' esplicita
+ * invece di essere un'assunzione sparsa nel corpo. */
+int code_synth_from_shape(KB *kb, const char *shape, const char *name,
+                          char comparator, char *out, size_t out_sz) {
+    return code_synth_from_shape_lang(kb, "c", shape, name, comparator, out, out_sz);
 }
 
 int code_read_file(const char *path, char *buf, size_t bufsz) {

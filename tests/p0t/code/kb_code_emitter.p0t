@@ -41,4 +41,39 @@
 !mcp code.synth_shape {"shape":"no_such_shape","name":"x"}
 !expect mcp "error"
 
+# ── M3: le operazioni che servono a soddisfare un CONTRATTO ─────────────────
+# Allocare, controllare il trabocco PRIMA di allocare, copiare, terminare.
+# La forma `concat_two` e' l'algoritmo da manuale e non e' il compito di nessun
+# banco: la si dichiara per avere le operazioni, non per avere una risposta.
+!mcp code.synth_shape {"shape":"concat_two","name":"concat"}
+!expect mcp char *concat(const char *a, const char *b) { size_t la = strlen(a); size_t lb = strlen(b); if (la > (size_t)-1 - lb - 1) { return NULL; } char *out = malloc(la + lb + 1); if (out == NULL) { return NULL; } memcpy(out, a, la); memcpy(out + la, b, lb); out[la + lb] = 0; return out; }
+
+# E qui non si crede alla stringa: la si COMPILA con le stesse bandiere che un
+# compito reale pretende, e la si ESEGUE. Il testo e' lo stesso che l'emettitore
+# ha appena prodotto — se cambia, l'asserzione qui sopra cade per prima.
+!exec rm -rf /tmp/p0t-emit && mkdir -p /tmp/p0t-emit
+!exec printf '#include <stdlib.h>\n#include <string.h>\nchar *concat(const char *a, const char *b) { size_t la = strlen(a); size_t lb = strlen(b); if (la > (size_t)-1 - lb - 1) { return NULL; } char *out = malloc(la + lb + 1); if (out == NULL) { return NULL; } memcpy(out, a, la); memcpy(out + la, b, lb); out[la + lb] = 0; return out; }\n' > /tmp/p0t-emit/concat.c
+!exec printf '#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\nchar *concat(const char *a, const char *b);\nint main(void){ char *r = concat("ab","cde"); if(!r) return 1; int ok = strcmp(r,"abcde")==0; free(r); return !ok; }\n' > /tmp/p0t-emit/main.c
+!exec cc -std=c11 -Wall -Wextra -Werror -O2 -o /tmp/p0t-emit/t /tmp/p0t-emit/concat.c /tmp/p0t-emit/main.c
+!exec /tmp/p0t-emit/t
+!exec rm -rf /tmp/p0t-emit
+
 !sandbox off
+
+# ── M5: LA SECONDA LINGUA, che serviva a FALSIFICARE il taglio ─────────────
+# La stessa forma `sum_over_array` — lo stesso albero di passi, gli stessi slot,
+# non toccati — resa in Python. Il conto che il piano si era impegnato a
+# rispettare: una lingua nuova costa UNA RIGA PER OPERAZIONE.
+#
+# ⭐ E la falsificazione ha trovato una riga sbagliata, che e' il suo mestiere:
+# le graffe erano scritte nel C e chiamate «meccanica». Non lo sono — un blocco
+# si segna con due parentesi o con un rientro, e quale delle due e' una
+# proprieta' della LINGUA (`lang_block/3`, `lang_layout/2`).
+!mcp code.synth_shape {"shape":"sum_over_array","name":"total","lang":"python"}
+!expect mcp def total(a):
+
+# E anche qui non si crede alla stringa: la si ESEGUE.
+!exec rm -rf /tmp/p0t-emit-py && mkdir -p /tmp/p0t-emit-py
+!exec printf 'def total(a):\n    s = 0\n    for i in range(0, len(a)):\n        s = s + a[i]\n    return s\nassert total([1,2,3,4]) == 10\n' > /tmp/p0t-emit-py/t.py
+!exec python3 /tmp/p0t-emit-py/t.py
+!exec rm -rf /tmp/p0t-emit-py
