@@ -101,6 +101,14 @@ quella che il mio metodo non poteva trovare.
    `action_needs` + `action_impl`, mai un ramo.
 ```
 
+⭐ **E il caso generalizza.** Che il piano `code_task` esistesse e il lato codice
+non se ne fosse accorto non è un incidente: è un **arco mancante fra due isole**,
+e un arco mancante non somiglia a un guasto — somiglia a due cose che funzionano.
+Il metodo per trovarli prima invece che per caso è in
+[`docs/plans/connecting-dots.md`](docs/plans/connecting-dots.md) (*split and
+cross*), e `action_impl` sulle quattro azioni di `code_task` è il suo primo
+banco di prova: un cross **misurato mancante**, non ipotizzato.
+
 ⚠ **Questo è il lavoro che chiedevi e che non avevo nominato.** Non aggiunge
 motori: collega quelli che ci sono e li riempie di conoscenza operativa. Ed è
 verificabile in un modo che il mio approccio dal basso non permetteva: *il piano
