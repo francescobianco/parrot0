@@ -878,6 +878,44 @@ lenta»).
 
 ---
 
+## 8-quater. ✅ FATTO al gen493 — la demo, e i due difetti che ha scoperto
+
+`make demo` + `tests/fixtures/demo-code-review/` (README guidato, ratchet
+`tests/p0t/code/demo_code_review.p0t` a 13 assert, idempotente).
+
+Costruire la demo ha trovato **due difetti che nessun test aveva visto**, e
+sono entrambi della specie «l'organo c'è ma non è collegato»:
+
+1. **⛔ parrot0 girava solo dalla radice del repository.** Tutti i percorsi della
+   KB sono relativi, quindi lanciandolo nella cartella di un progetto da
+   analizzare non caricava niente — e il primo turno rispondeva `wall_classic`,
+   cioè la **chiave** di un template invece della sua frase. Due difetti in uno,
+   e il secondo è peggiore: un marcatore interno uscito come risposta.
+   *Un agente che gira solo dalla propria sorgente non è un agente.* Ora la
+   radice si risolve da `PARROT0_ROOT`, dalla cwd o risalendo dal binario —
+   senza `chdir`, perché la cartella di lavoro dell'utente è dove stanno i file
+   di cui vuole parlare.
+
+2. **⛔ Leggere un sorgente non rendeva i suoi nomi nominabili.** Ogni domanda su
+   un simbolo appena letto cadeva nel declino della parola ignota: parrot0 aveva
+   messo `hash_table_get` nella propria KB e un turno dopo diceva di non
+   conoscerlo. Chiuso con una regola — `lexeme($N) :- code_name($S, $Nd,
+   definition, $N)` — così il vocabolario **nasce con l'osservazione e sparisce
+   con lo snapshot**, senza che nessuno debba ricordarsi di ritirarlo.
+
+E una terza cosa, che è un miglioramento e non un difetto: **«ho guardato e non
+ho trovato niente» non è «non so cosa sia»**. Un'assenza di finding dichiarata è
+informazione; il muro della parola ignota al suo posto era falso due volte.
+
+### UC2b — dalla sola sintassi non si dice «lento»
+
+Implementata la regola di onestà del §5.2: `speed of X` senza profilo **dichiara
+che manca** e offre ciò che la struttura può dare; `cost candidate for X` lo dà,
+e non usa mai la parola «lento». `perf_evidence/3` non ha fatti, e non è una
+dimenticanza: è il punto in cui un profiler si collega.
+
+---
+
 ## 9. Primo incremento esatto da eseguire
 
 Il prossimo lavoro non è un altro smell e non è un corpus massivo. È **UC1, in

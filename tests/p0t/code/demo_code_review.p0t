@@ -1,0 +1,60 @@
+# gen493 — LA DEMO GUIDATA NON DEVE MARCIRE.
+#
+# `tests/fixtures/demo-code-review/README.md` invita a leggere due file veri e a
+# fare otto domande. Se una di quelle risposte cambia, la demo mente — e una demo
+# che mente e' peggio di nessuna demo. Questo file tiene ferma la stessa sequenza,
+# nello stesso ordine, sugli stessi file.
+#
+# ⚠ R1: KB al massimo, come nella demo. R3: la lezione del passo 6 viene ritirata.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+[test la demo risponde come promette]
+!timeout 15
+
+# 1. leggere
+> what functions does this define: tests/fixtures/demo-code-review/src/cache.c
+<~ hash_table_slot
+> what functions does tests/fixtures/demo-code-review/src/report.c define
+<~ build_report
+
+# 2. il ponte fra rappresentazioni: conoscenza di dominio da un identificatore
+> domain knowledge about hash_table_get
+<~ O(1) average lookup
+
+# 3. il giudizio, e l'assenza di giudizio
+> improvement note for build_report
+<~ code definition fanout = 10
+> improvement note for render_summary
+<~ nothing measured crosses a declared threshold
+
+# 4. l'onesta': senza profilo non si dice «lento»
+> speed of build_report
+<~ never a slow part
+> cost candidate for build_report
+<~ 10
+
+# 5. dove sta, e come lo sa
+> definition source of build_report
+<~ report.c
+> source evidence for build_report
+<~ span(
+
+# 6. la forma insegnata parlando, e il TRASFERIMENTO a un soggetto mai nominato
+> should i refactor build_report
+<! fanout
+> learn "should i refactor" as another way to ask "improvement note for build_report"
+<~ now asks the same thing
+> should i refactor build_report
+<~ code definition fanout = 10
+> should i refactor render_summary
+<~ nothing measured crosses a declared threshold
+
+# R3: si ritira cio' che si e' insegnato, o il «prima» del passo 6 e' falso
+# alla seconda corsa.
+!forget answer_frame("should i refactor", code_improvement_note)
+!forget answer_frame_input_arg("should i refactor", code_improvement_note, 1)

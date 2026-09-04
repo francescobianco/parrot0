@@ -126,5 +126,74 @@ lexeme(improvement).
 lexeme(finding).
 lexeme(note).
 
+% ── «HO GUARDATO E NON HO TROVATO NIENTE» NON E' «NON SO COSA SIA» ─────────
+%
+% Senza questa clausola, chiedere un giudizio su una funzione SANA cadeva nel
+% declino della parola ignota — «Hmm, I don't know about hash_table_get yet» —
+% che e' falso due volte: parrot0 quel simbolo l'ha appena letto, e l'assenza di
+% finding e' un RISULTATO, non una lacuna. Un'assenza dichiarata e' informazione;
+% un muro al suo posto e' rumore travestito da modestia (honest-limits.p0).
+machinery(code_has_finding).
+code_has_finding($Subject) :- code_finding($Subject, $Criterion, $Evidence).
+
+code_improvement_note($Subject, $Note) :-
+    code_name($Snapshot, $Node, definition, $Subject),
+    naf(code_has_finding($Subject)),
+    clean_bill($Note).
+
+machinery(clean_bill).
+clean_bill("no finding: nothing measured crosses a declared threshold").
+
 answer_frame("improvement note for", code_improvement_note).
 answer_frame_input_arg("improvement note for", code_improvement_note, 1).
+
+% ══ UC2b — DALLA SOLA SINTASSI NON SI DICE «LENTO» ═══════════════════════════
+%
+% Piano §5.2, e la regola di onesta' e' piu' forte di tutte le altre di questo
+% file: senza evidenza dinamica si puo' trovare un CANDIDATO COSTOSO, mai una
+% parte lenta. Un giudizio di performance senza misura non e' un'approssimazione
+% utile: e' un'affermazione falsa detta con sicurezza, ed e' il mantra #7.
+%
+% Percio' qui la velocita' ha due risposte e nessuna delle due indovina:
+%   - senza profilo, si dichiara che manca e si dice che cosa si puo' dare al
+%     suo posto (il candidato costoso, che e' un'altra cosa e va nominata
+%     diversamente);
+%   - con un profilo, si risponde DALL'EVIDENZA, che porta con se' la misura.
+%
+% `perf_evidence/3` non ha nessun fatto e non e' una dimenticanza: e' il punto in
+% cui un profiler si collega. Un formato nuovo si aggiunge come evidenza, non
+% come ramo nel C.
+machinery(perf_evidence).
+machinery(code_speed_answer).
+machinery(no_profile_note).
+
+no_profile_note("no profile on record -- from structure alone I can name a costly candidate, never a slow part").
+
+code_speed_answer($Name, $Answer) :-
+    code_name($Snapshot, $Node, definition, $Name),
+    perf_evidence($Name, $Metric, $Value),
+    concat_atoms($Metric, " = ", $A),
+    concat_atoms($A, $Value, $Answer).
+
+code_speed_answer($Name, $Answer) :-
+    code_name($Snapshot, $Node, definition, $Name),
+    naf(code_has_perf_evidence($Name)),
+    no_profile_note($Answer).
+
+machinery(code_has_perf_evidence).
+code_has_perf_evidence($Name) :- perf_evidence($Name, $Metric, $Value).
+
+% Il candidato costoso: si nomina per quello che e', una CONGETTURA STRUTTURALE
+% ordinabile, e non usa mai la parola «lento».
+machinery(code_cost_candidate).
+code_cost_candidate($Name, $Fanout) :-
+    code_definition_fanout($Name, $Fanout),
+    gt($Fanout, 4).
+
+lexeme(speed).
+lexeme(cost).
+lexeme(candidate).
+answer_frame("speed of", code_speed_answer).
+answer_frame_input_arg("speed of", code_speed_answer, 1).
+answer_frame("cost candidate for", code_cost_candidate).
+answer_frame_input_arg("cost candidate for", code_cost_candidate, 1).

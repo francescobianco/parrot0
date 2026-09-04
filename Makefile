@@ -115,6 +115,14 @@ bin obj:
 chat: build
 	@PARROT0_WIKI_FETCH=1 PARROT0_TOOLS=1 PARROT0_PROFILE=kb/profiles/agi.p0 ./$(BIN)
 
+# demo — la demo guidata di comprensione del codice (gen493). Entra nella
+# cartella del progetto finto e avvia parrot0 con gli strumenti locali e il
+# profilo esperto: da li' si fanno le domande di tests/fixtures/demo-code-review/README.md.
+demo: build
+	@cd tests/fixtures/demo-code-review && \
+	  PARROT0_SESSION= PARROT0_TOOLS=1 PARROT0_LANG=en \
+	  PARROT0_PROFILE=kb/profiles/agi.p0 $(CURDIR)/$(BIN)
+
 chat-agent: build
 	@PARROT0_TOOLS=1 PARROT0_WIKI_FETCH=1 PARROT0_PROFILE=kb/profiles/agi.p0 ./$(BIN)
 

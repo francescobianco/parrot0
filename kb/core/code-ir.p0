@@ -140,6 +140,24 @@ representation_bridge(code, part, complexity_class, binary_arg1).
 representation_bridge(code, part, concept_domain, binary_arg1).
 
 % Le domande che il consumer universale apre su questo, senza un handler nel C.
+% ⚠ Le parole della domanda devono essere parole che parrot0 CONOSCE, o il turno
+% viene preso dal percorso che offre di imparare il termine ignoto e la domanda
+% non arriva mai al consumer. Non e' un frasario: e' vocabolario.
+lexeme(domain).
+lexeme(knowledge).
+
+% ── LEGGERE UN SORGENTE RENDE I SUOI NOMI NOMINABILI ────────────────────────
+%
+% Senza questa riga, ogni domanda su un simbolo appena letto veniva presa dal
+% percorso che offre di imparare il termine ignoto: parrot0 aveva appena messo
+% `hash_table_get` nella propria KB e un turno dopo diceva di non conoscerlo.
+% Non era un difetto di quel percorso — era vero che la parola non era nel
+% lessico: l'osservazione del codice non lo alimentava.
+%
+% Il vocabolario si DERIVA dall'osservazione invece di essere asserito: nasce
+% quando la sorgente viene letta e sparisce quando lo snapshot viene sostituito,
+% senza che nessuno debba ricordarsi di ritirarlo.
+lexeme($Name) :- code_name($Snapshot, $Node, definition, $Name).
 answer_frame("domain knowledge about", ir_code_domain_note).
 answer_frame_input_arg("domain knowledge about", ir_code_domain_note, 1).
 

@@ -26,6 +26,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <strings.h>
 #include <sys/stat.h>
 
@@ -3766,9 +3767,64 @@ int kb_load_clause(KB *kb, const char *text) {
     return load_clause(kb, "<mock>", ".", buf);
 }
 
+/* ── gen493 — UN AGENTE CHE GIRA SOLO DALLA PROPRIA SORGENTE NON E' UN AGENTE
+ *
+ * Ogni percorso della KB e' relativo (`kb/core/base.p0`), quindi lanciare
+ * parrot0 dalla cartella di un progetto da analizzare non caricava NIENTE: il
+ * primo turno rispondeva `wall_classic` — la CHIAVE di un template, non la sua
+ * frase — perche' senza KB non c'era la frase da dire. Due difetti in uno, e il
+ * secondo e' peggiore: un marcatore interno uscito come risposta.
+ *
+ * La radice si cerca in tre posti, in quest'ordine, e la prima che contiene la
+ * KB vince: `PARROT0_ROOT` se dichiarata, la cartella corrente, poi le cartelle
+ * sopra il binario. Nessun chdir: la cartella di lavoro resta quella
+ * dell'utente, perche' e' li' che stanno i file di cui vuole parlare. */
+static const char *kb_root_prefix(void) {
+    static char root[512];
+    static int resolved = 0;
+    if (resolved) return root[0] ? root : NULL;
+    resolved = 1;
+    root[0] = '\0';
+
+    const char *env = getenv("PARROT0_ROOT");
+    if (env && *env) {
+        char probe[600];
+        snprintf(probe, sizeof probe, "%s/kb/core/base.p0", env);
+        FILE *t = fopen(probe, "r");
+        if (t) { fclose(t); snprintf(root, sizeof root, "%s/", env); return root; }
+    }
+    { FILE *t = fopen("kb/core/base.p0", "r");
+      if (t) { fclose(t); return NULL; } }        /* la cwd va gia' bene */
+
+    /* risalita dalla posizione del binario: /proc su Linux, poi i genitori */
+    char exe[512];
+    ssize_t n = readlink("/proc/self/exe", exe, sizeof exe - 1);
+    if (n <= 0) return NULL;
+    exe[n] = '\0';
+    for (int up = 0; up < 6; up++) {
+        char *slash = strrchr(exe, '/');
+        if (!slash) break;
+        *slash = '\0';
+        char probe[600];
+        snprintf(probe, sizeof probe, "%s/kb/core/base.p0", exe);
+        FILE *t = fopen(probe, "r");
+        if (t) { fclose(t); snprintf(root, sizeof root, "%s/", exe); return root; }
+    }
+    return NULL;
+}
+
 int kb_load(KB *kb, const char *path) {
     if (!kb || !path || !*path) return 0;
     FILE *f = fopen(path, "r");
+    char rooted[600];
+    if (!f) {
+        const char *root = kb_root_prefix();
+        if (root && path[0] != '/') {
+            snprintf(rooted, sizeof rooted, "%s%s", root, path);
+            f = fopen(rooted, "r");
+            if (f) path = rooted;
+        }
+    }
     if (!f) return 0; /* missing file: a no-op */
 
     /* Resolve the directory of the current file for relative includes. */
