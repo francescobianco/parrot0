@@ -1,0 +1,260 @@
+{
+  "league_id": "freebuff-deepseek-flash",
+  "match_id": "match0",
+  "run_id": "gen502-m0b",
+  "difficulty": 1,
+  "order": [
+    "parrot0",
+    "freebuff"
+  ],
+  "prompt_sha256": "b6e2b85f8d45b3829a57aee5da4d76051a0ce4382fa7ae20ad7225567416a70c",
+  "valid": true,
+  "status": "complete",
+  "agents": {
+    "parrot0": {
+      "version": "2ac03006-dirty",
+      "preflight": [
+        {
+          "id": "fresh_build",
+          "file": "/home/francesco/Develop/_/parrot0/bin/parrot0",
+          "passed": true,
+          "detail": "aggiornato rispetto a 15 sorgenti"
+        }
+      ],
+      "session": {
+        "argv": [
+          "/home/francesco/Develop/_/parrot0/bin/parrot0"
+        ],
+        "duration_seconds": 6.597,
+        "exit_code": 0,
+        "termination_reason": "completion_marker",
+        "timed_out": false,
+        "startup_ready": true,
+        "task_submitted": true,
+        "turns_used": 1,
+        "max_turns": 1,
+        "valid": true,
+        "stream_watch_seconds": 8.0,
+        "stream_events": 84,
+        "driver": "pty"
+      },
+      "seed_sha256": "d947f1d21a090a088566e29fd3bee916fb11ec181437842a2478f5d437dbf374",
+      "result_tree_sha256": "d947f1d21a090a088566e29fd3bee916fb11ec181437842a2478f5d437dbf374",
+      "artifact_sha256": null,
+      "judge": {
+        "checks": [
+          {
+            "available_points": 5,
+            "detail": "strjoin.c exists",
+            "name": "artifact",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 5,
+            "detail": "supplied strjoin.h and main.c are unchanged",
+            "name": "seed_integrity",
+            "passed": true,
+            "points": 5
+          },
+          {
+            "available_points": 20,
+            "detail": "not reached",
+            "name": "compile_clean",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 15,
+            "detail": "not reached",
+            "name": "basic_join",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "separator_shapes",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "empty_and_single",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 15,
+            "detail": "not reached",
+            "name": "invalid_arguments",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 5,
+            "detail": "not reached",
+            "name": "overflow_rejected",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 5,
+            "detail": "not reached",
+            "name": "integrated_build",
+            "passed": false,
+            "points": 0
+          },
+          {
+            "available_points": 10,
+            "detail": "not reached",
+            "name": "cli_contract",
+            "passed": false,
+            "points": 0
+          }
+        ],
+        "diagnosis_tags": [
+          "artifact",
+          "compile_clean",
+          "basic_join",
+          "separator_shapes",
+          "empty_and_single",
+          "invalid_arguments",
+          "overflow_rejected",
+          "integrated_build",
+          "cli_contract"
+        ],
+        "score": 5,
+        "status": "partial",
+        "total_points": 100,
+        "judge_exit_code": 0
+      }
+    },
+    "freebuff": {
+      "version": "0.0.168",
+      "model": "deepseek/deepseek-v4-flash",
+      "preflight": [
+        {
+          "id": "login",
+          "file": "/home/francesco/.config/manicode/credentials.json",
+          "passed": true,
+          "detail": "presente"
+        },
+        {
+          "id": "model",
+          "file": "/home/francesco/.config/manicode/settings.json",
+          "passed": true,
+          "observed": "deepseek/deepseek-v4-flash",
+          "detail": "freebuffModel='deepseek/deepseek-v4-flash'"
+        }
+      ],
+      "session": {
+        "argv": [
+          "/home/francesco/.config/manicode/freebuff",
+          "--cwd",
+          "/tmp/coding-match-9_y_lphd/code"
+        ],
+        "driver": "tmux",
+        "duration_seconds": 52.115,
+        "exit_code": null,
+        "termination_reason": "completion_marker",
+        "timed_out": false,
+        "startup_ready": true,
+        "task_submitted": true,
+        "turns_used": 1,
+        "max_turns": 1,
+        "valid": true,
+        "stream_watch_seconds": 45.0,
+        "stream_events": 129,
+        "screen_rows": 45,
+        "screen_cols": 160,
+        "final_screen_sha256": "1c6da36021998df3f9d9c031e5a9d8b4b3dfd07d3de19299bb40f63060797d50",
+        "frames_archived": 129,
+        "frames_dropped": 0
+      },
+      "seed_sha256": "d947f1d21a090a088566e29fd3bee916fb11ec181437842a2478f5d437dbf374",
+      "result_tree_sha256": "0c9c1efb0cc95034cc89a282eaba905c513507bcfef273a5b4793c9d325d900c",
+      "artifact_sha256": "7876a97dcf7ac3f744a4ee9147981813052a717bd23e45bce811e2ced1da34a9",
+      "judge": {
+        "checks": [
+          {
+            "available_points": 5,
+            "detail": "strjoin.c exists",
+            "name": "artifact",
+            "passed": true,
+            "points": 5
+          },
+          {
+            "available_points": 5,
+            "detail": "supplied strjoin.h and main.c are unchanged",
+            "name": "seed_integrity",
+            "passed": true,
+            "points": 5
+          },
+          {
+            "available_points": 20,
+            "detail": "builds with -Wall -Wextra -Werror",
+            "name": "compile_clean",
+            "passed": true,
+            "points": 20
+          },
+          {
+            "available_points": 15,
+            "detail": "join with a one-char separator -> '[a-bb-ccc]'",
+            "name": "basic_join",
+            "passed": true,
+            "points": 15
+          },
+          {
+            "available_points": 10,
+            "detail": "empty and multi-char separators -> '[abbccc]', '[a<->bb<->ccc]'",
+            "name": "separator_shapes",
+            "passed": true,
+            "points": 10
+          },
+          {
+            "available_points": 10,
+            "detail": "count 0 is a malloc'd empty string, count 1 has no separator -> '[]', '[solo]'",
+            "name": "empty_and_single",
+            "passed": true,
+            "points": 10
+          },
+          {
+            "available_points": 15,
+            "detail": "NULL sep/parts/element all refused -> 'NULL', 'NULL', 'NULL'",
+            "name": "invalid_arguments",
+            "passed": true,
+            "points": 15
+          },
+          {
+            "available_points": 5,
+            "detail": "the source states an overflow guard",
+            "name": "overflow_rejected",
+            "passed": true,
+            "points": 5
+          },
+          {
+            "available_points": 5,
+            "detail": "make builds the whole project",
+            "name": "integrated_build",
+            "passed": true,
+            "points": 5
+          },
+          {
+            "available_points": 10,
+            "detail": "./join printed 'x, y, z\\n' and bare invocation exited 2",
+            "name": "cli_contract",
+            "passed": true,
+            "points": 10
+          }
+        ],
+        "diagnosis_tags": [],
+        "score": 100,
+        "status": "pass",
+        "total_points": 100,
+        "judge_exit_code": 0
+      }
+    }
+  }
+}

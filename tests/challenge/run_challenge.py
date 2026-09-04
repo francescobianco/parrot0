@@ -699,6 +699,12 @@ def tmux_session(
             except ValueError:
                 exit_code = None
         _tmux(socket, "kill-server")
+        # `kill-server` ferma il server ma lascia il file di socket: senza questo
+        # /tmp/tmux-$UID si riempie di sessioni morte, una per corsa.
+        try:
+            Path(f"/tmp/tmux-{os.getuid()}/{socket}").unlink(missing_ok=True)
+        except OSError:
+            pass
         screens_log.close()
         if frames_dropped:
             frames_log.write(

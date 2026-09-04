@@ -1,0 +1,3 @@
+{"at_seconds": 2.118, "phase": "startup", "state_match": "See all [0-9]+ models", "action": "confirm_preselected_model", "sent": "<ENTER>", "visible_sha256": "e24ec8c788166a17cef430676aab280d14cc9aa2ce7676c0b3e63e486c58a05b"}
+{"at_seconds": 2.375, "phase": "startup", "state_match": "See all [0-9]+ models", "action": "confirm_preselected_model", "sent": "<ENTER>", "visible_sha256": "8e8fe1ad112deca957ca4e33d7bec16c7d8644cfadd1cef0eeb0e14b7927b194"}
+{"at_seconds": 2.633, "phase": "startup", "state_match": "See all [0-9]+ models", "action": "confirm_preselected_model", "sent": "<ENTER>", "visible_sha256": "8e8fe1ad112deca957ca4e33d7bec16c7d8644cfadd1cef0eeb0e14b7927b194"}

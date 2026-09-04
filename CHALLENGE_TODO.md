@@ -157,6 +157,56 @@ vale ora senza eccezioni: identico il testo del compito **e** l'interfaccia.
 Quando ci sarà B3 (scrivere file) la continuazione tornerà ad avere senso, e
 allora va **insegnata KB-first**, non messa nella config del banco.
 
+### S6. ⭐ Il turno rubato PEGGIORA quando la codebase è visibile
+
+S1 diceva «un modulo creativo rivendica il turno». `gen502-m0b` su match0
+(difficoltà 1, un file solo, profilo `agi.p0` con 37952 fatti e 2720 regole) dà
+la forma più istruttiva finora:
+
+```text
+>>> The C11 project in code/ does not build: the Makefile and main.c both expect
+    a backend file named exactly strjoin.c…
+
+1) Makefile was a mysterious Makefile. Then one day, makefile discovered what it
+   meant to be seen. Makefile had never felt this way before — as if the whole
+   world had shifted. At last, makefile was seen — not as a thing, but as a presence.
+```
+
+**La differenza con S1 non è cosmetica.** Prima il protagonista era `it`, un
+segnaposto senza aggancio. Qui il generatore ha estratto **un token vero della
+codebase** — `Makefile` — e lo ha personificato. Il turno rubato *sembra* più
+comprensione di prima, ed è meno: la facoltà che si è aggiudicata il turno ha
+avuto accesso al materiale giusto e ne ha fatto la cosa sbagliata.
+
+⚠ Conseguenza su C3: la classe da trovare per `faculty_yield` **non può essere
+«il turno non nomina entità della codebase»**, perché questo turno le nomina. La
+classe è la *richiesta*: un turno che porta un compito su una codebase non è
+disponibile alla narrazione, per quanti agganci offra.
+
+### S7. ⛔ L'apprendimento si mangia un'ISTRUZIONE come se fosse un fatto
+
+Nella stessa risposta, subito dopo la storia:
+
+```text
+2) Learned: do not merely describe patch.
+```
+
+`do not merely describe a patch` è l'ultima frase del **testo del compito**: un
+vincolo dato all'esecutore. parrot0 l'ha asserita come conoscenza.
+
+**Un imperativo non è una proposizione sul mondo**, e questo è un difetto
+diverso — e più grave — del turno rubato: il turno rubato produce una risposta
+sbagliata, questo *modifica la KB*. Nel banco il danno è contenuto
+(`PARROT0_LEARN_KB` è in `unset_env`, quindi non persiste su disco), ma dentro la
+sessione la conoscenza è sporca, e fuori dal banco non c'è quella rete.
+
+È la stessa forma di S1 a un altro livello: una facoltà che non sa onorare la
+richiesta non tace — **acquisisce**. E questa acquisisce dal testo che le stava
+dicendo che cosa fare.
+→ voce per `LEARN_TODO.md`: la modalità imperativa deve essere una classe
+riconosciuta *prima* dell'estrazione dei fatti, non un residuo che ci finisce
+dentro.
+
 ### S5. Il banco non sapeva contro chi gareggiava — da due lati
 
 - Il `settings.json` di freebuff dice oggi **`minimax/minimax-m3`**, mentre la

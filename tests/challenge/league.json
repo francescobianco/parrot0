@@ -95,8 +95,17 @@
         }
       ],
       "_note_driver": "gen502: freebuff si pilota via tmux perche' va LETTO, non perche' tmux piloti meglio. In `gen501-pilot-b` sembrava non lavorare: 738 eventi di stream, timeout, cartella intatta. Rigiocando `raw.log` in un pane tmux si vede che aveva ricevuto il task intero, letto sette file e stava ragionando sull'introsort al secondo 43 — con il timeout a 45. Un TUI a schermo alternato non aggiunge byte, RIDISEGNA: su 591 KB di raw.log la riga di prompt compare 3 volte, tutte nei primi 92 KB, e il transcript concatenato era 169 KB con UN glifo visibile. `capture-pane` da' lo schermo renderizzato e chiude il problema.",
-      "_note_no_model_selector": "gen502: la logic_action `select_default_deepseek_model` e' stata rimossa. Il modello sta gia' nel settings.json e ora lo verifica il preflight, che lo registra anche nel result.json: il nome della league diventa verificabile invece che dichiarato.",
-      "_note_bracketed_paste": "gen502: ipotesi §3-bis.1 FALSIFICATA. Il bracketed paste funzionava — nello schermo renderizzato il prompt da 1485 byte c'e' tutto. Non era il submit: era la lettura. Con `send-keys -l` il problema non si pone piu' comunque."
+      "_note_no_model_selector": "gen502, CORREZIONE al §3-ter e a me stesso. Avevo tolto questa azione ragionando cosi': «il modello sta gia' nel settings.json, quindi mandare ENTER sul selettore e' inutile». E' un non sequitur, e la gara `gen502-m0` lo ha mostrato dal vivo: freebuff si ferma su uno schermo che mostra `> DeepSeek V4 Flash ... v See all 5 models` e ASPETTA CONFERMA. Il file dice QUALE modello; non dice che lo schermo non lo chieda comunque. Leggere una config toglie l'indovinare COSA, non il tasto. L'azione torna, il preflight resta: sono due cose diverse, e ora e' scritto perche'.",
+      "_note_bracketed_paste": "gen502: ipotesi §3-bis.1 FALSIFICATA. Il bracketed paste funzionava — nello schermo renderizzato il prompt da 1485 byte c'e' tutto. Non era il submit: era la lettura. Con `send-keys -l` il problema non si pone piu' comunque.",
+      "logic_actions": [
+        {
+          "id": "confirm_preselected_model",
+          "phase": "startup",
+          "when_regex": "See all [0-9]+ models",
+          "send_key": "ENTER",
+          "max_uses": 3
+        }
+      ]
     }
   },
   "matches": [

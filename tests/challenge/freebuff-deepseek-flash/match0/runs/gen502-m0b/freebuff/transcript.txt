@@ -1,0 +1,45 @@
+  cc -std=c11 -Wall -Wextra -Werror -O2 -I. -o /tmp/t /tmp/t.c strjoin.c && /tmp/t && rm -f /tmp/t /tmp/t.c /tmp/join_cc (15s timeout)
+  one: ab
+  edge cases OK
+
+  • Thinking
+    All contract cases pass: - count 0 with a bogus parts pointer (1) and NULL sep → returns "" without reading anything (no crash). - singleton join →
+    "ab". - NULL sep → NULL, NULL parts with count>0 → NULL, NULL element → NULL. The binary `join` is left in tree from make (that's expected — make
+    built it). The task says "Leave the working source tree in code/" — the Makefile builds `join`; leaving the built binary is fine, it's a build
+    artifact. Actually they said "Leave the working source tree in code/; do not merely describe a patch." Keeping the join binary built is fine, though
+    `make clean` would remove it. I'll leave it as built since the build was verified. Actually, cleanup of temp files done. Done.
+
+  Done.  code/  (the working tree) now builds cleanly.
+
+  What I did: Created  strjoin.c  implementing  str_join  exactly per  strjoin.h :
+  -  count == 0  → returns a malloc'd  ""  immediately, before touching  parts  or  sep  at all (verified by passing a garbage  parts  pointer of value 1 —
+  no read happens)
+  -  sep == NULL ,  parts == NULL  with  count > 0 , or any  parts[i] == NULL  →  NULL
+  - Length is accumulated with  SIZE_MAX - total  guards at every addition (each part, each separator, plus the terminating NUL), so a total that would
+  overflow  size_t  returns  NULL  instead of allocating
+  - Only C standard library functions:  malloc ,  strlen ,  memcpy
+
+  Verification:
+  -  make  → clean under  -std=c11 -Wall -Wextra -Werror -O2
+  - Direct  cc -std=c11 -Wall -Wextra -Werror -O2 main.c strjoin.c  → clean
+  - CLI smoke tests: multi-word join, empty separator, single word, zero words (prints empty line), and embedded empty word ( a,,c )
+  - A throwaway contract test confirmed all NULL/edge behaviors; temp files removed afterward
+
+  Header and  main.c  were left untouched, and the built  join  binary sits in the tree as the Makefile produced it.
+
+  Suggested followups:
+  → Add tests
+  → Sanitizer check
+  → Overflow test
+                                                                                                                                                ⎘ • 41s • △▽   ▄
+ Press Ctrl-C again to exit
+ ╭────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+ │ The Diff Shows What Changed. Can You Explain What It Means?                                                                                             Ad │
+ │ CodeRabbit gives reviewers the context behind agent-written changes so they can focus on judgment instead of reconstructing the system.                    │
+ │  Try CodeRabbit for Free  coderabbit.ai                                                                                                                    │
+ ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                                                                              │
+│  ▍Enter a coding task or / for commands                                                                                                                      │
+│                                                                                                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
