@@ -120,13 +120,58 @@ non consegna il turno.
 
 | | | |
 |---|---|---|
-| **P0** | Un turno che porta un **compito su una codebase** non è disponibile alla narrazione. | `faculty_yield` — conoscenza, zero C. ⚠ La classe **non** può essere «il turno non nomina entità della codebase»: F1 le nomina. La classe è la **richiesta**, non il materiale. |
+| **P0** | Un turno che porta un **compito su una codebase** non è disponibile alla narrazione. | 🟡 **Primo giro fatto, e ha insegnato che la strada è un'altra** — vedi 0.3-bis. |
 | **P0b** | La **modalità imperativa** è una classe riconosciuta *prima* dell'estrazione dei fatti. | Un ordine dato all'esecutore non è una proposizione da acquisire. Voce già aperta in `LEARN_TODO.md`. |
 
 Gate di P0: lo stesso prompt di match0 non produce narrazione, e **il rifiuto è
 osservabile** — non «non capisco», ma un turno che dice che cosa ha
 riconosciuto. Gate di P0b: dopo il turno, `do not merely describe patch` **non**
 è nella KB, e un'ablazione della classe imperativa lo rifà entrare.
+
+## 0.3-bis ⭐ P0, primo giro: fatto, misurato, e cambia la strategia
+
+**Che cosa è stato costruito** (`faculty_yield_both(compose|gen, open,
+codebase_referent, source_change_directive)` + due correzioni al C):
+
+| prompt | prima | dopo |
+|---|---|---|
+| match0 | `compose` — storia sul Makefile **+ l'imperativo appreso** | **`codeast`** — *«I read that as code, but I am not sure which function you mean.»* |
+
+Il turno arriva a una facoltà di codice e la risposta **nomina ciò che ha
+riconosciuto e il proprio buco**: è il gate di P0, e **F2/P0b è caduto con lui**
+(il fatto appreso era il secondo segmento della composizione — tolta la
+composizione, sparisce la sua causa).
+
+**Due difetti nel C, trovati perché la KB da sola non bastava:**
+
+1. L'indice «chi è governato» nel registro si costruiva dal solo
+   `faculty_yield/3`: `faculty_yield_both/4` e `faculty_yield_force/3` erano
+   **morte in silenzio** per ogni modulo dispacciato dal registro. La cessione
+   che avevo scritto non ha avuto *nessun* effetto finché l'indice non ha
+   imparato a vederla.
+2. La cessione congiunta leggeva solo il turno canonicalizzato, che il dispatch
+   tronca a `canon[256]`. Misurato spostando la cue nello stesso testo: **cede a
+   colonna 217, non cede a colonna 262.** I prompt del banco sono 864, 1485 e
+   1839 byte.
+
+⛔ **E la lezione vera, che vale più della riparazione.** Governata `compose`,
+il turno è passato a `gen`; governato `gen`, è arrivato a `codeast`. Su match1
+riparte da `gen`, su match2 da `role` (*«Alright — I am Working now»* — ha letto
+«You are working…» come l'ordine di impersonare). **L'inibizione è una struttura
+a coppie su un insieme che cresce, e ogni coppia si scrive dopo un furto già
+avvenuto.**
+
+→ **`docs/plans/turn-arbitration.md`** mette in ordine le discipline
+dell'arbitrato (produzioni/OPS5, subsumption, blackboard, dispatch multiplo) e
+raccomanda di **saltare da S1 (inibizione) a S4 (copertura)**: non «A tace
+quando c'è B», ma «vince chi rende conto di più turno». È già una nostra ipotesi
+— **D14**, *«la comprensione si misura in copertura, e il residuo è un
+oggetto»* — mai messa alla prova, e il materiale per calcolarla
+(`input_segment`, `segment_role`, `faculty_for`) esiste già.
+
+⚠ **Quindi P0 resta aperta**, e la sua forma finale non è la quarta riga di
+cessione: è l'arbitrato per copertura, con il gate falsificabile scritto in
+`turn-arbitration.md` §3.
 
 ## 0.4 La scala — start small, grow fast
 

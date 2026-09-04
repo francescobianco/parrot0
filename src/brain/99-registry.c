@@ -5025,18 +5025,49 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * costruisce una volta per turno; chi non e' in lista non paga niente, ed e'
      * il caso di quasi tutti. Permissivo per default, come ogni condotta di
      * questo progetto: senza una riga, un modulo si comporta come prima. */
+    /* ⛔ gen502 — L'INDICE DECIDEVA CHI E' GOVERNATO, E NE VEDEVA UN TERZO.
+     *
+     * Questa lista si costruiva dal solo `faculty_yield/3`. Ma `p0_faculty_yields`
+     * legge TRE condotte — `faculty_yield/3` (una cue), `faculty_yield_both/4`
+     * (due cue congiunte) e `faculty_yield_force/3` (la forza del turno) — e una
+     * facolta' che ne dichiarava solo una delle altre due non entrava in lista,
+     * quindi non veniva nemmeno interrogata. Le due condotte piu' precise erano
+     * MORTE per ogni modulo dispacciato dal registro, e in silenzio.
+     *
+     * Misurato: `faculty_yield_both(compose, open, codebase_referent,
+     * source_change_directive)` non ha avuto alcun effetto sul prompt di match0
+     * finche' l'indice non ha imparato a vederla.
+     *
+     * E' la forma esatta che il mantra vieta: un'ottimizzazione che riduce cio'
+     * che un pezzo VEDE per pagare di meno. Il risparmio resta — chi non ha
+     * dichiarato niente non paga — ma ora la lista copre la condotta intera. */
     char (*governed)[KB_TERM_LEN] = NULL;
     size_t ngov = 0;
+    char (*governed_both)[KB_TERM_LEN] = NULL;
+    size_t ngov_both = 0;
+    char (*governed_force)[KB_TERM_LEN] = NULL;
+    size_t ngov_force = 0;
     if (b && b->kb) {
         const char *gq[3] = { NULL, NULL, NULL };
         if (!kb_match_all(b->kb, "faculty_yield", gq, 3, &governed, &ngov))
             ngov = 0;
+        const char *bq2[4] = { NULL, NULL, NULL, NULL };
+        if (!kb_match_all(b->kb, "faculty_yield_both", bq2, 4,
+                          &governed_both, &ngov_both))
+            ngov_both = 0;
+        if (!kb_match_all(b->kb, "faculty_yield_force", gq, 3,
+                          &governed_force, &ngov_force))
+            ngov_force = 0;
     }
     for (size_t i = 0; !handled && i < registry_len; i++) {
         if (i == eager_idx) continue;       /* already offered exactly once */
         int is_governed = 0;
         for (size_t g = 0; g < ngov && !is_governed; g++)
             if (strcmp(governed[g], registry[i].name) == 0) is_governed = 1;
+        for (size_t g = 0; g < ngov_both && !is_governed; g++)
+            if (strcmp(governed_both[g], registry[i].name) == 0) is_governed = 1;
+        for (size_t g = 0; g < ngov_force && !is_governed; g++)
+            if (strcmp(governed_force[g], registry[i].name) == 0) is_governed = 1;
         if (is_governed &&
             p0_faculty_yields(b, registry[i].name, "open", canon, input)) {
             if (ndecl < BRAIN_TRACE_MAX)
@@ -5087,6 +5118,8 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                                  registry[i].name);
     }
     free(governed);
+    free(governed_both);
+    free(governed_force);
 
     /* Commit the trace for "why did you answer that way?" and the verbatim input
      * for "what would you have said without X?" — but NOT when this turn was

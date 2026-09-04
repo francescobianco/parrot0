@@ -1036,6 +1036,21 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
     free(classes);
     if (yield) return 1;
 
+    /* ⛔ gen502 — LA CESSIONE CONGIUNTA LEGGEVA MEZZO TURNO.
+     *
+     * `faculty_yield/3` qui sopra prova `norm` E `raw`, perche' — dice il
+     * commento in testa — «cedere e' l'atto prudente, e una facolta' che cede
+     * deve VEDERE DI PIU', non di meno». La forma congiunta provava solo `norm`,
+     * cioe' il turno canonicalizzato, che il dispatch tronca a 256 caratteri
+     * (`canon[256]`, TODO gia' scritto in 99-registry.c).
+     *
+     * Misurato spostando la seconda cue dentro lo stesso testo: la cessione
+     * scatta fino a colonna 217 e smette a colonna 262. Il precipizio E' la
+     * finestra. Ne segue che la condotta piu' precisa che abbiamo era cieca
+     * proprio sugli input per cui serve — una specifica di coding e' lunga per
+     * natura: i prompt del banco sono 864, 1485 e 1839 byte.
+     *
+     * La cue si cerca nel turno intero, come fa gia' la forma singola. */
     char (*firsts)[KB_TERM_LEN] = NULL;
     size_t nf = 0;
     const char *bq[4] = { faculty, stage, NULL, NULL };
@@ -1043,13 +1058,16 @@ static int p0_faculty_yields(Brain *b, const char *faculty, const char *stage,
         for (size_t i = 0; i < nf && !yield; i++) {
             char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", firsts[i]);
             const char *first = kb_dequote(ab);
-            if (!norm || !kb_cue_match(b, first, norm)) continue;
+            if (!((norm && kb_cue_match(b, first, norm)) ||
+                  (raw  && kb_cue_match(b, first, raw)))) continue;
             const char *sq[4] = { faculty, stage, firsts[i], NULL };
             char seconds[8][KB_TERM_LEN];
             size_t ns = kb_match(b->kb, "faculty_yield_both", sq, 4, seconds, 8);
             for (size_t j = 0; j < ns && !yield; j++) {
                 char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", seconds[j]);
-                if (kb_cue_match(b, kb_dequote(sb), norm)) yield = 1;
+                const char *second = kb_dequote(sb);
+                if ((norm && kb_cue_match(b, second, norm)) ||
+                    (raw  && kb_cue_match(b, second, raw))) yield = 1;
             }
         }
     }

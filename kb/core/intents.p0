@@ -4522,6 +4522,67 @@ faculty_yield(answer_frame, open, border_intersection).
 % non hanno provato: cedere prima perderebbe la lettura che gli appartiene.
 faculty_yield(arith, late, rectangle_dimension_schema).
 
+% ── gen502: UN COMPITO SU UNA CODEBASE NON E' UNA COMPOSIZIONE ──────────────
+%
+% Misurato sul banco di gara (`tests/challenge`, run gen502-m0b, difficolta' 1).
+% Prompt: «The C11 project in code/ does not build: the Makefile and main.c both
+% expect a backend file named exactly strjoin.c... Write it.» Risposta:
+%
+%   1) Makefile was a mysterious Makefile. Then one day, makefile discovered
+%      what it meant to be seen...
+%   2) Learned: do not merely describe patch.
+%
+% `/debug` dice il colpevole, e non e' quello che sembrava: il modulo e'
+% `compose`. Quel «1) ... 2) ...» non e' una storia, e' una COMPOSIZIONE: la
+% specifica e' stata spezzata in segmenti indipendenti e ogni segmento dato a
+% chi lo prendeva — uno al generatore narrativo, uno all'apprendimento.
+%
+% ⛔ E' la forma peggiore del turno rubato, perche' la facolta' che ha vinto ha
+% avuto accesso al materiale GIUSTO (ha estratto `Makefile`, un nome vero della
+% cartella) e ne ha fatto la cosa sbagliata. La risposta somiglia a comprensione
+% piu' di un muro, ed e' di meno.
+%
+% LA CLASSE E' LA RICHIESTA, NON IL MATERIALE. Non puo' essere «il turno nomina
+% entita' della codebase»: questo turno le nomina, ed e' proprio da li' che ha
+% preso il protagonista. Un compito su una codebase e' la CONGIUNZIONE di due
+% prove — un referente di codebase e una direttiva che chiede di cambiare del
+% sorgente — ed e' esattamente il caso per cui esiste `faculty_yield_both/4`:
+% «implementa» da solo compare in mezza conversazione, «codebase» da solo e' un
+% argomento di cui si puo' chiacchierare. Insieme sono un compito.
+intent_cue(codebase_referent, "codebase").
+intent_cue(codebase_referent, "code base").
+intent_cue(codebase_referent, "source tree").
+intent_cue(codebase_referent, "working tree").
+intent_cue(codebase_referent, "in code").
+intent_cue(codebase_referent, "repository").
+intent_cue(codebase_referent, "does not build").
+intent_cue(codebase_referent, "build cleanly").
+intent_cue(codebase_referent, "nel repository").
+intent_cue(codebase_referent, "albero dei sorgenti").
+
+intent_cue(source_change_directive, "implement").
+intent_cue(source_change_directive, "reimplement").
+intent_cue(source_change_directive, "integrate").
+intent_cue(source_change_directive, "refactor").
+intent_cue(source_change_directive, "write it").
+intent_cue(source_change_directive, "write the").
+intent_cue(source_change_directive, "fix the").
+intent_cue(source_change_directive, "replace its").
+intent_cue(source_change_directive, "make it build").
+intent_cue(source_change_directive, "make it compile").
+intent_cue(source_change_directive, "do not merely describe").
+intent_cue(source_change_directive, "implementa").
+intent_cue(source_change_directive, "riscrivi").
+intent_cue(source_change_directive, "correggi il").
+intent_cue(source_change_directive, "integra").
+
+faculty_yield_both(compose, open, codebase_referent, source_change_directive).
+% E non basta governarne una. Tolto `compose`, il turno e' passato a `gen`, che
+% ha prodotto la stessa storia senza nemmeno la numerazione — la conferma della
+% riga gia' scritta sopra a proposito di `role`: governare una facolta' sola
+% SPOSTA il turno rubato invece di chiuderlo.
+faculty_yield_both(gen, open, codebase_referent, source_change_directive).
+
 % ── CEDERE PER LA FORZA DEL TURNO, NON PER UNA PAROLA ──────────────────────
 %
 % `faculty_yield/3` cede su una cue. Ma il motivo per tacere puo' essere la
