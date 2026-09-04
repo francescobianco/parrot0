@@ -34,8 +34,8 @@
       "startup_timeout_seconds": 30,
       "quit": "/quit\r",
       "idle_settle_seconds": 2.0,
-      "max_turns": 12,
-      "continue_text": "continue",
+      "max_turns": 1,
+      "continue_text": "",
       "_note_thinking": "gen501: spento di proposito. THINKING_TODO A0 e' aperta — un passo che degrada la risposta la sostituisce comunque — e il transcript di gen500-stream-v3 lo mostra dal vivo: il pensiero 2 ha trasformato la risposta in «What number should I use for it?». Misurare parrot0 con una funzione nota-rotta non e' misurare parrot0. Si riaccende quando A0 e' chiusa.",
       "_note_prompt": "gen501: il prompt di parrot0 in un PTY e' `>>>` (tre chevron colorati), non `you>`. `you>` e' la forma SENZA colore, quella che vedono le pipe e i bench. Il pilota aspettava un prompt che in un terminale non arriva mai: l'agente non partiva proprio, e la gara veniva annullata come «stream fermo all'avvio». E' il difetto piu' banale e il piu' costoso della serie.",
       "preflight": [
@@ -45,7 +45,8 @@
           "newer_than_glob": "{repo}/src/*.c"
         }
       ],
-      "_note_fresh_build": "gen502: `version_argv` e' `git describe`, cioe' la versione del REPOSITORY. Non dice niente sul binario avviato, e in `gen501-pilot-b` il binario era gen459 con 13519 fatti mentre il repo era gen501 con 24692: meta' della conoscenza in meno, e il result.json diceva `f745000-dirty`. Un binario piu' vecchio dei suoi sorgenti fa sembrare la gara regolare mentre misura un altro programma; il preflight ora la ferma prima di partire."
+      "_note_fresh_build": "gen502: `version_argv` e' `git describe`, cioe' la versione del REPOSITORY. Non dice niente sul binario avviato, e in `gen501-pilot-b` il binario era gen459 con 13519 fatti mentre il repo era gen501 con 24692: meta' della conoscenza in meno, e il result.json diceva `f745000-dirty`. Un binario piu' vecchio dei suoi sorgenti fa sembrare la gara regolare mentre misura un altro programma; il preflight ora la ferma prima di partire.",
+      "_note_turns": "gen502: `max_turns` riportato a 1, e l'adattatore sparisce del tutto (anche freebuff e' a 1), quindi §4.2 vale senza eccezioni: non solo il TESTO del compito e' identico, ma anche l'interfaccia. La ragione non e' di principio, e' una MISURA. La continuazione `continue` era difesa come «non aggiunge informazione»: vero, ma SOTTRAE attenzione — parrot0 rispondeva «Hmm, I don't know about continue yet», quindi undici turni su dodici se ne andavano a spiegargli una parola mandata da noi. Provate sotto il profilo della league: continue/next -> «Hi there! What would you like to talk about?», go on/carry on/go ahead/what next? -> «I don't understand that yet», keep going -> «Thanks, I'm learning as we go». Nessuna e' una continuazione: la nozione «vai avanti col lavoro» non esiste nella KB. Non e' scegliendo una parola migliore che si aggiusta — e' conoscenza che manca, e quando ci sara' B3 (scrivere file) andra' insegnata KB-first, non messa qui."
     },
     "freebuff": {
       "argv": [

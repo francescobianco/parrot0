@@ -126,9 +126,26 @@ if it is a kind of thing, say «something is a continue»…
 
 Undici turni su dodici sono spesi a chiedere a parrot0 che cosa significhi una
 parola che gli abbiamo mandato noi. L'adattatore non sta dando a parrot0 undici
-occasioni in più: gliene sta **togliendo undici**. Da decidere: un
-`continue_text` che parrot0 riconosce (e allora va dichiarato che è un aiuto),
-oppure `max_turns: 1` anche per lui finché non c'è B3.
+occasioni in più: gliene sta **togliendo undici**.
+
+**Misurato, non scelto a occhio.** Sette continuazioni sotto il profilo della
+league:
+
+| frase | risposta |
+|---|---|
+| `continue`, `next` | *Hi there! What would you like to talk about?* |
+| `go on`, `carry on`, `go ahead`, `what next?` | *I don't understand that yet.* |
+| `keep going` | *Thanks — I'm learning as we go.* |
+
+**Nessuna è una continuazione.** Non è la parola sbagliata: è che la nozione
+«vai avanti col lavoro» **non esiste nella KB**. L'adattatore non si può rendere
+equo scegliendone una migliore.
+
+**Chiuso così:** `max_turns: 1` anche per parrot0, `continue_text` vuoto.
+L'adattatore sparisce del tutto — anche freebuff è a 1 — quindi la regola §4.2
+vale ora senza eccezioni: identico il testo del compito **e** l'interfaccia.
+Quando ci sarà B3 (scrivere file) la continuazione tornerà ad avere senso, e
+allora va **insegnata KB-first**, non messa nella config del banco.
 
 ### S5. Il banco non sapeva contro chi gareggiava — da due lati
 
@@ -165,19 +182,20 @@ rumore dello spinner (`[|] [/] [-] [\]`) che nel PTY riempie il transcript.
 
 ## §3. ⛔ L'ORDINE IN CUI RIPRENDERE
 
-### C1. ~~Far lavorare freebuff~~ → **rimisurare freebuff, con tempi veri**
+### C1. ⬅ **PROSSIMO PASSO** — rimisurare freebuff, con tempi veri
 
 Chiuso come diagnosi: freebuff lavora (§1.1). Resta da **correre davvero** con
 il driver tmux e il `timeout_seconds: 600` del match — i 45 s erano una
 scorciatoia per iterare, e hanno prodotto tre conclusioni sbagliate.
 ⚠ Prima serve la decisione di §C0.
 
-### C0. ⛔ DECIDERE IL MODELLO — blocca ogni corsa vera
+### C0. ⛔ IL MODELLO — blocca ogni corsa vera, e la palla è a F.
 
-Il preflight ferma la gara: settings dice `minimax/minimax-m3`, la league si
-chiama `freebuff-deepseek-flash`. **Non è una cosa da indovinare**: cambia
-contro chi si misura, e costa. Delle due l'una — si riporta il settings a
-deepseek, oppure si rinomina la league e si aggiorna il pin.
+Il preflight ferma la gara: settings dice `minimax/minimax-m3`, la league pinna
+`deepseek/deepseek-v4-flash`. **Deciso il 2026-09-04: il pin resta deepseek**, e
+va riportato il `settings.json` di freebuff su
+`"freebuffModel": "deepseek/deepseek-v4-flash"`. Finché non combaciano,
+`run_challenge.py check` lo dice e nessuna gara parte.
 
 ### C2. Dare a parrot0 la capacità di scrivere un file
 
@@ -203,9 +221,12 @@ Serve un **match0 di calibrazione** — un solo file, un solo comportamento
 verificabile — che freebuff vinca facilmente e che dica *dove esattamente*
 parrot0 si ferma. Un banco che dà sempre 0-0 non è un banco.
 
-### C5. Decidere S4: `continue_text`, o niente
+### ✅ C5. `continue_text` — chiuso
 
-Vedi S4. Oggi l'adattatore toglie turni invece di darne. Una riga di config.
+`max_turns: 1` per entrambi, `continue_text` vuoto. Vedi S4 per la misura che
+lo motiva. **Ne resta una coda KB, non di banco:** parrot0 non riconosce nessuna
+forma di «vai avanti col lavoro». Quando ci sarà B3 quella nozione andrà
+insegnata — è una voce per `LEARN_TODO.md`, non per `league.json`.
 
 ### C6. Cose piccole, con lo stato aggiornato
 
