@@ -1333,3 +1333,67 @@ I marker `km/h`, `radius`, `diameter` e `all but` sono ora relazioni KB
 `wordmath_diameter_marker/1`, `wordmath_all_but_marker/1`). I consumer
 mantengono solo il parsing numerico, la scansione e le formule; il ratchet
 verifica crescita e ablazione dell’unità di velocità.
+
+---
+
+## ⛔ GLI OPERATORI DI UN PIANO SONO COMPILATI — e non devono esserlo
+
+**Aperta gen503 (2026-09-05), da F.:** *«non esiste assolutamente questa rottura
+del paradigma KB-first. Gli operatori devono essere apprendibili a runtime, non
+esiste. Anche gli operatori devono essere KB. Presto dovrà essere possibile
+addestrare a runtime un TOOL nuovo.»*
+
+### Il difetto, in una riga
+
+Lo **schema** di un piano è conoscenza (`thinking_scheme/2`, `thinking_step/3`),
+ma i **verbi** che può usare sono quattro `else if` in `src/brain/60-agent-tools.c`:
+
+```c
+if      (!strcmp(action, "list_sources"))     { … }
+else if (!strcmp(action, "state_obligation")) { … }
+else if (!strcmp(action, "produce_artifact")) { … }
+else if (!strcmp(action, "read_each"))        { … }
+```
+
+Si può dichiarare un **piano** nuovo senza ricompilare; non si può dichiarare
+un'**azione** nuova. La classe delle azioni è chiusa e nessuna lezione la apre.
+
+È il **mantra #19 un piano più su**: là la catena era di `&&`, qui è di
+`else if`, e il difetto è identico — *a runtime si può insegnare un MEMBRO di
+una classe che esiste, mai una FORMA nuova*.
+
+Il test operativo del mantra #2: *«parrot0 può imparare un TOOL nuovo domani,
+parlando, senza ricompilare?»* **Oggi no.**
+
+### Quanto manca — misurato, non stimato
+
+| | |
+|---|---|
+| rami compilati al gen503 | **4** (erano 5) |
+| passi già dicibili | 2 su 8 (`run {build_command}`, due volte) |
+
+`run_build` **era** un ramo ed è diventato una frase: `plan_utterance/3` è un
+passo senza ramo — parrot0 la dice a se stesso e rientra a digerirla, e ciò che
+quel turno lascia in KB è la connessione col passo dopo. Quindi la strada esiste
+ed è già stata percorsa una volta.
+
+### Perché gli altri quattro non sono ancora dicibili
+
+Non per il meccanismo: perché **le loro superfici non esistono**. «elenca i
+sorgenti», «leggi ciascuno», «scrivi X con la forma Y» non sono turni che
+parrot0 capisce oggi (`list the files here` → *«I don't understand that yet»*,
+misurato). Un passo si può dire solo se qualcuno sa ascoltarlo.
+
+### L'ordine di lavoro
+
+1. **Le superfici mancanti si insegnano**, con `LEARN_PROTOCOL.md` e il suo gate
+   anti-barare: se il teacher deve conoscere nomi di predicati, non ha insegnato.
+2. **Ogni operatore diventa `plan_utterance`** — zero rami qui, e il numero
+   sopra scende a 0. È la misura che dice se la voce è chiusa.
+3. ⛔ **Un TOOL nuovo dichiarato parlando.** Qui c'è il confine vero, e va
+   disegnato prima di essere scritto: `local_tool/3` + `tool_argv/2` sono già
+   conoscenza, ma il loro argv finisce in `p0_exec` — cioè **l'unica azione
+   insegnabile oggi è "esegui un programma con i suoi argomenti"**. Un'azione
+   che non sia un sottoprocesso (scrivere, ingerire, ritrattare) non ha nessuna
+   forma dichiarativa. Finché quel confine non è disegnato, il punto 2 sposta il
+   problema invece di chiuderlo.

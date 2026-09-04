@@ -890,6 +890,44 @@ static int mod_toolplan(Brain *b, const char *norm, const char *raw,
             }
         }
 
+        /* TODO(kb-first, gen503) — ⛔ ROTTURA DEL PARADIGMA: GLI OPERATORI SONO
+         * COMPILATI, E NON DEVONO ESSERLO.
+         *
+         * F., 2026-09-05, davanti a questa catena: «non esiste assolutamente
+         * questa rottura del paradigma KB-first. Gli operatori devono essere
+         * apprendibili a runtime, non esiste. Anche gli operatori devono essere
+         * KB. Presto dovra' essere possibile addestrare a runtime un TOOL
+         * nuovo.»
+         *
+         * Che cos'e' il difetto, in una riga: lo SCHEMA e' conoscenza, ma i
+         * VERBI che puo' usare sono i quattro `else if` qui sotto. Si puo'
+         * dichiarare un piano nuovo senza ricompilare; non si puo' dichiarare
+         * un'AZIONE nuova. La classe delle azioni e' chiusa, e nessuna lezione
+         * la apre — e' il mantra #19 un piano piu' su: li' la catena era di
+         * `&&`, qui e' di `else if`, il difetto e' lo stesso.
+         *
+         * Il test operativo del mantra #2, applicato qui: «parrot0 puo'
+         * imparare un TOOL nuovo domani, parlando, senza ricompilare?» Oggi no.
+         *
+         * ⭐ La direzione e' gia' aperta e mezza percorsa: `plan_utterance/3`
+         * qui sopra e' un passo SENZA ramo — una frase che parrot0 dice a se
+         * stesso e rientra a digerire, e cio' che quel turno lascia in KB e' la
+         * connessione col passo dopo. `run_build` era un ramo ed e' diventato
+         * una frase. Gli altri quattro non sono ancora dicibili perche' i loro
+         * ingressi e le loro uscite non hanno una superficie: «elenca i
+         * sorgenti», «leggi ciascuno», «scrivi X con la forma Y» oggi non sono
+         * turni che parrot0 capisce con i suoi stessi mezzi.
+         *
+         * Forma di arrivo, in ordine:
+         *   1. ogni operatore diventa `plan_utterance` — zero rami qui;
+         *   2. le superfici che servono a dirlo si insegnano (LEARN_PROTOCOL);
+         *   3. un TOOL nuovo si dichiara parlando: `local_tool/3` +
+         *      `tool_argv/2` esistono gia' come conoscenza, ma OGGI il loro
+         *      argv arriva a `p0_exec` e non c'e' modo di insegnare un'azione
+         *      che non sia «esegui un programma». Quel confine e' il vero
+         *      lavoro, e va disegnato prima di essere scritto.
+         *
+         * Voce aperta in CHALLENGE_TODO §6.2 (A6) e in C_TODO.md. */
         if (!strcmp(action, "list_sources")) {
             nfound = plan_list_sources(b, ".", found, 64);
         } else if (!strcmp(action, "state_obligation")) {
