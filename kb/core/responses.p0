@@ -986,3 +986,8 @@ response_template(instance_named, "{Member}.").
 % crede di aver insegnato un nome (mantra #16).
 response_template(learned_attribute, "Got it: the {thing} is {value}.").
 response_template(learned_attribute, it, "Ricevuto: {thing} e' {value}.").
+
+% gen495 — il resoconto di un PIANO. Dice quante sorgenti ha letto, quante
+% funzioni ha trovato e quali file: un piano che non rendiconta e' un comando.
+response_template(plan_sources_read, "I read {count} source file(s) into structure — {functions} function(s) in total: {detail}.").
+response_template(plan_sources_read, it, "Ho letto {count} sorgenti in struttura — {functions} funzioni in tutto: {detail}.").

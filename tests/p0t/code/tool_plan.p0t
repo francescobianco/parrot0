@@ -1,0 +1,52 @@
+# gen495 — UN PIANO SU STRUMENTI: trova, leggi ciascuno, riferisci.
+#
+# F., su una sessione vera: «analizza tutti i file sorgenti che trovi» — e
+# parrot0 murava. Non era una superficie mancante: era una richiesta che
+# NESSUNA AZIONE SOLA soddisfa. Finché un turno vale al massimo un'azione,
+# parrot0 risponde a domande; non agisce.
+#
+# La forma è quella di `p0_compensate` (gen442), ed è deliberato: la KB dice
+# quali passi esistono e in che ordine, il motore possiede solo le primitive.
+# Il motore non sa che cosa sia «un sorgente»: lo dice `source_extension/1`.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!set PARROT0_TOOLS=1
+!reset
+
+[test un turno solo, tre passi]
+!timeout 20
+
+# Il piano e i suoi passi sono conoscenza, non un ramo nel C.
+!query turn_plan(analyze_sources, plan_analyze_sources)
+!query plan_step(analyze_sources, 1, list_sources)
+!query plan_step(analyze_sources, 2, read_each)
+
+# Un turno solo: trova i sorgenti, li legge tutti, e rendiconta.
+> analizza tutti i file sorgenti che trovi in tests/fixtures/demo-code-review
+<~ sorgenti
+
+# E dopo, la comprensione lavora su ciò che il piano ha trovato — è il punto:
+# il piano non è un comando, è ciò che mette la conoscenza a portata di domanda.
+> improvement note for build_report
+<~ code definition fanout = 10
+> domain knowledge about hash_table_get
+<~ O(1) average lookup
+
+[test che cosa sia un «sorgente» è conoscenza]
+!timeout 20
+
+# Tolte le estensioni dichiarate sorgente, il piano non trova più niente da
+# leggere e non rivendica il turno: il motore non ha nessuna idea propria di
+# che cosa sia un sorgente.
+!forget source_extension("*.c")
+!forget source_extension("*.h")
+!forget source_extension("*.py")
+!forget source_extension("*.sh")
+!forget source_extension("*.js")
+> analizza tutti i file sorgenti che trovi
+<! sorgenti in struttura
+!assert source_extension("*.c")
+> analizza tutti i file sorgenti che trovi in tests/fixtures/demo-code-review
+<~ sorgenti

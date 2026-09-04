@@ -160,3 +160,33 @@ tool_anchor(read,   "apri ").
 tool_anchor(run,    "run ").
 tool_anchor(run,    "esegui ").
 tool_anchor(run,    "lancia ").
+
+% ══ gen495 — UN PIANO SU STRUMENTI ═══════════════════════════════════════════
+%
+% F.: «analizza tutti i file sorgenti che trovi» — e parrot0 murava. Non era una
+% domanda a cui mancasse la superficie: era una richiesta che **nessuna azione
+% sola soddisfa**. Trova → leggi ciascuno → riferisci. Finche' un turno puo'
+% valere al massimo un'azione, parrot0 risponde a domande; non agisce.
+%
+% Qui il piano e' conoscenza, con la stessa forma di `compensates/2` (gen442):
+% la KB dice QUALI passi esistono e in che ordine, il motore possiede soltanto
+% le PRIMITIVE — eseguire uno strumento, e ripetere un passo su ogni riga del
+% risultato precedente. Il motore non sa che cosa sia «un sorgente»: lo dice
+% `source_extension/1`, e un linguaggio nuovo e' una riga.
+%
+% ⚠ Un piano NON e' un'autorizzazione: ogni passo passa dallo stesso gate degli
+% strumenti singoli. Con i tool spenti il piano declina come tutto il resto.
+machinery(turn_plan).
+machinery(plan_step).
+machinery(source_extension).
+
+turn_plan(analyze_sources, plan_analyze_sources).
+
+plan_step(analyze_sources, 1, list_sources).
+plan_step(analyze_sources, 2, read_each).
+
+source_extension("*.c").
+source_extension("*.h").
+source_extension("*.py").
+source_extension("*.sh").
+source_extension("*.js").

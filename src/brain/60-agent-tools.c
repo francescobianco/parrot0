@@ -650,6 +650,133 @@ static int piact_dir(Brain *b, const char *dir, char *rel, size_t cap,
     return 1;
 }
 
+/* ══ gen495 — UN PIANO SU STRUMENTI ══════════════════════════════════════════
+ *
+ * F.: «analizza tutti i file sorgenti che trovi» — e parrot0 murava. Non era una
+ * superficie mancante: era una richiesta che **nessuna azione sola soddisfa**.
+ * Trova → leggi ciascuno → riferisci. Finche' un turno vale al massimo
+ * un'azione, parrot0 risponde a domande; non agisce.
+ *
+ * La forma e' quella di `p0_compensate` (gen442), ed e' deliberato: la KB dice
+ * QUALI passi esistono e in che ordine (`turn_plan/2`, `plan_step/3`), il motore
+ * possiede soltanto le PRIMITIVE. Qui sono due:
+ *
+ *     list_sources   elenca i file che hanno un'estensione dichiarata sorgente
+ *     read_each      ripete la lettura su ogni risultato del passo precedente
+ *
+ * Il motore non sa che cosa sia «un sorgente»: lo dice `source_extension/1`, e
+ * un linguaggio nuovo e' una riga di KB. Non sa nemmeno che i passi siano due:
+ * li enumera.
+ *
+ * ⚠ Un piano NON e' un'autorizzazione. Ogni passo passa dallo stesso gate degli
+ * strumenti singoli — `p0_read_in_root` per la lettura, `brain_policy_on` per il
+ * permesso — quindi con i tool spenti il piano declina come tutto il resto. Un
+ * piano che aggirasse i gate sarebbe un modo elegante di bucare il workspace. */
+static int plan_list_sources(Brain *b, const char *dir,
+                             char found[][KB_TERM_LEN], size_t max) {
+    char exts[16][KB_TERM_LEN];
+    const char *eq[1] = { NULL };
+    size_t ne = kb_match(b->kb, "source_extension", eq, 1, exts, 16);
+    size_t n = 0;
+    for (size_t i = 0; i < ne && n < max; i++) {
+        char eb[KB_TERM_LEN]; snprintf(eb, sizeof eb, "%s", exts[i]);
+        const char *glob = kb_dequote(eb);
+        if (!glob || !*glob) continue;
+        char store[512]; char *argv[24];
+        const ToolSlot slots[] = { { "dir", dir }, { "glob", glob } };
+        if (!tool_argv_build(b, "list", slots, 2, store, sizeof store, argv, 24))
+            continue;
+        P0Obs obs;
+        p0_exec(argv, ".", 20000, NULL, &obs);
+        if (obs.verdict != P0_OK) continue;
+        char flat[4000];
+        collapse_ws(obs.out, flat, sizeof flat);
+        for (char *tok = strtok(flat, " "); tok && n < max; tok = strtok(NULL, " "))
+            if (*tok) snprintf(found[n++], KB_TERM_LEN, "%s", tok);
+    }
+    return (int)n;
+}
+
+static int mod_toolplan(Brain *b, const char *norm, const char *raw,
+                        char *out, size_t out_size) {
+    if (!b || !b->kb || !raw) return 0;
+    char low[1024];
+    size_t rl = strlen(raw);
+    if (rl == 0 || rl >= sizeof low) return 0;
+    for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
+
+    /* quale piano chiede questo turno: lo dice la KB, non una catena */
+    char plan[KB_TERM_LEN] = "";
+    {
+        char plans[8][KB_TERM_LEN];
+        const char *pq[2] = { NULL, NULL };
+        size_t np = kb_match(b->kb, "turn_plan", pq, 2, plans, 8);
+        for (size_t i = 0; i < np && !plan[0]; i++) {
+            const char *cq[2] = { plans[i], NULL };
+            char cls[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "turn_plan", cq, 2, cls, 1) == 1 &&
+                kb_cue_match(b, cls[0], low))
+                snprintf(plan, sizeof plan, "%s", plans[i]);
+        }
+    }
+    if (!plan[0]) return 0;
+    (void)norm;
+
+    /* un piano non aggira il permesso: e' il primo controllo, non l'ultimo */
+    if (!brain_policy_on(b, "tools")) return 0;   /* lo dira' mod_toolpolicy */
+
+    char found[64][KB_TERM_LEN]; int nfound = 0;
+    size_t nread = 0, nfun = 0;
+    char detail[2400]; size_t dof = 0; detail[0] = '\0';
+
+    char steps[8][KB_TERM_LEN];
+    const char *sq[3] = { plan, NULL, NULL };
+    size_t ns = kb_match(b->kb, "plan_step", sq, 3, steps, 8);
+    for (size_t si = 0; si < ns; si++) {
+        const char *aq[3] = { plan, steps[si], NULL };
+        char acts[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "plan_step", aq, 3, acts, 1) != 1) continue;
+        char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", acts[0]);
+        const char *action = kb_dequote(ab);
+
+        if (!strcmp(action, "list_sources")) {
+            nfound = plan_list_sources(b, ".", found, 64);
+        } else if (!strcmp(action, "read_each")) {
+            for (int i = 0; i < nfound; i++) {
+                char code[65536]; int trunc = 0;
+                if (p0_read_in_root(found[i], code, sizeof code, &trunc) != P0_OK)
+                    continue;
+                /* il linguaggio si riconosce, non si assume: e' lo stesso
+                 * rilevatore che usa la lettura di un file singolo, cosi' le
+                 * due vie non possono divergere. */
+                char names[64][KB_TERM_LEN];
+                int lang_id = identify_code_lang(code, b);
+                size_t k = code_ingest_source(b->kb, code, found[i],
+                                              lang_id == 2 ? "python" : "c",
+                                              names, 64, NULL);
+                nread++; nfun += k;
+                if (dof + 1 < sizeof detail)
+                    dof += (size_t)snprintf(detail + dof, sizeof detail - dof,
+                                            "%s%s (%zu)", dof ? ", " : "",
+                                            found[i], k);
+            }
+        }
+    }
+    if (nread == 0) return 0;
+
+    char nr[24], nf[24];
+    snprintf(nr, sizeof nr, "%zu", nread);
+    snprintf(nf, sizeof nf, "%zu", nfun);
+    char msg[3000];
+    { const KbResponseSlot rs[] = { { "count", nr }, { "functions", nf },
+                                    { "detail", detail } };
+      if (!kb_response_slots(b, "plan_sources_read", rs, 3, msg, sizeof msg))
+          snprintf(msg, sizeof msg, "%s sources read, %s functions: %s.",
+                   nr, nf, detail); }
+    put(msg, out, out_size);
+    return 1;
+}
+
 static int mod_piact(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)norm;
@@ -2511,6 +2638,34 @@ static int mod_toolpolicy(Brain *b, const char *norm, const char *raw,
     if (!kind && (ci_prefix(low,"ls ") || ci_eq(low,"ls"))) kind = "list";
     if (!kind && (ci_prefix(low,"read ") || ci_prefix(low,"cat "))) kind = "read";
     if (!kind && ci_prefix(low,"run ")) kind = "run";
+    if (!kind) {
+        /* gen495 — anche un PIANO e' una capacita' che puo' essere spenta, e
+         * deve dirlo. Senza questo, «analizza tutti i sorgenti» con i tool
+         * spenti rispondeva «non capisco»: la stessa bugia sulla propria
+         * capacita' che questo modulo esiste per non dire. */
+        char plans[8][KB_TERM_LEN];
+        const char *pq[2] = { NULL, NULL };
+        size_t np = kb_match(b->kb, "turn_plan", pq, 2, plans, 8);
+        for (size_t i = 0; i < np && !kind; i++) {
+            const char *cq[2] = { plans[i], NULL };
+            char cls[1][KB_TERM_LEN];
+            /* si prova sia il turno canonicalizzato sia quello DETTO: la
+             * canonicalizzazione riscrive le forme italiane, e una capacita'
+             * spenta deve dirlo anche a chi non parla inglese. */
+            char rawlow[512];
+            size_t rl2 = raw ? strlen(raw) : 0;
+            if (rl2 >= sizeof rawlow) rl2 = sizeof rawlow - 1;
+            for (size_t z = 0; z < rl2; z++)
+                rawlow[z] = (char)tolower((unsigned char)raw[z]);
+            rawlow[rl2] = '\0';
+            if (kb_match(b->kb, "turn_plan", cq, 2, cls, 1) == 1 &&
+                (kb_cue_match(b, cls[0], low) ||
+                 kb_cue_match(b, cls[0], rawlow))) {
+                snprintf(kindbuf, sizeof kindbuf, "%s", plans[i]);
+                kind = kindbuf;
+            }
+        }
+    }
     if (!kind) return 0;
 
     char mode[32]; brain_mode(b, mode, sizeof mode);

@@ -300,6 +300,10 @@ static const Module registry[] = {
      * last reply), so it preempts a mirror loop with a fresh KB topic and passes every
      * normal turn straight through. */
     {"initiative", mod_initiative},
+    /* gen495: un PIANO su strumenti corre prima delle azioni singole, perche'
+     * «analizza tutti i sorgenti» contiene anche la superficie di una lettura
+     * sola e verrebbe altrimenti soddisfatto a meta'. */
+    {"toolplan",  mod_toolplan},
     {"piact",     mod_piact},
     {"compose",   mod_compose},
     {"repair",    mod_repair},

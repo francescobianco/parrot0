@@ -351,6 +351,16 @@ intent_cue(piact_grep, "uses of").
 intent_cue(piact_grep, "grep for").
 intent_cue(piact_find, "locate the file").
 intent_cue(piact_grep, "cerca").
+% gen495 — le superfici che chiedono un PIANO, non un'azione sola.
+intent_cue(plan_analyze_sources, "analizza tutti i file sorgenti").
+intent_cue(plan_analyze_sources, "analizza tutti i sorgenti").
+intent_cue(plan_analyze_sources, "analizza i sorgenti").
+intent_cue(plan_analyze_sources, "analizza il codice").
+intent_cue(plan_analyze_sources, "analyze all the sources").
+intent_cue(plan_analyze_sources, "analyze all source files").
+intent_cue(plan_analyze_sources, "analyze the sources").
+intent_cue(plan_analyze_sources, "read all the sources").
+intent_cue(plan_analyze_sources, "leggi tutti i sorgenti").
 intent_cue(piact_grep, "cercami").
 intent_cue(piact_grep, "trova nei file").
 intent_cue(piact_find, "trovami il file").

@@ -206,3 +206,40 @@ PARROT0_TOOLS= parrot0     # oppure: make chat
 
 **parrot0 è autorizzato a non potere; non è autorizzato a descrivere male il
 perché.**
+
+---
+
+## ⭐ Aggiunta gen495 — il turno che vale un piano
+
+Questo era l'ultimo dei tuoi prompt che murava, ed era il più importante:
+
+```
+analizza tutti i file sorgenti che trovi
+```
+
+> Ho letto 2 sorgenti in struttura — 5 funzioni in tutto: ./src/cache.c (3),
+> ./src/report.c (2).
+
+Non è una domanda: è **trova → leggi ciascuno → riferisci**, cioè tre passi in un
+turno. Finché un turno poteva valere al massimo *un'azione*, parrot0 rispondeva a
+domande; non agiva.
+
+E il punto non è il resoconto — è che **dopo, tutto il resto lavora su ciò che il
+piano ha trovato**, senza che tu debba nominare i file:
+
+```
+improvement note for build_report
+domain knowledge about hash_table_get
+```
+
+> Wide fanout — code definition fanout = 10.
+> Key-value mapping -- O(1) average lookup/insert/delete.
+
+**Che cosa sia «un sorgente» non lo sa il motore**: lo dice `source_extension/1`.
+Togli quelle righe e il piano non trova più niente; aggiungi `"*.rs"` e legge
+anche Rust. Nessuna ricompilazione.
+
+E anche un piano è una capacità che può essere spenta, e lo dice:
+
+> tools_disabled: I understood that — it is a analyze_sources request, and I can
+> do it — but in conversational mode I may not touch the filesystem.
