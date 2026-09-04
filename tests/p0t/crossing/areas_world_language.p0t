@@ -1,0 +1,29 @@
+# M × L: il fatto sta nell'area del mondo, la strada che lo raggiunge sta
+# nell'area della lingua.
+#
+#   M   color_of(blood, red)      quantity(spider, legs, 8)
+#   L   l'esonimo che porta «sangue» a blood e «ragno» a spider
+#
+# La domanda e' in italiano e non contiene la parola inglese: senza la clausola
+# di lingua il fatto non si raggiunge, senza il fatto la lingua non risponde.
+# Entrambe le aree servono, ed e' questo che distingue l'attraversamento
+# dall'impalcatura che ogni turno usa comunque.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=it
+!set PARROT0_TOOLS=1
+!reset
+
+[test an english world fact answers an italian question]
+!timeout 12
+> di che colore è il sangue?
+< Rosso.
+
+[test the crossing holds on a second entity of the same area]
+> di che colore è il sole?
+< Giallo.
+
+[test the crossing holds on a quantity, not only on a colour]
+> quante zampe ha un ragno?
+< ragno ha 8 zampe.

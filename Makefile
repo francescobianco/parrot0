@@ -68,6 +68,8 @@ crossing-test: test-engine
 	@./$(BIN) --test tests/p0t/crossing/facts_split_three.p0t
 	@./$(BIN) --test tests/p0t/crossing/rules_split_three.p0t
 	@./$(BIN) --test tests/p0t/crossing/all_quadrants.p0t
+	@./$(BIN) --test tests/p0t/crossing/areas_homonym.p0t
+	@./$(BIN) --test tests/p0t/crossing/areas_world_language.p0t
 	@./$(BIN) --test-report
 
 $(BIN): $(OBJ) | bin

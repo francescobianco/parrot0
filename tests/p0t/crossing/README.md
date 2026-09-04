@@ -54,3 +54,23 @@ vale per l'intera tabella degli otto pianeti e `habitable/1` per qualunque mondo
 che soddisfi entrambe le premesse: non sono regole dedicate alla Terra o al
 test. La prova positiva sulla Terra è accompagnata dal controllo negativo reale
 su Mercurio, per impedire che il solo essere pianeta basti alla conclusione.
+
+## Terzo livello: le aree logiche
+
+Il taglio `Fs | Fr | Ru | Rm` è sintattico: divide le clausole per forma. Il
+livello successivo divide per **che cosa la clausola parla** — mondo, lingua,
+condotta — e dentro il mondo per area di realtà, usando il dominio che la KB
+dichiara già in `wiki_concept/3`.
+
+La divisione, il criterio con cui regge, e lo spoglio di che cosa la conoscenza
+residente permette davvero di attraversare stanno in [`AREE.md`](AREE.md).
+
+```text
+areas_homonym.p0t          M-astronomia × M-chimica     (mercury)
+areas_world_language.p0t   M × L                        (fatto inglese, domanda italiana)
+```
+
+Lo spoglio ha anche misurato il suo contrario: delle dodici clausole binarie che
+collegano due aree dichiarate, **nessuna risponde a una domanda naturale**. Sono
+archi disegnati e mai attraversati, e `AREE.md` li elenca per nome invece di
+lasciarli fra le cose che si suppongono funzionanti.

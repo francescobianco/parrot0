@@ -1,0 +1,37 @@
+# M-astronomia × M-chimica, attraverso l'unico nome che vive in due aree.
+#
+# `mercury` sta in due tavole curate, entrambe gia' residenti nella KB:
+#
+#   astronomia   planet_order(mercury, 1)   rocky_world(mercury)   orbits(mercury, sun)
+#   chimica      atomic_number(mercury, 80) chemical_symbol(mercury, Hg)
+#
+# A scegliere l'area e' la domanda, non il nome. Il controllo negativo e'
+# `earth`, che vive solo in astronomia: chiederne il simbolo chimico non deve
+# produrre un simbolo. Nessuna conoscenza viene iniettata dal test.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+[test the same name answers from the astronomy area]
+!timeout 12
+> is mercury a planet?
+< Yes.
+
+[test the same name answers from the chemistry area]
+> what is the symbol of mercury?
+< Hg.
+
+[test the astronomy area keeps deciding on the same name]
+> is mercury terrestrial?
+< Yes.
+
+[test astronomy does not concede the chemical conclusion]
+> is mercury habitable?
+< No.
+
+[test a name that lives only in astronomy gets no chemical symbol]
+> what is the symbol of earth?
+< I don't know about symbol.
