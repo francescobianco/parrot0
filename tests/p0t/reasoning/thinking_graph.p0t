@@ -77,9 +77,28 @@
 
 # Dichiarata la conoscenza che il rientro porta di nuovo, diventa eseguibile.
 !assert reentry_brings(rev, 1, code_finding)
+# La fonte deve specificare anche il delta: nominare un finding senza dire
+# quale novità produce lascerebbe passare un loop di specchio più verboso.
+!assert thinking_feedback(rev, 1, code_finding, fact_delta)
+!query thinking_feedback_ready(rev, 1)
 !query reentry_admissible(rev, 1)
 !query! reentry_mirror_risk(rev, 1)
 
 # E ritirandola torna inammissibile: la guardia e' conoscenza, non un controllo.
+!forget thinking_feedback(rev, 1, code_finding, fact_delta)
+!query! thinking_feedback_ready(rev, 1)
+!query! reentry_admissible(rev, 1)
+!query reentry_mirror_risk(rev, 1)
 !forget reentry_brings(rev, 1, code_finding)
 !query reentry_mirror_risk(rev, 1)
+
+# Un gap è utile solo se porta un'azione informativa, non se è una risposta
+# finale travestita da thinking.
+!assert reentry_brings(gap_review, 1, code_finding)
+!clause thinking_step(gap_review, 1, step(reenter(recall), r0, gap, meta(1, local))).
+!assert thinking_feedback(gap_review, 1, code_finding, gap_with_action)
+!query! thinking_feedback_ready(gap_review, 1)
+!assert thinking_feedback_action(gap_review, 1, inspect_callers)
+!query thinking_feedback_ready(gap_review, 1)
+!forget thinking_feedback_action(gap_review, 1, inspect_callers)
+!query! thinking_feedback_ready(gap_review, 1)

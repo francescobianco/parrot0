@@ -1,0 +1,29 @@
+# UC2c — severity and ordering are KB policy, not smell-specific C branches.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+> what functions does this define: int wide(void) { a(); b(); c(); d(); e(); f(); g(); h(); i(); return 1; }
+
+!clause short_body($Name, $Len) :- code_name($S, $N, definition, $Name), code_span($S, $N, $Start, $Len).
+!assert quality_criterion(tiny_body, brevity, threshold(short_body, below, 10000))
+!assert quality_severity(tiny_body, advisory, 1)
+
+!query finding_priority(wide, wide_fanout, priority(warning, 2))
+!query finding_precedes(wide, tiny_body, wide_fanout)
+!query! finding_precedes(wide, wide_fanout, tiny_body)
+
+# A runtime policy change must reorder the same observed finding, without a
+# rebuild and without changing the code IR.
+!forget quality_severity(wide_fanout, warning, 2)
+!assert quality_severity(wide_fanout, critical, 0)
+!query finding_priority(wide, wide_fanout, priority(critical, 0))
+!query finding_precedes(wide, wide_fanout, tiny_body)
+
+# Ablating policy removes only the ranking, not the qualitative observation.
+!forget quality_severity(wide_fanout, critical, 0)
+!query! finding_priority(wide, wide_fanout, $P)
+!query code_finding(wide, wide_fanout, $Evidence)

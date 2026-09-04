@@ -19,6 +19,12 @@ machinery(code_provenance).
 % frontends can add node and edge kinds without changing the question engine.
 machinery(code_defined_in).
 machinery(code_call_in).
+machinery(code_reference).
+machinery(code_scope).
+machinery(code_contains).
+machinery(code_ancestor).
+machinery(code_predecessor).
+machinery(code_ordered_before).
 machinery(code_definition_evidence).
 machinery(code_call_evidence).
 
@@ -31,6 +37,47 @@ code_call_in($Caller, $Callee, $Source) :-
     code_name($Snapshot, $CallerNode, definition, $Caller),
     code_edge($Snapshot, $CallerNode, calls, $CallNode),
     code_name($Snapshot, $CallNode, reference, $Callee).
+
+% Generic projections for future questions (impact, ownership, nesting): the
+% edge kind and parent scope remain data, so adding a new frontend edge does
+% not require a new C recognizer or a new question handler.
+code_reference($Source, $From, $Kind, $To) :-
+    code_source_snapshot($Source, $Snapshot),
+    code_edge($Snapshot, $From, $Kind, $To).
+
+code_scope($Name, $Scope, $Source) :-
+    code_source_snapshot($Source, $Snapshot),
+    code_name($Snapshot, $Node, $Role, $Name),
+    code_node($Snapshot, $Node, $Kind, $Scope).
+
+% Relazioni strutturali riusabili: il parent osservato diventa containment, e
+% la chiusura transitiva permette domande di nesting senza conoscere la lingua
+% sorgente. `code_predecessor/4` e' l'inversa generica di un edge: impact,
+% callers e dipendenze possono riusarla senza duplicare il frontend.
+code_contains($Source, $Parent, $Child) :-
+    code_source_snapshot($Source, $Snapshot),
+    code_node($Snapshot, $Child, $Kind, $Parent).
+
+code_ancestor($Source, $Ancestor, $Node) :-
+    code_contains($Source, $Ancestor, $Node).
+code_ancestor($Source, $Ancestor, $Node) :-
+    code_contains($Source, $Parent, $Node),
+    code_ancestor($Source, $Ancestor, $Parent).
+
+code_predecessor($Source, $To, $Kind, $From) :-
+    code_reference($Source, $From, $Kind, $To).
+
+% Ordine osservato nello stesso scope. Non viene chiamato CFG: è una relazione
+% conservativa sugli span, utile a sequenza, dipendenze e causalità senza
+% inventare branch o merge che il frontend non ha osservato.
+code_ordered_before($Source, $First, $Second) :-
+    code_source_snapshot($Source, $Snapshot),
+    code_node($Snapshot, $First, $KindFirst, $Parent),
+    code_node($Snapshot, $Second, $KindSecond, $Parent),
+    code_span($Snapshot, $First, $StartFirst, $LenFirst),
+    code_span($Snapshot, $Second, $StartSecond, $LenSecond),
+    dif($First, $Second),
+    lt($StartFirst, $StartSecond).
 
 code_definition_evidence($Name, $Evidence) :-
     code_source_snapshot($Source, $Snapshot),

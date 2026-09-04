@@ -876,6 +876,45 @@ l'azione informativa che separa due ipotesi, e tutto il §5.2 (la latenza, che
 senza profilo può produrre solo *candidati costosi* — mai «questa parte è
 lenta»).
 
+### UC2c — severità e precedenza sono policy KB
+
+Il primo sotto-incremento è ora chiuso in `kb/core/code-quality.p0`: ogni
+criterio può dichiarare `quality_severity(Criterio, Severità, Rank)` e il motore
+proietta `finding_priority/3` e `finding_precedes/3`. L'ordinamento confronta
+solo rank numerici generici; non conosce i nomi dei criteri e conserva il finding
+alla base. Cambiare `warning` in `critical`, o rimuovere la policy, cambia la
+priorità a runtime senza toccare l'IR né ricompilare.
+
+Ratchet: `tests/p0t/code/code_quality_priority.p0t` (7/7), inclusi criterio
+aggiunto a runtime, riordinamento dopo sostituzione della policy e ablation che
+rimuove la priorità ma non l'evidenza qualitativa.
+
+### UC2d — la domanda qualitativa apre un Task IR
+
+La superficie `improvement note for` è ora dichiarata anche come
+`task_operation_cue(code_quality_review, ...)` e
+`task_deliverable_cue(qualitative_judgment, ...)`. Il consumer proietta
+`code_quality_task/2` dall'argomento del Task IR e richiede
+`code_quality_evidence_requirement/3`, che vincola il giudizio a una misura
+proveniente dalla snapshot. L'argomento resta insegnabile: il ratchet aggiunge
+e ritira `task_entity_cue(wide, keyword(wide))` a runtime.
+
+`tests/p0t/code/code_quality_task_ir.p0t` chiude 7/7: operation, deliverable,
+argomento, obbligo di evidenza e ablation del cue, senza nuovo ramo nel C.
+
+### UC3-seed — scope e riferimenti come relazioni generali
+
+La IR espone ora anche `code_scope/3`, `code_contains/3`, `code_ancestor/3`,
+`code_reference/4`, `code_predecessor/4` e `code_ordered_before/3`: sono
+proiezioni source-qualified dei
+parent e degli archi osservati, non alias specializzati
+per la domanda corrente. Lo stesso contratto può quindi sostenere in seguito
+impact analysis, ownership, nesting, data-flow o causalità, aggiungendo dati
+all'IR senza moltiplicare gli handler. Il ratchet
+`tests/p0t/code/code_ir_relations.p0t` verifica il seed su definizioni, nesting,
+call edge e ordine osservato (7/7). L'ordine non viene spacciato per CFG: branch
+e merge entreranno solo con evidenza strutturale dedicata.
+
 ---
 
 ## 8-quater. ✅ FATTO al gen493 — la demo, e i due difetti che ha scoperto
@@ -988,3 +1027,21 @@ La frase guida è:
 > un handler: apre un obbligo di evidenza. Il giudizio non è una risposta
 > memorizzata: è una conclusione della KB che sa indicare perché vale, rispetto a
 > quale snapshot e che cosa potrebbe smentirla.**
+
+### Principio operativo anti-muro
+
+La comprensione universale non significa produrre sempre un verdetto completo.
+Significa attraversare tutte le rappresentazioni pertinenti disponibili,
+esplicitare ciò che è dimostrato e, quando manca un registro, restituire un gap
+tipato accompagnato dalla prossima azione informativa utile. Il thinking è
+prolifero quando ogni rientro cambia almeno uno fra rappresentazione,
+prospettiva, evidenza od obiettivo; se non cambia nessuno di questi, il passo è
+uno specchio e va arrestato. Il limite non diventa così né un muro conversazionale
+né un pretesto per inventare.
+
+Il contratto KB del thinking rende questa regola eseguibile: ogni rientro deve
+dichiarare `reentry_brings/3` e un `thinking_feedback/4` con delta
+`fact_delta`, `query_result` oppure `gap_with_action`; quest'ultima forma è
+ammissibile solo se esiste una `thinking_feedback_action/3`. L'ablazione del
+delta o dell'azione rende il nodo non ammissibile nel ratchet
+`tests/p0t/reasoning/thinking_graph.p0t` (25/25).

@@ -28,7 +28,7 @@
 |---|---|
 | **UC1** | la IR del codice con identità, span, hash e provenienza; `code_function`/`code_calls` degradati a compatibilità |
 | **UC1b** | il **ponte fra rappresentazioni** è vivo: `code_name_part/4` + `identifier_separator/1` + quattro `representation_bridge/4` |
-| **UC2** | il giudizio qualitativo è un motore: `quality_criterion(Nome, Dim, threshold(Misura, Verso, Soglia))` con la misura come **predicato variabile** |
+| **UC2/UC2c/UC2d** | il giudizio qualitativo è un motore: misura come **predicato variabile**, controevidenza, severità/precedenza e Task IR come policy KB |
 
 **La prova che vale più delle righe:**
 
@@ -121,6 +121,50 @@ avviare una suite lunga e non popolare una grande AST senza consumer. Il primo
 verticale deve già rispondere da definizioni/chiamate revisionate, mostrare la
 provenance, perdere gli archi stale dopo una rilettura e acquisire/ritrarre via
 prompt almeno una nuova forma di domanda.
+
+## UC1 — checkpoint eseguito (2026-09-04)
+
+Il verticale è ora operativo e resta volutamente piccolo: C e Python pubblicano
+snapshot, unità sorgente, nodi, nomi, span, archi e provenienza nella stessa KB;
+le viste `code_function/1` e `code_calls/2` sono proiezioni di compatibilità.
+`ir_denotation/4` e `representation_bridge/4` permettono a una query di passare
+dal codice a una conoscenza di dominio tramite `apply/2`, conservando una
+`ir_domain_claim_basis/5`; l'ablazione del ponte elimina il claim e non i fatti
+di base. La rilettura sostituisce la closure della sorgente precedente.
+
+Il cricchetto focalizzato
+[`tests/p0t/code/universal_code_ir.p0t`](tests/p0t/code/universal_code_ir.p0t)
+ha chiuso **61/61** verifiche: IR C/Python, keyword insegnabile e retraibile,
+ponte cross-rappresentazione, provenance, rilettura e teaching/retract/reteach
+della forma di domanda. Una misura iniziale mostra 20 osservazioni ground per
+uno snippet C di tre funzioni; il costo è dominato dall'infrastruttura generale
+(`intent_cue`/`segment_role`), non dal publisher IR.
+
+È stata eseguita una sola `make soft-test`, come previsto dal protocollo: il
+frontier chat audit resta a **53 pass / 3 fail** su risposte di fallback. La
+diagnosi isolata (boot code-IR rimosso e query ripetuta) produce lo stesso esito,
+quindi non è una regressione attribuibile a UC1; non viene riavviata la suite.
+
+**Prossimo incremento:** estendere la IR con CFG e dipendenze di flusso come
+relazioni generali, riusabili da domande disparate (impact, ownership,
+data-flow, qualità), e solo dopo collegare provider opzionali come il profiling
+dinamico.
+Nessun verdetto di performance sarà emesso senza workload, snapshot e profilo.
+
+**Regola anti-muro:** ogni domanda deve produrre una conclusione supportata o
+un gap tipato con una prossima azione informativa; ogni rientro di thinking deve
+cambiare rappresentazione, prospettiva, evidenza od obiettivo. Un rientro che
+non cambia nessuno di questi è uno specchio e va arrestato.
+
+Il ratchet del thinking rende ora il vincolo eseguibile: ogni rientro dichiara
+`reentry_brings/3` più un `thinking_feedback/4` (`fact_delta`, `query_result` o
+`gap_with_action`); un gap è valido solo con `thinking_feedback_action/3`.
+`thinking_graph.p0t` verifica ablation e crescita runtime: **25/25**.
+
+La IR ora espone anche `code_ordered_before/3`: ordine osservato tra nodi dello
+stesso scope, distinto esplicitamente da una CFG. È un nuovo registro che il
+thinking può interrogare per sequenza e dipendenza; branch/merge saranno
+aggiunti solo quando osservati dal frontend.
 
 ---
 

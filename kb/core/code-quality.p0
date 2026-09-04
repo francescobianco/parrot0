@@ -29,6 +29,11 @@ machinery(quality_criterion).
 machinery(criterion_finding).
 machinery(criterion_basis).
 machinery(criterion_counterevidence).
+machinery(quality_severity).
+machinery(finding_priority).
+machinery(finding_precedes).
+machinery(code_quality_task).
+machinery(code_quality_evidence_requirement).
 
 % ── LE DIMENSIONI, con il loro significato in chiaro ────────────────────────
 quality_dimension(size, "how much has to be read at once to understand a unit").
@@ -51,6 +56,26 @@ code_definition_fanout($Name, $Count) :-
 %    differenza fra motorizzare la classe e collezionare istanze.
 quality_criterion(long_definition, size,     threshold(code_definition_length, above, 400)).
 quality_criterion(wide_fanout,     coupling, threshold(code_definition_fanout, above, 8)).
+
+% La gravita' e' policy, non una proprieta' cablata del criterio. Il rank
+% numerico permette confronti generici fra finding; cambiare la priorita'
+% richiede solo sostituire il fatto nella KB.
+quality_severity(long_definition, advisory, 1).
+quality_severity(wide_fanout, warning, 2).
+
+machinery(quality_severity_name).
+quality_severity_name($Criterion, $Severity) :-
+    quality_severity($Criterion, $Severity, $Rank).
+
+% Proiezione con evidenza: l'ordinamento non perde soggetto, criterio o prova.
+finding_priority($Subject, $Criterion, priority($Severity, $Rank)) :-
+    code_finding($Subject, $Criterion, $Evidence),
+    quality_severity($Criterion, $Severity, $Rank).
+
+finding_precedes($Subject, $Left, $Right) :-
+    finding_priority($Subject, $Left, priority($LeftSeverity, $LeftRank)),
+    finding_priority($Subject, $Right, priority($RightSeverity, $RightRank)),
+    lt($LeftRank, $RightRank).
 
 % ── IL MOTORE DEL GIUDIZIO: una regola, che non nomina nessun criterio ──────
 %
@@ -125,6 +150,22 @@ lexeme(quality).
 lexeme(improvement).
 lexeme(finding).
 lexeme(note).
+
+% La domanda qualitativa entra anche nel contratto Task IR. La superficie e'
+% lingua in KB; il consumer non deve riconoscere una nuova frase nel C.
+task_operation_cue(code_quality_review, "improvement note for").
+task_deliverable_cue(qualitative_judgment, "improvement note for").
+
+% Il task riusa l'argomento gia' estratto dall'IR di turno e apre l'obbligo di
+% evidenza: il finding non e' pronunciabile senza una misura sulla snapshot.
+code_quality_task($Subject, $Criterion) :-
+    task_ir(operation, code_quality_review),
+    task_ir(argument_1, $Subject),
+    quality_criterion($Criterion, $Dimension, $Threshold).
+
+code_quality_evidence_requirement($Subject, $Criterion, requirement($Measure, snapshot)) :-
+    code_quality_task($Subject, $Criterion),
+    quality_criterion($Criterion, $Dimension, threshold($Measure, $Direction, $Bound)).
 
 % ── «HO GUARDATO E NON HO TROVATO NIENTE» NON E' «NON SO COSA SIA» ─────────
 %

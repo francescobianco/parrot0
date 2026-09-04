@@ -1,10 +1,12 @@
-# Reasoning in parrot0
+# Thinking in parrot0
 
-Il reasoning in parrot0 non deve essere inteso come una proprietà interna di un modello, né come una semplice estensione del tempo di inferenza. Parrot0 è un motore Prolog-like e il reasoning deve quindi essere costruito come una capacità architetturale autonoma, governata dalla Knowledge Base.
+Il thinking in parrot0 non deve essere inteso come una proprietà interna di un modello, né come una semplice estensione del tempo di inferenza. Parrot0 è un motore Prolog-like e il thinking deve quindi essere costruito come una capacità architetturale autonoma, governata dalla Knowledge Base.
 
-**Non c'è nessun modello esterno in questo documento.** Ciò che chiamiamo `process(P)` è l'inferenza di parrot0 stesso: un passo di reasoning è un **rientro nella sua pipeline**, con un turno composto a partire dal risultato precedente e da un meta-prompt dichiarato in KB. I flussi stanno nella Knowledge Base, ma ciò che eseguono sono **inferenze successive dello stesso motore**.
+Convenzione di naming: in questo documento **reasoning** indica soltanto l'inferenza ordinaria di un turno; la feature di rientro, meta-prompt e rielaborazione si chiama esclusivamente **thinking**.
 
-Nella modalità più semplice, senza reasoning, il comportamento rimane diretto:
+**Non c'è nessun modello esterno in questo documento.** Ciò che chiamiamo `process(P)` è l'inferenza di parrot0 stesso: un passo di thinking è un **rientro nella sua pipeline**, con un turno composto a partire dal risultato precedente e da un meta-prompt dichiarato in KB. I flussi stanno nella Knowledge Base, ma ciò che eseguono sono **inferenze successive dello stesso motore**.
+
+Nella modalità più semplice, senza thinking, il comportamento rimane diretto:
 
 ```text
 input
@@ -14,7 +16,7 @@ input
 → output
 ```
 
-Quando il reasoning è attivo, invece, l'output ottenuto da una prima elaborazione non deve necessariamente essere considerato conclusivo. Può diventare l'input di ulteriori passaggi guidati da meta-prompt, nuovi goal, verifiche, critiche, riformulazioni, raccolta di evidenza o sintesi.
+Quando il thinking è attivo, invece, l'output ottenuto da una prima elaborazione non deve necessariamente essere considerato conclusivo. Può diventare l'input di ulteriori passaggi guidati da meta-prompt, nuovi goal, verifiche, critiche, riformulazioni, raccolta di evidenza o sintesi.
 
 Il principio generale diventa quindi:
 
@@ -22,11 +24,11 @@ Il principio generale diventa quindi:
 input
 → prima elaborazione
 → risultato intermedio
-→ reasoning pipeline
+→ thinking pipeline
 → risultato finale
 ```
 
-La reasoning pipeline non deve però essere una sequenza rigida definita nel codice del motore.
+La thinking pipeline non deve però essere una sequenza rigida definita nel codice del motore.
 
 Non vogliamo stabilire a priori qualcosa come:
 
@@ -40,9 +42,9 @@ draft
 
 Questo sarebbe soltanto un workflow hardcoded.
 
-In parrot0 gli schemi di reasoning devono essere **KB-first**.
+In parrot0 gli schemi di thinking devono essere **KB-first**.
 
-La Knowledge Base deve poter descrivere quali operazioni di reasoning esistono, quando devono essere applicate, quali condizioni le attivano, quali risultati producono e quale passaggio deve essere eseguito successivamente.
+La Knowledge Base deve poter descrivere quali operazioni di thinking esistono, quando devono essere applicate, quali condizioni le attivano, quali risultati producono e quale passaggio deve essere eseguito successivamente.
 
 Uno schema potrebbe, per esempio, descrivere:
 
@@ -111,7 +113,7 @@ L'aspetto fondamentale è che queste strutture non devono essere incorporate per
 
 Devono essere rappresentabili come conoscenza.
 
-Parrot0 deve quindi poter apprendere uno schema di reasoning così come apprende una nuova regola.
+Parrot0 deve quindi poter apprendere uno schema di thinking così come apprende una nuova regola.
 
 Per esempio, attraverso un prompt potrebbe essergli insegnato:
 
@@ -159,28 +161,28 @@ Ogni nodo può corrispondere a un'attività differente: una risoluzione simbolic
 Gli operatori disponibili sono quindi:
 
 ```text
-reasoning step
+thinking step
 → symbolic resolver
 ```
 
 oppure:
 
 ```text
-reasoning step
+thinking step
 → KB query
 ```
 
 oppure:
 
 ```text
-reasoning step
+thinking step
 → external tool
 ```
 
 oppure — ed è quello che rende il grafo un ragionamento e non solo un piano:
 
 ```text
-reasoning step
+thinking step
 → process(meta_prompt, risultati precedenti)
 ```
 
@@ -190,7 +192,7 @@ KB e reimmesso come nuovo turno. Non c'è nessuna intelligenza esterna a cui
 chiedere: c'è lo stesso motore che gira di nuovo, su un input che il grafo ha
 costruito.
 
-Il reasoning appartiene quindi interamente a parrot0. È il suo motore a decidere
+Il thinking appartiene quindi interamente a parrot0. È il suo motore a decidere
 perché un passaggio debba essere eseguito, quali informazioni debba ricevere e
 come il suo risultato debba essere utilizzato successivamente — e a eseguirlo.
 
@@ -236,7 +238,7 @@ P
 
 dove ogni arco e ogni nodo sono descritti dalla KB.
 
-Il reasoning può inoltre essere condizionale.
+Il thinking può inoltre essere condizionale.
 
 Un passaggio successivo può essere eseguito soltanto se il precedente risultato soddisfa una determinata condizione.
 
@@ -255,7 +257,7 @@ evaluate
        ↓
    identify_gap
        ↓
-   new reasoning step
+   new thinking step
        ↓
      evaluate
 ```
@@ -273,7 +275,7 @@ unsupported claim
 insufficient confidence
 ```
 
-Il reasoning diventa quindi deliberativo.
+Il thinking diventa quindi deliberativo.
 
 Parrot0 può produrre un risultato provvisorio, analizzarne lo stato epistemico e decidere se è necessario aprire nuovi goal.
 
@@ -317,7 +319,7 @@ oppure ancora:
 status(C, unknown)
 ```
 
-Il reasoning può quindi terminare non soltanto perché è stata prodotta una stringa finale, ma perché è stata raggiunta una condizione epistemica soddisfacente oppure perché non esistono ulteriori operazioni utili.
+Il thinking può quindi terminare non soltanto perché è stata prodotta una stringa finale, ma perché è stata raggiunta una condizione epistemica soddisfacente oppure perché non esistono ulteriori operazioni utili.
 
 Possibili condizioni di arresto possono essere:
 
@@ -332,11 +334,11 @@ budget_exhausted
 
 Anche queste condizioni devono poter essere descritte e modificate attraverso la KB.
 
-## Reasoning acceso e spento
+## Thinking acceso e spento
 
 Dal punto di vista dell'utente, il comportamento può essere molto semplice.
 
-Con reasoning disattivato:
+Con thinking disattivato:
 
 ```text
 input
@@ -344,37 +346,37 @@ input
 → output
 ```
 
-Con reasoning attivato:
+Con thinking attivato:
 
 ```text
 input
 → normale pipeline
 → risultato candidato
-→ selezione dello schema di reasoning
-→ esecuzione del reasoning graph
+→ selezione dello schema di thinking
+→ esecuzione del thinking graph
 → risultato finale
 ```
 
 Lo stesso input può quindi produrre due comportamenti differenti senza modificare la capacità fondamentale del resolver.
 
-Il reasoning è uno strato aggiuntivo di deliberazione.
+Il thinking è uno strato aggiuntivo di deliberazione; il reasoning resta l'inferenza di base.
 
 Potrebbe inoltre esistere più di un livello:
 
 ```text
-reasoning = off
-reasoning = light
-reasoning = standard
-reasoning = deep
+thinking = off
+thinking = light
+thinking = standard
+thinking = deep
 ```
 
 ma tali livelli non dovrebbero necessariamente corrispondere semplicemente a un numero maggiore di iterazioni.
 
 Potrebbero scegliere differenti schemi, budget, criteri di verifica o profondità di esplorazione.
 
-## Schemi di reasoning insegnabili
+## Schemi di thinking insegnabili
 
-La caratteristica più importante è che gli schemi di reasoning devono essere **addestrabili nel senso parrot0 del termine**.
+La caratteristica più importante è che gli schemi di thinking devono essere **addestrabili nel senso parrot0 del termine**.
 
 Non training dei pesi.
 
@@ -425,31 +427,31 @@ falsification
 └── survives  → conclude
 ```
 
-Il reasoning stesso diventa quindi una forma di conoscenza modificabile.
+Il thinking stesso diventa quindi una forma di conoscenza modificabile.
 
-## Meta-reasoning
+## Meta-thinking
 
-Il passo successivo è permettere a parrot0 non soltanto di eseguire schemi di reasoning, ma di ragionare su quale schema utilizzare.
+Il passo successivo è permettere a parrot0 non soltanto di eseguire schemi di thinking, ma di ragionare su quale schema utilizzare.
 
 La KB potrebbe contenere conoscenza del tipo:
 
 ```text
 task(debugging)
-→ prefer(debug_reasoning)
+→ prefer(debug_thinking)
 
 task(explanation)
-→ prefer(causal_reasoning)
+→ prefer(causal_thinking)
 
 task(uncertain_claim)
-→ prefer(evidence_reasoning)
+→ prefer(evidence_thinking)
 
 task(complex_decision)
-→ prefer(multi_hypothesis_reasoning)
+→ prefer(multi_hypothesis_thinking)
 ```
 
-Parrot0 può quindi scegliere dinamicamente il reasoning graph appropriato.
+Parrot0 può quindi scegliere dinamicamente il thinking graph appropriato.
 
-A un livello ancora superiore, potrebbe modificare un reasoning graph durante la sua stessa esecuzione.
+A un livello ancora superiore, potrebbe modificare un thinking graph durante la sua stessa esecuzione.
 
 Per esempio:
 
@@ -463,7 +465,7 @@ insert falsification branch
 continue
 ```
 
-A questo punto il reasoning non sarebbe più soltanto un workflow.
+A questo punto il thinking non sarebbe più soltanto un workflow.
 
 Sarebbe una struttura dinamica deliberativa governata dalla conoscenza.
 
@@ -471,7 +473,7 @@ Sarebbe una struttura dinamica deliberativa governata dalla conoscenza.
 
 Il principio fondamentale può essere espresso così:
 
-> In parrot0 il reasoning non è una sequenza predefinita di operazioni. È la capacità di costruire ed eseguire pipeline di elaborazione seriali, parallele o ibride, descritte dalla Knowledge Base, nelle quali risultati intermedi possono essere riesaminati, criticati, verificati, combinati o trasformati attraverso nuovi goal, meta-prompt, strumenti e regole. Gli stessi schemi di reasoning sono conoscenza e devono quindi poter essere insegnati, modificati e riutilizzati.
+> In parrot0 il thinking non è una sequenza predefinita di operazioni. È la capacità di costruire ed eseguire pipeline di elaborazione seriali, parallele o ibride, descritte dalla Knowledge Base, nelle quali risultati intermedi possono essere riesaminati, criticati, verificati, combinati o trasformati attraverso nuovi goal, meta-prompt, strumenti e regole. Gli stessi schemi di thinking sono conoscenza e devono quindi poter essere insegnati, modificati e riutilizzati.
 
 La distinzione fondamentale non è fra parrot0 e qualcos'altro: è fra due modi di
 ottenere più deliberazione.
@@ -484,7 +486,7 @@ che non si può ispezionare né ritrattare
 ```
 
 ```text
-parrot0 reasoning
+parrot0 thinking
 =
 orchestrazione KB-first di inferenze successive,
 ciascuna esplicita, attribuibile e ritrattabile
@@ -494,7 +496,7 @@ Il primo produce una catena che si può solo rigenerare. Il secondo produce un
 **grafo di ragionamento esplicito, modificabile e apprendibile**, in cui ogni
 nodo è un rientro dichiarato nella pipeline dello stesso motore.
 
-Ed è proprio questo che permette a parrot0 di trattare il reasoning non come una
+Ed è proprio questo che permette a parrot0 di trattare il thinking non come una
 proprietà speciale di un componente, ma come una capacità generale del sistema —
 e di farlo senza delegare a nessuno il pensiero.
 
@@ -511,10 +513,10 @@ e di farlo senza delegare a nessuno il pensiero.
 > guadagno più grosso è venuto dal collegare un organo già scritto, mai dal
 > costruire il quinto sottosistema.*
 
-## 0. ⛔ Il verdetto dell'audit: il substrato del reasoning ESISTE, ed è spento
+## 0. ⛔ Il verdetto dell'audit: il substrato del thinking ESISTE, ed è spento
 
 Questa è la scoperta che deve governare l'intero piano, perché cambia
-completamente il primo passo. parrot0 non ha bisogno di un motore di reasoning:
+completamente il primo passo. parrot0 non ha bisogno di un motore di thinking:
 ne ha **tre dialetti**, tutti KB-first, e due sono in gran parte inerti.
 
 | organo | dove | stato misurato |
@@ -524,12 +526,12 @@ ne ha **tre dialetti**, tutti KB-first, e due sono in gran parte inerti.
 | `compensation_stop(Turn, Reason)` | idem | condizioni d'arresto **dichiarate**, non cablate |
 | `compensation_step/3` | idem | **0 fatti** — il piano esiste, i passi non sono mai stati dichiarati |
 | `compensation_alternative/…` | idem | **0 fatti** |
-| `answer_plan(Act, Facet, Order, Requirement)` | `kb/core/procedures.p0` | **75 fatti, e gira in produzione**: reasoning seriale ordinato, con requisiti tipati (`required`/`optional`) e rifiuto se manca una faccetta |
+| `answer_plan(Act, Facet, Order, Requirement)` | `kb/core/procedures.p0` | **75 fatti, e gira in produzione**: thinking seriale ordinato, con requisiti tipati (`required`/`optional`) e rifiuto se manca una faccetta |
 | `turn_plan/2` + `plan_step/3` | `kb/core/capabilities.p0` | gen495: piano seriale su strumenti, 2 passi, **vivo** |
 | `action_schema(Domain, Action)` + `applicable/2`, `missing_precondition_set/3` | `kb/core/situation.p0` | pianificazione con precondizioni, **4 fatti** |
 | `gap_kind/2` | `kb/core/gap-kinds.p0` | 23 fatti: **la specie epistemica di una lacuna**, già tipata |
 
-**Conclusione operativa: il primo lavoro del reasoning non è scrivere un motore.
+**Conclusione operativa: il primo lavoro del thinking non è scrivere un motore.
 È unificare tre dialetti in uno e accendere ciò che è già dichiarato.** Un quarto
 vocabolario di piani sarebbe il difetto che questo documento dice di voler
 evitare, commesso mentre lo si evita.
@@ -547,7 +549,7 @@ apply($Predicate, cons($Entity, cons($Value, nil)))
 `apply/2` è il confine a predicato variabile del solver. Regge il ponte fra
 rappresentazioni (`ir_domain_claim/3`) e il motore dei criteri di qualità
 (`criterion_finding/3`), dove **la misura è il NOME di una relazione, non una
-funzione compilata**. Un nodo di reasoning il cui operatore è una variabile è
+funzione compilata**. Un nodo di thinking il cui operatore è una variabile è
 esattamente la stessa mossa: `thinking_step(Schema, N, op(Predicato, Args))`.
 
 Ne segue che **non serve un dispatcher di operatori**: serve dichiararli.
@@ -575,7 +577,7 @@ perdere nulla. Se non si può, la firma è sbagliata e va cambiata, non forzata.
 
 `arrest_rank/2` calcola già un rango topologico su `arrest_depends_on/2`, con la
 guardia sui cicli (`arrest_cycle/1`) che impedisce di eseguire un grafo malato.
-Il reasoning riusa quello: **l'esecutore non ordina, chiede il rango.** Un ramo
+Il thinking riusa quello: **l'esecutore non ordina, chiede il rango.** Un ramo
 parallelo è semplicemente un insieme di nodi con lo stesso rango, e la sintesi è
 il primo nodo di rango superiore che dipende da tutti.
 
@@ -604,14 +606,14 @@ scoprirlo che aggiungere il sesto.
 ### H4 — Il budget è una condizione d'arresto di prima classe, non un guardrail
 
 Il solver conta già `steps`, `budget_hit` e `loops_cut`, e li **espone** invece
-di nasconderli (`kb_inference_report`). Un grafo di reasoning moltiplica
+di nasconderli (`kb_inference_report`). Un grafo di thinking moltiplica
 l'inferenza per il numero di nodi: al gen491 un singolo predicato riderivato
 442 volte per turno era l'83% del tempo.
 
 Quindi: `thinking_stop(Schema, budget_exhausted)` non è un ripiego. È
 **l'unica condizione d'arresto che il sistema può garantire sempre**, e va
 progettata per prima, non aggiunta dopo. Corollario dal §L: prima di attivare il
-reasoning si dichiarano le viste materializzate dei predicati che il grafo
+thinking si dichiarano le viste materializzate dei predicati che il grafo
 rileggerà, o il grafo pagherà il costo di riderivarli a ogni nodo.
 
 ### H5 — ⭐ L'operatore che rende il grafo un ragionamento: il RIENTRO
@@ -622,7 +624,7 @@ rileggerà, o il grafo pagherà il costo di riderivarli a ogni nodo.
 
 Questa è la chiave dell'intero piano, e semplifica invece di complicare.
 `process(P)` **è `brain_respond`**: la pipeline di parrot0, rientrata. Un passo
-di reasoning non chiama niente di esterno — compone un nuovo turno dal risultato
+di thinking non chiama niente di esterno — compone un nuovo turno dal risultato
 precedente più un meta-prompt dichiarato in KB, e lo rimette nella stessa porta
 da cui entrano i turni dell'interlocutore.
 
@@ -705,7 +707,7 @@ Lo stesso input, due profili: uno che si ferma su `supported`, uno su
   diverse a parità di input.
 - **Falsificazione:** se la ragione è sempre la stessa, la condizione non è letta.
 
-### E4 — ⭐ Il reasoning migliora davvero? (l'esperimento onesto)
+### E4 — ⭐ Il thinking migliora davvero? (l'esperimento onesto)
 
 Applicare uno schema `finding → critica → revisione` ai criteri di qualità del
 codice (`code_finding/3`), che già producono pretese con evidenza.
@@ -714,12 +716,12 @@ codice (`code_finding/3`), che già producono pretese con evidenza.
   demo attuale il numero atteso è basso — `wide_fanout` su un dispatcher è
   proprio il caso che `criterion_waiver` dovrebbe cancellare.
 - **Falsificazione, ed è quella che conta:** **se la critica non ritira mai
-  niente, il passo è decorativo** e va tolto. Un passo di reasoning che non può
-  cambiare la conclusione non è reasoning.
+niente, il passo è decorativo** e va tolto. Un passo di thinking che non può
+cambiare la conclusione non è thinking.
 
 ### E5 — Quanto costa (da misurare prima di crederci)
 
-Stesso input con `reasoning = off | light | deep`, con `/debug`.
+Stesso input con `thinking = off | light | deep`, con `/debug`.
 
 - **Misura:** ms per turno, passi del solver, e i tre predicati più cari.
 - **Predizione da falsificare:** il costo cresce **più che linearmente** nel
@@ -738,7 +740,7 @@ senza toccare né lo schema né il C.
 - **Falsificazione:** se serve un ramo nel C per il nuovo operatore, `apply/2`
   non sta reggendo il confine e l'ipotesi H1 è sbagliata.
 
-### E7 — Meta-reasoning: scegliere lo schema
+### E7 — Meta-thinking: scegliere lo schema
 
 `prefer(Task, Scheme)` come fatto, cambiato **parlando**.
 
@@ -757,7 +759,7 @@ risposta cambi.
 
 ## 4. Il primo incremento concreto (R1), e perché è piccolo
 
-Non «implementare il reasoning». Il passo esatto, in verticale:
+Non «implementare il thinking». Il passo esatto, in verticale:
 
 1. Dichiarare `thinking_scheme/2`, `thinking_step/3`, `thinking_after/3`,
    `thinking_stop/2` **riusando la quadrupla `step(Azione, Pre, Effetto,
@@ -806,7 +808,7 @@ io.
 Il punto 3 — **l'esecutore generico, una primitiva sola: il rientro** — non è
 fatto. Oggi il
 grafo si può *dichiarare, ordinare e interrogare*, ma a eseguirlo è ancora
-l'esecutore specializzato degli strumenti. Finché quel pezzo manca, il reasoning
+l'esecutore specializzato degli strumenti. Finché quel pezzo manca, il thinking
 è una **rappresentazione**, non ancora una capacità: E3, E4, E6 e E7 non si
 possono nemmeno provare.
 
@@ -886,7 +888,7 @@ risposta esattamente come prima: nessun costo, nessuna riga di output in più.
 
 ## 5. Le condizioni di stop di questo piano
 
-Il reasoning si dichiara fallito, e si torna indietro, se:
+Il thinking si dichiara fallito, e si torna indietro, se:
 
 - un nodo produce testo che nessun nodo successivo consuma (**teatro**);
 - l'ablazione di un nodo non cambia la risposta (E8 > 0);

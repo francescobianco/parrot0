@@ -166,10 +166,35 @@ thinking_reentry($Scheme, $Node, $Prompt) :-
 % query. Senza quella dichiarazione il nodo non e' eseguibile.
 machinery(reentry_brings).
 machinery(reentry_admissible).
+% Un artefatto nominato non basta: il passo deve anche dichiarare quale
+% cambiamento osservabile porta nel loop. Questo è il contratto che impedisce
+% al feedback di fermarsi dopo due prompt equivalenti.
+machinery(thinking_feedback).
+machinery(thinking_feedback_ready).
+machinery(thinking_feedback_action).
+
+% thinking_feedback(Schema, Nodo, Fonte, Delta)
+%   Fonte  = la conoscenza esterna dichiarata da reentry_brings/3
+%   Delta  = il tipo di novità attesa (mai `none`)
+% Due forme chiudono il passo con conoscenza nuova. La terza è esplicita:
+% anche un gap è progresso, ma solo se porta l'azione che può colmarlo.
+thinking_feedback_ready($Scheme, $Node) :-
+    thinking_reentry($Scheme, $Node, $Prompt),
+    reentry_brings($Scheme, $Node, $Source),
+    thinking_feedback($Scheme, $Node, $Source, fact_delta).
+thinking_feedback_ready($Scheme, $Node) :-
+    thinking_reentry($Scheme, $Node, $Prompt),
+    reentry_brings($Scheme, $Node, $Source),
+    thinking_feedback($Scheme, $Node, $Source, query_result).
+thinking_feedback_ready($Scheme, $Node) :-
+    thinking_reentry($Scheme, $Node, $Prompt),
+    reentry_brings($Scheme, $Node, $Source),
+    thinking_feedback($Scheme, $Node, $Source, gap_with_action),
+    thinking_feedback_action($Scheme, $Node, $Action).
 
 reentry_admissible($Scheme, $Node) :-
     thinking_reentry($Scheme, $Node, $Prompt),
-    reentry_brings($Scheme, $Node, $Source).
+    thinking_feedback_ready($Scheme, $Node).
 
 machinery(reentry_mirror_risk).
 reentry_mirror_risk($Scheme, $Node) :-
@@ -213,6 +238,8 @@ thinking_stop(second_thought, budget_exhausted).
 % righe i nodi sarebbero specchi e non verrebbero eseguiti.
 reentry_brings(second_thought, 1, reading_fact).
 reentry_brings(second_thought, 2, reading_fact).
+thinking_feedback(second_thought, 1, reading_fact, fact_delta).
+thinking_feedback(second_thought, 2, reading_fact, query_result).
 
 % Il TESTO di un meta-prompt e' una frase rivolta al motore, quindi e' KB come
 % ogni altra frase (mantra #16). `{prev}` e' il solo segnaposto.

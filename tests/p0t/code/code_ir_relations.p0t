@@ -1,0 +1,22 @@
+# UC3 seed — generic scope and reference projections over the same IR.
+
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+> what functions does this define: int parent(void) { child(); helper(); return 1; } int child(void) { return 0; } int helper(void) { return 0; }
+
+!query code_scope(parent, unit_0, $Source)
+!query code_reference($Source, fn_4, calls, call_19)
+!query code_call_in(parent, child, $Source)
+!query code_contains($Source, unit_0, fn_4)
+!query code_ancestor($Source, unit_0, fn_4)
+!query code_predecessor($Source, call_19, calls, fn_4)
+!query code_ordered_before($Source, call_19, $Later)
+
+# The generic relation is the reusable substrate for future edge kinds; this
+# vertical only proves the existing calls edge without a second frontend.

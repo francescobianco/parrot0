@@ -1,0 +1,26 @@
+# UC2d — qualitative code review opens a generic Task IR and evidence contract.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!reset
+
+> what functions does this define: int wide(void) { a(); b(); c(); d(); e(); f(); g(); h(); i(); return 1; }
+
+# The symbol surface is taught as task evidence at runtime, not added to C.
+!assert task_entity_cue(wide, keyword(wide))
+> improvement note for wide
+
+!query task_ir(operation, code_quality_review)
+!query task_ir(deliverable, qualitative_judgment)
+!query task_ir(argument_1, wide)
+!query code_quality_task(wide, wide_fanout)
+!query code_quality_evidence_requirement(wide, wide_fanout, requirement(code_definition_fanout, snapshot))
+
+# Retracting the surface cue removes the task binding, while the code finding
+# itself remains available from the revisioned IR.
+!forget task_entity_cue(wide, keyword(wide))
+> improvement note for wide
+!query! code_quality_task(wide, wide_fanout)
+!query code_finding(wide, wide_fanout, $Evidence)
