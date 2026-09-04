@@ -262,6 +262,117 @@ funziona. Il problema è che leggiamo uno schermo come se fosse un flusso.
 
 ---
 
+## §3-ter. APPENDICE DI RIFERIMENTO — tutto ciò che serve senza riaprire opencola
+
+Estratto il 2026-09-04 da `/home/francesco/Develop/_/opencola/cmd/pilot.go`
+(426 righe) e verificato sul sistema. **Scritto qui perché una sessione futura
+non debba dipendere da un altro repository.**
+
+### A. ⛔ freebuff NON ha una modalità headless — verificato
+
+```text
+$ ~/.config/manicode/freebuff --help
+Usage: freebuff [options] [command]
+Arguments:
+  command                       Command to run (choices: "login")
+Options:
+  -v, --version
+  --continue [conversation-id]
+  --cwd <directory>
+  -h, --help
+```
+
+**Nessun prompt posizionale, nessun `--api`, nessun `-p`.**
+
+⚠ E qui ho quasi preso un abbaglio, che vale la pena registrare: in
+`pilot_test.go` compare `runOptions{apiMode: true, cwd: …, prompt: "fix the
+bug"}`, e sembra che freebuff accetti un prompt come argomento. **Sono le
+opzioni di opencola, non di freebuff** — `runOptions` è il parser di *quel*
+programma. Ho controllato l'`--help` vero prima di scriverlo nella coda.
+
+**Conseguenza sulla raccomandazione del §3-bis:** non esiste una via d'uscita
+non interattiva. Il task *deve* passare dal TUI, quindi il problema di **leggere
+lo schermo** non è aggirabile e `tmux capture-pane` sale da «opzione 3» a
+**strada principale**, se il passo 1 (bracketed paste) non risolve.
+
+### B. Come `pilot.go` avvia e parla con freebuff
+
+```go
+cmd := exec.Command(bin, "--cwd", opts.cwd)      // + "--continue" se richiesto
+ptmx, _ := pty.Start(cmd)                        // PTY nudo, niente tmux
+term.MakeRaw(os.Stdin.Fd())                      // raw mode sul terminale vero
+pty.Setsize(ptmx, &pty.Winsize{Rows: rows, Cols: w})
+
+func (p *pilot) injectPrompt(text string) {      // ← il submit, per intero
+    p.ptmx.Write([]byte(text))
+    p.ptmx.Write([]byte{'\r'})
+}
+```
+
+Il prompt viene iniettato **subito dopo `resize()`+`drawChrome()`**, senza
+attendere nessun pattern di ready. Noi aspettiamo `ready_pattern`: più prudente,
+ma se il pattern è sbagliato (come lo era) blocca tutto.
+
+### C. Le sequenze che contano, e perché
+
+```text
+\x1b[?1049h   entra nello schermo alternato   ← freebuff lo usa (verificato)
+\x1b[?1049l   esce
+\x1b[2J       cancella lo schermo
+```
+
+`pilot.go` ridisegna la propria barra ogni volta che ne vede una: sono i tre
+segnali che «lo schermo è stato rifatto da capo». Per noi sono i punti in cui
+**la concatenazione dei byte smette di rappresentare ciò che si vede.**
+
+### D. I file di configurazione di freebuff (stato reale, oggi)
+
+```text
+~/.config/manicode/freebuff                 il binario (139 MB)
+~/.config/manicode/credentials.json         presente ⇒ login fatto
+~/.config/manicode/settings.json            {"freebuffModel": "deepseek/deepseek-v4-flash", …}
+~/.config/manicode/message-history.json     storico dei messaggi
+~/.config/manicode/projects/                stato per progetto
+FREE_BUFF_BIN                               override del binario
+```
+
+Ricerca del binario, in ordine: `$FREE_BUFF_BIN` → `~/.config/manicode/freebuff`
+→ `PATH`.
+
+**Il modello è già `deepseek/deepseek-v4-flash` nel settings.json**, quindi la
+`logic_action` che manda ENTER sul selettore è inutile — e il nome della league
+(`freebuff-deepseek-flash`) è finalmente verificabile invece che dichiarato.
+
+⚠ `message-history.json` e `projects/` significano che **freebuff porta stato fra
+una gara e l'altra**. Il nostro protocollo azzera `code/` ma non lo stato
+dell'agente: due match di fila non partono dalle stesse condizioni. Da decidere
+— azzerarlo (più equo, meno realistico) o registrarne il digest prima e dopo
+(più onesto, e almeno lo si vede).
+
+### E. Cosa fa il nostro pilota che `pilot.go` non fa (e che teniamo)
+
+Non è tutto da copiare: il nostro fa cose che servono a una **gara** e che a un
+pilota interattivo non servono.
+
+- `raw.log` + `transcript.txt` + `stream.jsonl` (offset, tempo, digest per chunk);
+- `logic-actions.jsonl`: ogni reazione automatica è registrata e limitata negli usi;
+- reset di `code/` da `seed/` con digest prima e dopo;
+- archiviazione dell'intero albero, non del solo artefatto;
+- judge deterministici con check nominati.
+
+`pilot.go` invece dà due cose che noi non abbiamo e che varrebbero: **il
+`--continue`** (riprendere una conversazione, utile per i match a più fasi) e
+la **visione dal vivo** (guardare mentre lavora), che con tmux verrebbe gratis.
+
+### F. Terminale: i numeri che usiamo
+
+Noi: `45 righe × 160 colonne` fisse (`struct.pack("HHHH", 45, 160, 0, 0)`), scelte
+per ridurre il wrapping di freebuff. `pilot.go` usa invece la dimensione reale del
+terminale meno 2 righe di cornice. **Le nostre non sono state misurate**: se il
+TUI si comporta diversamente a 160 colonne, è una variabile nascosta della gara.
+
+---
+
 ## §4. Le regole che questo banco non deve perdere
 
 1. **Nessun nome di agente nel prompt, nel cwd o negli artefatti.** L'artefatto
