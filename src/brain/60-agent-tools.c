@@ -840,12 +840,33 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
     }
     /* la sola forma che resta nel C, perche' e' struttura e non vocabolario:
      * «trova» richiede anche di dire COME si chiama cio' che si cerca. */
-    int want_grep = !strcmp(tool, "search");
-    int want_find = !strcmp(tool, "find");
-    int want_list = !strcmp(tool, "list") || strstr(low, "*.") != NULL;
-    int want_read = !strcmp(tool, "read");
-    int want_run  = !strcmp(tool, "run");
-    if (!(want_grep || want_find || want_list || want_read || want_run))
+    /* ── gen503 — IL CANCELLO NON ENUMERA PIU' GLI STRUMENTI ────────────────
+     *
+     * Qui c'era `if (!(want_grep || want_find || want_list || want_read ||
+     * want_run)) return 0;` — i cinque strumenti di sola lettura scritti a mano
+     * nel C, subito sotto l'inventario che li legge dalla KB.
+     *
+     * Misurato il 2026-09-04: `write` era DICHIARATO da gen502
+     * (`local_tool(write, …)`, la classe `write_file_request`, i suoi
+     * `tool_slot_cue`) e il suo ramo, ottanta righe piu' sotto, non veniva MAI
+     * raggiunto — perche' il nome non compariva in nessuno di quei cinque
+     * `strcmp`. Una capacita' costruita, documentata e fenced-out da una catena
+     * compilata: e' il mantra #19 preso sul fatto, e il costo era l'intera
+     * differenza fra «parrot0 non sa scrivere un file» e «sa scriverlo».
+     *
+     * `tool` viene gia' dalla KB. Se un turno ha selezionato uno strumento
+     * dichiarato, questo modulo e' quello giusto; uno strumento nuovo resta due
+     * righe di KB e zero righe qui, che era la promessa di gen494.
+     *
+     * ⚠ Il residuo che resta, e va detto: piu' sotto ogni ramo si riconosce
+     * confrontando `tool` con il proprio nome dichiarato. Quello NON e' la
+     * catena di prima — e' il legame fra un'implementazione e la riga di KB che
+     * la dichiara, e ogni nome compare una volta sola, nel ramo che lo serve.
+     * Uno strumento nuovo con un'azione nuova richiede comunque il suo C: e'
+     * una primitiva, non un membro di una classe. Cio' che NON deve piu'
+     * succedere e' che un nome dichiarato in KB venga scartato da un elenco
+     * scritto altrove — che e' esattamente quello che era successo a `write`. */
+    if (!tool[0])
         return 0;
 
     /* gen331 (TODO.md P1/09): with tools off this module simply steps aside, as it
@@ -969,7 +990,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
     }
 
     /* ---- locate / search for a symbol ---- */
-    if (want_grep) {
+    if (!strcmp(tool, "search")) {
         /* the pattern is the token after the cue word; sanitize for single-quotes. */
         const char *pat = NULL;
         /* gen494: quali parole introducono il pattern e' `tool_slot_cue(pattern, …)`. */
@@ -1056,7 +1077,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
     }
 
     /* ---- find a file by name ---- */
-    if (want_find) {
+    if (!strcmp(tool, "find")) {
         const char *name = NULL;
         for (size_t i = 0; i + 1 < nw; i++)
             if (tool_slot_word(b, "name", w[i])||ci_eq(w[i],"file")) name = w[i+1];
@@ -1079,7 +1100,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
     }
 
     /* ---- list files (optionally filtered by a glob) ---- */
-    if (want_list) {
+    if (!strcmp(tool, "list")) {
         const char *dir = find_dir_kb(b, w, nw);
         char dirbuf[256]; int claimed;
         if (!piact_dir(b, dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
@@ -1122,7 +1143,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
     }
 
     /* ---- read a file ---- */
-    if (want_read) {
+    if (!strcmp(tool, "read")) {
         const char *file = find_file(w, nw);
         if (!file || !pathish_token(file)) return 0;
 
@@ -1221,7 +1242,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
     }
 
     /* ---- run a build/test command (authorized by a KB tool contract) ---- */
-    if (want_run) {
+    if (!strcmp(tool, "run")) {
         /* gen329 (TODO.md P0/04): THE injection site. What used to happen here:
          * the text after "run " was copied into a string, its PREFIX was compared
          * against a whitelist, and the whole string — tail included — was handed to

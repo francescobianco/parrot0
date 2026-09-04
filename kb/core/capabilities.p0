@@ -66,7 +66,7 @@ local_tool(run,    piact_run,  "run a command").
 % leggere in struttura, rispondere con le prove ed ESEGUIRE IL BUILD leggendone
 % il verdetto — e creare un file VUOTO. Fra lui e un compito chiuso c'era uno
 % strumento, non una difficolta' del compito.
-local_tool(write,  piact_write, "write content into a file").
+local_tool(write,  write_file_request, "write content into a file").
 
 % Quanto in fondo guarda un elenco: conoscenza, non una costante nel C. Senza
 % questo fatto si guarda ovunque, perche' «quali file ci sono» significa quello.

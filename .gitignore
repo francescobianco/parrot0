@@ -65,3 +65,4 @@ kb/learning/pages/
 # python bytecode dei banchi di gara
 __pycache__/
 *.pyc
+p0t_write_probe.c

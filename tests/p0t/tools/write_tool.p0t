@@ -1,0 +1,33 @@
+# Lo strumento di scrittura riceve il turno.
+#
+# gen502 lo aveva DICHIARATO — local_tool(write, …), la classe
+# `write_file_request`, i suoi tool_slot_cue — e il suo ramo non veniva mai
+# raggiunto: un cancello compilato dentro mod_piact enumerava i cinque
+# strumenti di sola lettura (`want_grep`, `want_find`, `want_list`, `want_read`,
+# `want_run`) e scartava tutto il resto prima di arrivarci. Una capacita'
+# costruita e recintata da una catena scritta altrove.
+#
+# Questo cricchetto tiene ferme le due meta': che la classe arrivi allo
+# strumento, e che lo strumento rilegga il file prima di dire che l'ha scritto.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!set PARROT0_LANG=en
+!reset
+
+[test the declared write tool receives the turn and verifies by reading back]
+!timeout 20
+> write this into p0t_write_probe.c: ```int hi(void){ return 7; }```
+<~ p0t_write_probe.c
+<~ verified by reading it back
+
+[test the workspace gate still refuses a path]
+> write this into ../escape.c: ```int hi(void){ return 7; }```
+<! verified by reading it back
+
+[test tools off means the tool cannot act]
+!set PARROT0_TOOLS=0
+!reset
+> write this into p0t_write_probe.c: ```int hi(void){ return 7; }```
+<! verified by reading it back

@@ -365,6 +365,10 @@ intent_cue(piact_grep, "cercami").
 intent_cue(piact_grep, "trova nei file").
 intent_cue(piact_find, "trovami il file").
 intent_cue(piact_find, "dov'e' il file").
+% gen503: un glob e' gia' la richiesta di un elenco. Prima questa decisione
+% era `strstr(low, "*.")` dentro il C, accanto ai nomi degli strumenti: una
+% conoscenza di superficie in un posto dove nessuna lezione poteva toccarla.
+intent_cue(piact_list, "*.").
 intent_cue(piact_list, "what files").
 intent_cue(piact_list, "which files").
 intent_cue(piact_list, "show me the files").

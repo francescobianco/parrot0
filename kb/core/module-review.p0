@@ -112,3 +112,30 @@ module_evidence(codeast, kb_lookups, 38).
 module_evidence(codeast, frame_uses, 0).
 module_evidence(codeast, compiled_words, 0).
 module_review_note(codeast, "nomina cio' che riconosce e il proprio buco invece di produrre").
+
+% ── symbolic ── RETROCESSO ─────────────────────────────────────────────────
+% Rivendica il turno sul CHARSET, non sulla richiesta. `looks_code` risponde 1
+% appena vede un identificatore seguito da `(` in un punto qualsiasi del testo:
+% «write this into hello.c: int hi(void){ return 7; }» diventa cosi' «That looks
+% like a snippet of code», e lo strumento di scrittura — dichiarato, con la sua
+% classe `write_file_request` e i suoi cue — non riceve mai il turno. La
+% richiesta e' un ORDINE con un contenuto; symbolic guarda il contenuto e ignora
+% l'ordine.
+% Due aggravanti misurate: legge al massimo 256 byte (`char s[256]`), quindi
+% giudica un compito di 1485 byte sul suo primo sesto; e qualunque ramo vinca
+% produce una CONSTATAZIONE («quello sembra codice / Morse / un palindromo»),
+% mai un'azione. Una facolta' che non puo' onorare nessuna richiesta non ha
+% titolo a togliere il turno a una che puo'.
+% E' la stessa forma di `role`: pretesa fondata su una forma di superficie senza
+% nessuna verifica che il turno sia della classe che quella forma suggerisce.
+% Riconoscere il registro resta utile — in seconda passata, quando nessun altro
+% ha risposto.
+module_maturity(symbolic, legacy).
+module_claim_right(symbolic, fallback).
+module_evidence(symbolic, lines, 41).
+module_evidence(symbolic, detector_lines, 117).
+module_evidence(symbolic, kb_lookups, 4).
+module_evidence(symbolic, frame_uses, 0).
+module_evidence(symbolic, input_byte_cap, 256).
+module_evidence(symbolic, actions_available, 0).
+module_review_note(symbolic, "rivendica sul charset e non puo' agire: constata soltanto").
