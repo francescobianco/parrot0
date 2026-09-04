@@ -184,3 +184,629 @@ due tetti indipendenti che si moltiplicano.
 Regola di chiusura, la stessa di sempre: **una voce si chiude quando un
 cricchetto la tiene ferma e un'ablazione la fa cadere.** Un TODO chiuso senza
 falsificazione è un TODO spostato.
+
+---
+
+# Handoff operativo — dalla IR viva al coding agent competitivo
+
+> Questo handoff è la continuazione eseguibile di
+> `docs/plans/universal-code-comprehension.md`, non un piano alternativo. È
+> aggiornato dopo il checkpoint gen499 e dopo la costruzione del laboratorio
+> `tests/challenge/`. Chi riprende deve partire da qui, verificare lo stato reale
+> del repository e portare avanti **un incremento causale per volta**.
+
+## H0. Verità di partenza e decisioni ormai non negoziabili
+
+La direzione generale è corretta e non va riscritta a ogni generazione:
+
+1. il codice è un input da osservare nella KB, non testo su cui applicare un
+   repertorio di pattern;
+2. una domanda apre una Task IR e obblighi di evidenza, non sceglie un handler;
+3. i giudizi qualitativi derivano da criteri, prove, controprove e policy;
+4. i ponti a predicato variabile permettono alla conoscenza acquisita in una
+   rappresentazione di finanziare ragionamenti in un'altra;
+5. il thinking è produttivo solo quando cambia rappresentazione, evidenza,
+   prospettiva od obiettivo;
+6. una codebase reale è multi-file. Nessun limite single-file può essere
+   incorporato nel planner, nell'editore, nella gara o nella definizione di
+   successo;
+7. parrot0 è esso stesso il coding agent nel proprio terminale. Il server
+   OpenAI-compatible e l'integrazione `pi` sono adapter secondari e attualmente
+   lossy; non sono il runtime canonico e non devono misurare la sua capacità.
+
+L'ultimo punto corregge un errore storico importante. Montare parrot0 dentro
+`pi` non lo rende più agente: oggi appiattisce il contesto e non espone il ciclo
+di tool call. La gara e il dogfood devono quindi lanciare direttamente
+`bin/parrot0` con cwd nella codebase, `PARROT0_TOOLS=1` e, quando l'esperimento
+lo richiede, `PARROT0_THINKING=1`. L'adapter server può restare vivo per
+compatibilità, ma si depreca progressivamente ogni assunzione che lo presenti
+come via primaria.
+
+### Ciò che è già patrimonio e non va ricostruito
+
+- snapshot, source unit, nodi, nomi, span, edge e provenance della Code IR;
+- identità source-qualified per definizioni e chiamate;
+- `ir_denotation`, `representation_bridge` e attraversamento con `apply/2`;
+- parti di identificatore, scope, containment, reference e ordine osservato;
+- criterion/evidence/counterevidence, severità e precedenza dei finding;
+- Task IR iniziale per review qualitative;
+- grafo di thinking, scelta fra schemi, stop dichiarato, feedback contract,
+  diagnostica dei prompt e cricchetto anti-peggioramento;
+- `PatchArtifact`, `P0Obs`, kernel agentico e repair come organi secondari già
+  disponibili, anche quando non sono ancora collegati al ciclo universale.
+
+La regola di lavoro è **collegare prima di ampliare**. Aggiungere il ventesimo
+scanner o il centesimo prompt prima di collegare questi organi produce volume,
+non comprensione.
+
+## H1. Definizione operativa della north star
+
+La north star non è «parrot0 dà sempre una risposta». È:
+
+```text
+task naturale su una codebase fredda
+  -> snapshot revisionato dell'intero repository
+  -> Task IR con subject, scope, vincoli e deliverable
+  -> ipotesi concorrenti
+  -> piano minimo di evidenza
+  -> osservazioni da sorgente/documenti/build/test/runtime/storia
+  -> ponti verso conoscenza strutturale e di dominio
+  -> claim qualificati con basis e controevidenza
+  -> eventuale modifica multi-file candidata
+  -> oracle, critica, repair o replan
+  -> risposta e artefatto verificati
+```
+
+“Universale” descrive l'apertura di ogni freccia: domani un nuovo linguaggio,
+criterio, strumento, API, forma interrogativa o dominio deve poter entrare come
+conoscenza/mapping/observation provider, senza un nuovo caso lessicale in C.
+
+### Metriche che contano
+
+Non usare il solo wall-rate e non usare una sola accuracy aggregata. Registrare:
+
+| metrica | che cosa rivela |
+|---|---|
+| task freddi risolti | utilità end-to-end su codebase non nominate |
+| famiglie di domanda per relazione IR | riuso, contro pattern recognition |
+| claim con basis completa | grounding epistemico |
+| gap con azione informativa | qualità del fallimento |
+| bridge fan-out e composizioni valide | moltiplicatore di conoscenza |
+| finding ritirati dalla critica | valore reale del thinking |
+| retry che cambiano stato | fertilità del loop |
+| edit multi-file verificati | agency concreta |
+| regressioni da ablation | causalità della conoscenza |
+| costo ingest/query/reentry/tool | sostenibilità del processo |
+
+Un punteggio gara è un segnale esterno. Diventa apprendimento soltanto quando un
+check fallito viene attribuito a una transizione mancante, riprodotto fuori dal
+match e chiuso con una facoltà generale.
+
+## H2. Laboratorio competitivo: come usarlo senza allenarsi sul test
+
+`tests/challenge/` separa tre oggetti:
+
+```text
+tasks/matchN/                         specifica immutabile
+  match.json                          difficoltà, ordine, artefatto-ancora
+  task.md                             incarico identico
+  seed/                               snapshot iniziale multi-file
+  judge.py + probe                    oracolo non mostrato nel prompt
+
+<league>/matchN/runs/<run-id>/        osservazione storica
+  prompt.md
+  parrot0/{raw.log,transcript.txt,code/}
+  freebuff/{raw.log,transcript.txt,code/}
+  result.json
+  analysis.md
+
+<league>/scoreboard.md                ultimo risultato + storico
+```
+
+Durante il run, entrambi lavorano in successione nello **stesso pathname
+neutrale** terminante in `code/`. Il controller ricostruisce il seed prima del
+secondo agente e verifica il digest. Nome dell'agente, output dell'avversario e
+judge non entrano nel prompt o nel cwd. L'intero albero finale viene archiviato:
+`artifact` nel manifest è solo un'ancora, non un limite a un file.
+
+I primi due match hanno questo scopo:
+
+1. **match1, codebase C:** capire una pipeline esistente, introdurre un backend
+   generico worst-case-safe, integrarlo in API/Makefile/CLI, rispettare
+   contratto, genericità, overflow e input avversi;
+2. **match2, codebase Python:** seguire un incidente attraverso codec, locking,
+   API, filesystem e CLI; chiudere durability, recovery, corruption,
+   compaction atomica e writer concorrenti.
+
+Non sono tutorial a soluzione nota dal prompt. Sono codebase seed che già
+funzionano sul cammino facile e falliscono su proprietà che richiedono analisi
+da sviluppatore.
+
+### Protocollo dopo ogni gara
+
+Non modificare subito parrot0 guardando il nome del check. Eseguire in ordine:
+
+1. confrontare i due snapshot e i transcript, distinguendo mancata comprensione,
+   mancata azione, azione errata e verifica insufficiente;
+2. classificare ogni divergenza nella tassonomia seguente;
+3. scegliere **il primo confine causale** in cui parrot0 perde informazione;
+4. costruire un caso reale diverso dal match che richiede la stessa facoltà;
+5. provare prima una lezione naturale secondo `LEARN_PROTOCOL.md`;
+6. se la lezione non è rappresentabile, ampliare il motore astratto minimo;
+7. chiudere replay, transfer, contrasto, composizione e ablation;
+8. rieseguire il caso diverso; soltanto dopo, in un nuovo run-id, il match.
+
+Tassonomia minima del gap:
+
+| classe | evidenza nel transcript/artefatto | leva probabile |
+|---|---|---|
+| `task_binding` | perde vincolo, scope o deliverable | Task IR e role binding |
+| `repository_sensing` | non trova file/build graph/simbolo | source index e provider |
+| `cross_file_identity` | confonde definizione, declaration, call | symbol/scope/reference IR |
+| `semantic_model` | legge nodi ma non comportamento | CFG, def-use, effect summary |
+| `domain_bridge` | possiede il fatto ma non lo applica al codice | denotation + bridge + basis |
+| `planning` | sa cosa manca ma non ordina azioni | action schema e precondizioni |
+| `tool_execution` | piano corretto senza osservazione reale | adapter/tool contract |
+| `artifact_construction` | propone testo, non patch coerente | PatchArtifact multi-file |
+| `oracle_use` | dichiara successo senza build/test | evidence obligation |
+| `repair` | si ferma al primo rosso | Verdict -> critique -> replan |
+| `epistemic_control` | confonde ipotesi e prova | claim state/policy |
+| `thinking_stall` | secondo giro ripete il primo | feedback delta e schema selection |
+
+La differenza “FreeBuff passa, parrot0 fallisce” rende il gap discriminante; non
+dimostra da sola la causa. “Falliscono entrambi” non è automaticamente un buon
+target: può segnalare un contratto ambiguo, un judge errato o una difficoltà
+inutile. `analysis.md` deve conservare questa distinzione.
+
+### Come far crescere le gare
+
+Ogni nuovo match deve aggiungere una dimensione, non soltanto righe:
+
+1. codebase piccola multi-file, una modifica con build e casi avversi;
+2. requisito distribuito fra codice, README e test;
+3. simboli omonimi, indirection e più linguaggi nello stesso repository;
+4. bug che richiede osservazione runtime, non deduzione statica;
+5. alternative architetturali con tradeoff e policy locali;
+6. patch multi-file con migrazione/backward compatibility;
+7. fallimento iniziale dell'oracolo e repair obbligatorio;
+8. issue incompleta in cui l'azione giusta è acquisire evidenza o chiedere una
+   scelta, non editare;
+9. codebase abbastanza grande da tirare indici, invalidazione e budget;
+10. dogfood su parrot0 senza fatti privilegiati.
+
+Alternare l'ordine degli agenti. Non cambiare prompt fra loro. Non dare hint sui
+file per compensare parrot0: un gap di localizzazione deve restare misurabile.
+
+## H3. Obiettivo intermedio 1 — Repository IR completo e revisionato
+
+### Risultato richiesto
+
+Dato il root di una codebase, parrot0 deve indicizzare almeno artifact, unit,
+linguaggio, build target, definizione, dichiarazione, reference, call e test,
+con snapshot e provenance. Due simboli omonimi non collidono e un edit invalida
+solo la closure dipendente.
+
+### Strategia
+
+1. fare di directory walk, parser C/Python, manifest reader e build observer
+   semplici provider dello stesso contratto;
+2. pubblicare observation facts in overlay revisionato, mai nella KB curata;
+3. derivare le viste legacy, mantenendole secondarie;
+4. introdurre lineage solo quando l'identità fra snapshot è dimostrabile;
+5. registrare unresolved/ambiguous invece di scegliere per nome;
+6. collegare README, header, test e diagnostica allo stesso symbol id.
+
+### Primo vertical slice
+
+Usare una codebase reale piccola con due `init`, un header, due caller e un test.
+Porre: dove è definito ciascun `init`, chi lo usa, quale test lo esercita, quale
+snapshot sostiene la risposta. Non aggiungere quattro handler: le quattro
+risposte devono derivare dagli stessi archi.
+
+### Gate causale
+
+- modifica una call e rileggi: l'arco vecchio sparisce;
+- aggiungi un mapping frontend a runtime: nasce una relazione astratta;
+- abla il mapping: scompare la vista, non il nodo osservato;
+- nessun source-derived fact finisce in `/save`;
+- una query con simboli ambigui restituisce alternative con proof.
+
+## H4. Obiettivo intermedio 2 — Semantica del programma come reticolo di viste
+
+### Risultato richiesto
+
+Parrot0 deve poter spiegare controllo, dati, effetti e dipendenze attraverso più
+file. Non serve subito una semantica completa del linguaggio; serve un contratto
+estensibile in cui ogni nuovo costrutto aggiunge osservazioni componibili.
+
+### Strategie ordinate
+
+1. basic block e control edge, mantenendo espliciti branch/merge/exit;
+2. definition/use/read/write con scope risolto;
+3. call-site -> callee candidate -> resolved/unresolved/ambiguous;
+4. effect facts (`pure`, I/O, allocation, lock, process, unknown) con basis;
+5. summary interprocedurali condizionali, mai assoluti davanti a unknown call;
+6. propagazione di vincoli e taint come consumer della stessa def-use;
+7. mapping test/diagnostica/profile da span a node e symbol.
+
+Il primo target non deve essere “capire quicksort”. Deve essere una domanda
+generale come «quale scrittura può raggiungere questo ritorno?» che vale su
+quicksort, journal, parser e qualunque codebase futura.
+
+### Gate
+
+Una singola modifica all'IR deve sbloccare almeno due famiglie non equivalenti,
+per esempio spiegazione di un valore e blast radius. Ablando una regola
+semantica deve cadere soltanto la parte della spiegazione che la usa. Un call
+esterno sconosciuto rende il summary `supported/unknown`, non inventa purezza.
+
+## H5. Obiettivo intermedio 3 — Dalla lingua naturale a Task IR universale
+
+### Risultato richiesto
+
+Domande disparate — descrivere, localizzare, confrontare, valutare, predire,
+diagnosticare, modificare — devono produrre combinazioni di ruoli, non `qtype`
+sempre nuovi.
+
+### Strategia
+
+Espandere gradualmente:
+
+```text
+operation + subject + scope + dimension + constraints + deliverable
+          + evidence_requirement + budget + non_goal
+```
+
+Le superfici vivono in `intent_phrase`/`intent_cue` o relazioni più specifiche;
+gli identificatori sconosciuti si legano dall'indice della codebase. Coordinare
+più richieste in un `answer_plan`; non rispondere al primo sotto-goal.
+
+### Training via prompt
+
+Per ogni nuova forma seguire `LEARN_PROTOCOL.md`: baseline naturale, lezione in
+lingua ordinaria, replay, Transfer@3, due parafrasi, quasi-esempio, composizione,
+retract/reteach, save e fresh process. Se il docente deve dire
+`task_operation_cue/2`, il metalinguaggio non è pronto.
+
+### Gate
+
+Insegnare una nuova forma di domanda e usarla su un simbolo mai menzionato.
+Ablarla deve perdere solo la superficie, non operation, IR o facts. Una domanda
+ambigua chiede o presenta alternative; non seleziona silenziosamente.
+
+## H6. Obiettivo intermedio 4 — Claim qualitativi aperti e confutabili
+
+### Risultato richiesto
+
+Rispondere a «va migliorato?», «è sicuro?», «è corretto?», «è chiaro?», «che
+impatto avrebbe?» senza un catalogo chiuso di smell e senza privilegiare la
+performance.
+
+### Forma generale
+
+```text
+criterion
+  -> applicability(subject, policy, context)
+  -> evidence obligations
+  -> evidence + counterevidence
+  -> alternatives + tradeoff
+  -> qualified finding
+  -> priority relative to project goals
+```
+
+Il nome della misura resta una variabile eseguita con `apply/2`. Le soglie e la
+priorità sono policy scoped. Build, test, compiler, sanitizer, coverage,
+profiler, documenti e storia sono provider equivalenti del contratto di
+evidenza: nessuno diventa una corsia privilegiata.
+
+### Prossimo incremento preciso: C1/E4
+
+Applicare davvero `finding -> critique -> revision` a un finding prodotto dalla
+Code IR. La critica deve cercare una controevidenza indipendente e poter
+ritirare o ridurre il claim. Misurare:
+
+- finding iniziali;
+- finding confermati;
+- finding declassati;
+- finding ritirati;
+- basis nuova che ha causato ogni transizione.
+
+Se nessun finding cambia mai, lo schema non aggiunge conoscenza e va rimosso o
+ridisegnato. Non renderlo verde con una critica che ripete il finding.
+
+## H7. Obiettivo intermedio 5 — Active evidence e piano di strumenti
+
+### Risultato richiesto
+
+Quando le prove non decidono, parrot0 sceglie l'azione minima che separa le
+ipotesi: leggere un file, risolvere un binding, costruire, eseguire un test,
+profilare un workload, ispezionare storia o chiedere una policy.
+
+### Strategia
+
+Collegare Task/Goal/Constraint già esistenti a `action_schema`:
+
+```text
+hypotheses + missing_evidence
+  -> candidate actions
+  -> expected discrimination / cost / risk
+  -> selected action
+  -> P0Obs
+  -> claim update
+```
+
+La scelta è KB policy. Il C esegue meccaniche autorizzate e produce observation;
+non decide che `pytest` prova correttezza o che un profiler è necessario perché
+ha letto la parola “lento”.
+
+### Gate
+
+- due ipotesi reali e due azioni possibili;
+- cambiare costo/priorità a runtime cambia l'azione;
+- l'osservazione rientra come fact interrogabile;
+- la stessa Task IR riparte dal gap, senza ricominciare dall'input grezzo;
+- un'azione senza potere discriminante non viene ripetuta;
+- budget comune per read/tool/reentry, non tetti moltiplicativi.
+
+## H8. Obiettivo intermedio 6 — Thinking proliferante, non loop infinito
+
+### Risultato richiesto
+
+Ogni iterazione deve poter scoprire qualcosa di nuovo perché cambia il materiale
+su cui inferisce. “Più thinking” senza più rappresentazioni o evidenza raggiunge
+inevitabilmente il muro.
+
+### Schema minimo per il codice
+
+```text
+candidate interpretation
+  -> structural counterview
+  -> domain/policy bridge view
+  -> evidence gap
+  -> action or KB query
+  -> revised claim set
+  -> oracle/critique
+  -> stop(reason)
+```
+
+Gli operatori non devono essere soltanto `reenter(Prompt)`. Introdurre operatori
+KB descrivibili per query, tool, confronto di proof, retract/declassamento e
+sintesi. La composizione di più schemi sostituisce gradualmente la scelta di un
+solo schema quando i loro output sono compatibili e il budget lo consente.
+
+### Anti-stallo
+
+Un nodo è ammissibile soltanto se dichiara uno fra:
+
+- nuova observation;
+- nuova query su una vista diversa;
+- controevidenza;
+- nuova ipotesi con azione discriminante;
+- modifica di stato del claim;
+- chiusura motivata.
+
+Il delta deve essere osservato dopo il passo, non soltanto promesso dalla KB.
+Due passi consecutivi con la stessa basis e lo stesso claim set fermano lo
+schema con `no_progress`. Il risultato precedente sopravvive se il nuovo esito
+è una clarification, un muro o un output meno grounded.
+
+### Gate E8
+
+Ablare ogni nodo dello schema su task reali. Il nodo vale se almeno un esito
+grounded peggiora in sua assenza; un nodo la cui ablazione non cambia niente è
+teatro cognitivo. Misurare anche E5: tempo, query, facts letti, tool e rientri per
+nodo.
+
+## H9. Obiettivo intermedio 7 — Modifica multi-file e repair come un solo ciclo
+
+### Risultato richiesto
+
+Parrot0 deve operare su codebase sfidanti alla pari con l'avversario: creare,
+editare, rinominare e cancellare più file in una patch coerente, preservare lo
+snapshot iniziale, validare pre/postcondizioni, costruire, testare e riparare.
+
+### Strategia
+
+1. Task IR produce un set di change obligations, non una stringa di patch;
+2. localizzazione lega ogni obligation a symbol/span con confidenza;
+3. le trasformazioni diventano operazioni di un solo `PatchArtifact`;
+4. precondition digest impedisce edit su contenuto stale;
+5. l'artefatto viene applicato a un candidate tree completo;
+6. build/test producono `P0Obs` collegati a constraint;
+7. verdict rosso genera gap e controesempio;
+8. critique/replan prepara una nuova versione, senza mutare il workspace buono;
+9. commit finale soltanto su policy e oracle verdi.
+
+Il limite storico di alcune primitive di generazione single-file è una
+struttura secondaria, non un vincolo. Può restare come fallback per compiti
+piccoli, ma il planner universale non deve mai ridurre un task multi-file per
+farlo entrare lì.
+
+### Gate
+
+Una codebase fredda richiede almeno tre file modificati, un file nuovo, un
+fallimento iniziale della build e un repair. Il judge valuta lo snapshot intero.
+Ablando la policy di una singola operazione, l'intero commit viene negato senza
+lasciare una patch parziale.
+
+## H10. Obiettivo intermedio 8 — Rilettura dopo apprendimento e dopo edit
+
+### Risultato richiesto
+
+Una nuova lezione semantica deve far rileggere meglio lo stesso snapshot; un
+edit deve sostituire soltanto le osservazioni dipendenti. È il passaggio dalla
+KB che accumula alla KB che cresce.
+
+### Strategia
+
+- dependency key per ogni derived claim: snapshot, mapping, bridge, criterion,
+  policy e observation usati;
+- invalidazione selettiva quando una dipendenza cambia;
+- overlay nuovo costruito e validato prima dello swap;
+- lineage fra simboli solo se non ambiguo;
+- cache materializzata eliminabile, mai fonte di verità;
+- query replayata dalla Task IR originale.
+
+### Gate
+
+Insegnare naturalmente la semantica di un costrutto/API reale, rileggere una
+codebase già indicizzata e ottenere nuovi claim senza cambiare byte. Retract
+della lezione rimuove quei claim. Dopo un edit, nessun finding del vecchio hash
+può essere presentato come attuale.
+
+## H11. Le leve migliori per accelerare la crescita della KB
+
+### Leva 1 — Ponti prima di nuove isole
+
+Prima di aggiungere fatti, cercare quali zone già esistenti non comunicano. Un
+ponte corretto può rendere disponibili centinaia di facts di dominio a tutti i
+symbol denotati. Misurare `cold tasks unlocked / new curated clauses`: deve
+crescere più di uno-a-uno. Ogni bridge conserva basis ed è ablabile.
+
+### Leva 2 — Schemi ad alto fan-out
+
+Priorità a conoscenza che serve più famiglie: scope/reference finanzia locate,
+impact e rename; def-use finanzia explanation, security e correctness; effect
+summary finanzia concurrency, performance e safety. Rifiutare incrementi che
+servono soltanto il wording del match appena fallito.
+
+### Leva 3 — Fallimenti differenziali come active curriculum
+
+La gara ordina i gap per valore informativo:
+
+```text
+parrot0 fallisce + avversario passa + judge chiaro
+  > entrambi falliscono
+  > entrambi passano
+  > differenza soltanto stilistica
+```
+
+Fra gap discriminanti scegliere quello che interrompe più catene a valle, non
+quello più facile da rendere verde.
+
+### Leva 4 — Imparare via prompt prima di promuovere `.p0`
+
+Il percorso obbligatorio resta:
+
+```text
+lezione naturale -> replay -> transfer -> contrasto -> composizione
+-> ablation/reteach -> save -> fresh process -> piccolo commit/push
+```
+
+Una sessione con zero facts veri è diagnostica. Se il prompt non può insegnare
+la classe, non aggiungere a mano membri: promuovere soltanto il metameccanismo
+che rende la prossima lezione apprendibile.
+
+### Leva 5 — Conservare negative knowledge e controesempi
+
+Un bridge falso o una regola troppo larga costa più di un gap. Registrare
+false-composition, scope, eccezioni e candidate perdenti. La critica ha bisogno
+di controevidenza reale; senza, il thinking conferma sempre se stesso.
+
+### Leva 6 — Replay incrementale, non riscan globale
+
+Dependency tracking e materialized views permettono più cicli nello stesso
+budget. Profilare facts/query/reentry prima di alzare timeout. Ottimizzare il
+predicato dominante preservando l'identico proof, non tagliando ciò che vede.
+
+### Leva 7 — Separare acquisizione, capacità e prova
+
+Tenere contatori distinti:
+
+- facts veri acquisiti;
+- forme linguistiche apprese;
+- procedure/bridge/criteri nuovi;
+- task freddi sbloccati;
+- ablation che dimostrano causalità;
+- risultati gara.
+
+Una KB grande senza transfer non è crescita; un match vinto senza sapere quale
+facoltà lo ha reso possibile non è apprendimento.
+
+## H12. Sequenza esatta consigliata per chi riprende
+
+Non aprire dieci cantieri insieme. Questa è la coda concreta:
+
+1. **C1/E4:** critica reale di un finding, con conferma/declassamento/ritiro e
+   basis osservabile;
+2. **E8:** ablation nodo per nodo dello schema appena usato;
+3. **E5:** misura corta del costo dello stesso schema;
+4. **Repository IR:** build graph, test link, definition/reference qualificate
+   su codebase multi-file;
+5. **Task IR:** un task di modifica e una domanda qualitativa passano dallo
+   stesso subject/scope/constraint binding;
+6. **Active evidence:** una missing evidence seleziona un tool read-only e
+   riprende la Task IR;
+7. **CFG + def-use minimo:** solo le relazioni tirate dal caso reale, ma
+   generalizzate e riusate da due domande;
+8. **PatchArtifact multi-file:** collegare obligation -> candidate tree ->
+   build/test P0Obs;
+9. **Repair:** un verdict rosso cambia patch o piano, non soltanto testo;
+10. **Training naturale:** insegnare un criterio/API/policy reale e far
+    rileggere la codebase;
+11. **Challenge baseline:** eseguire match1 con run-id esplicito, analizzare e
+    aprire il gap ad alto fan-out;
+12. **Challenge crescente:** match2 solo dopo aver chiuso o classificato il
+    primo limite, senza allenarsi sul probe.
+
+Per ogni punto: un ratchet focal, una ablation causale, al massimo il gate breve
+consentito; niente sessioni di test lunghe come sostituto della comprensione.
+
+## H13. Checklist di handoff per ogni checkpoint
+
+Prima di lasciare il lavoro al prossimo agente, scrivere qui o nel commit:
+
+- commit/versione e worktree preesistente preservato;
+- capacità generale cercata;
+- task reale che l'ha tirata;
+- baseline e controesempio;
+- rappresentazioni attraversate;
+- facts/bridge/criteria/policy appresi o modificati;
+- proof e provenance;
+- replay/transfer/contrast/composition/ablation;
+- cosa è migliorato fuori dal caso trainato;
+- costo osservato;
+- gap residuo e prima azione informativa;
+- eventuale match/run e link a transcript/snapshot;
+- ragione per cui nessuna conoscenza linguistica è finita nel C.
+
+## H14. Stop condition architetturali
+
+Fermarsi prima di committare se:
+
+- il fix nomina nel C parole, API, smell, linguaggi o forme del match;
+- il nuovo criterio non può essere insegnato o ritratto parlando;
+- la codebase viene ridotta a un file per adattarla a una primitiva esistente;
+- il judge guarda una frase della risposta invece dell'artefatto/osservazione;
+- un claim qualitativo non cita snapshot e basis;
+- il thinking propaga un output meno grounded;
+- un loop ripete basis/claim set senza `no_progress`;
+- una patch tocca il workspace prima di essere un artifact verificabile;
+- un run dell'avversario può vedere l'output del primo;
+- si ritocca il task dopo aver visto un risultato senza versionare il cambio;
+- una vittoria viene descritta come comprensione senza transfer e ablation;
+- l'integrazione `pi` viene usata per definire o limitare il coding agent nativo.
+
+## H15. Definizione di arrivo del programma di lavoro
+
+Il piano è traguardato quando parrot0, dal proprio terminale e su più codebase
+fredde, riesce ripetutamente a:
+
+1. costruire una IR revisionata dell'intero repository;
+2. collegare codice, documenti, build, test, runtime, policy e dominio;
+3. capire domande qualitative e task di modifica non presenti nel training;
+4. dichiarare ipotesi, prove, controprove, incertezza e prossima azione;
+5. attraversare ponti cross-rappresentazione conservando la basis;
+6. acquisire evidenza con strumenti e riprendere lo stesso ragionamento;
+7. produrre e riparare PatchArtifact multi-file;
+8. lasciare decidere a oracle reali prima di dichiarare successo;
+9. imparare via prompt nuove semantiche, criteri e policy con Transfer@3;
+10. rileggere dopo lezione o edit senza conclusioni stale;
+11. usare il thinking per cambiare davvero claim/evidenza, con costo sostenibile;
+12. competere in match crescenti senza hint differenziali o adattatori che lo
+    mutilano.
+
+Il segnale decisivo non sarà un 100/100 isolato. Sarà vedere che una singola
+lezione o un singolo ponte chiude più gap in codebase e domini diversi, che la
+sua ablazione li riapre selettivamente e che il match successivo fallisce più
+avanti nella catena. Quello è il moltiplicatore che rende la KB viva.

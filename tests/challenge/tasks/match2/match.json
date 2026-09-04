@@ -1,0 +1,20 @@
+{
+  "id": "match2",
+  "title": "Crash-tolerant concurrent event journal",
+  "difficulty": 6,
+  "artifact": "journal.py",
+  "timeout_seconds": 900,
+  "order": ["freebuff", "parrot0"],
+  "logic_actions": {
+    "freebuff": [
+      {
+        "id": "approve_expected_workspace_operation",
+        "phase": "run",
+        "when_regex": "(?:allow|approve|confirm).{0,240}(?:read|write|edit|create|python|test).{0,160}(?:workspace|code|journal|codec|locking|cli)",
+        "send_key": "ENTER",
+        "max_uses": 20
+      }
+    ],
+    "parrot0": []
+  }
+}

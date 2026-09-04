@@ -1,0 +1,11 @@
+/quit
+
+parrot0 [gen499-grounded-thinking@d5fb450]
+
+mode: agent (tools on, network off) - 37952 facts, 2720 rules (7.17%)
+
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+you> /quit
+
+parrot0: bye

@@ -61,3 +61,7 @@ kb/learning/bridges.p0
 # gen436 — di Wikipedia non si conserva niente: nessuna pagina, mai piu'.
 # Cio' che resta e' la conoscenza che parrot0 ha IMPARATO leggendo, nella KB.
 kb/learning/pages/
+
+# python bytecode dei banchi di gara
+__pycache__/
+*.pyc

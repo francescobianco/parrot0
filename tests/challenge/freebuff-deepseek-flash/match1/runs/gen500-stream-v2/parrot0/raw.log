@@ -1,0 +1,7 @@
+[|][/][-][\][|][/][-][\][|][/][-][\][|][/][-]   parrot0 [gen500-live-challenge@361212f]
+mode: agent (tools on, network off) - 37952 facts, 2720 rules (7.17%)
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+you> [K/quit
+
+parrot0: bye

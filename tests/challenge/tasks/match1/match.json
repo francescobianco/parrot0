@@ -1,0 +1,20 @@
+{
+  "id": "match1",
+  "title": "Generic adversarial quicksort",
+  "difficulty": 4,
+  "artifact": "quicksort.c",
+  "timeout_seconds": 600,
+  "order": ["parrot0", "freebuff"],
+  "logic_actions": {
+    "freebuff": [
+      {
+        "id": "approve_expected_workspace_operation",
+        "phase": "run",
+        "when_regex": "(?:allow|approve|confirm).{0,240}(?:read|write|edit|create|make|cc|compile|test).{0,160}(?:workspace|code|quicksort|record-sort)",
+        "send_key": "ENTER",
+        "max_uses": 20
+      }
+    ],
+    "parrot0": []
+  }
+}

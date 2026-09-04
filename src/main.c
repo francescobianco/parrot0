@@ -15,7 +15,9 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <dirent.h>
+#include <signal.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include "brain.h"
 #include "kb.h"
 #include "serve.h"
@@ -25,6 +27,7 @@
 #include "env.h"
 
 #include <ctype.h>
+#include <errno.h>
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
@@ -140,6 +143,37 @@ static const char *prompt_str(void) {
 }
 
 static void tty_write(const char *s) { ssize_t n = write(STDERR_FILENO, s, strlen(s)); (void)n; }
+
+/* gen500: a coding-agent terminal must expose liveness while the KB or a turn
+ * is being evaluated.  This pulse is terminal mechanics, like the cursor and
+ * bracketed-paste escapes above: it says no natural-language sentence and
+ * contains no domain decision.  Pipe/API/test surfaces remain byte-identical.
+ * A tiny child is used instead of a thread so the reasoning engine acquires no
+ * concurrent access to Brain/KB state. */
+static pid_t activity_pulse_start(void) {
+    if (!isatty(STDIN_FILENO) || !isatty(STDERR_FILENO)) return (pid_t)-1;
+    pid_t pid = fork();
+    if (pid != 0) return pid;
+    static const char frame[] = "|/-\\";
+    struct timespec pause = {0, 200 * 1000 * 1000};
+    size_t i = 0;
+    for (;;) {
+        char out[8];
+        int n = snprintf(out, sizeof out, "\r[%c]", frame[i++ % 4]);
+        if (n > 0) {
+            ssize_t written = write(STDERR_FILENO, out, (size_t)n);
+            (void)written;
+        }
+        nanosleep(&pause, NULL);
+    }
+}
+
+static void activity_pulse_stop(pid_t pid) {
+    if (pid <= 0) return;
+    (void)kill(pid, SIGTERM);
+    while (waitpid(pid, NULL, 0) < 0 && errno == EINTR) { }
+    tty_write("\r   \r");
+}
 
 /* ── LA STORIA DEI TURNI, CON LE FRECCE ───────────────────────────────────
  *
@@ -1268,7 +1302,9 @@ int main(int argc, char **argv) {
     }
 
     const char *sess = NULL;
+    pid_t boot_pulse = activity_pulse_start();
     Brain *brain = setup_brain(&sess);
+    activity_pulse_stop(boot_pulse);
     if (!brain) {
         fprintf(stderr, "parrot0: out of memory\n");
         return 1;
@@ -1464,10 +1500,12 @@ int main(int argc, char **argv) {
         /* gen497: con il thinking acceso il turno non finisce alla prima
          * risposta — rientra nella pipeline finche' lo schema non si chiude, e
          * ogni passo si vede. Spento, e' esattamente la chiamata di prima. */
+        pid_t turn_pulse = activity_pulse_start();
         if (brain_policy_on(brain, "thinking"))
             brain_think(brain, line, resp, sizeof resp, think_step_print, NULL);
         else
             brain_respond(brain, line, resp, sizeof resp);
+        activity_pulse_stop(turn_pulse);
         if (profiling) {
             timespec_get(&t1, TIME_UTC);
             double ms = (t1.tv_sec - t0.tv_sec) * 1000.0

@@ -1,0 +1,51 @@
+{
+  "id": "freebuff-deepseek-flash",
+  "title": "parrot0 vs FreeBuff / DeepSeek Flash",
+  "agents": {
+    "parrot0": {
+      "argv": ["{repo}/bin/parrot0"],
+      "version_argv": ["git", "-C", "{repo}", "describe", "--always", "--dirty"],
+      "env": {
+        "PARROT0_ROOT": "{repo}",
+        "PARROT0_PROFILE": "{repo}/kb/profiles/agi.p0",
+        "PARROT0_RUNTIME_DIR": "{runtime}",
+        "PARROT0_SESSION": "",
+        "PARROT0_TOOLS": "1",
+        "PARROT0_THINKING": "1"
+      },
+      "unset_env": ["PARROT0_SESSION_DUMP", "PARROT0_LEARN_KB"],
+      "ready_pattern": "you>",
+      "done_pattern": "you>",
+      "boot_wait_seconds": 3,
+      "min_runtime_seconds": 1,
+      "stream_watch_seconds": 3,
+      "startup_timeout_seconds": 30,
+      "quit": "/quit\r"
+    },
+    "freebuff": {
+      "argv": ["freebuff", "--cwd", "{code}"],
+      "version_argv": ["freebuff", "--version"],
+      "env": {},
+      "unset_env": [],
+      "ready_pattern": "Enter a coding task or / for commands",
+      "done_pattern": "Enter a coding task or / for commands",
+      "boot_wait_seconds": 3,
+      "min_runtime_seconds": 3,
+      "stream_watch_seconds": 3,
+      "startup_timeout_seconds": 60,
+      "bracketed_paste": true,
+      "submit_delay_seconds": 0.5,
+      "quit": "\u0003",
+      "logic_actions": [
+        {
+          "id": "select_default_deepseek_model",
+          "phase": "startup",
+          "when": "See all 5 models",
+          "send_key": "ENTER",
+          "max_uses": 1
+        }
+      ]
+    }
+  },
+  "matches": ["match1", "match2"]
+}

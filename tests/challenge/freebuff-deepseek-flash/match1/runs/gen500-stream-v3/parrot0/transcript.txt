@@ -1,0 +1,54 @@
+[|]
+[/]
+[-]
+[\]
+[|]
+[/]
+[-]
+[\]
+[|]
+[/]
+[-]
+[\]
+[|]
+[/]
+[-]
+
+parrot0 [gen500-live-challenge@361212f]
+
+mode: agent (tools on, network off) - 37952 facts, 2720 rules (7.17%)
+
+say something ('/quit' to exit, '/save' to persist, '/restore' to reload the KB from disk)
+
+you> You are working in the existing multi-file C11 codebase in code/. A production incident found that record-sort degrades quadratically on ordered and duplicate-heavy exports. Replace its legacy sorting backend with a reusable module named exactly quicksort.c, integrate that module into the existing library and Makefile, and preserve the CLI and public record API. You may change or add any files needed, but do not rename or weaken the supplied headers. quicksort_records must implement quicksort.h: sort arbitrary fixed-width records in place through the context-aware comparator and return 0 on success; an empty range succeeds even with NULL base and comparator, while a non-empty range with NULL base, zero width, or NULL comparator returns -1 without access, and count times width overflow also returns -1. Ordered, reverse, duplicate-heavy, and all-equal inputs must avoid quadratic comparison and stack growth through three-way partitioning plus a bounded-depth fallback or an equivalent worst-case-safe design. Do not call qsort, qsort_r, another process, or non-standard libraries. sort_records must delegate to the new generic backend while retaining deterministic priority/name ordering and id tie-breaking. The complete project must build cleanly with make and cc -std=c11 -Wall -Wextra -Werror -O2. Explore the codebase, implement the incident fix across every necessary file, run useful checks, and leave the working source tree in code/; do not merely describe a patch.
+
+[|]
+[/]
+[-]
+[\]
+[|]
+[/]
+[-]
+[\]
+[|]
+[/]
+[-]
+[\]
+[|]
+[/]
+[-]
+[\]
+[|]
+[/]  · pensiero 1 ─ read: It was a mysterious it. Then one day, it discovered what it meant to be seen. it had never felt this way before — as if the whole world had shifted. At last, it was seen — not as a thing, but as a presence. It was a mysterious it. Then one day, it discovered what it meant to be seen. it had never felt this way before — as if the whole world had shifted. At last, it was seen — not as a thing, but as a presence.
+
+    ↳ Learned 0 fact(s), skipped 8.
+
+[-]  · pensiero 2 ─ what do you know about it
+
+    ↳ What number should I use for «it»?
+
+It was a mysterious it. Then one day, it discovered what it meant to be seen. it had never felt this way before — as if the whole world had shifted. At last, it was seen — not as a thing, but as a presence. It was a mysterious it. Then one day, it discovered what it meant to be seen. it had never felt this way before — as if the whole world had shifted. At last, it was seen — not as a thing, but as a presence.
+
+you> /quit
+
+parrot0: bye
