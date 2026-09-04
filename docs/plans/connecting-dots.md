@@ -6,8 +6,11 @@
 > iterazione raddoppia la granularità e produce nuovi archi — e che porta con sé
 > **un indice**, così l'espansione è certificata invece che dichiarata.
 >
-> Deve essere possibile incrociare **scacchi e informatica**, **matematica e
-> chimica**, **i pronomi personali inglesi e gli animali**. Tutto con tutto.
+> Deve diventare possibile incrociare **scacchi e informatica**, **matematica e
+> chimica**, **i pronomi personali inglesi e gli animali**. Tutto con tutto — ma
+> ⚠ **non incrociando temi a caso**: un cross è sempre fra due regioni di una
+> partizione **completa** (§3.0-bis), e i temi diventano regioni solo in fondo
+> all'albero. Prima di allora sono **domande testimone**, non risultati.
 >
 > ⭐ **E la domanda per cui il metodo esiste (§5-bis):** per ogni cross che
 > garantiamo funzionante, **quanti se ne autodeterminano?** Se il rapporto è
@@ -175,6 +178,66 @@ lavora dove c'è meno, non dove è più facile.
 
 Si parte da un insieme unico: tutto ciò che parrot0 sa. Nessun arco, nessun
 indice. È lo stato di riferimento.
+
+### 3.0-bis ⛔ CHE COSA RENDE UNA DIVISIONE VALIDA — e perché «X vs non-X» è barare
+
+> F.: *«il metodo della divisione della KB è procedurale e logico: la prima
+> divisione divide la KB in due parti la cui somma logica torna a essere la KB.
+> Chiaramente non valgono le divisioni banali tipo SCACCHI vs NON-SCACCHI, sono
+> barare. Divisioni valide sono ad esempio REGOLE vs FATTI, oppure COMPRENSIONE
+> e CONOSCENZA DATA. E poi da lì sotto-divisioni coerenti la cui somma deve
+> sempre dare il tutto.»*
+
+Questa è la parte procedurale del metodo, e senza di essa tutto il resto è
+aneddotica. **Non si incrociano due temi a caso: si incrociano due regioni di
+una partizione completa.**
+
+#### Le quattro condizioni di una divisione
+
+| | condizione | |
+|---|---|---|
+| **D1** | **completezza** | `A ∪ B` = esattamente la regione divisa. Niente resta fuori. |
+| **D2** | **disgiunzione** | `A ∩ B = ∅`. Nessuna clausola in entrambe. |
+| **D3** | ⭐ **intensione positiva bilaterale** | **entrambi** i lati hanno una definizione propria. Nessuno dei due è «il resto». |
+| **D4** | **decidibilità locale** | data una clausola **da sola**, il criterio dice da che parte va — senza guardare l'altro lato, e anche per una clausola che non esisteva quando la divisione è stata fatta. |
+
+⭐ **D4 è il test che smaschera l'inganno**, ed è meccanico. *«Questa clausola è
+una regola o un fatto?»* si decide guardando la clausola. *«Questa clausola è
+scacchi o non-scacchi?»* si decide guardando la clausola **solo per il lato
+"scacchi"**: l'altro lato non ha nessuna proprietà, si abita per esclusione. Una
+partizione in cui un lato è definito dalla negazione dell'altro **soddisfa D1 e
+D2 e fallisce D3 e D4** — cioè è formalmente corretta e conoscitivamente vuota.
+
+E la conseguenza pratica: un lato «resto» **non si può sottodividere**. Non
+avendo intensione, non ha struttura interna da tagliare — e il metodo si ferma
+lì, che è il modo in cui l'inganno si paga.
+
+#### Divisioni valide, e sono per SPECIE
+
+Le prime divisioni sono per **specie** (§2-bis), non per tema, perché solo la
+specie è decidibile su una clausola isolata. Candidate:
+
+```text
+  REGOLE            vs   FATTI               (come si deriva  /  che cosa vale)
+  COMPRENSIONE      vs   CONOSCENZA DATA     (come si legge   /  che cosa si sa)
+  PRESENTAZIONE     vs   SOSTANZA            (come si dice    /  che cosa è vero)
+  CONDOTTA          vs   CONTENUTO           (chi parla e quando / che cosa dice)
+```
+
+Ognuna soddisfa D3 e D4: entrambi i lati si riconoscono guardando una clausola.
+La scelta fra loro **non è indifferente** e va dichiarata nel registro (§8),
+perché decide che cosa sarà incrociabile ai passi successivi.
+
+#### E i temi arrivano in fondo, non in cima
+
+Un tema — scacchi, chimica, i pronomi — **non è una regione di primo livello**.
+Diventa una regione solo dopo molte iterazioni, quando gli altri frammenti
+attorno sono a loro volta partizionati, e la somma logica torna a essere la KB.
+
+> **Un cross fra due temi è legittimo solo alla profondità in cui entrambi sono
+> regioni di una partizione completa.** Prima di quel livello, «incrociare
+> scacchi e informatica» non è un cross del metodo: è un esempio di inferenza
+> interessante, e chiamarlo cross confonde il risultato con l'aneddoto.
 
 ### 3.1 Passo 1 — la bipartizione, e il primo cross
 
@@ -422,56 +485,62 @@ diventa una sua conseguenza osservabile.
 
 ---
 
-## 6. Gli incroci che devono essere possibili
+## 6. I fenomeni bersaglio — e perché NON sono cross
 
-F. li ha chiesti per nome, e sono il collaudo del metodo: se questi non passano,
-il metodo è una tassonomia e non una capacità.
+> ⛔ **Correzione, 2026-09-04.** La prima stesura di questa sezione presentava
+> «scacchi ✕ informatica», «matematica ✕ chimica» e «pronomi ✕ animali» come i
+> cross di collaudo del metodo. **Era sbagliato e fuorviante**, e F. l'ha
+> fermato: quelli sono **temi presi a coppie**, non regioni di una partizione.
+> Un cross è sempre fra due regioni tali che, sommate a tutte le altre, danno la
+> KB intera (§3.0-bis). Prima di quella profondità, incrociare due temi non è il
+> metodo — è un esempio di inferenza interessante travestito da risultato.
 
-### 6.1 Scacchi ✕ Informatica
+Restano però **i fenomeni bersaglio**: le inferenze che il metodo deve
+finire per produrre. Cambiano di ruolo — da *prove del metodo* a **domande
+testimone**, cioè le domande su cui un cross si certifica quando la
+frammentazione ci arriva.
 
-> *«Il giro del cavallo su una scacchiera 8×8 è un problema difficile?»*
+| fenomeno | domanda testimone | che cosa serve perché sia un cross |
+|---|---|---|
+| scacchi / informatica | *«il giro del cavallo su 8×8 è un problema difficile?»* | che `scacchi` e `complessità` siano **due regioni**, con il resto della KB partizionato attorno |
+| matematica / chimica | *«bilancia questa reazione»* | idem — e qui il cross è **pieno** (una *procedura* algebrica su un *tema* chimico, §2-bis.3) |
+| pronomi / animali | *«il cane è "it" o "he"?»* | il più superficiale dei tre: due regioni vicine nell'albero, raggiungibili prima |
 
-Il cross passa da `chess` (il cavallo, la scacchiera, la mossa a L) a
-`computer_science` (cammino hamiltoniano, classe di complessità). Nessuna delle
-due isole risponde da sola: la prima non conosce la complessità, la seconda non
-sa che cos'è un cavallo. **Ablando l'una o l'altra, la risposta cade.**
+⭐ **E la loro utilità vera è un'altra, ed è migliore:** ognuno di questi
+fenomeni dice **quanto in profondità bisogna scendere** perché diventi
+esprimibile. La posizione nell'albero delle suddivisioni in cui una domanda
+testimone diventa un cross legittimo **è una misura del metodo**, non un
+aneddoto: un fenomeno che richiede otto iterazioni per diventare un cross ci
+dice che quella conoscenza è sepolta otto livelli sotto la superficie.
 
-### 6.2 Matematica ✕ Chimica
+### 6.1 ⭐ Il caso di casa — ed è l'unico che è già un cross vero
 
-> *«Bilancia questa reazione.»*
+Quello del §1, che è il motivo per cui questo documento esiste, **e che regge il
+criterio del §3.0-bis** dove gli altri tre non lo reggono ancora:
 
-Il cross passa da `chemistry` (conservazione degli atomi, formule) a `algebra`
-(sistema lineare a coefficienti interi). La chimica pone il vincolo, la
-matematica lo risolve. È il caso più istruttivo perché **l'arco è una
-traduzione**: una reazione *è* un sistema lineare, e riconoscerlo è il cross.
+```text
+  divisione valida per SPECIE:   PROCESSO   vs   CAPACITÀ
+     (che cosa si deve fare)          (che cosa si sa fare)
+  entrambi hanno intensione propria; una clausola isolata si classifica; e la
+  loro somma, con il resto partizionato attorno, è la KB.
 
-### 6.3 Pronomi personali inglesi ✕ Animali
+  il cross:  action_impl(Passo, Primitiva)
+  lo stato:  9 azioni su 28 lo hanno — ZERO sulle quattro di `code_task`
+```
 
-> *«Devo chiamare il cane "it" o "he"?»*
-
-Il cross passa da `grammar` (i pronomi di terza persona, il genere) a `animals`
-(animatezza, se l'animale è un compagno con un nome). **È il più piccolo dei
-tre**, e per questo il migliore per cominciare: due isole che nessuno avrebbe
-mai pensato di collegare, e una domanda che chiunque pone.
-
-### 6.4 ⭐ E il caso di casa — Piani ✕ Strumenti
-
-Quello del §1, che è il motivo per cui questo documento esiste. La regione dei
-piani conosce `code_task`; la regione degli strumenti conosce `list`, `read`,
-`run`, `write`. **Il cross è `action_impl/2`**: il fatto che lega un passo del
-piano alla primitiva che lo realizza. Ce ne sono 9 su 28 azioni, e **zero sulle
-quattro di `code_task`.**
-
-Questo è un cross **misurato mancante**, non ipotizzato — ed è la prova che il
-metodo trova cose vere: applicato ieri, avrebbe indicato quel confine come il
-più povero del sistema, e avrebbe risparmiato una giornata di caccia al dispatch.
+Non è ipotizzato: è **misurato mancante**. Applicato ieri, il metodo avrebbe
+indicato quel confine come il più povero del sistema e avrebbe risparmiato una
+giornata di caccia al dispatch. Ed è un **cross di specie**, cioè proprio la
+classe che H-κ4 (§2-bis.4) predice essere la più fruttuosa.
 
 ---
 
 ## 7. La prima bipartizione di parrot0
 
-Il passo 1 chiede due supergruppi completi e disgiunti. La proposta, che va
-discussa prima di essere eseguita:
+Il passo 1 chiede due supergruppi che passino **D1-D4** (§3.0-bis). Fra le
+candidate elencate lì — regole/fatti, comprensione/conoscenza data,
+presentazione/sostanza, condotta/contenuto — la proposta, che va discussa prima
+di essere eseguita:
 
 ```text
 A — PRESENTAZIONE      come si dice, si riconosce, si dispone una risposta
@@ -496,6 +565,14 @@ registro**, perché da quella scelta dipende quali cross saranno possibili al
 passo 2. Se
 la frontiera è quella giusta, il primo cross sarà facile da trovare e difficile
 da ablare; se non lo è, si vedrà subito — ed è informazione.
+
+Verifica delle condizioni, che va fatta e non assunta:
+
+| | |
+|---|---|
+| **D1/D2** | ogni clausola sta in uno e uno solo dei due — da provare sul censimento, non a occhio |
+| **D3** | entrambi hanno intensione propria: *«dice come si dice»* e *«dice che cosa è vero»*. Nessuno dei due è «il resto» ✓ |
+| **D4** | data una clausola isolata si decide: `response_template(...)` è presentazione, `located_in(paris, france)` è sostanza ✓ |
 
 Il primo cross candidato: **una risposta la cui *forma* dipende da un fatto di
 dominio** (per esempio: dire un numero con la sua unità solo quando il dominio
@@ -545,15 +622,22 @@ tutta lì.
    finché i cross nuovi non esistono, il numero è truccato.
 4. **Le regioni sono complete e disgiunte a ogni passo.** Una clausola che non
    sta in nessuna regione è un buco che l'indice non vede — e quindi mente.
+5. ⛔ **Nessun lato «resto».** Ogni divisione passa D3 (intensione positiva
+   bilaterale) e D4 (decidibilità su una clausola isolata): «X vs non-X»
+   soddisfa completezza e disgiunzione ed è **barare**, perché un lato senza
+   intensione non ha struttura interna e non si può sottodividere. Il metodo si
+   fermerebbe lì, ed è il modo in cui l'inganno si paga.
+6. **Un cross fra temi vale solo alla profondità in cui entrambi sono regioni.**
+   Prima di quel livello è un esempio, non un risultato (§6).
 5. **Un cross si prova su una domanda che nessuno ha usato per costruirlo.**
    Altrimenti si è insegnato quel caso, non l'arco.
-6. **κ si misura a frammentazione costante**, e il censimento completo si fa
+7. **κ si misura a frammentazione costante**, e il censimento completo si fa
    **prima e dopo** ogni cross curato — altrimenti si conta come spontaneo
    l'arretrato che nessuno aveva guardato (§5-bis.6).
-7. **Uno spontaneo si certifica solo su una domanda mai usata per costruire
+8. **Uno spontaneo si certifica solo su una domanda mai usata per costruire
    niente.** Se la domanda l'abbiamo scritta pensando a quella coppia, il cross
    è curato anche se ci sembra emerso.
-8. **Il metodo si applica a se stesso.** La regione «piani» e la regione
+9. **Il metodo si applica a se stesso.** La regione «piani» e la regione
    «strumenti» sono il primo banco: se `split and cross` non avesse trovato
    `action_impl` mancante, non serve.
 
@@ -567,7 +651,7 @@ tutta lì.
 | **S1** | bipartizione presentazione/sostanza + il primo cross certificato | 1 cross su 1 possibile, e l'ablazione lo fa cadere |
 | **S2** | dividere la sostanza; i due cross nuovi | indice su 3 possibili, e **scende** prima di risalire |
 | **S3** | dividere la presentazione; i tre cross nuovi | indice su 6 |
-| **S4** | i tre incroci nominati da F. (scacchi✕informatica, matematica✕chimica, pronomi✕animali) come **prova di trasferibilità**, non come membri | ognuno passa C1+C2 su una domanda mai usata per costruirlo |
+| **S4** | portare la frammentazione fino a dove una **domanda testimone** (§6) diventa esprimibile come cross fra due regioni vere | la profondità richiesta è **registrata**: è la misura di quanto quella conoscenza era sepolta |
 | **S5** | il caso di casa: `action_impl` per le quattro azioni di `code_task` | il piano si cammina fino in fondo su match0 |
 | ⭐ **S6** | **la misura di κ**: censimento completo prima e dopo ogni cross curato, con la separazione transitivo/emergente dall'impronta | κ ha un valore, e `κ_emergente` è **> 0** almeno una volta — altrimenti la tesi del §5-bis è falsa e va detto |
 | **S7** | H-κ1/H-κ2/H-κ3 sui dati raccolti da S1-S6 | almeno una delle tre cade, oppure una regge con un margine che cambia l'ordine di costruzione |
