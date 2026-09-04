@@ -30,6 +30,7 @@ machinery(code_shape_signature).
 machinery(lang_syntax).
 machinery(lang_block).
 machinery(lang_layout).
+machinery(lang_include).
 
 % ── COME UNA LINGUA SEGNA UN BLOCCO ────────────────────────────────────────
 % La prima stesura scriveva le graffe nel C e le chiamava meccanica. Provando ad
@@ -62,6 +63,14 @@ lang_syntax(c, return_null,     "return NULL;").
 lang_syntax(c, alloc_bytes,     "char *{0} = malloc({1});").
 lang_syntax(c, copy_bytes,      "memcpy({0}, {1}, {2});").
 lang_syntax(c, set_index,       "{0}[{1}] = {2};").
+
+% Quale operazione richiede quale intestazione: senza, il file emesso non
+% compila — ed «emesso» senza «compila» non e' una capacita'. Una riga per
+% operazione, e un'operazione nuova non ricompila niente.
+lang_include(c, alloc_bytes,  "stdlib.h").
+lang_include(c, return_null,  "stdlib.h").
+lang_include(c, copy_bytes,   "string.h").
+lang_include(c, declare_size, "stddef.h").
 
 % ── FORMA 1: due cicli annidati, confronta e scambia ────────────────────────
 % E' la forma che `algo_shape(bubblesort, nested_loop_compare_swap)` nomina, ed

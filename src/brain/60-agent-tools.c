@@ -822,6 +822,10 @@ static int mod_toolplan(Brain *b, const char *norm, const char *raw,
              * `tool_result_read`, quindi cio' che il build NOMINA diventa un
              * fatto — ed e' l'unico motivo per cui il passo successivo ha
              * qualcosa da dire. */
+            /* il verdetto vecchio non deve sopravvivere al build nuovo:
+             * altrimenti «devi produrre X» resta vero dopo che X e' stato
+             * prodotto, ed e' il modo piu' semplice di mentire su se stessi. */
+            kb_retract_pred(b->kb, "missing_build_input");
             char cmds[8][KB_TERM_LEN];
             const char *bq[1] = { NULL };
             size_t nb = kb_match(b->kb, "build_command", bq, 1, cmds, 8);
@@ -879,6 +883,60 @@ static int mod_toolplan(Brain *b, const char *norm, const char *raw,
                     dof += (size_t)snprintf(detail + dof, sizeof detail - dof,
                                             " (%zu contract clause%s known)",
                                             nc2, nc2 == 1 ? "" : "s");
+            }
+        } else if (!strcmp(action, "produce_artifact")) {
+            /* ── gen503 — IL PASSO CHE CHIUDE IL CICLO ──────────────────────
+             *
+             * Qui si incontrano tre organi che fino a ieri esistevano da soli:
+             * cio' che il build dice di dover produrre (`must_produce/2`), cio'
+             * che i sorgenti letti dicono di essere dichiarato e mai definito
+             * (`undefined_declaration/1`), e la forma che il CONTRATTO letto
+             * dalla prosa dell'header seleziona (`shape_satisfies/2`).
+             *
+             * Nessuna delle tre decisioni sta qui: questo ramo le legge, emette
+             * e scrive passando dal gate del workspace come ogni altro
+             * strumento. Se nessuna forma dichiarata soddisfa il contratto non
+             * si scrive niente e lo si DICE — che e' la risposta giusta, non
+             * un fallimento da nascondere. */
+            char arts[8][KB_TERM_LEN];
+            const char *mq2[2] = { NULL, "build" };
+            size_t nart = kb_match(b->kb, "must_produce", mq2, 2, arts, 8);
+            char fns[16][KB_TERM_LEN];
+            const char *uq[1] = { NULL };
+            size_t nfn = kb_match(b->kb, "undefined_declaration", uq, 1, fns, 16);
+            for (size_t ai = 0; ai < nart && nfn > 0; ai++) {
+                char ab3[KB_TERM_LEN]; snprintf(ab3, sizeof ab3, "%s", arts[ai]);
+                const char *art = kb_dequote(ab3);
+                for (size_t fi = 0; fi < nfn; fi++) {
+                    char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", fns[fi]);
+                    const char *fn = kb_dequote(fb);
+                    char shapes[4][KB_TERM_LEN];
+                    const char *ssq[2] = { NULL, fns[fi] };
+                    size_t nsh = kb_match(b->kb, "shape_satisfies", ssq, 2, shapes, 4);
+                    if (nsh == 0) {
+                        nacted++;
+                        if (dof + 1 < sizeof detail)
+                            dof += (size_t)snprintf(detail + dof, sizeof detail - dof,
+                                "%sno declared shape satisfies the contract of %s",
+                                dof ? ", " : "", fn);
+                        continue;
+                    }
+                    char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", shapes[0]);
+                    const char *shape = kb_dequote(sb);
+                    char src2[8192];
+                    if (!code_synth_from_shape(b->kb, shape, fn, '>', src2, sizeof src2))
+                        continue;
+                    size_t written = 0;
+                    int wr = code_write_file(art, src2, &written);
+                    nacted++;
+                    if (dof + 1 < sizeof detail)
+                        dof += (size_t)snprintf(detail + dof, sizeof detail - dof,
+                            "%s%s %s from shape %s",
+                            dof ? ", " : "",
+                            (wr == 1 || wr == 2) ? "wrote" : "could not write",
+                            art, shape);
+                    break;
+                }
             }
         } else if (!strcmp(action, "read_each")) {
             for (int i = 0; i < nfound; i++) {

@@ -157,11 +157,32 @@ thinking_step(repair_broken_build, 3,
                step(read_each, sources_found, structure_ingested, meta(1, local))).
 thinking_step(repair_broken_build, 4,
                step(state_obligation, structure_ingested, obligation_named, meta(1, local))).
+% gen503: i due passi che chiudono il ciclo. Produrre e' un atto, quindi ha il
+% suo passo; e VERIFICARE non e' un dettaglio del produrre — e' cio' che
+% distingue «ho scritto» da «funziona», ed e' un secondo giro del build.
+thinking_step(repair_broken_build, 5,
+               step(produce_artifact, obligation_named, artifact_written, meta(2, local))).
+% ⚠ E verificare comincia dal RIGUARDARE. Senza questi due passi il build
+% passava ma la struttura interna restava quella di prima: parrot0 continuava a
+% credere che `concat` fosse dichiarata e mai definita, un minuto dopo averla
+% scritta lui. Un ciclo che non si rilegge non si e' chiuso, si e' interrotto
+% bene.
+thinking_step(repair_broken_build, 6,
+               step(list_sources, artifact_written, sources_found, meta(1, local))).
+thinking_step(repair_broken_build, 7,
+               step(read_each, sources_found, structure_ingested, meta(1, local))).
+thinking_step(repair_broken_build, 8,
+               step(run_build, structure_ingested, build_verified, meta(1, local))).
 
 thinking_after(repair_broken_build, 1, 2).
 thinking_after(repair_broken_build, 2, 3).
 thinking_after(repair_broken_build, 3, 4).
+thinking_after(repair_broken_build, 4, 5).
+thinking_after(repair_broken_build, 5, 6).
+thinking_after(repair_broken_build, 6, 7).
+thinking_after(repair_broken_build, 7, 8).
 
+thinking_stop(repair_broken_build, build_verified).
 thinking_stop(repair_broken_build, obligation_named).
 thinking_stop(repair_broken_build, budget_exhausted).
 

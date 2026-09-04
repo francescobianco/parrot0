@@ -1,0 +1,47 @@
+# ⭐ IL CICLO SI CHIUDE: osserva -> decidi -> scrivi -> verifica, in un turno.
+#
+# Tre organi che fino a ieri esistevano da soli si incontrano qui:
+#   il build dice che cosa manca            must_produce/2      (A3)
+#   i sorgenti letti dicono che cosa e'
+#   dichiarato e mai definito               undefined_declaration/1
+#   il contratto letto dalla PROSA
+#   dell'header seleziona la forma          shape_satisfies/2   (A2 + M4)
+# e la forma viene emessa (A5) e scritta con lo strumento dichiarato.
+#
+# Nessuna di quelle decisioni sta nel C: il passo del piano le legge, emette e
+# scrive passando dal gate del workspace come ogni altro strumento.
+#
+# ⛔ Il progetto e' costruito da questo test e NON e' quello del banco di gara.
+# Il giudizio non e' nostro: alla fine il MAKE deve passare, con
+# `-std=c11 -Wall -Wextra -Werror -O2`, e il programma prodotto deve uscire 0.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!set PARROT0_LANG=en
+!reset
+!timeout 60
+
+!exec rm -rf /tmp/p0t-cycle && mkdir -p /tmp/p0t-cycle
+!exec printf 'app: main.c concat.c\n\tcc -std=c11 -Wall -Wextra -Werror -O2 -o app main.c concat.c\n' > /tmp/p0t-cycle/Makefile
+!exec printf '#include "concat.h"\n#include <stdlib.h>\n#include <string.h>\nint main(void){ char *r = concat("ab","cde"); if(!r) return 1; int ok = strcmp(r,"abcde")==0; free(r); return !ok; }\n' > /tmp/p0t-cycle/main.c
+!exec printf '/* Concatenate two strings into fresh storage.\n *\n * success -> a freshly malloc NUL-terminated string the caller frees\n * total length overflow -> NULL\n * allocation failure -> NULL\n */\nchar *concat(const char *a, const char *b);\n' > /tmp/p0t-cycle/concat.h
+!cwd /tmp/p0t-cycle
+!filemissing concat.c
+
+[test one turn observes, decides, writes and verifies]
+> the project does not build
+<~ must produce concat.c
+<~ wrote concat.c from shape concat_two
+<~ `make` ok
+
+[test the artifact is really there, and the build really passes]
+!fileexists concat.c
+!exec make -s
+!exec ./app
+
+[test the function that was missing is now defined]
+!query! undefined_declaration(concat)
+
+!cwd off
+!exec rm -rf /tmp/p0t-cycle

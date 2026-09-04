@@ -87,6 +87,24 @@ code_declared_in($Name, $Source) :-
     code_source_snapshot($Source, $Snapshot),
     code_name($Snapshot, $Node, declaration, $Name).
 
+% ── gen503 — CIO' CHE E' DICHIARATO E NON DEFINITO ─────────────────────────
+%
+% Quando un progetto non compila perche' manca un file, QUALE funzione debba
+% contenere non serve dedurlo da una convenzione sui nomi («strjoin.c sta a
+% strjoin.h»): la si vede. Dopo aver letto i sorgenti, una funzione dichiarata
+% in un header e definita da nessuna parte E' esattamente cio' che manca.
+%
+% Vale per qualunque progetto e per qualunque convenzione di nomi, ed e' la
+% ragione per cui questa vista sta qui e non in una regola sul Makefile.
+machinery(defined_somewhere).
+machinery(undefined_declaration).
+
+defined_somewhere($Name) :- code_defined_in($Name, $Source).
+
+undefined_declaration($Name) :-
+    code_declared_in($Name, $Source),
+    naf(defined_somewhere($Name)).
+
 code_call_in($Caller, $Callee, $Source) :-
     code_source_snapshot($Source, $Snapshot),
     code_name($Snapshot, $CallerNode, definition, $Caller),

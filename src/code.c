@@ -4813,14 +4813,19 @@ typedef struct {
     char open[8];     /* cio' che apre un blocco   — C: "{"  Python: ":" */
     char close[8];    /* cio' che lo chiude        — C: "}"  Python: "" */
     int  indented;    /* i blocchi si vedono per rientro invece che per token */
+    /* le operazioni incontrate: servono a sapere quali intestazioni includere,
+     * ed e' la KB a dire quale operazione ne chiede quale (`lang_include/3`).
+     * Un'operazione che domani avesse bisogno di un header nuovo e' una riga. */
+    char ops[32][32];
+    size_t nops;
 } ShapeLang;
 
-static int shape_emit(KB *kb, const ShapeLang *L, const char *shape,
+static int shape_emit(KB *kb, ShapeLang *L, const char *shape,
                       const char *parent, const char *name, char comparator,
                       int depth, char *out, size_t sz, size_t *at);
 
 /* Un nodo: il suo template con gli slot risolti, e i figli fra graffe. */
-static int shape_emit_node(KB *kb, const ShapeLang *L, const char *shape,
+static int shape_emit_node(KB *kb, ShapeLang *L, const char *shape,
                            const char *id, const char *parent, const char *name,
                            char comparator, int depth,
                            char *out, size_t sz, size_t *at) {
@@ -4830,6 +4835,13 @@ static int shape_emit_node(KB *kb, const ShapeLang *L, const char *shape,
     char opb[KB_TERM_LEN]; snprintf(opb, sizeof opb, "%s", opq[0]);
     const char *op = shape_deq(opb);
 
+    {   /* registra l'operazione una volta sola */
+        int seen = 0;
+        for (size_t i = 0; i < L->nops && !seen; i++)
+            if (strcmp(L->ops[i], op) == 0) seen = 1;
+        if (!seen && L->nops < sizeof L->ops / sizeof L->ops[0])
+            snprintf(L->ops[L->nops++], sizeof L->ops[0], "%s", op);
+    }
     char tplq[1][KB_TERM_LEN];
     const char *lq[3] = { L->lang, op, NULL };
     if (kb_match(kb, "lang_syntax", lq, 3, tplq, 1) != 1) return 0;
@@ -4877,7 +4889,7 @@ static int shape_emit_node(KB *kb, const ShapeLang *L, const char *shape,
 }
 
 /* I figli di `parent`, nell'ordine dichiarato. */
-static int shape_emit(KB *kb, const ShapeLang *L, const char *shape,
+static int shape_emit(KB *kb, ShapeLang *L, const char *shape,
                       const char *parent, const char *name, char comparator,
                       int depth, char *out, size_t sz, size_t *at) {
     if (depth > 8) return 0;                        /* un albero, non un ciclo */
@@ -4985,11 +4997,30 @@ int code_synth_from_shape_lang(KB *kb, const char *lang, const char *shape,
         return 0;
     if (at == 0) return 0;                         /* una forma senza passi */
 
+    /* le intestazioni che le operazioni incontrate richiedono, una volta sola
+     * e nell'ordine in cui sono state incontrate: senza, il file emesso non
+     * compila, e «emesso» senza «compila» non e' una capacita'. */
+    char incs[512]; size_t io = 0; incs[0] = '\0';
+    for (size_t i = 0; i < L.nops; i++) {
+        char hq[4][KB_TERM_LEN];
+        const char *iq[3] = { L.lang, L.ops[i], NULL };
+        size_t nh = kb_match(kb, "lang_include", iq, 3, hq, 4);
+        for (size_t h = 0; h < nh; h++) {
+            char hb[KB_TERM_LEN]; snprintf(hb, sizeof hb, "%s", hq[h]);
+            const char *head = shape_deq(hb);
+            char line[128];
+            snprintf(line, sizeof line, "#include <%s>\n", head);
+            if (strstr(incs, line)) continue;
+            if (io + strlen(line) + 1 >= sizeof incs) continue;
+            io += (size_t)snprintf(incs + io, sizeof incs - io, "%s", line);
+        }
+    }
+
     int n;
     if (L.indented)
-        n = snprintf(out, out_sz, "%s%s%s", sigb, L.open, body);
+        n = snprintf(out, out_sz, "%s%s%s%s", incs, sigb, L.open, body);
     else
-        n = snprintf(out, out_sz, "%s %s %s %s", sigb, L.open, body, L.close);
+        n = snprintf(out, out_sz, "%s%s %s %s %s", incs, sigb, L.open, body, L.close);
     if (n < 0 || (size_t)n >= out_sz) { out[0] = '\0'; return 0; }
     return 1;
 }
