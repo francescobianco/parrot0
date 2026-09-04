@@ -8,6 +8,11 @@
 >
 > Deve essere possibile incrociare **scacchi e informatica**, **matematica e
 > chimica**, **i pronomi personali inglesi e gli animali**. Tutto con tutto.
+>
+> ⭐ **E la domanda per cui il metodo esiste (§5-bis):** per ogni cross che
+> garantiamo funzionante, **quanti se ne autodeterminano?** Se il rapporto è
+> stabilmente sopra uno, la conoscenza **compone** e l'espansione ha un
+> interesse; se è zero, ogni arco costa quanto vale e va detto.
 
 ---
 
@@ -210,6 +215,118 @@ sceglie il numero invece dell'intuizione.
 
 ---
 
+---
+
+## 5-bis. ⭐ LA DOMANDA VERA — quanto la conoscenza si connette DA SOLA
+
+> F.: *«quello che dobbiamo studiare e dimostrare con questo meccanismo è quale
+> sia il rapporto fra i cross costruiti e testati e quelli che spontaneamente si
+> connettono come side effect della conoscenza stessa: il grado di crescita
+> spontanea. Per ogni cross che noi garantiamo funzionante, quanti nuovi cross si
+> autodeterminano.»*
+
+**Questa è la misura per cui il metodo esiste.** L'indice del §5 dice *quanto*
+siamo connessi; questo dice **se la connessione si propaga da sola** — cioè se
+la conoscenza è un investimento che compone o un lavoro lineare.
+
+### 5-bis.1 Le due popolazioni, e come si distinguono
+
+| | | |
+|---|---|---|
+| **curato** | un cross che qualcuno ha **deciso di costruire** e ha certificato | il costo |
+| **spontaneo** | una coppia `(R,S)` che diventa certificata **senza che nessuno l'abbia costruita**, dopo che un altro cross è entrato | il ricavo |
+
+La distinzione non è di intenzione ma di **procedura**, e va tenuta rigida:
+è spontaneo solo ciò che si certifica su una **domanda mai usata per costruire
+niente** (§9.5). Se la domanda l'abbiamo scritta noi pensando a quella coppia,
+quel cross è curato — anche se ci sembra emerso.
+
+### 5-bis.2 Il coefficiente
+
+Dopo ogni cross curato si **ricensisce l'intero insieme delle coppie** e si
+contano quelle diventate certificate senza intervento:
+
+```text
+        Δ cross spontanei certificati
+  κ  =  ─────────────────────────────
+             1 cross curato
+```
+
+| κ | che cosa significa |
+|---|---|
+| **κ = 0** | la conoscenza è inerte: ogni arco costa quanto vale, per sempre |
+| **0 < κ < 1** | attrito: si progredisce, ma il lavoro non si ripaga da solo |
+| **κ = 1** | pareggio: un arco costruito ne regala uno |
+| ⭐ **κ > 1** | **la conoscenza compone**: l'indice sale più in fretta di quanto si costruisce, e la crescita ha un interesse |
+
+**È una predizione falsificabile su parrot0, non una speranza**, ed è la ragione
+per cui il registro (§8) tiene lo stato di *ogni* coppia e non solo di quelle su
+cui si lavora: senza il censimento completo, κ non è calcolabile.
+
+### 5-bis.3 ⛔ La distinzione che rende la misura seria: transitivo ≠ emergente
+
+Un cross spontaneo può nascere in due modi profondamente diversi, e confonderli
+gonfierebbe κ senza dire niente.
+
+```text
+  κ_transitivo   A✕B e B✕C esistono, e A✕C si certifica passando per B.
+                 È vero, è utile, ed è ATTESO: la catena c'era già.
+
+  κ_emergente    A✕C si certifica e la derivazione NON passa per B.
+                 Due regioni si sono trovate per una via che nessuno aveva
+                 previsto. È questo il risultato interessante.
+```
+
+**Si separano meccanicamente**, senza giudizio: l'impronta della derivazione
+(`kb_footprint_pred`) dice per quali regioni è passata. Se contiene `B`, è
+transitivo; se non lo contiene, è emergente.
+
+> ⭐ **La tesi da dimostrare, in una riga:** `κ_emergente > 0`, stabilmente.
+> Un κ fatto solo di transitività dice che la KB è un grafo ben collegato — cosa
+> buona ma prevedibile. Un κ_emergente positivo dice che **aggiungere un arco
+> rende visibili strade che non esistevano**, ed è l'unica evidenza che
+> giustifichi «espansione mentale» invece di «manutenzione di un indice».
+
+### 5-bis.4 Che cosa fa salire κ, e quindi che cosa conviene costruire
+
+κ non è una proprietà della KB: è una proprietà **dei cross che scegliamo**. Da
+qui l'uso operativo, che è il vero prodotto di questa sezione:
+
+> **Fra due cross candidati si costruisce quello con il κ atteso più alto, non
+> quello più facile.**
+
+Tre ipotesi su che cosa lo alzi, da falsificare con i dati e non da assumere:
+
+| ipotesi | perché | come si falsifica |
+|---|---|---|
+| **H-κ1** | un cross fra regioni **lontane** produce più spontanei di uno fra vicine | misurare κ per distanza nell'albero delle suddivisioni |
+| **H-κ2** | un cross che passa da un **arco a predicato variabile** (`representation_bridge/4`) produce più spontanei di uno cablato su due predicati fissi, perché è riusabile da chiunque | confrontare κ delle due forme |
+| **H-κ3** | un cross su una **relazione generale** (contenimento, causa, parte-tutto) produce più spontanei di uno su una relazione di dominio | classificare i curati e confrontare |
+
+Se H-κ2 regge, ne segue una regola forte: **un cross va costruito nella forma più
+generale che lo sostiene**, perché la forma decide il ricavo, non solo il costo.
+
+### 5-bis.5 Il rapporto con la Leva 1, che diventa un caso particolare
+
+`THINKING_TODO` H11 chiedeva già che
+`cold tasks unlocked / new curated clauses` crescesse più di uno-a-uno. **κ è la
+stessa idea sull'oggetto giusto**: non i task sbloccati (che dipendono da quali
+task capitano) ma gli **archi** che si aprono, che è una proprietà della
+conoscenza e non del campione di domande. La vecchia metrica resta valida e
+diventa una sua conseguenza osservabile.
+
+### 5-bis.6 ⚠ I due modi di barare, e le guardie
+
+1. **Contare come spontaneo ciò che era latente.** Una coppia già certificabile
+   *prima* del cross curato, e che nessuno aveva censito, non è spontanea: è
+   arretrato. **Guardia:** il censimento completo va rifatto **prima** di ogni
+   cross curato, non solo dopo, e κ si calcola sulla differenza.
+2. **Gonfiare con la frammentazione.** Dividere molto crea molte coppie, e
+   qualcuna si certifica per caso. **Guardia:** κ si misura **a frammentazione
+   costante** — fra due divisioni, mai a cavallo di una.
+
+---
+
 ## 6. Gli incroci che devono essere possibili
 
 F. li ha chiesti per nome, e sono il collaudo del metodo: se questi non passano,
@@ -294,6 +411,12 @@ cross(RegioneA, RegioneB).           % dichiarato: questo confine ci interessa
 cross_status(RegioneA, RegioneB, certified | attempted | deferred | refuted).
 cross_witness(RegioneA, RegioneB, "la domanda che lo attraversa").
 cross_ablation(RegioneA, RegioneB, "che cosa cade togliendo A").
+
+% ── e cio' che serve a κ (§5-bis): senza questi il coefficiente non esiste ──
+cross_origin(RegioneA, RegioneB, curated | spontaneous).
+cross_lineage(RegioneA, RegioneB, ViaRegione).   % transitivo: per dove passa
+cross_certified_at(RegioneA, RegioneB, Censimento).  % QUANDO si e' certificato
+census(Numero, Frammentazione, Certificati).     % il censimento completo
 ```
 
 `cross_status(_, _, deferred)` è **obbligatorio e non è una scusa**: a scala i
@@ -316,7 +439,13 @@ tutta lì.
    sta in nessuna regione è un buco che l'indice non vede — e quindi mente.
 5. **Un cross si prova su una domanda che nessuno ha usato per costruirlo.**
    Altrimenti si è insegnato quel caso, non l'arco.
-6. **Il metodo si applica a se stesso.** La regione «piani» e la regione
+6. **κ si misura a frammentazione costante**, e il censimento completo si fa
+   **prima e dopo** ogni cross curato — altrimenti si conta come spontaneo
+   l'arretrato che nessuno aveva guardato (§5-bis.6).
+7. **Uno spontaneo si certifica solo su una domanda mai usata per costruire
+   niente.** Se la domanda l'abbiamo scritta pensando a quella coppia, il cross
+   è curato anche se ci sembra emerso.
+8. **Il metodo si applica a se stesso.** La regione «piani» e la regione
    «strumenti» sono il primo banco: se `split and cross` non avesse trovato
    `action_impl` mancante, non serve.
 
@@ -332,6 +461,8 @@ tutta lì.
 | **S3** | dividere la presentazione; i tre cross nuovi | indice su 6 |
 | **S4** | i tre incroci nominati da F. (scacchi✕informatica, matematica✕chimica, pronomi✕animali) come **prova di trasferibilità**, non come membri | ognuno passa C1+C2 su una domanda mai usata per costruirlo |
 | **S5** | il caso di casa: `action_impl` per le quattro azioni di `code_task` | il piano si cammina fino in fondo su match0 |
+| ⭐ **S6** | **la misura di κ**: censimento completo prima e dopo ogni cross curato, con la separazione transitivo/emergente dall'impronta | κ ha un valore, e `κ_emergente` è **> 0** almeno una volta — altrimenti la tesi del §5-bis è falsa e va detto |
+| **S7** | H-κ1/H-κ2/H-κ3 sui dati raccolti da S1-S6 | almeno una delle tre cade, oppure una regge con un margine che cambia l'ordine di costruzione |
 
 ---
 
@@ -362,3 +493,10 @@ prescrive. **È un fondo scala, non una diagnosi** — serve a dire che il margi
 - **Non sostituisce la crescita delle isole.** Dice solo che, a parità di
   sforzo, un arco vale più di un'isola — e ora c'è un numero che lo dimostra
   invece di una convinzione.
+
+⭐ **E se κ_emergente risultasse stabilmente nullo, il metodo avrebbe comunque
+fatto il suo lavoro**: avrebbe dimostrato che questa conoscenza non compone, che
+ogni arco costa quanto vale, e che l'unica strada è costruirli a uno a uno con un
+ordine scelto dall'indice. Sarebbe un risultato negativo **utile**, e va
+dichiarato in anticipo che lo accetteremmo — altrimenti la misura è una
+cerimonia.
