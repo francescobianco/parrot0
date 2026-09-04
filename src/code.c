@@ -620,6 +620,108 @@ static int code_observe_python(KB *kb, const char *src, CodeObservation *o) {
     return !o->failed;
 }
 
+/* ── gen503 — IL CONTRATTO STA NEL COMMENTO, E IL COMMENTO ERA BUTTATO VIA ──
+ *
+ * `code_strip` cancella i commenti prima che lo scanner li veda: e' giusto per
+ * riconoscere la struttura, ed e' il motivo per cui di un header si osservava
+ * la firma e non l'obbligo. Ma il contratto di `str_join` — che cosa deve
+ * restituire quando `count` e' 0, quando `sep` e' NULL, quando la lunghezza
+ * trabocca — non e' nella firma: e' nella prosa sopra di essa.
+ *
+ * Quella prosa e' una TABELLA condizione -> risultato, una riga per clausola.
+ * QUALE segno separa i due lati e' conoscenza (`contract_arrow/1`): «->», «=>»,
+ * «returns» sono righe di KB e una convenzione nuova non ricompila niente. Il
+ * C fa solo il taglio: risali al commento che precede la dichiarazione, spezza
+ * per righe, e per ogni riga che porta una freccia dichiarata prendi i due lati.
+ *
+ * Il fatto asserito e' ternario e le sue viste sono in KB: una sola
+ * osservazione, piu' letture, nessun duplicato. */
+static void code_strip_comment_edges(char *line) {
+    char *p = line;
+    while (*p == ' ' || *p == '\t' || *p == '*' || *p == '/') p++;
+    memmove(line, p, strlen(p) + 1);
+    size_t n = strlen(line);
+    while (n && (line[n-1] == ' ' || line[n-1] == '\t' ||
+                 line[n-1] == '*' || line[n-1] == '/')) line[--n] = '\0';
+}
+
+static void code_observe_contract(KB *kb, const char *src,
+                                  const CodeObservation *o) {
+    if (!kb || !src || !o) return;
+    char (*arrows)[KB_TERM_LEN] = NULL;
+    size_t narrow = 0;
+    const char *aq[1] = { NULL };
+    if (!kb_match_all(kb, "contract_arrow", aq, 1, &arrows, &narrow) || narrow == 0) {
+        free(arrows);
+        return;
+    }
+    int saved = kb_origin(kb);
+    kb_set_origin(kb, KB_REFLECTIVE);
+    for (size_t i = 0; i < o->n; i++) {
+        const CodeObservedNode *n = &o->nodes[i];
+        if (strcmp(n->kind, "function") != 0) continue;
+        /* Il commento a blocco che precede la dichiarazione. Non basta saltare
+         * gli spazi: `n->start` e' l'offset dell'IDENTIFICATORE, e fra lui e il
+         * commento c'e' il tipo di ritorno (`char *`). Si risale finche' si
+         * incontra `*​/`, e ci si ferma su `;` `{` `}` — cioe' appena si entra
+         * in un'altra clausola, perche' allora quel commento non e' suo. */
+        size_t j = n->start;
+        while (j > 1 && !(src[j-1] == '/' && src[j-2] == '*')) {
+            char c = src[j-1];
+            if (c == ';' || c == '{' || c == '}') break;
+            j--;
+        }
+        if (j < 2 || !(src[j-1] == '/' && src[j-2] == '*')) continue;
+        size_t end = j - 2;
+        size_t k = end;
+        while (k > 1 && !(src[k-1] == '*' && src[k-2] == '/')) k--;
+        if (k < 2) continue;
+        size_t begin = k;
+        /* riga per riga, dentro quel commento */
+        size_t pos = begin;
+        while (pos < end) {
+            size_t eol = pos;
+            while (eol < end && src[eol] != '\n') eol++;
+            char line[512];
+            size_t len = eol - pos;
+            if (len >= sizeof line) len = sizeof line - 1;
+            memcpy(line, src + pos, len);
+            line[len] = '\0';
+            code_strip_comment_edges(line);
+            for (size_t a = 0; a < narrow; a++) {
+                char arrow[KB_TERM_LEN];
+                snprintf(arrow, sizeof arrow, "%s", arrows[a]);
+                char *ar = arrow;
+                size_t al = strlen(ar);
+                if (al >= 2 && ar[0] == '"' && ar[al-1] == '"') { ar[al-1] = '\0'; ar++; }
+                if (!*ar) continue;
+                char *hit = strstr(line, ar);
+                if (!hit) continue;
+                char cond[KB_TERM_LEN], res[KB_TERM_LEN];
+                size_t cl = (size_t)(hit - line);
+                if (cl == 0 || cl >= sizeof cond) break;
+                memcpy(cond, line, cl); cond[cl] = '\0';
+                while (cl && (cond[cl-1] == ' ' || cond[cl-1] == '\t')) cond[--cl] = '\0';
+                const char *rp = hit + strlen(ar);
+                while (*rp == ' ' || *rp == '\t') rp++;
+                snprintf(res, sizeof res, "%s", rp);
+                size_t rl = strlen(res);
+                while (rl && (res[rl-1] == ' ' || res[rl-1] == '\t')) res[--rl] = '\0';
+                if (!cond[0] || !res[0]) break;
+                char qc[KB_TERM_LEN], qr[KB_TERM_LEN];
+                snprintf(qc, sizeof qc, "\"%s\"", cond);
+                snprintf(qr, sizeof qr, "\"%s\"", res);
+                const char *args[3] = { n->name, qc, qr };
+                kb_assert(kb, "contract_clause", args, 3);
+                break;
+            }
+            pos = eol + 1;
+        }
+    }
+    kb_set_origin(kb, saved);
+    free(arrows);
+}
+
 size_t code_ingest_source(KB *kb, const char *src, const char *source,
                           const char *language,
                           char names[][KB_TERM_LEN], size_t max,
@@ -650,6 +752,7 @@ size_t code_ingest_source(KB *kb, const char *src, const char *source,
         free(o.nodes);
         return 0;
     }
+    code_observe_contract(kb, src, &o);
     size_t shown = o.functions < max ? o.functions : max;
     size_t at = 0;
     for (size_t i = 0; names && i < o.n && at < shown; i++) {

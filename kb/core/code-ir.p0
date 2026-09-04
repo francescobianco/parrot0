@@ -39,6 +39,42 @@ code_defined_in($Name, $Source) :-
 % promessa scritta in testa a questo file — un frontend nuovo entra derivando
 % righe, non aggiungendo un consumer.
 machinery(code_declared_in).
+
+% ── gen503 — IL CONTRATTO, LETTO DALLA PROSA CHE STA SOPRA LA DICHIARAZIONE ──
+%
+% Di un header si osservava la FIRMA e non l'OBBLIGO: che cosa `str_join` debba
+% restituire quando `count` e' 0 non e' nella firma, e' nel commento — e
+% `code_strip` cancella i commenti prima che lo scanner li veda.
+%
+% Quella prosa e' una tabella condizione -> risultato. QUALE segno separa i due
+% lati e' conoscenza: una convenzione nuova e' una riga qui, non una ricompilazione.
+machinery(contract_arrow).
+machinery(contract_clause).
+machinery(contract_condition).
+machinery(contract_result).
+
+contract_arrow("->").
+contract_arrow("=>").
+
+% Una sola osservazione, piu' letture. Il fatto resta ternario; le viste sono
+% binarie perche' e' la forma che una domanda sa interrogare.
+contract_condition($Function, $Condition) :-
+    contract_clause($Function, $Condition, $Result).
+contract_result($Function, $Result) :-
+    contract_clause($Function, $Condition, $Result).
+
+answer_frame("contract of", contract_condition).
+answer_frame_input_arg("contract of", contract_condition, 1).
+answer_frame("contract results of", contract_result).
+answer_frame_input_arg("contract results of", contract_result, 1).
+
+% ⚠ MISURATO, e va detto: la vista tenuta dalla CONDIZIONE — «che cosa
+% restituisce quando sep e' NULL» — non e' raggiungibile oggi. La condizione e'
+% un testo con spazi e simboli («sep == NULL»), e la domanda non lo lega come
+% entita': il turno finisce a `symbolic`, che ci vede del codice. La forma
+% ternaria e' osservata e sta li'; manca la strada che ci arriva, ed e' una
+% lacuna di raggiungibilita', non di conoscenza. Non si dichiara una superficie
+% che non risponde: sarebbe un arco disegnato.
 code_declared_in($Name, $Source) :-
     code_source_snapshot($Source, $Snapshot),
     code_name($Snapshot, $Node, declaration, $Name).

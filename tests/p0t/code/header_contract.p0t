@@ -1,0 +1,36 @@
+# Il contratto sta nella PROSA sopra la dichiarazione, e ora si legge.
+#
+# Di un header parrot0 osservava la FIRMA e non l'OBBLIGO: che cosa str_join
+# debba restituire quando `count` e' 0 non e' nella firma, e' nel commento — e
+# `code_strip` cancella i commenti prima che lo scanner li veda.
+#
+# ⭐ Questo e' il PONTE fra due rappresentazioni: chi legge e' la comprensione di
+# prosa (una tabella condizione -> risultato), dove atterra e' la Code IR. QUALE
+# segno separa i due lati e' conoscenza (`contract_arrow/1`), non una legge del C.
+#
+# L'header e' un file vero del repository e non viene modificato dal test; le
+# clausole non sono iniettate: nascono dalla lettura.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!set PARROT0_LANG=en
+!reset
+
+[test without reading the header there is no contract]
+!timeout 25
+> contract of str_join
+<! count == 0
+
+[test reading the header derives the contract from its prose]
+> read tests/challenge/tasks/match0/seed/strjoin.h
+<~ it declares str_join
+
+[test the conditions are reachable by question]
+> contract of str_join
+<~ count == 0
+<~ total length overflow
+
+[test the results are reachable too]
+> contract results of str_join
+<~ NULL

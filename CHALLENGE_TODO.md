@@ -852,6 +852,55 @@ documento su una forma condizione→risultato che oggi la pipeline non riconosce
 costruito e mai collegato, che in questo repository è già successo quattro
 volte.
 
+## 6.5-bis ⭐ LA CONOSCENZA OPERATIVA È UNA CONQUISTA — e dove passa il confine
+
+> F., 2026-09-04: *«l'aggiunta di conoscenza operativa nella KB al fine di
+> migliorare parrot0 nel superare le prove è consentito, anzi è una conquista.
+> Ogni pezzo di nuova conoscenza che sblocca un muro, un'abilità di comprensione,
+> un fatto noto, un elemento di design, conoscenza tecnica o abilità di calcolo
+> tale che sblocca un test o una sfida e rende parrot0 migliore di freebuff,
+> allora è pienamente consentito.»*
+>
+> E il confine, dallo stesso messaggio: *«chiaramente la conoscenza deve essere
+> di tipo particolare, non esplicita della sfida: cioè memorizzare una sfida per
+> vincere è barare e non va fatto.»*
+
+**Questo cambia che cosa conta come vittoria, e va letto prima di §6.2.** Il
+piano era scritto sotto un'assunzione più severa del necessario — che parrot0
+dovesse *derivare da solo* ogni cosa, e che mettere conoscenza in KB fosse una
+scorciatoia. Non lo è: **mettere la conoscenza in KB È il progetto.** Il mantra
+#1 dice «non scrivere codice se la conoscenza può farlo»; qui si applica al
+banco, non solo al motore.
+
+Concretamente, questo **sposta A5**. La sintesi non deve nascere dal nulla: la
+forma di un algoritmo — come si concatena una sequenza con un separatore, quanto
+spazio serve, quali sono i casi degeneri — è **conoscenza tecnica generale**, e
+`algo_shape` (gen209) è il posto dove vive. Insegnarla è una conquista.
+
+### Il confine, in una riga operativa
+
+> ⭐ **La domanda di controllo: questa conoscenza serve anche a un compito che
+> non è nel banco?**
+
+| ✅ conquista | ⛔ barare |
+|---|---|
+| come si unisce una sequenza con un separatore | il corpo di `str_join` |
+| che una lunghezza totale può traboccare, e che si controlla **prima** di allocare | `overflow -> NULL` scritto per quel judge |
+| che un contratto in un header sta nella prosa e si legge | le cinque clausole di `strjoin.h` come fatti |
+| che `malloc(0)` deve comunque restituire un puntatore liberabile | il testo di `match0/task.md` |
+| che `-Werror` trasforma un warning in un fallimento | il comando esatto che il judge esegue |
+
+La colonna sinistra vale su qualunque codebase e la si può insegnare a un
+esperto che il banco non l'ha mai visto. La colonna destra vale su un compito
+solo, e il giorno che il compito cambia non vale più niente — che è esattamente
+il test del mantra #2 applicato alla gara: *parrot0 potrà usarla domani, su un
+compito che nessuno ha ancora scritto?*
+
+⚠ **E un corollario sui cricchetti:** un `.p0t` che asserisce le clausole di
+`strjoin.h` invece di leggerle dall'header sarebbe la colonna destra travestita
+da verde. Per questo `header_contract.p0t` **non inietta niente** e ha
+l'ablazione in testa: prima di leggere il file, la domanda non deve sapere.
+
 ## 6.6 Come si riconosce di aver barato
 
 - Un punteggio che sale perché il match è cambiato.
@@ -860,3 +909,7 @@ volte.
   che col testo del compito.
 - `faculty_yield` scritta al posto di una review, perché costa meno.
 - Un file prodotto che non compila, contato come «ha scritto qualcosa».
+- **Conoscenza che nomina la sfida** invece del dominio: il corpo di una
+  funzione del banco, il testo di un `task.md`, il comando di un judge. Il
+  confine è in §6.5-bis, e la domanda che lo decide è *«serve anche a un compito
+  che non è nel banco?»*.
