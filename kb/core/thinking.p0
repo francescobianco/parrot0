@@ -127,6 +127,56 @@ plan_step($Scheme, $Id, $Operator) :-
 machinery(scheme_cue_class).
 scheme_cue_class(analyze_sources, plan_analyze_sources).
 
+% ══ IL SECONDO SCHEMA — UN PROGETTO CHE NON COMPILA ═════════════════════════
+%
+% gen503. Sul banco di gara il turno vero — «il progetto in code/ non compila:
+% il Makefile si aspetta un file che non c'e', scrivilo» — finiva a `codeast`,
+% che rispondeva onestamente «leggo del codice ma non so quale funzione
+% intendi». Onesto e inutile: parrot0 sapeva gia' eseguire il build, sapeva
+% leggerne il verdetto, e sapeva leggere un contratto da un header. Non c'era
+% niente che tenesse insieme quei pezzi quando la richiesta arrivava tutta in
+% una volta.
+%
+% Questo schema non aggiunge nessuna capacita': ORDINA quelle che ci sono.
+% Ed e' generale — un progetto che non compila e' un progetto che non compila,
+% qui non c'e' niente del banco: nessun nome di file, nessun compito, nessun
+% giudice. La domanda di controllo di CHALLENGE_TODO §6.5-bis («serve anche a un
+% compito che non e' nel banco?») ha una sola risposta.
+thinking_scheme(repair_broken_build,
+                "run the build, name what it says is missing, and say what must be produced").
+
+thinking_step(repair_broken_build, 1,
+               step(run_build, none, build_verdict, meta(1, local))).
+% I due passi centrali sono quelli che lo schema `analyze_sources` usa gia': non
+% sono operatori nuovi, e' lo stesso lavoro messo in un ordine diverso. Fra le
+% estensioni dichiarate c'e' gia' "*.h", quindi leggere i sorgenti significa
+% anche leggere i contratti.
+thinking_step(repair_broken_build, 2,
+               step(list_sources, build_verdict, sources_found, meta(1, local))).
+thinking_step(repair_broken_build, 3,
+               step(read_each, sources_found, structure_ingested, meta(1, local))).
+thinking_step(repair_broken_build, 4,
+               step(state_obligation, structure_ingested, obligation_named, meta(1, local))).
+
+thinking_after(repair_broken_build, 1, 2).
+thinking_after(repair_broken_build, 2, 3).
+thinking_after(repair_broken_build, 3, 4).
+
+thinking_stop(repair_broken_build, obligation_named).
+thinking_stop(repair_broken_build, budget_exhausted).
+
+scheme_cue_class(repair_broken_build, plan_repair_build).
+
+% QUALE comando costruisce un progetto e' conoscenza. `ninja`, `cargo`, `zig
+% build` sono una riga ciascuno, e nessuno di essi e' una ricompilazione.
+machinery(build_command).
+build_command(make).
+
+% Come si riferisce di questo piano: il rapporto dei sorgenti descriveva un
+% altro lavoro, e due numeri a zero non sono una risposta.
+machinery(plan_report_template).
+plan_report_template(repair_broken_build, plan_build_obligation).
+
 % ══ H5 — LA PRIMITIVA E' UNA SOLA: IL RIENTRO ═══════════════════════════════
 %
 % F., 2026-09-04: «non c'e' nessun LLM, e' un refuso. Il processo intendo:

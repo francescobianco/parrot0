@@ -62,6 +62,25 @@ void p0_root_init(void) {
 
 const char *p0_root(void) { p0_root_init(); return g_root; }
 
+/* gen503 — RILEGARE LA RADICE ALLA DIRECTORY CORRENTE.
+ *
+ * La radice e' la cwd all'avvio, e per un agente che gira una volta e' giusto.
+ * Il test-engine pero' e' un DEMONE: `!cwd` sposta il processo, ma la radice
+ * restava quella del boot, e gli strumenti continuavano a lavorare dove non
+ * eravamo piu'. Il sintomo era il piu' ingannevole possibile — `run make`
+ * rispondeva «no makefile found» stando in una directory che il Makefile ce
+ * l'aveva — perche' il figlio veniva avviato sotto un descrittore vecchio, a
+ * volte di una directory ormai cancellata.
+ *
+ * Rilegare non allarga il contenimento: la radice resta UNA, e resta la
+ * directory in cui parrot0 si trova. */
+void p0_root_rebind(void) {
+    if (g_root_fd >= 0) close(g_root_fd);
+    g_root_fd = -1;
+    g_root[0] = '\0';
+    p0_root_init();
+}
+
 /* Walk `path` component by component from the root dirfd.
  *
  * Why component-wise and not realpath()+strncmp: realpath resolves symlinks and

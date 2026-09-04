@@ -704,6 +704,7 @@ response_template(i_read_x_into_structure_it_defines, "I read {file} into struct
 % gen503: un header non definisce, DICHIARA. Il ruolo e' gia' dato nella IR
 % (code_name/4); qui la risposta smette di chiamare «definizione» un prototipo.
 response_template(i_read_x_into_structure_it_declares, "I read {file} into structure: it declares ").
+response_template(plan_build_obligation, "I ran the build and read what it says: {detail}.").
 response_template(x_functionx_now_in_the_kb, ". ({k} function{s} now in the KB.)").
 
 %% Ottava tranche: le frasi che venivano APPESE a un buffer, o il cui snprintf

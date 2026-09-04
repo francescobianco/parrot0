@@ -72,6 +72,10 @@
  *                             it shows it points out. Testing that needs to
  *                             CREATE one, which had no .p0t form.
  *   !sandbox / !sandbox off   run inside a private 0700 temp dir (and clean it up).
+ *   !cwd DIR / !cwd off       work in DIR (relative to the starting cwd), then
+ *                             come back. Per i casi che SONO una proprieta'
+ *                             della directory: un progetto che non compila,
+ *                             un albero da ispezionare.
  *                             Some tests need a WRITABLE cwd — the code judge
  *                             compiles and runs a candidate, writing a work tree
  *                             where it stands. In shell that was `mktemp -d` +
@@ -131,6 +135,7 @@
 
 #include "testeng.h"
 #include "env.h"
+#include "exec.h"
 #include "kb.h"
 #include "mcp.h"
 
@@ -171,6 +176,14 @@ typedef struct {
     char sandbox_dir[512];
     char sandbox_prev[512];
     int  in_sandbox;
+    /* !cwd: la directory in cui il test vuole che parrot0 lavori, e quella da
+     * cui veniva. Serve per i casi che SONO una proprieta' della cwd — un
+     * progetto che non compila, un albero da ispezionare — che altrimenti non
+     * si possono scrivere in un .p0t, perche' il demone e' uno solo e sta nel
+     * repository. Come la sandbox: si ripristina sempre a fine file. */
+    char cwd_prev[512];
+    char cwd_dir[512];
+    int  in_cwd;
     /* !symlink: le fixture di filesystem create da un test. Si tolgono da sole,
      * come la sandbox: un link lasciato nel workspace e' sporcizia che il test
      * dopo si ritrova fra i piedi. */
@@ -231,7 +244,19 @@ static void te_apply_config(TeState *t) {
      * serve a dove gli STRUMENTI scrivono, non a dove la conoscenza vive. */
     int hopped = 0;
     if (t->in_sandbox && t->sandbox_prev[0] && chdir(t->sandbox_prev) == 0) hopped = 1;
+    /* gen503: `!cwd` ha lo stesso bisogno della sandbox, e per la stessa
+     * ragione — la KB si carica da percorsi relativi alla radice. Senza questo
+     * ritorno il reload lasciava il demone a casa, e il turno dopo un `!cwd`
+     * lavorava nella directory sbagliata: il sintomo era un `run make` che
+     * riusciva perche' stava compilando il repository invece del progetto
+     * rotto del test. */
+    int hopped_cwd = 0;
+    if (t->in_cwd && t->cwd_prev[0] && chdir(t->cwd_prev) == 0) hopped_cwd = 1;
     brain_reload(t->b);
+    if (hopped_cwd && t->cwd_dir[0]) {
+        if (chdir(t->cwd_dir) != 0) { /* nulla */ }
+        p0_root_rebind();
+    }
     if (hopped && t->sandbox_dir[0]) { if (chdir(t->sandbox_dir) != 0) { /* nulla */ } }
     t->have_reply = 0;
     t->output_source = TE_OUTPUT_NONE;
@@ -1009,6 +1034,83 @@ static int te_process_stream(TeState *t, FILE *in) {
             }
             continue;
         }
+        /* ── !cwd PERCORSO | !cwd off ──────────────────────────────────────
+         *
+         * F., 2026-09-04: «implementa un'utility per i test !pwd che sposta il
+         * percorso su una cartella di riferimento, cosi' da usarla per i test»
+         * — e subito dopo: «forse e' meglio chiamarlo !cwd». E' il nome giusto:
+         * `pwd` STAMPA la directory, `cwd` la nomina.
+         *
+         * Nasce da un caso che non si poteva scrivere: «il progetto non
+         * compila» e' una proprieta' della DIRECTORY, e il demone del
+         * test-engine vive nella radice del repository — dove `make` riesce.
+         * Senza questo, quel caso finiva in uno script fuori dalla suite.
+         *
+         * ⚠ E previene un danno reale, non ipotetico: un `.p0t` che scriveva e
+         * poi cancellava «Makefile» credendo di essere altrove ha cancellato il
+         * Makefile DI QUESTO REPOSITORY. Il ripristino qui sotto e' a fine file
+         * e non opzionale.
+         *
+         * Un percorso relativo si risolve dalla directory di partenza, non da
+         * quella corrente: cosi' due `!cwd` di fila non si compongono a
+         * sorpresa e un file .p0t resta leggibile da solo. */
+        if (strncmp(p, "!cwd", 4) == 0 &&
+            (p[4] == '\0' || p[4] == ' ' || p[4] == '\t')) {
+            te_flush(t);
+            /* La casa si ricorda UNA VOLTA per processo, non nello stato del
+             * file: il demone e il client processano le direttive con due
+             * TeState diversi, e legare il ritorno allo stato del file faceva
+             * tornare a casa solo uno dei due — misurato, e il sintomo era un
+             * `run ls` che continuava a elencare la directory di prova dopo
+             * `!cwd off`. Una directory di lavoro e' una proprieta' del
+             * PROCESSO, e va ricordata li'. */
+            static char te_home[512];
+            if (!te_home[0] && !getcwd(te_home, sizeof te_home)) te_home[0] = '\0';
+            const char *arg = p + 4;
+            while (*arg == ' ' || *arg == '\t') arg++;
+            if (!*arg || strncmp(arg, "off", 3) == 0) {
+                if (!t->cwd_prev[0] && te_home[0])
+                    snprintf(t->cwd_prev, sizeof t->cwd_prev, "%s", te_home);
+                if (t->cwd_prev[0] && chdir(t->cwd_prev) == 0) {
+                    t->in_cwd = 0;
+                    t->cwd_prev[0] = '\0';
+                    t->cwd_dir[0] = '\0';
+                    p0_root_rebind();
+                    t->passed++;
+                } else {
+                    t->failed++;
+                    fprintf(t->out, "  FAIL  [%s] line %d\n",
+                            t->section[0] ? t->section : "-", t->line_no);
+                    fprintf(t->out, "        cwd: non sono riuscito a tornare in «%s»\n",
+                            t->cwd_prev);
+                }
+                continue;
+            }
+            char base[512];
+            if (te_home[0]) snprintf(base, sizeof base, "%s", te_home);
+            else if (!getcwd(base, sizeof base)) base[0] = '\0';
+            char target[1100];
+            if (arg[0] == '/') snprintf(target, sizeof target, "%s", arg);
+            else snprintf(target, sizeof target, "%s/%s", base, arg);
+            if (chdir(target) != 0) {
+                t->failed++;
+                fprintf(t->out, "  FAIL  [%s] line %d\n",
+                        t->section[0] ? t->section : "-", t->line_no);
+                fprintf(t->out, "        cwd: non sono riuscito a entrare in «%s»\n",
+                        target);
+                continue;
+            }
+            if (!t->in_cwd) {
+                snprintf(t->cwd_prev, sizeof t->cwd_prev, "%s", base);
+                t->in_cwd = 1;
+            }
+            snprintf(t->cwd_dir, sizeof t->cwd_dir, "%s", target);
+            /* la radice del workspace segue: senza, gli strumenti restano
+             * ancorati alla directory del boot del demone */
+            p0_root_rebind();
+            t->passed++;
+            continue;
+        }
         if (strncmp(p, "!sandbox", 8) == 0 &&
             (p[8] == '\0' || p[8] == ' ' || p[8] == '\t')) {
             te_flush(t);
@@ -1109,6 +1211,13 @@ static int te_process_stream(TeState *t, FILE *in) {
         syntax_err = 1;
     }
     te_flush(t);
+    /* mai lasciare il demone fuori casa: prima si torna dalla !cwd, poi si
+     * chiude la sandbox (che ha registrato la SUA precedente). */
+    if (t->in_cwd && t->cwd_prev[0]) {
+        if (chdir(t->cwd_prev) != 0) { /* niente da fare */ }
+        t->in_cwd = 0;
+        t->cwd_prev[0] = '\0';
+    }
     te_sandbox_leave(t);   /* mai lasciare il demone dentro una temporanea */
     te_fixtures_clear(t);
     return syntax_err ? 2 : 0;

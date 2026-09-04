@@ -424,3 +424,50 @@ API dedicati.
    `!mcp` restituisce il payload grezzo. I backslash vanno tolti.
 6. **Lo script cancella, non archivia.** Uno script che resta accanto alla sua
    conversione è un doppione che fa crescere male la suite.
+
+---
+
+## §I. `!cwd` — lavorare in un'altra directory, e il danno che ha evitato
+
+**Aggiunto gen503**, su richiesta di F.: *«implementa un'utility per i test !pwd
+che sposta il percorso su una cartella di riferimento»* → *«forse è meglio
+chiamarlo !cwd»*.
+
+```text
+!cwd DIR       lavora in DIR (relativa alla directory di partenza)
+!cwd off       torna a casa   (e si torna comunque a fine file)
+```
+
+### Perché serviva
+
+Alcuni casi **sono** una proprietà della directory — «il progetto non compila»,
+«questo albero contiene X» — e il demone del test-engine vive nella radice del
+repository, dove `make` riesce. Senza `!cwd` quei casi finivano fuori dalla
+suite, in script a parte. `tests/p0t/code/repair_broken_build.p0t` è il primo che
+rientra.
+
+### ⛔ E il danno reale che ha evitato
+
+`!exec` gira nel processo del demone, cioè **nella radice del repository**. Un
+`.p0t` che scriveva e poi cancellava `Makefile` credendo di essere in una
+sandbox **ha cancellato il Makefile di questo repository** (ripristinato da git).
+Chi scrive un test che tocca il filesystem usa `!cwd`, o percorsi assoluti in una
+temporanea propria — mai nomi nudi.
+
+### Due difetti trovati mentre lo si costruiva
+
+1. **`te_apply_config` riportava il demone a casa e non tornava.** Ricarica la KB
+   da percorsi relativi alla radice, quindi esce dalla directory di lavoro: lo
+   faceva già per la sandbox e non per `!cwd`. Il turno dopo un `!set` lavorava
+   nel posto sbagliato.
+2. ⭐ **La radice del workspace era quella del boot, per sempre.** `p0_root_init`
+   la fissa alla cwd d'avvio — giusto per un agente che gira una volta, sbagliato
+   per un demone che si sposta. Gli strumenti continuavano a lavorare sotto un
+   descrittore vecchio, **a volte di una directory ormai cancellata**, e il
+   sintomo era il più ingannevole possibile: `run make` che risponde «no makefile
+   found» stando in una directory che il Makefile ce l'ha. Ora `p0_root_rebind()`
+   la rilega, e `!cwd` la chiama.
+
+⚠ Il secondo difetto **non riguarda solo i test**: chiunque sposti il processo
+dopo l'avvio lo incontrava, e spiega anche perché `!sandbox` sembrava non fare
+niente sugli strumenti.

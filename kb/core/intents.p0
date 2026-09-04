@@ -368,6 +368,17 @@ intent_cue(piact_find, "dov'e' il file").
 % gen503: un glob e' gia' la richiesta di un elenco. Prima questa decisione
 % era `strstr(low, "*.")` dentro il C, accanto ai nomi degli strumenti: una
 % conoscenza di superficie in un posto dove nessuna lezione poteva toccarla.
+% gen503: le superfici che aprono lo schema `repair_broken_build`. Sono
+% descrizioni generali di uno stato del progetto, non frasi di un compito: una
+% forma nuova ("il build e' rotto", "compilation fails") resta una riga.
+intent_cue(plan_repair_build, "does not build").
+intent_cue(plan_repair_build, "doesn't build").
+intent_cue(plan_repair_build, "fails to build").
+intent_cue(plan_repair_build, "build is broken").
+intent_cue(plan_repair_build, "non compila").
+intent_cue(plan_repair_build, "non si compila").
+intent_cue(plan_repair_build, "il build e' rotto").
+
 intent_cue(piact_list, "*.").
 intent_cue(piact_list, "what files").
 intent_cue(piact_list, "which files").

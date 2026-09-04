@@ -92,6 +92,9 @@ int p0_obs_ok(const P0Obs *o);
 
 /* Capture the workspace root (the cwd at startup). Idempotent; called lazily. */
 void        p0_root_init(void);
+/* Rilega la radice del workspace alla directory corrente: serve a chi SPOSTA
+ * il processo dopo l'avvio (il demone del test-engine con `!cwd`). */
+void        p0_root_rebind(void);
 const char *p0_root(void);
 
 /* Validate `path` as a location INSIDE the workspace root and open it.

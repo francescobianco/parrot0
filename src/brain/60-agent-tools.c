@@ -768,7 +768,11 @@ static int plan_list_sources(Brain *b, const char *dir,
 static int mod_toolplan(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     if (!b || !b->kb || !raw) return 0;
-    char low[1024];
+    /* gen503: era 1024, e il testo di un compito vero ne fa 1485. Un piano che
+     * si spegne SOPRA una certa lunghezza si spegne esattamente sui turni per
+     * cui esiste — e in silenzio. Misurato sul banco: il prompt di match0 non
+     * arrivava mai qui. */
+    char low[8192];
     size_t rl = strlen(raw);
     if (rl == 0 || rl >= sizeof low) return 0;
     for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
@@ -794,7 +798,7 @@ static int mod_toolplan(Brain *b, const char *norm, const char *raw,
     if (!brain_policy_on(b, "tools")) return 0;   /* lo dira' mod_toolpolicy */
 
     char found[64][KB_TERM_LEN]; int nfound = 0;
-    size_t nread = 0, nfun = 0;
+    size_t nread = 0, nfun = 0, nacted = 0;
     char detail[2400]; size_t dof = 0; detail[0] = '\0';
 
     char steps[8][KB_TERM_LEN];
@@ -809,6 +813,73 @@ static int mod_toolplan(Brain *b, const char *norm, const char *raw,
 
         if (!strcmp(action, "list_sources")) {
             nfound = plan_list_sources(b, ".", found, 64);
+        } else if (!strcmp(action, "run_build")) {
+            /* gen503 — ESEGUI IL BUILD E TIENI CIO' CHE DICE.
+             *
+             * QUALE comando costruisce un progetto e' conoscenza
+             * (`build_command/1`), non una costante: un progetto con `ninja` o
+             * `cargo` e' una riga di KB. Il verdetto passa da
+             * `tool_result_read`, quindi cio' che il build NOMINA diventa un
+             * fatto — ed e' l'unico motivo per cui il passo successivo ha
+             * qualcosa da dire. */
+            char cmds[8][KB_TERM_LEN];
+            const char *bq[1] = { NULL };
+            size_t nb = kb_match(b->kb, "build_command", bq, 1, cmds, 8);
+            for (size_t ci = 0; ci < nb; ci++) {
+                char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cmds[ci]);
+                char *cargv[2]; cargv[0] = kb_dequote(cb); cargv[1] = NULL;
+                char why[128];
+                if (!tool_authorized(b, cargv, 1, why, sizeof why)) continue;
+                P0Obs obs;
+                p0_exec(cargv, ".", 20000, NULL, &obs);
+                char oflat[4000], eflat[2000];
+                collapse_ws(obs.out, oflat, sizeof oflat);
+                collapse_ws(obs.err, eflat, sizeof eflat);
+                tool_result_read(b, oflat);
+                tool_result_read(b, eflat);
+                nacted++;
+                if (dof + 1 < sizeof detail)
+                    dof += (size_t)snprintf(detail + dof, sizeof detail - dof,
+                                            "%s`%s` %s", dof ? ", " : "",
+                                            cargv[0],
+                                            obs.verdict == P0_OK ? "ok" : "failed");
+                break;
+            }
+        } else if (!strcmp(action, "state_obligation")) {
+            /* Che cosa il turno deve PRODURRE: non lo decide questo passo, lo
+             * legge. `must_produce/2` e' derivato da cio' che il build ha
+             * nominato, quindi senza il passo precedente qui non c'e' niente —
+             * ed e' giusto che non ci sia. */
+            char arts[16][KB_TERM_LEN];
+            const char *mq[2] = { NULL, "build" };
+            size_t na = kb_match(b->kb, "must_produce", mq, 2, arts, 16);
+            for (size_t ai = 0; ai < na; ai++) {
+                char ab2[KB_TERM_LEN]; snprintf(ab2, sizeof ab2, "%s", arts[ai]);
+                const char *art = kb_dequote(ab2);
+                nacted++;
+                if (dof + 1 < sizeof detail)
+                    dof += (size_t)snprintf(detail + dof, sizeof detail - dof,
+                                            "%smust produce %s", dof ? ", " : "",
+                                            art);
+                /* e il contratto, se l'abbiamo gia' letto da qualche header */
+                /* `kb_match` con il primo argomento libero restituisce i
+                 * valori di QUEL argomento — cioe' le funzioni, non le
+                 * clausole. Contare quelle sarebbe stato dire «1 clausola»
+                 * dove ce ne sono cinque: si conta per funzione e si somma. */
+                char fns[16][KB_TERM_LEN];
+                const char *fq2[2] = { NULL, NULL };
+                size_t nfn = kb_match(b->kb, "contract_condition", fq2, 2, fns, 16);
+                size_t nc2 = 0;
+                for (size_t fi = 0; fi < nfn; fi++) {
+                    char conds[32][KB_TERM_LEN];
+                    const char *cq2[2] = { fns[fi], NULL };
+                    nc2 += kb_match(b->kb, "contract_condition", cq2, 2, conds, 32);
+                }
+                if (nc2 && dof + 1 < sizeof detail)
+                    dof += (size_t)snprintf(detail + dof, sizeof detail - dof,
+                                            " (%zu contract clause%s known)",
+                                            nc2, nc2 == 1 ? "" : "s");
+            }
         } else if (!strcmp(action, "read_each")) {
             for (int i = 0; i < nfound; i++) {
                 char code[65536]; int trunc = 0;
@@ -830,17 +901,30 @@ static int mod_toolplan(Brain *b, const char *norm, const char *raw,
             }
         }
     }
-    if (nread == 0) return 0;
+    if (nread == 0 && nacted == 0) return 0;
 
     char nr[24], nf[24];
     snprintf(nr, sizeof nr, "%zu", nread);
     snprintf(nf, sizeof nf, "%zu", nfun);
+    /* gen503: COME si riferisce di un piano lo dice il piano. Prima il rapporto
+     * era uno solo — «ho letto N sorgenti, M funzioni» — e un piano che non
+     * legge sorgenti lo diceva lo stesso, con due numeri a zero: una risposta
+     * che descrive un altro lavoro. Il termine e' un fatto per schema, e il
+     * vecchio resta il default per chi non ne dichiara uno. */
+    char term[KB_TERM_LEN] = "plan_sources_read";
+    {
+        const char *tq[2] = { plan, NULL };
+        char tv[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "plan_report_template", tq, 2, tv, 1) == 1) {
+            char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", tv[0]);
+            snprintf(term, sizeof term, "%s", kb_dequote(tb));
+        }
+    }
     char msg[3000];
     { const KbResponseSlot rs[] = { { "count", nr }, { "functions", nf },
                                     { "detail", detail } };
-      if (!kb_response_slots(b, "plan_sources_read", rs, 3, msg, sizeof msg))
-          snprintf(msg, sizeof msg, "%s sources read, %s functions: %s.",
-                   nr, nf, detail); }
+      if (!kb_response_slots(b, term, rs, 3, msg, sizeof msg))
+          snprintf(msg, sizeof msg, "%s.", detail); }
     put(msg, out, out_size);
     return 1;
 }
