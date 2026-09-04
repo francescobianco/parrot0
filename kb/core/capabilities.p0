@@ -37,3 +37,126 @@ capability(coding_agent_api, seed).
 capability_wall(coding_agent_api, "history, tool calls, streaming").
 capability(autonomous_safety, absent).
 capability_wall(autonomous_safety, "process/fs/net/resource isolation").
+
+% ══ gen494 — GLI STRUMENTI LOCALI SONO UN INVENTARIO, NON RAMI DEL C ═════════
+%
+% F., 2026-09-04: «abbiamo comandi di list file cablati, questa cosa non mi
+% piace: devono essere dei tool, cosi' se sono spenti da configurazione parrot0
+% dice che non puo' agire perche' non ha il tool attivo».
+%
+% Il difetto era doppio. Con gli strumenti spenti «quali file ci sono» dava
+% «Non capisco ancora» — cioe' parrot0 dichiarava di non aver CAPITO una cosa che
+% aveva capito benissimo e che semplicemente non gli era permessa. E il modulo
+% che avrebbe dovuto dirlo teneva l'elenco degli strumenti in una catena di
+% `else if` con i nomi scritti nel C: uno strumento nuovo non poteva essere
+% dichiarato, poteva solo essere compilato.
+%
+% Qui l'inventario e' conoscenza. `local_tool(Nome, Intento, Glossa)` dice quali
+% strumenti esistono, quale intento ciascuno serve e come si chiama in chiaro.
+% Chi deve declinare lo legge da qui, quindi puo' NOMINARE lo strumento che
+% manca invece di dire un generico «non posso». Uno strumento nuovo e' una riga.
+machinery(local_tool).
+
+local_tool(search, piact_grep, "search text inside files").
+local_tool(find,   piact_find, "find a file by name").
+local_tool(list,   piact_list, "list the files in a directory").
+local_tool(read,   piact_read, "read a file and take in its structure").
+local_tool(run,    piact_run,  "run a command").
+
+% Quanto in fondo guarda un elenco: conoscenza, non una costante nel C. Senza
+% questo fatto si guarda ovunque, perche' «quali file ci sono» significa quello.
+% Un progetto enorme la abbassa dicendolo.
+machinery(listing_max_depth).
+
+% ── gen494 — IL COMANDO DI UNO STRUMENTO E' CONOSCENZA, NON UN argv NEL C ───
+%
+% F.: «tutti questi comandi cablati nel C devono essere tolti: parrot0 deve
+% capire che se la richiesta e' la lista dei file si costruisce il comando e lo
+% esegue come tool».
+%
+% Prima il C portava `{"find", dir, "-maxdepth", "1", "-type", "f"}` dentro
+% l'array: cambiare COME si elencano i file voleva dire ricompilare, e nessuna
+% lezione poteva toccarlo. Qui il comando e' un template con segnaposto; il C
+% resta un espansore che non sa che cosa siano `find` o `grep`.
+%
+% I segnaposto sono quattro e li riempie chi ha gia' letto il turno:
+%   {dir}      la cartella (gia' validata dal gate del workspace)
+%   {glob}     il filtro, quando la richiesta ne porta uno
+%   {name}     il nome cercato
+%   {pattern}  il testo cercato
+%
+% ⚠ Il gate di sicurezza NON si sposta qui: `{dir}` arriva gia' passato per
+% `piact_dir`, e l'esecuzione resta autorizzata dall'esecutore. Questo fatto
+% dice QUALE comando, mai SE si puo' eseguire.
+machinery(tool_argv).
+
+tool_argv(list,   "find {dir} -type f").
+tool_argv(list,   "find {dir} -name {glob} -type f").
+tool_argv(find,   "find {dir} -name {name}").
+tool_argv(search, "grep -rn -- {pattern} {dir}").
+
+% Quale template serve quale forma della richiesta: quello con piu' segnaposto
+% soddisfatti vince, cosi' «listami i file .c» prende la variante col filtro
+% senza che nessuno scriva un `if`.
+
+% ── gen494 — LE PAROLE CHE INTRODUCONO UNO SLOT DI UNO STRUMENTO ───────────
+%
+% Erano tre liste di parole dentro il C — `ci_eq(w[i],"in")||ci_eq(w[i],"under")
+% ||…` per la cartella, `"named"||"called"` per il nome, `"for"||"is"||"of"|…`
+% per il pattern. Tre volte il mantra #2, nel modulo che F. ha chiamato «il
+% vocabolario dei tool dell'agente stesso» (O1 di coding-agent-todo.md).
+%
+% Il C ora chiede alla classe: «quale parola introduce lo slot X?». Ne segue che
+% l'italiano entra senza toccare il motore — ed e' la prova che serve, perche'
+% queste porte erano tutte inglesi.
+machinery(tool_slot_cue).
+
+tool_slot_cue(dir, "in").
+tool_slot_cue(dir, "inside").
+tool_slot_cue(dir, "under").
+tool_slot_cue(dir, "within").
+tool_slot_cue(dir, "from").
+tool_slot_cue(dir, "directory").
+tool_slot_cue(dir, "folder").
+tool_slot_cue(dir, "dir").
+tool_slot_cue(dir, "dentro").
+tool_slot_cue(dir, "nella").
+tool_slot_cue(dir, "nel").
+tool_slot_cue(dir, "cartella").
+
+tool_slot_cue(name, "named").
+tool_slot_cue(name, "called").
+tool_slot_cue(name, "chiamato").
+tool_slot_cue(name, "chiamata").
+tool_slot_cue(name, "di nome").
+
+tool_slot_cue(pattern, "for").
+tool_slot_cue(pattern, "is").
+tool_slot_cue(pattern, "to").
+tool_slot_cue(pattern, "of").
+tool_slot_cue(pattern, "grep").
+tool_slot_cue(pattern, "does").
+tool_slot_cue(pattern, "calls").
+tool_slot_cue(pattern, "call").
+tool_slot_cue(pattern, "cerca").
+tool_slot_cue(pattern, "trova").
+
+% ── gen494 — ANCHE L'ANCORA STRUTTURALE E' VOCABOLARIO ─────────────────────
+%
+% Restavano nel C `ci_prefix(low,"grep ")`, `"read "`, `"cat "`, `"ls "`,
+% `"run "`. La FORMA — «il turno comincia con» — e' meccanica e resta nel C; il
+% TESTO dell'ancora no: e' vocabolario, ed era la ragione per cui un utente
+% italiano che scrive «leggi src/report.c» non veniva capito mentre «read
+% src/report.c» si'.
+machinery(tool_anchor).
+
+tool_anchor(search, "grep ").
+tool_anchor(list,   "ls ").
+tool_anchor(list,   "ls").
+tool_anchor(read,   "read ").
+tool_anchor(read,   "cat ").
+tool_anchor(read,   "leggi ").
+tool_anchor(read,   "apri ").
+tool_anchor(run,    "run ").
+tool_anchor(run,    "esegui ").
+tool_anchor(run,    "lancia ").

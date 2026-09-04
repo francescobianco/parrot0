@@ -322,11 +322,26 @@ static int dir_noun(const char *s) {
     return ci_eq(s,"folder")||ci_eq(s,"directory")||ci_eq(s,"dir")||ci_eq(s,"cartella");
 }
 
-static const char *find_dir(char **w, size_t nw) {
+/* gen494 — QUALE PAROLA INTRODUCE UNO SLOT E' CONOSCENZA (`tool_slot_cue/2`).
+ * Qui c'era una lista di otto parole inglesi nel C: mantra #2, nel modulo che
+ * O1 chiama «il vocabolario dei tool dell'agente stesso». Ora il C chiede alla
+ * classe, e l'italiano entra senza ricompilare. */
+static int tool_slot_word(Brain *b, const char *slot, const char *word) {
+    if (!b || !b->kb || !slot || !word || !*word) return 0;
+    char rows[32][KB_TERM_LEN];
+    const char *q[2] = { slot, NULL };
+    size_t n = kb_match(b->kb, "tool_slot_cue", q, 2, rows, 32);
+    for (size_t i = 0; i < n; i++) {
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[i]);
+        const char *cue = kb_dequote(rb);
+        if (cue && *cue && ci_eq(word, cue)) return 1;
+    }
+    return 0;
+}
+
+static const char *find_dir_kb(Brain *b, char **w, size_t nw) {
     for (size_t i = 0; i + 1 < nw; i++) {
-        if (!(ci_eq(w[i],"in")||ci_eq(w[i],"inside")||ci_eq(w[i],"under")||
-              ci_eq(w[i],"within")||ci_eq(w[i],"from")||ci_eq(w[i],"directory")||
-              ci_eq(w[i],"folder")||ci_eq(w[i],"dir"))) continue;
+        if (!tool_slot_word(b, "dir", w[i])) continue;
         size_t j = i + 1;
         while (j < nw && dir_article(w[j])) j++;       /* skip "the"/"il"/… */
         if (j >= nw) continue;
@@ -378,6 +393,85 @@ static const char *find_file(char **w, size_t nw) {
  * gen342: the command line is now SECOND-LEVEL information. A normal successful
  * answer says the observed content only; the exact argv/exit/digest remain in
  * last_tool_cmd + last_proof for "come lo sai?" / audit. */
+/* ── gen494 — L'ESPANSORE DI TEMPLATE: il C non sa che cosa sia `find` ───────
+ *
+ * F.: «tutti questi comandi cablati nel C devono essere tolti». Prima l'argv era
+ * un array letterale — `{"find", dir, "-maxdepth", "1", "-type", "f"}` — quindi
+ * cambiare COME si elencano i file richiedeva una ricompilazione e nessuna
+ * lezione poteva toccarlo.
+ *
+ * Ora il comando arriva da `tool_argv(Strumento, "find {dir} -type f")` e questa
+ * funzione fa una cosa sola: sostituisce i segnaposto con i valori che il
+ * chiamante ha gia' calcolato e spezza in argv. Non conosce nessun comando,
+ * nessun flag, nessuna cartella. Fra piu' template dello stesso strumento vince
+ * quello che ha PIU' segnaposto soddisfatti, cosi' «i file .c» sceglie da se' la
+ * variante col filtro senza un `if`.
+ *
+ * Torna 0 se nessun template e' utilizzabile: allora il chiamante non agisce,
+ * invece di agire con un comando inventato. */
+typedef struct { const char *key; const char *val; } ToolSlot;
+
+static int tool_argv_build(Brain *b, const char *tool,
+                           const ToolSlot *slots, size_t nslots,
+                           char *store, size_t store_sz,
+                           char **argv, size_t argv_max) {
+    if (!b || !b->kb || !tool) return 0;
+    char rows[8][KB_TERM_LEN];
+    const char *tq[2] = { tool, NULL };
+    size_t n = kb_match(b->kb, "tool_argv", tq, 2, rows, 8);
+    if (!n) return 0;
+
+    const char *best = NULL; int best_score = -1;
+    for (size_t i = 0; i < n; i++) {
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[i]);
+        const char *tpl = kb_dequote(rb);
+        int score = 0, usable = 1;
+        for (size_t k = 0; k < nslots; k++) {
+            char needle[64]; snprintf(needle, sizeof needle, "{%s}", slots[k].key);
+            if (!strstr(tpl, needle)) continue;
+            if (slots[k].val && *slots[k].val) score++;
+            else usable = 0;                 /* il template chiede cio' che non c'e' */
+        }
+        if (usable && score > best_score) {
+            best_score = score;
+            static char keep[KB_TERM_LEN];
+            snprintf(keep, sizeof keep, "%s", tpl);
+            best = keep;
+        }
+    }
+    if (!best) return 0;
+
+    size_t o = 0;
+    for (const char *p = best; *p && o + 1 < store_sz; ) {
+        if (*p == '{') {
+            const char *close = strchr(p, '}');
+            if (close) {
+                size_t klen = (size_t)(close - p - 1);
+                int filled = 0;
+                for (size_t k = 0; k < nslots && !filled; k++)
+                    if (strlen(slots[k].key) == klen &&
+                        !strncmp(slots[k].key, p + 1, klen)) {
+                        o += (size_t)snprintf(store + o, store_sz - o, "%s",
+                                              slots[k].val ? slots[k].val : "");
+                        filled = 1;
+                    }
+                p = close + 1;
+                if (filled) continue;
+                continue;
+            }
+        }
+        store[o++] = *p++;
+        store[o] = '\0';
+    }
+    store[o] = '\0';
+
+    size_t na = 0;
+    char *tok = strtok(store, " ");
+    while (tok && na + 1 < argv_max) { argv[na++] = tok; tok = strtok(NULL, " "); }
+    argv[na] = NULL;
+    return na > 0;
+}
+
 static int piact_obs(Brain *b, char *const *argv, const char *label,
                      char *out, size_t out_size) {
     P0Obs obs;
@@ -502,15 +596,54 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
      * phrasing is DATA — teachable at runtime ("learn … as a cue for …"), no recompile.
      * Only the *structural* anchors (a leading "read "/"grep "/"ls" prefix) and the AND
      * logic ("find" + "named") stay in C, since those are shape, not vocabulary. */
-    int want_grep = ci_prefix(low,"grep ") || kb_cue_match(b, "piact_grep", low);
-    int want_find = (kb_cue_match(b, "60_agent_tools_cue450", low) && (kb_cue_match(b, "60_agent_tools_chain441", low))) ||
-                    kb_cue_match(b, "piact_find", low);
-    int want_list = (kb_cue_match(b, "60_agent_tools_cue452", low) && (kb_cue_match(b, "60_agent_tools_cue452_2", low) || strstr(low,"*."))) ||
-                    ci_prefix(low,"ls ") || ci_eq(low,"ls") ||
-                    kb_cue_match(b, "piact_list", low);
-    int want_read = ci_prefix(low,"read ") || ci_prefix(low,"cat ") ||
-                    kb_cue_match(b, "piact_read", low);
-    int want_run  = ci_prefix(low,"run ") || kb_cue_match(b, "piact_run", low);
+    /* ── gen494 — QUALE STRUMENTO SERVE LO DICE LA KB, NON UNA CATENA ────────
+     *
+     * Qui c'erano cinque `int want_…` calcolati da una catena di `||` con i
+     * nomi degli strumenti e le loro ancore scritti nel C. Due difetti in uno,
+     * gia' segnati da O1 di `coding-agent-todo.md`: **il vocabolario dei tool
+     * dell'agente stesso non era insegnabile a runtime**, e aggiungere uno
+     * strumento voleva dire ricompilare invece di dichiarare.
+     *
+     * Ora l'inventario e' `local_tool(Nome, Intento, Glossa)` e le ancore sono
+     * `tool_anchor(Nome, "prefisso")`. La FORMA — «il turno comincia con» —
+     * resta meccanica nel C; il TESTO dell'ancora e' conoscenza, ed e' per
+     * questo che «leggi src/report.c» ora funziona come «read src/report.c».
+     *
+     * Uno strumento nuovo e' due righe di KB e zero righe qui. */
+    char tool[KB_TERM_LEN] = "";
+    {
+        char tools[16][KB_TERM_LEN];
+        const char *tq[3] = { NULL, NULL, NULL };
+        size_t nt = kb_match(b->kb, "local_tool", tq, 3, tools, 16);
+        for (size_t i = 0; i < nt && !tool[0]; i++) {
+            /* l'intento dichiarato per questo strumento */
+            const char *iq[3] = { tools[i], NULL, NULL };
+            char intents[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "local_tool", iq, 3, intents, 1) == 1 &&
+                kb_cue_match(b, intents[0], low)) {
+                snprintf(tool, sizeof tool, "%s", tools[i]);
+                break;
+            }
+            /* le sue ancore strutturali */
+            const char *aq[2] = { tools[i], NULL };
+            char anchors[8][KB_TERM_LEN];
+            size_t na = kb_match(b->kb, "tool_anchor", aq, 2, anchors, 8);
+            for (size_t k = 0; k < na && !tool[0]; k++) {
+                char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", anchors[k]);
+                const char *anc = kb_dequote(ab);
+                if (anc && *anc &&
+                    (ci_prefix(low, anc) || (anc[strlen(anc)-1] != ' ' && ci_eq(low, anc))))
+                    snprintf(tool, sizeof tool, "%s", tools[i]);
+            }
+        }
+    }
+    /* la sola forma che resta nel C, perche' e' struttura e non vocabolario:
+     * «trova» richiede anche di dire COME si chiama cio' che si cerca. */
+    int want_grep = !strcmp(tool, "search");
+    int want_find = !strcmp(tool, "find");
+    int want_list = !strcmp(tool, "list") || strstr(low, "*.") != NULL;
+    int want_read = !strcmp(tool, "read");
+    int want_run  = !strcmp(tool, "run");
     if (!(want_grep || want_find || want_list || want_read || want_run))
         return 0;
 
@@ -531,11 +664,9 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
     if (want_grep) {
         /* the pattern is the token after the cue word; sanitize for single-quotes. */
         const char *pat = NULL;
-        for (size_t i = 0; i + 1 < nw; i++) {
-            if (ci_eq(w[i],"for")||ci_eq(w[i],"is")||ci_eq(w[i],"to")||
-                ci_eq(w[i],"of")||ci_eq(w[i],"grep")||ci_eq(w[i],"does")||
-                ci_eq(w[i],"calls")||ci_eq(w[i],"call")) { pat = w[i+1]; }
-        }
+        /* gen494: quali parole introducono il pattern e' `tool_slot_cue(pattern, …)`. */
+        for (size_t i = 0; i + 1 < nw; i++)
+            if (tool_slot_word(b, "pattern", w[i])) pat = w[i+1];
         if (!pat && nw >= 2) pat = w[nw-1];
         if (!pat) return 0;
         /* gen329: the pattern is no longer scrubbed of quotes and backticks. It used
@@ -549,7 +680,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         rstrip_punct((char*)pat);
         if (!*pat) return 0;
         snprintf(patbuf, sizeof patbuf, "%s", pat);
-        const char *dir = find_dir(w, nw);
+        const char *dir = find_dir_kb(b, w, nw);
         char dirbuf[256]; int claimed;
         if (!piact_dir(b, dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
 
@@ -605,7 +736,11 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         /* `--` so a pattern that begins with '-' stays a pattern and never becomes
          * an option: with the shell gone, argv-level confusion is the only injection
          * left, and it is closed by construction rather than by scrubbing. */
-        char *gargv[] = {(char*)"grep", (char*)"-rn", (char*)"--", patbuf, dirbuf, NULL};
+        /* gen494: il comando viene da `tool_argv(search, …)`, non da qui. */
+        char gstore[512]; char *gargv[24];
+        const ToolSlot gs[] = { { "pattern", patbuf }, { "dir", dirbuf } };
+        if (!tool_argv_build(b, "search", gs, 2, gstore, sizeof gstore,
+                             gargv, 24)) return 0;
          char label[160];
          kb_term_say(b, "matches_for_x", (const KbResponseSlot[]){
                          { "pattern", patbuf } }, 1, label, sizeof label);
@@ -616,15 +751,19 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
     if (want_find) {
         const char *name = NULL;
         for (size_t i = 0; i + 1 < nw; i++)
-            if (ci_eq(w[i],"named")||ci_eq(w[i],"called")||ci_eq(w[i],"file")) name = w[i+1];
+            if (tool_slot_word(b, "name", w[i])||ci_eq(w[i],"file")) name = w[i+1];
         if (!name && nw >= 2) name = w[nw-1];
         if (!name) return 0;
         rstrip_punct((char*)name);
         if (!pathish_token(name)) return 0;
-        const char *dir = find_dir(w, nw);
+        const char *dir = find_dir_kb(b, w, nw);
         char dirbuf[256]; int claimed;
         if (!piact_dir(b, dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
-        char *fargv[] = {(char*)"find", dirbuf, (char*)"-name", (char*)name, NULL};
+        /* gen494: idem — `tool_argv(find, …)`. */
+        char fstore[512]; char *fargv[24];
+        const ToolSlot fs[] = { { "dir", dirbuf }, { "name", name } };
+        if (!tool_argv_build(b, "find", fs, 2, fstore, sizeof fstore,
+                             fargv, 24)) return 0;
         char label[200];
         kb_term_say(b, "found_file", (const KbResponseSlot[]){
                         { "name", name } }, 1, label, sizeof label);
@@ -633,15 +772,37 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
 
     /* ---- list files (optionally filtered by a glob) ---- */
     if (want_list) {
-        const char *dir = find_dir(w, nw);
+        const char *dir = find_dir_kb(b, w, nw);
         char dirbuf[256]; int claimed;
         if (!piact_dir(b, dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
         char glob[64]; int has_glob = detect_glob(b, low, glob, sizeof glob);
         char label[200];
-        char *largv_glob[] = {(char*)"find", dirbuf, (char*)"-maxdepth", (char*)"1",
-                              (char*)"-name", glob, (char*)"-type", (char*)"f", NULL};
-        char *largv_all[]  = {(char*)"find", dirbuf, (char*)"-maxdepth", (char*)"1",
-                              (char*)"-type", (char*)"f", NULL};
+        /* ⛔ gen494 — «NIENTE» ERA FALSO, E DETTO CON SICUREZZA.
+         *
+         * La profondita' era `-maxdepth 1` cablata. In una cartella di progetto
+         * — dove i sorgenti stanno sotto `src/` — «listami i file .c» rispondeva
+         * «nothing», che non e' una risposta incompleta: e' una risposta FALSA,
+         * ed e' il mantra #7 (un errore detto con sicurezza e' peggio di un
+         * muro). Nessun utente puo' sapere che l'elenco si fermava al primo
+         * livello, perche' l'elenco non lo diceva.
+         *
+         * Quanto in fondo guardare e' CONOSCENZA — `listing_max_depth/1` — e non
+         * una costante: un progetto profondo la alza dicendolo. Senza il fatto
+         * si guarda ovunque, perche' «quali file ci sono» significa quello. */
+        /* gen494 — IL COMANDO DELL'ELENCO VIENE DA KB.
+         *
+         * Qui c'erano due argv letterali con `find`, `-maxdepth 1` e `-type f`
+         * dentro. Quel `-maxdepth 1` faceva rispondere «nothing» a «listami i
+         * file .c» in una cartella di progetto — falso, perche' i sorgenti
+         * stavano sotto `src/`. Ora il comando e' `tool_argv(list, …)`: fra le
+         * varianti vince quella con piu' segnaposto soddisfatti, quindi la
+         * richiesta con un filtro sceglie da se' il template col filtro, senza
+         * un `if` che lo decida. */
+        char lstore[512]; char *largv[24];
+        const ToolSlot ls_slots[] = { { "dir", dirbuf },
+                                      { "glob", has_glob ? glob : NULL } };
+        if (!tool_argv_build(b, "list", ls_slots, 2, lstore, sizeof lstore,
+                             largv, 24)) return 0;
         char lang[8]; current_lang(b, lang, sizeof lang);
         int it = lex_class_member(b, "entity_pronoun", lang);
         if (has_glob)
@@ -649,7 +810,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
                      glob, dirbuf);
         else
             snprintf(label, sizeof label, it ? "I file in %s" : "The files in %s", dirbuf);
-        return piact_obs(b, has_glob ? largv_glob : largv_all, label, out, out_size);
+        return piact_obs(b, largv, label, out, out_size);
     }
 
     /* ---- read a file ---- */
@@ -2204,42 +2365,40 @@ static int mod_toolpolicy(Brain *b, const char *norm, const char *raw,
     char low[512];
     for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)src[i]);
 
-    /* The SAME cues mod_piact uses — the point is that the two agree about what
-     * was understood, and differ only about what is permitted. */
+    /* gen494 — L'INVENTARIO DEGLI STRUMENTI E' CONOSCENZA (F.).
+     *
+     * Qui c'era una catena di `else if` con i nomi degli strumenti scritti nel C
+     * — «search», «find», «list», «read», «run» — cioe' due difetti in uno: una
+     * lista di parole (mantra #2) e una congiunzione compilata (mantra #19), con
+     * il TODO gia' scritto sopra. Ne seguiva che uno strumento nuovo non poteva
+     * essere DICHIARATO: poteva solo essere compilato, e finche' non lo era,
+     * spegnerlo produceva un «non capisco» invece di «non posso».
+     *
+     * Ora si legge `local_tool(Nome, Intento, Glossa)`: il modulo chiede alla KB
+     * quali strumenti esistono e quale intento serve ciascuno, e nomina quello
+     * che manca. Uno strumento nuovo e' una riga, e lo spegnimento lo racconta
+     * da solo. Le ancore STRUTTURALI (un prefisso «grep »/«read »/«ls») restano
+     * nel C perche' sono forma, non vocabolario. */
+    char kindbuf[KB_TERM_LEN] = "";
     const char *kind = NULL;
-    if (ci_prefix(low,"grep ") || kb_cue_match(b, "piact_grep", low))            kind = "search";
-    /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
-     * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
-     * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
-     * che ordine, con quale polarita' — resta compilato: a runtime si puo'
-     * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
-     * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
-     * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
-     * diventare essa stessa una regola nella KB».
-     * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
-     * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
-     * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
-     * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
-    else if ((kb_cue_match(b, "60_agent_tools_cue1979", low) && (kb_cue_match(b, "60_agent_tools_chain1929", low))) ||
-             kb_cue_match(b, "piact_find", low))                                 kind = "find";
-    /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
-     * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
-     * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
-     * che ordine, con quale polarita' — resta compilato: a runtime si puo'
-     * insegnare un MEMBRO di una classe che esiste, mai una FORMA nuova. Finche'
-     * la catena e' qui, l'insieme delle forme che parrot0 riconosce e' CHIUSO e
-     * nessuna lezione lo apre — F., 2026-09-03: «e' la catena di && che deve
-     * diventare essa stessa una regola nella KB».
-     * Forma di arrivo: `turn_pattern(Forma, cue|not_cue|word|text, Arg)` piu'
-     * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
-     * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
-     * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
-    else if ((kb_cue_match(b, "60_agent_tools_cue1981", low) && (kb_cue_match(b, "60_agent_tools_cue1981_2", low) || strstr(low,"*."))) ||
-             ci_prefix(low,"ls ") || ci_eq(low,"ls") ||
-             kb_cue_match(b, "piact_list", low))                                 kind = "list";
-    else if (ci_prefix(low,"read ") || ci_prefix(low,"cat ") ||
-             kb_cue_match(b, "piact_read", low))                                 kind = "read";
-    else if (ci_prefix(low,"run ") || kb_cue_match(b, "piact_run", low))         kind = "run";
+    {
+        char tools[16][KB_TERM_LEN];
+        const char *tq[3] = { NULL, NULL, NULL };
+        size_t nt = kb_match(b->kb, "local_tool", tq, 3, tools, 16);
+        for (size_t i = 0; i < nt && !kind; i++) {
+            const char *iq[3] = { tools[i], NULL, NULL };
+            char intents[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "local_tool", iq, 3, intents, 1) != 1) continue;
+            if (!kb_cue_match(b, intents[0], low)) continue;
+            snprintf(kindbuf, sizeof kindbuf, "%s", tools[i]);
+            kind = kindbuf;
+        }
+    }
+    /* le ancore strutturali, che non sono vocabolario */
+    if (!kind && (ci_prefix(low,"grep "))) kind = "search";
+    if (!kind && (ci_prefix(low,"ls ") || ci_eq(low,"ls"))) kind = "list";
+    if (!kind && (ci_prefix(low,"read ") || ci_prefix(low,"cat "))) kind = "read";
+    if (!kind && ci_prefix(low,"run ")) kind = "run";
     if (!kind) return 0;
 
     char mode[32]; brain_mode(b, mode, sizeof mode);

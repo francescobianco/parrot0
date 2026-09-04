@@ -350,10 +350,32 @@ intent_cue(piact_grep, "occurrences of").
 intent_cue(piact_grep, "uses of").
 intent_cue(piact_grep, "grep for").
 intent_cue(piact_find, "locate the file").
+intent_cue(piact_grep, "cerca").
+intent_cue(piact_grep, "cercami").
+intent_cue(piact_grep, "trova nei file").
+intent_cue(piact_find, "trovami il file").
+intent_cue(piact_find, "dov'e' il file").
 intent_cue(piact_list, "what files").
 intent_cue(piact_list, "which files").
 intent_cue(piact_list, "show me the files").
 intent_cue(piact_list, "show the files").
+% ── gen494 — LE STESSE PORTE, IN ITALIANO ──────────────────────────────────
+% Tutte le superfici degli strumenti locali erano in inglese: in una sessione
+% italiana vera «quali file ci sono» e «cosa c'e' qui» erano muri, e non perche'
+% mancasse la capacita' — la capacita' rispondeva benissimo a «what files».
+% ⚠ Queste righe sono VOCABOLARIO, non comprensione: aprono a una lingua una
+% porta che gia' esisteva. Non vanno confuse con il saper capire una richiesta
+% mai vista, che e' un'altra cosa e non e' fatta.
+intent_cue(piact_list, "quali file").
+intent_cue(piact_list, "che file").
+intent_cue(piact_list, "listami").
+intent_cue(piact_list, "elenca i file").
+intent_cue(piact_list, "mostrami i file").
+intent_cue(piact_list, "cosa c'e' qui").
+intent_cue(piact_list, "cosa ce qui").
+intent_cue(piact_list, "cosa c'e' in questa cartella").
+intent_cue(piact_list, "ci sono sorgenti").
+intent_cue(piact_list, "ci sono file").
 intent_cue(piact_read, "contents of").
 intent_cue(piact_read, "open the file").
 intent_cue(piact_read, "print the file").
@@ -366,6 +388,14 @@ intent_cue(piact_read, "functions does").
 intent_cue(piact_read, "functions in").
 intent_cue(piact_read, "summarize").
 intent_cue(piact_read, "summarise").
+intent_cue(piact_read, "quali funzioni").
+intent_cue(piact_read, "che funzioni").
+intent_cue(piact_read, "funzioni definisce").
+intent_cue(piact_read, "contenuto di").
+intent_cue(piact_read, "mostrami il file").
+intent_cue(piact_read, "apri il file").
+intent_cue(piact_read, "leggi il file").
+intent_cue(piact_read, "riassumi").
 intent_cue(piact_run, "run the test").
 intent_cue(piact_run, "build the project").
 intent_cue(piact_run, "compile the").
