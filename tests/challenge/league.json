@@ -37,13 +37,26 @@
       "max_turns": 12,
       "continue_text": "continue",
       "_note_thinking": "gen501: spento di proposito. THINKING_TODO A0 e' aperta — un passo che degrada la risposta la sostituisce comunque — e il transcript di gen500-stream-v3 lo mostra dal vivo: il pensiero 2 ha trasformato la risposta in «What number should I use for it?». Misurare parrot0 con una funzione nota-rotta non e' misurare parrot0. Si riaccende quando A0 e' chiusa.",
-      "_note_prompt": "gen501: il prompt di parrot0 in un PTY e' `>>>` (tre chevron colorati), non `you>`. `you>` e' la forma SENZA colore, quella che vedono le pipe e i bench. Il pilota aspettava un prompt che in un terminale non arriva mai: l'agente non partiva proprio, e la gara veniva annullata come «stream fermo all'avvio». E' il difetto piu' banale e il piu' costoso della serie."
+      "_note_prompt": "gen501: il prompt di parrot0 in un PTY e' `>>>` (tre chevron colorati), non `you>`. `you>` e' la forma SENZA colore, quella che vedono le pipe e i bench. Il pilota aspettava un prompt che in un terminale non arriva mai: l'agente non partiva proprio, e la gara veniva annullata come «stream fermo all'avvio». E' il difetto piu' banale e il piu' costoso della serie.",
+      "preflight": [
+        {
+          "id": "fresh_build",
+          "file": "{repo}/bin/parrot0",
+          "newer_than_glob": "{repo}/src/*.c"
+        }
+      ],
+      "_note_fresh_build": "gen502: `version_argv` e' `git describe`, cioe' la versione del REPOSITORY. Non dice niente sul binario avviato, e in `gen501-pilot-b` il binario era gen459 con 13519 fatti mentre il repo era gen501 con 24692: meta' della conoscenza in meno, e il result.json diceva `f745000-dirty`. Un binario piu' vecchio dei suoi sorgenti fa sembrare la gara regolare mentre misura un altro programma; il preflight ora la ferma prima di partire."
     },
     "freebuff": {
       "argv": [
         "freebuff",
         "--cwd",
         "{code}"
+      ],
+      "argv0_search": [
+        "$FREE_BUFF_BIN",
+        "~/.config/manicode/freebuff",
+        "freebuff"
       ],
       "version_argv": [
         "freebuff",
@@ -55,22 +68,32 @@
       "done_pattern": "Enter a coding task or / for commands",
       "boot_wait_seconds": 3,
       "min_runtime_seconds": 3,
-      "stream_watch_seconds": 20,
+      "stream_watch_seconds": 45,
       "startup_timeout_seconds": 60,
-      "bracketed_paste": true,
       "submit_delay_seconds": 0.5,
       "quit": "\u0003",
-      "logic_actions": [
+      "idle_settle_seconds": 6.0,
+      "max_turns": 1,
+      "driver": "tmux",
+      "cols": 160,
+      "rows": 45,
+      "preflight": [
         {
-          "id": "select_default_deepseek_model",
-          "phase": "startup",
-          "when": "See all 5 models",
-          "send_key": "ENTER",
-          "max_uses": 1
+          "id": "login",
+          "file": "~/.config/manicode/credentials.json",
+          "must_exist": true
+        },
+        {
+          "id": "model",
+          "file": "~/.config/manicode/settings.json",
+          "json_key": "freebuffModel",
+          "equals": "deepseek/deepseek-v4-flash",
+          "record_as": "model"
         }
       ],
-      "idle_settle_seconds": 3.0,
-      "max_turns": 1
+      "_note_driver": "gen502: freebuff si pilota via tmux perche' va LETTO, non perche' tmux piloti meglio. In `gen501-pilot-b` sembrava non lavorare: 738 eventi di stream, timeout, cartella intatta. Rigiocando `raw.log` in un pane tmux si vede che aveva ricevuto il task intero, letto sette file e stava ragionando sull'introsort al secondo 43 — con il timeout a 45. Un TUI a schermo alternato non aggiunge byte, RIDISEGNA: su 591 KB di raw.log la riga di prompt compare 3 volte, tutte nei primi 92 KB, e il transcript concatenato era 169 KB con UN glifo visibile. `capture-pane` da' lo schermo renderizzato e chiude il problema.",
+      "_note_no_model_selector": "gen502: la logic_action `select_default_deepseek_model` e' stata rimossa. Il modello sta gia' nel settings.json e ora lo verifica il preflight, che lo registra anche nel result.json: il nome della league diventa verificabile invece che dichiarato.",
+      "_note_bracketed_paste": "gen502: ipotesi §3-bis.1 FALSIFICATA. Il bracketed paste funzionava — nello schermo renderizzato il prompt da 1485 byte c'e' tutto. Non era il submit: era la lettura. Con `send-keys -l` il problema non si pone piu' comunque."
     }
   },
   "matches": [

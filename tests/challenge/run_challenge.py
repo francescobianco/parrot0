@@ -36,6 +36,10 @@ from typing import Any
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 LEAGUE_FILE = HERE / "league.json"
+# La directory che contiene la league in uso: `tasks/` e gli archivi dei run si
+# risolvono rispetto a QUESTA, non allo script.  E' cio' che rende possibile una
+# league finta (`selftest/`) accanto a quella vera, senza copiare il pilota.
+BASE = HERE
 ANSI_RE = re.compile(
     rb"(?:\x1B\[[0-?]*[ -/]*[@-~]|\x1B\][^\x07]*(?:\x07|\x1B\\)|\x1B[@-_])"
 )
@@ -399,6 +403,360 @@ def pty_session(
     return b"".join(chunks), meta
 
 
+# ---------------------------------------------------------------------------
+# Driver tmux — leggere lo SCHERMO, non il flusso
+#
+# gen502.  La corsa `gen501-pilot-b` diceva che freebuff «non lavora»: timeout,
+# 738 eventi di stream, cartella intatta.  Rigiocando `raw.log` dentro un pane
+# tmux si vede invece che freebuff aveva ricevuto il task INTERO, letto sette
+# file e stava ragionando sul budget di profondita' dell'introsort al secondo
+# 43 — con il timeout a 45.  Non era rotto: eravamo ciechi.
+#
+# Ciechi per una ragione precisa e strutturale: `clean_transcript` concatena i
+# byte, ma un TUI a schermo alternato non aggiunge byte, RIDISEGNA.  Su 591 KB
+# di `raw.log` la riga di prompt compare tre volte, tutte nei primi 92 KB; il
+# transcript «pulito» risultante e' 169 KB con un solo glifo visibile.  Nessun
+# pattern poteva funzionare la' dentro.
+#
+# Quindi non scriviamo un emulatore di terminale: ne usiamo uno installato.
+# `capture-pane -p` da' lo schermo renderizzato, e `pipe-pane` conserva lo
+# stesso `raw.log` lossless di prima.  Il PTY resta il driver di default: a
+# parrot0, che e' un REPL di riga, non serve niente di tutto questo.
+#
+# In regalo, due cose che servivano davvero: `tmux attach` per guardare una
+# gara mentre corre, e un segnale di quiete migliore dei byte — lo schermo di
+# freebuff ha un cronometro che ticchetta MENTRE lavora e si ferma quando ha
+# finito, quindi «schermo immobile» e' un'evidenza di fine, non un'ipotesi.
+# ---------------------------------------------------------------------------
+
+TMUX_BIN = shutil.which("tmux")
+
+
+def tmux_available() -> bool:
+    return TMUX_BIN is not None
+
+
+def _tmux(socket: str, *args: str, env: dict[str, str] | None = None,
+          check: bool = False) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [str(TMUX_BIN), "-L", socket, *args],
+        text=True, capture_output=True, timeout=15, check=check,
+        env=env if env is not None else os.environ.copy(),
+    )
+
+
+def _capture(socket: str, session: str) -> str | None:
+    """Lo schermo visibile, come lo vedrebbe un umano.  None se il pane e' morto."""
+    result = _tmux(socket, "capture-pane", "-p", "-t", session)
+    if result.returncode != 0:
+        return None
+    return "\n".join(line.rstrip() for line in result.stdout.split("\n")).strip("\n")
+
+
+def _pane_alive(socket: str, session: str) -> bool:
+    result = _tmux(socket, "list-panes", "-t", session, "-F", "#{pane_dead}")
+    if result.returncode != 0:
+        return False
+    return result.stdout.strip().splitlines()[:1] != ["1"]
+
+
+def tmux_session(
+    argv: list[str],
+    cwd: Path,
+    env: dict[str, str],
+    prompt: str,
+    config: dict[str, Any],
+    timeout: float,
+    trace_dir: Path,
+) -> tuple[bytes, dict[str, Any]]:
+    """Come `pty_session`, ma lo stato si legge da `capture-pane`.
+
+    La forma di `meta` e' identica di proposito: il resto del banco (archivio,
+    judge, scoreboard, validita') non deve sapere quale driver ha corso.
+    """
+    if not tmux_available():
+        raise ChallengeError("driver tmux richiesto ma tmux non e' installato")
+    trace_dir.mkdir(parents=True, exist_ok=True)
+    raw_path = trace_dir / "raw.log"
+    raw_path.write_bytes(b"")
+    screens_log = (trace_dir / "screens.jsonl").open("w", encoding="utf-8")
+    action_log = (trace_dir / "logic-actions.jsonl").open("w", encoding="utf-8")
+    # «Il transcript e' la parte preziosa» (§4.6) — ma per un TUI il transcript
+    # NON e' la concatenazione dei byte: e' la successione delle schermate.  Qui
+    # ogni schermata distinta viene archiviata per intero, con un tetto in byte
+    # perche' una gara lunga non riempia il disco.  I digest in `screens.jsonl`
+    # restano completi anche dopo il tetto, cosi' si sa sempre quante ne mancano.
+    frames_log = (trace_dir / "screens.log").open("w", encoding="utf-8")
+    frames_budget = int(config.get("frames_budget_bytes", 8_000_000))
+    frames_written = 0
+    frames_dropped = 0
+
+    socket = f"challenge-{os.getpid()}-{int(time.time())}"
+    session = "match"
+    cols = int(config.get("cols", 160))
+    rows = int(config.get("rows", 45))
+    ready_pattern = config.get("ready_pattern", "")
+    done_pattern = config.get("done_pattern", "")
+    boot_wait = float(config.get("boot_wait_seconds", 2.0))
+    min_runtime = float(config.get("min_runtime_seconds", 4.0))
+    # Con lo schermo renderizzato «fermo» smette di essere un'ipotesi sui byte:
+    # e' lo schermo che non cambia.  Il nome resta per compatibilita' del result.
+    stream_watch = float(config.get("stream_watch_seconds", 3.0))
+    idle_settle = float(config.get("idle_settle_seconds", 1.5))
+    max_turns = int(config.get("max_turns", 1))
+    continue_text = str(config.get("continue_text", ""))
+    poll = float(config.get("poll_seconds", 0.25))
+
+    started = time.monotonic()
+    turns_used = 0
+    reason = "process_exit"
+    startup_ready = False
+    task_submitted = False
+    action_uses: dict[str, int] = {}
+    action_trace: list[dict[str, Any]] = []
+    screen_trace: list[dict[str, Any]] = []
+    last_change = started
+    last_digest = ""
+    visible = ""
+
+    def note_screen(current: str) -> bool:
+        """Registra lo schermo; ritorna True se e' cambiato da quello prima."""
+        nonlocal last_change, last_digest, visible, frames_written, frames_dropped
+        visible = current
+        digest = hashlib.sha256(current.encode()).hexdigest()
+        changed = digest != last_digest
+        if changed:
+            last_change = time.monotonic()
+            last_digest = digest
+            at = round(last_change - started, 3)
+            event = {"at_seconds": at, "sha256": digest, "chars": len(current)}
+            screen_trace.append(event)
+            screens_log.write(json.dumps(event) + "\n")
+            screens_log.flush()
+            frame = f"\n===== frame {len(screen_trace)} @ {at}s {digest[:12]} =====\n{current}\n"
+            if frames_written + len(frame) <= frames_budget:
+                frames_log.write(frame)
+                frames_log.flush()
+                frames_written += len(frame)
+            else:
+                frames_dropped += 1
+        return changed
+
+    def send_literal(text: str) -> None:
+        _tmux(socket, "send-keys", "-t", session, "-l", "--", text)
+
+    def send_key(name: str) -> None:
+        _tmux(socket, "send-keys", "-t", session, name)
+
+    def fire_logic_actions(phase: str, screen: str) -> bool:
+        nonlocal last_change
+        fired = False
+        for rule in config.get("logic_actions", []):
+            if rule.get("phase", "run") not in (phase, "any"):
+                continue
+            action_id = str(rule.get("id", "unnamed_action"))
+            used = action_uses.get(action_id, 0)
+            if used >= int(rule.get("max_uses", 1)):
+                continue
+            literal = str(rule.get("when", ""))
+            regex = str(rule.get("when_regex", ""))
+            matched = bool(literal and literal in screen)
+            if regex:
+                matched = re.search(
+                    regex, screen, re.IGNORECASE | re.MULTILINE | re.DOTALL
+                ) is not None
+            if not matched:
+                continue
+            sent = ""
+            if "send_text" in rule:
+                sent = str(rule["send_text"])
+                send_literal(sent)
+                if rule.get("submit", True):
+                    send_key("Enter")
+            key = str(rule.get("send_key", "")).upper()
+            key_name = {"ENTER": "Enter", "ESC": "Escape", "CTRL_C": "C-c"}.get(key)
+            if key_name:
+                send_key(key_name)
+                sent = f"<{key}>"
+            action_uses[action_id] = used + 1
+            last_change = time.monotonic()
+            event = {
+                "at_seconds": round(last_change - started, 3),
+                "phase": phase,
+                "state_match": literal or regex,
+                "action": action_id,
+                "sent": sent,
+                "visible_sha256": hashlib.sha256(screen.encode()).hexdigest(),
+            }
+            action_trace.append(event)
+            action_log.write(json.dumps(event, ensure_ascii=False) + "\n")
+            action_log.flush()
+            print(f"  logic-action: {phase}/{action_id} -> {sent}", flush=True)
+            fired = True
+        return fired
+
+    exit_code: int | None = None
+    try:
+        declared = tuple(config.get("_declared_env", ()))
+        create = _tmux(
+            socket, "new-session", "-d", "-s", session,
+            "-x", str(cols), "-y", str(rows), "-c", str(cwd),
+            *[arg for key in declared if key in env for arg in ("-e", f"{key}={env[key]}")],
+            "--", *argv,
+            env=env,
+        )
+        if create.returncode != 0:
+            raise ChallengeError(f"tmux new-session failed: {create.stderr.strip()}")
+        # `remain-on-exit` tiene il pane in vita dopo la fine del processo, cosi'
+        # l'ULTIMO schermo — quello che di solito spiega tutto — non evapora.
+        _tmux(socket, "set-option", "-t", session, "remain-on-exit", "on")
+        _tmux(socket, "pipe-pane", "-o", "-t", session, f"cat >> {raw_path}")
+
+        while _pane_alive(socket, session):
+            time.sleep(poll)
+            current = _capture(socket, session)
+            if current is None:
+                break
+            note_screen(current)
+            elapsed = time.monotonic() - started
+            fire_logic_actions("startup", current)
+            if ready_pattern and ready_pattern in current:
+                startup_ready = True
+                print("  state: task_ready", flush=True)
+                break
+            if not ready_pattern and elapsed >= boot_wait:
+                startup_ready = True
+                print("  state: task_ready (settled)", flush=True)
+                break
+            if time.monotonic() - last_change >= stream_watch:
+                reason = "screen_stalled_startup"
+                print("  state: interaction_required; screen frozen", flush=True)
+                break
+            if elapsed >= min(timeout, float(config.get("startup_timeout_seconds", 60))):
+                reason = "startup_timeout"
+                break
+
+        if not _pane_alive(socket, session):
+            reason = "startup_exit"
+        elif startup_ready:
+            send_literal(prompt)
+            submit_delay = float(config.get("submit_delay_seconds", 0.15))
+            time.sleep(submit_delay)
+            send_key("Enter")
+            prompt_sent_at = time.monotonic()
+            last_change = prompt_sent_at
+            task_submitted = True
+            turns_used = 1
+            print("  state: working; task submitted", flush=True)
+            while _pane_alive(socket, session):
+                time.sleep(poll)
+                current = _capture(socket, session)
+                if current is None:
+                    break
+                note_screen(current)
+                now = time.monotonic()
+                active = now - prompt_sent_at
+                fire_logic_actions("run", current)
+                if active >= timeout:
+                    reason = "timeout"
+                    break
+                idle = now - last_change
+                at_prompt = bool(done_pattern) and done_pattern in current
+                if at_prompt and active >= min_runtime and idle >= idle_settle:
+                    if turns_used < max_turns and continue_text:
+                        turns_used += 1
+                        send_literal(continue_text)
+                        send_key("Enter")
+                        last_change = time.monotonic()
+                        print(f"  state: continuing (turn {turns_used})", flush=True)
+                        continue
+                    reason = "completion_marker"
+                    print("  state: completion", flush=True)
+                    break
+                if idle >= stream_watch and not at_prompt:
+                    reason = "screen_stalled"
+                    print("  state: interaction_required; screen frozen", flush=True)
+                    break
+            final = _capture(socket, session)
+            if final is not None:
+                note_screen(final)
+    finally:
+        quit_text = str(config.get("quit", ""))
+        if quit_text and _pane_alive(socket, session):
+            if quit_text in ("\u0003", "\x03"):
+                send_key("C-c")
+            else:
+                send_literal(quit_text.rstrip("\r"))
+                send_key("Enter")
+            time.sleep(0.6)
+            final = _capture(socket, session)
+            if final is not None:
+                note_screen(final)
+        codes = _tmux(socket, "list-panes", "-t", session, "-F", "#{pane_dead_status}")
+        if codes.returncode == 0 and codes.stdout.strip():
+            try:
+                exit_code = int(codes.stdout.strip().splitlines()[0])
+            except ValueError:
+                exit_code = None
+        _tmux(socket, "kill-server")
+        screens_log.close()
+        if frames_dropped:
+            frames_log.write(
+                f"\n===== {frames_dropped} schermate successive non archiviate "
+                f"(tetto {frames_budget} byte); i digest restano in screens.jsonl =====\n"
+            )
+        frames_log.close()
+
+    # Lo schermo finale e' l'artefatto piu' utile del driver: e' cio' che un
+    # umano avrebbe visto guardando la gara nell'istante in cui e' finita.
+    (trace_dir / "screen.txt").write_text(visible + "\n", encoding="utf-8")
+    raw = raw_path.read_bytes() if raw_path.is_file() else b""
+
+    meta = {
+        "argv": argv,
+        "driver": "tmux",
+        "duration_seconds": round(time.monotonic() - started, 3),
+        "exit_code": exit_code,
+        "termination_reason": reason,
+        "timed_out": reason == "timeout",
+        "startup_ready": startup_ready,
+        "task_submitted": task_submitted,
+        "turns_used": turns_used,
+        "max_turns": max_turns,
+        "valid": task_submitted and reason in ("completion_marker", "process_exit"),
+        "stream_watch_seconds": stream_watch,
+        "stream_events": len(screen_trace),
+        "stream_trace": screen_trace,
+        "logic_actions": action_trace,
+        "screen_rows": rows,
+        "screen_cols": cols,
+        "final_screen_sha256": hashlib.sha256(visible.encode()).hexdigest(),
+        "frames_archived": len(screen_trace) - frames_dropped,
+        "frames_dropped": frames_dropped,
+    }
+    return raw, meta
+
+
+def open_session(
+    argv: list[str],
+    cwd: Path,
+    env: dict[str, str],
+    prompt: str,
+    config: dict[str, Any],
+    timeout: float,
+    trace_dir: Path,
+) -> tuple[bytes, dict[str, Any]]:
+    """Sceglie il driver dichiarato dall'agente.  PTY resta il default."""
+    driver = str(config.get("driver", "pty"))
+    if driver == "tmux":
+        return tmux_session(argv, cwd, env, prompt, config, timeout, trace_dir)
+    if driver != "pty":
+        raise ChallengeError(f"unknown agent driver: {driver!r}")
+    raw, meta = pty_session(argv, cwd, env, prompt, config, timeout, trace_dir)
+    meta["driver"] = "pty"
+    return raw, meta
+
+
 def run_version(argv: list[str], env: dict[str, str]) -> str:
     try:
         result = subprocess.run(argv, env=env, text=True, capture_output=True, timeout=8)
@@ -443,7 +801,7 @@ def validate(league: dict[str, Any]) -> list[dict[str, Any]]:
     for match_id in match_ids:
         if not isinstance(match_id, str) or not SAFE_ID_RE.match(match_id):
             raise ChallengeError(f"unsafe match id: {match_id!r}")
-        match_dir = HERE / "tasks" / match_id
+        match_dir = BASE / "tasks" / match_id
         manifest = load_json(match_dir / "match.json")
         if manifest.get("id") != match_id:
             raise ChallengeError(f"id mismatch in {match_dir / 'match.json'}")
@@ -473,6 +831,7 @@ def agent_argv_env(
     argv = [expand(str(arg), variables) for arg in agent.get("argv", [])]
     if not argv:
         raise ChallengeError("agent argv cannot be empty")
+    argv = resolve_argv0(agent, argv, variables)
     env = dict(os.environ)
     configured_env = agent.get("env", {})
     if not isinstance(configured_env, dict):
@@ -483,6 +842,106 @@ def agent_argv_env(
         env.pop(str(key), None)
     version_argv = [expand(str(arg), variables) for arg in agent.get("version_argv", argv[:1])]
     return argv, env, {"version": run_version(version_argv, env)}
+
+
+# ---------------------------------------------------------------------------
+# Preflight — lo stato si legge dai FILE, non si negozia col TUI
+#
+# §3-bis.2.  La `logic_action` che mandava ENTER sul selettore del modello
+# indovinava dallo schermo uno stato che sta scritto in un file di config: nel
+# migliore dei casi inutile, nel peggiore un invio dove non serve.  Un controllo
+# che fallisce PRIMA di avviare vale piu' di venti azioni che tirano a indovinare.
+#
+# Le due cose che il preflight compra:
+#  - una gara non parte se il login manca o il modello non e' quello dichiarato;
+#  - il modello finisce nel `result.json`.  Finora la league si chiamava
+#    `freebuff-deepseek-flash` e nessuno verificava che fosse davvero quello:
+#    un confronto che non sa contro CHI ha gareggiato non e' un confronto.
+#
+# I controlli sono dichiarati nella league, non qui: il pilota non deve sapere
+# dove freebuff tiene le sue cose.  `must_exist` non legge mai il contenuto —
+# per le credenziali l'esistenza e' tutto cio' che serve, e tutto cio' che e'
+# lecito guardare.
+# ---------------------------------------------------------------------------
+
+
+def preflight_check(rule: dict[str, Any], variables: dict[str, str]) -> dict[str, Any]:
+    check_id = str(rule.get("id", "unnamed_check"))
+    path = Path(os.path.expanduser(expand(str(rule.get("file", "")), variables)))
+    report: dict[str, Any] = {"id": check_id, "file": str(path), "passed": True}
+    if not path.exists():
+        report.update(passed=not rule.get("must_exist", True), detail="file assente")
+        return report
+    # gen502 — un binario piu' vecchio dei suoi sorgenti e' l'inganno peggiore
+    # del banco: la gara SEMBRA regolare e misura un altro programma.  Nella
+    # corsa di riferimento `gen501-pilot-b` correva un `bin/parrot0` di gen459
+    # con 13519 fatti mentre il repo era a gen501 con 24692 — meta' della
+    # conoscenza in meno, e `version_argv` diceva comunque `git describe`, cioe'
+    # la versione del REPOSITORY, non quella del programma avviato.
+    glob_pattern = rule.get("newer_than_glob")
+    if glob_pattern:
+        sources = sorted(Path("/").glob(
+            expand(str(glob_pattern), variables).lstrip("/")
+        ))
+        newest = max((src.stat().st_mtime for src in sources), default=0.0)
+        stale = path.stat().st_mtime < newest
+        report.update(
+            passed=not stale,
+            detail=("piu' vecchio dei sorgenti: ricompilare" if stale
+                    else f"aggiornato rispetto a {len(sources)} sorgenti"),
+        )
+        return report
+    key = rule.get("json_key")
+    if key is None:
+        report["detail"] = "presente"
+        return report
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        report.update(passed=False, detail=f"JSON illeggibile: {exc}")
+        return report
+    observed = data.get(str(key)) if isinstance(data, dict) else None
+    report["observed"] = observed
+    expected = rule.get("equals")
+    if expected is not None and observed != expected:
+        report.update(passed=False, detail=f"atteso {expected!r}, trovato {observed!r}")
+    else:
+        report["detail"] = f"{key}={observed!r}"
+    return report
+
+
+def run_preflight(
+    agent_id: str, agent: dict[str, Any], variables: dict[str, str]
+) -> dict[str, Any]:
+    rules = agent.get("preflight", [])
+    if not isinstance(rules, list):
+        raise ChallengeError(f"{agent_id}: preflight must be a list")
+    checks = [preflight_check(rule, variables) for rule in rules]
+    recorded = {
+        str(rule["record_as"]): checks[index].get("observed")
+        for index, rule in enumerate(rules)
+        if rule.get("record_as")
+    }
+    failed = [check["id"] for check in checks if not check["passed"]]
+    for check in checks:
+        mark = "ok  " if check["passed"] else "FAIL"
+        print(f"  preflight {mark} {agent_id}/{check['id']}: {check.get('detail', '')}", flush=True)
+    return {"checks": checks, "recorded": recorded, "failed": failed}
+
+
+def resolve_argv0(agent: dict[str, Any], argv: list[str], variables: dict[str, str]) -> list[str]:
+    """`FREE_BUFF_BIN` -> config -> PATH, dichiarato invece che indovinato."""
+    candidates = agent.get("argv0_search")
+    if not candidates:
+        return argv
+    for candidate in candidates:
+        text = os.path.expanduser(os.path.expandvars(expand(str(candidate), variables)))
+        if not text or "$" in text:
+            continue
+        found = str(Path(text)) if Path(text).is_file() else shutil.which(text)
+        if found:
+            return [found, *argv[1:]]
+    return argv
 
 
 def diagnostic_lines(reports: dict[str, dict[str, Any]], agents: list[str]) -> list[str]:
@@ -650,7 +1109,7 @@ def run_match(
 ) -> dict[str, Any]:
     match_id = match["id"]
     match_dir: Path = match["_dir"]
-    output_root = HERE / league["id"]
+    output_root = BASE / league["id"]
     run_dir = output_root / match_id / "runs" / run_id
     if run_dir.exists():
         raise ChallengeError(f"run already exists: {run_dir}")
@@ -689,6 +1148,15 @@ def run_match(
             argv, env, version = agent_argv_env(agent_cfg, code, runtime)
             if not command_exists(argv[0]):
                 raise ChallengeError(f"agent executable not found: {argv[0]}")
+            preflight = run_preflight(
+                agent_id, agent_cfg,
+                {"repo": str(ROOT), "code": str(code), "runtime": str(runtime)},
+            )
+            if preflight["failed"]:
+                raise ChallengeError(
+                    f"{agent_id}: preflight fallito ({', '.join(preflight['failed'])}); "
+                    "nessun agente avviato"
+                )
             print(
                 f"{match_id}: running {agent_id} in position "
                 f"{match['order'].index(agent_id) + 1}", flush=True
@@ -711,10 +1179,18 @@ def run_match(
             agent_dir = run_dir / agent_id
             archive_code = agent_dir / "code"
             agent_dir.mkdir()
-            raw, session = pty_session(
+            session_cfg["_declared_env"] = tuple(agent_cfg.get("env", {}))
+            raw, session = open_session(
                 argv, code, env, prompt, session_cfg, timeout, agent_dir
             )
-            (agent_dir / "transcript.txt").write_text(clean_transcript(raw), encoding="utf-8")
+            # Per un TUI la concatenazione dei byte non e' leggibile (169 KB con
+            # un solo glifo, in `gen501-pilot-b`): il transcript e' lo schermo.
+            transcript = (
+                (agent_dir / "screen.txt").read_text(encoding="utf-8")
+                if session.get("driver") == "tmux" and (agent_dir / "screen.txt").is_file()
+                else clean_transcript(raw)
+            )
+            (agent_dir / "transcript.txt").write_text(transcript, encoding="utf-8")
             session.pop("stream_trace")
             session.pop("logic_actions")
             shutil.copytree(code, archive_code)
@@ -722,6 +1198,8 @@ def run_match(
             artifact = archive_code / str(match["artifact"])
             record["agents"][agent_id] = {
                 **version,
+                **preflight["recorded"],
+                "preflight": preflight["checks"],
                 "session": session,
                 "seed_sha256": expected_seed_digest,
                 "result_tree_sha256": tree_digest(archive_code),
@@ -759,9 +1237,11 @@ def print_check(league: dict[str, Any], matches: list[dict[str, Any]]) -> None:
     variables = {"repo": str(ROOT), "code": "/tmp/neutral/code", "runtime": "/tmp/neutral/runtime"}
     print(f"league: {league['id']} ({league['title']})")
     for agent_id, cfg in league["agents"].items():
-        argv0 = expand(str(cfg["argv"][0]), variables)
+        argv0 = resolve_argv0(cfg, [expand(str(cfg["argv"][0]), variables)], variables)[0]
         state = "found" if command_exists(argv0) else "MISSING"
-        print(f"agent:  {agent_id:9s} {state:7s} {argv0}")
+        driver = str(cfg.get("driver", "pty"))
+        print(f"agent:  {agent_id:9s} {state:7s} driver={driver:5s} {argv0}")
+        run_preflight(agent_id, cfg, variables)
     for match in matches:
         seed = match["_dir"] / "seed"
         print(
@@ -772,8 +1252,215 @@ def print_check(league: dict[str, Any], matches: list[dict[str, Any]]) -> None:
     print("check only: no agent was started and no archived result was changed")
 
 
+# ---------------------------------------------------------------------------
+# Cricchetto del pilota (`selftest`)
+#
+# CHALLENGE_TODO C6: senza questo, ogni ipotesi sul pilota costava una corsa
+# vera — minuti, e una sessione di un agente reale.  Qui le stesse ipotesi si
+# falsificano in secondi contro `fake_agent.py`, che riproduce le forme di
+# comportamento osservate sul campo.  Un pilota che non passa il selftest non
+# va portato su una gara vera.
+# ---------------------------------------------------------------------------
+
+FAKE_AGENT = HERE / "fake_agent.py"
+
+SELFTEST_PROMPT = flatten_prompt(
+    "Implement a stable three-way quicksort in quicksort.c against the supplied "
+    "quicksort.h, wire it into the Makefile and keep the build clean under -Werror. "
+    * 8
+)
+
+# Tempi stretti di proposito: il selftest deve stare sotto il minuto, altrimenti
+# smette di essere usato dentro il ciclo di modifica.
+FAST = {
+    "boot_wait_seconds": 1.0,
+    "min_runtime_seconds": 0.2,
+    "stream_watch_seconds": 2.0,
+    "startup_timeout_seconds": 8,
+    "idle_settle_seconds": 0.4,
+}
+
+
+def _fake_config(mode: str, **overrides: Any) -> dict[str, Any]:
+    config = dict(FAST)
+    config.update(overrides)
+    config["_mode"] = mode
+    return config
+
+
+SELFTEST_CASES: dict[str, dict[str, Any]] = {
+    # L'agente REPL: avvio, submit, turni, completamento.
+    "repl_turns": {
+        "config": _fake_config(
+            "repl", ready_pattern=">>>", done_pattern=">>>", quit="/quit\r",
+            max_turns=3, continue_text="continue",
+        ),
+        "expect": {
+            "startup_ready": True, "task_submitted": True,
+            "turns_used": 3, "termination_reason": "completion_marker", "valid": True,
+        },
+        "expect_visible": ["TASK-RECEIVED", "turn 3 done"],
+    },
+    # Un turno solo: `max_turns` non deve gonfiare da solo.
+    "repl_single_turn": {
+        "config": _fake_config(
+            "repl", ready_pattern=">>>", done_pattern=">>>", quit="/quit\r", max_turns=1,
+        ),
+        "expect": {"turns_used": 1, "termination_reason": "completion_marker", "valid": True},
+    },
+    # Muto all'avvio: e' un blocco, e va detto.
+    "silent_startup": {
+        "config": _fake_config("silent", ready_pattern=">>>", done_pattern=">>>"),
+        "expect": {
+            "startup_ready": False, "task_submitted": False,
+            "termination_reason": "stream_stalled_startup", "valid": False,
+        },
+    },
+    # Esce prima di partire.
+    "startup_exit": {
+        "config": _fake_config("exit", ready_pattern=">>>", done_pattern=">>>"),
+        "expect": {"task_submitted": False, "termination_reason": "startup_exit", "valid": False},
+    },
+    # ⭐ §3-bis ipotesi 1, resa falsificabile: un TUI che CAPISCE il bracketed
+    # paste riceve il task.
+    "tui_bracketed_ok": {
+        "config": _fake_config(
+            "tui", ready_pattern="Enter a coding task or / for commands",
+            done_pattern="Enter a coding task or / for commands",
+            bracketed_paste=True, submit_delay_seconds=0.2, quit="\u0003", max_turns=1,
+        ),
+        "expect": {"task_submitted": True},
+        "expect_visible": ["TASK-RECEIVED"],
+    },
+    # ⭐ Lo stesso TUI che NON lo capisce: il testo entra, l'invio non parte, lo
+    # schermo ridisegna, il task non arriva mai.  E' la forma del sintomo vero.
+    "tui_bracketed_broken": {
+        "config": _fake_config(
+            "tui_nobracket", ready_pattern="Enter a coding task or / for commands",
+            done_pattern="Enter a coding task or / for commands",
+            bracketed_paste=True, submit_delay_seconds=0.2, quit="\u0003", max_turns=1,
+        ),
+        "expect": {"task_submitted": True},
+        "expect_missing": ["TASK-RECEIVED"],
+    },
+    # ⭐ E la cura proposta dal §3-bis: submit nudo, e lo stesso TUI riceve.
+    "tui_plain_submit": {
+        "config": _fake_config(
+            "tui_nobracket", ready_pattern="Enter a coding task or / for commands",
+            done_pattern="Enter a coding task or / for commands",
+            bracketed_paste=False, submit_delay_seconds=0.2, quit="\u0003", max_turns=1,
+        ),
+        "expect": {"task_submitted": True},
+        "expect_visible": ["TASK-RECEIVED"],
+    },
+    # ⭐ Lo stesso TUI, letto con `capture-pane` invece che dai byte: qui il
+    # transcript e' lo SCHERMO, e quello che si e' visto e' verificabile.
+    "tmux_tui_screen": {
+        "config": _fake_config(
+            "tui", driver="tmux",
+            ready_pattern="Enter a coding task or / for commands",
+            done_pattern="Enter a coding task or / for commands",
+            submit_delay_seconds=0.2, quit="\u0003", max_turns=1, rows=20, cols=100,
+        ),
+        "expect": {"driver": "tmux", "startup_ready": True, "task_submitted": True},
+        "expect_visible": ["TASK-RECEIVED", "fake-tui frame"],
+    },
+    # Il driver tmux deve saper dire «muto» come lo dice il PTY.
+    "tmux_silent_startup": {
+        "config": _fake_config(
+            "silent", driver="tmux", ready_pattern=">>>", done_pattern=">>>",
+            rows=20, cols=100,
+        ),
+        "expect": {
+            "driver": "tmux", "startup_ready": False, "task_submitted": False,
+            "termination_reason": "screen_stalled_startup", "valid": False,
+        },
+    },
+    # Anche un REPL di riga deve restare pilotabile via tmux: se il driver non
+    # e' intercambiabile, non e' un driver — e' una biforcazione del banco.
+    "tmux_repl_turns": {
+        "config": _fake_config(
+            "repl", driver="tmux", ready_pattern=">>>", done_pattern=">>>",
+            quit="/quit\r", max_turns=3, continue_text="continue", rows=20, cols=100,
+        ),
+        "expect": {"driver": "tmux", "turns_used": 3,
+                   "termination_reason": "completion_marker", "valid": True},
+        "expect_visible": ["turn 3 done"],
+    },
+    # Un agente che scrive davvero un file nel workspace neutro.
+    "worker_writes_artifact": {
+        "config": _fake_config(
+            "worker", ready_pattern=">>>", done_pattern=">>>", quit="/quit\r", max_turns=1,
+        ),
+        "artifact": "quicksort.c",
+        "expect": {"task_submitted": True, "valid": True},
+        "expect_file": "quicksort.c",
+    },
+}
+
+
+def run_selftest(cases: list[str] | None) -> int:
+    if not FAKE_AGENT.is_file():
+        print(f"challenge: missing {FAKE_AGENT}", file=sys.stderr)
+        return 2
+    selected = list(cases or SELFTEST_CASES)
+    unknown = [name for name in selected if name not in SELFTEST_CASES]
+    if unknown:
+        print(f"challenge: unknown selftest cases: {', '.join(unknown)}", file=sys.stderr)
+        return 2
+    started = time.monotonic()
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory(prefix="challenge-selftest-") as tmp_text:
+        tmp = Path(tmp_text)
+        for name in selected:
+            spec = SELFTEST_CASES[name]
+            config = dict(spec["config"])
+            mode = config.pop("_mode")
+            work = tmp / name
+            work.mkdir(parents=True)
+            argv = [sys.executable, str(FAKE_AGENT), "--mode", mode]
+            if spec.get("artifact"):
+                argv += ["--artifact", spec["artifact"]]
+            raw, meta = open_session(
+                argv, work, dict(os.environ), SELFTEST_PROMPT, config, 12.0, work / "trace"
+            )
+            if meta.get("driver") == "tmux":
+                # Per tmux cio' che conta e' cio' che si e' VISTO, non i byte:
+                # tutte le schermate distinte, come le archivia una gara vera.
+                visible = (work / "trace" / "screens.log").read_text(encoding="utf-8")
+            else:
+                visible = clean_transcript(raw)
+            problems = [
+                f"{key}={meta.get(key)!r} (atteso {want!r})"
+                for key, want in spec.get("expect", {}).items()
+                if meta.get(key) != want
+            ]
+            problems += [f"non visto {text!r}" for text in spec.get("expect_visible", [])
+                         if text not in visible]
+            problems += [f"visto ma non atteso {text!r}" for text in spec.get("expect_missing", [])
+                         if text in visible]
+            wanted_file = spec.get("expect_file")
+            if wanted_file and not (work / wanted_file).is_file():
+                problems.append(f"file mancante {wanted_file!r}")
+            if problems:
+                failures.append(name)
+                print(f"FAIL {name}: " + "; ".join(problems), flush=True)
+                (work / "trace" / "transcript.txt").write_text(visible, encoding="utf-8")
+            else:
+                print(f"ok   {name} ({meta['duration_seconds']}s)", flush=True)
+    elapsed = round(time.monotonic() - started, 1)
+    print(f"selftest: {len(selected) - len(failures)}/{len(selected)} in {elapsed}s")
+    return 1 if failures else 0
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--league",
+        type=Path,
+        default=LEAGUE_FILE,
+        help="league.json to use; tasks/ and archives resolve next to it",
+    )
     sub = parser.add_subparsers(dest="command")
     sub.add_parser("check", help="validate configuration without starting agents")
     run = sub.add_parser("run", help="run both agents sequentially")
@@ -781,16 +1468,25 @@ def parse_args() -> argparse.Namespace:
     run.add_argument("--run-id", default=utc_run_id())
     run.add_argument("--timeout", type=float, help="override per-agent wall-clock seconds")
     sub.add_parser("scoreboard", help="rebuild the scoreboard from archived result.json files")
+    selftest = sub.add_parser(
+        "selftest", help="exercise the pilot against fake agents; no network, no real agent"
+    )
+    selftest.add_argument("--case", action="append", dest="cases", help="case name; repeatable")
     return parser.parse_args()
 
 
 def main() -> int:
+    global BASE
     args = parse_args()
     command = args.command or "check"
+    league_file = Path(args.league).resolve()
+    BASE = league_file.parent
     try:
-        league = load_json(LEAGUE_FILE)
+        if command == "selftest":
+            return run_selftest(getattr(args, "cases", None))
+        league = load_json(league_file)
         matches = validate(league)
-        output_root = HERE / league["id"]
+        output_root = BASE / league["id"]
         output_root.mkdir(parents=True, exist_ok=True)
         if command == "check":
             print_check(league, matches)
