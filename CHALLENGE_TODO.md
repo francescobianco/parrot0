@@ -242,6 +242,13 @@ rumore dello spinner (`[|] [/] [-] [\]`) che nel PTY riempie il transcript.
 
 ## §3. ⛔ L'ORDINE IN CUI RIPRENDERE
 
+> ⭐ **Aggiornamento gen503:** il blocco singolo — parrot0 non sapeva scrivere un
+> file — **è chiuso**, e la causa non era una difficoltà del compito ma una
+> catena compilata che recintava uno strumento già dichiarato. Il piano per
+> arrivare a battere freebuff, con le abilità, le pratiche di allenamento e la
+> conoscenza da mettere in KB, è in **[§6](#6-⭐-il-piano-per-superare-freebuff)**
+> in fondo a questo file. C2 qui sotto è superata da §6.1.
+
 ### C1. ⬅ **PROSSIMO PASSO** — rimisurare freebuff, con tempi veri
 
 Chiuso come diagnosi: freebuff lavora (§1.1). Resta da **correre davvero** con
@@ -619,3 +626,182 @@ Due correzioni al pilota nate da queste due corse:
 (§1.1) e faceva correre un binario di parrot0 di gen459 (§1.2). Il prossimo run
 vero — dopo la decisione C0 sul modello — sarà il primo punto da cui misurare
 davvero.
+
+---
+
+# §6. ⭐ IL PIANO PER SUPERARE FREEBUFF
+
+> Scritto il 2026-09-04 (gen503) rispondendo a F.: *«continua fino a quando
+> parrot0 non sarà più bravo di freebuff; se non è possibile fai un piano dentro
+> questo stesso file»*.
+
+## 6.0 La risposta onesta alla domanda
+
+**Non è raggiungibile in una sessione, e va detto prima del piano.** Oggi
+freebuff fa 100/100 su match0 e su match1; parrot0 fa 5, che sono i punti di
+`seed_integrity` — quelli che si prendono non toccando niente. La distanza non è
+un difetto di rifinitura: fra i due c'è **la sintesi di una funzione C che
+soddisfa un contratto**, e quella parrot0 non la sa fare per nessun contratto
+che non gli sia già stato dato in forma curata.
+
+Ma la distanza non è nemmeno quella che sembrava. **Oggi si è chiuso il blocco
+singolo** (§6.1): lo strumento di scrittura era dichiarato da gen502 e non
+riceveva il turno, recintato da una catena compilata. Da adesso parrot0 può
+produrre un artefatto, e ogni gradino sotto è misurabile invece che ipotetico.
+
+**Il traguardo reale del prossimo tratto non è la parità: è match0.** Un file,
+un contratto, un ciclo che si chiude. Chiamare «parità» la chiusura di match0
+sarebbe l'inganno che `PRINCIPLES.md` vieta — match1 chiede quicksort three-way
+con fallback a profondità limitata, ed è un altro ordine di grandezza.
+
+⛔ **E una cosa che NON è nel piano:** rendere il banco più facile. Aggiungere
+match che premiano ciò che parrot0 già fa, o togliere i vincoli che lo fermano,
+farebbe salire il punteggio senza muovere l'abilità. La regola §4.5 vale nei due
+versi: un match che nessuno può vincere non misura niente, **e uno costruito
+attorno al concorrente nemmeno**.
+
+## 6.1 Che cosa è cambiato oggi — il blocco singolo è chiuso
+
+`local_tool(write, …)`, la classe `write_file_request`, i `tool_slot_cue` dello
+slot del nome e `code_write_file` (che rilegge il file prima di dire che l'ha
+scritto) esistevano tutti da gen502. Il ramo non veniva **mai** raggiunto: in
+`mod_piact`, ottanta righe più sopra, un cancello enumerava i cinque strumenti
+di sola lettura e scartava tutto il resto.
+
+```text
+prima   write this into hello.c: ```int hi(void){ return 7; }```
+        → «I understood the request … ma non ho uno schema verificato»   (reqgen)
+dopo    → «Wrote hello.c — 25 bytes, verified by reading it back»        (piact)
+```
+
+Cricchetto: `tests/p0t/tools/write_tool.p0t`. Retrocesso anche `symbolic`, che
+rivendicava quel turno sul charset (`looks_code` risponde 1 appena vede un
+identificatore seguito da `(`).
+
+⚠ **Questo non rende parrot0 un agente: lo rende un trascrittore.** Scrive ciò
+che gli si detta. È l'obiezione 2 di F. in `THINKING_TODO.md` §0.3-quater, e
+resta valida: l'oggetto vero non è il verbo «scrivi», è **l'obbligo di produrre
+un artefatto che soddisfi un contratto**.
+
+## 6.2 Le abilità — che cosa acquisire, allenare, connettere, testare
+
+Misurate il 2026-09-04 su `tests/challenge/tasks/match0/seed`, con il binario di
+HEAD. Le righe ✅ non vanno rifatte.
+
+| # | abilità | stato | come si acquisisce | come si allena | come si testa |
+|---|---|---|---|---|---|
+| ✅ | elencare, cercare, leggere, eseguire | c'è | — | — | `toolexec.p0t` |
+| ✅ | leggere un `.c` nella Code IR con span e provenienza | c'è | — | — | `code/*.p0t` |
+| ✅ | eseguire il build e leggerne il verdetto | c'è | — | — | `run make` nomina il file mancante |
+| ✅ | **scrivere contenuto in un file** | **chiuso oggi** | — | — | `write_tool.p0t` |
+| **A1** | **leggere un HEADER in DICHIARAZIONI** | ❌ dà testo grezzo | frontend UC2 sul `.h`: `declares/2`, `signature/3` | una sessione di lettura su 20 header veri del repo | il test chiede *quali funzioni dichiara X* e la risposta le nomina |
+| **A2** | **derivare il CONTRATTO dal commento** | ❌ assente | è comprensione di **documento** applicata a un artefatto di codice — il ponte fra le due rappresentazioni | i commenti-contratto di `kb/` e di header reali: sono tabelle condizione→risultato in prosa | *cosa restituisce str_join se count è 0?* → «una stringa vuota malloc'd» |
+| **A3** | **l'OBBLIGO di produrre** (`must_produce`) | ❌ assente | T2: un soggetto che non esiste ancora, nato da `run make` che nomina ciò che manca | ogni codebase rotta del repo è un esercizio | *cosa devi produrre?* → nomina il file, non «Hey! I'm here» |
+| **A4** | **il CICLO osserva→decidi→scrivi→verifica** | ❌ i pezzi sono separati | D49 `resumable/1` + `undertaking` | match0 ripetuto finché il ciclo si chiude da solo | il turno successivo riprende invece di ricominciare |
+| **A5** | **sintetizzare un corpo che soddisfa il contratto** | ❌ solo forme curate | estensione di `algo_shape` (gen209) verso i contratti derivati da A2 | dalle funzioni più semplici in su, con `cc -Werror` come oracolo | il file prodotto compila e passa `probe.c` |
+| **A6** | **arbitrato: il turno arriva alla facoltà giusta** | 🟡 parziale | review dei moduli (`module-review.p0`), non `faculty_yield` a raffica | ogni furto osservato → una review scritta, datata, con evidenza | il prompt vero di match0 finisce in un modulo che può agire |
+| **A7** | **non imparare gli imperativi come fatti** | ❌ S7 | la modalità imperativa è una classe riconosciuta **prima** dell'estrazione | i tre task del banco sono pieni di imperativi | *do not merely describe a patch* non diventa un fatto |
+
+**Il collo di bottiglia non è A5.** È A6: finché il prompt vero non arriva a una
+facoltà che può agire, aggiungere massa sotto non muove la misura di un punto —
+ed è già stato dimostrato una volta su una capacità aggiunta un'ora prima
+(`THINKING_TODO.md` §0.3-quater).
+
+## 6.3 Le pratiche — come si fanno questi allenamenti
+
+1. **Insegnare parlando, secondo `LEARN_PROTOCOL.md`.** È il modo primario e ha
+   il gate anti-barare: se il teacher deve conoscere nomi di predicati, arità o
+   `!assert`, non ha insegnato — ha scritto nella KB da un altro trasporto, e
+   quel risultato vale zero.
+2. **Un cricchetto per ogni voce che si chiude**, e l'ablazione che lo fa
+   cadere. Una voce senza cricchetto non è chiusa; un cricchetto che regge anche
+   togliendo la conoscenza che dichiara di provare è un cricchetto che mente.
+3. **Il turno vero, non il turno comodo.** Ogni misura si rifà sul prompt di
+   `task.md` intero e in un turno solo. Tutto il quadro delle capacità ✅ vale
+   *quando glielo si chiede esplicitamente*: sul prompt vero il turno non ci
+   arriva. Provare con la domanda facile è il modo più veloce di credersi avanti.
+4. **Review invece di zittimento.** Un modulo immaturo che vince si RETROCEDE
+   una volta (`module_claim_right/2`); uno maturo che sbaglia si INSEGNA
+   (`faculty_yield/3`). Applicare il secondo rimedio al primo problema produce
+   il whack-a-mole già misurato: governato `compose`, il turno è passato a `gen`;
+   governato `gen`, è arrivato a `codeast`.
+5. **L'oracolo esterno batte la regola da scrivere.** `run make` dice già quale
+   file manca, meglio di qualunque `missing_referenced_file` derivata dal
+   Makefile. Prima di dedurre, guardare se qualcosa lo dice già.
+6. **Ogni sessione di allenamento finisce con una corsa del banco**, e il
+   transcript è il prodotto: il punteggio dice chi ha vinto, il transcript dice
+   perché.
+
+## 6.4 La conoscenza nuova che deve entrare in KB
+
+Non «più fatti»: **queste forme**. Ognuna è una relazione con fan-out, non una
+riga per caso.
+
+```prolog
+% A1 — le dichiarazioni di un header, dalla stessa percezione degli span
+declares(Header, Function).
+signature(Function, ReturnType, ParamList).
+
+% A2 — il contratto, DERIVATO dal commento in prosa, non constatato
+contract_clause(Function, Condition, Result).
+%   contract_clause(str_join, count_is_zero, malloc_empty_string)
+%   contract_clause(str_join, sep_is_null, null)
+% ⭐ Questo e' il PONTE: il contratto e' scritto in linguaggio naturale dentro
+%   un artefatto di codice. Chi lo legge e' la comprensione di documento;
+%   dove atterra e' la Code IR. Una query lo attraversa con predicato variabile.
+
+% A3 — l'obbligo: un soggetto che non esiste ancora
+must_produce(Artifact, Because).
+%   must_produce("strjoin.c", build_names_it) da `run make`, non dal Makefile
+
+% A4 — l'impresa che sopravvive al turno (D49)
+undertaking(Id, Goal).
+resumable(Id).
+undertaking_step(Id, Order, Step, Status).
+
+% A6 — il titolo a rivendicare, gia' in uso, da estendere alle facolta' viste
+module_maturity(Faculty, legacy | transitional | kb_first).
+module_claim_right(Faculty, primary | fallback).
+
+% A7 — l'imperativo e' una classe, non un residuo
+speech_act(Segment, imperative | assertion | question).
+%   un imperativo non e' una proposizione sul mondo: non si asserisce.
+```
+
+## 6.5 L'ordine, con i gate
+
+```text
+A6  arbitrato          ⬅ PRIMO, e non e' negoziabile: sotto un arbitrato rotto
+                          ogni altra abilita' e' invisibile alla misura
+      gate: il prompt di task.md, in un turno, finisce in un modulo che puo' agire
+
+A3  must_produce       l'obbligo nasce da `run make`, che gia' nomina il file
+      gate: «cosa devi produrre?» nomina strjoin.c, e lo nomina perche' il
+            build lo ha detto — ablando il verdetto, la risposta cade
+
+A1  declares/signature  il frontend header: UC2 con un delta solo
+      gate: «quali funzioni dichiara strjoin.h» → str_join, con lo span
+
+A2  contract_clause     ⭐ il ponte fra documento e codice
+      gate: cinque clausole derivate dal commento di strjoin.h, e la risposta
+            a «cosa restituisce se sep e' NULL» non e' una citazione del testo
+
+A4  il ciclo            D49: il turno successivo riprende invece di ricominciare
+      gate: due turni chiudono un compito che uno solo non chiude
+
+A5  sintesi             l'ultimo, e il piu' lungo
+      gate: cc -std=c11 -Wall -Wextra -Werror -O2 pulito, e probe.c verde
+```
+
+**Ogni gradino si misura sul banco**, non a mano: dopo A3 il punteggio di match0
+deve muoversi da 5, e se non si muove il gradino non è chiuso, per quanto il
+cricchetto sia verde.
+
+## 6.6 Come si riconosce di aver barato
+
+- Un punteggio che sale perché il match è cambiato.
+- Un cricchetto verde su una domanda scritta guardando la risposta.
+- Una capacità dimostrata con un prompt scelto da chi la ha costruita, invece
+  che col testo del compito.
+- `faculty_yield` scritta al posto di una review, perché costa meno.
+- Un file prodotto che non compila, contato come «ha scritto qualcosa».
