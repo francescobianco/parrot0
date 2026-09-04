@@ -694,9 +694,9 @@ HEAD. Le righe ✅ non vanno rifatte.
 | ✅ | leggere un `.c` nella Code IR con span e provenienza | c'è | — | — | `code/*.p0t` |
 | ✅ | eseguire il build e leggerne il verdetto | c'è | — | — | `run make` nomina il file mancante |
 | ✅ | **scrivere contenuto in un file** | **chiuso oggi** | — | — | `write_tool.p0t` |
-| **A1** | **leggere un HEADER in DICHIARAZIONI** | ❌ dà testo grezzo | frontend UC2 sul `.h`: `declares/2`, `signature/3` | una sessione di lettura su 20 header veri del repo | il test chiede *quali funzioni dichiara X* e la risposta le nomina |
+| ✅ **A1** | **leggere un HEADER in DICHIARAZIONI** | **chiuso gen503** | frontend UC2 sul `.h`: `declares/2`, `signature/3` | una sessione di lettura su 20 header veri del repo | il test chiede *quali funzioni dichiara X* e la risposta le nomina |
 | **A2** | **derivare il CONTRATTO dal commento** | ❌ assente | è comprensione di **documento** applicata a un artefatto di codice — il ponte fra le due rappresentazioni | i commenti-contratto di `kb/` e di header reali: sono tabelle condizione→risultato in prosa | *cosa restituisce str_join se count è 0?* → «una stringa vuota malloc'd» |
-| **A3** | **l'OBBLIGO di produrre** (`must_produce`) | ❌ assente | T2: un soggetto che non esiste ancora, nato da `run make` che nomina ciò che manca | ogni codebase rotta del repo è un esercizio | *cosa devi produrre?* → nomina il file, non «Hey! I'm here» |
+| ✅ **A3** | **l'OBBLIGO di produrre** (`must_produce`) | **chiuso gen503** | T2: un soggetto che non esiste ancora, nato da `run make` che nomina ciò che manca | ogni codebase rotta del repo è un esercizio | *cosa devi produrre?* → nomina il file, non «Hey! I'm here» |
 | **A4** | **il CICLO osserva→decidi→scrivi→verifica** | ❌ i pezzi sono separati | D49 `resumable/1` + `undertaking` | match0 ripetuto finché il ciclo si chiude da solo | il turno successivo riprende invece di ricominciare |
 | **A5** | **sintetizzare un corpo che soddisfa il contratto** | ❌ solo forme curate | estensione di `algo_shape` (gen209) verso i contratti derivati da A2 | dalle funzioni più semplici in su, con `cc -Werror` come oracolo | il file prodotto compila e passa `probe.c` |
 | **A6** | **arbitrato: il turno arriva alla facoltà giusta** | 🟡 parziale | review dei moduli (`module-review.p0`), non `faculty_yield` a raffica | ogni furto osservato → una review scritta, datata, con evidenza | il prompt vero di match0 finisce in un modulo che può agire |
@@ -793,9 +793,64 @@ A5  sintesi             l'ultimo, e il piu' lungo
       gate: cc -std=c11 -Wall -Wextra -Werror -O2 pulito, e probe.c verde
 ```
 
-**Ogni gradino si misura sul banco**, non a mano: dopo A3 il punteggio di match0
-deve muoversi da 5, e se non si muove il gradino non è chiuso, per quanto il
-cricchetto sia verde.
+**Ogni gradino si misura sul banco**, non a mano. ⚠ Ma il gate va corretto
+subito, perché come era scritto era sbagliato: *«dopo A3 il punteggio di match0
+deve muoversi da 5»* è falso, e va detto invece di lasciarlo lì a sembrare vero.
+A3 non scrive nessun file, quindi il judge non ha niente di nuovo da valutare.
+**Il punteggio si muove solo dopo A5**, ed è l'unico gradino di cui questo si
+possa dire. Fino ad allora il gate di ogni voce è il suo cricchetto **più
+l'ablazione che lo fa cadere** — che è quello che rende A3 chiusa davvero e non
+per dichiarazione.
+
+## 6.7 ⭐ AVANZAMENTO gen503 — che cosa è chiuso, e che cosa si è imparato
+
+Tre voci chiuse in sequenza, ognuna con cricchetto e ablazione.
+
+| | | causa vera trovata |
+|---|---|---|
+| **scrivere un file** | `write_tool.p0t` | uno strumento dichiarato, recintato da una catena compilata (`want_grep \|\| want_find \|\| …`) |
+| **A1** dichiarazioni | `header_declarations.p0t` | `ident(...);` fuori da ogni funzione cadeva per terra: un header usciva dallo scanner con **zero nodi** |
+| **A3** obbligo | `tool_result_becomes_knowledge.p0t` | il risultato di un'azione non diventava mai conoscenza |
+
+```text
+> what must be produced for build      muro
+> run make                             «No rule to make target 'strjoin.c'»
+> what must be produced for build      «Strjoin.c.»
+```
+
+⭐ **La forma comune delle tre.** Nessuna era una capacità mancante: erano tre
+**osservazioni buttate via** — un nome dichiarato scartato da un elenco scritto
+altrove, un prototipo ignorato dallo scanner, il verdetto di un build stampato e
+dimenticato. La distanza da freebuff, per questi tre gradini, non era «parrot0
+non sa»: era «parrot0 ha guardato e non ha tenuto».
+
+Vale come indizio su dove cercare i prossimi: **prima di costruire una capacità,
+guardare se il dato che le serve viene già prodotto e scartato.** È lo stesso
+criterio che ha chiuso A3 senza scrivere un parser di Makefile.
+
+⚠ **Che cosa NON è cambiato:** il punteggio di match0. parrot0 sul prompt vero,
+in un turno, risponde ancora *«I read that as code, but I am not sure which
+function you mean»* — `codeast`, che è maturo e onesto, e non può agire. A6 e A2
+restano il muro, e A5 resta l'ordine di grandezza.
+
+### Il prossimo passo, e perché è A2 e non A6
+
+A6 (arbitrato) non è eseguibile finché non esiste una facoltà che possa servire
+quel turno: retrocedere `codeast` sposterebbe il furto, non lo chiuderebbe — è
+il whack-a-mole già misurato. **Il prossimo lavoro è A2**, e il primo ostacolo è
+misurato: il contratto di `strjoin.h` è nel commento, e `code_strip` **cancella
+i commenti** prima che lo scanner li veda. Provata la stessa prosa nella
+pipeline dei documenti (`read: Join count strings from parts …`) il risultato è
+*«Learned 0 fact(s), skipped 2»*.
+
+Quindi A2 è a sua volta due cose, e la prima è di nuovo un'osservazione buttata
+via: **il commento di documentazione deve diventare un'osservazione con il suo
+span**, attaccata alla dichiarazione che precede. La seconda — leggere
+«count == 0 -> an empty string» come `contract_clause/3` — è comprensione di
+documento su una forma condizione→risultato che oggi la pipeline non riconosce.
+⛔ E vanno fatte **insieme**: la prima da sola sarebbe l'ennesimo organo
+costruito e mai collegato, che in questo repository è già successo quattro
+volte.
 
 ## 6.6 Come si riconosce di aver barato
 
