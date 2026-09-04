@@ -141,6 +141,16 @@ league:
 «vai avanti col lavoro» **non esiste nella KB**. L'adattatore non si può rendere
 equo scegliendone una migliore.
 
+⭐ **E questa è la scoperta che vale più del banco.** F.: *«se gli LLM e i
+coding agent hanno la feature continue anche parrot0 la deve avere»*. Cercando
+dove metterla si è visto che **era già richiesta da tre punti dei piani, con
+tre nomi diversi, e nessuno costruito**: `issue_status(_, open)` (K3),
+`plan_unresolved`/i residui (K11), `budget_exhausted` (UC §4 — *«il cammino
+esiste ma non è stato completato»*). Design, gate e ordine di lavoro in
+[`docs/plans/continue-as-resumption.md`](docs/plans/continue-as-resumption.md),
+ipotesi **D49**. Il banco ha fatto il suo mestiere: non ha misurato una
+mancanza di parrot0, ne ha nominata una dei piani.
+
 **Chiuso così:** `max_turns: 1` anche per parrot0, `continue_text` vuoto.
 L'adattatore sparisce del tutto — anche freebuff è a 1 — quindi la regola §4.2
 vale ora senza eccezioni: identico il testo del compito **e** l'interfaccia.
@@ -226,7 +236,9 @@ parrot0 si ferma. Un banco che dà sempre 0-0 non è un banco.
 `max_turns: 1` per entrambi, `continue_text` vuoto. Vedi S4 per la misura che
 lo motiva. **Ne resta una coda KB, non di banco:** parrot0 non riconosce nessuna
 forma di «vai avanti col lavoro». Quando ci sarà B3 quella nozione andrà
-insegnata — è una voce per `LEARN_TODO.md`, non per `league.json`.
+insegnata — è una voce per `LEARN_TODO.md` (voce scritta), non per `league.json` — e la lezione da sola
+non basta: serve prima la vista `resumable/1` di D49, altrimenti il `continue`
+rifà l'ultimo input invece di riprendere il lavoro.
 
 ### C6. Cose piccole, con lo stato aggiornato
 

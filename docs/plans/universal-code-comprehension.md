@@ -390,6 +390,17 @@ Stati minimi del claim:
 - `unknown`: nessun cammino adeguato;
 - `budget_exhausted`: il cammino esiste ma non è stato completato.
 
+> ⭐ **gen502 — `budget_exhausted` è uno stato RIPRENDIBILE, e nessuno lo
+> riprende.** Questa riga è la definizione letterale di ciò che un `continue`
+> deve poter continuare, ed era già scritta qui dentro un elenco di stati del
+> claim. È la stessa cosa che `frontier-kb-natural-dialogue.md` chiama
+> `issue_status(_, open)` in K3 e «residui» in K11: tre vocabolari per un solo
+> oggetto. Il design che li unifica — `resumable/1` come vista, mai come
+> puntatore — è in [`continue-as-resumption.md`](continue-as-resumption.md)
+> (ipotesi D49). ⚠ **Vincolo per questo piano:** un claim
+> `budget_exhausted` deve nominare *quale* obbligo di evidenza è rimasto
+> scoperto, altrimenti non è riprendibile ma solo abbandonato con eleganza.
+
 Il renderer riceve claim già chiusi e le loro qualificazioni. Non può trasformare
 un sospetto in una certezza con una frase più elegante.
 
@@ -706,6 +717,14 @@ secondari, non la via primaria.
 **Gate KB-first:** insegnare parlando una nuova forma di domanda strutturale,
 usarla su un simbolo mai menzionato, ritrarla e osservare la perdita della sola
 forma. Una domanda con due subject compatibili chiede, non sceglie.
+
+> **gen502 — il Task IR è il fornitore naturale di `turn_goal/2`.** Il
+> `continue` (D49) ha bisogno di sapere che cosa un turno ha *intrapreso*.
+> Oggi lo può prendere solo da `goal_cue/2` (gen258); quando UC3 esisterà,
+> `operation`+`subject` del Task IR lo danno per costruzione, e la ripresa
+> funziona su una domanda sul codice senza una riga in più. Vale come
+> **consumatore di UC3**, cioè come misura del suo valore: se il Task IR non
+> basta a riprendere una domanda interrotta, non ha sostituito `wants_*`.
 
 ### UC4 — Simboli, scope, binding, reference e indici
 

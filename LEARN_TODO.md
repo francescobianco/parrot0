@@ -1,5 +1,33 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# ⭐ gen502 — «vai avanti col lavoro» non esiste nella KB, ed è una lezione
+
+Misurato sotto il profilo `agi.p0`, sette forme, nessuna funziona:
+
+```text
+continue, next            -> «Hi there! What would you like to talk about?»
+go on, carry on,
+go ahead, what next?      -> «I don't understand that yet.»
+keep going                -> «Thanks — I'm learning as we go.»
+```
+
+Un muro, un reset di cortesia e un ringraziamento a vuoto. **Non è la parola
+sbagliata: è che la nozione manca.** Trovato dal banco di gara, dove undici
+turni su dodici se ne andavano a spiegare a parrot0 una parola mandata da noi
+(`CHALLENGE_TODO` S4).
+
+⚠ **Ma non si insegna come vocabolario e basta.** La superficie (`intent_phrase`
++ `learnable/3`, EN+IT) è la parte da poco; la parte vera è che ci sia *a che
+cosa tornare* — `resumable/1` come vista, ipotesi D49 in
+[`docs/plans/continue-as-resumption.md`](docs/plans/continue-as-resumption.md).
+Insegnare le forme senza la vista produce un `continue` che rifà l'ultimo input
+invece di riprendere il lavoro: sembra funzionare, e si scopre al secondo
+`continue`, che è dove serve.
+
+**Ordine:** prima R1-R3 del design (KB pura), poi le forme come lezione parlata,
+e il gate è un dominio `plan_goal` **insegnato parlando**, interrotto da una
+digressione e ripreso.
+
 # ⛔ RIPARTI DA QUI — handoff 2026-09-04: comprensione universale del codice
 
 > **Nuova direzione esplicita di F.:** portare parrot0 al livello in cui, data

@@ -1,5 +1,29 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## ⭐ gen502 — tre campi morti che sono già la risposta sbagliata
+
+```c
+src/brain.c:223   char last_input_canon[256];
+src/brain.c:224   char last_input_raw[256];
+src/brain.c:225   int  has_last_input;
+```
+
+**Mai letti da nessuna parte** — dichiarati e basta. Non sono un residuo
+innocuo: sono il tentativo, abbandonato a metà, di tenere «l'ultimo input» come
+campo del C. È precisamente la forma che `kb/core/discourse.p0` rifiuta con
+parole sue — *«non un campo ultimo topic tenuto da qualcuno: l'entità il cui
+scambio più recente non ha nulla dopo di sé»*.
+
+**Vanno cancellati, non riusati.** La ripresa di un lavoro interrotto è una
+vista sui fatti del turno (ipotesi D49,
+[`docs/plans/continue-as-resumption.md`](docs/plans/continue-as-resumption.md)),
+e va nella stessa generazione che li toglie: se resta un campo «ultimo task» nel
+C, il `continue` finirà per leggerlo e a quel punto rifà invece di riprendere.
+
+⚠ `last_module[32]` resta: è provenance dichiarata (`{last_module}` in
+`messages.p0`), cioè meccanismo che si dichiara tale — non vocabolario.
+
+
 > ## ⛔ HANDOFF — 2026-09-03, `gen491`. Migrazione KB-first contingente + rossi.
 >
 > Sessione dedicata a **due attività intrecciate per volontà di F.**: sistemare i

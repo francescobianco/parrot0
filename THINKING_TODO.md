@@ -51,6 +51,16 @@ risposta iniziale sopravvive. Ablando a runtime la policy `hold`, la domanda
 errata torna a propagare: il cricchetto prova quindi la causalità della guardia,
 non soltanto una risposta golden.
 
+**⭐ gen502 — la guardia è chiusa, la CAUSA no.** A0 impedisce che il passo
+peggiorativo propaghi; non dice perché esista. Ipotesi **D50**
+(`frontier-kb-natural-dialogue.md` §18.48): il pensiero degrada perché pensa su
+una *stringa* e su una lista piatta di letture, e con quell'oggetto «pensare
+meglio» può solo voler dire riformulare la frase. Il test che la separa:
+riaccendere il thinking **solo** sul turno di ripresa di D49
+(`docs/plans/continue-as-resumption.md`), dove l'oggetto del pensiero è
+un'impresa con piano derivato e insieme `reached`. Se lì la guardia non deve
+mai intervenire, la causa era il referente.
+
 ### A1. ✅ Scelta fra più schemi applicabili; resta la composizione
 
 `brain_think` prende gli schemi applicabili da `thinking_for/2`, li ordina con
@@ -129,6 +139,15 @@ alternativi, e il ciclo `osservazione → verifica → riparazione` (T03 di
 `coding-agent-todo.md`). La macchina (`action_schema/2`) esiste e non è
 collegata.
 
+**⭐ gen502 — e manca il pezzo prima di tutti: la ripresa.** Un piano che si
+compone da un obiettivo non serve a niente se il turno dopo non sa di averlo
+aperto. Oggi non lo sa: parrot0 non reifica ciò che ha *intrapreso*, solo ciò
+che l'utente ha detto (`exchange/3`). D49
+(`docs/plans/continue-as-resumption.md`) aggiunge `undertaking`/`resumable` come
+vista sul chainer di gen258/259 — **zero C**, perché `turn_bookkeeping/2` è già
+un aggancio esteso da regole KB. È anche il motivo per cui il banco di gara
+finisce 0-0: senza ripresa un REPL ha un turno solo e basta.
+
 ### B4. Il residuo KB-first del layer strumenti
 
 Confronti di parole letterali in `60-agent-tools.c`: **18 → 7**. Restano
@@ -157,6 +176,14 @@ thinking non serve a questo dominio e va detto.
 `plan_step` e `thinking_step` condividono già la firma (R1). Il passo mancante:
 un piano su strumenti che includa un **rientro** — «leggi i sorgenti, poi pensa
 a quello che hai letto» — che è esattamente ciò che un coding agent fa.
+
+**⭐ gen502 — il rientro presuppone la ripresa, ed è la stessa struttura.**
+«Leggi i sorgenti, poi pensa a quello che hai letto» è un piano interrotto e
+riavviato dallo stato: esattamente `next_action/2` di D49
+(`docs/plans/continue-as-resumption.md`). C2 e il `continue` non sono due
+lavori — sono lo stesso, visto una volta da dentro il piano e una volta dal
+turno dell'utente. Farne uno solo, e cominciare dal `continue` perché è
+osservabile da fuori.
 
 ### C3. ✅ Il loop di specchio è una guardia eseguibile
 

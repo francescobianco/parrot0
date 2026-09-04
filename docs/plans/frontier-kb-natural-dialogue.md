@@ -384,6 +384,16 @@ Questa e' la generalizzazione della mossa di gen389, non un altro contatore.
 
 ### K3 — Stato dialogico: questione aperta, obblighi e mosse
 
+> ⭐ **gen502 — questo livello ha un contabile e non ha chi riprende.**
+> `kb/core/issues.p0` (gen394) costruisce già `open_issue/2`,
+> `issue_status/2` e `answer_obligation/2`, **ma nessuna regola in tutta la KB
+> legge `open_issue` per AGIRE**. `appropriate_move/2`, elencata qui sotto, non
+> è mai stata costruita. Il design che la costruisce a partire dal caso più
+> piccolo — la mossa `resume` — è in
+> [`continue-as-resumption.md`](continue-as-resumption.md), ed è ipotesi **D49**
+> (§18.47). È anche l'unico modo di rendere gen394 misurabile: un livello senza
+> consumatore non si può falsificare.
+
 **Stato attuale.** La colla conserva entita', topic, vincoli, risultati e
 correzioni, ma soprattutto come fatti separati. Manca un modello della
 conversazione come sequenza di mosse che aprono e chiudono obblighi.
@@ -618,6 +628,16 @@ Una regola conta come avanzamento solo se:
 5. non contiene lessico o entita' del prompt campionato.
 
 ### K11 — Modello situazionale, azioni e transizioni
+
+> ⭐ **gen502 — `plan_unresolved` ha un fratello già scritto altrove.** I
+> «residui» di questo livello, `budget_exhausted` di
+> [`universal-code-comprehension.md`](universal-code-comprehension.md) §4 e
+> `issue_status(_, open)` di K3 **sono la stessa cosa in tre vocabolari**:
+> qualcosa è stato aperto, non è stato chiuso, ed è nominabile. La mossa che
+> chiude il più vicino è il `continue`, e la sua istanza minima vera è in
+> [`continue-as-resumption.md`](continue-as-resumption.md) (D49) — la più
+> piccola realizzazione dello schema `FRAME → SITUAZIONE → PIANO CAUSALE →
+> PIANO DI RISPOSTA` di §17.3 che sia comunque vera.
 
 Fra il frame del turno e il piano proposizionale manca ancora un oggetto: una
 **situazione modificabile**. E' il livello necessario per problemi di
@@ -6234,3 +6254,78 @@ Una lezione di ordine superiore è chiusa solo se:
 - **non** produce un «Learned rule» quando non ha ancorato niente;
 - il contesto dichiarato **restringe** davvero: fuori dal dominio la regola non
   deve concludere.
+
+---
+
+## §18.47 — D49: riprendere è una vista, non un puntatore
+
+**Origine.** Il banco di gara (`CHALLENGE_TODO` S4) ha misurato che parrot0 non
+ha nessuna forma di «vai avanti col lavoro»: `continue` e `next` producono un
+saluto, `go on`/`carry on`/`go ahead` un muro, `keep going` un ringraziamento a
+vuoto. F.: *«se gli LLM e i coding agent hanno la feature continue anche parrot0
+la deve avere»*.
+
+**L'ipotesi.** Il `continue` **non è una parola da riconoscere né una facoltà da
+aggiungere**: è la mossa dialogica che chiude l'impresa aperta più recente, ed è
+già richiesta — con tre nomi diversi — da K3 (`issue_status(_, open)`), da K11
+(`plan_unresolved`, i residui) e da `universal-code-comprehension.md` §4
+(`budget_exhausted`: *«il cammino esiste ma non è stato completato»*). Nessuno
+dei tre è costruito. **Costruire il `continue` è il modo più economico di farli
+convergere**, perché è il primo consumatore di tre livelli che finora hanno solo
+prodotto.
+
+**La forma vincolante**, ricalcata su `current_topic/1` di `discourse.p0`:
+
+```prolog
+unfinished($Id)  :- undertaking($Id,$G), plan_goal($G,$T), naf(undertaking_reached($Id,$T)).
+resumable($Id)   :- unfinished($Id), undertaking_turn($T,$Id), naf(later_unfinished($T)).
+next_action($Id,$A) :- resumable($Id), undertaking($Id,$G), plan_action($G,$A),
+                       action_yields($A,$Art), naf(undertaking_reached($Id,$Art)),
+                       needs_met($Id,$A).
+```
+
+Nessun puntatore di ripresa: **l'impresa riprendibile è quella non finita che
+non ha nulla di non finito dopo di sé.** Una digressione non fa perdere il filo
+— e non perché sia stata esclusa: perché non lascia un'impresa. E un lavoro
+finito smette da solo di essere riprendibile, perché `unfinished` è una vista
+sul mondo corrente, come `issues.p0` già impone.
+
+**Predizione falsificabile.** Aggiungendo a mano il fatto terminale di
+un'impresa, la ripresa deve sparire **senza nessun `retract`**. Se serve
+chiuderla esplicitamente, `unfinished` è diventato un flag ed è una seconda
+copia del sapere: l'ipotesi è falsa e il design va buttato, non rattoppato.
+
+**Il debito che nomina.** `src/brain.c` dichiara `last_input_canon[256]`,
+`last_input_raw[256]` e `has_last_input` — **mai letti da nessuna parte**. È
+già stato provato a tenere «l'ultimo input» come campo del C, ed è morto senza
+essere mai stato usato. Vanno cancellati, non riusati (voce in `C_TODO.md`).
+
+Design completo, gate anti-impostor e ordine di lavoro:
+[`continue-as-resumption.md`](continue-as-resumption.md).
+
+## §18.48 — D50: il pensiero degrada perché non ha un oggetto ben posto
+
+**Origine.** A0 di `THINKING_TODO.md` è chiusa come guardia — l'esito viene
+classificato e una clarification non sostituisce più la risposta — ma la
+domanda *perché* un passo di pensiero peggiori è rimasta senza risposta. Il
+transcript `gen500-stream-v3` ne ha dato un secondo caso, su un task di coding
+vero: il pensiero 2 ha trasformato la risposta in *«What number should I use for
+"it"?»*.
+
+**L'ipotesi.** Il pensiero degrada perché **pensa su una stringa e su una lista
+piatta di letture**. Con quell'oggetto, «pensare meglio» può solo voler dire
+riformulare la frase — cioè l'unica mossa disponibile è quella che rischia di
+perdere la risposta. Non è un difetto della guardia: è un difetto del
+*referente* del pensiero.
+
+**Conseguenza operativa.** Un'impresa con goal nominato, piano derivato e
+insieme `reached` (D49) è un oggetto ben posto: un passo di pensiero utile
+diventa una domanda con risposta verificabile — *quale bisogno non soddisfatto
+posso ottenere per primo?* — e la degradazione diventa **osservabile invece che
+giudicata**: un passo che riduce `next_action`, o che propone un'azione con un
+`unmet_need`, è sbagliato per costruzione.
+
+**Il test che separa le due strade.** Riaccendere `PARROT0_THINKING=1`
+soltanto sul turno di ripresa. Se la guardia di A0 non deve mai intervenire
+perché non c'è niente da trattenere, D50 è sostenuta; se interviene con la
+stessa frequenza di oggi, il referente non era il problema e l'ipotesi cade.
