@@ -1,0 +1,51 @@
+# Una superficie di strumento si insegna PARLANDO, senza nominare niente di interno.
+#
+# `cue_for` esisteva gia' e chiede la famiglia — «learn "…" as a cue for
+# piact_list». Funziona, e per il protocollo vale ZERO: il vincolo di
+# `docs/plans/apprendimento-assistito.md` e' «un esperto del dominio che ignora
+# lo schema interno saprebbe formulare la lezione?», e con `piact_list` la
+# risposta e' no.
+#
+# Qui la famiglia si DEDUCE dall'ancora, come `frame_for` deduce la relazione:
+# si insegna ancorando a una frase che parrot0 gia' capisce. Chi insegna deve
+# solo saper chiedere la stessa cosa in un modo che gia' funziona.
+#
+# ⛔ Nessuna riga di questo test nomina un predicato, un'arita' o una famiglia.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!set PARROT0_LANG=en
+!reset
+
+!exec rm -rf /tmp/p0t-teach && mkdir -p /tmp/p0t-teach
+!exec printf 'int main(void){return 0;}\n' > /tmp/p0t-teach/main.c
+!exec printf 'int helper(void);\n' > /tmp/p0t-teach/helper.h
+!cwd /tmp/p0t-teach
+
+[test an anchor parrot0 does not understand is refused]
+!timeout 25
+> learn "zork the flumph" as another way to say "qzwx nothing understands this"
+<~ do not understand
+
+[test before the lesson the new phrasing does nothing]
+> list the files here
+<! main.c
+
+[test the lesson is given without naming anything internal]
+> learn "list the files here" as another way to say "what files are here"
+<~ asks for the same thing
+
+[test and the new phrasing works immediately]
+> list the files here
+<~ main.c
+
+[test a tool paraphrase generalizes instead of being one phrase]
+# insegnata su nessun file in particolare, si applica a un file mai nominato
+> learn "fetch the text of" as another way to say "read"
+<~ asks for the same thing
+> fetch the text of helper.h
+<~ it declares helper
+
+!cwd off
+!exec rm -rf /tmp/p0t-teach

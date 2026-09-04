@@ -705,6 +705,8 @@ response_template(i_read_x_into_structure_it_defines, "I read {file} into struct
 % (code_name/4); qui la risposta smette di chiamare «definizione» un prototipo.
 response_template(i_read_x_into_structure_it_declares, "I read {file} into structure: it declares ").
 response_template(plan_build_obligation, "I ran the build and read what it says: {detail}.").
+response_template(cue_taught_like, "Got it - «{form}» asks for the same thing as «{anchor}».").
+response_template(cue_anchor_not_understood, "I do not understand «{anchor}» well enough to copy it: teach me with a phrasing I already handle.").
 response_template(x_functionx_now_in_the_kb, ". ({k} function{s} now in the KB.)").
 
 %% Ottava tranche: le frasi che venivano APPESE a un buffer, o il cui snprintf

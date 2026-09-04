@@ -645,6 +645,23 @@ machinery(declared_surface).
 declared_surface($Surface) :- intent_cue($Intent, $Quoted), span_atom($Quoted, $Surface).
 declared_surface($Surface) :- intent_phrase($Intent, $Quoted), span_atom($Quoted, $Surface).
 
+% gen503 — la lezione che insegna una SUPERFICIE senza nominare niente di
+% interno. `cue_for` chiede la famiglia («as a cue for piact_list») e per il
+% protocollo vale zero: chi insegna non deve conoscere lo schema. Qui la
+% famiglia si DEDUCE dall'ancora, come `frame_for` deduce la relazione.
+%
+%   learn "list the files here" as another way to say "what files are here"
+% Quanta parte dell'ancora la cue che ha vinto deve spiegare. Sotto questa
+% soglia la lezione si rifiuta: un'ancora capita solo per due lettere dentro
+% una parola non e' un modello, e copiarla aprirebbe una porta davanti a una
+% stanza vuota.
+machinery(lesson_anchor_min_cover).
+lesson_anchor_min_cover(40).
+
+learnable("another way to say",       intent_cue, cue_like).
+learnable("un altro modo per dire",   intent_cue, cue_like).
+learnable("un altro modo di dire",    intent_cue, cue_like).
+
 learnable("a way to ask",         answer_frame, frame_for).
 learnable("another way to ask",   answer_frame, frame_for).
 learnable("un modo per chiedere", answer_frame, frame_for).

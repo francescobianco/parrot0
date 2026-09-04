@@ -1303,10 +1303,25 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
     if (!rq2 || rq2 <= rq1 + 1) return 0;
 
     /* gen337: the registry outgrew the gen214 bound (48 learnable rows > 32);
-     * rows past the cap were silently unteachable. 96 leaves headroom. */
-    char labels[96][KB_TERM_LEN];
+     * rows past the cap were silently unteachable. 96 leaves headroom.
+     *
+     * ⛔ gen503 — E CI E' RICASCATO. Le righe erano 105 contro un tetto di 96,
+     * e le ultime nove non erano insegnabili: la lezione veniva accettata dal
+     * turno e non succedeva niente. Nessun errore, nessun sintomo — lo stesso
+     * troncamento silenzioso dell'impronta e delle 359 righe del gen459.
+     *
+     * «96 lascia margine» era la frase sbagliata: un tetto fisso su una lista
+     * che cresce non ha margine, ha una data di scadenza. Ora la lista si
+     * alloca quanto e' — `kb_match_all` — e il problema non puo' tornare. */
+    /* La lista vive fino alla chiamata dopo, e si libera all'inizio di quella:
+     * dentro questa funzione ci sono dodici uscite, e liberare in dodici posti
+     * e' il modo migliore per dimenticarsene in uno. Al massimo resta viva
+     * un'allocazione, e non cresce. */
+    static char (*labels)[KB_TERM_LEN] = NULL;
+    size_t nl = 0;
+    free(labels); labels = NULL;
     const char *qa[3] = { NULL, NULL, NULL };
-    size_t nl = kb_match(b->kb, "learnable", qa, 3, labels, 96);
+    if (!kb_match_all(b->kb, "learnable", qa, 3, &labels, &nl)) return 0;
     for (size_t i = 0; i < nl; i++) {
         char lab[KB_TERM_LEN]; snprintf(lab, sizeof lab, "%s", labels[i]);  /* quoted */
         char *ls = lab; size_t ll = strlen(ls);
@@ -1337,7 +1352,8 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
         char family[KB_TERM_LEN] = "";
         int generic = 0;
         if (!strcmp(mode[0], "cue_for") || !strcmp(mode[0], "reply_for") ||
-            !strcmp(mode[0], "frame_for") || !strcmp(mode[0], "role_for")) {
+            !strcmp(mode[0], "frame_for") || !strcmp(mode[0], "role_for") ||
+            !strcmp(mode[0], "cue_like")) {
             const char *after = strstr(low, ls);
             if (!after) continue;
             after += strlen(ls);
@@ -1349,7 +1365,10 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                 family[fl] = after[fl]; fl++;
             }
             family[fl] = '\0';
-            if (!family[0] && strcmp(mode[0], "role_for")) continue;
+            /* `role_for` e `cue_like` non nominano la famiglia: la deducono.
+             * Pretenderla qui li escluderebbe prima di lasciarli parlare. */
+            if (!family[0] && strcmp(mode[0], "role_for") &&
+                strcmp(mode[0], "cue_like")) continue;
             /* Una famiglia si insegna, non si inventa: deve gia' esistere,
              * altrimenti la lezione scriverebbe in un cassetto che nessuno
              * apre — il caso `greeting(ahoy)` di conoscenza morta. */
@@ -1452,6 +1471,183 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                             (const KbResponseSlot[]){
                                 { "phrase", fphrase }, { "anchor", anchor }
                             }, 2, msg, sizeof msg);
+                put(msg, out, outsz);
+                return 1;
+            }
+            if (!strcmp(mode[0], "cue_like")) {
+                /* ── gen503 — INSEGNARE UNA SUPERFICIE DI STRUMENTO SENZA
+                 *            NOMINARE NIENTE DI INTERNO ─────────────────────
+                 *
+                 * `cue_for` esiste gia' ma chiede la famiglia: «learn "…" as a
+                 * cue for piact_list». Funziona, e vale ZERO per il protocollo
+                 * — il vincolo di `apprendimento-assistito.md` e' «un esperto
+                 * del dominio che ignora lo schema interno saprebbe formulare
+                 * la lezione?», e con `piact_list` la risposta e' no.
+                 *
+                 * Qui la famiglia si DEDUCE, come `frame_for` deduce la
+                 * relazione: si ancora la formulazione nuova a una che parrot0
+                 * gia' capisce.
+                 *
+                 *   learn "list the files here" as another way to say
+                 *         "what files are here"
+                 *
+                 * Chi insegna deve solo saper chiedere la stessa cosa in un
+                 * modo che gia' funziona — e per definizione lo sa, perche' e'
+                 * quella la cosa che vuole poter chiedere altrimenti.
+                 *
+                 * Si sceglie la cue PIU' LUNGA fra quelle che l'ancora
+                 * contiene: e' la stessa nozione di specificita' che
+                 * `answer_frame_surfaces` usa gia', e senza di essa una cue
+                 * generica come "file" si prenderebbe la lezione.
+                 *
+                 * ⛔ E la guardia: se nessuna cue dichiarata combacia con
+                 * l'ancora, la lezione NON si applica. Un'ancora che parrot0
+                 * non capisce aprirebbe una porta davanti a una stanza vuota. */
+                char anchor[KB_TERM_LEN] = "";
+                {
+                    const char *ap = strstr(low, ls);
+                    if (ap) {
+                        ap += strlen(ls);
+                        while (*ap == ' ' || *ap == '\t') ap++;
+                        if (*ap == '"') {
+                            const char *ae = strchr(ap + 1, '"');
+                            size_t al = ae ? (size_t)(ae - (ap + 1)) : 0;
+                            if (al && al < sizeof anchor) {
+                                memcpy(anchor, ap + 1, al);
+                                anchor[al] = '\0';
+                            }
+                        }
+                    }
+                }
+                if (!anchor[0]) continue;
+                char (*fams)[KB_TERM_LEN] = NULL; size_t nfam = 0;
+                const char *fq0[2] = { NULL, NULL };
+                if (!kb_match_all(b->kb, "intent_cue", fq0, 2, &fams, &nfam)) {
+                    free(fams);
+                    continue;
+                }
+                char best_fam[KB_TERM_LEN] = ""; size_t best_len = 0;
+                /* se la famiglia viene da uno strumento, la parafrasi va
+                 * registrata come ANCORA (un prefisso) e non come cue: e' il
+                 * meccanismo con cui quello strumento viene riconosciuto, e
+                 * registrarla altrove la renderebbe inerte. */
+                char best_tool[KB_TERM_LEN] = "";
+                for (size_t fi = 0; fi < nfam; fi++) {
+                    /* ⛔ IL GUARDIANO, e la prima stesura non ce l'aveva.
+                     *
+                     * Bastava che una cue qualsiasi fosse contenuta
+                     * nell'ancora, e «qzwx nothing understands this» veniva
+                     * accettata come modello — perche' dentro «nothing» c'e'
+                     * una cue di due lettere. Una lezione ancorata a una frase
+                     * che parrot0 non capisce apre una porta davanti a una
+                     * stanza vuota, ed e' esattamente cio' che `frame_for`
+                     * dice di voler evitare.
+                     *
+                     * Il test giusto e' quello che userebbe il DISPATCH: se
+                     * l'ancora fosse un turno, questa famiglia lo prenderebbe?
+                     * Cosi' la guardia non e' una soglia inventata qui, e'
+                     * la stessa decisione che il motore prende davvero. */
+                    if (!kb_cue_match(b, fams[fi], anchor)) continue;
+                    char cues[32][KB_TERM_LEN];
+                    const char *cq0[2] = { fams[fi], NULL };
+                    size_t nc0 = kb_match(b->kb, "intent_cue", cq0, 2, cues, 32);
+                    for (size_t ci = 0; ci < nc0; ci++) {
+                        char cb0[KB_TERM_LEN]; snprintf(cb0, sizeof cb0, "%s", cues[ci]);
+                        char *cp = cb0; size_t cl0 = strlen(cp);
+                        if (cl0 >= 2 && cp[0] == '"' && cp[cl0 - 1] == '"') {
+                            cp[cl0 - 1] = '\0'; cp++; cl0 -= 2;
+                        }
+                        if (!*cp || cl0 <= best_len) continue;
+                        if (!strstr(anchor, cp)) continue;
+                        best_len = cl0;
+                        snprintf(best_fam, sizeof best_fam, "%s", fams[fi]);
+                    }
+                }
+                free(fams);
+                /* Un secondo posto da cui una famiglia si puo' dedurre: gli
+                 * STRUMENTI. `read src/x.c` non e' capito da una `intent_cue`
+                 * lunga ma da un'ANCORA strutturale (`tool_anchor(read,
+                 * "read ")`), e la famiglia da arricchire e' l'intento che lo
+                 * strumento dichiara. Senza questo ramo si poteva insegnare una
+                 * parafrasi dell'elenco e non della lettura, il che sarebbe
+                 * stato un limite arbitrario dovuto a come e' fatto il
+                 * riconoscimento, non a che cosa si vuole insegnare. */
+                {
+                    char tools[16][KB_TERM_LEN];
+                    const char *tq0[3] = { NULL, NULL, NULL };
+                    size_t nt0 = kb_match(b->kb, "local_tool", tq0, 3, tools, 16);
+                    for (size_t ti = 0; ti < nt0; ti++) {
+                        char ancs[8][KB_TERM_LEN];
+                        const char *aq0[2] = { tools[ti], NULL };
+                        size_t na0 = kb_match(b->kb, "tool_anchor", aq0, 2, ancs, 8);
+                        for (size_t ai = 0; ai < na0; ai++) {
+                            char ab0[KB_TERM_LEN];
+                            snprintf(ab0, sizeof ab0, "%s", ancs[ai]);
+                            char *ap0 = ab0; size_t al0 = strlen(ap0);
+                            if (al0 >= 2 && ap0[0] == '"' && ap0[al0 - 1] == '"') {
+                                ap0[al0 - 1] = '\0'; ap0++; al0 -= 2;
+                            }
+                            while (al0 && ap0[al0 - 1] == ' ') ap0[--al0] = '\0';
+                            if (!*ap0 || al0 <= best_len) continue;
+                            if (strncmp(anchor, ap0, al0) != 0) continue;
+                            char iv[1][KB_TERM_LEN];
+                            const char *iq0[3] = { tools[ti], NULL, NULL };
+                            if (kb_match(b->kb, "local_tool", iq0, 3, iv, 1) != 1) continue;
+                            best_len = al0;
+                            snprintf(best_fam, sizeof best_fam, "%s", iv[0]);
+                            snprintf(best_tool, sizeof best_tool, "%s", tools[ti]);
+                        }
+                    }
+                }
+                if (!best_fam[0]) continue;
+                /* ⛔ E ANCORA NON BASTA: `kb_cue_match` da solo accettava
+                 * «qzwx nothing understands this», perche' qualche famiglia
+                 * generica combacia con quasi tutto. Il segnale che manca e'
+                 * la COPERTURA: la cue che ha vinto deve spiegare una parte
+                 * consistente dell'ancora, non due lettere dentro una parola.
+                 * Quanta parte e' conoscenza (`lesson_anchor_min_cover/1`),
+                 * non un numero deciso qui — cosi' si puo' stringere o
+                 * allentare senza ricompilare. */
+                {
+                    long need = 40;
+                    char mv[1][KB_TERM_LEN];
+                    const char *mq0[1] = { NULL };
+                    if (kb_match(b->kb, "lesson_anchor_min_cover", mq0, 1, mv, 1) == 1) {
+                        char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mv[0]);
+                        long v = strtol(kb_dequote(mb), NULL, 10);
+                        if (v > 0 && v <= 100) need = v;
+                    }
+                    size_t alen = strlen(anchor);
+                    if (alen == 0 || (long)(best_len * 100) < (long)alen * need) {
+                        char msg[320];
+                        const KbResponseSlot sl2[] = { { "anchor", anchor } };
+                        if (!kb_term_say(b, "cue_anchor_not_understood", sl2, 1,
+                                         msg, sizeof msg))
+                            snprintf(msg, sizeof msg,
+                                     "I do not understand «%s» well enough to copy it.",
+                                     anchor);
+                        put(msg, out, outsz);
+                        return 1;
+                    }
+                }
+                char nq[KB_TERM_LEN];
+                snprintf(nq, sizeof nq, "\"%.*s\"",
+                         (int)(rq2 - rq1 - 1), rq1 + 1);
+                if (best_tool[0]) {
+                    const char *ta[2] = { best_tool, nq };
+                    kb_assert(b->kb, "tool_anchor", ta, 2);
+                } else {
+                    const char *ca[2] = { best_fam, nq };
+                    kb_assert(b->kb, "intent_cue", ca, 2);
+                }
+                char msg[256];
+                char shown[KB_TERM_LEN];
+                snprintf(shown, sizeof shown, "%.*s", (int)(rq2 - rq1 - 1), rq1 + 1);
+                const KbResponseSlot sl[] = { { "form", shown }, { "anchor", anchor } };
+                if (!kb_term_say(b, "cue_taught_like", sl, 2, msg, sizeof msg))
+                    snprintf(msg, sizeof msg,
+                             "Got it - «%s» asks for the same thing as «%s».",
+                             shown, anchor);
                 put(msg, out, outsz);
                 return 1;
             }
