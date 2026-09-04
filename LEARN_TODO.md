@@ -159,7 +159,8 @@ non cambia nessuno di questi è uno specchio e va arrestato.
 Il ratchet del thinking rende ora il vincolo eseguibile: ogni rientro dichiara
 `reentry_brings/3` più un `thinking_feedback/4` (`fact_delta`, `query_result` o
 `gap_with_action`); un gap è valido solo con `thinking_feedback_action/3`.
-`thinking_graph.p0t` verifica ablation e crescita runtime: **25/25**.
+`thinking_graph.p0t` verifica ablation, non-peggioramento, stop e scelta runtime:
+**36/36**.
 
 La IR ora espone anche `code_ordered_before/3`: ordine osservato tra nodi dello
 stesso scope, distinto esplicitamente da una CFG. È un nuovo registro che il
