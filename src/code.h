@@ -11,6 +11,7 @@
 typedef struct {
     char snapshot[KB_TERM_LEN];
     size_t functions;
+    size_t declarations;   /* fra le `functions`, quante sono solo dichiarate */
     size_t calls;
     size_t nodes;
     int replaced;

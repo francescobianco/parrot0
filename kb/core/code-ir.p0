@@ -32,6 +32,17 @@ code_defined_in($Name, $Source) :-
     code_source_snapshot($Source, $Snapshot),
     code_name($Snapshot, $Node, definition, $Name).
 
+% gen503 — LE DICHIARAZIONI. Il frontend ora osserva anche `ident(...);` fuori
+% da ogni funzione (un prototipo) e le da' il ruolo `declaration`. Qui non
+% cambia niente del motore: il ruolo era gia' DATO in code_name/4, e questa
+% vista e' la stessa forma di code_defined_in con un'altra costante. E' la
+% promessa scritta in testa a questo file — un frontend nuovo entra derivando
+% righe, non aggiungendo un consumer.
+machinery(code_declared_in).
+code_declared_in($Name, $Source) :-
+    code_source_snapshot($Source, $Snapshot),
+    code_name($Snapshot, $Node, declaration, $Name).
+
 code_call_in($Caller, $Callee, $Source) :-
     code_source_snapshot($Source, $Snapshot),
     code_name($Snapshot, $CallerNode, definition, $Caller),
@@ -238,6 +249,8 @@ code_calls($Caller, $Callee) :-
 % to either working question; no code handler or predicate name is required.
 answer_frame("definition source of", code_defined_in).
 answer_frame_input_arg("definition source of", code_defined_in, 1).
+answer_frame("declaration source of", code_declared_in).
+answer_frame_input_arg("declaration source of", code_declared_in, 1).
 answer_frame("source evidence for", code_definition_evidence).
 answer_frame_input_arg("source evidence for", code_definition_evidence, 1).
 answer_frame("call evidence for", code_call_evidence).

@@ -1,0 +1,33 @@
+# Un header e' un'osservazione, non un blocco di testo.
+#
+# Lo scanner C osservava `ident(...) {` come definizione e `ident(...)` dentro
+# una funzione come chiamata. `ident(...);` fuori da ogni funzione — cioe' UN
+# PROTOTIPO, cioe' tutto il contenuto di un header — cadeva per terra: un header
+# usciva dallo scanner con zero nodi, `read` ripiegava sul testo grezzo, e la
+# domanda «cosa dichiara questo file» non aveva niente su cui atterrare.
+#
+# Il ruolo era gia' DATO nella IR (code_name/4): il frontend ora emette
+# `declaration` e la KB lo proietta con una vista della stessa forma di
+# code_defined_in. Nessun consumer nuovo, come promette la testa di code-ir.p0.
+#
+# Il file letto e' un header VERO di questo repository, non una fixture.
+
+[mock live]
+!set PARROT0_SESSION=
+!set PARROT0_TOOLS=1
+!set PARROT0_LANG=en
+!reset
+
+[test a real header is read into structure as declarations]
+!timeout 20
+> read src/code.h
+<~ it declares
+<~ code_ingest_source
+
+[test the declaration is reachable by question]
+> declaration source of code_ingest
+<~ code.h
+
+[test a definition is still called a definition]
+> read src/code.c
+<~ it defines

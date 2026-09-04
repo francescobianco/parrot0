@@ -1185,14 +1185,22 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         if (b->kb) {
             char names[32][KB_TERM_LEN];
             int clang = identify_code_lang(code, b);
+            CodeIngestReport rep;
             size_t k = code_ingest_source(b->kb, code, file,
                                           clang == 2 ? "python" : "c",
-                                          names, 32, NULL);
+                                          names, 32, &rep);
             if (k > 0) {
                 size_t shown = k < 32 ? k : 32;
                 char _t3[512];
                 const KbResponseSlot _r3[] = { { "file", file } };
-                kb_term_say(b, "i_read_x_into_structure_it_defines", _r3, 1, _t3, sizeof _t3);
+                /* gen503: un header non definisce niente. Il ruolo osservato
+                 * sceglie la frase — «declares» quando tutto cio' che si e'
+                 * visto sono prototipi — invece di chiamare definizione un
+                 * prototipo per comodita' di una sola stringa. */
+                kb_term_say(b, rep.declarations == k
+                                   ? "i_read_x_into_structure_it_declares"
+                                   : "i_read_x_into_structure_it_defines",
+                            _r3, 1, _t3, sizeof _t3);
                 size_t off = (size_t)snprintf(out, out_size, "%s", _t3);
                 for (size_t i = 0; i < shown && off < out_size; i++) {
                     const char *sep = (i==0) ? "" : (i==shown-1) ? " and " : ", ";

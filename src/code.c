@@ -181,6 +181,7 @@ typedef struct {
     size_t n;
     size_t cap;
     size_t functions;
+    size_t declarations;
     size_t calls;
     int failed;
 } CodeObservation;
@@ -215,7 +216,10 @@ static CodeObservedNode *code_observation_add(CodeObservation *o,
     snprintf(n->name, sizeof n->name, "%s", name);
     n->start = start;
     n->len = len;
-    if (!strcmp(kind, "function")) o->functions++;
+    if (!strcmp(kind, "function")) {
+        o->functions++;
+        if (!strcmp(role, "declaration")) o->declarations++;
+    }
     if (!strcmp(kind, "call")) o->calls++;
     return n;
 }
@@ -458,6 +462,7 @@ static int code_observation_publish(KB *kb, const char *src,
         memset(report, 0, sizeof *report);
         snprintf(report->snapshot, sizeof report->snapshot, "%s", snapshot);
         report->functions = o->functions;
+        report->declarations = o->declarations;
         report->calls = o->calls;
         report->nodes = o->n + 1;
         report->replaced = replaced;
@@ -512,6 +517,23 @@ static int code_observe_c(KB *kb, const char *src, CodeObservation *o) {
             if (!n) return 0;
             snprintf(cur_node, sizeof cur_node, "%s", n->id);
             fn_brace = brace + 1;
+            p = after;
+        } else if (*after == ';' && !cur_node[0] && brace == 0) {
+            /* gen503 — UNA DICHIARAZIONE E' UN'OSSERVAZIONE, non uno scarto.
+             *
+             * `ident(...);` fuori da ogni funzione e' un prototipo. Prima
+             * cadeva per terra: il ramo `else if (cur_node[0])` lo ignorava
+             * perche' non c'era una funzione corrente, e un header intero
+             * usciva dallo scanner con ZERO nodi. Da li' `read strjoin.h`
+             * ripiegava sul testo grezzo, e la domanda «quali funzioni dichiara
+             * questo header» non aveva niente su cui atterrare.
+             *
+             * Il ruolo e' DATO — code_name($Snap, $Node, $Ruolo, $Nome) — e la
+             * KB lo proietta senza che il motore delle domande cambi: e' la
+             * promessa scritta in testa a kb/core/code-ir.p0, e qui si paga.
+             * Il frontend misura, non decide che cosa significhi. */
+            if (!code_observation_add(o, "function", "declaration",
+                                      name, "unit_0", start, idlen)) return 0;
             p = after;
         } else if (cur_node[0]) {
             if (!code_observation_add(o, "call", "reference", name,
