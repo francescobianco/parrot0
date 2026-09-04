@@ -1,0 +1,115 @@
+% ══ R1 — IL VOCABOLARIO UNICO DEL REASONING ═════════════════════════════════
+%
+% Piano: `docs/plans/reasoning.md`, Parte II §1 (H1) e §4.
+%
+% L'audit ha trovato che parrot0 ha gia' TRE dialetti di piano, tutti KB-first:
+%
+%   compensation_plan_step/3   arrests.p0    passi con Pre, Effetto, Costo, Supporto
+%                                            piu' un DAG con rango topologico
+%   answer_plan/4              procedures.p0 75 fatti, gira in produzione
+%   turn_plan/2 + plan_step/3  capabilities.p0  il piano sugli strumenti (gen495)
+%
+% Aggiungerne un quarto sarebbe il difetto che il piano dice di voler evitare,
+% commesso mentre lo si evita. Percio' la firma qui sotto NON e' inventata: e' la
+% quadrupla piu' ricca dei tre — quella degli arresti — promossa a vocabolario
+% comune. `step(Operatore, Pre, Effetto, meta(Costo, Supporto))` e' la stessa
+% forma che `compensation_plan_step/3` usa gia'.
+%
+% ⛔ E IL PRIMO TEST DELLA FIRMA E' QUI SOTTO, non in un documento: il piano
+% VIVO del gen495 — quello che risponde a «analizza tutti i file sorgenti che
+% trovi» — viene ora DERIVATO da questa firma. Se non si fosse potuto esprimere
+% senza perdere niente, la firma sarebbe sbagliata e andava cambiata, non
+% forzata. L'esecutore degli strumenti non e' stato toccato: continua a leggere
+% `turn_plan/2` e `plan_step/3`, che ora sono VISTE.
+
+:- file_attribute(machinery).
+
+machinery(reasoning_scheme).
+machinery(reasoning_step).
+machinery(reasoning_after).
+machinery(reasoning_stop).
+machinery(reasoning_rank).
+machinery(reasoning_depends).
+machinery(reasoning_cycle).
+machinery(reasoning_ready).
+
+% ── LA FIRMA ────────────────────────────────────────────────────────────────
+%
+%   reasoning_scheme(Nome, Scopo)
+%   reasoning_step(Nome, Id, step(Operatore, Pre, Effetto, meta(Costo, Supporto)))
+%   reasoning_after(Nome, Prima, Dopo)      l'arco: da qui si deriva il grafo
+%   reasoning_stop(Nome, Condizione)        perche' ci si ferma, dichiarato
+
+% ── L'ORDINE SI DERIVA DAL GRAFO, NON DALL'INDICE (H2) ─────────────────────
+%
+% Il rango e' la stessa costruzione di `arrest_rank/2`: un nodo senza
+% predecessori ha rango 0, chi dipende da un nodo di rango R ha rango R+1. Ne
+% segue che **un ramo parallelo non e' una feature dell'esecutore**: e' un
+% insieme di nodi con lo stesso rango, cioe' una proprieta' osservabile della
+% conoscenza. Si puo' chiedere «perche' hai fatto queste tre cose insieme?» e la
+% risposta e' un fatto.
+reasoning_depends($Scheme, $Node, $Prev) :-
+    reasoning_after($Scheme, $Prev, $Node).
+
+reasoning_rank($Scheme, $Node, 0) :-
+    reasoning_step($Scheme, $Node, $Step),
+    naf(reasoning_has_predecessor($Scheme, $Node)).
+reasoning_rank($Scheme, $Node, $Rank) :-
+    reasoning_depends($Scheme, $Node, $Prev),
+    reasoning_rank($Scheme, $Prev, $PrevRank),
+    is($Rank, add($PrevRank, 1)).
+
+machinery(reasoning_has_predecessor).
+reasoning_has_predecessor($Scheme, $Node) :-
+    reasoning_depends($Scheme, $Node, $Prev).
+
+% Un grafo con un ciclo resta OSSERVABILE ma non e' eseguibile: si dichiara
+% malato invece di girare per sempre. Stessa scelta di `arrest_cycle/1`.
+reasoning_cycle($Scheme) :-
+    reasoning_depends($Scheme, $Node, $Node).
+reasoning_cycle($Scheme) :-
+    reasoning_depends($Scheme, $A, $B),
+    reasoning_depends($Scheme, $B, $A).
+
+reasoning_ready($Scheme) :-
+    reasoning_scheme($Scheme, $Purpose),
+    naf(reasoning_cycle($Scheme)).
+
+% ══ IL PRIMO SCHEMA, ED E' UN PIANO CHE GIA' GIRAVA ═════════════════════════
+%
+% «analizza tutti i file sorgenti che trovi»: trova → leggi ciascuno → riferisci.
+% Era gia' vivo al gen495 come `turn_plan`/`plan_step`; qui viene ridetto con la
+% firma comune, e le due forme vecchie diventano viste. Nessuna riga di C e'
+% cambiata: e' esattamente la prova che si voleva.
+reasoning_scheme(analyze_sources, "read every source file and report what it contains").
+
+reasoning_step(analyze_sources, 1,
+               step(list_sources, none, sources_found, meta(1, local))).
+reasoning_step(analyze_sources, 2,
+               step(read_each, sources_found, structure_ingested, meta(1, local))).
+
+reasoning_after(analyze_sources, 1, 2).
+
+% Perche' ci si ferma: dichiarato, non implicito.
+reasoning_stop(analyze_sources, structure_ingested).
+reasoning_stop(analyze_sources, budget_exhausted).
+
+% ── LE VISTE: i consumatori vecchi non sanno che e' cambiato qualcosa ───────
+%
+% `turn_plan/2` e `plan_step/3` non sono piu' fatti: sono proiezioni. Chi le
+% legge — l'esecutore degli strumenti in `60-agent-tools.c` — non e' stato
+% toccato. E' la condizione che rende questa migrazione onesta: se avesse
+% richiesto di cambiare il consumatore, non sarebbe stata una unificazione ma
+% una riscrittura con un nome nuovo (mantra #18a).
+turn_plan($Scheme, $CueClass) :-
+    reasoning_scheme($Scheme, $Purpose),
+    scheme_cue_class($Scheme, $CueClass).
+
+plan_step($Scheme, $Id, $Operator) :-
+    reasoning_step($Scheme, $Id, step($Operator, $Pre, $Effect, $Meta)).
+
+% Quale classe di superfici apre uno schema. Resta un fatto separato perche' e'
+% LINGUA, non struttura del ragionamento: lo stesso grafo puo' essere chiamato
+% da parole diverse, e in lingue diverse.
+machinery(scheme_cue_class).
+scheme_cue_class(analyze_sources, plan_analyze_sources).

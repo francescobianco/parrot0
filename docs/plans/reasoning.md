@@ -492,3 +492,304 @@ Il primo produce una catena di elaborazione interna al modello.
 Il secondo produce un **grafo di ragionamento esplicito, modificabile e apprendibile**.
 
 Ed è proprio questo che permette a parrot0 di trattare il reasoning non come una proprietà speciale di uno specifico modello, ma come una capacità generale del sistema.
+
+
+---
+---
+
+# PARTE II — Le basi: che cosa esiste già, e che cosa manca davvero
+
+> Aggiunta del 2026-09-04, dopo un audit del repository. La Parte I è la
+> visione; questa è il **ponte con la realtà**, più gli esperimenti che voglio
+> provare per primi. Il criterio che governa questa parte è la leva #1 misurata
+> in `universal-code-comprehension.md` §7-bis: *tre volte in quattro giorni il
+> guadagno più grosso è venuto dal collegare un organo già scritto, mai dal
+> costruire il quinto sottosistema.*
+
+## 0. ⛔ Il verdetto dell'audit: il substrato del reasoning ESISTE, ed è spento
+
+Questa è la scoperta che deve governare l'intero piano, perché cambia
+completamente il primo passo. parrot0 non ha bisogno di un motore di reasoning:
+ne ha **tre dialetti**, tutti KB-first, e due sono in gran parte inerti.
+
+| organo | dove | stato misurato |
+|---|---|---|
+| `compensation_plan_step(Turn, Index, step(Action, Pre, Effect, meta(Cost, Support)))` | `kb/core/arrests.p0` | **la struttura è già quella che la Parte I chiede** — passi con precondizioni, effetti, costo e supporto |
+| `arrest_dag/1`, `arrest_rank/2` | idem | **un DAG con rango topologico**, con guardia esplicita sui cicli |
+| `compensation_stop(Turn, Reason)` | idem | condizioni d'arresto **dichiarate**, non cablate |
+| `compensation_step/3` | idem | **0 fatti** — il piano esiste, i passi non sono mai stati dichiarati |
+| `compensation_alternative/…` | idem | **0 fatti** |
+| `answer_plan(Act, Facet, Order, Requirement)` | `kb/core/procedures.p0` | **75 fatti, e gira in produzione**: reasoning seriale ordinato, con requisiti tipati (`required`/`optional`) e rifiuto se manca una faccetta |
+| `turn_plan/2` + `plan_step/3` | `kb/core/capabilities.p0` | gen495: piano seriale su strumenti, 2 passi, **vivo** |
+| `action_schema(Domain, Action)` + `applicable/2`, `missing_precondition_set/3` | `kb/core/situation.p0` | pianificazione con precondizioni, **4 fatti** |
+| `gap_kind/2` | `kb/core/gap-kinds.p0` | 23 fatti: **la specie epistemica di una lacuna**, già tipata |
+
+**Conclusione operativa: il primo lavoro del reasoning non è scrivere un motore.
+È unificare tre dialetti in uno e accendere ciò che è già dichiarato.** Un quarto
+vocabolario di piani sarebbe il difetto che questo documento dice di voler
+evitare, commesso mentre lo si evita.
+
+### 0.1 Il pezzo più prezioso che già c'è: l'operatore a predicato variabile
+
+La Parte I chiede che un nodo possa essere «una risoluzione simbolica, una query
+alla KB, una chiamata a uno strumento, una inferenza LLM». Il meccanismo per
+farlo **esiste ed è già in uso in due punti**:
+
+```prolog
+apply($Predicate, cons($Entity, cons($Value, nil)))
+```
+
+`apply/2` è il confine a predicato variabile del solver. Regge il ponte fra
+rappresentazioni (`ir_domain_claim/3`) e il motore dei criteri di qualità
+(`criterion_finding/3`), dove **la misura è il NOME di una relazione, non una
+funzione compilata**. Un nodo di reasoning il cui operatore è una variabile è
+esattamente la stessa mossa: `reasoning_step(Schema, N, op(Predicato, Args))`.
+
+Ne segue che **non serve un dispatcher di operatori**: serve dichiararli.
+
+## 1. Ipotesi di soluzione
+
+### H1 — Un vocabolario solo, derivato dai tre esistenti
+
+Non `reasoning_scheme` accanto a `compensation_plan` e `answer_plan`, ma **una
+firma comune di cui i tre diventino viste**. La firma minima, presa dalla più
+ricca (quella degli arresti) e non inventata:
+
+```prolog
+reasoning_scheme(Nome, Scopo).
+reasoning_step(Nome, Id, step(Operatore, Pre, Effetto, meta(Costo, Supporto))).
+reasoning_after(Nome, Prima, Dopo).          % l'arco: da qui il DAG
+reasoning_stop(Nome, Condizione).
+```
+
+Il test di questa ipotesi non è che sia elegante: è che
+`answer_plan/4` e `compensation_plan/3` si possano **derivare** da essa senza
+perdere nulla. Se non si può, la firma è sbagliata e va cambiata, non forzata.
+
+### H2 — L'ordine si deriva dal grafo, non dall'indice
+
+`arrest_rank/2` calcola già un rango topologico su `arrest_depends_on/2`, con la
+guardia sui cicli (`arrest_cycle/1`) che impedisce di eseguire un grafo malato.
+Il reasoning riusa quello: **l'esecutore non ordina, chiede il rango.** Un ramo
+parallelo è semplicemente un insieme di nodi con lo stesso rango, e la sintesi è
+il primo nodo di rango superiore che dipende da tutti.
+
+Vantaggio non ovvio: la *parallelizzazione* diventa una proprietà osservabile
+della conoscenza, non una scelta dell'esecutore. Si può chiedere a parrot0
+«perché hai fatto queste tre cose insieme?» e la risposta è un fatto.
+
+### H3 — Lo stato epistemico esiste già, sotto altri nomi
+
+La Parte I chiede `status(C, supported | refuted | unknown)`. Oggi parrot0 ha:
+
+- `criterion_finding/3` — una pretesa **con la sua evidenza** (che cosa è stato
+  misurato, quanto, contro quale soglia);
+- `criterion_waiver/3` + `criterion_counterevidence/3` — **la controevidenza
+  dichiarata**, cioè ciò che neutralizza una pretesa;
+- `ir_domain_claim_basis/3` — **il ponte che ha autorizzato** una pretesa
+  cross-dominio, quindi la sua attribuibilità;
+- `gap_kind/2` — la specie di ciò che manca;
+- e `naf/1` che **rifiuta un goal non ground** invece di indovinare
+  (floundering: declina onestamente).
+
+Ipotesi: `status/2` non è un predicato nuovo, è una **vista** su questi. Se non
+lo è, significa che uno di questi cinque è mal formato — ed è più interessante
+scoprirlo che aggiungere il sesto.
+
+### H4 — Il budget è una condizione d'arresto di prima classe, non un guardrail
+
+Il solver conta già `steps`, `budget_hit` e `loops_cut`, e li **espone** invece
+di nasconderli (`kb_inference_report`). Un grafo di reasoning moltiplica
+l'inferenza per il numero di nodi: al gen491 un singolo predicato riderivato
+442 volte per turno era l'83% del tempo.
+
+Quindi: `reasoning_stop(Schema, budget_exhausted)` non è un ripiego. È
+**l'unica condizione d'arresto che il sistema può garantire sempre**, e va
+progettata per prima, non aggiunta dopo. Corollario dal §L: prima di attivare il
+reasoning si dichiarano le viste materializzate dei predicati che il grafo
+rileggerà, o il grafo pagherà il costo di riderivarli a ogni nodo.
+
+### H5 — ⚠ L'LLM come operatore: una tensione con `PRINCIPLES.md` da dichiarare
+
+La Parte I propone `reasoning step → LLM(prompt)`. Va detto chiaramente: la
+scommessa fondativa di questo progetto è **non delegare l'intelligenza**
+(`PRINCIPLES.md`: l'LLM è l'agente che *costruisce* parrot0, non un organo che
+parrot0 interroga). Un nodo `LLM(prompt)` dentro il grafo rischia di essere
+l'esatto opposto: parrot0 che chiede a un modello di pensare al posto suo.
+
+La forma compatibile esiste e il progetto la usa già altrove (`llmscore`,
+`autolearn`, le sonde): **l'LLM è un ORACOLO DI MISURA o un MAESTRO, mai un
+passo del ragionamento in produzione.** Proposta: la firma ammette
+`op(oracle, …)` ma il profilo di produzione non ne dichiara nessuno, e un
+cricchetto verifica che non ce ne siano. Se un giorno si decide diversamente,
+sarà una decisione presa, non una che è scivolata dentro.
+
+## 2. Vantaggi, e come si distinguono da quelli dichiarati
+
+Il documento dice che il grafo è «esplicito, modificabile e apprendibile». Vero,
+ma sono proprietà di progetto. Questi invece sono vantaggi **verificabili**, e
+ciascuno ha già il suo meccanismo:
+
+| vantaggio | perché è verificabile qui e non in una CoT |
+|---|---|
+| **Attribuibile** | ogni passo porta la sua basis (`ir_domain_claim_basis`, `store_proof`): si può chiedere *perché* un nodo è stato eseguito, e la risposta è un fatto, non una ricostruzione a posteriori |
+| **Ritrattabile** | togliere un arco con `!forget` cambia il ragionamento nello stesso turno. Una CoT non si può ritrattare: si può solo rigenerare |
+| **Ablatable** | è il criterio anti-impostore: se togliere un nodo non cambia **niente**, quel nodo era teatro |
+| **Insegnabile** | canale #1 della Gerarchia di Crescita, e già dimostrato altrove: al gen493 una parafrasi insegnata parlando ha **trasferito** a un soggetto mai nominato nella lezione |
+| **Ispezionabile a costo zero** | il grafo è interrogabile prima di eseguirlo: si può chiedere «che cosa faresti» senza farlo |
+| **Riproducibile** | stesso input + stessa KB = stesso grafo. Una CoT no |
+
+## 3. ⭐ Gli esperimenti che voglio provare per primi
+
+Ognuno ha una **misura** e una **falsificazione**. Un esperimento senza
+falsificazione non è un esperimento: è una demo, e nella demo del gen493 ho già
+imparato che cosa vale una demo i cui prompt li sceglie chi la scrive.
+
+### E1 — Lo schema è conoscenza (il test minimo, da fare per primo)
+
+Insegnare a runtime uno schema di due passi e vedere la risposta cambiare.
+
+- **Misura:** la risposta cambia dopo l'insegnamento, torna dopo `!forget`.
+- **Falsificazione forte:** lo schema insegnato su un soggetto deve valere su un
+  soggetto **mai nominato nella lezione**. Se non trasferisce, è un frasario.
+- **Perché per primo:** se questo non passa, tutto il resto è architettura senza
+  fondamenta.
+
+### E2 — Il grafo non è una catena
+
+Uno schema con tre rami paralleli e una sintesi.
+
+- **Misura:** i tre rami hanno lo stesso `arrest_rank`, la sintesi rango
+  superiore, e l'esecuzione rispetta il rango.
+- **Falsificazione:** **invertire gli archi `reasoning_after/2` deve invertire
+  l'ordine di esecuzione.** Se l'ordine non cambia, l'esecutore sta usando
+  l'indice e il grafo è decorativo.
+
+### E3 — L'arresto ha una ragione dichiarata
+
+Lo stesso input, due profili: uno che si ferma su `supported`, uno su
+`budget_exhausted`.
+
+- **Misura:** parrot0 **dice perché** si è fermato, e le due ragioni sono
+  diverse a parità di input.
+- **Falsificazione:** se la ragione è sempre la stessa, la condizione non è letta.
+
+### E4 — ⭐ Il reasoning migliora davvero? (l'esperimento onesto)
+
+Applicare uno schema `finding → critica → revisione` ai criteri di qualità del
+codice (`code_finding/3`), che già producono pretese con evidenza.
+
+- **Misura:** *findings ritirati dalla critica / findings prodotti*. Con la
+  demo attuale il numero atteso è basso — `wide_fanout` su un dispatcher è
+  proprio il caso che `criterion_waiver` dovrebbe cancellare.
+- **Falsificazione, ed è quella che conta:** **se la critica non ritira mai
+  niente, il passo è decorativo** e va tolto. Un passo di reasoning che non può
+  cambiare la conclusione non è reasoning.
+
+### E5 — Quanto costa (da misurare prima di crederci)
+
+Stesso input con `reasoning = off | light | deep`, con `/debug`.
+
+- **Misura:** ms per turno, passi del solver, e i tre predicati più cari.
+- **Predizione da falsificare:** il costo cresce **più che linearmente** nel
+  numero di nodi, perché i nodi rileggono gli stessi predicati. Se è lineare,
+  la mia lettura del §L è sbagliata e va corretta.
+- **Contromisura da provare nello stesso esperimento:** dichiarare una
+  `materialized_view` sui predicati riletti e rimisurare.
+
+### E6 — L'operatore è una variabile
+
+Uno schema in cui un nodo cambia comportamento **cambiando un solo fatto**,
+senza toccare né lo schema né il C.
+
+- **Misura:** `reasoning_step(S, 2, op(P, …))` con `P` diverso → risultato
+  diverso.
+- **Falsificazione:** se serve un ramo nel C per il nuovo operatore, `apply/2`
+  non sta reggendo il confine e l'ipotesi H1 è sbagliata.
+
+### E7 — Meta-reasoning: scegliere lo schema
+
+`prefer(Task, Scheme)` come fatto, cambiato **parlando**.
+
+- **Misura:** lo stesso input esegue un grafo diverso dopo una frase.
+- **Falsificazione:** se la scelta resta la stessa, la preferenza non è letta —
+  ed è esattamente il difetto che il mantra #17 descrive per il dispatch.
+
+### E8 — L'anti-impostore, da eseguire su TUTTI gli altri
+
+Per ogni schema attivo: togliere **un nodo alla volta** e verificare che la
+risposta cambi.
+
+- **Misura:** numero di nodi la cui rimozione non cambia niente.
+- **Soglia:** quel numero deve essere **zero**. Ogni nodo sopra zero è teatro
+  cognitivo, e va tolto o giustificato.
+
+## 4. Il primo incremento concreto (R1), e perché è piccolo
+
+Non «implementare il reasoning». Il passo esatto, in verticale:
+
+1. Dichiarare `reasoning_scheme/2`, `reasoning_step/3`, `reasoning_after/3`,
+   `reasoning_stop/2` **riusando la quadrupla `step(Azione, Pre, Effetto,
+   meta(Costo, Supporto))`** già in `arrests.p0` — non una firma nuova.
+2. Derivare `turn_plan`/`plan_step` (gen495) dalla nuova firma: se i due passi
+   del piano sugli strumenti non si esprimono con essa, la firma è sbagliata.
+   **È il primo test, e costa un pomeriggio.**
+3. Un esecutore con **due sole primitive**, sulla forma di `p0_compensate`:
+   eseguire un nodo, e ripetere un nodo su ogni risultato del precedente. Non
+   sceglie: chiede alla KB.
+4. E1 ed E8 come cricchetti, nello stesso commit.
+
+Se il punto 2 fallisce si è imparato qualcosa di vero sulla firma; se riesce, si
+ha un vocabolario solo invece di quattro. **In nessuno dei due casi si è scritto
+un motore nuovo.**
+
+## 4-bis. ✅ FATTO — R1 punti 1 e 2, e la firma ha retto il test
+
+`kb/core/reasoning.p0`. La firma **non è inventata**: è la quadrupla più ricca
+dei tre dialetti — `step(Operatore, Pre, Effetto, meta(Costo, Supporto))` da
+`arrests.p0` — promossa a vocabolario comune, con il rango topologico costruito
+come `arrest_rank/2` e la guardia sui cicli come `arrest_cycle/1`.
+
+**Il test che poteva falsificarla, e non l'ha fatto:** il piano *vivo* del
+gen495 — quello che risponde a «analizza tutti i file sorgenti che trovi» — è
+stato riscritto con la firma comune, e `turn_plan/2` e `plan_step/3` sono
+diventate **viste derivate**. L'esecutore in `60-agent-tools.c` **non è stato
+toccato** e continua a funzionare: è la condizione che rende la migrazione
+onesta invece di una riscrittura con un nome nuovo (mantra #18a).
+
+    > analizza tutti i file sorgenti che trovi
+        Ho letto 2 sorgenti in struttura — 5 funzioni in tutto: …
+
+Ratchet: `tests/p0t/reasoning/reasoning_graph.p0t` (11 assert), che esegue E1 ed
+E2 con schemi dichiarati **a runtime** — nessuno esiste nella KB curata.
+
+⚠ **E2b ha trovato un errore mio, non del motore**, ed è la ragione per cui gli
+esperimenti hanno una falsificazione: la prima versione toglieva *un* arco su
+tre e pretendeva che il rango della sintesi scendesse, mentre gli altri due la
+tenevano su. L'esperimento ha funzionato come doveva — ha detto che avevo torto
+io.
+
+### Che cosa resta di R1
+
+Il punto 3 — **l'esecutore generico a due primitive** — non è fatto. Oggi il
+grafo si può *dichiarare, ordinare e interrogare*, ma a eseguirlo è ancora
+l'esecutore specializzato degli strumenti. Finché quel pezzo manca, il reasoning
+è una **rappresentazione**, non ancora una capacità: E3, E4, E6 e E7 non si
+possono nemmeno provare.
+
+**È il primo lavoro del prossimo giro**, e la forma è già decisa: `p0_compensate`
+(gen442), che legge dalla KB quali azioni esistono e possiede solo le primitive.
+
+---
+
+## 5. Le condizioni di stop di questo piano
+
+Il reasoning si dichiara fallito, e si torna indietro, se:
+
+- un nodo produce testo che nessun nodo successivo consuma (**teatro**);
+- l'ablazione di un nodo non cambia la risposta (E8 > 0);
+- la ragione dell'arresto è sempre la stessa (E3 fallita);
+- il grafo va in produzione con un `op(oracle, …)` dichiarato (H5 violata);
+- il costo per turno supera il budget e la contromisura è **alzare il budget**
+  invece di abbassare il costo (§L, e F. l'ha già detto una volta: *«un timeout
+  di dieci secondi è già un sintomo»*).

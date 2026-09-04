@@ -1,0 +1,60 @@
+# R1 — LE BASI DEL REASONING: il grafo è conoscenza, e si può falsificare.
+#
+# Piano: `docs/plans/reasoning.md`, Parte II. Questo file esegue E1 (lo schema è
+# conoscenza) ed E2 (il grafo non è una catena), che sono i due esperimenti che
+# il piano vuole per primi — perché se non passano, tutto il resto è
+# architettura senza fondamenta.
+#
+# ⛔ LA COSA CHE CONTA È LA FALSIFICAZIONE, non il verde. In E2b **invertire
+# l'arco deve invertire il rango**: se l'ordine non cambiasse, l'esecutore
+# starebbe usando l'indice e il grafo sarebbe decorativo. In E2c un ciclo deve
+# rendere il grafo NON pronto: un ragionamento che gira per sempre non è
+# profondo, è rotto.
+#
+# ⚠ Nota di metodo: la prima versione di E2b era mal progettata — toglievo UN
+# arco su tre e pretendevo che il rango della sintesi scendesse, mentre gli
+# altri due la tenevano su. L'esperimento ha trovato l'errore MIO, ed è
+# esattamente a questo che serve.
+#
+# Tutto è dichiarato a runtime: nessuno di questi schemi esiste nella KB curata.
+
+[mock live]
+
+!set PARROT0_SESSION=
+!set PARROT0_LANG=en
+!reset
+[test E2 — il grafo non e' una catena]
+!timeout 15
+!assert reasoning_scheme(triage, "three views then one")
+!clause reasoning_step(triage, a, step(op_a, none, ra, meta(1, local))).
+!clause reasoning_step(triage, b, step(op_b, none, rb, meta(1, local))).
+!clause reasoning_step(triage, c, step(op_c, none, rc, meta(1, local))).
+!clause reasoning_step(triage, s, step(op_s, none, rs, meta(1, local))).
+!assert reasoning_after(triage, a, s)
+!assert reasoning_after(triage, b, s)
+!assert reasoning_after(triage, c, s)
+!query reasoning_rank(triage, a, 0)
+!query reasoning_rank(triage, b, 0)
+!query reasoning_rank(triage, c, 0)
+!query reasoning_rank(triage, s, 1)
+!query reasoning_ready(triage)
+
+[test E2b — invertire gli archi inverte l'ordine]
+!timeout 15
+!assert reasoning_scheme(pair, "two steps")
+!clause reasoning_step(pair, p, step(op_p, none, rp, meta(1, local))).
+!clause reasoning_step(pair, q, step(op_q, none, rq, meta(1, local))).
+!assert reasoning_after(pair, p, q)
+!query reasoning_rank(pair, p, 0)
+!query reasoning_rank(pair, q, 1)
+# FALSIFICAZIONE: invertito l'arco, i ranghi si scambiano
+!forget reasoning_after(pair, p, q)
+!assert reasoning_after(pair, q, p)
+!query reasoning_rank(pair, q, 0)
+!query reasoning_rank(pair, p, 1)
+
+[test E2c — un ciclo si dichiara malato, non gira per sempre]
+!timeout 15
+!assert reasoning_after(pair, p, q)
+!query reasoning_cycle(pair)
+!query! reasoning_ready(pair)

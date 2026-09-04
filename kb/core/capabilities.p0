@@ -180,10 +180,11 @@ machinery(turn_plan).
 machinery(plan_step).
 machinery(source_extension).
 
-turn_plan(analyze_sources, plan_analyze_sources).
-
-plan_step(analyze_sources, 1, list_sources).
-plan_step(analyze_sources, 2, read_each).
+% ⚠ gen496: `turn_plan/2` e `plan_step/3` non sono piu' dichiarati qui. Sono
+% VISTE derivate dal vocabolario unico del reasoning (kb/core/reasoning.p0), che
+% e' stato validato proprio riuscendo a esprimere questo piano senza perderne
+% niente. I `source_extension/1` qui sotto restano dove sono: dicono che cosa sia
+% un sorgente, che e' conoscenza di dominio e non struttura del ragionamento.
 
 source_extension("*.c").
 source_extension("*.h").

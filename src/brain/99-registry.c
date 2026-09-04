@@ -738,6 +738,10 @@ Brain *brain_create(void) {
      * — un criterio nuovo e' una relazione piu' un fatto, mai un ramo qui. */
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/code-quality.p0");
+    /* R1: il vocabolario unico del reasoning. Va caricato PRIMA di chi legge
+     * `turn_plan`/`plan_step`, che da qui in poi sono viste derivate. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/reasoning.p0");
 
     /* gen212 (cardinal KB-first principle, OUTPUT side): the agent's own reply
      * phrasings — "Nice to meet you, {name}!" etc. — live in kb/core/responses.p0, not
