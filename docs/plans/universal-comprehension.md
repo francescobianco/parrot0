@@ -1,5 +1,15 @@
 # Comprensione universale
 
+> **Coordinamento della missione, 2026-09-05.** Il percorso principale è
+> [Apprendimento assistito — KB viva](apprendimento-assistito.md#0-missione-principale-la-kb-viva).
+> Questo piano ne definisce il contratto di comprensione e la diagnosi delle
+> lacune; il piano frontier definisce il bersaglio dialogico. La struttura
+> vincola l'interpretazione ma non garantisce sempre un intento univoco:
+> comprensione parziale e ambiguità vanno dichiarate senza simulare certezza.
+> Le note «ermetiche» storiche non autorizzano a ridurre la KB nei test: si
+> isolano gli effetti, conservando il soggetto completo, come richiedono i
+> mantra e il §0 della missione.
+
 *Estensione operativa del manifesto [kb-first](kb-first.md): parrot0 non dovrebbe
 mai murare una frase **ben formata** con un "non capisco" cieco. Anche quando le
 parole sono ignote, la **struttura grammaticale** è estraibile, e da quella si

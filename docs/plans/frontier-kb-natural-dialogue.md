@@ -1,7 +1,16 @@
 # Verso una KB da interlocutore naturale
 
+> **Coordinamento della missione, 2026-09-05.** La missione principale è ora
+> [Apprendimento assistito — KB viva](apprendimento-assistito.md#0-missione-principale-la-kb-viva):
+> integra questo bersaglio con il contratto di comprensione universale e
+> stabilisce sequenza, prove e criteri di completamento. Questo documento
+> conserva l'architettura, le ipotesi e le evidenze datate. Le percentuali
+> storiche non certificano parità con un LLM; per promozione, scope, sostegni
+> dopo retract e validità delle misure vale il contratto aggiornato del §0
+> della missione.
+>
 > **Stato:** analisi e piano, 16 agosto 2026. Nessuna implementazione accompagna
-> questo documento.
+> la stesura iniziale; le implementazioni successive sono annotate sotto.
 >
 > **Missione:** far crescere parrot0 fino a renderlo confrontabile empiricamente
 > con un LLM di frontiera nella comprensione e nella conduzione del dialogo,

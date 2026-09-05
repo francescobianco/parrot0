@@ -1,4 +1,4 @@
-# Apprendimento assistito
+# Apprendimento assistito — missione principale: la KB viva
 
 > ## ⛔ Vincolo zero: la chat non è una API travestita
 >
@@ -19,16 +19,446 @@
 > meta-comprensione. Qualunque run che violi questo vincolo resta soltanto una
 > diagnosi del gap e non può essere riportata come apprendimento riuscito.
 
-**Stato:** piano attivo, 2026-08-27  
-**Missione:** fare della conversazione il canale primario con cui parrot0 amplia
-non soltanto i fatti, ma le forme con cui comprende, compone, interroga e
-ragiona.  
+**Stato:** missione principale, rielaborata il 2026-09-05; obiettivo aperto.
+
+**Missione:** portare parrot0 a una KB viva che comprenda, ragioni, agisca e
+conversi attraverso tutte le proprie facoltà, le colleghi tramite la colla
+linguistica e impari a correggerle parlando. La parità funzionale con un LLM
+nel dialogo è il bersaglio empirico, da dimostrare.
+
 **Prima evidenza:**
-[`depth-session-01.md`](../labs/apprendimento-assistito/depth-session-01.md).  
-**Cancello:** §6 — nessuna sessione lunga prima che gli strati di
-meta-comprensione M0–M14 siano chiusi.  
+[`depth-session-01.md`](../labs/apprendimento-assistito/depth-session-01.md).
+
+**Ordine operativo corrente:** §0; §§1–14 conservano protocollo, strati e
+risultati storici, con le rettifiche esplicite indicate sotto.
+
+**Cancello:** §6 — nessun consolidamento massivo prima della chiusura degli
+strati M0–M20 e dei requisiti trasversali di revisione e persistenza del §0.
+
 **Ritmo:** §11 — ogni cosa appresa è un piccolo incremento, e si committa e
 pusha anche se parziale.
+
+## 0. Missione principale: la KB viva
+
+La domanda guida è quella dei [mantra](../../MANTRA.md): **parrot0 può
+impararne un nuovo membro domani, parlando, senza ricompilare?** Qui il membro
+può essere una parola, una costruzione, una relazione, una procedura, una
+condotta o una forma di spiegazione. La crescita deve aumentare ciò che il
+sistema vede e sa distinguere, fino a renderlo un interlocutore capace di
+seguire il pensiero dell'altro e costruire risposte fondate.
+
+I tre piani hanno un compito distinto nella stessa missione:
+
+| Piano | Responsabilità |
+|---|---|
+| [Frontier KB natural dialogue](frontier-kb-natural-dialogue.md) | Il bersaglio: letture concorrenti, mosse, scope, piani proposizionali, memoria e confronto empirico. |
+| [Comprensione universale](universal-comprehension.md) | Il contratto dell'ingresso: forma, ruoli, intento, conoscenza necessaria e lacuna riconosciuta; stessa struttura per leggere e interrogare. |
+| **Questo piano** | Il percorso di crescita: rendere quei contratti insegnabili, collegarli a tutte le facoltà, scegliere il prossimo ostacolo e provarne la rimozione. |
+
+La [colla linguistica](the-linguistic-glue.md) attraversa il percorso: mantiene
+referenti, significati, richieste e correzioni mentre cambia la facoltà che
+lavora. I piani di codice, agency, documenti e ragionamento diventano domini
+di integrazione della missione; i loro successi contano anche per quanto
+rendono utilizzabile conoscenza già presente altrove.
+
+Questa sezione stabilisce l'ordine aggiornato, nel rispetto di
+[PRINCIPLES.md](../../PRINCIPLES.md) e dei mantra. Percentuali e diciture
+«completo» nei resoconti precedenti descrivono il loro campione e checkpoint.
+Un taglio verticale funzionante non chiude l'intera facoltà. Gli identificatori
+M, A, SC, GD e K restano riferimenti ai lavori esistenti: non si ricomincia da
+zero e non si duplica la loro implementazione.
+
+### 0.1 Che cosa deve significare «viva»
+
+Una capacità è viva quando partecipa a un ciclo completo:
+
+```text
+turno + storia + conoscenza disponibile
+              ↓
+letture con ruoli, riferimenti, scope, vincoli e parti non comprese
+              ↓
+questione da soddisfare → mossa → goal e piano
+              ↓
+inferenza / procedura / osservazione → proposizioni con sostegni correnti
+              ↓
+risposta nella lingua e nel registro del dialogo
+              ↓
+nuova domanda, chiarimento o correzione della stessa questione
+
+un arresto → bisogno nominato → lezione/acquisizione candidata
+              → prova → promozione oppure revisione della candidata
+              → rilettura del passato e uso su casi nuovi
+```
+
+Il criterio è congiuntivo. La capacità deve essere raggiungibile con parole
+naturali, applicabile a casi nuovi, interrogabile, spiegabile, componibile,
+correggibile e persistibile con la propria provenienza. Un fatto presente ma
+irraggiungibile, una regola senza consumatore o una risposta senza sostegno
+restano lacune di vitalità.
+
+**«Senza muri» significa eliminare l'arresto cieco e sterile.** Dove la prova
+esiste, parrot0 deve usarla; dove manca, deve conservare quanto ha compreso e
+aprire il passo utile a proseguire. Un chiarimento corretto conta come
+chiarimento, non come risposta al problema. Riformulare sempre il muro o
+chiedere sempre un chiarimento non chiude la missione.
+
+La struttura grammaticale fornisce vincoli, ma non garantisce da sola un
+intento univoco: forme sconosciute, ellissi e ambiguità restano possibili.
+Anche la metacomprensione deve essere calibrata: non si dichiara «ho capito
+che chiedi X» se X è soltanto una lettura non risolta. In quel caso si
+espongono la parte riconosciuta e l'incertezza effettiva.
+
+**«Senza allucinazioni o svarioni» è un vincolo di accettazione:** nessuna
+affermazione fattuale o dichiarazione di riuscita senza un sostegno valido,
+pertinente e corrente; nessuna parte della richiesta ignorata in silenzio.
+Zero errori osservati su un campione non dimostra infallibilità universale.
+Il determinismo rende una risposta riproducibile, non automaticamente vera.
+
+### 0.2 Punto di partenza verificato e limiti dell'evidenza
+
+Ricognizione del 2026-09-05 sul commit `70b5036`: lettura dei piani,
+di [HANDOFF.md](../../HANDOFF.md), delle dichiarazioni KB, dei consumer e dei
+test citati. **È un audit statico; i conteggi storici non sono stati
+rimisurati da questa revisione del piano.** La prima attività V0 li deve
+associare a una misura riproducibile sul binario corrente.
+
+| Giunzione | Evidenza presente | Che cosa resta da provare o chiudere |
+|---|---|---|
+| Ingresso → frame → mossa | `turn-frames.p0`, `dialogue-policy.p0`; la precedenza ha già il consumer `frame_decision`. | Copertura del turno intero e uso condiviso fra le facoltà; le vecchie note «priorità senza consumer» sono storiche. |
+| Lacuna → domanda | `arrests.p0` espone `information_need` per valore e antecedente; `named_information_need.it.p0t` esercita crescita e retrazione. | Tassonomia oltre questi due casi e chiusura mediante lezioni naturali; gli assert del test provano la meccanica. |
+| Lezione → nuova superficie | `try_teach_form`, modi `frame_for` e `cue_like`, `taught_tool_surface.p0t`. | Varianti dell'atto didattico, ambiguità dell'ancora e retract completo; HANDOFF registra ancora collisioni. M15 non è più «nessuna porta». |
+| Lezione → costruzione/regola | Binder condiviso in `10-memory-knowledge.c`; `assisted_construction_ternary.p0t`, `higher_order_lesson.p0t`. | Ruoli spiegati senza schema interno, induzione da esempi, congiunzioni, condizioni di validità e sostegni dopo retract. L'implicazione binaria non è più interamente assente. |
+| Lezione → procedura | `assisted-learning.p0`: passi ricorsivi, esecuzione, origine e stato candidato. | Generalità oltre la forma di conversione; promozione verificata. `learning_status(..., promoted)` oggi conta almeno tre replay: il conteggio non certifica correttezza o indipendenza delle prove. |
+| Sintagma → referente → domanda | `input.p0`, `p0_head_index` e descrizioni in `10-memory-knowledge.c`; referenti ordinati e riprese in `discourse.p0`. | Identità distinta dalla chiave, determinante, span, superficie e proprietà condivise. G2 ha già meccaniche: va misurata l'integrazione, non ripianificata come interamente assente. |
+| Lezione → rilettura | `document-claims.p0`; SC40-A/B e il taglio SC41-A, con test di revisione e scala. | Completezza delle dipendenze oltre `passive_core`, propagazione a inferenze, sintesi, piani e risposte; budget e salvataggio. |
+| Zone → conclusione comune | `knowledge_arc`, `representation_bridge`, `code-ir.p0`; prove in `tests/p0t/crossing/`. | Porte naturali per archi già presenti, composizione semanticamente autorizzata e falsi ponti. Un omonimo disambiguato non prova da solo trasferimento inferenziale fra due entità. |
+| Piano → azione → osservazione | `plan_utterance`, risultati di tool in KB, ciclo build/repair descritto in HANDOFF. | Operatori ancora compilati, nuovi tool insegnabili, effetti tipati e ripresa di un'impresa dopo una digressione. Un ciclo di coding riuscito non dimostra parità generale. |
+| Misura → curriculum | `var/probe/`, crossing e audit conversazionale esistono. | HANDOFF segnala risposte mancanti per errore di trasporto nelle sonde; alcuni test usano timeout superiori al secondo. Non sono prove di rispetto del contratto di latenza. |
+
+Per ogni cella si devono poter distinguere quattro stati: **presente nel
+codice/KB**, **osservata in conversazione**, **insegnabile con verifica
+causale**, **integrata e persistente**. Il primo non implica gli altri.
+
+### 0.3 L'oggetto condiviso che unisce tutte le facoltà
+
+Il rimedio ricorrente dei piani è far condividere l'oggetto su cui due percorsi
+devono accordarsi. Prima di introdurre un predicato si cercano produttore,
+consumatori e viste equivalenti esistenti. I seguenti sono contratti
+semantici, non l'ordine di costruire un nuovo schema monolitico.
+
+| Oggetto condiviso | Informazione che deve sopravvivere al passaggio |
+|---|---|
+| Osservazione | Fonte, parlante, testo originale, lingua, span, tempo/revisione e origine. |
+| Lettura | Frame, ruoli, alternative, evidenze e controevidenze; copertura e residui. |
+| Referente | Identità, menzioni, proprietà e contesto; due oggetti descritti allo stesso modo restano distinguibili. |
+| Questione/impresa | Goal, sotto-obiettivi, vincoli, obblighi e risultati osservati; ciò che resta da soddisfare è derivato dallo stato. |
+| Proposizione | Contenuto, polarità, quantificazione, scope, attribuzione e validità temporale. |
+| Sostegno | Insiemi di premesse congiunte, prove alternative, regole/archi attraversati e versioni delle fonti. |
+| Lezione | Spiegazione naturale, candidato, contesto, verifiche, esito e capacità dipendenti. |
+| Azione | Precondizioni, argomenti tipati, effetti attesi e osservati, limiti e stato d'esecuzione. |
+| Piano di risposta | Richieste coperte, proposizioni da dire, sostegni, alternative/residui e vincoli di lingua e formato. |
+
+La medesima struttura deve poter essere consumata da memoria, ragionamento,
+lettura, procedure, pianificazione, strumenti e realizzazione. La registrazione
+di una facoltà nell'automodello deve corrispondere a un consumatore reale.
+I contratti delle nuove facoltà sono conoscenza interrogabile e insegnabile.
+
+La fertilità deve superare due prove distinte: aggiungere un membro a una
+classe nota e apprendere una nuova astrazione. Il secondo caso comprende
+relazioni, costruzioni e procedure definite attraverso ruoli, esempi,
+condizioni e concetti già compresi. La candidata conserva le alternative
+compatibili con gli esempi e chiede un caso discriminante quando necessario.
+Un insieme finito di esempi non autorizza una generalizzazione univoca per
+decreto; neppure un registro chiuso di forme predefinite basta a chiamare
+universale l'apprendimento.
+
+Due invarianti attraversano ogni incremento:
+
+- ciò che viene appreso da una frase può essere chiesto con quella frase e
+  con parafrasi; ciò che viene detto può essere riletto conservando contenuto,
+  scope e impegno, senza generare una seconda fonte indipendente;
+- una capacità già presente deve poter soddisfare un bisogno nato in un'altra
+  rappresentazione attraverso un arco provato, senza ricopiare il fatto o
+  riconoscere nuovamente il prompt dentro ogni modulo.
+
+Il C resta esecutore delle meccaniche fisse. Vocabolario, costruzioni,
+combinazioni di condizioni, scelta delle mosse, procedure sopra i primitivi,
+contratti operativi e forme di risposta appartengono alla KB. Un incremento
+di motore deve dichiarare la meccanica generale mancante e aprire subito un
+atto didattico; una migrazione dichiarata KB-first deve anche mostrare la
+conoscenza effettivamente rimossa dal C (mantra #18).
+
+### 0.4 Il contratto epistemico, dal lettore alla risposta
+
+Una proof dimostra una conseguenza rispetto alle proprie premesse: occorre
+anche verificare origine, interpretazione e validità di quelle premesse.
+Una fonte identificabile può essere sbagliata; una frase di un documento può
+riportare una tesi senza sostenerla. Leggere conserva l'attribuzione. La
+promozione a conoscenza del mondo richiede il gate di verità del protocollo.
+
+L'esito della ricerca deve distinguere almeno: prova disponibile, negazione
+esplicitamente sostenuta, informazione assente, conflitto, lettura ambigua e
+ricerca incompleta. Un limite di tempo o di profondità non prova l'assenza
+del fatto. La mancata derivazione non diventa falsità del mondo; eventuali
+ragionamenti su insiemi completi richiedono una dichiarazione di completezza
+pertinente al contesto.
+
+Per gli archi fra rappresentazioni, **equivalenza, implicazione, inversione
+dei ruoli, appartenenza e parte-tutto sono relazioni diverse**. Condividere
+una parola o essere genericamente collegati non autorizza a trasferire
+proprietà. «Contiene» non equivale in generale a «ha come parte»: va insegnata
+la condizione che rende lecito il passaggio. Una relazione inversa deve
+invertire gli argomenti; un'implicazione non apre automaticamente il ritorno.
+Il pianeta Mercurio e l'elemento mercurio non diventano la stessa entità.
+
+La candidata didattica è visibile come candidata, ma non può sostenere una
+risposta ordinaria come conoscenza consolidata. La prova della candidata
+opera in un contesto esplicito che conserva accesso alla KB completa. Il
+verdetto deve confrontarsi con fatti, vincoli, controesempi o oracoli
+indipendenti dalla stessa regola che si sta valutando. Ripetere tre
+esecuzioni della regola non dimostra che essa sia corretta. Una correzione
+crea una nuova versione e richiede prove pertinenti a quella versione.
+
+**Ritrarre una lezione conserva la storia e invalida ciò che perde il proprio
+sostegno corrente.** La distinzione precisa è:
+
+1. l'osservazione e il record «allora dedussi P» restano consultabili;
+2. P resta utilizzabile se possiede almeno un sostegno indipendente ancora
+   valido; ritirare una delle premesse di un sostegno congiunto lo invalida;
+3. se tutti i sostegni cadono, P e i suoi dipendenti non possono alimentare
+   risposte correnti, nemmeno se erano stati materializzati o salvati;
+4. la revisione si propaga a letture, conclusioni, sintesi, piani e risposte;
+   se il budget termina, il residuo resta nominato e la parte stale non parla
+   come verificata. Le parti indipendenti rimangono disponibili.
+
+Questa precisazione sostituisce l'indicazione storica «ciò che aveva dedotto
+resta» quando veniva intesa come validità incondizionata. Conservare una
+struttura secondaria non obbliga a credere per sempre alle sue conclusioni.
+
+La realizzazione può variare registro, lessico e ordine, ma non aggiungere
+premesse, cambiare quantità o rimuovere qualificazioni decisive. Una risposta
+parziale deve dire quali richieste restano aperte. Anche conferme, errori,
+domande di chiarimento e spiegazioni delle lacune devono essere insegnabili
+come forme KB; un template che contiene solo testo composto nel C non basta.
+Finzione, ipotesi e proposte creative sono ammesse nel loro scope dichiarato;
+non si promuovono i loro contenuti a fatti del mondo.
+
+### 0.5 Un solo ciclo di apprendimento, con prove causali
+
+Il ciclo del §4 diventa l'unità esecutiva della missione:
+
+1. **Osservare il confine.** Conservare il turno e provare una variante
+   minimamente diversa. Separare errore di trasporto, tempo esaurito,
+   incomprensione, lacuna di sapere, ponte mancante e risposta fuori tema.
+2. **Cercare ciò che già esiste.** Individuare l'oggetto prodotto e perso, la
+   relazione senza porta o il consumatore che ignora una vista. Un test
+   diretto sul solver aiuta la diagnosi, ma non sostituisce il turno naturale.
+3. **Far nominare il bisogno.** Parrot0 deve indicare quale coordinata manca
+   e quale chiarimento potrebbe cambiarla. Il teacher può aiutare la diagnosi;
+   finché la formula soltanto lui, la metacomprensione resta parziale.
+4. **Insegnare naturalmente.** Dare una spiegazione, esempi e condizioni con
+   parole del dominio. Ruoli e relazioni interne li ricostruisce parrot0.
+   Prima si tenta il canale parlato, poi prosa e remediation; una modifica
+   manuale serve solo ad aprire il motore generale che ancora manca.
+5. **Rappresentare e verificare.** Conservare candidata e fonte, rileggere il
+   turno, provare almeno tre casi nuovi, due parafrasi, un contrasto e una
+   composizione con una capacità preesistente. Verificare anche la conferma
+   di apprendimento e la spiegazione, non soltanto il risultato.
+6. **Misurare la causalità.** Retract parlato, controllo della perdita della
+   capacità, delle alternative indipendenti e delle conseguenze stale;
+   reteach e nuovo caso. Per una regola generale verificare più domini.
+7. **Revisionare il passato.** La nuova lezione deve cambiare le letture
+   pertinenti già osservate senza reinserire il documento. Confrontare
+   effetto previsto ed effetto reale dove il motore lo consente; altrimenti
+   dichiarare il limite, senza simulare la previsione nel report.
+8. **Consolidare con genealogia.** Applicare inventario, `/save`, diff
+   semantico, processo nuovo e checkpoint causale del
+   [LEARN_PROTOCOL](../../LEARN_PROTOCOL.md). Le lezioni fallite restano
+   evidenza classificata, non conoscenza attiva.
+9. **Scegliere il bisogno successivo.** Dare precedenza a errori non fondati,
+   poi ai colli condivisi da più famiglie. Misurare quante capacità diventano
+   utilizzabili; il numero di fatti aggiunti da solo non decide la priorità.
+
+Le varianti prevedibili si ricavano dalle classi e dalle simmetrie già note
+([comprensione universale §10](universal-comprehension.md#10-protocollo--le-tre-specie-di-lacuna-e-quali-si-chiudono-prima-che-qualcuno-chieda)).
+La forma non prevista diventa un'occasione di insegnamento. Il criterio non
+autorizza a trasformare ogni variante in un alias globale: contesto e
+controesempi devono conservarne le differenze di significato.
+
+### 0.6 Sequenza della missione e gate d'uscita
+
+Ogni tappa è un insieme di incrementi piccoli; nessuna si chiude per sola
+presenza di predicati. Le protezioni di verità, scope, provenienza e budget
+valgono dalla prima tappa. La revisione completa di V6 estende quelle
+protezioni: non ne rinvia l'esistenza.
+
+| Tappa | Lavoro e riuso | Prova necessaria per uscirne |
+|---|---|---|
+| **V0 — Rendere affidabile la misura** | Ripartire da HANDOFF, `var/probe`, audit conversazionale e crossing. Registrare profilo, revisione, risposta, errore di infrastruttura, latenza e stato del processo. Censire per le facoltà del campione produttore, consumatore, porta naturale e prova di crescita. | Nessun errore di trasporto contato come incomprensione; baseline per famiglia ripetibile, con risposte verbatim e rossi conservati. Costi di boot e turno separati. |
+| **V1 — Il turno è compreso prima di essere rivendicato** | M0/M1/M2/M11–M13/M18/M19, frame e arbitrato. Distinguere domanda, lezione, menzione, lettura, correzione e richiesta composta. Applicare le review di maturità del mantra #21. | Famiglia di prompt lunghi e parafrasi instradata dalla lettura completa; nessuna lezione eseguita come procedura né citazione appresa come fatto. Una condotta di un modulo maturo si corregge parlando e si ritrae; la conferma descrive l'esito effettivo della lezione. |
+| **V2 — Imparare, chiedere e ridire lo stesso oggetto** | M4/M5/M7/M15/M16/M20, G1–G5, `input.p0`, `discourse.p0`, binder e realizzatori. Unificare referenti, ruoli e superfici; derivare le domande per i ruoli dal frame appreso. | Dialogo intero con due referenti distinguibili, domanda diretta/inversa, ellissi, ambiguità e correzione. Lezione naturale → Transfer@3 → retract/reteach → processo nuovo, in IT ed EN. |
+| **V3 — Il metalinguaggio si amplia** | M2–M10/M14, A1–A4/A7: spiegare senso, ruoli, costruzioni, negazione, quantificazione, relative, condizioni e regole usando le capacità già presenti. Sperimentare induzione da esempi con ipotesi concorrenti. | Una costruzione con ruoli non canonici e una regola fra relazioni con condizione di validità sono insegnate senza nomi interni, trasferiscono e rifiutano controesempi. Nessuna promozione basata solo sul numero di esecuzioni. |
+| **V4 — La conoscenza attraversa le facoltà** | M8/M9, K8/K9 e archi già presenti: prosa↔domanda, evento↔quantità, codice↔conoscenza del dominio, regola↔spiegazione. Riusare il join parametrico e conservare la ragione di ogni passaggio. | Conclusioni utili da conoscenza reale preesistente, senza iniettare il risultato; lo stesso operatore serve almeno tre domini. La controprova esclude omonimia, verso sbagliato e generalizzazione fuori scope. |
+| **V5 — Sapere fare e proseguire** | M10/M11, K3/K11, procedure, `issues`, `plan_utterance`, risultati degli strumenti e [ripresa](continue-as-resumption.md). Collegare operatori insegnabili a primitive generali, con contratti ed effetti espliciti. | Una procedura nuova funziona su input nuovi; un tool sopra primitive disponibili viene insegnato, usato dal piano e ritratto senza ricompilare. Il piano conserva più obblighi, attraversa una digressione e riprende dal bisogno aperto. Un risultato di tool alimenta il passo seguente; «eseguito» richiede l'effetto osservato. |
+| **V6 — Revisionare e scegliere che cosa imparare** | M13/M14, A8/A9, SC40–SC43: sostegni completi, opportunità, propagazione transitiva, quarantena, persistenza e indici/materializzazioni del mantra #20. | Add/retract/reteach revisionano un corpus già letto e i suoi consumer. Nessuna risposta stale; selezione equivalente all'audit completo; ripresa dopo budget e processo nuovo. La lezione scelta produce il guadagno previsto su prove indipendenti. |
+| **V7 — Interloquire alla pari sul perimetro misurato** | Tutti gli strati, inclusi lingua, registro, richieste indirette, spiegazione, creatività dichiarata, correzione e continuità a 20/50/100 turni. Estendere il curriculum a tutte le facoltà effettivamente registrate. | Batterie indipendenti del §0.7, dialoghi completi e confronto con riferimento dichiarato; nessuna famiglia esclusa per migliorare la media. Capacità acquisite e corrette a runtime conservate nel checkpoint. |
+
+Questa sequenza ordina le dipendenze, non autorizza un rifacimento in blocco.
+Un caso può attraversare più tappe e chiuderne un primo taglio. Gli incrementi
+conservano le strutture secondarie; un modulo immaturo che ruba il turno si
+retrocede dopo review, mentre una condotta errata di un modulo maturo si
+insegna. Cambiare una policy non può falsificare la review dell'implementazione.
+
+Ogni facoltà entra nel censimento V0 e deve avere un uso integrato in V7:
+conoscenza e memoria personale; dialogo sociale; lettura e sintesi; deduzione,
+causalità e controfattuali; aritmetica e procedure; piani e strumenti; codice;
+giochi e altri domini; traduzione, spiegazione e produzione creativa. Le
+famiglie si derivano dal registro reale e si aggiornano quando cresce.
+«Tutte le feature» richiede questa copertura osservabile, non una lista
+statica di moduli dichiarati disponibili.
+
+### 0.7 Misurare fertilità, connessione e dialogo
+
+Le prove hanno tre funzioni distinte, tutte necessarie:
+
+| Prova | Che cosa certifica |
+|---|---|
+| Meccanica KB-first | Sul soggetto completo, assert/retract o ablazione causale dimostrano che il binario non contiene la forma. Dati inventati sono ammessi solo per questa prova di sviluppo, senza promuoverli come training reale. |
+| Apprendimento naturale | Il teacher ignora lo schema interno; la lezione produce replay, transfer, contrasto, composizione, retract/reteach e persistenza. Il risultato è classificato secondo il LEARN_PROTOCOL. |
+| KB viva connessa | Prompt naturali su fatti e regole già posseduti producono conclusioni utili. Il test comportamentale non scrive la conoscenza che dichiara di scoprire e non richiede un percorso interno prestabilito. |
+
+Le ispezioni e ablazioni del motore accompagnano le prove di causalità;
+restano distinte dal giudizio comportamentale di connecting dots. Tutti i
+nuovi test usano la KB reale completa, profilo AGI e mondo disponibili.
+Processi freschi e contesti candidati isolano effetti e storia della prova,
+non amputano il sapere. Le fonti remote si fotografano per una verifica
+riproducibile, mantenendo il resto della KB; non si sostituisce parrot0 con
+un corpus fittizio.
+
+Per ciascuna famiglia si riportano numeratore, denominatore, casi esclusi,
+revisione del corpus e checkpoint della KB. Un errore di infrastruttura è un
+caso **non misurato**, visibile nel totale atteso, mai un successo né una
+prova di incompetenza linguistica. Le metriche principali sono:
+
+- richieste e vincoli correttamente rappresentati; risposte complete e
+  fondate; proposizioni errate o irrilevanti; omissioni non dichiarate;
+- muri ciechi, chiarimenti necessari, chiarimenti superflui e bisogni
+  effettivamente chiusi dopo la risposta dell'interlocutore;
+- indirizzabilità naturale dei gap; lesson yield; Transfer@3, parafrasi,
+  contrasto, composizione e fedeltà dell'ablazione;
+- inferenze nuove su conoscenza preesistente, domini serviti da uno stesso
+  operatore e falsi attraversamenti; il semplice conteggio degli archi non
+  misura comprensione;
+- fedeltà della spiegazione ai sostegni correnti, leakage fra scope,
+  conclusioni stale, completezza delle dipendenze e recall della revisione;
+- continuità di referenti, vincoli e imprese; retention dopo altri turni e
+  richiamo in processo nuovo;
+- p50/p95 e massimo della latenza per famiglia, al crescere di conoscenza e
+  storia; separatamente boot, inferenza, revisione e strumenti esterni.
+
+I gate causali del §3 restano obbligatori. Errori non fondati, false conferme
+di apprendimento, leakage di scope e risposte stale hanno target **zero sul
+campione valutato**: non si compensano con più risposte corrette altrove.
+Per la revisione selettiva, `RevisionRecall=1` rispetto all'audit completo
+precede l'ottimizzazione della precisione. La scala della KB è una condizione
+di lavoro; una normale inferenza deve rispettare **1 secondo**, e
+`make soft-test` conserva il budget di **15 secondi**. I timeout legacy
+superiori non autorizzano a dichiarare chiuso questo gate.
+
+Il confronto con un LLM segue [frontier §9](frontier-kb-natural-dialogue.md#9-confronto-empirico-con-un-llm-di-frontiera).
+Prima della valutazione si fissano modello/versione, configurazione, strumenti,
+contesto disponibile, budget, rubriche e margini di equivalenza per famiglia.
+Il riferimento è un termine di confronto comportamentale, non l'oracolo di
+verità: fatti e risultati verificabili hanno fonti o verificatori propri;
+disaccordi sulle mosse vengono motivati e revisionati.
+
+Almeno il 70% delle verifiche resta fuori dalle lezioni, come nel §7. Servono
+anche costruzioni, combinazioni e domini non usati per guidare il rimedio:
+cambiare soltanto i nomi dello stesso esempio è insufficiente. Dopo che una
+famiglia ha guidato una modifica, rimane regressione e si affianca a nuovi
+casi indipendenti. Il teacher e il valutatore non devono validare la stessa
+lezione mediante la sua sola parafrasi; una valutazione generata dal medesimo
+teacher va dichiarata come tale.
+
+Il modello esterno può insegnare o suggerire esperimenti nel laboratorio.
+Durante la valutazione di parrot0 non risponde al suo posto e non viene
+consultato per completare l'inferenza. La parità riguarda un perimetro e una
+distribuzione dichiarati; non si deduce da una demo, da una media che nasconde
+famiglie deboli o da una promessa di equivalenza universale.
+
+### 0.8 Primo ciclo operativo e disciplina di avanzamento
+
+Il primo ciclo esecutivo è **V0 più il primo collo V1/V2 misurato**, usando
+ciò che il repository già offre:
+
+1. Rendere attendibile la sonda di `var/probe/probe_one.py`: health check che
+   ottenga una risposta, distinzione fra errore di trasporto e verdetto
+   semantico, cattura esplicita della risposta senza confondere la sentinella
+   `__NEVER__` con un fallimento reale. Il problema è registrato in HANDOFF;
+   la causa va riprodotta prima di intervenire.
+2. Rilevare un campione breve delle forme didattiche e dei loro retract,
+   usando `taught_cue_ladder.p0t` e `taught_tool_surface.p0t` come riferimenti.
+   Confrontare ancora, forma nuova e turno successivo. Le collisioni fra
+   parafrasi citata, costruzione e richiesta vanno risolte per struttura.
+3. Riprendere gli archi reali irraggiungibili censiti in
+   [crossing/AREE.md](../../tests/p0t/crossing/AREE.md), domandandoli in
+   linguaggio naturale. Se i fatti sono presenti ma la forma non li raggiunge,
+   insegnare la forma; se manca la rappresentazione, aprire quel meta-gap.
+   Non aggiungere un fatto già presente solo per far vincere un consumer.
+4. Chiudere una catena con domanda, eventuale chiarimento, lezione, nuova
+   domanda, riferimento, spiegazione e correzione. Mantenere rossi i passaggi
+   che ancora non reggono e registrare il primo arresto causale.
+5. Applicare la transazione del §0.5 soltanto al guadagno effettivamente
+   ottenuto. Indicare il prossimo incremento per classe e dipendenza, non
+   come elenco di prompt da coprire.
+
+Questo è lavoro breve di diagnosi e sviluppo. Il cancello del §6 impedisce di
+avviare il teacher massivo per aggirare meta-gap aperti; consente le sonde e
+i piccoli incrementi verificabili. Lo sviluppo usa i test pertinenti e i gate
+del repository. Nel training KB-only si applica il LEARN_PROTOCOL: nessuna
+suite usata come sostituto della lezione; se occorre un intervento sul
+motore, si separa il ciclo di sviluppo e si esegue una sola `make soft-test`
+durante quel giro, come richiesto dal protocollo.
+
+Ogni checkpoint riporta almeno:
+
+```text
+classe e primo arresto osservato
+capacità/oggetti esistenti riusati; eventuale meccanica generale aggiunta
+lezione naturale e fonte; stato e versione della candidata
+replay / transfer / contrasto / composizione / retract / reteach
+effetti sulle letture pregresse e sui sostegni indipendenti
+persistenza e richiamo in processo nuovo; latenza e condizioni della misura
+nuovi fatti veri e nuove capacità, separati dalle prove di sviluppo
+rossi residui, controesempi e prossimo bisogno della stessa missione
+```
+
+### 0.9 Quando si può dichiarare raggiunto un traguardo
+
+- **Capacità viva locale:** il ciclo naturale completo è verificato per una
+  classe dichiarata, con provenienza, ablation e persistenza. Questo non
+  certifica tutte le costruzioni dello stesso strato.
+- **KB viva integrata:** le capacità attraversano rappresentazioni e facoltà,
+  le nuove lezioni cambiano passato e futuro, il dialogo lungo mantiene il
+  filo e il curriculum sa scegliere bisogni utili; tutti i gate V0–V6 sono
+  sostenuti da prove e la copertura delle facoltà è esplicita.
+- **Interlocuzione alla pari:** oltre all'integrazione, V7 raggiunge i criteri
+  preregistrati del confronto, senza debiti di verità nascosti e con
+  latenza sostenibile. Si dichiara esattamente dove la parità è osservata e
+  dove la missione resta aperta.
+
+La crescita superlineare ipotizzata nei piani è un'ipotesi da misurare, non una
+condizione necessaria di ogni incremento: anche un arco generale utile può
+aprire pochi casi nel campione corrente. Il criterio è l'uso trasferibile e
+causalmente dimostrato. **La rielaborazione di questo piano non dichiara
+raggiunta la KB viva:** fissa il percorso e le prove che possono autorizzare
+quella dichiarazione.
+
+---
+
+Le sezioni che seguono conservano la storia sperimentale. Le diagnosi datate
+vanno confrontate con il checkpoint del §0.2; i contratti corretti nel §0
+prevalgono sulle indicazioni storiche incompatibili.
 
 > ## ✅ TRAGUARDO — IL BISOGNO D'INFORMAZIONE È NOMINABILE (2026-09-01)
 >
@@ -334,7 +764,8 @@ potersi ancorare a qualcosa che parrot0 sa già distinguere. La scala da aprire 
 1. **membri:** “`movo` è un quantificatore universale”;
 2. **denotazioni:** “`glints` qui ha lo stesso senso relazionale di `glorphs`”;
 3. **ruoli:** “prima di `glints` c'è l'agente, dopo c'è l'oggetto”;
-4. **costruzioni:** “`X glints Y` esprime `glorphs(X,Y)`”;
+4. **costruzioni:** «in questa frase il primo nome indica chi agisce e il
+   secondo chi riceve l'azione»;
 5. **composizione:** coordinazione, modificatori, relative e apposizioni;
 6. **scope e riferimento:** negazione, condizionali, quantificatori, pronomi;
 7. **regole:** antecedenti multipli, eccezioni, causalità e vincoli;
@@ -366,7 +797,10 @@ precondizione di qualunque sessione lunga.
 
 **Regola.** Le dieci ore del §7 — e a maggior ragione qualunque teacher che giri
 come processo continuo — non si avviano finché gli strati di meta-comprensione
-elencati in questo capitolo non sono chiusi. Non è un ordine dei lavori
+elencati in questo capitolo non sono chiusi: **M0–M20**, incluse le aggiunte
+del §6.2b, con i gate di revisione e persistenza del §0. Le indicazioni
+storiche M0–M14 non escludono gli strati scoperti successivamente. Non è un
+ordine dei lavori
 preferibile: è una conseguenza di che cosa una sessione lunga può misurare. Prima
 del cancello, dieci ore non misurano l'apprendimento; misurano la copertura delle
 forme che il motore già supportava, moltiplicata per la pazienza del teacher nel
@@ -531,8 +965,11 @@ igneous?» va a muro, cioè `occupied_square(d2)` alla lettera.
 *Manca:* `occupied_square(d2)` non soddisfa `occupied(X), square(X)`. Due
 traduzioni ragionevoli della stessa nozione restano conoscenza viva e isolata, e
 una sessione lunga moltiplica il debito invece di ridurlo.  
-*Atto didattico:* «essere un `occupied_square` vuol dire essere `occupied` ed
-essere `square`» deve costruire il ponte nei due versi.  
+*Atto didattico:* «una casella occupata è una casella su cui si trova un pezzo;
+quando un pezzo è su una casella, quella casella è occupata». Il teacher
+spiega le due direzioni in lingua naturale; i predicati interni li ricostruisce
+parrot0. Un solo verso insegnato non autorizza a inventare l'altro.
+
 *Gate:* una domanda posta nella forma composta trova la risposta memorizzata in
 quella scomposta e viceversa; l'ablation toglie il ponte e non i fatti.
 
@@ -615,6 +1052,10 @@ protocollo.
 
 #### M15 — Le forme della DOMANDA non sono insegnabili. **È il blocco più urgente.**
 
+**Fotografia storica del gen456, parzialmente superata:** `frame_for` è ora
+presente, e `cue_like` estende anche superfici di condotta da un'ancora
+naturale. Il gate generale resta da verificare per famiglia; vedi §0.2.
+
 *Manca:* `answer_frame/2` — la relazione fra una superficie interrogativa e la
 relazione che deve interrogare — non è raggiungibile da nessun atto didattico.
 `learnable/3` ha quattro modi (`exact`, `substring`, `fill`, e la maniglia
@@ -644,12 +1085,17 @@ chiedono**, restano invisibili — ed è esattamente la forma di conoscenza mort
 che il M11 nomina («un fatto vero in KB, invisibile al comportamento»). Colpisce
 per intero le lingue diverse dall'inglese.
 
-*Atto didattico che deve funzionare:* nominare la relazione, come già si fa per
-le famiglie al M11 — «*learn "quali colori" as a way to ask side_color*» — con la
-stessa guardia: la relazione deve già esistere, altrimenti la lezione scrive in
-un cassetto che nessuno apre. La forma è già disegnata: un modo `frame_for`
-accanto a `cue_for`/`reply_for`, che eredita `answer_frame_input_arg` da una
-formulazione già esistente della stessa relazione.
+*Atto didattico che deve funzionare:* «quando chiedo quali colori si usano in
+un gioco, voglio sapere con quali colori giocano i partecipanti», oppure
+insegnare una parafrasi di una domanda già compresa. La relazione e il verso
+si ricavano dall'ancora e dai suoi ruoli. Se l'ancora non è capita o ha più
+letture incompatibili, parrot0 deve chiedere il chiarimento pertinente.
+
+**Rettifica del 2026-09-05:** la vecchia proposta di far nominare al teacher
+`side_color` è ritirata: violava il vincolo zero di questo piano. `frame_for`
+e `answer_frame_input_arg` sono dettagli dell'implementazione, non parole che
+chi insegna deve conoscere. Il motore della porta esiste; la missione verifica
+che sia raggiungibile con spiegazioni naturali e ruoli corretti.
 
 *Gate:* una relazione qualunque fra le 136 diventa interrogabile in una lingua
 nuova senza toccare un file, e la prova si fa su una relazione che chi implementa
@@ -982,8 +1428,9 @@ posizioni generate dopo le lezioni e richiede spiegazione della legalità.
 
 ### A6 — Sessione di dieci ore
 
-Si esegue il curriculum completo solo dopo la chiusura degli strati M0–M14 del
-§6, di cui A1–A5 sono le milestone visibili. Le milestone non bastano da sole: un
+Si esegue il curriculum completo solo dopo la chiusura degli strati M0–M20 del
+§6 e dei gate trasversali del §0. A1–A5 ne sono alcune milestone visibili,
+non l'intero cancello. Le milestone non bastano da sole: un
 gate di milestone verde sugli esempi che l'hanno guidata non chiude lo strato
 corrispondente (§6.3). Il risultato è un checkpoint della KB con genealogia, non
 una promozione opaca di tutto ciò che è stato detto.
@@ -1122,7 +1569,7 @@ SC41–SC43.
 
 ### 14.5 Metriche della comprensione revisionabile
 
-Alle metriche del §11 si aggiungono:
+Alle metriche del §9 si aggiungono:
 
 - **StaleLeak:** versioni stale che soddisfano una vista o risposta corrente.
   Deve essere `0`.
@@ -1234,6 +1681,13 @@ correggere un typo senza genealogia e' soltanto un altro default invisibile.
 ---
 
 # ⛔ ARCHI CONNETTIVI DINAMICI — la conoscenza detta in una forma, letta in un'altra
+
+**Nota di lettura, 2026-09-05:** questa appendice conserva esperimenti e
+proposte del 2026-09-02. L'implicazione binaria ha successivamente ricevuto
+un'implementazione e un test (`higher_order_lesson.p0t`); non è una prova di
+chiusura di tutto l'ordine superiore. I transcript qui sotto sono evidenze di
+meccanica, non fonti di verità per un nuovo training. Equivalenza, inversione,
+condizioni di validità e retract seguono il contratto aggiornato del §0.4.
 
 *Aperto il 2026-09-02 su indicazione di F. Questa sezione è condivisa da
 `universal-input.md`, `universal-solver.md`, `frontier-kb-natural-dialogue.md` e
@@ -1438,8 +1892,10 @@ alto.
 3. **Nessun vocabolo del gate nel C**: `contains`, `part of`, `se`, `allora`
    compaiono solo nel test.
 4. **Target noto e univoco**: due letture ⇒ resta un gap, non si prende la prima.
-5. **Il retract toglie la capacità, non la storia**: i fatti dedotti mentre la
-   regola era viva restano; la regola sparisce.
+5. **Il retract toglie la capacità, non la storia**: i record delle deduzioni
+   restano; la loro utilizzabilità corrente richiede un sostegno ancora valido.
+   Se la regola ritratta era l'unico sostegno, si invalidano anche le
+   conseguenze dipendenti (§0.4).
 6. **⛔ Nessun «Learned rule» senza una regola.** Se la lezione non si àncora, si
    dichiara il gap. Questa è la riga da chiudere per prima, perché oggi è attiva
    e mente.
@@ -1447,8 +1903,9 @@ alto.
 ### Il contesto, che è la parte che F. ha nominata per ultima e pesa di più
 
 *«in certi contesti»* non è una sfumatura: è la differenza fra una regola e una
-**regola con dominio**. «contenere vuol dire essere parte» è vero per una scatola
-e i suoi oggetti, falso per un fiume e i pesci. La forma generale non è
+**regola con dominio**. Il semplice contenimento non dimostra una relazione
+parte-tutto, nemmeno fra una scatola e un oggetto ospitato: occorre una
+condizione semantica verificata che autorizzi il passaggio. La forma generale non è
 
 ```prolog
 part_of($Y, $X) :- contains($X, $Y).
@@ -1470,8 +1927,10 @@ una regola che vale ovunque è una regola che nessuno può correggere parlando.
    il gap, non annunciare una regola. *Prima* di aggiungere capacità.
 2. **L'implicazione binaria fra relazioni note**, con i ruoli per nome e il
    retract simmetrico.
-3. **L'arco insegnato**: «contenere vuol dire essere parte» ⇒ asserisce
-   `knowledge_alias/2`, cioè l'ordine superiore che *scrive gli archi del §3*.
+3. **L'arco insegnato**: una spiegazione fra relazioni costruisce il mapping
+   dei ruoli e la direzione dichiarata. `knowledge_alias/2` è adatto soltanto
+   a equivalenze con la stessa disposizione degli argomenti; inversioni e
+   implicazioni condizionate richiedono la regola corrispondente.
 4. **Il dominio del contesto**, come argomento in più e non come eccezione.
 5. **L'indice per termine**, perché ogni arco in più moltiplica il join (§5).
 
@@ -1481,7 +1940,8 @@ Una lezione di ordine superiore è chiusa solo se:
 
 - vale su relazioni **held-out** (non `contains`/`part_of`, che sono l'esempio);
 - vale in **entrambe le lingue**, perché la canonicalizzazione è l'unica via;
-- si **ritratta** parlando, e ciò che aveva dedotto resta;
+- si **ritratta** parlando: la storia resta, le conclusioni senza più sostegno
+  non valgono come conoscenza corrente, quelle sostenute indipendentemente sì;
 - **non** produce un «Learned rule» quando non ha ancorato niente;
 - il contesto dichiarato **restringe** davvero: fuori dal dominio la regola non
   deve concludere.
