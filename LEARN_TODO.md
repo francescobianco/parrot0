@@ -190,6 +190,29 @@ ematite non aveva mai parlato nessuno.
 | `X` (falsita' promosse) | `0` |
 | gate | `tests/p0t/knowledge/earned_negation.p0t`, 25 assert, nomi casuali |
 
+### Crescita di comprensione del `gen505` (stesso turno)
+
+Sondando le forme con cui un insegnante parla davvero, tre risultati:
+
+1. **Il soggetto coordinato ora distribuisce.** «hematite and magnetite are iron
+   oxide minerals» imparava SOLO il primo e rispondeva «Learned: hematite is an
+   iron oxide mineral.» — mezza lezione persa e dichiarata riuscita, che e'
+   peggio di un muro. Ogni meta' da sola era gia' leggibile (plurale compreso):
+   mancava la distribuzione. Il numero della copula (`plural_copula/1`) e' il
+   segnale che distingue una lista da un composto — «salt and pepper IS a
+   condiment» non si spezza.
+2. **L'enumerazione aveva i membri e non le superfici.** Funzionava solo per
+   «what/who IS A copper mineral?», la forma che nessuno usa; «what ARE THE
+   copper mineralS?» murava. Due guardie a monte (l'articolo indeterminativo, la
+   copula singolare) uscivano prima ancora di guardare la frase. Ora le tre
+   forme danno la stessa risposta.
+3. **Un reperto non chiuso, e non causato da questo lavoro** (verificato
+   ricostruendo il binario precedente): «who is a man?» risponde con la trama di
+   *Invisible Man* invece di enumerare i membri della classe. Una facolta' che
+   riconosce titoli rivendica il turno prima dell'enumeratore — il «turno
+   rubato» di `docs/plans/generation-kb-first.md`, qui su una domanda
+   elementare. Priorita' alta: e' una risposta fuori tema data con sicurezza.
+
 ### Due colli nuovi, misurati e non chiusi
 
 1. **Una classe nominata solo in un vincolo resta «sconosciuta».** Se la seconda
