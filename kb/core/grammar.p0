@@ -940,9 +940,26 @@ extract_frame($Pat, $Pred) :-
     concat_atoms("la ", $Noun, $A),
     concat_atoms($A, " di @S e' @O", $Pat).
 
-% ⚠ gen505d — QUESTA LISTA NON SI PUO' FAR CRESCERE PARLANDO, e ci ho provato.
-% Il reperto completo (che cosa funziona, che cosa no, e le misure) e' in
-% LEARN_TODO.md, sezione «la relazione che non si puo' insegnare».
+% ── gen505e — UNA RELAZIONE NUOVA SI PUO' DIRE, NON SOLO SCRIVERE ───────────
+%
+% La lista qui sotto era chiusa a cinque: chi insegna parlando non poteva
+% aggiungerne una sesta, e «the warp of denim is cotton» andava a muro. La
+% lezione naturale e' «warp is a relation» — una normale appartenenza a classe,
+% che non chiede a chi insegna di sapere niente dello schema interno (vincolo
+% zero) — e questa clausola e' il ponte: il nome del predicato si costruisce dal
+% nome comune, e il pattern lo costruisce la regola che c'era gia'.
+%
+% ⚠ Ha aspettato una correzione del MOTORE: fino al `031b056` una regola in coda
+% a `extract_frame` non vedeva i fatti asserti a runtime (le viste
+% materializzate non venivano invalidate dalle dipendenze delle regole vive), e
+% questa clausola c'era gia' e rendeva zero. Il repro e le piste escluse restano
+% in `C_TODO.md` come storia di quel difetto.
+% Il ponte serve a DUE consumatori: `extract_frame/2` legge la frase che ASSERISCE
+% («the warp of denim is cotton»), `relation_noun/2` la DOMANDA («what is the warp
+% of denim?»). Dichiarare la relazione una volta deve aprirle entrambe, altrimenti
+% si torna al cassetto senza maniglia — imparabile e non interrogabile.
+relation_noun($Pred, $Noun) :- relation($Noun), concat_atoms($Noun, "_of", $Pred).
+
 relation_noun(capital_of, "capital").
 relation_noun(population_of, "population").
 relation_noun(currency_of, "currency").

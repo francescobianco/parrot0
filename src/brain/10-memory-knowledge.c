@@ -16302,6 +16302,21 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * rather than compared against English literals here. */
     if (nw == 6 && is_definite_article(b, w[2]) && is_relation_prep(b, w[4])) {
         const char *rel = w[3], *obj = w[5];
+        /* gen505e — LA DOMANDA DEVE CONSULTARE LA STESSA MAPPA DELL'ASSERZIONE.
+         *
+         * `w[3]` e' il nome COMUNE della relazione («mordant»), mentre il fatto
+         * e' sotto il nome del predicato («mordant_of»): `relation_noun/2` e' la
+         * mappa fra i due, e la usava solo il lato che ASSERISCE. Cosi' una
+         * relazione insegnata parlando si poteva riempire e non interrogare —
+         * il cassetto senza maniglia, di nuovo. Se la mappa non dice niente,
+         * resta il nome nudo e il comportamento e' quello di prima. */
+        char mapped[1][KB_TERM_LEN];
+        if (!kb_knows_pred(b->kb, rel)) {
+            const char *nq[] = { NULL, rel };
+            if (kb_match(b->kb, "relation_noun", nq, 2, mapped, 1) == 1 &&
+                kb_knows_pred(b->kb, mapped[0]))
+                rel = mapped[0];
+        }
 
         /* variable query, subject unknown: "who is the <rel> of <y>?" ->
          * rel(X, y); object unknown: "what is the <rel> of <y>?" -> rel(y, X) */
