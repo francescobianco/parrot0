@@ -1,5 +1,24 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+## Ripresa 2026-09-05 — il ramo ignoto e' identificato e corretto
+
+Primo incremento dal gen505b: il blocco delle definizioni leggeva
+`question_word`, quindi rivendicava anche «why is …». Ora consulta il ruolo
+KB gia' esistente `definition_interrogative`: la domanda raggiunge la prova,
+sia sui minerali sia su Socrate. Tolto anche il tetto `char *w[8]` di quel
+tratto di `mod_knowledge`, dimensionando i token sull'intero buffer di testo.
+La coda oltre l'ottava parola restava attaccata all'ultimo token: alcune chiavi
+multi-parola funzionavano solo per caso.
+
+Build e conversazioni con profilo AGI riuscite; crescita/retract/reteach del
+ruolo verificati parlando. Nessuna suite e nessuna lezione diagnostica salvata.
+Stato `meta-capability-only`, `W=0`.
+[Report e transcript](docs/labs/apprendimento-assistito/2026-09-05-domande-e-token.md).
+
+La missione e l'ordine sotto restano validi, con due aggiornamenti: il ramo
+della voce 2 non e' piu' ignoto, e il tetto a otto token della voce 1 e' rimosso.
+Restano i conteggi dei singoli rami e i soggetti legati a una posizione sola.
+
 # ⛔ RIPARTI DA QUI — handoff 2026-09-05 (sera), `gen505b`
 
 > **Questo handoff prevale su tutte le intestazioni piu' vecchie del file**,

@@ -1,5 +1,32 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-05 — identificato il ramo delle descrizioni; tolto il tetto a otto token
+
+Il ramo «non identificato» del gen505b era il blocco gen151 delle definizioni:
+`question_word` + copula accettava anche «why is …» e chiamava
+`kb_define_entity` prima della spiegazione. Valeva anche per una classe di una
+parola: «why is socrates a mortal?» restituiva la descrizione di Socrate.
+Ora legge il ruolo gia' esistente `definition_interrogative`.
+
+Il vettore dei token di quel tratto di `mod_knowledge` copre ora l'intero buffer
+di ingresso, dimensionato sul massimo numero di parole che vi possono entrare.
+**Precisazione sulla diagnosi precedente:** `split_words` al raggiungimento del
+tetto non perde semplicemente la coda: lascia spazi e parole successive attaccati
+all'ultimo token. Alcune code funzionavano per caso, altre costruivano chiavi
+miste con spazi e underscore. Non era una fusione semantica della classe.
+
+Verificati parlando: prove dirette e derivate sui minerali, prova di mortalita',
+enumerazione e provenienza. Anche crescita/retract/reteach del ruolo delle
+definizioni attraverso menzione naturale, senza assert e senza ricompilare.
+[Evidenza](docs/labs/apprendimento-assistito/2026-09-05-domande-e-token.md).
+Nessuna suite, nessuna lezione diagnostica salvata.
+
+Restano i conteggi e le posizioni fisse dei singoli rami, compreso il soggetto
+di un token nelle domande di spiegazione/provenienza. Il ramo «why is …» arriva
+ora alla prova, ma una tesi negata continua a rispondere «I can't show that.»:
+la spiegazione del no e' raggiungibile dall'altro percorso, non da questo.
+La traccia sotto resta come storia della diagnosi, non come blocco ancora ignoto.
+
 ## ⭐ gen505b — IL CONTEGGIO DI PAROLE FISSO, censito
 
 Non e' una svista ripetuta: e' una **forma** che il motore ripete, e ogni sua

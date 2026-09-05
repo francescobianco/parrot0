@@ -15365,8 +15365,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    char *w[8];
-    size_t nw = split_words(buf, w, 8);
+    /* One-byte words separated by one whitespace byte are the densest input.
+     * Cover every token that fits in buf; a full array must never leave a tail
+     * attached to its last word and turn that tail into a different KB key. */
+    char *w[(sizeof buf + 1) / 2];
+    size_t nw = split_words(buf, w, sizeof w / sizeof w[0]);
 
     /* gen298 (deep-reasoning M0, comprehension frame 2): PAST-TENSE copula. Wikipedia
      * lead sentences for historical subjects say "was"/"were" ("Socrates was a
@@ -15619,8 +15622,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * blocks above and the fallback below — this never widens the wall. */
     {
         size_t start = 0;
-        if (nw >= 3 && lex_class_member(b, "question_word", w[0]) &&
-            (lex_class_member(b, "clause_copula", w[1]) || lex_class_member(b, "clause_copula", w[1]))) start = 2;
+        /* A definition asks what something is. The broader question_word role
+         * also contains requests for reasons, places and times: those need
+         * their own evidence, not the first description of a named entity. */
+        if (nw >= 3 && lex_class_member(b, "definition_interrogative", w[0]) &&
+            lex_class_member(b, "clause_copula", w[1])) start = 2;
         /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
          * Le condizioni qui sotto sono legate da `&&`/`||` nel C. Anche quando ogni
          * singola condizione legge la KB, l'INSIEME — quali condizioni, quante, in
