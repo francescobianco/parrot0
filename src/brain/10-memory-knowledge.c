@@ -15839,12 +15839,41 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * not from a literal here. is_universal_word() falls back to the built-in
      * defaults ONLY for a knowledge-less scratch brain (premise sandboxes are a
      * an empty KB), which since gen371 still reaches the shared machinery. */
-    if (nw >= 5 && nw <= 4 + KB_MAX_BODY && is_universal_word(b, w[0]) &&
-        lex_class_member(b, "10_memory_knowledge_lex12294", w[nw - 3]) && is_article(b, w[nw - 2])) {
-        const char *head = w[nw - 1];
+    /* gen505 — DUE DIFETTI DELLA STESSA RIGA, TROVATI INSEGNANDO.
+     *
+     * (a) «every copper mineral is a mineral» imparava
+     *     `mineral(X) :- copper(X), mineral(X)` — una regola FALSA e circolare,
+     *     annunciata come appresa, da cui poi discendeva un «No.» falso. Il
+     *     corpo veniva spezzato in congiunzione perche' il gen133 legge i
+     *     modificatori come premesse («every friendly dog is a goodboy»), ma
+     *     «copper mineral» non e' aggettivo+nome: e' UN nome di classe.
+     *     L'ambiguita' e' reale e non si decide nel C: si CHIEDE alla KB. Se le
+     *     parole unite nominano una classe che gia' esiste, sono un nome solo;
+     *     altrimenti resta la lettura per congiunzione, invariata.
+     *
+     * (b) la testa poteva essere solo di UNA parola, perche' copula e articolo
+     *     erano cercati a posizione fissa (nw-3, nw-2). «every X is an iron ore
+     *     mineral» non veniva letto affatto — in silenzio. Copula e articolo si
+     *     cercano scandendo, come nel ramo dell'esclusione, e la testa e' cio'
+     *     che li segue. */
+    size_t u_cop = 0;
+    if (nw >= 5 && is_universal_word(b, w[0]))
+        for (size_t i = 2; i + 2 < nw && !u_cop; i++)
+            if (lex_class_member(b, "clause_copula", w[i]) && is_article(b, w[i + 1]))
+                u_cop = i;
+    char u_head[KB_TERM_LEN], u_body_one[KB_TERM_LEN];
+    if (u_cop && u_cop - 1 <= KB_MAX_BODY &&
+        p0_join(w, u_cop + 2, nw, u_head, sizeof u_head) &&
+        p0_atom_within_cap(b, u_head)) {
+        const char *head = u_head;
         const char *bodies[KB_MAX_BODY];
-        size_t nbody = nw - 4; /* body words are w[1 .. nw-4] */
+        size_t nbody = u_cop - 1; /* body words are w[1 .. u_cop) */
         for (size_t i = 0; i < nbody; i++) bodies[i] = w[1 + i];
+        if (nbody > 1 && p0_join(w, 1, u_cop, u_body_one, sizeof u_body_one) &&
+            kb_knows_pred(b->kb, u_body_one)) {
+            bodies[0] = u_body_one;
+            nbody = 1;
+        }
         if (kb_assert_rule_n(b->kb, head, bodies, nbody)) {
             char msg[256];
             size_t o = 0;
