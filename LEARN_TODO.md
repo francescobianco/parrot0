@@ -1,5 +1,110 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# ⛔ RIPARTI DA QUI — handoff 2026-09-05 (sera), `gen505b`
+
+> **Questo handoff prevale su tutte le intestazioni piu' vecchie del file**,
+> compresa quella del mattino qui sotto, che resta valida nel merito.
+
+## La missione, in una riga
+
+**Allargare le abilita' di COMPRENSIONE di parrot0 facendo crescere la KB, fino
+alla KB viva.** Non «far passare i test», non «coprire piu' casi»: far si' che
+cio' che parrot0 gia' sa diventi raggiungibile parlando, e che ogni lezione
+detta a voce lasci una capacita', non un deposito.
+
+## ⛔ Per adesso NON servono i test — indicazione esplicita di F.
+
+I test sono **fuori posto e lo sappiamo**: si sistemano un altro giorno. In
+particolare:
+
+- il rosso di `make soft-test` e' **preesistente e di prestazione** — il primo
+  turno del demone sfora il budget di 1.00s (misurato 1.17–1.46s, A/B con e
+  senza le modifiche: differenza dentro il rumore). Blocca l'intera suite,
+  perche' `test-engine` esce prima;
+- `inference_guard.p0t` ha un gate **stantio**: si aspetta `Learned: zorp(vex).`
+  mentre il motore ora conferma in lingua naturale — la resa e' migliore
+  dell'atteso;
+- non spendere tempo a inseguirli. Se una modifica rompe qualcosa **di
+  comportamento**, si vede subito parlando: e' quella la verifica di questo
+  periodo.
+
+Quello che invece va sempre fatto: **provare a voce** cio' che si tocca, in una
+sola sessione, e commettere piccolo.
+
+## Come si lavora, in pratica
+
+```bash
+make build
+printf '%s\n' "una lezione" "una domanda" | PARROT0_PROFILE=kb/profiles/agi.p0 ./bin/parrot0
+```
+
+- ⚠ **`PARROT0_PROFILE=kb/profiles/agi.p0` non e' facoltativo**: senza, la KB
+  appresa (`kb/learning/learned.p0`) non viene caricata e sembra che parrot0
+  abbia dimenticato tutto. Ci sono cascato.
+- ogni invocazione e' un **processo nuovo**: lezione e verifica vanno nella
+  STESSA pipe, altrimenti si misura una KB diversa da quella che si e' insegnata;
+- `/save` persiste, e la persistenza va verificata in un processo fresco;
+- `/debug` PRIMA del turno da' la strada e il profilo; dopo, da' le sonde.
+
+## Che cosa e' stato chiuso oggi (tutto verificato parlando)
+
+| | capacita' aperta |
+|---|---|
+| 1 | **il «no» guadagnato si insegna a voce**: «no carbonate mineral is an iron oxide mineral» → `exclusive_classes/2`, che prima aveva **zero produttori**. E' la piu' fertile delle tre vie al no: una frase risponde per tutti i membri, presenti e futuri, di entrambe le classi |
+| 2 | **una classe nominata solo da un vincolo si puo' nominare** (`class_constrained/1`), quindi il no guadagnato vale anche con l'altra classe vuota |
+| 3 | **il soggetto coordinato distribuisce**: «A and B are Xs» imparava solo A e diceva di aver imparato. `plural_copula/1` distingue la lista dal composto |
+| 4 | **enumerazione al plurale**: «what are the copper minerals?» aveva i membri e non la superficie |
+| 5 | **l'universale non impara piu' una regola falsa** su una classe multi-parola (`mineral(X) :- copper(X), mineral(X)`), e legge la testa multi-parola |
+| 6 | **parrot0 spiega un «no» guadagnato**, componendo la ragione dalla KB |
+| 7 | **le prove si leggono**: `class_surface/2` — come si chiama una classe nella lingua, appresa dove la classe entra — e tre percorsi di resa che la chiedono |
+| 8 | **la domanda di provenienza torna al suo proprietario**: «how do you know X is a Y?» dava un saggio sui meccanismi causali |
+| 9 | **cio' che si sa di una CLASSE sono i suoi membri** («what do you know about copper mineral?» rispondeva con un saluto) |
+
+E lo strumento nuovo: [`docs/plans/inferenza-compositiva.md`](docs/plans/inferenza-compositiva.md)
+— una risposta lunga e' un albero di stadi, non una stringa con dei buchi.
+`kb/core/composition.p0`, tre cipolle vive. **E' la leva giusta per la
+comprensione**: uno stadio nuovo e' un fatto, e vale per ogni risposta che
+dimostri quella tesi. Il riferimento rapido e' in testa a
+`docs/plans/apprendimento-assistito.md`.
+
+## Da dove ripartire, in ordine
+
+1. **La famiglia del conteggio di parole fisso** — e' il filone piu' ricco
+   trovato oggi, censito in testa a [`C_TODO.md`](C_TODO.md): **62 rami
+   `nw == N`**, 28 nel modulo della conoscenza, e sotto di essi il tetto
+   strutturale **`char *w[8]`**. Ogni istanza nasconde una capacita' che c'e'
+   gia', e il danno non e' un muro: il turno viene raccolto da una facolta'
+   peggiore che risponde comunque. *Un conteggio fisso non produce silenzio,
+   produce rumore convinto.* La regola per toglierli e il criterio per quali NON
+   toccare sono scritti li'.
+2. **Il ramo non identificato** che rivendica «why is X a *classe
+   multi-parola*?» e risponde col dump della descrizione: traccia completa in
+   `C_TODO`, compreso il metodo che **non** funziona (bisezione con `fprintf`:
+   gli scope annidati ricalcolano `nw`/`w`).
+3. **L'italiano e' fermo**, e non per una capacita' mancante: la
+   canonicalizzazione produce atomi ibridi («minerale of carbonato»,
+   `C_TODO` §U4). Finche' e' cosi' **non si insegna in italiano** — si
+   avvelenerebbe la KB. Sbloccarlo raddoppia la superficie insegnabile.
+4. **Il turno rubato** («who is a man?» → la trama di *Invisible Man*): per
+   [`docs/plans/turn-arbitration.md`](docs/plans/turn-arbitration.md) **non** si
+   cura con una cessione — serve l'arbitrato per copertura (S4). ⚠ `/debug`
+   propone da se' una «guardia di pertinenza», che e' proprio la forma vietata:
+   le due indicazioni si contraddicono e la scelta e' di F.
+5. **Debiti minori**: «Because X because Y» (doppio connettivo sul percorso
+   `why?`), `class_surface` persistito senza virgolette (ricarica bene, e'
+   fragile), l'annuncio di regole indotte su domini estranei al primo turno di
+   sessione.
+
+## La regola che riassume il periodo
+
+> Prima di scrivere una riga: **la capacita' esiste gia' e non si riesce a
+> raggiungerla parlando?** In sette casi su nove, oggi, la risposta era si'. Il
+> lavoro non e' aggiungere facolta': e' togliere i conteggi, le posizioni fisse
+> e le chiavi interne che stanno fra una capacita' e la lingua.
+
+---
+
+
 # ⛔ RIPARTI DA QUI — handoff 2026-09-05: addestrare la KB viva
 
 > **Invito esplicito per chi riprende:** continua questa missione. Non tornare a
