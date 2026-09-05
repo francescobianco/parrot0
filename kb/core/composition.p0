@@ -1,0 +1,292 @@
+% composition.p0 — L'INFERENZA COMPOSITIVA (gen505, primo taglio).
+%
+% Piano: docs/plans/inferenza-compositiva.md
+%
+% Una risposta lunga non e' una stringa con dei buchi: e' un ALBERO DI INFERENZA
+% appiattito, e i suoi connettivi (`: `, `, and`, `, so`) sono le cicatrici delle
+% relazioni retoriche che l'appiattimento ha cancellato.
+%
+% Qui l'albero si ricostruisce. Uno STADIO e' un'inferenza che, se la sua tesi
+% regge, avvolge il testo gia' composto piu' all'interno. Se NON regge, lo stadio
+% non esiste: la risposta e' piu' corta, non sbagliata. E' l'intera differenza
+% con un segnaposto, che e' un buco che aspetta un valore e resta un buco.
+%
+% ⚠ PRIMO TAGLIO — DELIBERATAMENTE INERTE. Nessuna regola `turn_response/2` qui
+% dentro: la composizione si interroga, non prende ancora la parola. I sensori
+% riflessivi che le servono (`turn_goal/3`, `inference_cycle/2`,
+% `inference_incomplete/2`) oggi NON sono depositati dal C — il gate C1 del piano
+% e' esattamente quello. Finche' non esistono, questi stadi si esercitano con i
+% fatti messi a mano da un cricchetto, e la cipolla e' verificabile lo stesso.
+
+:- file_attribute(machinery).
+
+% ── 1. IL MOTORE — sei clausole, nessuna parola ────────────────────────────
+%
+% Nessun vocabolario, nessun nome di stadio, nessuna lingua: si puo' insegnare
+% uno stadio nuovo domani senza ricompilare e senza toccare questo blocco.
+
+% ⚠ Perche' `stage_has_claim/1` e `stage_is_wrapper/1` esistono invece di essere
+% scritti dentro `naf(...)`: misurato al gen505, `naf` con una variabile LIBERA
+% nel goal negato non lega (`naf(stage_wraps($S, $Any))` fallisce sempre, anche
+% quando lo stadio e' davvero un nucleo). Con il goal negato interamente legato
+% funziona. E' la stessa famiglia della cattura di variabile in `findall`, e si
+% maschera allo stesso modo: non un errore, zero soluzioni.
+stage_has_claim($Stage) :- stage_claim($Stage, $Claim).
+stage_is_wrapper($Stage) :- stage_wraps($Stage, $Inner).
+
+% La tesi di uno stadio. Uno stadio senza tesi e' incondizionato: il nucleo di
+% solito lo e'.
+stage_holds($Stage) :- stage_claim($Stage, $Claim), call($Claim).
+stage_holds($Stage) :- naf(stage_has_claim($Stage)).
+
+% (1) IL NUCLEO: nessuno strato piu' interno.
+composed($Stage, $Lang, $Text) :-
+    naf(stage_is_wrapper($Stage)), stage_holds($Stage), stage_text($Stage, $Lang, $Text).
+
+% (2) LO STRATO CHE REGGE: avvolge il testo interno secondo la RELAZIONE che ha
+%     con esso. Il connettivo non e' scritto nello strato — e' la resa della
+%     relazione nella lingua del turno.
+composed($Stage, $Lang, $Text) :-
+    stage_wraps($Stage, $Inner), composed($Inner, $Lang, $In),
+    stage_holds($Stage), stage_around($Stage, $Lang, $In, $Text).
+
+% (3) LO STRATO CHE NON REGGE NON INTERROMPE: sparisce, e cio' che stava sotto
+%     di lui affiora intatto.
+composed($Stage, $Lang, $Text) :-
+    stage_wraps($Stage, $Inner), naf(stage_holds($Stage)), composed($Inner, $Lang, $Text).
+
+stage_around($S, $L, $In, $T) :-
+    stage_side($S, after), stage_relation($S, $R), relation_connective($R, $L, $C),
+    stage_text($S, $L, $Own), concat_atoms($In, $C, $A), concat_atoms($A, $Own, $T).
+stage_around($S, $L, $In, $T) :-
+    stage_side($S, before), stage_relation($S, $R), relation_connective($R, $L, $C),
+    stage_text($S, $L, $Own), concat_atoms($Own, $C, $A), concat_atoms($A, $In, $T).
+
+% ── 2. LE RELAZIONI, E LA LORO RESA ────────────────────────────────────────
+% I nomi sono quelli gia' previsti da K6 (frontier-kb-natural-dialogue.md).
+% Il connettivo e' conoscenza di lingua: una lingua nuova e' cinque righe.
+relation_connective(frames,     en, ": ").
+relation_connective(elaborates, en, ", and ").
+relation_connective(concludes,  en, ", so ").
+relation_connective(qualifies,  en, ". ").
+relation_connective(offers,     en, " ").
+% `embeds`: l'interno e' il COMPLEMENTO del testo dello strato («decide se» +
+% proposizione), non una cornice che lo introduce. Sono due relazioni diverse e
+% si vede dalla resa: `frames` mette i due punti, `embeds` no.
+relation_connective(embeds,     en, " ").
+relation_connective(frames,     it, ": ").
+relation_connective(elaborates, it, ", e ").
+relation_connective(concludes,  it, ", quindi ").
+relation_connective(qualifies,  it, ". ").
+relation_connective(offers,     it, " ").
+relation_connective(embeds,     it, " ").
+
+% ── 3. IL SINTAGMA DI CLASSE ───────────────────────────────────────────────
+% «blim» -> «a blim». L'articolo e' gia' conoscenza (`indefinite_article_before/3`
+% e `indefinite_article_default/2` in grammar.p0): non si riscrive, si chiede.
+class_article_special($L, $K) :- chars($K, cons($First, $Rest)), indefinite_article_before($L, $First, $Art).
+class_article($L, $K, $Art) :- chars($K, cons($First, $Rest)), indefinite_article_before($L, $First, $Art).
+class_article($L, $K, $Art) :- naf(class_article_special($L, $K)), indefinite_article_default($L, $Art).
+class_phrase($L, $K, $Phrase) :-
+    class_article($L, $K, $Art), concat_atoms($Art, " ", $A), concat_atoms($A, $K, $Phrase).
+
+% La copula di APPARTENENZA non e' `state_copula/2`, che dice che una
+% proposizione VALE («X vale»): qui si dice che un soggetto E' di una classe. In
+% inglese coincidono, in italiano no — ed e' il motivo per cui sono due.
+class_copula(en, " is ").
+class_copula(it, " è ").
+
+% ── 4. IL CASO DI STUDIO: `undetermined_cycle` sfogliato ───────────────────
+%
+% Sei stadi. I due template monolitici (`undetermined_cycle` e
+% `no_support_either_way`, responses.p0) non erano due risposte: sono questa
+% stessa cipolla osservata in due stati.
+
+% NUCLEO — la proposizione sotto esame. E' gia' essa stessa una composizione.
+stage_text(goal_proposition, $L, $T) :-
+    turn_goal(current_turn, $S, $K), class_copula($L, $Cop), class_phrase($L, $K, $Cls),
+    concat_atoms($S, $Cop, $A), concat_atoms($A, $Cls, $T).
+
+% 1. NESSUN FATTO ANCORA IL SOGGETTO ALLA CLASSE (cornice, prima).
+stage_wraps(no_anchor, goal_proposition).
+stage_claim(no_anchor, turn_goal_unanchored(current_turn)).
+stage_relation(no_anchor, embeds).
+stage_side(no_anchor, before).
+stage_text(no_anchor, en, "no fact I hold decides whether").
+stage_text(no_anchor, it, "nessun fatto che ho decide se").
+turn_goal_unanchored($T) :- turn_goal($T, $S, $K), naf(kb_fact($K, cons($S, nil))).
+
+% 2. IL CICLO, CON I SUOI MEMBRI (elaborazione, dopo).
+%    Nessun segnaposto: i membri sono un ELENCO, e l'elenco si realizza col fold
+%    che esiste gia' (`list_text/3`, discourse.p0).
+stage_wraps(cycle_named, no_anchor).
+stage_claim(cycle_named, turn_cycle_known(current_turn)).
+stage_relation(cycle_named, elaborates).
+stage_side(cycle_named, after).
+turn_cycle_known($T) :- inference_cycle($T, $Loop).
+stage_text(cycle_named, $L, $T) :-
+    inference_cycle(current_turn, $Loop), list_text($L, $Loop, $Names),
+    cycle_prefix($L, $P), cycle_suffix($L, $Sx),
+    concat_atoms($P, $Names, $A), concat_atoms($A, $Sx, $T).
+cycle_prefix(en, "the rules for ").
+cycle_suffix(en, " lead back into each other").
+cycle_prefix(it, "le regole di ").
+cycle_suffix(it, " si rimandano a vicenda").
+
+% 3. LA CONSEGUENZA (conclusione, dopo) — dipende dal CICLO, non dal budget.
+%    E' la tesi che oggi il template afferma anche quando e' falsa.
+stage_wraps(search_closed, cycle_named).
+stage_claim(search_closed, inference_incomplete(current_turn, cycle)).
+stage_relation(search_closed, concludes).
+stage_side(search_closed, after).
+stage_text(search_closed, en, "the search closes on itself instead of reaching an answer").
+stage_text(search_closed, it, "la ricerca si chiude su se stessa invece di arrivare a una risposta").
+
+% 3bis. L'ALTRA CAUSA DI ARRESTO, che oggi indossa le parole della prima.
+stage_wraps(budget_spent, search_closed).
+stage_claim(budget_spent, inference_incomplete(current_turn, budget)).
+stage_relation(budget_spent, concludes).
+stage_side(budget_spent, after).
+stage_text(budget_spent, en, "the search ran past its budget before finishing").
+stage_text(budget_spent, it, "la ricerca ha superato il suo budget prima di finire").
+
+% 4. IL VERDETTO EPISTEMICO (cornice, prima).
+stage_wraps(verdict, budget_spent).
+stage_claim(verdict, turn_unsettled(current_turn)).
+stage_relation(verdict, frames).
+stage_side(verdict, before).
+stage_text(verdict, en, "I cannot settle that").
+stage_text(verdict, it, "Non posso stabilirlo").
+turn_unsettled($T) :- turn_goal($T, $S, $K), naf(kb_fact($K, cons($S, nil))).
+
+% 5. LA MASSIMA (qualificazione, dopo) — UNA volta per lingua, non quattro.
+stage_wraps(maxim, verdict).
+stage_claim(maxim, unearned_negation_risk(current_turn)).
+stage_relation(maxim, qualifies).
+stage_side(maxim, after).
+stage_text(maxim, en, "Not proved is not the same as false.").
+stage_text(maxim, it, "Non dimostrato non vuol dire falso.").
+unearned_negation_risk($T) :- turn_goal($T, $S, $K), naf(closed_world_answer($K, $S)).
+
+% 6. L'OFFERTA (dopo) — oggi vive SOLO in `no_support_either_way`: sfogliata,
+%    diventa disponibile anche al turno indeterminato, che non la aveva.
+stage_wraps(offer, maxim).
+stage_claim(offer, unearned_negation_risk(current_turn)).
+stage_relation(offer, offers).
+stage_side(offer, after).
+stage_text(offer, en, "Tell me either way and I will hold it.").
+stage_text(offer, it, "Dimmelo in un verso o nell'altro e lo terrò.").
+
+% ── 5. SECONDA CIPOLLA: LA FAMIGLIA `repair` (gen505) ──────────────────────
+%
+% Scelta con una misura, non a intuito: cercando le frasi IDENTICHE presenti in
+% piu' `response_template`, «The workspace is unchanged.» compare in due
+% (`repair_post_check_failed`, `repair_commit_conflict`) e «I cannot verify a
+% repair because …» ne apre altre due. Una frase che ricorre in template diversi
+% non e' un pezzo di stringa: e' uno stadio a cui nessuno ha dato un nome.
+%
+% Il C decide oggi con una catena di sette `if` su un enum (80-code.c:1577-1590),
+% e ogni ramo nomina una chiave di template: e' la politica scritta nell'ordine
+% delle righe, cioe' il difetto del §1c del piano. Qui la chiave sparisce e
+% restano i FATTI dell'esito.
+%
+% ⚠ NUOVA FORMA RISPETTO ALLA PRIMA CIPOLLA: qui l'albero SI DIRAMA. Due nuclei
+% esclusivi (`blocked_cause`, `commit_evidence`/`conflict_cause`) e un solo
+% strato esterno che avvolge quello dei due che ha retto. La forma della risposta
+% non e' scelta: e' il risultato della prova.
+
+machinery(repair_outcome).   % repair_outcome(current_turn, post_check_failed | …)
+machinery(repair_target).    % repair_target(current_turn, "src/foo.c")
+
+% ── 5a. RAMO «non ho potuto nemmeno verificare» ────────────────────────────
+% Due template diventano uno stadio + due fatti di causa. Una terza causa domani
+% e' UN FATTO, non un template nuovo: e' il test del mantra su questa famiglia.
+repair_block_cause(missing_tool, en, "the required build-tool contract is missing").
+repair_block_cause(missing_tool, it, "manca il contratto dello strumento di build richiesto").
+repair_block_cause(infra, en, "the verification infrastructure failed").
+repair_block_cause(infra, it, "l'infrastruttura di verifica è fallita").
+repair_verification_blocked($T) :- repair_outcome($T, $O), repair_block_cause($O, en, $Why).
+
+stage_text(blocked_cause, $L, $T) :- repair_outcome(current_turn, $O), repair_block_cause($O, $L, $T).
+stage_claim(blocked_cause, repair_verification_blocked(current_turn)).
+
+stage_wraps(cannot_verify, blocked_cause).
+stage_relation(cannot_verify, causes).
+stage_side(cannot_verify, before).
+stage_text(cannot_verify, en, "I cannot verify a repair").
+stage_text(cannot_verify, it, "Non posso verificare una riparazione").
+relation_connective(causes, en, " because ").
+relation_connective(causes, it, " perché ").
+
+% ── 5b. RAMO «la verifica e' avvenuta»: due nuclei, un esito ───────────────
+% Nucleo A — il candidato aveva superato l'oracolo (post-check fallito dopo).
+stage_text(commit_evidence, en, "The candidate passed in isolation").
+stage_text(commit_evidence, it, "Il candidato aveva superato la prova in isolamento").
+stage_claim(commit_evidence, repair_oracle_passed(current_turn)).
+repair_oracle_passed($T) :- repair_outcome($T, post_check_failed).
+
+stage_wraps(commit_setback, commit_evidence).
+stage_relation(commit_setback, contrasts).
+stage_side(commit_setback, after).
+stage_text(commit_setback, en, "the canonical oracle went red after commit").
+stage_text(commit_setback, it, "l'oracolo canonico è diventato rosso dopo il commit").
+stage_claim(commit_setback, repair_oracle_passed(current_turn)).
+relation_connective(contrasts, en, " but ").
+relation_connective(contrasts, it, " ma ").
+
+% Nucleo B — il conflitto: nessuna verifica smentita, la base e' cambiata sotto.
+stage_text(conflict_cause, $L, $T) :-
+    repair_target(current_turn, $Path), conflict_prefix($L, $P), conflict_suffix($L, $Sx),
+    concat_atoms($P, $Path, $A), concat_atoms($A, $Sx, $T).
+stage_claim(conflict_cause, repair_base_moved(current_turn)).
+repair_base_moved($T) :- repair_outcome($T, commit_conflict).
+conflict_prefix(en, "The base of ").
+conflict_suffix(en, " changed while the candidate was being verified").
+conflict_prefix(it, "La base di ").
+conflict_suffix(it, " è cambiata mentre il candidato veniva verificato").
+
+% ── 5c. LO STRATO CHE AVVOLGE ENTRAMBI I RAMI ──────────────────────────────
+% Due `stage_wraps` per lo stesso stadio: la cipolla e' un albero, non una
+% catena, e quale ramo si percorra lo decide quale nucleo ha retto.
+stage_wraps(commit_response, commit_setback).
+stage_wraps(commit_response, conflict_cause).
+stage_relation(commit_response, concludes).
+stage_side(commit_response, after).
+stage_claim(commit_response, repair_had_outcome(current_turn)).
+repair_had_outcome($T) :- repair_outcome($T, $O), repair_response_phrase($O, en, $Pre, $Post).
+repair_had_outcome($T) :- repair_outcome($T, $O), repair_response_text($O, en, $Text).
+stage_text(commit_response, $L, $T) :-
+    repair_outcome(current_turn, $O), repair_target(current_turn, $Path),
+    repair_response_phrase($O, $L, $Pre, $Post),
+    concat_atoms($Pre, $Path, $A), concat_atoms($A, $Post, $T).
+stage_text(commit_response, $L, $T) :- repair_outcome(current_turn, $O), repair_response_text($O, $L, $T).
+% Il bersaglio sta FRA due pezzi dichiarati, non dentro una stringa da spaccare:
+% i pezzi sono conoscenza, lo spacco sarebbe meccanica in piu' per niente. Chi
+% non nomina il bersaglio ha semplicemente il secondo pezzo vuoto.
+repair_response_phrase(post_check_failed, en, "I rolled ", " back byte-and-mode").
+repair_response_phrase(post_check_failed, it, "ho riportato ", " indietro, byte e permessi").
+% Una risposta che NON nomina il bersaglio non e' lo stesso fatto con un pezzo
+% vuoto: e' un'altra forma, e dirlo con due predicati costa meno che simulare
+% l'assenza con la stringa vuota (che infatti attaccava il path in coda).
+repair_response_text(commit_conflict, en, "the commit was refused before any write").
+repair_response_text(commit_conflict, it, "il commit è stato rifiutato prima di ogni scrittura").
+
+% ── 5d. LA RASSICURAZIONE, CHE ORA E' GUADAGNATA ───────────────────────────
+% «The workspace is unchanged.» era affermata a scatola chiusa in due template.
+% E' una TESI, e ha due dimostrazioni diverse: il rollback byte-e-permessi, e il
+% rifiuto prima di ogni scrittura. Una vista, non una lista — un esito nuovo che
+% lasci il lavoro pulito eredita la frase senza che nessuno la riscriva.
+stage_wraps(workspace_state, commit_response).
+stage_relation(workspace_state, qualifies).
+stage_side(workspace_state, after).
+stage_claim(workspace_state, repair_workspace_known(current_turn)).
+repair_workspace_known($T) :- repair_workspace($T, $State).
+stage_text(workspace_state, $L, $T) :-
+    repair_workspace(current_turn, $State), workspace_state_phrase($State, $L, $T).
+repair_workspace($T, unchanged) :- repair_outcome($T, post_check_failed).
+repair_workspace($T, unchanged) :- repair_outcome($T, commit_conflict).
+repair_workspace($T, holds_fix) :- repair_outcome($T, committed).
+workspace_state_phrase(unchanged, en, "The workspace is unchanged.").
+workspace_state_phrase(unchanged, it, "Il lavoro è rimasto invariato.").
+workspace_state_phrase(holds_fix, en, "The workspace now holds the fix.").
+workspace_state_phrase(holds_fix, it, "Il lavoro contiene ora la correzione.").

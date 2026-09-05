@@ -821,6 +821,16 @@ Brain *brain_create(void) {
      * and social.p0 so the save-map routes future growth next to its kin.) */
     kb_load(b->kb, "kb/core/procedures.p0");
 
+    /* gen505 (docs/plans/inferenza-compositiva.md): l'INFERENZA COMPOSITIVA — una
+     * risposta lunga e' un albero di inferenza, non una stringa con dei buchi.
+     * Uno stadio che non dimostra la sua tesi non esiste, e la risposta e' piu'
+     * corta invece che falsa. Primo taglio deliberatamente INERTE: nessuna regola
+     * turn_response/2 qui dentro, la cipolla si interroga e non prende la parola.
+     * Dopo procedures.p0 per convenzione di vicinanza (e' l'altro fold di testo);
+     * l'ordine non e' vincolante, il boot carica tutto prima di risolvere. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/composition.p0");
+
     /* gen335 (long-conversation): personal-fact capture/recall knowledge — factored
      * slot_evidence/2 (scored by the shared hypothesis engine) + EN/IT reply templates.
      * Drives mod_personal (10-memory-knowledge.c). A new slot or language is facts. */

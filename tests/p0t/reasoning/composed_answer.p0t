@@ -1,0 +1,101 @@
+# composed_answer.p0t — L'INFERENZA COMPOSITIVA, i tre stati (gen505).
+#
+# Piano: docs/plans/inferenza-compositiva.md
+#
+# Che cosa blinda: che UNA cipolla sola renda TRE risposte diverse a seconda di
+# che cosa si e' riusciti a dimostrare, e che lo strato che non regge SPARISCA
+# invece di lasciare un buco o una bugia.
+#
+# I sensori (`turn_goal/3`, `inference_cycle/2`, `inference_incomplete/2`) sono
+# messi a mano: il C non li deposita ancora (gate C1 del piano). E' l'unica cosa
+# finta qui dentro — la composizione e' quella vera.
+#
+# NB entita' NUOVE (vex, blim, zorp), non un contesto amputato: la KB fa parte di
+# parrot0 e un test che la spegne non misura parrot0.
+
+!reset
+
+[test stato A — il ciclo tagliato, con i membri nominati]
+!assert turn_goal(current_turn, vex, blim)
+!assert inference_incomplete(current_turn, cycle)
+!clause inference_cycle(current_turn, cons(blim, cons(zorp, nil))).
+# Il nucleo e' gia' una composizione: soggetto + copula di appartenenza +
+# sintagma di classe, con l'articolo preso dalla conoscenza di grammar.p0.
+!query composed(goal_proposition, en, "vex is a blim")
+# Ogni strato e' una risposta compiuta per conto suo: si puo' interrogare da solo.
+!query composed(no_anchor, en, "no fact I hold decides whether vex is a blim")
+!query composed(offer, en, "I cannot settle that: no fact I hold decides whether vex is a blim, and the rules for blim, zorp lead back into each other, so the search closes on itself instead of reaching an answer. Not proved is not the same as false. Tell me either way and I will hold it.")
+
+[test stato B — budget esaurito: lo strato del ciclo NON esiste]
+!reset
+!assert turn_goal(current_turn, vex, blim)
+!assert inference_incomplete(current_turn, budget)
+# Le parole del ciclo non compaiono: e' la falsita' che il template monolitico
+# dice oggi (docs/plans/inferenza-compositiva.md §1a, tesi 3 e 4).
+!query composed(offer, en, "I cannot settle that: no fact I hold decides whether vex is a blim, so the search ran past its budget before finishing. Not proved is not the same as false. Tell me either way and I will hold it.")
+!query! composed(cycle_named, en, "the rules for blim, zorp lead back into each other")
+
+[test stato C — nessun sostegno: la risposta si accorcia ancora]
+!reset
+!assert turn_goal(current_turn, vex, blim)
+# Nessun arresto dichiarato: due strati spariscono, e cio' che resta E'
+# `no_support_either_way`. I due template non erano due risposte.
+!query composed(offer, en, "I cannot settle that: no fact I hold decides whether vex is a blim. Not proved is not the same as false. Tell me either way and I will hold it.")
+
+[test lo strato che REGGE torna, se la tesi torna]
+!assert inference_incomplete(current_turn, budget)
+!query composed(offer, en, "I cannot settle that: no fact I hold decides whether vex is a blim, so the search ran past its budget before finishing. Not proved is not the same as false. Tell me either way and I will hold it.")
+
+[test la stessa cipolla in italiano, senza una riga di C]
+!reset
+!assert turn_goal(current_turn, vex, blim)
+!assert inference_incomplete(current_turn, cycle)
+!clause inference_cycle(current_turn, cons(blim, cons(zorp, nil))).
+!query composed(offer, it, "Non posso stabilirlo: nessun fatto che ho decide se vex è un blim, e le regole di blim, zorp si rimandano a vicenda, quindi la ricerca si chiude su se stessa invece di arrivare a una risposta. Non dimostrato non vuol dire falso. Dimmelo in un verso o nell'altro e lo terrò.")
+
+[test un fatto che ancora il soggetto toglie il verdetto e la cornice]
+!reset
+!assert turn_goal(current_turn, vex, blim)
+!assert blim(vex)
+# `turn_goal_unanchored/1` e `turn_unsettled/1` cadono: restano solo la massima e
+# l'offerta sopra il nucleo. La cipolla si sfoglia da sola.
+!query composed(offer, en, "vex is a blim. Not proved is not the same as false. Tell me either way and I will hold it.")
+
+# ── SECONDA CIPOLLA: la famiglia `repair` (gen505) ──────────────────────────
+# Qui l'albero SI DIRAMA: due nuclei esclusivi e un solo strato esterno. E la
+# frase condivisa dai due template — «The workspace is unchanged.» — non e' piu'
+# affermata a scatola chiusa: e' una tesi con DUE dimostrazioni.
+
+[test repair — il ramo «non ho potuto verificare», due template in uno stadio]
+!reset
+!assert repair_outcome(current_turn, missing_tool)
+!query composed(cannot_verify, en, "I cannot verify a repair because the required build-tool contract is missing")
+!reset
+!assert repair_outcome(current_turn, infra)
+!query composed(cannot_verify, en, "I cannot verify a repair because the verification infrastructure failed")
+# L'italiano non esisteva per questi due template: nasce dagli stessi stadi.
+!query composed(cannot_verify, it, "Non posso verificare una riparazione perché l'infrastruttura di verifica è fallita")
+
+[test repair — post-check fallito: reso IDENTICO al template monolitico]
+!reset
+!assert repair_outcome(current_turn, post_check_failed)
+!assert repair_target(current_turn, src/sort.c)
+!query composed(workspace_state, en, "The candidate passed in isolation but the canonical oracle went red after commit, so I rolled src/sort.c back byte-and-mode. The workspace is unchanged.")
+
+[test repair — conflitto di base: altro nucleo, stesso strato esterno]
+!reset
+!assert repair_outcome(current_turn, commit_conflict)
+!assert repair_target(current_turn, src/sort.c)
+!query composed(workspace_state, en, "The base of src/sort.c changed while the candidate was being verified, so the commit was refused before any write. The workspace is unchanged.")
+!query composed(workspace_state, it, "La base di src/sort.c è cambiata mentre il candidato veniva verificato, quindi il commit è stato rifiutato prima di ogni scrittura. Il lavoro è rimasto invariato.")
+
+[test repair — la rassicurazione e' GUADAGNATA, non scritta]
+!reset
+# Un esito che non dice niente sul lavoro non eredita la frase.
+!assert repair_outcome(current_turn, policy_gap)
+!query! repair_workspace(current_turn, unchanged)
+# Il commit riuscito prova l'ALTRO stato con lo stesso stadio.
+!reset
+!assert repair_outcome(current_turn, committed)
+!query repair_workspace(current_turn, holds_fix)
+!query! repair_workspace(current_turn, unchanged)

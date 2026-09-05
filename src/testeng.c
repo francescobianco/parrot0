@@ -807,6 +807,36 @@ static int te_process_stream(TeState *t, FILE *in) {
                 found = kb_match(brain_kb(t->b), pred, args, argc, hit, 1) > 0;
             } else {
                 found = kb_query(brain_kb(t->b), pred, args, argc);
+                /* gen505 — UN LETTERALE FRA VIRGOLETTE E IL SUO CONTENUTO SONO
+                 * LO STESSO ATOMO, e il cricchetto deve saper nominare entrambi.
+                 *
+                 * Nel dialetto della KB la virgoletta e' portata dal letterale
+                 * di file (`stage_text(verdict, en, "…")` la conserva) e TOLTA
+                 * da chi costruisce una stringa (`concat_atoms`, kb.c:1832, la
+                 * strip esplicitamente; cosi' `kb_dequote` al confine del turno).
+                 * Un testo COMPOSTO arriva quindi senza, e senza questo secondo
+                 * tentativo `!query` non poteva asserire su nessuna risposta
+                 * costruita — e nemmeno nominarne una che contiene una virgola,
+                 * perche' la virgoletta e' anche cio' che la protegge dallo
+                 * splitter. E' la stessa specie di guasto del `free_slot` qui
+                 * sopra: uno strumento di misura che sembra dire «il fatto non
+                 * c'e'». */
+                if (!found) {
+                    char dq[KB_MAX_ARGS][KB_TERM_LEN];
+                    const char *da[KB_MAX_ARGS];
+                    int changed = 0;
+                    for (size_t i = 0; i < argc; i++) {
+                        da[i] = args[i];
+                        if (!args[i]) continue;
+                        size_t l = strlen(args[i]);
+                        if (l >= 2 && args[i][0] == '"' && args[i][l - 1] == '"') {
+                            snprintf(dq[i], sizeof dq[i], "%.*s", (int)(l - 2), args[i] + 1);
+                            da[i] = dq[i];
+                            changed = 1;
+                        }
+                    }
+                    if (changed) found = kb_query(brain_kb(t->b), pred, da, argc);
+                }
             }
             if (found == want) {
                 t->passed++;
