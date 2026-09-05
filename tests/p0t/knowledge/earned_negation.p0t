@@ -1,0 +1,111 @@
+# earned_negation.p0t — IL «NO» SI GUADAGNA (gen504, LEARN_TODO §4).
+#
+# Il difetto e' emerso da una lezione VERA, non da una teoria. Insegnando i
+# minerali di ferro parlando:
+#
+#     is hematite an iron oxide mineral?   ->  I don't know about ...
+#     hematite is an iron oxide mineral    ->  Learned: ...
+#     is hematite an iron oxide mineral?   ->  Yes.
+#     is magnetite an iron oxide mineral?  ->  No.      <- FALSO
+#
+# Finche' la classe non esisteva la risposta era «non so»; appena esisteva UN
+# membro positivo, ogni altro membro non registrato diventava NEGATIVO. E'
+# il passaggio indebito da «non ho derivato» a «ho derivato la negazione», e
+# colpisce esattamente il modo KB-first di crescere — popolare una classe un
+# membro alla volta — cioe' proprio i membri non ancora insegnati.
+#
+# QUESTO FILE E' IL RATCHET. Non usa nessuna KB amputata: gira sulla KB piena,
+# e la classe, i due membri e la regola sono nomi CASUALI generati a ogni
+# esecuzione, quindi nessuna risposta puo' venire da conoscenza preesistente e
+# niente resta impigliato fra una corsa e l'altra. La lezione e' in lingua
+# naturale: nessun nome di predicato, nessuna arita', nessun `!assert`.
+
+!random K 7
+!random A 6
+!random B 6
+
+[test earned_negation]
+!timeout 6
+# Isolamento per caso, non amputazione: `!reset` riparte da una KB PIENA e
+# pulisce soltanto cio' che i turni precedenti hanno insegnato — senza,
+# l'esecuzione di ieri risponderebbe alle domande di oggi.
+!reset
+
+# 1. la classe non esiste: il muro e' sul PREDICATO, e va tenuto distinto
+> is ${A} a ${K} mineral?
+<~ don't know
+
+# 2. un membro positivo, insegnato parlando
+> ${A} is a ${K} mineral
+<~ Learned
+
+> is ${A} a ${K} mineral?
+< Yes.
+
+# 3. IL PUNTO. Un altro membro non registrato non e' falso: sapere un membro di
+#    una classe non dichiara completa la sua estensione.
+> is ${B} a ${K} mineral?
+<~ nothing says it isn't
+
+# 4. il negativo esplicito, detto parlando, GUADAGNA il no
+> ${B} is not a ${K} mineral
+<~ Learned
+
+> is ${B} a ${K} mineral?
+< No.
+
+# 5. ritratta la negazione: si torna a «non so», non a «si'». Un impegno
+#    negativo che non si puo' sciogliere e' una credenza fuori dal dialogo.
+> forget that ${B} is not a ${K} mineral
+<~ nothing either way
+
+> is ${B} a ${K} mineral?
+<~ nothing says it isn't
+
+# 6. simmetria completa sul verso positivo
+> ${B} is a ${K} mineral
+<~ Learned
+
+> is ${B} a ${K} mineral?
+< Yes.
+
+> forget that ${B} is a ${K} mineral
+<~ no longer treat
+
+> is ${B} a ${K} mineral?
+<~ nothing says it isn't
+
+
+# ── LA CLASSE DEFINITA E' CHIUSA DALLA PROPRIA DEFINIZIONE ───────────────────
+#
+# La distinzione non e' di dominio, e' di FORMA della conoscenza: una classe che
+# riceve fatti uno alla volta e' aperta (il prossimo membro puo' sempre
+# arrivare); una classe la cui estensione e' interamente derivata da regole e'
+# chiusa — la regola dice QUANDO vale, e quel «quando» e' la dichiarazione di
+# completezza che il §4 chiede.
+#
+# La prova che questo non costa un secondo insegnamento: si insegna SOLTANTO la
+# regola, in una frase, e la chiusura vale subito. Nessun fatto compagno da
+# ricordare, nessuna ricompilazione.
+
+!random C 7
+!random D 7
+!random E 6
+
+[test defined_class_is_closed_by_its_rule]
+!timeout 6
+!reset
+
+> every ${D} is a ${C}
+<~ Learned rule
+
+# ${C} non ha nessun fatto proprio: la sua estensione e' esattamente cio' che la
+# regola deriva, quindi qui il no e' sostenuto.
+> is ${E} a ${C}?
+< No.
+
+> ${E} is a ${D}
+<~ Learned
+
+> is ${E} a ${C}?
+< Yes.

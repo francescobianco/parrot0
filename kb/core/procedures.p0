@@ -1250,6 +1250,7 @@ machinery(sides).
 :- include(debug.p0).
 :- include(honest-limits.p0).
 :- include(denotation.p0).
+:- include(epistemic-status.p0).
 
 % Internal protocol predicates are declared as machinery so self-description
 % never mistakes a task trace or a renderer registry for world knowledge.

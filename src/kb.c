@@ -803,6 +803,24 @@ int kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc) {
     return removed;
 }
 
+/* gen504: la META' MANCANTE DELLA SIMMETRIA. `kb_assert_neg` sapeva scrivere il
+ * negativo esplicito e nessuno sapeva toglierlo: l'affermazione si ritratta
+ * («forget that X is a Y»), la negazione no. Finche' la risposta negativa era
+ * gratuita l'asimmetria non si vedeva; con lo stato «non so» del §4 il negativo
+ * diventa un impegno vero, e un impegno che non si puo' sciogliere e' una
+ * credenza fuori dal dialogo. */
+int kb_retract_neg(KB *kb, const char *pred, const char *const *args,
+                   size_t argc) {
+    if (!kb || argc > KB_MAX_ARGS) return 0;
+    Fact f;
+    if (!fact_make(&f, pred, args, argc)) return 0;
+    int removed = fact_remove(kb->neg, &kb->nn, &f);
+    if (removed)
+        fact_index_rebuild_after_remove(&kb->neg_index, &kb->neg_index_cap,
+                                        kb->neg, kb->nn);
+    return removed;
+}
+
 size_t kb_retract_match(KB *kb, const char *pred,
                         const char *const *args, size_t argc) {
     if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args)) return 0;
@@ -1716,6 +1734,46 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             Subst *s2 = &scratch->subst;
             subst_copy(s2, s);
             if (!unify(s2, g->args[0], f->pred) ||
+                !unify(s2, g->args[1], list))
+                continue;
+            if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
+        }
+        return 0;
+    }
+
+    /* gen504: il GEMELLO di kb_fact/2 sulle REGOLE. Senza di lui la KB poteva
+     * censire cio' che le e' stato DETTO ma non cio' che sa DERIVARE, e la
+     * differenza fra le due cose e' esattamente la domanda epistemica che
+     * `kb/core/epistemic-status.p0` deve poter porre: una classe che riceve
+     * fatti uno alla volta e' APERTA (il prossimo membro puo' sempre arrivare),
+     * una classe DEFINITA da regole e' chiusa dalla sua definizione.
+     *
+     * kb_rule(Testa, ArgomentiDellaTesta): unifica con la testa di ogni regola.
+     * Il corpo non e' esposto qui — nessun consumer lo chiede ancora, ed e' la
+     * meta' che costerebbe una rappresentazione di lista annidata. Stessa
+     * ottimizzazione del gemello: testa BOUND -> cammino sul bucket del
+     * censimento, testa libera -> enumerazione, che e' la domanda posta. */
+    if (strcmp(g->pred, "kb_rule") == 0 && g->argc == 2) {
+        char rp[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], rp, sizeof rp, 0);
+        PredBucket rbk = { NULL, 0, 0, 0 };
+        int bound = !is_var(rp) && term_ok(rp) && !term_contains_var(rp, 0);
+        if (bound) {
+            rbk = rule_bucket(S->kb, rp);
+            if (rbk.live && rbk.n == 0) return 0;   /* nessuna regola qui */
+        }
+        size_t visits = bound ? PRED_VISITS(rbk, S->kb) : S->kb->nr;
+        for (size_t vi = 0; vi < visits; vi++) {
+            size_t i = bound ? PRED_AT(rbk, vi) : vi;
+            if (i >= S->kb->nr) continue;
+            const Rule *r = &S->kb->rules[i];
+            if (bound && strcmp(r->head.pred, rp) != 0) continue;
+            char list[KB_TERM_LEN];
+            if (!args_to_list(r->head.args, r->head.argc, list, sizeof list))
+                continue;
+            Subst *s2 = &scratch->subst;
+            subst_copy(s2, s);
+            if (!unify(s2, g->args[0], r->head.pred) ||
                 !unify(s2, g->args[1], list))
                 continue;
             if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
@@ -2751,7 +2809,8 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
      * at every evidence query; rule-bearing predicates keep the full solver. */
     int has_rule = (argc == 2 && (strcmp(pred, "chars") == 0 ||   /* solver builtins */
         strcmp(pred,"upcase_first")==0 || strcmp(pred,"concat_atoms")==0 ||
-        strcmp(pred,"kb_fact")==0 || strcmp(pred,"apply")==0 ||
+        strcmp(pred,"kb_fact")==0 || strcmp(pred,"kb_rule")==0 ||
+        strcmp(pred,"apply")==0 ||
         strcmp(pred,"is")==0 || strcmp(pred,"lt")==0 || strcmp(pred,"le")==0 ||
         strcmp(pred,"gt")==0 || strcmp(pred,"ge")==0 || strcmp(pred,"eq")==0 ||
         strcmp(pred,"ne")==0 || strcmp(pred,"call")==0 ||
@@ -2869,7 +2928,8 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
      * the solver path (distinct NULL variables; collect the first; deduplicate).
      * Compound patterns containing nested $/_ variables still use unification. */
     int first_var = -1, simple = max > 0 && strcmp(pred, "chars") != 0 &&
-                    strcmp(pred, "kb_fact") != 0 && strcmp(pred, "apply") != 0;
+                    strcmp(pred, "kb_fact") != 0 && strcmp(pred, "kb_rule") != 0 &&
+                    strcmp(pred, "apply") != 0;
     for (size_t i = 0; i < argc; i++) {
         if (!args[i]) { if (first_var < 0) first_var = (int)i; continue; }
         if (term_contains_var(args[i], 0))
@@ -5985,7 +6045,7 @@ static int kb_pred_has_producer(const KB *kb, const char *pred, size_t argc) {
     static const char *const builtins[] = {
         "is","lt","le","gt","ge","eq","ne","dif","call","naf","not",
         "findall","findall_bag","prob","ranges_over","assert","retract",
-        "chars","upcase_first","concat_atoms","kb_fact","apply", NULL };
+        "chars","upcase_first","concat_atoms","kb_fact","kb_rule","apply", NULL };
     for (size_t i = 0; builtins[i]; i++)
         if (strcmp(pred, builtins[i]) == 0) return 1;
     /* L'indice per predicato esiste dal gen401 e va usato: una scansione

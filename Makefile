@@ -522,6 +522,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/engine/expect.p0t
 	@./$(BIN) --test tests/p0t/knowledge/booklearn.p0t
 	@./$(BIN) --test tests/p0t/knowledge/explain.p0t
+	@./$(BIN) --test tests/p0t/knowledge/earned_negation.p0t
 	@./$(BIN) --test tests/p0t/language/artfres.p0t
 	@./$(BIN) --test tests/p0t/language/cliticfr.p0t
 	@./$(BIN) --test tests/p0t/mcp/teach.p0t

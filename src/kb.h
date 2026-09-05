@@ -103,6 +103,13 @@ int    kb_query_origin(const KB *kb, int origin_mask, const char *pred,
 int    kb_assert_neg(KB *kb, const char *pred, const char *const *args,
                      size_t argc);
 
+/* gen504: retract an explicit negative ground fact, the twin of kb_retract.
+ * Returns 1 if a negative was removed, 0 if none was held. Leaves positive
+ * knowledge untouched, so a retracted negation returns the goal to UNKNOWN
+ * rather than to true. */
+int    kb_retract_neg(KB *kb, const char *pred, const char *const *args,
+                      size_t argc);
+
 /* True if the exact ground fact is explicitly known false. */
 int    kb_is_negated(const KB *kb, const char *pred, const char *const *args,
                      size_t argc);

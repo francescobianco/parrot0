@@ -779,6 +779,13 @@ response_template(class_conflict, it, "Questo stride con quello che gia' so: {su
 % turno, e va detta.
 response_template(undetermined_cycle, "I cannot settle that: {subject} is not tied to {klass} by any fact I hold, and the rules around {klass} lead back into each other, so the search closes on itself instead of reaching an answer. Not proved is not the same as false.").
 response_template(undetermined_cycle, it, "Non posso stabilirlo: nessun fatto che ho lega {subject} a {klass}, e le regole intorno a {klass} si rimandano a vicenda, quindi la ricerca si chiude su se stessa invece di arrivare a una risposta. Non dimostrato non vuol dire falso.").
+% gen504 (LEARN_TODO §4) — LO STATO 3: NESSUN SOSTEGNO, IN NESSUN VERSO.
+% Non e' il muro del predicato sconosciuto («non so nulla di K») e non e' un
+% «no»: la classe esiste, il soggetto esiste, e nessuno dei due versi ha un
+% sostegno. Dirlo per intero e' informazione — nomina la lacuna e la trasforma
+% nel prossimo bisogno utile — mentre un «No» inventato sarebbe una falsita'.
+response_template(no_support_either_way, "I don't know: nothing I hold says {subject} is {art} {klass}, and nothing says it isn't. Knowing some {klass}s does not tell me they are all of them, so not proved is not the same as false. Tell me either way and I will hold it.").
+response_template(no_support_either_way, it, "Non lo so: niente di cio' che ho dice che {subject} sia {art} {klass}, e niente dice il contrario. Conoscere qualche {klass} non mi dice che siano tutti, quindi non dimostrato non vuol dire falso. Dimmelo in un verso o nell'altro e lo terro'.").
 response_template(saturated_read_unavailable, "I cannot settle that from the current view: the knowledge list reached its limit before I could verify the result.").
 response_template(saturated_read_unavailable, it, "Non posso stabilirlo dalla vista corrente: l'elenco della conoscenza ha raggiunto il limite prima che potessi verificare il risultato.").
 
@@ -924,6 +931,10 @@ response_template(claim_support_lost, it, "Non lo sostiene piu' niente - non ho 
 response_template(claim_support_also, "And on: {premise} - reported as {status}.").
 response_template(claim_support_also, it, "E su: {premise} - riportato come {status}.").
 response_template(mentioned_class_forgotten, "I no longer treat «{word}» as a {class}.").
+% gen504: il gemello negativo. Sciogliere «X non e' un Y» non afferma «X e'
+% un Y»: riporta la proposizione a NON SO, e la resa deve dire proprio quello.
+response_template(mentioned_class_negation_forgotten, "I no longer hold that «{word}» is not a {class} — I have nothing either way now.").
+response_template(mentioned_class_negation_forgotten, it, "Non sostengo più che «{word}» non sia un {class} — ora non ho nulla in nessuno dei due versi.").
 response_template(mentioned_class_forgotten, it, "Non considero piu' «{word}» un membro della classe {class}.").
 response_template(tool_result, "{label}: {result}").
 response_template(tool_result, it, "{label}: {result}").
@@ -949,6 +960,7 @@ response_template(got_it_you_x_x, it, "Ricevuto: {x} {y}.").
 response_template(learned_binary_fact, it, "Imparato: {pred}({arg1}, {arg2}).").
 response_template(learned_ternary_fact, it, "Imparato: {pred}({arg1}, {arg2}, {arg3}).").
 response_template(learned_unary_fact, it, "Imparato: {pred}({arg}).").
+response_template(learned_class_fact_negative, it, "Imparato: {arg} non è {art} {cls}.").
 response_template(learned_negative_fact, it, "Imparato: non {pred}({arg}).").
 response_template(learned_facts, it, "Imparato: {facts}.").
 response_template(learned_properties, it, "Imparato: {facts}.").
@@ -991,3 +1003,11 @@ response_template(learned_attribute, it, "Ricevuto: {thing} e' {value}.").
 % funzioni ha trovato e quali file: un piano che non rendiconta e' un comando.
 response_template(plan_sources_read, "I read {count} source file(s) into structure — {functions} function(s) in total: {detail}.").
 response_template(plan_sources_read, it, "Ho letto {count} sorgenti in struttura — {functions} funzioni in tutto: {detail}.").
+
+% gen504 — LA SPIEGAZIONE DI SE' NON PARLAVA ITALIANO. Le tre rese esistevano
+% solo in inglese, quindi chi chiedeva «perché hai risposto così» riceveva un
+% muro oppure una risposta nella lingua sbagliata. La condotta si spiega nella
+% lingua del dialogo come qualunque altra cosa.
+response_template(i_try_my_modules_in_a_fixed_order_and_the_fi, it, "Offro il turno alle mie facoltà una alla volta e risponde la prima che lo rivendica. L'ordine è un default, non una legge: le politiche di condotta che tengo in conoscenza possono far cedere il turno a una facoltà, retrocederla a ultima risorsa o trattenerla dietro una guardia. Nell'ultimo turno {declined} hanno guardato e declinato, nessun altro l'ha rivendicato, e sono tornato a un onesto «non capisco».").
+response_template(i_try_my_modules_in_a_fixed_order_and_the_fi_2, it, "Offro il turno alle mie facoltà una alla volta e risponde la prima che lo rivendica. L'ordine è un default, non una legge: le politiche di condotta che tengo in conoscenza possono far cedere il turno a una facoltà, retrocederla a ultima risorsa o trattenerla dietro una guardia. Nell'ultimo turno {declined} hanno guardato per prime e declinato; poi «{trace_winner}» l'ha rivendicato, quindi le facoltà dopo «{trace_winner2}» non sono mai state consultate.").
+response_template(i_try_my_modules_in_a_fixed_order_and_the_fi_3, it, "Offro il turno alle mie facoltà una alla volta e risponde la prima che lo rivendica. L'ordine è un default, non una legge: le politiche di condotta che tengo in conoscenza possono far cedere il turno a una facoltà, retrocederla a ultima risorsa o trattenerla dietro una guardia. Nell'ultimo turno «{trace_winner}» è stata la prima a rivendicarlo, quindi le facoltà dopo di lei non sono mai state consultate.").

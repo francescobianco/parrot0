@@ -1,0 +1,4 @@
+studia questi piani docs/plans/frontier-kb-natural-dialogue.md docs/plans/universal-comprehension.md e poi elabora la questo piano come missione principale docs/plans/apprendimento-assistito.md tieni conto dei mantra, il tuo
+  goal e quello ti portare la KB di parrot0 a quello stato che chiamiamo KB viva cioe in grado di espletare la comprensione ed attraverso tutte le sue feature ed attraverso la colla linguistica essere equivalente ad un LLM e
+  poter interloquire alla pari senza muri e senza allucinazioni o svarioni
+

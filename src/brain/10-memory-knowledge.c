@@ -1051,6 +1051,29 @@ static int final_clause_is_wh(Brain *b, const char *norm) {
  * The distinction is the one a real reasoner draws on the same stimulus; the
  * evidence is in tests/hysteresis_probe.py, a design-time probe that parrot0
  * itself never calls. */
+/* gen504 (LEARN_TODO §4) — IL «NO» SI GUADAGNA, NON SI EREDITA DALLA RICERCA.
+ *
+ * Il fallimento di una prova dice «non l'ho derivato», non «e' falso». La
+ * differenza diventa visibile appena si popola una classe UN MEMBRO ALLA VOLTA,
+ * che e' il modo KB-first di crescere: insegnata l'ematite, la magnetite —
+ * ancora ignota — riceveva «No.». Sapere un membro di una classe non dichiara
+ * completa la sua estensione.
+ *
+ * Un «no» e' sostenuto in due modi, e QUALE sia il secondo e' conoscenza:
+ *   - un fatto negativo esplicito su questo soggetto (kb_assert_neg);
+ *   - una autorizzazione della KB a chiudere il mondo su questa classe —
+ *     `closed_world_answer/2` in kb/core/epistemic-status.p0, che oggi si
+ *     dimostra per estensione dichiarata completa o per esclusione fra classi,
+ *     e domani per un modo che nessuno ha ancora scritto, senza ricompilare.
+ *
+ * Il motore chiede; non decide quali classi siano complete (mantra #2, #17). */
+static int negation_supported(Brain *b, const char *cls, const char *subj) {
+    const char *args[] = { subj };
+    if (kb_is_negated(b->kb, cls, args, 1)) return 1;
+    const char *auth[] = { cls, subj };
+    return kb_query(b->kb, "closed_world_answer", auth, 2);
+}
+
 static void polar_class_answer(Brain *b, const char *subj, const char *cls,
                                char *out, size_t out_size) {
     const char *args[] = { subj };
@@ -1062,6 +1085,24 @@ static void polar_class_answer(Brain *b, const char *subj, const char *cls,
     if (!yes && (rep.loops_cut > 0 || rep.budget_hit)) {
         const KbResponseSlot cs[] = { { "subject", subj }, { "klass", cls } };
         if (kb_response_slots(b, "undetermined_cycle", cs, 2, out, out_size))
+            settled = 0;
+    }
+    if (settled && !yes && !negation_supported(b, cls, subj)) {
+        /* La chiave interna e' unita da underscore dal motore stesso: ridarla
+         * cosi' all'interlocutore sarebbe far parlare parrot0 nella lingua del
+         * suo indice, non in quella del dialogo (LEARN_TODO §5). */
+        char klass[KB_TERM_LEN];
+        snprintf(klass, sizeof klass, "%s", cls);
+        for (char *p = klass; *p; p++) if (*p == '_') *p = ' ';
+        /* L'articolo indeterminativo e' conoscenza (`p0_indef_article`), non una
+         * lettera scritta nel template: «a iron oxide mineral» sarebbe un muro
+         * onesto detto male, e la resa vale quanto il contenuto (mantra #16). */
+        char art[16];
+        p0_indef_article(b, cls, art, sizeof art);
+        const KbResponseSlot ns[] = { { "subject", subj },
+                                      { "art", *art ? art : "a" },
+                                      { "klass", klass } };
+        if (kb_response_slots(b, "no_support_either_way", ns, 3, out, out_size))
             settled = 0;
     }
     if (settled) {
@@ -5869,6 +5910,43 @@ static int p0_parse_multiword_unary_membership(
     return subject[0] != '\0';
 }
 
+/* gen504 — LA POLARITA' SI SEPARA DALLA PROPOSIZIONE.
+ *
+ * «forget that X is a Y» e «forget that X is not a Y» chiedono di sciogliere lo
+ * stesso impegno con verso opposto: la proposizione e' la stessa, e va letta
+ * dallo stesso lettore. Prima di qui la seconda forma non aveva nessun lettore
+ * — i due parser di membership si fermavano sul marcatore — e la negazione
+ * risultava scrivibile ma non ritrattabile, cioe' fuori dal dialogo.
+ *
+ * Togliere il marcatore, che e' `negation_marker/1` e quindi conoscenza, lascia
+ * esattamente la proposizione affermativa: un lettore in meno da mantenere, e
+ * una lingua nuova costa la stessa riga di KB che costa gia' all'asserzione.
+ * Scrive la proposizione senza marcatore e torna 1 solo se ne ha tolto uno. */
+static int p0_strip_negation(Brain *b, const char *in, char *out, size_t osz) {
+    if (!b || !b->kb || !in || !out || osz == 0) return 0;
+    size_t L = strlen(in);
+    if (L == 0 || L >= 400) return 0;
+    char s[400]; memcpy(s, in, L + 1);
+    char *w[32]; size_t n = split_words(s, w, 32);
+    if (n < 2) return 0;
+    size_t drop = n;
+    for (size_t i = 0; i < n && drop == n; i++) {
+        char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", w[i]);
+        const char *q[1] = { strip_edge_punct(tb) };
+        if (q[0][0] && kb_query(b->kb, "negation_marker", q, 1)) drop = i;
+    }
+    if (drop == n) return 0;
+    size_t off = 0;
+    out[0] = '\0';
+    for (size_t i = 0; i < n; i++) {
+        if (i == drop) continue;
+        int written = snprintf(out + off, osz - off, "%s%s", off ? " " : "", w[i]);
+        if (written < 0 || (size_t)written >= osz - off) return 0;
+        off += (size_t)written;
+    }
+    return off > 0;
+}
+
 static int mod_mention(Brain *b, const char *norm, const char *raw,
                        char *out, size_t out_size) {
     char mentioned[KB_TERM_LEN], cls[KB_TERM_LEN], label[KB_TERM_LEN];
@@ -10553,20 +10631,34 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
              * multi-parola sotto retract poteva cadere nel lettore di classi e
              * trasformare l'atto nel soggetto del fatto. Riutilizziamo lo stesso
              * parser puro di `mod_mention`: nessun nome di classe e nessuna
-             * frase di retract sono cablati qui. */
+             * frase di retract sono cablati qui.
+             *
+             * gen504: la stessa forma naturale porta anche il verso NEGATIVO.
+             * La proposizione da leggere e' identica — la polarita' si toglie
+             * prima e decide soltanto QUALE impegno sciogliere, positivo o
+             * negativo. Sciolto un negativo, il goal torna a «non so», non a
+             * «si'»: e' l'esito che il gate del §4 chiede. */
+            char positive[400];
+            int retract_neg = p0_strip_negation(b, content, positive,
+                                                sizeof positive);
+            const char *prop = retract_neg ? positive : content;
+            const char *forgotten_say = retract_neg
+                ? "mentioned_class_negation_forgotten"
+                : "mentioned_class_forgotten";
             {
                 char mentioned[KB_TERM_LEN], cls[KB_TERM_LEN], label[KB_TERM_LEN];
                 int asking = 0;
                 if (p0_parse_mention_membership(
-                        b, content, mentioned, sizeof mentioned,
+                        b, prop, mentioned, sizeof mentioned,
                         cls, sizeof cls, label, sizeof label, &asking) &&
                     !asking) {
                     const char *args[] = { mentioned };
-                    if (kb_retract(b->kb, cls, args, 1)) {
+                    if (retract_neg ? kb_retract_neg(b->kb, cls, args, 1)
+                                    : kb_retract(b->kb, cls, args, 1)) {
                         const KbResponseSlot slots[] = {
                             { "word", mentioned }, { "class", label }
                         };
-                        if (kb_response_slots(b, "mentioned_class_forgotten",
+                        if (kb_response_slots(b, forgotten_say,
                                               slots, 2, out, out_size)) return 1;
                     }
                     kb_term_say(b, "i_didn_t_know_that_anyway", NULL, 0,
@@ -10577,14 +10669,15 @@ static int mod_forget(Brain *b, const char *norm, const char *raw,
             {
                 char subject[KB_TERM_LEN], cls[KB_TERM_LEN], label[KB_TERM_LEN];
                 if (p0_parse_multiword_unary_membership(
-                        b, content, subject, sizeof subject,
+                        b, prop, subject, sizeof subject,
                         cls, sizeof cls, label, sizeof label)) {
                     const char *args[] = { subject };
-                    if (kb_retract(b->kb, cls, args, 1)) {
+                    if (retract_neg ? kb_retract_neg(b->kb, cls, args, 1)
+                                    : kb_retract(b->kb, cls, args, 1)) {
                         const KbResponseSlot slots[] = {
                             { "word", subject }, { "class", label }
                         };
-                        if (kb_response_slots(b, "mentioned_class_forgotten",
+                        if (kb_response_slots(b, forgotten_say,
                                               slots, 2, out, out_size)) return 1;
                     }
                     kb_term_say(b, "i_didn_t_know_that_anyway", NULL, 0,
@@ -15690,14 +15783,27 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * `clause_copula/1` (grammar.p0), `negation_marker/1` (lexicon.p0).
      * Insegnarne un membro domani e' una riga, e vale per ogni sito che le
      * legge, non per questo soltanto. */
-    if (nw == 5 && is_article(b, w[3]) &&
+    /* gen504 — LA NEGAZIONE DEVE ARRIVARE DOVE ARRIVA L'AFFERMAZIONE.
+     *
+     * `nw == 5` teneva la correzione negativa alle sole classi di UNA parola,
+     * mentre «hematite is an iron oxide mineral» — la forma con cui la lezione
+     * reale e' entrata — ne usa tre. L'effetto pratico era che la classe si
+     * poteva popolare ma non correggere: «cobalt is not a strategic metal»
+     * finiva a un'altra facolta', che si offriva di imparare la parola «not».
+     * Con lo stato «non so» del §4 questa asimmetria diventa bloccante — senza
+     * un modo di dire il negativo, il «no» non e' piu' raggiungibile in nessun
+     * modo — quindi la classe si unisce come nel ramo affermativo. */
+    if (nw >= 5 && is_article(b, w[3]) &&
         !lex_class_member(b, "question_word", w[0]) &&
         !lex_class_member(b, "clause_copula", w[0]) &&
         (lex_class_member(b, "clause_copula", w[1]) ||
          lex_class_member(b, "clause_copula", w[2])) &&
         (lex_class_member(b, "negation_marker", w[1]) ||
          lex_class_member(b, "negation_marker", w[2]))) {
-        const char *subj, *cl = w[4];
+        char neg_cls[KB_TERM_LEN];
+        if (!p0_join(w, 4, nw, neg_cls, sizeof neg_cls)) return 0;
+        if (!p0_atom_within_cap(b, neg_cls)) return 0;
+        const char *subj, *cl = neg_cls;
         if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
         char msg[128];
@@ -15709,11 +15815,28 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
          * between a curated/base fact and the user's correction. Plain "X is not
          * a Y" (no marker) keeps the honest conflict. Session-only, reversible. */
         if (b->correcting) while (kb_retract(b->kb, cl, args, 1)) {}
-        if (kb_assert_neg(b->kb, cl, args, 1))
-            kb_term_say(b, "learned_negative_fact", (const KbResponseSlot[]){
-                            { "pred", cl }, { "arg", subj } }, 2,
-                        msg, sizeof msg);
-        else
+        if (kb_assert_neg(b->kb, cl, args, 1)) {
+            /* La conferma dell'atto negativo si dice come quella dell'atto
+             * affermativo: in lingua, non nella notazione dell'indice. Erano
+             * gemelle in tutto tranne che nella resa, e «Learned: not
+             * strategic_metal(cobalt)» insegnava all'interlocutore la forma
+             * interna esattamente dove il §5 chiede di non farlo. */
+            char art[16], surf[KB_TERM_LEN];
+            snprintf(surf, sizeof surf, "%s", cl);
+            for (char *p = surf; *p; p++) if (*p == '_') *p = ' ';
+            p0_indef_article(b, cl, art, sizeof art);
+            if (*art)
+                kb_term_say(b, "learned_class_fact_negative",
+                            (const KbResponseSlot[]){ { "arg", subj },
+                                                      { "art", art },
+                                                      { "cls", surf } }, 3,
+                            msg, sizeof msg);
+            else
+                kb_term_say(b, "learned_negative_fact",
+                            (const KbResponseSlot[]){ { "pred", cl },
+                                                      { "arg", subj } }, 2,
+                            msg, sizeof msg);
+        } else
             kb_term_say(b, "i_couldn_t_store_that", NULL, 0, msg, sizeof msg);
         put(msg, out, out_size);
         note_consequence(b, cl, before, out, out_size); /* gen103 (L16) */

@@ -1,0 +1,83 @@
+% epistemic-status.p0 — QUANDO IL «NO» E' GUADAGNATO (gen504).
+%
+% Nasce da un arresto REALE dell'addestramento, non da una teoria: LEARN_TODO §4.
+% Insegnando i minerali di ferro parlando, la sequenza minima era
+%
+%     is hematite an iron oxide mineral?   -> I don't know about ...
+%     hematite is an iron oxide mineral    -> Learned: ...
+%     is hematite an iron oxide mineral?   -> Yes.
+%     is magnetite an iron oxide mineral?  -> No.      <- FALSO
+%
+% Finche' la classe non esisteva, la risposta era «non so». Appena esisteva UN
+% membro positivo, ogni altro membro non registrato diventava NEGATIVO. E' il
+% passaggio indebito da «non ho derivato» a «ho derivato la negazione»: sapere
+% un membro di una classe non dichiara completa la sua estensione.
+%
+% Il danno non e' dottrinale. Popolare una classe un membro alla volta e'
+% esattamente il modo KB-first di crescere, e con questo difetto ogni classe in
+% costruzione produce svarioni su tutti i membri non ancora insegnati — cioe'
+% proprio i piu' interessanti. Un muro informato e' informazione; un «No»
+% inventato e' una falsita', ed e' peggio (mantra #7, dottrina no-deception).
+%
+% ── GLI STATI, CHE SONO CINQUE E NON DUE ──────────────────────────────────
+%   1. sostegno positivo corrente          -> si'
+%   2. sostegno negativo esplicito         -> no
+%   3. nessun sostegno in nessun verso     -> NON SO           <- mancava
+%   4. sostegni in entrambi i versi        -> conflitto, entrambi visibili
+%   5. ricerca non terminata / budget      -> indeterminato    (gen382)
+%
+% Il C esegue la ricerca e riporta lo stato che i sostegni reggono. QUALI classi
+% siano complete e' conoscenza, e sta qui: il motore non decide la chiusura del
+% mondo, la CHIEDE. Questa e' la stessa dottrina gia' scritta in
+% conditional-plans.p0 («il fallimento non significa automaticamente falso»),
+% che qui smette di valere per le sole condizioni dei piani e diventa la regola
+% generale delle risposte polari.
+
+:- file_attribute(machinery).
+
+% ── 1. LA VISTA CHE IL MOTORE INTERROGA ───────────────────────────────────
+% closed_world_answer(Classe, Soggetto): il fallimento della prova AUTORIZZA la
+% risposta negativa per QUESTO soggetto in QUESTA classe. Senza un ramo che la
+% dimostri, la risposta e' «non so» — mai «no».
+%
+% E' una vista, non una lista: ogni nuovo modo di guadagnare un «no» si aggiunge
+% come clausola qui, e vale da subito per ogni classe, senza ricompilare.
+
+% (a) l'estensione della classe e' dichiarata completa. Riusa il predicato che
+%     esisteva gia' per le condizioni dei piani: una classe unaria e' una
+%     relazione di arita' uno, non merita un predicato in piu' (mantra #3, #5).
+closed_world_answer($Class, $Subject) :- condition_closed_world($Class).
+
+% (b) il soggetto e' in una classe che ESCLUDE questa. Non serve conoscere tutti
+%     i membri: basta sapere che le due classi non si sovrappongono. E' il modo
+%     piu' fertile di guadagnare un «no», perche' una sola esclusione risponde
+%     per tutti i membri presenti e futuri di entrambe le classi.
+closed_world_answer($Class, $Subject) :- class_excludes($Other, $Class), apply($Other, cons($Subject, nil)).
+
+% (c) la classe e' DEFINITA, non osservata. E' la distinzione che il §4 stava
+%     cercando, detta dalla forma della conoscenza invece che dal dominio:
+%
+%       - una classe che riceve FATTI uno alla volta e' APERTA. Il prossimo
+%         membro puo' sempre arrivare — e' esattamente cosi' che la KB cresce —
+%         quindi non averlo trovato non e' averlo escluso;
+%       - una classe la cui estensione e' interamente DERIVATA da regole e'
+%         chiusa dalla propria definizione. La regola dice QUANDO vale, e quel
+%         «quando» e' la dichiarazione di completezza che il §4 chiede.
+%
+%     Le due riflessioni sono `kb_rule/2` (le teste delle regole) e `kb_fact/2`
+%     (i fatti diretti): la KB guarda la propria forma, il C non ne sa niente.
+class_defined_by_rule($Class) :- kb_rule($Class, $Head).
+class_has_observed_member($Class) :- kb_fact($Class, $Args).
+closed_world_answer($Class, $Subject) :- class_defined_by_rule($Class), naf(class_has_observed_member($Class)).
+
+% ── 2. ESCLUSIONE FRA CLASSI ──────────────────────────────────────────────
+% class_excludes(A, B): niente puo' essere insieme A e B. La relazione e'
+% simmetrica nel mondo, quindi la simmetria e' una regola e non un obbligo di
+% scrivere ogni coppia due volte.
+class_excludes($A, $B) :- exclusive_classes($A, $B).
+class_excludes($A, $B) :- exclusive_classes($B, $A).
+
+% Nessuna coppia e' dichiarata qui a priori. Le esclusioni sono conoscenza del
+% mondo e devono poter entrare parlando («no metal is a gas»), come i fatti:
+% metterne un catalogo in questo file rifarebbe, un piano piu' su, l'errore che
+% il file corregge — decidere in anticipo che cosa il mondo non contiene.

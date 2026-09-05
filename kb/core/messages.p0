@@ -590,10 +590,17 @@ response_template(this_is_a_direct_fact_x_i_store_it_explicitl, "This is a direc
 response_template(the_supporting_fact_is_x_this_is_stored_dire, "The supporting fact is: {last_proof}. This is stored directly in my knowledge base.").
 response_template(i_can_see_the_shape_x_x_as_the_worked_exampl, "I can see the shape ({demo} ⇒ {dconcl} as the worked example, then {qj} ⇒ ?), but {qj2} doesn't instantiate that same relational structure, so I won't guess.").
 response_template(the_symbols_are_arbitrary_the_worked_example, "the symbols are arbitrary; the worked example {demo} ⇒ {dconcl} fixes a relational archetype, and applying it to {qj} yields {answer}.").
-response_template(i_try_my_modules_in_a_fixed_order_and_the_fi, "I try my modules in a fixed order and the first one that matches wins. Last turn {declined} each looked and declined, and nothing else claimed it, so I fell back to an honest «I don't understand.»").
+% gen504 (F.) — LA VECCHIA FRASE ERA DIVENTATA FALSA. Diceva «a fixed order and
+% the first one that matches wins», e da quando esistono le politiche di condotta
+% (mantra #17: `faculty_force`, cessione, retrocessione, guardie) l'ordine e
+% un DEFAULT che la conoscenza puo' spostare. Una spiegazione di se' che descrive
+% un motore che non c'e' piu' e' una falsa affermazione come le altre — la prima
+% voce della scala di priorita' del §12 — e per giunta sul soggetto su cui
+% parrot0 dovrebbe essere piu' affidabile.
+response_template(i_try_my_modules_in_a_fixed_order_and_the_fi, "I offer the turn to my faculties one at a time and the first that claims it answers. The order is a default, not a law: the conduct policies I hold as knowledge can make a faculty yield the turn, demote it to a last resort, or hold it back behind a guard. Last turn {declined} each looked and declined, and nothing else claimed it, so I fell back to an honest «I don't understand.»").
 response_template(no_module_matched_your_last_turn_so_i_fell_b, "No module matched your last turn, so I fell back to an honest «I don't understand.»").
-response_template(i_try_my_modules_in_a_fixed_order_and_the_fi_2, "I try my modules in a fixed order and the first one that matches wins. Last turn {declined} looked first and declined; then '{trace_winner}' claimed it — so the modules after '{trace_winner2}' were never consulted.").
-response_template(i_try_my_modules_in_a_fixed_order_and_the_fi_3, "I try my modules in a fixed order and the first one that matches wins. Last turn '{trace_winner}' was the first to match and claimed it, so the modules after it were never consulted.").
+response_template(i_try_my_modules_in_a_fixed_order_and_the_fi_2, "I offer the turn to my faculties one at a time and the first that claims it answers. The order is a default, not a law: the conduct policies I hold as knowledge can make a faculty yield the turn, demote it to a last resort, or hold it back behind a guard. Last turn {declined} looked first and declined; then '{trace_winner}' claimed it — so the faculties after '{trace_winner2}' were never consulted.").
+response_template(i_try_my_modules_in_a_fixed_order_and_the_fi_3, "I offer the turn to my faculties one at a time and the first that claims it answers. The order is a default, not a law: the conduct policies I hold as knowledge can make a faculty yield the turn, demote it to a last resort, or hold it back behind a guard. Last turn '{trace_winner}' was the first to claim it, so the faculties after it were never consulted.").
 response_template(i_audited_my_own_composition_on_fresh_copies, "I audited my own composition on fresh copies of myself: {map}. {n} of {total} triples hold. No file was touched; an external agent owns edits and commits.").
 response_template(i_know_x_distinct_predicate_s, "I know {np} distinct predicate(s).").
 response_template(i_know_x_fact_s_total, "I know {kb} fact(s) total.").
@@ -789,6 +796,7 @@ response_template(learned_unary_fact, "Learned: {pred}({arg}).").
 % e' una classe (la sua variabile si chiama `cls`), quindi «{arg} is a {cls}» non
 % e' un'ipotesi. Il termine resta per i predicati unari che classi non sono.
 response_template(learned_class_fact, "Learned: {arg} is {art} {cls}.").
+response_template(learned_class_fact_negative, "Learned: {arg} is not {art} {cls}.").
 response_template(learned_binary_fact, "Learned: {pred}({arg1}, {arg2}).").
 response_template(learned_facts, "Learned: {facts}.").
 % E quando i ruoli sono tre. Senza questa riga il motore annunciava due
