@@ -439,6 +439,47 @@ diventa disponibile a *qualunque* risposta dimostri
 `unearned_negation_risk/1` — per esempio i piani condizionali di
 `conditional-plans.p0`, che la stessa dottrina la enunciano per conto loro.
 
+### 5bis. L'insieme degli strati è APERTO, e questo cambia il conto
+
+> Correzione di F., 2026-09-05: *«la cipolla non sarà mai un template più
+> costoso, per il motivo che la complessità linguistica è quasi infinita: una
+> cipolla ha per definizione infiniti altri inferitori, magari oggi non presenti
+> in KB, ma potenzialmente arriveranno»*.
+
+Ha ragione, e la mia prima versione del §7 misurava l'asse sbagliato. Il conto
+del §5 confronta due strutture **a coperture pari**, ma le due non si estendono
+allo stesso modo:
+
+| | **template** | **cipolla** |
+|---|---|---|
+| che cos'è, strutturalmente | una stringa **chiusa** | un termine **aperto**: qualunque cosa può avvolgerlo |
+| aggiungere una qualificazione | si riscrive la stringa, in **ogni** lingua e in **ogni** variante che la conteneva | un fatto: `stage_wraps($Nuovo, $Esistente)` |
+| costo dell'estensione | proporzionale a **ciò che c'è già** | proporzionale a **ciò che si aggiunge** |
+| chi può estenderla domani | chi può ricompilare la frase | chiunque, parlando |
+
+Un template è una frase finita in una lingua che non lo è. Ogni stadio è un
+**punto di attacco libero**: un inferitore che oggi non esiste — una cautela, una
+provenienza, una stima di confidenza, un registro, una ripresa di ciò che si è
+detto tre turni fa — potrà avvolgerlo domani **senza toccarlo**. La stringa non
+offre punti di attacco: offre solo se stessa.
+
+Questo è anche il motivo per cui il mio criterio di riuso era in contraddizione
+con il mantra del progetto: contare i consumatori **oggi** è misurare una
+struttura KB-first con una metrica a mondo chiuso. Il test è
+*«parrot0 può impararne un nuovo membro domani, senza ricompilare?»* — la cipolla
+lo passa, il template no. Uno stadio con un consumatore solo non è uno spreco: è
+capienza non ancora usata.
+
+**La conseguenza, però, è un requisito nuovo, non uno sconto.** Se gli strati
+candidati sono un insieme aperto, prima o poi due vorranno la stessa posizione
+con la stessa relazione — e a quel punto **la scelta non può essere l'ordine
+delle clausole nel file**, che è precisamente il difetto che
+[[generation-kb-first]] misura (39 rivendicazioni posizionali, una sola che
+compete). Gli strati devono **gareggiare su evidenza dichiarata**
+(`kb_hypothesis_best`), come già fa `creative_response`: candidati dichiarati,
+vincitore unico, prova ispezionabile. Un insieme aperto senza arbitrato non è
+ricchezza, è la stessa politica-per-ordine-degli-`if` spostata dal C alla KB.
+
 ---
 
 ## 6. Vincoli meccanici, misurati
@@ -456,13 +497,26 @@ diventa disponibile a *qualunque* risposta dimostri
 
 Il criterio va fissato **adesso**, prima di avere ragione per costruzione:
 
-1. **Riuso.** Sfogliati 10 template lunghi, se meno del **30%** degli stadi
-   ottenuti ha **almeno due consumatori**, la cipolla è solo un template più
-   costoso, e la tesi è falsa. (Previsione mia: la massima e l'offerta hanno già
-   2 consumatori a costo zero — ma due strati non sono un campione.)
+> ⚠️ **Ritirato (F., §5bis):** *«se meno del 30% degli stadi ha due consumatori,
+> la cipolla è solo un template più costoso»*. Contava i consumatori a un istante,
+> cioè misurava a mondo chiuso una struttura che esiste per restare aperta. Uno
+> stadio con un consumatore solo è capienza, non spreco. I falsificatori veri
+> sono sul **runtime** e sulla **resa**, non sull'economia di scrittura.
+
+1. **Arbitrato.** Se, cresciuti gli strati, la scelta fra due candidati alla
+   stessa posizione finisce per essere l'ordine delle clausole nel file, la
+   cipolla ha importato in KB il difetto che [[generation-kb-first]] misura nel C,
+   e la tesi è falsa nel modo peggiore: sembra KB-first e non lo è.
 2. **Condizionalità.** Se in esercizio reale gli strati condizionati reggono
    **sempre**, la proprietà «lo strato che non regge sparisce» non paga nulla e
    il guadagno è cosmetico.
+2bis. **Resa delle combinazioni.** Tre strati condizionati sono 8 rese; dieci
+   sono 1024, e **nessun umano le legge**. La prova di ogni strato garantisce che
+   nessuna resa affermi qualcosa di non dimostrato — la *verità* è coperta — ma
+   la **fluidità** non ha oracolo. Se le combinazioni non lette producono
+   periodi sgrammaticati o qualificazioni che si accavallano, serve un gate sulle
+   rese, non fiducia. È il residuo onesto: la composizione rende la prosa
+   falsificabile nel contenuto, non nella forma.
 3. **Costo.** Se la composizione porta il turno oltre il budget su una KB di
    dimensione corrente, va fermata: una risposta giusta che non arriva è peggio
    di una imprecisa che arriva.
@@ -498,7 +552,7 @@ Poi, in ordine di dipendenza — un passo per generazione:
 | **C2** | il motore `composed/3` in `kb/core/composition.p0` + `undetermined_cycle` sfogliato negli stadi del §4c | i 3 stati del §4d, tre assert; `inference_guard.p0t` resta verde parola per parola |
 | **C3** | `no_support_either_way` **eliminato** come template e ottenuto dallo stato C | il gate del gen504 resta verde senza il suo template |
 | **C4** | `composition_truncated/2` (la saturazione della cipolla è un fatto, non un silenzio) | una cipolla oltre 512 char risponde corto e **dice** che ha tagliato |
-| **C5** *(solo su pressione)* | seconda famiglia sfogliata, scelta fra i 264 template lunghi con connettivo | ≥30% degli stadi con due consumatori (§7.1) |
+| **C5** *(solo su pressione)* | seconda famiglia sfogliata, scelta fra i 264 template lunghi con connettivo | due strati candidati alla stessa posizione **gareggiano** e la prova dice perché uno ha vinto (§7.1); nessuna resa combinatoria sgrammaticata (§7.2bis) |
 
 ---
 
