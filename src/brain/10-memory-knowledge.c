@@ -16300,7 +16300,14 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * una seconda copia — cosi' le due non possono divergere su che cosa sia
      * una classe. L'allargamento vale solo per le DOMANDE: le asserzioni
      * multi-parola hanno gia' il loro lettore e restano sul percorso provato. */
-    if (nw < 4 || !is_article(b, w[2])) return 0;
+    /* gen505 — la forma PLURALE della stessa domanda porta un determinante
+     * definito, non l'articolo indeterminativo: «what are THE copper minerals?»
+     * usciva qui, prima ancora di essere guardata. Il ramo resta stretto — copula
+     * plurale al posto giusto — e i due pezzi sono conoscenza dichiarata. */
+    int p0_plural_shape = nw >= 4 &&
+                          lex_class_member(b, "plural_copula", w[1]) &&
+                          p0_any_determiner(b, w[2]);
+    if (nw < 4 || (!is_article(b, w[2]) && !p0_plural_shape)) return 0;
     char cls_buf[KB_TERM_LEN];
     if (nw > 4) {
         int is_question = interrogative ||
@@ -16313,6 +16320,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         snprintf(cls_buf, sizeof cls_buf, "%s", w[3]);
     }
     const char *cls = cls_buf;
+    int plural_enum = 0;   /* gen505: la forma plurale della stessa domanda */
 
     /* variable query: "who/what is a <y>?" -> y(X), list the bindings */
     /* TODO(kb-first, gen489) — ⛔ CATENA COMPILATA: QUESTA CONGIUNZIONE NON E' CONOSCENZA.
@@ -16327,8 +16335,44 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
      * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
      * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
-    if ((lex_class_member(b, "10_memory_knowledge_lex12629", w[0]) || lex_class_member(b, "question_word", w[0])) &&
-        lex_class_member(b, "10_memory_knowledge_lex12630", w[1])) {
+    /* gen505 — LA STESSA DOMANDA AL PLURALE.
+     *
+     * L'enumerazione funzionava solo per «what/who IS A copper mineral?», cioe'
+     * la forma che nessuno usa: chiedendo «what ARE THE copper mineralS?» — la
+     * forma naturale — parrot0 murava, pur avendo i membri. La CAPACITA' c'era,
+     * mancavano le SUPERFICI.
+     *
+     * I tre pezzi che distinguono la forma plurale sono tutti conoscenza gia'
+     * dichiarata: la copula plurale (`plural_copula/1`, gen505), il determinante
+     * (`p0_any_determiner`, tre classi KB) e il numero del nome, che si riporta
+     * al singolare con il singolarizzatore che gia' serve all'universale
+     * («all roses are flowers»). Il C non guadagna nessuna parola. */
+    if (!plural_enum && p0_plural_shape &&
+        (lex_class_member(b, "10_memory_knowledge_lex12629", w[0]) || lex_class_member(b, "question_word", w[0]))) {
+        char joined[KB_TERM_LEN];
+        if (p0_join(w, 3, nw, joined, sizeof joined)) {
+            /* solo l'ultima parola porta il numero: «copper mineralS» */
+            char *last = strrchr(joined, '_');
+            char head_sing[KB_TERM_LEN];
+            singularize_kb(b, last ? last + 1 : joined, head_sing, sizeof head_sing);
+            char cand[KB_TERM_LEN];
+            if (last) {
+                size_t pre = (size_t)(last - joined) + 1;
+                snprintf(cand, sizeof cand, "%.*s%s", (int)pre, joined, head_sing);
+            } else {
+                snprintf(cand, sizeof cand, "%s", head_sing);
+            }
+            if (kb_knows_pred(b->kb, cand)) {
+                snprintf(cls_buf, sizeof cls_buf, "%s", cand);
+                cls = cls_buf;
+                plural_enum = 1;
+            }
+        }
+    }
+
+    if (plural_enum ||
+        ((lex_class_member(b, "10_memory_knowledge_lex12629", w[0]) || lex_class_member(b, "question_word", w[0])) &&
+        lex_class_member(b, "10_memory_knowledge_lex12630", w[1]))) {
         if (!kb_knows_pred(b->kb, cls)) {
             /* gen242: "what is a <X>?" for an unknown class is a DEFINITION
              * request -- fall through so mod_learn documents it (or honestly
