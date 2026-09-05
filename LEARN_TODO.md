@@ -1,5 +1,33 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+## HANDOFF 2026-09-05 — pausa richiesta da F., checkpoint consolidato
+
+**Riprendere da questa nota; prevale sui vecchi handoff sotto.** Il primo
+incremento e' `6276cb2`, gia' pubblicato: domanda di definizione distinta dalla
+richiesta di prova; tetto di otto token rimosso dal tratto interrogativo.
+
+Poi tre lezioni vere, dette in inglese nella stessa sessione con profilo AGI:
+bornite, chalcocite e covellite sono `copper sulfide mineral`. Fonti riaperte
+oggi: tre schede del *Handbook of Mineralogy*. Prova, enumerazione, contrasto,
+retract/reteach verificati parlando; `/save` ha instradato **55 clausole**.
+`W/L/C/P/O/X = 3/1/0/6/45/0`. Processo nuovo: **3/3 fatti, 5/5 domande**,
+`38583` fatti e `2781` regole. Nessuna suite eseguita.
+[Report completo](docs/labs/apprendimento-assistito/2026-09-05-solfuri-di-rame.md).
+
+**Il prossimo lavoro resta la famiglia dei conteggi/posizioni fisse**, non
+un giro di test: il soggetto della spiegazione/provenienza e' ancora `w[2]` o
+`w[4]`, anche dove si cerca gia' la copula per ruolo. Provare entita' reali
+multi-parola e condividere il binding con il lettore; non aggiungere un parser
+per il minerale. Restano italiano ibrido, arbitrato S4 e accesso al no da
+«why is …» secondo l'ordine precedente. Non e' stata insegnata una nuova
+regola di tassonomia: questi tre fatti non provano da soli l'arco verso
+`copper mineral`.
+
+Nota da non perdere: le regole di `auto_induce` sono `KB_INDUCED`, e `/save`
+include quell'origine. Le sette viste nella diagnosi non erano tutte verita'
+verificate; la sessione diagnostica non e' stata salvata e questo lotto di
+fatti non le ha generate. Non trattare quel debito come solo un annuncio.
+
 ## Ripresa 2026-09-05 — il ramo ignoto e' identificato e corretto
 
 Primo incremento dal gen505b: il blocco delle definizioni leggeva

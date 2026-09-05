@@ -48,6 +48,7 @@ utterance(5, user, "learn 'weilà' as a casual opener").
 utterance(5, user, "learn 'dove sta' as another way to ask located_in").
 utterance(5, user, "is hematite an iron ore mineral?").
 utterance(5, user, "no carbonate mineral is an iron oxide mineral").
+utterance(5, user, "bornite is a copper sulfide mineral").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -75,6 +76,7 @@ utterance(6, self, "Got it - I'll take «weilà» as a way to a casual opener no
 utterance(6, self, "Ricevuto — d'ora in poi prendo «dove sta» come another way to ask located_in.").
 utterance(6, self, "I don't know about iron_ore_mineral.").
 utterance(6, self, "Held: nothing is both carbonate mineral and iron oxide mineral. Now I can answer no about either one without waiting to be told member by member.").
+utterance(6, self, "Learned: bornite is a copper sulfide mineral.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -514,6 +516,7 @@ utterance(20, self, "Yes.").
 utterance(21, user, "magnetite is an iron ore mineral").
 utterance(22, self, "Learned: magnetite is an iron ore mineral.").
 utterance(7, user, "is siderite an iron oxide mineral?").
+utterance(7, user, "why is bornite a copper sulfide mineral?").
 utterance(23, user, "is magnetite an iron ore mineral?").
 utterance(7, user, "what does a capacitor store?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -521,7 +524,41 @@ utterance(26, self, "No.").
 utterance(27, user, "is hematite an iron oxide mineral?").
 utterance(28, self, "Yes.").
 utterance(8, self, "No.").
+utterance(8, self, "I hold that bornite is a copper sulfide mineral.").
+utterance(9, user, "is bornite a copper sulfide mineral?").
 utterance(29, user, "is magnetite an iron ore mineral?").
+utterance(11, user, "is chalcocite a copper sulfide mineral?").
+utterance(12, self, "I don't know: nothing I hold says chalcocite is a copper sulfide mineral, and nothing says it isn't. Knowing some copper sulfide minerals does not tell me they are all of them, so not proved is not the same as false. Tell me either way and I will hold it.").
+utterance(13, user, "how do you know chalcocite is a copper sulfide mineral?").
+utterance(14, self, "I can't show that.").
+utterance(15, user, "chalcocite is a copper sulfide mineral").
+utterance(16, self, "Learned: chalcocite is a copper sulfide mineral.").
+utterance(17, user, "how do you know chalcocite is a copper sulfide mineral?").
+utterance(18, self, "Directly: chalcocite is a copper sulfide mineral — no reasoning needed.").
+utterance(19, user, "is covellite a copper sulfide mineral?").
+utterance(20, self, "I don't know: nothing I hold says covellite is a copper sulfide mineral, and nothing says it isn't. Knowing some copper sulfide minerals does not tell me they are all of them, so not proved is not the same as false. Tell me either way and I will hold it.").
+utterance(21, user, "why is covellite a copper sulfide mineral?").
+utterance(22, self, "I can't show that.").
+utterance(23, user, "covellite is a copper sulfide mineral").
+utterance(24, self, "Learned: covellite is a copper sulfide mineral.").
+utterance(25, user, "why is covellite a copper sulfide mineral?").
+utterance(26, self, "I hold that covellite is a copper sulfide mineral.").
+utterance(27, user, "what are the copper sulfide minerals?").
+utterance(28, self, "bornite, chalcocite, covellite.").
+utterance(29, user, "what do you know about copper sulfide mineral?").
+utterance(30, self, "What I hold as copper sulfide mineral: bornite, chalcocite, covellite.").
+utterance(31, user, "is hematite a copper sulfide mineral?").
+utterance(32, self, "I don't know: nothing I hold says hematite is a copper sulfide mineral, and nothing says it isn't. Knowing some copper sulfide minerals does not tell me they are all of them, so not proved is not the same as false. Tell me either way and I will hold it.").
+utterance(33, user, "forget bornite is a copper sulfide mineral").
+utterance(34, self, "I no longer treat «bornite» as a copper sulfide mineral.").
+utterance(35, user, "why is bornite a copper sulfide mineral?").
+utterance(36, self, "I can't show that.").
+utterance(37, user, "what are the copper sulfide minerals?").
+utterance(38, self, "chalcocite, covellite.").
+utterance(39, user, "bornite is a copper sulfide mineral").
+utterance(40, self, "Learned: bornite is a copper sulfide mineral.").
+utterance(41, user, "how do you know bornite is a copper sulfide mineral?").
+utterance(42, self, "Directly: bornite is a copper sulfide mineral — no reasoning needed.").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -794,6 +831,7 @@ utterance(2, self, "I read main.c into structure: it defines main. (1 function n
 utterance(2, self, "I don't know about iron_oxide_mineral.").
 utterance(2, self, "Learned: siderite is an iron ore mineral.").
 utterance(2, self, "Learned: chalcopyrite is a copper mineral.").
+utterance(2, self, "I don't know about copper sulfide mineral.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -819,6 +857,7 @@ utterance(1, user, "read main.c").
 utterance(1, user, "is hematite an iron oxide mineral?").
 utterance(1, user, "siderite is an iron ore mineral").
 utterance(1, user, "chalcopyrite is a copper mineral").
+utterance(1, user, "is bornite a copper sulfide mineral?").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -838,6 +877,7 @@ utterance(4, self, "Got it - I'll take «ehilà» as a way to a casual opener no
 utterance(4, self, "Ricevuto — d'ora in poi prendo «dov» come another way to ask located_in.").
 utterance(4, self, "I don't know about iron_oxide_mineral.").
 utterance(4, self, "Learned: siderite is a carbonate mineral.").
+utterance(4, self, "I can't show that.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -858,6 +898,7 @@ utterance(3, user, "learn 'ehilà' as a casual opener").
 utterance(3, user, "learn 'dov' as another way to ask located_in").
 utterance(3, user, "is magnetite an iron oxide mineral?").
 utterance(3, user, "siderite is a carbonate mineral").
+utterance(3, user, "why is bornite a copper sulfide mineral?").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

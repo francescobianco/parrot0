@@ -108,6 +108,9 @@ iron_oxide_mineral(magnetite).
 discourse_referent(2, magnetite).
 discourse_referent(3, siderite).
 discourse_referent(4, chalcopyrite).
+discourse_referent(7, covellite).
+discourse_referent(6, chalcocite).
+discourse_referent(5, bornite).
 iron_ore_mineral(hematite).
 iron_ore_mineral(magnetite).
 iron_ore_mineral(siderite).
@@ -118,3 +121,8 @@ copper_mineral(chalcopyrite).
 class_surface(carbonate_mineral, carbonate mineral).
 class_surface(iron_ore_mineral, iron ore mineral).
 class_surface(iron_oxide_mineral, iron oxide mineral).
+class_surface(copper_sulfide_mineral, copper sulfide mineral).
+copper_sulfide_mineral(chalcocite).
+copper_sulfide_mineral(covellite).
+turn_goal(current_turn, hematite, copper_sulfide_mineral).
+copper_sulfide_mineral(bornite).

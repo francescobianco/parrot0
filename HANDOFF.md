@@ -1,4 +1,50 @@
-# HANDOFF — gen503, 2026-09-05
+# HANDOFF — 2026-09-05, chiusura su richiesta di F.
+
+**Questa nota prevale sulle priorita' storiche riportate sotto.** La missione
+attiva e' quella in testa a `LEARN_TODO.md`: allargare la comprensione facendo
+crescere la KB. Prima di modificare: `MANTRA.md`, `PRINCIPLES.md` e l'handoff
+di `LEARN_TODO.md`. Per adesso niente suite: build e conversazioni reali con
+`PARROT0_PROFILE=kb/profiles/agi.p0`.
+
+## Risultato consolidato
+
+- **`6276cb2`, pubblicato:** il ramo delle definizioni accettava ogni
+  `question_word` e rubava «why is …» alla prova. Ora usa la classe KB
+  `definition_interrogative`, gia' esistente. Tolto il tetto `char *w[8]` di
+  quel tratto di `mod_knowledge`: il vettore copre ogni token del buffer.
+  Crescita/retract/reteach del ruolo verificati con menzione naturale.
+- **Training successivo:** bornite, chalcocite e covellite apprese come
+  solfuri di rame, dopo verifica delle tre schede del *Handbook of Mineralogy*.
+  Nessun fatto scritto a mano. `/save`: 55 clausole, `W=3 L=1 C=0 P=6 O=45 X=0`.
+  Processo nuovo: 38583 fatti, 2781 regole; 5/5 risposte corrette, 3/3 fatti
+  richiamati senza reinsegnamento. Retract di bornite toglieva prova e membro
+  dall'elenco conservando gli altri; reteach eseguito prima del salvataggio.
+
+Report: [correzione del motore](docs/labs/apprendimento-assistito/2026-09-05-domande-e-token.md)
+e [training persistito](docs/labs/apprendimento-assistito/2026-09-05-solfuri-di-rame.md).
+Le sessioni sono chiuse. Nessun servizio avviato da questo lavoro resta da gestire.
+
+## Dove riprendere
+
+1. I singoli rami con conteggi e posizioni fisse: nelle spiegazioni e nella
+   provenienza il soggetto resta un token, nonostante la ricerca della copula
+   per ruolo. Prima provare con un nome reale multi-parola, poi riusare il
+   binding del lettore. Il ramo gen151 prima «ignoto» e' chiuso.
+2. L'italiano ibrido e l'arbitrato S4 restano aperti come in `LEARN_TODO.md`;
+   non insegnare in italiano finche' le chiavi si avvelenano.
+3. Non confondere fatti e tassonomia: i tre nuovi membri sono raggiungibili,
+   ma non e' stata insegnata la relazione verso la classe `copper mineral`.
+
+**Lezioni da capitalizzare:** il tokenizer al tetto non eliminava soltanto la
+coda: la lasciava dentro l'ultimo token, producendo chiavi miste. E
+`auto_induce` non e' soltanto una frase fuori tema: scrive regole
+`KB_INDUCED`, incluse da `/save`. Le induzioni diagnostiche non verificate
+non sono state salvate; il lotto reale non le ha generate. Non cancellare
+tracce per mascherare il problema.
+
+---
+
+# Storico — gen503, 2026-09-05
 
 Sessione lunga. Qui c'è **dove siamo**, **che cosa è vero e misurato**, e **da
 dove si riprende**. Chi riprende legga questo file per intero prima di toccare
