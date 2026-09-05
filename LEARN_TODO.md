@@ -98,11 +98,26 @@ B» — e il muro deve scegliere in base alla forma del turno che ha fallito.
 
 Il verbo ha due buchi, **entrambi da chiudere e nessuno dei due grande**:
 
-- **la polare** «does the senate govern rome?» → muro su `govern`: la domanda
-  usa l'infinito e il fatto sta sotto `governs`. La mappa esiste gia' in KB
-  (`verb_stem/2`, derivata da `relation_verb/1` + `verb_suffix`), e la domanda
-  non la consulta — **e' lo stesso difetto appena chiuso per i nomi**: il lato
-  che interroga non usa la mappa che il lato che asserisce usa;
+- ~~**la polare**~~ ✅ **CHIUSA**. E non era «la domanda non consulta la mappa»:
+  la forma **non aveva nessun lettore**, e infatti riceveva il fallback e non un
+  muro informato. Ora e' letta per ruolo — l'ausiliare apre (`polar_fronted/1`),
+  il verbo di relazione e' il perno, prima e dopo stanno i due argomenti — e
+  l'infinito si riporta alla forma flessa con `verb_stem/2`, che era gia' in KB.
+  Il «no» non e' inventato:
+
+  ```text
+  > does the senate govern rome?     Yes.
+  > does the senate govern athens?   I don't know: nothing I hold says senate
+                                     governs athens, and nothing says it isn't so.
+  ```
+
+  ⚠ **Vive in testa a `mod_knowledge` e fa il proprio split**, perche' un
+  `return 0` a monte non lasciava arrivare il turno ai rami delle relazioni.
+  Trovare QUALE cancello non e' riuscito: bisecare quel tratto con le stampe non
+  funziona (scope annidati che ricalcolano `nw`/`w`). Renderlo autonomo costa
+  meno e non dipende da dove cadono i cancelli di qualcun altro — ma il cancello
+  resta li', e mordera' il prossimo ramo che qualcuno prova ad aggiungere in
+  quella zona;
 - **«what does the senate govern?»** → *«I don't have a module by that name»*:
   il turno e' rubato da una facolta' che cerca un modulo chiamato «govern». Per
   `turn-arbitration.md` non si cura con una cessione.

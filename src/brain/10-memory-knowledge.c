@@ -11062,10 +11062,75 @@ static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
     return 1;
 }
 
+/* gen505e — LA DOMANDA POLARE SU UNA RELAZIONE INSEGNATA.
+ *
+ * «governs is a relation verb» + «the senate governs rome» funzionavano, e «who
+ * governs rome?» rispondeva. Ma «does the senate govern rome?» non aveva NESSUN
+ * lettore — non un muro informato, il fallback: la forma piu' ovvia con cui si
+ * verifica un fatto appena insegnato non esisteva.
+ *
+ * Letta per RUOLO: l'ausiliare apre (`polar_fronted/1`), il verbo di relazione
+ * e' il perno, e cio' che sta prima e dopo sono i due argomenti. La domanda usa
+ * l'INFINITO («govern») mentre il fatto sta sotto la forma flessa («governs»):
+ * la mappa esiste gia' in KB (`verb_stem/2`, derivata da `relation_verb/1` +
+ * `verb_suffix/1`) e qui la si CHIEDE — lo stesso difetto chiuso per i nomi di
+ * relazione, ricomparso sulla forma verbale.
+ *
+ * Il «no» non e' inventato: se il fatto non e' derivabile si dice che non lo si
+ * sa, come per le classi (dottrina del gen504).
+ *
+ * ⚠ Sta in testa a `mod_knowledge` e fa il PROPRIO split: un `return 0` a monte,
+ * in un tratto lungo, non lasciava arrivare il turno ai rami delle relazioni.
+ * Bisecare quel tratto con le stampe non funziona (scope annidati che
+ * ricalcolano `nw`/`w`); renderlo autonomo costa meno e non dipende da dove
+ * cadono i cancelli di qualcun altro. */
+static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    size_t L = strlen(norm);
+    if (L < 8 || L >= 300) return 0;
+    char s[300]; memcpy(s, norm, L + 1);
+    char *w[32]; size_t nw = split_words(s, w, 32);
+    if (nw < 4 || !lex_class_member(b, "polar_fronted", w[0])) return 0;
+
+    size_t vi = 0;
+    char rel[KB_TERM_LEN]; rel[0] = '\0';
+    for (size_t i = 2; i + 1 < nw && !vi; i++) {
+        char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", w[i]);
+        const char *bare = strip_edge_punct(vb);
+        const char *cand[] = { bare };
+        if (kb_query(b->kb, "relation_verb", cand, 1)) {
+            snprintf(rel, sizeof rel, "%s", bare); vi = i; break;
+        }
+        char infl[1][KB_TERM_LEN];
+        const char *sq[] = { NULL, bare };          /* verb_stem(Flessa, Radice) */
+        if (kb_match(b->kb, "verb_stem", sq, 2, infl, 1) == 1) {
+            snprintf(rel, sizeof rel, "%s", infl[0]); vi = i; break;
+        }
+    }
+    if (!vi) return 0;
+
+    size_t sbeg = p0_lead_det(b, w[1]) ? 2 : 1;
+    char subj[KB_TERM_LEN], obj[KB_TERM_LEN];
+    if (sbeg >= vi || !p0_join(w, sbeg, vi, subj, sizeof subj) ||
+        !p0_join(w, vi + 1, nw, obj, sizeof obj)) return 0;
+    for (char *c = obj; *c; c++) if (*c == '?') { *c = '\0'; break; }
+    if (!*subj || !*obj) return 0;
+
+    const char *args[] = { subj, obj };
+    if (kb_query(b->kb, rel, args, 2)) { put("Yes.", out, out_size); return 1; }
+    char ss[KB_TERM_LEN], os[KB_TERM_LEN], rr[KB_TERM_LEN];
+    present_atom(b, subj, ss, sizeof ss);
+    present_atom(b, obj, os, sizeof os);
+    present_atom(b, rel, rr, sizeof rr);
+    const KbResponseSlot rs[] = { { "subject", ss }, { "rel", rr }, { "object", os } };
+    return kb_response_slots(b, "no_support_relation", rs, 3, out, out_size);
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
     if (p0_distribute_coordinated_subject(b, norm, out, out_size)) return 1;
+    if (p0_polar_relation(b, norm, out, out_size)) return 1;
     if (completion_chain_resolve(b, norm, out, out_size)) return 1;
     if (taxonomy_definition_reply(b, norm, raw, out, out_size)) return 1;
     if (p0_property_list(b, norm, raw, out, out_size)) return 1;

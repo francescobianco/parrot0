@@ -806,6 +806,10 @@ response_template(learned_exclusion, it, "Tengo: niente è insieme {a} e {b}. Or
 % estensione.
 response_template(class_members_known, "What I hold as {klass}: {members}.").
 response_template(class_members_known, it, "Quello che tengo come {klass}: {members}.").
+% gen505e — lo stato «non so» per una RELAZIONE, gemello di no_support_either_way
+% per le classi: una relazione non derivata non e' una relazione negata.
+response_template(no_support_relation, "I don't know: nothing I hold says {subject} {rel} {object}, and nothing says it isn't so. Tell me either way and I will hold it.").
+response_template(no_support_relation, it, "Non lo so: niente di cio' che ho dice che {subject} {rel} {object}, e niente dice il contrario. Dimmelo in un verso o nell'altro e lo terro'.").
 response_template(taught_reply, "Understood: when you ask about {cue} I will say so.").
 response_template(taught_reply, it, "Capito: quando mi chiedi di {cue} risponderò così.").
 
