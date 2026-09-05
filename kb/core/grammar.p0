@@ -337,6 +337,18 @@ machinery(universal_quantifier).
 % produttori: la vista esisteva e nessuna lezione poteva riempirla — un cassetto
 % senza maniglia, trovato addestrando sui minerali di ferro (LEARN_TODO §11.A).
 % Un membro nuovo domani e' un fatto: «nessun», «neither», un'altra lingua.
+% ── IL NUMERO DELLA COPULA (gen505) ──────────────────────────────────────────
+% Distingue una LISTA da un COMPOSTO, ed e' l'unico segnale che lo fa: «bornite
+% and chalcocite ARE copper minerals» sono due soggetti, «salt and pepper IS a
+% condiment» e' una cosa sola. Senza questo, la distribuzione del soggetto
+% coordinato spezzerebbe anche i composti. E' conoscenza di lingua: una lingua
+% nuova sono due righe.
+machinery(plural_copula).
+plural_copula(are).
+plural_copula(were).
+plural_copula(sono).
+plural_copula(erano).
+
 machinery(exclusive_quantifier).
 exclusive_quantifier(no).
 exclusive_quantifier(nessun).

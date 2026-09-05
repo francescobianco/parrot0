@@ -10848,10 +10848,90 @@ static int p0_learn_attribute(Brain *b, const char *thing, const char *value,
     return 1;
 }
 
+/* gen505 — UN SOGGETTO COORDINATO DISTRIBUISCE SUL PREDICATO.
+ *
+ * «hematite and magnetite are iron oxide minerals» — la forma con cui un
+ * insegnante presenta davvero due membri insieme — imparava SOLO il primo e
+ * rispondeva «Learned: hematite is an iron oxide mineral.». Mezza lezione persa,
+ * e dichiarata riuscita: peggio di un muro, perche' chi insegna non ha modo di
+ * accorgersene (mantra #7, e priorita' 2 di LEARN_TODO §12).
+ *
+ * Misurato: ogni meta' da sola era gia' leggibile («zolfite are iron oxide
+ * minerals» → Learned), plurale compreso. Mancava soltanto la DISTRIBUZIONE.
+ *
+ * Che «A e B sono X» dica di A esattamente cio' che dice di B e' una proprieta'
+ * della lingua, non di questo modulo: qui il C fa solo il taglio meccanico, e
+ * quali parole coordinino (`conjunction/1`) e quali siano copule
+ * (`clause_copula/1`) resta conoscenza — quindi vale gia' in italiano e una
+ * lingua nuova non costa una riga di C.
+ *
+ * Limite dichiarato: se una meta' non si lascia leggere, si riporta ciò che è
+ * stato imparato dalle altre. Le meta' differiscono solo per il soggetto, quindi
+ * o si leggono tutte o nessuna; se emergesse un caso reale asimmetrico, va detto
+ * esplicitamente invece che taciuto. */
+static int mod_knowledge(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size);
+
+static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
+                                             char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    size_t L = strlen(norm);
+    if (L < 9 || L >= 300 || norm[L - 1] == '?') return 0;
+    char s[300]; memcpy(s, norm, L + 1);
+    char *w[32]; size_t n = split_words(s, w, 32);
+    if (n < 5) return 0;
+
+    /* Il predicato comincia alla prima copula: prima di li' c'e' il soggetto.
+     * E la copula dev'essere PLURALE, perche' e' l'unico segnale che distingue
+     * una lista da un composto: «bornite and chalcocite ARE copper minerals»
+     * sono due soggetti, «salt and pepper IS a condiment» e' una cosa sola. */
+    size_t cop = 0;
+    for (size_t i = 1; i + 1 < n && !cop; i++)
+        if (lex_class_member(b, "clause_copula", w[i])) cop = i;
+    if (cop < 3) return 0;   /* serve almeno «A cong B copula …» */
+    if (!lex_class_member(b, "plural_copula", w[cop])) return 0;
+
+    /* I conjuncts sono le parole del soggetto separate dalle congiunzioni. */
+    char conj[8][KB_TERM_LEN]; size_t nc = 0; size_t begin = 0; int seen_conj = 0;
+    for (size_t i = 0; i <= cop; i++) {
+        int is_conj = (i < cop) && lex_class_member(b, "conjunction", w[i]);
+        if (!is_conj && i != cop) continue;
+        if (i == begin) return 0;                     /* congiunzione vuota */
+        if (nc >= 8) return 0;
+        if (!p0_join(w, begin, i, conj[nc], sizeof conj[nc])) return 0;
+        for (char *q = conj[nc]; *q; q++) if (*q == '_') *q = ' ';
+        nc++; begin = i + 1;
+        if (is_conj) seen_conj = 1;
+    }
+    if (!seen_conj || nc < 2) return 0;
+
+    /* La coda condivisa: dalla copula in poi, identica per ogni conjunct. */
+    char tail[300]; size_t t = 0;
+    for (size_t i = cop; i < n && t + 1 < sizeof tail; i++)
+        t += (size_t)snprintf(tail + t, sizeof tail - t, "%s%s", i > cop ? " " : "", w[i]);
+    if (!t) return 0;
+
+    char joined[1024]; size_t o = 0; size_t learned = 0;
+    for (size_t i = 0; i < nc; i++) {
+        char one[600];
+        if ((size_t)snprintf(one, sizeof one, "%s %s", conj[i], tail) >= sizeof one) continue;
+        char reply[512]; reply[0] = '\0';
+        if (!mod_knowledge(b, one, one, reply, sizeof reply) || !reply[0]) continue;
+        o += (size_t)snprintf(joined + o, sizeof joined - o, "%s%s",
+                              learned ? " " : "", reply);
+        learned++;
+        if (o + 1 >= sizeof joined) break;
+    }
+    if (!learned) return 0;
+    put(joined, out, out_size);
+    return 1;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
 
+    if (p0_distribute_coordinated_subject(b, norm, out, out_size)) return 1;
     if (completion_chain_resolve(b, norm, out, out_size)) return 1;
     if (taxonomy_definition_reply(b, norm, raw, out, out_size)) return 1;
     if (p0_property_list(b, norm, raw, out, out_size)) return 1;
