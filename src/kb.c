@@ -3027,6 +3027,46 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
  * explanation: prove a goal AND render its proof tree (gen14)
  * ------------------------------------------------------------------------- */
 
+/* gen505 — LA PROVA SI LEGGE, O NON E' UNA SPIEGAZIONE.
+ *
+ * «why is bornite an ore mineral?» rendeva «ore_mineral(bornite) because
+ * copper_mineral(bornite)»: vera, tracciabile e illeggibile — la lingua
+ * dell'indice, per giunta in notazione funzionale. Il nome di una classe e'
+ * conoscenza (`class_surface/2`, imparato dove la classe entra) e la copula e
+ * l'articolo lo sono gia' (`class_copula/2`, `indefinite_article_*`): qui il
+ * renderer li CHIEDE, non li decide. Se la classe non ha superficie dichiarata
+ * resta la forma funzionale, che e' onesta quanto prima.
+ *
+ * ⚠ Debito di strato, dichiarato: comporre prosa non e' mestiere di kb.c. Il
+ * renderer di prove ci vive gia' («because», «and»), quindi questa e' la stessa
+ * riga fatta parlare meglio, non una riga nuova nel posto sbagliato. */
+static int kb_class_surface(const KB *kb, const char *pred, char *out, size_t sz) {
+    if (!kb || !pred) return 0;
+    const char *q[2] = { pred, NULL };
+    char row[1][KB_TERM_LEN];
+    if (kb_match(kb, "class_surface", q, 2, row, 1) != 1) return 0;
+    char buf[KB_TERM_LEN]; snprintf(buf, sizeof buf, "%s", row[0]);
+    char *v = buf; size_t l = strlen(v);
+    if (l >= 2 && v[0] == '"' && v[l - 1] == '"') { v[l - 1] = '\0'; v++; }
+    if (!*v) return 0;
+    snprintf(out, sz, "%s", v);
+    return 1;
+}
+
+static void kb_class_article(const KB *kb, const char *named, char *out, size_t sz) {
+    snprintf(out, sz, "a");
+    if (!kb || !named || !*named) return;
+    char letter[2] = { named[0], '\0' };
+    const char *q[3] = { "en", letter, NULL };
+    char row[1][KB_TERM_LEN];
+    if (kb_match(kb, "indefinite_article_before", q, 3, row, 1) == 1) {
+        char buf[KB_TERM_LEN]; snprintf(buf, sizeof buf, "%s", row[0]);
+        char *v = buf; size_t l = strlen(v);
+        if (l >= 2 && v[0] == '"' && v[l - 1] == '"') { v[l - 1] = '\0'; v++; }
+        if (*v) snprintf(out, sz, "%s", v);
+    }
+}
+
 /* Render a goal grounded by the substitution into "pred(a, b)" form. */
 static void render_goal(const Subst *s, const Term *g, char *buf, size_t sz) {
     int off = snprintf(buf, sz, "%s(", g->pred);
@@ -3036,6 +3076,22 @@ static void render_goal(const Subst *s, const Term *g, char *buf, size_t sz) {
         off += snprintf(buf + off, sz - (size_t)off, "%s%s", i ? ", " : "", v);
     }
     if (off > 0 && (size_t)off < sz) snprintf(buf + off, sz - (size_t)off, ")");
+}
+
+/* La forma leggibile quando la classe ha un nome dichiarato; altrimenti quella
+ * funzionale di sopra, invariata. */
+static void render_goal_named(const KB *kb, const Subst *s, const Term *g,
+                              char *buf, size_t sz) {
+    char named[KB_TERM_LEN];
+    if (kb && g->argc == 1 && kb_class_surface(kb, g->pred, named, sizeof named)) {
+        char subj[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], subj, sizeof subj, 0);
+        char art[8];
+        kb_class_article(kb, named, art, sizeof art);
+        snprintf(buf, sz, "%s is %s %s", subj, art, named);
+        return;
+    }
+    render_goal(s, g, buf, sz);
 }
 
 typedef struct {
@@ -3165,7 +3221,7 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
         subst_copy(s2, s);
         if (unify_term_fact(s2, g, &kb->facts[PRED_AT(pbk, vi)])) {
             if (prove_seq_ex(kb, goals, n, idx + 1, s2, depth, frame, out)) {
-                render_goal(s2, g, out[idx], KB_PROOF_LEN);
+                render_goal_named(kb, s2, g, out[idx], KB_PROOF_LEN);
                 return 1;
             }
         }
@@ -3200,7 +3256,7 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
         char (*cout)[KB_PROOF_LEN] = scratch->proofs;
         if (prove_seq_ex(kb, comb, m, 0, s2, depth + 1, frame, cout)) {
             char head[KB_PROOF_LEN];
-            render_goal(s2, g, head, sizeof head);
+            render_goal_named(kb, s2, g, head, sizeof head);
             int off = snprintf(out[idx], KB_PROOF_LEN, "%s because ", head);
             for (size_t b = 0; b < R->nbody && off > 0 &&
                                (size_t)off < KB_PROOF_LEN; b++) {

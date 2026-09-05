@@ -1042,10 +1042,13 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         if (kb_explain(b->kb, pred, gargs, 1, ex, sizeof ex) && strstr(ex, " because "))
             { const KbResponseSlot _rs[] = { { "ex", ex } };
       kb_term_say(b, "i_already_conclude_that_x", _rs, 1, msg, sizeof msg); }
-        else
-            { const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", pred } };
-      kb_term_say(b, "i_already_know_that_x_is_a_x", _rs, 2, msg, sizeof msg);
-              put(msg, out, out_size); }
+        else {
+            /* gen505 — anche qui la classe si nomina, non si indicizza. */
+            char shown[KB_TERM_LEN];
+            present_atom(b, pred, shown, sizeof shown);
+            const KbResponseSlot _rs[] = { { "arg", arg }, { "pred", shown } };
+            kb_term_say(b, "i_already_know_that_x_is_a_x", _rs, 2, msg, sizeof msg);
+            put(msg, out, out_size); }
         return 1;
     }
 

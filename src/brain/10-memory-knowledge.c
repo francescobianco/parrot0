@@ -2495,6 +2495,25 @@ static int p0_class_nameable(Brain *b, const char *cls) {
     return kb_query(b->kb, "class_constrained", q, 1);
 }
 
+/* gen505 — LA SUPERFICIE DI UNA CLASSE SI IMPARA QUANDO LA CLASSE SI IMPARA.
+ *
+ * `p0_join` unisce con underscore le parole della lezione: e' una chiave, non un
+ * nome. Senza conservare il nome, ogni risposta che cita la classe torna a
+ * parlare la lingua dell'indice — «bornite is a copper_mineral», «I don't know
+ * about iron_oxide_mineral». Il nome e' esattamente la chiave con gli spazi, e
+ * si registra una volta sola, dove la classe entra. */
+static void p0_note_class_surface(Brain *b, const char *cls) {
+    if (!b || !b->kb || !cls || !strchr(cls, '_')) return;
+    const char *have[] = { cls, NULL };
+    char row[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "class_surface", have, 2, row, 1) == 1) return;
+    char named[KB_TERM_LEN];
+    snprintf(named, sizeof named, "%s", cls);
+    for (char *q = named; *q; q++) if (*q == '_') *q = ' ';
+    const char *args[] = { cls, named };
+    kb_assert(b->kb, "class_surface", args, 2);
+}
+
 static int p0_join(char **w, size_t from, size_t to, char *out, size_t sz);      /* fwd (gen505) */
 static int p0_atom_within_cap(Brain *b, const char *atom);                       /* fwd (gen505) */
 
@@ -6055,6 +6074,7 @@ static int mod_mention(Brain *b, const char *norm, const char *raw,
     int prev = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_SESSION);
     const char *ca[] = { mentioned };
+    p0_note_class_surface(b, cls);   /* gen505 */
     int fresh = kb_assert(b->kb, cls, ca, 1);
     if (fresh) p0_learn_source(b, cls, ca, 1, raw && *raw ? raw : norm);
     kb_set_origin(b->kb, prev);
@@ -6428,6 +6448,7 @@ static int extract_class_statement(Brain *b, const char *norm,
                 continue;
             }
         }
+        p0_note_class_surface(b, classes[i]);   /* gen505 */
         if (kb_assert(b->kb, classes[i], ca, 1)) {
             p0_learn_source(b, classes[i], ca, 1, norm);
             /* gen491 — LA CONFERMA E' UNA FRASE, NON UN TERMINE.
@@ -15883,9 +15904,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 snprintf(sb, sizeof sb, "%s", cls_b);
                 for (char *q = sa; *q; q++) if (*q == '_') *q = ' ';
                 for (char *q = sb; *q; q++) if (*q == '_') *q = ' ';
-                const char *sfa[] = { cls_a, sa }, *sfb[] = { cls_b, sb };
-                kb_assert(b->kb, "class_surface", sfa, 2);
-                kb_assert(b->kb, "class_surface", sfb, 2);
+                p0_note_class_surface(b, cls_a);
+                p0_note_class_surface(b, cls_b);
                 kb_term_say(b, "learned_exclusion", (const KbResponseSlot[]){
                                 { "a", sa }, { "b", sb } }, 2, out, out_size);
                 return 1;
@@ -15937,6 +15957,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             bodies[0] = u_body_one;
             nbody = 1;
         }
+        p0_note_class_surface(b, head);
+        for (size_t i = 0; i < nbody; i++) p0_note_class_surface(b, bodies[i]);
         if (kb_assert_rule_n(b->kb, head, bodies, nbody)) {
             char msg[256];
             size_t o = 0;
@@ -16587,6 +16609,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
         int before = goal_truth(b); /* gen103 (L16): snapshot before mutation */
         note_contradiction(b, cls, subj, 1); /* gen142 (E8): self-contradiction? */
+        p0_note_class_surface(b, cls);   /* gen505 */
         if (kb_assert(b->kb, cls, args, 1)) {
             p0_learn_source(b, cls, args, 1, norm);   /* M1: provenance */
             char msg[192];
