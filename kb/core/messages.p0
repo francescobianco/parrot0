@@ -209,7 +209,10 @@ response_template(i_don_t_know_what_your_x_is_called, "I don't know what your {t
 response_template(got_it_you_x_x, "Got it: you {verb} {val}.").
 response_template(you_told_me_you_feel_x, "You told me you feel {mood}.").
 response_template(i_don_t_know_who_x_refers_to, "I don't know who {word} refers to.").
-response_template(x_is_a_known_fact, "{ex} is a known fact.").
+% gen505b — `{ex}` non e' piu' un termine ma una FRASE («bornite is a copper
+% mineral»), da quando le prove si rendono nella lingua del dialogo: la vecchia
+% cornice produceva «bornite is a copper mineral is a known fact.».
+response_template(x_is_a_known_fact, "I hold that {ex}.").
 response_template(i_have_x_measurements_for_both_but_the_units, "I have {dim} measurements for both, but the units differ ({mua} vs {muc}).").
 response_template(they_are_tied_on_x, "They are tied on {dim}.").
 response_template(i_recognize_a_comparison_on_x_but_i_don_t_ha, "I recognize a comparison on {dim}, but I don't have magnitudes for {da} and {dc}.").
@@ -322,7 +325,7 @@ response_template(i_can_t_translate_x_yet, "I can't translate «{tok}» yet.").
 
 response_template(your_name_is_x, "Your name is {nm}.").
 response_template(nice_to_meet_you_x, "Nice to meet you, {nm}!").
-response_template(directly_x_is_a_known_fact, "Directly: {ex} is a known fact.").
+response_template(directly_x_is_a_known_fact, "Directly: {ex} — no reasoning needed.").
 response_template(compared_measure_x_x_x_x_with_measure_x_x_x, "Compared measure({dim},{ca},{mva},{mua}) with measure({dim2},{cc},{mvc},{muc}).").
 response_template(compared_magnitude_x_x_x_with_magnitude_x_x, "Compared magnitude({dim},{a},{ra}) with magnitude({dim2},{c},{rc}).").
 response_template(sono_parrot0_un_ia_non_ho_una_famiglia_quind, "Sono parrot0, un'IA: non ho una famiglia, quindi niente {kin_disp} da nominare.").
@@ -755,7 +758,7 @@ response_template(unknown_function_x_is_not_a_standard_c_libra, "Unknown functio
 % Gli ultimi messaggi convertiti a mano: la sonda non li prendeva perche' il
 % Brain si chiama `tmp`, o perche' l'istruzione stava tutta su una riga dentro
 % un `if`.
-response_template(entailed_x_is_a_known_fact, "Entailed: {ex} is a known fact.").
+response_template(entailed_x_is_a_known_fact, "Entailed: {ex}.").
 response_template(unknown_entailment, "Unknown.").
 response_template(neutral_entailment, "Neutral.").
 response_template(contradicted_entailment, "Contradicted.").

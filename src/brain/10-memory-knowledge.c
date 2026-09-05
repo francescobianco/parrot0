@@ -9569,6 +9569,29 @@ static int analysis_subject_extract(Brain *b, const char *norm, const char *raw,
     subject[len] = '\0';
     if (subject_content_words(subject) < 3) { subject[0] = '\0'; return 0; }
 
+    /* gen505b — UN SOGGETTO E' UN SINTAGMA NOMINALE, NON UNA PROPOSIZIONE.
+     *
+     * «how do you know bornite is an ore mineral?» estraeva come soggetto
+     * «do you know bornite is an ore mineral» e ci scriveva sopra un saggio sui
+     * meccanismi causali: una risposta fuori tema data con sicurezza, cioe' il
+     * difetto che il commento al sito di rivendicazione (99-registry.c) descrive
+     * gia' — «rivendica anche quando il soggetto che ha estratto non e' un
+     * soggetto», con la cura indicata proprio qui.
+     *
+     * Il test e' di forma, non di vocabolario: una COPULA seguita da un ARTICOLO
+     * e' la predicazione canonica «X e' un Y», e una predicazione non e' un tema.
+     * Le due classi sono gia' in KB e servono a mezza dozzina di altri lettori,
+     * quindi non nasce nessuna lista nuova. Una relativa («a system that is
+     * fault tolerant») non ha l'articolo dopo la copula e passa. */
+    {
+        char sb[ANALYSIS_SUBJECT_MAX + 1];
+        snprintf(sb, sizeof sb, "%s", subject);
+        char *sw[32]; size_t sn = split_words(sb, sw, 32);
+        for (size_t i = 0; i + 1 < sn; i++)
+            if (lex_class_member(b, "clause_copula", sw[i]) &&
+                is_article(b, sw[i + 1])) { subject[0] = '\0'; return 0; }
+    }
+
     /* Recover the writer's own capitalization when the untouched turn still
      * contains the span: a normalized echo of "international space station"
      * reads as a different claim from the one that was made. */
@@ -15792,13 +15815,37 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
      * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
      * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
-    if (nw == 8 && lex_class_member(b, "question_word", w[0]) && lex_class_member(b, "10_memory_knowledge_lex12230_2", w[1]) &&
-        lex_class_member(b, "10_memory_knowledge_lex12231", w[2]) && lex_class_member(b, "10_memory_knowledge_lex12231_2", w[3]) &&
-        lex_class_member(b, "10_memory_knowledge_lex12232", w[5]) && is_article(b, w[6])) {
+    /* gen505b — «how do you know X is a <classe multi-parola>?» non arrivava qui.
+     *
+     * Il ramo pretendeva ESATTAMENTE otto parole, e «how do you know bornite is
+     * an ore mineral?» ne ha nove: cadeva a una facolta' di analisi che
+     * rispondeva con un saggio sui meccanismi causali — fuori tema, e detto con
+     * sicurezza. Non era un turno rubato: era il proprietario legittimo che non
+     * riconosceva la propria forma (docs/plans/turn-arbitration.md §1-bis).
+     *
+     * Copula e articolo si cercano per RUOLO, e la classe si fonde con lo stesso
+     * `p0_join` di tutte le altre vie — la terza volta oggi che un conteggio di
+     * parole nascondeva una capacita' che c'era gia'. */
+    size_t hk_cop = 0;
+    if (nw >= 8 && lex_class_member(b, "question_word", w[0]) &&
+        lex_class_member(b, "10_memory_knowledge_lex12230_2", w[1]) &&
+        lex_class_member(b, "10_memory_knowledge_lex12231", w[2]) &&
+        lex_class_member(b, "10_memory_knowledge_lex12231_2", w[3]))
+        for (size_t i = 5; i + 2 < nw && !hk_cop; i++)
+            if (lex_class_member(b, "clause_copula", w[i]) && is_article(b, w[i + 1]))
+                hk_cop = i;
+    char hk_cls[KB_TERM_LEN];
+    if (hk_cop && p0_join(w, hk_cop + 2, nw, hk_cls, sizeof hk_cls) &&
+        p0_atom_within_cap(b, hk_cls)) {
         const char *subj;
         if (!resolve_entity(b, w[4], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
-        howknow_reply(b, w[7], args, 1, out, out_size);
+        /* La canonicalizzazione fonde una classe gia' nota in UN token, e lo
+         * fa con lo spazio: «copper mineral». La chiave in KB ha l'underscore,
+         * quindi qui si riporta alla chiave — la stessa forma che `p0_join`
+         * produce quando le parole arrivano separate. */
+        for (char *q = hk_cls; *q; q++) if (*q == ' ') *q = '_';
+        howknow_reply(b, hk_cls, args, 1, out, out_size);
         remember_entity(b, w[4], subj);
         return 1;
     }
