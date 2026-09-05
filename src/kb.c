@@ -5410,6 +5410,9 @@ static int fact_mentions(const Fact *f, const char *entity) {
     return 0;
 }
 
+static void render_fact_direct_kb(const KB *kb, const Fact *f, const char *entity,
+                                  int neg, char *buf, size_t sz);
+
 static void render_fact_direct(const Fact *f, const char *entity, int neg,
                                 char *buf, size_t sz) {
     /* gen74: i_am(X) means X asserts its own identity — render "X is X." */
@@ -5625,6 +5628,25 @@ static int is_struct_pred(const char *pred) {
     return 0;
 }
 
+/* gen505b — ANCHE IL DUMP DI CIO' CHE SO PARLA LA LINGUA DEL DIALOGO.
+ *
+ * «socrates is a humanities_topic» dava la chiave interna a chi ascolta, sullo
+ * stesso percorso che risponde a «tell me about X» — cioe' quello che si usa per
+ * verificare una lezione appena data. Il nome della classe e' gia' conoscenza
+ * (`class_surface/2`); qui si chiede, e se non c'e' resta la forma di prima. */
+static void render_fact_direct_kb(const KB *kb, const Fact *f, const char *entity,
+                                  int neg, char *buf, size_t sz) {
+    char named[KB_TERM_LEN];
+    if (kb && f->argc == 1 && strcmp(f->args[0], entity) == 0 &&
+        kb_class_surface(kb, f->pred, named, sizeof named)) {
+        char art[8];
+        kb_class_article(kb, named, art, sizeof art);
+        snprintf(buf, sz, "%s is %s%s %s", entity, neg ? "not " : "", art, named);
+        return;
+    }
+    render_fact_direct(f, entity, neg, buf, sz);
+}
+
 int kb_describe_entity(const KB *kb, const char *entity,
                        char *out, size_t out_size) {
     if (!kb || !term_ok(entity) || !out || out_size == 0) return 0;
@@ -5638,7 +5660,7 @@ int kb_describe_entity(const KB *kb, const char *entity,
             is_struct_pred(f->pred)) continue;
         char piece[220];
         if (kb_find_neg(kb, f)) render_conflict_direct(f, entity, piece, sizeof piece);
-        else render_fact_direct(f, entity, 0, piece, sizeof piece);
+        else render_fact_direct_kb(kb, f, entity, 0, piece, sizeof piece);
         if (!append_piece(out, out_size, &off, piece)) break;
         count++;
     }
@@ -5646,7 +5668,7 @@ int kb_describe_entity(const KB *kb, const char *entity,
         const Fact *f = &kb->neg[i];
         if (!fact_mentions(f, entity) || kb_find(kb, f)) continue;
         char piece[220];
-        render_fact_direct(f, entity, 1, piece, sizeof piece);
+        render_fact_direct_kb(kb, f, entity, 1, piece, sizeof piece);
         if (!append_piece(out, out_size, &off, piece)) break;
         count++;
     }
@@ -5685,7 +5707,7 @@ int kb_define_entity(const KB *kb, const char *entity,
         if (f->argc != 1 && f->args[f->argc - 1][0] != '"') continue;
         char piece[220];
         if (kb_find_neg(kb, f)) render_conflict_direct(f, entity, piece, sizeof piece);
-        else render_fact_direct(f, entity, 0, piece, sizeof piece);
+        else render_fact_direct_kb(kb, f, entity, 0, piece, sizeof piece);   /* gen505b */
         if (!append_piece(out, out_size, &off, piece)) break;
         count++;
     }

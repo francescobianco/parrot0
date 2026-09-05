@@ -2503,7 +2503,13 @@ static int p0_class_nameable(Brain *b, const char *cls) {
  * about iron_oxide_mineral». Il nome e' esattamente la chiave con gli spazi, e
  * si registra una volta sola, dove la classe entra. */
 static void p0_note_class_surface(Brain *b, const char *cls) {
-    if (!b || !b->kb || !cls || !strchr(cls, '_')) return;
+    /* gen505b — il segnale non e' l'ORTOGRAFIA, e' «questo predicato nomina una
+     * CLASSE». Limitarlo alle chiavi con underscore lasciava fuori proprio le
+     * classi piu' comuni: `mortal(socrates)` restava in notazione funzionale
+     * nelle spiegazioni. Il fatto si scrive dove una classe entra, quindi una
+     * relazione o un predicato di macchineria non lo riceve mai — ed e' quella
+     * la distinzione che serve al renderer, non la presenza di un trattino. */
+    if (!b || !b->kb || !cls || !*cls) return;
     const char *have[] = { cls, NULL };
     char row[1][KB_TERM_LEN];
     if (kb_match(b->kb, "class_surface", have, 2, row, 1) == 1) return;

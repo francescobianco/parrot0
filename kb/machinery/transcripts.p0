@@ -793,6 +793,7 @@ utterance(2, self, "Ricevuto — d'ora in poi prendo «dove si trova» come anot
 utterance(2, self, "I read main.c into structure: it defines main. (1 function now in the KB.)").
 utterance(2, self, "I don't know about iron_oxide_mineral.").
 utterance(2, self, "Learned: siderite is an iron ore mineral.").
+utterance(2, self, "Learned: chalcopyrite is a copper mineral.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -817,6 +818,7 @@ utterance(1, user, "learn 'dove si trova' as another way to ask located_in").
 utterance(1, user, "read main.c").
 utterance(1, user, "is hematite an iron oxide mineral?").
 utterance(1, user, "siderite is an iron ore mineral").
+utterance(1, user, "chalcopyrite is a copper mineral").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").

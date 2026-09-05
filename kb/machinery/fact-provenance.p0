@@ -155,6 +155,7 @@ fact_source(iron_oxide_mineral(magnetite), magnetite, "magnetite is an iron oxid
 fact_source(iron_oxide_mineral(hematite), hematite, "hematite is an iron oxide mineral").
 fact_source(carbonate_mineral(siderite), siderite, "siderite is a carbonate mineral").
 fact_source(iron_ore_mineral(siderite), siderite, "siderite is an iron ore mineral").
+fact_source(copper_mineral(chalcopyrite), chalcopyrite, "chalcopyrite is a copper mineral").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -215,4 +216,5 @@ reading_fact(relation_verb(modified), "modified is a relation verb").
 reading_fact(carbonate_mineral(siderite), "siderite is a carbonate mineral").
 reading_fact(iron_oxide_mineral(hematite), "hematite is an iron oxide mineral").
 reading_fact(iron_ore_mineral(siderite), "siderite is an iron ore mineral").
+reading_fact(copper_mineral(chalcopyrite), "chalcopyrite is a copper mineral").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
