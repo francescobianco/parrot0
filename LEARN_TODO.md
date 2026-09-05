@@ -533,6 +533,58 @@ I domini scientifici sono **quasi vuoti**: `physics/` ha due file
 (`mechanics.p0`, `electromagnetism.p0`) e nessuna legge in forma strutturata. E'
 esattamente il lavoro che F. assegna — **produrre e popolare**, non cercare.
 
+## ✅ Passo 1 fatto — una legge in due forme, e il gate di F. passa
+
+`kb/experts/physics/laws.p0` (`gen505h`). Quattro leggi elementari — Newton II,
+Ohm, energia cinetica, densita' — ciascuna in **tutte e due le forme**, legate
+dallo stesso nome di legge.
+
+```text
+> what is ohms law?
+  ohms law is the law that voltage equals current times resistance.
+
+> which law involves mass?
+  Newtons second law, kinetic energy law and density law.
+
+> which law involves velocity?
+  Kinetic energy law.
+```
+
+**La seconda risposta e' il gate**, e viene dalla struttura: `mass` e' un NODO
+dell'albero, e per l'energia cinetica sta ANNIDATO —
+`product(half, product(mass, square(velocity)))`. Dalla prosa quella domanda non
+si sarebbe potuta inferire, esattamente come F. aveva previsto.
+
+### Il marcatore segue la distinzione, non la comodita'
+
+Una lezione imparata scrivendo il file: la struttura e' «il percorso neurale
+nella risoluzione», quindi e' `machinery/1` — non si nasconde al solutore
+(`law_involves` ci cammina sopra lo stesso), si toglie da cio' che parrot0
+RACCONTA di sapere. A chi chiede «che cos'e' la legge di Ohm» non si risponde
+`law_formula(ohms_law, voltage, product(current, resistance))`.
+
+La prosa, le unita' e i simboli restano **conoscenza del mondo**: sono cio' che
+si dice, e cio' su cui una lezione si verifica.
+
+⚠ Ci sono cascato due volte, ed e' annotato nel file: prima con
+`file_attribute(machinery)` in testa — che dichiarava macchineria OGNI testa,
+prosa compresa, e rendeva la legge irraggiungibile da «che cosa sai di X?» — poi
+marcando anche `law_prose`. **Una dichiarazione difensiva costa una capacita'.**
+
+### Le superfici sono fatti, non rami
+
+`answer_frame(involves, law_involves)` e compagne: una domanda nuova su queste
+leggi non costa una riga di C. E' lo stesso meccanismo che al `gen505f` si e'
+dimostrato **il piu' vivo del motore**, non un organo morto.
+
+### Quel che resta del passo 1
+
+Il **ponte al codice** non e' ancora attraversato: `law_formula/3` e'
+l'espressione come albero e `code_operator/2` traduce gia' `product` in `*`, ma
+nessuna regola li unisce. E' il pezzo che trasforma «capisco la legge» in «so
+scriverne la funzione», ed e' il prossimo passo — con `code_eval` come oracolo,
+perche' una funzione emessa e non verificata non conta.
+
 ## L'ordine di lavoro
 
 1. **La forma prima del volume**: strutturare *una* legge (F = ma) e portarla

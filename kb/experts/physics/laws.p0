@@ -1,0 +1,113 @@
+% laws.p0 — LE LEGGI FISICHE IN DUE FORME (gen505h).
+%
+% Missione: le connessioni fertili fra domini (LEARN_TODO). Il punto da
+% dimostrare e' il passaggio dal SIGNIFICATO della legge al CALCOLO — e F. ha
+% fissato il vincolo: **tutte e due le forme devono esistere**.
+%
+%   - la PROSA SINTETICA (`law_prose/2`) e' cio' che si puo' DIRE, e da cui il
+%     thinking puo' rientrare come IR nella memoria;
+%   - la STRUTTURA (`law_formula/3`) e' cio' che si puo' PERCORRERE: e' il
+%     percorso di risoluzione, ed e' l'unica che risponde a «in quale formula e'
+%     coinvolta la massa?». Dalla stringa quella domanda non e' inferibile, per
+%     quanto la stringa sia ben scritta: nella prosa la massa e' una PAROLA, qui
+%     e' un NODO.
+%
+% Le due non si duplicano a caso: sono legate dallo stesso nome di legge, e la
+% prosa dice a parole cio' che l'albero dice a nodi. Se un giorno divergono, e'
+% un difetto — non due opinioni.
+%
+% ⚠ Niente di quanto segue e' un'invenzione: sono le tre leggi elementari che
+% ogni testo di fisica enuncia allo stesso modo. Le unita' sono SI.
+
+% ⚠ NIENTE `file_attribute(machinery)` qui: dichiarerebbe macchineria OGNI testa
+% del file, leggi comprese, e le nasconderebbe a «che cosa sai di X?» — cioe' al
+% modo in cui una lezione si verifica. Solo le due viste derivate sono
+% macchineria, e lo dicono da se'.
+
+% ⚠ IL MARCATORE SEGUE LA DISTINZIONE DI F., NON LA COMODITA'.
+%
+% La STRUTTURA e' «il percorso neurale nella risoluzione»: si percorre, non si
+% dice. Marcarla `machinery/1` non la nasconde al solutore — `law_involves` ci
+% cammina sopra lo stesso — la toglie soltanto da cio' che parrot0 RACCONTA di
+% sapere, ed e' giusto: a chi chiede «che cos'e' la legge di Ohm» non si risponde
+% «law_formula(ohms_law, voltage, product(current, resistance))».
+%
+% La PROSA, le unita' e i simboli restano conoscenza del mondo: sono cio' che si
+% dice, e cio' su cui si verifica una lezione.
+%
+% (Prima avevo messo `file_attribute(machinery)` in testa: dichiarava macchineria
+% OGNI testa del file, prosa compresa, e la legge diventava irraggiungibile da
+% «che cosa sai di X?». Una dichiarazione difensiva costa una capacita'.) Una legge, la sua formulazione e le unita'
+% di una grandezza sono conoscenza del MONDO: dichiararle macchineria le nasconde
+% a «che cosa sai di X?» — che e' proprio il modo in cui si verifica una lezione
+% — e le toglie dal conteggio di cio' che parrot0 sa. Ci sono cascato scrivendo
+% questo file: la dichiarazione difensiva costa una capacita'.
+machinery(law_involves).
+machinery(expr_uses).
+machinery(law_formula).
+machinery(law_defines).
+machinery(law_surface).   % e' un indice per la domanda, non un fatto sul mondo
+
+% ── 1. LA STRUTTURA — l'espressione e' un ALBERO, non un testo ─────────────
+law_defines(newtons_second_law, force).
+law_formula(newtons_second_law, force, product(mass, acceleration)).
+
+law_defines(ohms_law, voltage).
+law_formula(ohms_law, voltage, product(current, resistance)).
+
+law_defines(kinetic_energy_law, kinetic_energy).
+law_formula(kinetic_energy_law, kinetic_energy, product(half, product(mass, square(velocity)))).
+
+law_defines(density_law, density).
+law_formula(density_law, density, quotient(mass, volume)).
+
+% ── 2. LA PROSA — cio' che si puo' dire, e da cui si puo' rientrare ────────
+law_prose(newtons_second_law, "the law that force equals mass times acceleration").
+law_prose(ohms_law, "the law that voltage equals current times resistance").
+law_prose(kinetic_energy_law, "the law that kinetic energy equals half of mass times velocity squared").
+law_prose(density_law, "the law that density equals mass divided by volume").
+
+law_surface(newtons_second_law, "newtons second law").
+law_surface(ohms_law, "ohms law").
+law_surface(kinetic_energy_law, "kinetic energy law").
+law_surface(density_law, "density law").
+
+% ── 3. IL PERCORSO — che cosa una legge COINVOLGE ──────────────────────────
+% E' la vista che risponde alla domanda di F., e non e' inferibile dalla prosa:
+% richiede che la grandezza sia un nodo dell'albero.
+expr_uses($Q, $Q) :- quantity_unit($Q, $U).
+expr_uses(product($A, $B), $Q) :- expr_uses($A, $Q).
+expr_uses(product($A, $B), $Q) :- expr_uses($B, $Q).
+expr_uses(quotient($A, $B), $Q) :- expr_uses($A, $Q).
+expr_uses(quotient($A, $B), $Q) :- expr_uses($B, $Q).
+expr_uses(square($A), $Q) :- expr_uses($A, $Q).
+
+law_involves($Law, $Q) :- law_defines($Law, $Q).
+law_involves($Law, $Q) :- law_formula($Law, $Out, $Expr), expr_uses($Expr, $Q).
+
+% ── 3-bis. LE SUPERFICI DELLA DOMANDA — fatti, non rami ────────────────────
+% `answer_frame(Superficie, Relazione)`: una domanda che contiene la superficie
+% interroga la relazione. E' il meccanismo che cresce per FATTI (grammar.p0:771
+% lo deriva perfino dalle relazioni insegnate a voce), quindi una domanda nuova
+% su queste leggi non costa un ramo in C.
+answer_frame(involves, law_involves).
+answer_frame(involve, law_involves).
+answer_frame("coinvolge", law_involves).
+answer_frame("says", law_prose).
+answer_frame("states", law_prose).
+answer_frame("dice", law_prose).
+answer_frame("computes", law_defines).
+answer_frame("calculates", law_defines).
+answer_frame("calcola", law_defines).
+
+% ── 4. LE GRANDEZZE — unita' e simbolo, in SI ──────────────────────────────
+quantity_unit(force, newton).            quantity_symbol(force, "F").
+quantity_unit(mass, kilogram).           quantity_symbol(mass, "m").
+quantity_unit(acceleration, metre_per_second_squared). quantity_symbol(acceleration, "a").
+quantity_unit(voltage, volt).            quantity_symbol(voltage, "V").
+quantity_unit(current, ampere).          quantity_symbol(current, "I").
+quantity_unit(resistance, ohm).          quantity_symbol(resistance, "R").
+quantity_unit(kinetic_energy, joule).    quantity_symbol(kinetic_energy, "E").
+quantity_unit(velocity, metre_per_second). quantity_symbol(velocity, "v").
+quantity_unit(density, kilogram_per_cubic_metre). quantity_symbol(density, "rho").
+quantity_unit(volume, cubic_metre).      quantity_symbol(volume, "V").

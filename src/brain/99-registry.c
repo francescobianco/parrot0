@@ -831,6 +831,13 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/composition.p0");
 
+    /* gen505h — LE LEGGI FISICHE IN DUE FORME (LEARN_TODO, missione attiva):
+     * la prosa che si puo' DIRE e la struttura che si puo' PERCORRERE. Serve la
+     * seconda per rispondere a «in quale formula e' coinvolta la massa?», che
+     * dalla stringa non e' inferibile. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/experts/physics/laws.p0");
+
     /* gen335 (long-conversation): personal-fact capture/recall knowledge — factored
      * slot_evidence/2 (scored by the shared hypothesis engine) + EN/IT reply templates.
      * Drives mod_personal (10-memory-knowledge.c). A new slot or language is facts. */

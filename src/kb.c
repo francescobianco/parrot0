@@ -5559,8 +5559,8 @@ static int fact_mentions(const Fact *f, const char *entity) {
 static void render_fact_direct_kb(const KB *kb, const Fact *f, const char *entity,
                                   int neg, char *buf, size_t sz);
 
-static void render_fact_direct(const Fact *f, const char *entity, int neg,
-                                char *buf, size_t sz) {
+static void render_fact_direct_impl(const KB *kb, const Fact *f, const char *entity,
+                                    int neg, char *buf, size_t sz) {
     /* gen74: i_am(X) means X asserts its own identity — render "X is X." */
     if (strcmp(f->pred, "i_am") == 0 && f->argc == 1 &&
         strcmp(f->args[0], entity) == 0) {
@@ -5584,7 +5584,12 @@ static void render_fact_direct(const Fact *f, const char *entity, int neg,
         size_t dl = strlen(d);
         if (dl > 0 && d[dl - 1] == '"') d[--dl] = '\0';
         const char *desc = (d[0] == '"') ? d + 1 : d;
-        snprintf(buf, sz, "%s%s is %s", neg ? "not " : "", f->args[0], desc);
+        /* gen505h — anche qui la chiave e' un NOME, non un indice: «ohms_law is
+         * …» dava all'interlocutore l'atomo con cui il motore indicizza. Stessa
+         * politica KB (`present_rule(strip_underscore)`) gia' usata sopra. */
+        char shown_key[KB_TERM_LEN];
+        kb_present_arg(kb, f->args[0], shown_key, sizeof shown_key);
+        snprintf(buf, sz, "%s%s is %s", neg ? "not " : "", shown_key, desc);
         return;
     }
 
@@ -5791,7 +5796,7 @@ static void render_fact_direct_kb(const KB *kb, const Fact *f, const char *entit
         snprintf(buf, sz, "%s is %s%s %s", shown, neg ? "not " : "", art, named);
         return;
     }
-    render_fact_direct(f, entity, neg, buf, sz);
+    render_fact_direct_impl(kb, f, entity, neg, buf, sz);
 }
 
 int kb_describe_entity(const KB *kb, const char *entity,
