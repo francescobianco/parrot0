@@ -840,6 +840,10 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/grammar-judgement.p0");
 
+    /* gen505j — il vocabolario con cui parrot0 parla del proprio linguaggio. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/p0-language.p0");
+
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/experts/physics/laws.p0");
 
@@ -4708,7 +4712,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      *
      * Sta qui, prima del registro, per la stessa ragione del lead analitico
      * subito sotto: e' una proprieta' del TURNO, non di chi lo serve. */
-    if (b && p0_grammar_judgement_turn(b, canon, out, out_size)) {
+    if (b && p0_grammar_judgement_turn(b, canon, input, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "grammar");
         return turn_done(b, canon, input, out, out_size);

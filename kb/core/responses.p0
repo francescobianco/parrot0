@@ -820,6 +820,15 @@ response_template(agreement_ok, "That agrees: «{subject}» is {subj_number} and
 response_template(agreement_ok, it, "L'accordo c'è: «{subject}» è {subj_number} e «{copula}» pure.").
 response_template(no_rule_for_sentence, "I don't have a rule that decides that sentence, so I won't guess. I can check subject-verb agreement.").
 response_template(no_rule_for_sentence, it, "Non ho una regola che decida quella frase, e non tiro a indovinare. So controllare l'accordo fra soggetto e verbo.").
+% gen505j — parrot0 descrive una clausola .p0. Dice la FORMA, il predicato e
+% l'arieta', e per una regola anche da che cosa dipende: e' la struttura, non una
+% docstring, quindi vale su un frammento mai visto.
+response_template(p0_says_fact, "That is {form}. The predicate is «{pred}» with {arity} argument(s), and it holds for {args}.").
+response_template(p0_says_fact, it, "Questo è {form}. Il predicato è «{pred}» con {arity} argomento/i, e vale per {args}.").
+response_template(p0_says_rule, "That is {form}. It concludes «{pred}», and it holds whenever {body} hold(s).").
+response_template(p0_says_rule, it, "Questa è {form}. Conclude «{pred}», e vale ogni volta che vale {body}.").
+response_template(p0_says_unknown, "I can't read that as a clause: I look for a head, and for «:-» when there is a body.").
+response_template(p0_says_unknown, it, "Non riesco a leggerla come clausola: cerco una testa, e «:-» quando c'è un corpo.").
 response_template(taught_reply, "Understood: when you ask about {cue} I will say so.").
 response_template(taught_reply, it, "Capito: quando mi chiedi di {cue} risponderò così.").
 

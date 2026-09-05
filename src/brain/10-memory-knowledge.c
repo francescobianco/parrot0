@@ -11105,6 +11105,87 @@ static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
  * Bisecare quel tratto con le stampe non funziona (scope annidati che
  * ricalcolano `nw`/`w`); renderlo autonomo costa meno e non dipende da dove
  * cadono i cancelli di qualcun altro. */
+/* gen505j — «CHE COS'E' QUESTO?» su una clausola `.p0`.
+ *
+ * Secondo obiettivo di F.: parrot0 deve saper parlare del mezzo in cui tiene
+ * tutto cio' che sa. Qui c'e' solo il TAGLIO strutturale — dove finisce la
+ * domanda, dov'e' il marcatore di regola, dove la testa; forme, parti, segni e
+ * superfici stanno in `kb/core/p0-language.p0`, quindi una notazione nuova o una
+ * lingua nuova sono fatti.
+ *
+ * La risposta non e' una docstring: e' letta dalla STRUTTURA del frammento, e
+ * per questo vale su una clausola mai vista. */
+static int p0_clause_inspect(Brain *b, const char *raw, char *out, size_t out_size) {
+    if (!b || !b->kb || !raw) return 0;
+    char (*cues)[KB_TERM_LEN] = NULL; size_t nc = 0;
+    if (!kb_match_all(b->kb, "p0_inspect_cue", (const char *[]){ NULL }, 1, &cues, &nc) || nc == 0) {
+        free(cues); return 0;
+    }
+    char low[600]; size_t li = 0;
+    for (const char *p = raw; *p && li + 1 < sizeof low; p++) low[li++] = (char)tolower((unsigned char)*p);
+    low[li] = '\0';
+    const char *tail = NULL;
+    for (size_t i = 0; i < nc && !tail; i++) {
+        char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[i]);
+        const char *c = kb_dequote(cb);
+        const char *at = *c ? strstr(low, c) : NULL;
+        if (at) tail = raw + (at - low) + strlen(c);
+    }
+    free(cues);
+    if (!tail) return 0;
+    while (*tail && (isspace((unsigned char)*tail) || *tail == ':' || *tail == ',')) tail++;
+    if (!*tail) return 0;
+
+    /* Il marcatore di regola e' conoscenza, non due caratteri scritti qui. */
+    char mk[1][KB_TERM_LEN];
+    const char *mq[] = { "rule", NULL };
+    if (kb_match(b->kb, "p0_marker", mq, 2, mk, 1) != 1) return 0;
+    char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mk[0]);
+    const char *rule_mark = kb_dequote(mb);
+
+    char frag[400]; snprintf(frag, sizeof frag, "%s", tail);
+    char *neck = strstr(frag, rule_mark);
+    const char *form = neck ? "rule" : "fact";
+
+    /* La testa: cio' che sta prima del marcatore (o tutto, per un fatto). */
+    char head[300];
+    snprintf(head, sizeof head, "%.*s", neck ? (int)(neck - frag) : (int)strlen(frag), frag);
+    char *op = strchr(head, '(');
+    if (!op) return kb_response_slots(b, "p0_says_unknown", NULL, 0, out, out_size);
+    char pred[KB_TERM_LEN];
+    snprintf(pred, sizeof pred, "%.*s", (int)(op - head), head);
+    char *pe = pred; while (*pe == ' ') pe++;
+    char *pz = pe + strlen(pe); while (pz > pe && (pz[-1] == ' ' || pz[-1] == '\t')) *--pz = '\0';
+
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    char fs[1][KB_TERM_LEN];
+    const char *fq[] = { form, lang[0] ? lang : "en", NULL };
+    if (kb_match(b->kb, "p0_form_says", fq, 3, fs, 1) != 1) return 0;
+    char form_says[KB_TERM_LEN]; snprintf(form_says, sizeof form_says, "%s", kb_dequote(fs[0]));
+
+    if (neck) {
+        /* Il corpo, detto per intero: e' cio' da cui la conclusione dipende. */
+        char body[300];
+        snprintf(body, sizeof body, "%s", neck + strlen(rule_mark));
+        char *bp = body; while (*bp == ' ') bp++;
+        char *bz = bp + strlen(bp);
+        while (bz > bp && (bz[-1] == '.' || bz[-1] == ' ' || bz[-1] == '\n')) *--bz = '\0';
+        const KbResponseSlot rs[] = { { "form", form_says }, { "pred", pe }, { "body", bp } };
+        return kb_response_slots(b, "p0_says_rule", rs, 3, out, out_size);
+    }
+
+    /* Gli argomenti del fatto, e quanti sono. */
+    char args[300];
+    char *cl = strrchr(head, ')');
+    snprintf(args, sizeof args, "%.*s", cl ? (int)(cl - op - 1) : (int)strlen(op + 1), op + 1);
+    size_t n = *args ? 1 : 0;
+    for (const char *c = args; *c; c++) if (*c == ',') n++;
+    char cnt[16]; snprintf(cnt, sizeof cnt, "%zu", n);
+    const KbResponseSlot rs[] = { { "form", form_says }, { "pred", pe },
+                                  { "arity", cnt }, { "args", args } };
+    return kb_response_slots(b, "p0_says_fact", rs, 4, out, out_size);
+}
+
 /* gen505i — DOVE E' L'ERRORE: la grammatica girata verso il GIUDIZIO.
  *
  * Il primo passo dell'obiettivo di F. La conoscenza c'era gia' tutta e serviva
@@ -11121,7 +11202,7 @@ static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
  * ⛔ Se nessuna regola decide, si RIFIUTA. Un giudizio inventato su una frase
  * sarebbe peggio di un muro, e qui e' particolarmente insidioso perche' suona
  * competente (mantra #7). */
-int p0_grammar_judgement_turn(Brain *b, const char *norm, char *out, size_t out_size);
+int p0_grammar_judgement_turn(Brain *b, const char *norm, const char *raw, char *out, size_t out_size);
 
 static int p0_grammar_judgement(Brain *b, const char *norm, char *out, size_t out_size) {
     if (!b || !b->kb || !norm) return 0;
@@ -17125,6 +17206,12 @@ static int compare_word(const char *w) {
 /* gen505i — lo stesso giudizio, raggiungibile dal confine del turno (99-registry).
  * Una frase citata per essere giudicata non e' una lezione, e la cue che lo dice
  * e' dichiarata in KB: nessuna cessione, nessuna lista nel motore. */
-int p0_grammar_judgement_turn(Brain *b, const char *norm, char *out, size_t out_size) {
+int p0_grammar_judgement_turn(Brain *b, const char *norm, const char *raw,
+                              char *out, size_t out_size) {
+    /* gen505j — l'ispezione di una clausola legge il testo COME E' STATO
+     * SCRITTO: la canonicalizzazione abbassa le maiuscole, e in `.p0` la
+     * maiuscola distingue una variabile da un atomo. Un lettore di codice che
+     * legge il testo normalizzato non puo' dire che `X` e' una variabile. */
+    if (p0_clause_inspect(b, raw && *raw ? raw : norm, out, out_size)) return 1;
     return p0_grammar_judgement(b, norm, out, out_size);
 }

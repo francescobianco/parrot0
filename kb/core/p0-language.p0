@@ -1,0 +1,47 @@
+% p0-language.p0 — PARROT0 SA DIRE CHE COS'E' UNA CLAUSOLA (gen505j).
+%
+% Secondo obiettivo di F. (LEARN_TODO): «se gli mostro un pezzo e gli chiedo che
+% cosa fa, lui mi dice che questa e' una regola oppure un predicato e tutto».
+%
+% Il punto non e' la sintassi: e' che parrot0 possa parlare del MEZZO in cui
+% tiene tutto cio' che sa. L'introspezione esiste gia' — `kb_fact/2` e
+% `kb_rule/2` sono builtin del solutore, e `epistemic-status.p0` li usa gia' per
+% guardare la forma della propria conoscenza. Quel che mancava e' il VOCABOLARIO
+% per dirlo.
+%
+% ⚠ La circolarita' e' voluta e va nominata: qui parrot0 giudica il linguaggio in
+% cui il giudizio stesso e' scritto. E' potente, ed e' esattamente il punto in
+% cui un'affermazione va ESEGUITA e non creduta — per questo la risposta dice
+% anche che cosa la clausola PROVEREBBE, non solo come si chiama.
+
+:- file_attribute(machinery).
+
+% ── 1. I SEGNI DEL LINGUAGGIO ──────────────────────────────────────────────
+% Sono conoscenza: un dialetto nuovo, o una notazione che cambia, e' un fatto.
+p0_marker(rule, ":-").
+p0_marker(variable, "$").
+p0_marker(clause_end, ".").
+p0_marker(conjunction, ",").
+
+% ── 2. LE FORME, DETTE A PAROLE ────────────────────────────────────────────
+p0_form_says(fact, en, "a fact — something held as true, with no condition").
+p0_form_says(rule, en, "a rule — the head holds whenever the body holds").
+p0_form_says(fact, it, "un fatto — qualcosa tenuto per vero, senza condizioni").
+p0_form_says(rule, it, "una regola — la testa vale ogni volta che vale il corpo").
+
+p0_part_says(head, en, "the head: what the clause concludes").
+p0_part_says(body, en, "the body: the goals that must hold first").
+p0_part_says(variable, en, "a variable: it stands for anything, and the same name means the same thing inside one clause").
+p0_part_says(head, it, "la testa: cio' che la clausola conclude").
+p0_part_says(body, it, "il corpo: i goal che devono valere prima").
+p0_part_says(variable, it, "una variabile: sta per qualunque cosa, e lo stesso nome dentro una clausola indica la stessa cosa").
+
+% ── 3. LE SUPERFICI CON CUI SI CHIEDE ──────────────────────────────────────
+machinery(p0_inspect_cue).
+p0_inspect_cue("what is this").
+p0_inspect_cue("what does this do").
+p0_inspect_cue("what does this mean").
+p0_inspect_cue("explain this clause").
+p0_inspect_cue("che cos'è questo").
+p0_inspect_cue("che cosa fa questo").
+p0_inspect_cue("spiegami questa clausola").

@@ -444,9 +444,34 @@ Ordine proposto:
    lezione.
 3. **i due giri di thinking** come cipolla (`inferenza-compositiva.md`), non come
    pipeline cablata;
-4. **il `.p0`**: i meta-concetti sopra `kb_fact/2` e `kb_rule/2`, che gia'
-   esistono — «questa e' una regola», «questa e' la testa», «questo goal e' del
-   corpo» — con il gate su un frammento **mai visto**;
+4. ✅ **il `.p0`** — PRIMO GIRO FATTO (`gen505j`, `kb/core/p0-language.p0`):
+
+   ```text
+   > what is this: dog(rex).
+     That is a fact — something held as true, with no condition. The predicate
+     is «dog» with 1 argument(s), and it holds for rex.
+   > what is this: grandparent(X, Z) :- parent(X, Y), parent(Y, Z).
+     That is a rule — the head holds whenever the body holds. It concludes
+     «grandparent», and it holds whenever parent(X, Y), parent(Y, Z) hold(s).
+   > what is this: hello there
+     I can't read that as a clause: I look for a head, and for «:-» when there
+     is a body.
+   ```
+
+   La risposta viene dalla **struttura**, non da una docstring: vale su un
+   frammento mai visto, ed e' il gate che ci eravamo dati. Segni, forme, parti e
+   superfici sono fatti — una notazione nuova o una lingua nuova non costano C.
+
+   ⚠ **Lezione:** l'ispezione legge il testo **come e' stato scritto**, non il
+   turno canonicalizzato. In `.p0` la maiuscola distingue una variabile da un
+   atomo, e leggendo la forma normalizzata parrot0 diceva `man(x)` — un lettore
+   di codice che legge il testo abbassato non puo' dire che `X` e' una variabile.
+
+   **Manca il pezzo piu' interessante:** dire che cosa la clausola
+   *proverebbe* — «questa regola conclude che qualcuno e' mortale ogni volta che
+   e' un uomo» — e collegarla alla KB viva (il predicato esiste gia'? ha
+   membri?). E' li' che l'ispezione smette di essere sintassi e diventa
+   comprensione;
 5. **il ciclo che si chiude**: una regola grammaticale detta in inglese e
    **espressa da parrot0 come clausola `.p0`**. E' la scala superiore, ed e'
    misurabile.
