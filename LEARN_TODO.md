@@ -69,10 +69,43 @@ non codice nuovo:
 > what is the capital of Portugal?   Lisbon.     ← relazione curata, nessuna regressione
 ```
 
-⛔ **Ultimo pezzo, non fatto:** il muro suggerisce ancora una lezione che **non
-registra niente** — «say "warp is a relation verb"» → «Learned», e la capacita'
-non cambia. E' un misclaim (priorita' 2 del §12) e va riscritto perche' suggerisca
-«warp is a relation», che ora funziona.
+### ⚠ CORREZIONE a quanto avevo scritto qui sopra — non era un misclaim
+
+Avevo registrato che il muro suggerisce «una lezione che non registra niente».
+**Falso, e verificato:** «governs is a relation verb» funziona davvero —
+`grammar.p0:603` lo documenta, e `kb/facts/units.p0` e
+`kb/facts/scientific-discourse.p0` contengono relazioni vere aperte esattamente
+cosi'. Misurato adesso:
+
+```text
+> governs is a relation verb      Learned: governs is a relation verb.
+> the senate governs rome         Learned: senate governs rome.
+> who governs rome?               Senate.
+```
+
+Il difetto e' un altro e piu' stretto: **il muro offre la lezione di forma VERBO
+a un turno di forma NOME** («the warp of denim is cotton»). Il suggerimento e'
+giusto, e' rivolto alla forma sbagliata. Le due forme ora esistono entrambe —
+`X is a relation verb` per «A governs B», `X is a relation` per «the X of A is
+B» — e il muro deve scegliere in base alla forma del turno che ha fallito.
+
+### Lo stato misurato delle relazioni, per forma
+
+| | insegnare | asserire | domanda |
+|---|---|---|---|
+| **nome** «the warp of denim is cotton» | ✅ `warp is a relation` | ✅ | ✅ «what is the warp of denim?» |
+| **verbo** «the senate governs rome» | ✅ `governs is a relation verb` | ✅ | ⚠ parziale |
+
+Il verbo ha due buchi, **entrambi da chiudere e nessuno dei due grande**:
+
+- **la polare** «does the senate govern rome?» → muro su `govern`: la domanda
+  usa l'infinito e il fatto sta sotto `governs`. La mappa esiste gia' in KB
+  (`verb_stem/2`, derivata da `relation_verb/1` + `verb_suffix`), e la domanda
+  non la consulta — **e' lo stesso difetto appena chiuso per i nomi**: il lato
+  che interroga non usa la mappa che il lato che asserisce usa;
+- **«what does the senate govern?»** → *«I don't have a module by that name»*:
+  il turno e' rubato da una facolta' che cerca un modulo chiamato «govern». Per
+  `turn-arbitration.md` non si cura con una cessione.
 
 ⚠ **Nota di onesta' su `b53afd0`:** il suo messaggio annuncia anche
 l'aggiornamento di `LEARN_TODO`/`C_TODO`, che **non e' avvenuto** — la
