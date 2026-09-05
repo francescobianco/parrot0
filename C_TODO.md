@@ -27,6 +27,55 @@ ora alla prova, ma una tesi negata continua a rispondere «I can't show that.»:
 la spiegazione del no e' raggiungibile dall'altro percorso, non da questo.
 La traccia sotto resta come storia della diagnosi, non come blocco ancora ignoto.
 
+## ⛔ gen505d — UNA REGOLA IN CODA A `extract_frame` NON VEDE I FATTI DI RUNTIME
+
+Difetto di motore, **isolato ma non spiegato**. Blocca una capacita' concreta:
+insegnare parlando una RELAZIONE nuova (`the warp of denim is cotton`), che oggi
+si puo' solo scrivere a mano in `grammar.p0`.
+
+### Il repro minimo, tutto nello stesso processo
+
+Tre clausole con lo **stesso identico corpo**, e il fatto `relation(zzz)`
+asserito a runtime:
+
+```prolog
+probe_pat($Pat)         :- relation($N), concat_atoms("the ", $N, $A),
+                           concat_atoms($A, " of @S is @O", $Pat).
+probe_two($Pat, $Pred)  :- relation($N), concat_atoms($N, "_of", $Pred),
+                           concat_atoms("the ", $N, $A), concat_atoms($A, " of @S is @O", $Pat).
+extract_frame($Pat, $Pred) :- <corpo identico a probe_two>
+```
+
+| goal | esito |
+|---|---|
+| `probe_pat(?)` | ✅ rende `"the zzz of @S is @O"` |
+| `probe_two(?, zzz_of)` | ✅ rende il pattern |
+| `extract_frame(?, zzz_of)` | ❌ **niente** |
+
+E nello stesso processo, con la stessa clausola, un `relation(warpseed)` scritto
+**nel file** invece che asserito a runtime rende il pattern: quindi non e' la
+regola, non e' il corpo, non e' l'arieta' della testa. **E' `extract_frame`.**
+
+### Che cosa e' gia' escluso (per non rifarlo)
+
+- **l'ordine delle clausole**: provata anche in TESTA alle 360, stesso esito;
+- **la regola morta**: aggiunto un produttore di `relation/1` nel file, nessun
+  cambiamento;
+- **il censimento (`pred_stats`)**: `kb_assert` lo aggiorna in modo incrementale
+  (`pred_stats_note`), e infatti `probe_pat`/`probe_two` vedono il fatto nuovo;
+- **il numero di variabili** e la lunghezza del corpo: identici fra probe_two e
+  la clausola che fallisce.
+
+### Il sospetto residuo, da verificare col debugger
+
+`extract_frame` ha **360 fatti ground + 12 regole** (`/debug extract_frame`), ed
+e' l'unico predicato in gioco con quelle dimensioni. Qualcosa nella risoluzione
+— budget, tetto dei goal, o il modo in cui il bucket dei fatti e quello delle
+regole si combinano — impedisce alle regole di contribuire **quando il binding
+viene da un fatto asserito dopo il boot**. Nota che `/debug` dice «binding resi
+360», cioe' esattamente il numero dei fatti: le dodici regole non contribuiscono
+nemmeno all'enumerazione libera.
+
 ## ⭐ gen505b — IL CONTEGGIO DI PAROLE FISSO, censito
 
 Non e' una svista ripetuta: e' una **forma** che il motore ripete, e ogni sua
