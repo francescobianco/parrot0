@@ -2577,11 +2577,18 @@ static void explain_reply(Brain *b, const char *pred, const char *const *args,
 
     char ex[512];
     if (kb_explain(b->kb, pred, args, argc, ex, sizeof ex)) {
+        /* gen505b — IL `put` STAVA DENTRO L'`else`.
+         *
+         * Una prova CON passaggi («… because …») costruiva il messaggio e non lo
+         * scriveva mai: la spiegazione derivata — cioe' l'unica interessante —
+         * spariva, e il turno finiva a un'altra facolta' che rispondeva con la
+         * descrizione dell'entita'. Sembrava un difetto di lettura della domanda
+         * ed era una riga di scrittura mancante. */
         char msg[600];
         if (strstr(ex, " because ")) snprintf(msg, sizeof msg, "%s.", ex);
         else { const KbResponseSlot _rs[] = { { "ex", ex } };
-      kb_term_say(b, "x_is_a_known_fact", _rs, 1, msg, sizeof msg);
-   put(msg, out, out_size); }
+               kb_term_say(b, "x_is_a_known_fact", _rs, 1, msg, sizeof msg); }
+        put(msg, out, out_size);
         store_proof(b, ex);
     } else if (!p0_composed_say(b, "negative_because", out, out_size)) {
         kb_term_say(b, "i_can_t_show_that", NULL, 0, out, out_size);
@@ -11035,7 +11042,6 @@ static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
-
     if (p0_distribute_coordinated_subject(b, norm, out, out_size)) return 1;
     if (completion_chain_resolve(b, norm, out, out_size)) return 1;
     if (taxonomy_definition_reply(b, norm, raw, out, out_size)) return 1;
@@ -15754,12 +15760,19 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     }
 
     /* explanation: "why is <x> a/an <y>?" -> render the proof of y(x) */
-    if (nw == 5 && lex_class_member(b, "question_word", w[0]) && lex_class_member(b, "10_memory_knowledge_lex12193_2", w[1]) &&
+    /* gen505b — «why is <x> a <classe multi-parola>?» (regola del censimento in
+     * C_TODO): la spiegazione esisteva e la si raggiungeva solo con una classe
+     * di un token, quindi «why is siderite an iron ore mineral?» cadeva al dump
+     * della descrizione — una risposta pertinente al posto di una PROVA. */
+    if (nw >= 5 && lex_class_member(b, "question_word", w[0]) && lex_class_member(b, "10_memory_knowledge_lex12193_2", w[1]) &&
         is_article(b, w[3])) {
+        char why_cls[KB_TERM_LEN];
+        if (!p0_join(w, 4, nw, why_cls, sizeof why_cls)) return 0;
+        for (char *q = why_cls; *q; q++) if (*q == ' ') *q = '_';
         const char *subj;
         if (!resolve_entity(b, w[2], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
-        explain_reply(b, w[4], args, 1, out, out_size);
+        explain_reply(b, why_cls, args, 1, out, out_size);
         remember_entity(b, w[2], subj);
         return 1;
     }

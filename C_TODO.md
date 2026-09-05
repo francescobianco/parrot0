@@ -19,6 +19,33 @@ Le ultime due sono le piu' istruttive: il turno non muore, viene **raccolto da
 qualcun altro** che risponde fuori tema con sicurezza. Un conteggio fisso non
 produce silenzio, produce rumore convinto.
 
+### ⛔ Un ramo non identificato rivendica «why is X a <classe multi-parola>?»
+
+Aperto al `gen505b` e **non chiuso**, con la traccia gia' fatta perche' il
+prossimo non la rifaccia:
+
+- `mod_knowledge` riceve il turno intero (`why is bornite a copper mineral?`),
+  quindi la canonicalizzazione non c'entra;
+- il turno **supera** il blocco causale (`comp || whyq || howq`) e
+  `causal_lookup_robust`, e **non arriva** al ramo della spiegazione;
+- quindi rivendica qualcosa in mezzo, in uno scope dove `nw`/`w` sono
+  ricalcolati (a quell'altezza le variabili del blocco iniziale non sono
+  nemmeno in scope, il che rende inutile la bisezione con stampe la' dentro);
+- la risposta che esce e' il **dump della descrizione** («bornite is a copper
+  mineral.»), cioe' una risposta pertinente al posto di una prova. Con una
+  classe di UNA parola la spiegazione arriva giusta, quindi e' di nuovo la
+  famiglia del conteggio fisso.
+
+Due difetti veri sono stati trovati e chiusi durante questa caccia, ed erano
+sotto:
+
+1. **`explain_reply` perdeva la spiegazione**: il `put()` stava dentro l'`else`,
+   quindi una prova CON passaggi («… because …») veniva composta e mai scritta.
+   Sembrava un difetto di lettura della domanda ed era una riga di scrittura
+   mancante.
+2. il ramo `why is <x> a <y>` e' stato generalizzato a `nw >= 5` con `p0_join`
+   sulla coda, come dice la regola qui sotto.
+
 ### Il censimento (`gen505b`)
 
 ```
