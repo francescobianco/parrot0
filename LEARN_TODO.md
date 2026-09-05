@@ -142,6 +142,61 @@ dimostri quella tesi. Il riferimento rapido e' in testa a
    fragile), l'annuncio di regole indotte su domini estranei al primo turno di
    sessione.
 
+## ⭐ Aggiunto in coda alla sessione — l'induzione, e il «si'» non guadagnato
+
+Il punto 3 dell'ex-`HANDOFF.md` e' **chiuso**: insegnata a voce la relazione
+tassonomica («every copper sulfide mineral is a copper mineral», e la gemella
+per i carbonati), i membri diventano raggiungibili per INFERENZA e non per
+ripetizione. In processo fresco:
+
+```text
+what are the copper minerals?   → chalcopyrite, chalcocite, covellite, bornite,
+                                   azurite, malachite      (quattro derivati)
+why is azurite a copper mineral?
+  → azurite is a copper mineral because azurite is a copper carbonate mineral.
+```
+
+Facendolo e' emerso cio' che l'ex-handoff aveva gia' fiutato, e in forma
+peggiore del previsto.
+
+### Chiuso: `/save` persisteva le induzioni non verificate
+
+`kb_save_routed` instradava `KB_INDUCED` insieme a `KB_SESSION`. Misurato:
+insegnando **una** regola sui minerali ne sono state scritte **otto** nella KB
+ufficiale, fra cui `chess_rank(X) :- is_prime(X)`, `expert(X) :- language(X)` e
+`humanities_topic(X) :- man(X)`. Non e' rumore: e' **falsita' persistita**. Le
+otto righe sono state tolte da `kb/learning/learned.p0` e il filtro ora salva
+solo `KB_SESSION`. Un'induzione resta viva nel turno e nella sessione — si puo'
+interrogare, criticare e **promuovere**: quella che qualcuno verifica si
+riasserisce come conoscenza, e allora si salva.
+
+### ⛔ APERTO, ed e' il prossimo: un'induzione risponde «Yes.»
+
+```text
+is socrates a humanities topic?   → Yes.
+```
+
+Dentro la sessione la regola indotta **decide una risposta polare**, e quel
+«si'» non e' guadagnato da nessuna lezione. E' piu' grave della persistenza che
+abbiamo appena chiuso, perche' non lascia traccia su disco e vale per ogni
+sessione in cui l'induzione riparte.
+
+Non l'ho toccato di mia iniziativa: l'induzione e' una facolta' **progettata**,
+e spegnerla o marcarla al momento della risposta e' una decisione di F. Le tre
+forme possibili, in ordine di rispetto per la facolta':
+
+1. la risposta **dichiara** la sua origine («si', per una regola che ho indotto,
+   non che mi hai insegnato») — onesto e non distruttivo;
+2. l'induzione **propone** e non conclude: entra fra i candidati e non decide da
+   sola una polare;
+3. `kb_induce` alza il proprio pavimento (support, esclusioni) — la cura piu'
+   debole, perche' non cambia la natura dell'inferenza.
+
+⚠ La stessa induzione e' cio' che fa dire «socrates is a philosopher; socrates
+is a humanities_topic» quando si chiede «what is socrates?». Chi guarda quella
+risposta pensa che parrot0 lo sappia; e' invece una generalizzazione per
+co-occorrenza con supporto 2.
+
 ## La regola che riassume il periodo
 
 > Prima di scrivere una riga: **la capacita' esiste gia' e non si riesce a

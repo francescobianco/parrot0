@@ -112,6 +112,7 @@ discourse_referent(7, covellite).
 discourse_referent(6, chalcocite).
 discourse_referent(5, bornite).
 discourse_referent(8, azurite).
+discourse_referent(9, malachite).
 iron_ore_mineral(hematite).
 iron_ore_mineral(magnetite).
 iron_ore_mineral(siderite).
@@ -128,3 +129,6 @@ copper_sulfide_mineral(chalcocite).
 copper_sulfide_mineral(covellite).
 copper_sulfide_mineral(bornite).
 copper_carbonate_mineral(azurite).
+copper_carbonate_mineral(malachite).
+copper_mineral($X) :- copper_sulfide_mineral($X).
+copper_mineral($X) :- copper_carbonate_mineral($X).

@@ -5287,14 +5287,28 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
 
     int count = 0;
     char *routed = calloc(kb->n ? kb->n : 1, 1);
-    if (!routed) return kb_save(kb, default_path, KB_SESSION | KB_INDUCED);
+    /* gen505c — UN'INDUZIONE E' UN'IPOTESI, NON CONOSCENZA DA CONSERVARE.
+     *
+     * `/save` instradava KB_INDUCED insieme a KB_SESSION, quindi una lezione
+     * vera si portava dietro le generalizzazioni per co-occorrenza di
+     * `kb_induce` — misurato: insegnando UNA regola sui minerali ne sono state
+     * scritte OTTO nella KB ufficiale, fra cui «chess_rank(X) :- is_prime(X)» e
+     * «humanities_topic(X) :- man(X)». Non e' rumore: e' falsita' persistita,
+     * che poi risponde «si'» a domande che nessuno ha verificato (e infatti
+     * «socrates is a humanities_topic» arrivava di li').
+     *
+     * L'induzione resta viva NEL turno e nella sessione — si puo' interrogare,
+     * criticare, e promuovere: una regola indotta che qualcuno verifica si
+     * riasserisce come conoscenza e allora si salva. Cio' che non si salva e'
+     * l'ipotesi non verificata. */
+    if (!routed) return kb_save(kb, default_path, KB_SESSION);
 
     /* I fatti che hanno trovato una casa ALTROVE: servono dopo, per togliere
      * dalla ricaduta cio' che nel frattempo ha imparato dove stare. */
     SmLines homed = {0};
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *fa = &kb->facts[i];
-        if (!(fa->origin & (KB_SESSION | KB_INDUCED)) || fa->argc == 0) continue;
+        if (!(fa->origin & KB_SESSION) || fa->argc == 0) continue;   /* gen505c */
         if (sm_is_turn_scratch(kb, fa->pred)) { routed[i] = 1; continue; }
         const char *file = NULL; int line = 0;
         if (!smap_home(kb, fa->pred, fa->args[0], &file, &line)) continue;
@@ -5341,14 +5355,14 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
     size_t kept = keep.n;
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *fa = &kb->facts[i];
-        if (!(fa->origin & (KB_SESSION | KB_INDUCED)) || routed[i]) continue;
+        if (!(fa->origin & KB_SESSION) || routed[i]) continue;   /* gen505c */
         char text[2048]; sm_fact_text(fa, text, sizeof text);
         if (!sml_has(&keep, text)) sml_push(&keep, text);
         count++;
     }
     for (size_t i = 0; i < kb->nn; i++) {
         const Fact *fa = &kb->neg[i];
-        if (!(fa->origin & (KB_SESSION | KB_INDUCED))) continue;
+        if (!(fa->origin & KB_SESSION)) continue;   /* gen505c */
         char text[2048];
         size_t o = (size_t)snprintf(text, sizeof text, "not(%s(", fa->pred);
         for (size_t j = 0; j < fa->argc && o < sizeof text; j++)
@@ -5359,7 +5373,7 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
     }
     for (size_t i = 0; i < kb->nr; i++) {
         const Rule *r = &kb->rules[i];
-        if (!(r->origin & (KB_SESSION | KB_INDUCED))) continue;
+        if (!(r->origin & KB_SESSION)) continue;   /* gen505c */
         char text[2048];
         size_t o = sm_term_str(&r->head, text, sizeof text);
         if (o < sizeof text) o += (size_t)snprintf(text + o, sizeof text - o, " :- ");
