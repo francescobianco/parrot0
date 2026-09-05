@@ -1,113 +1,142 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-# 🔴 PRIORITA' APERTA — SI PUO' PRENDERE SUBITO, ed e' autosufficiente
+## HANDOFF 2026-09-05 — difetto di `extract_frame` RISOLTO; prossima porta: relazioni insegnabili
 
-> **Difetto di motore: una regola su `extract_frame` non vede i fatti asserti a
-> runtime.** Isolato con precisione il `gen505d`, **non spiegato**. Chi lo
-> prende non ha bisogno del resto di questo file: qui sotto c'e' tutto, comprese
-> le piste gia' escluse.
+**Questa nota e l'ordine operativo seguente prevalgono sugli handoff storici
+sotto.** Checkpoint di partenza `ba45d82`, gia' pubblicato e pulito. Il lavoro
+richiesto era sul difetto, non sul checkpoint precedente.
 
-## Perche' vale la pena, prima del come
+La causa non era il bucket, l'arieta' due o il budget dei 360 fatti:
+**`extract_frame` era una vista materializzata rimasta valida dopo una lezione
+che ne cambiava le premesse.** La firma contava solo poche dipendenze dichiarate
+a mano con `view_depends`, ignorando altre fonti dei corpi delle regole. Lo
+stesso corpo sotto `probe_two`, senza cache, vedeva correttamente la lezione.
+La traccia interna ha mostrato la firma immutata dopo `relation(zzz)`; una
+modifica a `relation_verb`, gia' dichiarata, faceva comparire anche quel pattern.
 
-Blocca una capacita' concreta e desiderabile: **insegnare parlando una relazione
-nuova**. La macchineria e' gia' giusta — `kb/core/grammar.p0` ha UNA regola che,
-per ogni relazione che dichiara il proprio nome comune (`relation_noun/2`),
-costruisce da sola il pattern «the X of @S is @O». Una relazione nuova costa
-**un fatto**, e scritto a mano funziona:
+**Correzione generale nel motore, non un nuovo elenco nella KB:**
 
-```text
-relation_noun(warp_of, "warp").          ← nel file
-> the warp of denim is cotton            Learned: the warp of denim is cotton.
-```
+- dipendenze ricavate transitivamente dai corpi delle regole, comprese fonti
+  ancora vuote e goal negati; `view_depends` resta un'integrazione facoltativa;
+- invalidazione su assert/retract e modifica delle regole, anche a cardinalita'
+  invariata; il traffico estraneo alle dipendenze conserva la cache;
+- righe scadute invisibili durante la risoluzione e rimosse fuori dal solver;
+  anche una regola intermediaria vede la conoscenza aggiornata;
+- insiemi di dipendenze e registro delle viste dinamici; conteggio dei soli
+  inserimenti derivati reali, non dei successi idempotenti;
+- origine della cache distinta da `KB_INDUCED`; enumerazione incompleta mai
+  promossa a vista completa. Meta-chiamate/dipendenze dinamiche non analizzabili
+  restano sull'inferenza ordinaria.
 
-Ma quel fatto **si puo' solo scrivere**: la lista e' chiusa a cinque
-(`capital`, `population`, `currency`, `language`, `author`) e nessuna lezione la
-fa crescere. Finche' `extract_frame` non vede le regole, «warp is a relation»
-non potra' mai diventare «the warp of denim is cotton».
+**Verifica:** build, riproduzione MCP e sonde interne con boot reale AGI;
+crescita, retract, sostituzione, transito e fallback verificati. Conversazione:
+nuovo verbo insegnato per menzione → lettura → retract → muro → reteach →
+lettura e risposta. Conservate prova ed enumerazione dei minerali gia' appresi.
+Nessuna suite del progetto, nessuna modifica ai file KB, nessun `/save`.
+`meta-capability-only`, `W=0`: le sonde di motore **non sono apprendimento**.
+[Diagnosi, evidenze e limiti](docs/labs/apprendimento-assistito/2026-09-05-cache-e-comprensione.md).
 
-## Il repro minimo — tre clausole, stesso corpo, esiti diversi
+**Non confondere il difetto chiuso con la capacita' ancora da aprire.**
+`relation_noun` asserita a runtime ora genera il frame; manca ancora il ciclo
+parlato completo per insegnare un nuovo nome di relazione e interrogarlo.
+La vecchia nota parlava di cinque nomi: nel file attuale quelli inglesi sono
+otto. Il problema non era il loro numero, ma la porta di crescita e il consumer.
 
-In coda a `kb/core/grammar.p0`:
+## Verso la comprensione universale e la KB viva e fertile — ordine operativo
 
-```prolog
-probe_pat($Pat)            :- relation($N), concat_atoms("the ", $N, $A),
-                              concat_atoms($A, " of @S is @O", $Pat).
-probe_two($Pat, $Pred)     :- relation($N), concat_atoms($N, "_of", $Pred),
-                              concat_atoms("the ", $N, $A),
-                              concat_atoms($A, " of @S is @O", $Pat).
-extract_frame($Pat, $Pred) :- relation($N), concat_atoms($N, "_of", $Pred),
-                              concat_atoms("the ", $N, $A),
-                              concat_atoms($A, " of @S is @O", $Pat).
-```
+Direzione richiesta da F.: **comprensione assoluta e universale**. Qui significa
+togliere i confini di dominio, lingua e superficie imposti dal motore, facendo
+crescere conoscenza e capacita' per insegnamento. Non e' una certificazione di
+onniscienza ottenibile da un numero finito di risposte: ogni incremento deve
+mostrare che cosa apre, che cosa non comprende e quale lezione gli manca.
 
-poi, in un processo solo:
+Questa coda estende le attivita' di supercomprensione gia' descritte sotto:
+non crea un secondo lettore, un secondo arbitro o una KB ridotta per provarle.
 
-```bash
-printf '%s\n' \
- '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"relation","args":["zzz"]}}}' \
- '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"kb.match","arguments":{"pred":"probe_pat","args":[null]}}}' \
- '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"kb.match","arguments":{"pred":"probe_two","args":[null,"zzz_of"]}}}' \
- '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"kb.match","arguments":{"pred":"extract_frame","args":[null,"zzz_of"]}}}' \
- | ./bin/parrot0 --mcp-engine
-```
+### P0 — una relazione nuova, dalla lezione alla domanda
 
-| goal | atteso | osservato |
-|---|---|---|
-| `probe_pat(?)` | il pattern | ✅ `"the zzz of @S is @O"` |
-| `probe_two(?, zzz_of)` | il pattern | ✅ |
-| `extract_frame(?, zzz_of)` | il pattern | ❌ **niente** |
+- [ ] **Porta didattica del nome di relazione.** Un docente che non conosce
+  predicati/arita' deve poter spiegare che cosa nomina una parola, anche composta.
+  Trasformare quella lezione in `relation_noun` con meccanica e morfologia KB-first;
+  distinguere nome di proprieta', verbo e semplice appartenenza a una classe.
+  Chiusura: forma ignota prima, nuova lettura dopo, retract la spegne, reteach
+  la riapre, stesso binario e nessuna clausola tecnica detta dal docente.
+- [ ] **Stesso significato per affermare, domandare e spiegare.** Legare il lato
+  domanda allo stesso `relation_noun` del lettore: non insegnare separatamente
+  una stringa di risposta per ogni nome. Percorso da chiudere:
+  lezione del nome → frase con soggetto/oggetto reali → domanda diretta e
+  inversa → prova → correzione → ritrattazione → `/save` → processo fresco.
+  Provare nomi di relazione ed entita' multi-parola, con una seconda relazione
+  nuova che non richieda modifiche C.
+- [ ] **Niente conferme didattiche vuote.** Il muro deve suggerire una lezione
+  che il lettore sa davvero acquisire. Non suggerire «warp is a relation verb»
+  quando manca un nome di proprieta'. La conferma deve corrispondere a una
+  modifica verificabile della capacita'; ambiguita' → domanda mirata.
 
-**E la controprova che chiude il cerchio:** nello stesso processo e con la stessa
-clausola, un `relation(warpseed)` scritto **nel file** invece che asserito rende
-il pattern. Quindi non e' la regola, non e' il corpo, non e' l'arieta' della
-testa. **E' `extract_frame`.**
+### P1 — comprendere strutture, non posizioni di parole
 
-## Il dato che punta il dito
+- [ ] **Binding condiviso degli argomenti.** Riprendere il censimento in
+  `C_TODO`: eliminare i restanti `nw == N`, `w[2]`, `w[4]` semantici.
+  Le stesse entita'/classi devono restare intere in lettura, domanda, prova,
+  provenienza e retract. Chiusura: cambiare la lunghezza degli slot non cambia
+  l'intento ne' sposta il turno a una facolta' estranea.
+- [ ] **Composizione di relazioni e ambiti.** Riutilizzare frame e inferenza
+  compositiva per coordinazioni, qualificazioni, quantificatori, negazioni e
+  condizioni annidate; annotare chi fa cosa, a chi, in quale ambito.
+  Chiusura: una struttura insegnata si trasferisce a contenuti reali diversi,
+  preserva polarita'/scope e non impara come fatto una domanda o un'ipotesi.
+- [ ] **Arbitrato per evidenza e lacuna.** Proseguire S4 nel piano esistente:
+  confrontare copertura e argomenti delle letture concorrenti. Nessuna guardia
+  ad hoc per cedere il turno. Chiusura: le alternative restano ispezionabili,
+  la migliore risponde alla domanda posta, il pareggio produce chiarimento.
+  Conservare la decisione di F. richiesta dal piano per la scelta architetturale.
+- [ ] **Lingue come conoscenza.** Prima sanare gli atomi ibridi italiani;
+  poi insegnare ruoli, connettori, flessioni e parafrasi collegati agli stessi
+  significati, senza tradurre distruttivamente nomi e citazioni.
+  Chiusura: lezione in una lingua, domanda/prova nell'altra, retract del
+  collegamento linguistico senza perdere il fatto del mondo.
 
-```text
-> /debug extract_frame
-  fatti ground            360
-  arita' 2: regole 12, binding resi 360
-```
+### P2 — una KB viva: sapere perche', dubitare e correggersi
 
-**360 binding su 360 fatti: le dodici regole non contribuiscono nemmeno
-all'enumerazione libera.** `extract_frame` e' l'unico predicato in gioco con
-quelle dimensioni.
+- [ ] **Fonte e forza del claim fino alla risposta.** Portare provenienza,
+  tempo, contesto, attribuzione e stato epistemico dal frame alla prova.
+  Distinguere fatto, inferenza, proposta induttiva, ipotesi e assenza di prova.
+  Chiusura: spiegare anche il no guadagnato da «why is …»; una citazione o una
+  supposizione non diventa una convinzione senza un atto autorizzato.
+- [ ] **Revisione che attraversa le conseguenze.** Ritirare/correggere una
+  premessa deve aggiornare deduzioni, proposte induttive e domande aperte.
+  L'induzione resta una domanda da verificare, non una nuova verita'.
+  Chiusura: un controesempio reale cambia subito le conseguenze; re-insegnare
+  ripristina solo cio' che ha di nuovo supporto, anche dopo salvataggio/reload.
+- [ ] **Lacune che generano buone domande.** Una lettura parziale deve dire
+  quale ruolo, relazione o premessa manca e chiedere il dato discriminante.
+  Chiusura: la risposta del docente risolve il turno sospeso e migliora anche
+  un altro turno reale; non basta conservare una receipt o dichiarare «Learned».
 
-## Piste gia' escluse — non rifarle
+### P3 — una KB fertile: connessioni nuove e crescita sostenibile
 
-- **l'ordine delle clausole**: la regola e' stata provata anche IN TESTA alle
-  360, stesso esito;
-- **la regola morta**: aggiunto un produttore di `relation/1` nel file, nessun
-  cambiamento;
-- **il censimento `pred_stats`**: `kb_assert` lo aggiorna in modo incrementale
-  (`pred_stats_note`, `src/kb.c`), e infatti le due probe vedono il fatto nuovo;
-- **variabili e lunghezza del corpo**: identiche fra `probe_two` (funziona) e la
-  clausola di `extract_frame` (non funziona).
+- [ ] **Ponti veri fra conoscenze gia' presenti.** Cercare una domanda utile
+  che richieda archi distribuiti in piu' parti della KB completa. Se manca un
+  arco, insegnarlo parlando da una fonte verificata, non fabbricare il mondo
+  della prova. Chiusura: risposta nuova dedotta, prova leggibile, un secondo
+  uso utile del ponte e ablazione che renda visibile proprio la premessa persa.
+- [ ] **Costo proporzionato alla conoscenza pertinente.** Estendere il
+  contratto delle viste a dipendenze dinamiche/riflessione e arita' ulteriori,
+  mantenendo fallback esplicito. Censire gli altri consumer di `kb_revision`
+  che scambiano cardinalita' per revisione. Chiusura: assert/retract a caldo
+  corretti, niente ricostruzione per ogni traccia del turno, nessun insieme
+  troncato presentato come completo; misurare costi sulla KB piena.
+- [ ] **Consolidamento e richiamo fresco.** A ogni lotto utile: report con
+  lezione, fatto nuovo o capacita' aperta, trasferimento, ablazione e limiti;
+  salvare solo conoscenza verificata e riaprire un processo AGI.
+  Chiusura: la nuova conoscenza viene usata in una domanda diversa da quella
+  della lezione; conteggi `W/L/C/P/O/X`, resa e richiamo sono evidenze, non
+  sostituti della comprensione.
 
-## Sospetti residui, in ordine
-
-1. il modo in cui `pred_bucket` e `rule_bucket` si combinano in `prove_seq_ex`
-   quando il predicato ha molti fatti E delle regole;
-2. un tetto (budget di passi, `KB_MAX_GOALS`) consumato dai 360 tentativi di
-   unificazione prima che le regole vengano provate;
-3. qualcosa nel percorso di `kb_match` con arieta' 2 e il secondo argomento
-   legato.
-
-⚠ **Metodo:** le sonde a scatola nera hanno dato tutto quello che potevano (sei
-o sette build). Serve un debugger su `prove_seq_ex`, o una stampa dentro il
-ramo delle regole di quella funzione — non altre clausole di prova in KB.
-
-## Dopo, il seguito naturale
-
-Chiuso questo, restano due passi piccoli per avere le relazioni insegnabili:
-
-1. dare al lato **domanda** lo stesso `relation_noun` («what is the warp of
-   denim?» oggi risponde «I don't know about warp» anche col fatto scritto a
-   mano);
-2. riscrivere il muro, che oggi suggerisce una lezione che **non registra
-   niente** («say "warp is a relation verb"» → «Learned», e la capacita' non
-   cambia: un misclaim).
+**Prossima azione concreta:** prendere P0, non ricominciare la caccia al bucket.
+Prima leggere `MANTRA.md` e `PRINCIPLES.md`, poi una sessione AGI unica.
+Resta valida la pausa sulle suite: build e conversazioni; sonde tecniche solo
+quando servono a distinguere un difetto di motore da una lacuna della KB.
 
 ---
 

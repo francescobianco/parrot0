@@ -34,7 +34,7 @@
  * e' conoscenza vecchia in una forma che si legge in O(1). Percio' non si salva,
  * non conta nella revisione della KB, e sparisce appena la conoscenza da cui
  * viene cambia. Vedi `kb_view_ensure` e `materialized_view/2`. */
-#define KB_DERIVED    4
+#define KB_DERIVED   32 /* cache ownership must not alias induced knowledge */
 #define KB_INDUCED    4 /* created by kb_induce                             */
 #define KB_REFLECTIVE 8 /* the self-model (i_am/module) — never persisted   */
 /* gen373 — a turn's SUPPOSED premises, true only for the question being asked.
@@ -168,7 +168,8 @@ void kb_saturation_commit(KB *kb);
 
 /* Dynamically enumerate every distinct binding that `kb_match` would return,
  * without a caller-selected cap. On success the caller owns `*out` and must
- * free it; an empty result is successful with `*nout == 0`. */
+ * free it; an empty result is successful with `*nout == 0`. Returns 0 on
+ * allocation failure or exhausted inference, never a partial set as complete. */
 int kb_match_all(const KB *kb, const char *pred,
                  const char *const *args, size_t argc,
                  char (**out)[KB_TERM_LEN], size_t *nout);
@@ -352,17 +353,19 @@ size_t kb_dead_rules(const KB *kb, char heads[][KB_TERM_LEN],
  * including ones reachable only through rules. Returns the count (capped). */
 size_t kb_unary_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max);
 
-/* La REVISIONE della conoscenza: cambia a ogni assert/retract di fatto o regola.
- * Serve a invalidare una cache derivata senza inventare un timer — una relazione
- * insegnata adesso deve essere visibile al turno stesso. */
+/* Historical size-based revision (facts + rules, excluding materialized rows).
+ * Not a mutation clock: equal-sized replacements can preserve it. Materialized
+ * views instead follow mutation notifications on their dependency graphs. */
 size_t kb_revision(const KB *kb);
 
 /* gen491 — LE VISTE MATERIALIZZATE. Se la KB dichiara `materialized_view(P, N)`,
  * la prima domanda su `P` dopo un cambio di conoscenza ne enumera TUTTE le
  * soluzioni una volta sola e le congela come fatti derivati; le domande
- * successive le leggono dall'indice hash invece di riderivarle. Torna 1 se per
- * questo predicato esiste una vista viva (e allora le regole non vanno
- * espanse), 0 altrimenti. */
+ * successive le leggono dall'indice hash invece di riderivarle. Le dipendenze
+ * transitive vengono dalle regole; view_depends/2 puo' aggiungere archi.
+ * Torna 1 per una vista viva alla sua arita', 0 altrimenti. Non materializza
+ * dentro il solver, ne' congela enumerazioni incomplete o dipendenze dinamiche
+ * non analizzabili: in quei casi si continua con l'inferenza ordinaria. */
 int kb_view_ensure(KB *kb, const char *pred);
 
 /* Costruisce subito ogni vista dichiarata: si chiama a fine boot, cosi' il

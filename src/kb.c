@@ -185,6 +185,14 @@ typedef struct {
     char  **files; size_t nfiles, fcap;
 } SaveMap;
 
+typedef struct {
+    char pred[KB_TERM_LEN];
+    size_t argc;
+    char (*deps)[KB_TERM_LEN];
+    size_t ndeps, dep_cap;
+    int live, building, dirty, attempted, broad;
+} KbView;
+
 struct KB {
     Fact  *facts;
     size_t n;
@@ -224,22 +232,12 @@ struct KB {
     KbProfileRow  prof_top[64];
     size_t        prof_ntop;
 
-    /* gen491 — LO STATO DELLE VISTE MATERIALIZZATE. Una riga per predicato
-     * dichiarato `materialized_view/2`: a quale revisione della conoscenza il
-     * congelamento risale, e se e' vivo. `building` e' la guardia contro la
-     * ricorsione — materializzare P richiede di risolvere P. */
-    struct {
-        char   pred[KB_TERM_LEN];
-        size_t argc;
-        uint64_t sig;      /* firma della conoscenza da cui dipende */
-        char   deps[8][KB_TERM_LEN];
-        size_t ndeps;
-        size_t added;      /* fatti congelati da questa vista */
-        size_t seen_n, seen_nr;  /* dimensioni della KB all'ultimo controllo */
-        int    live;
-        int    building;
-    } views[16];
-    size_t nviews;
+    /* Materialized predicates and their structural dependency graphs.
+     * Mutations expire affected views; rebuilding waits for a safe entry.
+     * `building` guards recursion: materializing P requires resolving P. */
+    KbView *views;
+    size_t nviews, view_cap;
+    int views_loaded, views_reload, views_pending, views_preparing;
     size_t n_derived;      /* fatti con origine KB_DERIVED, esclusi dalla revisione */
 
     /* Turn-local metadata; the fact-table mutation happens once at commit. */
@@ -384,6 +382,8 @@ void kb_destroy(KB *kb) {
             free(kb->pred_stats[i].ridx);
         }
     free(kb->pred_stats);
+    for (size_t i = 0; i < kb->nviews; i++) free(kb->views[i].deps);
+    free(kb->views);
     for (size_t i = 0; i < kb->smap.cap; i++) free(kb->smap.slots[i].key);
     free(kb->smap.slots);
     for (size_t i = 0; i < kb->smap.nfiles; i++) free(kb->smap.files[i]);
@@ -432,6 +432,8 @@ static int fact_eq(const Fact *a, const Fact *b) {
 }
 
 static int kb_view_live(const KB *kb, const char *pred);   /* gen491 */
+static int kb_view_covers(const KB *kb, const char *pred, size_t argc);
+static int kb_view_fact_visible(const KB *kb, const Fact *f);
 
 static uint64_t fact_hash(const Fact *f) {
     uint64_t h = UINT64_C(1469598103934665603);
@@ -773,20 +775,52 @@ static int fact_append_indexed(Fact **facts, size_t *n, size_t *cap,
     return 1;
 }
 
+/* Invalidate on a CHANGE, not on cardinality: retract+assert can preserve both
+ * counts. Dependencies include the transitive rule bodies, even predicates
+ * with no facts yet. No fact-table mutation here: a solver may own pointers. */
+static void kb_views_changed(KB *kb, const char *pred) {
+    int registry = strcmp(pred, "materialized_view") == 0;
+    if (registry) kb->views_reload = 1;
+    for (size_t k = 0; k < kb->nviews; k++) {
+        KbView *v = &kb->views[k];
+        int affected = registry || v->broad;
+        for (size_t i = 0; i < v->ndeps && !affected; i++)
+            affected = strcmp(v->deps[i], pred) == 0;
+        if (!affected) continue;
+        v->live = 0;
+        v->dirty = 1;
+        v->attempted = 0;
+        kb->views_pending = 1;
+    }
+}
+
 int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;
 
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
 
-    if (fact_remove_origin(kb->neg, &kb->nn, &f, kb->origin))
+    if (fact_remove_origin(kb->neg, &kb->nn, &f, kb->origin)) {
         fact_index_rebuild_after_remove(&kb->neg_index, &kb->neg_index_cap,
                                         kb->neg, kb->nn);
-    if (kb_find(kb, &f)) return 1; /* already known — idempotent */
+        kb_views_changed(kb, pred);
+    }
+    Fact *known = (Fact *)kb_find(kb, &f);
+    if (known) {
+        /* A taught fact must outlive the cache that happened to contain it. */
+        if (known->origin == KB_DERIVED && kb->origin != KB_DERIVED) {
+            known->origin = kb->origin;
+            kb->n_derived--;
+            kb_views_changed(kb, pred);
+        }
+        return 1; /* already known — idempotent */
+    }
     f.origin = kb->origin;
     if (!fact_append_indexed(&kb->facts, &kb->n, &kb->cap,
                              &kb->fact_index, &kb->fact_index_cap, &f)) return 0;
     pred_stats_note(kb, kb->n - 1);
+    if (f.origin == KB_DERIVED) kb->n_derived++;
+    else kb_views_changed(kb, pred);
     return 1;
 }
 
@@ -794,8 +828,12 @@ int kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
+    const Fact *old = kb_find(kb, &f);
+    int derived = old && old->origin == KB_DERIVED;
     int removed = fact_remove(kb->facts, &kb->n, &f);
     if (removed) {
+        if (derived) kb->n_derived--;
+        kb_views_changed(kb, pred);
         fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
                                         kb->facts, kb->n);
         pred_stats_invalidate(kb);
@@ -815,9 +853,11 @@ int kb_retract_neg(KB *kb, const char *pred, const char *const *args,
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
     int removed = fact_remove(kb->neg, &kb->nn, &f);
-    if (removed)
+    if (removed) {
         fact_index_rebuild_after_remove(&kb->neg_index, &kb->neg_index_cap,
                                         kb->neg, kb->nn);
+        kb_views_changed(kb, pred);
+    }
     return removed;
 }
 
@@ -832,12 +872,16 @@ size_t kb_retract_match(KB *kb, const char *pred,
         int match = f->argc == argc && strcmp(f->pred, pred) == 0;
         for (size_t a = 0; a < argc && match; a++)
             if (args[a] && strcmp(args[a], f->args[a]) != 0) match = 0;
-        if (match) { removed++; continue; }
+        if (match) {
+            if (f->origin == KB_DERIVED) kb->n_derived--;
+            removed++; continue;
+        }
         if (w != i) kb->facts[w] = kb->facts[i];
         w++;
     }
     kb->n = w;
     if (removed) {
+        kb_views_changed(kb, pred);
         fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
                                         kb->facts, kb->n);
         pred_stats_invalidate(kb);
@@ -849,12 +893,16 @@ size_t kb_retract_pred(KB *kb, const char *pred) {
     if (!kb || !pred || !*pred) return 0;
     size_t removed = 0, w = 0;
     for (size_t i = 0; i < kb->n; i++) {
-        if (strcmp(kb->facts[i].pred, pred) == 0) { removed++; continue; }
+        if (strcmp(kb->facts[i].pred, pred) == 0) {
+            if (kb->facts[i].origin == KB_DERIVED) kb->n_derived--;
+            removed++; continue;
+        }
         if (w != i) kb->facts[w] = kb->facts[i];
         w++;
     }
     kb->n = w;
     if (removed) {
+        kb_views_changed(kb, pred);
         fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
                                         kb->facts, kb->n);
         pred_stats_invalidate(kb);
@@ -866,7 +914,11 @@ size_t kb_retract_origin(KB *kb, int origin_mask) {
     if (!kb || !origin_mask) return 0;
     size_t removed = 0, w = 0;
     for (size_t i = 0; i < kb->n; i++) {
-        if (kb->facts[i].origin & origin_mask) { removed++; continue; }
+        if (kb->facts[i].origin & origin_mask) {
+            kb_views_changed(kb, kb->facts[i].pred);
+            if (kb->facts[i].origin == KB_DERIVED) kb->n_derived--;
+            removed++; continue;
+        }
         if (w != i) kb->facts[w] = kb->facts[i];
         w++;
     }
@@ -887,7 +939,10 @@ size_t kb_retract_origin(KB *kb, int origin_mask) {
      * scrivere ma non ritirare per intero non e' una provenienza. */
     size_t rw = 0, rremoved = 0;
     for (size_t i = 0; i < kb->nr; i++) {
-        if (kb->rules[i].origin & origin_mask) { rremoved++; continue; }
+        if (kb->rules[i].origin & origin_mask) {
+            kb_views_changed(kb, kb->rules[i].head.pred);
+            rremoved++; continue;
+        }
         if (rw != i) kb->rules[rw] = kb->rules[i];
         rw++;
     }
@@ -904,6 +959,7 @@ int kb_query_origin(const KB *kb, int origin_mask, const char *pred,
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
         if (!(f->origin & origin_mask)) continue;
+        if (!kb_view_fact_visible(kb, f)) continue;
         if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
         size_t a = 0;
         for (; a < argc; a++)
@@ -921,14 +977,18 @@ int kb_assert_neg(KB *kb, const char *pred, const char *const *args,
     if (!fact_make(&f, pred, args, argc)) return 0;
 
     if (fact_remove_origin(kb->facts, &kb->n, &f, kb->origin)) {
+        if (kb->origin == KB_DERIVED) kb->n_derived--;
+        kb_views_changed(kb, pred);
         fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
                                         kb->facts, kb->n);
         pred_stats_invalidate(kb);
     }
     if (kb_find_neg(kb, &f)) return 1; /* already known false */
     f.origin = kb->origin;
-    return fact_append_indexed(&kb->neg, &kb->nn, &kb->ncap,
-                               &kb->neg_index, &kb->neg_index_cap, &f);
+    int added = fact_append_indexed(&kb->neg, &kb->nn, &kb->ncap,
+                                    &kb->neg_index, &kb->neg_index_cap, &f);
+    if (added) kb_views_changed(kb, pred);
+    return added;
 }
 
 int kb_is_negated(const KB *kb, const char *pred, const char *const *args,
@@ -944,7 +1004,7 @@ int kb_is_conflicted(const KB *kb, const char *pred,
     if (!kb || argc > KB_MAX_ARGS) return 0;
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
-    return kb_find(kb, &f) != NULL && kb_find_neg(kb, &f) != NULL;
+    return kb_view_fact_visible(kb, kb_find(kb, &f)) && kb_find_neg(kb, &f) != NULL;
 }
 
 /* ----------------------------------------------------------------------------
@@ -961,6 +1021,7 @@ static int kb_add_rule(KB *kb, const Rule *r) {
     }
     kb->rules[kb->nr++] = *r;
     pred_stats_note_rule(kb, kb->nr - 1);
+    kb_views_changed(kb, r->head.pred);
     return 1;
 }
 
@@ -1320,9 +1381,6 @@ typedef struct {
     unsigned long budget;
     int      budget_hit;
     int      loops_cut;
-    /* gen491: il goal in corso ha una vista materializzata viva? Deciso in cima
-     * a `solve_frame`, letto in fondo per non espandere le regole. */
-    int      view_live;
     uint64_t anc[KB_MAX_DEPTH + 2];
     size_t   nanc;
 } Solver;
@@ -1728,6 +1786,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         for (size_t vi = 0; vi < visits; vi++) {
             size_t i = bound ? PRED_AT(fbk, vi) : vi;
             const Fact *f = &S->kb->facts[i];
+            if (!kb_view_fact_visible(S->kb, f)) continue;
             if (bound && strcmp(f->pred, rp) != 0) continue;
             char list[KB_TERM_LEN];
             if (!args_to_list(f->args, f->argc, list, sizeof list)) continue;
@@ -2119,8 +2178,6 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
      * indici di bucket. Dentro una risoluzione la conoscenza non si tocca. La
      * costruzione sta agli INGRESSI (kb_query / kb_match / kb_match_all), dove
      * nessuna risoluzione e' ancora in corso. */
-    S->view_live = kb_view_live(S->kb, g->pred);
-
     int ground_fact_mode = 0; /* 0 = scan all, 1 = only non-ground, 2 = skip */
     Term grounded_goal;
     resolve_goal(g, s, &grounded_goal);
@@ -2136,7 +2193,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             Fact needle;
             int exact = fact_make(&needle, grounded_goal.pred, exact_args,
                                   grounded_goal.argc) &&
-                        kb_find(S->kb, &needle) != NULL;
+                        kb_view_fact_visible(S->kb, kb_find(S->kb, &needle));
             if (exact) {
                 if (solve(S, goals, ngoals, idx + 1, s, depth)) return 1;
                 /* A continuation may contain assert/retract and then fail.
@@ -2163,6 +2220,8 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                         vi < PRED_VISITS(gbk, S->kb); vi++) {  /* match facts */
         const Fact *f = &S->kb->facts[PRED_AT(gbk, vi)];
         Subst *s2 = &scratch->subst;
+        if (vi == 0 || s2->overflow != s->overflow) subst_copy(s2, s);
+        if (!kb_view_fact_visible(S->kb, f)) continue;
         int nonground = 0;
         if (gbk.nonground)
             for (size_t a = 0; a < f->argc && !nonground; a++)
@@ -2182,7 +2241,6 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
          * che il tentativo fallito aveva aggiunto. Se un giorno una di quelle
          * due funzioni cominciasse a modificare in luogo, questa riga diventa
          * sbagliata: e' la condizione da tenere d'occhio. */
-        if (vi == 0 || s2->overflow != s->overflow) subst_copy(s2, s);
         size_t undo_n = s2->n, undo_ndif = s2->ndif;
         int matched = 0;
         if (!nonground) {
@@ -2210,7 +2268,8 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         s2->ndif = undo_ndif;
     }
 
-    if (S->view_live) return 0;   /* gen491: vista viva -> niente regole */
+    /* A sibling/nested goal must not overwrite this goal's cache decision. */
+    if (kb_view_covers(S->kb, g->pred, g->argc)) return 0;
 
     PredBucket rbk = rule_bucket(S->kb, g->pred);
     int rule_copy_done = 0;
@@ -2404,103 +2463,50 @@ int kb_assert_clause(KB *kb, const KbGoal *head,
  *     una lettura esatta costa O(1) invece di una derivazione;
  *   - l'EARLY MATCH e' il bucket per predicato del censimento, che visita solo
  *     i candidati veri.
- * Nessuna struttura nuova: si riusa quella che il motore ha gia', e le regole
+ * Si riusa l'indice che il motore ha gia', e le regole
  * di quel predicato smettono di essere espanse finche' la vista e' viva.
  *
- * PERCHE' NON E' UNA CACHE CHE PUO' MENTIRE. La scadenza non e' un tempo: e' la
- * REVISIONE della conoscenza (`kb_revision`), che cambia a ogni fatto o regola
- * detta, letta o ritirata. Una relazione insegnata adesso invalida la vista e la
- * fa ricostruire nello stesso turno — nessuno vede meno di prima, e
- * l'insegnamento resta immediato come prima. I fatti derivati non si salvano
- * (origine esclusa dalla maschera di scrittura) e non contano nella revisione,
- * altrimenti il congelamento invaliderebbe se stesso.
+ * gen505 — LA CACHE ERA INVECE CAPACE DI MENTIRE. La firma di gen491 contava
+ * fatti e regole di poche dipendenze dichiarate a mano: una fonte nuova del
+ * medesimo schema non la cambiava, ne' una sostituzione a cardinalita' uguale.
+ * Ora la scadenza segue le MUTAZIONI delle dipendenze transitive ricavate dalle
+ * clausole. Nessuna invalidazione per il traffico del dialogo estraneo al grafo.
+ * I fatti derivati hanno una provenienza propria, distinta dalle induzioni,
+ * e si contano solo quando sono davvero inseriti, non sui successi idempotenti.
  *
  * QUALI processi valga la pena congelare e' CONOSCENZA, non una lista nel C:
  * `materialized_view/2` in KB. Un predicato nuovo che diventa caro e' una riga.
  * Il motore possiede solo il meccanismo. */
 
-/* Quante viste sono dichiarate, e con che arita'. Letto dalla KB, mai cablato. */
-static void kb_views_load(KB *kb) {
-    kb->nviews = 0;
-    for (size_t i = 0; i < kb->n && kb->nviews < 16; i++) {
-        const Fact *f = &kb->facts[i];
-        if (f->argc != 2 || strcmp(f->pred, "materialized_view") != 0) continue;
-        long ar = strtol(f->args[1], NULL, 10);
-        if (ar < 1 || ar > (long)KB_MAX_ARGS) continue;
-        size_t k = kb->nviews++;
-        snprintf(kb->views[k].pred, sizeof kb->views[k].pred, "%s", f->args[0]);
-        kb->views[k].argc = (size_t)ar;
-        kb->views[k].sig = 0;
-        kb->views[k].ndeps = 0;
-        kb->views[k].added = 0;
-        kb->views[k].seen_n = 0;
-        kb->views[k].seen_nr = 0;
-        kb->views[k].live = 0;
-        kb->views[k].building = 0;
-    }
-}
-
-/* gen491 — LA CHIAVE DELLA CACHE E' LA CONOSCENZA DA CUI LA VISTA DIPENDE.
- *
- * La prima versione usava `kb_revision`, che conta OGNI fatto: ma un turno
- * asserisce le proprie tracce (span, lingua, contabilita'), quindi la revisione
- * cambiava piu' volte per turno e la vista si ricostruiva ogni volta —
- * misurato, il turno passava da 1075 a 1725 ms. Una cache invalidata da cio' che
- * non la riguarda e' peggio di nessuna cache.
- *
- * La firma e' invece un hash dei soli predicati da cui la vista DIPENDE,
- * dichiarati in KB con `view_depends/2`: quanti fatti non derivati ha ciascuno,
- * piu' quante regole hanno quella testa. Cambia quando cambia la conoscenza che
- * genera la vista — insegnare un verbo la invalida nello stesso turno — e non
- * cambia per il traffico ordinario del dialogo. */
-static uint64_t kb_view_signature(KB *kb, const char *pred, size_t slot) {
-    uint64_t sig = 1469598103934665603ULL;
-    /* Le dipendenze si leggono UNA volta e si tengono: rileggerle a ogni
-     * ingresso passava dal solver, che e' esattamente il costo da evitare. */
-    if (!kb->views[slot].ndeps) {
-        char deps[8][KB_TERM_LEN];
-        const char *dq[2] = { pred, NULL };
-        size_t nd = kb_match(kb, "view_depends", dq, 2, deps, 8);
-        for (size_t i = 0; i < nd; i++)
-            snprintf(kb->views[slot].deps[i], KB_TERM_LEN, "%s", deps[i]);
-        kb->views[slot].ndeps = nd ? nd : (size_t)-1;   /* -1 = nessuna, non ritentare */
-    }
-    size_t nd = kb->views[slot].ndeps == (size_t)-1 ? 0 : kb->views[slot].ndeps;
-    for (size_t i = 0; i < nd; i++) {
-        /* ⚠ il CENSIMENTO risponde in O(1); contare a mano scandiva 37k fatti a
-         * ogni ingresso di kb_match, cioe' 730 ms fuori dal solver — la cache
-         * costava piu' della derivazione che evitava. */
-        int live_census = 0;
-        const PredStat *ps = pred_stats_get(kb, kb->views[slot].deps[i], &live_census);
-        size_t nf = (live_census && ps) ? ps->nfacts : 0;
-        size_t nr = (live_census && ps) ? ps->nrules : 0;
-        /* ⚠ I FATTI CONGELATI NON CONTANO — DI NESSUNA VISTA, NON SOLO DI QUESTA.
-         * Sottraevo solo `added` della vista corrente, e bastava perche' le
-         * viste fossero una sola. Con due (`extract_frame` dipende da
-         * `verb_stem`, che e' anch'essa materializzata) la firma della prima
-         * cambiava quando la seconda si congelava: al turno dopo il boot la
-         * vista risultava scaduta e si ricostruiva DENTRO il turno — 890 ms, e
-         * `health.p0t` sforava il budget di un secondo sei volte su dieci,
-         * cioe' la suite non partiva nemmeno. Una firma deve dipendere dalla
-         * conoscenza, e un fatto derivato non e' conoscenza: e' la sua cache. */
-        for (size_t v = 0; v < kb->nviews; v++)
-            if (strcmp(kb->views[v].pred, kb->views[slot].deps[i]) == 0) {
-                nf -= kb->views[v].added;
-                break;
-            }
-        sig = (sig ^ (nf + nr * 1000003u)) * 1099511628211ULL;
-    }
-    return (sig ^ nd) * 1099511628211ULL;
-}
-
-static size_t kb_view_slot(KB *kb, const char *pred) {
+/* Views and their dependency sets grow with the KB, without fixed ceilings. */
+static size_t kb_view_slot(const KB *kb, const char *pred) {
     for (size_t i = 0; i < kb->nviews; i++)
         if (strcmp(kb->views[i].pred, pred) == 0) return i;
     return (size_t)-1;
 }
 
-/* Toglie i fatti congelati di UN predicato: la vista scade, non tutta la cache. */
+static int kb_view_live(const KB *kb, const char *pred) {
+    if (!kb || !pred) return 0;
+    size_t k = kb_view_slot(kb, pred);
+    return k != (size_t)-1 && kb->views[k].live;
+}
+
+static int kb_view_covers(const KB *kb, const char *pred, size_t argc) {
+    size_t k = kb_view_slot(kb, pred);
+    return k != (size_t)-1 && kb->views[k].live && kb->views[k].argc == argc;
+}
+
+/* Stale rows may still exist during a recursive solve. Hide them immediately;
+ * physical removal waits for a safe public entry, outside both solvers. */
+static int kb_view_fact_visible(const KB *kb, const Fact *f) {
+    if (!f || f->origin != KB_DERIVED) return f != NULL;
+    size_t k = kb_view_slot(kb, f->pred);
+    return k != (size_t)-1 &&
+           (kb->views[k].live || kb->views[k].building) && !kb->views[k].dirty;
+}
+
 static void kb_view_clear(KB *kb, const char *pred) {
+    if (!kb->n_derived) return;
     size_t w = 0, removed = 0;
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
@@ -2518,111 +2524,164 @@ static void kb_view_clear(KB *kb, const char *pred) {
     pred_stats_invalidate(kb);
 }
 
-/* Controllo puro: esiste una vista VIVA e aggiornata per questo predicato? Non
- * costruisce niente, quindi si puo' chiamare da dentro il solver. */
-static int kb_view_live(const KB *kb, const char *pred) {
-    if (!kb || !pred || !*pred) return 0;
-    for (size_t i = 0; i < kb->nviews; i++)
-        if (kb->views[i].live && strcmp(kb->views[i].pred, pred) == 0)
-            return 1;   /* la freschezza la decide l'INGRESSO, non il solver */
-    return 0;
+static void kb_views_load(KB *kb) {
+    for (size_t i = 0; i < kb->nviews; i++) {
+        kb_view_clear(kb, kb->views[i].pred);
+        free(kb->views[i].deps);
+    }
+    kb->nviews = 0;
+    kb->views_loaded = 1;
+    kb->views_reload = 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc != 2 || strcmp(f->pred, "materialized_view") != 0) continue;
+        char *end;
+        long ar = strtol(f->args[1], &end, 10);
+        if (*end || ar < 1 || ar > 2 || is_var(f->args[0])) continue;
+        if (kb_view_slot(kb, f->args[0]) != (size_t)-1) continue;
+        if (kb->nviews == kb->view_cap) {
+            if (kb->view_cap > (size_t)-1 / 2 / sizeof *kb->views) {
+                kb->views_reload = 1; break;
+            }
+            size_t cap = kb->view_cap ? kb->view_cap * 2 : 4;
+            KbView *grown = realloc(kb->views, cap * sizeof *grown);
+            if (!grown) { kb->views_reload = 1; break; }
+            kb->views = grown;
+            kb->view_cap = cap;
+        }
+        KbView *v = &kb->views[kb->nviews++];
+        memset(v, 0, sizeof *v);
+        snprintf(v->pred, sizeof v->pred, "%s", f->args[0]);
+        v->argc = (size_t)ar;
+        v->broad = 1;             /* no dependency graph compiled yet */
+    }
 }
 
-int kb_view_ensure(KB *kb, const char *pred) {
-    if (!kb || !pred || !*pred) return 0;
-    if (kb->nviews == 0) kb_views_load(kb);
-    size_t k = kb_view_slot(kb, pred);
-    if (k == (size_t)-1) return 0;
-    if (kb->views[k].building) return 0;    /* si sta costruendo: usa le regole */
-    /* ⚠ §L — LA GUARDIA PRIMA DELLA GUARDIA. Questo si chiama a OGNI ingresso di
-     * kb_query/kb_match, cioe' ~1800 volte per turno; ricalcolare la firma ogni
-     * volta metteva 78 ms fuori dal solver, che e' lo stesso errore che la firma
-     * doveva evitare, un piano piu' su. Ma la firma non puo' cambiare se non e'
-     * cambiato NIENTE nella KB: il conteggio di fatti e regole e' gia' in mano, e
-     * confrontarlo costa due interi. Solo quando si muove qualcosa si paga il
-     * calcolo vero. */
-    if (kb->views[k].live &&
-        kb->views[k].seen_n == kb->n && kb->views[k].seen_nr == kb->nr)
-        return 1;
-    uint64_t sig = kb_view_signature(kb, pred, k);
-    kb->views[k].seen_n = kb->n;
-    kb->views[k].seen_nr = kb->nr;
-    if (kb->views[k].live && kb->views[k].sig == sig) return 1;
-
-    kb_view_clear(kb, pred);
-    kb->views[k].added = 0;
-    kb->views[k].live = 0;
-    kb->views[k].building = 1;
-
-    /* Si enumera l'ULTIMO argomento per primo — e' quello con meno valori
-     * distinti negli schemi reali — e per ciascuno si chiedono i restanti. Due
-     * livelli bastano per le arita' 1 e 2, che sono quelle che costano; per le
-     * arita' maggiori la vista non si dichiara e il motore resta com'era. */
-    /* ⛔ NIENTE TETTI FISSI QUI, ED E' LA TERZA VOLTA CHE IL PROGETTO LO IMPARA.
-     *
-     * La prima versione enumerava dentro `char rows[256][...]`: `extract_frame`
-     * ne aveva di piu', la vista ne congelava 256 e dichiarava di averli tutti.
-     * Da li' `literal_forms.p0t` (49/0 -> 38/11): gli schemi caduti fuori erano
-     * proprio quelli generati per ultimi, e «the notation of percent is perc»
-     * smetteva di essere una frase comprensibile. E' esattamente la classe che
-     * `C_TODO.md` nomina dal gen459 — «il troncamento silenzioso non e' un
-     * limite di memoria: e' un limite a quanto parrot0 puo' imparare prima di
-     * cominciare a dimenticare senza dirlo» — commessa dentro l'ottimizzazione
-     * che doveva permettergli di imparare di piu'.
-     *
-     * `kb_match_all` cresce da solo, quindi non c'e' un tetto. E se un giorno
-     * la memoria mancasse, la vista NON si dichiara viva: si torna a derivare,
-     * lentamente e per intero. Una cache che non puo' contenere tutto non deve
-     * fingere — meglio lenta che muta. */
-    size_t argc = kb->views[k].argc;
-    size_t added = 0;
-    int complete = 1;
-    if (argc == 1) {
-        char (*rows)[KB_TERM_LEN] = NULL; size_t n = 0;
-        if (!kb_match_all(kb, pred, (const char *[]){ NULL }, 1, &rows, &n))
-            complete = 0;
-        for (size_t i = 0; i < n; i++) {
-            const char *a[1] = { rows[i] };
-            int o = kb->origin; kb->origin = KB_DERIVED;
-            if (kb_assert(kb, pred, a, 1)) added++;
-            kb->origin = o;
-        }
-        free(rows);
-    } else if (argc == 2) {
-        char (*firsts)[KB_TERM_LEN] = NULL; size_t n1 = 0;
-        if (!kb_match_all(kb, pred, (const char *[]){ NULL, NULL }, 2, &firsts, &n1))
-            complete = 0;
-        for (size_t i = 0; i < n1; i++) {
-            char (*seconds)[KB_TERM_LEN] = NULL; size_t n2 = 0;
-            const char *qi[2] = { firsts[i], NULL };
-            if (!kb_match_all(kb, pred, qi, 2, &seconds, &n2)) { complete = 0; free(seconds); continue; }
-            for (size_t j = 0; j < n2; j++) {
-                const char *a[2] = { firsts[i], seconds[j] };
-                int o = kb->origin; kb->origin = KB_DERIVED;
-                if (kb_assert(kb, pred, a, 2)) added++;
-                kb->origin = o;
-            }
-            free(seconds);
-        }
-        free(firsts);
-    } else complete = 0;      /* arita' non coperta: si deriva come prima */
-    kb->views[k].building = 0;
-    if (!complete) {          /* incompleta = inesistente: mai una vista parziale */
-        kb_view_clear(kb, pred);
-        kb->views[k].added = 0;
-        kb->views[k].live = 0;
-        kb->views[k].seen_n = 0; kb->views[k].seen_nr = 0;
-        return 0;
+static int kb_view_dep_add(KbView *v, const char *pred) {
+    for (size_t i = 0; i < v->ndeps; i++)
+        if (strcmp(v->deps[i], pred) == 0) return 1;
+    if (v->ndeps == v->dep_cap) {
+        if (v->dep_cap > (size_t)-1 / 2 / sizeof *v->deps) return 0;
+        size_t cap = v->dep_cap ? v->dep_cap * 2 : 8;
+        char (*grown)[KB_TERM_LEN] = realloc(v->deps, cap * sizeof *grown);
+        if (!grown) return 0;
+        v->deps = grown;
+        v->dep_cap = cap;
     }
-    kb->n_derived += added;
-    kb->views[k].added = added;
-    kb->views[k].sig = kb_view_signature(kb, pred, k);
-    kb->views[k].live = 1;
+    snprintf(v->deps[v->ndeps++], KB_TERM_LEN, "%s", pred);
     return 1;
 }
 
+/* The graph comes from clause STRUCTURE, not a manually maintained vocabulary.
+ * Include empty predicates, negative goals and transitive bodies: tomorrow a
+ * new fact or rule can make any of them productive. view_depends remains an
+ * optional additional edge, never the sole authority.
+ *
+ * Meta-calls/reflection and side effects need a dynamic dependency contract.
+ * Until that exists, decline materialization and use ordinary inference.
+ * These are engine opcodes, not linguistic recognizers. */
+static int kb_view_dependencies(KB *kb, KbView *v) {
+    v->ndeps = 0;
+    v->broad = 1;                 /* OOM/unsupported => conservative fallback */
+    if (!kb_view_dep_add(v, v->pred) ||
+        !kb_view_dep_add(v, "view_depends")) return 0;
+    for (size_t i = 0; i < v->ndeps; i++) {
+        char pred[KB_TERM_LEN];
+        snprintf(pred, sizeof pred, "%s", v->deps[i]);
+        if (!strcmp(pred, "call") || !strcmp(pred, "apply") ||
+            !strcmp(pred, "kb_fact") || !strcmp(pred, "kb_rule") ||
+            !strcmp(pred, "findall") || !strcmp(pred, "findall_bag") ||
+            !strcmp(pred, "assert") || !strcmp(pred, "retract") ||
+            !strcmp(pred, "prob")) return 0;
+        PredBucket rb = rule_bucket(kb, pred);
+        for (size_t j = 0; j < PRED_VISITS(rb, kb); j++) {
+            const Rule *r = &kb->rules[PRED_AT(rb, j)];
+            if (strcmp(r->head.pred, pred) != 0) continue;
+            for (size_t b = 0; b < r->nbody; b++)
+                if (!kb_view_dep_add(v, r->body[b].pred)) return 0;
+        }
+        const char *q[2] = { pred, NULL };
+        char (*deps)[KB_TERM_LEN] = NULL; size_t nd = 0;
+        if (!kb_match_all(kb, "view_depends", q, 2, &deps, &nd)) return 0;
+        for (size_t j = 0; j < nd; j++) {
+            if (term_contains_var(deps[j], 0) || !kb_view_dep_add(v, deps[j])) {
+                free(deps); return 0;
+            }
+        }
+        free(deps);
+    }
+    v->broad = 0;
+    return 1;
+}
+
+static size_t proof_depth;
+
+int kb_view_ensure(KB *kb, const char *pred) {
+    if (!kb || !pred || !*pred) return 0;
+    if (frame_depth || proof_depth || kb->views_preparing)
+        return kb_view_live(kb, pred);
+    kb->views_preparing = 1;
+    if (!kb->views_loaded || kb->views_reload) kb_views_load(kb);
+    if (kb->views_pending) {
+        /* Clear ALL invalid views before deriving any: a wrapper can reach a
+         * stale sibling without ever calling its public kb_match entry. */
+        for (size_t i = 0; i < kb->nviews; i++)
+            if (kb->views[i].dirty && !kb->views[i].building) {
+                kb_view_clear(kb, kb->views[i].pred);
+                kb->views[i].dirty = 0;
+            }
+        kb->views_pending = 0;
+    }
+    size_t k = kb_view_slot(kb, pred);
+    if (k == (size_t)-1) { kb->views_preparing = 0; return 0; }
+    KbView *v = &kb->views[k];
+    if (v->live || v->building || v->attempted) {
+        kb->views_preparing = 0;
+        return v->live;
+    }
+    v->attempted = 1;
+    if (!kb_view_dependencies(kb, v)) {
+        kb->views_preparing = 0;
+        return 0;
+    }
+    v->building = 1;
+    int complete = 1;
+    char (*firsts)[KB_TERM_LEN] = NULL; size_t n1 = 0;
+    const char *q[2] = { NULL, NULL };
+    if (!kb_match_all(kb, pred, q, v->argc, &firsts, &n1)) complete = 0;
+    for (size_t i = 0; i < n1 && complete; i++) {
+        if (term_contains_var(firsts[i], 0)) { complete = 0; break; }
+        if (v->argc == 1) {
+            const char *a[1] = { firsts[i] };
+            int origin = kb->origin; kb->origin = KB_DERIVED;
+            complete = kb_assert(kb, pred, a, 1);
+            kb->origin = origin;
+        } else {
+            char (*seconds)[KB_TERM_LEN] = NULL; size_t n2 = 0;
+            const char *qi[2] = { firsts[i], NULL };
+            if (!kb_match_all(kb, pred, qi, 2, &seconds, &n2)) complete = 0;
+            for (size_t j = 0; j < n2 && complete; j++) {
+                if (term_contains_var(seconds[j], 0)) { complete = 0; break; }
+                const char *a[2] = { firsts[i], seconds[j] };
+                int origin = kb->origin; kb->origin = KB_DERIVED;
+                complete = kb_assert(kb, pred, a, 2);
+                kb->origin = origin;
+            }
+            free(seconds);
+        }
+    }
+    free(firsts);
+    v->building = 0;
+    if (!complete || v->dirty) {
+        kb_view_clear(kb, pred);
+        v->live = 0;
+    } else v->live = 1;
+    kb->views_preparing = 0;
+    return v->live;
+}
+
 void kb_views_warm(KB *kb) {
-    if (!kb) return;
+    if (!kb || frame_depth || proof_depth || kb->views_preparing) return;
     kb_views_load(kb);
     for (size_t i = 0; i < kb->nviews; i++)
         kb_view_ensure(kb, kb->views[i].pred);
@@ -2653,6 +2712,7 @@ int kb_retract_clause(KB *kb, const KbGoal *head,
                 if (strcmp(R->body[bi].args[a], body[bi].args[a]) != 0) same = 0;
         }
         if (!same) continue;
+        kb_views_changed(kb, R->head.pred);
         for (size_t k = ri + 1; k < kb->nr; k++) kb->rules[k - 1] = kb->rules[k];
         kb->nr--;
         pred_stats_invalidate(kb);
@@ -2792,6 +2852,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
      * qui nessuna risoluzione e' in corso, quindi asserire non invalida i
      * puntatori di nessuno. Costa una volta per revisione della conoscenza. */
     kb_view_ensure((KB *)kb, pred);
+    if (kb) kb->infer_budget_hit = 0;
     /* gen422b: la firma si raccoglie QUI e in kb_match, non solo alla fine di
      * una ricerca del solver. La prima stesura annotava solo `kb_note_inference`
      * — cioe' le sole risoluzioni con regole — e la firma veniva identica per
@@ -2854,7 +2915,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
              * il classificatore della parola sola lo interroga a ogni turno —
              * cioe' misurava il proprio percorso invece della conoscenza. */
             if (hit && kb->audit_on) hit->used = 1;
-            return hit != NULL;
+            return kb_view_fact_visible(kb, hit);
         }
     }
 
@@ -2879,6 +2940,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
         PredBucket bk = pred_bucket(kb, pred);
         for (size_t vi = 0; vi < PRED_VISITS(bk, kb); vi++) {
             const Fact *f = &kb->facts[PRED_AT(bk, vi)];
+            if (!kb_view_fact_visible(kb, f)) continue;
             if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
             work->n = 0; work->ndif = 0;
             int same = 1;
@@ -2916,6 +2978,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
      * qui nessuna risoluzione e' in corso, quindi asserire non invalida i
      * puntatori di nessuno. Costa una volta per revisione della conoscenza. */
     kb_view_ensure((KB *)kb, pred);
+    if (kb) ((KB *)kb)->infer_budget_hit = 0;
     if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args) ||
         (max && !out)) return 0;
     /* vedi kb_query: la firma e' scritta anche da qui. `kb` e' const per
@@ -2967,6 +3030,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
         for (size_t vi = 0; vi < PRED_VISITS(bk, kb); vi++) {
             size_t i = PRED_AT(bk, vi);
             const Fact *f = &kb->facts[i];
+            if (!kb_view_fact_visible(kb, f)) continue;
             if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
             work->n = 0; work->ndif = 0;
             int match = 1;
@@ -3133,9 +3197,12 @@ static int prove_seq_ex(KB *kb, const Term *goals, size_t n, size_t idx,
                         char out[][KB_PROOF_LEN]) {
     if (idx == n) return 1;
     if (idx >= KB_PROOF_PG) return 0;
+    if (!proof_depth) kb_view_ensure(kb, goals[idx].pred);
     ProofFrame *scratch = malloc(sizeof *scratch);
     if (!scratch) return 0;
+    proof_depth++;
     int result = prove_seq_frame(kb, goals, n, idx, s, depth, frame, out, scratch);
+    proof_depth--;
     free(scratch);
     return result;
 }
@@ -3235,6 +3302,7 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
 
     PredBucket pbk = pred_bucket(kb, g->pred);
     for (size_t vi = 0; vi < PRED_VISITS(pbk, kb); vi++) {  /* close by a fact */
+        if (!kb_view_fact_visible(kb, &kb->facts[PRED_AT(pbk, vi)])) continue;
         Subst *s2 = &scratch->subst;
         subst_copy(s2, s);
         if (unify_term_fact(s2, g, &kb->facts[PRED_AT(pbk, vi)])) {
@@ -4247,6 +4315,10 @@ int kb_match_all(const KB *kb, const char *pred,
         }
         rows = grown;
         size_t n = kb_match(kb, pred, args, argc, rows, cap);
+        if (kb && kb->infer_budget_hit) {
+            free(rows);
+            return 0;       /* exhausted inference is not a complete small set */
+        }
         if (n < cap) {
             *out = rows;
             *nout = n;

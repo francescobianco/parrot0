@@ -27,54 +27,35 @@ ora alla prova, ma una tesi negata continua a rispondere «I can't show that.»:
 la spiegazione del no e' raggiungibile dall'altro percorso, non da questo.
 La traccia sotto resta come storia della diagnosi, non come blocco ancora ignoto.
 
-## ⛔ gen505d — UNA REGOLA IN CODA A `extract_frame` NON VEDE I FATTI DI RUNTIME
+## 2026-09-05 — CHIUSO: `extract_frame` non vedeva le lezioni a runtime
 
-Difetto di motore, **isolato ma non spiegato**. Blocca una capacita' concreta:
-insegnare parlando una RELAZIONE nuova (`the warp of denim is cotton`), che oggi
-si puo' solo scrivere a mano in `grammar.p0`.
+La diagnosi gen505d era corretta sul sintomo, non sulle piste residue:
+**vista materializzata stantia**, non bucket, arieta' o budget dei 360 fatti.
+Una firma basata sui conteggi di pochi `view_depends` manuali ignorava le
+premesse di nuove regole. Stesso corpo sotto un predicato non materializzato:
+la lezione era subito visibile.
 
-### Il repro minimo, tutto nello stesso processo
+Il motore ora ricava il grafo transitivo dai corpi delle clausole e invalida
+sulle mutazioni pertinenti, anche con conteggi invariati. Fonti ancora vuote,
+negazioni e nuove regole fanno parte del contratto. Le righe scadute non vengono
+usate dalle risoluzioni annidate; pulizia e ricostruzione restano fuori dal
+solver. La decisione di saltare le regole riguarda il goal e la sua arieta',
+non uno stato condiviso che un goal figlio puo' sovrascrivere.
 
-Tre clausole con lo **stesso identico corpo**, e il fatto `relation(zzz)`
-asserito a runtime:
+Riparati nello stesso meccanismo: dipendenze/registro a crescita dinamica,
+conteggio dei soli fatti realmente materializzati, promozione di una riga cache
+insegnata esplicitamente, provenienza `KB_DERIVED` distinta da `KB_INDUCED`,
+rifiuto delle enumerazioni incomplete. Dipendenze dinamiche non analizzabili:
+inferenza ordinaria, non cache che presume di conoscere tutte le fonti.
 
-```prolog
-probe_pat($Pat)         :- relation($N), concat_atoms("the ", $N, $A),
-                           concat_atoms($A, " of @S is @O", $Pat).
-probe_two($Pat, $Pred)  :- relation($N), concat_atoms($N, "_of", $Pred),
-                           concat_atoms("the ", $N, $A), concat_atoms($A, " of @S is @O", $Pat).
-extract_frame($Pat, $Pred) :- <corpo identico a probe_two>
-```
+Build, riproduzione MCP, sonde in-process sul boot AGI completo e conversazioni.
+Nessuna suite del progetto e nessuna lezione diagnostica persistita.
+[Evidenze e limiti](docs/labs/apprendimento-assistito/2026-09-05-cache-e-comprensione.md).
 
-| goal | esito |
-|---|---|
-| `probe_pat(?)` | ✅ rende `"the zzz of @S is @O"` |
-| `probe_two(?, zzz_of)` | ✅ rende il pattern |
-| `extract_frame(?, zzz_of)` | ❌ **niente** |
-
-E nello stesso processo, con la stessa clausola, un `relation(warpseed)` scritto
-**nel file** invece che asserito a runtime rende il pattern: quindi non e' la
-regola, non e' il corpo, non e' l'arieta' della testa. **E' `extract_frame`.**
-
-### Che cosa e' gia' escluso (per non rifarlo)
-
-- **l'ordine delle clausole**: provata anche in TESTA alle 360, stesso esito;
-- **la regola morta**: aggiunto un produttore di `relation/1` nel file, nessun
-  cambiamento;
-- **il censimento (`pred_stats`)**: `kb_assert` lo aggiorna in modo incrementale
-  (`pred_stats_note`), e infatti `probe_pat`/`probe_two` vedono il fatto nuovo;
-- **il numero di variabili** e la lunghezza del corpo: identici fra probe_two e
-  la clausola che fallisce.
-
-### Il sospetto residuo, da verificare col debugger
-
-`extract_frame` ha **360 fatti ground + 12 regole** (`/debug extract_frame`), ed
-e' l'unico predicato in gioco con quelle dimensioni. Qualcosa nella risoluzione
-— budget, tetto dei goal, o il modo in cui il bucket dei fatti e quello delle
-regole si combinano — impedisce alle regole di contribuire **quando il binding
-viene da un fatto asserito dopo il boot**. Nota che `/debug` dice «binding resi
-360», cioe' esattamente il numero dei fatti: le dodici regole non contribuiscono
-nemmeno all'enumerazione libera.
+**Debito che resta, distinto dal difetto chiuso:** porta naturale per
+`relation_noun`, domanda sulla medesima relazione, offerta didattica corretta.
+L'agenda operativa e' ora in testa a `LEARN_TODO.md`. Non aggiungere nel C un
+caso per il nome scelto dal docente, ne' una lista manuale di dipendenze.
 
 ## ⭐ gen505b — IL CONTEGGIO DI PAROLE FISSO, censito
 
