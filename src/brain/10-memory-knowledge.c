@@ -2456,13 +2456,35 @@ static size_t auto_induce(Brain *b, char *out, size_t out_size) {
     return kept;
 }
 
+static void present_atom(Brain *b, const char *in, char *out, size_t n);  /* fwd (gen505) */
+
 /* Admit ignorance about a predicate we've never heard of (gen16 scaffold;
  * see DESIGN.md D6 — to become emergent meta-knowledge). */
 static void idk(Brain *b, const char *pred, char *out, size_t out_size) {
     char msg[160];
-    {   const KbResponseSlot _rs[] = { { "pred", pred } };
+    /* gen505 — IL MURO NON PARLA LA LINGUA DELL'INDICE.
+     *
+     * «I don't know about iron_oxide_mineral.» dava all'interlocutore la chiave
+     * interna, unita da underscore dal motore stesso: la stessa svista che il
+     * gen504 aveva corretto per `no_support_either_way` e che qui era rimasta,
+     * cioe' proprio sul muro che si incontra PIU' spesso mentre si insegna una
+     * classe nuova. La resa passa da `present_atom`, che consulta
+     * `present_rule(strip_underscore)` e `proper_name/1` in KB: la decisione
+     * resta conoscenza, qui c'e' solo la chiamata. */
+    char shown[KB_TERM_LEN];
+    present_atom(b, pred, shown, sizeof shown);
+    {   const KbResponseSlot _rs[] = { { "pred", shown } };
       kb_term_say(b, "i_don_t_know_about_x", _rs, 1, msg, sizeof msg); }
     put(msg, out, out_size);
+}
+
+/* gen505 — vedi il commento ai due siti polari: una classe nominata da un
+ * vincolo e' gia' una classe di cui si puo' parlare. */
+static int p0_class_nameable(Brain *b, const char *cls) {
+    if (!b || !b->kb || !cls) return 0;
+    if (kb_knows_pred(b->kb, cls)) return 1;
+    const char *q[] = { cls };
+    return kb_query(b->kb, "class_constrained", q, 1);
 }
 
 /* Answer a "why ...?" by rendering the proof, or admit there is none. */
@@ -16265,12 +16287,22 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen505 — «SO QUALCOSA DI QUESTA CLASSE» NON E' «HO FATTI IN QUESTA CLASSE».
+     *
+     * Trovato addestrando: insegnata «no A is a B», la domanda su B — classe
+     * ancora senza membri — cadeva sul muro del predicato sconosciuto subito
+     * dopo che una lezione l'aveva nominata. Quale fatto faccia esistere una
+     * classe e' conoscenza, non una proprieta' dell'indice: `class_constrained/1`
+     * (epistemic-status.p0) e' una vista, e una specie nuova di vincolo domani
+     * la allarga senza toccare il C. */
+    /* (definita qui sopra i due siti polari che la usano) */
+
     /* ground query: "is <x> a <y>?" -> y(x)? */
     if (lex_class_member(b, "10_memory_knowledge_lex12658", w[0])) {
         const char *subj;
         if (!resolve_entity(b, w[1], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
-        if (!kb_knows_pred(b->kb, cls)) idk(b, cls, out, out_size);
+        if (!p0_class_nameable(b, cls)) idk(b, cls, out, out_size);
         else if (kb_is_conflicted(b->kb, cls, args, 1)) {
             kb_term_say(b, "conflicted", NULL, 0, out, out_size);
             char ex[512];
@@ -16290,7 +16322,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *subj;
         if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
-        if (!kb_knows_pred(b->kb, cls)) idk(b, cls, out, out_size);
+        if (!p0_class_nameable(b, cls)) idk(b, cls, out, out_size);
         else if (kb_is_conflicted(b->kb, cls, args, 1))
             kb_term_say(b, "conflicted", NULL, 0, out, out_size);
         else polar_class_answer(b, subj, cls, out, out_size);

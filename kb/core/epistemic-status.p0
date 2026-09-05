@@ -70,6 +70,19 @@ class_defined_by_rule($Class) :- kb_rule($Class, $Head).
 class_has_observed_member($Class) :- kb_fact($Class, $Args).
 closed_world_answer($Class, $Subject) :- class_defined_by_rule($Class), naf(class_has_observed_member($Class)).
 
+% ── 1-bis. UNA CLASSE NOMINATA DA UN VINCOLO E' UNA CLASSE DI CUI SI SA ────
+% Trovato al gen505 addestrando (LEARN_TODO §2-bis): insegnata l'esclusione fra
+% due classi, la domanda su una classe ancora senza membri finiva sul muro del
+% predicato sconosciuto — «non so nulla di X» — subito DOPO aver detto qualcosa
+% su X. `kb_knows_pred` (src/kb.c) guarda fatti, negativi e teste di regola: non
+% i predicati che compaiono come ARGOMENTO di un fatto.
+%
+% La dottrina giusta esiste gia': `world_fact_about/1` (gap-kinds.p0) considera
+% entrambe le posizioni. Qui vale per le classi, e resta una VISTA: una specie
+% nuova di vincolo domani e' una clausola in piu' e vale subito, senza
+% ricompilare. Il motore chiede «posso parlare di questa classe?», non decide.
+class_constrained($Class) :- class_excludes($Class, $Other).
+
 % ── 2. ESCLUSIONE FRA CLASSI ──────────────────────────────────────────────
 % class_excludes(A, B): niente puo' essere insieme A e B. La relazione e'
 % simmetrica nel mondo, quindi la simmetria e' una regola e non un obbligo di

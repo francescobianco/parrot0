@@ -175,3 +175,46 @@
 # Il positivo gia' noto resta vero: un vincolo non cancella cio' che sostiene.
 > is ${H} a ${F} mineral?
 < Yes.
+
+
+# ── UNA CLASSE NOMINATA DA UN VINCOLO SI PUO' NOMINARE (gen505) ──────────────
+#
+# Il vincolo vale anche quando l'ALTRA classe non ha ancora nessun membro: e'
+# proprio il caso in cui serve di piu' — si sa cosa una cosa NON e' prima di
+# aver incontrato un solo esemplare di quella categoria. Prima del gen505 la
+# domanda cadeva sul muro del predicato sconosciuto subito dopo che la lezione
+# l'aveva nominata (`kb_knows_pred` non guarda i predicati in posizione di
+# ARGOMENTO); ora il motore chiede `class_constrained/1`, che e' una vista KB.
+
+!random M 6
+!random W 6
+!random N 6
+!random O 6
+
+[test constrained_class_is_nameable]
+!timeout 6
+!reset
+
+> ${O} is a ${M} mineral
+<~ Learned
+
+# La classe ${N} non esiste ancora: il muro e' corretto, e NON dice «no».
+> is ${O} a ${N} mineral?
+<~ know about
+
+> no ${M} mineral is a ${N} mineral
+<~ nothing is both
+
+# Ora la classe e' nominabile e il no e' guadagnato, senza che ${N} abbia un
+# solo membro.
+> is ${O} a ${N} mineral?
+< No.
+
+# Una classe mai nominata resta un muro: il vincolo non allarga il mondo.
+> is ${O} a ${W} mineral?
+<~ know about
+
+# E il muro parla la lingua del dialogo, non quella dell'indice: la chiave
+# interna e' unita da underscore dal motore stesso (gen505, present_atom).
+> is ${O} a ${W} mineral?
+<! _mineral
