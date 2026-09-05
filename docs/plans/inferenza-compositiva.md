@@ -480,6 +480,49 @@ compete). Gli strati devono **gareggiare su evidenza dichiarata**
 vincitore unico, prova ispezionabile. Un insieme aperto senza arbitrato non è
 ricchezza, è la stessa politica-per-ordine-degli-`if` spostata dal C alla KB.
 
+### 5ter. Una condizione mai alternata è capienza, non decorazione
+
+> Seconda correzione di F., 2026-09-05: *«anche la condizionalità ha un effetto
+> potenziale. Una condizione identificata storicamente ma mai alternata è un
+> fatto del mondo che prima o poi servirà: è meglio averlo che non averlo, e
+> segna elasticità mentale»*.
+
+Regge, e per tre ragioni distinte — la terza è la più forte.
+
+**1. La prova è nel gen504.** Lo stato «nessun sostegno in nessun verso» esisteva
+logicamente da sempre e non era mai stato *distinto*: finché una classe non
+esisteva, la risposta era «non so»; appena esisteva **un** membro positivo, ogni
+altro diventava «No.». La condizione non si era mai alternata — fino al giorno in
+cui F. ha insegnato i minerali di ferro **un membro alla volta**, che è il modo
+KB-first di crescere. Allora si è alternata, e l'assenza della distinzione non
+era neutra: **produceva una falsità** (`kb/core/epistemic-status.p0`, intestazione).
+Il costo di non averla tracciata prima è stato una bugia; il costo di averla
+tracciata prima sarebbe stato zero.
+
+**2. Nominare la condizione cambia l'asserzione anche se non si alterna mai.**
+Uno strato con tesi `C` dice «affermo questo *perché* `C`». Uno strato
+incondizionato dice «affermo questo». Le due frasi possono coincidere per anni e
+non sono la stessa cosa: la prima è vera **e sa perché**, la seconda è vera **per
+caso**. È esattamente la distinzione che `undetermined_cycle` esiste per fare —
+e vale per uno stato che nel traffico normale non si presenta quasi mai.
+
+**3. Elasticità = capacità non ancora consumata.** Un sistema in cui ogni
+condizione è sempre vera è un sistema che ha aderito esattamente alla propria
+storia: non ha margine per essere sorpreso. Le condizioni non esercitate sono i
+gradi di libertà che gli permettono di rispondere a qualcosa di nuovo **senza
+essere riscritto** — cioè il contrario di ciò che il progetto chiama «una classe
+popolata dai sintomi» ([[generation-kb-first]] §3). Il mio falsificatore era un
+**criterio di potatura**, e cozzava con una regola già stabilita: *tenere le
+strutture ridondanti e secondarie, evolvere per selezione, nessuna potatura
+prematura*. Avrei dovuto verificarlo prima di scriverlo.
+
+**La conseguenza, di nuovo un requisito e non uno sconto.** Se le condizioni
+inutilizzate vanno tenute, il loro **costo di valutazione** non può crescere con
+il loro numero: la famiglia composta è chiesta a ogni turno e `turn_response`
+costa ~20× un passo di `segment_role` (`src/kb.c:85`). Una tesi va provata **una
+volta per turno e depositata** come fatto riflessivo, non riprovata da ogni
+strato che la nomina. Tenere tutto è giusto; ripagarlo a ogni strato no.
+
 ---
 
 ## 6. Vincoli meccanici, misurati
@@ -497,30 +540,42 @@ ricchezza, è la stessa politica-per-ordine-degli-`if` spostata dal C alla KB.
 
 Il criterio va fissato **adesso**, prima di avere ragione per costruzione:
 
-> ⚠️ **Ritirato (F., §5bis):** *«se meno del 30% degli stadi ha due consumatori,
-> la cipolla è solo un template più costoso»*. Contava i consumatori a un istante,
-> cioè misurava a mondo chiuso una struttura che esiste per restare aperta. Uno
-> stadio con un consumatore solo è capienza, non spreco. I falsificatori veri
-> sono sul **runtime** e sulla **resa**, non sull'economia di scrittura.
+> ⚠️ **Due criteri ritirati da F.**, e sbagliavano allo stesso modo: misuravano
+> **a mondo chiuso** una struttura che esiste per restare aperta.
+>
+> - *«meno del 30% degli stadi con due consumatori ⇒ è solo un template più
+>   costoso»* — contava i consumatori a un istante (§5bis);
+> - *«se gli strati condizionati reggono sempre, il guadagno è cosmetico»* —
+>   contava le alternanze in una finestra di storia (§5ter).
+>
+> In entrambi i casi il criterio chiedeva a una capacità di **giustificarsi con
+> l'uso già fatto**. Nessun criterio in questo progetto può assumere che la KB
+> sia finita. Ciò che resta è falsificabile senza quell'assunzione: l'arbitrato,
+> l'ancoraggio, la resa, il costo, il bilancio del C.
 
 1. **Arbitrato.** Se, cresciuti gli strati, la scelta fra due candidati alla
    stessa posizione finisce per essere l'ordine delle clausole nel file, la
    cipolla ha importato in KB il difetto che [[generation-kb-first]] misura nel C,
    e la tesi è falsa nel modo peggiore: sembra KB-first e non lo è.
-2. **Condizionalità.** Se in esercizio reale gli strati condizionati reggono
-   **sempre**, la proprietà «lo strato che non regge sparisce» non paga nulla e
-   il guadagno è cosmetico.
-2bis. **Resa delle combinazioni.** Tre strati condizionati sono 8 rese; dieci
+2. **Condizione non ancorata.** *Non* «la condizione non si è mai alternata»:
+   quella è capienza (§5ter). Il difetto è la tesi che **non potrebbe alternarsi
+   comunque vada** — un claim che nessun sensore e nessuna vista su fatti
+   mutevoli può rendere falso. Quella non è elasticità, è decorazione: uno strato
+   incondizionato travestito da condizionato. È un controllo **strutturale**,
+   eseguibile oggi, non un'attesa: ogni `stage_claim/2` deve risalire a un
+   `machinery/1` riflessivo o a una vista su fatti che la conversazione può
+   cambiare.
+3. **Resa delle combinazioni.** Tre strati condizionati sono 8 rese; dieci
    sono 1024, e **nessun umano le legge**. La prova di ogni strato garantisce che
    nessuna resa affermi qualcosa di non dimostrato — la *verità* è coperta — ma
    la **fluidità** non ha oracolo. Se le combinazioni non lette producono
    periodi sgrammaticati o qualificazioni che si accavallano, serve un gate sulle
    rese, non fiducia. È il residuo onesto: la composizione rende la prosa
    falsificabile nel contenuto, non nella forma.
-3. **Costo.** Se la composizione porta il turno oltre il budget su una KB di
+4. **Costo.** Se la composizione porta il turno oltre il budget su una KB di
    dimensione corrente, va fermata: una risposta giusta che non arriva è peggio
    di una imprecisa che arriva.
-4. **Ammortamento del C** (mantra #18). Il C aggiunto qui è solo il deposito di
+5. **Ammortamento del C** (mantra #18). Il C aggiunto qui è solo il deposito di
    `inference_cycle/2`; se per far reggere la cipolla servisse un lettore in C
    per stadio, siamo tornati ai moduli e la direzione è sbagliata.
 
@@ -552,7 +607,7 @@ Poi, in ordine di dipendenza — un passo per generazione:
 | **C2** | il motore `composed/3` in `kb/core/composition.p0` + `undetermined_cycle` sfogliato negli stadi del §4c | i 3 stati del §4d, tre assert; `inference_guard.p0t` resta verde parola per parola |
 | **C3** | `no_support_either_way` **eliminato** come template e ottenuto dallo stato C | il gate del gen504 resta verde senza il suo template |
 | **C4** | `composition_truncated/2` (la saturazione della cipolla è un fatto, non un silenzio) | una cipolla oltre 512 char risponde corto e **dice** che ha tagliato |
-| **C5** *(solo su pressione)* | seconda famiglia sfogliata, scelta fra i 264 template lunghi con connettivo | due strati candidati alla stessa posizione **gareggiano** e la prova dice perché uno ha vinto (§7.1); nessuna resa combinatoria sgrammaticata (§7.2bis) |
+| **C5** *(solo su pressione)* | seconda famiglia sfogliata, scelta fra i 264 template lunghi con connettivo | due strati candidati alla stessa posizione **gareggiano** e la prova dice perché uno ha vinto (§7.1); nessuna resa combinatoria sgrammaticata (§7.3) |
 
 ---
 
