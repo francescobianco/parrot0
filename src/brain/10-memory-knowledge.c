@@ -11090,11 +11090,20 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
     if (L < 8 || L >= 300) return 0;
     char s[300]; memcpy(s, norm, L + 1);
     char *w[32]; size_t nw = split_words(s, w, 32);
-    if (nw < 4 || !lex_class_member(b, "polar_fronted", w[0])) return 0;
+    if (nw < 4) return 0;
+    /* gen505f — DUE FORME, UNA LETTURA. «does the senate govern rome?» ha
+     * l'ausiliare in testa; «what does the senate govern?» ha l'interrogativo e
+     * poi l'ausiliare, e lascia ignoto l'OGGETTO invece di chiederne conferma.
+     * La differenza e' di un token e le due classi sono gia' in KB. */
+    size_t base = 0;
+    if (lex_class_member(b, "polar_fronted", w[0])) base = 0;
+    else if (lex_class_member(b, "question_word", w[0]) && nw >= 4 &&
+             lex_class_member(b, "polar_fronted", w[1])) base = 1;
+    else return 0;
 
     size_t vi = 0;
     char rel[KB_TERM_LEN]; rel[0] = '\0';
-    for (size_t i = 2; i + 1 < nw && !vi; i++) {
+    for (size_t i = base + 2; i < nw && !vi; i++) {
         char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", w[i]);
         const char *bare = strip_edge_punct(vb);
         const char *cand[] = { bare };
@@ -11109,12 +11118,34 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
     }
     if (!vi) return 0;
 
-    size_t sbeg = p0_lead_det(b, w[1]) ? 2 : 1;
+    size_t sbeg = p0_lead_det(b, w[base + 1]) ? base + 2 : base + 1;
     char subj[KB_TERM_LEN], obj[KB_TERM_LEN];
-    if (sbeg >= vi || !p0_join(w, sbeg, vi, subj, sizeof subj) ||
-        !p0_join(w, vi + 1, nw, obj, sizeof obj)) return 0;
+    if (sbeg >= vi || !p0_join(w, sbeg, vi, subj, sizeof subj)) return 0;
+    if (!*subj) return 0;
+
+    /* L'oggetto manca: e' la domanda «che cosa …?», e si risponde ENUMERANDO.
+     * Il registro degli elenchi e' quello di `who governs rome?`, che gia'
+     * funziona nel verso opposto — qui cambia solo quale slot resta libero. */
+    if (vi + 1 >= nw) {
+        const char *pat[] = { subj, NULL };
+        char hits[64][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, rel, pat, 2, hits, 64);
+        if (k == 0) return 0;
+        char list[900]; size_t off = 0;
+        for (size_t i = 0; i < k && off + 1 < sizeof list; i++) {
+            char shown[KB_TERM_LEN];
+            present_atom(b, hits[i], shown, sizeof shown);
+            off += (size_t)snprintf(list + off, sizeof list - off, "%s%s",
+                                    i ? ", " : "", shown);
+        }
+        char msg[960]; snprintf(msg, sizeof msg, "%s.", list);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    if (!p0_join(w, vi + 1, nw, obj, sizeof obj)) return 0;
     for (char *c = obj; *c; c++) if (*c == '?') { *c = '\0'; break; }
-    if (!*subj || !*obj) return 0;
+    if (!*obj) return 0;
 
     const char *args[] = { subj, obj };
     if (kb_query(b->kb, rel, args, 2)) { put("Yes.", out, out_size); return 1; }

@@ -118,9 +118,46 @@ Il verbo ha due buchi, **entrambi da chiudere e nessuno dei due grande**:
   meno e non dipende da dove cadono i cancelli di qualcun altro — ma il cancello
   resta li', e mordera' il prossimo ramo che qualcuno prova ad aggiungere in
   quella zona;
-- **«what does the senate govern?»** → *«I don't have a module by that name»*:
-  il turno e' rubato da una facolta' che cerca un modulo chiamato «govern». Per
-  `turn-arbitration.md` non si cura con una cessione.
+- ✅ **«what does the senate govern?»** → `rome, italy.` **CHIUSO**, e in due
+  mosse (`gen505f`):
+
+  1. **il ladro non ruba piu', e non con una cessione.** La cue che lo apriva era
+     `intent_cue(..., "what does the")` — un prefisso di TRE parole che cattura
+     qualunque domanda cominci cosi'. E il muro «I don't have a module by that
+     name» scattava anche quando **nessun modulo era stato nominato**: una
+     facolta' che non sa rispondere prendeva il turno lo stesso. Ora rivendica
+     solo se il turno nomina davvero un modulo (`module/1`, 78 fatti) o il frame
+     (`module_frame_word/1`, conoscenza nuova, EN+IT). E' il **gradino zero** di
+     `turn-arbitration.md` — la legittimita' — non `faculty_yield` e non ancora
+     la copertura (S4), che resta la direzione;
+  2. liberato il turno, la forma non aveva comunque un lettore: aggiunta come
+     variante della polare, stesso perno e stesso `verb_stem/2`, con l'oggetto
+     ignoto risolto **enumerando**.
+
+### ⛔ Il secondo turno rubato resta aperto — e so chi e', non come curarlo
+
+```text
+> socrates is a man
+> who is a man?     → «A first-person novel tracing how institutions and
+                       ideologies render a Black narrator socially invisible…»
+> who answered?     → The 'answerframe' module answered your last question.
+```
+
+Misurato: `means(man, …)` **non esiste**, quindi `answerframe` e' arrivato a
+`means(invisible_man, …)` per somiglianza di token, e risponde **su un'entita'
+diversa da quella nominata**. E' la forma piu' generale del furto.
+
+- ⛔ **non** usare `compound_guard(answerframe, …)`: esiste ed e' il meccanismo
+  gia' pronto, ma e' una lista di cue per sintomo, cioe' S1 sotto un altro nome;
+- ⭐ la cura giusta e' una **regola di legittimita' generale**, non un caso
+  particolare: *non rispondere su un'entita' diversa da quella che il turno ha
+  nominato* — o, se lo si fa, dirlo. Vale per ogni furto della stessa specie,
+  non solo per questo;
+- non l'ho fatta perche' `mod_answer_frame` e' un modulo molto usato e non l'ho
+  letto per intero: il rischio di rompere un percorso caldo era reale. Il punto
+  in cui guardare e' il ciclo delle superfici candidate
+  (`10-memory-knowledge.c`, ~7648, `if (!*surface || !cue(norm, surface))`) e
+  il passaggio per TOKEN che il commento subito sotto descrive.
 
 ⚠ **Nota di onesta' su `b53afd0`:** il suo messaggio annuncia anche
 l'aggiornamento di `LEARN_TODO`/`C_TODO`, che **non e' avvenuto** — la

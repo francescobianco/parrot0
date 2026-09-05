@@ -1652,6 +1652,36 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                 return 1;
             }
         }
+        /* gen505f — UN MODULO NON RIVENDICA CIO' CHE NON SERVE.
+         *
+         * La cue che apre questo ramo e' «what does the», un prefisso di TRE
+         * parole che cattura qualunque domanda cominci cosi': «what does the
+         * senate govern?» finiva qui e riceveva «I don't have a module by that
+         * name», cioe' una risposta fuori tema data con sicurezza a una domanda
+         * di dominio. E il muro scattava anche quando nessun modulo era stato
+         * nominato — una facolta' che non sa rispondere prendeva il turno lo
+         * stesso.
+         *
+         * La cura non e' una cessione (`turn-arbitration.md` vieta la quarta
+         * riga di `faculty_yield`): e' il gradino zero di quel documento, la
+         * LEGITTIMITA'. Il muro resta giusto quando il turno nomina davvero un
+         * modulo — il registro e' `module/1`, 78 fatti — o quando nomina il
+         * frame («module», «modulo»: conoscenza, `module_frame_word/1`).
+         * Altrimenti il turno prosegue verso chi sa leggerlo. */
+        {
+            char nb[300]; snprintf(nb, sizeof nb, "%s", buf);
+            char *nw2[48]; size_t nn2 = split_words(nb, nw2, 48);
+            int names_module = 0;
+            for (size_t i = 0; i < nn2 && !names_module; i++) {
+                char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", nw2[i]);
+                const char *t = strip_edge_punct(tb);
+                if (!*t) continue;
+                const char *q[] = { t };
+                if (kb_query(b->kb, "module", q, 1) ||
+                    kb_query(b->kb, "module_frame_word", q, 1)) names_module = 1;
+            }
+            if (!names_module) return 0;
+        }
         kb_term_say(b, "i_don_t_have_a_module_by_that_name_ask_what", NULL, 0, out, out_size);
         return 1;
     }

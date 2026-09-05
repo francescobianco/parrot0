@@ -281,3 +281,16 @@ sibling_of($X, $Y) :- parent_of($P, $X), parent_of($P, $Y).
 % chiacchiera) erano ottantotto cue letterali dentro mod_chitchat. Stessa forma
 % della pragmatica qui sopra: un registro, le superfici, le risposte.
 :- include(reactions.p0).
+
+% ── gen505f — LA PAROLA CHE NOMINA IL FRAME DELLE FACOLTA' ──────────────────
+% «what can the X module do?» parla di moduli anche quando X non e' un modulo
+% noto. Senza questa classe, il ramo dei moduli o rivendica troppo (qualunque
+% «what does the …») o perde il muro onesto quando serve. Una lingua nuova e'
+% una riga.
+machinery(module_frame_word).
+module_frame_word(module).
+module_frame_word(modules).
+module_frame_word(modulo).
+module_frame_word(moduli).
+module_frame_word(faculty).
+module_frame_word(faculties).
