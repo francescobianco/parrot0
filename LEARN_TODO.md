@@ -42,6 +42,45 @@ parlato completo per insegnare un nuovo nome di relazione e interrogarlo.
 La vecchia nota parlava di cinque nomi: nel file attuale quelli inglesi sono
 otto. Il problema non era il loro numero, ma la porta di crescita e il consumer.
 
+### ✅ Il ciclo parlato e' stato aperto — `b53afd0`, verificato in due domini
+
+La porta di crescita e il consumer erano **due** ponti, entrambi conoscenza e
+non codice nuovo:
+
+1. **la porta** — `grammar.p0`:
+   `relation_noun($Pred, $Noun) :- relation($Noun), concat_atoms($Noun, "_of", $Pred).`
+   La lezione naturale e' «warp is a relation»: una normale appartenenza a
+   classe, che non chiede a chi insegna di sapere niente dello schema interno
+   (vincolo zero). Il nome del predicato si costruisce dal nome comune, e il
+   pattern lo costruisce la regola che c'era gia';
+2. **il consumer** — il lato DOMANDA consultava `relation_noun/2`? No: prendeva
+   `w[3]`, cioe' il nome COMUNE («mordant»), mentre il fatto sta sotto il nome
+   del predicato («mordant_of»). La mappa fra i due la usava **solo il lato che
+   asserisce**, quindi una relazione insegnata si poteva riempire e non
+   interrogare — il cassetto senza maniglia, di nuovo. Ora la consulta anche la
+   domanda; se la mappa non dice niente resta il nome nudo, e il comportamento
+   e' quello di prima.
+
+```text
+> mordant is a relation              Learned: mordant is a relation.
+> the mordant of madder is alum      Learned: the mordant of madder is alum.
+> what is the mordant of madder?     alum.
+> what is the warp of denim?         cotton.
+> what is the capital of Portugal?   Lisbon.     ← relazione curata, nessuna regressione
+```
+
+⛔ **Ultimo pezzo, non fatto:** il muro suggerisce ancora una lezione che **non
+registra niente** — «say "warp is a relation verb"» → «Learned», e la capacita'
+non cambia. E' un misclaim (priorita' 2 del §12) e va riscritto perche' suggerisca
+«warp is a relation», che ora funziona.
+
+⚠ **Nota di onesta' su `b53afd0`:** il suo messaggio annuncia anche
+l'aggiornamento di `LEARN_TODO`/`C_TODO`, che **non e' avvenuto** — la
+sostituzione automatica non ha trovato il testo perche' i due file erano stati
+riscritti nel frattempo, meglio di come li avrei scritti io. Il codice e la KB
+in quel commit sono corretti e verificati; questa sezione e' la parte
+documentale che mancava.
+
 ## Verso la comprensione universale e la KB viva e fertile — ordine operativo
 
 Direzione richiesta da F.: **comprensione assoluta e universale**. Qui significa
