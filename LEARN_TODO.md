@@ -1,5 +1,117 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🔴 PRIORITA' APERTA — SI PUO' PRENDERE SUBITO, ed e' autosufficiente
+
+> **Difetto di motore: una regola su `extract_frame` non vede i fatti asserti a
+> runtime.** Isolato con precisione il `gen505d`, **non spiegato**. Chi lo
+> prende non ha bisogno del resto di questo file: qui sotto c'e' tutto, comprese
+> le piste gia' escluse.
+
+## Perche' vale la pena, prima del come
+
+Blocca una capacita' concreta e desiderabile: **insegnare parlando una relazione
+nuova**. La macchineria e' gia' giusta — `kb/core/grammar.p0` ha UNA regola che,
+per ogni relazione che dichiara il proprio nome comune (`relation_noun/2`),
+costruisce da sola il pattern «the X of @S is @O». Una relazione nuova costa
+**un fatto**, e scritto a mano funziona:
+
+```text
+relation_noun(warp_of, "warp").          ← nel file
+> the warp of denim is cotton            Learned: the warp of denim is cotton.
+```
+
+Ma quel fatto **si puo' solo scrivere**: la lista e' chiusa a cinque
+(`capital`, `population`, `currency`, `language`, `author`) e nessuna lezione la
+fa crescere. Finche' `extract_frame` non vede le regole, «warp is a relation»
+non potra' mai diventare «the warp of denim is cotton».
+
+## Il repro minimo — tre clausole, stesso corpo, esiti diversi
+
+In coda a `kb/core/grammar.p0`:
+
+```prolog
+probe_pat($Pat)            :- relation($N), concat_atoms("the ", $N, $A),
+                              concat_atoms($A, " of @S is @O", $Pat).
+probe_two($Pat, $Pred)     :- relation($N), concat_atoms($N, "_of", $Pred),
+                              concat_atoms("the ", $N, $A),
+                              concat_atoms($A, " of @S is @O", $Pat).
+extract_frame($Pat, $Pred) :- relation($N), concat_atoms($N, "_of", $Pred),
+                              concat_atoms("the ", $N, $A),
+                              concat_atoms($A, " of @S is @O", $Pat).
+```
+
+poi, in un processo solo:
+
+```bash
+printf '%s\n' \
+ '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"relation","args":["zzz"]}}}' \
+ '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"kb.match","arguments":{"pred":"probe_pat","args":[null]}}}' \
+ '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"kb.match","arguments":{"pred":"probe_two","args":[null,"zzz_of"]}}}' \
+ '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"kb.match","arguments":{"pred":"extract_frame","args":[null,"zzz_of"]}}}' \
+ | ./bin/parrot0 --mcp-engine
+```
+
+| goal | atteso | osservato |
+|---|---|---|
+| `probe_pat(?)` | il pattern | ✅ `"the zzz of @S is @O"` |
+| `probe_two(?, zzz_of)` | il pattern | ✅ |
+| `extract_frame(?, zzz_of)` | il pattern | ❌ **niente** |
+
+**E la controprova che chiude il cerchio:** nello stesso processo e con la stessa
+clausola, un `relation(warpseed)` scritto **nel file** invece che asserito rende
+il pattern. Quindi non e' la regola, non e' il corpo, non e' l'arieta' della
+testa. **E' `extract_frame`.**
+
+## Il dato che punta il dito
+
+```text
+> /debug extract_frame
+  fatti ground            360
+  arita' 2: regole 12, binding resi 360
+```
+
+**360 binding su 360 fatti: le dodici regole non contribuiscono nemmeno
+all'enumerazione libera.** `extract_frame` e' l'unico predicato in gioco con
+quelle dimensioni.
+
+## Piste gia' escluse — non rifarle
+
+- **l'ordine delle clausole**: la regola e' stata provata anche IN TESTA alle
+  360, stesso esito;
+- **la regola morta**: aggiunto un produttore di `relation/1` nel file, nessun
+  cambiamento;
+- **il censimento `pred_stats`**: `kb_assert` lo aggiorna in modo incrementale
+  (`pred_stats_note`, `src/kb.c`), e infatti le due probe vedono il fatto nuovo;
+- **variabili e lunghezza del corpo**: identiche fra `probe_two` (funziona) e la
+  clausola di `extract_frame` (non funziona).
+
+## Sospetti residui, in ordine
+
+1. il modo in cui `pred_bucket` e `rule_bucket` si combinano in `prove_seq_ex`
+   quando il predicato ha molti fatti E delle regole;
+2. un tetto (budget di passi, `KB_MAX_GOALS`) consumato dai 360 tentativi di
+   unificazione prima che le regole vengano provate;
+3. qualcosa nel percorso di `kb_match` con arieta' 2 e il secondo argomento
+   legato.
+
+⚠ **Metodo:** le sonde a scatola nera hanno dato tutto quello che potevano (sei
+o sette build). Serve un debugger su `prove_seq_ex`, o una stampa dentro il
+ramo delle regole di quella funzione — non altre clausole di prova in KB.
+
+## Dopo, il seguito naturale
+
+Chiuso questo, restano due passi piccoli per avere le relazioni insegnabili:
+
+1. dare al lato **domanda** lo stesso `relation_noun` («what is the warp of
+   denim?» oggi risponde «I don't know about warp» anche col fatto scritto a
+   mano);
+2. riscrivere il muro, che oggi suggerisce una lezione che **non registra
+   niente** («say "warp is a relation verb"» → «Learned», e la capacita' non
+   cambia: un misclaim).
+
+---
+
+
 ## HANDOFF 2026-09-05 — pausa richiesta da F., checkpoint consolidato
 
 **Riprendere da questa nota; prevale sui vecchi handoff sotto.** Il primo
