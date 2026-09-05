@@ -36,6 +36,36 @@ prossimo non la rifaccia:
   classe di UNA parola la spiegazione arriva giusta, quindi e' di nuovo la
   famiglia del conteggio fisso.
 
+Aggiunto al `gen505b`, seconda tornata — **fatti nuovi, per non rifare la strada**:
+
+- il claimer e' davvero dentro `mod_knowledge`: verificato intercalando un turno
+  sociale, cosi' `who answered?` non puo' riportare uno stato vecchio;
+- **`char *w[8]`** (`10-memory-knowledge.c`, poco prima dei rami interrogativi):
+  tutto cio' che segue lavora su **al massimo otto parole**. E' il tetto
+  strutturale sotto la famiglia dei conteggi fissi, e va nominato quando la si
+  attacca sul serio;
+- `/debug` sul turno dice: **«nessuna lacuna registrata: il motore ha considerato
+  il turno GESTITO»** — cioe' la classe `wrong`, un turno riuscito per il motore
+  e fallito per chi parla. Non lascia traccia, quindi l'autocorrezione non sa
+  nemmeno che esiste;
+- il profilo indica che la scelta passa da `intent_cue` (607 chiamate nel turno),
+  ma nessuna cue di intento contiene «why is»: il conteggio e' la scansione, non
+  una corrispondenza. Non e' li'.
+
+⚠ **Metodo:** la bisezione con `fprintf` in questa funzione **non funziona** —
+gli scope annidati ricalcolano `nw`/`w` e i punti di sonda finiscono in rami non
+eseguiti. Sei build spesi per scoprirlo. Chi riprende usi `/debug` (che nomina la
+strada se acceso PRIMA del turno) o un tracciamento del dispatch.
+
+### ⭐ Correzione: `auto_induce` non e' rumore di ogni lezione
+
+Annotato come tale e **verificato falso**: `kb_induce` asserisce le regole e
+salta quelle che gia' esistono (`rule_exists`), quindi ne riporta solo di
+NUOVE. Sembrava ripetersi a ogni lezione perche' ogni sonda partiva da un
+processo nuovo. Resta che al primo turno di sessione una lezione sui minerali si
+porta dietro l'annuncio di regole indotte su domini estranei: e' fuori tema, non
+e' falso.
+
 Due difetti veri sono stati trovati e chiusi durante questa caccia, ed erano
 sotto:
 
