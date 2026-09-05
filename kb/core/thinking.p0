@@ -368,3 +368,42 @@ thinking_feedback(second_thought, 2, reading_fact, query_result).
 % secondo, e in mezzo cambia di natura — da frase a fatto.
 thinking_prompt_text(ingest, "read: {prev}").
 thinking_prompt_text(recall, "what do you know about it").
+
+% ══ gen505n — L'ESECUTORE HA BISOGNO DI DUE VISTE, NON DI UN DIALETTO NUOVO ══
+%
+% L'audit della Parte II diceva: il substrato esiste ed e' spento, e il primo
+% lavoro non e' scrivere un motore ma ACCENDERE cio' che e' dichiarato. Per
+% eseguire uno schema al motore servono due cose sole, ed entrambe si ricavano
+% dalla firma che c'e' gia' — nessun quarto vocabolario.
+machinery(thinking_operator).
+machinery(thinking_says).
+
+% L'operatore di un passo, estratto dal termine `step(...)`. La destrutturazione
+% sta in KB: il C non deve sapere com'e' fatto un passo.
+thinking_operator($Scheme, $Node, $Op) :-
+    thinking_step($Scheme, $Node, step($Op, $Pre, $Effect, $Meta)).
+
+% ══ IL SECONDO SCHEMA, E IL PRIMO VIVO IN CONVERSAZIONE ═════════════════════
+%
+% F.: «sarebbe bellissimo che attraverso il thinking si chiedesse che lingua e',
+% e poi se la frase e' corretta». Non e' una pipeline cablata: sono passi
+% DICHIARATI, con il loro ordine derivato dal grafo, e ciascuno e' un operatore a
+% predicato variabile applicato al turno (`apply/2`, §0.1 del piano).
+%
+% Aggiungere un giro e' un fatto: `thinking_step` + `thinking_after`. Toglierne
+% uno pure. E' il test E1 — lo schema e' conoscenza.
+thinking_scheme(grammar_check, "say what language it is, then whether it agrees, then where the clash is").
+
+thinking_step(grammar_check, 0, step(turn_sentence_quoted, none, sentence_repeated, meta(1, local))).
+thinking_step(grammar_check, 1, step(turn_language_known, sentence_repeated, language_named, meta(1, local))).
+thinking_step(grammar_check, 2, step(turn_agreement_holds, language_named, verdict, meta(1, local))).
+thinking_step(grammar_check, 3, step(turn_agreement_fails, language_named, verdict, meta(1, local))).
+thinking_step(grammar_check, 4, step(turn_clash_nameable, verdict, clash_named, meta(1, local))).
+
+thinking_after(grammar_check, 0, 1).
+thinking_after(grammar_check, 1, 2).
+thinking_after(grammar_check, 1, 3).
+thinking_after(grammar_check, 3, 4).
+
+thinking_stop(grammar_check, clash_named).
+thinking_stop(grammar_check, verdict).

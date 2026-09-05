@@ -73,3 +73,109 @@ error_check_cue("is this correct").
 error_check_cue("dove è l'errore qui").
 error_check_cue("dove e' l'errore qui").
 error_check_cue("cosa c'è di sbagliato in").
+
+% ── 5. I DUE GIRI DI THINKING, COME CIPOLLA (gen505m) ──────────────────────
+%
+% F.: «sarebbe bellissimo se attraverso il thinking si chiedesse che lingua e', e
+% poi se la frase e' corretta». Non e' una pipeline da cablare: e' esattamente la
+% forma dell'inferenza compositiva — ogni giro e' uno STADIO che dimostra la
+% propria tesi e avvolge il precedente, e se non regge SPARISCE invece di
+% mentire. Il prodotto non e' un verdetto: e' un ragionamento leggibile.
+%
+% I sensori (`judged_language/2`, `judged_subject/2`, `judged_copula/2`) sono
+% depositati dal motore al momento del giudizio, come `turn_goal/3`: il turno
+% diventa un oggetto su cui la KB puo' ragionare.
+machinery(judged_language).
+machinery(judged_subject).
+machinery(judged_copula).
+machinery(turn_has_judgement).
+machinery(turn_agreement_fails).
+machinery(turn_agreement_holds).
+
+turn_has_judgement($T) :- judged_subject($T, $S).
+turn_agreement_fails($T) :- judged_subject($T, $S), judged_copula($T, $C), agreement_error($S, $C).
+turn_agreement_holds($T) :- judged_subject($T, $S), judged_copula($T, $C), agreement_holds($S, $C).
+
+% PRIMO GIRO — che lingua e'. E' il nucleo: se non si riesce a dirlo, la cipolla
+% comincia dal giro dopo, piu' corta e non sbagliata.
+stage_text(gj_language, $L, $T) :-
+    judged_language(current_turn, $Lang), language_name($Lang, $Name),
+    lang_intro($L, $Pre), concat_atoms($Pre, $Name, $T).
+stage_claim(gj_language, turn_has_judgement(current_turn)).
+lang_intro(en, "That is ").
+lang_intro(it, "Questa è in ").
+
+% SECONDO GIRO — e' ben formata? Due stadi con tesi esclusive: solo uno esiste.
+stage_wraps(gj_verdict_bad, gj_language).
+stage_claim(gj_verdict_bad, turn_agreement_fails(current_turn)).
+stage_relation(gj_verdict_bad, qualifies).
+stage_side(gj_verdict_bad, after).
+stage_text(gj_verdict_bad, en, "It is not well formed").
+stage_text(gj_verdict_bad, it, "Non è ben formata").
+
+stage_wraps(gj_verdict_ok, gj_verdict_bad).
+stage_claim(gj_verdict_ok, turn_agreement_holds(current_turn)).
+stage_relation(gj_verdict_ok, qualifies).
+stage_side(gj_verdict_ok, after).
+stage_text(gj_verdict_ok, en, "It is well formed").
+stage_text(gj_verdict_ok, it, "È ben formata").
+
+% TERZO GIRO — dove, e perche'. Esiste solo se c'e' un errore: quando la frase e'
+% corretta non c'e' niente da localizzare, e lo stadio non compare.
+stage_wraps(gj_detail, gj_verdict_ok).
+stage_claim(gj_detail, turn_agreement_fails(current_turn)).
+stage_relation(gj_detail, causes).
+stage_side(gj_detail, after).
+stage_text(gj_detail, $L, $T) :-
+    judged_subject(current_turn, $S), judged_copula(current_turn, $C),
+    word_number($S, $NS), copula_number($C, $NC),
+    number_name($NS, $L, $SN), number_name($NC, $L, $CN),
+    gj_clash($L, $S, $SN, $C, $CN, $T).
+% ⚠ Spezzata in tre: la versione con tredici variabili in una clausola non
+% rendeva NIENTE — e' la trappola del dialetto che avevo gia' annotato in
+% composition.p0 e in cui sono ricascato. Si maschera da «nessuna soluzione».
+gj_side($L, $W, $N, $T) :- gj_is($L, $Is), concat_atoms($W, $Is, $A), concat_atoms($A, $N, $T).
+gj_join($L, $Left, $Right, $T) :- gj_and($L, $And), concat_atoms($Left, $And, $X), concat_atoms($X, $Right, $T).
+gj_clash($L, $S, $SN, $C, $CN, $T) :-
+    gj_side($L, $S, $SN, $Lft), gj_side($L, $C, $CN, $Rgt), gj_join($L, $Lft, $Rgt, $T).
+gj_is(en, " is ").   gj_and(en, " and ").
+gj_is(it, " è ").    gj_and(it, " e ").
+
+% ── 6. I PASSI DEL THINKING, DETTI A PAROLE (gen505n) ──────────────────────
+% Ogni operatore dello schema `grammar_check` e' una tesi che il turno o regge o
+% non regge; `thinking_says/3` e' come si dice il passo quando regge. Un giro
+% nuovo costa un operatore e una frase.
+machinery(turn_language_known).
+machinery(turn_sentence_quoted).
+machinery(judged_sentence).
+machinery(turn_clash_nameable).
+machinery(gj_side).
+machinery(gj_join).
+machinery(judged_side).
+
+turn_language_known($T) :- judged_language($T, $L).
+turn_clash_nameable($T) :- turn_agreement_fails($T).
+
+% PRIMO PENSIERO — ripetere cio' che e' stato detto. Non e' cortesia: e' il
+% passo che rende ISPEZIONABILE su che cosa parrot0 sta ragionando, ed e' il
+% primo posto in cui un fraintendimento si vede.
+turn_sentence_quoted($T) :- judged_sentence($T, $S).
+thinking_says(turn_sentence_quoted, $L, $T) :-
+    judged_sentence(current_turn, $S), quote_intro($L, $Pre), concat_atoms($Pre, $S, $T).
+quote_intro(en, "you said: ").
+quote_intro(it, "mi hai detto: ").
+
+thinking_says(turn_language_known, $L, $T) :-
+    judged_language(current_turn, $Lang), language_name($Lang, $Name),
+    lang_intro($L, $Pre), concat_atoms($Pre, $Name, $T).
+thinking_says(turn_agreement_holds, en, "it is well formed").
+thinking_says(turn_agreement_holds, it, "è ben formata").
+thinking_says(turn_agreement_fails, en, "it is not well formed").
+thinking_says(turn_agreement_fails, it, "non è ben formata").
+% Anche questa spezzata, per la stessa ragione: prima i due lati, poi lo scontro.
+judged_side($L, $W, $T) :- judged_subject(current_turn, $W), word_number($W, $N), number_name($N, $L, $NN), gj_side($L, $W, $NN, $T).
+judged_side($L, $W, $T) :- judged_copula(current_turn, $W), copula_number($W, $N), number_name($N, $L, $NN), gj_side($L, $W, $NN, $T).
+thinking_says(turn_clash_nameable, $L, $T) :-
+    judged_subject(current_turn, $S), judged_side($L, $S, $Lft),
+    judged_copula(current_turn, $C), judged_side($L, $C, $Rgt),
+    gj_join($L, $Lft, $Rgt, $T).

@@ -849,6 +849,15 @@ response_template(p0_write_fact_only, "I hold «{pred}» as facts, not as a rule
 response_template(p0_write_fact_only, it, "Tengo «{pred}» come fatti, non come regola: non c'è una clausola da scrivere, ci sono i fatti.").
 response_template(p0_write_none, "I hold nothing under «{pred}», so there is no clause to write.").
 response_template(p0_write_none, it, "Non tengo niente sotto «{pred}», quindi non c'è nessuna clausola da scrivere.").
+% gen505m — la coda della cipolla: la forma attesa. Sta fuori dagli stadi perche'
+% e' una PROPOSTA, non un'osservazione — e si dice solo quando c'e' un errore.
+% gen505o — un PENSIERO si vede, numerato: e' il tracciato del thinking, non la
+% risposta. Chi guarda deve poter dire dove il ragionamento ha sbagliato, non
+% solo che la conclusione non torna.
+response_template(thought_line, "thought {n}: {text}").
+response_template(thought_line, it, "pensiero {n}: {text}").
+response_template(gj_fix, " It should be «{subject} {expected}».").
+response_template(gj_fix, it, " La forma attesa è «{subject} {expected}».").
 response_template(taught_reply, "Understood: when you ask about {cue} I will say so.").
 response_template(taught_reply, it, "Capito: quando mi chiedi di {cue} risponderò così.").
 

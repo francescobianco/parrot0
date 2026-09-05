@@ -11105,6 +11105,82 @@ static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
  * Bisecare quel tratto con le stampe non funziona (scope annidati che
  * ricalcolano `nw`/`w`); renderlo autonomo costa meno e non dipende da dove
  * cadono i cancelli di qualcun altro. */
+/* gen505n — L'ESECUTORE DI UNO SCHEMA DI THINKING.
+ *
+ * `docs/plans/thinking.md`, Parte II: «il substrato del thinking ESISTE, ed e'
+ * spento — il primo lavoro non e' scrivere un motore, e' accendere cio' che e'
+ * gia' dichiarato». `kb/core/thinking.p0` aveva gia' la firma, il grafo, il
+ * rango topologico, la guardia sui cicli e le condizioni d'arresto. Mancava chi
+ * li ESEGUISSE.
+ *
+ * Questo esecutore non sa niente di nessuno schema:
+ *   - l'ORDINE lo chiede al grafo (`thinking_rank/3`), non a un indice;
+ *   - l'OPERATORE e' a predicato variabile (`thinking_operator/3` + `apply/2`,
+ *     §0.1 del piano): non c'e' nessun dispatcher, si dichiarano;
+ *   - un passo che non regge NON compare — il ragionamento e' piu' corto, non
+ *     falso;
+ *   - uno schema con un ciclo si rifiuta (`thinking_ready/1`), non gira per
+ *     sempre.
+ *
+ * Aggiungere un giro e' quindi un fatto, e questo e' esattamente l'esperimento
+ * E1 del piano: lo schema e' conoscenza. */
+static int p0_thinking_run(Brain *b, const char *scheme, char *out, size_t out_size) {
+    if (!b || !b->kb || !scheme) return 0;
+    const char *rq[] = { scheme };
+    if (!kb_query(b->kb, "thinking_ready", rq, 1)) return 0;
+
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    const char *L = lang[0] ? lang : "en";
+    /* gen505o — il tracciato E' il thinking: spento, non si paga e non si legge.
+     * «Il thinking e' uno strato aggiuntivo di deliberazione; il reasoning resta
+     * l'inferenza di base» (docs/plans/thinking.md). Spento, il turno finisce
+     * alla risposta di sempre. */
+    if (!brain_policy_on(b, "thinking")) return 0;
+    char trace[1400]; size_t off = 0; size_t said = 0;
+    const int shown = 1;
+
+    /* I ranghi si percorrono in ordine: un rango e' un insieme di passi che la
+     * conoscenza dichiara paralleli, non una riga di codice. */
+    for (int rank = 0; rank < 8; rank++) {
+        char rb[8]; snprintf(rb, sizeof rb, "%d", rank);
+        char nodes[16][KB_TERM_LEN];
+        const char *nq[] = { scheme, NULL, rb };
+        size_t nn = kb_match(b->kb, "thinking_rank", nq, 3, nodes, 16);
+        for (size_t i = 0; i < nn; i++) {
+            char ops[1][KB_TERM_LEN];
+            const char *oq[] = { scheme, nodes[i], NULL };
+            if (kb_match(b->kb, "thinking_operator", oq, 3, ops, 1) != 1) continue;
+            const char *turn[] = { "current_turn" };
+            if (!kb_query(b->kb, ops[0], turn, 1)) continue;   /* il passo non regge */
+            char says[1][KB_TERM_LEN];
+            const char *sq[] = { ops[0], L, NULL };
+            if (kb_match(b->kb, "thinking_says", sq, 3, says, 1) != 1) continue;
+            char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", says[0]);
+            const char *txt = kb_dequote(sb);
+            if (!*txt || off + strlen(txt) + 8 >= sizeof trace) continue;
+            /* gen505o — CON IL THINKING ACCESO OGNI PASSO SI VEDE, numerato.
+             *
+             * F.: «mi aspetto pensiero 1: ripeto quello che mi e' stato detto,
+             * 2: che lingua e', … e tutti questi passaggi si vedono nella UI».
+             * Il tracciato non e' la risposta: e' cio' che permette di dire DOVE
+             * il ragionamento ha sbagliato, non solo che la conclusione non
+             * torna. Spento, i passi restano e si fondono in una riga sola —
+             * la stessa deliberazione, senza il costo di leggerla. */
+            (void)shown;
+            char nb2[8]; snprintf(nb2, sizeof nb2, "%zu", said + 1);
+            char line[400];
+            const KbResponseSlot ts[] = { { "n", nb2 }, { "text", txt } };
+            if (!kb_response_slots(b, "thought_line", ts, 2, line, sizeof line)) continue;
+            off += (size_t)snprintf(trace + off, sizeof trace - off, "%s%s",
+                                    said ? "\n" : "", line);
+            said++;
+        }
+    }
+    if (!said) return 0;
+    put(trace, out, out_size);
+    return 1;
+}
+
 /* gen505l — L'ANELLO SI CHIUDE: parrot0 SCRIVE la propria conoscenza in `.p0`.
  *
  * Sapeva gia' scrivere una clausola quando impara una regola parlando, e sapeva
@@ -11378,6 +11454,72 @@ static int p0_grammar_judgement(Brain *b, const char *norm, char *out, size_t ou
         char snb[KB_TERM_LEN], cnb[KB_TERM_LEN];
         snprintf(snb, sizeof snb, "%s", kb_dequote(sn[0]));
         snprintf(cnb, sizeof cnb, "%s", kb_dequote(cn[0]));
+
+        /* gen505m — IL TURNO DIVENTA UN OGGETTO SU CUI RAGIONARE.
+         *
+         * I due giri di thinking che F. ha descritto — «che lingua e'», «e'
+         * corretta», «dove e perche'» — non sono una pipeline cablata: sono
+         * stadi di una cipolla, e ognuno dimostra la propria tesi. Perche' la KB
+         * possa comporli, il motore deposita cio' che ha visto, come fa gia' con
+         * `turn_goal/3`: la lingua del FRAMMENTO (da `language_marker/2`, che
+         * cresce per fatti), il soggetto e la copula.
+         *
+         * Origine riflessiva: sono osservazioni sul turno, non conoscenza del
+         * mondo, e non devono attraversare `/save` (lezione del gen505c). */
+        {
+            const char *frag_lang = "en";
+            for (size_t z = 0; z < nw; z++) {
+                char zb[KB_TERM_LEN]; snprintf(zb, sizeof zb, "%s", w[z]);
+                const char *zq[] = { "it", strip_edge_punct(zb) };
+                if (kb_query(b->kb, "language_marker", zq, 2)) { frag_lang = "it"; break; }
+            }
+            int saved = kb_origin(b->kb);
+            kb_retract_pred(b->kb, "judged_language");
+            kb_retract_pred(b->kb, "judged_subject");
+            kb_retract_pred(b->kb, "judged_copula");
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            kb_retract_pred(b->kb, "judged_sentence");
+            const char *sent[] = { "current_turn", tail };
+            kb_assert(b->kb, "judged_sentence", sent, 2);
+            const char *la[] = { "current_turn", frag_lang };
+            const char *sa[] = { "current_turn", subj };
+            const char *ca[] = { "current_turn", cop };
+            kb_assert(b->kb, "judged_language", la, 2);
+            kb_assert(b->kb, "judged_subject", sa, 2);
+            kb_assert(b->kb, "judged_copula", ca, 2);
+            kb_set_origin(b->kb, saved);
+        }
+        /* IL THINKING parla per primo: se lo schema gira, la risposta e' il suo
+         * TRACCIATO — un ragionamento leggibile invece di un verdetto. Se non
+         * gira, restano le rese di sempre. */
+        {
+            char woven[600];
+            if (p0_thinking_run(b, "grammar_check", woven, sizeof woven) && woven[0]) {
+                char fixw[1][KB_TERM_LEN];
+                const char *gq2[] = { subj, cop, NULL };
+                if (kb_query(b->kb, "agreement_error", pair, 2) &&
+                    kb_match(b->kb, "expected_copula", gq2, 3, fixw, 1) == 1) {
+                    /* La proposta e' un PENSIERO suo: e' l'ultimo passo, e va
+                     * numerato come gli altri perche' e' altrettanto
+                     * criticabile. */
+                    char fixtxt[200], line2[300];
+                    const KbResponseSlot fs[] = { { "subject", subj }, { "expected", fixw[0] } };
+                    if (kb_response_slots(b, "gj_fix", fs, 2, fixtxt, sizeof fixtxt)) {
+                        size_t n2 = 1;
+                        for (const char *c2 = woven; *c2; c2++) if (*c2 == '\n') n2++;
+                        char nb3[8]; snprintf(nb3, sizeof nb3, "%zu", n2 + 1);
+                        const char *ft = fixtxt; while (*ft == ' ') ft++;
+                        const KbResponseSlot ts2[] = { { "n", nb3 }, { "text", ft } };
+                        if (kb_response_slots(b, "thought_line", ts2, 2, line2, sizeof line2)) {
+                            strncat(woven, "\n", sizeof woven - strlen(woven) - 1);
+                            strncat(woven, line2, sizeof woven - strlen(woven) - 1);
+                        }
+                    }
+                }
+                put(woven, out, out_size);
+                return 1;
+            }
+        }
 
         if (kb_query(b->kb, "agreement_error", pair, 2)) {
             char good[1][KB_TERM_LEN];
