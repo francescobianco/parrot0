@@ -3053,6 +3053,23 @@ static int kb_class_surface(const KB *kb, const char *pred, char *out, size_t sz
     return 1;
 }
 
+/* gen505c — ANCHE IL SOGGETTO E' UN NOME, NON UNA CHIAVE.
+ *
+ * «iron_oxide is a compound» dava all'interlocutore l'atomo con cui il motore
+ * indicizza. La politica esiste gia' ed e' conoscenza — `present_rule(
+ * strip_underscore)` in presentation.p0, la stessa che il brain consulta in
+ * `present_atom` — quindi qui si CHIEDE e si fa solo la trasformazione di byte.
+ * Un nome proprio resta com'e': `proper_name/1` lo dichiara. */
+static void kb_present_arg(const KB *kb, const char *in, char *out, size_t sz) {
+    snprintf(out, sz, "%s", in ? in : "");
+    if (!kb || !in || !strchr(in, '_')) return;
+    const char *sr[1] = { "strip_underscore" };
+    if (!kb_query((KB *)kb, "present_rule", sr, 1)) return;
+    const char *pn[1] = { in };
+    if (kb_query((KB *)kb, "proper_name", pn, 1)) return;
+    for (char *q = out; *q; q++) if (*q == '_') *q = ' ';
+}
+
 static void kb_class_article(const KB *kb, const char *named, char *out, size_t sz) {
     snprintf(out, sz, "a");
     if (!kb || !named || !*named) return;
@@ -3084,8 +3101,9 @@ static void render_goal_named(const KB *kb, const Subst *s, const Term *g,
                               char *buf, size_t sz) {
     char named[KB_TERM_LEN];
     if (kb && g->argc == 1 && kb_class_surface(kb, g->pred, named, sizeof named)) {
-        char subj[KB_TERM_LEN];
-        deep_resolve(s, g->args[0], subj, sizeof subj, 0);
+        char raw[KB_TERM_LEN], subj[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], raw, sizeof raw, 0);
+        kb_present_arg(kb, raw, subj, sizeof subj);
         char art[8];
         kb_class_article(kb, named, art, sizeof art);
         snprintf(buf, sz, "%s is %s %s", subj, art, named);
@@ -5639,9 +5657,10 @@ static void render_fact_direct_kb(const KB *kb, const Fact *f, const char *entit
     char named[KB_TERM_LEN];
     if (kb && f->argc == 1 && strcmp(f->args[0], entity) == 0 &&
         kb_class_surface(kb, f->pred, named, sizeof named)) {
-        char art[8];
+        char art[8], shown[KB_TERM_LEN];
         kb_class_article(kb, named, art, sizeof art);
-        snprintf(buf, sz, "%s is %s%s %s", entity, neg ? "not " : "", art, named);
+        kb_present_arg(kb, entity, shown, sizeof shown);
+        snprintf(buf, sz, "%s is %s%s %s", shown, neg ? "not " : "", art, named);
         return;
     }
     render_fact_direct(f, entity, neg, buf, sz);

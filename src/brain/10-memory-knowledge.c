@@ -15478,15 +15478,19 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen59 (C5): "what is <x>?" is a natural way to ask for a description of
      * an entity. Reuse the existing belief-report path; decline if x is an
      * article or common function word so "what is a ...?" still falls through. */
-    if (nw == 3 && lex_class_member(b, "question_word", w[0]) && lex_class_member(b, "10_memory_knowledge_lex11907_2", w[1]) &&
-        !is_article(b, w[2]) && !is_stopword(b, w[2])) {
+    /* gen505c — «what is iron oxide?»: la coda e' l'entita', anche di piu' parole. */
+    char wi_ent[KB_TERM_LEN];
+    if (nw >= 3 && lex_class_member(b, "question_word", w[0]) && lex_class_member(b, "10_memory_knowledge_lex11907_2", w[1]) &&
+        !is_article(b, w[2]) && !is_stopword(b, w[2]) &&
+        p0_join(w, 2, nw, wi_ent, sizeof wi_ent)) {
+        for (char *q = wi_ent; *q; q++) if (*q == ' ') *q = '_';
         const char *entity;
-        if (!resolve_entity(b, w[2], &entity, out, out_size)) return 1;
+        if (!resolve_entity(b, wi_ent, &entity, out, out_size)) return 1;
         char desc[1024];
         if (kb_describe_entity(b->kb, entity, desc, sizeof desc)) {
             put(desc, out, out_size);
             store_proof(b, desc);
-            remember_entity(b, w[2], entity);
+            remember_entity(b, wi_ent, entity);
             return 1;
         }
         /* gen242: unknown entity -> don't wall here. Fall through so mod_learn
@@ -15782,16 +15786,27 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * C_TODO): la spiegazione esisteva e la si raggiungeva solo con una classe
      * di un token, quindi «why is siderite an iron ore mineral?» cadeva al dump
      * della descrizione — una risposta pertinente al posto di una PROVA. */
-    if (nw >= 5 && lex_class_member(b, "question_word", w[0]) && lex_class_member(b, "10_memory_knowledge_lex12193_2", w[1]) &&
-        is_article(b, w[3])) {
+    /* gen505c — anche il SOGGETTO puo' essere di piu' parole: «why is iron oxide
+     * a compound?». L'articolo separa i due sintagmi, quindi si cerca lui e non
+     * una posizione — la lezione entra gia' con la chiave giusta
+     * (`compound(iron_oxide)`), mancava solo la strada per interrogarla. */
+    size_t why_art = 0;
+    if (nw >= 5 && lex_class_member(b, "question_word", w[0]) &&
+        lex_class_member(b, "10_memory_knowledge_lex12193_2", w[1]))
+        for (size_t i = 3; i + 1 < nw && !why_art; i++)
+            if (is_article(b, w[i])) why_art = i;
+    char why_subj[KB_TERM_LEN];
+    if (why_art &&
+        p0_join(w, 2, why_art, why_subj, sizeof why_subj)) {
         char why_cls[KB_TERM_LEN];
-        if (!p0_join(w, 4, nw, why_cls, sizeof why_cls)) return 0;
+        if (!p0_join(w, why_art + 1, nw, why_cls, sizeof why_cls)) return 0;
         for (char *q = why_cls; *q; q++) if (*q == ' ') *q = '_';
+        for (char *q = why_subj; *q; q++) if (*q == ' ') *q = '_';
         const char *subj;
-        if (!resolve_entity(b, w[2], &subj, out, out_size)) return 1;
+        if (!resolve_entity(b, why_subj, &subj, out, out_size)) return 1;
         const char *args[] = {subj};
         explain_reply(b, why_cls, args, 1, out, out_size);
-        remember_entity(b, w[2], subj);
+        remember_entity(b, why_subj, subj);
         return 1;
     }
     /* explanation, Italian subject-verb order: "perché <x> è un <y>?" reaches
@@ -15865,11 +15880,13 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = 5; i + 2 < nw && !hk_cop; i++)
             if (lex_class_member(b, "clause_copula", w[i]) && is_article(b, w[i + 1]))
                 hk_cop = i;
-    char hk_cls[KB_TERM_LEN];
+    char hk_cls[KB_TERM_LEN], hk_subj[KB_TERM_LEN];
     if (hk_cop && p0_join(w, hk_cop + 2, nw, hk_cls, sizeof hk_cls) &&
+        p0_join(w, 4, hk_cop, hk_subj, sizeof hk_subj) &&      /* gen505c */
         p0_atom_within_cap(b, hk_cls)) {
+        for (char *q = hk_subj; *q; q++) if (*q == ' ') *q = '_';
         const char *subj;
-        if (!resolve_entity(b, w[4], &subj, out, out_size)) return 1;
+        if (!resolve_entity(b, hk_subj, &subj, out, out_size)) return 1;
         const char *args[] = {subj};
         /* La canonicalizzazione fonde una classe gia' nota in UN token, e lo
          * fa con lo spazio: «copper mineral». La chiave in KB ha l'underscore,
@@ -15877,7 +15894,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
          * produce quando le parole arrivano separate. */
         for (char *q = hk_cls; *q; q++) if (*q == ' ') *q = '_';
         howknow_reply(b, hk_cls, args, 1, out, out_size);
-        remember_entity(b, w[4], subj);
+        remember_entity(b, hk_subj, subj);
         return 1;
     }
 
