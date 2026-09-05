@@ -188,6 +188,56 @@ La missione e l'ordine sotto restano validi, con due aggiornamenti: il ramo
 della voce 2 non e' piu' ignoto, e il tetto a otto token della voce 1 e' rimosso.
 Restano i conteggi dei singoli rami e i soggetti legati a una posizione sola.
 
+# 🏁 HANDOFF — chiusura sessione 2026-09-05 (`gen505d`)
+
+> Sessione lunga, chiusa su richiesta di F. **Niente in sospeso**: albero pulito,
+> tutto su `origin/main`. Nessun servizio o demone avviato da questo lavoro
+> resta acceso.
+
+## Dove riprendere, in tre righe
+
+1. 🔴 la **priorita' aperta** qui sotto — il difetto di motore su
+   `extract_frame`, autosufficiente, prendibile da chiunque;
+2. ⭐ la **missione attiva** — le connessioni fertili fra domini, con il vincolo
+   delle **due forme** (prosa + struttura) che F. ha fissato per ultimo;
+3. il resto della coda, invariato.
+
+## Che cosa e' cambiato oggi, in una tabella
+
+| | |
+|---|---|
+| **il «no» si guadagna, e si insegna a voce** | `exclusive_classes/2` aveva zero produttori; ora una frase risponde per tutti i membri presenti e futuri di due classi |
+| **parrot0 spiega un «no» guadagnato** | «Because bornite is a copper mineral, and nothing is both a copper mineral and an iron oxide mineral.» |
+| **le prove si leggono** | `class_surface/2` — il nome di una classe nella lingua, appreso dove la classe entra — e tre percorsi di resa che la chiedono |
+| **soggetti e classi multi-parola** | quattro rami legati a un conteggio di parole fisso, piu' il soggetto letto per ruolo in tre vie |
+| **l'induzione propone e non conclude** | misurato su cinque campi: produce sempre entrambe le direzioni con supporto identico; ora deposita candidati e **chiede** |
+| **niente induzioni nella KB ufficiale** | `/save` instradava `KB_INDUCED`: otto regole false persistite, tolte |
+| **l'inferenza compositiva** | `docs/plans/inferenza-compositiva.md` + `kb/core/composition.p0`, quattro cipolle vive |
+| **crescita reale** | siderite, i tre solfuri di rame, malachite, azurite, e le due regole tassonomiche — tutto verificato in processo fresco |
+
+## Le tre cose da sapere prima di toccare qualcosa
+
+1. **`PARROT0_PROFILE=kb/profiles/agi.p0` non e' facoltativo** — senza, la KB
+   appresa non si carica e sembra che parrot0 abbia dimenticato tutto;
+2. **lezione e verifica nella stessa pipe** — ogni invocazione e' un processo
+   nuovo;
+3. **per adesso niente suite** (indicazione di F.): il rosso e' preesistente e
+   di prestazione, e la verifica di questo periodo e' parlare.
+
+## Una regola che questa sessione lascia
+
+> Prima di scrivere una riga: **la capacita' esiste gia' e non si riesce a
+> raggiungerla parlando?** Oggi, in sette casi su nove, la risposta era si'. Il
+> lavoro non e' aggiungere facolta': e' togliere i conteggi, le posizioni fisse
+> e le chiavi interne che stanno fra una capacita' e la lingua.
+
+E la sua gemella, dalla prova su cinque campi:
+
+> Il supporto dice **di quale candidato vale la pena chiedere**, mai **se e'
+> vero**. Quello lo dice solo la risposta.
+
+---
+
 # ⭐ LA MISSIONE ATTIVA — LE CONNESSIONI FERTILI FRA DOMINI
 
 > **F.:** *«mi interessa che ti concentri sulla questione delle connessioni
@@ -266,6 +316,62 @@ nuova costa **fatti**, e diventa insieme:
 - **verificabile** — `code_eval` puo' controllare che la funzione emessa dia
   `10` per massa 2 e accelerazione 5. **L'oracolo esiste gia'**, e senza oracolo
   il rifiuto sopra resta la risposta giusta.
+
+## ⭐ LE DUE FORME DEVONO ESISTERE ENTRAMBE — appunti di F., e sono un vincolo
+
+> **F.:** *«per me tutte e due le cose devono esistere. Deve esistere nella KB un
+> predicato legato alla versione in stringa della formula, come prosa sintetica,
+> e parrot0 da quella prosa sapra' fare inferenza usando ad esempio il meccanismo
+> del thinking — sarebbe bellissimo che attraverso il thinking la formula venga
+> esposta in prosa e poi successivamente riacquisita come IR nella memoria. Ma al
+> tempo stesso una versione sotto forma di conoscenza esplicita, scritta in
+> Prolog con regole e predicati annidati, e' molto importante perche' fa da
+> percorso neurale nella risoluzione: risponde a domande come «in quale formula
+> e' coinvolta la massa», che in questo caso non si potrebbe inferire dalla
+> stringa.»*
+
+⛔ **Non e' un aut-aut, ed e' la correzione da tenere:** la proposta qui sopra
+(«la legge smette di essere una frase e diventa una relazione») era **meta'
+giusta**. La prosa non va sostituita — va **affiancata**, e le due forme si
+servono a vicenda.
+
+### Che cosa fa ciascuna, e perche' nessuna basta
+
+| | la **prosa sintetica** | la **struttura esplicita** |
+|---|---|---|
+| forma | `law_prose(newtons_second_law, "force is mass times acceleration")` | `law_formula(newtons_second_law, force, product(mass, acceleration))` |
+| serve a | essere **detta**, letta, e **rientrare** — il thinking la espone in prosa e la prosa torna dentro come IR | essere **percorsa** — e' il percorso di risoluzione, il «percorso neurale» |
+| risponde a | «che cos'e' la seconda legge di Newton?» | «**in quale formula e' coinvolta la massa?**» |
+| non puo' | rispondere alla domanda strutturale: nella stringa la massa e' una parola, non un ruolo | essere letta ad alta voce senza una realizzazione, ne' rientrare come testo |
+
+### La domanda che separa le due forme, e va usata come gate
+
+> **«in quale formula e' coinvolta la massa?»**
+
+E' il test decisivo, e va tenuto come cricchetto: **non e' inferibile dalla
+stringa**, per quanto la stringa sia ben scritta. Richiede che `mass` sia un
+NODO di un albero interrogabile, non una sottostringa. Se un giorno qualcuno
+proponesse di tenere solo la prosa, questa domanda e' la falsificazione.
+
+### Il ciclo che F. chiama «bellissimo», e che e' anche il piu' verificabile
+
+```text
+struttura  →  thinking  →  prosa esposta  →  riacquisita come IR  →  memoria
+   ↑                                                                    │
+   └────────────────── e la struttura ne esce confermata ───────────────┘
+```
+
+Ha una proprieta' rara: **si controlla da solo**. Se la prosa generata dalla
+struttura, riletta, produce la STESSA struttura, il giro e' corretto; se ne
+produce un'altra, si e' scoperto un difetto senza bisogno di un oracolo esterno.
+E' l'audit dell'eco (`gen491`) applicato a una legge invece che a un fatto — ed
+e' esattamente il difetto che oggi ha morso su `capital_of`, dove l'eco diceva
+l'inverso del fatto appreso.
+
+⚠ Chi implementa: le due forme vanno tenute **legate dallo stesso nome di
+legge**, mai duplicate in due file diversi che possono divergere in silenzio. La
+prosa si genera dalla struttura quando si puo' (una fonte, due rese), e si
+scrive a mano solo quando la lingua dice qualcosa che l'albero non contiene.
 
 ## Dove si scrive — la struttura della KB, misurata
 
