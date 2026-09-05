@@ -1945,3 +1945,157 @@ Una lezione di ordine superiore è chiusa solo se:
 - **non** produce un «Learned rule» quando non ha ancorato niente;
 - il contesto dichiarato **restringe** davvero: fuori dal dominio la regola non
   deve concludere.
+
+---
+---
+
+# ⛔ INFERENZA COMPOSITIVA — riferimento rapido e tecnica d'uso
+
+> **Aggiunto il 2026-09-05 (`gen505`).** Piano completo:
+> [`inferenza-compositiva.md`](inferenza-compositiva.md). Codice:
+> `kb/core/composition.p0` (292 righe), gate
+> `tests/p0t/reasoning/composed_answer.p0t` (18 assert verdi), commit `271b81a`.
+>
+> **Perché sta in questo documento:** l'apprendimento assistito insegna *fatti*
+> e *forme*, ma la risposta restava un blocco unico. Con la composizione la
+> risposta diventa **un albero di stadi**, e un insegnamento può toccarne
+> **uno** invece di riscrivere la frase intera. È la differenza fra correggere
+> una frase e correggere una condotta.
+
+## 1. Il concetto in cinque righe
+
+Una risposta lunga non è una stringa con dei buchi: è un **albero di inferenza
+appiattito**, e i suoi connettivi (`: `, `, and`, `, so`) sono le cicatrici
+delle relazioni retoriche cancellate dall'appiattimento.
+
+Uno **stadio** è un'inferenza che, se la sua tesi regge, avvolge il testo già
+composto più all'interno. **Se non regge, lo stadio non esiste**: la risposta è
+più corta, non sbagliata. È l'intera differenza con un segnaposto, che è un buco
+che aspetta un valore e resta un buco.
+
+|  | segnaposto | stadio |
+|---|---|---|
+| fisso | la **forma** | il **contenuto** (esiste perché dimostrato) |
+| se il pezzo manca | un buco, o una bugia | lo strato sparisce |
+| estensione | riscrivi la stringa in ogni lingua | un fatto `stage_wraps/2` |
+
+## 2. Il vocabolario, tutto qui
+
+| predicato | dice |
+|---|---|
+| `stage_wraps(Esterno, Interno)` | la cipolla. Due fatti con lo stesso esterno = l'albero **si dirama** |
+| `stage_claim(Stadio, Tesi)` | che cosa lo stadio deve dimostrare per esistere. Senza = incondizionato |
+| `stage_relation(Stadio, Rel)` | `frames` `embeds` `elaborates` `concludes` `contrasts` `qualifies` `causes` `offers` |
+| `stage_side(Stadio, before\|after)` | avvolge prima o dopo |
+| `stage_text(Stadio, Lingua, Testo)` | la sua superficie — può essere una regola, quindi a sua volta composta |
+| `relation_connective(Rel, Lingua, Conn)` | il connettivo **non** sta nello stadio: è la resa della relazione |
+
+Il motore è `composed(Stadio, Lingua, Testo)`: sei clausole, **zero parole**.
+Nucleo, strato-che-regge, strato-che-non-regge (sparisce), più due per
+avvolgere. Non si tocca per aggiungere una risposta.
+
+## 3. Tecnica: come si sfoglia un template, in sei passi
+
+1. **Scegli con una misura, non a intuito.** Le frasi *identiche* presenti in
+   più `response_template` sono gli stadi a cui nessuno ha dato un nome:
+
+   ```bash
+   # estrai i template, spezzali in frasi, tieni quelle in ≥2 template
+   grep -rh '^response_template(' kb/ | ...   # vedi §5 di inferenza-compositiva.md
+   ```
+   È così che è stata scelta la famiglia `repair` («The workspace is unchanged.»
+   compariva in due template, «I cannot verify a repair because …» in altri due).
+
+2. **Conta le tesi, non le parole.** Scrivi la frase e chiediti quante cose
+   distinte afferma. `undetermined_cycle` ne afferma **cinque** e riceve **due**
+   segnaposto: le tre eccedenti sono prosa non dimostrata — e due di esse sono
+   **false** in stati raggiungibili.
+
+3. **Trova il nucleo**: la cosa che è vera in *tutti* gli stati della famiglia.
+   Se non esiste, la famiglia ha **due nuclei esclusivi** e l'albero si dirama
+   (è il caso di `repair`: «verifica bloccata» vs «verifica avvenuta»).
+
+4. **Un filo solo, molte prove.** Ogni stadio riceve dall'interno **soltanto il
+   testo già composto**. Tutto il resto se lo dimostra da sé. Senza questo
+   vincolo torni a un contesto globale di slot, cioè a un template.
+
+5. **Regola del segnaposto lecito:** un buco è ammesso *se e solo se* nomina un
+   **argomento della tesi che quello stadio ha dimostrato**. Un buco che nomina
+   qualcosa che lo stadio non ha provato è un template travestito.
+
+6. **Il pezzo variabile sta FRA due pezzi dichiarati**, non dentro una stringa da
+   spaccare: `repair_response_phrase(Esito, Lingua, Prima, Dopo)` con il
+   bersaglio in mezzo. Una forma che il bersaglio *non* lo nomina è un
+   **predicato diverso**, non lo stesso con il pezzo vuoto (simularlo con la
+   stringa vuota attaccava il path in coda).
+
+## 4. Come si esercita, subito
+
+Nessuna conversazione: la composizione si interroga come qualunque predicato.
+
+```bash
+# una resa, vista per intero (i sensori si mettono a mano finché il C non li deposita)
+printf '%s\n' \
+ '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"repair_outcome","args":["current_turn","commit_conflict"]}}}' \
+ '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"repair_target","args":["current_turn","src/sort.c"]}}}' \
+ '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"kb.match","arguments":{"pred":"composed","args":["workspace_state","it",null]}}}' \
+ | ./bin/parrot0 --mcp-engine
+```
+
+Nel gate `.p0t` la stessa cosa si asserisce così — e **si può interrogare ogni
+strato da solo**, perché ognuno è una risposta compiuta:
+
+```
+!assert repair_outcome(current_turn, commit_conflict)
+!query composed(workspace_state, en, "The base of src/sort.c changed while …")
+!query! repair_workspace(current_turn, holds_fix)
+```
+
+## 5. Trappole misurate (costano ore se non le sai)
+
+- **`naf` con una variabile LIBERA nel goal negato non lega.**
+  `naf(stage_wraps($S, $Any))` fallisce sempre; `naf(stage_is_wrapper($S))`, con
+  il goal interamente legato, funziona. Si maschera da «nessuna soluzione», come
+  la cattura di variabile in `findall`. **Regola: il goal dentro `naf` va reso
+  di arità 1 e legato.**
+- **Le virgolette.** Un letterale di file le porta (`stage_text(…, "…")`),
+  `concat_atoms` le toglie: un testo **composto** è senza. Da `gen505` `!query`
+  ritenta dequotando, altrimenti non potevi asserire su nessuna risposta
+  costruita — né nominarne una che contiene una virgola, perché la virgoletta è
+  anche ciò che la protegge dallo splitter degli argomenti.
+- **Il demone vecchio.** `parrot0 --test` parla con il demone già acceso: dopo
+  una modifica a C **o** a KB, se non lo riavvii stai misurando il binario di
+  prima. Un `make soft-test` fallito ne lascia uno in piedi.
+- **`kb/core/*.p0` non si carica da solo**: serve una riga `kb_load` in
+  `src/brain/99-registry.c`.
+- **Debito noto:** la via KB non attraversa `present_rule(strip_underscore)` (il
+  C lo applica per conto suo, `gen504`), quindi una classe multi-parola si rende
+  ancora `iron_oxide_mineral`.
+
+## 6. Che cosa ha già sbloccato
+
+- `undetermined_cycle` e `no_support_either_way` **non erano due risposte**:
+  sono una cipolla in due stati. Il terzo stato (budget senza ciclo) oggi indossa
+  le parole del ciclo, ed è falso.
+- La famiglia `repair`: le rese inglesi riproducono **esattamente** i due
+  template monolitici, e **l'italiano — che non esisteva — arriva gratis**.
+- «The workspace is unchanged.» non è più affermata a scatola chiusa: è una tesi
+  con **due dimostrazioni** (rollback byte-e-permessi, rifiuto prima di ogni
+  scrittura), quindi un esito nuovo che lasci il lavoro pulito la eredita senza
+  che nessuno la riscriva.
+
+## 7. Il confine con il vincolo zero di questo documento
+
+Gli stadi sono oggi scritti in `.p0` da noi: **non** sono ancora insegnati
+parlando, quindi nulla di quanto sopra vale come lezione riuscita ai sensi del
+vincolo zero. È però il substrato che rende la lezione *possibile*, e indica lo
+strato M successivo da aprire:
+
+> «quando non riesci a stabilirlo, **non dire** che le regole si rimandano a
+> vicenda se non le hai viste» — cioè **ritrarre uno stadio parlando**, e
+> «aggiungi che me lo posso far dire» — **aggiungerne uno**.
+
+Oggi una correzione del genere obbliga a riscrivere un template intero, in ogni
+lingua. Con gli stadi è un fatto solo, e vale per **ogni** risposta che dimostri
+quella tesi. Il gate di quello strato è lo stesso di §6.3: la lezione deve valere
+su una famiglia **held-out**, in entrambe le lingue, e ritrattarsi parlando.
