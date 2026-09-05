@@ -197,6 +197,80 @@ is a humanities_topic» quando si chiede «what is socrates?». Chi guarda quell
 risposta pensa che parrot0 lo sappia; e' invece una generalizzazione per
 co-occorrenza con supporto 2.
 
+## ⭐ `kb_induce` messo alla prova su cinque campi — e la risposta alla domanda di F.
+
+> F.: *«le due non si devono escludere a vicenda — proporre invece di
+> concludere, o alzare il pavimento. Cambiamo campo, facciamo diverse
+> iterazioni, e partiamo dalla domanda principale: ci serve davvero
+> `kb_induce`, o e' stata una forzatura logica e i suoi risultati si potevano
+> raggiungere in altro modo?»*
+
+Esperimento, non ragionamento: quattro fatti (o sei) in un campo, poi
+`generalize`, e si guarda **che cosa** viene indotto.
+
+| campo | supporto | direzione A | direzione B |
+|---|---:|---|---|
+| strumenti musicali | 2 | `bowed_instrument :- string_instrument` ❌ *(la chitarra)* | `string_instrument :- bowed_instrument` ✅ |
+| geometria | 2 | `parallelogram :- quadrilateral` ❌ *(il trapezio)* | `quadrilateral :- parallelogram` ✅ |
+| uccelli e volo | 2 | `flier :- bird` ❌ *(il pinguino)* | `bird :- flier` ❌ *(il pipistrello)* |
+| mammiferi | 3 | `animal :- mammal` ✅ | `mammal :- animal` ❌ |
+| gas nobili | 3 | `inert_gas :- noble_gas` ✅ | `noble_gas :- inert_gas` ✅ |
+
+### La legge, ed e' una sola
+
+**L'induzione produce SEMPRE tutte e due le direzioni, con supporto identico**, e
+la verita' cade in tutte e quattro le combinazioni possibili: una vera, nessuna
+vera, entrambe vere. **Il supporto non porta nessuna informazione su quale.** Il
+campo D lo dimostra da solo: supporto 3 invece di 2, e la direzione sbagliata
+resta esattamente altrettanto sostenuta.
+
+### Le due cure non sono alternative, e non sono pari
+
+F. ha ragione che non si escludono, e l'esperimento dice **perche'**:
+
+- **alzare il pavimento** cambia *quanto spesso* l'induzione sbaglia. Non tocca
+  la direzione: con venti uccelli che volano, `flier :- bird` ha supporto venti
+  ed e' falsa uguale;
+- **proporre invece di concludere** cambia *che cosa* l'induzione afferma — da
+  una conclusione a una domanda.
+
+Quindi: **proporre e' la cura, il pavimento e' l'ordinamento.** Insieme:
+si inducono i candidati, si ordinano per supporto, si CHIEDE del migliore.
+
+### La risposta alla domanda principale
+
+**Come produttore di conoscenza, `kb_induce` non serve** — ed e' dimostrato, non
+opinato: non puo' azzeccare la direzione se non per fortuna, e i suoi risultati
+si ottengono meglio in una riga di lezione («every mammal is an animal»), che e'
+sempre corretta e non va ripulita dopo.
+
+**Come generatore di DOMANDE serve, ed e' prezioso.** Trova esattamente le coppie
+di classi la cui relazione la KB **non ha stabilito** — cioe' lo spazio negativo
+di [`question-emergence.md`](docs/plans/question-emergence.md), calcolato a costo
+quasi zero dai soli fatti. E la domanda che ne nasce si ripaga in entrambi i
+versi:
+
+```text
+«ogni strumento ad arco che conosco e' anche a corda: vale sempre?»
+  → «si'»  → una regola guadagnata, che l'induzione non poteva guadagnare
+  → «no»   → la DIREZIONE, o un'esclusione (`exclusive_classes`, gen505)
+```
+
+Il «no» vale quanto il «si'»: e' la stessa dottrina del «no» guadagnato chiusa
+oggi. Un'induzione che chiede non e' piu' una forzatura logica — e' il modo in
+cui la KB si accorge di cio' che le manca.
+
+### Che cosa resta da fare, in ordine
+
+1. `kb_induce` **non asserisce piu'**: deposita `induced_candidate(Testa, Corpo,
+   Supporto)` — un fatto su cui si puo' ragionare, come `machinery_gap` e
+   `saturated_read`;
+2. la domanda si compone dal candidato migliore (e' una cipolla:
+   [`inferenza-compositiva.md`](docs/plans/inferenza-compositiva.md));
+3. la risposta e' una lezione ordinaria e passa dalle vie gia' aperte;
+4. finche' (1) non c'e', l'induzione **non deve decidere una polare**: e' il
+   «si'» non guadagnato registrato piu' sopra.
+
 ## La regola che riassume il periodo
 
 > Prima di scrivere una riga: **la capacita' esiste gia' e non si riesce a
