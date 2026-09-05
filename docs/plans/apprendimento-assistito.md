@@ -141,7 +141,7 @@ Il determinismo rende una risposta riproducibile, non automaticamente vera.
 ### 0.2 Punto di partenza verificato e limiti dell'evidenza
 
 Ricognizione del 2026-09-05 sul commit `70b5036`: lettura dei piani,
-di [HANDOFF.md](../../HANDOFF.md), delle dichiarazioni KB, dei consumer e dei
+della chiusura confluita in [LEARN_TODO.md](../../LEARN_TODO.md), delle dichiarazioni KB, dei consumer e dei
 test citati. **È un audit statico; i conteggi storici non sono stati
 rimisurati da questa revisione del piano.** La prima attività V0 li deve
 associare a una misura riproducibile sul binario corrente.
