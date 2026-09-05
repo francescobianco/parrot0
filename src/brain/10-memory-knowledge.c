@@ -1123,9 +1123,21 @@ static void polar_class_answer(Brain *b, const char *subj, const char *cls,
      * leggerli. Depositato come `turn_goal/3`, il turno diventa interrogabile —
      * ed e' cio' che permette alla KB di COMPORRE la spiegazione di un «no»
      * guadagnato senza che il motore sappia niente di esclusioni. */
-    {   const char *tg[] = { "current_turn", subj, cls };
+    {   /* gen505c — UN SENSORE DEL TURNO NON E' CONOSCENZA DEL MONDO.
+         *
+         * Asserito con l'origine corrente (di sessione), `turn_goal/3` veniva
+         * instradato da `/save` e finiva in `kb/learning/learned.p0` accanto ai
+         * fatti veri: «turn_goal(current_turn, hematite, copper_sulfide_mineral)»
+         * — cioe' una domanda passata conservata come se fosse un fatto sul
+         * mondo. E' la stessa specie che l'handoff segnala per `auto_induce`.
+         * KB_REFLECTIVE e' l'origine dei sensori (`kb_saturation_commit`,
+         * `capabilities.p0`): vive nel turno e non viene persistita. */
+        const char *tg[] = { "current_turn", subj, cls };
+        int saved_origin = kb_origin(b->kb);
         kb_retract_pred(b->kb, "turn_goal");
-        kb_assert(b->kb, "turn_goal", tg, 3); }
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        kb_assert(b->kb, "turn_goal", tg, 3);
+        kb_set_origin(b->kb, saved_origin); }
     b->has_last_goal = 1;
 }
 

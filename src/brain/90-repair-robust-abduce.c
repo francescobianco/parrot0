@@ -1030,8 +1030,11 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         char subj_c[KB_TERM_LEN], cls_c[KB_TERM_LEN];
         if (p0_negative_goal_parts(b, clause, subj_c, sizeof subj_c, cls_c, sizeof cls_c)) {
             const char *tg[] = { "current_turn", subj_c, cls_c };
+            int saved_origin = kb_origin(b->kb);   /* gen505c: sensore, non conoscenza */
             kb_retract_pred(b->kb, "turn_goal");
+            kb_set_origin(b->kb, KB_REFLECTIVE);
             kb_assert(b->kb, "turn_goal", tg, 3);
+            kb_set_origin(b->kb, saved_origin);
             if (p0_composed_say(b, "negative_because", out, out_size)) return 1;
         }
     }

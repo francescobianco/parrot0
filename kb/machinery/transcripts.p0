@@ -832,6 +832,7 @@ utterance(2, self, "I don't know about iron_oxide_mineral.").
 utterance(2, self, "Learned: siderite is an iron ore mineral.").
 utterance(2, self, "Learned: chalcopyrite is a copper mineral.").
 utterance(2, self, "I don't know about copper sulfide mineral.").
+utterance(2, self, "Learned: azurite is a copper carbonate mineral.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -858,6 +859,7 @@ utterance(1, user, "is hematite an iron oxide mineral?").
 utterance(1, user, "siderite is an iron ore mineral").
 utterance(1, user, "chalcopyrite is a copper mineral").
 utterance(1, user, "is bornite a copper sulfide mineral?").
+utterance(1, user, "azurite is a copper carbonate mineral").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -878,6 +880,7 @@ utterance(4, self, "Ricevuto — d'ora in poi prendo «dov» come another way to
 utterance(4, self, "I don't know about iron_oxide_mineral.").
 utterance(4, self, "Learned: siderite is a carbonate mineral.").
 utterance(4, self, "I can't show that.").
+utterance(4, self, "I don't know: nothing I hold says azurite is a copper sulfide mineral, and nothing says it isn't. Knowing some copper sulfide minerals does not tell me they are all of them, so not proved is not the same as false. Tell me either way and I will hold it.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -899,6 +902,7 @@ utterance(3, user, "learn 'dov' as another way to ask located_in").
 utterance(3, user, "is magnetite an iron oxide mineral?").
 utterance(3, user, "siderite is a carbonate mineral").
 utterance(3, user, "why is bornite a copper sulfide mineral?").
+utterance(3, user, "is azurite a copper sulfide mineral?").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").
