@@ -188,6 +188,122 @@ La missione e l'ordine sotto restano validi, con due aggiornamenti: il ramo
 della voce 2 non e' piu' ignoto, e il tetto a otto token della voce 1 e' rimosso.
 Restano i conteggi dei singoli rami e i soggetti legati a una posizione sola.
 
+# ⭐ LA MISSIONE ATTIVA — LE CONNESSIONI FERTILI FRA DOMINI
+
+> **F.:** *«mi interessa che ti concentri sulla questione delle connessioni
+> fertili fra domini, soprattutto mettendo in relazione il dominio
+> dell'informatica e della programmazione con tutti i domini scientifici,
+> dimostrando abilita' che mettono insieme regole del mondo fisico con la
+> capacita' poi di saper convertire in algoritmo quelle regole.»*
+>
+> **E il mandato operativo, esplicito:** *«non troverai molto ed e' compito tuo
+> arricchire la KB con conoscenza prodotta da te in formato opportuno; studia la
+> struttura di cartelle della KB e produci e popola conoscenza, al fine di poi
+> lavorare sulle connessioni di dominio.»*
+
+**Il punto da dimostrare e' il passaggio dal SIGNIFICATO della legge al
+CALCOLO** — non la restituzione di codice gia' pronto. Una legge che parrot0
+capisce dev'essere una legge che parrot0 sa eseguire, e viceversa: chi sa
+eseguirla deve poter dire perche'.
+
+## Che cosa dice la misura, oggi
+
+```text
+> what is Ohm's law?
+  I don't know much about ohm's law yet. Want me to look it up?
+> write a python function to calculate force from mass and acceleration
+  I understood the request — produce «python function to calculate force from
+  mass and acceleration» — but I don't have a verified schema for that artifact
+  yet; I only synthesize what an oracle can check.
+```
+
+Il rifiuto e' **onesto** (mantra #7: dice quello che sa fare) e proprio per
+questo e' la misura giusta del buco.
+
+## La diagnosi, e sono TRE strati, non uno
+
+1. **La legge non e' raggiungibile per nome.** `em_law("Ohm's law", "V = IR --
+   voltage equals current times resistance")` e' in
+   `kb/experts/physics/electromagnetism.p0` e la domanda che la nomina va a
+   muro. E' la stessa famiglia dei muri chiusi oggi: la conoscenza c'e' e manca
+   la strada.
+2. **La legge e' PROSA, non struttura.** `mechanics_concept(force, "a push or
+   pull that changes an object's motion -- F = ma")`: la formula vive dentro una
+   frase per umani. Non c'e' niente da convertire in algoritmo, perche' non c'e'
+   nessuna struttura — solo un testo che *contiene* dei caratteri `F = ma`.
+   **Questo e' il vero collo**, ed e' anche il motivo per cui il rifiuto e'
+   corretto: nessun oracolo puo' verificare una stringa.
+3. **Il lato codice esiste gia' e non e' collegato.** `code_operator/2`
+   (`kb/experts/programming/compose.p0`, `+ - * /` e i loro nomi comuni),
+   `code_shapes.p0`, `algo_steps.p0`, `python.p0`/`c.p0`/`bash.p0` con le loro
+   sintassi, e `mod_compose` che compone e **verifica con `code_eval`**. Il
+   ponte fra una legge e questa macchineria non esiste.
+
+## La forma di conoscenza da produrre — la proposta
+
+Una legge diventa calcolabile se smette di essere una frase e diventa una
+**relazione con una struttura**:
+
+```prolog
+% la grandezza che la legge DEFINISCE, e l'espressione che la calcola
+law_defines(newtons_second_law, force).
+law_formula(newtons_second_law, force, product(mass, acceleration)).
+law_surface(newtons_second_law, "Newton's second law").
+
+quantity_unit(force, newton).
+quantity_unit(mass, kilogram).
+quantity_symbol(force, "F").
+```
+
+Da qui il ponte verso il codice **non e' una seconda macchineria**: e' una
+regola che riusa `code_operator/2`, che gia' traduce `product` in `*`. Una legge
+nuova costa **fatti**, e diventa insieme:
+
+- **spiegabile** — «la forza e' il prodotto di massa e accelerazione» si compone
+  dagli stessi pezzi (e' una cipolla, vedi `inferenza-compositiva.md`);
+- **calcolabile** — l'espressione e' un albero, non un testo;
+- **scrivibile in codice** — in ogni linguaggio che dichiara la propria sintassi;
+- **verificabile** — `code_eval` puo' controllare che la funzione emessa dia
+  `10` per massa 2 e accelerazione 5. **L'oracolo esiste gia'**, e senza oracolo
+  il rifiuto sopra resta la risposta giusta.
+
+## Dove si scrive — la struttura della KB, misurata
+
+| cartella | file | che cosa ci va |
+|---|---:|---|
+| `kb/core/` | 60 | la macchineria del motore: grammatica, risposte, procedure, composizione |
+| `kb/experts/` | 18 domini | **qui**: `physics/`, `chemistry/`, `biology/`, `mathematics/`, `engineering/`, `programming/` |
+| `kb/facts/` | 25 | fatti di mondo per dominio |
+| `kb/wiki/` | 21 | corpus statico da cui si legge |
+| `kb/learning/` | 6 | cio' che si e' imparato parlando (`/save`) |
+| `kb/machinery/` | 10 | provenienza, trascritti, sensori |
+| `kb/skills/`, `kb/templates/`, `kb/profiles/` | 6/2/10 | abilita', schemi, profili di boot |
+
+I domini scientifici sono **quasi vuoti**: `physics/` ha due file
+(`mechanics.p0`, `electromagnetism.p0`) e nessuna legge in forma strutturata. E'
+esattamente il lavoro che F. assegna — **produrre e popolare**, non cercare.
+
+## L'ordine di lavoro
+
+1. **La forma prima del volume**: strutturare *una* legge (F = ma) e portarla
+   fino alla funzione verificata da `code_eval`. Se il ponte regge su una,
+   aggiungerne venti e' popolamento; se non regge, venti leggi sono venti righe
+   inerti.
+2. **Poi la seconda legge in un dominio DIVERSO** (Ohm), che e' la prova della
+   generalita': lo stesso ponte, zero C nuovo.
+3. **Poi la composizione fra leggi** — energia cinetica da massa e velocita' e'
+   `product(half, product(mass, square(velocity)))`: la struttura si annida, e
+   se il ponte e' fatto bene si annida anche il codice.
+4. **Poi il verso inverso, che e' la vera connessione fertile**: dato un
+   algoritmo, dire quale legge realizza. E' l'abilita' che nessun frasario puo'
+   simulare.
+
+⚠ **Il gate anti-impostore**: una funzione emessa e non verificata non conta.
+`mod_compose` esiste proprio perche' l'oracolo decida — vedi la critica gen206
+in `docs/plans/generative.md`, «il generatore propone, l'oracolo dispone».
+
+---
+
 # ⛔ RIPARTI DA QUI — handoff 2026-09-05 (sera), `gen505b`
 
 > **Questo handoff prevale su tutte le intestazioni piu' vecchie del file**,
