@@ -134,7 +134,7 @@ Il verbo ha due buchi, **entrambi da chiudere e nessuno dei due grande**:
      variante della polare, stesso perno e stesso `verb_stem/2`, con l'oggetto
      ignoto risolto **enumerando**.
 
-### ⛔ Il secondo turno rubato resta aperto — e so chi e', non come curarlo
+### ✅ Il secondo turno rubato e' chiuso — e il modulo NON e' stato tolto
 
 ```text
 > socrates is a man
@@ -147,17 +147,37 @@ Misurato: `means(man, …)` **non esiste**, quindi `answerframe` e' arrivato a
 `means(invisible_man, …)` per somiglianza di token, e risponde **su un'entita'
 diversa da quella nominata**. E' la forma piu' generale del furto.
 
-- ⛔ **non** usare `compound_guard(answerframe, …)`: esiste ed e' il meccanismo
-  gia' pronto, ma e' una lista di cue per sintomo, cioe' S1 sotto un altro nome;
-- ⭐ la cura giusta e' una **regola di legittimita' generale**, non un caso
-  particolare: *non rispondere su un'entita' diversa da quella che il turno ha
-  nominato* — o, se lo si fa, dirlo. Vale per ogni furto della stessa specie,
-  non solo per questo;
-- non l'ho fatta perche' `mod_answer_frame` e' un modulo molto usato e non l'ho
-  letto per intero: il rischio di rompere un percorso caldo era reale. Il punto
-  in cui guardare e' il ciclo delle superfici candidate
-  (`10-memory-knowledge.c`, ~7648, `if (!*surface || !cue(norm, surface))`) e
-  il passaggio per TOKEN che il commento subito sotto descrive.
+**Prima la domanda giusta di F.: `answerframe` e' un organo morto?** Misurato:
+**no, e' quello nuovo.** 362 superfici dichiarate piu' delle REGOLE che le
+derivano — `answer_frame($Verb, $Verb) :- relation_verb($Verb).`
+(`grammar.p0:771`), una riga per cui **ogni relazione insegnata a voce diventa
+interrogabile senza un ramo in C**. La prova: `who governs rome?`, su una
+relazione insegnata parlando, e' servita proprio da lui. Se un organo mostra
+l'eta' e' `mod_knowledge`, la catena di forme cablate censita in `C_TODO`.
+**Toglierlo sarebbe stato il rimedio peggiore.**
+
+**La cura, dentro il modulo e senza cue.** Il passo colpevole e' G2 — «la frase
+come descrizione, non come chiave»: «il libro» non e' `book_red` ma ne nomina la
+testa. Giusto, e troppo largo quando la parola e' NUDA ed e' per di piu' una
+CLASSE: «man» pescava `invisible_man` (stessa testa, nessuna proprieta'
+contraddetta). Ora **una parola che nomina un predicato noto non e' la
+descrizione di un'entita'**: il turno sta parlando di quella classe, e chi sa
+enumerarla risponde meglio.
+
+```text
+> socrates is a man
+> who is a man?      socrates, plato.
+> who answered?      The 'knowledge' module answered your last question.
+```
+
+Nessun vocabolario nel C — la domanda e' «esiste questo predicato?», e la
+risposta cresce con la KB. E la discriminazione e' esattamente quella voluta:
+`man` e' un predicato con membri, `book` no, quindi il caso legittimo di G2
+regge — «where is the book?» → `table` con la chiave `red_book`.
+
+⭐ **La regola generale che questo lascia:** *non rispondere su un'entita'
+diversa da quella che il turno ha nominato.* Qui e' applicata al passo che la
+violava; vale per ogni furto della stessa specie.
 
 ⚠ **Nota di onesta' su `b53afd0`:** il suo messaggio annuncia anche
 l'aggiornamento di `LEARN_TODO`/`C_TODO`, che **non e' avvenuto** — la

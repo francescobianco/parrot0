@@ -7730,8 +7730,29 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                      * E se la descrizione combacia con DUE entita' diverse, non
                      * si sceglie: l'ambiguita' e' un'informazione, e sceglierne
                      * una sarebbe inventare quale libro intendesse chi parla. */
+                    /* gen505g — UNA PAROLA CHE NOMINA UNA CLASSE NON E' LA
+                     * DESCRIZIONE DI UN'ENTITA'.
+                     *
+                     * G2 legge un sintagma come descrizione: «il libro» non e'
+                     * la chiave `book_red`, ma ne nomina la testa. Giusto — e
+                     * troppo largo quando la parola e' NUDA e per di piu' e' una
+                     * classe: «who is a man?» diventava una descrizione che
+                     * pescava `invisible_man` (stessa testa, nessuna proprieta'
+                     * contraddetta) e parrot0 rispondeva con la trama di un
+                     * romanzo a una domanda di appartenenza — su un'entita' che
+                     * nel turno non compare.
+                     *
+                     * La regola non e' una cue e non e' una cessione
+                     * (`turn-arbitration.md` vieta la quarta riga di
+                     * `faculty_yield`): e' LEGITTIMITA'. Se la chiave nomina un
+                     * predicato che la KB conosce, il turno sta parlando di
+                     * quella CLASSE, e chi sa enumerarla rispondera' meglio.
+                     * Nessun vocabolario nel C: la domanda e' «esiste questo
+                     * predicato?», e la risposta cresce con la KB. */
                     char amb[4][KB_TERM_LEN]; size_t namb = 0;
-                    na = p0_answer_by_description(b, pred, key, allow_arg1,
+                    na = kb_knows_pred(b->kb, key)
+                       ? 0
+                       : p0_answer_by_description(b, pred, key, allow_arg1,
                                                   allow_arg2, ans, 16,
                                                   amb, &namb);
                     if (na == 0 && namb >= 2) {
