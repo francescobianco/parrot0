@@ -940,6 +940,9 @@ extract_frame($Pat, $Pred) :-
     concat_atoms("la ", $Noun, $A),
     concat_atoms($A, " di @S e' @O", $Pat).
 
+% ⚠ gen505d — QUESTA LISTA NON SI PUO' FAR CRESCERE PARLANDO, e ci ho provato.
+% Il reperto completo (che cosa funziona, che cosa no, e le misure) e' in
+% LEARN_TODO.md, sezione «la relazione che non si puo' insegnare».
 relation_noun(capital_of, "capital").
 relation_noun(population_of, "population").
 relation_noun(currency_of, "currency").
@@ -1814,3 +1817,5 @@ view_depends(extract_frame, verb_suffix).
 view_depends(extract_frame, verb_stem).
 view_depends(verb_stem, relation_verb).
 view_depends(verb_stem, verb_suffix).
+
+

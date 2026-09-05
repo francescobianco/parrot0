@@ -285,6 +285,69 @@ cui la KB si accorge di cio' che le manca.
 4. finche' (1) non c'e', l'induzione **non deve decidere una polare**: e' il
    «si'» non guadagnato registrato piu' sopra.
 
+## ⛔ La relazione che non si puo' insegnare — campi esotici, `gen505d`
+
+Su indicazione di F. («le capitali sono uno stereotipo, andiamo su campi piu'
+esotici») ho spostato le sonde su **nodi**, **tessitura**, **tintura** e
+**fermentazione**. Le classi e le regole tassonomiche reggono in pieno:
+
+```text
+> the clove hitch is a hitch knot        Learned: clove hitch is a hitch knot.
+> every twill fabric is a woven fabric   Learned rule: woven_fabric(X) :- twill_fabric(X).
+> why is denim a woven fabric?           denim is a woven fabric because denim is a twill fabric.
+```
+
+Le **relazioni binarie** no, e il reperto e' preciso.
+
+### La macchineria e' gia' giusta, e questo rende il buco piu' netto
+
+`kb/core/grammar.p0` ha **una regola** che, per ogni relazione che dichiara il
+proprio nome comune (`relation_noun/2`), costruisce da sola il pattern «the X of
+@S is @O». Una relazione nuova costa **un fatto**. Misurato: scritto a mano
+`relation_noun(warp_of, "warp")`, la frase «the warp of denim is cotton» viene
+capita e l'eco e' corretta.
+
+### Ma quel fatto si puo' solo SCRIVERE
+
+- la lista e' chiusa a cinque (`capital`, `population`, `currency`, `language`,
+  `author`) e chi insegna parlando non puo' aggiungerne una sesta;
+- il muro **suggerisce una lezione che non funziona**: «if warp is something one
+  thing does to another, say "warp is a relation verb"» → `Learned: warp is a
+  relation verb.` e la capacita' **non cambia**. E' un misclaim (priorita' 2 di
+  §12): parrot0 dichiara di aver imparato e non ha imparato;
+- ho provato a fare il ponte in KB — «warp is a relation» asserisce
+  `relation(warp)`, e una regola ne deriva `relation_noun(warp_of, warp)`.
+  **La derivazione funziona** (verificato: `relation_noun(warp_of, ?)` → `warp`)
+  **ma `extract_frame` non rende il pattern lo stesso**, ne' col ponte a due
+  livelli ne' con una clausola diretta. Le sonde minime dicono che ogni PEZZO
+  funziona in isolamento (`relation($N)` ✓, i tre `concat_atoms` ✓, il pattern
+  costruito ✓): non regge solo **dentro** `extract_frame`, che ha **371
+  clausole**. Sospetto forte ma non dimostrato: la saturazione della lettura
+  gia' descritta in `C_TODO` §U2.
+
+### E la domanda e' un terzo buco
+
+Anche col fatto scritto a mano, «what is the warp of denim?» risponde «I don't
+know about warp»: il lato **domanda** non passa da `relation_noun`. Assertare e
+interrogare non condividono l'oggetto — e' la stessa figura del §5 (V2), qui su
+una relazione invece che su un referente.
+
+### Come riprendere, senza rifare la strada
+
+1. capire perche' una clausola in coda a `extract_frame` non contribuisce
+   (sonde gia' fatte: i pezzi funzionano da soli; guardare la saturazione prima
+   di sospettare la logica);
+2. dare al lato **domanda** lo stesso `relation_noun`;
+3. solo allora la lezione «warp is a relation» chiude il ciclo, e il muro va
+   riscritto perche' suggerisca QUELLA e non una che non registra niente.
+
+⚠ E un difetto indipendente, visto sulle capitali e valido ovunque: «the capital
+of Portugal is Lisbon» conferma «**Learned: portugal is the capital of lisbon**»
+— il fatto e' giusto, l'eco dice l'inverso. Chi rileggesse la conferma
+imparerebbe il contrario (e l'audit dell'eco esiste apposta, gen491). Col
+`relation_noun` scritto a mano per «warp» l'eco era invece corretta: e' il
+frame di resa di `capital_of` a essere invertito, non la meccanica.
+
 ## La regola che riassume il periodo
 
 > Prima di scrivere una riga: **la capacita' esiste gia' e non si riesce a

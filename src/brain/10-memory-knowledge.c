@@ -2469,6 +2469,15 @@ static size_t auto_induce(Brain *b, char *out, size_t out_size) {
      * candidati e QUESTA riga chiede del migliore — la composizione sceglie il
      * candidato, la lingua e la forma, e il C non nomina nessuno stadio. */
     (void)heads; (void)bodies;
+    /* gen505d — la domanda AUTOMATICA si fa solo se riguarda questo discorso.
+     *
+     * Il ripiego sul candidato globale e' giusto quando qualcuno chiede
+     * «generalizza»; attaccato a una lezione e' rumore — dopo «the bowline is a
+     * loop knot» parrot0 chiedeva di `philosopher`/`humanities_topic`. Qui si
+     * chiede solo se esiste un candidato che poggia su un fatto detto in questa
+     * sessione; quale sia, e in che lingua, lo decide la KB. */
+    const char *fq[] = { "current_turn" };
+    if (!kb_query(b->kb, "any_fresh_candidate", fq, 1)) return 0;
     char ask[512];
     if (!p0_composed_say(b, "induction_question", ask, sizeof ask) || !ask[0]) return 0;
     size_t out_len = strlen(out);
