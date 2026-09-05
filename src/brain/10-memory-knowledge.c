@@ -1118,6 +1118,14 @@ static void polar_class_answer(Brain *b, const char *subj, const char *cls,
     snprintf(b->last_goal_pred, sizeof b->last_goal_pred, "%s", cls);
     snprintf(b->last_goal_arg, sizeof b->last_goal_arg, "%s", subj);
     b->last_goal_yes = yes;
+    /* gen505 — LA DOMANDA POSTA E' UN FATTO SU CUI SI PUO' RAGIONARE.
+     * Tre campi del C dicono che cosa e' stato chiesto e nessuna regola puo'
+     * leggerli. Depositato come `turn_goal/3`, il turno diventa interrogabile —
+     * ed e' cio' che permette alla KB di COMPORRE la spiegazione di un «no»
+     * guadagnato senza che il motore sappia niente di esclusioni. */
+    {   const char *tg[] = { "current_turn", subj, cls };
+        kb_retract_pred(b->kb, "turn_goal");
+        kb_assert(b->kb, "turn_goal", tg, 3); }
     b->has_last_goal = 1;
 }
 
@@ -2487,6 +2495,53 @@ static int p0_class_nameable(Brain *b, const char *cls) {
     return kb_query(b->kb, "class_constrained", q, 1);
 }
 
+static int p0_join(char **w, size_t from, size_t to, char *out, size_t sz);      /* fwd (gen505) */
+static int p0_atom_within_cap(Brain *b, const char *atom);                       /* fwd (gen505) */
+
+/* gen505 — «<soggetto> not a/an <classe multi-parola>»: i due termini di un
+ * goal NEGATO, letti per ruolo e non per posizione. Negazione e articolo sono
+ * classi KB gia' esistenti; la classe si fonde con lo stesso `p0_join` di tutte
+ * le altre vie, cosi' non possono divergere su che cosa sia una classe. */
+static int p0_negative_goal_parts(Brain *b, const char *clause,
+                                  char *subj, size_t subj_size,
+                                  char *cls, size_t cls_size) {
+    if (!b || !b->kb || !clause) return 0;
+    size_t L = strlen(clause);
+    if (L < 5 || L >= 300) return 0;
+    char s[300]; memcpy(s, clause, L + 1);
+    char *w[24]; size_t n = split_words(s, w, 24);
+    if (n < 4) return 0;
+    size_t neg = 0;
+    for (size_t i = 1; i + 2 < n && !neg; i++)
+        if (lex_class_member(b, "negation_marker", w[i]) && is_article(b, w[i + 1]))
+            neg = i;
+    if (neg != 1) return 0;                    /* il soggetto e' una parola sola */
+    char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", w[0]);
+    const char *subject = strip_edge_punct(sb);
+    if (!*subject) return 0;
+    if (!p0_join(w, neg + 2, n, cls, cls_size) || !p0_atom_within_cap(b, cls)) return 0;
+    snprintf(subj, subj_size, "%s", subject);
+    return subj[0] != '\0';
+}
+
+/* gen505 — IL PONTE VERSO LA CIPOLLA (docs/plans/inferenza-compositiva.md).
+ *
+ * Il motore chiede UN goal e stampa cio' che torna: quali stadi esistano, in che
+ * ordine, con quali connettivi e in quale lingua e' tutto conoscenza. Un secondo
+ * consumatore domani costa questa stessa riga, non un modulo. */
+static int p0_composed_say(Brain *b, const char *stage, char *out, size_t out_size) {
+    if (!b || !b->kb || !stage) return 0;
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    char hit[1][KB_TERM_LEN];
+    const char *q[3] = { stage, lang[0] ? lang : "en", NULL };
+    if (kb_match(b->kb, "composed", q, 3, hit, 1) != 1) return 0;
+    char buf[KB_TERM_LEN]; snprintf(buf, sizeof buf, "%s", hit[0]);
+    const char *text = kb_dequote(buf);
+    if (!text || !*text) return 0;
+    put(text, out, out_size);
+    return 1;
+}
+
 /* Answer a "why ...?" by rendering the proof, or admit there is none. */
 static void explain_reply(Brain *b, const char *pred, const char *const *args,
                           size_t argc, char *out, size_t out_size) {
@@ -2503,7 +2558,7 @@ static void explain_reply(Brain *b, const char *pred, const char *const *args,
       kb_term_say(b, "x_is_a_known_fact", _rs, 1, msg, sizeof msg);
    put(msg, out, out_size); }
         store_proof(b, ex);
-    } else {
+    } else if (!p0_composed_say(b, "negative_because", out, out_size)) {
         kb_term_say(b, "i_can_t_show_that", NULL, 0, out, out_size);
     }
 }
@@ -15815,6 +15870,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             p0_atom_within_cap(b, cls_a) && p0_atom_within_cap(b, cls_b)) {
             const char *args[] = { cls_a, cls_b };
             if (kb_assert(b->kb, "exclusive_classes", args, 2)) {
+                /* gen505 — COME SI CHIAMA UNA CLASSE NELLA LINGUA e' conoscenza,
+                 * e il momento per impararlo e' questo: la lezione porta la
+                 * superficie esatta, la chiave interna la perde (underscore).
+                 * Senza, ogni risposta che nomina la classe torna a parlare la
+                 * lingua dell'indice. */
                 /* La chiave interna e' unita da underscore dal motore stesso:
                  * ridarla cosi' sarebbe far parlare parrot0 nella lingua del suo
                  * indice invece che in quella del dialogo (gen504). */
@@ -15823,6 +15883,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 snprintf(sb, sizeof sb, "%s", cls_b);
                 for (char *q = sa; *q; q++) if (*q == '_') *q = ' ';
                 for (char *q = sb; *q; q++) if (*q == '_') *q = ' ';
+                const char *sfa[] = { cls_a, sa }, *sfb[] = { cls_b, sb };
+                kb_assert(b->kb, "class_surface", sfa, 2);
+                kb_assert(b->kb, "class_surface", sfb, 2);
                 kb_term_say(b, "learned_exclusion", (const KbResponseSlot[]){
                                 { "a", sa }, { "b", sb } }, 2, out, out_size);
                 return 1;

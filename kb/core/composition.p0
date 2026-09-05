@@ -88,7 +88,9 @@ class_article_special($L, $K) :- chars($K, cons($First, $Rest)), indefinite_arti
 class_article($L, $K, $Art) :- chars($K, cons($First, $Rest)), indefinite_article_before($L, $First, $Art).
 class_article($L, $K, $Art) :- naf(class_article_special($L, $K)), indefinite_article_default($L, $Art).
 class_phrase($L, $K, $Phrase) :-
+    naf(class_has_surface($K)),
     class_article($L, $K, $Art), concat_atoms($Art, " ", $A), concat_atoms($A, $K, $Phrase).
+class_has_surface($K) :- class_surface($K, $Named).
 
 % La copula di APPARTENENZA non e' `state_copula/2`, che dice che una
 % proposizione VALE («X vale»): qui si dice che un soggetto E' di una classe. In
@@ -290,3 +292,80 @@ workspace_state_phrase(unchanged, en, "The workspace is unchanged.").
 workspace_state_phrase(unchanged, it, "Il lavoro è rimasto invariato.").
 workspace_state_phrase(holds_fix, en, "The workspace now holds the fix.").
 workspace_state_phrase(holds_fix, it, "Il lavoro contiene ora la correzione.").
+
+% ── 6. TERZA CIPOLLA: PERCHE' UN «NO» E' GUADAGNATO (gen505) ────────────────
+%
+% parrot0 sa DERIVARE un «no» dall'esclusione fra classi, e non sapeva DIRLO:
+% «why is bornite not an iron oxide mineral?» rispondeva parlando di regole che
+% non esistono. La ragione, pero', e' interamente nella KB — il fatto di
+% appartenenza piu' il vincolo — e quindi si COMPONE, senza che il motore sappia
+% niente di esclusioni: il C deposita il goal del turno e chiede un goal solo.
+%
+% E' la prima cipolla che serve una risposta vera invece di un caso di studio.
+
+machinery(negative_ground).
+machinery(turn_has_negative_ground).
+machinery(class_surface).
+
+% La classe che porta l'esclusione: quella a cui il soggetto appartiene DAVVERO
+% e che il mondo dichiara incompatibile con quella chiesta.
+negative_ground($Turn, $Other) :-
+    turn_goal($Turn, $Subject, $Class), class_excludes($Other, $Class),
+    apply($Other, cons($Subject, nil)).
+
+% Come si chiama una classe nella lingua: appreso quando la classe si insegna
+% (`class_surface/2`). Senza, la risposta tornerebbe a dire «copper_mineral».
+class_phrase($L, $K, $Phrase) :-
+    class_surface($K, $Named), class_article($L, $Named, $Art),
+    concat_atoms($Art, " ", $A), concat_atoms($A, $Named, $Phrase).
+
+% ⚠ La tesi di uno stadio va tenuta di arieta' 1 e LEGATA: una variabile libera
+% dentro `call` non lega (§1 di questo file), e si maschera da «nessuna
+% soluzione» — ci sono ricascato scrivendo questa cipolla.
+turn_has_negative_ground($T) :- negative_ground($T, $Other).
+
+% NUCLEO — il fatto che regge tutto: il soggetto appartiene all'altra classe.
+stage_text(excl_member, $L, $T) :-
+    turn_goal(current_turn, $S, $K), negative_ground(current_turn, $Other),
+    class_copula($L, $Cop), class_phrase($L, $Other, $Cls),
+    concat_atoms($S, $Cop, $A), concat_atoms($A, $Cls, $T).
+stage_claim(excl_member, turn_has_negative_ground(current_turn)).
+
+% STRATO — il vincolo, detto per intero: e' cio' che rende il «no» guadagnato
+% invece che una mancata derivazione.
+stage_wraps(excl_constraint, excl_member).
+stage_claim(excl_constraint, turn_has_negative_ground(current_turn)).
+stage_relation(excl_constraint, elaborates).
+stage_side(excl_constraint, after).
+% Spezzata in due: una clausola sola portava undici variabili, e non rendeva
+% nulla — un altro fallimento silenzioso da tenere a mente scrivendo cipolle.
+excl_pair_text($L, $T) :-
+    turn_goal(current_turn, $S, $K), negative_ground(current_turn, $Other),
+    class_phrase($L, $Other, $A), class_phrase($L, $K, $B),
+    both_middle($L, $M), concat_atoms($A, $M, $X), concat_atoms($X, $B, $T).
+stage_text(excl_constraint, $L, $T) :-
+    excl_pair_text($L, $Pair), both_prefix($L, $P), concat_atoms($P, $Pair, $T).
+both_prefix(en, "nothing is both ").
+both_middle(en, " and ").
+both_prefix(it, "niente è insieme ").
+both_middle(it, " e ").
+
+% CORNICE — l'apertura causale. Il connettivo non sta nello stadio: e' la resa
+% della relazione (`explains`), quindi cambiare lingua non tocca gli stadi.
+stage_wraps(because_opener, excl_constraint).
+stage_relation(because_opener, explains).
+stage_side(because_opener, before).
+stage_text(because_opener, en, "Because").
+stage_text(because_opener, it, "Perché").
+
+% CHIUSURA — anche il punto e' conoscenza (`sentence_terminator/2`), non una
+% lettera scritta dentro un testo. Ed e' lo stadio piu' esterno, cioe' il nome
+% che il motore chiede: gli stadi interni non sanno di essere interni.
+stage_wraps(negative_because, because_opener).
+stage_relation(negative_because, closes).
+stage_side(negative_because, after).
+stage_text(negative_because, $L, $T) :- sentence_terminator($L, $T).
+relation_connective(closes, en, "").
+relation_connective(closes, it, "").
+relation_connective(explains, en, " ").
+relation_connective(explains, it, " ").

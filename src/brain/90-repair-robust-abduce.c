@@ -1011,6 +1011,31 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen505 — UNA NEGAZIONE GUADAGNATA HA UNA RAGIONE, E NON E' L'ABDUZIONE.
+     *
+     * «why is bornite not an iron oxide mineral?» riceveva la risposta
+     * abduttiva («non ho nessuna regola che renderebbe qualcosa un mineral»),
+     * che qui e' sbagliata due volte: il goal e' parsificato alla larga (l'ultima
+     * parola invece della classe intera) e soprattutto la domanda non chiede che
+     * cosa MANCHI — chiede perche' la risposta e' no, e la risposta e' no perche'
+     * qualcosa lo IMPEDISCE. Abdurre su un impedimento e' cercare la via per un
+     * muro che si e' appena dimostrato.
+     *
+     * La ragione sta tutta in KB (l'appartenenza piu' il vincolo) e si COMPONE:
+     * il motore deposita il goal e chiede un goal solo. Se la KB non compone
+     * niente, l'abduzione resta la risposta e questo ramo non ha tolto nulla —
+     * non e' una cessione di turno, e' questo modulo che risponde meglio sulla
+     * propria forma (docs/plans/turn-arbitration.md §1-bis, legittimita'). */
+    if (contrastive) {
+        char subj_c[KB_TERM_LEN], cls_c[KB_TERM_LEN];
+        if (p0_negative_goal_parts(b, clause, subj_c, sizeof subj_c, cls_c, sizeof cls_c)) {
+            const char *tg[] = { "current_turn", subj_c, cls_c };
+            kb_retract_pred(b->kb, "turn_goal");
+            kb_assert(b->kb, "turn_goal", tg, 3);
+            if (p0_composed_say(b, "negative_because", out, out_size)) return 1;
+        }
+    }
+
     const char *gargs[] = {arg};
     if (kb_query(b->kb, pred, gargs, 1)) {
         char ex[400], msg[480];
