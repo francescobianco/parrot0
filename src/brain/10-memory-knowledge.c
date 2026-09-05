@@ -15681,6 +15681,53 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen505 — «no A is a B»: L'ESCLUSIONE FRA CLASSI.
+     *
+     * Trovata addestrando davvero (LEARN_TODO §11, Passo A): insegnata la
+     * siderite come minerale di ferro e come carbonato, la domanda «is siderite
+     * an iron oxide mineral?» riceve — correttamente dal gen504 — «non lo so».
+     * Per guadagnare il «no» serve dire che un carbonato non e' un ossido, e
+     * quella frase non arrivava da nessuna parte: `exclusive_classes/2` aveva
+     * ZERO produttori in tutta la KB. La vista del gen504 esisteva e nessuna
+     * lezione poteva riempirla — un cassetto senza maniglia.
+     *
+     * La forma e' quella dell'universale affermativo qui sotto (quantificatore,
+     * corpo, copula, articolo, testa): cambia la POLARITA' del quantificatore, e
+     * con essa la conclusione — non una regola di Horn ma un vincolo fra due
+     * classi. Il C non conosce «no»: `exclusive_quantifier/1` sta in grammar.p0
+     * e un membro nuovo (o una lingua nuova) e' un fatto.
+     *
+     * La copula E l'articolo insieme trovano il confine fra le due classi, cosi'
+     * entrambe possono essere MULTI-PAROLA — la stessa meccanica (`p0_join`) che
+     * il ramo della correzione negativa usa piu' sotto. Un'esclusione non e' una
+     * congiunzione: il corpo e' UN nome di classe, non premesse da unire. */
+    if (nw >= 5 && lex_class_member(b, "exclusive_quantifier", w[0])) {
+        size_t cop = 0;
+        for (size_t i = 2; i + 2 < nw; i++)
+            if (lex_class_member(b, "clause_copula", w[i]) && is_article(b, w[i + 1])) {
+                cop = i; break;
+            }
+        char cls_a[KB_TERM_LEN], cls_b[KB_TERM_LEN];
+        if (cop && p0_join(w, 1, cop, cls_a, sizeof cls_a) &&
+            p0_join(w, cop + 2, nw, cls_b, sizeof cls_b) &&
+            p0_atom_within_cap(b, cls_a) && p0_atom_within_cap(b, cls_b)) {
+            const char *args[] = { cls_a, cls_b };
+            if (kb_assert(b->kb, "exclusive_classes", args, 2)) {
+                /* La chiave interna e' unita da underscore dal motore stesso:
+                 * ridarla cosi' sarebbe far parlare parrot0 nella lingua del suo
+                 * indice invece che in quella del dialogo (gen504). */
+                char sa[KB_TERM_LEN], sb[KB_TERM_LEN];
+                snprintf(sa, sizeof sa, "%s", cls_a);
+                snprintf(sb, sizeof sb, "%s", cls_b);
+                for (char *q = sa; *q; q++) if (*q == '_') *q = ' ';
+                for (char *q = sb; *q; q++) if (*q == '_') *q = ' ';
+                kb_term_say(b, "learned_exclusion", (const KbResponseSlot[]){
+                                { "a", sa }, { "b", sb } }, 2, out, out_size);
+                return 1;
+            }
+        }
+    }
+
     /* rule: "every <body...> is a/an <head>" -> head(X) :- body0(X), …
      * gen133 generalizes the single-body form to a CONJUNCTION: the modifiers
      * before the head noun become conjoined premises, e.g. "every friendly dog

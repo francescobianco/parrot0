@@ -109,3 +109,69 @@
 
 > is ${E} a ${C}?
 < Yes.
+
+
+# ── LA TERZA VIA AL «NO»: DUE CLASSI CHE NON SI SOVRAPPONGONO (gen505) ───────
+#
+# Emersa addestrando davvero (LEARN_TODO §11, Passo A). Insegnata la siderite
+# come minerale di carbonato, «is siderite an iron oxide mineral?» riceve — bene
+# — «non lo so». Per GUADAGNARE il no bisogna poter dire che un carbonato non e'
+# un ossido, e quella frase non arrivava da nessuna parte: `exclusive_classes/2`
+# (la vista del gen504) aveva ZERO produttori in tutta la KB.
+#
+# E' la via piu' fertile delle tre: una sola esclusione risponde per TUTTI i
+# membri presenti e futuri di entrambe le classi, mentre il negativo esplicito
+# del blocco sopra ne guadagna uno per volta.
+
+!random F 6
+!random G 6
+!random H 6
+!random I 6
+!random J 6
+
+[test exclusion_earns_the_no]
+!timeout 6
+!reset
+
+# Le due classi sono POPOLATE, come nel caso reale: si sa qualche carbonato e
+# qualche ossido, e nessuno ha ancora detto se questo membro stia anche
+# nell'altra. (Se la seconda classe non ha nessun membro il turno finisce sul
+# muro del predicato sconosciuto PRIMA della risposta polare, anche dopo che
+# l'esclusione l'ha nominata: `kb_knows_pred` non guarda i predicati che
+# compaiono come ARGOMENTO di un vincolo. E' il prossimo collo, LEARN_TODO.)
+> ${H} is a ${F} mineral
+<~ Learned
+
+> ${I} is a ${G} mineral
+<~ Learned
+
+# Nessuno ha detto niente su QUESTO membro nell'altra classe: qui il no non e'
+# guadagnato, e sapere qualche ${G} non dichiara completa la sua estensione.
+> is ${H} a ${G} mineral?
+<~ nothing says it isn't
+
+# La lezione che mancava, in lingua naturale e con classi MULTI-PAROLA.
+> no ${F} mineral is a ${G} mineral
+<~ nothing is both
+
+# Ora il no e' sostenuto, e non e' stato insegnato su questo membro.
+> is ${H} a ${G} mineral?
+< No.
+
+# Vale nei DUE versi senza insegnarlo due volte: l'esclusione e' simmetrica nel
+# mondo, quindi la simmetria e' una regola (epistemic-status.p0), non un obbligo
+# di scrivere ogni coppia due volte.
+> is ${I} a ${F} mineral?
+< No.
+
+# E non contamina una classe terza gia' popolata: il vincolo riguarda le due
+# classi nominate, non tutte quelle che ha incontrato.
+> ${J} is a ${J} mineral
+<~ Learned
+
+> is ${H} a ${J} mineral?
+<~ nothing says it isn't
+
+# Il positivo gia' noto resta vero: un vincolo non cancella cio' che sostiene.
+> is ${H} a ${F} mineral?
+< Yes.

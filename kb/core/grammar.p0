@@ -328,6 +328,20 @@ indefinite_article(an).
 % marcatore e' il modo ricorrente in cui un predicato di motore e' finito nei
 % conteggi utente — e' gia' successo tre volte prima di queste tre.
 machinery(universal_quantifier).
+
+% ── IL QUANTIFICATORE ESCLUSIVO (gen505) ─────────────────────────────────────
+% «no A is a B» non e' un universale affermativo con una parola in piu': e' la
+% forma con cui si dichiara che due classi non si sovrappongono, cioe' l'unica
+% conoscenza che AUTORIZZA un «no» guadagnato (`closed_world_answer/2`,
+% epistemic-status.p0, gen504). Fino al gen505 `exclusive_classes/2` aveva zero
+% produttori: la vista esisteva e nessuna lezione poteva riempirla — un cassetto
+% senza maniglia, trovato addestrando sui minerali di ferro (LEARN_TODO §11.A).
+% Un membro nuovo domani e' un fatto: «nessun», «neither», un'altra lingua.
+machinery(exclusive_quantifier).
+exclusive_quantifier(no).
+exclusive_quantifier(nessun).
+exclusive_quantifier(nessuna).
+exclusive_quantifier(nessuno).
 machinery(definite_article).
 machinery(relation_preposition).
 machinery(indefinite_article).

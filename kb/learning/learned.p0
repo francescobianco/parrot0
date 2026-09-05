@@ -106,5 +106,9 @@ iron_oxide_mineral(hematite).
 discourse_referent(1, hematite).
 iron_oxide_mineral(magnetite).
 discourse_referent(2, magnetite).
+discourse_referent(3, siderite).
 iron_ore_mineral(hematite).
 iron_ore_mineral(magnetite).
+iron_ore_mineral(siderite).
+carbonate_mineral(siderite).
+exclusive_classes(carbonate_mineral, iron_oxide_mineral).

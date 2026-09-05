@@ -796,6 +796,11 @@ response_template(page_disambiguates, "that page disambiguates several meanings 
 response_template(page_disambiguates, it, "quella pagina disambigua piu' significati invece di descriverne uno").
 
 % gen382c: conferma dell'atto di insegnamento di una risposta.
+% gen505 — la lezione che rende un «no» guadagnato. Non dice «Learned rule»
+% perche' non e' una regola di Horn: e' un vincolo fra due classi, e la risposta
+% dice anche a che cosa serve, altrimenti chi insegna non sa che cosa ha ottenuto.
+response_template(learned_exclusion, "Held: nothing is both {a} and {b}. Now I can answer no about either one without waiting to be told member by member.").
+response_template(learned_exclusion, it, "Tengo: niente è insieme {a} e {b}. Ora posso rispondere «no» sull'una o sull'altra senza aspettare che me ne elenchi i membri.").
 response_template(taught_reply, "Understood: when you ask about {cue} I will say so.").
 response_template(taught_reply, it, "Capito: quando mi chiedi di {cue} risponderò così.").
 

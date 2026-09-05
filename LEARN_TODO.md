@@ -125,6 +125,89 @@ Non confondere `119` con 119 cose imparate. Il guadagno del mondo è quattro.
 `B1-B0=42` è diagnostica globale e include materiale collaterale; non sostituisce
 `W`.
 
+## 2-bis. Lotto `gen505` — la siderite, e la TERZA via al «no» (2026-09-05)
+
+Lezione reale in corsia sicura (Passo A), scelta perche' mette alla prova
+proprio il §4: **la siderite e' minerale di ferro ma e' un carbonato, non un
+ossido**. Basi: FeCO₃ e' un carbonato per composizione, ed e' fra i minerali da
+cui si estrae ferro (stessa serie USGS gia' citata al §2). ⚠ Le URL non sono
+state riaperte in questa sessione: la verifica di fonte va rifatta prima di
+trattare il lotto come definitivo.
+
+**Baseline prima di ogni lezione** (regola 2 del Passo A), tutte e quattro:
+`siderite` ignota in tutte e tre le classi.
+
+**Il §4 regge in scenario reale.** Con `iron_oxide_mineral` gia' popolata da
+ematite e magnetite, la domanda su un membro nuovo **non** riceve un «No»
+inventato:
+
+```text
+is siderite an iron oxide mineral?
+  → I don't know: nothing I hold says siderite is an iron oxide mineral, and
+    nothing says it isn't. Knowing some iron oxide minerals does not tell me
+    they are all of them, so not proved is not the same as false.
+```
+
+**Il collo che la crescita ha incontrato, ed e' il risultato del turno.** Per
+GUADAGNARE quel «no» bisogna poter dire che un carbonato non e' un ossido. Quella
+frase non arrivava da nessuna parte: `exclusive_classes/2` — la vista costruita
+dal `gen504` — aveva **zero produttori in tutta la KB**. Un cassetto senza
+maniglia: la macchineria c'era e nessuna lezione poteva riempirla.
+
+La maniglia e' la stessa forma strutturale dell'universale affermativo
+(quantificatore, corpo, copula, articolo, testa) con la **polarita'** cambiata, e
+quindi con un'altra conclusione: non una regola di Horn ma un vincolo fra classi.
+`exclusive_quantifier/1` sta in `grammar.p0` (`no`, `nessun`, `nessuna`,
+`nessuno`): il C non conosce nessuna di quelle parole, e una lingua nuova e' un
+fatto. Copula e articolo insieme trovano il confine fra le due classi, quindi
+entrambe possono essere **multi-parola**.
+
+```text
+no carbonate mineral is an iron oxide mineral
+  → Held: nothing is both carbonate mineral and iron oxide mineral. Now I can
+    answer no about either one without waiting to be told member by member.
+is siderite an iron oxide mineral?
+  → No.
+```
+
+E' la piu' **fertile** delle tre vie al «no»: il negativo esplicito ne guadagna
+uno per volta, la classe definita da regole chiude solo se stessa, una singola
+esclusione risponde per **tutti i membri presenti e futuri di entrambe** le
+classi. La prova che non e' un caso particolare: in processo fresco
+
+```text
+is hematite a carbonate mineral?   → No.
+```
+
+per un membro insegnato in una **sessione precedente**, su una classe di cui a
+ematite non aveva mai parlato nessuno.
+
+| misura | valore |
+|---|---|
+| `W` (fatti veri del mondo) | `2` ground + `1` vincolo |
+| fan-out del salvataggio | **4 righe** (contro le 119 clausole instradate del §2) |
+| richiamo in processo fresco | `5/5`, incluse due negazioni guadagnate |
+| `X` (falsita' promosse) | `0` |
+| gate | `tests/p0t/knowledge/earned_negation.p0t`, 25 assert, nomi casuali |
+
+### Due colli nuovi, misurati e non chiusi
+
+1. **Una classe nominata solo in un vincolo resta «sconosciuta».** Se la seconda
+   classe non ha nessun membro, la domanda finisce sul muro del predicato
+   sconosciuto (`I don't know about g_mineral.`) **prima** della risposta polare,
+   anche subito dopo aver insegnato l'esclusione che la nomina: `kb_knows_pred`
+   (`src/kb.c`) guarda fatti, negativi e teste di regola, **non** i predicati che
+   compaiono come ARGOMENTO di un fatto. La dottrina giusta esiste gia' in KB —
+   `world_fact_about/1` (`gap-kinds.p0`) considera entrambe le posizioni — e va
+   portata qui. Finche' resta, l'esclusione e' utile solo fra classi gia'
+   popolate (che e' il caso reale, quindi non blocca la crescita).
+2. **La forma italiana entra ma il nome di classe esce ibrido.** Il ramo si
+   aggancia — «nessun» e' nella classe — ma la canonicalizzazione produce
+   `minerale of carbonato` e `minerale of ossido of iron`. E' l'instabilita' gia'
+   registrata in `C_TODO.md` §U4, qui con un'istanza precisa e riproducibile.
+   **Non e' stato insegnato nulla in italiano:** avrebbe scritto atomi ibridi in
+   KB. Il lotto italiano resta chiuso finche' §U4 non e' risolto.
+
 ## 3. Transcript causale del lotto promosso
 
 Tutte le baseline sono state raccolte **prima** di aprire le due classi. Questo
@@ -442,6 +525,12 @@ forma interrogativa e il retract corrispondenti non superano una prova breve:
 un fatto ingestibile è più costoso di un fatto non ancora aggiunto.
 
 ### Passo B — chiudere la falsa negazione come meta-gap di crescita
+
+> **Avanzato al `gen505` (§2-bis):** le tre vie al «no» guadagnato esistono e
+> sono tutte raggiungibili **parlando** — negativo esplicito, classe definita da
+> regole, ed esclusione fra classi (quest'ultima aperta al `gen505`, prima aveva
+> zero produttori). Restano i due colli del §2-bis: la classe nominata solo in un
+> vincolo e la forma italiana.
 
 È il primo collo inferenziale emerso direttamente dall'addestramento. Il
 rimedio deve essere generale, KB-first e indipendente dalla mineralogia. La
