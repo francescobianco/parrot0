@@ -407,12 +407,41 @@ fatti di grammatica inglese sono **gia' in KB** (`verb_stem` 78,
 
 Ordine proposto:
 
-1. **una sola regola, girata verso il giudizio** — l'accordo soggetto-verbo, con
-   le classi che il parser gia' usa. Se regge su un errore held-out **con la
-   spiegazione**, il metodo e' buono; se serve una classe nuova per giudicare
-   cio' che gia' si legge, ci si e' sbagliati (§ «una sorgente, due consumatori»);
-2. **il rifiuto onesto**: una frase la cui regola non c'e' deve ricevere «non ho
-   una regola per questo», mai un giudizio inventato;
+1. ✅ **una sola regola, girata verso il giudizio** — FATTO (`gen505i`,
+   `kb/core/grammar-judgement.p0`). L'accordo soggetto-verbo, e **nessuna classe
+   di parole nuova**: solo viste sopra `clause_copula/1`, `plural_copula/1`,
+   `plural_of/2`, `plural_suffix/2` — le stesse che il parser usa.
+
+   ```text
+   > where is the error here: my name are Francesco
+     «name» is singular and «are» is plural: they cannot go together.
+     It should be «name is».
+   > where is the error here: the children was late
+     «children» is plural and «was» is singular… It should be «children were».
+   > where is the error here: my name is Francesco
+     That agrees: «name» is singular and so is «is».
+   ```
+
+   Regge sul plurale **irregolare** (`children`), su quello **per suffisso**
+   (`boxes`, `books`) e sul **tempo** — la prima versione correggeva «my name
+   are» in «my name **am**»: giusta di numero e assurda di tempo. Il tempo di
+   una copula e' conoscenza come il numero (`copula_tense/2`), e vale per ogni
+   regola futura.
+
+2. ✅ **il rifiuto onesto** — FATTO: «colorless green ideas sleep furiously» →
+   *«I don't have a rule that decides that sentence, so I won't guess. I can
+   check subject-verb agreement.»* Dice anche **che cosa** sa controllare, cioe'
+   trasforma il muro nel prossimo bisogno utile.
+
+2-bis. ⭐ **Un difetto trovato qui e curato in modo generale: USO vs MENZIONE.**
+   «where is the error here: my name is Francesco» veniva **imparato** dalla
+   facolta' dei fatti personali — parrot0 registrava il nome invece di giudicare
+   la frase. La coda di quella domanda e' **citata, non asserita**. Il giudizio
+   e' ora al confine del turno, prima del registro, perche' e' una proprieta' del
+   TURNO e non di chi lo serve; e non e' una cessione, perche' la cue e'
+   esplicita e dichiarata (`error_check_cue/1`) — non c'e' ambiguita' da
+   arbitrare. Verificato che «my name is Francesco» **detto e basta** resta una
+   lezione.
 3. **i due giri di thinking** come cipolla (`inferenza-compositiva.md`), non come
    pipeline cablata;
 4. **il `.p0`**: i meta-concetti sopra `kb_fact/2` e `kb_rule/2`, che gia'

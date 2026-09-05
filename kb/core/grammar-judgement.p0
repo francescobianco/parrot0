@@ -1,0 +1,75 @@
+% grammar-judgement.p0 — LA GRAMMATICA GIRATA VERSO IL GIUDIZIO (gen505i).
+%
+% Obiettivo di F. (LEARN_TODO): parrot0 deve saper dire DOVE e' l'errore, non
+% solo leggere. Il reperto che rende il passo corto: oltre centoventi fatti di
+% grammatica inglese sono gia' in KB — copule, copule plurali, radici verbali,
+% plurali irregolari, suffissi — e servivano SOLO a leggere.
+%
+% ⛔ REGOLA DI QUESTO FILE: qui non nasce nessuna classe nuova di parole. La
+% conoscenza che GIUDICA e' la STESSA che LEGGE, altrimenti le due divergono al
+% primo cambiamento e parrot0 giudicherebbe con regole che lui stesso non segue.
+% Qui ci sono solo VISTE sopra `clause_copula/1`, `plural_copula/1`,
+% `plural_of/2` e `plural_suffix/2`.
+
+:- file_attribute(machinery).
+
+% ── 1. IL NUMERO, COME VISTA ───────────────────────────────────────────────
+% Il plurale e' dichiarato (irregolari) o portato da un suffisso: la stessa
+% coppia di fonti che il lettore usa per singolarizzare.
+plural_noun($W) :- plural_of($W, $S).
+plural_noun($W) :- plural_suffix($Suf, $End), chars($Suf, $SC), chars($W, $WC), app($StemC, $SC, $WC).
+singular_noun($W) :- naf(plural_noun($W)).
+
+% Il singolare della copula non e' una lista nuova: e' cio' che resta.
+singular_copula($C) :- clause_copula($C), naf(plural_copula($C)).
+
+% ── 2. L'ACCORDO, E IL SUO FALLIMENTO ──────────────────────────────────────
+% Due fatti che non possono valere insieme. E' la stessa figura di
+% `class_excludes/2` (gen505): un «no» guadagnato, non un giudizio inventato.
+agreement_holds($Subj, $Cop) :- singular_noun($Subj), singular_copula($Cop).
+agreement_holds($Subj, $Cop) :- plural_noun($Subj), plural_copula($Cop).
+agreement_error($Subj, $Cop) :- singular_noun($Subj), plural_copula($Cop).
+agreement_error($Subj, $Cop) :- plural_noun($Subj), singular_copula($Cop).
+
+% La forma attesa: la copula dell'altro numero — ma dello STESSO TEMPO.
+% Senza il tempo, «my name are» veniva corretto in «my name am»: giusto di
+% numero e assurdo di tempo. Il tempo di una copula e' conoscenza come il numero,
+% e vale per ogni regola che ne avra' bisogno.
+machinery(copula_tense).
+copula_tense(am, present).   copula_tense(is, present).   copula_tense(are, present).
+copula_tense(was, past).     copula_tense(were, past).
+copula_tense(sono, present). copula_tense(è, present).    copula_tense(e', present).
+copula_tense(era, past).     copula_tense(erano, past).
+
+% E la persona: «I am» non e' «I is». Solo la prima persona e' marcata, il resto
+% e' la forma non marcata — dirlo cosi' evita una tabella.
+machinery(first_person_copula).
+first_person_copula(am).
+
+expected_copula($Subj, $Cop, $Good) :-
+    singular_noun($Subj), plural_copula($Cop), singular_copula($Good),
+    naf(first_person_copula($Good)), copula_tense($Cop, $T), copula_tense($Good, $T).
+expected_copula($Subj, $Cop, $Good) :-
+    plural_noun($Subj), singular_copula($Cop), plural_copula($Good),
+    copula_tense($Cop, $T), copula_tense($Good, $T).
+
+% ── 3. IL NUMERO DETTO A PAROLE, per la spiegazione ────────────────────────
+number_name(singular, en, "singular").   number_name(plural, en, "plural").
+number_name(singular, it, "singolare").  number_name(plural, it, "plurale").
+word_number($W, singular) :- singular_noun($W).
+word_number($W, plural) :- plural_noun($W).
+copula_number($C, plural) :- plural_copula($C).
+copula_number($C, singular) :- singular_copula($C).
+
+% ── 4. LA DOMANDA E LA RISPOSTA ────────────────────────────────────────────
+% Le superfici con cui si chiede una correzione sono conoscenza: una lingua o
+% una formulazione nuova e' un fatto.
+machinery(error_check_cue).
+error_check_cue("where is the error here").
+error_check_cue("where is the error in").
+error_check_cue("what is wrong with").
+error_check_cue("what's wrong with").
+error_check_cue("is this correct").
+error_check_cue("dove è l'errore qui").
+error_check_cue("dove e' l'errore qui").
+error_check_cue("cosa c'è di sbagliato in").

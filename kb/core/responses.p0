@@ -810,6 +810,16 @@ response_template(class_members_known, it, "Quello che tengo come {klass}: {memb
 % per le classi: una relazione non derivata non e' una relazione negata.
 response_template(no_support_relation, "I don't know: nothing I hold says {subject} {rel} {object}, and nothing says it isn't so. Tell me either way and I will hold it.").
 response_template(no_support_relation, it, "Non lo so: niente di cio' che ho dice che {subject} {rel} {object}, e niente dice il contrario. Dimmelo in un verso o nell'altro e lo terro'.").
+% gen505i — IL GIUDIZIO GRAMMATICALE SPIEGATO, non un verdetto.
+% Cita i due fatti che confliggono e la forma attesa: chi legge puo' controllare
+% il ragionamento invece di fidarsi. E se la regola non c'e' si rifiuta — un
+% giudizio inventato sarebbe peggio di un muro (mantra #7).
+response_template(agreement_error_found, "«{subject}» is {subj_number} and «{copula}» is {cop_number}: they cannot go together. It should be «{subject} {expected}».").
+response_template(agreement_error_found, it, "«{subject}» è {subj_number} e «{copula}» è {cop_number}: non possono stare insieme. La forma attesa è «{subject} {expected}».").
+response_template(agreement_ok, "That agrees: «{subject}» is {subj_number} and so is «{copula}».").
+response_template(agreement_ok, it, "L'accordo c'è: «{subject}» è {subj_number} e «{copula}» pure.").
+response_template(no_rule_for_sentence, "I don't have a rule that decides that sentence, so I won't guess. I can check subject-verb agreement.").
+response_template(no_rule_for_sentence, it, "Non ho una regola che decida quella frase, e non tiro a indovinare. So controllare l'accordo fra soggetto e verbo.").
 response_template(taught_reply, "Understood: when you ask about {cue} I will say so.").
 response_template(taught_reply, it, "Capito: quando mi chiedi di {cue} risponderò così.").
 

@@ -835,6 +835,11 @@ Brain *brain_create(void) {
      * la prosa che si puo' DIRE e la struttura che si puo' PERCORRERE. Serve la
      * seconda per rispondere a «in quale formula e' coinvolta la massa?», che
      * dalla stringa non e' inferibile. */
+    /* gen505i — la grammatica girata verso il GIUDIZIO. Solo viste sopra le
+     * classi che il lettore gia' usa: una sorgente, due consumatori. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/grammar-judgement.p0");
+
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/experts/physics/laws.p0");
 
@@ -4692,6 +4697,23 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * assertion. Both the act and the broad subject must win the universal KB
      * evidence scorer, and every answer_plan slot must be filled, so uncertain or
      * incomplete candidates decline without disturbing the established registry. */
+    /* gen505i — UNA FRASE CITATA PER ESSERE GIUDICATA NON E' UNA LEZIONE.
+     *
+     * «where is the error here: my name is Francesco» veniva IMPARATO dalla
+     * facolta' dei fatti personali: parrot0 registrava il nome invece di
+     * giudicare la frase. E' la distinzione fra USO e MENZIONE — la coda della
+     * domanda e' citata, non asserita — e qui non c'e' ambiguita' da arbitrare:
+     * la cue e' esplicita e dichiarata in KB (`error_check_cue/1`), quindi il
+     * turno chiede un giudizio e basta.
+     *
+     * Sta qui, prima del registro, per la stessa ragione del lead analitico
+     * subito sotto: e' una proprieta' del TURNO, non di chi lo serve. */
+    if (b && p0_grammar_judgement_turn(b, canon, out, out_size)) {
+        snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+        snprintf(b->last_module, sizeof b->last_module, "%s", "grammar");
+        return turn_done(b, canon, input, out, out_size);
+    }
+
     if (b && !teaching_prose(input) &&
         structured_analysis_lead(b, canon, input, 0, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);

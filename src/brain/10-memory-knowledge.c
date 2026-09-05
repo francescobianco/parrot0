@@ -11105,6 +11105,92 @@ static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
  * Bisecare quel tratto con le stampe non funziona (scope annidati che
  * ricalcolano `nw`/`w`); renderlo autonomo costa meno e non dipende da dove
  * cadono i cancelli di qualcun altro. */
+/* gen505i — DOVE E' L'ERRORE: la grammatica girata verso il GIUDIZIO.
+ *
+ * Il primo passo dell'obiettivo di F. La conoscenza c'era gia' tutta e serviva
+ * solo a leggere: `clause_copula/1`, `plural_copula/1`, `plural_of/2`,
+ * `plural_suffix/2`. Le viste che decidono l'accordo stanno in
+ * `kb/core/grammar-judgement.p0` e NON introducono una sola parola nuova — una
+ * sorgente, due consumatori, altrimenti parrot0 giudicherebbe con regole che lui
+ * stesso non segue.
+ *
+ * Qui c'e' solo il taglio: dove finisce la domanda e comincia la frase, e quale
+ * coppia (soggetto, copula) mettere alla prova. Le superfici della domanda sono
+ * fatti (`error_check_cue/1`), quindi una formulazione nuova non costa C.
+ *
+ * ⛔ Se nessuna regola decide, si RIFIUTA. Un giudizio inventato su una frase
+ * sarebbe peggio di un muro, e qui e' particolarmente insidioso perche' suona
+ * competente (mantra #7). */
+int p0_grammar_judgement_turn(Brain *b, const char *norm, char *out, size_t out_size);
+
+static int p0_grammar_judgement(Brain *b, const char *norm, char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    char (*cues)[KB_TERM_LEN] = NULL; size_t nc = 0;
+    if (!kb_match_all(b->kb, "error_check_cue", (const char *[]){ NULL }, 1, &cues, &nc) || nc == 0) {
+        free(cues); return 0;
+    }
+    const char *tail = NULL;
+    for (size_t i = 0; i < nc && !tail; i++) {
+        char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[i]);
+        const char *cue_s = kb_dequote(cb);
+        const char *at = *cue_s ? strstr(norm, cue_s) : NULL;
+        if (at) tail = at + strlen(cue_s);
+    }
+    free(cues);
+    if (!tail) return 0;
+    while (*tail && (isspace((unsigned char)*tail) || *tail == ':' || *tail == ',')) tail++;
+    if (!*tail) return 0;
+
+    char s[300]; snprintf(s, sizeof s, "%s", tail);
+    char *w[48]; size_t nw = split_words(s, w, 48);
+    if (nw < 2) return 0;
+
+    /* La coppia da provare: una copula, e il nome che la precede. Il
+     * determinante non e' il soggetto — «my name» ha per testa «name». */
+    for (size_t i = 1; i < nw; i++) {
+        char cb2[KB_TERM_LEN]; snprintf(cb2, sizeof cb2, "%s", w[i]);
+        const char *cop = strip_edge_punct(cb2);
+        const char *cq[] = { cop };
+        if (!kb_query(b->kb, "clause_copula", cq, 1)) continue;
+        char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", w[i - 1]);
+        const char *subj = strip_edge_punct(sb);
+        if (!*subj) continue;
+
+        const char *pair[] = { subj, cop };
+        char num_s[1][KB_TERM_LEN], num_c[1][KB_TERM_LEN];
+        const char *nsq[] = { subj, NULL }, *ncq[] = { cop, NULL };
+        if (kb_match(b->kb, "word_number", nsq, 2, num_s, 1) != 1 ||
+            kb_match(b->kb, "copula_number", ncq, 2, num_c, 1) != 1) continue;
+        char lang[8]; current_lang(b, lang, sizeof lang);
+        char sn[1][KB_TERM_LEN], cn[1][KB_TERM_LEN];
+        const char *snq[] = { num_s[0], lang[0] ? lang : "en", NULL };
+        const char *cnq[] = { num_c[0], lang[0] ? lang : "en", NULL };
+        if (kb_match(b->kb, "number_name", snq, 3, sn, 1) != 1 ||
+            kb_match(b->kb, "number_name", cnq, 3, cn, 1) != 1) continue;
+        char snb[KB_TERM_LEN], cnb[KB_TERM_LEN];
+        snprintf(snb, sizeof snb, "%s", kb_dequote(sn[0]));
+        snprintf(cnb, sizeof cnb, "%s", kb_dequote(cn[0]));
+
+        if (kb_query(b->kb, "agreement_error", pair, 2)) {
+            char good[1][KB_TERM_LEN];
+            const char *gq[] = { subj, cop, NULL };
+            if (kb_match(b->kb, "expected_copula", gq, 3, good, 1) != 1) continue;
+            char fixed[KB_TERM_LEN];
+            snprintf(fixed, sizeof fixed, "%s", good[0]);
+            const KbResponseSlot rs[] = { { "subject", subj }, { "subj_number", snb },
+                                          { "copula", cop }, { "cop_number", cnb },
+                                          { "expected", fixed } };
+            if (kb_response_slots(b, "agreement_error_found", rs, 5, out, out_size))
+                return 1;
+        } else if (kb_query(b->kb, "agreement_holds", pair, 2)) {
+            const KbResponseSlot rs[] = { { "subject", subj }, { "subj_number", snb },
+                                          { "copula", cop } };
+            if (kb_response_slots(b, "agreement_ok", rs, 3, out, out_size)) return 1;
+        }
+    }
+    return kb_response_slots(b, "no_rule_for_sentence", NULL, 0, out, out_size);
+}
+
 static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_size) {
     if (!b || !b->kb || !norm) return 0;
     size_t L = strlen(norm);
@@ -11183,6 +11269,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     if (!b || !b->kb) return 0;
     if (p0_distribute_coordinated_subject(b, norm, out, out_size)) return 1;
     if (p0_polar_relation(b, norm, out, out_size)) return 1;
+    if (p0_grammar_judgement(b, norm, out, out_size)) return 1;
     if (completion_chain_resolve(b, norm, out, out_size)) return 1;
     if (taxonomy_definition_reply(b, norm, raw, out, out_size)) return 1;
     if (p0_property_list(b, norm, raw, out, out_size)) return 1;
@@ -17033,4 +17120,11 @@ static int compare_word(const char *w) {
     if (strcmp(w, "more") == 0 || strcmp(w, "greater") == 0) return 1;
     if (strcmp(w, "less") == 0 || strcmp(w, "fewer") == 0) return 0;
     return -1;
+}
+
+/* gen505i — lo stesso giudizio, raggiungibile dal confine del turno (99-registry).
+ * Una frase citata per essere giudicata non e' una lezione, e la cue che lo dice
+ * e' dichiarata in KB: nessuna cessione, nessuna lista nel motore. */
+int p0_grammar_judgement_turn(Brain *b, const char *norm, char *out, size_t out_size) {
+    return p0_grammar_judgement(b, norm, out, out_size);
 }
