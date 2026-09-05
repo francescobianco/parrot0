@@ -189,6 +189,14 @@ recall_kind_word(covered, $Entity) :- covered_entity($Entity).
 % la forma del difetto ricorrente (D33/D35/D37): due percorsi che devono
 % accordarsi senza condividere l'oggetto su cui accordarsi.
 machinery(discourse_answer_observe).
+% gen505h — LA CONTABILITA' DELLO SCAMBIO NON E' CONOSCENZA SULL'ENTITA'.
+% `exchange/3` e `exchange_turn/2` sono scritti dalla regola qui sotto e non
+% erano dichiarati: finivano quindi in «che cosa sai di X?» per OGNI entita' mai
+% interrogata — «ohms law is the law che… ; exchange(ohms_law, law_expression,
+% (current * resistance))». Chi ha appena verificato una lezione si vede
+% restituire il proprio stesso turno come se fosse un fatto sul mondo.
+machinery(exchange).
+machinery(exchange_turn).
 machinery(current_relation).
 machinery(referring_surface).
 machinery(elliptical_reference_policy).

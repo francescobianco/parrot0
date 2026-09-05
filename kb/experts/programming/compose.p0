@@ -14,6 +14,12 @@ code_operator(product, "*").
 code_operator(times, "*").
 code_operator(multiplication, "*").
 code_operator(difference, "-").
+% gen505h — la divisione mancava, e serve appena una legge la usa (densita' =
+% massa / volume). Un operatore e' un fatto: vale per ogni legge che lo nomina.
+code_operator(quotient, "/").
+code_operator(division, "/").
+code_operator(ratio, "/").
+code_operator(divided_by, "/").
 code_operator(minus, "-").
 code_operator(subtraction, "-").
 % Italian cues (the brain matches the request surface, which may be Italian).

@@ -838,6 +838,17 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/experts/physics/laws.p0");
 
+    /* gen505h — IL SIMBOLO DI UN'OPERAZIONE E' CONOSCENZA DI LINGUAGGIO, non un
+     * privilegio dell'agente. `code_operator/2` viveva solo in agent mode
+     * (`compose.p0`, caricato pigramente), quindi il ponte fra una LEGGE e la
+     * sua espressione — che riusa esattamente quei simboli — restava muto in
+     * conversazione: `law_expression(ohms_law, ?)` non rendeva niente perche'
+     * mancava `code_operator(product, "*")`, non perche' mancasse il fold.
+     * Sono una ventina di fatti e non nominano nessuno strumento: caricarli al
+     * boot non riapre nessuna capacita' di agente. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/experts/programming/compose.p0");
+
     /* gen335 (long-conversation): personal-fact capture/recall knowledge — factored
      * slot_evidence/2 (scored by the shared hypothesis engine) + EN/IT reply templates.
      * Drives mod_personal (10-memory-knowledge.c). A new slot or language is facts. */

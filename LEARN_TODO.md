@@ -577,13 +577,49 @@ marcando anche `law_prose`. **Una dichiarazione difensiva costa una capacita'.**
 leggi non costa una riga di C. E' lo stesso meccanismo che al `gen505f` si e'
 dimostrato **il piu' vivo del motore**, non un organo morto.
 
+### ✅ Il ponte al codice e' attraversato
+
+```text
+> what is the expression of ohms law?    (current * resistance).
+
+law_expression(kinetic_energy_law, ?)  →  (0.5 * (mass * (velocity * velocity)))
+law_expression(density_law, ?)         →  (mass / volume)
+```
+
+Non e' una seconda macchineria: e' un **fold sull'albero che gia' c'era**, con
+gli operatori che gia' esistevano — `code_operator(product, "*")`. Nel ponte non
+c'e' **nessun simbolo scritto a mano**: `square(v)` diventa `(v * v)` perche' la
+KB dice che il quadrato e' il prodotto di una cosa per se stessa, non perche'
+qualcuno abbia scritto `**`.
+
+**Una legge nuova non costa una riga di codice**: costa i suoi fatti, e da quel
+momento e' insieme spiegabile, calcolabile e scrivibile. Un operatore nuovo e' un
+fatto e vale per tutte le leggi che lo usano (la divisione mancava: aggiunta in
+`compose.p0`, e la densita' ha cominciato a rendere).
+
+⚠ **Il ponte era muto per un motivo che vale la pena ricordare:**
+`code_operator/2` viveva solo in **agent mode**, caricato pigramente. Il fold
+era corretto e non rendeva niente perche' mancavano i simboli — non la logica.
+Il simbolo di un'operazione e' conoscenza di **linguaggio**, non un privilegio
+dell'agente: una ventina di fatti, ora al boot, che non riaprono nessuna
+capacita' di strumento.
+
+### Un difetto generale trovato per strada, e chiuso
+
+`exchange/3` e `exchange_turn/2` — la contabilita' del discorso — **non erano
+dichiarati macchineria**. Finivano quindi in «che cosa sai di X?» per **ogni
+entita' mai interrogata**: chi aveva appena verificato una lezione si vedeva
+restituire il proprio stesso turno come se fosse un fatto sul mondo. Due righe in
+`discourse.p0`, e vale per tutta la KB.
+
 ### Quel che resta del passo 1
 
-Il **ponte al codice** non e' ancora attraversato: `law_formula/3` e'
-l'espressione come albero e `code_operator/2` traduce gia' `product` in `*`, ma
-nessuna regola li unisce. E' il pezzo che trasforma «capisco la legge» in «so
-scriverne la funzione», ed e' il prossimo passo — con `code_eval` come oracolo,
-perche' una funzione emessa e non verificata non conta.
+L'**oracolo**. L'espressione e' corretta a vista e non e' ancora stata passata a
+`code_eval`: finche' non lo e', vale la regola del `gen206` — il generatore
+propone, l'oracolo dispone. Il passo successivo e' la firma completa della
+funzione (nome, parametri nell'ordine dell'albero, sintassi del linguaggio da
+`lang_syntax/3`) e la verifica su valori campione: «forza per massa 2 e
+accelerazione 5 vale 10».
 
 ## L'ordine di lavoro
 

@@ -99,6 +99,10 @@ answer_frame("dice", law_prose).
 answer_frame("computes", law_defines).
 answer_frame("calculates", law_defines).
 answer_frame("calcola", law_defines).
+% gen505h — la superficie che chiede il CALCOLO invece del significato.
+answer_frame("expression", law_expression).
+answer_frame("expression_of", law_expression).
+answer_frame("espressione", law_expression).
 
 % ── 4. LE GRANDEZZE — unita' e simbolo, in SI ──────────────────────────────
 quantity_unit(force, newton).            quantity_symbol(force, "F").
@@ -111,3 +115,44 @@ quantity_unit(kinetic_energy, joule).    quantity_symbol(kinetic_energy, "E").
 quantity_unit(velocity, metre_per_second). quantity_symbol(velocity, "v").
 quantity_unit(density, kilogram_per_cubic_metre). quantity_symbol(density, "rho").
 quantity_unit(volume, cubic_metre).      quantity_symbol(volume, "V").
+
+% ── 5. IL PONTE VERSO IL CODICE (gen505h) ──────────────────────────────────
+%
+% Il punto della missione: dal SIGNIFICATO della legge al CALCOLO. E il ponte non
+% e' una seconda macchineria — e' un fold sull'albero che gia' c'e', con gli
+% operatori che gia' esistono (`code_operator/2`, kb/experts/programming/
+% compose.p0, dove `product` vale gia' `*`).
+%
+% Una legge nuova non costa una riga di codice: costa i suoi fatti, e da quel
+% momento e' insieme spiegabile, calcolabile e SCRIVIBILE. Un operatore nuovo e'
+% un fatto in `compose.p0`, e vale per tutte le leggi che lo usano.
+machinery(code_expr).
+machinery(law_expression).
+machinery(law_signature).
+
+% Una grandezza e' un parametro: si rende con il proprio nome.
+code_expr($Q, $Q) :- quantity_unit($Q, $U).
+% Una costante dichiarata si rende col proprio letterale.
+code_expr($K, $Lit) :- code_literal($K, $Lit).
+code_literal(half, "0.5").
+
+% Le forme composte. Il simbolo lo dice `code_operator/2`: qui non c'e' nessun
+% operatore scritto a mano.
+code_expr(product($A, $B), $T) :- code_binary(product, $A, $B, $T).
+code_expr(quotient($A, $B), $T) :- code_binary(quotient, $A, $B, $T).
+code_expr(sum($A, $B), $T) :- code_binary(sum, $A, $B, $T).
+code_expr(difference($A, $B), $T) :- code_binary(difference, $A, $B, $T).
+
+code_binary($Op, $A, $B, $T) :-
+    code_operator($Op, $Sym), code_expr($A, $TA), code_expr($B, $TB),
+    code_infix($TA, $Sym, $TB, $T).
+code_infix($TA, $Sym, $TB, $T) :-
+    concat_atoms("(", $TA, $X), concat_atoms($X, " ", $Y), concat_atoms($Y, $Sym, $Z),
+    concat_atoms($Z, " ", $W), concat_atoms($W, $TB, $V), concat_atoms($V, ")", $T).
+
+% Il quadrato e' il prodotto di una cosa per se stessa: non serve un operatore
+% nuovo, serve dire che cos'e'.
+code_expr(square($A), $T) :- code_binary(product, $A, $A, $T).
+
+% L'espressione di una legge, pronta da mettere dopo un `return`.
+law_expression($Law, $T) :- law_formula($Law, $Out, $E), code_expr($E, $T).
