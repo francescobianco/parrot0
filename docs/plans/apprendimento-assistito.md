@@ -38,6 +38,30 @@ strati M0–M20 e dei requisiti trasversali di revisione e persistenza del §0.
 **Ritmo:** §11 — ogni cosa appresa è un piccolo incremento, e si committa e
 pusha anche se parziale.
 
+## ⚡ Da sapere subito (le due appendici, in stringato)
+
+Stanno in coda per esteso — **si saltano**, e non si devono saltare.
+
+**1. Inferenza compositiva** (`gen505`, `kb/core/composition.p0`). Una risposta
+lunga non è una stringa con dei buchi: è un **albero di stadi**. Uno stadio è
+un'inferenza che, se la sua tesi regge, avvolge il testo già composto più
+all'interno; **se non regge, non esiste** — la risposta è più corta, non
+sbagliata. Vocabolario: `stage_wraps/2` (la cipolla; due fatti con lo stesso
+esterno = si dirama), `stage_claim/2` (la tesi), `stage_relation/2` +
+`relation_connective/3` (il connettivo è la resa della relazione, non una parola
+nello stadio), `stage_text/3`. Motore: `composed(Stadio, Lingua, Testo)`, sei
+clausole, zero parole. **Regola d'oro:** un segnaposto è lecito solo se nomina un
+argomento della tesi che quello stadio ha dimostrato.
+*Due trappole che costano ore:* `naf` con una variabile **libera** nel goal
+negato non lega (rendilo di arità 1 e legato); un testo **composto** non ha le
+virgolette che un letterale di file ha.
+→ tecnica d'uso, sei passi e comandi: **appendice in coda**.
+
+**2. Archi connettivi dinamici.** La conoscenza detta in una forma va letta in
+un'altra: l'arco è un **fatto**, i predicati sono **argomenti** — mai una regola
+per coppia. Il join non può essere una regola KB (§«Perché il join non può essere
+una regola KB»). → **appendice in coda**.
+
 ## 0. Missione principale: la KB viva
 
 La domanda guida è quella dei [mantra](../../MANTRA.md): **parrot0 può
