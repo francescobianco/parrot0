@@ -1,5 +1,576 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# ⛔ RIPARTI DA QUI — handoff 2026-09-05: addestrare la KB viva
+
+> **Invito esplicito per chi riprende:** continua questa missione. Non tornare a
+> trattare `LEARN_TODO.md` come un catalogo passivo e non aprire un fronte
+> laterale soltanto perché è più facile da misurare. Il compito principale è
+> far crescere parrot0, attraverso lezioni naturali vere, fino a una **KB viva**:
+> conoscenza, lingua, inferenza, memoria, spiegazione, pianificazione e condotta
+> devono raggiungersi a vicenda e sostenere un dialogo alla pari sul perimetro
+> verificato, senza muri ciechi, risposte fuori tema o certezze inventate.
+>
+> **Direzione esplicita di F.:** per ora lascia perdere il lavoro
+> sull'osservabilità della sonda. Conserva le evidenze verbatim quando insegni,
+> ma investi il prossimo incremento nella crescita reale della KB e nei colli
+> linguistico-inferenziali che quella crescita incontra.
+
+Questo handoff prevale come punto di ripresa sulle intestazioni più vecchie del
+file. La storia sotto resta utile: non cancellarla e non ripartire da zero.
+
+## 1. La missione, senza scorciatoie
+
+Il piano autoritativo è
+[`docs/plans/apprendimento-assistito.md`](docs/plans/apprendimento-assistito.md),
+§0. I due piani
+[`frontier-kb-natural-dialogue.md`](docs/plans/frontier-kb-natural-dialogue.md)
+e [`universal-comprehension.md`](docs/plans/universal-comprehension.md)
+specificano rispettivamente il bersaglio dialogico e il contratto di
+comprensione. `MANTRA.md`, `PRINCIPLES.md` e `LEARN_PROTOCOL.md` sono vincoli,
+non letture facoltative.
+
+L'equivalenza cercata con un LLM è **funzionale e osservabile**, non
+architetturale. Parrot0 non deve imitare un modello neurale: deve riuscire a
+seguire il turno completo, mantenere alternative e referenti, ricavare la
+questione da soddisfare, usare tutte le proprie facoltà, formulare una risposta
+fondata e continuare il dialogo. La sua differenza positiva deve restare la
+tracciabilità: ogni conclusione ha sostegni ispezionabili e perde validità
+quando quei sostegni vengono ritirati.
+
+Due espressioni non vanno banalizzate:
+
+- **senza muri** non significa rispondere sempre. Significa che una lacuna viene
+  distinta da una negazione, nominata e trasformata nel prossimo bisogno utile;
+  se manca una coordinata, parrot0 conserva il resto della lettura e chiede o
+  acquisisce proprio quella coordinata;
+- **senza allucinazioni o svarioni** significa che “sì”, “no”, “ho capito”, una
+  spiegazione e perfino una domanda di chiarimento richiedono evidenza pertinente
+  e corrente. Una frase ben formata ma irrilevante non è meglio di un muro.
+
+Il ciclo da rendere vivo è questo:
+
+```text
+turno e storia
+  → letture concorrenti con ruoli, referenti, scope e residui
+  → questione / mossa / obblighi ancora aperti
+  → inferenza, osservazione o procedura con sostegni correnti
+  → piano di risposta che copre tutte le richieste
+  → realizzazione nella lingua e nel registro del dialogo
+  → seguito, correzione o nuova lezione
+
+arresto informato
+  → bisogno tipato
+  → spiegazione naturale candidata
+  → replay, transfer, contrasto, retract e reteach
+  → revisione delle letture passate
+  → persistenza e uso in un processo nuovo
+```
+
+Un fatto presente ma non interrogabile non è ancora vivo. Una regola presente
+ma ignorata dai consumer non è una capacità. Una conferma di apprendimento che
+non sa ridire ciò che è cambiato non è metacomprensione.
+
+## 2. Stato esatto lasciato da questo turno
+
+Il riordino dei tre piani è già stato pubblicato nel commit `584f090`
+(`promuovi la KB viva a missione principale`). Il primo addestramento reale
+successivo è sul micro-dominio **minerali di ferro**.
+
+La sessione promossa ha acquisito parlando quattro fatti ground veri:
+
+```text
+hematite is an iron oxide mineral
+magnetite is an iron oxide mineral
+hematite is an iron ore mineral
+magnetite is an iron ore mineral
+```
+
+Le fonti preparate prima della lezione sono istituzionali:
+
+- [USGS, Iron Ore Statistics and Information](https://www.usgs.gov/centers/national-minerals-information-center/iron-ore-statistics-and-information):
+  il minerale di ferro consiste quasi sempre di ossidi di ferro, le cui forme
+  primarie sono magnetite ed ematite;
+- [USGS, Hematite](https://pubs.usgs.gov/sir/2017/5118/elements/Hematite/Hmtt_txt.html):
+  l'ematite è un minerale ossido di ferro e viene estratta come minerale di ferro
+  insieme alla magnetite;
+- [USGS, Quartz](https://pubs.usgs.gov/sir/2017/5118/elements/Quartz/Qtz_txt.html):
+  il quarzo è SiO2; è servito come contrasto reale rispetto alla classe degli
+  ossidi di ferro.
+
+Stato quantitativo del checkpoint:
+
+| misura | valore | significato |
+|---|---:|---|
+| `B0 / R0` | `38266 / 2732` | stato prima dell'addestramento |
+| `W` | `4` | nuovi fatti veri del mondo |
+| `L` | `77` | `verb_stem` collaterali materializzati dal salvataggio, non quattro nuove lezioni linguistiche |
+| `C` | `0` | nessuna nuova costruzione o regola generale rivendicata |
+| `P` | `8` | quattro `fact_source` e quattro `reading_fact` |
+| `O` | `30` | 28 turni persistiti e due referenti discorsivi |
+| `X` | `0` | nessun fatto falso o fixture nel diff promosso |
+| clausole instradate | `119` | dato del salvataggio, non guadagno semantico |
+| `B1 / R1` | `38308 / 2732` | processo nuovo dopo il salvataggio |
+| richiamo fresco | `4/4` | i quattro fatti rispondono correttamente senza reinsegnamento |
+
+I quattro fatti sono in `kb/learning/learned.p0`; provenienza e letture sono in
+`kb/machinery/fact-provenance.p0`; i turni sono in
+`kb/machinery/transcripts.p0`. La ricaduta in `learned.p0` e la
+materializzazione di 77 stem estranei al micro-dominio sono un **gap di
+consolidamento**, non un motivo per riscrivere a mano le lezioni in un file più
+elegante. Il salvataggio ha conservato la causa reale; il router deve imparare
+ad assegnare una casa semantica senza dipendere dai nomi “hematite” o
+“magnetite”.
+
+Non confondere `119` con 119 cose imparate. Il guadagno del mondo è quattro.
+`B1-B0=42` è diagnostica globale e include materiale collaterale; non sostituisce
+`W`.
+
+## 3. Transcript causale del lotto promosso
+
+Tutte le baseline sono state raccolte **prima** di aprire le due classi. Questo
+ordine è necessario finché resta il difetto di negazione descritto al §4.
+
+```text
+is hematite an iron oxide mineral?
+  → I don't know about iron_oxide_mineral.
+is magnetite an iron oxide mineral?
+  → I don't know about iron_oxide_mineral.
+is hematite an iron ore mineral?
+  → I don't know about iron_ore_mineral.
+is magnetite an iron ore mineral?
+  → I don't know about iron_ore_mineral.
+```
+
+Dopo ciascun enunciato dichiarativo, la domanda corrispondente ha risposto
+`Yes.`. Alla fine, ematite e magnetite sono state ricontrollate dopo altri turni
+e hanno mantenuto la risposta. Il contrasto:
+
+```text
+is quartz an iron oxide mineral?
+  → No.
+```
+
+è fattualmente corretto perché il quarzo è SiO2. **Non prova però che la logica
+di negazione sia corretta:** lo stesso cammino aveva appena prodotto il falso
+“No” su magnetite in una sessione scartata. Un risultato corretto per caso non
+certifica il metodo che lo ha generato.
+
+Nel processo fresco i quattro interrogativi hanno risposto `Yes.`: richiamo
+persistente `4/4`. Non sono state rivendicate parafrasi, composizione o una
+capacità generale. Questi sono fatti isolati raggiungibili attraverso due forme
+interrogative note, non ancora un'ontologia mineraria capace di inferire.
+
+## 4. Scoperta critica: l'assenza nella classe diventa falsità
+
+La prima sessione è stata abbandonata senza salvarla. La sequenza minima è:
+
+```text
+is hematite an iron oxide mineral?
+  → I don't know about iron_oxide_mineral.
+hematite is an iron oxide mineral
+  → Learned: hematite is an iron oxide mineral.
+is hematite an iron oxide mineral?
+  → Yes.
+is magnetite an iron oxide mineral?
+  → No.                       ⛔ falso
+```
+
+Quando il predicato di classe non esiste, la risposta è “non so”. Appena esiste
+un membro positivo, il modulo `knowledge` tratta un altro membro non registrato
+come negativo. È un passaggio indebito da **mancata derivazione** a **derivazione
+della negazione**.
+
+La correzione concettuale non è aggiungere magnetite in anticipo. Occorre
+distinguere almeno questi stati:
+
+1. esiste un sostegno positivo corrente → `Yes`;
+2. esiste un sostegno negativo esplicito corrente → `No`;
+3. non esiste sostegno in nessuna direzione → `Unknown`;
+4. esistono sostegni positivi e negativi → `Conflict`, con entrambi visibili;
+5. la ricerca non è terminata o il budget è esaurito → `Incomplete`, non
+   `Unknown` e certamente non `No`.
+
+La chiusura del mondo è lecita soltanto quando esiste una dichiarazione di
+completezza **pertinente alla classe, allo scope e alla revisione corrente**.
+Sapere un membro di una classe non dichiara completa la sua estensione.
+
+Gate minimo del futuro rimedio, su KB completa:
+
+```text
+nessun fatto su K:       “A è K?” → non so
+si insegna “A è K”:      “A è K?” → sì
+                         “B è K?” → ancora non so
+si insegna “B non è K”:  “B è K?” → no
+si ritrae la negazione:  “B è K?” → non so
+si insegna “B è K”:      “B è K?” → sì
+si ritrae il positivo:   “B è K?” → non so
+```
+
+Il nome della categoria e i membri del test devono essere insegnabili a runtime;
+nessuna parola del dominio va cablata nel motore. Il C può implementare la
+meccanica dei quattro/cinque stati epistemici, non decidere quali classi siano
+complete.
+
+Questo difetto ha priorità alta perché viola insieme i due lati della missione:
+produce uno svarione invece di un muro informato e rende pericoloso popolare una
+classe un membro alla volta, che è precisamente il modo KB-first di crescere.
+
+## 5. Scoperta V2: un sintagma può essere appreso ma non più raggiunto
+
+La seconda sessione, anch'essa scartata senza salvarla, aveva aggiunto un quinto
+enunciato vero:
+
+```text
+iron ore is a mineral
+  → Learned: iron ore is a mineral.
+```
+
+Il dump rappresentava correttamente `iron_ore` come soggetto unico. Eppure:
+
+```text
+is iron ore a mineral?
+  → I don't understand that yet.
+what is iron ore?
+  → I don't know much about iron ore yet. Want me to look it up?
+forget that iron ore is a mineral
+  → proposta di imparare “forget”, nessuna retrazione
+```
+
+Quindi il difetto non è soltanto lessicale. Il lettore dichiarativo costruisce
+un'entità multi-parola, ma domanda, descrizione e retrazione non condividono
+sempre lo stesso oggetto. È una nuova evidenza concreta del “cassetto senza
+maniglia” già documentato più avanti nel file:
+
+> ciò che si impara da un sintagma deve essere interrogabile, correggibile e
+> ridicibile attraverso lo stesso sintagma.
+
+Il rimedio generale appartiene a V2/G1–G5:
+
+- conservare l'intero span e la superficie originale, non soltanto una chiave
+  fusa;
+- far usare a dichiarazione, domanda, coreferenza, forget e realizzazione lo
+  stesso referente;
+- distinguere testa e proprietà mediante conoscenza della lingua;
+- conservare determinante, ordine e lingua quando incidono su riferimento e
+  resa;
+- far sì che la retrazione ritiri il sostegno del fatto e le conseguenze che
+  non hanno altri sostegni, senza cancellare la storia dell'osservazione.
+
+Il gate non è soltanto “la domanda ora dice sì”. Deve reggere questa famiglia:
+
+1. insegnare naturalmente un fatto con soggetto multi-parola;
+2. chiederlo con la stessa superficie e con una parafrasi;
+3. introdurre due referenti con la stessa testa e modificatori diversi;
+4. riprenderli con una forma anaforica non ambigua;
+5. chiedere una proprietà senza usare la chiave interna;
+6. ritrarre il fatto con la superficie naturale;
+7. osservare che la risposta torna a “non so” e non a “no”;
+8. reinsegnare e verificare il richiamo in un processo nuovo.
+
+Non aggirare questo confine insegnando all'utente la grafia `iron_ore`. La
+chiave interna non è la lingua del dialogo.
+
+## 6. Scoperte linguistiche precise
+
+| forma | lettura osservata | conseguenza |
+|---|---|---|
+| “hematite is an iron oxide mineral” | unaria, soggetto `hematite`, classe composta | apprendimento e replay riescono |
+| “is hematite an iron oxide mineral?” | stessa classe composta | domanda sì/no raggiungibile |
+| “is hematite a type of iron oxide mineral?” | classe distinta, equivalente alla superficie `type_of_...` | la parafrasi non viene normalizzata verso la stessa relazione |
+| “iron ore is a mineral” | soggetto composto correttamente nella lezione | il fatto entra, ma gli altri atti non condividono il referente |
+| “is iron ore a mineral?” | analisi spezzata / reachability gap | stesso contenuto non recuperabile |
+| “forget that iron ore is a mineral” | “forget” viene trattato come materiale da imparare | la ritrattazione non è simmetrica all'apprendimento |
+| “what did you understand?” | “I had something on:” senza contenuto | metacomprensione vuota; non sa ridire la delta della lezione |
+| “how do you know that hematite is an iron oxide mineral?” | spiegazione causale generica | confonde giustificazione epistemica e meccanismo causale |
+
+Tre conseguenze generali:
+
+1. **Le parafrasi devono collegare letture, non duplicare fatti.** “X è un K” e
+   “X è un tipo di K” dovrebbero convergere quando la KB sostiene
+   l'equivalenza della costruzione. Insegnare il fatto due volte sotto due
+   predicati superficiali nasconde il gap e frammenta l'ontologia.
+2. **Gli atti dialogici devono condividere il contenuto proposizionale.** La
+   stessa proposizione deve poter essere asserita, chiesta, negata, corretta,
+   dimenticata, spiegata e ridetta senza che ogni atto ricostruisca nomi propri.
+3. **“Perché?” non è una sola relazione.** “Che meccanismo causa P?” cerca una
+   catena causale; “quale evidenza sostiene P?” cerca provenienza e proof;
+   “perché hai scelto questa risposta?” cerca la decisione del dialogo. La forma
+   superficiale può essere ambigua, quindi letture e contesto devono restare
+   concorrenti fino a evidenza sufficiente.
+
+Le equivalenze delle forme, le cue interrogative e le realizzazioni appartengono
+alla KB e devono poter essere aggiunte e ritratte parlando. Il motore può legare
+slot e attraversare una lettura; non può contenere una lista privata con
+“type of”, “how do you know” o le parole future.
+
+## 7. Provenienza: presente come dato, assente come risposta
+
+Per ognuno dei quattro fatti persistono una `reading_fact` e una
+`fact_source`. Questo basta a ricordare la frase didattica, ma non basta ancora
+a rispondere in modo fondato alla richiesta di giustificazione.
+
+Nel processo fresco:
+
+```text
+how do you know that hematite is an iron oxide mineral?
+  → lungo schema generico su condizione iniziale, processo ed effetto misurabile
+```
+
+La risposta è fluente ma non pertinente. Non cita la frase insegnata, non espone
+un percorso di prova e non identifica USGS. Il modulo ha riconosciuto una forma
+causale e ha preso il turno prima del consumer epistemico.
+
+Occorrono tre livelli separati:
+
+- **origine dell'osservazione:** chi ha pronunciato o quale documento contiene
+  la frase, con revisione e span;
+- **sostegno corrente:** quali osservazioni e regole autorizzano oggi la
+  proposizione, incluse alternative indipendenti;
+- **fonte di verità usata dal training:** riferimento istituzionale verificato,
+  non soltanto il nome dell'entità e il testo della lezione.
+
+La frase del teacher non diventa una fonte indipendente solo perché è stata
+salvata due volte come `reading_fact` e `fact_source`. Il prossimo verticale di
+provenienza deve rispondere dalla proof effettiva e deve degradare onestamente:
+se conosce il fatto ma non possiede in KB la fonte istituzionale, deve dirlo
+senza inventare una spiegazione causale.
+
+## 8. Conferma di apprendimento e FalseUnderstanding
+
+“Learned” va generato dalla modifica realmente avvenuta, non dall'intenzione del
+parser. In questo lotto i quattro successi promossi sono veri perché replay e
+processo fresco li confermano. Tuttavia due segnali restano rossi:
+
+- “what did you understand?” non sa esporre il fatto appena acquisito;
+- il quinto fatto su `iron ore` era internamente presente ma inutilizzabile dagli
+  atti naturali successivi.
+
+Una conferma matura dovrebbe poter dire, nella lingua dell'interlocutore:
+
+```text
+ho acquisito la proposizione P;
+l'ho collegata alla lettura L della tua frase;
+posso usarla nelle domande Q che conosco;
+non ho ancora verificato le parafrasi o gli usi R.
+```
+
+Non serve stampare nomi di predicati. Serve conservare un oggetto “delta della
+lezione” che il replay, la spiegazione e il retract possano condividere. Una
+conferma che promette più di quanto il replay dimostra conta come falsa
+comprensione anche se il fatto raw è entrato.
+
+Per il lotto promosso `FalseUnderstandingRate=0/4`: ciascuno dei quattro
+“Learned” ha replay e richiamo fresco. Il tentativo multi-parola non è stato
+promosso e la sua sessione è stata scartata; resta una diagnosi, non un successo.
+
+## 9. Persistenza e genealogia: due debiti da non nascondere
+
+### 9.1 Fan-out del salvataggio
+
+Quattro fatti hanno prodotto 119 clausole persistite. Settantasette sono stem
+verbali materializzati collateralmente. Non sono falsi, ma non sono causati
+semanticamente dalle quattro lezioni minerarie. Due referenti e 28 turni formano
+il resto del materiale operativo.
+
+Il prossimo lavoro sul consolidamento deve conservare tutto ciò che serve alla
+genealogia senza confondere:
+
+- delta della lezione;
+- materiale già derivabile al boot;
+- tracce del dialogo;
+- fatti del mondo;
+- indici o viste materializzate.
+
+Una vista derivabile può essere persistita per prestazioni solo con versione,
+dipendenze e invalidazione. Non deve gonfiare il conteggio delle cose imparate.
+
+### 9.2 Identità dei turni
+
+Gli identificatori `utterance(N,...)` ripartono in sessioni diverse. Clausole
+identiche possono collidere e sparire per semantica d'insieme; infatti alcune
+risposte `Yes.` non compaiono come eventi distinti nel dump promosso. Un numero
+locale senza identità di sessione non è una provenienza globale sufficiente.
+
+La correzione generale deve distinguere almeno sessione, turno, parlante e
+ordine, preservando la compatibilità come vista. Non inserire un contatore
+globale fragile né dedurre dalla mancanza della riga che la risposta non sia
+avvenuta: il transcript verbatim del laboratorio prova che è avvenuta.
+
+## 10. Che cosa NON è stato dimostrato
+
+- Non è stata acquisita una regola che colleghi “ossido di ferro” e “minerale
+  di ferro”. Sono due classificazioni ground parallele.
+- Non è stata acquisita una capacità generale di mineralogia.
+- Non è stata provata la parafrasi “a type of”.
+- Non è stata provata una domanda aperta del tipo “quali sono…?”.
+- Non è stata provata una composizione che ricavi una nuova conclusione.
+- Non è stata provata la retrazione dei quattro fatti promossi.
+- La provenienza esterna USGS è documentata nel laboratorio, ma non è ancora
+  raggiungibile come sostegno istituzionale nella risposta di parrot0.
+- Il `No` corretto su quarzo non certifica negazione calibrata.
+- Quattro fatti e un richiamo 4/4 non dimostrano parità con un LLM.
+
+Queste negazioni sono parte del risultato. Non trasformarle in percentuali
+positive e non completarle per supposizione.
+
+## 11. Ordine preciso per continuare
+
+### Passo A — continuare subito la crescita fattuale, ma in corsie sicure
+
+Proseguire con micro-lotti di fatti reali, stabili e con fonti autorevoli. Ogni
+lotto deve essere piccolo abbastanza da poter essere abbandonato integralmente
+al primo fatto falso o ambiguo. Finché il difetto del §4 è aperto:
+
+1. scegliere tutti i membri positivi della stessa classe previsti nel lotto;
+2. raccogliere tutte le baseline prima di insegnarne il primo;
+3. insegnare soltanto in lingua naturale;
+4. verificare ogni lezione subito, poi di nuovo dopo turni diversi;
+5. usare contrasti la cui verità negativa è stata verificata indipendentemente;
+6. non interpretare un `No` per assenza come prova di calibrazione;
+7. scartare la sessione se compare una falsità o se il binding è ambiguo;
+8. promuovere soltanto ciò che torna in un processo fresco.
+
+Preferire per ora entità a parola singola e classificazioni chiare quando lo
+scopo è aumentare `W`. Questo non assolve il difetto multi-parola: lo isola per
+permettere alla KB di crescere mentre V2 viene chiuso. Non usare fatti già noti,
+definizioni controverse, categorie vaghe o proprietà dipendenti dal campione.
+
+Un possibile seguito dello stesso dominio è usare minerali con composizione
+istituzionalmente documentata, ma ogni proposizione va ricontrollata prima della
+lezione. Non insegnare formule, relazioni binarie o regole generali finché la
+forma interrogativa e il retract corrispondenti non superano una prova breve:
+un fatto ingestibile è più costoso di un fatto non ancora aggiunto.
+
+### Passo B — chiudere la falsa negazione come meta-gap di crescita
+
+È il primo collo inferenziale emerso direttamente dall'addestramento. Il
+rimedio deve essere generale, KB-first e indipendente dalla mineralogia. La
+policy che autorizza mondo chiuso, conflitto e incompletezza appartiene alla KB;
+il motore esegue la ricerca e restituisce lo stato supportato.
+
+La prova causale deve aggiungere a runtime una categoria e membri mai compilati,
+mostrare `unknown → yes → unknown/no esplicito → yes`, poi ritrarre e
+reinsegnare. La KB completa resta caricata. Un test golden che contiene già i
+membri non dimostra crescita.
+
+### Passo C — chiudere il referente multi-parola attraverso tutti gli atti
+
+Non correggere separatamente “is iron ore…”, “what is iron ore…” e “forget
+that iron ore…”. Sarebbero tre toppe allo stesso difetto. Il produttore della
+lettura deve pubblicare un referente con span, superficie, lingua, testa e
+proprietà; domanda, memoria, coreferenza, correzione, retract e realizzazione
+devono consumare quel referente o una vista derivata dallo stesso oggetto.
+
+Il caso `iron ore is a mineral` è il ratchet reale da mantenere rosso finché
+l'intera catena del §5 non passa.
+
+### Passo D — distinguere giustificazione, causa e decisione dialogica
+
+La richiesta “how do you know P?” deve aprire un bisogno di sostegno, non un
+template causale. Il verticale deve coprire:
+
+- un fatto appreso direttamente, per cui la risposta mostra origine e limite;
+- una conclusione derivata, per cui la risposta mostra premesse congiunte e
+  regola;
+- due sostegni indipendenti, uno dei quali viene ritratto senza perdere P;
+- l'ultimo sostegno ritratto, dopo cui P non può più parlare come corrente;
+- una domanda causale vera, che continua a ottenere un meccanismo e non una
+  citazione;
+- una domanda sulla scelta della risposta, che espone lettura e modulo/mossa
+  senza fingere una causa del mondo.
+
+Le superfici EN e IT vengono insegnate e ritratte nella KB. Non codificare
+“how do you know” o “come lo sai” nel C.
+
+### Passo E — rendere la conferma una descrizione verificabile della delta
+
+Collegare la conferma di apprendimento alla proposizione o capacità realmente
+aggiunta. “What did you understand?” deve poter ridire contenuto, scope e limiti
+senza schema interno. Retract e reteach devono puntare allo stesso oggetto della
+lezione.
+
+### Passo F — solo dopo, aprire inferenza fertile fra le classi
+
+Quando fatti, domande, negazione e retract sono stabili, insegnare una relazione
+o regola reale che colleghi classi già popolate. Il gate non è che la regola si
+esegua tre volte sullo stesso pattern. Servono:
+
+- spiegazione naturale dei ruoli;
+- almeno tre held-out veri;
+- due parafrasi;
+- un quasi-esempio che non deve passare;
+- una composizione con conoscenza già presente;
+- retract, perdita delle sole conclusioni dipendenti e reteach;
+- trasferimento a un secondo dominio reale.
+
+È qui che il numero di fatti smette di crescere linearmente e la KB comincia a
+“connettere i punti”. Anticiparlo su fondamenta epistemiche instabili
+moltiplicherebbe gli svarioni.
+
+## 12. Criterio di priorità per ogni turno futuro
+
+Quando l'addestramento incontra un arresto, scegliere il lavoro successivo in
+quest'ordine:
+
+1. falsa affermazione o falsa negazione;
+2. dichiarazione infondata di aver capito/appreso/eseguito;
+3. fatto presente ma irraggiungibile con la sua lingua naturale;
+4. provenienza o scope perso, risposta stale dopo correzione;
+5. collo condiviso da più facoltà;
+6. nuova conoscenza fattuale;
+7. rifinitura locale di una singola superficie.
+
+La priorità 1–5 non invita ad abbandonare l'addestramento per costruire
+infrastruttura astratta. Il difetto deve emergere da una lezione reale e il
+rimedio deve riaprire immediatamente quella lezione più casi indipendenti.
+
+## 13. Regole per un agente che conosce poco questa codebase
+
+1. Non scrivere una parola naturale nel C per riconoscerla o generarla. Se una
+   parola futura deve funzionare senza ricompilare, è conoscenza KB.
+2. Non insegnare al teacher nomi interni, tuple, arità o sintassi P0. La lezione
+   deve essere formulabile da un esperto del dominio che ignora lo schema.
+3. Non usare una KB amputata per far passare la prova. Isola la candidata, non
+   il soggetto completo.
+4. Non aggiungere il fatto che la domanda dovrebbe inferire. Il test di
+   connessione deve contenere soltanto premesse e regole lecite.
+5. Non confondere “nessuna proof trovata” con falso. Senza negazione o
+   completezza, la risposta è ignota.
+6. Non contare “Learned” come successo. Replay, uso nuovo, retract e processo
+   fresco decidono lo stato.
+7. Non riparare a mano una sessione contaminata e poi salvarla. Le sessioni
+   scartate di questo turno mostrano il comportamento corretto del teacher.
+8. Non trasformare ogni parafrasi in un nuovo fatto del mondo. Le forme devono
+   convergere attraverso conoscenza linguistica.
+9. Non lasciare una regola senza produttore, consumer e porta naturale. La sola
+   presenza in KB non la rende viva.
+10. Non usare un LLM esterno come oracolo di verità. Può proporre mosse o lezioni;
+    i fatti hanno fonti e i risultati hanno verificatori indipendenti.
+11. Non riaprire per ora il fronte dell'osservabilità della sonda. Registra
+    comunque risposte esatte, revisione e stato del training: serviranno quando
+    F. cambierà priorità.
+12. Non cancellare strutture secondarie perché oggi sembrano ridondanti.
+    Correggi precedenza e sostegni; preserva ciò che può tornare utile.
+
+## 14. Definizione del prossimo checkpoint buono
+
+Il prossimo checkpoint è valido se realizza **almeno uno** dei due esiti:
+
+- un nuovo micro-lotto con `W >= 3`, fonti registrate, nessuna falsità, replay e
+  richiamo fresco al 100%, senza fingere una capacità generale; oppure
+- la chiusura causale di uno dei colli §4/§5/§7/§8, seguita dalla stessa lezione
+  naturale che prima falliva, transfer indipendente, retract/reteach e processo
+  fresco.
+
+In entrambi i casi il resoconto deve separare fatti del mondo, lingua,
+costruzioni, provenienza, tracce e viste materializzate. Ogni rosso osservato
+resta nel resoconto anche se il risultato finale è verde.
+
+Il traguardo immediatamente successivo non è “aggiungere molte righe”. È
+ottenere una catena in più in cui parrot0 **impara, sa che cosa ha imparato, lo
+usa, lo giustifica, lo corregge e lo ricorda**, senza che il teacher conosca i
+suoi nomi interni. Riprendi da qui e continua.
+
 # ⭐ gen502 — «vai avanti col lavoro» non esiste nella KB, ed è una lezione
 
 Misurato sotto il profilo `agi.p0`, sette forme, nessuna funziona:

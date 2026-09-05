@@ -25,3 +25,86 @@
 %   kb/machinery/transcripts.p0        i turni detti e quelli risposti
 %
 % Il file torna vuoto, che e' il suo stato giusto.
+verb_stem(measures, measure).
+verb_stem(organizes, organize).
+verb_stem(precedes, precede).
+verb_stem(tests, test).
+verb_stem(maps, map).
+verb_stem(surveys, survey).
+verb_stem(weakens, weaken).
+verb_stem(refutes, refute).
+verb_stem(encodes, encode).
+verb_stem(applies, applie).
+verb_stem(discovers, discover).
+verb_stem(represents, represent).
+verb_stem(penalizes, penalize).
+verb_stem(harms, harm).
+verb_stem(splits, split).
+verb_stem(predicts, predict).
+verb_stem(computes, compute).
+verb_stem(minimizes, minimize).
+verb_stem(prevents, prevent).
+verb_stem(digests, digest).
+verb_stem(carries, carrie).
+verb_stem(pumps, pump).
+verb_stem(secretes, secrete).
+verb_stem(produces, produce).
+verb_stem(shortens, shorten).
+verb_stem(biases, biase).
+verb_stem(modulates, modulate).
+verb_stem(releases, release).
+verb_stem(contains, contain).
+verb_stem(includes, include).
+verb_stem(causes, cause).
+verb_stem(uses, use).
+verb_stem(forms, form).
+verb_stem(creates, create).
+verb_stem(connects, connect).
+verb_stem(absorbs, absorb).
+verb_stem(emits, emit).
+verb_stem(converts, convert).
+verb_stem(stores, store).
+verb_stem(transports, transport).
+verb_stem(controls, control).
+verb_stem(regulates, regulate).
+verb_stem(protects, protect).
+verb_stem(surrounds, surround).
+verb_stem(supports, support).
+verb_stem(covers, cover).
+verb_stem(replaces, replace).
+verb_stem(describes, describe).
+verb_stem(defines, define).
+verb_stem(determines, determine).
+verb_stem(affects, affect).
+verb_stem(influences, influence).
+verb_stem(reduces, reduce).
+verb_stem(increases, increase).
+verb_stem(generates, generate).
+verb_stem(provides, provide).
+verb_stem(supplies, supplie).
+verb_stem(consumes, consume).
+verb_stem(transmits, transmit).
+verb_stem(reflects, reflect).
+verb_stem(attracts, attract).
+verb_stem(repels, repel).
+verb_stem(binds, bind).
+verb_stem(breaks, break).
+verb_stem(combines, combine).
+verb_stem(divides, divide).
+verb_stem(governs, govern).
+verb_stem(serves, serve).
+verb_stem(occupies, occupie).
+verb_stem(borders, border).
+verb_stem(crosses, crosse).
+verb_stem(joins, join).
+verb_stem(follows, follow).
+verb_stem(enables, enable).
+verb_stem(limits, limit).
+verb_stem(expands, expand).
+verb_stem(contracts, contract).
+iron_oxide_mineral(hematite).
+discourse_referent(1, hematite).
+iron_oxide_mineral(magnetite).
+discourse_referent(2, magnetite).
+iron_ore_mineral(hematite).
+iron_ore_mineral(magnetite).
