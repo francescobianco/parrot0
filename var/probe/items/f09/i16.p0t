@@ -1,0 +1,5 @@
+[item 16]
+!reset
+!timeout 0
+> The test suite is green on every developer machine and red in CI, and the only difference between the environments is the locale setting. Which class of bug does that difference suggest, and what is the standard fix that makes the tests environment-independent?
+< __NEVER__

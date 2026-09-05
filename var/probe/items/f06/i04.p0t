@@ -1,0 +1,5 @@
+[item 4]
+!reset
+!timeout 0
+> The plan was to minimize cost, but halfway through the user changes the goal to minimizing risk instead, and three suppliers were already shortlisted. Which earlier decisions must be revisited, and which ones can stay as they are?
+< __NEVER__

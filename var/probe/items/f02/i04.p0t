@@ -1,0 +1,5 @@
+[item 4]
+!reset
+!timeout 0
+> The door was open, Sara closed it, then Leo reopened it and locked it. Describe the state of the door after each step, and what is its state now?
+< __NEVER__

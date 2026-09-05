@@ -66,3 +66,8 @@ kb/learning/pages/
 __pycache__/
 *.pyc
 p0t_write_probe.c
+
+# gen503: log di cattura estemporanea, non un artefatto del progetto
+/err.log
+# gen503: le MISURE della sonda si rigenerano; il banco e i suoi item no
+/var/probe/results/

@@ -1,0 +1,5 @@
+[item 2]
+!reset
+!timeout 0
+> Produce JSON for a user whose name is Ada, whose roles are an array with exactly two entries, and whose active field is the boolean true. Then tell me which single part of the JSON would break if roles were written as a plain string.
+< __NEVER__

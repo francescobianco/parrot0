@@ -1,0 +1,5 @@
+[item 14]
+!reset
+!timeout 0
+> None of the vases on this shelf are chipped, and all the chipped vases are in the attic, and a vase from the attic is on the table. Is that vase chipped, and can you be sure it is not from the shelf?
+< __NEVER__

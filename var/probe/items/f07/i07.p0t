@@ -1,0 +1,5 @@
+[item 7]
+!reset
+!timeout 0
+> Set A is the numbers 1, 2, 3, 4, and set B is the numbers 3, 4, 5, and set C is the union of A and B. What is C, and what is left of A when you remove every element that B also contains?
+< __NEVER__

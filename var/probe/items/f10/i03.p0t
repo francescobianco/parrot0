@@ -1,0 +1,5 @@
+[item 3]
+!reset
+!timeout 0
+> Give two counterexamples to the claim that more data always improves a decision, one from medicine and one from advertising, and say for each example what the extra data actually hid from view.
+< __NEVER__

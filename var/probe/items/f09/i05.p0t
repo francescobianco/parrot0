@@ -1,0 +1,5 @@
+[item 5]
+!reset
+!timeout 0
+> A cache returns stale data only after a write succeeds, and the cache invalidation runs after the commit, and the read happens between the two. Which edge should you inspect first, and what ordering of the two operations would close the window?
+< __NEVER__

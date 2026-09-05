@@ -1,0 +1,11 @@
+[item 4]
+!reset
+!timeout 0
+> Every mork is green, and everything green is small.
+< __NEVER__
+> Is a mork small?
+< __NEVER__
+> Now forget the rule that everything green is small.
+< __NEVER__
+> Is a mork still small?
+< __NEVER__

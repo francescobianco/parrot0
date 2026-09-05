@@ -1,0 +1,5 @@
+[item 15]
+!reset
+!timeout 0
+> The odometer shows 12,345 kilometers, and the trip to the coast is 87 kilometers each way, and I drive there and back. What will the odometer show when I return, and how many of its digits change during the trip?
+< __NEVER__

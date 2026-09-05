@@ -1,0 +1,9 @@
+[item 5]
+!reset
+!timeout 0
+> I prefer tea.
+< __NEVER__
+> Actually, I prefer coffee now.
+< __NEVER__
+> Which of the two statements should win, and what do I prefer today?
+< __NEVER__

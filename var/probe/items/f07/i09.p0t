@@ -1,0 +1,5 @@
+[item 9]
+!reset
+!timeout 0
+> The trip takes 2 hours and 35 minutes, and the departure is at nine ten. Convert the travel time into minutes, subtract the 48 minutes spent waiting, and give the remaining travel time as hours and minutes.
+< __NEVER__

@@ -1,0 +1,5 @@
+[item 9]
+!reset
+!timeout 0
+> Explain the poem I am about to describe but not include, and do not invent a single line of the poem or any historical context for it. What do you need from me first, and what will you do with the text once I give it to you?
+< __NEVER__

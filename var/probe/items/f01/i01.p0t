@@ -1,0 +1,5 @@
+[item 1]
+!reset
+!timeout 0
+> Every giraffe in this reserve is spotted, and Kibo is a giraffe that lives in the reserve. Does the spot pattern on Kibo follow from those two facts alone, and is there any way Kibo could be plain?
+< __NEVER__

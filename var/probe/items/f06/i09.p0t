@@ -1,0 +1,5 @@
+[item 9]
+!reset
+!timeout 0
+> The cheapest supplier cannot meet the deadline, the second-cheapest supplier can, and the deadline is a hard requirement from the client. Which supplier should we choose, and which constraint made the cheapest one lose?
+< __NEVER__

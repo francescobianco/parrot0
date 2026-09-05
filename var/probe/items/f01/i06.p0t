@@ -1,0 +1,5 @@
+[item 6]
+!reset
+!timeout 0
+> Every dancer in the troupe knows some musician, and every musician in town knows one drummer. Does it follow that some single drummer is known by all the dancers, and what mistake would that inference be?
+< __NEVER__

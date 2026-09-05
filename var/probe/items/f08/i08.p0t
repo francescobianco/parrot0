@@ -1,0 +1,5 @@
+[item 8]
+!reset
+!timeout 0
+> Give a JSON Patch operation that replaces /profile/name with the value Ada, and then a second operation that removes the field /profile/old. Which order of the two operations is safer when both fields exist, and why?
+< __NEVER__

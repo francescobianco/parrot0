@@ -1,0 +1,16 @@
+The plant wilted after the heater was moved, but nobody measured the soil, and the window was open all week. Which causal claims are justified, and which are only guesses?
+Ana starts cooking at six, the rice needs twenty-five minutes, and the guests arrive at six twenty. Can the rice be ready before the guests arrive, and what is the latest time she can start it?
+The ferry was late, so the meeting started late, but nobody checked the ferry until after the meeting was over. Is the ferry's lateness established, and what would verify it?
+The door was open, Sara closed it, then Leo reopened it and locked it. Describe the state of the door after each step, and what is its state now?
+Mira promised to call after lunch, but she called before lunch and then apologized to everyone. What is inconsistent about the sequence, and what did the apology acknowledge?
+The medication changed on Monday and the symptoms improved on Tuesday, yet a second treatment also began on Tuesday. Why can the improvement not be credited to the medication, and what experiment would settle it?
+The backup finished at nine ten, the deletion started at nine five, and the restore was requested at nine twenty. Which operations overlapped, and what does the overlap imply about the deleted files?
+Every time it rains the roof leaks, and last night it rained, and the floor is wet this morning. Is the leak the only possible cause of the wet floor, and what would you check first?
+The alarm rang at seven, the coffee had been brewing since six fifty, and the toast burned at seven five. Order these three events by when they started, and say which two overlapped.
+A repair causes a reboot, and a reboot causes data loss only when the disk is full, and the disk was not full. Did the repair cause the data loss, and what condition would change your answer?
+The bridge opened in June, the road was closed before that, and traffic stopped while it opened and resumed afterward. Reconstruct the sequence of states, and name the transition you cannot date exactly.
+Nora stopped sending alerts on Tuesday, and no alert arrived on Wednesday. What is different between those two statements, and which one tells you that something changed?
+The candle was lit while the window was open, and the curtain moved after the wind rose, and then the candle went out. Which happened first, the curtain moving or the candle going out, and can you be certain?
+The courier left the depot at noon, the bridge opens at one, and the trip takes fifty minutes. Will the courier cross before the bridge opens, and if the opening is delayed by twenty minutes, does the answer change?
+Sara closed the window and the draft stopped, but the door was still open, and the draft came back. What is the most likely cause of the draft, and which observation would confirm it?
+The batch ran from two ten to two forty, the report was generated at two thirty-five, and the database was locked from two thirty to two forty-five. Did the report read data while the lock was on, and which interval proves it?

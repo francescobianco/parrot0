@@ -1,0 +1,5 @@
+[item 11]
+!reset
+!timeout 0
+> A function returns None for an empty list and returns 0 for a list full of zeros, and the caller cannot tell the two cases apart, and the bug appears only in production. What is the design flaw, and what return shape would remove the ambiguity?
+< __NEVER__

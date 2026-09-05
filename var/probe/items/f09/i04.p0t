@@ -1,0 +1,5 @@
+[item 4]
+!reset
+!timeout 0
+> A parser accepts the input 12 but rejects -12 and 12.5, and its grammar has no rule for a sign and no rule for a fraction. Which two capabilities are missing, and what would a single production that adds both look like?
+< __NEVER__

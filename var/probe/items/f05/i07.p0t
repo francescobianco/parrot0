@@ -1,0 +1,13 @@
+[item 7]
+!reset
+!timeout 0
+> Teach "quux" as another word for purple.
+< __NEVER__
+> The car is quux.
+< __NEVER__
+> What color is the car?
+< __NEVER__
+> Forget that quux means purple.
+< __NEVER__
+> What color is the car now?
+< __NEVER__

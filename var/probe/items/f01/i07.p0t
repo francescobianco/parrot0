@@ -1,0 +1,5 @@
+[item 7]
+!reset
+!timeout 0
+> All calm pilots are trusted, but some trusted pilots are not calm. Is it true that every trusted pilot is calm, and which premise would you need to add to make that inference valid?
+< __NEVER__

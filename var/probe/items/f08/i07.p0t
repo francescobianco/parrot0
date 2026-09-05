@@ -1,0 +1,5 @@
+[item 7]
+!reset
+!timeout 0
+> Define an EBNF rule for identifiers that start with a letter and continue with zero or more letters or digits, and then use the rule to show step by step why 2fast is not an identifier.
+< __NEVER__

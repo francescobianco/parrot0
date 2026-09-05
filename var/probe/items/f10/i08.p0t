@@ -1,0 +1,5 @@
+[item 8]
+!reset
+!timeout 0
+> Assess whether the question "is this contract enforceable" can be answered from the title of the document alone, and if it cannot, name the two missing inputs you would need to answer it at all.
+< __NEVER__

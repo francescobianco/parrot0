@@ -1,0 +1,5 @@
+[item 13]
+!reset
+!timeout 0
+> Write one sentence about this room that is true, one that is false, and one that is neither true nor false, and do not label the three sentences, because I will guess. What makes the third kind of sentence possible at all?
+< __NEVER__

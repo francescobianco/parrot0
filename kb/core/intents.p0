@@ -658,6 +658,8 @@ declared_surface($Surface) :- intent_phrase($Intent, $Quoted), span_atom($Quoted
 machinery(lesson_anchor_min_cover).
 lesson_anchor_min_cover(40).
 
+learnable("is another way to say", intent_cue, cue_like).
+learnable("is the same as", intent_cue, cue_like).
 learnable("another way to say",       intent_cue, cue_like).
 learnable("un altro modo per dire",   intent_cue, cue_like).
 learnable("un altro modo di dire",    intent_cue, cue_like).
@@ -981,6 +983,8 @@ intent_cue(name_marker, "called").
 intent_cue(name_marker, "chiamato").
 intent_cue(name_marker, "chiamata").
 intent_cue(name_marker, "nome").
+intent_cue(00_lex_chain332, " is another way to say ").
+intent_cue(00_lex_chain332, " is the same as ").
 intent_cue(00_lex_chain332, "learn ").
 intent_cue(00_lex_chain332, "teach ").
 intent_cue(00_lex_chain332, "treat ").

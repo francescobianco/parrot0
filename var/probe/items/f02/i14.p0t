@@ -1,0 +1,5 @@
+[item 14]
+!reset
+!timeout 0
+> The courier left the depot at noon, the bridge opens at one, and the trip takes fifty minutes. Will the courier cross before the bridge opens, and if the opening is delayed by twenty minutes, does the answer change?
+< __NEVER__

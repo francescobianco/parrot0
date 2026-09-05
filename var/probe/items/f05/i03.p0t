@@ -1,0 +1,7 @@
+[item 3]
+!reset
+!timeout 0
+> Teach "nava" as a color.
+< __NEVER__
+> What color is the flag?
+< __NEVER__

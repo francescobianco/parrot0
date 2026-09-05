@@ -1,0 +1,5 @@
+[item 14]
+!reset
+!timeout 0
+> Half of the class passed the exam, a third of the class received honors, and 4 students did neither, and every student is in exactly one of the three groups only if the groups do not overlap. How many students are in the class, and can you be sure the two fractions do not overlap?
+< __NEVER__

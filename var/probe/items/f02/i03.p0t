@@ -1,0 +1,5 @@
+[item 3]
+!reset
+!timeout 0
+> The ferry was late, so the meeting started late, but nobody checked the ferry until after the meeting was over. Is the ferry's lateness established, and what would verify it?
+< __NEVER__

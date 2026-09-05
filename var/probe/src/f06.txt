@@ -1,0 +1,16 @@
+I must move three crates labeled A, B and C: A has to leave before B, C can only ride in the same van as A, and the van leaves at three. Is there an order that satisfies all three constraints, and what is it?
+Route A is shorter but flooded, route B is longer, accessible and safe, and I need accessibility more than speed today. Which route should I take, and which criterion decided the choice?
+Start a plan to publish the report on Friday, and add the note that the figures have not been verified yet. Which step of the plan must block publication, and where exactly does that step enter the plan?
+The plan was to minimize cost, but halfway through the user changes the goal to minimizing risk instead, and three suppliers were already shortlisted. Which earlier decisions must be revisited, and which ones can stay as they are?
+The plan needs a printer, the printer is broken, and no replacement exists anywhere in the building. State whether the plan is still possible, and if not, name the single constraint that makes it impossible.
+Schedule task A before task B, task C after task A, and task B before task C, and all tasks take one day. Is this schedule consistent, and which single constraint would you relax to make it consistent?
+There is one meeting room, two meetings that overlap by half an hour, and no overlap is allowed in the room. Give a schedule that works, or state exactly why no schedule exists.
+Before deleting the data I must rank four actions by how reversible they are: inspect, export, delete, restore-test. Which order is the safest, and why does delete land where it does in that order?
+The cheapest supplier cannot meet the deadline, the second-cheapest supplier can, and the deadline is a hard requirement from the client. Which supplier should we choose, and which constraint made the cheapest one lose?
+The next step of the plan requires a tool that is unavailable, and there is no substitute for it, and the step cannot be skipped. Should the plan continue past that step, and what is the honest move instead?
+The laptop battery has thirty minutes left, the backup takes twenty, the upload takes fifteen, and the two cannot run at the same time. Can both finish before the battery dies, and in which order should you run them?
+The client wants the feature by Friday and the test results by Thursday, but the only free developer is available on Wednesday. Is there a feasible plan, and what is the earliest day each deliverable can actually land?
+Two movers can carry the piano, three are needed for the couch, and only four movers are available today. Can both pieces move today, and how should you assign the crew to the two pieces?
+The flight leaves at six, check-in closes at four thirty, the train arrives at three fifty, and the ride from the station takes forty minutes. Do you make the flight, and what is your margin in minutes?
+The dish needs thirty minutes in the oven and fifteen minutes of resting, dinner is at seven, and the oven is shared until six forty. When must the dish enter the oven, and can it rest fully before dinner is served?
+You must water the plants, walk the dog and buy milk, the shop closes at six, the dog park is far away, and it is already five thirty. Order the three errands, and say which single constraint forces that order.

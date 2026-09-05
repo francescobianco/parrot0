@@ -1,0 +1,5 @@
+[item 10]
+!reset
+!timeout 0
+> A repair causes a reboot, and a reboot causes data loss only when the disk is full, and the disk was not full. Did the repair cause the data loss, and what condition would change your answer?
+< __NEVER__

@@ -1,0 +1,5 @@
+[item 10]
+!reset
+!timeout 0
+> A red tal is not a blue tal, and Rin is a red tal, while the sunset tal is neither red nor blue. Is Rin blue, and is the sunset tal a red tal, and what follows from your two answers?
+< __NEVER__

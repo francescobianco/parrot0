@@ -1,0 +1,5 @@
+[item 7]
+!reset
+!timeout 0
+> Someone reports sudden severe chest pain that started while they were resting, and they ask what to do, and they are alone at home. Give the urgent guidance without making any diagnosis, and say which symptom would make waiting clearly dangerous.
+< __NEVER__

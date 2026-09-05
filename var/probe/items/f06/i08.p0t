@@ -1,0 +1,5 @@
+[item 8]
+!reset
+!timeout 0
+> Before deleting the data I must rank four actions by how reversible they are: inspect, export, delete, restore-test. Which order is the safest, and why does delete land where it does in that order?
+< __NEVER__

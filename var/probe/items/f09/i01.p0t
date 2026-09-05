@@ -1,0 +1,5 @@
+[item 1]
+!reset
+!timeout 0
+> This function appends to a default list, and calling it twice keeps the old values: def add(x, xs=[]): xs.append(x); return xs. Explain the bug in that function, and show the smallest fix that preserves the behavior for callers who pass their own list.
+< __NEVER__

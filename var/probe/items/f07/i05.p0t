@@ -1,0 +1,5 @@
+[item 5]
+!reset
+!timeout 0
+> The label on the die says 7, but in this game the numeral 7 is stipulated to mean the value ten, and all other numerals keep their ordinary values. Compute 7 + 2 under ordinary arithmetic and under the game's notation, and say clearly which answer is which.
+< __NEVER__

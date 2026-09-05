@@ -1,0 +1,5 @@
+[item 8]
+!reset
+!timeout 0
+> A command is destructive, the current directory is unknown, and the script runs with administrator rights, and it accepts a target path. What three checks must happen before the command executes, and which check protects against deleting the wrong directory?
+< __NEVER__

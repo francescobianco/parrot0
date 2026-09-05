@@ -1,0 +1,5 @@
+[item 12]
+!reset
+!timeout 0
+> Nora stopped sending alerts on Tuesday, and no alert arrived on Wednesday. What is different between those two statements, and which one tells you that something changed?
+< __NEVER__

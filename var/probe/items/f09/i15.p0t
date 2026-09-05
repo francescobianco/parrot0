@@ -1,0 +1,5 @@
+[item 15]
+!reset
+!timeout 0
+> The profiler shows 890 milliseconds spent in one predicate and 25 milliseconds in everything else, and the team wants to optimize a different function that looks slow. What does the profile actually say about that other function, and what should be measured before changing any code?
+< __NEVER__

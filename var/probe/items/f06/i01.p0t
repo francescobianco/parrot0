@@ -1,0 +1,5 @@
+[item 1]
+!reset
+!timeout 0
+> I must move three crates labeled A, B and C: A has to leave before B, C can only ride in the same van as A, and the van leaves at three. Is there an order that satisfies all three constraints, and what is it?
+< __NEVER__

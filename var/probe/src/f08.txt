@@ -1,0 +1,16 @@
+Return exactly two lines of CSV with the header name,count and one data row for miso,3, and add no extra text around it. Which part of your reply would make the whole answer invalid as CSV if you changed it?
+Produce JSON for a user whose name is Ada, whose roles are an array with exactly two entries, and whose active field is the boolean true. Then tell me which single part of the JSON would break if roles were written as a plain string.
+Write a YAML document for two services, each with a port and a healthcheck, and make the healthcheck of the second service depend on the first service being healthy. Show the full document and name the key that expresses the dependency.
+Give one SQL query that returns the latest order per customer including ties, and then explain in one sentence how your query decides between two orders placed at the same time.
+Write a regex that accepts user@example.com, rejects user@ and @example.com, and also rejects user@@example.com. Then give one address that is close to valid but must still be rejected, and say why.
+Return a markdown table with the columns risk, likelihood, impact and mitigation for exactly two risks, and then a second table listing the same two risks ordered by impact from highest to lowest.
+Define an EBNF rule for identifiers that start with a letter and continue with zero or more letters or digits, and then use the rule to show step by step why 2fast is not an identifier.
+Give a JSON Patch operation that replaces /profile/name with the value Ada, and then a second operation that removes the field /profile/old. Which order of the two operations is safer when both fields exist, and why?
+Build a truth table for P XOR Q with one column each for P, Q and the result, and then mark which rows of the table would change if the operator were OR instead of XOR.
+Return a numbered list of exactly three acceptance criteria for a login form that do not overlap each other, and then add one extra criterion that would test the same behavior twice, and say why that extra one is redundant.
+Write the CSV for two rows of sales with the columns date,amount,region, sort the rows by amount from largest to smallest, and keep the header row exactly as written here.
+Compose a JSON object that nests a user and an address inside one object, and then flatten the same data into a single flat object whose keys are prefixed like user_name and address_city, and keep both objects valid.
+I have a markdown checklist with two items marked done and one item pending, and I want a second checklist that mirrors the first with the opposite states. Return both checklists, and state which items changed state between them.
+Give the SQL to create a table users with an id column and an email column, then the SQL to add a unique index on email, and then the query whose behavior proves the index is present. Which of the three pieces is the proof?
+Encode the pair name = miso once as a JSON line and once as a CSV row with the header name, and then say which of the two formats survives a comma appearing inside the value and which one does not.
+Write a two-command shell pipeline that counts the lines in a file and then prints only the even counts from that total, and explain in one sentence what each of the two stages does.

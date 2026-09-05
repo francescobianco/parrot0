@@ -1,0 +1,5 @@
+[item 4]
+!reset
+!timeout 0
+> The sequence is 2, 6, 12, 20, 30, and the gaps between consecutive terms grow by a constant amount each time. Give the next term, and then explain why the rule you used is not the only rule that fits the five numbers.
+< __NEVER__

@@ -1,0 +1,5 @@
+[item 6]
+!reset
+!timeout 0
+> A rectangle has perimeter 30 and integer side lengths, and the longer side is at most twice the shorter side. List every possible pair of sides, and say which extra constraint you imposed beyond the plain perimeter puzzle.
+< __NEVER__

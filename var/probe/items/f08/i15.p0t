@@ -1,0 +1,5 @@
+[item 15]
+!reset
+!timeout 0
+> Encode the pair name = miso once as a JSON line and once as a CSV row with the header name, and then say which of the two formats survives a comma appearing inside the value and which one does not.
+< __NEVER__

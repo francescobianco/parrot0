@@ -1,0 +1,5 @@
+[item 1]
+!reset
+!timeout 0
+> A recipe for six people uses 450 grams of flour, and I need to cook for fourteen people instead. How much flour do I need, and what ratio did you preserve to get the number?
+< __NEVER__

@@ -1,0 +1,5 @@
+[item 2]
+!reset
+!timeout 0
+> Ana starts cooking at six, the rice needs twenty-five minutes, and the guests arrive at six twenty. Can the rice be ready before the guests arrive, and what is the latest time she can start it?
+< __NEVER__

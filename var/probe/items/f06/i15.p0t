@@ -1,0 +1,5 @@
+[item 15]
+!reset
+!timeout 0
+> The dish needs thirty minutes in the oven and fifteen minutes of resting, dinner is at seven, and the oven is shared until six forty. When must the dish enter the oven, and can it rest fully before dinner is served?
+< __NEVER__

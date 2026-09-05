@@ -1,0 +1,5 @@
+[item 9]
+!reset
+!timeout 0
+> Some of the tiles are blue, and every blue tile is round, and the corner tile is square. Are all round tiles blue, and can the corner tile be blue?
+< __NEVER__

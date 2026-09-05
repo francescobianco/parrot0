@@ -1,0 +1,41 @@
+Remember that my dog is called Miso.
+Forget the name of my dog.
+What is my dog called?
+
+The badge is silver.
+Wait, the badge is actually wooden.
+Is the badge silver?
+
+Teach "nava" as a color.
+What color is the flag?
+
+Every mork is green, and everything green is small.
+Is a mork small?
+Now forget the rule that everything green is small.
+Is a mork still small?
+
+I prefer tea.
+Actually, I prefer coffee now.
+Which of the two statements should win, and what do I prefer today?
+
+Every vale is blue.
+Nara is blue.
+Forget the rule that every vale is blue.
+Is Nara blue, and is some vale blue?
+
+Teach "quux" as another word for purple.
+The car is quux.
+What color is the car?
+Forget that quux means purple.
+What color is the car now?
+
+The door is blue, and the door belongs to Mia.
+Forget the color of the door.
+What color is the door, and is it still Mia's door?
+
+The plant is a fern, and every fern likes shade.
+Which part of what you know about the plant was told to you, and which part did you work out yourself?
+
+All norks are quiet.
+Pila is a nork.
+What do you know about Pila, and which of those facts were you told rather than inferred?

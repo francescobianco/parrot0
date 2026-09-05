@@ -1,0 +1,5 @@
+[item 16]
+!reset
+!timeout 0
+> All wrens are brown, and some brown birds sing at dawn, and the bird outside is a wren. Does it follow that the bird outside sings at dawn, and does anything in the premises rule out a silent wren?
+< __NEVER__

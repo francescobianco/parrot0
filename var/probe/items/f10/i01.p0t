@@ -1,0 +1,5 @@
+[item 1]
+!reset
+!timeout 0
+> Rewrite the sentence "The committee rejected the proposal" in the passive voice, keep the tense and the agent, and then turn your result into a question about the proposal. Give both sentences in order.
+< __NEVER__

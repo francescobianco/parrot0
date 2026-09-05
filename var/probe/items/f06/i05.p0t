@@ -1,0 +1,5 @@
+[item 5]
+!reset
+!timeout 0
+> The plan needs a printer, the printer is broken, and no replacement exists anywhere in the building. State whether the plan is still possible, and if not, name the single constraint that makes it impossible.
+< __NEVER__

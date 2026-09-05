@@ -1,0 +1,11 @@
+[item 6]
+!reset
+!timeout 0
+> Every vale is blue.
+< __NEVER__
+> Nara is blue.
+< __NEVER__
+> Forget the rule that every vale is blue.
+< __NEVER__
+> Is Nara blue, and is some vale blue?
+< __NEVER__

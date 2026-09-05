@@ -1,0 +1,5 @@
+[item 2]
+!reset
+!timeout 0
+> The red key is next to the blue key on the shelf, and the drawer is under the shelf. Move it into the drawer: which object is ambiguous here, and why can you not act on the instruction?
+< __NEVER__

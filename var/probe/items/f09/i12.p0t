@@ -1,0 +1,5 @@
+[item 12]
+!reset
+!timeout 0
+> The migration renames a column from old_name to new_name, and a stored procedure written last week still uses old_name, and the deployment runs the migration before the procedure update. Which component breaks first, and where should the deployment order be changed?
+< __NEVER__

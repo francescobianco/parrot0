@@ -1,0 +1,5 @@
+[item 3]
+!reset
+!timeout 0
+> If the red light stays on whenever the pump is running, and the pump is not running right now, what does a dark red light prove, and what does it leave open?
+< __NEVER__

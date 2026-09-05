@@ -1,0 +1,5 @@
+[item 7]
+!reset
+!timeout 0
+> The backup finished at nine ten, the deletion started at nine five, and the restore was requested at nine twenty. Which operations overlapped, and what does the overlap imply about the deleted files?
+< __NEVER__

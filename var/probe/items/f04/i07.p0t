@@ -1,0 +1,5 @@
+[item 7]
+!reset
+!timeout 0
+> The city lies north of the lake, and the station is there, while the market lies south of the lake, and the road connects them. Where is the station, and what relation does "there" inherit from the first clause?
+< __NEVER__

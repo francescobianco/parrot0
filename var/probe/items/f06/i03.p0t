@@ -1,0 +1,5 @@
+[item 3]
+!reset
+!timeout 0
+> Start a plan to publish the report on Friday, and add the note that the figures have not been verified yet. Which step of the plan must block publication, and where exactly does that step enter the plan?
+< __NEVER__

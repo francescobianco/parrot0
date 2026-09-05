@@ -1,0 +1,5 @@
+[item 7]
+!reset
+!timeout 0
+> Propose a property-based test for a sort function that must not mutate its input, and write the one assertion that would catch a mutation of the array. Which kind of input would you fuzz first in that test?
+< __NEVER__

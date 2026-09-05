@@ -1,0 +1,5 @@
+[item 4]
+!reset
+!timeout 0
+> Give one SQL query that returns the latest order per customer including ties, and then explain in one sentence how your query decides between two orders placed at the same time.
+< __NEVER__

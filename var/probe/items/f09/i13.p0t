@@ -1,0 +1,5 @@
+[item 13]
+!reset
+!timeout 0
+> A log shows that a request started at ten oh one and ended at ten oh three, while the database shows two updates and the audit trail shows only one, and nobody changed the audit config. Which source should you trust, and what would reconcile the two counts?
+< __NEVER__

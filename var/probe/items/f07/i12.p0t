@@ -1,0 +1,5 @@
+[item 12]
+!reset
+!timeout 0
+> The train leaves the station at fourteen oh five, the ride takes ninety minutes, then I wait twelve minutes for a bus and ride it for twenty minutes. At what time do I arrive, and how would you write that time in words?
+< __NEVER__

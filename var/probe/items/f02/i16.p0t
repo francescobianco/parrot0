@@ -1,0 +1,5 @@
+[item 16]
+!reset
+!timeout 0
+> The batch ran from two ten to two forty, the report was generated at two thirty-five, and the database was locked from two thirty to two forty-five. Did the report read data while the lock was on, and which interval proves it?
+< __NEVER__

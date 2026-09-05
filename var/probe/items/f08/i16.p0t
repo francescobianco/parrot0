@@ -1,0 +1,5 @@
+[item 16]
+!reset
+!timeout 0
+> Write a two-command shell pipeline that counts the lines in a file and then prints only the even counts from that total, and explain in one sentence what each of the two stages does.
+< __NEVER__

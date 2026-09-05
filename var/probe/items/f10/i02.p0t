@@ -1,0 +1,5 @@
+[item 2]
+!reset
+!timeout 0
+> Summarize this claim in exactly twelve words, and keep the temporal contrast intact: a late backup is safer than no backup, but it cannot restore the changes made after it. Count the words of your summary.
+< __NEVER__

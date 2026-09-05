@@ -1,0 +1,5 @@
+[item 9]
+!reset
+!timeout 0
+> Build a truth table for P XOR Q with one column each for P, Q and the result, and then mark which rows of the table would change if the operator were OR instead of XOR.
+< __NEVER__

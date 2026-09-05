@@ -1,0 +1,5 @@
+[item 13]
+!reset
+!timeout 0
+> I have a markdown checklist with two items marked done and one item pending, and I want a second checklist that mirrors the first with the opposite states. Return both checklists, and state which items changed state between them.
+< __NEVER__

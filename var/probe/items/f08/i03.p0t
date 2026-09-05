@@ -1,0 +1,5 @@
+[item 3]
+!reset
+!timeout 0
+> Write a YAML document for two services, each with a port and a healthcheck, and make the healthcheck of the second service depend on the first service being healthy. Show the full document and name the key that expresses the dependency.
+< __NEVER__

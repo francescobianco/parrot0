@@ -1,0 +1,5 @@
+[item 11]
+!reset
+!timeout 0
+> If at least one lamp is lit, the hallway is not dark, and the hallway is dark right now. Does it follow that no lamp is lit, and how strong is that conclusion?
+< __NEVER__

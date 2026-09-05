@@ -1,0 +1,5 @@
+[item 10]
+!reset
+!timeout 0
+> Return a numbered list of exactly three acceptance criteria for a login form that do not overlap each other, and then add one extra criterion that would test the same behavior twice, and say why that extra one is redundant.
+< __NEVER__

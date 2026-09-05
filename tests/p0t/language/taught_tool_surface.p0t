@@ -47,5 +47,19 @@
 > fetch the text of helper.h
 <~ it declares helper
 
+[test due altre forme naturali della stessa lezione]
+# gen503: riaggiunte UNA ALLA VOLTA, con taught_cue_ladder come giudice dopo
+# ognuna. Una terza — «saying X is like saying Y» — e' stata provata e RIFIUTATA
+# perche' fa cadere quel cricchetto da 23 a 15: e' scritta in HANDOFF.md §R1 come
+# voce aperta, non lasciata dentro a rompere.
+> "show me what is here" is another way to say "what files are here"
+<~ asks for the same thing
+> show me what is here
+<~ main.c
+> "give me the text of" is the same as "read"
+<~ asks for the same thing
+> give me the text of helper.h
+<~ it declares helper
+
 !cwd off
 !exec rm -rf /tmp/p0t-teach

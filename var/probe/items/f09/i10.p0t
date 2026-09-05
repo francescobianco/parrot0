@@ -1,0 +1,5 @@
+[item 10]
+!reset
+!timeout 0
+> The build fails but the compiler output is truncated at the top, and the visible tail shows a warning about an unused variable, and the team suspects the warning. Why is guessing the root cause from the tail dangerous, and what is the first step of the investigation?
+< __NEVER__

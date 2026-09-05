@@ -1,0 +1,5 @@
+[item 5]
+!reset
+!timeout 0
+> Write a regex that accepts user@example.com, rejects user@ and @example.com, and also rejects user@@example.com. Then give one address that is close to valid but must still be rejected, and say why.
+< __NEVER__

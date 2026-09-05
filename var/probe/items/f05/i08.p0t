@@ -1,0 +1,9 @@
+[item 8]
+!reset
+!timeout 0
+> The door is blue, and the door belongs to Mia.
+< __NEVER__
+> Forget the color of the door.
+< __NEVER__
+> What color is the door, and is it still Mia's door?
+< __NEVER__

@@ -1,0 +1,5 @@
+[item 14]
+!reset
+!timeout 0
+> Give the SQL to create a table users with an id column and an email column, then the SQL to add a unique index on email, and then the query whose behavior proves the index is present. Which of the three pieces is the proof?
+< __NEVER__

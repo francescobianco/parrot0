@@ -1,0 +1,5 @@
+[item 13]
+!reset
+!timeout 0
+> Either the courier came before noon or the parcel was left at the desk, and the desk log is empty. What does the empty log tell you about the courier, and which single fact would settle the case?
+< __NEVER__

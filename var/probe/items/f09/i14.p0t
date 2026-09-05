@@ -1,0 +1,5 @@
+[item 14]
+!reset
+!timeout 0
+> The regex matches email addresses but also matches user@@example.com, and the fix must reject the double at-sign while still allowing dots inside the local part. Which rule about the characters solves it, and what test string proves the fix works?
+< __NEVER__

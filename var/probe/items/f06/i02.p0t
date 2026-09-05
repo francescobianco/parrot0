@@ -1,0 +1,5 @@
+[item 2]
+!reset
+!timeout 0
+> Route A is shorter but flooded, route B is longer, accessible and safe, and I need accessibility more than speed today. Which route should I take, and which criterion decided the choice?
+< __NEVER__

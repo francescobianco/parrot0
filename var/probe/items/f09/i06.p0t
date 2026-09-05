@@ -1,0 +1,5 @@
+[item 6]
+!reset
+!timeout 0
+> The error message says connection refused, the domain name already resolved to an address, and the service was responding five minutes ago. Which network layer is implicated first, and what single command would confirm where the failure is?
+< __NEVER__

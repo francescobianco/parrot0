@@ -1,0 +1,5 @@
+[item 6]
+!reset
+!timeout 0
+> Schedule task A before task B, task C after task A, and task B before task C, and all tasks take one day. Is this schedule consistent, and which single constraint would you relax to make it consistent?
+< __NEVER__

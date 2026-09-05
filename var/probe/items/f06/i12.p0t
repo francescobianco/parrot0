@@ -1,0 +1,5 @@
+[item 12]
+!reset
+!timeout 0
+> The client wants the feature by Friday and the test results by Thursday, but the only free developer is available on Wednesday. Is there a feasible plan, and what is the earliest day each deliverable can actually land?
+< __NEVER__

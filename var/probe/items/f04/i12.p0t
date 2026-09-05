@@ -1,0 +1,5 @@
+[item 12]
+!reset
+!timeout 0
+> In this world a grue is green before noon and blue after noon, and this particular grue was observed at eleven fifty. What color was it at that moment, and what does the rule predict for five minutes later?
+< __NEVER__

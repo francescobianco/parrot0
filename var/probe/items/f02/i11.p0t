@@ -1,0 +1,5 @@
+[item 11]
+!reset
+!timeout 0
+> The bridge opened in June, the road was closed before that, and traffic stopped while it opened and resumed afterward. Reconstruct the sequence of states, and name the transition you cannot date exactly.
+< __NEVER__

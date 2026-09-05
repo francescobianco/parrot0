@@ -1,0 +1,5 @@
+[item 3]
+!reset
+!timeout 0
+> Two requests both read the same balance, then both write their result back, and one of the two withdrawals is lost, and the account shows the wrong total. Name the race condition, and show one repair that does not lock the whole system.
+< __NEVER__

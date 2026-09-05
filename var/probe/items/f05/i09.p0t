@@ -1,0 +1,7 @@
+[item 9]
+!reset
+!timeout 0
+> The plant is a fern, and every fern likes shade.
+< __NEVER__
+> Which part of what you know about the plant was told to you, and which part did you work out yourself?
+< __NEVER__

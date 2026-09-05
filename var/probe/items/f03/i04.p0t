@@ -1,0 +1,5 @@
+[item 4]
+!reset
+!timeout 0
+> First say: the archive holds a map. Then ask: does it hold a map? What does "it" resolve to in the question, and would the answer change if the archive were empty?
+< __NEVER__

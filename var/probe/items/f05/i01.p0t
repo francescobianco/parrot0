@@ -1,0 +1,9 @@
+[item 1]
+!reset
+!timeout 0
+> Remember that my dog is called Miso.
+< __NEVER__
+> Forget the name of my dog.
+< __NEVER__
+> What is my dog called?
+< __NEVER__

@@ -1,0 +1,5 @@
+[item 10]
+!reset
+!timeout 0
+> A bag holds 3 red tokens and 2 blue tokens, and I draw two tokens one after the other without putting the first one back. What is the probability that both tokens are red, and what would the probability become if I put the first token back before the second draw?
+< __NEVER__

@@ -1,0 +1,5 @@
+[item 12]
+!reset
+!timeout 0
+> Compose a JSON object that nests a user and an address inside one object, and then flatten the same data into a single flat object whose keys are prefixed like user_name and address_city, and keep both objects valid.
+< __NEVER__

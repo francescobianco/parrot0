@@ -1,0 +1,5 @@
+[item 8]
+!reset
+!timeout 0
+> A graph has three vertices A, B, C and three edges joining A-B, B-C and A-C, and every vertex touches at least one edge. Is this graph a tree, and which cycle in it proves that it is not one?
+< __NEVER__

@@ -1,0 +1,5 @@
+[item 6]
+!reset
+!timeout 0
+> Return a markdown table with the columns risk, likelihood, impact and mitigation for exactly two risks, and then a second table listing the same two risks ordered by impact from highest to lowest.
+< __NEVER__

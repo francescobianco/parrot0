@@ -1,0 +1,5 @@
+[item 8]
+!reset
+!timeout 0
+> Kiro greets Luma, Luma greets Vesh, and Vesh greets Kiro, and nobody greets anyone else. Is greeting a transitive relation inside this group, and what shape does the pattern of greetings make?
+< __NEVER__

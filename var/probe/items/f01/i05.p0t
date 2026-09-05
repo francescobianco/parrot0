@@ -1,0 +1,5 @@
+[item 5]
+!reset
+!timeout 0
+> Either the north gate is open or the guard is on break, but never both, and the guard is not on break. What follows about the north gate, and what would follow instead if the north gate were closed?
+< __NEVER__

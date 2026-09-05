@@ -1,0 +1,16 @@
+Every giraffe in this reserve is spotted, and Kibo is a giraffe that lives in the reserve. Does the spot pattern on Kibo follow from those two facts alone, and is there any way Kibo could be plain?
+No mechanic here is a pilot, but several pilots are sailors. Could a sailor who works here also be a mechanic, and can you say whether every sailor is a pilot?
+If the red light stays on whenever the pump is running, and the pump is not running right now, what does a dark red light prove, and what does it leave open?
+Assume for a moment that all feathers are heavy. A feather from this nest is lying on the table, and the table is in a museum. Given that assumption, must the feather be heavy, and what would a scale prove about the real world?
+Either the north gate is open or the guard is on break, but never both, and the guard is not on break. What follows about the north gate, and what would follow instead if the north gate were closed?
+Every dancer in the troupe knows some musician, and every musician in town knows one drummer. Does it follow that some single drummer is known by all the dancers, and what mistake would that inference be?
+All calm pilots are trusted, but some trusted pilots are not calm. Is it true that every trusted pilot is calm, and which premise would you need to add to make that inference valid?
+If the siren sounds, the gate closes, and if the gate closes, the dogs are released. The dogs are not released tonight. What can you infer, and which step of the chain stops first?
+Some of the tiles are blue, and every blue tile is round, and the corner tile is square. Are all round tiles blue, and can the corner tile be blue?
+This sentence is written in ink, and everything written in ink in this notebook is dated, but this sentence carries no date. What must be true of the sentence, and is the sentence itself a paradox?
+If at least one lamp is lit, the hallway is not dark, and the hallway is dark right now. Does it follow that no lamp is lit, and how strong is that conclusion?
+Every rule has an exception, and this statement is itself a rule. Does an exception to this very statement exist, and what happens to the claim if you answer yes?
+Either the courier came before noon or the parcel was left at the desk, and the desk log is empty. What does the empty log tell you about the courier, and which single fact would settle the case?
+None of the vases on this shelf are chipped, and all the chipped vases are in the attic, and a vase from the attic is on the table. Is that vase chipped, and can you be sure it is not from the shelf?
+If the mail arrives, the flag goes up, and the flag is up this morning. Someone claims the mail therefore arrived. What is wrong with that claim, and what else could raise the flag?
+All wrens are brown, and some brown birds sing at dawn, and the bird outside is a wren. Does it follow that the bird outside sings at dawn, and does anything in the premises rule out a silent wren?

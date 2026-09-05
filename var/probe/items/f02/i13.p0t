@@ -1,0 +1,5 @@
+[item 13]
+!reset
+!timeout 0
+> The candle was lit while the window was open, and the curtain moved after the wind rose, and then the candle went out. Which happened first, the curtain moving or the candle going out, and can you be certain?
+< __NEVER__

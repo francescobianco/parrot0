@@ -1,0 +1,5 @@
+[item 13]
+!reset
+!timeout 0
+> The shop sells apples at 3 for 2 coins and pears at 4 for 3 coins, and I buy 9 apples and 8 pears, and I pay with a twenty-coin note. What do I pay in total, and how many coins do I get back?
+< __NEVER__

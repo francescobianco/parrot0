@@ -1,0 +1,5 @@
+[item 2]
+!reset
+!timeout 0
+> A price of 80 is reduced by 25 percent and then increased by 25 percent, and the shop advertises that the price is back to 80. Is the final price 80, and what is it actually?
+< __NEVER__

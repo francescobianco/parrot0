@@ -1,0 +1,5 @@
+[item 2]
+!reset
+!timeout 0
+> A test passes when it runs alone but fails after another test changes an environment variable, and the two tests share a process. What class of defect does this suggest, and what is the first thing to inspect in the second test?
+< __NEVER__

@@ -1,0 +1,5 @@
+[item 16]
+!reset
+!timeout 0
+> A rope is cut into three pieces: the first piece is twice as long as the second, the second is 3 meters shorter than the third, and the whole rope is 31 meters. How long is each piece, and which equation did you solve first?
+< __NEVER__

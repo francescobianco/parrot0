@@ -1,0 +1,5 @@
+[item 8]
+!reset
+!timeout 0
+> Every old book in this shop is rare, and this one is not, and the shopkeeper is holding it. Is "this one" a book, and what conclusion do the two statements force?
+< __NEVER__

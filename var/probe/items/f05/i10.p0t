@@ -1,0 +1,9 @@
+[item 10]
+!reset
+!timeout 0
+> All norks are quiet.
+< __NEVER__
+> Pila is a nork.
+< __NEVER__
+> What do you know about Pila, and which of those facts were you told rather than inferred?
+< __NEVER__

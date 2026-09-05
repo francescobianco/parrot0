@@ -1,0 +1,5 @@
+[item 5]
+!reset
+!timeout 0
+> A tor is a vessel, and every vessel has a keel, and Nemi is a tor that sails at night. What can you conclude about Nemi's keel, and what is the one question you would ask next?
+< __NEVER__

@@ -1,0 +1,5 @@
+[item 2]
+!reset
+!timeout 0
+> No mechanic here is a pilot, but several pilots are sailors. Could a sailor who works here also be a mechanic, and can you say whether every sailor is a pilot?
+< __NEVER__

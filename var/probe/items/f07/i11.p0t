@@ -1,0 +1,5 @@
+[item 11]
+!reset
+!timeout 0
+> Five workers can build the wall in six days, and the wall must be ready in three days instead, and all workers work at the same rate. How many workers are needed, and what assumption about the work does your answer depend on?
+< __NEVER__

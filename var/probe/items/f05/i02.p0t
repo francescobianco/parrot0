@@ -1,0 +1,9 @@
+[item 2]
+!reset
+!timeout 0
+> The badge is silver.
+< __NEVER__
+> Wait, the badge is actually wooden.
+< __NEVER__
+> Is the badge silver?
+< __NEVER__

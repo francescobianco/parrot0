@@ -1,0 +1,5 @@
+[item 7]
+!reset
+!timeout 0
+> There is one meeting room, two meetings that overlap by half an hour, and no overlap is allowed in the room. Give a schedule that works, or state exactly why no schedule exists.
+< __NEVER__
