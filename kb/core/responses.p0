@@ -801,6 +801,11 @@ response_template(page_disambiguates, it, "quella pagina disambigua piu' signifi
 % dice anche a che cosa serve, altrimenti chi insegna non sa che cosa ha ottenuto.
 response_template(learned_exclusion, "Held: nothing is both {a} and {b}. Now I can answer no about either one without waiting to be told member by member.").
 response_template(learned_exclusion, it, "Tengo: niente è insieme {a} e {b}. Ora posso rispondere «no» sull'una o sull'altra senza aspettare che me ne elenchi i membri.").
+% gen505b — cio' che si sa di una CLASSE sono i suoi membri: la domanda «what do
+% you know about X» su una classe non e' senza risposta, e' una domanda di
+% estensione.
+response_template(class_members_known, "What I hold as {klass}: {members}.").
+response_template(class_members_known, it, "Quello che tengo come {klass}: {members}.").
 response_template(taught_reply, "Understood: when you ask about {cue} I will say so.").
 response_template(taught_reply, it, "Capito: quando mi chiedi di {cue} risponderò così.").
 

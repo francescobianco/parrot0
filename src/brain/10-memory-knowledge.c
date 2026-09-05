@@ -15863,17 +15863,62 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * `turn_pattern_intent(Forma, Intento)` — il motore generico e la spiegazione
      * stanno in `src/brain/00-lex.c` sopra `p0_turn_pattern_holds`, l'esempio
      * lavorato in `tests/p0t/language/taught_turn_form.p0t`. Vedi mantra #19. */
-    if (nw == 6 && lex_class_member(b, "question_word", w[0]) && lex_class_member(b, "10_memory_knowledge_lex12242_2", w[1]) &&
+    /* gen505b — «what do you know about <X>» con X di PIU' PAROLE.
+     *
+     * `nw == 6` teneva la domanda alle sole entita' di un token: «what do you
+     * know about copper mineral?» ne fa sette e cadeva fuori — fino a una
+     * facolta' sociale che rispondeva con un SALUTO a una domanda di
+     * conoscenza. La coda si fonde come in tutte le altre vie (`p0_join`).
+     *
+     * ⚠ E' la quarta volta in questa sessione che un conteggio di parole fisso
+     * nasconde una capacita' che c'era gia' (enumerazione al plurale, testa
+     * dell'universale, domanda di provenienza, e questa). Il censimento dice 62
+     * rami `nw == N` nel motore: non e' una svista, e' una FORMA che il codice
+     * ripete, e va tolta dove il payload e' una coda (mantra #19). */
+    if (nw >= 6 && lex_class_member(b, "question_word", w[0]) && lex_class_member(b, "10_memory_knowledge_lex12242_2", w[1]) &&
         lex_class_member(b, "10_memory_knowledge_lex12243", w[2]) && lex_class_member(b, "10_memory_knowledge_lex12243_2", w[3]) &&
         lex_class_member(b, "10_memory_knowledge_lex12244", w[4])) {
+        char topic_buf[KB_TERM_LEN];
+        if (!p0_join(w, 5, nw, topic_buf, sizeof topic_buf)) return 0;
         const char *entity;
-        if (!resolve_entity(b, w[5], &entity, out, out_size)) return 1;
+        if (!resolve_entity(b, topic_buf, &entity, out, out_size)) return 1;
         char desc[1024];
         if (kb_describe_entity(b->kb, entity, desc, sizeof desc)) {
             put(desc, out, out_size);
+        } else if (kb_knows_pred(b->kb, entity)) {
+            /* gen505b — CIO' CHE SI SA DI UNA CLASSE SONO I SUOI MEMBRI.
+             *
+             * «what do you know about copper mineral?» rispondeva «non so niente»
+             * mentre teneva sia i membri sia i vincoli: `kb_describe_entity`
+             * cerca l'entita' fra gli ARGOMENTI dei fatti, e una classe non
+             * compare li' — compare come PREDICATO. La capacita' di elencarla
+             * esiste gia' ed e' la stessa che risponde a «what are the copper
+             * minerals?»; qui la si raggiunge, non la si riscrive. */
+            const char *pat[] = { NULL };
+            char hits[64][KB_TERM_LEN];
+            size_t k = kb_match(b->kb, entity, pat, 1, hits, 64);
+            if (k == 0) {
+                kb_term_say(b, "nobody_that_i_know_of", NULL, 0, out, out_size);
+            } else {
+                char list[900]; size_t off = 0;
+                for (size_t i = 0; i < k && off + 1 < sizeof list; i++) {
+                    char shown[KB_TERM_LEN];
+                    present_atom(b, hits[i], shown, sizeof shown);
+                    off += (size_t)snprintf(list + off, sizeof list - off,
+                                            "%s%s", i ? ", " : "", shown);
+                }
+                char named[KB_TERM_LEN];
+                present_atom(b, entity, named, sizeof named);
+                char msg[1024];
+                {   const KbResponseSlot _rs[] = { { "klass", named }, { "members", list } };
+                    kb_term_say(b, "class_members_known", _rs, 2, msg, sizeof msg); }
+                put(msg, out, out_size);
+            }
         } else {
             char msg[160];
-            { const KbResponseSlot _rs[] = { { "entity", entity } };
+            char shown[KB_TERM_LEN];
+            present_atom(b, entity, shown, sizeof shown);   /* gen505b */
+            { const KbResponseSlot _rs[] = { { "entity", shown } };
       kb_term_say(b, "i_don_t_know_anything_about_x", _rs, 1, msg, sizeof msg);
               put(msg, out, out_size); }
         }

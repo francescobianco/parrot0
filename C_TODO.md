@@ -1,5 +1,51 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## ⭐ gen505b — IL CONTEGGIO DI PAROLE FISSO, censito
+
+Non e' una svista ripetuta: e' una **forma** che il motore ripete, e ogni sua
+istanza nasconde una capacita' che gia' esiste. Il sintomo e' sempre lo stesso —
+la funzione c'e', la si raggiunge solo se l'argomento e' di UNA parola — e il
+danno non e' un muro: e' che il turno cade a una facolta' peggiore, che risponde
+comunque. In una sessione ne sono emerse **quattro** senza cercarle:
+
+| forma | prima | dopo |
+|---|---|---|
+| `what are the <classe>s?` | muro, pur avendo i membri | enumera |
+| `every <classe> is a <classe>` | testa multi-parola non letta, **in silenzio** | regola corretta |
+| `how do you know <X> is a <classe>?` | **saggio sui meccanismi causali** | prova, o rifiuto onesto |
+| `what do you know about <classe>?` | **un saluto** | i membri della classe |
+
+Le ultime due sono le piu' istruttive: il turno non muore, viene **raccolto da
+qualcun altro** che risponde fuori tema con sicurezza. Un conteggio fisso non
+produce silenzio, produce rumore convinto.
+
+### Il censimento (`gen505b`)
+
+```
+grep -rn "nw == [0-9]" src/brain/*.c   →  62 rami
+grep -rn "nw >= [0-9]" src/brain/*.c   →  30 rami
+```
+
+di cui **28** in `10-memory-knowledge.c`, cioe' esattamente dove vivono classi e
+entita' — quelle che il dialogo nomina con piu' di una parola.
+
+### La regola, e come si applica
+
+> Dove il payload di una forma e' una **coda** (l'ultimo argomento: una classe,
+> un'entita', un tema), il conteggio va sostituito da un `>=` piu' `p0_join`
+> sulla coda. Dove copula e articolo separano due argomenti, si trovano
+> **scandendo per ruolo**, non a posizione fissa.
+
+Non tutti e 62 sono da toccare: un conteggio e' legittimo quando la forma e'
+davvero chiusa (`nw == 1` per un imperativo di una parola). Il criterio e' se
+l'ultimo argomento puo' essere un sintagma.
+
+⚠ **Trappola misurata:** la canonicalizzazione fonde una classe gia' nota in UN
+token e lo fa con lo **spazio** (`copper mineral`), mentre la chiave in KB ha
+l'underscore. Un ramo che legge la coda deve riportarla alla chiave, altrimenti
+interroga un predicato che non esiste — e fallisce in silenzio.
+
+
 ## ⭐ gen502 — tre campi morti che sono già la risposta sbagliata
 
 ```c
