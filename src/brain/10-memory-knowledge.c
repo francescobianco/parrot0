@@ -2451,6 +2451,8 @@ static void remember_entity(Brain *b, const char *word, const char *entity) {
 
 /* gen79: run rule induction over the current KB and, if any new rules are
  * found, append them to `out`. Returns number of rules induced. */
+static int p0_composed_say(Brain *b, const char *stage, char *out, size_t out_size); /* fwd (gen505d) */
+
 static size_t auto_induce(Brain *b, char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
     char heads[16][KB_TERM_LEN], bodies[16][KB_TERM_LEN];
@@ -2459,21 +2461,21 @@ static size_t auto_induce(Brain *b, char *out, size_t out_size) {
     /* Filter out emergent rules whose head or body is an internal predicate
      * (coding knowledge, social markers, etc.) — those are infrastructure,
      * not domain reasoning. */
-    size_t kept = 0;
+    /* gen505d — SI ANNUNCIA UNA DOMANDA, NON UNA REGOLA.
+     *
+     * Elencare «Induced: X(X) :- Y(X).» diceva due bugie insieme: che quelle
+     * regole fossero conoscenza, e che fossero pertinenti al turno (venivano da
+     * domini estranei alla lezione appena data). Ora l'induzione deposita
+     * candidati e QUESTA riga chiede del migliore — la composizione sceglie il
+     * candidato, la lingua e la forma, e il C non nomina nessuno stadio. */
+    (void)heads; (void)bodies;
+    char ask[512];
+    if (!p0_composed_say(b, "induction_question", ask, sizeof ask) || !ask[0]) return 0;
     size_t out_len = strlen(out);
-    for (size_t i = 0; i < k; i++) {
-        if (is_internal_pred(b->kb, heads[i]) || is_internal_pred(b->kb, bodies[i])) continue;
-        if (out_len + 2 < out_size) {
-            if (kept == 0) {
-                if (out_len > 0) { out[out_len] = ' '; out[out_len + 1] = '\0'; out_len++; }
-            }
-            out_len += (size_t)snprintf(out + out_len, out_size - out_len,
-                                         "%s%s(X) :- %s(X).",
-                                         kept ? " " : "Induced: ", heads[i], bodies[i]);
-            kept++;
-        }
-    }
-    return kept;
+    if (out_len + strlen(ask) + 2 >= out_size) return 0;
+    if (out_len > 0) { out[out_len] = ' '; out[out_len + 1] = '\0'; out_len++; }
+    snprintf(out + out_len, out_size - out_len, "%s", ask);
+    return 1;
 }
 
 static void present_atom(Brain *b, const char *in, char *out, size_t n);  /* fwd (gen505) */
@@ -15990,6 +15992,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             kept++;
         }
         if (kept == 0) { kb_term_say(b, "nothing_new_to_generalize", NULL, 0, out, out_size); return 1; }
+        /* gen505d — «generalizza» produce una DOMANDA, non un elenco di regole.
+         *
+         * Elencare `X(X) :- Y(X)` in notazione funzionale diceva due cose false:
+         * che fossero conoscenza acquisita, e che il motore sapesse quale delle
+         * due direzioni fosse quella vera. Chiedere del candidato migliore e'
+         * l'unico atto che la misura sostiene (LEARN_TODO, cinque campi). */
+        char ask[512];
+        if (p0_composed_say(b, "induction_question", ask, sizeof ask) && ask[0]) {
+            put(ask, out, out_size);
+            return 1;
+        }
         char msg[600];
         size_t off = 0;
         for (size_t i = 0; i < kept && off < sizeof msg; i++) {

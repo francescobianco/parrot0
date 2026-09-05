@@ -3327,6 +3327,16 @@ size_t kb_induce(KB *kb, size_t min_support,
     int saved_origin = kb->origin;
     kb->origin = KB_INDUCED; /* tag everything we induce */
 
+    /* gen505d — UN CANDIDATO E' UNA LETTURA, NON UN DEPOSITO.
+     *
+     * Conservato come fatto, sopravviveva al controesempio che lo smentisce:
+     * insegnata la chitarra (a corda e non ad arco), parrot0 continuava a
+     * chiedere «ogni strumento a corda che ho e' anche ad arco?» — una domanda
+     * a cui la KB aveva gia' risposto da sola. I candidati si ricalcolano a ogni
+     * induzione, quindi si ritirano prima di riscriverli. */
+    kb_retract_pred(kb, "induced_candidate");
+    kb_retract_pred(kb, "induced_candidate_fresh");
+
     char (*preds)[KB_TERM_LEN] = malloc(256 * sizeof *preds);
     if (!preds) { kb->origin = saved_origin; return 0; }
     size_t np = 0;
@@ -3371,16 +3381,48 @@ size_t kb_induce(KB *kb, size_t min_support,
             if (rule_exists(kb, Q, P)) continue;
 
             size_t support = 0;
-            int all_q = 1;
+            int all_q = 1, fresh = 0;
             for (size_t i = 0; i < kb->n && all_q; i++) {
                 const Fact *f = &kb->facts[i];
                 if (f->argc != 1 || strcmp(f->pred, P) != 0) continue;
                 support++;
+                /* gen505d — LA PERTINENZA BATTE IL SUPPORTO.
+                 *
+                 * Il supporto dice di quale candidato vale la pena chiedere fra
+                 * pari, non se sia pertinente: dopo una lezione sugli strumenti,
+                 * chiedere di `philosopher`/`humanities_topic` (supporto piu'
+                 * alto, e in KB da sempre) e' una domanda fuori dal discorso. Un
+                 * candidato che poggia su un fatto DETTO IN QUESTA SESSIONE
+                 * riguarda cio' di cui si sta parlando. */
+                if (f->origin & KB_SESSION) fresh = 1;
                 if (!fact_present(kb, Q, f->args[0])) all_q = 0;
             }
 
             if (all_q && support >= min_support) {
-                kb_assert_rule(kb, Q, P);
+                /* gen505d — L'INDUZIONE PROPONE, NON CONCLUDE.
+                 *
+                 * Misurato su cinque campi (LEARN_TODO): l'induzione produce
+                 * SEMPRE tutte e due le direzioni con supporto identico, e la
+                 * verita' cade in tutte e quattro le combinazioni — una vera,
+                 * nessuna vera, entrambe vere. Il supporto non porta nessuna
+                 * informazione su QUALE: con venti uccelli che volano,
+                 * `flier :- bird` ha supporto venti ed e' falsa uguale.
+                 *
+                 * Asserirla era quindi indifendibile: produceva un «Yes.» che
+                 * nessuna lezione aveva guadagnato, e — finche' /save la
+                 * instradava — falsita' persistita. Ora deposita un CANDIDATO,
+                 * un fatto su cui si puo' ragionare come `machinery_gap` e
+                 * `saturated_read`; la regola si guadagna con la risposta a una
+                 * domanda, e il «no» insegna la direzione. */
+                char sup[24]; snprintf(sup, sizeof sup, "%zu", support);
+                const char *cand[] = { Q, P, sup };
+                if (!kb_query(kb, "induced_candidate", cand, 3))
+                    kb_assert(kb, "induced_candidate", cand, 3);
+                if (fresh) {
+                    const char *fr[] = { Q, P };
+                    if (!kb_query(kb, "induced_candidate_fresh", fr, 2))
+                        kb_assert(kb, "induced_candidate_fresh", fr, 2);
+                }
                 /* gen432 — SI RESTITUISCE QUANTE SE NE SONO SCRITTE.
                  *
                  * La firma promette «capped at max» e il conteggio invece

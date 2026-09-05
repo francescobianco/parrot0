@@ -170,32 +170,46 @@ solo `KB_SESSION`. Un'induzione resta viva nel turno e nella sessione — si puo
 interrogare, criticare e **promuovere**: quella che qualcuno verifica si
 riasserisce come conoscenza, e allora si salva.
 
-### ⛔ APERTO, ed e' il prossimo: un'induzione risponde «Yes.»
+### ✅ CHIUSO (gen505d): un'induzione non decide piu' una polare
+
+⚠ **Correzione a questa stessa nota:** l'esempio che avevo usato — «is socrates
+a humanities topic? → Yes.» — **era sbagliato**. `humanities_topic(socrates)` e'
+un fatto CURATO (`kb/experts/philosophy/history.p0:41`), quindi quel «si'» era
+sempre stato legittimo. Il fenomeno pero' era reale, e la prova stava
+altrove: insegnati violino e violoncello come strumenti a corda E ad arco,
+l'induzione asseriva **entrambe** le direzioni e la KB si ritrovava un CICLO —
+«is guitar a bowed instrument?» rispondeva *«non posso stabilirlo: le regole
+intorno a bowed_instrument si rimandano a vicenda»*. Non un «si'» inventato, ma
+una KB avvelenata da regole che nessuno aveva insegnato.
+
+**Come e' stato chiuso** (F.: *«mi piace tantissimo, vai»*): `kb_induce` non
+asserisce piu' — deposita `induced_candidate(Testa, Corpo, Supporto)`, un fatto
+su cui si puo' ragionare come `machinery_gap` e `saturated_read`. E i due siti
+che annunciavano regole ora **chiedono**:
 
 ```text
-is socrates a humanities topic?   → Yes.
+> violin is a string instrument     > cello is a string instrument
+> violin is a bowed instrument      > cello is a bowed instrument
+> generalize
+  every string instrument I hold is also a bowed instrument — does that always hold?
+> guitar is a string instrument
+> generalize
+  every bowed instrument I hold is also a string instrument — does that always hold?
 ```
 
-Dentro la sessione la regola indotta **decide una risposta polare**, e quel
-«si'» non e' guadagnato da nessuna lezione. E' piu' grave della persistenza che
-abbiamo appena chiuso, perche' non lascia traccia su disco e vale per ogni
-sessione in cui l'induzione riparte.
+Tre proprieta', tutte misurate:
 
-Non l'ho toccato di mia iniziativa: l'induzione e' una facolta' **progettata**,
-e spegnerla o marcarla al momento della risposta e' una decisione di F. Le tre
-forme possibili, in ordine di rispetto per la facolta':
-
-1. la risposta **dichiara** la sua origine («si', per una regola che ho indotto,
-   non che mi hai insegnato») — onesto e non distruttivo;
-2. l'induzione **propone** e non conclude: entra fra i candidati e non decide da
-   sola una polare;
-3. `kb_induce` alza il proprio pavimento (support, esclusioni) — la cura piu'
-   debole, perche' non cambia la natura dell'inferenza.
-
-⚠ La stessa induzione e' cio' che fa dire «socrates is a philosopher; socrates
-is a humanities_topic» quando si chiede «what is socrates?». Chi guarda quella
-risposta pensa che parrot0 lo sappia; e' invece una generalizzazione per
-co-occorrenza con supporto 2.
+- **la pertinenza batte il supporto**: si chiede prima di un candidato che poggia
+  su un fatto detto in QUESTA sessione. Senza, dopo una lezione sugli strumenti
+  parrot0 chiedeva di `philosopher`/`humanities_topic` — supporto piu' alto e in
+  KB da sempre, cioe' una domanda fuori dal discorso;
+- **un candidato e' una lettura, non un deposito**: si ricalcola a ogni
+  induzione. Conservato come fatto sopravviveva al controesempio che lo
+  smentisce, e parrot0 continuava a chiedere una cosa a cui la KB aveva gia'
+  risposto da sola;
+- **il ciclo si chiude parlando**: il controesempio elimina la direzione falsa e
+  la domanda **si sposta su quella vera**, che a quel punto si guadagna con una
+  riga di lezione.
 
 ## ⭐ `kb_induce` messo alla prova su cinque campi — e la risposta alla domanda di F.
 

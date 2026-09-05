@@ -369,3 +369,64 @@ relation_connective(closes, en, "").
 relation_connective(closes, it, "").
 relation_connective(explains, en, " ").
 relation_connective(explains, it, " ").
+
+% ── 7. QUARTA CIPOLLA: L'INDUZIONE CHE CHIEDE (gen505d) ────────────────────
+%
+% Misurato su cinque campi: l'induzione produce sempre ENTRAMBE le direzioni con
+% lo stesso supporto, e il supporto non dice quale sia vera. Concludere era
+% indifendibile; CHIEDERE e' esattamente cio' che serve alla KB — trova le coppie
+% di classi la cui relazione nessuno ha stabilito, cioe' lo spazio negativo di
+% question-emergence.md calcolato dai soli fatti.
+
+machinery(induced_candidate).
+machinery(best_induced_candidate).
+machinery(better_candidate).
+machinery(class_named).
+
+% Il nome nudo di una classe (senza articolo): appreso se c'e', altrimenti la
+% chiave, che e' comunque meglio di niente.
+class_named($K, $Named) :- class_surface($K, $Named).
+class_named($K, $K) :- naf(class_has_surface($K)).
+
+% Il candidato migliore. Due criteri, in quest'ordine: prima la PERTINENZA —
+% un candidato che poggia su un fatto detto in questa sessione riguarda cio' di
+% cui si sta parlando — poi il supporto, che fra pari dice di quale chiedere per
+% primo. Il supporto non dice mai se e' VERO: quello lo dice solo la risposta.
+machinery(induced_candidate_fresh).
+machinery(any_fresh_candidate).
+machinery(better_fresh).
+better_candidate($S) :- induced_candidate($H, $B, $S2), gt($S2, $S).
+better_fresh($S) :- induced_candidate_fresh($H2, $B2), induced_candidate($H2, $B2, $S2), gt($S2, $S).
+any_fresh_candidate(current_turn) :- induced_candidate_fresh($H, $B).
+best_induced_candidate($H, $B) :-
+    induced_candidate_fresh($H, $B), induced_candidate($H, $B, $S), naf(better_fresh($S)).
+best_induced_candidate($H, $B) :-
+    naf(any_fresh_candidate(current_turn)), induced_candidate($H, $B, $S), naf(better_candidate($S)).
+turn_has_induced_candidate($T) :- best_induced_candidate($H, $B).
+
+% NUCLEO — l'osservazione, detta per intero: quanti ne ho visti e che cosa
+% avevano in comune. Non e' una tesi: e' cio' che si e' notato.
+% La testa prende l'ARTICOLO — «e' anche uno strumento ad arco», non «e' anche
+% strumento ad arco»: il sintagma con articolo e' gia' una vista (`class_phrase`).
+induction_pair($L, $T) :-
+    best_induced_candidate($H, $B), class_named($B, $BN), class_phrase($L, $H, $HP),
+    induction_also($L, $Mid), concat_atoms($BN, $Mid, $X), concat_atoms($X, $HP, $T).
+stage_text(induction_observation, $L, $T) :-
+    induction_pair($L, $Pair), induction_seen($L, $Pre), concat_atoms($Pre, $Pair, $T).
+stage_claim(induction_observation, turn_has_induced_candidate(current_turn)).
+induction_seen(en, "every ").
+induction_also(en, " I hold is also ").
+induction_seen(it, "ogni ").
+induction_also(it, " che ho è anche ").
+
+% STRATO — la domanda. E' cio' che trasforma una forzatura logica in una lacuna
+% nominata: la risposta, in QUALUNQUE verso, guadagna conoscenza che l'induzione
+% non poteva guadagnare.
+stage_wraps(induction_question, induction_observation).
+stage_claim(induction_question, turn_has_induced_candidate(current_turn)).
+stage_relation(induction_question, asks).
+stage_side(induction_question, after).
+stage_text(induction_question, en, "does that always hold?").
+stage_text(induction_question, it, "vale sempre?").
+relation_connective(asks, en, " — ").
+relation_connective(asks, it, " — ").
