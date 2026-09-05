@@ -1,5 +1,121 @@
 # Verso una KB da interlocutore naturale
 
+# 🎯 DUE OBIETTIVI NUOVI — la grammatica inglese e il linguaggio `.p0` (F., 2026-09-06)
+
+> **F.:** *«dobbiamo addestrare parrot0 sulla grammatica inglese: deve imparare
+> tutte le regole e le nozioni dell'inglese, cioe' saper rispondere a domande
+> tipo "dove e' l'errore qui: my name are Francesco". Oltre a questo, deve
+> diventare super esperto del linguaggio prolog-like dei file `.p0`: se gli
+> mostro un pezzo e gli chiedo che cosa fa, lui mi dice che questa e' una regola
+> oppure un predicato e tutto. Se raggiungiamo il massimo in queste due
+> conoscenze parrot0 sara' in grado di evolvere — immagina come correggerebbe la
+> grammatica attraverso due giri di thinking, dove magari si chiede che lingua
+> e', e poi se la frase e' corretta.»*
+
+## Perche' questi due non sono «altri due domini»
+
+Ogni dominio insegnato finora — minerali, nodi, tessuti, leggi fisiche — e'
+conoscenza **sul mondo**. Questi due sono conoscenza sugli **strumenti di
+parrot0**: la grammatica e' il substrato con cui legge ogni turno, il `.p0` e'
+il substrato in cui tiene tutto cio' che sa.
+
+Impararli non aggiunge un dominio: **rende migliore l'atto di imparare**. E' la
+proprieta' che nessun fatto minerario ha, ed e' la ragione per cui la scala puo'
+cambiare davvero.
+
+## ⭐ Il reperto che rende il primo obiettivo piu' vicino di quanto sembri
+
+La grammatica inglese **e' gia' in KB**, misurata oggi:
+
+| classe | fatti |
+|---|---:|
+| `verb_stem` | 78 |
+| `question_word` | 17 |
+| `clause_copula` | 10 |
+| `negation_marker` | 6 |
+| `plural_copula`, `universal_quantifier` | 4 + 4 |
+| `indefinite_article`, `exclusive_quantifier`, … | il resto |
+
+Piu' di centoventi fatti — e servono **solo a LEGGERE**. Nessuno li ha mai
+girati verso il **giudizio**. «my name are Francesco» e' gia' decidibile con cio'
+che c'e': `name` e' singolare, `are` sta in `plural_copula/1`, e le due cose non
+possono valere insieme.
+
+E' il «cassetto senza maniglia» del `gen505` — la capacita' c'e' e non si
+raggiunge parlando — **alla scala di un'intera facolta**'.
+
+## Il secondo obiettivo poggia su un'introspezione che esiste
+
+`kb_fact/2` e `kb_rule/2` sono gia' builtin del solutore, e la KB li usa gia' per
+guardare la propria forma (`epistemic-status.p0`: *una classe definita da regole
+e' chiusa dalla propria definizione*). Quel che manca non e' vedere: e' il
+**vocabolario per parlarne** — «questa e' una regola», «questa e' la testa»,
+«questo e' un goal del corpo», «questa e' una variabile», «questo predicato e'
+macchineria». Sono meta-concetti, cioe' fatti.
+
+## I due giri di thinking: l'intuizione e' giusta, ed e' una cipolla
+
+«che lingua e'» → «e' ben formata» → «dove esattamente, e perche'» non e' una
+pipeline da cablare: e' esattamente la forma dell'[inferenza
+compositiva](inferenza-compositiva.md). Ogni giro e' uno stadio che **dimostra la
+propria tesi** e avvolge il precedente; se uno stadio non regge, sparisce invece
+di mentire. E il prodotto non e' un verdetto ma una **spiegazione tracciabile** —
+la differenza positiva di parrot0 rispetto a un LLM, che qui diventa visibile:
+
+```text
+> dove e' l'errore qui: my name are Francesco
+  «name» e' singolare e «are» e' una copula plurale: non possono valere insieme.
+  La forma attesa e' «my name is Francesco».
+```
+
+## ⚠ Quattro condizioni, senza le quali diventa mimica
+
+1. **«Tutte le regole dell'inglese» e' illimitato.** Il gate anti-impostore non
+   e' «trova l'errore»: e' **spiegarlo citando la regola e i due fatti che
+   confliggono**, e **rifiutare** quando la regola non c'e' invece di indovinare.
+   E gli errori del test devono essere **held-out**, mai quelli insegnati.
+2. **Una sorgente, due consumatori.** La conoscenza che GIUDICA dev'essere la
+   STESSA che LEGGE. Se nasce una «grammatica per giudicare» accanto alle classi
+   che il parser usa, le due divergono al primo cambiamento — e parrot0
+   giudicherebbe con regole che lui stesso non segue. E' la regola gia' applicata
+   a `relation_noun/2` (asserire + interrogare) e a `class_surface/2` (prova +
+   descrizione).
+3. **Il `.p0` non deve diventare un lookup di docstring.** Il gate e' un
+   frammento **mai visto**, e la risposta deve venire dalla STRUTTURA: non solo
+   «e' una regola», ma *che cosa proverebbe*.
+4. **La circolarita' va nominata.** parrot0 che giudica il `.p0` giudica il mezzo
+   in cui il suo stesso giudizio e' scritto. E' potente — ed e' esattamente il
+   punto in cui una affermazione va **eseguita**, non creduta.
+
+## ⭐ E il guadagno che ne discende, che vale piu' dei due obiettivi presi da soli
+
+Se la grammatica e' conoscenza **e** il `.p0` e' conoscenza, allora una regola
+grammaticale detta in inglese puo' essere **espressa da parrot0 come clausola
+`.p0`**. Il ciclo dell'insegnamento si chiude su se stesso: non «gli insegniamo
+una cosa in piu'», ma **gli insegniamo a scrivere cio' che impara**. E' questa
+la scala superiore che F. intuisce, ed e' misurabile: il giorno in cui parrot0
+propone la clausola che gli mancava, l'esperimento ha cambiato ordine di
+grandezza.
+
+## In questo piano: perche' scalano l'interlocutore
+
+Il bersaglio di questo documento e' la parita' funzionale nel dialogo. Questi due
+obiettivi la toccano dove le altre ipotesi non arrivano:
+
+- **la grammatica** e' cio' che rende un interlocutore capace di **correggere**
+  invece di limitarsi a capire — e la correzione e' una mossa dialogica (K3),
+  non una funzione di controllo;
+- **il `.p0`** e' cio' che rende parrot0 capace di parlare del proprio stato:
+  senza, «perche' hai risposto cosi'?» puo' citare una prova ma non descrivere
+  la FORMA della conoscenza che l'ha prodotta.
+
+Entrambi alimentano D14 (la comprensione si misura in copertura) e la
+tracciabilita': una correzione grammaticale spiegata e' copertura dichiarata sul
+turno, non un giudizio opaco.
+
+---
+
+
 > **Coordinamento della missione, 2026-09-05.** La missione principale è ora
 > [Apprendimento assistito — KB viva](apprendimento-assistito.md#0-missione-principale-la-kb-viva):
 > integra questo bersaglio con il contratto di comprensione universale e

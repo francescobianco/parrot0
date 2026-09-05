@@ -382,6 +382,48 @@ E la sua gemella, dalla prova su cinque campi:
 
 ---
 
+# 🎯 LA PROSSIMA COSA DA LAVORARE — grammatica inglese e linguaggio `.p0`
+
+> **F., 2026-09-06:** addestrare parrot0 sulla **grammatica inglese** («dove e'
+> l'errore qui: my name are Francesco») e sul **linguaggio `.p0`** («questo
+> pezzo che cos'e' — una regola? un predicato?»), correggendo attraverso **due
+> giri di thinking**: che lingua e' → e' corretta → dove e perche'.
+>
+> Trattazione per esteso, con le condizioni anti-impostore, in testa a
+> [`apprendimento-assistito.md`](docs/plans/apprendimento-assistito.md) e a
+> [`frontier-kb-natural-dialogue.md`](docs/plans/frontier-kb-natural-dialogue.md).
+
+**Perche' vengono prima di altri domini:** non sono conoscenza sul mondo, sono
+conoscenza sugli **strumenti** — la grammatica e' come parrot0 legge ogni turno,
+il `.p0` e' come tiene tutto cio' che sa. Impararli non aggiunge un dominio,
+**rende migliore l'atto di imparare**.
+
+**Il primo passo e' piu' corto di quanto sembri, ed e' misurato:** oltre 120
+fatti di grammatica inglese sono **gia' in KB** (`verb_stem` 78,
+`question_word` 17, `clause_copula` 10, `negation_marker` 6, `plural_copula` 4,
+…) e servono **solo a leggere**. Nessuno li ha mai girati verso il **giudizio**.
+«my name are Francesco» e' gia' decidibile: `name` e' singolare, `are` sta in
+`plural_copula/1`, e le due cose non possono valere insieme.
+
+Ordine proposto:
+
+1. **una sola regola, girata verso il giudizio** — l'accordo soggetto-verbo, con
+   le classi che il parser gia' usa. Se regge su un errore held-out **con la
+   spiegazione**, il metodo e' buono; se serve una classe nuova per giudicare
+   cio' che gia' si legge, ci si e' sbagliati (§ «una sorgente, due consumatori»);
+2. **il rifiuto onesto**: una frase la cui regola non c'e' deve ricevere «non ho
+   una regola per questo», mai un giudizio inventato;
+3. **i due giri di thinking** come cipolla (`inferenza-compositiva.md`), non come
+   pipeline cablata;
+4. **il `.p0`**: i meta-concetti sopra `kb_fact/2` e `kb_rule/2`, che gia'
+   esistono — «questa e' una regola», «questa e' la testa», «questo goal e' del
+   corpo» — con il gate su un frammento **mai visto**;
+5. **il ciclo che si chiude**: una regola grammaticale detta in inglese e
+   **espressa da parrot0 come clausola `.p0`**. E' la scala superiore, ed e'
+   misurabile.
+
+---
+
 # ⭐ LA MISSIONE ATTIVA — LE CONNESSIONI FERTILI FRA DOMINI
 
 > **F.:** *«mi interessa che ti concentri sulla questione delle connessioni
