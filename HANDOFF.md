@@ -214,3 +214,91 @@ test che usava `<~` (sorgente *turn*) su un'uscita *mcp*.
    Oggi è successo una volta (la regola «un turno che dichiara un piano non si
    segmenta»: non serviva, il turno non era segmentato).
 4. **Un test si aggiorna, non si forza.** `check_sort` era stantio, non rotto.
+
+---
+
+# APPENDICE — seconda metà della sessione gen503
+
+## A. Le forme di insegnamento: bisezione fatta, colpevole trovato
+
+`HANDOFF §R1` diceva di riaggiungerle **una alla volta**. Fatto, ed è servito:
+
+```text
+"X" is another way to say "Y"      ✅ ladder 23, tool 16   → TENUTA
+"X" is the same as "Y"             ✅ ladder 23, tool 16   → TENUTA
+saying "X" is like saying "Y"      ⛔ ladder 15/8          → RIFIUTATA
+```
+
+⚠ **Il sospetto scritto ieri era sbagliato, e va detto:** non è `" i mean "`, è
+**`is like saying`**. Non ho ancora capito *perché* faccia cadere il retract di
+`taught_cue_ladder` (il sintomo è che `forget "…" as a casual opener` smette di
+essere riconosciuto e finisce a muro). **Questa è la voce aperta**, ora col nome
+giusto invece che col sospetto.
+
+Restano da provare, sempre una alla volta:
+
+```prolog
+intent_cue(00_lex_chain332, " i mean ").      learnable("i mean", intent_cue, cue_like).
+intent_cue(00_lex_chain332, " means ").       learnable("means",  intent_cue, cue_like).
+```
+
+Per `means` la nota che serve: ha già un proprietario legittimo — la lezione di
+**costruzione** (`x y means x <verbo> y`). Si distinguono per **struttura**: la
+parafrasi ha entrambi i lati fra virgolette, la costruzione no, e
+`try_teach_form` esce subito senza due stringhe citate. La convivenza è
+possibile, va verificata.
+
+Il cricchetto `taught_tool_surface.p0t` è ora 16 e copre entrambe le forme nuove,
+la seconda su un file **mai nominato nella lezione** — una parafrasi di strumento
+deve generalizzare, non essere una frase sola.
+
+## B. Il banco di sonde di F. — `var/probe/`
+
+Dieci famiglie di prompt lunghi, un generatore di item `.p0t`, un runner che
+avvia un demone fresco per famiglia e registra **latenza e risposta verbatim**.
+È lo strumento giusto per misurare la comprensione dove finora si guardava a
+occhio. Committato: harness, generatore e item (il pannello congelato). Le
+misure no — si rigenerano, e `results/` è gitignorato.
+
+⛔ **Non misura ancora niente.** I 16 item di `f01` danno tutti `rc=2`, e i
+3,06 s per item sono esattamente il budget di retry del client
+(300 × 10 ms) → *«test-send: cannot reach engine»*. **A mano funziona:** avviato
+il demone con lo stesso `--sock` e mandato `i07.p0t`, la risposta arriva
+(`«Fair enough — tell me where I went wrong…»`). Quindi non è il trasporto in sé:
+è qualcosa nel modo in cui `probe_one.py` avvia o attende il demone. Indagine
+interrotta qui su richiesta di F.
+
+⚠ E una nota sul disegno degli item: usano `< __NEVER__` come sentinella per
+farsi stampare la risposta. Funziona, ma significa che **ogni item è rosso per
+costruzione** e il codice di uscita del client non distingue «il test è fallito
+come previsto» da «non ho raggiunto il demone». Vale la pena separarli, o
+leggere la risposta da un canale che non passi dal verdetto.
+
+## C. Misurare il lato di parrot0 da solo — bloccato, e si sa da cosa
+
+Il piano (§6.5) dice che ogni gradino si misura sul banco, e dopo A5 il punteggio
+dovrebbe potersi muovere. Ho provato a costruire una league col solo parrot0
+(`--league` esiste apposta) e mi sono fermato su un limite reale del pilota:
+
+1. pretende **esattamente due agenti** — aggirabile con un no-op dichiarato
+   (`fake_agent.py --mode silent`), e l'avevo fatto;
+2. ma poi `order` sta in **`tasks/matchN/match.json`**, non nella league, e
+   nomina `parrot0` e `freebuff`. Per correre da soli servirebbe **un override
+   di `order` nella league**, che oggi non esiste.
+
+È un pezzo piccolo e nominato: *permettere alla league di sovrascrivere l'ordine
+di un match*. Senza, ogni misura del nostro lato richiede la presenza (e il
+modello concordato) di freebuff — cioè resta bloccata dietro C0.
+
+**Il file `league-parrot0.json` NON è stato lasciato nel repo**: era a metà, e un
+artefatto a metà nel banco è peggio della sua assenza.
+
+## D. Da dove si riprende, aggiornato
+
+```text
+R1  finire le forme di insegnamento — colpevole noto: «is like saying»
+R2  A8: gli operatori diventano KB (C_TODO.md), partendo dalle superfici
+R3  A6: la fragilità di kb_cue_match (CHALLENGE_TODO §6.7)
+R5  far misurare la sonda di F. (§B) — a mano funziona, dal runner no
+R6  override di `order` nella league, per misurare un lato solo (§C)
+```
