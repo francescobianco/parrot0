@@ -493,9 +493,34 @@ Ordine proposto:
    Limite dichiarato: la simulazione tratta il corpo **unario a un goal solo**,
    che e' la forma che si insegna parlando; per un corpo piu' ricco resta la
    parte strutturale, onesta quanto prima;
-5. **il ciclo che si chiude**: una regola grammaticale detta in inglese e
-   **espressa da parrot0 come clausola `.p0`**. E' la scala superiore, ed e'
-   misurabile.
+5. ✅ **IL CICLO SI CHIUDE** (`gen505l`) — ed e' misurabile, come ci eravamo
+   detti. Erano **tre lati**, non uno:
+
+   ```text
+   > socrates is a man                    Learned: socrates is a man.
+   > every man is a mortal                Learned rule: mortal(X) :- man(X).
+   > show me the clause for mortal        mortal(X) :- man(X).
+   > what is this: mortal(X) :- man(X).   That is a rule … Applied now it would
+                                          conclude «mortal» for socrates …
+   > is socrates a mortal?                Yes.
+   ```
+
+   parrot0 **impara parlando**, **scrive** cio' che ha imparato nel linguaggio in
+   cui lo tiene, **rilegge** la propria scrittura riconoscendola come la stessa
+   regola, e **la usa** per concludere. Il terzo lato era quello che mancava:
+   sapeva scrivere una clausola imparando e leggerne una mostrata, non rendere
+   in `.p0` cio' che tiene.
+
+   ⭐ **Non e' cosmesi: e' una verifica che nessun oracolo esterno puo' dare.** Se
+   la clausola che parrot0 scrive, rimessa davanti a lui, viene riletta come la
+   stessa regola, il giro e' corretto; se ne producesse un'altra, avremmo trovato
+   un difetto senza bisogno di nessun giudice. E' l'audit dell'eco del `gen491`
+   applicato al **linguaggio in cui la conoscenza vive** — cioe' esattamente la
+   proprieta' che F. aveva descritto per il ciclo struttura → prosa → IR.
+
+   E il rifiuto resta onesto ai due bordi: «show me the clause for man» →
+   *«I hold «man» as facts, not as a rule»*; per un predicato che non esiste,
+   *«there is no clause to write»*.
 
 ---
 

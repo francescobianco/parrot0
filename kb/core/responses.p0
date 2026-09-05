@@ -842,6 +842,13 @@ response_template(p0_live_unknown, " I hold nothing under «{pred}» yet, so it 
 response_template(p0_live_unknown, it, " Non tengo ancora niente sotto «{pred}», quindi per ora non concluderebbe nulla.").
 response_template(p0_would_conclude, " Applied now it would conclude «{pred}» for {members}, because I already hold «{body}» for them.").
 response_template(p0_would_conclude, it, " Applicata adesso concluderebbe «{pred}» per {members}, perché tengo già «{body}» per loro.").
+% gen505l — parrot0 rende in `.p0` cio' che tiene. La clausola si mostra COME SI
+% SCRIVE, perche' e' proprio quella la richiesta: la resa e' il contenuto.
+response_template(p0_write_rule, "{head}({var}) :- {body}.").
+response_template(p0_write_fact_only, "I hold «{pred}» as facts, not as a rule: there is no clause to write, only the facts themselves.").
+response_template(p0_write_fact_only, it, "Tengo «{pred}» come fatti, non come regola: non c'è una clausola da scrivere, ci sono i fatti.").
+response_template(p0_write_none, "I hold nothing under «{pred}», so there is no clause to write.").
+response_template(p0_write_none, it, "Non tengo niente sotto «{pred}», quindi non c'è nessuna clausola da scrivere.").
 response_template(taught_reply, "Understood: when you ask about {cue} I will say so.").
 response_template(taught_reply, it, "Capito: quando mi chiedi di {cue} risponderò così.").
 

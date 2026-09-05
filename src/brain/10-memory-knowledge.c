@@ -11105,6 +11105,67 @@ static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
  * Bisecare quel tratto con le stampe non funziona (scope annidati che
  * ricalcolano `nw`/`w`); renderlo autonomo costa meno e non dipende da dove
  * cadono i cancelli di qualcun altro. */
+/* gen505l — L'ANELLO SI CHIUDE: parrot0 SCRIVE la propria conoscenza in `.p0`.
+ *
+ * Sapeva gia' scrivere una clausola quando impara una regola parlando, e sapeva
+ * leggere una clausola mostrata. Mancava il terzo lato: rendere in `.p0` cio'
+ * che TIENE, su richiesta.
+ *
+ * Non e' cosmesi: e' una verifica che nessun oracolo esterno puo' dare. Se la
+ * clausola che parrot0 scrive, rimessa davanti a lui, viene riletta come la
+ * stessa regola, il giro e' corretto — l'audit dell'eco (gen491) applicato al
+ * linguaggio in cui la conoscenza vive.
+ *
+ * L'introspezione esiste: `kb_rule_body_preds/4` da' i predicati del corpo per
+ * una testa. Qui c'e' solo la resa, e la superficie della richiesta e' un fatto
+ * (`p0_write_cue/1`). */
+static int p0_write_clause(Brain *b, const char *norm, char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    char (*cues)[KB_TERM_LEN] = NULL; size_t nc = 0;
+    if (!kb_match_all(b->kb, "p0_write_cue", (const char *[]){ NULL }, 1, &cues, &nc) || nc == 0) {
+        free(cues); return 0;
+    }
+    const char *tail = NULL;
+    for (size_t i = 0; i < nc && !tail; i++) {
+        char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[i]);
+        const char *c = kb_dequote(cb);
+        const char *at = *c ? strstr(norm, c) : NULL;
+        if (at) tail = at + strlen(c);
+    }
+    free(cues);
+    if (!tail) return 0;
+    while (*tail && (isspace((unsigned char)*tail) || *tail == ':')) tail++;
+    if (!*tail) return 0;
+
+    char s[300]; snprintf(s, sizeof s, "%s", tail);
+    char *w[32]; size_t nw = split_words(s, w, 32);
+    if (nw == 0) return 0;
+    char head[KB_TERM_LEN];
+    if (!p0_join(w, 0, nw, head, sizeof head)) return 0;
+    for (char *q = head; *q; q++) { if (*q == '?') *q = '\0'; if (*q == ' ') *q = '_'; }
+
+    char bodies[8][KB_TERM_LEN];
+    size_t nb = kb_rule_body_preds(b->kb, head, 1, bodies, 8);
+    if (nb == 0) {
+        const char *pat[] = { NULL };
+        char hits[1][KB_TERM_LEN];
+        char shown[KB_TERM_LEN];
+        present_atom(b, head, shown, sizeof shown);
+        const KbResponseSlot rs[] = { { "pred", shown } };
+        size_t k = kb_match(b->kb, head, pat, 1, hits, 1);
+        return kb_response_slots(b, k ? "p0_write_fact_only" : "p0_write_none",
+                                 rs, 1, out, out_size);
+    }
+    /* Il corpo si scrive con la variabile condivisa: e' cio' che rende la
+     * clausola una REGOLA e non una lista di goal scollegati. */
+    char body[400]; size_t off = 0;
+    for (size_t i = 0; i < nb && off + 1 < sizeof body; i++)
+        off += (size_t)snprintf(body + off, sizeof body - off, "%s%s(X)",
+                                i ? ", " : "", bodies[i]);
+    const KbResponseSlot rs[] = { { "head", head }, { "var", "X" }, { "body", body } };
+    return kb_response_slots(b, "p0_write_rule", rs, 3, out, out_size);
+}
+
 /* gen505j — «CHE COS'E' QUESTO?» su una clausola `.p0`.
  *
  * Secondo obiettivo di F.: parrot0 deve saper parlare del mezzo in cui tiene
@@ -17279,5 +17340,6 @@ int p0_grammar_judgement_turn(Brain *b, const char *norm, const char *raw,
      * maiuscola distingue una variabile da un atomo. Un lettore di codice che
      * legge il testo normalizzato non puo' dire che `X` e' una variabile. */
     if (p0_clause_inspect(b, raw && *raw ? raw : norm, out, out_size)) return 1;
+    if (p0_write_clause(b, norm, out, out_size)) return 1;
     return p0_grammar_judgement(b, norm, out, out_size);
 }

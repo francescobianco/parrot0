@@ -45,3 +45,20 @@ p0_inspect_cue("explain this clause").
 p0_inspect_cue("che cos'è questo").
 p0_inspect_cue("che cosa fa questo").
 p0_inspect_cue("spiegami questa clausola").
+
+% ── 4. IL VERSO INVERSO: SCRIVERE LA PROPRIA CONOSCENZA (gen505l) ──────────
+%
+% Qui l'anello si chiude. parrot0 gia' SCRIVE una clausola quando impara una
+% regola parlando («every man is a mortal» → mortal(X) :- man(X)); quel che
+% mancava e' che sappia MOSTRARLA — cioe' rendere in `.p0` cio' che tiene, e non
+% solo leggere il `.p0` che gli viene mostrato.
+%
+% E' anche una verifica che nessun oracolo esterno puo' dare: se la clausola che
+% parrot0 scrive, rimessa davanti a lui, viene letta come la stessa regola, il
+% giro e' corretto. E' l'audit dell'eco (gen491) applicato al linguaggio.
+machinery(p0_write_cue).
+p0_write_cue("show me the clause for").
+p0_write_cue("how would you write").
+p0_write_cue("write that as a clause for").
+p0_write_cue("mostrami la clausola per").
+p0_write_cue("come scriveresti").
