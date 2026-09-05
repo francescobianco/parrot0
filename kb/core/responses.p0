@@ -829,6 +829,19 @@ response_template(p0_says_rule, "That is {form}. It concludes «{pred}», and it
 response_template(p0_says_rule, it, "Questa è {form}. Conclude «{pred}», e vale ogni volta che vale {body}.").
 response_template(p0_says_unknown, "I can't read that as a clause: I look for a head, and for «:-» when there is a body.").
 response_template(p0_says_unknown, it, "Non riesco a leggerla come clausola: cerco una testa, e «:-» quando c'è un corpo.").
+% gen505k — la clausola messa a contatto con la KB VIVA. Non e' piu' sintassi:
+% dire per CHI concluderebbe, e da quale fatto gia' tenuto, e' simulare la
+% conseguenza — e si puo' controllare.
+response_template(p0_live_known, " I already hold «{pred}» for {n} thing(s): {members}.").
+response_template(p0_live_known, it, " Tengo già «{pred}» per {n} cosa/e: {members}.").
+% Un FATTO non conclude: e' o non e'. Una REGOLA concluderebbe, e se il corpo e'
+% vuoto non concluderebbe ancora nulla. Due stati diversi, due frasi diverse.
+response_template(p0_live_empty, " I hold nothing else under «{pred}» yet.").
+response_template(p0_live_empty, it, " Non tengo ancora nient'altro sotto «{pred}».").
+response_template(p0_live_unknown, " I hold nothing under «{pred}» yet, so it would conclude nothing for now.").
+response_template(p0_live_unknown, it, " Non tengo ancora niente sotto «{pred}», quindi per ora non concluderebbe nulla.").
+response_template(p0_would_conclude, " Applied now it would conclude «{pred}» for {members}, because I already hold «{body}» for them.").
+response_template(p0_would_conclude, it, " Applicata adesso concluderebbe «{pred}» per {members}, perché tengo già «{body}» per loro.").
 response_template(taught_reply, "Understood: when you ask about {cue} I will say so.").
 response_template(taught_reply, it, "Capito: quando mi chiedi di {cue} risponderò così.").
 

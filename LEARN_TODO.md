@@ -467,11 +467,32 @@ Ordine proposto:
    atomo, e leggendo la forma normalizzata parrot0 diceva `man(x)` — un lettore
    di codice che legge il testo abbassato non puo' dire che `X` e' una variabile.
 
-   **Manca il pezzo piu' interessante:** dire che cosa la clausola
-   *proverebbe* — «questa regola conclude che qualcuno e' mortale ogni volta che
-   e' un uomo» — e collegarla alla KB viva (il predicato esiste gia'? ha
-   membri?). E' li' che l'ispezione smette di essere sintassi e diventa
-   comprensione;
+   ✅ **E il pezzo piu' interessante c'e'** (`gen505k`): la clausola messa a
+   contatto con la **KB viva**, cioe' la conseguenza SIMULATA.
+
+   ```text
+   > socrates is a man
+   > what is this: mortal(X) :- man(X).
+     That is a rule … It concludes «mortal», and it holds whenever man(X)
+     hold(s). Applied now it would conclude «mortal» for socrates, plato,
+     because I already hold «man» for them.
+
+   > what is this: copper_mineral(bornite).
+     That is a fact … I already hold «copper mineral» for 6 thing(s): …
+
+   > what is this: dog(rex).
+     That is a fact … I hold nothing else under «dog» yet.
+   ```
+
+   Qui l'ispezione smette di essere sintassi: **dire per chi concluderebbe, e da
+   quale fatto gia' tenuto, e' simulare la conseguenza** — ed e' anche l'unica
+   parte CONTROLLABILE, perche' chi legge puo' verificare che quei membri ci
+   siano. Un fatto e una regola parlano diversamente: un fatto non «conclude»,
+   e' o non e'.
+
+   Limite dichiarato: la simulazione tratta il corpo **unario a un goal solo**,
+   che e' la forma che si insegna parlando; per un corpo piu' ricco resta la
+   parte strutturale, onesta quanto prima;
 5. **il ciclo che si chiude**: una regola grammaticale detta in inglese e
    **espressa da parrot0 come clausola `.p0`**. E' la scala superiore, ed e'
    misurabile.

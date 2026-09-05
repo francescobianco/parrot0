@@ -11171,7 +11171,46 @@ static int p0_clause_inspect(Brain *b, const char *raw, char *out, size_t out_si
         char *bz = bp + strlen(bp);
         while (bz > bp && (bz[-1] == '.' || bz[-1] == ' ' || bz[-1] == '\n')) *--bz = '\0';
         const KbResponseSlot rs[] = { { "form", form_says }, { "pred", pe }, { "body", bp } };
-        return kb_response_slots(b, "p0_says_rule", rs, 3, out, out_size);
+        if (!kb_response_slots(b, "p0_says_rule", rs, 3, out, out_size)) return 0;
+        /* gen505k — E POI LA CLAUSOLA SI METTE A CONTATTO CON LA KB VIVA.
+         *
+         * Fin qui era sintassi: forma, testa, corpo. Dire per CHI concluderebbe
+         * — e da quale fatto gia' tenuto — e' simulare la conseguenza, ed e' il
+         * punto in cui l'ispezione diventa comprensione. E' anche l'unica parte
+         * CONTROLLABILE: chi legge puo' verificare che quei membri ci siano.
+         *
+         * Si tratta il corpo unario a un goal solo, che e' la forma che si
+         * insegna parlando; per un corpo piu' ricco resta la parte strutturale,
+         * onesta quanto prima. */
+        char bb[KB_TERM_LEN]; snprintf(bb, sizeof bb, "%s", bp);
+        char *bop = strchr(bb, '(');
+        char *bcl = bop ? strchr(bop, ')') : NULL;
+        if (bop && bcl && !strchr(bcl + 1, '(')) {
+            *bop = '\0';
+            char bpred[KB_TERM_LEN]; snprintf(bpred, sizeof bpred, "%s", bb);
+            const char *pat[] = { NULL };
+            char hits[32][KB_TERM_LEN];
+            size_t k = kb_match(b->kb, bpred, pat, 1, hits, 32);
+            char tail_msg[600];
+            if (k == 0) {
+                const KbResponseSlot us[] = { { "pred", bpred } };
+                if (kb_response_slots(b, "p0_live_unknown", us, 1, tail_msg, sizeof tail_msg))
+                    strncat(out, tail_msg, out_size - strlen(out) - 1);
+            } else {
+                char list[400]; size_t off = 0;
+                for (size_t i2 = 0; i2 < k && off + 1 < sizeof list; i2++) {
+                    char shown[KB_TERM_LEN];
+                    present_atom(b, hits[i2], shown, sizeof shown);
+                    off += (size_t)snprintf(list + off, sizeof list - off, "%s%s",
+                                            i2 ? ", " : "", shown);
+                }
+                const KbResponseSlot ws[] = { { "pred", pe }, { "members", list },
+                                              { "body", bpred } };
+                if (kb_response_slots(b, "p0_would_conclude", ws, 3, tail_msg, sizeof tail_msg))
+                    strncat(out, tail_msg, out_size - strlen(out) - 1);
+            }
+        }
+        return 1;
     }
 
     /* Gli argomenti del fatto, e quanti sono. */
@@ -11183,7 +11222,34 @@ static int p0_clause_inspect(Brain *b, const char *raw, char *out, size_t out_si
     char cnt[16]; snprintf(cnt, sizeof cnt, "%zu", n);
     const KbResponseSlot rs[] = { { "form", form_says }, { "pred", pe },
                                   { "arity", cnt }, { "args", args } };
-    return kb_response_slots(b, "p0_says_fact", rs, 4, out, out_size);
+    if (!kb_response_slots(b, "p0_says_fact", rs, 4, out, out_size)) return 0;
+    /* gen505k — e che cosa ne tiene gia' la KB viva. */
+    {
+        const char *pat[] = { NULL };
+        char hits[32][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, pe, pat, 1, hits, 32);
+        char tail_msg[600];
+        char pshown[KB_TERM_LEN];
+        present_atom(b, pe, pshown, sizeof pshown);   /* gen505k: anche qui e' un nome */
+        if (k == 0) {
+            const KbResponseSlot us[] = { { "pred", pshown } };
+            if (kb_response_slots(b, "p0_live_empty", us, 1, tail_msg, sizeof tail_msg))
+                strncat(out, tail_msg, out_size - strlen(out) - 1);
+        } else {
+            char list[400]; size_t off = 0;
+            for (size_t i2 = 0; i2 < k && off + 1 < sizeof list; i2++) {
+                char shown[KB_TERM_LEN];
+                present_atom(b, hits[i2], shown, sizeof shown);
+                off += (size_t)snprintf(list + off, sizeof list - off, "%s%s",
+                                        i2 ? ", " : "", shown);
+            }
+            char cnt2[16]; snprintf(cnt2, sizeof cnt2, "%zu", k);
+            const KbResponseSlot ks[] = { { "pred", pshown }, { "n", cnt2 }, { "members", list } };
+            if (kb_response_slots(b, "p0_live_known", ks, 3, tail_msg, sizeof tail_msg))
+                strncat(out, tail_msg, out_size - strlen(out) - 1);
+        }
+    }
+    return 1;
 }
 
 /* gen505i — DOVE E' L'ERRORE: la grammatica girata verso il GIUDIZIO.
