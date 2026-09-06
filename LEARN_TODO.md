@@ -1,5 +1,114 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — comprensione e KB viva, 2026-09-06 sera (`gen505q`)
+
+> Sessione lunga, chiusa su richiesta di F. **Niente in sospeso**: albero pulito,
+> tutto su `origin/main`. Questo handoff prevale sui precedenti; quelli sotto
+> restano validi nel merito.
+
+## Il filo che ha tenuto insieme tutta la sessione
+
+> **La capacita' esiste gia' e non si riesce a raggiungerla parlando?**
+> In quasi tutti i casi di oggi la risposta era si'. Il lavoro non e' stato
+> aggiungere facolta': e' stato togliere i conteggi di parole, le posizioni fisse
+> e le chiavi interne che stanno **fra una capacita' e la lingua**.
+
+E il suo corollario, emerso tre volte con la stessa forma:
+
+> **Una sorgente, due consumatori.** Chi ASSERISCE e chi INTERROGA devono usare
+> la stessa mappa. `relation_noun/2` la usava solo il lato che asserisce, e una
+> relazione insegnata si poteva riempire e non interrogare; `class_surface/2` la
+> usava solo la prova, e la descrizione parlava per chiavi. Ogni volta il difetto
+> era lo stesso: **il cassetto senza maniglia**.
+
+## Che cosa e' vivo adesso, e si puo' provare parlando
+
+```bash
+make build
+printf '%s\n' "una lezione" "una domanda" | PARROT0_PROFILE=kb/profiles/agi.p0 ./bin/parrot0
+```
+
+⚠ **Il profilo non e' facoltativo**: senza, la KB appresa non si carica e sembra
+che parrot0 abbia dimenticato tutto. E lezione e verifica vanno nella **stessa
+pipe**: ogni invocazione e' un processo nuovo.
+
+| | |
+|---|---|
+| **il «no» si guadagna, e si insegna a voce** | `no carbonate mineral is an iron oxide mineral` → una frase risponde per tutti i membri, presenti e futuri, di due classi |
+| **parrot0 spiega un «no»** | *«Because bornite is a copper mineral, and nothing is both…»* |
+| **le prove si leggono** | `class_surface/2`: il nome di una classe nella lingua, appreso dove la classe entra |
+| **relazioni insegnabili a voce** | `warp is a relation` → `the warp of denim is cotton` → `what is the warp of denim?` → `cotton`; e la forma verbo con polare, wh- ed enumerazione |
+| **l'induzione propone e non conclude** | misurato su cinque campi: produce SEMPRE entrambe le direzioni con supporto identico |
+| **leggi fisiche in due forme** | prosa che si dice + struttura che si percorre; «which law involves mass?» risponde dalla STRUTTURA |
+| **il ponte legge → codice** | `law_expression(kinetic_energy_law)` → `(0.5 * (mass * (velocity * velocity)))` |
+| **grammatica girata al giudizio** | «where is the error here: my name are Francesco» → spiegazione + forma attesa; rifiuto onesto quando la regola non c'e' |
+| **parrot0 legge e SCRIVE `.p0`** | «what is this: mortal(X) :- man(X).» → forma, parti, e **la conseguenza sulla KB viva**; «show me the clause for mortal» → `mortal(X) :- man(X).` |
+| **il thinking e' acceso** | `PARROT0_THINKING=1` → i passaggi si vedono numerati |
+
+## L'anello che si e' chiuso, ed e' la misura del salto
+
+```text
+> socrates is a man                    Learned: socrates is a man.
+> every man is a mortal                Learned rule: mortal(X) :- man(X).
+> show me the clause for mortal        mortal(X) :- man(X).
+> what is this: mortal(X) :- man(X).   That is a rule … would conclude «mortal»
+                                       for socrates …
+> is socrates a mortal?                Yes.
+```
+
+parrot0 **impara parlando**, **scrive** cio' che ha imparato nel linguaggio in cui
+lo tiene, **rilegge** la propria scrittura riconoscendola, e **la usa**. E' una
+verifica che nessun oracolo esterno puo' dare: se la clausola scritta, rimessa
+davanti a lui, venisse riletta diversamente, avremmo trovato un difetto senza
+bisogno di nessun giudice.
+
+## Da dove riprendere, in ordine di leva
+
+1. ⭐ **La lettura del turno condivisa: USO vs MENZIONE.** Una frase *citata* per
+   essere giudicata viene ancora rivendicata da altre facolta' — dai fatti
+   personali (curato) e dalla **coreferenza** (aperto, e' il rosso di
+   `tests/p0t/reasoning/thinking_e1.p0t`). La cura non e' una terza guardia:
+   serve **una lettura del turno** che dica «questa coda e' citata, non asserita»
+   e che ogni facolta' rispetti. E' il primo caso in cui la stessa regola serve a
+   **tre** consumatori — cioe' esattamente la forma che ha funzionato tre volte.
+2. **Il costo del thinking**: ~2 s per turno, dominati dalla **morfologia
+   ricalcolata su liste di caratteri** a ogni vista. E' spento di default, quindi
+   non pesa; la cura e' H4 di `thinking.md` (il budget come condizione d'arresto)
+   piu' il numero **depositato come sensore** invece di rifarlo.
+3. **Le regole grammaticali**: oggi ne esiste **una**. I «rifiuti onesti» del
+   `cefr-bench` (`TEST_TODO`) sono la lista della spesa, e ogni regola nuova li
+   converte in «decise».
+4. **L'italiano e' fermo**, e non per una capacita' mancante: la
+   canonicalizzazione produce atomi ibridi (`C_TODO` §U4). Finche' e' cosi' **non
+   si insegna in italiano** — si avvelenerebbe la KB. Sbloccarlo raddoppia la
+   superficie insegnabile **e** rende leggibile la colonna italiana del bench.
+5. **I turni rubati restanti**: due chiusi oggi con la **legittimita'** (§1-bis di
+   `turn-arbitration.md`) — un modulo non rivendica cio' che non serve; non si
+   risponde su un'entita' diversa da quella nominata. La direzione lunga resta
+   **S4, la copertura**, e nessuno dei due e' stato curato con una cessione.
+6. **Il ciclo che si chiude sul thinking**: E1 e' misurato (7/11), e manca il
+   pezzo che F. chiama la scala superiore — uno schema **insegnato a voce**, non
+   scritto nel file.
+
+## Tre trappole che mi sono costate, e che costeranno a chi riprende
+
+1. **`naf` con una variabile libera nel goal negato non lega.** Va reso di
+   arieta' 1 e legato. Si maschera da «nessuna soluzione».
+2. **Una clausola con troppe variabili (~11+) non rende nulla.** Va spezzata.
+   Ci sono ricascato **dopo** averlo documentato io stesso: la nota va messa dove
+   si scrive, non dove si e' scoperta.
+3. **Bisecare con `fprintf` dentro `mod_knowledge` non funziona**: gli scope
+   annidati ricalcolano `nw`/`w` e le sonde finiscono in rami non eseguiti. Si usa
+   `/debug`, acceso **prima** del turno.
+
+⚠ E una regola di igiene che vale piu' di tutte: **una dichiarazione difensiva
+costa una capacita'**. `file_attribute(machinery)` in testa a un file di leggi le
+ha rese irraggiungibili da «che cosa sai di X?». Si marca macchineria cio' che e'
+**percorso**, mai cio' che si **dice**.
+
+---
+
+
 ## HANDOFF 2026-09-05 — difetto di `extract_frame` RISOLTO; prossima porta: relazioni insegnabili
 
 **Questa nota e l'ordine operativo seguente prevalgono sugli handoff storici

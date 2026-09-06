@@ -1,5 +1,135 @@
 # TEST_TODO — le decisioni aperte della migrazione a `.p0t`
 
+# 🏁 HANDOFF — `cefr-bench`, 2026-09-06 (`gen505q`)
+
+> Nuovo banco, chiuso e pubblicato. **Niente in sospeso**: albero pulito, tutto
+> su `origin/main`, nessun servizio avviato che resti acceso.
+
+## Che cos'e', in tre righe
+
+`make cefr-bench` misura **che cosa parrot0 sa fare, per livello CEFR**, su
+frasi inglesi annotate da professionisti dell'insegnamento. Il risultato e' una
+**curva per banda**, non un voto — e la curva e' anche il curriculum: si insegna
+in ordine di livello e si guarda dove si muove.
+
+```bash
+make cefr-bench                                  # inglese, 25 frasi per banda
+make cefr-bench CEFR_ARGS="--lang both"          # + specchio italiano
+make cefr-bench CEFR_ARGS="--per-band 40 --split test,dev,train"
+make cefr-fetch-score                            # porzione NC, non versionata
+```
+
+## ⛔ Prima di toccare i dati: non sono nostri
+
+**CEFR-SP** — Yuki Arase, Satoru Uchida, Tomoyuki Kajiwara, **EMNLP 2022**
+(<https://aclanthology.org/2022.emnlp-main.416>). Attribuzione, citazione e
+licenze per porzione: **`tests/cefr/ATTRIBUTION.md`**, da leggere prima di usare
+o ridistribuire.
+
+| porzione | licenza | nel repo |
+|---|---|---|
+| Wiki-Auto, 7.453 frasi | CC BY-SA 3.0 | ✅ `tests/cefr/data/en/`, immutata |
+| SCoRE, 2.551 | CC BY-NC-SA 4.0 | ⛔ fuori — `make cefr-fetch-score` |
+| Newsela-Auto | licenza Newsela | ⛔ non distribuita dagli autori |
+
+**Perche' SCoRE e' fuori:** la clausola NonCommercial si trasmette a chi riceve
+il repository, e chi usasse parrot0 in un contesto commerciale dovrebbe
+rimuoverla. Imporlo in silenzio a chi clona non sarebbe corretto, e il bench
+funziona senza. ⚠ Se qualcuno decide diversamente, e' una scelta di F., non una
+svista da correggere.
+
+Le «17k frasi» del paper includono Newsela: **senza, le disponibili sono 10.004.**
+
+## Che cosa misura — e la trappola da non ripetere
+
+⛔ **Non** misura «quanto bene parrot0 parla inglese». CEFR-SP annota la
+**difficolta'** di una frase, non la correttezza: ricavarne un voto di competenza
+e' un errore di categoria, e il bench lo dice a schermo apposta.
+
+✅ Misura, stratificate per banda:
+
+- **lettura** — la frase produce una risposta o un muro;
+- **giudizio** — decisa da una regola / rifiuto onesto / muro / **fuori tema**.
+
+⚠ **La colonna «lettura» e' ottimista**: conta come letta ogni risposta che non
+sia un muro, quindi include le fuori tema. Va letta accanto alla colonna «fuori
+tema», che e' il debito vero — *una risposta che non risponde e' peggio di un
+muro.*
+
+## La misura che ha cambiato il disegno
+
+**I due annotatori concordano nel 41,4% dei casi.** Il livello di una frase e'
+quindi una **banda** `[min(A,B), max(A,B)]`, non un punto: il bench stratifica
+sulla banda, e le frasi su cui gli esperti non concordano non contano come
+fallimento di nessuno. Chi riprende non trasformi la banda in un punto per avere
+numeri piu' belli.
+
+## Stato misurato al `gen505q` (12 frasi per banda)
+
+```text
+banda  lette   decise  rifiutate  fuori tema
+A1      17%      1         8          3
+A2      33%      5         7          0
+B1      50%      7         5          0
+B2      33%      7         5          0
+C1      75%      7         5          0
+C2      83%      7         5          0
+```
+
+⚠ **La curva sale col livello, ed e' un reperto sul CORPUS, non sul motore:** le
+frasi A1 di Wiki-Auto sono spesso frammenti di titolo («2001 Heisei Ultraman Side
+Stories»), non frasi. Chi riprende non lo legga come «parrot0 capisce meglio le
+frasi difficili».
+
+## Lo specchio italiano — e la nota che F. ha chiesto di scrivere
+
+48 frasi tradotte in sessione, campionate in modo deterministico
+(`tests/cefr/data/it/`, con `PROVENANCE.md`).
+
+> **Il punteggio italiano NON e' veritiero, ed e' comunque utile.** Le frasi sono
+> tradotte e le etichette **ereditate**: la banda dice «in inglese era di livello
+> X», non «in italiano e' di livello X» — **il livello CEFR non sopravvive alla
+> traduzione**. Serve come **indicatore di scostamento** a parita' di frase:
+> quanto cade la capacita' cambiando lingua. Il valore di **riferimento**, l'unico
+> citabile come misura, resta quello **inglese**.
+
+Presentare quelle etichette come annotazione italiana sarebbe scorretto due
+volte: verso chi legge il bench, e verso gli autori di CEFR-SP, a cui
+attribuirebbe un lavoro che non hanno fatto.
+
+**Risultato italiano al `gen505q`: 0 decise, 30 muri, 18 fuori tema.** Non e' un
+crollo del giudizio: la cue italiana **non arriva** — e' la canonicalizzazione
+ibrida gia' registrata in `C_TODO` §U4. Il bench la misura, non la causa.
+
+## Che cosa ha gia' prodotto
+
+- **un difetto vero nelle prime dodici frasi**: «There are four games in the
+  series» dichiarata sbagliata perche' «there» sembrava singolare. E' il
+  **soggetto esistenziale**, dove il verbo concorda con cio' che segue. Curato
+  come conoscenza (`expletive_subject/1`), non togliendo la regola. E' il ciclo
+  per cui il banco esiste: **bench → lacuna → conoscenza → bench**;
+- **due difetti del bench stesso**, corretti: il classificatore conosceva solo le
+  rese inglesi — il giro italiano riportava 48 «fuori tema» che erano 48 **muri**,
+  cioe' accusava il motore della colpa sbagliata — e un muro non e' una risposta
+  fuori tema, ora sono classi distinte.
+
+## Da dove riprendere
+
+1. **la cue italiana** (§U4): sbloccarla fa passare la colonna italiana da
+   «misura la canonicalizzazione» a «misura il giudizio»;
+2. **le regole grammaticali**: oggi ne esiste **una** (accordo soggetto-verbo). I
+   «rifiuti onesti» del bench sono la lista della spesa — ogni regola nuova li
+   converte in «decise», e la curva si muove;
+3. **la colonna lettura**: separare «risposta pertinente» da «risposta
+   qualunque» richiede la lettura di pertinenza, che e' la stessa che manca ai
+   turni rubati (`turn-arbitration.md`, S4 copertura);
+4. **allargare lo specchio italiano** solo con provenienza dichiarata riga per
+   riga: 48 frasi tradotte e dichiarate valgono piu' di 7.453 tradotte a macchina
+   e non verificate.
+
+---
+
+
 Coda delle cose che **non decido da solo** e di quelle che restano da fare nella
 migrazione delle suite shell verso il test-engine
 ([`docs/plans/test-engine.md`](docs/plans/test-engine.md)).
