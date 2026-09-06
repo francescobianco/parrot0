@@ -315,10 +315,32 @@ machinery(turn_focus_rejected).
 %
 % ⛔ `of` resta fuori apposta: «the capital **of** France» e' un soggetto solo,
 % e metterlo qui spezzerebbe ogni domanda genitiva.
-% ⛔ `for` resta fuori: «what is X **for**» e' una domanda di SCOPO, non di
-% ambito, e la stessa preposizione porterebbe due letture incompatibili.
-% Se un giorno servisse, e' una declinazione — chiede di distinguere scopo da
-% ambito — non un membro in piu'.
+% ⚠ `for` C'E', e la ragione per cui l'avevo tenuto fuori era sbagliata.
+%
+% Avevo scritto: «"what is X **for**" e' una domanda di SCOPO, non di ambito, e
+% la stessa preposizione porterebbe due letture incompatibili — e' una
+% declinazione, non un membro». Giusto sulla LINGUA, falso sul MECCANISMO: il
+% fuoco non sceglie una lettura, **verifica** il vincitore. Su una domanda di
+% scopo il fuoco diventa il soggetto, e il soggetto e' proprio cio' di cui si
+% risponde — quindi la verifica passa e non cambia niente.
+%
+% Misurato al gen505v aggiungendolo (una modifica di sola KB, zero
+% ricompilazioni), su tutti e sette i casi:
+%
+%   ambito, prima -> dopo
+%     …arrocco for chess        definizione degli scacchi -> muro che nomina
+%     …zugzwang for chess       definizione degli scacchi -> muro che nomina
+%     …diastole for the heart   descrizione del cuore     -> muro che nomina
+%   scopo, prima -> dopo
+%     what is a hammer for      «I don't understand»      -> muro che nomina
+%     what is a capacitor for   «I don't understand»      -> «stores energy in
+%                                                            an electric field»
+%     what is water for         invariata
+%     what is chess for         invariata
+%
+% Le domande di scopo sono MIGLIORATE, non peggiorate: una l'ha proprio
+% sbloccata. E' il dividendo di «verificare a valle invece di filtrare a monte» —
+% una classe che verifica puo' crescere dove una che filtra non potrebbe.
 domain_preposition(in).
 domain_preposition(within).
 domain_preposition(inside).
@@ -329,6 +351,8 @@ domain_preposition(among).
 domain_preposition(amongst).
 domain_preposition(under).
 domain_preposition(at).
+domain_preposition(for).
+domain_preposition(per).
 % Le forme italiane servono prima della canonicalizzazione, quindi ci vogliono
 % anche le preposizioni articolate: sono la stessa classe, non un caso a parte.
 domain_preposition(nel).
