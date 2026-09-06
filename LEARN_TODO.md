@@ -1,5 +1,99 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+> **Come si conduce una sessione:** `docs/plans/procedura-crescita-kb.md` e il
+> mantra #22. Un solo handoff vivo per file: e' quello qui sotto.
+
+# 🏁 HANDOFF — sessione del 6 settembre 2026 (`gen505q` → `gen505w`)
+
+> **Stato:** albero pulito, tutto su `origin/main` (`f15bd73`). Nessun servizio
+> avviato rimasto acceso. Questo handoff **prevale** su quelli archiviati piu'
+> sotto, che restano per il merito.
+
+## Come si conduce il lavoro, adesso
+
+Due documenti nuovi, e vengono prima di ogni altra cosa:
+
+- **`MANTRA.md` #22 — massimizzare e declinare/flettere.** Un circuito che
+  funziona non si lascia a un caso solo: il circuito e' la parte cara, i casi
+  sono la parte gratis.
+- **`docs/plans/procedura-crescita-kb.md`** — che cosa stiamo facendo (non
+  accumuliamo, **distinguiamo**), dove va il tempo (nei **cicli diagnostici**,
+  non nei secondi), le sette ricette e le **tre regole d'arresto**.
+
+Le regole d'arresto sono la cosa che ha cambiato di piu' il ritmo, e vanno
+lette prima di aprire un reperto:
+
+1. seconda facolta' che ripete l'errore → si smette di curare facolta';
+2. secondo tentativo della stessa forma di cura → si cambia forma;
+3. danno collaterale su un caso non correlato → si annulla e si sale.
+
+Oggi la 2 e la 3 hanno fermato tre lavori, e in due casi su tre avevano ragione.
+
+## Che cosa e' cresciuto
+
+**Il circuito `turn_focus` — costruito, massimizzato, saturo.** «di che cosa
+chiede il turno» contro «che cosa nomina». Undici consumatori allineati sulla
+stessa lettura, due lingue, `2/11 → 17/17` sulle forme d'ambito. Chiude i
+misclaim del tipo «cosa e' l'arrocco negli scacchi» → *definizione degli
+scacchi*.
+
+Piu': la precondizione del thinking (`step/4` aveva il campo `Pre` dichiarato e
+mai letto); le cue cercate a **parole** invece che a sottostringhe, in entrambi
+i matcher; le viste costruite in **ordine di dipendenza** (boot 3,74 → 2,64 s
+*con* piu' capacita'); la morfologia in due direzioni + 85 verbi irregolari;
+`predication_subject/1` (leggere non e' archiviare); il congedo italiano.
+
+## ⛔ Quello che va fatto per primo, e non e' il difetto piu' vistoso
+
+**`!query!` e `/debug` non vedono i predicati `machinery`.** `question_word(what)`
+e `faculty_force(...)` risultano non dimostrabili pur essendo veri a runtime.
+L'ispettore mente sul contenuto della KB: oggi mi e' costato due cicli su tre e
+il costo si ripete a ogni circuito. **Finche' non si puo' chiedere «questo fatto
+c'e'?» e avere una risposta vera, ogni diagnosi parte storta.**
+
+Poi, in ordine:
+
+2. **Nessuna scrittura in KB da un turno letto come domanda** — il blocco
+   ⛔ URGENTE qui sotto. La lettura c'e' gia' ed e' pubblicata.
+3. **I verbi italiani non hanno glossario.** Terzo difetto di fila che ne
+   dipende (`tempo`→time, `sai` non tradotto, `C_TODO` §U4). Non e' piu' una
+   voce di lista: e' un blocco con tre cose dietro.
+4. **Il canale didattico e' chiuso su tutto cio' che non e' un intento** —
+   `if (!best_fam[0]) continue;` in `try_teach_form`. E' il canale su cui poggia
+   l'esperimento: parrot0 non puo' imparare parlando la meta' sociale della
+   lingua.
+5. **Un turno fatto solo di mosse sociali e' una mossa sociale** — «scusami devo
+   andare» resta un muro. Circuito nuovo, non membri in piu'.
+6. **La testa del sintagma**: «what is the kernel of an operating system»
+   risponde del sistema operativo. *Essere nel fuoco* ≠ *essere la testa del
+   fuoco*.
+
+## Tre schede di tentativi non riusciti, da non ripercorrere
+
+Sono al loro sito, nella forma **verdetto / ragione / condizione / specie**
+(§2-bis della procedura). Tutte e tre di specie `prematuro` — l'idea e' giusta,
+manca altro:
+
+| dove | che cosa |
+|---|---|
+| `kb/core/gloss.p0` | la colonna lingua del glossario: funziona sull'inglese, ma la lettura della lingua non regge (`rules.it` 6/3 → 3/6) |
+| `kb/core/grammar.p0` | gli ambiti multi-parola per token — poi **riuscita** cercandoli sulla stringa: la lezione era «non scrivere un motore che esiste gia'» |
+| `LEARN_TODO` §URGENTE | le tre guardie contro l'apprendimento da una domanda, nessuna scattata |
+
+⚠ **Una scheda invecchia su tre assi**: verdetto, ragione, numero. Verificato
+contro me stesso — una via scartata ieri con «boot 15,2 s» oggi ne costa 7,44,
+e il verdetto tiene ma **per un'altra ragione**. Prima di rispettare un rifiuto,
+ricontrollare la **condizione**, non rifare l'esperimento.
+
+## Test
+
+Nessuna suite intera (indicazione di F.: non e' allineata, farla girare e' tempo
+perso). Il metodo usato tutto il giorno e' il **differenziale con lo stash**, ed
+e' l'unico che distingue «questo rosso e' mio» da «questo rosso c'e'»: tre volte
+su quattro il rosso era preesistente, e la quarta era una scoperta. I rossi noti
+sono in `TEST_TODO.md`.
+
+
 # ⛔ URGENTE — `gen505w`: parrot0 IMPARA UN FATTO FALSO DA UNA DOMANDA
 
 > Reperto di F. Non e' un muro e non e' una risposta sbagliata: **e' la KB che
@@ -75,7 +169,22 @@ fatto c'e'?» e avere una risposta vera, ogni circuito si diagnostica alla cieca
 > quanto costa un giro (rebuild C 18,3 s vs KB 0 s), dove sono le criticita'
 > misurate e la procedura in sei passi. Da leggere prima di aprire un reperto.
 
-# 🏁 HANDOFF — `gen505t`: tre reperti di F. da una sessione italiana
+# 📁 Handoff archiviati
+
+> Regola §6 di `docs/plans/procedura-crescita-kb.md`: **un solo handoff vivo per
+> file.** Questi restano per intero — non si pota cio' che ha ancora una ragione
+> dentro — ma non sono la coda di lavoro. Quella e' in testa.
+
+| giro | che cosa ci trovi |
+|---|---|
+| `gen505t` | i tre reperti italiani di F.; il fuoco della domanda (`turn_focus`) |
+| `gen505s` | la morfologia, e un vincolo sopravvissuto alla misura che lo reggeva |
+| `gen505r` | leggere non e' archiviare; le due meta' della morfologia |
+| `gen505q` | la cue a sottostringa; la precondizione del thinking |
+| `gen505q` sera | comprensione e KB viva, primo giro |
+| `gen505d` | chiusura del 5 settembre |
+
+## 📁 `gen505t`: tre reperti di F. da una sessione italiana
 
 > F. ha incollato tre turni veri di `make chat`. Il terzo e' il piu' grave e
 > resta **aperto**: qui c'e' la diagnosi completa e le due strade gia' provate
@@ -225,7 +334,7 @@ Atto giusto **e** lingua giusta.
    copula rimasta italiana.
 
 
-# 🏁 HANDOFF — `gen505s`: la morfologia, e un vincolo sopravvissuto alla sua ragione
+## 📁 `gen505s`: la morfologia, e un vincolo sopravvissuto alla sua ragione
 
 > Quarto giro del 6 settembre 2026, sul punto 1 lasciato dal `gen505r`.
 
@@ -410,7 +519,7 @@ riflessivo, quindi ogni processo riprova da capo e non eredita una rinuncia.
 6. **Thinking**: costo ~2 s/turno; e uno schema insegnato a voce (E1).
 
 
-# 🏁 HANDOFF — `gen505r`: la forza del turno, e le due meta' della morfologia
+## 📁 `gen505r`: la forza del turno, e le due meta' della morfologia
 
 > Terzo giro del 6 settembre 2026. Partito dal punto 1 della lista (le cue
 > corte) e finito tre livelli piu' sotto, su un difetto che spiegava tutti gli
@@ -569,7 +678,7 @@ sulla KB completa. Non dichiarare «italiano risolto» o «comprensione universa
    internamente come `densit`); retrazione naturale degli alias; copertura dei
    turni didattici lunghi; stato effimero che `/save` tenta ancora di persistere.
 
-# 🏁 HANDOFF — `gen505q`, 6 settembre 2026 (secondo giro della giornata)
+## 📁 `gen505q`, 6 settembre 2026 (secondo giro della giornata)
 
 > Ripreso da questo file per «raggiungere lo stato di KB viva». Due difetti
 > chiusi, **uno dei due enorme**, e una regola del dialetto corretta perche' era
@@ -700,7 +809,7 @@ Adesso sono **zero**.
    nel file.
 
 
-# 🏁 HANDOFF — comprensione e KB viva, 2026-09-06 sera (`gen505q`)
+## 📁 comprensione e KB viva, 2026-09-06 sera (`gen505q`)
 
 > Sessione lunga, chiusa su richiesta di F. **Niente in sospeso**: albero pulito,
 > tutto su `origin/main`. Questo handoff prevale sui precedenti; quelli sotto
@@ -1151,7 +1260,7 @@ La missione e l'ordine sotto restano validi, con due aggiornamenti: il ramo
 della voce 2 non e' piu' ignoto, e il tetto a otto token della voce 1 e' rimosso.
 Restano i conteggi dei singoli rami e i soggetti legati a una posizione sola.
 
-# 🏁 HANDOFF — chiusura sessione 2026-09-05 (`gen505d`)
+## 📁 chiusura sessione 2026-09-05 (`gen505d`)
 
 > Sessione lunga, chiusa su richiesta di F. **Niente in sospeso**: albero pulito,
 > tutto su `origin/main`. Nessun servizio o demone avviato da questo lavoro
