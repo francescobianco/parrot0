@@ -16586,6 +16586,18 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (!p0_join(w, why_art + 1, nw, why_cls, sizeof why_cls)) return 0;
         for (char *q = why_cls; *q; q++) if (*q == ' ') *q = '_';
         for (char *q = why_subj; *q; q++) if (*q == ' ') *q = '_';
+        /* gen505v — L'OTTAVO CONSUMATORE DELLA STESSA LETTURA (mantra #22).
+         *
+         * «what is the zugzwang during a game» finiva qui, letto come «why is
+         * <the zugzwang during> a <game>», e rispondeva «I can't show that» —
+         * cioe' sul CONTENITORE, di nuovo. Non era la preposizione: «what is
+         * chess during a game» funziona, e ogni preposizione dava lo stesso
+         * esito. Era la parola `game`, presa dall'AMBITO.
+         *
+         * Non serve una guardia nuova: il fuoco del turno lo dice gia'. Questa
+         * e' una declinazione nel senso del mantra #22 — un consumatore in piu'
+         * per una lettura che esiste, non una seconda lettura. */
+        if (!p0_answer_subject_in_focus(b, norm, why_cls)) return 0;
         const char *subj;
         if (!resolve_entity(b, why_subj, &subj, out, out_size)) return 1;
         const char *args[] = {subj};

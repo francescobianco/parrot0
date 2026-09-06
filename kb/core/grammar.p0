@@ -302,14 +302,70 @@ machinery(domain_preposition).
 machinery(turn_focus).
 machinery(turn_focus_input).
 machinery(turn_focus_rejected).
+%
+% ── gen505v — MASSIMIZZAZIONE DELLA CLASSE (mantra #22) ────────────────────
+%
+% Il criterio, e si applica a ogni membro nuovo prima di aggiungerlo:
+%
+%     «what is A <prep> B» — B nomina il CAMPO in cui A vive,
+%                            o fa parte dell'IDENTITA' di A?
+%
+% Campo → e' un ambito, entra qui. Identita' → resta fuori, perche' tagliare
+% li' amputerebbe il soggetto.
+%
+% ⛔ `of` resta fuori apposta: «the capital **of** France» e' un soggetto solo,
+% e metterlo qui spezzerebbe ogni domanda genitiva.
+% ⛔ `for` resta fuori: «what is X **for**» e' una domanda di SCOPO, non di
+% ambito, e la stessa preposizione porterebbe due letture incompatibili.
+% Se un giorno servisse, e' una declinazione — chiede di distinguere scopo da
+% ambito — non un membro in piu'.
 domain_preposition(in).
 domain_preposition(within).
 domain_preposition(inside).
+domain_preposition(during).
+domain_preposition(throughout).
+domain_preposition(across).
+domain_preposition(among).
+domain_preposition(amongst).
+domain_preposition(under).
+domain_preposition(at).
+% Le forme italiane servono prima della canonicalizzazione, quindi ci vogliono
+% anche le preposizioni articolate: sono la stessa classe, non un caso a parte.
 domain_preposition(nel).
 domain_preposition(nei).
 domain_preposition(negli).
 domain_preposition(nella).
 domain_preposition(nelle).
+domain_preposition(durante).
+domain_preposition(tra).
+domain_preposition(fra).
+domain_preposition(sotto).
+domain_preposition(attraverso).
+
+% ── gen505v — GLI AMBITI MULTI-PAROLA: PROVATO, NON RIUSCITO, ARCHIVIATO ───
+%
+% «what is X **as part of** Y», «**when playing** Y», «**when it comes to** Y»
+% aprono un ambito quanto «in», e sono gli ultimi casi in cui parrot0 risponde
+% ancora del contenitore. Provato ad aggiungere un registro `domain_marker/1` di
+% locuzioni, cercate token per token dentro `p0_question_focus`: **non scatta**,
+% ne' con le superfici fra virgolette ne' senza. Due forme, stesso esito.
+%
+%   verdetto    non riuscito (2026-09-06, gen505v)
+%   ragione     ignota — il fuoco resta vuoto, quindi la locuzione non viene
+%               trovata; NON e' il modo in cui la superficie e' memorizzata,
+%               provate entrambe le forme
+%   condizione  `p0_question_focus` taglia scandendo i token e interrogando
+%               `domain_preposition/1` una parola alla volta
+%   specie      **prematuro** — l'idea e' giusta e la classe e' ben definita
+%               (stesso criterio delle preposizioni d'ambito); manca il modo di
+%               cercare una LOCUZIONE dove oggi si cerca una parola
+%
+% Fermato per la regola d'arresto 2 del §1-bis di
+% `docs/plans/procedura-crescita-kb.md`: due tentativi della stessa forma di
+% cura, si cambia forma. La forma da provare la prossima volta e' cercare la
+% locuzione sulla STRINGA (come fa gia' `answer_frame_surfaces` per le
+% superfici interrogative) invece che ricomponendola dai token — cioe' riusare
+% un motore che esiste, invece di scriverne uno nuovo dentro il ciclo.
 auxiliary(did).
 auxiliary(is).
 auxiliary(are).
