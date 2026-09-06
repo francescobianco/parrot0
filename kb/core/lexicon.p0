@@ -397,6 +397,16 @@ phrase_canon("come sta", "how are you").
 phrase_canon("come state", "how are you").
 phrase_canon("come va", "how are you").
 phrase_canon("come butta", "how are you").
+% gen505u — imparate in conversazione il 2026-09-06 dal reperto di F. «come sei
+% messo», e ricollocate qui: la lezione «"X" is another way to say "Y"» le
+% asserisce da sola, e questo e' il loro posto quando restano.
+% Sono locuzioni: il per-parole non produce niente di agganciabile — «messo»,
+% «passi», «butta» da soli non portano il senso di benessere. E' esattamente il
+% caso per cui questa tabella esiste.
+phrase_canon("come sei messo", "how are you").
+phrase_canon("come te la passi", "how are you").
+phrase_canon("come ve la passate", "how are you").
+phrase_canon("come procede", "how are you").
 phrase_canon("a cosa serve", "what is it for").
 phrase_canon("quanto costa", "how much does it cost").
 

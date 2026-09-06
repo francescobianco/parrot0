@@ -1652,6 +1652,47 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                     const char *ca[2] = { best_fam, nq };
                     kb_assert(b->kb, "intent_cue", ca, 2);
                 }
+                /* ── gen505u — «UN ALTRO MODO DI DIRE» NON E' «UNA CUE IN PIU'»
+                 *
+                 * Reperto di F.: «come sei messo» murava, e insegnarlo
+                 * funzionava a meta':
+                 *
+                 *     "come sei messo" is another way to say "come stai"
+                 *       -> «Got it - …»            la conferma arrivava
+                 *     come sei messo
+                 *       -> «Non capisco ancora.»   e non cambiava niente
+                 *
+                 * Cioe' una CONFERMA FALSA di aver imparato, che qui e' peggio
+                 * di un rifiuto. Sopra la lezione copia UNA classe dell'ancora,
+                 * la sua `intent_cue`; ma «come stai» non arriva al registro
+                 * sociale da li', ci arriva da `phrase_canon/2` — e le altre
+                 * classi a cui l'ancora appartiene restavano fuori.
+                 *
+                 * «un altro modo di dire Y» non dice niente sul TIPO di Y. Dice
+                 * una cosa sola e generale: **le due superfici si leggono
+                 * uguale**, che e' esattamente `phrase_canon/2`, a monte di
+                 * tutto — registro, lingua, forza del turno. Misurato: la sola
+                 * riga chiude il reperto, e la risposta torna in italiano.
+                 *
+                 * Le due asserzioni non si escludono (keep-secondary-
+                 * structures): la cue e' la specializzazione, questa e' il
+                 * senso della lezione.
+                 *
+                 * ⚠ L'ancora si canonicalizza con la STESSA funzione che il
+                 * replay usera' sul turno: scrivere qui la forma non
+                 * canonicalizzata creerebbe una chiave che il lettore non
+                 * produrra' mai (il controesempio misurato di UC1). */
+                {
+                    char acanon[KB_TERM_LEN];
+                    brain_canonical(b, anchor, acanon, sizeof acanon);
+                    const char *target = *acanon ? acanon : anchor;
+                    char pk[KB_TERM_LEN], pv[KB_TERM_LEN];
+                    snprintf(pk, sizeof pk, "\"%.*s\"",
+                             (int)(rq2 - rq1 - 1), rq1 + 1);
+                    snprintf(pv, sizeof pv, "\"%s\"", target);
+                    const char *pa[2] = { pk, pv };
+                    kb_assert(b->kb, "phrase_canon", pa, 2);
+                }
                 char msg[256];
                 char shown[KB_TERM_LEN];
                 snprintf(shown, sizeof shown, "%.*s", (int)(rq2 - rq1 - 1), rq1 + 1);
