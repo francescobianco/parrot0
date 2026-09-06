@@ -2406,7 +2406,18 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
         kb_prefix_remainder(b, "sequence_learning_prefix", canon) != NULL)
         return 0;
 
-    const char *connectors[] = {" e ", " and ", " ed ", " ma ", " but ", NULL};
+    /* gen505x — ANCHE IL PUNTO SEPARA DUE FRASI (glm-test §6.6, §3.2).
+     *
+     * «No, penguins do not live in the Arctic. They live in Antarctica.» — la
+     * seconda frase non veniva letta MAI, e la prima se ne portava dietro i
+     * pezzi («…in arctic they live»). Il report lo elenca due volte, come
+     * «seconda frase coordinata mai letta» e come «la correzione e' rotta»: e'
+     * lo stesso confine mancante.
+     *
+     * Il punto seguito da spazio e' un confine di frase, non un decimale ne'
+     * un'abbreviazione attaccata. La guardia che segue — la seconda meta' deve
+     * aprirsi come una frase — resta quella di prima e vale anche qui. */
+    const char *connectors[] = {" e ", " and ", " ed ", " ma ", " but ", ". ", NULL};
     const char *conn = NULL, *conn_text = NULL;
     size_t conn_len = 0;
     int is_but = 0;
