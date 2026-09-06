@@ -407,6 +407,23 @@ phrase_canon("come sei messo", "how are you").
 phrase_canon("come te la passi", "how are you").
 phrase_canon("come ve la passate", "how are you").
 phrase_canon("come procede", "how are you").
+% ── gen505x — LA PRESENTAZIONE ITALIANA (glm-test §4.4) ────────────────────
+%
+% «mi chiamo Giulia» -> «Non capisco ancora», mentre l'equivalente inglese
+% funziona. Il report lo legge come «i percorsi leggono solo l'inglese»;
+% misurato, e' la solita locuzione: «mi chiamo» non si traduce parola per
+% parola («me I call»), e senza la forma la porta inglese non si aggancia.
+phrase_canon("mi chiamo", "my name is").
+phrase_canon("io mi chiamo", "my name is").
+phrase_canon("come mi chiamo", "what is my name").
+phrase_canon("ti chiami", "your name is").
+phrase_canon("come ti chiami", "what is your name").
+phrase_canon("abito a", "i live in").
+phrase_canon("abito in", "i live in").
+phrase_canon("vivo a", "i live in").
+phrase_canon("vivo in", "i live in").
+phrase_canon("dove abito", "where do i live").
+phrase_canon("dove vivo", "where do i live").
 phrase_canon("cosa pensi di", "what do you think of").
 phrase_canon("che cosa pensi di", "what do you think of").
 phrase_canon("cosa ne pensi di", "what do you think of").

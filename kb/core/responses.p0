@@ -936,6 +936,18 @@ response_template(lone_unknown_token, "I have nothing on {token} — could you s
 response_template(lone_unknown_token, it, "Non ho niente su {token} — mi dici che cosa intendi?").
 response_template(lone_assent, "Got it — what would you like to do?").
 response_template(lone_assent, it, "Ricevuto — che cosa vuoi fare?").
+% ── gen505x — ASSENSO E DINIEGO NON SONO LA STESSA MOSSA (glm-test §6.3) ───
+%
+% `assent_word` e `dissent_word` erano due classi distinte con la STESSA
+% risposta: chi diceva «No» riceveva «Got it — what would you like to do?»,
+% cioe' una conferma. Buffy lo segna come rischio interattivo reale, e lo e':
+% l'utente che nega vede parrot0 acconsentire.
+%
+% Un diniego nudo non accusa ricezione di un accordo: chiede che cosa
+% correggere. E' la stessa distinzione che questo giro ha trovato ovunque — un
+% ramo che risponde a due domande diverse.
+response_template(lone_dissent, "Understood — what should I change?").
+response_template(lone_dissent, it, "Capito — che cosa devo correggere?").
 
 % gen431 — la richiesta e' incompleta, e si dice quale pezzo manca.
 response_template(missing_referent, "I don't have the {kind} you mean — paste it here and I'll work on it.").

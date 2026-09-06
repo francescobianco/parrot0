@@ -458,9 +458,14 @@ static int mod_lone(Brain *b, const char *norm, const char *raw,
      * quindi una parola nuova — in qualunque lingua — costa una riga. */
     {
         const char *aq[1] = { tok };
-        if (kb_query(b->kb, "assent_word", aq, 1) ||
-            kb_query(b->kb, "dissent_word", aq, 1)) {
-            if (!kb_response_slots(b, "lone_assent", NULL, 0, msg, sizeof msg))
+        /* gen505x — e sono DUE mosse, non una (glm-test §6.3). Le due classi
+         * erano gia' distinte in KB e condividevano la risposta: chi diceva
+         * «No» riceveva una conferma. Quale frase per quale classe lo dice la
+         * KB; qui si smette solo di confonderle. */
+        int dissent = kb_query(b->kb, "dissent_word", aq, 1);
+        if (kb_query(b->kb, "assent_word", aq, 1) || dissent) {
+            const char *key = dissent ? "lone_dissent" : "lone_assent";
+            if (!kb_response_slots(b, key, NULL, 0, msg, sizeof msg))
                 kb_term_say(b, "got_it_what_would_you_like_to_do", NULL, 0, msg, sizeof msg);
             put(msg, out, out_size);
             return 1;
