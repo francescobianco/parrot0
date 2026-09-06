@@ -524,6 +524,59 @@ Ordine proposto:
 
 ---
 
+# ⚙ IL THINKING E' ACCESO — stato al `gen505p`
+
+`docs/plans/thinking.md` diceva: *il substrato esiste ed e' spento; il primo
+lavoro non e' scrivere un motore, e' accendere cio' che e' dichiarato*. Era
+esatto — `kb/core/thinking.p0` aveva firma, grafo, rango, guardia sui cicli e
+condizioni d'arresto, e **nessuno li eseguiva**. Ora c'e' l'esecutore.
+
+```text
+$ PARROT0_THINKING=1        (o /think)
+> where is the error here: my name are Francesco
+  thought 1: you said: my name are francesco
+  thought 2: That is English
+  thought 3: it is not well formed
+  thought 4: name is singular and are is plural
+  thought 5: It should be «name is».
+```
+
+L'esecutore non sa niente di nessuno schema: l'**ordine** lo chiede al grafo
+(`thinking_rank/3`), l'**operatore** e' a predicato variabile
+(`thinking_operator/3`, la vista che destruttura `step(...)` in KB), un passo che
+non regge **non compare**, e uno schema con un ciclo si **rifiuta**. Aggiungere
+un giro e' un fatto.
+
+## E1, misurato: 7 assert su 11 (`tests/p0t/reasoning/thinking_e1.p0t`)
+
+✅ i passi si vedono numerati; ✅ lo schema **trasferisce** a una frase mai
+nominata; ✅ togliere un passo cambia la risposta e rimetterlo la riporta —
+cioe' **la risposta cambia perche' e' cambiata la conoscenza, non il codice**.
+
+⛔ **Rosso dichiarato, con la causa nota:** dal secondo turno in poi una frase
+citata viene rivendicata dalla **coreferenza** («I don't know who it refers to»,
+`resolve_entity`). E' lo **stesso difetto USO vs MENZIONE** gia' curato per i
+fatti personali, che ricompare in un secondo posto — quindi la cura non e'
+un'altra guardia: serve una **lettura del turno condivisa** che dica «questa coda
+e' citata, non asserita», e che ogni facolta' rispetti. E' il candidato naturale
+per il prossimo giro, ed e' anche il primo caso in cui la stessa regola serve a
+tre consumatori.
+
+## ⚠ Il costo, misurato e non nascosto
+
+Il thinking costa **~2 s per turno** (3,2 s → 9,9 s su tre turni). Non e' il
+ciclo dell'esecutore — quello e' gia' passato da «enumera gli otto ranghi» a
+«chiedi il rango di ciascun nodo» — e' la **morfologia ricalcolata su liste di
+caratteri** a ogni vista (`plural_suffix` + `chars`/`app`, per ogni suffisso e
+per ogni parola, piu' volte per turno).
+
+E' **spento di default**, quindi non pesa su nessun turno normale. La cura giusta
+e' quella che il piano gia' nomina in H4 — il budget come condizione d'arresto di
+prima classe — piu' il deposito del numero come sensore, cosi' che le viste
+leggano un fatto invece di rifare la morfologia.
+
+---
+
 # ⭐ LA MISSIONE ATTIVA — LE CONNESSIONI FERTILI FRA DOMINI
 
 > **F.:** *«mi interessa che ti concentri sulla questione delle connessioni

@@ -1,0 +1,64 @@
+# thinking_e1.p0t — E1 DEL PIANO: LO SCHEMA E' CONOSCENZA (gen505p).
+#
+# docs/plans/thinking.md §E1: «insegnare a runtime uno schema di due passi e
+# vedere la risposta cambiare. Falsificazione forte: lo schema insegnato su un
+# soggetto deve valere su un soggetto MAI nominato nella lezione. Se non
+# trasferisce, e' un frasario.»
+#
+# Qui si misura esattamente quello, sullo schema `grammar_check`.
+
+!set PARROT0_THINKING=1
+!reset
+
+# ⚠ Il thinking costa: ~2s per turno, misurato al gen505p, ed e' dominato dalla
+# morfologia ricalcolata su liste di caratteri a ogni vista (plural_suffix +
+# chars/app). E' acceso apposta in questo file — spento non si paga.
+!timeout 12
+
+[test i passi si vedono, numerati]
+!timeout 12
+> where is the error here: my name are Francesco
+<~ thought 1: you said
+<~ thought 2:
+<~ it is not well formed
+<~ It should be «name is»
+
+# ⛔ ROSSO DICHIARATO, e la causa e' nota: dal SECONDO turno in poi una frase
+# citata viene rivendicata dalla coreferenza («I don't know who it refers to»,
+# `resolve_entity`, 10-memory-knowledge.c). E' lo stesso difetto USO vs MENZIONE
+# gia' curato per i fatti personali, in un secondo posto — quindi la cura non e'
+# un'altra guardia: e' una lettura del turno condivisa, «questa coda e' citata».
+# Il primo turno passa, il che dimostra che lo schema TRASFERISCE.
+[test TRASFERISCE: una frase mai nominata nella lezione]
+!timeout 12
+# Nessuno ha insegnato niente su «children» né su «was»: lo schema vale perche'
+# e' una FORMA, non un frasario.
+> where is the error here: the children was late
+<~ thought 1: you said
+<~ children is plural and was is singular
+<~ It should be «children were»
+
+[test TOGLIERE UN PASSO CAMBIA LA RISPOSTA]
+!timeout 12
+# Il passo della lingua e' un fatto: ritirandolo, il pensiero sparisce e gli
+# altri restano. E' la misura di E1 — la risposta cambia perche' e' cambiata la
+# CONOSCENZA, non il codice.
+!forget thinking_step(grammar_check, 1, step(turn_language_known, sentence_repeated, language_named, meta(1, local)))
+> where is the error here: my name are Francesco
+<! That is English
+<~ it is not well formed
+
+[test RIMETTERLO LO RIPORTA]
+!timeout 12
+!clause thinking_step(grammar_check, 1, step(turn_language_known, sentence_repeated, language_named, meta(1, local))).
+> where is the error here: my name are Francesco
+<~ That is English
+
+[test UN PASSO NUOVO E' UN FATTO, e compare al suo posto nel grafo]
+!timeout 12
+# Aggiungere un giro non costa una riga di C: costa un `thinking_step` piu' un
+# `thinking_after`, e l'ordine lo decide il grafo.
+!clause thinking_step(grammar_check, 9, step(turn_clash_nameable, verdict, closing, meta(1, local))).
+!clause thinking_says(turn_clash_nameable_closing, en, "and that is the whole of it").
+> where is the error here: my name are Francesco
+<~ thought 1: you said

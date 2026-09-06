@@ -11139,16 +11139,31 @@ static int p0_thinking_run(Brain *b, const char *scheme, char *out, size_t out_s
     char trace[1400]; size_t off = 0; size_t said = 0;
     const int shown = 1;
 
-    /* I ranghi si percorrono in ordine: un rango e' un insieme di passi che la
-     * conoscenza dichiara paralleli, non una riga di codice. */
+    /* I nodi si chiedono UNA volta, e a ciascuno si chiede il PROPRIO rango.
+     *
+     * ⚠ Misurato al gen505p: enumerare per rango (`thinking_rank(S, ?, 0..7)`)
+     * costava ~2,2s per turno — `thinking_rank/3` e' ricorsiva, e otto
+     * enumerazioni libere la percorrono otto volte. Chiedere il rango di un nodo
+     * NOMINATO e' una ricerca legata, e il grafo resta la fonte dell'ordine: la
+     * differenza e' come si interroga, non chi decide. */
+    char nodes_all[24][KB_TERM_LEN];
+    const char *aq[] = { scheme, NULL, NULL };
+    size_t n_all = kb_match(b->kb, "thinking_step", aq, 3, nodes_all, 24);
+    int ranks[24];
+    for (size_t i = 0; i < n_all; i++) {
+        ranks[i] = 99;
+        char rr[1][KB_TERM_LEN];
+        const char *rq2[] = { scheme, nodes_all[i], NULL };
+        if (kb_match(b->kb, "thinking_rank", rq2, 3, rr, 1) == 1) ranks[i] = atoi(rr[0]);
+    }
     for (int rank = 0; rank < 8; rank++) {
-        char rb[8]; snprintf(rb, sizeof rb, "%d", rank);
-        char nodes[16][KB_TERM_LEN];
-        const char *nq[] = { scheme, NULL, rb };
-        size_t nn = kb_match(b->kb, "thinking_rank", nq, 3, nodes, 16);
-        for (size_t i = 0; i < nn; i++) {
+        for (size_t i = 0; i < n_all; i++) {
+            if (ranks[i] != rank) continue;
+            char nodes[1][KB_TERM_LEN];
+            snprintf(nodes[0], KB_TERM_LEN, "%s", nodes_all[i]);
+            {
             char ops[1][KB_TERM_LEN];
-            const char *oq[] = { scheme, nodes[i], NULL };
+            const char *oq[] = { scheme, nodes[0], NULL };
             if (kb_match(b->kb, "thinking_operator", oq, 3, ops, 1) != 1) continue;
             const char *turn[] = { "current_turn" };
             if (!kb_query(b->kb, ops[0], turn, 1)) continue;   /* il passo non regge */
@@ -11174,6 +11189,7 @@ static int p0_thinking_run(Brain *b, const char *scheme, char *out, size_t out_s
             off += (size_t)snprintf(trace + off, sizeof trace - off, "%s%s",
                                     said ? "\n" : "", line);
             said++;
+            }
         }
     }
     if (!said) return 0;
