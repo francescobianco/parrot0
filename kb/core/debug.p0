@@ -45,6 +45,14 @@ debug_probe(6, turn_outcome, now, "esito del turno").
 debug_probe(7, turn_topic, now, "parola nominata").
 debug_probe(8, turn_module, now, "facolta' che ha risposto").
 debug_probe(9, turn_gap_remedy, now, "IL RIMEDIO che quella specie chiede").
+% gen505t — IL FUOCO DELLA DOMANDA. La lettura che decide se una risposta parla
+% della cosa chiesta o del suo AMBITO: «cosa e' l'arrocco negli scacchi» riceveva
+% la definizione degli scacchi, e da fuori sembrava una risposta giusta. Con
+% queste tre righe si vede su che cosa parrot0 credeva di rispondere, e CHI si e'
+% dovuto ritirare — cioe' la differenza fra «non lo so» e «ho risposto d'altro».
+debug_probe(11, turn_focus, now, "DI CHE COSA chiede il turno (ambito escluso)").
+debug_probe(12, turn_focus_input, now, "su quale testo il fuoco e' stato letto").
+debug_probe(13, turn_focus_rejected, now, "risposte ritirate: fuori dal fuoco").
 debug_probe(10, machinery_gap, turn, "lacuna registrata per questo turno").
 debug_probe(20, gap_kind, turn, "specie della lacuna").
 debug_probe(30, gap_source, turn, "il turno come e' stato detto").

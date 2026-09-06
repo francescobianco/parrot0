@@ -472,6 +472,10 @@ country_with_two_border_constraints($Country) :-
 % semantic_alias/2; adding or retracting an alias changes resolution at runtime.
 semantic_summary($Topic, $Text) :-
     wiki_concept($Topic, $Domain, $Text).
+% A definition learned in dialogue must enter the same candidate vocabulary
+% as a boot-time concept. Its name is evidence; its prose is the answer.
+semantic_topic_cue($Topic, keyword($Topic)) :- concept($Topic, $Text).
+semantic_summary($Topic, $Text) :- concept($Topic, $Text).
 semantic_summary($Surface, $Text) :-
     semantic_alias($Surface, $Topic),
     wiki_concept($Topic, $Domain, $Text).

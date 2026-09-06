@@ -299,6 +299,9 @@ location_preposition(at).
 % «of» resta fuori apposta, perche' «the capital of France» e' un soggetto solo.
 % Una lingua nuova, o una preposizione d'ambito in piu', e' una riga.
 machinery(domain_preposition).
+machinery(turn_focus).
+machinery(turn_focus_input).
+machinery(turn_focus_rejected).
 domain_preposition(in).
 domain_preposition(within).
 domain_preposition(inside).
@@ -2003,4 +2006,3 @@ view_depends(extract_frame, verb_suffix).
 view_depends(extract_frame, verb_stem).
 view_depends(verb_stem, relation_verb).
 view_depends(verb_stem, verb_suffix).
-

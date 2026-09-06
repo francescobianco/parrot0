@@ -1661,6 +1661,17 @@ static const char *canonical_token_kb(Brain *b, const char *w, char *buf,
             }
             return buf;
         }
+        /* The phrase pass runs before elision. Its single-token name may
+         * therefore become visible only here, after the article was split.
+         * Consult the same live alias relation, not a second vocabulary. */
+        char quoted[KB_TERM_LEN];
+        snprintf(quoted, sizeof quoted, "\"%s\"", w);
+        const char *aq[] = { quoted, NULL };
+        if (kb_match(b->kb, "entity_alias", q, 2, hit, 1) == 1 ||
+            kb_match(b->kb, "entity_alias", aq, 2, hit, 1) == 1) {
+            snprintf(buf, bufsz, "%s", kb_dequote(hit[0]));
+            return buf;
+        }
     }
     return canonical_token(w);
 }
@@ -6947,6 +6958,65 @@ static int p0_question_focus(Brain *b, const char *norm,
     return out[0] != '\0';
 }
 
+/* One reading per dispatch, shared by every answer producer. The input key
+ * prevents a helper evaluating a different question from borrowing this turn's
+ * focus. These are observations, never persistent world knowledge. */
+static void p0_publish_question_focus(Brain *b, const char *norm) {
+    char focus[512];
+    if (!b || !b->kb || !p0_question_focus(b, norm, focus, sizeof focus)) return;
+    char quoted_input[KB_TERM_LEN], quoted_focus[KB_TERM_LEN];
+    if (strlen(norm) + 3 > sizeof quoted_input ||
+        strlen(focus) + 3 > sizeof quoted_focus) return;
+    snprintf(quoted_input, sizeof quoted_input, "\"%s\"", norm);
+    snprintf(quoted_focus, sizeof quoted_focus, "\"%s\"", focus);
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    const char *ia[] = { "current_turn", quoted_input };
+    const char *fa[] = { "current_turn", quoted_focus };
+    kb_assert(b->kb, "turn_focus_input", ia, 2);
+    kb_assert(b->kb, "turn_focus", fa, 2);
+    kb_set_origin(b->kb, prev);
+}
+
+static int p0_current_question_focus(Brain *b, const char *norm,
+                                      char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    char quoted[KB_TERM_LEN];
+    if (strlen(norm) + 3 > sizeof quoted) return 0;
+    snprintf(quoted, sizeof quoted, "\"%s\"", norm);
+    const char *iq[] = { "current_turn", quoted };
+    if (!kb_query(b->kb, "turn_focus_input", iq, 2)) return 0;
+    const char *fq[] = { "current_turn", NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "turn_focus", fq, 2, hit, 1) != 1) return 0;
+    snprintf(out, out_size, "%s", kb_dequote(hit[0]));
+    return 1;
+}
+
+static void p0_record_focus_rejection(Brain *b, const char *subject) {
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    const char *a[] = { "current_turn", subject };
+    kb_assert(b->kb, "turn_focus_rejected", a, 2);
+    kb_set_origin(b->kb, prev);
+}
+
+/* Verify a resolved subject, AFTER looking up its answer. Do not filter the
+ * words or relations competing for the turn: a domain remains useful context,
+ * but its definition cannot substitute for the requested subject's answer. */
+static int p0_answer_subject_in_focus(Brain *b, const char *norm,
+                                       const char *subject) {
+    char focus[512];
+    if (!p0_current_question_focus(b, norm, focus, sizeof focus)) return 1;
+    if (kb_text_has_surface(focus, subject)) return 1;
+    char spaced[KB_TERM_LEN];
+    snprintf(spaced, sizeof spaced, "%s", subject);
+    for (char *p = spaced; *p; p++) if (*p == '_') *p = ' ';
+    if (kb_text_has_surface(focus, spaced)) return 1;
+    p0_record_focus_rejection(b, subject);
+    return 0;
+}
+
 static int answer_projection_topic_allowed(Brain *b, const char *relation,
                                            const char *topic,
                                            const char *norm) {
@@ -7063,7 +7133,7 @@ static int answer_projection_resolve(Brain *b, const char *relation,
      * quale topic. */
     {
         char focus[512];
-        if (p0_question_focus(b, norm, focus, sizeof focus)) {
+        if (p0_current_question_focus(b, norm, focus, sizeof focus)) {
             const char *only[] = { topic };
             char winner[KB_TERM_LEN], fproof[KB_EVIDENCE_PROOF_LEN];
             int fscore = 0, held = 0;
@@ -7073,7 +7143,10 @@ static int answer_projection_resolve(Brain *b, const char *relation,
                                        &fscore, fproof, sizeof fproof) == 1)
                     held = 1;
             }
-            if (!held) return -1;
+            if (!held) {
+                p0_record_focus_rejection(b, topic);
+                return -1;
+            }
         }
     }
 
@@ -7919,7 +7992,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                         return 1;
                     }
                 }
-                if (na > 0) {
+                if (na > 0 && p0_answer_subject_in_focus(b, norm, key)) {
                     size_t pick = p0_pick_in_force(b, pred, key, pfwd, ans, na);
                     char pretty[KB_TERM_LEN];
                     snprintf(pretty, sizeof pretty, "%s", kb_dequote(ans[pick]));
@@ -7970,7 +8043,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                     }
                 }
             }
-            if (na == 0) continue;
+            if (na == 0 || !p0_answer_subject_in_focus(b, norm, v)) continue;
             char msg[400]; size_t mo = 0;
             /* Il LAYOUT di un elenco e' conoscenza (gen382e).
              *
@@ -16192,7 +16265,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *entity;
         if (!resolve_entity(b, wi_ent, &entity, out, out_size)) return 1;
         char desc[1024];
-        if (kb_describe_entity(b->kb, entity, desc, sizeof desc)) {
+        if (kb_describe_entity(b->kb, entity, desc, sizeof desc) &&
+            p0_answer_subject_in_focus(b, norm, wi_ent)) {
             put(desc, out, out_size);
             store_proof(b, desc);
             remember_entity(b, wi_ent, entity);
@@ -16233,7 +16307,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 char desc[1024];
                 /* gen313: definition frames use the strict subject-only view,
                  * same reason as the "what is the X" path below. */
-                if (kb_define_entity(b->kb, cand, desc, sizeof desc)) {
+                if (kb_define_entity(b->kb, cand, desc, sizeof desc) &&
+                    p0_answer_subject_in_focus(b, norm, cand)) {
                     put(desc, out, out_size);
                     store_proof(b, desc);
                     remember_entity(b, cand, cand);
@@ -16379,19 +16454,20 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 lex_class_member(b, "arithmetic_operator_word", w[i])) start = 0;
         if (start) {
             /* gen344 (language mirroring): a mature interlocutor answers in the
-             * ASKER's language. When the turn is not English and a localized
+             * ASKER's language. When a
              * concept_gloss/3 sentence exists for a named concept, speak it
              * verbatim — knowledge, not a translation the engine fabricates. An
              * exact single-word key first, then the underscore-joined compound
-             * key. English (and any topic without a gloss) falls through to the
-             * curated English definition below: honest, no invented translation. */
+             * key. This applies to every registered language, including learned
+             * English definitions; absent a gloss, the fallback below remains. */
             {
                 char lang[8]; current_lang(b, lang, sizeof lang);
-                if (!lex_class_member(b, "10_memory_knowledge_lex12092", lang)) {
+                {
                     char gl[1024];
                     for (size_t i = start; i < nw; i++) {
                         if (is_article(b, w[i]) || is_stopword(b, w[i])) continue;
-                        if (kb_concept_gloss(b->kb, w[i], lang, gl, sizeof gl)) {
+                        if (kb_concept_gloss(b->kb, w[i], lang, gl, sizeof gl) &&
+                            p0_answer_subject_in_focus(b, norm, w[i])) {
                             put(gl, out, out_size);
                             store_proof(b, gl);
                             remember_entity(b, w[i], w[i]);
@@ -16405,7 +16481,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                                                "%s%s", go ? "_" : "", w[i]);
                     }
                     if (go && strchr(gkey, '_') &&
-                        kb_concept_gloss(b->kb, gkey, lang, gl, sizeof gl)) {
+                        kb_concept_gloss(b->kb, gkey, lang, gl, sizeof gl) &&
+                        p0_answer_subject_in_focus(b, norm, gkey)) {
                         put(gl, out, out_size);
                         store_proof(b, gl);
                         return 1;
@@ -16422,7 +16499,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                  * word as an object — is_a(skin, organ) is not what "the organ
                  * that pumps blood" means, and claiming here stole the turn from
                  * the idf recall below. */
-                if (kb_define_entity(b->kb, w[i], desc, sizeof desc)) {
+                if (kb_define_entity(b->kb, w[i], desc, sizeof desc) &&
+                    p0_answer_subject_in_focus(b, norm, w[i])) {
                     put(desc, out, out_size);
                     store_proof(b, desc);
                     remember_entity(b, w[i], w[i]);
@@ -16447,7 +16525,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 }
                 char jdef[KB_TERM_LEN];
                 if (jo && strchr(jkey, '_') &&
-                    kb_concept_def(b->kb, jkey, jdef, sizeof jdef)) {
+                    kb_concept_def(b->kb, jkey, jdef, sizeof jdef) &&
+                    p0_answer_subject_in_focus(b, norm, jkey)) {
                     char msg[1200];
                     snprintf(msg, sizeof msg, "%s is %s.", jdisp, jdef);
                     put(msg, out, out_size);

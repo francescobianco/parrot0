@@ -6,7 +6,7 @@
 > resta **aperto**: qui c'e' la diagnosi completa e le due strade gia' provate
 > che NON funzionano, cosi' il prossimo giro non le ripercorre.
 
-## Il reperto 3 — ⛔ APERTO, ed e' un misclaim (peggio di un muro)
+## Il reperto 3 — ✅ CHIUSO (F. + gen505u)
 
 ```
 cosa è l'arrocco negli scacchi
@@ -27,12 +27,48 @@ vincitore viene **rimisurato nel fuoco**: se non regge li', la via si ritira.
 `semantic_lead` adesso tace correttamente (verificato: il fuoco e' `the
 arrocco`, `semantic_topic_cue` non da' evidenza per `chess`, ritorno -1).
 
-⛔ **Ma appena tace, risponde un'altra facolta' con lo stesso errore** — prima
-`answerframe` per la scansione di ogni parola del turno, e togliendo anche
-quella, una terza via (il legatore di sintagmi). Tre siti, stesso difetto: e' il
-segno che **non e' un difetto di facolta' ma di lettura del turno**, e va
-pubblicato nel frame (`turn_focus`) e consumato da tutti, non curato sito per
-sito.
+✅ **Chiuso da F. sulla strada indicata dall'handoff.** Appena `semantic_lead`
+taceva rispondeva un'altra facolta' con lo stesso errore, e poi una terza: il
+segno che non e' un difetto di facolta' ma di **lettura del turno**. Ora la
+lettura e' **pubblicata una volta per dispatch** e consumata da tutti:
+
+- `p0_publish_question_focus` deposita `turn_focus/2` e `turn_focus_input/2`,
+  ritirati all'inizio di ogni turno. La chiave d'ingresso impedisce a un helper
+  che sta valutando **un'altra** domanda di prendere in prestito questo fuoco —
+  che e' il difetto che una vista globale avrebbe introdotto.
+- `p0_answer_subject_in_focus` verifica il soggetto **dopo** aver trovato la
+  risposta, in otto punti (`mod_answer_frame` ×2, `mod_knowledge` ×6). Non
+  filtra le parole ne' le relazioni in gara: e' esattamente la regola che le
+  due strade sbagliate qui sotto avevano isolato.
+- `turn_focus_rejected/2` registra chi si e' ritirato, e `/debug` lo mostra.
+
+E il giro si chiude anche in avanti: una definizione **insegnata** entra nel
+vocabolario dei candidati (`semantic_topic_cue($T, keyword($T)) :- concept(...)`,
+`semantic_summary/2` da `concept/2`, `projection_source(semantic_summary,
+concept, binary)`), quindi:
+
+```
+learn definition of arrocco: "una mossa degli scacchi che sposta insieme il re e la torre"
+what is the arrocco in chess   -> una mossa degli scacchi che sposta insieme il re e la torre
+cosa è l'arrocco negli scacchi -> arrocco is una mossa degli scacchi …
+```
+
+Prima di impararlo: muro onesto che **nomina** «arrocco», non piu' la
+definizione degli scacchi.
+
+### E un difetto di codifica che teneva ferma la canonicalizzazione italiana
+
+`jparse_string_raw` ri-codificava come Unicode byte che erano **gia'** UTF-8:
+ogni stringa non-ASCII si corrompeva al confine JSON. Si vedeva cosi':
+
+```
+prima:  cosa è l'arrocco …  ->  «what Ã¨ the arrocco in the chess»
+dopo:                        ->  «what is the arrocco in the chess»
+```
+
+La copula italiana non veniva canonicalizzata perche' non arrivava mai intatta.
+Gli escape `\u` continuano a passare da `utf8_emit` — verificati entrambi i
+cammini.
 
 ### ⚠ Due strade provate e MISURATE come sbagliate — non ripercorrerle
 
@@ -68,8 +104,7 @@ chi riconosce il contenuto.
 
 ## Da dove riprendere
 
-1. ⭐ **`turn_focus` come lettura pubblicata**, consumata dalle tre vie invece
-   che curata sito per sito. E' il pezzo che chiude il reperto 3.
+1. **Il reperto 1 e il 2** restano aperti (diagnosi qui sopra).
 2. **`read:` costa 2 s per quaranta parole** (misurato al `gen505s`). Capacita'
    centrale: sogno, wiki, autolearn. Da profilare.
 3. **Le 73 cue corte** — censimento aperto dal `gen505q`.

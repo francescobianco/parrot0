@@ -4604,6 +4604,9 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             kb_retract_pred(b->kb, "turn_module");
             kb_retract_pred(b->kb, "turn_register");
             kb_retract_pred(b->kb, "turn_surface_repair");
+            kb_retract_pred(b->kb, "turn_focus");
+            kb_retract_pred(b->kb, "turn_focus_input");
+            kb_retract_pred(b->kb, "turn_focus_rejected");
             kb_retract_pred(b->kb, "saturated_read");
         }
     }
@@ -4707,6 +4710,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * reader still induces its generative model from the original prose. */
     char canon[256];
     canonicalize_lang(b, norm, canon, sizeof canon);
+    p0_publish_question_focus(b, canon);
 
     /* gen431 — UNA RICHIESTA INCOMPLETA SI DICE SUBITO, PRIMA DI OGNI FACOLTA'.
      *

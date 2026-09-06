@@ -44,6 +44,7 @@ tr($English, $Form) :- gloss_language($Language), apply($Language, cons($Form, c
 % La prosa appresa alimenta la vista usata dai consumatori delle definizioni.
 machinery(localized_description_relation).
 localized_description_relation(italian_description, it).
+localized_description_relation(concept, en).
 concept_gloss($Concept, $Lang, $Text) :-
     localized_description_relation($Rel, $Lang),
     apply($Rel, cons($Concept, cons($Text, nil))).

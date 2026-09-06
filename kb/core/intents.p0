@@ -1619,6 +1619,7 @@ projection_source_facet(semantic_summary, concept_gloss, current_language).
 projection_source(semantic_summary, game_play_localized, ternary).
 projection_source_facet(semantic_summary, game_play_localized, current_language).
 projection_source(semantic_summary, wiki_concept, ternary).
+projection_source(semantic_summary, concept, binary).
 % The direct game-play frame uses the same indexed projection, so localized
 % rules remain reachable before the English fallback.
 answer_projection(game_play, semantic_topic_cue).

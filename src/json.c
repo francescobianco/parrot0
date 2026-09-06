@@ -88,7 +88,16 @@ static char *jparse_string_raw(JParser *j) {
                 default: c = (unsigned char)e; break;
             }
         }
-        if (!utf8_emit(&buf, &len, &cap, c)) { free(buf); return NULL; }
+        /* Unescaped input is already UTF-8: copying each byte preserves its
+         * code points. Re-encoding those bytes as Unicode corrupted every
+         * non-ASCII string at the JSON boundary. Only \u escapes need emit. */
+        if (len + 1 >= cap) {
+            size_t nc = cap ? cap * 2 : 32;
+            char *g = realloc(buf, nc);
+            if (!g) { free(buf); return NULL; }
+            buf = g; cap = nc;
+        }
+        buf[len++] = (char)c;
     }
     if (j->p < j->end && *j->p == '"') j->p++;
     if (!buf) { buf = malloc(1); if (!buf) return NULL; }
