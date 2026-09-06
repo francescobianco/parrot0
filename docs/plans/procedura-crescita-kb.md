@@ -248,6 +248,112 @@ maestro ha dello studente**. Da quel momento si insegna sopra una base falsa.
 
 ---
 
+## 2-bis. I tentativi falliti: che cosa se ne tiene, e in che forma
+
+*F.: «i tentativi che non producono effetti positivi dovrebbero rimanere in KB
+come un monito a non sbagliare — ma potrebbero in condizioni diverse essere vie
+corrette per un comportamento alternativo. La cosa e' molto delicata».*
+
+E' delicata, ed e' lo stesso principio di `keep-secondary-structures` applicato
+non alle strutture ma ai **tentativi**: non si pota cio' che oggi perde, perche'
+la selezione ha bisogno di alternative su cui lavorare.
+
+### La prova, fatta contro me stesso
+
+Al `gen505s` ho scartato una via — generare gli schemi dalla **radice** tramite
+`verb_root/1` appoggiata a `verb_stem/2` — e l'ho annotata con due numeri:
+boot **13,7 s** con la guardia `naf`, **15,2 s** senza, contro i 4,53 s della
+via scelta. Sembrava una refutazione solida.
+
+**Rimisurata il giorno dopo, sullo stesso albero:**
+
+| | ieri | oggi |
+|---|---|---|
+| la via scartata | **15,2 s** | **7,44 s** |
+| la stessa, con `verb_root` dichiarata vista materializzata | *non esisteva* | **5,66 s**, ma perde soluzioni |
+| la via scelta | 4,53 s | 3,67 s |
+
+Nella stessa sessione in cui l'avevo scartata avevo poi corretto l'ordine di
+costruzione delle viste — e quella correzione ha **dimezzato** il costo della
+via che avevo appena dichiarato troppo cara. Il verdetto tiene ancora, ma per
+una ragione **diversa** da quella scritta: oggi non e' la rienumerazione, e' che
+`verb_root` come vista materializzata perde soluzioni («luca watches a film»
+smette di funzionare) — che e' lo stesso limite gia' sospettato per
+`plural_noun/1`.
+
+> Un tentativo scartato invecchia su **tre assi indipendenti**, e confonderli e'
+> l'errore: il **verdetto**, la **ragione**, il **numero**. Qui il verdetto ha
+> retto, la ragione e' cambiata e il numero si e' dimezzato in 24 ore.
+
+### Le tre specie, che vanno tenute distinte
+
+**(a) Refutazione di principio** — non scade. «Restringere l'ingresso cambia
+quale *relazione* vince, non solo quale soggetto»: e' una conseguenza di come
+funziona lo scorer, non della KB di oggi. Si puo' scrivere come regola.
+
+**(b) Refutazione di circostanza** — scade, e in fretta. «Costa 15,2 s» dipende
+dal motore di quel giorno. **Deve portare la condizione che la reggeva**, perche'
+cio' che si ricontrolla poi e' la *condizione*, non l'esperimento.
+
+**(c) Tentativo giusto ma prematuro** — il piu' prezioso e il piu' pericoloso da
+archiviare come fallimento. `verb_root` e' esattamente questo: l'**idea** e'
+migliore di quella in uso (genera solo forme corrette, niente «absorbss»), e
+perde solo perche' il meccanismo delle viste non regge una vista che non si
+enumera per intero. Il giorno che quel meccanismo cresce, quella diventa la via
+giusta — e sarebbe un danno averla registrata come «sbagliata».
+
+E c'e' il caso che F. solleva, che sta di traverso a tutti e tre: **una via
+sbagliata per un comportamento puo' essere quella giusta per un altro.**
+Restringere l'ingresso e' sbagliato per *rispondere*; potrebbe essere
+esattamente giusto per *proporre*, o per una modalita' di interrogazione
+ristretta. Registrarla come «vietata» chiuderebbe un uso legittimo mai esaminato.
+
+### La forma: mai un divieto, sempre un fatto con la sua condizione
+
+Un divieto e' un'affermazione **sul futuro** e diventa legge: e' esattamente il
+meccanismo con cui `verb_suffix/1` e' rimasta ferma per settimane. Una misura e'
+un'affermazione **su un momento**, e si puo' ridatare.
+
+E parrot0 ha gia' il vocabolario giusto per dirlo — e' il template da cui questo
+intero arco e' partito:
+
+> *«Not proved is not the same as false.»*
+
+Un tentativo fallito e' quasi sempre **non dimostrato**, non **falso**. Quindi
+la forma da scrivere e':
+
+```
+tentativo   che cosa si e' provato
+verdetto    scartato / tenuto              ← invecchia lentamente
+ragione     perche'                        ← invecchia
+condizione  che cosa era vero quel giorno  ← e' cio' che si ricontrolla
+specie      principio | circostanza | prematuro
+```
+
+La **specie** dice quanto spesso rileggerlo:
+
+- `principio` → quasi mai; e' una regola, sta fra le ricette del §2;
+- `circostanza` → si ricontrolla **la condizione**, non l'esperimento, ed e'
+  quasi sempre una domanda da un minuto;
+- `prematuro` → si ricontrolla **se il bloccante e' caduto**. Questi vanno
+  guardati per primi quando si tocca il meccanismo che li bloccava.
+
+### Dove vanno: al sito, non in un cimitero
+
+Un elenco centrale di errori passati non lo legge nessuno. Un commento **nel
+punto di codice che sta per essere riscritto** lo legge chi sta per ripetere lo
+sbaglio, ed e' gia' la pratica del progetto — il difetto misurato non e' che
+manchino, e' che **non portano ne' la condizione ne' la data** (R5).
+
+⚠ E **non nella KB di runtime**: la storia ingegneristica del progetto non e'
+conoscenza del mondo ne' della lingua, e ogni fatto in `kb/` si carica al boot e
+si scandisce a ogni turno. Sarebbe peso morto in ogni risposta. L'unica ragione
+per portarcela sarebbe volere che parrot0 ragioni sulla **propria** storia di
+progettazione — un'ambizione legittima e separata, da decidere apposta e non
+come effetto collaterale di questa regola.
+
+---
+
 ## 3. Che cosa vuol dire «andata bene», qualitativamente
 
 Se la crescita e' fatta di distinzioni e non di righe, il conteggio giusto non
