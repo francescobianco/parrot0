@@ -73,22 +73,71 @@ della conversazione, non un fatto del mondo: parla di chi sta parlando. La terza
 persona no. `participant_pronoun/1` e' quella distinzione, e il rosso si e'
 chiuso senza togliere niente al guadagno.
 
+## ⭐⭐ E POI LA CAUSA VERA: LE VISTE SI COSTRUIVANO NELL'ORDINE SBAGLIATO
+
+Con la morfologia a +21% di boot stavo per fermarmi e scrivere «il verso caro va
+materializzato». Ma `verb_stem/2` **e' gia' una vista materializzata**
+(`materialized_view(verb_stem, 2)`), e allora perche' costava?
+
+Durante la costruzione di una vista `views_preparing` e' alzato, quindi una
+`kb_view_ensure` annidata non materializza: risponde solo «e' gia' viva?». Se
+non lo e', la dipendenza viene **ri-derivata dal risolutore ordinario a ogni
+soluzione**. E l'ordine di costruzione era quello in cui i fatti
+`materialized_view/2` capitavano nel file — `extract_frame` prima di
+`verb_stem`, cioe' il consumatore prima della sua dipendenza.
+
+Scambiando due righe:
+
+    boot 4,53 s  ->  1,98 s
+
+L'ordine giusto **era gia' scritto**: `view_depends(extract_frame, verb_stem)`.
+Nessuno lo leggeva. Cioe' la politica era l'ordine delle righe di un file — la
+forma che questo progetto non accetta: invisibile, non interrogabile, e che si
+rompe se qualcuno riordina per estetica. Ora `kb_views_warm` costruisce in
+ordine di **dipendenza dichiarata**, a passate, e cio' che resta (cicli,
+dipendenze non dichiarate) si costruisce comunque: additivo, nessuna vista
+esclusa.
+
+**Il prezzo di un suffisso e' passato da +0,55 s a +0,33 s**, e la classe ha
+potuto crescere davvero:
+
+| | boot |
+|---|---|
+| baseline di partenza (1 suffisso, 0 irregolari) | 3,74 s |
+| **oggi: 4 suffissi + 85 irregolari** | **2,64 s** |
+
+Piu' capacita' e meno costo. Copertura verificata, tutte con il fatto archiviato
+sotto la **radice**:
+
+```
+luca watches a film   -> Learned: luca watch film.     (-es)
+luca liked the book   -> Learned: luca like book.      (-d)
+luca reviewed the draft -> Learned: luca review draft. (-ed)
+luca told a story     -> Learned: luca tell story.     (irregolare)
+luca gave a talk      -> Learned: luca give talk.      (irregolare)
+luca ate the cake     -> Learned: luca eat cake.       (irregolare)
+```
+
+`-ing` resta fuori apposta: «@S saying @O» chiederebbe «he saying nice things»,
+che nessuno dice. Il progressivo vuole l'ausiliare, cioe' uno schema di forma
+diversa — non un suffisso in piu'.
+
 ## Costo finale e test
 
-Boot **3,74 s → 4,53 s** (+21%), turni invariati. Nessuna suite (indicazione di
-F.). Spot-check: `thinking_e1` 11/11, `smalltalk` verde, e i **tre rossi noti
-restano tre** — nessun rosso nuovo. `taught_lexicon.p0t` e' 16/19 anche prima
-delle modifiche (verificato in differenziale): e' la stessa classe di
-`motorize_class.p0t`, resa in prosa invece che a termine.
+Boot **3,74 s → 2,64 s**, turni invariati. Nessuna suite (indicazione di F.).
+Spot-check: `thinking_e1` 11/11, `smalltalk` verde, e i **rossi noti restano
+quelli** — nessun rosso nuovo. `taught_lexicon.p0t` e' 16/19 anche prima delle
+modifiche (verificato in differenziale): stessa classe di `motorize_class.p0t`,
+resa in prosa invece che a termine.
 
 ## Da dove riprendere
 
-1. ⭐ **Il verso caro va materializzato.** `verb_stem/2` e' la strozzatura di
-   tutto: si ricalcola su liste di caratteri a ogni enumerazione, e per questo
-   `verb_suffix/1` non puo' crescere e `irregular_verb_form/2` deve leggere
-   `relation_verb/1` invece della radice. La cura la indica gia' il commento del
-   `gen491`: **materializzare le radici quando si insegna**, non ricalcolarle
-   quando si legge. Sbloccherebbe `-es`, `-d`, `-ing` e l'italiano insieme.
+1. ⭐ **Cercare altre viste nello stesso stato.** La correzione dell'ordine vale
+   per TUTTE le viste materializzate, non solo per queste due: da qui in poi
+   ogni `materialized_view/2` che dipende da un'altra vista viene costruita
+   dopo. Vale la pena misurare il boot prima/dopo su altri profili, e cercare
+   viste che *dovrebbero* essere dichiarate `materialized_view` e non lo sono —
+   il criterio e' «e' ricorsiva e qualcuno la enumera dentro un'altra vista».
 2. **`who told a story?`** non trova la risposta (`what did luca tell?` si').
    La domanda con l'interrogativo in posizione di soggetto va a un'altra
    facolta': e' un turno rubato, da guardare con `turn-arbitration.md`.

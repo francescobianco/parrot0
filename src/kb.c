@@ -2680,9 +2680,56 @@ int kb_view_ensure(KB *kb, const char *pred) {
     return v->live;
 }
 
+/* gen505s — UNA VISTA SI COSTRUISCE DOPO QUELLE DA CUI DIPENDE.
+ *
+ * Durante la costruzione di una vista `views_preparing` e' alzato, quindi una
+ * `kb_view_ensure` annidata NON materializza: risponde solo «e' gia' viva?».
+ * Se non lo e', la dipendenza viene ri-derivata dal risolutore ordinario a ogni
+ * soluzione — e se quella dipendenza e' ricorsiva su liste di caratteri, si paga
+ * la ricorsione intera ogni volta.
+ *
+ * Misurato al gen505s scambiando due righe in `grammar.p0`, cioe' costruendo
+ * `verb_stem` prima di `extract_frame` invece che dopo:
+ *
+ *     boot 4,53 s  ->  1,98 s
+ *
+ * L'ordine giusto c'era gia' scritto — `view_depends(extract_frame, verb_stem)`
+ * — e nessuno lo leggeva: si costruiva nell'ordine in cui i fatti
+ * `materialized_view/2` capitavano nel file. Cioe' la politica era l'ordine
+ * delle righe, che e' esattamente la forma che qui non si accetta: invisibile,
+ * non interrogabile, e che si rompe se qualcuno riordina un file per estetica.
+ *
+ * Adesso l'ordine lo decide il grafo. Passate ripetute finche' si fa progresso;
+ * cio' che resta (cicli, o dipendenze non dichiarate) si costruisce comunque,
+ * come prima — additivo, nessuna vista viene esclusa. */
+static int kb_view_deps_ready(KB *kb, const char *pred) {
+    char (*deps)[KB_TERM_LEN] = NULL; size_t nd = 0;
+    const char *q[2] = { pred, NULL };
+    if (!kb_match_all(kb, "view_depends", q, 2, &deps, &nd)) { free(deps); return 1; }
+    int ready = 1;
+    for (size_t i = 0; i < nd && ready; i++) {
+        if (!strcmp(deps[i], pred)) continue;          /* l'autoanello non conta */
+        size_t k = kb_view_slot(kb, deps[i]);
+        if (k == (size_t)-1) continue;                 /* non e' una vista: niente da attendere */
+        if (!kb->views[k].live) ready = 0;
+    }
+    free(deps);
+    return ready;
+}
+
 void kb_views_warm(KB *kb) {
     if (!kb || frame_depth || proof_depth || kb->views_preparing) return;
     kb_views_load(kb);
+    for (int progress = 1; progress; ) {
+        progress = 0;
+        for (size_t i = 0; i < kb->nviews; i++) {
+            KbView *v = &kb->views[i];
+            if (v->live || v->attempted) continue;
+            if (!kb_view_deps_ready(kb, v->pred)) continue;
+            kb_view_ensure(kb, v->pred);
+            progress = 1;
+        }
+    }
     for (size_t i = 0; i < kb->nviews; i++)
         kb_view_ensure(kb, kb->views[i].pred);
 }
