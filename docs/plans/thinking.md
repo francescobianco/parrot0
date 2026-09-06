@@ -900,3 +900,213 @@ Il thinking si dichiara fallito, e si torna indietro, se:
 - il costo per turno supera il budget e la contromisura è **alzare il budget**
   invece di abbassare il costo (§L, e F. l'ha già detto una volta: *«un timeout
   di dieci secondi è già un sintomo»*).
+
+---
+---
+
+# PARTE III — Casi applicativi: dove la CATENA vale più della risposta
+
+> Scritta il 2026-09-06 su richiesta di F., **dopo** aver acceso l'esecutore
+> (`gen505n`) e aver visto il primo schema girare. Non è una lista di domande
+> difficili: è una lista di **scenari di lavoro** in cui il risultato utile è
+> prodotto dal ripetersi del processo sul prompt, non da una risposta sola.
+
+## Il criterio con cui sono stati scelti — e perché scarta quasi tutto
+
+Un caso entra qui **solo se soddisfa almeno due** di queste tre proprietà.
+Senza, il thinking è teatro (§5: «un nodo che produce testo che nessun nodo
+successivo consuma»).
+
+1. **Dipendenza reale fra i giri.** Un passo usa ciò che il precedente ha
+   *trovato*, non ciò che il precedente ha *detto*. Se i giri si possono
+   riordinare senza cambiare l'esito, è un elenco, non un ragionamento.
+2. **L'assenza di un passo è un reperto.** Il valore non sta solo in ciò che il
+   chain conclude, ma in **quale passo non ha retto**: «non c'è un test che
+   copra questo» è la risposta utile, e un motore che risponde solo con la
+   conclusione la butta via.
+3. **Il tracciato è il prodotto.** Chi riceve la risposta deve poter dire *dove*
+   il ragionamento ha sbagliato, non solo che la conclusione non torna. È il
+   caso di tutto ciò che qualcuno deve **firmare**: una stima, una diagnosi, un
+   preventivo, una decisione di rilascio.
+
+⛔ **Cosa NON entra:** «qual è la capitale della Germania». Non perché sia
+banale, ma perché la catena non aggiunge niente — è un `kb_query` con quattro
+frasi intorno, e il criterio 1 la scarta da sola.
+
+---
+
+## C1 — Triage di una segnalazione di bug
+
+> *«Il salvataggio non funziona più dopo l'aggiornamento di ieri.»*
+
+```text
+pensiero 1: mi hai detto: il salvataggio non funziona dopo l'aggiornamento di ieri
+pensiero 2: è un rapporto di guasto, non una domanda: la mossa è decidere, non spiegare
+pensiero 3: manca l'osservabile — «non funziona» non dice se è un errore, un
+            silenzio o un dato sbagliato
+pensiero 4: due cause distinguibili: il cambiamento di ieri, oppure uno stato
+            preesistente che ieri è diventato visibile
+pensiero 5: l'osservazione che le separa è: succede anche su un profilo creato oggi?
+```
+
+**Perché la catena:** il passo 3 *non conclude* — nomina ciò che manca, e il
+passo 5 esiste solo perché il 4 ha trovato due candidati. La risposta utile non
+è «è colpa dell'aggiornamento»: è **la domanda che decide**, che si può porre
+subito. Organi già scritti: `unique_discriminating` (`kb/core/inquiry.p0`),
+`gap_kind/2`.
+
+## C2 — Revisione di una modifica prima del merge
+
+> *«Ho tolto il controllo sul limite di dimensione, tanto il chiamante lo fa già.»*
+
+```text
+pensiero 1: la modifica rimuove un controllo e sposta l'obbligo sul chiamante
+pensiero 2: l'obbligo spostato è un INVARIANTE: vale per ogni chiamante, presente e futuro
+pensiero 3: i chiamanti che conosco sono tre; due lo controllano, del terzo non ho evidenza
+pensiero 4: nessun test copre il terzo cammino
+pensiero 5: quindi la modifica è sicura solo se quell'obbligo è dichiarato, non ricordato
+```
+
+**Perché la catena:** il **passo 4 è il prodotto**. Un revisore che riceve solo
+«sembra ok» ha perso l'unica informazione che gli serviva. E il passo 3 dice
+*«del terzo non ho evidenza»*, non «il terzo è sbagliato» — la distinzione fra
+non provato e falso, che è la stessa dottrina del `gen504`.
+
+## C3 — «Possiamo consegnarlo entro venerdì?»
+
+```text
+pensiero 1: la richiesta è una decisione, non una previsione: serve un sì/no con la ragione
+pensiero 2: la cosa chiesta richiede quattro capacità distinte
+pensiero 3: tre le ho e sono state usate di recente; della quarta non ho nessun caso
+pensiero 4: la quarta è anche l'unica che dipende da qualcuno fuori da qui
+pensiero 5: quindi la data non dipende dal lavoro, dipende da quella dipendenza
+```
+
+**Perché la catena:** trasforma una stima in una **frase falsificabile** —
+«dipende da quella dipendenza» si può verificare oggi, «venerdì» no. Il valore è
+che il passo 5 riformula la domanda invece di rispondere a quella sbagliata.
+Organo già scritto: il registro delle capacità (`capability/2`,
+`capability_wall/2`).
+
+## C4 — Raccolta requisiti: chiedere **esattamente** ciò che manca
+
+> *«Serve un cruscotto per il magazzino.»*
+
+```text
+pensiero 1: è una richiesta di artefatto, e il tipo è «cruscotto»
+pensiero 2: un cruscotto richiede: chi lo guarda, ogni quanto, quale decisione ne esce, e la soglia
+pensiero 3: di quattro faccette ne ho una: chi lo guarda
+pensiero 4: la faccetta che decide la forma è «quale decisione ne esce», e manca
+pensiero 5: chiedo quella sola, e non le altre due: sono derivabili da lei
+```
+
+**Perché la catena:** il passo 5 evita l'intervista a raffica, che è il modo in
+cui le richieste si insabbiano. Organo **già vivo**: `answer_plan(Act, Facet,
+Order, Requirement)` con `required`/`optional` — 75 fatti in produzione. Questo
+caso non richiede nulla di nuovo: richiede di **collegarlo**.
+
+## C5 — Postmortem: dal sintomo alla causa che si può escludere
+
+```text
+pensiero 1: il sintomo è comparso alle 14:03 ed è continuo, non intermittente
+pensiero 2: continuo esclude le cause di carico: restano quelle di configurazione
+pensiero 3: nella finestra ci sono due cambiamenti di configurazione
+pensiero 4: uno dei due tocca il componente del sintomo, l'altro no
+pensiero 5: prima di attribuire, la prova: rimettere quel valore su un solo nodo
+```
+
+**Perché la catena:** il passo 2 **esclude una famiglia intera** — è il guadagno
+che una risposta secca non dà mai, perché non dice *che cosa hai smesso di dover
+guardare*. È l'esclusione fra classi (`exclusive_classes/2`, `gen505`) applicata
+alle cause.
+
+## C6 — Conformità di un documento a una lista di requisiti
+
+> Un contratto, un referto, una scheda prodotto, un ticket ben formato.
+
+```text
+pensiero 1: il tipo di documento è «ordine di acquisto»
+pensiero 2: il tipo richiede sei campi dichiarati
+pensiero 3: cinque ci sono; «termini di pagamento» non c'è
+pensiero 4: due campi presenti si contraddicono: consegna 30 giorni, penale a 15
+pensiero 5: il mancante si può chiedere; la contraddizione no, va decisa
+```
+
+**Perché la catena:** distingue **mancante** da **contraddittorio**, che
+richiedono azioni opposte e che un controllo a lista confonde. È la stessa
+distinzione fra stato 3 (nessun sostegno) e stato 4 (sostegni in entrambi i
+versi) di `epistemic-status.p0`.
+
+## C7 — Codice legacy: «questa funzione si può togliere?»
+
+```text
+pensiero 1: è una domanda di conseguenza, non di descrizione
+pensiero 2: la funzione è chiamata in due punti; uno è a sua volta morto
+pensiero 3: l'altro la usa per un effetto che nessun test osserva
+pensiero 4: quindi togliendola non fallisce niente — e questo NON vuol dire che sia inutile
+pensiero 5: la domanda che decide: quell'effetto è osservabile da fuori?
+```
+
+**Perché la catena:** il passo 4 è il punto in cui un assistente ingenuo dice
+«sì, si può togliere» e sbaglia. Il thinking rende visibile che **la verde dei
+test non è la prova**. Organi: l'AST come KB (`code_function`, `code_calls`),
+`dead_rule/2`.
+
+## C8 — Ingestione dati: separare «sbagliato» da «ignoto»
+
+```text
+pensiero 1: il record ha otto campi, sei tipizzati dallo schema
+pensiero 2: due violano un vincolo dichiarato — non sono ambigui, sono falsi
+pensiero 3: uno è vuoto: non è falso, è assente
+pensiero 4: un campo non tipizzato non è né l'uno né l'altro: è fuori dallo schema
+pensiero 5: scarto i due falsi, chiedo l'assente, e segnalo il quarto come schema da estendere
+```
+
+**Perché la catena:** produce **tre azioni diverse** dove un validatore ne
+produce una sola («record invalido»). Il passo 4 è quello che fa crescere lo
+schema invece di scartare il dato.
+
+## C9 — Traduzione tecnica che rifiuta il termine, non la frase
+
+```text
+pensiero 1: la lingua di partenza è l'inglese, il dominio è metallurgico
+pensiero 2: quattro termini su cinque hanno una resa dichiarata
+pensiero 3: del quinto non ho nessuna resa in questo dominio
+pensiero 4: ne ho una in dominio generico, ma qui cambierebbe il significato
+pensiero 5: traduco quattro e lascio il quinto nella lingua originale, dicendolo
+```
+
+**Perché la catena:** il rifiuto è **per termine**, non per frase — che è la
+differenza fra un risultato usabile e un muro. Il passo 4 è il più prezioso: dice
+*perché* non ha usato la resa che pure aveva.
+
+## C10 — Preventivo: il tracciato È la giustificazione del numero
+
+```text
+pensiero 1: la richiesta contiene due lavorazioni e un trasporto
+pensiero 2: le due lavorazioni hanno un costo dichiarato per unità
+pensiero 3: il trasporto dipende dalla distanza, che non è stata detta
+pensiero 4: senza quella, il totale ha un termine indeterminato — non un totale sbagliato
+pensiero 5: do il parziale certo, e nomino l'unico dato che chiude il conto
+```
+
+**Perché la catena:** un preventivo senza il *perché* non si può negoziare. E il
+passo 4 dice una cosa che un foglio di calcolo non dice mai: **quale parte del
+numero è certa**.
+
+---
+
+## Che cosa hanno in comune, e che cosa chiedono al motore
+
+| proprietà ricorrente | conseguenza per il thinking |
+|---|---|
+| il passo che **non regge** è spesso il reperto | un passo assente deve **sparire**, mai essere riempito con una frase di comodo (già così, `gen505n`) |
+| più casi separano **mancante** da **falso** | gli stati epistemici del `gen504` sono il vocabolario giusto: non servono nuovi tipi |
+| più casi finiscono con **una domanda**, non una conclusione | `clarify` come mossa di prima classe (K3), e lo stop dichiarato «servono dati» |
+| il tracciato deve essere **firmabile** | ogni pensiero cita da dove viene: senza provenienza il tracciato è teatro |
+| quasi tutti riusano organi **già scritti** | `answer_plan`, `unique_discriminating`, `exclusive_classes`, `gap_kind`, l'AST: la leva è collegare, non costruire |
+
+⭐ **Il caso da cui partire è C4**, e non perché sia il più bello: perché è
+l'unico che gira **già oggi** sotto un altro nome (`answer_plan/4`, 75 fatti in
+produzione). Accenderlo come schema di thinking non aggiunge un motore — dimostra
+che l'unificazione dei tre dialetti (H1) è vera su un caso che qualcuno usa.
