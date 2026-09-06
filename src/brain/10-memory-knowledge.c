@@ -4232,6 +4232,16 @@ static int p0_bad_subject(Brain *b, const char *t) {
     const char *q[] = { t };
     return kb_query(b->kb, "subject_guard", q, 1);
 }
+
+/* gen505r: LEGGERE non e' ARCHIVIARE. Un pronome non puo' essere la chiave di
+ * un fatto, ma e' il soggetto di una predicazione a tutti gli effetti — e senza
+ * questa distinzione «he eats nice food» non risultava nemmeno un'affermazione.
+ * Quale sia la differenza lo dice `predication_subject/1` in grammar.p0. */
+static int p0_reading_subject(Brain *b, const char *t) {
+    if (!b || !b->kb || !t) return 0;
+    const char *q[] = { t };
+    return kb_query(b->kb, "predication_subject", q, 1);
+}
 static int p0_join(char **w, size_t a, size_t b, char *out, size_t sz) {
     size_t o = 0; out[0] = '\0';
     for (size_t i = a; i < b; i++) {
@@ -4566,6 +4576,15 @@ typedef struct {
     int    text_value;      /* l'ultimo ruolo e' uno span testuale */
     size_t qslot;           /* indice dello slot interrogativo, se nq == 1 */
     size_t nquestion;       /* quanti slot portano un interrogativo */
+    /* gen505r — quanti slot portano un RIFERIMENTO CHE NON SI RISOLVE.
+     *
+     * Prima il legatore si ritirava da solo su un pronome irrisolto, «perche'
+     * non e' un'entita' e non va scritta in KB». Vero per chi ARCHIVIA, falso
+     * per chi LEGGE: «he eats nice food» e' un'affermazione anche quando non si
+     * sa chi sia «he», e senza quella lettura la forza del turno restava muta e
+     * ogni facolta' doveva indovinare. Come `nquestion`, si CONTA e decide il
+     * consumatore: chi scrive rifiuta, chi legge no. */
+    size_t nunresolved;
     /* Quanto della frase la lettura ha effettivamente consumato. Uno schema
      * puo' combaciare e lasciare fuori una coordinazione, una negazione o un
      * complemento — «DART slowed the orbital period OF DIMORPHOS» si lega a
@@ -4648,7 +4667,7 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
                 else if (r->nslots == 0 && b->has_last_entity)
                     snprintf(dst, KB_TERM_LEN, "%s", b->last_entity);
                 else
-                    return 0;
+                    r->nunresolved++;   /* la lettura resta, chi scrive rifiuta */
             }
             r->role[r->nslots] = (char)tolower((unsigned char)pt[ti][1]);
             r->nslots++;
@@ -4802,7 +4821,7 @@ static int p0_frame_reading(Brain *b, char **w, size_t n, P0FrameReading *r) {
         size_t sidx = 0, oidx = 0;
         if (!p0_frame_projection(b, cand.pred, cand.nslots, &sidx, &oidx))
             sidx = 0;
-        if (p0_bad_subject(b, cand.slot[sidx])) continue;
+        if (!p0_reading_subject(b, cand.slot[sidx])) continue;
         *r = cand;
         found = 1;
     }
@@ -4949,6 +4968,10 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
          * rispondere, asserire, annunciare. */
         P0FrameReading r;
         if (!p0_frame_bind(b, w, n, raw, &r)) continue;
+        /* gen505r: qui si ARCHIVIA e si RISPONDE, quindi un riferimento
+         * irrisolto vale come prima — un rifiuto. Il legatore non lo decide
+         * piu' per conto di tutti: lo conta, e ogni consumatore sceglie. */
+        if (r.nunresolved) continue;
         const char *pred = r.pred;
         int text_value = r.text_value;
         size_t nslots = r.nslots;
@@ -5346,6 +5369,8 @@ static int p0_align_explicit_lesson(
         char *rw[32]; size_t rn = split_words(rb, rw, 32);
         P0FrameReading reading;
         if (!p0_frame_bind(b, rw, rn, patterns[i], &reading) ||
+            reading.nunresolved ||          /* gen505r: una regola non si scrive
+                                             * su un riferimento irrisolto */
             reading.consumed != reading.total || reading.nslots != nvars)
             continue;
 

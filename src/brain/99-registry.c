@@ -4624,9 +4624,15 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
          * questa pubblicazione non serve a nessuno. E' una necessita' letta in
          * KB, non una soglia scelta a mano — togliendo l'ultima riga di
          * `faculty_yield_force/3` il costo sparisce insieme al consumatore. */
-        const char *cq[3] = { NULL, NULL, NULL };
+        /* gen505r: CHI la consuma lo dice la KB, non questo `if`. Prima qui
+         * c'era il nome di un solo consumatore, e la seconda condotta che
+         * dipende da questa lettura restava senza — il cancello c'era e non
+         * vedeva niente. `declarative_reading_wanted/1` e' la vista che li
+         * raccoglie tutti; un terzo domani non passa da qui. */
+        const char *cq[1] = { NULL };
         char consumer[1][KB_TERM_LEN];
-        int wanted = kb_match(b->kb, "faculty_yield_force", cq, 3, consumer, 1) > 0;
+        int wanted = kb_match(b->kb, "declarative_reading_wanted", cq, 1,
+                              consumer, 1) > 0;
         char rbuf[400];
         size_t rl = strlen(norm);
         if (wanted && rl > 0 && rl < sizeof rbuf) {

@@ -400,6 +400,12 @@ size_t kb_binary_relations(const KB *kb, const char *left, const char *right,
 int    kb_dump_all(const KB *kb, char *out, size_t out_size);
 
 /* Number of distinct facts currently stored. */
+/* «questo testo contiene questa superficie?» con i confini di parola giusti:
+ * una superficie che comincia (o finisce) con un carattere di parola vuole un
+ * confine su quel lato. Stessa regola del ramo `cue` dell'evidenza — un solo
+ * posto la decide, per il motore e per la KB. */
+int kb_text_has_surface(const char *text, const char *surface);
+
 size_t kb_size(const KB *kb);
 
 /* Number of Horn rules currently stored.  This is structural introspection for

@@ -154,6 +154,18 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     if (!b) return 0;
 
+    /* gen505r — LA CONDOTTA, NON UNA GUARDIA.
+     *
+     * «she said nice things» riceveva «Nice. Tell me what made it good…»: la cue
+     * `mood_up`/"nice" c'e' per intero, ma il turno e' un'AFFERMAZIONE su
+     * qualcun altro, non l'umore di chi parla. La cura non e' togliere la cue —
+     * «nice» detto da solo e' davvero umore — ne' aggiungere un `if` qui: e'
+     * dichiarare in KB quali FORZE del turno questo registro serve
+     * (`faculty_force(chitchat, …)`), e leggerle dalla stessa vista condivisa
+     * che la facolta' narrativa usa dal gen491. Una forza in piu' o in meno
+     * domani e' un fatto. */
+    if (!p0_move_allowed(b, "chitchat", norm)) return 0;
+
     /* gen338 (L13 pragmatics, abstraction-ceiling beyond L12): speech acts
      * read between the lines. The act TYPES are a KB registry (pragma_act/1,
      * kb/core/pragmatics.p0); each act's surface forms are intent_cue facts

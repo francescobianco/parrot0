@@ -4470,6 +4470,26 @@ illocution_cue(directive, $Opener) :- directive_opener($Opener).
 % pezzo vede per avere ragione per costruzione).
 faculty_force(narrative_continuation, directive).
 
+% ── gen505r — IL REGISTRO AFFETTIVO NON RIVENDICA UN'AFFERMAZIONE ───────────
+%
+% Reperto: «she said nice things» riceveva «Nice. Tell me what made it good…».
+% La cue era `intent_cue(mood_up, "nice")` e il turno la contiene davvero — ma
+% «nice» li' e' un aggettivo dentro una frase su qualcun altro, non l'umore di
+% chi parla. Il confine di parola del gen505q non basta a vederlo: la parola c'e'
+% per intero, e' il suo RUOLO che e' un altro.
+%
+% Non serve una guardia per `mood_up`, ne' una cue in meno: `mod_chitchat`
+% dichiara di se' — nel suo commento dal gen125 — «these are not information
+% requests; they are TONE». Questa e' quella frase resa interrogabile.
+%
+% Le tre forze sono un'unione, non una scala: il registro affettivo risponde a
+% una domanda («you good?»), a una richiesta («raccontami della tua giornata») e
+% a un puro gesto espressivo («lol»). Non risponde a un'AFFERMAZIONE sul mondo:
+% quella appartiene a chi la puo' imparare o verificare.
+faculty_force(chitchat, question).
+faculty_force(chitchat, directive).
+faculty_force(chitchat, expressive).
+
 % ── QUANDO UNA FACOLTA' CEDE IL TURNO ───────────────────────────────────────
 %
 % `faculty_force/2` dice quando una facolta' PUO' parlare. Questo e' il verso

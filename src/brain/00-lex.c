@@ -498,8 +498,20 @@ static size_t find_token(char **w, size_t nw, const char *t) {
 
 /* True if needle occurs anywhere in haystack — the keyword-cue test behind
  * paraphrase-robust intent (gen51): one intent reached from many phrasings. */
+/* ── gen505r — ANCHE QUI UNA CUE FATTA DI PAROLE SI CERCA A PAROLE ──────────
+ *
+ * Erano tre caratteri di `strstr`, e sono la stessa domanda che il ramo `cue`
+ * dell'evidenza si fa dall'altra parte del motore: «questo turno contiene
+ * questa superficie dichiarata?». Con lo `strstr` nudo un opener imperativo
+ * «say» rivendicava «she SAID nice things», e la lettura della FORZA del turno
+ * — quella su cui si appoggia tutta la condotta delle facolta' — diceva
+ * «direttivo» su un'affermazione.
+ *
+ * Cinquantasei siti fanno questa domanda passando di qui. Curarli uno per uno
+ * sarebbe l'elenco degli incidenti; il punto che tutte le vie attraversano e'
+ * questa funzione, e la regola sta scritta una volta sola in `kb.c`. */
 static int cue(const char *haystack, const char *needle) {
-    return strstr(haystack, needle) != NULL;
+    return kb_text_has_surface(haystack, needle);
 }
 
 static int mod_answer_frame(Brain *b, const char *norm, const char *raw,

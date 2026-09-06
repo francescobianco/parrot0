@@ -1,5 +1,109 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — `gen505r`: la forza del turno, e le due meta' della morfologia
+
+> Terzo giro del 6 settembre 2026. Partito dal punto 1 della lista (le cue
+> corte) e finito tre livelli piu' sotto, su un difetto che spiegava tutti gli
+> altri. Tutto committato.
+
+## Il filo
+
+Inseguendo «what is your designation» → «Hey! I'm here…» ho trovato **quattro
+difetti annidati**, ciascuno nascosto dal precedente. Vale la pena elencarli in
+ordine, perche' la forma si ripete:
+
+1. **Il matcher dell'evidenza** cercava le cue come sottostringa nuda
+   (chiuso al `gen505q`: `evidence_cue_find`).
+2. **Il matcher C storico** — `cue()` in `00-lex.c`, tre caratteri di `strstr`,
+   **56 siti** — faceva la stessa domanda e aveva lo stesso difetto. Con quello,
+   l'opener imperativo «say» rivendicava «she **said** nice things» e la lettura
+   della FORZA del turno diceva *direttivo* su un'affermazione. Ora `cue()`
+   passa da `kb_text_has_surface()`: **una funzione sola decide che cosa vuol
+   dire «contenere una superficie»**, per il motore e per la KB.
+3. **Il registro affettivo non aveva una condotta.** `intent_cue(mood_up,
+   "nice")` c'e' per intero in «she said nice things» — il confine di parola non
+   basta, e' il RUOLO della parola che e' un altro. `mod_chitchat` dice di se',
+   dal gen125, «these are not information requests; they are TONE»: adesso quella
+   frase e' interrogabile — `faculty_force(chitchat, question|directive|
+   expressive)`. E `expressive` e' un atto **nuovo e definito per residuo**
+   (`turn_illocution/2`): non chiede, non ordina, non afferma.
+4. **Ma la lettura dell'affermazione era cieca ai pronomi.** E qui c'era il
+   difetto vero.
+
+## ⭐ Il difetto vero: leggere non e' archiviare
+
+```
+luca eats nice food   ->  si legge come affermazione
+he   eats nice food   ->  NON si legge          (stessa forma, stesso verbo)
+```
+
+Due cause, tutte e due la stessa confusione:
+
+- `subject_guard/1` rispondeva insieme a **due domande diverse** — «puo' essere
+  il SOGGETTO di una predicazione?» e «puo' essere la CHIAVE sotto cui archiviare
+  un fatto?». I pronomi personali sono `stopword`, quindi cadevano su entrambe.
+- `p0_frame_bind` si **ritirava** su un pronome irrisolto, «perche' non e'
+  un'entita' e non va scritta in KB» — cioe' rifiutava di LEGGERE per non
+  RISCHIARE DI SCRIVERE.
+
+Un pronome e' un soggetto perfettamente buono: e' solo un soggetto di cui non si
+sa ancora chi sia. Ora la distinzione ha un nome e' interrogabile
+(`predication_subject/1`), e il legatore **conta** i riferimenti irrisolti
+(`nunresolved`, esattamente come faceva gia' con `nquestion`) invece di decidere
+per tutti: **chi archivia rifiuta, chi legge no.**
+
+Risultato, a sessione fresca: `he eats nice food` → muro onesto, invece della
+reazione affettiva. Il turno rubato si chiude perche' la LETTURA e' cresciuta,
+non perche' si sia messa una guardia.
+
+## ⭐ E la morfologia andava in una direzione sola
+
+```
+says is a relation verb  ->  «she says nice things» si legge          ✅
+say  is a relation verb  ->  «she says nice things» NON si legge      ⛔
+```
+
+`verb_stem/2` va da «says» a «say»; il verso opposto non esisteva, quindi
+insegnare la radice non apriva la forma flessa. Una regola `extract_frame/2` in
+piu' e la simmetria c'e'. `verb_suffix/1` resta la fonte unica: chi insegna un
+suffisso nuovo — cioe' una lingua nuova — apre **entrambi** i versi con una riga.
+
+Questo e' il pezzo di **KB viva** piu' pulito della giornata: si insegna un
+verbo parlando, e dal turno dopo cambia la FORZA con cui parrot0 legge le frasi
+che lo contengono, e quindi cambia **quale facolta' ha diritto di rispondere**.
+
+## Il costo, misurato e non nascosto
+
+Boot + 3 turni: **3,39 s → 3,84 s** (+13%). E' la derivazione degli schemi in
+piu', uno per verbo di relazione. Si paga per **revisione della KB**, non per
+turno (`p0_frame_patterns` e' in cache su `kb_revision`), ma va tenuto d'occhio:
+e' lo stesso capitolo del costo del thinking al punto 2 qui sotto.
+
+## Test
+
+Nessuna suite (indicazione di F.). Spot-check: `thinking_e1` 11/11,
+`smalltalk` verde, `frontier_chat_audit.it` 55/1, e i due gialli del `gen505q`
+restano **due e non tre** — ora con diagnosi concreta in `TEST_TODO.md`: per
+«I am bored» vinceva una cue **`"red"` dentro «bo·red·»**, e la risposta nuova
+e' piu' giusta dell'attesa.
+
+## Da dove riprendere
+
+1. ⭐ **Il resto della morfologia.** `verb_suffix/1` ha **un solo membro**,
+   `"s"`. Mancano `-ed`, `-ing`, i plurali irregolari, e tutto l'italiano:
+   «she **said** nice things» ancora non si legge, e sono le forme piu' comuni
+   della lingua. Ogni suffisso e' una riga e apre due versi.
+2. **Le 73 cue corte** restano il censimento aperto (vedi handoff `gen505q`):
+   il confine di parola le rende innocue *dentro* le altre parole, ma `who` o
+   `all` come cue di un intento sono comunque troppo larghe. La forma giusta e'
+   una **classe** o un `turn_pattern/3`, non un letterale.
+3. **Il costo**: thinking ~2 s/turno + il 13% di questo giro. H4 di
+   `thinking.md`, e il numero depositato come sensore.
+4. **Le regole grammaticali**: ne esiste una. Ora `gj_detail` carica davvero.
+5. **L'italiano** e' fermo (canonicalizzazione ibrida, `C_TODO` §U4).
+6. **Thinking E1, ultimo pezzo**: uno schema insegnato a voce.
+
+
 ## HANDOFF 2026-09-06 — «legge di Ohm» non deve diventare «read di ohm»
 
 **Chiuso il caso segnalato da F. su `7d09192`.** Dopo insegnamento, salvataggio

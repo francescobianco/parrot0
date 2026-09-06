@@ -79,18 +79,24 @@ turn_cue_registry(ordinal_surface, 1).
 
 % A turn's force is a derived view, not a second recognizer. A new directive
 % surface reaches every faculty through the same published cue.
-turn_illocution($Turn, $Force) :-
+% ⚠ gen505r — LE LETTURE DICHIARATE STANNO IN `turn_declared_act/2`, E
+% `turn_illocution/2` LE RIPUBBLICA. Il livello in piu' non e' cerimonia: serve
+% per poter dire «questo turno non fa NESSUNO degli atti dichiarati» senza che
+% la negazione ricada dentro se stessa. Con tutto su un predicato solo,
+% `naf(turn_illocution(T, assertion))` avrebbe riprovato anche la clausola che
+% quella negazione la usa.
+turn_declared_act($Turn, $Force) :-
     turn_cue_form($Turn, illocution_cue, $Cue),
     illocution_cue($Force, $Cue).
 % La domanda ha gia' una lettura strutturale condivisa dall'anti-mislearning:
 % primo nodo interrogativo, copula invertita o ausiliare invertito. Riutilizzarla
 % qui porta nel frame anche domande che non hanno ancora una answer_frame; una
 % superficie nuova cresce nella classe linguistica a monte, non in ogni faculty.
-turn_illocution($Turn, question) :-
+turn_declared_act($Turn, question) :-
     turn_opens_question($Turn).
-turn_illocution($Turn, question) :-
+turn_declared_act($Turn, question) :-
     turn_cue($Turn, answer_frame_input_arg, $Cue).
-turn_illocution($Turn, question) :-
+turn_declared_act($Turn, question) :-
     turn_cue($Turn, attribute_question_cue, $Cue).
 
 % ── L'ASSERZIONE HA UNA LETTURA, ANCHE SE NON HA CUE ───────────────────────
@@ -104,8 +110,48 @@ turn_illocution($Turn, question) :-
 % Serve perche' una facolta' che risponde alle domande possa CEDERE un turno che
 % non e' una domanda. Misurato sulla matrice F03: «He reviewed the draft»
 % riceveva «Luca.» — una risposta a una domanda che nessuno aveva fatto.
-turn_illocution($Turn, assertion) :-
+turn_declared_act($Turn, assertion) :-
     turn_reading($Turn, declarative, $Pred).
+
+% ── L'ATTO CHE RESTA QUANDO NON CE N'E' NESSUNO ────────────────────────────
+%
+% «lol», «yo», «*sospira*», un'emoji: non chiedono, non ordinano e non
+% affermano niente sul mondo. Sono TONO — e' il registro che `mod_chitchat`
+% dichiara di servire nel suo stesso commento fin dal gen125. Finora quel
+% registro non aveva un NOME nella lettura del turno, e senza nome non si
+% poteva dire a chi appartiene un turno che non e' di quel registro.
+%
+% Definito per RESIDUO apposta, e non per elenco di superfici: enumerare le
+% forme espressive di una lingua e' infinito, mentre le tre forze dichiarate
+% sono finite. Chi migliora la lettura di una delle tre restringe questa senza
+% toccarla.
+turn_illocution($Turn, $Force) :- turn_declared_act($Turn, $Force).
+turn_illocution($Turn, expressive) :-
+    naf(turn_declared_act($Turn, assertion)),
+    naf(turn_declared_act($Turn, question)),
+    naf(turn_declared_act($Turn, directive)).
+machinery(turn_declared_act).
+
+% ── CHI HA BISOGNO DELLA LETTURA DICHIARATIVA ──────────────────────────────
+%
+% La lettura pura (`p0_frame_reading`) costa quanto una lettura intera, quindi
+% il motore la pubblica solo se QUALCUNO la consuma — ed e' giusto cosi'. Ma
+% «qualcuno» era scritto nel C come un solo nome, `faculty_yield_force/3`, e al
+% gen505r la seconda condotta che ne dipende (`faculty_force(chitchat,
+% expressive)`) non faceva scattare la pubblicazione: `turn_reading` non c'era,
+% quindi nessun turno risultava un'affermazione, quindi ogni turno risultava
+% espressivo e il registro affettivo li rivendicava tutti — cioe' il cancello
+% nuovo era aperto restando invisibile.
+%
+% E' di nuovo «una sorgente, due consumatori»: chi PRODUCE deve chiedere a tutti
+% i consumatori dichiarati, non a quello che si ricordava. Qui la necessita' e'
+% un fatto derivato, e un terzo consumatore domani e' una riga in piu'.
+machinery(declarative_reading_wanted).
+declarative_reading_wanted(faculty_yield_force) :- faculty_yield_force($F, $S, $C).
+declarative_reading_wanted(faculty_force) :- faculty_force($F, assertion).
+% `expressive` e' definita per residuo: senza la lettura dichiarativa non si puo'
+% sapere che un turno NON e' un'affermazione.
+declarative_reading_wanted(faculty_force) :- faculty_force($F, expressive).
 
 % ── 0b. CIO' CHE SI PUO' OMETTERE DENTRO UNA SUPERFICIE ────────────────────
 %

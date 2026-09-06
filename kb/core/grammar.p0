@@ -227,6 +227,27 @@ subject_guard($T) :- stopword($T).
 subject_guard($T) :- open_quantifier($T).
 subject_guard($T) :- social_marker($Kind, $T).
 
+% ── gen505r — DUE DOMANDE DIVERSE CHE ERANO UNA SOLA ────────────────────────
+%
+%   1. «questo token puo' essere il SOGGETTO di una predicazione?»
+%   2. «questo token puo' essere la CHIAVE sotto cui archiviare un fatto?»
+%
+% `subject_guard/1` rispondeva a entrambe, e i pronomi personali sono `stopword`:
+% quindi «he eats nice food» non risultava nemmeno un'AFFERMAZIONE. Misurato al
+% gen505r — e «luca eats nice food», stessa forma, si legge benissimo. Il caso
+% «He reviewed the draft» che il gen491 dichiarava chiuso e' proprio questo.
+%
+% Un pronome e' un soggetto perfettamente buono: e' solo un soggetto di cui non
+% si sa ancora CHI sia. Archiviare un fatto sotto «he» sarebbe sbagliato;
+% leggere il turno come un'affermazione e' giusto, e serve a decidere di chi e'
+% il turno prima ancora di sapere se ci si possa credere.
+%
+% La distinzione resta interrogabile: chi archivia continua a chiedere
+% `subject_guard/1`, chi LEGGE chiede questa.
+machinery(predication_subject).
+predication_subject($T) :- naf(subject_guard($T)).
+predication_subject($T) :- personal_pronoun($T).
+
 % Locative prepositions are a role class, distinct from the broader
 % preposition/1 inventory. The extractor only needs to ask whether the next
 % complement names a location.
@@ -685,6 +706,27 @@ verb_stem($Verb, $Stem) :-
 extract_frame($Pat, $Stem) :-
     verb_stem($Verb, $Stem),
     concat_atoms("@S ", $Stem, $A),
+    concat_atoms($A, " @O", $Pat).
+
+% ── gen505r — E LA MORFOLOGIA VA IN DUE DIREZIONI ──────────────────────────
+%
+% La regola qui sopra va da «says» a «say»: si insegna la forma FLESSA e si
+% ottiene anche la radice. Il verso opposto mancava — si insegnava «say is a
+% relation verb» e «she says nice things» non si leggeva, perche' l'unico schema
+% generato era «@S say @O».
+%
+% Misurato al gen505r: la stessa frase, dopo «says is a relation verb», si legge
+% subito. Non era una capacita' mancante: era meta' della morfologia.
+%
+% `verb_suffix/1` e' la stessa fonte di prima — chi insegna un suffisso nuovo
+% (una lingua nuova) apre entrambi i versi con una riga sola. E il predicato
+% resta la RADICE anche quando la superficie e' flessa: il fatto si archivia
+% sotto un nome solo.
+extract_frame($Pat, $Verb) :-
+    relation_verb($Verb),
+    verb_suffix($Suffix),
+    concat_atoms($Verb, $Suffix, $Inflected),
+    concat_atoms("@S ", $Inflected, $A),
     concat_atoms($A, " @O", $Pat).
 
 % ── IL PASSIVO NON E' UNA SECONDA LEZIONE ─────────────────────────────────

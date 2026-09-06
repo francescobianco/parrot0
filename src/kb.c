@@ -4411,6 +4411,16 @@ static size_t evidence_cue_find(const char *s, const char *needle, size_t from) 
     return (size_t)-1;
 }
 
+/* La stessa domanda del ramo `cue` dell'evidenza, resa pubblica: «questo testo
+ * contiene questa superficie?». Esiste perche' il matcher C storico (`cue()` in
+ * src/brain/00-lex.c, 56 siti) faceva la stessa domanda con uno `strstr` nudo, e
+ * quindi ripeteva parola per parola il difetto chiuso qui sopra. Un solo posto
+ * decide che cosa vuol dire «contenere una superficie». */
+int kb_text_has_surface(const char *text, const char *surface) {
+    if (!text || !surface || !*surface) return 0;
+    return evidence_cue_find(text, surface, 0) != (size_t)-1;
+}
+
 static size_t evidence_keyword_find(const char *s, const char *word, size_t from) {
     size_t n = strlen(s), m = strlen(word), at = from;
     while (m && at <= n) {

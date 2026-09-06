@@ -23,11 +23,24 @@ controllo mirato su sei file di conversazione:
 | `conversation/smalltalk.p0t` | verde | verde |
 | `conversation/social.it.p0t` | verde | verde |
 
-**I due gialli sono i primi due file da aprire.** L'ipotesi da verificare prima
-di toccare il motore: un'attesa scritta su una cue che *contava* sul match a
-sottostringa (per esempio una forma flessa che conteneva la cue dentro una
-parola piu' lunga). Se e' cosi', **il rosso e' del test, non del motore** — e'
-il caso gia' visto in `docs/plans/gate-may-be-wrong-not-code`.
+**I due gialli sono diagnosticati** (gen505r) e sono lo **stesso caso**: una
+reazione vinceva la gara di `chitchat_reaction/2` grazie a un match a
+sottostringa, e ora che quel match non c'e' piu' vince un'altra reazione.
+
+| turno | vinceva prima | vince adesso |
+|---|---|---|
+| `I am bored` | una cue **`"red"` dentro «bo·red·»** (`10_memory_knowledge_lex10451_3`, il registro dei colori) | `mood_bored` — «Let's switch: tell me something you are curious about.» |
+| `rough day` | una reazione a priorita' piu' alta che matchava dentro una parola | `mood_tired` — «Rest a bit…» |
+
+Per «I am bored» **la risposta nuova e' piu' giusta di quella attesa**: un
+turno di noia riceve la reazione alla noia invece di quella innescata da un
+frammento della parola «bored». L'attesa era scritta sul vincitore vecchio.
+Quindi qui il rosso e' del test — il caso di `gate-may-be-wrong-not-code` — e
+la correzione e' aggiornare l'attesa, non ripristinare il match a sottostringa.
+
+Per «rough day» va deciso **quale reazione debba vincere**: e' una domanda di
+priorita' in `kb/core/reactions.p0`, non di matching. Da guardare insieme,
+perche' e' la stessa gara.
 
 Due rossi **preesistenti e non miei**, verificati in differenziale con lo stash:
 - `meta/motorize_class.p0t` — 2 assert: resa in prosa invece che `created_by(...)`,
