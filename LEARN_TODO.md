@@ -1,5 +1,9 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+> **Come si conduce una sessione:** `docs/plans/procedura-crescita-kb.md` —
+> quanto costa un giro (rebuild C 18,3 s vs KB 0 s), dove sono le criticita'
+> misurate e la procedura in sei passi. Da leggere prima di aprire un reperto.
+
 # 🏁 HANDOFF — `gen505t`: tre reperti di F. da una sessione italiana
 
 > F. ha incollato tre turni veri di `make chat`. Il terzo e' il piu' grave e

@@ -74,6 +74,13 @@ Prima di agire leggere integralmente:
 3. `docs/plans/apprendimento-assistito.md`;
 4. per routing e persistenza, `docs/session-and-provenance.md`.
 
+> **Per una sessione MISTA** — comprensione, metacomprensione, KB viva, cioe'
+> quella che facciamo davvero, con il motore che si muove insieme alla KB — il
+> protocollo qui sotto non basta: serve `docs/plans/procedura-crescita-kb.md`,
+> che misura quanto costa un giro e in che ordine conviene farlo. In una riga:
+> **guarda prima di ipotizzare, prova in KB prima di compilare, e data ogni
+> misura.** Questo file resta la procedura per l'insegnamento puro.
+
 ## 2. Parametri obbligatori della sessione
 
 Il coding agent deve fissare e riportare questi parametri prima di aprire la
