@@ -220,6 +220,29 @@ member_satisfies($Member, $Value) :- kb_fact($Pred, cons($Member, cons($Value, n
 machinery(related_to).
 related_to($Subject, $Value) :- kb_fact($Pred, cons($Subject, cons($Value, nil))).
 
+% ── gen505x — UNA DOMANDA POLARE PROPONE UN VALORE, NON LO CHIEDE ──────────
+%
+% Reperto di Buffy (GLM), `docs/issues/glm-test.md` §3.1 e §4.1:
+%
+%     Do penguins live in the Arctic?   ->  «Ice.»
+%     Is Rome the capital of Italy?     ->  «Italy.»
+%     Is Paris the capital of France?   ->  «France.»
+%
+% Il report le chiama due cose diverse — «confabulazione» e «si'/no senza
+% booleano» — e sono lo stesso difetto. E la diagnosi di confabulazione e'
+% SBAGLIATA: `habitat(penguin, ice)` E' in KB. «Ice.» non e' inventato, e' vero
+% e dato alla domanda sbagliata.
+%
+% La distinzione che mancava: una domanda **wh** chiede un valore, una domanda
+% **polare** ne PROPONE uno e chiede se regge. Rispondere col valore che si ha
+% e' rispondere a una domanda che nessuno ha fatto.
+%
+% L'apertura polare e' l'inversione dell'ausiliare — la stessa evidenza che
+% `turn_opens_question/1` usa gia'. Qui la si nomina perche' serve a un secondo
+% consumatore, non perche' sia una classe nuova.
+machinery(polar_opener).
+polar_opener($W) :- auxiliary($W).
+
 machinery(subject_guard).
 subject_guard($T) :- question_word($T).
 subject_guard($T) :- auxiliary($T).

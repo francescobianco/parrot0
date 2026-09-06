@@ -4929,6 +4929,10 @@ static int p0_rule_clause_frame(Brain *b, P0RuleVars *v, char **w, size_t n,
     return 1;
 }
 
+/* gen505x: la lettura polare del turno, condivisa fra i consumatori che
+ * emettono un valore. Definita piu' sotto, accanto al suo primo consumatore. */
+static int p0_turn_is_polar(Brain *b, char **w, size_t nw);
+
 static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
                                       const char *norm, char *out,
                                       size_t out_size, int taught_only,
@@ -5010,6 +5014,14 @@ static int p0_try_extract_frames_only(Brain *b, char **w, size_t n,
             }
             char hits[16][KB_TERM_LEN];
             size_t nh = kb_match(b->kb, pred, bind, query_nslots, hits, 16);
+            /* gen505x — SECONDO CONSUMATORE DELLA STESSA LETTURA.
+             *
+             * Chiusa la polare in `mod_answer_frame`, «Is Rome the capital of
+             * France?» riceveva «Paris.» da qui: la stessa forma di errore in
+             * un altro posto — il segnale che la lettura va condivisa, non la
+             * guardia ripetuta (§R2). Un valore non risponde a una domanda che
+             * ne propone uno; se la proposta non regge, questa via tace. */
+            if (nh > 0 && p0_turn_is_polar(b, w, n)) { free(pats); return 0; }
             if (nh > 0) {
                 char hb[KB_TERM_LEN];
                 snprintf(hb, sizeof hb, "%s", hits[0]);
@@ -7073,6 +7085,73 @@ static int p0_answer_subject_in_focus(Brain *b, const char *norm,
     return 0;
 }
 
+/* ── gen505x — LA RISPOSTA A UNA DOMANDA POLARE ────────────────────────────
+ *
+ * `mod_answer_frame` trovava la relazione e ne stampava il VALORE, qualunque
+ * fosse la forma della domanda. Su una polare quel valore risponde a una
+ * domanda che nessuno ha fatto:
+ *
+ *     Do penguins live in the Arctic?  -> «Ice.»     (habitat(penguin, ice))
+ *     Is Paris the capital of France?  -> «France.»
+ *
+ * Qui il valore trovato serve a un'altra cosa: si guarda se il turno CONTIENE
+ * gia' uno dei valori noti. Se si', la proposta regge -> «Yes.».
+ *
+ * Se non regge, un «No.» costerebbe piu' di quanto vale: significa affermare
+ * che l'altro valore e' FALSO, e non provato non e' falso. Si dice «No» solo
+ * dove la KB lo autorizza (`closed_world_answer/2`, la negazione guadagnata);
+ * altrimenti questa via si ritira e il turno scende a un muro onesto — che e'
+ * esattamente il mantra #7. */
+/* gen505x: «questo turno PROPONE un valore invece di chiederlo?». Una riga di
+ * lettura condivisa: chi sta per emettere un valore la consulta, invece di
+ * ripetere l'errore in un secondo posto (§R2 di procedura-crescita-kb.md). */
+static int p0_turn_is_polar(Brain *b, char **w, size_t nw) {
+    if (!b || !b->kb || nw == 0) return 0;
+    char first[KB_TERM_LEN];
+    snprintf(first, sizeof first, "%s", strip_edge_punct(w[0]));
+    const char *aq[1] = { first };
+    return *first && kb_query(b->kb, "polar_opener", aq, 1);
+}
+
+static int p0_polar_reply(Brain *b, const char *norm, char **w, size_t nw,
+                          const char *pred, char *out, size_t out_size) {
+    if (!b || !b->kb || nw == 0 || !norm || !pred || !*pred) return 0;
+    if (!p0_turn_is_polar(b, w, nw)) return 0;
+
+    /* La proposta e' fatta di token del turno: se una COPPIA di essi soddisfa
+     * la relazione, la proposta regge. Non serve sapere quale sia il soggetto e
+     * quale il valore — lo decide il fatto, non una posizione. */
+    for (size_t i = 0; i < nw; i++) {
+        char a[KB_TERM_LEN];
+        snprintf(a, sizeof a, "%s", strip_edge_punct(w[i]));
+        if (strlen(a) < 2) continue;
+        for (size_t j = 0; j < nw; j++) {
+            if (i == j) continue;
+            char c[KB_TERM_LEN];
+            snprintf(c, sizeof c, "%s", strip_edge_punct(w[j]));
+            if (strlen(c) < 2) continue;
+            const char *q[2] = { a, c };
+            if (kb_query(b->kb, pred, q, 2)) {
+                kb_say(b, "yes", "Yes.", out, out_size);
+                return 1;
+            }
+        }
+    }
+    /* Non regge. Un «No.» affermerebbe che l'altro valore e' FALSO, e non
+     * provato non e' falso: si dice solo dove la KB lo autorizza. Altrimenti
+     * questa via si ritira e il turno scende a un muro onesto (mantra #7). */
+    for (size_t i = 0; i < nw; i++) {
+        char a[KB_TERM_LEN];
+        snprintf(a, sizeof a, "%s", strip_edge_punct(w[i]));
+        const char *cw[2] = { pred, a };
+        if (*a && kb_query(b->kb, "closed_world_answer", cw, 2)) {
+            kb_say(b, "no", "No.", out, out_size);
+            return 1;
+        }
+    }
+    return -1;                 /* polare, ma non autorizzata a negare */
+}
+
 static int answer_projection_topic_allowed(Brain *b, const char *relation,
                                            const char *topic,
                                            const char *norm) {
@@ -7817,6 +7896,13 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
         char pred[KB_TERM_LEN];
         snprintf(pred, sizeof pred, "%s", kb_dequote(preds[p]));
         if (!*pred) continue;
+        /* gen505x: prima di QUALUNQUE emissione di valore, la forma della
+         * domanda. Una polare non chiede il valore: propone il proprio. */
+        {
+            int pol = p0_polar_reply(b, norm, w, nw, pred, out, out_size);
+            if (pol == 1) { free(preds); free(cues); return 1; }
+            if (pol < 0) { free(preds); free(cues); return 0; }
+        }
         /* A binary relation is not automatically reversible.  The surface-to-
          * relation frame may declare which argument the entity in the question
          * binds.  This is fixed slot mechanics: cue, predicate and direction
