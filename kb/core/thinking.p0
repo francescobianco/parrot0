@@ -284,9 +284,51 @@ thinking_feedback_ready($Scheme, $Node) :-
     thinking_feedback($Scheme, $Node, $Source, gap_with_action),
     thinking_feedback_action($Scheme, $Node, $Action).
 
+% ── gen505s — UN PASSO CHE NON HA MAI PORTATO NIENTE SMETTE DI GIRARE ──────
+%
+% `thinking_feedback_ready/2` dice che il nodo PUO' portare conoscenza nuova: e'
+% una promessa dichiarata, valutata una volta e per sempre. Quello che mancava e'
+% che cosa e' successo DAVVERO quando lo si e' provato.
+%
+% Misurato al gen505s, con il thinking acceso su turni di grammatica:
+%
+%     boot                                    2,64 s
+%     3 turni senza thinking                  +0,43 s  (0,14 s l'uno)
+%     3 turni con thinking                    +6,14 s  (2,05 s l'uno)
+%     3 `read:` della sola traccia di pensieri +5,98 s  (2,00 s l'uno)
+%
+% Cioe' TUTTO il costo del thinking e' il passo `ingest`, che rilegge come prosa
+% la risposta appena data. E rilegge qualcosa che parrot0 ha appena SCRITTO da
+% cio' che gia' sa: «Learned 0 fact(s), skipped 1», ogni volta. Due secondi per
+% scoprire che non c'era niente da scoprire.
+%
+% L'handoff attribuiva questo costo alla morfologia ricalcolata su liste di
+% caratteri. Misurato, non e' cosi': un turno di grammatica senza thinking costa
+% 0,14 s. La morfologia non c'entra.
+%
+% La cura non e' spegnere il passo — un giorno una risposta potrebbe davvero
+% portare fatti nuovi, e deciderlo a priori sarebbe una politica cablata. E'
+% lasciare che la KB IMPARI dai propri tentativi: l'esecutore conta quante volte
+% un nodo non ha portato delta, e oltre il limite dichiarato smette di provarlo.
+% Il limite e' un fatto, quindi si alza parlando; il conteggio e' riflessivo,
+% quindi ogni processo nuovo riprova da capo e non eredita una rinuncia.
+machinery(thinking_node_barren).
+machinery(thinking_node_exhausted).
+machinery(thinking_barren_limit).
+
+% Due tentativi: uno solo potrebbe essere un turno sfortunato, tre pagherebbero
+% sei secondi per la stessa scoperta.
+thinking_barren_limit(2).
+
+thinking_node_exhausted($Scheme, $Node) :-
+    thinking_node_barren($Scheme, $Node, $Count),
+    thinking_barren_limit($Limit),
+    ge($Count, $Limit).
+
 reentry_admissible($Scheme, $Node) :-
     thinking_reentry($Scheme, $Node, $Prompt),
-    thinking_feedback_ready($Scheme, $Node).
+    thinking_feedback_ready($Scheme, $Node),
+    naf(thinking_node_exhausted($Scheme, $Node)).
 
 machinery(reentry_mirror_risk).
 reentry_mirror_risk($Scheme, $Node) :-

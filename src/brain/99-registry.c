@@ -1460,8 +1460,31 @@ size_t brain_think(Brain *b, const char *input, char *out, size_t out_size,
             char outcome[KB_TERM_LEN] = "";
             int propagate = delta_observed &&
                 thinking_should_propagate(b, answer, outcome, sizeof outcome);
-            if (!delta_observed)
+            if (!delta_observed) {
                 thinking_record_issue(b, scheme, nodes[i], "no_delta");
+                /* gen505s: e quante volte e' successo. `thinking_prompt_issue`
+                 * dice CHE cosa e' andato storto una volta; il conteggio e' cio'
+                 * che permette alla KB di smettere di riprovare un passo sterile
+                 * — vedi `thinking_node_exhausted/2` in thinking.p0. Riflessivo,
+                 * quindi un processo nuovo riprova da capo: non si eredita una
+                 * rinuncia, la si rifa'. */
+                char cbuf[24];
+                long seen = 0;
+                {
+                    const char *bq[3] = { scheme, nodes[i], NULL };
+                    char rows[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "thinking_node_barren", bq, 3, rows, 1) == 1)
+                        seen = strtol(rows[0], NULL, 10);
+                }
+                snprintf(cbuf, sizeof cbuf, "%ld", seen + 1);
+                int saved = kb_origin(b->kb);
+                kb_set_origin(b->kb, KB_REFLECTIVE);
+                const char *clr[3] = { scheme, nodes[i], NULL };
+                kb_retract_match(b->kb, "thinking_node_barren", clr, 3);
+                const char *row[3] = { scheme, nodes[i], cbuf };
+                kb_assert(b->kb, "thinking_node_barren", row, 3);
+                kb_set_origin(b->kb, saved);
+            }
             else if (!propagate)
                 thinking_record_issue(b, scheme, nodes[i],
                                       outcome[0] ? outcome : "unclassified");

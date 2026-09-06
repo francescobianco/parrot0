@@ -130,9 +130,47 @@ quelli** — nessun rosso nuovo. `taught_lexicon.p0t` e' 16/19 anche prima delle
 modifiche (verificato in differenziale): stessa classe di `motorize_class.p0t`,
 resa in prosa invece che a termine.
 
+## ⭐ E il costo del thinking: la diagnosi era sbagliata, ed e' chiuso
+
+L'handoff diceva: «~2 s per turno, dominati dalla **morfologia** ricalcolata su
+liste di caratteri». Misurato:
+
+| | |
+|---|---|
+| boot | 2,64 s |
+| 3 turni di grammatica **senza** thinking | +0,43 s (0,14 s l'uno) |
+| 3 turni **con** thinking | +6,14 s (2,05 s l'uno) |
+| 3 `read:` della sola traccia di pensieri | +5,98 s (**2,00 s l'uno**) |
+
+La morfologia non c'entra: un turno di grammatica costa 0,14 s. **Tutto** il
+costo e' il passo `ingest` di `second_thought`, che rilegge come prosa la
+risposta appena data — e rilegge qualcosa che parrot0 ha appena scritto da cio'
+che gia' sa. «Learned 0 fact(s), skipped 1», ogni volta. Due secondi per
+scoprire che non c'era niente da scoprire.
+
+La cura non e' spegnere il passo: un giorno una risposta potrebbe davvero
+portare fatti nuovi, e deciderlo a priori sarebbe una politica cablata. E'
+lasciare che **la KB impari dai propri tentativi**. `thinking_feedback_ready/2`
+dice che un nodo *puo'* portare conoscenza — una promessa valutata una volta e
+per sempre; mancava che cosa e' successo **davvero** quando lo si e' provato.
+Ora l'esecutore conta i giri sterili (`thinking_node_barren/3`) e oltre il
+limite dichiarato (`thinking_barren_limit(2)`) il nodo smette di essere
+provato. Il limite e' un fatto, quindi si alza parlando; il conteggio e'
+riflessivo, quindi ogni processo riprova da capo e non eredita una rinuncia.
+
+| | 6 turni di grammatica |
+|---|---|
+| senza thinking | 3,82 s |
+| con thinking, prima | ~14,1 s (2,05 s l'uno) |
+| **con thinking, adesso** | **7,37 s** — due giri di sondaggio, poi gratis |
+
 ## Da dove riprendere
 
-1. ⭐ **Cercare altre viste nello stesso stato.** La correzione dell'ordine vale
+1. ⭐ **`read:` costa 2 secondi per quaranta parole.** E' il vero numero emerso
+   oggi, ed e' una capacita' centrale: la usano il sogno, l'ingestione da wiki e
+   l'autolearn, non solo il thinking. Il passo sterile ora si spegne da solo, ma
+   la lettura resta lenta per chi la usa sul serio. Da profilare.
+2. **Cercare altre viste nello stesso stato.** La correzione dell'ordine vale
    per TUTTE le viste materializzate, non solo per queste due: da qui in poi
    ogni `materialized_view/2` che dipende da un'altra vista viene costruita
    dopo. Vale la pena misurare il boot prima/dopo su altri profili, e cercare
@@ -519,10 +557,9 @@ bisogno di nessun giudice.
    *Lezione:* «una facolta' ruba il turno» era la spiegazione comoda; la vera
    domanda era **chi ha scritto per ultimo nella risposta**. Una sonda sul
    dispatch l'ha detto in un giro; tre ipotesi non ci erano arrivate.
-2. **Il costo del thinking**: ~2 s per turno, dominati dalla **morfologia
-   ricalcolata su liste di caratteri** a ogni vista. E' spento di default, quindi
-   non pesa; la cura e' H4 di `thinking.md` (il budget come condizione d'arresto)
-   piu' il numero **depositato come sensore** invece di rifarlo.
+2. ✅ **Il costo del thinking** — chiuso al `gen505s`, e la diagnosi era
+   sbagliata: non era la morfologia, era il passo che rilegge la propria
+   risposta. Vedi l'handoff in testa.
 3. **Le regole grammaticali**: oggi ne esiste **una**. I «rifiuti onesti» del
    `cefr-bench` (`TEST_TODO`) sono la lista della spesa, e ogni regola nuova li
    converte in «decise».
