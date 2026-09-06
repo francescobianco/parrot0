@@ -2406,18 +2406,34 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
         kb_prefix_remainder(b, "sequence_learning_prefix", canon) != NULL)
         return 0;
 
-    /* gen505x — ANCHE IL PUNTO SEPARA DUE FRASI (glm-test §6.6, §3.2).
+    /* ⚠ gen505x — IL PUNTO COME SEPARATORE: PROVATO E ANNULLATO.
      *
-     * «No, penguins do not live in the Arctic. They live in Antarctica.» — la
-     * seconda frase non veniva letta MAI, e la prima se ne portava dietro i
-     * pezzi («…in arctic they live»). Il report lo elenca due volte, come
-     * «seconda frase coordinata mai letta» e come «la correzione e' rotta»: e'
-     * lo stesso confine mancante.
+     * «la seconda frase coordinata non viene letta mai» (glm-test §6.6) e' vero
+     * e il punto sarebbe il confine giusto. Aggiungerlo funziona sui casi
+     * positivi — «My name is Marco. I live in Turin.» passa da «Got it: your
+     * name is Turin» a due fatti giusti, e `decompose.p0t` migliora 3/2 -> 4/1.
      *
-     * Il punto seguito da spazio e' un confine di frase, non un decimale ne'
-     * un'abbreviazione attaccata. La guardia che segue — la seconda meta' deve
-     * aprirsi come una frase — resta quella di prima e vale anche qui. */
-    const char *connectors[] = {" e ", " and ", " ed ", " ma ", " but ", ". ", NULL};
+     * Ma la POLARITA' non sopravvive al taglio:
+     *
+     *     socrates does not live in rome. He lives in athens.
+     *       -> «Learned: socrates does not live in rome.
+     *           Learned: socrates does not live in ATHENS.»
+     *
+     * cioe' la negazione della prima frase si scrive anche sulla seconda: un
+     * fatto FALSO in KB, la classe peggiore. I casi positivi restano corretti,
+     * quindi il difetto e' nella lettura della seconda meta', non nel taglio.
+     *
+     *   verdetto    annullato (2026-09-07, gen505x)
+     *   ragione     la polarita' della prima frase contamina la seconda; NON e'
+     *               `negate1/negate2`, che sopprimono un sotto-turno e non ne
+     *               cambiano il segno
+     *   condizione  la lettura del secondo sotto-turno, ancora non localizzata
+     *   specie      prematuro — il confine e' giusto, manca che il segno resti
+     *               dentro la sua frase
+     *
+     * Regola d'arresto 3: danno collaterale che scrive un fatto falso, si
+     * annulla e si sale di livello. */
+    const char *connectors[] = {" e ", " and ", " ed ", " ma ", " but ", NULL};
     const char *conn = NULL, *conn_text = NULL;
     size_t conn_len = 0;
     int is_but = 0;

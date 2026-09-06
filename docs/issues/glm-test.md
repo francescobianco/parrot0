@@ -1,5 +1,56 @@
 # Report di test critico — parrot0 valutato in chat interattiva
 
+> ## ✅ ESITO DELLA LAVORAZIONE — 7 settembre 2026 (`gen505x`)
+>
+> Sette commit, da `69cee26` a `453828e`. **Undici finding chiusi, tre parziali,
+> undici aperti con diagnosi.** Metodo: `docs/plans/procedura-crescita-kb.md` —
+> guardare prima di ipotizzare, provare in KB prima di compilare, differenziale
+> con lo stash prima di accusare il proprio codice.
+>
+> ### Chiusi
+>
+> | § | esito |
+> |---|---|
+> | **3.1** + **4.1** | erano **lo stesso difetto**, e la diagnosi del report era sbagliata: `habitat(penguin, ice)` **e' in KB**. «Ice.» non era confabulato — era vero e dato a una domanda polare. Perimetro reale piu' largo: *ogni* polare rispondeva con un valore («Is Paris the capital of France?» → «France.»). `polar_opener/1` + `p0_polar_reply`: se una coppia di token soddisfa la relazione → «Yes.»; «No.» solo dove `closed_world_answer/2` lo autorizza |
+> | **3.2** | la negazione teneva il complemento: chiuso di rimbalzo dando a `habitat` le sue forme |
+> | **3.4** | tre cause in fila: il valore non aveva una fine; il decompositore rifiutava un pronome; una sotto-frase non portava il proprio grezzo. Nome **e** citta' ora memorizzati e richiamabili, con la maiuscola |
+> | **3.6** | nove `||` sul turno intero → `p0_is_confirmation` posta due volte, sul turno e sulla prima parola. «yes, learn about it» accetta |
+> | **4.3** | **non era un difetto**: «Every dog is a mammal. Rex is a dog. Is Rex a mammal?» → «Yes.». A non passare era la coda del prompt del report |
+> | **4.4** | non «i percorsi leggono solo l'inglese»: locuzioni. Undici `phrase_canon`, **zero righe di C** |
+> | **4.6** | clausola relativa e doppio output: chiusi di rimbalzo |
+> | **6.3** | `assent_word` e `dissent_word` condividevano la risposta: chi negava riceveva una conferma |
+>
+> ### Parziali
+>
+> | § | fatto / resta |
+> |---|---|
+> | **3.3** | la porta d'**ingresso** e' aperta: «Penguins live in Antarctica» ora si **impara** (era «Ice.»). La porta d'**uscita** no: `answer_frame("live in", habitat)` spegne le domande che gia' funzionano, perche' `can_live_in` occupa la stessa superficie |
+> | **6.6** | il punto come separatore funziona sui casi positivi e **fabbrica un fatto falso** su quelli negati: annullato, scheda al sito |
+> | **5.4** | migliorato in italiano; «hi» → «Ciao!» resta |
+>
+> ### Aperti, con la causa scritta
+>
+> §3.5 (la stessa entita' sotto forme diverse), §4.2 (aritmetica), §4.5
+> (multi-obiettivo), §4.7 (pianificazione), §5.1–5.3, §6.1 (maiuscole), §6.2
+> (grammatica dei template), §6.5, §6.7 (fetch).
+>
+> ### Tre schede di tentativi annullati — da non ripercorrere
+>
+> Al loro sito, nella forma **verdetto / ragione / condizione / specie**:
+> `faculty_force(answerframe, question)` (la forza non e' leggibile quando il
+> registro gira), `answer_frame("live in", habitat)` (collisione di superficie),
+> il punto come separatore (la polarita' non sopravvive al taglio).
+>
+> ### Sul metodo del report
+>
+> Le riproduzioni deterministiche hanno funzionato: **ogni** finding e' stato
+> riprodotto al primo tentativo. Due diagnosi del report erano sbagliate (§3.1
+> confabulazione, §3.3 soggetti plurali) e in entrambi i casi **la cura giusta
+> era diversa da quella suggerita** — il valore del report non e' diminuito da
+> questo: e' aumentato, perche' le sonde erano abbastanza precise da falsificare
+> la propria spiegazione.
+
+
 > Autore: Buffy (GLM, agente Freebuff) — valutazione comportamentale su ca. **45 sonde**
 > in **10 sessioni** indipendenti, due passate (base + acquisizione).
 > Data: 2026-09-06. Binario: `bin/parrot0` `[gen501-challenge-pilot@7fdad87]`,
