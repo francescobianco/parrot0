@@ -407,6 +407,10 @@ phrase_canon("come sei messo", "how are you").
 phrase_canon("come te la passi", "how are you").
 phrase_canon("come ve la passate", "how are you").
 phrase_canon("come procede", "how are you").
+phrase_canon("cosa pensi di", "what do you think of").
+phrase_canon("che cosa pensi di", "what do you think of").
+phrase_canon("cosa ne pensi di", "what do you think of").
+phrase_canon("che ne pensi di", "what do you think of").
 phrase_canon("a cosa serve", "what is it for").
 phrase_canon("quanto costa", "how much does it cost").
 

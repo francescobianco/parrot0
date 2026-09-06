@@ -83,28 +83,64 @@ cammini.
 > ingresso.** La verifica e' additiva e non ha rotto niente; la restrizione
 > cambia la gara.
 
-## Il reperto 1 — `come sei messo` → «Non capisco ancora.»
+## Il reperto 1 — ✅ CHIUSO (gen505u)
 
-Muro onesto, non un misclaim. E' una forma idiomatica italiana di «come stai»:
-manca al registro affettivo. **Non chiuderlo con una `intent_cue` in piu'** —
-sarebbe frasario. La forma giusta e' `pragma_act`/`chitchat_reaction` con la
-classe che gia' esiste, e va guardata insieme al punto delle cue corte.
-
-## Il reperto 2 — `cosa pensi di questo SELECT * FROM table`
+Non era un difetto del registro: era la **lezione** che confermava il falso.
 
 ```
-  -> «That looks like a snippet of code.»
+"come sei messo" is another way to say "come stai"
+  -> «Got it - …»            la conferma arrivava
+come sei messo
+  -> «Non capisco ancora.»   e non cambiava niente
 ```
 
-Due difetti in uno: (a) risponde **a una domanda diversa** — era «cosa ne
-pensi», non «che cos'e'»; (b) risponde **in inglese a un turno italiano**.
-Il riconoscimento del codice ha rubato il turno alla richiesta di giudizio: e'
-la stessa famiglia del reperto 3 — la lettura dell'ATTO del turno arriva dopo
-chi riconosce il contenuto.
+La lezione copiava **una** classe dell'ancora, la sua `intent_cue`. Ma «come
+stai» non arriva al registro sociale da li': ci arriva da `phrase_canon/2`.
+«un altro modo di dire Y» non dice niente sul TIPO di Y — dice che le due
+superfici **si leggono uguale**, che e' esattamente `phrase_canon/2`, a monte di
+registro, lingua e forza del turno. Ora la lezione asserisce anche quella, e
+**trasferisce**: «come te la passi», mai nominata, funziona subito dopo.
+
+Le quattro locuzioni imparate cosi' sono persistite in `kb/core/lexicon.p0`.
+
+## Il reperto 2 — ✅ CHIUSO (gen505u)
+
+```
+cosa pensi di questo SELECT * FROM table    -> «That looks like a snippet of code.»
+what do you think of this SELECT * FROM table
+  -> «I can help compare the reasons and trade-offs, but I do not have personal opinions.»
+```
+
+**La stessa domanda, in due lingue, con due esiti.** In inglese l'atto viene
+riconosciuto; in italiano no, e il riconoscitore di codice si prende il turno.
+
+La causa, dal canonico: `cosa pensi di questo …` → **`what pensi of this …`**.
+Il verbo non viene mai tradotto — non esiste nessun gloss italiano per «think»
+— quindi la cue `opinion_request` non puo' combaciare. Le due superfici italiane
+dichiarate (`che ne pensi`, `cosa ne pensi`) richiedono entrambe il clitico
+«ne», e la forma con «di» non era coperta.
+
+Chiuso con quattro `phrase_canon`: e' il caso documentato per quella tabella —
+la traduzione a parole non e' goffa, e' **sbagliata**. Adesso:
+
+```
+cosa pensi di questo SELECT * FROM table
+  -> «Posso confrontare ragioni e compromessi, ma non ho opinioni personali…»
+```
+
+Atto giusto **e** lingua giusta.
+
+> ⚠ Resta aperto il caso generale: **nessun gloss italiano per i verbi.**
+> `italian(pensi, think)` non esiste, e la tabella `italian/2` e' vuota — si
+> popola solo insegnando. Aggiungerlo non avrebbe chiuso questo reperto (senza
+> l'ausiliare «do you» la cue non combacia comunque), quindi non l'ho aggiunto
+> non misurato. Ma e' il fondo del problema italiano, insieme a `C_TODO` §U4.
 
 ## Da dove riprendere
 
-1. **Il reperto 1 e il 2** restano aperti (diagnosi qui sopra).
+1. ⭐ **I verbi italiani non hanno gloss** (vedi reperto 2): la tabella
+   `italian/2` e' vuota e si popola solo insegnando. E' il fondo del problema
+   italiano insieme a `C_TODO` §U4.
 2. **`read:` costa 2 s per quaranta parole** (misurato al `gen505s`). Capacita'
    centrale: sogno, wiki, autolearn. Da profilare.
 3. **Le 73 cue corte** — censimento aperto dal `gen505q`.
