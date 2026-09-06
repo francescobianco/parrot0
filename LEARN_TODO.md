@@ -1,5 +1,76 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# ⛔ URGENTE — `gen505w`: parrot0 IMPARA UN FATTO FALSO DA UNA DOMANDA
+
+> Reperto di F. Non e' un muro e non e' una risposta sbagliata: **e' la KB che
+> si sporca da sola**, ed e' la classe piu' grave che abbiamo incontrato.
+
+```
+sai cosa sono le sbaddune   ->   «Imparato: sai what è un sbaddune.»
+```
+
+## La catena, misurata
+
+1. **`sai` non ha glossario italiano.** Il canonico diventa
+   `sai what are the sbaddune` — un token italiano non tradotto in testa a una
+   domanda inglese.
+2. Con quel token davanti, l'estrattore legge **`X are Y`** con `X = «sai what»`
+   e scrive `sbaddune(sai_what)` in KB.
+3. ⭐ **E la lettura giusta C'ERA:** su quel turno
+   `turn_illocution(current_turn, question)` e' **dimostrabile**. Non mancava di
+   sapere che era una domanda — mancava che *chi impara* lo chiedesse. Il ramo
+   ha una propria rilevazione (`asking`, dal parser della menzione) piu' debole
+   di quella pubblicata: la solita lettura privata al posto di quella condivisa.
+
+Il perimetro: `zzz what are the sbaddune` fa lo stesso, quindi **non e' «sai»**,
+e' *qualunque* token sconosciuto davanti a una domanda. `hmm what are the
+sbaddune` invece regge (token noto), e `cosa sono le sbaddune` risponde bene.
+
+## Tre cure tentate, nessuna scattata — e perche' mi sono fermato
+
+Tutte e tre in `p0_bad_subject` / nel ramo di `learned_class_fact`
+(`10-memory-knowledge.c:6224`, unico emettitore del messaggio):
+
+1. un sintagma che contiene un interrogativo non e' un soggetto (split su `_`);
+2. idem con split su `_` **e** spazio;
+3. la stessa cosa piu' `turn_illocution(current_turn, question)`.
+
+Nessuna cambia il comportamento. Fermato per la **regola d'arresto 2**, e con un
+motivo in piu': **non riesco a confermare perche'**, e la ragione e' uno
+strumento.
+
+## ⚠ E qui c'e' il difetto che blocca la diagnosi
+
+**`!query!` (e le sonde di `/debug`) non vedono i predicati dichiarati
+`machinery`.** Misurato:
+
+```
+!query! question_word(what)       ->  NON dimostrabile
+!query! faculty_force(narrative_continuation, directive)  ->  NON dimostrabile
+```
+
+Sono entrambi fatti che **esistono e funzionano** a runtime. Cioe' l'ispettore
+mente sul contenuto della KB, e ogni diagnosi che ci si appoggia parte storta —
+in questo giro mi ha fatto perdere due cicli su tre.
+
+`MANTRA.md` e la memoria di progetto dicono che lo strumento di debug deve
+crescere: **questo va prima del resto.** Finche' non si puo' chiedere «questo
+fatto c'e'?» e avere una risposta vera, ogni circuito si diagnostica alla cieca.
+
+## L'ordine che propongo
+
+1. ⛔ **`!query!` deve vedere i `machinery`** — senza, non si diagnostica.
+2. ⛔ **Nessuna scrittura in KB da un turno letto come domanda.** La lettura e'
+   gia' pubblicata: serve che il ramo che impara la consumi, come hanno fatto
+   gli undici consumatori di `turn_focus`.
+3. **`sai` e i verbi italiani non hanno glossario** — e' il terzo difetto di
+   fila che ne dipende (dopo `tempo`->time e la canonicalizzazione ibrida di
+   `C_TODO` §U4). Non e' piu' una voce di lista: e' un blocco con tre cose
+   dietro.
+
+---
+
+
 > **Come si conduce una sessione:** `docs/plans/procedura-crescita-kb.md` —
 > quanto costa un giro (rebuild C 18,3 s vs KB 0 s), dove sono le criticita'
 > misurate e la procedura in sei passi. Da leggere prima di aprire un reperto.
