@@ -1,56 +1,379 @@
-# Quanto costa una sessione, e come si ottimizza
+# Che cosa stiamo facendo, e come si accelera
 
-*Aperto il 2026-09-06 su richiesta di F.: «dobbiamo capire quanto ci costa una
-sessione di addestramento come questa, dove sono le criticita', e costruire una
-procedura ottimizzata di crescita della KB — non nei contenuti, nella
-**procedura**».*
+*Aperto il 2026-09-06 su richiesta di F.: «lavora al livello metodologico,
+lasciamo i numeri da parte — capiamo cosa stiamo facendo (accrescere la KB per
+aumentare le abilita' di comprensione) e come accelerare questo processo».*
 
-Misurato sulla sessione del 6 settembre 2026 (`143805c`…`7a24471`), l'unica di
-cui abbiamo insieme il transcript, i commit e i tempi.
+I numeri stanno in coda, al §7, come prova. Qui c'e' il metodo.
 
 ---
 
-## ⚡ In testa, per chi non legge il resto
+## 1. La scoperta che riorienta tutto: non stiamo accumulando, stiamo distinguendo
 
-**Le cinque cose che cambiano il costo di una sessione, in ordine di leva:**
+Guardando **tutte e otto** le abilita' acquisite nella sessione del 6 settembre,
+nessuna e' stata «parrot0 non sapeva una cosa e adesso la sa». Tutte e otto sono
+state **una distinzione che mancava**:
 
-1. **Il ciclo KB e' gratis, quello C costa 18,3 s.** Una modifica `.p0` non
-   richiede nessuna ricompilazione: si riavvia il binario e c'e'. Una riga di C
-   ricompila **53.605 righe** in una sola unita' di traduzione. → *esaurire le
-   ipotesi KB prima di toccare il C.* Il mantra #1 non e' solo una regola di
-   qualita': e' la via **piu' veloce**, e nessuno l'aveva mai detto cosi'.
-2. **Una sonda in KB batte una `fprintf`.** Stessa informazione, 18,3 s contro
-   0. Al `gen505t` tre righe di `debug_probe` hanno raccontato un caso intero
-   che tre ipotesi ragionate non avevano chiuso.
-3. **Le misure invecchiano e nessuno le ridata.** 76 affermazioni «misurato» nel
-   codice, **5** con una data o una generazione. Una di queste ha tenuto ferma
-   una classe della KB per settimane dopo che era diventata falsa.
-4. **La diagnosi ereditata va rifatta, non creduta.** Due handoff di questa
-   stessa giornata portavano diagnosi sbagliate, entrambe mie.
-5. **Un reperto di F. vale un'ora di esplorazione.** Tre turni veri incollati →
-   tre difetti veri, tutti chiusi. Costo di scoperta: zero.
+| il difetto | la distinzione che mancava |
+|---|---|
+| il thinking sovrascriveva la risposta | un passo *puo'* portare conoscenza ≠ l'*ha portata* |
+| «yo» rivendicava «yoga» e «beyond» | contenere le *lettere* ≠ contenere la *parola* |
+| il boot costava il doppio | una vista *e' dichiarata* ≠ *e' costruita* |
+| «say» non apriva «says» | la direzione *a buon mercato* ≠ quella *cara* |
+| «he eats nice food» non era un'affermazione | poter essere *soggetto* ≠ poter essere *chiave* |
+| «l'arrocco negli scacchi» → definizione degli scacchi | *nominato* nel turno ≠ *chiesto* dal turno |
+| «un altro modo di dire» confermava il falso | entrare in *quella classe* ≠ *leggersi uguale* |
+| «la legge di ohm» → «la read di ohm» | conoscere la *legge* ≠ conoscere il suo *nome* |
 
-**La procedura in sei passi e' al §4.** Il resto e' il perche'.
+Otto su otto. E in tutti e otto i casi la conoscenza **c'era gia'**: la legge di
+Ohm era in KB con tutto il suo albero, il campo `Pre` era dichiarato dal giorno
+in cui lo schema fu scritto, `view_depends` diceva gia' l'ordine giusto.
+
+> **La comprensione non cresce aggiungendo righe. Cresce separando due cose che
+> un predicato solo stava rispondendo insieme.**
+
+Questo cambia tutto il resto: che cosa cercare, dove cercarlo, e come misurare
+se una sessione e' andata bene.
+
+### Dove si trovano le prossime distinzioni
+
+Se la forma e' sempre «un predicato risponde a due domande», allora si possono
+**cercare** invece che aspettare che si presentino. Il segnale e':
+
+> **un predicato che ha sia un consumatore che LEGGE sia uno che SCRIVE.**
+
+`subject_guard/1` era esattamente questo — chiedeva insieme «puo' essere il
+soggetto di una predicazione?» (lettura) e «puo' essere la chiave di un fatto?»
+(scrittura) — e la fusione teneva parrot0 cieco a ogni frase con un pronome.
+
+Altri candidati con la stessa firma, da guardare: `stopword/1` (filtro di
+ricerca e filtro di apprendimento), `machinery/1` (nascondere a «cosa sai di X»
+e escludere da `/save`), `wall_marker/1` (riconoscere un muro e decidere se
+propagarlo), `question_word/1` (aprire una domanda e non essere un soggetto).
 
 ---
 
-## 1. La sessione, misurata
+## 1-bis. L'unita' di costo non e' il secondo: e' il ciclo diagnostico
+
+*F., leggendo la prima versione di questo documento: «i tempi che hai misurato
+sono irrilevanti rispetto ad esempio al tempo di alcune ore che abbiamo
+impegnato per gestire il ciclo completo dell'arrocco negli scacchi».*
+
+Ha ragione, e la correzione riorienta il documento. Tutte le misure meccaniche
+del §7 — ricompilazioni, boot, suite — messe insieme fanno **minuti**. Il caso
+dell'arrocco ne ha richieste **ore**, attraverso due sessioni.
+
+Il tempo non se ne va nelle operazioni. Se ne va nei **cicli diagnostici**:
+
+> ipotesi → modifica → misura → tenere o disfare.
+
+Un ciclo costa pochi secondi di macchina e molto di tutto il resto: formularlo,
+scriverlo, misurarlo, capire che era sbagliato, disfarlo, e ricostruire il
+contesto mentale che si era spostato. **Ottimizzare i secondi e' inutile.
+Ottimizzare il numero di cicli e' tutto.**
+
+### Dove sono andati i cicli dell'arrocco
+
+| # | ciclo | esito |
+|---|---|---|
+| 1 | riprodurre, vedere `semantic_lead`, ipotizzare «il topic si sceglie ovunque nel turno» | ✅ giusta |
+| 2 | **insegnare** «arrocco» per distinguere ignoranza da difetto | ✅ informativo, ed e' costato niente |
+| 3 | costruire il fuoco, verificarlo nella proiezione | ⚠️ `semantic_lead` tace, **ma risponde un'altra facolta'** |
+| 4 | restringere il testo su cui la proiezione segna l'evidenza | ❌ rompe «what is water» → disfatto |
+| 5 | restringere la scansione delle parole | ❌ peggiora l'arrocco → disfatto |
+| 6 | filtrare i token candidati | ❌ peggiora ancora → disfatto |
+| 7 | accettare il parziale, committare, scrivere l'handoff | — |
+| 8 | *(F.)* pubblicare la lettura **una volta** e verificarla in otto punti | ✅ chiuso |
+| 9 | aggiungere le sonde di `/debug` | ✅ |
+
+**Tre cicli su nove buttati** — e non erano tre errori diversi: erano **tre
+varianti della stessa forma sbagliata**, «restringere l'ingresso», tentate dopo
+che il ciclo 3 aveva gia' detto tutto.
+
+### I due segnali che erano li' e che non ho letto
+
+**Segnale A — il difetto si e' spostato.** Alla fine del ciclo 3 il difetto non
+era chiuso: era migrato a un'altra facolta'. Quello era il momento di fermarsi.
+Un difetto che migra non e' un difetto di chi lo mostra: e' una **lettura del
+turno che nessuno fa**, e la cura e' pubblicarla una volta, non inseguirla.
+
+**Segnale B — ho rotto qualcosa di non correlato.** Al ciclo 4 «what is water»
+e' diventato un elenco di fatti. L'ho trattato come un ostacolo da aggirare. Era
+**informazione**: se una modifica rompe casi che non c'entrano, stai toccando
+una risorsa **condivisa** — e allora il difetto vive li', ma la cura dev'essere
+una *verifica*, non una *restrizione* (R3).
+
+Due segnali, entrambi arrivati presto, entrambi letti come attrito invece che
+come diagnosi. Sono costati cinque cicli.
+
+### Le tre regole d'arresto che ne seguono
+
+Non sono consigli, sono **soglie**. Servono proprio perche' nel momento in cui
+scattano si e' convinti di essere vicini alla soluzione.
+
+1. **Alla seconda facolta' che ripete lo stesso errore, si smette di curare
+   facolta'.** Non «quando si nota uno schema»: alla seconda. Il conto e'
+   oggettivo e va tenuto.
+2. **Al secondo tentativo della stessa forma di cura, si cambia forma.** Cicli
+   4-5-6 erano tutti «restringi l'ingresso». Il terzo non andava tentato.
+3. **Se una modifica rompe un caso non correlato, si annulla e si sale di
+   livello** — non si cerca la variante che non lo rompe. Quel danno collaterale
+   sta dicendo a che livello vive il problema.
+
+### Che cosa avrebbe accorciato il caso a due cicli
+
+Il ciclo 2 e' il modello da imitare: **insegnare «arrocco» per separare
+ignoranza da difetto** e' costato pochi secondi e ha eliminato meta' dello
+spazio delle ipotesi. E' una domanda che si puo' porre quasi sempre:
+
+> **Il sistema sbaglia perche' non sa, o perche' non riesce ad arrivarci?**
+> Rendere noto cio' che manca e riprovare risponde in un turno.
+
+Se dopo il ciclo 3 avessi applicato la regola d'arresto 1, il caso sarebbe stato
+1-2-3-8: **quattro cicli invece di nove**, e in una sessione sola.
+
+---
+
+## 2. I colli di bottiglia, come ricette
+
+### R1 — Il difetto non abita dove si presenta
+
+Ogni reperto di questa sessione e' emerso lontano dalla sua causa. «what is your
+designation» sembrava un difetto di `chitchat`; era una cue di due lettere che
+combaciava dentro «your». Il rosso del thinking sembrava coreferenza; era la
+risposta sovrascritta dal proprio secondo pensiero.
+
+**La prima ipotesi e' quasi sempre sul posto dove sei fermo.**
+
+> **Ricetta:** prima di formulare una sola ipotesi, guarda la *strada* del
+> turno: `/debug` (`turn_module`, `turn_outcome`, `turn_focus`),
+> `lang.canonical`. Se non lo dicono, aggiungi una sonda — che e' una riga di
+> KB, non una `fprintf`.
+
+### R2 — Se la cura sposta il difetto invece di chiuderlo, sei al livello sbagliato
+
+Sull'arrocco: `semantic_lead` ha smesso di mentire, e ha mentito `answerframe`.
+Tolta quella, ha mentito il legatore di sintagmi. Tre facolta', stesso errore.
+
+Non e' fastidio: e' **il segnale diagnostico piu' affidabile che abbiamo.**
+Quando due facolta' sbagliano allo stesso modo, il difetto non e' in nessuna
+delle due — e' in una **lettura del turno che nessuno ha fatto**, e va
+pubblicata una volta e consumata da tutte.
+
+> **Ricetta:** al secondo consumatore che ripete l'errore, smetti di curare
+> consumatori. Il difetto e' una lettura mancante, e va **pubblicata una volta**
+> e consumata da tutti. E' la regola d'arresto 1 del §1-bis, e ignorarla e'
+> costato da sola cinque cicli.
+
+### R3 — Verificare l'uscita e' additivo, restringere l'ingresso non lo e'
+
+Provato due volte oggi, e due volte annullato: restringere il testo su cui si
+segna l'evidenza, o filtrare i candidati in gara, cambia **quale relazione
+vince** e non solo quale soggetto — «what is water» e' diventato un elenco di
+fatti. Verificare il vincitore *dopo* averlo trovato non ha rotto niente.
+
+> **Ricetta:** davanti a un turno rubato, aggiungi una verifica a valle. Non
+> togliere concorrenti a monte. Vale in generale, non solo qui: una guardia che
+> riduce cio' che un pezzo *vede* ha ragione per costruzione, ed e' il criterio
+> di evoluzione che questo progetto rifiuta.
+
+### R4 — Le bugie sono invisibili dall'interno, i muri no
+
+Un muro si trova esplorando. Una risposta fluente e sbagliata no — perche'
+esplorando si chiede cio' che si sospetta, e nessuno sospetta cio' che sembra
+funzionare. «cosa e' l'arrocco negli scacchi» rispondeva benissimo, e di
+un'altra cosa.
+
+I tre reperti incollati da F. hanno prodotto tre difetti veri, **uno dei quali
+un misclaim**. Un'ora di esplorazione autonoma non l'avrebbe trovato.
+
+> **Ricetta:** una sessione si apre su un transcript reale, e lo si legge
+> cercando le risposte **fluenti**, non i muri. Un muro e' gia' una voce di
+> to-do; una bugia e' un difetto nascosto. Se il transcript non c'e', il primo
+> atto e' produrlo — dieci turni nel dominio del giorno, incollati grezzi.
+
+### R5 — Le convinzioni del progetto scadono, e sono scritte come se non scadessero
+
+`verb_suffix/1` e' rimasta a un membro solo per settimane, con accanto la
+ragione misurata che l'aveva resa vera — e che un cambiamento successivo aveva
+gia' invalidato. La lore «troppe variabili» era mia, era falsa, e ci sono
+ricascato in un secondo file. Due handoff di questa stessa giornata portavano
+diagnosi sbagliate, entrambe mie, scritte con la sicurezza di chi ha appena
+visto il sintomo.
+
+Il problema non e' che ci si sbagli. E' che **una frase scritta nel codice
+diventa legge**, e nessuno la ridata.
+
+> **Ricetta:** ogni sessione **ridata una convinzione ereditata**, scelta fra
+> quelle che bloccano qualcosa. Costa pochi minuti e oggi ha sbloccato una
+> classe intera. E ogni «misurato» che si scrive porta la generazione, cosi' chi
+> lo legge sa quanto e' vecchio.
+
+### R6 — Accoppiamento forte si intreccia, accoppiamento debole si accumula
+
+Questa e' l'intuizione di F. sui test, generalizzata. F.: *«mi ero accorto che
+l'impatto della crescita non rompeva i test in maniera sostanziale, quindi ho
+deciso di fixare i test solo dopo alcune sessioni di apprendimento»*.
+
+E' una decisione di **batching basata su una proprieta' osservata**: fra
+crescita della KB e rottura dei test l'accoppiamento e' *debole*, quindi i due
+processi possono girare a frequenze diverse. Verificato oggi: su sette file
+controllati, la crescita di una giornata intera ha spostato **due** assert, e
+uno dei due era il test ad avere ragione vecchia.
+
+La regola generale che ne segue:
+
+> **Intreccia cio' che e' fortemente accoppiato a quello che hai appena
+> cambiato. Accumula tutto il resto.**
+
+| accoppiamento | quando |
+|---|---|
+| **forte** — si fa subito | il differenziale sul file toccato; il replay dopo una lezione; il censimento dei `PARSE ERROR` dopo aver scritto `.p0` |
+| **debole** — si accumula | riallineare le suite; potare i registri; rivedere le regole indotte; ripulire `savemap` |
+
+Il costo di sbagliare verso: intrecciare cio' che e' debole spende tempo su
+rumore; accumulare cio' che e' forte lascia entrare un difetto che poi si cerca
+per un'ora.
+
+### R7 — Una lezione che conferma il falso corrompe il maestro
+
+`"come sei messo" is another way to say "come stai"` → **«Got it»** → e il turno
+dopo murava. Per un sistema che impara parlando questo e' il guasto peggiore,
+peggiore di un rifiuto: non sbaglia una risposta, sbaglia **il modello che il
+maestro ha dello studente**. Da quel momento si insegna sopra una base falsa.
+
+> **Ricetta:** dopo ogni lezione, il **replay e' il turno immediatamente
+> successivo**. Non a fine sessione, non «poi verifico»: subito. E una lezione
+> che non cambia niente deve dirlo.
+
+---
+
+## 3. Che cosa vuol dire «andata bene», qualitativamente
+
+Se la crescita e' fatta di distinzioni e non di righe, il conteggio giusto non
+e' quante clausole sono entrate. E':
+
+- **quante distinzioni** sono state fatte, e se ognuna ha un nome interrogabile
+  (`predication_subject/1`, `turn_focus/2`, `inflection_suffix/1`);
+- **quante capacita' gia' presenti** sono diventate raggiungibili parlando;
+- **quante bugie** sono diventate muri onesti — questo conta piu' di quante
+  domande in piu' hanno risposta;
+- **quante convinzioni ereditate** sono state ridatate;
+- e, in negativo: **zero conferme false**.
+
+Una sessione che aggiunge duecento fatti e nessuna distinzione ha ingrassato la
+KB senza far crescere la comprensione. Una che ne aggiunge quattro e separa due
+concetti fusi ha fatto il lavoro.
+
+---
+
+## 4. La procedura, sei passi
+
+> Per una sessione **mista** — comprensione, metacomprensione, KB viva — cioe'
+> quella che facciamo davvero. Per l'insegnamento puro resta
+> `LEARN_PROTOCOL.md`, che questo documento non sostituisce.
+
+**0. Aprire su un reperto.** Un transcript reale. Leggerlo cercando le risposte
+fluenti, non i muri (R4).
+
+**1. Fissare la baseline una volta.** Zero `PARSE ERROR`, il boot annotato, i
+quattro-sei `.p0t` del dominio con i loro rossi **scritti**. Da qui in poi «e'
+rosso» non e' un'informazione: lo e' «e' rosso *diversamente*».
+
+**2. Guardare prima di ipotizzare.** Al massimo **una** ipotesi prima di aver
+letto la strada del turno (R1). Se le sonde non bastano, se ne aggiunge una: una
+riga di KB, non una `fprintf`.
+
+**3. Chiedersi sempre per prima: «quale capacita' esiste gia' e non si
+raggiunge?»** Otto su otto, questa sessione. E provare la cura **in KB**: se
+funziona hai finito senza compilare; se non e' esprimibile, *quello* e' il
+risultato — hai trovato il confine del motore senza pagarlo.
+
+**4. Se serve il C: verificare a valle, non filtrare a monte** (R3). E tenere
+le tre regole d'arresto del §1-bis, che scattano proprio quando ci si sente
+vicini alla soluzione:
+seconda facolta' che ripete l'errore → si sale di livello;
+secondo tentativo della stessa forma di cura → si cambia forma;
+danno collaterale su un caso non correlato → si annulla e si sale.
+
+**5. Verifica differenziale sul solo dominio toccato.** Se un rosso compare,
+`git stash` e rimisurare **prima** di accusare il proprio codice: due volte su
+tre oggi il rosso era preesistente, e la terza volta era una scoperta. Il
+riallineamento delle suite si accumula (R6).
+
+**6. Chiudere il registro invece di farlo crescere.** Un solo handoff vivo per
+file. Ogni «misurato» con la sua generazione. Ogni diagnosi con la sonda che la
+falsifica — o marcata `da riverificare` (R5).
+
+---
+
+## 5. Le tre cose che, se cambiate, accelerano tutto il resto
+
+In ordine di quanto tolgono **cicli**, non secondi.
+
+1. **Le sonde di `/debug` come primo riflesso, non come ultimo.** Sono l'unico
+   strumento che accorcia la diagnosi invece delle operazioni: costano una riga
+   di KB e raccontano il caso intero. Le tre righe di `turn_focus` dicono in un
+   colpo che cosa il turno chiedeva e chi si e' ritirato — cioe' esattamente
+   cio' che al ciclo 3 dell'arrocco non sapevo e che mi e' costato cinque cicli.
+   **Ogni difetto chiuso dovrebbe lasciare dietro di se' la sonda che lo
+   avrebbe trovato.**
+2. **Un gradino di verifica che stampi il *delta* su una baseline**, invece di
+   un elenco di rossi da interpretare. Il differenziale a mano l'ho fatto sei
+   volte in una sessione: e' l'unico modo onesto di dire «questo rosso e' mio»,
+   e finche' costa un gesto manuale si tende a saltarlo — cioe' a confondere
+   danno collaterale (che e' diagnosi, §1-bis) con rumore.
+3. **Spezzare l'unita' di traduzione.** Vale poco in secondi — venti
+   ricompilazioni fanno sei minuti — ma toglie l'unico incentivo strutturale a
+   **ragionare invece di provare**. Quando un tentativo costa quanto un
+   pensiero, si tentano le ipotesi invece di sceglierle: e' il modo in cui si
+   fanno tre cicli della stessa forma sbagliata.
+
+---
+
+## 6. Se se ne ricorda una sola
+
+> **Non stiamo insegnando cose a parrot0: stiamo separando cose che teneva
+> insieme.** E il tempo non se ne va nelle operazioni, se ne va nei cicli
+> diagnostici — quindi il guadagno non e' fare i cicli piu' in fretta, e'
+> **farne di meno**: guarda prima di ipotizzare, fermati alla seconda facolta'
+> che ripete l'errore, e tratta cio' che rompi come diagnosi, non come attrito.
+
+---
+
+## 7. Le misure meccaniche, e perche' contano poco
+
+⚠ **Da leggere sapendo il §1-bis.** Tutto cio' che segue, messo insieme, fa
+minuti; un solo caso mal diagnosticato ne fa ore. Questi numeri servono a due
+cose sole, non a una terza:
+
+1. a decidere **in che ordine** provare le cose — il ciclo KB non ha
+   compilazione, quindi va per primo, e non per velocita' ma perche' un
+   tentativo che costa zero si puo' fare *prima* di aver deciso se e' giusto;
+2. a giustificare **una** modifica strutturale (spezzare l'unita' di
+   traduzione), che vale non per i secondi che risparmia ma perche' toglie
+   l'incentivo a ragionare al posto di provare.
+
+Non servono a stimare la durata di una sessione. Quella la decide il numero di
+cicli diagnostici, e i cicli li decide la qualita' della diagnosi.
+
+### La sessione del 6 settembre
 
 | | |
 |---|---|
 | commit | 12 |
-| finestra attiva | ~4,2 h (09:45–13:15, 20:16–20:59) |
-| media | ~21 min per commit |
+| finestra attiva | ~4,2 h |
 | righe di documentazione | **890** |
 | righe di KB | **533** |
 | righe di C | **527**, di cui **197 (42%) commento** |
-| righe di test | 16 |
 
 Il codice vero scritto in una giornata piena e' **~277 righe**. Tutto il resto e'
-conoscenza e spiegazione — che e' come dev'essere, ed e' la prima cosa che una
-procedura deve smettere di trattare come un sottoprodotto.
+conoscenza e spiegazione. Le 890 righe di documentazione **non sono spreco**:
+sono il motivo per cui questa analisi si puo' fare — i commit contengono le
+misure, le strade sbagliate e il perche'. Il difetto non e' scriverne troppa: e'
+non **datarla** (R5) e non **potarla**.
 
-### Il costo meccanico di un giro
+### Il costo di un'operazione
 
 | operazione | costo |
 |---|---|
@@ -59,7 +382,7 @@ procedura deve smettere di trattare come un sottoprodotto.
 | sonda CLI (boot + un turno) | 3,1 s |
 | avvio del demone di test | 3,7 s |
 | un `.p0t` mirato | 4,3 s |
-| `make soft-test` | **32 s** (il suo budget dichiarato e' 15 s) |
+| `make soft-test` | **32 s** (budget dichiarato: 15 s) |
 | suite intera | minuti, fail-fast, 4 rossi preesistenti |
 
 I 18,3 s hanno una causa strutturale: `src/brain.c` include tutti i tredici
@@ -67,37 +390,12 @@ I 18,3 s hanno una causa strutturale: `src/brain.c` include tutti i tredici
 `70-social-pragma.c` (1.467 righe) ricompila anche le 17.706 di
 `10-memory-knowledge.c`.
 
----
+Rimessi nella scala giusta: **~20 ricompilazioni fanno 6 minuti**, contro le ore
+del caso dell'arrocco. Il numero serve solo a dire *in che ordine* provare —
+prima cio' che non compila — e a giustificare la separazione dell'unita' di
+traduzione, che vale perche' toglie l'incentivo a ragionare invece di provare.
 
-## 2. Le criticita', con la misura accanto
-
-### C1 — I due cicli hanno prezzi diversi e li trattiamo uguale
-
-Il ciclo KB non ha compilazione. Il ciclo C ne ha una da 18,3 s. In questa
-sessione li ho alternati di continuo, spesso ricompilando per provare
-un'ipotesi che un fatto `.p0` avrebbe falsificato gratis.
-
-> **Regola:** ogni ipotesi si prova prima nella forma KB. Se non e' esprimibile
-> in KB, quello **e'** il risultato: hai appena scoperto che serve il motore, e
-> lo sai senza aver pagato una compilazione.
-
-### C2 — Le sonde di debug sono in KB, e le usiamo poco
-
-`/debug` legge `debug_probe/4`: una sonda nuova e' **una riga di `.p0`**, senza
-ricompilare. Nella sessione ho invece usato tre volte una `fprintf` usa-e-getta,
-pagando 18,3 s per aggiungerla e altri 18,3 per toglierla — e una volta l'ho
-dimenticata dentro un commit.
-
-Quando finalmente ho messo le tre sonde di `turn_focus`, il caso si e' letto da
-solo:
-
-```
-turn_focus            DI CHE COSA chiede il turno — the arrocco
-turn_focus_input      su quale testo e' stato letto — what is the arrocco in chess
-turn_focus_rejected   risposte ritirate: fuori dal fuoco — chess
-```
-
-### C3 — 76 misure, 5 con una data
+### Le convinzioni non datate
 
 ```
 «misurat*» nei commenti di kb/ e src/     76
@@ -105,207 +403,18 @@ di cui con una generazione o una data      5
 numeri di prestazione citati              43
 ```
 
-Il caso concreto: `verb_suffix/1` era fermo a un membro con la ragione scritta
-accanto — «con -ed e -d il budget di un TURNO passava a 1,85 s». Vera quando fu
-scritta. Dal `gen491` le viste si scaldano al **boot**, quindi quel costo si era
-spostato e il vincolo era diventato falso. Nessuno l'aveva ridatato. Rimuoverlo
-ha fatto crescere la morfologia **e** sceso il boot da 3,74 s a 2,64 s.
+E' la misura di R5. Il caso concreto: `verb_suffix/1` fermo a un membro con
+accanto la ragione — «con -ed e -d il budget di un TURNO passava a 1,85 s» —
+vera quando fu scritta, resa falsa dal `gen491` che ha spostato quel costo al
+boot, e mai ridatata.
 
-> **Regola:** una misura senza data non e' una misura, e' un ricordo. Ogni
-> «misurato» porta la generazione. Ogni vincolo giustificato da una misura si
-> **ridata** prima di rispettarlo.
-
-### C4 — La diagnosi si eredita invece di rifarla
-
-Due handoff di questa giornata portavano diagnosi sbagliate:
-
-| handoff diceva | era |
-|---|---|
-| «la coreferenza rivendica la frase citata» | il secondo passo del thinking sovrascriveva la risposta |
-| «il thinking costa 2 s per la morfologia» | costa 2 s per il passo che rilegge la propria risposta |
-
-Entrambe scritte da me, in buona fede, con la sicurezza di chi ha appena visto
-il sintomo. Entrambe hanno indirizzato male il giro successivo.
-
-> **Regola:** un handoff scrive la diagnosi **e la sonda che la falsifica**. Se
-> falsificarla costa piu' di un minuto, la diagnosi va marcata `da riverificare`.
-
-### C5 — La lore sbagliata costa due volte
-
-Avevo annotato in `composition.p0` che le clausole con «troppe variabili» non
-rendono nulla. Falso: i soffitti veri sono `KB_MAX_ARGS = 4` e
-`KB_MAX_BODY = 8`. Ci sono **ricascato in un altro file**, cercando di togliere
-variabili invece che argomenti, e una regola e' rimasta non caricata per giorni
-con un solo `bad rule, dropped` su stderr al boot.
-
-> **Regola:** una trappola del dialetto si annota **con il limite esatto e il
-> file dove sta**, mai con la sensazione. Sono in `AGENTS.md`, e il censimento
-> costa una riga:
-> ```sh
-> echo '/quit' | PARROT0_SESSION= PARROT0_PROFILE=kb/profiles/agi.p0 \
->   ./bin/parrot0 2>&1 >/dev/null | grep 'PARSE ERROR'
-> ```
-
-### C6 — Il reperto vale piu' dell'esplorazione
-
-F. ha incollato tre turni veri di `make chat`. Hanno prodotto **tre difetti
-veri**, tutti e tre chiusi, e uno era un misclaim — la categoria peggiore, che
-l'esplorazione dall'interno non trova quasi mai perche' si sonda cio' che si
-sospetta.
-
-L'esplorazione autonoma ha trovato cose ottime (il matcher a sottostringa,
-l'ordine delle viste), ma con un costo per scoperta molto piu' alto.
-
-> **Regola:** una sessione comincia da un transcript reale, non da un piano.
-> Se non c'e', il primo atto e' produrne uno.
-
-### C7 — I registri crescono e non si potano
+### L'accoppiamento crescita → test, verificato
 
 `LEARN_TODO.md`: **7.355 righe**, +1.024 (**+16%**) in un giorno, **6 handoff
-impilati** di cui uno solo vivo. `JOURNAL.md`: 7.907 righe, non toccato oggi.
-60 piani in `docs/plans/`.
+impilati** di cui uno vivo. E' la misura di cio' che va potato.
 
-Il costo non e' il disco: e' che ogni sessione nuova deve **leggere** per
-sapere da dove riprendere, e la parte viva e' il 2% del file.
-
-### C8 — Manca il livello intermedio di verifica
-
-Ci sono tre gradini e sono troppo distanti: un `.p0t` mirato (4,3 s), `soft-test`
-(32 s, oltre il proprio budget), la suite intera (minuti, con 4 rossi noti).
-
-Lo strumento che ho usato davvero — e che non e' scritto in nessuna procedura —
-e' il **differenziale con lo stash**:
-
-```sh
-git stash && make -s bin/parrot0 && ./bin/parrot0 --test FILE  # baseline
-git stash pop && make -s bin/parrot0 && ./bin/parrot0 --test FILE  # dopo
-```
-
-E' l'unico modo onesto di dire «questo rosso e' mio» invece di «questo rosso
-c'e'». Costa due ricompilazioni (36,6 s) e vale ogni volta.
-
----
-
-## 3. Che cosa **non** e' una criticita'
-
-Da dire, perche' l'istinto porta a ottimizzare la cosa sbagliata.
-
-- **Le 890 righe di documentazione non sono spreco.** Sono il motivo per cui
-  questa analisi e' possibile: i commit di questa sessione contengono le misure,
-  le strade sbagliate e il perche'. Il difetto non e' scriverne troppa, e'
-  non **datarla** (C3) e non **potarla** (C7).
-- **I 12 commit non sono troppi.** Ogni commit e' un'unita' causale leggibile,
-  come chiede `LEARN_PROTOCOL.md` §8.
-- **I 4 rossi preesistenti non vanno chiusi adesso.** Sono un debito noto e
-  tracciato in `TEST_TODO.md`. Il costo che infliggono e' che ogni spot-check
-  deve ristabilirli come baseline — e quello si paga una volta, non ogni volta,
-  se la baseline e' scritta.
-
----
-
-## 4. La procedura ottimizzata, in sei passi
-
-> Vale per una sessione **mista** — comprensione, metacomprensione, KB viva —
-> cioe' quella che facciamo davvero. Per una sessione di solo insegnamento resta
-> `LEARN_PROTOCOL.md`, che questo documento non sostituisce.
-
-### Passo 0 — Aprire con un reperto, non con un piano *(2 min)*
-
-Un transcript reale di `make chat`. Se non c'e', se ne produce uno: dieci turni
-nel dominio del giorno, incollati grezzi. **Ogni turno che mente vale piu' di
-ogni turno che mura**, e i misclaim si trovano solo cosi'.
-
-### Passo 1 — Fissare la baseline, una volta *(1 min)*
-
-```sh
-make -s bin/parrot0 && echo '/quit' | PARROT0_SESSION= \
-  PARROT0_PROFILE=kb/profiles/agi.p0 ./bin/parrot0 2>&1 >/dev/null | grep 'PARSE ERROR'
-{ time (printf '' | PARROT0_SESSION= PARROT0_PROFILE=kb/profiles/agi.p0 ./bin/parrot0 >/dev/null 2>&1); }
-```
-
-Zero `PARSE ERROR`, e il tempo di boot annotato. Poi i 4-6 `.p0t` del dominio,
-**una volta**, e i loro rossi scritti nel primo commento della sessione. Da qui
-in poi «e' rosso» non e' piu' un'informazione: lo e' «e' rosso **diversamente**».
-
-### Passo 2 — Diagnosi con sonde, non con ipotesi *(5 min per reperto)*
-
-Nell'ordine, e ci si ferma al primo che risponde:
-
-1. `/debug` sul turno — `turn_module`, `turn_outcome`, `turn_focus`, le sonde
-   che ci sono gia';
-2. `lang.canonical` via MCP — meta' dei difetti italiani si vedono qui;
-3. una **sonda nuova**: una riga di `debug_probe/4`, zero ricompilazioni;
-4. solo adesso, se serve, una `fprintf` — e si toglie **nello stesso giro**.
-
-⛔ Vietato formulare piu' di **una** ipotesi prima di aver guardato. Al gen505t
-tre ipotesi ragionate hanno perso contro una sonda.
-
-### Passo 3 — Provare la cura **in KB per prima** *(0 s di compilazione)*
-
-Si scrive il fatto o la regola, si riavvia il binario, si guarda. Tre esiti:
-
-- **funziona** → e' finita, e non hai compilato niente;
-- **non funziona** → hai falsificato un'ipotesi al costo di un riavvio;
-- **non e' esprimibile** → *questo* e' il risultato: serve il motore, e lo sai
-  senza aver pagato 18,3 s per scoprirlo.
-
-Al gen505u una riga di `phrase_canon` ha chiuso un reperto che sembrava un
-difetto del registro sociale. Al gen505s una riga di `inflection_suffix` ha
-chiuso meta' della morfologia.
-
-### Passo 4 — Se serve il C: **una** modifica, poi misurare *(18,3 s a giro)*
-
-Il rebuild e' il collo di bottiglia, quindi si raggruppa: si scrivono tutte le
-modifiche di quel giro, **poi** si compila una volta. E la regola che questa
-sessione ha pagato per imparare:
-
-> **Il fuoco verifica un vincitore, non restringe un ingresso.**
-> Aggiungere una verifica e' additivo. Cambiare cio' che entra in una gara
-> cambia chi vince: due tentativi di questo tipo hanno rotto «what is water» e
-> sono stati annullati.
-
-Vale oltre il caso: davanti a un turno rubato, **verificare dopo** costa meno e
-rompe meno che **filtrare prima**.
-
-### Passo 5 — Verifica differenziale, non suite *(≈40 s)*
-
-I 4-6 `.p0t` del dominio, e se uno diventa rosso il differenziale con lo stash
-**prima** di accusare il proprio codice. Due volte in questa sessione il rosso
-era preesistente; una volta era mio ed era **una scoperta** (`you keep saying
-the same thing` — la lettura era giusta, mancava `participant_pronoun/1`).
-
-Mai la suite intera senza che l'operatore la chieda.
-
-### Passo 6 — Chiudere il registro, non farlo crescere *(5 min)*
-
-- Il commit porta: il reperto, la misura **prima/dopo**, le strade provate e
-  **misurate come sbagliate**, e i rossi con il loro differenziale.
-- L'handoff **sostituisce** quello della sessione precedente; il vecchio si
-  archivia sotto una riga sola. Un solo `# 🏁 HANDOFF` vivo per file.
-- Ogni «misurato» porta la generazione.
-- Ogni diagnosi porta la sonda che la falsifica, o il marchio
-  `da riverificare`.
-
----
-
-## 5. Le tre modifiche strutturali che ripagherebbero da sole
-
-Non sono procedura: sono lavoro, e vanno pianificate.
-
-1. **Spezzare l'unita' di traduzione.** 53.605 righe in un `.o` costano 18,3 s a
-   ogni riga di C toccata. Tredici oggetti separati porterebbero il giro tipico
-   nell'ordine dei 2-3 s. E' la singola ottimizzazione con il ritorno piu' alto
-   sull'intero progetto, e non tocca ne' il motore ne' la KB.
-2. **Un gradino di verifica fra i 4 s e i 32 s.** `make dominio-test DOM=x` che
-   gira i `.p0t` di una cartella e stampa il **delta** rispetto a una baseline
-   salvata, invece di un elenco di rossi da interpretare a mano.
-3. **`make measure-boot`**, che stampa boot e turni separatamente. Tutte e tre
-   le sorprese di prestazione di questa sessione (il vincolo scaduto, l'ordine
-   delle viste, il costo del thinking) sono state trovate cosi', a mano.
-
----
-
-## 6. La riga sola, se se ne ricorda una
-
-> **Guarda prima di ipotizzare, prova in KB prima di compilare, e data ogni
-> misura — perche' la prossima sessione le credera'.**
+Sui test: su sette file controllati, la crescita di una giornata intera ha
+spostato **due** assert, e in uno dei due era il test ad avere ragione vecchia.
+E' la conferma quantitativa dell'intuizione di F. su cui poggia R6 —
+l'accoppiamento fra crescita della KB e rottura dei test e' **debole**, quindi
+i due processi possono girare a frequenze diverse.
