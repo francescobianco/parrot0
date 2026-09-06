@@ -342,30 +342,29 @@ domain_preposition(fra).
 domain_preposition(sotto).
 domain_preposition(attraverso).
 
-% ── gen505v — GLI AMBITI MULTI-PAROLA: PROVATO, NON RIUSCITO, ARCHIVIATO ───
+% ── gen505v — GLI AMBITI CHE SONO UNA LOCUZIONE ───────────────────────────
 %
-% «what is X **as part of** Y», «**when playing** Y», «**when it comes to** Y»
-% aprono un ambito quanto «in», e sono gli ultimi casi in cui parrot0 risponde
-% ancora del contenitore. Provato ad aggiungere un registro `domain_marker/1` di
-% locuzioni, cercate token per token dentro `p0_question_focus`: **non scatta**,
-% ne' con le superfici fra virgolette ne' senza. Due forme, stesso esito.
+% Stesso criterio della classe qui sopra — B nomina il campo, non l'identita' —
+% ma la superficie e' fatta di piu' parole.
 %
-%   verdetto    non riuscito (2026-09-06, gen505v)
-%   ragione     ignota — il fuoco resta vuoto, quindi la locuzione non viene
-%               trovata; NON e' il modo in cui la superficie e' memorizzata,
-%               provate entrambe le forme
-%   condizione  `p0_question_focus` taglia scandendo i token e interrogando
-%               `domain_preposition/1` una parola alla volta
-%   specie      **prematuro** — l'idea e' giusta e la classe e' ben definita
-%               (stesso criterio delle preposizioni d'ambito); manca il modo di
-%               cercare una LOCUZIONE dove oggi si cerca una parola
-%
-% Fermato per la regola d'arresto 2 del §1-bis di
-% `docs/plans/procedura-crescita-kb.md`: due tentativi della stessa forma di
-% cura, si cambia forma. La forma da provare la prossima volta e' cercare la
-% locuzione sulla STRINGA (come fa gia' `answer_frame_surfaces` per le
-% superfici interrogative) invece che ricomponendola dai token — cioe' riusare
-% un motore che esiste, invece di scriverne uno nuovo dentro il ciclo.
+% ⚠ La prima forma tentata NON funzionava: ricomporre la locuzione dai token
+% dentro il ciclo che taglia il fuoco. Due varianti (superfici con e senza
+% virgolette), stesso esito, fermato per la regola d'arresto 2. La forma che
+% funziona cerca la locuzione sulla STRINGA con `kb_text_surface_pos`, cioe'
+% riusa il motore che decide che cosa vuol dire «contenere una superficie»
+% invece di riscriverlo nel ciclo. E' la lezione utile del fallimento, non il
+% fallimento in se'.
+machinery(domain_marker).
+domain_marker("as part of").
+domain_marker("in the context of").
+domain_marker("in the field of").
+domain_marker("in terms of").
+domain_marker("when playing").
+domain_marker("when it comes to").
+domain_marker("nel contesto di").
+domain_marker("nel campo di").
+domain_marker("nel gioco di").
+domain_marker("quando si gioca").
 auxiliary(did).
 auxiliary(is).
 auxiliary(are).

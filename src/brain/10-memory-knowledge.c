@@ -6923,14 +6923,34 @@ static int p0_question_focus(Brain *b, const char *norm,
     const char *start = norm;
     char (*hits)[KB_TERM_LEN] = NULL;
     size_t nh = answer_frame_surfaces(b, norm, &hits);
+    /* ⚠ gen505v — QUI SERVE LA SUPERFICIE PIU' A SINISTRA, NON LA PIU' SPECIFICA.
+     *
+     * `answer_frame_surfaces` ordina per specificita', ed e' giusto per chi deve
+     * SCEGLIERE UNA RELAZIONE. Chi deve capire DOVE COMINCIA IL SOGGETTO ha
+     * bisogno d'altro: della superficie che apre la domanda.
+     *
+     * Misurato: «what is the zugzwang **as part of** chess» vinceva
+     * `answer_frame("part of", part_of)`, il fuoco partiva da dopo «part of» e
+     * restava «chess» — cioe' esattamente l'ambito, il contrario di quello che
+     * serve. E' la stessa forma di difetto che questo circuito cura nei turni:
+     * un ordinamento solo che rispondeva a due domande diverse. */
     if (nh) {
-        char probe[KB_TERM_LEN];
-        snprintf(probe, sizeof probe, "%s", hits[0]);
-        const char *surface = kb_dequote(probe);
-        if (*surface && kb_text_has_surface(norm, surface)) {
-            const char *at = strstr(norm, surface);
-            if (at) start = at + strlen(surface);
+        long best = -1;
+        size_t blen = 0;
+        for (size_t i = 0; i < nh; i++) {
+            char probe[KB_TERM_LEN];
+            snprintf(probe, sizeof probe, "%s", hits[i]);
+            const char *surface = kb_dequote(probe);
+            if (!*surface) continue;
+            long at = kb_text_surface_pos(norm, surface);
+            if (at < 0) continue;
+            size_t l = strlen(surface);
+            /* la piu' a sinistra; a parita' di posizione, la piu' lunga */
+            if (best < 0 || at < best || (at == best && l > blen)) {
+                best = at; blen = l;
+            }
         }
+        if (best >= 0) start = norm + best + blen;
     }
     free(hits);
     while (*start && isspace((unsigned char)*start)) start++;
@@ -6941,6 +6961,35 @@ static int p0_question_focus(Brain *b, const char *norm,
     char scan[512];
     if (keep >= sizeof scan) return 0;
     memcpy(scan, start, keep + 1);
+
+    /* ── gen505v — UN AMBITO PUO' ESSERE UNA LOCUZIONE ─────────────────────
+     *
+     * «as part of», «when playing», «when it comes to» aprono un ambito quanto
+     * «in». Il primo tentativo le ricomponeva dai token dentro il ciclo qui
+     * sotto e non scattava mai; la scheda del fallimento e' in `grammar.p0`.
+     * La forma che funziona e' quella indicata li': cercarle sulla STRINGA,
+     * con lo stesso motore che decide che cosa vuol dire «contenere una
+     * superficie» (`kb_text_surface_pos`, gemella di `kb_text_has_surface`) —
+     * riusare un motore che esiste invece di scriverne uno nel ciclo.
+     *
+     * Si taglia PRIMA di tokenizzare: cosi' il ciclo sotto continua a fare una
+     * cosa sola, e la locuzione non ha bisogno di sapere quante parole e'. */
+    int marker_cut = 0;
+    {
+        char marks[64][KB_TERM_LEN];
+        const char *mq[1] = { NULL };
+        size_t nm = kb_match(b->kb, "domain_marker", mq, 1, marks, 64);
+        long cut = -1;
+        for (size_t i = 0; i < nm; i++) {
+            char mb[KB_TERM_LEN];
+            snprintf(mb, sizeof mb, "%s", marks[i]);
+            const char *surf = kb_dequote(mb);
+            if (!*surf) continue;
+            long at = kb_text_surface_pos(scan, surf);
+            if (at >= 0 && (cut < 0 || at < cut)) cut = at;
+        }
+        if (cut > 0) { scan[cut] = '\0'; marker_cut = 1; }
+    }
     char *w[64];
     size_t nw = split_words(scan, w, 64);
     size_t used = 0;
@@ -6950,7 +6999,14 @@ static int p0_question_focus(Brain *b, const char *norm,
         if (*tok && kb_query(b->kb, "domain_preposition", q, 1)) break;
         used = i + 1;
     }
-    if (used == 0 || used == nw) return 0;      /* niente da restringere */
+    /* ⚠ `used == nw` vuol dire «il ciclo non ha trovato dove tagliare» — che NON
+     * e' la stessa cosa di «non c'era niente da tagliare». Se la locuzione ha
+     * gia' accorciato il testo qui sopra, il fuoco esiste ed e' tutto cio' che
+     * resta: uscire qui lo buttava via, e i sei ambiti multi-parola tornavano a
+     * mentire (misurato, gen505v). Due domande diverse, una condizione sola —
+     * la stessa forma di difetto che questo circuito cura nei turni. */
+    if (used == 0) return 0;
+    if (used == nw && !marker_cut) return 0;   /* niente da restringere */
     out[0] = '\0';
     size_t o = 0;
     for (size_t i = 0; i < used && o + 1 < out_size; i++)
@@ -16552,8 +16608,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 qw[nq++] = w[i];
             }
             char ckey[128], cdesc[1024];
+            /* gen505v: e anche il suggerimento «forse intendevi X» deve parlare
+             * di cio' che il turno chiede. Nono consumatore della stessa
+             * lettura — non una guardia nuova. */
             if (nq >= 2 &&
-                kb_nearest_concept(b->kb, qw, nq, ckey, sizeof ckey, cdesc, sizeof cdesc)) {
+                kb_nearest_concept(b->kb, qw, nq, ckey, sizeof ckey, cdesc, sizeof cdesc) &&
+                p0_answer_subject_in_focus(b, norm, ckey)) {
                 char msg[1200];
                 { const KbResponseSlot _rs[] = { { "ckey", ckey }, { "cdesc", cdesc } };
       kb_term_say(b, "you_might_mean_x_x", _rs, 2, msg, sizeof msg);

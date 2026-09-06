@@ -405,6 +405,8 @@ int    kb_dump_all(const KB *kb, char *out, size_t out_size);
  * confine su quel lato. Stessa regola del ramo `cue` dell'evidenza — un solo
  * posto la decide, per il motore e per la KB. */
 int kb_text_has_surface(const char *text, const char *surface);
+/* Come sopra, ma restituisce l'offset dove la superficie comincia, o -1. */
+long kb_text_surface_pos(const char *text, const char *surface);
 
 size_t kb_size(const KB *kb);
 

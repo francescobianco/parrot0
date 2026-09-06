@@ -4468,6 +4468,16 @@ int kb_text_has_surface(const char *text, const char *surface) {
     return evidence_cue_find(text, surface, 0) != (size_t)-1;
 }
 
+/* La stessa domanda, ma con la POSIZIONE invece del si'/no. Serve a chi deve
+ * TAGLIARE il testo dove una superficie comincia, non solo sapere che c'e'.
+ * Vive qui accanto alla sua gemella apposta: il confine di parola resta deciso
+ * in un posto solo, e chi taglia non se lo riscrive per conto proprio. */
+long kb_text_surface_pos(const char *text, const char *surface) {
+    if (!text || !surface || !*surface) return -1;
+    size_t at = evidence_cue_find(text, surface, 0);
+    return at == (size_t)-1 ? -1 : (long)at;
+}
+
 static size_t evidence_keyword_find(const char *s, const char *word, size_t from) {
     size_t n = strlen(s), m = strlen(word), at = from;
     while (m && at <= n) {
