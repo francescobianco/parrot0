@@ -2384,13 +2384,13 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
         return 0;
 
     const char *connectors[] = {" e ", " and ", " ed ", " ma ", " but ", NULL};
-    const char *conn = NULL;
+    const char *conn = NULL, *conn_text = NULL;
     size_t conn_len = 0;
     int is_but = 0;
     for (const char *const *c = connectors; *c; c++) {
         const char *pos = strstr(canon, *c);
         if (pos && (!conn || pos < conn)) {
-            conn = pos; conn_len = strlen(*c);
+            conn = pos; conn_len = strlen(*c); conn_text = *c;
             is_but = (strcmp(*c, " ma ") == 0 || strcmp(*c, " but ") == 0);
         }
     }
@@ -2455,10 +2455,40 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
         if (n2 > 0 && is_negation_marker(b, sw[0])) negate2 = 1;
     }
 
+    /* ── gen505x — UNA SOTTO-FRASE PORTA IL PROPRIO GREZZO ───────────────────
+     *
+     * Le due meta' venivano dispatchate con la loro `norm` (sub1/sub2) ma con il
+     * `raw` dell'INTERO turno. I lettori che leggono il grezzo — e sono quelli
+     * dei fatti personali — vedevano quindi ancora tutte e due le frasi:
+     *
+     *     My name is Marco and I live in Turin  ->  «Nice to meet you, Turin!»
+     *
+     * cioe' lo split avveniva e non serviva a niente, perche' il valore veniva
+     * ripescato dall'altra meta'. Reperto di Buffy, glm-test §3.4. */
+    /* ⚠ E il grezzo va TAGLIATO, non canonicalizzato: passare `sub1` come raw
+     * perde le maiuscole («Got it: your cat is luna»), e il grezzo e' proprio
+     * il posto dove la superficie originale sopravvive. Il connettore compare
+     * anche nel grezzo, quindi si taglia li'; se non lo si trova si resta al
+     * comportamento storico (turno intero) invece di indovinare. */
+    char raw1[256], raw2[256];
+    const char *rin1 = input, *rin2 = input;
+    {
+        const char *rp = input ? strstr(input, conn_text) : NULL;
+        if (rp) {
+            size_t rl = (size_t)(rp - input);
+            if (rl < sizeof raw1) {
+                memcpy(raw1, input, rl); raw1[rl] = '\0';
+                const char *r2s = rp + conn_len;
+                while (*r2s && isspace((unsigned char)*r2s)) r2s++;
+                snprintf(raw2, sizeof raw2, "%s", r2s);
+                rin1 = raw1; rin2 = raw2;
+            }
+        }
+    }
     if (!is_but) {
         for (size_t i = 0; i < registry_len; i++) {
             if (negate1) break; /* gen88: skip negated sub-turn */
-            if (registry[i].handle(b, sub1, input, r1, sizeof r1)) {
+            if (registry[i].handle(b, sub1, rin1, r1, sizeof r1)) {
                 h1 = 1;
                 if (strcmp(registry[i].name, "discourse") == 0) h1_disc = 1;
                 if (b) {
@@ -2473,7 +2503,7 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
 
     for (size_t i = 0; i < registry_len; i++) {
         if (negate2) break; /* gen88: skip negated sub-turn */
-        if (registry[i].handle(b, sub2, input, r2, sizeof r2)) {
+        if (registry[i].handle(b, sub2, rin2, r2, sizeof r2)) {
             h2 = 1; break;
         }
     }

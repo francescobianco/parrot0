@@ -2220,6 +2220,18 @@ compound_guard(arith, rate_change_chain).
 compound_guard(arith, geometry_dimension_schema).
 compound_guard(arith, multi_leg_distance_request).
 compound_guard(arith, two_party_exchange).
+% ── gen505x — UNA FRASE COORDINATA CHE PORTA IL PROPRIO SOGGETTO E' UNA FRASE
+%
+% Reperto di Buffy (glm-test §3.4): «My name is Marco and I live in Turin» ->
+% «Got it: your name is Turin». Il decompositore c'era e rifiutava, perche' la
+% seconda meta' comincia con un pronome e non con una parola d'intento — e senza
+% lo split il lettore ha visto UNA frase con due valori.
+%
+% Un pronome soggetto apre una predicazione: e' esattamente cio' che
+% `intent_starter/1` deve ammettere. «sale e pepe» non si spezza lo stesso,
+% perche' «pepe» non e' un pronome.
+intent_starter($W) :- personal_pronoun($W).
+
 compound_guard(decompose, event_bundle_full).
 compound_guard(decompose, capital_temporal_compound).
 compound_guard(decompose, capital_geo_compound).

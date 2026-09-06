@@ -457,7 +457,55 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                 if (i + 3 < nw && lex_class_member(b, "10_memory_knowledge_lex264", w[i + 2])) {
                     const char *thing = w[i + 1];
                     char n[64];
-                    copy_last_word(n, sizeof n, raw);
+                    /* ── gen505x — IL VALORE FINISCE DOVE FINISCE LA SUA FRASE
+                     *
+                     * `copy_last_word(raw)` prendeva l'ultima parola dell'INTERO
+                     * turno. Reperto di Buffy (glm-test §3.4):
+                     *
+                     *     My name is Marco and I live in Turin
+                     *       -> «Got it: your name is Turin.»
+                     *
+                     * e il turno dopo parrot0 nega di sapere il nome — cioe' si
+                     * contraddice dentro due turni. Misurato: fallisce anche con
+                     * il punto («My name is Marco. I live in Turin.»), quindi non
+                     * e' la coordinazione: e' che il valore non ha una FINE.
+                     *
+                     * La fine e' dove comincia un'altra frase, e le due cose che
+                     * la aprono sono gia' classi KB: una congiunzione, o un
+                     * pronome soggetto. Un nome composto («my name is anna
+                     * maria») non ne contiene nessuna delle due e resta intero.
+                     * Nessuna parola nominata nel C. */
+                    {
+                        size_t vs = i + 3, ve = vs;
+                        while (ve < nw) {
+                            char t[KB_TERM_LEN];
+                            snprintf(t, sizeof t, "%s", strip_edge_punct(w[ve]));
+                            const char *q[1] = { t };
+                            if (*t && (kb_query(b->kb, "conjunction", q, 1) ||
+                                       kb_query(b->kb, "personal_pronoun", q, 1)))
+                                break;
+                            ve++;
+                        }
+                        /* ⚠ Il confine si trova su `w` (normalizzato), ma il
+                         * VALORE si prende dal grezzo: e' li' che «Luna» ha
+                         * ancora la maiuscola. Stessi indici finche' i due
+                         * hanno lo stesso numero di token; se divergono si resta
+                         * al comportamento storico invece di indovinare. */
+                        char rbuf[256]; char *rw[64]; size_t rn = 0;
+                        if (raw && strlen(raw) < sizeof rbuf) {
+                            snprintf(rbuf, sizeof rbuf, "%s", raw);
+                            rn = split_words(rbuf, rw, 64);
+                        }
+                        char *const *src = (rn == nw) ? rw : w;
+                        size_t o = 0; n[0] = '\0';
+                        for (size_t k = vs; k < ve && o + 1 < sizeof n; k++) {
+                            const char *t = strip_edge_punct(src[k]);
+                            if (!*t) continue;
+                            o += (size_t)snprintf(n + o, sizeof n - o, "%s%s",
+                                                  o ? " " : "", t);
+                        }
+                        if (!n[0]) copy_last_word(n, sizeof n, raw);
+                    }
                     int has_called = (i + 4 < nw && lex_class_member(b, "10_memory_knowledge_lex268", w[i + 3]));
                     if (has_called) {
                         remember_possession(b, thing, n);
