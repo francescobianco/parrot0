@@ -2328,6 +2328,29 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
 
 /* gen80: true if word `w` is a likely intent-marker that starts a sub-turn
  * after a discourse connector like "e"/"and" in a compound utterance. */
+/* ── gen505x — «QUESTO TESTO E' UN'ACCETTAZIONE?», in un posto solo ────────
+ *
+ * Era una catena di nove `||` valutata sul turno intero, e quindi rispondeva
+ * «si'» a «yes» e «no» a «yes, learn about it» (glm-test §3.6). Estratta qui
+ * per poterla porre due volte — sul turno e sulla sua prima parola — senza
+ * duplicare la congiunzione, che e' il mantra #5. Le classi restano quelle:
+ * questa funzione non conosce nessuna parola. */
+static int p0_is_confirmation(Brain *b, const char *t) {
+    if (!b || !t || !*t) return 0;
+    return lex_class_member(b, "99_registry_lex3877", t) ||
+           lex_class_member(b, "99_registry_lex3877_2", t) ||
+           lex_class_member(b, "99_registry_lex3878", t) ||
+           lex_class_member(b, "99_registry_lex3878_2", t) ||
+           lex_class_member(b, "stance_predicate", t) ||
+           lex_class_member(b, "99_registry_lex3879_2", t) ||
+           lex_class_member(b, "99_registry_lex3880", t) ||
+           lex_class_member(b, "99_registry_lex3880_2", t) ||
+           lex_prefix_member(b, "99_registry_lex3879_3", t) ||
+           lex_prefix_member(b, "99_registry_lex3880_3", t) ||
+           lex_class_member(b, "affirmation_word", t) ||
+           strcmp(t, "s\u00ec") == 0;
+}
+
 static int is_intent_starter(Brain *b, const char *w) {
     /* gen335 round-3: KB-first migration — query intent_starter/1 from KB
      * instead of a hardcoded C array. The engine is fixed; the lexicon learns. */
@@ -5026,13 +5049,34 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             char rlow[256]; snprintf(rlow, sizeof rlow, "%s", input);
             for (char *cp = rlow; *cp; cp++)
                 *cp = (char)tolower((unsigned char)*cp);
-            int confirm = (lex_class_member(b, "99_registry_lex3877", clow) || lex_class_member(b, "99_registry_lex3877_2", clow) ||
-                           lex_class_member(b, "99_registry_lex3878", clow) || lex_class_member(b, "99_registry_lex3878_2", clow) ||
-                           lex_class_member(b, "stance_predicate", clow) || lex_class_member(b, "99_registry_lex3879_2", clow) ||
-                           lex_class_member(b, "99_registry_lex3880", clow) || lex_class_member(b, "99_registry_lex3880_2", clow) ||!lex_prefix_member(b, "99_registry_lex3879_3", clow) == 0 ||!lex_prefix_member(b, "99_registry_lex3880_3", clow) == 0 ||
-                           lex_class_member(b, "affirmation_word", rlow) || strcmp(rlow, "sì") == 0 ||
-                           lex_class_member(b, "affirmation_word", rlow) || lex_class_member(b, "affirmation_word", rlow) ||
-                           lex_class_member(b, "affirmation_word", rlow));
+            int confirm = p0_is_confirmation(b, clow) ||
+                          p0_is_confirmation(b, rlow);
+
+            /* ── gen505x — ACCETTARE E' UNA FAMIGLIA, NON UN ELENCO ──────────
+             *
+             * Reperto di Buffy (glm-test §3.6): «yes» accetta l'offerta, «yes,
+             * learn about it» no — «I don't understand that yet.». Due modi di
+             * dire si' e uno solo riconosciuto: all'utente non e' dato sapere
+             * che cosa dire perche' il sistema accetti.
+             *
+             * La catena qui sopra confronta il TURNO INTERO con delle classi:
+             * e' il mantra #19 (una congiunzione compilata) e chiude l'insieme
+             * delle forme accettabili. Ma un'accettazione non e' una parola: e'
+             * un turno che SI APRE con un assenso, e cio' che segue e' il
+             * dettaglio di che cosa si accetta.
+             *
+             * Nessuna parola nuova nel C: le stesse classi, letta la prima
+             * parola invece del turno intero. Un assenso insegnato domani vale
+             * subito in entrambe le forme. */
+            if (!confirm) {
+                char fw[64]; size_t fl = 0;
+                const char *fp = rlow;
+                while (*fp && isspace((unsigned char)*fp)) fp++;
+                while (fp[fl] && !isspace((unsigned char)fp[fl]) &&
+                       fp[fl] != ',' && fl + 1 < sizeof fw) { fw[fl] = fp[fl]; fl++; }
+                fw[fl] = '\0';
+                if (fl && p0_is_confirmation(b, fw)) confirm = 1;
+            }
 
             /* Always retract the gap facts — single-turn window consumed */
             { const char *rga[] = { gtopics[0] }; kb_retract(b->kb, "pending_gap", rga, 1); }
