@@ -36,3 +36,37 @@ constraint, not a preference.
 The review question is: **could a user teach the new surface form at runtime and
 have the existing engine use it without a C edit?** If not, the change is not
 ready.
+
+## Le trappole del dialetto `.p0` (misurate, non teoriche)
+
+Un file `.p0` che non carica **non dice quasi niente**: una riga su stderr al
+boot, che nessuno guarda. Prima di dare la colpa al motore, controllala:
+
+```sh
+echo '/quit' | PARROT0_SESSION= PARROT0_PROFILE=kb/profiles/agi.p0 \
+  ./bin/parrot0 2>&1 >/dev/null | grep 'PARSE ERROR'
+```
+
+I due soffitti sono dichiarati in `src/kb.h`, e sono l'unica ragione per cui una
+regola ben scritta viene scartata:
+
+| limite | valore | che cosa cade |
+|---|---|---|
+| `KB_MAX_ARGS` | **4** | un goal con 5+ argomenti — testa **o corpo** |
+| `KB_MAX_BODY` | **8** | un corpo con 9+ goal |
+
+⚠ Sforare l'**arietà** non produce un messaggio dedicato: dice solo `bad rule,
+dropped`, e la regola non esiste. Al gen505q ho perso un giro dietro alla lore
+sbagliata («troppe variabili») che avevo scritto io stesso: il numero di
+variabili non conta, contano gli **argomenti per goal**. La cura è dare un nome
+ai pezzi intermedi — un predicato di arietà 3 che calcola un lato — non togliere
+variabili.
+
+Le altre due, già annotate in `kb/core/composition.p0`:
+
+- **`naf` con una variabile libera non lega.** `naf(p($X, $Any))` fallisce
+  sempre; serve un aiutante di arietà 1 interamente legato.
+- **La canonicalizzazione abbassa le maiuscole**, quindi un literal `.p0` citato
+  in un turno perde le maiuscole delle variabili.
+
+Tutte e tre si mascherano allo stesso modo: **non un errore, zero soluzioni.**

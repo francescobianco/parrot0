@@ -337,8 +337,13 @@ stage_wraps(excl_constraint, excl_member).
 stage_claim(excl_constraint, turn_has_negative_ground(current_turn)).
 stage_relation(excl_constraint, elaborates).
 stage_side(excl_constraint, after).
-% Spezzata in due: una clausola sola portava undici variabili, e non rendeva
-% nulla — un altro fallimento silenzioso da tenere a mente scrivendo cipolle.
+% Spezzata in due perche' la clausola sola sforava i soffitti del caricatore.
+% ⚠ I soffitti veri sono due, dichiarati in `src/kb.h`: KB_MAX_ARGS = 4 (arieta'
+% massima di QUALUNQUE goal, testa o corpo) e KB_MAX_BODY = 8 (goal per corpo).
+% Non e' il numero di variabili — quello lo avevo scritto qui al gen505 e ci ho
+% poi ricascato in `grammar-judgement.p0`, cercando di togliere variabili invece
+% che argomenti. Sforare l'arieta' fa cadere l'intera regola con un solo
+% «bad rule, dropped» su stderr, che al boot passa inosservato.
 excl_pair_text($L, $T) :-
     turn_goal(current_turn, $S, $K), negative_ground(current_turn, $Other),
     class_phrase($L, $Other, $A), class_phrase($L, $K, $B),

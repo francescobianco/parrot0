@@ -310,6 +310,45 @@ thinking_node_effect($Scheme, $Node, $Effect) :-
     thinking_step($Scheme, $Node,
                   step($Operator, $Pre, $Effect, $Meta)).
 
+% ══ gen505q — LA PRECONDIZIONE DI UN PASSO ERA DICHIARATA E MORTA ═══════════
+%
+% `step(Op, Pre, Effect, Meta)` dichiara da sempre che cosa un passo PRESUPPONE,
+% e l'esecutore non l'ha mai guardato: girava i nodi per rango e chiedeva solo
+% `reentry_admissible/2`, che e' una proprieta' STATICA dello schema («questo
+% nodo porta conoscenza nuova?»), non una proprieta' di QUESTO giro («ce l'ha
+% portata davvero?»).
+%
+% Il difetto che ne veniva, misurato al gen505q su un turno di grammatica:
+%   pensiero 1 ─ read: <la risposta>        ↳ «Learned 0 fact(s), skipped 1.»
+%   pensiero 2 ─ what do you know about it  ↳ «I don't know who it refers to.»
+% e la SECONDA riga sostituiva la risposta giusta. Il passo 2 presuppone
+% `ingested`; il passo 1 non l'aveva raggiunto (zero fatti letti, niente da
+% interrogare), quindi «it» non aveva antecedente. Il passo 2 non doveva girare.
+%
+% La cura non e' un altro `wall_marker` per quella frase — sarebbe l'elenco
+% degli incidenti. E' accendere cio' che era gia' dichiarato: un passo gira solo
+% se la sua precondizione e' stata RAGGIUNTA in questo giro. Vale per ogni
+% schema, compresi quelli che nessuno ha ancora scritto.
+machinery(thinking_node_pre).
+machinery(thinking_given).
+machinery(thinking_effect_reached).
+machinery(thinking_pre_satisfied).
+
+thinking_node_pre($Scheme, $Node, $Pre) :-
+    thinking_step($Scheme, $Node,
+                  step($Operator, $Pre, $Effect, $Meta)).
+
+% Cio' che uno schema ha GIA' in mano prima di muovere un passo. E' un fatto e
+% non una costante del motore: il primo giro di ragionamento e' l'unica cosa che
+% ogni schema riceve gratis, ma come si chiama lo decide lo schema.
+thinking_given(second_thought, first_answer).
+
+% `thinking_effect_reached/2` lo deposita l'esecutore quando un passo propaga:
+% un effetto raggiunto e' un fatto di QUESTO giro, ritirato al giro dopo.
+thinking_pre_satisfied($S, $N) :- thinking_node_pre($S, $N, none).
+thinking_pre_satisfied($S, $N) :- thinking_node_pre($S, $N, $Pre), thinking_given($S, $Pre).
+thinking_pre_satisfied($S, $N) :- thinking_node_pre($S, $N, $Pre), thinking_effect_reached($S, $Pre).
+
 % ══ QUANDO SI PENSA, E FINO A QUANDO ════════════════════════════════════════
 %
 % Il thinking non e' sempre acceso: e' uno strato in piu', e ogni strato costa.

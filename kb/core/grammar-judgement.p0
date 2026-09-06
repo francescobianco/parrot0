@@ -145,18 +145,22 @@ stage_wraps(gj_detail, gj_verdict_ok).
 stage_claim(gj_detail, turn_agreement_fails(current_turn)).
 stage_relation(gj_detail, causes).
 stage_side(gj_detail, after).
+% ⚠ IL LIMITE VERO E' L'ARIETA', NON IL NUMERO DI VARIABILI (misurato al
+% gen505q leggendo `src/kb.h`). Il caricatore ha due soffitti dichiarati:
+%   KB_MAX_ARGS = 4  — un predicato con 5+ argomenti non si parsa
+%   KB_MAX_BODY = 8  — un corpo con 9+ goal non si parsa
+% Il primo e' quello in cui si cade: un goal di arieta' 6 nel CORPO fa cadere
+% l'INTERA regola, e il messaggio dice soltanto «bad rule, dropped». La versione
+% precedente di questo blocco passava per un `gj_clash/6`, quindi non veniva
+% caricata affatto — lo stadio del dettaglio non esisteva. La cura non e' «meno
+% variabili»: e' «meno argomenti per goal», cioe' dare un nome ai pezzi
+% intermedi (qui `judged_side/3`) invece di passarli tutti insieme.
 stage_text(gj_detail, $L, $T) :-
-    judged_subject(current_turn, $S), judged_copula(current_turn, $C),
-    word_number($S, $NS), copula_number($C, $NC),
-    number_name($NS, $L, $SN), number_name($NC, $L, $CN),
-    gj_clash($L, $S, $SN, $C, $CN, $T).
-% ⚠ Spezzata in tre: la versione con tredici variabili in una clausola non
-% rendeva NIENTE — e' la trappola del dialetto che avevo gia' annotato in
-% composition.p0 e in cui sono ricascato. Si maschera da «nessuna soluzione».
+    judged_subject(current_turn, $S), judged_side($L, $S, $Lft),
+    judged_copula(current_turn, $C), judged_side($L, $C, $Rgt),
+    gj_join($L, $Lft, $Rgt, $T).
 gj_side($L, $W, $N, $T) :- gj_is($L, $Is), concat_atoms($W, $Is, $A), concat_atoms($A, $N, $T).
 gj_join($L, $Left, $Right, $T) :- gj_and($L, $And), concat_atoms($Left, $And, $X), concat_atoms($X, $Right, $T).
-gj_clash($L, $S, $SN, $C, $CN, $T) :-
-    gj_side($L, $S, $SN, $Lft), gj_side($L, $C, $CN, $Rgt), gj_join($L, $Lft, $Rgt, $T).
 gj_is(en, " is ").   gj_and(en, " and ").
 gj_is(it, " è ").    gj_and(it, " e ").
 

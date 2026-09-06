@@ -1345,6 +1345,9 @@ size_t brain_think(Brain *b, const char *input, char *out, size_t out_size,
     kb_retract_match(b->kb, "thinking_prompt_issue", clear_issue, 3);
     const char *clear_selected[] = { NULL };
     kb_retract_match(b->kb, "thinking_selected_scheme", clear_selected, 1);
+    /* gen505q: gli effetti raggiunti sono di QUESTO giro, non della sessione. */
+    const char *clear_reached[] = { NULL, NULL };
+    kb_retract_match(b->kb, "thinking_effect_reached", clear_reached, 2);
 
     /* il primo giro e' il reasoning di sempre: nessuno lo tocca */
     brain_respond(b, input, out, out_size);
@@ -1408,6 +1411,16 @@ size_t brain_think(Brain *b, const char *input, char *out, size_t out_size,
             /* la guardia dello specchio, PRIMA di eseguire */
             const char *adq[2] = { scheme, nodes[i] };
             if (!kb_query(b->kb, "reentry_admissible", adq, 2)) continue;
+            /* gen505q — E LA PRECONDIZIONE DI QUESTO GIRO, non solo quella
+             * dello schema. `reentry_admissible` dice che il nodo PUO' portare
+             * conoscenza nuova; `thinking_pre_satisfied` dice che cio' su cui
+             * si appoggia e' stato davvero raggiunto stavolta. Senza il secondo
+             * cancello un passo interrogava una lettura che non era avvenuta, e
+             * la sua risposta a vuoto prendeva il posto di quella buona. */
+            if (!kb_query(b->kb, "thinking_pre_satisfied", adq, 2)) {
+                thinking_record_issue(b, scheme, nodes[i], "pre_unmet");
+                continue;
+            }
             const char *pq[3] = { scheme, nodes[i], NULL };
             char prompts[1][KB_TERM_LEN];
             if (kb_match(b->kb, "thinking_reentry", pq, 3, prompts, 1) != 1) continue;
@@ -1458,6 +1471,11 @@ size_t brain_think(Brain *b, const char *input, char *out, size_t out_size,
                 char effects[1][KB_TERM_LEN];
                 if (kb_match(b->kb, "thinking_node_effect", eq, 3,
                              effects, 1) == 1) {
+                    int saved = kb_origin(b->kb);
+                    kb_set_origin(b->kb, KB_REFLECTIVE);
+                    const char *reached[] = { scheme, effects[0] };
+                    kb_assert(b->kb, "thinking_effect_reached", reached, 2);
+                    kb_set_origin(b->kb, saved);
                     const char *sq[] = { scheme, effects[0] };
                     if (kb_query(b->kb, "thinking_stop", sq, 2)) {
                         thinking_record_stop(b, scheme, effects[0]);

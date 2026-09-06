@@ -23,12 +23,16 @@
 <~ it is not well formed
 <~ It should be «name is»
 
-# ⛔ ROSSO DICHIARATO, e la causa e' nota: dal SECONDO turno in poi una frase
-# citata viene rivendicata dalla coreferenza («I don't know who it refers to»,
-# `resolve_entity`, 10-memory-knowledge.c). E' lo stesso difetto USO vs MENZIONE
-# gia' curato per i fatti personali, in un secondo posto — quindi la cura non e'
-# un'altra guardia: e' una lettura del turno condivisa, «questa coda e' citata».
-# Il primo turno passa, il che dimostra che lo schema TRASFERISCE.
+# ✅ VERDE dal gen505q. La diagnosi scritta qui prima era SBAGLIATA: dicevo che
+# dal secondo turno la coreferenza rivendicava la frase citata (USO vs MENZIONE
+# in un secondo posto). Una sonda sul dispatch ha mostrato altro — il turno
+# arrivava intatto e la risposta giusta veniva prodotta, poi SOSTITUITA dal
+# secondo passo di `second_thought` («what do you know about it» → «I don't know
+# who it refers to»). Quel passo presuppone `ingested`, che il passo prima non
+# aveva raggiunto: il pronome non aveva antecedente perche' la lettura non era
+# avvenuta. La cura e' `thinking_pre_satisfied/2` — un passo gira solo se la sua
+# precondizione dichiarata e' stata raggiunta in QUESTO giro.
+# Il primo turno passava gia' prima, e dimostra che lo schema TRASFERISCE.
 [test TRASFERISCE: una frase mai nominata nella lezione]
 !timeout 12
 # Nessuno ha insegnato niente su «children» né su «was»: lo schema vale perche'

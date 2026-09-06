@@ -64,13 +64,24 @@ bisogno di nessun giudice.
 
 ## Da dove riprendere, in ordine di leva
 
-1. ⭐ **La lettura del turno condivisa: USO vs MENZIONE.** Una frase *citata* per
-   essere giudicata viene ancora rivendicata da altre facolta' — dai fatti
-   personali (curato) e dalla **coreferenza** (aperto, e' il rosso di
-   `tests/p0t/reasoning/thinking_e1.p0t`). La cura non e' una terza guardia:
-   serve **una lettura del turno** che dica «questa coda e' citata, non asserita»
-   e che ogni facolta' rispetti. E' il primo caso in cui la stessa regola serve a
-   **tre** consumatori — cioe' esattamente la forma che ha funzionato tre volte.
+1. ✅ **CHIUSO al gen505q — e la diagnosi scritta qui era sbagliata.**
+   Avevo scritto che dal secondo turno la **coreferenza** rivendicava la frase
+   citata (USO vs MENZIONE in un secondo posto). Una sonda sul dispatch ha
+   mostrato altro: il turno arriva intatto, la risposta giusta viene **prodotta**,
+   e poi viene **sostituita** dal secondo passo dello schema `second_thought`
+   («what do you know about it» → «I don't know who it refers to»). Quel passo
+   presuppone `ingested`; il passo prima non l'aveva raggiunto (zero fatti letti),
+   quindi il pronome non aveva antecedente. Il passo non doveva girare.
+   **La cura, generale:** `step(Op, Pre, Effect, Meta)` dichiarava da sempre la
+   precondizione e l'esecutore non la guardava mai — girava per rango chiedendo
+   solo `reentry_admissible/2`, che e' una proprieta' STATICA dello schema.
+   Ora c'e' `thinking_pre_satisfied/2` (KB) piu' `thinking_effect_reached/2`
+   depositato dall'esecutore quando un passo propaga: **un passo gira solo se
+   cio' su cui si appoggia e' stato raggiunto in questo giro**. Vale per ogni
+   schema, compresi quelli non ancora scritti. `thinking_e1.p0t` e' 11/11.
+   *Lezione:* «una facolta' ruba il turno» era la spiegazione comoda; la vera
+   domanda era **chi ha scritto per ultimo nella risposta**. Una sonda sul
+   dispatch l'ha detto in un giro; tre ipotesi non ci erano arrivate.
 2. **Il costo del thinking**: ~2 s per turno, dominati dalla **morfologia
    ricalcolata su liste di caratteri** a ogni vista. E' spento di default, quindi
    non pesa; la cura e' H4 di `thinking.md` (il budget come condizione d'arresto)
@@ -662,14 +673,11 @@ un giro e' un fatto.
 nominata; ✅ togliere un passo cambia la risposta e rimetterlo la riporta —
 cioe' **la risposta cambia perche' e' cambiata la conoscenza, non il codice**.
 
-⛔ **Rosso dichiarato, con la causa nota:** dal secondo turno in poi una frase
-citata viene rivendicata dalla **coreferenza** («I don't know who it refers to»,
-`resolve_entity`). E' lo **stesso difetto USO vs MENZIONE** gia' curato per i
-fatti personali, che ricompare in un secondo posto — quindi la cura non e'
-un'altra guardia: serve una **lettura del turno condivisa** che dica «questa coda
-e' citata, non asserita», e che ogni facolta' rispetti. E' il candidato naturale
-per il prossimo giro, ed e' anche il primo caso in cui la stessa regola serve a
-tre consumatori.
+✅ **11 su 11 dal gen505q.** Il rosso non era la coreferenza (vedi il punto 1 di
+«Da dove riprendere»): era il secondo passo di `second_thought` che girava senza
+che la sua precondizione fosse stata raggiunta, e la sua risposta a vuoto
+sostituiva quella buona. Chiuso accendendo il campo `Pre` di `step/4`, che era
+dichiarato da sempre e mai letto — `thinking_pre_satisfied/2`.
 
 ## ⚠ Il costo, misurato e non nascosto
 
