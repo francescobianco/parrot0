@@ -1475,6 +1475,26 @@ extract_frame(@S absorbs @O, absorbs).
 extract_frame(@S connects @O, connects).
 extract_frame(@S creates @O, creates).
 extract_frame(@S forms @O, forms).
+% ── gen505x — «X vive in Y» non aveva NESSUNA forma (glm-test §3.3) ────────
+%
+% `habitat/2` c'e' in KB con i suoi fatti, e `answer_frame("live in", …)`
+% puntava a un'altra relazione: quindi «Penguins live in Antarctica» non era
+% imparabile e «Where do penguins live?» non trovava cio' che c'era. Il report
+% lo legge come «i soggetti plurali non diventano entita'»; misurato, e' piu'
+% semplice e piu' grave — mancava la porta, in entrambi i versi.
+extract_frame("@S live in @O", habitat).
+extract_frame("@S lives in @O", habitat).
+extract_frame("@S vive in @O", habitat).
+extract_frame("@S vivono in @O", habitat).
+% ⚠ Le `answer_frame` corrispondenti NON si aggiungono: provate, spengono le
+% domande che gia' funzionavano («Where do penguins live?», e la polare
+% «Do penguins live in the Arctic?» che il gen505x aveva appena chiuso). La
+% porta di INGRESSO e quella di USCITA di questa relazione non si aprono con lo
+% stesso gesto — `answer_frame("live in", can_live_in)` occupa gia' quella
+% superficie, e sovrapporle cambia chi vince. Verdetto: rifiutato, specie
+% `circostanza` — da riprendere quando si sapra' distinguere le due relazioni
+% sulla stessa superficie.
+
 extract_frame(@S uses @O, uses).
 extract_frame("@S is called @O", also_known_as).
 extract_frame(@S includes @O, includes).

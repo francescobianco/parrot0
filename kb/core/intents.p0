@@ -4499,6 +4499,25 @@ faculty_force(narrative_continuation, directive).
 % una domanda («you good?»), a una richiesta («raccontami della tua giornata») e
 % a un puro gesto espressivo («lol»). Non risponde a un'AFFERMAZIONE sul mondo:
 % quella appartiene a chi la puo' imparare o verificare.
+% ── gen505x — PROVATO: `faculty_force(answerframe, question)` ──────────────
+%
+% «Penguins live in Antarctica» -> «Ice.»: la facolta' delle DOMANDE
+% rivendicava un'affermazione. `faculty_force/2` esiste dal gen491 apposta, e
+% dichiararla chiudeva il caso.
+%
+%   verdetto    non applicabile oggi (2026-09-07, gen505x)
+%   ragione     `p0_turn_is` legge `turn_illocution/2` dal frame del turno, che
+%               a quel punto del dispatch NON e' pubblicato: la forza risulta
+%               assente e la facolta' si spegne su TUTTE le domande, comprese
+%               le polari («Do penguins live in the Arctic?» -> muro)
+%   condizione  ordine di pubblicazione del frame rispetto al registro
+%   specie      prematuro — la condotta e' giusta, manca che la forza sia
+%               leggibile quando il registro gira
+%
+% Fermato per la regola d'arresto 3. Il caso e' stato chiuso altrimenti: dando
+% a `habitat/2` le sue forme (grammar.p0), l'affermazione ora si impara e non
+% c'e' piu' niente da rivendicare a sproposito.
+
 faculty_force(chitchat, question).
 faculty_force(chitchat, directive).
 faculty_force(chitchat, expressive).
