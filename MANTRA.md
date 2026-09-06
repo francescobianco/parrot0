@@ -495,6 +495,84 @@ prompt senza chiudere la sua classe non conta come progresso.
 
     Ordine delle discipline e piano: `docs/plans/turn-arbitration.md`.
 
+22. **⛔ MASSIMIZZARE E DECLINARE — un circuito che funziona non si lascia a un
+    caso solo.**
+
+    F., 2026-09-06: *«quando troviamo un circuito che funziona, un percorso, una
+    soluzione su cui si sono investite ore, allora la dobbiamo massimizzare —
+    riempirla di casi completi, varianti, temi lunghi di ogni genere — e
+    declinare: quell'abilità ne può portare un'altra simile, sovrapponibile, con
+    terminazioni alternative e interconnessa ad altre. Così, dato un
+    investimento x di tempo, la crescita della KB è rilevante.»*
+
+    Funziona per un'asimmetria misurata: **il circuito è la parte cara, i casi
+    sono la parte gratis.** `turn_focus` è costato nove cicli diagnostici su due
+    sessioni; il decimo caso che ci si mette dentro costa una riga. Chi si ferma
+    al primo caso paga il prezzo pieno e ne raccoglie un nono.
+
+    > **Massimizzare** = esaurire i **casi** di una distinzione.
+    > **Flettere/declinare** = trovare la **stessa forma** di distinzione altrove.
+
+    ### ⛔ Il difetto successivo è sempre più attraente di quello in corso
+
+    È la tentazione che questo mantra esiste per battere, e non è teorica:
+    misurata sul giorno stesso in cui è nato. `turn_focus` costruito, verificato
+    su **un** turno, e sessione chiusa. Rimisurato subito dopo, il circuito era
+    a metà: `in`/`within`/`among`/`under` e perfino una forma di domanda diversa
+    passavano già; `for` e `of` **mentivano ancora**, l'annidamento italiano
+    murava, e una terza facoltà rispondeva altro.
+
+    Cinque casi erano lì gratis e non li avevo raccolti.
+
+    ### Le due discipline, senza cui degenera nei difetti che già conosciamo
+
+    | | il test | se fallisce |
+    |---|---|---|
+    | **massimizzare la CLASSE, non i casi** | *il membro nuovo entra in una classe che uno straniero potrebbe estendere domani, o è una riga in più in una lista?* | è una lista → il circuito non era finito: **mancava la classe**. È così che sono nate le 73 cue corte |
+    | **una declinazione RIUSA la lettura, non la copia** | *sto aggiungendo un consumatore a una lettura che c'è, o sto scrivendo una seconda lettura?* | seconda lettura → non è una declinazione, è un **duplicato** (#5), e divergerà al primo cambiamento |
+
+    ### Quando un circuito è pieno
+
+    Non «quando la classe sembra completa»: dall'interno nessuno sa che aspetto
+    abbia una classe completa. La sola condizione d'arresto onesta è
+    comportamentale — **quando i casi nuovi smettono di cambiare il
+    comportamento su un transcript tenuto da parte.**
+
+    E ciò che resta fuori non è sempre incompletezza: `of` sta fuori da
+    `domain_preposition` perché **fa parte del soggetto** («the capital of
+    France»). Chiuderlo chiede di leggere la *testa* del sintagma — cioè è una
+    **declinazione**, non una massimizzazione: circuito nuovo, sessione dopo.
+
+    ### ⭐ Perché questo mantra separa due mestieri
+
+    **Massimizzare è il momento in cui il lavoro smette di essere ingegneria e
+    diventa insegnamento.** Costruire il circuito richiede il motore, il C, i
+    cicli diagnostici. Riempirlo è conoscenza: si fa **parlando**, ed è il punto
+    dell'intero esperimento.
+
+    | | costruire | massimizzare / flettere |
+    |---|---|---|
+    | che cos'è | ingegneria | addestramento |
+    | costo | ore, cicli diagnostici | minuti, per voce |
+    | dove | `src/` + `kb/` | `kb/`, spesso solo parlando |
+    | per sessione | **una volta** | fino a saturazione |
+    | protocollo | `docs/plans/procedura-crescita-kb.md` | `LEARN_PROTOCOL.md` |
+
+    ### Il ritmo che ne segue
+
+    1. **un circuito per sessione, al massimo** — se ne saltano fuori due, il
+       secondo si **scrive**, non si insegue;
+    2. **poi si massimizza, per voce, fino a saturazione** — è qui che la KB
+       cresce davvero, con costo per caso vicino a zero;
+    3. **poi si cerca una declinazione** e la si passa al test del riuso: se
+       riusa la lettura si fa adesso; se chiede un meccanismo nuovo **diventa il
+       circuito della sessione dopo**.
+
+    Così l'investimento non finisce mai in un caso solo, e la coda del lavoro è
+    sempre già scritta.
+
+    Il metodo completo, con le misure: `docs/plans/procedura-crescita-kb.md`.
+
 ## Dove sta il resto
 
 - `PRINCIPLES.md` — il *perché* dell'esperimento (la regola anti-inganno).

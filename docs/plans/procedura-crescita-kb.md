@@ -354,7 +354,7 @@ come effetto collaterale di questa regola.
 
 ---
 
-## 2-ter. La strategia: massimizzare e declinare *(F.)*
+## 2-ter. La strategia: massimizzare e declinare *(F.)* — **mantra #22**
 
 *F.: «quando troviamo un circuito che funziona, un percorso, una soluzione su cui
 si sono investite ore, allora la dobbiamo **massimizzare** — riempirla di casi
