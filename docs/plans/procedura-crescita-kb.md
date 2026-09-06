@@ -354,6 +354,122 @@ come effetto collaterale di questa regola.
 
 ---
 
+## 2-ter. La strategia: massimizzare e declinare *(F.)*
+
+*F.: «quando troviamo un circuito che funziona, un percorso, una soluzione su cui
+si sono investite ore, allora la dobbiamo **massimizzare** — riempirla di casi
+completi, varianti, temi lunghi di ogni genere — e **declinare**: quell'abilita'
+ne puo' portare un'altra simile, sovrapponibile, con terminazioni alternative e
+interconnessa ad altre. Cosi', dato un investimento x di tempo, la crescita
+della KB e' rilevante».*
+
+E' la strategia giusta, e il motivo per cui funziona e' l'asimmetria che il
+§1-bis misura: **il circuito e' la parte cara, i casi sono la parte gratis.**
+Il `turn_focus` e' costato nove cicli su due sessioni; il decimo caso che ci si
+mette dentro costa una riga. Chi si ferma al primo caso paga il prezzo pieno del
+circuito e ne raccoglie un nono.
+
+E si incastra con il §1 in modo che rende entrambi piu' precisi:
+
+> **Massimizzare** = esaurire i **casi** di una distinzione.
+> **Declinare** = trovare la **stessa forma** di distinzione altrove.
+
+### La dimostrazione: quanto e' pieno il circuito che ho lasciato ieri
+
+Costruito `turn_focus`, verificato su un caso, e passato oltre. Rimisurato:
+
+| turno | esito |
+|---|---|
+| `…arrocco **in** chess` | ✅ muro onesto |
+| `…arrocco **within** chess` | ✅ |
+| `…arrocco **among** the openings` | ✅ |
+| `…arrocco **under** the rules` | ✅ |
+| `**tell me about** the arrocco in chess` | ✅ — regge anche una forma di domanda diversa |
+| `…arrocco **for** chess` | ⛔ **mente ancora**: definizione degli scacchi |
+| `…arrocco **of** chess` | ⛔ **mente ancora** |
+| `…arrocco **during** a game` | ⚠️ «I can't show that» — una **terza** facolta' |
+| `cosa e' l'arrocco **nel gioco degli** scacchi` | ⛔ muro (annidamento italiano) |
+
+Cinque casi funzionano **gratis**, per una proprieta' che vale la pena notare:
+`among` e `under` non sono in `domain_preposition/1` e passano lo stesso, perche'
+la **verifica** rifiuta il topic anche quando il fuoco non e' stato tagliato.
+E' il dividendo di «verificare a valle invece di filtrare a monte» (R3): degrada
+con grazia invece di rompere.
+
+E quattro no. **Averli lasciati li' e' esattamente l'errore che questa strategia
+corregge**: il difetto successivo e' sempre piu' attraente del finire quello in
+corso.
+
+### Le due discipline che la tengono in piedi
+
+Senza queste, massimizzare e declinare degenerano nei due difetti che il
+progetto conosce gia' per nome.
+
+**Massimizzare la CLASSE, non i casi.** Aggiungere membri e' giusto solo se
+condividono un **criterio dichiarato** che uno straniero potrebbe estendere
+domani. `domain_preposition/1` lo e'. Aggiungere una riga per sintomo e' come
+sono nate le 73 cue corte, ed e' «l'elenco degli incidenti».
+
+> Il test: *il membro nuovo entra in una classe, o e' un caso in piu' in una
+> lista?* Se e' una lista, il circuito non era finito — mancava la classe.
+
+**Una declinazione RIUSA la lettura, non la copia.** «Simile ma non esatta,
+sovrapponibile» e' proprio il punto in cui un meccanismo si allunga fino a
+mezzo-funzionare in cinque posti. Il segnale che si e' sbagliato: ci si trova a
+scrivere un **secondo** meccanismo parallelo. Quella non e' una declinazione, e'
+un duplicato (mantra #5), e divergera' al primo cambiamento di uno dei due.
+
+> Il test: *sto aggiungendo un consumatore a una lettura che c'e', o sto
+> scrivendo una seconda lettura?*
+
+### Quando un circuito e' pieno
+
+Serve una condizione d'arresto, altrimenti si massimizza per sempre. La sola
+onesta e' comportamentale:
+
+> **quando i casi nuovi smettono di cambiare il comportamento su un transcript
+> tenuto da parte.**
+
+Non «quando la classe sembra completa» — nessuno sa che aspetto ha una classe
+completa dall'interno. `for` e `of` restano fuori non perche' la classe sia
+piena, ma perche' non sono ambiti: `of` fa parte del soggetto («the capital of
+France»), e chiuderli chiede una lettura diversa — *qual e' la testa del
+sintagma*. Che e' una **declinazione**, non una massimizzazione: circuito nuovo,
+prossima sessione.
+
+### ⭐ E la conseguenza che vale piu' di tutte
+
+**Massimizzare e' il momento in cui il lavoro smette di essere ingegneria e
+diventa insegnamento.** Costruire il circuito richiede il motore, il C, i cicli
+diagnostici. Riempirlo e' conoscenza: si fa **parlando**, ed e' il punto
+dell'intero esperimento.
+
+Cioe' questa strategia separa da sola i due modi che abbiamo mescolato per tutta
+la sessione:
+
+| | costruire | massimizzare / declinare |
+|---|---|---|
+| che cos'e' | ingegneria | addestramento |
+| quanto costa | ore, cicli diagnostici | minuti, per voce |
+| dove si scrive | `src/` + `kb/` | `kb/`, spesso solo parlando |
+| quante volte per sessione | **una** | fino a saturazione |
+| protocollo | questo documento | `LEARN_PROTOCOL.md` |
+
+### Il ritmo di una sessione che ne segue
+
+1. **un circuito per sessione, al massimo** — e se ne saltano fuori due, il
+   secondo si scrive, non si insegue;
+2. **poi si massimizza, per voce, fino a saturazione** — ed e' qui che la KB
+   cresce davvero, con il costo per caso vicino a zero;
+3. **poi si cerca una declinazione**, e la si controlla con il test del riuso:
+   se riusa la lettura si fa adesso, se chiede un meccanismo nuovo **diventa il
+   circuito della sessione dopo**.
+
+Cosi' l'investimento non finisce mai in un caso solo, e la coda del lavoro e'
+sempre gia' scritta.
+
+---
+
 ## 3. Che cosa vuol dire «andata bene», qualitativamente
 
 Se la crescita e' fatta di distinzioni e non di righe, il conteggio giusto non
