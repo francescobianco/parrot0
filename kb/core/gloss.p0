@@ -37,6 +37,43 @@
 % italiano), non una crescita. La riga si aggiunge il giorno in cui `tr` prende
 % l'argomento della lingua, non prima.
 gloss_language(italian).
+
+% ── gen505v — UN GLOSSARIO APPARTIENE A UNA LINGUA: PROVATO, BLOCCATO ──────
+%
+% `tr/2` viene applicato a OGNI turno e riscrive parole inglesi che si scrivono
+% come parole italiane. Misurato su turni inglesi:
+%
+%     what is the tempo in music  ->  «what is the time in music»
+%                                 ->  «I don't know much about TIME yet»
+%     …the sale…   -> salt        …the pane… -> bread
+%
+% Non un muro: una risposta fluente su un'altra parola — la classe peggiore.
+% E parrot0 il termine musicale lo SA: con la traduzione tolta risponde «tempo
+% is speed of the underlying beat». La conoscenza c'era, e la traduzione la
+% nascondeva.
+%
+% E' la stessa famiglia del rosso «i put …», dove l'articolo plurale italiano
+% `i` riscriveva il pronome inglese; li' la cura fu dare una colonna LINGUA a
+% `function_word/3`.
+%
+%   verdetto    non applicabile oggi (2026-09-06, gen505v)
+%   ragione     la guardia e' giusta e la cura funziona sull'inglese, ma la
+%               LETTURA DELLA LINGUA non regge il peso: «socrate è un uomo» non
+%               risulta italiano al momento della canonicalizzazione, quindi
+%               `uomo` smette di essere tradotto. Misurato in differenziale:
+%               rules.it 6/3 -> 3/6, whatifnot.it 2/3 -> 0/5,
+%               robust.it 1/3 -> 0/4. Inglese e resto dell'italiano invariati.
+%   condizione  `current_lang/1` al momento in cui `canonical_token_kb` traduce
+%   specie      **prematuro** — non e' la guardia a essere sbagliata, e' cio' su
+%               cui si appoggia. Sbloccarla e' lo stesso lavoro di `C_TODO` §U4
+%               (canonicalizzazione ibrida), che e' gia' il fondo del problema
+%               italiano.
+%
+% Fermato per la regola d'arresto 3 di `docs/plans/procedura-crescita-kb.md`:
+% danno collaterale su casi non correlati, si annulla e si sale di livello.
+% La riga che servirebbe, quando la lingua sara' leggibile, e' una sola:
+%     gloss_language_code(italian, it).
+% e in `kb_tr_it_en` il rifiuto quando il codice del turno non combacia.
 tr($English, $Form) :- gloss_language($Language), apply($Language, cons($Form, cons($English, nil))).
 
 % Le spiegazioni localizzate usano la lezione di definizione gia' esistente:
