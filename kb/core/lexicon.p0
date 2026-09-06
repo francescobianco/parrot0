@@ -2824,3 +2824,78 @@ machinery(definition_interrogative).
 definition_interrogative(what).
 definition_interrogative(cosa).
 definition_interrogative(quale).
+
+% ── I VERBI IRREGOLARI INGLESI (gen505r) ───────────────────────────────────
+%
+% «said» non e' «say» piu' un suffisso: nessuna regola ortografica lo produce, e
+% quindi e' un FATTO della lingua. Finche' non c'erano, «she said nice things»
+% non veniva letta nemmeno come un'affermazione — e sono le forme piu' comuni
+% dell'inglese, non un caso di bordo.
+%
+% `irregular_verb_form(Radice, Forma)` vale in entrambe le direzioni (vedi
+% `extract_frame/2` e `verb_stem/2` in grammar.p0) e non costa nessuna chirurgia
+% sulle stringhe. Una riga nuova — anche in un'altra lingua — si insegna
+% parlando e vale dal turno dopo.
+%
+% Dove ci sono due righe per la stessa radice sono il passato semplice e il
+% participio, che in inglese divergono: servono entrambi, perche' il passivo
+% legge il secondo.
+machinery(irregular_verb_form).
+irregular_verb_form(say, said).
+irregular_verb_form(tell, told).
+irregular_verb_form(make, made).
+irregular_verb_form(take, took).       irregular_verb_form(take, taken).
+irregular_verb_form(give, gave).       irregular_verb_form(give, given).
+irregular_verb_form(eat, ate).         irregular_verb_form(eat, eaten).
+irregular_verb_form(see, saw).         irregular_verb_form(see, seen).
+irregular_verb_form(know, knew).       irregular_verb_form(know, known).
+irregular_verb_form(write, wrote).     irregular_verb_form(write, written).
+irregular_verb_form(drive, drove).     irregular_verb_form(drive, driven).
+irregular_verb_form(break, broke).     irregular_verb_form(break, broken).
+irregular_verb_form(speak, spoke).     irregular_verb_form(speak, spoken).
+irregular_verb_form(choose, chose).    irregular_verb_form(choose, chosen).
+irregular_verb_form(grow, grew).       irregular_verb_form(grow, grown).
+irregular_verb_form(throw, threw).     irregular_verb_form(throw, thrown).
+irregular_verb_form(begin, began).     irregular_verb_form(begin, begun).
+irregular_verb_form(drink, drank).     irregular_verb_form(drink, drunk).
+irregular_verb_form(sing, sang).       irregular_verb_form(sing, sung).
+irregular_verb_form(rise, rose).       irregular_verb_form(rise, risen).
+irregular_verb_form(fall, fell).       irregular_verb_form(fall, fallen).
+irregular_verb_form(hide, hid).        irregular_verb_form(hide, hidden).
+irregular_verb_form(forget, forgot).   irregular_verb_form(forget, forgotten).
+irregular_verb_form(get, got).
+irregular_verb_form(have, had).
+irregular_verb_form(do, did).          irregular_verb_form(do, done).
+irregular_verb_form(go, went).         irregular_verb_form(go, gone).
+irregular_verb_form(come, came).
+irregular_verb_form(find, found).
+irregular_verb_form(think, thought).
+irregular_verb_form(bring, brought).
+irregular_verb_form(buy, bought).
+irregular_verb_form(catch, caught).
+irregular_verb_form(teach, taught).
+irregular_verb_form(seek, sought).
+irregular_verb_form(fight, fought).
+irregular_verb_form(feel, felt).
+irregular_verb_form(keep, kept).
+irregular_verb_form(sleep, slept).
+irregular_verb_form(sweep, swept).
+irregular_verb_form(leave, left).
+irregular_verb_form(mean, meant).
+irregular_verb_form(meet, met).
+irregular_verb_form(lose, lost).
+irregular_verb_form(pay, paid).
+irregular_verb_form(sell, sold).
+irregular_verb_form(send, sent).
+irregular_verb_form(spend, spent).
+irregular_verb_form(build, built).
+irregular_verb_form(hold, held).
+irregular_verb_form(hear, heard).
+irregular_verb_form(lead, led).
+irregular_verb_form(lend, lent).
+irregular_verb_form(sit, sat).
+irregular_verb_form(stand, stood).
+irregular_verb_form(understand, understood).
+irregular_verb_form(win, won).
+irregular_verb_form(run, ran).
+irregular_verb_form(swim, swam).       irregular_verb_form(swim, swum).

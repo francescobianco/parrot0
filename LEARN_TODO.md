@@ -1,5 +1,103 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — `gen505s`: la morfologia, e un vincolo sopravvissuto alla sua ragione
+
+> Quarto giro del 6 settembre 2026, sul punto 1 lasciato dal `gen505r`.
+
+## Il punto di partenza
+
+`verb_suffix/1` aveva **un membro solo**, `"s"`, con la ragione scritta accanto e
+misurata: con `-ed` e `-d` «il budget di un **turno** di inferenza passava da
+meno di un secondo a 1,85 s».
+
+Rimisurato: quel costo **c'e' ancora, ed e' quasi identico** — ma sta tutto nel
+**boot**, non nel turno.
+
+| | boot | i 3 turni dopo |
+|---|---|---|
+| un suffisso | 3,74 s | ~0,55 s |
+| quattro suffissi | 5,59 s | ~0,58 s |
+
+Dal `gen491` le viste si scaldano al boot apposta, «perche' il costo cada in un
+posto che non ha un budget». La misura che teneva ferma quella classe era stata
+presa **prima** di quel cambiamento, e nessuno era tornato a rifarla: il vincolo
+era sopravvissuto alla ragione che lo reggeva. Vale la pena cercarne altri —
+ogni «no, l'abbiamo misurato» ha una data.
+
+## Che cosa e' cresciuto
+
+1. **Le due direzioni non costano uguale, e stavano in una classe sola.**
+   All'indietro («da questa superficie, la radice?») serve `chars` + `app`:
+   ricorsione su lista di caratteri. In avanti basta `concat_atoms`.
+   `verb_suffix/1` resta il verso caro e resta a `"s"`; `inflection_suffix/1` e'
+   il verso a buon mercato e oggi ha `"s"` e `"ed"`.
+2. **`irregular_verb_form/2`** — 85 righe in `kb/core/lexicon.p0`. «said» non e'
+   «say» piu' un suffisso: nessuna regola ortografica lo produce, quindi e' un
+   fatto della lingua e sta in KB come tutti gli altri. Vale in **entrambe** le
+   direzioni e costa **+0,12 s** al boot.
+3. Il predicato resta la **radice** qualunque sia la superficie: «luca told a
+   story» si archivia sotto `tell`, e `what did luca tell?` risponde «Story.»
+
+## ⚠ Tre misure che hanno cambiato il progetto, in ordine
+
+Il primo tentativo generava le forme dalla **radice**, per non produrre
+«absorbss» (le 85 `relation_verb` curate sono gia' flesse):
+
+| tentativo | boot |
+|---|---|
+| `verb_root/1` con guardia `naf(verb_has_stem(...))` | **13,7 s** |
+| `verb_root/1` senza guardia | **15,2 s** |
+| leggere `relation_verb/1` e basta | **4,53 s** |
+
+**Il costo non erano gli schemi: era quante volte si rienumera `verb_stem/2`.**
+Ogni regola che la nomina la fa ricorrere da capo su tutti i verbi. Gli schemi
+sbagliati («absorbss», «sayed») costano una concatenazione l'uno e non
+combaciano mai nessun testo; la pulizia che li evitava costava dieci secondi.
+
+> Regola riutilizzabile: in questo dialetto, **conta le enumerazioni di una
+> vista ricorsiva, non i fatti che produce.**
+
+## Un rosso che era una scoperta
+
+`chitchat.p0t` ha preso un rosso nuovo:
+
+```
+you keep saying the same thing
+  -> «Hmm, I don't know about saying yet…»   invece del riconoscimento del limite
+```
+
+La lettura non era sbagliata — quella frase **e'** una predicazione, e il
+`gen505r` aveva appena insegnato a parrot0 a vederle. E' che una predicazione il
+cui soggetto e' un **partecipante al discorso** («io», «tu», «noi») e' una mossa
+della conversazione, non un fatto del mondo: parla di chi sta parlando. La terza
+persona no. `participant_pronoun/1` e' quella distinzione, e il rosso si e'
+chiuso senza togliere niente al guadagno.
+
+## Costo finale e test
+
+Boot **3,74 s → 4,53 s** (+21%), turni invariati. Nessuna suite (indicazione di
+F.). Spot-check: `thinking_e1` 11/11, `smalltalk` verde, e i **tre rossi noti
+restano tre** — nessun rosso nuovo. `taught_lexicon.p0t` e' 16/19 anche prima
+delle modifiche (verificato in differenziale): e' la stessa classe di
+`motorize_class.p0t`, resa in prosa invece che a termine.
+
+## Da dove riprendere
+
+1. ⭐ **Il verso caro va materializzato.** `verb_stem/2` e' la strozzatura di
+   tutto: si ricalcola su liste di caratteri a ogni enumerazione, e per questo
+   `verb_suffix/1` non puo' crescere e `irregular_verb_form/2` deve leggere
+   `relation_verb/1` invece della radice. La cura la indica gia' il commento del
+   `gen491`: **materializzare le radici quando si insegna**, non ricalcolarle
+   quando si legge. Sbloccherebbe `-es`, `-d`, `-ing` e l'italiano insieme.
+2. **`who told a story?`** non trova la risposta (`what did luca tell?` si').
+   La domanda con l'interrogativo in posizione di soggetto va a un'altra
+   facolta': e' un turno rubato, da guardare con `turn-arbitration.md`.
+3. **Le 73 cue corte** — censimento ancora aperto (handoff `gen505q`).
+4. **Le regole grammaticali**: ne esiste una.
+5. **L'italiano** e' fermo (`C_TODO` §U4).
+6. **Thinking**: costo ~2 s/turno; e uno schema insegnato a voce (E1).
+
+
 # 🏁 HANDOFF — `gen505r`: la forza del turno, e le due meta' della morfologia
 
 > Terzo giro del 6 settembre 2026. Partito dal punto 1 della lista (le cue
