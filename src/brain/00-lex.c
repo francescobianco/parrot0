@@ -1570,7 +1570,12 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
                             cp[cl0 - 1] = '\0'; cp++; cl0 -= 2;
                         }
                         if (!*cp || cl0 <= best_len) continue;
-                        if (!strstr(anchor, cp)) continue;
+                        /* gen505w: con `strstr` nudo la cue «one» combaciava
+                         * dentro «zzn·one·siste», e un'ancora inesistente
+                         * passava la copertura — cioe' una CONFERMA FALSA di
+                         * aver imparato. Stesso confine di parola del resto del
+                         * motore, deciso in un posto solo. */
+                        if (!kb_text_has_surface(anchor, cp)) continue;
                         best_len = cl0;
                         snprintf(best_fam, sizeof best_fam, "%s", fams[fi]);
                     }
