@@ -251,6 +251,10 @@ token_variation(joined_infix_rhs, "split_operator_prefix").
 % potesse agganciarla, e una capacita' che funzionava spariva — misurato subito
 % dopo averle omesse. La forma piu' lunga si dichiara per prima.
 phrase_canon("dove si trova", "where is").
+% Un nome composto identifica un concetto PRIMA della traduzione delle sue
+% parole. Gli alias si insegnano con i normali frame «X is also called Y»;
+% non sono risposte preconfezionate e non richiedono un dizionario nel C.
+phrase_canon($Surface, $Concept) :- entity_alias($Surface, $Concept).
 phrase_canon("dove si trovano", "where are").
 phrase_canon("si trova in", "is in").
 phrase_canon("si trovano in", "are in").

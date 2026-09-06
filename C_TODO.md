@@ -1,5 +1,25 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-06 — nomi composti: un solo canonizzatore anche per mod_learn
+
+Tolto il traduttore token-per-token dal tema estratto sul testo italiano:
+ignorava `phrase_canon` e gli alias e dipendeva dalla lunghezza della traduzione.
+Il lookup ora usa il canonizzatore condiviso sull'intero tema; il tema originale
+rimane disponibile per display/fallback. Nessun nome di legge aggiunto al C.
+
+Residui osservati in questa sessione (non dichiarati chiusi):
+
+- `strip_edge_punct` elimina gli accenti UTF-8 finali (`densità` -> `densit`),
+  anche nei nomi testuali appresi. Servono confini Unicode e conservazione
+  dello span menzionato, non alias a mano per ogni spelling danneggiato.
+- La retrazione naturale degli alias non raggiunge il fatto; la dipendenza
+  runtime e' stata verificata con ablazione MCP, non con un finto successo NL.
+- `/save` ha scritto sette nuovi fatti di discorso/segmentazione nella
+  ricaduta. Rimossi solo quelli di questa sessione; resta da sistemare la
+  classificazione dello stato effimero, non ampliare una blacklist per tema.
+
+Evidenze: `docs/reports/2026-09-06-nomi-composti-e-leggi.md`.
+
 ## 2026-09-05 — identificato il ramo delle descrizioni; tolto il tetto a otto token
 
 Il ramo «non identificato» del gen505b era il blocco gen151 delle definizioni:

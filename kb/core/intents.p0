@@ -706,6 +706,10 @@ intent_cue(teach_construction, "significa").
 % concept(X, "…") into the session; the consumer (kb_concept_def and the what-is
 % path) already read any pred(Key, "Description"). Comprehension = knowledge:
 % a new phrasing of this frame is another learnable row, never C.
+% La localizzazione e' un tipo di definizione, non un testo da stampare nel C.
+% Prima della label generica, che e' contenuta in quella specifica.
+learnable("italian definition of", italian_description, define).
+learnable("definizione italiana di", italian_description, define).
 learnable("definition of",  concept, define).
 learnable("definizione di", concept, define).
 learnable("reply when you find a topic",   learn_found,     fill).

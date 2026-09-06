@@ -507,6 +507,9 @@ address_identity($Surface, $Concept) :-
     semantic_alias($Surface, $Concept).
 address_identity($Surface, $Concept) :-
     entity_alias($Surface, $Concept).
+% Un nome appreso deve indirizzare lo stesso concetto, non restare un fatto
+% raccontabile ma inutilizzabile da chi riconosce quel nome nel turno.
+entity_alias($Surface, $Concept) :- also_known_as($Concept, $Surface).
 address_identity($Surface, $Concept) :-
     phrase_form($Surface, $Concept, $Language, $Register).
 address_identity($Surface, $Concept) :-

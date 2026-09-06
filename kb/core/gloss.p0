@@ -39,6 +39,15 @@
 gloss_language(italian).
 tr($English, $Form) :- gloss_language($Language), apply($Language, cons($Form, cons($English, nil))).
 
+% Le spiegazioni localizzate usano la lezione di definizione gia' esistente:
+% «learn italian definition of ohms law: "..."». Non si nomina lo schema.
+% La prosa appresa alimenta la vista usata dai consumatori delle definizioni.
+machinery(localized_description_relation).
+localized_description_relation(italian_description, it).
+concept_gloss($Concept, $Lang, $Text) :-
+    localized_description_relation($Rel, $Lang),
+    apply($Rel, cons($Concept, cons($Text, nil))).
+
 % gen384 — queste parole le ha indicate il SENSORE, non io: il declino informato
 % ha nominato "risposto", "inventato", "scherzando" come parole fuori dal
 % lessico mentre provavo conversazioni italiane. E' il giro che si chiude —

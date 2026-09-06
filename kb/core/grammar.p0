@@ -1209,6 +1209,10 @@ extract_frame(@S uses @O, uses).
 extract_frame("@S is called @O", also_known_as).
 extract_frame(@S includes @O, includes).
 extract_frame("@S is also called @O", also_known_as).
+% Il nome e' un'intera superficie, anche se contiene preposizioni. Le
+% introduzioni di menzione in input.p0 lo proteggono durante la lezione; il tipo
+% testuale impedisce al legatore di troncarlo al primo confine nominale.
+relation_value_kind(also_known_as, text).
 extract_frame(@S releases @O, releases).
 extract_frame(@S modified @O, modified).
 extract_frame(@S modulates @O, modulates).
@@ -1834,6 +1838,4 @@ view_depends(extract_frame, verb_suffix).
 view_depends(extract_frame, verb_stem).
 view_depends(verb_stem, relation_verb).
 view_depends(verb_stem, verb_suffix).
-
-
 

@@ -161,6 +161,10 @@ fact_source(copper_sulfide_mineral(chalcocite), chalcocite, "chalcocite is a cop
 fact_source(copper_sulfide_mineral(bornite), bornite, "bornite is a copper sulfide mineral").
 fact_source(copper_carbonate_mineral(azurite), azurite, "azurite is a copper carbonate mineral").
 fact_source(copper_carbonate_mineral(malachite), malachite, "malachite is a copper carbonate mineral").
+fact_source(also_known_as(density_law, "formula della densit"), density_law, "density_law is also called formula della densità").
+fact_source(also_known_as(kinetic_energy_law, "legge dell energia cinetica"), kinetic_energy_law, "kinetic_energy_law is also called legge dell energia cinetica").
+fact_source(also_known_as(newtons_second_law, "seconda legge di newton"), newtons_second_law, "newtons_second_law is also called seconda legge di newton").
+fact_source(also_known_as(ohms_law, "legge di ohm"), ohms_law, "ohms_law is also called legge di ohm").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -224,7 +228,11 @@ reading_fact(copper_sulfide_mineral(covellite), "covellite is a copper sulfide m
 reading_fact(iron_ore_mineral(siderite), "siderite is an iron ore mineral").
 reading_fact(copper_sulfide_mineral(chalcocite), "chalcocite is a copper sulfide mineral").
 reading_fact(copper_mineral(chalcopyrite), "chalcopyrite is a copper mineral").
+reading_fact(also_known_as(density_law, "formula della densit"), "density_law is also called formula della densità").
 reading_fact(copper_sulfide_mineral(bornite), "bornite is a copper sulfide mineral").
+reading_fact(also_known_as(kinetic_energy_law, "legge dell energia cinetica"), "kinetic_energy_law is also called legge dell energia cinetica").
 reading_fact(copper_carbonate_mineral(azurite), "azurite is a copper carbonate mineral").
+reading_fact(also_known_as(newtons_second_law, "seconda legge di newton"), "newtons_second_law is also called seconda legge di newton").
 reading_fact(copper_carbonate_mineral(malachite), "malachite is a copper carbonate mineral").
+reading_fact(also_known_as(ohms_law, "legge di ohm"), "ohms_law is also called legge di ohm").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").

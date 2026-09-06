@@ -1,5 +1,60 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+## HANDOFF 2026-09-06 — «legge di Ohm» non deve diventare «read di ohm»
+
+**Chiuso il caso segnalato da F. su `7d09192`.** Dopo insegnamento, salvataggio
+e riavvio con le opzioni di `make chat`, «parlami della legge di ohm» risponde
+in italiano con tensione, corrente, resistenza, `V = I * R`, unita' e condizioni
+di validita'. La legge era gia' nella KB: mancava l'indirizzamento dal nome.
+
+La correzione non aggiunge una risposta speciale per Ohm nel C:
+
+- `law_surface` e gli alias appresi alimentano `entity_alias` e `phrase_canon`:
+  si riconosce il nome composto prima di tradurne le singole parole.
+- «X is also called Y» conserva Y come menzione testuale intera. Prima
+  «legge di ohm» veniva tradotto/troncato anche DURANTE l'insegnamento.
+- `mod_learn` usa il canonizzatore comune sull'intero tema estratto da una
+  testa italiana; non esegue piu' una seconda traduzione parola per parola.
+- Le definizioni italiane si insegnano con «learn italian definition of X:
+  "..."» e alimentano `concept_gloss`, che era gia' letto dalle risposte.
+
+**Misura reale, non suite:** nella stessa sessione la lezione naturale
+«ohms law is also called legge di ohm» apre il riconoscimento; ritirare quel
+fatto via MCP lo richiude. MCP e' stato usato per l'ablazione, NON per
+insegnare. «lui legge un libro» resta `he read a book`. Anche Newton e la
+domanda sull'espressione dell'energia cinetica raggiungono la conoscenza giusta.
+Quattro spiegazioni italiane sono state apprese e salvate; il codice delle
+espressioni continua a provenire dagli alberi gia' presenti, non dalle glosse.
+
+Dettagli, lezioni, evidenze e limiti:
+[`docs/reports/2026-09-06-nomi-composti-e-leggi.md`](docs/reports/2026-09-06-nomi-composti-e-leggi.md).
+**Nessuna suite eseguita**, per indicazione di F.; compilazione e conversazioni
+sulla KB completa. Non dichiarare «italiano risolto» o «comprensione universale».
+
+### Prossima leva della KB viva: dal modello fisico al programma
+
+1. **Insegnare la struttura di una legge parlando**, oltre alla sua prosa:
+   quantita' risultante, operazione, ingressi, costanti. Una nuova legge deve
+   entrare senza scrivere `law_formula` a mano e diventare interrogabile subito.
+2. **Comporre un programma dall'albero**: parametri, unita', risultato e corpo
+   della funzione. La produzione attuale verificata e' l'ESPRESSIONE; non
+   spacciare `(current * resistance)` per una funzione Python completa.
+3. **Collegare dimensioni fisiche e tipi del programma**: distinguere grandezze
+   omonime, convertire unita' compatibili, segnalare quelle incompatibili.
+   Le condizioni come volume positivo e regime ohmico devono essere guardie
+   interrogabili/eseguibili, non soltanto frasi nella spiegazione italiana.
+4. **Derivare le inverse e propagare variazioni**: da V=IR ricavare I=V/R,
+   esplicitando R non nullo; distinguere coefficienti costanti da dipendenze
+   dalla temperatura. Spiegazione, algoritmo e ipotesi devono restare coerenti.
+5. **Trasferire operazioni fra domini reali**: prodotti e rapporti tra meccanica,
+   circuiti e densita'; poi conservazione in chimica, reti in biologia,
+   integrazione/simulazione in programmazione. Ogni ponte deve produrre una
+   risposta nuova utile partendo dalla KB reale, non da un micro-mondo inventato.
+6. **Chiudere i residui linguistici osservati**: contesto degli omografi non
+   coperti da nomi noti; UTF-8 in `strip_edge_punct` (densità viene conservata
+   internamente come `densit`); retrazione naturale degli alias; copertura dei
+   turni didattici lunghi; stato effimero che `/save` tenta ancora di persistere.
+
 # 🏁 HANDOFF — `gen505q`, 6 settembre 2026 (secondo giro della giornata)
 
 > Ripreso da questo file per «raggiungere lo stato di KB viva». Due difetti

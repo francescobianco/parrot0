@@ -297,6 +297,10 @@ segment_role(mention, "do you say").
 segment_role(mention, "the word").
 segment_role(mention, "la parola").
 segment_role(mention, "denotations of").
+% Nominare una forma non significa tradurne i pezzi: anche le preposizioni
+% interne fanno parte del nome che si sta insegnando.
+segment_role(mention, "is also called").
+segment_role(mention, "is known as").
 canonicalization_exempt(mention).
 
 % La domanda che segue un registro strutturato e' un secondo span. Il ruolo

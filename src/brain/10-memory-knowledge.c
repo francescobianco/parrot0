@@ -1801,6 +1801,15 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
                 }
                 free(ph);
                 if (best_words && *best_canon) {
+                    /* A phrase consumes its final token too. Preserve THAT
+                     * token's sentence mark, not just the first token's mark:
+                     * recognizing a multi-word name must not erase a question. */
+                    if (best_words > 1) {
+                        const char *last = w[i + best_words - 1];
+                        size_t last_len = strlen(last);
+                        tailbuf[0] = last_len && strchr("?.,!;:", last[last_len - 1])
+                                   ? last[last_len - 1] : '\0';
+                    }
                     off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
                                             i ? " " : "", best_canon, tail);
                     i += best_words - 1;   /* the loop's ++ consumes the last token */

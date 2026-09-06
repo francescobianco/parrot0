@@ -368,6 +368,10 @@ opposite(yes, no).
 opposite(young, old).
 also_known_as(constantinople, istanbul).
 also_known_as(mumbai, bombay).
+also_known_as(density_law, "formula della densit").
+also_known_as(kinetic_energy_law, "legge dell energia cinetica").
+also_known_as(newtons_second_law, "seconda legge di newton").
+also_known_as(ohms_law, "legge di ohm").
 synonym(angry, mad).
 synonym(big, large).
 synonym(brave, courageous).

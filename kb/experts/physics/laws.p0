@@ -67,10 +67,23 @@ law_prose(ohms_law, "the law that voltage equals current times resistance").
 law_prose(kinetic_energy_law, "the law that kinetic energy equals half of mass times velocity squared").
 law_prose(density_law, "the law that density equals mass divided by volume").
 
+% Apprese in conversazione il 2026-09-06 con «learn italian definition of ...»
+% e /save; ricollocate qui dalla ricaduta learned.p0, senza cambiarne il testo.
+% Per Ohm: OpenStax, University Physics Volume 2, 9.4 (formulazione nostra).
+% https://openstax.org/books/university-physics-volume-2/pages/9-4-ohms-law
+italian_description(ohms_law, "La legge di Ohm lega tensione corrente e resistenza nei conduttori ohmici a temperatura costante: V = I * R. La tensione si misura in volt, la corrente in ampere e la resistenza in ohm").
+italian_description(newtons_second_law, "La seconda legge di Newton lega la forza risultante alla massa e alla accelerazione: F = m * a, per massa costante in un sistema inerziale").
+italian_description(kinetic_energy_law, "La energia cinetica di un corpo di massa m e velocita v vale E = 0.5 * m * v * v nel regime non relativistico").
+italian_description(density_law, "La densita media di un corpo si calcola dividendo la massa per il volume: rho = m / V. Il volume deve essere positivo").
+
 law_surface(newtons_second_law, "newtons second law").
 law_surface(ohms_law, "ohms law").
 law_surface(kinetic_energy_law, "kinetic energy law").
 law_surface(density_law, "density law").
+
+% L'indice delle leggi alimenta il risolutore comune dei nomi: la legge intera
+% precede le traduzioni/definizioni di una singola parola al suo interno.
+entity_alias($Surface, $Law) :- law_surface($Law, $Surface).
 
 % ── 3. IL PERCORSO — che cosa una legge COINVOLGE ──────────────────────────
 % E' la vista che risponde alla domanda di F., e non e' inferibile dalla prosa:

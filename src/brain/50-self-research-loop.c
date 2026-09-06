@@ -965,27 +965,10 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
             return 0;
     }
 
-    /* gen335e: when head matched against raw Italian form, canonicalize each
-     * topic token to English so the concept key is canonical (chess, not scacchi).
-     * Overwrite in-place if the canonical form fits, otherwise trust the original
-     * (the acquire_knowledge function also tries both forms). */
-    if (use_raw) {
-        for (size_t i = start; i < nt; i++) {
-            char *t = strip_edge_punct(tok[i]);
-            char canon_tok[KB_TERM_LEN];
-            if (kb_tr_it_en(b, t, canon_tok, sizeof canon_tok)) {
-                size_t cl = strlen(canon_tok);
-                size_t ol = strlen(tok[i]);
-                if (cl <= ol) {
-                    memcpy(tok[i], canon_tok, cl);
-                    if (cl < ol) tok[i][cl] = '\0';
-                }
-                /* if canonical is longer, keep the original — the key builder
-                 * will use the untranslated form, which is still fine for
-                 * acquire_knowledge file lookups */
-            }
-        }
-    }
+    /* Keep the user's topic intact for display and fallback. Translation is
+     * performed below on the WHOLE phrase by the shared canonicalizer: a
+     * learned multi-word name must not be destroyed by a second tokenwise
+     * translator, nor depend on whether its English spelling fits in-place. */
     char key[80]; size_t ko = 0;
     char disp[80]; size_t dpo = 0;
     for (size_t i = start; i < nt; i++) {
@@ -1046,22 +1029,26 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     char def[KB_TERM_LEN];
     char msg[320];
 
-    /* gen335h: when the topic came from a raw Italian head (use_raw), the key
-     * may be Italian ("deltaplano"). acquire_knowledge uses it directly for
-     * file lookup and Wikipedia fetch — but the page on Wikipedia is named
-     * in English ("hang_gliding"). Build a canonical English key via tr/2
-     * and try it as a fallback if the raw key fails. */
+    /* A raw-language head retains its original topic for display, but lookup
+     * uses the SAME phrase-aware canonicalization as the rest of the brain.
+     * Otherwise an alias learned at runtime works in an English question and
+     * is torn back into unrelated words in a raw-language question. */
     char key_en[80] = "";
     if (use_raw) {
+        char topic_canon[256];
+        canonicalize_lang(b, x, topic_canon, sizeof topic_canon);
+        char *ctok[64];
+        size_t cn = split_words(topic_canon, ctok, 64);
+        size_t cs = 0;
+        if (cn && (is_article(b, ctok[0]) ||
+                   lex_class_member(b, "english_determiner", ctok[0]) ||
+                   lex_class_member(b, "italian_determiner", ctok[0]))) cs = 1;
         size_t keo = 0;
-        for (size_t i = start; i < nt; i++) {
-            char *t = strip_edge_punct(tok[i]);
+        for (size_t i = cs; i < cn; i++) {
+            char *t = strip_edge_punct(ctok[i]);
             if (!*t) continue;
-            char en[KB_TERM_LEN];
-            const char *word = t;
-            if (kb_tr_it_en(b, t, en, sizeof en)) word = en;
             keo += (size_t)snprintf(key_en + keo, sizeof key_en - keo,
-                                    "%s%s", keo ? "_" : "", word);
+                                    "%s%s", keo ? "_" : "", t);
             if (keo >= sizeof key_en - 8) break;
         }
     }
