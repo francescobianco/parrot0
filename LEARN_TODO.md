@@ -1,5 +1,136 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — `gen505q`, 6 settembre 2026 (secondo giro della giornata)
+
+> Ripreso da questo file per «raggiungere lo stato di KB viva». Due difetti
+> chiusi, **uno dei due enorme**, e una regola del dialetto corretta perche' era
+> lore sbagliata mia. Un solo commit gia' su `origin/main`, uno da fare.
+
+## 1. ✅ Il punto 1 della lista era diagnosticato male, ed e' chiuso
+
+L'handoff precedente diceva: «dal secondo turno una frase citata viene
+rivendicata dalla **coreferenza** — USO vs MENZIONE in un secondo posto».
+**Falso.** Una sonda `fprintf` sul dispatch ha mostrato che il turno arriva
+intatto e che la risposta giusta viene **prodotta**, e poi **sovrascritta**:
+
+```
+pensiero 1 ─ read: <la risposta>        ↳ «Learned 0 fact(s), skipped 1.»
+pensiero 2 ─ what do you know about it  ↳ «I don't know who it refers to.»
+```
+
+Il passo 2 di `second_thought` presuppone `ingested`; il passo 1 non l'aveva
+raggiunto (zero fatti letti), quindi «it» non aveva antecedente. **Il passo non
+doveva girare.**
+
+`step(Op, Pre, Effect, Meta)` dichiara la precondizione **dal giorno in cui e'
+stato scritto**, e l'esecutore non l'ha mai guardata: girava per rango chiedendo
+solo `reentry_admissible/2` — una proprieta' STATICA dello schema («questo nodo
+puo' portare conoscenza nuova?»), mai una di QUESTO giro («l'ha portata?»).
+
+Cura, generale e KB-first: `thinking_node_pre/3`, `thinking_given/2`,
+`thinking_pre_satisfied/2` in `kb/core/thinking.p0`; il C deposita
+`thinking_effect_reached/2` quando un passo propaga e lo ritira a ogni giro.
+`tests/p0t/reasoning/thinking_e1.p0t`: **da 7/11 a 11/11**.
+
+> **La lezione, e vale oltre questo caso:** «una facolta' ruba il turno» era la
+> spiegazione comoda. La domanda giusta non era *chi ha rivendicato* ma **chi ha
+> scritto per ultimo nella risposta**. Una sonda sul dispatch l'ha detto in un
+> giro; tre ipotesi ragionate non ci erano arrivate.
+
+## 2. ⭐ IL DIFETTO GROSSO: una cue si cercava come sottostringa nuda
+
+Trovato inseguendo un turno rubato: «what is your designation» riceveva
+«Hey! I'm here. Ask me something…» da `chitchat`. Il colpevole non era il
+modulo — era `intent_cue(casual, "yo")`, e **"yo" sta dentro "your"**.
+
+Misurato, prima di toccare niente:
+
+```
+[tell me about yoga] -> Hey! I'm here. Ask me something, or tell me about your day?
+[what lies beyond]   -> Hey! I'm here. Ask me something, or tell me about your day?
+```
+
+E non e' una riga sfortunata: nella KB ci sono **852 cue alfabetiche nude**, di
+cui **73 lunghe tre caratteri o meno** — `add`, `all`, `car`, `cat`, `day`,
+`end`, `sky`, `two`, `who`, `why`, `yo`, `sup`, `lol`… Ognuna rivendica ogni
+turno in cui quelle lettere compaiono **dentro un'altra parola**.
+
+Curarle una per una sarebbe l'elenco degli incidenti. La regola vera e' una
+proprieta' del **letterale**, non della lista: *se una cue comincia con un
+carattere di parola, il testo deve avere un confine li' davanti; idem in coda.*
+I due lati sono indipendenti — `read:` chiede il confine solo a sinistra, `:)`
+non ne chiede nessuno e si comporta esattamente come prima.
+
+`src/kb.c`, `evidence_cue_find` (≈30 righe, un solo sito di chiamata: il ramo
+`cue`/`contains` di `evidence_next`, la strozzatura da cui passano tutte le cue).
+
+Dopo:
+
+```
+[tell me about yoga]       -> I don't know much about yoga yet. Want me to look it up?
+[what lies beyond]         -> Hmm, I don't know about beyond yet. Want me to learn about it? …
+[what is your designation] -> I don't know much about your designation yet. …
+[yo] -> Ciao!      [sup] -> Ciao!        ← i saluti veri reggono ancora
+```
+
+**Stato dei test:** vedi `TEST_TODO.md` — la suite intera **non** e' stata
+rimisurata (scelta di F.: non e' allineata, farla girare e' tempo perso). Su sei
+file di conversazione controllati: `frontier_chat_audit.it` **migliora** (3
+rossi → 1), `chitchat.p0t` e `reactions_are_knowledge.p0t` prendono **un rosso
+ciascuno** da guardare. L'ipotesi da verificare per prima e' che siano attese
+scritte contando sul match a sottostringa — cioe' rossi del test, non del motore.
+
+## 3. ✅ Una regola del dialetto corretta, perche' la lore era mia e sbagliata
+
+`stage_text(gj_detail, ...)` in `kb/core/grammar-judgement.p0` **non veniva
+caricata da giorni**: passava per un `gj_clash/6`, e `KB_MAX_ARGS` e' **4**. Lo
+stadio del dettaglio della cipolla grammaticale semplicemente non esisteva, con
+un solo `bad rule, dropped` su stderr al boot che nessuno guarda.
+
+Avevo annotato la trappola come «troppe variabili in una clausola» (in
+`composition.p0`) e ci sono **ricascato** in `grammar-judgement.p0`, togliendo
+variabili invece che argomenti. I soffitti veri, da `src/kb.h`:
+
+| limite | valore | che cosa cade |
+|---|---|---|
+| `KB_MAX_ARGS` | **4** | un goal con 5+ argomenti — testa **o corpo** |
+| `KB_MAX_BODY` | **8** | un corpo con 9+ goal |
+
+Corretta la nota, e le tre trappole del dialetto messe in **`AGENTS.md`** con il
+comando per censire i `PARSE ERROR` al boot:
+
+```sh
+echo '/quit' | PARROT0_SESSION= PARROT0_PROFILE=kb/profiles/agi.p0 \
+  ./bin/parrot0 2>&1 >/dev/null | grep 'PARSE ERROR'
+```
+
+Adesso sono **zero**.
+
+## Da dove riprendere, in ordine di leva (lista aggiornata)
+
+1. ⭐ **Il censimento delle 73 cue corte.** Il confine di parola le rende
+   innocue *dentro* le altre parole, ma non risponde alla domanda vera: `add`,
+   `all`, `car`, `day`, `sky`, `two`, `who` come **cue di un intento** sono
+   comunque troppo larghe — «who» rivendica ogni domanda su una persona. La
+   forma giusta e' quasi sempre una **classe** (`question_word/1`,
+   `arith_verb/1`) o una **congiunzione dichiarata** (`turn_pattern/3`, gia'
+   esistente dal gen489), non un letterale. E' il lavoro in blocco che F. ha
+   chiesto per il pattern del conteggio di parole, sullo stesso stampo.
+2. **Il costo del thinking**: ~2 s per turno, dominati dalla morfologia
+   ricalcolata su liste di caratteri a ogni vista. Cura: H4 di `thinking.md`
+   (budget come condizione d'arresto) + il numero **depositato come sensore**.
+3. **Le regole grammaticali**: ne esiste **una** (accordo soggetto-verbo). Ora
+   che `gj_detail` carica davvero, la cipolla ha tre giri veri e il posto per il
+   quarto. I «rifiuti onesti» del `cefr-bench` sono la lista della spesa.
+4. **L'italiano e' fermo** — canonicalizzazione ibrida, `C_TODO` §U4. Finche' e'
+   cosi' **non si insegna in italiano**.
+5. **I turni rubati restanti** → S4, la copertura (`turn-arbitration.md`).
+   Nota: quello di oggi **non** era un problema di arbitrato, era il matcher.
+   Prima di salire la scala, chiedersi sempre se la cue e' larga.
+6. **Thinking E1, ultimo pezzo**: uno schema **insegnato a voce**, non scritto
+   nel file.
+
+
 # 🏁 HANDOFF — comprensione e KB viva, 2026-09-06 sera (`gen505q`)
 
 > Sessione lunga, chiusa su richiesta di F. **Niente in sospeso**: albero pulito,

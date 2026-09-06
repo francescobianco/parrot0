@@ -4368,6 +4368,49 @@ static size_t evidence_ci_find(const char *s, const char *needle, size_t from) {
     return (size_t)-1;
 }
 
+/* ── gen505q — UNA CUE FATTA DI PAROLE SI CERCA A PAROLE ────────────────────
+ *
+ * `cue`/`contains` cercavano il letterale come SOTTOSTRINGA nuda, e questo e' il
+ * comportamento giusto per un'emoticon o un suffisso, non per una parola.
+ * Misurato al gen505q: `intent_cue(casual, "yo")` rivendicava
+ *
+ *     «tell me about yoga»       -> «Hey! I'm here…»
+ *     «what lies beyond»         -> «Hey! I'm here…»
+ *     «what is your designation» -> «Hey! I'm here…»
+ *
+ * perche' "yo" sta dentro yoga, beyond, your. Non e' un incidente di quella
+ * riga: nella KB ci sono 852 cue alfabetiche nude, 73 delle quali lunghe tre
+ * caratteri o meno. Curarle una per una sarebbe l'elenco degli incidenti; la
+ * regola vera e' una proprieta' del LETTERALE — se comincia con un carattere di
+ * parola, il testo deve avere un confine li' davanti, e lo stesso in coda.
+ *
+ * I due lati sono indipendenti apposta: `read:` chiede il confine solo a
+ * sinistra, `:)` non ne chiede nessuno e continua a comportarsi come prima. Un
+ * byte >= 0x80 conta come carattere di parola, altrimenti «ehila'» accentato
+ * vedrebbe un confine in mezzo a se stesso. */
+static int evidence_cue_word_char(unsigned char c) {
+    return isalnum(c) || c == '_' || c >= 0x80;
+}
+
+static size_t evidence_cue_find(const char *s, const char *needle, size_t from) {
+    if (!s || !needle || !*needle) return (size_t)-1;
+    size_t n = strlen(s), m = strlen(needle), at = from;
+    int need_left  = evidence_cue_word_char((unsigned char)needle[0]);
+    int need_right = evidence_cue_word_char((unsigned char)needle[m - 1]);
+    if (!need_left && !need_right) return evidence_ci_find(s, needle, from);
+    while (at <= n) {
+        at = evidence_ci_find(s, needle, at);
+        if (at == (size_t)-1) return at;
+        int left  = !need_left  || at == 0 ||
+                    !evidence_cue_word_char((unsigned char)s[at - 1]);
+        int right = !need_right || at + m >= n ||
+                    !evidence_cue_word_char((unsigned char)s[at + m]);
+        if (left && right) return at;
+        at++;
+    }
+    return (size_t)-1;
+}
+
 static size_t evidence_keyword_find(const char *s, const char *word, size_t from) {
     size_t n = strlen(s), m = strlen(word), at = from;
     while (m && at <= n) {
@@ -4653,7 +4696,7 @@ static int evidence_next(const KB *kb, const char *evidence, const char *text,
     } else if (!strcmp(kind, "cue") || !strcmp(kind, "contains")) {
         char needle[KB_TERM_LEN];
         evidence_atom_text(compound && ac ? a[0] : evidence, needle, sizeof needle);
-        at = evidence_ci_find(text, needle, from);
+        at = evidence_cue_find(text, needle, from);
         len = strlen(needle);
     } else if (!strcmp(kind, "keyword") && ac >= 1) {
         char word[KB_TERM_LEN]; evidence_atom_text(a[0], word, sizeof word);

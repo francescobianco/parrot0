@@ -1,5 +1,40 @@
 # TEST_TODO — le decisioni aperte della migrazione a `.p0t`
 
+## ⚠ DA SISTEMARE QUANDO SI RIPRENDONO I TEST — lasciato dal `gen505q`
+
+Al `gen505q` ho cambiato **il modo in cui una cue si cerca nel testo**
+(`src/kb.c`, `evidence_cue_find`): un letterale che comincia e/o finisce con un
+carattere di parola ora vuole un **confine di parola** su quel lato, invece di
+essere cercato come sottostringa nuda. Il motivo e in `LEARN_TODO.md`: con la
+vecchia regola `intent_cue(casual, "yo")` rivendicava «tell me about **yo**ga»,
+«what lies be**yo**nd» e «what is **yo**ur designation», e nella KB ci sono
+**852 cue alfabetiche nude**, 73 delle quali lunghe tre caratteri o meno.
+
+**La suite intera NON e' stata rimisurata** — F.: «la suite di test non e'
+allineata e tutta verde, farla girare e' tempo perso». Quello che so, da un
+controllo mirato su sei file di conversazione:
+
+| file | prima | dopo |
+|---|---|---|
+| `conversation/frontier_chat_audit.it.p0t` | 53 passed, **3 failed** | 55 passed, **1 failed** ✅ meglio |
+| `conversation/chitchat.p0t` | verde | 21 passed, **1 failed** ⚠ da guardare |
+| `conversation/reactions_are_knowledge.p0t` | verde | 8 passed, **1 failed** ⚠ da guardare |
+| `conversation/chitchat.it.p0t` | verde | verde |
+| `conversation/smalltalk.p0t` | verde | verde |
+| `conversation/social.it.p0t` | verde | verde |
+
+**I due gialli sono i primi due file da aprire.** L'ipotesi da verificare prima
+di toccare il motore: un'attesa scritta su una cue che *contava* sul match a
+sottostringa (per esempio una forma flessa che conteneva la cue dentro una
+parola piu' lunga). Se e' cosi', **il rosso e' del test, non del motore** — e'
+il caso gia' visto in `docs/plans/gate-may-be-wrong-not-code`.
+
+Due rossi **preesistenti e non miei**, verificati in differenziale con lo stash:
+- `meta/motorize_class.p0t` — 2 assert: resa in prosa invece che `created_by(...)`,
+  e maiuscola `Homer.` vs `homer.`;
+- `conversation/frontier_chat_audit.it.p0t` — l'assert che resta dei tre.
+
+
 # 🏁 HANDOFF — `cefr-bench`, 2026-09-06 (`gen505q`)
 
 > Nuovo banco, chiuso e pubblicato. **Niente in sospeso**: albero pulito, tutto
