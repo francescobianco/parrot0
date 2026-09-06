@@ -98,6 +98,9 @@ contengono queste risposte e non vengono usate come programmi.
 ## Limiti aperti, da non nascondere
 
 - Gli omografi fuori da un nome conosciuto non sono risolti in generale.
+  «quali leggi coinvolgono la massa?» restituisce ancora «Non capisco ancora»:
+  la domanda inglese e il riconoscimento dei nomi non bastano a chiudere la
+  grammatica italiana delle domande sulle leggi.
 - L'alias della densita' viene memorizzato come `formula della densit`:
   `strip_edge_punct` tratta i byte finali accentati come punteggiatura.
   La domanda accentata funziona perche' attraversa la stessa potatura;
