@@ -6894,6 +6894,59 @@ static void present_atom(Brain *b, const char *in, char *out, size_t n) {
  *
  * The gate relation and every surface cue remain KB data; this helper only
  * performs fixed candidate filtering. */
+/* ── gen505t — DI CHE COSA STA CHIEDENDO, QUESTA DOMANDA ───────────────────
+ *
+ * Il topic si sceglieva con l'evidenza presa OVUNQUE nel turno. Su
+ * «cosa e' l'arrocco negli scacchi» vinceva «scacchi», che e' un topic noto,
+ * e parrot0 rispondeva con la definizione del gioco: non un muro, una risposta
+ * di un'altra cosa.
+ *
+ * Il fuoco della domanda e' cio' che sta DOPO la superficie interrogativa e
+ * PRIMA della preposizione d'ambito. Nessuna parola in questo C: la superficie
+ * la risolve `answer_frame_surfaces` (motore condiviso dal gen490), l'ambito lo
+ * dichiara `domain_preposition/1`. Se non si restringe niente, il fuoco e' il
+ * turno intero e tutto si comporta come prima. */
+static int p0_question_focus(Brain *b, const char *norm,
+                             char *out, size_t out_size) {
+    if (!b || !norm || !out || out_size == 0) return 0;
+    const char *start = norm;
+    char (*hits)[KB_TERM_LEN] = NULL;
+    size_t nh = answer_frame_surfaces(b, norm, &hits);
+    if (nh) {
+        char probe[KB_TERM_LEN];
+        snprintf(probe, sizeof probe, "%s", hits[0]);
+        const char *surface = kb_dequote(probe);
+        if (*surface && kb_text_has_surface(norm, surface)) {
+            const char *at = strstr(norm, surface);
+            if (at) start = at + strlen(surface);
+        }
+    }
+    free(hits);
+    while (*start && isspace((unsigned char)*start)) start++;
+    if (!*start) return 0;
+
+    /* fino alla prima preposizione d'ambito, confine di parola incluso */
+    size_t keep = strlen(start);
+    char scan[512];
+    if (keep >= sizeof scan) return 0;
+    memcpy(scan, start, keep + 1);
+    char *w[64];
+    size_t nw = split_words(scan, w, 64);
+    size_t used = 0;
+    for (size_t i = 0; i < nw; i++) {
+        const char *tok = strip_edge_punct(w[i]);
+        const char *q[1] = { tok };
+        if (*tok && kb_query(b->kb, "domain_preposition", q, 1)) break;
+        used = i + 1;
+    }
+    if (used == 0 || used == nw) return 0;      /* niente da restringere */
+    out[0] = '\0';
+    size_t o = 0;
+    for (size_t i = 0; i < used && o + 1 < out_size; i++)
+        o += (size_t)snprintf(out + o, out_size - o, "%s%s", o ? " " : "", w[i]);
+    return out[0] != '\0';
+}
+
 static int answer_projection_topic_allowed(Brain *b, const char *relation,
                                            const char *topic,
                                            const char *norm) {
@@ -6986,6 +7039,43 @@ static int answer_projection_resolve(Brain *b, const char *relation,
             topic[0] = '\0';
     }
     if (!topic[0]) return -1;
+
+    /* ── gen505t — IL TOPIC DEV'ESSERE QUELLO DI CUI SI STA CHIEDENDO ───────
+     *
+     * Reperto di F.: «cosa e' l'arrocco negli scacchi» riceveva la definizione
+     * degli SCACCHI. Non era ignoranza — insegnando prima «arrocco» la risposta
+     * restava quella — ed e' peggio di un muro: sembra una risposta e parla
+     * d'altro (mantra #7 al rovescio). Lo stesso difetto si e' ripresentato su
+     * una seconda facolta' appena la prima ha taciuto, il che dice dove sta: non
+     * in una facolta', nella LETTURA del turno che nessuno faceva.
+     *
+     * L'evidenza si raccoglieva OVUNQUE nel turno, e «scacchi» e' un topic noto
+     * mentre «arrocco» no: vinceva l'unico candidato presente. Qui il vincitore
+     * viene rimisurato nel FUOCO della domanda — cio' che sta dopo la superficie
+     * interrogativa e prima della preposizione d'ambito. Se non regge li', non
+     * e' la cosa chiesta, e questa via si ritira lasciando il turno a chi puo'
+     * dire onestamente di non sapere.
+     *
+     * Verifica, non sostituzione: quando non c'e' niente da restringere il
+     * fuoco non esiste e non cambia niente. Ho provato prima a RIMPIAZZARE il
+     * testo su cui si segna, e «what is water» e' diventato un elenco di fatti:
+     * restringere l'evidenza di ingresso cambia quale relazione vince, non solo
+     * quale topic. */
+    {
+        char focus[512];
+        if (p0_question_focus(b, norm, focus, sizeof focus)) {
+            const char *only[] = { topic };
+            char winner[KB_TERM_LEN], fproof[KB_EVIDENCE_PROOF_LEN];
+            int fscore = 0, held = 0;
+            for (size_t i = 0; i < ne && !held; i++) {
+                if (kb_hypothesis_best(b->kb, kb_dequote(evidence_relations[i]),
+                                       focus, only, 1, winner, sizeof winner,
+                                       &fscore, fproof, sizeof fproof) == 1)
+                    held = 1;
+            }
+            if (!held) return -1;
+        }
+    }
 
     char sources[16][KB_TERM_LEN];
     const char *sq[] = { relation, NULL, NULL };

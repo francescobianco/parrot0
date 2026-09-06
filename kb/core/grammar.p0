@@ -278,6 +278,35 @@ location_preposition(from).
 location_preposition(near).
 location_preposition(on).
 location_preposition(at).
+
+% ── gen505t — LA PREPOSIZIONE CHE INTRODUCE UN AMBITO, NON UN SOGGETTO ─────
+%
+% Reperto di F., sessione italiana:
+%
+%     cosa e' l'arrocco negli scacchi
+%       -> «Gli scacchi sono un gioco di strategia per due persone…»
+%
+% Cioe' la definizione del CONTENITORE al posto della cosa chiesta. E non era
+% ignoranza: insegnando prima «arrocco», la risposta restava quella. Il topic si
+% sceglieva con l'evidenza presa OVUNQUE nel turno, e «scacchi» e' un topic noto
+% mentre «arrocco» no — quindi vinceva sempre l'unico candidato presente.
+%
+% Un muro sarebbe stato meglio: qui parrot0 sembra rispondere e risponde di
+% un'altra cosa (mantra #7 al rovescio). La lettura che mancava e' che una
+% domanda «cosa e' A in B» chiede di **A**: B e' l'AMBITO, non il soggetto.
+%
+% Sono un sottoinsieme dichiarato delle preposizioni, non una classe nuova a se':
+% «of» resta fuori apposta, perche' «the capital of France» e' un soggetto solo.
+% Una lingua nuova, o una preposizione d'ambito in piu', e' una riga.
+machinery(domain_preposition).
+domain_preposition(in).
+domain_preposition(within).
+domain_preposition(inside).
+domain_preposition(nel).
+domain_preposition(nei).
+domain_preposition(negli).
+domain_preposition(nella).
+domain_preposition(nelle).
 auxiliary(did).
 auxiliary(is).
 auxiliary(are).

@@ -1,5 +1,84 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — `gen505t`: tre reperti di F. da una sessione italiana
+
+> F. ha incollato tre turni veri di `make chat`. Il terzo e' il piu' grave e
+> resta **aperto**: qui c'e' la diagnosi completa e le due strade gia' provate
+> che NON funzionano, cosi' il prossimo giro non le ripercorre.
+
+## Il reperto 3 — ⛔ APERTO, ed e' un misclaim (peggio di un muro)
+
+```
+cosa è l'arrocco negli scacchi
+  -> «Gli scacchi sono un gioco di strategia per due persone…»
+```
+
+La definizione del **contenitore** al posto della cosa chiesta. **Non e'
+ignoranza:** insegnando prima «arrocco» con `learn definition of`, la risposta
+resta quella. Il topic si sceglie con l'evidenza raccolta **ovunque nel turno**,
+e «scacchi» e' un topic noto mentre «arrocco» no: vince l'unico candidato
+presente. Mantra #7 al rovescio — sembra una risposta e parla d'altro.
+
+**Chiuso a meta'.** `p0_question_focus` legge il *fuoco* della domanda: cio' che
+sta dopo la superficie interrogativa e prima di una **preposizione d'ambito**
+(`domain_preposition/1`, nuova classe KB — `of` resta fuori apposta, «the
+capital of France» e' un soggetto solo). In `answer_projection_resolve` il topic
+vincitore viene **rimisurato nel fuoco**: se non regge li', la via si ritira.
+`semantic_lead` adesso tace correttamente (verificato: il fuoco e' `the
+arrocco`, `semantic_topic_cue` non da' evidenza per `chess`, ritorno -1).
+
+⛔ **Ma appena tace, risponde un'altra facolta' con lo stesso errore** — prima
+`answerframe` per la scansione di ogni parola del turno, e togliendo anche
+quella, una terza via (il legatore di sintagmi). Tre siti, stesso difetto: e' il
+segno che **non e' un difetto di facolta' ma di lettura del turno**, e va
+pubblicato nel frame (`turn_focus`) e consumato da tutti, non curato sito per
+sito.
+
+### ⚠ Due strade provate e MISURATE come sbagliate — non ripercorrerle
+
+1. **Rimpiazzare il testo su cui si segna l'evidenza** con il fuoco
+   (`answer_projection_resolve(b, pred, focus, …)`): «what is water» diventa un
+   elenco di fatti (`water is H2O; habitat(amphibian, water); …`). Restringere
+   l'evidenza d'ingresso cambia **quale relazione vince**, non solo quale topic.
+2. **Filtrare i token candidati** in `mod_answer_frame` con il fuoco: «what is
+   the arrocco in chess» peggiora in `chess is chess; chess is scacchi; …`.
+
+> La regola che ne esce: **il fuoco VERIFICA un vincitore, non restringe un
+> ingresso.** La verifica e' additiva e non ha rotto niente; la restrizione
+> cambia la gara.
+
+## Il reperto 1 — `come sei messo` → «Non capisco ancora.»
+
+Muro onesto, non un misclaim. E' una forma idiomatica italiana di «come stai»:
+manca al registro affettivo. **Non chiuderlo con una `intent_cue` in piu'** —
+sarebbe frasario. La forma giusta e' `pragma_act`/`chitchat_reaction` con la
+classe che gia' esiste, e va guardata insieme al punto delle cue corte.
+
+## Il reperto 2 — `cosa pensi di questo SELECT * FROM table`
+
+```
+  -> «That looks like a snippet of code.»
+```
+
+Due difetti in uno: (a) risponde **a una domanda diversa** — era «cosa ne
+pensi», non «che cos'e'»; (b) risponde **in inglese a un turno italiano**.
+Il riconoscimento del codice ha rubato il turno alla richiesta di giudizio: e'
+la stessa famiglia del reperto 3 — la lettura dell'ATTO del turno arriva dopo
+chi riconosce il contenuto.
+
+## Da dove riprendere
+
+1. ⭐ **`turn_focus` come lettura pubblicata**, consumata dalle tre vie invece
+   che curata sito per sito. E' il pezzo che chiude il reperto 3.
+2. **`read:` costa 2 s per quaranta parole** (misurato al `gen505s`). Capacita'
+   centrale: sogno, wiki, autolearn. Da profilare.
+3. **Le 73 cue corte** — censimento aperto dal `gen505q`.
+4. **Le regole grammaticali**: ne esiste una.
+5. **L'italiano** e' fermo (`C_TODO` §U4). Il reperto 2 ne e' un sintomo, e il
+   canonico di F. lo mostra: `cosa è l'arrocco` → `what è the arrocco`, con la
+   copula rimasta italiana.
+
+
 # 🏁 HANDOFF — `gen505s`: la morfologia, e un vincolo sopravvissuto alla sua ragione
 
 > Quarto giro del 6 settembre 2026, sul punto 1 lasciato dal `gen505r`.
