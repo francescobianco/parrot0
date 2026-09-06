@@ -245,6 +245,19 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
         if (kb_match(b->kb, "entity_mentioned", eq, 2, ev, 1) >= 1) return 0;
     }
 
+    /* ── gen505v — UN PRONOME DENTRO L'AMBITO NON E' UN REFERENTE ────────────
+     *
+     * «what is the zugzwang **when it comes to** chess»: il pronome «it» non
+     * indica niente, e' una sillaba della locuzione che apre l'ambito. Chiedere
+     * «a che cosa si riferisce?» e' una domanda su una parola che chi parla non
+     * ha usato come parola.
+     *
+     * Undicesimo consumatore della stessa lettura, non una guardia nuova: se il
+     * turno ha un fuoco e il pronome ne sta fuori, non c'e' niente da riparare.
+     * Senza fuoco — cioe' quando il turno non e' una domanda con un ambito —
+     * tutto si comporta esattamente come prima. */
+    if (b && !p0_answer_subject_in_focus(b, norm, pron)) return 0;
+
     snprintf(b->pending_canon, sizeof b->pending_canon, "%s", norm);
     snprintf(b->pending_slot, sizeof b->pending_slot, "%s", pron);
     b->pending_repair = 1;
