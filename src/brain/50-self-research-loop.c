@@ -938,6 +938,29 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     if (!x || !*x) return 0;
     int it = matched && (kb_cue_match(b, "50_self_research_loop_lex943", matched) ||kb_cue_match(b, "50_self_research_loop_lex943_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex943_3", matched) ||kb_cue_match(b, "50_self_research_loop_lex944", matched) ||kb_cue_match(b, "50_self_research_loop_lex944_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex945", matched) ||kb_cue_match(b, "50_self_research_loop_lex945_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex946", matched) ||kb_cue_match(b, "50_self_research_loop_lex946_2", matched) ||kb_cue_match(b, "50_self_research_loop_lex947", matched));
 
+    /* ── gen505v — IL DECIMO CONSUMATORE, E QUELLO A CUI SERVE DI PIU' ────────
+     *
+     * Il mestiere di questa facolta' e' proprio «di che cosa si sta chiedendo»,
+     * e finora la coda del turno la prendeva intera. Con un ambito dentro,
+     * due righe piu' sotto la scartavano — `nt - start != 1` per la forma
+     * debole, e il rifiuto delle preposizioni — quindi:
+     *
+     *     cosa e' lo zugzwang                 -> «Su zugzwang non so ancora
+     *                                             molto. Vuoi che cerchi?»
+     *     cosa e' lo zugzwang negli scacchi   -> «Non capisco ancora.»
+     *
+     * Stessa domanda, un ambito in piu', e il muro perdeva il termine: un
+     * `blind_wall` al posto di un muro che nomina. Il template italiano c'era
+     * gia' — non mancava una frase, mancava di arrivarci.
+     *
+     * Il fuoco del turno lo dice, ed e' gia' pubblicato: si legge quello invece
+     * della coda grezza. Se non c'e' fuoco, o non restringe, tutto si comporta
+     * come prima. */
+    char xfocus[160];
+    if (p0_current_question_focus(b, norm, xfocus, sizeof xfocus) &&
+        *xfocus && strlen(xfocus) < strlen(x))
+        x = xfocus;
+
     /* Build the concept key (drop a leading article, join words with '_') and a
      * display form; guard pronouns and too-short topics. */
     char xbuf[160]; snprintf(xbuf, sizeof xbuf, "%s", x);
