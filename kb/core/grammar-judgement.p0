@@ -23,13 +23,32 @@ singular_noun($W) :- naf(plural_noun($W)).
 % Il singolare della copula non e' una lista nuova: e' cio' che resta.
 singular_copula($C) :- clause_copula($C), naf(plural_copula($C)).
 
+% ── 1-bis. IL SOGGETTO ESISTENZIALE (gen505q) ──────────────────────────────
+%
+% Trovato dal `cefr-bench` nelle prime dodici frasi: «there are four games in the
+% series» veniva dichiarata sbagliata perche' «there» sembra singolare e «are» e'
+% plurale. Ma nella costruzione ESISTENZIALE «there» non e' il soggetto: e' un
+% segnaposto, e il verbo concorda con il nome che SEGUE. Applicare l'accordo li'
+% e' sovra-applicare una regola vera.
+%
+% Non si cura togliendo la regola: si cura dicendo dove non vale. Un segnaposto
+% nuovo (o di un'altra lingua) e' un fatto.
+machinery(expletive_subject).
+expletive_subject(there).
+expletive_subject(here).
+expletive_subject(ci).      % «ci sono quattro giochi»
+expletive_subject(vi).
+
 % ── 2. L'ACCORDO, E IL SUO FALLIMENTO ──────────────────────────────────────
 % Due fatti che non possono valere insieme. E' la stessa figura di
 % `class_excludes/2` (gen505): un «no» guadagnato, non un giudizio inventato.
-agreement_holds($Subj, $Cop) :- singular_noun($Subj), singular_copula($Cop).
-agreement_holds($Subj, $Cop) :- plural_noun($Subj), plural_copula($Cop).
-agreement_error($Subj, $Cop) :- singular_noun($Subj), plural_copula($Cop).
-agreement_error($Subj, $Cop) :- plural_noun($Subj), singular_copula($Cop).
+% ⚠ La regola NON si applica a un soggetto esistenziale: li' l'accordo guarda
+% altrove, e giudicare senza saperlo sarebbe un falso positivo detto con
+% sicurezza — peggio di un muro.
+agreement_holds($Subj, $Cop) :- naf(expletive_subject($Subj)), singular_noun($Subj), singular_copula($Cop).
+agreement_holds($Subj, $Cop) :- naf(expletive_subject($Subj)), plural_noun($Subj), plural_copula($Cop).
+agreement_error($Subj, $Cop) :- naf(expletive_subject($Subj)), singular_noun($Subj), plural_copula($Cop).
+agreement_error($Subj, $Cop) :- naf(expletive_subject($Subj)), plural_noun($Subj), singular_copula($Cop).
 
 % La forma attesa: la copula dell'altro numero — ma dello STESSO TEMPO.
 % Senza il tempo, «my name are» veniva corretto in «my name am»: giusto di

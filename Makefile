@@ -55,7 +55,16 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: mantra all build chat chat-agent pi test soft-test test-engine crossing-test legacy-test check gate capability-facts capability-report model-graph llmscore-arcs reasoning-operators piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh parrotbench impersonate simclean loop clean
+.PHONY: cefr-bench cefr-fetch-score mantra all build chat chat-agent pi test soft-test test-engine crossing-test legacy-test check gate capability-facts capability-report model-graph llmscore-arcs reasoning-operators piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh parrotbench impersonate simclean loop clean
+
+# gen505q — cefr-bench: che cosa parrot0 sa fare, per livello CEFR.
+# Dati: CEFR-SP (Arase, Uchida, Kajiwara, EMNLP 2022). Attribuzione, licenze e
+# citazione in tests/cefr/ATTRIBUTION.md — da leggere prima di usarli.
+cefr-bench: build
+	@$(BENCH_PY) tests/cefr/cefr_bench.py $(CEFR_ARGS)
+
+cefr-fetch-score:
+	@tests/cefr/fetch_score.sh
 
 mantra:
 	@cat MANTRA.md
