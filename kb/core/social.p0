@@ -83,6 +83,34 @@ social_pattern(opening, good evening).
 social_pattern(opening, good afternoon).
 social_pattern(closing, see you).
 social_pattern(closing, a presto).
+% ── gen505w — IL CONGEDO ITALIANO, DA UN REPERTO DI F. ─────────────────────
+%
+% Quattro turni veri di `make chat`, tre dei quali erano lo stesso atto e tutti
+% e tre muravano:
+%
+%     stiamo andando via         -> «Non capisco ancora.»
+%     devo andare via ti lascio  -> «Non capisco ancora.»
+%     scusami devo andare        -> «Non ho afferrato bene…»
+%
+% La classe esisteva e aveva due membri; il congedo italiano non ci arrivava.
+% Non sono locuzioni idiomatiche come quelle del benessere — sono il modo
+% ordinario di accomiatarsi, cioe' proprio le forme che una conversazione vera
+% produce. Il criterio della classe: la frase ANNUNCIA CHE CHI PARLA SE NE VA.
+social_pattern(closing, devo andare).
+social_pattern(closing, devo andare via).
+social_pattern(closing, dobbiamo andare).
+social_pattern(closing, ti lascio).
+social_pattern(closing, vi lascio).
+social_pattern(closing, ci sentiamo).
+social_pattern(closing, ci vediamo).
+social_pattern(closing, stiamo andando via).
+social_pattern(closing, me ne vado).
+social_pattern(closing, i have to go).
+social_pattern(closing, i must go).
+social_pattern(closing, i am leaving).
+social_pattern(closing, we are leaving).
+social_pattern(closing, talk soon).
+social_pattern(closing, catch you later).
 social_pattern(thanks, thank you).
 social_pattern(thanks, thank u).
 social_pattern(apology, mi dispiace).
