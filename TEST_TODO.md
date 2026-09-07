@@ -32,13 +32,14 @@
 | corsa | binario | ok | FAIL | su |
 |---|---|---|---|---|
 | 1 — `gen505y-suite-run-1-old-binary.txt` | `4ed3fa8`-1 giorno (demone stale), test e KB di allora | 152 | 206 | 358 |
-| 2 — `gen505y-suite-order-run.txt` | dopo i primi tre fix C (fuoco, polare, entailment); test e KB letti a ogni file, quindi correnti | RUN2_OK | RUN2_FAIL | 358 |
+| 2 — `gen505y-suite-run-2.txt` | dopo i primi tre fix C (fuoco, polare, entailment); test e KB letti a ogni file, quindi correnti | 233 | 125 | 358 |
 
 ⚠ La corsa 2 manca degli ultimi fix C (giudizio grammaticale sul codice, il
 soggetto con la copula, il testimone del sillogismo, il «?» come cue, la guardia
 del soggetto per parola). **La prima cosa da fare e' una corsa 3 sul binario
 di HEAD** — `make build && scripts/suite-run.sh docs/reports/gen505y-suite-run-3.txt`
-— e aggiornare questa tabella.
+— e aggiornare questa tabella. (Avviata a fine sessione: se il file porta la
+riga `# done`, i suoi conteggi sono i numeri di HEAD.)
 
 ## Le classi di attese invecchiate, e la convenzione scelta per ciascuna
 
@@ -123,7 +124,7 @@ l'attesa. Dove il file resta rosso, il rosso e' la misura.
 7. **La conferma di un'induzione non e' agganciata**: «does that always hold?»
    → «yes» → «Got it — what would you like to do?», la regola non entra
    (induce 32/35, rossi apposta).
-8. **Tempi** (H.1c: si profila, non si alza): `initials` 12 → **82 s**;
+8. **Tempi** (H.1c: si profila, non si alza): `autonomous_cycle` 38 e `self_repair` («prova a ripararti») → **108 s** e il ponte non nasce; `initials` 12 → **82 s**;
    `literal_forms` 246 → 7,7 s; `reader` 21 → 1,3 s; `syllogism` 36 → 2,1 s;
    `contextual_denotation` 30 → 1,6 s; il turno di 30 parole →
    `input_frame_observe` 2,7 s (LEARN_TODO).
