@@ -516,7 +516,6 @@ tr(say, dice).
 tr(says, dice).
 tr(go, va).
 tr(goes, va).
-tr(come, viene).
 tr(comes, viene).
 tr(make, fa).
 tr(makes, fa).
@@ -745,6 +744,21 @@ tr(three, tre).
 tr(four, quattro).
 tr(animals, animali).
 tr(tell, dimmi).
+% ── gen505y — I VERBI ITALIANI DEL DIALOGO E DEGLI AGENTI ─────────────────
+% Terzo difetto di fila che dipendeva da un verbo senza glossario (LEARN_TODO,
+% punto 3): «sai cosa sono le sbaddune» -> «sai what are the sbaddune», «mi
+% senti?» -> «me senti?», «esegui …» senza contratto, «parti da 3 e raddoppia
+% finché superi 40» -> muro. Sette file .it dietro (TEST_TODO, regressioni
+% aperte, 1). Ogni riga e' un membro: la stessa cosa si insegna parlando con
+% «senti is the italian of hear» (verificato prima di scrivere qui).
+tr(know, sai).          tr(know, conosci).      tr(know, sapete).
+tr(hear, senti).        tr(see, vedi).          tr(understand, capisci).
+tr(run, esegui).        tr(double, raddoppia).  tr(halve, dimezza).
+tr(start, parti).       tr(until, finché).      tr(exceed, superi).
+tr(below, sotto).       tr(continue, continua). tr(sequence, sequenza).
+tr(times, volte).       tr(respects, rispetta). tr(consistent, coerente).
+tr(rule, regola).       tr(after, dopo).        tr(fit, coerente).
+tr(its, suo).           tr(its, sua).
 tr(name, nome).
 tr(parrot0, parrot0).
 % gen334d: more missing translations

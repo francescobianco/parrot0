@@ -1891,15 +1891,27 @@ intent_cue(60_agent_tools_chain1286, "inizia").
 intent_cue(60_agent_tools_chain1286, "comincia").
 intent_cue(60_agent_tools_chain1407, "double").
 intent_cue(60_agent_tools_chain1407, "raddoppi").
+% gen505y: dal gen505q una cue vuole il confine di parola, quindi le RADICI
+% («raddoppi», «super», «dimezz») non combaciano piu' con le forme flesse: le
+% forme si elencano per intero. Sei suite .it degli agenti dietro.
+intent_cue(60_agent_tools_chain1407, "raddoppia").
+intent_cue(60_agent_tools_chain1407, "raddoppiare").
+intent_cue(60_agent_tools_chain1407, "raddoppiando").
 intent_cue(60_agent_tools_chain1408, "triple").
 intent_cue(60_agent_tools_chain1408, "triplic").
 intent_cue(60_agent_tools_chain1409, "halve").
 intent_cue(60_agent_tools_chain1409, "dimezz").
+intent_cue(60_agent_tools_chain1409, "dimezza").
+intent_cue(60_agent_tools_chain1409, "dimezzare").
+intent_cue(60_agent_tools_chain1409, "dimezzando").
 intent_cue(60_agent_tools_chain1412, "add").
 intent_cue(60_agent_tools_chain1412, "plus").
 intent_cue(60_agent_tools_chain1412, "aggiung").
 intent_cue(60_agent_tools_chain1412, "somma").
 intent_cue(60_agent_tools_chain1412, "più").
+intent_cue(60_agent_tools_chain1412, "aggiungi").
+intent_cue(60_agent_tools_chain1412, "aggiungere").
+intent_cue(60_agent_tools_chain1412, "aggiungendo").
 intent_cue(60_agent_tools_chain1414, "subtract").
 intent_cue(60_agent_tools_chain1414, "minus").
 intent_cue(60_agent_tools_chain1414, "sottra").
@@ -1918,10 +1930,19 @@ intent_cue(60_agent_tools_chain1427, "more than").
 intent_cue(60_agent_tools_chain1427, "surpass").
 intent_cue(60_agent_tools_chain1427, "super").
 intent_cue(60_agent_tools_chain1427, "oltre").
+intent_cue(60_agent_tools_chain1427, "supera").
+intent_cue(60_agent_tools_chain1427, "superi").
+intent_cue(60_agent_tools_chain1427, "superare").
+intent_cue(60_agent_tools_chain1427, "superato").
 intent_cue(60_agent_tools_chain1430, "reach").
 intent_cue(60_agent_tools_chain1430, "at least").
 intent_cue(60_agent_tools_chain1430, "almeno").
 intent_cue(60_agent_tools_chain1430, "raggiung").
+intent_cue(60_agent_tools_chain1430, "raggiungi").
+intent_cue(60_agent_tools_chain1430, "raggiunge").
+intent_cue(60_agent_tools_chain1430, "raggiungere").
+intent_cue(60_agent_tools_chain1430, "arrivi a").
+intent_cue(60_agent_tools_chain1430, "arriva a").
 intent_cue(60_agent_tools_chain1432, "at most").
 intent_cue(60_agent_tools_chain1432, "al massimo").
 intent_cue(60_agent_tools_chain1433, "below").

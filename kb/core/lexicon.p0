@@ -198,6 +198,19 @@ function_word(it, $Surface, $Gloss) :-
 % «raccontami» per conto proprio.
 language_marker(it, $Surface) :-
     enclitic_imperative($Surface, $Gloss).
+% ── gen505y — PROVATO: ogni superficie del glossario come marcatore di lingua ─
+%   tentativo   language_marker(it, S) :- gloss_language(italian), tr(E, S).
+%   verdetto    scartato (2026-09-07, gen505y)
+%   ragione     non era la causa: «parti da 3 E raddoppia» resta «3 e double»
+%               anche con la lingua letta; e il collaterale e' reale —
+%               taught_gloss 15/0 -> 12/3 («Fegato.» -> muro, «Ital» ->
+%               «Rome.»), facts.it risponde in italiano dove asseriva
+%               l'inglese. Regola d'arresto 3.
+%   condizione  la lettura della lingua pesa i marcatori senza distinguere una
+%               parola glossata da un indizio forte; e `tr` non ha la colonna
+%               della lingua (la scheda «prematuro» in gloss.p0)
+%   specie      prematuro — giusta quando `tr` avra' la lingua e la lettura
+%               pesera' gli indizi
 enclitic_imperative_opener($Surface) :-
     enclitic_imperative($Surface, $Gloss).
 
@@ -335,6 +348,20 @@ phrase_canon("quali sono", "which are").
 phrase_canon("what did i say", "what is").
 phrase_canon("what did you say", "what is").
 phrase_canon("where did i say", "where is").
+% gen505y — «sai cosa sono le sbaddune»: il «sai» davanti a un interrogativo e'
+% un addolcitore pragmatico, non un verbo della domanda — in italiano la
+% domanda incassata ha lo stesso ordine di quella diretta, quindi togliere
+% l'addolcitore lascia la domanda intera. (In inglese «do you know what X is»
+% inverte l'ordine e resta un gap: TEST_TODO, regressioni aperte.)
+phrase_canon("sai cosa", "what").       phrase_canon("sai chi", "who").
+phrase_canon("sai dove", "where").      phrase_canon("sai quando", "when").
+phrase_canon("sai come", "how").        phrase_canon("sai perche", "why").
+phrase_canon("sai perché", "why").      phrase_canon("sai quale", "which").
+phrase_canon("sai quanto", "how much"). phrase_canon("sai quanti", "how many").
+phrase_canon("sa cosa", "what").        phrase_canon("sa chi", "who").
+% «mi senti?» -> «me hear?» parola per parola: e' una locuzione.
+phrase_canon("mi senti", "can you hear me").
+phrase_canon("mi vedi", "can you see me").
 phrase_canon("where did you say", "where is").
 phrase_canon("when did i say", "when is").
 phrase_canon("who did i say", "who is").
@@ -1141,6 +1168,12 @@ language_marker(it, qual).
 language_marker(it, sono).
 language_marker(it, sei).
 language_marker(it, sai).
+% gen505y — i verbi degli agenti e del dialogo (gloss.p0, stesso giro): senza
+% un marcatore la lingua non risulta italiana e «e» resta «e».
+language_marker(it, senti).     language_marker(it, esegui).    language_marker(it, lancia).
+language_marker(it, raddoppia). language_marker(it, dimezza).   language_marker(it, parti).
+language_marker(it, finché).    language_marker(it, superi).    language_marker(it, continua).
+language_marker(it, rispetta).  language_marker(it, coerente).  language_marker(it, dimmi).
 language_marker(it, stai).
 language_marker(it, dimmi).
 language_marker(it, parlami).
@@ -1470,6 +1503,9 @@ code_pattern(c, loop_while_call, "while(").
 code_pattern(c, python_print_call, "print(").
 machinery(tool_surface).
 tool_surface(run_prefix, "run ").
+% gen505y: la superficie italiana dell'esecuzione (run_execute.it.p0t).
+tool_surface(run_prefix, "esegui ").
+tool_surface(run_prefix, "lancia ").
 tool_surface(compile_marker, "compile").
 tool_surface(teach_prefix, "learn ").
 tool_surface(teach_prefix, "impara ").
