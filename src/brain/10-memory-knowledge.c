@@ -2138,6 +2138,24 @@ static void current_lang(Brain *b, char *out, size_t sz) {
  * For the many C-literal replies not (yet) migrated to response_template/3, this
  * picks the Italian wording when the session language is Italian, else English.
  * Additive: a literal becomes localized just by giving it an `it` here. */
+/* ⚠ gen506 (glm-test §5.4) — QUESTA RIGA FUNZIONA PER UNA COINCIDENZA.
+ *
+ * La lingua si decide chiedendo se il CODICE della lingua e' membro di
+ * `entity_pronoun` — la classe dei PRONOMI. E' vera esattamente quando il codice
+ * e' «it», perche' il codice della lingua italiana e' anche il pronome inglese
+ * «it». Una lingua nuova con un codice che non e' un pronome inglese (fr, de,
+ * es) non ricevera' MAI la propria resa qui, e nessun test lo direbbe.
+ *
+ * Non l'ho cambiata in questo giro perche' `tput` e' su moltissimi siti e la
+ * sostituzione va misurata: la forma giusta e' chiedere alla KB se esiste una
+ * resa per QUELLA lingua (come fa gia' `kb_response_slots` con
+ * `response_template/3`), non se il codice somiglia a un pronome.
+ *
+ *   verdetto    da sostituire, non urgente
+ *   ragione     coincidenza fra codice lingua e pronome; blocca ogni lingua
+ *               nuova senza fallire su nessun test
+ *   specie      principio — non scade
+ */
 static void tput(Brain *b, const char *en, const char *it, char *out, size_t sz) {
     char lang[8]; current_lang(b, lang, sizeof lang);
     put((lex_class_member(b, "entity_pronoun", lang) && it && *it) ? it : en, out, sz);

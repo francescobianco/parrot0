@@ -22,6 +22,8 @@
 > | **3.5** | *(gen506)* non «due letture che non si parlano»: `kb_define_entity` legge benissimo i fatti unari. Era la facolta' di **acquisizione** a prendersi il turno per cercare fuori cio' che parrot0 aveva gia' dentro — mantra #21, dove non c'e' lacuna non c'e' titolo. `what is wombat` / `what is the wombat` / `define wombat` / `tell me about wombat` rispondono dal fatto insegnato (resta «what is **a** wombat», forma a se') |
 > | **6.2** | *(gen506)* l'articolo era scritto dentro il template: «say «something is a eiffel»». `{article}` legge la stessa politica che il resto del motore usa per «a»/«an» — sbagliare la grammatica **nel messaggio con cui si chiede di essere insegnati** insegna male |
 >
+> | **5.4** | *(gen506)* causa trovata, cura no. La lingua della risposta si decide con `lex_class_member(b, "entity_pronoun", lang)` — la classe dei **pronomi**: e' vera esattamente quando il codice e' «it», perche' il codice italiano coincide col pronome inglese «it». Funziona per coincidenza, e **nessuna lingua nuova** (fr, de, es) potra' mai ricevere la propria resa. Scheda al sito in `10-memory-knowledge.c`, specie `principio` — non scade |
+>
 > ### Parziali
 >
 > | § | fatto / resta |
