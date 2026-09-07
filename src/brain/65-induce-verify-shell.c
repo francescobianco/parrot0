@@ -363,7 +363,13 @@ static int mod_verify(Brain *b, const char *norm, const char *raw,
     char msg[400];
     if (pred == (double)tout)
         { const KbResponseSlot _rs[] = { { "ib", ib }, { "tb", tb }, { "rule", rule } };
-      kb_term_say(b, "yes_x_x_fits_the_rule_x", _rs, 3, msg, sizeof msg); }
+      kb_term_say(b, "yes_x_x_fits_the_rule_x", _rs, 3, msg, sizeof msg);
+          /* gen505y: il ramo «si'» componeva il verdetto e non lo EMETTEVA (la
+           * migrazione dei messaggi ha lasciato il put solo nel ramo «no»):
+           * usciva il buffer vuoto, o il residuo del turno prima sullo stesso
+           * demone («Starting from 5, that step never reaches 99» a «does 10
+           * -> 21 fit?»). agent_verify e agent_verify.it. */
+          put(msg, out, out_size); }
     else
         { const KbResponseSlot _rs[] = { { "rule", rule }, { "ib", ib }, { "pb", pb }, { "tb", tb } };
       kb_term_say(b, "no_the_rule_x_predicts_x_x_not_x", _rs, 4, msg, sizeof msg);
