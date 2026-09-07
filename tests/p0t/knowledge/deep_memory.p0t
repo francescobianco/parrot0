@@ -111,3 +111,41 @@
 !assert gap_remedy_action(knowledge, read_topic)
 > tell me about glimpwort
 <~ Want me to look it up?
+
+# ── gen505z — IL LETTORE NEL DOMINIO DELLA COMPRENSIONE UNIVERSALE ──────────
+#
+# Punto 1 della coda del gen505y. Due tesi, misurate separatamente.
+#
+# SOSTANZA — una frase secondaria non ha senso senza la primaria. «Its capital
+# is Velk» letta da sola non ha soggetto e non produce nessun fatto; il soggetto
+# della primaria deve SCORRERE come focus dentro il passo, come «what is it part
+# of» prende il referente dal turno prima.
+# ⛔ ROSSO DICHIARATO, con la causa nota. Il focus SCORRE davvero — misurato con
+# una sonda: «its capital is velk» arriva all'estrattore come «the capital of
+# zorbium is velk», e i confini di frase vengono dalla KB. Quel che manca e' che
+# il lettore di prosa conosce DUE forme (enumerazione, classe) mentre un turno
+# normale ne legge centotrentasei: la frase riscritta arriva giusta a un
+# estrattore che non sa leggerla. Scheda in `50-self-research-loop.c`.
+[test il focus scorre dentro il passo: «Its capital is Velk»]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> tell me about zorbium
+> yes
+!query capital_of(velk, zorbium)
+
+[test e la domanda dopo lo trova]
+> what is the capital of zorbium
+<~ elk
+
+# PRINCIPIO — dove finisce una frase e' CONOSCENZA, non un carattere nel C.
+# Ritirando il terminatore il passo resta una frase sola: la seconda non viene
+# mai letta, quindi il fatto della secondaria sparisce. E' l'ablazione che
+# distingue «il lettore consulta la KB» da «il lettore ha un `.` compilato».
+[test ablazione: senza terminatore il passo non si spezza]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+!forget sentence_terminator(en, ".")
+> tell me about zorbium
+> yes
+!query! capital_of(velk, zorbium)
+!assert sentence_terminator(en, ".")

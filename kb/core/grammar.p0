@@ -1987,6 +1987,40 @@ content_kind(file).
 % riparazione. Qui serve solo a distinguere «in questa storia rex E' un drago»
 % (il contenuto e' allegato) da «spiega questa poesia» (non lo e').
 machinery(clause_copula).
+% ── gen505z — DOVE FINISCE UNA FRASE E' CONOSCENZA (piano §3.1) ────────────
+%
+% Il lettore di passi (`read_passage`) spezzava su `. ! ? ;` scritti nel C. Una
+% lingua nuova, o un'abbreviazione, chiedevano una ricompilazione. Qui il
+% confine si dichiara, e riusa `sentence_terminator/2` che gia' chiude ogni
+% risposta composta: ritirandolo il passo resta una frase sola, ed e'
+% l'ablazione che distingue «il lettore consulta la KB» da «il lettore ha un
+% punto compilato».
+%
+% Gli altri segni stanno qui e non in `sentence_terminator/2` apposta: quello e'
+% consumato anche da chi COMPONE una risposta, e aggiungerci «!» farebbe
+% terminare le frasi con un punto esclamativo.
+machinery(passage_boundary_mark).
+passage_boundary_mark($Mark) :- sentence_terminator($Language, $Mark).
+passage_boundary_mark("!").
+passage_boundary_mark("?").
+passage_boundary_mark(";").
+
+% ── I DETERMINANTI CHE PUNTANO INDIETRO ────────────────────────────────────
+%
+% «Its capital is Velk» non ha soggetto: lo prende dalla frase prima. Quali
+% parole facciano questo e' vocabolario, quindi sta qui; che il focus scorra e'
+% meccanica, e sta nel lettore.
+machinery(referring_possessive).
+referring_possessive(its).
+referring_possessive(his).
+referring_possessive(her).
+referring_possessive(their).
+referring_possessive(sua).
+referring_possessive(suo).
+referring_possessive(sue).
+referring_possessive(suoi).
+referring_possessive(loro).
+
 clause_copula(is).
 clause_copula(are).
 clause_copula(was).

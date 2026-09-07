@@ -3250,12 +3250,41 @@ static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) 
     kb_set_origin(b->kb, document_origin);
     size_t unit_order = 0;
     char *p = buf;
+    /* ── gen505z — I CONFINI DI FRASE SI CHIEDONO ALLA KB (piano §3.1) ───────
+     *
+     * Erano `. ! ? ;` scritti qui: una lingua nuova o un'abbreviazione
+     * chiedevano una ricompilazione. `passage_boundary_mark/1` li dichiara e
+     * riusa `sentence_terminator/2`, cosi' ritirarlo spezza davvero il lettore
+     * — che e' l'ablazione con cui il cricchetto misura questa riga.
+     *
+     * Il decimale resta meccanica: «1.3» non e' un confine perche' ha cifre da
+     * entrambe le parti, e questo non e' vocabolario di nessuna lingua. */
+    char marks[16][KB_TERM_LEN];
+    const char *mq[1] = { NULL };
+    size_t nmarks = kb_match(b->kb, "passage_boundary_mark", mq, 1, marks, 16);
+    char markchars[32]; size_t nmc = 0;
+    for (size_t i = 0; i < nmarks && nmc + 1 < sizeof markchars; i++) {
+        char mb[KB_TERM_LEN];
+        snprintf(mb, sizeof mb, "%s", marks[i]);
+        const char *m = kb_dequote(mb);
+        if (*m) markchars[nmc++] = m[0];
+    }
+    markchars[nmc] = '\0';
+    /* ── E IL FOCUS SCORRE DENTRO IL PASSO ──────────────────────────────────
+     *
+     * «Its capital is Velk» letta da sola non ha soggetto e non produce niente.
+     * Il soggetto della primaria e' il focus della secondaria — la stessa cosa
+     * che «what is it part of» fa da un turno all'altro. Qui il determinante
+     * che punta indietro (`referring_possessive/1`, conoscenza) viene sostituito
+     * dal focus, e la frase viene data allo STESSO frame che gia' legge «the
+     * capital of X is Y» da un turno normale: non un secondo estrattore. */
+    char focus[KB_TERM_LEN] = "";
     while (*p) {
         char *q = p;
         while (*q) {
             char ch = *q;
-            if (ch == ';' || ch == '!' || ch == '?') break;
-            if (ch == '.') {
+            if (ch && nmc && ch != '.' && strchr(markchars, ch)) break;
+            if (ch == '.' && strchr(markchars, '.')) {
                 /* a decimal point between digits (1.3) is not a boundary */
                 char prev = (q > p) ? q[-1] : '\0';
                 if (!(isdigit((unsigned char)prev) &&
@@ -3273,7 +3302,53 @@ static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) 
         int has_content = 0;
         for (const char *scan = p; *scan; scan++)
             if (!isspace((unsigned char)*scan)) { has_content = 1; break; }
-        int extracted = extract_clause(b, p, buf, document, unit_order);
+        /* gen505z: il focus. La prima frase del passo NOMINA il soggetto —
+         * «Zorbium, officially …» — e le secondarie lo riprendono con un
+         * determinante che punta indietro. Il focus e' la testa della prima
+         * frase; ricavarlo dal primo token e' la lettura piu' piccola che
+         * funziona, e se un giorno servira' il sintagma intero c'e' gia'
+         * `np_closer/1` da cui prenderlo. */
+        char rewritten[512];
+        char *clause = p;
+        {
+            char tb[512];
+            if (strlen(p) < sizeof tb) {
+                snprintf(tb, sizeof tb, "%s", p);
+                char *tw[64]; size_t tn = split_words(tb, tw, 64);
+                if (tn >= 3) {
+                    char first[KB_TERM_LEN];
+                    snprintf(first, sizeof first, "%s", strip_edge_punct(tw[0]));
+                    const char *rq[1] = { first };
+                    if (focus[0] && *first &&
+                        kb_query(b->kb, "referring_possessive", rq, 1)) {
+                        size_t cop = 1;
+                        while (cop < tn) {
+                            char t[KB_TERM_LEN];
+                            snprintf(t, sizeof t, "%s", strip_edge_punct(tw[cop]));
+                            const char *cq[1] = { t };
+                            if (*t && kb_query(b->kb, "clause_copula", cq, 1)) break;
+                            cop++;
+                        }
+                        if (cop > 1 && cop < tn) {
+                            int o = snprintf(rewritten, sizeof rewritten, "the");
+                            for (size_t k = 1; k < cop && o > 0; k++)
+                                o += snprintf(rewritten + o, sizeof rewritten - (size_t)o,
+                                              " %s", tw[k]);
+                            o += snprintf(rewritten + o, sizeof rewritten - (size_t)o,
+                                          " of %s", focus);
+                            for (size_t k = cop; k < tn && o > 0; k++)
+                                o += snprintf(rewritten + o, sizeof rewritten - (size_t)o,
+                                              " %s", tw[k]);
+                            if (o > 0 && (size_t)o < sizeof rewritten)
+                                clause = rewritten;
+                        }
+                    } else if (!focus[0] && *first) {
+                        snprintf(focus, sizeof focus, "%s", first);
+                    }
+                }
+            }
+        }
+        int extracted = extract_clause(b, clause, buf, document, unit_order);
         if (has_content) unit_order++;
         if (extracted > 0) {
             (*learned) += (size_t)extracted;

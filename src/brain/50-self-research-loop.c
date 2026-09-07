@@ -435,10 +435,37 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
         }
     }
 
+    /* ── gen505z — DOVE FINISCE UNA FRASE E' CONOSCENZA (piano §3.1) ────────
+     *
+     * Erano `. ! ?` scritti qui. `passage_boundary_mark/1` li dichiara e riusa
+     * `sentence_terminator/2`: ritirarlo lascia il passo in una frase sola, che
+     * e' l'ablazione con cui il cricchetto misura questa riga. */
+    char bmarks[16][KB_TERM_LEN];
+    const char *bmq[1] = { NULL };
+    size_t nbm = kb_match(b->kb, "passage_boundary_mark", bmq, 1, bmarks, 16);
+    char bchars[32]; size_t nbc = 0;
+    for (size_t i = 0; i < nbm && nbc + 1 < sizeof bchars; i++) {
+        char mb[KB_TERM_LEN];
+        snprintf(mb, sizeof mb, "%s", bmarks[i]);
+        const char *m = kb_dequote(mb);
+        if (*m) bchars[nbc++] = m[0];
+    }
+    bchars[nbc] = '\0';
+
+    /* ── E IL FOCUS SCORRE DENTRO IL PASSO ──────────────────────────────────
+     *
+     * «Its capital is Velk», letta da sola, non ha soggetto e non rende niente.
+     * Il soggetto della primaria e' il focus della secondaria — la stessa cosa
+     * che «what is it part of» fa da un turno all'altro. Il determinante che
+     * punta indietro (`referring_possessive/1`, conoscenza) viene sostituito dal
+     * focus, e la frase riscritta va allo STESSO frame che gia' legge «the
+     * capital of X is Y» da un turno normale: non un secondo estrattore. */
+    char focus[KB_TERM_LEN] = "";
+
     char *p = extract;
     while (*p) {
         char *q = p;
-        while (*q && *q != '.' && *q != '!' && *q != '?') q++;
+        while (*q && !(nbc && strchr(bchars, *q))) q++;
         size_t slen = (size_t)(q - p);
         if (selective && slen > 4 && slen < 380) {
             char probe[400];
@@ -459,6 +486,42 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
              * TODO(kb-first): `alias(rna, ribonucleic_acid)` dalla parentetica —
              * ma va fatto perche' rende un fatto, non per ripulire l'ingresso. */
             normalize(sent, nrm, sizeof nrm);
+            /* gen505z: il focus, prima della canonicalizzazione. La prima frase
+             * NOMINA il soggetto; le secondarie lo riprendono. */
+            {
+                char tb[400];
+                snprintf(tb, sizeof tb, "%s", nrm);
+                char *tw[64]; size_t tn = split_words(tb, tw, 64);
+                if (tn >= 3) {
+                    char first[KB_TERM_LEN];
+                    snprintf(first, sizeof first, "%s", strip_edge_punct(tw[0]));
+                    const char *rq[1] = { first };
+                    if (focus[0] && *first &&
+                        kb_query(b->kb, "referring_possessive", rq, 1)) {
+                        size_t cop = 1;
+                        while (cop < tn) {
+                            char t[KB_TERM_LEN];
+                            snprintf(t, sizeof t, "%s", strip_edge_punct(tw[cop]));
+                            const char *cq[1] = { t };
+                            if (*t && kb_query(b->kb, "clause_copula", cq, 1)) break;
+                            cop++;
+                        }
+                        if (cop > 1 && cop < tn) {
+                            char rw[400];
+                            int o = snprintf(rw, sizeof rw, "the");
+                            for (size_t k = 1; k < cop; k++)
+                                o += snprintf(rw + o, sizeof rw - (size_t)o, " %s", tw[k]);
+                            o += snprintf(rw + o, sizeof rw - (size_t)o, " of %s", focus);
+                            for (size_t k = cop; k < tn; k++)
+                                o += snprintf(rw + o, sizeof rw - (size_t)o, " %s", tw[k]);
+                            if (o > 0 && (size_t)o < sizeof rw)
+                                snprintf(nrm, sizeof nrm, "%s", rw);
+                        }
+                    } else if (!focus[0] && *first) {
+                        snprintf(focus, sizeof focus, "%s", first);
+                    }
+                }
+            }
             canonicalize_lang(b, nrm, canon, sizeof canon);
             msg[0] = '\0';
             /* gen382: NIENTE `continue` qui — il ciclo sulle frasi avanza `p` in
@@ -501,6 +564,31 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
              * un'enciclopedia dice l'appartenenza a una categoria, e oggi cade
              * tutta. */
             int r = extract_class_statement(b, canon, msg, sizeof msg, 1);
+            /* ── gen505z — IL LETTORE NON USA I FRAME DELLA CONVERSAZIONE ───
+             *
+             * Questo percorso conosce DUE forme — l'enumerazione e
+             * l'appartenenza a una classe — mentre un turno normale ne legge
+             * centotrentasei: «the capital of zorbium is velk» detto in chat
+             * diventa un fatto, letto da una pagina sparisce. E' il «cassetto
+             * senza maniglia» applicato alla lettura, ed e' il punto 1 della
+             * coda del gen505y.
+             *
+             *   verdetto    non chiuso (2026-09-07, gen505z)
+             *   ragione     chiamare `p0_try_extract_frames_only` qui NON viene
+             *               mai raggiunto: il controllo non arriva a questo
+             *               ramo per le frasi del fixture — verificato con una
+             *               sonda che non stampa mai. Il percorso vero passa
+             *               prima da `extract_enumeration`, e va capito quale
+             *               ramo consuma la frase.
+             *   condizione  il flusso di `learn_from_prose` fra enumerazione,
+             *               classe e lacuna
+             *   specie      prematuro — la chiamata e' quella giusta, manca di
+             *               sapere DOVE va messa
+             *
+             * Le due meta' che FUNZIONANO restano: i confini di frase vengono
+             * dalla KB, e il focus scorre (misurato: «its capital is velk»
+             * arriva all'estrattore come «the capital of zorbium is velk»).
+             */
             if (r == 2) nrejected++;                 /* cancello: respinto */
             else if (!r) {
                 /* gen405 (F.): UNA FORMA DI PROSA CHE NON SO LEGGERE E' UNA
