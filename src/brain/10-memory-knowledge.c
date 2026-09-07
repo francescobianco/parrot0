@@ -3042,6 +3042,13 @@ static void singularize_kb(Brain *b, const char *in, char *out, size_t sz) {
  *
  * Returns 1 if `q` was a universal and has been rewritten into a ground question
  * (with its witness asserted into `tmp`); 0 leaves `q` untouched. */
+static char universal_witness_class[KB_TERM_LEN];
+static void universal_witness_retract(Brain *b) {
+    if (!b || !b->kb || !universal_witness_class[0]) return;
+    const char *wa[1] = { "someone" };
+    kb_retract(b->kb, universal_witness_class, wa, 1);
+    universal_witness_class[0] = '\0';
+}
 static int universal_to_witness(Brain *lex, Brain *tmp, char *q, size_t qsz) {
     char buf[256];
     snprintf(buf, sizeof buf, "%s", q);
@@ -3071,6 +3078,12 @@ static int universal_to_witness(Brain *lex, Brain *tmp, char *q, size_t qsz) {
     /* The witness: an individual with no properties but the one we give it. */
     char turn[128], discard[256];
     snprintf(turn, sizeof turn, "someone is a %s", sj);
+    /* gen505y — IL TESTIMONE NON RESTA. Il fatto «someone is a fpser» entra
+     * dal lettore di classe, che scrive con origine SESSION e non
+     * HYPOTHETICAL: il ritiro delle supposizioni a fine turno non lo toccava,
+     * e «what do you know about fpser?» rispondeva «What I hold as fpser:
+     * someone» (syllogism.p0t, verde al gen491). Chi lo introduce lo ritira. */
+    snprintf(universal_witness_class, sizeof universal_witness_class, "%s", sj);
     if (!mod_knowledge(tmp, turn, turn, discard, sizeof discard)) return 0;
 
     snprintf(q, qsz, "is someone a %s", cl);
@@ -3260,6 +3273,7 @@ static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_
          * arbitrary witness, then let the SAME query path answer it. */
         universal_to_witness(b, b, qbuf, sizeof qbuf);
         claimed = mod_knowledge(b, qbuf, qbuf, ans, sizeof ans);
+        universal_witness_retract(b);
     }
     /* Il turno finisce e le supposizioni se ne vanno: la provenienza ipotetica
      * esiste esattamente per poterle togliere tutte in un colpo (gen373). */
@@ -6358,6 +6372,20 @@ static int extract_class_statement(Brain *b, const char *norm,
             }
             size_t ss = p0_lead_det(b, w[0]) ? 1 : 0;
             if (ss >= i) break;
+            /* gen505y — UN SOGGETTO NON CONTIENE UNA COPULA. «zorb is a small
+             * invented device» veniva letto come creazione attiva con soggetto
+             * «zorb is a small» e oggetto «device»: `created_by(zorb_is_a_small,
+             * device, invented)`, un fatto falso da un'affermazione di classe
+             * (glue.p0t). La copula e' conoscenza (`clause_copula/1`): se sta
+             * nel tratto del soggetto, quel tratto e' una clausola, non un
+             * nome. */
+            int subj_has_copula = 0;
+            for (size_t k = ss; k < i && !subj_has_copula; k++) {
+                char kb_[KB_TERM_LEN]; snprintf(kb_, sizeof kb_, "%s", w[k]);
+                const char *kq[1] = { strip_edge_punct(kb_) };
+                if (kq[0][0] && kb_query(b->kb, "clause_copula", kq, 1)) subj_has_copula = 1;
+            }
+            if (subj_has_copula) break;
             char subj2[KB_TERM_LEN];
             if (!p0_join(w, ss, i, subj2, sizeof subj2)) break;
             if (p0_bad_subject(b, subj2)) break;
