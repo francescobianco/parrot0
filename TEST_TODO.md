@@ -1,54 +1,161 @@
 # TEST_TODO — le decisioni aperte della migrazione a `.p0t`
 
-## ⚠ DA SISTEMARE QUANDO SI RIPRENDONO I TEST — lasciato dal `gen505q`
+# 🏁 HANDOFF — la suite riallineata, 2026-09-07 (`gen505y`)
 
-Al `gen505q` ho cambiato **il modo in cui una cue si cerca nel testo**
-(`src/kb.c`, `evidence_cue_find`): un letterale che comincia e/o finisce con un
-carattere di parola ora vuole un **confine di parola** su quel lato, invece di
-essere cercato come sottostringa nuda. Il motivo e in `LEARN_TODO.md`: con la
-vecchia regola `intent_cue(casual, "yo")` rivendicava «tell me about **yo**ga»,
-«what lies be**yo**nd» e «what is **yo**ur designation», e nella KB ci sono
-**852 cue alfabetiche nude**, 73 delle quali lunghe tre caratteri o meno.
+> **Un solo handoff vivo per file.** Questo prevale su quelli sotto; il blocco
+> «⚠ DA SISTEMARE» del gen505q e' chiuso qui (i due gialli erano lo stesso
+> caso: risolti in `chitchat.p0t` e `reactions_are_knowledge.p0t`).
 
-**La suite intera NON e' stata rimisurata** — F.: «la suite di test non e'
-allineata e tutta verde, farla girare e' tempo perso». Quello che so, da un
-controllo mirato su sei file di conversazione:
+## Il metodo, in cinque righe
 
-| file | prima | dopo |
+1. **`scripts/suite-run.sh`** (promosso dallo scratchpad, H.1a): tutta la
+   suite, nell'ordine di `make test`, su un demone DEDICATO, senza fail-fast,
+   una riga per file. Il demone di `make test-engine` resta libero per
+   indagare. I report stanno in `docs/reports/gen505y-suite-*.txt`.
+2. **Il differenziale con il gen491** (`docs/reports/gen491-suite-order-run.txt`)
+   dice quali file erano verdi allora: e' cio' che separa *«test invecchiato»*
+   (R2, si cambia l'attesa) da *«motore regredito»* (si cura il motore, o si
+   scrive qui). Vale per i primi 59 file soltanto: gli altri 294 non avevano
+   mai avuto una misura.
+3. ⛔ **Il demone di test tiene il C con cui e' partito.** `!reset` ricarica la
+   KB dal disco, il binario no: il demone del 4 settembre ha fatto sembrare
+   morte tre cure giuste dell'handoff gen505w. Sintomo: chat e `--test` non
+   concordano sullo stesso turno. `make test-engine` dopo ogni ricompilazione.
+4. **Un rosso si guarda prima di cambiarlo** (LEARN_TODO §5): tredici classi di
+   attese invecchiate e otto regressioni del motore, sotto, ciascuna con la
+   causa.
+5. **`scripts/p0t-live-header.py`** converte l'intestazione ermetica alla KB
+   intera (R1) di ogni file che si tocca.
+
+## I numeri
+
+| corsa | binario | ok | FAIL | su |
+|---|---|---|---|---|
+| 1 — `gen505y-suite-run-1-old-binary.txt` | `4ed3fa8`-1 giorno (demone stale), test e KB di allora | 152 | 206 | 358 |
+| 2 — `gen505y-suite-order-run.txt` | dopo i primi tre fix C (fuoco, polare, entailment); test e KB letti a ogni file, quindi correnti | RUN2_OK | RUN2_FAIL | 358 |
+
+⚠ La corsa 2 manca degli ultimi fix C (giudizio grammaticale sul codice, il
+soggetto con la copula, il testimone del sillogismo, il «?» come cue, la guardia
+del soggetto per parola). **La prima cosa da fare e' una corsa 3 sul binario
+di HEAD** — `make build && scripts/suite-run.sh docs/reports/gen505y-suite-run-3.txt`
+— e aggiornare questa tabella.
+
+## Le classi di attese invecchiate, e la convenzione scelta per ciascuna
+
+| classe | file (esempi) | come si asserisce ora |
 |---|---|---|
-| `conversation/frontier_chat_audit.it.p0t` | 53 passed, **3 failed** | 55 passed, **1 failed** ✅ meglio |
-| `conversation/chitchat.p0t` | verde | 21 passed, **1 failed** ⚠ da guardare |
-| `conversation/reactions_are_knowledge.p0t` | verde | 8 passed, **1 failed** ⚠ da guardare |
-| `conversation/chitchat.it.p0t` | verde | verde |
-| `conversation/smalltalk.p0t` | verde | verde |
-| `conversation/social.it.p0t` | verde | verde |
+| «Learned: pred(arg).» → prosa «arg is a pred.» (gen491) | 43 file, riscrittura meccanica delle sole righe `<` | la prosa. ⚠ Non ovunque: `alsoclass`, `cause` (binari) restano `pred(arg)`; si guarda, non si generalizza |
+| virgolette «» nei template | fewshot, teachverb, translate, reqgen, cue_learn, intent_* | «» |
+| rotazione anti-ripetizione (gen55): la seconda voce della famiglia da' la seconda variante | chitchat «rough day», name_is_knowledge, memory, greet_name | si asserisce la famiglia o il nome (`<~ , Bob!`), non la variante |
+| il muro ruota fra varianti | parrot, lexicon_it, comprehension.it, polar_meta.it | `<! Imparato` + `!query turn_outcome(current_turn, blind_wall)` |
+| dottrina «non dimostrato non e' falso» (gen505x) | facts, facts.it, priority, decompose, taught_lexicon | `<~ not proved is not the same as false` |
+| la risposta segue la lingua del turno | taught_rules, memref_arith, glue, gen_read.it, mention | l'italiano |
+| il campione e' invecchiato perche' parrot0 ha imparato (R2) | greet «C», chitchat «sky», abduce socrate, blankwall Socrate/Parigi/mare, motorize_class «written», polar_meta.it «ci sei», pragma.it | entita' inventate, o la risposta vera come prova di crescita |
+| conteggi e elenchi che crescono con la KB | introspect, self (registro), strategy (dispatch) | la forma o l'apertura, non la fotografia |
+| il declino informato e' piu' corto | blankwall, investigation_access, arith_flex | `<~ I don't know about <relazione>` (nomina il termine; ha perso «you can teach me with…») |
+| un'induzione si propone, non si asserisce (gen505d) | emerge, induce | la domanda «does that always hold?» |
+| gli atomi si presentano con gli spazi | taught_lexicon, teaching_arity | `puppo dog is a mammal` |
+| le pagine curate non esistono piu' (gen436, F.) | prosepage, prosepage.it, prose_forms, one_act | il passaggio INLINE `read: …` |
+| il piano porta le dipendenze «[needs …]» | planact | l'apertura |
 
-**I due gialli sono diagnosticati** (gen505r) e sono lo **stesso caso**: una
-reazione vinceva la gara di `chitchat_reaction/2` grazie a un match a
-sottostringa, e ora che quel match non c'e' piu' vince un'altra reazione.
+R1 applicata (ermetico → KB intera) a: motorize_class, chitchat, aggregate,
+cause, abduce, blankwall, prosepage, prosepage.it. **Con la KB intera
+`aggregate` (rosso dal gen491) e `cause` sono passati da soli**: il contesto
+amputato era la meta' della diagnosi. Restano **~260** file ermetici; la regola
+e' sempre «ogni file che si tocca».
 
-| turno | vinceva prima | vince adesso |
+## Le regressioni del motore chiuse in questa sessione
+
+| che cosa | dove | effetto |
 |---|---|---|
-| `I am bored` | una cue **`"red"` dentro «bo·red·»** (`10_memory_knowledge_lex10451_3`, il registro dei colori) | `mood_bored` — «Let's switch: tell me something you are curious about.» |
-| `rough day` | una reazione a priorita' piu' alta che matchava dentro una parola | `mood_tired` — «Rest a bit…» |
+| la verifica del fuoco rifiutava il PORTATORE dell'attributo («the frame move for X») | `p0_answer_subject_in_focus` | dialogue_moves, sequential_view, context_scope: 32 assert |
+| il lettore polare leggeva «how do you know…» come know(you, …) | `p0_polar_relation` + subject_guard | howknow 4/4, syllogism |
+| i verdetti di entailment detti dal sandbox senza template | `entailment_status` | entail 14/14 |
+| il giudizio grammaticale rivendicava con un rifiuto anche il codice | `p0_grammar_judgement` si ritira sui segmenti `code` | code 14/14, repair 52, codeintent |
+| «come faccio AD abbassare» contro il confine di parola (gen505q) | `segment_role(goal, "come faccio ad")` (KB) | sei suite di pianificazione italiana, 107 assert |
+| «\n» nei template copiato letterale | `kb_fill_slots` | reqgen 8/8 |
+| «my dog is called Rex» → «called called Rex» | il valore comincia dopo il marcatore | entities, mixed |
+| `created_by` scambiava autore e opera; la versione italiana usava slot inesistenti | messages.p0, responses.p0 | motorize_class |
+| «zorb is a small invented device» → created_by(zorb_is_a_small, device, invented) | il soggetto non contiene una copula | glue |
+| il testimone «someone is a fpser» restava in KB | `universal_witness_retract` | syllogism |
+| il «?» non era una lettura pubblicata; le quantita' scrivevano da una domanda | `question_mark_cue` (KB) + `mod_quantity` consulta la forza | wordproblem_multi «-2.» → «9.» |
+| soggetti di piu' parole con dentro un pronome/copula | `p0_bad_subject` per parola | «more five word test here», «mi dispiace ho sbagliato» → muri |
 
-Per «I am bored» **la risposta nuova e' piu' giusta di quella attesa**: un
-turno di noia riceve la reazione alla noia invece di quella innescata da un
-frammento della parola «bored». L'attesa era scritta sul vincitore vecchio.
-Quindi qui il rosso e' del test — il caso di `gate-may-be-wrong-not-code` — e
-la correzione e' aggiornare l'attesa, non ripristinare il match a sottostringa.
+## ⛔ Le regressioni del motore APERTE, in ordine di leva
 
-Per «rough day» va deciso **quale reazione debba vincere**: e' una domanda di
-priorita' in `kb/core/reactions.p0`, non di matching. Da guardare insieme,
-perche' e' la stessa gara.
+Ogni voce ha la sonda con cui si riproduce; nessuna e' stata «chiusa» cambiando
+l'attesa. Dove il file resta rosso, il rosso e' la misura.
 
-Due rossi **preesistenti e non miei**, verificati in differenziale con lo stash:
-- `meta/motorize_class.p0t` — 2 assert: resa in prosa invece che `created_by(...)`,
-  e maiuscola `Homer.` vs `homer.`;
-- `conversation/frontier_chat_audit.it.p0t` — l'assert che resta dei tre.
+1. **Il glossario italiano** (LEARN_TODO punto 3, e ora ha sette file dietro).
+   `rederive.it`/`compose.it`: «ogni uomo e' mortale» → `mortale(X) :- man(X)`,
+   `amico(X) :- bear(X), happy(X)` — predicati mezzo tradotti. `agent*.it`
+   («raddoppia», «continua» non glossati), `run_execute.it` («esegui» senza
+   contratto), `compose_social.it` (risposta inglese a turno italiano),
+   `polar_meta.it` «mi senti?».
+2. **Turni rubati dal registro affettivo/fatico** (mantra #21): «how do you
+   play poker» → smalltalk (games); «lol are you a bot» → chitchat
+   (social_reaction); «racecar» → saluto (symbolic); «hi, i'm vera» →
+   chitchat (compose_coref); «cos'e' un numero perfetto» → l'ASSENSO
+   («perfetto») (research.it); «what did you tell me about milan» →
+   smalltalk perche' `discourse` non rivendica (discourse_recall).
+3. **Chi risponde a domande meta/analitiche**: «why might X be Y» risponde
+   sull'ULTIMO obiettivo (abduce 57); «how would you solve it» → compose (self
+   49); «what is the difference between a cause and an enabling condition» →
+   lettore polare (meta_reasoning); «are you parrot0?» → «I only read text»
+   (polar_meta, mantra #7); «rome is to italy as berlin is to what?» →
+   **«paris.»** (analogy 35, mantra #7: un misclaim secco).
+4. **L'offerta di ricerca al posto della conoscenza che c'e'**: `means/2`
+   asserito e «tell me about zorb» → offerta (glue 26); il concetto insegnato
+   chiesto al plurale (inflected_lookup 48) o in italiano
+   (foundational_concepts 60-67); «colors that identify zorvian»
+   (faceted_enumeration).
+5. **Fatti falsi ancora scritti**: «pretend you are a dog named rex» →
+   `dog(pretend_you)` (role 18: «you» non e' in subject_guard, lezione gen489
+   su entity_pronoun — serve una classe «deittico» distinta); «my aunt lives
+   in Paris» → habitat «aunt live in paris» (family 25: il possessivo va al
+   registro familiare, mantra #14); «ponder make widget» (issue1 35).
+6. **La lettura della prosa**: «organisms, such as most plants, algae and
+   cyanobacteria» produce organism/1 solo LETTA (`read:`), non DETTA
+   (one_act 27); «carbohydrates like sugars, …» non produce carbohydrate/1
+   (prose_forms, one_act); la prosa illeggibile non lascia piu' una
+   `machinery_gap` (prose_forms 65-72); il resoconto del lettore inline non e'
+   localizzato (prosepage.it, asserito come corrente).
+7. **La conferma di un'induzione non e' agganciata**: «does that always hold?»
+   → «yes» → «Got it — what would you like to do?», la regola non entra
+   (induce 32/35, rossi apposta).
+8. **Tempi** (H.1c: si profila, non si alza): `initials` 12 → **82 s**;
+   `literal_forms` 246 → 7,7 s; `reader` 21 → 1,3 s; `syllogism` 36 → 2,1 s;
+   `contextual_denotation` 30 → 1,6 s; il turno di 30 parole →
+   `input_frame_observe` 2,7 s (LEARN_TODO).
+9. **Il resto, gia' diagnosticato**: orchain (nome della funzione letto come
+   «calls»); codeast (dicitura «I read X into structure» e `unsafe_path` sulle
+   directory: da decidere se politica o difetto); codeintent 29 (il lettore di
+   clausole rivendica una firma C); run_execute (contratti); repair (l'oracolo
+   riporta `build_failed`: ambiente o difetto, mai deciso dal gen491);
+   agent_induce/agent_verify (l'induzione di regole numeriche mura);
+   register_realization (il registro insegnato e' ignorato: «Shiny» per
+   «Glimmer»); wordproblem_multi 27/36/45 (tre calcoli sbagliati);
+   universal-input 220 (`ambiguous_input` perso); meta_question 32 («where did
+   i say the meeting is» → «where is the meeting is»); count_readings 49-51
+   (il registro tecnico); self_repair, autonomous_cycle (non esaminati);
+   taught_lexicon 153 (il sandbox non legge «puppo cat is a mammal»);
+   explain_more 21 («The arith module can .»); teachverb 28 e intent_reply 21
+   (la risposta insegnata «ehila luca»/«Welcome, Bob!» non viene usata);
+   conditional_plan 62/74 (il ramo risponde anche senza la cue);
+   same 23/36 («no» minuscolo via `bench_dispatch`); blankwall 38 (il declino
+   informato sul «why» e' perso); forget_move (LEARN_TODO P4.3);
+   faceted_enumeration, foundational_concepts, gap_dialogue, games (rossi gia'
+   al gen491).
 
+## Pulizia
 
-# 🏁 HANDOFF — `cefr-bench`, 2026-09-06 (`gen505q`)
+Le tredici suite shell gia' convertite erano gia' cancellate; il target
+`legacy-test` le chiamava ancora ed e' stato ripulito. Alla radice di `tests/`
+non resta nessuno script.
+
+---
+
+# 📁 HANDOFF archiviato — `cefr-bench`, 2026-09-06 (`gen505q`)
 
 > Nuovo banco, chiuso e pubblicato. **Niente in sospeso**: albero pulito, tutto
 > su `origin/main`, nessun servizio avviato che resti acceso.

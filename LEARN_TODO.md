@@ -96,6 +96,14 @@ falsi da una domanda.
 
 ## Test
 
+**Dal pomeriggio del 7 settembre la suite intera E' stata rimisurata**, in
+ordine e senza fail-fast (`scripts/suite-run.sh`): i numeri, le tredici classi
+di attese invecchiate e le regressioni del motore aperte sono nell'handoff vivo
+di `TEST_TODO.md`. Cinque cure di questa sessione sono figlie di quella corsa
+(il fuoco che rifiutava il portatore, il lettore polare su «how do you know»,
+il «?» come cue, la guardia del soggetto per parola, il testimone del
+sillogismo).
+
 `question_does_not_teach.p0t` 21/21. Differenziale sul dominio: `mention.p0t`
 16/8 **anche a HEAD** (formato del messaggio, non comportamento),
 `taught_turn_form.p0t` 4/4, `input.it.p0t` 6/6, `soft-test` con il solo rosso
