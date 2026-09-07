@@ -34,6 +34,13 @@
 | 1 — `gen505y-suite-run-1-old-binary.txt` | `4ed3fa8`-1 giorno (demone stale), test e KB di allora | 152 | 206 | 358 |
 | 2 — `gen505y-suite-run-2.txt` | dopo i primi tre fix C (fuoco, polare, entailment); test e KB letti a ogni file, quindi correnti | 233 | 125 | 358 |
 
+| 3 — `gen505y-suite-run-3.txt` | `a5c833b` (giudizio grammaticale, copula nel soggetto, testimone, «?», guardia per parola) | 235 | 123 | 358 |
+
+⚠ La corsa 3 manca ancora dei fix del pomeriggio (`0c54d24`…`19f044e`: il
+prefisso davanti all'affermazione, i coprenti, il glossario italiano, verify
+e induce — agent/agent_induce/agent_verify e i tre .it passano da 0 a verdi).
+Chi riprende rilancia la corsa sul binario di HEAD e aggiorna la riga.
+
 ⚠ La corsa 2 manca degli ultimi fix C (giudizio grammaticale sul codice, il
 soggetto con la copula, il testimone del sillogismo, il «?» come cue, la guardia
 del soggetto per parola). **La prima cosa da fare e' una corsa 3 sul binario
