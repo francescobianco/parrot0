@@ -4314,7 +4314,30 @@ static int p0_lead_det(Brain *b, const char *t) {
 static int p0_bad_subject(Brain *b, const char *t) {
     if (!b || !b->kb || !t) return 0;
     const char *q[] = { t };
-    return kb_query(b->kb, "subject_guard", q, 1);
+    if (kb_query(b->kb, "subject_guard", q, 1)) return 1;
+    /* gen505y — LA GUARDIA VALE PER OGNI PAROLA DEL SINTAGMA, NON SOLO PER
+     * L'ATOMO INTERO. «pretend you are a dog named rex» -> `dog(pretend_you)`,
+     * «mi dispiace, ho sbagliato» -> have(me_dispiace_i, wrong): il soggetto
+     * era fatto di piu' parole e nessuna guardia guardava dentro. Un sintagma
+     * che contiene un pronome, un interrogativo o una copula non e' un nome:
+     * quali parole siano tali e' `subject_guard/1`, conoscenza. (Erano le
+     * «tre cure» dell'handoff gen505w: non scattavano perche' il demone di
+     * test girava con il C di tre giorni prima.) */
+    char buf[KB_TERM_LEN];
+    snprintf(buf, sizeof buf, "%s", t);
+    for (char *p = buf, *tok = buf; ; p++) {
+        if (*p == '_' || *p == ' ' || *p == '\0') {
+            int end = *p == '\0';
+            *p = '\0';
+            if (tok != buf || end || p != buf) {
+                const char *tq[] = { tok };
+                if (*tok && strcmp(tok, t) != 0 && kb_query(b->kb, "subject_guard", tq, 1)) return 1;
+            }
+            if (end) break;
+            tok = p + 1;
+        }
+    }
+    return 0;
 }
 
 /* gen505r: LEGGERE non e' ARCHIVIARE. Un pronome non puo' essere la chiave di

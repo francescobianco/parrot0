@@ -65,10 +65,11 @@
 [test la menzione vale in italiano senza motore nuovo]
 !set PARROT0_LANG=it
 > il termine sebbene è un marcatore_condizionale
-< Learned: sebbene is a marcatore_condizionale.
+# gen505y: la risposta segue la lingua del turno.
+< Imparato: sebbene è un marcatore_condizionale.
 !query marcatore_condizionale(sebbene)
 > la parola gatto è un nome
-< Learned: gatto is a nome.
+< Imparato: gatto è un nome.
 
 # ── LA MENZIONE SI PUO' CHIEDERE (M2) ──────────────────────────────────────
 #

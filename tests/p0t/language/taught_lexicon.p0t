@@ -101,7 +101,7 @@
 # 1. PRIMA — senza la preposizione il frame non si chiude, e le tre parole
 #    finali vengono lette come UN unico nome di classe composto.
 > spark is the cause blim fire
-< Learned: spark is the cause blim fire.
+< Learned: spark is a cause blim fire.
 
 # 2. INSEGNAMENTO.
 > blim is a relation_preposition
