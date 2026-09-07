@@ -6465,9 +6465,37 @@ static int extract_class_statement(Brain *b, const char *norm,
     while (send < cop && !p0_np_closer(b, strip_edge_punct(w[send]))) send++;
     if (send == sstart) return 0;                        /* comincia con un confine */
 
+    /* gen505y — L'APERTURA DI DISCORSO NON E' LA TESTA DEL SINTAGMA. «boh, a
+     * wombat is a marsupial» -> marsupial(boh_a_wombat): un fatto falso da
+     * un'affermazione, la classe gemella del circuito «una domanda non
+     * insegna». Il determinante APRE il sintagma nominale (np_opener/1,
+     * conoscenza): cio' che lo precede nel tratto del soggetto — un'interiezione
+     * nota, una ignota («boh»), un «sai,» — non ne fa parte. Il soggetto
+     * comincia dall'ultimo determinante interno; il prefisso non si legge, e non
+     * si inventa. Le aperture NOTE erano gia' sbucciate dal pragma_peel; qui
+     * vale per la struttura, quindi anche per quelle che nessuno ha ancora
+     * insegnato. */
+    int prefixed = 0;
+    size_t prefix_from = sstart;
+    for (size_t k = sstart + 1; k < send; k++)
+        if (p0_lead_det(b, strip_edge_punct(w[k]))) { sstart = k + 1; prefixed = 1; }
+    if (sstart >= send) return 0;
+    /* Il prefisso non e' muto: puo' MODALIZZARE. «maybe a norb is a florp»,
+     * «forse un torbo e' un florp», «boh, a glimp is a florp» non affermano
+     * il fatto, e scriverlo e' il mantra #7. Quali parole coprano
+     * un'affermazione e' conoscenza (`hedge_word/1`); qui si legge. */
+    if (prefixed) {
+        for (size_t k = prefix_from; k + 1 < sstart; k++) {
+            char hb[KB_TERM_LEN]; snprintf(hb, sizeof hb, "%s", strip_edge_punct(w[k]));
+            const char *hq[1] = { hb };
+            if (hb[0] && kb_query(b->kb, "hedge_word", hq, 1)) return 0;
+        }
+    }
+
     if (p0_bad_subject(b, strip_edge_punct(w[sstart]))) return 0;   /* not a real subject */
     char subj[KB_TERM_LEN];
     if (!p0_join(w, sstart, send, subj, sizeof subj)) return 0;
+    if (p0_bad_subject(b, subj)) return 0;              /* la guardia vale per parola */
     int subj_multi = strchr(subj, '_') != NULL;
 
     size_t p = cop + 1;
@@ -6608,7 +6636,10 @@ static int extract_class_statement(Brain *b, const char *norm,
      * (mod_knowledge's class intake, with coreference + contradiction handling) —
      * defer it there. But in EXTRACT-ONLY mode (M2, prose->fact from a page) there
      * is no interactive follow-up, so assert it here too, with provenance. */
-    if (!subj_multi && !cls_multi && !loc && !extract_only) return 0;
+    /* gen505y: con un prefisso sbucciato il percorso rigido a quattro parole non
+     * combacia piu' («sai, a wombat is a marsupial» ha sei parole): il caso
+     * semplice si asserisce qui, con la provenienza, come in extract-only. */
+    if (!subj_multi && !cls_multi && !loc && !extract_only && !prefixed) return 0;
 
     kb_set_origin(b->kb, KB_SESSION);
     if (!p0_atom_is_concept(b, subj)) {

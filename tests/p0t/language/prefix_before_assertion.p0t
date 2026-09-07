@@ -1,0 +1,83 @@
+# L'APERTURA DI DISCORSO NON E' LA TESTA DEL SINTAGMA — gen505y.
+#
+# «boh, a wombat is a marsupial» -> «Learned: boh a wombat is a marsupial»:
+# marsupial(boh_a_wombat), un fatto FALSO da un'affermazione. E' la classe
+# gemella di «una domanda non insegna» (question_does_not_teach.p0t), sul verso
+# dell'affermazione: qualunque token davanti — un'interiezione ignota, un «sai,»,
+# un vocativo — entrava nel soggetto.
+#
+# La distinzione: il determinante APRE il sintagma nominale (np_opener/1), quindi
+# cio' che lo precede nel tratto del soggetto non ne fa parte. E' struttura, non
+# un elenco di aperture: le aperture NOTE (discourse_opener/1) erano gia'
+# sbucciate; qui vale anche per quelle che nessuno ha ancora insegnato. La KB e'
+# quella intera.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!timeout 6
+!reset
+
+[test un token ignoto davanti all'affermazione non entra nel soggetto]
+> zorak, a glimp is a florp
+<! zorak
+<~ Learned: glimp is a florp.
+!query florp(glimp)
+!query! florp(zorak_a_glimp)
+
+[test il prefisso puo' MODALIZZARE: un'affermazione coperta non si scrive]
+# «boh» e' in hedge_word/1 (e' un «non so»): non un fatto falso, e nemmeno
+# uno vero preso per buono. Idem «maybe», «forse».
+> boh, a snorb is a florp
+!query! florp(snorb)
+!query! florp(boh_a_snorb)
+> maybe a norb is a florp
+!query! florp(norb)
+> forse un torbo è un florp
+!query! florp(torbo)
+
+[test «sai,» e il vocativo sono prefissi, non soggetti]
+# «sai» e' un marcatore italiano: la ricevuta segue la lingua del turno.
+> sai, a zibbo is a florp
+<~ zibbo
+<! sai
+!query florp(zibbo)
+> parrot, a plibo is a florp
+<~ Learned: plibo is a florp.
+!query florp(plibo)
+
+[test un'apertura nota fa lo stesso, e il fatto e' interrogabile]
+> listen, a quorb is a florp
+<~ Learned: quorb is a florp.
+> is a quorb a florp?
+< Yes.
+
+[test il soggetto con determinante in testa resta intero]
+> the red glimp is a novel
+<~ Learned: red glimp is a novel.
+!query novel(red_glimp)
+
+[test italiano: il prefisso davanti a un articolo]
+!set PARROT0_LANG=it
+> senti, un vombolo è un florp
+<! senti
+!query florp(vombolo)
+!query! florp(senti_un_vombolo)
+
+[test ablazione: senza la classe dei coprenti «maybe» torna un prefisso muto]
+!forget hedge_word(maybe)
+> maybe a gorb is a florp
+!query florp(gorb)
+!assert hedge_word(maybe)
+> maybe a horb is a florp
+!query! florp(horb)
+!forget florp(gorb)
+
+!forget florp(glimp)
+!forget florp(zibbo)
+!forget florp(plibo)
+!forget florp(quorb)
+!forget novel(red_glimp)
+!forget florp(vombolo)

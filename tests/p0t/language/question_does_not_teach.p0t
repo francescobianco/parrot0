@@ -77,10 +77,12 @@
 !forget question_word(cosa)
 > sai cosa sono le sbaddune
 !query! turn_opens_question(current_turn)
-# il difetto TORNA: e' la prova che la lettura ablata e' quella che chi impara
-# consulta, e non una guardia parallela nel C.
-!query sbaddune($X)
-!forget sbaddune
+# La lettura e' sparita — e' la prova che e' questa che chi impara consulta.
+# Il fatto pero' NON torna piu' (dal circuito gemello «l'apertura di discorso
+# non e' la testa del sintagma», prefix_before_assertion.p0t): «sai cosa sono
+# LE sbaddune» ha un determinante interno, quindi «sai cosa sono» non e' un
+# soggetto. Due letture indipendenti, e la seconda regge da sola.
+!query! sbaddune($X)
 !assert question_word(cosa)
 > sai cosa sono le sbaddune
 !query turn_opens_question(current_turn)

@@ -2341,6 +2341,14 @@ function_call_word(call). function_call_word(calls).
 function_call_word(chiamata). function_call_word(chiamate).
 machinery(function_link_word).
 function_link_word(to). function_link_word(a). function_link_word(di).
+% gen505y — massimizzata (mantra #22) quando il prefisso davanti a
+% un'affermazione ha cominciato a essere letto: «maybe a norb is a florp» non
+% afferma niente, e la classe che lo dice deve coprire le due lingue.
+hedge_word(possibly).      hedge_word(likely).        hedge_word(presumably).
+hedge_word(allegedly).     hedge_word(supposedly).    hedge_word(apparently).
+hedge_word(reportedly).    hedge_word(arguably).
+hedge_word(probabilmente). hedge_word(penso).         hedge_word(suppongo).
+hedge_word(dubito).        hedge_word(pare).          hedge_word(sembra).
 hedge_word(maybe).
 hedge_word(perhaps).
 hedge_word(guess).
