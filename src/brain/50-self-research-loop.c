@@ -563,7 +563,6 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
              * articolo); «dna are nucleic acids» no. E' la forma con cui
              * un'enciclopedia dice l'appartenenza a una categoria, e oggi cade
              * tutta. */
-            int r = extract_class_statement(b, canon, msg, sizeof msg, 1);
             /* ── gen505z — IL LETTORE NON USA I FRAME DELLA CONVERSAZIONE ───
              *
              * Questo percorso conosce DUE forme — l'enumerazione e
@@ -571,24 +570,36 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
              * centotrentasei: «the capital of zorbium is velk» detto in chat
              * diventa un fatto, letto da una pagina sparisce. E' il «cassetto
              * senza maniglia» applicato alla lettura, ed e' il punto 1 della
-             * coda del gen505y.
+             * coda del gen505y. Le due meta' che lo precedono FUNZIONANO: i
+             * confini vengono dalla KB e il focus scorre (misurato: «its capital
+             * is velk» arriva qui come «the capital of zorbium is velk»).
              *
              *   verdetto    non chiuso (2026-09-07, gen505z)
-             *   ragione     chiamare `p0_try_extract_frames_only` qui NON viene
-             *               mai raggiunto: il controllo non arriva a questo
-             *               ramo per le frasi del fixture — verificato con una
-             *               sonda che non stampa mai. Il percorso vero passa
-             *               prima da `extract_enumeration`, e va capito quale
-             *               ramo consuma la frase.
-             *   condizione  il flusso di `learn_from_prose` fra enumerazione,
-             *               classe e lacuna
-             *   specie      prematuro — la chiamata e' quella giusta, manca di
-             *               sapere DOVE va messa
+             *   ragione     chiamare `p0_try_extract_frames_only` da qui non
+             *               rende il fatto, ne' prima ne' dopo la classe. E il
+             *               frame ESISTE ed e' derivato:
+             *                 relation_noun(capital_of, "capital")
+             *                   -> extract_frame("the capital of @S is @O", …)
+             *               quindi il legatore lo trova e qualcosa A VALLE lo
+             *               respinge — il sospetto misurabile e' il cancello
+             *               `p0_fact_is_clean`, che chiede che gli argomenti
+             *               siano concetti noti: «velk» non lo e'.
+             *   condizione  il gate dei fatti puliti applicato a un'entita'
+             *               appena incontrata in lettura
+             *   specie      prematuro — e' probabile che la cura sia far entrare
+             *               l'entita' letta PRIMA di leggere il fatto che la
+             *               nomina, non aggirare il cancello
              *
-             * Le due meta' che FUNZIONANO restano: i confini di frase vengono
-             * dalla KB, e il focus scorre (misurato: «its capital is velk»
-             * arriva all'estrattore come «the capital of zorbium is velk»).
-             */
+             * ⚠ Sei forme tentate; fermato per la regola d'arresto 2 e tolto
+             * tutto il codice che non scatta. La prossima da provare e' la
+             * verifica del cancello, con `p0_fact_is_clean` messo a stampa su
+             * questa frase — NON un settimo punto di chiamata.
+             *
+             * ⚠ Nota misurata: `extract_class_statement` CONSUMA la frase
+             * leggendola come «X is Y» e producendo `velk(the_capital_of_
+             * zorbium)`, un'entita' inventata dalla forma. Quel fatto entra
+             * anche oggi, ed e' un secondo difetto da chiudere insieme. */
+            int r = extract_class_statement(b, canon, msg, sizeof msg, 1);
             if (r == 2) nrejected++;                 /* cancello: respinto */
             else if (!r) {
                 /* gen405 (F.): UNA FORMA DI PROSA CHE NON SO LEGGERE E' UNA
