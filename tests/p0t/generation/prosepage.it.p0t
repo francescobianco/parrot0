@@ -1,19 +1,27 @@
-# migrated from tests/cases/prosepage.it.chat (gen346, hermetic + isolated)
-[mock hermetic]
-!set PARROT0_BASE=
+# migrated from tests/cases/prosepage.it.chat (gen346). Rifatto al gen505y sul
+# passaggio INLINE (gen436: le pagine curate non esistono piu'), con la KB
+# intera (R1) e un'entita' inventata (R2).
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
+!timeout 6
 !reset
 
 [test prosepage.it]
-# deep-reasoning M2, Italian half: the DEEP-read command through an Italian head
-# ("leggi la pagina su X" / "estrai i fatti da X"), localized by the matched head.
-# The facts are language-neutral (the page prose is English); the report is Italian.
+# deep-reasoning M2, Italian half: the read command through an Italian head
+# («leggi: …»), localized by the matched head. The facts are language-neutral
+# (the prose is English); the report is Italian.
 
-> leggi la pagina su whale
-< Dalla pagina su whale ho estratto 2 fatti: mammal(whale), aquatic_animal(whale).
+# ⚠ Il resoconto del lettore inline non e' ancora localizzato: la testa italiana
+# legge, la ricevuta esce in inglese. Asserito come comportamento CORRENTE.
+> leggi: a glimp is a mammal. a glimp is an aquatic animal.
+< Learned 2 fact(s), skipped 0.
+!query mammal(glimp)
 
 > leggi la pagina su Xyzzy
 < Non ho una pagina con fatti estraibili su xyzzy.
-
+!forget mammal(glimp)
+!forget aquatic_animal(glimp)

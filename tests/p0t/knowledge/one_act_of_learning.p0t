@@ -21,6 +21,9 @@
 !set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=en
 !reset
+# gen505y — !timeout dichiarato con la causa (TEST_TODO H.1c): il passaggio ha
+# CINQUE frasi e il lettore le legge una per una, ~0,6 s l'una (misurato: 2,9 s).
+!timeout 6
 
 # Il criterio della generazione, in due blocchi che devono finire uguali.
 [test la prosa DETTA]
@@ -31,7 +34,9 @@
 
 [test la prosa LETTA]
 !reset
-> read the page on photosynthesis
+# gen505y: le pagine curate non esistono piu' (gen436, decisione di F.): si legge
+# il passaggio INLINE, che e' anche piu' fedele al ciclo.
+> read: Photosynthesis is a system of biological processes by which photopigment-bearing autotrophic organisms, such as most plants, algae and cyanobacteria, convert light energy typically from sunlight into the chemical energy necessary to fuel their metabolism. The term photosynthesis usually refers to oxygenic photosynthesis, a process that releases oxygen as a byproduct of water splitting. Photosynthetic organisms store the converted chemical energy within the bonds of intracellular organic compounds, typically carbohydrates like sugars, starches, phytoglycogen and cellulose. When needing to use this stored energy, an organism's cells then metabolize the organic compounds through cellular respiration. Photosynthesis plays a critical role in producing and maintaining the oxygen content of the Earth's atmosphere, and it supplies most of the biological energy necessary for complex life on Earth.
 <~ extracted 8 facts
 !query organism(algae)
 !query carbohydrate(cellulose)

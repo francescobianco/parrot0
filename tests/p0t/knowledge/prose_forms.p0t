@@ -17,11 +17,16 @@
 !set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=en
 !reset
+# gen505y — !timeout dichiarato con la causa (TEST_TODO H.1c): il passaggio ha
+# CINQUE frasi e il lettore le legge una per una, ~0,6 s l'una (misurato: 2,9 s).
+!timeout 6
 
 # La testa nominale prima della cue, la lista dopo. La testa plurale e' il caso
 # normale e va al singolare: «organisms such as…» -> organism(...).
 [test an appositive enumeration yields one fact per member]
-> read the page on photosynthesis
+# gen505y: le pagine curate non esistono piu' (gen436, decisione di F.): si legge
+# il passaggio INLINE, che e' anche piu' fedele al ciclo.
+> read: Photosynthesis is a system of biological processes by which photopigment-bearing autotrophic organisms, such as most plants, algae and cyanobacteria, convert light energy typically from sunlight into the chemical energy necessary to fuel their metabolism. The term photosynthesis usually refers to oxygenic photosynthesis, a process that releases oxygen as a byproduct of water splitting. Photosynthetic organisms store the converted chemical energy within the bonds of intracellular organic compounds, typically carbohydrates like sugars, starches, phytoglycogen and cellulose. When needing to use this stored energy, an organism's cells then metabolize the organic compounds through cellular respiration. Photosynthesis plays a critical role in producing and maintaining the oxygen content of the Earth's atmosphere, and it supplies most of the biological energy necessary for complex life on Earth.
 <~ organism(plants)
 !query organism(algae)
 !query carbohydrate(cellulose)
@@ -45,19 +50,25 @@
 # conoscenza per due strade diverse, ed e' un'asimmetria da chiudere.
 [test the cue is data, not code]
 !reset
-> read the page on photosynthesis
+# gen505y: le pagine curate non esistono piu' (gen436, decisione di F.): si legge
+# il passaggio INLINE, che e' anche piu' fedele al ciclo.
+> read: Photosynthesis is a system of biological processes by which photopigment-bearing autotrophic organisms, such as most plants, algae and cyanobacteria, convert light energy typically from sunlight into the chemical energy necessary to fuel their metabolism. The term photosynthesis usually refers to oxygenic photosynthesis, a process that releases oxygen as a byproduct of water splitting. Photosynthetic organisms store the converted chemical energy within the bonds of intracellular organic compounds, typically carbohydrates like sugars, starches, phytoglycogen and cellulose. When needing to use this stored energy, an organism's cells then metabolize the organic compounds through cellular respiration. Photosynthesis plays a critical role in producing and maintaining the oxygen content of the Earth's atmosphere, and it supplies most of the biological energy necessary for complex life on Earth.
 <~ carbohydrate(cellulose)
 !reset
 !forget enumeration_cue("such as")
 !forget enumeration_cue("like")
-> read the page on photosynthesis
+# gen505y: le pagine curate non esistono piu' (gen436, decisione di F.): si legge
+# il passaggio INLINE, che e' anche piu' fedele al ciclo.
+> read: Photosynthesis is a system of biological processes by which photopigment-bearing autotrophic organisms, such as most plants, algae and cyanobacteria, convert light energy typically from sunlight into the chemical energy necessary to fuel their metabolism. The term photosynthesis usually refers to oxygenic photosynthesis, a process that releases oxygen as a byproduct of water splitting. Photosynthetic organisms store the converted chemical energy within the bonds of intracellular organic compounds, typically carbohydrates like sugars, starches, phytoglycogen and cellulose. When needing to use this stored energy, an organism's cells then metabolize the organic compounds through cellular respiration. Photosynthesis plays a critical role in producing and maintaining the oxygen content of the Earth's atmosphere, and it supplies most of the biological energy necessary for complex life on Earth.
 <! carbohydrate(cellulose)
 
 # La seconda meta': cio' che non ha saputo leggere lo sa dire.
 [test unreadable prose becomes a machinery gap]
 !reset
 !query! machinery_gap($X)
-> read the page on photosynthesis
+# gen505y: le pagine curate non esistono piu' (gen436, decisione di F.): si legge
+# il passaggio INLINE, che e' anche piu' fedele al ciclo.
+> read: Photosynthesis is a system of biological processes by which photopigment-bearing autotrophic organisms, such as most plants, algae and cyanobacteria, convert light energy typically from sunlight into the chemical energy necessary to fuel their metabolism. The term photosynthesis usually refers to oxygenic photosynthesis, a process that releases oxygen as a byproduct of water splitting. Photosynthetic organisms store the converted chemical energy within the bonds of intracellular organic compounds, typically carbohydrates like sugars, starches, phytoglycogen and cellulose. When needing to use this stored energy, an organism's cells then metabolize the organic compounds through cellular respiration. Photosynthesis plays a critical role in producing and maintaining the oxygen content of the Earth's atmosphere, and it supplies most of the biological energy necessary for complex life on Earth.
 <~ extracted
 !query machinery_gap($X)
 > what did you fail on
