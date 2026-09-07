@@ -9,17 +9,17 @@
 [test unify]
 # Generation 5: variable queries resolved by unification over the facts.
 > socrates is a man
-< Learned: man(socrates).
+< Learned: socrates is a man.
 > plato is a man
-< Learned: man(plato).
+< Learned: plato is a man.
 > aristotle is a man
-< Learned: man(aristotle).
+< Learned: aristotle is a man.
 # "who is a X?" binds the variable to every matching subject, in order.
 > who is a man?
 < socrates, plato, aristotle.
 # "what is a X?" works the same way.
 > rex is a dog
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > what is a dog?
 < rex.
 # Predicate never mentioned -> "I don't know" (gen16), distinct from a known

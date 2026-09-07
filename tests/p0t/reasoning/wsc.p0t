@@ -18,7 +18,7 @@
 < I don't know who he refers to.
 # A concrete mention sets the discourse entity.
 > dana is a pilot
-< Learned: pilot(dana).
+< Learned: dana is a pilot.
 # Now the pronoun co-refers with dana, and not with a different name.
 > does she refer to dana?
 < Yes.
@@ -26,7 +26,7 @@
 < No.
 # A newer mention moves salience; the pronoun follows it.
 > mara is a teacher
-< Learned: teacher(mara).
+< Learned: mara is a teacher.
 > does she refer to mara?
 < Yes.
 > does she refer to dana?

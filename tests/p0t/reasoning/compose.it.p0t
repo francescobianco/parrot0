@@ -14,13 +14,13 @@
 > ogni orso felice è un amico
 < Learned rule: friend(X) :- bear(X), happy(X).
 > balu è un orso
-< Learned: bear(balu).
+< Learned: balu is a bear.
 > è balu un amico?
 < No.
 > perché balu non è un amico?
 < balu is not a friend because I am missing: balu is a happy. The rule is bear and happy -> friend.
 > balu è felice
-< Learned: happy(balu). Now balu is a friend after all.
+< Learned: balu is a happy. Now balu is a friend after all.
 > è balu un amico?
 < Yes.
 > quanto è robusta questa conclusione?

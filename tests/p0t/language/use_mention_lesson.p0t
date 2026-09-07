@@ -34,18 +34,18 @@
 !query! possibility_marker(will)
 # MENZIONE quotata: la stessa lezione passa.
 > "will" is a possibility marker
-< Learned: possibility_marker(will).
+< Learned: will is a possibility_marker.
 !query possibility_marker(will)
 # MENZIONE dichiarata: e' la forma che parrot0 stesso propone dal proprio muro.
 > the word been is an irregular participle
-< Learned: irregular_participle(been).
+< Learned: been is an irregular_participle.
 !query irregular_participle(been)
 # E la simmetria vale anche per il retract.
 > forget that "will" is a possibility marker
 <~ no longer treat
 !query! possibility_marker(will)
 > "will" is a possibility marker
-< Learned: possibility_marker(will).
+< Learned: will is a possibility_marker.
 !query possibility_marker(will)
 
 [test la menzione apre subito il consumatore, senza rebuild]
@@ -53,7 +53,7 @@
 > "the investigators predict that" is a hypothesis report marker.
 < Learned: hypothesis_report_marker("the investigators predict that").
 > shorten is a relation verb
-< Learned: relation_verb(shorten).
+< Learned: shorten is a relation_verb.
 # La parola insegnata per menzione viene consumata dal lettore al turno dopo,
 # senza rebuild: il modale si stacca e non finisce dentro il soggetto.
 > read: https://ntrs.nasa.gov/citations/20230015804 The investigators predict that a kinetic impactor will shorten an asteroid orbit.

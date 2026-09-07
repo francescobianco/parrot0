@@ -21,7 +21,7 @@
 # gen269: replies are MULTI-LINE — verdict first, then the program in a
 # markdown ```c fence with real indentation (consecutive '<' lines are one reply).
 > create a simple hello world in c
-< Verified by execution: it prints "Hello, World!" and exits 0 (print_message schema, run via the code_run oracle).
+< Verified by execution: it prints «Hello, World!» and exits 0 (print_message schema, run via the code_run oracle).
 < 
 < ```c
 < #include <stdio.h>
@@ -34,7 +34,7 @@
 
 # the general form of the same category: the request spells the message
 > write a program that prints good morning
-< Verified by execution: it prints "good morning" and exits 0 (print_message schema, run via the code_run oracle).
+< Verified by execution: it prints «good morning» and exits 0 (print_message schema, run via the code_run oracle).
 < 
 < ```c
 < #include <stdio.h>
@@ -47,9 +47,9 @@
 
 # the category border stays honest: no schema for this, informed decline
 > build a web scraper in python
-< I understood the request — produce "web scraper" in python — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
+< I understood the request — produce «web scraper» in python — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
 > generate a birthday poem
-< I understood the request — produce "birthday poem" — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
+< I understood the request — produce «birthday poem» — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
 
 # gen270: the simplest produce-artifact REALLY happens — an empty file, plain
 # basename in the working directory, verified by stat, recorded as session

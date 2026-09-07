@@ -21,12 +21,12 @@
 
 # La menzione dichiarata passa, e il fatto parla della PAROLA.
 > the word unless is a condition marker
-< Learned: condition_marker(unless).
+< Learned: unless is a condition_marker.
 !query condition_marker(unless)
 
 # Le virgolette sono l'altra superficie della stessa meccanica.
 > "whereas" is a contrast marker
-< Learned: contrast_marker(whereas).
+< Learned: whereas is a contrast_marker.
 !query contrast_marker(whereas)
 # Il fatto non conserva la citazione: si parla della parola, non del testo.
 !query! contrast_marker("whereas")
@@ -40,9 +40,9 @@
 > the lemma although is a concession marker
 !query! concession_marker(although)
 > "lemma" is a mention_marker
-< Learned: mention_marker(lemma).
+< Learned: lemma is a mention_marker.
 > the lemma although is a concession marker
-< Learned: concession_marker(although).
+< Learned: although is a concession_marker.
 !query concession_marker(although)
 
 # ABLAZIONE: tolto il marcatore, quella superficie non menziona piu'.
@@ -65,10 +65,10 @@
 [test la menzione vale in italiano senza motore nuovo]
 !set PARROT0_LANG=it
 > il termine sebbene è un marcatore_condizionale
-< Learned: marcatore_condizionale(sebbene).
+< Learned: sebbene is a marcatore_condizionale.
 !query marcatore_condizionale(sebbene)
 > la parola gatto è un nome
-< Learned: nome(gatto).
+< Learned: gatto is a nome.
 
 # ── LA MENZIONE SI PUO' CHIEDERE (M2) ──────────────────────────────────────
 #
@@ -80,7 +80,7 @@
 !set PARROT0_LANG=en
 !reset
 > the word unless is a condition marker
-< Learned: condition_marker(unless).
+< Learned: unless is a condition_marker.
 > is the word unless a condition marker?
 < Yes.
 > is the word although a condition marker?

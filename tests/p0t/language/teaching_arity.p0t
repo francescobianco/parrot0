@@ -34,7 +34,7 @@
 # con cio' che si sa gia' a essere rifiutata.
 [test la classe unaria si insegna ancora]
 > puppo is a universal_quantifier
-< Learned: universal_quantifier(puppo).
+< Learned: puppo is an universal quantifier.
 !forget universal_quantifier(puppo)
 
 [test un predicato mai visto resta insegnabile]

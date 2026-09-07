@@ -10,9 +10,9 @@
 # gen59 (C5): sforzo sul muro vuoto. "cos'è <X>?" usa lo stesso percorso di
 # descrizione KB tramite la canonicalizzazione del lessico.
 > Socrate è un uomo
-< Learned: man(socrate).
+< Learned: socrate is a man.
 > Socrate è un mortale
-< Learned: mortal(socrate).
+< Learned: socrate is a mortal.
 > cos'è Socrate?
 < socrate is a man; socrate is a mortal.
 

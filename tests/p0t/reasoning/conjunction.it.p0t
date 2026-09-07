@@ -15,13 +15,13 @@
 > ogni cane amichevole è un bravo
 < Learned rule: bravo(X) :- dog(X), amichevole(X).
 > rex è un cane
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > rex è un bravo?
 < No.
 > cosa renderebbe rex un bravo?
 < Non capisco ancora.
 > rex è amichevole
-< Learned: amichevole(rex). Now rex is a bravo after all.
+< Learned: rex is an amichevole. Now rex is a bravo after all.
 > rex è un bravo?
 < Yes.
 > da cosa dipende?

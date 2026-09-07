@@ -57,11 +57,11 @@
 > every royal vip is a champion
 < Learned rule: champion(X) :- royal(X), vip(X).
 > rex is a dog
-< Learned: dog(rex). Now rex is a pet after all.
+< Learned: rex is a dog. Now rex is a pet after all.
 > what is the easiest way to make rex a champion?
 < The easiest way is to tell me that rex is a prepared — 1 missing premise via prepared and dog -> champion.
 > try the easiest way to make rex a champion
-< Hypothetically adding rex is a prepared makes rex a champion: champion(rex) because prepared(rex) and dog(rex). I restored the KB after the simulation.
+< Hypothetically adding rex is a prepared makes rex a champion: rex is a champion because rex is a prepared and rex is a dog. I restored the KB after the simulation.
 > is rex a champion?
 < No.
 
@@ -88,11 +88,11 @@
 > every shortcut token is a marker
 < Learned rule: marker(X) :- shortcut(X), token(X).
 > zed is token
-< Learned: token(zed).
+< Learned: zed is a token.
 > what is the easiest way to make zed a marker?
 < The easiest way is to tell me that zed is a shortcut — 1 missing premise via shortcut and token -> marker.
 > simulate the easiest way to make zed a marker
-< Hypothetically adding zed is a shortcut makes zed a marker: marker(zed) because shortcut(zed) and token(zed). I restored the KB after the simulation.
+< Hypothetically adding zed is a shortcut makes zed a marker: zed is a marker because zed is a shortcut and zed is a token. I restored the KB after the simulation.
 > is zed a marker?
 < No.
 
@@ -101,7 +101,7 @@
 
 # Take one branch; the consequence is volunteered (gen103) and the goal holds.
 > rex is a cat
-< Learned: cat(rex).
+< Learned: rex is a cat.
 > is rex a pet?
 < Yes.
 

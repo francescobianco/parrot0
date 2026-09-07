@@ -24,7 +24,7 @@
 <~ «brinks is a relation verb»
 # E il consiglio funziona: seguirlo chiude il muro nel turno dopo.
 > brinks is a relation verb
-< Learned: relation_verb(brinks).
+< Learned: brinks is a relation_verb.
 > zilvan brinks torvo
 < Learned: brinks(zilvan, torvo).
 > who brinks torvo?

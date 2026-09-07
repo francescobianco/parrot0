@@ -77,7 +77,7 @@
 # L'indagine ha prodotto un nome; ora una regola di classe ne deriva una
 # proprieta' mai asserita direttamente su di lui.
 > rossi is a contractor
-< Learned: contractor(rossi).
+< Learned: rossi is a contractor.
 > every contractor is external
 < Got it: if something is a contractor, then it is external.
 > is rossi external?

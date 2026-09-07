@@ -13,9 +13,9 @@
 # growing the extractor toward real prose (the bench's wall is open-domain
 # language; this is one honest shape closer).
 > flipper is a dolphin
-< Learned: dolphin(flipper).
+< Learned: flipper is a dolphin.
 > flipper is also a mammal
-< Learned: mammal(flipper).
+< Learned: flipper is a mammal.
 # Both memberships now hold.
 > is flipper a mammal?
 < Yes.

@@ -21,17 +21,17 @@
 # exercised by `make glue-bench` (corr-en/it), which runs with the full KB.
 
 > socrates is a man
-< Learned: man(socrates).
+< Learned: socrates is a man.
 > is socrates a man
 < Yes.
 > no, socrates is not a man
-< Learned: not man(socrates).
+< Learned: socrates is not a man.
 > is socrates a man
 < No.
 # Italian: same marker, same flip (the negation parser is order-insensitive).
 > tweety è un uccello
-< Learned: bird(tweety).
+< Learned: tweety is a bird.
 > no, tweety non è un uccello
-< Learned: not bird(tweety).
+< Learned: tweety is not a bird.
 > è tweety un uccello?
 < No.

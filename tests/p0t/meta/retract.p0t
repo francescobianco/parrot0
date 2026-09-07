@@ -10,7 +10,7 @@
 [test retract]
 # Generation 10: retraction & correction — knowledge can be fixed, not only grown.
 > socrates is a man
-< Learned: man(socrates).
+< Learned: socrates is a man.
 > is socrates a man?
 < Yes.
 # "forget that X is a Y" removes the fact (and with it, knowledge of `man`).
@@ -20,9 +20,9 @@
 < I don't know about man.
 # "X is not a Y" stores explicit negative knowledge and clears positive fact.
 > bob is a dog
-< Learned: dog(bob).
+< Learned: bob is a dog.
 > bob is not a dog
-< Learned: not dog(bob).
+< Learned: bob is not a dog.
 > is bob a dog?
 < No.
 > what do you know about bob?
@@ -31,7 +31,7 @@
 < Nobody that I know of.
 # A later positive assertion clears the matching negative fact.
 > bob is a dog
-< Learned: dog(bob).
+< Learned: bob is a dog.
 > is bob a dog?
 < Yes.
 # Retracting something unknown is graceful.
@@ -40,7 +40,7 @@
 # Retraction interacts with rules: remove the supporting fact and the
 # derived conclusion goes away too.
 > plato is a man
-< Learned: man(plato).
+< Learned: plato is a man.
 > every man is a mortal
 # La testa e' il contratto di questo test. Una KB piu' ricca puo' aggiungere
 # una coda `Induced: ...`, verificata dai test specifici dell'induzione.

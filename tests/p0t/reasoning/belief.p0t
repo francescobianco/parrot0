@@ -11,11 +11,12 @@
 > what do you know about rhea?
 < I don't know anything about rhea.
 > rhea is a pilot
-< Learned: pilot(rhea).
+# gen505y: il messaggio e' conoscenza — resa in prosa dal gen491.
+< Learned: rhea is a pilot.
 > rhea is the parent of sam
 < Learned: parent(rhea, sam).
 > rhea is not a robot
-< Learned: not robot(rhea).
+< Learned: rhea is not a robot.
 > what do you know about rhea?
 < rhea is a pilot; parent(rhea, sam); rhea is not a robot.
 > what do you know about sam?

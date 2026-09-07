@@ -42,12 +42,12 @@
 # 1. PRIMA — `puppo` non e' un quantificatore, quindi "puppo dog" e' solo il nome
 #    di una cosa, e la frase asserisce un fatto su quella cosa.
 > puppo dog is a mammal
-< Learned: mammal(puppo_dog).
+< Learned: puppo dog is a mammal.
 
 # 2. INSEGNAMENTO — un turno di conversazione qualunque, nessuna sintassi
 #    speciale: la parola entra nella classe come qualsiasi altro fatto.
 > puppo is a universal_quantifier
-< Learned: universal_quantifier(puppo).
+< Learned: puppo is an universal quantifier.
 
 # 3. DOPO — la stessa frase del punto 1, ora letta come UNIVERSALE: non piu' un
 #    fatto su un'entita' ma una REGOLA quantificata su una variabile.
@@ -57,7 +57,7 @@
 # E la regola appena capita ragiona davvero: il soggetto non e' mai stato
 # dichiarato mammifero, lo diventa per inferenza attraverso la parola inventata.
 > rex is a dog
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > is rex a mammal?
 < Yes.
 
@@ -66,7 +66,7 @@
 # dialogo (docs/plans/test-engine.md §2b).
 !forget universal_quantifier(puppo)
 > puppo cat is a feline
-< Learned: feline(puppo_cat).
+< Learned: puppo cat is a feline.
 
 # ── definite_article/1 (kb/core/grammar.p0) ──────────────────────────────────
 # Sito migrato in gen370: il frame delle relazioni binarie ("x is THE parent OF
@@ -81,7 +81,7 @@
 
 # 2. INSEGNAMENTO.
 > zorf is a definite_article
-< Learned: definite_article(zorf).
+< Learned: zorf is a definite article.
 
 # 3. DOPO — la stessa frase e' ora un'asserzione di relazione binaria: parrot0
 #    ha letto `zorf` nel RUOLO di articolo determinativo.
@@ -101,16 +101,16 @@
 # 1. PRIMA — senza la preposizione il frame non si chiude, e le tre parole
 #    finali vengono lette come UN unico nome di classe composto.
 > spark is the cause blim fire
-< Learned: cause_blim_fire(spark).
+< Learned: spark is the cause blim fire.
 
 # 2. INSEGNAMENTO.
 > blim is a relation_preposition
-< Learned: relation_preposition(blim).
+< Learned: blim is a relation preposition.
 
 # 3. DOPO — la stessa frase si scompone in una relazione binaria vera: il
 #    contrasto qui e' piu' netto di un muro, perche' cambia proprio l'ANALISI.
 > spark is the cause blim fire
-< Learned: cause(spark, fire).
+< Learned: spark cause fire.
 > who is the cause of fire?
 < spark.
 
@@ -152,7 +152,7 @@
 > if puppo cat is a mammal and tom is a cat, is tom a mammal?
 < No.
 > puppo is a universal_quantifier
-< Learned: universal_quantifier(puppo).
+< Learned: puppo is an universal quantifier.
 > if puppo cat is a mammal and tom is a cat, is tom a mammal?
 < Yes.
 
@@ -201,12 +201,13 @@
 [test taught_machinery]
 
 > progenitor is a machinery
-< Learned: machinery(progenitor).
+< Learned: progenitor is a machinery.
 > is progenitor a machinery
 < Yes.
 !forget machinery(progenitor)
 > is progenitor a machinery
-< No.
+# gen505y: dottrina — «non dimostrato» non e' «falso».
+<~ not proved is not the same as false
 
 # ── indefinite_article/1 (kb/core/grammar.p0) ────────────────────────────────
 # Sito migrato in gen382, e il piu' esteso di tutti: `is_article()` erano due
@@ -227,12 +228,12 @@
 
 # 2. INSEGNAMENTO — un turno di conversazione qualunque.
 > zup is a indefinite_article
-< Learned: indefinite_article(zup).
+< Learned: zup is an indefinite article.
 
 # 3. DOPO — la stessa identica frase ora e' una dichiarazione di classe, e il
 #    fatto finisce davvero in KB.
 > rex is zup dog
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > is rex a dog
 < Yes.
 
@@ -246,7 +247,7 @@
 # 5. La classe originale non e' stata scalfita: "a" continua a fare l'articolo
 #    perche' e' un fatto in grammar.p0, non un letterale nel motore.
 > luna is a cat
-< Learned: cat(luna).
+< Learned: luna is a cat.
 
 # ── np_opener/1, il DETERMINANTE che apre un sintagma (kb/core/grammar.p0) ───
 # Sito migrato in gen382. Qui non e' stata tolta una lista dal C: ne sono state
@@ -261,21 +262,21 @@
 # 1. PRIMA — `zib` non apre un sintagma, quindi "zib rex" e' il nome di una cosa
 #    sola e la frase asserisce un fatto su quella cosa.
 > zib rex is a dog
-< Learned: dog(zib_rex).
+< Learned: zib rex is a dog.
 
 # 2. INSEGNAMENTO — un turno di conversazione qualunque.
 > zib is a np_opener
-< Learned: np_opener(zib).
+< Learned: zib is a np opener.
 
 # 3. DOPO — la stessa identica frase: ora `zib` e' un determinante, viene lasciato
 #    cadere, e il soggetto e' `rex`. Il "prima" non era un muro, era un ALTRO
 #    parse — che e' il contrasto piu' forte fra quelli che questo file raccoglie.
 > zib rex is a dog
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > is rex a dog
 < Yes.
 
 # 4. E si torna indietro.
 !forget np_opener(zib)
 > zib luna is a cat
-< Learned: cat(zib_luna).
+< Learned: zib luna is a cat.

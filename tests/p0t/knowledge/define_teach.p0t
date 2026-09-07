@@ -18,8 +18,9 @@
 > learn the definition of kb-first: "engine fixed, knowledge learns"
 < Got it - kb-first: engine fixed, knowledge learns.
 > what is kb-first?
-< kb-first is engine fixed, knowledge learns.
+# gen505y: la definizione si rende senza il prefisso «X is» (presentazione in KB).
+< Engine fixed, knowledge learns.
 > impara la definizione di catena-cue: "una lista di parole in codice C"
 < Got it - catena-cue: una lista di parole in codice C.
 > cosa è catena-cue?
-< catena-cue is una lista di parole in codice C.
+< Una lista di parole in codice C.

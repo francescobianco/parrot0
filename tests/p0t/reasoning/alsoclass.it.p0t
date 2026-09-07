@@ -11,9 +11,9 @@
 # (anche->also) and asserts y(x) through the same extractor -- no second parser.
 # The bilingual ratchet: the additional-class shape is proven language-agnostic.
 > flipper è un delfino
-< Learned: delfino(flipper).
+< Learned: flipper is a delfino.
 > flipper è anche un mammifero
-< Learned: mammifero(flipper).
+< Learned: flipper is a mammifero.
 > è flipper un mammifero?
 < Yes.
 > è flipper un delfino?

@@ -23,7 +23,7 @@
 > ogni cane amichevole è un bravo
 < Learned rule: bravo(X) :- dog(X), amichevole(X).
 > rex è un cane
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > perché rex non è un bravo?
 < rex is not a bravo because I am missing: rex is a amichevole. The rule is dog and amichevole -> bravo.
 

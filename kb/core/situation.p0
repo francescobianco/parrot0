@@ -50,6 +50,11 @@
 segment_role(goal, "how do i").
 segment_role(goal, "how can i").
 segment_role(goal, "come faccio a").
+% gen505y: dal gen505q una cue vuole il confine di parola, e «come faccio AD
+% abbassare» non combaciava piu' con «come faccio a»: sei suite di
+% pianificazione italiana muravano su questa «d». La «d» eufonica e' una forma
+% della stessa cue, non un caso.
+segment_role(goal, "come faccio ad").
 segment_role(goal, "come posso").
 
 % Il VERSO del cambiamento e' un concetto, non una parola. Le sue forme vivono

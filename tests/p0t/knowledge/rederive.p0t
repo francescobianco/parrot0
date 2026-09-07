@@ -40,7 +40,7 @@
 # Correcting the premise retracts man(socrates); the agent re-derives the
 # conclusion and announces the consequence in the SAME turn — joined-up reasoning.
 > socrates is not a man
-< Learned: not man(socrates). Then socrates is no longer a mortal.
+< Learned: socrates is not a man. Then socrates is no longer a mortal.
 
 # It also volunteers a NEWLY-enabled conclusion. Ask first (records "No"), then
 # supply the missing premise: the derived class now holds, and it says so.
@@ -49,7 +49,7 @@
 > is tweety a flyer?
 < No.
 > tweety is a bird
-< Learned: bird(tweety). Now tweety is a flyer after all.
+< Learned: tweety is a bird. Now tweety is a flyer after all.
 
 # No spurious note: an unrelated assertion that does not change the remembered
 # conclusion stays silent.

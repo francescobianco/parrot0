@@ -477,6 +477,12 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                      * Nessuna parola nominata nel C. */
                     {
                         size_t vs = i + 3, ve = vs;
+                        /* gen505y — «my dog is called Rex» -> «your dog is called
+                         * called Rex»: il valore cominciava sul marcatore stesso.
+                         * Il marcatore e' la classe che `has_called` legge sotto;
+                         * il valore comincia dopo. */
+                        if (vs < nw && lex_class_member(b, "10_memory_knowledge_lex268", w[vs])) vs++;
+                        ve = vs;
                         while (ve < nw) {
                             char t[KB_TERM_LEN];
                             snprintf(t, sizeof t, "%s", strip_edge_punct(w[ve]));

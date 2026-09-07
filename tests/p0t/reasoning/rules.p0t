@@ -9,7 +9,7 @@
 [test rules]
 # Generation 6: rules + backward-chaining resolution.
 > socrates is a man
-< Learned: man(socrates).
+< Learned: socrates is a man.
 # A rule, not a fact: every man is a mortal.
 # `<^` (gen453): la risposta COMINCIA con questo. Dopo aver imparato una regola
 # parrot0 riporta in coda anche cio' che ha INDOTTO di conseguenza, che e' una
@@ -29,7 +29,7 @@
 < Yes.
 # Generalization to a NEW subject through the rule (never asserted mortal).
 > plato is a man
-< Learned: man(plato).
+< Learned: plato is a man.
 > is plato a mortal?
 < Yes.
 # Variable query includes rule-derived members, in order.
@@ -48,6 +48,6 @@
 > each dog is a mammal
 <^ Learned rule: mammal(X) :- dog(X).
 > rex is a dog
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > is rex a mammal?
 < Yes.

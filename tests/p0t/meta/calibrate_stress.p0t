@@ -18,7 +18,7 @@
 
 # INFERRED — one-step rule. Confidence cites the chain; lever is the premise.
 > zeppo is a quux
-< Learned: quux(zeppo).
+< Learned: zeppo is a quux.
 > every quux is a blorp
 < Learned rule: blorp(X) :- quux(X).
 > is zeppo a blorp?
@@ -30,7 +30,7 @@
 
 # KNOWN — direct fact, then the state SWITCHES (it must re-grade, not stick).
 > glim is a frob
-< Learned: frob(glim).
+< Learned: glim is a frob.
 > is glim a frob?
 < Yes.
 > why do you think that?
@@ -48,9 +48,9 @@
 
 # CONFLICTED — both polarities. Genuinely unsure; both claims named both ways.
 > snarf is a dax
-< Learned: dax(snarf).
+< Learned: snarf is a dax.
 > snarf is not a dax
-< Learned: not dax(snarf).
+< Learned: snarf is not a dax.
 > is snarf a dax?
 < No.
 > why do you think that?
@@ -75,7 +75,7 @@
 # DEEP chain — the lever stays grounded in the single root premise across two
 # rule hops, then the state switches back to KNOWN on a fresh goal.
 > figo is a alpha
-< Learned: alpha(figo).
+< Learned: figo is an alpha.
 > every alpha is a beta
 < Learned rule: beta(X) :- alpha(X).
 > every beta is a gamma
@@ -85,7 +85,7 @@
 > what would make you change your mind?
 < It hangs on one premise: if I learned that figo is a alpha were false, I'd stop concluding figo is a gamma.
 > pim is a wug
-< Learned: wug(pim).
+< Learned: pim is a wug.
 > is pim a wug?
 < Yes.
 > why do you think that?

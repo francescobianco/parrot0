@@ -16,7 +16,7 @@
 > every loyal hound is a companion
 < Learned rule: companion(X) :- loyal(X), hound(X).
 > bryn is a hound
-< Learned: hound(bryn).
+< Learned: bryn is a hound.
 > is bryn a companion?
 < No.
 > why isn't bryn a companion?
@@ -24,7 +24,7 @@
 > what is the easiest way to make bryn a companion?
 < The easiest way is to tell me that bryn is a loyal — 1 missing premise via loyal and hound -> companion.
 > bryn is loyal
-< Learned: loyal(bryn). Now bryn is a companion after all.
+< Learned: bryn is a loyal. Now bryn is a companion after all.
 > why is bryn a companion?
 < companion(bryn) because loyal(bryn) and hound(bryn).
 > how robust is that conclusion?

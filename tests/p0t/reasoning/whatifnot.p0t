@@ -18,7 +18,7 @@
 < Ask me whether something holds first — then I can tell you what that conclusion rests on.
 
 > socrates is a man
-< Learned: man(socrates).
+< Learned: socrates is a man.
 > every man is a mortal
 < Learned rule: mortal(X) :- man(X).
 # This conclusion is DERIVED (man -> mortal), and remembered as the last goal.
@@ -40,9 +40,9 @@
 # INDEPENDENT support: plato is a mortal both directly AND via the rule, so
 # un-knowing one route leaves the conclusion standing — it can reach it another way.
 > plato is a man
-< Learned: man(plato).
+< Learned: plato is a man.
 > plato is a mortal
-< Learned: mortal(plato).
+< Learned: plato is a mortal.
 > is plato a mortal?
 < Yes.
 > what would you conclude if you didn't know that plato is a man?

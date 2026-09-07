@@ -13,7 +13,7 @@
 # bilingual ratchet: one mechanism, two languages, through one code path.
 
 > socrate è un uomo
-< Learned: man(socrate).
+< Learned: socrate is a man.
 > ogni uomo è un mortale
 < Learned rule: mortal(X) :- man(X).
 > socrate è un mortale?

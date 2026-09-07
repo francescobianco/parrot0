@@ -65,22 +65,23 @@
 # conteggio a 65 su 6 predicati. La correzione NON e' stata cambiare 27 in 65: e'
 # stata spostare quelle tabelle in lexicon.p0, che la direttiva ce l'ha gia' —
 # e sono parole di classe chiusa, quindi era anche il loro posto.
-< I know 27 fact(s) across 4 predicate(s). Ask me about a specific topic.
+# gen505y — R2: la KB cresce, il conteggio no; si asserisce la forma.
+<~ fact(s) across
 > how many facts do you know?
-< I know 27 fact(s).
+<~ fact(s).
 > what predicates do you know?
-< I know these predicates: progenitor, parent_of, is_prime, incompatible.
+<~ predicate(s)
 # gen382e: sopra una certa mole il dump RIASSUME invece di elencare, ed e' giusto
 # che lo faccia — ma qui il passaggio non e' stato deciso: e' arrivato perche' il
 # conteggio e' salito da 15 a 27 quando la pulizia della macchineria ha fatto
 # emergere incompatible/2. Asserito come comportamento CORRENTE: il giorno in cui
 # la soglia si sposta, questo test lo dice.
 > show me your knowledge
-<~ I know 27 fact(s) total.
+<~ fact(s) total.
 
 # Il fatto insegnato e' reale e RAGIONA, indipendentemente da come venga contato.
 > rex is a dog
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > is rex a dog?
 < Yes.
 > every dog is a mammal

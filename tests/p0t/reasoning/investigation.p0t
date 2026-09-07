@@ -69,9 +69,9 @@
 # all'esplorazione un contesto (non solo una catena astratta), e verificare che
 # la conoscenza di classe resti disponibile mentre l'indagine causale procede.
 > the depot is a site
-< Learned: site(depot).
+< Learned: depot is a site.
 > the truck is a vehicle
-< Learned: vehicle(truck).
+< Learned: truck is a vehicle.
 > every vehicle is an asset
 < Learned rule: asset(X) :- vehicle(X).
 # Derivato dalla regola, mai asserito: il camion è un bene.

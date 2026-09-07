@@ -20,7 +20,7 @@
 # A purely DERIVED conclusion: mortal(socrates) hangs on the single fact
 # man(socrates) through the rule. The sweep finds that one critical belief.
 > socrates is a man
-< Learned: man(socrates).
+< Learned: socrates is a man.
 > every man is a mortal
 < Learned rule: mortal(X) :- man(X).
 > is socrates a mortal?
@@ -34,9 +34,9 @@
 # REDUNDANT support: plato is a mortal both directly AND via the rule, so no
 # single fact is load-bearing — the conclusion is robust to any one loss.
 > plato is a man
-< Learned: man(plato).
+< Learned: plato is a man.
 > plato is a mortal
-< Learned: mortal(plato).
+< Learned: plato is a mortal.
 > is plato a mortal?
 < Yes.
 > is your conclusion fragile?

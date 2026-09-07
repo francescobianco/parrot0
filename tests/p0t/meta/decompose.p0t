@@ -17,7 +17,9 @@
 < Dal mio registro delle capacità, ora posso: rispondere da fatti e regole della KB, con inferenza limitata; capire intenti conversazionali comuni e instradarli alle facoltà specializzate; leggere e spiegare piccoli frammenti di codice; usare strumenti locali quando sono abilitati; imparare procedure semplici da esempi; tentare piccole riparazioni strutturali quando un oracolo espone il guasto; fare piani semplici e tracciare strutture di prerequisiti; acquisire conoscenza e costruirne una piccola rappresentazione nella KB; tentare autolearning prudente, con quarantena e promozione ancora immature; usare la superficie iniziale dell'API da coding agent.
 # English: fact + query.
 > rex is a dog and is fido a dog?
-< Learned: dog(rex). No.
+# gen505y: dottrina — «non dimostrato» non e' «falso» (facts.p0t).
+<~ Learned: rex is a dog.
+<~ not proved is not the same as false
 # "and" inside a conjunctive query is NOT split because "fido" isn't
 # an intent starter.
 > are rex and fido both a dog?

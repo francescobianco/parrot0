@@ -28,7 +28,7 @@
 > ogni nobile vip è un campione
 < Learned rule: campione(X) :- nobile(X), vip(X).
 > rex è un cane
-< Learned: dog(rex). Now rex is a animal after all.
+< Learned: rex is a dog. Now rex is a animal after all.
 > modo piu facile per rendere rex un campione?
 < Non capisco ancora.
 > prova il modo piu facile per rendere rex un campione

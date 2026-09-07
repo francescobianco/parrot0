@@ -52,5 +52,7 @@
 # Rule: every pet is happy. Since all pets = rex, fido = all happy,
 # induction finds bidirectional implications with happy.
 > every pet is a happy
-< Learned rule: happy(X) :- pet(X). Induced: dog(X) :- happy(X). pet(X) :- happy(X).
+# gen505y (gen505d): un'induzione non si asserisce piu' da sola — si PROPONE
+# come domanda, e vale solo se confermata (LEARN_TODO «il si' non guadagnato»).
+< Learned rule: happy(X) :- pet(X). every happy I hold is also a dog — does that always hold?
 

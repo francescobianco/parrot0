@@ -13,7 +13,7 @@
 # core. Only function words are canonicalized (ogni->every, è->is, un->a,
 # chi->who); the rule logic is the same code that serves English.
 > socrate è un uomo
-< Learned: man(socrate).
+< Learned: socrate is a man.
 # A rule, not a fact: every man is mortal.
 > ogni uomo è un mortale
 < Learned rule: mortal(X) :- man(X).
@@ -27,7 +27,7 @@
 < Yes.
 # Generalization to a NEW subject through the rule (never asserted mortale).
 > platone è un uomo
-< Learned: man(platone).
+< Learned: platone is a man.
 > è platone un mortale?
 < Yes.
 # Variable query includes rule-derived members, in order.

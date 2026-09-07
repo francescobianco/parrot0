@@ -61,22 +61,22 @@
 [test glue_correction_en]
 !reset
 > socrates is a man
-< Learned: man(socrates).
+< Learned: socrates is a man.
 > is socrates a man
 < Yes.
 > no, socrates is not a man
-< Learned: not man(socrates).
+< Learned: socrates is not a man.
 > is socrates a man
 < No.
 
 [test glue_correction_it]
 !reset
 > socrate è un uomo
-< Learned: man(socrate).
+< Learned: socrate is a man.
 > socrate è un uomo?
 < Yes.
 > no, socrate non è un uomo
-< Learned: not man(socrate).
+< Learned: socrate is not a man.
 > socrate è un uomo?
 < No.
 

@@ -19,7 +19,7 @@
 < birds.
 # The proof is real: it names the two examples and the rule it induced from them.
 > how do you know?
-< Because the examples cat -> cats and dog -> dogs share the rule "append 's'", so bird -> birds.
+< Because the examples cat -> cats and dog -> dogs share the rule «append 's'», so bird -> birds.
 
 # Suffix transform with a longer affix — "+ing". Held-out verb.
 > go -> going, see -> seeing, read -> ?
@@ -55,7 +55,7 @@
 < germany.
 # The proof names the relation it inferred from the exemplars — derived, real.
 > how do you know?
-< Because the examples rome -> italy and paris -> france share the rule "capital(x, y)", so berlin -> germany.
+< Because the examples rome -> italy and paris -> france share the rule «capital(x, y)», so berlin -> germany.
 # Same relation read BACKWARDS: the examples flip it, parrot0 follows. germany->berlin.
 > italy -> rome, france -> paris, germany -> ?
 < berlin.

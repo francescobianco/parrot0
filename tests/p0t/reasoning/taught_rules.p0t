@@ -28,7 +28,7 @@
 < Learned rule: krantic($V1) :- zorbist($V1).
 # E la regola RAGIONA: il soggetto non e' mai stato dichiarato krantic.
 > vex is a zorbist
-< Learned: zorbist(vex).
+< Learned: vex is a zorbist.
 > is vex a krantic
 < Yes.
 

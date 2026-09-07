@@ -24,8 +24,11 @@
 > blah blah
 < I don't understand that yet.
 # would repeat -> vary with an honest redirect (no content word in the turn)
+# gen505y: le varianti del muro sono in rotazione (gen55): si asserisce che il
+# muro e' onesto e VARIA, non quale variante esce.
 > the quick brown fox
-< I didn't quite catch that. What would you like to know?
+<! I don't understand that yet.
+!query turn_outcome(current_turn, blind_wall)
 # previous reply was not the classic wall, so the classic wall is fine again
 > bonjour comment vas-tu
 # gen384: "bonjour" e' francese e parrot0 non ne ha fatti: lo nomina invece di

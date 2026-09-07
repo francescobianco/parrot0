@@ -20,7 +20,7 @@
 
 # One conjunct supplied (noun, with article); the goal is not yet provable.
 > rex is a dog
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > is rex a goodboy?
 < No.
 
@@ -32,7 +32,7 @@
 # because 'friendly' is a class a rule already depends on — and gen103's
 # self-correction fires across the conjunctive rule.
 > rex is friendly
-< Learned: friendly(rex). Now rex is a goodboy after all.
+< Learned: rex is a friendly. Now rex is a goodboy after all.
 > is rex a goodboy?
 < Yes.
 

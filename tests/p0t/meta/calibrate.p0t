@@ -16,7 +16,7 @@
 # INFERRED — derived through a rule. Confidence cites the proof chain; the lever
 # is the load-bearing premise found by ablation.
 > socrates is a man
-< Learned: man(socrates).
+< Learned: socrates is a man.
 > every man is a mortal
 < Learned rule: mortal(X) :- man(X).
 > is socrates a mortal?
@@ -28,7 +28,7 @@
 
 # KNOWN — a direct stored fact. Certain; the lever is contradicting the fact.
 > rex is a dog
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > is rex a dog?
 < Yes.
 > why do you think that?
@@ -44,9 +44,9 @@
 
 # CONFLICTED — both polarities stated. Genuinely unsure; both claims named.
 > alice is a person
-< Learned: person(alice).
+< Learned: alice is a person.
 > alice is not a person
-< Learned: not person(alice).
+< Learned: alice is not a person.
 > is alice a person?
 < No.
 > why do you think that?

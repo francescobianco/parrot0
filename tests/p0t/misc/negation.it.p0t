@@ -15,17 +15,17 @@
 # last, middle two = {is, not} in any order), so one parser serves both
 # languages. No second per-language branch -- the frame absorbed the order.
 > tweety è un uccello
-< Learned: bird(tweety).
+< Learned: tweety is a bird.
 > è tweety un uccello?
 < Yes.
 # "tweety non è un uccello" -> canon "tweety not is a uccello" -> not uccello(tweety).
 > tweety non è un uccello
-< Learned: not bird(tweety).
+< Learned: tweety is not a bird.
 # The belief flips, proven through the same closed-world query path.
 > è tweety un uccello?
 < No.
 # A fresh subject, negative-first, still resolves by role.
 > rex non è un gatto
-< Learned: not cat(rex).
+< Learned: rex is not a cat.
 > è rex un gatto?
 < No.

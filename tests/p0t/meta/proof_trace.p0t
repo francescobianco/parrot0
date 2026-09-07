@@ -11,7 +11,7 @@
 # the proof chain is stored so "how do you know?" can cite real state.
 # Ground query -> "how do you know?" reads from stored proof.
 > rex is a dog
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > is rex a dog?
 < Yes.
 > how do you know?
@@ -33,7 +33,7 @@
 < I haven't answered a knowledge-based question yet, so I don't have a proof to share.
 # Entity description -> proof stored.
 > rex is a mammal
-< Learned: mammal(rex).
+< Learned: rex is a mammal.
 > what is rex?
 < rex is a dog; rex is a mammal.
 > why?

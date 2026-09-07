@@ -1,3 +1,4 @@
+# gen505y: dottrina — «non dimostrato» non e' «falso» (facts.p0t).
 # migrated from tests/cases/priority.chat (gen346, hermetic + isolated;
 # expectations aligned to current behaviour).
 [mock hermetic]
@@ -12,14 +13,14 @@
 # "but": second sub-turn overrides; only the second is answered.
 # First make cat and gatto known predicates so closed-world "No." applies.
 > felix is a cat
-< Learned: cat(felix).
+< Learned: felix is a cat.
 > rex is a dog but is rex a cat?
-< No.
+<~ not proved is not the same as false
 # "ma" (Italian but): the correction wins.
 > felix è un gatto
-< Learned: cat(felix).
+< Learned: felix is a cat.
 > rex è un cane ma è rex un gatto?
-< No.
+<~ not proved is not the same as false
 # Compound with expanded starters: "dimmi" triggers split.
 > dimmi chi sei e cosa sai fare?
 < Dal mio registro delle capacità, ora posso: rispondere da fatti e regole della KB, con inferenza limitata; capire intenti conversazionali comuni e instradarli alle facoltà specializzate; leggere e spiegare piccoli frammenti di codice; usare strumenti locali quando sono abilitati; imparare procedure semplici da esempi; tentare piccole riparazioni strutturali quando un oracolo espone il guasto; fare piani semplici e tracciare strutture di prerequisiti; acquisire conoscenza e costruirne una piccola rappresentazione nella KB; tentare autolearning prudente, con quarantena e promozione ancora immature; usare la superficie iniziale dell'API da coding agent.

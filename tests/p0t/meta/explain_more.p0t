@@ -11,11 +11,11 @@
 # gen85-88: explanation depth + per-module caps + negation of intent.
 # Multi-level explanation.
 > rex is a dog
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > is rex a dog?
 < Yes.
 > tell me more
-< The supporting fact is: dog(rex). This is stored directly in my knowledge base.
+< The supporting fact is: rex is a dog. This is stored directly in my knowledge base.
 # Per-module capability.
 > what can the arith module do?
 < The arith module can compute arithmetic (plus, minus, times, divisible by).

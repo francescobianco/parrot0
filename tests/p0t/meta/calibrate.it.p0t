@@ -17,7 +17,7 @@
 
 # INFERRED
 > socrates è un uomo
-< Learned: man(socrates).
+< Learned: socrates is a man.
 > ogni uomo è un mortale
 < Learned rule: mortal(X) :- man(X).
 > socrates è un mortale?
@@ -29,7 +29,7 @@
 
 # KNOWN
 > rex è un cane
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > rex è un cane?
 < Yes.
 > perché lo pensi?
@@ -37,9 +37,9 @@
 
 # CONFLICTED
 > alice è una persona
-< Learned: person(alice).
+< Learned: alice is a person.
 > alice non è una persona
-< Learned: not person(alice).
+< Learned: alice is not a person.
 > alice è una persona?
 < No.
 > perché lo pensi?
@@ -47,7 +47,7 @@
 
 # HYPOTHETICAL
 > supponi che tweety è un uccello
-< Learned: bird(supponi_what_tweety).
+< Learned: supponi_what_tweety is a bird.
 > tweety è un uccello?
 < No.
 > cosa ti farebbe cambiare idea?

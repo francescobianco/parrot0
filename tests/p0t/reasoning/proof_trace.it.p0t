@@ -12,7 +12,7 @@
 > ogni cane è un mammale
 < Learned rule: mammale(X) :- dog(X).
 > rex è un cane
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > è rex un mammale?
 < Yes.
 > come lo sai?

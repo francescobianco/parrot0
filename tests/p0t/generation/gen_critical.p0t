@@ -20,13 +20,13 @@
 < Learned 3 transition(s).
 # Frequency alone would say "plane" (seen twice) -- see gen_freq. But:
 > tweety is not a plane
-< Learned: not plane(tweety).
+< Learned: tweety is not a plane.
 # Generation refuses the known-false claim and takes the next-best continuation.
 > say tweety
 < tweety is a bird
 # Block every candidate and it stops at "a" rather than asserting a falsehood.
 > tweety is not a bird
-< Learned: not bird(tweety).
+< Learned: tweety is not a bird.
 > say tweety
 < tweety is a
 # A non-claim sequence is unaffected -- the filter only guards "<x> is a ___".
