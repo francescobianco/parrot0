@@ -3871,7 +3871,12 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
     size_t hv = 0;
     for (size_t i = qs + 1; i + 2 < nw; i++)
         if (lex_class_member(b, "auxiliary", w[i])) { hv = i; break; }
-    if (hv && nw - hv == 3 && !(nw >= 1 && p0_turn_opens_as_question(b, w[0]))) {
+    /* gen505y — chi IMPARA consulta la forza pubblicata del turno (come il
+     * lettore di classe in mod_knowledge): «If you have 7 apples and I take 3
+     * away, …, how many do you have?» scriveva `quantity(if_you, apples, 7)`.
+     * La lettura privata («apre con un interrogativo») resta, additiva. */
+    if (hv && nw - hv == 3 && !(nw >= 1 && p0_turn_opens_as_question(b, w[0])) &&
+        !p0_turn_is(b, "question", norm)) {
         double v;
         if (!parse_num(w[hv + 1], &v)) return 0; /* not a quantity; let others try */
         char subj[KB_TERM_LEN]; size_t so = 0; subj[0] = '\0';

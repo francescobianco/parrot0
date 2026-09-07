@@ -107,6 +107,17 @@ turn_declared_act($Turn, question) :-
 % cue: qui la si ripubblica, e ogni facolta' la vede.
 turn_declared_act($Turn, question) :-
     turn_span($Turn, $Index, query, $Payload).
+% gen505y — IL PUNTO INTERROGATIVO E' UNA CUE. «If you have 7 apples and I take
+% 3 away, then give you 5 more, how many do you have?» non apre con un
+% interrogativo e la clausola incassata («how many do») non e' interrogativo +
+% copula: nessuna lettura strutturale la vedeva, e il lettore delle quantita'
+% scriveva `has(if_you, 7 apples)` — un fatto falso (wordproblem_multi.p0t).
+% Chi scrive «?» sta chiedendo: e' la lettura privata che mod_knowledge aveva
+% da sempre («finisce con ?»), pubblicata una volta per tutti.
+turn_cue_registry(question_mark_cue, 1).
+question_mark_cue("?").
+turn_declared_act($Turn, question) :-
+    turn_cue($Turn, question_mark_cue, $Cue).
 
 % ── L'ASSERZIONE HA UNA LETTURA, ANCHE SE NON HA CUE ───────────────────────
 %
