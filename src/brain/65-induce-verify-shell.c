@@ -14,17 +14,25 @@ static int mod_induce(Brain *b, const char *norm, const char *raw,
     const char *np = NULL;             /* where the query's argument starts */
     const char *m = NULL;
     char selected_surface[KB_TERM_LEN] = "";
-    char (**phrases)[KB_TERM_LEN] = NULL;
+    /* gen505y: `phrases` era un puntatore a puntatore inizializzato a NULL e
+     * passato per VALORE a kb_match_all: la lista usciva vuota, q restava
+     * Q_NONE e il modulo non rivendicava mai («what is the rule?» ->
+     * fallback, agent_induce 0/5 in due lingue). */
+    char (*phrases)[KB_TERM_LEN] = NULL;
     size_t nphrases = 0;
     const char *pq[] = { NULL, NULL };
     if (kb_match_all(b->kb, "induce_query_phrase", pq, 2,
-                     phrases, &nphrases)) {
+                     &phrases, &nphrases)) {
         size_t best_len = 0;
         for (size_t i = 0; i < nphrases; i++) {
-            const char *surface = kb_dequote((*phrases)[i]);
+            /* kb_dequote scrive nella riga (toglie la virgoletta di chiusura):
+             * la riga mutilata poi serviva da CHIAVE per il genere della frase e
+             * non combaciava mai. Si dequota una copia. */
+            char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", phrases[i]);
+            const char *surface = kb_dequote(sb);
             const char *hit = surface ? strstr(low, surface) : NULL;
             if (!hit) continue;
-            const char *sq[] = { (*phrases)[i], NULL };
+            const char *sq[] = { phrases[i], NULL };
             char kind[1][KB_TERM_LEN];
             if (kb_match(b->kb, "induce_query_phrase", sq, 2, kind, 1) != 1)
                 continue;
@@ -39,7 +47,7 @@ static int mod_induce(Brain *b, const char *norm, const char *raw,
                 else q = Q_NONE;
             }
         }
-        free(*phrases);
+        free(phrases);
     }
     if (q != Q_NONE && m) {
         np = m + strlen(selected_surface);

@@ -94,10 +94,11 @@ come regola e scartata (collaterale su taught_gloss; specie prematuro).
 
 ## ⛔ La coda, dopo il secondo giro
 
-1. **`verify` rigetta una prova STANTIA di un'altra conversazione** («does 10
-   -> 21 fit?» -> «Starting from 5, that step never reaches 99», un turno di un
-   altro file sullo stesso demone): lo stato non si azzera con `!reset`.
-   E «what is the rule?» cade nel fallback. Agenti: 4 file, due lingue.
+1. ~~`verify`/`induce` degli agenti~~ — ✅ chiusi nello stesso giro: il ramo
+   «si'» di `verify` componeva il verdetto e non lo emetteva (il residuo del
+   turno prima usciva al suo posto), e `induce` non rivendicava mai perche'
+   `kb_dequote` mutilava la riga usata poi come chiave. agent, agent_induce,
+   agent_verify e i tre specchi .it: tutti verdi.
 2. **Il canale didattico e' chiuso su tutto cio' che non e' un intento** (punto
    4 di ieri, invariato).
 3. **La testa del sintagma** («hey parrot what is a sbaddune» -> il pappagallo;
