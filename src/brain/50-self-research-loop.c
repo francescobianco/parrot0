@@ -1210,6 +1210,30 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
      * "cavalli" → "cavallo" so Wikipedia finds the animal, not the surname. */
     research_lemma_key(b, key, sizeof key);
 
+    /* ── gen506 — NON SI VA A LEGGERE CIO' CHE SI SA GIA' (glm-test §3.5) ────
+     *
+     * Reperto di Buffy, ed e' la «malattia radice» che il report mette per
+     * prima: la stessa entita' sotto forme di domanda diverse.
+     *
+     *     A wombat is a marsupial      ->  «Learned: wombat is a marsupial.»
+     *     what do you know about wombat ->  «wombat is a marsupial.»     ✅
+     *     what is a wombat?            ->  «I don't know much about wombat»
+     *
+     * La conoscenza c'era e una delle due porte non ci arrivava. Ma non era il
+     * lettore definitorio a essere cieco — `kb_define_entity` legge benissimo i
+     * fatti unari: era QUESTA facolta' a prendersi il turno prima, per andare a
+     * cercare fuori cio' che parrot0 aveva gia' dentro.
+     *
+     * E' il mantra #21: rivendicare un turno e' un titolo, non un diritto. Il
+     * mestiere dell'acquisizione e' colmare una LACUNA; dove la lacuna non c'e'
+     * non ha titolo, e cede a chi sa gia' rispondere. Nessuna parola nuova nel
+     * C: si chiede se la definizione esiste, con la stessa funzione che la
+     * risposta userebbe. */
+    {
+        char known[1024];
+        if (kb_define_entity(b->kb, key, known, sizeof known)) return 0;
+    }
+
     /* deep-reasoning M2: a DEEP read extracts every fact from the page's prose
      * (extract_page_facts), each with its source (M1) — distinct from the shallow
      * concept-learn below. Honest miss if the page has no page or no facts. */
