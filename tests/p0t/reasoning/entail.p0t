@@ -21,9 +21,10 @@
 > premise: kito is a bird; hypothesis: is kito a mammal?
 < Unknown.
 > explain premise: rhea is a pilot; hypothesis: is rhea a pilot?
-< Entailed: pilot(rhea) is a known fact.
+# gen505y: la spiegazione e' in prosa (presentazione in KB).
+< Entailed: rhea is a pilot.
 > explain premise: io is a glorp and every glorp is a dax; hypothesis: is io a dax?
-< Entailed: dax(io) because glorp(io).
+< Entailed: io is a dax because io is a glorp.
 > explain premise: zara is not a quoll; hypothesis: is zara a quoll?
 < Contradicted.
 # Generation 29: SuperGLUE CB-style 3-way verdict — the same solver, collapsed

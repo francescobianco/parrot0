@@ -16,7 +16,7 @@
 > my name is Ada
 < Nice to meet you, Ada!
 > use "Welcome, {name}!" to greet a new name
-< Got it - I'll take "Welcome, {name}!" as a way to greet a new name now.
+< Got it - I'll take «Welcome, {name}!» as a way to greet a new name now.
 > my name is Bob
 < Welcome, Bob!
 

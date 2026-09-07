@@ -51,7 +51,8 @@
 # comportamento CORRENTE perche' il test misura la COLLA e non la lingua della
 # ricevuta: il giorno in cui si chiude, questa riga lo dira'.
 > il mio cane è Rex
-< Got it: your dog is Rex.
+# gen505y: la risposta segue la lingua del turno.
+< Ricevuto: il tuo cane e' Rex.
 > come si chiama
 < Your dog is called Rex.
 
@@ -114,7 +115,7 @@
 # inglese. La colla regge — il valore arriva all'aritmetica nel turno dopo — ma
 # la ricevuta e' un ibrido. Stesso anello mancante di sopra, asserito com'e'.
 > il mio numero preferito è 7
-< Got it: your numero preferito is 7.
+< Ricevuto: il tuo numero preferito e' 7.
 > quanto fa il mio numero preferito più 3
 < 10.
 

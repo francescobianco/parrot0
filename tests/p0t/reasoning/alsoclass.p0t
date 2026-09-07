@@ -15,7 +15,7 @@
 > flipper is a dolphin
 < Learned: flipper is a dolphin.
 > flipper is also a mammal
-< Learned: flipper is a mammal.
+< Learned: mammal(flipper).
 # Both memberships now hold.
 > is flipper a mammal?
 < Yes.

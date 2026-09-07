@@ -24,6 +24,7 @@
 < Your name is Francesco.
 # It can be updated.
 > my name is Bob
-< Nice to meet you, Bob!
+# gen505y: `greet_name` ruota fra due varianti (gen55); si asserisce il nome.
+<~ , Bob!
 > whats my name?
 < Your name is Bob.

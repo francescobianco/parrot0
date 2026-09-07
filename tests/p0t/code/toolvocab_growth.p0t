@@ -15,10 +15,10 @@
 # verb is one learnable/3-driven assert — the very same recognizer fires next
 # turn, no C edit, no rebuild. EN + IT behavior stays green after migration.
 > how many letters in banana
-< There are 6 letters in "banana".
+< There are 6 letters in «banana».
 > quante lettere in ramarro
-< There are 7 letters in "ramarro".
+< There are 7 letters in «ramarro».
 > learn "letter tally" as a letter-count phrase
-< Got it - I'll take "letter tally" as a way to a letter-count phrase now.
+< Got it - I'll take «letter tally» as a way to a letter-count phrase now.
 > letter tally in banana
-< There are 6 letters in "banana".
+< There are 6 letters in «banana».

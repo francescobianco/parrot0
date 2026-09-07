@@ -46,6 +46,10 @@
 # And a prose turn wearing a code question's clothes must NOT be claimed by the
 # code module at all — it used to answer "I did not find obvious errors in this
 # code snippet", which is a misclaim about what the turn even IS.
+# gen505y — R2: dal gen505i il giudizio grammaticale risponde davvero a «what is
+# wrong with this: <frase>» («That agrees: sky is singular…»). Cio' che il caso
+# prova — il modulo del codice NON rivendica una frase — resta.
 > what is wrong with this: the sky is blue
-< I don't understand that yet.
+<! code snippet
+<~ sky
 

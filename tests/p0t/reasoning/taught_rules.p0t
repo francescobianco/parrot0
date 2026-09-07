@@ -54,9 +54,10 @@
 > se x è il genitore di y e y è il genitore di z allora x è il nonno di z
 < Learned rule: nonno($V1, $V3) :- genitore($V1, $V2), genitore($V2, $V3).
 > anna è il genitore di bruno
-< Learned: genitore(anna, bruno).
+# gen505y: la risposta segue la lingua del turno.
+< Imparato: genitore(anna, bruno).
 > bruno è il genitore di carla
-< Learned: genitore(bruno, carla).
+< Imparato: genitore(bruno, carla).
 > chi è il nonno di carla
 < anna.
 

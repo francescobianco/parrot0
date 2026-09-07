@@ -2848,12 +2848,17 @@ static int apply_premises(Brain *tmp, char *premises) {
  * D-2026-06-15b. */
 enum { ENT_PLAIN = 0, ENT_EXPLAIN = 1, ENT_LABEL = 2 };
 
+/* gen505y — I MESSAGGI STANNO NELLA KB VERA, NON NEL SANDBOX. Le frasi si
+ * dicevano attraverso `tmp`, il cervello temporaneo delle premesse, la cui KB
+ * non ha i template: uscivano le CHIAVI («contradicted_entailment»,
+ * «entailed_explanation(...)»). Il verdetto si calcola nel sandbox e si dice
+ * con il cervello che possiede la lingua. */
 static void entailment_status(Brain *tmp, Brain *lex, const char *hyp, int mode,
                               char *out, size_t out_size) {
     char hbuf[256];
     size_t len = strlen(hyp);
     if (len >= sizeof hbuf) {
-        kb_term_say(tmp, "entailment_not_understood",
+        kb_term_say(lex ? lex : tmp, "entailment_not_understood",
                     NULL, 0, out, out_size);
         return;
     }
@@ -2887,39 +2892,39 @@ static void entailment_status(Brain *tmp, Brain *lex, const char *hyp, int mode,
         args[1] = w[5];
         argc = 2;
     } else {
-        kb_say(tmp, "entailment_not_understood", "I don't understand that entailment yet.", out, out_size);
+        kb_say(lex ? lex : tmp, "entailment_not_understood", "I don't understand that entailment yet.", out, out_size);
         return;
     }
 
     if (!kb_knows_pred(tmp->kb, pred))
-        kb_term_say(tmp, mode == ENT_LABEL ? "neutral_entailment" : "unknown_entailment",
+        kb_term_say(lex ? lex : tmp, mode == ENT_LABEL ? "neutral_entailment" : "unknown_entailment",
                     NULL, 0, out, out_size);
     else if (kb_is_conflicted(tmp->kb, pred, args, argc))
-        kb_term_say(tmp, mode == ENT_LABEL ? "neutral_entailment" : "conflicted",
+        kb_term_say(lex ? lex : tmp, mode == ENT_LABEL ? "neutral_entailment" : "conflicted",
                     NULL, 0, out, out_size);
     else if (kb_query(tmp->kb, pred, args, argc)) {
         if (mode == ENT_LABEL) {
-            kb_say(tmp, "entailment", "Entailment.", out, out_size);
+            kb_say(lex ? lex : tmp, "entailment", "Entailment.", out, out_size);
         } else if (mode == ENT_PLAIN) {
-            kb_say(tmp, "entailed", "Entailed.", out, out_size);
+            kb_say(lex ? lex : tmp, "entailed", "Entailed.", out, out_size);
         } else {
             char ex[512];
             if (kb_explain(tmp->kb, pred, args, argc, ex, sizeof ex)) {
                 char msg[640];
                 if (strstr(ex, " because "))
                     { const KbResponseSlot _rs[] = { { "ex", ex } };
-                      kb_term_say(tmp, "entailed_explanation", _rs, 1, msg, sizeof msg); }
+                      kb_term_say(lex ? lex : tmp, "entailed_explanation", _rs, 1, msg, sizeof msg); }
                 else
                     { const KbResponseSlot _rs[] = { { "ex", ex } };
-                      kb_term_say(tmp, "entailed_x_is_a_known_fact", _rs, 1, msg, sizeof msg); }
+                      kb_term_say(lex ? lex : tmp, "entailed_x_is_a_known_fact", _rs, 1, msg, sizeof msg); }
                 put(msg, out, out_size);
             } else {
-                kb_say(tmp, "entailed", "Entailed.", out, out_size);
+                kb_say(lex ? lex : tmp, "entailed", "Entailed.", out, out_size);
             }
         }
     }
     else if (kb_is_negated(tmp->kb, pred, args, argc))
-        kb_term_say(tmp, mode == ENT_LABEL ? "contradiction_entailment" : "contradicted_entailment",
+        kb_term_say(lex ? lex : tmp, mode == ENT_LABEL ? "contradiction_entailment" : "contradicted_entailment",
                     NULL, 0, out, out_size);
     else
         put(mode == ENT_LABEL ? "Neutral." : "Not entailed.", out, out_size);
@@ -11998,6 +12003,29 @@ static int p0_grammar_judgement(Brain *b, const char *norm, char *out, size_t ou
                                           { "copula", cop } };
             if (kb_response_slots(b, "agreement_ok", rs, 3, out, out_size)) return 1;
         }
+    }
+    /* gen505y — UN RIFIUTO E' UNA RIVENDICAZIONE. «check this code: int x = 5»
+     * porta una cue di verifica, nessuna coppia soggetto-copula da giudicare,
+     * e questo ramo rispondeva «I don't have a rule that decides that
+     * sentence» al posto della facolta' del codice (code.p0t 8 rossi,
+     * repair.p0t, codeintent.p0t). Non e' una frase: il segmentatore l'ha
+     * gia' letto come codice, e lo dice nel frame del turno. Dove c'e' un
+     * segmento di codice il giudizio grammaticale non ha titolo (mantra #21):
+     * si ritira, e il rifiuto resta per le frasi. */
+    {
+        char (*spans)[KB_TERM_LEN] = NULL; size_t ns = 0;
+        const char *sq[4] = { "current_turn", NULL, NULL, NULL };
+        int has_code = 0;
+        if (kb_match_all(b->kb, "turn_span", sq, 4, &spans, &ns)) {
+            for (size_t i = 0; i < ns && !has_code; i++) {
+                char ty[1][KB_TERM_LEN];
+                const char *tq[4] = { "current_turn", spans[i], NULL, NULL };
+                if (kb_match(b->kb, "turn_span", tq, 4, ty, 1) == 1 &&
+                    strncmp(kb_dequote(ty[0]), "code", 4) == 0) has_code = 1;
+            }
+        }
+        free(spans);
+        if (has_code) return 0;
     }
     return kb_response_slots(b, "no_rule_for_sentence", NULL, 0, out, out_size);
 }

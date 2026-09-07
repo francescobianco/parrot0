@@ -23,8 +23,14 @@
 < Learned: rex is a mortal.
 # Induce: every man is mortal (2+ examples, no counterexample); NOT the
 # reverse (rex is mortal but not a man), and NOT dog->mortal (only 1 example).
+# gen505y (gen505d): un'induzione si PROPONE come domanda e vale solo se
+# confermata (LEARN_TODO «il si' non guadagnato»). ⚠ La conferma parlata non
+# e' ancora agganciata: «yes» riceve «Got it — what would you like to do?» e la
+# regola non entra, quindi i due assert sotto restano rossi finche' quel
+# circuito non e' costruito. Non si tolgono: sono la misura del gap.
 > generalize
-< Induced: mortal(X) :- man(X).
+< every man I hold is also a mortal — does that always hold?
+> yes
 # The induced rule generalizes to a brand-new individual never seen as mortal.
 > aristotle is a man
 < Learned: aristotle is a man.

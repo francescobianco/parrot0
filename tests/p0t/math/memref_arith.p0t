@@ -22,6 +22,7 @@
 > what is my favorite number plus 3
 < 10.
 > il mio numero preferito è 7
-< Got it: your numero preferito is 7.
+# gen505y: la risposta segue la lingua del turno.
+< Ricevuto: il tuo numero preferito e' 7.
 > quanto fa il mio numero preferito più 3
 < 10.

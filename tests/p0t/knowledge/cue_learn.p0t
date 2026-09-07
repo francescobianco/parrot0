@@ -14,7 +14,7 @@
 # turn, no code edit. The generic handler runs before the matcher, so the teaching
 # utterance (which itself contains "short answers") isn't consumed as a brevity request.
 > learn "be concise" to ask for short answers
-< Got it - I'll take "be concise" as a way to ask for short answers now.
+< Got it - I'll take «be concise» as a way to ask for short answers now.
 > be concise please
 < Got it: I will keep it short.
 

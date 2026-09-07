@@ -310,7 +310,13 @@ static int kb_fill_slots(const char *tpl, const KbResponseSlot *slots,
                 if (!filled && strict) return 0;
             }
         }
-        if (!filled) out[o++] = *c++;
+        /* gen505y — «\n» in un template e' un a capo. Tre template di
+         * messages.p0 (i verdetti con il codice in fence) lo scrivono, e il
+         * renderer lo copiava letterale: la risposta usciva con «\n» dentro. */
+        if (!filled) {
+            if (c[0] == '\\' && c[1] == 'n') { out[o++] = '\n'; c += 2; }
+            else out[o++] = *c++;
+        }
     }
     out[o < outsz ? o : outsz - 1] = '\0';
     return out[0] != '\0';

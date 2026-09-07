@@ -117,4 +117,5 @@
 # l'ultimo fatto di un predicato lo riporta davvero a sconosciuto, non a vuoto.
 !forget keyholder
 > who is the keyholder of daygate?
-< I do not know the relation keyholder yet, so I cannot answer the keyholder of daygate. You can teach me with thing is the keyholder of daygate, or give facts/rules to reason from.
+# gen505y: il declino informato e' piu' corto (nomina la relazione).
+<~ I don't know about keyholder

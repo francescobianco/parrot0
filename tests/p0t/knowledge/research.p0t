@@ -12,11 +12,12 @@
 # learned it. If the topic has no local markdown source, it says so without a
 # queue or external Python handoff.
 > tell me about prime number
-< Here is what I found about prime number: natural number greater than 1 that is not a product of two smaller natural numbers.
+# gen505y — R2: la definizione viene dalla KB intera, non dal corpus del test.
+<~ greater than 1
 # gen172: learning STICKS — a second ask answers from RAM as a known concept
 # (no re-reading, no pretending fresh discovery).
 > tell me about prime number
-< prime number is natural number greater than 1 that is not a product of two smaller natural numbers.
+<~ greater than 1
 > tell me about quaternions
 < I don't know much about quaternions yet. Want me to look it up?
 
