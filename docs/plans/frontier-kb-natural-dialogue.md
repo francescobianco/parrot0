@@ -1,5 +1,8 @@
 # Verso una KB da interlocutore naturale
 
+> **Armonizzazione (2026-09-07):** questo piano, `universal-comprehension.md` e `the-linguistic-glue.md` sono tre lenti sullo stesso oggetto; le divergenze misurate e l'ordine per convergere stanno in [`armonizzazione-piani.md`](armonizzazione-piani.md).
+
+
 # 🎯 DUE OBIETTIVI NUOVI — la grammatica inglese e il linguaggio `.p0` (F., 2026-09-06)
 
 > **F.:** *«dobbiamo addestrare parrot0 sulla grammatica inglese: deve imparare

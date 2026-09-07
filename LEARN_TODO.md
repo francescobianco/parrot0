@@ -92,8 +92,29 @@ sbaddune non so ancora molto» (il reperto di F. da cui e' partita la giornata),
 lexicon.p0: «ogni superficie del glossario come marcatore di lingua», provata
 come regola e scartata (collaterale su taught_gloss; specie prematuro).
 
+## Il reperto di F. del 7 settembre (sera) — tre turni, tre piani
+
+```text
+>>> sai dove si trova malta                               Europe.
+>>> piu precisamente                                      Non capisco ancora.
+>>> vorrei che mi fai un riassuto sui problemi ticipi …   Non sono sicuro di aver seguito.
+```
+
+Letto con i tre piani in `docs/plans/armonizzazione-piani.md` §6. Per strada:
+**dal gen436 nessun fetch da Wikipedia arrivava al lettore** (la prosa veniva
+scartata, il corpus locale non esiste più): chiuso (`32c3660`), «tell me about
+beer» → «beer is an alcoholic beverage produced. I extracted 5 facts». Restano:
+l'apposizione che si mangia il soggetto («officially the Republic of Malta» →
+`located_in(republic, …)`), il consumatore di K3 per «più precisamente», e per
+il riassunto per aspetto le sezioni della pagina + l'atto `summarize(topic)` +
+la sintesi proposizionale (K7).
+
 ## ⛔ La coda, dopo il secondo giro
 
+0. **Il consumatore di K3 — la mossa `resume`/`qualify` su un'issue aperta**
+   («più precisamente»): è la voce 1 di `armonizzazione-piani.md` §3, e fa
+   convergere colla, comprensione universale e frontier. Prima l'apposizione
+   nel lettore, perché il fatto su cui precisare sia quello giusto.
 1. ~~`verify`/`induce` degli agenti~~ — ✅ chiusi nello stesso giro: il ramo
    «si'» di `verify` componeva il verdetto e non lo emetteva (il residuo del
    turno prima usciva al suo posto), e `induce` non rivendicava mai perche'

@@ -1,5 +1,8 @@
 # Comprensione universale
 
+> **Armonizzazione (2026-09-07):** vedi [`armonizzazione-piani.md`](armonizzazione-piani.md) — in particolare §2.4: il ciclo di acquisizione del §7 qui sotto è descritto sul fetch che scriveva `pages/<key>.md` (gen240), abolito dal gen436; dal 2026-09-07 la prosa scaricata passa dal lettore di `read: …`.
+
+
 > **Coordinamento della missione, 2026-09-05.** Il percorso principale è
 > [Apprendimento assistito — KB viva](apprendimento-assistito.md#0-missione-principale-la-kb-viva).
 > Questo piano ne definisce il contratto di comprensione e la diagnosi delle

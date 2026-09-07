@@ -1,4 +1,7 @@
 
+
+> **Armonizzazione (2026-09-07):** i cinque meccanismi di questo piano sono condotta nel C che frontier K3 vuole come mosse KB, e non leggono il frame universale del turno; «11/11 HELD» è del gen386 e al gen505y `glue.p0t` è 25/7. Divergenze e ordine in [`armonizzazione-piani.md`](armonizzazione-piani.md).
+
 **Colla linguistica** è il nome che diamo a quell'insieme di meccanismi che non costituiscono direttamente il ragionamento, la memoria o l'inferenza, ma che permettono a tutte queste componenti di apparire come un tutto coerente.
 
 La colla linguistica è ciò che mantiene la continuità semantica tra le parti di una conversazione. È il tessuto connettivo che collega concetti, intenzioni, riferimenti impliciti, correzioni, ambiguità e cambi di prospettiva, evitando che l'interazione si presenti come una successione di blocchi isolati.
