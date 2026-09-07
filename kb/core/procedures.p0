@@ -213,7 +213,12 @@ sentence_initial(en, upper).
 sentence_initial(it, upper).
 sentence_opening($Language, $Value, $Piece) :- sentence_initial($Language, upper), upcase_first($Value, $Piece).
 sentence_opening($Language, $Value, $Value) :- naf(sentence_initial($Language, upper)).
-value_statement($Language, $Value, $Text) :- sentence_opening($Language, $Value, $Opened), value_sentence($Language, $Opened, $Text).
+% gen505z — e il valore si RENDE prima di aprirlo. La politica esiste dal
+% gen505c (`present_rule(strip_underscore)`), ma solo il C poteva applicarla:
+% una risposta composta qui usciva «Central_nivoran_sea.», cioe' la chiave con
+% cui il motore indicizza. `present_term/2` e' la stessa politica resa
+% interrogabile — un nome proprio resta com'e', perche' `proper_name/1` lo dice.
+value_statement($Language, $Value, $Text) :- present_term($Value, $Shown), sentence_opening($Language, $Shown, $Opened), value_sentence($Language, $Opened, $Text).
 
 % gen395: un valore provato e' un TERMINE della KB, e i termini sono canonici.
 % Renderlo nella lingua del turno e' realizzazione, non contenuto: la stessa

@@ -1731,6 +1731,8 @@ static long long digit_count_value(long long n, int digit) {
     return count;
 }
 
+static void kb_present_arg(const KB *kb, const char *in, char *out, size_t sz); /* gen505z fwd */
+
 static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                        const Subst *s, int depth, SolveFrame *scratch) {
 
@@ -1917,6 +1919,30 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
      * the KB (`sentence_initial/2`). This primitive knows no language: it
      * uppercases the first letter it finds, skipping an opening quote so a
      * quoted surface keeps its delimiters. */
+    /* ── gen505z — LA POLITICA DI RESA ERA CONOSCENZA E SOLO IL C LA APPLICAVA
+     *
+     * `present_rule(strip_underscore)` sta in `presentation.p0` dal gen505c, e
+     * `kb_present_arg` la consulta quando il C rende un fatto. Ma una risposta
+     * COMPOSTA IN KB — `value_statement/3`, la via dei luoghi — non aveva modo
+     * di chiederla, e usciva «Central_nivoran_sea.»: l'atomo con cui il motore
+     * indicizza, dato all'interlocutore.
+     *
+     * Qui la stessa politica diventa un goal. Il motore non decide niente:
+     * legge `present_rule/1` e `proper_name/1` e fa la trasformazione di byte,
+     * esattamente come la gemella in C. */
+    if (strcmp(g->pred, "present_term") == 0 && g->argc == 2) {
+        char a0[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], a0, sizeof a0, 0);
+        if (is_var(a0)) return 0;
+        char shown[KB_TERM_LEN];
+        kb_present_arg(S->kb, a0, shown, sizeof shown);
+        Subst *s2 = &scratch->subst;
+        subst_copy(s2, s);
+        if (unify(s2, g->args[1], shown))
+            return solve(S, goals, ngoals, idx + 1, s2, depth);
+        return 0;
+    }
+
     if (strcmp(g->pred, "upcase_first") == 0 && g->argc == 2) {
         char a0[KB_TERM_LEN];
         deep_resolve(s, g->args[0], a0, sizeof a0, 0);
