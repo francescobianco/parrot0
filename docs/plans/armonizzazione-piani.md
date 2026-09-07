@@ -147,6 +147,11 @@ che stamattina rivendicava con un rifiuto anche il codice (`code.p0t` 8 rossi).
 > + `plural_copula`, non una seconda lista; il giudizio deve poter dire *quale
 > classe del lettore* è stata violata.
 
+> **Aggiunto la sera del 7 settembre:** F. ha chiesto di dichiarare in un punto
+> unico la facoltà di rete — `la-rete-come-memoria-profonda.md`. È il caso
+> concreto in cui i sei piani devono convergere, e il suo passo 6 (riprendere la
+> questione dopo la lettura) è il consumatore di K3 della voce 1 qui sotto.
+
 ## 3. L'ordine, per leva
 
 1. **Il consumatore di K3** — la mossa `resume`/`continue` di D49, costruita dal

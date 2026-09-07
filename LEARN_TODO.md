@@ -111,6 +111,14 @@ la sintesi proposizionale (K7).
 
 ## ⛔ La coda, dopo il secondo giro
 
+-1. **La rete come memoria profonda** — `docs/plans/la-rete-come-memoria-profonda.md`
+   (F., 7 settembre sera): l'accesso a Wikipedia ridefinito come facolta'
+   cognitiva — lacuna inferita a runtime, rimedio e azione come KB, stato di
+   rete come fatto, lettura dal lettore di `read:`, memoria profonda con
+   indirizzo, ripresa della questione nello stesso turno, sogno come la stessa
+   facolta' senza interlocutore. Sette incrementi in ordine; il primo (stato di
+   rete e politica come fatti, via l'`if (getenv)`) e' a costo zero di
+   comportamento. Il flusso `WIKI_FETCH` non c'e' piu'.
 0. **Il consumatore di K3 — la mossa `resume`/`qualify` su un'issue aperta**
    («più precisamente»): è la voce 1 di `armonizzazione-piani.md` §3, e fa
    convergere colla, comprensione universale e frontier. Prima l'apposizione
