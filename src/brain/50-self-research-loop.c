@@ -266,6 +266,17 @@ static void strip_sentence_end(Brain *b, const char *lang, char *text) {
 static int acquire_knowledge(Brain *b, const char *key, char *def, size_t def_sz) {
     if (!b || !b->kb || !key || !*key) return 0;
     if (kb_concept_def(b->kb, key, def, def_sz)) return 2;        /* already known */
+    /* gen505y — la MEMORIA PROFONDA e' conoscenza posseduta: se il topic e'
+     * gia' stato letto, la sua definizione risponde senza rileggere. */
+    {
+        char d[1][KB_TERM_LEN];
+        const char *dq[2] = { key, NULL };
+        if (kb_match(b->kb, "topic_definition", dq, 2, d, 1) == 1) {
+            char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", d[0]);
+            if (def && def_sz) snprintf(def, def_sz, "%s", kb_dequote(db));
+            return 2;
+        }
+    }
     if (learn_topic(b->kb, key, key, def, def_sz)) return 1;      /* local corpus */
     return 0;
 }
@@ -544,6 +555,98 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
         snprintf(out + mo, out_sz - mo, "%s", _t2);
         }
     return nfacts + nrules;
+}
+
+/* ── gen505y — L'AZIONE «LEGGERE IL TOPIC DALLA MEMORIA PROFONDA» ─────────────
+ *
+ * docs/plans/la-rete-come-memoria-profonda.md. Questa funzione e' l'ESECUTORE
+ * di `action_schema(read_topic, network)`: non decide se leggere (lo dice
+ * `acquisition_move/1`), non decide da dove (lo dice `topic_provider_order/2`),
+ * non decide che cosa tenere (lo dice il lettore). Fa tre cose passive: apre
+ * l'indirizzo che la KB ha scelto, passa la prosa al lettore di «read: …», e
+ * scrive nella memoria profonda DOVE ha letto (`topic_read/2`, con edizione,
+ * titolo risolto e revisione) e la definizione (`topic_definition/2`).
+ * Niente testo archiviato: e' la regola del gen436. */
+static int network_acquire(Brain *b, const char *topic, char *def, size_t def_sz,
+                           int *nfacts) {
+    if (!b || !b->kb || !topic || !*topic) return 0;
+    if (nfacts) *nfacts = 0;
+    if (def && def_sz) def[0] = '\0';
+    char prose[4096] = "";
+    char edition[32] = "", title[160] = "", revision[64] = "";
+    int got = 0;
+    for (int rank = 1; rank <= 8 && !got; rank++) {
+        char rs[8]; snprintf(rs, sizeof rs, "%d", rank);
+        char pv[1][KB_TERM_LEN];
+        const char *oq[2] = { NULL, rs };
+        if (kb_match(b->kb, "topic_provider_order", oq, 2, pv, 1) != 1) continue;
+        char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", pv[0]);
+        const char *prov = kb_dequote(pb);
+        if (strcmp(prov, "fixture") == 0) {
+            char dirs[1][KB_TERM_LEN];
+            const char *fq[2] = { "fixture", NULL };
+            if (kb_match(b->kb, "topic_provider", fq, 2, dirs, 1) != 1) continue;
+            char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", dirs[0]);
+            char path[512];
+            snprintf(path, sizeof path, "%s/%s.txt", kb_dequote(db), topic);
+            FILE *f = fopen(path, "r");
+            if (!f) continue;
+            size_t n = fread(prose, 1, sizeof prose - 1, f);
+            fclose(f);
+            prose[n] = '\0';
+            while (n && (prose[n - 1] == '\n' || prose[n - 1] == ' ')) prose[--n] = '\0';
+            if (n < 10) continue;
+            snprintf(edition, sizeof edition, "fixture");
+            snprintf(title, sizeof title, "%s", topic);
+            snprintf(revision, sizeof revision, "local");
+            got = 1;
+        } else if (strcmp(prov, "wikipedia") == 0) {
+            if (!kb_query(b->kb, "network_available", NULL, 0)) continue;
+            if (!wiki_fetch_topic_lang_prose(topic, "en", prose, sizeof prose)) continue;
+            snprintf(edition, sizeof edition, "en");
+            snprintf(title, sizeof title, "%s", wiki_last_title());
+            snprintf(revision, sizeof revision, "%s",
+                     wiki_last_revision()[0] ? wiki_last_revision() : "unknown");
+            got = 1;
+        }
+    }
+    if (!got) return 0;
+
+    /* la prima frase e' la definizione, prima che il lettore la consumi */
+    if (def && def_sz) {
+        size_t cut = 0;
+        for (size_t i = 0; prose[i]; i++)
+            if ((prose[i] == '.' || prose[i] == '!' || prose[i] == '?') &&
+                (!prose[i + 1] || prose[i + 1] == ' ')) { cut = i + 1; break; }
+        if (!cut) cut = strlen(prose);
+        if (cut >= def_sz) cut = def_sz - 1;
+        memcpy(def, prose, cut); def[cut] = '\0';
+    }
+    char lmsg[512] = "";
+    int nf = learn_from_prose(b, prose, lmsg, sizeof lmsg);
+    if (nfacts) *nfacts = nf;
+
+    /* la memoria profonda: dove, e che cosa e' */
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_SESSION);
+    {
+        char qt[192]; snprintf(qt, sizeof qt, "\"%s\"", title);
+        char addr[KB_TERM_LEN];
+        snprintf(addr, sizeof addr, "wiki_address(%s, %s, %s, lead)", edition, qt, revision);
+        const char *ra[2] = { topic, addr };
+        kb_assert(b->kb, "topic_read", ra, 2);
+        if (def && def[0]) {
+            char dcopy[KB_TERM_LEN];
+            snprintf(dcopy, sizeof dcopy, "%.*s", (int)(sizeof dcopy - 4), def);
+            for (char *c = dcopy; *c; c++) if (*c == '"') *c = '\'';
+            char qd[KB_TERM_LEN + 4];
+            snprintf(qd, sizeof qd, "\"%s\"", dcopy);
+            const char *da[2] = { topic, qd };
+            kb_assert(b->kb, "topic_definition", da, 2);
+        }
+    }
+    kb_set_origin(b->kb, prev);
+    return 1;
 }
 
 /* deep-reasoning M3: is `to` reachable from `from` over the binary relation `rel`?
@@ -1176,9 +1279,51 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
             }
         }
     }
+    else if (kb_query(b->kb, "acquisition_move", (const char *[]){ "acquire" }, 1)) {
+        /* gen505y — la KB ha deciso di LEGGERE, senza chiedere: la lacuna ha un
+         * rimedio, la rete e' disponibile, la politica e' `act`. */
+        char d2[512] = ""; int nf = 0;
+        if (network_acquire(b, eff_key, d2, sizeof d2, &nf)) {
+            char lang[8]; current_lang(b, lang, sizeof lang);
+            char body[1024]; snprintf(body, sizeof body, "%s", d2);
+            strip_sentence_end(b, lang, body);
+            const KbResponseSlot slots[] = { {"topic", disp}, {"def", body} };
+            kb_response_slots(b, "acquisition_read", slots, 2, msg, sizeof msg);
+            if (nf > 0) {
+                char fstr[16]; snprintf(fstr, sizeof fstr, "%d", nf);
+                char tail[80];
+                const KbResponseSlot fslots[] = { {"count", fstr} };
+                if (kb_response_slots(b, "learn_extracted", fslots, 1, tail, sizeof tail)) {
+                    size_t ml = strlen(msg);
+                    snprintf(msg + ml, sizeof msg - ml, "%s", tail);
+                }
+            }
+        } else {
+            const KbResponseSlot slots[] = { {"topic", disp} };
+            kb_response_slots(b, "learn_still_gap", slots, 1, msg, sizeof msg);
+        }
+    }
+    else if (kb_query(b->kb, "acquisition_move", (const char *[]){ "decline_named" }, 1)) {
+        /* la rete non c'e': si dice, invece di offrire cio' che non si puo' onorare */
+        const KbResponseSlot slots[] = { {"topic", disp} };
+        kb_response_slots(b, "acquisition_declined_network", slots, 1, msg, sizeof msg);
+    }
+    else if (kb_query(b->kb, "acquisition_move", (const char *[]){ "silent" }, 1)) {
+        const KbResponseSlot slots[] = { {"topic", disp} };
+        kb_response_slots(b, "learn_still_gap", slots, 1, msg, sizeof msg);
+    }
+    else if (!kb_query(b->kb, "acquisition_move", (const char *[]){ "propose" }, 1)) {
+        /* nessuna mossa: la lacuna resta nominata, e nessuna offerta che non
+         * poggi su un rimedio conosciuto (ablazione: senza gap_remedy_action
+         * l'offerta sparisce) */
+        const KbResponseSlot slots[] = { {"topic", disp} };
+        kb_response_slots(b, "learn_still_gap", slots, 1, msg, sizeof msg);
+    }
     else {
         /* gen335d (linguistic glue, KB-first): the informed decline now offers
-         * to learn. gen335e: skip if this topic was already tried and failed. */
+         * to learn. gen335e: skip if this topic was already tried and failed.
+         * gen505y: e' la mossa `propose` di kb/core/network.p0; la raccolta del
+         * si' e l'azione stanno in 99-registry.c (network_acquire). */
         kb_set_origin(b->kb, KB_REFLECTIVE);
         const char *gq[] = { NULL };
         char gcheck[1][KB_TERM_LEN];

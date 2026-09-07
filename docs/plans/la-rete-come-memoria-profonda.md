@@ -185,10 +185,60 @@ turno
         -> risposta, con la fonte; oppure lacuna ancora nominata
 ```
 
-Le primitive C sono tre e passive (`autocrescita-v3` §2): aprire un indirizzo
-(HTTP su edizione + revisione), spezzare in frasi, leggere una frase. Tutto ciò
-che *decide* — quando, se chiedere, quale edizione, quante frasi, che cosa
-ricordare, quando fermarsi — è KB.
+**La primitiva C è una sola, ed è passiva:** aprire un indirizzo (HTTP su
+edizione + revisione) e mettere il testo in memoria. Nient'altro. In una
+prima stesura questo paragrafo ne contava tre — «aprire, spezzare in frasi,
+leggere una frase» — ed era un errore (F., 7 settembre 2026): *spezzare un
+testo in frasi* e *leggere e comprendere una frase* sono **abilità della KB**,
+non del motore. «Saper fare un computo analitico sul testo deve essere una
+abilità di KB»: è quello che chiedono i mantra e il principio KB-first, ed è
+lo stesso test operativo di sempre — *parrot0 può imparare domani, parlando,
+che «p. es.» non chiude una frase, o che in una lingua nuova la frase finisce
+con «。»?* Se la risposta è no, quella conoscenza è nel posto sbagliato. Tutto
+ciò che *decide* — quando, se chiedere, quale edizione, dove finisce una
+frase, quante leggerne, che cosa ricordare, quando fermarsi — è KB.
+
+### 3.1 Leggere un passo è comprensione, non frammentazione
+
+C'è una ragione più profonda, oltre al principio, per cui la divisione in
+frasi non può essere una procedura cieca del C: **la frammentazione perde il
+contesto**. Una frase secondaria non ha senso senza la primaria. Nel passo di
+prova
+
+> *Zorbium, officially the Free Republic of Zorbium, is an island country
+> located in the central Nivoran Sea. Its capital is Velk.*
+
+la seconda frase parla di Zorbium senza nominarlo: «Its» è un riferimento al
+soggetto della prima. Un lettore che prende le frasi una per una, ognuna a
+KB vuota di contesto, o non legge la seconda o — peggio — la attribuisce a un
+soggetto inventato. Quindi il lettore di un passo **torna nel dominio della
+comprensione universale** (`universal-comprehension.md`): un passo è una
+sequenza di turni dello stesso interlocutore, e il frame che regge il dialogo
+(`turn_focus`, l'antecedente, la colla di `the-linguistic-glue.md` S2) regge
+anche la lettura. Concretamente:
+
+- **Dove finisce una frase è un fatto.** `sentence_terminator/2` esiste già
+  (è ciò che chiude ogni risposta composta); la lettura lo consulta e lo
+  completa con le eccezioni — un'abbreviazione, un decimale, un'iniziale —
+  come fatti (`not_sentence_end/2`), insegnabili. Il C chiede «qui finisce?»
+  e non sa la risposta.
+- **Il soggetto scorre.** Dentro un passo il soggetto della frase primaria è
+  il *focus* delle frasi che seguono finché una non ne dichiara un altro; un
+  possessivo o un pronome senza antecedente nella frase lo prende dal focus
+  del passo, esattamente come «what is it part of» lo prende dal turno prima.
+- **La definizione è la frase primaria**, non «la prima fino al punto»: è la
+  frase che ha il topic come soggetto e una copula di classe, e le altre sono
+  le sue secondarie. `topic_definition/2` nasce da questo giudizio, non da un
+  taglio di stringa.
+- **Il lettore lascia traccia**: ogni proposizione estratta ha `supported_by`
+  con indirizzo *e numero di frase*, così una lettura sbagliata si può
+  ridatare (R5) e una frase non compresa resta `topic_open_term`, non sparisce.
+
+Il lettore attuale (`read_passage`, `dream_read_prose`, e il taglio della
+definizione in `network_acquire`) fa ancora la divisione con punteggiatura
+scritta nel C e legge ogni frase da sola: è la parte della facoltà che il §7
+mette come incremento 8, e il cricchetto che la misura è «Its capital is Velk»
+letto sotto `zorbium`.
 
 ## 4. La mappa con i sei piani
 
@@ -263,6 +313,13 @@ Tutti offline in `make test` con il provider locale; G1-G4 anche dal vivo in
    il criterio d'arresto; `topic_open_term` è la frontiera (G5).
 7. **Le sezioni**: `wiki_address` con `Section`, selezione per aspetto,
    sintesi proposizionale (G7).
+8. **La lettura come comprensione (§3.1)**: il confine di frase come fatto
+   (`sentence_terminator/2` + `not_sentence_end/2`), il focus che scorre da
+   una frase alla successiva dentro il passo, la definizione come frase
+   primaria e non come taglio al primo punto. Cricchetto: «Its capital is
+   Velk» produce un fatto sotto `zorbium`; ablazione: senza il fatto di
+   confine il passo resta una frase sola, senza il focus la seconda frase
+   resta `topic_open_term`.
 
 Ogni incremento porta un cricchetto con ablazione, e ognuno lascia dietro di sé
 la sonda `/debug` che l'avrebbe trovato: `information_need`, `dialogue_move`,

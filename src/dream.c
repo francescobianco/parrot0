@@ -367,7 +367,19 @@ int dream_run(Brain *b, const char *topic, const DreamOpts *opts) {
         int fetched = 0;
         /* A topic dream always acquires the certified prose directly in RAM.
          * There is no local-page fallback and no opt-in fetch flag anymore. */
-        if (!p0env("PARROT0_WIKI_FETCH")) p0env_set("PARROT0_WIKI_FETCH", "1");
+        /* gen505y — la rete e' un FATTO (kb/core/network.p0): il sogno la accende
+         * asserendo policy(network, on), non toccando una variabile d'ambiente.
+         * E il provider e' quello che la KB ordina: un test sogna da un'edizione
+         * locale (`topic_provider(fixture, Dir)`) senza rete. */
+        {
+            KB *dk = brain_kb(b);
+            if (dk) {
+                const char *rm[2] = { "network", NULL };
+                kb_retract_match(dk, "policy", rm, 2);
+                const char *on[2] = { "network", "on" };
+                kb_assert(dk, "policy", on, 2);
+            }
+        }
         if (wiki_fetch_topic_lang_prose(node.key, "en", prose, sizeof prose)) {
             plen = strlen(prose);
             fetched = plen > 0;

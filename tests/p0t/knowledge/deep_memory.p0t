@@ -1,0 +1,113 @@
+# LA RETE COME MEMORIA PROFONDA — gen505y.
+#
+# docs/plans/la-rete-come-memoria-profonda.md. L'accesso a un'enciclopedia non e'
+# un circuito: e' un atto che parrot0 DECIDE per inferenza (lacuna -> rimedio ->
+# mossa, tutto in kb/core/network.p0), ESEGUE con una primitiva passiva e
+# RICORDA con l'indirizzo. Qui la rete e' spenta e l'edizione e' locale
+# (`topic_provider(fixture, …)`: un'edizione dichiarata, non una cache), cosi' il
+# cricchetto e' deterministico e prova la stessa facolta' di `make chat`.
+#
+# Ogni sezione parte da una KB pulita, con la KB intera (R1).
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!timeout 6
+!reset
+
+[test la politica «chiedi»: offerta, si', lettura, memoria, e la domanda risponde]
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> tell me about zorbium
+<~ Want me to look it up?
+> yes
+<~ Zorbium, officially the Free Republic of Zorbium, is an island country
+<~ I extracted
+# la memoria profonda: DOVE ha letto, e che cos'e'
+!query topic_read(zorbium, wiki_address(fixture, "zorbium", local, lead))
+!query topic_definition(zorbium, $D)
+# l'apposizione non si e' mangiata il soggetto: il fatto sta sotto zorbium
+!query located_in(zorbium, central_nivoran_sea)
+!query! located_in(free_republic, central_nivoran_sea)
+# e la domanda dopo la lettura risponde dal fatto letto
+# ⚠ presentazione: la via che risponde stampa l'atomo con gli underscore
+# («Central_nivoran_sea.»); e' un difetto di resa annotato, non del fatto.
+> where is zorbium
+<~ ivoran
+# la ridomanda risponde dalla memoria, senza rileggere
+> tell me about zorbium
+<~ Zorbium, officially the Free Republic of Zorbium
+<! Want me to look it up
+
+[test «piu' precisamente» legge dalla memoria profonda]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> tell me about glimpwort
+> yes
+> what is glimpwort
+<~ herb
+> more precisely
+<~ More precisely: Glimpwort is a flowering plant native to the Nivoran islands.
+
+[test il «no» a un'offerta e' una risposta all'offerta]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> tell me about glimpwort
+<~ Want me to look it up?
+> no
+< All right, I won't look it up.
+!query! topic_read(glimpwort, $A)
+
+[test la politica «agisci» si insegna parlando, e vale dal turno dopo]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> look things up yourself
+< Understood: from now on I'll read things up myself when I don't know them.
+!query acquisition_policy(act)
+!query! acquisition_policy(ask)
+# nello stesso turno: si legge, e si risponde
+> where is zorbium
+<~ I read about zorbium
+<~ nivoran sea
+!query topic_read(zorbium, $A)
+> ask me before looking things up
+< Understood: I'll ask you before reading anything up.
+!query acquisition_policy(ask)
+> tell me about glimpwort
+<~ Want me to look it up?
+
+[test senza rete e senza edizione locale si declina NOMINANDO la rete]
+!reset
+!query! reading_available
+> tell me about glimpwort
+< I don't know much about glimpwort yet, and the network is off, so I can't read about it now.
+!query! topic_read(glimpwort, $A)
+# e la rete si accende parlando: da quel momento l'offerta torna
+> you can use the network
+< Understood: I can use the network now.
+!query policy(network, on)
+!query reading_available
+> stay offline
+< Understood: I'll stay offline.
+!query policy(network, off)
+
+[test la politica «mai» dichiara la lacuna e si ferma]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> never look things up
+< Understood: I won't read things up; I'll just say what I'm missing.
+> tell me about glimpwort
+<~ I still don't know much about glimpwort
+<! Want me to look it up
+
+[test ablazione: senza il rimedio la lacuna resta una lacuna]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+!forget gap_remedy_action(knowledge, read_topic)
+> tell me about glimpwort
+<! Want me to look it up
+!query! topic_read(glimpwort, $A)
+!assert gap_remedy_action(knowledge, read_topic)
+> tell me about glimpwort
+<~ Want me to look it up?

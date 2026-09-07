@@ -44,4 +44,9 @@ int wiki_fetch_topic_lang(const char *key, const char *lang);
 int wiki_fetch_topic_lang_prose(const char *key, const char *lang,
                                 char *prose_out, size_t prose_sz);
 
+/* gen505y — l'indirizzo dell'ultima pagina letta (titolo risolto, revisione):
+ * la memoria profonda lo conserva accanto a cio' che ha letto. */
+const char *wiki_last_revision(void);
+const char *wiki_last_title(void);
+
 #endif /* PARROT0_LEARN_H */

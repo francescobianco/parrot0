@@ -1233,6 +1233,9 @@ machinery(sides).
 :- include(code-plans.p0).
 :- include(situation.p0).
 :- include(turn-frames.p0).
+% gen505y — la rete come memoria profonda: stato di rete, politica, rimedio,
+% lezioni di condotta, memoria (docs/plans/la-rete-come-memoria-profonda.md).
+:- include(network.p0).
 :- include(stipulation.p0).
 :- include(register.p0).
 :- include(state-description.p0).

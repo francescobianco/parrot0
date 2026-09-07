@@ -603,6 +603,19 @@ response_template(learn_already_know, it, "{def}.").
 response_template(learn_gap_offer, "I don't know much about {topic} yet. Want me to look it up?").
 response_template(learn_gap_offer, it, "Su {topic} non so ancora molto. Vuoi che cerchi?").
 response_template(learn_still_gap, "I still don't know much about {topic}.").
+% gen505y — la rete come memoria profonda (kb/core/network.p0)
+response_template(acquisition_read, "I read about {topic}: {def}.").
+response_template(acquisition_read, it, "Ho letto di {topic}: {def}.").
+response_template(acquisition_declined_network, "I don't know much about {topic} yet, and the network is off, so I can't read about it now.").
+response_template(acquisition_declined_network, it, "Su {topic} non so ancora molto, e la rete è spenta: adesso non posso leggerne.").
+response_template(conduct_lesson_taught, "Understood: {key} is now {value}.").
+response_template(conduct_lesson_taught, it, "Capito: {key} adesso è {value}.").
+response_template(precision_no_more, "That's as precise as I can be: {answer}").
+response_template(acquisition_offer_declined, "All right, I won't look it up.").
+response_template(acquisition_offer_declined, it, "Va bene, non cerco.").
+response_template(precision_from_memory, "More precisely: {def}").
+response_template(precision_from_memory, it, "Più precisamente: {def}").
+response_template(precision_no_more, it, "Più preciso di così non so essere: {answer}").
 % Il topic e' appena stato nominato dalla riga che apre la ricerca: ripeterlo qui
 % e' la goffaggine che rende una risposta corretta poco naturale.
 response_template(learn_still_gap, it, "Non ho trovato niente di utile.").

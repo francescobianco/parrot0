@@ -3,7 +3,216 @@
 > **Come si conduce una sessione:** `docs/plans/procedura-crescita-kb.md` e il
 > mantra #22. Un solo handoff vivo per file: e' quello qui sotto.
 
-# 🏁 HANDOFF — sessione del 7 settembre 2026 (`gen505x` → `gen505y`)
+# 🏁 HANDOFF — sessione del 7 settembre 2026, sera (`gen505y`): LA MEMORIA PROFONDA
+
+> **Stato:** albero con un commit di facolta' (vedi `git log -1`). Il demone di
+> test e' stato riavviato sul binario nuovo. Questo handoff **prevale** su
+> quello del pomeriggio qui sotto, che resta valido per la sua coda.
+>
+> **Piano di riferimento:** `docs/plans/la-rete-come-memoria-profonda.md`
+> (letto per intero, PRIMA di toccare qualsiasi cosa; in particolare §0, §3,
+> §3.1, §5, §6, §7). L'armonizzazione con gli altri piani e' in
+> `docs/plans/armonizzazione-piani.md`.
+
+## Che cosa e' stato dimostrato, e come lo si ridimostra
+
+La facolta' «rete come memoria profonda» **esiste ed e' addestrabile
+parlando**. La dimostrazione e' in due forme, e vanno rifatte entrambe dopo
+ogni modifica (la seconda e' quella che F. guarda):
+
+1. **Il cricchetto:** `tests/p0t/knowledge/deep_memory.p0t` — 36/36. Sette
+   sezioni: offerta → «yes» → lettura → memoria → la domanda dopo risponde;
+   «more precisely» dalla memoria; il «no» all'offerta; la lezione «look
+   things up yourself» che legge nello stesso turno; niente rete e niente
+   edizione locale → declino che NOMINA la rete, poi «you can use the network»
+   la riaccende; la politica `never`; l'ablazione di `gap_remedy_action`.
+   La rete e' spenta e l'edizione e' locale (`topic_provider(fixture,
+   "tests/fixtures/wiki")`), quindi e' deterministico.
+2. **Dal vivo**, `make chat` (rete accesa dal boot → `policy(network, on)`):
+   ```
+   > tell me about tonga            → Hmm, I don't know about tonga yet. Want me to look it up?
+   > yes                            → Tonga, officially the Kingdom of Tonga, is an island country in Polynesia … I extracted N facts
+   > where is tonga                 → dalla memoria (located_in), senza rileggere
+   > more precisely                 → More precisely: <la definizione letta>
+   > /debug                         → sonde 15 (topic_read) e 16 (acquisition_policy)
+   > look things up yourself        → cambia acquisition_policy in `act`: la prossima lacuna si legge da sola
+   > ask me first                   → torna a `ask`
+   > don't use the network          → policy(network, off): la lacuna dopo NOMINA la rete come cio' che manca
+   ```
+   Le frasi che cambiano la condotta sono in `kb/core/network.p0` §5
+   (`conduct_lesson1/3`, `conduct_lesson2/4`): se ne aggiungi una, non si
+   ricompila.
+
+## La mappa della facolta' — dove sta ogni cosa
+
+| Che cosa | Dove | Che cosa decide |
+|---|---|---|
+| lo stato di rete | `policy(network, on\|off)` in `kb/core/network.p0` §1, asserito al boot da `brain_policy` (`src/brain.c`) | `network_available`, `reading_available` |
+| la politica | `acquisition_policy(ask\|act\|never)` §2 | `acquisition_move(acquire\|propose\|decline_named\|silent)` §3 |
+| il rimedio | `gap_remedy_action(knowledge, read_topic)` §3 | senza questa riga NESSUNA offerta (e' l'ablazione del test) |
+| le edizioni | `topic_provider(fixture, Dir)`, `topic_provider_order(P, Rank)` §7 | l'ordine in cui `network_acquire` prova le fonti |
+| la memoria | `topic_read(T, wiki_address(Ed, "Titolo", Rev, lead))`, `topic_definition(T, "…")` (KB_SESSION) | `kb_describe_entity` e la via «tell me about X» aprono con la definizione letta; `acquire_knowledge` risponde da qui senza rileggere |
+| le lezioni | `conduct_lesson1/3`, `conduct_lesson2/4`, `conduct_lesson_reply/3` §5 | `try_conduct_lesson()` in `99-registry.c`, agganciato PRIMA di `try_teach_form` |
+| «più precisamente» | `precision_request_cue/1` §4 | `precision_resolve()` in `99-registry.c`, prima di `topic_continue_resolve`; usa `b->last_input_raw` promosso all'ingresso del dispatch |
+| il «no» all'offerta | `acquisition_offer_refused_word/1` (= `dissent_word`) | il ramo `!confirm` in `99-registry.c` → `acquisition_offer_declined` |
+| i messaggi | `kb/core/responses.p0`: `acquisition_read`, `acquisition_declined_network`, `conduct_lesson_taught`, `precision_from_memory`, `precision_no_more`, `acquisition_offer_declined` (EN+IT) | nessuna frase nel C |
+| l'esecutore | `network_acquire()` in `src/brain/50-self-research-loop.c` | UNA primitiva: apre l'indirizzo; il resto e' query alla KB |
+| il sogno | `src/dream.c` accende `policy(network, on)` per asserzione, non per env | `--dream` e' la stessa facolta' senza interlocutore (§2.4) |
+| la sonda | `debug_probe(15, topic_read, …)`, `debug_probe(16, acquisition_policy, …)` | `/debug` mostra che cosa ho letto e con che politica |
+
+`network.p0` entra dalla catena di include: `kb/core/procedures.p0` ha
+`:- include(network.p0).` — **un file in `kb/core/` che non e' incluso non
+esiste** (ci ho perso un ciclo).
+
+## ⛔ La coda operativa, in ordine di priorita'
+
+Un circuito per sessione (mantra #22); si chiude con cricchetto + ablazione,
+poi si massimizza. **Non aprire il 2 prima di aver chiuso l'1.**
+
+### 1. Il lettore torna nel dominio della comprensione universale (piano §3.1, incremento 8)
+
+E' la correzione di F. di stasera, e la sola parte della facolta' che e'
+ancora «mal implementata» nel senso del piano §1. Oggi il lettore
+(`read_passage` in `30-generation-reading.c`, `dream_read_prose` in
+`dream.c`, il taglio della definizione in `network_acquire`) divide il
+passo su `. ! ?` scritti nel C e legge ogni frase **da sola**. Due difetti,
+uno per principio e uno per sostanza:
+
+- *principio*: dove finisce una frase e' conoscenza. `sentence_terminator/2`
+  esiste gia' (chiude ogni risposta composta); il lettore deve consultare
+  quello, piu' le eccezioni come fatti — `not_sentence_end(en, "e.g.")`,
+  decimali, iniziali — cosi' che una lingua o un'abbreviazione nuova siano una
+  riga, non una ricompilazione. C'e' gia' un precedente identico e riuscito:
+  `np_closer/1` in `grammar.p0` (leggi il commento sopra `p0_np_closer` in
+  `10-memory-knowledge.c`, gen382).
+- *sostanza*: **la frammentazione perde il contesto.** «Its capital is Velk»
+  nel fixture `tests/fixtures/wiki/zorbium.txt` oggi NON produce nessun fatto,
+  perche' letta da sola non ha soggetto. Una frase secondaria non ha senso
+  senza la primaria: il soggetto della primaria deve SCORRERE come focus
+  dentro il passo, come «what is it part of» prende «zorb» dal turno prima
+  (`tests/p0t/meta/glue.p0t`, S2). Il lettore e' il frame del dialogo
+  applicato a una sequenza di turni dello stesso interlocutore.
+
+**Cricchetto da scrivere prima del codice**, in `deep_memory.p0t`:
+```
+> tell me about zorbium
+> yes
+!query capital_of(zorbium, velk)          # oppure il predicato che il frame «X's capital is Y» gia' produce
+> what is the capital of zorbium
+<~ Velk
+```
+Ablazioni: `!forget sentence_terminator(en, ".")` → il passo resta una frase e
+il fatto non c'e'; senza il focus che scorre la seconda frase resta
+`topic_open_term(zorbium, "its capital is velk")`, non sparisce.
+
+Come si lavora (vale per tutta la coda): (a) trova PRIMA quale frame
+d'ingresso legge «X's capital is Y» / «the capital of X is Y» da un turno
+normale (`grep -n capital kb/core/grammar.p0`; se non c'e', quello e' un
+prerequisito da chiudere parlando, con `LEARN_PROTOCOL.md`); (b) il lettore
+deve invocare LO STESSO frame con il soggetto sostituito dal focus — non un
+secondo estrattore; (c) misura con `!query` sul fatto, non sulla frase di
+risposta.
+
+### 2. «where is tonga» sotto `act` (dal vivo, una volta walled)
+
+Con `acquisition_policy(act)` e rete accesa, `tell me about X` legge nello
+stesso turno, ma una DOMANDA («where is tonga») a volte finisce ancora sul
+muro prima di leggere: la via che la dichiara lacuna non e' `not_understood`
+ma il declino di `mod_knowledge`. Va trovata con `why that way?` subito dopo
+il muro (la spiegazione dice quale facolta' ha rivendicato) e portata allo
+stesso ramo `acquisition_move(acquire)` — **una sola sede** dell'esecutore,
+non una copia. Cricchetto: sezione «act» di `deep_memory.p0t`, con un
+fixture nuovo, domanda di luogo invece di `tell me about`.
+
+### 3. La resa con gli underscore («Central_nivoran_sea.»)
+
+`where is zorbium` risponde dal fatto letto ma stampa l'atomo. E' un difetto
+di PRESENTAZIONE (piano `substance-presentation`), gia' annotato nel test con
+`<~ ivoran`. La via che risponde ai luoghi non passa dal manipolatore
+`present/2` che gli altri usano: trovarla e farla passare da li'. Non
+scrivere un `replace('_',' ')` nel C di quella via — e' la tentazione
+sbagliata, e ce ne sono gia' troppi.
+
+### 4. Il sogno chiede alla KB la prossima lacuna (piano §2.4, incremento 6)
+
+`--dream` accende la rete per asserzione ma sceglie ancora i topic con il
+suo giro. Deve chiedere `topic_open_term/2` (le frasi non comprese e i
+termini incontrati senza definizione) e un criterio d'arresto come fatto
+(`dream_budget/1`). Nessun comportamento nuovo finche' il punto 1 non
+riempie `topic_open_term`.
+
+### 5. Le sezioni (incremento 7) — solo dopo 1-4.
+
+## Lo stato dei test al momento del commit — da sapere prima di leggere un rosso
+
+- `tests/p0t/knowledge/deep_memory.p0t` 36/36; `question_does_not_teach.p0t`
+  21/21; `prosepage.p0t`, `facts.p0t`, `basics.p0t`, `open_issues.p0t`,
+  `health.p0t` verdi.
+- `tests/p0t/meta/glue.p0t` e' ROSSO: 25 passati, 7 falliti. **Non e' di
+  questa sessione**: misurato con `git stash` sull'albero committato prima
+  della facolta', da' gli stessi 7 rossi. Va ridatato (quali dei cinque
+  sintomi della colla sono attese invecchiate e quali regressioni), ma e' un
+  circuito a se', non della memoria profonda.
+- La suite intera NON e' stata rifatta (F. doveva andare): i primi 26 file
+  di `scripts/suite-run.sh` erano verdi. La prima cosa della prossima
+  sessione e' `make build && scripts/suite-run.sh` e confrontare con
+  `docs/reports/suite-run.txt` (che oggi manca: il report va committato).
+- `make soft-test` era sforato a 73s su 15 di budget: e' stato ridotto a
+  tre file (`Makefile`, `SOFT_TESTS`), come prescrive il suo commento — si
+  tolgono casi, non si alza il budget.
+
+## Note per chi lavora in questi processi — leggile, costano poco
+
+Sono le cose che mi hanno fatto perdere cicli oggi, e non stanno scritte
+altrove. Un agente che parte da zero ci ricasca.
+
+1. **Il demone di test e' un processo con il C di quando e' partito.** `!reset`
+   ricarica la KB, NON il binario. Dopo OGNI `make build`: `make test-engine`.
+   Sintomo: chat e `--test` non concordano sullo stesso turno. Se ti sembra
+   che «il C non abbia effetto», e' quasi sempre questo.
+2. **Prima la KB, poi il C, e solo se una lezione fallisce.** Il ciclo e':
+   scrivi la sezione `.p0t` che descrive il comportamento → prova a
+   ottenerlo con righe in `network.p0`/`responses.p0` → SOLO se il C non
+   consulta quel predicato aggiungi la query nel C. Se ti trovi a scrivere
+   una parola, una frase, o un `if (policy == X)` nel C, fermati: e' un
+   fatto. Ogni ramo dell'esecutore chiede `acquisition_move/1` e basta.
+3. **Ogni cricchetto ha un'ablazione.** Un test che passa anche togliendo la
+   riga di KB che pretende di misurare non misura niente. `!forget
+   gap_remedy_action(knowledge, read_topic)` e' l'esempio in
+   `deep_memory.p0t`.
+4. **Il test non inventa la conoscenza che dice di scoprire.** Le edizioni
+   locali sono fixture DICHIARATE (`topic_provider(fixture, Dir)`), con
+   entita' inventate (zorbium, glimpwort), cosi' si misura la facolta' e non
+   la disponibilita' del contenuto. Non asserire `topic_definition` a mano
+   per far passare la domanda dopo.
+5. **Per capire chi ha risposto:** `> why that way?` subito dopo il turno
+   (dice la facolta' che ha rivendicato e chi ha declinato), `/debug` per
+   le sonde, `!mcp kb.match topic_read _ _` per la memoria. Fai una sezione
+   `.p0t` di scratch con `< XXX` per vedere «got:» senza indovinare.
+6. **Le sedi del C sono poche e nominate**: `network_acquire`,
+   `try_conduct_lesson`, `precision_resolve`, il ramo acquire in
+   `not_understood`, il ramo `!confirm`, il prefisso in `kb_describe_entity`.
+   Se ne serve un'altra, e' quasi certamente una di queste chiamata da un
+   punto in piu', non una nuova.
+7. **`split_words` e `strip_edge_punct` mutano in place.** Se un giudizio
+   dipende dalla punteggiatura (la virgola dell'apposizione, il punto della
+   frase) va preso PRIMA, in una mappa (`comma_at[]` in
+   `extract_class_statement` e' il modello).
+8. **Una patch Python con `assert s.count(old)==1`** e' il modo sicuro di
+   modificare file grandi: se il testo non combacia, non fa niente. Mai
+   `sed` su blocchi multiriga, mai rimuovere «fino alla prossima `}`» senza
+   guardare il diff (stasera ho cancellato due helper cosi'; `git diff` +
+   `git apply -R` del solo hunk li ha ripresi).
+9. **Le suite si lanciano con `scripts/suite-run.sh`**, mai in un loop di
+   `--test`: e' lento e produce rossi FALSI. Il report ha una riga per
+   file; il rosso da guardare e' quello che non c'era in
+   `docs/reports/suite-run.txt` all'ultimo commit.
+10. **La lingua della domanda e' un turno, non una configurazione.** I
+    messaggi hanno EN e IT in `responses.p0`; un test italiano si scrive con
+    le frasi italiane, e se la risposta esce in inglese e' un difetto da
+    annotare nel test (com'e' fatto in `glue.p0t`), non da nascondere.
+
+# 📁 HANDOFF (pomeriggio) — sessione del 7 settembre 2026 (`gen505x` → `gen505y`)
 
 > **Stato:** un commit, albero pulito. Il demone di test (`obj/test-engine.pid`)
 > e' stato riavviato sul binario nuovo — vedi la trappola qui sotto. Questo

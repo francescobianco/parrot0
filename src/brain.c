@@ -229,6 +229,7 @@ struct Brain {
      * not confabulated. Stored alongside the trace (same non-introspective gate). */
     char last_input_canon[256];
     char last_input_raw[256];
+    char cur_input_raw[256];   /* gen505y: il turno in corso, per promuoverlo a «precedente» al turno dopo */
     int  has_last_input;
 
     /* gen141 (E2): conversational repair loop. When a turn carries a referential

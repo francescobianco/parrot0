@@ -489,18 +489,17 @@ SOFT_BUDGET := 15
 # AVANZAMENTO: non «e' importante», ma «mi direbbe qualcosa oggi».
 #
 # La regola resta: si toglie un caso, non si alza il budget.
+# gen505y (F., 7 settembre 2026): la lista sopra costava 73s su un budget di
+# 15 — soft-test era diventato una mezza suite. Torna a essere la PICCOLA
+# porzione che serve al flusso di adesso (la memoria profonda): la salute, i
+# fatti e la conversazione di base, misurati a ~13s. Il cricchetto della
+# facolta' (`tests/p0t/knowledge/deep_memory.p0t`, ~26s da solo per i muri con
+# timeout) si lancia a mano dopo ogni modifica del ramo; la suite intera con
+# `scripts/suite-run.sh`.
 SOFT_TESTS := \
   tests/p0t/health.p0t \
-  tests/p0t/conversation/frontier_chat_audit.it.p0t \
-  tests/p0t/meta/legacy-shell-migration.p0t \
   tests/p0t/conversation/basics.p0t \
-  tests/p0t/reasoning/rules.p0t \
-  tests/p0t/reasoning/relations.p0t \
-  tests/p0t/knowledge/facts.p0t \
-  tests/p0t/knowledge/class_conflict.p0t \
-  tests/p0t/meta/kb_layers.p0t \
-  tests/p0t/conversation/open_issues.p0t \
-  tests/p0t/reasoning/informative_action.p0t
+  tests/p0t/knowledge/facts.p0t
 
 soft-test: test-engine
 	@start=$$(date +%s); \

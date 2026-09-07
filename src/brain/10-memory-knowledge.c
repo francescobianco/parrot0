@@ -4713,6 +4713,13 @@ typedef struct {
  * scrive. Ritorna 1 se ogni ruolo dello schema ha trovato un riempimento. */
 static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
                          P0FrameReading *r) {
+    /* gen505y: le virgole prima che strip_edge_punct le tolga in place */
+    int comma_at[64] = { 0 };
+    for (size_t ci = 0; ci < n && ci < 64; ci++) {
+        size_t wl = strlen(w[ci]);
+        comma_at[ci] = wl && w[ci][wl - 1] == ',';
+    }
+
     if (!b || !b->kb || !raw_pattern || !r) return 0;
     memset(r, 0, sizeof *r);
 
@@ -4758,6 +4765,13 @@ static int p0_frame_bind(Brain *b, char **w, size_t n, const char *raw_pattern,
                 if (kb_query(b->kb, "question_word", qw, 1)) end = (int)wi + 1;
             }
             if (end < 0 || (size_t)end <= wi) return 0;
+            /* gen505y — L'APPOSIZIONE NON E' IL SOGGETTO, anche qui: la stessa
+             * regola del lettore di classe. «Zorbium, officially the Free
+             * Republic of Zorbium, is …» dava located_in(free_republic, …). Una
+             * virgola dentro lo slot lo chiude: il resto fino alla copula e'
+             * un'apposizione dello STESSO soggetto. */
+            for (size_t k = wi; k < (size_t)end && k < 64; k++)
+                if (comma_at[k]) { end = (int)k + 1; break; }
             char *dst = r->slot[r->nslots];
             size_t ss = wi;
             if (ss < (size_t)end && p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
@@ -6296,6 +6310,13 @@ static int extract_class_statement(Brain *b, const char *norm,
     char s[400]; memcpy(s, norm, L + 1);
     char *w[32]; size_t n = split_words(s, w, 32);
     if (n < 3) return 0;
+    /* gen505y: le virgole vanno lette PRIMA che strip_edge_punct le tolga in
+     * place lungo la strada — sono la sola traccia dell'apposizione. */
+    int comma_at[32] = { 0 };
+    for (size_t i = 0; i < n; i++) {
+        size_t wl = strlen(w[i]);
+        comma_at[i] = wl && w[i][wl - 1] == ',';
+    }
 
     /* ── gen384: UNA DOMANDA NON E' UN'ASSERZIONE ───────────────────────────
      *
@@ -6464,6 +6485,16 @@ static int extract_class_statement(Brain *b, const char *norm,
     size_t send = sstart;
     while (send < cop && !p0_np_closer(b, strip_edge_punct(w[send]))) send++;
     if (send == sstart) return 0;                        /* comincia con un confine */
+    /* gen505y — L'APPOSIZIONE NON E' IL SOGGETTO. «Malta, officially the Republic
+     * of Malta, is an island country …» produceva located_in(republic, …): il
+     * tratto fra le virgole entrava nel soggetto e il determinante interno lo
+     * faceva cominciare da «republic». Una virgola dentro il tratto del soggetto
+     * chiude il soggetto: cio' che segue fino alla copula e' un'apposizione, che
+     * dice qualcos'altro dello STESSO soggetto (la famiglia «apposizione» di
+     * autocrescita-v3 §3; la sua lettura come seconda proposizione e' il passo
+     * dopo). Qui basta che non mangi il nome. */
+    for (size_t k = sstart; k < send; k++)
+        if (comma_at[k]) { send = k + 1; break; }
 
     /* gen505y — L'APERTURA DI DISCORSO NON E' LA TESTA DEL SINTAGMA. «boh, a
      * wombat is a marsupial» -> marsupial(boh_a_wombat): un fatto falso da
@@ -16819,6 +16850,25 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 lex_class_member(b, "arithmetic_operator_word", w[i]) || lex_class_member(b, "arithmetic_operator_word", w[i]) ||
                 lex_class_member(b, "arithmetic_operator_word", w[i])) start = 0;
         if (start) {
+            /* gen505y — LA MEMORIA PROFONDA PARLA PER PRIMA (network.p0 §6): se
+             * di un topic nominato e' stata letta la pagina, la definizione letta
+             * (topic_definition/2, con il suo indirizzo in topic_read/2) e' la
+             * descrizione, prima di ogni glossa o fatto di classe estratto. */
+            for (size_t i = start; i < nw; i++) {
+                if (is_article(b, w[i]) || is_stopword(b, w[i])) continue;
+                char d[1][KB_TERM_LEN];
+                const char *dq[2] = { w[i], NULL };
+                if (kb_match(b->kb, "topic_definition", dq, 2, d, 1) == 1) {
+                    char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", d[0]);
+                    const char *def = kb_dequote(db);
+                    if (def && *def) {
+                        put(def, out, out_size);
+                        store_proof(b, def);
+                        remember_entity(b, w[i], w[i]);
+                        return 1;
+                    }
+                }
+            }
             /* gen344 (language mirroring): a mature interlocutor answers in the
              * ASKER's language. When a
              * concept_gloss/3 sentence exists for a named concept, speak it

@@ -106,6 +106,12 @@ int learn_topic(KB *kb, const char *key, const char *title,
  * a-priori. Only Wikipedia, only declarative summary text; never a search engine
  * or an intelligence API. Build-gated by PARROT0_HAVE_CURL (libcurl present),
  * run-gated by PARROT0_WIKI_FETCH. */
+/* gen505y — l'indirizzo dell'ultima pagina letta, per la memoria profonda. */
+static char wiki_last_revision_buf[64];
+static char wiki_last_title_buf[128];
+const char *wiki_last_revision(void) { return wiki_last_revision_buf; }
+const char *wiki_last_title(void) { return wiki_last_title_buf; }
+
 #ifdef PARROT0_HAVE_CURL
 /* Minimal libcurl ABI — the dev headers are not required; we declare only what we
  * use and link the SONAME (-l:libcurl.so.4). Option/constant values are stable
@@ -270,8 +276,11 @@ int wiki_fetch_topic_lang_prose(const char *key, const char *lang,
      * permesso con p0env_set e questo controllo, guardando solo l'ambiente del
      * processo, non lo vedeva mai — il sogno diceva "nessuna pagina" mentendo
      * sul motivo. Un permesso che non si vede e' peggio di un permesso negato. */
-    const char *en = p0env("PARROT0_WIKI_FETCH");
-    if (!en || !*en || !strcmp(en, "0")) return 0;
+    /* gen505y — LA RETE E' UN FATTO, NON UNA VARIABILE. Il cancello
+     * `PARROT0_WIKI_FETCH` non sta piu' qui: chi chiama chiede alla KB
+     * `network_available` (kb/core/network.p0), che deriva da `policy(network,
+     * on)` — un fatto asserito al boot e cambiabile parlando. Questa funzione
+     * e' una primitiva passiva: apre un indirizzo e restituisce la prosa. */
     if (!key || !*key || !lang || !*lang) return 0;
 
     /* sanitize the key to [a-z0-9_] */
@@ -301,6 +310,11 @@ int wiki_fetch_topic_lang_prose(const char *key, const char *lang,
      * due to Wikipedia redirect — e.g. "Hang_gliding" → "Hang gliding") */
     char actual_title[128] = "";
     json_extract_field(json, "title", actual_title, sizeof actual_title);
+    /* la memoria profonda ricorda DOVE ha letto: titolo risolto e revisione */
+    wiki_last_revision_buf[0] = '\0';
+    json_extract_field(json, "revision", wiki_last_revision_buf, sizeof wiki_last_revision_buf);
+    snprintf(wiki_last_title_buf, sizeof wiki_last_title_buf, "%s",
+             actual_title[0] ? actual_title : key);
     free(json);
     if (!got || strlen(extract) < 10) return 0;
 

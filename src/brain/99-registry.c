@@ -558,6 +558,74 @@ static int repair_dispatch(Brain *b, const char *canon, const char *raw,
  * move on its own shape). The RAW residue is rebuilt by skipping the same leading
  * word-count from the original input, preserving proper-name casing ("well,
  * remember my dog is Rex" keeps "Rex"). */
+/* gen505y — l'esecutore delle lezioni di condotta (kb/core/network.p0 §5 e
+ * ovunque una condotta sia un fatto). Un turno che contiene la cue di una
+ * `conduct_lesson1(Cue, Pred, Value)` ritira Pred/1 e asserisce Pred(Value);
+ * una `conduct_lesson2(Cue, Pred, Key, Value)` fa lo stesso su Pred(Key, _).
+ * La frase di conferma e' `conduct_lesson_reply(Pred, Value, Testo)` se la KB
+ * ne ha una, altrimenti il template generico. Vale dal turno dopo, e si
+ * ritratta insegnando la condotta opposta. */
+static int try_conduct_lesson(Brain *b, const char *norm, const char *raw,
+                              char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    char low[512];
+    snprintf(low, sizeof low, "%s", raw && *raw ? raw : norm);
+    for (char *c = low; *c; c++) *c = (char)tolower((unsigned char)*c);
+    for (int arity = 1; arity <= 2; arity++) {
+        const char *pred = arity == 1 ? "conduct_lesson1" : "conduct_lesson2";
+        char (*rows)[KB_TERM_LEN] = NULL; size_t n = 0;
+        const char *q[4] = { NULL, NULL, NULL, NULL };
+        if (!kb_match_all(b->kb, pred, q, (size_t)(arity + 2), &rows, &n)) { free(rows); continue; }
+        for (size_t i = 0; i < n; i++) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", rows[i]);
+            const char *cue = kb_dequote(cb);
+            if (!*cue || (!kb_text_has_surface(low, cue) && !kb_text_has_surface(norm, cue))) continue;
+            char fact_pred[1][KB_TERM_LEN], key[1][KB_TERM_LEN], val[1][KB_TERM_LEN];
+            const char *pq[4] = { rows[i], NULL, NULL, NULL };
+            if (kb_match(b->kb, pred, pq, (size_t)(arity + 2), fact_pred, 1) != 1) continue;
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            char shown_key[KB_TERM_LEN] = "", shown_val[KB_TERM_LEN] = "";
+            if (arity == 1) {
+                const char *vq[3] = { rows[i], fact_pred[0], NULL };
+                if (kb_match(b->kb, pred, vq, 3, val, 1) != 1) { kb_set_origin(b->kb, prev); continue; }
+                kb_retract_pred(b->kb, fact_pred[0]);
+                const char *a[1] = { val[0] };
+                kb_assert(b->kb, fact_pred[0], a, 1);
+                snprintf(shown_val, sizeof shown_val, "%s", val[0]);
+            } else {
+                const char *kq[4] = { rows[i], fact_pred[0], NULL, NULL };
+                if (kb_match(b->kb, pred, kq, 4, key, 1) != 1) { kb_set_origin(b->kb, prev); continue; }
+                const char *vq[4] = { rows[i], fact_pred[0], key[0], NULL };
+                if (kb_match(b->kb, pred, vq, 4, val, 1) != 1) { kb_set_origin(b->kb, prev); continue; }
+                const char *rm[2] = { key[0], NULL };
+                kb_retract_match(b->kb, fact_pred[0], rm, 2);
+                const char *a[2] = { key[0], val[0] };
+                kb_assert(b->kb, fact_pred[0], a, 2);
+                snprintf(shown_key, sizeof shown_key, "%s", key[0]);
+                snprintf(shown_val, sizeof shown_val, "%s", val[0]);
+            }
+            kb_set_origin(b->kb, prev);
+            char fp[KB_TERM_LEN]; snprintf(fp, sizeof fp, "%s", fact_pred[0]);
+            free(rows);
+            char reply[1][KB_TERM_LEN];
+            const char *rq[3] = { fp, shown_val, NULL };
+            if (kb_match(b->kb, "conduct_lesson_reply", rq, 3, reply, 1) == 1) {
+                char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", reply[0]);
+                put(kb_dequote(rb), out, out_size);
+            } else {
+                const KbResponseSlot sl[] = { { "pred", fp },
+                                              { "key", shown_key[0] ? shown_key : fp },
+                                              { "value", shown_val } };
+                kb_response_slots(b, "conduct_lesson_taught", sl, 3, out, out_size);
+            }
+            return 1;
+        }
+        free(rows);
+    }
+    return 0;
+}
+
 static int pragma_peel(Brain *b, const char *canon, const char *raw,
                        char *out, size_t out_size) {
     char buf[256];
@@ -2134,6 +2202,34 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
     snprintf(cand, sizeof cand, "%s", classic);
     if (!b) { put(classic, out, out_size); return; }
     if (sw) {
+        /* gen505y — LA LACUNA HA UN RIMEDIO, E LA KB PUO' AVER DECISO DI AGIRE.
+         * «where is tonga» con acquisition_policy(act): si legge il topic dalla
+         * memoria profonda e si riprova la stessa domanda nello stesso turno
+         * (i passi 1->6 del piano). Se il topic e' gia' stato letto non si
+         * rilegge: il muro e' allora onesto, e resta. */
+        {
+            const char *rq[2] = { sw, NULL };
+            char rr[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "topic_read", rq, 2, rr, 1) != 1 &&
+                kb_query(b->kb, "acquisition_move", (const char *[]){ "acquire" }, 1)) {
+                char d2[512] = ""; int nf = 0;
+                if (network_acquire(b, sw, d2, sizeof d2, &nf)) {
+                    char lang[8]; current_lang(b, lang, sizeof lang);
+                    char body[600]; snprintf(body, sizeof body, "%s", d2);
+                    strip_sentence_end(b, lang, body);
+                    char msg[1024];
+                    const KbResponseSlot sl[] = { { "topic", sw }, { "def", body } };
+                    kb_response_slots(b, "acquisition_read", sl, 2, msg, sizeof msg);
+                    char re[256] = "";
+                    if (dispatch_one(b, canon, re, sizeof re) && re[0]) {
+                        size_t ml = strlen(msg);
+                        snprintf(msg + ml, sizeof msg - ml, " %s", re);
+                    }
+                    put(msg, out, out_size);
+                    return;
+                }
+            }
+        }
         /* gen335d (linguistic glue, KB-first): store the knowledge gap as a KB
          * fact, not a C field. The fact of not-knowing IS knowledge.
          * gen335e: skip if this topic was already tried and failed. */
@@ -2964,6 +3060,98 @@ static int topic_continue_resolve(Brain *b, const char *canon,
         }
     }
     return 0;
+}
+
+/* gen505y — LA RISPOSTA DI SEGUITO «PIU' PRECISAMENTE».
+ *
+ * Il turno porta solo una richiesta di precisione (precision_request_cue/1):
+ * la questione e' quella di prima, e cio' che si chiede e' un valore piu'
+ * specifico. La fonte piu' specifica che parrot0 possiede e' la memoria
+ * profonda: se dell'ultima entita' nominata ha letto la pagina, la definizione
+ * letta e' la precisazione; se non l'ha letta e la politica lo consente, la
+ * legge ora; altrimenti dice onestamente che piu' preciso di cosi' non sa
+ * essere. Nessuna frase, nessuna cue e nessuna politica vivono qui. */
+static int precision_resolve(Brain *b, const char *canon, const char *raw,
+                             char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    char low[256];
+    snprintf(low, sizeof low, "%s", raw && *raw ? raw : canon);
+    for (char *c = low; *c; c++) *c = (char)tolower((unsigned char)*c);
+    size_t ll = strlen(low);
+    while (ll && (low[ll - 1] == '.' || low[ll - 1] == '!' || low[ll - 1] == '?' || low[ll - 1] == ' ')) low[--ll] = '\0';
+    char (*cues)[KB_TERM_LEN] = NULL; size_t nc = 0;
+    const char *cq[1] = { NULL };
+    int hit = 0;
+    if (kb_match_all(b->kb, "precision_request_cue", cq, 1, &cues, &nc)) {
+        for (size_t i = 0; i < nc && !hit; i++) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[i]);
+            const char *cue = kb_dequote(cb);
+            /* solo la richiesta: il turno non porta altro contenuto */
+            if (*cue && kb_text_has_surface(low, cue) && ll <= strlen(cue) + 6) hit = 1;
+        }
+    }
+    free(cues);
+    if (!hit) return 0;
+    /* Di che cosa si parlava: l'ultima domanda dell'interlocutore nel registro
+     * della conversazione (`utterance/3`), e in essa l'ultima parola piena —
+     * preferendo una gia' letta dalla memoria profonda. */
+    char topic_buf[KB_TERM_LEN] = "";
+    char last_q[256] = "";
+    if (b->has_last_input && b->last_input_raw[0])
+        snprintf(last_q, sizeof last_q, "%s", b->last_input_raw);
+    if (last_q[0]) {
+        char qb[256]; snprintf(qb, sizeof qb, "%s", last_q);
+        for (char *c = qb; *c; c++) *c = (char)tolower((unsigned char)*c);
+        char *qw[64]; size_t qn = split_words(qb, qw, 64);
+        for (size_t i = qn; i > 0; i--) {
+            const char *t = strip_edge_punct(qw[i - 1]);
+            if (!*t || is_stopword(b, t)) continue;
+            if (!topic_buf[0]) snprintf(topic_buf, sizeof topic_buf, "%s", t);
+            const char *tq[2] = { t, NULL };
+            char tmp[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "topic_read", tq, 2, tmp, 1) == 1) {
+                snprintf(topic_buf, sizeof topic_buf, "%s", t); break;
+            }
+        }
+    }
+    const char *topic = topic_buf[0] ? topic_buf : (b->last_entity[0] ? b->last_entity : NULL);
+    if (!topic) return 0;
+    char def[1][KB_TERM_LEN];
+    const char *dq[2] = { topic, NULL };
+    if (kb_match(b->kb, "topic_definition", dq, 2, def, 1) != 1) {
+        if (kb_query(b->kb, "acquisition_move", (const char *[]){ "acquire" }, 1)) {
+            char d2[512] = ""; int nf = 0;
+            network_acquire(b, topic, d2, sizeof d2, &nf);
+        } else if (kb_query(b->kb, "acquisition_move", (const char *[]){ "propose" }, 1)) {
+            /* la politica chiede di CHIEDERE: l'offerta, con la domanda in sospeso */
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            kb_retract_pred(b->kb, "pending_gap");
+            kb_retract_pred(b->kb, "pending_gap_question");
+            const char *ga[1] = { topic };
+            kb_assert(b->kb, "pending_gap", ga, 1);
+            char qq[KB_TERM_LEN]; snprintf(qq, sizeof qq, "\"%s\"", last_q[0] ? last_q : canon);
+            const char *qa[1] = { qq };
+            kb_assert(b->kb, "pending_gap_question", qa, 1);
+            kb_set_origin(b->kb, prev);
+            const KbResponseSlot sl[] = { { "topic", topic } };
+            kb_response_slots(b, "learn_gap_offer", sl, 1, out, out_size);
+            return 1;
+        } else if (kb_query(b->kb, "acquisition_move", (const char *[]){ "decline_named" }, 1)) {
+            const KbResponseSlot sl[] = { { "topic", topic } };
+            kb_response_slots(b, "acquisition_declined_network", sl, 1, out, out_size);
+            return 1;
+        }
+        if (kb_match(b->kb, "topic_definition", dq, 2, def, 1) != 1) {
+            const KbResponseSlot sl[] = { { "answer", b->last_reply } };
+            kb_response_slots(b, "precision_no_more", sl, 1, out, out_size);
+            return 1;
+        }
+    }
+    char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", def[0]);
+    const KbResponseSlot sl[] = { { "def", kb_dequote(db) } };
+    kb_response_slots(b, "precision_from_memory", sl, 1, out, out_size);
+    return 1;
 }
 
 static int continue_resolve(Brain *b, const char *canon, char *out, size_t out_size) {
@@ -4666,6 +4854,16 @@ static int prose_learn_lead(Brain *b, const char *canon, const char *input,
 static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
     if (b) {
+        /* gen505y — IL TURNO PRECEDENTE E' UN FATTO DI OGNI USCITA. `last_input_raw`
+         * veniva scritto solo in coda al ciclo del registro: un turno risposto dal
+         * producer universale o da un resolver non diventava mai «quello di prima»,
+         * e «piu' precisamente» dopo «dove si trova malta» non sapeva di che cosa
+         * si parlava. Si promuove all'INGRESSO, per tutte le vie. */
+        if (b->cur_input_raw[0]) {
+            snprintf(b->last_input_raw, sizeof b->last_input_raw, "%s", b->cur_input_raw);
+            b->has_last_input = 1;
+        }
+        snprintf(b->cur_input_raw, sizeof b->cur_input_raw, "%s", input ? input : "");
         if (b->turns == 0) {
             b->start_time = time(NULL);
             if (timespec_get(&b->start_ts, TIME_UTC) == TIME_UTC)
@@ -4767,6 +4965,13 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         return strlen(out);
     }
 
+    /* gen505y — LA CONDOTTA SI INSEGNA PARLANDO: «look things up yourself»,
+     * «non usare la rete». Quali frasi, quale fatto e quale valore stanno in
+     * KB (conduct_lesson1/3, conduct_lesson2/4); qui c'e' solo l'esecutore. */
+    if (b && try_conduct_lesson(b, norm, input, out, out_size)) {
+        conv_log(b, input, out);
+        return strlen(out);
+    }
     if (b && try_teach_form(b, norm, input, out, out_size)) {
         note_arith_result(b, out); conv_log(b, input, out);
         return strlen(out);   /* insegnare non e' rispondere: nessuna lacuna si chiude */
@@ -5032,6 +5237,11 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * ("and times 3" after "what is 2 plus 2") — prepend the last result, inferred from
      * the KB, and re-dispatch so the arithmetic core finishes it ("what is 4 times 3"
      * -> "12."). Pre-dispatch so the bare fragment cannot fall to not-understood. */
+    /* gen505y — «più precisamente»: la stessa questione, un valore piu'
+     * specifico. E' la mossa `qualify` di frontier K3 letta dalla memoria
+     * profonda (kb/core/network.p0 §8). */
+    if (b && precision_resolve(b, canon, input, out, out_size))
+        { return turn_done(b, canon, input, out, out_size); }
     if (b && topic_continue_resolve(b, canon, out, out_size)) {
         note_arith_result(b, out); conv_log(b, input, out);
         return strlen(out);
@@ -5117,7 +5327,22 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             }
 
             if (!confirm) {
-                /* Not confirmed — dispatch normally below */
+                /* gen505y — un «no» all'offerta e' una RISPOSTA all'offerta, non
+                 * una correzione di chissa' che: si prende atto e non si insiste
+                 * (initiative.md §6, stadio 4). Quali parole rifiutino e' KB. */
+                char fw[64]; size_t fl = 0;
+                const char *fp = rlow;
+                while (*fp && isspace((unsigned char)*fp)) fp++;
+                while (fp[fl] && !isspace((unsigned char)fp[fl]) &&
+                       fp[fl] != ',' && fp[fl] != '.' && fl + 1 < sizeof fw) { fw[fl] = fp[fl]; fl++; }
+                fw[fl] = '\0';
+                const char *dq[1] = { fw };
+                if (fl && strlen(rlow) <= fl + 12 &&
+                    kb_query(b->kb, "acquisition_offer_refused_word", dq, 1)) {
+                    kb_response_slots(b, "acquisition_offer_declined", NULL, 0, out, out_size);
+                    conv_log(b, input, out);
+                    return strlen(out);
+                }
             } else if (stored_q[0]) {
                 {
                     const KbResponseSlot slots[] = { {"topic", topic} };
@@ -5127,32 +5352,13 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                 /* gen335k: on user confirmation, try Wikipedia fetch first.
                  * acquire_knowledge only uses local sources — the network
                  * step is gated behind the user's explicit "si". */
-                wiki_fetch_bilingual(b->kb, topic);
-                int got = acquire_knowledge(b, topic, def, sizeof def);
+                int got = acquire_knowledge(b, topic, def, sizeof def);   /* 2 = gia' noto */
                 size_t ol = strlen(out);
-                /* gen505y — IL FETCH LEGGE, NON ARCHIVIA (gen436): la prosa torna
-                 * in memoria e passa dal lettore che legge un testo incollato.
-                 * Dal gen436 questo anello mancava: `wiki_fetch_bilingual`
-                 * scartava la prosa, `acquire_knowledge` cercava il corpus
-                 * locale che non esiste piu', e «Looking up beer...» finiva
-                 * sempre in «I still don't know much about beer» con la rete
-                 * viva e la pagina letta. Il lettore e' lo stesso di `read:`. */
+                /* gen505y — l'esecutore dell'azione `read_topic`: providers,
+                 * rete e memoria profonda stanno in network_acquire, che legge
+                 * la KB per ognuna di queste cose (kb/core/network.p0). */
                 int nf_prose = 0;
-                if (!got) {
-                    char prose[4096] = "";
-                    if (wiki_fetch_topic_lang_prose(topic, "en", prose, sizeof prose)) {
-                        char lmsg[512] = "";
-                        nf_prose = learn_from_prose(b, prose, lmsg, sizeof lmsg);
-                        if (nf_prose > 0) {
-                            got = 1;
-                            size_t cut = 0;   /* la prima frase e' la definizione */
-                            for (size_t i = 0; prose[i]; i++)
-                                if ((prose[i] == '.' || prose[i] == '!' || prose[i] == '?') &&
-                                    (!prose[i + 1] || prose[i + 1] == ' ')) { cut = i + 1; break; }
-                            if (cut && cut < sizeof def) { memcpy(def, prose, cut); def[cut] = '\0'; }
-                        }
-                    }
-                }
+                if (got != 2 && network_acquire(b, topic, def, sizeof def, &nf_prose)) got = 1;
                 if (!got) {
                     /* gen335e: mark this topic as failed so not_understood
                      * won't re-offer the same gap on re-dispatch. */
@@ -5182,7 +5388,15 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                  * The user asked a question and said yes; what they are owed is
                  * one answer to it, and the note about what was learned comes
                  * after it. */
-                if (re_ok && re_ans[0])
+                /* gen505y: si e' appena LETTO — la definizione letta viene prima,
+                 * e la risposta alla domanda, se c'e' ed e' un'altra cosa, dopo. */
+                if (nf_prose > 0 && def[0]) {
+                    snprintf(out + ol, out_size - ol, " %s", def);
+                    if (re_ok && re_ans[0] && strcmp(re_ans, def) != 0 && !strstr(re_ans, "look it up")) {
+                        size_t o2 = strlen(out);
+                        snprintf(out + o2, out_size - o2, " %s", re_ans);
+                    }
+                } else if (re_ok && re_ans[0])
                     snprintf(out + ol, out_size - ol, " %s", re_ans);
                 else if (got && def[0])
                     snprintf(out + ol, out_size - ol, " %s", def);

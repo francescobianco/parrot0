@@ -5916,6 +5916,26 @@ int kb_describe_entity(const KB *kb, const char *entity,
 
     size_t off = 0;
     int count = 0;
+    /* gen505y — LA MEMORIA PROFONDA PARLA PER PRIMA (kb/core/network.p0 §6):
+     * se di questa entita' e' stata letta la pagina, la definizione letta
+     * (topic_definition/2) apre la descrizione; i fatti la seguono. E' l'unico
+     * punto in cui tutte le vie che descrivono un'entita' passano. */
+    {
+        char d[1][KB_TERM_LEN];
+        const char *dq[2] = { entity, NULL };
+        if (kb_match(kb, "topic_definition", dq, 2, d, 1) == 1) {
+            char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", d[0]);
+            char *def = db;
+            size_t dl = strlen(def);
+            if (dl >= 2 && def[0] == '"' && def[dl - 1] == '"') { def[dl - 1] = '\0'; def++; dl -= 2; }
+            if (dl && dl + 2 < out_size) {
+                memcpy(out, def, dl); off = dl;
+                if (off && out[off - 1] == '.') out[--off] = '\0';
+                out[off] = '\0';
+                count++;
+            }
+        }
+    }
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
         if (!fact_mentions(f, entity) || is_model_pred(kb, f->pred) ||

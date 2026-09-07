@@ -1,0 +1,135 @@
+% ══════════════════════════════════════════════════════════════════════════
+% LA RETE COME MEMORIA PROFONDA — docs/plans/la-rete-come-memoria-profonda.md
+% ══════════════════════════════════════════════════════════════════════════
+%
+% L'accesso a Wikipedia non e' un circuito di alimentazione: e' un atto che
+% parrot0 DECIDE per inferenza, ESEGUE con una primitiva passiva e RICORDA con
+% il suo indirizzo. Qui sta tutto cio' che decide; il C apre un indirizzo e
+% basta — e chiede a queste righe se, quando e come. Anche dove finisce una
+% frase e come si legge un passo e' conoscenza (piano §3.1): oggi il lettore
+% lo fa ancora in C, ed e' l'incremento 8 del piano.
+%
+% Tutto e' macchineria: non e' conoscenza del mondo, e non conta in «quante
+% cose sai?».
+:- file_attribute(machinery).
+
+% ── 1. LO STATO DI RETE E' UN FATTO ─────────────────────────────────────────
+% `policy(network, on|off)` lo asserisce il boot (da come parrot0 e' stato
+% avviato: `make chat` la accende) e lo cambia una lezione di condotta
+% («non usare la rete»). Nessun `getenv` lo legge piu'.
+network_available :- policy(network, on).
+% Si puo' LEGGERE se la rete c'e' — oppure se e' dichiarata un'edizione locale
+% (§7): un provider locale non ha bisogno della rete, ed e' un'edizione come
+% le altre, non una cache.
+reading_available :- network_available.
+reading_available :- topic_provider(fixture, $Dir).
+
+% ── 2. LA POLITICA: QUANDO SI LEGGE ─────────────────────────────────────────
+% Una sola riga viva alla volta; si cambia parlando (§5).
+%   ask    proponi di leggere, e aspetta il si'
+%   act    leggi, e dillo
+%   never  dichiara la lacuna e fermati
+acquisition_policy(ask).
+
+% ── 3. IL RIMEDIO E L'AZIONE ────────────────────────────────────────────────
+% La lacuna di specie `knowledge` (gap-kinds.p0: manca il VALORE) ha fra i
+% suoi rimedi la lettura del topic dalla memoria profonda. Un rimedio in piu'
+% domani — un corpus proprio, una seconda enciclopedia — e' una riga.
+gap_remedy_action(knowledge, read_topic).
+gap_remedy_action(reach, read_topic).
+action_schema(read_topic, network).
+action_precondition(read_topic, reading_available).
+action_effect(read_topic, topic_read).
+
+% ── 4. LA MOSSA, INFERITA ───────────────────────────────────────────────────
+% Chi trova una lacuna con un termine nominabile chiede QUI che cosa fare.
+% Il C non conosce nessuna delle quattro risposte: le legge.
+acquisition_move(acquire) :-
+    gap_remedy_action(knowledge, read_topic), reading_available,
+    acquisition_policy(act).
+acquisition_move(propose) :-
+    gap_remedy_action(knowledge, read_topic), reading_available,
+    acquisition_policy(ask).
+acquisition_move(decline_named) :-
+    gap_remedy_action(knowledge, read_topic), naf(reading_available),
+    naf(acquisition_policy(never)).
+acquisition_move(silent) :- acquisition_policy(never).
+
+% ── 5. LE LEZIONI DI CONDOTTA, PARLANDO ─────────────────────────────────────
+% conduct_lesson1(Cue, Pred, Value): il turno che contiene Cue ritira Pred/1 e
+% asserisce Pred(Value). conduct_lesson2(Cue, Pred, Key, Value): lo stesso per
+% Pred/2 con la chiave fissa. Un membro nuovo e' una riga; l'esecutore e' uno.
+conduct_lesson1("look things up yourself", acquisition_policy, act).
+conduct_lesson1("look it up yourself", acquisition_policy, act).
+conduct_lesson1("read it yourself", acquisition_policy, act).
+conduct_lesson1("don't ask, just look it up", acquisition_policy, act).
+conduct_lesson1("cerca da solo", acquisition_policy, act).
+conduct_lesson1("leggilo da solo", acquisition_policy, act).
+conduct_lesson1("documentati da solo", acquisition_policy, act).
+conduct_lesson1("ask me before looking things up", acquisition_policy, ask).
+conduct_lesson1("ask me before you look things up", acquisition_policy, ask).
+conduct_lesson1("ask before reading", acquisition_policy, ask).
+conduct_lesson1("chiedimi prima di cercare", acquisition_policy, ask).
+conduct_lesson1("chiedi prima di leggere", acquisition_policy, ask).
+conduct_lesson1("never look things up", acquisition_policy, never).
+conduct_lesson1("don't look things up", acquisition_policy, never).
+conduct_lesson1("non cercare mai", acquisition_policy, never).
+conduct_lesson1("non documentarti", acquisition_policy, never).
+conduct_lesson2("don't use the network", policy, network, off).
+conduct_lesson2("do not use the network", policy, network, off).
+conduct_lesson2("stay offline", policy, network, off).
+conduct_lesson2("non usare la rete", policy, network, off).
+conduct_lesson2("resta offline", policy, network, off).
+conduct_lesson2("you can use the network", policy, network, on).
+conduct_lesson2("use the network", policy, network, on).
+conduct_lesson2("go online", policy, network, on).
+conduct_lesson2("puoi usare la rete", policy, network, on).
+conduct_lesson2("usa la rete", policy, network, on).
+
+% Le conferme, per lezione: parole, non nomi di predicati.
+conduct_lesson_reply(acquisition_policy, act, "Understood: from now on I'll read things up myself when I don't know them.").
+conduct_lesson_reply(acquisition_policy, ask, "Understood: I'll ask you before reading anything up.").
+conduct_lesson_reply(acquisition_policy, never, "Understood: I won't read things up; I'll just say what I'm missing.").
+conduct_lesson_reply(policy, off, "Understood: I'll stay offline.").
+conduct_lesson_reply(policy, on, "Understood: I can use the network now.").
+
+% ── 6. LA MEMORIA PROFONDA ──────────────────────────────────────────────────
+% topic_read(Topic, wiki_address(Lang, Title, Revision, Section)): dove si e'
+% letto, riproducibile. topic_definition(Topic, "prima frase"): la definizione,
+% con la fonte. Le proposizioni lette portano gia' la provenienza per frase
+% (fact_source/3). Niente testo archiviato.
+machinery(topic_read).
+machinery(topic_definition).
+machinery(topic_provider).
+deep_memory_has($Topic) :- topic_read($Topic, $Address).
+
+% ── 7. IL PROVIDER: DA DOVE SI LEGGE ────────────────────────────────────────
+% Wikipedia e' il provider di default. Un test dichiara un provider locale —
+% topic_provider(fixture, "tests/fixtures/wiki") — che e' un'edizione come le
+% altre: `<dir>/<topic>.txt` con la prosa. Non e' una cache: e' un'edizione
+% dichiarata, e la KB decide quale viene prima.
+topic_provider_order(fixture, 1).
+topic_provider_order(wikipedia, 2).
+
+% ── 8. LA RISPOSTA DI SEGUITO: «PIU' PRECISAMENTE» ──────────────────────────
+% La stessa questione, con la richiesta di un valore piu' specifico: e' la
+% mossa `qualify` di frontier K3. Il turno che porta SOLO una di queste
+% superfici riprende l'ultima domanda e pretende una risposta diversa.
+precision_request_cue("more precisely").
+precision_request_cue("be more precise").
+precision_request_cue("be more specific").
+precision_request_cue("more specifically").
+precision_request_cue("in more detail").
+precision_request_cue("più precisamente").
+precision_request_cue("piu precisamente").
+precision_request_cue("più nel dettaglio").
+precision_request_cue("piu nel dettaglio").
+precision_request_cue("più esattamente").
+precision_request_cue("sii più preciso").
+
+% La risposta a un'offerta rifiutata: si prende atto, e non si insiste.
+acquisition_offer_refused_word($W) :- dissent_word($W).
+
+% ── 9. LE SONDE ─────────────────────────────────────────────────────────────
+debug_probe(15, topic_read, any, "la MEMORIA PROFONDA: che cosa ho letto, e dove").
+debug_probe(16, acquisition_policy, any, "la politica di lettura (ask / act / never)").
