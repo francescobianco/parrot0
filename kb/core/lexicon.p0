@@ -353,6 +353,11 @@ phrase_canon("where did i say", "where is").
 % domanda incassata ha lo stesso ordine di quella diretta, quindi togliere
 % l'addolcitore lascia la domanda intera. (In inglese «do you know what X is»
 % inverte l'ordine e resta un gap: TEST_TODO, regressioni aperte.)
+% Le forme lunghe vengono prima: «sai cosa sono» senza di esse cadeva su
+% «sai cosa» -> «what» e poi «sono» -> «am» («what am the sbaddune»).
+phrase_canon("sai cosa sono", "what are"). phrase_canon("sai cosa è", "what is").
+phrase_canon("sai cos'è", "what is").      phrase_canon("sai chi è", "who is").
+phrase_canon("sai chi sono", "who are").   phrase_canon("sai dov'è", "where is").
 phrase_canon("sai cosa", "what").       phrase_canon("sai chi", "who").
 phrase_canon("sai dove", "where").      phrase_canon("sai quando", "when").
 phrase_canon("sai come", "how").        phrase_canon("sai perche", "why").

@@ -62,6 +62,53 @@ france» -> Paris) o a **imparare** («a wombat is a marsupial», «metals such 
 copper, tin and lead», «the word unless is a condition marker»). Zero fatti
 falsi da una domanda.
 
+## Secondo giro (pomeriggio): due punti della coda chiusi, e la coda nuova
+
+**1. L'interiezione nel soggetto — ✅ chiuso, massimizzato, declinato.**
+«boh, a wombat is a marsupial» -> marsupial(boh_a_wombat). La distinzione e'
+strutturale: il determinante APRE il sintagma (np_opener/1), cio' che lo
+precede nel tratto del soggetto non ne fa parte; il caso a soggetto singolo con
+prefisso si asserisce con la provenienza (prima cadeva sul percorso rigido a
+quattro parole). Il fascio (token ignoto, «sai,», vocativo, apertura nota,
+doppia apertura, assenso, «no,», due lingue) ha trovato la declinazione: **il
+prefisso puo' MODALIZZARE** — «maybe a norb is a florp», «forse un torbo è un
+florp», «boh, …» venivano scritti come fatti. `hedge_word/1` esisteva e nessuno
+lo consultava; ora cresce in due lingue. Cricchetto
+`tests/p0t/language/prefix_before_assertion.p0t` (22 assert, ablazione su
+`hedge_word(maybe)`). E l'ablazione di `question_does_not_teach` ha cambiato
+verso: senza la lettura della domanda il fatto falso NON torna piu', perche' la
+seconda lettura regge da sola — due letture indipendenti sullo stesso turno.
+
+**2. Il glossario italiano dei verbi — ✅ aperto e riempito, KB sola.**
+`tr/2` per sai/senti/vedi/capisci/esegui/raddoppia/dimezza/parti/finché/superi/
+sotto/continua/…, `phrase_canon` per la famiglia «sai cosa/chi/dove…» (in
+italiano la domanda incassata ha l'ordine di quella diretta: togliere
+l'addolcitore lascia la domanda intera) e «mi senti», `tool_surface(run_prefix,
+"esegui ")`, i marcatori di lingua dei verbi nuovi, e le FORME FLESSE nelle
+classi degli agenti — le radici («raddoppi», «super») non combaciano piu' dal
+confine di parola del gen505q. Esito: «sai cosa sono le sbaddune» -> «Su
+sbaddune non so ancora molto» (il reperto di F. da cui e' partita la giornata),
+«mi senti?» -> la risposta sul canale, agent.it 2/2. Una scheda al sito in
+lexicon.p0: «ogni superficie del glossario come marcatore di lingua», provata
+come regola e scartata (collaterale su taught_gloss; specie prematuro).
+
+## ⛔ La coda, dopo il secondo giro
+
+1. **`verify` rigetta una prova STANTIA di un'altra conversazione** («does 10
+   -> 21 fit?» -> «Starting from 5, that step never reaches 99», un turno di un
+   altro file sullo stesso demone): lo stato non si azzera con `!reset`.
+   E «what is the rule?» cade nel fallback. Agenti: 4 file, due lingue.
+2. **Il canale didattico e' chiuso su tutto cio' che non e' un intento** (punto
+   4 di ieri, invariato).
+3. **La testa del sintagma** («hey parrot what is a sbaddune» -> il pappagallo;
+   «what is the kernel of an operating system»).
+4. **Il gloss non conosce la persona**: «sono» = am/are, «viene» = comes; e la
+   lingua si legge dai marcatori, non dagli articoli («un vombolo è un florp»
+   riceve la ricevuta in inglese).
+5. **«do you know what X is»** resta un gap anche in inglese (rivendicato
+   dall'assenso: «That sounds nice»); «is it true that a morb is a florp» idem.
+6. **Omonimi nei nomi propri**: «sai chi è socrate» -> il *Socrate* di Satie.
+
 ## ⛔ Quello che il fascio ha scoperto, e non e' di oggi
 
 1. **L'interiezione entra nel soggetto.** `boh, a wombat is a marsupial` ->
