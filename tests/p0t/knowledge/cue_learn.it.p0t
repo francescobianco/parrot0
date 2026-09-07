@@ -12,6 +12,6 @@
 # two languages. The cue is stored in its normalized form and matched against the
 # canonicalized turn.
 > impara "in due parole" per risposte brevi
-< Got it - I'll take "in due parole" as a way to risposte brevi now.
+< Got it - I'll take «in due parole» as a way to risposte brevi now.
 > rispondi in due parole
 <~ Hmm, I don't know about rispondi yet. Want me to learn about it?

@@ -14,7 +14,8 @@
 > what is my name?
 < Your name is Sam.
 > mi chiamo Luca
-< Nice to meet you, Luca!
+# gen505y: `greet_name` ruota fra due varianti (gen55); si asserisce il nome.
+<~ , Luca!
 > what is my name?
 < Your name is Luca.
 

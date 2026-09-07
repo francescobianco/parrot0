@@ -14,7 +14,7 @@
 # gen268: F.'s exact prompt flips from informed decline to VERIFIED code —
 # same schema, same oracle, Italian surface.
 > crea un semplice hello world in c
-< Verified by execution: it prints "Hello, World!" and exits 0 (print_message schema, run via the code_run oracle).
+< Verified by execution: it prints «Hello, World!» and exits 0 (print_message schema, run via the code_run oracle).
 < 
 < ```c
 < #include <stdio.h>
@@ -25,7 +25,7 @@
 < }
 < ```
 > scrivi un programma che stampa ciao mondo
-< Verified by execution: it prints "ciao mondo" and exits 0 (print_message schema, run via the code_run oracle).
+< Verified by execution: it prints «ciao mondo» and exits 0 (print_message schema, run via the code_run oracle).
 < 
 < ```c
 < #include <stdio.h>
@@ -36,7 +36,8 @@
 < }
 < ```
 > costruisci una calcolatrice in python
-< I understood the request — produce "calcolatrice" in python — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
+# gen505y: la risposta segue la lingua del turno.
+<~ Ho capito la richiesta — produrre «calcolatrice» in python
 
 # gen270, F.'s exact phrasing (typo included): the file is REALLY created.
 > crea un file chiamata p0tmp_pupo2.txt

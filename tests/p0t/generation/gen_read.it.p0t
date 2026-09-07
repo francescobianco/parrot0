@@ -14,7 +14,8 @@
 # deep point of the probe: the *induced* half was multilingual all along; only
 # the hand-written parsers needed the canonicalization layer.
 > read: il gatto dorme sul divano. il gatto dorme spesso.
-< Learned 0 fact(s), skipped 2.
+# gen505y: la risposta segue la lingua del turno.
+< Ho appreso 0 fatti, ne ho saltati 2.
 # Generation reflects the read Italian text, frequency-then-order ranked.
 > say il
 < the

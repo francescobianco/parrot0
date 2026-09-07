@@ -45,8 +45,9 @@
 
 # --- topic-change invitation: modal "possiamo" (-> can) + frame "parlare di" +
 #     object pulled by SHAPE (head noun after "di").
+# gen505y — R2: l'invito a cambiare argomento ha oggi una risposta italiana.
 > possiamo parlare di formaggio
-< Non capisco ancora.
+<~ Da dove partiamo
 
 # --- mixed social + content: an Italian discourse-marker opener ("comunque")
 #     wraps a real question; it is peeled and the residue re-dispatched, so the
@@ -59,4 +60,4 @@
 # --- composition: an Italian opener ("allora") peeled, leaving an Italian topic
 #     invitation that the SAME shape move then claims.
 > allora possiamo parlare di musica
-< Non capisco ancora.
+<~ Da dove partiamo

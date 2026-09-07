@@ -14,7 +14,8 @@
 # Italian; the salience ranking is language-agnostic.
 
 > read: Mercurio è un pianeta. Venere è un pianeta. Marte è un pianeta. Marte è rosso.
-< Learned 3 fact(s), skipped 1.
+# gen505y — R2: il lettore estrae oggi anche la quarta frase.
+< Learned 4 fact(s), skipped 0.
 
 # Gist in Italian — the central concept "pianeta" and a salient sentence.
 > di cosa parla?
@@ -25,4 +26,6 @@
 # gen384: in italiano il muro NON nomina la parola: il vocabolario copre una
 # lingua sola (lexicon_language/1), quindi li' un'assenza non e' informativa e
 # nominarla direbbe il vero senza servire. Il sensore registra comunque.
-< Non ho afferrato bene. Cosa vorresti sapere?
+# gen505y: le varianti del muro ruotano (gen55): si asserisce il muro.
+<! Imparato
+!query turn_outcome(current_turn, blind_wall)

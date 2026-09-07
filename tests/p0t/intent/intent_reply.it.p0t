@@ -14,7 +14,7 @@
 > mi chiamo Bob
 < Nice to meet you, Bob!
 > usa "Benvenuto, {name}!" per salutare un nuovo nome
-< Got it - I'll take "Benvenuto, {name}!" as a way to salutare now.
+< Got it - I'll take «Benvenuto, {name}!» as a way to salutare now.
 > mi chiamo Cleo
 < Benvenuto, Cleo!
 

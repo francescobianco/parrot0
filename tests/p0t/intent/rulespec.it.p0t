@@ -18,7 +18,7 @@
 # cues (digita/sale/arriva a/stampa — intent_cue facts; "tre" parsed by the
 # same number-word reader). One schema, one oracle, two languages.
 > Conto Chiave. Regole: 1. Ogni turno il giocatore digita una parola. 2. Quando il giocatore digita vinci il punteggio sale di un punto. 3. La partita termina quando il punteggio arriva a tre e stampa VITTORIA. Implementa questo gioco come programma C per il terminale.
-< Verified by execution: 3 "vinci" inputs print VITTORIA and 2 do not (count_to_threshold schema, two scripted plays via the counter-game oracle).
+< Verified by execution: 3 «vinci» inputs print VITTORIA and 2 do not (count_to_threshold schema, two scripted plays via the counter-game oracle).
 <
 < ```c
 < #include <stdio.h>

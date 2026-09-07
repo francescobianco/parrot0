@@ -16,7 +16,8 @@
 # An Italian passage about planets; the function words (è, un) canonicalize so
 # the facts extract through the shared path.
 > read: Mercurio è un pianeta. Venere è un pianeta. Marte è un pianeta. Marte è rosso.
-< Learned 3 fact(s), skipped 1.
+# gen505y — R2: il lettore estrae oggi anche la quarta frase.
+< Learned 4 fact(s), skipped 0.
 # The summary surfaces the three planet sentences (the salient concept), quoted
 # in their original Italian, and omits the lone "Marte è rosso".
 > riassumi

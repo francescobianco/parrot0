@@ -8,9 +8,12 @@
 
 [test polar_meta.it]
 # gen69 Italian mirror: same polar meta-conversation path, Italian surface cues.
+# gen505y — R2: «ci sei?» ha oggi una risposta fatica vera.
 > ci sei?
-< Non capisco ancora.
+<~ Sono qui
 > mi senti?
 < No, I only read text. I can't hear audio.
+# gen505y: le varianti del muro ruotano (gen55): si asserisce il muro.
 > sei un bot?
-< Non capisco ancora.
+<! Imparato
+!query turn_outcome(current_turn, blind_wall)

@@ -49,10 +49,11 @@
 > è anna una donna?
 < Yes.
 # Facts don't leak across predicates/subjects.
+# gen505y: dottrina — «non dimostrato» non e' «falso» (facts.p0t).
 > è anna un uomo?
-< No.
+<~ not proved is not the same as false
 > è socrate una donna?
-< No.
+<~ not proved is not the same as false
 # Unparseable Italian -> honest admission, same as the English fallback.
 > la veloce volpe marrone
 < I don't understand that yet.
