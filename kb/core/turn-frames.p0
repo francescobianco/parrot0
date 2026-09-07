@@ -98,6 +98,15 @@ turn_declared_act($Turn, question) :-
     turn_cue($Turn, answer_frame_input_arg, $Cue).
 turn_declared_act($Turn, question) :-
     turn_cue($Turn, attribute_question_cue, $Cue).
+% gen505y — IL SEGMENTATORE HA GIA' LETTO LA DOMANDA, E NESSUNO GLIELA CHIEDEVA.
+% «boh what is a sbaddune» viene diviso in due segmenti, e il secondo porta il
+% ruolo `query` (`segment_role(query, "what is")`, input.p0). Quel ruolo E' una
+% lettura di «questo turno chiede», pubblicata in `turn_span/4` da sempre — ma
+% la forza del turno non la consultava, quindi chi impara scriveva
+% `sbaddune(boh_what)`. Un ruolo di segmento e' un atto dichiarato quanto una
+% cue: qui la si ripubblica, e ogni facolta' la vede.
+turn_declared_act($Turn, question) :-
+    turn_span($Turn, $Index, query, $Payload).
 
 % ── L'ASSERZIONE HA UNA LETTURA, ANCHE SE NON HA CUE ───────────────────────
 %

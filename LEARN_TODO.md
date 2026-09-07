@@ -3,11 +3,113 @@
 > **Come si conduce una sessione:** `docs/plans/procedura-crescita-kb.md` e il
 > mantra #22. Un solo handoff vivo per file: e' quello qui sotto.
 
-# 🏁 HANDOFF — sessione del 6 settembre 2026 (`gen505q` → `gen505w`)
+# 🏁 HANDOFF — sessione del 7 settembre 2026 (`gen505x` → `gen505y`)
+
+> **Stato:** un commit, albero pulito. Il demone di test (`obj/test-engine.pid`)
+> e' stato riavviato sul binario nuovo — vedi la trappola qui sotto. Questo
+> handoff **prevale** su quelli archiviati piu' sotto.
+
+## Il circuito della sessione: NESSUNA SCRITTURA IN KB DA UNA DOMANDA — ✅ chiuso
+
+Era il punto 2 della coda di ieri, e il ⛔ URGENTE archiviato piu' sotto.
+`sai cosa sono le sbaddune` -> «Imparato: sai what è un sbaddune», e lo stesso
+per `zzz what are the sbaddune`, `boh what is a sbaddune`, `zzz who has
+invented the phone` (-> `created_by(zzz_who_has, phone, invented)`).
+
+**La diagnosi di ieri era sbagliata in due punti, e va ridatata (R5):**
+
+1. *«la lettura giusta C'ERA: `turn_illocution(current_turn, question)` e'
+   dimostrabile su quel turno»* — **no.** Tutte e tre le regole di
+   `turn_opens_question/1` chiedevano che l'interrogativo fosse il **primo
+   nodo**. Con un token davanti il frame non leggeva nessuna domanda, e per
+   residuo il turno risultava `expressive`. Il consumatore non aveva niente da
+   consultare.
+2. *«`!query!` non vede i predicati `machinery`»* — **non si riproduce** su un
+   demone fresco, in nessuna configurazione (`WORLD_FACTS=0`, senza profilo,
+   `LANG=it`, `BASE=`). `question_word(what)` e `faculty_force(...)` sono
+   dimostrabili. La spiegazione piu' probabile e' la stessa che mi ha fatto
+   perdere due cicli oggi: **il demone di test era del 4 settembre**, cioe'
+   girava con il C di tre giorni prima. `!reset` ricarica la KB dal disco,
+   quindi le regole nuove si vedono, ma il C resta quello del binario che l'ha
+   avviato. Sintomo da riconoscere: **chat e `--test` non concordano sullo
+   stesso turno.** Cura: `make test-engine` dopo ogni ricompilazione.
+
+**La distinzione che mancava** (procedura §1: non si accumula, si distingue):
+*«il turno APRE con un interrogativo»* ≠ *«il turno CONTIENE l'apertura di una
+clausola interrogativa»*. La seconda e' strutturale quanto la prima: un
+interrogativo seguito immediatamente dalla copula o dall'ausiliare («cosa
+sono», «what are», «who has») apre una domanda dovunque stia.
+
+**Che cosa e' cambiato, e dove:**
+
+| dove | che cosa |
+|---|---|
+| `kb/core/grammar.p0` | `interrogative_clause_opener/2`: interrogativo + `clause_inverter` (copula o ausiliare) adiacenti, letti dall'ordine dei nodi che c'era gia' (`input_node_before/3`); `complementizer/1` («che», «that») perche' «so che è tardi» non e' una domanda — chi vede di piu' distingue di piu' |
+| `kb/core/turn-frames.p0` | il ruolo `query` del segmentatore (`segment_role(query, "what is")`) e' un atto dichiarato: **c'era da sempre in `turn_span/4` e nessuno lo ripubblicava come forza** |
+| `10-memory-knowledge.c` (mod_knowledge, ~17548) | chi impara **consulta la forza pubblicata** (`p0_turn_is(b, "question", norm)`) prima di `extract_enumeration` e `extract_class_statement`. Le due letture private («finisce con ?», «apre con un interrogativo») restano: additive. Verifica a valle, non filtro a monte |
+| `kb/core/debug.p0` | sonda 14: `turn_illocution` — la FORZA del turno. E' la riga che avrebbe chiuso la diagnosi in un colpo |
+| `tests/p0t/language/question_does_not_teach.p0t` | 21 assert, KB intera, due lingue, ablazione: `!forget question_word(cosa)` fa **tornare** il difetto (il fatto falso si scrive), ri-asserirla lo toglie |
+
+Bilancio (mantra #18a): C **+19 / −2**, tutte righe di consultazione, zero
+vocabolario; KB +57. Costo: `turn_illocution` 14 ms su un turno di 30 parole,
+nessuno dei predicati nuovi compare nel profilo.
+
+**Massimizzato** (mantra #22) su un fascio di 30 turni: token ignoto, «hey
+parrot», «quick question:», «so,», «ok», «tell me», «i wonder», «dimmi», «ma
+chi», «ehi», «scusa», «allora qual è», ausiliare («did zorak shimmer»), e i
+controlli che devono continuare a **rispondere** («zzz what is the capital of
+france» -> Paris) o a **imparare** («a wombat is a marsupial», «metals such as
+copper, tin and lead», «the word unless is a condition marker»). Zero fatti
+falsi da una domanda.
+
+## ⛔ Quello che il fascio ha scoperto, e non e' di oggi
+
+1. **L'interiezione entra nel soggetto.** `boh, a wombat is a marsupial` ->
+   «Learned: boh a wombat is a marsupial» (`marsupial(boh_a_wombat)`), e cosi'
+   `sai, a wombat …`. E' un fatto falso da un'**affermazione**, la classe
+   gemella di quella chiusa oggi: la distinzione mancante e' *apertura di
+   discorso* ≠ *testa del sintagma soggetto*. `discourse_opener/1` esiste in
+   lexicon.p0 e nessun lettore la consulta al confine del soggetto. Circuito
+   nuovo, non membri in piu'.
+2. **`hey parrot what is a sbaddune` -> «Parrot belongs to the category bird».**
+   La parola nominata vince sul fuoco: e' il punto 6 della coda di ieri (la
+   testa del sintagma), un caso in piu'.
+3. **Gli id dei nodi del frame si ripetono fra segmenti.** Con due span
+   («boh» | «what is a sbaddune») `input_node_surface(current_turn, "0", …)`
+   ha due valori. Oggi non ha morso perche' le regole leggono per superficie e
+   ordine, ma ogni lettura per id su un turno segmentato e' ambigua.
+4. **`input_frame_observe` costa 2,7 s su un turno di 30 parole** (3,5 s a
+   HEAD, quindi non di oggi). E' l'83% del turno, come il caso del mantra
+   #20b: si profila, non si indovina, e c'e' gia' la riga che lo dice.
+5. **`sai` non ha glossario** — resta il punto 3 di ieri. Oggi il turno e' un
+   muro onesto («Non capisco ancora») invece di un fatto falso; per rispondere
+   serve il glossario dei verbi italiani, che e' un circuito a se'.
+
+## Da dove riprendere, in ordine di leva
+
+1. **L'interiezione nel soggetto** (punto 1 sopra): e' la stessa forma del
+   circuito di oggi, sul verso dell'affermazione, e la lettura da consumare
+   (`discourse_opener/1`) esiste gia'.
+2. Il canale didattico chiuso su tutto cio' che non e' un intento (punto 4 di
+   ieri) e i verbi italiani senza glossario (punto 3) — entrambi invariati.
+3. La testa del sintagma (punto 6 di ieri, ora con un caso in piu').
+
+## Test
+
+`question_does_not_teach.p0t` 21/21. Differenziale sul dominio: `mention.p0t`
+16/8 **anche a HEAD** (formato del messaggio, non comportamento),
+`taught_turn_form.p0t` 4/4, `input.it.p0t` 6/6, `soft-test` con il solo rosso
+noto di `frontier_chat_audit.it.p0t` (55/1, `TEST_TODO.md`). Nessuna suite
+intera, come indicato da F.
+
+---
+
+# 📁 HANDOFF archiviato — sessione del 6 settembre 2026 (`gen505q` → `gen505w`)
 
 > **Stato:** albero pulito, tutto su `origin/main` (`f15bd73`). Nessun servizio
-> avviato rimasto acceso. Questo handoff **prevale** su quelli archiviati piu'
-> sotto, che restano per il merito.
+> avviato rimasto acceso. **Superato dall'handoff del 7 settembre** qui sopra:
+> il punto 1 della sua coda (l'ispettore) non si riproduce, il punto 2 e'
+> chiuso. Resta per il merito.
 
 ## Come si conduce il lavoro, adesso
 
@@ -94,10 +196,13 @@ su quattro il rosso era preesistente, e la quarta era una scoperta. I rossi noti
 sono in `TEST_TODO.md`.
 
 
-# ⛔ URGENTE — `gen505w`: parrot0 IMPARA UN FATTO FALSO DA UNA DOMANDA
+# ✅ CHIUSO al `gen505y` — (ex ⛔ URGENTE `gen505w`): parrot0 IMPARAVA UN FATTO FALSO DA UNA DOMANDA
 
 > Reperto di F. Non e' un muro e non e' una risposta sbagliata: **e' la KB che
 > si sporca da sola**, ed e' la classe piu' grave che abbiamo incontrato.
+> **Chiuso il 7 settembre** — vedi l'handoff vivo in testa: la catena qui sotto
+> resta per il merito, ma il punto 3 («la lettura giusta C'ERA») era sbagliato,
+> e il blocco sull'ispettore non si riproduce su un demone aggiornato.
 
 ```
 sai cosa sono le sbaddune   ->   «Imparato: sai what è un sbaddune.»
@@ -177,6 +282,7 @@ fatto c'e'?» e avere una risposta vera, ogni circuito si diagnostica alla cieca
 
 | giro | che cosa ci trovi |
 |---|---|
+| `gen505q`→`gen505w` | il 6 settembre: `turn_focus` saturo, il canale didattico, la coda in sei punti |
 | `gen505t` | i tre reperti italiani di F.; il fuoco della domanda (`turn_focus`) |
 | `gen505s` | la morfologia, e un vincolo sopravvissuto alla misura che lo reggeva |
 | `gen505r` | leggere non e' archiviare; le due meta' della morfologia |

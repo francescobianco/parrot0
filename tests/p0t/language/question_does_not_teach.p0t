@@ -1,0 +1,87 @@
+# UNA DOMANDA NON INSEGNA — anche quando non apre il turno (gen505y).
+#
+# Reperto di F.: «sai cosa sono le sbaddune» -> «Imparato: sai what è un
+# sbaddune». Non un muro, non una risposta sbagliata: un fatto FALSO scritto in
+# KB da una domanda, e persiste oltre il turno. Il perimetro era «qualunque
+# token davanti a una domanda»: «zzz what are the sbaddune» faceva lo stesso.
+#
+# Tre letture dicevano «domanda» e nessuna era condivisa: la lettura pubblicata
+# (`turn_opens_question/1`) chiedeva che l'interrogativo fosse il PRIMO nodo;
+# chi impara aveva due letture private («finisce con ?», «apre con un
+# interrogativo»); il segmentatore leggeva un ruolo `query` che nessuno
+# ripubblicava come forza. La cura: la lettura pubblicata vede anche la
+# clausola interrogativa incassata («cosa sono», «what are», «who has») e il
+# ruolo di segmento; chi impara la CONSULTA prima di scrivere.
+#
+# La KB e' quella vera, per intero: le classi che la lettura interroga
+# (`question_word`, `clause_copula`, `auxiliary`, `segment_role`) sono
+# conoscenza gia' presente, non fixture.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!timeout 12
+!reset
+
+[test un token ignoto davanti alla domanda non la rende un'affermazione]
+> zzz what are the sbaddune
+<! Learned
+!query! sbaddune($X)
+# la lettura pubblicata e' quella che il consumatore ha chiesto
+!query turn_opens_question(current_turn)
+!query turn_illocution(current_turn, question)
+
+[test l'interrogativo seguito dall'ausiliare e' la stessa evidenza]
+> zzz who has invented the phone
+<! Learned
+!query! created_by($X, phone, $V)
+
+[test il ruolo di segmento del segmentatore e' una forza del turno]
+> boh what is a sbaddune
+<! Learned
+!query! sbaddune($X)
+!query turn_illocution(current_turn, question)
+
+[test italiano: «sai cosa sono» e' una domanda, e non scrive]
+!timeout 12
+!set PARROT0_LANG=it
+> sai cosa sono le sbaddune
+<! Imparato
+!query! sbaddune($X)
+!query turn_opens_question(current_turn)
+
+[test «che» complementatore non e' un interrogativo incassato]
+!timeout 12
+> so che roma è la capitale d italia
+!query! turn_opens_question(current_turn)
+
+[test un'affermazione continua a insegnare]
+!timeout 12
+!set PARROT0_LANG=en
+> a wombat is a marsupial
+<~ Learned: wombat is a marsupial.
+!query marsupial(wombat)
+> metals such as copper, tin and lead
+<~ Learned: metal(copper), metal(tin), metal(lead).
+> he reviewed the draft
+!query! turn_opens_question(current_turn)
+
+[test ablazione: senza la classe che la lettura interroga il difetto torna]
+!timeout 12
+!set PARROT0_LANG=it
+# stato fresco: l'ablazione deve misurare la classe, non cio' che i turni
+# precedenti hanno lasciato nella conversazione.
+!reset
+!forget question_word(cosa)
+> sai cosa sono le sbaddune
+!query! turn_opens_question(current_turn)
+# il difetto TORNA: e' la prova che la lettura ablata e' quella che chi impara
+# consulta, e non una guardia parallela nel C.
+!query sbaddune($X)
+!forget sbaddune
+!assert question_word(cosa)
+> sai cosa sono le sbaddune
+!query turn_opens_question(current_turn)
+!query! sbaddune($X)

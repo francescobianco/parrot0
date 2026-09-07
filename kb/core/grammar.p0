@@ -1873,6 +1873,48 @@ turn_opens_question($T) :-
     input_node_atom($T, $Id, $W), naf(input_node_precedes($T, $Id)),
     auxiliary($W).
 
+% ── gen505y — LA DOMANDA NON DEVE APRIRE IL TURNO ──────────────────────────
+%
+% Reperto di F.: «sai cosa sono le sbaddune» -> «Imparato: sai what è un
+% sbaddune». Un fatto FALSO scritto in KB da una domanda. Il perimetro non era
+% «sai»: «zzz what are the sbaddune» faceva lo stesso, cioe' QUALUNQUE token
+% davanti a una domanda la rendeva invisibile — le tre regole qui sopra
+% chiedono tutte che l'interrogativo sia il PRIMO nodo.
+%
+% La distinzione che mancava: «il turno apre con un interrogativo» non e' «il
+% turno contiene l'apertura di una clausola interrogativa». La seconda e'
+% strutturale quanto la prima: un interrogativo seguito IMMEDIATAMENTE dalla
+% copula («what are», «cosa sono», «qual è») apre una domanda dovunque stia,
+% e non c'e' nessuna affermazione in cui quella coppia contigua si presenti.
+%
+% ⚠ Chi vede di piu' deve distinguere di piu' (mantra #19b): «che» e' un
+% interrogativo («che cosa») ma anche un complementatore («so che è tardi»), e
+% «che è» dentro un'affermazione non apre nessuna domanda. Quali interrogativi
+% siano anche complementatori e' conoscenza, non un'eccezione nel motore: un
+% membro nuovo domani e' una riga.
+%
+% L'adiacenza si legge dall'ordine dei nodi: B segue A e nessun token sta in
+% mezzo. Non c'e' un predicato «prossimo token» da introdurre: l'ordine c'e'
+% gia' (`input_node_before/3`), e questa e' una sua lettura.
+complementizer(che).
+complementizer(that).
+machinery(input_token_between).
+input_token_between($T, $A, $B) :-
+    input_node_atom($T, $C, $W),
+    input_node_before($T, $A, $C), input_node_before($T, $C, $B).
+machinery(interrogative_clause_opener).
+% Che cosa segua l'interrogativo e' la stessa evidenza che le tre regole sopra
+% gia' leggono al primo nodo: la copula o l'ausiliare invertito («who has
+% invented», «did zorak shimmer»). Una classe sola, letta in un secondo posto.
+machinery(clause_inverter).
+clause_inverter($V) :- clause_copula($V).
+clause_inverter($V) :- auxiliary($V).
+interrogative_clause_opener($T, $Id) :-
+    input_node_atom($T, $Id, $W), question_word($W), naf(complementizer($W)),
+    input_node_atom($T, $Next, $V), clause_inverter($V),
+    input_node_before($T, $Id, $Next), naf(input_token_between($T, $Id, $Next)).
+turn_opens_question($T) :- interrogative_clause_opener($T, $Id).
+
 % E l'ordine in cui offrirle, che e' esso stesso conoscenza: davanti a una forma
 % binaria la costruzione viene prima, perche' e' la lezione che non richiede di
 % sapere gia' come parrot0 chiama quella relazione.

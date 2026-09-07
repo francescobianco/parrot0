@@ -53,6 +53,12 @@ debug_probe(9, turn_gap_remedy, now, "IL RIMEDIO che quella specie chiede").
 debug_probe(11, turn_focus, now, "DI CHE COSA chiede il turno (ambito escluso)").
 debug_probe(12, turn_focus_input, now, "su quale testo il fuoco e' stato letto").
 debug_probe(13, turn_focus_rejected, now, "risposte ritirate: fuori dal fuoco").
+% gen505y — LA FORZA DEL TURNO. «sai cosa sono le sbaddune» scriveva un fatto
+% falso, e la diagnosi e' costata due giri perche' nessuno vedeva che cosa il
+% frame avesse letto: l'handoff diceva «la lettura c'era», e non c'era. Con
+% questa riga si vede in un colpo se il turno e' stato letto come domanda,
+% direttiva, affermazione o gesto — cioe' se chi ha scritto aveva titolo.
+debug_probe(14, turn_illocution, now, "la FORZA del turno: question / directive / assertion / expressive").
 debug_probe(10, machinery_gap, turn, "lacuna registrata per questo turno").
 debug_probe(20, gap_kind, turn, "specie della lacuna").
 debug_probe(30, gap_source, turn, "il turno come e' stato detto").

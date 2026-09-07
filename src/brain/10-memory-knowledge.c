@@ -17546,7 +17546,24 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * diverse non ha ragione di avere due esiti; va provata PRIMA, perche' una
      * frase che elenca e' anche una frase «X e' un Y» e letta cosi' rende un
      * fatto vuoto al posto di tre veri. */
-    if (!interrogative) {
+    /* gen505y — NESSUNA SCRITTURA IN KB DA UN TURNO LETTO COME DOMANDA.
+     *
+     * Reperto di F.: «sai cosa sono le sbaddune» -> «Imparato: sai what è un
+     * sbaddune» — un fatto FALSO in KB, la classe peggiore (mantra #7), e
+     * persiste oltre il turno. `interrogative` qui e' una lettura PRIVATA
+     * («finisce con ?»), e l'estrattore ne ha un'altra («apre con un
+     * interrogativo»): nessuna delle due vedeva una domanda con un token
+     * davanti, e nessuna delle due era la lettura che il frame del turno
+     * pubblica per tutte le facolta' (`turn_illocution/2`).
+     *
+     * La cura non e' una terza lettura privata: e' consumare quella pubblicata,
+     * come fanno le cessioni per forza. Chi IMPARA verifica l'atto prima di
+     * scrivere (verificare a valle, non filtrare a monte). Le letture private
+     * restano: sono additive, e un turno che una sola delle tre legge come
+     * domanda non insegna niente. Quale forma apra una domanda cresce in KB —
+     * `turn_opens_question/1` in grammar.p0 — senza toccare questa riga. */
+    int asking = interrogative || p0_turn_is(b, "question", norm);
+    if (!asking) {
         char emsg[512]; emsg[0] = '\0';
         int ne = extract_enumeration(b, norm, emsg, sizeof emsg);
         if (ne && emsg[0]) {
@@ -17557,7 +17574,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
     if (interrogative && p0_try_frame_question(b, w, nw, norm, out, out_size)) return 1;
-    if (!interrogative && extract_class_statement(b, norm, out, out_size, 0)) return 1;
+    if (!asking && extract_class_statement(b, norm, out, out_size, 0)) return 1;
 
     /* IL PERCORSO RIGIDO A QUATTRO PAROLE VEDEVA SOLO CLASSI DI UNA PAROLA (gen452).
      *
