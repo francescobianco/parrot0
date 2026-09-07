@@ -35,11 +35,12 @@
 > is she a pilot?
 < Yes.
 > she is not a robot
-< Learned: not robot(dana).
+# gen505y: il messaggio e' conoscenza — resa in prosa dal gen491 (`learned_class_fact`).
+< Learned: dana is not a robot.
 > is her a robot?
 < No.
 > what do you know about her?
 < dana is a pilot; dana is a teacher; dana is not a robot.
 > why is she a teacher?
-< teacher(dana) is a known fact.
+< I hold that dana is a teacher.
 

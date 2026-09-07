@@ -1042,7 +1042,7 @@ response_template(learned_located_in_x_x, it, "Imparato: {subj} si trova in {obj
 response_template(learned_part_of_x_x, it, "Imparato: {subj} fa parte di {obj}.").
 response_template(learned_holds_x, it, "Imparato: vale {x}.").
 response_template(learned_causal_relation, it, "Imparato: {cause} causa {effect}.").
-response_template(learned_created_by_x_x_x, it, "Imparato: {arg2} e' opera di {arg1} ({verb}).").
+response_template(learned_created_by_x_x_x, it, "Imparato: {obj2} e' opera di {subj2} ({canon}).").
 response_template(goal_noted, it, "Annotato l'obiettivo.").
 response_template(got_it_what_would_you_like_to_do, it, "Ricevuto — cosa ti va di fare?").
 response_template(forgotten_fact, it, "Dimenticato: {pred}({arg}).").

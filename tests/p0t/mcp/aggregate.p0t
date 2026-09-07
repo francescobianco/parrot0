@@ -16,9 +16,11 @@
 < Paris.
 
 [test aggregate_taught_over_mcp]
+# gen505y — R1 (TEST_TODO §0.0): la KB intera; il contesto amputato era meta'
+# della diagnosi mancante (H.3.2).
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=en
 !reset
 !mcp kb.assert {"pred":"won_by","args":["m1","spain"]}

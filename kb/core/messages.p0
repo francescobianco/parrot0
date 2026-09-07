@@ -248,7 +248,7 @@ response_template(plan_stopped_via_action, "{prefix} stopped at step {step} {ste
 % riga qui passano invece da `say_frame/2`, che costruisce la frase dal pattern
 % stesso e non puo' divergere. Queste tre sono la struttura secondaria piu'
 % vecchia; quando daranno fastidio si tolgono e restano solo i frame.
-response_template(learned_created_by_x_x_x, "Learned: {subj2} was created by {obj2} ({canon}).").
+response_template(learned_created_by_x_x_x, "Learned: {obj2} was created by {subj2} ({canon}).").
 response_template(learned_located_in_x_x, "Learned: {subj} is located in {obj}.").
 response_template(learned_part_of_x_x, "Learned: {subj} is part of {obj}.").
 response_template(you_haven_t_told_me_your_x_yet, "You haven't told me your {disp} yet.").

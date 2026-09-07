@@ -93,8 +93,12 @@
 # non viene piu' rubato da `smalltalk_deflect`, che rispondeva «non ne ho di
 # miei» a una domanda che chiedeva un fatto. L'attesa vecchia pretendeva la
 # formulazione peggiore delle tre.
+# gen505y: la formulazione e' cambiata di nuovo («I don't know much about your
+# designation yet. Want me to look it up?»): cio' che il caso prova e' che il
+# muro NOMINA il termine e non viene rubato, non la frase esatta.
 > what is your designation
-<~ I don't know about designation
+<~ designation
+<! non ne ho di miei
 
 [operatore di piano insegnato a runtime]
 !reset

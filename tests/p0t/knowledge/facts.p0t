@@ -37,10 +37,13 @@
 < Learned: bob is an animal.
 > is bob an animal?
 < Yes.
+# gen505y — la dottrina no-deception: «non dimostrato» non e' «falso». Un «No.»
+# secco vale solo dove `closed_world_answer/2` lo autorizza (glm-test §3.1,
+# gen505x); qui parrot0 sa alcuni uomini, non tutti, e lo dice.
 > is bob a man?
-< No.
+<~ not proved is not the same as false
 > is socrates an animal?
-< No.
+<~ not proved is not the same as false
 > hello
 < Hi there!
 > the quick brown fox

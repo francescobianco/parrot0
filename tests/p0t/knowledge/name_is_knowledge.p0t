@@ -38,8 +38,11 @@
 <! Colette
 !assert self_reference("je")
 !assert slot_evidence(name, "je m'appelle")
+# gen505y: `greet_name` ha due varianti in rotazione (gen55) e questa e' la
+# seconda volta che la famiglia parla nel file: si asserisce il nome, non la
+# variante.
 > je m'appelle Colette
-< Nice to meet you, Colette!
+<~ , Colette!
 > what is my name?
 < Your name is Colette.
 

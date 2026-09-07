@@ -53,7 +53,8 @@
 # passare. Se la guardia tagliasse per profondita' invece che per RIPETIZIONE
 # di un goal gia' aperto, questa risposta diventerebbe "No." e il test lo direbbe.
 > vex is a zorp
-< Learned: zorp(vex).
+# gen505y: il messaggio e' conoscenza — resa in prosa dal gen491 (`learned_class_fact`).
+< Learned: vex is a zorp.
 > is vex a blim
 < Yes.
 > is vex a krant

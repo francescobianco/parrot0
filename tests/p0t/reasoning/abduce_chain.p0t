@@ -58,7 +58,8 @@
 # Supply the root: the consequence propagates the WHOLE chain (human -> man ->
 # mortal) and gen103 volunteers it — abduction and self-correction, end to end.
 > socrates is a human
-< Learned: human(socrates). Now socrates is a mortal after all.
+# gen505y: il messaggio e' conoscenza — resa in prosa dal gen491 (`learned_class_fact`).
+< Learned: socrates is a human. Now socrates is a mortal after all.
 > is socrates a mortal?
 < Yes.
 

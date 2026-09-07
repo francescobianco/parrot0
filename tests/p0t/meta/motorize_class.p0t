@@ -3,9 +3,10 @@
 # output channel and are checked with !expect.
 
 [test motorize_class]
-!set PARROT0_BASE=
+# gen505y — R1 (TEST_TODO §0.0): la KB intera, non un contesto amputato.
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_PROFILE=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=en
 !reset
@@ -24,24 +25,36 @@
 !mcp gen.respond {"input":"what does a lion eat?"}
 !expect! mcp A lion eats zebra.
 
-# Passive creation extraction is also KB-first: written -> wrote and by-marker
-# are facts. Removing the form removes recognition in the same process.
-!mcp kb.assert {"pred":"creation_verb","args":["wrote"]}
+# Passive creation extraction is also KB-first: the participle -> verb pair
+# and the by-marker are facts. Removing the form removes recognition in the
+# same process.
+#
+# gen505y — R2 (TEST_TODO §0.0): il campione e' invecchiato. Con la KB intera
+# «written -> wrote» non e' piu' una forma che il test possa togliere: dal
+# gen505s parrot0 conosce la morfologia dei verbi irregolari da solo
+# (`irregular_verb_form(write, written)`, lexicon.p0), quindi ritrarre
+# `creation_verb_form(wrote, written)` non lo rendeva piu' ignorante — e il
+# rosso era una crescita, non una regressione. Il confine si sposta su un
+# verbo che nessuno puo' conoscere. E il messaggio e' conoscenza dal gen491:
+# la resa e' in prosa (`learned_created_by_x_x_x`), non `created_by(...)`.
+!mcp kb.assert {"pred":"creation_verb","args":["glorbed"]}
 !expect mcp true
-!mcp kb.assert {"pred":"creation_verb_form","args":["wrote","written"]}
+!mcp kb.assert {"pred":"creation_verb_form","args":["glorbed","glorben"]}
 !expect mcp true
 !mcp kb.assert {"pred":"creation_passive_agent_marker","args":["by"]}
 !expect mcp true
-!mcp gen.respond {"input":"The Odyssey was written by Homer."}
-!expect mcp Learned: created_by(homer, odyssey, wrote).
-!mcp gen.respond {"input":"Who wrote the Odyssey?"}
+!mcp gen.respond {"input":"The Odyssey was glorben by Homer."}
+!expect mcp Learned: odyssey was created by homer (glorbed).
+!mcp gen.respond {"input":"Who glorbed the Odyssey?"}
 !expect mcp Homer.
-!mcp kb.retract {"pred":"creation_verb_form","args":["wrote","written"]}
+!mcp kb.retract {"pred":"creation_verb_form","args":["glorbed","glorben"]}
 !expect mcp true
-!mcp gen.respond {"input":"The Iliad was written by Homer."}
-!expect! mcp Learned: created_by(homer, iliad, wrote).
-!mcp gen.respond {"input":"Who wrote the Iliad?"}
+!mcp gen.respond {"input":"The Iliad was glorben by Homer."}
+!expect! mcp created by
+!mcp gen.respond {"input":"Who glorbed the Iliad?"}
 !expect! mcp Homer.
+!forget created_by(homer, odyssey, glorbed)
+!forget creation_verb(glorbed)
 
 # Request forms stay KB-side too: removing the cue removes routing, while
 # topic/content facts remain available.

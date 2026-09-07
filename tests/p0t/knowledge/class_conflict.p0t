@@ -55,7 +55,8 @@
 # Il conflitto: `fish` contro `is_a(dog, mammal)`, dichiarati incompatibili.
 # Il fatto e' comunque memorizzato, e la frase in piu' nomina i due livelli.
 > a dog is a fish
-< Learned: fish(dog). That sits badly with what I already hold: dog is a mammal, and fish and mammal cannot both apply.
+# gen505y: il messaggio e' conoscenza (`learned_class_fact`, in prosa dal gen491).
+< Learned: dog is a fish. That sits badly with what I already hold: dog is a mammal, and fish and mammal cannot both apply.
 
 # Niente allarmismo: una classe che NON e' in conflitto passa senza commento.
 # Se questa riga acquisisse la coda, il rilevatore starebbe gridando al lupo.

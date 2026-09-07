@@ -1,8 +1,10 @@
-# migrated from tests/cases/chitchat.chat (gen346, hermetic + isolated)
-[mock hermetic]
-!set PARROT0_BASE=
+# migrated from tests/cases/chitchat.chat (gen346). gen505y: R1 (TEST_TODO
+# §0.0) — la KB intera, non un contesto amputato.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
 !reset
 
@@ -42,8 +44,13 @@
 
 # Anti-impostor: a real knowledge question carries no affective cue, so it still
 # gets the honest wall — chitchat must never swallow genuine questions.
+# gen505y — R2: con la KB intera il cielo ha una risposta vera (perche' e' blu).
+# Cio' che il caso prova e' che il registro affettivo NON prende il turno; il
+# muro era solo il campione di allora.
 > is the sky blue?
-< I don't understand that yet.
+<! I'm enjoying this
+<! don't understand
+!query! turn_module(current_turn, chitchat)
 
 # gen140: companion-style casual conversation. These are non-technical,
 # non-knowledge turns from ordinary users; answer naturally without pretending
@@ -67,8 +74,13 @@
 < We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.
 > entertain me
 < We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.
+# gen505y: «rough day» e' una cue di `mood_tired`, e questa e' la SECONDA volta
+# che la famiglia parla nel file («im tired» sopra), quindi la rotazione
+# anti-ripetizione (gen55) dice la seconda variante. L'attesa vecchia era
+# scritta sul vincitore di un match a sottostringa che il gen505q ha tolto
+# (TEST_TODO in testa).
 > rough day
-< Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.
+< Rest a bit - we can pick this up whenever you want.
 > bad day
 < Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.
 > just talk

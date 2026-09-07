@@ -895,6 +895,11 @@ test: test-engine
 # MIGRATED to the test-engine (parrot0 --test-engine, .p0t files); each script
 # here should become one or more .p0t files under tests/p0t/. See
 # docs/plans/test-engine.md.
+# gen505y: le tredici suite shell gia' convertite (selflimits, segment,
+# archetype, persist, restore, answerframe, savemap, wiki_learning,
+# research_learn, posix_oracle, experts, enumerate, agentrepair) sono state
+# cancellate con la conversione (TEST_TODO §3.6); qui restano solo i driver C
+# e gli strumenti che non hanno una forma .p0t.
 legacy-test: build
 	@echo "############################################################"
 	@echo "# legacy-test: these suites are being MIGRATED to the new  #"
@@ -902,13 +907,10 @@ legacy-test: build
 	@echo "############################################################"
 	@./tests/tools/run.sh
 	@./tests/tools/checkfocal.sh
-	@./tests/selflimits.sh
-	@./tests/agentrepair.sh
 	@./tests/cdriver/exec_kernel.sh
 	@./tests/cdriver/exec_dirfd.sh
 	@./tests/cdriver/run.sh tests/cdriver/integration/agentkernel.c src/agent.c src/json.c
 	@./tests/cdriver/run.sh tests/cdriver/integration/patch-check.c src/patch.c src/exec.c
-	@./tests/segment.sh
 	@$(BENCH_PY) ./tests/tools/openai-input-limit.py
 	@$(BENCH_PY) ./tests/tools/autolearn_structure.py
 	@./tests/bench/llmscore-kbfirst.sh
@@ -916,17 +918,7 @@ legacy-test: build
 	@$(BENCH_PY) ./tests/tools/manifest_audit.py
 	@$(BENCH_PY) ./tests/tools/module_review.py
 	@./tests/tools/cuechains.sh
-	@./tests/archetype.sh
-	@./tests/persist.sh
-	@./tests/restore.sh
-	@./tests/answerframe.sh
-	@./tests/savemap.sh
-	@./tests/wiki_learning.sh
-	@./tests/research_learn.sh
-	@PARROT0_ORACLE=1 ./tests/posix_oracle.sh
-	@./tests/experts.sh
 	@./tests/bench/llmscore_world.sh
-	@./tests/enumerate.sh
 
 bench: build
 	@./tests/bench/bench.sh all

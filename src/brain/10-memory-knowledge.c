@@ -7129,6 +7129,58 @@ static int p0_answer_subject_in_focus(Brain *b, const char *norm,
     snprintf(spaced, sizeof spaced, "%s", subject);
     for (char *p = spaced; *p; p++) if (*p == '_') *p = ' ';
     if (kb_text_has_surface(focus, spaced)) return 1;
+    /* gen505y — IL FUOCO PUO' NOMINARE L'ATTRIBUTO, NON LA COSA.
+     *
+     * «what is the frame move for location_policy_alpha?»: il fuoco e' «the
+     * frame move» e il soggetto della risposta e' location_policy_alpha, che
+     * sta nell'ambito. La verifica lo rifiutava come rifiuta «la definizione
+     * degli scacchi» per «l'arrocco negli scacchi» — ma le due forme sono
+     * diverse: li' il fuoco nomina una COSA (arrocco) e l'ambito un campo;
+     * qui il fuoco nomina un ATTRIBUTO (frame move) e l'ambito il suo
+     * PORTATORE, che e' proprio cio' di cui si risponde. Sei file verdi al
+     * gen491 (context_scope, sequential_view, dialogue_moves, …) erano caduti
+     * su questa distinzione.
+     *
+     * La prova e' KB: se il fuoco, tolte le parole delle cue di `answer_frame`
+     * presenti nel turno e le parole vuote, non lascia niente, allora il fuoco
+     * E' l'attributo e il portatore ha titolo. «the arrocco» lascia «arrocco»,
+     * che nessuna cue spiega, e resta rifiutato. */
+    {
+        char rest[512];
+        snprintf(rest, sizeof rest, "%s", focus);
+        char (*cues)[KB_TERM_LEN] = NULL; size_t nc = 0;
+        const char *cq[2] = { NULL, NULL };
+        if (kb_match_all(b->kb, "answer_frame", cq, 2, &cues, &nc)) {
+            for (size_t i = 0; i < nc; i++) {
+                char cb[KB_TERM_LEN];
+                snprintf(cb, sizeof cb, "%s", cues[i]);
+                const char *cue_s = kb_dequote(cb);
+                if (!*cue_s || !kb_text_has_surface(norm, cue_s)) continue;
+                char cw[KB_TERM_LEN];
+                snprintf(cw, sizeof cw, "%s", cue_s);
+                char *cwords[32]; size_t ncw = split_words(cw, cwords, 32);
+                for (size_t k = 0; k < ncw; k++) {
+                    size_t wl = strlen(cwords[k]);
+                    if (!wl) continue;
+                    char *at = rest;
+                    while ((at = strstr(at, cwords[k])) != NULL) {
+                        int lb = at == rest || !isalnum((unsigned char)at[-1]);
+                        int rb = !isalnum((unsigned char)at[wl]);
+                        if (lb && rb) memset(at, ' ', wl);
+                        at += wl;
+                    }
+                }
+            }
+        }
+        free(cues);
+        char *rw[64]; size_t nr = split_words(rest, rw, 64);
+        int left = 0;
+        for (size_t i = 0; i < nr && !left; i++) {
+            const char *t = strip_edge_punct(rw[i]);
+            if (*t && !is_stopword(b, t) && !p0_any_determiner(b, t)) left = 1;
+        }
+        if (!left) return 1;              /* tutto il fuoco e' spiegato dalle cue */
+    }
     p0_record_focus_rejection(b, subject);
     return 0;
 }
@@ -11982,6 +12034,14 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
     char subj[KB_TERM_LEN], obj[KB_TERM_LEN];
     if (sbeg >= vi || !p0_join(w, sbeg, vi, subj, sizeof subj)) return 0;
     if (!*subj) return 0;
+    /* gen505y — L'INTERLOCUTORE NON E' UN SOGGETTO DEL MONDO. «how do you know
+     * zibo is a quux?» e «what do you know about axicr?» venivano letti come
+     * relazioni know(you, …) e ricevevano «nothing I hold says you knew …»:
+     * la facolta' della prova (howknow.p0t) e la risposta di ignoranza
+     * (syllogism.p0t), verdi al gen491, perdevano il turno a un lettore nato
+     * dopo. Ogni altro lettore di relazioni chiede a `subject_guard/1` se il
+     * soggetto puo' essere la chiave di un fatto; questo non lo chiedeva. */
+    if (p0_bad_subject(b, subj)) return 0;
 
     /* L'oggetto manca: e' la domanda «che cosa …?», e si risponde ENUMERANDO.
      * Il registro degli elenchi e' quello di `who governs rome?`, che gia'

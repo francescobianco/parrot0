@@ -16,8 +16,9 @@
 !clause warg($X) :- flob($X)
 
 # direct fact is direct
+# gen505y: la dicitura e' conoscenza (`directly_x_is_a_known_fact`, messages.p0).
 > how do you know zibo is a quux?
-< Directly: quux(zibo) is a known fact.
+< Directly: quux(zibo) — no reasoning needed.
 
 # one rule is one step
 > how do you know zibo is a flob?

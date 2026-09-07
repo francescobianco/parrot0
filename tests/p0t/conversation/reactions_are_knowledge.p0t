@@ -55,7 +55,13 @@
 <~ low-energy
 > what mood am I in?
 < You told me you feel tired.
+# gen505y: «I am bored» rivendicava la cue «red» dentro «bo·red·» (il registro
+# dei colori) e la reazione attesa era quella del vincitore sbagliato; dal
+# gen505q le cue combaciano a parola intera e vince `mood_bored`. Cio' che il
+# caso prova e' il FATTO che il turno lascia, quindi si asserisce la facolta',
+# non la variante del template (la famiglia ne ha due, in rotazione).
 > I am bored
-<~ low-energy
+<! don't understand
+!query turn_module(current_turn, chitchat)
 > what mood am I in?
 < You told me you feel bored.

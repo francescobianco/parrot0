@@ -1,9 +1,11 @@
 # migrated from tests/cases/abduce.chat (gen346, hermetic + isolated)
-[mock hermetic]
-!set PARROT0_BASE=
+[mock live]
+# gen505y — R1 (TEST_TODO §0.0): la KB intera, non un contesto amputato.
+!set PARROT0_BASE=kb/core/base.p0
 !set PARROT0_SESSION=
-!set PARROT0_WORLD_FACTS=0
+!set PARROT0_WORLD_FACTS=1
 !set PARROT0_LANG=en
+!set PARROT0_PROFILE=kb/profiles/agi.p0
 !reset
 
 [test abduce]
@@ -12,39 +14,46 @@
 # watched a conclusion fall; abduction starts from a conclusion that does NOT
 # hold and runs the rule engine BACKWARDS to name the belief that would entail
 # it. Computed from the real rules (kb_rule_body_preds), not guessed.
+#
+# gen505y — R2 (TEST_TODO §0.0): con la KB intera socrate E' un uomo ed e'
+# mortale, quindi il campione «socrates / man / mortal» era invecchiato: la
+# catena si prova su nomi che nessuno puo' conoscere. L'intento — l'abduzione
+# nomina la premessa mancante, e la premessa fornita chiude il cerchio — e'
+# lo stesso.
 
-# No rule concludes "wizard", so there is honestly nothing that would make it so.
-> what would make socrates a wizard?
-< I have no rule that would make anything a wizard, so I can't say what would.
+# No rule concludes "zorbulator", so there is honestly nothing that would make it so.
+> what would make zibbo a zorbulator?
+< I have no rule that would make anything a zorbulator, so I can't say what would.
 
-# Teach the rule but NOT its premise: socrates is not (yet) provably mortal.
-> every man is a mortal
-< Learned rule: mortal(X) :- man(X).
-> is socrates a mortal?
-< No.
+# Teach the rule but NOT its premise: zibbo is not (yet) provably a glimmer.
+> every florp is a glimmer
+< Learned rule: glimmer(X) :- florp(X).
+> is zibbo a glimmer?
+<! Yes
 
 # Abduction: the goal fails, so name the premise that WOULD entail it.
-> what would make socrates a mortal?
-< If you told me that socrates is a man, then socrates would be a mortal — that's the rule man -> mortal.
+> what would make zibbo a glimmer?
+< If you told me that zibbo is a florp, then zibbo would be a glimmer — that's the rule florp -> glimmer.
 
 # Supply exactly that premise — and gen103's self-correction volunteers the
 # downstream consequence the abduction predicted. Two generations composing.
-> socrates is a man
-< Learned: man(socrates). Now socrates is a mortal after all.
-> is socrates a mortal?
+> zibbo is a florp
+< Learned: zibbo is a florp. Now zibbo is a glimmer after all.
+> is zibbo a glimmer?
 < Yes.
 # gen135: contrastive why-not uses the same missing-premise analysis, but now
 # explains a failed conclusion directly instead of requiring "what would make".
 > every friendly dog is a goodboy
 < Learned rule: goodboy(X) :- friendly(X), dog(X).
 > rex is a dog
-< Learned: dog(rex).
+< Learned: rex is a dog.
 > why isn't rex a goodboy?
 < rex is not a goodboy because I am missing: rex is a friendly. The rule is friendly and dog -> goodboy.
 
 
 # Now the goal HOLDS, so the same question is deduction, not abduction: it cites
 # the real proof instead of an antecedent.
-> why might socrates be a mortal?
-< I already conclude that: mortal(socrates) because man(socrates).
-
+> why might zibbo be a glimmer?
+< I already conclude that: glimmer(zibbo) because florp(zibbo).
+!forget florp(zibbo)
+!forget dog(rex)
