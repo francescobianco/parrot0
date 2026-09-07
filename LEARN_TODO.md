@@ -1,5 +1,65 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — 8 settembre 2026 (`gen506`): il report GLM, e il punto 1 a meta'
+
+> **Stato:** tutto su `origin/main` (`aaf2a61`). ⚠ `docs/reports/suite-run.txt`
+> e' **incompleto** — la suite era a 328/358 quando ho chiuso: va rilanciata
+> (`make build && scripts/suite-run.sh`) e committata come baseline vera.
+
+## Dal punto 1 della coda del `gen505y` — due meta' su tre
+
+✅ **I confini di frase vengono dalla KB.** `passage_boundary_mark/1` riusa
+`sentence_terminator/2`, in **due** lettori (`read_passage`, `learn_from_prose`).
+Ritirarlo spezza davvero il lettore: e' l'ablazione del cricchetto.
+
+✅ **Il focus scorre.** `referring_possessive/1` dice quali parole puntano
+indietro; il resto e' meccanica. Misurato con una sonda:
+`its capital is velk` → **`the capital of zorbium is velk`**.
+
+⛔ **Il fatto non entra ancora**, e la diagnosi e' stretta:
+1. `extract_class_statement` **consuma** la frase leggendola come «X is Y» e
+   scrive `velk(the_capital_of_zorbium)` — un'entita' inventata dalla forma.
+   E' un secondo difetto, ed entra in KB oggi.
+2. Il frame giusto esiste ed e' **derivato**: `relation_noun(capital_of,
+   "capital")` → `extract_frame("the capital of @S is @O", …)`. Il legatore lo
+   trova; qualcosa a valle lo respinge. Sospetto misurabile:
+   `p0_fact_is_clean`, che chiede argomenti concetto-noti, e «velk» e' appena
+   stata incontrata leggendo.
+
+> **La prossima mossa e' UNA stampa su `p0_fact_is_clean` per quella frase**,
+> non un settimo punto di chiamata (sei forme gia' tentate e tolte).
+> Se il sospetto regge, la cura non e' aggirare il cancello: e' far entrare
+> l'entita' LETTA prima del fatto che la nomina.
+
+✅ **Punto 3 della coda** (la resa con gli underscore) chiuso:
+`present_term/2` rende interrogabile `present_rule(strip_underscore)`, che era
+conoscenza applicabile solo dal C. `where is zorbium` → «Central nivoran sea.»
+
+## Dal report `docs/issues/glm-test.md`
+
+Consuntivo aggiornato in testa al report. In questa sessione: **§3.5** (la
+facolta' di acquisizione cedeva il turno dove non c'e' lacuna — mantra #21),
+**§6.2** (l'articolo e' concordanza, non una lettera nel template), **§5.4**
+(causa trovata, cura rimandata con la scheda).
+
+## ⛔ Due difetti di PRINCIPIO trovati, non chiusi — vanno guardati insieme
+
+1. **`tput` decide la lingua chiedendo alla classe dei PRONOMI**
+   (`lex_class_member(b, "entity_pronoun", lang)`). Funziona per coincidenza:
+   il codice italiano «it» e' anche il pronome inglese. **Nessuna lingua nuova**
+   potra' mai ricevere la propria resa, e nessun test lo direbbe.
+2. **`what is a wombat`** non trova nessuna facolta' (`blind_wall`) mentre
+   `what is the wombat` risponde: l'articolo indeterminativo ha una via a se'
+   (`taxonomy_definition_request`) che declina.
+
+## Nota di metodo, pagata cara in questo giro
+
+`!query` **attende dimostrabile**, `!query!` attende NON dimostrabile. Ho scritto
+il cricchetto con la polarita' invertita e ho letto «il focus non scorre» per due
+cicli, mentre scorreva. Prima di credere a un cricchetto nuovo, provarlo su un
+fatto che si sa vero.
+
+
 > **Come si conduce una sessione:** `docs/plans/procedura-crescita-kb.md` e il
 > mantra #22. Un solo handoff vivo per file: e' quello qui sotto.
 
