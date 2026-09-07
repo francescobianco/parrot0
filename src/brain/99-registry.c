@@ -5130,6 +5130,29 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                 wiki_fetch_bilingual(b->kb, topic);
                 int got = acquire_knowledge(b, topic, def, sizeof def);
                 size_t ol = strlen(out);
+                /* gen505y — IL FETCH LEGGE, NON ARCHIVIA (gen436): la prosa torna
+                 * in memoria e passa dal lettore che legge un testo incollato.
+                 * Dal gen436 questo anello mancava: `wiki_fetch_bilingual`
+                 * scartava la prosa, `acquire_knowledge` cercava il corpus
+                 * locale che non esiste piu', e «Looking up beer...» finiva
+                 * sempre in «I still don't know much about beer» con la rete
+                 * viva e la pagina letta. Il lettore e' lo stesso di `read:`. */
+                int nf_prose = 0;
+                if (!got) {
+                    char prose[4096] = "";
+                    if (wiki_fetch_topic_lang_prose(topic, "en", prose, sizeof prose)) {
+                        char lmsg[512] = "";
+                        nf_prose = learn_from_prose(b, prose, lmsg, sizeof lmsg);
+                        if (nf_prose > 0) {
+                            got = 1;
+                            size_t cut = 0;   /* la prima frase e' la definizione */
+                            for (size_t i = 0; prose[i]; i++)
+                                if ((prose[i] == '.' || prose[i] == '!' || prose[i] == '?') &&
+                                    (!prose[i + 1] || prose[i + 1] == ' ')) { cut = i + 1; break; }
+                            if (cut && cut < sizeof def) { memcpy(def, prose, cut); def[cut] = '\0'; }
+                        }
+                    }
+                }
                 if (!got) {
                     /* gen335e: mark this topic as failed so not_understood
                      * won't re-offer the same gap on re-dispatch. */
@@ -5139,8 +5162,8 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                 /* gen335g: after a successful acquire, also extract structured
                  * facts from the page prose (extract_page_facts). This gives
                  * the full pipeline: download → learn concept → extract facts. */
-                int nf = 0;
-                if (got) {
+                int nf = nf_prose;
+                if (got && !nf_prose) {
                     char facts[512] = "";
                     nf = extract_page_facts(b, topic, facts, sizeof facts);
                 }
