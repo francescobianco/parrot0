@@ -19,6 +19,8 @@
 > | **4.4** | non «i percorsi leggono solo l'inglese»: locuzioni. Undici `phrase_canon`, **zero righe di C** |
 > | **4.6** | clausola relativa e doppio output: chiusi di rimbalzo |
 > | **6.3** | `assent_word` e `dissent_word` condividevano la risposta: chi negava riceveva una conferma |
+> | **3.5** | *(gen506)* non «due letture che non si parlano»: `kb_define_entity` legge benissimo i fatti unari. Era la facolta' di **acquisizione** a prendersi il turno per cercare fuori cio' che parrot0 aveva gia' dentro — mantra #21, dove non c'e' lacuna non c'e' titolo. `what is wombat` / `what is the wombat` / `define wombat` / `tell me about wombat` rispondono dal fatto insegnato (resta «what is **a** wombat», forma a se') |
+> | **6.2** | *(gen506)* l'articolo era scritto dentro il template: «say «something is a eiffel»». `{article}` legge la stessa politica che il resto del motore usa per «a»/«an» — sbagliare la grammatica **nel messaggio con cui si chiede di essere insegnati** insegna male |
 >
 > ### Parziali
 >

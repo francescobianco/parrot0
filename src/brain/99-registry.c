@@ -2333,6 +2333,21 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
                             to += (size_t)snprintf(teach + to, sizeof teach - to,
                                                    "%s", middle[0] ? middle : sw);
                             p += 8;
+                        } else if (!strncmp(p, "{article}", 9)) {
+                            /* gen506 — L'ARTICOLO E' CONCORDANZA, NON UNA LETTERA
+                             *
+                             * glm-test §6.2: «say «something is a eiffel»» — la
+                             * «a» era scritta dentro il template. E' proprio il
+                             * messaggio con cui parrot0 chiede di essere
+                             * insegnato: sbagliarci la grammatica insegna male.
+                             * `p0_indef_article` legge la KB (la stessa che il
+                             * resto del motore usa per «a»/«an»), quindi una
+                             * lingua o un'eccezione nuova e' un fatto. */
+                            char art[16];
+                            p0_indef_article(b, sw, art, sizeof art);
+                            to += (size_t)snprintf(teach + to, sizeof teach - to,
+                                                   "%s", art[0] ? art : "a");
+                            p += 9;
                         } else teach[to++] = *p++;
                         teach[to] = '\0';
                     }
