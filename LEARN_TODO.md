@@ -33,6 +33,16 @@
 - Test `conversation/session_board.p0t` 24/24 (nel make test), con
   `offer_context` 21/21 e `disambiguation` 19/19 invariati.
 
+**⛔ Critica di F. alla soluzione, da cui si riparte:** `session_window(6)` e'
+logica cablata dove serviva un'abilita' cognitiva — «il contesto va
+ottimizzato per abilita' cognitive, non per logica cablata». Il difetto: il
+contatore decide per numero di turni cio' che dipende dal contenuto (una
+questione aperta al turno 3 e' viva al 12, il suo turno e' caduto al 10, e
+nessun fatto lo dice). La forma di arrivo e' la ritenzione come regola KB sul
+contenuto (un turno resta finche' qualcosa lo cita); il numero e' un ponte da
+togliere. Scritto anche in dialogica.md §1bis e accanto al fatto in
+discourse.p0 §6.
+
 **Coda:** I1 di dialogica (fondere `pending_gap`/`pending_disambiguation` in
 `open_issue(Issue, Kind)` con il turno che l'ha aperta: ora il turno c'e',
 `issue_turn(Issue, turn_N)`); la ripresa («torniamo ai plc», D49); ritirare

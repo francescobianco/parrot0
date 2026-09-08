@@ -307,6 +307,11 @@ machinery(session_window).
 machinery(turn_reply).
 machinery(turn_input).
 machinery(turn_entity).
+% ⛔ F.: «la finestra fissa e' solo un difetto delle abilita' cognitive: il
+% contesto va ottimizzato per abilita' cognitive, non per logica cablata».
+% Questo numero e' un ponte: la ritenzione giusta e' una regola sul contenuto
+% (si tiene il turno finche' qualcosa lo cita — una questione aperta, un
+% referente vivo — e cade quando nessuno lo cita piu'). Vedi dialogica.md §1bis.
 session_window(6).
 turn_scoped(input_node, 4).
 turn_scoped(input_node_surface, 3).

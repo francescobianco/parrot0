@@ -79,6 +79,19 @@ e' `turn_scoped/2` (discourse.p0 §6). Fatto in gen506h; i primi consumatori:
 la scelta letta sul frame con la risposta parziale che restringe (L3) e la
 domanda nuova che non viene catturata (L4).
 
+> ⛔ **Critica di F. alla soluzione (gen506h, `session_window(6)`):** «la
+> finestra fissa e' solo un difetto delle abilita' cognitive: il contesto va
+> ottimizzato per abilita' cognitive, non per logica cablata». Un contatore
+> decide per numero di turni una cosa che dipende dal contenuto: una
+> questione aperta al turno 3 e' ancora aperta al turno 12, ma il turno che
+> l'ha posta e' caduto al 10 — il tabellone dice «aperto», la memoria dice
+> «dimenticato», e nessun fatto registra la caduta. La forma giusta e' la
+> ritenzione come REGOLA KB sul contenuto: un turno si tiene finche' qualcosa
+> lo cita (una questione aperta nata li', un referente vivo, una mossa che vi
+> rimanda) e cade quando nessuno lo cita piu'; il costo, se va limitato, e' un
+> vincolo secondario e dichiarato. Il numero e' un ponte da togliere, non un
+> parametro da regolare.
+
 **Le finestre non sono un vincolo di progetto.** I 256 byte di `norm`/`canon`
 nel dispatch, i 4096 della prosa, `KB_TERM_LEN` per un fatto: sono debito.
 L'ambizione (F.) e' incollare un file Python di mille righe e dire
