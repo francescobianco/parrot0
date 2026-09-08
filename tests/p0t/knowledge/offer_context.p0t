@@ -1,0 +1,94 @@
+# L'OFFERTA APERTA E' IL CONTESTO DEL TURNO DOPO — gen506f.
+#
+# F., in chat: «parlami dei plc» -> «Vuoi che cerchi?» -> «certo» -> «Ricevuto
+# — che cosa vuoi fare?»; «una panoramica generale» -> «Non capisco»; «dimmi
+# qualsiasi cosa sai sui plc» -> «Non sono sicuro di aver seguito»; «plc» ->
+# «Non capisco». La risoluzione dell'offerta e' una lettura del frame del
+# turno (network.p0 §10): assenso, dissenso, il tema rinominato; e un turno
+# che nessuno sa servire, sotto un'offerta aperta, la accetta.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=it
+!timeout 8
+!reset
+
+[test «certo» e' un si']
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami di velkania
+<~ Vuoi che cerchi?
+> certo
+<~ Vediamo cosa trovo su velkania
+!query! pending_gap(velkania)
+
+[test il turno che nessuno sa servire, sotto l'offerta, e' un si']
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami di velkania
+<~ Vuoi che cerchi?
+> una panoramica generale
+<~ Vediamo cosa trovo su velkania
+
+[test rinominare il tema e' un si']
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami di velkania
+> dimmi qualsiasi cosa sai su velkania
+<~ Vediamo cosa trovo su velkania
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami di velkania
+> velkania
+<~ Vediamo cosa trovo su velkania
+
+[test il dissenso resta un no, e una domanda rivendicata non e' un si']
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami di velkania
+> no grazie
+<! Vediamo cosa trovo
+!query! pending_gap(velkania)
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami di velkania
+> qual è la capitale della francia
+<! Vediamo cosa trovo
+!query pending_gap(velkania)
+
+[test la stessa cosa in inglese]
+!set PARROT0_LANG=en
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> tell me about zorbium
+<~ Want me to look it up?
+> sure
+<~ Looking up zorbium
+
+[test sotto una disambiguazione aperta, il turno non rivendicato risente la domanda]
+!set PARROT0_LANG=it
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami dei plc
+> certo
+<~ Quale intendi?
+> una panoramica generale
+<~ Programmable logic controller
+<~ Quale intendi?
+<! Non capisco
+> il programmable logic controller
+<~ industrial computer
+
+# Ablazione: la politica del turno non rivendicato e' una riga, e si insegna.
+[test la politica si spegne parlando]
+!set PARROT0_LANG=it
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> non cercare se non dico di si
+<~ Understood
+!query offer_unclaimed_turn(ask)
+> parlami di velkania
+> una panoramica generale
+<! Vediamo cosa trovo
+!forget offer_unclaimed_turn(ask)

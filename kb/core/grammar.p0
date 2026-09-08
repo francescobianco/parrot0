@@ -1826,6 +1826,8 @@ machinery(assent_word).
 machinery(dissent_word).
 assent_word(yes).  assent_word(ok).   assent_word(okay).
 assent_word(si).   assent_word(certo). assent_word(va).
+assent_word(certamente). assent_word(sicuro). assent_word(volentieri). assent_word(dai).
+assent_word(sure). assent_word(please). assent_word(yep). assent_word(yeah).
 dissent_word(no).  dissent_word(nope). dissent_word(nah).
 
 % ── LE FORME CHE SI POSSONO OFFRIRE PER UNA PAROLA SOLA (gen430) ────────────

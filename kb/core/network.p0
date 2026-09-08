@@ -187,3 +187,31 @@ intent_phrase(acquisition_report, "what did you find?").
 intent_phrase(acquisition_report, "what have you found").
 intent_phrase(acquisition_report, "what have you found?").
 
+% ── 10. L'OFFERTA APERTA E' IL CONTESTO DEL TURNO DOPO (gen506f) ────────────
+% F., in chat: «parlami dei plc» -> «Vuoi che cerchi?» -> «certo» -> «Ricevuto
+% — che cosa vuoi fare?»; «una panoramica generale» -> «Non capisco»; «dimmi
+% qualsiasi cosa sai sui plc» -> «Non sono sicuro di aver seguito»; «plc» ->
+% «Non capisco». Quattro modi di dire «si'» a QUELLA domanda, e nessuno lo
+% era, perche' il «si'» stava in una catena di classi compilate e il turno
+% non rivendicato andava al muro come se l'offerta non esistesse.
+%
+% Qui la risoluzione e' UNA lettura del frame del turno, come le altre forze:
+% le parole di assenso e dissenso sono cue pubblicate (`turn_cue`), rinominare
+% il tema dell'offerta e' accettarla, e un turno che nessuna facolta' sa
+% servire, sotto un'offerta aperta, la accetta — a meno di un dissenso. Il C
+% chiede `offer_resolution(current_turn, accept|refuse)` e
+% `offer_unclaimed_turn(accept)`; una parola nuova o una politica diversa
+% («se non dico si' non cercare») e' una riga, o una lezione.
+turn_cue_registry(assent_word, 1).
+turn_cue_registry(dissent_word, 1).
+machinery(offer_resolution).
+machinery(offer_unclaimed_turn).
+offer_resolution($T, refuse) :- turn_cue($T, dissent_word, $W).
+offer_resolution($T, accept) :- turn_cue($T, assent_word, $W), naf(offer_resolution($T, refuse)).
+offer_resolution($T, accept) :-
+    pending_gap($Topic), input_node_atom($T, $Id, $Topic), naf(offer_resolution($T, refuse)).
+offer_unclaimed_turn(accept).
+conduct_lesson1("non cercare se non dico di si", offer_unclaimed_turn, ask).
+conduct_lesson1("don't look things up unless i say yes", offer_unclaimed_turn, ask).
+conduct_lesson_reply(offer_unclaimed_turn, ask, "Understood: I'll look things up only when you say yes.").
+

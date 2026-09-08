@@ -1,5 +1,51 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — 9 settembre 2026 (`gen506f`): l'offerta aperta e' il contesto del turno dopo
+
+> F., davanti a «parlami dei plc» -> «certo» -> «Ricevuto — che cosa vuoi
+> fare?» -> «una panoramica generale» -> «Non capisco»: «ho paura che tu stia
+> risolvendo i problemi in modo puntuale… serve generalita' e KB-first piu'
+> tutta la comprensione universale». La critica e' giusta e va tenuta come
+> criterio: prima di ogni riparazione, la domanda e' «qual e' la CLASSE di
+> turni che questa chat mostra, e dove sta la lettura che la copre?».
+
+**La classe:** un turno detto sotto una DOMANDA APERTA di parrot0 («Vuoi che
+cerchi?», «Quale intendi?») non e' un turno da capire da zero: e' una risposta
+a quella domanda. Prima il «si'» era una catena di classi compilate
+(`p0_is_confirmation`: sette `99_registry_lex…`) che non consultava nemmeno
+`assent_word(certo)` gia' in KB; e un turno che nessuna facolta' rivendicava
+andava al muro come se l'offerta non esistesse; e l'offerta si chiudeva
+comunque dopo un turno.
+
+**La lettura, in KB (network.p0 §10):** le parole di assenso e dissenso sono
+cue pubblicate nel frame del turno (`turn_cue_registry(assent_word|
+dissent_word, 1)`), e la risoluzione e' una regola —
+`offer_resolution($T, refuse) :- turn_cue($T, dissent_word, _)`;
+`accept :- turn_cue assent, naf(refuse)`; `accept :- pending_gap($Topic),
+input_node_atom($T, _, $Topic), naf(refuse)` (rinominare il tema e' un si').
+La politica «un turno che nessuno sa servire, sotto un'offerta, la accetta»
+e' un fatto (`offer_unclaimed_turn(accept)`) e si spegne parlando («non
+cercare se non dico di si»). L'offerta si chiude quando e' RISOLTA, non
+perche' e' passato un turno: una domanda rivendicata nel mezzo la lascia
+aperta. Sotto una disambiguazione aperta, il turno non rivendicato risente
+la domanda con le opzioni. Il C: `pending_offer_fallthrough` (prima del muro
+e della compensazione), il blocco dell'offerta consulta `offer_resolution`,
+`p0_is_confirmation` legge anche `assent_word`. Test:
+`knowledge/offer_context.p0t` 21/21 (certo / panoramica / tema rinominato /
+no grazie / domanda nel mezzo / inglese / lezione / disambiguazione).
+
+**Onesta' sui limiti:** «dimmi qualsiasi cosa sai sui plc» sotto una
+disambiguazione risente «Quale intendi?» — giusto, ma «qualsiasi» poteva
+voler dire «tutte»: la lettura di «qualsiasi/qualunque» come scelta totale
+non c'e'. E la classe generale — «una domanda aperta di parrot0 e' il frame
+del turno dopo» — oggi vale per due domande (offerta, disambiguazione)
+scritte come fatti distinti (`pending_gap`, `pending_disambiguation`); la
+forma di arrivo e' UN `pending_question(Kind, …)` con la sua risoluzione in
+KB per ogni Kind, cosi' la prossima domanda (una conferma, una scelta di
+stile) nasce gia' dentro la stessa lettura.
+
+---
+
 # 🏁 HANDOFF — 9 settembre 2026 (`gen506e`): la memoria profonda legge la prosa in italiano
 
 > F.: «metti alla prova la memoria profonda con casi limite, dobbiamo trovare

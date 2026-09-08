@@ -2546,6 +2546,7 @@ static int p0_is_confirmation(Brain *b, const char *t) {
            lex_prefix_member(b, "99_registry_lex3879_3", t) ||
            lex_prefix_member(b, "99_registry_lex3880_3", t) ||
            lex_class_member(b, "affirmation_word", t) ||
+           lex_class_member(b, "assent_word", t) ||   /* gen506f: una conoscenza sola */
            strcmp(t, "s\u00ec") == 0;
 }
 
@@ -5262,6 +5263,55 @@ static int acquire_and_report(Brain *b, const char *topic, const char *stored_q,
     return 0;
 }
 
+/* gen506f — L'OFFERTA APERTA RACCOGLIE IL TURNO NON RIVENDICATO.
+ *
+ * «Vuoi che cerchi?» e' una domanda aperta; «una panoramica generale» detta
+ * subito dopo non e' un turno da capire da zero, e' una risposta a quella
+ * domanda. Se nessuna facolta' l'ha servita e la KB non vi legge un dissenso,
+ * e la politica (`offer_unclaimed_turn(accept)`, insegnabile) lo consente,
+ * l'offerta si accetta: la stessa acquisizione del «si'» esplicito. */
+static int pending_offer_fallthrough(Brain *b, const char *input, char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    /* Sotto una DISAMBIGUAZIONE aperta il turno non rivendicato non sceglie
+     * niente: si ripete la domanda con le opzioni, non «Non capisco». */
+    {
+        char pd[1][KB_TERM_LEN];
+        const char *pq[1] = { NULL };
+        if (kb_match(b->kb, "pending_disambiguation", pq, 1, pd, 1) > 0) {
+            char topic[KB_TERM_LEN]; snprintf(topic, sizeof topic, "%s", kb_dequote(pd[0]));
+            for (char *c = topic; *c; c++) if (*c == '_') *c = ' ';
+            char options[1024] = "";
+            disambiguation_render(b, kb_dequote(pd[0]), options, sizeof options);
+            const KbResponseSlot sl[] = { {"topic", topic}, {"options", options} };
+            char msg[1400];
+            if (options[0] && kb_response_slots(b, "acquisition_report_disambiguation", sl, 2, msg, sizeof msg)) {
+                put(msg, out, out_size);
+                conv_log(b, input, out);
+                return 1;
+            }
+        }
+    }
+    const char *pol[1] = { "accept" };
+    if (!kb_query(b->kb, "offer_unclaimed_turn", pol, 1)) return 0;
+    char gtopics[1][KB_TERM_LEN];
+    const char *gq[1] = { NULL };
+    if (kb_match(b->kb, "pending_gap", gq, 1, gtopics, 1) <= 0) return 0;
+    const char *ref[2] = { "current_turn", "refuse" };
+    if (kb_query(b->kb, "offer_resolution", ref, 2)) return 0;
+    char topic[KB_TERM_LEN];
+    snprintf(topic, sizeof topic, "%s", kb_dequote(gtopics[0]));
+    char stored_q[256] = "";
+    {
+        char sq_hit[1][KB_TERM_LEN];
+        const char *sqq[] = { NULL };
+        if (kb_match(b->kb, "pending_gap_question", sqq, 1, sq_hit, 1) > 0)
+            snprintf(stored_q, sizeof stored_q, "%s", kb_dequote(sq_hit[0]));
+    }
+    { const char *rga[] = { gtopics[0] }; kb_retract(b->kb, "pending_gap", rga, 1); }
+    kb_retract_pred(b->kb, "pending_gap_question");
+    return acquire_and_report(b, topic, stored_q[0] ? stored_q : input, input, out, out_size);
+}
+
 static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
     if (b) {
@@ -5805,7 +5855,14 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             char rlow[256]; snprintf(rlow, sizeof rlow, "%s", input);
             for (char *cp = rlow; *cp; cp++)
                 *cp = (char)tolower((unsigned char)*cp);
-            int confirm = p0_is_confirmation(b, clow) ||
+            /* gen506f — la risoluzione dell'offerta e' una lettura del frame
+             * del turno (network.p0 §10): assenso, dissenso, o il tema
+             * rinominato. Le forme storiche restano come seconda via. */
+            const char *acc[2] = { "current_turn", "accept" };
+            const char *ref[2] = { "current_turn", "refuse" };
+            int refused_kb = kb_query(b->kb, "offer_resolution", ref, 2);
+            int confirm = (!refused_kb && kb_query(b->kb, "offer_resolution", acc, 2)) ||
+                          p0_is_confirmation(b, clow) ||
                           p0_is_confirmation(b, rlow);
 
             /* ── gen505x — ACCETTARE E' UNA FAMIGLIA, NON UN ELENCO ──────────
@@ -5834,15 +5891,13 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                 if (fl && p0_is_confirmation(b, fw)) confirm = 1;
             }
 
-            /* Always retract the gap facts — single-turn window consumed */
-            { const char *rga[] = { gtopics[0] }; kb_retract(b->kb, "pending_gap", rga, 1); }
-            {
-                const char *rqq[] = { NULL };
-                char rq_hit[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "pending_gap_question", rqq, 1, rq_hit, 1) > 0) {
-                    const char *rqa[] = { rq_hit[0] };
-                    kb_retract(b->kb, "pending_gap_question", rqa, 1);
-                }
+            /* gen506f — l'offerta si chiude quando e' RISOLTA (si' o no), non
+             * perche' e' passato un turno: un turno che nessuno sa servire la
+             * accetta piu' avanti (pending_offer_fallthrough), e una domanda
+             * rivendicata nel mezzo la lascia aperta. */
+            if (confirm || refused_kb) {
+                { const char *rga[] = { gtopics[0] }; kb_retract(b->kb, "pending_gap", rga, 1); }
+                kb_retract_pred(b->kb, "pending_gap_question");
             }
 
             if (!confirm) {
@@ -5856,8 +5911,10 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                        fp[fl] != ',' && fp[fl] != '.' && fl + 1 < sizeof fw) { fw[fl] = fp[fl]; fl++; }
                 fw[fl] = '\0';
                 const char *dq[1] = { fw };
-                if (fl && strlen(rlow) <= fl + 12 &&
-                    kb_query(b->kb, "acquisition_offer_refused_word", dq, 1)) {
+                if (refused_kb || (fl && strlen(rlow) <= fl + 12 &&
+                    kb_query(b->kb, "acquisition_offer_refused_word", dq, 1))) {
+                    { const char *rga[] = { gtopics[0] }; kb_retract(b->kb, "pending_gap", rga, 1); }
+                    kb_retract_pred(b->kb, "pending_gap_question");
                     kb_response_slots(b, "acquisition_offer_declined", NULL, 0, out, out_size);
                     conv_log(b, input, out);
                     return strlen(out);
@@ -6286,6 +6343,13 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         /* §10: la specie della lacuna si riconosce provando la frase minimamente
          * diversa, e parrot0 quel test lo puo' fare da se'. Prima della coref,
          * perche' un accento mancante e' una distanza di UN CARATTERE. */
+        if (b && pending_offer_fallthrough(b, input, out, out_size)) {
+            /* gen506f: sotto un'offerta aperta, il turno che nessuno ha saputo
+             * servire e' un «si'» — a meno di un dissenso (network.p0 §10). */
+            handled = 1;
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", "acquisition");
+        } else
         if (b && compound_turn_lead(b, input, out, out_size)) {
             /* gen506c: prima del muro e prima della compensazione, il turno
              * composto si legge per clausole (vedi la resa piu' sopra). */
