@@ -1,0 +1,109 @@
+# LA RITENZIONE E' UNA REGOLA SUL CONTENUTO — gen506j (dialogica.md §1bis,
+# discourse.p0 §6bis).
+#
+# F., sulla finestra di sei turni del gen506h: «la finestra fissa e' solo un
+# difetto delle abilita' cognitive: il contesto va ottimizzato per abilita'
+# cognitive, non per logica cablata». Un turno resta finche' una RAGIONE lo
+# cita — una questione aperta nata li', l'ultima mossa, la recenza come costo
+# dichiarato — e cade quando nessuna lo cita piu'. Il motore pubblica cio'
+# che archivia e ritira cio' che la KB dichiara scaduto; il numero della
+# finestra e' il parametro di una ragione, non la regola.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=it
+!timeout 8
+!reset
+
+[test un turno che ha aperto una questione ancora viva resta oltre la finestra]
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami dei plc
+> si
+<~ Quale intendi?
+!query issue_turn(choice_plc, 2)
+> a
+> b
+> c
+> d
+> e
+> f
+> g
+> h
+# dieci turni: il turno 2 e' otto turni indietro, oltre session_window(6), ed e' ancora qui
+!query turn_archived(turn_2, 2)
+!query turn_retained(turn_2)
+!query turn_input(turn_2, $X)
+# il turno 3 («a») non e' citato da nulla ed e' caduto; il 4 e' dentro la finestra
+!query! turn_archived(turn_3, $N)
+!query! turn_input(turn_3, $Y)
+!query turn_input(turn_4, $Z)
+# la questione e' ancora scelta, dopo otto turni
+> il primo
+<~ industrial computer
+!query! open_issue(choice_plc, $K)
+# chiusa la questione, al giro dopo il turno 2 cade
+> quanto fa 2 più 2
+< 4.
+!query! turn_input(turn_2, $X)
+!query! turn_archived(turn_2, $N)
+
+# Ablazione 1: senza la ragione «questione aperta», il turno cade come prima.
+[test senza la ragione della questione aperta, il turno cade con la finestra]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+!forget retention_reason(open_issue)
+> parlami dei plc
+> si
+<~ Quale intendi?
+> a
+> b
+> c
+> d
+> e
+> f
+> g
+> h
+!query! turn_input(turn_2, $X)
+!query turn_input(turn_4, $Z)
+!query open_issue(choice_plc, choice)
+
+# Ablazione 2: senza la recenza, resta solo cio' che ha contenuto — l'ultima mossa.
+[test senza la ragione di recenza, il numero della finestra non decide piu' nulla]
+!reset
+!forget retention_reason(recency)
+> a
+> b
+> c
+!query! turn_input(turn_1, $X)
+!query turn_input(turn_2, $Y)
+!query turn_retained(turn_2)
+> d
+!query! turn_input(turn_2, $Y)
+!query turn_input(turn_3, $Z)
+
+# Le ragioni sono fatti: un CITATORE nuovo — un predicato che porta il numero
+# del turno — si dichiara con una riga e vale dal turno dopo; tolta la
+# citazione, il turno cade.
+[test un citatore nuovo si dichiara con una riga e vale subito]
+!reset
+!assert retention_cite(bookmark, 2)
+!assert bookmark(nota, 1)
+> a
+> b
+> c
+> d
+> e
+> f
+> g
+> h
+> i
+> j
+# dieci turni: il turno 1 e' citato e resta; il 3, che nessuno cita, e' caduto
+!query turn_retained(turn_1)
+!query turn_input(turn_1, $X)
+!query! turn_input(turn_3, $Y)
+!forget bookmark(nota, 1)
+> k
+!query! turn_input(turn_1, $X)

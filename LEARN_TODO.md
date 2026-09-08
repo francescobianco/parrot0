@@ -1,5 +1,29 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — 9 settembre 2026 (`gen506j`): la ritenzione e' una regola sul contenuto
+
+> Risponde alla critica di F. al gen506h («la finestra fissa e' solo un
+> difetto delle abilita' cognitive»). E' il circuito 2 del runbook
+> (`integrazione-cognitiva-operativa.md` §12.1), fatto subito dopo il
+> tabellone perche' ne e' la prima declinazione: la ragione principale per
+> tenere un turno e' una questione aperta nata li'.
+
+**In campo:** `discourse.p0` §6bis — `turn_archived(turn_N, N)` (lo
+pubblica il motore), `retention_reason(open_issue|last_move|recency)`,
+`turn_retained/1`, `turn_expired/1`, e il citatore generale
+`retention_cite(Pred, Pos)`. `session_archive_turn` (99-registry.c) non
+calcola piu' `done − finestra`: archivia, pubblica, chiede `turn_expired` e
+ritira. L'orologio si pubblica PRIMA dell'archivio (durante l'archivio
+«adesso» e' il turno nuovo). `session_window(6)` resta come parametro della
+sola ragione di recenza. Test `conversation/retention.p0t` 26/26 (nel make
+test, con tre ablazioni); session_board 24, dialogue_board 55, soft-test 7s.
+
+**Residui:** il referente vivo (`turn_entity`) come ragione — quando la
+coreferenza lo legge; il costo di `turn_expired` cresce con i turni citati
+(misurare sul banco piccolo prima di ottimizzare, mantra #20b).
+
+---
+
 # 🏁 HANDOFF — 9 settembre 2026 (`gen506i`): il tabellone e' uno, e l'orologio anche
 
 > F.: «rendere operativa come abilita' cognitiva la memoria profonda…

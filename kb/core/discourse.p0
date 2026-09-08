@@ -319,9 +319,10 @@ machinery(turn_input).
 machinery(turn_entity).
 % ⛔ F.: «la finestra fissa e' solo un difetto delle abilita' cognitive: il
 % contesto va ottimizzato per abilita' cognitive, non per logica cablata».
-% Questo numero e' un ponte: la ritenzione giusta e' una regola sul contenuto
-% (si tiene il turno finche' qualcosa lo cita — una questione aperta, un
-% referente vivo — e cade quando nessuno lo cita piu'). Vedi dialogica.md §1bis.
+% gen506j: questo numero NON decide piu' chi cade. E' il parametro di UNA
+% ragione di ritenzione fra le altre — la recenza, dichiarata come costo
+% (`retention_reason(recency)`, sotto) — accanto al contenuto: una questione
+% aperta nata in quel turno, l'ultima mossa. Vedi dialogica.md §1bis.
 session_window(6).
 turn_scoped(input_node, 4).
 turn_scoped(input_node_surface, 3).
@@ -344,4 +345,34 @@ turn_scoped(turn_input, 2).
 turn_scoped(turn_entity, 2).
 % l'ultima mossa, come vista sul turno precedente
 previous_turn($P) :- turn_counter($N), is($K, sub($N, 1)), concat_atoms(turn_, $K, $P).
+
+% ── 6bis. LA RITENZIONE E' UNA REGOLA SUL CONTENUTO (gen506j) ───────────────
+% Il motore pubblica che cosa ha archiviato (`turn_archived(turn_N, N)`) e
+% ritira cio' che qui risulta scaduto (`turn_expired/1`): un turno resta
+% finche' una RAGIONE lo cita. Le ragioni sono fatti — se ne aggiunge una con
+% una riga o parlando — e la recenza e' una di esse, dichiarata come costo e
+% non come legge: `!forget retention_reason(recency)` lascia la ritenzione per
+% solo contenuto, e `session_window/1` smette di decidere alcunche'. Il C non
+% sa perche' un turno resti: chiede chi e' scaduto e lo ritira.
+machinery(turn_archived).
+machinery(retention_reason).
+machinery(turn_retained).
+machinery(turn_expired).
+turn_scratch(turn_archived).
+retention_reason(open_issue).   % ha aperto una questione ancora sul tabellone (issues.p0)
+retention_reason(last_move).    % l'ultima mossa e' sempre viva
+retention_reason(recency).      % la recenza: session_window/1, un costo dichiarato
+turn_retained($T) :- retention_reason(open_issue), turn_archived($T, $K), open_issue($I, $Kind), issue_turn($I, $K).
+turn_retained($T) :- retention_reason(last_move), previous_turn($T).
+turn_retained($T) :- retention_reason(recency), turn_archived($T, $K), turn_counter($N), session_window($W), is($D, sub($N, $K)), le($D, $W).
+% E la forma generale di «qualcosa lo cita»: un predicato che porta il numero
+% del turno in un argomento e' un CITATORE, e dichiararlo e' un fatto —
+% `retention_cite(Pred, Pos)`: finche' esiste una riga di Pred con quel numero
+% in posizione Pos, il turno resta. Una ragione nuova domani e' una riga, non
+% una regola: `retention_cite(bookmark, 2)` e un `bookmark(nota, 3)` tengono
+% il turno 3 finche' la nota c'e'.
+machinery(retention_cite).
+turn_retained($T) :- retention_cite($Pred, 2), turn_archived($T, $K), apply($Pred, cons($Any, cons($K, nil))).
+turn_retained($T) :- retention_cite($Pred, 1), turn_archived($T, $K), apply($Pred, cons($K, cons($Any, nil))).
+turn_expired($T) :- turn_archived($T, $K), naf(turn_retained($T)).
 

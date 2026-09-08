@@ -5337,20 +5337,13 @@ static int pending_offer_fallthrough(Brain *b, const char *input, char *out, siz
  *
  * A inizio turno, prima che i fatti di `current_turn` vengano azzerati, si
  * spostano sotto `turn_N` (N = il turno appena finito): quali predicati siano
- * di turno e quanti turni restino e' KB (`turn_scoped/2`, `session_window/1`).
- * Il C sposta e ritira scope: non sa che cosa contengano. */
+ * di turno e' KB (`turn_scoped/2`), e quali turni restino lo dice la KB
+ * (`turn_expired/1`, gen506j). Il C sposta e ritira scope: non sa che cosa
+ * contengano ne' perche' restino. */
 static void session_archive_turn(Brain *b) {
     if (!b || !b->kb || b->turns < 2) return;
     unsigned long done = b->turns - 1;
     char scope[32]; snprintf(scope, sizeof scope, "turn_%lu", done);
-    long window = 6;
-    {
-        char w[1][KB_TERM_LEN]; const char *wq[1] = { NULL };
-        if (kb_match(b->kb, "session_window", wq, 1, w, 1) == 1) window = strtol(kb_dequote(w[0]), NULL, 10);
-    }
-    char drop[32]; drop[0] = '\0';
-    if (window > 0 && done > (unsigned long)window)
-        snprintf(drop, sizeof drop, "turn_%lu", done - (unsigned long)window);
     char (*preds)[KB_TERM_LEN] = NULL; size_t np = 0;
     const char *pq[2] = { NULL, NULL };
     if (!kb_match_all(b->kb, "turn_scoped", pq, 2, &preds, &np)) { free(preds); return; }
@@ -5362,10 +5355,6 @@ static void session_archive_turn(Brain *b) {
         if (kb_match(b->kb, "turn_scoped", aq, 2, ar, 1) != 1) continue;
         long arity = strtol(kb_dequote(ar[0]), NULL, 10);
         if (arity < 2 || arity > 4) continue;
-        if (drop[0]) {
-            const char *dq[4] = { drop, NULL, NULL, NULL };
-            kb_retract_match(b->kb, pred, dq, (size_t)arity);
-        }
         /* le righe di current_turn: si enumerano per slot, dal secondo in poi */
         char (*a1)[KB_TERM_LEN] = NULL; size_t n1 = 0;
         const char *q1[4] = { "current_turn", NULL, NULL, NULL };
@@ -5398,6 +5387,29 @@ static void session_archive_turn(Brain *b) {
         }
         free(a1);
     }
+    /* gen506j — CHI CADE LO DICE LA KB (discourse.p0 §6). Il motore pubblica
+     * che cosa ha archiviato (`turn_archived(turn_N, N)`) e ritira cio' che la
+     * conoscenza dichiara scaduto (`turn_expired/1`): un turno resta finche'
+     * una RAGIONE lo cita — una questione aperta nata li', l'ultima mossa, la
+     * recenza come costo dichiarato. Qui non c'e' piu' un `done - finestra`:
+     * il numero non e' una decisione del C (critica di F., dialogica §1bis). */
+    { char n[24]; snprintf(n, sizeof n, "%lu", done);
+      kb_assert(b->kb, "turn_archived", (const char *[]){ scope, n }, 2); }
+    { char (*ex)[KB_TERM_LEN] = NULL; size_t nx = 0;
+      const char *xq[1] = { NULL };
+      if (kb_match_all(b->kb, "turn_expired", xq, 1, &ex, &nx))
+          for (size_t x = 0; x < nx; x++) {
+              for (size_t i = 0; i < np; i++) {
+                  char ar[1][KB_TERM_LEN]; const char *aq[2] = { preds[i], NULL };
+                  if (kb_match(b->kb, "turn_scoped", aq, 2, ar, 1) != 1) continue;
+                  long arity = strtol(kb_dequote(ar[0]), NULL, 10);
+                  if (arity < 2 || arity > 4) continue;
+                  const char *dq[4] = { ex[x], NULL, NULL, NULL };
+                  kb_retract_match(b->kb, kb_dequote(preds[i]), dq, (size_t)arity);
+              }
+              kb_retract_match(b->kb, "turn_archived", (const char *[]){ ex[x], NULL }, 2);
+          }
+      free(ex); }
     kb_set_origin(b->kb, prev);
     free(preds);
 }
@@ -5427,7 +5439,6 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
          * attraversa. La specie della lacuna non e' piu' decisa dal C — si
          * DERIVA da questi tre (`kb/core/gap-kinds.p0`), e una specie nuova
          * domani e' una regola, non un ramo. */
-        if (b->kb) session_archive_turn(b);   /* gen506h: il turno finito resta, sotto turn_N */
         /* gen506i — UN OROLOGIO SOLO. `turn_counter/1` (discourse.p0) era un
          * contabile KB che scattava a meta' turno — DOPO che altri contabili
          * avevano gia' letto il valore vecchio — accanto a `b->turns`, che da'
@@ -5443,6 +5454,9 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             kb_assert(b->kb, "turn_counter", (const char *[]){ n }, 1);
             kb_set_origin(b->kb, prev);
         }
+        /* gen506h: il turno finito resta, sotto turn_N; gen506j: chi cade lo
+         * dice la KB, con l'orologio gia' sul turno nuovo. */
+        if (b->kb) session_archive_turn(b);
         if (b->kb) {
             kb_retract_pred(b->kb, "turn_outcome");
             kb_retract_pred(b->kb, "turn_topic");

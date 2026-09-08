@@ -92,6 +92,25 @@ domanda nuova che non viene catturata (L4).
 > vincolo secondario e dichiarato. Il numero e' un ponte da togliere, non un
 > parametro da regolare.
 
+> ✅ **gen506j (9 settembre 2026): fatto.** La ritenzione e' una regola in
+> `discourse.p0` §6bis: il motore pubblica `turn_archived(turn_N, N)` e
+> ritira cio' che `turn_expired/1` dichiara scaduto; un turno resta finche'
+> una RAGIONE lo cita — `retention_reason(open_issue)` (ha aperto una
+> questione ancora sul tabellone: `issue_turn`), `retention_reason(last_move)`
+> (`previous_turn`), `retention_reason(recency)` (`session_window/1`, come
+> costo dichiarato) — e la forma generale «qualcosa lo cita» e' un fatto,
+> `retention_cite(Pred, Pos)`: un predicato che porta il numero del turno
+> tiene il turno finche' esiste. `session_archive_turn` non calcola piu'
+> `done − finestra`: chiede chi e' scaduto. Cricchetto
+> `tests/p0t/conversation/retention.p0t` (26): un bivio aperto al turno 2
+> resta dopo dieci turni e «il primo» lo sceglie ancora, poi cade al giro
+> dopo la scelta; `!forget retention_reason(open_issue)` lo fa cadere con la
+> finestra; `!forget retention_reason(recency)` lascia solo l'ultima mossa;
+> un citatore nuovo (`retention_cite(bookmark, 2)`) vale dal turno dopo.
+> Residuo: il referente vivo (`turn_entity`) non e' ancora una ragione — lo
+> diventa quando la coreferenza legge `turn_entity(turn_N, E)` (una riga:
+> `retention_cite`, se il numero e' un argomento).
+
 **Le finestre non sono un vincolo di progetto.** I 256 byte di `norm`/`canon`
 nel dispatch, i 4096 della prosa, `KB_TERM_LEN` per un fatto: sono debito.
 L'ambizione (F.) e' incollare un file Python di mille righe e dire

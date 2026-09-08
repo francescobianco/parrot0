@@ -8,11 +8,12 @@ handoff del repository sono datati 9 settembre. Questa stesura non esegue
 training né nuove misure comportamentali: distingue il codice ispezionato dai
 risultati storici e dalle prove ancora da fare.*
 
-> **Stato (gen506i, 9 settembre 2026):** il primo ciclo O0→O1 e' eseguito —
+> **Stato (gen506i–j, 9 settembre 2026):** il primo ciclo O0→O1 e' eseguito —
 > il tabellone delle questioni e' uno (I1 di dialogica) e l'orologio della
-> conversazione e' uno. Report in **§11**; il runbook operativo dei prossimi
-> circuiti (ritenzione, `move_addresses`, supersede/resume, la lettura che
-> chiude la questione) in **§12**.
+> conversazione e' uno; il circuito 2 (O3, la ritenzione come regola sul
+> contenuto) e' fatto. Report in **§11**; il runbook operativo dei prossimi
+> circuiti (`move_addresses`, supersede/resume, la lettura che chiude la
+> questione) in **§12**.
 
 Il risultato da costruire è **un interlocutore che comprende una richiesta,
 mantiene il suo scopo, combina le capacità disponibili e modifica il proprio
@@ -773,6 +774,13 @@ cricchetto con ablazione, massimizzazione per voce, una declinazione, handoff
 esecutiva: si cambiano se il primo dialogo le smentisce, non prima.
 
 ### 12.1 Circuito 2 — O3: la ritenzione e' una regola sul contenuto
+
+> ✅ **Fatto al gen506j** nella forma sotto, con una aggiunta: il citatore
+> generale `retention_cite(Pred, Pos)` — un predicato che porta il numero del
+> turno in un argomento tiene il turno finche' esiste — cosi' una ragione
+> nuova e' un fatto, non una regola. Cricchetto
+> `tests/p0t/conversation/retention.p0t` (26/26) con le tre ablazioni.
+> L'orologio si pubblica PRIMA dell'archivio. Residuo: il referente vivo.
 
 **Legge violata:** dialogica §1bis — un contatore decide per numero di turni
 cio' che dipende dal contenuto. **Oggetto perso:** «perche' questo turno e'
