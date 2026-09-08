@@ -1,0 +1,112 @@
+# IL TURNO COMPOSTO — gen506b/gen506c.
+#
+# Il banco di comprensione (tests/comprehension-probe) e' fatto di turni con
+# piu' clausole e una domanda alla fine. Misurato sulla baseline: sette su
+# trentadue li prendeva `smalltalk` per una cue («can you», «your») e
+# rispondeva «I don't have any of my own — I'm parrot0, an AI»; altri quattro
+# li prendeva un frame di analisi ripetendo il prompt intero; quattro tenevano
+# il demone oltre i due minuti dentro il muro (una regola O(n^4) sui nodi).
+#
+# gen506b ha dato un nome al turno composto (`compound_inquiry`, turn-frames.p0)
+# e un muro che nomina la forma. gen506c segue il consiglio di quel muro da
+# solo: il turno si spezza alle superfici di confine dichiarate in KB e OGNI
+# clausola e' letta dal lettore di un turno intero — chi insegna insegna, chi
+# chiede risponde o mura, e il muro nomina la clausola, non una parola a caso.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!timeout 8
+!reset
+
+[test la lettura: piu' clausole, ognuna letta come un turno]
+!timeout 8
+> Every giraffe in this reserve is spotted, and Kibo is a giraffe that lives in the reserve. Does the spot pattern on Kibo follow from those two facts alone, and is there any way Kibo could be plain?
+<~ Learned: kibo is a giraffe
+<~ I couldn't read «
+<! I don't have any of my own
+<! several statements and a question
+!query giraffe(kibo)
+!query turn_illocution(current_turn, compound_inquiry)
+!query turn_cue(current_turn, clause_boundary_cue, $B)
+
+[test il registro sociale non ruba un turno composto, e un quantificatore non universale non diventa un individuo]
+!reset
+!timeout 8
+> No mechanic here is a pilot, but several pilots are sailors. Could a sailor who works here also be a mechanic, and can you say whether every sailor is a pilot?
+<~ nothing is both mechanic here and pilot
+<~ I can't hold «several pilots are sailors»
+<! several pilots is a sailor
+<! I don't have any of my own
+<! Want me to learn about it
+!query! sailor(several_pilots)
+
+[test un turno che era appeso torna in secondi]
+!reset
+!timeout 8
+> Assume for a moment that all feathers are heavy. A feather from this nest is lying on the table, and the table is in a museum. Given that assumption, must the feather be heavy, and what would a scale prove about the real world?
+<~ table is located in museum
+<~ I couldn't read «
+
+[test una domanda semplice NON e' un turno composto]
+!reset
+> what is the capital of france
+< Paris.
+!query! turn_illocution(current_turn, compound_inquiry)
+
+# La domanda sulla CLASSE si prova per testimone, e la formula di richiesta
+# davanti e' un involucro, non contenuto (question_wrapper/1, grammar.p0).
+[test la classe generica e universale si prova per testimone; l'involucro si toglie]
+!reset
+!timeout 8
+> every sailor is a pilot
+<~ Learned rule
+> is a sailor a pilot?
+< Yes.
+> is every sailor a pilot?
+< Yes.
+> can you say whether every sailor is a pilot?
+< Yes.
+> every sailor is a pilot?
+<! Learned
+<! Got it
+!forget question_wrapper("can you say whether")
+> can you say whether every sailor is a pilot?
+<! Yes.
+!assert question_wrapper("can you say whether")
+
+# Il modificatore non si butta: «all calm pilots are trusted» e' una regola a
+# corpo congiunto, non «every pilot is trusted». E il testimone della domanda
+# sulla classe riceve un fatto per ogni parola del soggetto.
+[test il modificatore resta nella regola, e il testimone lo porta]
+!reset
+!timeout 8
+> all calm pilots are trusted
+<~ if something is a calm pilot, then it is trusted
+> bob is a pilot
+> is bob trusted?
+<! Yes.
+> bob is calm
+> is bob trusted?
+< Yes.
+> is it true that every calm pilot is trusted?
+< Yes.
+> does it follow that bob is trusted?
+< Yes.
+
+# Ablazione: se nessuna superficie separa le clausole, il turno non e'
+# composto e non viene letto per clausole — la lettura e' conoscenza.
+[test ablazione: senza le superfici di confine il turno non e' composto]
+!reset
+!timeout 8
+!forget clause_boundary_cue(", and ")
+!forget clause_boundary_cue(", but ")
+!forget clause_boundary_cue(". ")
+> No mechanic here is a pilot, but several pilots are sailors. Could a sailor who works here also be a mechanic, and can you say whether every sailor is a pilot?
+<! nothing is both mechanic here and pilot
+!query! turn_illocution(current_turn, compound_inquiry)
+!assert clause_boundary_cue(", and ")
+!assert clause_boundary_cue(", but ")
+!assert clause_boundary_cue(". ")

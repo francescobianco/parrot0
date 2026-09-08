@@ -222,6 +222,12 @@ struct Brain {
      * it and restore their caller's view on return. */
     char *active_turn_norm;
     unsigned long yield_trace_seq;
+    /* gen506c: profondita' della lettura per clausole di un turno composto
+     * (compound_turn_lead, 99-registry.c) — una clausola non si rispezza. */
+    int compound_depth;
+    /* gen506c: la prova per testimone di un soggetto generico (mod_knowledge)
+     * rientra in mod_knowledge una volta sola. */
+    int generic_witness_depth;
 
     /* gen128 (L20-deep): the previous substantive turn's inputs, kept verbatim
      * so mod_counterfactual can RE-RUN the dispatch with a module suppressed and

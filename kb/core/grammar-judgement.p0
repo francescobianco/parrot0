@@ -78,6 +78,15 @@ number_name(singular, it, "singolare").  number_name(plural, it, "plurale").
 word_number($W, singular) :- singular_noun($W).
 word_number($W, plural) :- plural_noun($W).
 copula_number($C, plural) :- plural_copula($C).
+% gen506c — il copulativo per UN testimone: «are all sailors pilots?» si prova
+% su un solo individuo arbitrario, e la domanda chiusa su di lui vuole il
+% singolare dello stesso tempo («is someone a pilot»). Consumato dalla prova
+% per testimone in 10-memory-knowledge.c; nessun verbo scritto nel C.
+machinery(copula_singular_form).
+copula_singular_form($C, $C) :- singular_copula($C).
+copula_singular_form($C, $S) :-
+    plural_copula($C), singular_copula($S), naf(first_person_copula($S)),
+    copula_tense($C, $T), copula_tense($S, $T).
 copula_number($C, singular) :- singular_copula($C).
 
 % ── 4. LA DOMANDA E LA RISPOSTA ────────────────────────────────────────────

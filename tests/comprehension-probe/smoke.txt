@@ -1,0 +1,19 @@
+# Il banco piccolo: un item per forma, quelli che hanno gia' insegnato qualcosa.
+# `probe.py smoke` li manda a un demone fresco e stampa la risposta verbatim.
+# Si allunga di UNA riga per ogni prompt disfunzionale trovato, MAI si allarga
+# al banco intero dentro il ciclo di modifica (quello e' `probe.py all`, a fine
+# giornata, con il LEDGER).
+f01/i01
+f01/i02
+f01/i05
+f01/i07
+f02/i03
+f03/i01
+f04/i04
+f04/i05
+f05/i01
+f06/i06
+f07/i01
+f08/i08
+f09/i05
+f10/i01

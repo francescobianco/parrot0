@@ -6381,6 +6381,23 @@ static int extract_class_statement(Brain *b, const char *norm,
      *
      * Spostare la chiamata qui e' la riparazione minima: nessuna riga nuova, e
      * la precedenza che il commento dichiarava dal gen382 diventa vera. */
+    /* gen506c — «several pilots are sailors» NON e' un fatto su un individuo.
+     * Il soggetto fuso («several_pilots») diventava un nome, e la KB riceveva
+     * `sailor(several_pilots)`: un fatto falso (mantra #7), la classe peggiore.
+     * Un quantificatore non universale — quali lo siano e' conoscenza,
+     * `non_universal_quantifier/1` in grammar.p0 — apre una frase che parrot0
+     * oggi non puo' tenere: ne' per tutti, ne' per uno nominato. Lo dice, e
+     * dice le due forme che invece sa tenere. */
+    {
+        char head[KB_TERM_LEN];
+        snprintf(head, sizeof head, "%s", w[0]);
+        const char *hw = strip_edge_punct(head);
+        if (lex_class_member(b, "non_universal_quantifier", hw)) {
+            if (extract_only) return 0;
+            const KbResponseSlot sl[] = { { "clause", norm } };
+            return kb_response_slots(b, "existential_claim_unheld", sl, 1, out, out_size) ? 1 : 0;
+        }
+    }
     { int r = p0_try_extract_frames(b, w, n, norm, out, out_size); if (r) return r; }
 
     /* past copula -> present (tenseless fact), same rule as the class section */
@@ -17340,7 +17357,13 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      *     cercano scandendo, come nel ramo dell'esclusione, e la testa e' cio'
      *     che li segue. */
     size_t u_cop = 0;
-    if (nw >= 5 && is_universal_word(b, w[0]))
+    /* gen506c — UNA DOMANDA NON INSEGNA UNA REGOLA. «every sailor is a
+     * pilot?» scriveva `pilot(X) :- sailor(X)` in KB: la forma universale
+     * arrivava qui col «?» gia' tolto, e nessuno chiedeva l'atto del turno.
+     * Si consuma la lettura pubblicata (`turn_illocution`, gen505y), non una
+     * terza lettura privata. */
+    if (nw >= 5 && is_universal_word(b, w[0]) && !interrogative &&
+        !p0_turn_is(b, "question", norm))
         for (size_t i = 2; i + 2 < nw && !u_cop; i++)
             if (lex_class_member(b, "clause_copula", w[i]) && is_article(b, w[i + 1]))
                 u_cop = i;
@@ -17704,7 +17727,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * become mortal(X):-man(X) / flower(X):-rose(X); afterwards "is socrates mortal?"
      * and "is <r> a flower?" deduce over the rule plus the ground fact. This is real
      * syllogistic reasoning on parrot0's own engine, not a recited string. */
-    if (nw >= 4 && nw <= 6 &&
+    /* gen506c: una domanda non insegna una regola (vedi il lettore lungo piu' sotto). */
+    if (nw >= 4 && nw <= 6 && !interrogative && !p0_turn_is(b, "question", norm) &&
         (lex_class_member(b, "universal_quantifier", w[0]) || lex_class_member(b, "universal_quantifier", w[0]) ||
          lex_class_member(b, "universal_quantifier", w[0]))) {
         /* gen290: locate the copula STRUCTURALLY rather than by fixed position, so
@@ -17729,11 +17753,31 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             singularize_kb(b, strip_edge_punct(subjb), sj, sizeof sj);
             singularize_kb(b, strip_edge_punct(clsb), cl, sizeof cl);
             if (*sj && *cl && strcmp(sj, cl) != 0) {
-                char msg[160];
-                if (kb_assert_rule(b->kb, cl, sj))
-                    snprintf(msg, sizeof msg,
-                             "Got it: if something is a %s, then it is %s.", sj, cl);
-                else
+                /* gen506c — IL MODIFICATORE NON SI BUTTA. «All calm pilots are
+                 * trusted» dava `trusted(X) :- pilot(X)`: una regola FALSA (i
+                 * piloti non calmi) annunciata come appresa. Con un token fra
+                 * il quantificatore e il soggetto la regola e' congiunta — la
+                 * stessa lettura del lettore lungo (gen133: «every friendly dog
+                 * is a goodboy») — salvo che la coppia sia gia' UN nome di
+                 * classe in KB («copper mineral», gen505). */
+                const char *bodies[2]; size_t nbody = 1;
+                char modb[KB_TERM_LEN], joined[KB_TERM_LEN];
+                bodies[0] = sj;
+                if (cop == 3) {
+                    snprintf(modb, sizeof modb, "%s", strip_edge_punct(w[1]));
+                    snprintf(joined, sizeof joined, "%s_%s", modb, sj);
+                    if (kb_knows_pred(b->kb, joined)) { bodies[0] = joined; }
+                    else { bodies[0] = modb; bodies[1] = sj; nbody = 2; }
+                }
+                char msg[200];
+                if (kb_assert_rule_n(b->kb, cl, bodies, nbody)) {
+                    if (nbody == 2)
+                        snprintf(msg, sizeof msg,
+                                 "Got it: if something is a %s %s, then it is %s.", modb, sj, cl);
+                    else
+                        snprintf(msg, sizeof msg,
+                                 "Got it: if something is a %s, then it is %s.", bodies[0], cl);
+                } else
                     kb_term_say(b, "i_couldn_t_store_that_rule", NULL, 0, msg, sizeof msg);
                 put(msg, out, out_size);
                 return 1;
@@ -17795,6 +17839,67 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * are added here so the same shift fires. */
     /* gen382: was a THIRD copy of the determiner list, expanded inline here.
      * Same class, same reader — np_opener/1 through p0_lead_det(). */
+    /* gen506c — IL SOGGETTO GENERICO SI PROVA PER TESTIMONE.
+     *
+     * «is a sailor a pilot?» — dopo lo spostamento qui sotto — chiedeva
+     * `pilot(sailor)`: «sailor» trattato come individuo, e un «No.» falso
+     * con la regola `pilot(X) :- sailor(X)` in KB. «A sailor», «every sailor»,
+     * «all sailors», «every calm pilot» nominano una CLASSE, e una classe si
+     * prova come il sillogismo del gen326 prova un universale: un testimone
+     * arbitrario, ipotetico, e la stessa domanda chiusa su di lui. Il
+     * soggetto e' tutto cio' che sta fra il determinante e la classe — la
+     * classe comincia all'articolo («a pilot»), e senza articolo e' l'ultima
+     * parola («trusted») — e il testimone riceve un fatto per ogni parola
+     * del soggetto («calm», «pilot»): la regola congiunta lo raggiunge.
+     * Scatta solo se una parola del soggetto e' corpo di una regola e la
+     * lettura come individuo non regge: «is a whale a mammal?» sul fatto
+     * enciclopedico `mammal(whale)` resta com'era. */
+    if (interrogative && nw >= 4 && !b->generic_witness_depth &&
+        lex_class_member(b, "clause_copula", w[0]) &&
+        (is_article(b, w[1]) || is_universal_word(b, w[1]))) {
+        size_t ck = nw - 1;                         /* dove comincia la classe */
+        for (size_t k = 3; k < nw; k++)
+            if (is_article(b, w[k])) { ck = k; break; }
+        char subj[6][KB_TERM_LEN]; size_t ns = 0;
+        for (size_t k = 2; k < ck && ns < 6; k++)
+            singularize_kb(b, strip_edge_punct(w[k]), subj[ns++], sizeof subj[0]);
+        char last[KB_TERM_LEN];
+        singularize_kb(b, strip_edge_punct(w[nw - 1]), last, sizeof last);
+        int in_body = 0;
+        for (size_t k = 0; k < ns; k++)
+            if (*subj[k] && kb_rule_body_mentions(b->kb, subj[k])) in_body = 1;
+        const char *ia[1] = { ns ? subj[0] : "" };
+        if (ns && *last && in_body && kb_knows_pred(b->kb, last) &&
+            !(ns == 1 && kb_query(b->kb, last, ia, 1))) {
+            char rest[256]; rest[0] = '\0'; size_t ro = 0;
+            if (ck == nw - 1) {
+                char art[16]; p0_indef_article(b, last, art, sizeof art);
+                snprintf(rest, sizeof rest, "%s %s", *art ? art : "a", last);
+            } else {
+                for (size_t i = ck; i < nw && ro + 1 < sizeof rest; i++)
+                    ro += (size_t)snprintf(rest + ro, sizeof rest - ro, "%s%s", i > ck ? " " : "", w[i]);
+            }
+            /* Il testimone e' uno: il copulativo va al singolare dello stesso
+             * tempo, e quale sia e' conoscenza (`copula_singular_form/2`). */
+            char cops[4][KB_TERM_LEN];
+            const char *cq2[2] = { w[0], NULL };
+            const char *cop = w[0];
+            if (kb_match(b->kb, "copula_singular_form", cq2, 2, cops, 4) >= 1) cop = cops[0];
+            char q[300];
+            snprintf(q, sizeof q, "%s someone %s", cop, rest);
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_HYPOTHETICAL);
+            const char *wa[1] = { "someone" };
+            for (size_t k = 0; k < ns; k++) if (*subj[k]) kb_assert(b->kb, subj[k], wa, 1);
+            b->generic_witness_depth++;
+            int claimed = mod_knowledge(b, q, q, out, out_size);
+            b->generic_witness_depth--;
+            for (size_t k = 0; k < ns; k++) if (*subj[k]) kb_retract(b->kb, subj[k], wa, 1);
+            kb_retract_origin(b->kb, KB_HYPOTHETICAL);
+            kb_set_origin(b->kb, prev);
+            if (claimed) return 1;
+        }
+    }
     #define P0_LEAD_DET(t) p0_lead_det(b, (t))
     if (nw == 5 && is_article(b, w[3])) {
         if (lex_class_member(b, "10_memory_knowledge_lex12591", w[2]) && P0_LEAD_DET(w[0])) {       /* assertion */

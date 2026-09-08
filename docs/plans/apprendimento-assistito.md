@@ -268,7 +268,7 @@ associare a una misura riproducibile sul binario corrente.
 | Lezione → rilettura | `document-claims.p0`; SC40-A/B e il taglio SC41-A, con test di revisione e scala. | Completezza delle dipendenze oltre `passive_core`, propagazione a inferenze, sintesi, piani e risposte; budget e salvataggio. |
 | Zone → conclusione comune | `knowledge_arc`, `representation_bridge`, `code-ir.p0`; prove in `tests/p0t/crossing/`. | Porte naturali per archi già presenti, composizione semanticamente autorizzata e falsi ponti. Un omonimo disambiguato non prova da solo trasferimento inferenziale fra due entità. |
 | Piano → azione → osservazione | `plan_utterance`, risultati di tool in KB, ciclo build/repair descritto in HANDOFF. | Operatori ancora compilati, nuovi tool insegnabili, effetti tipati e ripresa di un'impresa dopo una digressione. Un ciclo di coding riuscito non dimostra parità generale. |
-| Misura → curriculum | `var/probe/`, crossing e audit conversazionale esistono. | HANDOFF segnala risposte mancanti per errore di trasporto nelle sonde; alcuni test usano timeout superiori al secondo. Non sono prove di rispetto del contratto di latenza. |
+| Misura → curriculum | `tests/comprehension-probe/`, crossing e audit conversazionale esistono. | HANDOFF segnala risposte mancanti per errore di trasporto nelle sonde; alcuni test usano timeout superiori al secondo. Non sono prove di rispetto del contratto di latenza. |
 
 Per ogni cella si devono poter distinguere quattro stati: **presente nel
 codice/KB**, **osservata in conversazione**, **insegnabile con verifica
@@ -429,7 +429,7 @@ protezioni: non ne rinvia l'esistenza.
 
 | Tappa | Lavoro e riuso | Prova necessaria per uscirne |
 |---|---|---|
-| **V0 — Rendere affidabile la misura** | Ripartire da HANDOFF, `var/probe`, audit conversazionale e crossing. Registrare profilo, revisione, risposta, errore di infrastruttura, latenza e stato del processo. Censire per le facoltà del campione produttore, consumatore, porta naturale e prova di crescita. | Nessun errore di trasporto contato come incomprensione; baseline per famiglia ripetibile, con risposte verbatim e rossi conservati. Costi di boot e turno separati. |
+| **V0 — Rendere affidabile la misura** | Ripartire da HANDOFF, `tests/comprehension-probe`, audit conversazionale e crossing. Registrare profilo, revisione, risposta, errore di infrastruttura, latenza e stato del processo. Censire per le facoltà del campione produttore, consumatore, porta naturale e prova di crescita. | Nessun errore di trasporto contato come incomprensione; baseline per famiglia ripetibile, con risposte verbatim e rossi conservati. Costi di boot e turno separati. |
 | **V1 — Il turno è compreso prima di essere rivendicato** | M0/M1/M2/M11–M13/M18/M19, frame e arbitrato. Distinguere domanda, lezione, menzione, lettura, correzione e richiesta composta. Applicare le review di maturità del mantra #21. | Famiglia di prompt lunghi e parafrasi instradata dalla lettura completa; nessuna lezione eseguita come procedura né citazione appresa come fatto. Una condotta di un modulo maturo si corregge parlando e si ritrae; la conferma descrive l'esito effettivo della lezione. |
 | **V2 — Imparare, chiedere e ridire lo stesso oggetto** | M4/M5/M7/M15/M16/M20, G1–G5, `input.p0`, `discourse.p0`, binder e realizzatori. Unificare referenti, ruoli e superfici; derivare le domande per i ruoli dal frame appreso. | Dialogo intero con due referenti distinguibili, domanda diretta/inversa, ellissi, ambiguità e correzione. Lezione naturale → Transfer@3 → retract/reteach → processo nuovo, in IT ed EN. |
 | **V3 — Il metalinguaggio si amplia** | M2–M10/M14, A1–A4/A7: spiegare senso, ruoli, costruzioni, negazione, quantificazione, relative, condizioni e regole usando le capacità già presenti. Sperimentare induzione da esempi con ipotesi concorrenti. | Una costruzione con ruoli non canonici e una regola fra relazioni con condizione di validità sono insegnate senza nomi interni, trasferiscono e rifiutano controesempi. Nessuna promozione basata solo sul numero di esecuzioni. |
@@ -526,7 +526,7 @@ famiglie deboli o da una promessa di equivalenza universale.
 Il primo ciclo esecutivo è **V0 più il primo collo V1/V2 misurato**, usando
 ciò che il repository già offre:
 
-1. Rendere attendibile la sonda di `var/probe/probe_one.py`: health check che
+1. Rendere attendibile la sonda di `tests/comprehension-probe/probe.py`: health check che
    ottenga una risposta, distinzione fra errore di trasporto e verdetto
    semantico, cattura esplicita della risposta senza confondere la sentinella
    `__NEVER__` con un fallimento reale. Il problema è registrato in HANDOFF;

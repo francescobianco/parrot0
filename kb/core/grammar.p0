@@ -474,6 +474,24 @@ universal_quantifier(all).
 universal_quantifier(every).
 universal_quantifier(any).
 universal_quantifier(each).
+% gen506c — I QUANTIFICATORI NON UNIVERSALI. «several pilots are sailors» non
+% e' ne' una regola ne' un fatto su un individuo: parrot0 oggi non ha una forma
+% per tenerlo, e la classe qui sotto e' cio' che gli permette di DIRLO invece
+% di scrivere `sailor(several_pilots)`. Una lingua nuova e' una riga.
+machinery(non_universal_quantifier).
+non_universal_quantifier(some).
+non_universal_quantifier(several).
+non_universal_quantifier(many).
+non_universal_quantifier(most).
+non_universal_quantifier(few).
+non_universal_quantifier(alcuni).
+non_universal_quantifier(alcune).
+non_universal_quantifier(molti).
+non_universal_quantifier(molte).
+non_universal_quantifier(parecchi).
+non_universal_quantifier(parecchie).
+non_universal_quantifier(pochi).
+non_universal_quantifier(poche).
 
 % ── ARTICOLO DETERMINATIVO e PREPOSIZIONE RELAZIONALE ────────────────────────
 % Le due parole funzionali che danno forma al frame delle relazioni binarie
@@ -1873,11 +1891,13 @@ turn_gap_flanked($T, after, $Id) :-
 % conta e' che il TURNO abbia la forma di una relazione binaria — qualcosa,
 % qualcosa in mezzo, qualcosa — perche' e' quella forma a rendere sensata la
 % lezione di costruzione.
+% La domanda «il turno apre un'interrogativa?» non dipende dal nodo: si fa UNA
+% volta, prima di scorrere i nodi, non una volta per candidato.
 turn_gap_shape($T, binary_frame) :-
+    naf(turn_opens_question($T)),
     input_node_atom($T, $Id, $W),
     turn_gap_flanked($T, before, $Id),
-    turn_gap_flanked($T, after, $Id),
-    naf(turn_opens_question($T)).
+    turn_gap_flanked($T, after, $Id).
 
 % UNA DOMANDA NON HA LA FORMA DI UN'ASSERZIONE, e la differenza si vedeva:
 % «is the word unless a condition marker?» offriva di insegnare «is is a
@@ -1925,7 +1945,30 @@ turn_opens_question($T) :-
 % gia' (`input_node_before/3`), e questa e' una sua lettura.
 complementizer(che).
 complementizer(that).
+% gen506c — GLI INVOLUCRI DI UNA DOMANDA. «can you say whether P?» chiede P:
+% la formula davanti e' cortesia, non contenuto, e senza questo elenco la
+% prendeva il registro sociale per la cue «can you». Il C (wrapper_peel,
+% 99-registry.c) toglie l'involucro e rimette P nella forma polare.
+machinery(question_wrapper).
+question_wrapper("can you say whether").
+question_wrapper("can you say if").
+question_wrapper("can you tell me whether").
+question_wrapper("can you tell me if").
+question_wrapper("could you say whether").
+question_wrapper("could you tell me whether").
+question_wrapper("could you tell me if").
+question_wrapper("do you know whether").
+question_wrapper("do you know if").
+question_wrapper("sai dirmi se").
+question_wrapper("puoi dirmi se").
+question_wrapper("mi sai dire se").
+question_wrapper("is it true that").
+question_wrapper("is it the case that").
+question_wrapper("does it follow that").
+question_wrapper("e' vero che").
+question_wrapper("è vero che").
 machinery(input_token_between).
+machinery(input_node_next).
 input_token_between($T, $A, $B) :-
     input_node_atom($T, $C, $W),
     input_node_before($T, $A, $C), input_node_before($T, $C, $B).
@@ -1936,10 +1979,13 @@ machinery(interrogative_clause_opener).
 machinery(clause_inverter).
 clause_inverter($V) :- clause_copula($V).
 clause_inverter($V) :- auxiliary($V).
+% gen506b: l'adiacenza la pubblica il motore (`input_node_next/3`, src/code.c) —
+% derivarla da `input_node_before` + `naf(input_token_between)` costava O(n^4)
+% e teneva il muro per minuti sui turni lunghi del banco di comprensione.
 interrogative_clause_opener($T, $Id) :-
     input_node_atom($T, $Id, $W), question_word($W), naf(complementizer($W)),
-    input_node_atom($T, $Next, $V), clause_inverter($V),
-    input_node_before($T, $Id, $Next), naf(input_token_between($T, $Id, $Next)).
+    input_node_next($T, $Id, $Next),
+    input_node_atom($T, $Next, $V), clause_inverter($V).
 turn_opens_question($T) :- interrogative_clause_opener($T, $Id).
 
 % E l'ordine in cui offrirle, che e' esso stesso conoscenza: davanti a una forma

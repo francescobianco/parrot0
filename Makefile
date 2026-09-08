@@ -515,6 +515,21 @@ soft-test: test-engine
 	 fi; \
 	 echo "soft-test: green in $${el}s (budget $(SOFT_BUDGET)s)"
 
+# ⛔ POLITICA DEI TEST (F., 8 settembre 2026) — leggere prima di lanciare `make test`.
+#
+#   - La suite intera e' LUNGA (~50 minuti) e va APPROVATA da F. prima di
+#     essere lanciata. Non e' il ciclo di lavoro: lo sono i test puntuali e
+#     contingenti (`parrot0 --test FILE.p0t`, `tests/comprehension-probe/probe.py
+#     smoke`) e `make soft-test`.
+#   - `make soft-test` ha il budget come LIMITE IMPOSTO: se lo supera si
+#     uccide e si ripensa — o si cura la lentezza (inferenze ottimizzabili) o
+#     si tolgono casi dal soft-test. Il budget non si alza.
+#   - Per parrot0 la rapidita' con cui si progredisce conta piu' della
+#     copertura completa dei test. Le sessioni di fix dei test le pianifica e
+#     le lancia F., periodicamente.
+#   - Durante lo sviluppo di abilita' cognitive, la crescita della KB o
+#     l'apprendimento — soprattutto quando si mira a una KB viva — i test
+#     NON si fanno.
 test: test-engine
 	@./$(BIN) --help >/dev/null
 	@./$(BIN) --test tests/p0t/conversation/basics.p0t
@@ -563,6 +578,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/language/question_does_not_teach.p0t
 	@./$(BIN) --test tests/p0t/language/prefix_before_assertion.p0t
 	@./$(BIN) --test tests/p0t/language/mention.p0t
+	@./$(BIN) --test tests/p0t/conversation/compound_inquiry.p0t
 	@./$(BIN) --test tests/p0t/meta/gap_kinds.p0t
 	@./$(BIN) --test tests/p0t/knowledge/geographic_location.p0t
 	@./$(BIN) --test tests/p0t/knowledge/facts.p0t

@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
-"""Generate per-item .p0t probe files from var/probe/src/fXX.txt.
+"""Genera gli item .p0t del banco di comprensione da src/fXX.txt.
 
-Single-turn families: one prompt per line -> one item.
-Multi-turn family (f05): blocks separated by blank lines -> one item per block.
+Famiglie a turno singolo: una riga -> un item. Famiglia multi-turno (f05):
+blocchi separati da riga vuota -> un item per blocco. Gli item sono il PANNELLO
+CONGELATO: si rigenerano solo se cambia una sorgente, e si committano.
+
+La sentinella `< __NEVER__` serve a farsi stampare la risposta verbatim dal
+verificatore .p0t: ogni item e' quindi «rosso per costruzione», e il runner
+(probe.py) separa da solo il verdetto («got:» c'e') dal trasporto («cannot
+reach engine»).
 """
 import pathlib, re
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent.parent  # repo root
-SRC = ROOT / "var/probe/src"
-OUT = ROOT / "var/probe/items"
+HERE = pathlib.Path(__file__).resolve().parent
+SRC = HERE / "src"
+OUT = HERE / "items"
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)

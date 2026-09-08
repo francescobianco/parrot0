@@ -1,5 +1,14 @@
 # TEST_TODO — le decisioni aperte della migrazione a `.p0t`
 
+> **⛔ Politica dei test (F., 8 settembre 2026), vale sopra tutto il resto:**
+> la suite intera va approvata da F. prima di lanciarla; mentre si lavora
+> solo test puntuali e contingenti e `make soft-test` con il budget come
+> limite imposto (si supera -> si uccide e si ripensa: lentezza da curare o
+> casi da togliere, mai budget da alzare). Rapidita' di progresso > copertura.
+> Le sessioni di fix dei test le pianifica F.; durante lo sviluppo di
+> abilita' cognitive, la crescita della KB o l'apprendimento (KB viva) i test
+> non si fanno. Stessa nota nel Makefile (target `test`) e in CLAUDE.md.
+
 # 🏁 HANDOFF — il cane da guardia, 2026-09-08 (`gen506b`)
 
 > Prevale sul gen505y qui sotto per il METODO; le classi di attese invecchiate
@@ -23,6 +32,12 @@
   stesso commit in cui nasce.**
 - `make soft-test` e' tornato a tre file (F.: e' la porzione piccola, si
   tolgono casi, non si alza il budget).
+- gen506c: `conversation/compound_inquiry.p0t` (31 assert) e' il cricchetto
+  del turno composto, del testimone e degli involucri; nel `make test`. Per
+  misurare un binario candidato mentre la suite gira su `bin/parrot0`:
+  `make build BIN=obj/p0next`, demone su `obj/next.sock` (⚠ un socket nello
+  scratchpad supera i 108 byte di `sun_path` e `bind` fallisce), e
+  `PARROT0_BIN=obj/p0next tests/comprehension-probe/probe.py all`.
 - Report: `docs/reports/suite-run.txt` e' la corsa sul binario di HEAD; la
   precedente (binario 5a4b160, 236 ok / 122 FAIL / 4 fermate) e' descritta
   in LEARN_TODO. `analogy.p0t` era rosso da giorni per un'ECO (buffer non

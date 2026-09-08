@@ -667,6 +667,69 @@ static int pragma_peel(Brain *b, const char *canon, const char *raw,
     return 0;
 }
 
+/* gen506c — «CAN YOU SAY WHETHER P?» E' LA DOMANDA «P?».
+ *
+ * Nel banco di comprensione la clausola finale e' spesso avvolta in una
+ * formula di richiesta («can you say whether every sailor is a pilot?»), e
+ * chi la prendeva era il registro sociale, per la cue «can you»: «I don't have
+ * any of my own — I'm parrot0». La formula non e' contenuto: e' un involucro,
+ * come l'apri-discorso di pragma_peel un livello sopra. Quali involucri
+ * esistano e' conoscenza (`question_wrapper/1`, grammar.p0); il C li toglie e
+ * rimette la domanda interna nella forma polare — il verbo copulativo davanti,
+ * e la classe dei copulativi e' `clause_copula/1` — poi la ridispaccia intera
+ * come un turno. Se nessuno rivendica il residuo, il turno prosegue com'era. */
+static int wrapper_peel(Brain *b, const char *canon, const char *raw,
+                        char *out, size_t out_size) {
+    if (!b || !b->kb || !canon || !*canon) return 0;
+    char wraps[32][KB_TERM_LEN];
+    const char *q[1] = { NULL };
+    size_t nwr = kb_match(b->kb, "question_wrapper", q, 1, wraps, 32);
+    char low[512]; size_t li = 0;
+    for (const char *p = raw ? raw : ""; *p && li + 1 < sizeof low; p++)
+        low[li++] = (char)tolower((unsigned char)*p);
+    low[li] = '\0';
+    const char *residue = NULL;
+    for (size_t i = 0; i < nwr && !residue; i++) {
+        char wb[KB_TERM_LEN]; snprintf(wb, sizeof wb, "%s", wraps[i]);
+        const char *wr = kb_dequote(wb);
+        size_t wl = strlen(wr);
+        if (!wl) continue;
+        if (!strncmp(canon, wr, wl) && canon[wl] == ' ') residue = canon + wl + 1;
+        else if (!strncmp(low, wr, wl) && low[wl] == ' ') residue = low + wl + 1;
+    }
+    if (!residue || !*residue) return 0;
+
+    char buf[512]; snprintf(buf, sizeof buf, "%s", residue);
+    size_t bl = strlen(buf);
+    while (bl && (buf[bl - 1] == '?' || buf[bl - 1] == ' ' || buf[bl - 1] == '.')) buf[--bl] = '\0';
+    char *w[64]; size_t nw = split_words(buf, w, 64);
+    if (nw < 2) return 0;
+    size_t cop = nw;
+    for (size_t i = 1; i < nw && cop == nw; i++)
+        if (lex_class_member(b, "clause_copula", w[i])) cop = i;
+    char polar[512]; size_t off = 0; polar[0] = '\0';
+    if (cop < nw) {
+        off += (size_t)snprintf(polar + off, sizeof polar - off, "%s", w[cop]);
+        for (size_t i = 0; i < nw && off + 1 < sizeof polar; i++)
+            if (i != cop) off += (size_t)snprintf(polar + off, sizeof polar - off, " %s", w[i]);
+    } else {
+        for (size_t i = 0; i < nw && off + 1 < sizeof polar; i++)
+            off += (size_t)snprintf(polar + off, sizeof polar - off, "%s%s", i ? " " : "", w[i]);
+    }
+    if (off + 2 < sizeof polar) { polar[off++] = '?'; polar[off] = '\0'; }
+    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[wrapper] residue=«%s» polar=«%s»\n", residue, polar);
+
+    char sub[1024]; sub[0] = '\0';
+    char *outer_view = b->active_turn_norm; b->active_turn_norm = NULL;  /* vista propria */
+    brain_respond(b, polar, sub, sizeof sub);
+    b->active_turn_norm = outer_view;
+    /* Anche un muro sulla domanda interna e' piu' onesto di una risposta di
+     * registro sulla formula: la domanda era P, e P e' cio' che si e' letto. */
+    if (!sub[0]) return 0;
+    put(sub, out, out_size);
+    return 1;
+}
+
 /* gen218 (docs/plans/the-linguistic-glue.md, G2 — correction pull): integrate an
  * explicit CORRECTION. A turn opening with the marker "no" followed by a negative
  * claim ("no, socrates is not a man") is the user overriding a belief stated
@@ -2045,6 +2108,27 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
      * forma canonica per l'occorrenza isolata. Qui resta solo la MECCANICA —
      * non ripetere l'ultima risposta. */
     enum { WALL_TRIES = 8 };
+    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[wall] enter canon=«%.50s» out=«%.60s» last=«%.40s»\n", canon ? canon : "", out, b ? b->last_reply : "");
+    /* gen506b — IL TURNO COMPOSTO HA UN MURO SUO, CHE DICE COSA HA VISTO.
+     *
+     * Un turno con piu' clausole e una domanda alla fine (turn-frames.p0,
+     * `compound_inquiry`) non e' una parola ignota: e' una forma che parrot0
+     * non sa ancora leggere per intero. Nominare la prima parola opaca
+     * («I don't know about reserve») era un declino vero ma fuorviante — la
+     * lacuna non e' «reserve», e' il turno intero. Qui il muro dice la forma,
+     * e dice come si parla con parrot0 oggi: un'affermazione o una domanda per
+     * turno. E' il declino informato del piano universal-comprehension §4(d),
+     * e la lettura delle clausole — il prossimo circuito — lo restringera'. */
+    {
+        const char *cq[2] = { "current_turn", "compound_inquiry" };
+        if (b && b->kb && kb_query(b->kb, "turn_illocution", cq, 2)) {
+            char msg[512];
+            if (kb_term_say(b, "wall_compound_inquiry", NULL, 0, msg, sizeof msg) && *msg) {
+                put(msg, out, out_size);
+                return;
+            }
+        }
+    }
     char classicbuf[512];
     kb_term_say(b, "wall_classic", NULL, 0, classicbuf, sizeof classicbuf);
     const char *classic = classicbuf;
@@ -2145,8 +2229,11 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
             const KbResponseSlot ss[] = { {"schema", sch}, {"role", role} };
             if (!kb_response_slots(b, "schema_incomplete", ss, 2, smsg, sizeof smsg))
                 { const KbResponseSlot _rs[] = { { "sch", sch }, { "role", role } };
-      kb_term_say(b, "i_can_see_a_x_shape_here_but_the_x_is_missin", _rs, 2, smsg, sizeof smsg);
-                  put(smsg, out, out_size); }
+      kb_term_say(b, "i_can_see_a_x_shape_here_but_the_x_is_missin", _rs, 2, smsg, sizeof smsg); }
+            /* gen506c: il messaggio va SEMPRE in `out` — quando il template KB
+             * riusciva, `smsg` restava nel buffer locale e il turno usciva con
+             * la risposta del turno PRIMA (un'eco: buffer non scritto). */
+            put(smsg, out, out_size);
             if (b) b->fallbacks++;
             return;
         }
@@ -2186,8 +2273,8 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
             const KbResponseSlot rs[] = { {"register", reg} };
             if (!kb_response_slots(b, "register_declined", rs, 1, rmsg, sizeof rmsg))
                 { const KbResponseSlot _rs[] = { { "reg", reg } };
-      kb_term_say(b, "that_looks_like_a_x_problem_and_i_cannot_sol", _rs, 1, rmsg, sizeof rmsg);
-                  put(rmsg, out, out_size); }
+      kb_term_say(b, "that_looks_like_a_x_problem_and_i_cannot_sol", _rs, 1, rmsg, sizeof rmsg); }
+            put(rmsg, out, out_size);   /* gen506c: stessa eco di sopra */
             if (b) b->fallbacks++;
             return;
         }
@@ -4507,6 +4594,13 @@ static void turn_publish_cues(Brain *b, const char *surface) {
      * UNA volta per turno e serve tutti i registri. */
     char elided[512];
     turn_elide_surface(b, surface, elided, sizeof elided);
+    /* gen506c — LE CUE SI CERCANO NEL TURNO INTERO. `surface` e' il turno
+     * normalizzato in 256 byte: un turno del banco di comprensione e' piu'
+     * lungo, e il «?» in coda — la cue che lo fa leggere come domanda o come
+     * turno composto — restava fuori dalla finestra. La vista intera esiste
+     * gia' (`active_turn_norm`, la stessa che la cessione congiunta usa dal
+     * gen502): qui la si consulta. */
+    const char *full = (b->active_turn_norm && *b->active_turn_norm) ? b->active_turn_norm : surface;
     if (!kb_match_all(b->kb, "turn_cue_registry", rq, 2, &regs, &nr)) { free(regs); return; }
     for (size_t i = 0; i < nr; i++) {
         char reg[KB_TERM_LEN];
@@ -4545,7 +4639,7 @@ static void turn_publish_cues(Brain *b, const char *surface) {
                 char probe[KB_TERM_LEN];
                 snprintf(probe, sizeof probe, "%s", rows[k]);
                 const char *needle = kb_dequote(probe);
-                if (!*needle || (!cue(surface, needle) && !cue(elided, needle))) continue;
+                if (!*needle || (!cue(surface, needle) && !cue(elided, needle) && !cue(full, needle))) continue;
                 char quoted[KB_TERM_LEN];
                 if (!turn_quote(needle, 0, strlen(needle), quoted, sizeof quoted))
                     continue;
@@ -4563,7 +4657,7 @@ static void turn_publish_cues(Brain *b, const char *surface) {
                 char probe[KB_TERM_LEN];
                 snprintf(probe, sizeof probe, "%s", inner[j]);
                 const char *needle = kb_dequote(probe);
-                if (!*needle || (!cue(surface, needle) && !cue(elided, needle))) continue;
+                if (!*needle || (!cue(surface, needle) && !cue(elided, needle) && !cue(full, needle))) continue;
                 char quoted[KB_TERM_LEN];
                 if (!turn_quote(needle, 0, strlen(needle), quoted, sizeof quoted))
                     continue;
@@ -4863,6 +4957,152 @@ static int prose_learn_lead(Brain *b, const char *canon, const char *input,
   const KbResponseSlot _rs[] = { { "nf", _v0 }, { "learned", learned } };
       kb_term_say(b, "learned_x_facts_x", _rs, 2, msg, sizeof msg); }
     put(msg, out, out_size);
+    return 1;
+}
+
+/* gen506c — IL TURNO COMPOSTO SI LEGGE UNA CLAUSOLA ALLA VOLTA.
+ *
+ * Il muro del gen506b diceva la verita' e dava il consiglio giusto: «dimmi le
+ * affermazioni una per turno, poi fai la domanda». Qui parrot0 segue il proprio
+ * consiglio da solo. Il turno che la lettura ha chiamato `compound_inquiry`
+ * (turn-frames.p0) viene spezzato alle superfici che la KB dichiara confini di
+ * clausola (`clause_boundary_cue/1` — sono le stesse che lo hanno fatto
+ * riconoscere), e OGNI clausola e' data al lettore di un turno intero:
+ * `brain_respond`, non un dispatcher ridotto. E' la scelta che fa vedere di
+ * piu' (MANTRA, criterio di evoluzione): ogni facolta', ogni lead, ogni
+ * condotta di cessione e ogni frame che leggerebbero quella clausola detta da
+ * sola la leggono anche qui, e crescono insieme.
+ *
+ * Il C non sa che cosa sia un'affermazione o una domanda: la clausola che
+ * insegna insegna («Got it: …»), quella che chiede risponde o mura. E quando
+ * mura, il muro nomina LA CLAUSOLA («I couldn't read «…»»), non la prima
+ * parola opaca: e' la lacuna vera, e chi legge la risposta sa quale pezzo del
+ * turno riformulare. Le risposte si compongono nell'ordine delle clausole.
+ *
+ * Il guardiano `compound_depth` ferma la ricorsione a un livello: una clausola
+ * e' un turno, e un turno non si rispezza. */
+static int reply_is_wall(Brain *b, const char *reply) {
+    if (!b || !b->kb || !reply || !*reply) return 1;
+    if (!strcmp(b->last_module, "fallback")) return 1;
+    char lowered[512]; size_t li = 0;
+    for (const char *p = reply; *p && li + 1 < sizeof lowered; p++)
+        lowered[li++] = (char)tolower((unsigned char)*p);
+    lowered[li] = '\0';
+    char markers[32][KB_TERM_LEN];
+    const char *mq[] = { NULL };
+    size_t nm = kb_match(b->kb, "wall_marker", mq, 1, markers, 32);
+    for (size_t i = 0; i < nm; i++) {
+        char m[KB_TERM_LEN]; snprintf(m, sizeof m, "%s", markers[i]);
+        const char *mm = kb_dequote(m);
+        if (*mm && strstr(lowered, mm)) return 1;
+    }
+    return 0;
+}
+
+static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out_size) {
+    if (!b || !b->kb || !input || !*input || out_size == 0) return 0;
+    if (b->compound_depth > 0) return 0;
+    {
+        const char *cq[2] = { "current_turn", "compound_inquiry" };
+        if (!kb_query(b->kb, "turn_illocution", cq, 2)) return 0;
+    }
+    char cues[32][KB_TERM_LEN];
+    const char *q[1] = { NULL };
+    size_t nc = kb_match(b->kb, "clause_boundary_cue", q, 1, cues, 32);
+    if (nc == 0) return 0;
+
+    char buf[4096];
+    snprintf(buf, sizeof buf, "%s", input);
+    enum { MAX_CLAUSES = 8 };
+    char *clauses[MAX_CLAUSES]; size_t ncl = 0;
+    char *p = buf;
+    while (*p && ncl < MAX_CLAUSES) {
+        char *best = NULL; size_t bestlen = 0;
+        for (size_t i = 0; i < nc; i++) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[i]);
+            const char *cue = kb_dequote(cb);
+            if (!*cue) continue;
+            char *h = strstr(p, cue);
+            if (h && (!best || h < best)) { best = h; bestlen = strlen(cue); }
+        }
+        if (!best) { clauses[ncl++] = p; break; }
+        *best = '\0';
+        clauses[ncl++] = p;
+        p = best + bestlen;
+    }
+    if (ncl < 2) return 0;
+
+    char composed[2048]; size_t off = 0; composed[0] = '\0';
+    size_t read = 0;
+    /* Se alla fine nessuna clausola e' letta, la parola torna al turno intero:
+     * ma le clausole hanno gia' murato, e il muro tiene i conti (pending_gap,
+     * last_reply, fallbacks) — il turno intero direbbe allora la variante
+     * «ancora non so», come se avesse gia' offerto. Si fotografa e si
+     * ripristina, cosi' una lettura che non rivendica non lascia impronte. */
+    char (*pg)[KB_TERM_LEN] = NULL, (*pq)[KB_TERM_LEN] = NULL;
+    size_t npg = 0, npq = 0;
+    { const char *any1[1] = { NULL };
+      if (!kb_match_all(b->kb, "pending_gap", any1, 1, &pg, &npg)) npg = 0;
+      if (!kb_match_all(b->kb, "pending_gap_question", any1, 1, &pq, &npq)) npq = 0; }
+    char saved_reply[256], saved_module[32];
+    unsigned long saved_fallbacks = b->fallbacks;
+    snprintf(saved_reply, sizeof saved_reply, "%s", b->last_reply);
+    snprintf(saved_module, sizeof saved_module, "%s", b->last_module);
+    b->compound_depth++;
+    for (size_t i = 0; i < ncl; i++) {
+        char *c = trim_mut(clauses[i]);
+        if (!*c) continue;
+        char sub[1024]; sub[0] = '\0';
+        /* La clausola e' un turno intero: ha la SUA vista globale, non quella
+         * del genitore — altrimenti una cue del turno composto («can you»)
+         * fa rivendicare a una facolta' una clausola che non la contiene. */
+        char *outer_view = b->active_turn_norm; b->active_turn_norm = NULL;
+        brain_respond(b, c, sub, sizeof sub);
+        b->active_turn_norm = outer_view;
+        char piece[1200];
+        if (reply_is_wall(b, sub)) {
+            const KbResponseSlot sl[] = { { "clause", c } };
+            if (!kb_response_slots(b, "compound_clause_unread", sl, 1, piece, sizeof piece))
+                snprintf(piece, sizeof piece, "%s", sub);
+        } else {
+            snprintf(piece, sizeof piece, "%s", sub);
+            read++;
+        }
+        if (getenv("P0_READ_TRACE"))
+            fprintf(stderr, "[compound] clause=«%s» module=%s resp=«%s»\n", c, b->last_module, sub);
+        if (off + strlen(piece) + 2 >= sizeof composed) break;
+        off += (size_t)snprintf(composed + off, sizeof composed - off, "%s%s", off ? " " : "", piece);
+    }
+    b->compound_depth--;
+    /* Se nessuna clausola e' stata letta, la lettura per clausole non ha
+     * aggiunto niente: si lascia la parola alla risposta del turno intero
+     * (che sapra' murare a modo suo, o compensare). Rivendica solo chi ha
+     * letto qualcosa. */
+    if (!read) {
+        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[compound] no clause read: declining (out=«%.60s»)\n", out);
+        kb_retract_pred(b->kb, "pending_gap");
+        kb_retract_pred(b->kb, "pending_gap_question");
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        for (size_t i = 0; i < npg; i++) { const char *a[1] = { pg[i] }; kb_assert(b->kb, "pending_gap", a, 1); }
+        for (size_t i = 0; i < npq; i++) { const char *a[1] = { pq[i] }; kb_assert(b->kb, "pending_gap_question", a, 1); }
+        kb_set_origin(b->kb, KB_SESSION);
+        free(pg); free(pq);
+        snprintf(b->last_reply, sizeof b->last_reply, "%s", saved_reply);
+        snprintf(b->last_module, sizeof b->last_module, "%s", saved_module);
+        b->fallbacks = saved_fallbacks;
+        return 0;
+    }
+    free(pg); free(pq);
+    /* Le clausole hanno ripubblicato il frame del turno una per una: le cue
+     * che restano sono quelle dell'ultima. Il turno che si sta chiudendo e'
+     * quello composto, e chi lo ispeziona dopo («why that way?», i cricchetti)
+     * deve trovare la SUA lettura. */
+    kb_retract_pred(b->kb, "turn_cue");
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    turn_publish_cues(b, b->active_turn_norm && *b->active_turn_norm ? b->active_turn_norm : input);
+    kb_set_origin(b->kb, KB_SESSION);
+    if (!composed[0]) return 0;
+    put(composed, out, out_size);
     return 1;
 }
 
@@ -5238,6 +5478,11 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     /* gen218: an explicit correction ("no, X is not a Y") peels its marker and
      * re-dispatches the negative claim with the correction flag set, so the
      * standing belief is overridden and the conclusion re-derives. */
+    if (b && wrapper_peel(b, canon, input, out, out_size)) {
+        snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+        snprintf(b->last_module, sizeof b->last_module, "%s", "wrapper");
+        return turn_done(b, canon, input, out, out_size);
+    }
     if (b && correction_peel(b, canon, input, out, out_size))
         { return turn_done(b, canon, input, out, out_size); }
 
@@ -5801,6 +6046,20 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
          * istanza, perche' riparare la superficie e ritentare lo stesso turno
          * costa un tentativo e puo' restituire la risposta VERA — mentre le due
          * mosse sotto, nel migliore dei casi, restituiscono qualcosa d'altro. */
+        /* gen506c: un turno composto reso da una facolta' che ne ha letto una
+         * cue si rilegge una clausola alla volta, PRIMA di ogni altra resa —
+         * anche della compensazione di superficie, che ritenta il turno intero
+         * e su un turno composto ritrova lo stesso ladro di cue. */
+        /* Solo su una resa VERA — lacuna dichiarata o muro riconosciuto —:
+         * «No -- the statement says those classes do not overlap» non nomina
+         * il soggetto e passava per resa, e la lettura per clausole
+         * sostituiva una risposta giusta con un pezzo non letto. */
+        if (surrendered && (declared_gap || reply_is_wall(b, out)) &&
+            compound_turn_lead(b, input, out, out_size)) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", "compound");
+            surrendered = 0;
+        }
         if (surrendered &&
             p0_compensate(b, canon, input, out, out_size)) {
             snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
@@ -5839,6 +6098,14 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
         /* §10: la specie della lacuna si riconosce provando la frase minimamente
          * diversa, e parrot0 quel test lo puo' fare da se'. Prima della coref,
          * perche' un accento mancante e' una distanza di UN CARATTERE. */
+        if (b && compound_turn_lead(b, input, out, out_size)) {
+            /* gen506c: prima del muro e prima della compensazione, il turno
+             * composto si legge per clausole (vedi la resa piu' sopra). */
+            handled = 1;
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", "compound");
+            if (!handled_by_discourse) update_topics(b, canon);
+        } else
         if (p0_compensate(b, canon, input, out, out_size)) {
             handled = 1;
         } else

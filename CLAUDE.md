@@ -21,6 +21,17 @@ ricompilare?"** Se no, quella conoscenza è nel posto sbagliato.
   ciclo di modifica. Se sfora il budget si tolgono casi, non si alza il budget.
 - `make test` — la suite intera (~1619 assert). Deve restare verde.
 - `parrot0 --test FILE.p0t` — manda un singolo file al demone (`make test-engine`).
+- `tests/comprehension-probe/probe.py smoke` — il banco piccolo di comprensione
+  (~1 minuto, risposte verbatim da leggere).
+
+**⛔ Politica dei test (F., 8 settembre 2026).** La suite intera e' lunga e va
+**approvata da F.** prima di lanciarla; mentre si lavora si fanno solo test
+puntuali e contingenti e `make soft-test`, con il budget come limite imposto
+(se lo supera si uccide e si ripensa: si cura la lentezza o si tolgono casi,
+mai si alza il budget). Per parrot0 la rapidita' con cui si progredisce conta
+piu' della copertura completa; le sessioni di fix dei test le lancia F.
+Durante lo sviluppo di abilita' cognitive, la crescita della KB o
+l'apprendimento — soprattutto verso una KB viva — i test non si fanno.
 
 ## Mappa breve
 

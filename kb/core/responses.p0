@@ -697,6 +697,18 @@ response_template(possession_named_ack, it, "Ricevuto: il tuo {thing} si chiama 
 % due invece che da soli (docs/autocorrezione.md §13).
 response_template(fallback_gap_offer, "Hmm, I don't know about {topic} yet. Want me to learn about it? Or teach me: {teach}.").
 response_template(fallback_gap_offer, it, "Mmh, non conosco ancora {topic}. Vuoi che cerchi informazioni? Oppure insegnamelo: {teach}.").
+% gen506b — il muro del turno COMPOSTO (turn-frames.p0, compound_inquiry): non
+% nomina una parola, nomina la forma, e dice come si parla con parrot0 oggi.
+response_template(wall_compound_inquiry, "That turn joins several statements and a question, and I can't yet read them together. Tell me the statements one per turn, then ask the question.").
+response_template(wall_compound_inquiry, it, "Quel turno unisce piu' affermazioni e una domanda, e non so ancora leggerle insieme. Dimmi le affermazioni una per turno, poi fai la domanda.").
+% gen506c — dentro un turno composto letto per clausole, la clausola che mura
+% viene nominata per intero: la lacuna e' quel pezzo, non una parola a caso.
+response_template(compound_clause_unread, "I couldn't read «{clause}».").
+response_template(compound_clause_unread, it, "Non ho saputo leggere «{clause}».").
+% gen506c — un quantificatore non universale apre una frase che parrot0 non
+% sa ancora tenere; lo dice, e dice le due forme che invece sa tenere.
+response_template(existential_claim_unheld, "I can't hold «{clause}» yet: I only keep what is true of every member of a kind, or of a named one.").
+response_template(existential_claim_unheld, it, "Non so ancora tenere «{clause}»: tengo solo cio' che vale per ogni membro di una specie, o per uno nominato.").
 response_template(fallback_still_gap, "Hmm, I don't know about {topic} yet.").
 response_template(fallback_still_gap, it, "Mmh, non conosco ancora {topic}.").
 

@@ -4717,6 +4717,15 @@ faculty_yield_both(gen, open, codebase_referent, source_change_directive).
 % riceveva «Luca.», cioe' la risposta a una domanda che nessuno aveva fatto.
 machinery(faculty_yield_force).
 faculty_yield_force(answer_frame, open, assertion).
+% gen506b — chi riconosce una cue non ha capito un turno COMPOSTO (turn-frames.p0,
+% `compound_inquiry`): il registro sociale, il pragma delle formule di
+% riparazione e i frame di analisi cedono il turno a chi legge le clausole —
+% e se nessuno le legge, il muro e' onesto, mentre «non ne ho di miei» non lo era.
+faculty_yield_force(smalltalk, open, compound_inquiry).
+faculty_yield_force(chitchat, open, compound_inquiry).
+faculty_yield_force(pragma, open, compound_inquiry).
+faculty_yield_force(answerframe, open, compound_inquiry).
+faculty_yield_force(answer_frame, open, compound_inquiry).
 
 % Le superfici con cui chiamarle parlando: senza queste la condotta si potrebbe
 % leggere ma non correggere, e sarebbe meta' mantra #17.

@@ -122,6 +122,7 @@ void input_structure_clear(KB *kb, const char *scope) {
     kb_retract_match(kb, "input_node_surface", sidecar, 3);
     kb_retract_match(kb, "input_node_role", sidecar, 3);
     kb_retract_match(kb, "input_frame_record", sidecar, 3);
+    kb_retract_match(kb, "input_node_next", sidecar, 3);
 }
 
 size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
@@ -156,6 +157,33 @@ size_t input_structure_publish(KB *kb, const char *raw, const InputSpan *span,
         if (nodes[i].role[0]) {
             const char *role[] = { scope, id, nodes[i].role };
             kb_assert(kb, "input_node_role", role, 3);
+        }
+    }
+    /* gen506b — L'ADIACENZA E' UNA COORDINATA, NON UNA DERIVAZIONE.
+     *
+     * «il token DOPO questo» si derivava in KB come «B viene dopo A e nessun
+     * token sta in mezzo» (`input_node_before` + `naf(input_token_between)`):
+     * per ogni coppia un join sui nodi, per ogni nodo la coppia — O(n^4) su un
+     * turno di ottanta nodi, e il muro (`turn_gap_shape` la consulta piu' volte
+     * via `turn_opens_question`) teneva il demone per minuti: erano i «turni
+     * appesi» del banco di comprensione. L'ordine dei token e' meccanica quanto
+     * l'offset da cui era ricavato, e si pubblica una volta, qui: un fatto per
+     * ogni coppia di token consecutivi. */
+    {
+        size_t order[128]; size_t nt = 0;
+        for (size_t i = 0; i < nn; i++)
+            if (!strcmp(nodes[i].level, "token")) order[nt++] = i;
+        for (size_t a = 1; a < nt; a++)            /* per offset: insertion sort */
+            for (size_t b = a; b > 0 && nodes[order[b]].start < nodes[order[b - 1]].start; b--) {
+                size_t t = order[b]; order[b] = order[b - 1]; order[b - 1] = t;
+            }
+        kb_set_origin(kb, KB_REFLECTIVE);
+        for (size_t k = 1; k < nt; k++) {
+            char a[24], bb[24];
+            snprintf(a, sizeof a, "%zu", order[k - 1]);
+            snprintf(bb, sizeof bb, "%zu", order[k]);
+            const char *nx[] = { scope, a, bb };
+            kb_assert(kb, "input_node_next", nx, 3);
         }
     }
     kb_set_origin(kb, KB_SESSION);

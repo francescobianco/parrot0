@@ -1,5 +1,214 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — 8 settembre 2026, sera (`gen506c`): il turno composto si legge una clausola alla volta
+
+> **Stato:** vedi `git log -1`. Prevale sul gen506b qui sotto per il TURNO
+> COMPOSTO e per il banco di comprensione; il resto del gen506b (cane da
+> guardia, lettore di prosa, coda §2) resta valido. Suite:
+> `docs/reports/suite-run.txt` rilanciata sul binario di HEAD (363 file).
+>
+> **Piano di riferimento:** `docs/plans/apprendimento-assistito.md`, tappa
+> V0 (misura affidabile) e primo collo V1 («il turno e' compreso prima di
+> essere rivendicato»). Il banco e' in `tests/comprehension-probe/`
+> (README e `LEDGER.md` li'); `var/` non esiste piu'.
+>
+> **⛔ Due correzioni di rotta di F. (8 settembre, sera), da rispettare:**
+>
+> 1. **Il lavoro e' incrementale, non a blocchi.** Suite intera (50 minuti) e
+>    `probe.py all` (12 minuti) a ogni ciclo sono troppo pesanti e NON
+>    intercettano un prompt disfunzionale in fretta — anzi lo nascondono nel
+>    conteggio (vedi l'eco al §4). Il ciclo e': una modifica -> `probe.py
+>    smoke` (tests/comprehension-probe/smoke.txt, 13 item, ~1 minuto,
+>    risposte verbatim con le bandiere ⚠ ECO / ⚠ risposta di registro /
+>    ⚠ TRANSPORT) -> il cricchetto `.p0t` della forma -> `make soft-test`.
+>    Suite e banco intero sono la chiusura di giornata. Ogni prompt
+>    disfunzionale scoperto entra in `smoke.txt` come UNA riga.
+>    **Politica (F.):** la suite intera va APPROVATA da F. prima di lanciarla;
+>    mentre si lavora solo test puntuali e `make soft-test` con il budget come
+>    limite imposto (si supera -> si uccide e si ripensa); rapidita' di
+>    progresso > copertura; le sessioni di fix dei test le lancia F.; durante
+>    lo sviluppo cognitivo / crescita della KB / apprendimento (KB viva) i test
+>    non si fanno. E' scritta anche nel Makefile (target `test`), in CLAUDE.md
+>    e in TEST_TODO.md.
+> 2. **I turni complessi vanno letti con l'IR dei documenti**, non spezzati
+>    in N turni: `docs/plans/universal-comprehension.md` §4bis — la span
+>    `prose` si esplode nella STESSA gerarchia token -> sintagma -> clausola
+>    dell'input universale, la lettura interroga `extract_frame/2`, la
+>    comprensione `intent_schema/2`, sugli stessi slot/ruoli/offset. Esempio
+>    di F.: «Some pilots in the guild are healers, and no healer in the guild
+>    is nocturnal, and the night watch is full of pilots. Can a nocturnal
+>    pilot be one of those healers, and can a healer who is a pilot be on
+>    the night watch?» — «those healers», «a healer who is a pilot» sono
+>    referenti che attraversano le clausole: solo una IR del turno intero li
+>    lega. La lettura per clausole del §2 e' un GRADINO (riusa tutto cio' che
+>    un turno vede), non l'arrivo: il prossimo incremento e' far passare il
+>    turno composto dalla stessa via di `read_passage`/`document_unit`
+>    (30-generation-reading.c: `input_structure_publish` sotto
+>    `current_prose`, `document_unit_observe`, `input_assertion_bundle`) e
+>    rispondere alle domande finali sull'IR — un incremento piccolo alla
+>    volta, ciascuno con la sua riga in `smoke.txt`. **E la comprensione
+>    universale si applica SEMPRE** (F.): non e' una facolta' per una classe
+>    ristretta di prompt, e' il substrato su cui parrot0 si espande quando i
+>    prompt si fanno lunghi e complessi. Un lettore speciale per «il turno
+>    composto» sarebbe l'errore: il turno composto e' solo il punto in cui la
+>    lettura universale deve gia' bastare.
+
+## 1. Il banco di comprensione e' migrato, e ha un libro mastro
+
+`var/probe/` -> `tests/comprehension-probe/` (173 item, dieci famiglie,
+`probe.py`, `gen_items.py`, `src/`). Le misure (`results/*.tsv`) sono
+gitignorate e si rigenerano; il riassunto di ogni corsa che conta va a mano
+in `tests/comprehension-probe/LEDGER.md`, con data e commit. **Un
+`answered` non e' una risposta giusta**: va letto. Nel LEDGER la baseline
+(binario di `0b860d96`, prima del gen506b) e la corsa di stasera.
+
+## 2. Il turno composto si legge per clausole (`compound_turn_lead`, 99-registry.c)
+
+Il muro del gen506b diceva «dimmi le affermazioni una per turno, poi fai la
+domanda». Ora parrot0 segue il proprio consiglio: se la lettura del turno
+dice `compound_inquiry` (turn-frames.p0), il turno GREZZO si spezza alle
+superfici `clause_boundary_cue/1` — le stesse che l'hanno fatto riconoscere
+— e OGNI clausola va a `brain_respond`, il lettore di un turno intero: ogni
+facolta', ogni lead, ogni condotta la vedono come se fosse detta da sola.
+Le risposte si compongono in ordine; una clausola che mura viene nominata
+per intero (`compound_clause_unread`: «I couldn't read «…»»), non con la
+prima parola opaca. Guardiano `compound_depth`: una clausola non si rispezza.
+
+Tre dettagli pagati con un ciclo ciascuno:
+- **la clausola ha la SUA vista globale.** `brain_respond` alloca
+  `active_turn_norm` solo se e' NULL; un sotto-turno vedeva quella del
+  genitore, e `smalltalk` rivendicava «is every sailor a pilot?» per il «can
+  you» che stava in un'ALTRA clausola. I sotto-turni (compound e wrapper)
+  azzerano la vista e la ripristinano.
+- **le cue si cercano nel turno intero.** `turn_publish_cues` guardava
+  `norm[256]`: il «?» in coda a un turno del banco (200–500 byte) restava
+  fuori dalla finestra e il turno non era ne' domanda ne' composto. Ora
+  consulta anche `active_turn_norm`. ⚠ `canon[256]` resta: tutto il resto
+  del dispatch vede ancora i primi 256 byte (TODO gia' scritto in
+  `prose_learn_lead`).
+- **il frame che resta e' quello del turno composto.** Le clausole
+  ripubblicano il frame una per una; alla fine si ripubblicano le cue del
+  genitore, cosi' `why that way?` e i cricchetti trovano la sua lettura.
+
+Quattro regole di ingaggio, ognuna pagata con un rosso della suite:
+- la lettura per clausole viene PRIMA della compensazione di superficie
+  (`p0_compensate` ritentava il turno intero e ritrovava lo stesso ladro di
+  cue: `pragma` su «All calm pilots are trusted, but some…»);
+- nella catena delle rese interviene solo su una resa VERA — lacuna
+  dichiarata o `wall_marker`/fallback — non su «la risposta ignora il
+  soggetto» (`logic_no_overlap.p0t`: «No -- the statement says those classes
+  do not overlap» e' giusta e non nomina il soggetto);
+- rivendica solo se ha letto almeno una clausola (`entail.p0t`: «explain
+  premise: …; hypothesis: …» si spezzava su «; » e nessun pezzo era
+  leggibile — il turno intero lo era);
+- quando declina non lascia impronte: `pending_gap`, `last_reply`,
+  `fallbacks` si fotografano e si ripristinano (`wordproblem.p0t`: il muro
+  del turno intero diceva la variante «ancora non so» perche' le clausole
+  avevano gia' offerto).
+
+Misurato sui tre turni del cricchetto (`conversation/compound_inquiry.p0t`,
+31/31, nel `make test`): «No mechanic here is a pilot» -> «Held: nothing is
+both mechanic here and pilot»; «Kibo is a giraffe that lives in the
+reserve» -> due fatti; «the table is in a museum» -> `located_in`. Le
+domande finali murano quasi tutte, e lo dicono per nome.
+
+## 3. Tre esiti falsi trovati leggendo per clausole — la classe peggiore (mantra #7)
+
+| turno | prima | ora | dove |
+|---|---|---|---|
+| «every sailor is a pilot?» | **imparava** `pilot(X) :- sailor(X)` da una domanda (due lettori, 4–6 parole e lungo) | mura | 10-memory-knowledge.c, entrambi i lettori consumano `turn_illocution` (`p0_turn_is(question)`) |
+| «several pilots are sailors» | **`sailor(several_pilots)`**: il soggetto fuso diventava un individuo | «I can't hold «…» yet: I only keep what is true of every member of a kind, or of a named one» | `non_universal_quantifier/1` (grammar.p0) + `existential_claim_unheld` (responses.p0); gate in `extract_class_statement` |
+| «is a sailor a pilot?» con la regola in KB | **«No.»**: lo spostamento del determinante chiedeva `pilot(sailor)` come individuo | «Yes.» — anche «is every sailor a pilot?», «are all sailors pilots?» | prova per TESTIMONE (come il sillogismo gen326): `sailor(someone)` ipotetico, domanda chiusa su di lui, retract. Solo se la classe soggetto e' corpo di una regola e la lettura come individuo non regge («is a whale a mammal?» resta com'era). Il copulativo singolare e' conoscenza: `copula_singular_form/2` (grammar-judgement.p0) |
+
+E il modificatore: «All calm pilots are trusted» dava `trusted(X) :-
+pilot(X)` — il lettore 4–6 parole prendeva «il token prima della copula» e
+buttava «calm»: regola FALSA annunciata come appresa. Ora con un token fra
+quantificatore e soggetto la regola e' congiunta (`trusted(X) :- calm(X),
+pilot(X)`, come il lettore lungo del gen133), salvo che la coppia sia gia'
+un nome di classe in KB («copper mineral», gen505). Il testimone della
+domanda sulla classe riceve un fatto per ogni parola del soggetto («is every
+calm pilot trusted?» -> Yes; «bob is a pilot» + «is bob trusted?» -> No;
+«bob is calm» -> «Now bob is a trusted after all»).
+
+E l'involucro: «can you say whether P?» e' la domanda P
+(`question_wrapper/1` in grammar.p0, `wrapper_peel` in 99-registry.c: toglie
+l'involucro, rimette P in forma polare portando davanti il `clause_copula`,
+ridispaccia come turno). Un muro sulla domanda interna vale piu' di una
+risposta di registro sulla formula: si tiene sempre il residuo. Involucri
+di oggi: «can you say/tell me whether/if», «could you…», «do you know
+whether/if», «is it true that», «is it the case that», «does it follow
+that», «sai dirmi se», «puoi dirmi se», «mi sai dire se», «e' vero che».
+
+## 4. Un'eco preesistente, scoperta perche' la lettura per clausole ha imparato a declinare
+
+Corsa 3 del banco: 153 `answered` su 154 — troppo bello. Letti: f01/i05
+rispondeva con il testo di f01/i04. In `not_understood` (99-registry.c) i
+rami `schema_incomplete` e `register_declined` scrivevano il messaggio nel
+buffer locale e in `out` SOLO quando il template KB falliva: quando riusciva,
+`out` restava com'era — e il motore di test riusa il buffer, quindi usciva
+la risposta del turno prima. Nascosto per chissa' quanto perche' un turno
+che arrivava li' era raro; la lettura per clausole che declina (read==0) ce
+lo ha portato in massa. Corretto (`put` sempre). Regola (gia' nel gen506b
+§2.3, ora due volte): **una risposta identica al turno prima e' un buffer
+non scritto**; `probe.py smoke` la segnala da solo.
+
+## 5. Stato al passaggio di consegne
+
+- Codice e KB di questa sessione: vedi `git log -1` (gen506c). Cricchetto
+  `conversation/compound_inquiry.p0t` 31/31; `make soft-test` verde;
+  `probe.py smoke` letto una risposta per una (risposte di registro ancora
+  presenti su f03/i01, f04/i05, f06/i06, f07/i01: sono le prossime righe da
+  lavorare, UNA per volta).
+- Suite: `docs/reports/suite-run.txt` e' la corsa sul binario delle 13:31
+  (prima della correzione dell'eco e delle bandiere del banco). Contro la
+  corsa del gen506b: `compound_inquiry` nuovo verde, `contextual_denotation`
+  da rosso a verde; i quattro rossi nuovi apparsi a meta' giornata
+  (`summary`, `wordproblem`, `entail`, `logic_no_overlap`) sono stati chiusi
+  dalle regole di ingaggio del §2 e verificati uno per uno sul demone
+  laterale. Le tre fermate del cane da guardia (`self_repair`,
+  `autonomous_cycle`, `bridge_gap`) sono quelle del gen506b.
+- Il prossimo che apre questo file: NON lanciare la suite per prima cosa.
+  `make build && make test-engine && tests/comprehension-probe/probe.py smoke`.
+
+## ⛔ La coda, in ordine (dal banco, leggendo le risposte)
+
+0. **Il turno composto nell'IR dei documenti** (§4bis, correzione di rotta 2
+   qui sopra): e' il lavoro principale, a incrementi. Primo passo proposto:
+   quando la lettura del turno dice `compound_inquiry`, pubblicare il turno
+   intero come `current_prose` e far correre `document_unit_observe` +
+   `input_assertion_bundle` clausola per clausola (e' cio' che
+   `read_passage` fa gia' per una pagina), poi la domanda finale come turno
+   con quei fatti in KB. Misura: la riga f04/i04 di `smoke.txt`.
+
+1. **«Every giraffe in this reserve is spotted»** — l'universale con un
+   complemento nel soggetto (7 parole): il lettore 4–6 non lo prende. La
+   lettura onesta e' una regola a corpo congiunto (`spotted(X) :- giraffe(X),
+   in(X, reserve)`), non «every giraffe is spotted» (che sarebbe un'altra
+   affermazione). Il solver n-ario c'e'; manca il frame.
+2. **«Assume for a moment that all feathers are heavy»** — la stipulazione
+   come clausola: c'e' `stipulation_cue` e l'origine `KB_HYPOTHETICAL` nel
+   sillogismo; manca la via da un turno normale. Con quella, «must the
+   feather be heavy» diventa una domanda chiusa sul referente.
+3. **«A feather from this nest is lying on the table»** — il soggetto
+   indefinito introduce un referente di discorso (poi «the feather»). Oggi
+   mura. E' il pezzo G1–G5 del piano (binder/referenti).
+4. **«Could a sailor who works here also be a mechanic»** — la domanda modale
+   di coerenza: con `nothing is both mechanic and pilot` e `pilot(X) :-
+   sailor(X)` parrot0 gia' risponde «No.» a «is bob a mechanic?»; manca la
+   forma «could a X also be a Y» -> testimone + disgiunzione.
+5. **«Does P follow from those two facts alone»** — la macchina c'e'
+   (`premise: …; hypothesis: …`, `explain premise:`), la forma naturale no.
+6. `", but "` come confine perde il contrasto (`contrast_marker` esiste).
+7. `canon[256]`: la sola cosa che vede il turno intero sono le cue e la
+   cessione congiunta. Un turno lungo con la domanda oltre i 256 byte e'
+   ancora letto a meta' da tutto il resto.
+8. Il sotto-turno incrementa `b->turns` e scrive in `conv_log`: visibile in
+   `!trace`, innocuo, ma da decidere (un turno composto sono N turni?).
+9. La coda del gen506b (§2: le forme che il lettore di prosa non legge) e
+   del gen506 (tput/pronomi, «what is a wombat») restano.
+
+---
+
 # 🏁 HANDOFF — 8 settembre 2026, pomeriggio (`gen506b`): il lettore legge la prosa come un turno
 
 > **Stato:** vedi `git log -1`. Questo handoff **prevale** su quello del mattino

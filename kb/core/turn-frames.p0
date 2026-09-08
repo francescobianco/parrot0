@@ -119,6 +119,37 @@ question_mark_cue("?").
 turn_declared_act($Turn, question) :-
     turn_cue($Turn, question_mark_cue, $Cue).
 
+% ── gen506b — IL TURNO COMPOSTO: PIU' CLAUSOLE, E UNA DOMANDA ALLA FINE ─────
+%
+% Il banco di comprensione (tests/comprehension-probe) e' fatto di turni cosi':
+% «No mechanic here is a pilot, but several pilots are sailors. Could a sailor
+% who works here also be a mechanic, and can you say whether every sailor is a
+% pilot?». Misurato sulla baseline: 7 di questi su 32 (f01, f02) li prendeva
+% `smalltalk` per una cue («can you», «your») e rispondeva «I don't have any
+% of my own — I'm parrot0, an AI»; altri quattro li prendeva un frame di
+% analisi ripetendo il prompt intero dentro un template. Una facolta' che
+% riconosce UNA cue in un turno di quattro clausole non ha capito il turno: ha
+% trovato una parola. Qui il turno composto ha un nome, cosi' una condotta puo'
+% dire chi deve cedere (intents.p0, `faculty_yield_force(_, open,
+% compound_inquiry)`). Quali superfici separino le clausole e' conoscenza —
+% una lingua nuova o una congiunzione nuova e' una riga.
+turn_cue_registry(clause_boundary_cue, 1).
+clause_boundary_cue(", and ").
+clause_boundary_cue(", but ").
+clause_boundary_cue(", so ").
+clause_boundary_cue(", yet ").
+clause_boundary_cue(", while ").
+clause_boundary_cue(", then ").
+clause_boundary_cue("; ").
+clause_boundary_cue(". ").
+clause_boundary_cue(", e ").
+clause_boundary_cue(", ma ").
+clause_boundary_cue(", quindi ").
+clause_boundary_cue(", mentre ").
+turn_declared_act($Turn, compound_inquiry) :-
+    turn_cue($Turn, clause_boundary_cue, $Boundary),
+    turn_cue($Turn, question_mark_cue, $Mark).
+
 % ── L'ASSERZIONE HA UNA LETTURA, ANCHE SE NON HA CUE ───────────────────────
 %
 % Sopra e' scritto — e resta vero — che l'asserzione non ha cue proprie: marcarla
