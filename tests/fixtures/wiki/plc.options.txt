@@ -1,4 +1,5 @@
 PLC
 Programmable logic controller
+Programmable matter
 Public limited company
 Future plc

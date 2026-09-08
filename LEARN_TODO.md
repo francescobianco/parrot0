@@ -1,5 +1,45 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — 9 settembre 2026 (`gen506h`): la sessione e' il prompt, e nessuno stato del dialogo vive solo nel C
+
+> F.: (1) «il prompt e' sempre l'intera sessione con aggiunto in coda il
+> prompt corrente»; (2) «last_entity, last_reply, pending_gap… per la
+> KB-first questi non devono essere C ma KB interrogabile»; (3) «la finestra
+> di 256 byte e' irrilevante per le ambizioni di parrot0… i limiti di
+> finestra prima o poi li dobbiamo superare». Tutte e tre nei piani
+> (`dialogica.md` §1bis, `universal-comprehension.md` §4ter, C_TODO in testa)
+> e le prime due gia' in campo.
+
+**In campo (gen506h):**
+- **I frame dei turni restano.** A inizio turno il motore sposta ogni fatto
+  `current_turn` dei predicati `turn_scoped/2` (discourse.p0 §6: nodi, span,
+  cue, letture, tema, modulo, esito, risposta, input, entita') sotto `turn_N`
+  e ritira `turn_(N-finestra)` (`session_window(6)`). `session_archive_turn`,
+  99-registry.c: sposta e ritira scope, non sa cosa contengano.
+- **L'ultima mossa e' un fatto:** `turn_reply/2`, `turn_input/2`,
+  `turn_entity/2` sotto `current_turn` a fine turno (poi sotto `turn_N`).
+  `previous_turn/1` in KB. I campi C `last_*` restano come cache: ritirarli
+  consumer per consumer e' la coda (grep `b->last_`).
+- **La scelta si legge sul frame** (network.p0 §11): le parole di ogni
+  opzione sono `option_word(Parola, Tema, N)` e cue del turno;
+  `option_hit_word/3` le colpite; il C conta: una -> scelta, piu' d'una ->
+  restano le colpite con piu' parole (la piu' specifica vince) e, se sono
+  ancora piu' d'una, la lista si restringe e si richiede (L3). Reperto 1 di
+  F. («parlami di programmable…» sotto «Quale intendi?») chiuso.
+- **Una domanda nuova non e' catturata** da una questione aperta che non
+  indirizza: `unclaimed_turn_captured($K) :- naf(turn_illocution(current_turn,
+  question))` (L4). Reperto 2 («cosa sono i processi industriali») chiuso —
+  ora mura onestamente su quella domanda, la scelta resta aperta.
+- Test `conversation/session_board.p0t` 24/24 (nel make test), con
+  `offer_context` 21/21 e `disambiguation` 19/19 invariati.
+
+**Coda:** I1 di dialogica (fondere `pending_gap`/`pending_disambiguation` in
+`open_issue(Issue, Kind)` con il turno che l'ha aperta: ora il turno c'e',
+`issue_turn(Issue, turn_N)`); la ripresa («torniamo ai plc», D49); ritirare
+i campi `b->last_*`; le finestre (C_TODO in testa).
+
+---
+
 # 🏁 HANDOFF — 9 settembre 2026 (`gen506g`): la teoria della dialogica, prima di ogni altra riparazione
 
 > F.: «siamo molto indietro da una vera conversazione naturale… costruisci

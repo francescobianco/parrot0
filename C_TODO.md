@@ -1,5 +1,18 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-09 — le finestre fisse escono dal C (F.: «non sono un vincolo di progetto»)
+
+`norm[256]` e `canon[256]` nel dispatch (99-registry.c, 10-memory-knowledge.c
+`canonicalize_lang`), `prose[4096]` in `network_acquire`, `KB_TERM_LEN` per
+un termine, i `char x[512]` sparsi: oggi un turno lungo viene letto a meta'
+da tutto tranne che dalle cue (gen506c) e dalla cessione congiunta (gen502).
+L'ambizione e' un turno di 100 KB — un file Python intero, «trasformalo in
+C» — con lo stesso frame di dieci parole. La cura non e' alzare i numeri:
+e' passare `input` intero e allocare per lunghezza (`normalize_full_alloc`
+esiste gia'), un sito alla volta, con il banco piccolo a misurare il costo.
+Ordine: dispatch (norm/canon) -> prosa -> termini lunghi in KB.
+
+
 ## 2026-09-06 — nomi composti: un solo canonizzatore anche per mod_learn
 
 Tolto il traduttore token-per-token dal tema estratto sul testo italiano:

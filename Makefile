@@ -582,6 +582,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/knowledge/disambiguation.p0t
 	@./$(BIN) --test tests/p0t/knowledge/deep_memory.it.p0t
 	@./$(BIN) --test tests/p0t/knowledge/offer_context.p0t
+	@./$(BIN) --test tests/p0t/conversation/session_board.p0t
 	@./$(BIN) --test tests/p0t/meta/gap_kinds.p0t
 	@./$(BIN) --test tests/p0t/knowledge/geographic_location.p0t
 	@./$(BIN) --test tests/p0t/knowledge/facts.p0t

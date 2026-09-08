@@ -1,0 +1,72 @@
+# LA SESSIONE E' IL PROMPT — gen506h (dialogica.md L1–L4, discourse.p0 §6).
+#
+# F.: «il prompt e' sempre l'intera sessione con aggiunto in coda il prompt
+# corrente». Non come testo: come struttura. I frame dei turni restano in KB
+# sotto turn_N dentro una finestra; l'ultima mossa e' un fatto; la scelta si
+# legge sul frame e la risposta parziale restringe; una domanda nuova non e'
+# catturata da una questione aperta che non indirizza.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!timeout 8
+!reset
+
+[test i frame dei turni restano, e l'ultima mossa e' un fatto]
+> socrates is a man
+<~ Learned
+> is socrates a man?
+< Yes.
+!query turn_reply(current_turn, "Yes.")
+!query turn_input(current_turn, "is socrates a man?")
+!query turn_reply(turn_1, $R)
+!query input_node_atom(turn_1, $I, socrates)
+> what is 2 plus 2
+< 4.
+!query turn_reply(turn_2, "Yes.")
+!query input_node_atom(turn_2, $J, socrates)
+
+[test la finestra: i turni vecchi cadono]
+!reset
+> a
+> b
+> c
+> d
+> e
+> f
+> g
+> h
+!query! turn_input(turn_1, $X)
+!query turn_input(turn_3, $Y)
+
+[test la risposta parziale restringe la scelta]
+!set PARROT0_LANG=it
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami dei plc
+> si
+<~ Quale intendi?
+<~ Future plc
+> parlami di programmable
+<~ Programmable logic controller
+<~ Programmable matter
+<! Future plc
+<~ Quale intendi?
+<! non so ancora molto
+> logic
+<~ industrial computer
+!query! pending_disambiguation(plc)
+
+[test una domanda nuova non e' catturata dalla questione aperta]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami dei plc
+> si
+<~ Quale intendi?
+> quanto fa 2 più 2
+< 4.
+!query pending_disambiguation(plc)
+> il primo
+<~ industrial computer

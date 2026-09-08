@@ -215,3 +215,19 @@ conduct_lesson1("non cercare se non dico di si", offer_unclaimed_turn, ask).
 conduct_lesson1("don't look things up unless i say yes", offer_unclaimed_turn, ask).
 conduct_lesson_reply(offer_unclaimed_turn, ask, "Understood: I'll look things up only when you say yes.").
 
+% ── 11. LA SCELTA SI LEGGE SUL FRAME, E LA RISPOSTA PARZIALE RESTRINGE (gen506h) ─
+% Le parole di ogni opzione sono cue del turno (`option_word(Parola, Tema, N)`,
+% scritte dal motore con le opzioni); un'opzione e' «colpita» se una sua
+% parola sta nel turno. Una colpita: scelta. Piu' d'una: la lista si
+% restringe e si richiede (dialogica.md L3). E un turno che il frame legge
+% come DOMANDA non viene catturato da una questione aperta che non indirizza:
+% si risponde per se', la questione resta (L4).
+turn_cue_registry(option_word, 1).
+machinery(option_word).
+machinery(option_hit).
+machinery(option_hit_word).
+machinery(unclaimed_turn_captured).
+option_hit_word($Topic, $N, $W) :- option_word($W, $Topic, $N), turn_cue(current_turn, option_word, $W), naf(stopword($W)).
+option_hit($Topic, $N) :- option_hit_word($Topic, $N, $W).
+unclaimed_turn_captured($Kind) :- naf(turn_illocution(current_turn, question)).
+

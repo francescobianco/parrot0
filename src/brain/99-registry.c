@@ -4913,6 +4913,28 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     apply_active_constraint(b, out, out_size);
     n = strlen(out);
     if (b) snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+    /* gen506h — l'ultima mossa e' un fatto del turno, non un campo del C:
+     * `turn_reply`, `turn_input`, `turn_entity` sotto current_turn, e domani
+     * sotto turn_N (session_archive_turn). I campi restano come cache. */
+    if (b && b->kb && input) {
+        int prev = kb_origin(b->kb);
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        char qi[KB_TERM_LEN + 4], qr[KB_TERM_LEN + 4], tmp[KB_TERM_LEN];
+        snprintf(tmp, sizeof tmp, "%.*s", (int)(sizeof tmp - 4), input);
+        for (char *c = tmp; *c; c++) if (*c == '"') *c = '\'';
+        snprintf(qi, sizeof qi, "\"%s\"", tmp);
+        snprintf(tmp, sizeof tmp, "%.*s", (int)(sizeof tmp - 4), out ? out : "");
+        for (char *c = tmp; *c; c++) if (*c == '"' || *c == '\n') *c = *c == '\n' ? ' ' : '\'';
+        snprintf(qr, sizeof qr, "\"%s\"", tmp);
+        kb_retract_match(b->kb, "turn_input", (const char *[]){ "current_turn", NULL }, 2);
+        kb_retract_match(b->kb, "turn_reply", (const char *[]){ "current_turn", NULL }, 2);
+        kb_retract_match(b->kb, "turn_entity", (const char *[]){ "current_turn", NULL }, 2);
+        kb_assert(b->kb, "turn_input", (const char *[]){ "current_turn", qi }, 2);
+        kb_assert(b->kb, "turn_reply", (const char *[]){ "current_turn", qr }, 2);
+        if (b->has_last_entity && b->last_entity[0])
+            kb_assert(b->kb, "turn_entity", (const char *[]){ "current_turn", b->last_entity }, 2);
+        kb_set_origin(b->kb, prev);
+    }
     return n;
 }
 
@@ -5272,6 +5294,12 @@ static int acquire_and_report(Brain *b, const char *topic, const char *stored_q,
  * l'offerta si accetta: la stessa acquisizione del «si'» esplicito. */
 static int pending_offer_fallthrough(Brain *b, const char *input, char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
+    /* gen506h (dialogica L4): una domanda nuova non e' catturata da una
+     * questione aperta che non indirizza; la politica e' KB. */
+    {
+        const char *kq[1] = { "any" };
+        if (!kb_query(b->kb, "unclaimed_turn_captured", kq, 1)) return 0;
+    }
     /* Sotto una DISAMBIGUAZIONE aperta il turno non rivendicato non sceglie
      * niente: si ripete la domanda con le opzioni, non «Non capisco». */
     {
@@ -5312,6 +5340,75 @@ static int pending_offer_fallthrough(Brain *b, const char *input, char *out, siz
     return acquire_and_report(b, topic, stored_q[0] ? stored_q : input, input, out, out_size);
 }
 
+/* gen506h — LA SESSIONE E' IL PROMPT (discourse.p0 §6).
+ *
+ * A inizio turno, prima che i fatti di `current_turn` vengano azzerati, si
+ * spostano sotto `turn_N` (N = il turno appena finito): quali predicati siano
+ * di turno e quanti turni restino e' KB (`turn_scoped/2`, `session_window/1`).
+ * Il C sposta e ritira scope: non sa che cosa contengano. */
+static void session_archive_turn(Brain *b) {
+    if (!b || !b->kb || b->turns < 2) return;
+    unsigned long done = b->turns - 1;
+    char scope[32]; snprintf(scope, sizeof scope, "turn_%lu", done);
+    long window = 6;
+    {
+        char w[1][KB_TERM_LEN]; const char *wq[1] = { NULL };
+        if (kb_match(b->kb, "session_window", wq, 1, w, 1) == 1) window = strtol(kb_dequote(w[0]), NULL, 10);
+    }
+    char drop[32]; drop[0] = '\0';
+    if (window > 0 && done > (unsigned long)window)
+        snprintf(drop, sizeof drop, "turn_%lu", done - (unsigned long)window);
+    char (*preds)[KB_TERM_LEN] = NULL; size_t np = 0;
+    const char *pq[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "turn_scoped", pq, 2, &preds, &np)) { free(preds); return; }
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    for (size_t i = 0; i < np; i++) {
+        char pred[KB_TERM_LEN]; snprintf(pred, sizeof pred, "%s", kb_dequote(preds[i]));
+        char ar[1][KB_TERM_LEN]; const char *aq[2] = { preds[i], NULL };
+        if (kb_match(b->kb, "turn_scoped", aq, 2, ar, 1) != 1) continue;
+        long arity = strtol(kb_dequote(ar[0]), NULL, 10);
+        if (arity < 2 || arity > 4) continue;
+        if (drop[0]) {
+            const char *dq[4] = { drop, NULL, NULL, NULL };
+            kb_retract_match(b->kb, pred, dq, (size_t)arity);
+        }
+        /* le righe di current_turn: si enumerano per slot, dal secondo in poi */
+        char (*a1)[KB_TERM_LEN] = NULL; size_t n1 = 0;
+        const char *q1[4] = { "current_turn", NULL, NULL, NULL };
+        if (!kb_match_all(b->kb, pred, q1, (size_t)arity, &a1, &n1)) { free(a1); continue; }
+        for (size_t k = 0; k < n1 && k < 512; k++) {
+            if (arity == 2) {
+                const char *row[2] = { scope, a1[k] };
+                kb_assert(b->kb, pred, row, 2);
+                continue;
+            }
+            char (*a2)[KB_TERM_LEN] = NULL; size_t n2 = 0;
+            const char *q2[4] = { "current_turn", a1[k], NULL, NULL };
+            if (!kb_match_all(b->kb, pred, q2, (size_t)arity, &a2, &n2)) { free(a2); continue; }
+            for (size_t m = 0; m < n2 && m < 64; m++) {
+                if (arity == 3) {
+                    const char *row[3] = { scope, a1[k], a2[m] };
+                    kb_assert(b->kb, pred, row, 3);
+                    continue;
+                }
+                char (*a3)[KB_TERM_LEN] = NULL; size_t n3 = 0;
+                const char *q3[4] = { "current_turn", a1[k], a2[m], NULL };
+                if (!kb_match_all(b->kb, pred, q3, 4, &a3, &n3)) { free(a3); continue; }
+                for (size_t r = 0; r < n3 && r < 16; r++) {
+                    const char *row[4] = { scope, a1[k], a2[m], a3[r] };
+                    kb_assert(b->kb, pred, row, 4);
+                }
+                free(a3);
+            }
+            free(a2);
+        }
+        free(a1);
+    }
+    kb_set_origin(b->kb, prev);
+    free(preds);
+}
+
 static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
     if (b) {
@@ -5337,6 +5434,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
          * attraversa. La specie della lacuna non e' piu' decisa dal C — si
          * DERIVA da questi tre (`kb/core/gap-kinds.p0`), e una specie nuova
          * domani e' una regola, non un ramo. */
+        if (b->kb) session_archive_turn(b);   /* gen506h: il turno finito resta, sotto turn_N */
         if (b->kb) {
             kb_retract_pred(b->kb, "turn_outcome");
             kb_retract_pred(b->kb, "turn_topic");
@@ -5787,28 +5885,70 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                     if (kb_match(b->kb, "ordinal_choice", nq, 2, nv, 1) == 1) pick = strtol(kb_dequote(nv[0]), NULL, 10);
                 }
             }
+            /* gen506h — le opzioni colpite le dice la KB (`option_hit/2`,
+             * network.p0 §11) leggendo le cue del frame: il C conta quante
+             * sono. Una: scelta. Piu' d'una: si restringe e si richiede. */
             char chosen[KB_TERM_LEN] = "";
-            for (int i = 1; i <= 8 && !chosen[0]; i++) {
-                char nstr[8]; snprintf(nstr, sizeof nstr, "%d", i);
+            /* L'opzione piu' SPECIFICA vince: fra le colpite restano quelle con
+             * il massimo numero di parole colpite («programmable logic
+             * controller» batte «programmable matter» su «logic controller»). */
+            char hits[16][KB_TERM_LEN]; size_t nh = 0;
+            {
+                char all[16][KB_TERM_LEN];
+                const char *hq[2] = { topic, NULL };
+                size_t na = kb_match(b->kb, "option_hit", hq, 2, all, 16);
+                size_t best = 0; size_t cnt[16];
+                for (size_t h = 0; h < na; h++) {
+                    char ws[16][KB_TERM_LEN];
+                    const char *wq[3] = { topic, all[h], NULL };
+                    cnt[h] = kb_match(b->kb, "option_hit_word", wq, 3, ws, 16);
+                    if (cnt[h] > best) best = cnt[h];
+                }
+                for (size_t h = 0; h < na; h++)
+                    if (cnt[h] == best && nh < 16) snprintf(hits[nh++], KB_TERM_LEN, "%s", all[h]);
+            }
+            if (pick) {
+                char nstr[8]; snprintf(nstr, sizeof nstr, "%ld", pick);
                 char tv[1][KB_TERM_LEN];
                 const char *oq[3] = { topic, nstr, NULL };
-                if (kb_match(b->kb, "disambiguation_option", oq, 3, tv, 1) != 1) break;
-                char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", kb_dequote(tv[0]));
-                if (pick == i) { snprintf(chosen, sizeof chosen, "%s", tb); break; }
-                char tl[KB_TERM_LEN]; snprintf(tl, sizeof tl, "%s", tb);
-                for (char *c = tl; *c; c++) *c = (char)tolower((unsigned char)*c);
-                char *tw[16]; size_t ntw = split_words(tl, tw, 16);
-                int need = 0, have = 0;
-                for (size_t k2 = 0; k2 < ntw; k2++) {
-                    if (!strcmp(tw[k2], topic) || strlen(tw[k2]) < 3) continue;
-                    need++;
-                    if (kb_text_has_surface(low, tw[k2])) have++;
+                if (kb_match(b->kb, "disambiguation_option", oq, 3, tv, 1) == 1)
+                    snprintf(chosen, sizeof chosen, "%s", kb_dequote(tv[0]));
+            } else if (nh == 1) {
+                char tv[1][KB_TERM_LEN];
+                const char *oq[3] = { topic, hits[0], NULL };
+                if (kb_match(b->kb, "disambiguation_option", oq, 3, tv, 1) == 1)
+                    snprintf(chosen, sizeof chosen, "%s", kb_dequote(tv[0]));
+            } else if (nh > 1) {
+                /* la risposta parziale restringe: restano solo le colpite */
+                for (int i = 1; i <= 8; i++) {
+                    char nstr[8]; snprintf(nstr, sizeof nstr, "%d", i);
+                    int keep = 0;
+                    for (size_t h = 0; h < nh; h++) if (!strcmp(kb_dequote(hits[h]), nstr)) keep = 1;
+                    if (keep) continue;
+                    const char *rq[3] = { topic, nstr, NULL };
+                    kb_retract_match(b->kb, "disambiguation_option", rq, 3);
+                    const char *wq[3] = { NULL, topic, nstr };
+                    kb_retract_match(b->kb, "option_word", wq, 3);
                 }
-                if (need && have == need) snprintf(chosen, sizeof chosen, "%s", tb);
+                char options[1024] = "";
+                disambiguation_render(b, topic, options, sizeof options);
+                char shown[KB_TERM_LEN]; snprintf(shown, sizeof shown, "%s", topic);
+                for (char *c = shown; *c; c++) if (*c == '_') *c = ' ';
+                const KbResponseSlot sl[] = { {"topic", shown}, {"options", options} };
+                char msg[1400];
+                if (options[0] && kb_response_slots(b, "acquisition_report_disambiguation", sl, 2, msg, sizeof msg)) {
+                    put(msg, out, out_size);
+                    snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+                    snprintf(b->last_module, sizeof b->last_module, "%s", "acquisition");
+                    conv_log(b, input, out);
+                    return strlen(out);
+                }
             }
+            (void)low;
             if (chosen[0]) {
                 kb_retract_pred(b->kb, "pending_disambiguation");
                 kb_retract_pred(b->kb, "disambiguation_option");
+                kb_retract_pred(b->kb, "option_word");
                 char key[KB_TERM_LEN]; size_t ko = 0;
                 for (const char *c = chosen; *c && ko + 1 < sizeof key; c++)
                     key[ko++] = (*c == ' ') ? '_' : (char)tolower((unsigned char)*c);

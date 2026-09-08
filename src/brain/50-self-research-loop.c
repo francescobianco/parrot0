@@ -753,6 +753,7 @@ static int network_acquire(Brain *b, const char *topic, char *def, size_t def_sz
             kb_set_origin(b->kb, KB_SESSION);
             kb_retract_pred(b->kb, "pending_disambiguation");
             kb_retract_pred(b->kb, "disambiguation_option");
+            kb_retract_pred(b->kb, "option_word");
             int n = 0;
             char *save = NULL;
             for (char *ln = strtok_r(titles, "\n", &save); ln && n < 8; ln = strtok_r(NULL, "\n", &save)) {
@@ -767,6 +768,20 @@ static int network_acquire(Brain *b, const char *topic, char *def, size_t def_sz
                 snprintf(qt, sizeof qt, "\"%s\"", ln);
                 const char *oa[3] = { topic, nstr, qt };
                 kb_assert(b->kb, "disambiguation_option", oa, 3);
+                /* gen506h: le parole dell'opzione come cue del frame
+                 * (`option_word(Parola, Tema, N)`, network.p0 §11) — tranne il
+                 * tema stesso, che sta in ogni opzione. */
+                {
+                    char wb[192]; snprintf(wb, sizeof wb, "%s", ln);
+                    for (char *c = wb; *c; c++) *c = (char)tolower((unsigned char)*c);
+                    char *ww[16]; size_t nww = split_words(wb, ww, 16);
+                    for (size_t k = 0; k < nww; k++) {
+                        if (!strcmp(ww[k], topic) || strlen(ww[k]) < 2) continue;
+                        char qw[192]; snprintf(qw, sizeof qw, "\"%s\"", ww[k]);
+                        const char *wa[3] = { qw, topic, nstr };
+                        kb_assert(b->kb, "option_word", wa, 3);
+                    }
+                }
             }
             if (n > 0) {
                 const char *pa[1] = { topic };

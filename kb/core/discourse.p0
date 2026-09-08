@@ -288,3 +288,45 @@ elliptical_reference_policy(inherit_previous).
 turn_plan_candidate($Turn) :- turn_recall($Turn, $Kind).
 turn_response($Turn, $Text) :- turn_recall($Turn, $Kind), recall_nonempty($Kind, $Words), current_language($Language), answer_text(recall($Kind, $Words, $Language), $Text).
 turn_response($Turn, $Text) :- turn_recall($Turn, $Kind), recall_set($Kind, nil), current_language($Language), recall_empty($Kind, $Language, $Text).
+
+% ── 6. LA SESSIONE E' IL PROMPT (gen506h) ───────────────────────────────────
+% F.: «quando si fa inferenza su un prompt in realta' si sta facendo inferenza
+% sull'intera sessione del dialogo… il prompt e' sempre l'intera sessione con
+% aggiunto in coda il prompt corrente». Non come testo — come STRUTTURA: il
+% frame di ogni turno (nodi, cue, letture, risposta, tema, entita') resta in
+% KB sotto lo scope `turn_N` dentro una finestra, e `current_turn` e' il turno
+% in corso. Cosi' una regola puo' quantificare su due turni (la risposta
+% parziale a una scelta, la ripresa di una questione, «perche' mi hai chiesto
+% quale?») e nessuno stato del dialogo vive piu' solo nel C: `last_reply`,
+% `last_entity`, `last_topic`, `last_input` sono `turn_reply/2`,
+% `turn_entity/2`, `turn_topic/2`, `turn_input/2` del turno che li ha
+% prodotti. Quali predicati siano «di turno» e quanto sia lunga la finestra e'
+% conoscenza: il C archivia e ritira scope, e basta.
+machinery(turn_scoped).
+machinery(session_window).
+machinery(turn_reply).
+machinery(turn_input).
+machinery(turn_entity).
+session_window(6).
+turn_scoped(input_node, 4).
+turn_scoped(input_node_surface, 3).
+turn_scoped(input_node_role, 3).
+turn_scoped(input_frame_record, 3).
+turn_scoped(input_node_next, 3).
+turn_scoped(turn_span, 4).
+turn_scoped(turn_span_cue, 3).
+turn_scoped(turn_span_surface, 3).
+turn_scoped(turn_span_token, 4).
+turn_scoped(turn_span_binding, 4).
+turn_scoped(turn_cue, 3).
+turn_scoped(turn_reading, 3).
+turn_scoped(turn_topic, 2).
+turn_scoped(turn_module, 2).
+turn_scoped(turn_outcome, 2).
+turn_scoped(turn_register, 2).
+turn_scoped(turn_reply, 2).
+turn_scoped(turn_input, 2).
+turn_scoped(turn_entity, 2).
+% l'ultima mossa, come vista sul turno precedente
+previous_turn($P) :- turn_counter($N), is($K, sub($N, 1)), concat_atoms(turn_, $K, $P).
+

@@ -362,6 +362,14 @@ conseguenza per questo piano:
 - **la prosa e il dialogo condividono il tabellone.** Ciò che una lettura
   (§4bis) ha appena acquisito è l'ultima mossa (`last_acquisition`), e «cosa
   hai trovato?» è una mossa `clarify` su di essa, non un intento a parte.
+- **la sessione e' il prompt, come struttura.** Dal gen506h il frame di ogni
+  turno resta in KB sotto `turn_N` (finestra `session_window/1`,
+  predicati `turn_scoped/2`), e l'ultima mossa e' un fatto (`turn_reply`,
+  `turn_input`, `turn_entity`): una regola di comprensione puo' leggere il
+  turno corrente CONTRO i precedenti senza che il C le passi niente.
+- **nessuna finestra e' un vincolo.** `norm[256]`/`canon[256]`, la prosa a
+  4096 byte, `KB_TERM_LEN`: debito, non design. Un turno di 100 KB (un file
+  intero da tradurre) deve avere lo stesso frame di un turno di dieci parole.
 - **il debito da chiudere per primo:** i due stati paralleli di gen506d/f
   (`pending_gap`, `pending_disambiguation`) accanto a `open_issue/2` — I1 di
   dialogica.md — perché due tabelloni producono esattamente le domande

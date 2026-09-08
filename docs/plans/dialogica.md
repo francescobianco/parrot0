@@ -62,6 +62,31 @@ comprensione universale applicata alla conversazione: non un rilevatore di
 «sì», ma la lettura del turno **relativa a una domanda che parrot0 stesso ha
 posto**.
 
+### 1bis. Il prompt e' la sessione (F., gen506h)
+
+«Quando si fa inferenza su un prompt in realta' si sta facendo inferenza
+sull'intera sessione del dialogo… il prompt e' sempre l'intera sessione con
+aggiunto in coda il prompt corrente.» E' la forma operativa del tabellone, e
+va presa alla lettera **come struttura, non come testo**: il frame di ogni
+turno (nodi, cue, letture, risposta, tema, entita') resta in KB sotto lo
+scope `turn_N` dentro una finestra dichiarata (`session_window/1`), e
+`current_turn` e' il turno in corso. Una regola quantifica su due turni come
+su uno. Nessuno stato del dialogo vive piu' solo nel C: `last_reply`,
+`last_entity`, `last_topic`, `last_input` sono `turn_reply/2`,
+`turn_entity/2`, `turn_topic/2`, `turn_input/2` del turno che li ha prodotti
+(i campi C restano come cache da ritirare). Quali predicati siano «di turno»
+e' `turn_scoped/2` (discourse.p0 §6). Fatto in gen506h; i primi consumatori:
+la scelta letta sul frame con la risposta parziale che restringe (L3) e la
+domanda nuova che non viene catturata (L4).
+
+**Le finestre non sono un vincolo di progetto.** I 256 byte di `norm`/`canon`
+nel dispatch, i 4096 della prosa, `KB_TERM_LEN` per un fatto: sono debito.
+L'ambizione (F.) e' incollare un file Python di mille righe e dire
+«trasformalo in C»; la lettura universale deve reggere un turno di 100 KB
+come uno di dieci parole, perche' il frame e' la lettura e il testo e' solo
+la sua sorgente. Ogni finestra va tolta quando la si incontra (C_TODO), mai
+alzata di poco.
+
 ## 2. Le leggi
 
 Tutte in KB. Il C tiene il tabellone (asserisce, ritira, ordina) e chiede.
