@@ -246,3 +246,13 @@ dell'ordine.
 Risposta alla domanda di F.: **sì per 6.1 e 6.2 con ciò che esiste** (il fetch
 riparato + l'apposizione + il consumatore di K3); **6.3 chiede tre cose nuove**,
 di cui la prima (le sezioni) è meccanica e le altre due sono K1 e K7.
+
+## 7. gen506g — il consumatore di K3 ha un nome: `docs/plans/dialogica.md`
+
+La voce 1 dell'ordine (§3) e' ora un piano proprio: il tabellone unico
+(`open_issue` per genere), le mosse come letture del frame sulla questione
+massima (L2), e i cinque incrementi. Le tre lenti convergono li': frontier
+K3 da' i predicati, comprensione universale da' la lettura del turno, la
+colla da' le mosse gia' costruite (coref, correzione, ellissi) da rileggere
+come `move_addresses`.
+

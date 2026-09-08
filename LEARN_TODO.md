@@ -1,5 +1,27 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — 9 settembre 2026 (`gen506g`): la teoria della dialogica, prima di ogni altra riparazione
+
+> F.: «siamo molto indietro da una vera conversazione naturale… costruisci
+> una teoria della dialogica efficace… tale per cui risolvere questi
+> problemi sia in un quadro di KB-first e di comprensione universale». La
+> teoria e' `docs/plans/dialogica.md`: la conversazione come TABELLONE
+> (fatti, questioni in discussione ordinate, ultima mossa, obblighi), e ogni
+> turno letto PRIMA come mossa sulla questione massima, con regole KB per
+> genere. Sette leggi (L1–L7), i reperti della chat di F. letti con le leggi,
+> e cinque incrementi (I1–I5) ciascuno con il suo script di dialogo.
+>
+> **Ammissione che conta per chi riprende:** gen506d (`pending_disambiguation`)
+> e gen506f (`pending_gap` aperta, `offer_resolution`) sono letture giuste nel
+> posto sbagliato — due tabelloni paralleli accanto a `open_issue/2` di
+> issues.p0 (K3, mai consumato). Le domande impilate della chat («plc», poi
+> «programmable») nascono da li'. **Il prossimo incremento e' I1: un
+> tabellone solo, zero comportamento nuovo**, poi I2 (risposta parziale
+> restringe) e I3 (una domanda nuova supera la vecchia). Non si tocca altro
+> della conversazione prima di I1.
+
+---
+
 # 🏁 HANDOFF — 9 settembre 2026 (`gen506f`): l'offerta aperta e' il contesto del turno dopo
 
 > F., davanti a «parlami dei plc» -> «certo» -> «Ricevuto — che cosa vuoi
