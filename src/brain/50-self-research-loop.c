@@ -486,41 +486,12 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
              * TODO(kb-first): `alias(rna, ribonucleic_acid)` dalla parentetica —
              * ma va fatto perche' rende un fatto, non per ripulire l'ingresso. */
             normalize(sent, nrm, sizeof nrm);
-            /* gen505z: il focus, prima della canonicalizzazione. La prima frase
-             * NOMINA il soggetto; le secondarie lo riprendono. */
+            /* gen505z/gen506: il focus, prima della canonicalizzazione — lo
+             * stesso lettore di read_passage (reader_focus_rewrite). */
             {
-                char tb[400];
-                snprintf(tb, sizeof tb, "%s", nrm);
-                char *tw[64]; size_t tn = split_words(tb, tw, 64);
-                if (tn >= 3) {
-                    char first[KB_TERM_LEN];
-                    snprintf(first, sizeof first, "%s", strip_edge_punct(tw[0]));
-                    const char *rq[1] = { first };
-                    if (focus[0] && *first &&
-                        kb_query(b->kb, "referring_possessive", rq, 1)) {
-                        size_t cop = 1;
-                        while (cop < tn) {
-                            char t[KB_TERM_LEN];
-                            snprintf(t, sizeof t, "%s", strip_edge_punct(tw[cop]));
-                            const char *cq[1] = { t };
-                            if (*t && kb_query(b->kb, "clause_copula", cq, 1)) break;
-                            cop++;
-                        }
-                        if (cop > 1 && cop < tn) {
-                            char rw[400];
-                            int o = snprintf(rw, sizeof rw, "the");
-                            for (size_t k = 1; k < cop; k++)
-                                o += snprintf(rw + o, sizeof rw - (size_t)o, " %s", tw[k]);
-                            o += snprintf(rw + o, sizeof rw - (size_t)o, " of %s", focus);
-                            for (size_t k = cop; k < tn; k++)
-                                o += snprintf(rw + o, sizeof rw - (size_t)o, " %s", tw[k]);
-                            if (o > 0 && (size_t)o < sizeof rw)
-                                snprintf(nrm, sizeof nrm, "%s", rw);
-                        }
-                    } else if (!focus[0] && *first) {
-                        snprintf(focus, sizeof focus, "%s", first);
-                    }
-                }
+                char rw[400];
+                if (reader_focus_rewrite(b, nrm, focus, sizeof focus, rw, sizeof rw))
+                    snprintf(nrm, sizeof nrm, "%s", rw);
             }
             canonicalize_lang(b, nrm, canon, sizeof canon);
             msg[0] = '\0';

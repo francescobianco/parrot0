@@ -123,6 +123,7 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
+#include <signal.h>
 #include <glob.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -457,16 +458,62 @@ static void te_flush(TeState *t) {
     t->expect_source = TE_OUTPUT_NONE;
 }
 
+/* gen506 — IL CANE DA GUARDIA DEL TURNO.
+ *
+ * `!timeout N` misura il turno DOPO che e' finito: un turno che non finisce
+ * mai (un ciclo nel C, una risoluzione che non converge) non e' lento, e'
+ * infinito, e nessun budget lo vedeva. Il demone restava appeso su quel turno
+ * e tutti i file dopo restavano in coda per sempre — la suite non riportava un
+ * rosso: non riportava niente. Qui un `alarm()` vero circonda il turno: se
+ * scatta, il gestore scrive al client CHI e' stato (sezione, riga, testo) come
+ * un FAIL normale, con COUNT ed EXIT, e ferma il demone con `_exit`, perche'
+ * dopo un turno interrotto a meta' il cervello non e' piu' affidabile. Chi
+ * lancia la suite (`scripts/suite-run.sh`) riavvia il demone e continua.
+ * Il budget duro e' PARROT0_TE_HARD (secondi, default 60), mai sotto due
+ * volte il `!timeout` del test. */
+static int  te_hang_fd = -1;
+static char te_hang_msg[2048];
+static void te_hang_handler(int sig) {
+    (void)sig;
+    size_t n = strlen(te_hang_msg);
+    if (te_hang_fd >= 0) { ssize_t w = write(te_hang_fd, te_hang_msg, n); (void)w; }
+    { ssize_t w = write(2, te_hang_msg, n); (void)w; }
+    _exit(3);
+}
+static unsigned te_hard_budget(const TeState *t) {
+    static double hard = -1.0;
+    if (hard < 0) {
+        const char *env = getenv("PARROT0_TE_HARD");
+        hard = env && *env ? atof(env) : 60.0;
+        if (hard <= 0) hard = 60.0;
+    }
+    double h = hard;
+    if (t->timeout_sec > 0 && t->timeout_sec * 2.0 > h) h = t->timeout_sec * 2.0;
+    return (unsigned)(h + 0.999);
+}
+
 static void te_turn(TeState *t, const char *text) {
     te_flush(t);
     te_apply_config(t);               /* reload lazily iff the config really moved */
     /* time ONLY the turn itself (a reload above is infrastructure, not the test). */
     struct timespec ta, tb;
     clock_gettime(CLOCK_MONOTONIC, &ta);
+    unsigned hard = te_hard_budget(t);
+    char shown[160]; snprintf(shown, sizeof shown, "%.150s%s", text, strlen(text) > 150 ? "…" : "");
+    snprintf(te_hang_msg, sizeof te_hang_msg,
+             "  FAIL  [%s] line %d — turn HUNG past the hard budget (%us): the engine was stopped\n"
+             "        > %s\n"
+             "        (a hung turn is not slow, it never returns: look for the loop in the C on this turn)\n"
+             "COUNT %d %d\nEXIT 3\n",
+             t->section[0] ? t->section : "-", t->line_no, hard, shown,
+             t->passed, t->failed + 1);
+    signal(SIGALRM, te_hang_handler);
+    alarm(hard);
     if (brain_policy_on(t->b, "thinking"))
         brain_think(t->b, text, t->reply, sizeof t->reply, NULL, NULL);
     else
         brain_respond(t->b, text, t->reply, sizeof t->reply);
+    alarm(0);
     clock_gettime(CLOCK_MONOTONIC, &tb);
     size_t n = strlen(t->reply);
     while (n > 0 && (t->reply[n - 1] == '\n' || t->reply[n - 1] == '\r'))
@@ -1309,6 +1356,7 @@ int test_engine_serve(Brain *b, const char *sockpath) {
     for (;;) {
         int cfd = accept(lfd, NULL, NULL);
         if (cfd < 0) { if (errno == EINTR) continue; break; }
+        te_hang_fd = cfd;             /* the watchdog reports to THIS client */
         /* each file starts from the default environment: a hermetic file's
          * overrides never bleed into the next. te_apply_config still reloads only
          * if the resulting signature actually differs from what's loaded, so two

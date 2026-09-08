@@ -1,6 +1,35 @@
 # TEST_TODO — le decisioni aperte della migrazione a `.p0t`
 
-# 🏁 HANDOFF — la suite riallineata, 2026-09-07 (`gen505y`)
+# 🏁 HANDOFF — il cane da guardia, 2026-09-08 (`gen506b`)
+
+> Prevale sul gen505y qui sotto per il METODO; le classi di attese invecchiate
+> e le regressioni chiuse restano valide.
+
+- **Un turno che non finisce ora e' un rosso con nome**, non una suite muta:
+  `src/testeng.c` (`te_turn`) arma `alarm(PARROT0_TE_HARD)` (default 60s, mai
+  sotto 2× il `!timeout`) intorno al turno; se scatta il demone risponde
+  `FAIL [sezione] riga N — turn HUNG …` con il testo del turno, e si ferma.
+  `scripts/suite-run.sh` lo riavvia e annota `# engine stopped on <file>`.
+- Quattro turni sopra i 60s trovati sulla suite intera: «prova a ripararti»
+  (`self_repair` 26, `autonomous_cycle` 38), le iniziali (`initials` 12),
+  «knowledge gap zorb» (`bridge_gap` 31); piu' `arith_guard`, dopo il quale il
+  demone e' morto senza turno appeso (crash da riprodurre). Dettagli e numeri
+  in `LEARN_TODO.md` §1 del gen506b. **Il budget duro non si alza per farli
+  passare**: o si cura il motore o il test non e' un turno.
+- Quattro file nati il 7 settembre erano FUORI da `make test` (nessuno li
+  lanciava, due erano gia' rossi): `deep_memory`, `question_does_not_teach`,
+  `prefix_before_assertion`, `mention` sono ora nel Makefile dopo
+  `literal_forms`. Regola: **un `.p0t` nuovo entra nel `make test` nello
+  stesso commit in cui nasce.**
+- `make soft-test` e' tornato a tre file (F.: e' la porzione piccola, si
+  tolgono casi, non si alza il budget).
+- Report: `docs/reports/suite-run.txt` e' la corsa sul binario di HEAD; la
+  precedente (binario 5a4b160, 236 ok / 122 FAIL / 4 fermate) e' descritta
+  in LEARN_TODO. `analogy.p0t` era rosso da giorni per un'ECO (buffer non
+  scritto), non per un'attesa invecchiata: guardare il «got» prima di
+  riscrivere l'atteso.
+
+# 📁 HANDOFF — la suite riallineata, 2026-09-07 (`gen505y`)
 
 > **Un solo handoff vivo per file.** Questo prevale su quelli sotto; il blocco
 > «⚠ DA SISTEMARE» del gen505q e' chiuso qui (i due gialli erano lo stesso

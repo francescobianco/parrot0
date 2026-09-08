@@ -46,16 +46,16 @@
 # from two example pairs it INFERS that the task is "capital of", then resolves
 # the held-out probe from world knowledge. It deduced the task, not the answer.
 > rome is the capital of italy
-< Learned: capital(rome, italy).
+< Learned: rome is the capital of italy.
 > paris is the capital of france
-< Learned: capital(paris, france).
+< Learned: paris is the capital of france.
 > berlin is the capital of germany
-< Learned: capital(berlin, germany).
+< Learned: berlin is the capital of germany.
 > rome -> italy, paris -> france, berlin -> ?
 < germany.
 # The proof names the relation it inferred from the exemplars — derived, real.
 > how do you know?
-< Because the examples rome -> italy and paris -> france share the rule «capital(x, y)», so berlin -> germany.
+< Because the examples rome -> italy and paris -> france share the rule «capital_of(x, y)», so berlin -> germany.
 # Same relation read BACKWARDS: the examples flip it, parrot0 follows. germany->berlin.
 > italy -> rome, france -> paris, germany -> ?
 < berlin.

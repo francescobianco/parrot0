@@ -137,6 +137,29 @@
 > what is the capital of zorbium
 <~ elk
 
+# gen506 — IL SOGGETTO RIPRESO SENZA NOMINARLO, in tre modi (piano §3.1). «It
+# borders Glimwick»: il pronome (`entity_pronoun/1`) e' il focus. «The country
+# was founded in 1845»: il sintagma definito riferisce il focus perche' il
+# focus E' un country — inferenza sulla classe letta nella primaria
+# (`definite_refers_to_focus/2`, grammar.p0), non una lista di parole. Tutte
+# e tre le forme vanno allo STESSO lettore di un turno normale.
+[test il pronome e il sintagma definito riprendono il focus]
+!query borders(zorbium, glimwick)
+!query founded_in(zorbium, 1845)
+!query! founded_in(country, 1845)
+
+# Ablazione: se «it» non e' piu' una parola che punta indietro, la frase resta
+# senza soggetto e il fatto non c'e'. E' la KB che decide, non il C.
+[test ablazione: senza il pronome in KB il focus non scorre]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+!forget entity_pronoun(it)
+> tell me about zorbium
+> yes
+!query! borders(zorbium, glimwick)
+!query founded_in(zorbium, 1845)
+!assert entity_pronoun(it)
+
 # PRINCIPIO — dove finisce una frase e' CONOSCENZA, non un carattere nel C.
 # Ritirando il terminatore il passo resta una frase sola: la seconda non viene
 # mai letta, quindi il fatto della secondaria sparisce. E' l'ablazione che
@@ -144,8 +167,11 @@
 [test ablazione: senza terminatore il passo non si spezza]
 !reset
 !assert topic_provider(fixture, "tests/fixtures/wiki")
+# `passage_boundary_mark/1` deriva da OGNI lingua: il punto va ritirato in tutte.
 !forget sentence_terminator(en, ".")
+!forget sentence_terminator(it, ".")
 > tell me about zorbium
 > yes
 !query! capital_of(velk, zorbium)
 !assert sentence_terminator(en, ".")
+!assert sentence_terminator(it, ".")

@@ -1,6 +1,217 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
-# 🏁 HANDOFF — 8 settembre 2026 (`gen506`): il report GLM, e il punto 1 a meta'
+# 🏁 HANDOFF — 8 settembre 2026, pomeriggio (`gen506b`): il lettore legge la prosa come un turno
+
+> **Stato:** vedi `git log -1`. Questo handoff **prevale** su quello del mattino
+> (gen506) qui sotto, che resta valido per la sua coda (tput/pronomi, «what is
+> a wombat»). Suite: `docs/reports/suite-run.txt` rilanciata sul binario di
+> HEAD a fine sessione — i numeri sono in fondo a questo handoff.
+>
+> **Piano di riferimento:** `docs/plans/la-rete-come-memoria-profonda.md` §3.1
+> e incremento 8 — **chiuso nella sua meta' grande**: il focus scorre nel passo
+> in tre forme, e la frase riscritta va allo stesso lettore di un turno.
+
+## 1. Il cane da guardia del demone di test — ⛔ era il difetto piu' grave, ed e' chiuso
+
+F.: «un test ruba e tiene infinitamente bloccato il test-engine e gli altri
+restano appesi». Misurato: `!timeout N` misura il turno **dopo** che e'
+finito, quindi un turno che non finisce non e' lento, e' invisibile — il
+demone restava su quel turno e la suite non riportava un rosso: non riportava
+niente.
+
+Cura (`src/testeng.c`, `te_turn`): un `alarm()` vero intorno a
+`brain_respond`. Se scatta, il gestore scrive al client **chi e' stato**
+(sezione, riga, testo del turno) come un FAIL normale con `COUNT`/`EXIT 3` e
+ferma il demone con `_exit(3)` — dopo un turno interrotto a meta' il cervello
+non e' affidabile. `scripts/suite-run.sh` se ne accorge (`kill -0` sul pid),
+scrive `# engine stopped on <file> (hung turn) — restarted` nel report,
+riavvia il demone e continua. Budget duro: `PARROT0_TE_HARD` (secondi,
+default 60), mai sotto due volte il `!timeout` del test.
+
+**Che cosa ha trovato, sulla suite intera (358 file, prima delle modifiche di
+oggi):** quattro fermate, tutte a 60s, e i turni sono questi:
+
+| file | turno |
+|---|---|
+| `meta/self_repair.p0t` riga 26, `meta/autonomous_cycle.p0t` riga 38 | «prova a ripararti» |
+| `knowledge/initials.p0t` riga 12 | «Take the first letters of each word in "The quick brown fox…"» |
+| `meta/bridge_gap.p0t` riga 31 | «knowledge gap zorb» |
+| `growth/arith_guard.p0t` | il demone e' morto DOPO il file (3s, verde): non un turno appeso — probabilmente un crash all'uscita del file. Da riprodurre con il demone sotto `gdb`/`valgrind` |
+
+⚠ **Non e' detto che siano infiniti.** Nella corsa 3 del gen505y (senza cane
+da guardia) gli stessi file FINIVANO: `self_repair` in 206s, `bridge_gap` in
+230s, `initials` in 87s. Quindi sono turni da minuti, non da sempre — e per
+la suite e' la stessa cosa. Ho lanciato i cinque file da soli con
+`PARROT0_TE_HARD=900 PARROT0_TE_SLOW=20` per misurare ogni turno (vedi il
+paragrafo «numeri» in fondo). Che cosa fare: **ogni turno sopra i 20s e' un
+difetto del motore o un test che chiede una cosa che non e' un turno**
+(«prova a ripararti» lancia un ciclo di riparazione che compila: non e' un
+turno di dialogo, e' un job — va spostato fuori dalla suite di dialogo o
+dichiarato con il suo budget). Il budget duro NON si alza per farli passare.
+
+**I numeri, misurati da soli con `PARROT0_TE_HARD=900 PARROT0_TE_SLOW=20`
+(demone dedicato, mentre girava anche la suite):** nessun turno e' infinito,
+tutti finiscono — e tutti sono fuori da qualunque budget di dialogo.
+
+| turno | tempo |
+|---|---|
+| `initials` 12 — le iniziali di «The quick brown fox…» | 80s |
+| `autonomous_cycle` 38 — «prova a ripararti» | 91s |
+| `self_repair` 26 / 51 / 59 — «prova a ripararti» (tre volte) | 92s / 96s / 24s |
+| `bridge_gap` 31 — «knowledge gap zorb» | 226s |
+| `arith_guard` — il demone NON e' morto da solo (4s, verde): la morte in suite dipende dallo stato lasciato dai due file prima (`basics`, `digit_sum`); riprodurre lanciando i tre in fila |
+
+Quindi la domanda di F. ha questa risposta: **nessun test blocca il demone
+per sempre; quattro turni lo tengono da 80 a 226 secondi**, e senza cane da
+guardia la suite li aspettava in silenzio (la corsa 3 del gen505y ci ha messo
+oltre un'ora per questo). Con il budget a 60s la suite li segna rossi con il
+nome del turno e va avanti.
+
+## 2. La comprensione della prosa — che cosa e' cresciuto, e come lo si vede
+
+F.: «anche se abbiamo la memoria profonda a volte le abilita' di comprensione
+mancano e non viene estratto il senso dalla prosa». Il metodo che ha reso: una
+pagina finta con le forme tipiche di un'enciclopedia, letta con la traccia
+accesa:
+
+```
+P0_READ_TRACE=1 PARROT0_TOOLS=1 PARROT0_SESSION= PARROT0_PROFILE=kb/profiles/agi.p0 \
+  ./bin/parrot0 --test-engine --sock /tmp/r.sock &
+./bin/parrot0 --test FILE.p0t --sock /tmp/r.sock     # con un «read: …» dentro
+```
+Ogni frase stampa su stderr `focus`, `clause` (dopo la riscrittura), e o
+`resp=«Learned: …»` o `no module claimed`. **E' l'agenda**: ogni `no module
+claimed` e' una forma che parrot0 non sa leggere.
+
+Sul passo di prova (Tonga: appositiva, «It has a population of…», «Its
+capital is…», «The country was founded in…», «Tonga borders Fiji and Samoa»,
+«The official language is…», «member of the Commonwealth of Nations», «The
+currency of Tonga is…») si e' passati da **4 frasi lette su 8, di cui una
+col soggetto sbagliato** a **6 su 8, tutte col soggetto giusto**. E la
+lettura ora e' la stessa cosa in chat e su pagina: la frase riscritta va a
+`mod_knowledge`, il lettore di un turno normale (136 forme), non a un
+estrattore a due forme.
+
+### 2.1 Il verso degli argomenti e' conoscenza della relazione (`relation_value_first/1`)
+
+Il difetto sotto tutto: «the capital of zorbium is velk» in **chat** dava
+`capital_of(zorbium, velk)` → «Learned: zorbium is the capital of velk» — un
+fatto FALSO da una frase vera, e `literal_forms.p0t` riga 158 lo asseriva
+come atteso. Due convenzioni nella stessa KB: `capital_of(Capitale, Paese)`
+(il frame «@S is the capital of @O» e la resa) contro `notation_of(percent,
+"%")` (il valore secondo, e cosi' la domanda). Nessuna sbagliata; mancava
+DIRE quale vale per quale relazione. Ora `grammar.p0`:
+- `relation_value_first(capital_of)`, `(author_of)`: per queste la forma «the
+  R of X is Y» lega Y **primo**; le regole su `relation_noun/2` producono il
+  pattern nel verso giusto («the capital of @O is @S»), incluse le varianti
+  con prefisso di stipulazione e in italiano.
+- la domanda «what is the R of X» consulta lo stesso fatto (ramo `asks_slot`
+  in 10-memory-knowledge.c) e chiede il primo argomento.
+- «X is the capital of Y» (ramo gen11) mappa il nome comune sul predicato via
+  `relation_noun/2`: **un cassetto solo** (`capital_of`), non `capital/2` E
+  `capital_of/2`.
+- i nomi in `relation_noun/2` erano fra virgolette e quelli insegnati
+  parlando no: «what is the warp of denim» rispondeva, «what is the capital of
+  zorbium» diceva «I don't know about capital» con il fatto in KB. Ora sono
+  atomi nudi.
+- ⚠ 36 righe **materializzate** («the capital of @S is @O» e varianti, dal
+  `781d69f`) copiavano l'output delle regole dentro grammar.p0: quando la
+  regola ha cambiato verso, le copie hanno continuato a dire quello vecchio.
+  Tolte. **Se trovi in un `.p0` righe che sono l'output di una regola dello
+  stesso file, sono una seconda fonte: si tolgono.**
+
+Test aggiornati (attese invecchiate, non nuove verita'): `literal_forms`
+158, `analogy` 16/18/25/37, `analogy.it` 16/18/21 (attendeva «Non capisco
+ancora.» e ora risolve: crescita), `fewshot` 49/51/53/58.
+
+### 2.2 Il focus scorre in tre forme (`reader_focus_rewrite`, 30-generation-reading.c)
+
+Un solo lettore per i due lettori (`read_passage` e `learn_from_prose`
+avevano una copia ciascuno e la seconda restava indietro). Conoscenza in KB,
+meccanica in C:
+
+| la frase | la KB dice | diventa |
+|---|---|---|
+| «Its capital is Velk» | `referring_possessive(its)` | «the capital of F is Velk» |
+| «It borders Fiji» | `entity_pronoun(it)` | «F borders Fiji» |
+| «The country was founded in 1845» | `definite_refers_to_focus($Class, $F) :- apply($Class, cons($F, nil))` — «the country» e' F perche' F **e'** un country (o un `island_country`: composto a testa destra, il C enumera le classi di F con `kb_unary_predicates_for`) | «F was founded in 1845» |
+| «The capital is Velk» | `definite_article/1` + `relation_noun/2`, e nessun «of» prima della copula | «the capital of F is Velk» |
+
+Due dettagli pagati con un ciclo ciascuno: (a) la maiuscola d'inizio frase —
+«Its» non e' `its` per la KB, il C piega a minuscolo PRIMA della query; (b)
+«an island country **located** in the Nivoran Sea» dava la classe
+`island_country_located` (un concetto inventato dalla forma, e «the country»
+non riconosceva piu' il focus): `np_closer(located|situated|known|called)` e
+`location_participle(located|situated)` in grammar.p0, e il frame di classe
+salta il participio prima del sintagma di luogo.
+
+Cricchetto: `deep_memory.p0t` 44/44 con la fixture allungata («It borders
+Glimwick. The country was founded in 1845.»), `!query founded_in(zorbium,
+1845)`, `!query! founded_in(country, 1845)`, ablazione `!forget
+entity_pronoun(it)`.
+
+### 2.3 E un'eco che era rossa da chissa' quando
+
+`analogy.p0t` riga 37: il ramo «relazione trovata, quarto termine ignoto» di
+`mod_analogy` componeva il messaggio e non lo metteva nella risposta: il
+turno usciva con l'eco del turno prima. Letto per giorni come «attesa
+invecchiata». Regola: **una risposta che ripete ESATTAMENTE il turno prima e'
+un buffer non scritto, non una rotazione.**
+
+## ⛔ La coda, in ordine
+
+1. **I turni da minuti** (§1): misurarli con la tabella dei numeri qui sotto,
+   e per ciascuno decidere: difetto del motore (si cura) o job travestito da
+   turno (si sposta). `arith_guard`: riprodurre la morte del demone.
+2. **Le forme che il lettore ancora non legge** (dalla traccia su Tonga):
+   - «F has a population of 100,000 people» — la forma verbale del valore:
+     una regola su `relation_noun/2` («@S has a R of @O») la renderebbe per
+     TUTTE le relazioni; il residuo «people» va nello slot e sporca il valore.
+   - «the official language of F is Tongan» — il modificatore davanti al nome
+     di relazione: il frame derivato e' «the language of @S is @O» e non
+     combacia. O `relation_noun(official_language_of, "official language")`
+     (nome multiparola: la domanda con `w[3]` non lo trova) o un frame con il
+     modificatore. Da decidere guardando come lo si CHIEDE.
+   - «Tonga borders Fiji **and** Samoa» → solo `borders(tonga, fiji)`, in
+     chat come in lettura: la coordinazione nell'oggetto del frame
+     (`p0_frame_bind`, slot @O) deve dare un fatto per congiunto —
+     `conjunction/1` e' gia' in KB.
+   - «member of the Commonwealth **of** Nations» → `commonwealth`: il nome
+     proprio multiparola con «of» dentro viene tagliato dall'`np_closer(of)`.
+   - «when was tonga founded» non risponde: il fatto `founded_in(tonga, 1845)`
+     c'e', manca la forma interrogativa («when was X V-ed» → il frame
+     passivo). Domanda e asserzione devono aprire lo stesso cassetto (§2.1).
+3. **Due file rossi NON di oggi, e fuori dalla suite**: `prefix_before_assertion.p0t`
+   15/7 («zorak, a glimp is a florp» → «I don't understand that yet») e
+   `mention.p0t` 23/1 (`!query! contrast_marker("whereas")` ora dimostrabile).
+   Verificato con `git stash` sull'albero committato: stessi rossi. Erano
+   verdi quando sono nati (gen505y) e nessuno li lanciava: **ora sono nel
+   `make test`** (Makefile, dopo `literal_forms`), con `deep_memory` e
+   `question_does_not_teach`.
+4. La coda del gen506 (sotto): `tput` che decide la lingua dai pronomi, «what
+   is a wombat».
+
+## Note per chi lavora qui, in aggiunta a quelle del gen505y
+
+1. **La traccia della lettura** (`P0_READ_TRACE=1` sul demone) prima di ogni
+   ipotesi: dice quale frase, riscritta come, e chi l'ha letta. Vale di piu'
+   di dieci `!query`.
+2. **Un `!mcp kb.match` si scrive in JSON**: `!mcp kb.match
+   {"pred":"borders","args":[null,null]}` — la forma a parole restituisce
+   `bad JSON arguments` e NON fa fallire il test (ho perso un ciclo).
+3. **Se il demone di test sparisce** («cannot reach engine»), e' il cane da
+   guardia: un turno del file appena lanciato ha superato il budget duro.
+   `make test-engine` e leggi la riga FAIL con «turn HUNG».
+4. Per **confrontare con l'albero committato** senza perdere niente: `git
+   stash -u && make build && make test-engine && …test… ; git stash pop &&
+   make build && make test-engine`. Per la sola KB basta `git stash push
+   kb/core/grammar.p0` e nessuna ricompilazione (il demone rilegge a `!reset`).
+5. Le attese di un test si cambiano solo dopo aver **letto** il rosso: oggi
+   due su tre erano attese invecchiate (la resa in prosa, un file che
+   attendeva un difetto) e una era un'eco (§2.3). La terza e' quella che
+   conta.
+
+# 📁 HANDOFF (mattino) — 8 settembre 2026 (`gen506`): il report GLM, e il punto 1 a meta'
 
 > **Stato:** tutto su `origin/main` (`aaf2a61`). ⚠ `docs/reports/suite-run.txt`
 > e' **incompleto** — la suite era a 328/358 quando ho chiuso: va rilanciata

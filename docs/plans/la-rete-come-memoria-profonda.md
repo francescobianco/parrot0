@@ -234,11 +234,16 @@ anche la lettura. Concretamente:
   con indirizzo *e numero di frase*, così una lettura sbagliata si può
   ridatare (R5) e una frase non compresa resta `topic_open_term`, non sparisce.
 
-Il lettore attuale (`read_passage`, `dream_read_prose`, e il taglio della
-definizione in `network_acquire`) fa ancora la divisione con punteggiatura
-scritta nel C e legge ogni frase da sola: è la parte della facoltà che il §7
-mette come incremento 8, e il cricchetto che la misura è «Its capital is Velk»
-letto sotto `zorbium`.
+**Stato (gen505z → gen506b, 8 settembre 2026).** I confini vengono dalla KB
+(`passage_boundary_mark/1` su `sentence_terminator/2`) e il focus scorre in
+tre forme — possessivo, pronome, sintagma definito che nomina una classe del
+focus (`definite_refers_to_focus/2`, per inferenza con `apply/2`) — in un solo
+lettore condiviso, `reader_focus_rewrite`; la frase riscritta va al lettore di
+un turno normale. Cricchetto: «Its capital is Velk», «It borders Glimwick»,
+«The country was founded in 1845» letti sotto `zorbium` (`deep_memory.p0t`).
+Restano aperte le forme elencate nell'HANDOFF gen506b di `LEARN_TODO.md` §2
+(coordinazione nell'oggetto, «has a R of», il modificatore davanti al nome di
+relazione, la domanda passiva «when was X founded»).
 
 ## 4. La mappa con i sei piani
 

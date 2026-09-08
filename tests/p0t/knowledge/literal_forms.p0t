@@ -154,8 +154,12 @@
 # dicono un fatto («bezra is the capital of nivora»), questo dice un VALORE.
 [test la stessa forma insegna una relazione qualunque]
 !reset
+# gen506: fino a qui la riga sotto attendeva «nivora is the capital of bezra» —
+# il test asseriva un fatto FALSO imparato da una frase vera. Il verso degli
+# argomenti e' conoscenza della relazione (`relation_value_first/1`, grammar.p0):
+# per `capital_of` il valore sta primo, e la resa lo dice nel verso giusto.
 > the capital of nivora is bezra
-<~ Learned: nivora is the capital of bezra.
+<~ Learned: bezra is the capital of nivora.
 > the currency of nivora is thaler
 <~ Learned: the currency of nivora is thaler.
 

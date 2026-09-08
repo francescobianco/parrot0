@@ -13,9 +13,11 @@
 # logic: the competence lives in the algorithm, proving it generalizes.
 
 > rome is the capital of italy
-< Learned: capital(rome, italy).
+< Learned: rome is the capital of italy.
 > paris is the capital of france
-< Learned: capital(paris, france).
+< Learned: paris is the capital of france.
 # "rome is to italy as paris is to what" — in Italian, same resolution -> france.
+# gen506: la riga attendeva «Non capisco ancora.» (un rosso documentato come
+# atteso); con la relazione sotto un nome solo la cornice italiana risolve.
 > rome sta a italy come paris sta a cosa?
-< Non capisco ancora.
+< france.

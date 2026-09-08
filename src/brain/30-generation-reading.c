@@ -3172,6 +3172,7 @@ static int extract_clause(Brain *b, char *clause, const char *source_base,
                  bundles, 1) == 1) {
         char receipts[1][KB_TERM_LEN];
         const char *commit[] = { "current_prose", bundles[0], NULL };
+        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[read] clause=«%s» bundle=%s\n", c, bundles[0]);
         if (kb_match(b->kb, "input_frame_commit", commit, 3,
                      receipts, 1) != 1)
             return 0;
@@ -3191,12 +3192,15 @@ static int extract_clause(Brain *b, char *clause, const char *source_base,
     canonicalize_lang(b, norm, canon, sizeof canon);
 
     char resp[256];
+    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[read] clause=«%s» canon=«%s» no bundle\n", c, canon);
     if (mod_quantity(b, canon, c, resp, sizeof resp) ||
         mod_cause(b, canon, c, resp, sizeof resp) ||
         mod_same(b, canon, c, resp, sizeof resp) ||
         mod_knowledge(b, canon, c, resp, sizeof resp)) {
+        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[read] resp=«%s»\n", resp);
         return!lex_prefix_member(b, "30_generation_reading_lex1736", resp) == 0; /* an assertion, not a query */
     }
+    if (getenv("P0_READ_TRACE")) fprintf(stderr, "[read] no module claimed\n");
     return 0;
 }
 
@@ -3212,6 +3216,129 @@ static void store_proposition(Brain *b, char *clause) {
         snprintf(b->props[b->prop_count], sizeof b->props[0], "%s", c);
         b->prop_count++;
     }
+}
+
+/* gen506 — IL FOCUS SCORRE DENTRO IL PASSO: un solo lettore per due lettori.
+ *
+ * La prima frase di un passo NOMINA il soggetto; le secondarie lo riprendono
+ * senza nominarlo, e da sole non hanno senso (piano la-rete-come-memoria-
+ * profonda §3.1: la frammentazione perde il contesto). Qui la frase secondaria
+ * viene riscritta con il soggetto esplicito e va allo STESSO lettore di un
+ * turno normale — non un secondo estrattore. Tre modi di riprendere il
+ * soggetto, e per ciascuno la conoscenza sta in KB:
+ *   «Its capital is Velk»        referring_possessive/1 → «the capital of F is Velk»
+ *   «It borders Fiji»            entity_pronoun/1        → «F borders Fiji»
+ *   «The country was founded…»   definite_refers_to_focus/2 → «F was founded…»
+ *   «The capital is Velk»        definite_article/1 + relation_noun/2
+ *                                → «the capital of F is Velk»
+ * Il C fa solo la meccanica (spezza, sostituisce, ricompone); se una parola
+ * punta indietro, e se «the country» e' il focus, lo dice la KB. Era duplicato
+ * in due lettori (read_passage, learn_from_prose) e il secondo restava indietro
+ * a ogni miglioria del primo. Ritorna 1 se ha riscritto in `out`; se il focus
+ * non c'era ancora, lo fissa e ritorna 0. */
+static int reader_focus_rewrite(Brain *b, const char *sentence,
+                                char *focus, size_t focus_sz,
+                                char *out, size_t out_sz) {
+    if (!b || !b->kb || !sentence || strlen(sentence) >= 512) return 0;
+    char tb[512];
+    snprintf(tb, sizeof tb, "%s", sentence);
+    char *tw[64]; size_t tn = split_words(tb, tw, 64);
+    if (tn < 3) return 0;
+    char first[KB_TERM_LEN];
+    snprintf(first, sizeof first, "%s", strip_edge_punct(tw[0]));
+    /* la maiuscola d'inizio frase e' presentazione, non identita' */
+    for (char *lc = first; *lc; lc++) *lc = (char)tolower((unsigned char)*lc);
+    if (!*first) return 0;
+    if (!focus[0]) {
+        /* il soggetto della primaria e' il focus — a meno che la primaria
+         * stessa cominci con un determinante o un pronome, che non nomina */
+        const char *q1[1] = { first };
+        if (!kb_query(b->kb, "definite_article", q1, 1) &&
+            !kb_query(b->kb, "entity_pronoun", q1, 1))
+            snprintf(focus, focus_sz, "%s", first);
+        return 0;
+    }
+    const char *rq[1] = { first };
+    size_t cop = 1;                       /* dove sta la copula, se c'e' */
+    while (cop < tn) {
+        char t[KB_TERM_LEN];
+        snprintf(t, sizeof t, "%s", strip_edge_punct(tw[cop]));
+        const char *cq[1] = { t };
+        if (*t && kb_query(b->kb, "clause_copula", cq, 1)) break;
+        cop++;
+    }
+    int o = 0;
+    if (kb_query(b->kb, "referring_possessive", rq, 1)) {
+        if (!(cop > 1 && cop < tn)) return 0;
+        o = snprintf(out, out_sz, "the");
+        for (size_t k = 1; k < cop && o > 0; k++)
+            o += snprintf(out + o, out_sz - (size_t)o, " %s", tw[k]);
+        o += snprintf(out + o, out_sz - (size_t)o, " of %s", focus);
+        for (size_t k = cop; k < tn && o > 0; k++)
+            o += snprintf(out + o, out_sz - (size_t)o, " %s", tw[k]);
+        return o > 0 && (size_t)o < out_sz;
+    }
+    if (kb_query(b->kb, "entity_pronoun", rq, 1)) {
+        o = snprintf(out, out_sz, "%s", focus);
+        for (size_t k = 1; k < tn && o > 0; k++)
+            o += snprintf(out + o, out_sz - (size_t)o, " %s", tw[k]);
+        return o > 0 && (size_t)o < out_sz;
+    }
+    if (kb_query(b->kb, "definite_article", rq, 1) && tn >= 4) {
+        char head[KB_TERM_LEN];
+        snprintf(head, sizeof head, "%s", strip_edge_punct(tw[1]));
+        for (char *lc = head; *lc; lc++) *lc = (char)tolower((unsigned char)*lc);
+        /* «the country» E' il focus se il focus e' un country — o un
+         * «island country»: il composto e' a testa destra, e la classe letta
+         * dalla primaria sta sotto il nome composto. Il C enumera i candidati;
+         * il giudizio e' la regola KB. */
+        const char *dq[2] = { head, focus };
+        int names_focus = kb_query(b->kb, "definite_refers_to_focus", dq, 2);
+        if (!names_focus) {
+            /* solo le classi DEL FOCUS, non tutti i predicati della KB */
+            char preds[64][KB_TERM_LEN];
+            size_t np = kb_unary_predicates_for(b->kb, focus, preds, 64);
+            size_t hl = strlen(head);
+            for (size_t i = 0; i < np && !names_focus; i++) {
+                size_t pl = strlen(preds[i]);
+                if (pl > hl + 1 && preds[i][pl - hl - 1] == '_' &&
+                    !strcmp(preds[i] + pl - hl, head)) {
+                    const char *cq[2] = { preds[i], focus };
+                    names_focus = kb_query(b->kb, "definite_refers_to_focus", cq, 2);
+                }
+            }
+        }
+        if (names_focus) {
+            o = snprintf(out, out_sz, "%s", focus);
+            for (size_t k = 2; k < tn && o > 0; k++)
+                o += snprintf(out + o, out_sz - (size_t)o, " %s", tw[k]);
+            return o > 0 && (size_t)o < out_sz;
+        }
+        /* «The capital is Velk»: un nome di relazione senza il suo «of» —
+         * il possessore e' il focus, come per «its». */
+        if (cop > 1 && cop < tn) {
+            char last[KB_TERM_LEN];
+            snprintf(last, sizeof last, "%s", strip_edge_punct(tw[cop - 1]));
+            for (char *lc = last; *lc; lc++) *lc = (char)tolower((unsigned char)*lc);
+            int has_of = 0;
+            for (size_t k = 1; k < cop; k++) {
+                const char *pq[1] = { tw[k] };
+                if (kb_query(b->kb, "relation_preposition", pq, 1)) has_of = 1;
+            }
+            const char *nq[2] = { NULL, last };
+            char nm[1][KB_TERM_LEN];
+            if (!has_of && kb_match(b->kb, "relation_noun", nq, 2, nm, 1) == 1) {
+                o = snprintf(out, out_sz, "the");
+                for (size_t k = 1; k < cop && o > 0; k++)
+                    o += snprintf(out + o, out_sz - (size_t)o, " %s", tw[k]);
+                o += snprintf(out + o, out_sz - (size_t)o, " of %s", focus);
+                for (size_t k = cop; k < tn && o > 0; k++)
+                    o += snprintf(out + o, out_sz - (size_t)o, " %s", tw[k]);
+                return o > 0 && (size_t)o < out_sz;
+            }
+        }
+    }
+    return 0;
 }
 
 /* Split a mutable passage buffer into sentence clauses and feed each to the
@@ -3310,44 +3437,9 @@ static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) 
          * `np_closer/1` da cui prenderlo. */
         char rewritten[512];
         char *clause = p;
-        {
-            char tb[512];
-            if (strlen(p) < sizeof tb) {
-                snprintf(tb, sizeof tb, "%s", p);
-                char *tw[64]; size_t tn = split_words(tb, tw, 64);
-                if (tn >= 3) {
-                    char first[KB_TERM_LEN];
-                    snprintf(first, sizeof first, "%s", strip_edge_punct(tw[0]));
-                    const char *rq[1] = { first };
-                    if (focus[0] && *first &&
-                        kb_query(b->kb, "referring_possessive", rq, 1)) {
-                        size_t cop = 1;
-                        while (cop < tn) {
-                            char t[KB_TERM_LEN];
-                            snprintf(t, sizeof t, "%s", strip_edge_punct(tw[cop]));
-                            const char *cq[1] = { t };
-                            if (*t && kb_query(b->kb, "clause_copula", cq, 1)) break;
-                            cop++;
-                        }
-                        if (cop > 1 && cop < tn) {
-                            int o = snprintf(rewritten, sizeof rewritten, "the");
-                            for (size_t k = 1; k < cop && o > 0; k++)
-                                o += snprintf(rewritten + o, sizeof rewritten - (size_t)o,
-                                              " %s", tw[k]);
-                            o += snprintf(rewritten + o, sizeof rewritten - (size_t)o,
-                                          " of %s", focus);
-                            for (size_t k = cop; k < tn && o > 0; k++)
-                                o += snprintf(rewritten + o, sizeof rewritten - (size_t)o,
-                                              " %s", tw[k]);
-                            if (o > 0 && (size_t)o < sizeof rewritten)
-                                clause = rewritten;
-                        }
-                    } else if (!focus[0] && *first) {
-                        snprintf(focus, sizeof focus, "%s", first);
-                    }
-                }
-            }
-        }
+        if (reader_focus_rewrite(b, p, focus, sizeof focus, rewritten, sizeof rewritten))
+            clause = rewritten;
+        if (getenv("P0_READ_TRACE")) fprintf(stderr, "[read] focus=«%s» clause=«%s»\n", focus, clause);
         int extracted = extract_clause(b, clause, buf, document, unit_order);
         if (has_content) unit_order++;
         if (extracted > 0) {

@@ -6676,6 +6676,15 @@ static int extract_class_statement(Brain *b, const char *norm,
     }
 
     int loc = 0;
+    /* gen506: «an island country LOCATED in the Nivoran Sea» — il participio
+     * chiude la classe (np_closer, KB) e introduce il luogo: quale participio
+     * lo faccia e' `location_participle/1` in grammar.p0. Prima il participio
+     * finiva DENTRO la classe (`island_country_located`), un concetto inventato
+     * dalla forma, e «the country» non riconosceva piu' il focus. */
+    if (p < n) {
+        const char *lp[1] = { strip_edge_punct(w[p]) };
+        if (kb_query(b->kb, "location_participle", lp, 1)) p++;
+    }
     if (p < n && p0_is_loc_prep(b, w[p])) {         /* trailing PP -> located_in (4) */
         size_t os = p + 1; if (os < n && p0_lead_det(b, w[os])) os++;
         if (os < n) loc = p0_join(w, os, n, obj, sizeof obj);
@@ -17557,6 +17566,16 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             const char *obj_pat[]  = {obj, NULL};   /* rel(y, X) — asks the 2nd arg */
             const char *const *pat =
                 (lex_class_member(b, "10_memory_knowledge_lex12411", slot[0])) ? obj_pat : subj_pat;
+            /* gen506 — il VERSO della relazione e' conoscenza (grammar.p0,
+             * `relation_value_first/1`): per «capital_of» il valore sta primo,
+             * quindi «what is the capital of X» chiede il 1o argomento. E' lo
+             * stesso fatto che orienta la forma «the R of X is Y» in ingresso:
+             * asserire e interrogare non possono divergere. */
+            {
+                const char *vq[] = { rel };
+                if (pat == obj_pat && kb_query(b->kb, "relation_value_first", vq, 1))
+                    pat = subj_pat;
+            }
             char hits[64][KB_TERM_LEN];
             size_t k = kb_match(b->kb, rel, pat, 2, hits, 64);
             if (k == 0) { kb_term_say(b, "nobody_that_i_know_of", NULL, 0, out, out_size); return 1; }
@@ -17588,6 +17607,16 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             const char *subj = w[0];
             const char *args[] = {subj, obj};
             char msg[160];
+            /* gen506 — LA STESSA RELAZIONE SOTTO LO STESSO NOME. «velk is the
+             * capital of zorbium» scriveva `capital/2` mentre «the capital of
+             * zorbium is velk» scrive `capital_of/2` (relation_noun/2): due
+             * cassetti per un fatto solo, e la domanda ne apriva uno. Se la KB
+             * dichiara il nome del predicato per questo nome comune, e' quello. */
+            if (!kb_knows_pred(b->kb, rel)) {
+                const char *nq[] = { NULL, rel };
+                if (kb_match(b->kb, "relation_noun", nq, 2, mapped, 1) == 1)
+                    rel = mapped[0];
+            }
             if (kb_assert(b->kb, rel, args, 2)) {
                 char said[256];
                 if (p0_say_fact(b, rel, subj, obj, said, sizeof said))

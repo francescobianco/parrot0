@@ -12,17 +12,19 @@
 # relations are taught in ordinary form ("X is the capital of Y" -> capital(X,Y));
 # the analogy then transfers to a held-out pair the system was never given.
 
+# gen506: «X is the capital of Y» e «the capital of Y is X» finiscono nello
+# STESSO cassetto (`capital_of/2`, via `relation_noun/2`), e la ricevuta e' prosa.
 > rome is the capital of italy
-< Learned: capital(rome, italy).
+< Learned: rome is the capital of italy.
 > paris is the capital of france
-< Learned: capital(paris, france).
+< Learned: paris is the capital of france.
 
 # Forward: find capital(rome, italy), then resolve capital(paris, ?) -> france.
 > rome is to italy as paris is to what?
 < france.
 # The proof is real — it cites the two relations the analogy stands on.
 > how do you know?
-< Because capital(rome, italy) holds, and capital(paris, france) — so france.
+< Because capital_of(rome, italy) holds, and capital_of(paris, france) — so france.
 
 # Reverse direction: the SAME relation read the other way. italy:rome :: france:?
 # resolves capital(?, france) -> paris. Structural, not a memorized pair.
@@ -32,4 +34,7 @@
 # Honest miss: the analogy SHAPE is recognized, the relation is found, but the
 # fourth term is unknown — say exactly that instead of guessing or echoing.
 > rome is to italy as berlin is to what?
-< rome and italy are related by capital, but I don't know that relation for berlin.
+# gen506: il ramo «relazione trovata, quarto termine ignoto» non metteva il
+# messaggio nella risposta e il turno usciva con l'eco del turno prima; ora
+# parla, e la resa presenta i nomi propri e la relazione senza underscore.
+< Rome and Italy are related by capital_of, but I don't know that relation for Berlin.

@@ -1603,8 +1603,13 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
       kb_term_say(b, "x_and_x_are_related_by_x_but_i_don_t_know_th", _rs, 4, msg, sizeof msg); }
     else
         { const KbResponseSlot _rs[] = { { "A", A }, { "B", B } };
-      kb_term_say(b, "i_see_the_analogy_but_i_don_t_know_a_relatio", _rs, 2, msg, sizeof msg);
-          put(msg, out, out_size); }
+      kb_term_say(b, "i_see_the_analogy_but_i_don_t_know_a_relatio", _rs, 2, msg, sizeof msg); }
+    /* gen506: il ramo «relazione trovata, quarto termine ignoto» componeva il
+     * messaggio e non lo METTEVA nella risposta: il turno rivendicato usciva con
+     * il buffer della risposta precedente («Learned: paris is the capital of
+     * france.» a «rome is to italy as berlin is to what?»). Rosso da chissa'
+     * quando in analogy.p0t, letto come «atteso invecchiato» e invece era un eco. */
+    put(msg, out, out_size);
     return 1;
 }
 

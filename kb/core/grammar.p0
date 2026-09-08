@@ -549,6 +549,20 @@ machinery(indefinite_article).
 machinery(np_closer).
 
 % Preposizioni: aprono un complemento, quindi il nome e' finito.
+% gen506: un participio chiude il sintagma della classe. «an island country
+% located in the Nivoran Sea» dava la classe `island_country_located`, cioe'
+% un concetto inventato dalla forma; e «the country» non riconosceva piu' il
+% focus perche' la classe non finiva in «country».
+np_closer(located).
+np_closer(situated).
+np_closer(known).
+np_closer(called).
+% E questi due, oltre a chiudere la classe, introducono un LUOGO: «located in»
+% dice quello che dice «in». Il lettore di classe salta il participio e legge
+% il sintagma preposizionale come prima (10-memory-knowledge.c, frame 4).
+machinery(location_participle).
+location_participle(located).
+location_participle(situated).
 np_closer(in).   np_closer(of).   np_closer(to).    np_closer(with).
 np_closer(by).   np_closer(from). np_closer(near).  np_closer(on).
 np_closer(at).   np_closer(for).  np_closer(into).  np_closer(over).
@@ -1200,13 +1214,41 @@ markable_role(proposition).
 machinery(relation_noun).
 machinery(relation_value_kind).
 
+% ── gen506 — IL VERSO DEGLI ARGOMENTI E' CONOSCENZA DELLA RELAZIONE ──────────
+% «the capital of nivora is bezra» produceva `capital_of(nivora, bezra)`, e la
+% resa lo diceva subito: «Learned: nivora is the capital of bezra» — un fatto
+% FALSO imparato da una frase vera, e un test (`literal_forms.p0t`) che lo
+% asseriva come atteso. La ragione: due convenzioni nella stessa KB.
+%   capital_of(Capitale, Paese)   «@S is the capital of @O», e cosi' si rende
+%   notation_of(percent, "%")     il VALORE sta secondo, e cosi' si interroga
+% Nessuna delle due e' sbagliata; quel che mancava era DIRE quale vale per
+% quale relazione. `relation_value_first/1` lo dice: per queste relazioni la
+% forma «the R of X is Y» lega Y come primo argomento. La domanda «what is the
+% R of X» consulta lo stesso fatto (10-memory-knowledge.c, ramo `asks_slot`),
+% cosi' asserire e interrogare restano la stessa relazione.
+% Una relazione nuova insegnata parlando resta nel verso di default (il valore
+% secondo), e se un giorno la si vuole nell'altro verso e' UNA riga qui.
+machinery(relation_value_first).
+relation_value_first(capital_of).
+relation_value_first(author_of).
+
 extract_frame($Pat, $Pred) :-
-    relation_noun($Pred, $Noun),
+    relation_noun($Pred, $Noun), relation_value_first($Pred),
+    concat_atoms("the ", $Noun, $A),
+    concat_atoms($A, " of @O is @S", $Pat).
+
+extract_frame($Pat, $Pred) :-
+    relation_noun($Pred, $Noun), naf(relation_value_first($Pred)),
     concat_atoms("the ", $Noun, $A),
     concat_atoms($A, " of @S is @O", $Pat).
 
 extract_frame($Pat, $Pred) :-
-    relation_noun_it($Pred, $Noun),
+    relation_noun_it($Pred, $Noun), relation_value_first($Pred),
+    concat_atoms("la ", $Noun, $A),
+    concat_atoms($A, " di @O e' @S", $Pat).
+
+extract_frame($Pat, $Pred) :-
+    relation_noun_it($Pred, $Noun), naf(relation_value_first($Pred)),
     concat_atoms("la ", $Noun, $A),
     concat_atoms($A, " di @S e' @O", $Pat).
 
@@ -1230,18 +1272,25 @@ extract_frame($Pat, $Pred) :-
 % si torna al cassetto senza maniglia — imparabile e non interrogabile.
 relation_noun($Pred, $Noun) :- relation($Noun), concat_atoms($Noun, "_of", $Pred).
 
-relation_noun(capital_of, "capital").
-relation_noun(population_of, "population").
-relation_noun(currency_of, "currency").
-relation_noun(language_of, "language").
-relation_noun(author_of, "author").
-relation_noun(colour_of, "colour").
-relation_noun(price_of, "price").
+% gen506: i nomi qui sotto erano fra virgolette («"capital"») e quelli
+% insegnati parlando no (`relation(warp)` → `warp`). La domanda «what is the
+% capital of X» cerca `relation_noun($P, capital)` con la parola NUDA del turno:
+% trovava `warp`, non trovava `capital`. Misurato: «what is the warp of denim»
+% rispondeva, «what is the capital of zorbium» no — «I don't know about
+% capital» con il fatto in KB. Un nome di relazione e' un atomo come gli altri.
+
+relation_noun(capital_of, capital).
+relation_noun(population_of, population).
+relation_noun(currency_of, currency).
+relation_noun(language_of, language).
+relation_noun(author_of, author).
+relation_noun(colour_of, colour).
+relation_noun(price_of, price).
 % E la relazione che rende insegnabile la FORMA STESSA (gen428): con questa riga
 % «the notation of percent is perc» diventa un turno che parrot0 capisce, e da
 % quel momento «50perc» e' una percentuale. La notazione e' una relazione come
 % le altre — e' esattamente il punto.
-relation_noun(notation_of, "notation").
+relation_noun(notation_of, notation).
 
 % E le due forme VERBALI con cui si dice una notazione, che sono il modo in cui
 % la gente la dice davvero: «percent is written perc», «percent si scrive perc».
@@ -1260,52 +1309,26 @@ stipulation_prefix("d'ora in poi").
 stipulation_prefix("da adesso in poi").
 
 extract_frame($Pat, $Pred) :-
-    stipulation_prefix($Pre), relation_noun($Pred, $Noun),
+    stipulation_prefix($Pre), relation_noun($Pred, $Noun), relation_value_first($Pred),
+    concat_atoms($Pre, " the ", $A), concat_atoms($A, $Noun, $B),
+    concat_atoms($B, " of @O is @S", $Pat).
+
+extract_frame($Pat, $Pred) :-
+    stipulation_prefix($Pre), relation_noun($Pred, $Noun), naf(relation_value_first($Pred)),
     concat_atoms($Pre, " the ", $A), concat_atoms($A, $Noun, $B),
     concat_atoms($B, " of @S is @O", $Pat).
 
-relation_noun_it(capital_of, "capitale").
-relation_noun_it(population_of, "popolazione").
-relation_noun_it(currency_of, "valuta").
-relation_noun_it(notation_of, "notazione").
+relation_noun_it(capital_of, capitale).
+relation_noun_it(population_of, popolazione).
+relation_noun_it(currency_of, valuta).
+relation_noun_it(notation_of, notazione).
 
 extract_frame("@S is known as @O", also_known_as).
-extract_frame(da adesso in poi the notation of @S is @O, notation_of).
-extract_frame(da adesso in poi the price of @S is @O, price_of).
-extract_frame(da adesso in poi the colour of @S is @O, colour_of).
-extract_frame(da adesso in poi the author of @S is @O, author_of).
-extract_frame(da adesso in poi the language of @S is @O, language_of).
-extract_frame(da adesso in poi the currency of @S is @O, currency_of).
-extract_frame(da adesso in poi the population of @S is @O, population_of).
-extract_frame(da adesso in poi the capital of @S is @O, capital_of).
-extract_frame(d'ora in poi the notation of @S is @O, notation_of).
-extract_frame(d'ora in poi the price of @S is @O, price_of).
-extract_frame(d'ora in poi the colour of @S is @O, colour_of).
-extract_frame(d'ora in poi the author of @S is @O, author_of).
-extract_frame(d'ora in poi the language of @S is @O, language_of).
-extract_frame(d'ora in poi the currency of @S is @O, currency_of).
-extract_frame(d'ora in poi the population of @S is @O, population_of).
-extract_frame(d'ora in poi the capital of @S is @O, capital_of).
-extract_frame(from now on the notation of @S is @O, notation_of).
-extract_frame(from now on the price of @S is @O, price_of).
-extract_frame(from now on the colour of @S is @O, colour_of).
-extract_frame(from now on the author of @S is @O, author_of).
-extract_frame(from now on the language of @S is @O, language_of).
-extract_frame(from now on the currency of @S is @O, currency_of).
-extract_frame(from now on the population of @S is @O, population_of).
-extract_frame(from now on the capital of @S is @O, capital_of).
-extract_frame(la notazione di @S e' @O, notation_of).
-extract_frame(la valuta di @S e' @O, currency_of).
-extract_frame(la popolazione di @S e' @O, population_of).
-extract_frame(la capitale di @S e' @O, capital_of).
-extract_frame(the notation of @S is @O, notation_of).
-extract_frame(the price of @S is @O, price_of).
-extract_frame(the colour of @S is @O, colour_of).
-extract_frame(the author of @S is @O, author_of).
-extract_frame(the language of @S is @O, language_of).
-extract_frame(the currency of @S is @O, currency_of).
-extract_frame(the population of @S is @O, population_of).
-extract_frame(the capital of @S is @O, capital_of).
+% gen506: qui c'erano 36 righe materializzate («the capital of @S is @O» e le
+% sue varianti con prefisso e in italiano), copie dell'output delle regole su
+% `relation_noun/2` scritte a mano nel `781d69f`. Erano una SECONDA fonte, e
+% quando la regola ha cambiato verso (relation_value_first) le copie hanno
+% continuato a dire il verso vecchio. La regola e' la sola fonte.
 extract_frame("@S forms part of @O", part_of).
 extract_frame("@O is mostly made of @S", constituent_of).
 extract_frame("@S goes by the name of @O", also_known_as).
@@ -2021,6 +2044,17 @@ referring_possessive(her).
 referring_possessive(their).
 referring_possessive(sua).
 referring_possessive(suo).
+
+% ── gen506 — «THE COUNTRY» E' IL FOCUS ─────────────────────────────────────
+% Una pagina riprende il soggetto anche con un sintagma definito: «Tonga is an
+% island country … The country was founded in 1845». Il sintagma definito
+% riferisce il focus quando il focus E' un membro della classe che il sintagma
+% nomina — e' inferenza sulla classe letta nella primaria, non una lista di
+% parole. `apply/2` chiama la classe come predicato, cosi' vale per ogni classe
+% che parrot0 abbia letto o imparato. Il lettore (reader_focus_rewrite) chiede
+% qui, con la testa nuda e con i composti a testa destra («island_country»).
+machinery(definite_refers_to_focus).
+definite_refers_to_focus($Class, $Focus) :- apply($Class, cons($Focus, nil)).
 referring_possessive(sue).
 referring_possessive(suoi).
 referring_possessive(loro).
