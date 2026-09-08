@@ -1,5 +1,12 @@
 # Armonizzare i piani — frontier, comprensione universale, colla linguistica
 
+> **Seguito operativo (ricognizione su `e66792b3`, gen506h):**
+> [parrot0 organico — integrazione e addestramento](integrazione-cognitiva-operativa.md)
+> traduce questa armonizzazione in contratti della IR condivisa, inventario
+> delle capacità, incrementi O0–O8, curriculum e prove di parità con un LLM.
+> Distingue i risultati già presenti dai lavori ancora aperti, inclusa la
+> ritenzione cognitiva richiesta dopo la critica alla finestra di sei turni.
+
 *Aperto il 2026-09-07 su richiesta di F.: «studia questi piani perché forse
 molte cose vanno armonizzate». Letti per intero `the-linguistic-glue.md` e
 `universal-comprehension.md`, e di `frontier-kb-natural-dialogue.md` la testa,
@@ -255,4 +262,3 @@ massima (L2), e i cinque incrementi. Le tre lenti convergono li': frontier
 K3 da' i predicati, comprensione universale da' la lettura del turno, la
 colla da' le mosse gia' costruite (coref, correzione, ellissi) da rileggere
 come `move_addresses`.
-
