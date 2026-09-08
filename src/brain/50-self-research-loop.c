@@ -643,7 +643,7 @@ static int network_acquire(Brain *b, const char *topic, char *def, size_t def_sz
     if (nfacts) *nfacts = 0;
     if (def && def_sz) def[0] = '\0';
     char prose[4096] = "";
-    char edition[32] = "", title[160] = "", revision[64] = "";
+    char edition[32] = "", title[160] = "", revision[64] = "", fixdir[KB_TERM_LEN] = "";
     int got = 0;
     for (int rank = 1; rank <= 8 && !got; rank++) {
         char rs[8]; snprintf(rs, sizeof rs, "%d", rank);
@@ -657,8 +657,9 @@ static int network_acquire(Brain *b, const char *topic, char *def, size_t def_sz
             const char *fq[2] = { "fixture", NULL };
             if (kb_match(b->kb, "topic_provider", fq, 2, dirs, 1) != 1) continue;
             char db[KB_TERM_LEN]; snprintf(db, sizeof db, "%s", dirs[0]);
+            snprintf(fixdir, sizeof fixdir, "%s", kb_dequote(db));
             char path[512];
-            snprintf(path, sizeof path, "%s/%s.txt", kb_dequote(db), topic);
+            snprintf(path, sizeof path, "%s/%s.txt", fixdir, topic);
             FILE *f = fopen(path, "r");
             if (!f) continue;
             size_t n = fread(prose, 1, sizeof prose - 1, f);
@@ -681,6 +682,68 @@ static int network_acquire(Brain *b, const char *topic, char *def, size_t def_sz
         }
     }
     if (!got) return 0;
+
+    /* ── gen506d — LA PAGINA CHE DISAMBIGUA NON SI LEGGE: SI CHIEDE ──────────
+     *
+     * «parlami dei plc» -> «si» -> «Vediamo cosa trovo su plc... PLC or plc may
+     * refer to:.» — la prima frase di una pagina di disambiguazione incollata
+     * come se fosse una definizione. La KB sapeva gia' riconoscerla
+     * (`disambiguation_marker/1`, gen382) ma solo per non impararne; qui la
+     * si tratta per quello che e': un bivio. I significati fra cui scegliere
+     * sono i titoli che la ricerca dell'edizione propone (Wikipedia: la
+     * search API; fixture: `<dir>/<topic>.options.txt`) e finiscono in KB —
+     * `pending_disambiguation/1`, `disambiguation_option/3` — dove la
+     * conoscenza decide COME mostrarli e come si sceglie (network.p0 §9).
+     * Il C non conosce ne' lo stile ne' le parole: torna 3, «disambigua». */
+    {
+        char marks[16][KB_TERM_LEN];
+        const char *mq[] = { NULL };
+        size_t nm = kb_match(b->kb, "disambiguation_marker", mq, 1, marks, 16);
+        char low[600];
+        snprintf(low, sizeof low, "%.*s", (int)sizeof low - 1, prose);
+        for (char *c = low; *c; c++) *c = (char)tolower((unsigned char)*c);
+        int dis = 0;
+        for (size_t i = 0; i < nm && !dis; i++)
+            if (strstr(low, kb_dequote(marks[i]))) dis = 1;
+        if (dis) {
+            char titles[2048] = "";
+            if (fixdir[0]) {
+                char path[512];
+                snprintf(path, sizeof path, "%s/%s.options.txt", fixdir, topic);
+                FILE *f = fopen(path, "r");
+                if (f) { size_t n = fread(titles, 1, sizeof titles - 1, f); fclose(f); titles[n] = '\0'; }
+            } else {
+                wiki_search_titles(topic, "en", titles, sizeof titles);
+            }
+            int prev_o = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            kb_retract_pred(b->kb, "pending_disambiguation");
+            kb_retract_pred(b->kb, "disambiguation_option");
+            int n = 0;
+            char *save = NULL;
+            for (char *ln = strtok_r(titles, "\n", &save); ln && n < 8; ln = strtok_r(NULL, "\n", &save)) {
+                while (*ln == ' ') ln++;
+                size_t l = strlen(ln);
+                while (l && (ln[l - 1] == ' ' || ln[l - 1] == '\r')) ln[--l] = '\0';
+                if (!l) continue;
+                if (strcasecmp(ln, title) == 0 || strcasecmp(ln, topic) == 0) continue;  /* la pagina stessa */
+                char nstr[8]; snprintf(nstr, sizeof nstr, "%d", ++n);
+                char qt[192];
+                for (char *c = ln; *c; c++) if (*c == '"') *c = '\'';
+                snprintf(qt, sizeof qt, "\"%s\"", ln);
+                const char *oa[3] = { topic, nstr, qt };
+                kb_assert(b->kb, "disambiguation_option", oa, 3);
+            }
+            if (n > 0) {
+                const char *pa[1] = { topic };
+                kb_assert(b->kb, "pending_disambiguation", pa, 1);
+            }
+            kb_set_origin(b->kb, prev_o);
+            if (def && def_sz) def[0] = '\0';
+            if (nfacts) *nfacts = 0;
+            return n > 0 ? 3 : 0;
+        }
+    }
 
     /* la prima frase e' la definizione, prima che il lettore la consumi */
     if (def && def_sz) {

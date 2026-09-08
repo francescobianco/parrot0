@@ -1,5 +1,63 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — 8 settembre 2026, notte (`gen506d`): la disambiguazione e' un processo della KB
+
+> Piccolo e chiuso; prevale sul gen506c solo per questo tema. F., in chat:
+> «parlami dei plc» -> «Vuoi che cerchi?» -> «si certo» -> «Vediamo cosa
+> trovo su plc... PLC or plc may refer to:.» -> «cosa hai trovato» -> «Non
+> capisco ancora.» Tre difetti: la prima frase di una pagina di
+> DISAMBIGUAZIONE incollata come definizione; nessuna memoria di cio' che si
+> era appena trovato; nessun modo di scegliere.
+
+Ora (verificato in chat con la rete, e in `knowledge/disambiguation.p0t`
+19/19 con il provider `fixture`, nel `make test`):
+
+```
+>>> parlami dei plc
+Su plc non so ancora molto. Vuoi che cerchi?
+>>> si certo
+«plc» può voler dire più cose:
+- Future plc
+- Programmable logic controller
+- …
+Quale intendi?
+>>> cosa hai trovato
+Su plc ho trovato più significati: (la stessa lista) Quale intendi?
+>>> il programmable logic controller          (o: «il primo»)
+Vediamo cosa trovo su programmable logic controller... A programmable logic
+controller (PLC) … is an industrial computer … Ho estratto 6 fatti.
+>>> cosa hai trovato
+Su programmable logic controller ho trovato: A programmable logic controller …
+>>> da adesso in poi quando devi disambiguare mostrami le opzioni in una tabella markdown
+Understood: from now on, when I have to disambiguate, I'll show the options in a table.
+```
+
+**Dove sta che cosa (F.: «la disambiguazione deve essere sempre un processo
+della KB»):** il motore scrive SOLO i fatti — `pending_disambiguation/1`,
+`disambiguation_option(Topic, N, Titolo)` (i titoli che la ricerca
+dell'edizione propone: `wiki_search_titles`, learn.c; per il provider
+`fixture`, `<dir>/<topic>.options.txt`), `last_acquisition(Topic, Genere,
+Testo)` — e torna 3 da `network_acquire` («disambigua»). Tutto il resto e'
+in `kb/core/network.p0` §9 e `responses.p0`: lo stile
+(`disambiguation_style/1`, insegnabile con `conduct_lesson1`, default
+`list` per `naf`), la testata e la riga di ogni opzione scelte PER NOME dallo
+stile (`disambiguation_head_<stile>`, `disambiguation_item_<stile>`: uno
+stile nuovo = tre righe di KB), gli ordinali con cui si sceglie
+(`ordinal_choice/2`), le frasi «cosa hai trovato» (`intent_phrase
+(acquisition_report, …)`). In C: `disambiguation_render`, `acquisition_note`,
+`acquire_and_report` (l'acquisizione confermata, PRIMA inline nel dispatch,
+ora in un posto solo: la usano il «si'» e la scelta), i due pre-blocchi nel
+dispatch (report; scelta) — 99-registry.c.
+
+**Coda (vista in chat, non toccata):** «parlami di mercury» -> «Non capisco
+ancora.» (un tema in inglese dentro una frase italiana non apre nemmeno
+l'offerta); l'edizione e' sempre `en` anche per un turno italiano (la KB
+sa gia' `wiki_alias`/langlinks: l'edizione dovrebbe seguire la lingua del
+turno); «cosa hai trovato» e' un match esatto (`intent_phrase`), una
+parafrasi («e allora?», «che hai trovato su plc») non lo prende ancora.
+
+---
+
 # 🏁 HANDOFF — 8 settembre 2026, sera (`gen506c`): il turno composto si legge una clausola alla volta
 
 > **Stato:** vedi `git log -1`. Prevale sul gen506b qui sotto per il TURNO

@@ -133,3 +133,51 @@ acquisition_offer_refused_word($W) :- dissent_word($W).
 % ── 9. LE SONDE ─────────────────────────────────────────────────────────────
 debug_probe(15, topic_read, any, "la MEMORIA PROFONDA: che cosa ho letto, e dove").
 debug_probe(16, acquisition_policy, any, "la politica di lettura (ask / act / never)").
+
+% ── 9. LA DISAMBIGUAZIONE E' UN PROCESSO DELLA KB (gen506d) ─────────────────
+% «parlami dei plc» -> «si» -> la pagina «PLC» disambigua. Le opzioni sono
+% fatti di sessione scritti dal motore (`disambiguation_option(Topic, N,
+% Titolo)`, `pending_disambiguation(Topic)`); tutto il resto — come si
+% mostrano, come si sceglie, come si chiede che cosa si e' trovato — sta qui,
+% e si insegna parlando: «da adesso in poi quando devi disambiguare mostrami
+% le opzioni in una tabella markdown» e' una lezione di condotta come «cerca
+% da solo». Uno stile nuovo = tre righe qui (uno stile e' il NOME dei template
+% `disambiguation_head_<stile>` / `disambiguation_item_<stile>` in
+% responses.p0), nessun C.
+machinery(pending_disambiguation).
+machinery(disambiguation_option).
+machinery(disambiguation_style).
+machinery(disambiguation_style_effective).
+machinery(last_acquisition).
+machinery(ordinal_choice).
+% lo stile: quello insegnato, altrimenti l'elenco.
+disambiguation_style_effective($S) :- disambiguation_style($S).
+disambiguation_style_effective(list) :- naf(disambiguation_style($X)).
+conduct_lesson1("mostrami le opzioni in una tabella", disambiguation_style, table).
+conduct_lesson1("le opzioni in una tabella", disambiguation_style, table).
+conduct_lesson1("show me the options in a table", disambiguation_style, table).
+conduct_lesson1("the options in a table", disambiguation_style, table).
+conduct_lesson1("options in a markdown table", disambiguation_style, table).
+conduct_lesson1("mostrami le opzioni come elenco", disambiguation_style, list).
+conduct_lesson1("le opzioni in un elenco", disambiguation_style, list).
+conduct_lesson1("show me the options as a list", disambiguation_style, list).
+conduct_lesson_reply(disambiguation_style, table, "Understood: from now on, when I have to disambiguate, I'll show the options in a table.").
+conduct_lesson_reply(disambiguation_style, list, "Understood: from now on I'll show the options as a list.").
+% come si sceglie: con le parole del titolo, o con un ordinale.
+ordinal_choice("il primo", 1).   ordinal_choice("la prima", 1).   ordinal_choice("the first", 1).
+ordinal_choice("il secondo", 2). ordinal_choice("la seconda", 2). ordinal_choice("the second", 2).
+ordinal_choice("il terzo", 3).   ordinal_choice("la terza", 3).   ordinal_choice("the third", 3).
+ordinal_choice("il quarto", 4).  ordinal_choice("la quarta", 4).  ordinal_choice("the fourth", 4).
+ordinal_choice("il quinto", 5).  ordinal_choice("la quinta", 5).  ordinal_choice("the fifth", 5).
+% che cosa si e' trovato: la domanda di seguito.
+intent_phrase(acquisition_report, "cosa hai trovato").
+intent_phrase(acquisition_report, "cosa hai trovato?").
+intent_phrase(acquisition_report, "che cosa hai trovato").
+intent_phrase(acquisition_report, "che cosa hai trovato?").
+intent_phrase(acquisition_report, "cos'hai trovato").
+intent_phrase(acquisition_report, "cos'hai trovato?").
+intent_phrase(acquisition_report, "what did you find").
+intent_phrase(acquisition_report, "what did you find?").
+intent_phrase(acquisition_report, "what have you found").
+intent_phrase(acquisition_report, "what have you found?").
+

@@ -632,6 +632,24 @@ response_template(gap_not_found, " I couldn't find information.").
 response_template(gap_not_found, it, " Non ho trovato niente.").
 response_template(gap_extracted, " I extracted {count} facts.").
 response_template(gap_extracted, it, " Ho estratto {count} fatti.").
+% gen506d — la disambiguazione (network.p0 §9). La testata e la riga di ogni
+% opzione sono scelte PER NOME dallo stile insegnato: `_list`, `_table`, …
+response_template(acquisition_disambiguates, "«{topic}» can mean several things:\n{options}\nWhich one do you mean?").
+response_template(acquisition_disambiguates, it, "«{topic}» può voler dire più cose:\n{options}\nQuale intendi?").
+response_template(disambiguation_item_list, "- {option}").
+response_template(disambiguation_item_list, it, "- {option}").
+response_template(disambiguation_head_table, "| # | meaning |\n|---|---|").
+response_template(disambiguation_head_table, it, "| # | significato |\n|---|---|").
+response_template(disambiguation_item_table, "| {n} | {option} |").
+response_template(disambiguation_item_table, it, "| {n} | {option} |").
+response_template(acquisition_report_definition, "About {topic} I found: {text}").
+response_template(acquisition_report_definition, it, "Su {topic} ho trovato: {text}").
+response_template(acquisition_report_disambiguation, "About {topic} I found several meanings:\n{options}\nWhich one do you mean?").
+response_template(acquisition_report_disambiguation, it, "Su {topic} ho trovato più significati:\n{options}\nQuale intendi?").
+response_template(acquisition_report_none, "About {topic} I found nothing.").
+response_template(acquisition_report_none, it, "Su {topic} non ho trovato niente.").
+response_template(acquisition_report_nothing, "I haven't looked anything up yet.").
+response_template(acquisition_report_nothing, it, "Non ho ancora cercato niente.").
 
 response_template(self_identity_name, "I am {name}.").
 response_template(self_identity_name, it, "Mi chiamo {name}.").

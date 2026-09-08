@@ -1,0 +1,60 @@
+# LA DISAMBIGUAZIONE E' UN PROCESSO DELLA KB — gen506d.
+#
+# F., in chat: «parlami dei plc» -> «Vuoi che cerchi?» -> «si certo» ->
+# «Vediamo cosa trovo su plc... PLC or plc may refer to:.» -> «cosa hai
+# trovato» -> «Non capisco ancora.» Una pagina che disambigua non e' una
+# definizione: e' un bivio, e il bivio si mostra, si sceglie, si ricorda. Come
+# lo si mostra e' una lezione di condotta (network.p0 §9).
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=it
+!timeout 8
+!reset
+
+[test la pagina che disambigua si mostra, si chiede, si ricorda, si sceglie]
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami dei plc
+<~ Vuoi che cerchi?
+> si certo
+<~ può voler dire più cose
+<~ - Programmable logic controller
+<! may refer to
+!query pending_disambiguation(plc)
+!query disambiguation_option(plc, 1, "Programmable logic controller")
+> cosa hai trovato
+<~ più significati
+<~ Programmable logic controller
+> il programmable logic controller
+<~ industrial computer
+!query! pending_disambiguation(plc)
+> cosa hai trovato
+<~ industrial computer
+
+[test la scelta con un ordinale]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami dei plc
+> si certo
+<~ può voler dire più cose
+> il primo
+<~ industrial computer
+
+[test lo stile si insegna parlando: la tabella markdown]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> da adesso in poi quando devi disambiguare mostrami le opzioni in una tabella markdown
+<~ table
+!query disambiguation_style(table)
+> parlami dei plc
+> si certo
+<~ | # | significato |
+<~ | 1 | Programmable logic controller |
+<! - Programmable logic controller
+
+[test prima di cercare, «cosa hai trovato» dice che non si e' cercato]
+!reset
+> cosa hai trovato
+< Non ho ancora cercato niente.

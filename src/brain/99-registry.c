@@ -5106,6 +5106,162 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
     return 1;
 }
 
+/* gen506d — LA DISAMBIGUAZIONE E' UN PROCESSO DELLA KB.
+ *
+ * F.: «la disambiguazione deve essere sempre un processo della KB, in modo
+ * che possa insegnare a parrot0 cose del tipo "da adesso in poi quando devi
+ * disambiguare mostrami le opzioni in una tabella markdown"». Quindi: le
+ * opzioni sono fatti (`disambiguation_option/3`), lo stile e' un fatto che
+ * una lezione di condotta cambia (`disambiguation_style/1` via
+ * `conduct_lesson1`), e la resa di ogni riga e della testata sono template
+ * KB scelti PER NOME dallo stile (`disambiguation_item_<stile>`,
+ * `disambiguation_head_<stile>`). Il C qui non sa che cosa sia una tabella:
+ * concatena righe. Uno stile nuovo domani = tre righe di KB, nessun C. */
+static int disambiguation_render(Brain *b, const char *topic, char *out, size_t out_size) {
+    if (!b || !b->kb || !topic || !out || out_size == 0) return 0;
+    out[0] = '\0';
+    char st[1][KB_TERM_LEN];
+    const char *sq[1] = { NULL };
+    char style[KB_TERM_LEN] = "list";
+    if (kb_match(b->kb, "disambiguation_style_effective", sq, 1, st, 1) == 1)
+        snprintf(style, sizeof style, "%s", kb_dequote(st[0]));
+    char head_t[80], item_t[80];
+    snprintf(head_t, sizeof head_t, "disambiguation_head_%s", style);
+    snprintf(item_t, sizeof item_t, "disambiguation_item_%s", style);
+    size_t o = 0;
+    char head[256] = "";
+    if (kb_response_slots(b, head_t, NULL, 0, head, sizeof head) && head[0])
+        o += (size_t)snprintf(out + o, out_size - o, "%s", head);
+    int n = 0;
+    for (int i = 1; i <= 8 && o + 2 < out_size; i++) {
+        char nstr[8]; snprintf(nstr, sizeof nstr, "%d", i);
+        char tv[1][KB_TERM_LEN];
+        const char *oq[3] = { topic, nstr, NULL };
+        if (kb_match(b->kb, "disambiguation_option", oq, 3, tv, 1) != 1) break;
+        char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", tv[0]);
+        const char *title = kb_dequote(tb);
+        const KbResponseSlot sl[] = { { "n", nstr }, { "option", title } };
+        char line[300];
+        if (!kb_response_slots(b, item_t, sl, 2, line, sizeof line) || !line[0])
+            snprintf(line, sizeof line, "- %s", title);
+        o += (size_t)snprintf(out + o, out_size - o, "%s%s", o ? "\n" : "", line);
+        n++;
+    }
+    return n;
+}
+
+/* Che cosa si e' trovato l'ultima volta che si e' cercato: un fatto, cosi'
+ * «cosa hai trovato?» ha una risposta e non un «Non capisco». */
+static void acquisition_note(Brain *b, const char *topic, const char *kind, const char *text) {
+    if (!b || !b->kb || !topic) return;
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_SESSION);
+    kb_retract_pred(b->kb, "last_acquisition");
+    char tcopy[KB_TERM_LEN];
+    snprintf(tcopy, sizeof tcopy, "%.*s", (int)(sizeof tcopy - 4), text ? text : "");
+    for (char *c = tcopy; *c; c++) if (*c == '"') *c = '\'';
+    char qt[KB_TERM_LEN + 4];
+    snprintf(qt, sizeof qt, "\"%s\"", tcopy);
+    const char *a[3] = { topic, kind, qt };
+    kb_assert(b->kb, "last_acquisition", a, 3);
+    kb_set_origin(b->kb, prev);
+}
+
+/* gen506d — L'ACQUISIZIONE CONFERMATA, in un posto solo: la usano il «si'» a
+ * un'offerta e la scelta di un significato dopo una disambiguazione. Torna 1
+ * se `out` contiene una risposta completa. Il corpo e' quello che stava
+ * inline nel dispatch (gen335k..gen505y), piu' il bivio della disambiguazione
+ * e la nota di cio' che si e' trovato. */
+static int acquire_and_report(Brain *b, const char *topic, const char *stored_q,
+                              const char *input, char *out, size_t out_size) {
+    /* la chiave si legge con gli underscore («programmable_logic_controller»),
+     * la persona la sente con gli spazi. */
+    char shown[KB_TERM_LEN]; snprintf(shown, sizeof shown, "%s", topic);
+    for (char *c = shown; *c; c++) if (*c == '_') *c = ' ';
+    {
+        const KbResponseSlot slots[] = { {"topic", shown} };
+        kb_response_slots(b, "gap_looking_up", slots, 1, out, out_size);
+    }
+    char def[512] = "";
+    /* gen335k: on user confirmation, try Wikipedia fetch first.
+     * acquire_knowledge only uses local sources — the network
+     * step is gated behind the user's explicit "si". */
+    int got = acquire_knowledge(b, topic, def, sizeof def);   /* 2 = gia' noto */
+    size_t ol = strlen(out);
+    /* gen505y — l'esecutore dell'azione `read_topic`: providers,
+     * rete e memoria profonda stanno in network_acquire, che legge
+     * la KB per ognuna di queste cose (kb/core/network.p0). */
+    int nf_prose = 0;
+    if (got != 2) {
+        int na = network_acquire(b, topic, def, sizeof def, &nf_prose);   /* 3 = disambigua */
+        if (na) got = na;
+    }
+    if (got == 3) {
+        char options[1024] = "";
+        disambiguation_render(b, topic, options, sizeof options);
+        char msg[1400];
+        const KbResponseSlot sl[] = { {"topic", shown}, {"options", options} };
+        if (kb_response_slots(b, "acquisition_disambiguates", sl, 2, msg, sizeof msg))
+            put(msg, out, out_size);
+        acquisition_note(b, topic, "disambiguation", "");
+        conv_log(b, input, out);
+        return 1;
+    }
+    if (!got) {
+        /* gen335e: mark this topic as failed so not_understood
+         * won't re-offer the same gap on re-dispatch. */
+        const char *fa[] = { topic };
+        kb_assert(b->kb, "pending_gap_failed", fa, 1);
+    }
+    /* gen335g: after a successful acquire, also extract structured
+     * facts from the page prose (extract_page_facts). This gives
+     * the full pipeline: download → learn concept → extract facts. */
+    int nf = nf_prose;
+    if (got && !nf_prose) {
+        char facts[512] = "";
+        nf = extract_page_facts(b, topic, facts, sizeof facts);
+    }
+    /* Re-dispatch the original question through dispatch_one
+     * (NOT brain_respond — that would recurse and corrupt state).
+     * dispatch_one normalizes+canonicalizes and walks the registry. */
+    char re_ans[256] = "";
+    int re_ok = stored_q && stored_q[0] ? dispatch_one(b, stored_q, re_ans, sizeof re_ans) : 0;
+
+    /* gen396: acknowledgement, then the ANSWER, then the bookkeeping.
+     * gen505y: si e' appena LETTO — la definizione letta viene prima,
+     * e la risposta alla domanda, se c'e' ed e' un'altra cosa, dopo. */
+    if (nf_prose > 0 && def[0]) {
+        snprintf(out + ol, out_size - ol, " %s", def);
+        if (re_ok && re_ans[0] && strcmp(re_ans, def) != 0 && !strstr(re_ans, "look it up")) {
+            size_t o2 = strlen(out);
+            snprintf(out + o2, out_size - o2, " %s", re_ans);
+        }
+    } else if (re_ok && re_ans[0])
+        snprintf(out + ol, out_size - ol, " %s", re_ans);
+    else if (got && def[0])
+        snprintf(out + ol, out_size - ol, " %s", def);
+    else {
+        char tail[64];
+        kb_response_slots(b, got ? "gap_done" : "gap_not_found",
+                          NULL, 0, tail, sizeof tail);
+        snprintf(out + ol, out_size - ol, "%s", tail);
+    }
+    if (nf > 0) {
+        char fstr[16]; snprintf(fstr, sizeof fstr, "%d", nf);
+        char tail[64];
+        const KbResponseSlot fslots[] = { {"count", fstr} };
+        kb_response_slots(b, "gap_extracted", fslots, 1, tail, sizeof tail);
+        ol = strlen(out);
+        snprintf(out + ol, out_size - ol, "%s", tail);
+    }
+    acquisition_note(b, topic, got ? "definition" : "none", def);
+    if (re_ok || got) {
+        conv_log(b, input, out);
+        return 1;
+    }
+    return 0;
+}
+
 static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
     if (b) {
@@ -5513,6 +5669,109 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * state lives as KB facts (pending_gap/1, pending_gap_question/1) in the
      * REFLECTIVE layer — working memory, never persisted. On the next turn:
      * confirmation → acquire + re-answer; anything else → retract + dispatch. */
+    /* gen506d — «COSA HAI TROVATO?» ha una risposta: l'ultima acquisizione e'
+     * un fatto (`last_acquisition/3`), e le frasi che la chiedono sono
+     * `intent_phrase(acquisition_report, …)` in network.p0. */
+    if (b && b->kb && (kb_intent_match(b, "acquisition_report", canon) ||
+                       kb_intent_match(b, "acquisition_report", norm))) {
+        char t[1][KB_TERM_LEN], k[1][KB_TERM_LEN], x[1][KB_TERM_LEN];
+        const char *q0[3] = { NULL, NULL, NULL };
+        char msg[1400]; msg[0] = '\0';
+        if (kb_match(b->kb, "last_acquisition", q0, 3, t, 1) == 1) {
+            const char *q1[3] = { t[0], NULL, NULL };
+            if (kb_match(b->kb, "last_acquisition", q1, 3, k, 1) == 1) {
+                const char *q2[3] = { t[0], k[0], NULL };
+                char text[KB_TERM_LEN] = "";
+                if (kb_match(b->kb, "last_acquisition", q2, 3, x, 1) == 1)
+                    snprintf(text, sizeof text, "%s", kb_dequote(x[0]));
+                char topic[KB_TERM_LEN]; snprintf(topic, sizeof topic, "%s", kb_dequote(t[0]));
+                char shown[KB_TERM_LEN]; snprintf(shown, sizeof shown, "%s", topic);
+                for (char *c = shown; *c; c++) if (*c == '_') *c = ' ';
+                if (!strcmp(k[0], "disambiguation")) {
+                    char options[1024] = "";
+                    disambiguation_render(b, topic, options, sizeof options);
+                    const KbResponseSlot sl[] = { {"topic", shown}, {"options", options} };
+                    kb_response_slots(b, "acquisition_report_disambiguation", sl, 2, msg, sizeof msg);
+                } else if (!strcmp(k[0], "definition") && text[0]) {
+                    const KbResponseSlot sl[] = { {"topic", shown}, {"text", text} };
+                    kb_response_slots(b, "acquisition_report_definition", sl, 2, msg, sizeof msg);
+                } else {
+                    const KbResponseSlot sl[] = { {"topic", shown} };
+                    kb_response_slots(b, "acquisition_report_none", sl, 1, msg, sizeof msg);
+                }
+            }
+        } else {
+            kb_response_slots(b, "acquisition_report_nothing", NULL, 0, msg, sizeof msg);
+        }
+        if (msg[0]) {
+            put(msg, out, out_size);
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", "acquisition");
+            conv_log(b, input, out);
+            return strlen(out);
+        }
+    }
+
+    /* gen506d — LA SCELTA DOPO UNA DISAMBIGUAZIONE. Con un bivio aperto
+     * (`pending_disambiguation/1`) il turno che nomina un'opzione — con le sue
+     * parole, o con un ordinale (`ordinal_choice/2`, KB) — la fa leggere. Il
+     * C confronta parole: quali parole contino e' nel titolo stesso. */
+    if (b && b->kb) {
+        char pd[1][KB_TERM_LEN];
+        const char *pq[1] = { NULL };
+        if (kb_match(b->kb, "pending_disambiguation", pq, 1, pd, 1) > 0) {
+            char topic[KB_TERM_LEN]; snprintf(topic, sizeof topic, "%s", kb_dequote(pd[0]));
+            char low[512]; size_t li = 0;
+            for (const char *c = input; *c && li + 1 < sizeof low; c++) low[li++] = (char)tolower((unsigned char)*c);
+            low[li] = '\0';
+            long pick = 0;
+            {
+                char ords[32][KB_TERM_LEN];
+                const char *oq[2] = { NULL, NULL };
+                size_t no = kb_match(b->kb, "ordinal_choice", oq, 2, ords, 32);
+                for (size_t i = 0; i < no && !pick; i++) {
+                    char ob[KB_TERM_LEN]; snprintf(ob, sizeof ob, "%s", ords[i]);
+                    if (!kb_text_has_surface(low, kb_dequote(ob))) continue;
+                    char nv[1][KB_TERM_LEN];
+                    const char *nq[2] = { ords[i], NULL };
+                    if (kb_match(b->kb, "ordinal_choice", nq, 2, nv, 1) == 1) pick = strtol(kb_dequote(nv[0]), NULL, 10);
+                }
+            }
+            char chosen[KB_TERM_LEN] = "";
+            for (int i = 1; i <= 8 && !chosen[0]; i++) {
+                char nstr[8]; snprintf(nstr, sizeof nstr, "%d", i);
+                char tv[1][KB_TERM_LEN];
+                const char *oq[3] = { topic, nstr, NULL };
+                if (kb_match(b->kb, "disambiguation_option", oq, 3, tv, 1) != 1) break;
+                char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", kb_dequote(tv[0]));
+                if (pick == i) { snprintf(chosen, sizeof chosen, "%s", tb); break; }
+                char tl[KB_TERM_LEN]; snprintf(tl, sizeof tl, "%s", tb);
+                for (char *c = tl; *c; c++) *c = (char)tolower((unsigned char)*c);
+                char *tw[16]; size_t ntw = split_words(tl, tw, 16);
+                int need = 0, have = 0;
+                for (size_t k2 = 0; k2 < ntw; k2++) {
+                    if (!strcmp(tw[k2], topic) || strlen(tw[k2]) < 3) continue;
+                    need++;
+                    if (kb_text_has_surface(low, tw[k2])) have++;
+                }
+                if (need && have == need) snprintf(chosen, sizeof chosen, "%s", tb);
+            }
+            if (chosen[0]) {
+                kb_retract_pred(b->kb, "pending_disambiguation");
+                kb_retract_pred(b->kb, "disambiguation_option");
+                char key[KB_TERM_LEN]; size_t ko = 0;
+                for (const char *c = chosen; *c && ko + 1 < sizeof key; c++)
+                    key[ko++] = (*c == ' ') ? '_' : (char)tolower((unsigned char)*c);
+                key[ko] = '\0';
+                if (acquire_and_report(b, key, "", input, out, out_size)) {
+                    snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+                    snprintf(b->last_module, sizeof b->last_module, "%s", "acquisition");
+                    return strlen(out);
+                }
+            }
+        }
+    }
+
     if (b && b->kb) {
         const char *gq[] = { NULL };
         char gtopics[1][KB_TERM_LEN];
@@ -5604,80 +5863,9 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                     return strlen(out);
                 }
             } else if (stored_q[0]) {
-                {
-                    const KbResponseSlot slots[] = { {"topic", topic} };
-                    kb_response_slots(b, "gap_looking_up", slots, 1, out, out_size);
-                }
-                char def[512] = "";
-                /* gen335k: on user confirmation, try Wikipedia fetch first.
-                 * acquire_knowledge only uses local sources — the network
-                 * step is gated behind the user's explicit "si". */
-                int got = acquire_knowledge(b, topic, def, sizeof def);   /* 2 = gia' noto */
-                size_t ol = strlen(out);
-                /* gen505y — l'esecutore dell'azione `read_topic`: providers,
-                 * rete e memoria profonda stanno in network_acquire, che legge
-                 * la KB per ognuna di queste cose (kb/core/network.p0). */
-                int nf_prose = 0;
-                if (got != 2 && network_acquire(b, topic, def, sizeof def, &nf_prose)) got = 1;
-                if (!got) {
-                    /* gen335e: mark this topic as failed so not_understood
-                     * won't re-offer the same gap on re-dispatch. */
-                    const char *fa[] = { topic };
-                    kb_assert(b->kb, "pending_gap_failed", fa, 1);
-                }
-                /* gen335g: after a successful acquire, also extract structured
-                 * facts from the page prose (extract_page_facts). This gives
-                 * the full pipeline: download → learn concept → extract facts. */
-                int nf = nf_prose;
-                if (got && !nf_prose) {
-                    char facts[512] = "";
-                    nf = extract_page_facts(b, topic, facts, sizeof facts);
-                }
-                /* Re-dispatch the original question through dispatch_one
-                 * (NOT brain_respond — that would recurse and corrupt state).
-                 * dispatch_one normalizes+canonicalizes and walks the registry. */
-                char re_ans[256] = "";
-                int re_ok = dispatch_one(b, stored_q, re_ans, sizeof re_ans);
-
-                /* gen396: acknowledgement, then the ANSWER, then the bookkeeping.
-                 *
-                 * The definition used to be appended here AND repeated by the
-                 * re-dispatched reply, with the extraction count wedged between,
-                 * so a confirmed lookup read «Cerco informazioni su pompa...
-                 * <def>. Ho estratto 2 fatti. So già qualcosa su pompa: <def>.»
-                 * The user asked a question and said yes; what they are owed is
-                 * one answer to it, and the note about what was learned comes
-                 * after it. */
-                /* gen505y: si e' appena LETTO — la definizione letta viene prima,
-                 * e la risposta alla domanda, se c'e' ed e' un'altra cosa, dopo. */
-                if (nf_prose > 0 && def[0]) {
-                    snprintf(out + ol, out_size - ol, " %s", def);
-                    if (re_ok && re_ans[0] && strcmp(re_ans, def) != 0 && !strstr(re_ans, "look it up")) {
-                        size_t o2 = strlen(out);
-                        snprintf(out + o2, out_size - o2, " %s", re_ans);
-                    }
-                } else if (re_ok && re_ans[0])
-                    snprintf(out + ol, out_size - ol, " %s", re_ans);
-                else if (got && def[0])
-                    snprintf(out + ol, out_size - ol, " %s", def);
-                else {
-                    char tail[64];
-                    kb_response_slots(b, got ? "gap_done" : "gap_not_found",
-                                      NULL, 0, tail, sizeof tail);
-                    snprintf(out + ol, out_size - ol, "%s", tail);
-                }
-                if (nf > 0) {
-                    char fstr[16]; snprintf(fstr, sizeof fstr, "%d", nf);
-                    char tail[64];
-                    const KbResponseSlot fslots[] = { {"count", fstr} };
-                    kb_response_slots(b, "gap_extracted", fslots, 1, tail, sizeof tail);
-                    ol = strlen(out);
-                    snprintf(out + ol, out_size - ol, "%s", tail);
-                }
-                if (re_ok) {
-                    conv_log(b, input, out);
+                /* gen506d: l'acquisizione confermata sta in acquire_and_report. */
+                if (acquire_and_report(b, topic, stored_q, input, out, out_size))
                     return strlen(out);
-            }
         }
     }
     }

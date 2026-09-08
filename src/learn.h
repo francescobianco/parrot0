@@ -48,5 +48,8 @@ int wiki_fetch_topic_lang_prose(const char *key, const char *lang,
  * la memoria profonda lo conserva accanto a cio' che ha letto. */
 const char *wiki_last_revision(void);
 const char *wiki_last_title(void);
+/* gen506d — i titoli che la ricerca dell'edizione propone per una chiave
+ * (uno per riga in `out`); e' la lista fra cui una disambiguazione sceglie. */
+int wiki_search_titles(const char *key, const char *lang, char *out, size_t out_sz);
 
 #endif /* PARROT0_LEARN_H */

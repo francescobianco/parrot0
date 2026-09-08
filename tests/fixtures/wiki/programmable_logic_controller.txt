@@ -1,0 +1,1 @@
+A programmable logic controller is an industrial computer that controls machines and processes. It reads sensors and drives actuators in factories.

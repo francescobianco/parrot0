@@ -363,3 +363,41 @@ int wiki_fetch_topic_lang_prose(const char *key, const char *lang,
     return 0;
 }
 #endif /* PARROT0_HAVE_CURL */
+
+/* gen506d — I TITOLI CHE UNA RICERCA PROPONE. Una pagina che disambigua
+ * («PLC or plc may refer to:») non descrive niente: i significati fra cui
+ * scegliere sono i titoli che la ricerca dell'edizione restituisce. Escono
+ * uno per riga, in memoria; niente sul disco. Quale ne faccia parrot0 —
+ * elencarli, chiedere, leggerne uno — e' conoscenza (kb/core/network.p0 §9). */
+int wiki_search_titles(const char *key, const char *lang, char *out, size_t out_sz) {
+    if (!key || !*key || !lang || !out || out_sz == 0) return 0;
+    out[0] = '\0';
+    char q[160]; size_t qn = 0;
+    for (const char *p = key; *p && qn + 2 < sizeof q; p++) {
+        unsigned char c = (unsigned char)*p;
+        if (isalnum(c)) q[qn++] = (char)c;
+        else if (c == ' ' || c == '_') q[qn++] = '+';
+    }
+    q[qn] = '\0';
+    if (!qn) return 0;
+    char url[512];
+    snprintf(url, sizeof url,
+             "https://%s.wikipedia.org/w/api.php?action=query&list=search&srsearch=%s&format=json&srlimit=8",
+             lang, q);
+    char *json = http_get(url);
+    if (!json) return 0;
+    const char *p = strstr(json, "\"search\"");
+    size_t o = 0; int n = 0;
+    while (p && (p = strstr(p, "\"title\"")) != NULL) {
+        char t[160];
+        if (json_extract_field(p, "title", t, sizeof t) && t[0]) {
+            int w = snprintf(out + o, out_sz - o, "%s%s", o ? "\n" : "", t);
+            if (w < 0 || (size_t)w >= out_sz - o) break;
+            o += (size_t)w; n++;
+        }
+        p += 7;
+    }
+    free(json);
+    return n;
+}
+

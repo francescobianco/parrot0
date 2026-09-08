@@ -579,6 +579,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/language/prefix_before_assertion.p0t
 	@./$(BIN) --test tests/p0t/language/mention.p0t
 	@./$(BIN) --test tests/p0t/conversation/compound_inquiry.p0t
+	@./$(BIN) --test tests/p0t/knowledge/disambiguation.p0t
 	@./$(BIN) --test tests/p0t/meta/gap_kinds.p0t
 	@./$(BIN) --test tests/p0t/knowledge/geographic_location.p0t
 	@./$(BIN) --test tests/p0t/knowledge/facts.p0t
