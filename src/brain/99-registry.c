@@ -2343,13 +2343,9 @@ static void not_understood(Brain *b, const char *canon, const char *raw,
             kb_set_origin(b->kb, prev_o);
         }
         if (!already_gap && !already_failed) {
-            kb_set_origin(b->kb, KB_REFLECTIVE);
-            const char *ga[] = { sw };
-            kb_assert(b->kb, "pending_gap", ga, 1);
             char qq[KB_TERM_LEN];
             snprintf(qq, sizeof qq, "\"%s\"", canon);
-            const char *qa[] = { qq };
-            kb_assert(b->kb, "pending_gap_question", qa, 1);
+            board_open(b, "gap_offer", sw, qq);
             kb_set_origin(b->kb, KB_SESSION);
             {
                 /* gen430 — IL MURO DIVENTA UNA RICHIESTA DI INSEGNAMENTO.
@@ -3227,16 +3223,9 @@ static int precision_resolve(Brain *b, const char *canon, const char *raw,
             network_acquire(b, topic, d2, sizeof d2, &nf);
         } else if (kb_query(b->kb, "acquisition_move", (const char *[]){ "propose" }, 1)) {
             /* la politica chiede di CHIEDERE: l'offerta, con la domanda in sospeso */
-            int prev = kb_origin(b->kb);
-            kb_set_origin(b->kb, KB_REFLECTIVE);
-            kb_retract_pred(b->kb, "pending_gap");
-            kb_retract_pred(b->kb, "pending_gap_question");
-            const char *ga[1] = { topic };
-            kb_assert(b->kb, "pending_gap", ga, 1);
+            board_close_kind(b, "gap_offer");
             char qq[KB_TERM_LEN]; snprintf(qq, sizeof qq, "\"%s\"", last_q[0] ? last_q : canon);
-            const char *qa[1] = { qq };
-            kb_assert(b->kb, "pending_gap_question", qa, 1);
-            kb_set_origin(b->kb, prev);
+            board_open(b, "gap_offer", topic, qq);
             const KbResponseSlot sl[] = { { "topic", topic } };
             kb_response_slots(b, "learn_gap_offer", sl, 1, out, out_size);
             return 1;
@@ -5062,11 +5051,12 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
      * last_reply, fallbacks) — il turno intero direbbe allora la variante
      * «ancora non so», come se avesse gia' offerto. Si fotografa e si
      * ripristina, cosi' una lettura che non rivendica non lascia impronte. */
-    char (*pg)[KB_TERM_LEN] = NULL, (*pq)[KB_TERM_LEN] = NULL;
-    size_t npg = 0, npq = 0;
-    { const char *any1[1] = { NULL };
-      if (!kb_match_all(b->kb, "pending_gap", any1, 1, &pg, &npg)) npg = 0;
-      if (!kb_match_all(b->kb, "pending_gap_question", any1, 1, &pq, &npq)) npq = 0; }
+    /* gen506i — il tabellone e' uno (issues.p0): si fotografano per ID le
+     * offerte gia' aperte; una lettura che non rivendica chiude soltanto
+     * quelle che le sue clausole hanno aperto. */
+    char (*pg)[KB_TERM_LEN] = NULL; size_t npg = 0;
+    { const char *oq[2] = { NULL, "gap_offer" };
+      if (!kb_match_all(b->kb, "open_issue", oq, 2, &pg, &npg)) npg = 0; }
     char saved_reply[256], saved_module[32];
     unsigned long saved_fallbacks = b->fallbacks;
     snprintf(saved_reply, sizeof saved_reply, "%s", b->last_reply);
@@ -5103,19 +5093,22 @@ static int compound_turn_lead(Brain *b, const char *input, char *out, size_t out
      * letto qualcosa. */
     if (!read) {
         if (getenv("P0_READ_TRACE")) fprintf(stderr, "[compound] no clause read: declining (out=«%.60s»)\n", out);
-        kb_retract_pred(b->kb, "pending_gap");
-        kb_retract_pred(b->kb, "pending_gap_question");
-        kb_set_origin(b->kb, KB_REFLECTIVE);
-        for (size_t i = 0; i < npg; i++) { const char *a[1] = { pg[i] }; kb_assert(b->kb, "pending_gap", a, 1); }
-        for (size_t i = 0; i < npq; i++) { const char *a[1] = { pq[i] }; kb_assert(b->kb, "pending_gap_question", a, 1); }
-        kb_set_origin(b->kb, KB_SESSION);
-        free(pg); free(pq);
+        { char (*now)[KB_TERM_LEN] = NULL; size_t nn = 0;
+          const char *oq[2] = { NULL, "gap_offer" };
+          if (kb_match_all(b->kb, "open_issue", oq, 2, &now, &nn))
+              for (size_t i = 0; i < nn; i++) {
+                  int had = 0;
+                  for (size_t k = 0; k < npg && !had; k++) if (!strcmp(now[i], pg[k])) had = 1;
+                  if (!had) board_close_id(b, now[i]);
+              }
+          free(now); }
+        free(pg);
         snprintf(b->last_reply, sizeof b->last_reply, "%s", saved_reply);
         snprintf(b->last_module, sizeof b->last_module, "%s", saved_module);
         b->fallbacks = saved_fallbacks;
         return 0;
     }
-    free(pg); free(pq);
+    free(pg);
     /* Le clausole hanno ripubblicato il frame del turno una per una: le cue
      * che restano sono quelle dell'ultima. Il turno che si sta chiudendo e'
      * quello composto, e chi lo ispeziona dopo («why that way?», i cricchetti)
@@ -5304,8 +5297,8 @@ static int pending_offer_fallthrough(Brain *b, const char *input, char *out, siz
      * niente: si ripete la domanda con le opzioni, non «Non capisco». */
     {
         char pd[1][KB_TERM_LEN];
-        const char *pq[1] = { NULL };
-        if (kb_match(b->kb, "pending_disambiguation", pq, 1, pd, 1) > 0) {
+        const char *pq[2] = { "choice", NULL };   /* gen506i: la massima del genere (issues.p0 §3) */
+        if (kb_match(b->kb, "max_qud_topic", pq, 2, pd, 1) > 0) {
             char topic[KB_TERM_LEN]; snprintf(topic, sizeof topic, "%s", kb_dequote(pd[0]));
             for (char *c = topic; *c; c++) if (*c == '_') *c = ' ';
             char options[1024] = "";
@@ -5322,8 +5315,8 @@ static int pending_offer_fallthrough(Brain *b, const char *input, char *out, siz
     const char *pol[1] = { "accept" };
     if (!kb_query(b->kb, "offer_unclaimed_turn", pol, 1)) return 0;
     char gtopics[1][KB_TERM_LEN];
-    const char *gq[1] = { NULL };
-    if (kb_match(b->kb, "pending_gap", gq, 1, gtopics, 1) <= 0) return 0;
+    const char *gq[2] = { "gap_offer", NULL };   /* gen506i: la massima del genere */
+    if (kb_match(b->kb, "max_qud_topic", gq, 2, gtopics, 1) <= 0) return 0;
     const char *ref[2] = { "current_turn", "refuse" };
     if (kb_query(b->kb, "offer_resolution", ref, 2)) return 0;
     char topic[KB_TERM_LEN];
@@ -5331,12 +5324,12 @@ static int pending_offer_fallthrough(Brain *b, const char *input, char *out, siz
     char stored_q[256] = "";
     {
         char sq_hit[1][KB_TERM_LEN];
-        const char *sqq[] = { NULL };
-        if (kb_match(b->kb, "pending_gap_question", sqq, 1, sq_hit, 1) > 0)
+        char cid[KB_TERM_LEN]; board_issue_id("gap_offer", topic, cid, sizeof cid);
+        const char *sqq[] = { cid, NULL };
+        if (kb_match(b->kb, "issue_question", sqq, 2, sq_hit, 1) > 0)
             snprintf(stored_q, sizeof stored_q, "%s", kb_dequote(sq_hit[0]));
     }
-    { const char *rga[] = { gtopics[0] }; kb_retract(b->kb, "pending_gap", rga, 1); }
-    kb_retract_pred(b->kb, "pending_gap_question");
+    board_close(b, "gap_offer", topic);
     return acquire_and_report(b, topic, stored_q[0] ? stored_q : input, input, out, out_size);
 }
 
@@ -5435,6 +5428,21 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
          * DERIVA da questi tre (`kb/core/gap-kinds.p0`), e una specie nuova
          * domani e' una regola, non un ramo. */
         if (b->kb) session_archive_turn(b);   /* gen506h: il turno finito resta, sotto turn_N */
+        /* gen506i — UN OROLOGIO SOLO. `turn_counter/1` (discourse.p0) era un
+         * contabile KB che scattava a meta' turno — DOPO che altri contabili
+         * avevano gia' letto il valore vecchio — accanto a `b->turns`, che da'
+         * il nome agli scope turn_N: due orologi, e le questioni nascevano con
+         * un'origine sbagliata di uno (misurato: issue_turn 0 al turno 1). Il
+         * motore ha un solo contatore e lo pubblica all'ingresso del turno; la
+         * KB lo legge (previous_turn, exchange_turn, issue_turn), non lo tiene. */
+        if (b->kb) {
+            char n[24]; snprintf(n, sizeof n, "%lu", b->turns);
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            kb_retract_pred(b->kb, "turn_counter");
+            kb_assert(b->kb, "turn_counter", (const char *[]){ n }, 1);
+            kb_set_origin(b->kb, prev);
+        }
         if (b->kb) {
             kb_retract_pred(b->kb, "turn_outcome");
             kb_retract_pred(b->kb, "turn_topic");
@@ -5866,8 +5874,8 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * C confronta parole: quali parole contino e' nel titolo stesso. */
     if (b && b->kb) {
         char pd[1][KB_TERM_LEN];
-        const char *pq[1] = { NULL };
-        if (kb_match(b->kb, "pending_disambiguation", pq, 1, pd, 1) > 0) {
+        const char *pq[2] = { "choice", NULL };   /* gen506i: la massima del genere (issues.p0 §3) */
+        if (kb_match(b->kb, "max_qud_topic", pq, 2, pd, 1) > 0) {
             char topic[KB_TERM_LEN]; snprintf(topic, sizeof topic, "%s", kb_dequote(pd[0]));
             char low[512]; size_t li = 0;
             for (const char *c = input; *c && li + 1 < sizeof low; c++) low[li++] = (char)tolower((unsigned char)*c);
@@ -5925,8 +5933,9 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                     int keep = 0;
                     for (size_t h = 0; h < nh; h++) if (!strcmp(kb_dequote(hits[h]), nstr)) keep = 1;
                     if (keep) continue;
-                    const char *rq[3] = { topic, nstr, NULL };
-                    kb_retract_match(b->kb, "disambiguation_option", rq, 3);
+                    { char cid[KB_TERM_LEN]; board_issue_id("choice", topic, cid, sizeof cid);
+                      const char *rq[3] = { cid, nstr, NULL };
+                      kb_retract_match(b->kb, "issue_option", rq, 3); }
                     const char *wq[3] = { NULL, topic, nstr };
                     kb_retract_match(b->kb, "option_word", wq, 3);
                 }
@@ -5946,8 +5955,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             }
             (void)low;
             if (chosen[0]) {
-                kb_retract_pred(b->kb, "pending_disambiguation");
-                kb_retract_pred(b->kb, "disambiguation_option");
+                board_close_kind(b, "choice");
                 kb_retract_pred(b->kb, "option_word");
                 char key[KB_TERM_LEN]; size_t ko = 0;
                 for (const char *c = chosen; *c && ko + 1 < sizeof key; c++)
@@ -5963,9 +5971,9 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     }
 
     if (b && b->kb) {
-        const char *gq[] = { NULL };
+        const char *gq[2] = { "gap_offer", NULL };   /* gen506i: la massima del genere */
         char gtopics[1][KB_TERM_LEN];
-        if (kb_match(b->kb, "pending_gap", gq, 1, gtopics, 1) > 0) {
+        if (kb_match(b->kb, "max_qud_topic", gq, 2, gtopics, 1) > 0) {
             char topic[KB_TERM_LEN];
             snprintf(topic, sizeof topic, "%s", kb_dequote(gtopics[0]));
 
@@ -5980,9 +5988,10 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             /* Save the stored question BEFORE retracting */
             char stored_q[256] = "";
             {
-                const char *sqq[] = { NULL };
+                char cid[KB_TERM_LEN]; board_issue_id("gap_offer", kb_dequote(gtopics[0]), cid, sizeof cid);
+                const char *sqq[] = { cid, NULL };
                 char sq_hit[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "pending_gap_question", sqq, 1, sq_hit, 1) > 0)
+                if (kb_match(b->kb, "issue_question", sqq, 2, sq_hit, 1) > 0)
                     snprintf(stored_q, sizeof stored_q, "%s",
                              kb_dequote(sq_hit[0]));
             }
@@ -6035,10 +6044,8 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
              * perche' e' passato un turno: un turno che nessuno sa servire la
              * accetta piu' avanti (pending_offer_fallthrough), e una domanda
              * rivendicata nel mezzo la lascia aperta. */
-            if (confirm || refused_kb) {
-                { const char *rga[] = { gtopics[0] }; kb_retract(b->kb, "pending_gap", rga, 1); }
-                kb_retract_pred(b->kb, "pending_gap_question");
-            }
+            if (confirm || refused_kb)
+                board_close(b, "gap_offer", kb_dequote(gtopics[0]));
 
             if (!confirm) {
                 /* gen505y — un «no» all'offerta e' una RISPOSTA all'offerta, non
@@ -6053,8 +6060,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                 const char *dq[1] = { fw };
                 if (refused_kb || (fl && strlen(rlow) <= fl + 12 &&
                     kb_query(b->kb, "acquisition_offer_refused_word", dq, 1))) {
-                    { const char *rga[] = { gtopics[0] }; kb_retract(b->kb, "pending_gap", rga, 1); }
-                    kb_retract_pred(b->kb, "pending_gap_question");
+                    board_close(b, "gap_offer", kb_dequote(gtopics[0]));
                     kb_response_slots(b, "acquisition_offer_declined", NULL, 0, out, out_size);
                     conv_log(b, input, out);
                     return strlen(out);

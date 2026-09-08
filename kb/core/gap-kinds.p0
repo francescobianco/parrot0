@@ -41,6 +41,10 @@ machinery(turn_outcome).
 machinery(turn_topic).
 machinery(turn_module).
 machinery(turn_register).
+% gen506i: `pending_gap` e `pending_gap_question` sono VISTE del tabellone
+% unico (issues.p0 §5: l'offerta e' `open_issue(gap_offer_<tema>, gap_offer)`);
+% `pending_gap_failed` e' ancora un fatto a se' — la forma di arrivo e' uno
+% stato della questione (`issue_state(I, failed)`), C_TODO.
 machinery(pending_gap).
 machinery(pending_gap_question).
 machinery(pending_gap_failed).

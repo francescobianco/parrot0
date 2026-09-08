@@ -141,17 +141,19 @@ debug_probe(15, topic_read, any, "la MEMORIA PROFONDA: che cosa ho letto, e dove
 debug_probe(16, acquisition_policy, any, "la politica di lettura (ask / act / never)").
 
 % ── 9. LA DISAMBIGUAZIONE E' UN PROCESSO DELLA KB (gen506d) ─────────────────
-% «parlami dei plc» -> «si» -> la pagina «PLC» disambigua. Le opzioni sono
-% fatti di sessione scritti dal motore (`disambiguation_option(Topic, N,
-% Titolo)`, `pending_disambiguation(Topic)`); tutto il resto — come si
-% mostrano, come si sceglie, come si chiede che cosa si e' trovato — sta qui,
+% «parlami dei plc» -> «si» -> la pagina «PLC» disambigua. Il bivio e' una
+% QUESTIONE del tabellone unico (issues.p0, gen506i): `open_issue(choice_plc,
+% choice)` con le sue `issue_option(choice_plc, N, Titolo)`, aperta dal motore
+% quando pone la domanda; `pending_disambiguation` e `disambiguation_option`
+% sono VISTE su di essa. Tutto il resto — come si mostrano le opzioni, come si
+% sceglie, come si chiede che cosa si e' trovato — sta qui,
 % e si insegna parlando: «da adesso in poi quando devi disambiguare mostrami
 % le opzioni in una tabella markdown» e' una lezione di condotta come «cerca
 % da solo». Uno stile nuovo = tre righe qui (uno stile e' il NOME dei template
 % `disambiguation_head_<stile>` / `disambiguation_item_<stile>` in
 % responses.p0), nessun C.
-machinery(pending_disambiguation).
-machinery(disambiguation_option).
+machinery(pending_disambiguation).   % vista del tabellone (issues.p0 §5)
+machinery(disambiguation_option).    % vista del tabellone (issues.p0 §5)
 machinery(disambiguation_style).
 machinery(disambiguation_style_effective).
 machinery(last_acquisition).
@@ -208,6 +210,12 @@ machinery(offer_resolution).
 machinery(offer_unclaimed_turn).
 offer_resolution($T, refuse) :- turn_cue($T, dissent_word, $W).
 offer_resolution($T, accept) :- turn_cue($T, assent_word, $W), naf(offer_resolution($T, refuse)).
+% (`pending_gap` e' dal gen506i una vista del tabellone: l'offerta aperta e'
+% `open_issue(gap_offer_<tema>, gap_offer)` in issues.p0.) ⚠ Residuo misurato
+% al gen506i: un turno DICHIARATIVO che nomina il tema («zorbia is in europe»
+% sotto «vuoi che cerchi zorbia?») passa di qui come assenso e fa partire una
+% lettura; la forma giusta e' `move_addresses(T, Issue, answer|unrelated)`
+% quando la forza del turno non e' un assenso (dialogica L2, incremento I2).
 offer_resolution($T, accept) :-
     pending_gap($Topic), input_node_atom($T, $Id, $Topic), naf(offer_resolution($T, refuse)).
 offer_unclaimed_turn(accept).
@@ -217,7 +225,8 @@ conduct_lesson_reply(offer_unclaimed_turn, ask, "Understood: I'll look things up
 
 % ── 11. LA SCELTA SI LEGGE SUL FRAME, E LA RISPOSTA PARZIALE RESTRINGE (gen506h) ─
 % Le parole di ogni opzione sono cue del turno (`option_word(Parola, Tema, N)`,
-% scritte dal motore con le opzioni); un'opzione e' «colpita» se una sua
+% scritte dal motore con le opzioni — ancora fuori dal tabellone: la forma di
+% arrivo e' `issue_option_word(Issue, N, Parola)`, C_TODO); un'opzione e' «colpita» se una sua
 % parola sta nel turno. Una colpita: scelta. Piu' d'una: la lista si
 % restringe e si richiede (dialogica.md L3). E un turno che il frame legge
 % come DOMANDA non viene catturato da una questione aperta che non indirizza:

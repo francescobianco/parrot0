@@ -1,36 +1,78 @@
-% issues.p0 — CIO' CHE RESTA APERTO FRA UN TURNO E L'ALTRO (gen394).
+% issues.p0 — IL TABELLONE DELLA CONVERSAZIONE (gen394 -> gen506i, dialogica L1).
 %
-% parrot0 sapeva gia' fare i due estremi e non sapeva collegarli:
+% gen394 ha dato a parrot0 la memoria di cio' che gli e' stato chiesto e non ha
+% saputo dire:
 %
 %   where is zorbia      -> non lo so, vuoi che impari?
 %   zorbia is in europe  -> Learned: located_in(zorbia, europe).
 %   where is zorbia      -> Europe.
 %
-% Tre turni corretti e nessuna traccia che il secondo abbia CHIUSO una domanda
-% lasciata aperta dal primo. E' la differenza fra rispondere e conversare: un
-% interlocutore ricorda cosa gli e' stato chiesto e non ha saputo dire.
+% Tre turni corretti e nessuna traccia che il secondo avesse CHIUSO una domanda
+% lasciata aperta dal primo. E' la differenza fra rispondere e conversare.
 %
-% Il posto dove registrarlo non c'era, ed e' il motivo per cui questo livello e'
-% arrivato dopo: il turno che fallisce esce dal frame senza che nessuno gli
-% chieda niente — declina apposta, per lasciare la parola al percorso storico.
-% `turn_bookkeeping/1` e' la terza domanda che il motore pone a ogni turno, e il
-% suo risultato viene ignorato: registrare non e' rispondere.
+% Poi altre due memorie sono nate accanto a questa, per lo stesso bisogno:
+% «Vuoi che cerchi?» (`pending_gap`, gen335d/506f) e «Quale intendi?»
+% (`pending_disambiguation`, gen506d). Tre tabelloni per una conversazione, e
+% la chat di F. ha mostrato il prezzo — una risposta parziale letta da zero,
+% una domanda vecchia che cattura una domanda nuova (docs/plans/dialogica.md
+% §0). Da qui la legge L1: UN tabellone solo.
+%
+%   open_issue(Issue, Kind)        la questione aperta, per genere
+%   issue_topic(Issue, Topic)      di che cosa
+%   issue_turn(Issue, N)           in quale turno e' nata: la sua origine
+%   issue_question(Issue, Text)    la domanda da riprovare      (gap_offer)
+%   issue_option(Issue, N, Title)  le opzioni fra cui scegliere (choice)
+%   issue_relation(Issue, Rel)     la relazione chiesta         (question)
+%
+% L'identita' e' Kind_Topic — gap_offer_plc, choice_plc, question_zorbia:
+% pronunciabile in /debug, unica per genere e tema (la stessa unicita' che i
+% tre tabelloni gia' imponevano), e DIVERSA fra i generi: «dove si trova
+% zorbia» (question: parrot0 lo deve all'utente) e «vuoi che cerchi zorbia?»
+% (gap_offer: l'utente lo deve a parrot0) sono due questioni sullo stesso
+% tema con obblighi opposti, e possono stare aperte insieme.
+%
+% I generi, oggi:
+%   question    una domanda dell'utente capita e non soddisfatta (gen394)
+%   gap_offer   «vuoi che cerchi X?» — parrot0 ha chiesto, l'utente deve
+%   choice      «quale intendi?»     — parrot0 ha chiesto, l'utente deve
+% Un genere nuovo domani — una conferma, una scelta di stile — e' una riga qui
+% con la SUA lettura del turno (network.p0 §10-11), non un `pending_*` nuovo.
+%
+% Il C apre e chiude (board_open / board_close, 50-self-research-loop.c) e
+% non sa che cosa un genere significhi, come si legga un turno sotto di esso,
+% ne' quando scada: quello e' conoscenza. Le VISTE DI TRANSIZIONE del §5
+% tengono vivi i nomi storici per i lettori C non ancora migrati; sono da
+% togliere una per una, non da rifornire.
 
 :- file_attribute(machinery).
 
-% `open_issue/2` compare soltanto nei corpi — nasce da un assert a runtime — e
-% quindi la direttiva di file non lo raggiunge. Va dichiarato a mano, ed e' una
-% dichiarazione che serve DAVVERO: senza, il muro informato conta questi fatti
-% come conoscenza sul mondo e smette di offrire di imparare la parola su cui
-% l'issue e' stata aperta. La memoria di una lacuna non e' una conoscenza.
+% Nascono da assert a runtime: la direttiva di file non li raggiunge e vanno
+% dichiarati a mano. Serve DAVVERO: senza, il muro informato conta questi fatti
+% come conoscenza sul mondo e smette di offrire di imparare la parola su cui la
+% questione e' aperta. La memoria di una lacuna non e' una conoscenza.
 machinery(open_issue).
+machinery(issue_topic).
+machinery(issue_turn).
+machinery(issue_question).
+machinery(issue_option).
+machinery(issue_relation).
+% E non sopravvivono a /save: sono stato del dialogo, non un archivio.
+turn_scratch(open_issue).
+turn_scratch(issue_topic).
+turn_scratch(issue_turn).
+turn_scratch(issue_question).
+turn_scratch(issue_option).
+turn_scratch(issue_relation).
 
-% ── 1. QUANDO NASCE UN'ISSUE ───────────────────────────────────────────────
+% L'identita': Kind_Topic. Lo stesso nome lo costruisce il C (board_issue_id).
+issue_id($Kind, $Topic, $Issue) :- concat_atoms($Kind, "_", $Prefix), concat_atoms($Prefix, $Topic, $Issue).
+
+% ── 1. QUANDO NASCE UNA QUESTIONE DI GENERE `question` ─────────────────────
 %
 % Il turno nomina una relazione ammessa e una parola di contenuto, e nessuna
 % lettura regge. Non e' «non ho capito»: e' una domanda CAPITA e non
-% soddisfatta, che e' esattamente cio' che vale la pena ricordare. Un turno a cui
-% il frame risponde non lascia nulla di aperto.
+% soddisfatta, che e' esattamente cio' che vale la pena ricordare. Un turno a
+% cui il frame risponde non lascia nulla di aperto.
 % La condizione e' `naf(relation_mentions(...))`, non «nessuna lettura regge».
 % Le due sono quasi la stessa cosa e costano in modo incomparabile: la seconda
 % chiede l'enumerazione ESAUSTIVA delle letture — findall non ha uscita
@@ -45,32 +87,82 @@ machinery(open_issue).
 % la vista esaustiva, la condizione potra' allargarsi senza cambiare nient'altro.
 turn_unanswered($Turn, $Word, $Relation) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Word), naf(relation_mentions($Relation, $Word)).
 bookkeeper(issue).
-turn_bookkeeping($Turn, issue) :- turn_unanswered($Turn, $Word, $Relation), assert(open_issue, $Word, $Relation).
+turn_bookkeeping($Turn, issue) :-
+    turn_unanswered($Turn, $Word, $Relation), issue_id(question, $Word, $Issue), turn_counter($N),
+    assert(open_issue, $Issue, question), assert(issue_topic, $Issue, $Word),
+    assert(issue_relation, $Issue, $Relation), assert(issue_turn, $Issue, $N).
 
-% ── 2. QUANDO SI CHIUDE ────────────────────────────────────────────────────
+% Le questioni di parrot0 (gap_offer, choice) le apre il C quando le pone —
+% l'offerta di leggere (network.p0 §4) e il bivio di una pagina che disambigua
+% (§9) — perche' nascono da un'azione, non da una lettura del turno.
+
+% ── 2. LO STATO E' UNA VISTA ───────────────────────────────────────────────
 %
-% Non si chiude perche' qualcuno la dichiara chiusa: si chiude quando la
-% risposta diventa derivabile. Lo stato e' percio' una VISTA sul mondo corrente e
-% non un flag da mantenere — non puo' divergere da cio' che parrot0 sa, perche'
-% non e' una seconda copia di quel sapere.
-issue_answer($Word, $Value) :- open_issue($Word, $Relation), apply($Relation, cons($Word, cons($Value, nil))).
-issue_answered($Word) :- issue_answer($Word, $Value).
-issue_status($Word, resolved) :- open_issue($Word, $Relation), issue_answered($Word).
-issue_status($Word, open) :- open_issue($Word, $Relation), naf(issue_answered($Word)).
+% Una domanda dell'utente non si chiude perche' qualcuno la dichiara chiusa:
+% si chiude quando la risposta diventa derivabile. Lo stato e' percio' una
+% VISTA sul mondo corrente e non un flag da mantenere — non puo' divergere da
+% cio' che parrot0 sa, perche' non e' una seconda copia di quel sapere.
+issue_value($Issue, $Value) :- open_issue($Issue, question), issue_topic($Issue, $Word), issue_relation($Issue, $Relation), apply($Relation, cons($Word, cons($Value, nil))).
+issue_answered($Issue) :- issue_value($Issue, $Value).
+issue_state($Issue, resolved) :- open_issue($Issue, question), issue_answered($Issue).
+issue_state($Issue, open) :- open_issue($Issue, question), naf(issue_answered($Issue)).
+% Una domanda di parrot0 resta aperta finche' sta sul tabellone: la chiude la
+% mossa che la risolve — assenso, dissenso, scelta (network.p0 §10-11) — e in
+% quel momento il C la ritira. Nessun contatore di turni la fa scadere: se
+% dovra' scadere, sara' una regola qui (dialogica L4, `issue_expiry`).
+issue_state($Issue, open) :- open_issue($Issue, gap_offer).
+issue_state($Issue, open) :- open_issue($Issue, choice).
+issue_open($Issue, $Kind) :- open_issue($Issue, $Kind), issue_state($Issue, open).
 
-% L'obbligo di risposta e' di parrot0, ed e' derivato: finche' l'issue e' aperta
-% qualcuno deve ancora qualcosa. Tenerlo derivato invece che asserito significa
-% che non puo' sopravvivere alla propria ragione d'essere.
-answer_obligation($Word, parrot0) :- issue_status($Word, open).
+% Chi deve la prossima mossa: parrot0 su una domanda dell'utente, l'utente su
+% una domanda di parrot0. Derivato, mai asserito: non puo' sopravvivere alla
+% propria ragione d'essere.
+issue_owed_by($Issue, parrot0) :- open_issue($Issue, question), issue_state($Issue, open).
+issue_owed_by($Issue, user) :- open_issue($Issue, gap_offer).
+issue_owed_by($Issue, user) :- open_issue($Issue, choice).
 
-% ── 3. INTERROGABILI ───────────────────────────────────────────────────────
+% ── 3. LA QUESTIONE MASSIMA ─────────────────────────────────────────────────
 %
-% Il consumer e' il proiettore binario universale: una issue e' una relazione
-% come le altre e si chiede con le stesse parole con cui si chiede qualsiasi
-% cosa. Nessun recognizer nuovo, nessuna superficie privata.
+% Fra le questioni aperte, la piu' recente e' la massima (dialogica L2): e' la
+% domanda contro cui il turno si legge per primo, e quella che «una domanda
+% nuova» supera senza chiudere (L4). E' una vista sull'origine delle questioni,
+% non un puntatore tenuto da qualcuno.
+issue_superseded_by_later($Issue) :- issue_open($Issue, $Kind), issue_turn($Issue, $N), issue_open($Other, $OtherKind), issue_turn($Other, $M), gt($M, $N).
+max_qud($Issue) :- issue_open($Issue, $Kind), naf(issue_superseded_by_later($Issue)).
+% La massima DI UN GENERE: e' cio' che il C chiede quando legge il turno sotto
+% un'offerta o un bivio («si'» va all'offerta piu' recente, non alla prima
+% asserita). La precedenza FRA generi — un bivio aperto dopo un'offerta — e'
+% la lettura L2 di dialogica, e nasce dopo, come regola qui, non nel C.
+issue_superseded_within_kind($Issue, $Kind) :- issue_open($Issue, $Kind), issue_turn($Issue, $N), issue_open($Other, $Kind), issue_turn($Other, $M), gt($M, $N).
+max_qud_of_kind($Kind, $Issue) :- issue_open($Issue, $Kind), naf(issue_superseded_within_kind($Issue, $Kind)).
+max_qud_topic($Kind, $Topic) :- max_qud_of_kind($Kind, $Issue), issue_topic($Issue, $Topic).
+
+% ── 4. INTERROGABILI ───────────────────────────────────────────────────────
+%
+% Il consumer e' il proiettore binario universale: una questione e' una
+% relazione come le altre e si chiede con le stesse parole con cui si chiede
+% qualsiasi cosa. «what is the issue status for zorbia» chiede del TEMA, e il
+% primo argomento e' la parola del turno: queste sono le viste per tema sulle
+% questioni che lo portano. L'obbligo di RISPOSTA e' di parrot0 e riguarda le
+% domande dell'utente; sulle domande di parrot0 l'utente deve una mossa, non
+% una risposta (issue_owed_by).
+issue_status($Topic, $State) :- issue_topic($Issue, $Topic), issue_state($Issue, $State).
+answer_obligation($Topic, parrot0) :- issue_topic($Issue, $Topic), issue_owed_by($Issue, parrot0).
+issue_answer($Topic, $Value) :- issue_topic($Issue, $Topic), issue_value($Issue, $Value).
 answer_frame("issue status", issue_status).
 answer_frame_input_arg("issue status", issue_status, 1).
 answer_frame("answer obligation", answer_obligation).
 answer_frame_input_arg("answer obligation", answer_obligation, 1).
 answer_frame("pending answer", issue_answer).
 answer_frame_input_arg("pending answer", issue_answer, 1).
+
+% ── 5. VISTE DI TRANSIZIONE — i nomi dei tre tabelloni, derivati da questo ──
+%
+% I lettori C che ancora chiedono `pending_gap(T)` o `disambiguation_option`
+% ricevono la stessa risposta di prima, ma nessuno le SCRIVE piu': chi le
+% asserisse creerebbe di nuovo un secondo tabellone. Ogni lettore migrato a
+% `open_issue` e' una di queste righe in meno (dialogica I1: «poi si tolgono»).
+pending_gap($Topic) :- open_issue($Issue, gap_offer), issue_topic($Issue, $Topic).
+pending_gap_question($Text) :- open_issue($Issue, gap_offer), issue_question($Issue, $Text).
+pending_disambiguation($Topic) :- open_issue($Issue, choice), issue_topic($Issue, $Topic).
+disambiguation_option($Topic, $N, $Title) :- open_issue($Issue, choice), issue_topic($Issue, $Topic), issue_option($Issue, $N, $Title).

@@ -36,8 +36,11 @@ turn_recall($Turn, $Kind) :- turn_cue_form($Turn, recall_cue, $Cue), recall_cue(
 % chiesto, calcolato adesso. Una conoscenza arrivata nel frattempo sposta da sola
 % una parola da un elenco all'altro, e nessuno deve ricordarsi di aggiornare
 % niente — e' la stessa ragione per cui `issue_status/2` e' una vista.
-recall_kind_word(pending, $Word) :- issue_status($Word, open).
-recall_kind_word(settled, $Word) :- issue_status($Word, resolved).
+% gen506i: il tabellone e' uno (issues.p0) e ha tre generi. «Cosa mi devi
+% ancora» sono le questioni che parrot0 DEVE — le domande dell'utente — non le
+% sue («vuoi che cerchi?», «quale intendi?»), che e' l'utente a dovere a lui.
+recall_kind_word(pending, $Word) :- answer_obligation($Word, parrot0).
+recall_kind_word(settled, $Word) :- open_issue($Issue, question), issue_state($Issue, resolved), issue_topic($Issue, $Word).
 recall_set($Kind, $Words) :- findall($W, recall_kind_word($Kind, $W), $Words).
 recall_nonempty($Kind, $Words) :- recall_set($Kind, cons($First, $Tail)), recall_set($Kind, $Words).
 
@@ -66,10 +69,19 @@ answer_content(recall($Kind, $Words, $Language), 2, terminator, $Piece) :- sente
 % Vive nella contabilita' perche' e' un effetto del turno, non una sua risposta.
 % Il turno ha bisogno di un NUMERO, altrimenti la conversazione e' un insieme e
 % non una sequenza: senza ordine non esistono «prima», «poi» e «ancora prima»,
-% cioe' non esiste discorso. L'orologio e' un contabile come gli altri e sta
-% nella KB — il motore non conta i turni per conto suo.
-turn_counter(0).
-turn_counter(1).
+% cioe' non esiste discorso.
+%
+% gen506i — UN OROLOGIO SOLO. Fino al gen506h l'orologio era un contabile di
+% questo file (`bookkeeper(clock)`: retract/assert di `turn_counter`) che
+% scattava a meta' turno, DOPO che altri contabili avevano letto il valore
+% vecchio, accanto al contatore del motore che da' il nome agli scope
+% `turn_N` (gen506h): due orologi, e una questione aperta al turno 3 nasceva
+% con origine 2. Ora il motore pubblica `turn_counter(N)` all'ingresso di ogni
+% turno (99-registry.c, accanto a `session_archive_turn`) e la KB lo LEGGE —
+% `previous_turn`, `exchange_turn`, `issue_turn` — senza tenerlo. Non e' una
+% rinuncia KB-first: il numero del turno e' un'osservazione del motore, come
+% il testo del turno; cio' che se ne fa (ordine, ripresa, questione massima)
+% resta conoscenza.
 
 % ── CHE COSA NON SOPRAVVIVE AL TURNO ─────────────────────────────────────────
 %
@@ -93,8 +105,6 @@ turn_scratch(turn_span_token).
 % distinto, mai quello consumato da current_topic/1.
 turn_scratch(exchange).
 turn_scratch(exchange_turn).
-bookkeeper(clock).
-turn_bookkeeping($Turn, clock) :- turn_counter($N), is($M, add($N, 1)), retract(turn_counter, $N), assert(turn_counter, $M).
 
 bookkeeper(exchange).
 % Lo scambio e il suo POSTO nella sequenza sono due fatti, non uno. Non e' una

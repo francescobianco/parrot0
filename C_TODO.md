@@ -1,5 +1,27 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-09 — il tabellone e' uno (gen506i): i lettori delle viste di transizione
+
+`pending_gap`, `pending_gap_question`, `pending_disambiguation`,
+`disambiguation_option` sono dal gen506i VISTE di `open_issue` (issues.p0
+§5) e nessun C le scrive piu'. Restano i lettori, ciascuno una riga da
+migrare a `open_issue`/`issue_option` — poi la vista si toglie:
+- `already_gap` in 50-self-research-loop.c (mod_learn) e 99-registry.c
+  (declino informato): `kb_query(pending_gap, {T})` → `open_issue(gap_offer_T, gap_offer)`;
+- `disambiguation_render` e i due lookup dell'opzione scelta (99-registry.c,
+  `disambiguation_option(T, N, _)`) → `issue_option(choice_T, N, _)`;
+- `dream.c:276` e `main.c:1076` (`pending_gap` enumerata);
+- `offer_resolution` in network.p0 §10 (`pending_gap($Topic)`).
+
+Fuori dal tabellone, da portarci: `option_word(W, T, N)` →
+`issue_option_word(I, N, W)`; `pending_gap_failed(T)` → `issue_state(I,
+failed)` (una questione fallita non e' una questione sparita); la fotografia
+del `compound_turn_lead` (chiude le offerte aperte dalle clausole non lette)
+→ nessuna, quando le clausole avranno il proprio scope. I campi `b->last_*`
+sono cache del tabellone (gen506h). L'identita' `Kind_Topic` e' troncata a
+`KB_TERM_LEN`: due temi lunghi con lo stesso prefisso collidono — misurare
+prima di allungare.
+
 ## 2026-09-09 — le finestre fisse escono dal C (F.: «non sono un vincolo di progetto»)
 
 `norm[256]` e `canon[256]` nel dispatch (99-registry.c, 10-memory-knowledge.c

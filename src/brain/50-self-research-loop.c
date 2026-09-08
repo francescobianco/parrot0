@@ -7,6 +7,66 @@
  * change, executable ratchet, version bump, and journaled observation. */
 
 static void machinery_gap_record(Brain *b, const char *canon, const char *raw);  /* 99-registry.c */
+
+/* ── dialogica L1 (gen506i) — IL TABELLONE E' UNO: kb/core/issues.p0 ───────
+ *
+ * Una questione aperta e' `open_issue(Issue, Kind)` con il suo contenuto
+ * (`issue_topic`, `issue_turn`, `issue_question`, `issue_option`) e identita'
+ * Kind_Topic. Qui il C fa due cose sole — aprire e chiudere — e non sa che
+ * cosa un genere significhi, come si legga un turno sotto di esso, ne' quando
+ * scada: e' KB (issues.p0, network.p0 §10-11). `pending_gap`,
+ * `pending_gap_question`, `pending_disambiguation`, `disambiguation_option`
+ * sono VISTE su questo tabellone: i lettori C che le nominano ancora vanno
+ * migrati a `open_issue`, non riforniti. Stato del dialogo: memoria di
+ * lavoro, mai persistita (KB_REFLECTIVE). */
+static void board_issue_id(const char *kind, const char *topic, char *out, size_t sz) {
+    snprintf(out, sz, "%s_%s", kind, topic ? topic : "");
+}
+static void board_open(Brain *b, const char *kind, const char *topic, const char *question_quoted) {
+    if (!b || !b->kb || !kind || !topic || !*topic) return;
+    char id[KB_TERM_LEN]; board_issue_id(kind, topic, id, sizeof id);
+    char turn[24]; snprintf(turn, sizeof turn, "%lu", b->turns);
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_assert(b->kb, "open_issue",  (const char *[]){ id, kind },  2);
+    kb_assert(b->kb, "issue_topic", (const char *[]){ id, topic }, 2);
+    kb_assert(b->kb, "issue_turn",  (const char *[]){ id, turn },  2);
+    if (question_quoted && *question_quoted)
+        kb_assert(b->kb, "issue_question", (const char *[]){ id, question_quoted }, 2);
+    kb_set_origin(b->kb, prev);
+}
+static void board_option(Brain *b, const char *kind, const char *topic, const char *n, const char *title_quoted) {
+    if (!b || !b->kb || !kind || !topic || !n || !title_quoted) return;
+    char id[KB_TERM_LEN]; board_issue_id(kind, topic, id, sizeof id);
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_assert(b->kb, "issue_option", (const char *[]){ id, n, title_quoted }, 3);
+    kb_set_origin(b->kb, prev);
+}
+static void board_close_id(Brain *b, const char *id) {
+    if (!b || !b->kb || !id || !*id) return;
+    kb_retract_match(b->kb, "open_issue",     (const char *[]){ id, NULL }, 2);
+    kb_retract_match(b->kb, "issue_topic",    (const char *[]){ id, NULL }, 2);
+    kb_retract_match(b->kb, "issue_turn",     (const char *[]){ id, NULL }, 2);
+    kb_retract_match(b->kb, "issue_question", (const char *[]){ id, NULL }, 2);
+    kb_retract_match(b->kb, "issue_relation", (const char *[]){ id, NULL }, 2);
+    kb_retract_match(b->kb, "issue_option",   (const char *[]){ id, NULL, NULL }, 3);
+}
+static void board_close(Brain *b, const char *kind, const char *topic) {
+    if (!kind || !topic) return;
+    char id[KB_TERM_LEN]; board_issue_id(kind, topic, id, sizeof id);
+    board_close_id(b, id);
+}
+/* Tutte le questioni di un genere: la chiusura globale che i tre tabelloni
+ * facevano con kb_retract_pred. */
+static void board_close_kind(Brain *b, const char *kind) {
+    if (!b || !b->kb || !kind) return;
+    char (*ids)[KB_TERM_LEN] = NULL; size_t n = 0;
+    const char *q[2] = { NULL, kind };
+    if (kb_match_all(b->kb, "open_issue", q, 2, &ids, &n))
+        for (size_t i = 0; i < n; i++) board_close_id(b, ids[i]);
+    free(ids);
+}
 static int mod_loop(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
     char pre[256];
@@ -751,8 +811,8 @@ static int network_acquire(Brain *b, const char *topic, char *def, size_t def_sz
             }
             int prev_o = kb_origin(b->kb);
             kb_set_origin(b->kb, KB_SESSION);
-            kb_retract_pred(b->kb, "pending_disambiguation");
-            kb_retract_pred(b->kb, "disambiguation_option");
+            /* gen506i: il bivio e' una questione del tabellone unico (issues.p0) */
+            board_close_kind(b, "choice");
             kb_retract_pred(b->kb, "option_word");
             int n = 0;
             char *save = NULL;
@@ -766,8 +826,7 @@ static int network_acquire(Brain *b, const char *topic, char *def, size_t def_sz
                 char qt[192];
                 for (char *c = ln; *c; c++) if (*c == '"') *c = '\'';
                 snprintf(qt, sizeof qt, "\"%s\"", ln);
-                const char *oa[3] = { topic, nstr, qt };
-                kb_assert(b->kb, "disambiguation_option", oa, 3);
+                board_option(b, "choice", topic, nstr, qt);
                 /* gen506h: le parole dell'opzione come cue del frame
                  * (`option_word(Parola, Tema, N)`, network.p0 §11) — tranne il
                  * tema stesso, che sta in ogni opzione. */
@@ -783,10 +842,7 @@ static int network_acquire(Brain *b, const char *topic, char *def, size_t def_sz
                     }
                 }
             }
-            if (n > 0) {
-                const char *pa[1] = { topic };
-                kb_assert(b->kb, "pending_disambiguation", pa, 1);
-            }
+            if (n > 0) board_open(b, "choice", topic, NULL);
             kb_set_origin(b->kb, prev_o);
             if (def && def_sz) def[0] = '\0';
             if (nfacts) *nfacts = 0;
@@ -1531,21 +1587,20 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
          * gen505y: e' la mossa `propose` di kb/core/network.p0; la raccolta del
          * si' e l'azione stanno in 99-registry.c (network_acquire). */
         kb_set_origin(b->kb, KB_REFLECTIVE);
-        const char *gq[] = { NULL };
-        char gcheck[1][KB_TERM_LEN];
-        int already_gap = kb_match(b->kb, "pending_gap", gq, 1, gcheck, 1) > 0;
+        /* gen506i: la guardia e' per TEMA, come al sito gemello di 99-registry.c
+         * (gen384): un'offerta aperta su un altro tema non impedisce questa —
+         * sul tabellone unico stanno insieme, e «si'» va alla piu' recente. */
+        const char *gq[] = { key_en[0] ? key_en : eff_key };
+        int already_gap = kb_query(b->kb, "pending_gap", gq, 1);
         const char *fq[] = { eff_key, NULL };
         int already_failed = kb_query(b->kb, "pending_gap_failed", fq, 1);
         if (!already_gap && !already_failed) {
-            const char *ga[] = { key_en[0] ? key_en : eff_key };
-            kb_assert(b->kb, "pending_gap", ga, 1);
             char qq[KB_TERM_LEN];
             /* gen335e: store the RAW question so dispatch_one can re-canonicalize
              * with full language context. The canonical form loses Italian prepositions
              * ("di"→"of") that strong heads depend on. */
             snprintf(qq, sizeof qq, "\"%s\"", raw && *raw ? raw : norm);
-            const char *qa[] = { qq };
-            kb_assert(b->kb, "pending_gap_question", qa, 1);
+            board_open(b, "gap_offer", key_en[0] ? key_en : eff_key, qq);
             {
                 const KbResponseSlot slots[] = { {"topic", disp} };
                 kb_response_slots(b, "learn_gap_offer", slots, 1, msg, sizeof msg);

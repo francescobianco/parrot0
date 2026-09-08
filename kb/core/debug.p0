@@ -63,6 +63,8 @@ debug_probe(10, machinery_gap, turn, "lacuna registrata per questo turno").
 debug_probe(20, gap_kind, turn, "specie della lacuna").
 debug_probe(30, gap_source, turn, "il turno come e' stato detto").
 debug_probe(40, pending_gap, any, "parole opache in attesa").
+debug_probe(41, open_issue, any, "il TABELLONE (issues.p0): le questioni aperte, per genere").
+debug_probe(42, max_qud, any, "la questione MASSIMA: quella su cui il turno si legge per primo").
 debug_probe(50, gap_register, turn, "registro riconosciuto").
 debug_probe(60, learned_bridge, any, "ponti che il ciclo si e' insegnato").
 debug_probe(70, dead_rule, any, "regole che non possono dedurre niente").

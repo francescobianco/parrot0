@@ -1,0 +1,114 @@
+# IL TABELLONE E' UNO — gen506i (docs/plans/dialogica.md L1, kb/core/issues.p0).
+#
+# Tre memorie per lo stesso bisogno — `open_issue/2` (gen394), `pending_gap`
+# (gen335d/506f), `pending_disambiguation` (gen506d) — erano tre tabelloni, e
+# la chat di F. ha mostrato il prezzo (dialogica §0: una risposta parziale
+# letta da zero, una domanda vecchia che cattura una nuova). Ora una questione
+# aperta e' UN fatto per genere, con identita' Kind_Topic, tema, origine e
+# contenuto; i nomi storici sono viste su di esso, e chiuderla sul tabellone la
+# chiude ovunque. Zero comportamento nuovo: le stesse chat di offer_context,
+# disambiguation, open_issues e session_board restano quelle.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=it
+!timeout 8
+!reset
+
+[test l'offerta e' una questione sul tabellone, con tema, origine e obbligo]
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami di velkania
+<~ Vuoi che cerchi?
+!query open_issue(gap_offer_velkania, gap_offer)
+!query issue_topic(gap_offer_velkania, velkania)
+!query issue_turn(gap_offer_velkania, 1)
+!query issue_question(gap_offer_velkania, $Q)
+!query issue_state(gap_offer_velkania, open)
+!query issue_owed_by(gap_offer_velkania, user)
+!query max_qud(gap_offer_velkania)
+!query pending_gap(velkania)
+> certo
+<~ Vediamo cosa trovo su velkania
+!query! open_issue(gap_offer_velkania, $K)
+!query! pending_gap(velkania)
+!query! max_qud($I)
+
+[test il bivio e' una questione dello stesso tabellone, con le sue opzioni]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami dei plc
+> si
+<~ Quale intendi?
+!query open_issue(choice_plc, choice)
+!query issue_option(choice_plc, 1, "Programmable logic controller")
+!query issue_turn(choice_plc, 2)
+!query issue_owed_by(choice_plc, user)
+!query max_qud(choice_plc)
+!query! open_issue(gap_offer_plc, $K)
+!query disambiguation_option(plc, 1, "Programmable logic controller")
+!query pending_disambiguation(plc)
+> il primo
+<~ industrial computer
+!query! open_issue(choice_plc, $K)
+!query! pending_disambiguation(plc)
+
+[test la domanda dell'utente senza risposta e' il terzo genere, con la sua relazione]
+!set PARROT0_LANG=en
+!reset
+> where is zorbia
+<~ zorbia
+!query open_issue(question_zorbia, question)
+!query issue_relation(question_zorbia, located_in)
+!query issue_turn(question_zorbia, 1)
+!query issue_owed_by(question_zorbia, parrot0)
+!query answer_obligation(zorbia, parrot0)
+> zorbia is in europe
+<~ Learned
+!query issue_state(question_zorbia, resolved)
+!query issue_answer(zorbia, europe)
+
+# Un orologio solo: il numero del turno lo pubblica il motore all'ingresso, e
+# la questione nasce con l'origine giusta (prima: 0 al turno 1, 2 al turno 3).
+[test due generi sullo stesso tabellone: la massima e' la piu' recente, la vecchia resta]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> where is zorbia
+<~ zorbia
+!query turn_counter(1)
+!query! turn_counter(0)
+> what is 2 plus 2
+< 4.
+> tell me about zorbium
+<~ Want me to look it up?
+!query turn_counter(3)
+!query open_issue(question_zorbia, question)
+!query issue_turn(question_zorbia, 1)
+!query open_issue(gap_offer_zorbium, gap_offer)
+!query issue_turn(gap_offer_zorbium, 3)
+!query max_qud(gap_offer_zorbium)
+!query! max_qud(question_zorbia)
+!query max_qud_topic(gap_offer, zorbium)
+> what is still open
+<~ zorbia
+# «si'» va all'offerta piu' recente, non alla prima asserita
+> sure
+<~ Looking up zorbium
+!query! open_issue(gap_offer_zorbium, $K)
+!query open_issue(question_zorbia, question)
+
+# Ablazione: il tabellone e' conoscenza. Tolta la questione, la vista storica
+# sparisce e il turno dopo non e' piu' letto come una scelta.
+[test tolta la questione dal tabellone, la scelta non c'e' piu']
+!set PARROT0_LANG=it
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami dei plc
+> si
+<~ Quale intendi?
+!forget open_issue(choice_plc, choice)
+!query! pending_disambiguation(plc)
+!query! disambiguation_option(plc, 1, $T)
+> il primo
+<! industrial computer

@@ -8,6 +8,12 @@ handoff del repository sono datati 9 settembre. Questa stesura non esegue
 training né nuove misure comportamentali: distingue il codice ispezionato dai
 risultati storici e dalle prove ancora da fare.*
 
+> **Stato (gen506i, 9 settembre 2026):** il primo ciclo O0→O1 e' eseguito —
+> il tabellone delle questioni e' uno (I1 di dialogica) e l'orologio della
+> conversazione e' uno. Report in **§11**; il runbook operativo dei prossimi
+> circuiti (ritenzione, `move_addresses`, supersede/resume, la lettura che
+> chiude la questione) in **§12**.
+
 Il risultato da costruire è **un interlocutore che comprende una richiesta,
 mantiene il suo scopo, combina le capacità disponibili e modifica il proprio
 comportamento attraverso ciò che impara**. La memoria profonda è la prima
@@ -65,7 +71,7 @@ da questo piano.
 |---|---|---|
 | Frame → scelta | [turn-frames.p0](../../kb/core/turn-frames.p0), [dialogue-policy.p0](../../kb/core/dialogue-policy.p0): `frame_decision` consuma le priorità delle mosse. | Collegare i percorsi che ancora rileggono il grezzo; non ricostruire un altro decisore. |
 | Sessione → frame passati | [discourse.p0](../../kb/core/discourse.p0): `turn_scoped`, `turn_reply`, `turn_input`, `turn_entity`; `session_archive_turn` in [99-registry.c](../../src/brain/99-registry.c). | Il soggetto su cui inferire può già comprendere più turni. Restano cache `last_*`, limiti di enumerazione e cancellazione con `session_window(6)`. |
-| Questioni → obblighi | [issues.p0](../../kb/core/issues.p0) usa **`open_issue(Word, Relation)`**; rete e disambiguazione usano ancora `pending_gap` e `pending_disambiguation`. | La forma proposta da dialogica, `open_issue(Issue, Kind)`, ha la stessa arità ma significato diverso: occorre una migrazione semantica esplicita. |
+| Questioni → obblighi | ✅ gen506i: [issues.p0](../../kb/core/issues.p0) e' il tabellone unico, `open_issue(Issue, Kind)` con identita' `Kind_Topic`, tre generi, stato/obbligo/massima come viste; `pending_gap` e `pending_disambiguation` sono viste di transizione. (Prima: `open_issue(Word, Relation)` + due `pending_*` paralleli.) | Restano i lettori C delle viste (C_TODO) e le mosse I2–I4 (§12). |
 | Risposte parziali → scelta | [network.p0](../../kb/core/network.p0): `option_hit_word`, `offer_resolution`, `unclaimed_turn_captured`; [session_board.p0t](../../tests/p0t/conversation/session_board.p0t). | L3/L4 di dialogica hanno già un primo consumer. Il conteggio delle parole resta una prova limitata: negazione, esclusione e riferimento vanno letti semanticamente. |
 | Lacuna → rete | `network_available` deriva da `policy(network, on)`; esistono `acquisition_policy/1`, `gap_remedy_action`, `action_schema`, provider ed edizioni. Il boot proietta ancora l'ambiente in policy. | L'incremento «stato interrogabile» è già iniziato. Il lavoro è legare il rimedio al bisogno concreto e la decisione al contesto, oltre l'attuale `acquisition_move/1` globale. |
 | Rete → lettura → memoria | [50-self-research-loop.c](../../src/brain/50-self-research-loop.c): `network_acquire` chiama `learn_from_prose` e registra `topic_read` con indirizzo e revisione. | Il collegamento fetch/lettore esiste. `topic_definition` resta testo ricavato col taglio C al primo `.`, `!`, `?`; una lettura registrata non certifica la comprensione del passo. |
@@ -673,3 +679,180 @@ restano datate. Il prossimo lavoro è **O0 → O1: misurare la continuità e dar
 alle questioni un'identità comune**, mantenendo leggibili tutti i risultati
 già disponibili. Da quel punto la memoria profonda può servire un bisogno
 che la conversazione conserva, verifica e sa riprendere.
+
+## 11. Il primo ciclo, eseguito — O1 al gen506i (9 settembre 2026)
+
+E' il report che il §10 chiede, per il primo incremento. Misure sul binario
+di `gen506i`, KB completa, profilo `agi`, provider locale
+`tests/fixtures/wiki` dove serve una lettura.
+
+### 11.1 Il censimento dei tre stati di questione (§6.1, passo 3), misurato
+
+| stato (prima) | scrittori C | lettori C | lettori KB |
+|---|---|---|---|
+| `open_issue(Word, Rel)` (gen394) | nessuno: `turn_bookkeeping(issue)` in KB | nessuno | `issue_status`, `answer_obligation`, `recall_kind_word` |
+| `pending_gap/1` + `pending_gap_question/1` (+ `pending_gap_failed/1`) | 3 siti (`mod_learn` in 50-self-research-loop.c; il declino informato e l'offerta della definizione in 99-registry.c) + la fotografia di `compound_turn_lead` | il pre-dispatch dell'offerta, `pending_offer_fallthrough`, due guardie `already_gap`, `dream.c`, `main.c` | `offer_resolution` (network.p0 §10), `debug_probe(40)` |
+| `pending_disambiguation/1` + `disambiguation_option/3` | 1 sito (`network_acquire`, 50-self-research-loop.c) | il pre-dispatch della scelta (con il restringimento), il fallthrough, `disambiguation_render`, i due lookup dell'opzione scelta | `option_hit_word` (network.p0 §11) |
+
+Quattro scrittori e una fotografia per due stati che avrebbero dovuto essere
+uno; tre chiusure globali (`kb_retract_pred`) che spegnevano OGNI offerta per
+aprirne una; «la pending» presa come prima riga asserita.
+
+### 11.2 Che cosa e' cambiato
+
+- **`kb/core/issues.p0` riscritto come tabellone:** `open_issue(Issue,
+  Kind)`, `issue_topic`, `issue_turn` (numero), `issue_question`,
+  `issue_option`, `issue_relation`; identita' `Kind_Topic` (`issue_id/3` in
+  KB, `board_issue_id` in C: lo stesso nome); tre generi; `issue_state`,
+  `issue_owed_by`, `issue_open`, `max_qud/1`, `max_qud_of_kind/2`,
+  `max_qud_topic/2`; le viste per tema che i frame di risposta e la ripresa
+  gia' consumavano (`issue_status`, `answer_obligation`, `issue_answer`); le
+  quattro viste di transizione. Tutto `machinery` e `turn_scratch`.
+- **C:** `board_open`, `board_option`, `board_close`, `board_close_kind`
+  (50-self-research-loop.c) — apre e chiude per identita', origine
+  `KB_REFLECTIVE`. Dieci siti di scrittura ridotti a una chiamata; i lettori
+  del «pending» corrente (pre-dispatch dell'offerta e della scelta,
+  fallthrough) leggono `max_qud_topic(Kind, T)` e la `issue_question` di
+  quella questione, non la prima riga.
+- **Un orologio solo:** il motore pubblica `turn_counter(N)` all'ingresso
+  del turno; `bookkeeper(clock)` e i fatti di boot sono tolti da
+  discourse.p0.
+- **Guardia per tema** anche in `mod_learn`, come gen384 aveva fatto nel
+  sito gemello.
+- **Cricchetto:** `tests/p0t/conversation/dialogue_board.p0t` (55 assert):
+  offerta, bivio e domanda dell'utente come tre generi dello stesso
+  tabellone; due generi insieme con la massima piu' recente e la vecchia che
+  resta; «si'» all'offerta piu' recente; l'orologio giusto dal turno 1;
+  l'ablazione della questione che spegne la vista e la scelta.
+
+### 11.3 Due distinzioni trovate, non previste
+
+Nella forma di `procedura-crescita-kb.md` §1 — *un predicato che rispondeva
+a due domande insieme*:
+
+| predicato | le due domande fuse | la separazione |
+|---|---|---|
+| `turn_counter` | «che turno e'?» e «quando scatta l'orologio?» — un contabile KB che scattava a meta' turno, accanto al contatore C che nomina gli scope | il motore osserva e pubblica il numero; la KB lo legge |
+| `pending_gap` | «c'e' un'offerta aperta?» e «qual e' l'offerta che questo turno indirizza?» — la prima riga asserita valeva per entrambe | `issue_open` per la prima, `max_qud_of_kind` per la seconda |
+
+### 11.4 Bilancio e prove
+
+| | righe (al netto dei commenti) |
+|---|---|
+| C | +100 / −66 = **netto +34** (i dieci siti −66; i `board_*` e l'orologio +100) |
+| KB | +46 / −12 = netto +34 |
+
+Il C non si e' accorciato in totale (mantra #18a): la meccanica di aprire e
+chiudere per identita' e' entrata una volta, e i siti si sono accorciati.
+Cio' che e' uscito dal C come **conoscenza**: quali stati del dialogo esistono
+e come si chiamano; «la pending» come *prima asserita* → la *massima* per
+regola; l'orologio doppio. Prove: dialogue_board 55/55; invariati
+offer_context 21, disambiguation 19, session_board 24, open_issues 16,
+deep_memory 44, deep_memory.it 15, compound_inquiry 31, gap_kinds 9, savemap
+10, move_precedence 9, self_compensation 9; `make soft-test` 7 s.
+discourse_recall (2 rossi: smalltalk ruba «what did you tell me about
+milan») e issue1 (3-4 rossi: divisione per zero in italiano, «verified
+schema») erano rossi anche sul binario di HEAD, verificato in un worktree con
+un secondo socket.
+
+### 11.5 Residui, misurati
+
+1. Un dichiarativo che nomina il tema dell'offerta e' letto come assenso
+   («zorbia is in europe» sotto «vuoi che cerchi zorbia?» → una lettura
+   parte): `input_node_atom` in `offer_resolution` non guarda la forza del
+   turno. Primo caso del circuito 3 (§12.2).
+2. `session_window(6)` e' ancora un numero (§12.1).
+3. Fuori dal tabellone: `option_word`, `pending_gap_failed`, la fotografia
+   del `compound_turn_lead`, i lettori delle viste, `b->last_*` (C_TODO).
+
+## 12. Runbook dei prossimi circuiti — uno per sessione, poi si massimizza
+
+Ogni circuito: baseline (`dialogue_board.p0t` + banco piccolo), costruzione,
+cricchetto con ablazione, massimizzazione per voce, una declinazione, handoff
+(mantra #22, `procedura-crescita-kb.md`). Le forme sotto sono la proposta
+esecutiva: si cambiano se il primo dialogo le smentisce, non prima.
+
+### 12.1 Circuito 2 — O3: la ritenzione e' una regola sul contenuto
+
+**Legge violata:** dialogica §1bis — un contatore decide per numero di turni
+cio' che dipende dal contenuto. **Oggetto perso:** «perche' questo turno e'
+ancora in memoria».
+
+```prolog
+% discourse.p0 §6 — il motore pubblica che cosa ha archiviato; la KB dice che cosa tenere
+machinery(turn_archived).                  % turn_archived(turn_N, N): scritto dal motore quando archivia
+retention_reason(open_issue).              % ha aperto una questione ancora sul tabellone
+retention_reason(last_move).               % l'ultima mossa e' sempre viva
+retention_reason(recency).                 % la recenza: un costo dichiarato, non la regola
+turn_retained($T) :- retention_reason(open_issue), turn_archived($T, $K), open_issue($I, $Kind), issue_turn($I, $K).
+turn_retained($T) :- retention_reason(last_move), previous_turn($T).
+turn_retained($T) :- retention_reason(recency), turn_archived($T, $K), turn_counter($N), session_window($W), is($D, sub($N, $K)), le($D, $W).
+turn_expired($T)  :- turn_archived($T, $K), naf(turn_retained($T)).
+```
+
+**C (`session_archive_turn`):** dopo aver spostato `current_turn` sotto
+`turn_N`, asserisce `turn_archived(turn_N, N)`; poi enumera `turn_expired`
+(`kb_match_all`) e ritira ogni scope trovato — gli stessi `turn_scoped/2` di
+oggi — e la sua riga `turn_archived`. Il calcolo `done − window` sparisce.
+`session_window(6)` resta come UNA ragione, dichiarata: `!forget
+retention_reason(recency)` lascia la sola ritenzione per contenuto, ed e'
+l'ablazione. **Prove:** session_board «la finestra» invariato (a…h non sono
+citati da nulla); nuovo blocco: un bivio aperto al turno 2, dieci turni di
+aritmetica, `turn_input(turn_2, …)` ancora presente e «il primo» ancora una
+scelta; con `!forget open_issue(choice_plc, choice)` il turno 2 cade al giro
+dopo. **Costo:** una query per turno vivo per turno; si misura con il banco
+piccolo prima di ottimizzare (mantra #20b). **Declinazione:** un referente
+vivo cita il turno che l'ha introdotto — `retention_reason(referent)` con
+`turn_entity(turn_N, E)` quando la coreferenza lo legge.
+
+### 12.2 Circuito 3 — I2/I4: `move_addresses/3`, un nome per la lettura del turno sulla questione
+
+**Legge:** L2. **Oggetto perso:** la mossa come lettura del frame relativa
+alla questione — oggi tre letture con tre nomi (`offer_resolution`, l'ordinale
+in C, `option_hit`).
+
+```prolog
+move_addresses($T, $I, refuse)  :- open_issue($I, gap_offer), turn_cue($T, dissent_word, $W).
+move_addresses($T, $I, accept)  :- open_issue($I, gap_offer), turn_cue($T, assent_word, $W), naf(move_addresses($T, $I, refuse)).
+move_addresses($T, $I, accept)  :- open_issue($I, gap_offer), issue_topic($I, $Topic), input_node_atom($T, $Id, $Topic),
+                                   naf(turn_illocution($T, assertion)), naf(move_addresses($T, $I, refuse)).
+move_addresses($T, $I, answer)  :- open_issue($I, choice), issue_topic($I, $Topic), option_chosen($Topic, $N).      % una colpita, o l'ordinale
+move_addresses($T, $I, partial) :- open_issue($I, choice), issue_topic($I, $Topic), option_hit($Topic, $N), naf(option_chosen($Topic, $M)).
+move_addresses($T, $I, supersede) :- turn_illocution($T, question), naf(move_addresses($T, $I, accept)), naf(move_addresses($T, $I, answer)).
+```
+
+**C:** il pre-dispatch chiede `max_qud_of_kind(K, I)` e poi
+`move_addresses(current_turn, I, How)`, ed esegue per `How`: accept →
+acquisisci `issue_question`; refuse → chiudi e prendi atto; answer → chiudi
+e leggi l'opzione; partial → ritira le `issue_option` non colpite e richiedi;
+supersede/unrelated → non toccare. Le tre letture di oggi diventano clausole
+di questa regola; l'ordinale (`ordinal_choice`) diventa una cue del frame.
+Chiude il residuo del dichiarativo (§11.5.1). **Prove:** offer_context,
+disambiguation, session_board, dialogue_board invariati + «zorbia is in
+europe» sotto l'offerta che NON legge e impara.
+
+### 12.3 Circuito 4 — I3/D49: superare e riprendere
+
+`issue_raised(I, N)` ogni volta che la questione e' posta o ripresa (la
+prima coincide con `issue_turn`); `max_qud` sull'ultima `issue_raised`.
+«torniamo a X» / «continua» (`continue-as-resumption.md`) → `resume`: la
+questione con `issue_topic(I, X)` riceve `issue_raised(I, N)` corrente e
+torna massima. `issue_expiry(Kind, N)` come fatto; una questione scaduta e'
+`issue_state(I, superseded)`, non ritirata — cosi' «cosa e' rimasto in
+sospeso» la nomina ancora. **Prova:** il reperto 2 di dialogica §0 per
+intero, «torniamo ai plc» compreso.
+
+### 12.4 Circuito 5 — O4: la lettura chiude la questione
+
+Dopo `topic_read`, il C non ridispatcha un testo salvato: chiede
+`resume(I)` = riprova la `issue_question` come turno sotto la conoscenza
+nuova (e' gia' cio' che `acquire_and_report` fa, senza il nome), e la
+risposta cita `topic_read` (la fonte). Sono G1 e G2 del piano di rete; il
+«piu' precisamente» (`precision_request_cue`) diventa `qualify` sulla stessa
+questione risolta.
+
+### 12.5 Poi si massimizza, parlando
+
+Ogni circuito lascia una classe da riempire per voce: le parole di assenso
+e dissenso, le forme della ripresa, le ragioni di ritenzione, i generi di
+questione. E' il lavoro del `LEARN_PROTOCOL.md`, e vale dal turno dopo.

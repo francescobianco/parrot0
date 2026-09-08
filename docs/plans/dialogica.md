@@ -199,6 +199,60 @@ fare bene con due tabelloni: è il motivo per cui l'ordine sotto parte da L1.
 Ogni incremento tocca il C solo per il tabellone (assert/retract/ordine) e
 per chiedere alla KB; le letture, le politiche e le parole sono KB.
 
+### 5.1 I1 — fatto (gen506i, 9 settembre 2026): il tabellone e' uno
+
+**In campo.** `kb/core/issues.p0` e' il tabellone: `open_issue(Issue, Kind)`
+con `issue_topic`, `issue_turn` (il NUMERO del turno d'origine),
+`issue_question` (gap_offer), `issue_option` (choice), `issue_relation`
+(question); identita' `Kind_Topic` (`gap_offer_plc`, `choice_plc`,
+`question_zorbia`) — pronunciabile in `/debug`, unica per genere e tema,
+diversa fra i generi, cosi' «dove si trova zorbia» (question: lo deve
+parrot0) e «vuoi che cerchi zorbia?» (gap_offer: lo deve l'utente) stanno
+aperte insieme. Lo stato e' una vista (`issue_state`: resolved quando la
+risposta e' derivabile, per `question`; open finche' sta sul tabellone, per
+gap_offer/choice), l'obbligo e' derivato (`issue_owed_by`), la MASSIMA e' una
+vista sull'origine (`max_qud/1`; per genere `max_qud_of_kind/2`,
+`max_qud_topic/2`). I nomi storici — `pending_gap`, `pending_gap_question`,
+`pending_disambiguation`, `disambiguation_option` — sono viste di transizione
+(issues.p0 §5): nessuno li scrive piu'. Il C apre e chiude (`board_open`,
+`board_option`, `board_close`, `board_close_kind` in
+50-self-research-loop.c) e i tre lettori che prendevano «la prima pending»
+prendono la massima del genere (`max_qud_topic`). Zero comportamento nuovo
+sulle chat esistenti (offer_context 21/21, disambiguation 19/19,
+session_board 24/24, open_issues 16/16); il cricchetto e'
+`tests/p0t/conversation/dialogue_board.p0t` (55), con l'ablazione: tolta
+`open_issue(choice_plc, choice)`, la vista sparisce e «il primo» non e' piu'
+una scelta.
+
+**Due difetti trovati facendo il tabellone, e chiusi.**
+1. *Due orologi.* `turn_counter` era un contabile KB che scattava a meta'
+   turno — DOPO che l'altro contabile (l'issue) aveva letto il valore vecchio —
+   accanto a `b->turns`, che da' il nome agli scope `turn_N` (gen506h):
+   `question_zorbia` nasceva al turno 0, e al turno 3 la questione portava 2.
+   Ora il motore pubblica `turn_counter(N)` all'ingresso del turno e la KB lo
+   LEGGE (`previous_turn`, `exchange_turn`, `issue_turn`); `bookkeeper(clock)`
+   e i fatti di boot `turn_counter(0/1)` non ci sono piu'. Un numero osservato
+   dal motore non e' conoscenza; cio' che se ne fa lo e'.
+2. *La guardia dell'offerta era globale in uno dei due siti* (gen384 l'aveva
+   resa per tema solo in 99-registry.c): con un'offerta aperta su un altro
+   tema, «tell me about zorbium» rispondeva «I still don't know much». Ora e'
+   per tema in entrambi, e «si'» va all'offerta PIU' RECENTE
+   (`max_qud_topic`), non alla prima asserita.
+
+**Che cosa di I1 non e' fatto, e dove sta.** `offer_resolution` non e' stato
+rinominato `move_addresses`: e' gia' la lettura L2 accept/refuse per
+`gap_offer`, e il nome unico nasce con I2, quando avra' il secondo genere.
+`option_word` (le parole delle opzioni come cue) e `pending_gap_failed`
+restano fuori dal tabellone (C_TODO). E un residuo MISURATO: un turno
+dichiarativo che nomina il tema dell'offerta («zorbia is in europe» sotto
+«vuoi che cerchi zorbia?») passa per `input_node_atom` come assenso
+(network.p0 §10) e fa partire una lettura — e' cosi' che `open_issues.p0t`
+chiude quell'offerta per caso. La forma giusta e' `move_addresses(T, Issue,
+answer|unrelated)` quando la forza del turno non e' un assenso: primo caso di
+I2. Il runbook dei circuiti successivi (ritenzione, `move_addresses`,
+supersede/resume, la lettura che chiude la questione) sta in
+`integrazione-cognitiva-operativa.md` §12.
+
 ## 6. Il metodo, in una riga per regola
 
 - Davanti a una chat imbarazzante: **prima la legge violata, poi il

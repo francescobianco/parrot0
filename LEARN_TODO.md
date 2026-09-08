@@ -1,5 +1,64 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — 9 settembre 2026 (`gen506i`): il tabellone e' uno, e l'orologio anche
+
+> F.: «rendere operativa come abilita' cognitiva la memoria profonda…
+> portare al livello organico tutte le funzionalita'… un piano teorico
+> pratico per organizzare tutte le abilita', addestrarle e rendere parrot0
+> equivalente a un LLM». Il piano e'
+> `docs/plans/integrazione-cognitiva-operativa.md` (O0–O8, IR condivisa,
+> curriculum, parita'); il suo primo ciclo — O1 «una questione, un'origine»,
+> cioe' I1 di `dialogica.md` — e' in campo, con il report in §11 e il
+> runbook dei prossimi quattro circuiti in §12.
+
+**In campo (gen506i):**
+- **Il tabellone e' uno** (`kb/core/issues.p0`): `open_issue(Issue, Kind)`
+  + `issue_topic/turn/question/option/relation`, identita' `Kind_Topic`,
+  tre generi (question, gap_offer, choice), stato e obbligo come viste,
+  `max_qud/1` e `max_qud_of_kind/2`. `pending_gap`, `pending_gap_question`,
+  `pending_disambiguation`, `disambiguation_option` sono VISTE di
+  transizione: nessuno le scrive piu' (chi le scrivesse riaprirebbe un
+  secondo tabellone). Il C: `board_open/option/close/close_kind`
+  (50-self-research-loop.c), dieci siti di scrittura ridotti a una chiamata;
+  i tre lettori di «la pending» leggono `max_qud_topic(Kind, T)`.
+- **Un orologio solo:** `turn_counter(N)` lo pubblica il motore all'ingresso
+  del turno (99-registry.c, accanto a `session_archive_turn`);
+  `bookkeeper(clock)` e i fatti di boot `turn_counter(0/1)` non ci sono
+  piu'. Misurato prima: `issue_turn` 0 al turno 1, 2 al turno 3.
+- **La guardia dell'offerta e' per tema** anche in `mod_learn`
+  (50-self-research-loop.c): due offerte possono stare aperte, «si'» va alla
+  piu' recente.
+- Test: `conversation/dialogue_board.p0t` 55/55 (nel make test, con
+  l'ablazione); invariati offer_context 21, disambiguation 19, session_board
+  24, open_issues 16, deep_memory 44, deep_memory.it 15, compound_inquiry 31,
+  gap_kinds 9, savemap 10, move_precedence 9, self_compensation 9; `make
+  soft-test` 7s. discourse_recall 47/2 (smalltalk ruba «what did you tell me
+  about milan») e issue1 24/3 erano rossi anche sul binario di HEAD
+  (verificato con un worktree e un secondo socket).
+- **Bilancio (mantra #18a), al netto dei commenti:** C +100/−66 (netto
+  +34), KB +46/−12 (netto +34). Il C NON si e' accorciato in totale: i dieci
+  siti si sono accorciati di 66 righe, e sono entrati i quattro `board_*`
+  (meccanica di assert/retract per identita') e la pubblicazione
+  dell'orologio. Cio' che e' USCITO dal C come conoscenza: quali stati del
+  dialogo esistono e come si chiamano; «la pending» = la prima asserita → la
+  massima, per regola; l'orologio doppio.
+
+**⛔ Residui misurati, in ordine:**
+1. Un dichiarativo che nomina il tema dell'offerta e' letto come assenso
+   (network.p0 §10, `input_node_atom`): «zorbia is in europe» sotto «vuoi che
+   cerchi zorbia?» fa partire una lettura. Primo caso di I2:
+   `move_addresses(T, Issue, How)` con la forza del turno.
+2. `session_window(6)` e' ancora un numero: la ritenzione come regola sul
+   contenuto (O3) e' il prossimo circuito — la forma esatta nel piano §12.1.
+3. Fuori dal tabellone: `option_word` (→ `issue_option_word`),
+   `pending_gap_failed` (→ `issue_state(I, failed)`), i lettori C delle viste
+   di transizione (C_TODO in testa), `b->last_*`.
+
+**Coda:** O3 ritenzione (§12.1) → I2 `move_addresses` (§12.2) → I3/D49
+supersede+resume (§12.3) → O4 la lettura chiude la questione (§12.4).
+
+---
+
 # 🏁 HANDOFF — 9 settembre 2026 (`gen506h`): la sessione e' il prompt, e nessuno stato del dialogo vive solo nel C
 
 > F.: (1) «il prompt e' sempre l'intera sessione con aggiunto in coda il
