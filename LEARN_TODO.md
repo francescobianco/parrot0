@@ -67,6 +67,13 @@ guardia la suite li aspettava in silenzio (la corsa 3 del gen505y ci ha messo
 oltre un'ora per questo). Con il budget a 60s la suite li segna rossi con il
 nome del turno e va avanti.
 
+**La suite sul binario di HEAD** (`docs/reports/suite-run.txt`, 362 file con i
+quattro nuovi): **241 ok / 121 FAIL**, le stesse quattro fermate del cane da
+guardia. Contro la corsa precedente (358 file, binario `5a4b160`: 236 / 122)
+il differenziale e' SOLO in meglio: `analogy`, `analogy.it`, `fewshot` da
+rosso a verde; nessun file da verde a rosso. I due nuovi rossi
+(`prefix_before_assertion`, `mention`) sono i preesistenti del punto 3.
+
 ## 2. La comprensione della prosa — che cosa e' cresciuto, e come lo si vede
 
 F.: «anche se abbiamo la memoria profonda a volte le abilita' di comprensione
