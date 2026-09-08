@@ -1,5 +1,74 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — 9 settembre 2026 (`gen506e`): la memoria profonda legge la prosa in italiano
+
+> F.: «metti alla prova la memoria profonda con casi limite, dobbiamo trovare
+> il modo di avere la prosa in italiano». Prevale sul gen506d/gen506c solo
+> per la lettura in italiano; il metodo e' quello incrementale (banco
+> piccolo, test puntuali, `make soft-test`).
+
+**Misurato prima** (fixture `tests/fixtures/wiki/velkania.txt`, la pagina di
+deep_memory.p0t scritta in italiano, letta con `P0_READ_TRACE=1` — ora anche
+il lettore di chat stampa `[prose] focus norm canon`): 3 frasi lette su 8,
+«the its capital is velk», «has a popolazione of 100000 abitanti», «the
+country is stato fondato in the 1845», «velkania confina con glimwick»; «qual
+e' la capitale di velkania» -> «I don't know about capitale»; «quale e' la
+capitale di velkania» **scriveva `capital_of(which, velkania)`**.
+
+**Ora** (`knowledge/deep_memory.it.p0t` 15/15, nel `make test`): 7 frasi su
+8, `capital_of(velk, velkania)`, `borders`, `founded_in`, `currency_of`,
+`located_in`; «qual e'/quale e' la capitale di velkania» -> «velk.»; e dal
+vivo «parlami della fotosintesi» legge **it.wikipedia** con gli accenti.
+
+Che cosa mancava — nessuna forma nuova, e questo e' il punto (gen490):
+1. **Parole** (`gloss.p0`: `tr(population, popolazione)`, …; `lexicon.p0`:
+   `phrase_canon("è stato fondato nel", "was founded in")`, «confina con»,
+   «paese insulare» -> «island country», «qual è/quale è» -> «what is»).
+2. **Il focus scorre sull'interlingua**: `learn_from_prose` canonicalizzava
+   DOPO la riscrittura del focus, che cercava «its»/«country» nella superficie
+   italiana. Ora prima canonicalizza, poi riscrive; l'inglese non cambia. Il
+   focus di una pagina che apre con l'articolo («La fotosintesi …») e' il
+   token dopo.
+3. **Due byte presi per punteggiatura**: `strip_edge_punct` svuotava «è»
+   (0xC3 0xA8 non sono `isalnum`) e nessuna frase che comincia con una parola
+   accentata poteva combaciare; `json_extract_field` (learn.c) buttava ogni
+   byte non ASCII e «\u00e8», e la pagina italiana arrivava senza verbi («la
+   fotosintesi clorofilliana  un processo»). Entrambi meccanici, entrambi
+   generali (ogni lingua con accenti).
+4. **L'edizione segue la lingua** (`edition_for_language/2`, network.p0) e il
+   titolo nativo si ricava all'indietro dalla stessa `tr/2` che aveva
+   tradotto il tema («photosynthesis» -> «fotosintesi»); se l'edizione non ha
+   la pagina si ripiega su en. Marcatori italiani di disambiguazione in
+   grammar.p0.
+5. **Una domanda non insegna** (di nuovo): il frame «X is the capital of Y»
+   scriveva da «which is the capital of velkania»; ora consuma
+   `turn_illocution`/`question_word` come gli altri.
+
+**Coda (misurata, in ordine):**
+- L'ordine aggettivo-nome: «Mare Nivorano» -> `sea_nivorano`, «lingua
+  ufficiale» resa solo per coppia esplicita. Serve la regola generale
+  (postnominale in italiano) sopra una classe `adjective/1`: oggi ogni coppia
+  e' una `phrase_canon`.
+- «Ha una popolazione di 100000 abitanti» e «La lingua ufficiale e' il
+  velkano» arrivano in interlingua perfetta e NON si leggono: e' la coda §2
+  del gen506b (forma verbale del valore; modificatore davanti al nome di
+  relazione). Chiuderla chiude entrambe le lingue.
+- «quando e' stata fondata velkania», «con chi confina velkania»: manca la
+  forma interrogativa («when was X founded», «what does X border»), non la
+  parola.
+- In chat (senza focus) «il paese e' stato fondato nel 1845» impara
+  `founded_in(country, 1845)`: il generico definito letto come individuo.
+- L'edizione it di «PLC» disambigua con estratto vuoto: le opzioni vengono
+  dalla ricerca en. Va presa la ricerca dell'edizione stessa.
+- I nomi dei paesi non sono nel gloss («la capitale della norvegia» ->
+  «the norvegia»): una famiglia intera di `tr/2`, o la ricerca per titolo.
+- ⚠ `literal_forms.p0t` riga 250 («zorak vurbles nivora» dopo «vurbles is a
+  relation verb») dura 8 s: e' il §L (vista `extract_frame` ricostruita per
+  intero, `p0_frame_reading`), misurato IDENTICO sul binario di gen506b in un
+  worktree — non e' di oggi. Prima voce di C_TODO; non si alza il budget.
+
+---
+
 # 🏁 HANDOFF — 8 settembre 2026, notte (`gen506d`): la disambiguazione e' un processo della KB
 
 > Piccolo e chiuso; prevale sul gen506c solo per questo tema. F., in chat:

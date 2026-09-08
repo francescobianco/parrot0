@@ -486,14 +486,19 @@ static int learn_from_prose(Brain *b, char *extract, char *out, size_t out_sz) {
              * TODO(kb-first): `alias(rna, ribonucleic_acid)` dalla parentetica —
              * ma va fatto perche' rende un fatto, non per ripulire l'ingresso. */
             normalize(sent, nrm, sizeof nrm);
-            /* gen505z/gen506: il focus, prima della canonicalizzazione — lo
-             * stesso lettore di read_passage (reader_focus_rewrite). */
+            /* gen506e — IL FOCUS SCORRE SULLA FORMA CANONICA. «la sua capitale
+             * e' velk», «il paese e' stato fondato nel 1845»: il possessivo, la
+             * classe («country») e la copula che la regola del focus cerca
+             * stanno nell'interlingua, non nella superficie italiana. Prima si
+             * canonicalizza, poi il focus riscrive (lo stesso lettore di
+             * read_passage); per l'inglese e' la stessa stringa di prima. */
+            canonicalize_lang(b, nrm, canon, sizeof canon);
             {
                 char rw[400];
-                if (reader_focus_rewrite(b, nrm, focus, sizeof focus, rw, sizeof rw))
-                    snprintf(nrm, sizeof nrm, "%s", rw);
+                if (reader_focus_rewrite(b, canon, focus, sizeof focus, rw, sizeof rw))
+                    snprintf(canon, sizeof canon, "%s", rw);
             }
-            canonicalize_lang(b, nrm, canon, sizeof canon);
+            if (getenv("P0_READ_TRACE")) fprintf(stderr, "[prose] focus=«%s» norm=«%s» canon=«%s»\n", focus, nrm, canon);
             msg[0] = '\0';
             /* gen382: NIENTE `continue` qui — il ciclo sulle frasi avanza `p` in
              * fondo al corpo, quindi saltare il fondo e' un loop infinito (lo
@@ -673,8 +678,37 @@ static int network_acquire(Brain *b, const char *topic, char *def, size_t def_sz
             got = 1;
         } else if (strcmp(prov, "wikipedia") == 0) {
             if (!kb_query(b->kb, "network_available", NULL, 0)) continue;
-            if (!wiki_fetch_topic_lang_prose(topic, "en", prose, sizeof prose)) continue;
-            snprintf(edition, sizeof edition, "en");
+            /* gen506e: l'edizione segue la lingua del turno (network.p0,
+             * `edition_for_language/2`); se non ha la pagina, si ripiega su en. */
+            char lang[16] = "en";
+            {
+                char cl[1][KB_TERM_LEN], ed[1][KB_TERM_LEN];
+                const char *lq[1] = { NULL };
+                if (kb_match(b->kb, "current_language", lq, 1, cl, 1) > 0) {
+                    const char *eq[2] = { cl[0], NULL };
+                    if (kb_match(b->kb, "edition_for_language", eq, 2, ed, 1) == 1)
+                        snprintf(lang, sizeof lang, "%.15s", kb_dequote(ed[0]));
+                }
+            }
+            /* Il tema arriva gia' canonicalizzato in inglese («fotosintesi» ->
+             * «photosynthesis», via tr/2): un'edizione che non e' quella inglese
+             * vuole il titolo nella SUA lingua, e la stessa conoscenza che ha
+             * tradotto in avanti — `tr(En, Nativo)` — traduce indietro. */
+            char native[KB_TERM_LEN] = "";
+            if (strcmp(lang, "en") != 0) {
+                char nv[1][KB_TERM_LEN];
+                const char *tq[2] = { topic, NULL };
+                if (kb_match(b->kb, "tr", tq, 2, nv, 1) == 1)
+                    snprintf(native, sizeof native, "%s", kb_dequote(nv[0]));
+            }
+            if (getenv("P0_READ_TRACE")) fprintf(stderr, "[acquire] topic=«%s» edition=%s native=«%s»\n", topic, lang, native);
+            int fetched = (native[0] && wiki_fetch_topic_lang_prose(native, lang, prose, sizeof prose)) ||
+                          wiki_fetch_topic_lang_prose(topic, lang, prose, sizeof prose);
+            if (!fetched) {
+                if (!strcmp(lang, "en") || !wiki_fetch_topic_lang_prose(topic, "en", prose, sizeof prose)) continue;
+                snprintf(lang, sizeof lang, "en");
+            }
+            snprintf(edition, sizeof edition, "%s", lang);
             snprintf(title, sizeof title, "%s", wiki_last_title());
             snprintf(revision, sizeof revision, "%s",
                      wiki_last_revision()[0] ? wiki_last_revision() : "unknown");
@@ -713,7 +747,7 @@ static int network_acquire(Brain *b, const char *topic, char *def, size_t def_sz
                 FILE *f = fopen(path, "r");
                 if (f) { size_t n = fread(titles, 1, sizeof titles - 1, f); fclose(f); titles[n] = '\0'; }
             } else {
-                wiki_search_titles(topic, "en", titles, sizeof titles);
+                wiki_search_titles(topic, edition[0] ? edition : "en", titles, sizeof titles);
             }
             int prev_o = kb_origin(b->kb);
             kb_set_origin(b->kb, KB_SESSION);

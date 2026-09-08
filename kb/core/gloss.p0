@@ -1108,3 +1108,26 @@ tr(chlorine, cloro).
 tr(calcium, calcio).
 tr(iron, ferro).
 tr(water, acqua).
+
+% ── gen506e — LA PROSA IN ITALIANO (memoria profonda) ───────────────────────
+% Misurato leggendo una pagina enciclopedica italiana (fixture velkania): la
+% canonicalizzazione arrivava a «has a popolazione of 100000 abitanti», «the
+% country is stato fondato in the 1845», «velkania confina con glimwick».
+% Mancavano PAROLE, non forme (gen490): le parole stanno qui, e una in piu'
+% domani e' una riga — o una lezione: «popolazione is the italian of population».
+tr(population, popolazione).
+tr(inhabitants, abitanti).
+tr(island, insulare).
+tr(located, situato).
+tr(located, situata).
+tr(official, ufficiale).
+tr(currency, valuta).
+tr(member, membro).
+tr(league, lega).
+tr(islands, isole).
+tr(founded, fondato).
+tr(founded, fondata).
+tr(republic, repubblica).
+tr(free, libera).
+tr(free, libero).
+

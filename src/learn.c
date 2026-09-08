@@ -188,11 +188,20 @@ static int json_extract_field(const char *json, const char *field,
                     else { ok = 0; break; }
                     v = v * 16 + d;
                 }
-                if (ok && v >= 32 && v < 128) out[o++] = (char)v;   /* ASCII only */
+                /* gen506e: «\u00e8» e' «è», non niente. Un'edizione italiana
+                 * perdeva ogni accento («la fotosintesi clorofilliana  un
+                 * processo») e con esso il verbo della frase. Si emette UTF-8. */
+                if (ok && v >= 32 && v < 128) out[o++] = (char)v;
+                else if (ok && v >= 128 && v < 0x800 && o + 2 < out_sz) {
+                    out[o++] = (char)(0xC0 | (v >> 6)); out[o++] = (char)(0x80 | (v & 0x3F));
+                } else if (ok && v >= 0x800 && o + 3 < out_sz) {
+                    out[o++] = (char)(0xE0 | (v >> 12)); out[o++] = (char)(0x80 | ((v >> 6) & 0x3F));
+                    out[o++] = (char)(0x80 | (v & 0x3F));
+                }
             } else if (*e) { out[o++] = *e; e++; }                  /* \" \\ \/  */
         } else {
             unsigned char uc = (unsigned char)*e;
-            if (uc >= 32 && uc < 128) out[o++] = *e;                /* drop non-ASCII */
+            if (uc >= 32) out[o++] = *e;                            /* UTF-8 passa (gen506e) */
             e++;
         }
     }

@@ -1,0 +1,53 @@
+# LA MEMORIA PROFONDA LEGGE LA PROSA IN ITALIANO — gen506e.
+#
+# La stessa pagina enciclopedica di deep_memory.p0t, scritta in italiano
+# (fixture velkania). Misurato prima: 3 frasi lette su 8, «the its capital is
+# velk», «the country is stato fondato in the 1845», «velkania confina con
+# glimwick». Tre cose mancavano, nessuna era una forma nuova: le PAROLE
+# (gloss.p0, phrase_canon in lexicon.p0), il focus che scorreva sulla
+# superficie italiana invece che sull'interlingua, e un byte UTF-8 preso per
+# punteggiatura («è» -> «» in strip_edge_punct). Ora 7 frasi su 8.
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=it
+!timeout 8
+!reset
+
+[test la pagina italiana si legge come quella inglese]
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+> parlami di velkania
+<~ Vuoi che cerchi?
+> si
+<~ Velkania, ufficialmente Repubblica Libera di Velkania
+<~ Ho estratto
+!query topic_read(velkania, $A)
+!query capital_of(velk, velkania)
+!query borders(velkania, glimwick)
+!query founded_in(velkania, 1845)
+!query currency_of(velkania, $C)
+!query located_in(velkania, $W)
+> qual è la capitale di velkania
+< velk.
+> quale è la capitale di velkania
+< velk.
+!query! capital_of(which, velkania)
+
+# Ablazione: senza il verbo composto nel gloss la fondazione non si legge —
+# la lettura e' conoscenza, e una parola in piu' domani e' una riga.
+[test ablazione: la forma composta e' una riga di conoscenza]
+!reset
+!assert topic_provider(fixture, "tests/fixtures/wiki")
+!forget phrase_canon("è stato fondato nel", "was founded in")
+!forget phrase_canon("è stato fondato", "was founded")
+!forget tr(founded, fondato)
+> parlami di velkania
+> si
+<~ Ho estratto
+!query! founded_in(velkania, 1845)
+!query capital_of(velk, velkania)
+!assert phrase_canon("è stato fondato nel", "was founded in")
+!assert phrase_canon("è stato fondato", "was founded")
+!assert tr(founded, fondato)

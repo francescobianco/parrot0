@@ -271,6 +271,26 @@ phrase_canon($Surface, $Concept) :- entity_alias($Surface, $Concept).
 phrase_canon("dove si trovano", "where are").
 phrase_canon("si trova in", "is in").
 phrase_canon("si trovano in", "are in").
+% gen506e — la prosa italiana: il verbo composto e l'aggettivo DOPO il nome.
+% «e' stato fondato nel 1845» e' UNA forma («was founded in 1845»), e «paese
+% insulare» e' «island country»: l'ordine aggettivo-nome dell'italiano e'
+% conoscenza, e finche' non c'e' una regola generale di ordine (coda del
+% gen506e) ogni coppia e' una riga qui.
+phrase_canon("è stato fondato nel", "was founded in").
+phrase_canon("è stata fondata nel", "was founded in").
+phrase_canon("è stato fondato", "was founded").
+phrase_canon("è stata fondata", "was founded").
+phrase_canon("confina con", "borders").
+phrase_canon("paese insulare", "island country").
+phrase_canon("lingua ufficiale", "official language").
+phrase_canon("repubblica libera", "free republic").
+phrase_canon("è membro della", "is a member of the").
+phrase_canon("è membro del", "is a member of the").
+% «qual è» / «quale è» / «quali sono»: la domanda di identita' — «what is»,
+% non «which is» (che nessun frame legge come domanda).
+phrase_canon("qual è", "what is").
+phrase_canon("quale è", "what is").
+phrase_canon("quali sono", "what are").
 phrase_canon("si trova", "is").
 % ── GD3: «e» SENZA ACCENTO E' LA COPULA, NON LA CONGIUNZIONE ───────────────
 %

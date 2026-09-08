@@ -17626,7 +17626,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
 
         /* assert: "<x> is the <rel> of <y>" -> rel(x, y) */
-        if (lex_class_member(b, "10_memory_knowledge_lex12439", w[1])) {
+        /* gen506e — «quale e' la capitale di velkania» (senza «?») arrivava qui
+         * come «which is the capital of velkania» e SCRIVEVA
+         * capital_of(which, velkania): una domanda non insegna (gen505y). */
+        if (lex_class_member(b, "10_memory_knowledge_lex12439", w[1]) &&
+            !interrogative && !p0_turn_is(b, "question", norm) &&
+            !lex_class_member(b, "question_word", w[0])) {
             const char *subj = w[0];
             const char *args[] = {subj, obj};
             char msg[160];

@@ -110,6 +110,12 @@ deep_memory_has($Topic) :- topic_read($Topic, $Address).
 % dichiarata, e la KB decide quale viene prima.
 topic_provider_order(fixture, 1).
 topic_provider_order(wikipedia, 2).
+% gen506e — L'EDIZIONE SEGUE LA LINGUA DEL TURNO. «parlami della fotosintesi»
+% legge it.wikipedia; se quell'edizione non ha la pagina, si ripiega su en.
+% Una lingua nuova e' una riga.
+machinery(edition_for_language).
+edition_for_language(it, it).
+edition_for_language(en, en).
 
 % ── 8. LA RISPOSTA DI SEGUITO: «PIU' PRECISAMENTE» ──────────────────────────
 % La stessa questione, con la richiesta di un valore piu' specifico: e' la

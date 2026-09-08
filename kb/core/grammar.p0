@@ -1677,6 +1677,10 @@ machinery(disambiguation_marker).
 disambiguation_marker("may refer to").
 disambiguation_marker("may also refer to").
 disambiguation_marker("can refer to").
+% gen506e — l'edizione italiana disambigua con altre parole.
+disambiguation_marker("può riferirsi a").
+disambiguation_marker("può indicare").
+disambiguation_marker("si può riferire a").
 disambiguation_marker("commonly refers to").
 
 % La congiunzione finale di un elenco. Era il letterale " and " dentro i cicli di

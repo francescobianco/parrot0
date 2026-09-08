@@ -2195,9 +2195,16 @@ static char *strip_edge_punct(char *t) {
     /* gen196: keep '_' at the edges — it is part of identifiers (Python `_cstack`,
      * `__init__`; C `_foo`) and never the edge of a natural word, so preserving it
      * fixes underscore-prefixed names without affecting prose tokens. */
-    while (*t && !isalnum((unsigned char)*t) && *t != '_') t++;
+    /* gen506e: un byte >= 0x80 e' un pezzo di lettera UTF-8 («è», «à», «ü»),
+     * mai punteggiatura. Prima «è» diventava «» e nessuna frase che comincia
+     * con una parola accentata — `phrase_canon("è stato fondato", …)` —
+     * poteva combaciare: l'italiano arrivava all'interlingua senza il suo
+     * verbo composto. */
+    #define P0_WORD_BYTE(c) (isalnum((unsigned char)(c)) || (unsigned char)(c) >= 0x80 || (c) == '_')
+    while (*t && !P0_WORD_BYTE(*t)) t++;
     size_t n = strlen(t);
-    while (n > 0 && !isalnum((unsigned char)t[n - 1]) && t[n - 1] != '_') t[--n] = '\0';
+    while (n > 0 && !P0_WORD_BYTE(t[n - 1])) t[--n] = '\0';
+    #undef P0_WORD_BYTE
     return t;
 }
 
@@ -3258,6 +3265,28 @@ static int reader_focus_rewrite(Brain *b, const char *sentence,
             snprintf(focus, focus_sz, "%s", first);
         return 0;
     }
+    /* gen506e — «LA SUA capitale e' Velk»: in italiano il possessivo porta
+     * l'articolo davanti. Il possessivo si cerca al primo o al secondo token,
+     * e l'articolo (conoscenza: `definite_article/1`, o una `function_word`
+     * che vale «the») si salta. Il resto della regola e' identico. */
+    size_t pi = 0;
+    {
+        char second[KB_TERM_LEN] = "";
+        if (tn >= 4) {
+            snprintf(second, sizeof second, "%s", strip_edge_punct(tw[1]));
+            for (char *lc = second; *lc; lc++) *lc = (char)tolower((unsigned char)*lc);
+        }
+        const char *fq[3] = { NULL, first, "\"the\"" };
+        const char *sq[1] = { second };
+        if (*second && kb_query(b->kb, "referring_possessive", sq, 1) &&
+            (kb_query(b->kb, "definite_article", (const char *[]){ first }, 1) ||
+             kb_query(b->kb, "function_word", fq, 3)))
+            pi = 1;
+    }
+    if (pi) {
+        snprintf(first, sizeof first, "%s", strip_edge_punct(tw[1]));
+        for (char *lc = first; *lc; lc++) *lc = (char)tolower((unsigned char)*lc);
+    }
     const char *rq[1] = { first };
     size_t cop = 1;                       /* dove sta la copula, se c'e' */
     while (cop < tn) {
@@ -3269,9 +3298,9 @@ static int reader_focus_rewrite(Brain *b, const char *sentence,
     }
     int o = 0;
     if (kb_query(b->kb, "referring_possessive", rq, 1)) {
-        if (!(cop > 1 && cop < tn)) return 0;
+        if (!(cop > pi + 1 && cop < tn)) return 0;
         o = snprintf(out, out_sz, "the");
-        for (size_t k = 1; k < cop && o > 0; k++)
+        for (size_t k = pi + 1; k < cop && o > 0; k++)
             o += snprintf(out + o, out_sz - (size_t)o, " %s", tw[k]);
         o += snprintf(out + o, out_sz - (size_t)o, " of %s", focus);
         for (size_t k = cop; k < tn && o > 0; k++)
