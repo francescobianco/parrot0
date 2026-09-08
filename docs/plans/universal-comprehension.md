@@ -339,6 +339,34 @@ binding; la KB deve poter aggiungere POS, chiusure di sintagma, marcatori di
 apposizione e frame. Una nuova forma insegnata a runtime deve quindi cambiare
 sia l'interpretazione sia l'estrazione, e la sua ablation deve farle sparire.
 
+### 4ter. Il turno si legge sul tabellone del dialogo (gen506g)
+
+La comprensione universale produce il frame del turno — forze, cue, nodi,
+referenti — e finora lo consegnava alle facoltà come se ogni turno nascesse
+da zero. Ma un turno detto **sotto una domanda che parrot0 ha appena posto**
+(«Vuoi che cerchi?», «Quale intendi?») non è un turno nuovo: è una mossa su
+quella domanda. La teoria è in [`dialogica.md`](dialogica.md); qui la sua
+conseguenza per questo piano:
+
+- **lo stesso frame, una domanda in più.** Prima di `intent_schema/2` si
+  chiede alla KB `move_addresses(current_turn, $Issue, $How)` sulla questione
+  massima del tabellone (`open_issue/2`): le cue di assenso/dissenso sono
+  `turn_cue` come le altre; una parola di un'opzione in `input_node_atom` è
+  una risposta parziale; una forza `question` senza legame all'issue è un
+  superamento. Nessun rilevatore nuovo: le regole leggono ciò che §4 già
+  pubblica.
+- **il declino informato ha una forma in più.** «Non capisco» sotto una
+  domanda aperta è un declino cieco: la forma onesta è la domanda ripetuta,
+  o l'accettazione per politica (`offer_unclaimed_turn`), o la lista
+  ristretta. È §4.4 applicato al dialogo.
+- **la prosa e il dialogo condividono il tabellone.** Ciò che una lettura
+  (§4bis) ha appena acquisito è l'ultima mossa (`last_acquisition`), e «cosa
+  hai trovato?» è una mossa `clarify` su di essa, non un intento a parte.
+- **il debito da chiudere per primo:** i due stati paralleli di gen506d/f
+  (`pending_gap`, `pending_disambiguation`) accanto a `open_issue/2` — I1 di
+  dialogica.md — perché due tabelloni producono esattamente le domande
+  impilate viste nella chat di F.
+
 ## 5. Cosa esiste già e cosa manca
 
 - **Esiste:** classi chiuse in KB (`conjunction`, `stopword`), `intent_phrase`/

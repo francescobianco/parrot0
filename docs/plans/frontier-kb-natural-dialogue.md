@@ -522,6 +522,22 @@ Questa e' la generalizzazione della mossa di gen389, non un altro contatore.
 > (§18.47). È anche l'unico modo di rendere gen394 misurabile: un livello senza
 > consumatore non si può falsificare.
 
+> ⭐ **gen506g — il consumatore ha una teoria: [`dialogica.md`](dialogica.md).**
+> La conversazione e' un **tabellone** (fatti condivisi, questioni in
+> discussione ORDINATE con una massima, ultima mossa, obblighi) e **ogni turno
+> si legge prima come mossa sulla questione massima**, con regole KB per
+> genere — `move_addresses($T, $Issue, accept|refuse|answer|partial|clarify|
+> supersede)` sul frame universale (K1) — e solo dopo come turno nuovo. Sette
+> leggi: L1 un tabellone solo (`open_issue(Issue, Kind)`, con
+> `pending_gap`/`pending_disambiguation` di gen506d/f da fondere: sono due
+> tabelloni paralleli, causa delle domande impilate nella chat di F.); L2 il
+> turno come mossa; L3 la risposta parziale restringe, non riapre; L4 una
+> domanda nuova supera la massima, la vecchia resta e si riprende (D49); L5 il
+> turno non rivendicato si legge con la QUD per politica insegnabile; L6
+> l'ultima mossa e' un fatto interrogabile; L7 grounding e obblighi (i
+> predicati qui sotto). Gli incrementi I1–I5 stanno la'; `appropriate_move/2`
+> e' I4, e nasce DOPO che il tabellone e' uno.
+
 **Stato attuale.** La colla conserva entita', topic, vincoli, risultati e
 correzioni, ma soprattutto come fatti separati. Manca un modello della
 conversazione come sequenza di mosse che aprono e chiudono obblighi.
