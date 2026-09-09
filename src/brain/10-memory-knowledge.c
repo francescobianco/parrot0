@@ -12497,6 +12497,41 @@ static int p0_relation_taught_as(Brain *b, const char *surface,
  * stesso secondo termine? Se una di quelle e' una specie a cui il soggetto
  * appartiene, il fatto vale anche per lui. Il salto di sottoclasse e' quello
  * del giro /1, riusato. */
+/* gen507 — UNA CATENA SI PERCORRE SOLO SE QUALCUNO HA DETTO CHE SI PUO'.
+ *
+ * «zelnik is bigger than grum», «grum is bigger than pella», «is zelnik bigger
+ * than pella?» — parrot0 teneva le due premesse e non faceva il passo. Ma
+ * percorrere la catena non e' lecito per ogni relazione: «zelnik is next to
+ * grum» e «grum is next to pella» non fanno zelnik vicino a pella. Quale
+ * relazione sia transitiva e' CONOSCENZA, e si insegna parlando
+ * (`transitive_relation/1`). Il motore sa solo percorrere; non sa quando.
+ *
+ * La profondita' e' limitata perche' un anello non diventi un ciclo di
+ * inferenza, e il limite raggiunto non e' un «no»: e' una strada non percorsa. */
+static int p0_relation_chain(Brain *b, const char *rel, const char *from,
+                             const char *to, int depth) {
+    if (!b || !b->kb || depth <= 0) return 0;
+    char mids[64][KB_TERM_LEN];
+    const char *q[2] = { from, NULL };
+    size_t n = kb_match(b->kb, rel, q, 2, mids, 64);
+    for (size_t i = 0; i < n; i++) {
+        char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mids[i]);
+        const char *mid = kb_dequote(mb);
+        if (!*mid || !strcmp(mid, from)) continue;
+        if (!strcmp(mid, to)) return 1;
+        if (p0_relation_chain(b, rel, mid, to, depth - 1)) return 1;
+    }
+    return 0;
+}
+
+static int p0_relation_transitive(Brain *b, const char *rel,
+                                  const char *from, const char *to) {
+    if (!b || !b->kb || !rel) return 0;
+    const char *tq[1] = { rel };
+    if (!kb_query(b->kb, "transitive_relation", tq, 1)) return 0;
+    return p0_relation_chain(b, rel, from, to, 6);
+}
+
 static int p0_relation_inherited(Brain *b, const char *rel,
                                  const char *subj, const char *obj) {
     if (!b || !b->kb || !rel || !subj || !obj) return 0;
@@ -12641,6 +12676,9 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
      * `located_in`. Qui si provano TUTTE le letture dichiarate per la
      * superficie detta e per la relazione risolta: risponde quella che ha un
      * fatto, e se nessuna ce l'ha resta l'onesta' di prima. */
+    if (p0_relation_transitive(b, rel, subj, obj)) {
+        put("Yes.", out, out_size); return 1;
+    }
     if (p0_relation_inherited(b, rel, subj, obj)) {
         put("Yes.", out, out_size); return 1;
     }
@@ -13019,6 +13057,14 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         } else if (!strcmp(act, "assert_relation") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
             ok = kb_assert(b->kb, rel, fa, 2);
+        } else if (!strcmp(act, "assert_unary")) {
+            /* Una forma puo' dichiarare un fatto UNARIO: «bigger is
+             * transitive» mette `bigger` nella classe che la forma nomina. */
+            const char *cls = p0_form_slot(slots, ns, "class");
+            const char *who = sub;
+            if (!cls || !who) continue;
+            const char *ua[1] = { who };
+            ok = kb_assert(b->kb, cls, ua, 1);
         } else if (!strcmp(act, "answer_choice") && rel) {
             /* gen507 — SCEGLIERE FRA DUE E' UN ATTO A SE'.
              * «which is bigger, zelnik or grum?» non chiede un valore: chiede
@@ -13069,6 +13115,8 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         if (kb_match(b->kb, "turn_form_reply", tq, 2, tpl, 4) == 1) {
             char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", tpl[0]);
             char rr[KB_TERM_LEN]; present_atom(b, rel ? rel : "", rr, sizeof rr);
+            const char *cl = p0_form_slot(slots, ns, "class");
+            (void)cl;
             const KbResponseSlot rs[] = { { "subject", sub ? sub : "" },
                                           { "rel", rr },
                                           { "object", obj ? obj : "" } };

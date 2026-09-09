@@ -1157,6 +1157,32 @@ turn_form(choice_asked_it, 5, rest(second)).
 turn_form_mood(choice_asked_it, question).
 turn_form_act(choice_asked_it, answer_choice).
 
+% ── Che una relazione sia transitiva si DICE ───────────────────────────────
+% Percorrere una catena non e' lecito per ogni relazione: «zelnik is next to
+% grum» piu' «grum is next to pella» non fanno zelnik vicino a pella. Quindi il
+% motore sa percorrere e non sa quando: quando lo dice la conoscenza, e la
+% conoscenza si insegna parlando.
+machinery(transitive_relation).
+response_template(learned_transitive, "Held: {subject} chains -- if a {subject} b and b {subject} c, then a {subject} c.").
+response_template(learned_transitive, it, "Tengo: {subject} si concatena — se a {subject} b e b {subject} c, allora a {subject} c.").
+% «X is transitive» NON si dichiara qui: quella superficie e' gia' letta da chi
+% elenca le relazioni transitive che parrot0 conosce, e il dispatch e'
+% first-match. Si tiene la struttura che c'era e si dice la lezione in un modo
+% che non ruba il turno a nessuno.
+turn_form(transitive_taught, 1, slot(subject)).
+turn_form(transitive_taught, 2, text("chains transitively")).
+turn_form(transitive_taught, 3, bind(class, transitive_relation)).
+turn_form_mood(transitive_taught, statement).
+turn_form_act(transitive_taught, assert_unary).
+turn_form_reply(transitive_taught, learned_transitive).
+
+turn_form(transitive_taught2, 1, slot(subject)).
+turn_form(transitive_taught2, 2, text("chains")).
+turn_form(transitive_taught2, 3, bind(class, transitive_relation)).
+turn_form_mood(transitive_taught2, statement).
+turn_form_act(transitive_taught2, assert_unary).
+turn_form_reply(transitive_taught2, learned_transitive).
+
 
 
 machinery(why_cue).
