@@ -447,6 +447,34 @@ machinery(np_opener).
 % Conseguenza diretta sul gen382i: la chiusura del mondo per rinominazione
 % rispetta le parole funzionali di QUALUNQUE classe che la KB dichiari tale,
 % senza che nessuno tocchi il C.
+% ── gen507/31 — DOVE SI CERCA UN PEZZO, E IN CHE ORDINE ─────────────────────
+%
+% F., 2026-09-10: «hai dovuto invertire l'ordine; se quell'ordine era in KB tu
+% avresti potuto dire: prima vale questo, poi questo».
+%
+% Il lettore dei superlativi cerca la CATEGORIA rispetto alla cue. L'inglese la
+% mette dopo («the largest DESERT»), l'italiano prima («il DESERTO più grande»).
+% Il gen507/30 aveva reso la scansione simmetrica, e quella era ancora una
+% decisione compilata: l'ordine era scritto nel C e nessuna frase poteva
+% cambiarlo. Una lingua che mettesse il dominio altrove — o una convenzione
+% diversa per una lingua che c'e' gia' — costava una ricompilazione per essere
+% capita.
+%
+%     slot_search(Pezzo, Lingua|any, Ordine, Modo).
+%
+% Il motore conosce solo i MODI (`after_cue`, `before_cue`) e non sa quale
+% provare prima: lo chiede nella lingua del turno, e ricade su `any` quando
+% quella lingua non ha dichiarato niente. Dichiarare una preferenza per una
+% lingua e' una riga; aggiungere un MODO nuovo e' l'unica cosa che costa C, ed e'
+% giusto che lo sia — e' un posto nuovo dove guardare, non un ordine nuovo.
+machinery(slot_search).
+slot_search(category, any, 1, after_cue).
+slot_search(category, any, 2, before_cue).
+% In italiano il nome del dominio precede l'aggettivo: si prova da quel verso per
+% primo, e non perche' l'altro non funzioni — perche' e' l'ordine della lingua.
+slot_search(category, it, 1, before_cue).
+slot_search(category, it, 2, after_cue).
+
 machinery(function_word_class).
 function_word_class(universal_quantifier).
 function_word_class(indefinite_article).

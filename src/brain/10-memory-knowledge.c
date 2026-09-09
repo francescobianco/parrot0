@@ -13647,35 +13647,61 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
              * nothing matches (avoid returning e.g. "Canada" for "largest organ"). */
             {
                 /* extract category word: first non-stopword after cue_i */
+                /* gen507/31 — E L'ORDINE IN CUI SI CERCA E' CONOSCENZA.
+                 *
+                 * Il gen507/30 aveva reso la ricerca simmetrica — prima avanti,
+                 * poi indietro — e quella era ancora una decisione CABLATA.
+                 * F., 2026-09-10: «hai dovuto invertire l'ordine; se quell'ordine
+                 * era in KB tu avresti potuto dire: prima vale questo, poi
+                 * questo».
+                 *
+                 * Ha ragione, e il punto e' piu' grande del caso: dove cercare un
+                 * pezzo rispetto alla cue e' una proprieta' della LINGUA, non del
+                 * motore. «the largest DESERT» mette il dominio dopo, «il DESERTO
+                 * più grande» lo mette prima; una lingua che lo mettesse altrove
+                 * costerebbe una ricompilazione per essere capita.
+                 *
+                 *     slot_search(category, Lingua|any, Ordine, after_cue|before_cue)
+                 *
+                 * Il motore conosce solo i MODI — guardare avanti, guardare
+                 * indietro — e non sa quale provare prima: lo chiede, nella
+                 * lingua del turno, e ricade su `any` quando quella lingua non
+                 * ha dichiarato niente. Una lingua nuova, o un ordine diverso per
+                 * una lingua che c'e' gia', e' una riga di .p0. */
                 char cat[KB_TERM_LEN] = "";
-                for (size_t j = cue_i + 1; j < mn && !cat[0]; j++) {
-                    char *t = strip_edge_punct(mw[j]);
-                    if (*t && strlen(t) >= 2 && !is_stopword(b, t) &&
-                        isalpha((unsigned char)t[0]))
-                        snprintf(cat, sizeof cat, "%s", t);
-                }
-                /* gen507/30 — LA CATEGORIA PUO' STARE PRIMA DELLA CUE.
-                 *
-                 * «what is the largest desert?» mette il dominio DOPO il
-                 * superlativo; «qual è il deserto più grande?» lo mette prima, e
-                 * canonicalizza in «what is the desert largest?». Guardando solo
-                 * in avanti, la categoria risultava assente, il filtro non
-                 * scattava e il lettore rendeva il massimo GLOBALE: alla domanda
-                 * sui deserti rispondeva «Skin.» — l'organo piu' grande, che e'
-                 * l'elemento con la magnitudine maggiore in tutta la KB.
-                 *
-                 * Una risposta sicura e fuori bersaglio e' il caso peggiore, e
-                 * qui non era un difetto di conoscenza ne' di lingua: era che il
-                 * posto in cui si cerca una categoria era una convenzione
-                 * d'ordine, scritta una volta e non detta da nessuno. La
-                 * scansione diventa simmetrica — avanti, e se non trova,
-                 * indietro. Nessuna parola, nessuna lingua, nessun dominio nel
-                 * C. L'intera famiglia italiana dei superlativi passa da qui. */
-                for (size_t j = cue_i; j-- > 0 && !cat[0]; ) {
-                    char *t = strip_edge_punct(mw[j]);
-                    if (*t && strlen(t) >= 2 && !is_stopword(b, t) &&
-                        isalpha((unsigned char)t[0]))
-                        snprintf(cat, sizeof cat, "%s", t);
+                {
+                    char lang[16]; current_lang(b, lang, sizeof lang);
+                    for (int pass = 0; pass < 2 && !cat[0]; pass++) {
+                        const char *who = pass == 0 ? (lang[0] ? lang : "any") : "any";
+                        if (pass == 1 && !strcmp(who, "any") && lang[0] &&
+                            !strcmp(lang, "any")) break;
+                        int found_any_rule = 0;
+                        for (long ord = 1; ord <= 8 && !cat[0]; ord++) {
+                            char ob[24]; snprintf(ob, sizeof ob, "%ld", ord);
+                            char modes[4][KB_TERM_LEN];
+                            const char *sq[4] = { "category", who, ob, NULL };
+                            if (kb_match(b->kb, "slot_search", sq, 4, modes, 4) < 1) continue;
+                            found_any_rule = 1;
+                            char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", modes[0]);
+                            const char *mode = kb_dequote(mb);
+                            if (!strcmp(mode, "after_cue")) {
+                                for (size_t j = cue_i + 1; j < mn && !cat[0]; j++) {
+                                    char *t = strip_edge_punct(mw[j]);
+                                    if (*t && strlen(t) >= 2 && !is_stopword(b, t) &&
+                                        isalpha((unsigned char)t[0]))
+                                        snprintf(cat, sizeof cat, "%s", t);
+                                }
+                            } else if (!strcmp(mode, "before_cue")) {
+                                for (size_t j = cue_i; j-- > 0 && !cat[0]; ) {
+                                    char *t = strip_edge_punct(mw[j]);
+                                    if (*t && strlen(t) >= 2 && !is_stopword(b, t) &&
+                                        isalpha((unsigned char)t[0]))
+                                        snprintf(cat, sizeof cat, "%s", t);
+                                }
+                            }
+                        }
+                        if (found_any_rule) break;   /* la lingua ha parlato */
+                    }
                 }
                 char region[KB_TERM_LEN] = "";
                 for (size_t j = cue_i + 1; j + 1 < mn && !region[0]; j++) {
@@ -13685,19 +13711,6 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                         end++;
                     (void)join_entity_span(b, mw, j + 1, end, region, sizeof region);
                 }
-                /* gen507/30 — UN PRIMATO DETTO BATTE UN PRIMATO CALCOLATO.
-                 *
-                 * «qual è il pianeta più piccolo?» rispondeva «Saturn»: il
-                 * ranking sulle magnitudini vince il turno prima che qualcuno
-                 * legga `world_superlative(smallest, planet, …)`, che dice
-                 * Mercurio. Una graduatoria calcolata su quali misure la KB si
-                 * trova ad avere non e' una conoscenza sul primato: e' un
-                 * artefatto di cio' che e' stato misurato. Dove il primato e'
-                 * DETTO, quello vale, e questo lettore cede il turno.
-                 *
-                 * Non e' una precedenza cablata fra due moduli: e' la presenza
-                 * di un fatto a decidere, quindi dichiarare un primato nuovo
-                 * domani cambia la risposta senza ricompilare. */
                 int stated_extreme = 0;
                 if (cat[0] && cue_i < mn) {
                     char pb2[KB_TERM_LEN];
