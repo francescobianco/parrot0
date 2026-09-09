@@ -1128,10 +1128,42 @@ static int negation_supported(Brain *b, const char *cls, const char *subj) {
     return kb_query(b->kb, "closed_world_answer", auth, 2);
 }
 
+/* gen507 — «zelnik e' un tool», «tool e' una thing», quindi zelnik e' una thing.
+ *
+ * Le classi si popolano un membro alla volta, ed e' anche cosi' che si
+ * insegnano le une dentro le altre. Ma il verificatore chiedeva soltanto il
+ * predicato DIRETTO — `thing(zelnik)` — e rispondeva onestamente «non l'ho
+ * derivato». La catena c'era tutta in KB e nessuno la percorreva: parrot0
+ * sapeva le due premesse e non faceva il passo.
+ *
+ * Qui non c'e' nessun nome di classe: i membri di una classe che sono a loro
+ * volta classi si comportano da sottoclassi, e questo vale per qualunque
+ * classe insegnata domani. La profondita' e' limitata perche' una gerarchia
+ * ciclica non deve diventare un ciclo di inferenza — e il limite raggiunto non
+ * e' un «no», e' semplicemente una strada non percorsa, che ricade
+ * nell'onesta' che c'era gia'. */
+static int p0_class_via_subclass(Brain *b, const char *cls, const char *subj,
+                                 int depth) {
+    if (!b || !b->kb || depth <= 0) return 0;
+    char subs[64][KB_TERM_LEN];
+    const char *q[1] = { NULL };
+    size_t n = kb_match(b->kb, cls, q, 1, subs, 64);
+    for (size_t i = 0; i < n; i++) {
+        char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", subs[i]);
+        const char *sub = kb_dequote(sb);
+        if (!*sub || !strcmp(sub, cls) || !strcmp(sub, subj)) continue;
+        const char *mq[1] = { subj };
+        if (kb_query(b->kb, sub, mq, 1)) return 1;
+        if (p0_class_via_subclass(b, sub, subj, depth - 1)) return 1;
+    }
+    return 0;
+}
+
 static void polar_class_answer(Brain *b, const char *subj, const char *cls,
                                char *out, size_t out_size) {
     const char *args[] = { subj };
     int yes = kb_query(b->kb, cls, args, 1);
+    if (!yes) yes = p0_class_via_subclass(b, cls, subj, 3);
 
     KbInferenceReport rep;
     kb_inference_report(b->kb, &rep);
