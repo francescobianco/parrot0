@@ -12402,6 +12402,35 @@ static int p0_relation_taught_as(Brain *b, const char *surface,
     return p0_relation_taught_as_p(b, surface, out, outsz, NULL, 0);
 }
 
+/* gen507 — CIO' CHE VALE PER LA SPECIE VALE PER IL MEMBRO.
+ *
+ * «every tool has a handle» entrava in KB sulla SPECIE; «does zelnik have a
+ * handle?» chiedeva del MEMBRO e non trovava niente, mentre «every tool is
+ * useful» + «is zelnik useful?» funzionava gia': l'ereditarieta' c'era per le
+ * proprieta' unarie e mancava per le relazioni.
+ *
+ * Non serve enumerare le classi del soggetto — sarebbe una scansione di tutti
+ * i predicati unari. Si guarda dal lato che e' gia' indicizzato: chi ha questo
+ * stesso secondo termine? Se una di quelle e' una specie a cui il soggetto
+ * appartiene, il fatto vale anche per lui. Il salto di sottoclasse e' quello
+ * del giro /1, riusato. */
+static int p0_relation_inherited(Brain *b, const char *rel,
+                                 const char *subj, const char *obj) {
+    if (!b || !b->kb || !rel || !subj || !obj) return 0;
+    char holders[64][KB_TERM_LEN];
+    const char *q[2] = { NULL, obj };
+    size_t n = kb_match(b->kb, rel, q, 2, holders, 64);
+    for (size_t i = 0; i < n; i++) {
+        char hb[KB_TERM_LEN]; snprintf(hb, sizeof hb, "%s", holders[i]);
+        const char *cls = kb_dequote(hb);
+        if (!*cls || !strcmp(cls, subj)) continue;
+        const char *mq[1] = { subj };
+        if (kb_query(b->kb, cls, mq, 1)) return 1;
+        if (p0_class_via_subclass(b, cls, subj, 3)) return 1;
+    }
+    return 0;
+}
+
 static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_size) {
     if (!b || !b->kb || !norm) return 0;
     size_t L = strlen(norm);
@@ -12527,6 +12556,9 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
      * `located_in`. Qui si provano TUTTE le letture dichiarate per la
      * superficie detta e per la relazione risolta: risponde quella che ha un
      * fatto, e se nessuna ce l'ha resta l'onesta' di prima. */
+    if (p0_relation_inherited(b, rel, subj, obj)) {
+        put("Yes.", out, out_size); return 1;
+    }
     {
         const char *surfaces[2] = { said[0] ? said : rel, rel };
         for (size_t si = 0; si < 2; si++) {
@@ -12545,7 +12577,8 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
                 char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[r]);
                 const char *via = kb_dequote(rb);
                 if (!*via || !strcmp(via, surfaces[si])) continue;
-                if (kb_query(b->kb, via, args, 2)) {
+                if (kb_query(b->kb, via, args, 2) ||
+                    p0_relation_inherited(b, via, subj, obj)) {
                     put("Yes.", out, out_size); return 1;
                 }
             }
@@ -18255,6 +18288,54 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     kb_term_say(b, "i_couldn_t_store_that_rule", NULL, 0, msg, sizeof msg);
                 put(msg, out, out_size);
                 return 1;
+            }
+        }
+        /* gen507 — E UN UNIVERSALE PUO' NON AVERE COPULA.
+         *
+         * «every tool is useful» diventava una regola che il risolutore
+         * concatena; «every tool has a handle» cadeva su un percorso piu'
+         * debole e il fatto restava irraggiungibile: l'ereditarieta' c'era per
+         * le proprieta' e mancava per le relazioni. Un universale su una
+         * relazione e' un fatto sulla SPECIE — e da li' `p0_relation_inherited`
+         * fa il resto, senza una seconda regola. Il verbo si risolve con le
+         * stesse tre strade della domanda, quindi una relazione insegnata
+         * domani entra da sola anche in questa forma. */
+        if (!cop && nw >= 4) {
+            size_t si = 1;
+            if (is_article(b, w[si]) && si + 1 < nw) si++;
+            size_t vi2 = si + 1;
+            if (vi2 + 1 < nw) {
+                char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", w[vi2]);
+                const char *bare = strip_edge_punct(vb);
+                char rel[KB_TERM_LEN]; rel[0] = '\0';
+                const char *rq[1] = { bare };
+                if (kb_query(b->kb, "relation_verb", rq, 1))
+                    snprintf(rel, sizeof rel, "%s", bare);
+                else {
+                    char taught[KB_TERM_LEN];
+                    if (p0_relation_taught_as(b, bare, taught, sizeof taught))
+                        snprintf(rel, sizeof rel, "%s", taught);
+                }
+                size_t oi = vi2 + 1;
+                if (rel[0] && is_article(b, w[oi]) && oi + 1 < nw) oi++;
+                char clsb[KB_TERM_LEN], cls[KB_TERM_LEN], objb[KB_TERM_LEN];
+                snprintf(clsb, sizeof clsb, "%s", w[si]);
+                singularize_kb(b, strip_edge_punct(clsb), cls, sizeof cls);
+                if (rel[0] && oi < nw && p0_join(w, oi, nw, objb, sizeof objb)) {
+                    for (char *c = objb; *c; c++) if (*c == '.' || *c == '?') { *c = '\0'; break; }
+                    char obj[KB_TERM_LEN];
+                    singularize_kb(b, objb, obj, sizeof obj);
+                    const char *fa[2] = { cls, obj };
+                    if (*cls && *obj && kb_assert(b->kb, rel, fa, 2)) {
+                        char msg[240];
+                        const KbResponseSlot rs[] = { { "klass", cls }, { "object", obj } };
+                        if (!kb_response_slots(b, "learned_universal_relation", rs, 2,
+                                               msg, sizeof msg))
+                            snprintf(msg, sizeof msg, "Got it: every %s has %s.", cls, obj);
+                        put(msg, out, out_size);
+                        return 1;
+                    }
+                }
             }
         }
     }
