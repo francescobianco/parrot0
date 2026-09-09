@@ -891,6 +891,30 @@ enumerate_mode("c'e' un", exists).
 % un'esistenza provata si prova nominando chi la prova.
 response_template(existence_witness, "Yes -- {witness}, for one.").
 response_template(existence_witness, it, "Sì — {witness}, per esempio.").
+
+% gen507 — CORREGGERE UN FATTO PARLANDO.
+% Un secondo valore per una proprieta' che ne ha uno solo non e' un fatto in
+% piu': e' una correzione o una contraddizione, e sono due cose diverse. Quali
+% parole annuncino una correzione e' conoscenza.
+machinery(correction_cue).
+machinery(turn_correction).
+% Un annuncio di correzione e' un'APERTURA di discorso: va sbucciato perche' la
+% frase sotto si possa leggere, e va ricordato perche' chi la legge sappia che
+% sostituisce invece di aggiungere (il fatto lo posa `99-registry.c`, dove la
+% sbucciatura avviene). Sono parole che non hanno un altro mestiere nella
+% frase: «no» non e' qui, perche' apre anche «no tool is a weapon».
+correction_cue(correction).
+correction_cue(anzi).
+correction_cue("i was wrong").
+correction_cue("mi correggo").
+discourse_opener(correction).
+discourse_opener(anzi).
+response_template(attribute_corrected, "Corrected: {thing} is {value} now, not {old}.").
+response_template(attribute_corrected, it, "Corretto: {thing} è {value}, non {old}.").
+% E senza annuncio non si sceglie in silenzio: si dice che le due non stanno
+% insieme e si chiede quale vale. Tenere entrambe sarebbe tenere una bugia.
+response_template(attribute_clash, "I already hold that {thing} is {old}, and a thing has one {prop}. Say «actually {thing} is {value}» and I will replace it.").
+response_template(attribute_clash, it, "Tengo già che {thing} è {old}, e una cosa ha un solo {prop}. Dimmi «anzi {thing} è {value}» e lo sostituisco.").
 response_template(enumeration_answer, "{list}.").
 response_template(enumeration_empty, "I do not know any {noun} yet.").
 response_template(enumeration_empty, it, "Non conosco ancora nessun {noun}.").

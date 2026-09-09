@@ -5414,6 +5414,52 @@ static void session_archive_turn(Brain *b) {
     free(preds);
 }
 
+/* gen507 — QUELLO CHE UN'APERTURA DICE NON DEVE PERDERSI CON L'APERTURA.
+ *
+ * «correction: zelnik is green» dice due cose: una frase, e che quella frase
+ * SOSTITUISCE invece di aggiungere. La prima arriva ai lettori — l'apertura
+ * viene sbucciata perche' la frase si possa leggere; la seconda si perdeva, e
+ * il lettore degli attributi non poteva distinguere una correzione da una
+ * contraddizione: teneva entrambi i valori e ne taceva uno.
+ *
+ * Il turno si guarda una volta sola, intero, prima di qualunque lettura.
+ * L'annuncio diventa un fatto di sessione che ogni lettore legge senza sapere
+ * quali parole lo abbiano portato — e non si toglie qui: un turno viene
+ * ridispacciato piu' volte (una clausola per volta, o sbucciato), e le passate
+ * successive non portano piu' l'annuncio. A toglierlo e' la chiusura del
+ * turno. Quali parole annuncino una correzione resta conoscenza. */
+static void turn_note_correction(Brain *b, const char *input) {
+    if (!b || !b->kb || !input) return;
+    /* L'annuncio si lega al NUMERO del turno, non alla parola «current_turn»:
+     * un turno viene ridispacciato piu' volte (una clausola per volta, o
+     * sbucciato dell'apertura che portava proprio l'annuncio) e la
+     * bookkeeping del turno rifa' la sua pulizia a ogni rientro. Legandolo
+     * all'orologio, il fatto sopravvive alle passate interne e scade da solo
+     * quando l'orologio avanza. */
+    char nb[1][KB_TERM_LEN];
+    const char *nq[1] = { NULL };
+    if (kb_match(b->kb, "turn_counter", nq, 1, nb, 1) != 1) return;
+    char turnno[KB_TERM_LEN]; snprintf(turnno, sizeof turnno, "%s", nb[0]);
+    const char *ta[1] = { kb_dequote(turnno) };
+    if (kb_query(b->kb, "turn_correction", ta, 1)) return;
+    int now = 0;
+    char (*cues)[KB_TERM_LEN] = NULL; size_t ncue = 0;
+    const char *cq[1] = { NULL };
+    if (kb_match_all(b->kb, "correction_cue", cq, 1, &cues, &ncue)) {
+        for (size_t i = 0; i < ncue && !now; i++) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[i]);
+            const char *cd = kb_dequote(cb);
+            if (*cd && strstr(input, cd)) now = 1;
+        }
+    }
+    free(cues);
+    if (!now) return;
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_SESSION);
+    kb_assert(b->kb, "turn_correction", ta, 1);
+    kb_set_origin(b->kb, prev);
+}
+
 static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
     if (b) {
@@ -5469,6 +5515,10 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
             kb_retract_pred(b->kb, "saturated_read");
         }
     }
+    /* …e si posa qui, sul turno INTERO, prima di qualunque lettura: le passate
+     * successive lo vedranno gia' posato anche quando l'apertura che lo portava
+     * e' stata sbucciata. */
+    turn_note_correction(b, input);
 
     char norm[256];
     normalize(input, norm, sizeof norm);

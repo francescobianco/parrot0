@@ -2,6 +2,8 @@
  * molto prima della loro definizione. Vedi il blocco sopra
  * `p0_attribute_relation`. */
 static int p0_attribute_relation(Brain *b, const char *value, char *rel, size_t rsz);
+static int p0_learn_attribute_t(Brain *b, const char *thing, const char *value,
+                                const char *turn, char *out, size_t out_size);
 static int p0_learn_attribute(Brain *b, const char *thing, const char *value,
                               char *out, size_t out_size);
 
@@ -11638,8 +11640,8 @@ static int p0_attribute_relation(Brain *b, const char *value,
 /* Attribuisce il valore alla cosa con la relazione che il suo GENERE dichiara,
  * e lo dice. Torna 0 se il valore non e' un valore di proprieta' noto: allora
  * il chiamante prosegue con la lettura che aveva, senza rubare il turno. */
-static int p0_learn_attribute(Brain *b, const char *thing, const char *value,
-                              char *out, size_t out_size) {
+static int p0_learn_attribute_t(Brain *b, const char *thing, const char *value,
+                                const char *turn, char *out, size_t out_size) {
     char rel[KB_TERM_LEN], tk[KB_TERM_LEN], vk[KB_TERM_LEN];
     if (!thing || !value) return 0;
     lowercase_copy(tk, sizeof tk, thing);
@@ -11671,6 +11673,79 @@ static int p0_learn_attribute(Brain *b, const char *thing, const char *value,
         snprintf(vk, sizeof vk, "%s", kb_dequote(cb));
         if (!p0_attribute_relation(b, vk, rel, sizeof rel)) return 0;
     }
+    /* gen507 — UN SECONDO VALORE NON E' UN FATTO IN PIU'.
+     *
+     * «zelnik is red» poi «zelnik is blue»: entrambi venivano accolti con «Got
+     * it», tenuti entrambi, e la domanda rispondeva il primo. Cioe' parrot0
+     * teneva una contraddizione e ne taceva una meta'. E «actually zelnik is
+     * green» non cambiava niente: non si poteva correggerlo parlando.
+     *
+     * Una proprieta' che ne ha un valore solo ammette due letture di un
+     * secondo valore, e sono due cose diverse: una CORREZIONE, annunciata, e
+     * una CONTRADDIZIONE, da nominare. Quali parole annuncino una correzione e'
+     * conoscenza (`correction_cue/1`); senza annuncio non si scegle in
+     * silenzio, si dice che le due non stanno insieme. */
+    char held[1][KB_TERM_LEN];
+    const char *hq[2] = { tk, NULL };
+    if (kb_match(b->kb, rel, hq, 2, held, 1) == 1) {
+        char ob[KB_TERM_LEN]; snprintf(ob, sizeof ob, "%s", held[0]);
+        char oldv[KB_TERM_LEN]; snprintf(oldv, sizeof oldv, "%s", kb_dequote(ob));
+        if (*oldv && strcmp(oldv, vk)) {
+            int announced = 0;
+            {   /* l'annuncio e' legato al numero del turno (99-registry.c) */
+                char nb[1][KB_TERM_LEN];
+                const char *nq[1] = { NULL };
+                if (kb_match(b->kb, "turn_counter", nq, 1, nb, 1) == 1) {
+                    char tn[KB_TERM_LEN]; snprintf(tn, sizeof tn, "%s", nb[0]);
+                    const char *ta[1] = { kb_dequote(tn) };
+                    announced = kb_query(b->kb, "turn_correction", ta, 1);
+                }
+            }
+            if (!announced && turn) {
+                char (*cues)[KB_TERM_LEN] = NULL; size_t ncue = 0;
+                const char *cq[1] = { NULL };
+                if (kb_match_all(b->kb, "correction_cue", cq, 1, &cues, &ncue)) {
+                    for (size_t i = 0; i < ncue && !announced; i++) {
+                        char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[i]);
+                        const char *cd = kb_dequote(cb);
+                        if (*cd && strstr(turn, cd)) announced = 1;
+                    }
+                }
+                free(cues);
+            }
+            char msg2[320];
+            if (!announced) {
+                char prop[KB_TERM_LEN]; snprintf(prop, sizeof prop, "%s", rel);
+                { char nn[1][KB_TERM_LEN]; const char *nq[2] = { rel, NULL };
+                  if (kb_match(b->kb, "relation_noun", nq, 2, nn, 1) == 1) {
+                      char nb[KB_TERM_LEN]; snprintf(nb, sizeof nb, "%s", nn[0]);
+                      snprintf(prop, sizeof prop, "%s", kb_dequote(nb));
+                  } else {
+                      /* «color_of» detto all'interlocutore e' il nome
+                       * dell'indice, non quello della proprieta'. */
+                      size_t pl = strlen(prop);
+                      if (pl > 3 && !strcmp(prop + pl - 3, "_of")) prop[pl - 3] = '\0';
+                      for (char *q = prop; *q; q++) if (*q == '_') *q = ' ';
+                  } }
+                const KbResponseSlot cs[] = { { "thing", tk }, { "old", oldv },
+                                              { "value", vk }, { "prop", prop } };
+                if (kb_response_slots(b, "attribute_clash", cs, 4, msg2, sizeof msg2)) {
+                    put(msg2, out, out_size);
+                    return 1;
+                }
+            } else {
+                const char *oa[2] = { tk, oldv };
+                kb_retract(b->kb, rel, oa, 2);
+                const char *na[2] = { tk, vk };
+                if (!kb_assert(b->kb, rel, na, 2)) return 0;
+                const KbResponseSlot cs[] = { { "thing", tk }, { "value", vk },
+                                              { "old", oldv } };
+                kb_term_say(b, "attribute_corrected", cs, 3, msg2, sizeof msg2);
+                put(msg2, out, out_size);
+                return 1;
+            }
+        }
+    }
     const char *args[] = { tk, vk };
     if (!kb_assert(b->kb, rel, args, 2)) return 0;
     char msg[200];
@@ -11678,6 +11753,11 @@ static int p0_learn_attribute(Brain *b, const char *thing, const char *value,
       kb_term_say(b, "learned_attribute", _rs, 2, msg, sizeof msg); }
     put(msg, out, out_size);
     return 1;
+}
+
+static int p0_learn_attribute(Brain *b, const char *thing, const char *value,
+                              char *out, size_t out_size) {
+    return p0_learn_attribute_t(b, thing, value, NULL, out, out_size);
 }
 
 /* gen505 — UN SOGGETTO COORDINATO DISTRIBUISCE SUL PREDICATO.
@@ -12644,6 +12724,38 @@ static int p0_polar_attribute(Brain *b, const char *norm,
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
+    /* gen507 — L'ANNUNCIO DI UNA CORREZIONE VIENE PRIMA DEL SUO BERSAGLIO.
+     *
+     * «actually zelnik is green» arriva ai lettori gia' sbucciato: «actually»
+     * e' un'apertura di discorso e viene tolta prima, quindi chi decide se un
+     * secondo valore e' una correzione o una contraddizione non la vedeva piu'.
+     * Qui il turno si guarda una volta, dove e' ancora intero, e l'annuncio
+     * diventa un fatto di sessione che ogni lettore puo' leggere. Quali parole
+     * annuncino una correzione resta conoscenza. */
+    {
+        const char *seen = raw && *raw ? raw : norm;
+        const char *ta[1] = { "current_turn" };
+        int was = kb_query(b->kb, "turn_correction", ta, 1);
+        int now = 0;
+        char (*cues)[KB_TERM_LEN] = NULL; size_t ncue = 0;
+        const char *cq[1] = { NULL };
+        if (seen && kb_match_all(b->kb, "correction_cue", cq, 1, &cues, &ncue)) {
+            for (size_t i = 0; i < ncue && !now; i++) {
+                char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[i]);
+                const char *cd = kb_dequote(cb);
+                if (*cd && strstr(seen, cd)) now = 1;
+            }
+        }
+        free(cues);
+        if (now && !was) {
+            int prev = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            kb_assert(b->kb, "turn_correction", ta, 1);
+            kb_set_origin(b->kb, prev);
+        } else if (!now && was) {
+            kb_retract(b->kb, "turn_correction", ta, 1);
+        }
+    }
     if (p0_distribute_coordinated_subject(b, norm, out, out_size)) return 1;
     if (p0_polar_attribute(b, norm, out, out_size)) return 1;
     if (p0_polar_relation(b, norm, out, out_size)) return 1;
@@ -18222,7 +18334,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         {
             const char *subj0;
             if (resolve_entity(b, w[a3], &subj0, out, out_size) &&
-                p0_learn_attribute(b, subj0, cl2, out, out_size)) {
+                p0_learn_attribute_t(b, subj0, cl2, raw ? raw : norm, out, out_size)) {
                 remember_entity(b, w[a3], subj0);
                 return 1;
             }
