@@ -158,6 +158,13 @@ function_word(it, tuo, "your").
 function_word(it, tua, "your").
 function_word(it, tuoi, "your").
 function_word(it, tue, "your").
+% gen507 — UNA PAROLA FUNZIONE APPARTIENE A UNA LINGUA, E «come» E' DI DUE.
+% La tabella C legacy riscrive `come`->`how` senza colonna lingua, quindi
+% «where does zelnik come from?» diventava «where does zelnik how from?» e
+% nessuna forma poteva piu' leggerla. E' lo stesso difetto di «i put …»: il
+% guardiano di lingua manca dove la decisione e' cablata. La riga vera sta qui,
+% dove la lingua c'e'; quella nel C se ne va.
+function_word(it, come, "how").
 function_word(it, mio, "my").
 function_word(it, mia, "my").
 function_word(it, miei, "my").

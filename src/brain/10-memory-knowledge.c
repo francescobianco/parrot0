@@ -1635,7 +1635,10 @@ static const char *canonical_token(const char *w) {
         {"chi", "who"},
         {"che", "what"}, {"cosa", "what"}, {"quale", "which"},
         {"quanto", "how much"}, {"quanti", "how many"}, {"quante", "how many"},
-        {"come", "how"}, {"dove", "where"},
+        /* gen507: `come` e' anche un verbo inglese — la riga vive in
+         * kb/core/lexicon.p0 come `function_word(it, come, "how")`, dove la
+         * colonna della lingua esiste. Qui resterebbe senza guardiano. */
+        {"dove", "where"},
         {"quando", "when"}, {"perché", "why"}, {"perche", "why"},
         {"cosa", "what"},
 

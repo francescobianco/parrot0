@@ -988,6 +988,34 @@ turn_form(price_asked, 3, text("cost")).
 turn_form(price_asked, 4, bind(relation, price_of)).
 turn_form_act(price_asked, answer_relation).
 
+% ── Da dove una cosa viene ────────────────────────────────────────────────
+relation(origin).
+response_template(learned_origin, "Held: {subject} comes from {object}.").
+response_template(learned_origin, it, "Tengo: {subject} viene da {object}.").
+turn_form(origin_stated, 1, slot(subject)).
+turn_form(origin_stated, 2, class(origin_verb)).
+turn_form(origin_stated, 3, text("from")).
+turn_form(origin_stated, 4, rest(object)).
+turn_form(origin_stated, 5, bind(relation, origin_of)).
+turn_form_act(origin_stated, assert_relation).
+turn_form_reply(origin_stated, learned_origin).
+
+machinery(origin_verb).
+origin_verb(comes).  origin_verb(come).  origin_verb(came).
+origin_verb(viene).  origin_verb(proviene).
+
+turn_form(origin_asked, 1, text("where does")).
+turn_form(origin_asked, 2, slot(subject)).
+turn_form(origin_asked, 3, class(origin_verb)).
+turn_form(origin_asked, 4, text("from")).
+turn_form(origin_asked, 5, bind(relation, origin_of)).
+turn_form_act(origin_asked, answer_relation).
+
+turn_form(origin_asked_of, 1, text("what is the origin of")).
+turn_form(origin_asked_of, 2, slot(subject)).
+turn_form(origin_asked_of, 3, bind(relation, origin_of)).
+turn_form_act(origin_asked_of, answer_relation).
+
 machinery(why_cue).
 why_cue("why").
 why_cue("how come").
