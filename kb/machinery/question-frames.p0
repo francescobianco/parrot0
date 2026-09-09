@@ -44,6 +44,28 @@ attribute_question_cue(color, "di che colore").
 attribute_question_cue(material, "what material").
 attribute_question_cue(material, "made of what").
 attribute_question_cue(material, "di che materiale").
+
+% ── gen507 — «what colour is X?» e «what is the colour of X?» sono la stessa
+% domanda, e chiedevano a due tabelle diverse ────────────────────────────────
+%
+% La forma con «of» passa da `relation_noun/2`, che una relazione insegnata si
+% costruisce da se' (grammar.p0: `relation($Noun)` piu' il suffisso «_of»). La
+% forma ad attributo frontale passava invece da una tabella scritta a mano, e
+% le due non si incontravano: «the colour of zelnik is red» entrava in KB e
+% «what colour is zelnik?» rispondeva di non avere il valore — cercandolo sotto
+% `color_of`, l'altra ortografia, che nessuno aveva mai popolato.
+%
+% Non serve una seconda tabella: la conoscenza da leggere c'e' gia'. Da qui una
+% relazione insegnata parlando — «peso is a relation» — apre da sola ENTRAMBE
+% le forme della domanda, in tutte e due le lingue, senza ricompilare.
+attribute_question_cue($Noun, $Cue) :-
+    relation_noun($Pred, $Noun),
+    concat_atoms("what ", $Noun, $Cue).
+attribute_question_cue($Noun, $Cue) :-
+    relation_noun_it($Pred, $Noun),
+    concat_atoms("che ", $Noun, $Cue).
+domain_relation($Noun, $Pred) :- relation_noun($Pred, $Noun).
+domain_relation($Noun, $Pred) :- relation_noun_it($Pred, $Noun).
 event_frame(canberra).
 event_attr(canberra, compromise_reason, "Sydney and Melbourne both wanted the national capital, so Australia chose a planned inland city between them as a compromise").
 event_frame(world_war_ii).
