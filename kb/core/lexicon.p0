@@ -3126,3 +3126,134 @@ irregular_verb_form(understand, understood).
 irregular_verb_form(win, won).
 irregular_verb_form(run, ran).
 irregular_verb_form(swim, swam).       irregular_verb_form(swim, swum).
+
+% ══ gen507/28 — IL FRASARIO ESCE DAL MOTORE ═══════════════════════════════
+%
+% F., 2026-09-10: «togli questa lista di parole hardcode e spostale in KB per
+% il principio KB-first».
+%
+% `canonical_token()` in src/brain/10-memory-knowledge.c teneva 101 coppie
+% scritte a mano: articoli, preposizioni, ausiliari, interrogativi, perfino
+% vocabolario di contenuto («codice», «capitale», «sfida»). Il commento del
+% gen383 lo ammetteva gia' — «e' un frasario bilingue nel motore» — e la prova
+% operativa del mantra la confermava: aggiungere «le», «gli», «i» richiedeva di
+% ricompilare. Il gen507/21 ne ha mostrato il costo vero: `come`->`how` senza
+% colonna lingua rompeva «where does zelnik come from?», e non c'era nessuna
+% frase che potesse correggerlo.
+%
+% Qui le righe arrivano dove la lingua ESISTE. Due conseguenze che vanno dette:
+%
+%   1. la COLONNA LINGUA serve a disambiguare, non a classificare. La portano
+%      solo le parole che sono anche parole inglesi — `come`, `i`, `la`, `fa`,
+%      `si`, `te`, `a`, `me` — perche' sono le sole in cui tradurre sempre
+%      sarebbe un errore. Misurato: marcandole TUTTE `it`, «socrate è mortale?»
+%      regrediva a muro, perche' su un turno breve il riconoscimento della
+%      lingua e' fragile e la traduzione non scattava piu'. La colonna e' una
+%      guardia, e una guardia messa dove non serve e' un danno.
+%   2. tutto il resto resta senza lingua (forma a due argomenti), esattamente
+%      come si comportava la tabella C: «della», «quanti», «dimmi» non possono
+%      essere inglese, quindi non c'e' niente da disambiguare.
+%
+% Da qui una parola funzione nuova, in qualunque lingua, e' una riga di .p0.
+function_word("è", "is").
+function_word(un, "a").
+function_word(uno, "a").
+function_word(una, "a").
+function_word(mio, "my").
+function_word(mia, "my").
+function_word(ho, "i have").
+function_word(chiamato, "named").
+function_word(it, si, "is").
+function_word(chiama, "called").
+function_word(ogni, "every").
+function_word(tutti, "all").
+function_word(tutte, "all").
+function_word(chi, "who").
+function_word(che, "what").
+function_word(cosa, "what").
+function_word(quale, "which").
+function_word(quanto, "how much").
+function_word(quanti, "how many").
+function_word(quante, "how many").
+function_word(dove, "where").
+function_word(quando, "when").
+function_word("perché", "why").
+function_word(perche, "why").
+function_word(non, "not").
+function_word(anche, "also").
+function_word(causa, "causes").
+function_word(possiamo, "can").
+function_word(potremmo, "could").
+function_word(sfida, "challenge").
+function_word(risolvere, "solve").
+function_word(risolveresti, "solve").
+function_word(migliorare, "improve").
+function_word(miglioreresti, "improve").
+function_word(implementazione, "implementation").
+function_word(modifica, "change").
+function_word(codice, "code").
+function_word(capitale, "capital").
+function_word(stesso, "yourself").
+function_word(stessa, "yourself").
+function_word(it, te, "you").
+function_word(tuo, "your").
+function_word(tua, "your").
+function_word(riguarda, "about").
+function_word(fonte, "source").
+function_word(fallisci, "fail").
+function_word(fallisce, "fail").
+function_word("cos'è", "what is").
+function_word("cosè", "what is").
+function_word("cose'", "what is").
+function_word(cose, "what is").
+function_word("cos'e", "what is").
+function_word(qual, "what").
+function_word(sono, "am").
+function_word(esso, "it").
+function_word(essa, "it").
+function_word(essi, "they").
+function_word(esse, "they").
+function_word(lui, "he").
+function_word(lei, "she").
+function_word(mondo, "world").
+function_word(storia, "story").
+function_word(nel, "in the").
+function_word(nella, "in the").
+function_word(questo, "this").
+function_word(questa, "this").
+function_word(assunto, "assumed").
+function_word(dimentica, "forget").
+function_word(il, "the").
+function_word(it, la, "the").
+function_word(lo, "the").
+function_word(it, fa, "makes").
+function_word(fanno, "make").
+function_word(del, "of the").
+function_word(della, "of the").
+function_word(dei, "of the").
+function_word(al, "to the").
+function_word(alla, "to the").
+function_word(ai, "to the").
+function_word(di, "of").
+function_word(da, "from").
+function_word(su, "on").
+function_word(ha, "has").
+function_word(hanno, "have").
+function_word(dimmi, "tell me").
+function_word(dammi, "give me").
+
+% Registro chat e contrazioni: non appartengono a una lingua.
+function_word(u, "you").
+function_word(r, "are").
+function_word(whats, "what is").
+function_word("what's", "what is").
+function_word(whos, "who is").
+function_word("who's", "who is").
+function_word(wheres, "where is").
+function_word("where's", "where is").
+function_word("it's", "it is").
+function_word(dont, "do not").
+function_word(cant, "can not").
+function_word(isnt, "is not").
+function_word("isn't", "is not").
+function_word(pls, "please").

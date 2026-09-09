@@ -1610,107 +1610,29 @@ static void note_class_conflict(Brain *b, const char *cls, const char *subj,
 }
 
 
-/* gen43 — multilingual as a generalization probe (PRINCIPLES.md: no phrasebook).
- * Map one FUNCTION word of any supported language onto the canonical (English)
- * token the reasoning modules already parse, or NULL to leave it untouched.
- * Content words are opaque symbols and are never listed, so the same reasoning
- * core answers in any language whose function words are mapped — *no module is
- * duplicated*. Only tokens that cannot occur in English are listed, so English
- * input is provably unaffected. The competence is thus shown to live in the
- * algorithm, not in English surface strings; where a language needs more than a
- * lexical swap (e.g. Italian negation "x non è un y" reorders to "x not is a y",
- * not the English "x is not a y"), that is the probe correctly exposing a
- * word-order assumption the core still bakes in — a future iteration, not a
- * second phrasebook. */
+/* gen43 → gen507 — IL FRASARIO NON E' PIU' QUI.
+ *
+ * Qui stavano 101 coppie scritte a mano: articoli, preposizioni, ausiliari,
+ * interrogativi e perfino vocabolario di CONTENUTO («codice», «capitale»,
+ * «sfida»). Il commento del gen383 lo ammetteva gia' — «e' un frasario bilingue
+ * nel motore» — e la prova operativa del mantra lo confermava: aggiungere
+ * «le», «gli», «i» voleva dire ricompilare. Il gen507/21 ne ha mostrato il
+ * costo vero: `come`->`how` senza colonna lingua rompeva «where does zelnik
+ * come from?», e nessuna frase poteva correggerlo, perche' la decisione non
+ * viveva in un posto a cui una frase arriva.
+ *
+ * Le righe sono in `kb/core/lexicon.p0` come `function_word(Lingua, Src, Dst)`
+ * — dove la lingua esiste — e come `function_word(Src, Dst)` per cio' che non
+ * appartiene a una lingua (registro chat, contrazioni inglesi).
+ * `canonical_token_kb` le legge, e leggeva gia' la KB per prima: questa
+ * funzione era solo la rete sotto. La rete si togle quando cio' che reggeva e'
+ * passato tutto sopra.
+ *
+ * Resta come punto di innesco — non sa nessuna parola, e non ne saprebbe mai
+ * una nuova senza una ricompilazione, che e' esattamente il motivo per cui e'
+ * vuota. */
 static const char *canonical_token(const char *w) {
-    static const struct { const char *src, *dst; } lex[] = {
-        /* Italian */
-        {"è",   "is"},
-        {"un",  "a"}, {"uno", "a"}, {"una", "a"},
-        {"mio", "my"}, {"mia", "my"},
-        {"ho",  "i have"},
-        {"chiamato", "named"},
-        {"si",  "is"}, {"chiama", "called"},
-        {"ogni","every"}, {"tutti","all"}, {"tutte","all"},
-        {"chi", "who"},
-        {"che", "what"}, {"cosa", "what"}, {"quale", "which"},
-        {"quanto", "how much"}, {"quanti", "how many"}, {"quante", "how many"},
-        /* gen507: `come` e' anche un verbo inglese — la riga vive in
-         * kb/core/lexicon.p0 come `function_word(it, come, "how")`, dove la
-         * colonna della lingua esiste. Qui resterebbe senza guardiano. */
-        {"dove", "where"},
-        {"quando", "when"}, {"perché", "why"}, {"perche", "why"},
-        {"cosa", "what"},
-
-        {"non", "not"},
-        {"anche","also"},
-        {"causa","causes"},
-        /* gen142 (E3): Italian modals so the pragmatic topic-intro / disagreement
-         * shapes fire through the SAME mod_pragma path (no phrase duplication). */
-        {"possiamo","can"}, {"potremmo","could"},
-        {"sfida", "challenge"}, {"risolvere", "solve"}, {"risolveresti", "solve"},
-        {"migliorare", "improve"}, {"miglioreresti", "improve"},
-        {"implementazione", "implementation"}, {"modifica", "change"},
-        {"codice", "code"}, {"capitale", "capital"},
-
-        {"stesso", "yourself"}, {"stessa", "yourself"}, {"te", "you"},
-        {"tuo", "your"}, {"tua", "your"}, {"riguarda", "about"},
-        {"fonte", "source"},  /* M1: "la tua fonte" -> "your source" (provenance query) */
-        {"fallisci", "fail"}, {"fallisce", "fail"},
-
-        {"cos'è", "what is"},
-        /* gen344: apostrophe-less chat-register forms of "cos'è" ("cose
-         * l'acqua?"). Folding the bare "cose" trades away its reading as the
-         * plural noun "things" — acceptable while no supported question uses
-         * that reading; revisit if "quante cose sai?" gets a consumer. */
-        {"cosè", "what is"}, {"cose'", "what is"}, {"cose", "what is"},
-        {"cos'e", "what is"},
-        {"qual", "what"},  /* gen155: "qual è ..." -> "what is ..." reaches the
-                            * same concept-recall path as English. */
-        {"sono", "am"},
-        /* gen141: subject pronouns, so the repair loop's referential-gap probe
-         * (a pronoun with no antecedent) reaches the SAME code path in Italian.
-         * These are unambiguous subject forms; "lo"/"la"/"li" (clitics/articles)
-         * are deliberately left out to avoid colliding with article parsing. */
-        {"esso", "it"}, {"essa", "it"}, {"essi", "they"}, {"esse", "they"},
-        {"lui", "he"}, {"lei", "she"},
-        /* gen142 (E7): local-world vocabulary so the scoped-world module reaches
-         * the SAME path in Italian. "mondo"/"storia" name a scope; "assunto"/
-         * "assume" are the inspect cue ("cosa è assunto?" -> "what is assumed").
-         * These cannot occur as English words, so English input is unaffected. */
-        {"mondo", "world"}, {"storia", "story"},
-        {"nel", "in the"}, {"nella", "in the"},
-        {"questo", "this"}, {"questa", "this"},
-        {"assunto", "assumed"}, {"dimentica", "forget"},
-        /* Chat-register shorthand (gen64), not a second language. "u"/"r" are
-         * English letters, but never stand-alone English *words*; in a chat
-         * agent a lone "u"/"r" overwhelmingly means you/are ("what can u do?",
-         * "who r u?"). Folding them here routes every intent through the same
-         * canonical path instead of accreting shorthand cues per module. */
-        {"u",   "you"}, {"r",  "are"},
-        /* gen74: chat-register contractions — common abbreviated forms that
-         * real users type. Expanding them into their canonical spaced forms
-         * lets the existing parsers (arith, knowledge, identity) work on
-         * contracted input without duplicating logic. */
-        {"whats", "what is"}, {"what's", "what is"},
-        {"whos", "who is"}, {"who's", "who is"},
-        {"wheres", "where is"}, {"where's", "where is"},
-        {"it's", "it is"},
-        {"dont",  "do not"},  {"cant", "can not"}, {"isnt", "is not"},
-        {"isn't", "is not"}, {"pls", "please"},
-        /* gen334: Italian articles and common verbs for question-answering.
-         * "il"/"la" are function words — mechanics, not content — so they
-         * belong in the canonical_token motor per PRINCIPLES.md. */
-        {"il", "the"}, {"la", "the"}, {"lo", "the"},
-        {"fa", "makes"}, {"fanno", "make"},
-        {"del", "of the"}, {"della", "of the"}, {"dei", "of the"},
-        {"al", "to the"}, {"alla", "to the"}, {"ai", "to the"},
-        {"di", "of"}, {"da", "from"}, {"su", "on"},
-        {"ha", "has"}, {"hanno", "have"},
-        {"dimmi", "tell me"}, {"dammi", "give me"},
-    };
-    for (size_t i = 0; i < sizeof lex / sizeof lex[0]; i++)
-        if (strcmp(w, lex[i].src) == 0) return lex[i].dst;
+    (void)w;
     return NULL;
 }
 
