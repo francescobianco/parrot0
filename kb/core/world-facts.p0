@@ -2364,3 +2364,297 @@ located_in(bergamo, lombardy).
 % la lettura, e ora finanzia anche l'analisi del codice.
 machinery(concept_domain).
 concept_domain($C, $Domain) :- wiki_concept($C, $Domain, $Gloss).
+
+% ══ gen507/30 — I SUPERLATIVI DEL MONDO, POPOLATI ═════════════════════════
+%
+% Il lettore dei superlativi (gen251/gen312) e' interamente guidato dai fatti:
+% cerca nel turno un token che sia una PROPRIETA' e uno che sia un DOMINIO, e
+% rende la risposta che la coppia porta. Era un motore pronto con undici coppie
+% dentro: «quale oceano e' piu' profondo?» murava non per incapacita' ma per
+% vuoto. Qui il vuoto si riempie.
+%
+% La chiave e' l'aggettivo inglese al superlativo, perche' e' quella che il
+% lettore cerca; l'accesso italiano arriva dal ponte in kb/core/lexicon.p0
+% («più profondo» -> «deepest»), quindi ogni riga aggiunta qui nasce bilingue.
+%
+% ⚠ Debito dichiarato: la risposta e' una stringa sola, senza colonna lingua,
+% quindi una domanda italiana riceve una risposta inglese. E' meglio di un muro
+% e va detto: la resa bilingue di questa relazione e' un giro a se'.
+
+% Acque
+world_superlative(largest, ocean, "The Pacific is the largest ocean").
+world_superlative(deepest, ocean, "The Pacific is the deepest ocean -- the Mariana Trench reaches about 11,000 metres").
+world_superlative(smallest, ocean, "The Arctic is the smallest ocean").
+world_superlative(largest, sea, "The Philippine Sea is the largest sea").
+world_superlative(largest, lake, "The Caspian Sea is the largest lake by area").
+world_superlative(deepest, lake, "Lake Baikal is the deepest lake, about 1,642 metres").
+world_superlative(largest, waterfall, "Victoria Falls is the largest curtain of falling water").
+world_superlative(tallest, waterfall, "Angel Falls is the tallest waterfall, about 979 metres").
+world_superlative(shortest, river, "The Roe River in Montana is among the shortest named rivers").
+
+% Terre
+world_superlative(largest, continent, "Asia is the largest continent").
+world_superlative(smallest, continent, "Oceania is the smallest continent").
+world_superlative(largest, island, "Greenland is the largest island").
+world_superlative(largest, desert, "Antarctica is the largest desert; the Sahara is the largest hot desert").
+world_superlative(driest, desert, "The Atacama is the driest desert").
+world_superlative(largest, rainforest, "The Amazon is the largest rainforest").
+world_superlative(lowest, place, "The shore of the Dead Sea is the lowest land on Earth, about 430 metres below sea level").
+world_superlative(coldest, place, "Vostok Station in Antarctica holds the coldest recorded temperature, about -89 C").
+world_superlative(hottest, place, "Death Valley holds the highest reliably recorded air temperature, about 57 C").
+world_superlative(highest, volcano, "Ojos del Salado is the highest volcano").
+world_superlative(largest, volcano, "Mauna Loa is the largest volcano by volume").
+
+% Paesi e citta'
+world_superlative(largest, country, "Russia is the largest country by area").
+world_superlative(smallest, country, "Vatican City is the smallest country").
+world_superlative(most_populous, country, "India is the most populous country").
+world_superlative(most_populous, city, "Tokyo is the most populous urban area").
+world_superlative(oldest, country, "Egypt and China are usually named among the oldest continuous states").
+world_superlative(most_common, language, "Mandarin Chinese has the most native speakers; English has the most speakers overall").
+
+% Cielo
+world_superlative(largest, planet, "Jupiter is the largest planet").
+world_superlative(smallest, planet, "Mercury is the smallest planet").
+world_superlative(closest, planet, "Mercury is the planet closest to the Sun").
+world_superlative(farthest, planet, "Neptune is the farthest planet from the Sun").
+world_superlative(hottest, planet, "Venus is the hottest planet").
+world_superlative(coldest, planet, "Uranus has the coldest recorded atmosphere of the planets").
+world_superlative(densest, planet, "Earth is the densest planet").
+world_superlative(brightest, star, "Sirius is the brightest star in the night sky").
+world_superlative(closest, star, "Proxima Centauri is the closest star to the Sun").
+
+% Vita
+world_superlative(largest, animal, "The blue whale is the largest animal").
+world_superlative(tallest, animal, "The giraffe is the tallest animal").
+world_superlative(heaviest, animal, "The blue whale is the heaviest animal").
+world_superlative(largest, land_animal, "The African elephant is the largest land animal").
+world_superlative(loudest, animal, "The sperm whale makes the loudest recorded animal sound").
+world_superlative(largest, bird, "The ostrich is the largest bird").
+world_superlative(fastest, bird, "The peregrine falcon is the fastest bird in a dive").
+world_superlative(smallest, bird, "The bee hummingbird is the smallest bird").
+world_superlative(largest, fish, "The whale shark is the largest fish").
+world_superlative(fastest, fish, "The black marlin is among the fastest fish").
+world_superlative(tallest, tree, "A coast redwood is the tallest tree").
+world_superlative(oldest, tree, "A Great Basin bristlecone pine is the oldest known single tree").
+world_superlative(largest, flower, "Rafflesia arnoldii has the largest single flower").
+world_superlative(largest, organ, "The skin is the largest organ").
+world_superlative(longest, bone, "The femur is the longest bone").
+world_superlative(strongest, muscle, "By different measures the masseter, the heart or the gluteus maximus is called the strongest muscle").
+
+% Opere
+world_superlative(tallest, building, "The Burj Khalifa is the tallest building, 828 metres").
+world_superlative(longest, bridge, "The Danyang-Kunshan Grand Bridge is the longest bridge").
+world_superlative(longest, wall, "The Great Wall of China is the longest wall").
+world_superlative(largest, museum, "The Louvre is the largest art museum").
+
+world_superlative(fastest, animal, "The peregrine falcon is the fastest animal in a dive; the cheetah is the fastest on land").
+world_superlative(slowest, animal, "The three-toed sloth is among the slowest animals").
+world_superlative(strongest, animal, "The dung beetle is the strongest animal for its size; the elephant is the strongest by absolute force").
+world_superlative(largest, mammal, "The blue whale is the largest mammal").
+world_superlative(smallest, mammal, "The bumblebee bat is the smallest mammal").
+world_superlative(largest, insect, "The giant weta and the goliath beetle are among the largest insects").
+world_superlative(oldest, animal, "The Greenland shark is the longest-lived vertebrate, over 400 years").
+world_superlative(largest, reptile, "The saltwater crocodile is the largest reptile").
+world_superlative(largest, plant, "A giant sequoia grove and the honey fungus are both named the largest living thing").
+world_superlative(longest, snake, "The reticulated python is the longest snake").
+world_superlative(largest, lake, "The Caspian Sea is the largest lake by area").
+world_superlative(longest, mountain_range, "The Andes is the longest mountain range on land").
+world_superlative(largest, bay, "The Bay of Bengal is the largest bay").
+world_superlative(largest, peninsula, "The Arabian Peninsula is the largest peninsula").
+world_superlative(largest, archipelago, "Indonesia is the largest archipelago").
+world_superlative(highest, capital, "La Paz is the highest capital city").
+world_superlative(largest, religion, "Christianity has the most adherents").
+world_superlative(most_spoken, language, "English is the most spoken language counting all speakers").
+world_superlative(oldest, university, "The University of Bologna is usually called the oldest university").
+world_superlative(largest, stadium, "Rungrado 1st of May Stadium is the largest stadium by capacity").
+
+% ══ gen507/30 — L'ORDINE DELLE PAROLE NON DEVE DECIDERE SE SI CAPISCE ═════
+%
+% «qual è il deserto più grande?» canonicalizza in «what is the desert
+% largest?»: il dominio viene PRIMA della proprieta', al contrario dell'inglese
+% «the largest desert». Il lettore scandisce i token e, con quell'ordine,
+% lasciava vincere un'altra coppia — rispondeva «Skin.» a una domanda sui
+% deserti. Una risposta sicura e sbagliata, cioe' il caso peggiore.
+%
+% `world_superlative_cue(Cue, Proprieta', Dominio)` e' il punto di estensione
+% che il lettore prova PRIMA della scansione, previsto dal gen312 proprio per
+% «insegnare forme di richiesta multi-parola senza aggiungere un sinonimo nel
+% C». Qui si dichiarano i due ordini per ogni coppia: quello inglese e quello
+% che l'italiano produce. Generato dai fatti, quindi una coppia nuova porta con
+% se' i propri due ordini.
+%
+% ⚠ Resta aperto, e non l'ho toccato: «which desert is the largest?» — con la
+% copula in mezzo — non e' una sottostringa di nessuno dei due ordini e continua
+% a cadere sul lettore sbagliato. E' un difetto inglese, precedente, e va chiuso
+% guardando perche' quel lettore vinca il turno, non aggiungendo una terza cue.
+world_superlative_cue("country coastline", coastline, country).
+world_superlative_cue("coastline country", coastline, country).
+world_superlative_cue("land animal fastest", fastest, land_animal).
+world_superlative_cue("fastest land animal", fastest, land_animal).
+world_superlative_cue("mountain highest", highest, mountain).
+world_superlative_cue("highest mountain", highest, mountain).
+world_superlative_cue("internal organ largest", largest, internal_organ).
+world_superlative_cue("largest internal organ", largest, internal_organ).
+world_superlative_cue("country longest_coastline", longest_coastline, country).
+world_superlative_cue("longest_coastline country", longest_coastline, country).
+world_superlative_cue("south america longest_river", longest_river, south_america).
+world_superlative_cue("longest_river south america", longest_river, south_america).
+world_superlative_cue("country most_neighboring_countries", most_neighboring_countries, country).
+world_superlative_cue("most_neighboring_countries country", most_neighboring_countries, country).
+world_superlative_cue("bone smallest", smallest, bone).
+world_superlative_cue("smallest bone", smallest, bone).
+world_superlative_cue("mountain tallest", tallest, mountain).
+world_superlative_cue("tallest mountain", tallest, mountain).
+world_superlative_cue("river longest", longest, river).
+world_superlative_cue("longest river", longest, river).
+world_superlative_cue("desert largest_desert", largest_desert, desert).
+world_superlative_cue("largest_desert desert", largest_desert, desert).
+world_superlative_cue("ocean largest", largest, ocean).
+world_superlative_cue("largest ocean", largest, ocean).
+world_superlative_cue("ocean deepest", deepest, ocean).
+world_superlative_cue("deepest ocean", deepest, ocean).
+world_superlative_cue("ocean smallest", smallest, ocean).
+world_superlative_cue("smallest ocean", smallest, ocean).
+world_superlative_cue("sea largest", largest, sea).
+world_superlative_cue("largest sea", largest, sea).
+world_superlative_cue("lake largest", largest, lake).
+world_superlative_cue("largest lake", largest, lake).
+world_superlative_cue("lake deepest", deepest, lake).
+world_superlative_cue("deepest lake", deepest, lake).
+world_superlative_cue("waterfall largest", largest, waterfall).
+world_superlative_cue("largest waterfall", largest, waterfall).
+world_superlative_cue("waterfall tallest", tallest, waterfall).
+world_superlative_cue("tallest waterfall", tallest, waterfall).
+world_superlative_cue("river shortest", shortest, river).
+world_superlative_cue("shortest river", shortest, river).
+world_superlative_cue("continent largest", largest, continent).
+world_superlative_cue("largest continent", largest, continent).
+world_superlative_cue("continent smallest", smallest, continent).
+world_superlative_cue("smallest continent", smallest, continent).
+world_superlative_cue("island largest", largest, island).
+world_superlative_cue("largest island", largest, island).
+world_superlative_cue("desert largest", largest, desert).
+world_superlative_cue("largest desert", largest, desert).
+world_superlative_cue("desert driest", driest, desert).
+world_superlative_cue("driest desert", driest, desert).
+world_superlative_cue("rainforest largest", largest, rainforest).
+world_superlative_cue("largest rainforest", largest, rainforest).
+world_superlative_cue("place lowest", lowest, place).
+world_superlative_cue("lowest place", lowest, place).
+world_superlative_cue("place coldest", coldest, place).
+world_superlative_cue("coldest place", coldest, place).
+world_superlative_cue("place hottest", hottest, place).
+world_superlative_cue("hottest place", hottest, place).
+world_superlative_cue("volcano highest", highest, volcano).
+world_superlative_cue("highest volcano", highest, volcano).
+world_superlative_cue("volcano largest", largest, volcano).
+world_superlative_cue("largest volcano", largest, volcano).
+world_superlative_cue("country largest", largest, country).
+world_superlative_cue("largest country", largest, country).
+world_superlative_cue("country smallest", smallest, country).
+world_superlative_cue("smallest country", smallest, country).
+world_superlative_cue("country most_populous", most_populous, country).
+world_superlative_cue("most_populous country", most_populous, country).
+world_superlative_cue("city most_populous", most_populous, city).
+world_superlative_cue("most_populous city", most_populous, city).
+world_superlative_cue("country oldest", oldest, country).
+world_superlative_cue("oldest country", oldest, country).
+world_superlative_cue("language most_common", most_common, language).
+world_superlative_cue("most_common language", most_common, language).
+world_superlative_cue("planet largest", largest, planet).
+world_superlative_cue("largest planet", largest, planet).
+world_superlative_cue("planet smallest", smallest, planet).
+world_superlative_cue("smallest planet", smallest, planet).
+world_superlative_cue("planet closest", closest, planet).
+world_superlative_cue("closest planet", closest, planet).
+world_superlative_cue("planet farthest", farthest, planet).
+world_superlative_cue("farthest planet", farthest, planet).
+world_superlative_cue("planet hottest", hottest, planet).
+world_superlative_cue("hottest planet", hottest, planet).
+world_superlative_cue("planet coldest", coldest, planet).
+world_superlative_cue("coldest planet", coldest, planet).
+world_superlative_cue("planet densest", densest, planet).
+world_superlative_cue("densest planet", densest, planet).
+world_superlative_cue("star brightest", brightest, star).
+world_superlative_cue("brightest star", brightest, star).
+world_superlative_cue("star closest", closest, star).
+world_superlative_cue("closest star", closest, star).
+world_superlative_cue("animal largest", largest, animal).
+world_superlative_cue("largest animal", largest, animal).
+world_superlative_cue("animal tallest", tallest, animal).
+world_superlative_cue("tallest animal", tallest, animal).
+world_superlative_cue("animal heaviest", heaviest, animal).
+world_superlative_cue("heaviest animal", heaviest, animal).
+world_superlative_cue("land animal largest", largest, land_animal).
+world_superlative_cue("largest land animal", largest, land_animal).
+world_superlative_cue("animal loudest", loudest, animal).
+world_superlative_cue("loudest animal", loudest, animal).
+world_superlative_cue("bird largest", largest, bird).
+world_superlative_cue("largest bird", largest, bird).
+world_superlative_cue("bird fastest", fastest, bird).
+world_superlative_cue("fastest bird", fastest, bird).
+world_superlative_cue("bird smallest", smallest, bird).
+world_superlative_cue("smallest bird", smallest, bird).
+world_superlative_cue("fish largest", largest, fish).
+world_superlative_cue("largest fish", largest, fish).
+world_superlative_cue("fish fastest", fastest, fish).
+world_superlative_cue("fastest fish", fastest, fish).
+world_superlative_cue("tree tallest", tallest, tree).
+world_superlative_cue("tallest tree", tallest, tree).
+world_superlative_cue("tree oldest", oldest, tree).
+world_superlative_cue("oldest tree", oldest, tree).
+world_superlative_cue("flower largest", largest, flower).
+world_superlative_cue("largest flower", largest, flower).
+world_superlative_cue("organ largest", largest, organ).
+world_superlative_cue("largest organ", largest, organ).
+world_superlative_cue("bone longest", longest, bone).
+world_superlative_cue("longest bone", longest, bone).
+world_superlative_cue("muscle strongest", strongest, muscle).
+world_superlative_cue("strongest muscle", strongest, muscle).
+world_superlative_cue("building tallest", tallest, building).
+world_superlative_cue("tallest building", tallest, building).
+world_superlative_cue("bridge longest", longest, bridge).
+world_superlative_cue("longest bridge", longest, bridge).
+world_superlative_cue("wall longest", longest, wall).
+world_superlative_cue("longest wall", longest, wall).
+world_superlative_cue("museum largest", largest, museum).
+world_superlative_cue("largest museum", largest, museum).
+world_superlative_cue("animal fastest", fastest, animal).
+world_superlative_cue("fastest animal", fastest, animal).
+world_superlative_cue("animal slowest", slowest, animal).
+world_superlative_cue("slowest animal", slowest, animal).
+world_superlative_cue("animal strongest", strongest, animal).
+world_superlative_cue("strongest animal", strongest, animal).
+world_superlative_cue("mammal largest", largest, mammal).
+world_superlative_cue("largest mammal", largest, mammal).
+world_superlative_cue("mammal smallest", smallest, mammal).
+world_superlative_cue("smallest mammal", smallest, mammal).
+world_superlative_cue("insect largest", largest, insect).
+world_superlative_cue("largest insect", largest, insect).
+world_superlative_cue("animal oldest", oldest, animal).
+world_superlative_cue("oldest animal", oldest, animal).
+world_superlative_cue("reptile largest", largest, reptile).
+world_superlative_cue("largest reptile", largest, reptile).
+world_superlative_cue("plant largest", largest, plant).
+world_superlative_cue("largest plant", largest, plant).
+world_superlative_cue("snake longest", longest, snake).
+world_superlative_cue("longest snake", longest, snake).
+world_superlative_cue("mountain range longest", longest, mountain_range).
+world_superlative_cue("longest mountain range", longest, mountain_range).
+world_superlative_cue("bay largest", largest, bay).
+world_superlative_cue("largest bay", largest, bay).
+world_superlative_cue("peninsula largest", largest, peninsula).
+world_superlative_cue("largest peninsula", largest, peninsula).
+world_superlative_cue("archipelago largest", largest, archipelago).
+world_superlative_cue("largest archipelago", largest, archipelago).
+world_superlative_cue("capital highest", highest, capital).
+world_superlative_cue("highest capital", highest, capital).
+world_superlative_cue("religion largest", largest, religion).
+world_superlative_cue("largest religion", largest, religion).
+world_superlative_cue("language most_spoken", most_spoken, language).
+world_superlative_cue("most_spoken language", most_spoken, language).
+world_superlative_cue("university oldest", oldest, university).
+world_superlative_cue("oldest university", oldest, university).
+world_superlative_cue("stadium largest", largest, stadium).
+world_superlative_cue("largest stadium", largest, stadium).

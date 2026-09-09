@@ -279,6 +279,322 @@ phrase_canon("tell me all you know about", "what do you know about").
 phrase_canon("dimmi tutto quello che sai su", "what do you know about").
 phrase_canon("dimmi tutto su", "what do you know about").
 phrase_canon("un esempio di", "an example of").
+
+% ══ gen507/30 — I SUPERLATIVI ITALIANI ════════════════════════════════════
+%
+% Trovato da F. in chat, e fa piu' male di un muro esotico:
+%
+%     > what is the longest river?    ->  Nile.
+%     > quale fiume e piu lungo       ->  Non capisco ancora.
+%
+% La conoscenza c'era («world_superlative(longest, river, …)») e anche la
+% traduzione del dominio («tr(river, fiume)»): mancava solo il ponte fra il
+% superlativo analitico italiano — «più X» — e l'aggettivo inglese che la KB usa
+% come chiave. Il lettore dei superlativi e' interamente guidato dai fatti:
+% cerca nel turno un token che sia una proprieta' e uno che sia un dominio.
+% Portato «più lungo» a «longest», quel lettore funziona in italiano per OGNI
+% dominio, presente e futuro, senza una riga di C.
+% Il superlativo analitico italiano si accorda col nome, e un accordo mancante
+% e' un muro: «quale montagna e piu ALTA?» non e' «piu alto». Tutte e quattro le
+% forme di ogni aggettivo stanno qui — e' il paradigma, non un elenco di casi.
+phrase_canon("piu lungo", "longest").
+phrase_canon("più lungo", "longest").
+phrase_canon("piu lunga", "longest").
+phrase_canon("più lunga", "longest").
+phrase_canon("piu lunghi", "longest").
+phrase_canon("più lunghi", "longest").
+phrase_canon("piu lunghe", "longest").
+phrase_canon("più lunghe", "longest").
+phrase_canon("piu corto", "shortest").
+phrase_canon("più corto", "shortest").
+phrase_canon("piu corta", "shortest").
+phrase_canon("più corta", "shortest").
+phrase_canon("piu corti", "shortest").
+phrase_canon("più corti", "shortest").
+phrase_canon("piu corte", "shortest").
+phrase_canon("più corte", "shortest").
+phrase_canon("piu alto", "tallest").
+phrase_canon("più alto", "tallest").
+phrase_canon("piu alta", "tallest").
+phrase_canon("più alta", "tallest").
+phrase_canon("piu alti", "tallest").
+phrase_canon("più alti", "tallest").
+phrase_canon("piu alte", "tallest").
+phrase_canon("più alte", "tallest").
+phrase_canon("piu basso", "lowest").
+phrase_canon("più basso", "lowest").
+phrase_canon("piu bassa", "lowest").
+phrase_canon("più bassa", "lowest").
+phrase_canon("piu bassi", "lowest").
+phrase_canon("più bassi", "lowest").
+phrase_canon("piu basse", "lowest").
+phrase_canon("più basse", "lowest").
+phrase_canon("piu grande", "largest").
+phrase_canon("più grande", "largest").
+phrase_canon("piu grandi", "largest").
+phrase_canon("più grandi", "largest").
+phrase_canon("piu esteso", "largest").
+phrase_canon("più esteso", "largest").
+phrase_canon("piu estesa", "largest").
+phrase_canon("più estesa", "largest").
+phrase_canon("piu estesi", "largest").
+phrase_canon("più estesi", "largest").
+phrase_canon("piu estese", "largest").
+phrase_canon("più estese", "largest").
+phrase_canon("piu vasto", "largest").
+phrase_canon("più vasto", "largest").
+phrase_canon("piu vasta", "largest").
+phrase_canon("più vasta", "largest").
+phrase_canon("piu vasti", "largest").
+phrase_canon("più vasti", "largest").
+phrase_canon("piu vaste", "largest").
+phrase_canon("più vaste", "largest").
+phrase_canon("piu piccolo", "smallest").
+phrase_canon("più piccolo", "smallest").
+phrase_canon("piu piccola", "smallest").
+phrase_canon("più piccola", "smallest").
+phrase_canon("piu piccoli", "smallest").
+phrase_canon("più piccoli", "smallest").
+phrase_canon("piu piccole", "smallest").
+phrase_canon("più piccole", "smallest").
+phrase_canon("piu profondo", "deepest").
+phrase_canon("più profondo", "deepest").
+phrase_canon("piu profonda", "deepest").
+phrase_canon("più profonda", "deepest").
+phrase_canon("piu profondi", "deepest").
+phrase_canon("più profondi", "deepest").
+phrase_canon("piu profonde", "deepest").
+phrase_canon("più profonde", "deepest").
+phrase_canon("piu caldo", "hottest").
+phrase_canon("più caldo", "hottest").
+phrase_canon("piu calda", "hottest").
+phrase_canon("più calda", "hottest").
+phrase_canon("piu caldi", "hottest").
+phrase_canon("più caldi", "hottest").
+phrase_canon("piu calde", "hottest").
+phrase_canon("più calde", "hottest").
+phrase_canon("piu freddo", "coldest").
+phrase_canon("più freddo", "coldest").
+phrase_canon("piu fredda", "coldest").
+phrase_canon("più fredda", "coldest").
+phrase_canon("piu freddi", "coldest").
+phrase_canon("più freddi", "coldest").
+phrase_canon("piu fredde", "coldest").
+phrase_canon("più fredde", "coldest").
+phrase_canon("piu secco", "driest").
+phrase_canon("più secco", "driest").
+phrase_canon("piu secca", "driest").
+phrase_canon("più secca", "driest").
+phrase_canon("piu secchi", "driest").
+phrase_canon("più secchi", "driest").
+phrase_canon("piu secche", "driest").
+phrase_canon("più secche", "driest").
+phrase_canon("piu veloce", "fastest").
+phrase_canon("più veloce", "fastest").
+phrase_canon("piu veloci", "fastest").
+phrase_canon("più veloci", "fastest").
+phrase_canon("piu rapido", "fastest").
+phrase_canon("più rapido", "fastest").
+phrase_canon("piu rapida", "fastest").
+phrase_canon("più rapida", "fastest").
+phrase_canon("piu rapidi", "fastest").
+phrase_canon("più rapidi", "fastest").
+phrase_canon("piu rapide", "fastest").
+phrase_canon("più rapide", "fastest").
+phrase_canon("piu lento", "slowest").
+phrase_canon("più lento", "slowest").
+phrase_canon("piu lenta", "slowest").
+phrase_canon("più lenta", "slowest").
+phrase_canon("piu lenti", "slowest").
+phrase_canon("più lenti", "slowest").
+phrase_canon("piu lente", "slowest").
+phrase_canon("più lente", "slowest").
+phrase_canon("piu pesante", "heaviest").
+phrase_canon("più pesante", "heaviest").
+phrase_canon("piu pesanti", "heaviest").
+phrase_canon("più pesanti", "heaviest").
+phrase_canon("piu leggero", "lightest").
+phrase_canon("più leggero", "lightest").
+phrase_canon("piu leggera", "lightest").
+phrase_canon("più leggera", "lightest").
+phrase_canon("piu leggeri", "lightest").
+phrase_canon("più leggeri", "lightest").
+phrase_canon("piu leggere", "lightest").
+phrase_canon("più leggere", "lightest").
+phrase_canon("piu vecchio", "oldest").
+phrase_canon("più vecchio", "oldest").
+phrase_canon("piu vecchia", "oldest").
+phrase_canon("più vecchia", "oldest").
+phrase_canon("piu vecchi", "oldest").
+phrase_canon("più vecchi", "oldest").
+phrase_canon("piu vecchie", "oldest").
+phrase_canon("più vecchie", "oldest").
+phrase_canon("piu antico", "oldest").
+phrase_canon("più antico", "oldest").
+phrase_canon("piu antica", "oldest").
+phrase_canon("più antica", "oldest").
+phrase_canon("piu antichi", "oldest").
+phrase_canon("più antichi", "oldest").
+phrase_canon("piu antiche", "oldest").
+phrase_canon("più antiche", "oldest").
+phrase_canon("piu popoloso", "most_populous").
+phrase_canon("più popoloso", "most_populous").
+phrase_canon("piu popolosa", "most_populous").
+phrase_canon("più popolosa", "most_populous").
+phrase_canon("piu popolosi", "most_populous").
+phrase_canon("più popolosi", "most_populous").
+phrase_canon("piu popolose", "most_populous").
+phrase_canon("più popolose", "most_populous").
+phrase_canon("piu abitato", "most_populous").
+phrase_canon("più abitato", "most_populous").
+phrase_canon("piu abitata", "most_populous").
+phrase_canon("più abitata", "most_populous").
+phrase_canon("piu abitati", "most_populous").
+phrase_canon("più abitati", "most_populous").
+phrase_canon("piu abitate", "most_populous").
+phrase_canon("più abitate", "most_populous").
+phrase_canon("piu vicino", "closest").
+phrase_canon("più vicino", "closest").
+phrase_canon("piu vicina", "closest").
+phrase_canon("più vicina", "closest").
+phrase_canon("piu vicini", "closest").
+phrase_canon("più vicini", "closest").
+phrase_canon("piu vicine", "closest").
+phrase_canon("più vicine", "closest").
+phrase_canon("piu lontano", "farthest").
+phrase_canon("più lontano", "farthest").
+phrase_canon("piu lontana", "farthest").
+phrase_canon("più lontana", "farthest").
+phrase_canon("piu lontani", "farthest").
+phrase_canon("più lontani", "farthest").
+phrase_canon("piu lontane", "farthest").
+phrase_canon("più lontane", "farthest").
+phrase_canon("piu rumoroso", "loudest").
+phrase_canon("più rumoroso", "loudest").
+phrase_canon("piu rumorosa", "loudest").
+phrase_canon("più rumorosa", "loudest").
+phrase_canon("piu rumorosi", "loudest").
+phrase_canon("più rumorosi", "loudest").
+phrase_canon("piu rumorose", "loudest").
+phrase_canon("più rumorose", "loudest").
+phrase_canon("piu denso", "densest").
+phrase_canon("più denso", "densest").
+phrase_canon("piu densa", "densest").
+phrase_canon("più densa", "densest").
+phrase_canon("piu densi", "densest").
+phrase_canon("più densi", "densest").
+phrase_canon("piu dense", "densest").
+phrase_canon("più dense", "densest").
+phrase_canon("piu largo", "widest").
+phrase_canon("più largo", "widest").
+phrase_canon("piu larga", "widest").
+phrase_canon("più larga", "widest").
+phrase_canon("piu larghi", "widest").
+phrase_canon("più larghi", "widest").
+phrase_canon("piu larghe", "widest").
+phrase_canon("più larghe", "widest").
+phrase_canon("piu stretto", "narrowest").
+phrase_canon("più stretto", "narrowest").
+phrase_canon("piu stretta", "narrowest").
+phrase_canon("più stretta", "narrowest").
+phrase_canon("piu stretti", "narrowest").
+phrase_canon("più stretti", "narrowest").
+phrase_canon("piu strette", "narrowest").
+phrase_canon("più strette", "narrowest").
+phrase_canon("piu ricco", "richest").
+phrase_canon("più ricco", "richest").
+phrase_canon("piu ricca", "richest").
+phrase_canon("più ricca", "richest").
+phrase_canon("piu ricchi", "richest").
+phrase_canon("più ricchi", "richest").
+phrase_canon("piu ricche", "richest").
+phrase_canon("più ricche", "richest").
+phrase_canon("piu famoso", "most_famous").
+phrase_canon("più famoso", "most_famous").
+phrase_canon("piu famosa", "most_famous").
+phrase_canon("più famosa", "most_famous").
+phrase_canon("piu famosi", "most_famous").
+phrase_canon("più famosi", "most_famous").
+phrase_canon("piu famose", "most_famous").
+phrase_canon("più famose", "most_famous").
+phrase_canon("piu comune", "most_common").
+phrase_canon("più comune", "most_common").
+phrase_canon("piu comuni", "most_common").
+phrase_canon("più comuni", "most_common").
+phrase_canon("piu raro", "rarest").
+phrase_canon("più raro", "rarest").
+phrase_canon("piu rara", "rarest").
+phrase_canon("più rara", "rarest").
+phrase_canon("piu rari", "rarest").
+phrase_canon("più rari", "rarest").
+phrase_canon("piu rare", "rarest").
+phrase_canon("più rare", "rarest").
+phrase_canon("piu forte", "strongest").
+phrase_canon("più forte", "strongest").
+phrase_canon("piu forti", "strongest").
+phrase_canon("più forti", "strongest").
+phrase_canon("piu luminoso", "brightest").
+phrase_canon("più luminoso", "brightest").
+phrase_canon("piu luminosa", "brightest").
+phrase_canon("più luminosa", "brightest").
+phrase_canon("piu luminosi", "brightest").
+phrase_canon("più luminosi", "brightest").
+phrase_canon("piu luminose", "brightest").
+phrase_canon("più luminose", "brightest").
+% E le forme sintetiche, che non passano da «più».
+phrase_canon("il massimo", "largest").
+phrase_canon("il minimo", "smallest").
+
+% Le parole di dominio che mancavano alla tabella delle traduzioni: senza
+% queste il lettore non riconosce DI CHE COSA si chiede il superlativo.
+tr(continent, continente).
+tr(island, isola).
+tr(sea, mare).
+tr(planet, pianeta).
+tr(building, edificio).
+tr(bridge, ponte).
+tr(waterfall, cascata).
+tr(rainforest, foresta).
+tr(volcano, vulcano).
+tr(bone, osso).
+tr(organ, organo).
+tr(star, stella).
+tr(wall, muro).
+tr(mammal, mammifero).
+tr(reptile, rettile).
+tr(insect, insetto).
+tr(amphibian, anfibio).
+tr(plant, pianta).
+tr(snake, serpente).
+tr(bay, baia).
+tr(peninsula, penisola).
+tr(archipelago, arcipelago).
+tr(capital, capitale).
+tr(religion, religione).
+tr(university, universita).
+tr(stadium, stadio).
+tr(museum, museo).
+tr(muscle, muscolo).
+tr(flower, fiore).
+tr(place, luogo).
+tr(city, citta).
+tr(country, paese).
+tr(language, lingua).
+% «catena montuosa» e' una locuzione: una parola sola in KB, due nel turno.
+phrase_canon("catena montuosa", "mountain_range").
+phrase_canon("catene montuose", "mountain_range").
+phrase_canon("animale terrestre", "land_animal").
+phrase_canon("organo interno", "internal_organ").
+
+% I superlativi che non passano da un aggettivo comune.
+phrase_canon("piu parlata", "most_spoken").
+phrase_canon("più parlata", "most_spoken").
+phrase_canon("piu parlato", "most_spoken").
+phrase_canon("più parlato", "most_spoken").
+phrase_canon("piu diffusa", "most_common").
+phrase_canon("più diffusa", "most_common").
+phrase_canon("piu diffuso", "most_common").
+phrase_canon("più diffuso", "most_common").
 phrase_canon("fammi un esempio di", "an example of").
 % Un nome composto identifica un concetto PRIMA della traduzione delle sue
 % parole. Gli alias si insegnano con i normali frame «X is also called Y»;

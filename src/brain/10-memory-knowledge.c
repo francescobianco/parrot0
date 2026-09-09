@@ -13654,6 +13654,29 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                         isalpha((unsigned char)t[0]))
                         snprintf(cat, sizeof cat, "%s", t);
                 }
+                /* gen507/30 — LA CATEGORIA PUO' STARE PRIMA DELLA CUE.
+                 *
+                 * «what is the largest desert?» mette il dominio DOPO il
+                 * superlativo; «qual è il deserto più grande?» lo mette prima, e
+                 * canonicalizza in «what is the desert largest?». Guardando solo
+                 * in avanti, la categoria risultava assente, il filtro non
+                 * scattava e il lettore rendeva il massimo GLOBALE: alla domanda
+                 * sui deserti rispondeva «Skin.» — l'organo piu' grande, che e'
+                 * l'elemento con la magnitudine maggiore in tutta la KB.
+                 *
+                 * Una risposta sicura e fuori bersaglio e' il caso peggiore, e
+                 * qui non era un difetto di conoscenza ne' di lingua: era che il
+                 * posto in cui si cerca una categoria era una convenzione
+                 * d'ordine, scritta una volta e non detta da nessuno. La
+                 * scansione diventa simmetrica — avanti, e se non trova,
+                 * indietro. Nessuna parola, nessuna lingua, nessun dominio nel
+                 * C. L'intera famiglia italiana dei superlativi passa da qui. */
+                for (size_t j = cue_i; j-- > 0 && !cat[0]; ) {
+                    char *t = strip_edge_punct(mw[j]);
+                    if (*t && strlen(t) >= 2 && !is_stopword(b, t) &&
+                        isalpha((unsigned char)t[0]))
+                        snprintf(cat, sizeof cat, "%s", t);
+                }
                 char region[KB_TERM_LEN] = "";
                 for (size_t j = cue_i + 1; j + 1 < mn && !region[0]; j++) {
                     if (!lex_class_member(b, "10_memory_knowledge_lex8818", strip_edge_punct(mw[j]))) continue;
@@ -13661,6 +13684,32 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     while (end < mn && !lex_class_member(b, "10_memory_knowledge_lex8820", strip_edge_punct(mw[end])))
                         end++;
                     (void)join_entity_span(b, mw, j + 1, end, region, sizeof region);
+                }
+                /* gen507/30 — UN PRIMATO DETTO BATTE UN PRIMATO CALCOLATO.
+                 *
+                 * «qual è il pianeta più piccolo?» rispondeva «Saturn»: il
+                 * ranking sulle magnitudini vince il turno prima che qualcuno
+                 * legga `world_superlative(smallest, planet, …)`, che dice
+                 * Mercurio. Una graduatoria calcolata su quali misure la KB si
+                 * trova ad avere non e' una conoscenza sul primato: e' un
+                 * artefatto di cio' che e' stato misurato. Dove il primato e'
+                 * DETTO, quello vale, e questo lettore cede il turno.
+                 *
+                 * Non e' una precedenza cablata fra due moduli: e' la presenza
+                 * di un fatto a decidere, quindi dichiarare un primato nuovo
+                 * domani cambia la risposta senza ricompilare. */
+                int stated_extreme = 0;
+                if (cat[0] && cue_i < mn) {
+                    char pb2[KB_TERM_LEN];
+                    snprintf(pb2, sizeof pb2, "%s", strip_edge_punct(mw[cue_i]));
+                    char sg2[KB_TERM_LEN];
+                    singularize_kb(b, cat, sg2, sizeof sg2);
+                    const char *sq2[3] = { pb2, cat, NULL };
+                    const char *sq3[3] = { pb2, sg2, NULL };
+                    char tmp2[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "world_superlative", sq2, 3, tmp2, 1) > 0 ||
+                        kb_match(b->kb, "world_superlative", sq3, 3, tmp2, 1) > 0)
+                        stated_extreme = 1;
                 }
                 char items[128][KB_TERM_LEN];
                 const char *iq[3] = { dim, NULL, NULL };
@@ -13684,6 +13733,16 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     const char *pq[2] = { items[k], cat };
                     if (domain_query(b, "mereology", pq, 2))
                         { keep[k] = 1; nf++; continue; }
+                    /* gen507/30 — APPARTENERE PUO' ESSERE INDIRETTO.
+                     * «quale animale è più veloce?»: il ghepardo e' membro di
+                     * `mammal`, e `mammal` e' un animale. Il filtro chiedeva
+                     * solo l'appartenenza DIRETTA, quindi scartava il candidato
+                     * giusto e si rifiutava di rispondere. La risalita e' gia'
+                     * in KB (`is_a_t/2`, la chiusura transitiva): qui la si
+                     * chiede, invece di riscriverla. */
+                    const char *tq2[2] = { it, cat };
+                    if (kb_query(b->kb, "is_a_t", tq2, 2))
+                        { keep[k] = 1; nf++; continue; }
                 }
                 if (region[0] && nf > 0) {
                     size_t nr = 0;
@@ -13695,7 +13754,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     }
                     nf = nr;
                 }
-                if (ni > 0 && (nf > 0 || !cat[0])) {
+                if (!stated_extreme && ni > 0 && (nf > 0 || !cat[0])) {
                     size_t best = 0; double best_val = 0; int first = 1;
                     for (size_t k = 0; k < ni; k++) {
                         if (cat[0] && !keep[k]) continue;
@@ -14755,9 +14814,34 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * conteggi qui sopra, e la forma detta si prova comunque per prima: una
      * classe il cui nome finisce per «s» resta raggiungibile. */
     {
+        /* gen507/30 — ELENCARE NON E' SCEGLIERE IL PRIMATO.
+         *
+         * «quale animale è più veloce?» chiede UNO; «quali animali conosci?»
+         * chiede TUTTI. Le cue larghe del giro /7 («which», «quale») leggevano
+         * la prima come la seconda e rendevano l'elenco intero degli animali a
+         * una domanda sul piu' veloce. Il segnale che distingue le due non e'
+         * una parola in piu': e' che il turno nomina un PRIMATO, e quali siano i
+         * primati la KB lo dice gia' — sono le proprieta' di
+         * `world_superlative/3`. Nessuna lista nel C. */
+        int names_extreme = 0;
+        {
+            char props[64][KB_TERM_LEN];
+            const char *pq[3] = { NULL, NULL, NULL };
+            size_t npr = kb_match(b->kb, "world_superlative", pq, 3, props, 64);
+            char nb[300]; snprintf(nb, sizeof nb, "%s", norm);
+            char *nwv[48]; size_t nnw = split_words(nb, nwv, 48);
+            for (size_t pi = 0; pi < npr && !names_extreme; pi++) {
+                char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", props[pi]);
+                const char *prop = kb_dequote(pb);
+                if (!*prop) continue;
+                for (size_t ti = 0; ti < nnw; ti++)
+                    if (!strcmp(strip_edge_punct(nwv[ti]), prop)) { names_extreme = 1; break; }
+            }
+        }
         char (*cues)[KB_TERM_LEN] = NULL; size_t ncue = 0;
         const char *eq[1] = { NULL };
-        if (b->kb && kb_match_all(b->kb, "enumerate_cue", eq, 1, &cues, &ncue)) {
+        if (!names_extreme && b->kb &&
+            kb_match_all(b->kb, "enumerate_cue", eq, 1, &cues, &ncue)) {
             for (size_t ci = 0; ci < ncue; ci++) {
                 char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[ci]);
                 const char *cd = kb_dequote(cb);
