@@ -904,6 +904,10 @@ machinery(turn_correction).
 % sbucciatura avviene). Sono parole che non hanno un altro mestiere nella
 % frase: «no» non e' qui, perche' apre anche «no tool is a weapon».
 correction_cue(correction).
+% «actually» era gia' un'apertura di discorso E una stopword: veniva tolta due
+% volte e nessuno conservava cio' che diceva. Ora che l'annuncio si posa sul
+% turno intero, basta dichiararne il mestiere.
+correction_cue(actually).
 correction_cue(anzi).
 correction_cue("i was wrong").
 correction_cue("mi correggo").
