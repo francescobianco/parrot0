@@ -12329,8 +12329,10 @@ static int p0_grammar_judgement(Brain *b, const char *norm, char *out, size_t ou
  * conoscenza quando la forma diretta non ha portato niente. Una costruzione
  * insegnata domani — in qualunque lingua, per qualunque relazione — e' subito
  * interrogabile senza ricompilare. */
-static int p0_relation_taught_as(Brain *b, const char *surface,
-                                 char *out, size_t outsz) {
+static int p0_relation_taught_as_p(Brain *b, const char *surface,
+                                   char *out, size_t outsz,
+                                   char *particle, size_t psz) {
+    if (particle && psz) particle[0] = '\0';
     if (!b || !b->kb || !surface || !*surface || !out || outsz == 0) return 0;
     out[0] = '\0';
     char rows[8][KB_TERM_LEN];
@@ -12345,7 +12347,49 @@ static int p0_relation_taught_as(Brain *b, const char *surface,
         snprintf(out, outsz, "%s", rel);
         return 1;
     }
+    /* E la superficie puo' essere il PRIMO PEZZO di una forma piu' lunga:
+     * `extract_frame("@S live in @O", habitat)` legge «zelnik lives in turin»,
+     * ma «where does zelnik live?» non porta la particella, e senza questo
+     * passaggio la domanda non trovava nessun verbo — mentre il fatto che
+     * risponde era gia' in KB, messo li' da quella stessa forma. */
+    char (*pats)[KB_TERM_LEN] = NULL; size_t np = 0;
+    const char *pq[2] = { NULL, NULL };
+    if (kb_match_all(b->kb, "extract_frame", pq, 2, &pats, &np)) {
+        for (size_t i = 0; i < np; i++) {
+            char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", pats[i]);
+            const char *pat = kb_dequote(pb);
+            if (strncmp(pat, "@S ", 3)) continue;
+            const char *v = pat + 3;
+            size_t sl = strlen(surface);
+            if (strncmp(v, surface, sl) || v[sl] != ' ') continue;
+            /* La particella e' cio' che la forma mette fra la superficie e lo
+             * slot: la DOMANDA polare la porta («does zelnik live IN turin?»)
+             * e senza saperla la leggerebbe come parte dell'oggetto. */
+            if (particle && psz) {
+                const char *g = v + sl + 1;
+                size_t gl = 0;
+                while (g[gl] && g[gl] != ' ' && gl + 1 < psz) gl++;
+                if (gl && strncmp(g, "@", 1)) { memcpy(particle, g, gl); particle[gl] = '\0'; }
+                else particle[0] = '\0';
+            }
+            char rows[4][KB_TERM_LEN];
+            const char *rq[2] = { pats[i], NULL };
+            if (kb_match(b->kb, "extract_frame", rq, 2, rows, 4) < 1) continue;
+            char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[0]);
+            const char *rel = kb_dequote(rb);
+            if (!*rel || !strcmp(rel, surface)) continue;
+            snprintf(out, outsz, "%s", rel);
+            free(pats);
+            return 1;
+        }
+    }
+    free(pats);
     return 0;
+}
+
+static int p0_relation_taught_as(Brain *b, const char *surface,
+                                 char *out, size_t outsz) {
+    return p0_relation_taught_as_p(b, surface, out, outsz, NULL, 0);
 }
 
 static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_size) {
@@ -12367,6 +12411,7 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
 
     size_t vi = 0;
     char rel[KB_TERM_LEN]; rel[0] = '\0';
+    char form_particle[KB_TERM_LEN]; form_particle[0] = '\0';
     for (size_t i = base + 2; i < nw && !vi; i++) {
         char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", w[i]);
         const char *bare = strip_edge_punct(vb);
@@ -12378,6 +12423,17 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
         const char *sq[] = { NULL, bare };          /* verb_stem(Flessa, Radice) */
         if (kb_match(b->kb, "verb_stem", sq, 2, infl, 1) == 1) {
             snprintf(rel, sizeof rel, "%s", infl[0]); vi = i; break;
+        }
+        /* gen507 — e la terza strada, che il gen507/8 aveva lasciata scritta
+         * come debito: `answer_frame(Superficie, Relazione)` dice quale
+         * relazione una superficie INTERROGA. «zelnik lives in turin» entrava
+         * correttamente come `habitat(zelnik, turin)`, ma «where does zelnik
+         * live?» non trovava nessun verbo — `live` non e' un `relation_verb`,
+         * e' la superficie di una relazione che ne porta un altro nome. */
+        char taught[KB_TERM_LEN];
+        if (p0_relation_taught_as_p(b, bare, taught, sizeof taught,
+                                    form_particle, sizeof form_particle)) {
+            snprintf(rel, sizeof rel, "%s", taught); vi = i; break;
         }
     }
     if (!vi) return 0;
@@ -12430,7 +12486,8 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
         char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", w[obeg]);
         const char *pt = strip_edge_punct(pb);
         const char *pq[1] = { pt };
-        if (*pt && kb_query(b->kb, "relation_particle", pq, 1)) obeg++;
+        if (*pt && (kb_query(b->kb, "relation_particle", pq, 1) ||
+                    (form_particle[0] && !strcmp(pt, form_particle)))) obeg++;
     }
     if (!p0_join(w, obeg, nw, obj, sizeof obj)) return 0;
     for (char *c = obj; *c; c++) if (*c == '?') { *c = '\0'; break; }
