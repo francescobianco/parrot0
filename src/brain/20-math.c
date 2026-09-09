@@ -366,6 +366,81 @@ static void arith_answer(double v, char *out, size_t out_size) {
  * eval_operand evaluates one operand span w[s..e) as a small computation:
  * "P percent of N", "square root of N", "half/third/quarter of N",
  * "N squared/cubed", or a plain number (exactly one numeral in the span). */
+/* gen507/32 — UNA QUANTITA' CONTATA, AL POSTO DI UN NUMERALE.
+ *
+ * «quale è il quadrato del numero di pezzi in una scacchiera» murava, e
+ * tutti i pezzi c'erano: «quanto fa il quadrato di 32?» dava 1024, e la KB
+ * sa quanti pezzi ha una scacchiera. Mancava che un operando potesse essere
+ * una cosa da CONTARE invece di un numero scritto. Una composizione non e'
+ * una forma nuova: e' un operando che si valuta chiedendo.
+ *
+ * Quali superfici annuncino un conteggio e' conoscenza (`count_phrase/1`,
+ * EN+IT); l'unita' e' la parola dopo, l'insieme il nome che segue, e la
+ * risposta la da' `quantity/3` — che c'era gia' e che da qui nessuno
+ * interrogava. Il motore non nomina nessuna unita', nessun insieme, nessuna
+ * lingua, e vale per QUALUNQUE quantita' la KB tenga o impari domani, dentro
+ * qualunque operazione il motore sappia gia' fare.
+ */
+static int p0_counted_quantity(Brain *b, char **w, size_t s, size_t e,
+                               double *val) {
+    if (b && b->kb) {
+        char (*cues)[KB_TERM_LEN] = NULL; size_t ncue = 0;
+        const char *cq[1] = { NULL };
+        if (kb_match_all(b->kb, "count_phrase", cq, 1, &cues, &ncue)) {
+            for (size_t ci = 0; ci < ncue; ci++) {
+                char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[ci]);
+                const char *cd = kb_dequote(cb);
+                if (!*cd) continue;
+                /* la cue e' una sequenza di token: si cerca dove comincia */
+                char first[KB_TERM_LEN]; size_t fl = 0;
+                while (cd[fl] && cd[fl] != ' ' && fl + 1 < sizeof first) { first[fl] = cd[fl]; fl++; }
+                first[fl] = '\0';
+                size_t nct = 1;
+                for (const char *p = cd; *p; p++) if (*p == ' ') nct++;
+                for (size_t i = s; i + nct < e; i++) {
+                    if (strcasecmp(strip_edge_punct(w[i]), first)) continue;
+                    /* l'unita' e' il token dopo la cue; l'insieme e' l'ultimo
+                     * token di contenuto che resta */
+                    size_t ui = i + nct;
+                    if (ui >= e) break;
+                    char unit[KB_TERM_LEN], whole[KB_TERM_LEN];
+                    snprintf(unit, sizeof unit, "%s", strip_edge_punct(w[ui]));
+                    whole[0] = '\0';
+                    for (size_t j = ui + 1; j < e; j++) {
+                        const char *t = strip_edge_punct(w[j]);
+                        if (*t && strlen(t) >= 2 && !is_stopword(b, t) &&
+                            isalpha((unsigned char)t[0]))
+                            snprintf(whole, sizeof whole, "%s", t);
+                    }
+                    if (!unit[0] || !whole[0]) break;
+                    /* unita' e insieme si provano come detti e al singolare:
+                     * `quantity/3` tiene «squares» al plurale e «chessboard» al
+                     * singolare, e non e' il turno a doverlo sapere. */
+                    char us[KB_TERM_LEN], ws[KB_TERM_LEN];
+                    singularize_kb(b, unit, us, sizeof us);
+                    singularize_kb(b, whole, ws, sizeof ws);
+                    const char *ucand[2] = { unit, us };
+                    const char *wcand[2] = { whole, ws };
+                    for (size_t a = 0; a < 2; a++) for (size_t c = 0; c < 2; c++) {
+                        const char *pat[3] = { wcand[c], ucand[a], NULL };
+                        char hit[1][KB_TERM_LEN];
+                        if (domain_match(b, "quantity", pat, 3, hit, 1) < 1) continue;
+                        char hb[KB_TERM_LEN]; snprintf(hb, sizeof hb, "%s", hit[0]);
+                        double q = 0;
+                        if (!parse_value(kb_dequote(hb), &q)) continue;
+                        free(cues);
+                        *val = q;
+                        return 1;
+                    }
+                    break;
+                }
+            }
+        }
+        free(cues);
+    }
+    return 0;
+}
+
 static int eval_operand(Brain *b, char **w, size_t s, size_t e, double *val) {
     if (s >= e) return 0;
     size_t ofp = e;
@@ -432,6 +507,7 @@ static int eval_operand(Brain *b, char **w, size_t s, size_t e, double *val) {
     double only = 0; int cnt = 0;
     for (size_t i = s; i < e; i++) { double v; if (parse_value(w[i], &v)) { only = v; cnt++; } }
     if (cnt == 1) { *val = only; return 1; }
+    if (p0_counted_quantity(b, w, s, e, val)) return 1;
     return 0;
 }
 
@@ -1583,6 +1659,15 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
                     break;
                 }
             }
+        }
+        /* gen507/32 — e se non c'e' nessun numerale, l'operando puo' essere una
+         * QUANTITA' CONTATA. Agganciato qui, davanti ai gestori a un'operazione,
+         * perche' ognuno di loro riceva il numero allo stesso modo: il quadrato,
+         * il cubo, il fattoriale, la meta' e il doppio diventano componibili con
+         * qualunque quantita' la KB tenga, senza un gestore per forma. */
+        if (gn == 0) {
+            double q = 0;
+            if (p0_counted_quantity(b, cw, 0, cnw, &q)) { gnums[0] = q; gn = 1; }
         }
         /* N squared / N cubed, N al quadrato / al cubo. */
         if (gn == 1) {

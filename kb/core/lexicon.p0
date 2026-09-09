@@ -580,6 +580,39 @@ tr(place, luogo).
 tr(city, citta).
 tr(country, paese).
 tr(language, lingua).
+tr(chessboard, scacchiera).
+tr(square, casella).
+tr(month, mese).
+tr(day, giorno).
+tr(hour, ora).
+tr(minute, minuto).
+tr(second, secondo).
+tr(rank, riga).
+tr(file, colonna).
+tr(piece, pezzo).
+tr(card, carta).
+tr(deck, mazzo).
+tr(side, lato).
+tr(face, faccia).
+tr(edge, spigolo).
+tr(vertex, vertice).
+tr(key, tasto).
+tr(string, corda).
+tr(letter, lettera).
+tr(player, giocatore).
+tr(finger, dito).
+tr(rib, costola).
+
+% gen507/32 — UN OPERANDO PUO' ESSERE UNA QUANTITA' CONTATA.
+% «il quadrato del NUMERO DI pezzi in una scacchiera»: l'operando non e' un
+% numerale, e' una cosa da contare. Quali superfici annuncino un conteggio e'
+% conoscenza; il motore poi interroga `quantity/3`, che c'era gia'.
+machinery(count_phrase).
+count_phrase("the number of").
+count_phrase("the amount of").
+count_phrase("il numero di").
+count_phrase("numero di").
+count_phrase("quantita di").
 % «catena montuosa» e' una locuzione: una parola sola in KB, due nel turno.
 phrase_canon("catena montuosa", "mountain_range").
 phrase_canon("catene montuose", "mountain_range").
@@ -3295,8 +3328,18 @@ singleton_word(other).
 singleton_word(single).
 
 machinery(square_marker).
+% gen507/32 — la classe aveva il participio inglese e il nome italiano, e non il
+% NOME inglese: «quanto fa il quadrato di 32?» rispondeva 1024 e «what is the
+% square of 32?» riceveva il glossario di un quadro di Malevic. Due lingue, due
+% esiti, per una riga mancante.
+square_marker(square).
 square_marker(quadrato).
 square_marker(squared).
+
+machinery(cube_marker).
+cube_marker(cube).
+cube_marker(cubed).
+cube_marker(cubo).
 
 machinery(step_noun).
 step_noun(step).

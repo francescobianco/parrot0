@@ -216,7 +216,13 @@ static int p0_turn_has_word(Brain *b, const char *norm, const char *cls) {
  * non esiste»: una forma senza condizioni non e' vera, e' vuota. */
 static int p0_turn_pattern_holds(Brain *b, const char *pat, const char *norm,
                                  size_t *seen) {
-    static const char *KIND[] = { "cue", "not_cue", "word", "text" };
+    /* gen507/32 — e una condizione che mancava: «il turno porta un NUMERO».
+     * Serviva a dire in KB una congiunzione come «c'e' un'operazione E c'e' un
+     * numero», che e' cio' che distingue «what is the square OF 32?» da «what is
+     * a square?». Un KIND nuovo e' un posto nuovo dove guardare, non un ordine
+     * nuovo: e' l'unica specie di aggiunta che giustifica una riga di C
+     * (docs/plans/kb-first.md §4-bis). */
+    static const char *KIND[] = { "cue", "not_cue", "word", "text", "number" };
     size_t total = 0;
     for (size_t k = 0; k < sizeof KIND / sizeof KIND[0]; k++) {
         char args[16][KB_TERM_LEN];
@@ -231,7 +237,27 @@ static int p0_turn_pattern_holds(Brain *b, const char *pat, const char *norm,
                 case 0: ok =  kb_cue_match_plain(b, a, norm); break;
                 case 1: ok = !kb_cue_match_plain(b, a, norm); break;
                 case 2: ok =  p0_turn_has_word(b, norm, a);   break;
-                default: ok = (*a && strstr(norm, a) != NULL); break;
+                case 3: ok = (*a && strstr(norm, a) != NULL); break;
+                default: {
+                    /* `turn_pattern(F, number, any)`: un token del turno si
+                     * legge come numero. Il motore non sa quali numeri esistano
+                     * — li riconosce. */
+                    ok = 0;
+                    for (const char *p = norm; *p && !ok; ) {
+                        while (*p && !isalnum((unsigned char)*p)) p++;
+                        const char *st = p;
+                        while (*p && (isalnum((unsigned char)*p) || *p == '.' ||
+                                      *p == ',')) p++;
+                        if (p == st) continue;
+                        int digits = 0, other = 0;
+                        for (const char *c = st; c < p; c++) {
+                            if (isdigit((unsigned char)*c)) digits++;
+                            else if (*c != '.' && *c != ',') other++;
+                        }
+                        if (digits && !other) ok = 1;
+                    }
+                    break;
+                }
             }
             if (!ok) { if (seen) *seen = total; return 0; }
         }

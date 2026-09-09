@@ -5688,6 +5688,53 @@ faculty_force(chitchat, expressive).
 machinery(faculty_yield).
 machinery(faculty_yield_both).
 
+% ── gen507/32 — IL GLOSSARIO CEDE A UN CALCOLO ──────────────────────────────
+%
+%     > what is the square of 32?
+%       A radically reduced geometric image presented as a new beginning for
+%       nonobjective art.
+%
+% Il lettore delle formulazioni risolveva «square» nell'entita' `black_square`
+% (il quadro di Malevic) e rispondeva con il suo glossario. Una risposta sicura e
+% fuori bersaglio, su una domanda che l'italiano — «quanto fa il quadrato di 32?»
+% — risolveva correttamente in 1024: due lingue, due esiti, perche' il turno
+% inglese veniva preso da un'altra facolta' prima che il calcolo lo vedesse.
+%
+% La cura non e' togliere Malevic ne' riordinare i moduli nel C: e' dichiarare la
+% CONDOTTA. Una facolta' che non ha un calcolo in gara cede il turno quando il
+% turno e' un calcolo — e quando lo sia lo dice una congiunzione in KB
+% (`turn_pattern/3`, mantra #19), non una catena di `&&`.
+turn_pattern(arithmetic_on_number, word, square_marker).
+turn_pattern(arithmetic_on_number, number, any).
+turn_pattern_intent(arithmetic_on_number, arithmetic_on_number).
+
+turn_pattern(arithmetic_on_count, word, square_marker).
+turn_pattern(arithmetic_on_count, text, "the number of").
+turn_pattern_intent(arithmetic_on_count, arithmetic_on_count).
+
+turn_pattern(cube_on_number, word, cube_marker).
+turn_pattern(cube_on_number, number, any).
+turn_pattern_intent(cube_on_number, cube_on_number).
+
+turn_pattern(cube_on_count, word, cube_marker).
+turn_pattern(cube_on_count, text, "the number of").
+turn_pattern_intent(cube_on_count, cube_on_count).
+
+faculty_yield(answerframe, open, arithmetic_on_number).
+faculty_yield(answerframe, open, arithmetic_on_count).
+faculty_yield(answerframe, open, cube_on_number).
+faculty_yield(answerframe, open, cube_on_count).
+
+% ⚠ RESIDUO DICHIARATO, e la prova che la condotta non basta da sola.
+% La forma inglese composta — «what is the square of the number of pieces on a
+% chessboard?» — la prende `knowledge`, che risponde «I can't show that», mentre
+% la stessa frase in italiano arriva al calcolo e da' 1024. Far cedere anche
+% `knowledge` fa cadere il turno in un muro senza che il calcolo lo raccolga:
+% si scambia una risposta sbagliata con una mancata, e non si guadagna niente.
+% Il difetto vero e' piu' a monte — il raccoglitore di numeri del lettore
+% aritmetico non arriva a quella forma in inglese — e si chiude li', non
+% spostando una precedenza. Lasciato scritto invece di mascherato.
+
 % All'APERTURA `gen` cede solo dove non ha nulla in gara. La cessione e'
 % CONGIUNTA: una prova sola sarebbe troppo avida — «estrazione» da sola non e'
 % un problema di probabilita'.
