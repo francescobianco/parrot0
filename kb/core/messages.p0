@@ -1046,6 +1046,35 @@ turn_form(weight_asked_it, 3, slot(subject)).
 turn_form(weight_asked_it, 4, bind(relation, weight_of)).
 turn_form_act(weight_asked_it, answer_relation).
 
+% ── A che cosa serve ──────────────────────────────────────────────────────
+relation(purpose).
+response_template(learned_purpose, "Held: {subject} is used for {object}.").
+response_template(learned_purpose, it, "Tengo: {subject} serve a {object}.").
+turn_form(purpose_stated, 1, slot(subject)).
+turn_form(purpose_stated, 2, text("is used for")).
+turn_form(purpose_stated, 3, rest(object)).
+turn_form(purpose_stated, 4, bind(relation, purpose_of)).
+turn_form_act(purpose_stated, assert_relation).
+turn_form_reply(purpose_stated, learned_purpose).
+
+% Le forme italiane di questa famiglia NON si dichiarano qui: «grum serve a
+% tagliare» e' gia' letta da chi legge i prerequisiti, e «a cosa serve X?» da un
+% altro lettore ancora. Il dispatch e' first-match e le strutture secondarie si
+% tengono: sovrascriverle per avere ragione sarebbe ridurre cio' che un pezzo di
+% parrot0 vede. Resta come lacuna dichiarata, non come forma vinta a forza.
+turn_form(purpose_asked, 1, text("what is")).
+turn_form(purpose_asked, 2, slot(subject)).
+turn_form(purpose_asked, 3, text("used for")).
+turn_form(purpose_asked, 4, bind(relation, purpose_of)).
+turn_form_act(purpose_asked, answer_relation).
+
+turn_form(purpose_asked2, 1, text("what is the purpose of")).
+turn_form(purpose_asked2, 2, slot(subject)).
+turn_form(purpose_asked2, 3, bind(relation, purpose_of)).
+turn_form_act(purpose_asked2, answer_relation).
+
+
+
 machinery(why_cue).
 why_cue("why").
 why_cue("how come").
