@@ -264,6 +264,13 @@ token_variation(joined_infix_rhs, "split_operator_prefix").
 % potesse agganciarla, e una capacita' che funzionava spariva — misurato subito
 % dopo averle omesse. La forma piu' lunga si dichiara per prima.
 phrase_canon("dove si trova", "where is").
+% gen507 — la stessa domanda detta piu' lunga. «what do you know about X»
+% rispondeva, «tell me everything you know about X» no: non era una capacita'
+% mancante, era una formulazione senza porta. Una in piu' costa una riga.
+phrase_canon("tell me everything you know about", "what do you know about").
+phrase_canon("tell me all you know about", "what do you know about").
+phrase_canon("dimmi tutto quello che sai su", "what do you know about").
+phrase_canon("dimmi tutto su", "what do you know about").
 % Un nome composto identifica un concetto PRIMA della traduzione delle sue
 % parole. Gli alias si insegnano con i normali frame «X is also called Y»;
 % non sono risposte preconfezionate e non richiedono un dizionario nel C.
