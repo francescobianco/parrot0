@@ -12224,6 +12224,41 @@ static int p0_grammar_judgement(Brain *b, const char *norm, char *out, size_t ou
     return kb_response_slots(b, "no_rule_for_sentence", NULL, 0, out, out_size);
 }
 
+/* gen507 — LA LEZIONE VALE ANCHE QUANDO SI CHIEDE.
+ *
+ * «x own y means x owner y» registra due viste della stessa lezione:
+ * `construction_frame/3`, che riscrive la frase quando la si ASSERISCE, e
+ * `answer_frame(Superficie, Relazione)`, che dice quale relazione una
+ * superficie INTERROGA. La seconda esisteva gia' ed era gia' popolata; questo
+ * lettore pero' risolveva il verbo per conto proprio — `relation_verb/1`,
+ * `verb_stem/2` — e la lezione non la consultava nessuno. L'effetto era che
+ * parrot0 riscriveva «pella own grum» in `owner(pella, grum)` con le proprie
+ * mani, e un istante dopo, alla domanda «does pella own grum?», rispondeva che
+ * non ne sapeva niente.
+ *
+ * Qui non c'e' una terza risoluzione: c'e' la stessa domanda fatta alla
+ * conoscenza quando la forma diretta non ha portato niente. Una costruzione
+ * insegnata domani — in qualunque lingua, per qualunque relazione — e' subito
+ * interrogabile senza ricompilare. */
+static int p0_relation_taught_as(Brain *b, const char *surface,
+                                 char *out, size_t outsz) {
+    if (!b || !b->kb || !surface || !*surface || !out || outsz == 0) return 0;
+    out[0] = '\0';
+    char rows[8][KB_TERM_LEN];
+    const char *q[2] = { surface, NULL };
+    size_t n = kb_match(b->kb, "answer_frame", q, 2, rows, 8);
+    for (size_t i = 0; i < n; i++) {
+        char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[i]);
+        const char *rel = kb_dequote(rb);
+        /* Una superficie che nomina se stessa non e' una lezione: e' la strada
+         * diretta, gia' provata dal chiamante. */
+        if (!*rel || !strcmp(rel, surface)) continue;
+        snprintf(out, outsz, "%s", rel);
+        return 1;
+    }
+    return 0;
+}
+
 static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_size) {
     if (!b || !b->kb || !norm) return 0;
     size_t L = strlen(norm);
@@ -12278,6 +12313,11 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
         const char *pat[] = { subj, NULL };
         char hits[64][KB_TERM_LEN];
         size_t k = kb_match(b->kb, rel, pat, 2, hits, 64);
+        if (k == 0) {
+            char via[KB_TERM_LEN];
+            if (p0_relation_taught_as(b, rel, via, sizeof via))
+                k = kb_match(b->kb, via, pat, 2, hits, 64);
+        }
         if (k == 0) return 0;
         char list[900]; size_t off = 0;
         for (size_t i = 0; i < k && off + 1 < sizeof list; i++) {
@@ -12297,6 +12337,11 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
 
     const char *args[] = { subj, obj };
     if (kb_query(b->kb, rel, args, 2)) { put("Yes.", out, out_size); return 1; }
+    {
+        char via[KB_TERM_LEN];
+        if (p0_relation_taught_as(b, rel, via, sizeof via) &&
+            kb_query(b->kb, via, args, 2)) { put("Yes.", out, out_size); return 1; }
+    }
     char ss[KB_TERM_LEN], os[KB_TERM_LEN], rr[KB_TERM_LEN];
     present_atom(b, subj, ss, sizeof ss);
     present_atom(b, obj, os, sizeof os);
