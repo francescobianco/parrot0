@@ -12335,9 +12335,19 @@ static int p0_relation_taught_as_p(Brain *b, const char *surface,
     if (particle && psz) particle[0] = '\0';
     if (!b || !b->kb || !surface || !*surface || !out || outsz == 0) return 0;
     out[0] = '\0';
+    /* Una superficie e' scritta CITATA nel fatto («answer_frame("have", …)»),
+     * e la chiave che arriva dal turno e' nuda: interrogare solo con quella
+     * nuda faceva sembrare assente una riga che c'era. Si prova nelle due
+     * forme, che e' la stessa cosa detta due volte, non due conoscenze. */
     char rows[8][KB_TERM_LEN];
     const char *q[2] = { surface, NULL };
     size_t n = kb_match(b->kb, "answer_frame", q, 2, rows, 8);
+    if (n == 0) {
+        char qs[KB_TERM_LEN];
+        snprintf(qs, sizeof qs, "\"%s\"", surface);
+        const char *qq[2] = { qs, NULL };
+        n = kb_match(b->kb, "answer_frame", qq, 2, rows, 8);
+    }
     for (size_t i = 0; i < n; i++) {
         char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[i]);
         const char *rel = kb_dequote(rb);
@@ -12412,24 +12422,36 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
     size_t vi = 0;
     char rel[KB_TERM_LEN]; rel[0] = '\0';
     char form_particle[KB_TERM_LEN]; form_particle[0] = '\0';
+    /* La superficie DETTA, che non coincide sempre con la relazione risolta:
+     * `verb_stem/2` puo' restituire una forma flessa, e la lezione che sa
+     * tradurre la superficie in relazione e' indicizzata sulla superficie. */
+    char said[KB_TERM_LEN]; said[0] = '\0';
     for (size_t i = base + 2; i < nw && !vi; i++) {
         char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", w[i]);
         const char *bare = strip_edge_punct(vb);
         const char *cand[] = { bare };
+        snprintf(said, sizeof said, "%s", bare);
         if (kb_query(b->kb, "relation_verb", cand, 1)) {
             snprintf(rel, sizeof rel, "%s", bare); vi = i; break;
         }
-        char infl[1][KB_TERM_LEN];
-        const char *sq[] = { NULL, bare };          /* verb_stem(Flessa, Radice) */
-        if (kb_match(b->kb, "verb_stem", sq, 2, infl, 1) == 1) {
-            snprintf(rel, sizeof rel, "%s", infl[0]); vi = i; break;
-        }
-        /* gen507 — e la terza strada, che il gen507/8 aveva lasciata scritta
+        /* gen507 — UNA LEZIONE BATTE UNA DERIVAZIONE MORFOLOGICA.
+         * `verb_stem/2` indovina la radice dalla forma; `answer_frame/2` la
+         * DICHIARA. Con «have» la derivazione restituiva «had» e la domanda
+         * moriva li', mentre la stessa domanda in terza persona («has»)
+         * rispondeva: due superfici dello stesso verbo, due esiti. Chiedere
+         * prima a cio' che e' stato detto e' anche l'ordine giusto.
+         *
+         * e la terza strada, che il gen507/8 aveva lasciata scritta
          * come debito: `answer_frame(Superficie, Relazione)` dice quale
          * relazione una superficie INTERROGA. «zelnik lives in turin» entrava
          * correttamente come `habitat(zelnik, turin)`, ma «where does zelnik
          * live?» non trovava nessun verbo — `live` non e' un `relation_verb`,
          * e' la superficie di una relazione che ne porta un altro nome. */
+        char infl[1][KB_TERM_LEN];
+        const char *sq[] = { NULL, bare };          /* verb_stem(Flessa, Radice) */
+        if (kb_match(b->kb, "verb_stem", sq, 2, infl, 1) == 1) {
+            snprintf(rel, sizeof rel, "%s", infl[0]); vi = i; break;
+        }
         char taught[KB_TERM_LEN];
         if (p0_relation_taught_as_p(b, bare, taught, sizeof taught,
                                     form_particle, sizeof form_particle)) {
@@ -12482,6 +12504,10 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
      * leghino una relazione al suo secondo termine e' conoscenza
      * (`relation_particle/1`): una lingua nuova costa una riga. */
     size_t obeg = vi + 1;
+    /* gen507 — l'ARTICOLO che apre l'oggetto non fa parte del suo nome.
+     * «does zelnik have A handle?» cercava «a handle». La classe dei
+     * determinanti e' gia' quella che il lettore usa per il soggetto. */
+    if (obeg + 1 < nw && p0_lead_det(b, w[obeg])) obeg++;
     if (obeg + 1 < nw) {
         char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", w[obeg]);
         const char *pt = strip_edge_punct(pb);
@@ -12495,10 +12521,40 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
 
     const char *args[] = { subj, obj };
     if (kb_query(b->kb, rel, args, 2)) { put("Yes.", out, out_size); return 1; }
+    /* gen507 — UNA SUPERFICIE PUO' AVERE PIU' LETTURE, E SCEGLIERNE UNA IN
+     * SILENZIO E' LA MOSSA SBAGLIATA. «have» ne ha diverse dichiarate; presa
+     * la prima, «does zelnik have a handle?» finiva a interrogare
+     * `located_in`. Qui si provano TUTTE le letture dichiarate per la
+     * superficie detta e per la relazione risolta: risponde quella che ha un
+     * fatto, e se nessuna ce l'ha resta l'onesta' di prima. */
     {
-        char via[KB_TERM_LEN];
-        if (p0_relation_taught_as(b, rel, via, sizeof via) &&
-            kb_query(b->kb, via, args, 2)) { put("Yes.", out, out_size); return 1; }
+        const char *surfaces[2] = { said[0] ? said : rel, rel };
+        for (size_t si = 0; si < 2; si++) {
+            if (!surfaces[si] || !*surfaces[si]) continue;
+            if (si == 1 && !strcmp(surfaces[0], surfaces[1])) continue;
+            char rows[16][KB_TERM_LEN];
+            const char *fq[2] = { surfaces[si], NULL };
+            size_t nr = kb_match(b->kb, "answer_frame", fq, 2, rows, 16);
+            if (nr == 0) {
+                char qs[KB_TERM_LEN];
+                snprintf(qs, sizeof qs, "\"%s\"", surfaces[si]);
+                const char *qq[2] = { qs, NULL };
+                nr = kb_match(b->kb, "answer_frame", qq, 2, rows, 16);
+            }
+            for (size_t r = 0; r < nr; r++) {
+                char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[r]);
+                const char *via = kb_dequote(rb);
+                if (!*via || !strcmp(via, surfaces[si])) continue;
+                if (kb_query(b->kb, via, args, 2)) {
+                    put("Yes.", out, out_size); return 1;
+                }
+            }
+            char via2[KB_TERM_LEN];
+            if (p0_relation_taught_as(b, surfaces[si], via2, sizeof via2) &&
+                kb_query(b->kb, via2, args, 2)) {
+                put("Yes.", out, out_size); return 1;
+            }
+        }
     }
     char ss[KB_TERM_LEN], os[KB_TERM_LEN], rr[KB_TERM_LEN];
     present_atom(b, subj, ss, sizeof ss);

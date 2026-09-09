@@ -1559,6 +1559,28 @@ extract_frame(@S forms @O, forms).
 % imparabile e «Where do penguins live?» non trovava cio' che c'era. Il report
 % lo legge come «i soggetti plurali non diventano entita'»; misurato, e' piu'
 % semplice e piu' grave — mancava la porta, in entrambi i versi.
+% ── gen507 — AVERE UNA PARTE ──────────────────────────────────────────────
+%
+% «zelnik has a handle» entrava gia' in KB come `has(zelnik, handle)`, ma
+% «does zelnik have a handle?» rispondeva di non saperne niente: la domanda
+% porta l'INFINITO, l'asserzione la terza persona, e le due non si
+% incontravano. Il muro proponeva «has is a relation verb» — una lezione che
+% non si riesce a dare, perche' `have` e' anche l'ausiliare.
+%
+% Le tre superfici della stessa relazione, dette una volta.
+relation(part).
+extract_frame("@S has a @O", has_part).
+extract_frame("@S has an @O", has_part).
+extract_frame("@S has @O", has_part).
+extract_frame("@S have a @O", has_part).
+extract_frame("@S have @O", has_part).
+extract_frame("@S ha un @O", has_part).
+extract_frame("@S ha una @O", has_part).
+answer_frame("has", has_part).
+answer_frame("have", has_part).
+answer_frame("ha", has_part).
+relation_noun(has_part, part).
+
 extract_frame("@S live in @O", habitat).
 extract_frame("@S lives in @O", habitat).
 extract_frame("@S vive in @O", habitat).
