@@ -13993,6 +13993,37 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 store_proof(b, "Answered from a count_of/2 fact in the KB.");
                 return 1;
             }
+            /* gen507 — E SE NESSUNO L'HA DETTO, SI CONTA CIO' CHE SI SA.
+             *
+             * `count_of/2` e' un fatto ricevuto: «i continenti sono sette» e'
+             * una verita' sul mondo. Ma una classe insegnata un membro alla
+             * volta non aveva nessun modo di essere contata, e parrot0 cadeva
+             * nel muro su una domanda la cui risposta era interamente dentro di
+             * lui. Contare i propri membri e' un atto diverso dal riferire un
+             * numero, e si dice con parole diverse: la risposta dichiara quanti
+             * ne CONOSCE, perche' sapere due tool non dichiara che i tool siano
+             * due (gen504). Nessun nome di classe nel C. */
+            char known[64][KB_TERM_LEN];
+            const char *aq[1] = { NULL };
+            size_t nk = b->kb ? kb_match(b->kb, noun, aq, 1, known, 64) : 0;
+            if (nk > 0) {
+                char list[600]; size_t off = 0;
+                for (size_t k = 0; k < nk && off + 1 < sizeof list; k++) {
+                    char shown[KB_TERM_LEN];
+                    present_atom(b, known[k], shown, sizeof shown);
+                    off += (size_t)snprintf(list + off, sizeof list - off,
+                                            "%s%s", k ? ", " : "", shown);
+                }
+                char cnt[24]; snprintf(cnt, sizeof cnt, "%zu", nk);
+                char msg[760];
+                kb_term_say(b, "count_known_answer", (const KbResponseSlot[]){
+                                { "count", cnt },
+                                { "noun", noun },
+                                { "list", list } }, 3, msg, sizeof msg);
+                put(msg, out, out_size);
+                store_proof(b, "Counted the members this KB holds, not the world.");
+                return 1;
+            }
         }
     }
 
