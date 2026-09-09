@@ -860,6 +860,37 @@ enumerate_cue("un esempio di").
 enumerate_limit("an example of a", 1).
 enumerate_limit("an example of", 1).
 enumerate_limit("un esempio di", 1).
+
+% gen507 — ELENCARE, CONTARE, ACCERTARE sono tre letture della stessa
+% interrogazione di una classe, e si dicono in modo diverso. Il motore e' uno;
+% quale lettura chieda una cue e' un fatto. Senza `enumerate_mode/2` una cue
+% elenca, cosi' le righe gia' scritte non cambiano comportamento.
+machinery(enumerate_mode).
+enumerate_cue("how many").
+enumerate_cue("count the").
+enumerate_cue("quanti").
+enumerate_cue("quante").
+enumerate_mode("how many", count).
+enumerate_mode("count the", count).
+enumerate_mode("quanti", count).
+enumerate_mode("quante", count).
+
+enumerate_cue("is there a").
+enumerate_cue("is there any").
+enumerate_cue("are there any").
+enumerate_cue("do you know any").
+enumerate_cue("esiste un").
+enumerate_cue("c'e' un").
+enumerate_mode("is there a", exists).
+enumerate_mode("is there any", exists).
+enumerate_mode("are there any", exists).
+enumerate_mode("do you know any", exists).
+enumerate_mode("esiste un", exists).
+enumerate_mode("c'e' un", exists).
+% Accertare non e' elencare: la risposta afferma e porta UN testimone, perche'
+% un'esistenza provata si prova nominando chi la prova.
+response_template(existence_witness, "Yes -- {witness}, for one.").
+response_template(existence_witness, it, "Sì — {witness}, per esempio.").
 response_template(enumeration_answer, "{list}.").
 response_template(enumeration_empty, "I do not know any {noun} yet.").
 response_template(enumeration_empty, it, "Non conosco ancora nessun {noun}.").

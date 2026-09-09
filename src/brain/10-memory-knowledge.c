@@ -14188,6 +14188,19 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                         if (v > 0 && (size_t)v < nm) nm = (size_t)v;
                     }
                 }
+                /* gen507 — elencare, contare e accertare sono tre letture
+                 * della stessa interrogazione. Quale lettura chieda una cue e'
+                 * un fatto (`enumerate_mode/2`); senza il fatto si elenca, e le
+                 * cue gia' scritte non cambiano comportamento. */
+                char mode[KB_TERM_LEN] = "";
+                {
+                    char mv[1][KB_TERM_LEN];
+                    const char *mq[2] = { cues[ci], NULL };
+                    if (kb_match(b->kb, "enumerate_mode", mq, 2, mv, 1) == 1) {
+                        char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mv[0]);
+                        snprintf(mode, sizeof mode, "%s", kb_dequote(mb));
+                    }
+                }
                 char list[600]; size_t off = 0;
                 for (size_t k = 0; k < nm && off + 1 < sizeof list; k++) {
                     char shown[KB_TERM_LEN];
@@ -14196,6 +14209,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                                             "%s%s", k ? ", " : "", shown);
                 }
                 char msg[700];
+                if (!strcmp(mode, "count")) {
+                    char cnt[24]; snprintf(cnt, sizeof cnt, "%zu", nm);
+                    kb_term_say(b, "count_known_answer", (const KbResponseSlot[]){
+                                    { "count", cnt }, { "noun", sing },
+                                    { "list", list } }, 3, msg, sizeof msg);
+                } else if (!strcmp(mode, "exists")) {
+                    char one[KB_TERM_LEN];
+                    present_atom(b, members[0], one, sizeof one);
+                    kb_term_say(b, "existence_witness", (const KbResponseSlot[]){
+                                    { "witness", one } }, 1, msg, sizeof msg);
+                } else
                 kb_term_say(b, "enumeration_answer", (const KbResponseSlot[]){
                                 { "list", list } }, 1, msg, sizeof msg);
                 put(msg, out, out_size);
