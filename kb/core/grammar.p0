@@ -429,6 +429,42 @@ auxiliary(had).
 % aggiungere "versus", "contro" o "e" è un fatto, zero C.
 machinery(pair_joiner).
 machinery(np_opener).
+
+% ── gen507/29 — QUALI CLASSI FANNO UNA PAROLA FUNZIONALE ────────────────────
+%
+% `p0_is_function_word` (src/brain/10-memory-knowledge.c) diceva gia' la cosa
+% giusta nel proprio commento — «quali parole siano di contenuto e quali
+% funzionali non lo decide questa funzione: lo chiede alle classi chiuse che la
+% KB gia' dichiara» — e poi teneva l'ELENCO DELLE CLASSI scritto in C. La
+% conoscenza non era la parola: era *che cosa conta come parola funzionale*, e
+% quella non si poteva correggere parlando. Una classe nuova — una lingua con un
+% classificatore, un marcatore di caso, una particella — richiedeva di
+% ricompilare proprio per essere esclusa dalla rinominazione.
+%
+% Ora l'elenco e' qui. Il motore enumera, non sa quali siano, e il test del
+% mantra si supera: una classe funzionale nuova domani e' una riga di .p0.
+%
+% Conseguenza diretta sul gen382i: la chiusura del mondo per rinominazione
+% rispetta le parole funzionali di QUALUNQUE classe che la KB dichiari tale,
+% senza che nessuno tocchi il C.
+machinery(function_word_class).
+function_word_class(universal_quantifier).
+function_word_class(indefinite_article).
+function_word_class(definite_article).
+function_word_class(np_opener).
+function_word_class(np_closer).
+function_word_class(question_word).
+function_word_class(auxiliary).
+function_word_class(stopword).
+function_word_class(rule_variable).
+function_word_class(rule_anaphor).
+% E le classi che il motore ha imparato a leggere dopo: una parola funzione
+% dichiarata con la lingua (gen507/28) e' funzionale quanto una della tabella.
+function_word_class(conjunction).
+function_word_class(personal_pronoun).
+function_word_class(clause_copula).
+function_word_class(relation_particle).
+function_word_class(negation_marker).
 pair_joiner(and).
 pair_joiner(versus).
 pair_joiner(vs).

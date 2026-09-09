@@ -3123,14 +3123,26 @@ static int universal_to_witness(Brain *lex, Brain *tmp, char *q, size_t qsz) {
  * funzione: lo chiede alle classi chiuse che la KB gia' dichiara. Una parola
  * funzionale in una lingua nuova entra come fatto, e la rinominazione la
  * rispetta senza che nessuno la tocchi qui. */
+/* gen507/29 — E NEMMENO L'ELENCO DELLE CLASSI LO DECIDE QUESTA FUNZIONE.
+ *
+ * Il commento qui sopra diceva gia' la cosa giusta, e poi l'elenco delle classi
+ * stava scritto in C: la conoscenza non era la parola, era CHE COSA CONTA come
+ * parola funzionale, e quella non si poteva correggere parlando. Una classe
+ * nuova — un classificatore, un marcatore di caso, una particella di un'altra
+ * lingua — richiedeva di ricompilare proprio per essere esclusa dalla
+ * rinominazione. `function_word_class/1` (kb/core/grammar.p0) la dichiara; qui
+ * si enumera e non si sa quali siano. */
 static int p0_is_function_word(Brain *b, const char *t) {
-    static const char *const classes[] = {
-        "universal_quantifier", "indefinite_article", "definite_article",
-        "np_opener", "np_closer", "question_word", "auxiliary", "stopword",
-        "rule_variable", "rule_anaphor", NULL };
+    if (!b || !b->kb || !t || !*t) return 0;
+    char classes[32][KB_TERM_LEN];
+    const char *cq[1] = { NULL };
+    size_t nc = kb_match(b->kb, "function_word_class", cq, 1, classes, 32);
     const char *q[] = { t };
-    for (size_t i = 0; classes[i]; i++)
-        if (kb_query(b->kb, classes[i], q, 1)) return 1;
+    for (size_t i = 0; i < nc; i++) {
+        char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", classes[i]);
+        const char *cls = kb_dequote(cb);
+        if (*cls && kb_query(b->kb, cls, q, 1)) return 1;
+    }
     return 0;
 }
 
