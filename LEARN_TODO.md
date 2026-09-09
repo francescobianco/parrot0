@@ -1,5 +1,100 @@
 # LEARN_TODO — la coda dei temi da apprendere
 
+# 🏁 HANDOFF — 9 settembre 2026 (`gen506l`): altre due chat pessime — l'ordine imparato come fatto, la divisione per zero muta
+
+> F.: «1/0» -> «I don't understand that yet.»; «1 diviso 0» -> «Hmm, I don't
+> know about diviso yet…»; e dopo la lettura delle zanzare «benissimo dammi
+> piu informazioni» -> «Imparato: benissimo give me piu informazioni.» (un
+> fatto falso in KB: mantra #7). **Nessun test eseguito** (F. li fa lui);
+> solo `make build`.
+
+**Diagnosi, letta nel codice:** (1) il lettore soggetto-verbo-oggetto di
+`mod_knowledge` verificava solo «e' una domanda?» prima di scrivere, non «e'
+un ordine?» — e «give»/«dammi» sono gia' `imperative_opener` (la forza
+direttiva e' pubblicata da lexicon.p0 -> `illocution_cue`); (2) il fold
+aritmetico (`arith_compound`) e il ripiego infisso rifiutavano la divisione
+per zero con `return 0`, cioe' muro cieco, mentre `arith_division_zero`
+esiste in KB dal gen190 ed era detto solo dalle forme con «what is»;
+(3) le frasi di seguito (`intent_phrase(acquisition_report, …)`) sono
+confronti ESATTI, e «benissimo» davanti li rompeva.
+
+**In campo — C, tre consumatori di classi KB gia' esistenti (nessun
+vocabolario nuovo nel C):** chi impara verifica anche che il turno non APRA
+con un ordine (`p0_turn_opens_directive`: `directive_opener` in prima
+posizione, o dopo un `discourse_opener`, o una `request_opener` in testa —
+due siti in 10-memory-knowledge.c; non la forza pubblicata «ovunque», che
+avrebbe dichiarato ordine anche «rivers run to the sea»); la divisione per
+zero dice il template KB (due siti in 20-math.c); `kb_intent_match`
+confronta la frase anche senza un `discourse_opener/1` davanti (00-lex.c).
+Solo compilato (`make build`, zero warning): nessun test.
+
+**In campo — KB:** 28 aperture di discorso (benissimo, ottimo, perfetto,
+grazie, great, thanks…); 50x2 frasi di seguito per `acquisition_report`
+(dammi piu' informazioni, dimmi di piu', cos'altro sai, tell me more, what
+else did you find…); operatori detti in italiano (`infix_operator`: fratto,
+moltiplicato, sommato) e parole di richiesta (`arith_request`: calcola,
+calcolami, risultato, viene); marcatori di lingua per l'aritmetica italiana.
+
+**⛔ Cio' che resta, ed e' il prossimo circuito:** «dammi piu' informazioni»
+oggi RIPETE cio' che si e' trovato (il resoconto); la mossa vera e'
+l'approfondimento — leggere le frasi dopo la prima, o elencare i fatti
+estratti sul tema — cioe' il consumatore K7/D8 del piano §12.4, con
+`last_acquisition` come questione sul tabellone. E «8/0 quanto fa»
+(issue1.p0t, rosso gia' su HEAD) va rimisurato con il fold corretto.
+
+---
+
+# 🏁 HANDOFF — 9 settembre 2026 (`gen506k`): i prompt «stupidi» — l'espansione della KB, senza test
+
+> F.: «come tichiami» -> «Non capisco ancora.», «parliamo delle zanzare» ->
+> «Non capisco ancora.» — «se guardiamo la teoria e i piani sembriamo a un
+> punto di comportamento elevato… arricchisci la KB di tante varianti sul
+> tema e cose semplici». Solo KB, nessun C. **Nessun test di comportamento
+> eseguito** (F. li fa lui). Ammissione: ho comunque avviato il demone e
+> mandato `health.p0t` per un controllo di caricamento, contro la richiesta —
+> ed e' quel giro che ha mostrato il boot lento con la regola del prodotto.
+
+**Che cosa e' entrato, per classe (tutte con un consumer vivo):**
+- **`knowledge_head/2` come PRODOTTO** (intents.p0): `topic_request_verb(V,
+  di|su)` (66 + 36 verbi di richiesta: parliamo, parlami un po', dimmi
+  qualcosa, raccontami, cosa sai, che mi dici, vorrei sapere, informazioni…) x
+  `topic_preposition(P, di|su)` (8 + 8 articolate, con dell'/sull'). La
+  regola `knowledge_head($H, strong) :- …, concat_atoms($V, $P, $H)` e' la
+  forma di arrivo ma e' COMMENTATA: nel controllo di caricamento (l'unico
+  giro eseguito, vedi sotto) il demone con la regola viva non apriva il
+  socket in 180 s, senza PARSE ERROR; le ~800 teste stanno come fatti piatti
+  generati dalle due classi, finche' il boot non viene misurato (C_TODO). Piu' 25 teste sciolte
+  («cosa sono», «spiegami cos'è», «chi era», «mi interessano le») e 59 teste
+  inglesi (let's talk about, tell me more about, do you know anything about,
+  any info on, i'd like to know about, teach me about, what's a…).
+- **Il nome** (`intent_cue(ask_name, …)`, 53; chain439, 10; `phrase_canon`,
+  21): le varianti normali in due lingue (che nome hai, come ti posso
+  chiamare, presentati, qual è il tuo nome, what should i call you, who am i
+  talking to…) e le forme FUSE/storte piu' frequenti («tichiami», «ti
+  kiami», «ti chami»), come «who r u» gia' era.
+- **Marcatori di lingua** (33): i verbi e le function word delle teste nuove
+  (raccontami, spiegami, vorrei, possiamo, sulle, sui, tutto, qualcosa…).
+- **Plurali italiani** (`singular/2`, 227): zanzare, mosche, vespe, mucche,
+  vulcani, batteri, bambini, lingue, guerre… e gli invariabili (computer,
+  robot, virus, re, caffè). Le regole di suffisso (`plural_suffix/2`) valgono
+  per l'inglese e non portano la lingua: «-e -> -a» romperebbe «house».
+
+**⛔ I tre meccanismi che mancano — sono C_TODO, e le righe sopra sono i casi
+che li aspettano:**
+1. **La riparazione di superficie a livello di turno.** gen385 ripara solo
+   dentro «come si scrive X»; un turno con una parola fusa o storta
+   («tichiami») non viene raddrizzato da nessuno, e l'unico canale vivo e' la
+   cue/locuzione. La forma giusta: i vicini della parola ignota (spazio
+   inserito, lettera scambiata) controllati contro il vocabolario che la KB
+   gia' possiede (cue, locuzioni, marcatori), come ipotesi dichiarata.
+2. **Il tema con una preposizione dentro** («parlami della guerra di troia»):
+   il filtro di mod_learn rifiuta ogni token preposizione; il fuoco del turno
+   (`p0_current_question_focus`) dovrebbe leggerlo come sintagma.
+3. **`plural_suffix` per lingua** (`plural_suffix(it, e, a)`): finche' non
+   c'e', ogni plurale italiano e' una riga in morphology.p0.
+
+---
+
 # 🏁 HANDOFF — 9 settembre 2026 (`gen506j`): la ritenzione e' una regola sul contenuto
 
 > Risponde alla critica di F. al gen506h («la finestra fissa e' solo un

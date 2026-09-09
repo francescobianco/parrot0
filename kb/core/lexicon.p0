@@ -470,6 +470,29 @@ phrase_canon("io mi chiamo", "my name is").
 phrase_canon("come mi chiamo", "what is my name").
 phrase_canon("ti chiami", "your name is").
 phrase_canon("come ti chiami", "what is your name").
+% gen506k — le varianti della domanda sul nome (e la piu' frequente delle
+% forme fuse, «come tichiami»): locuzioni, non traduzioni parola per parola.
+phrase_canon("come tichiami", "what is your name").
+phrase_canon("come ti kiami", "what is your name").
+phrase_canon("cometi chiami", "what is your name").
+phrase_canon("qual è il tuo nome", "what is your name").
+phrase_canon("qual e il tuo nome", "what is your name").
+phrase_canon("quale è il tuo nome", "what is your name").
+phrase_canon("quale e il tuo nome", "what is your name").
+phrase_canon("che nome hai", "what is your name").
+phrase_canon("hai un nome", "what is your name").
+phrase_canon("come ti chiamano", "what is your name").
+phrase_canon("come ti fai chiamare", "what is your name").
+phrase_canon("come ti posso chiamare", "what should i call you").
+phrase_canon("come posso chiamarti", "what should i call you").
+phrase_canon("come devo chiamarti", "what should i call you").
+phrase_canon("come ti devo chiamare", "what should i call you").
+phrase_canon("presentati", "introduce yourself").
+phrase_canon("puoi presentarti", "introduce yourself").
+phrase_canon("ti presenti", "introduce yourself").
+phrase_canon("dimmi come ti chiami", "what is your name").
+phrase_canon("mi dici come ti chiami", "what is your name").
+phrase_canon("posso sapere il tuo nome", "what is your name").
 phrase_canon("abito a", "i live in").
 phrase_canon("abito in", "i live in").
 phrase_canon("vivo a", "i live in").
@@ -1228,6 +1251,61 @@ language_marker(it, dalla).
 language_marker(it, nel).
 language_marker(it, nello).
 language_marker(it, negli).
+% gen506k — i verbi e le function word delle teste italiane aggiunte in
+% intents.p0 («parliamo delle», «raccontami dei», «vorrei sapere sulle»): senza
+% marcatore il rilevatore ripiega sull'inglese. Function word e verbi, non
+% sostantivi: non marcano come italiana una frase inglese.
+language_marker(it, raccontami).
+language_marker(it, spiegami).
+language_marker(it, parlarmi).
+language_marker(it, parlare).
+language_marker(it, sapere).
+language_marker(it, vorrei).
+language_marker(it, voglio).
+language_marker(it, possiamo).
+language_marker(it, potremmo).
+language_marker(it, potresti).
+language_marker(it, qualcosa).
+language_marker(it, informazioni).
+language_marker(it, notizie).
+language_marker(it, tutto).
+language_marker(it, sulle).
+language_marker(it, sui).
+language_marker(it, sullo).
+language_marker(it, chiami).
+language_marker(it, chiamarti).
+language_marker(it, chiamare).
+language_marker(it, nome).
+language_marker(it, presentati).
+language_marker(it, conosci).
+language_marker(it, dirmi).
+language_marker(it, cerco).
+language_marker(it, discutiamo).
+language_marker(it, interessa).
+language_marker(it, interessano).
+language_marker(it, curioso).
+language_marker(it, curiosa).
+language_marker(it, piacerebbe).
+language_marker(it, servono).
+language_marker(it, racconti).
+% gen506l — l'aritmetica detta in italiano («1 diviso 0», «quanto fa») e le aperture
+language_marker(it, quanto).
+language_marker(it, fa).
+language_marker(it, diviso).
+language_marker(it, moltiplicato).
+language_marker(it, fratto).
+language_marker(it, calcola).
+language_marker(it, risultato).
+language_marker(it, benissimo).
+language_marker(it, ottimo).
+language_marker(it, perfetto).
+language_marker(it, fantastico).
+language_marker(it, eccellente).
+language_marker(it, magnifico).
+language_marker(it, splendido).
+language_marker(it, capito).
+language_marker(it, chiaro).
+language_marker(it, ricevuto).
 language_marker(it, sul).
 language_marker(it, sulla).
 language_marker(it, sugli).
@@ -1370,6 +1448,39 @@ discourse_opener(comunque).
 discourse_opener(allora).
 discourse_opener(insomma).
 discourse_opener(senti).
+% gen506l — «benissimo dammi piu' informazioni» (F., 9 settembre 2026): la
+% valutazione con cui si apre un turno («benissimo», «ottimo», «great») non e'
+% il soggetto della frase. E' la stessa classe che la sbucciatura pragmatica
+% gia' toglie davanti a un turno («anyway», «allora») e che ora anche le frasi
+% esatte (`intent_phrase`) saltano. Solo parole intere, in prima posizione.
+discourse_opener(benissimo).
+discourse_opener(ottimo).
+discourse_opener(perfetto).
+discourse_opener(grazie).
+discourse_opener(fantastico).
+discourse_opener(eccellente).
+discourse_opener(magnifico).
+discourse_opener(splendido).
+discourse_opener(capito).
+discourse_opener(chiaro).
+discourse_opener(ricevuto).
+discourse_opener(bravo).
+discourse_opener(brava).
+discourse_opener(super).
+discourse_opener(great).
+discourse_opener(perfect).
+discourse_opener(nice).
+discourse_opener(cool).
+discourse_opener(thanks).
+discourse_opener(wonderful).
+discourse_opener(excellent).
+discourse_opener(awesome).
+discourse_opener(fantastic).
+discourse_opener(brilliant).
+discourse_opener(lovely).
+discourse_opener(gotcha).
+discourse_opener(adesso).
+discourse_opener(dai).
 discourse_opener(guarda).
 discourse_opener(dunque).
 discourse_opener(beh).

@@ -2813,6 +2813,43 @@ static int p0_property_list(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* gen506l — UN ORDINE APRE IL TURNO. La forza direttiva pubblicata nel frame
+ * (`illocution_cue` <- `directive_opener`) vale a parola intera in QUALUNQUE
+ * posizione, e «rivers run to the sea» risulterebbe un ordine: chi impara
+ * guarda l'apertura — la prima parola, o la prima dopo un'apertura di
+ * discorso («benissimo, dammi…»), o una richiesta in testa («could you…»).
+ * Le classi sono KB (lexicon.p0): qui non c'e' nessun verbo. */
+static int p0_turn_opens_directive(Brain *b, const char *norm) {
+    if (!b || !b->kb || !norm) return 0;
+    const char *p = norm;
+    for (int pass = 0; pass < 2; pass++) {
+        while (*p == ' ') p++;
+        const char *e = p;
+        while (*e && *e != ' ' && *e != ',') e++;
+        size_t l = (size_t)(e - p);
+        if (!l || l >= 64) return 0;
+        char w[64]; memcpy(w, p, l); w[l] = '\0';
+        const char *dq[1] = { w };
+        if (kb_query(b->kb, "directive_opener", dq, 1)) return 1;
+        /* le richieste a piu' parole («could you», «mi aiuti a») in testa */
+        char (*req)[KB_TERM_LEN] = NULL; size_t nr = 0;
+        const char *rq[1] = { NULL };
+        int hit = 0;
+        if (kb_match_all(b->kb, "request_opener", rq, 1, &req, &nr))
+            for (size_t i = 0; i < nr && !hit; i++) {
+                char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", req[i]);
+                const char *r = kb_dequote(rb);
+                size_t rl = strlen(r);
+                if (rl && !strncmp(p, r, rl) && (p[rl] == '\0' || p[rl] == ' ' || p[rl] == ',')) hit = 1;
+            }
+        free(req);
+        if (hit) return 1;
+        if (pass == 0 && kb_query(b->kb, "discourse_opener", dq, 1)) { p = e; while (*p == ',') p++; continue; }
+        break;
+    }
+    return 0;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size);
 
@@ -17629,8 +17666,15 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         /* gen506e — «quale e' la capitale di velkania» (senza «?») arrivava qui
          * come «which is the capital of velkania» e SCRIVEVA
          * capital_of(which, velkania): una domanda non insegna (gen505y). */
+        /* gen506l — «benissimo dammi piu' informazioni» -> «Imparato: benissimo
+         * give me piu informazioni.»: un ORDINE letto come soggetto-verbo-
+         * oggetto e scritto in KB (mantra #7, la classe peggiore). Le aperture
+         * direttive sono gia' KB (`imperative_opener(give|dammi|…)`,
+         * `request_opener`, lexicon.p0); chi impara le consulta come consulta
+         * la domanda: si verifica l'atto prima di scrivere. */
         if (lex_class_member(b, "10_memory_knowledge_lex12439", w[1]) &&
             !interrogative && !p0_turn_is(b, "question", norm) &&
+            !p0_turn_opens_directive(b, norm) &&
             !lex_class_member(b, "question_word", w[0])) {
             const char *subj = w[0];
             const char *args[] = {subj, obj};
@@ -17945,7 +17989,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * restano: sono additive, e un turno che una sola delle tre legge come
      * domanda non insegna niente. Quale forma apra una domanda cresce in KB —
      * `turn_opens_question/1` in grammar.p0 — senza toccare questa riga. */
-    int asking = interrogative || p0_turn_is(b, "question", norm);
+    /* gen506l: e nemmeno da un turno letto come ORDINE («dammi», «give me»,
+     * «spiegami»): un ordine chiede, non afferma. La forza e' KB. */
+    int asking = interrogative || p0_turn_is(b, "question", norm) ||
+                 p0_turn_opens_directive(b, norm);
     if (!asking) {
         char emsg[512]; emsg[0] = '\0';
         int ne = extract_enumeration(b, norm, emsg, sizeof emsg);

@@ -188,6 +188,129 @@ intent_phrase(acquisition_report, "what did you find").
 intent_phrase(acquisition_report, "what did you find?").
 intent_phrase(acquisition_report, "what have you found").
 intent_phrase(acquisition_report, "what have you found?").
+% gen506l — «dammi piu' informazioni» detto DOPO una lettura non e' un fatto da
+% imparare: e' una mossa sull'ultima acquisizione (dialogica L6 — l'ultima mossa
+% e' un fatto, e si puo' chiedere). Oggi la risposta e' il resoconto di cio'
+% che si e' trovato; la mossa di APPROFONDIMENTO vera — leggere le frasi dopo
+% la prima, o elencare i fatti estratti — e' il prossimo consumatore (C_TODO,
+% piano §12.4). Forme esatte, con e senza punto interrogativo; un'apertura
+% davanti («benissimo», «ok») la salta il confronto stesso.
+intent_phrase(acquisition_report, "dammi più informazioni").
+intent_phrase(acquisition_report, "dammi più informazioni?").
+intent_phrase(acquisition_report, "dammi piu informazioni").
+intent_phrase(acquisition_report, "dammi piu informazioni?").
+intent_phrase(acquisition_report, "dammi altre informazioni").
+intent_phrase(acquisition_report, "dammi altre informazioni?").
+intent_phrase(acquisition_report, "dammi maggiori informazioni").
+intent_phrase(acquisition_report, "dammi maggiori informazioni?").
+intent_phrase(acquisition_report, "dammi ulteriori informazioni").
+intent_phrase(acquisition_report, "dammi ulteriori informazioni?").
+intent_phrase(acquisition_report, "più informazioni").
+intent_phrase(acquisition_report, "più informazioni?").
+intent_phrase(acquisition_report, "piu informazioni").
+intent_phrase(acquisition_report, "piu informazioni?").
+intent_phrase(acquisition_report, "altre informazioni").
+intent_phrase(acquisition_report, "altre informazioni?").
+intent_phrase(acquisition_report, "maggiori informazioni").
+intent_phrase(acquisition_report, "maggiori informazioni?").
+intent_phrase(acquisition_report, "ulteriori informazioni").
+intent_phrase(acquisition_report, "ulteriori informazioni?").
+intent_phrase(acquisition_report, "voglio più informazioni").
+intent_phrase(acquisition_report, "voglio più informazioni?").
+intent_phrase(acquisition_report, "voglio piu informazioni").
+intent_phrase(acquisition_report, "voglio piu informazioni?").
+intent_phrase(acquisition_report, "vorrei più informazioni").
+intent_phrase(acquisition_report, "vorrei più informazioni?").
+intent_phrase(acquisition_report, "vorrei piu informazioni").
+intent_phrase(acquisition_report, "vorrei piu informazioni?").
+intent_phrase(acquisition_report, "dimmi di più").
+intent_phrase(acquisition_report, "dimmi di più?").
+intent_phrase(acquisition_report, "dimmi di piu").
+intent_phrase(acquisition_report, "dimmi di piu?").
+intent_phrase(acquisition_report, "dimmi altro").
+intent_phrase(acquisition_report, "dimmi altro?").
+intent_phrase(acquisition_report, "dimmi qualcos'altro").
+intent_phrase(acquisition_report, "dimmi qualcos'altro?").
+intent_phrase(acquisition_report, "dimmi qualcos altro").
+intent_phrase(acquisition_report, "dimmi qualcos altro?").
+intent_phrase(acquisition_report, "dimmi qualcosa in più").
+intent_phrase(acquisition_report, "dimmi qualcosa in più?").
+intent_phrase(acquisition_report, "dimmi qualcosa in piu").
+intent_phrase(acquisition_report, "dimmi qualcosa in piu?").
+intent_phrase(acquisition_report, "cos'altro sai").
+intent_phrase(acquisition_report, "cos'altro sai?").
+intent_phrase(acquisition_report, "cos altro sai").
+intent_phrase(acquisition_report, "cos altro sai?").
+intent_phrase(acquisition_report, "che altro sai").
+intent_phrase(acquisition_report, "che altro sai?").
+intent_phrase(acquisition_report, "cosa altro sai").
+intent_phrase(acquisition_report, "cosa altro sai?").
+intent_phrase(acquisition_report, "che altro hai trovato").
+intent_phrase(acquisition_report, "che altro hai trovato?").
+intent_phrase(acquisition_report, "cos'altro hai trovato").
+intent_phrase(acquisition_report, "cos'altro hai trovato?").
+intent_phrase(acquisition_report, "cosa altro hai trovato").
+intent_phrase(acquisition_report, "cosa altro hai trovato?").
+intent_phrase(acquisition_report, "più dettagli").
+intent_phrase(acquisition_report, "più dettagli?").
+intent_phrase(acquisition_report, "piu dettagli").
+intent_phrase(acquisition_report, "piu dettagli?").
+intent_phrase(acquisition_report, "dammi più dettagli").
+intent_phrase(acquisition_report, "dammi più dettagli?").
+intent_phrase(acquisition_report, "dammi piu dettagli").
+intent_phrase(acquisition_report, "dammi piu dettagli?").
+intent_phrase(acquisition_report, "approfondisci").
+intent_phrase(acquisition_report, "approfondisci?").
+intent_phrase(acquisition_report, "puoi approfondire").
+intent_phrase(acquisition_report, "puoi approfondire?").
+intent_phrase(acquisition_report, "approfondisci un po'").
+intent_phrase(acquisition_report, "approfondisci un po'?").
+intent_phrase(acquisition_report, "vai più a fondo").
+intent_phrase(acquisition_report, "vai più a fondo?").
+intent_phrase(acquisition_report, "vai piu a fondo").
+intent_phrase(acquisition_report, "vai piu a fondo?").
+intent_phrase(acquisition_report, "tell me more").
+intent_phrase(acquisition_report, "tell me more?").
+intent_phrase(acquisition_report, "tell me more about it").
+intent_phrase(acquisition_report, "tell me more about it?").
+intent_phrase(acquisition_report, "tell me more about that").
+intent_phrase(acquisition_report, "tell me more about that?").
+intent_phrase(acquisition_report, "more information").
+intent_phrase(acquisition_report, "more information?").
+intent_phrase(acquisition_report, "more info").
+intent_phrase(acquisition_report, "more info?").
+intent_phrase(acquisition_report, "give me more information").
+intent_phrase(acquisition_report, "give me more information?").
+intent_phrase(acquisition_report, "give me more info").
+intent_phrase(acquisition_report, "give me more info?").
+intent_phrase(acquisition_report, "i want more information").
+intent_phrase(acquisition_report, "i want more information?").
+intent_phrase(acquisition_report, "i'd like more information").
+intent_phrase(acquisition_report, "i'd like more information?").
+intent_phrase(acquisition_report, "more details").
+intent_phrase(acquisition_report, "more details?").
+intent_phrase(acquisition_report, "give me more details").
+intent_phrase(acquisition_report, "give me more details?").
+intent_phrase(acquisition_report, "what else").
+intent_phrase(acquisition_report, "what else?").
+intent_phrase(acquisition_report, "what else do you know").
+intent_phrase(acquisition_report, "what else do you know?").
+intent_phrase(acquisition_report, "what else did you find").
+intent_phrase(acquisition_report, "what else did you find?").
+intent_phrase(acquisition_report, "what else have you found").
+intent_phrase(acquisition_report, "what else have you found?").
+intent_phrase(acquisition_report, "elaborate").
+intent_phrase(acquisition_report, "elaborate?").
+intent_phrase(acquisition_report, "can you elaborate").
+intent_phrase(acquisition_report, "can you elaborate?").
+intent_phrase(acquisition_report, "expand on that").
+intent_phrase(acquisition_report, "expand on that?").
+intent_phrase(acquisition_report, "expand on it").
+intent_phrase(acquisition_report, "expand on it?").
+intent_phrase(acquisition_report, "go deeper").
+intent_phrase(acquisition_report, "go deeper?").
+intent_phrase(acquisition_report, "dig deeper").
+intent_phrase(acquisition_report, "dig deeper?").
 
 % ── 10. L'OFFERTA APERTA E' IL CONTESTO DEL TURNO DOPO (gen506f) ────────────
 % F., in chat: «parlami dei plc» -> «Vuoi che cerchi?» -> «certo» -> «Ricevuto

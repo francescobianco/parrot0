@@ -1525,6 +1525,9 @@ infix_operator("by", times).
 infix_operator("/", divide).
 infix_operator("divided", divide).
 infix_operator("diviso", divide).
+infix_operator("fratto", divide).
+infix_operator("moltiplicato", times).
+infix_operator("sommato", plus).
 infix_operator("over", divide).
 machinery(algebra_inverse).
 algebra_inverse(left, "+", minus, "-").

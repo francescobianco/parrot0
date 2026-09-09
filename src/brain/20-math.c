@@ -506,7 +506,13 @@ static int arith_compound(Brain *b, const char *norm, char *out, size_t out_size
     acc[na++] = vals[0];
     for (size_t k = 0; k < nop; k++) {
         if (ochar[k] == '*') acc[na - 1] *= vals[k + 1];
-        else if (ochar[k] == '/') { if (vals[k + 1] == 0) return 0; acc[na - 1] /= vals[k + 1]; }
+        else if (ochar[k] == '/') {
+            /* gen506l — «1 diviso 0», «1 / 0»: rifiutare in silenzio mandava
+             * il turno al muro cieco (e mod_learn offriva di imparare «diviso»).
+             * La risposta esiste in KB (`arith_division_zero`) ed e' quella. */
+            if (vals[k + 1] == 0) return kb_term_say(b, "arith_division_zero", NULL, 0, out, out_size);
+            acc[na - 1] /= vals[k + 1];
+        }
         else { aop[np++] = ochar[k]; acc[na++] = vals[k + 1]; }
     }
     double res = acc[0];
@@ -1750,6 +1756,14 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen506l — «1/0» compatto: i token espansi portano «1», «/», «0» e il
+     * fold generale sotto rifiuta lo zero senza dirlo. Il template e' KB. */
+    for (size_t i = 1; i + 1 < enw; i++) {
+        double lhs, rhs;
+        if (arith_op_char(b, ew[i]) == '/' && parse_value(ew[i - 1], &lhs) &&
+            parse_value(ew[i + 1], &rhs) && rhs == 0)
+            return kb_term_say(b, "arith_division_zero", NULL, 0, out, out_size);
+    }
     /* General fallback: fold any infix expression ("six times seven",
      * "100 divided by 4", "how much is 1+1+1+1+1"). */
     {

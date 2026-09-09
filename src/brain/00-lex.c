@@ -102,6 +102,26 @@ static int kb_intent_match(Brain *b, const char *intent, const char *norm) {
     if (!b || !b->kb || !intent || !norm) return 0;
     char masked[512];
     norm = cue_visible_text(b, "intent_phrase", norm, masked, sizeof masked);
+    /* gen506l — un'apertura di discorso davanti alla frase («benissimo dammi
+     * piu' informazioni», «ok, cosa hai trovato») non cambia la frase. Quali
+     * parole aprano e' KB (`discourse_opener/1`, la stessa classe della
+     * sbucciatura pragmatica): la forma si confronta anche senza. */
+    const char *rest = NULL;
+    {
+        const char *sp = strchr(norm, ' ');
+        if (sp && sp > norm && (size_t)(sp - norm) < 64) {
+            char first[64];
+            size_t fl = (size_t)(sp - norm);
+            memcpy(first, norm, fl); first[fl] = '\0';
+            while (fl && (first[fl - 1] == ',' || first[fl - 1] == '!' || first[fl - 1] == '.')) first[--fl] = '\0';
+            const char *oq[1] = { first };
+            if (fl && kb_query(b->kb, "discourse_opener", oq, 1)) {
+                rest = sp;
+                while (*rest == ' ' || *rest == ',') rest++;
+                if (!*rest) rest = NULL;
+            }
+        }
+    }
     char forms[64][KB_TERM_LEN];
     const char *q[2] = { intent, NULL };
     size_t n = kb_match(b->kb, "intent_phrase", q, 2, forms, 64);
@@ -110,6 +130,7 @@ static int kb_intent_match(Brain *b, const char *intent, const char *norm) {
         size_t l = strlen(p);
         if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
         if (strcmp(p, norm) == 0) return 1;
+        if (rest && strcmp(p, rest) == 0) return 1;
     }
     return 0;
 }

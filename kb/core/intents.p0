@@ -575,6 +575,10 @@ intent_cue(arith_request, keyword(much)).
 intent_cue(arith_request, keyword(makes)).
 intent_cue(arith_request, keyword(quanto)).
 intent_cue(arith_request, keyword(fa)).
+intent_cue(arith_request, keyword(calcola)).
+intent_cue(arith_request, keyword(calcolami)).
+intent_cue(arith_request, keyword(risultato)).
+intent_cue(arith_request, keyword(viene)).
 
 % Richiesta di definizione per categoria. La relazione che vale come
 % definizione e' separatamente registrata in definition_relation/1.
@@ -1154,6 +1158,16 @@ intent_cue(50_self_research_loop_chain439, "who r u").
 intent_cue(50_self_research_loop_chain439, "your identity").
 intent_cue(50_self_research_loop_chain439, "who sei").
 intent_cue(50_self_research_loop_chain439, "come ti chiami").
+intent_cue(50_self_research_loop_chain439, "tichiami").
+intent_cue(50_self_research_loop_chain439, "ti kiami").
+intent_cue(50_self_research_loop_chain439, "tikiami").
+intent_cue(50_self_research_loop_chain439, "ti chami").
+intent_cue(50_self_research_loop_chain439, "tichami").
+intent_cue(50_self_research_loop_chain439, "tu chi sei").
+intent_cue(50_self_research_loop_chain439, "chi sei tu").
+intent_cue(50_self_research_loop_chain439, "dimmi chi sei").
+intent_cue(50_self_research_loop_chain439, "presentati").
+intent_cue(50_self_research_loop_chain439, "puoi presentarti").
 intent_cue(50_self_research_loop_chain439, "il tuo nome").
 intent_cue(50_self_research_loop_chain439, "chi sei").
 intent_cue(50_self_research_loop_chain439, "cosa sei").
@@ -1266,6 +1280,67 @@ intent_phrase(ask_name, "come ti chiami").
 intent_phrase(ask_name, "come ti chiami?").
 intent_phrase(ask_name, "do you remember my name").
 intent_cue(ask_name, "ti chiami").
+% gen506k — «come tichiami» -> «Non capisco ancora.» (F., 9 settembre 2026).
+% Le cue sono sottostringhe del turno, e «tichiami» non contiene «ti chiami»:
+% la parola fusa e' una variante di superficie (universal-comprehension §10,
+% specie 1) che oggi nessun riparatore di turno raddrizza — gen385 ripara solo
+% dentro «come si scrive X». Finche' quel meccanismo non c'e' (C_TODO), le
+% forme fuse e storte piu' frequenti sono membri di questa classe, come «who r
+% u» e «who re you» lo sono gia' della classe accanto. Il resto sono le
+% varianti normali della domanda, in due lingue.
+intent_cue(ask_name, "tichiami").
+intent_cue(ask_name, "ti kiami").
+intent_cue(ask_name, "tikiami").
+intent_cue(ask_name, "ti chami").
+intent_cue(ask_name, "tichami").
+intent_cue(ask_name, "ti chiamii").
+intent_cue(ask_name, "come ti chiami").
+intent_cue(ask_name, "come ti chiami tu").
+intent_cue(ask_name, "tu come ti chiami").
+intent_cue(ask_name, "che nome hai").
+intent_cue(ask_name, "hai un nome").
+intent_cue(ask_name, "come ti posso chiamare").
+intent_cue(ask_name, "come posso chiamarti").
+intent_cue(ask_name, "come devo chiamarti").
+intent_cue(ask_name, "come ti devo chiamare").
+intent_cue(ask_name, "come ti chiamano").
+intent_cue(ask_name, "come ti fai chiamare").
+intent_cue(ask_name, "presentati").
+intent_cue(ask_name, "puoi presentarti").
+intent_cue(ask_name, "ti presenti").
+intent_cue(ask_name, "il tuo nome").
+intent_cue(ask_name, "tuo nome").
+intent_cue(ask_name, "dimmi come ti chiami").
+intent_cue(ask_name, "mi dici come ti chiami").
+intent_cue(ask_name, "posso sapere come ti chiami").
+intent_cue(ask_name, "posso sapere il tuo nome").
+intent_cue(ask_name, "sai come ti chiami").
+intent_cue(ask_name, "qual è il tuo nome").
+intent_cue(ask_name, "qual e il tuo nome").
+intent_cue(ask_name, "quale è il tuo nome").
+intent_cue(ask_name, "quale e il tuo nome").
+intent_cue(ask_name, "come ti chiamavi").
+intent_cue(ask_name, "whats your name").
+intent_cue(ask_name, "what's your name").
+intent_cue(ask_name, "what is your name").
+intent_cue(ask_name, "what are you called").
+intent_cue(ask_name, "what do they call you").
+intent_cue(ask_name, "what should i call you").
+intent_cue(ask_name, "what can i call you").
+intent_cue(ask_name, "what do i call you").
+intent_cue(ask_name, "do you have a name").
+intent_cue(ask_name, "got a name").
+intent_cue(ask_name, "how are you called").
+intent_cue(ask_name, "how do you call yourself").
+intent_cue(ask_name, "introduce yourself").
+intent_cue(ask_name, "tell me your name").
+intent_cue(ask_name, "may i know your name").
+intent_cue(ask_name, "can i know your name").
+intent_cue(ask_name, "who am i talking to").
+intent_cue(ask_name, "who am i speaking with").
+intent_cue(ask_name, "who am i chatting with").
+intent_cue(ask_name, "ur name").
+intent_cue(ask_name, "your name?").
 intent_cue(self_capability, "cosa puoi fare").
 intent_cue(self_capability, "che cosa sai fare").
 intent_cue(self_capability, "cosa sai fare tu").
@@ -1570,6 +1645,1037 @@ knowledge_head("raccontami della ", strong).
 knowledge_head("what is ", weak).
 knowledge_head("what are ", weak).
 knowledge_head("what was ", weak).
+
+% ── gen506k — «PARLIAMO DELLE ZANZARE» -> «Non capisco ancora.» (F., 9 settembre 2026)
+%
+% La classe c'era — le teste forti qui sopra, lette da mod_learn come prefisso
+% del turno grezzo — ed era mezza vuota: «parlami di» si', «parliamo di» no;
+% «dimmi del» si', «dimmi delle» no. Non e' una frase che mancava: e' un
+% PRODOTTO di due classi — il verbo di richiesta («parliamo», «dimmi
+% qualcosa», «cosa sai», «vorrei sapere», «informazioni») per la preposizione
+% articolata che regge (di, del, dello, della, dei, degli, delle, dell'; su,
+% sul, sullo, sulla, sui, sugli, sulle, sull') — e il prodotto e' la REGOLA in
+% fondo, non mille righe (mantra #19b: la congiunzione e' conoscenza; #22:
+% si massimizza la classe, non i casi). Un verbo nuovo domani e' UNA riga:
+% `topic_request_verb("mi spieghi ", di)`; una preposizione nuova, una riga
+% per tutti i verbi insieme. Il caso (di / su) evita di generare l'italiano
+% sbagliato («parliamo sulle», «informazioni delle»).
+%
+% Limiti noti (C_TODO): un tema con una preposizione DENTRO («la guerra di
+% troia») e' ancora rifiutato dall'estrattore di mod_learn — la testa lo
+% raggiunge, il filtro sulle preposizioni no; e le prime 128 teste sono lette
+% con i loro gradi (forte/debole), le altre solo come prefisso grezzo.
+machinery(topic_request_verb).
+machinery(topic_preposition).
+topic_preposition("di ", di).
+topic_preposition("del ", di).
+topic_preposition("dello ", di).
+topic_preposition("della ", di).
+topic_preposition("dei ", di).
+topic_preposition("degli ", di).
+topic_preposition("delle ", di).
+topic_preposition("dell'", di).
+topic_preposition("su ", su).
+topic_preposition("sul ", su).
+topic_preposition("sullo ", su).
+topic_preposition("sulla ", su).
+topic_preposition("sui ", su).
+topic_preposition("sugli ", su).
+topic_preposition("sulle ", su).
+topic_preposition("sull'", su).
+% i verbi che reggono «di» (parlami DI, dimmi DELLE, vorrei sapere DEI)
+topic_request_verb("parliamo ", di).
+topic_request_verb("parliamo un po' ", di).
+topic_request_verb("parliamo un po ", di).
+topic_request_verb("parliamo un attimo ", di).
+topic_request_verb("parlami ", di).
+topic_request_verb("parlami un po' ", di).
+topic_request_verb("parlami un po ", di).
+topic_request_verb("mi parli ", di).
+topic_request_verb("puoi parlarmi ", di).
+topic_request_verb("potresti parlarmi ", di).
+topic_request_verb("mi puoi parlare ", di).
+topic_request_verb("mi potresti parlare ", di).
+topic_request_verb("parlarmi ", di).
+topic_request_verb("dimmi ", di).
+topic_request_verb("dimmi qualcosa ", di).
+topic_request_verb("dimmi tutto ", di).
+topic_request_verb("dimmi tutto quello che sai ", di).
+topic_request_verb("dimmi cosa sai ", di).
+topic_request_verb("dimmi che sai ", di).
+topic_request_verb("mi dici qualcosa ", di).
+topic_request_verb("mi dici ", di).
+topic_request_verb("puoi dirmi qualcosa ", di).
+topic_request_verb("dimmi un po' ", di).
+topic_request_verb("dimmi un po ", di).
+topic_request_verb("raccontami ", di).
+topic_request_verb("raccontami qualcosa ", di).
+topic_request_verb("raccontami un po' ", di).
+topic_request_verb("raccontami un po ", di).
+topic_request_verb("raccontami tutto ", di).
+topic_request_verb("mi racconti ", di).
+topic_request_verb("mi racconti qualcosa ", di).
+topic_request_verb("puoi raccontarmi ", di).
+topic_request_verb("cosa sai ", di).
+topic_request_verb("che sai ", di).
+topic_request_verb("che cosa sai ", di).
+topic_request_verb("cosa conosci ", di).
+topic_request_verb("che cosa conosci ", di).
+topic_request_verb("sai qualcosa ", di).
+topic_request_verb("sai niente ", di).
+topic_request_verb("cosa mi dici ", di).
+topic_request_verb("che mi dici ", di).
+topic_request_verb("cosa mi sai dire ", di).
+topic_request_verb("che mi sai dire ", di).
+topic_request_verb("cosa puoi dirmi ", di).
+topic_request_verb("cosa mi puoi dire ", di).
+topic_request_verb("che puoi dirmi ", di).
+topic_request_verb("che mi puoi dire ", di).
+topic_request_verb("vorrei sapere ", di).
+topic_request_verb("vorrei sapere qualcosa ", di).
+topic_request_verb("voglio sapere ", di).
+topic_request_verb("voglio sapere qualcosa ", di).
+topic_request_verb("mi piacerebbe sapere ", di).
+topic_request_verb("mi piacerebbe sapere qualcosa ", di).
+topic_request_verb("mi interessa sapere ", di).
+topic_request_verb("sono curioso ", di).
+topic_request_verb("sono curiosa ", di).
+topic_request_verb("vorrei parlare ", di).
+topic_request_verb("voglio parlare ", di).
+topic_request_verb("vorrei parlare un po' ", di).
+topic_request_verb("possiamo parlare ", di).
+topic_request_verb("possiamo parlare un po' ", di).
+topic_request_verb("potremmo parlare ", di).
+topic_request_verb("ti va di parlare ", di).
+topic_request_verb("discutiamo ", di).
+topic_request_verb("mi piacerebbe parlare ", di).
+% e quelli che reggono «su» (dimmi qualcosa SULLE, informazioni SUI)
+topic_request_verb("dimmi qualcosa ", su).
+topic_request_verb("dimmi tutto ", su).
+topic_request_verb("dimmi tutto quello che sai ", su).
+topic_request_verb("dimmi cosa sai ", su).
+topic_request_verb("dimmi che sai ", su).
+topic_request_verb("mi dici qualcosa ", su).
+topic_request_verb("puoi dirmi qualcosa ", su).
+topic_request_verb("raccontami qualcosa ", su).
+topic_request_verb("raccontami tutto ", su).
+topic_request_verb("mi racconti qualcosa ", su).
+topic_request_verb("cosa sai ", su).
+topic_request_verb("che sai ", su).
+topic_request_verb("che cosa sai ", su).
+topic_request_verb("sai qualcosa ", su).
+topic_request_verb("sai niente ", su).
+topic_request_verb("cosa mi dici ", su).
+topic_request_verb("che mi dici ", su).
+topic_request_verb("cosa mi sai dire ", su).
+topic_request_verb("che mi sai dire ", su).
+topic_request_verb("cosa puoi dirmi ", su).
+topic_request_verb("cosa mi puoi dire ", su).
+topic_request_verb("vorrei sapere qualcosa ", su).
+topic_request_verb("voglio sapere qualcosa ", su).
+topic_request_verb("mi piacerebbe sapere qualcosa ", su).
+topic_request_verb("sono curioso ", su).
+topic_request_verb("sono curiosa ", su).
+topic_request_verb("informazioni ", su).
+topic_request_verb("vorrei informazioni ", su).
+topic_request_verb("voglio informazioni ", su).
+topic_request_verb("dammi informazioni ", su).
+topic_request_verb("mi servono informazioni ", su).
+topic_request_verb("cerco informazioni ", su).
+topic_request_verb("notizie ", su).
+topic_request_verb("dammi notizie ", su).
+topic_request_verb("qualche informazione ", su).
+topic_request_verb("qualche notizia ", su).
+% il prodotto: ogni verbo con ogni preposizione del suo caso e' una testa forte
+% ⚠ La REGOLA del prodotto e' la forma di arrivo, ed e' scritta qui sotto
+% commentata: nel controllo di caricamento del gen506k il demone con questa
+% regola viva non ha aperto il socket in 180 s (senza PARSE ERROR), e la
+% causa non e' stata isolata — F. ha chiesto di non eseguire test, quindi
+% non e' stata misurata. Finche' non lo e', le teste stanno come FATTI
+% generati dalle due classi qui sopra (stesso prodotto, stesse righe che la
+% regola derivera'): un verbo nuovo si aggiunge come riga di
+% `topic_request_verb` E come teste piatte, finche' la regola non torna viva.
+% Da riaccendere misurando il boot (C_TODO):
+% knowledge_head($Head, strong) :- topic_request_verb($Verb, $Case), topic_preposition($Prep, $Case), concat_atoms($Verb, $Prep, $Head).
+knowledge_head("parliamo di ", strong).
+knowledge_head("parliamo del ", strong).
+knowledge_head("parliamo dello ", strong).
+knowledge_head("parliamo della ", strong).
+knowledge_head("parliamo dei ", strong).
+knowledge_head("parliamo degli ", strong).
+knowledge_head("parliamo delle ", strong).
+knowledge_head("parliamo dell'", strong).
+knowledge_head("parliamo un po' di ", strong).
+knowledge_head("parliamo un po' del ", strong).
+knowledge_head("parliamo un po' dello ", strong).
+knowledge_head("parliamo un po' della ", strong).
+knowledge_head("parliamo un po' dei ", strong).
+knowledge_head("parliamo un po' degli ", strong).
+knowledge_head("parliamo un po' delle ", strong).
+knowledge_head("parliamo un po' dell'", strong).
+knowledge_head("parliamo un po di ", strong).
+knowledge_head("parliamo un po del ", strong).
+knowledge_head("parliamo un po dello ", strong).
+knowledge_head("parliamo un po della ", strong).
+knowledge_head("parliamo un po dei ", strong).
+knowledge_head("parliamo un po degli ", strong).
+knowledge_head("parliamo un po delle ", strong).
+knowledge_head("parliamo un po dell'", strong).
+knowledge_head("parliamo un attimo di ", strong).
+knowledge_head("parliamo un attimo del ", strong).
+knowledge_head("parliamo un attimo dello ", strong).
+knowledge_head("parliamo un attimo della ", strong).
+knowledge_head("parliamo un attimo dei ", strong).
+knowledge_head("parliamo un attimo degli ", strong).
+knowledge_head("parliamo un attimo delle ", strong).
+knowledge_head("parliamo un attimo dell'", strong).
+knowledge_head("parlami dello ", strong).
+knowledge_head("parlami dell'", strong).
+knowledge_head("parlami un po' di ", strong).
+knowledge_head("parlami un po' del ", strong).
+knowledge_head("parlami un po' dello ", strong).
+knowledge_head("parlami un po' della ", strong).
+knowledge_head("parlami un po' dei ", strong).
+knowledge_head("parlami un po' degli ", strong).
+knowledge_head("parlami un po' delle ", strong).
+knowledge_head("parlami un po' dell'", strong).
+knowledge_head("parlami un po di ", strong).
+knowledge_head("parlami un po del ", strong).
+knowledge_head("parlami un po dello ", strong).
+knowledge_head("parlami un po della ", strong).
+knowledge_head("parlami un po dei ", strong).
+knowledge_head("parlami un po degli ", strong).
+knowledge_head("parlami un po delle ", strong).
+knowledge_head("parlami un po dell'", strong).
+knowledge_head("mi parli di ", strong).
+knowledge_head("mi parli del ", strong).
+knowledge_head("mi parli dello ", strong).
+knowledge_head("mi parli della ", strong).
+knowledge_head("mi parli dei ", strong).
+knowledge_head("mi parli degli ", strong).
+knowledge_head("mi parli delle ", strong).
+knowledge_head("mi parli dell'", strong).
+knowledge_head("puoi parlarmi di ", strong).
+knowledge_head("puoi parlarmi del ", strong).
+knowledge_head("puoi parlarmi dello ", strong).
+knowledge_head("puoi parlarmi della ", strong).
+knowledge_head("puoi parlarmi dei ", strong).
+knowledge_head("puoi parlarmi degli ", strong).
+knowledge_head("puoi parlarmi delle ", strong).
+knowledge_head("puoi parlarmi dell'", strong).
+knowledge_head("potresti parlarmi di ", strong).
+knowledge_head("potresti parlarmi del ", strong).
+knowledge_head("potresti parlarmi dello ", strong).
+knowledge_head("potresti parlarmi della ", strong).
+knowledge_head("potresti parlarmi dei ", strong).
+knowledge_head("potresti parlarmi degli ", strong).
+knowledge_head("potresti parlarmi delle ", strong).
+knowledge_head("potresti parlarmi dell'", strong).
+knowledge_head("mi puoi parlare di ", strong).
+knowledge_head("mi puoi parlare del ", strong).
+knowledge_head("mi puoi parlare dello ", strong).
+knowledge_head("mi puoi parlare della ", strong).
+knowledge_head("mi puoi parlare dei ", strong).
+knowledge_head("mi puoi parlare degli ", strong).
+knowledge_head("mi puoi parlare delle ", strong).
+knowledge_head("mi puoi parlare dell'", strong).
+knowledge_head("mi potresti parlare di ", strong).
+knowledge_head("mi potresti parlare del ", strong).
+knowledge_head("mi potresti parlare dello ", strong).
+knowledge_head("mi potresti parlare della ", strong).
+knowledge_head("mi potresti parlare dei ", strong).
+knowledge_head("mi potresti parlare degli ", strong).
+knowledge_head("mi potresti parlare delle ", strong).
+knowledge_head("mi potresti parlare dell'", strong).
+knowledge_head("parlarmi di ", strong).
+knowledge_head("parlarmi del ", strong).
+knowledge_head("parlarmi dello ", strong).
+knowledge_head("parlarmi della ", strong).
+knowledge_head("parlarmi dei ", strong).
+knowledge_head("parlarmi degli ", strong).
+knowledge_head("parlarmi delle ", strong).
+knowledge_head("parlarmi dell'", strong).
+knowledge_head("dimmi di ", strong).
+knowledge_head("dimmi dello ", strong).
+knowledge_head("dimmi dei ", strong).
+knowledge_head("dimmi degli ", strong).
+knowledge_head("dimmi delle ", strong).
+knowledge_head("dimmi dell'", strong).
+knowledge_head("dimmi qualcosa di ", strong).
+knowledge_head("dimmi qualcosa del ", strong).
+knowledge_head("dimmi qualcosa dello ", strong).
+knowledge_head("dimmi qualcosa della ", strong).
+knowledge_head("dimmi qualcosa dei ", strong).
+knowledge_head("dimmi qualcosa degli ", strong).
+knowledge_head("dimmi qualcosa delle ", strong).
+knowledge_head("dimmi qualcosa dell'", strong).
+knowledge_head("dimmi tutto di ", strong).
+knowledge_head("dimmi tutto del ", strong).
+knowledge_head("dimmi tutto dello ", strong).
+knowledge_head("dimmi tutto della ", strong).
+knowledge_head("dimmi tutto dei ", strong).
+knowledge_head("dimmi tutto degli ", strong).
+knowledge_head("dimmi tutto delle ", strong).
+knowledge_head("dimmi tutto dell'", strong).
+knowledge_head("dimmi tutto quello che sai di ", strong).
+knowledge_head("dimmi tutto quello che sai del ", strong).
+knowledge_head("dimmi tutto quello che sai dello ", strong).
+knowledge_head("dimmi tutto quello che sai della ", strong).
+knowledge_head("dimmi tutto quello che sai dei ", strong).
+knowledge_head("dimmi tutto quello che sai degli ", strong).
+knowledge_head("dimmi tutto quello che sai delle ", strong).
+knowledge_head("dimmi tutto quello che sai dell'", strong).
+knowledge_head("dimmi cosa sai di ", strong).
+knowledge_head("dimmi cosa sai del ", strong).
+knowledge_head("dimmi cosa sai dello ", strong).
+knowledge_head("dimmi cosa sai della ", strong).
+knowledge_head("dimmi cosa sai dei ", strong).
+knowledge_head("dimmi cosa sai degli ", strong).
+knowledge_head("dimmi cosa sai delle ", strong).
+knowledge_head("dimmi cosa sai dell'", strong).
+knowledge_head("dimmi che sai di ", strong).
+knowledge_head("dimmi che sai del ", strong).
+knowledge_head("dimmi che sai dello ", strong).
+knowledge_head("dimmi che sai della ", strong).
+knowledge_head("dimmi che sai dei ", strong).
+knowledge_head("dimmi che sai degli ", strong).
+knowledge_head("dimmi che sai delle ", strong).
+knowledge_head("dimmi che sai dell'", strong).
+knowledge_head("mi dici qualcosa di ", strong).
+knowledge_head("mi dici qualcosa del ", strong).
+knowledge_head("mi dici qualcosa dello ", strong).
+knowledge_head("mi dici qualcosa della ", strong).
+knowledge_head("mi dici qualcosa dei ", strong).
+knowledge_head("mi dici qualcosa degli ", strong).
+knowledge_head("mi dici qualcosa delle ", strong).
+knowledge_head("mi dici qualcosa dell'", strong).
+knowledge_head("mi dici di ", strong).
+knowledge_head("mi dici del ", strong).
+knowledge_head("mi dici dello ", strong).
+knowledge_head("mi dici della ", strong).
+knowledge_head("mi dici dei ", strong).
+knowledge_head("mi dici degli ", strong).
+knowledge_head("mi dici delle ", strong).
+knowledge_head("mi dici dell'", strong).
+knowledge_head("puoi dirmi qualcosa di ", strong).
+knowledge_head("puoi dirmi qualcosa del ", strong).
+knowledge_head("puoi dirmi qualcosa dello ", strong).
+knowledge_head("puoi dirmi qualcosa della ", strong).
+knowledge_head("puoi dirmi qualcosa dei ", strong).
+knowledge_head("puoi dirmi qualcosa degli ", strong).
+knowledge_head("puoi dirmi qualcosa delle ", strong).
+knowledge_head("puoi dirmi qualcosa dell'", strong).
+knowledge_head("dimmi un po' di ", strong).
+knowledge_head("dimmi un po' del ", strong).
+knowledge_head("dimmi un po' dello ", strong).
+knowledge_head("dimmi un po' della ", strong).
+knowledge_head("dimmi un po' dei ", strong).
+knowledge_head("dimmi un po' degli ", strong).
+knowledge_head("dimmi un po' delle ", strong).
+knowledge_head("dimmi un po' dell'", strong).
+knowledge_head("dimmi un po di ", strong).
+knowledge_head("dimmi un po del ", strong).
+knowledge_head("dimmi un po dello ", strong).
+knowledge_head("dimmi un po della ", strong).
+knowledge_head("dimmi un po dei ", strong).
+knowledge_head("dimmi un po degli ", strong).
+knowledge_head("dimmi un po delle ", strong).
+knowledge_head("dimmi un po dell'", strong).
+knowledge_head("raccontami di ", strong).
+knowledge_head("raccontami dello ", strong).
+knowledge_head("raccontami dei ", strong).
+knowledge_head("raccontami degli ", strong).
+knowledge_head("raccontami delle ", strong).
+knowledge_head("raccontami dell'", strong).
+knowledge_head("raccontami qualcosa di ", strong).
+knowledge_head("raccontami qualcosa del ", strong).
+knowledge_head("raccontami qualcosa dello ", strong).
+knowledge_head("raccontami qualcosa della ", strong).
+knowledge_head("raccontami qualcosa dei ", strong).
+knowledge_head("raccontami qualcosa degli ", strong).
+knowledge_head("raccontami qualcosa delle ", strong).
+knowledge_head("raccontami qualcosa dell'", strong).
+knowledge_head("raccontami un po' di ", strong).
+knowledge_head("raccontami un po' del ", strong).
+knowledge_head("raccontami un po' dello ", strong).
+knowledge_head("raccontami un po' della ", strong).
+knowledge_head("raccontami un po' dei ", strong).
+knowledge_head("raccontami un po' degli ", strong).
+knowledge_head("raccontami un po' delle ", strong).
+knowledge_head("raccontami un po' dell'", strong).
+knowledge_head("raccontami un po di ", strong).
+knowledge_head("raccontami un po del ", strong).
+knowledge_head("raccontami un po dello ", strong).
+knowledge_head("raccontami un po della ", strong).
+knowledge_head("raccontami un po dei ", strong).
+knowledge_head("raccontami un po degli ", strong).
+knowledge_head("raccontami un po delle ", strong).
+knowledge_head("raccontami un po dell'", strong).
+knowledge_head("raccontami tutto di ", strong).
+knowledge_head("raccontami tutto del ", strong).
+knowledge_head("raccontami tutto dello ", strong).
+knowledge_head("raccontami tutto della ", strong).
+knowledge_head("raccontami tutto dei ", strong).
+knowledge_head("raccontami tutto degli ", strong).
+knowledge_head("raccontami tutto delle ", strong).
+knowledge_head("raccontami tutto dell'", strong).
+knowledge_head("mi racconti di ", strong).
+knowledge_head("mi racconti del ", strong).
+knowledge_head("mi racconti dello ", strong).
+knowledge_head("mi racconti della ", strong).
+knowledge_head("mi racconti dei ", strong).
+knowledge_head("mi racconti degli ", strong).
+knowledge_head("mi racconti delle ", strong).
+knowledge_head("mi racconti dell'", strong).
+knowledge_head("mi racconti qualcosa di ", strong).
+knowledge_head("mi racconti qualcosa del ", strong).
+knowledge_head("mi racconti qualcosa dello ", strong).
+knowledge_head("mi racconti qualcosa della ", strong).
+knowledge_head("mi racconti qualcosa dei ", strong).
+knowledge_head("mi racconti qualcosa degli ", strong).
+knowledge_head("mi racconti qualcosa delle ", strong).
+knowledge_head("mi racconti qualcosa dell'", strong).
+knowledge_head("puoi raccontarmi di ", strong).
+knowledge_head("puoi raccontarmi del ", strong).
+knowledge_head("puoi raccontarmi dello ", strong).
+knowledge_head("puoi raccontarmi della ", strong).
+knowledge_head("puoi raccontarmi dei ", strong).
+knowledge_head("puoi raccontarmi degli ", strong).
+knowledge_head("puoi raccontarmi delle ", strong).
+knowledge_head("puoi raccontarmi dell'", strong).
+knowledge_head("cosa sai del ", strong).
+knowledge_head("cosa sai dello ", strong).
+knowledge_head("cosa sai dell'", strong).
+knowledge_head("che sai di ", strong).
+knowledge_head("che sai del ", strong).
+knowledge_head("che sai dello ", strong).
+knowledge_head("che sai della ", strong).
+knowledge_head("che sai dei ", strong).
+knowledge_head("che sai degli ", strong).
+knowledge_head("che sai delle ", strong).
+knowledge_head("che sai dell'", strong).
+knowledge_head("che cosa sai di ", strong).
+knowledge_head("che cosa sai del ", strong).
+knowledge_head("che cosa sai dello ", strong).
+knowledge_head("che cosa sai della ", strong).
+knowledge_head("che cosa sai dei ", strong).
+knowledge_head("che cosa sai degli ", strong).
+knowledge_head("che cosa sai delle ", strong).
+knowledge_head("che cosa sai dell'", strong).
+knowledge_head("cosa conosci di ", strong).
+knowledge_head("cosa conosci del ", strong).
+knowledge_head("cosa conosci dello ", strong).
+knowledge_head("cosa conosci della ", strong).
+knowledge_head("cosa conosci dei ", strong).
+knowledge_head("cosa conosci degli ", strong).
+knowledge_head("cosa conosci delle ", strong).
+knowledge_head("cosa conosci dell'", strong).
+knowledge_head("che cosa conosci di ", strong).
+knowledge_head("che cosa conosci del ", strong).
+knowledge_head("che cosa conosci dello ", strong).
+knowledge_head("che cosa conosci della ", strong).
+knowledge_head("che cosa conosci dei ", strong).
+knowledge_head("che cosa conosci degli ", strong).
+knowledge_head("che cosa conosci delle ", strong).
+knowledge_head("che cosa conosci dell'", strong).
+knowledge_head("sai qualcosa di ", strong).
+knowledge_head("sai qualcosa del ", strong).
+knowledge_head("sai qualcosa dello ", strong).
+knowledge_head("sai qualcosa della ", strong).
+knowledge_head("sai qualcosa dei ", strong).
+knowledge_head("sai qualcosa degli ", strong).
+knowledge_head("sai qualcosa delle ", strong).
+knowledge_head("sai qualcosa dell'", strong).
+knowledge_head("sai niente di ", strong).
+knowledge_head("sai niente del ", strong).
+knowledge_head("sai niente dello ", strong).
+knowledge_head("sai niente della ", strong).
+knowledge_head("sai niente dei ", strong).
+knowledge_head("sai niente degli ", strong).
+knowledge_head("sai niente delle ", strong).
+knowledge_head("sai niente dell'", strong).
+knowledge_head("cosa mi dici di ", strong).
+knowledge_head("cosa mi dici del ", strong).
+knowledge_head("cosa mi dici dello ", strong).
+knowledge_head("cosa mi dici della ", strong).
+knowledge_head("cosa mi dici dei ", strong).
+knowledge_head("cosa mi dici degli ", strong).
+knowledge_head("cosa mi dici delle ", strong).
+knowledge_head("cosa mi dici dell'", strong).
+knowledge_head("che mi dici di ", strong).
+knowledge_head("che mi dici del ", strong).
+knowledge_head("che mi dici dello ", strong).
+knowledge_head("che mi dici della ", strong).
+knowledge_head("che mi dici dei ", strong).
+knowledge_head("che mi dici degli ", strong).
+knowledge_head("che mi dici delle ", strong).
+knowledge_head("che mi dici dell'", strong).
+knowledge_head("cosa mi sai dire di ", strong).
+knowledge_head("cosa mi sai dire del ", strong).
+knowledge_head("cosa mi sai dire dello ", strong).
+knowledge_head("cosa mi sai dire della ", strong).
+knowledge_head("cosa mi sai dire dei ", strong).
+knowledge_head("cosa mi sai dire degli ", strong).
+knowledge_head("cosa mi sai dire delle ", strong).
+knowledge_head("cosa mi sai dire dell'", strong).
+knowledge_head("che mi sai dire di ", strong).
+knowledge_head("che mi sai dire del ", strong).
+knowledge_head("che mi sai dire dello ", strong).
+knowledge_head("che mi sai dire della ", strong).
+knowledge_head("che mi sai dire dei ", strong).
+knowledge_head("che mi sai dire degli ", strong).
+knowledge_head("che mi sai dire delle ", strong).
+knowledge_head("che mi sai dire dell'", strong).
+knowledge_head("cosa puoi dirmi di ", strong).
+knowledge_head("cosa puoi dirmi del ", strong).
+knowledge_head("cosa puoi dirmi dello ", strong).
+knowledge_head("cosa puoi dirmi della ", strong).
+knowledge_head("cosa puoi dirmi dei ", strong).
+knowledge_head("cosa puoi dirmi degli ", strong).
+knowledge_head("cosa puoi dirmi delle ", strong).
+knowledge_head("cosa puoi dirmi dell'", strong).
+knowledge_head("cosa mi puoi dire di ", strong).
+knowledge_head("cosa mi puoi dire del ", strong).
+knowledge_head("cosa mi puoi dire dello ", strong).
+knowledge_head("cosa mi puoi dire della ", strong).
+knowledge_head("cosa mi puoi dire dei ", strong).
+knowledge_head("cosa mi puoi dire degli ", strong).
+knowledge_head("cosa mi puoi dire delle ", strong).
+knowledge_head("cosa mi puoi dire dell'", strong).
+knowledge_head("che puoi dirmi di ", strong).
+knowledge_head("che puoi dirmi del ", strong).
+knowledge_head("che puoi dirmi dello ", strong).
+knowledge_head("che puoi dirmi della ", strong).
+knowledge_head("che puoi dirmi dei ", strong).
+knowledge_head("che puoi dirmi degli ", strong).
+knowledge_head("che puoi dirmi delle ", strong).
+knowledge_head("che puoi dirmi dell'", strong).
+knowledge_head("che mi puoi dire di ", strong).
+knowledge_head("che mi puoi dire del ", strong).
+knowledge_head("che mi puoi dire dello ", strong).
+knowledge_head("che mi puoi dire della ", strong).
+knowledge_head("che mi puoi dire dei ", strong).
+knowledge_head("che mi puoi dire degli ", strong).
+knowledge_head("che mi puoi dire delle ", strong).
+knowledge_head("che mi puoi dire dell'", strong).
+knowledge_head("vorrei sapere di ", strong).
+knowledge_head("vorrei sapere del ", strong).
+knowledge_head("vorrei sapere dello ", strong).
+knowledge_head("vorrei sapere della ", strong).
+knowledge_head("vorrei sapere dei ", strong).
+knowledge_head("vorrei sapere degli ", strong).
+knowledge_head("vorrei sapere delle ", strong).
+knowledge_head("vorrei sapere dell'", strong).
+knowledge_head("vorrei sapere qualcosa di ", strong).
+knowledge_head("vorrei sapere qualcosa del ", strong).
+knowledge_head("vorrei sapere qualcosa dello ", strong).
+knowledge_head("vorrei sapere qualcosa della ", strong).
+knowledge_head("vorrei sapere qualcosa dei ", strong).
+knowledge_head("vorrei sapere qualcosa degli ", strong).
+knowledge_head("vorrei sapere qualcosa delle ", strong).
+knowledge_head("vorrei sapere qualcosa dell'", strong).
+knowledge_head("voglio sapere di ", strong).
+knowledge_head("voglio sapere del ", strong).
+knowledge_head("voglio sapere dello ", strong).
+knowledge_head("voglio sapere della ", strong).
+knowledge_head("voglio sapere dei ", strong).
+knowledge_head("voglio sapere degli ", strong).
+knowledge_head("voglio sapere delle ", strong).
+knowledge_head("voglio sapere dell'", strong).
+knowledge_head("voglio sapere qualcosa di ", strong).
+knowledge_head("voglio sapere qualcosa del ", strong).
+knowledge_head("voglio sapere qualcosa dello ", strong).
+knowledge_head("voglio sapere qualcosa della ", strong).
+knowledge_head("voglio sapere qualcosa dei ", strong).
+knowledge_head("voglio sapere qualcosa degli ", strong).
+knowledge_head("voglio sapere qualcosa delle ", strong).
+knowledge_head("voglio sapere qualcosa dell'", strong).
+knowledge_head("mi piacerebbe sapere di ", strong).
+knowledge_head("mi piacerebbe sapere del ", strong).
+knowledge_head("mi piacerebbe sapere dello ", strong).
+knowledge_head("mi piacerebbe sapere della ", strong).
+knowledge_head("mi piacerebbe sapere dei ", strong).
+knowledge_head("mi piacerebbe sapere degli ", strong).
+knowledge_head("mi piacerebbe sapere delle ", strong).
+knowledge_head("mi piacerebbe sapere dell'", strong).
+knowledge_head("mi piacerebbe sapere qualcosa di ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa del ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa dello ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa della ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa dei ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa degli ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa delle ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa dell'", strong).
+knowledge_head("mi interessa sapere di ", strong).
+knowledge_head("mi interessa sapere del ", strong).
+knowledge_head("mi interessa sapere dello ", strong).
+knowledge_head("mi interessa sapere della ", strong).
+knowledge_head("mi interessa sapere dei ", strong).
+knowledge_head("mi interessa sapere degli ", strong).
+knowledge_head("mi interessa sapere delle ", strong).
+knowledge_head("mi interessa sapere dell'", strong).
+knowledge_head("sono curioso di ", strong).
+knowledge_head("sono curioso del ", strong).
+knowledge_head("sono curioso dello ", strong).
+knowledge_head("sono curioso della ", strong).
+knowledge_head("sono curioso dei ", strong).
+knowledge_head("sono curioso degli ", strong).
+knowledge_head("sono curioso delle ", strong).
+knowledge_head("sono curioso dell'", strong).
+knowledge_head("sono curiosa di ", strong).
+knowledge_head("sono curiosa del ", strong).
+knowledge_head("sono curiosa dello ", strong).
+knowledge_head("sono curiosa della ", strong).
+knowledge_head("sono curiosa dei ", strong).
+knowledge_head("sono curiosa degli ", strong).
+knowledge_head("sono curiosa delle ", strong).
+knowledge_head("sono curiosa dell'", strong).
+knowledge_head("vorrei parlare di ", strong).
+knowledge_head("vorrei parlare del ", strong).
+knowledge_head("vorrei parlare dello ", strong).
+knowledge_head("vorrei parlare della ", strong).
+knowledge_head("vorrei parlare dei ", strong).
+knowledge_head("vorrei parlare degli ", strong).
+knowledge_head("vorrei parlare delle ", strong).
+knowledge_head("vorrei parlare dell'", strong).
+knowledge_head("voglio parlare di ", strong).
+knowledge_head("voglio parlare del ", strong).
+knowledge_head("voglio parlare dello ", strong).
+knowledge_head("voglio parlare della ", strong).
+knowledge_head("voglio parlare dei ", strong).
+knowledge_head("voglio parlare degli ", strong).
+knowledge_head("voglio parlare delle ", strong).
+knowledge_head("voglio parlare dell'", strong).
+knowledge_head("vorrei parlare un po' di ", strong).
+knowledge_head("vorrei parlare un po' del ", strong).
+knowledge_head("vorrei parlare un po' dello ", strong).
+knowledge_head("vorrei parlare un po' della ", strong).
+knowledge_head("vorrei parlare un po' dei ", strong).
+knowledge_head("vorrei parlare un po' degli ", strong).
+knowledge_head("vorrei parlare un po' delle ", strong).
+knowledge_head("vorrei parlare un po' dell'", strong).
+knowledge_head("possiamo parlare di ", strong).
+knowledge_head("possiamo parlare del ", strong).
+knowledge_head("possiamo parlare dello ", strong).
+knowledge_head("possiamo parlare della ", strong).
+knowledge_head("possiamo parlare dei ", strong).
+knowledge_head("possiamo parlare degli ", strong).
+knowledge_head("possiamo parlare delle ", strong).
+knowledge_head("possiamo parlare dell'", strong).
+knowledge_head("possiamo parlare un po' di ", strong).
+knowledge_head("possiamo parlare un po' del ", strong).
+knowledge_head("possiamo parlare un po' dello ", strong).
+knowledge_head("possiamo parlare un po' della ", strong).
+knowledge_head("possiamo parlare un po' dei ", strong).
+knowledge_head("possiamo parlare un po' degli ", strong).
+knowledge_head("possiamo parlare un po' delle ", strong).
+knowledge_head("possiamo parlare un po' dell'", strong).
+knowledge_head("potremmo parlare di ", strong).
+knowledge_head("potremmo parlare del ", strong).
+knowledge_head("potremmo parlare dello ", strong).
+knowledge_head("potremmo parlare della ", strong).
+knowledge_head("potremmo parlare dei ", strong).
+knowledge_head("potremmo parlare degli ", strong).
+knowledge_head("potremmo parlare delle ", strong).
+knowledge_head("potremmo parlare dell'", strong).
+knowledge_head("ti va di parlare di ", strong).
+knowledge_head("ti va di parlare del ", strong).
+knowledge_head("ti va di parlare dello ", strong).
+knowledge_head("ti va di parlare della ", strong).
+knowledge_head("ti va di parlare dei ", strong).
+knowledge_head("ti va di parlare degli ", strong).
+knowledge_head("ti va di parlare delle ", strong).
+knowledge_head("ti va di parlare dell'", strong).
+knowledge_head("discutiamo di ", strong).
+knowledge_head("discutiamo del ", strong).
+knowledge_head("discutiamo dello ", strong).
+knowledge_head("discutiamo della ", strong).
+knowledge_head("discutiamo dei ", strong).
+knowledge_head("discutiamo degli ", strong).
+knowledge_head("discutiamo delle ", strong).
+knowledge_head("discutiamo dell'", strong).
+knowledge_head("mi piacerebbe parlare di ", strong).
+knowledge_head("mi piacerebbe parlare del ", strong).
+knowledge_head("mi piacerebbe parlare dello ", strong).
+knowledge_head("mi piacerebbe parlare della ", strong).
+knowledge_head("mi piacerebbe parlare dei ", strong).
+knowledge_head("mi piacerebbe parlare degli ", strong).
+knowledge_head("mi piacerebbe parlare delle ", strong).
+knowledge_head("mi piacerebbe parlare dell'", strong).
+knowledge_head("dimmi qualcosa su ", strong).
+knowledge_head("dimmi qualcosa sul ", strong).
+knowledge_head("dimmi qualcosa sullo ", strong).
+knowledge_head("dimmi qualcosa sulla ", strong).
+knowledge_head("dimmi qualcosa sui ", strong).
+knowledge_head("dimmi qualcosa sugli ", strong).
+knowledge_head("dimmi qualcosa sulle ", strong).
+knowledge_head("dimmi qualcosa sull'", strong).
+knowledge_head("dimmi tutto su ", strong).
+knowledge_head("dimmi tutto sul ", strong).
+knowledge_head("dimmi tutto sullo ", strong).
+knowledge_head("dimmi tutto sulla ", strong).
+knowledge_head("dimmi tutto sui ", strong).
+knowledge_head("dimmi tutto sugli ", strong).
+knowledge_head("dimmi tutto sulle ", strong).
+knowledge_head("dimmi tutto sull'", strong).
+knowledge_head("dimmi tutto quello che sai su ", strong).
+knowledge_head("dimmi tutto quello che sai sul ", strong).
+knowledge_head("dimmi tutto quello che sai sullo ", strong).
+knowledge_head("dimmi tutto quello che sai sulla ", strong).
+knowledge_head("dimmi tutto quello che sai sui ", strong).
+knowledge_head("dimmi tutto quello che sai sugli ", strong).
+knowledge_head("dimmi tutto quello che sai sulle ", strong).
+knowledge_head("dimmi tutto quello che sai sull'", strong).
+knowledge_head("dimmi cosa sai su ", strong).
+knowledge_head("dimmi cosa sai sul ", strong).
+knowledge_head("dimmi cosa sai sullo ", strong).
+knowledge_head("dimmi cosa sai sulla ", strong).
+knowledge_head("dimmi cosa sai sui ", strong).
+knowledge_head("dimmi cosa sai sugli ", strong).
+knowledge_head("dimmi cosa sai sulle ", strong).
+knowledge_head("dimmi cosa sai sull'", strong).
+knowledge_head("dimmi che sai su ", strong).
+knowledge_head("dimmi che sai sul ", strong).
+knowledge_head("dimmi che sai sullo ", strong).
+knowledge_head("dimmi che sai sulla ", strong).
+knowledge_head("dimmi che sai sui ", strong).
+knowledge_head("dimmi che sai sugli ", strong).
+knowledge_head("dimmi che sai sulle ", strong).
+knowledge_head("dimmi che sai sull'", strong).
+knowledge_head("mi dici qualcosa su ", strong).
+knowledge_head("mi dici qualcosa sul ", strong).
+knowledge_head("mi dici qualcosa sullo ", strong).
+knowledge_head("mi dici qualcosa sulla ", strong).
+knowledge_head("mi dici qualcosa sui ", strong).
+knowledge_head("mi dici qualcosa sugli ", strong).
+knowledge_head("mi dici qualcosa sulle ", strong).
+knowledge_head("mi dici qualcosa sull'", strong).
+knowledge_head("puoi dirmi qualcosa su ", strong).
+knowledge_head("puoi dirmi qualcosa sul ", strong).
+knowledge_head("puoi dirmi qualcosa sullo ", strong).
+knowledge_head("puoi dirmi qualcosa sulla ", strong).
+knowledge_head("puoi dirmi qualcosa sui ", strong).
+knowledge_head("puoi dirmi qualcosa sugli ", strong).
+knowledge_head("puoi dirmi qualcosa sulle ", strong).
+knowledge_head("puoi dirmi qualcosa sull'", strong).
+knowledge_head("raccontami qualcosa su ", strong).
+knowledge_head("raccontami qualcosa sul ", strong).
+knowledge_head("raccontami qualcosa sullo ", strong).
+knowledge_head("raccontami qualcosa sulla ", strong).
+knowledge_head("raccontami qualcosa sui ", strong).
+knowledge_head("raccontami qualcosa sugli ", strong).
+knowledge_head("raccontami qualcosa sulle ", strong).
+knowledge_head("raccontami qualcosa sull'", strong).
+knowledge_head("raccontami tutto su ", strong).
+knowledge_head("raccontami tutto sul ", strong).
+knowledge_head("raccontami tutto sullo ", strong).
+knowledge_head("raccontami tutto sulla ", strong).
+knowledge_head("raccontami tutto sui ", strong).
+knowledge_head("raccontami tutto sugli ", strong).
+knowledge_head("raccontami tutto sulle ", strong).
+knowledge_head("raccontami tutto sull'", strong).
+knowledge_head("mi racconti qualcosa su ", strong).
+knowledge_head("mi racconti qualcosa sul ", strong).
+knowledge_head("mi racconti qualcosa sullo ", strong).
+knowledge_head("mi racconti qualcosa sulla ", strong).
+knowledge_head("mi racconti qualcosa sui ", strong).
+knowledge_head("mi racconti qualcosa sugli ", strong).
+knowledge_head("mi racconti qualcosa sulle ", strong).
+knowledge_head("mi racconti qualcosa sull'", strong).
+knowledge_head("cosa sai su ", strong).
+knowledge_head("cosa sai sul ", strong).
+knowledge_head("cosa sai sullo ", strong).
+knowledge_head("cosa sai sulla ", strong).
+knowledge_head("cosa sai sui ", strong).
+knowledge_head("cosa sai sugli ", strong).
+knowledge_head("cosa sai sulle ", strong).
+knowledge_head("cosa sai sull'", strong).
+knowledge_head("che sai su ", strong).
+knowledge_head("che sai sul ", strong).
+knowledge_head("che sai sullo ", strong).
+knowledge_head("che sai sulla ", strong).
+knowledge_head("che sai sui ", strong).
+knowledge_head("che sai sugli ", strong).
+knowledge_head("che sai sulle ", strong).
+knowledge_head("che sai sull'", strong).
+knowledge_head("che cosa sai su ", strong).
+knowledge_head("che cosa sai sul ", strong).
+knowledge_head("che cosa sai sullo ", strong).
+knowledge_head("che cosa sai sulla ", strong).
+knowledge_head("che cosa sai sui ", strong).
+knowledge_head("che cosa sai sugli ", strong).
+knowledge_head("che cosa sai sulle ", strong).
+knowledge_head("che cosa sai sull'", strong).
+knowledge_head("sai qualcosa su ", strong).
+knowledge_head("sai qualcosa sul ", strong).
+knowledge_head("sai qualcosa sullo ", strong).
+knowledge_head("sai qualcosa sulla ", strong).
+knowledge_head("sai qualcosa sui ", strong).
+knowledge_head("sai qualcosa sugli ", strong).
+knowledge_head("sai qualcosa sulle ", strong).
+knowledge_head("sai qualcosa sull'", strong).
+knowledge_head("sai niente su ", strong).
+knowledge_head("sai niente sul ", strong).
+knowledge_head("sai niente sullo ", strong).
+knowledge_head("sai niente sulla ", strong).
+knowledge_head("sai niente sui ", strong).
+knowledge_head("sai niente sugli ", strong).
+knowledge_head("sai niente sulle ", strong).
+knowledge_head("sai niente sull'", strong).
+knowledge_head("cosa mi dici su ", strong).
+knowledge_head("cosa mi dici sul ", strong).
+knowledge_head("cosa mi dici sullo ", strong).
+knowledge_head("cosa mi dici sulla ", strong).
+knowledge_head("cosa mi dici sui ", strong).
+knowledge_head("cosa mi dici sugli ", strong).
+knowledge_head("cosa mi dici sulle ", strong).
+knowledge_head("cosa mi dici sull'", strong).
+knowledge_head("che mi dici su ", strong).
+knowledge_head("che mi dici sul ", strong).
+knowledge_head("che mi dici sullo ", strong).
+knowledge_head("che mi dici sulla ", strong).
+knowledge_head("che mi dici sui ", strong).
+knowledge_head("che mi dici sugli ", strong).
+knowledge_head("che mi dici sulle ", strong).
+knowledge_head("che mi dici sull'", strong).
+knowledge_head("cosa mi sai dire su ", strong).
+knowledge_head("cosa mi sai dire sul ", strong).
+knowledge_head("cosa mi sai dire sullo ", strong).
+knowledge_head("cosa mi sai dire sulla ", strong).
+knowledge_head("cosa mi sai dire sui ", strong).
+knowledge_head("cosa mi sai dire sugli ", strong).
+knowledge_head("cosa mi sai dire sulle ", strong).
+knowledge_head("cosa mi sai dire sull'", strong).
+knowledge_head("che mi sai dire su ", strong).
+knowledge_head("che mi sai dire sul ", strong).
+knowledge_head("che mi sai dire sullo ", strong).
+knowledge_head("che mi sai dire sulla ", strong).
+knowledge_head("che mi sai dire sui ", strong).
+knowledge_head("che mi sai dire sugli ", strong).
+knowledge_head("che mi sai dire sulle ", strong).
+knowledge_head("che mi sai dire sull'", strong).
+knowledge_head("cosa puoi dirmi su ", strong).
+knowledge_head("cosa puoi dirmi sul ", strong).
+knowledge_head("cosa puoi dirmi sullo ", strong).
+knowledge_head("cosa puoi dirmi sulla ", strong).
+knowledge_head("cosa puoi dirmi sui ", strong).
+knowledge_head("cosa puoi dirmi sugli ", strong).
+knowledge_head("cosa puoi dirmi sulle ", strong).
+knowledge_head("cosa puoi dirmi sull'", strong).
+knowledge_head("cosa mi puoi dire su ", strong).
+knowledge_head("cosa mi puoi dire sul ", strong).
+knowledge_head("cosa mi puoi dire sullo ", strong).
+knowledge_head("cosa mi puoi dire sulla ", strong).
+knowledge_head("cosa mi puoi dire sui ", strong).
+knowledge_head("cosa mi puoi dire sugli ", strong).
+knowledge_head("cosa mi puoi dire sulle ", strong).
+knowledge_head("cosa mi puoi dire sull'", strong).
+knowledge_head("vorrei sapere qualcosa su ", strong).
+knowledge_head("vorrei sapere qualcosa sul ", strong).
+knowledge_head("vorrei sapere qualcosa sullo ", strong).
+knowledge_head("vorrei sapere qualcosa sulla ", strong).
+knowledge_head("vorrei sapere qualcosa sui ", strong).
+knowledge_head("vorrei sapere qualcosa sugli ", strong).
+knowledge_head("vorrei sapere qualcosa sulle ", strong).
+knowledge_head("vorrei sapere qualcosa sull'", strong).
+knowledge_head("voglio sapere qualcosa su ", strong).
+knowledge_head("voglio sapere qualcosa sul ", strong).
+knowledge_head("voglio sapere qualcosa sullo ", strong).
+knowledge_head("voglio sapere qualcosa sulla ", strong).
+knowledge_head("voglio sapere qualcosa sui ", strong).
+knowledge_head("voglio sapere qualcosa sugli ", strong).
+knowledge_head("voglio sapere qualcosa sulle ", strong).
+knowledge_head("voglio sapere qualcosa sull'", strong).
+knowledge_head("mi piacerebbe sapere qualcosa su ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa sul ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa sullo ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa sulla ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa sui ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa sugli ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa sulle ", strong).
+knowledge_head("mi piacerebbe sapere qualcosa sull'", strong).
+knowledge_head("sono curioso su ", strong).
+knowledge_head("sono curioso sul ", strong).
+knowledge_head("sono curioso sullo ", strong).
+knowledge_head("sono curioso sulla ", strong).
+knowledge_head("sono curioso sui ", strong).
+knowledge_head("sono curioso sugli ", strong).
+knowledge_head("sono curioso sulle ", strong).
+knowledge_head("sono curioso sull'", strong).
+knowledge_head("sono curiosa su ", strong).
+knowledge_head("sono curiosa sul ", strong).
+knowledge_head("sono curiosa sullo ", strong).
+knowledge_head("sono curiosa sulla ", strong).
+knowledge_head("sono curiosa sui ", strong).
+knowledge_head("sono curiosa sugli ", strong).
+knowledge_head("sono curiosa sulle ", strong).
+knowledge_head("sono curiosa sull'", strong).
+knowledge_head("informazioni su ", strong).
+knowledge_head("informazioni sul ", strong).
+knowledge_head("informazioni sullo ", strong).
+knowledge_head("informazioni sulla ", strong).
+knowledge_head("informazioni sui ", strong).
+knowledge_head("informazioni sugli ", strong).
+knowledge_head("informazioni sulle ", strong).
+knowledge_head("informazioni sull'", strong).
+knowledge_head("vorrei informazioni su ", strong).
+knowledge_head("vorrei informazioni sul ", strong).
+knowledge_head("vorrei informazioni sullo ", strong).
+knowledge_head("vorrei informazioni sulla ", strong).
+knowledge_head("vorrei informazioni sui ", strong).
+knowledge_head("vorrei informazioni sugli ", strong).
+knowledge_head("vorrei informazioni sulle ", strong).
+knowledge_head("vorrei informazioni sull'", strong).
+knowledge_head("voglio informazioni su ", strong).
+knowledge_head("voglio informazioni sul ", strong).
+knowledge_head("voglio informazioni sullo ", strong).
+knowledge_head("voglio informazioni sulla ", strong).
+knowledge_head("voglio informazioni sui ", strong).
+knowledge_head("voglio informazioni sugli ", strong).
+knowledge_head("voglio informazioni sulle ", strong).
+knowledge_head("voglio informazioni sull'", strong).
+knowledge_head("dammi informazioni su ", strong).
+knowledge_head("dammi informazioni sul ", strong).
+knowledge_head("dammi informazioni sullo ", strong).
+knowledge_head("dammi informazioni sulla ", strong).
+knowledge_head("dammi informazioni sui ", strong).
+knowledge_head("dammi informazioni sugli ", strong).
+knowledge_head("dammi informazioni sulle ", strong).
+knowledge_head("dammi informazioni sull'", strong).
+knowledge_head("mi servono informazioni su ", strong).
+knowledge_head("mi servono informazioni sul ", strong).
+knowledge_head("mi servono informazioni sullo ", strong).
+knowledge_head("mi servono informazioni sulla ", strong).
+knowledge_head("mi servono informazioni sui ", strong).
+knowledge_head("mi servono informazioni sugli ", strong).
+knowledge_head("mi servono informazioni sulle ", strong).
+knowledge_head("mi servono informazioni sull'", strong).
+knowledge_head("cerco informazioni su ", strong).
+knowledge_head("cerco informazioni sul ", strong).
+knowledge_head("cerco informazioni sullo ", strong).
+knowledge_head("cerco informazioni sulla ", strong).
+knowledge_head("cerco informazioni sui ", strong).
+knowledge_head("cerco informazioni sugli ", strong).
+knowledge_head("cerco informazioni sulle ", strong).
+knowledge_head("cerco informazioni sull'", strong).
+knowledge_head("notizie su ", strong).
+knowledge_head("notizie sul ", strong).
+knowledge_head("notizie sullo ", strong).
+knowledge_head("notizie sulla ", strong).
+knowledge_head("notizie sui ", strong).
+knowledge_head("notizie sugli ", strong).
+knowledge_head("notizie sulle ", strong).
+knowledge_head("notizie sull'", strong).
+knowledge_head("dammi notizie su ", strong).
+knowledge_head("dammi notizie sul ", strong).
+knowledge_head("dammi notizie sullo ", strong).
+knowledge_head("dammi notizie sulla ", strong).
+knowledge_head("dammi notizie sui ", strong).
+knowledge_head("dammi notizie sugli ", strong).
+knowledge_head("dammi notizie sulle ", strong).
+knowledge_head("dammi notizie sull'", strong).
+knowledge_head("qualche informazione su ", strong).
+knowledge_head("qualche informazione sul ", strong).
+knowledge_head("qualche informazione sullo ", strong).
+knowledge_head("qualche informazione sulla ", strong).
+knowledge_head("qualche informazione sui ", strong).
+knowledge_head("qualche informazione sugli ", strong).
+knowledge_head("qualche informazione sulle ", strong).
+knowledge_head("qualche informazione sull'", strong).
+knowledge_head("qualche notizia su ", strong).
+knowledge_head("qualche notizia sul ", strong).
+knowledge_head("qualche notizia sullo ", strong).
+knowledge_head("qualche notizia sulla ", strong).
+knowledge_head("qualche notizia sui ", strong).
+knowledge_head("qualche notizia sugli ", strong).
+knowledge_head("qualche notizia sulle ", strong).
+knowledge_head("qualche notizia sull'", strong).
+% le teste senza preposizione: la definizione al plurale, la persona, l'interesse
+knowledge_head("cosa sono ", strong).
+knowledge_head("che cosa sono ", strong).
+knowledge_head("cosa è ", strong).
+knowledge_head("che cosa è ", strong).
+knowledge_head("cos e ", strong).
+knowledge_head("cos'e ", strong).
+knowledge_head("che cos e ", strong).
+knowledge_head("spiegami cosa sono ", strong).
+knowledge_head("spiegami che cosa sono ", strong).
+knowledge_head("spiegami cos'è ", strong).
+knowledge_head("spiegami che cos'è ", strong).
+knowledge_head("spiegami cosa è ", strong).
+knowledge_head("spiegami che cosa è ", strong).
+knowledge_head("chi era ", strong).
+knowledge_head("chi erano ", strong).
+knowledge_head("chi sono ", strong).
+knowledge_head("chi è stato ", strong).
+knowledge_head("chi è stata ", strong).
+knowledge_head("mi interessano le ", strong).
+knowledge_head("mi interessano i ", strong).
+knowledge_head("mi interessano gli ", strong).
+knowledge_head("mi interessa il ", strong).
+knowledge_head("mi interessa la ", strong).
+knowledge_head("mi interessa lo ", strong).
+knowledge_head("mi interessa l'", strong).
+% e le stesse teste in inglese
+knowledge_head("let's talk about ", strong).
+knowledge_head("lets talk about ", strong).
+knowledge_head("let us talk about ", strong).
+knowledge_head("can we talk about ", strong).
+knowledge_head("could we talk about ", strong).
+knowledge_head("i want to talk about ", strong).
+knowledge_head("i'd like to talk about ", strong).
+knowledge_head("i would like to talk about ", strong).
+knowledge_head("talk to me about ", strong).
+knowledge_head("can you talk about ", strong).
+knowledge_head("could you talk about ", strong).
+knowledge_head("let's discuss ", strong).
+knowledge_head("lets discuss ", strong).
+knowledge_head("tell me something about ", strong).
+knowledge_head("tell me more about ", strong).
+knowledge_head("tell me everything about ", strong).
+knowledge_head("tell me all about ", strong).
+knowledge_head("tell me a bit about ", strong).
+knowledge_head("tell me a little about ", strong).
+knowledge_head("tell me what you know about ", strong).
+knowledge_head("tell me all you know about ", strong).
+knowledge_head("can you tell me about ", strong).
+knowledge_head("could you tell me about ", strong).
+knowledge_head("can you tell me something about ", strong).
+knowledge_head("could you tell me something about ", strong).
+knowledge_head("say something about ", strong).
+knowledge_head("what can you tell me about ", strong).
+knowledge_head("what do you know of ", strong).
+knowledge_head("do you know anything about ", strong).
+knowledge_head("do you know about ", strong).
+knowledge_head("do you know something about ", strong).
+knowledge_head("know anything about ", strong).
+knowledge_head("any info on ", strong).
+knowledge_head("any info about ", strong).
+knowledge_head("any information on ", strong).
+knowledge_head("any information about ", strong).
+knowledge_head("info on ", strong).
+knowledge_head("info about ", strong).
+knowledge_head("information about ", strong).
+knowledge_head("information on ", strong).
+knowledge_head("give me information about ", strong).
+knowledge_head("give me information on ", strong).
+knowledge_head("give me some info on ", strong).
+knowledge_head("give me some info about ", strong).
+knowledge_head("i want to know about ", strong).
+knowledge_head("i'd like to know about ", strong).
+knowledge_head("i would like to know about ", strong).
+knowledge_head("i want to learn about ", strong).
+knowledge_head("i'd like to learn about ", strong).
+knowledge_head("i would like to learn about ", strong).
+knowledge_head("teach me about ", strong).
+knowledge_head("i'm curious about ", strong).
+knowledge_head("i am curious about ", strong).
+knowledge_head("what's a ", strong).
+knowledge_head("what's an ", strong).
+knowledge_head("whats a ", strong).
+knowledge_head("whats an ", strong).
+knowledge_head("who are the ", strong).
+knowledge_head("who were the ", strong).
 answer_frame("cosa sai del", semantic_summary).
 answer_frame("cosa sai della", semantic_summary).
 answer_frame("cosa sai del", semantic_summary).
@@ -4360,6 +5466,29 @@ intent_cue(40_meta_reflection_lex977, "year").
 intent_cue(50_self_research_loop_lex943, "cos").
 intent_cue(50_self_research_loop_lex943_2, "cosa").
 intent_cue(50_self_research_loop_lex943_3, "parlami").
+intent_cue(50_self_research_loop_lex943_3, "parliamo").
+intent_cue(50_self_research_loop_lex943_3, "raccontami").
+intent_cue(50_self_research_loop_lex943_3, "dimmi").
+intent_cue(50_self_research_loop_lex943_3, "spiegami").
+intent_cue(50_self_research_loop_lex943_3, "mi parli").
+intent_cue(50_self_research_loop_lex943_3, "parlarmi").
+intent_cue(50_self_research_loop_lex943_3, "vorrei").
+intent_cue(50_self_research_loop_lex943_3, "voglio").
+intent_cue(50_self_research_loop_lex943_3, "possiamo").
+intent_cue(50_self_research_loop_lex943_3, "potremmo").
+intent_cue(50_self_research_loop_lex943_3, "puoi").
+intent_cue(50_self_research_loop_lex943_3, "potresti").
+intent_cue(50_self_research_loop_lex943_3, "che sai").
+intent_cue(50_self_research_loop_lex943_3, "che mi").
+intent_cue(50_self_research_loop_lex943_3, "sai qualcosa").
+intent_cue(50_self_research_loop_lex943_3, "sai niente").
+intent_cue(50_self_research_loop_lex943_3, "informazioni").
+intent_cue(50_self_research_loop_lex943_3, "notizie").
+intent_cue(50_self_research_loop_lex943_3, "mi interessa").
+intent_cue(50_self_research_loop_lex943_3, "sono curios").
+intent_cue(50_self_research_loop_lex943_3, "discutiamo").
+intent_cue(50_self_research_loop_lex943_3, "parliamone").
+intent_cue(50_self_research_loop_lex943_3, "ti va").
 intent_cue(50_self_research_loop_lex944, "chi ").
 intent_cue(50_self_research_loop_lex944_2, "impara").
 intent_cue(50_self_research_loop_lex945, "studia").

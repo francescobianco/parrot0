@@ -1,5 +1,44 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-09 — la mossa di approfondimento (gen506l)
+
+«dammi piu' informazioni» dopo una lettura e' oggi `acquisition_report`, che
+ripete la definizione trovata. La mossa vera — `elaborate` sull'ultima
+acquisizione: leggere le frasi successive della pagina (K7, D8: la sintesi e'
+compressione con recupero) o elencare i fatti estratti sul tema — non ha un
+consumatore. Forma di arrivo: `last_acquisition` come questione del
+tabellone (issues.p0), `move_addresses(T, I, elaborate)` in KB, e il C che
+esegue «leggi oltre» con la stessa primitiva passiva della rete. Le frasi
+sono gia' in network.p0 §9; cambiera' solo chi le consuma.
+
+## 2026-09-09 — i tre meccanismi che i «prompt stupidi» aspettano (gen506k)
+
+- **Riparazione di superficie del turno.** «come tichiami» mura: nessun
+  riparatore raddrizza una parola fusa o storta in un turno ordinario (gen385
+  vale solo dentro «come si scrive X»). Meccanica generale: per ogni token
+  ignoto, i vicini (spazio inserito, lettera scambiata/mancante) controllati
+  contro il vocabolario gia' in KB — cue, locuzioni, marcatori, `lexeme` —
+  e proposti come ipotesi (`turn_surface_repair`), mai applicati in silenzio.
+  Quali deformazioni contino e' una classe KB. Finche' manca, le forme fuse
+  frequenti stanno come cue (intents.p0 §ask_name), e sono casi, non la classe.
+- **Il tema con una preposizione dentro.** L'estrattore di mod_learn
+  (50-self-research-loop.c) rifiuta il tema se un token e' `preposition`:
+  «parlami della guerra di troia» mura. Il sintagma lo da' gia' il fuoco del
+  turno; il filtro deve valere per i temi senza fuoco, non per tutti.
+- **`plural_suffix/2` senza lingua.** Le regole di desinenza sono inglesi e
+  globali; una regola italiana («-e -> -a») romperebbe «house». Con la lingua
+  come argomento, morphology.p0 smette di elencare ogni plurale.
+- **La regola del prodotto verbo x preposizione** (intents.p0, gen506k) e'
+  commentata: con la regola viva il demone non apriva il socket in 180 s,
+  senza PARSE ERROR, e la causa non e' stata isolata (nessun test, per
+  richiesta di F.). Da misurare: il tempo di `kb_load` + `brain_boot` con la
+  regola viva, e chi enumera `knowledge_head` al boot; poi togliere le ~800
+  teste piatte generate.
+- **Le prime 128 teste.** mod_learn legge `knowledge_head` con un tetto di 128
+  per i gradi forte/debole; oltre, solo come prefisso grezzo. Con il prodotto
+  verbo x preposizione (gen506k) le teste sono ~900: il tetto va tolto
+  (`kb_match_all`), com'e' gia' per il terzo giro.
+
 ## 2026-09-09 — il tabellone e' uno (gen506i): i lettori delle viste di transizione
 
 `pending_gap`, `pending_gap_question`, `pending_disambiguation`,
