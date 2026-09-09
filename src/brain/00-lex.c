@@ -69,13 +69,11 @@ static const char *cue_visible_text(Brain *b, const char *relation,
     if (nd == 0) return norm;
     char marks[16]; size_t nm = 0;
     for (size_t i = 0; i < nd && nm + 1 < sizeof marks; i++) {
-        char o[KB_TERM_LEN]; snprintf(o, sizeof o, "%s", opens[i]);
-        const char *d = kb_dequote(o);
         /* gen432: la sequenza di fuga si scioglie quando il testo ESCE dalla
-         * KB, non dentro `kb_dequote`. Una virgoletta e' scritta `\"` nel
-         * fatto, quindi qui si legge il byte vero. */
-        if (d[0] == '\\' && d[1]) marks[nm++] = d[1];
-        else if (d[0]) marks[nm++] = d[0];
+         * KB. Da gen507 quella regola vive in `kb_atom_text`, una sola volta
+         * per ogni consumatore, e qui non c'e' piu' un secondo scioglitore. */
+        char d[KB_TERM_LEN]; kb_atom_text(opens[i], d, sizeof d);
+        if (d[0]) marks[nm++] = d[0];
     }
     marks[nm] = '\0';
     if (nm == 0 || !strpbrk(norm, marks)) return norm;

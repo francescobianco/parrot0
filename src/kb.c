@@ -4405,7 +4405,13 @@ int kb_match_all(const KB *kb, const char *pred,
     }
 }
 
-static void evidence_atom_text(const char *atom, char *out, size_t outsz) {
+/* Il testo di un atomo, come il turno lo vedrebbe: via le virgolette che lo
+ * delimitano nel fatto, e sciolte le sequenze di fuga che servivano solo a
+ * scriverlo. La regola e' quella di gen432 — la fuga si scioglie quando il
+ * testo ESCE dalla KB — ma era applicata in un solo consumatore, che quindi
+ * era l'unico a saper leggere `"\""` come una virgoletta. Qui vale per tutti,
+ * cosi' un delimitatore nuovo non ha bisogno del suo scanner privato. */
+void kb_atom_text(const char *atom, char *out, size_t outsz) {
     if (!out || outsz == 0) return;
     out[0] = '\0';
     if (!atom) return;
@@ -4415,9 +4421,17 @@ static void evidence_atom_text(const char *atom, char *out, size_t outsz) {
         p++;
         n -= 2;
     }
-    if (n >= outsz) n = outsz - 1;
-    memcpy(out, p, n);
-    out[n] = '\0';
+    size_t w = 0;
+    for (size_t i = 0; i < n && w + 1 < outsz; i++) {
+        if (p[i] == '\\' && i + 1 < n &&
+            (p[i + 1] == '"' || p[i + 1] == '\'' || p[i + 1] == '\\')) i++;
+        out[w++] = p[i];
+    }
+    out[w] = '\0';
+}
+
+static void evidence_atom_text(const char *atom, char *out, size_t outsz) {
+    kb_atom_text(atom, out, outsz);
 }
 
 static int evidence_word_char(unsigned char c) {
@@ -4945,6 +4959,7 @@ size_t kb_evidence_matches(const KB *kb, const char *relation,
                 memset(&candidate, 0, sizeof candidate);
                 snprintf(candidate.hypothesis, KB_TERM_LEN, "%s", classes[ci]);
                 snprintf(candidate.evidence, KB_TERM_LEN, "%s", evs[ei]);
+                snprintf(candidate.kind, KB_TERM_LEN, "%s", kind);
                 candidate.start = at;
                 candidate.len = len;
                 candidate.weight = weight;

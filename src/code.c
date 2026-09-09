@@ -3279,13 +3279,7 @@ typedef struct {
 } InputCandidate;
 
 static void input_atom_text(const char *atom, char *out, size_t cap) {
-    if (!out || cap == 0) return;
-    out[0] = '\0';
-    if (!atom) return;
-    size_t n = strlen(atom); const char *p = atom;
-    if (n >= 2 && p[0] == '"' && p[n - 1] == '"') { p++; n -= 2; }
-    if (n >= cap) n = cap - 1;
-    memcpy(out, p, n); out[n] = '\0';
+    kb_atom_text(atom, out, cap);
 }
 
 static int input_has_value(char values[][KB_TERM_LEN], size_t n, const char *v) {
@@ -3708,6 +3702,7 @@ typedef struct {
     size_t len;
     char role[KB_TERM_LEN];
     char evidence[KB_TERM_LEN];
+    char kind[KB_TERM_LEN];
     int score;
 } InputRoleMark;
 
@@ -3775,6 +3770,7 @@ static int input_add_prose(KB *kb, const char *raw, size_t start, size_t end,
             strcmp(marks[nm - 1].role, hits[bi].hypothesis) != 0) {
             marks[nm].at = at; marks[nm].len = hits[bi].len;
             marks[nm].score = hits[bi].weight;
+            snprintf(marks[nm].kind, sizeof marks[nm].kind, "%s", hits[bi].kind);
             snprintf(marks[nm].role, sizeof marks[nm].role, "%s", hits[bi].hypothesis);
             snprintf(marks[nm].evidence, sizeof marks[nm].evidence, "%s", hits[bi].evidence);
             nm++;
@@ -3795,13 +3791,37 @@ static int input_add_prose(KB *kb, const char *raw, size_t start, size_t end,
     }
     for (size_t i = 0; i < nm; i++) {
         size_t a = start + marks[i].at;
-        size_t b = (i + 1 < nm) ? start + marks[i + 1].at : end;
-        input_trim_range(raw, &a, &b);
+        size_t next = (i + 1 < nm) ? start + marks[i + 1].at : end;
+        size_t b = next;
+        /* Quanto lontano arrivi un mark non e' piu' un assunto del C. Una cue
+         * APRE un ruolo e lo tiene fino alla prossima; un'evidenza che porta
+         * con se' i propri confini — un delimitatore bilanciato — delimita
+         * esattamente cio' che cita. Quale specie di evidenza faccia l'una o
+         * l'altra cosa e' un fatto (`evidence_extent/2`), esattamente come lo
+         * e' gia' il suo peso: un delimitatore nuovo domani costa una riga di
+         * .p0 e nessuna ricompilazione. */
+        const char *xq[2] = { marks[i].kind, "cue" };
+        if (marks[i].kind[0] && marks[i].len &&
+            kb_query(kb, "evidence_extent", xq, 2) &&
+            a + marks[i].len < b)
+            b = a + marks[i].len;
+        size_t sa = a, sb = b;
+        input_trim_range(raw, &sa, &sb);
         char proof[KB_EVIDENCE_PROOF_LEN];
         snprintf(proof, sizeof proof, "because segment_role(%s, %s) [score=%d]",
                  marks[i].role, marks[i].evidence, marks[i].score);
-        input_push_span(segs, ns, max, a, b, marks[i].role, "",
+        input_push_span(segs, ns, max, sa, sb, marks[i].role, "",
                         marks[i].evidence, marks[i].len, marks[i].score, proof);
+        /* Cio' che segue un'evidenza delimitata torna a essere prosa: chiudere
+         * lo span senza riaprire il seguito farebbe sparire byte dal flusso. */
+        if (b < next) {
+            size_t ta = b, tb = next;
+            char drole[KB_TERM_LEN] = "prose", dproof[KB_EVIDENCE_PROOF_LEN] = "";
+            input_default_role(kb, context, drole, sizeof drole,
+                               dproof, sizeof dproof);
+            input_trim_range(raw, &ta, &tb);
+            input_push_span(segs, ns, max, ta, tb, drole, "", "", 0, 1, dproof);
+        }
     }
     return 1;
 }

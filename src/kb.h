@@ -192,6 +192,11 @@ int kb_match_all(const KB *kb, const char *pred,
 typedef struct {
     char   hypothesis[KB_TERM_LEN];
     char   evidence[KB_TERM_LEN];
+    /* La SPECIE dell'evidenza (`cue`, `balanced`, `line_prefix`, ...). Era gia'
+     * calcolata per pesarla e poi buttata: esporla evita che ogni consumatore
+     * si riscriva un estrattore di funtore, ed e' la chiave con cui la KB dice
+     * altre proprieta' della specie (`evidence_weight/2`, `evidence_extent/2`). */
+    char   kind[KB_TERM_LEN];
     size_t start;
     size_t len;
     int    weight;
@@ -200,6 +205,11 @@ typedef struct {
 /* Enumerate every occurrence supported by `relation`/2.  If `hypothesis` is
  * non-NULL only that class is considered; NULL discovers every class from the
  * KB.  Results are ordered by byte offset, then by hypothesis/evidence. */
+/* Il testo di un atomo KB come lo vede il turno: senza le virgolette che lo
+ * delimitano nel fatto e con le sequenze di fuga sciolte. Una sola regola per
+ * ogni consumatore — evidenze, delimitatori, cue. */
+void kb_atom_text(const char *atom, char *out, size_t outsz);
+
 size_t kb_evidence_matches(const KB *kb, const char *relation,
                            const char *hypothesis, const char *text,
                            KbEvidenceMatch *out, size_t max);

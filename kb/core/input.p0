@@ -303,6 +303,24 @@ segment_role(mention, "is also called").
 segment_role(mention, "is known as").
 canonicalization_exempt(mention).
 
+% Le virgolette dicono «queste parole, cosi' come sono». Fin qui il motore lo
+% sapeva a meta': `mention_delimiter/2` mascherava le citazioni per il matching
+% delle cue, ma la canonicalizzazione leggeva i ruoli da `segment_role/2` e le
+% virgolette non ne aprivano nessuno. Cosi' «"al mio posto" is a phrase»
+% entrava in KB come «"al my posto"»: la cue insegnata nasceva storpiata e non
+% poteva piu' agganciare il turno che la conteneva. Non serviva un secondo
+% scanner: `balanced/2` e' gia' una forma di evidenza che porta con se' i
+% propri confini, quindi la menzione delimitata e' una riga come le altre.
+segment_role(mention, balanced("\"", "\"")).
+
+% Fin dove arriva un'evidenza e' una proprieta' della sua SPECIE, non un
+% assunto del motore. Una cue apre un ruolo e lo tiene fino alla prossima —
+% ed e' cio' che serve a «X is also called Y», dove il nome sta DOPO la cue.
+% Un delimitatore bilanciato invece delimita esattamente cio' che cita: il
+% seguito e' di nuovo prosa. Lo stesso idioma di `evidence_weight/2`.
+machinery(evidence_extent).
+evidence_extent(balanced, cue).
+
 % La domanda che segue un registro strutturato e' un secondo span. Il ruolo
 % `query` e' anche il contratto consumato dalla facolta' che soddisfa la domanda:
 % una sola evidenza viva decide sia il confine sia l'atto, senza duplicare cue.
