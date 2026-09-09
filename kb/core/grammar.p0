@@ -985,6 +985,42 @@ extract_frame($Pat, $Root) :-
     concat_atoms("@S ", $Form, $A),
     concat_atoms($A, " @O", $Pat).
 
+% ── gen507 — IL COMPARATIVO E' UNA FORMA, NON UN VERBO NUOVO ────────────────
+%
+% «zelnik is bigger than grum» finiva nel muro, e il muro proponeva «bigger is
+% a relation verb» — che poi accettava «zelnik bigger grum» e non la frase con
+% cui gliel'avevano detta. Una relazione ha due superfici, non una: quella
+% nuda e quella comparativa, e la seconda non e' una seconda lezione.
+%
+% `comparative_frame/2` e' la stessa mossa gia' fatta per i suffissi e per le
+% forme irregolari: il legante sta in KB, il motore e' quello che c'era. Un
+% legante nuovo — «is more X than», «e' piu' X di» — costa una riga.
+machinery(comparative_frame).
+% Il legante che la forma comparativa mette fra la relazione e il suo secondo
+% termine. Alla DOMANDA serve saperlo per conto proprio: «is zelnik bigger than
+% grum?» non passa dalla costruzione, e senza questa riga il lettore polare
+% prendeva «than grum» per un oggetto.
+machinery(relation_particle).
+relation_particle(than).
+relation_particle(di).
+relation_particle(che).
+comparative_frame("@S is ", " than @O").
+comparative_frame("@S e' piu' ", " di @O").
+comparative_frame("@S è più ", " di @O").
+
+% E la lezione si scrive nella forma in cui il maestro la scriverebbe: una
+% COSTRUZIONE, cioe' una superficie che si riscrive in quella canonica. Detta
+% come `extract_frame/2` competeva con il frame nudo «@S bigger @O», che
+% assorbe il legante e produce `bigger(zelnik, than_grum)` — un fatto storto
+% con la faccia di uno giusto.
+construction_frame($Src, $Tgt, $Rel) :-
+    relation_verb($Rel),
+    comparative_frame($Pre, $Post),
+    concat_atoms($Pre, $Rel, $A),
+    concat_atoms($A, $Post, $Src),
+    concat_atoms("@S ", $Rel, $B),
+    concat_atoms($B, " @O", $Tgt).
+
 % E il verso opposto: chi insegna «eats» ottiene «eat» dalla regola dei
 % suffissi; chi insegna «ate» lo ottiene da qui.
 verb_stem($Form, $Stem) :- irregular_verb_form($Stem, $Form).

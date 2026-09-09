@@ -12420,7 +12420,19 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
         return 1;
     }
 
-    if (!p0_join(w, vi + 1, nw, obj, sizeof obj)) return 0;
+    /* gen507 — il LEGANTE non e' parte dell'oggetto. «is zelnik bigger than
+     * grum?» dava obj = «than grum» e non trovava niente, mentre l'asserzione
+     * corrispondente era gia' in KB come `bigger(zelnik, grum)`. Quali parole
+     * leghino una relazione al suo secondo termine e' conoscenza
+     * (`relation_particle/1`): una lingua nuova costa una riga. */
+    size_t obeg = vi + 1;
+    if (obeg + 1 < nw) {
+        char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", w[obeg]);
+        const char *pt = strip_edge_punct(pb);
+        const char *pq[1] = { pt };
+        if (*pt && kb_query(b->kb, "relation_particle", pq, 1)) obeg++;
+    }
+    if (!p0_join(w, obeg, nw, obj, sizeof obj)) return 0;
     for (char *c = obj; *c; c++) if (*c == '?') { *c = '\0'; break; }
     if (!*obj) return 0;
 
