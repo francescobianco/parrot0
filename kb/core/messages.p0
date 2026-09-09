@@ -844,6 +844,13 @@ enumerate_cue("dimmi i").
 enumerate_cue("dimmi le").
 enumerate_cue("quali sono i").
 enumerate_cue("quali sono le").
+% gen507 — «what tools do you know?» e' una domanda sulla KB, e riceveva una
+% risposta di conversazione («That sounds nice — tell me more about it»). Il
+% motore accende solo se la parola che segue e' una classe che ha membri,
+% quindi «what is a tool?» e «what colour is zelnik?» non passano di qui.
+enumerate_cue("what").
+enumerate_cue("which").
+enumerate_cue("quali").
 response_template(enumeration_answer, "{list}.").
 response_template(enumeration_empty, "I do not know any {noun} yet.").
 response_template(enumeration_empty, it, "Non conosco ancora nessun {noun}.").
