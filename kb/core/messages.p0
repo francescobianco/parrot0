@@ -916,6 +916,7 @@ response_template(existence_witness, it, "Sì — {witness}, per esempio.").
 machinery(turn_form).
 machinery(turn_form_act).
 machinery(turn_form_reply).
+machinery(turn_form_mood).
 machinery(negation_marker).
 negation_marker("does not").
 negation_marker("do not").
@@ -932,6 +933,7 @@ turn_form(negate_relation, 1, slot(subject)).
 turn_form(negate_relation, 2, class(negation_marker)).
 turn_form(negate_relation, 3, relation(relation)).
 turn_form(negate_relation, 4, rest(object)).
+turn_form_mood(negate_relation, statement).
 turn_form_act(negate_relation, assert_negative).
 turn_form_reply(negate_relation, learned_negative_relation).
 
@@ -953,6 +955,7 @@ turn_form(year_stated, 3, class(creation_verb)).
 turn_form(year_stated, 4, text("in")).
 turn_form(year_stated, 5, rest(object)).
 turn_form(year_stated, 6, bind(relation, year_of)).
+turn_form_mood(year_stated, statement).
 turn_form_act(year_stated, assert_relation).
 turn_form_reply(year_stated, learned_year).
 
@@ -964,6 +967,7 @@ turn_form(year_asked, 2, class(past_copula)).
 turn_form(year_asked, 3, slot(subject)).
 turn_form(year_asked, 4, class(creation_verb)).
 turn_form(year_asked, 5, bind(relation, year_of)).
+turn_form_mood(year_asked, question).
 turn_form_act(year_asked, answer_relation).
 
 turn_form(year_asked_it, 1, text("quando")).
@@ -971,6 +975,7 @@ turn_form(year_asked_it, 2, class(past_copula)).
 turn_form(year_asked_it, 3, slot(subject)).
 turn_form(year_asked_it, 4, class(creation_verb)).
 turn_form(year_asked_it, 5, bind(relation, year_of)).
+turn_form_mood(year_asked_it, question).
 turn_form_act(year_asked_it, answer_relation).
 
 response_template(learned_price, "Held: {subject} costs {object}.").
@@ -979,6 +984,7 @@ turn_form(price_stated, 1, slot(subject)).
 turn_form(price_stated, 2, text("costs")).
 turn_form(price_stated, 3, rest(object)).
 turn_form(price_stated, 4, bind(relation, price_of)).
+turn_form_mood(price_stated, statement).
 turn_form_act(price_stated, assert_relation).
 turn_form_reply(price_stated, learned_price).
 
@@ -986,6 +992,7 @@ turn_form(price_asked, 1, text("how much does")).
 turn_form(price_asked, 2, slot(subject)).
 turn_form(price_asked, 3, text("cost")).
 turn_form(price_asked, 4, bind(relation, price_of)).
+turn_form_mood(price_asked, question).
 turn_form_act(price_asked, answer_relation).
 
 % ── Da dove una cosa viene ────────────────────────────────────────────────
@@ -997,6 +1004,7 @@ turn_form(origin_stated, 2, class(origin_verb)).
 turn_form(origin_stated, 3, text("from")).
 turn_form(origin_stated, 4, rest(object)).
 turn_form(origin_stated, 5, bind(relation, origin_of)).
+turn_form_mood(origin_stated, statement).
 turn_form_act(origin_stated, assert_relation).
 turn_form_reply(origin_stated, learned_origin).
 
@@ -1009,11 +1017,13 @@ turn_form(origin_asked, 2, slot(subject)).
 turn_form(origin_asked, 3, class(origin_verb)).
 turn_form(origin_asked, 4, text("from")).
 turn_form(origin_asked, 5, bind(relation, origin_of)).
+turn_form_mood(origin_asked, question).
 turn_form_act(origin_asked, answer_relation).
 
 turn_form(origin_asked_of, 1, text("what is the origin of")).
 turn_form(origin_asked_of, 2, slot(subject)).
 turn_form(origin_asked_of, 3, bind(relation, origin_of)).
+turn_form_mood(origin_asked_of, question).
 turn_form_act(origin_asked_of, answer_relation).
 
 % ── Quanto pesa ───────────────────────────────────────────────────────────
@@ -1024,6 +1034,7 @@ turn_form(weight_stated, 1, slot(subject)).
 turn_form(weight_stated, 2, class(weight_verb)).
 turn_form(weight_stated, 3, rest(object)).
 turn_form(weight_stated, 4, bind(relation, weight_of)).
+turn_form_mood(weight_stated, statement).
 turn_form_act(weight_stated, assert_relation).
 turn_form_reply(weight_stated, learned_weight).
 
@@ -1035,6 +1046,7 @@ turn_form(weight_asked, 1, text("how much does")).
 turn_form(weight_asked, 2, slot(subject)).
 turn_form(weight_asked, 3, class(weight_verb)).
 turn_form(weight_asked, 4, bind(relation, weight_of)).
+turn_form_mood(weight_asked, question).
 turn_form_act(weight_asked, answer_relation).
 
 % «quanto pesa zelnik?» arriva ai lettori canonicalizzato in «how much pesa
@@ -1044,6 +1056,7 @@ turn_form(weight_asked_it, 1, text("how much")).
 turn_form(weight_asked_it, 2, class(weight_verb)).
 turn_form(weight_asked_it, 3, slot(subject)).
 turn_form(weight_asked_it, 4, bind(relation, weight_of)).
+turn_form_mood(weight_asked_it, question).
 turn_form_act(weight_asked_it, answer_relation).
 
 % ── A che cosa serve ──────────────────────────────────────────────────────
@@ -1054,6 +1067,7 @@ turn_form(purpose_stated, 1, slot(subject)).
 turn_form(purpose_stated, 2, text("is used for")).
 turn_form(purpose_stated, 3, rest(object)).
 turn_form(purpose_stated, 4, bind(relation, purpose_of)).
+turn_form_mood(purpose_stated, statement).
 turn_form_act(purpose_stated, assert_relation).
 turn_form_reply(purpose_stated, learned_purpose).
 
@@ -1066,12 +1080,63 @@ turn_form(purpose_asked, 1, text("what is")).
 turn_form(purpose_asked, 2, slot(subject)).
 turn_form(purpose_asked, 3, text("used for")).
 turn_form(purpose_asked, 4, bind(relation, purpose_of)).
+turn_form_mood(purpose_asked, question).
 turn_form_act(purpose_asked, answer_relation).
 
 turn_form(purpose_asked2, 1, text("what is the purpose of")).
 turn_form(purpose_asked2, 2, slot(subject)).
 turn_form(purpose_asked2, 3, bind(relation, purpose_of)).
+turn_form_mood(purpose_asked2, question).
 turn_form_act(purpose_asked2, answer_relation).
+
+% ── A che cosa una cosa somiglia ──────────────────────────────────────────
+relation(resemblance).
+response_template(learned_similar, "Held: {subject} is similar to {object}.").
+response_template(learned_similar, it, "Tengo: {subject} somiglia a {object}.").
+turn_form(similar_stated, 1, slot(subject)).
+turn_form(similar_stated, 2, text("is similar to")).
+turn_form(similar_stated, 3, rest(object)).
+turn_form(similar_stated, 4, bind(relation, resemblance_of)).
+turn_form_mood(similar_stated, statement).
+turn_form_act(similar_stated, assert_relation).
+turn_form_reply(similar_stated, learned_similar).
+
+turn_form(similar_stated2, 1, slot(subject)).
+turn_form(similar_stated2, 2, text("is like")).
+turn_form(similar_stated2, 3, rest(object)).
+turn_form(similar_stated2, 4, bind(relation, resemblance_of)).
+turn_form_mood(similar_stated2, statement).
+turn_form_act(similar_stated2, assert_relation).
+turn_form_reply(similar_stated2, learned_similar).
+
+turn_form(similar_asked, 1, text("what is")).
+turn_form(similar_asked, 2, slot(subject)).
+turn_form(similar_asked, 3, text("similar to")).
+turn_form(similar_asked, 4, bind(relation, resemblance_of)).
+turn_form_mood(similar_asked, question).
+turn_form_act(similar_asked, answer_relation).
+
+% ── Che cosa una cosa sa fare ─────────────────────────────────────────────
+relation(ability).
+response_template(learned_ability, "Held: {subject} can {object}.").
+response_template(learned_ability, it, "Tengo: {subject} può {object}.").
+turn_form(ability_stated, 1, slot(subject)).
+turn_form(ability_stated, 2, class(ability_marker)).
+turn_form(ability_stated, 3, rest(object)).
+turn_form(ability_stated, 4, bind(relation, ability_of)).
+turn_form_mood(ability_stated, statement).
+turn_form_act(ability_stated, assert_relation).
+turn_form_reply(ability_stated, learned_ability).
+
+machinery(ability_marker).
+ability_marker("can").  ability_marker("is able to").  ability_marker("knows how to").
+
+turn_form(ability_asked, 1, text("what can")).
+turn_form(ability_asked, 2, slot(subject)).
+turn_form(ability_asked, 3, text("do")).
+turn_form(ability_asked, 4, bind(relation, ability_of)).
+turn_form_mood(ability_asked, question).
+turn_form_act(ability_asked, answer_relation).
 
 
 

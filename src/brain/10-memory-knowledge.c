@@ -12980,6 +12980,24 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
     for (size_t f = 0; f < nf && !done; f++) {
         char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", forms[f]);
         const char *form = kb_dequote(fb);
+        /* gen507 — UNA FORMA DICHIARA ANCHE IL PROPRIO MODO.
+         * Senza questo, «what can zelnik do?» veniva letta dalla forma
+         * DICHIARATIVA «X can Y» e parrot0 imparava `ability_of(what,
+         * zelnik_do)`: un fatto inventato da una domanda. Che un turno sia una
+         * domanda lo dice la sua ultima lettera; se una forma valga per le
+         * domande, per le asserzioni o per entrambe lo dice la KB. */
+        {
+            char mood[4][KB_TERM_LEN];
+            const char *mq[2] = { forms[f], NULL };
+            size_t nm2 = kb_match(b->kb, "turn_form_mood", mq, 2, mood, 4);
+            if (nm2 > 0) {
+                char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mood[0]);
+                const char *want = kb_dequote(mb);
+                int isq = norm[L - 1] == '?';
+                if (!strcmp(want, "question") && !isq) continue;
+                if (!strcmp(want, "statement") && isq) continue;
+            }
+        }
         P0FormSlot slots[P0_FORM_SLOTS]; size_t ns = 0;
         char work[300]; memcpy(work, norm, L + 1);
         char *ww[48]; size_t nww = split_words(work, ww, 48);
