@@ -12919,6 +12919,23 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
             snprintf(slots[*nslot].value, KB_TERM_LEN, "%s", rel);
             (*nslot)++;
             i++;
+        } else if (!strcmp(kind, "bind")) {
+            /* Lega uno slot a un valore senza consumare token: e' come una
+             * forma dichiara la relazione che intende, quando la frase non la
+             * nomina («was built in» parla di anni senza dire «year»). */
+            if (*nslot >= P0_FORM_SLOTS) return 0;
+            char nm[KB_TERM_LEN], vl[KB_TERM_LEN];
+            const char *comma = strchr(arg, ',');
+            if (!comma) return 0;
+            size_t nl = (size_t)(comma - arg);
+            if (nl >= sizeof nm) return 0;
+            memcpy(nm, arg, nl); nm[nl] = '\0';
+            const char *v = comma + 1;
+            while (*v == ' ') v++;
+            snprintf(vl, sizeof vl, "%s", v);
+            snprintf(slots[*nslot].name, KB_TERM_LEN, "%s", nm);
+            snprintf(slots[*nslot].value, KB_TERM_LEN, "%s", vl);
+            (*nslot)++;
         } else if (!strcmp(kind, "slot") || !strcmp(kind, "rest")) {
             if (i >= nw || *nslot >= P0_FORM_SLOTS) return 0;
             size_t upto = !strcmp(kind, "rest") ? nw : i + 1;
@@ -12981,6 +12998,24 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         } else if (!strcmp(act, "assert_relation") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
             ok = kb_assert(b->kb, rel, fa, 2);
+        } else if (!strcmp(act, "answer_relation") && sub && rel) {
+            /* Interrogare e' un ATTO come asserire: la forma dice quale
+             * relazione e su quale soggetto, il motore la legge e la rende. */
+            char hits[16][KB_TERM_LEN];
+            const char *hq[2] = { sub, NULL };
+            size_t nh = kb_match(b->kb, rel, hq, 2, hits, 16);
+            if (nh == 0) continue;
+            char list[400]; size_t off = 0;
+            for (size_t k = 0; k < nh && off + 1 < sizeof list; k++) {
+                char shown[KB_TERM_LEN];
+                present_atom(b, hits[k], shown, sizeof shown);
+                off += (size_t)snprintf(list + off, sizeof list - off,
+                                        "%s%s", k ? ", " : "", shown);
+            }
+            char msg2[460]; snprintf(msg2, sizeof msg2, "%s.", list);
+            put(msg2, out, out_size);
+            free(forms);
+            return 1;
         }
         if (!ok) continue;
 

@@ -935,6 +935,59 @@ turn_form(negate_relation, 4, rest(object)).
 turn_form_act(negate_relation, assert_negative).
 turn_form_reply(negate_relation, learned_negative_relation).
 
+% ── Quando una cosa e' stata fatta, e quanto costa ─────────────────────────
+% Due muri («zelnik was built in 1990», «how much does zelnik cost?») chiusi
+% senza una riga di C: la forma dichiara la relazione che intende con `bind`,
+% perche' la frase parla di anni senza mai dire «year».
+machinery(creation_verb).
+creation_verb(built).  creation_verb(made).   creation_verb(created).
+creation_verb(founded). creation_verb(born).  creation_verb(written).
+creation_verb(costruito). creation_verb(fatto). creation_verb(fondato).
+relation(year).
+response_template(learned_year, "Held: {subject} dates from {object}.").
+response_template(learned_year, it, "Tengo: {subject} è del {object}.").
+
+turn_form(year_stated, 1, slot(subject)).
+turn_form(year_stated, 2, class(past_copula)).
+turn_form(year_stated, 3, class(creation_verb)).
+turn_form(year_stated, 4, text("in")).
+turn_form(year_stated, 5, rest(object)).
+turn_form(year_stated, 6, bind(relation, year_of)).
+turn_form_act(year_stated, assert_relation).
+turn_form_reply(year_stated, learned_year).
+
+machinery(past_copula).
+past_copula(was).  past_copula(were).  past_copula(era).  past_copula(fu).
+
+turn_form(year_asked, 1, text("when")).
+turn_form(year_asked, 2, class(past_copula)).
+turn_form(year_asked, 3, slot(subject)).
+turn_form(year_asked, 4, class(creation_verb)).
+turn_form(year_asked, 5, bind(relation, year_of)).
+turn_form_act(year_asked, answer_relation).
+
+turn_form(year_asked_it, 1, text("quando")).
+turn_form(year_asked_it, 2, class(past_copula)).
+turn_form(year_asked_it, 3, slot(subject)).
+turn_form(year_asked_it, 4, class(creation_verb)).
+turn_form(year_asked_it, 5, bind(relation, year_of)).
+turn_form_act(year_asked_it, answer_relation).
+
+response_template(learned_price, "Held: {subject} costs {object}.").
+response_template(learned_price, it, "Tengo: {subject} costa {object}.").
+turn_form(price_stated, 1, slot(subject)).
+turn_form(price_stated, 2, text("costs")).
+turn_form(price_stated, 3, rest(object)).
+turn_form(price_stated, 4, bind(relation, price_of)).
+turn_form_act(price_stated, assert_relation).
+turn_form_reply(price_stated, learned_price).
+
+turn_form(price_asked, 1, text("how much does")).
+turn_form(price_asked, 2, slot(subject)).
+turn_form(price_asked, 3, text("cost")).
+turn_form(price_asked, 4, bind(relation, price_of)).
+turn_form_act(price_asked, answer_relation).
+
 machinery(why_cue).
 why_cue("why").
 why_cue("how come").
