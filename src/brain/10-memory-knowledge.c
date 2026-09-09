@@ -12630,6 +12630,8 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
 
     const char *args[] = { subj, obj };
     if (kb_query(b->kb, rel, args, 2)) { put("Yes.", out, out_size); return 1; }
+    /* Un «no» detto e' un «no» guadagnato, esattamente come per le classi. */
+    if (kb_is_negated(b->kb, rel, args, 2)) { put("No.", out, out_size); return 1; }
     /* gen507 — UNA SUPERFICIE PUO' AVERE PIU' LETTURE, E SCEGLIERNE UNA IN
      * SILENZIO E' LA MOSSA SBAGLIATA. «have» ne ha diverse dichiarate; presa
      * la prima, «does zelnik have a handle?» finiva a interrogare
@@ -12780,10 +12782,233 @@ static int p0_why_question(Brain *b, const char *norm, char *out, size_t out_siz
     return 1;
 }
 
+/* ══ gen507 — UN INTERPRETE DI FORME, NON UNA FORMA IN PIU' ═════════════════
+ *
+ * F., 2026-09-10: «ogni forma nuova era un blocco di C … quello che mi aspetto
+ * e' che anche l'istanza procedurale esposta dal C sia pilotata da KB: stiamo
+ * mettendo nel C punti di innesco di interpreti locali basati sulla KB».
+ *
+ * `turn_pattern/3` (00-lex.c, mantra #19) aveva gia' sciolto la CONGIUNZIONE:
+ * quali condizioni deve soddisfare un turno e' un insieme di fatti. Ma decide
+ * soltanto CHE COSA VALE il turno — non estrae i pezzi, quindi ogni lettura che
+ * doveva prendere un soggetto, una relazione e un oggetto tornava a essere una
+ * funzione scritta a mano. Questo e' il pezzo mancante: la stessa idea portata
+ * dalla riconoscibilita' alla LETTURA.
+ *
+ *     turn_form(Forma, Ordine, slot(Nome))    prendi un pezzo e chiamalo Nome
+ *     turn_form(Forma, Ordine, rest(Nome))    prendi tutto il resto
+ *     turn_form(Forma, Ordine, class(Classe)) qui stanno le parole di Classe
+ *     turn_form(Forma, Ordine, text("…"))     qui sta questa superficie
+ *     turn_form(Forma, Ordine, relation(N))   qui sta una relazione, chiamala N
+ *     turn_form_act(Forma, Atto)              che cosa FARE se la forma tiene
+ *     turn_form_reply(Forma, Template)        come dirlo
+ *
+ * Il motore non conosce nessuna forma, nessun atto scritto a mano, nessuna
+ * parola: enumera le forme dichiarate, prova a far combaciare i pezzi in
+ * ordine, e se una tiene esegue l'atto che la KB le ha attaccato. Una forma
+ * nuova — in qualunque lingua, per qualunque relazione — e' un gruppo di righe
+ * .p0 e vale dal turno dopo, senza ricompilare.
+ *
+ * Gli ATTI sono il confine: sono operazioni sulla KB (asserisci, nega,
+ * interroga), non significati. Aggiungerne uno e' l'unica cosa che costa C, ed
+ * e' giusto che lo sia: e' una nuova cosa da FARE, non una nuova cosa da dire. */
+
+#define P0_FORM_SLOTS 8
+
+typedef struct {
+    char name[KB_TERM_LEN];
+    char value[KB_TERM_LEN];
+} P0FormSlot;
+
+/* La superficie piu' lunga di `cls` che comincia al token `i`. Copre in un
+ * colpo i membri di una parola e quelli di piu' («does not»): quanti token
+ * valga un membro e' una proprieta' del membro, non del motore. */
+static size_t p0_form_class_run(Brain *b, char **w, size_t nw, size_t i,
+                                const char *cls) {
+    size_t best = 0;
+    char acc[KB_TERM_LEN]; size_t off = 0;
+    for (size_t k = i; k < nw && k < i + 6; k++) {
+        char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[k]);
+        const char *bare = strip_edge_punct(t);
+        int n = snprintf(acc + off, sizeof acc - off, "%s%s", off ? " " : "", bare);
+        if (n < 0 || (size_t)n >= sizeof acc - off) break;
+        off += (size_t)n;
+        const char *q[1] = { acc };
+        if (kb_query(b->kb, cls, q, 1)) best = k - i + 1;
+        else {
+            char qq[KB_TERM_LEN];
+            snprintf(qq, sizeof qq, "\"%s\"", acc);
+            const char *q2[1] = { qq };
+            if (kb_query(b->kb, cls, q2, 1)) best = k - i + 1;
+        }
+    }
+    return best;
+}
+
+static int p0_form_piece_kind(const char *piece, char *kind, size_t ksz,
+                              char *arg, size_t asz) {
+    kind[0] = '\0'; arg[0] = '\0';
+    const char *o = strchr(piece, '(');
+    if (!o) { snprintf(kind, ksz, "%s", piece); return 1; }
+    size_t kl = (size_t)(o - piece);
+    if (kl >= ksz) return 0;
+    memcpy(kind, piece, kl); kind[kl] = '\0';
+    const char *c = strrchr(o, ')');
+    if (!c || c <= o + 1) return 0;
+    size_t al = (size_t)(c - o - 1);
+    if (al >= asz) return 0;
+    memcpy(arg, o + 1, al); arg[al] = '\0';
+    char tmp[KB_TERM_LEN]; snprintf(tmp, sizeof tmp, "%s", arg);
+    snprintf(arg, asz, "%s", kb_dequote(tmp));
+    return 1;
+}
+
+/* Prova UNA forma sul turno. Torna 1 se ogni pezzo combacia e il turno finisce. */
+static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
+                         P0FormSlot *slots, size_t *nslot) {
+    char (*ords)[KB_TERM_LEN] = NULL; size_t nord = 0;
+    const char *oq[3] = { form, NULL, NULL };
+    if (!kb_match_all(b->kb, "turn_form", oq, 3, &ords, &nord) || nord == 0) {
+        free(ords); return 0;
+    }
+    free(ords);
+    *nslot = 0;
+    size_t i = 0;
+    for (long ord = 1; ord <= 16; ord++) {
+        char ob[24]; snprintf(ob, sizeof ob, "%ld", ord);
+        char pieces[4][KB_TERM_LEN];
+        const char *pq[3] = { form, ob, NULL };
+        size_t np = kb_match(b->kb, "turn_form", pq, 3, pieces, 4);
+        if (np == 0) { if (ord == 1) return 0; break; }
+        char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", pieces[0]);
+        const char *piece = kb_dequote(pb);
+        char kind[KB_TERM_LEN], arg[KB_TERM_LEN];
+        if (!p0_form_piece_kind(piece, kind, sizeof kind, arg, sizeof arg)) return 0;
+        if (!strcmp(kind, "class")) {
+            size_t run = p0_form_class_run(b, w, nw, i, arg);
+            if (!run) return 0;
+            i += run;
+        } else if (!strcmp(kind, "text")) {
+            char acc[KB_TERM_LEN]; size_t off = 0; size_t k = i;
+            while (k < nw && off + 1 < sizeof acc) {
+                char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[k]);
+                const char *bare = strip_edge_punct(t);
+                int n = snprintf(acc + off, sizeof acc - off, "%s%s", off ? " " : "", bare);
+                if (n < 0) return 0;
+                off += (size_t)n; k++;
+                if (!strcasecmp(acc, arg)) break;
+                if (strncasecmp(acc, arg, off)) return 0;
+            }
+            if (strcasecmp(acc, arg)) return 0;
+            i = k;
+        } else if (!strcmp(kind, "relation")) {
+            if (i >= nw || *nslot >= P0_FORM_SLOTS) return 0;
+            char vb[KB_TERM_LEN]; snprintf(vb, sizeof vb, "%s", w[i]);
+            const char *bare = strip_edge_punct(vb);
+            char rel[KB_TERM_LEN]; rel[0] = '\0';
+            const char *rq[1] = { bare };
+            if (kb_query(b->kb, "relation_verb", rq, 1))
+                snprintf(rel, sizeof rel, "%s", bare);
+            else {
+                char taught[KB_TERM_LEN];
+                if (p0_relation_taught_as(b, bare, taught, sizeof taught))
+                    snprintf(rel, sizeof rel, "%s", taught);
+            }
+            if (!rel[0]) return 0;
+            snprintf(slots[*nslot].name, KB_TERM_LEN, "%s", arg[0] ? arg : "relation");
+            snprintf(slots[*nslot].value, KB_TERM_LEN, "%s", rel);
+            (*nslot)++;
+            i++;
+        } else if (!strcmp(kind, "slot") || !strcmp(kind, "rest")) {
+            if (i >= nw || *nslot >= P0_FORM_SLOTS) return 0;
+            size_t upto = !strcmp(kind, "rest") ? nw : i + 1;
+            if (i + 1 < nw && p0_lead_det(b, w[i])) i++;
+            char v[KB_TERM_LEN];
+            if (i >= upto || !p0_join(w, i, upto, v, sizeof v)) return 0;
+            for (char *c = v; *c; c++) if (*c == '.' || *c == '?') { *c = '\0'; break; }
+            if (!*v) return 0;
+            snprintf(slots[*nslot].name, KB_TERM_LEN, "%s", arg);
+            lowercase_copy(slots[*nslot].value, KB_TERM_LEN, v);
+            (*nslot)++;
+            i = upto;
+        } else return 0;
+    }
+    return i == nw;
+}
+
+static const char *p0_form_slot(P0FormSlot *slots, size_t n, const char *name) {
+    for (size_t i = 0; i < n; i++)
+        if (!strcmp(slots[i].name, name)) return slots[i].value;
+    return NULL;
+}
+
+/* L'innesco: una sola porta in C, e dietro tutte le forme che la KB dichiara. */
+static int p0_turn_form_reader(Brain *b, const char *norm,
+                               char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    if (!kb_knows_pred(b->kb, "turn_form_act")) return 0;
+    size_t L = strlen(norm);
+    if (L == 0 || L >= 300) return 0;
+    char buf[300]; memcpy(buf, norm, L + 1);
+    char *w[48]; size_t nw = split_words(buf, w, 48);
+    if (nw < 2) return 0;
+
+    char (*forms)[KB_TERM_LEN] = NULL; size_t nf = 0;
+    const char *fq[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "turn_form_act", fq, 2, &forms, &nf)) { free(forms); return 0; }
+    int done = 0;
+    for (size_t f = 0; f < nf && !done; f++) {
+        char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", forms[f]);
+        const char *form = kb_dequote(fb);
+        P0FormSlot slots[P0_FORM_SLOTS]; size_t ns = 0;
+        char work[300]; memcpy(work, norm, L + 1);
+        char *ww[48]; size_t nww = split_words(work, ww, 48);
+        if (!p0_form_match(b, form, ww, nww, slots, &ns)) continue;
+
+        char acts[4][KB_TERM_LEN];
+        const char *aq[2] = { forms[f], NULL };
+        if (kb_match(b->kb, "turn_form_act", aq, 2, acts, 4) < 1) continue;
+        char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", acts[0]);
+        const char *act = kb_dequote(ab);
+
+        const char *sub = p0_form_slot(slots, ns, "subject");
+        const char *rel = p0_form_slot(slots, ns, "relation");
+        const char *obj = p0_form_slot(slots, ns, "object");
+        int ok = 0;
+        if (!strcmp(act, "assert_negative") && sub && rel && obj) {
+            const char *fa[2] = { sub, obj };
+            ok = kb_assert_neg(b->kb, rel, fa, 2);
+        } else if (!strcmp(act, "assert_relation") && sub && rel && obj) {
+            const char *fa[2] = { sub, obj };
+            ok = kb_assert(b->kb, rel, fa, 2);
+        }
+        if (!ok) continue;
+
+        char tpl[4][KB_TERM_LEN];
+        const char *tq[2] = { forms[f], NULL };
+        char msg[400];
+        if (kb_match(b->kb, "turn_form_reply", tq, 2, tpl, 4) == 1) {
+            char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", tpl[0]);
+            char rr[KB_TERM_LEN]; present_atom(b, rel ? rel : "", rr, sizeof rr);
+            const KbResponseSlot rs[] = { { "subject", sub ? sub : "" },
+                                          { "rel", rr },
+                                          { "object", obj ? obj : "" } };
+            if (kb_response_slots(b, kb_dequote(tb), rs, 3, msg, sizeof msg)) {
+                put(msg, out, out_size);
+                done = 1;
+            }
+        }
+        if (!done) { put("Held.", out, out_size); done = 1; }
+    }
+    free(forms);
+    return done;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
     if (p0_why_question(b, norm, out, out_size)) return 1;
+    if (p0_turn_form_reader(b, norm, out, out_size)) return 1;
     /* gen507 — L'ANNUNCIO DI UNA CORREZIONE VIENE PRIMA DEL SUO BERSAGLIO.
      *
      * «actually zelnik is green» arriva ai lettori gia' sbucciato: «actually»

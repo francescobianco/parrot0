@@ -899,6 +899,42 @@ response_template(existence_witness, it, "Sì — {witness}, per esempio.").
 % gen507 — «why?» sapeva rispondere, «why is zelnik useful?» no: la stessa
 % domanda con dentro il suo bersaglio. Quali parole aprano una richiesta di
 % ragione e' conoscenza.
+% ── gen507 — LE FORME DI TURNO SI DICHIARANO, NON SI SCRIVONO IN C ─────────
+%
+% F., 2026-09-10: «ogni forma nuova era un blocco di C … nel C vanno messi
+% PUNTI DI INNESCO di interpreti locali basati sulla KB». `turn_pattern/3`
+% aveva gia' sciolto la congiunzione (mantra #19) ma decide solo CHE COSA VALE
+% un turno; queste righe dicono anche COM'E' FATTO e CHE COSA FARNE.
+%
+%   turn_form(Forma, Ordine, slot(Nome) | rest(Nome) | class(C) | text("…")
+%                            | relation(Nome))
+%   turn_form_act(Forma, Atto)        assert_relation | assert_negative
+%   turn_form_reply(Forma, Template)
+%
+% Da qui una forma nuova — in qualunque lingua, per qualunque relazione — e' un
+% gruppo di righe .p0 e vale dal turno dopo, senza ricompilare.
+machinery(turn_form).
+machinery(turn_form_act).
+machinery(turn_form_reply).
+machinery(negation_marker).
+negation_marker("does not").
+negation_marker("do not").
+negation_marker("doesn't").
+negation_marker("don't").
+negation_marker("is not").
+negation_marker("non").
+response_template(learned_negative_relation, "Held: {subject} does not {rel} {object}.").
+response_template(learned_negative_relation, it, "Tengo: {subject} non {rel} {object}.").
+
+% Negare una relazione, come si nega gia' una classe. Prima riga scritta in
+% questa lingua: nessun C dedicato.
+turn_form(negate_relation, 1, slot(subject)).
+turn_form(negate_relation, 2, class(negation_marker)).
+turn_form(negate_relation, 3, relation(relation)).
+turn_form(negate_relation, 4, rest(object)).
+turn_form_act(negate_relation, assert_negative).
+turn_form_reply(negate_relation, learned_negative_relation).
+
 machinery(why_cue).
 why_cue("why").
 why_cue("how come").
