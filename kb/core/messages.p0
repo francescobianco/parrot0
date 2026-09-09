@@ -896,6 +896,19 @@ response_template(existence_witness, it, "Sì — {witness}, per esempio.").
 % Un secondo valore per una proprieta' che ne ha uno solo non e' un fatto in
 % piu': e' una correzione o una contraddizione, e sono due cose diverse. Quali
 % parole annuncino una correzione e' conoscenza.
+% gen507 — «why?» sapeva rispondere, «why is zelnik useful?» no: la stessa
+% domanda con dentro il suo bersaglio. Quali parole aprano una richiesta di
+% ragione e' conoscenza.
+machinery(why_cue).
+why_cue("why").
+why_cue("how come").
+why_cue("how do you know").
+why_cue("perche'").
+why_cue("perché").
+why_cue("come fai a sapere").
+response_template(because_proof, "Because {proof}.").
+response_template(because_proof, it, "Perché {proof}.").
+
 machinery(correction_cue).
 machinery(turn_correction).
 % Un annuncio di correzione e' un'APERTURA di discorso: va sbucciato perche' la

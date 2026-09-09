@@ -12721,9 +12721,69 @@ static int p0_polar_attribute(Brain *b, const char *norm,
     return kb_response_slots(b, "no_support_attribute", rs, 2, out, out_size);
 }
 
+/* gen507 — LA STESSA DOMANDA CON DENTRO IL SUO BERSAGLIO.
+ *
+ * «is zelnik useful?» rispondeva «Yes.» e un «why?» secco dava la catena
+ * intera. «why is zelnik useful?» — la stessa domanda, detta in un turno solo —
+ * cadeva nel muro, e «how do you know zelnik is useful?» finiva allo
+ * smalltalk. La ragione era gia' calcolata: mancava la porta.
+ *
+ * Qui la domanda si toglie la sua apertura e viene riletta dallo STESSO
+ * lettore; poi si risponde con la prova che quella lettura ha depositato. Non
+ * c'e' ricorsione: il turno interno non porta piu' l'apertura. Quali parole
+ * aprano una richiesta di ragione e' conoscenza (`why_cue/1`). */
+static int mod_knowledge(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size);
+
+static int p0_why_question(Brain *b, const char *norm, char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    size_t L = strlen(norm);
+    if (L < 6 || L >= 280) return 0;
+    char (*cues)[KB_TERM_LEN] = NULL; size_t ncue = 0;
+    const char *cq[1] = { NULL };
+    if (!kb_match_all(b->kb, "why_cue", cq, 1, &cues, &ncue)) { free(cues); return 0; }
+    const char *rest = NULL;
+    for (size_t i = 0; i < ncue && !rest; i++) {
+        char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[i]);
+        const char *cd = kb_dequote(cb);
+        size_t cl = strlen(cd);
+        if (!cl || strncmp(norm, cd, cl) || norm[cl] != ' ') continue;
+        rest = norm + cl + 1;
+    }
+    free(cues);
+    if (!rest || !*rest) return 0;
+    char inner[300];
+    snprintf(inner, sizeof inner, "%s", rest);
+    size_t il = strlen(inner);
+    while (il && (inner[il - 1] == ' ' || inner[il - 1] == '?')) inner[--il] = '\0';
+    if (!il) return 0;
+    snprintf(inner + il, sizeof inner - il, "?");
+    /* La prova si azzera prima: cosi' cio' che si riporta e' la ragione di
+     * QUESTA lettura, non l'eco di un turno precedente. */
+    b->has_last_proof = 0;
+    b->last_proof[0] = '\0';
+    char reply[512]; reply[0] = '\0';
+    if (!mod_knowledge(b, inner, inner, reply, sizeof reply) || !reply[0]) return 0;
+    if (b->has_last_proof && b->last_proof[0]) {
+        char proof[sizeof b->last_proof];
+        snprintf(proof, sizeof proof, "%s", b->last_proof);
+        size_t pl = strlen(proof);
+        while (pl && (proof[pl - 1] == '.' || proof[pl - 1] == ' ')) proof[--pl] = '\0';
+        char msg[640];
+        const KbResponseSlot rs[] = { { "proof", proof } };
+        if (kb_response_slots(b, "because_proof", rs, 1, msg, sizeof msg)) {
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+    put(reply, out, out_size);
+    return 1;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
+    if (p0_why_question(b, norm, out, out_size)) return 1;
     /* gen507 — L'ANNUNCIO DI UNA CORREZIONE VIENE PRIMA DEL SUO BERSAGLIO.
      *
      * «actually zelnik is green» arriva ai lettori gia' sbucciato: «actually»
