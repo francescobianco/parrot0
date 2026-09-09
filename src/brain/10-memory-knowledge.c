@@ -13019,6 +13019,29 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         } else if (!strcmp(act, "assert_relation") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
             ok = kb_assert(b->kb, rel, fa, 2);
+        } else if (!strcmp(act, "answer_choice") && rel) {
+            /* gen507 — SCEGLIERE FRA DUE E' UN ATTO A SE'.
+             * «which is bigger, zelnik or grum?» non chiede un valore: chiede
+             * quale dei due termini sta nel primo posto della relazione. Se non
+             * sta nessuno dei due, non si indovina: si resta senza risposta e il
+             * turno prosegue con i lettori che vengono dopo. */
+            const char *one = p0_form_slot(slots, ns, "first");
+            const char *two = p0_form_slot(slots, ns, "second");
+            if (!one || !two) continue;
+            const char *fa[2] = { one, two };
+            const char *ba[2] = { two, one };
+            const char *win = NULL;
+            if (kb_query(b->kb, rel, fa, 2)) win = one;
+            else if (kb_query(b->kb, rel, ba, 2)) win = two;
+            else if (p0_relation_inherited(b, rel, one, two)) win = one;
+            else if (p0_relation_inherited(b, rel, two, one)) win = two;
+            if (!win) continue;
+            char shown[KB_TERM_LEN];
+            present_atom(b, win, shown, sizeof shown);
+            char msg2[200]; snprintf(msg2, sizeof msg2, "%s.", shown);
+            put(msg2, out, out_size);
+            free(forms);
+            return 1;
         } else if (!strcmp(act, "answer_relation") && sub && rel) {
             /* Interrogare e' un ATTO come asserire: la forma dice quale
              * relazione e su quale soggetto, il motore la legge e la rende. */

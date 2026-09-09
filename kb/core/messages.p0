@@ -1138,6 +1138,25 @@ turn_form(ability_asked, 4, bind(relation, ability_of)).
 turn_form_mood(ability_asked, question).
 turn_form_act(ability_asked, answer_relation).
 
+% ── Quale dei due ─────────────────────────────────────────────────────────
+% «which is bigger, zelnik or grum?» non chiede un valore, chiede quale dei due
+% sta nel primo posto della relazione: un ATTO diverso, non una forma diversa.
+turn_form(choice_asked, 1, text("which is")).
+turn_form(choice_asked, 2, relation(relation)).
+turn_form(choice_asked, 3, slot(first)).
+turn_form(choice_asked, 4, text("or")).
+turn_form(choice_asked, 5, rest(second)).
+turn_form_mood(choice_asked, question).
+turn_form_act(choice_asked, answer_choice).
+
+turn_form(choice_asked_it, 1, text("what is")).
+turn_form(choice_asked_it, 2, relation(relation)).
+turn_form(choice_asked_it, 3, slot(first)).
+turn_form(choice_asked_it, 4, text("or")).
+turn_form(choice_asked_it, 5, rest(second)).
+turn_form_mood(choice_asked_it, question).
+turn_form_act(choice_asked_it, answer_choice).
+
 
 
 machinery(why_cue).
