@@ -14027,6 +14027,61 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen507 — CHIEDERE UN ELENCO. «what is a tool?» elencava gia' i membri di
+     * una classe; «list the tools» cadeva nel muro. Non era una capacita'
+     * mancante, era una porta non aperta: quali superfici chiedano un elenco e'
+     * conoscenza (`enumerate_cue/1`), il motore e' uno e non nomina nessuna
+     * classe ne' nessuna lingua. Una formulazione nuova costa una riga di .p0.
+     *
+     * Il plurale si riduce con la stessa mossa gia' usata dal lettore dei
+     * conteggi qui sopra, e la forma detta si prova comunque per prima: una
+     * classe il cui nome finisce per «s» resta raggiungibile. */
+    {
+        char (*cues)[KB_TERM_LEN] = NULL; size_t ncue = 0;
+        const char *eq[1] = { NULL };
+        if (b->kb && kb_match_all(b->kb, "enumerate_cue", eq, 1, &cues, &ncue)) {
+            for (size_t ci = 0; ci < ncue; ci++) {
+                char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[ci]);
+                const char *cd = kb_dequote(cb);
+                if (!*cd) continue;
+                const char *at = strstr(norm, cd);
+                if (!at) continue;
+                const char *rest = at + strlen(cd);
+                while (*rest == ' ') rest++;
+                char noun[64]; size_t ni = 0;
+                while (*rest && *rest != ' ' && *rest != '?' && ni + 1 < sizeof noun)
+                    noun[ni++] = *rest++;
+                noun[ni] = '\0';
+                if (!noun[0]) continue;
+                char members[64][KB_TERM_LEN];
+                const char *aq[1] = { NULL };
+                size_t nm = kb_match(b->kb, noun, aq, 1, members, 64);
+                char sing[64]; snprintf(sing, sizeof sing, "%s", noun);
+                size_t sl = strlen(sing);
+                if (nm == 0 && sl > 1 && sing[sl - 1] == 's') {
+                    sing[sl - 1] = '\0';
+                    nm = kb_match(b->kb, sing, aq, 1, members, 64);
+                }
+                if (nm == 0) continue;
+                char list[600]; size_t off = 0;
+                for (size_t k = 0; k < nm && off + 1 < sizeof list; k++) {
+                    char shown[KB_TERM_LEN];
+                    present_atom(b, members[k], shown, sizeof shown);
+                    off += (size_t)snprintf(list + off, sizeof list - off,
+                                            "%s%s", k ? ", " : "", shown);
+                }
+                char msg[700];
+                kb_term_say(b, "enumeration_answer", (const KbResponseSlot[]){
+                                { "list", list } }, 1, msg, sizeof msg);
+                put(msg, out, out_size);
+                store_proof(b, "Listed the members this KB holds for that class.");
+                free(cues);
+                return 1;
+            }
+        }
+        free(cues);
+    }
+
     /* gen349 (Fase 3): Barbara with an INSTANCE. "All A <have/are/…> P. X is a A.
      * Does X <have/is> P?" -> Yes. Fixes the wrong 'a bird eats seed' hijack. */
     if (kb_cue_match(b, "10_memory_knowledge_cue9609", norm) && strstr(norm, " is a")) {

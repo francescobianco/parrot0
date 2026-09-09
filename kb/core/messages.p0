@@ -825,6 +825,28 @@ response_template(count_of_answer, "There are {count} {noun}s.").
 % risposta dice quello che e' vero: quanti ne CONOSCE.
 response_template(count_known_answer, "I know {count} {noun}s: {list}.").
 response_template(count_known_answer, it, "Ne conosco {count}: {list}.").
+
+% gen507 — CHIEDERE UN ELENCO E' UN ATTO, E LE SUE SUPERFICI SONO FATTI.
+% «what is a tool?» elencava gia' i membri; «list the tools» no, e la
+% differenza non era una capacita' mancante — era una porta non aperta. Una
+% formulazione nuova, in qualunque lingua, e' una riga qui.
+machinery(enumerate_cue).
+enumerate_cue("list the").
+enumerate_cue("list all").
+enumerate_cue("name the").
+enumerate_cue("show me the").
+enumerate_cue("tell me the").
+enumerate_cue("which are the").
+enumerate_cue("elenca i").
+enumerate_cue("elenca le").
+enumerate_cue("elenca gli").
+enumerate_cue("dimmi i").
+enumerate_cue("dimmi le").
+enumerate_cue("quali sono i").
+enumerate_cue("quali sono le").
+response_template(enumeration_answer, "{list}.").
+response_template(enumeration_empty, "I do not know any {noun} yet.").
+response_template(enumeration_empty, it, "Non conosco ancora nessun {noun}.").
 response_template(learned_properties, "Learned: {facts}.").
 response_template(reasoning_steps, "By {steps} step{s} of reasoning: {ex}.").
 response_template(induced_rules, "Induced: {rules}.").
