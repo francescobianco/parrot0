@@ -271,6 +271,8 @@ phrase_canon("tell me everything you know about", "what do you know about").
 phrase_canon("tell me all you know about", "what do you know about").
 phrase_canon("dimmi tutto quello che sai su", "what do you know about").
 phrase_canon("dimmi tutto su", "what do you know about").
+phrase_canon("un esempio di", "an example of").
+phrase_canon("fammi un esempio di", "an example of").
 % Un nome composto identifica un concetto PRIMA della traduzione delle sue
 % parole. Gli alias si insegnano con i normali frame «X is also called Y»;
 % non sono risposte preconfezionate e non richiedono un dizionario nel C.

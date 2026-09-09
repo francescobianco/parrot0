@@ -14177,6 +14177,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     nm = kb_match(b->kb, sing, aq, 1, members, 64);
                 }
                 if (nm == 0) continue;
+                /* gen507 — chiedere UN esempio e' chiedere un elenco corto, e
+                 * quanto corto lo dice la KB sulla cue stessa. */
+                {
+                    char lim[1][KB_TERM_LEN];
+                    const char *lq[2] = { cues[ci], NULL };
+                    if (kb_match(b->kb, "enumerate_limit", lq, 2, lim, 1) == 1) {
+                        char lb[KB_TERM_LEN]; snprintf(lb, sizeof lb, "%s", lim[0]);
+                        long v = strtol(kb_dequote(lb), NULL, 10);
+                        if (v > 0 && (size_t)v < nm) nm = (size_t)v;
+                    }
+                }
                 char list[600]; size_t off = 0;
                 for (size_t k = 0; k < nm && off + 1 < sizeof list; k++) {
                     char shown[KB_TERM_LEN];

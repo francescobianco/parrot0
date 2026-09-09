@@ -851,6 +851,15 @@ enumerate_cue("quali sono le").
 enumerate_cue("what").
 enumerate_cue("which").
 enumerate_cue("quali").
+% gen507 — chiedere UN esempio e' chiedere un elenco corto. Quanto corto e'
+% conoscenza: `enumerate_limit/2` sulla cue, non un secondo motore.
+machinery(enumerate_limit).
+enumerate_cue("an example of a").
+enumerate_cue("an example of").
+enumerate_cue("un esempio di").
+enumerate_limit("an example of a", 1).
+enumerate_limit("an example of", 1).
+enumerate_limit("un esempio di", 1).
 response_template(enumeration_answer, "{list}.").
 response_template(enumeration_empty, "I do not know any {noun} yet.").
 response_template(enumeration_empty, it, "Non conosco ancora nessun {noun}.").
