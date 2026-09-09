@@ -852,6 +852,11 @@ response_template(class_members_known, it, "Quello che tengo come {klass}: {memb
 % gen505e — lo stato «non so» per una RELAZIONE, gemello di no_support_either_way
 % per le classi: una relazione non derivata non e' una relazione negata.
 response_template(no_support_relation, "I don't know: nothing I hold says {subject} {rel} {object}, and nothing says it isn't so. Tell me either way and I will hold it.").
+% gen507 — un ATTRIBUTO non si dice col nome della sua relazione: «nothing I
+% hold says grum color of red» e' vero e detto male, e la resa vale quanto il
+% contenuto. La proprieta' si nomina, il valore si nomina, la copula le lega.
+response_template(no_support_attribute, "I don't know: nothing I hold says {subject} is {object}, and nothing says it isn't so. Tell me either way and I will hold it.").
+response_template(no_support_attribute, it, "Non lo so: niente di cio' che tengo dice che {subject} è {object}, e niente dice il contrario. Dimmelo in un verso o nell'altro e lo terrò.").
 response_template(no_support_relation, it, "Non lo so: niente di cio' che ho dice che {subject} {rel} {object}, e niente dice il contrario. Dimmelo in un verso o nell'altro e lo terro'.").
 % gen505i — IL GIUDIZIO GRAMMATICALE SPIEGATO, non un verdetto.
 % Cita i due fatti che confliggono e la forma attesa: chi legge puo' controllare

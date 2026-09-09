@@ -12439,10 +12439,55 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
     return kb_response_slots(b, "no_support_relation", rs, 3, out, out_size);
 }
 
+/* gen507 — VERIFICARE UN ATTRIBUTO CHE SI TIENE GIA'.
+ *
+ * «zelnik is red» veniva accolto e messo in KB sotto la relazione che il
+ * GENERE del valore dichiara (`color_of`), tanto che «what colour is zelnik?»
+ * rispondeva «Red.». Ma «is zelnik red?» cadeva nel muro: la forma polare
+ * cercava una CLASSE di nome «red», che non esiste e non deve esistere — un
+ * colore non e' una specie di cose, e' il valore di una proprieta'.
+ *
+ * Il lettore chiede la stessa cosa che il MAESTRO aveva chiesto per imparare:
+ * `p0_attribute_relation` porta dal valore alla relazione attraverso il suo
+ * genere. Nessun nome di colore, di proprieta' o di lingua nel C: un genere
+ * nuovo insegnato domani apre da solo la propria domanda di verifica. */
+static int p0_polar_attribute(Brain *b, const char *norm,
+                              char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    size_t L = strlen(norm);
+    if (L < 6 || L >= 300 || norm[L - 1] != '?') return 0;
+    char s[300]; memcpy(s, norm, L + 1);
+    char *w[16]; size_t n = split_words(s, w, 16);
+    if (n != 3) return 0;                    /* «is <soggetto> <valore>?» */
+    if (!lex_class_member(b, "clause_copula", w[0])) return 0;
+    char subj[KB_TERM_LEN], val[KB_TERM_LEN];
+    lowercase_copy(subj, sizeof subj, strip_edge_punct(w[1]));
+    lowercase_copy(val, sizeof val, strip_edge_punct(w[2]));
+    if (!*subj || !*val) return 0;
+    char rel[KB_TERM_LEN];
+    if (!p0_attribute_relation(b, val, rel, sizeof rel)) return 0;
+    const char *args[] = { subj, val };
+    if (kb_query(b->kb, rel, args, 2)) { put("Yes.", out, out_size); return 1; }
+    /* Un valore diverso per la STESSA proprieta' e' un «no» guadagnato: una
+     * cosa ha un colore solo. Altrimenti resta l'onesta' del gen504. */
+    char held[1][KB_TERM_LEN];
+    const char *hq[2] = { subj, NULL };
+    if (kb_match(b->kb, rel, hq, 2, held, 1) == 1) {
+        put("No.", out, out_size);
+        return 1;
+    }
+    char ss[KB_TERM_LEN], vs[KB_TERM_LEN];
+    present_atom(b, subj, ss, sizeof ss);
+    present_atom(b, val, vs, sizeof vs);
+    const KbResponseSlot rs[] = { { "subject", ss }, { "object", vs } };
+    return kb_response_slots(b, "no_support_attribute", rs, 2, out, out_size);
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
     if (p0_distribute_coordinated_subject(b, norm, out, out_size)) return 1;
+    if (p0_polar_attribute(b, norm, out, out_size)) return 1;
     if (p0_polar_relation(b, norm, out, out_size)) return 1;
     if (p0_grammar_judgement(b, norm, out, out_size)) return 1;
     if (completion_chain_resolve(b, norm, out, out_size)) return 1;
