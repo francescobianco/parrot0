@@ -1,5 +1,50 @@
 # C_TODO — che cosa deve ancora uscire dal C
 
+## 2026-09-10 — ⛔ LA SPECIE CHE SI NASCONDE MEGLIO: LE SEQUENZE DI TENTATIVI
+
+> **«Hai dovuto invertire l'ordine. Se quell'ordine era in KB, tu avresti potuto
+> dire: prima vale questo, poi questo.»** — F., 2026-09-10
+
+Scoperta lavorando il gen507/30: il lettore dei superlativi cercava la categoria
+solo *dopo* la cue, e l'italiano la mette *prima* («il DESERTO più grande» vs
+«the largest DESERT»). La prima cura — scansione simmetrica, avanti e poi
+indietro — **funzionava ed era ancora cablata**: l'ordine stava nel C, e una
+lingua che mettesse il pezzo altrove costava una ricompilazione *per essere
+capita*. Chiuso al gen507/31 con `slot_search(Pezzo, Lingua|any, Ordine, Modo)`.
+
+La lezione generale sta in [`docs/plans/kb-first.md` §4-bis](docs/plans/kb-first.md).
+In breve: **una sequenza di tentativi è conoscenza quanto il vocabolario su cui
+opera.** Se il motore prova A e poi B, e chi ha deciso che A viene prima è
+l'ordine delle righe nel C, quella è conoscenza cablata — *anche quando ogni
+singolo tentativo legge la KB*. È la sorella della regola del mantra #19 sulla
+congiunzione, applicata alla **disgiunzione ordinata**.
+
+**Come si cerca nel codice.** Tre segnali:
+
+- un `for` su un array letterale di strategie, o una catena di `if/else if` che
+  tenta alternative: l'insieme *e l'ordine* sono chiusi;
+- un ordine che una lingua, un dominio o un interlocutore diverso vorrebbe
+  diverso: allora è una proprietà *loro*;
+- una cura che aggiunge un tentativo *in coda*: si sta allungando una lista
+  compilata invece di dichiararla.
+
+**Forma di arrivo:** `search(Pezzo, Chi, Ordine, Modo)` per le ricerche;
+`turn_pattern/3` per le congiunzioni; e dove si tratta di precedenza fra letture,
+farla decidere dalla **presenza di un fatto** invece che dall'ordine dei moduli —
+come al gen507/30, dove un primato *detto* batte un primato *calcolato* perché
+esiste la riga, non perché un modulo venga prima.
+
+Il motore resta l'unico a sapere **come** si esegue un modo; la KB l'unica a
+sapere **quali** e **in che ordine**. Aggiungere un modo costa C, ed è giusto:
+è un posto nuovo dove guardare. Riordinare i tentativi non deve costare niente.
+
+**Residui noti di questa specie, da censire:** le tre strade con cui si risolve
+una superficie in relazione (`relation_verb/1` → `verb_stem/2` →
+`answer_frame/2`, in `10-memory-knowledge.c`) sono una disgiunzione ordinata
+scritta nel C — e il gen507/14 ha già pagato il prezzo di quell'ordine, quando
+`verb_stem` vinceva su una lezione esplicita. Stesso schema nei `registry[]`
+del dispatch: `demoted`/`governed` sono già KB, l'ORDINE di base no.
+
 ## 2026-09-09 — la mossa di approfondimento (gen506l)
 
 «dammi piu' informazioni» dopo una lettura e' oggi `acquisition_report`, che

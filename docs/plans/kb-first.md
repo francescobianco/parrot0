@@ -113,6 +113,74 @@ Per una capacità "deduci"/"abduci" il cablaggio ha quasi sempre questa forma:
    slot riempiti.
 6. **Bench**: un `make …-bench` con pochi casi noti; studia il comportamento, non cuce frasi.
 
+## 4-bis. L'ORDINE è conoscenza — la quarta specie di cablaggio (F., 2026-09-10)
+
+Il §4 elenca *che cosa* mettere in KB: forme, fatti, template. Manca una specie, e
+si nasconde meglio delle altre perché non assomiglia a una tabella.
+
+> **«Hai dovuto invertire l'ordine. Se quell'ordine era in KB, tu avresti potuto
+> dire: prima vale questo, poi questo.»** — F., 2026-09-10
+
+### Il caso che l'ha scoperta (gen507/30 → /31)
+
+`quale fiume è più lungo` murava, `what is the longest river?` rispondeva. La
+conoscenza c'era, la traduzione c'era, il motore c'era. Il difetto: il lettore
+cercava la **categoria** solo *dopo* la cue, e l'italiano la mette *prima*
+(«il DESERTO più grande» vs «the largest DESERT»).
+
+La prima cura (`/30`) fu rendere la scansione simmetrica — avanti, e se non trova,
+indietro. **Funzionava, ed era ancora cablata.** L'ordine «prima avanti, poi
+indietro» era scritto nel C: nessuna frase poteva cambiarlo, e una lingua che
+mettesse il pezzo altrove costava una ricompilazione *per essere capita*.
+
+La cura vera (`/31`):
+
+```prolog
+slot_search(Pezzo, Lingua|any, Ordine, Modo).
+
+slot_search(category, any, 1, after_cue).
+slot_search(category, any, 2, before_cue).
+slot_search(category, it,  1, before_cue).   % in italiano il dominio precede
+slot_search(category, it,  2, after_cue).
+```
+
+Il motore conosce i **modi** — guardare avanti, guardare indietro — e **non sa
+quale provare prima**: lo chiede, nella lingua del turno, con ricaduta su `any`.
+
+### La regola generale
+
+> Una **sequenza di tentativi** è conoscenza quanto il vocabolario su cui opera.
+> Se il motore prova A e poi B, chi ha deciso che A viene prima? Se la risposta è
+> «l'ordine delle righe nel C», quella è conoscenza cablata — anche quando ogni
+> singolo tentativo legge la KB.
+
+È la sorella della regola del mantra #19 sulla **congiunzione** (`turn_pattern/3`:
+quali condizioni valgono sono fatti, non `&&`). Qui la stessa mossa sulla
+**disgiunzione ordinata**: *quali alternative, e in che ordine*, sono fatti — non
+un `if/else if` né un `for` su un array letterale.
+
+### Come si riconosce, in tre domande
+
+1. **C'è un `for` su un array letterale di strategie, o una catena di `if/else if`
+   che tenta alternative?** Allora l'insieme *e l'ordine* sono chiusi.
+2. **Una lingua, un dominio o un interlocutore diverso vorrebbe un ordine
+   diverso?** Se sì, l'ordine è una proprietà *loro*, non del motore.
+3. **La mia cura aggiunge un tentativo in coda?** Allora sto allungando una lista
+   compilata: il passo giusto è dichiararla.
+
+### La forma di arrivo
+
+| cablato | dichiarato |
+|---|---|
+| `for (i…) try(strategy[i])` | `search(Pezzo, Chi, Ordine, Modo)` |
+| `if (A) … else if (B) …` | `turn_pattern/3` + `turn_pattern_intent/2` |
+| «prima il lettore X, poi Y» | precedenza decisa dalla **presenza di un fatto**, come in `/30`: un primato *detto* batte un primato *calcolato*, e a deciderlo è l'esistenza della riga, non una priorità fra moduli |
+
+Il motore resta l'unico a sapere **come** si esegue un modo; la KB diventa l'unica
+a sapere **quali** e **in che ordine**. Aggiungere un *modo* costa C — ed è giusto:
+è un posto nuovo dove guardare. Aggiungere o riordinare i tentativi non deve
+costare niente.
+
 ## 5. Le regole di onestà (non negoziabili)
 
 - **Declina quando la catena non regge.** Se manca un fatto o un anello, parrot0 ammette
