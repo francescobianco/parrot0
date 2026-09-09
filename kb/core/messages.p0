@@ -1016,6 +1016,36 @@ turn_form(origin_asked_of, 2, slot(subject)).
 turn_form(origin_asked_of, 3, bind(relation, origin_of)).
 turn_form_act(origin_asked_of, answer_relation).
 
+% ── Quanto pesa ───────────────────────────────────────────────────────────
+relation(weight).
+response_template(learned_weight, "Held: {subject} weighs {object}.").
+response_template(learned_weight, it, "Tengo: {subject} pesa {object}.").
+turn_form(weight_stated, 1, slot(subject)).
+turn_form(weight_stated, 2, class(weight_verb)).
+turn_form(weight_stated, 3, rest(object)).
+turn_form(weight_stated, 4, bind(relation, weight_of)).
+turn_form_act(weight_stated, assert_relation).
+turn_form_reply(weight_stated, learned_weight).
+
+machinery(weight_verb).
+weight_verb(weighs).  weight_verb(weigh).  weight_verb(weighed).
+weight_verb(pesa).    weight_verb(pesano).
+
+turn_form(weight_asked, 1, text("how much does")).
+turn_form(weight_asked, 2, slot(subject)).
+turn_form(weight_asked, 3, class(weight_verb)).
+turn_form(weight_asked, 4, bind(relation, weight_of)).
+turn_form_act(weight_asked, answer_relation).
+
+% «quanto pesa zelnik?» arriva ai lettori canonicalizzato in «how much pesa
+% zelnik?»: la forma si dichiara su cio' che il lettore VEDE, non su cio' che
+% l'interlocutore ha scritto. Il verbo resta italiano perche' e' contenuto.
+turn_form(weight_asked_it, 1, text("how much")).
+turn_form(weight_asked_it, 2, class(weight_verb)).
+turn_form(weight_asked_it, 3, slot(subject)).
+turn_form(weight_asked_it, 4, bind(relation, weight_of)).
+turn_form_act(weight_asked_it, answer_relation).
+
 machinery(why_cue).
 why_cue("why").
 why_cue("how come").
