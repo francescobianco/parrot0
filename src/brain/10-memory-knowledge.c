@@ -11727,11 +11727,25 @@ static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
     char conj[8][KB_TERM_LEN]; size_t nc = 0; size_t begin = 0; int seen_conj = 0;
     for (size_t i = 0; i <= cop; i++) {
         int is_conj = (i < cop) && lex_class_member(b, "conjunction", w[i]);
-        if (!is_conj && i != cop) continue;
-        if (i == begin) return 0;                     /* congiunzione vuota */
+        /* gen507 — E LA VIRGOLA SEPARA QUANTO LA CONGIUNZIONE.
+         * «zelnik, grum and pella are tools» si fermava alla sola «and» e i due
+         * nomi prima di essa finivano nello stesso conjunct: parrot0 imparava
+         * «zelnik grum is a tool», un fatto inventato detto con la faccia di
+         * uno giusto. In una lista solo l'ULTIMO stacco porta la congiunzione;
+         * gli altri portano la virgola, e il token che la precede appartiene
+         * ancora al proprio conjunct. */
+        size_t tl = strlen(w[i]);
+        int is_comma = (i < cop) && tl > 1 && w[i][tl - 1] == ',';
+        if (!is_conj && !is_comma && i != cop) continue;
+        size_t upto = is_comma ? i + 1 : i;
+        if (upto == begin) return 0;                  /* separatore vuoto */
         if (nc >= 8) return 0;
-        if (!p0_join(w, begin, i, conj[nc], sizeof conj[nc])) return 0;
+        if (!p0_join(w, begin, upto, conj[nc], sizeof conj[nc])) return 0;
         for (char *q = conj[nc]; *q; q++) if (*q == '_') *q = ' ';
+        { size_t cl = strlen(conj[nc]);
+          while (cl && (conj[nc][cl - 1] == ',' || conj[nc][cl - 1] == ' '))
+              conj[nc][--cl] = '\0'; }
+        if (!conj[nc][0]) return 0;
         nc++; begin = i + 1;
         if (is_conj) seen_conj = 1;
     }
@@ -11743,10 +11757,53 @@ static int p0_distribute_coordinated_subject(Brain *b, const char *norm,
         t += (size_t)snprintf(tail + t, sizeof tail - t, "%s%s", i > cop ? " " : "", w[i]);
     if (!t) return 0;
 
+    /* gen507 — DISTRIBUIRE VUOL DIRE ANCHE ACCORDARE.
+     *
+     * La coda veniva copiata tale e quale: «zelnik and grum are tools»
+     * produceva «zelnik are tools», che nessun lettore accetta, e il turno
+     * finiva nel muro — o peggio, con tre soggetti, in «zelnik grum is a
+     * tool», cioe' un fatto SBAGLIATO detto con la faccia di uno giusto.
+     * Distribuire un predicato su un soggetto singolo significa portarlo al
+     * numero di quel soggetto, e la KB sa gia' farlo: `expected_copula/3` e'
+     * la stessa vista con cui parrot0 GIUDICA l'accordo altrui — qui la usa su
+     * se stesso. Il nome della classe si riduce con `plural_of/2`, la coppia
+     * di fonti che il lettore usa gia' per singolarizzare.
+     *
+     * Se una delle due non risponde si resta alla coda condivisa: il
+     * comportamento storico e' il ripiego, non la regola. */
+    char agreed[300] = "";
+    {
+        char gg[1][KB_TERM_LEN];
+        const char *eq[3] = { conj[0], w[cop], NULL };
+        if (kb_match(b->kb, "expected_copula", eq, 3, gg, 1) == 1 && cop + 1 < n) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", gg[0]);
+            const char *good = kb_dequote(cb);
+            char head[KB_TERM_LEN];
+            snprintf(head, sizeof head, "%s", w[n - 1]);
+            char sg[1][KB_TERM_LEN];
+            const char *pq[2] = { head, NULL };
+            if (kb_match(b->kb, "plural_of", pq, 2, sg, 1) == 1) {
+                char pb[KB_TERM_LEN]; snprintf(pb, sizeof pb, "%s", sg[0]);
+                snprintf(head, sizeof head, "%s", kb_dequote(pb));
+            } else {
+                size_t hl = strlen(head);
+                if (hl > 1 && head[hl - 1] == 's') head[hl - 1] = '\0';
+            }
+            char art[16]; p0_indef_article(b, head, art, sizeof art);
+            size_t a = 0;
+            a += (size_t)snprintf(agreed + a, sizeof agreed - a, "%s %s",
+                                  good, *art ? art : "a");
+            for (size_t k = cop + 1; k + 1 < n && a + 1 < sizeof agreed; k++)
+                a += (size_t)snprintf(agreed + a, sizeof agreed - a, " %s", w[k]);
+            snprintf(agreed + a, sizeof agreed - a, " %s", head);
+        }
+    }
+    const char *use_tail = agreed[0] ? agreed : tail;
+
     char joined[1024]; size_t o = 0; size_t learned = 0;
     for (size_t i = 0; i < nc; i++) {
         char one[600];
-        if ((size_t)snprintf(one, sizeof one, "%s %s", conj[i], tail) >= sizeof one) continue;
+        if ((size_t)snprintf(one, sizeof one, "%s %s", conj[i], use_tail) >= sizeof one) continue;
         char reply[512]; reply[0] = '\0';
         if (!mod_knowledge(b, one, one, reply, sizeof reply) || !reply[0]) continue;
         o += (size_t)snprintf(joined + o, sizeof joined - o, "%s%s",
