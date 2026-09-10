@@ -330,6 +330,91 @@ Non creare checkpoint meccanici dopo ogni turno. Crearlo quando il diff racconta
 una causa riconoscibile: “questa lezione ha prodotto questi fatti/capacità”. Non
 rimandarlo soltanto perché l'ora, il dominio o la sessione non sono finiti.
 
+## 6-bis. FORME DI APPRENDIMENTO — che cosa si può insegnare parlando
+
+*Il catalogo delle superfici con cui una lezione entra in KB senza toccare il C.
+È la lista da cui si sceglie prima di aprire una chat, ed è anche il metro del
+progresso: **una forma nuova qui vale più di cento fatti**, perché apre una
+classe intera invece di un membro.*
+
+> **Come si legge.** Ogni riga è una superficie che parrot0 accetta e ciò che ne
+> ricava. Dove c'è ⚠, è una trappola misurata: la forma esiste ma qualcosa la
+> intercetta, e chi insegna deve saperlo.
+>
+> **Come si aggiunge una riga.** Si trova un muro, si chiude con una *forma*
+> (`turn_form/3` + `turn_form_act/2`, o una `learnable/3`, o una regola in
+> `.p0`), si verifica sul prompt che l'ha scoperta, e si aggiorna questa lista.
+> Non si aggiunge una riga per un fatto: un fatto non è una forma.
+
+### A. Classi e appartenenza
+
+| si dice | parrot0 ne ricava |
+|---|---|
+| `X è un Y` / `X is a Y` | `Y(X)` — appartenenza |
+| `X non è un Y` | il fatto negativo: un «no» guadagnato, non dedotto dal fallimento |
+| `A, B e C sono Y` | tre fatti, con il predicato portato al singolare (gen507/4) |
+| `un Y è uno Z` | la specie dentro la specie: da lì l'appartenenza è transitiva (gen507/1) |
+| `ogni Y è P` | una REGOLA che il risolutore concatena — non un fatto |
+| `ogni Y ha Z` | un fatto sulla SPECIE; i membri lo ereditano (gen507/15) |
+| `nessun A è un B` | esclusione fra classi: chiude il mondo su entrambe |
+
+### B. Relazioni
+
+| si dice | parrot0 ne ricava |
+|---|---|
+| `V is a relation verb` | apre `X V Y`, la domanda polare, l'enumerazione |
+| `X V Y` | il fatto binario |
+| `X does not V Y` | il fatto negativo (gen507/19) |
+| `x V y means x W y` | una COSTRUZIONE: la superficie si riscrive in una che già funziona, e da gen507/14 vale anche in interrogazione |
+| `X is a relation` | `relation_noun`: apre insieme `il V di X è Y` **e** `che V è X?` (gen507/5) |
+| `V chains` | la relazione è transitiva: la catena si percorre (gen507/27) |
+| `X è più V di Y` | il comparativo, una volta che `V` è un verbo di relazione (gen507/8) |
+| `X ha un Y` | `has_part` (gen507/14) |
+
+### C. Attributi e valori
+
+| si dice | parrot0 ne ricava |
+|---|---|
+| `X è rosso` | l'attributo, sotto la relazione che il GENERE del valore dichiara |
+| `correction: X è Y` · `actually X is Y` | SOSTITUISCE invece di aggiungere (gen507/16-17) |
+| `X pesa N` · `X costa N` · `X è stato costruito nel N` | forme dichiarate: peso, prezzo, anno (gen507/20-22) |
+| `X viene da Y` · `X serve a Y` · `X può Y` · `X somiglia a Y` | origine, scopo, abilità, somiglianza (gen507/21-25) |
+
+### D. Parole, forme e ruoli
+
+| si dice | parrot0 ne ricava |
+|---|---|
+| `"superficie" è un <classe>` | la superficie entra nella classe come MENZIONE, verbatim (gen507/1 sulle virgolette) |
+| `la parola X è un …` | la stessa cosa, senza virgolette |
+| `X è un altro modo per dire Y` | `intent_cue`: una formulazione in più per un intento |
+| `X è un modo per chiedere Y` | `answer_frame`: una FORMA DI DOMANDA in più |
+| `X è un altro modo per introdurre Y` | `segment_role`: un introduttore di span |
+| `X è un marcatore di condizione` | la classe grammaticale di una parola |
+
+### E. Condotta e ragionamento
+
+| si dice | parrot0 ne ricava |
+|---|---|
+| `quando <situazione> allora <mossa>` | un PIANO: `plan_move(Situazione, Ordine, Mossa)`. L'ordine è quello in cui le mosse vengono insegnate (gen507/36) |
+| `forget that X is a Y` | ritratta: la lezione si disfa come si è fatta |
+
+### Trappole misurate
+
+- ⚠ **Le cue con «it» dentro non arrivano.** Un lettore che cerca un numero per
+  il pronome prende il turno («What number should I use for «it»?»). Usare
+  formulazioni senza pronome.
+- ⚠ **Una cue scritta in italiano che comincia per «come» è morta.** Il matcher
+  confronta il turno CANONICALIZZATO, dove `come` è già `how`. Vale per ogni
+  parola funzione: si dichiara su ciò che il lettore vede, non su ciò che si
+  scrive (gen507/22, /33).
+- ⚠ **`la R di X è Y` NON è un'asserzione**, è un'interrogazione. Per asserire
+  si usa il triplo nudo `X R Y`.
+- ⚠ **Una superficie già letta da un altro modulo non si ruba.** Il dispatch è
+  first-match: se «X is transitive» o «a cosa serve X» sono già di qualcuno, si
+  sceglie un'altra superficie e si scrive la lacuna.
+
+---
+
 ## 7. Quando la lingua naturale non basta
 
 Un fallimento di insegnabilità è un risultato diagnostico, non il permesso di
