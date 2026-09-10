@@ -23,7 +23,7 @@ parlandogli in lingua naturale.
 > | [D. Parole, forme e ruoli](#d-parole-forme-e-ruoli) | `"superficie" è un <classe>` · `the italian for X is Y` |
 > | [E. Condotta e ragionamento](#e-condotta-e-ragionamento) | `quando <situazione> allora <mossa>` · `step for X is …` |
 > | [F. Procedure eseguibili](#f-procedure-eseguibili) | `rule for X is <operatore>` · `apply X to <testo>` |
-| [**G. Ordine superiore**](#g-superfici-di-ordine-superiore--insegnare-sulle-relazioni) | `in <contesto> V stands for W` · `V behaves like W` · `V is W followed by Z` — **insegnare *sulle* relazioni: è qui che la conoscenza scala** |
+> | [**G. Ordine superiore**](#g-superfici-di-ordine-superiore--insegnare-sulle-relazioni) | `in <contesto> V stands for W` · `V behaves like W` · `V is W followed by Z` — **insegnare *sulle* relazioni: è qui che la conoscenza scala** |
 >
 > **[→ §6-ter: le 50 forme DA IMPLEMENTARE](#6-ter-le-50-forme-da-implementare--la-mappa-in-anticipo)** — la mappa
 > scritta in anticipo: quali forme mancano, che cosa aprirebbero, e in che ordine
@@ -50,8 +50,11 @@ prompt giocattolo o dati creati per vedere se un meccanismo funziona.
   un'attività di sviluppo/testing separata. Non contaminare la KB di training.
 
 Un turno può essere utile come diagnosi anche se non produce conoscenza, ma non
-conta come addestramento riuscito. Una sessione con zero nuovi fatti veri deve
-essere riportata come `diagnostic`, mai come `trained`.
+conta come addestramento riuscito. Con zero nuovi fatti veri del mondo (`W = 0`)
+la sessione è `diagnostic`, oppure `meta-capability-only` se ha acquisito una
+capacità verificata e persistente; mai `trained`. Un ponte utile può rientrare
+nel secondo caso: il suo valore non va nascosto né gonfiato contando deduzioni
+come nuove lezioni di fatti (§G.11).
 
 ## 1. Vincoli assoluti
 
@@ -128,6 +131,12 @@ Valori predefiniti prudenti, se l'invocazione non li specifica:
 - `STOP_CONDITION`: primo misclaim non spiegato, fonte insufficiente, oppure
   meta-gap non chiudibile naturalmente.
 
+Se l'obiettivo include **ordine superiore**, aggiungere `TARGET_BRIDGES`
+(legami da insegnare), `TARGET_REUSE` (domande reali prima irraggiungibili) e
+`TARGET_CONSUMERS` (capacità che dovranno usarli). Sono obiettivi dichiarati,
+non nuove soglie universali né moltiplicatori di `W`. Preparare la scheda di
+§G.7: verso, premesse, scope, fonte e contrasto sono parte della lezione.
+
 ## 3. Definizioni di conteggio
 
 Il protocollo usa contatori diversi. Non fonderli in un solo numero.
@@ -160,6 +169,12 @@ Se il totale classificato non coincide con ciò che si osserva nel diff o con
 `S`, non indovinare: ispezionare routing, duplicati e clausole multi-linea e
 spiegare la differenza. Le righe Git non equivalgono automaticamente a fatti:
 una clausola può occupare più righe.
+
+Per i legami di ordine superiore la classificazione è **semantica**:
+`relation_chain(...)` è una clausola ground che descrive una regola, dunque
+conta in `C`. Registrazioni linguistiche accessorie possono contare in `L`.
+Ogni clausola entra in una sola categoria. Le risposte derivate dal ponte
+misurano riuso e guadagno sul campione (§G.11), non nuovi fatti salvati `W`.
 
 ## 4. Gate di verità prima della chat
 
@@ -210,6 +225,11 @@ Gli held-out non vanno pronunciati nella spiegazione. Se sono asserzioni, devono
 essere fatti veri destinati a restare; se sono domande, devono interrogare fatti
 veri già insegnati.
 
+Per un ponte distinguere premesse già nella KB e fatti veri introdotti **dopo**
+la lezione. Riservare una domanda che combini conoscenze preesistenti senza
+insegnarne la conclusione. La fonte deve sostenere anche il ponte con il suo
+verso e i suoi limiti: un'associazione plausibile fra parole non basta.
+
 ## 5. Preflight del repository
 
 Eseguire e annotare, senza alterare modifiche preesistenti:
@@ -252,6 +272,11 @@ Classificare entrambe le risposte:
 Una risposta `WRONG` o `IRRELEVANT` attiva subito la stop condition finché non è
 stata capita la causa. Non correggerla semplicemente fornendo una risposta da
 memorizzare.
+
+Per un ponte, premesse `KNOWN_CORRECT` sono proprio la base da riusare: non
+scartarle. Registrare separatamente la baseline delle premesse e quella della
+conseguenza. Una conseguenza già corretta può avere un supporto indipendente,
+che rende necessario un altro caso per attribuire causalmente il guadagno.
 
 ### Step 6.2 — Lezione in lingua naturale
 
@@ -328,6 +353,11 @@ Se parrot0 supporta il retract parlato per quella lezione:
 Non introdurre mai un fatto fittizio per rendere facile l'ablation. Se il retract
 non è disponibile, segnare `Ablation = unavailable` e non dichiarare chiuso lo
 strato metalinguistico.
+
+Per un ponte si ritratta **il legame**, conservando i fatti sorgenti. Devono
+scomparire gli usi sostenuti soltanto da quel legame; una risposta sostenuta
+anche da un'altra prova può restare corretta (§G.8–G.9). Non cancellare altre
+conoscenze per ottenere artificialmente la scomparsa attesa.
 
 ### Step 6.7 — Retention breve
 
@@ -492,10 +522,19 @@ classe intera invece di un membro.*
 > **Questa è la sezione che fa scalare la conoscenza, e vale la pena capire
 > perché prima di usarla.**
 
+**Rilettura del 2026-09-11, base `8e33072`.** I riferimenti gen507/80–87
+identificano la campagna originaria. L'espansione distingue il meccanismo
+presente, le sue condizioni d'uso e le implicazioni da verificare: è una lettura
+del codice, non una nuova campagna di training né una certificazione runtime.
+Il corrispettivo progettuale è il
+[quadro preliminare della KB viva](docs/plans/quadro-preliminare-kb-viva.md).
+Gli esempi schematici illustrano la forma; per eseguire il protocollo vanno
+sostituiti con conoscenze reali verificate secondo il §4.
+
 #### G.0 Il meccanismo: il predicato variabile
 
 Il solver ha `apply/2` — il confine dove **il nome di una relazione è un dato,
-non codice** (`src/kb.c`, documentato in [`docs/plans/thinking.md`
+non codice** ([`src/kb.c`](src/kb.c), documentato in [`docs/plans/thinking.md`
 §0.1](docs/plans/thinking.md) come *«il pezzo più prezioso che già c'è»*):
 
 ```prolog
@@ -517,29 +556,48 @@ nudo:
 | `holds1(C, X)` | «questo appartiene a questa classe?» | la **classe è un argomento** |
 | `relation_note(V, Nota)` | «che cosa so *di* questa relazione?» | la scheda, come vista |
 
-**La conseguenza operativa, ed è tutta qui:** un lettore che chiede `holds/3`
-eredita *ogni ponte futuro* fra due relazioni senza sapere che esiste. Aggiungere
-un modo nuovo di legare i predicati è **una clausola `holds/3` in un `.p0`** — non
-una riga di C, non un modulo, non una precedenza da decidere.
+**La conseguenza operativa:** un lettore che chiede `holds/3` può beneficiare
+di ogni nuova clausola di quella vista senza un ramo C dedicato al ponte.
+Questo è il punto di estensione; non significa che tutti i lettori lo usino
+già, né che ogni ponte richiami ricorsivamente gli altri (§G.5).
+
+`apply/2` risolve **fatti e regole**, ma richiede il nome del predicato già
+legato: non cerca da solo quale relazione usare. La scelta, l'enumerazione
+dei candidati e i vincoli devono provenire da altra conoscenza. «Ordine
+superiore» designa qui relazioni trattate come dati in un interprete a
+clausole; non promette quantificazione arbitraria su tutti i predicati.
+
+Una famiglia nuova può richiedere una clausola generale in `.p0`; un nuovo
+membro di una famiglia esistente si insegna parlando. Vale la gerarchia dei
+mantra: **prompt → prosa → autocorrezione → promozione manuale del solo
+meccanismo mancante**. L'esempio Prolog sopra serve a studiare l'architettura,
+non è una lezione da incollare nella chat di addestramento.
 
 #### G.1 Perché scala
 
-Con le superfici ordinarie, la conoscenza cresce **per fatti**: *n* cose dette,
-*n* cose sapute. Con queste cresce **per legami**: una riga su due relazioni
-mette in comunicazione tutti i fatti dell'una e dell'altra, presenti *e futuri*.
+Il contrasto è con l'accumulo di fatti isolati, non con tutta l'inferenza
+ordinaria: anche una regola del primo ordine moltiplica le conseguenze. Qui
+la conoscenza cresce **per legami fra relazioni**: una riga su due relazioni
+può rendere utilizzabili fatti presenti *e futuri*, nel verso e nelle
+condizioni che il legame dichiara.
 
-Tre moltiplicatori misurati in questa campagna:
+Tre moltiplicatori riportati nell'elaborato della campagna gen507:
 
 1. **Un ponte vale per i fatti che non esistono ancora.** `in sport plays stands
    for belongs` non converte i fatti già detti: fa sì che *ogni* «X plays Y»
-   futuro risponda anche a «belongs». Il costo è costante, il guadagno cresce.
-2. **Le proprietà si ereditano.** `covers behaves like ancestor` fa sì che
-   `covers` sia transitiva — e la sua scheda lo dichiara:
+   futuro possa rispondere anche a «belongs» tramite la vista. È costante la
+   dimensione della dichiarazione; il costo di risoluzione può crescere. Il
+   limite contestuale di questa superficie è precisato nel §G.5.
+2. **Le proprietà si ereditano.** Se `ancestor` è dichiarata transitiva,
+   `covers behaves like ancestor` rende transitiva anche `covers`, e la
+   scheda lo dichiara:
    ```
    > tell me about the relation covers
      About «covers» I hold 2: chains, behaves like ancestor.
    ```
-   Sette proprietà × ogni relazione che le somiglia, dette una volta sola.
+   Le proprietà ereditate oggi sono **quattro**: transitività, simmetria,
+   riflessività e funzionalità. Inverso, implicazione ed esclusione compaiono
+   anch'essi nella scheda, ma non sono ereditati da `relation_like/2`.
 3. **Le relazioni si generano.** `grandparent is parent followed by parent`
    definisce una relazione **che non ha un solo fatto proprio** e risponde. Da
    *k* relazioni popolate se ne ottengono molte di più senza popolarne nessuna.
@@ -548,20 +606,25 @@ Tre moltiplicatori misurati in questa campagna:
 
 Questa sezione non è un'isola: è il tessuto che lega le altre.
 
-| si combina con | che cosa diventa possibile |
-|---|---|
-| **i piani** (§E) | una mossa può interrogare `holds/3` invece di un predicato fisso, quindi la stessa condotta vale per relazioni che nessuno aveva in mente quando il piano è stato insegnato |
-| **il ragionamento** (`/34`, `/35`) | il passo «mi sono chiesto di che cosa è fatta» consulta `composition_relation/1`; con i ponti, «di che cosa è fatta» raggiunge anche le relazioni che *contano come* composizione in un dominio |
-| **le procedure** (§F) | un operatore che filtra per `char_class` è già un predicato variabile in piccolo; la stessa mossa porta le procedure a filtrare per *qualunque* relazione insegnata |
-| **l'inferenza logica** | `V holds where both W and Z`, `V holds wherever W`, `V holds where W except where Z` sono **congiunzione, disgiunzione e negazione per eccezione** — dette a voce, non compilate. È il mantra #19 applicato alle relazioni |
-| **le misure** (`/69`) | `magnitude/3` + `compare_cue/3` sono già relazioni-come-dato: un ponte fra due scale, o una scala derivata da una relazione, cade in questa stessa forma |
+| si combina con | base presente | implicazione da aprire o verificare |
+|---|---|---|
+| **i piani** (§E) | `plan_move/3` rende insegnabile una sequenza; il thinking espone operatori come dati | una mossa che interroga la vista condivisa può riusare ponti insegnati dopo il piano; non basta che il piano ne conosca il nome |
+| **il ragionamento** (`/34`, `/35`) | `list_composition` enumera `composition_relation/1`, poi interroga direttamente ciascun predicato | raggiungere anche relazioni che contano come composizione richiede che questo consumo attraversi i ponti; oggi non è automatico |
+| **le procedure** (§F) | `keep/drop` consulta `char_class/2` con la classe come dato | generalizzare il filtro a relazioni insegnate richiede contratto di argomenti e consumer adatto; non è già un filtro universale |
+| **l'inferenza logica** | congiunzione, inclusione e default con eccezione sono dichiarati in KB | più inclusioni verso la stessa relazione producono un'unione; l'eccezione usa mancata derivabilità, non negazione esplicita (§G.6) |
+| **le misure** (`/69`) | `magnitude/3`, `compare_cue/3` e i criteri di qualità trattano dimensioni o misure come dati | collegare scale richiede anche unità, verso, trasformazione e validità; una somiglianza non è una conversione |
+| **lettura e rappresentazioni** | `ir_domain_claim/3` applica ponti dichiarati fra rappresentazioni | un nuovo legame può rendere leggibile conoscenza già presente; occorre conservarne ruoli e provenienza |
+| **gap e autocorrezione** | `gap_source/3` sceglie obblighi e coperture applicati con `apply/2` | il sistema può imparare anche che cosa cercare e quando considerarlo coperto; le coperture devono vedere le stesse conseguenze delle risposte |
 
 #### G.3 La regola di prudenza
 
-**Un ponte che vale sempre non è un ponte, è una fusione.** Le superfici con
-vincolo — `for a <classe> V counts as W`, `V holds where W except where Z` — sono
-quelle da preferire: dicono anche *dove non vale*. La prova che un ponte è sano è
-che esiste una domanda vicina a cui parrot0 risponde ancora «non lo so»:
+**La somiglianza non autorizza una fusione.** Un'inclusione universale può
+essere corretta e resta direzionale; non rende intercambiabili due relazioni.
+Quando la fonte pone un limite, il ponte deve conservarlo. Le superfici con
+vincolo — `for a <classe> V counts as W`, oppure
+`V holds where W holds except where Z` — permettono distinzioni diverse,
+da non confondere. La prova comprende una domanda vicina per la quale il ponte
+non deve produrre una conclusione:
 
 ```
 > anna leads team   →  does anna guides team?   Yes.     (anna è una persona)
@@ -570,12 +633,12 @@ che esiste una domanda vicina a cui parrot0 risponde ancora «non lo so»:
 
 ---
 
-*Le superfici. Sono possibili perché il nome di una relazione è un dato: non
-insegnano un fatto né una proprietà, ma un **legame fra due predicati**.*
+*Le superfici. Il nucleo insegna **legami fra predicati**; le forme complementari
+ne dichiarano proprietà, contesti e firme o permettono di interrogarli.*
 
 | si dice | parrot0 ne ricava |
 |---|---|
-| `in <contesto> V stands for W` | dentro quel contesto la relazione locale `V` è un caso della generale `W`: chi insegna parla il vocabolario del proprio dominio e non deve tradurlo (gen507/80). ⚠ non `means`: è il pivot del maestro delle costruzioni |
+| `in <contesto> V stands for W` | dichiara un ponte locale→generale con un'etichetta di contesto (gen507/80). **Oggi la regola non richiede il contesto attivo**: non usarla per promettere isolamento fra mondi. ⚠ non `means`: è il pivot del maestro delle costruzioni |
 | `for a <classe> V counts as W` | il ponte **stretto di un grado**: vale solo quando il soggetto è di quella classe — «dirige» vale come «guida» per una persona, non per un fiume (gen507/81) |
 | `whoever V is a <classe>` | una **classe definita da una regola** invece che elencata: «chi cresce qualcuno è un tutore» dice che cos'è un tutore *prima* che se ne conosca uno (gen507/82) |
 | `V holds where both W and Z` | una **relazione definita da due**: insegnare una *regola*, non un fatto — il mantra #19 applicato alle relazioni (gen507/82) |
@@ -583,25 +646,402 @@ insegnano un fatto né una proprietà, ma un **legame fra due predicati**.*
 | `V holds where W holds except where Z` | l'**eccezione detta insieme alla regola**, invece di una regola falsa che qualcuno correggerà poi (gen507/83) |
 | `in <contesto> X V Y` | un **fatto sospeso**: vale quando quel contesto è attivo, e tace altrimenti (gen507/85) |
 | `inside <contesto> X is Y` | un **nome che vale solo dentro un contesto**: «il capitano» è una persona precisa solo dentro una squadra (gen507/87) |
-| `V is W read backwards` | il verso rovescio **dentro `holds/3`**, quindi compone con contesti, catene ed eccezioni (gen507/87) |
+| `V is W read backwards` | il verso rovescio dentro `holds/3`, applicando direttamente `W` agli argomenti scambiati (gen507/87); l'annidamento con altre definizioni non è garantito |
 | `V is a relation of kind <famiglia>` | la **famiglia** di una relazione — temporale, spaziale, sociale, causale (gen507/87) |
 | `forget that V behaves like W` | **disfa** un legame di ordine superiore: una somiglianza dichiarata per sbaglio propaga proprietà che nessuno voleva (gen507/87) |
 | `assume <contesto>` · `stop assuming <contesto>` | **entrare e uscire da un mondo**: senza, i fatti sospesi restano sospesi per sempre (gen507/85) |
-| `what holds between X and Y?` | tutte le relazioni che valgono fra **due** cose date: il gemello a due argomenti (gen507/86) |
-| `V links a <classe> to a <classe>` | la **firma** di una relazione — dove ha senso (gen507/86) |
+| `what holds between X and Y?` | esplora i verbi registrati applicati alla coppia; oggi non enumera tutte le conseguenze di `holds/3` (gen507/86) |
+| `V links a <classe> to a <classe>` | la **firma** di una relazione, oggi esposta nella scheda; non è ancora un controllo automatico sui fatti (gen507/86) |
 | `V is W twice` | la composizione di una relazione con **sé stessa**, detta in breve: è il caso più frequente, e scriverla due volte è ciò che fa sbagliare (gen507/86) |
-| `what can you say about X?` | tutte le relazioni in cui X compare — il predicato variabile usato per **guardarsi intorno** invece che per rispondere (gen507/85) |
-| `tell me about the relation V` | la **scheda** di una relazione: tutto ciò che è stato dichiarato *su* di lei — proprietà, ponti, definizioni (gen507/84) |
-| `what relations do you know?` | l'elenco delle relazioni (gen507/84) |
-| `V holds wherever W` | la disgiunzione: `V` vale ovunque valga `W` (gen507/82) |
-| `V behaves like W` | `V` eredita la **scheda** di `W` — transitiva, simmetrica, riflessiva, funzionale — senza che nessuno la ripeta: il predicato variabile applicato alle *proprietà* invece che ai fatti (gen507/81) |
+| `what can you say about X?` | esplora i verbi registrati con X come **soggetto**, tramite `apply/2`; non include automaticamente archi entranti o soli ponti (gen507/85) |
+| `tell me about the relation V` | la **scheda** derivata da `relation_note/2`: proprietà e alcune dichiarazioni, con omissioni da conoscere (§G.5), non ancora la prova completa (gen507/84) |
+| `what relations do you know?` | l'elenco di `relation_verb/1`, non il censimento di ogni predicato risolvibile (gen507/84) |
+| `V holds wherever W` | un'inclusione `W → V`; ripetendola con sorgenti diverse si definisce la loro unione (gen507/82) |
+| `V behaves like W` | `V` eredita le quattro proprietà supportate di `W`, non i suoi fatti né tutta la scheda (gen507/81) |
 
 ```
 > in sport plays stands for belongs
 > messi plays miami
 > does messi belongs miami?     Yes.
-> does neymar belongs miami?    I don't know…      ← non generalizza a caso
+> does neymar belongs miami?    I don't know…      ← nessun supporto in questo esempio
 ```
+
+Il transcript è storico e schematico: non certifica appartenenze sportive
+attuali. Il «non so» riguarda il supporto disponibile, non la verità nel mondo.
+
+#### G.4 La mappa nella codebase: dalla frase all'effetto
+
+La catena da seguire durante la diagnosi è questa:
+
+```text
+lezione naturale
+  → forma e slot dichiarati in messages.p0
+  → atto parametrico del lettore (assert/retract/match…)
+  → dichiarazione fra relazioni nella KB
+  → regole di procedures.p0, risolte mediante apply/2
+  → consumer che interroga quella vista
+  → risposta, decisione o nuova domanda
+```
+
+Ogni freccia può essere il punto d'arresto. Una dichiarazione salvata dimostra
+il passaggio alla KB; non dimostra ancora l'uso da parte dell'ultimo consumer.
+
+| Punto | Riferimento e simboli da cercare | Che cosa controllare |
+|---|---|---|
+| Risoluzione parametrica | [`src/kb.c`](src/kb.c), ramo `apply`, `solve_frame`, `list_to_args` | nome già legato, arità corretta, fatti **e** regole, budget e cicli |
+| Lessico e atti didattici | [`kb/core/messages.p0`](kb/core/messages.p0), `teach_ctx_alias` fino a `unteach_like` | `turn_form`, `turn_form_act`, `turn_form_reply`; slot, argomenti e registrazioni accessorie |
+| Interpretazione degli atti | [`src/brain/10-memory-knowledge.c`](src/brain/10-memory-knowledge.c), `p0_turn_form_reader`, `p0_run_op_named` | esecuzione delle operazioni e resa effettiva; una forma dichiarata deve anche raggiungere il proprio lettore |
+| Semantica dei ponti | [`kb/core/procedures.p0`](kb/core/procedures.p0), blocco gen507/80–87 | `holds/3`, `holds1/2`, `relation_note/2`, `about/3`, `between_rel/3` |
+| Consumo delle risposte | [`src/brain/10-memory-knowledge.c`](src/brain/10-memory-knowledge.c), `polar_class_answer`, chiamata a `holds` nel percorso polare relazionale | quali domande raggiungono la vista e quali usano percorsi diretti |
+| Precedente sulle misure | [`kb/core/code-quality.p0`](kb/core/code-quality.p0), `criterion_finding/3` | il criterio nomina una misura, la regola la applica |
+| Precedente fra rappresentazioni | [`kb/core/code-ir.p0`](kb/core/code-ir.p0), `ir_domain_claim/3`, `ir_domain_claim_basis/4` | un ponte opt-in conserva il proprio fondamento; non basta uguagliare etichette |
+| Precedente sul metodo | [`kb/core/thinking.p0`](kb/core/thinking.p0), `thinking_operator/3`; [`thinking.md` §0.1](docs/plans/thinking.md) | operatore estratto dalla descrizione di un passo; distinguere esecutore presente e ipotesi del piano |
+| Rilevamento dei bisogni | [`kb/core/procedures.p0`](kb/core/procedures.p0), `gap_source/3`, `gap_covered/3`, `gap_record/4` | anche obbligo e criterio di copertura sono predicati scelti dalla KB |
+| Persistenza | [`docs/session-and-provenance.md`](docs/session-and-provenance.md) | `/save` instrada; il dump non è un archivio; casa e provenienza vanno verificate |
+
+Un precedente distinto è
+[`tests/p0t/language/higher_order_lesson.p0t`](tests/p0t/language/higher_order_lesson.p0t):
+esercita «if x contains y then y is part of x», il binding degli argomenti e
+il retract di una regola. Non verifica l'intero catalogo gen507/80–87. È inoltre
+un test legacy marcato `mock hermetic`: non prova trasferimento nella KB viva.
+Per nuove verifiche di sviluppo valgono la KB completa e la distinzione dei
+mantra fra meccanica sintetica e comprensione su conoscenza reale. Qui è un
+riscontro storico, non una suite eseguita né un curriculum da salvare.
+
+**Attenzione alle omonimie tecniche:** `holds/1` è anche usato per proposizioni
+atomiche; non è `holds/3`. Analogamente `apply/2` del solver e «apply X to Y»
+delle procedure testuali non hanno automaticamente lo stesso contratto.
+La somiglianza del nome non dimostra una condivisione del percorso.
+
+Se la diagnosi richiede una nuova regola generale, rispettare i limiti di
+[`src/kb.h`](src/kb.h): quattro argomenti per goal e otto goal nel corpo.
+Spezzare una regola troppo grande in aiutanti nominati; il numero di variabili
+non è il limite. Per `naf` legare prima tutti gli argomenti o usare un aiutante
+ground che racchiuda l'esistenziale. Controllare gli errori di parsing al boot:
+una regola scartata può sembrare una relazione senza conseguenze.
+
+#### G.5 Il confine attuale: vista estendibile e chiusura compositiva
+
+`apply(W, …)` risolve il predicato **W** con tutte le sue regole.
+`holds(W, X, Y)` consulta anche i ponti dichiarati per **W**. Se W esiste solo
+come risultato di una clausola di `holds/3`, chiamare W direttamente non
+attraversa quella clausola. Dichiarare una catena che usa una relazione a sua
+volta definita solo da un ponte non basta necessariamente a concatenare i due
+ragionamenti. Non è un difetto di `apply`: sono due viste diverse.
+
+| Famiglia presente | Limite osservato nella lettura statica | Conseguenza didattica |
+|---|---|---|
+| `context_alias/3` | `$Context` non viene confrontato con `active_context/1` | il nome del contesto non è oggi una guardia: verificare anche fuori contesto |
+| `class_scoped_alias/3` | relazione locale e classe sono interrogate con `apply` | una classe nota soltanto tramite `holds1` può rispondere alla domanda di appartenenza e non attivare il ponte |
+| `class_from_relation/2` | cerca la relazione sorgente direttamente | una relazione derivata soltanto da `holds` non genera automaticamente i membri della classe |
+| `relation_and/or/chain/unless/reverse` | gli operandi passano da `apply`, non da `holds` | le famiglie coesistono nella vista; la loro nidificazione generale resta da verificare e aprire |
+| `relation_like/2` | quattro regole ereditano quattro proprietà | non importa fatti, firma, famiglia, inversi o definizioni; non rende identiche le relazioni |
+| Proprietà delle relazioni | simmetria, inverso, transitività e altri percorsi sono consumati anche da helper C nella risposta polare | un «sì» polare non prova che una catena dentro `holds` veda la stessa chiusura |
+| `context_fact/4`, `context_name/3` | richiedono `active_context`; i nomi riscritti passano poi al predicato diretto | attivazione reale presente, ma niente prova automatica di annidamento o precedenze fra mondi |
+| `about/3`, `between_rel/3` | enumerano `relation_verb`, poi chiamano il predicato diretto | possono omettere conseguenze visibili alla domanda polare; `about` considera solo X soggetto |
+| `relation_signature/3`, `relation_family/2` | alimentano la scheda | non attivano da sole validazione, inferenza di tipi o una politica di ricerca |
+| `relation_note/2` | la nota del ponte omette il contesto; catena e congiunzione non rendono entrambi gli operandi; manca una nota dedicata al ponte di classe | la scheda non è ancora inventario completo né prova di una risposta |
+
+**Il passo ulteriore è rendere riutilizzabile anche il risultato di un ponte.**
+È una classe di lavoro generale; non si chiude aggiungendo una regola per ogni
+coppia incontrata. Sostituire indiscriminatamente ogni `apply` con `holds`
+resta però una proposta da dimostrare: introduce ricorsione, cicli, percorsi
+equivalenti e interazioni con la negazione. Deve preservare supporti, scope,
+terminazione osservabile e distinzione fra fallimento e ricerca incompleta.
+Il protocollo registra il confine; non autorizza fix di dominio per mascherarlo.
+
+#### G.6 Che cosa significa ciascun legame
+
+La fonte deve sostenere **il legame**, non soltanto due esempi compatibili.
+Alcuni casi comuni non autorizzano a far passare tutti i fatti da una relazione
+all'altra.
+
+| Lezione | Impegno semantico | Inferenza da non aggiungere |
+|---|---|---|
+| `V holds wherever W` | ogni coppia sostenuta da W sostiene V | V non implica W; W non è sinonimo di V |
+| Due inclusioni verso V | W oppure Z sono supporti sufficienti separati | non sono richiesti entrambi |
+| `V holds where both W and Z` | stessa coppia X,Y sostenuta da entrambi | W(X,Y) e Z(X,T) non bastano se T è diverso da Y |
+| `V is W followed by Z` | esiste un intermedio M condiviso da W(X,M) e Z(M,Y) | non si scambia l'ordine e non si conclude senza l'intermedio |
+| `V is W twice` | due passi della stessa relazione | non è transitività illimitata, né distanza minima di due passi |
+| `V is W read backwards` | gli argomenti si scambiano | non rende W simmetrica |
+| `whoever V is a C` | avere almeno un oggetto nella relazione V è sufficiente per appartenere a C | non dice che ogni C abbia un tale oggetto; non è un bicondizionale |
+| `V behaves like W` | eredita le proprietà espressamente supportate | non importa le coppie di W e non prova analogia in ogni dimensione |
+| `for a C V counts as W` | appartenenza del soggetto a C come premessa aggiuntiva | non vincola la classe dell'oggetto e non equivale a uno scope temporale |
+
+**Le clausole si aggiungono: una nuova definizione non cancella altri supporti.**
+Se V ha già fatti diretti o altre regole, la nuova congiunzione non li restringe.
+Se si aggiunge un'eccezione a un ramo, un fatto diretto di V può ancora renderlo
+vero. Definire, specializzare e sostituire una definizione errata sono atti
+diversi; la correzione richiede una ritrattazione mirata, non l'accumulo di
+dichiarazioni incompatibili.
+
+**L'eccezione attuale è un default sulla conoscenza disponibile.**
+`relation_unless(V,W,Z)` cerca W(X,Y) e poi `naf(Z(X,Y))` tramite `apply`.
+Significa «W è sostenuta e Z non è derivabile», non «Z è dimostrata falsa».
+Su una KB incompleta la distinzione cambia la risposta. Se la lezione richiede
+certezza dell'assenza occorre una negazione esplicita o una copertura dichiarata
+adeguata: questa superficie da sola non basta.
+
+Nel solver la negazione richiede un goal ground; una ricerca esaurita per
+budget non viene trattata come assenza. Anche la resa finale deve conservare
+la distinzione. Una campagna non promuove un default come universale perché
+nessuno ha ancora insegnato l'eccezione. La crescita può **togliere** una
+conclusione correttamente: l'aggiunta dell'eccezione rende inapplicabile quel
+ramo, pur lasciando eventuali supporti indipendenti.
+
+#### G.7 Scegliere una lezione che moltiplica conoscenza reale
+
+Prima di selezionare un ponte, cercare nella KB viva le due parti che
+potrebbero beneficiarne. La domanda è: **quali fatti già appresi restano
+separati da una distinzione insegnabile?** Il lessico suggerisce un candidato;
+soltanto il significato e le fonti possono giustificarlo.
+
+Preparare, oltre ai parametri del §2, una scheda didattica in prosa:
+
+```text
+Relazioni o classi coinvolte e significato nel dominio:
+Che cosa permette il legame, e in quale verso:
+Premesse, intermedio, scope ed eccezioni richiesti:
+Fonte del legame e fonti dei fatti che lo useranno:
+Domanda reale prima irraggiungibile:
+Domanda vicina che deve restare esclusa o incerta:
+Conoscenza preesistente da riusare:
+Fatto vero da insegnare dopo il ponte:
+Consumer da osservare e superficie naturale disponibile:
+Come correggere o ritrattare la lezione, se supportato:
+```
+
+Questa è documentazione del teacher, non uno schema interno da far digitare
+al discente. Chi insegna deve spiegare i ruoli con parole del dominio.
+
+Tre obiettivi diversi meritano campagne diverse:
+
+1. **Connettere:** far comunicare conoscenze reali già nella KB con un legame
+   nuovo. Non si insegna direttamente la conclusione attesa.
+2. **Generalizzare nel tempo:** insegnare il ponte, poi un nuovo fatto vero
+   nella relazione sorgente e verificare la conseguenza senza ripetere il ponte.
+3. **Comporre strumenti:** usare il risultato di una lezione in un'altra
+   relazione, classe, procedura o decisione. Se il consumer non vede la vista,
+   si registra un gap di integrazione, non un fallimento del fatto sorgente.
+
+Un curriculum fertile alterna questi obiettivi e torna sulle stesse letture
+con atti differenti. Molte relazioni senza consumer producono un catalogo;
+molte repliche dello stesso caso non dimostrano trasferimento del metodo.
+
+#### G.8 Il ciclo causale applicato ai ponti
+
+I passi del §6 restano obbligatori. Cambia l'unità osservata: la lezione causa
+un **insieme di conseguenze con condizioni**, non una sola risposta.
+
+1. **Prima del ponte:** verificare i fatti sorgenti e registrare la risposta
+   alla domanda derivata. Se è già corretta, cercarne il supporto: il ponte
+   candidato potrebbe essere ridondante.
+2. **Dopo la lezione:** interrogare la conseguenza e, dove disponibile, la
+   scheda. L'eco della lezione non dimostra l'uso.
+3. **Fatti successivi:** insegnare un fatto reale verificato che non fosse
+   presente al momento del ponte; interrogare la conseguenza senza insegnarla.
+4. **Contrasto:** cambiare verso, classe, contesto o presenza dell'intermedio.
+   Non si pretende «non so» quando altre prove giustificano una risposta: si
+   verifica che il ponte non sia usato fuori dalle sue condizioni.
+5. **Composizione:** far usare la conseguenza a un'altra capacità. Annotare
+   separatamente domanda polare, enumerazione, appartenenza, spiegazione e uso
+   in un piano; non sono sostituti l'uno dell'altro.
+6. **Ablazione:** ritrattare il legame con una superficie naturale supportata.
+   I fatti sorgenti devono restare; le conseguenze sostenute **solo** da quel
+   legame devono cessare. Con un'altra prova la risposta può restare corretta:
+   il report deve spiegarlo, non contare un fallimento fittizio.
+7. **Ripristino e retention:** reinsegnare la stessa verità e ripetere un uso
+   dopo altri turni. Solo allora preparare checkpoint e processo nuovo.
+
+La ritrattazione di `relation_like` è dichiarata nel catalogo. Non assumere
+che «forget that …» ritratti qualunque definizione, contesto o firma: ogni
+famiglia richiede il proprio riscontro. Se manca il canale, registrare
+`Ablation = unavailable` e capacità `partial`, senza sostituirlo con `!assert`,
+editing del dump o rimozione manuale nel training.
+
+Per trasferire fra domini non basta sostituire i nomi: occorre riusare la
+struttura su un secondo insieme di conoscenze vere, con vincoli appropriati.
+Inventare i dati per costruire il percorso dimostra al più una meccanica di
+sviluppo, non connecting dots della KB viva.
+
+#### G.9 La correzione riguarda il punto che propaga l'errore
+
+Un errore moltiplicato da un ponte costa quanto molte risposte sbagliate.
+Prima di correggere, distinguere dove nasce:
+
+| Punto dell'errore | Correzione pertinente | Che cosa non dimostra la riparazione |
+|---|---|---|
+| Fatto sorgente falso | correggere quel fatto e verificarne le dipendenze | non invalida automaticamente il significato del ponte |
+| Ruoli scambiati nella lettura | correggere costruzione o binding generale | una risposta memorizzata lascia il difetto intatto |
+| Ponte troppo ampio | restringerne il dominio, sostituirlo o ritrattarlo | aggiungere eccezioni per ogni vittima non identifica il limite generale |
+| Proprietà ereditata impropria | correggere somiglianza o proprietà sorgente, secondo la causa | non serve cancellare i fatti veri delle due relazioni |
+| Conseguenza non raggiunta | individuare quale consumer usa una vista diversa | re-insegnare il fatto già noto non integra le viste |
+| Conseguenza vecchia ancora attiva | distinguere supporto indipendente, materializzazione e lettura non rivista | una risposta rimasta uguale non identifica da sola la causa |
+
+Conservare frase didattica, fonte, condizioni e usi campionati.
+`relation_note/2` orienta; non è una genealogia completa delle risposte.
+«So che V è una catena» e «questa risposta dipende da questi due archi e da
+questo intermedio» sono conoscenze differenti.
+
+La cancellazione di una dichiarazione non prova la revisione di ogni
+conseguenza copiata o materializzata. Supporti e invalidazione devono coprire
+anche cache, tracce e riletture. Distinguere ciò che si è osservato da ciò che
+la derivazione su richiesta farebbe in assenza di copie persistenti.
+
+#### G.10 Contesti: conservare la condizione insieme alla conoscenza
+
+Quattro nozioni non sono intercambiabili: contesto di validità del fatto,
+significato locale di una parola, ipotesi attiva e provenienza di
+un'affermazione. Una fonte può parlare di un mondo senza renderlo quello
+attivo; attivare un'ipotesi non la promuove a verità del mondo reale.
+
+`assume` asserisce un contesto attivo e `stop assuming` lo ritratta: queste
+operazioni non mostrano uno stack di mondi, esclusività o precedenza. Più
+contesti attivi e nomi locali omonimi richiedono una distinzione verificata.
+Per gli alias di entità, la sostituzione del soggetto e quella dell'oggetto
+sono rami separati sul predicato diretto; non si promette la risoluzione
+completa di catene di nomi locali.
+
+Prima del salvataggio distinguere la **regola condizionale da conservare**
+dallo **stato di assunzione della conversazione**. La verifica fresh-process
+deve controllare che il fatto sospeso resti tale fuori contesto e diventi
+utilizzabile attivando il contesto pertinente, senza reinsegnare la regola.
+Un contesto involontariamente persistito può simulare un ricordo corretto.
+Non eliminarlo con un filtro indiscriminato: spiegare routing e stato secondo
+[`session-and-provenance.md`](docs/session-and-provenance.md).
+
+Per `context_alias` questo isolamento non è oggi implementato. Se la verità
+della lezione dipende dall'isolamento, il gap impedisce di promuoverla nella
+forma attuale. Il nome del contesto nel messaggio «Held» non è una garanzia.
+
+#### G.11 Il guadagno si misura su due assi
+
+I contatori `W/L/C/P/O` misurano ciò che viene salvato; non misurano da soli
+ciò che diventa utilizzabile. Una dichiarazione `relation_chain` è un fatto
+ground nel file e una **definizione eseguibile** nel significato: si classifica
+in `C`, senza ricontarla come fatto del mondo `W`. Per gli altri legami decidere
+fra `L` e `C` in base alla funzione e spiegarlo nel report.
+
+**Un ponte salvato non equivale a tutti i suoi risultati salvati.** Le
+conseguenze derivate vengono contate separatamente sul campione di domande;
+non incrementano `W` soltanto perché ora sono interrogabili. Eventuali
+materializzazioni si distinguono dalle nuove lezioni e non si ricontano a
+ogni ricostruzione della vista.
+
+Per campagne che includono ordine superiore riportare anche:
+
+| Misura | Definizione operativa |
+|---|---|
+| `BridgeLessons` | lezioni di legame tentate/promosse, con famiglia e scope |
+| `ExistingKnowledgeReuse` | domande prima irraggiungibili ora corrette usando premesse già nella KB / domande campionate |
+| `FutureFactTransfer` | conseguenze corrette su fatti veri appresi dopo il ponte / casi campionati |
+| `ScopeContrast` | contrasti rispettati per classe, verso, contesto ed eccezione / contrasti campionati, distinti per tipo |
+| `ConsumerReach` | elenco dei consumer verificati con esito, non un generico «funziona» |
+| `BridgeAblation` | usi esclusivamente dipendenti rimossi, fatti sorgenti conservati e supporti alternativi spiegati |
+| `DerivedAnswerGain` | nuove risposte corrette nel campione tenuto da parte, senza insegnare quelle risposte |
+| `BridgeRetention` | legame e condizioni ancora operanti nel processo nuovo |
+
+Ogni rapporto espone numeratore e denominatore; per un canale assente scrivere
+`unavailable`, non 100%. Le misure non sostituiscono i gate del §11. Se `W = 0`
+ma cresce una capacità verificata, l'esito resta `meta-capability-only`: può
+essere importante senza cambiare il significato di `trained` nel protocollo.
+
+Il guadagno resta **misurato sul campione**. Non si contano prodotti cartesiani
+come conoscenza acquisita e non si deduce crescita esponenziale dal numero di
+relazioni dichiarate.
+
+#### G.12 Massimizzare e declinare il circuito
+
+Il mantra #22 si applica soprattutto qui. Dopo il primo ponte riuscito,
+massimizzare **la distinzione**: fatti anteriori e posteriori alla lezione,
+ruoli diversi, casi dentro e fuori scope, domande alternative, correzione,
+retention e consumer differenti. Si amplia la KB con lezioni vere e utili,
+non con combinazioni generate solo per saturare una tabella.
+
+Poi cercare una declinazione che riusi la lettura: una relazione può definire
+una classe; quella classe può vincolare un'altra relazione; un risultato può
+alimentare un piano o un criterio. È una direzione di crescita, non la
+promessa che ogni catena del genere funzioni già (§G.5).
+
+La condizione d'arresto resta comportamentale: i nuovi casi non cambiano più
+l'esito del transcript tenuto da parte, oppure il prossimo passo richiede un
+meccanismo diverso. Nel secondo caso si registra il circuito successivo.
+Non si moltiplicano adapter privati per simulare continuità.
+
+Per la sostenibilità registrare latenza e ricerca incompleta quando crescono
+ramificazione o annidamento. Prima di ridurre la conoscenza, verificare
+riletture, enumerazioni ripetute e dipendenze delle viste materializzate
+secondo il mantra #20. Una cache che ignora un nuovo ponte, una ritrattazione
+o un cambio di contesto cambia il significato; non è un'accelerazione corretta.
+
+#### G.13 Il gradino riflessivo: imparare strumenti per imparare
+
+La conseguenza più ampia non è soltanto rispondere a più domande. Se anche
+una forma, un criterio di copertura, un obbligo o un operatore di thinking
+viene selezionato da relazioni insegnabili, una lezione può cambiare **quali
+lezioni successive il sistema riesce a comprendere e quali lacune vede**.
+I precedenti di §G.4 rendono concreta questa ipotesi; non la provano per
+l'intero apprendimento.
+
+La prova forte ha tre momenti: una seconda lezione prima non era utilizzabile;
+si insegna un legame generale; la seconda lezione viene compresa e usata senza
+che il teacher fornisca la rappresentazione interna o la risposta finale.
+Poi serve il contrasto: una lezione vicina ma fuori dalle condizioni non deve
+essere assorbita. Sarebbe un incremento locale del metodo, non comprensione
+universale né scoperta autonoma dei legami.
+
+Davanti a un muro, chiedersi quindi se manchi un fatto, il suo nome, il ponte
+che lo rende pertinente, il consumer che lo attraversa o il criterio che ne
+riconosce il bisogno. La risposta decide che cosa insegnare e che cosa
+lasciare come gap generale.
+
+#### G.14 Due estensioni del substrato, distinte dalle capacità dialogiche
+
+Il predicato variabile apre uno spazio rappresentativo: la relazione è
+scegliibile dalla KB. La ricerca di altre leve dello stesso livello è
+sviluppata in [Due strutture abilitanti](docs/plans/due-strutture-kb-viva.md).
+**Le due proposte seguenti non sono nuove superfici già operative del catalogo.**
+Sono criteri per riconoscere quale struttura manca quando una classe di
+insegnamenti non entra.
+
+| Struttura proposta | Che cosa diventa dato | Che cosa dovrebbe poter insegnare il maestro |
+|---|---|---|
+| **Il fatto come nodo a ruoli aperti** | identità dell'istanza, ruoli dei partecipanti e mappe fra prospettive | un nuovo ruolo o una qualificazione senza cambiare la firma della relazione e il codice dei suoi consumer |
+| **La definizione come espressione componibile** | struttura della relazione derivata, parametri e leggi sui costruttori | una combinazione annidata o una costruzione parametrica senza un ramo specifico per ogni combinazione |
+
+La prima estende il principio dei frame oltre un insieme di slot consumati
+in modo fisso: una domanda seleziona ruoli, mantiene l'identità dell'istanza
+e verifica le condizioni richieste. I fatti parziali possono essere arricchiti
+senza inventare valori per i ruoli ignoti. Proiettare due ruoli non cancella
+gli altri e non autorizza a fondere due eventi diversi.
+
+La seconda estende G dal nome della relazione alla forma della sua
+definizione. Se ogni operando può essere un'altra espressione, le combinazioni
+non richiedono una famiglia nuova per ciascun annidamento. Inoltre la KB può
+inferire **sulla definizione**: per relazioni binarie pure, l'intersezione di
+R con il suo inverso è simmetrica per costruzione. Non occorre dichiarare
+questa proprietà per ogni nuova relazione costruita così.
+
+Per il training futuro, distinguere tre risultati che oggi sarebbe facile
+confondere:
+
+1. **Salvataggio:** il nuovo ruolo o la definizione compaiono nel dump.
+2. **Uso:** una domanda o un'altra regola li impiegano senza un adattamento
+   specifico del consumer.
+3. **Fertilità strutturale:** una lezione successiva combina quel ruolo o
+   quella definizione in un modo non predisposto per il caso iniziale.
+
+Soltanto il terzo risultato prova la leva cercata. Per i ruoli controllare
+istanze distinte, valori ignoti e aggiunte senza perdita di quelli precedenti.
+Per le definizioni controllare annidamento, scope delle variabili, proprietà
+dedotte e costruzioni vicine alle quali la proprietà non si applica. In
+entrambi i casi servono crescita via prompt, ablazione e KB reale completa.
+
+Un nuovo contenitore generico dietro lettori rigidi non supera il criterio.
+Un AST archiviato che nessuna regola può analizzare non lo supera. Né è
+sufficiente insegnare al sistema a chiedere meglio o a riprendere un turno:
+quelle sono possibili conseguenze, mentre qui si valuta **l'apertura della
+struttura su cui ogni capacità opera**.
 
 ### F. Procedure eseguibili
 
@@ -1015,6 +1455,12 @@ Conservare:
 - perché le forme già note non bastano;
 - classe di frasi e domini che il rimedio potrebbe liberare.
 
+Per l'ordine superiore aggiungere il punto della catena di §G.4 in cui il
+percorso si arresta: forma non riconosciuta, dichiarazione assente, premessa
+irraggiungibile, ponte non componibile, consumer diretto, scope perso,
+spiegazione incompleta o persistenza incoerente. Sono annotazioni diagnostiche:
+non sostituiscono i tipi M0–M14 con una tassonomia concorrente.
+
 ### Step 7.2 — Criterio per modificare il motore
 
 Il coding agent può aprire un'attività di sviluppo soltanto se il rimedio:
@@ -1058,6 +1504,11 @@ Prima di `/save`:
 7. verificare che le lezioni fallite siano classificate, non promosse;
 8. assicurarsi che l'ultimo stato dopo eventuale ablation contenga di nuovo le
    conoscenze vere da conservare.
+
+Per una lezione di ordine superiore inventariare anche il legame, le
+registrazioni accessorie, i supporti sorgenti e lo stato dei contesti. Non
+salvare una regola più ampia della proposizione verificata; non confondere
+l'ipotesi attiva nella chat con la condizione permanente del fatto (§G.10).
 
 Se compare anche un solo candidato `X`, non eseguire `/save`. Correggere o
 abbandonare la sessione. Non affidarsi a una pulizia manuale successiva.
@@ -1152,6 +1603,13 @@ raggiungibilità o rappresentazione.
 `B1 - B0` è una misura diagnostica globale. Non deve sostituire `W`, perché può
 includere metadati, deduzioni materializzate o altre clausole.
 
+Per un ponte verificare nel processo nuovo almeno una conseguenza derivata e
+un contrasto, non soltanto la presenza della dichiarazione nella scheda.
+Per fatti contestuali osservare il comportamento fuori contesto, durante
+l'assunzione pertinente e dopo la sua revoca. Riattivare il contesto previsto
+non è reinsegnare il legame; trovarlo attivo senza volerlo è un possibile gap
+di persistenza da spiegare.
+
 ## 11. Metriche e gate di promozione
 
 Calcolare e riportare:
@@ -1192,6 +1650,12 @@ Gate aggiuntivo per dichiarare una nuova capacità generale:
 - provenienza visibile;
 - transfer su un secondo dominio reale se il motore è stato modificato.
 
+Per una capacità di ordine superiore aggiungere il riscontro di §G.11:
+riuso di conoscenza preesistente, transfer su fatti successivi, contrasti di
+scope e raggiungibilità nei consumer dichiarati come obiettivo. Ogni canale
+non verificato resta tale. Una scheda corretta non sostituisce l'uso; un uso
+polare non certifica enumerazione, spiegazione o impiego in un piano.
+
 ## 12. Report permanente
 
 Creare un report sotto:
@@ -1216,6 +1680,12 @@ Il report deve contenere:
 12. stato finale: `trained`, `partial`, `diagnostic` oppure
     `meta-capability-only`;
 13. file KB modificati e commit prodotto.
+
+Per lezioni sulle relazioni includere la scheda di §G.7, le metriche di §G.11,
+i consumer raggiunti e i supporti alternativi incontrati nell'ablazione.
+Separare nel report: dichiarazioni persistite, conseguenze dimostrate nel
+campione e implicazioni ancora ipotetiche. Conservare la fonte del ponte oltre
+alle fonti dei singoli fatti.
 
 Non inserire transcript enormi: conservare i turni causalmente rilevanti. Non
 omettere risposte sbagliate perché il risultato finale è corretto.
@@ -1297,6 +1767,10 @@ Push: pubblicato | fallito (con motivo)
 Gap rimasti: ...
 ```
 
+Se sono stati insegnati ponti, aggiungere sinteticamente: legami promossi,
+nuove risposte derivate sul campione, consumer verificati e limiti di scope o
+ritrattazione. Non sostituire con questi dati il conteggio ufficiale `W`.
+
 Il coding agent non deve dire “parrot0 ha imparato” se manca uno di questi tre
 elementi: verità verificata, persistenza osservata e uso corretto in un processo
 nuovo.
@@ -1310,6 +1784,7 @@ nuovo.
 - [ ] Ogni proposizione ha una fonte.
 - [ ] Non esistono fatti inventati o destinati alla cancellazione.
 - [ ] Ho preparato held-out reali.
+- [ ] Per i ponti ho fontato anche il legame, dichiarato verso/scope e scelto conoscenze preesistenti da riusare.
 - [ ] Ho registrato lo stato Git senza toccare modifiche altrui.
 
 ### Durante
@@ -1322,6 +1797,7 @@ nuovo.
 - [ ] Replay e transfer usano fatti veri.
 - [ ] Nessun “ho capito” è stato contato senza prova.
 - [ ] Se ho incontrato un meta-gap, non ho scritto il fatto a mano.
+- [ ] Per i ponti ho distinto uso su fatti preesistenti, fatti successivi e consumer differenti.
 
 ### Prima di salvare
 
@@ -1329,6 +1805,7 @@ nuovo.
 - [ ] Tutti i fatti candidati sono veri e fontati.
 - [ ] Nessuna fixture o nonce fact è attiva.
 - [ ] Eventuale ablation è stata ripristinata.
+- [ ] Ho distinto dichiarazioni, conseguenze derivate e contesti attivi; gli eventuali supporti alternativi sono spiegati.
 - [ ] `X = 0`.
 
 ### Dopo `/save`
@@ -1338,6 +1815,7 @@ nuovo.
 - [ ] Ho contato semanticamente `W/L/C/P/O/X`.
 - [ ] Ho scritto il numero esplicito dei nuovi fatti veri salvati.
 - [ ] Un processo nuovo raggiunge la conoscenza senza reinsegnamento.
+- [ ] Per i ponti il processo nuovo conserva anche i limiti, non soltanto una risposta positiva.
 - [ ] Ho creato il report permanente.
 - [ ] Ho committato soltanto l'incremento del checkpoint causale.
 - [ ] Ho pushato il commit prima di iniziare un incremento indipendente.
