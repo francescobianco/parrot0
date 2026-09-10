@@ -1317,6 +1317,38 @@ turn_form_mood(teach_tr_it, statement).
 turn_form_act(teach_tr_it, assert_relation).
 turn_form_reply(teach_tr_it, learned_translation).
 
+% ══ gen507/40 — INSEGNARE CHE DUE RELAZIONI SONO L'UNA L'INVERSA DELL'ALTRA ══
+%
+% «smith owner zelnik» e «zelnik belongs smith» sono UN FATTO SOLO detto dai due
+% lati, e parrot0 ne teneva uno e non rispondeva sull'altro. Il ponte non e' una
+% regola per coppia: e' una proprieta' della coppia, e si dice una volta.
+%
+%     > owner is the inverse of belongs
+%     > smith owner zelnik
+%     > does zelnik belongs smith?   ->  Yes.
+%
+% `inverse_relation/2` si legge nei due sensi, perche' essere l'inverso e'
+% simmetrico: chi insegna non deve scegliere l'ordine giusto.
+machinery(inverse_relation).
+response_template(learned_inverse, "Held: {subject} and {object} are one fact seen from the two sides.").
+response_template(learned_inverse, it, "Tengo: {subject} e {object} sono un fatto solo visto dai due lati.").
+
+turn_form(teach_inverse, 1, slot(subject)).
+turn_form(teach_inverse, 2, text("is the inverse of")).
+turn_form(teach_inverse, 3, rest(object)).
+turn_form(teach_inverse, 4, bind(relation, inverse_relation)).
+turn_form_mood(teach_inverse, statement).
+turn_form_act(teach_inverse, assert_relation).
+turn_form_reply(teach_inverse, learned_inverse).
+
+turn_form(teach_inverse2, 1, slot(subject)).
+turn_form(teach_inverse2, 2, text("is the other side of")).
+turn_form(teach_inverse2, 3, rest(object)).
+turn_form(teach_inverse2, 4, bind(relation, inverse_relation)).
+turn_form_mood(teach_inverse2, statement).
+turn_form_act(teach_inverse2, assert_relation).
+turn_form_reply(teach_inverse2, learned_inverse).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

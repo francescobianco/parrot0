@@ -12466,6 +12466,31 @@ static int p0_relation_transitive(Brain *b, const char *rel,
     return p0_relation_chain(b, rel, from, to, 6);
 }
 
+/* gen507/40 — DUE RELAZIONI CHE SONO LA STESSA COSA GUARDATA DAI DUE LATI.
+ *
+ * «smith owner zelnik» e «zelnik belongs smith» sono un fatto solo detto da due
+ * versi, e parrot0 ne teneva uno e non rispondeva sull'altro. Il ponte non e'
+ * una regola per coppia: e' UNA proprieta' della coppia, e si insegna.
+ * `inverse_relation(V, W)` si legge nei due sensi, perche' essere l'inverso e'
+ * simmetrico — dirlo una volta basta. */
+static int p0_relation_inverse(Brain *b, const char *rel,
+                               const char *from, const char *to) {
+    if (!b || !b->kb || !rel) return 0;
+    for (int side = 0; side < 2; side++) {
+        char rows[8][KB_TERM_LEN];
+        const char *q[2] = { side == 0 ? rel : NULL, side == 0 ? NULL : rel };
+        size_t n = kb_match(b->kb, "inverse_relation", q, 2, rows, 8);
+        for (size_t i = 0; i < n; i++) {
+            char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[i]);
+            const char *other = kb_dequote(rb);
+            if (!*other || !strcmp(other, rel)) continue;
+            const char *ia[2] = { to, from };      /* l'inverso scambia i posti */
+            if (kb_query(b->kb, other, ia, 2)) return 1;
+        }
+    }
+    return 0;
+}
+
 static int p0_relation_inherited(Brain *b, const char *rel,
                                  const char *subj, const char *obj) {
     if (!b || !b->kb || !rel || !subj || !obj) return 0;
@@ -12566,6 +12591,23 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
             if (p0_relation_taught_as(b, rel, via, sizeof via))
                 k = kb_match(b->kb, via, pat, 2, hits, 64);
         }
+        if (k == 0) {
+            /* gen507/40 — e dall'altro verso: chi sta nel SECONDO posto della
+             * relazione inversa risponde alla stessa domanda. */
+            for (int side = 0; side < 2 && k == 0; side++) {
+                char rows[8][KB_TERM_LEN];
+                const char *iq2[2] = { side == 0 ? rel : NULL,
+                                       side == 0 ? NULL : rel };
+                size_t ni2 = kb_match(b->kb, "inverse_relation", iq2, 2, rows, 8);
+                for (size_t i2 = 0; i2 < ni2 && k == 0; i2++) {
+                    char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", rows[i2]);
+                    const char *other = kb_dequote(rb2);
+                    if (!*other || !strcmp(other, rel)) continue;
+                    const char *bp[2] = { NULL, subj };
+                    k = kb_match(b->kb, other, bp, 2, hits, 64);
+                }
+            }
+        }
         if (k == 0) return 0;
         char list[900]; size_t off = 0;
         for (size_t i = 0; i < k && off + 1 < sizeof list; i++) {
@@ -12610,6 +12652,9 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
      * `located_in`. Qui si provano TUTTE le letture dichiarate per la
      * superficie detta e per la relazione risolta: risponde quella che ha un
      * fatto, e se nessuna ce l'ha resta l'onesta' di prima. */
+    if (p0_relation_inverse(b, rel, subj, obj)) {
+        put("Yes.", out, out_size); return 1;
+    }
     if (p0_relation_transitive(b, rel, subj, obj)) {
         put("Yes.", out, out_size); return 1;
     }

@@ -368,6 +368,7 @@ classe intera invece di un membro.*
 | `x V y means x W y` | una COSTRUZIONE: la superficie si riscrive in una che già funziona, e da gen507/14 vale anche in interrogazione |
 | `X is a relation` | `relation_noun`: apre insieme `il V di X è Y` **e** `che V è X?` (gen507/5) |
 | `V chains` | la relazione è transitiva: la catena si percorre (gen507/27) |
+| `V is the inverse of W` | un fatto solo, visto dai due lati: asserire `X V Y` risponde anche a `Y W X`, e si legge nei due sensi (gen507/40) |
 | `X è più V di Y` | il comparativo, una volta che `V` è un verbo di relazione (gen507/8) |
 | `X ha un Y` | `has_part` (gen507/14) |
 
