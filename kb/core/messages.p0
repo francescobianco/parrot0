@@ -1993,6 +1993,50 @@ turn_form_mood(teach_kind, statement).
 turn_form_act(teach_kind, "op(assert, kind_of, [subject, object])").
 turn_form_reply(teach_kind, learned_kind).
 
+% ══ gen507/77 — QUATTRO RELAZIONI DEL MONDO, FINALMENTE DICIBILI ══════════
+% `wrote/2`, `borders/2`, `currency_of/2`, `chemical_symbol/2` hanno centinaia
+% di fatti e tutti scritti a mano: parrot0 sapeva rispondere e non sapeva
+% imparare. E' la forma piu' comune di conoscenza chiusa in questa KB — non una
+% capacita' che manca, una porta che non c'e'.
+response_template(learned_wrote, "Held: {subject} wrote {object}.").
+response_template(learned_wrote, it, "Tengo: {subject} ha scritto {object}.").
+response_template(learned_borders, "Held: {subject} and {object} share a border.").
+response_template(learned_borders, it, "Tengo: {subject} e {object} confinano.").
+response_template(learned_currency, "Held: {subject} pays in {object}.").
+response_template(learned_currency, it, "Tengo: {subject} paga in {object}.").
+response_template(learned_symbol, "Held: {object} is written {subject}.").
+response_template(learned_symbol, it, "Tengo: {object} si scrive {subject}.").
+
+turn_form(teach_wrote, 1, slot(subject)).
+turn_form(teach_wrote, 2, text("wrote")).
+turn_form(teach_wrote, 3, rest(object)).
+turn_form_mood(teach_wrote, statement).
+turn_form_act(teach_wrote, "op(assert, wrote, [subject, object])").
+turn_form_reply(teach_wrote, learned_wrote).
+
+% Confinare e' reciproco: due operazioni, una frase.
+turn_form(teach_borders, 1, slot(subject)).
+turn_form(teach_borders, 2, text("borders")).
+turn_form(teach_borders, 3, rest(object)).
+turn_form_mood(teach_borders, statement).
+turn_form_act(teach_borders, "op(assert, borders, [subject, object])").
+turn_form_act(teach_borders, "op(assert, borders, [object, subject])").
+turn_form_reply(teach_borders, learned_borders).
+
+turn_form(teach_currency, 1, slot(subject)).
+turn_form(teach_currency, 2, text("pays in")).
+turn_form(teach_currency, 3, rest(object)).
+turn_form_mood(teach_currency, statement).
+turn_form_act(teach_currency, "op(assert, currency_of, [subject, object])").
+turn_form_reply(teach_currency, learned_currency).
+
+turn_form(teach_symbol, 1, slot(subject)).
+turn_form(teach_symbol, 2, text("is the symbol for")).
+turn_form(teach_symbol, 3, rest(object)).
+turn_form_mood(teach_symbol, statement).
+turn_form_act(teach_symbol, "op(assert, chemical_symbol, [object, subject])").
+turn_form_reply(teach_symbol, learned_symbol).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

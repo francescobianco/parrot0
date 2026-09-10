@@ -727,6 +727,14 @@ borders(switzerland, italy).
 borders(turkey, bulgaria).
 borders(ukraine, belarus).
 borders(ukraine, slovakia).
+borders(china, bhutan).
+borders(bhutan, china).
+borders(india, bhutan).
+borders(bhutan, india).
+borders(china, nepal).
+borders(nepal, china).
+borders(india, nepal).
+borders(nepal, india).
 border_count(bulgaria, 2).
 borders_country(china, india).
 borders_country(china, russia).

@@ -132,3 +132,7 @@ deciduous(beech).
 deciduous(maple).
 transitive_relation(precedes).
 inverse_relation(precedes, follows).
+currency_of(ghana, cedi).
+currency_of(vietnam, dong).
+currency_of(poland, zloty).
+currency_of(peru, sol).

@@ -400,6 +400,10 @@ classe intera invece di un membro.*
 | `ogni Y è P` | una REGOLA che il risolutore concatena — non un fatto |
 | `ogni Y ha Z` | un fatto sulla SPECIE; i membri lo ereditano (gen507/15) |
 | `nessun A è un B` | esclusione fra classi: chiude il mondo su entrambe |
+| `X wrote Y` | l'**autore** di un'opera (gen507/77) |
+| `X borders Y` | il **confine**, asserito nei due versi perché confinare è reciproco (gen507/77) |
+| `X pays in Y` | la **valuta** di un paese (gen507/77) |
+| `X is the symbol for Y` | il **simbolo chimico** di un elemento (gen507/77) |
 | `X contains Y` | `part_of/2` detta dal verso del contenitore (gen507/76) |
 | `X is caused by Y` | `causes/2` detta dal verso dell'effetto (gen507/76) |
 | `X is a kind of Y` | `kind_of/2`, la **catena dei tipi**: da lì `X` eredita le proprietà di ogni tipo sopra di sé (gen507/76) |

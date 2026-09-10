@@ -61,6 +61,7 @@ utterance(5, user, "peregrine is a member of falcon").
 utterance(5, user, "radar is short for radio detection and ranging").
 utterance(5, user, "chrysalis comes before butterfly").
 utterance(5, user, "beriberi is caused by thiamine_deficiency").
+utterance(5, user, "ginzburg wrote lessico_famigliare").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -101,6 +102,7 @@ utterance(6, self, "Held: peregrine is one of the falcon -- it inherits what the
 utterance(6, self, "Held: «radar» is short for «radio_detection_and_ranging».").
 utterance(6, self, "Tengo: chrysalis viene prima di butterfly — e la catena si percorre.").
 utterance(6, self, "Held: thiamine_deficiency causes beriberi.").
+utterance(6, self, "Tengo: ginzburg ha scritto lessico_famigliare.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -553,6 +555,7 @@ utterance(7, user, "falcon are typically fast").
 utterance(7, user, "scuba is short for self contained underwater breathing apparatus").
 utterance(7, user, "seed comes before seedling").
 utterance(7, user, "pellagra is caused by niacin_deficiency").
+utterance(7, user, "nepal borders india").
 utterance(23, user, "is magnetite an iron ore mineral?").
 utterance(7, user, "what does a capacitor store?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -716,6 +719,27 @@ utterance(21, user, "what causes scurvy?").
 utterance(22, self, "'vitamin c deficiency'.").
 utterance(23, user, "what is nucleus part of?").
 utterance(24, self, "Proton, neutron, electron, atomic number, mass number, prokaryotic, eukaryotic, erythrocyte and cell.").
+utterance(8, self, "Tengo: nepal e india confinano.").
+utterance(9, user, "nepal borders china").
+utterance(10, self, "Tengo: nepal e cina confinano.").
+utterance(11, user, "bhutan borders india").
+utterance(12, self, "Tengo: bhutan e india confinano.").
+utterance(13, user, "bhutan borders china").
+utterance(14, self, "Tengo: bhutan e cina confinano.").
+utterance(15, user, "ghana pays in cedi").
+utterance(16, self, "Tengo: ghana paga in cedi.").
+utterance(17, user, "vietnam pays in dong").
+utterance(18, self, "Tengo: vietnam paga in dong.").
+utterance(19, user, "poland pays in zloty").
+utterance(20, self, "Tengo: polonia paga in zloty.").
+utterance(21, user, "peru pays in sol").
+utterance(22, self, "Tengo: peru paga in sol.").
+utterance(23, user, "og is the symbol for oganesson").
+utterance(24, self, "Og.").
+utterance(25, user, "ts is the symbol for tennessine").
+utterance(26, self, "Ts.").
+utterance(27, user, "nh is the symbol for nihonium").
+utterance(28, self, "Nh.").
 utterance(42, self, "Directly: bornite is a copper sulfide mineral — no reasoning needed.").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
@@ -1003,6 +1027,7 @@ utterance(2, self, "Held: kestrel is one of the falcon -- it inherits what they 
 utterance(2, self, "Held: «crispr» is short for «clustered_regularly_interspaced_short_palindromic_repeats».").
 utterance(2, self, "Tengo: uovo viene prima di caterpillar — e la catena si percorre.").
 utterance(2, self, "Held: vitamin_c_deficiency causes scurvy.").
+utterance(2, self, "Tengo: calvino ha scritto cosmicomiche.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -1042,6 +1067,7 @@ utterance(1, user, "kestrel is a member of falcon").
 utterance(1, user, "crispr is short for clustered regularly interspaced short palindromic repeats").
 utterance(1, user, "egg comes before caterpillar").
 utterance(1, user, "scurvy is caused by vitamin_c_deficiency").
+utterance(1, user, "calvino wrote cosmicomiche").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -1075,6 +1101,7 @@ utterance(4, self, "Held: merlin is one of the falcon -- it inherits what they h
 utterance(4, self, "Held: «laser» is short for «light_amplification_by_stimulated_emission_of_radiation».").
 utterance(4, self, "Tengo: caterpillar viene prima di chrysalis — e la catena si percorre.").
 utterance(4, self, "Held: vitamin_d_deficiency causes rickets.").
+utterance(4, self, "Tengo: morante ha scritto la_storia.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1109,6 +1136,7 @@ utterance(3, user, "merlin is a member of falcon").
 utterance(3, user, "laser is short for light amplification by stimulated emission of radiation").
 utterance(3, user, "caterpillar comes before chrysalis").
 utterance(3, user, "rickets is caused by vitamin_d_deficiency").
+utterance(3, user, "morante wrote la_storia").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").
