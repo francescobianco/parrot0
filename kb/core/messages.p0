@@ -2258,6 +2258,48 @@ turn_form(ask_rel_list, 2, bind(relation, relation_verb)).
 turn_form_act(ask_rel_list, "op(match, relation, [free])").
 turn_form_reply(ask_rel_list, relation_list).
 
+% (superficie superiore #11) — UN FATTO SOSPESO, che vale solo in un contesto.
+response_template(learned_ctx_fact, "Held, but only in {order}: {subject} {relation} {object}.").
+response_template(learned_ctx_fact, it, "Tengo, ma solo in {order}: {subject} {relation} {object}.").
+
+turn_form(teach_ctx_fact, 1, text("in")).
+turn_form(teach_ctx_fact, 2, slot(order)).
+turn_form(teach_ctx_fact, 3, slot(subject)).
+turn_form(teach_ctx_fact, 4, relation(relation)).
+turn_form(teach_ctx_fact, 5, rest(object)).
+turn_form_mood(teach_ctx_fact, statement).
+turn_form_act(teach_ctx_fact, "op(assert, context_fact, [order, relation, subject, object])").
+turn_form_reply(teach_ctx_fact, learned_ctx_fact).
+
+% (superficie superiore #12) — ENTRARE E USCIRE DA UN CONTESTO. Senza questa, i
+% fatti sospesi restano sospesi per sempre.
+response_template(context_entered, "Now reasoning inside {subject}.").
+response_template(context_entered, it, "Adesso ragiono dentro {subject}.").
+response_template(context_left, "Out of {subject}.").
+response_template(context_left, it, "Fuori da {subject}.").
+
+turn_form(enter_ctx, 1, text("assume")).
+turn_form(enter_ctx, 2, rest(subject)).
+turn_form_mood(enter_ctx, statement).
+turn_form_act(enter_ctx, "op(assert, active_context, [subject])").
+turn_form_reply(enter_ctx, context_entered).
+
+turn_form(leave_ctx, 1, text("stop assuming")).
+turn_form(leave_ctx, 2, rest(subject)).
+turn_form_mood(leave_ctx, statement).
+turn_form_act(leave_ctx, "op(retract, active_context, [subject])").
+turn_form_reply(leave_ctx, context_left).
+
+% (superficie superiore #13) — TUTTO CIO' CHE SI PUO' DIRE DI UNA COSA: il
+% predicato variabile usato per guardarsi intorno invece che per rispondere.
+response_template(about_list, "About {subject} I can say {count} things: {result}.").
+response_template(about_list, it, "Di {subject} posso dire {count} cose: {result}.").
+
+turn_form(ask_about, 1, text("what can you say about")).
+turn_form(ask_about, 2, slot(subject)).
+turn_form_act(ask_about, "op(match, about, [subject, free, free])").
+turn_form_reply(ask_about, about_list).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

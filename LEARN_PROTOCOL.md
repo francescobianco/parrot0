@@ -581,6 +581,9 @@ insegnano un fatto né una proprietà, ma un **legame fra due predicati**.*
 | `V holds where both W and Z` | una **relazione definita da due**: insegnare una *regola*, non un fatto — il mantra #19 applicato alle relazioni (gen507/82) |
 | `V is W followed by Z` | la **composizione**: «nonno» è «genitore» seguito da «genitore». Due relazioni note ne definiscono una terza che nessuno popola (gen507/83) |
 | `V holds where W holds except where Z` | l'**eccezione detta insieme alla regola**, invece di una regola falsa che qualcuno correggerà poi (gen507/83) |
+| `in <contesto> X V Y` | un **fatto sospeso**: vale quando quel contesto è attivo, e tace altrimenti (gen507/85) |
+| `assume <contesto>` · `stop assuming <contesto>` | **entrare e uscire da un mondo**: senza, i fatti sospesi restano sospesi per sempre (gen507/85) |
+| `what can you say about X?` | tutte le relazioni in cui X compare — il predicato variabile usato per **guardarsi intorno** invece che per rispondere (gen507/85) |
 | `tell me about the relation V` | la **scheda** di una relazione: tutto ciò che è stato dichiarato *su* di lei — proprietà, ponti, definizioni (gen507/84) |
 | `what relations do you know?` | l'elenco delle relazioni (gen507/84) |
 | `V holds wherever W` | la disgiunzione: `V` vale ovunque valga `W` (gen507/82) |

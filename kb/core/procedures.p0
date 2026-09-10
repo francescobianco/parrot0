@@ -1769,3 +1769,21 @@ relation_note($V, $Note) :- relation_chain($V, $W, $Z), concat_atoms("composed f
 relation_note($V, $Note) :- relation_and($V, $W, $Z), concat_atoms("needs both, starting with ", $W, $Note).
 relation_note($V, $Note) :- relation_or($V, $W), concat_atoms("holds wherever ", $W, $Note).
 relation_note($V, $Note) :- relation_unless($V, $W, $Z), concat_atoms("has an exception: ", $Z, $Note).
+
+% (m) UN FATTO CHE VALE SOLO DENTRO UN CONTESTO. `context_fact(Contesto, V, X,
+%     Y)` e' un fatto SOSPESO: vale quando quel contesto e' attivo, e tace
+%     altrimenti. Serve a tenere insieme conoscenze che si contraddicono fra
+%     domini — «la regina si muove in tutte le direzioni» e' vera negli scacchi
+%     e falsa a dama — senza che parrot0 debba scegliere quale mondo abitare.
+machinery(context_fact).
+machinery(active_context).
+holds($V, $X, $Y) :-
+    context_fact($C, $V, $X, $Y),
+    active_context($C).
+
+% (n) TUTTO CIO' CHE SI PUO' DIRE DI UNA COSA. `about(X, V, Y)` enumera le
+%     relazioni in cui X compare, applicando ognuna: il predicato variabile
+%     usato per GUARDARSI INTORNO invece che per rispondere a una domanda
+%     precisa. E' la differenza fra sapere e sapere di sapere.
+machinery(about).
+about($X, $V, $Y) :- relation_verb($V), apply($V, cons($X, cons($Y, nil))).
