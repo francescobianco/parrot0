@@ -462,6 +462,8 @@ semplici**, ed è la catena che si insegna.*
 | `apply <altra procedura>` | **chiama** un'altra procedura: una lezione si costruisce su quelle già date invece di ripeterne i passi (gen507/51, forma #43) |
 | `replace <a> with <b>` | sostituzione (gen507/52, forma #46) |
 
+| `the <nome> letters are A, B, C` | **insegna una classe di caratteri**, e da subito è un operatore in più da comporre (gen507/53, forma #44) |
+
 Classi già in KB: `vowel`, `consonant`, `digit`. Una classe nuova — le consonanti
 di un'altra lingua, le cifre pari — è **una riga di `.p0`**, e da subito un
 operatore in più da comporre.
@@ -631,7 +633,7 @@ mano resta inesprimibile.*
 | 41 | `rule for X is repeat <op> until <cond>` | il **ciclo**: è il gradino che manca a ogni procedura vera | 🔴 |
 | 42 | `rule for X is if <cond> then <op>` | la **condizione** | 🔴 |
 | 43 | `rule for X is apply Y` | chiamare una procedura da un'altra: la composizione vera | ✅ gen507/51 |
-| 44 | `<classe> contains <caratteri>` | insegnare una classe di caratteri parlando (oggi è una riga di file) | 🔴 |
+| 44 | `<classe> contains <caratteri>` — reso `the <nome> letters are …` | insegnare una classe di caratteri parlando | ✅ gen507/53 |
 | 45 | `rule for X is split on <char>` · `join with <char>` | dalle stringhe alle **liste** | 🔴 |
 | 46 | `rule for X is replace <a> with <b>` | sostituzione | ✅ gen507/52 |
 | 47 | `rule for X is sort` · `unique` | operatori su liste | 🔴 |

@@ -13285,6 +13285,47 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         } else if (!strcmp(act, "assert_relation") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
             ok = kb_assert(b->kb, rel, fa, 2);
+        } else if (!strcmp(act, "assert_many")) {
+            /* gen507/53 (forma #44) — UNA CLASSE CON PIU' MEMBRI, DETTA IN UN
+             * TURNO SOLO, con la relazione dichiarata dalla forma.
+             *
+             * Serve a tutto cio' che si elenca: le lettere di una classe di
+             * caratteri, i membri di un insieme, le cue di un intento. La
+             * differenza da `assert_closed_extension` e' che qui NON si dichiara
+             * che sono tutti — aggiungere non e' chiudere, e confondere le due
+             * cose farebbe guadagnare un «no» che nessuno ha detto. */
+            const char *key0 = p0_form_slot(slots, ns, "key");
+            const char *mems0 = p0_form_slot(slots, ns, "text");
+            if (!rel || !key0 || !mems0) continue;
+            char buf8[KB_TERM_LEN];
+            snprintf(buf8, sizeof buf8, "%s", mems0);
+            for (char *c = buf8; *c; c++) if (*c == '_' || *c == ',') *c = ' ';
+            char *mw8[64]; size_t mn8 = split_words(buf8, mw8, 64);
+            char shown8[400]; size_t so8 = 0, put8 = 0;
+            int prev8 = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            for (size_t mi = 0; mi < mn8; mi++) {
+                const char *m = strip_edge_punct(mw8[mi]);
+                if (!*m) continue;
+                const char *cj8[1] = { m };
+                if (strlen(m) > 1 && kb_query(b->kb, "conjunction", cj8, 1)) continue;
+                const char *ma8[2] = { key0, m };
+                if (!kb_assert(b->kb, rel, ma8, 2)) continue;
+                so8 += (size_t)snprintf(shown8 + so8, sizeof shown8 - so8,
+                                        "%s%s", put8 ? ", " : "", m);
+                put8++;
+            }
+            kb_set_origin(b->kb, prev8);
+            if (!put8) continue;
+            char cnt8[24]; snprintf(cnt8, sizeof cnt8, "%zu", put8);
+            char msg8[520];
+            const KbResponseSlot ms8[] = { { "klass", key0 }, { "count", cnt8 },
+                                           { "list", shown8 } };
+            if (kb_response_slots(b, "learned_many", ms8, 3, msg8, sizeof msg8)) {
+                put(msg8, out, out_size);
+                free(forms);
+                return 1;
+            }
         } else if (!strcmp(act, "assert_closed_extension")) {
             /* ══ gen507/44 — DIRE CHE UNA CLASSE E' FINITA ══════════════════
              *

@@ -1597,6 +1597,26 @@ turn_form_mood(teach_verbform2, statement).
 turn_form_act(teach_verbform2, assert_relation).
 turn_form_reply(teach_verbform2, learned_verb_form).
 
+% ══ gen507/53 (forma #44) — INSEGNARE UNA CLASSE DI CARATTERI ═════════════
+% Gli operatori delle procedure (giro /43) lavorano su CLASSI di caratteri, e le
+% classi erano righe di file: `keep vowel` funzionava, `keep sibilant` no, e non
+% c'era modo di dirlo. Ora una classe nuova e' una frase, e da subito e' un
+% operatore in piu' da comporre.
+%
+%     > the sibilant letters are s, z, sh
+%     > rule for hiss is keep sibilant
+%     > apply hiss to mississippi   ->  ssssss
+response_template(learned_many, "Held: {count} more in {klass}: {list}.").
+response_template(learned_many, it, "Tengo: {count} in più in {klass}: {list}.").
+
+turn_form(teach_charclass, 1, text("the")).
+turn_form(teach_charclass, 2, slot(key)).
+turn_form(teach_charclass, 3, text("letters are")).
+turn_form(teach_charclass, 4, rest(text)).
+turn_form(teach_charclass, 5, bind(relation, char_class)).
+turn_form_mood(teach_charclass, statement).
+turn_form_act(teach_charclass, assert_many).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).
