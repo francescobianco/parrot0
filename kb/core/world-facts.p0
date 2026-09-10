@@ -1780,6 +1780,24 @@ constituent_of(water, blood).
 % Sapere DI CHE COSA e' fatta una cosa non e' sapere come si fa, ed e' molto
 % piu' di niente: e' cio' che permette a parrot0 di dire «non ho i passi, ma ti
 % servirebbero…» invece di murare. Un piccolo corredo per far vedere il gradino.
+% gen507/37 — a che cosa servono le cose: il piano puo' chiamarlo quando la
+% composizione non basta, e per chi chiede «come si costruisce» dire QUALE
+% PROBLEMA una cosa risolve e' comunque un appiglio.
+purpose_of(raft, "crossing water without a boat").
+purpose_of(kite, "flying on the wind at the end of a line").
+purpose_of(candle, "giving light without electricity").
+purpose_of(soap, "lifting grease off skin and cloth").
+purpose_of(compass, "finding north without landmarks").
+purpose_of(shelter, "keeping rain and wind off").
+purpose_of(fire, "heat, light and cooking").
+purpose_of(rope, "holding things together under tension").
+purpose_of(lever, "trading distance for force").
+purpose_of(wheel, "moving a load with less friction").
+purpose_of(filter, "separating what passes from what does not").
+purpose_of(bridge, "crossing a gap on foot or on wheels").
+purpose_of(dam, "holding water back and storing it").
+purpose_of(sail, "turning wind into forward motion").
+purpose_of(anchor, "keeping a boat where you put it").
 made_of(raft, logs).
 has_part(raft, rope).
 has_part(raft, paddle).

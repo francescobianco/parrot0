@@ -1223,6 +1223,17 @@ move_cue("list what it is made of", list_composition).
 move_cue("tell me what it is made of", list_composition).
 move_cue("guarda di che cosa e' fatta", list_composition).
 move_cue("dimmi di che cosa e' fatta", list_composition).
+% NB: le cue con «it» dentro vengono prese da un lettore che cerca un numero per
+% il pronome («What number should I use for «it»?»), quindi la lezione non
+% arriva. Le forme senza pronome sono quelle che passano — e' un limite del
+% dispatch, scritto qui perche' chi insegna sappia quale dire.
+move_cue("say the purpose", say_purpose).
+move_cue("name the purpose", say_purpose).
+move_cue("di' lo scopo", say_purpose).
+move_cue("say what it is for", say_purpose).
+move_cue("tell me what it is for", say_purpose).
+move_cue("say what problem it solves", say_purpose).
+move_cue("di' a che cosa serve", say_purpose).
 move_cue("say you don't know", decline_steps).
 move_cue("admit you don't know", decline_steps).
 move_cue("di' che non lo sai", decline_steps).
@@ -1254,7 +1265,17 @@ turn_form_act(teach_plan_it, assert_plan_move).
 % Era una sequenza dentro una funzione; qui e' conoscenza, e si puo' cambiare
 % parlando: togliere una mossa, aggiungerne una, invertirle.
 plan_move(steps_missing, 1, list_composition).
-plan_move(steps_missing, 2, decline_steps).
+% gen507/37 — SECONDA MOSSA, INSEGNATA PARLANDO e poi resa ufficiale.
+% Detta in sessione con «when you have no steps then say the purpose», provata,
+% e portata qui: cio' che parrot0 impara parlando diventa conoscenza curata, non
+% resta in una sessione ([[autolearn-knowledge-is-official]]).
+plan_move(steps_missing, 2, say_purpose).
+% ⚠ `decline_steps` NON sta nel piano, e la ragione vale per ogni piano futuro:
+% arrendersi non e' una mossa che si pianifica, e' quello che succede quando il
+% piano si esaurisce — il declino onesto e' gia' li' dopo il ciclo. Metterlo
+% dentro lo rendeva l'ULTIMA riga insegnabile: ogni mossa insegnata dopo di lui
+% non veniva mai eseguita, perche' lui rispondeva sempre. Un piano che finisce
+% con una mossa che non fallisce mai non e' piu' insegnabile.
 
 machinery(why_cue).
 why_cue("why").

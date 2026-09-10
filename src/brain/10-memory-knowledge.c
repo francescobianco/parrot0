@@ -17618,6 +17618,38 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 continue;
             }
 
+            if (!strcmp(move, "say_purpose") && topic[0]) {
+                /* gen507/37 — LA MOSSA CHE UN PIANO PUO' CHIAMARE, quando la
+                 * composizione non c'e' ma il senso della cosa si'. Sapere a
+                 * che cosa serve una cosa non e' sapere come si fa, e per chi
+                 * chiede «come si costruisce» e' comunque un appiglio: dice
+                 * QUALE PROBLEMA quella cosa risolve. Come per la composizione,
+                 * la risposta dichiara di essere un ricavato. */
+                char purposes[8][KB_TERM_LEN];
+                const char *uq[2] = { topic, NULL };
+                size_t nu = kb_match(b->kb, "purpose_of", uq, 2, purposes, 8);
+                if (nu == 0) continue;
+                char plist[300]; size_t po = 0;
+                for (size_t k = 0; k < nu && po + 1 < sizeof plist; k++) {
+                    char shown[KB_TERM_LEN];
+                    present_atom(b, purposes[k], shown, sizeof shown);
+                    po += (size_t)snprintf(plist + po, sizeof plist - po,
+                                           "%s%s", k ? ", " : "", shown);
+                }
+                p0_plan_step(b, 1, "steps_missing");
+                p0_plan_step(b, 2, "say_purpose");
+                char why2[380];
+                snprintf(why2, sizeof why2,
+                         "no process_step for %s, so purpose_of gave %s",
+                         topic, plist);
+                store_proof(b, why2);
+                const KbResponseSlot us[] = { { "topic", topic }, { "list", plist } };
+                if (kb_response_slots(b, "process_gap_but_purpose", us, 2,
+                                      out, out_size))
+                    return 1;
+                continue;
+            }
+
             if (!strcmp(move, "decline_steps")) {
                 p0_plan_step(b, 1, "steps_missing");
                 p0_plan_step(b, 2, "decline_steps");
