@@ -2106,6 +2106,34 @@ turn_form_act(teach_chain_pair, "op(assert, transitive_relation, [object])").
 turn_form_act(teach_chain_pair, "op(assert, inverse_relation, [subject, object])").
 turn_form_reply(teach_chain_pair, learned_chain_pair).
 
+% ══ gen507/80 (superficie superiore #1) — UNA RELAZIONE E' UN'ALTRA, IN UN
+% CONTESTO ════════════════════════════════════════════════════════════════
+%
+% La prima superficie che non insegna un FATTO ne' una proprieta' di una
+% relazione, ma un LEGAME FRA DUE RELAZIONI, valido dentro un contesto:
+%
+%     > in sport plays stands for belongs
+%     > messi plays miami
+%     > does messi belongs miami?   ->  Yes.
+%
+% Chi insegna parla il vocabolario del proprio dominio — «gioca per» — e non
+% deve tradurlo in quello di parrot0. Il ponte lo attraversa `holds/3` con
+% `apply/2`: il motore non sa quali relazioni si implichino, lo chiede.
+response_template(learned_context_alias, "Held: in {order}, «{subject}» is a way of saying «{object}».").
+response_template(learned_context_alias, it, "Tengo: in {order}, «{subject}» è un modo di dire «{object}».").
+
+turn_form(teach_ctx_alias, 1, text("in")).
+turn_form(teach_ctx_alias, 2, slot(order)).
+turn_form(teach_ctx_alias, 3, slot(subject)).
+% ⚠ non «means»: e' il pivot del maestro delle costruzioni.
+turn_form(teach_ctx_alias, 4, text("stands for")).
+turn_form(teach_ctx_alias, 5, rest(object)).
+turn_form_mood(teach_ctx_alias, statement).
+turn_form_act(teach_ctx_alias, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_ctx_alias, "op(assert, relation_verb, [object])").
+turn_form_act(teach_ctx_alias, "op(assert, context_alias, [order, subject, object])").
+turn_form_reply(teach_ctx_alias, learned_context_alias).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

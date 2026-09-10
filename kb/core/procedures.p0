@@ -1650,3 +1650,37 @@ induce_query_phrase("che regola", rule).
 machinery(list_len).
 list_len(nil, 0).
 list_len(cons($H, $T), $N) :- list_len($T, $M), is($N, add($M, 1)).
+
+% ══ gen507/80 — LE RELAZIONI SI PARLANO FRA LORO: `holds/3` ═══════════════
+%
+% F., 2026-09-10: «superfici di insegnabilita' di astrazione superiore — si
+% insegna che una relazione e' simile a un'altra ma per un contesto: `part_of`
+% potrebbe essere indicato per "un giocatore appartiene a una squadra" nel
+% contesto dello sport».
+%
+% Il pezzo che lo permette c'e' gia' ed e' `apply/2`, il confine a predicato
+% variabile del solver (docs/plans/thinking.md §0.1): il NOME di una relazione
+% e' un dato. Finora lo usavano i criteri di qualita' e i ponti fra
+% rappresentazioni; qui diventa il modo in cui si insegnano cose SULLE
+% relazioni invece che con esse.
+%
+%     holds(Relazione, X, Y)
+%
+% e' la domanda «questa relazione vale fra questi due?» posta in modo che la
+% relazione sia un argomento. Un lettore che chiede `holds/3` invece del
+% predicato nudo eredita, senza saperlo, ogni ponte che la KB dichiarera'
+% domani fra una relazione e un'altra.
+machinery(holds).
+machinery(context_alias).
+
+% (a) la strada diretta: la relazione vale davvero.
+holds($Rel, $X, $Y) :- apply($Rel, cons($X, cons($Y, nil))).
+
+% (b) IL CONTESTO. `context_alias(Contesto, Locale, Generale)` dice che dentro
+%     un contesto una relazione locale E' un caso di una generale: nello sport
+%     «gioca per» e' un modo di dire «fa parte di». Chi chiede la generale
+%     ottiene anche i fatti detti con la locale, e chi insegna non deve tradurre
+%     il proprio dominio nel vocabolario di parrot0.
+holds($General, $X, $Y) :-
+    context_alias($Context, $Local, $General),
+    apply($Local, cons($X, cons($Y, nil))).

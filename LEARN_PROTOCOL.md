@@ -486,6 +486,25 @@ classe intera invece di un membro.*
 | `X and Y name the same thing` | **identità fra due nomi**: da lì ciò che si dice di uno vale per l'altro (gen507/63, forma #8) |
 | `forget that X V Y` | ritratta un **fatto binario** (gen507/62, forma #66) — ed è la prima forma costata **zero righe di C** |
 
+### G. Superfici di ordine superiore — insegnare *sulle* relazioni
+
+*Queste non insegnano un fatto né una proprietà: insegnano un **legame fra due
+predicati**. Sono possibili perché il solver ha `apply/2`, il confine a
+**predicato variabile** dove il nome di una relazione è un dato e non codice
+(`docs/plans/thinking.md` §0.1). Il motore non sa quali relazioni si implichino:
+lo chiede, con `holds(Relazione, X, Y)`.*
+
+| si dice | parrot0 ne ricava |
+|---|---|
+| `in <contesto> V stands for W` | dentro quel contesto la relazione locale `V` è un caso della generale `W`: chi insegna parla il vocabolario del proprio dominio e non deve tradurlo (gen507/80). ⚠ non `means`: è il pivot del maestro delle costruzioni |
+
+```
+> in sport plays stands for belongs
+> messi plays miami
+> does messi belongs miami?     Yes.
+> does neymar belongs miami?    I don't know…      ← non generalizza a caso
+```
+
 ### F. Procedure eseguibili
 
 *KB-first non è solo fatti: sono anche **procedure e processi** nella KB. Una

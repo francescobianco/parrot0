@@ -12716,6 +12716,21 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
             put("Yes.", out, out_size); return 1;
         }
     }
+    {
+        /* gen507/80 — CHIEDERE ALLA KB CHE COSA VUOL DIRE «VALE».
+         *
+         * `holds(Relazione, X, Y)` e' la stessa domanda posta in modo che la
+         * RELAZIONE sia un argomento: la KB decide che cosa conti come «vale»,
+         * usando `apply/2`, il confine a predicato variabile che il solver ha
+         * gia' (docs/plans/thinking.md §0.1).
+         *
+         * Il guadagno non e' un ponte in piu': e' che ogni ponte FUTURO fra due
+         * relazioni — un contesto, una specializzazione, un ruolo — vale da
+         * subito qui, senza che questo lettore sappia che esiste. Il motore
+         * smette di sapere quali relazioni si implicano; lo chiede. */
+        const char *hq10[3] = { rel, subj, obj };
+        if (kb_query(b->kb, "holds", hq10, 3)) { put("Yes.", out, out_size); return 1; }
+    }
     if (p0_relation_inverse(b, rel, subj, obj)) {
         put("Yes.", out, out_size); return 1;
     }
