@@ -13121,6 +13121,40 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         } else if (!strcmp(act, "assert_relation") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
             ok = kb_assert(b->kb, rel, fa, 2);
+        } else if (!strcmp(act, "assert_ternary")) {
+            /* gen507/42 — un fatto a TRE posti, con la relazione dichiarata
+             * dalla forma. Serve a tutto cio' che non e' soggetto-verbo-oggetto:
+             * un primato («il piu' X fra gli Y e' Z»), una quantita', una
+             * misura con l'unita'. L'atto e' uno, le relazioni le dice la KB. */
+            const char *a1 = p0_form_slot(slots, ns, "arg1");
+            const char *a2 = p0_form_slot(slots, ns, "arg2");
+            const char *a3 = p0_form_slot(slots, ns, "arg3");
+            if (!rel || !a1 || !a2 || !a3) continue;
+            char q3v[KB_TERM_LEN];
+            { char t3[KB_TERM_LEN]; snprintf(t3, sizeof t3, "%s", a3);
+              for (char *c = t3; *c; c++) if (*c == '_') *c = ' ';
+              snprintf(q3v, sizeof q3v, "\"%s\"", t3); }
+            const char *ta[3] = { a1, a2, q3v };
+            int prev3 = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            ok = kb_assert(b->kb, rel, ta, 3);
+            kb_set_origin(b->kb, prev3);
+            if (ok) {
+                char shown3[KB_TERM_LEN];
+                { char t4[KB_TERM_LEN]; snprintf(t4, sizeof t4, "%s", a3);
+                  for (char *c = t4; *c; c++) if (*c == '_') *c = ' ';
+                  snprintf(shown3, sizeof shown3, "%s", t4); }
+                char msg4[320];
+                const KbResponseSlot ts[] = { { "subject", a1 },
+                                              { "order", a2 },
+                                              { "object", shown3 } };
+                if (kb_response_slots(b, "learned_superlative", ts, 3,
+                                      msg4, sizeof msg4)) {
+                    put(msg4, out, out_size);
+                    free(forms);
+                    return 1;
+                }
+            }
         } else if (!strcmp(act, "assert_ordered")) {
             /* gen507/38 — INSEGNARE UNA COSA CHE HA UN ORDINE.
              *

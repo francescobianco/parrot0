@@ -398,6 +398,7 @@ classe intera invece di un membro.*
 | `X è un modo per chiedere Y` | `answer_frame`: una FORMA DI DOMANDA in più |
 | `X è un altro modo per introdurre Y` | `segment_role`: un introduttore di span |
 | `X è un marcatore di condizione` | la classe grammaticale di una parola |
+| `the <primato> <classe> is <risposta>` | un primato del mondo: `the deepest cave is krubera` → `which cave is the deepest?` risponde (gen507/42) |
 | `the italian for X is Y` | `tr/2` — e da lì la parola italiana entra in **tutte** le classi inglesi che X tocca (gen507/39). ⚠ non `X in italian is Y`: quella la prende il lettore che cambia lingua |
 
 ### E. Condotta e ragionamento

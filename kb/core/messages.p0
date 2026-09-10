@@ -1374,6 +1374,27 @@ turn_form_mood(teach_symmetric_it, statement).
 turn_form_act(teach_symmetric_it, assert_unary).
 turn_form_reply(teach_symmetric_it, learned_symmetric).
 
+% ══ gen507/42 — INSEGNARE UN PRIMATO DEL MONDO ════════════════════════════
+%
+% Il giro /30 ha riempito `world_superlative/3` da 11 a 86 coppie, ma DA FILE:
+% un primato nuovo costava un commit. Il motore dei superlativi e' guidato dai
+% fatti, quindi bastava aprire la porta.
+%
+%     > the deepest cave is krubera
+%       Held: among cave, the deepest is «krubera».
+%     > which cave is the deepest?  ->  krubera.
+response_template(learned_superlative, "Held: among {order}, the {subject} is «{object}».").
+response_template(learned_superlative, it, "Tengo: fra {order}, il più {subject} è «{object}».").
+
+turn_form(teach_superlative, 1, text("the")).
+turn_form(teach_superlative, 2, slot(arg1)).
+turn_form(teach_superlative, 3, slot(arg2)).
+turn_form(teach_superlative, 4, text("is")).
+turn_form(teach_superlative, 5, rest(arg3)).
+turn_form(teach_superlative, 6, bind(relation, world_superlative)).
+turn_form_mood(teach_superlative, statement).
+turn_form_act(teach_superlative, assert_ternary).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).
