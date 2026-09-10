@@ -1505,6 +1505,22 @@ turn_form_mood(teach_functional, statement).
 turn_form_act(teach_functional, assert_unary).
 turn_form_reply(teach_functional, learned_functional).
 
+% ══ gen507/46 (forma #3) — UNA RELAZIONE NE IMPLICA UN'ALTRA ══════════════
+% «essere madre» implica «essere genitore»: chi tiene la prima risponde anche
+% sulla seconda, e nessuno deve ripetere i fatti. L'implicazione ha UN VERSO —
+% il contrario non vale — quindi la forma lo dice esplicitamente.
+machinery(implies_relation).
+response_template(learned_implication, "Held: if a {subject} b then a {object} b -- one way only.").
+response_template(learned_implication, it, "Tengo: se a {subject} b allora a {object} b — in un verso solo.").
+
+turn_form(teach_implies, 1, slot(subject)).
+turn_form(teach_implies, 2, text("implies")).
+turn_form(teach_implies, 3, rest(object)).
+turn_form(teach_implies, 4, bind(relation, implies_relation)).
+turn_form_mood(teach_implies, statement).
+turn_form_act(teach_implies, assert_relation).
+turn_form_reply(teach_implies, learned_implication).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

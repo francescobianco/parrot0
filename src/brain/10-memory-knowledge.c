@@ -12678,6 +12678,24 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
         if (kb_query(b->kb, "symmetric_relation", sq5, 1) &&
             kb_query(b->kb, rel, ra, 2)) { put("Yes.", out, out_size); return 1; }
     }
+    {
+        /* gen507/46 (forma #3) — UNA RELAZIONE PUO' IMPLICARNE UN'ALTRA.
+         * «essere madre» implica «essere genitore»: chi tiene la prima risponde
+         * anche sulla seconda, senza che nessuno ripeta i fatti. Si guarda dal
+         * lato giusto — chi implica QUESTA relazione — perche' e' la domanda
+         * che il turno fa, e l'implicazione ha un verso solo. */
+        char impl[16][KB_TERM_LEN];
+        const char *iq9[2] = { NULL, rel };
+        size_t nim = kb_match(b->kb, "implies_relation", iq9, 2, impl, 16);
+        for (size_t k = 0; k < nim; k++) {
+            char ib[KB_TERM_LEN]; snprintf(ib, sizeof ib, "%s", impl[k]);
+            const char *stronger = kb_dequote(ib);
+            if (!*stronger || !strcmp(stronger, rel)) continue;
+            if (kb_query(b->kb, stronger, args, 2)) {
+                put("Yes.", out, out_size); return 1;
+            }
+        }
+    }
     if (p0_relation_inverse(b, rel, subj, obj)) {
         put("Yes.", out, out_size); return 1;
     }
