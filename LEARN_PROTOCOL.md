@@ -480,12 +480,43 @@ un passo di ricetta è un'istruzione a una persona, un passo di procedura è una
 
 ---
 
-## 6-ter. LE 50 FORME DA IMPLEMENTARE — la mappa, in anticipo
+## 6-ter. IL CATALOGO ESTESO — le forme da implementare, scritte in anticipo
 
 *Questa è la lista delle forme che **non** esistono ancora e che intendo
 aggiungere, scritta prima di scriverle così si può discutere l'ordine, togliere
 quelle sbagliate e aggiungerne di migliori. Ogni riga implementata si sposta nel
 catalogo §6-bis con il numero del giro.*
+
+> ### Il bersaglio e il metodo
+>
+> **Oggi §6-bis conta 33 forme** (39 righe meno 6 che sono *operatori*, non
+> forme). Il bersaglio è **33 × 50 = 1650**.
+>
+> Non ci si arriva scrivendo 1650 righe a mano: si arriva **riconoscendo che lo
+> spazio è generativo**. Una forma è il prodotto di assi indipendenti —
+>
+> | asse | valori |
+> |---|---|
+> | **famiglia semantica** | classe, relazione, attributo, quantità, tempo, spazio, parola, discorso, condotta, procedura, verifica… |
+> | **atto** | asserire · negare · chiedere (sì/no) · chiedere (quale) · enumerare · contare · correggere · ritrattare · confrontare · ordinare · esemplificare · spiegare |
+> | **portata** | un membro · una specie · tutti · la maggior parte · con eccezione |
+> | **lingua** | EN · IT (e ogni lingua che `tr/2` apre, giro /39) |
+>
+> Il prodotto degli assi **è** il catalogo: 11 famiglie × 12 atti × 5 portate ×
+> 2 lingue supera già il bersaglio. Ma un prodotto cartesiano scritto per esteso
+> sarebbe un elenco morto — **la maggior parte delle celle non ha senso**
+> («ritratta la maggior parte dei tempi in italiano»).
+>
+> Quindi il catalogo si costruisce così, ed è anche il motivo per cui vale la
+> pena costruirlo: **si scrive la matrice di una famiglia per volta, e si tiene
+> solo ciò che qualcuno direbbe davvero.** Ogni cella scartata è
+> un'informazione — dice che quella combinazione non è una domanda che una
+> persona fa — e ogni cella tenuta è una forma da implementare.
+>
+> **Lo si riempie a lotti**, un commit per lotto, così si può fermare o
+> correggere la rotta prima che diventi lavoro sprecato. Il lotto 1 (§G–R, le
+> prime 50) è qui sotto; i successivi si aggiungono in coda con l'intestazione
+> del lotto.
 
 **Legenda:** 🔴 da implementare · 🟡 esiste in parte, va aperta alla voce ·
 ✅ fatta (allora sta in §6-bis)
@@ -599,6 +630,103 @@ mano resta inesprimibile.*
 | 50 | `X is wrong because Y` | correggere una *derivazione*, non solo un fatto: dice **quale passo** ha sbagliato | 🔴 |
 
 ---
+
+---
+
+## Lotto 2 — la matrice degli ATTI, applicata alle famiglie che esistono già
+
+*Metodo: si prende una famiglia che parrot0 già capisce e le si passa accanto la
+colonna degli **atti**. Ogni cella che una persona direbbe davvero è una forma.
+Le celle scartate sono scritte anch'esse, perché dicono che quella combinazione
+non è una domanda che qualcuno fa.*
+
+### S. Classe e appartenenza × atti
+
+| # | atto | si dice | |
+|---|---|---|---|
+| 51 | chiedere quale | `which Y is X?` — di quale classe fa parte | 🔴 |
+| 52 | enumerare le classi | `what is X?` inteso come *tutte le sue classi*, non un membro | 🔴 |
+| 53 | contare le classi | `how many kinds of Y are there?` | 🔴 |
+| 54 | esemplificare al negativo | `name something that is not a Y` | 🔴 |
+| 55 | confrontare | `is X more of a Y than Z?` | ⚪ scartata: non è una domanda che si fa a un sistema simbolico |
+| 56 | correggere | `X is not a Y, it is a Z` — correzione **e** sostituzione in un turno | 🔴 |
+| 57 | ritrattare la classe | `Y is not a class` — smontare una classe inventata per errore | 🔴 |
+| 58 | spiegare | `why is X a Y?` esiste; manca `why is X not a Y?` | 🔴 |
+| 59 | portata «la maggior parte» | `most Y are Z` (già in §H come 11, qui è la stessa cella) | 🟡 |
+| 60 | portata «con eccezione» | `every Y is Z except X` | 🔴 |
+
+### T. Relazione × atti
+
+| # | atto | si dice | |
+|---|---|---|---|
+| 61 | chiedere quale (soggetto) | `who V Y?` — funziona per il verbo nudo, **non** per le forme flesse (il debito del giro /14) | 🟡 |
+| 62 | chiedere quale (oggetto) | `what does X V?` esiste; manca `what is V-ed by X?` (passivo) | 🔴 |
+| 63 | enumerare tutti i fatti | `list everything you know about V` | 🔴 |
+| 64 | contare | `how many things does X V?` | 🔴 |
+| 65 | correggere il secondo termine | `X V Z, not Y` | 🔴 |
+| 66 | ritrattare un fatto | `forget that X V Y` — esiste per le classi, non per le relazioni | 🔴 |
+| 67 | confrontare | `does X V more things than Z?` | 🔴 |
+| 68 | ordinare | `order the Y by V` | 🔴 |
+| 69 | spiegare | `why does X V Y?` — deve dire **quale regola o catena** l'ha prodotto | 🔴 |
+| 70 | portata «ogni» | `everything that V Y is Z` — una regola con la relazione nel corpo | 🔴 |
+
+### U. Attributo × atti
+
+| # | atto | si dice | |
+|---|---|---|---|
+| 71 | chiedere il valore | `what colour is X?` ✅ (/5) — manca per gli attributi **insegnati a voce** | 🟡 |
+| 72 | chiedere la proprietà | `what do you know about the colour of X?` | 🔴 |
+| 73 | enumerare i portatori | `what is red?` — chi ha quel valore | 🔴 |
+| 74 | contare | `how many red things do you know?` | 🔴 |
+| 75 | negare il valore | `X is not red` — oggi si nega la classe, non l'attributo | 🔴 |
+| 76 | confrontare | `is X redder than Y?` — solo per attributi **ordinabili**, e chi lo sia si dichiara | 🔴 |
+| 77 | ordinare | `sort the Y by colour` | ⚪ scartata: ordinare per un valore non ordinabile non ha senso — è la 76 che va dichiarata prima |
+| 78 | valore di default | `Y are usually red` — il valore che vale se nessuno dice altro | 🔴 |
+| 79 | intervallo di validità | `X is red in <periodo>` | 🔴 |
+| 80 | provenienza del valore | `X is red according to Y` — **chi lo dice**: apre il disaccordo fra fonti | 🔴 |
+
+### V. Procedura × atti
+
+*La famiglia più giovane (giro /43) e quella con più celle vuote.*
+
+| # | atto | si dice | |
+|---|---|---|---|
+| 81 | chiedere i passi | `how does X work?` — recitare la procedura invece di eseguirla | 🔴 |
+| 82 | chiedere il risultato | `apply X to Y` ✅ (/43) | ✅ |
+| 83 | enumerare le procedure | `what procedures do you know?` | 🔴 |
+| 84 | correggere un passo | `step 2 of X is <altro>` — sostituire, non accodare | 🔴 |
+| 85 | inserire un passo | `before step 2 of X do <op>` | 🔴 |
+| 86 | togliere un passo | `remove step 2 of X` | 🔴 |
+| 87 | ritrattare la procedura | `forget the procedure X` | 🔴 |
+| 88 | spiegare l'esecuzione | `why did X give that?` — la **traccia**, passo per passo (`procedure_apply_steps` la produce già e nessuno la rende) | 🔴 |
+| 89 | verificare | `test: apply X to <in> gives <out>` (= 49) | 🔴 |
+| 90 | generalizzare | `X is like Y but <differenza>` — definire una procedura per differenza da un'altra | 🔴 |
+
+### Z. Condotta × atti
+
+| # | atto | si dice | |
+|---|---|---|---|
+| 91 | chiedere il piano | `what do you do when <situazione>?` — parrot0 recita la propria condotta | 🔴 |
+| 92 | enumerare le situazioni | `what situations do you know?` | 🔴 |
+| 93 | correggere una mossa | `move 1 for <situazione> is <altra>` | 🔴 |
+| 94 | condizionare | `when <situazione> and <condizione> then <mossa>` — due condizioni | 🔴 |
+| 95 | dare una ragione | `when <situazione> then <mossa> because <ragione>` — la condotta con il suo perché, e il perché è interrogabile | 🔴 |
+| 96 | portata | `always <mossa>` · `never <mossa>` | 🔴 |
+| 97 | priorità | `<mossa A> is more important than <mossa B>` | 🔴 |
+| 98 | ammettere il limite | `if none of your moves work, say so` — la condotta terminale, dichiarata invece che cablata | 🔴 |
+| 99 | osservare sé stesso | `tell me what you did in the last turn` — il piano del giro /35, chiesto a parole invece che con `/debug` | 🔴 |
+| 100 | imparare dalla correzione | `that was wrong, next time <mossa>` — la correzione che **cambia la condotta**, non il fatto | 🔴 |
+
+---
+
+> **Stato del catalogo esteso:** 100 forme proposte su 1650. Prossimi lotti: le
+> famiglie che oggi non esistono affatto (tempo, spazio, misura, discorso,
+> verifica) moltiplicate per la stessa colonna di atti, poi l'asse della
+> **lingua** e quello della **portata**.
+>
+> **Come si legge il progresso.** Il numero che conta non è quante righe ci sono
+> qui, ma quante si spostano in §6-bis. Una forma proposta è un'ipotesi; una
+> forma implementata è una cosa che parrot0 sa imparare.
 
 > **Come scegliere l'ordine.** Le più cariche di conseguenze sono la **35**
 > (senza situazioni nuove i piani restano confinati all'unico caso che il C
