@@ -449,6 +449,7 @@ semplici**, ed è la catena che si insegna.*
 |---|---|
 | `rule for X is <operatore>` | un passo della procedura X, in coda ai precedenti (gen507/43) |
 | `apply X to <testo>` · `applica X a <testo>` | esegue la catena e rende il risultato |
+| `why?` dopo un `apply` | la **traccia**: ogni passo applicato e il valore che ne è uscito, in `/debug` e a parole (gen507/58, forma #88) |
 
 **Operatori disponibili** (il motore li esegue; le *classi di caratteri* sono KB):
 
@@ -724,7 +725,7 @@ non è una domanda che qualcuno fa.*
 | 85 | inserire un passo | `before step 2 of X do <op>` | 🔴 |
 | 86 | togliere un passo | `remove step 2 of X` | 🔴 |
 | 87 | ritrattare la procedura | `forget the procedure X` | 🔴 |
-| 88 | spiegare l'esecuzione | `why did X give that?` — la **traccia**, passo per passo (`procedure_apply_steps` la produce già e nessuno la rende) | 🔴 |
+| 88 | spiegare l'esecuzione | `why did X give that?` — la **traccia**, passo per passo | ✅ gen507/58 |
 | 89 | verificare | `test: apply X to <in> gives <out>` (= 49) | 🔴 |
 | 90 | generalizzare | `X is like Y but <differenza>` — definire una procedura per differenza da un'altra | 🔴 |
 

@@ -13183,10 +13183,37 @@ static int p0_cond_holds(Brain *b, const char *cond, const char *cur) {
  * rieseguire: `repeat <passo> until stable` non e' un operatore in piu', e' lo
  * stesso operatore chiamato finche' il valore smette di cambiare. */
 static int p0_run_proc(Brain *b, const char *pname, char *cur, size_t cursz,
-                       int depth);
+                       int depth, int *trace_no);
+
+/* gen507/58 (forma #88) — LA TRACCIA DI UN'ESECUZIONE.
+ *
+ * `procedure_apply_steps` in assisted-learning.p0 produce gia' una traccia e
+ * nessuno la rende. Qui ogni passo APPLICATO si posa come passo del piano
+ * interno (giro /35), quindi «why?» e `/debug` raccontano l'esecuzione con lo
+ * stesso strumento con cui raccontano ogni altro ragionamento — non con un
+ * secondo meccanismo scritto per le procedure.
+ *
+ * Si posa il passo DOPO averlo applicato, con il valore che ne e' uscito: un
+ * passo che non ha fatto niente non compare, e la traccia non racconta lavoro
+ * che non e' avvenuto. */
+static void p0_trace_step(Brain *b, int *trace_no, const char *opstr,
+                          const char *result) {
+    if (!b || !trace_no) return;
+    char said[KB_TERM_LEN];
+    snprintf(said, sizeof said, "%s -> «%s»", opstr, result);
+    (*trace_no)++;
+    char ob[24]; snprintf(ob, sizeof ob, "%d", *trace_no);
+    char q[KB_TERM_LEN]; snprintf(q, sizeof q, "\"%d) %s\"", *trace_no, said);
+    const char *a[2] = { "current_turn", q };
+    int prev = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    if (*trace_no == 1) kb_retract_pred(b->kb, "turn_plan_step");
+    kb_assert(b->kb, "turn_plan_step", a, 2);
+    kb_set_origin(b->kb, prev);
+}
 
 static int p0_apply_op(Brain *b, const char *stepbuf0, char *cur, size_t cursz,
-                       const char *pname, int depth) {
+                       const char *pname, int depth, int *trace_no) {
     char stepbuf[KB_TERM_LEN];
     snprintf(stepbuf, sizeof stepbuf, "%s", stepbuf0);
     /* gen507/54 (forma #41) — IL CICLO. «repeat <passo> until stable» rifa' il
@@ -13214,7 +13241,7 @@ static int p0_apply_op(Brain *b, const char *stepbuf0, char *cur, size_t cursz,
                     t2 += (size_t)snprintf(then2 + t2, sizeof then2 - t2,
                                            "%s%s", t2 ? " " : "", pw[k]);
                 if (!p0_cond_holds(b, cond2, cur)) return 1;   /* deciso: non fare */
-                return p0_apply_op(b, then2, cur, cursz, pname, depth);
+                return p0_apply_op(b, then2, cur, cursz, pname, depth, trace_no);
             }
         }
         if (pn >= 3 && !strcmp(pw[0], "repeat")) {
@@ -13235,7 +13262,7 @@ static int p0_apply_op(Brain *b, const char *stepbuf0, char *cur, size_t cursz,
                     if (!fixpoint && p0_cond_holds(b, cond, cur)) break;
                     char before[KB_TERM_LEN];
                     snprintf(before, sizeof before, "%s", cur);
-                    if (!p0_apply_op(b, inner, cur, cursz, pname, depth)) break;
+                    if (!p0_apply_op(b, inner, cur, cursz, pname, depth, trace_no)) break;
                     did = 1;
                     if (fixpoint && !strcmp(before, cur)) break;   /* punto fisso */
                     if (!fixpoint && !strcmp(before, cur)) break;  /* non avanza */
@@ -13333,7 +13360,7 @@ static int p0_apply_op(Brain *b, const char *stepbuf0, char *cur, size_t cursz,
                     if (!oparg || !strcmp(oparg, pname)) return 0;
                     char sub[KB_TERM_LEN];
                     snprintf(sub, sizeof sub, "%s", cur);
-                    if (!p0_run_proc(b, oparg, sub, sizeof sub, depth - 1)) return 0;
+                    if (!p0_run_proc(b, oparg, sub, sizeof sub, depth - 1, trace_no)) return 0;
                     snprintf(next, sizeof next, "%s", sub);
                 } else if (!strcmp(op, "replace")) {
                     /* gen507/52 — «replace a with b»: la sostituzione, che e'
@@ -13354,11 +13381,14 @@ static int p0_apply_op(Brain *b, const char *stepbuf0, char *cur, size_t cursz,
                     next[no] = '\0';
                 } else return 0;           /* operatore che il motore non sa */
                 snprintf(cur, cursz, "%s", next);
+                /* `stepbuf` e' stato spezzato in token: la traccia deve dire il
+                 * passo COME E' STATO INSEGNATO, non il suo primo pezzo. */
+                p0_trace_step(b, trace_no, stepbuf0, cur);
                 return 1;
 }
 
 static int p0_run_proc(Brain *b, const char *pname, char *cur, size_t cursz,
-                       int depth) {
+                       int depth, int *trace_no) {
     if (!b || !b->kb || !pname || !cur || depth <= 0) return 0;
     int ran = 0;
     for (long o = 1; o <= 32; o++) {
@@ -13369,7 +13399,7 @@ static int p0_run_proc(Brain *b, const char *pname, char *cur, size_t cursz,
                 char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", stepv[0]);
                 char stepbuf[KB_TERM_LEN];
                 snprintf(stepbuf, sizeof stepbuf, "%s", kb_dequote(sb));
-                if (p0_apply_op(b, stepbuf, cur, cursz, pname, depth)) ran = 1;
+                if (p0_apply_op(b, stepbuf, cur, cursz, pname, depth, trace_no)) ran = 1;
 
             }
 
@@ -13563,7 +13593,14 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             char cur[KB_TERM_LEN];
             snprintf(cur, sizeof cur, "%s", input);
             for (char *c = cur; *c; c++) if (*c == '_') *c = ' ';
-            int ran = p0_run_proc(b, pname, cur, sizeof cur, 6);
+            int trace_no = 0;
+            int ran = p0_run_proc(b, pname, cur, sizeof cur, 6, &trace_no);
+            if (ran) {
+                char why10[420];
+                snprintf(why10, sizeof why10,
+                         "%d applied step(s) of %s gave %s", trace_no, pname, cur);
+                store_proof(b, why10);
+            }
             if (!ran) continue;
             char msg5[320];
             const KbResponseSlot rs5[] = { { "subject", pname },
