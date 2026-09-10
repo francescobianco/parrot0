@@ -1282,6 +1282,41 @@ turn_form(teach_step2, 5, bind(relation, process_step)).
 turn_form_mood(teach_step2, statement).
 turn_form_act(teach_step2, assert_ordered).
 
+% ══ gen507/39 — INSEGNARE UNA TRADUZIONE ══════════════════════════════════
+%
+% `tr/2` e' una delle relazioni piu' cariche di conseguenze in tutta la KB: e'
+% quella che porta una parola italiana dentro le classi inglesi, quindi ogni
+% riga apre in italiano tutto cio' che quella parola tocca. Ed era l'unica di
+% quel peso che si poteva solo scrivere in un file.
+%
+%     > the italian for raft is zattera
+%       Held: raft tr zattera.
+%     > quale zattera e piu lunga?   (da qui in avanti l'italiano vede la parola)
+%
+% ⚠ La superficie NON e' «X in italian is Y»: quella la prende il lettore che
+% riconosce una richiesta di lingua («We can chat in either language»). Si
+% dichiara un'apertura che e' una lezione, non un cambio di lingua.
+response_template(learned_translation, "Held: «{object}» is how {subject} is said in that language.").
+response_template(learned_translation, it, "Tengo: «{object}» è come si dice {subject} in quella lingua.").
+
+turn_form(teach_tr, 1, text("the italian for")).
+turn_form(teach_tr, 2, slot(subject)).
+turn_form(teach_tr, 3, text("is")).
+turn_form(teach_tr, 4, rest(object)).
+turn_form(teach_tr, 5, bind(relation, tr)).
+turn_form_mood(teach_tr, statement).
+turn_form_act(teach_tr, assert_relation).
+turn_form_reply(teach_tr, learned_translation).
+
+turn_form(teach_tr_it, 1, text("in italiano")).
+turn_form(teach_tr_it, 2, slot(subject)).
+turn_form(teach_tr_it, 3, text("is")).
+turn_form(teach_tr_it, 4, rest(object)).
+turn_form(teach_tr_it, 5, bind(relation, tr)).
+turn_form_mood(teach_tr_it, statement).
+turn_form_act(teach_tr_it, assert_relation).
+turn_form_reply(teach_tr_it, learned_translation).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).
