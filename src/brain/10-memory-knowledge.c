@@ -13146,25 +13146,52 @@ static const char *p0_form_slot(P0FormSlot *slots, size_t n, const char *name) {
  *
  * Gli operatori restano pochi e le CLASSI DI CARATTERI restano conoscenza: il
  * motore non sa che cosa sia una vocale. */
+/* Un passo, applicato. Estratto dal ciclo perche' il CICLO deve poterlo
+ * rieseguire: `repeat <passo> until stable` non e' un operatore in piu', e' lo
+ * stesso operatore chiamato finche' il valore smette di cambiare. */
 static int p0_run_proc(Brain *b, const char *pname, char *cur, size_t cursz,
-                       int depth) {
-    if (!b || !b->kb || !pname || !cur || depth <= 0) return 0;
-    int ran = 0;
-    for (long o = 1; o <= 32; o++) {
-                char ob5[24]; snprintf(ob5, sizeof ob5, "%ld", o);
-                char stepv[4][KB_TERM_LEN];
-                const char *sq6[3] = { pname, ob5, NULL };
-                if (kb_match(b->kb, "proc_step", sq6, 3, stepv, 4) < 1) continue;
-                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", stepv[0]);
-                char stepbuf[KB_TERM_LEN];
-                snprintf(stepbuf, sizeof stepbuf, "%s", kb_dequote(sb));
+                       int depth);
+
+static int p0_apply_op(Brain *b, const char *stepbuf0, char *cur, size_t cursz,
+                       const char *pname, int depth) {
+    char stepbuf[KB_TERM_LEN];
+    snprintf(stepbuf, sizeof stepbuf, "%s", stepbuf0);
+    /* gen507/54 (forma #41) — IL CICLO. «repeat <passo> until stable» rifa' il
+     * passo finche' il valore smette di cambiare. E' la condizione di arresto
+     * piu' onesta che si possa dare a una riscrittura: non un numero di giri
+     * deciso a caso, ma il punto fisso — quando non c'e' piu' niente da fare.
+     * Il tetto sui giri non e' la condizione, e' la rete: se lo si tocca la
+     * procedura non risponde, invece di rispondere a meta'. */
+    {
+        char probe[KB_TERM_LEN]; snprintf(probe, sizeof probe, "%s", stepbuf);
+        char *pw[16]; size_t pn = split_words(probe, pw, 16);
+        if (pn >= 3 && !strcmp(pw[0], "repeat")) {
+            size_t ui = pn;
+            for (size_t k = 1; k < pn; k++) if (!strcmp(pw[k], "until")) { ui = k; break; }
+            if (ui < pn && ui > 1) {
+                char inner[KB_TERM_LEN]; size_t io = 0; inner[0] = '\0';
+                for (size_t k = 1; k < ui && io + 1 < sizeof inner; k++)
+                    io += (size_t)snprintf(inner + io, sizeof inner - io,
+                                           "%s%s", io ? " " : "", pw[k]);
+                int did = 0;
+                for (int turn = 0; turn < 64; turn++) {
+                    char before[KB_TERM_LEN];
+                    snprintf(before, sizeof before, "%s", cur);
+                    if (!p0_apply_op(b, inner, cur, cursz, pname, depth)) break;
+                    did = 1;
+                    if (!strcmp(before, cur)) break;   /* punto fisso */
+                }
+                return did;
+            }
+        }
+    }
                 char *sw[8]; size_t snw = split_words(stepbuf, sw, 8);
-                if (snw == 0) continue;
+                if (snw == 0) return 0;
                 const char *op = sw[0];
                 const char *oparg = snw > 1 ? sw[1] : NULL;
                 char next[KB_TERM_LEN]; size_t no = 0;
                 if (!strcmp(op, "keep") || !strcmp(op, "drop")) {
-                    if (!oparg) continue;
+                    if (!oparg) return 0;
                     int keep = !strcmp(op, "keep");
                     for (const char *c = cur; *c && no + 1 < sizeof next; c++) {
                         char ch[2] = { (char)tolower((unsigned char)*c), 0 };
@@ -13175,14 +13202,14 @@ static int p0_run_proc(Brain *b, const char *pname, char *cur, size_t cursz,
                     next[no] = '\0';
                 } else if (!strcmp(op, "reverse")) {
                     size_t l = strlen(cur);
-                    if (l >= sizeof next) continue;
+                    if (l >= sizeof next) return 0;
                     for (size_t k = 0; k < l; k++) next[k] = cur[l - 1 - k];
                     next[l] = '\0';
                 } else if (!strcmp(op, "count")) {
                     snprintf(next, sizeof next, "%zu", strlen(cur));
                 } else if (!strcmp(op, "upper") || !strcmp(op, "lower")) {
                     size_t l = strlen(cur);
-                    if (l >= sizeof next) continue;
+                    if (l >= sizeof next) return 0;
                     for (size_t k = 0; k < l; k++)
                         next[k] = !strcmp(op, "upper")
                                     ? (char)toupper((unsigned char)cur[k])
@@ -13199,17 +13226,17 @@ static int p0_run_proc(Brain *b, const char *pname, char *cur, size_t cursz,
                         snprintf(next, sizeof next, "%s", cur + (l - (size_t)take));
                 } else if (!strcmp(op, "apply")) {
                     /* gen507/51 — chiamare un'altra procedura: la composizione. */
-                    if (!oparg || !strcmp(oparg, pname)) continue;
+                    if (!oparg || !strcmp(oparg, pname)) return 0;
                     char sub[KB_TERM_LEN];
                     snprintf(sub, sizeof sub, "%s", cur);
-                    if (!p0_run_proc(b, oparg, sub, sizeof sub, depth - 1)) continue;
+                    if (!p0_run_proc(b, oparg, sub, sizeof sub, depth - 1)) return 0;
                     snprintf(next, sizeof next, "%s", sub);
                 } else if (!strcmp(op, "replace")) {
                     /* gen507/52 — «replace a with b»: la sostituzione, che e'
                      * l'operatore piu' generale su testo dopo tenere e togliere. */
                     const char *what = snw > 1 ? sw[1] : NULL;
                     const char *with = snw > 3 ? sw[3] : (snw > 2 ? sw[2] : NULL);
-                    if (!what) continue;
+                    if (!what) return 0;
                     size_t wl = strlen(what);
                     no = 0;
                     for (const char *c = cur; *c && no + 1 < sizeof next; ) {
@@ -13221,9 +13248,25 @@ static int p0_run_proc(Brain *b, const char *pname, char *cur, size_t cursz,
                         } else next[no++] = *c++;
                     }
                     next[no] = '\0';
-                } else continue;           /* operatore che il motore non sa */
+                } else return 0;           /* operatore che il motore non sa */
                 snprintf(cur, cursz, "%s", next);
-                ran = 1;
+                return 1;
+}
+
+static int p0_run_proc(Brain *b, const char *pname, char *cur, size_t cursz,
+                       int depth) {
+    if (!b || !b->kb || !pname || !cur || depth <= 0) return 0;
+    int ran = 0;
+    for (long o = 1; o <= 32; o++) {
+                char ob5[24]; snprintf(ob5, sizeof ob5, "%ld", o);
+                char stepv[4][KB_TERM_LEN];
+                const char *sq6[3] = { pname, ob5, NULL };
+                if (kb_match(b->kb, "proc_step", sq6, 3, stepv, 4) < 1) continue;
+                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", stepv[0]);
+                char stepbuf[KB_TERM_LEN];
+                snprintf(stepbuf, sizeof stepbuf, "%s", kb_dequote(sb));
+                if (p0_apply_op(b, stepbuf, cur, cursz, pname, depth)) ran = 1;
+
             }
 
     return ran;

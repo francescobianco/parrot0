@@ -461,6 +461,7 @@ semplici**, ed è la catena che si insegna.*
 | `first N` · `last N` | i primi / gli ultimi N caratteri |
 | `apply <altra procedura>` | **chiama** un'altra procedura: una lezione si costruisce su quelle già date invece di ripeterne i passi (gen507/51, forma #43) |
 | `replace <a> with <b>` | sostituzione (gen507/52, forma #46) |
+| `repeat <passo> until stable` | **il ciclo**: rifà il passo finché il valore smette di cambiare — il punto fisso, non un numero di giri deciso a caso (gen507/54, forma #41) |
 
 | `the <nome> letters are A, B, C` | **insegna una classe di caratteri**, e da subito è un operatore in più da comporre (gen507/53, forma #44) |
 
@@ -479,10 +480,11 @@ operatore in più da comporre.
 > apply howmany to parrot                howmany(«2»)
 ```
 
-⚠ **Non ancora esprimibile:** una procedura con **cicli o condizioni** — la radice
-quadrata a mano, per dire. Serve un operatore che ripeta finché una condizione
-regge, e va progettato come primitiva del motore (un modo nuovo di *fare*, non un
-ordine nuovo): è il prossimo gradino di questa sezione.
+⚠ **Il ciclo c'è** (`repeat … until stable`, gen507/54); manca ancora la
+**condizione esplicita** — `until <test>` con un test diverso dal punto fisso — e
+il ramo `if <cond> then <op>`. Senza quelli la radice quadrata a mano resta
+inesprimibile: il suo arresto non è «finché non cambia più», è «finché la
+precisione basta».
 
 ⚠ **Non `step for X is …`** per le procedure: quella superficie è dei passi di una
 *ricetta* (`process_step`, gen507/38). La distinzione è anche giusta nel merito —
@@ -630,7 +632,7 @@ mano resta inesprimibile.*
 
 | # | si dice | ne ricava | |
 |---|---|---|---|
-| 41 | `rule for X is repeat <op> until <cond>` | il **ciclo**: è il gradino che manca a ogni procedura vera | 🔴 |
+| 41 | `rule for X is repeat <op> until stable` | il **ciclo**, con la condizione del punto fisso | ✅ gen507/54 · restano le condizioni diverse da `stable` |
 | 42 | `rule for X is if <cond> then <op>` | la **condizione** | 🔴 |
 | 43 | `rule for X is apply Y` | chiamare una procedura da un'altra: la composizione vera | ✅ gen507/51 |
 | 44 | `<classe> contains <caratteri>` — reso `the <nome> letters are …` | insegnare una classe di caratteri parlando | ✅ gen507/53 |
