@@ -12928,6 +12928,47 @@ static int p0_form_match(Brain *b, const char *form, char **w, size_t nw,
             snprintf(slots[*nslot].value, KB_TERM_LEN, "%s", rel);
             (*nslot)++;
             i++;
+        } else if (!strcmp(kind, "named")) {
+            /* gen507/36 — `named(Relazione, Slot)`: qui stanno le parole con cui
+             * si CHIAMA qualcosa. La relazione mappa una superficie detta in un
+             * nome interno («quando non hai i passi» -> `steps_missing`), e lo
+             * slot riceve il nome, non le parole. E' il pezzo che permette di
+             * insegnare parlando cose che hanno un nome tecnico: un sinonimo
+             * nuovo e' una riga, e chi insegna non deve conoscere il nome. */
+            if (*nslot >= P0_FORM_SLOTS) return 0;
+            char rel[KB_TERM_LEN], nm[KB_TERM_LEN];
+            const char *comma = strchr(arg, ',');
+            if (!comma) return 0;
+            size_t rl = (size_t)(comma - arg);
+            if (rl >= sizeof rel) return 0;
+            memcpy(rel, arg, rl); rel[rl] = '\0';
+            { const char *v = comma + 1; while (*v == ' ') v++;
+              snprintf(nm, sizeof nm, "%s", v); }
+            char acc[KB_TERM_LEN]; size_t off = 0;
+            size_t best = 0; char bestname[KB_TERM_LEN] = "";
+            for (size_t k = i; k < nw && k < i + 10; k++) {
+                char t[KB_TERM_LEN]; snprintf(t, sizeof t, "%s", w[k]);
+                const char *bare = strip_edge_punct(t);
+                int n2 = snprintf(acc + off, sizeof acc - off, "%s%s",
+                                  off ? " " : "", bare);
+                if (n2 < 0 || (size_t)n2 >= sizeof acc - off) break;
+                off += (size_t)n2;
+                char q2[KB_TERM_LEN]; snprintf(q2, sizeof q2, "\"%s\"", acc);
+                char rows[1][KB_TERM_LEN];
+                const char *sq2[2] = { acc, NULL };
+                const char *sq3[2] = { q2, NULL };
+                if (kb_match(b->kb, rel, sq2, 2, rows, 1) == 1 ||
+                    kb_match(b->kb, rel, sq3, 2, rows, 1) == 1) {
+                    char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", rows[0]);
+                    snprintf(bestname, sizeof bestname, "%s", kb_dequote(rb));
+                    best = k - i + 1;
+                }
+            }
+            if (!best || !bestname[0]) return 0;
+            snprintf(slots[*nslot].name, KB_TERM_LEN, "%s", nm);
+            snprintf(slots[*nslot].value, KB_TERM_LEN, "%s", bestname);
+            (*nslot)++;
+            i += best;
         } else if (!strcmp(kind, "bind")) {
             /* Lega uno slot a un valore senza consumare token: e' come una
              * forma dichiara la relazione che intende, quando la frase non la
@@ -13025,6 +13066,48 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         } else if (!strcmp(act, "assert_relation") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
             ok = kb_assert(b->kb, rel, fa, 2);
+        } else if (!strcmp(act, "assert_plan_move")) {
+            /* gen507/36 — INSEGNARE UN PIANO PARLANDO.
+             * «quando non hai i passi, allora guarda di che cosa e' fatta»
+             * diventa una riga `plan_move(Situazione, Ordine, Mossa)`. L'ordine
+             * non si dice: e' quello in cui le mosse vengono insegnate, come in
+             * una spiegazione a voce. */
+            const char *sit = p0_form_slot(slots, ns, "situation");
+            const char *mv  = p0_form_slot(slots, ns, "move");
+            if (!sit || !mv) continue;
+            long next = 1;
+            for (long o = 1; o <= 16; o++) {
+                char ob2[24]; snprintf(ob2, sizeof ob2, "%ld", o);
+                char tmp3[1][KB_TERM_LEN];
+                const char *pq3[3] = { sit, ob2, NULL };
+                if (kb_match(b->kb, "plan_move", pq3, 3, tmp3, 1) > 0) next = o + 1;
+            }
+            char ob3[24]; snprintf(ob3, sizeof ob3, "%ld", next);
+            const char *pa[3] = { sit, ob3, mv };
+            int prev2 = kb_origin(b->kb);
+            kb_set_origin(b->kb, KB_SESSION);
+            ok = kb_assert(b->kb, "plan_move", pa, 3);
+            kb_set_origin(b->kb, prev2);
+            if (ok) {
+                char msg3[300];
+                char stxt[KB_TERM_LEN], mtxt[KB_TERM_LEN];
+                snprintf(stxt, sizeof stxt, "%s", sit);
+                snprintf(mtxt, sizeof mtxt, "%s", mv);
+                { char row[1][KB_TERM_LEN]; const char *tq3[2] = { mv, NULL };
+                  if (kb_match(b->kb, "plan_step_text", tq3, 2, row, 1) == 1) {
+                      char rb3[KB_TERM_LEN]; snprintf(rb3, sizeof rb3, "%s", row[0]);
+                      snprintf(mtxt, sizeof mtxt, "%s", kb_dequote(rb3));
+                  } }
+                const KbResponseSlot ls[] = { { "situation", stxt },
+                                              { "order", ob3 },
+                                              { "move", mtxt } };
+                if (kb_response_slots(b, "learned_plan_move", ls, 3,
+                                      msg3, sizeof msg3)) {
+                    put(msg3, out, out_size);
+                    free(forms);
+                    return 1;
+                }
+            }
         } else if (!strcmp(act, "assert_unary")) {
             /* Una forma puo' dichiarare un fatto UNARIO: «bigger is
              * transitive» mette `bigger` nella classe che la forma nomina. */
@@ -17473,45 +17556,55 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
          * (`composition_relation/1`): il motore non ne conosce nessuna, le
          * enumera, e una relazione nuova — insegnata parlando, o estratta domani
          * dalla prosa che parrot0 legge — entra nel ragionamento senza C. */
-        if (topic[0]) {
-            char list[400]; size_t off = 0; size_t found = 0;
-            char (*rels)[KB_TERM_LEN] = NULL; size_t nrel = 0;
-            const char *rq2[1] = { NULL };
-            if (kb_match_all(b->kb, "composition_relation", rq2, 1, &rels, &nrel)) {
-                for (size_t ri = 0; ri < nrel; ri++) {
-                    char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", rels[ri]);
-                    const char *rel = kb_dequote(rb2);
-                    if (!*rel) continue;
-                    char parts[16][KB_TERM_LEN];
-                    const char *pq2[2] = { topic, NULL };
-                    size_t npart = kb_match(b->kb, rel, pq2, 2, parts, 16);
-                    for (size_t pi = 0; pi < npart && off + 1 < sizeof list; pi++) {
-                        char shown[KB_TERM_LEN];
-                        present_atom(b, parts[pi], shown, sizeof shown);
-                        if (!shown[0]) continue;
-                        off += (size_t)snprintf(list + off, sizeof list - off,
-                                                "%s%s", found ? ", " : "", shown);
-                        found++;
+        /* gen507/36 — IL PIANO NON E' PIU' QUI: E' UNA COSA CHE PARROT0 SA.
+         *
+         * Al giro /34 la sequenza «prima guarda di che cosa e' fatta, poi
+         * arrenditi» era scritta in questa funzione. F., 2026-09-10: «fai in
+         * modo che i piani siano insegnabili via prompt — quando ti trovi in
+         * questa situazione fai questo, questo e questo».
+         *
+         * Ora la situazione ha un nome (`steps_missing`) e le mosse stanno in
+         * `plan_move(Situazione, Ordine, Mossa)`. Il motore conosce le MOSSE —
+         * sono cose da fare, come gli atti del giro /19 — e non sa quali siano
+         * ne' in che ordine: legge il piano ed esegue. Togliere una mossa,
+         * aggiungerne una, invertirle: si fa parlando.
+         *
+         * Se nessun piano e' dichiarato, si arrende come prima: il piano
+         * assente non e' un errore, e' l'assenza di una condotta. */
+        for (long ord = 1; ord <= 16; ord++) {
+            char ob4[24]; snprintf(ob4, sizeof ob4, "%ld", ord);
+            char moves[4][KB_TERM_LEN];
+            const char *mq4[3] = { "steps_missing", ob4, NULL };
+            if (kb_match(b->kb, "plan_move", mq4, 3, moves, 4) < 1) continue;
+            char mb4[KB_TERM_LEN]; snprintf(mb4, sizeof mb4, "%s", moves[0]);
+            const char *move = kb_dequote(mb4);
+
+            if (!strcmp(move, "list_composition") && topic[0]) {
+                char list[400]; size_t off = 0; size_t found = 0;
+                char (*rels)[KB_TERM_LEN] = NULL; size_t nrel = 0;
+                const char *rq2[1] = { NULL };
+                if (kb_match_all(b->kb, "composition_relation", rq2, 1, &rels, &nrel)) {
+                    for (size_t ri = 0; ri < nrel; ri++) {
+                        char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", rels[ri]);
+                        const char *rel = kb_dequote(rb2);
+                        if (!*rel) continue;
+                        char parts[16][KB_TERM_LEN];
+                        const char *pq2[2] = { topic, NULL };
+                        size_t npart = kb_match(b->kb, rel, pq2, 2, parts, 16);
+                        for (size_t pi = 0; pi < npart && off + 1 < sizeof list; pi++) {
+                            char shown[KB_TERM_LEN];
+                            present_atom(b, parts[pi], shown, sizeof shown);
+                            if (!shown[0]) continue;
+                            off += (size_t)snprintf(list + off, sizeof list - off,
+                                                    "%s%s", found ? ", " : "", shown);
+                            found++;
+                        }
                     }
                 }
-            }
-            free(rels);
-            if (found) {
-                /* gen507/35 — UN PIANO INTERNO CHE NON SI PUO' INTERROGARE NON
-                 * E' UN RAGIONAMENTO.
-                 *
-                 * F., 2026-09-10: «meglio un piano interno o un reasoning; per
-                 * adesso non scomodiamo il thinking multi-inferenza». Giusto: il
-                 * giro /34 non pensa, fa DUE PASSI dichiarati — non ho i passi,
-                 * allora mi chiedo di che cosa e' fatta. Ma finche' restano
-                 * dentro una funzione sono un ripiego travestito da mossa.
-                 *
-                 * Qui i passi si posano come fatti del turno: `/debug` li mostra
-                 * in ordine, e `why?` li rende a parole. Le parole delle mosse
-                 * sono conoscenza (`plan_step_text/2`), non stampate dal C: una
-                 * mossa nuova si nomina in KB. */
+                free(rels);
+                if (!found) continue;          /* la mossa non ha portato niente */
                 p0_plan_step(b, 1, "steps_missing");
-                p0_plan_step(b, 2, "asked_composition");
+                p0_plan_step(b, 2, "list_composition");
                 p0_plan_step(b, 3, "derived_materials");
                 char why[420];
                 snprintf(why, sizeof why,
@@ -17521,6 +17614,15 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 const KbResponseSlot ps[] = { { "topic", topic }, { "list", list } };
                 if (kb_response_slots(b, "process_gap_but_parts", ps, 2,
                                       out, out_size))
+                    return 1;
+                continue;
+            }
+
+            if (!strcmp(move, "decline_steps")) {
+                p0_plan_step(b, 1, "steps_missing");
+                p0_plan_step(b, 2, "decline_steps");
+                const KbResponseSlot ds[] = { { "topic", topic } };
+                if (kb_response_slots(b, "process_step_gap", ds, 1, out, out_size))
                     return 1;
             }
         }

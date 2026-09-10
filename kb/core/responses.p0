@@ -780,6 +780,8 @@ response_template(process_gap_but_parts, "I don't have the steps for {topic} yet
 plan_step_text(steps_missing, "non avevo i passi").
 plan_step_text(asked_composition, "mi sono chiesto di che cosa e' fatta").
 plan_step_text(derived_materials, "dalla composizione ho ricavato che cosa serve").
+plan_step_text(list_composition, "mi sono chiesto di che cosa e' fatta").
+plan_step_text(decline_steps, "ho detto che i passi non ce li ho").
 response_template(process_gap_but_parts, it, "Non ho ancora i passi per {topic}. Però so di che cosa è fatta, quindi ti servirebbero: {list}. È com'è fatta, non come si fa.").
 response_template(activity_step_gap, "I understood you're asking for a recommendation, but I don't have a grounded plan for that situation yet.").
 response_template(activity_intro, "From what I know, a good plan is:").

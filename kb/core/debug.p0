@@ -78,6 +78,9 @@ debug_probe(50, gap_register, turn, "registro riconosciuto").
 % riga che c'e' mente al supervisore, ed e' peggio di uno che non ce l'ha.
 % Rinumerate qui; il difetto vero — l'identita' di una sonda e' il suo
 % PREDICATO, il numero serve solo a ordinare — e' scritto in C_TODO.md.
+% gen507/36 — e il piano DICHIARATO, distinto dai passi fatti: uno e' la
+% condotta che parrot0 ha, l'altro e' quello che ha fatto in questo turno.
+debug_probe(22, plan_move, any, "i PIANI che so: situazione, ordine, mossa").
 debug_probe(21, turn_plan_step, now, "il PIANO INTERNO: i passi fatti dentro questo turno, in ordine").
 debug_probe(60, learned_bridge, any, "ponti che il ciclo si e' insegnato").
 debug_probe(70, dead_rule, any, "regole che non possono dedurre niente").

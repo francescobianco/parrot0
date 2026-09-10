@@ -1185,6 +1185,77 @@ turn_form_reply(transitive_taught2, learned_transitive).
 
 
 
+% ══ gen507/36 — I PIANI SI INSEGNANO PARLANDO ═════════════════════════════
+%
+% F., 2026-09-10: «fai in modo che i piani siano insegnabili via prompt: alla
+% prossima cosa che dovra' essere gestita con un piano di ragionamento tu gli
+% potrai dire via prompt "quando ti trovi in questa situazione fai questo,
+% questo e questo"».
+%
+% Un piano e' una SITUAZIONE piu' delle MOSSE in ordine:
+%
+%     plan_move(Situazione, Ordine, Mossa).
+%
+% Il motore conosce le MOSSE — sono cose da fare, come gli atti del giro /19 —
+% e non sa quali siano ne' in che ordine: legge il piano. L'ordine non si dice,
+% e' quello in cui le mosse vengono insegnate, come in una spiegazione a voce.
+%
+%     > when you have no steps then look at what it is made of
+%       Held: in that situation, move 1 is «mi sono chiesto di che cosa e' fatta».
+%
+% Le PAROLE con cui si nomina una situazione o una mossa sono conoscenza: chi
+% insegna non deve conoscere il nome interno, e un modo nuovo di dire la stessa
+% situazione e' una riga.
+machinery(plan_move).
+machinery(situation_cue).
+machinery(move_cue).
+
+situation_cue("you have no steps", steps_missing).
+situation_cue("you don't have the steps", steps_missing).
+situation_cue("you do not have the steps", steps_missing).
+situation_cue("you don't know how to make something", steps_missing).
+situation_cue("non hai i passi", steps_missing).
+situation_cue("non sai come si fa", steps_missing).
+
+move_cue("look at what it is made of", list_composition).
+move_cue("say what it is made of", list_composition).
+move_cue("list what it is made of", list_composition).
+move_cue("tell me what it is made of", list_composition).
+move_cue("guarda di che cosa e' fatta", list_composition).
+move_cue("dimmi di che cosa e' fatta", list_composition).
+move_cue("say you don't know", decline_steps).
+move_cue("admit you don't know", decline_steps).
+move_cue("di' che non lo sai", decline_steps).
+
+response_template(learned_plan_move, "Held: in that situation, move {order} is «{move}».").
+response_template(learned_plan_move, it, "Tengo: in quella situazione, la mossa {order} è «{move}».").
+
+turn_form(teach_plan, 1, text("when")).
+turn_form(teach_plan, 2, named(situation_cue, situation)).
+turn_form(teach_plan, 3, text("then")).
+turn_form(teach_plan, 4, named(move_cue, move)).
+turn_form_mood(teach_plan, statement).
+turn_form_act(teach_plan, assert_plan_move).
+
+% La forma italiana si dichiara su cio' che il LETTORE vede (lezione del giro
+% /22): «quando» e' una parola funzione e arriva gia' come «when»; «allora» e'
+% contenuto e resta. Non e' una forma inglese: e' l'italiano dopo la soglia.
+turn_form(teach_plan_it, 1, text("when")).
+turn_form(teach_plan_it, 2, named(situation_cue, situation)).
+turn_form(teach_plan_it, 3, text("allora")).
+turn_form(teach_plan_it, 4, named(move_cue, move)).
+turn_form_mood(teach_plan_it, statement).
+turn_form_act(teach_plan_it, assert_plan_move).
+% ⚠ La forma italiana e' dichiarata ma NON arriva: lo smalltalk prende il turno
+% prima. Non le rubo il posto (il dispatch e' first-match e le strutture
+% secondarie si tengono): resta una lacuna scritta, non una forma vinta a forza.
+
+% ── IL PIANO CHE IL GIRO /34 AVEVA SCRITTO IN C, ORA DETTO ────────────────
+% Era una sequenza dentro una funzione; qui e' conoscenza, e si puo' cambiare
+% parlando: togliere una mossa, aggiungerne una, invertirle.
+plan_move(steps_missing, 1, list_composition).
+plan_move(steps_missing, 2, decline_steps).
+
 machinery(why_cue).
 why_cue("why").
 why_cue("how come").
