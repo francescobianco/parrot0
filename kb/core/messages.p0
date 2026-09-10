@@ -1814,6 +1814,19 @@ turn_form_mood(teach_cmp_min, statement).
 turn_form_act(teach_cmp_min, "op(assert, compare_cue, [subject, order, min])").
 turn_form_reply(teach_cmp_min, learned_compare_cue).
 
+% gen507/71 (forma #10) — l'OPPOSTO di una cosa. `opposite/2` risponde gia' a
+% «what is the opposite of X?» e si poteva solo scrivere in un file.
+response_template(learned_opposite, "Held: the opposite of {subject} is {object}.").
+response_template(learned_opposite, it, "Tengo: il contrario di {subject} è {object}.").
+
+turn_form(teach_opposite, 1, slot(subject)).
+turn_form(teach_opposite, 2, text("is the opposite of")).
+turn_form(teach_opposite, 3, rest(object)).
+turn_form_mood(teach_opposite, statement).
+turn_form_act(teach_opposite, "op(assert, opposite, [subject, object])").
+turn_form_act(teach_opposite, "op(assert, opposite, [object, subject])").
+turn_form_reply(teach_opposite, learned_opposite).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

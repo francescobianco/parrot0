@@ -56,6 +56,7 @@ utterance(5, user, "hysteresis is defined as the dependence of a system on its o
 utterance(5, user, "sonder is defined as the realisation that every stranger has a life as vivid as your own").
 utterance(5, user, "forget that smith owner zelnik").
 utterance(5, user, "veryovkina has depth 2212").
+utterance(5, user, "reversible is the opposite of irreversible").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -91,6 +92,7 @@ utterance(6, self, "Held: hysteresis — dependence_of_a_system_on_its_own_histo
 utterance(6, self, "Held: sonder — realisation. Scartato: has_part(sonder_every_stranger, life_as_vivid_as_your_own) non e' fatto di concetti.").
 utterance(6, self, "Forgotten: smith owner zelnik.").
 utterance(6, self, "Held: veryovkina scores 2212 on depth.").
+utterance(6, self, "Held: the opposite of reversible is irreversible.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -538,6 +540,7 @@ utterance(7, user, "apophenia is defined as the tendency to see connections betw
 utterance(7, user, "saudade is defined as a longing for something absent").
 utterance(7, user, "does smith owner zelnik?").
 utterance(7, user, "krubera has depth 2197").
+utterance(7, user, "explicit is the opposite of implicit").
 utterance(23, user, "is magnetite an iron ore mineral?").
 utterance(7, user, "what does a capacitor store?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -650,6 +653,11 @@ utterance(17, user, "which is deeper, krubera or sarma?").
 utterance(18, self, "Krubera.").
 utterance(19, user, "which cave is the deepest?").
 utterance(20, self, "veryovkina.").
+utterance(8, self, "Held: the opposite of explicit is implicit.").
+utterance(9, user, "signal is the opposite of noise").
+utterance(10, self, "Held: the opposite of signal is noise.").
+utterance(11, user, "convergent is the opposite of divergent").
+utterance(12, self, "Held: the opposite of convergent is divergent.").
 utterance(42, self, "Directly: bornite is a copper sulfide mineral — no reasoning needed.").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
@@ -932,6 +940,7 @@ utterance(2, self, "Held: kintsugi — japanese_art_of_mending_pottery_with_gold
 utterance(2, self, "Held: sonder — realisation.").
 utterance(2, self, "Learned: owner is a relation verb.").
 utterance(2, self, "Held: «deeper» ranks by depth.").
+utterance(2, self, "Held: the opposite of abundance is scarcity.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -966,6 +975,7 @@ utterance(1, user, "kintsugi is defined as the japanese art of mending pottery w
 utterance(1, user, "sonder is defined as the realisation").
 utterance(1, user, "owner is a relation verb").
 utterance(1, user, "deeper is the most depth").
+utterance(1, user, "abundance is the opposite of scarcity").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -994,6 +1004,7 @@ utterance(4, self, "Held: petrichor — earthy_smell_of_rain_on_dry_ground.").
 utterance(4, self, "Scartato: has_part(sonder_every_stranger, life_as_vivid_as_your_own) non e' fatto di concetti.").
 utterance(4, self, "Learned: smith owner zelnik.").
 utterance(4, self, "Held: «shallower» ranks by depth.").
+utterance(4, self, "Held: the opposite of centralised is distributed.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1023,6 +1034,7 @@ utterance(3, user, "petrichor is defined as the earthy smell of rain on dry grou
 utterance(3, user, "sonder every stranger has a life as vivid as your own").
 utterance(3, user, "smith owner zelnik").
 utterance(3, user, "shallower is the least depth").
+utterance(3, user, "centralised is the opposite of distributed").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

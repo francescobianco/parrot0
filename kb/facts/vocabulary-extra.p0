@@ -112,6 +112,18 @@ opposite(expand, shrink).
 opposite(shrink, expand).
 opposite(hire, fire).
 opposite(fire, hire).
+opposite(divergent, convergent).
+opposite(convergent, divergent).
+opposite(noise, signal).
+opposite(signal, noise).
+opposite(implicit, explicit).
+opposite(explicit, implicit).
+opposite(irreversible, reversible).
+opposite(reversible, irreversible).
+opposite(distributed, centralised).
+opposite(centralised, distributed).
+opposite(scarcity, abundance).
+opposite(abundance, scarcity).
 
 % ============================================================
 % DEFINING-PHRASE VOCABULARY — word_for(KeyPhrase, Word)
