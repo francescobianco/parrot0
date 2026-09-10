@@ -1729,6 +1729,18 @@ turn_form_mood(teach_meaning, statement).
 turn_form_act(teach_meaning, "op(assert, means, [subject, object])").
 turn_form_reply(teach_meaning, learned_meaning).
 
+% gen507/65 (forma #63) — chi compare in una relazione. Serve a chi insegna:
+% dopo una lezione si vuole vedere che cosa c'e' dentro, non solo che il singolo
+% fatto risponde.
+response_template(relation_subjects, "In {relation} I hold {count}: {result}.").
+response_template(relation_subjects, it, "In {relation} ne tengo {count}: {result}.").
+
+turn_form(list_relation, 1, text("who appears in")).
+turn_form(list_relation, 2, relation(relation)).
+turn_form_mood(list_relation, question).
+turn_form_act(list_relation, "op(match, relation, [free, free])").
+turn_form_reply(list_relation, relation_subjects).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

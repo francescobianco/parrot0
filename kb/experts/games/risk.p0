@@ -9,6 +9,10 @@ means(apophenia, "tendency to see connections between unrelated things").
 means(hysteresis, "dependence of a system on its own history").
 means(petrichor, "earthy smell of rain on dry ground").
 means(kintsugi, "japanese art of mending pottery with gold").
+means(entropy, "measure of how many arrangements a state can have").
+means(ikigai, "reason a person gets up in the morning").
+means(saudade, "longing for something absent").
+means(sonder, realisation).
 game_players(risk, "commonly two to six, depending on the edition").
 game_goal(risk, "achieve the scenario's victory condition, often world domination or a secret objective").
 game_setup(risk, "distribute territories and starting armies using the chosen edition's setup, then determine turn order").

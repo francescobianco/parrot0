@@ -456,6 +456,7 @@ classe intera invece di un membro.*
 | `what situations do you know?` | le situazioni per cui ha un piano (gen507/61, forma #92) |
 | `step for X is <cosa fare>` | un PASSO della procedura per X, in coda ai precedenti (gen507/38). ⚠ non `to make X you …`: quella superficie è del sintetizzatore di artefatti |
 | `forget that X is a Y` | ritratta: la lezione si disfa come si è fatta |
+| `who appears in V?` | **chi compare** in una relazione: dopo una lezione si vuole vedere che cosa c'è dentro, non solo che il singolo fatto risponde (gen507/65, forma #63) |
 | `X is defined as <testo>` | una **definizione a parole** (`means/2`), resa da `definition of X` · `meaning of X` (gen507/64, forma #26). ⚠ una frase sola: il divisore di clausole taglia su «che», «so», «not only» |
 | `X and Y name the same thing` | **identità fra due nomi**: da lì ciò che si dice di uno vale per l'altro (gen507/63, forma #8) |
 | `forget that X V Y` | ritratta un **fatto binario** (gen507/62, forma #66) — ed è la prima forma costata **zero righe di C** |
@@ -711,7 +712,7 @@ non è una domanda che qualcuno fa.*
 |---|---|---|---|
 | 61 | chiedere quale (soggetto) | `who V Y?` — funziona per il verbo nudo, **non** per le forme flesse (il debito del giro /14) | 🟡 |
 | 62 | chiedere quale (oggetto) | `what does X V?` esiste; manca `what is V-ed by X?` (passivo) | 🔴 |
-| 63 | enumerare tutti i fatti | `list everything you know about V` | 🔴 |
+| 63 | enumerare tutti i fatti | reso `who appears in V?` | ✅ gen507/65 |
 | 64 | contare | `how many things does X V?` | 🔴 |
 | 65 | correggere il secondo termine | `X V Z, not Y` | 🔴 |
 | 66 | ritrattare un fatto | `forget that X V Y` — esiste per le classi, non per le relazioni | ✅ gen507/62 |

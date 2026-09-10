@@ -91,6 +91,7 @@ machinery_gap("known is an irregular participle").
 machinery_gap("shall is a necessity marker").
 machinery_gap("because is a ground connector").
 machinery_gap("petrichor rises when rain falls on dry ground").
+machinery_gap("saudade may never return").
 gap_kind("a counterexample refutes a universal claim", reachability).
 gap_kind("what does a metaphor do?", reachability).
 gap_opaque("dropout prevents what?", dropout).
@@ -116,6 +117,8 @@ gap_opaque("petrichor rises when rain falls on dry ground", dry).
 gap_opaque("petrichor rises when rain falls on dry ground", falls).
 gap_opaque("petrichor rises when rain falls on dry ground", rises).
 gap_opaque("petrichor rises when rain falls on dry ground", petrichor).
+gap_opaque("saudade may never return", return).
+gap_opaque("saudade may never return", saudade).
 gap_opaque("what is measured by the farad?", measured).
 gap_anchor("what does a counterexample do?", counterexample).
 gap_kind("what does a counterexample do?", reachability).
@@ -129,6 +132,7 @@ gap_kind("shall is a necessity marker", reachability).
 gap_anchor("because is a ground connector", connector).
 gap_anchor("petrichor rises when rain falls on dry ground", rain).
 gap_kind("because is a ground connector", reachability).
+gap_kind("saudade may never return", reachability).
 gap_source("the metaphor maps what?", "the metaphor maps what?").
 gap_anchor("what is measured by the farad?", farad).
 gap_kind("what is measured by the farad?", reachability).
@@ -154,4 +158,5 @@ gap_source("known is an irregular participle", "known is an irregular participle
 gap_source("shall is a necessity marker", "shall is a necessity marker").
 gap_source("because is a ground connector", "because is a ground connector").
 gap_source("petrichor rises when rain falls on dry ground", "petrichor rises when rain falls on dry ground").
+gap_source("saudade may never return", "saudade may never return").
 gap_source("what is the is unit of electrical resistance?", "what is the SI unit of electrical resistance?").

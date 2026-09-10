@@ -53,6 +53,7 @@ utterance(5, user, "is malachite a copper mineral?").
 utterance(5, user, "kinetic energy law is also called legge dell energia cinetica").
 utterance(5, user, "petrichor rises when rain falls on dry ground").
 utterance(5, user, "hysteresis is defined as the dependence of a system on its own history").
+utterance(5, user, "sonder is defined as the realisation that every stranger has a life as vivid as your own").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -85,6 +86,7 @@ utterance(6, self, "Yes.").
 utterance(6, self, "Learned: kinetic energy law also known as 'legge dell energia cinetica'.").
 utterance(6, self, "Hmm, I don't know about petrichor yet. Want me to learn about it? Or teach me: if «x rises y» says what you already say another way, say «x rises y means x <known verb> y»; if rises is something one thing does to another, say «rises is a relation verb».").
 utterance(6, self, "Held: hysteresis — dependence_of_a_system_on_its_own_history.").
+utterance(6, self, "Held: sonder — realisation. Scartato: has_part(sonder_every_stranger, life_as_vivid_as_your_own) non e' fatto di concetti.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -529,6 +531,7 @@ utterance(7, user, "why is malachite a copper mineral?").
 utterance(7, user, "density law is also called formula della densità").
 utterance(7, user, "petrichor is defined as the earthy smell that rises when rain falls on dry ground").
 utterance(7, user, "apophenia is defined as the tendency to see connections between unrelated things").
+utterance(7, user, "saudade is defined as a longing for something absent").
 utterance(23, user, "is magnetite an iron ore mineral?").
 utterance(7, user, "what does a capacitor store?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -598,6 +601,21 @@ utterance(11, user, "definition of hysteresis").
 utterance(12, self, "Dependence of a system on its own history.").
 utterance(13, user, "definition of apophenia").
 utterance(14, self, "Tendency to see connections between unrelated things.").
+utterance(8, self, "Held: saudade — longing_for_something_absent.").
+utterance(9, user, "saudade may never return").
+utterance(10, self, "Hmm, I don't know about saudade yet. Want me to learn about it? Or teach me: if «x may y» says what you already say another way, say «x may y means x <known verb> y»; if may is something one thing does to another, say «may is a relation verb».").
+utterance(11, user, "saudade is defined as a longing for something absent that may never return").
+utterance(12, self, "Held: saudade — longing_for_something_absent. Hmm, I don't know about saudade yet. Want me to learn about it? Or teach me: if «x may y» says what you already say another way, say «x may y means x <known verb> y»; if may is something one thing does to another, say «may is a relation verb».").
+utterance(13, user, "ikigai is defined as the reason a person gets up in the morning").
+utterance(14, self, "Held: ikigai — reason_a_person_gets_up_in_the_morning.").
+utterance(15, user, "entropy is defined as a measure of how many arrangements a state can have").
+utterance(16, self, "Held: entropy — measure_of_how_many_arrangements_a_state_can_have.").
+utterance(17, user, "who appears in means?").
+utterance(18, self, "I found the teaching pivot, but I cannot align the same variables exactly once on both sides to roles I know. I have not learned the construction.").
+utterance(19, user, "definition of sonder").
+utterance(20, self, "Realisation.").
+utterance(21, user, "definition of ikigai").
+utterance(22, self, "Reason a person gets up in the morning.").
 utterance(42, self, "Directly: bornite is a copper sulfide mineral — no reasoning needed.").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
@@ -877,6 +895,7 @@ utterance(2, self, "Learned: malachite is a copper carbonate mineral.").
 utterance(2, self, "Learned: ohms law also known as 'legge di ohm'.").
 utterance(2, self, "It was a mysterious it. Then one day, it discovered what it meant to be seen. it had never felt this way before — as if the whole world had shifted. At last, it was seen — not as a thing, but as a presence.").
 utterance(2, self, "Held: kintsugi — japanese_art_of_mending_pottery_with_gold.").
+utterance(2, self, "Held: sonder — realisation.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -908,6 +927,7 @@ utterance(1, user, "malachite is a copper carbonate mineral").
 utterance(1, user, "ohms law is also called legge di ohm").
 utterance(1, user, "kintsugi is defined as the japanese art of mending broken pottery with gold so the repair becomes part of the history").
 utterance(1, user, "kintsugi is defined as the japanese art of mending pottery with gold").
+utterance(1, user, "sonder is defined as the realisation").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -933,6 +953,7 @@ utterance(4, self, "Learned rule: copper_mineral(X) :- copper_carbonate_mineral(
 utterance(4, self, "Learned: newtons second law also known as 'seconda legge di newton'.").
 utterance(4, self, "Held: petrichor — earthy_smell.").
 utterance(4, self, "Held: petrichor — earthy_smell_of_rain_on_dry_ground.").
+utterance(4, self, "Scartato: has_part(sonder_every_stranger, life_as_vivid_as_your_own) non e' fatto di concetti.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -959,6 +980,7 @@ utterance(3, user, "every copper carbonate mineral is a copper mineral").
 utterance(3, user, "newtons second law is also called seconda legge di newton").
 utterance(3, user, "petrichor is defined as the earthy smell").
 utterance(3, user, "petrichor is defined as the earthy smell of rain on dry ground").
+utterance(3, user, "sonder every stranger has a life as vivid as your own").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").
