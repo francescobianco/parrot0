@@ -1810,3 +1810,30 @@ relation_note($V, $Note) :-
 %     scriverlo due volte e' cio' che fa sbagliare.
 relation_chain($V, $W, $W) :- relation_twice($V, $W).
 machinery(relation_twice).
+
+% (r) UN NOME CHE VALE DENTRO UN CONTESTO. `context_name(Contesto, Locale,
+%     Vero)` dice che dentro un dominio una cosa si chiama diversamente. Non e'
+%     un alias globale: fuori da quel contesto il nome locale non significa
+%     niente, ed e' giusto — «il capitano» e' una persona precisa solo dentro
+%     una squadra.
+machinery(context_name).
+holds($V, $X, $Y) :-
+    context_name($C, $X, $Real), active_context($C),
+    apply($V, cons($Real, cons($Y, nil))).
+holds($V, $X, $Y) :-
+    context_name($C, $Y, $Real), active_context($C),
+    apply($V, cons($X, cons($Real, nil))).
+
+% (s) IL VERSO ROVESCIO, dentro `holds/3`: cosi' compone con i contesti, le
+%     catene e le eccezioni, cosa che `inverse_relation/2` da sola non fa perche'
+%     e' letta da un lettore solo.
+machinery(relation_reverse).
+holds($V, $X, $Y) :- relation_reverse($V, $W), apply($W, cons($Y, cons($X, nil))).
+
+% (t) LA FAMIGLIA di una relazione — temporale, spaziale, sociale, causale.
+%     Serve a chi insegna per orientarsi, e a parrot0 per dire che cosa sa di un
+%     GENERE di legame invece che di un legame preciso.
+machinery(relation_family).
+relation_note($V, $Note) :-
+    relation_family($V, $Fam), concat_atoms("a ", $Fam, $Half),
+    concat_atoms($Half, " relation", $Note).

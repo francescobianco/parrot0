@@ -582,6 +582,10 @@ insegnano un fatto né una proprietà, ma un **legame fra due predicati**.*
 | `V is W followed by Z` | la **composizione**: «nonno» è «genitore» seguito da «genitore». Due relazioni note ne definiscono una terza che nessuno popola (gen507/83) |
 | `V holds where W holds except where Z` | l'**eccezione detta insieme alla regola**, invece di una regola falsa che qualcuno correggerà poi (gen507/83) |
 | `in <contesto> X V Y` | un **fatto sospeso**: vale quando quel contesto è attivo, e tace altrimenti (gen507/85) |
+| `inside <contesto> X is Y` | un **nome che vale solo dentro un contesto**: «il capitano» è una persona precisa solo dentro una squadra (gen507/87) |
+| `V is W read backwards` | il verso rovescio **dentro `holds/3`**, quindi compone con contesti, catene ed eccezioni (gen507/87) |
+| `V is a relation of kind <famiglia>` | la **famiglia** di una relazione — temporale, spaziale, sociale, causale (gen507/87) |
+| `forget that V behaves like W` | **disfa** un legame di ordine superiore: una somiglianza dichiarata per sbaglio propaga proprietà che nessuno voleva (gen507/87) |
 | `assume <contesto>` · `stop assuming <contesto>` | **entrare e uscire da un mondo**: senza, i fatti sospesi restano sospesi per sempre (gen507/85) |
 | `what holds between X and Y?` | tutte le relazioni che valgono fra **due** cose date: il gemello a due argomenti (gen507/86) |
 | `V links a <classe> to a <classe>` | la **firma** di una relazione — dove ha senso (gen507/86) |

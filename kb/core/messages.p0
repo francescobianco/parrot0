@@ -2338,6 +2338,58 @@ turn_form_act(teach_twice, "op(assert, relation_verb, [subject])").
 turn_form_act(teach_twice, "op(assert, relation_twice, [subject, object])").
 turn_form_reply(teach_twice, learned_twice).
 
+% (superficie superiore #17) — un nome che vale solo dentro un contesto.
+response_template(learned_ctx_name, "Held: inside {order}, «{subject}» is {object}.").
+response_template(learned_ctx_name, it, "Tengo: dentro {order}, «{subject}» è {object}.").
+
+turn_form(teach_ctx_name, 1, text("inside")).
+turn_form(teach_ctx_name, 2, slot(order)).
+turn_form(teach_ctx_name, 3, slot(subject)).
+turn_form(teach_ctx_name, 4, text("is")).
+turn_form(teach_ctx_name, 5, rest(object)).
+turn_form_mood(teach_ctx_name, statement).
+turn_form_act(teach_ctx_name, "op(assert, context_name, [order, subject, object])").
+turn_form_reply(teach_ctx_name, learned_ctx_name).
+
+% (superficie superiore #18) — il verso rovescio dentro `holds/3`, cosi' compone
+% con i contesti e le catene.
+response_template(learned_reverse, "Held: {subject} is {object} read backwards.").
+response_template(learned_reverse, it, "Tengo: {subject} è {object} letto al contrario.").
+
+turn_form(teach_reverse, 1, slot(subject)).
+turn_form(teach_reverse, 2, text("is")).
+turn_form(teach_reverse, 3, slot(object)).
+turn_form(teach_reverse, 4, text("read backwards")).
+turn_form_mood(teach_reverse, statement).
+turn_form_act(teach_reverse, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_reverse, "op(assert, relation_reverse, [subject, object])").
+turn_form_reply(teach_reverse, learned_reverse).
+
+% (superficie superiore #19) — la FAMIGLIA di una relazione.
+response_template(learned_family, "Held: {subject} is a {object} relation.").
+response_template(learned_family, it, "Tengo: {subject} è una relazione {object}.").
+
+turn_form(teach_family, 1, slot(subject)).
+turn_form(teach_family, 2, text("is a relation of kind")).
+turn_form(teach_family, 3, rest(object)).
+turn_form_mood(teach_family, statement).
+turn_form_act(teach_family, "op(assert, relation_family, [subject, object])").
+turn_form_reply(teach_family, learned_family).
+
+% (superficie superiore #20) — DISFARE un legame di ordine superiore. Senza,
+% una somiglianza dichiarata per sbaglio resta per sempre, e propaga proprieta'
+% che nessuno voleva.
+response_template(unlearned_like, "Forgotten: {subject} no longer behaves like {object}.").
+response_template(unlearned_like, it, "Dimenticato: {subject} non si comporta più come {object}.").
+
+turn_form(unteach_like, 1, text("forget that")).
+turn_form(unteach_like, 2, slot(subject)).
+turn_form(unteach_like, 3, text("behaves like")).
+turn_form(unteach_like, 4, rest(object)).
+turn_form_mood(unteach_like, statement).
+turn_form_act(unteach_like, "op(retract, relation_like, [subject, object])").
+turn_form_reply(unteach_like, unlearned_like).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).
