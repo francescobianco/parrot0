@@ -459,6 +459,8 @@ semplici**, ed è la catena che si insegna.*
 | `count` | sostituisce col numero di caratteri |
 | `upper` · `lower` | maiuscolo / minuscolo |
 | `first N` · `last N` | i primi / gli ultimi N caratteri |
+| `apply <altra procedura>` | **chiama** un'altra procedura: una lezione si costruisce su quelle già date invece di ripeterne i passi (gen507/51, forma #43) |
+| `replace <a> with <b>` | sostituzione (gen507/52, forma #46) |
 
 Classi già in KB: `vowel`, `consonant`, `digit`. Una classe nuova — le consonanti
 di un'altra lingua, le cifre pari — è **una riga di `.p0`**, e da subito un
@@ -628,10 +630,10 @@ mano resta inesprimibile.*
 |---|---|---|---|
 | 41 | `rule for X is repeat <op> until <cond>` | il **ciclo**: è il gradino che manca a ogni procedura vera | 🔴 |
 | 42 | `rule for X is if <cond> then <op>` | la **condizione** | 🔴 |
-| 43 | `rule for X is apply Y` | chiamare una procedura da un'altra: la composizione vera | 🔴 |
+| 43 | `rule for X is apply Y` | chiamare una procedura da un'altra: la composizione vera | ✅ gen507/51 |
 | 44 | `<classe> contains <caratteri>` | insegnare una classe di caratteri parlando (oggi è una riga di file) | 🔴 |
 | 45 | `rule for X is split on <char>` · `join with <char>` | dalle stringhe alle **liste** | 🔴 |
-| 46 | `rule for X is replace <a> with <b>` | sostituzione | 🔴 |
+| 46 | `rule for X is replace <a> with <b>` | sostituzione | ✅ gen507/52 |
 | 47 | `rule for X is sort` · `unique` | operatori su liste | 🔴 |
 | 48 | `rule for X takes <n> inputs` | procedure con più di un ingresso | 🔴 |
 

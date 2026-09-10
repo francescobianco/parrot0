@@ -13132,6 +13132,103 @@ static const char *p0_form_slot(P0FormSlot *slots, size_t n, const char *name) {
 }
 
 /* L'innesco: una sola porta in C, e dietro tutte le forme che la KB dichiara. */
+/* ══ gen507/51 (forma #43) — UNA PROCEDURA PUO' CHIAMARNE UN'ALTRA ═════════
+ *
+ * Il giro /43 ha aperto le catene di operatori; questa e' la mossa che le rende
+ * COMPOSIZIONE vera. Un passo puo' essere «apply <altra procedura>», quindi una
+ * lezione si costruisce su quelle gia' date invece di ripeterne i passi — ed e'
+ * il modo in cui si insegna qualcosa di complicato a una persona: nominando
+ * cose che gia' sa fare.
+ *
+ * La profondita' e' limitata perche' due procedure che si chiamano a vicenda
+ * non diventino un ciclo; il limite raggiunto non produce una risposta
+ * sbagliata, produce nessuna risposta.
+ *
+ * Gli operatori restano pochi e le CLASSI DI CARATTERI restano conoscenza: il
+ * motore non sa che cosa sia una vocale. */
+static int p0_run_proc(Brain *b, const char *pname, char *cur, size_t cursz,
+                       int depth) {
+    if (!b || !b->kb || !pname || !cur || depth <= 0) return 0;
+    int ran = 0;
+    for (long o = 1; o <= 32; o++) {
+                char ob5[24]; snprintf(ob5, sizeof ob5, "%ld", o);
+                char stepv[4][KB_TERM_LEN];
+                const char *sq6[3] = { pname, ob5, NULL };
+                if (kb_match(b->kb, "proc_step", sq6, 3, stepv, 4) < 1) continue;
+                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", stepv[0]);
+                char stepbuf[KB_TERM_LEN];
+                snprintf(stepbuf, sizeof stepbuf, "%s", kb_dequote(sb));
+                char *sw[8]; size_t snw = split_words(stepbuf, sw, 8);
+                if (snw == 0) continue;
+                const char *op = sw[0];
+                const char *oparg = snw > 1 ? sw[1] : NULL;
+                char next[KB_TERM_LEN]; size_t no = 0;
+                if (!strcmp(op, "keep") || !strcmp(op, "drop")) {
+                    if (!oparg) continue;
+                    int keep = !strcmp(op, "keep");
+                    for (const char *c = cur; *c && no + 1 < sizeof next; c++) {
+                        char ch[2] = { (char)tolower((unsigned char)*c), 0 };
+                        const char *cq7[2] = { oparg, ch };
+                        int in_class = kb_query(b->kb, "char_class", cq7, 2);
+                        if (in_class == keep) next[no++] = *c;
+                    }
+                    next[no] = '\0';
+                } else if (!strcmp(op, "reverse")) {
+                    size_t l = strlen(cur);
+                    if (l >= sizeof next) continue;
+                    for (size_t k = 0; k < l; k++) next[k] = cur[l - 1 - k];
+                    next[l] = '\0';
+                } else if (!strcmp(op, "count")) {
+                    snprintf(next, sizeof next, "%zu", strlen(cur));
+                } else if (!strcmp(op, "upper") || !strcmp(op, "lower")) {
+                    size_t l = strlen(cur);
+                    if (l >= sizeof next) continue;
+                    for (size_t k = 0; k < l; k++)
+                        next[k] = !strcmp(op, "upper")
+                                    ? (char)toupper((unsigned char)cur[k])
+                                    : (char)tolower((unsigned char)cur[k]);
+                    next[l] = '\0';
+                } else if (!strcmp(op, "first") || !strcmp(op, "last")) {
+                    long take = oparg ? strtol(oparg, NULL, 10) : 1;
+                    size_t l = strlen(cur);
+                    if (take < 0) take = 0;
+                    if ((size_t)take > l) take = (long)l;
+                    if (!strcmp(op, "first"))
+                        snprintf(next, sizeof next, "%.*s", (int)take, cur);
+                    else
+                        snprintf(next, sizeof next, "%s", cur + (l - (size_t)take));
+                } else if (!strcmp(op, "apply")) {
+                    /* gen507/51 — chiamare un'altra procedura: la composizione. */
+                    if (!oparg || !strcmp(oparg, pname)) continue;
+                    char sub[KB_TERM_LEN];
+                    snprintf(sub, sizeof sub, "%s", cur);
+                    if (!p0_run_proc(b, oparg, sub, sizeof sub, depth - 1)) continue;
+                    snprintf(next, sizeof next, "%s", sub);
+                } else if (!strcmp(op, "replace")) {
+                    /* gen507/52 — «replace a with b»: la sostituzione, che e'
+                     * l'operatore piu' generale su testo dopo tenere e togliere. */
+                    const char *what = snw > 1 ? sw[1] : NULL;
+                    const char *with = snw > 3 ? sw[3] : (snw > 2 ? sw[2] : NULL);
+                    if (!what) continue;
+                    size_t wl = strlen(what);
+                    no = 0;
+                    for (const char *c = cur; *c && no + 1 < sizeof next; ) {
+                        if (!strncasecmp(c, what, wl)) {
+                            if (with)
+                                for (const char *r = with; *r && no + 1 < sizeof next; r++)
+                                    next[no++] = *r;
+                            c += wl;
+                        } else next[no++] = *c++;
+                    }
+                    next[no] = '\0';
+                } else continue;           /* operatore che il motore non sa */
+                snprintf(cur, cursz, "%s", next);
+                ran = 1;
+            }
+
+    return ran;
+}
+
 static int p0_turn_form_reader(Brain *b, const char *norm,
                                char *out, size_t out_size) {
     if (!b || !b->kb || !norm) return 0;
@@ -13278,58 +13375,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
             char cur[KB_TERM_LEN];
             snprintf(cur, sizeof cur, "%s", input);
             for (char *c = cur; *c; c++) if (*c == '_') *c = ' ';
-            int ran = 0;
-            for (long o = 1; o <= 32; o++) {
-                char ob5[24]; snprintf(ob5, sizeof ob5, "%ld", o);
-                char stepv[4][KB_TERM_LEN];
-                const char *sq6[3] = { pname, ob5, NULL };
-                if (kb_match(b->kb, "proc_step", sq6, 3, stepv, 4) < 1) continue;
-                char sb[KB_TERM_LEN]; snprintf(sb, sizeof sb, "%s", stepv[0]);
-                char stepbuf[KB_TERM_LEN];
-                snprintf(stepbuf, sizeof stepbuf, "%s", kb_dequote(sb));
-                char *sw[8]; size_t snw = split_words(stepbuf, sw, 8);
-                if (snw == 0) continue;
-                const char *op = sw[0];
-                const char *oparg = snw > 1 ? sw[1] : NULL;
-                char next[KB_TERM_LEN]; size_t no = 0;
-                if (!strcmp(op, "keep") || !strcmp(op, "drop")) {
-                    if (!oparg) continue;
-                    int keep = !strcmp(op, "keep");
-                    for (const char *c = cur; *c && no + 1 < sizeof next; c++) {
-                        char ch[2] = { (char)tolower((unsigned char)*c), 0 };
-                        const char *cq7[2] = { oparg, ch };
-                        int in_class = kb_query(b->kb, "char_class", cq7, 2);
-                        if (in_class == keep) next[no++] = *c;
-                    }
-                    next[no] = '\0';
-                } else if (!strcmp(op, "reverse")) {
-                    size_t l = strlen(cur);
-                    if (l >= sizeof next) continue;
-                    for (size_t k = 0; k < l; k++) next[k] = cur[l - 1 - k];
-                    next[l] = '\0';
-                } else if (!strcmp(op, "count")) {
-                    snprintf(next, sizeof next, "%zu", strlen(cur));
-                } else if (!strcmp(op, "upper") || !strcmp(op, "lower")) {
-                    size_t l = strlen(cur);
-                    if (l >= sizeof next) continue;
-                    for (size_t k = 0; k < l; k++)
-                        next[k] = !strcmp(op, "upper")
-                                    ? (char)toupper((unsigned char)cur[k])
-                                    : (char)tolower((unsigned char)cur[k]);
-                    next[l] = '\0';
-                } else if (!strcmp(op, "first") || !strcmp(op, "last")) {
-                    long take = oparg ? strtol(oparg, NULL, 10) : 1;
-                    size_t l = strlen(cur);
-                    if (take < 0) take = 0;
-                    if ((size_t)take > l) take = (long)l;
-                    if (!strcmp(op, "first"))
-                        snprintf(next, sizeof next, "%.*s", (int)take, cur);
-                    else
-                        snprintf(next, sizeof next, "%s", cur + (l - (size_t)take));
-                } else continue;           /* operatore che il motore non sa */
-                snprintf(cur, sizeof cur, "%s", next);
-                ran = 1;
-            }
+            int ran = p0_run_proc(b, pname, cur, sizeof cur, 6);
             if (!ran) continue;
             char msg5[320];
             const KbResponseSlot rs5[] = { { "subject", pname },
