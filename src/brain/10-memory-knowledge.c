@@ -12646,6 +12646,22 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
     if (kb_query(b->kb, rel, args, 2)) { put("Yes.", out, out_size); return 1; }
     /* Un «no» detto e' un «no» guadagnato, esattamente come per le classi. */
     if (kb_is_negated(b->kb, rel, args, 2)) { put("No.", out, out_size); return 1; }
+    /* gen507/45 (forma #2) — UNA RELAZIONE CHE HA UN VALORE SOLO.
+     * Se `V` ne ammette uno e per questo soggetto ne tengo un altro, il «no» e'
+     * guadagnato: non serve elencare il mondo, basta sapere che il posto e'
+     * occupato. E' la stessa cosa che il giro /16 fa per gli attributi, portata
+     * a QUALUNQUE relazione — e quale sia funzionale lo dice la conoscenza. */
+    {
+        const char *fq9[1] = { rel };
+        if (kb_query(b->kb, "functional_relation", fq9, 1)) {
+            char held9[1][KB_TERM_LEN];
+            const char *hq9[2] = { subj, NULL };
+            if (kb_match(b->kb, rel, hq9, 2, held9, 1) == 1) {
+                put("No.", out, out_size);
+                return 1;
+            }
+        }
+    }
     /* gen507 — UNA SUPERFICIE PUO' AVERE PIU' LETTURE, E SCEGLIERNE UNA IN
      * SILENZIO E' LA MOSSA SBAGLIATA. «have» ne ha diverse dichiarate; presa
      * la prima, «does zelnik have a handle?» finiva a interrogare

@@ -394,6 +394,7 @@ classe intera invece di un membro.*
 | `V chains` | la relazione è transitiva: la catena si percorre (gen507/27) |
 | `V is the inverse of W` | un fatto solo, visto dai due lati: asserire `X V Y` risponde anche a `Y W X`, e si legge nei due sensi (gen507/40) |
 | `V goes both ways` | la relazione è simmetrica: `X V Y` risponde anche a `Y V X` (gen507/41) |
+| `V has one value` | funzionale: se il posto è occupato da un altro valore, il «no» è **guadagnato** senza elencare il mondo (gen507/45, forma #2) |
 
 > **Le tre proprietà di una relazione** — transitiva (`V chains`), inversa (`V is
 > the inverse of W`), simmetrica (`V goes both ways`) — sono le tre domande che
@@ -536,7 +537,7 @@ altre cose che sa fare e non sa **quando**.
 | # | si dice | ne ricava | |
 |---|---|---|---|
 | 1 | `V holds of itself` | riflessiva: `X V X` vale sempre | 🔴 |
-| 2 | `V has one value` | funzionale: un secondo valore è una **correzione o un conflitto**, non un fatto in più — estende a ogni relazione ciò che il giro /16 fa per gli attributi | 🔴 |
+| 2 | `V has one value` | funzionale: un secondo valore è una **correzione o un conflitto**, non un fatto in più — estende a ogni relazione ciò che il giro /16 fa per gli attributi | ✅ gen507/45 |
 | 3 | `V implies W` | se `X V Y` allora `X W Y`: sussunzione fra relazioni | 🔴 |
 | 4 | `V excludes W` | se `X V Y` allora **non** `X W Y`: un «no» guadagnato senza elencare | 🔴 |
 | 5 | `V goes from <classe> to <classe>` | vincolo di tipo: parrot0 può **rifiutare** un fatto assurdo invece di tenerlo | 🔴 |

@@ -1489,6 +1489,22 @@ turn_form(teach_closed, 4, rest(text)).
 turn_form_mood(teach_closed, statement).
 turn_form_act(teach_closed, assert_closed_extension).
 
+% ══ gen507/45 (forma #2) — UNA RELAZIONE CHE HA UN VALORE SOLO ════════════
+% Se `V` ne ammette uno e per quel soggetto se ne tiene un altro, il «no» e'
+% guadagnato: non serve elencare il mondo, basta sapere che il posto e'
+% occupato. E' cio' che il giro /16 fa per gli attributi, portato a QUALUNQUE
+% relazione.
+machinery(functional_relation).
+response_template(learned_functional, "Held: {subject} has one value -- a second one is a correction, not another fact.").
+response_template(learned_functional, it, "Tengo: {subject} ha un valore solo — un secondo valore è una correzione, non un fatto in più.").
+
+turn_form(teach_functional, 1, slot(subject)).
+turn_form(teach_functional, 2, text("has one value")).
+turn_form(teach_functional, 3, bind(class, functional_relation)).
+turn_form_mood(teach_functional, statement).
+turn_form_act(teach_functional, assert_unary).
+turn_form_reply(teach_functional, learned_functional).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).
