@@ -1688,6 +1688,27 @@ turn_form_mood(forget_fact, statement).
 turn_form_act(forget_fact, "op(retract, relation, [subject, object])").
 turn_form_reply(forget_fact, forgot_fact).
 
+% ══ gen507/63 (forma #8) — DUE NOMI, UNA COSA SOLA ════════════════════════
+% «X e Y sono la stessa cosa»: da li' cio' che si dice di uno vale per l'altro,
+% perche' il lettore risolve l'alias prima di cercare. Non e' un fatto sul
+% mondo, e' un fatto sui NOMI — e finora si poteva solo scrivere in un file.
+%
+% ⚠ Provato prima con «how many things does X V?»: quella superficie e' gia'
+% di un lettore che enumera, e risponde bene. Non gliela si ruba.
+response_template(learned_identity, "Held: «{surface}» and «{concept}» name the same thing.").
+response_template(learned_identity, it, "Tengo: «{surface}» e «{concept}» nominano la stessa cosa.").
+
+% L'ORDINE DEGLI ARGOMENTI E' PARTE DELLA LEZIONE: `entity_alias(Superficie,
+% Concetto)` va dal nome NUOVO a quello che parrot0 gia' conosce. Scritto al
+% contrario la riga entra e non serve a niente — ed e' stato il primo tentativo.
+turn_form(teach_identity, 1, slot(surface)).
+turn_form(teach_identity, 2, text("and")).
+turn_form(teach_identity, 3, slot(concept)).
+turn_form(teach_identity, 4, text("name the same thing")).
+turn_form_mood(teach_identity, statement).
+turn_form_act(teach_identity, "op(assert, entity_alias, [surface, concept])").
+turn_form_reply(teach_identity, learned_identity).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

@@ -456,6 +456,7 @@ classe intera invece di un membro.*
 | `what situations do you know?` | le situazioni per cui ha un piano (gen507/61, forma #92) |
 | `step for X is <cosa fare>` | un PASSO della procedura per X, in coda ai precedenti (gen507/38). ⚠ non `to make X you …`: quella superficie è del sintetizzatore di artefatti |
 | `forget that X is a Y` | ritratta: la lezione si disfa come si è fatta |
+| `X and Y name the same thing` | **identità fra due nomi**: da lì ciò che si dice di uno vale per l'altro (gen507/63, forma #8) |
 | `forget that X V Y` | ritratta un **fatto binario** (gen507/62, forma #66) — ed è la prima forma costata **zero righe di C** |
 
 ### F. Procedure eseguibili
@@ -588,7 +589,7 @@ altre cose che sa fare e non sa **quando**.
 | # | si dice | ne ricava | |
 |---|---|---|---|
 | 7 | `the X are A, B and C` | estensione **dichiarata completa** → da lì il «no» è chiuso, non «non l'ho derivato» | ✅ gen507/44 |
-| 8 | `X and Y are the same thing` | identità fra entità: ciò che vale per uno vale per l'altro | 🔴 |
+| 8 | `X and Y are the same thing` — reso `X and Y name the same thing` | identità fra entità | ✅ gen507/63 |
 | 9 | `every X is either Y or Z` | partizione: se non è Y allora è Z | 🔴 |
 | 10 | `the opposite of X is Y` | antonimia fra concetti (oggi c'è `opposite` come dominio, non come lezione) | 🟡 |
 | 11 | `most X are Y` | tipicità: vera in generale, **non** universale — e la risposta deve dirlo | 🔴 |
