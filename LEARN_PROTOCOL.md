@@ -400,6 +400,9 @@ classe intera invece di un membro.*
 | `ogni Y è P` | una REGOLA che il risolutore concatena — non un fatto |
 | `ogni Y ha Z` | un fatto sulla SPECIE; i membri lo ereditano (gen507/15) |
 | `nessun A è un B` | esclusione fra classi: chiude il mondo su entrambe |
+| `X contains Y` | `part_of/2` detta dal verso del contenitore (gen507/76) |
+| `X is caused by Y` | `causes/2` detta dal verso dell'effetto (gen507/76) |
+| `X is a kind of Y` | `kind_of/2`, la **catena dei tipi**: da lì `X` eredita le proprietà di ogni tipo sopra di sé (gen507/76) |
 | `X is a member of <classe>` | mette X nella **tassonomia percorribile** *e* nella classe: due conoscenze diverse sullo stesso fatto, una frase sola (gen507/73) |
 | `<classe> are typically P` | una proprietà della **specie**: ogni membro presente e futuro la eredita (gen507/73, forma #78) |
 | `what does X get from the kind?` | che cosa X **eredita** — `inherits/2` esisteva come regola e nessuna superficie ci arrivava (gen507/73) |

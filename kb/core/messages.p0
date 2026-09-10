@@ -1957,6 +1957,42 @@ turn_form_act(teach_before, "op(assert, inverse_relation, [precedes, follows])")
 turn_form_act(teach_before, "op(assert, precedes, [subject, object])").
 turn_form_reply(teach_before, learned_precedes).
 
+% ══ gen507/76 — TRE FATTI DETTI DAL VERSO IN CUI UNA PERSONA LI DIREBBE ════
+%
+% `part_of/2`, `causes/2` e `kind_of/2` esistono e rispondono. Ma si potevano
+% dire in un verso solo — «X e' parte di Y», «X causa Y» — e la lingua vera usa
+% l'altro almeno quanto: si dice «il motore CONTIENE i pistoni» e «l'incendio E'
+% CAUSATO da una scintilla». Chi insegna non deve girare la frase nella testa
+% per accontentare la KB: l'atto la gira per lui, e i due versi vanno nello
+% stesso posto.
+response_template(learned_contains, "Held: {object} is part of {subject}.").
+response_template(learned_contains, it, "Tengo: {object} fa parte di {subject}.").
+response_template(learned_caused_by, "Held: {object} causes {subject}.").
+response_template(learned_caused_by, it, "Tengo: {object} causa {subject}.").
+response_template(learned_kind, "Held: {subject} is a kind of {object} -- and the chain of kinds carries.").
+response_template(learned_kind, it, "Tengo: {subject} è un tipo di {object} — e la catena dei tipi si percorre.").
+
+turn_form(teach_contains, 1, slot(subject)).
+turn_form(teach_contains, 2, text("contains")).
+turn_form(teach_contains, 3, rest(object)).
+turn_form_mood(teach_contains, statement).
+turn_form_act(teach_contains, "op(assert, part_of, [object, subject])").
+turn_form_reply(teach_contains, learned_contains).
+
+turn_form(teach_caused, 1, slot(subject)).
+turn_form(teach_caused, 2, text("is caused by")).
+turn_form(teach_caused, 3, rest(object)).
+turn_form_mood(teach_caused, statement).
+turn_form_act(teach_caused, "op(assert, causes, [object, subject])").
+turn_form_reply(teach_caused, learned_caused_by).
+
+turn_form(teach_kind, 1, slot(subject)).
+turn_form(teach_kind, 2, text("is a kind of")).
+turn_form(teach_kind, 3, rest(object)).
+turn_form_mood(teach_kind, statement).
+turn_form_act(teach_kind, "op(assert, kind_of, [subject, object])").
+turn_form_reply(teach_kind, learned_kind).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

@@ -1225,6 +1225,10 @@ causes(rain, wet_ground).
 causes(sun, plant_growth).
 causes(wet_ground, slippery_surfaces).
 causes(eutrophication, algae).
+causes("niacin deficiency", pellagra).
+causes("thiamine deficiency", beriberi).
+causes("vitamin d deficiency", rickets).
+causes("vitamin c deficiency", scurvy).
 chemical_symbol(actinium, Ac).
 chemical_symbol(ag, silver).
 chemical_symbol(al, aluminium).
@@ -1631,6 +1635,8 @@ kind_of(mammal, vertebrate).
 kind_of(oak, tree).        kind_of(tree, plant).     kind_of(plant, living_thing).
 kind_of(plant, living_thing).
 kind_of(reptile, vertebrate).
+kind_of(poem, text).
+kind_of(sonnet, poem).
 kind_of(spider, invertebrate).
 kind_of(vertebrate, animal).
 kind_of(whale, mammal).

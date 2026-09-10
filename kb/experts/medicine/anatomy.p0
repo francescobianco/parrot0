@@ -40,6 +40,9 @@ part_of(pancreas, endocrine).
 part_of(kidneys, urinary).
 part_of(skin, integumentary).
 part_of(femur, skeletal).
+part_of(nucleus, cell).
+part_of(atrium, heart).
+part_of(ventricle, heart).
 
 % --- major organs ---
 organ(heart, "muscular pump circulating blood through the body").
