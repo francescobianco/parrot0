@@ -13462,6 +13462,44 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
         } else if (!strcmp(act, "assert_relation") && sub && rel && obj) {
             const char *fa[2] = { sub, obj };
             ok = kb_assert(b->kb, rel, fa, 2);
+        } else if (!strcmp(act, "recite_plan")) {
+            /* gen507/61 (forma #91) — RACCONTARE LA PROPRIA CONDOTTA.
+             *
+             * Un piano si poteva insegnare (giro /36) e guardare con `/debug`,
+             * ma non CHIEDERE. Chiedere a parole e' diverso dall'ispezionare:
+             * `/debug` e' per chi sviluppa, la domanda e' per chi insegna — e
+             * chi insegna deve poter verificare che la lezione sia arrivata
+             * senza aprire uno strumento. */
+            const char *sit10 = p0_form_slot(slots, ns, "situation");
+            if (!sit10) continue;
+            char list11[500]; size_t l11 = 0, n11 = 0;
+            for (long o = 1; o <= 16; o++) {
+                char ob11[24]; snprintf(ob11, sizeof ob11, "%ld", o);
+                char mv11[4][KB_TERM_LEN];
+                const char *q11[3] = { sit10, ob11, NULL };
+                if (kb_match(b->kb, "plan_move", q11, 3, mv11, 4) < 1) continue;
+                char mb11[KB_TERM_LEN]; snprintf(mb11, sizeof mb11, "%s", mv11[0]);
+                const char *mv = kb_dequote(mb11);
+                char said11[KB_TERM_LEN];
+                snprintf(said11, sizeof said11, "%s", mv);
+                { char row[1][KB_TERM_LEN]; const char *tq[2] = { mv, NULL };
+                  if (kb_match(b->kb, "plan_step_text", tq, 2, row, 1) == 1) {
+                      char rb[KB_TERM_LEN]; snprintf(rb, sizeof rb, "%s", row[0]);
+                      snprintf(said11, sizeof said11, "%s", kb_dequote(rb));
+                  } }
+                l11 += (size_t)snprintf(list11 + l11, sizeof list11 - l11,
+                                        "%s%ld) %s", n11 ? "  " : "", o, said11);
+                n11++;
+            }
+            if (!n11) continue;
+            char msg12[560];
+            const KbResponseSlot ps12[] = { { "situation", sit10 },
+                                            { "list", list11 } };
+            if (kb_response_slots(b, "plan_recited", ps12, 2, msg12, sizeof msg12)) {
+                put(msg12, out, out_size);
+                free(forms);
+                return 1;
+            }
         } else if (!strcmp(act, "list_keys")) {
             /* gen507/59 (forma #83) — CHE COSA SO FARE.
              * Una procedura insegnata e' conoscenza come un fatto, e come un
@@ -13487,9 +13525,18 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                 seen10++;
             }
             if (!seen10) continue;
+            /* La resa e' della forma, non dell'atto: lo stesso atto elenca
+             * procedure e situazioni, e sono due frasi diverse. */
+            char tpl10[KB_TERM_LEN]; snprintf(tpl10, sizeof tpl10, "known_keys");
+            { char tr10[4][KB_TERM_LEN];
+              const char *tq10[2] = { forms[f], NULL };
+              if (kb_match(b->kb, "turn_form_reply", tq10, 2, tr10, 4) == 1) {
+                  char tb10[KB_TERM_LEN]; snprintf(tb10, sizeof tb10, "%s", tr10[0]);
+                  snprintf(tpl10, sizeof tpl10, "%s", kb_dequote(tb10));
+              } }
             char msg10[560];
             const KbResponseSlot ks[] = { { "list", list10 } };
-            if (kb_response_slots(b, "known_keys", ks, 1, msg10, sizeof msg10)) {
+            if (kb_response_slots(b, tpl10, ks, 1, msg10, sizeof msg10)) {
                 put(msg10, out, out_size);
                 free(forms);
                 return 1;

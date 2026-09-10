@@ -436,6 +436,8 @@ classe intera invece di un membro.*
 | si dice | parrot0 ne ricava |
 |---|---|
 | `quando <situazione> allora <mossa>` | un PIANO: `plan_move(Situazione, Ordine, Mossa)`. L'ordine è quello in cui le mosse vengono insegnate (gen507/36) |
+| `your plan when <situazione>?` | parrot0 **racconta la propria condotta**: chi insegna verifica che la lezione sia arrivata senza aprire uno strumento (gen507/61, forma #91). ⚠ non `what do you do when …`: quella è del registro delle capacità |
+| `what situations do you know?` | le situazioni per cui ha un piano (gen507/61, forma #92) |
 | `step for X is <cosa fare>` | un PASSO della procedura per X, in coda ai precedenti (gen507/38). ⚠ non `to make X you …`: quella superficie è del sintetizzatore di artefatti |
 | `forget that X is a Y` | ritratta: la lezione si disfa come si è fatta |
 
@@ -735,8 +737,8 @@ non è una domanda che qualcuno fa.*
 
 | # | atto | si dice | |
 |---|---|---|---|
-| 91 | chiedere il piano | `what do you do when <situazione>?` — parrot0 recita la propria condotta | 🔴 |
-| 92 | enumerare le situazioni | `what situations do you know?` | 🔴 |
+| 91 | chiedere il piano | reso `your plan when <situazione>?` — parrot0 recita la propria condotta | ✅ gen507/61 |
+| 92 | enumerare le situazioni | `what situations do you know?` | ✅ gen507/61 |
 | 93 | correggere una mossa | `move 1 for <situazione> is <altra>` | 🔴 |
 | 94 | condizionare | `when <situazione> and <condizione> then <mossa>` — due condizioni | 🔴 |
 | 95 | dare una ragione | `when <situazione> then <mossa> because <ragione>` — la condotta con il suo perché, e il perché è interrogabile | 🔴 |

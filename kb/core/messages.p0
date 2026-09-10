@@ -1623,6 +1623,8 @@ turn_form_act(teach_charclass, assert_many).
 % lezione che non si puo' disfare non e' una lezione, e' un vincolo).
 response_template(known_keys, "I know how to: {list}.").
 response_template(known_keys, it, "So fare: {list}.").
+response_template(known_situations, "Situations I have a plan for: {list}.").
+response_template(known_situations, it, "Situazioni per cui ho un piano: {list}.").
 response_template(forgot_ordered, "Forgotten: all {count} steps of {subject}.").
 response_template(forgot_ordered, it, "Dimenticato: tutti i {count} passi di {subject}.").
 
@@ -1639,6 +1641,30 @@ turn_form(forget_proc, 2, slot(key)).
 turn_form(forget_proc, 3, bind(relation, proc_step)).
 turn_form_mood(forget_proc, statement).
 turn_form_act(forget_proc, retract_ordered).
+
+% ══ gen507/61 (forme #91, #92) — CHIEDERE LA PROPRIA CONDOTTA ═════════════
+% Un piano si poteva insegnare (giro /36) e guardare con `/debug`, ma non
+% CHIEDERE. Sono due cose diverse: `/debug` e' per chi sviluppa, la domanda e'
+% per chi insegna — e chi insegna deve poter verificare che la lezione sia
+% arrivata senza aprire uno strumento.
+response_template(plan_recited, "When that happens I: {list}.").
+response_template(plan_recited, it, "Quando succede: {list}.").
+
+% ⚠ NON «what do you do when …»: quella superficie e' del registro delle
+% capacita', che risponde con l'elenco di cio' che parrot0 sa fare. Si dichiara
+% un'apertura che chiede una CONDOTTA, non un inventario.
+turn_form(ask_plan, 1, text("your plan when")).
+turn_form(ask_plan, 2, named(situation_cue, situation)).
+turn_form_act(ask_plan, recite_plan).
+
+turn_form(ask_plan_it, 1, text("il tuo piano quando")).
+turn_form(ask_plan_it, 2, named(situation_cue, situation)).
+turn_form_act(ask_plan_it, recite_plan).
+
+turn_form(list_situations, 1, text("what situations do you know")).
+turn_form(list_situations, 2, bind(relation, plan_move)).
+turn_form_act(list_situations, list_keys).
+turn_form_reply(list_situations, known_situations).
 
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
