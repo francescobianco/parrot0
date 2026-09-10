@@ -3327,6 +3327,55 @@ singleton_word(one).
 singleton_word(other).
 singleton_word(single).
 
+% ══ gen507/33 — CHIEDERE COME SI FA E' UNA FORMA, NON UN FRASARIO ═════════
+%
+% `intent_cue(process_request, …)` elencava DICIOTTO formulazioni scritte a
+% mano, e «come posso costruire una zattera» non era la diciannovesima: era la
+% prova che la classe cresce per casi. Peggio, le tre righe italiane erano
+% MORTE — la cue si confronta col turno canonicalizzato, e `come` diventa `how`
+% prima del confronto, quindi nessuna cue che comincia per «come» poteva piu'
+% agganciare niente. «come si fa» diventa letteralmente «how is makes».
+%
+% La forma e' una sola: INTERROGATIVO DI MODO + VERBO DI REALIZZAZIONE. Detta
+% cosi' vale in tutte e due le lingue insieme, perche' la canonicalizzazione
+% porta l'italiano DENTRO la classe invece che fuori: `come`->`how` da nemico
+% diventa alleato. Un verbo di realizzazione nuovo costa una riga, non una
+% frase intera.
+machinery(manner_question).
+manner_question(how).
+
+machinery(making_verb).
+making_verb(make).      making_verb(makes).     making_verb(making).
+making_verb(made).
+making_verb(build).     making_verb(builds).    making_verb(building).
+making_verb(built).
+making_verb(cook).      making_verb(cooks).     making_verb(cooking).
+making_verb(prepare).   making_verb(prepares).  making_verb(preparing).
+making_verb(bake).      making_verb(brew).      making_verb(assemble).
+making_verb(create).    making_verb(creates).   making_verb(craft).
+making_verb(grow).      making_verb(install).   making_verb(write).
+making_verb(repair).    making_verb(fix).       making_verb(clean).
+% E i verbi italiani, che sono CONTENUTO e quindi attraversano intatti la
+% canonicalizzazione: sono loro a portare l'italiano nella stessa classe.
+making_verb(fare).      making_verb(faccio).    making_verb(fai).
+making_verb(costruire). making_verb(costruisco). making_verb(costruisci).
+making_verb(preparare). making_verb(preparo).   making_verb(prepari).
+making_verb(cucinare).  making_verb(cucino).
+making_verb(creare).    making_verb(creo).
+making_verb(montare).   making_verb(assemblare).
+making_verb(coltivare). making_verb(riparare).  making_verb(pulire).
+making_verb(scrivere).  making_verb(installare).
+% Le forme coniugate che una domanda usa davvero: «come si PREPARA il pane»,
+% «come si COSTRUISCE una zattera». Il paradigma, non i casi.
+making_verb(prepara).   making_verb(preparano).
+making_verb(costruisce). making_verb(costruiscono).
+making_verb(cucina).    making_verb(cucinano).
+making_verb(crea).      making_verb(creano).
+making_verb(ripara).    making_verb(pulisce).
+making_verb(scrive).    making_verb(installa).
+making_verb(monta).     making_verb(assembla).
+making_verb(coltiva).
+
 machinery(square_marker).
 % gen507/32 — la classe aveva il participio inglese e il nome italiano, e non il
 % NOME inglese: «quanto fa il quadrato di 32?» rispondeva 1024 e «what is the

@@ -3624,9 +3624,34 @@ intent_cue(process_request, "describe how to").
 % una nuova frase e' un fatto, e vale per entrambi.
 intent_cue(process_request, "how to").
 intent_cue(process_request, "steps for").
+% ⚠ gen507/33 — QUESTE TRE RIGHE SONO MORTE, e si tengono per memoria.
+% La cue si confronta col turno CANONICALIZZATO: `come`->`how` (e «si fa» ->
+% «is makes»), quindi nessuna delle tre puo' agganciare un turno. Erano
+% conoscenza scritta, salvata, e irraggiungibile da sempre — peso morto due
+% volte. A raggiungere l'italiano e' ora la FORMA dichiarata qui sotto, non una
+% quarta superficie. Non le tolgo: se un giorno la canonicalizzazione cambia,
+% tornano vive da sole ([[keep-secondary-structures]]).
 intent_cue(process_request, "come faccio").
 intent_cue(process_request, "come si fa").
 intent_cue(process_request, "come fare").
+
+% ── LA FORMA, al posto del frasario ────────────────────────────────────────
+% «how do i make tea», «come posso costruire una zattera», «how can i build a
+% raft», «come si prepara il pane»: un interrogativo di modo e un verbo di
+% realizzazione. Due condizioni invece di diciotto superfici, e in entrambe le
+% lingue insieme.
+turn_pattern(process_form, word, manner_question).
+turn_pattern(process_form, word, making_verb).
+turn_pattern_intent(process_form, process_request).
+
+% E l'abduttore cede: «how can i build a raft?» non e' la domanda «che cosa
+% renderebbe qualcosa una zattera?», ed e' esattamente cosi' che rispondeva —
+% una risposta sicura su una domanda diversa. Una facolta' che non ha una
+% procedura in gara cede il turno quando il turno chiede una procedura.
+% NB: la classe che si cede e' l'INTENTO (`process_request`), non il nome della
+% forma: e' l'intento che il matcher universale sa riconoscere, per cue come per
+% forma dichiarata.
+faculty_yield(abduce, open, process_request).
 
 intent_cue(activity_request, "best way to").
 intent_cue(activity_request, "good way to").

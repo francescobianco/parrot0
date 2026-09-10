@@ -112,6 +112,14 @@ process_step(tea, 2, "Put a tea bag (or loose tea in an infuser) into a cup or t
 process_step(tea, 3, "Pour the boiling water over the tea and let it steep for 3 to 5 minutes").
 process_step(tea, 4, "Remove the tea bag or infuser").
 process_step(tea, 5, "Add milk, sugar, or lemon to taste, stir, and serve").
+% gen507/33 — i nomi ITALIANI dei temi: senza, «come si fa il te» arrivava alla
+% facolta' giusta e poi non trovava il compito, perche' il tema del turno era
+% «te» e il compito si chiama `tea`. Una lingua in piu' e' una riga per tema.
+process_topic(tea, te).
+process_topic(tea, te').
+process_topic(bread_rise, pane).
+process_topic(bread_rise, lievito).
+process_topic(bread_rise, impasto).
 process_topic(bread_rise, bread).
 process_topic(bread_rise, dough).
 process_topic(bread_rise, rise).
