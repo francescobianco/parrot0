@@ -179,3 +179,9 @@ relation_verb(limits).
 relation_verb(expands).
 relation_verb(contracts).
 relation_verb(owner).
+relation_verb(great-grandparent).
+relation_verb(grandchild).
+relation_verb(child).
+relation_verb(grandparent).
+relation_verb(parent).
+relation_verb(defeated).

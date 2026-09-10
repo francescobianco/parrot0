@@ -1824,6 +1824,11 @@ has_part(concrete, sand).
 has_part(concrete, gravel).
 has_part(concrete, water).
 made_of(bicycle, steel).
+% gen509 — insegnati parlando («bronze contains copper», «bronze contains tin»).
+% /save li aveva messi in experts/medicine/anatomy.p0, il primo file che usa
+% part_of/2: stessa clausola, spostata accanto alle composizioni dei materiali.
+part_of(copper, bronze).
+part_of(tin, bronze).
 has_part(bicycle, wheels).
 has_part(bicycle, chain).
 has_part(bicycle, handlebars).

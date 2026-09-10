@@ -35,6 +35,14 @@ Che cosa **non** è ancora dimostrato: il rendimento su definizioni profonde e
 schemi grandi (§2.6, §3.7), la prova decisiva del §5, e il produttore
 prosa→istanza per gli eventi non nominati.
 
+**gen509 — primo uso in una sessione di addestramento reale** (report
+[2026-09-11-interlocutore-gen509](../reports/2026-09-11-interlocutore-gen509.md)).
+Definizioni annidate a tre livelli, la simmetria derivata dalla forma, la
+ritrattazione, e una proiezione che conserva l'identità dell'istanza hanno
+funzionato su fatti veri; 19 fatti del mondo sono stati salvati. I limiti non
+stanno nelle due strutture ma nel loro accesso: nomi di più parole come soggetto,
+domande che non passano da `holds/3`, e lettori che si prendono il turno.
+
 ## 1. Il criterio: aprire uno spazio, non aggiungere un comportamento
 
 `apply/2` ha un effetto maggiore di una singola feature perché sposta un

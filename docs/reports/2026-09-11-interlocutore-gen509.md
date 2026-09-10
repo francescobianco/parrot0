@@ -1,0 +1,241 @@
+# gen509 — Addestrare parrot0 come interlocutore: i limiti dell'apprendimento
+
+**Data:** 2026-09-11
+**Sistema:** `gen508@faf665f`, poi le due riparazioni del gen509 (§6)
+**Metodo:** soltanto `make chat`, con i turni mandati sulla stdin e le risposte
+lette una per una. Nessuna suite, nessun `.p0t`, nessun `!assert`.
+**Stato finale:** `partial` — 19 fatti veri del mondo salvati e riletti da un
+processo nuovo, una domanda di verifica su dodici fallita (§5).
+
+## 1. Che cosa si è cercato di fare
+
+L'obiettivo era avvicinare parrot0 a un interlocutore paragonabile a un LLM,
+insegnandogli **parlando** e usando le abilità più recenti: le superfici di
+ordine superiore del gen507 e le due strutture del gen508 (la definizione come
+espressione, il fatto a ruoli aperti).
+
+In questo report **un limite non è un prompt a cui parrot0 non ha saputo
+rispondere**. È una di due cose:
+
+- **una lezione che non ha potuto imparare** (sigla `NL`): la frase del maestro
+  non entra, entra deformata, o viene presa da un altro lettore;
+- **una lezione imparata e poi non messa in pratica** (sigla `NA`): il fatto è
+  nella KB, ma la domanda naturale che dovrebbe usarlo non ci arriva, o ci
+  arriva e sbaglia.
+
+Tutte le lezioni usano fatti veri e stabili. Le fonti di riferimento sono le
+voci enciclopediche indicate nel §3; non sono state riscaricate durante la
+sessione, perché i fatti usati sono date e attori consolidati.
+
+## 2. Le sessioni
+
+| Sessione | Contenuto | Salvata |
+|---|---|---|
+| 1 | parentele della famiglia reale britannica con nomi completi, definizioni di parentela | no |
+| 2 | quattro battaglie come eventi a ruoli, la proiezione «defeated» | no |
+| 3 | condotta da interlocutore: sigla, definizione, composizione, piano, antonimo, ripresa del discorso | no |
+| 4 | parentele con nomi di una parola, per separare il difetto dei nomi da quello delle definizioni | no |
+| 5 | nomi di battaglia completi; ritrattazione dopo la riparazione | no |
+| 6 | lezioni prima delle domande; nomi di più parole in posizione di valore | no |
+| 7 | parentele reali della famiglia Curie con nomi completi | no |
+| 8 | **la sessione di lezione**: soltanto lezioni già viste apprese e usate, poi `/save` | **sì** |
+| 9 | verifica in un processo nuovo, senza ripetere lezioni | no |
+
+Le sessioni esplorative non si salvano per una ragione precisa: una domanda che
+fallisce, con `make chat`, fa partire una ricerca su Wikipedia, e ciò che la
+ricerca estrae entra nella sessione. Nella sessione 1 la ricerca ha appreso
+`located_in(charles, english_and_french_speaking_countries)` da «Charles is a
+male given name predominantly found in English and French speaking
+countries»: un fatto falso. Salvare quella sessione avrebbe persistito il falso.
+
+## 3. Che cosa parrot0 ha imparato e usato
+
+### Il fatto a ruoli aperti
+
+```text
+> a battle involves a winner / a loser / a year · a battle requires a winner
+> waterloo is a battle
+> the winner of waterloo is arthur wellesley
+> the winner of waterloo is gebhard von blucher
+> the loser of waterloo is napoleon
+> the year of waterloo is 1815
+> defeated links the winner of a battle to its loser
+> does arthur wellesley defeated napoleon?        Yes.
+> does gebhard von blucher defeated napoleon?     Yes.
+> does napoleon defeated mikhail kutuzov?         Yes.   (Austerlitz)
+> does napoleon defeated arthur wellesley?        I don't know …
+> what does a battle involve?                     A battle I hold 3: has a loser, has a year, requires a winner.
+```
+
+La proiezione **conserva l'identità dell'istanza**: Napoleone vince ad
+Austerlitz e perde a Waterloo, e i due ruoli non si mescolano. «napoleon
+defeated napoleon» resta senza risposta, come deve. Il ruolo del vincitore
+accetta due valori, e il nome di più parole in posizione di valore si legge.
+
+### La definizione come espressione
+
+```text
+> parent holds wherever mother · parent holds wherever father
+> grandparent is parent twice
+> grandchild is grandparent read backwards
+> great_grandparent is grandparent followed by parent
+> does elizabeth great_grandparent george?      Yes.     (tre definizioni annidate)
+> sibling is child followed by parent
+> tell me about the relation sibling
+  About «sibling» I hold 2: goes both ways, defined as child followed by parent.
+> forget that grandparent is parent twice       Forgotten: grandparent is no longer defined that way.
+```
+
+La simmetria di «sibling» **non è stata insegnata**: segue dalla forma
+`then(flip(parent), parent)`. Le definizioni si annidano a tre livelli, e
+«what can you say about charles?» vede anche le relazioni definite. Queste
+prove usavano nomi di una parola (sessione 4); i fatti di quella sessione non
+sono stati salvati, per le ragioni del limite NL1.
+
+### Composizione di un materiale
+
+`bronze contains copper`, `bronze contains tin` → «what is part of bronze?»
+risponde «Copper and tin.», anche nel processo nuovo.
+
+### Fonti
+
+Voci enciclopediche di riferimento: *Battle of Waterloo*, *Battle of
+Austerlitz*, *Battle of Trafalgar*, *Battle of Hastings*, *Bronze*. Per le
+lezioni non salvate: *Elizabeth II*, *Charles III*, *William, Prince of Wales*,
+*Marie Curie*, *Irène Joliot-Curie*, *Ève Curie*, *Pierre Joliot*, *NASA*,
+*Photon*.
+
+## 4. I limiti
+
+### 4.1 Lezioni che non ha potuto imparare
+
+| | Lezione del maestro | Che cosa succede |
+|---|---|---|
+| **NL1** | «charles iii is the father of william» · «king charles is the father of william» | il soggetto di due parole perde l'oggetto: diventa `father(charles_iii)`, «charles iii is a father». Con nomi di una parola la stessa forma funziona. Le parentele reali si possono dire solo accorciando i nomi, e un nome accorciato («charles») è ambiguo |
+| **NL2** | «the battle of waterloo is a battle» · «the winner of the battle of waterloo is arthur wellesley» | «of» dentro il nome viene letto come una relazione, oppure parte una ricerca su «battle». Le battaglie si possono salvare solo con il nome breve, `waterloo`, che è anche il nome di una città: un'identità sola per due cose |
+| **NL3** | «a battle involves a winner», detta dopo un turno fallito | un chiarimento rimasto aperto su «winner» (Reality Winner, Michael Winner …) si prende la lezione e le due successive. Detta come primo turno, la stessa lezione entra. Così anche «lost_to is defeated read backwards» è stata presa dal chiarimento su «defeat». **L'apprendimento dipende dall'ordine dei turni** |
+| **NL4** | «photon is defined as the elementary particle of light» | la definizione del maestro non viene salvata: parte una ricerca, e al suo posto entrano quattro fatti estratti dalla prosa, fra cui `massless_particle(photons)`. Subito dopo, «what is the definition of photon?» risponde «definition is state what the concept is in one clear sentence.» |
+| **NL5** | «sibling is child followed by parent» | non esiste una superficie per dire «purché siano persone diverse». La definizione tiene, ma rende ognuno fratello di sé stesso: «does william sibling william?» → «Yes.». Per questo non è stata salvata |
+| **NL6** | «the mother of irene joliot-curie is marie curie», dopo «mother is a relation» | la lezione entra, come `mother_of(irene_joliot-curie, marie_curie)`. Ma «marie curie is the mother of …» produce un altro predicato, `mother`, e «parent holds wherever mother» raggiunge solo quello. Chi insegna non può nominare `mother_of`. Due dialetti per la stessa relazione, e nessuna lezione naturale per unirli |
+| **NL7** | «when you don't have the steps then say what it is made of» | le situazioni di un piano sono chiuse: ne esiste una sola, e questa mossa c'era già. La lezione accoda un doppione come mossa 3, e la conferma arriva in italiano |
+| **NL8** | qualunque lezione con una parola nuova, in `make chat` | la ricerca automatica può apprendere dalla prosa un fatto falso (il caso di «charles», §2). Il maestro non vede l'errore, perché la risposta dice solo «I extracted 1 facts» |
+
+### 4.2 Lezioni imparate e poi non messe in pratica
+
+| | Appreso | Uso che fallisce |
+|---|---|---|
+| **NA1** | `winner_of(waterloo, arthur_wellesley)` | «who is the winner of waterloo?» → «I don't know about winner». «what is the year of waterloo?» → «1815.»: lo stesso lettore risponde per un ruolo e non per l'altro |
+| **NA2** | grandparent come «parent twice» | «is elizabeth the grandparent of william?» → **«No.»**, mentre «does elizabeth grandparent william?» → «Yes.». Anche «is william a sibling of harry?» → «No.». La forma di domanda più naturale non consulta la definizione e **risponde il falso**. È il limite più grave del report |
+| **NA3** | grandparent, grandchild | «who is the grandparent of william?» → «Nobody that I know of». «who are the grandchildren of elizabeth?» → non conosce «grandchildren». Le domande aperte e i plurali non raggiungono le definizioni |
+| **NA4** | la relazione «defeated» | «did wellington defeat napoleon?» → non conosce «defeat». Il nome della relazione è la parola esatta della lezione; nessuna forma verbale la ritrova |
+| **NA5** | `winner_of(hastings, william_the_conqueror)` | nel processo nuovo, «does william the conqueror defeated harold godwinson?» → «I don't know about william». Un nome con «the» dentro si salva come valore e non si legge come soggetto |
+| **NA6** | «nasa is short for national aeronautics and space administration» | «what does nasa stand for?» cerca «national»; «what is nasa?» non usa la sigla |
+| **NA7** | `part_of(copper, bronze)`, `part_of(tin, bronze)` | «what is bronze made of?» → non conosce «bronze». Con la lezione di piano, «how is bronze made?» fa partire una ricerca invece di eseguire la mossa «say what it is made of». «what is part of bronze?» invece risponde |
+| **NA8** | «hot is the opposite of cold», e `opposite(cold, hot)` era già in KB | «what is the opposite of hot?» → «Cold.»; «what is the opposite of cold?» → un paragrafo sulla Guerra fredda |
+| **NA9** | il piano per `steps_missing` | «your plan when you don't have the steps?» → sei punti generici sulla progettazione di sistemi: un altro lettore prende la domanda e risponde qualcosa di non pertinente |
+| **NA10** | lezioni in inglese a ruoli | «a battle involves a year» → «Tengo: un battle ha un anno.»: la conferma passa all'italiano e traduce il nome del ruolo. La trascrizione salvata conserva le conferme italiane |
+| **NA11** | fatti a ruoli su Napoleone | «what can you say about napoleon?» → «defeated» nella sessione 2, e nella sessione 6 → «I don't have any of my own -- I'm parrot0, an AI»: la stessa domanda cambia lettore secondo i turni precedenti |
+
+### 4.3 Che cosa hanno in comune
+
+Tre cause spiegano quasi tutti i limiti.
+
+1. **Il nome di più parole.** In posizione di valore si legge («arthur
+   wellesley», «pierre-charles villeneuve»); in posizione di soggetto o di
+   istanza no (NL1, NL2, NA5). È la stessa lacuna del «iron ore» del
+   2026-09-05: il referente di più parole non ha un'identità stabile.
+2. **Le domande consultano un sottoinsieme delle viste.** La polare «does X V
+   Y?» passa da `holds/3` e vede definizioni e proiezioni; la polare «is X the
+   R of Y?», le domande aperte e i plurali no (NA1–NA4). La conoscenza è salva e
+   la maggior parte delle domande non la raggiunge. Dove la vista mancante
+   produce «No.» invece di «non so» (NA2), il limite diventa un falso.
+3. **Il turno lo prende chi arriva primo.** Chiarimenti rimasti aperti,
+   ricerche, lettori di registro e di chiacchiera catturano lezioni e domande
+   secondo l'ordine della conversazione (NL3, NL4, NA9, NA11). Una lezione
+   funziona o no a seconda di che cosa è stato detto prima.
+
+## 5. La sessione salvata e la verifica
+
+**Boot della sessione di lezione:** `B0 = 44391` fatti, `R0 = 3050` regole.
+**`/save`:** `parrot0: routed 131 clause(s) into the KB tree` → `S = 131`.
+
+| Categoria | Conteggio | Clausole |
+|---|---:|---|
+| fatti veri del mondo `W` | **19** | `part_of` ×2, `battle` ×4, `winner_of` ×5, `loser_of` ×4, `year_of` ×4 |
+| linguistici `L` | 7 | `relation_verb` ×6, `class_surface(battle, battle)` |
+| costruzioni `C` | 11 | `relation_role` ×3, `required_role`, `relation_projection(defeated, …)`, `relation_or` ×2, `relation_twice`, `relation_reverse` ×2, `relation_chain` |
+| provenienza `P` | 34 | `fact_source` ×17, `reading_fact` ×17 |
+| altre `O` | 60 | `utterance` della trascrizione |
+| invalide `X` | **0** | |
+
+Totale classificato: 19 + 7 + 11 + 34 + 60 = 131 = `S`.
+
+```text
+Nuovi fatti veri del mondo salvati in KB: 19
+Nuove clausole totali salvate e classificate: 131
+Clausole dichiarate da /save: 131
+Clausole invalide: 0
+```
+
+**Collocazione.** `/save` ha messo le due clausole del bronzo in
+`kb/experts/medicine/anatomy.p0`, il primo file che usa `part_of/2`. Sono
+state spostate a mano, identiche, in `kb/core/world-facts.p0`. È il difetto
+già descritto in LEARN_PROTOCOL.md, «conoscenza vera nel posto sbagliato».
+
+**Processo nuovo:** `B1 = 44588`, `R1 = 3050`. Dodici domande sui fatti salvati
+e un contrasto, senza ripetere lezioni:
+
+| Domanda | Risposta |
+|---|---|
+| what does a battle involve? | has a loser, has a year, requires a winner |
+| describe waterloo | waterloo is a battle. |
+| what is the year of trafalgar? | 1805. |
+| does arthur wellesley defeated napoleon? | Yes. |
+| does napoleon defeated mikhail kutuzov? | Yes. |
+| does horatio nelson defeated pierre-charles villeneuve? | Yes. |
+| does william the conqueror defeated harold godwinson? | **fallisce** (NA5) |
+| what is part of bronze? | Tin and copper. |
+| is copper part of bronze? | Yes. |
+| tell me about the relation great-grandparent | defined as grandparent followed by parent |
+| tell me about the relation grandchild | defined as grandparent read backwards |
+| how is grandparent defined? | parent followed by parent |
+| contrasto: does napoleon defeated arthur wellesley? | I don't know … (corretto) |
+
+```text
+FreshProcessRecall     = 11/12
+ContrastPrecision      = 1/1
+AblationFidelity       = 1/1   (sessione 5, dopo la riparazione del §6)
+FalseUnderstandingRate = 0 nella sessione salvata; nelle esplorative «No.» falsi in NA2
+```
+
+La recall non è al 100%, quindi lo stato è `partial`, non `trained`.
+
+**Un limite della crescita salvata.** Le definizioni di parentela sono vere e
+sono state viste funzionare nella sessione 4. Oggi la KB non contiene fatti
+reali di madre o padre che esse possano usare, e i fatti reali con nomi
+completi non si possono insegnare (NL1, NL6).
+
+## 6. Due difetti del gen508, trovati insegnando e riparati nel gen509
+
+| Difetto | Come si è visto | Riparazione |
+|---|---|---|
+| i predicati d'appoggio del gen508 non erano dichiarati di macchina | «describe waterloo» → «waterloo is a base_expr. waterloo is a occurrence_complete.» | `machinery/1` per i diciassette aiutanti, in `kb/core/procedures.p0` |
+| lo slot `expr` univa più parole in un nome solo | «forget that grandparent is parent twice» → «Held: forget that grandparent is parent applied twice.», con la relazione `forget_that_grandparent` | un nome nudo in un'espressione è una parola sola, come lo `slot` del gen507 (`p0_relation_expr`) |
+
+Dopo le riparazioni, «describe waterloo» → «waterloo is a battle.», e la
+ritrattazione della definizione funziona (sessione 5).
+
+## 7. Da dove ripartire
+
+Le tre cause del §4.3 sono tre classi di lavoro, non trentatré prompt:
+
+1. un'identità per il referente di più parole, in posizione di soggetto e di
+   istanza;
+2. le domande «is X the R of Y?», «who is the R of X?» e i plurali devono
+   passare dalla stessa vista `holds/3` della polare, e un'assenza deve dire
+   «non so», non «No.»;
+3. un chiarimento o una ricerca rimasti aperti non devono prendersi il turno
+   di una lezione.
+
+Lo spazio negativo di questa sessione — le lezioni che non entrano — è la
+lista in §4.1. Nessuno di questi limiti è stato trasformato in un test.

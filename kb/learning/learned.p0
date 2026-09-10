@@ -117,6 +117,7 @@ class_surface(iron_oxide_mineral, iron oxide mineral).
 class_surface(copper_sulfide_mineral, copper sulfide mineral).
 class_surface(copper_carbonate_mineral, copper carbonate mineral).
 class_surface(relation_verb, relation verb).
+class_surface(battle, battle).
 copper_sulfide_mineral(chalcocite).
 copper_sulfide_mineral(covellite).
 copper_sulfide_mineral(bornite).
@@ -136,3 +137,31 @@ currency_of(ghana, cedi).
 currency_of(vietnam, dong).
 currency_of(poland, zloty).
 currency_of(peru, sol).
+relation_role(battle, winner).
+relation_role(battle, loser).
+relation_role(battle, year).
+required_role(battle, winner).
+battle(waterloo).
+winner_of(waterloo, arthur_wellesley).
+winner_of(waterloo, gebhard_von_blucher).
+loser_of(waterloo, napoleon).
+year_of(waterloo, 1815).
+battle(austerlitz).
+winner_of(austerlitz, napoleon).
+loser_of(austerlitz, mikhail_kutuzov).
+year_of(austerlitz, 1805).
+battle(trafalgar).
+winner_of(trafalgar, horatio_nelson).
+loser_of(trafalgar, pierre-charles_villeneuve).
+year_of(trafalgar, 1805).
+battle(hastings).
+winner_of(hastings, william_the_conqueror).
+loser_of(hastings, harold_godwinson).
+year_of(hastings, 1066).
+relation_projection(defeated, battle, winner, loser).
+relation_or(parent, mother).
+relation_or(parent, father).
+relation_twice(grandparent, parent).
+relation_reverse(child, parent).
+relation_reverse(grandchild, grandparent).
+relation_chain(great-grandparent, grandparent, parent).

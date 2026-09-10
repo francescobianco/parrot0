@@ -63,6 +63,7 @@ utterance(5, user, "chrysalis comes before butterfly").
 utterance(5, user, "beriberi is caused by thiamine_deficiency").
 utterance(5, user, "ginzburg wrote lessico_famigliare").
 utterance(5, user, "gaborone is the capital of botswana").
+utterance(5, user, "a battle involves a year").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -105,6 +106,7 @@ utterance(6, self, "Tengo: chrysalis viene prima di butterfly — e la catena si
 utterance(6, self, "Held: thiamine_deficiency causes beriberi.").
 utterance(6, self, "Tengo: ginzburg ha scritto lessico_famigliare.").
 utterance(6, self, "Held: the capital of botswana is gaborone.").
+utterance(6, self, "Tengo: un battle ha un anno.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -559,6 +561,7 @@ utterance(7, user, "seed comes before seedling").
 utterance(7, user, "pellagra is caused by niacin_deficiency").
 utterance(7, user, "nepal borders india").
 utterance(7, user, "asuncion is the capital of paraguay").
+utterance(7, user, "a battle requires a winner").
 utterance(23, user, "is magnetite an iron ore mineral?").
 utterance(7, user, "what does a capacitor store?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -758,7 +761,60 @@ utterance(19, user, "barometer is there to measure air pressure").
 utterance(20, self, "Held: barometer is for measure_air_pressure.").
 utterance(21, user, "metronome is there to keep tempo").
 utterance(22, self, "Held: metronome is for keep_time.").
+utterance(8, self, "Tengo: un battle richiede un winner.").
+utterance(9, user, "waterloo is a battle").
+utterance(10, self, "Learned: waterloo is a battle.").
+utterance(11, user, "the winner of waterloo is arthur wellesley").
+utterance(12, self, "Learned: the winner of waterloo is arthur wellesley.").
+utterance(13, user, "the winner of waterloo is gebhard von blucher").
+utterance(14, self, "Learned: the winner of waterloo is gebhard von blucher.").
+utterance(15, user, "the loser of waterloo is napoleon").
+utterance(16, self, "Learned: the loser of waterloo is napoleon.").
+utterance(17, user, "the year of waterloo is 1815").
+utterance(18, self, "Learned: the year of waterloo is 1815.").
+utterance(19, user, "austerlitz is a battle").
+utterance(20, self, "Learned: austerlitz is a battle.").
+utterance(21, user, "the winner of austerlitz is napoleon").
+utterance(22, self, "Learned: the winner of austerlitz is napoleon.").
+utterance(23, user, "the loser of austerlitz is mikhail kutuzov").
+utterance(24, self, "Learned: the loser of austerlitz is mikhail kutuzov.").
+utterance(25, user, "the year of austerlitz is 1805").
+utterance(26, self, "Learned: the year of austerlitz is 1805.").
+utterance(27, user, "trafalgar is a battle").
+utterance(28, self, "Learned: trafalgar is a battle.").
+utterance(29, user, "the winner of trafalgar is horatio nelson").
+utterance(30, self, "Learned: the winner of trafalgar is horatio nelson.").
+utterance(31, user, "the loser of trafalgar is pierre-charles villeneuve").
+utterance(32, self, "Learned: the loser of trafalgar is pierre-charles villeneuve.").
+utterance(33, user, "the year of trafalgar is 1805").
+utterance(34, self, "Learned: the year of trafalgar is 1805.").
+utterance(35, user, "hastings is a battle").
+utterance(36, self, "Learned: hastings is a battle.").
+utterance(37, user, "the winner of hastings is william the conqueror").
+utterance(38, self, "Learned: the winner of hastings is william the conqueror.").
+utterance(39, user, "the loser of hastings is harold godwinson").
+utterance(40, self, "Learned: the loser of hastings is harold godwinson.").
+utterance(41, user, "the year of hastings is 1066").
+utterance(42, self, "Learned: the year of hastings is 1066.").
+utterance(43, user, "defeated links the winner of a battle to its loser").
 utterance(42, self, "Directly: bornite is a copper sulfide mineral — no reasoning needed.").
+utterance(44, self, "Held: defeated links the winner of a battle to its loser.").
+utterance(45, user, "bronze contains copper").
+utterance(46, self, "Held: copper is part of bronze.").
+utterance(47, user, "bronze contains tin").
+utterance(48, self, "Held: tin is part of bronze.").
+utterance(49, user, "parent holds wherever mother").
+utterance(50, self, "Held: parent holds wherever mother holds.").
+utterance(51, user, "parent holds wherever father").
+utterance(52, self, "Held: parent holds wherever father holds.").
+utterance(53, user, "grandparent is parent twice").
+utterance(54, self, "Held: grandparent is parent applied twice.").
+utterance(55, user, "child is parent read backwards").
+utterance(56, self, "Held: child is parent read backwards.").
+utterance(57, user, "grandchild is grandparent read backwards").
+utterance(58, self, "Held: grandchild is grandparent read backwards.").
+utterance(59, user, "great-grandparent is grandparent followed by parent").
+utterance(60, self, "Held: great-grandparent is grandparent followed by parent.").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
 utterance(9, user, "is a diode a passive component?").
@@ -1047,6 +1103,7 @@ utterance(2, self, "Tengo: uovo viene prima di caterpillar — e la catena si pe
 utterance(2, self, "Held: vitamin_c_deficiency causes scurvy.").
 utterance(2, self, "Tengo: calvino ha scritto cosmicomiche.").
 utterance(2, self, "Held: the capital of bhutan is thimphu.").
+utterance(2, self, "Tengo: un battle ha un winner.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -1088,6 +1145,7 @@ utterance(1, user, "egg comes before caterpillar").
 utterance(1, user, "scurvy is caused by vitamin_c_deficiency").
 utterance(1, user, "calvino wrote cosmicomiche").
 utterance(1, user, "thimphu is the capital of bhutan").
+utterance(1, user, "a battle involves a winner").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -1123,6 +1181,7 @@ utterance(4, self, "Tengo: caterpillar viene prima di chrysalis — e la catena 
 utterance(4, self, "Held: vitamin_d_deficiency causes rickets.").
 utterance(4, self, "Tengo: morante ha scritto la_storia.").
 utterance(4, self, "Held: the capital of laos is vientiane.").
+utterance(4, self, "Tengo: un battle ha un loser.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1159,6 +1218,7 @@ utterance(3, user, "caterpillar comes before chrysalis").
 utterance(3, user, "rickets is caused by vitamin_d_deficiency").
 utterance(3, user, "morante wrote la_storia").
 utterance(3, user, "vientiane is the capital of laos").
+utterance(3, user, "a battle involves a loser").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

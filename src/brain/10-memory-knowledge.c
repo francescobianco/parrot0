@@ -13099,7 +13099,14 @@ static int p0_relation_expr(Brain *b, char **w, size_t from, size_t to,
             }
         }
     }
-    char v[KB_TERM_LEN];                                  /* altrimenti: UN nome */
+    /* altrimenti: UN nome, di UNA parola — come lo `slot` del gen507 che questo
+     * pezzo sostituisce. gen509: unire lo span intero faceva leggere «forget
+     * that grandparent is parent twice» come la lezione «due volte» con il
+     * soggetto `forget_that_grandparent`, e la ritrattazione non arrivava mai
+     * alla sua forma. Uno span di piu' parole e' un'espressione solo se la sua
+     * testa e' una costruzione (il ramo sopra). */
+    if (to != from + 1) return 0;
+    char v[KB_TERM_LEN];
     if (!p0_join(w, from, to, v, sizeof v)) return 0;
     for (char *c = v; *c; c++) if (*c == '.' || *c == '?') { *c = '\0'; break; }
     if (!*v) return 0;

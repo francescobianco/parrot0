@@ -1903,6 +1903,16 @@ relation_construction($C) :- relation_def(use($C, $P), $D).
 %   flip(then(A,B)) = then(flip(B), flip(A))   la legge dell'ordine scambiato
 machinery(norm_expr).
 machinery(compound_expr).
+% gen509: gli aiutanti sono meccanica. Senza questa riga «describe waterloo»
+% annunciava «waterloo is a base_expr» — un atomo qualunque soddisfa
+% `base_expr/1`, e il lettore delle descrizioni scarta solo cio' che si
+% dichiara `machinery/1` (gen434). Difetto del gen508, trovato insegnando.
+machinery(base_expr).  machinery(has_def).       machinery(flip_norm).
+machinery(same_form).  machinery(symmetric_form). machinery(transitive_form).
+machinery(reflexive_form). machinery(functional_form).
+machinery(expr_infix). machinery(expr_suffix).    machinery(expr_pair_words).
+machinery(has_role).   machinery(missing_role).   machinery(occurrence_incomplete).
+machinery(occurrence_complete). machinery(has_condition). machinery(schema_note).
 compound_expr(flip($E)).       compound_expr(both($A, $B)).   compound_expr(either($A, $B)).
 compound_expr(then($A, $B)).   compound_expr(unless($A, $B)). compound_expr(within($C, $E)).
 compound_expr(use($C, $A)).

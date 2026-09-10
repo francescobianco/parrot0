@@ -167,6 +167,23 @@ fact_source(also_known_as(newtons_second_law, "seconda legge di newton"), newton
 fact_source(also_known_as(ohms_law, "legge di ohm"), ohms_law, "ohms_law is also called legge di ohm").
 fact_source(causes(eutrophication, algae), eutrophication, "eutrophication causes algae to grow and oxygen to fall").
 fact_source(relation_verb(owner), owner, "owner is a relation verb").
+fact_source(year_of(hastings, 1066), hastings, "the year of hastings is 1066").
+fact_source(loser_of(hastings, harold_godwinson), hastings, "the loser of hastings is harold godwinson").
+fact_source(winner_of(hastings, william_the_conqueror), hastings, "the winner of hastings is william the conqueror").
+fact_source(battle(hastings), hastings, "hastings is a battle").
+fact_source(year_of(trafalgar, 1805), trafalgar, "the year of trafalgar is 1805").
+fact_source(loser_of(trafalgar, pierre-charles_villeneuve), trafalgar, "the loser of trafalgar is pierre-charles villeneuve").
+fact_source(winner_of(trafalgar, horatio_nelson), trafalgar, "the winner of trafalgar is horatio nelson").
+fact_source(battle(trafalgar), trafalgar, "trafalgar is a battle").
+fact_source(year_of(austerlitz, 1805), austerlitz, "the year of austerlitz is 1805").
+fact_source(loser_of(austerlitz, mikhail_kutuzov), austerlitz, "the loser of austerlitz is mikhail kutuzov").
+fact_source(winner_of(austerlitz, napoleon), austerlitz, "the winner of austerlitz is napoleon").
+fact_source(battle(austerlitz), austerlitz, "austerlitz is a battle").
+fact_source(year_of(waterloo, 1815), waterloo, "the year of waterloo is 1815").
+fact_source(loser_of(waterloo, napoleon), waterloo, "the loser of waterloo is napoleon").
+fact_source(winner_of(waterloo, gebhard_von_blucher), waterloo, "the winner of waterloo is gebhard von blucher").
+fact_source(winner_of(waterloo, arthur_wellesley), waterloo, "the winner of waterloo is arthur wellesley").
+fact_source(battle(waterloo), waterloo, "waterloo is a battle").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -223,20 +240,37 @@ reading_fact(relation_verb(modulates), "modulates is a relation verb").
 reading_fact(iron_ore_mineral(hematite), "hematite is an iron ore mineral").
 reading_fact(necessity_marker(shall), "the word shall is a necessity marker").
 reading_fact(iron_oxide_mineral(magnetite), "magnetite is an iron oxide mineral").
+reading_fact(year_of(hastings, 1066), "the year of hastings is 1066").
 reading_fact(relation_verb(modified), "modified is a relation verb").
+reading_fact(loser_of(hastings, harold_godwinson), "the loser of hastings is harold godwinson").
 reading_fact(carbonate_mineral(siderite), "siderite is a carbonate mineral").
+reading_fact(winner_of(hastings, william_the_conqueror), "the winner of hastings is william the conqueror").
 reading_fact(iron_oxide_mineral(hematite), "hematite is an iron oxide mineral").
+reading_fact(battle(hastings), "hastings is a battle").
 reading_fact(copper_sulfide_mineral(covellite), "covellite is a copper sulfide mineral").
+reading_fact(year_of(trafalgar, 1805), "the year of trafalgar is 1805").
 reading_fact(iron_ore_mineral(siderite), "siderite is an iron ore mineral").
+reading_fact(loser_of(trafalgar, pierre-charles_villeneuve), "the loser of trafalgar is pierre-charles villeneuve").
 reading_fact(copper_sulfide_mineral(chalcocite), "chalcocite is a copper sulfide mineral").
+reading_fact(winner_of(trafalgar, horatio_nelson), "the winner of trafalgar is horatio nelson").
 reading_fact(copper_mineral(chalcopyrite), "chalcopyrite is a copper mineral").
+reading_fact(battle(trafalgar), "trafalgar is a battle").
 reading_fact(also_known_as(density_law, "formula della densit"), "density_law is also called formula della densità").
+reading_fact(year_of(austerlitz, 1805), "the year of austerlitz is 1805").
 reading_fact(copper_sulfide_mineral(bornite), "bornite is a copper sulfide mineral").
+reading_fact(loser_of(austerlitz, mikhail_kutuzov), "the loser of austerlitz is mikhail kutuzov").
 reading_fact(also_known_as(kinetic_energy_law, "legge dell energia cinetica"), "kinetic_energy_law is also called legge dell energia cinetica").
+reading_fact(winner_of(austerlitz, napoleon), "the winner of austerlitz is napoleon").
 reading_fact(copper_carbonate_mineral(azurite), "azurite is a copper carbonate mineral").
+reading_fact(battle(austerlitz), "austerlitz is a battle").
 reading_fact(also_known_as(newtons_second_law, "seconda legge di newton"), "newtons_second_law is also called seconda legge di newton").
+reading_fact(year_of(waterloo, 1815), "the year of waterloo is 1815").
 reading_fact(copper_carbonate_mineral(malachite), "malachite is a copper carbonate mineral").
+reading_fact(loser_of(waterloo, napoleon), "the loser of waterloo is napoleon").
 reading_fact(also_known_as(ohms_law, "legge di ohm"), "ohms_law is also called legge di ohm").
+reading_fact(winner_of(waterloo, gebhard_von_blucher), "the winner of waterloo is gebhard von blucher").
 reading_fact(causes(eutrophication, algae), "eutrophication causes algae to grow and oxygen to fall").
+reading_fact(winner_of(waterloo, arthur_wellesley), "the winner of waterloo is arthur wellesley").
 reading_fact(relation_verb(owner), "owner is a relation verb").
+reading_fact(battle(waterloo), "waterloo is a battle").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").
