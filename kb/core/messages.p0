@@ -1925,6 +1925,19 @@ turn_form_mood(ask_inherit, question).
 turn_form_act(ask_inherit, "op(match, inherits, [subject, free])").
 turn_form_reply(ask_inherit, inherited_props).
 
+% gen507/74 (forma #27) — le SIGLE. Una sigla non e' un sinonimo qualsiasi: e'
+% la forma corta che nei testi compare piu' spesso del nome esteso, e senza il
+% ponte ogni frase che la usa e' un muro.
+response_template(learned_abbrev, "Held: «{surface}» is short for «{concept}».").
+response_template(learned_abbrev, it, "Tengo: «{surface}» sta per «{concept}».").
+
+turn_form(teach_abbrev, 1, slot(surface)).
+turn_form(teach_abbrev, 2, text("is short for")).
+turn_form(teach_abbrev, 3, rest(concept)).
+turn_form_mood(teach_abbrev, statement).
+turn_form_act(teach_abbrev, "op(assert, entity_alias, [surface, concept])").
+turn_form_reply(teach_abbrev, learned_abbrev).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

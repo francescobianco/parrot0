@@ -468,6 +468,7 @@ classe intera invece di un membro.*
 | `forget that X is a Y` | ritratta: la lezione si disfa come si è fatta |
 | `who appears in V?` | **chi compare** in una relazione: dopo una lezione si vuole vedere che cosa c'è dentro, non solo che il singolo fatto risponde (gen507/65, forma #63) |
 | `X is defined as <testo>` | una **definizione a parole** (`means/2`), resa da `definition of X` · `meaning of X` (gen507/64, forma #26). ⚠ una frase sola: il divisore di clausole taglia su «che», «so», «not only» |
+| `X is short for Y` | una **sigla**: la forma corta che nei testi compare più del nome esteso, e senza il ponte ogni frase che la usa è un muro (gen507/74, forma #27) |
 | `X is the opposite of Y` | l'**antonimia**, asserita nei due versi con una sola frase (gen507/71, forma #10) |
 | `X and Y name the same thing` | **identità fra due nomi**: da lì ciò che si dice di uno vale per l'altro (gen507/63, forma #8) |
 | `forget that X V Y` | ritratta un **fatto binario** (gen507/62, forma #66) — ed è la prima forma costata **zero righe di C** |
@@ -606,7 +607,8 @@ altre cose che sa fare e non sa **quando**.
 | 7 | `the X are A, B and C` | estensione **dichiarata completa** → da lì il «no» è chiuso, non «non l'ho derivato» | ✅ gen507/44 |
 | 8 | `X and Y are the same thing` — reso `X and Y name the same thing` | identità fra entità | ✅ gen507/63 |
 | 9 | `every X is either Y or Z` | partizione: se non è Y allora è Z | 🔴 |
-| 10 | `X is the opposite of Y` | antonimia fra concetti | ✅ gen507/71 |
+| 10 | `X is short for Y` | una **sigla**: la forma corta che nei testi compare più del nome esteso, e senza il ponte ogni frase che la usa è un muro (gen507/74, forma #27) |
+| `X is the opposite of Y` | antonimia fra concetti | ✅ gen507/71 |
 | 11 | `most X are Y` | tipicità: vera in generale, **non** universale — e la risposta deve dirlo | 🔴 |
 | 12 | `X is a Y except when Z` | l'eccezione dichiarata, invece di una regola falsa | 🔴 |
 
@@ -643,7 +645,7 @@ altre cose che sa fare e non sa **quando**.
 | 24 | `the plural of X is Y` | `plural_of/2`: oggi le irregolari si scrivono in un file | ✅ gen507/49 |
 | 25 | `the past of X is Y` | `irregular_verb_form/2`: idem — ed è ciò che manca a «owns/own» del giro /14 | ✅ gen507/50 |
 | 26 | `X means Y` — reso `X is defined as <testo>` | glossa: una definizione a parole | ✅ gen507/64 |
-| 27 | `X is short for Y` | sigle e abbreviazioni | 🔴 |
+| 27 | `X is short for Y` | sigle e abbreviazioni | ✅ gen507/74 |
 | 28 | `in <lingua> X is Y` | traduzione **per qualunque lingua** (oggi solo italiano, giro /39) | 🔴 |
 | 29 | `X is a <parte del discorso>` | classe grammaticale generica, oltre le poche classi aperte oggi | 🟡 |
 | 30 | `X and Y are the same word` | varianti ortografiche (`colour`/`color` — il difetto del giro /5) | 🔴 |
