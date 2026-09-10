@@ -1741,6 +1741,37 @@ turn_form_mood(list_relation, question).
 turn_form_act(list_relation, "op(match, relation, [free, free])").
 turn_form_reply(list_relation, relation_subjects).
 
+% ══ gen507/66 (forme #84, #86) — CORREGGERE E TOGLIERE UN PASSO ═══════════
+% `rule for X is …` ACCODA: giusto quando si insegna, inutile quando ci si e'
+% sbagliati. Senza un modo di correggere, un passo storto costava disfare tutta
+% la procedura (giro /60) e rifarla da capo.
+response_template(step_replaced, "Held: step {order} of {key} is now «{text}».").
+response_template(step_replaced, it, "Tengo: il passo {order} di {key} adesso è «{text}».").
+response_template(step_removed, "Removed step {order} of {key}.").
+response_template(step_removed, it, "Tolto il passo {order} di {key}.").
+
+turn_form(fix_step, 1, text("step")).
+turn_form(fix_step, 2, slot(order)).
+turn_form(fix_step, 3, text("of")).
+turn_form(fix_step, 4, slot(key)).
+turn_form(fix_step, 5, text("is now")).
+turn_form(fix_step, 6, rest(text)).
+turn_form_mood(fix_step, statement).
+% DUE operazioni, in ordine: togliere il passo che c'era e mettere quello
+% nuovo. Correggere non e' asserire — con un atto solo il vecchio restava e il
+% nuovo non arrivava mai in esecuzione.
+turn_form_act(fix_step, "op(retract_all, proc_step, [key, order, free])").
+turn_form_act(fix_step, "op(assert, proc_step, [key, order, text])").
+turn_form_reply(fix_step, step_replaced).
+
+turn_form(drop_step, 1, text("remove step")).
+turn_form(drop_step, 2, slot(order)).
+turn_form(drop_step, 3, text("of")).
+turn_form(drop_step, 4, slot(key)).
+turn_form_mood(drop_step, statement).
+turn_form_act(drop_step, "op(retract_all, proc_step, [key, order, free])").
+turn_form_reply(drop_step, step_removed).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

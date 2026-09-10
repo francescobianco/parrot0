@@ -13406,91 +13406,31 @@ static int p0_run_proc(Brain *b, const char *pname, char *cur, size_t cursz,
     return ran;
 }
 
-static int p0_turn_form_reader(Brain *b, const char *norm,
-                               char *out, size_t out_size) {
-    if (!b || !b->kb || !norm) return 0;
-    if (!kb_knows_pred(b->kb, "turn_form_act")) return 0;
-    size_t L = strlen(norm);
-    if (L == 0 || L >= 300) return 0;
-    char buf[300]; memcpy(buf, norm, L + 1);
-    char *w[48]; size_t nw = split_words(buf, w, 48);
-    if (nw < 2) return 0;
+/* gen507/66 — l'esecutore di UNA operazione dichiarata, estratto perche' una
+ * forma possa dichiararne piu' d'una in sequenza. */
+static int p0_run_op(Brain *b, const char *act, P0FormSlot *slots, size_t ns,
+                     char *out, size_t out_size);
+static int p0_run_op_named(Brain *b, const char *act, P0FormSlot *slots,
+                           size_t ns, const char *formname,
+                           char *out, size_t out_size) {
 
-    char (*forms)[KB_TERM_LEN] = NULL; size_t nf = 0;
-    const char *fq[2] = { NULL, NULL };
-    if (!kb_match_all(b->kb, "turn_form_act", fq, 2, &forms, &nf)) { free(forms); return 0; }
-    int done = 0;
-    for (size_t f = 0; f < nf && !done; f++) {
-        char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", forms[f]);
-        const char *form = kb_dequote(fb);
-        /* gen507 — UNA FORMA DICHIARA ANCHE IL PROPRIO MODO.
-         * Senza questo, «what can zelnik do?» veniva letta dalla forma
-         * DICHIARATIVA «X can Y» e parrot0 imparava `ability_of(what,
-         * zelnik_do)`: un fatto inventato da una domanda. Che un turno sia una
-         * domanda lo dice la sua ultima lettera; se una forma valga per le
-         * domande, per le asserzioni o per entrambe lo dice la KB. */
-        {
-            char mood[4][KB_TERM_LEN];
-            const char *mq[2] = { forms[f], NULL };
-            size_t nm2 = kb_match(b->kb, "turn_form_mood", mq, 2, mood, 4);
-            if (nm2 > 0) {
-                char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mood[0]);
-                const char *want = kb_dequote(mb);
-                int isq = norm[L - 1] == '?';
-                if (!strcmp(want, "question") && !isq) continue;
-                if (!strcmp(want, "statement") && isq) continue;
-            }
-        }
-        P0FormSlot slots[P0_FORM_SLOTS]; size_t ns = 0;
-        char work[300]; memcpy(work, norm, L + 1);
-        char *ww[48]; size_t nww = split_words(work, ww, 48);
-        if (!p0_form_match(b, form, ww, nww, slots, &ns)) continue;
-
-        char acts[4][KB_TERM_LEN];
-        const char *aq[2] = { forms[f], NULL };
-        if (kb_match(b->kb, "turn_form_act", aq, 2, acts, 4) < 1) continue;
-        char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", acts[0]);
-        const char *act = kb_dequote(ab);
-
-        /* ══ gen507/62 — L'ATTO E' UN TERMINE, NON UN'ETICHETTA ═══════════
-         *
-         * F., 2026-09-10: «stai mascherando ogni abilita' dentro un case C
-         * mascherato». Aveva ragione: i quattordici rami qui sotto fanno tutti
-         * le stesse tre cose — leggere valori che il matcher ha gia' estratto,
-         * chiamare UNA funzione della KB con quei valori in un certo ordine,
-         * rendere una frase — e ognuno era un'abilita' in piu' chiusa nel C.
-         *
-         *     turn_form_act(Forma, op(Operazione, Predicato, [Argomenti])).
-         *
-         * Qui il motore non sa che cosa sia «asserire una relazione» o
-         * «ritrattare una procedura». Sa applicare SEI OPERAZIONI della KB —
-         * assert, assert_neg, retract, retract_all, match, count — a una lista
-         * di argomenti che qualcun altro ha nominato. Il predicato e' uno slot
-         * (o un nome letterale); un argomento e' uno slot, oppure `free` (il
-         * posto da riempire con la risposta) oppure `next` (il prossimo indice
-         * libero, che serve a tutto cio' che e' ordinato).
-         *
-         * Il test che questo passa e il `case` non passava: una forma nuova
-         * costa UNA RIGA DI .p0 e zero C. I rami storici restano e diventano
-         * ridondanti — non si cancella, si smette di aggiungere. */
-        if (!strncmp(act, "op(", 3)) {
             char body[KB_TERM_LEN];
             snprintf(body, sizeof body, "%s", act + 3);
             { size_t bl = strlen(body); while (bl && (body[bl-1] == ')' || body[bl-1] == ' ')) body[--bl] = '\0'; }
             char opname[KB_TERM_LEN] = "", predname[KB_TERM_LEN] = "";
             const char *c1 = strchr(body, ',');
-            if (!c1) continue;
-            { size_t l = (size_t)(c1 - body); if (l >= sizeof opname) continue;
+            if (!c1) return 0;
+            { size_t l = (size_t)(c1 - body); if (l >= sizeof opname) return 0;
               memcpy(opname, body, l); opname[l] = '\0'; }
             const char *p2 = c1 + 1; while (*p2 == ' ') p2++;
             const char *c2 = strchr(p2, ',');
-            if (!c2) continue;
-            { size_t l = (size_t)(c2 - p2); if (l >= sizeof predname) continue;
+            if (!c2) return 0;
+            { size_t l = (size_t)(c2 - p2); if (l >= sizeof predname) return 0;
               memcpy(predname, p2, l); predname[l] = '\0';
               size_t pl = strlen(predname);
               while (pl && predname[pl-1] == ' ') predname[--pl] = '\0'; }
             const char *lb = strchr(c2, '[');
-            if (!lb) continue;
+            if (!lb) return 0;
             char arglist[KB_TERM_LEN];
             snprintf(arglist, sizeof arglist, "%s", lb + 1);
             { char *rb = strchr(arglist, ']'); if (rb) *rb = '\0'; }
@@ -13499,7 +13439,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
              * il nome stesso — cosi' una forma puo' dichiararlo o portarlo */
             const char *pred = p0_form_slot(slots, ns, predname);
             if (!pred) pred = predname;
-            if (!*pred) continue;
+            if (!*pred) return 0;
 
             const char *argv2[KB_MAX_ARGS]; size_t argc2 = 0;
             char built[KB_MAX_ARGS][KB_TERM_LEN];
@@ -13543,7 +13483,7 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                     argv2[argc2] = built[argc2]; argc2++;
                 }
             }
-            if (argc2 == 0) continue;
+            if (argc2 == 0) return 0;
 
             char result[500]; result[0] = '\0'; size_t nres = 0;
             int done2 = 0;
@@ -13567,11 +13507,11 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                     char rb2[KB_TERM_LEN]; snprintf(rb2, sizeof rb2, "%s", rows[k]);
                     char shown2[KB_TERM_LEN];
                     present_atom(b, kb_dequote(rb2), shown2, sizeof shown2);
-                    if (!shown2[0]) continue;
+                    if (!shown2[0]) return 0;
                     int dup2 = 0;
                     for (size_t y = 0; y < k && !dup2; y++)
                         if (!strcmp(rows[y], rows[k])) dup2 = 1;
-                    if (dup2) continue;
+                    if (dup2) return 0;
                     if (off2 + 1 < sizeof result)
                         off2 += (size_t)snprintf(result + off2, sizeof result - off2,
                                                  "%s%s", nres ? ", " : "", shown2);
@@ -13579,13 +13519,13 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                 }
                 done2 = nres > 0;
             }
-            if (!done2) continue;
+            if (!done2) return 0;
 
             char cnt2[24]; snprintf(cnt2, sizeof cnt2, "%zu", nres);
             char msg2[600];
             char tplname[KB_TERM_LEN] = "";
             { char tr[4][KB_TERM_LEN];
-              const char *tq[2] = { forms[f], NULL };
+              const char *tq[2] = { formname, NULL };
               if (kb_match(b->kb, "turn_form_reply", tq, 2, tr, 4) == 1) {
                   char tb[KB_TERM_LEN]; snprintf(tb, sizeof tb, "%s", tr[0]);
                   snprintf(tplname, sizeof tplname, "%s", kb_dequote(tb));
@@ -13601,16 +13541,111 @@ static int p0_turn_form_reader(Brain *b, const char *norm,
                 fill[nf2].name = "result"; fill[nf2].value = result; nf2++;
                 fill[nf2].name = "count";  fill[nf2].value = cnt2;   nf2++;
                 if (kb_response_slots(b, tplname, fill, nf2, msg2, sizeof msg2)) {
-                    put(msg2, out, out_size);
-                    free(forms);
+                    snprintf(out, out_size, "%s", msg2);
                     return 1;
                 }
             }
             if (nres) { char m3[520]; snprintf(m3, sizeof m3, "%s.", result);
-                        put(m3, out, out_size); }
-            else put("Held.", out, out_size);
-            free(forms);
+                        snprintf(out, out_size, "%s", m3); }
+            else snprintf(out, out_size, "%s", "Held.");
             return 1;
+        
+    return 0;
+}
+
+static int p0_run_op(Brain *b, const char *act, P0FormSlot *slots, size_t ns,
+                     char *out, size_t out_size) {
+    return p0_run_op_named(b, act, slots, ns, "", out, out_size);
+}
+
+static int p0_turn_form_reader(Brain *b, const char *norm,
+                               char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    if (!kb_knows_pred(b->kb, "turn_form_act")) return 0;
+    size_t L = strlen(norm);
+    if (L == 0 || L >= 300) return 0;
+    char buf[300]; memcpy(buf, norm, L + 1);
+    char *w[48]; size_t nw = split_words(buf, w, 48);
+    if (nw < 2) return 0;
+
+    char (*forms)[KB_TERM_LEN] = NULL; size_t nf = 0;
+    const char *fq[2] = { NULL, NULL };
+    if (!kb_match_all(b->kb, "turn_form_act", fq, 2, &forms, &nf)) { free(forms); return 0; }
+    int done = 0;
+    for (size_t f = 0; f < nf && !done; f++) {
+        char fb[KB_TERM_LEN]; snprintf(fb, sizeof fb, "%s", forms[f]);
+        const char *form = kb_dequote(fb);
+        /* gen507 — UNA FORMA DICHIARA ANCHE IL PROPRIO MODO.
+         * Senza questo, «what can zelnik do?» veniva letta dalla forma
+         * DICHIARATIVA «X can Y» e parrot0 imparava `ability_of(what,
+         * zelnik_do)`: un fatto inventato da una domanda. Che un turno sia una
+         * domanda lo dice la sua ultima lettera; se una forma valga per le
+         * domande, per le asserzioni o per entrambe lo dice la KB. */
+        {
+            char mood[4][KB_TERM_LEN];
+            const char *mq[2] = { forms[f], NULL };
+            size_t nm2 = kb_match(b->kb, "turn_form_mood", mq, 2, mood, 4);
+            if (nm2 > 0) {
+                char mb[KB_TERM_LEN]; snprintf(mb, sizeof mb, "%s", mood[0]);
+                const char *want = kb_dequote(mb);
+                int isq = norm[L - 1] == '?';
+                if (!strcmp(want, "question") && !isq) continue;
+                if (!strcmp(want, "statement") && isq) continue;
+            }
+        }
+        P0FormSlot slots[P0_FORM_SLOTS]; size_t ns = 0;
+        char work[300]; memcpy(work, norm, L + 1);
+        char *ww[48]; size_t nww = split_words(work, ww, 48);
+        if (!p0_form_match(b, form, ww, nww, slots, &ns)) continue;
+
+        /* gen507/66 — UNA FORMA PUO' DICHIARARE PIU' OPERAZIONI, IN ORDINE.
+         *
+         * «correggere un passo» non e' un'operazione: e' toglierne uno e
+         * metterne un altro. Con un atto solo per forma serviva un ramo nuovo
+         * in C — cioe' di nuovo lo switch. Piu' righe `turn_form_act` per la
+         * stessa forma si eseguono in sequenza, e la resa e' quella della
+         * forma: da qui una lezione composta e' composta in KB. */
+        char acts[8][KB_TERM_LEN];
+        const char *aq[2] = { forms[f], NULL };
+        size_t nacts = kb_match(b->kb, "turn_form_act", aq, 2, acts, 8);
+        if (nacts < 1) continue;
+        for (size_t ai = 0; ai + 1 < nacts; ai++) {
+            char pb9[KB_TERM_LEN]; snprintf(pb9, sizeof pb9, "%s", acts[ai]);
+            const char *pre = kb_dequote(pb9);
+            if (strncmp(pre, "op(", 3)) continue;
+            char scratch[600]; scratch[0] = '\0';
+            p0_run_op(b, pre, slots, ns, scratch, sizeof scratch);
+        }
+        char ab[KB_TERM_LEN]; snprintf(ab, sizeof ab, "%s", acts[nacts - 1]);
+        const char *act = kb_dequote(ab);
+
+        /* ══ gen507/62 — L'ATTO E' UN TERMINE, NON UN'ETICHETTA ═══════════
+         *
+         * F., 2026-09-10: «stai mascherando ogni abilita' dentro un case C
+         * mascherato». Aveva ragione: i quattordici rami qui sotto fanno tutti
+         * le stesse tre cose — leggere valori che il matcher ha gia' estratto,
+         * chiamare UNA funzione della KB con quei valori in un certo ordine,
+         * rendere una frase — e ognuno era un'abilita' in piu' chiusa nel C.
+         *
+         *     turn_form_act(Forma, op(Operazione, Predicato, [Argomenti])).
+         *
+         * Qui il motore non sa che cosa sia «asserire una relazione» o
+         * «ritrattare una procedura». Sa applicare SEI OPERAZIONI della KB —
+         * assert, assert_neg, retract, retract_all, match, count — a una lista
+         * di argomenti che qualcun altro ha nominato. Il predicato e' uno slot
+         * (o un nome letterale); un argomento e' uno slot, oppure `free` (il
+         * posto da riempire con la risposta) oppure `next` (il prossimo indice
+         * libero, che serve a tutto cio' che e' ordinato).
+         *
+         * Il test che questo passa e il `case` non passava: una forma nuova
+         * costa UNA RIGA DI .p0 e zero C. I rami storici restano e diventano
+         * ridondanti — non si cancella, si smette di aggiungere. */
+        if (!strncmp(act, "op(", 3)) {
+            if (p0_run_op_named(b, act, slots, ns, forms[f], out, out_size)) {
+                free(forms);
+                return 1;
+            }
+            continue;
         }
 
         const char *sub = p0_form_slot(slots, ns, "subject");

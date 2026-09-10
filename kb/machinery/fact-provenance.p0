@@ -166,6 +166,8 @@ fact_source(also_known_as(kinetic_energy_law, "legge dell energia cinetica"), ki
 fact_source(also_known_as(newtons_second_law, "seconda legge di newton"), newtons_second_law, "newtons_second_law is also called seconda legge di newton").
 fact_source(also_known_as(ohms_law, "legge di ohm"), ohms_law, "ohms_law is also called legge di ohm").
 fact_source(causes(eutrophication, algae), eutrophication, "eutrophication causes algae to grow and oxygen to fall").
+fact_source(owner(smith, zelnik), smith, "smith owner zelnik").
+fact_source(relation_verb(owner), owner, "owner is a relation verb").
 reading_fact(digests(stomach, protein), "the stomach digests protein").
 reading_fact(relation_verb(predicts), "predicts is a relation verb").
 reading_fact(relation_verb(digests), "digests is a relation verb").
@@ -236,5 +238,7 @@ reading_fact(copper_carbonate_mineral(azurite), "azurite is a copper carbonate m
 reading_fact(also_known_as(newtons_second_law, "seconda legge di newton"), "newtons_second_law is also called seconda legge di newton").
 reading_fact(copper_carbonate_mineral(malachite), "malachite is a copper carbonate mineral").
 reading_fact(also_known_as(ohms_law, "legge di ohm"), "ohms_law is also called legge di ohm").
+reading_fact(owner(smith, zelnik), "smith owner zelnik").
 reading_fact(causes(eutrophication, algae), "eutrophication causes algae to grow and oxygen to fall").
+reading_fact(relation_verb(owner), "owner is a relation verb").
 reading_fact(is_unit(forget), "forget that the ohm is a is_unit").

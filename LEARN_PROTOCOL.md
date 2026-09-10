@@ -384,6 +384,10 @@ classe intera invece di un membro.*
 > `count`. **Argomenti:** il nome di uno slot · `free` (il posto della risposta)
 > · `next` (il prossimo indice libero, per tutto ciò che è ordinato).
 > Nel template si possono usare gli slot della forma più `{result}` e `{count}`.
+>
+> **Una forma può dichiarare più operazioni**, che si eseguono in ordine — e la
+> resa è quella della forma. *Correggere* non è *asserire*: è togliere ciò che
+> c'era e mettere il nuovo, e sono due righe.
 
 ### A. Classi e appartenenza
 
@@ -472,6 +476,8 @@ semplici**, ed è la catena che si insegna.*
 | `rule for X is <operatore>` | un passo della procedura X, in coda ai precedenti (gen507/43) |
 | `apply X to <testo>` · `applica X a <testo>` | esegue la catena e rende il risultato |
 | `what procedures do you know?` · `che procedure sai?` | **elenca** ciò che sa fare: senza, chi insegna non sa che cosa ha già dato (gen507/59, forma #83) |
+| `step N of X is now <passo>` | **corregge** un passo invece di accodarne uno (gen507/66, forma #84) |
+| `remove step N of X` | **toglie** un passo (gen507/66, forma #86) |
 | `forget the procedure X` | **disfa** la procedura, tutta: una lezione che non si può ritrattare non è una lezione, è un vincolo (gen507/60, forma #87) |
 | `why?` dopo un `apply` | la **traccia**: ogni passo applicato e il valore che ne è uscito, in `/debug` e a parole (gen507/58, forma #88) |
 
@@ -745,10 +751,12 @@ non è una domanda che qualcuno fa.*
 | 81 | chiedere i passi | `how does X work?` — recitare la procedura invece di eseguirla | 🔴 |
 | 82 | chiedere il risultato | `apply X to Y` ✅ (/43) | ✅ |
 | 83 | enumerare le procedure | `what procedures do you know?` | ✅ gen507/59 |
-| 84 | correggere un passo | `step 2 of X is <altro>` — sostituire, non accodare | 🔴 |
+| 84 | correggere un passo | reso `step N of X is now <passo>` | ✅ gen507/66 |
 | 85 | inserire un passo | `before step 2 of X do <op>` | 🔴 |
-| 86 | togliere un passo | `remove step 2 of X` | 🔴 |
-| 87 | ritrattare la procedura | `forget the procedure X` | ✅ gen507/60 |
+| 86 | togliere un passo | `remove step N of X` | ✅ gen507/66 |
+| 87 | ritrattare la procedura | `step N of X is now <passo>` | **corregge** un passo invece di accodarne uno (gen507/66, forma #84) |
+| `remove step N of X` | **toglie** un passo (gen507/66, forma #86) |
+| `forget the procedure X` | ✅ gen507/60 |
 | 88 | spiegare l'esecuzione | `why did X give that?` — la **traccia**, passo per passo | ✅ gen507/58 |
 | 89 | verificare | `test: apply X to <in> gives <out>` (= 49) | 🔴 |
 | 90 | generalizzare | `X is like Y but <differenza>` — definire una procedura per differenza da un'altra | 🔴 |

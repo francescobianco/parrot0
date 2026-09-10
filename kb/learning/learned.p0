@@ -114,6 +114,8 @@ discourse_referent(5, bornite).
 discourse_referent(8, azurite).
 discourse_referent(9, malachite).
 discourse_referent(10, eutrophication).
+discourse_referent(12, smith).
+discourse_referent(11, owner).
 iron_ore_mineral(hematite).
 iron_ore_mineral(magnetite).
 iron_ore_mineral(siderite).
@@ -126,6 +128,7 @@ class_surface(iron_ore_mineral, iron ore mineral).
 class_surface(iron_oxide_mineral, iron oxide mineral).
 class_surface(copper_sulfide_mineral, copper sulfide mineral).
 class_surface(copper_carbonate_mineral, copper carbonate mineral).
+class_surface(relation_verb, relation verb).
 copper_sulfide_mineral(chalcocite).
 copper_sulfide_mineral(covellite).
 copper_sulfide_mineral(bornite).
@@ -133,3 +136,8 @@ copper_carbonate_mineral(azurite).
 copper_carbonate_mineral(malachite).
 copper_mineral($X) :- copper_sulfide_mineral($X).
 copper_mineral($X) :- copper_carbonate_mineral($X).
+proc_step(devowel, 1, "drop vowel").
+proc_step(shout, 1, "upper").
+proc_step(squash, 1, "repeat replace aa with a until stable").
+proc_step(quiet, 1, "apply devowel").
+proc_step(quiet, 2, "lower").

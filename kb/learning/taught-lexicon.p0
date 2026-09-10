@@ -178,3 +178,4 @@ relation_verb(enables).
 relation_verb(limits).
 relation_verb(expands).
 relation_verb(contracts).
+relation_verb(owner).
