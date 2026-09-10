@@ -13283,6 +13283,51 @@ static int p0_apply_op(Brain *b, const char *stepbuf0, char *cur, size_t cursz,
                         snprintf(next, sizeof next, "%.*s", (int)take, cur);
                     else
                         snprintf(next, sizeof next, "%s", cur + (l - (size_t)take));
+                } else if (!strcmp(op, "sort") || !strcmp(op, "unique")) {
+                    /* gen507/56 (forma #47) — ORDINARE e TOGLIERE I DOPPIONI.
+                     * Su una stringa i «pezzi» sono le parole separate da spazio:
+                     * e' la lista che una procedura ha davvero in mano, senza
+                     * introdurre un tipo nuovo solo per averla. */
+                    char work2[KB_TERM_LEN];
+                    snprintf(work2, sizeof work2, "%s", cur);
+                    char *pw2[64]; size_t pn2 = split_words(work2, pw2, 64);
+                    if (!strcmp(op, "sort")) {
+                        for (size_t x = 1; x < pn2; x++) {
+                            char *v = pw2[x]; size_t y = x;
+                            while (y > 0 && strcasecmp(pw2[y - 1], v) > 0) {
+                                pw2[y] = pw2[y - 1]; y--;
+                            }
+                            pw2[y] = v;
+                        }
+                    }
+                    no = 0;
+                    for (size_t x = 0; x < pn2 && no + 1 < sizeof next; x++) {
+                        if (!strcmp(op, "unique")) {
+                            int seen2 = 0;
+                            for (size_t y = 0; y < x && !seen2; y++)
+                                if (!strcasecmp(pw2[y], pw2[x])) seen2 = 1;
+                            if (seen2) continue;
+                        }
+                        int n2 = snprintf(next + no, sizeof next - no, "%s%s",
+                                          no ? " " : "", pw2[x]);
+                        if (n2 < 0) break;
+                        no += (size_t)n2;
+                    }
+                    next[no] = '\0';
+                } else if (!strcmp(op, "split") || !strcmp(op, "join")) {
+                    /* gen507/57 (forma #45) — DA STRINGA A LISTA E RITORNO.
+                     * `split on <c>` mette uno spazio dove c'era il separatore,
+                     * `join with <c>` fa il contrario: la lista non e' un tipo
+                     * nuovo, e' la stessa stringa guardata a pezzi. Cosi' ogni
+                     * operatore che c'e' gia' lavora anche sulle liste. */
+                    const char *sep = snw > 2 ? sw[2] : NULL;
+                    if (!sep || !*sep) return 0;
+                    char from2 = !strcmp(op, "split") ? sep[0] : ' ';
+                    char to2   = !strcmp(op, "split") ? ' ' : sep[0];
+                    no = 0;
+                    for (const char *c = cur; *c && no + 1 < sizeof next; c++)
+                        next[no++] = (*c == from2) ? to2 : *c;
+                    next[no] = '\0';
                 } else if (!strcmp(op, "apply")) {
                     /* gen507/51 — chiamare un'altra procedura: la composizione. */
                     if (!oparg || !strcmp(oparg, pname)) return 0;

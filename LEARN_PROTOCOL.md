@@ -461,6 +461,8 @@ semplici**, ed è la catena che si insegna.*
 | `first N` · `last N` | i primi / gli ultimi N caratteri |
 | `apply <altra procedura>` | **chiama** un'altra procedura: una lezione si costruisce su quelle già date invece di ripeterne i passi (gen507/51, forma #43) |
 | `replace <a> with <b>` | sostituzione (gen507/52, forma #46) |
+| `sort` · `unique` | ordina i pezzi / toglie i doppioni (gen507/56, forma #47) |
+| `split on <c>` · `join with <c>` | da stringa a lista e ritorno: la lista **non è un tipo nuovo**, è la stessa stringa guardata a pezzi (gen507/57, forma #45). ⚠ il separatore dev'essere una lettera: la punteggiatura viene tolta prima che la lezione arrivi |
 | `repeat <passo> until stable` | **il ciclo**: rifà il passo finché il valore smette di cambiare — il punto fisso, non un numero di giri deciso a caso (gen507/54, forma #41) |
 | `repeat <passo> until <condizione>` | il ciclo con un arresto **dichiarato** (gen507/55, forma #41b) |
 | `if <condizione> then <passo>` | **il ramo**: se la condizione non regge, il passo non si fa — e non è un fallimento, è la procedura che ha deciso (gen507/55, forma #42) |
@@ -641,9 +643,9 @@ mano resta inesprimibile.*
 | 42 | `rule for X is if <cond> then <op>` | la **condizione** | ✅ gen507/55 |
 | 43 | `rule for X is apply Y` | chiamare una procedura da un'altra: la composizione vera | ✅ gen507/51 |
 | 44 | `<classe> contains <caratteri>` — reso `the <nome> letters are …` | insegnare una classe di caratteri parlando | ✅ gen507/53 |
-| 45 | `rule for X is split on <char>` · `join with <char>` | dalle stringhe alle **liste** | 🔴 |
+| 45 | `rule for X is split on <char>` · `join with <char>` | dalle stringhe alle **liste** | ✅ gen507/57 |
 | 46 | `rule for X is replace <a> with <b>` | sostituzione | ✅ gen507/52 |
-| 47 | `rule for X is sort` · `unique` | operatori su liste | 🔴 |
+| 47 | `rule for X is sort` · `unique` | operatori su liste | ✅ gen507/56 |
 | 48 | `rule for X takes <n> inputs` | procedure con più di un ingresso | 🔴 |
 
 ### R. Verifica — insegnare come si controlla
