@@ -2077,6 +2077,35 @@ turn_form_mood(teach_purpose2, statement).
 turn_form_act(teach_purpose2, "op(assert, purpose_of, [subject, object])").
 turn_form_reply(teach_purpose2, learned_purpose2).
 
+% ══ gen507/79 — UNA RELAZIONE CON TUTTA LA SUA SCHEDA, IN UNA FRASE ═══════
+%
+% I giri /27, /40, /41, /45, /46, /48 hanno reso insegnabili le sette proprieta'
+% di una relazione, e insieme sono la scheda che conviene compilare su ogni
+% relazione nuova. Ma compilarla vuol dire ricordarsi sette frasi, e chi insegna
+% non deve conoscere la meccanica: la combinazione piu' frequente — una catena
+% con un verso opposto, come «prima/dopo», «sopra/sotto», «antenato/discendente»
+% — si dice in una riga sola.
+%
+%     > ancestor chains with opposite descendant
+%       Held: ancestor chains, and its other side is descendant.
+%
+% Cinque operazioni dietro una frase. E' la stessa mossa del giro /75 su
+% `precedes`, resa generale: li' la scheda era cablata in una forma per UNA
+% relazione, qui la relazione la nomina chi insegna.
+response_template(learned_chain_pair, "Held: {subject} chains, and its other side is {object}.").
+response_template(learned_chain_pair, it, "Tengo: {subject} si concatena, e il suo verso opposto è {object}.").
+
+turn_form(teach_chain_pair, 1, slot(subject)).
+turn_form(teach_chain_pair, 2, text("chains with opposite")).
+turn_form(teach_chain_pair, 3, rest(object)).
+turn_form_mood(teach_chain_pair, statement).
+turn_form_act(teach_chain_pair, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_chain_pair, "op(assert, relation_verb, [object])").
+turn_form_act(teach_chain_pair, "op(assert, transitive_relation, [subject])").
+turn_form_act(teach_chain_pair, "op(assert, transitive_relation, [object])").
+turn_form_act(teach_chain_pair, "op(assert, inverse_relation, [subject, object])").
+turn_form_reply(teach_chain_pair, learned_chain_pair).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).
