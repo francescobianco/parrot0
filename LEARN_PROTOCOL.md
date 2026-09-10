@@ -24,7 +24,11 @@ parlandogli in lingua naturale.
 > | [E. Condotta e ragionamento](#e-condotta-e-ragionamento) | `quando <situazione> allora <mossa>` · `step for X is …` |
 > | [F. Procedure eseguibili](#f-procedure-eseguibili) | `rule for X is <operatore>` · `apply X to <testo>` |
 >
-> In coda alla sezione ci sono le **trappole misurate**: superfici che sembrano
+> **[→ §6-ter: le 50 forme DA IMPLEMENTARE](#6-ter-le-50-forme-da-implementare--la-mappa-in-anticipo)** — la mappa
+> scritta in anticipo: quali forme mancano, che cosa aprirebbero, e in che ordine
+> conviene farle. Ogni riga implementata si sposta in §6-bis col numero del giro.
+>
+> In coda al catalogo ci sono le **trappole misurate**: superfici che sembrano
 > giuste e vengono intercettate da un altro lettore. Leggerle prima costa un
 > minuto e fa risparmiare una lezione.
 
@@ -473,6 +477,138 @@ ordine nuovo): è il prossimo gradino di questa sezione.
 *ricetta* (`process_step`, gen507/38). La distinzione è anche giusta nel merito —
 un passo di ricetta è un'istruzione a una persona, un passo di procedura è una
 **regola di trasformazione** che parrot0 esegue.
+
+---
+
+## 6-ter. LE 50 FORME DA IMPLEMENTARE — la mappa, in anticipo
+
+*Questa è la lista delle forme che **non** esistono ancora e che intendo
+aggiungere, scritta prima di scriverle così si può discutere l'ordine, togliere
+quelle sbagliate e aggiungerne di migliori. Ogni riga implementata si sposta nel
+catalogo §6-bis con il numero del giro.*
+
+**Legenda:** 🔴 da implementare · 🟡 esiste in parte, va aperta alla voce ·
+✅ fatta (allora sta in §6-bis)
+
+### G. Altre proprietà di una relazione
+
+Il motore sa già *percorrere una catena* e *scambiare i posti*. Queste dicono
+altre cose che sa fare e non sa **quando**.
+
+| # | si dice | ne ricava | |
+|---|---|---|---|
+| 1 | `V holds of itself` | riflessiva: `X V X` vale sempre | 🔴 |
+| 2 | `V has one value` | funzionale: un secondo valore è una **correzione o un conflitto**, non un fatto in più — estende a ogni relazione ciò che il giro /16 fa per gli attributi | 🔴 |
+| 3 | `V implies W` | se `X V Y` allora `X W Y`: sussunzione fra relazioni | 🔴 |
+| 4 | `V excludes W` | se `X V Y` allora **non** `X W Y`: un «no» guadagnato senza elencare | 🔴 |
+| 5 | `V goes from <classe> to <classe>` | vincolo di tipo: parrot0 può **rifiutare** un fatto assurdo invece di tenerlo | 🔴 |
+| 6 | `V is measured in <unità>` | l'unità del valore, per la resa e per i confronti | 🔴 |
+
+### H. Tassonomia e insiemi
+
+| # | si dice | ne ricava | |
+|---|---|---|---|
+| 7 | `the X are A, B and C` | estensione **dichiarata completa** → da lì il «no» è chiuso, non «non l'ho derivato» | 🔴 |
+| 8 | `X and Y are the same thing` | identità fra entità: ciò che vale per uno vale per l'altro | 🔴 |
+| 9 | `every X is either Y or Z` | partizione: se non è Y allora è Z | 🔴 |
+| 10 | `the opposite of X is Y` | antonimia fra concetti (oggi c'è `opposite` come dominio, non come lezione) | 🟡 |
+| 11 | `most X are Y` | tipicità: vera in generale, **non** universale — e la risposta deve dirlo | 🔴 |
+| 12 | `X is a Y except when Z` | l'eccezione dichiarata, invece di una regola falsa | 🔴 |
+
+### I. Quantità, misure, conversioni
+
+| # | si dice | ne ricava | |
+|---|---|---|---|
+| 13 | `X is N <unità> long` | misura con unità, non un numero nudo | 🔴 |
+| 14 | `N <unità> is M <unità>` | conversione: apre i confronti fra misure dette in unità diverse | 🔴 |
+| 15 | `X is N times bigger than Y` | rapporto, non solo ordine | 🔴 |
+| 16 | `X is between A and B` | intervallo | 🔴 |
+
+### L. Tempo
+
+| # | si dice | ne ricava | |
+|---|---|---|---|
+| 17 | `X happened before Y` | ordine temporale (transitivo, con l'inverso `after`) | 🔴 |
+| 18 | `X lasts N <unità di tempo>` | durata | 🔴 |
+| 19 | `X happens every <periodo>` | ricorrenza | 🔴 |
+| 20 | `X was true until Y` | validità che finisce: un fatto con una scadenza | 🔴 |
+
+### M. Spazio
+
+| # | si dice | ne ricava | |
+|---|---|---|---|
+| 21 | `X is next to Y` | adiacenza (simmetrica: si dichiara con la forma del giro /41) | 🟡 |
+| 22 | `X is north of Y` | direzione, con l'inverso implicito | 🔴 |
+| 23 | `X is inside Y` | contenimento transitivo, distinto da `part_of` | 🟡 |
+
+### N. Lingua e forme delle parole
+
+| # | si dice | ne ricava | |
+|---|---|---|---|
+| 24 | `the plural of X is Y` | `plural_of/2`: oggi le irregolari si scrivono in un file | 🔴 |
+| 25 | `the past of X is Y` | `irregular_verb_form/2`: idem — ed è ciò che manca a «owns/own» del giro /14 | 🔴 |
+| 26 | `X means Y` | glossa: una definizione a parole | 🟡 |
+| 27 | `X is short for Y` | sigle e abbreviazioni | 🔴 |
+| 28 | `in <lingua> X is Y` | traduzione **per qualunque lingua** (oggi solo italiano, giro /39) | 🔴 |
+| 29 | `X is a <parte del discorso>` | classe grammaticale generica, oltre le poche classi aperte oggi | 🟡 |
+| 30 | `X and Y are the same word` | varianti ortografiche (`colour`/`color` — il difetto del giro /5) | 🔴 |
+
+### O. Discorso, interlocutore, registro
+
+| # | si dice | ne ricava | |
+|---|---|---|---|
+| 31 | `when I say X I mean Y` | un alias **dell'interlocutore**, non del mondo | 🔴 |
+| 32 | `X is a polite way to say Y` | registro: due superfici, stesso contenuto, tono diverso | 🔴 |
+| 33 | `don't call me X` | ritrattare una convenzione sociale | 🔴 |
+| 34 | `answer in <lingua>` | preferenza di resa persistente | 🟡 |
+
+### P. Condotta, piani, incertezza
+
+*Il giro /36 ha aperto i piani. Queste li rendono governabili.*
+
+| # | si dice | ne ricava | |
+|---|---|---|---|
+| 35 | `"<frase>" means <situazione>` | **meta-forma**: insegnare una SITUAZIONE nuova, non solo una mossa dentro una situazione che esiste | 🔴 |
+| 36 | `never <mossa> when <situazione>` | un divieto: la condotta si dice anche in negativo | 🔴 |
+| 37 | `first <mossa A> then <mossa B>` | riordinare un piano già insegnato senza rifarlo | 🔴 |
+| 38 | `forget the plan for <situazione>` | ritrattare un piano | 🔴 |
+| 39 | `if you are not sure, <mossa>` | condotta sull'incertezza, che oggi è cablata nel declino | 🔴 |
+| 40 | `X is uncertain` | marcare conoscenza dubbia: la risposta deve **dirlo**, non tacerlo | 🔴 |
+
+### Q. Procedure — cicli, condizioni, composizione
+
+*Il giro /43 ha aperto le catene di operatori. Senza queste, la radice quadrata a
+mano resta inesprimibile.*
+
+| # | si dice | ne ricava | |
+|---|---|---|---|
+| 41 | `rule for X is repeat <op> until <cond>` | il **ciclo**: è il gradino che manca a ogni procedura vera | 🔴 |
+| 42 | `rule for X is if <cond> then <op>` | la **condizione** | 🔴 |
+| 43 | `rule for X is apply Y` | chiamare una procedura da un'altra: la composizione vera | 🔴 |
+| 44 | `<classe> contains <caratteri>` | insegnare una classe di caratteri parlando (oggi è una riga di file) | 🔴 |
+| 45 | `rule for X is split on <char>` · `join with <char>` | dalle stringhe alle **liste** | 🔴 |
+| 46 | `rule for X is replace <a> with <b>` | sostituzione | 🔴 |
+| 47 | `rule for X is sort` · `unique` | operatori su liste | 🔴 |
+| 48 | `rule for X takes <n> inputs` | procedure con più di un ingresso | 🔴 |
+
+### R. Verifica — insegnare come si controlla
+
+| # | si dice | ne ricava | |
+|---|---|---|---|
+| 49 | `test: apply X to <input> gives <output>` | un **oracolo insegnato**: la procedura si verifica da sola, e un passo sbagliato si scopre subito invece che al primo uso | 🔴 |
+| 50 | `X is wrong because Y` | correggere una *derivazione*, non solo un fatto: dice **quale passo** ha sbagliato | 🔴 |
+
+---
+
+> **Come scegliere l'ordine.** Le più cariche di conseguenze sono la **35**
+> (senza situazioni nuove i piani restano confinati all'unico caso che il C
+> conosce), la **41–43** (senza cicli, condizioni e chiamate le procedure sono
+> catene lineari), la **7** (senza estensione completa ogni «no» resta un «non
+> l'ho derivato») e la **2** (la funzionalità di una relazione è ciò che rende
+> una correzione possibile ovunque, non solo sugli attributi).
+>
+> Le meno urgenti sono quelle di dominio (L, M, I): utili, ma aggiungono
+> *membri*, non *classi*.
 
 ### Trappole misurate
 
