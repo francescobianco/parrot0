@@ -106,6 +106,23 @@ turn_scratch(turn_span_token).
 turn_scratch(exchange).
 turn_scratch(exchange_turn).
 
+% gen507/68 — LO SPAZIO DEL DISCORSO E' DELLA CONVERSAZIONE, NON DELLA KB.
+% `discourse_referent(N, Chiave)` e' l'ordine in cui le cose sono state nominate
+% IN QUESTA chat: e' cio' che fa risolvere «il primo», «l'altro», «quello di
+% prima». Salvarlo e ricaricarlo fa esattamente il danno gia' descritto per
+% `exchange/3`, un gradino piu' in basso: «dov'e' il primo?» in una chat nuova
+% rispondeva su un minerale nominato in una sessione chiusa mesi fa. Ne erano
+% rimasti dieci in `kb/learning/learned.p0` — l'archivio di una conversazione
+% travestito da conoscenza.
+turn_scratch(discourse_referent).
+
+% E i due fatti di turno introdotti dal gen507: il piano interno di QUESTO turno
+% e l'annuncio di correzione che vale per il turno che lo porta. Vivono un turno
+% per costruzione; salvarli significherebbe ricominciare domani con il piano di
+% ieri gia' fatto.
+turn_scratch(turn_plan_step).
+turn_scratch(turn_correction).
+
 bookkeeper(exchange).
 % Lo scambio e il suo POSTO nella sequenza sono due fatti, non uno. Non e' una
 % scelta di stile: un termine del dialetto porta al massimo quattro argomenti,

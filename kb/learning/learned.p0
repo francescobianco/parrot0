@@ -103,17 +103,7 @@ verb_stem(limits, limit).
 verb_stem(expands, expand).
 verb_stem(contracts, contract).
 iron_oxide_mineral(hematite).
-discourse_referent(1, hematite).
 iron_oxide_mineral(magnetite).
-discourse_referent(2, magnetite).
-discourse_referent(3, siderite).
-discourse_referent(4, chalcopyrite).
-discourse_referent(7, covellite).
-discourse_referent(6, chalcocite).
-discourse_referent(5, bornite).
-discourse_referent(8, azurite).
-discourse_referent(9, malachite).
-discourse_referent(10, eutrophication).
 iron_ore_mineral(hematite).
 iron_ore_mineral(magnetite).
 iron_ore_mineral(siderite).
@@ -134,8 +124,3 @@ copper_carbonate_mineral(azurite).
 copper_carbonate_mineral(malachite).
 copper_mineral($X) :- copper_sulfide_mineral($X).
 copper_mineral($X) :- copper_carbonate_mineral($X).
-proc_step(devowel, 1, "drop vowel").
-proc_step(shout, 1, "upper").
-proc_step(squash, 1, "repeat replace aa with a until stable").
-proc_step(quiet, 1, "apply devowel").
-proc_step(quiet, 2, "lower").

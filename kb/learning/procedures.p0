@@ -1,0 +1,20 @@
+% procedures.p0 — LE PROCEDURE IMPARATE PARLANDO
+%
+% `proc_step(Nome, Ordine, "operatore")` e' una procedura insegnata con «rule
+% for X is …» (gen507/43) ed eseguita con «apply X to …». Ogni riga qui e' una
+% catena che qualcuno ha spiegato a parole, e che da quel momento parrot0 sa
+% fare.
+%
+% Il file esiste per la stessa ragione di `kb/facts/definitions.p0`: senza una
+% casa il save-map le lasciava in `learned.p0` accanto ai radicali dei verbi e
+% ai minerali. Conoscenza vera nel posto sbagliato si trova solo per caso.
+%
+% Gli operatori disponibili e le classi di caratteri sono in LEARN_PROTOCOL.md
+% §6-bis F. Una procedura si corregge con «step N of X is now …», si accorcia
+% con «remove step N of X», si disfa con «forget the procedure X».
+
+proc_step(devowel, 1, "drop vowel").
+proc_step(shout, 1, "upper").
+proc_step(squash, 1, "repeat replace aa with a until stable").
+proc_step(quiet, 1, "apply devowel").
+proc_step(quiet, 2, "lower").

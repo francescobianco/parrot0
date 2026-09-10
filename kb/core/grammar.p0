@@ -1266,6 +1266,8 @@ extract_frame($Source, $Predicate) :-
 % E le costruzioni gia' imparate hanno una casa nell'albero curato, cosi' una
 % lezione data oggi vale ancora domani senza che nessuno la ricopi.
 :- include(../learning/constructions.p0).
+% gen507/68: e le procedure insegnate parlando, che prima finivano in learned.p0
+:- include(../learning/procedures.p0).
 % E le regole dette a voce, che `/save` non instrada.
 :- include(../learning/taught-rules.p0).
 % E il gradino piu' basso della stessa scala: non una costruzione e non una
