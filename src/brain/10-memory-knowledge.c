@@ -12696,6 +12696,17 @@ static int p0_polar_relation(Brain *b, const char *norm, char *out, size_t out_s
             }
         }
     }
+    {
+        /* gen507/48 (forma #1) — UNA RELAZIONE CHE VALE DI SE' STESSA.
+         * «X e' grande almeno quanto X» e' vero senza che nessuno lo dica, ma
+         * solo per certe relazioni: «X e' piu' grande di X» e' falso. Quale sia
+         * riflessiva e' conoscenza, e senza dirlo parrot0 rispondeva «non so» a
+         * una domanda la cui risposta e' nella forma stessa della relazione. */
+        const char *rq9[1] = { rel };
+        if (!strcmp(subj, obj) && kb_query(b->kb, "reflexive_relation", rq9, 1)) {
+            put("Yes.", out, out_size); return 1;
+        }
+    }
     if (p0_relation_inverse(b, rel, subj, obj)) {
         put("Yes.", out, out_size); return 1;
     }

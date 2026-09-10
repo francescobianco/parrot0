@@ -1538,6 +1538,20 @@ turn_form_mood(teach_excludes, statement).
 turn_form_act(teach_excludes, assert_relation).
 turn_form_reply(teach_excludes, learned_exclusion_rel).
 
+% ══ gen507/48 (forma #1) — UNA RELAZIONE CHE VALE DI SE' STESSA ═══════════
+% «X e' grande almeno quanto X» e' vero senza che nessuno lo dica; «X e' piu'
+% grande di X» no. Quale relazione sia riflessiva e' conoscenza.
+machinery(reflexive_relation).
+response_template(learned_reflexive, "Held: everything {subject} itself.").
+response_template(learned_reflexive, it, "Tengo: ogni cosa {subject} se stessa.").
+
+turn_form(teach_reflexive, 1, slot(subject)).
+turn_form(teach_reflexive, 2, text("holds of itself")).
+turn_form(teach_reflexive, 3, bind(class, reflexive_relation)).
+turn_form_mood(teach_reflexive, statement).
+turn_form_act(teach_reflexive, assert_unary).
+turn_form_reply(teach_reflexive, learned_reflexive).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).
