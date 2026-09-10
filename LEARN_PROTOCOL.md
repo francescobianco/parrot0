@@ -583,6 +583,9 @@ insegnano un fatto né una proprietà, ma un **legame fra due predicati**.*
 | `V holds where W holds except where Z` | l'**eccezione detta insieme alla regola**, invece di una regola falsa che qualcuno correggerà poi (gen507/83) |
 | `in <contesto> X V Y` | un **fatto sospeso**: vale quando quel contesto è attivo, e tace altrimenti (gen507/85) |
 | `assume <contesto>` · `stop assuming <contesto>` | **entrare e uscire da un mondo**: senza, i fatti sospesi restano sospesi per sempre (gen507/85) |
+| `what holds between X and Y?` | tutte le relazioni che valgono fra **due** cose date: il gemello a due argomenti (gen507/86) |
+| `V links a <classe> to a <classe>` | la **firma** di una relazione — dove ha senso (gen507/86) |
+| `V is W twice` | la composizione di una relazione con **sé stessa**, detta in breve: è il caso più frequente, e scriverla due volte è ciò che fa sbagliare (gen507/86) |
 | `what can you say about X?` | tutte le relazioni in cui X compare — il predicato variabile usato per **guardarsi intorno** invece che per rispondere (gen507/85) |
 | `tell me about the relation V` | la **scheda** di una relazione: tutto ciò che è stato dichiarato *su* di lei — proprietà, ponti, definizioni (gen507/84) |
 | `what relations do you know?` | l'elenco delle relazioni (gen507/84) |

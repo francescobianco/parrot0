@@ -2300,6 +2300,44 @@ turn_form(ask_about, 2, slot(subject)).
 turn_form_act(ask_about, "op(match, about, [subject, free, free])").
 turn_form_reply(ask_about, about_list).
 
+% (superficie superiore #14) — che cosa lega due cose.
+response_template(between_list, "Between {subject} and {object} I hold {count}: {result}.").
+response_template(between_list, it, "Fra {subject} e {object} tengo {count}: {result}.").
+
+turn_form(ask_between, 1, text("what holds between")).
+turn_form(ask_between, 2, slot(subject)).
+turn_form(ask_between, 3, text("and")).
+turn_form(ask_between, 4, rest(object)).
+turn_form_act(ask_between, "op(match, between_rel, [subject, object, free])").
+turn_form_reply(ask_between, between_list).
+
+% (superficie superiore #15) — la FIRMA di una relazione: dove ha senso.
+response_template(learned_signature, "Held: {subject} goes from a {order} to a {object}.").
+response_template(learned_signature, it, "Tengo: {subject} va da un {order} a un {object}.").
+
+turn_form(teach_signature, 1, slot(subject)).
+turn_form(teach_signature, 2, text("links a")).
+turn_form(teach_signature, 3, slot(order)).
+turn_form(teach_signature, 4, text("to a")).
+turn_form(teach_signature, 5, rest(object)).
+turn_form_mood(teach_signature, statement).
+turn_form_act(teach_signature, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_signature, "op(assert, relation_signature, [subject, order, object])").
+turn_form_reply(teach_signature, learned_signature).
+
+% (superficie superiore #16) — la composizione con se' stessa, detta in breve.
+response_template(learned_twice, "Held: {subject} is {object} applied twice.").
+response_template(learned_twice, it, "Tengo: {subject} è {object} applicato due volte.").
+
+turn_form(teach_twice, 1, slot(subject)).
+turn_form(teach_twice, 2, text("is")).
+turn_form(teach_twice, 3, slot(object)).
+turn_form(teach_twice, 4, text("twice")).
+turn_form_mood(teach_twice, statement).
+turn_form_act(teach_twice, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_twice, "op(assert, relation_twice, [subject, object])").
+turn_form_reply(teach_twice, learned_twice).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

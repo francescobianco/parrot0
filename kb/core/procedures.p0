@@ -1787,3 +1787,26 @@ holds($V, $X, $Y) :-
 %     precisa. E' la differenza fra sapere e sapere di sapere.
 machinery(about).
 about($X, $V, $Y) :- relation_verb($V), apply($V, cons($X, cons($Y, nil))).
+
+% (o) CHE COSA LEGA DUE COSE. `between(X, Y, V)` enumera le relazioni che valgono
+%     fra due cose date: il gemello a due argomenti di `about/3`. E' la domanda
+%     che si fa guardando due nomi e chiedendosi che rapporto ci sia.
+machinery(between_rel).
+between_rel($X, $Y, $V) :- relation_verb($V), apply($V, cons($X, cons($Y, nil))).
+
+% (p) LA FIRMA DI UNA RELAZIONE: da quale classe parte e a quale arriva.
+%     Dichiararla non serve solo a documentare — dice DOVE una relazione ha
+%     senso, ed e' cio' che permettera' di rifiutare un fatto assurdo invece di
+%     tenerlo. Per ora entra nella scheda.
+machinery(relation_signature).
+relation_note($V, $Note) :-
+    relation_signature($V, $From, $To),
+    concat_atoms("goes from ", $From, $Half),
+    concat_atoms($Half, " to ", $Half2),
+    concat_atoms($Half2, $To, $Note).
+
+% (q) LA COMPOSIZIONE DI UNA RELAZIONE CON SE' STESSA, detta in breve: «nonno e'
+%     genitore due volte». E' il caso piu' frequente della composizione, e
+%     scriverlo due volte e' cio' che fa sbagliare.
+relation_chain($V, $W, $W) :- relation_twice($V, $W).
+machinery(relation_twice).
