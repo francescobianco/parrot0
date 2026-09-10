@@ -2208,6 +2208,36 @@ turn_form_act(teach_rel_or, "op(assert, relation_verb, [subject])").
 turn_form_act(teach_rel_or, "op(assert, relation_or, [subject, object])").
 turn_form_reply(teach_rel_or, learned_rel_or).
 
+% (superficie superiore #7) — LA COMPOSIZIONE. «nonno» e' «genitore» seguito da
+% «genitore»: due relazioni note ne definiscono una terza che nessuno popola.
+response_template(learned_rel_chain, "Held: {subject} is {order} followed by {object}.").
+response_template(learned_rel_chain, it, "Tengo: {subject} è {order} seguito da {object}.").
+
+turn_form(teach_rel_chain, 1, slot(subject)).
+turn_form(teach_rel_chain, 2, text("is")).
+turn_form(teach_rel_chain, 3, slot(order)).
+turn_form(teach_rel_chain, 4, text("followed by")).
+turn_form(teach_rel_chain, 5, rest(object)).
+turn_form_mood(teach_rel_chain, statement).
+turn_form_act(teach_rel_chain, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_rel_chain, "op(assert, relation_chain, [subject, order, object])").
+turn_form_reply(teach_rel_chain, learned_rel_chain).
+
+% (superficie superiore #8) — L'ECCEZIONE DETTA INSIEME ALLA REGOLA, invece di
+% una regola falsa che qualcuno correggera' poi.
+response_template(learned_rel_unless, "Held: {subject} holds where {order} holds, except where {object} does.").
+response_template(learned_rel_unless, it, "Tengo: {subject} vale dove vale {order}, tranne dove vale {object}.").
+
+turn_form(teach_rel_unless, 1, slot(subject)).
+turn_form(teach_rel_unless, 2, text("holds where")).
+turn_form(teach_rel_unless, 3, slot(order)).
+turn_form(teach_rel_unless, 4, text("holds except where")).
+turn_form(teach_rel_unless, 5, rest(object)).
+turn_form_mood(teach_rel_unless, statement).
+turn_form_act(teach_rel_unless, "op(assert, relation_verb, [subject])").
+turn_form_act(teach_rel_unless, "op(assert, relation_unless, [subject, order, object])").
+turn_form_reply(teach_rel_unless, learned_rel_unless).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).

@@ -500,6 +500,8 @@ lo chiede, con `holds(Relazione, X, Y)`.*
 | `for a <classe> V counts as W` | il ponte **stretto di un grado**: vale solo quando il soggetto è di quella classe — «dirige» vale come «guida» per una persona, non per un fiume (gen507/81) |
 | `whoever V is a <classe>` | una **classe definita da una regola** invece che elencata: «chi cresce qualcuno è un tutore» dice che cos'è un tutore *prima* che se ne conosca uno (gen507/82) |
 | `V holds where both W and Z` | una **relazione definita da due**: insegnare una *regola*, non un fatto — il mantra #19 applicato alle relazioni (gen507/82) |
+| `V is W followed by Z` | la **composizione**: «nonno» è «genitore» seguito da «genitore». Due relazioni note ne definiscono una terza che nessuno popola (gen507/83) |
+| `V holds where W holds except where Z` | l'**eccezione detta insieme alla regola**, invece di una regola falsa che qualcuno correggerà poi (gen507/83) |
 | `V holds wherever W` | la disgiunzione: `V` vale ovunque valga `W` (gen507/82) |
 | `V behaves like W` | `V` eredita la **scheda** di `W` — transitiva, simmetrica, riflessiva, funzionale — senza che nessuno la ripeta: il predicato variabile applicato alle *proprietà* invece che ai fatti (gen507/81) |
 

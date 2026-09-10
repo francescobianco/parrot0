@@ -1729,3 +1729,22 @@ holds($V, $X, $Y) :-
 % (g) E la disgiunzione: V vale dove ne vale almeno una.
 machinery(relation_or).
 holds($V, $X, $Y) :- relation_or($V, $W), apply($W, cons($X, cons($Y, nil))).
+
+% (h) LA COMPOSIZIONE DI DUE RELAZIONI. `relation_chain(V, W, Z)` dice che V e'
+%     W seguita da Z: «nonno» e' «genitore» seguito da «genitore». E' la mossa
+%     che genera relazioni NUOVE invece di collegare quelle che ci sono — con
+%     due relazioni note se ne definisce una terza che nessuno ha mai popolato.
+machinery(relation_chain).
+holds($V, $X, $Z) :-
+    relation_chain($V, $W, $Z2),
+    apply($W, cons($X, cons($Y, nil))),
+    apply($Z2, cons($Y, cons($Z, nil))).
+
+% (i) L'ECCEZIONE DICHIARATA. `relation_unless(V, W, Z)`: V vale dove vale W
+%     tranne dove vale Z. Una regola con la sua eccezione detta insieme, invece
+%     di una regola falsa che qualcuno correggera' poi.
+machinery(relation_unless).
+holds($V, $X, $Y) :-
+    relation_unless($V, $W, $Z),
+    apply($W, cons($X, cons($Y, nil))),
+    naf(apply($Z, cons($X, cons($Y, nil)))).
