@@ -1805,6 +1805,9 @@ purpose_of(bridge, "crossing a gap on foot or on wheels").
 purpose_of(dam, "holding water back and storing it").
 purpose_of(sail, "turning wind into forward motion").
 purpose_of(anchor, "keeping a boat where you put it").
+purpose_of(metronome, "keep time").
+purpose_of(barometer, "measure air pressure").
+purpose_of(sextant, "measure angles at sea").
 made_of(raft, logs).
 has_part(raft, rope).
 has_part(raft, paddle).

@@ -62,6 +62,7 @@ utterance(5, user, "radar is short for radio detection and ranging").
 utterance(5, user, "chrysalis comes before butterfly").
 utterance(5, user, "beriberi is caused by thiamine_deficiency").
 utterance(5, user, "ginzburg wrote lessico_famigliare").
+utterance(5, user, "gaborone is the capital of botswana").
 utterance(6, self, "Inductance.").
 utterance(7, user, "the ampere measures current").
 utterance(8, self, "Learned: measures(ampere, current).").
@@ -103,6 +104,7 @@ utterance(6, self, "Held: «radar» is short for «radio_detection_and_ranging»
 utterance(6, self, "Tengo: chrysalis viene prima di butterfly — e la catena si percorre.").
 utterance(6, self, "Held: thiamine_deficiency causes beriberi.").
 utterance(6, self, "Tengo: ginzburg ha scritto lessico_famigliare.").
+utterance(6, self, "Held: the capital of botswana is gaborone.").
 utterance(6, self, "limits current -- dissipates energy as heat.").
 utterance(9, user, "what is a thought experiment?").
 utterance(10, self, "I don't know much about thought experiment yet. Want me to look it up?").
@@ -556,6 +558,7 @@ utterance(7, user, "scuba is short for self contained underwater breathing appar
 utterance(7, user, "seed comes before seedling").
 utterance(7, user, "pellagra is caused by niacin_deficiency").
 utterance(7, user, "nepal borders india").
+utterance(7, user, "asuncion is the capital of paraguay").
 utterance(23, user, "is magnetite an iron ore mineral?").
 utterance(7, user, "what does a capacitor store?").
 utterance(25, user, "is quartz an iron oxide mineral?").
@@ -740,6 +743,21 @@ utterance(25, user, "ts is the symbol for tennessine").
 utterance(26, self, "Ts.").
 utterance(27, user, "nh is the symbol for nihonium").
 utterance(28, self, "Nh.").
+utterance(8, self, "Held: the capital of paraguay is asuncion.").
+utterance(9, user, "crow goes caw").
+utterance(10, self, "Held: a crow goes «caw».").
+utterance(11, user, "donkey goes bray").
+utterance(12, self, "Held: a donkey goes «bray».").
+utterance(13, user, "goose goes honk").
+utterance(14, self, "Held: a goose goes «honk».").
+utterance(15, user, "lynx goes yowl").
+utterance(16, self, "Held: a lynx goes «yowl».").
+utterance(17, user, "sextant is there to measure angles at sea").
+utterance(18, self, "Held: sextant is for measure_angles_at_sea.").
+utterance(19, user, "barometer is there to measure air pressure").
+utterance(20, self, "Held: barometer is for measure_air_pressure.").
+utterance(21, user, "metronome is there to keep tempo").
+utterance(22, self, "Held: metronome is for keep_time.").
 utterance(42, self, "Directly: bornite is a copper sulfide mineral — no reasoning needed.").
 utterance(30, self, "Yes.").
 utterance(8, self, "I don't understand that yet.").
@@ -1028,6 +1046,7 @@ utterance(2, self, "Held: «crispr» is short for «clustered_regularly_interspa
 utterance(2, self, "Tengo: uovo viene prima di caterpillar — e la catena si percorre.").
 utterance(2, self, "Held: vitamin_c_deficiency causes scurvy.").
 utterance(2, self, "Tengo: calvino ha scritto cosmicomiche.").
+utterance(2, self, "Held: the capital of bhutan is thimphu.").
 utterance(1, user, "the watt measures power").
 utterance(1, user, "the ohm measures what?").
 utterance(1, user, "what structure does a research article use?").
@@ -1068,6 +1087,7 @@ utterance(1, user, "crispr is short for clustered regularly interspaced short pa
 utterance(1, user, "egg comes before caterpillar").
 utterance(1, user, "scurvy is caused by vitamin_c_deficiency").
 utterance(1, user, "calvino wrote cosmicomiche").
+utterance(1, user, "thimphu is the capital of bhutan").
 utterance(82, self, "Electrical resistance.").
 utterance(4, self, "I don't know much about imrad yet. Want me to look it up?").
 utterance(4, self, "Learned: minimizes(gradient_descent, loss_function).").
@@ -1102,6 +1122,7 @@ utterance(4, self, "Held: «laser» is short for «light_amplification_by_stimul
 utterance(4, self, "Tengo: caterpillar viene prima di chrysalis — e la catena si percorre.").
 utterance(4, self, "Held: vitamin_d_deficiency causes rickets.").
 utterance(4, self, "Tengo: morante ha scritto la_storia.").
+utterance(4, self, "Held: the capital of laos is vientiane.").
 utterance(4, self, "Power.").
 utterance(4, self, "Current.").
 utterance(3, user, "what is IMRAD?").
@@ -1137,6 +1158,7 @@ utterance(3, user, "laser is short for light amplification by stimulated emissio
 utterance(3, user, "caterpillar comes before chrysalis").
 utterance(3, user, "rickets is caused by vitamin_d_deficiency").
 utterance(3, user, "morante wrote la_storia").
+utterance(3, user, "vientiane is the capital of laos").
 utterance(3, user, "the watt measures what?").
 utterance(3, user, "the ampere measures what?").
 utterance(83, user, "the ohm measures what?").

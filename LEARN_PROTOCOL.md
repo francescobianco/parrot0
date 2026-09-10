@@ -400,6 +400,10 @@ classe intera invece di un membro.*
 | `ogni Y è P` | una REGOLA che il risolutore concatena — non un fatto |
 | `ogni Y ha Z` | un fatto sulla SPECIE; i membri lo ereditano (gen507/15) |
 | `nessun A è un B` | esclusione fra classi: chiude il mondo su entrambe |
+| `X is the capital of Y` | la **capitale** di un paese (gen507/78) |
+| `X goes <verso>` | il **verso** di un animale (gen507/78) |
+| `X lies in the continent Y` | il **continente** di un paese (gen507/78) |
+| `X is there to <scopo>` | lo **scopo**, seconda superficie accanto a «X is used for Y» (gen507/78) |
 | `X wrote Y` | l'**autore** di un'opera (gen507/77) |
 | `X borders Y` | il **confine**, asserito nei due versi perché confinare è reciproco (gen507/77) |
 | `X pays in Y` | la **valuta** di un paese (gen507/77) |

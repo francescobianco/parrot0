@@ -221,6 +221,9 @@ sound_of(owl, hoot).
 sound_of(horse, neigh).
 sound_of(donkey, bray).
 sound_of(sheep, bleat).
+sound_of(lynx, yowl).
+sound_of(goose, honk).
+sound_of(crow, caw).
 eats(panda, bamboo).
 eats(koala, eucalyptus).
 eats(giraffe, leaves).

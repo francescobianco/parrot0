@@ -2037,6 +2037,46 @@ turn_form_mood(teach_symbol, statement).
 turn_form_act(teach_symbol, "op(assert, chemical_symbol, [object, subject])").
 turn_form_reply(teach_symbol, learned_symbol).
 
+% ══ gen507/78 — LE ULTIME QUATTRO PORTE DI QUESTO LOTTO ═══════════════════
+% Stessa diagnosi delle quattro precedenti: relazioni popolate a mano, risposte
+% che funzionano, e nessun modo di aggiungere una riga parlando.
+response_template(learned_capital, "Held: the capital of {subject} is {object}.").
+response_template(learned_capital, it, "Tengo: la capitale di {subject} è {object}.").
+response_template(learned_sound, "Held: a {subject} goes «{object}».").
+response_template(learned_sound, it, "Tengo: un {subject} fa «{object}».").
+response_template(learned_continent, "Held: {subject} is in {object}.").
+response_template(learned_continent, it, "Tengo: {subject} è in {object}.").
+response_template(learned_purpose2, "Held: {subject} is for {object}.").
+response_template(learned_purpose2, it, "Tengo: {subject} serve a {object}.").
+
+turn_form(teach_capital, 1, slot(object)).
+turn_form(teach_capital, 2, text("is the capital of")).
+turn_form(teach_capital, 3, rest(subject)).
+turn_form_mood(teach_capital, statement).
+turn_form_act(teach_capital, "op(assert, capital_of_country, [subject, object])").
+turn_form_reply(teach_capital, learned_capital).
+
+turn_form(teach_sound, 1, slot(subject)).
+turn_form(teach_sound, 2, text("goes")).
+turn_form(teach_sound, 3, rest(object)).
+turn_form_mood(teach_sound, statement).
+turn_form_act(teach_sound, "op(assert, sound_of, [subject, object])").
+turn_form_reply(teach_sound, learned_sound).
+
+turn_form(teach_continent, 1, slot(subject)).
+turn_form(teach_continent, 2, text("lies in the continent")).
+turn_form(teach_continent, 3, rest(object)).
+turn_form_mood(teach_continent, statement).
+turn_form_act(teach_continent, "op(assert, continent_of, [subject, object])").
+turn_form_reply(teach_continent, learned_continent).
+
+turn_form(teach_purpose2, 1, slot(subject)).
+turn_form(teach_purpose2, 2, text("is there to")).
+turn_form(teach_purpose2, 3, rest(object)).
+turn_form_mood(teach_purpose2, statement).
+turn_form_act(teach_purpose2, "op(assert, purpose_of, [subject, object])").
+turn_form_reply(teach_purpose2, learned_purpose2).
+
 turn_form(teach_plan, 1, text("when")).
 turn_form(teach_plan, 2, named(situation_cue, situation)).
 turn_form(teach_plan, 3, text("then")).
